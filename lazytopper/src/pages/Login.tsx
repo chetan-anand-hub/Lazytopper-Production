@@ -634,6 +634,24 @@ const LOGIN_CSS = `
     line-height: 1.4;
   }
 
+  /* The name prompt's notice INTRODUCES the field under it, so it has to carry
+     the gap the form normally gets from the .lt-field-label + .lt-field
+     margin-bottom. Plain .lt-login-note has no bottom margin and
+     .lt-field-label has no top margin, so "Your name" rendered butted straight
+     against the notice's last line — no breathing room at all, while every
+     other label on the form had 12px. Found by the 390px screenshot; every
+     assertion in the suite passed with it broken.
+
+     Scoped to its own class rather than widening .lt-login-note, which the
+     phone step also uses and whose rhythm is correct as it stands.
+
+     ⚠ NO BACKTICKS IN THIS BLOCK. The whole stylesheet is a template literal,
+     so a backtick in a CSS comment ends the string — it took the dev server
+     down with a Babel parse error the moment it was introduced. */
+  .lt-login-note.lt-login-name-note {
+    margin: 4px 0 14px;
+  }
+
   .lt-continue {
     width: 100%;
     margin-top: 16px;
@@ -1214,6 +1232,25 @@ const AMBIGUOUS_SIGN_IN_CODES = new Set([
  */
 const WRONG_PASSWORD_MESSAGE = "That password doesn't match. Try again, or reset it.";
 
+/**
+ * Shown when the signin door reaches the ambiguous branch without a name.
+ *
+ * ⚠ EVERY CLAUSE IS TRUE IN BOTH WORLDS, and that is the requirement. Sign-in
+ * really did fail whether the account exists or not; "if you're new" is a
+ * CONDITION, not a finding. Nothing here asserts that the address is
+ * unregistered, so it cannot be used to probe one — contrast the superseded
+ * "No account found — create one?" step, which stated non-existence outright
+ * and is pinned dead by Login.oneDoor.test.tsx.
+ *
+ * It is rendered as `role="status"`, not `role="alert"`: for a genuinely new
+ * student this is a step forward, not a failure, and AUTH-3's "created without
+ * ever being shown an error" property is preserved by keeping it out of the
+ * alert channel.
+ */
+const NAME_REQUEST_NOTICE =
+  "We couldn't sign you in with that password. If you're new here, add your name and " +
+  "we'll create your account — otherwise correct your password and continue.";
+
 function describeAuthError(err: unknown): string {
   const code = authErrorCode(err);
   switch (code) {
@@ -1310,16 +1347,24 @@ type DoorStep = "choose" | "email" | "phone" | "verify";
 export type AuthDoorProps = {
   /**
    * Which door the student came through. Both render the same three methods —
-   * the intent only changes the framing copy and, for email, whether the form
-   * COLLECTS A NAME.
+   * the intent only changes the framing copy and WHEN the email form collects
+   * a name: `"create"` asks up front, `"signin"` asks only at the moment the
+   * flow is about to create (see `nameRequested`).
    *
    * ⚠ `intent="create"` keeps the required name field, and that is not
    * cosmetic. `signUpWithEmailPassword` is the ONLY `updateProfile` call in
-   * product code, so this form is the only place a `displayName` is ever
-   * captured — `FirstSession` deliberately does not ask (it would need a
+   * product code, so this form is one of only two places a `displayName` is
+   * ever captured — `FirstSession` deliberately does not ask (it would need a
    * context key). Dropping it here would silently re-open the defect PR-B2
    * closed: every new account rendering its raw email address as the student's
    * name across the shell. See [FU-AUTH-NAME-PROMPT].
+   *
+   * ⚠ AND `intent="create"` IS UNREACHABLE FROM THE PRODUCT. Its only route is
+   * `/sign-up`, and NAME-1 found zero links to it in `src/` against nine to
+   * `/login` — App.tsx's two `<Route>` lines are the only references that
+   * exist. So this prop's create branch fixes nothing on its own: every real
+   * student arrives through `intent="signin"`. That is why the signin door now
+   * captures a name of its own rather than relying on this one.
    */
   intent: "signin" | "create";
   /**
@@ -1398,6 +1443,32 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [offerReset, setOfferReset] = useState(false);
+
+  /**
+   * Set when the signin door's try-then-create has reached the AMBIGUOUS branch
+   * with no name in hand — the one moment it is about to create an account.
+   *
+   * ⚠ THIS IS THE WHOLE FIX, AND ITS PLACEMENT IS FORCED. The name has to be
+   * held BEFORE `signUpWithEmailPassword` runs, because that call is the only
+   * `updateProfile` in product code: once it has returned there is no second
+   * writer to backfill a name with, and adding one would mean a new AuthContext
+   * key. So "ask after we learn they are new" is not implementable here — the
+   * moment we learn it IS the moment we have already committed. Asking on the
+   * ambiguous branch is one step earlier and the last point that still works.
+   *
+   * ⚠ IT DISCLOSES NOTHING. The branch is entered on AMBIGUOUS_SIGN_IN_CODES,
+   * which by construction cannot separate "wrong password on a live account"
+   * from "no such account" — Email Enumeration Protection is what collapses
+   * them. A student who mistyped their password sees byte-identical UI to a
+   * student who is genuinely new, so the prompt is not an existence oracle.
+   * This is NOT the banned "no account found — create one?" step: that one
+   * asserted non-existence, this one states the ambiguity honestly.
+   *
+   * Deliberately NOT reset by `goToStep`: once the door has asked, the field
+   * stays visible for the rest of the visit, so what is on screen always
+   * matches what a submit would send.
+   */
+  const [nameRequested, setNameRequested] = useState(false);
 
   // Set once the verify gate reports success. Without it the `user` effect,
   // which still sees a context user carrying the STALE `emailVerified: false`
@@ -1524,11 +1595,36 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       }
     }
 
+    // ⚠ THE NAME GATE — the last point before the commitment.
+    //
+    // Reaching here means the next call MAY create an account, and a created
+    // account's name can never be set afterwards from this page (see
+    // `nameRequested`). So if we have no name, stop and ask for one instead of
+    // creating a nameless account — which is precisely the defect that shipped:
+    // every student enters through `intent="signin"` because nothing links to
+    // `/sign-up`, so this line created every account in the product with a null
+    // displayName and the shell fell back to rendering their raw email address.
+    //
+    // A REQUIRED field, not an optional one, for the reason the create door
+    // already records: an account created without a name cannot be backfilled
+    // without asking again, so an optional field would close the defect only
+    // for the students who happened to fill it in.
+    //
+    // A returning student is NEVER held here — they never reach this line,
+    // because `signInWithEmailPassword` above succeeded and returned. The only
+    // people who see the prompt are those whose credentials did not match, and
+    // they see it identically whether or not the address is registered.
+    if (!trimmedName) {
+      setNameRequested(true);
+      setBusy(false);
+      return;
+    }
+
     try {
       // ⚠ COMMITMENT, NOT A PROBE. If no account exists this CREATES one — there
       // is no dry run, and asking "create one?" first would disclose
       // non-existence. The verify gate is what catches the typo.
-      await signUpWithEmailPassword(trimmedEmail, password);
+      await signUpWithEmailPassword(trimmedEmail, password, trimmedName);
       // Created. The `user` effect routes to the verification gate.
     } catch (createErr) {
       if (authErrorCode(createErr) === "auth/email-already-in-use") {
@@ -1991,6 +2087,42 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                         onChange={(e) => setPassword(e.target.value)}
                       />
                     </div>
+
+                    {/*
+                      The signin door's name capture. Rendered BELOW the password
+                      because that is where the student's attention already is
+                      when it appears — the create door keeps its field at the
+                      top, where it is the first thing asked.
+
+                      Mutually exclusive with that block (`isCreate` is fixed for
+                      the life of the mount), so the shared id can never appear
+                      twice.
+                    */}
+                    {!isCreate && nameRequested ? (
+                      <>
+                        <p
+                          className="lt-login-note lt-login-name-note"
+                          role="status"
+                          data-testid="lt-name-request"
+                        >
+                          {NAME_REQUEST_NOTICE}
+                        </p>
+                        <label className="lt-field-label" htmlFor="lt-login-name">
+                          Your name
+                        </label>
+                        <div className="lt-field">
+                          <input
+                            id="lt-login-name"
+                            type="text"
+                            autoComplete="name"
+                            placeholder="Ananya Sharma"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                          />
+                        </div>
+                      </>
+                    ) : null}
+
                     {error ? (
                       <p className="lt-login-error" role="alert">
                         {error}

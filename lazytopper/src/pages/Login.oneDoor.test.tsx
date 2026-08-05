@@ -198,15 +198,34 @@ describe("the door — three equal methods, no tabs", () => {
 // ---------------------------------------------------------------------------
 
 describe("the email flow — try, then create", () => {
-  it("a NEW student is created and never shown an error", async () => {
+  it("a NEW student is asked for a name, created WITH it, and never shown an ERROR", async () => {
     renderDoor();
     signInWithEmailPassword.mockRejectedValue(authError("auth/invalid-credential"));
 
-    await submitEmail("new@example.com", "hunter2secret");
+    const u = await submitEmail("new@example.com", "hunter2secret");
+
+    // ⚠ REWRITTEN BY NAME-1, and the old assertion is worth recording: it was
+    //     expect(signUpWithEmailPassword).toHaveBeenCalledWith(email, password)
+    // — a TWO-argument create, pinning the defect rather than catching it.
+    // Nothing in `src/` links to `/sign-up` (nine links go to `/login`), so the
+    // create door's name field was unreachable and this line created EVERY
+    // account in the product with a null displayName. The shell then fell back
+    // to the raw email address wherever the student's name belongs.
+    //
+    // The ambiguous branch now stops for a name before it commits.
+    expect(signUpWithEmailPassword).not.toHaveBeenCalled();
+
+    await u.type(await screen.findByLabelText("Your name"), "Ananya Sharma");
+    await u.click(screen.getByRole("button", { name: /^Continue as/ }));
 
     await waitFor(() => expect(signUpWithEmailPassword).toHaveBeenCalled());
-    expect(signUpWithEmailPassword).toHaveBeenCalledWith("new@example.com", "hunter2secret");
-    // The whole point: no "we couldn't sign you in" on the way to being created.
+    expect(signUpWithEmailPassword).toHaveBeenCalledWith(
+      "new@example.com",
+      "hunter2secret",
+      "Ananya Sharma",
+    );
+    // Still the whole point: no "we couldn't sign you in" ERROR on the way to
+    // being created. The name prompt is `role="status"`, deliberately.
     expect(screen.queryByRole("alert")).toBeNull();
   });
 
@@ -227,7 +246,23 @@ describe("the email flow — try, then create", () => {
     signInWithEmailPassword.mockRejectedValue(authError("auth/invalid-credential"));
     signUpWithEmailPassword.mockRejectedValue(authError("auth/email-already-in-use"));
 
-    await submitEmail("known@example.com", "wrongpassword");
+    const u = await submitEmail("known@example.com", "wrongpassword");
+
+    // ⚠ A COST NAME-1 ACCEPTED, RECORDED HERE RATHER THAN HIDDEN. This message
+    // used to arrive on the FIRST submit. It cannot any more: the only way to
+    // learn that the account exists is the `email-already-in-use` rejection
+    // from the create call, and the create call may no longer run without a
+    // name (it would create a nameless account for a student who is new).
+    //
+    // The two orderings are mutually exclusive and each costs something:
+    //   create-first — this message lands immediately, but every new account
+    //                  is created without a name. That is what shipped.
+    //   name-first   — every new account gets a name; this message lands one
+    //                  submit later.
+    // The permanent "Forgot password?" link is on the form throughout, so a
+    // returning student is never without a route out.
+    await u.type(await screen.findByLabelText("Your name"), "Ananya Sharma");
+    await u.click(screen.getByRole("button", { name: /^Continue as/ }));
 
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent("That password doesn't match. Try again, or reset it.");
