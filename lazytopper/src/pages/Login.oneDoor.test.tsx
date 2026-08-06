@@ -37,7 +37,9 @@ const signInWithGoogle = vi.fn(async () => {});
 const sendPasswordReset = vi.fn(async (_email: string) => {});
 const initPhoneRecaptcha = vi.fn(async (_containerId: string) => {});
 const sendPhoneOtp = vi.fn(async (_phoneE164: string, _containerId: string) => {});
-const verifyPhoneOtp = vi.fn(async (_code: string) => {});
+// NAME-2 — typed to the real `(code, displayName?)` signature; the one-arg type
+// makes `mock.calls[0][1]` a TS2493 error under `tsconfig.test.json`.
+const verifyPhoneOtp = vi.fn(async (_code: string, _displayName?: string) => {});
 const logout = vi.fn(async () => {});
 
 /** Mutable so a test can mount the door already signed in. */
@@ -528,6 +530,9 @@ describe("phone OTP still works from the one door", () => {
     await u.click(screen.getByRole("button", { name: /Continue with phone/ }));
     await waitFor(() => expect(initPhoneRecaptcha).toHaveBeenCalledWith("lt-login-recaptcha"));
 
+    // NAME-2 — "I'm new here" pre-selects on the phone step too, so the create
+    // branch's name field is on screen and required before the OTP can be sent.
+    await u.type(screen.getByLabelText("Your name"), "Ananya Sharma");
     await u.type(screen.getByLabelText("Mobile number"), "9876543210");
     await u.click(screen.getByRole("button", { name: /Send OTP/ }));
 
@@ -537,7 +542,9 @@ describe("phone OTP still works from the one door", () => {
 
     await u.type(await screen.findByLabelText("Enter the 6-digit code"), "123456");
     await u.click(screen.getByRole("button", { name: /Verify & continue/ }));
-    await waitFor(() => expect(verifyPhoneOtp).toHaveBeenCalledWith("123456"));
+    await waitFor(() =>
+      expect(verifyPhoneOtp).toHaveBeenCalledWith("123456", "Ananya Sharma"),
+    );
   });
 
   it("keeps the reCAPTCHA host mounted while the student moves between steps", async () => {

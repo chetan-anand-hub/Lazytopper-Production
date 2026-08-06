@@ -1544,6 +1544,31 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
    */
   const [emailMode, setEmailMode] = useState<"new" | "returning">("new");
 
+  /**
+   * ★★ THE SAME SELF-DECLARATION, ON THE PHONE STEP — and phone needs it for a
+   * DIFFERENT reason than email did.
+   *
+   * Email needed it because Enumeration Protection hides whether an account
+   * exists. Phone never had that problem: OTP signs in and creates through one
+   * identical call. What phone had instead is that Firebase supplies NO
+   * `displayName` for a phone credential, and nothing in product code set one —
+   * so every phone-first student was created nameless and their raw number
+   * rendered wherever their name belonged, permanently.
+   * [FU-AUTH-PHONE-DISPLAYNAME-NEVER-SET]
+   *
+   * Asking is the only repair, and it can only be asked of a student who is
+   * NEW — which is a fact the phone flow, like the email flow, has no way to
+   * learn except from the student. Hence the same control, deliberately the
+   * same component and the same `.lt-login-seg` rules, so the two sub-screens
+   * cannot drift apart visually.
+   *
+   * ⚠ "new" PRE-SELECTS, matching the email step.
+   *
+   * ⚠ Still NOT tabs at the door. The three methods above remain equal and
+   * unclassified — AUTH-3's ruling is untouched; this lives one level in.
+   */
+  const [phoneMode, setPhoneMode] = useState<"new" | "returning">("new");
+
   // Set once the verify gate reports success. Without it the `user` effect,
   // which still sees a context user carrying the STALE `emailVerified: false`
   // (`reload()` mutates the Firebase user in place and re-emits nothing), would
@@ -1600,6 +1625,17 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
   const creatingAccount = isCreate || emailMode === "new";
 
   /**
+   * The phone twin of `creatingAccount`. One derived value read by the field
+   * set, the copy and the submit handler alike, so what the step shows and what
+   * it sends cannot drift.
+   *
+   * ⚠ Deliberately SEPARATE from `creatingAccount`. The two sub-screens are
+   * never on screen together, and fusing them would let a student who declared
+   * "returning" on email be silently treated as new after switching to phone.
+   */
+  const creatingPhoneAccount = isCreate || phoneMode === "new";
+
+  /**
    * Switching modes clears the error and the reset offer, because both describe
    * the OTHER branch's attempt. Leaving "that address is already registered"
    * on screen after the student has switched to signing in would be reporting a
@@ -1614,6 +1650,21 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     setError(null);
     setOfferReset(false);
     setEmailMode(next);
+  };
+
+  /**
+   * Phone twin of `switchEmailMode`. Clears the error only — the typed NUMBER
+   * is kept, exactly as the email step keeps the typed address, because the
+   * student re-submits the same number down the other branch and clearing it
+   * would punish the correction this control exists to make cheap.
+   *
+   * The typed NAME is kept too: switching to "returning" only stops it being
+   * sent, and a student who switches back should not have to type it twice.
+   */
+  const switchPhoneMode = (next: "new" | "returning") => {
+    if (busy) return;
+    setError(null);
+    setPhoneMode(next);
   };
 
   const goToStep = (next: DoorStep) => {
@@ -1779,6 +1830,14 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     if (busy) return;
     setError(null);
     if (phoneStep === "number") {
+      // REQUIRED on the create branch, not optional — the same one-way-door
+      // call the email step makes. An account created without a name cannot be
+      // backfilled from anywhere in the product, so an optional field would
+      // close this defect only for the students who happened to fill it in.
+      if (creatingPhoneAccount && !name.trim()) {
+        setError("Enter your name.");
+        return;
+      }
       if (phone.length !== 10) {
         setError("Enter your 10-digit mobile number.");
         return;
@@ -1801,7 +1860,15 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     }
     setBusy(true);
     try {
-      await verifyPhoneOtp(otp);
+      // ★ The name is typed on the NUMBER step and spent HERE, at confirm —
+      // the only moment a Firebase user exists to attach it to. It survives the
+      // number -> otp transition because nothing on that path clears it:
+      // `goToStep` resets `phoneStep`/`otp` but is not on this path at all, and
+      // `handleChangeNumber` deliberately leaves the name alone.
+      //
+      // Sent only on the create branch; the returning branch passes nothing, so
+      // there is no name to overwrite an existing one with.
+      await verifyPhoneOtp(otp, creatingPhoneAccount ? name.trim() : undefined);
       // Navigation is handled by the `user` effect once auth state updates.
     } catch (err) {
       setError(describeAuthError(err));
@@ -2314,10 +2381,90 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                   {phoneStep === "number" ? (
                     <>
                       <h2 className="lt-login-stephead">Continue with phone</h2>
+
+                      {/*
+                        ★★ Same control, same `.lt-login-seg` rules as the email
+                        step — DELIBERATELY not a second set of styles, so the
+                        two sub-screens cannot drift and the dark-theme pair is
+                        maintained in one place.
+
+                        `role="group"` with `aria-pressed`, NOT `role="tab"`:
+                        these do not switch between two panels of one form, they
+                        change what the form DOES. Login.oneDoor.test.tsx
+                        asserts zero elements with role="tab" and that holds
+                        with BOTH controls in the file.
+                      */}
+                      {!isCreate ? (
+                        <div
+                          className="lt-login-seg"
+                          role="group"
+                          aria-label="Do you already have an account?"
+                          data-testid="lt-phone-mode"
+                        >
+                          <button
+                            type="button"
+                            aria-pressed={phoneMode === "new"}
+                            onClick={() => switchPhoneMode("new")}
+                            disabled={busy}
+                          >
+                            I'm new here
+                          </button>
+                          <button
+                            type="button"
+                            aria-pressed={phoneMode === "returning"}
+                            onClick={() => switchPhoneMode("returning")}
+                            disabled={busy}
+                          >
+                            Already have an account
+                          </button>
+                        </div>
+                      ) : null}
+
+                      {/*
+                        ⚠ COPY CHANGE, and it is required rather than cosmetic.
+                        This read "New or returning — phone works the same either
+                        way. No password to remember." That stopped being true
+                        the moment the step started asking which one you are.
+
+                        Neither branch discloses whether an account exists: both
+                        strings describe what THIS submit will do, and the
+                        student chose the branch themselves.
+                      */}
                       <p className="lt-login-stepsub">
-                        New or returning — phone works the same either way. No password
-                        to remember.
+                        {creatingPhoneAccount
+                          ? "We'll create your account and start your 7-day trial. No password to remember."
+                          : "Welcome back — we'll text you a code. No password to remember."}
                       </p>
+
+                      {/*
+                        The name, on the create branch only, ABOVE the number —
+                        the same order the email step uses. This is the only
+                        moment a phone-first student can be asked: Firebase
+                        supplies no displayName for a phone credential, and
+                        nothing downstream backfills one.
+                      */}
+                      {creatingPhoneAccount ? (
+                        <>
+                          <label className="lt-field-label" htmlFor="lt-login-phone-name">
+                            Your name
+                          </label>
+                          <div className="lt-field">
+                            <input
+                              id="lt-login-phone-name"
+                              type="text"
+                              autoComplete="name"
+                              placeholder="What should we call you?"
+                              value={name}
+                              onChange={(e) => setName(e.target.value)}
+                            />
+                          </div>
+                          <p className="lt-login-note lt-login-note--between">
+                            This is what LazyTopper calls you on Progress and Mistake
+                            Intelligence.
+                          </p>
+                        </>
+                      ) : null}
+
                       <label className="lt-field-label" htmlFor="lt-login-phone">
                         Mobile number
                       </label>
