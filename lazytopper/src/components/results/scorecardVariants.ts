@@ -119,6 +119,95 @@ export interface ScorecardConceptLensRow {
   lost: number;
 }
 
+/* ── BATCH-2 · THE QUICK PRACTICE GRADED ANSWER SHEET ────────────────────────────
+ *
+ * Quick Practice is moving to BATCH grading: nothing grades per question, ONE call at
+ * Finish, and the student then sees a scorecard across the SET plus per-answer
+ * board-style depth — the same depth Check & Improve gives today.
+ *
+ * ★ THESE SHAPES ARE DATA ONLY AND EVERY FIELD ON `ScorecardVariant` IS OPTIONAL, so a
+ * variant that omits them renders byte-identically to today. Nothing here is wired: the
+ * trigger flip, the batched call and the MI feed are WIRE-2's, and until WIRE-2 lands
+ * NOTHING IN THE PRODUCT BUILDS ONE OF THESE. This is a dormant surface on purpose.
+ *
+ * ★★ HONEST-OR-SILENT IS STRUCTURAL HERE, NOT A CONVENTION. `awarded` / `available` are
+ * INDEPENDENTLY nullable and the shell renders the fraction ONLY when both are real
+ * numbers. There is no placeholder, no "—" standing in for a figure the grader did not
+ * return, and no way to express "we got nothing back" as a 0 (CLAUDE.md §5).
+ */
+
+/** The four Mistake-Intelligence kinds.
+ *
+ *  ★★ `silly` and `presentation` are CARELESS MARK-LOSS ONLY — a slip on the final line,
+ *  a missing unit, a step used but never stated. They may absolutely appear against an
+ *  answer; they must NEVER be presented as "you are weak at this topic". That distinction
+ *  is the product's moat, and it is why this is a typed field rather than free text: the
+ *  shell decides its framing from the KIND, not from the label a grader happened to emit. */
+export type ScorecardMistakeKind = "conceptual" | "calculation" | "silly" | "presentation";
+
+/** True for the two kinds that are carelessness rather than a knowledge gap. */
+export function isCarelessMistakeKind(kind: ScorecardMistakeKind | null | undefined): boolean {
+  return kind === "silly" || kind === "presentation";
+}
+
+/** One line of the set scorecard's MCQ/written split. `tone` is presentational only —
+ *  the shell picks a colour from it and invents no number of its own. */
+export interface ScorecardSplitRow {
+  /** Stable React key + the small leading chip ("Q5"). */
+  tag: string;
+  /** The whole line, pre-composed by the caller ("Chose (b) · answer is (d) · 0 / 1").
+   *  Composed upstream so this module never has to guess at a mark it was not given. */
+  detail: string;
+  tone: "good" | "miss" | "pending" | "diagnose";
+}
+
+/** The MCQ/written split. ★ The two headings are the prototype's, verbatim: MCQs are
+ *  scored locally and cost nothing, written working is what the batch call reads. */
+export interface ScorecardSplit {
+  /** Scored locally, free — never sent to the grader. */
+  markedNow: ScorecardSplitRow[];
+  /** Written working that went into the batch call. */
+  readyToGrade: ScorecardSplitRow[];
+  /** Honest note for questions with nothing saved. Null when every question was
+   *  answered — never a fabricated "0 unanswered" line. */
+  nothingSavedNote?: string | null;
+}
+
+/** One answer on the graded sheet — marks awarded over available, what the working
+ *  shows, where the mark went, and the mistake type. */
+export interface ScorecardGradedAnswer {
+  /** "Question 5" — also the row's stable key. */
+  label: string;
+  /** "MCQ · 1 mark" / "3 marks". Omitted → the head line is the label alone. */
+  descriptor?: string | null;
+  /** ★ BOTH must be numbers for the shell to render a fraction. Either one absent ⇒ no
+   *  mark is shown AT ALL. This is the only honest representation of "not graded". */
+  awarded?: number | null;
+  available?: number | null;
+  /** ★★ TRUE FOR AN OBJECTIVE QUESTION (MCQ / Assertion-Reason / Section A). CBSE does
+   *  not step-mark a 1-marker: the mark is WHOLE OR NOTHING whatever the working shows,
+   *  and the upload serves DIAGNOSIS ONLY. The builder enforces this — an objective
+   *  answer whose awarded mark is neither 0 nor the full available mark is a fractional
+   *  mark on a question that cannot have one, and it is rejected rather than rendered. */
+  objective?: boolean;
+  /** The one-line ruling under the head ("Whole mark or nothing — MCQs are never
+   *  step-marked."). Honest-or-silent: omitted when the grader said nothing. */
+  verdict?: string | null;
+  /** "What your working shows:" / "Where the mark went:" — the lead-in, then the detail. */
+  lostLabel?: string | null;
+  lostDetail?: string | null;
+  /** The chip ("Silly slip", "Calculation"). Rendered only when supplied. */
+  mistakeType?: string | null;
+  /** ★ The KIND behind the chip — drives the careless-vs-knowledge-gap framing. */
+  mistakeKind?: ScorecardMistakeKind | null;
+  /** ★ THE HONEST UNGRADED STATE. A question the batch could not grade says so, in the
+   *  student's words, and carries NO mark. Today's live reason is `typed-no-channel`:
+   *  `WorksheetGradeQuestionInput` has no `textAnswer` field, so a typed answer has no
+   *  channel to the batch grader at all ([FU-BATCH-TYPED-ANSWER-NO-CHANNEL]). `reason`
+   *  is a free string on purpose — a closed set here would forbid the next reason. */
+  ungraded?: { reason: string; title: string; detail: string } | null;
+}
+
 /**
  * The per-surface config the shell renders. Populated by the builders below. A
  * `deferred` variant is a legacy config-seam stub only — chapter-test / full-mock
@@ -154,6 +243,11 @@ export interface ScorecardVariant {
   chapterLensNote?: string | null;
   pending?: ScorecardPending | null;
   allPending?: ScorecardAllPending | null;
+  /** BATCH-2 · the set scorecard's MCQ/written split. Absent everywhere else. */
+  split?: ScorecardSplit | null;
+  /** BATCH-2 · the graded answer sheet — per-answer board-style depth, rendered
+   *  under the summary. Absent everywhere else. */
+  gradedAnswers?: ScorecardGradedAnswer[] | null;
   /** Optional footer heading for the stacked what-next menu (QP: "What next?"). */
   actionsHeading?: string;
   /** Render actions as a stacked what-next menu (QP) rather than the worksheet 2-up row. */
@@ -395,6 +489,153 @@ export function quickPracticeScorecardVariant(input: QuickPracticeVariantInput):
     stackActions: true,
     footnote:
       "MCQ results and answers you check are saved to your progress. Self-marked notes stay in this session.",
+    actions,
+  };
+}
+
+// ── BATCH-2 · the Quick Practice GRADED variant (the batch-grading results surface) ──
+
+export interface QuickPracticeGradedVariantInput {
+  /** The durable session subtitle the host formats (e.g. "Quick practice · just now"). */
+  subtitle?: string;
+  /** Marks earned, and marks available across the questions ACTUALLY graded. Both come
+   *  straight from the grade response; neither is derived or defaulted here. */
+  marksAwarded: number;
+  marksTotal: number;
+  /** How many of the set's questions came back graded, and how many there were. */
+  gradedCount: number;
+  totalQuestions: number;
+  /** The CBSE section breakdown — the SAME row shape the chapter-test lens uses, so the
+   *  shell's existing "By section" block renders it with no new markup. */
+  sectionLens?: ScorecardSectionLensRow[] | null;
+  /** The MCQ/written split rows. */
+  markedNow?: ScorecardSplitRow[];
+  readyToGrade?: ScorecardSplitRow[];
+  /** Question labels with nothing saved (e.g. ["Q4", "Q9"]). Empty ⇒ no note at all. */
+  nothingSaved?: string[];
+  /** The graded answer sheet. */
+  answers?: ScorecardGradedAnswer[];
+  /** Four-type, ONLY when the batch produced typed mistakes — else honest silence. */
+  fourType?: ScorecardFourType | null;
+  onKeepPracticing?: () => void;
+  onFreshSet?: () => void;
+  /** The way home from the tutor overlay — the SAME `returnTicketAction` machinery C&I
+   *  and the existing Quick Practice variant use. Omitted on a direct visit. */
+  returnTicket?: { label: string; onReturn: () => void };
+}
+
+/** Thrown when an OBJECTIVE answer carries a mark that a 1-marker cannot have.
+ *  ★ This is deliberately loud rather than silently clamped: a fractional mark on an
+ *  MCQ means the caller mapped a step-marked response onto an objective question, and
+ *  quietly rounding it would ship exactly the partial credit CBSE does not award. */
+export class ObjectiveMarkNotBinaryError extends Error {}
+
+/**
+ * Build the Quick Practice GRADED variant — the batch-grading results surface: a marks
+ * hero across the whole set, the section breakdown, the MCQ/written split, and the
+ * per-answer graded sheet.
+ *
+ * ★★ THE MCQ RULE IS ENFORCED HERE, NOT HOPED FOR. An answer marked `objective` must
+ * score 0 or its full available mark — CBSE never step-marks a 1-marker, and any working
+ * the student uploaded for one is read ONLY to classify the mistake type. So an objective
+ * answer keeps its mistake type AND its binary mark at the same time; that pairing is the
+ * whole point, and a fractional objective mark throws rather than renders.
+ *
+ * ★ Everything else is honest-or-silent: no section lens ⇒ no "By section" heading, no
+ * split rows ⇒ no split, no answers ⇒ no sheet, nothing unanswered ⇒ no note.
+ */
+export function quickPracticeGradedScorecardVariant(
+  input: QuickPracticeGradedVariantInput,
+): ScorecardVariant {
+  const {
+    subtitle = "Quick practice",
+    marksAwarded,
+    marksTotal,
+    gradedCount,
+    totalQuestions,
+    sectionLens,
+    markedNow = [],
+    readyToGrade = [],
+    nothingSaved = [],
+    answers = [],
+    fourType,
+    onKeepPracticing,
+    onFreshSet,
+    returnTicket,
+  } = input;
+
+  for (const a of answers) {
+    if (!a.objective) continue;
+    if (typeof a.awarded !== "number" || typeof a.available !== "number") continue;
+    if (a.awarded !== 0 && a.awarded !== a.available) {
+      throw new ObjectiveMarkNotBinaryError(
+        `${a.label}: an objective question scored ${a.awarded}/${a.available} — MCQs are whole mark or nothing.`,
+      );
+    }
+  }
+
+  const actions: ScorecardAction[] = [
+    // ★ TAG "Set", NOT "Back". A 390px screenshot showed this row and the return ticket
+    // BOTH tagged "Back" — two different destinations under one word, at the exact moment
+    // a student in the tutor overlay is looking for the way out. `returnTicketAction`
+    // owns "Back" (and #614's contract pins that it renders), so this row moves.
+    // ⚠ The SAME collision exists today in `quickPracticeScorecardVariant`'s overlay menu
+    // (`floorTags.keep === "Back"` plus the appended ticket). Deliberately NOT fixed here:
+    // that variant is live and its menu is guaranteed byte-identical for existing callers.
+    // [FU-QP-DOUBLE-BACK-TAG]
+    ...(onKeepPracticing
+      ? [{ label: "Keep practising this set", tag: "Set", tone: "primary", onClick: onKeepPracticing } as ScorecardAction]
+      : []),
+    ...(onFreshSet
+      ? [
+          {
+            label: "Build a fresh set",
+            tag: "New",
+            tone: onKeepPracticing ? "secondary" : "primary",
+            onClick: onFreshSet,
+          } as ScorecardAction,
+        ]
+      : []),
+    // The way home LAST, as the "Back"-tagged secondary row — the same placement and tone
+    // C&I and the existing Quick Practice menu use, so the session's own next step keeps
+    // the primary slot. Overlay-only; absent on a direct visit.
+    ...(returnTicket ? [returnTicketAction(returnTicket)] : []),
+  ];
+
+  const hasSplit = markedNow.length > 0 || readyToGrade.length > 0;
+
+  return {
+    surface: "quick-practice",
+    title: "Session scorecard",
+    subtitle,
+    score: {
+      kind: "marks",
+      awarded: marksAwarded,
+      total: marksTotal,
+      gradedCount,
+      totalQuestions,
+    },
+    // Honest-or-silent throughout: an absent input renders NOTHING, never a placeholder.
+    sectionLens: sectionLens && sectionLens.length > 0 ? sectionLens : null,
+    split: hasSplit
+      ? {
+          markedNow,
+          readyToGrade,
+          nothingSavedNote:
+            nothingSaved.length > 0
+              ? `${nothingSaved.join(" and ")} ${nothingSaved.length === 1 ? "has" : "have"} nothing saved — nothing has been scored 0.`
+              : null,
+        }
+      : null,
+    gradedAnswers: answers.length > 0 ? answers : null,
+    fourType:
+      fourType && (fourType.conceptual || fourType.calculation || fourType.silly || fourType.presentation)
+        ? fourType
+        : null,
+    pending: null,
+    allPending: null,
+    actionsHeading: "What next?",
+    stackActions: true,
     actions,
   };
 }

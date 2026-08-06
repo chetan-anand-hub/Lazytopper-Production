@@ -3,6 +3,10 @@ import type {
   ScorecardVariant,
   ScorecardScore,
   ScorecardFourType,
+  ScorecardGradedAnswer,
+  ScorecardMistakeKind,
+  ScorecardSplit,
+  ScorecardSplitRow,
 } from "./scorecardVariants";
 
 /**
@@ -151,6 +155,149 @@ function ChapterLensBlock({
   );
 }
 
+/**
+ * ★★ THE ONE CARELESS SENTENCE, DEFINED ONCE.
+ *
+ * `silly` and `presentation` are careless mark-loss — a slip on the final line, a missing
+ * unit, a step used but never stated. They are NEVER a topic weakness, and this component
+ * now says so in TWO places: the four-type block's careless column and the graded answer
+ * sheet. Duplicated copy drifts, and the drift that matters here is a student being told
+ * a slip means they are weak at a topic — so both renderers read the same constant.
+ *
+ * ★ THE SPEC ASKED FOR `ProgressWindowArc`'s honesty copy BY IMPORT. It exports none —
+ * its only careless line lives inside its JSX, and it is a Firestore-backed component
+ * whose import would drag `studentCloudStore` into this shell. The anti-drift move that
+ * was actually available is this one: the two renderers that share the claim live in
+ * THIS file, so the constant does too.
+ */
+const CARELESS_NOT_A_WEAKNESS = "Slips on the final line / units — slow down, these aren’t weak topics.";
+
+/** The two MI kinds that are carelessness rather than a knowledge gap. */
+const CARELESS_KINDS: ScorecardMistakeKind[] = ["silly", "presentation"];
+const isCareless = (kind: ScorecardMistakeKind | null | undefined) =>
+  kind != null && CARELESS_KINDS.includes(kind);
+
+/** One line of the set scorecard's MCQ/written split. */
+function SplitRow({ row }: { row: ScorecardSplitRow }) {
+  return (
+    <div className={`lt-sc__splitrow lt-sc__splitrow--${row.tone}`}>
+      <span className="lt-sc__splittag">{row.tag}</span>
+      <span className="lt-sc__splitdet">{row.detail}</span>
+    </div>
+  );
+}
+
+/**
+ * BATCH-2 · the MCQ/written split. ★ The two headings are the prototype's, verbatim:
+ * MCQs are scored locally and cost the student nothing, written working is what the one
+ * batch call reads. Each half renders only when it has rows — an empty group is silence,
+ * never an empty heading.
+ */
+function SplitBlock({ split }: { split: ScorecardSplit }) {
+  return (
+    <>
+      {split.markedNow.length > 0 && (
+        <>
+          <div className="lt-sc__mbk">Marked now · free</div>
+          <div className="lt-sc__splitlist">
+            {split.markedNow.map((r) => (
+              <SplitRow key={`now-${r.tag}`} row={r} />
+            ))}
+          </div>
+        </>
+      )}
+      {split.readyToGrade.length > 0 && (
+        <>
+          <div className="lt-sc__mbk">Ready to grade</div>
+          <div className="lt-sc__splitlist">
+            {split.readyToGrade.map((r) => (
+              <SplitRow key={`grade-${r.tag}`} row={r} />
+            ))}
+          </div>
+        </>
+      )}
+      {split.nothingSavedNote && <p className="lt-sc__splitnote">{split.nothingSavedNote}</p>}
+    </>
+  );
+}
+
+/**
+ * BATCH-2 · ONE answer on the graded sheet — the same depth Check & Improve gives today.
+ *
+ * ★★ THE MARK IS RENDERED ONLY WHEN BOTH FIGURES ARE REAL NUMBERS. There is no
+ * placeholder branch, no "—", and no `?? 0`: a question the batch could not grade shows
+ * its honest ungraded state and NO mark at all (CLAUDE.md §5 — no fake data).
+ *
+ * ★ An OBJECTIVE question is whole-mark-or-nothing whatever its working shows — and it
+ * still carries a mistake type, because the working is read for DIAGNOSIS. Both facts
+ * render together here; the builder is what makes a fraction impossible.
+ */
+function GradedAnswerCard({ answer }: { answer: ScorecardGradedAnswer }) {
+  const hasMark = typeof answer.awarded === "number" && typeof answer.available === "number";
+  const tone = !hasMark
+    ? "none"
+    : answer.awarded === 0
+      ? "zero"
+      : answer.awarded === answer.available
+        ? "full"
+        : "part";
+  const careless = isCareless(answer.mistakeKind);
+  return (
+    <div className="lt-sc__ga">
+      <div className="lt-sc__ga-top">
+        <span className="lt-sc__ga-n">
+          {answer.label}
+          {answer.descriptor ? ` · ${answer.descriptor}` : ""}
+        </span>
+        {hasMark && (
+          <span className={`lt-sc__ga-score lt-sc__ga-score--${tone}`}>
+            {answer.awarded} / {answer.available}
+          </span>
+        )}
+      </div>
+      {answer.verdict && <p className="lt-sc__ga-verdict">{answer.verdict}</p>}
+      {answer.ungraded && (
+        <div className="lt-sc__ga-ungraded">
+          <b>{answer.ungraded.title}</b> {answer.ungraded.detail}
+        </div>
+      )}
+      {answer.lostDetail && (
+        <div className="lt-sc__ga-lost">
+          {answer.lostLabel && <b>{answer.lostLabel}</b>}
+          {answer.lostLabel ? " " : ""}
+          {answer.lostDetail}
+        </div>
+      )}
+      {answer.mistakeType && (
+        <div
+          className={`lt-sc__ga-mtype lt-sc__ga-mtype--${careless ? "careless" : "gap"}`}
+          data-mistake-kind={answer.mistakeKind ?? undefined}
+        >
+          {answer.mistakeType}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** The graded answer sheet. The careless sentence renders ONCE, under the sheet, and
+ *  only when a careless mistake type actually appeared — an honest footnote rather than
+ *  a per-card refrain. */
+function GradedSheetBlock({ answers }: { answers: ScorecardGradedAnswer[] }) {
+  const anyCareless = answers.some((a) => isCareless(a.mistakeKind));
+  return (
+    <>
+      <div className="lt-sc__mbk lt-sc__mbk--sheet">Your graded answers</div>
+      <div className="lt-sc__galist">
+        {answers.map((a) => (
+          <GradedAnswerCard key={a.label} answer={a} />
+        ))}
+      </div>
+      {anyCareless && <p className="lt-sc__ga-carenote">{CARELESS_NOT_A_WEAKNESS}</p>}
+    </>
+  );
+}
+
 /** The MI four-type block — "Where your marks went" (Knowledge gaps vs Careless). */
 function FourTypeBlock({ ft }: { ft: ScorecardFourType }) {
   return (
@@ -179,9 +326,7 @@ function FourTypeBlock({ ft }: { ft: ScorecardFourType }) {
             <span className="lt-sc__ct">{ft.presentation}</span>
           </div>
           {(ft.silly > 0 || ft.presentation > 0) && (
-            <div className="lt-sc__care-note">
-              Slips on the final line / units — slow down, these aren’t weak topics.
-            </div>
+            <div className="lt-sc__care-note">{CARELESS_NOT_A_WEAKNESS}</div>
           )}
         </div>
       </div>
@@ -280,7 +425,11 @@ export default function ResultsScorecard({ variant, onClose }: ResultsScorecardP
                   }))}
                 />
               )}
+              {variant.split && <SplitBlock split={variant.split} />}
               {variant.fourType && <FourTypeBlock ft={variant.fourType} />}
+              {variant.gradedAnswers && variant.gradedAnswers.length > 0 && (
+                <GradedSheetBlock answers={variant.gradedAnswers} />
+              )}
             </>
           )}
         </div>
@@ -336,6 +485,13 @@ const SC_CSS = `
   background: #fff; border-radius: 22px; width: 100%; max-width: 540px;
   box-shadow: 0 30px 80px rgba(20, 35, 58, 0.5); overflow: hidden;
   animation: lt-sc-pop 0.22s ease;
+  /* ★ DESKTOP SCROLL CEILING. The dim is position:fixed, so a card taller than the
+     viewport put its own head AND its footer out of reach with nothing to scroll — found
+     by a 1024px screenshot of the graded answer sheet, which is the first variant long
+     enough to hit it. A no-op for every short variant (a ceiling only bites when the
+     content reaches it), and the mobile bottom-sheet rules below still override. The dim
+     padding is 24px a side, hence the 48px. */
+  max-height: calc(100vh - 48px); overflow-y: auto;
 }
 @keyframes lt-sc-pop { from { transform: scale(0.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .lt-sc__grab { display: none; }
@@ -403,6 +559,65 @@ const SC_CSS = `
 .lt-sc__sw--pres { background: #3b82f6; }
 .lt-sc__ct { margin-left: auto; font-weight: 700; color: #fff; font-size: 15px; }
 .lt-sc__care-note { font-size: 11px; color: #8294ad; font-style: italic; margin-top: 8px; line-height: 1.5; }
+
+/* ── BATCH-2 · the MCQ/written split (navy body; the shell's own grammar, not the
+      mockup's white cards — the prototype draws these on paper, the product does not). ── */
+.lt-sc__splitlist { margin-bottom: 22px; }
+.lt-sc__splitrow {
+  display: flex; align-items: flex-start; gap: 11px; padding: 9px 12px; margin-bottom: 7px;
+  border-radius: 9px; font-size: 13px; line-height: 1.45; color: #e3e9f1;
+  background: rgba(255, 255, 255, 0.05); border-left: 3px solid #4a5c78;
+}
+.lt-sc__splitrow--good { background: rgba(52, 199, 138, 0.11); border-left-color: #34c78a; }
+.lt-sc__splitrow--miss { background: rgba(224, 73, 95, 0.12); border-left-color: #e0495f; }
+.lt-sc__splitrow--pending { background: rgba(232, 183, 101, 0.12); border-left-color: #e8b765; }
+.lt-sc__splitrow--diagnose { background: rgba(139, 122, 237, 0.14); border-left-color: #8b7aed; }
+.lt-sc__splittag {
+  font-size: 10.5px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;
+  color: #9fb0c6; min-width: 26px; flex-shrink: 0; padding-top: 1px;
+}
+.lt-sc__splitdet { flex: 1; min-width: 0; }
+.lt-sc__splitnote { font-size: 11.5px; color: #8695ac; font-style: italic; margin: -12px 0 22px; line-height: 1.5; }
+
+/* ── BATCH-2 · the graded answer sheet ── */
+/* The four-type block's careless note is the last thing in its right-hand column, so the
+   sheet heading rode up beside it (1024px screenshot). Modifier only — no existing
+   element carries it, so every other block keeps its current spacing exactly. */
+.lt-sc__mbk--sheet { margin-top: 26px; }
+.lt-sc__galist { margin-bottom: 6px; }
+.lt-sc__ga {
+  background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 11px; padding: 13px 15px; margin-bottom: 10px;
+}
+.lt-sc__ga-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+.lt-sc__ga-n {
+  font-size: 10.5px; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase; color: #9fb0c6;
+}
+.lt-sc__ga-score {
+  font-family: "Fraunces", Georgia, serif; font-weight: 700; font-size: 17px;
+  font-variant-numeric: tabular-nums; flex-shrink: 0; white-space: nowrap;
+}
+.lt-sc__ga-score--full { color: #4fd6a0; }
+.lt-sc__ga-score--part { color: #f0b45e; }
+.lt-sc__ga-score--zero { color: #ff8a9c; }
+.lt-sc__ga-verdict { font-size: 13.5px; color: #e3e9f1; margin: 0; line-height: 1.5; }
+.lt-sc__ga-lost {
+  background: rgba(224, 73, 95, 0.12); border-left: 3px solid #e0495f; border-radius: 0 8px 8px 0;
+  padding: 9px 12px; margin-top: 9px; font-size: 12.5px; color: #f2d3d8; line-height: 1.55;
+}
+.lt-sc__ga-lost b { color: #ff9aa8; }
+.lt-sc__ga-ungraded {
+  background: rgba(232, 183, 101, 0.12); border-left: 3px solid #e8b765; border-radius: 0 8px 8px 0;
+  padding: 9px 12px; margin-top: 9px; font-size: 12.5px; color: #f0cf9a; line-height: 1.55;
+}
+.lt-sc__ga-ungraded b { color: #f6dcab; }
+.lt-sc__ga-mtype {
+  display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.02em;
+  padding: 3px 9px; border-radius: 6px; margin-top: 9px;
+}
+.lt-sc__ga-mtype--gap { background: rgba(239, 68, 68, 0.16); color: #ffb3b3; }
+.lt-sc__ga-mtype--careless { background: rgba(232, 147, 12, 0.16); color: #ffd28a; }
+.lt-sc__ga-carenote { font-size: 11.5px; color: #8695ac; font-style: italic; margin: 4px 0 0; line-height: 1.5; }
 
 .lt-sc__allpend { padding: 8px 0 18px; }
 .lt-sc__allpend-t { font-family: "Fraunces", Georgia, serif; font-weight: 700; font-size: 22px; margin-bottom: 8px; }

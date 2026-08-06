@@ -1,7 +1,86 @@
 # LazyTopper — Next Action
-# Updated: 2026-08-05 (post-**#606-#609 -- WAVE 5D**, four lanes + one read-only scout under the controller + subagent model. Trunk `51f7712`. Full controller record in `handoff/WAVE_STATE_WAVE5D_ARCHIVE.md`.)
+# Updated: 2026-08-06 (post-**#611-#617 -- WAVE 5E**. Trunk `9cfcb09a`. Controller stood down after this handoff; Wave 5F opens with `WIRE-2`. Full record in `handoff/WAVE_STATE_WAVE5E_ARCHIVE.md`.)
 
-## NEXT -- 2026-08-05 (post-#606-#609, WAVE 5D). Read this block first.
+## NEXT -- 2026-08-06 (post-#611-#617, WAVE 5E). Read this block first.
+
+### 0 - ***** THE ONE THING THAT MUST NOT BE MISSED *****
+
+> ## **The Quick Practice results surface is BUILT AND UNREACHABLE.**
+> ## **`RESULTS-1` (`#617`) is merged and dormant by design.**
+> ## **`WIRE-2` is the ONLY thing that makes it live.**
+
+**THREE DORMANT CAPABILITIES NOW SIT IN THIS ARC, AND ONE LANE ENDS ALL THREE:**
+
+| Built | When | Called by |
+|---|---|---|
+| **`#578`** the grader's per-question image support | 1 Aug | **nothing** -- live-verify never run |
+| **`#611`** `gradeQuickPracticeBatch`, 25 tests | 5 Aug | **nothing** -- zero callers |
+| **`#617`** the graded answer sheet | 6 Aug | **nothing** -- one caller, its own test |
+
+### 0a - WAVE 5F's FIRST LANE IS `WIRE-2`. IT IS SPECCED AND WAITING.
+
+**`SUBAGENT_WIRE2_flip_quick_practice_to_batch.md` v1.1**, on the owner's disk at
+`C:\Users\Chetan\OneDrive\Desktop\diff\wave 5e\`. **Do not re-spec it. Do not improvise one.**
+
+It carries **TWO NARROW, EXPLICIT AUTHORIZATIONS**, both for globally-forbidden or gated files, each
+granted for exactly one change and nothing else:
+- **section 9a - `ResultsScorecard.tsx`: ONE COPY LINE ONLY.** "Ready to grade" -> **"Diagnosed from
+  your working"**. Owner-acknowledged as his own error: it is pre-grade copy lifted onto a post-grade
+  sheet, where the prototype's own results frame says "Diagnosed from your working". It pairs with
+  "Marked instantly - free".
+- **section 9b - `App.tsx`: ROUTE REGISTRATION ONLY.** The graded sheet is a **ROUTE, not a modal** --
+  owner-ruled. At 1024px the sheet is **~1,877px of content inside a 540px card** (measured by
+  RESULTS-1, not hypothesised), **and a graded paper is something a student comes back to**: a modal
+  cannot be linked, bookmarked or reached from history.
+  ** `App.tsx` is CLAUDE.md section 4 forbidden AND held under owner review by `lane_overlap`'s
+  `GATED_FILES`. `WIRE-2` will trip that gate DELIBERATELY -- the warning is INTENDED, not a defect.**
+  `[FU-APPTSX-OWNER-REVIEW-GATE-SURVIVES-LIFT]`
+
+**What WIRE-2 must not get wrong, in one place:**
+1. **MI MUST BE FED BY THE BATCHED PATH.** Mistakes reach MI today via `handleCheck` ->
+   `recordMistake`, and **that path is GONE after this lane.** If the batched path does not also
+   record mistakes, **Mistake Intelligence stops being fed by Quick Practice entirely -- the moat
+   going dark, silently, on the highest-traffic surface.** Test AND mutation.
+2. **THE 402 MUST REACH THE STUDENT.** The batched call becomes the **only** paid call in Quick
+   Practice, and `quickPracticeSessionService` currently **swallows it** -- a free-past-trial student
+   would press Finish and get **silence**. Fix the unconditional catch **in the same PR**.
+3. **`#578`'s LIVE-VERIFY DISCHARGES THERE.** Not dischargeable from a worktree: `isStubMode()`
+   returns before `buildUploadParts`, so **a stub run never enters the interleave.** It needs a real
+   key and a real student trigger.
+4. **`SurfaceHistory` is GENERIC**, takes a `SessionSurface`, and consumes `progressStore` without
+   computing or persisting. **Adding Quick Practice may be nearly free -- and if it is not, that is a
+   finding to report,** because the cheapness of that half rests on it.
+5. **Cut it from TRUNK, never stacked.** A stacked PR and its base each see the other in
+   `lane_overlap.mjs` and **neither can merge, in either order** (#608/#609, Wave 5D).
+
+### 0b - STILL OWED BY THE COFOUNDER
+
+**`TELEMETRY-1`** (gates the thinking budget AND ends the cost guessing) - **`WARM-GATE-1`** (gates
+`DATABASE_URL` returning) - **`MASTER_TRACKER.md` content.**
+
+### 0c - OPEN AND THE OWNER'S, NOT A LANE
+
+`#615` META-3 (sitemap + canonical) - `#616` NAME-1 v2 (the login door rework).
+**`AUTH-1` is NOT queued** -- the name/link work moved to a new cofounder session.
+
+### 0d - PROCESS RULES EARNED. DO NOT RE-LEARN THEM.
+
+- **`gh pr ready` IS THE OWNER'S STEP.** Lanes push DRAFTS and stop.
+- **DO NOT STACK PRs.** See 0a.5.
+- **A MUTATION MUST BE PROVEN *APPLIED*** (`mutated-sha != baseline-sha`) **before its red counts** --
+  and **prove the runner actually RAN.** Two separate silent-runner traps were hit and caught this
+  wave: a CRLF pattern that matched nothing, and `execSync` spawning a shell wrapper so vitest never
+  executed.
+- **STAND-DOWN KILLS ONLY THE LANE'S OWN WORKTREE PATH.** An over-broad `*LT-worktrees*` glob could
+  have killed a concurrent lane's processes on 2026-08-05. **Scope it to the lane, unconditionally --
+  the safety must not depend on who else happens to be running.**
+- **SHIP THE SPEC, FLAG THE DOUBT, DO NOT SILENTLY IMPROVE.**
+- **`CLAUDE.md`'s "190 checks" is NOT STALE** -- it self-dates and says read it from the run. Reading
+  196 is that instruction working. **Three lanes have flagged it; all three were wrong.**
+
+---
+
+## PREVIOUS -- 2026-08-05 (post-#606-#609, WAVE 5D). Superseded by the block above.
 
 ### 0 - WAVE 5E RUNS FOUR LANES. OWNER-RULED.
 

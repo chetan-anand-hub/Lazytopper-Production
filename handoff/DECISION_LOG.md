@@ -1,3 +1,65 @@
+## 2026-08-06 - Wave 5E, four controller lanes + two owner lanes (#611-#617, trunk `9cfcb09a`)
+
+**1 - QUICK PRACTICE BECOMES EXAM-SHAPED. Nothing grades per question; ONE batched call at Finish.**
+Rejected: batching only the unchecked answers (preserves inline feedback but saves little, and a
+student who checks everything saves nothing); a mode toggle (doubles the test surface, needs UI that
+is BATCH-2's). **The controller recommended the rejected option and was overruled against an
+owner-locked design** -- the BATCH-2 spec's section 1 is headed "THE FLOW - owner-locked" and reads
+"Each saved answer is held in session state. NOTHING is graded yet."
+
+**2 - A CLAIM RETRACTED, AND THE RULING IT SUPPORTED SURVIVED ANYWAY.** The claim that batching
+produces a cross-question artefact "five separate checks never produced" is **FALSE**: Mistake
+Intelligence reads the STORE, and five records from five calls are indistinguishable from five from
+one. **The cross-question pattern is an MI-LAYER property, not a grader-call property.**
+=> **batching buys COST and LATENCY** (thinking is ~81% of output-rate spend; 17.0s average) **and a
+coherent RESULTS SURFACE. Nothing else.** It had reached three cofounder documents and two controller
+ones; all corrected. **The cap-not-chunk ruling still stands on its other grounds.**
+
+**3 - THE COMBINED LANE WAS SPLIT into `RESULTS-1` (UI, fixture-driven) then `WIRE-2` (the trigger).**
+Reason: three lanes had returned past the context floor, and **the cause was spec size, not agent
+judgement** -- 250 lines, ten assertions, four SHA-verified mutations, screenshots and a live probe
+cannot be finished honestly at 25%. **A fourth restatement of the rule would not have worked.**
+Confirmed: RESULTS-1 returned at 22%, and diagnosed the residual as environment.
+**RESULTS-1 ships DORMANT deliberately** -- the owner rules on the graded sheet **before** the loop
+changes under students, rather than discovering at live-verify that it reads wrong with the trigger
+already flipped. The dead-capability failures were lanes forgotten **across waves**; WIRE-2's brief
+was written **before** RESULTS-1 dispatched, so there is no gap.
+
+**4 - THE GRADED SHEET IS A ROUTE, NOT A MODAL.** At 1024px it is ~1,877px inside a 540px card --
+measured, not hypothesised. **And a graded paper is something a student comes back to**: a modal
+cannot be linked, bookmarked or reached from history, and Quick Practice sessions should appear in
+`SurfaceHistory` as Chapter Test and Full Mock already do.
+
+**5 - TWO NARROW AUTHORIZATIONS GRANTED IN `WIRE-2` v1.1**, each for exactly one change:
+`ResultsScorecard.tsx` for **one copy line** ("Ready to grade" -> "Diagnosed from your working" --
+owner-acknowledged as his own error, pre-grade copy on a post-grade sheet), and `App.tsx` for **route
+registration only**. **Both rulings had been made with no lane to land in; the controller caught that
+before a lane hit them.**
+
+**6 - `MAX_BATCH_UPLOADS=12`: CAP, DO NOT CHUNK.** A 13th photo is not Quick Practice's shape (5-10
+questions), and chunking reintroduces the multiple calls batching exists to remove. Cap, name the
+excluded questions, let the student grade the rest separately.
+
+**7 - TYPED WORKING RETURNED AS `typed-no-channel` IS CORRECT** -- honest empty state over silent
+drop. Adding the server field is a separate lane. **Until then, batching covers PHOTO working only,
+and that must not be recorded as complete.**
+
+**8 - THE PROCESS-KILL GLOB IS SCOPED TO THE LANE'S OWN WORKTREE, UNCONDITIONALLY.** An over-broad
+`*LT-worktrees*` glob in every standalone spec issued 2026-08-05 could have killed a concurrent lane's
+processes. **A "no lane-mates" assumption baked into an instruction goes stale the moment a parallel
+lane starts. The safety must not depend on who else happens to be running.**
+
+**9 - BRANCH CLEANUP: NO, AND NOT LATER.** ~190 remote branches cost nothing -- no build reads them,
+no gate scans them -- and **`recovery/lost-trunk-42d82e8` is among them: trunk was lost once and
+recovered from a branch. Old branches are the RECOVERY SURFACE.** Deleting them is irreversible for a
+benefit measured in tidiness.
+
+**10 - THE WAVE CLOSED WITH A LANE UNDISPATCHED, DELIBERATELY.** Rule 0's binding constraint is the
+**handoff budget**, not the dispatch floor: **a controller that runs dry mid-handoff leaves the wave
+half-closed -- the exact failure Rule 0 exists to prevent.** **A wave closes when `handoff/` describes
+trunk; it does not require every lane to be done.**
+
+
 ## 2026-08-05 - Wave 5D, four lanes + one scout under a controller + subagent model (#606-#609, trunk `51f7712`)
 
 Owner rulings across the wave, and the scope discovered after each lane was first planned.
