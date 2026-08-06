@@ -95,10 +95,129 @@ const CALL_CLASS_BY_HANDLER = Object.freeze({
   handleGenerateVisual: 'visual',
 });
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   WORKLOAD CLASSES — a SECOND, ORTHOGONAL dimension (TELEMETRY-1).
+
+   ★★ WHY THIS IS NOT A WIDENING OF `CALL_CLASSES`. The obvious implementation —
+   add `grade-single`, `warm-pool` etc. to CALL_CLASSES — is WRONG, and wrong in a
+   way that destroys an existing guarantee. `CALL_CLASSES` is pinned by
+   `geminiClient.test.cjs` to be EXACTLY the set of values in rateLimiter.cjs's
+   PAID_ENDPOINTS, because the two datasets are meant to JOIN on that segment:
+   "how many calls" (rate limiter) against "how many tokens per call" (here).
+   Widening it turns that anti-drift test red and silently splits the cost data.
+
+   So the two questions get two axes, and both survive:
+
+     callClass      — WHICH BILLING BUCKET does this consume? Follows the CALLER,
+                      joins to the rate limiter. Unchanged by this lane.
+     workloadClass  — WHAT DID THE MODEL ACTUALLY DO? Follows the FUNCTION.
+
+   ★ THE DIVERGENCE IS DELIBERATE AND IS THE WHOLE POINT. `generateModelSolution`
+   (stepSolution.cjs) is deliberately ABSENT from CALL_CLASS_BY_HANDLER because its
+   BUCKET depends on who asked — /api/step-solution, the grader's scheme-first
+   hook, or the admin regenerate path. Its WORKLOAD does not: it is a step-solution
+   generation whoever asked for it, and charging it to `grade-single` because a
+   grade happened to trigger it would corrupt the exact per-grade thinking figure
+   this lane exists to produce. It is therefore mapped HERE and not there.
+
+   ★ THE THREE checkSolution ENDPOINTS ARE TAGGED AT THEIR CALL SITES, not mapped
+   here, and that omission is load-bearing. `handleCheckSolution` also appears on
+   the stack of the scheme-first model-solution generation it triggers; a handler
+   entry for it would relabel that generation as a grade. Explicit
+   `config.workloadClass` at the three call sites cannot make that mistake, and it
+   means a dropped tag falls to `unclassified` (visible) rather than to a
+   plausible-but-wrong neighbour (invisible).
+   ──────────────────────────────────────────────────────────────────────────── */
+const WORKLOAD_CLASSES = Object.freeze([
+  'grade-single',
+  'grade-batch',
+  'worksheet',
+  'detect-question',
+  'tutor',
+  'step-solution',
+  'more-like-this',
+  'diagram',
+  'visual',
+  'warm-pool',
+]);
+const UNCLASSIFIED_WORKLOAD = 'unclassified';
+
+const WORKLOAD_BY_HANDLER = Object.freeze({
+  // routes/tutor.cjs
+  handleTutorRequest: 'tutor',
+  // routes/moreLikeThis.cjs
+  handleMoreLikeThis: 'more-like-this',
+  // routes/diagrams.cjs
+  handleGenerateDiagram: 'diagram',
+  handleGenerateVisual: 'visual',
+  // routes/stepSolution.cjs — mapped by FUNCTION, see the note above. Innermost
+  // frame wins, so this beats whichever route handler is further out.
+  generateModelSolution: 'step-solution',
+  handleStepSolution: 'step-solution',
+  // services/warmQuestionPool.cjs
+  //
+  // ★ HOW A PRE-WARM IS DISTINGUISHED FROM A STUDENT-TRIGGERED CALL: by
+  // CONSTRUCTION, not by heuristic. `generateVariants` has exactly one caller
+  // (`warmOne`), which has exactly one caller (`runWarmPool`), which is reachable
+  // from exactly three places, ALL in index.cjs: the startup pre-warm timer, the
+  // recurring top-up interval, and POST /api/admin/warm-question-pool. There is no
+  // student-reachable path into it, so a frame naming `generateVariants` is a
+  // warm-pool call and cannot be anything else.
+  //
+  // ⚠ WHAT IT STILL CANNOT TELL YOU: which of those THREE triggers fired. They
+  // differ only by which index.cjs timer or handler invoked `runWarmPool`, and a
+  // setTimeout/setInterval callback leaves no frame to stitch to its scheduler.
+  // Separating them needs a tag passed from index.cjs — owned by WARM-GATE-1 this
+  // wave. See [FU-TELEMETRY1-WARM-TRIGGER-UNSPLIT].
+  generateVariants: 'warm-pool',
+});
+
+/**
+ * Marks band for a graded question.
+ *
+ * ★ ONE BAND PER MARK VALUE — deliberately NOT the product's coarse
+ * "1"/"23"/"5"/"4" buckets, which FUSE 2- and 3-mark questions (CLAUDE.md §7).
+ * A budget banded on a fused 2-and-3 bucket is banded on a number that describes
+ * neither.
+ *
+ * ★ RETURNS null, NEVER 0 OR A DEFAULT, when marks are unknown. Absence is the
+ * honest answer and it is what keeps a fabricated band out of a budgeting input.
+ */
+function toMarksBand(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) return null;
+  const m = Math.floor(n);
+  if (m > 5) return '6+';
+  return String(m);
+}
+
+function classifyWorkload(config, callerStack) {
+  const explicit =
+    config && typeof config.workloadClass === 'string' ? config.workloadClass.trim() : '';
+  if (explicit && WORKLOAD_CLASSES.includes(explicit)) return explicit;
+
+  // Innermost frame first, so the NEAREST mapped function wins — that is what puts
+  // `generateModelSolution` ahead of the route handler that triggered it.
+  const frames = String(callerStack || '').split('\n');
+  const handlers = Object.keys(WORKLOAD_BY_HANDLER);
+  for (const frame of frames) {
+    for (const handler of handlers) {
+      const at = frame.indexOf(handler);
+      if (at === -1) continue;
+      const before = at === 0 ? '' : frame[at - 1];
+      const after = frame[at + handler.length] || '';
+      if (/[A-Za-z0-9_$]/.test(before) || /[A-Za-z0-9_$]/.test(after)) continue;
+      return WORKLOAD_BY_HANDLER[handler];
+    }
+  }
+  return UNCLASSIFIED_WORKLOAD;
+}
+
 // Keep the last N records so per-call granularity (model, latency, retry) survives
 // beyond the aggregate counters. Bounded so a long-lived process cannot grow it
 // without limit; records hold only numbers and labels, never text.
 const TOKEN_TELEMETRY_RING_LIMIT = 200;
+
 
 // Captured synchronously at the top of callGemini. Node stitches `await` chains
 // into the trace, so a handler several awaits above still appears as
@@ -201,12 +320,23 @@ function buildTokenTelemetryRecord(input) {
       ? input.usageMetadata
       : {};
   const attempts = toCount(input && input.attempts) || 1;
-  return {
+  // ★ ABSENT, NOT ZERO. `marksBand` is omitted from the record entirely when the
+  // call site had no marks in hand. A `marksBand: 0` (or '0', or 'unknown') would
+  // become a band in every downstream aggregate and would look exactly like a
+  // measurement — the failure mode this lane's whole brief is written against.
+  const marksBand = toMarksBand(input && input.marks);
+  const record = {
     model: sanitiseModelLabel(input && input.model),
     callClass:
       input && CALL_CLASSES.includes(input.callClass)
         ? input.callClass
         : UNCLASSIFIED_CALL_CLASS,
+    // The workload axis. Same closed-set discipline as callClass: an unrecognised
+    // label degrades to `unclassified` rather than becoming a new column.
+    workloadClass:
+      input && WORKLOAD_CLASSES.includes(input.workloadClass)
+        ? input.workloadClass
+        : UNCLASSIFIED_WORKLOAD,
     promptTokenCount: toCount(usage.promptTokenCount),
     candidatesTokenCount: toCount(usage.candidatesTokenCount),
     // The critical one: thinking bills at OUTPUT rates, and it is invisible in
@@ -218,6 +348,8 @@ function buildTokenTelemetryRecord(input) {
     retry: attempts > 1,
     usedFallback: Boolean(input && input.usedFallback),
   };
+  if (marksBand !== null) record.marksBand = marksBand;
+  return record;
 }
 
 function createGeminiClient(cfg) {
@@ -259,6 +391,7 @@ function createGeminiClient(cfg) {
 
   const tokenTelemetryRing = [];
 
+
   /**
    * Emit one token-usage record.
    *
@@ -285,6 +418,25 @@ function createGeminiClient(cfg) {
         sink.increment(`gemini_tokens.model.${record.model}`, 1);
         if (record.retry) sink.increment(`gemini_tokens.retry.${klass}`, 1);
         if (record.usedFallback) sink.increment(`gemini_tokens.fallback.${klass}`, 1);
+
+        // The workload axis, keyed `gemini_workload.<metric>.<workload>` so it
+        // sits alongside the transport axis without colliding with it.
+        const work = record.workloadClass;
+        sink.increment(`gemini_workload.call.${work}`, 1);
+        sink.increment(`gemini_workload.prompt.${work}`, record.promptTokenCount);
+        sink.increment(`gemini_workload.candidates.${work}`, record.candidatesTokenCount);
+        sink.increment(`gemini_workload.thoughts.${work}`, record.thoughtsTokenCount);
+        sink.increment(`gemini_workload.total.${work}`, record.totalTokenCount);
+        sink.increment(`gemini_workload.latency_ms.${work}`, record.latencyMs);
+        if (record.retry) sink.increment(`gemini_workload.retry.${work}`, 1);
+        if (record.usedFallback) sink.increment(`gemini_workload.fallback.${work}`, 1);
+        // The distribution side. The sink owns the per-(workload, marks-band)
+        // sample store because it is the singleton the READ endpoint already
+        // holds; guarded by typeof so an injected test recorder that does not
+        // implement it still works.
+        if (typeof sink.recordWorkloadSample === 'function') {
+          sink.recordWorkloadSample(record);
+        }
       }
       tokenTelemetryRing.push(record);
       while (tokenTelemetryRing.length > TOKEN_TELEMETRY_RING_LIMIT) {
@@ -575,6 +727,13 @@ function createGeminiClient(cfg) {
         usageMetadata: data && data.usageMetadata,
         model,
         callClass: classifyCall(config, telemetryCallerStack),
+        workloadClass: classifyWorkload(config, telemetryCallerStack),
+        // `config.marks` is a TELEMETRY-ONLY hint, exactly like `callClass`.
+        // `buildBody` reads a closed set of config keys (temperature,
+        // maxOutputTokens, responseMimeType, responseSchema, thinkingConfig), so
+        // neither this nor `workloadClass` can reach the wire. That invariant is
+        // what makes #578's sha256(contents) pin unmovable by this lane.
+        marks: config && config.marks,
         latencyMs: Date.now() - telemetryStartedAt,
         attempts: telemetryAttempts,
         usedFallback,
@@ -752,4 +911,10 @@ module.exports = {
   UNCLASSIFIED_CALL_CLASS,
   buildTokenTelemetryRecord,
   classifyCall,
+  // TELEMETRY-1 · the workload axis.
+  WORKLOAD_CLASSES,
+  UNCLASSIFIED_WORKLOAD,
+  WORKLOAD_BY_HANDLER,
+  classifyWorkload,
+  toMarksBand,
 };
