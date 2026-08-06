@@ -35,7 +35,9 @@ import {
   type WorksheetGradeUpload,
   type WorksheetQuestionGrade,
 } from "../ai/aiClient";
-import type { PracticeAttempt } from "./practiceInsights";
+import { MAX_BATCH_UPLOADS } from "../config/gradingLimits";
+import { recordAttempt, type PracticeAttempt } from "./practiceInsights";
+import { recordMistake, type RecordMistakeOutcome } from "./mistakeIntelligence";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import {
   buildQuickPracticeSessionRecord,
@@ -330,6 +332,11 @@ export interface QuickPracticeSavedAnswer {
   marks: number;
   questionText: string;
   topicLabel?: string;
+  /** The canonical topic key for this question, forwarded VERBATIM to the Mistake
+   *  Intelligence front door. ★ Never re-derived here: `recordAttempt` stores
+   *  `resolveCanonicalSlug(...) || topicLabel`, and a second resolution on this side
+   *  would be a second vocabulary ([FU-PROG-TOPIC-KEY-MISMATCH]). */
+  topicKey?: string | null;
   /** Objective signals, forwarded verbatim so the SERVER's deterministic 0/full clamp
    *  governs an MCQ's mark. Nothing in this module branches on them. */
   section?: string;
@@ -345,32 +352,32 @@ export interface QuickPracticeSavedAnswer {
   /** Whether that pick was correct — the page compares locally against the bank key,
    *  which is why a bare pick costs nothing. Null/undefined when nothing was picked. */
   pickedCorrect?: boolean | null;
-  /** A photograph of this question's working. Its presence is the ONLY thing that
-   *  puts a question in the batch. */
+  /** A photograph of this question's working. Photographed OR typed working puts a
+   *  question in the batch — see `classifyQuickPracticeAnswer`. */
   imageBase64?: string | null;
   imageMimeType?: string | null;
-  /** Typed working. ★ SEE `typedNoChannel` BELOW — the batch grader has no field for
-   *  this, so typed-only working cannot ride the batch today. */
+  /** Typed working. ★★ AMEND-621 — this now RIDES THE BATCH. `WorksheetGradeQuestionInput`
+   *  gained a `textAnswer` field in TYPED-1 (#625) and `blockFor()` emits it inside the
+   *  question's own block, so typed working reaches the grader with no image at all.
+   *  ★ Typed and photographed are not exclusive: an answer may carry both. */
   textAnswer?: string | null;
 }
 
 /**
- * What is to be done with one saved answer. Four dispositions, and the fourth is a
- * limitation reported rather than swallowed.
+ * What is to be done with one saved answer. Three dispositions.
  *
- * · `batch`          — working was photographed → it rides the ONE batched call.
- * · `local-mcq`      — a bare option pick, no working → scored locally, no API call.
- * · `skipped`        — nothing produced → omitted from the record entirely.
- * · `typed-no-channel` — ★ the student TYPED working but photographed none. By the
- *   working rule this belongs in the batch, and it CANNOT GO: `gradeWorksheet` /
- *   `gradeStructuredSet` accept `questions` + per-question image `uploads` and have no
- *   field for typed student work at all (the single-question grader's `textAnswer` has
- *   no worksheet-path twin, and the server's own rule-1 phrase "grade the typed answer
- *   given in its block" refers to something `blockFor()` never emits). Reported as its
- *   own disposition so the caller routes it to the existing per-question grade path
- *   instead of silently losing it. Closing this needs a server field — a different lane.
+ * · `batch`     — working was PRODUCED (photographed or typed) → it rides the ONE
+ *                 batched call. ★ AMEND-621: typed-only working is included. Before it,
+ *                 typed working returned a fourth disposition `typed-no-channel`,
+ *                 because `gradeWorksheet` had no field to carry it. TYPED-1 (#625)
+ *                 added `WorksheetGradeQuestionInput.textAnswer` and the server's
+ *                 `blockFor()` emission, so the channel exists and this opens it.
+ *                 The disposition is GONE rather than kept unreachable — a branch
+ *                 nothing can reach is a silent no-op that reads as coverage.
+ * · `local-mcq` — a bare option pick, no working → scored locally, no API call.
+ * · `skipped`   — nothing produced → omitted from the record entirely.
  */
-export type QuickPracticeAnswerDisposition = "batch" | "local-mcq" | "skipped" | "typed-no-channel";
+export type QuickPracticeAnswerDisposition = "batch" | "local-mcq" | "skipped";
 
 const nonEmpty = (v: string | null | undefined): boolean => String(v ?? "").trim().length > 0;
 
@@ -381,8 +388,11 @@ const nonEmpty = (v: string | null | undefined): boolean => String(v ?? "").trim
  * contract: an MCQ with working is batched and an untouched subjective question is not.
  */
 export function classifyQuickPracticeAnswer(answer: QuickPracticeSavedAnswer): QuickPracticeAnswerDisposition {
-  if (nonEmpty(answer.imageBase64)) return "batch";
-  if (nonEmpty(answer.textAnswer)) return "typed-no-channel";
+  // ★★ AMEND-621 — PHOTOGRAPHED **OR TYPED**. The second half of this condition is the
+  // whole client change: it replaced `if (nonEmpty(answer.textAnswer)) return
+  // "typed-no-channel";`, which short-circuited typed working into an ungraded state
+  // BEFORE it could reach the batch. TYPED-1 (#625) built the channel; this opens it.
+  if (nonEmpty(answer.imageBase64) || nonEmpty(answer.textAnswer)) return "batch";
   if (nonEmpty(answer.pickedOption)) return "local-mcq";
   return "skipped";
 }
@@ -391,23 +401,44 @@ export interface QuickPracticeBatchSelection {
   batch: QuickPracticeSavedAnswer[];
   localMcq: QuickPracticeSavedAnswer[];
   skipped: QuickPracticeSavedAnswer[];
-  typedNoChannel: QuickPracticeSavedAnswer[];
+  /** ★★ Answers whose working WOULD be batched but which carry the 13th (or later)
+   *  answer PHOTO of the session. `MAX_BATCH_UPLOADS` is the server's cap and above it
+   *  `/api/grade-worksheet` returns 400 and grades NOTHING — so without this bucket a
+   *  13-photo session gets a bare error at the end and loses the other twelve grades.
+   *
+   *  ⚠ A COURTESY, NEVER THE GUARD. The server keeps its own 400 (`checkSolution.cjs`,
+   *  pinned by `checkSolution.test.cjs` §7.13); a stale client, or one that is not ours,
+   *  is still refused. This exists so the student is TOLD, and by name.
+   *
+   *  ★ TYPED WORKING COSTS NO UPLOAD BUDGET — the cap counts `uploads`, and typed
+   *  working rides inside its question's text block. A typed-only answer is never
+   *  excluded here however many photos the session carries. */
+  overCap: QuickPracticeSavedAnswer[];
 }
 
 /** PURE. Partition a finished session's saved answers by disposition, preserving
- *  displayed order within each bucket. */
+ *  displayed order within each bucket, and hold the batch inside the server's own
+ *  upload cap. */
 export function selectQuickPracticeBatch(answers: QuickPracticeSavedAnswer[]): QuickPracticeBatchSelection {
-  const selection: QuickPracticeBatchSelection = { batch: [], localMcq: [], skipped: [], typedNoChannel: [] };
+  const selection: QuickPracticeBatchSelection = { batch: [], localMcq: [], skipped: [], overCap: [] };
+  let uploadsTaken = 0;
   for (const answer of answers) {
     switch (classifyQuickPracticeAnswer(answer)) {
-      case "batch":
+      case "batch": {
+        // Only a PHOTO consumes the cap. Typed working is carried in the question's own
+        // text block and adds no `uploads` entry, so it can never be capped out.
+        if (nonEmpty(answer.imageBase64)) {
+          if (uploadsTaken >= MAX_BATCH_UPLOADS) {
+            selection.overCap.push(answer);
+            break;
+          }
+          uploadsTaken += 1;
+        }
         selection.batch.push(answer);
         break;
+      }
       case "local-mcq":
         selection.localMcq.push(answer);
-        break;
-      case "typed-no-channel":
-        selection.typedNoChannel.push(answer);
         break;
       default:
         selection.skipped.push(answer);
@@ -433,6 +464,12 @@ export function buildBatchQuestionInput(answer: QuickPracticeSavedAnswer): Works
     input.solutionSteps = answer.solutionSteps.map(String);
   }
   if (answer.finalAnswer != null && nonEmpty(answer.finalAnswer)) input.finalAnswer = String(answer.finalAnswer);
+  // ★★ AMEND-621 · THE CHANNEL, OPENED. TYPED-1 (#625) added this field and the server
+  // emission behind it; this line is what actually SENDS a student's typed working.
+  // Conditional on purpose: an absent/blank value omits the key entirely, which is what
+  // keeps #578's byte-identical no-typed-answer prompt (and its sha256 pin) intact for
+  // every existing caller.
+  if (nonEmpty(answer.textAnswer)) input.textAnswer = String(answer.textAnswer).trim();
   return input;
 }
 
@@ -475,8 +512,24 @@ export type QuickPracticeBatchGrader = (req: {
 
 export type QuickPracticeBatchOutcome =
   | "graded"
+  /** ★★ WIRE-2 · THE 402, NAMED. The batched call is the ONLY paid call left in Quick
+   *  Practice, so a free-past-trial student meets the Premium boundary HERE and nowhere
+   *  else. It used to fall into `skipped-error` with the message swallowed by the catch
+   *  below — the student pressed Finish and got silence: no grades, no explanation.
+   *  It is its own outcome so the caller can open GATE-2's upgrade sheet instead of a
+   *  red error box: a locked feature is not a fault the student committed (§4b). */
+  | "skipped-premium-required"
   | "skipped-nothing-to-batch"
   | "skipped-error";
+
+/** ONE batched answer's trip through the Mistake Intelligence front door. */
+export interface QuickPracticeMiOutcome {
+  qNumber: number;
+  /** The BANK question id — the same id the per-question path used, deliberately. */
+  questionId: string;
+  mistakeOutcome: RecordMistakeOutcome;
+  bridged: boolean;
+}
 
 export interface QuickPracticeBatchResult {
   outcome: QuickPracticeBatchOutcome;
@@ -493,9 +546,19 @@ export interface QuickPracticeBatchResult {
    *  correct server (which builds its results by mapping the SENT set), so a non-empty
    *  value is a real correctness signal and never a silently-accepted grade. */
   unsolicitedQNumbers: number[];
-  /** ★ Questions whose only working was TYPED — see `typed-no-channel`. The caller must
-   *  route these to the per-question grade path; this batch could not carry them. */
-  typedNoChannelQNumbers: number[];
+  /** ★ Questions held OUT of this batch because their answer photo was past the
+   *  server's `MAX_BATCH_UPLOADS` cap. The caller must NAME these to the student —
+   *  sending them would have earned a 400 that grades nothing at all. Empty in every
+   *  session at or under the cap, which is very nearly all of them. */
+  overCapQNumbers: number[];
+  /** ★★ ONE ENTRY PER ANSWER FED TO MISTAKE INTELLIGENCE — §4a, the moat.
+   *  Empty is a real answer (nothing legible came back, or no signed-in user); it is
+   *  reported rather than assumed so a silent MI blackout is observable from the caller. */
+  miOutcomes: QuickPracticeMiOutcome[];
+  /** ★★ Present ONLY on `skipped-premium-required`. Carries the server's own
+   *  student-facing fields straight through to `UpgradeSheet` — never a client-invented
+   *  message, and never a date this side guessed. */
+  premiumRequired?: { feature: string; trialEndedAt: string | null };
   error?: string;
 }
 
@@ -516,13 +579,17 @@ export async function gradeQuickPracticeBatch(args: {
   worksheetId: string;
   subject?: string;
   answers: QuickPracticeSavedAnswer[];
+  /** ★★ WIRE-2 · the signed-in student, for the MI feed (§4a). Omitted / signed out →
+   *  `recordMistake` and `recordAttempt` self-refuse at their own policy gate and
+   *  `miOutcomes` comes back empty. Nothing here duplicates that check. */
+  user?: AuthUser | null;
   /** Test seam. Production omits it and gets `gradeWorksheet`. */
   grade?: QuickPracticeBatchGrader;
 }): Promise<QuickPracticeBatchResult> {
-  const { worksheetId, subject, answers } = args;
+  const { worksheetId, subject, answers, user } = args;
   const grade = args.grade ?? gradeWorksheet;
   const selection = selectQuickPracticeBatch(answers);
-  const typedNoChannelQNumbers = selection.typedNoChannel.map((a) => a.qNumber);
+  const overCapQNumbers = selection.overCap.map((a) => a.qNumber);
 
   /** The local half — a bare pick the page already compared, plus nothing for anything
    *  else. Built first so it survives a grader failure. */
@@ -542,22 +609,60 @@ export async function gradeQuickPracticeBatch(args: {
       calls: 0,
       sentQNumbers: [],
       unsolicitedQNumbers: [],
-      typedNoChannelQNumbers,
+      overCapQNumbers,
+      miOutcomes: [],
     };
   }
 
   const questions = selection.batch.map(buildBatchQuestionInput);
-  const uploads: WorksheetGradeUpload[] = selection.batch.map((a) => ({
-    qNumber: a.qNumber,
-    imageBase64: String(a.imageBase64),
-    ...(nonEmpty(a.imageMimeType) ? { imageMimeType: String(a.imageMimeType) } : {}),
-  }));
+  // ★ ONLY PHOTOGRAPHED answers become uploads. A typed-only answer is in `questions`
+  // and NOT here — mapping the whole batch would send `imageBase64: "undefined"` for it
+  // and put a junk part in the prompt. `selectQuickPracticeBatch` has already held this
+  // list at or below `MAX_BATCH_UPLOADS`.
+  const uploads: WorksheetGradeUpload[] = selection.batch
+    .filter((a) => nonEmpty(a.imageBase64))
+    .map((a) => ({
+      qNumber: a.qNumber,
+      imageBase64: String(a.imageBase64),
+      ...(nonEmpty(a.imageMimeType) ? { imageMimeType: String(a.imageMimeType) } : {}),
+    }));
   const sentQNumbers = questions.map((q) => q.qNumber);
 
   let response: WorksheetGradeResponse;
   try {
     response = await grade({ worksheetId, subject, questions, uploads });
   } catch (error) {
+    // ★★ §4b · THE 402 IS NOT AN ERROR AND MUST NOT BE SWALLOWED HERE. The catch used
+    // to be unconditional, so a free-past-trial student pressing Finish got
+    // `skipped-error` and a console warning — silence, on the only paid call left in
+    // Quick Practice. It is now split: a Premium refusal is CARRIED OUT as its own
+    // outcome (the caller opens GATE-2's upgrade sheet), and everything else behaves
+    // exactly as before.
+    //
+    // ⚠ DETECTION IS BY `err.name`, NOT `isPremiumRequiredError` — the same reason
+    // SolutionChecker's branch reads the name: `aiClient` is mocked as a COMPLETE
+    // one-symbol replacement by suites that must pass unmodified, so any new VALUE
+    // import from it throws "No X export is defined on the mock". A type-only import
+    // is erased; `name` is set by the class constructor and needs no runtime import.
+    if (error instanceof Error && error.name === "PremiumRequiredError") {
+      const premium = error as Error & { feature?: string; trialEndedAt?: string | null };
+      return {
+        outcome: "skipped-premium-required",
+        entries: baseEntries,
+        calls: 1,
+        sentQNumbers,
+        unsolicitedQNumbers: [],
+        overCapQNumbers,
+        miOutcomes: [],
+        premiumRequired: {
+          feature: String(premium.feature || "unknown"),
+          trialEndedAt: premium.trialEndedAt ?? null,
+        },
+        // The server's own student-facing copy, kept for the caller. It is NOT rendered
+        // as an error — `UpgradeSheet` carries the boundary (SolutionChecker's ruling).
+        error: error.message,
+      };
+    }
     console.warn("[quickPracticeSessionService] batched grade failed", error);
     return {
       outcome: "skipped-error",
@@ -565,7 +670,8 @@ export async function gradeQuickPracticeBatch(args: {
       calls: 1,
       sentQNumbers,
       unsolicitedQNumbers: [],
-      typedNoChannelQNumbers,
+      overCapQNumbers,
+      miOutcomes: [],
       error: error instanceof Error ? error.message : String(error),
     };
   }
@@ -577,7 +683,8 @@ export async function gradeQuickPracticeBatch(args: {
       calls: 1,
       sentQNumbers,
       unsolicitedQNumbers: [],
-      typedNoChannelQNumbers,
+      overCapQNumbers,
+      miOutcomes: [],
       error: (response && response.error) || "The batched grade did not come back.",
     };
   }
@@ -608,12 +715,75 @@ export async function gradeQuickPracticeBatch(args: {
     return entry;
   });
 
+  /* ══════════════════════════════════════════════════════════════════════════
+     ★★ §4a · THE MI FEED — the moat, and the thing that goes dark silently.
+     ══════════════════════════════════════════════════════════════════════════
+     Before WIRE-2 every Quick Practice mistake reached Mistake Intelligence through
+     SolutionChecker's `handleCheck` → `recordMistake` + `recordAttempt`. WIRE-2
+     removes that call: the panel now SAVES and never grades, so `handleCheck` never
+     runs on this surface. ⇒ if this loop is absent, Quick Practice — the highest-
+     traffic surface in the product — stops feeding MI entirely, with nothing red
+     anywhere: no throw, no type error, no failing gate. That is why it is here and
+     why it is mutation-tested.
+
+     ★ THE SAME FRONT DOOR, NOT A SECOND ONE. `recordMistake` + its score twin
+     `recordAttempt` are the ONE ingestion pair every graded surface routes through
+     (worksheet, chapter test, full mock, C&I). This mirrors `chapterTestGradeService`
+     line for line, including the sequential await — `recordMistake` reads and writes
+     a device-local dedup list, so a parallel fan-out would race it.
+
+     ★★ AND THE QUESTION ID IS THE BARE BANK ID, DELIBERATELY. Every other batched
+     surface namespaces its ids (`ct:`/`fm:`/`ws:`/`ci:`) because their questions are
+     synthetic. Quick Practice's are REAL bank questions, and the per-question path
+     this replaces wrote the bare id. Namespacing it here would (a) orphan the dedup
+     against everything QP has already recorded and (b) break `buildSeenQuestionIds`,
+     which reads `questionId` off the attempts stream to build the unique-sets
+     seen-set. Same id in, same id out.
+
+     ★ couldNotRead ⇒ NO MI WRITE. The grader could not read that answer, so there is
+     no grade and nothing to classify. `batchGradeToCheckSolution` already returns null
+     for it; recording a 0 would be the fabrication this module's header forbids. */
+  const miOutcomes: QuickPracticeMiOutcome[] = [];
+  for (const answer of selection.batch) {
+    const result = byQNumber.get(answer.qNumber);
+    if (!result) continue;
+    const csr = batchGradeToCheckSolution(result);
+    if (!csr) continue;
+    const questionId = String(answer.questionId);
+    const topic = String(answer.topicLabel || "");
+    // eslint-disable-next-line no-await-in-loop
+    const rec = await recordMistake(user ?? null, csr, {
+      subject: String(subject || ""),
+      topic,
+      topicKey: answer.topicKey ?? undefined,
+      question: String(answer.questionText || ""),
+      questionId,
+    });
+    recordAttempt(user ?? null, {
+      subject: String(subject || ""),
+      topic,
+      topicKey: answer.topicKey ?? undefined,
+      question: String(answer.questionText || ""),
+      questionId,
+      marksScored: csr.marksAwarded,
+      marksAvailable: csr.totalMarks,
+      mode: "graded",
+    });
+    miOutcomes.push({
+      qNumber: answer.qNumber,
+      questionId,
+      mistakeOutcome: rec.outcome,
+      bridged: rec.bridged,
+    });
+  }
+
   return {
     outcome: "graded",
     entries,
     calls: 1,
     sentQNumbers,
     unsolicitedQNumbers,
-    typedNoChannelQNumbers,
+    overCapQNumbers,
+    miOutcomes,
   };
 }

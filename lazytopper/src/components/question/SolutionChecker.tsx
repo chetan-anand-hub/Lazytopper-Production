@@ -72,6 +72,47 @@ interface SolutionCheckerProps {
   answer?: string;
   onRequestStepSolution?: () => void;
   onResult?: (result: CheckSolutionResponse) => void;
+  /**
+   * ★★ WIRE-2 · COLLECT MODE — the panel SAVES and does not grade.
+   *
+   * Default (omitted / false) is the shipped per-question behaviour, byte-for-byte: the
+   * CTA reads "Check my answer", tapping it calls `checkSolutionImage`, and the GATE-3
+   * lock, the 402 sheet, the result block and the MI writes are all exactly as today.
+   * `SolutionChecker.contract.test.tsx` and `SolutionChecker.entitlement.test.tsx` pass
+   * UNMODIFIED because of that, and they are the replacement protection for the lifted
+   * FORBIDDEN ban on this file — additive-by-default is not a style choice here.
+   *
+   * With `collectMode`, Quick Practice's batch flow takes over: the student's working is
+   * handed UP via `onSaveAnswer` and nothing is sent anywhere. The single paid call
+   * happens once, at Finish, in `gradeQuickPracticeBatch`.
+   *
+   * ★ The GATE-3 lock is deliberately NOT rendered in collect mode: SAVING is free and
+   * always was, so a lock on the Save button would refuse an action that costs nothing.
+   * The Premium boundary moves with the paid call — it is the 402 at Finish, surfaced
+   * through the same `UpgradeSheet` ([FU-QP-GATE3-COLLECT-MODE-PREMIUM-PREVIEW] tracks
+   * restoring the learn-before-you-tap preview on the confirmation screen).
+   */
+  collectMode?: boolean;
+  /** The working already saved for this question, if any — drives the confirmed state. */
+  savedAnswer?: SolutionCheckerSavedWorking | null;
+  /** Collect mode only. Called with what the ACTIVE tab holds. No API call is made. */
+  onSaveAnswer?: (working: SolutionCheckerSavedWorking) => void;
+  /** Collect mode only. Drop the saved working for this question (Replace / Remove). */
+  onRemoveAnswer?: () => void;
+}
+
+/**
+ * One question's saved working, as collect mode hands it up. Declared HERE rather than
+ * imported from `quickPracticeSessionService` on purpose: this component is mounted by
+ * suites that mock nothing, and a new import edge into a service that reaches Firestore
+ * would drag that graph into every one of them.
+ */
+export interface SolutionCheckerSavedWorking {
+  imageBase64: string | null;
+  imageMimeType: string | null;
+  textAnswer: string | null;
+  /** For the confirmed row's label ("Photo of your working" / "Typed working"). */
+  kind: "photo" | "pdf" | "typed";
 }
 
 // Limits come from services/uploadLimits.ts — the ONE place they are defined, shared
@@ -358,6 +399,7 @@ function MistakeSummaryLine({ summary }: { summary: CheckSolutionResponse["mista
 
 export function SolutionChecker({
   question, marks, subject, topic, questionId, solutionSteps, finalAnswer, section, format, options, answer, onRequestStepSolution, onResult,
+  collectMode = false, savedAnswer = null, onSaveAnswer, onRemoveAnswer,
 }: SolutionCheckerProps) {
   const { user } = useAuth();
   /**
@@ -420,6 +462,10 @@ export function SolutionChecker({
 
   useEffect(() => {
     if (!questionId) return;
+    // ★ Collect mode never restores a graded result: in the batch flow a question is
+    // graded once, at Finish, and a cached per-question grade from BEFORE the flip would
+    // render a mark this session did not earn.
+    if (collectMode) return;
     const saved = loadSavedResult(questionId);
     if (saved) {
       setResult(saved);
@@ -578,6 +624,28 @@ export function SolutionChecker({
   }, [imageBase64, imageMimeType, textAnswer, question, marks, subject, topic, user, questionId, solutionSteps, finalAnswer, section, format, options, answer]);
 
   /**
+   * ★★ COLLECT MODE'S CTA — "Save my answer". It hands the working UP and MAKES NO API
+   * CALL. There is no `await`, no `try`, no grader import reached, and no `loading`
+   * state: this is the assertion the whole lane rests on (test 1), and it is true
+   * structurally rather than by inspection.
+   *
+   * It sends what the ACTIVE tab shows, exactly as `handleCheck` does — what you see is
+   * what you save — so a stale attachment can never beat the box the student is looking
+   * at.
+   */
+  const handleSaveAnswer = useCallback(() => {
+    const hasImage = answerTab === "upload" && !!imageBase64;
+    const hasTypedWorking = answerTab === "type" && textAnswer.trim().length > 0;
+    if (!hasImage && !hasTypedWorking) return;
+    onSaveAnswer?.({
+      imageBase64: hasImage ? imageBase64 : null,
+      imageMimeType: hasImage ? imageMimeType : null,
+      textAnswer: hasTypedWorking ? textAnswer.trim() : null,
+      kind: hasImage ? (isPdf ? "pdf" : "photo") : "typed",
+    });
+  }, [answerTab, imageBase64, imageMimeType, isPdf, textAnswer, onSaveAnswer]);
+
+  /**
    * The locked CTA's tap. ★ It opens the SAME sheet the 402 opens — same component,
    * same feature code, so the two paths cannot drift into two different explanations of
    * one boundary. `trialEndedAt` is null here ON PURPOSE: only the server knows that
@@ -629,6 +697,15 @@ export function SolutionChecker({
         : "#ef4444"
     : "var(--text-muted)";
 
+  /**
+   * The input phase is open while there is nothing to show yet. ★ In DEFAULT mode this
+   * is `!result`, character for character what every branch below used to read, so the
+   * shipped behaviour and its 19 contract tests are untouched. In COLLECT mode the
+   * closing condition is a SAVED answer instead of a grade, because collect mode never
+   * produces a grade.
+   */
+  const inputPhaseOpen = collectMode ? !savedAnswer : !result;
+
   const totalMistakes = result?.mistakeSummary
     ? result.mistakeSummary.conceptual + result.mistakeSummary.calculation +
       result.mistakeSummary.silly + result.mistakeSummary.presentation
@@ -643,12 +720,14 @@ export function SolutionChecker({
       background: "#ffffff",
       boxShadow: "0 1px 2px rgba(15, 23, 42, 0.04)",
     }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
         <strong style={{ fontSize: "0.87rem", color: "hsl(220, 25%, 12%)" }}>
-          Check my answer
+          {collectMode ? "Your answer" : "Check my answer"}
         </strong>
         <span style={{ fontSize: "0.72rem", color: "hsl(220, 15%, 42%)" }}>
-          Upload or type your working
+          {collectMode
+            ? "Upload or type your working — graded at the end of the session"
+            : "Upload or type your working"}
         </span>
       </div>
 
@@ -675,7 +754,7 @@ export function SolutionChecker({
           image-XOR-text behaviour visible instead of promising something that never
           worked. (Making both work at once would mean changing the grader — out of
           scope: [FU-SOLUTIONCHECKER-TEXT-XOR-IMAGE].) */}
-      {!result && (
+      {inputPhaseOpen && (
         <div
           style={{
             display: "flex", background: "hsl(220, 20%, 97%)", borderRadius: 10,
@@ -712,7 +791,7 @@ export function SolutionChecker({
       )}
 
       {/* ── Upload zone ────────────────── */}
-      {answerTab === "upload" && !hasFile && !result && (
+      {answerTab === "upload" && !hasFile && inputPhaseOpen && (
         <>
         <button
           type="button"
@@ -779,7 +858,7 @@ export function SolutionChecker({
       )}
 
       {/* ── Image preview ────────────────── */}
-      {answerTab === "upload" && imagePreview && !isPdf && !result && (
+      {answerTab === "upload" && imagePreview && !isPdf && inputPhaseOpen && (
         <div style={{ marginBottom: 10 }}>
           <div style={{ position: "relative", display: "inline-block", maxWidth: "100%" }}>
             <img
@@ -803,7 +882,7 @@ export function SolutionChecker({
       )}
 
       {/* ── PDF indicator ────────────────── */}
-      {answerTab === "upload" && isPdf && fileName && !result && (
+      {answerTab === "upload" && isPdf && fileName && inputPhaseOpen && (
         <div style={{
           display: "flex", alignItems: "center", gap: 10, padding: "10px 14px",
           borderRadius: 10, background: "hsl(210, 33%, 96%)",
@@ -833,7 +912,7 @@ export function SolutionChecker({
           moved: out from behind the disclosure, into a first-class peer panel. Its
           props and string contract are untouched (EQUATION_INPUT_API_CONTRACT §"one
           writer per file" — this lane never edits src/components/equation/**). */}
-      {answerTab === "type" && !result && (
+      {answerTab === "type" && inputPhaseOpen && (
         <EquationInput
           value={textAnswer}
           onChange={setTextAnswer}
@@ -853,7 +932,7 @@ export function SolutionChecker({
 
           NOT `display:none`, NOT removed from the tab order, NOT inert — see
           LOCKED_CTA_CSS. */}
-      {locked && !result && (
+      {locked && !collectMode && inputPhaseOpen && (
         <div className="lt-sc-lock">
           <style>{LOCKED_CTA_CSS}</style>
           <button
@@ -875,7 +954,7 @@ export function SolutionChecker({
       )}
 
       {/* ── Check button ────────────────── */}
-      {canCheck && !result && !locked && (
+      {canCheck && !collectMode && inputPhaseOpen && !locked && (
         <button
           type="button"
           onClick={handleCheck}
@@ -893,6 +972,94 @@ export function SolutionChecker({
         >
           {loading ? "Checking your answer..." : "Check my answer"}
         </button>
+      )}
+
+      {/* ── COLLECT MODE · "Save my answer" (WIRE-2) ──────────────────
+          ★★ NO API CALL. `handleSaveAnswer` has no await and no grader reference; the
+          single paid call for the whole session happens once, at Finish. */}
+      {collectMode && canCheck && inputPhaseOpen && (
+        <button
+          type="button"
+          data-testid="qp-save-answer"
+          onClick={handleSaveAnswer}
+          style={{
+            marginTop: 10, width: "100%", padding: "11px 14px",
+            borderRadius: 10, border: "1px solid hsl(152, 55%, 45%)",
+            background: "hsl(152, 55%, 45%)",
+            color: "white", fontSize: "0.84rem", fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          Save my answer
+        </button>
+      )}
+
+      {/* ── COLLECT MODE · the confirmed state (WIRE-2) ──────────────────
+          ★ "Saved. Graded when you finish." fires at the MOMENT OF DOUBT — a student who
+          has just handed over their working and got no mark back. A sub-line read once
+          when the panel opened is not the same as four words at the point of action.
+          Replace and Remove are both here so a saved answer is never a trap. */}
+      {collectMode && savedAnswer && (
+        <div
+          data-testid="qp-saved-confirmation"
+          style={{
+            display: "flex", gap: 11, alignItems: "flex-start",
+            background: "hsl(152, 55%, 95%)", border: "1px solid hsl(152, 50%, 82%)",
+            borderRadius: 11, padding: "13px 15px",
+          }}
+        >
+          <span
+            aria-hidden="true"
+            style={{
+              width: 21, height: 21, borderRadius: "50%", background: "hsl(152, 55%, 45%)",
+              color: "#fff", flex: "none", display: "grid", placeItems: "center",
+              fontSize: "0.72rem", fontWeight: 700, marginTop: 1,
+            }}
+          >✓</span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 700, fontSize: "0.85rem", color: "hsl(220, 25%, 12%)" }}>
+              Saved. Graded when you finish.
+            </div>
+            <div style={{ fontSize: "0.76rem", color: "hsl(152, 55%, 26%)", marginTop: 2 }}>
+              {savedAnswer.kind === "typed"
+                ? "Your typed working is saved."
+                : savedAnswer.kind === "pdf"
+                  ? "Your PDF is saved."
+                  : "Your photo is saved."}
+            </div>
+            {/* ★ TWO AFFORDANCES, TWO DIFFERENT ACTIONS. Replace drops the saved working
+                and REOPENS THE SAME INPUT the student used (the picker for a photo/PDF,
+                the type box for typed working) — one tap to redo. Remove drops it and
+                leaves the panel at its default. Wiring both to the identical handler
+                would be a no-op toggle wearing two labels. */}
+            <div style={{ display: "flex", gap: 14, marginTop: 8 }}>
+              <button
+                type="button"
+                onClick={() => {
+                  const wasTyped = savedAnswer.kind === "typed";
+                  handleClear();
+                  onRemoveAnswer?.();
+                  if (wasTyped) setAnswerTab("type");
+                  else fileInputRef.current?.click();
+                }}
+                style={{
+                  background: "none", border: "none", padding: 0, cursor: "pointer",
+                  font: "inherit", fontSize: "0.76rem", fontWeight: 600,
+                  color: "hsl(152, 55%, 26%)", textDecoration: "underline",
+                }}
+              >Replace</button>
+              <button
+                type="button"
+                onClick={() => { handleClear(); onRemoveAnswer?.(); }}
+                style={{
+                  background: "none", border: "none", padding: 0, cursor: "pointer",
+                  font: "inherit", fontSize: "0.76rem", fontWeight: 600,
+                  color: "hsl(220, 15%, 42%)", textDecoration: "underline",
+                }}
+              >Remove</button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* ── Premium boundary (GATE-2) ──────────────────
