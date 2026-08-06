@@ -1,5 +1,43 @@
 ---
 
+## 2026-08-06 -- #611-#617 (WAVE 5E, four controller lanes + two owner lanes): the batch-grading arc built and unblocked - a sitemap Google had never fetched - and THREE capabilities that are still dormant - trunk `9cfcb09a`
+
+Full controller record: `handoff/WAVE_STATE_WAVE5E_ARCHIVE.md`.
+**The controller stood down after this handoff. Wave 5F opens with `WIRE-2`, specced and waiting.**
+
+> **The Quick Practice results surface is BUILT AND UNREACHABLE. `RESULTS-1` (#617) is merged and
+> dormant by design. `WIRE-2` is the ONLY thing that makes it live.** It ends `#578`, `#611` and
+> `#617` together -- three capabilities built, tested, and called by nothing.
+
+- **`#611` BATCH-1b** -- `gradeQuickPracticeBatch` + 25 tests. **Shipped complete and UNCALLED**, and
+  said so **in the module header**, not only its report. The trigger lives outside its allowlist and
+  it **refused to widen scope**. Found **typed answers have no channel at all** -- no `textAnswer`
+  field on `WorksheetGradeQuestionInput` -- classified `typed-no-channel` and **returned, not dropped**.
+  => **batching covers PHOTO working only.**
+- **`WIRE-1` -- BLOCKED, built nothing, correctly.** The brief's core assertion encoded a product
+  decision nobody had made: today the student sees the grade **inline, immediately**, and "the
+  per-question path proven silent" would have deleted that. Also found **`#611` swallows the 402** --
+  latent while uncalled, **live the moment WIRE-2 ships**. **Declined to run gates against an empty
+  diff**: reporting PASS there is the silent no-op this project keeps paying for.
+- **`#614` FORBID-6** -- lifted the `ResultsScorecard` ban in **both** C&I gates. **Neither gate
+  asserted one byte of rendered behaviour**: the entries were the ENTIRE protection for **the return
+  ticket reaching a clickable button** -- drop an action or its `onClick` and the tutor overlay
+  becomes impossible to close, with nothing red. Caught **two silent no-ops in its own work**.
+- **`#617` RESULTS-1** -- the graded answer sheet, fixture-driven, **dormant by design**. Found a
+  **second way to kill an openness guarantee that no mutation could catch**: `#614`'s openness test
+  proves itself with the literal `"quick-practice-batch"`, so claiming that name keeps it green while
+  it silently stops testing anything. **Found by reading the guard.** Its builder now **throws**
+  `ObjectiveMarkNotBinaryError` rather than clamping a fractional objective mark.
+- **`#612` / `#613`** (owner-authored) -- `og:image` pointed at a 404 path; then robots, sitemap,
+  llms.txt and favicon served at the **root**. ** Google had NEVER fetched the sitemap: META-1's SEO
+  work had been landing on files no crawler could reach. **
+
+**AI COST -- OPEN, CAUSE NOT ESTABLISHED.** INR 586.96 for 31 Jul - 5 Aug against ~INR 10 the prior
+week; **98% one SKU: output tokens, and thinking bills at the output rate.** Forecast back to INR
+13.33, so nothing unattended is running. **Three conclusions were reached and retracted in ninety
+minutes.** Account held by the owner; **`TELEMETRY-1` ends the guessing, and nothing should be capped
+before it.**
+
 ## 2026-08-05 -- #606–#609 (WAVE 5D, four lanes + one read-only scout under the controller + subagent model): a legal gap on the signed-out front door · two briefs whose headline items were already shipped · a stacked PR that deadlocked with its own base - trunk `51f7712`
 
 Merge order FORBID-5 → SERVER-1 → COPY-1 → WELCOME-1.
