@@ -8,7 +8,13 @@ import {
   resolveTopicDisplayName,
   resolveTopicKey as resolveCanonicalTopicKey,
 } from "../utils/topicResolver";
-import { fetchStepSolution, type CheckSolutionResponse, type StepSolutionResponse } from "../ai/aiClient";
+import {
+  fetchStepSolution,
+  type CheckSolutionAnnotatedStep,
+  type CheckSolutionMistakeSummary,
+  type CheckSolutionResponse,
+  type StepSolutionResponse,
+} from "../ai/aiClient";
 
 const COUNT_SOFT_MAX = 50;
 const mapEngineMarks = (ui: string): number | undefined => {
@@ -347,6 +353,112 @@ export const QP_BUILT_PARAM = "built" as const;
  * pop-reset invariant is unit-pinned; the CALLER also gates on a true→false marker
  * transition so a build (false→true) can never trip it (see the effect).
  */
+/**
+ * \u2605\u2605 IS THIS QUESTION OBJECTIVE? A MIRROR OF THE SERVER'S OWN RULE, NEVER A SECOND ONE.
+ * `server/services/serverUtils.cjs isObjectiveType(qType || format, section)` is the
+ * canonical classifier; this reproduces it and adds ONE client-only signal the server
+ * cannot see: a question the page RENDERS as a clickable multiple-choice item (it has
+ * structured options) is objective whatever its metadata says.
+ *
+ * \u2605 WHY IT IS FORWARDED AT ALL. `buildBatchQuestionInput` carries `section` to the
+ * grader but has NO field for `format`/`qType`, so a bank MCQ that is not in Section A
+ * would arrive unclassified and could be step-marked \u2014 a fractional mark on a 1-marker,
+ * which CBSE does not award and which `quickPracticeGradedScorecardVariant` THROWS on.
+ * Pure + exported so the mirror is unit-pinned rather than asserted in a comment.
+ */
+export const isObjectiveQuestion = (
+  format: string | null | undefined,
+  section: string | null | undefined,
+  options: readonly string[] | null | undefined,
+): boolean => {
+  if (Array.isArray(options) && options.length > 0) return true;
+  const t = String(format || "").toLowerCase();
+  const sec = String(section || "").toUpperCase();
+  return (
+    t === "mcq" || t === "assertionreason" || t === "assertion-reason" || t === "ar" ||
+    t === "objective" || t === "fillblank" || sec === "A"
+  );
+};
+
+/**
+ * The batched call's `worksheetId` \u2014 the session's own identity, echoed by the server and
+ * never interpreted by it. A PURE function of the session's facts (CLAUDE.md \u00a77: never
+ * `Math.random()`), so re-grading the SAME set in the SAME visit reuses the same id.
+ */
+export const quickPracticeBatchId = (filterSignature: string, startedAt: number): string => {
+  // A local FNV-1a digest rather than an import of `sessionRecords.stableHash8`: that
+  // module is held zero-diff by TWO ops gates, and an id the SERVER only echoes does not
+  // justify a new import edge into it.
+  let h = 0x811c9dc5;
+  const raw = String(filterSignature);
+  for (let i = 0; i < raw.length; i += 1) {
+    h ^= raw.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return `qp-${startedAt}-${h.toString(16).padStart(8, "0")}`;
+};
+
+/** The chip label for each MI kind. The KIND drives the shell's careless-vs-knowledge-gap
+ *  framing; this is only what the student reads. */
+export const MISTAKE_KIND_LABEL: Record<ScorecardMistakeKind, string> = {
+  conceptual: "Concept gap",
+  calculation: "Calculation",
+  silly: "Silly slip",
+  presentation: "Presentation",
+};
+
+/** PURE. The single mistake kind to badge one answer with: the one the grader counted
+ *  most. Ties resolve in CBSE severity order (a concept gap outranks a slip). Returns
+ *  null when the grader reported NO mistakes \u2014 honest silence, never a default chip. */
+export const dominantMistakeKind = (
+  summary: CheckSolutionMistakeSummary | null | undefined,
+): ScorecardMistakeKind | null => {
+  if (!summary) return null;
+  const order: ScorecardMistakeKind[] = ["conceptual", "calculation", "silly", "presentation"];
+  let best: ScorecardMistakeKind | null = null;
+  let bestN = 0;
+  for (const kind of order) {
+    const n = Number(summary[kind]) || 0;
+    if (n > bestN) { best = kind; bestN = n; }
+  }
+  return best;
+};
+
+/** PURE. The teacher's line for where the mark went: the annotation on the FIRST step
+ *  that lost something. Null when every step was clean \u2014 the shell then renders no
+ *  "where the mark went" block at all rather than an empty one. */
+export const firstMistakeDetail = (
+  steps: CheckSolutionAnnotatedStep[] | null | undefined,
+): string | null => {
+  if (!Array.isArray(steps)) return null;
+  for (const step of steps) {
+    const lost = (Number(step?.marksDeducted) || 0) > 0 || step?.status === "incorrect" || step?.status === "partial" || step?.status === "missing";
+    const note = String(step?.teacherAnnotation || "").trim();
+    if (lost && note) return note;
+  }
+  return null;
+};
+
+/** PURE. Sort key for a graded-sheet row, from its "Question N" label \u2014 so the sheet
+ *  reads in DISPLAYED order even though the ungraded rows are appended last. */
+export const gradedAnswerOrder = (label: string): number => {
+  const m = /(\d+)/.exec(String(label || ""));
+  return m ? Number(m[1]) : Number.MAX_SAFE_INTEGER;
+};
+
+/** PURE. The option LETTER for a piece of option text ("b"), or null when the text is
+ *  not one of the options. Never guesses \u2014 an unresolvable pick renders no letter. */
+export const optionLetter = (
+  options: readonly string[] | null | undefined,
+  text: string | null | undefined,
+): string | null => {
+  if (!Array.isArray(options) || options.length === 0) return null;
+  const want = String(text ?? "").trim().toLowerCase();
+  if (!want) return null;
+  const idx = options.findIndex((o) => String(o ?? "").trim().toLowerCase() === want);
+  return idx >= 0 ? String.fromCharCode(97 + idx) : null;
+};
+
 export const shouldResetBuiltOnPop = (
   isBuilt: boolean,
   arrivedTargeted: boolean,
@@ -369,9 +481,14 @@ import { recordDetour } from "../services/guidedJourneyService";
 import { getAttempts, getAttemptsFromCloud } from "../services/practiceInsights";
 import {
   buildSeenQuestionIds,
+  buildQuickPracticeResponse,
+  gradeQuickPracticeBatch,
   persistQuickPracticeSession,
+  selectQuickPracticeBatch,
   sessionRotationOffset,
+  type QuickPracticeBatchResult,
   type QuickPracticeEntry,
+  type QuickPracticeSavedAnswer,
 } from "../services/quickPracticeSessionService";
 import { toSessionSubject } from "../services/checkImproveGradeService";
 import { useAuth } from "../context/AuthContext";
@@ -409,7 +526,51 @@ import { PracticeQuestionList } from "../components/practice/PracticeQuestionLis
 import type { SessionStats } from "../components/practice/SessionProgressBar";
 import { downloadWorksheet } from "../components/practice/worksheetGenerator";
 import ResultsScorecard from "../components/results/ResultsScorecard";
-import { quickPracticeScorecardVariant } from "../components/results/scorecardVariants";
+import {
+  aggregateFourType,
+  quickPracticeGradedScorecardVariant,
+  quickPracticeScorecardVariant,
+  type ScorecardGradedAnswer,
+  type ScorecardMistakeKind,
+  type ScorecardSplitRow,
+} from "../components/results/scorecardVariants";
+import type { SolutionCheckerSavedWorking } from "../components/question/SolutionChecker";
+import { UpgradeSheet, labelForFeature } from "../components/subscription/UpgradeSheet";
+
+/**
+ * ★ WIRE-2 · the confirmation step's stylesheet. A module-scope CSS string injected by
+ * the page (the `QP_ENTRY_CSS` / `LOCKED_CTA_CSS` precedent already in this codebase), so
+ * the new markup uses CLASSES rather than the inline-style objects CLAUDE.md §7 forbids in
+ * new work — without adding a file outside this lane's allowlist. Tokens are the product's
+ * own: green hsl(152,55%,45%), navy hsl(219,44%,17%).
+ */
+const QP_CONFIRM_CSS = `
+.qp-cf{border:1px solid hsl(220,18%,90%);border-radius:15px;overflow:hidden;margin-top:20px;background:#fff}
+.qp-cf__top{background:hsl(219,44%,17%);color:#fff;padding:22px}
+.qp-cf__k{font-size:0.94rem;font-weight:700}
+.qp-cf__kk{font-size:0.78rem;opacity:.72;margin-top:1px}
+.qp-cf__big{font-size:2.6rem;font-weight:700;line-height:1;margin:16px 0 3px}
+.qp-cf__big small{font-size:1.3rem;opacity:.72;font-weight:600}
+.qp-cf__lede{margin:9px 0 0;font-size:0.88rem;opacity:.92;line-height:1.5}
+.qp-cf__body{padding:19px}
+.qp-cf__lbl{font-size:0.68rem;letter-spacing:.13em;text-transform:uppercase;color:hsl(220,15%,42%);font-weight:700;margin-bottom:11px}
+.qp-cf__lbl+.qp-cf__lbl,.qp-cf__row+.qp-cf__lbl{margin-top:16px}
+.qp-cf__row{display:flex;align-items:center;gap:12px;padding:11px 13px;border:1px solid hsl(220,18%,90%);border-radius:10px;margin-bottom:8px;font-size:0.86rem;line-height:1.4}
+.qp-cf__tag{font-size:0.66rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border-radius:6px;background:hsl(220,20%,95%);color:hsl(220,15%,42%);flex:none}
+.qp-cf__row--good{background:hsl(152,55%,95%);border-color:hsl(152,50%,82%)}
+.qp-cf__row--good .qp-cf__tag{background:hsl(152,55%,45%);color:#fff}
+.qp-cf__row--miss{background:#fff1f4;border-color:#fecdd3}
+.qp-cf__row--miss .qp-cf__tag{background:#e11d48;color:#fff}
+.qp-cf__row--pending{background:#fff7ed;border-color:#fed7aa}
+.qp-cf__row--pending .qp-cf__tag{background:#f97316;color:#fff}
+.qp-cf__row--diagnose{background:#f5f3ff;border-color:#ddd6fe}
+.qp-cf__row--diagnose .qp-cf__tag{background:#7c3aed;color:#fff}
+.qp-cf__note{font-size:0.76rem;color:hsl(220,15%,42%);margin:12px 0 10px;line-height:1.5}
+.qp-cf__cta{display:block;width:100%;text-align:center;background:hsl(152,55%,45%);color:#fff;border:none;font:inherit;font-weight:700;font-size:0.92rem;padding:13px;border-radius:11px;cursor:pointer;margin-top:5px}
+.qp-cf__cta[disabled]{background:hsl(152,30%,62%);cursor:not-allowed}
+.qp-cf__cta--sec{background:#fff;color:hsl(220,25%,12%);border:1px solid hsl(220,18%,90%);margin-top:8px;font-weight:600}
+.qp-cf__err{margin-top:10px;padding:9px 12px;border-radius:9px;background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.2);color:#ef4444;font-size:0.8rem;line-height:1.45}
+`;
 
 const QTYPE_FIRST_TRIG = import.meta.env.VITE_QTYPE_FIRST_TRIGONOMETRY === "true";
 
@@ -1036,6 +1197,18 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   // ONLY to assemble the (non-counting) session record at finish — SolutionChecker's
   // own recordAttempt/recordMistake sinks are the counting path and are untouched.
   const [gradedResults, setGradedResults] = useState<Record<string, CheckSolutionResponse>>({});
+  /* ══ WIRE-2 · COLLECT-AND-BATCH STATE ═══════════════════════════════
+     The working the student saves as they go, keyed by bank question id. ★ NOTHING here
+     is graded: saving costs one setState and no network. The ONE paid call happens once,
+     when the student confirms on the finish screen. */
+  const [savedAnswers, setSavedAnswers] = useState<Record<string, SolutionCheckerSavedWorking>>({});
+  /** The result of THE one batched call. Null until the student confirms. */
+  const [batchResult, setBatchResult] = useState<QuickPracticeBatchResult | null>(null);
+  const [batchGrading, setBatchGrading] = useState<boolean>(false);
+  const [batchError, setBatchError] = useState<string | null>(null);
+  /** ★★ §4b — the 402, reaching the student. GATE-2's sheet, never a red error box: a
+   *  locked feature is not a fault they committed. */
+  const [premiumBlock, setPremiumBlock] = useState<{ feature: string; trialEndedAt: string | null } | null>(null);
   // Which session identity has already been written. A one-shot latch: the scorecard
   // re-renders, and `allDone` can raise it without any click, so without this the
   // write would fire on every render.
@@ -1910,7 +2083,153 @@ const packTopicKey = useMemo(() => {
     return () => clearInterval(id);
   }, [showRunnerClock, showScorecard, timerBudgetSeconds]);
 
-  // ── The QP session record (LOCKED §1a as amended — NON-COUNTING) ───────────
+  /* \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+     WIRE-2 \u00b7 THE COLLECT-AND-BATCH FLOW
+     \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
+
+  /** ONE saved answer per DISPLAYED question, in displayed order \u2014 the exact shape
+   *  `gradeQuickPracticeBatch` consumes. `qNumber` is the DISPLAYED position, which is
+   *  also the reply's only join key and the index `buildQuickPracticeResponse` uses. */
+  const sessionAnswers = useMemo<QuickPracticeSavedAnswer[]>(() => {
+    return committedPoolSelection.displayed.map((q, index) => {
+      const qId = String(q.id);
+      const saved = savedAnswers[qId];
+      const opts = Array.isArray(q.options) ? q.options.map(String) : null;
+      const pickedIdx = mcqSelections[qId];
+      const pickedOption =
+        opts && pickedIdx != null && pickedIdx >= 0 ? opts[pickedIdx] ?? null : null;
+      const mcq = mcqResults[qId];
+      return {
+        questionId: qId,
+        qNumber: index + 1,
+        marks: Number(q.marks) || 0,
+        questionText: String(q.questionText || ""),
+        topicLabel,
+        topicKey: q.topicKey || canonicalTopicKey || topicParam,
+        section: q.section,
+        format: q.format,
+        answer: q.answer ?? null,
+        options: opts,
+        // \u2605 Objectivity is forwarded EXPLICITLY, mirroring the server's own
+        // `isObjectiveType(qType || format, section)`. `buildBatchQuestionInput` carries
+        // `section` but has no field for `format`/`qType`, so a bank MCQ outside Section A
+        // would otherwise arrive unclassified and could be step-marked \u2014 exactly the
+        // fractional-mark-on-a-1-marker case CBSE does not allow.
+        objective: isObjectiveQuestion(q.format, q.section, opts),
+        solutionSteps: q.solutionSteps ?? null,
+        finalAnswer: q.finalAnswer ?? null,
+        pickedOption,
+        pickedCorrect: mcq ? mcq === "correct" : null,
+        imageBase64: saved?.imageBase64 ?? null,
+        imageMimeType: saved?.imageMimeType ?? null,
+        textAnswer: saved?.textAnswer ?? null,
+      };
+    });
+  }, [committedPoolSelection.displayed, savedAnswers, mcqSelections, mcqResults, topicLabel, canonicalTopicKey, topicParam]);
+
+  /** \u2605\u2605 INCLUSION IS BY WORKING, NEVER BY TYPE \u2014 and the decision is the SERVICE's, not
+   *  this page's. `selectQuickPracticeBatch` inspects only what the student produced. */
+  const batchSelection = useMemo(() => selectQuickPracticeBatch(sessionAnswers), [sessionAnswers]);
+  /** Displayed labels for the questions with nothing saved at all \u2014 named at the
+   *  confirmation step so a student can go back rather than pay for a second call. */
+  const unansweredLabels = useMemo(
+    () => batchSelection.skipped.map((a) => `Q${a.qNumber}`),
+    [batchSelection.skipped],
+  );
+
+  /** "Marked now \u00b7 free" \u2014 EVERY option pick, whether or not working was also saved.
+   *  \u2605 An MCQ with working appears in BOTH halves deliberately: the MARK came from the
+   *  local compare and cost nothing; the DIAGNOSIS came from the batch. Collapsing them
+   *  would hide which half the student paid for. */
+  const markedNowRows = useMemo<ScorecardSplitRow[]>(
+    () =>
+      sessionAnswers
+        .filter((a) => a.pickedCorrect != null)
+        .map((a) => {
+          const marks = Number(a.marks) || 0;
+          const picked = optionLetter(a.options, a.pickedOption);
+          const correct = optionLetter(a.options, a.answer);
+          return {
+            tag: `Q${a.qNumber}`,
+            detail: a.pickedCorrect
+              ? `Correct \u00b7 ${marks} mark${marks === 1 ? "" : "s"}`
+              : picked && correct
+                ? `Chose (${picked}) \u00b7 answer is (${correct}) \u00b7 0 / ${marks}`
+                : `Not quite \u00b7 0 / ${marks}`,
+            tone: a.pickedCorrect ? "good" : "miss",
+          } as ScorecardSplitRow;
+        }),
+    [sessionAnswers],
+  );
+
+  /** The post-grade split rows, under the heading RESULTS-1 shipped as "Ready to grade"
+   *  and \u00a79a corrects to "Diagnosed from your working" \u2014 because by the time this renders
+   *  the grading has HAPPENED. Honest-or-silent: an answer the grader could not read
+   *  contributes no row here; it appears on the sheet below in its ungraded state. */
+  const diagnosedRows = useMemo<ScorecardSplitRow[]>(() => {
+    if (!batchResult || batchResult.outcome !== "graded") return [];
+    const rows: ScorecardSplitRow[] = [];
+    for (const saved of batchSelection.batch) {
+      const graded = batchResult.entries[saved.qNumber - 1]?.graded;
+      if (!graded) continue;
+      const kind = dominantMistakeKind(graded.mistakeSummary);
+      rows.push({
+        tag: `Q${saved.qNumber}`,
+        detail: saved.objective
+          ? kind
+            ? `${MISTAKE_KIND_LABEL[kind]} \u2014 read from your working`
+            : "Working read \u2014 no mistake type found"
+          : `${graded.marksAwarded} / ${graded.totalMarks}${kind ? ` \u00b7 ${MISTAKE_KIND_LABEL[kind]}` : ""}`,
+        tone: saved.objective ? "diagnose" : "pending",
+      });
+    }
+    return rows;
+  }, [batchResult, batchSelection.batch]);
+
+  const handleSaveAnswer = useCallback((qId: string, working: SolutionCheckerSavedWorking) => {
+    setSavedAnswers((prev) => ({ ...prev, [qId]: working }));
+  }, []);
+  const handleRemoveAnswer = useCallback((qId: string) => {
+    setSavedAnswers((prev) => {
+      if (!(qId in prev)) return prev;
+      const next = { ...prev };
+      delete next[qId];
+      return next;
+    });
+  }, []);
+
+  /**
+   * \u2605\u2605 THE ONE PAID CALL. Fired by the student's explicit "Grade my N answers" tap and
+   * by nothing else \u2014 not by Finish, not by a mount, not by an effect. `batchGrading`
+   * guards a double tap, so one confirmed session issues EXACTLY ONE call.
+   */
+  const handleGradeBatch = useCallback(async () => {
+    if (batchGrading || batchResult) return;
+    if (batchSelection.batch.length === 0) return;
+    setBatchGrading(true);
+    setBatchError(null);
+    const result = await gradeQuickPracticeBatch({
+      worksheetId: quickPracticeBatchId(filterSignature, sessionStartedAt),
+      subject: subjectKey,
+      answers: sessionAnswers,
+      user: authUserForJourney,
+    });
+    setBatchGrading(false);
+    if (result.outcome === "skipped-premium-required") {
+      // \u2605\u2605 \u00a74b \u2014 GATE-2's sheet, NOT the error box. The student learns the boundary and
+      // keeps everything they scored for free; nothing red, nothing about a fault.
+      setPremiumBlock(result.premiumRequired ?? { feature: "unknown", trialEndedAt: null });
+      return;
+    }
+    setBatchResult(result);
+    if (result.outcome === "skipped-error") {
+      setBatchError(
+        "We could not grade your answers just now. Your MCQ marks are safe \u2014 try grading again in a moment.",
+      );
+    }
+  }, [batchGrading, batchResult, batchSelection.batch.length, filterSignature, sessionStartedAt, subjectKey, sessionAnswers, authUserForJourney]);
+
+  // \u2500\u2500 The QP session record (LOCKED \u00a71a as amended \u2014 NON-COUNTING) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
   // Written when the scorecard FIRST appears, not on the "Finish session" click alone:
   // `showScorecard` is (sessionFinished || allDone), so a student who answers every
   // question reaches the scorecard WITHOUT ever tapping Finish — hanging the write off
@@ -1925,22 +2244,41 @@ const packTopicKey = useMemo(() => {
     if (!showScorecard) return;
     const displayed = committedPoolSelection.displayed;
     if (displayed.length === 0) return;
+    // ★ WAIT FOR THE SESSION'S OUTCOME TO BE FINAL. With answers awaiting the batch, the
+    // marks do not exist yet — writing here would durably record a set as MCQ-only and,
+    // because the id is idempotent, the graded write would then OVERWRITE with the right
+    // figures only if it ever came. Holding the write until the student has confirmed (or
+    // until there is nothing to confirm) means the record is written once, correct.
+    if (!batchResult && batchSelection.batch.length > 0) return;
     const identityKey = `${filterSignature}::${displayed.map((q) => String(q.id)).join(",")}`;
     if (recordedSessionRef.current === identityKey) return;
     recordedSessionRef.current = identityKey;
 
-    const entries: QuickPracticeEntry[] = displayed.map((q) => {
-      const qId = String(q.id);
-      return {
-        questionId: qId,
-        marks: Number(q.marks) || 0,
-        // A graded result carries real working; a bare MCQ click carries none. Keyed
-        // off which INTERACTION produced the outcome, never off `format === "mcq"` —
-        // a student can submit written working for an MCQ, and that working is real.
-        ...(gradedResults[qId] ? { graded: gradedResults[qId] } : {}),
-        ...(mcqResults[qId] ? { mcq: mcqResults[qId] } : {}),
-      };
-    });
+    /* ★★ §4c · #606's CONTRACT, PRESERVED THROUGH THE FLIP. ONE graded set writes ONE
+       SessionRecord and ONE perQuestion payload, idempotent by doc id, with EVERY
+       DISPLAYED question id on the record while the payload stays sparse — a batch
+       grades a subset, and a question with no outcome carries neither `graded` nor `mcq`
+       so it is OMITTED from the results rather than padded with a fabricated 0.
+
+       ★ WHAT MOVED: the entries now come from the BATCHED result when there was one.
+       `gradeQuickPracticeBatch` returns one entry per displayed question in displayed
+       order (its `baseEntries` are built from the same array this page passed in), with
+       the local MCQ outcome already folded in — so the record shape is identical to what
+       the per-question path produced, and the latch below still fires exactly once. */
+    const entries: QuickPracticeEntry[] = batchResult
+      ? batchResult.entries
+      : displayed.map((q) => {
+          const qId = String(q.id);
+          return {
+            questionId: qId,
+            marks: Number(q.marks) || 0,
+            // A graded result carries real working; a bare MCQ click carries none. Keyed
+            // off which INTERACTION produced the outcome, never off `format === "mcq"` —
+            // a student can submit written working for an MCQ, and that working is real.
+            ...(gradedResults[qId] ? { graded: gradedResults[qId] } : {}),
+            ...(mcqResults[qId] ? { mcq: mcqResults[qId] } : {}),
+          };
+        });
 
     // Multi-topic: a mixed set has no single topic — build an honest joined identity
     // ("mixed:a+b" slug, "Mixed: A, B · Practice set" title, ALL topicKeys). Per-question
@@ -1971,6 +2309,7 @@ const packTopicKey = useMemo(() => {
     showScorecard, committedPoolSelection.displayed, gradedResults, mcqResults,
     authUserForJourney, topicLabel, subjectKey, canonicalTopicKey, topicParam,
     filterSignature, sessionStartedAt, isMultiTopic, multiTopics,
+    batchResult, batchSelection.batch.length,
   ]);
 
   const activeQuestionStrategyDetails = useMemo(
@@ -2331,6 +2670,12 @@ const packTopicKey = useMemo(() => {
           onMcqResult={(qId, result) => setMcqResults((prev) => ({ ...prev, [qId]: result }))}
           onGraded={(qId, result) => setGradedResults((prev) => ({ ...prev, [qId]: result }))}
           onAskTutor={overlay ? undefined : askTutorAboutQuestion}
+          // ★★ WIRE-2 · COLLECT MODE. The answer panel SAVES; nothing on this page grades
+          // per question any more. The ONE paid call is `handleGradeBatch`, below.
+          collectMode
+          savedAnswers={savedAnswers}
+          onSaveAnswer={handleSaveAnswer}
+          onRemoveAnswer={handleRemoveAnswer}
         />
         )}
 
@@ -2371,50 +2716,250 @@ const packTopicKey = useMemo(() => {
 
 {(() => {
   if (!showScorecard) return null;
-  // Quick Practice variant of the Universal <ResultsScorecard> (§2.1): "X of N
-  // attempted" (never marks/total), honest empty state, NO graded-sheet download, a
-  // personalized what-next menu. Figures come from existing session state (no new
-  // plumbing); Quick Practice writes NO session record (LOCKED §1a) — this only
-  // DISPLAYS. Reuses the #249 finish-session trigger above.
   const topicK = canonicalTopicKey || topicParam;
   const back = { state: { back: location.pathname + location.search, backLabel: "Back to practice" } };
+  const closeScorecard = () => {
+    setScorecardDismissed(true);
+    setSessionFinished(false);
+  };
+
+  /* \u2550\u2550 1 \u00b7 THE GRADED ANSWER SHEET (RESULTS-1's surface, now reachable) \u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
+  if (batchResult && batchResult.outcome === "graded") {
+    const response = buildQuickPracticeResponse(batchResult.entries);
+    const answers: ScorecardGradedAnswer[] = [];
+    for (const saved of batchSelection.batch) {
+      const entry = batchResult.entries[saved.qNumber - 1];
+      const graded = entry?.graded;
+      const marks = Number(saved.marks) || 0;
+      const label = `Question ${saved.qNumber}`;
+      const descriptor = saved.objective
+        ? `MCQ \u00b7 ${marks} mark${marks === 1 ? "" : "s"}`
+        : `${marks} mark${marks === 1 ? "" : "s"}`;
+      if (!graded) {
+        // \u2605 HONEST-UNGRADED. The grader could not read this answer, so there is NO mark.
+        // Rendering a 0 would be the fabrication (CLAUDE.md \u00a75).
+        answers.push({
+          label, descriptor,
+          ungraded: {
+            reason: "could-not-read",
+            title: "We could not read this one",
+            detail: "Your working did not come back readable. Nothing has been scored 0 for it.",
+          },
+        });
+        continue;
+      }
+      const kind = dominantMistakeKind(graded.mistakeSummary);
+      const detail = firstMistakeDetail(graded.annotatedSteps) || graded.teacherNote || null;
+      const answer: ScorecardGradedAnswer = {
+        label,
+        descriptor,
+        awarded: graded.marksAwarded,
+        available: graded.totalMarks,
+        objective: saved.objective === true,
+        verdict: saved.objective
+          ? "Whole mark or nothing \u2014 MCQs are never step-marked."
+          : graded.teacherNote || null,
+        lostLabel: detail ? (saved.objective ? "What your working shows:" : "Where the mark went:") : null,
+        lostDetail: detail,
+        mistakeType: kind ? MISTAKE_KIND_LABEL[kind] : null,
+        mistakeKind: kind,
+      };
+      // \u2605\u2605 THE OBJECTIVE BINARY RULE, ENFORCED BEFORE THE BUILDER SEES IT.
+      // `quickPracticeGradedScorecardVariant` THROWS on a fractional objective mark \u2014
+      // deliberately, and RESULTS-1's guard is untouched. But a throw inside a page render
+      // is an ERROR PAGE for the student (App.tsx wraps <Routes> in an ErrorBoundary), so
+      // the anomaly is converted here into the honest ungraded state rather than rendered
+      // as partial credit OR taken out on the student.
+      // [FU-QP-OBJECTIVE-NONBINARY-FROM-SERVER]
+      if (
+        answer.objective &&
+        typeof answer.awarded === "number" && typeof answer.available === "number" &&
+        answer.awarded !== 0 && answer.awarded !== answer.available
+      ) {
+        answers.push({
+          label, descriptor,
+          ungraded: {
+            reason: "objective-mark-not-binary",
+            title: "We could not mark this one reliably",
+            detail: "An MCQ is whole mark or nothing, and this came back part-marked. Nothing has been scored for it.",
+          },
+        });
+        continue;
+      }
+      answers.push(answer);
+    }
+    // Typed-only working: SAVED, and honestly unGRADEABLE \u2014 the batch grader has no field
+    // for typed student work at all ([FU-BATCH-TYPED-ANSWER-NO-CHANNEL]).
+    for (const typed of batchSelection.typedNoChannel) {
+      const marks = Number(typed.marks) || 0;
+      answers.push({
+        label: `Question ${typed.qNumber}`,
+        descriptor: `${marks} mark${marks === 1 ? "" : "s"}`,
+        ungraded: {
+          reason: "typed-no-channel",
+          title: "Typed working is not graded yet",
+          detail: "Photograph your working for this one and it will be marked with the rest.",
+        },
+      });
+    }
+    answers.sort((x, y) => gradedAnswerOrder(x.label) - gradedAnswerOrder(y.label));
+
+    return (
+      <ResultsScorecard
+        variant={quickPracticeGradedScorecardVariant({
+          subtitle: "Quick practice",
+          marksAwarded: response.gradedMarksAwarded,
+          marksTotal: response.gradedMarksTotal,
+          gradedCount: response.gradedCount,
+          totalQuestions: response.totalQuestions,
+          markedNow: markedNowRows,
+          readyToGrade: diagnosedRows,
+          nothingSaved: unansweredLabels,
+          answers,
+          fourType: aggregateFourType(response),
+          onKeepPracticing: () => { setBatchResult(null); setSessionFinished(false); },
+          onFreshSet: () => buildFreshSet(),
+          returnTicket: overlay
+            ? { label: "Back to your tutor", onReturn: overlay.onClose }
+            : undefined,
+        })}
+        onClose={closeScorecard}
+      />
+    );
+  }
+
+  /* \u2550\u2550 2 \u00b7 THE CONFIRMATION STEP \u2014 instant MCQ marks, then ONE deliberate tap \u2550\u2550\u2550\u2550
+     \u2605 It earns its place because batching is ONE SHOT: a student who forgot a question
+     would otherwise pay for a second call. The gaps are NAMED, not counted. */
+  if (batchSelection.batch.length > 0) {
+    const n = batchSelection.batch.length;
+    return (
+      <div className="qp-cf" data-testid="qp-confirm">
+        <style>{QP_CONFIRM_CSS}</style>
+        <div className="qp-cf__top">
+          <div className="qp-cf__k">Session scorecard</div>
+          <div className="qp-cf__kk">Quick practice</div>
+          <div className="qp-cf__big">
+            {sessionStats.localMcqCorrect}<small>{` of ${sessionStats.localMcqAnswered}`}</small>
+          </div>
+          <p className="qp-cf__lede">
+            {sessionStats.localMcqAnswered > 0
+              ? `MCQs marked instantly. ${n} answer${n === 1 ? "" : "s"} ready to grade.`
+              : `${n} answer${n === 1 ? "" : "s"} ready to grade.`}
+          </p>
+        </div>
+        <div className="qp-cf__body">
+          {markedNowRows.length > 0 && (
+            <>
+              <div className="qp-cf__lbl">Marked now \u00b7 free</div>
+              {markedNowRows.map((r) => (
+                <div key={`now-${r.tag}`} className={`qp-cf__row qp-cf__row--${r.tone}`}>
+                  <span className="qp-cf__tag">{r.tag}</span>
+                  <span>{r.detail}</span>
+                </div>
+              ))}
+            </>
+          )}
+          <div className="qp-cf__lbl">Ready to grade</div>
+          {batchSelection.batch.map((a) => (
+            <div
+              key={`rtg-${a.qNumber}`}
+              className={`qp-cf__row qp-cf__row--${a.objective ? "diagnose" : "pending"}`}
+            >
+              <span className="qp-cf__tag">{`Q${a.qNumber}`}</span>
+              <span>
+                {a.imageMimeType === "application/pdf" ? "PDF" : "Photo"}
+                {a.objective
+                  ? " \u00b7 diagnose only"
+                  : ` \u00b7 ${Number(a.marks) || 0} mark${(Number(a.marks) || 0) === 1 ? "" : "s"}`}
+              </span>
+            </div>
+          ))}
+          {batchSelection.typedNoChannel.length > 0 && (
+            <>
+              <div className="qp-cf__lbl">Saved \u00b7 not gradeable yet</div>
+              {batchSelection.typedNoChannel.map((a) => (
+                <div key={`tnc-${a.qNumber}`} className="qp-cf__row">
+                  <span className="qp-cf__tag">{`Q${a.qNumber}`}</span>
+                  <span>Typed \u2014 photograph this working and it will be marked with the rest.</span>
+                </div>
+              ))}
+            </>
+          )}
+          {unansweredLabels.length > 0 && (
+            <p className="qp-cf__note">
+              {`${unansweredLabels.join(" and ")} ${unansweredLabels.length === 1 ? "has" : "have"} nothing saved \u2014 nothing has been scored 0.`}
+            </p>
+          )}
+          {batchError && <div className="qp-cf__err" role="alert">{batchError}</div>}
+          <button
+            type="button"
+            className="qp-cf__cta"
+            data-testid="qp-grade-batch"
+            disabled={batchGrading}
+            onClick={() => { void handleGradeBatch(); }}
+          >
+            {batchGrading ? "Grading your answers\u2026" : `Grade my ${n} answer${n === 1 ? "" : "s"}`}
+          </button>
+          <button
+            type="button"
+            className="qp-cf__cta qp-cf__cta--sec"
+            onClick={() => { setSessionFinished(false); setScorecardDismissed(false); }}
+          >
+            {unansweredLabels.length > 0
+              ? `Go back and add ${unansweredLabels.join(", ")}`
+              : "Keep practising this set"}
+          </button>
+          {overlay && (
+            <button
+              type="button"
+              className="qp-cf__cta qp-cf__cta--sec"
+              onClick={overlay.onClose}
+            >
+              Back to your tutor
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  /* \u2550\u2550 3 \u00b7 NOTHING WRITTEN \u2014 today's scorecard, byte-identical \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550
+     \u2605 ZERO grade calls: `handleGradeBatch` is unreachable from here. Quick Practice for a
+     pure-MCQ session stays free, exactly as it is today. */
   return (
     <ResultsScorecard
       variant={quickPracticeScorecardVariant({
         attempted: sessionStats.attemptedInSet,
-        // The DISPLAYED set the student worked (committed pool sliced to the chosen
-        // count) — never the over-fetched `questions` pool, which reported "of 75" for
-        // a chosen-5 session (the owner's screenshot: [FU-QP-SCORECARD-ATTEMPTS-WIPED]).
         totalInSet: filteredQuestions.length,
         mcqAnswered: sessionStats.localMcqAnswered,
         mcqCorrect: sessionStats.localMcqCorrect,
         allDone,
-        // A manual Finish on a partial set must not trap the student — let them
-        // return to the same set. The builder omits this on the allDone auto-offer.
         onKeepPracticing: () => setSessionFinished(false),
-        // NOT a bare regenerate — that returned the identical set. See `buildFreshSet`.
         onFreshSet: () => buildFreshSet(),
         onChapterTest: () => navigate(`/chapter-test/${grade}/${subjectKey}/${topicK}`, back),
         onPredicted: () => navigate(`/highly-probable/${grade}/${subjectKey}?topic=${encodeURIComponent(topicK)}`, back),
         onStudy: () => navigate(`/topic-hub/${grade}/${subjectKey}/${topicK}`, back),
-        // Overlay (tutor panel): the three app-navigation what-next items would leave the tutor
-        // thread, so they are omitted — only Keep-practicing / Fresh-set (pure in-panel state)
-        // remain, alongside the return row below.
         overlayMode: !!overlay,
-        // The way home, overlay-ONLY: closing the panel IS the return (the tutor then reads the
-        // graded set back), but a bare ✕ made the student infer that. This names it. On a direct
-        // or hub visit no ticket is passed and the menu is byte-identical to today.
         returnTicket: overlay
           ? { label: "Back to your tutor", onReturn: overlay.onClose }
           : undefined,
       })}
-      onClose={() => {
-        setScorecardDismissed(true);
-        setSessionFinished(false);
-      }}
+      onClose={closeScorecard}
     />
   );
 })()}
+
+{/* \u2605\u2605 \u00a74b \u00b7 THE 402 REACHES THE STUDENT. GATE-2's sheet \u2014 the SAME component
+    SolutionChecker opens \u2014 mounted ONLY while blocked (it calls router hooks). Nothing
+    red, no error code, and everything scored for free is still on screen behind it. */}
+{premiumBlock && (
+  <UpgradeSheet
+    featureLabel={labelForFeature(premiumBlock.feature)}
+    trialEndedAt={premiumBlock.trialEndedAt}
+    onClose={() => setPremiumBlock(null)}
+  />
+)}
 
 
       </div>

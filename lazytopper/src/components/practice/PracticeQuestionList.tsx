@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { type PracticeQuestion } from "../../data/predictionDataService";
 import type { CheckSolutionResponse, StepSolutionResponse } from "../../ai/aiClient";
 import { PracticeQuestionCard } from "./PracticeQuestionCard";
+import type { SolutionCheckerSavedWorking } from "../question/SolutionChecker";
 
 export interface PracticeQuestionListProps {
   isLoading: boolean;
@@ -25,6 +26,17 @@ export interface PracticeQuestionListProps {
   onGraded?: (qId: string, result: CheckSolutionResponse) => void;
   /** Hand a question's concept to the Tutor, with a ticket back to this set. */
   onAskTutor?: (q: PracticeQuestion) => void;
+  /**
+   * ★★ WIRE-2 · COLLECT MODE, PASSED STRAIGHT THROUGH. This component holds no state and
+   * makes no decision about it — it is the ONLY link between PracticePage (which owns the
+   * saved answers) and PracticeQuestionCard (which renders the panel), so the props have
+   * to travel through here. Omitted ⇒ every prop below is undefined and the card falls
+   * back to its shipped per-question behaviour.
+   */
+  collectMode?: boolean;
+  savedAnswers?: Record<string, SolutionCheckerSavedWorking>;
+  onSaveAnswer?: (qId: string, working: SolutionCheckerSavedWorking) => void;
+  onRemoveAnswer?: (qId: string) => void;
 }
 
 export function PracticeQuestionList(props: PracticeQuestionListProps) {
@@ -33,6 +45,7 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
     expandedAnswers, mcqSelections, mcqResults,
     practiceSolutionLoading, practiceSolutionError, practiceSolutionData,
     onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded, onAskTutor,
+    collectMode, savedAnswers, onSaveAnswer, onRemoveAnswer,
   } = props;
 
   return (
@@ -142,6 +155,10 @@ export function PracticeQuestionList(props: PracticeQuestionListProps) {
               onMcqResult={(qId, result) => onMcqResult(qId, result)}
               onGraded={onGraded}
               onAskTutor={onAskTutor}
+              collectMode={collectMode}
+              savedAnswer={savedAnswers ? savedAnswers[String(q.id)] ?? null : null}
+              onSaveAnswer={onSaveAnswer}
+              onRemoveAnswer={onRemoveAnswer}
             />
           ))}
         </div>

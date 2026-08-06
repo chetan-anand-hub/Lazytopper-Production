@@ -127,7 +127,7 @@ describe("the set scorecard renders from a fixture", () => {
     expect(screen.getByText("Section C")).toBeInTheDocument();
     // ★ The prototype's two split headings, verbatim.
     expect(screen.getByText("Marked now · free")).toBeInTheDocument();
-    expect(screen.getByText("Ready to grade")).toBeInTheDocument();
+    expect(screen.getByText("Diagnosed from your working")).toBeInTheDocument();
     expect(screen.getByText("Correct · 1 mark")).toBeInTheDocument();
     expect(screen.getByText("Chose (b) · answer is (d) · 0 / 1")).toBeInTheDocument();
     expect(screen.getByText("Photo · 3 marks")).toBeInTheDocument();
@@ -139,7 +139,7 @@ describe("the set scorecard renders from a fixture", () => {
   it("CONTROL — a variant with no split renders neither heading (the split is opt-in)", () => {
     render(<ResultsScorecard variant={variant()} onClose={() => {}} />);
     expect(screen.queryByText("Marked now · free")).toBeNull();
-    expect(screen.queryByText("Ready to grade")).toBeNull();
+    expect(screen.queryByText("Diagnosed from your working")).toBeNull();
     expect(document.querySelector(".lt-sc__splitrow")).toBeNull();
   });
 
@@ -153,7 +153,7 @@ describe("the set scorecard renders from a fixture", () => {
       />,
     );
     expect(screen.queryByText("Marked now · free")).toBeNull();
-    expect(screen.getByText("Ready to grade")).toBeInTheDocument();
+    expect(screen.getByText("Diagnosed from your working")).toBeInTheDocument();
     // Nothing saved is honest silence when nothing is unanswered.
     expect(document.querySelector(".lt-sc__splitnote")).toBeNull();
   });

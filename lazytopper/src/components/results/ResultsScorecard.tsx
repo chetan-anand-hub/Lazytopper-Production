@@ -208,7 +208,7 @@ function SplitBlock({ split }: { split: ScorecardSplit }) {
       )}
       {split.readyToGrade.length > 0 && (
         <>
-          <div className="lt-sc__mbk">Ready to grade</div>
+          <div className="lt-sc__mbk">Diagnosed from your working</div>
           <div className="lt-sc__splitlist">
             {split.readyToGrade.map((r) => (
               <SplitRow key={`grade-${r.tag}`} row={r} />

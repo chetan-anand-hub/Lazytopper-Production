@@ -2,7 +2,7 @@ import { useState, useRef, useCallback } from "react";
 import { type PracticeQuestion } from "../../data/predictionDataService";
 import { MathText } from "../question/MathText";
 import { QuestionVisualAid } from "../question/QuestionVisualAid";
-import { SolutionChecker } from "../question/SolutionChecker";
+import { SolutionChecker, type SolutionCheckerSavedWorking } from "../question/SolutionChecker";
 import { TimeGuideChip } from "../exam/ExamStrategyTips";
 import type { CheckSolutionResponse, StepSolutionResponse } from "../../ai/aiClient";
 import { CorrectBurst, WrongShake } from "../celebrations";
@@ -54,6 +54,23 @@ export interface PracticeQuestionCardProps {
   /** Hand this question's concept to the Tutor, with a ticket back to this set.
    *  Optional: a consumer with no tutor route simply omits it and no link renders. */
   onAskTutor?: (q: PracticeQuestion) => void;
+  /**
+   * ★★ WIRE-2 · COLLECT MODE. Omitted / false ⇒ the shipped per-question behaviour and
+   * the shipped labels, so `SolutionChecker.entitlement.test.tsx` — which mounts THIS
+   * component and clicks a button named exactly "Check my answer" to prove the GATE-3
+   * lock — passes UNMODIFIED. Passed true by `PracticePage` only.
+   *
+   * ★ THE LABEL IS THE POINT. The outer trigger currently reads "Check my answer" and
+   * CHECKS NOTHING — it opens a panel. In the batch flow it opens the panel and the
+   * grading happens later, so the honest name for it is what it does.
+   */
+  collectMode?: boolean;
+  /** Collect mode: the working already saved for this question. */
+  savedAnswer?: SolutionCheckerSavedWorking | null;
+  /** Collect mode: the student saved working for this question. NO API call is made. */
+  onSaveAnswer?: (qId: string, working: SolutionCheckerSavedWorking) => void;
+  /** Collect mode: the student dropped the working saved for this question. */
+  onRemoveAnswer?: (qId: string) => void;
 }
 
 const DIFFICULTY_BADGE: Record<string, { color: string; bg: string; border: string }> = {
@@ -119,6 +136,7 @@ export function PracticeQuestionCard({
   mcqSelection, mcqResult, difficultyFilter,
   onSetActiveQuestion, onToggleAnswer, onMcqSelect, onMcqResult, onGraded,
   onAskTutor,
+  collectMode = false, savedAnswer = null, onSaveAnswer, onRemoveAnswer,
 }: PracticeQuestionCardProps) {
   const [showChecker, setShowChecker] = useState(false);
   const cardRef = useRef<HTMLElement>(null);
@@ -522,7 +540,9 @@ export function PracticeQuestionCard({
 
       {!hasStructuredOptions && !showOptionlessObjectiveNote && (
         <div style={{ margin: "0 0 12px", color: TEXT_MUTED, fontSize: "0.8rem", lineHeight: 1.45 }}>
-          Work it out on paper first. Use Check my answer for real feedback, or compare with the step solution.
+          {collectMode
+            ? "Work it out on paper first. Save your working — everything is graded together when you finish."
+            : "Work it out on paper first. Use Check my answer for real feedback, or compare with the step solution."}
         </div>
       )}
 
@@ -558,7 +578,7 @@ export function PracticeQuestionCard({
               fontWeight: 800,
             }}
           >
-            <span>{showChecker ? "Hide check" : "Check my answer"}</span>
+            <span>{showChecker ? (collectMode ? "Hide answer box" : "Hide check") : collectMode ? "Answer this question" : "Check my answer"}</span>
           </button>
         )}
         <button
@@ -597,7 +617,7 @@ export function PracticeQuestionCard({
               fontWeight: 700,
             }}
           >
-            <span>{showChecker ? "Hide check" : "Check my answer"}</span>
+            <span>{showChecker ? (collectMode ? "Hide answer box" : "Hide check") : collectMode ? "Answer this question" : "Check my answer"}</span>
           </button>
         )}
       </div>
@@ -625,6 +645,13 @@ export function PracticeQuestionCard({
           // second write, and the QP record it feeds is non-counting (LOCKED §1a
           // as amended).
           onResult={(result) => onGraded?.(String(q.id), result)}
+          // ★★ WIRE-2 · collect mode. Default false everywhere but PracticePage, so every
+          // other render site (HighlyProbableQuestions, the entitlement suite's direct
+          // mount) keeps the per-question grade path byte-for-byte.
+          collectMode={collectMode}
+          savedAnswer={savedAnswer}
+          onSaveAnswer={(working) => onSaveAnswer?.(String(q.id), working)}
+          onRemoveAnswer={() => onRemoveAnswer?.(String(q.id))}
         />
       )}
 
