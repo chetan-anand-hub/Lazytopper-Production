@@ -19,7 +19,11 @@ import { MemoryRouter } from "react-router-dom";
 
 const initPhoneRecaptcha = vi.fn(async (_containerId: string) => {});
 const sendPhoneOtp = vi.fn(async (_phoneE164: string, _containerId: string) => {});
-const verifyPhoneOtp = vi.fn(async (_code: string) => {});
+// NAME-2 — typed to the REAL signature, `(code, displayName?)`. A `vi.fn()`
+// happily receives arguments its type omits, but `mock.calls[0][1]` on a
+// one-arg type is a TS2493 empty-tuple error in `tsconfig.test.json` (green in
+// the app config, red in CI).
+const verifyPhoneOtp = vi.fn(async (_code: string, _displayName?: string) => {});
 const signUpWithEmailPassword =
   vi.fn(async (_email: string, _password: string, _displayName?: string) => {});
 const signInWithGoogle = vi.fn(async () => {});
@@ -65,6 +69,19 @@ async function openPhoneTab() {
   const user = userEvent.setup();
   await user.click(screen.getByRole("button", { name: /Continue with phone/ }));
   return user;
+}
+
+/**
+ * NAME-2: the phone NUMBER step now asks for a name on the CREATE branch, and
+ * `/sign-up` is unconditionally the create branch (`isCreate`), so every round
+ * trip through this page has to supply one — exactly as the email path already
+ * did. Firebase attaches NO displayName to a phone credential, so this is the
+ * only moment a phone-first student can be asked at all.
+ */
+const SIGNUP_NAME = "Ananya Sharma";
+
+async function fillName(user: ReturnType<typeof userEvent.setup>) {
+  await user.type(screen.getByLabelText("Your name"), SIGNUP_NAME);
 }
 
 describe("SignUpPage — the phone pane exists and is reachable", () => {
@@ -114,6 +131,7 @@ describe("SignUpPage — the OTP round trip", () => {
     renderSignUp();
     const user = await openPhoneTab();
 
+    await fillName(user);
     await user.type(screen.getByLabelText("Mobile number"), "9876543210");
     await user.click(screen.getByRole("button", { name: /send otp/i }));
 
@@ -126,13 +144,18 @@ describe("SignUpPage — the OTP round trip", () => {
     await user.type(await screen.findByLabelText("Enter the 6-digit code"), "123456");
     await user.click(screen.getByRole("button", { name: /verify & continue/i }));
 
-    await waitFor(() => expect(verifyPhoneOtp).toHaveBeenCalledWith("123456"));
+    // NAME-2 — the name typed on the NUMBER step reaches the CONFIRM call as
+    // the SECOND argument, having survived the number -> otp transition.
+    await waitFor(() =>
+      expect(verifyPhoneOtp).toHaveBeenCalledWith("123456", SIGNUP_NAME),
+    );
   });
 
   it("rejects a short number before calling Firebase", async () => {
     renderSignUp();
     const user = await openPhoneTab();
 
+    await fillName(user);
     await user.type(screen.getByLabelText("Mobile number"), "98765");
     await user.click(screen.getByRole("button", { name: /send otp/i }));
 
@@ -148,6 +171,7 @@ describe("SignUpPage — the OTP round trip", () => {
     renderSignUp();
     const user = await openPhoneTab();
 
+    await fillName(user);
     await user.type(screen.getByLabelText("Mobile number"), "98-765 432(10)");
     await user.click(screen.getByRole("button", { name: /send otp/i }));
 
@@ -164,6 +188,7 @@ describe("SignUpPage — phone sign-up never branches on email", () => {
     renderSignUp();
     const user = await openPhoneTab();
 
+    await fillName(user);
     await user.type(screen.getByLabelText("Mobile number"), "9876543210");
     await user.click(screen.getByRole("button", { name: /send otp/i }));
     await user.type(await screen.findByLabelText("Enter the 6-digit code"), "123456");

@@ -354,18 +354,61 @@ describe("mounted on the auth surface", () => {
     const link = within(strip).getByRole("link", { name: /see plans/i });
     expect(link.getAttribute("href")).toBe("/pricing?source=login");
 
-    // MOUNT != POSITION. The strip must sit AFTER the primary action in
-    // document order, or it is offering terms the student has already acted on.
+    // ★★ THIS ASSERTION IS REPLACED, NOT DELETED — NAME-1 v2.
     //
-    // ONE DOOR (AUTH-3): the page opens on the METHOD CHOICE, so the primary
-    // action is no longer a single "Continue" submit — it is the group of three
-    // method buttons. Anchoring on the LAST of them is the strongest form of
-    // the same claim: the strip follows EVERY primary action, not just one.
+    // It used to read, via compareDocumentPosition:
+    //     "the strip must sit AFTER the primary action in document order, or it
+    //      is offering terms the student has already acted on."
+    //
+    // That rule was calibrated for a strip INSIDE the auth card, where sitting
+    // above the buttons would physically interrupt the form. The page is now two
+    // columns, and the full offer lives in the brand column — so document order
+    // stopped being reading order, and the old rule would have failed a sound
+    // layout while still passing a regressed one (a strip dropped at the very
+    // top of the auth card, above the methods, follows nothing and would have
+    // been caught only by accident).
+    //
+    // What it was actually protecting, stated directly:
+    //     THE OFFER MUST NEVER RENDER BETWEEN THE PRIMARY ACTION AND THE TOP OF
+    //     THE ACTION COLUMN.
+    // True on desktop (it is not in that column at all) and on mobile (it is
+    // below the card), and it survives the next layout change.
+    const actionColumn = strip.closest(".lt-login-gate");
+    expect(
+      actionColumn,
+      "the full offer must not live in the action column at all — it belongs in the brand panel",
+    ).toBeNull();
+
+    // CONTROL — the query CAN find that column, so the null above is a fact
+    // about the strip and not about a renamed class.
+    expect(
+      screen
+        .getByRole("button", { name: /Continue with email/ })
+        .closest(".lt-login-gate"),
+      "control: the method buttons ARE inside the action column",
+    ).not.toBeNull();
+  });
+
+  it("★ the MOBILE mirror sits below the whole card, never between the methods", async () => {
+    // The compact variant is the one that does live in the auth column, so the
+    // replaced rule is enforced against it directly: it must follow the last
+    // primary action, which is what keeps it out of the middle of the form.
+    await renderLogin(true);
+
+    const mobile = screen.getByTestId("lt-offer-strip-mobile");
     const lastPrimaryAction = screen.getByRole("button", { name: /Continue with email/ });
     expect(
-      lastPrimaryAction.compareDocumentPosition(strip) & Node.DOCUMENT_POSITION_FOLLOWING,
-      "the offer strip must render after the primary action",
+      lastPrimaryAction.compareDocumentPosition(mobile) & Node.DOCUMENT_POSITION_FOLLOWING,
+      "the compact offer must render after the primary action",
     ).toBeTruthy();
+
+    // ★ AND IT CARRIES NO PRICE. The free-Basic line reduces the anxiety that
+    // makes a student abandon signup; the founding rate sells. On a phone, where
+    // the offer competes with the form itself, only the first earns its space.
+    expect(flat(mobile)).not.toMatch(/₹/);
+    expect(within(mobile).queryByTestId("lt-offer-founding-badge")).toBeNull();
+    // CONTROL — the full block DOES carry both, so the absences mean something.
+    expect(flat(screen.getByTestId("lt-offer-strip"))).toMatch(/₹/);
   });
 
   it("renders inside the sign-in page with the offer CLOSED", async () => {

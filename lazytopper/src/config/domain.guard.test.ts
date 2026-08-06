@@ -172,10 +172,52 @@ describe("domain guard — the never-owned lazytopper.app appears nowhere in the
     // different defect with the same test result. The canonical is the single
     // highest-leverage line in the repo: it tells every search engine which URL is
     // the authoritative copy of this page.
+    //
+    // ★ META-3: the pinned value moved from `https://lazytopper.com/` to
+    // `https://www.lazytopper.com/app/`. BOTH halves were wrong, and both were
+    // measured live rather than reasoned about (2026-08-05, curl -L -o /dev/null):
+    //
+    //     https://lazytopper.com/        -> 200 after 2 redirects, landing on
+    //                                       https://www.lazytopper.com/app/
+    //     https://www.lazytopper.com/    -> 200 after 1 redirect  (-> /app/)
+    //     https://www.lazytopper.com/app/ -> 200, ZERO redirects
+    //
+    // A canonical is a DIRECTIVE, not a fetch: naming a URL that 308s tells every
+    // search engine the authoritative copy lives at an address that then says "no,
+    // over there". The `www` half is the apex-to-www redirect the CDN performs; the
+    // `/app/` half is where Vite's `base: "/app/"` actually puts the document.
+    //
+    // ⚠ NOTHING BELOW WAS RELAXED. The `lazytopper.app` sweep above is untouched,
+    // and `lazytopper.com/app/` does not contain the literal `lazytopper.app` — the
+    // assertion at the top of this file still fails on the never-owned domain.
     const html = readFileSync(INDEX_HTML, "utf8");
-    expect(html).toMatch(/<link\s+rel="canonical"\s+href="https:\/\/lazytopper\.com\/"\s*\/>/);
+    expect(html).toMatch(
+      /<link\s+rel="canonical"\s+href="https:\/\/www\.lazytopper\.com\/app\/"\s*\/>/,
+    );
+
+    // ★ AND THE TWO FORMS THAT WERE WRONG ARE PINNED OUT BY NAME. An exact-match
+    // assertion alone is satisfiable by an edit that also breaks it in a NEW way;
+    // these two say specifically "not the redirecting host, not the root path",
+    // which is the pair of mistakes this file has now actually seen.
+    const canonical = html.match(/<link\s+rel="canonical"\s+href="([^"]+)"/i)?.[1];
+    expect(canonical, "no <link rel=canonical> in index.html").toBeTruthy();
+    expect(
+      new URL(canonical as string).hostname,
+      "the canonical must name the host the CDN serves. The apex 308s to www, so an " +
+        "apex canonical names a URL that redirects.",
+    ).toBe("www.lazytopper.com");
+    expect(
+      new URL(canonical as string).pathname.startsWith("/app/"),
+      `the app is served under /app/ (vite base). Canonical path was ` +
+        `"${new URL(canonical as string).pathname}", which 30x-es before it resolves.`,
+    ).toBe(true);
 
     // The share-image URLs must resolve too, or every WhatsApp / X card is blank.
+    // ⚠ DELIBERATELY LEFT ON THE APEX FORM #612 shipped. Measured 2026-08-05:
+    // https://lazytopper.com/app/og-image.png -> 200 after 1 redirect (-> www).
+    // A redirecting IMAGE costs a hop and nothing else — scrapers follow it and the
+    // bytes arrive — which is a different class of problem from a redirecting
+    // DIRECTIVE. Moving these is [FU-OG-IMAGE-WWW-HOST], not this lane.
     expect(html).toContain('property="og:image" content="https://lazytopper.com/app/og-image.png"');
     expect(html).toContain('name="twitter:image" content="https://lazytopper.com/app/og-image.png"');
   });

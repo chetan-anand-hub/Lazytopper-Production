@@ -593,6 +593,19 @@ function createCheckSolutionRoute(deps) {
         // documented dominant failure is TRUNCATION at maxOutputTokens (see the
         // comment above), which constrained decoding does not prevent.
         responseSchema: GRADE_RESPONSE_SCHEMA,
+        // ── TELEMETRY-1 · OBSERVATION ONLY ──────────────────────────────────
+        // `workloadClass` and `marks` are TELEMETRY HINTS and nothing else.
+        // geminiClient's `buildBody` reads a CLOSED set of config keys —
+        // temperature, maxOutputTokens, responseMimeType, responseSchema,
+        // thinkingConfig — so neither key can reach the outgoing body. No
+        // generationConfig field, no model and no prompt changes here.
+        //
+        // ★ MARKS ARE AVAILABLE AT THIS CALL SITE. `const marks =
+        // Number(payload.marks) || 1` is resolved at the top of this handler, so
+        // per-marks-band percentiles are measurable for single-question grading —
+        // the band a thinking budget actually has to be set against.
+        workloadClass: 'grade-single',
+        marks,
       };
 
       const gradeOnce = async () => {
@@ -891,6 +904,14 @@ function createCheckSolutionRoute(deps) {
         // leaving 1-5 tokens for the JSON → truncated → "couldn't read the question".
         // Disable thinking on this detect-only call (the reasoning sites stay dynamic).
         thinkingConfig: { thinkingBudget: 0 },
+        // ── TELEMETRY-1 · OBSERVATION ONLY ──────────────────────────────────
+        // A telemetry hint; `buildBody`'s closed key set keeps it off the wire.
+        // ★ NO `marks` HERE, DELIBERATELY: determining the marks is what this call
+        // is FOR, so nothing upstream of it knows them. Its percentiles are
+        // therefore reported unbanded, and the band is ABSENT rather than
+        // defaulted — a detect call attributed to a made-up band would pollute the
+        // one input SERVER-2 is meant to read.
+        workloadClass: 'detect-question',
       });
       const parsed = extractJsonObjectFromText(reply.text);
       if (!parsed) {
@@ -1263,17 +1284,47 @@ function createCheckSolutionRoute(deps) {
         'Grade EACH question against ITS OWN marking scheme, exactly as a real teacher marking with a red pen. ' +
         'Respond ONLY with valid JSON, no markdown fences.';
 
+    // ── TYPED-1 · the student's TYPED working, when they typed instead of
+    // photographing ─────────────────────────────────────────────────────────
+    // ★ THE GAP THIS CLOSES. Rule 1's batch branch already tells the model to
+    // "grade the typed answer given in its block if one is shown" — but no block
+    // has ever shown one, because `blockFor` emitted only the question and its
+    // scheme. That clause and this function were born in the same commit
+    // (c5570592, BATCH-1) and the `if one is shown` guard has never once been
+    // met. Typed working is the free-tier path (no camera to hand, or a laptop),
+    // so a batch grade silently had NO channel for it.
+    //
+    // ★ THE SHAPE IS NOT NEW. It mirrors the SINGLE-question grader verbatim —
+    // `handleCheckSolution` has emitted `The student's typed answer is:` inside a
+    // `"""` fence since 57224f49. One convention, two paths.
+    //
+    // ★★ CONDITIONAL, AND THAT IS THE REGRESSION GUARD. With no typed answer the
+    // returned block is BYTE-IDENTICAL to before, which is what keeps #578's
+    // sha256(contents) pin over the four no-uploads surfaces (worksheets, chapter
+    // tests, full mocks, multi-question C&I) intact. See §7.1 and §9 of
+    // checkSolution.test.cjs.
+    //
+    // ★ IT ADDS NO PART, SO IT CANNOT MOVE THE PAIRING. This text goes INSIDE the
+    // question's own existing part; `buildUploadParts` still pushes exactly one
+    // text part per question and one image part per upload, so "the image
+    // immediately after a question's block is that question's answer" is
+    // untouched. §9.4 asserts that rather than assuming it.
     const blockFor = (q) => {
         const scheme = Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0
           ? '\n     Marking scheme:\n' +
             q.solutionSteps.map((s, i) => '       Step ' + (i + 1) + ': ' + String(s)).join('\n') +
             (q.finalAnswer ? '\n       Final answer: ' + String(q.finalAnswer) : '')
           : '';
+        const typed = String((q && q.textAnswer) || '').trim();
+        const typedBlock = typed
+          ? '\n     The student\'s typed answer is:\n     """\n' + typed + '\n     """'
+          : '';
         return (
           '  Q' + q.qNumber + '. [' + (Number(q.marks) || 1) + ' mark(s)' +
           (q.topicLabel || q.topic ? ' · ' + String(q.topicLabel || q.topic) : '') + ']\n' +
           '     ' + String(q.questionText || '').replace(/\n/g, ' ') +
-          scheme
+          scheme +
+          typedBlock
         );
     };
 
@@ -1383,6 +1434,26 @@ function createCheckSolutionRoute(deps) {
       maxOutputTokens: 32000,
       responseMimeType: 'application/json',
       responseSchema: WORKSHEET_RESPONSE_SCHEMA,
+      // ── TELEMETRY-1 · OBSERVATION ONLY ────────────────────────────────────
+      // A telemetry hint; `buildBody`'s closed key set keeps it off the wire, so
+      // this cannot move #578's sha256(contents) pin — that pin hashes the
+      // `contents` ARGUMENT, which this does not touch.
+      //
+      // ★ TWO WORKLOADS, ONE CALL SITE. `gradeStructuredSet` is surface-agnostic
+      // and serves worksheets, chapter tests, full mocks and multi-question C&I
+      // through the single /api/grade-worksheet route, so there is NO server-side
+      // discriminator by surface. There IS one by SHAPE, and it is the one that
+      // matters for cost: BATCH-1's `uploads` carries one answer photo PER
+      // QUESTION, so a batch grade sends N images where a worksheet grade sends
+      // one PDF. That is a real difference in what the model has to read, it is
+      // derived from the request rather than guessed, and it is the only split
+      // this code can honestly make.
+      workloadClass: hasUploads ? 'grade-batch' : 'worksheet',
+      // ★ NO `marks`, DELIBERATELY. This call grades a SET of questions whose
+      // marks differ (1-mark MCQs beside 5-mark long answers), so no single band
+      // describes it. Banding it on, say, the first question's marks would be a
+      // fabricated number in the exact field SERVER-2 budgets from. Its
+      // percentiles are reported unbanded and its band is ABSENT.
     };
     const gradeOnce = async () => {
       const r = await callGemini(GEMINI_MODEL, contents, genConfig);
@@ -1477,6 +1548,13 @@ function createCheckSolutionRoute(deps) {
         solutionSteps: Array.isArray(q && q.solutionSteps) ? q.solutionSteps.map(String) : null,
         finalAnswer: q && q.finalAnswer ? String(q.finalAnswer).trim() : null,
         correctOption: q && q.correctOption ? String(q.correctOption).trim() : null,
+        // TYPED-1 (additive): the student's TYPED working for this question, for a
+        // student who typed instead of photographing. Empty for every existing
+        // caller, and `blockFor` emits nothing for an empty value — so the prompt
+        // the four no-uploads surfaces send stays byte-identical. Coerced and
+        // trimmed exactly like the single-question path's `payload.textAnswer`
+        // (57224f49); '' rather than null because `blockFor` tests emptiness.
+        textAnswer: String((q && q.textAnswer) || '').trim(),
       }))
       .filter((q) => q.qNumber > 0 && q.questionText);
 

@@ -96,7 +96,18 @@ type AuthContextType = {
   sendPasswordReset: (email: string) => Promise<void>;
   initPhoneRecaptcha: (recaptchaContainerId: string) => Promise<void>;
   sendPhoneOtp: (phoneE164: string, recaptchaContainerId: string) => Promise<void>;
-  verifyPhoneOtp: (code: string) => Promise<void>;
+  /**
+   * ★ `displayName` is a PARAMETER, not a new context key, and the distinction
+   * is what makes this safe. `AuthContext.passwordReset.test.tsx` pins the
+   * context key set by EXACT EQUALITY, and ~25 suites replace this module with
+   * a `vi.mock` factory that is a FULL replacement. An extra argument leaves
+   * `Object.keys(ctx)` identical and a `vi.fn()` does not care how many
+   * arguments it receives — an extra KEY or export fails both.
+   *
+   * Same seam `signUpWithEmailPassword(email, password, displayName?)` already
+   * occupies. Optional, because the RETURNING phone branch has no name to give.
+   */
+  verifyPhoneOtp: (code: string, displayName?: string) => Promise<void>;
   sendLinkPhoneOtp: (phoneE164: string, recaptchaContainerId: string) => Promise<void>;
   confirmLinkPhoneOtp: (code: string) => Promise<void>;
   continueLocalSession: () => void;
@@ -460,10 +471,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [initPhoneRecaptcha],
   );
 
-  const verifyPhoneOtp = useCallback(async (code: string) => {
+  const verifyPhoneOtp = useCallback(async (code: string, displayName?: string) => {
     const confirmation = phoneConfirmationRef.current;
     if (!confirmation) throw new Error("Request an OTP before verifying");
-    await confirmation.confirm(code);
+    const credential = await confirmation.confirm(code);
+
+    // ── THE NAME ────────────────────────────────────────────────────────────
+    // `mapFirebaseUser` only ever READS `displayName`. Google supplies one and
+    // `signUpWithEmailPassword` sets one; PHONE supplies nothing, so before
+    // this a phone-first student's raw number rendered wherever their name
+    // belongs, for the life of the account.
+    // [FU-AUTH-PHONE-DISPLAYNAME-NEVER-SET]
+    const trimmedName = (displayName || "").trim();
+    const fbUser = credential?.user;
+    // ⚠ ONLY WHEN THERE IS NONE. A returning student signing in by phone must
+    // never have the name they already chose overwritten by whatever this door
+    // happened to collect.
+    if (trimmedName && fbUser && !fbUser.displayName) {
+      try {
+        await updateProfile(fbUser, { displayName: trimmedName });
+        // RE-SYNC — the same trap as the email path: `updateProfile` mutates
+        // `currentUser` IN PLACE and re-emits no auth-state event, so the
+        // context would keep the null `onAuthStateChanged` already delivered
+        // and the student would see their phone number as their name for the
+        // whole first session. [FU-DISPLAYNAME-NOT-VISIBLE-UNTIL-RELOAD]
+        setFirebaseUser(mapFirebaseUser(fbUser));
+      } catch {
+        // Non-blocking: the account exists even if the name fails to set.
+      }
+    }
+
     // onAuthStateChanged picks up the phone user; the hydration effect tags it
     // authProvider "firebase-phone". Drop the one-shot confirmation + any widget.
     resetPhone();

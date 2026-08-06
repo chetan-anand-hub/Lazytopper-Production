@@ -507,6 +507,23 @@ export interface WorksheetGradeQuestionInput {
   objective?: boolean;
   solutionSteps?: string[];
   finalAnswer?: string;
+  /** TYPED-1 — the student's TYPED working for THIS question, for a student who
+   *  typed instead of photographing (the free-tier path: no camera to hand, or on a
+   *  laptop). Optional and additive: every existing caller omits it and the server
+   *  emits nothing for an absent/empty value, so the prompt the worksheet, chapter
+   *  test, full mock and multi-question Check & Improve surfaces send is unchanged.
+   *
+   *  ★ SAME NAME, SAME MEANING as `CheckSolutionRequest.textAnswer` on the
+   *  single-question path — one convention for one thing, not two.
+   *
+   *  ★ TYPED AND PHOTOGRAPHED ARE NOT EXCLUSIVE: a question may carry this AND an
+   *  entry in `uploads`. The server emits both and the model grades what it is given.
+   *
+   *  ⚠ THIS IS A TYPE, ERASED AT RUNTIME. An interface field is safe to add to this
+   *  module; a VALUE export would not be — three suites `vi.mock` this module with a
+   *  partial factory, so a new runtime export they do not list throws. That is why
+   *  MAX_BATCH_UPLOADS lives in `src/config/gradingLimits.ts` and not here. */
+  textAnswer?: string;
 }
 
 /** A single per-question grade result, keyed to its worksheet question number.

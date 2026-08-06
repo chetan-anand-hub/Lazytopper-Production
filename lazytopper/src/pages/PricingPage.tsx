@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import {
@@ -746,8 +746,31 @@ const FAQ_ITEMS = [
   },
 ];
 
+/**
+ * BACKNAV-1 — where "back" goes when the student arrived from the sign-in door.
+ *
+ * The login page's offer block links to `/pricing?source=login`, and this page
+ * ignored the parameter entirely: `backTo` was the literal "/". A student who
+ * tapped "See plans" mid-signup to check what they were joining was returned to
+ * Home instead of the door, losing the form they had already started.
+ *
+ * ★ ALLOWLIST, NOT A PASS-THROUGH. `source` is matched against known values and
+ * mapped to a hardcoded path — the parameter never becomes the destination. A
+ * `?source=` that carried a URL would otherwise be an open redirect on a page
+ * anyone can link to, and Login.tsx already refuses external redirects for the
+ * same reason. An unknown value falls back to Home, which is the safe side.
+ */
+const RETURN_TARGETS: Record<string, { backTo: string; backLabel: string }> = {
+  login: { backTo: "/login", backLabel: "Back to sign in" },
+};
+
+const DEFAULT_RETURN = { backTo: "/", backLabel: "Back to home" };
+
 export default function PricingPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnTarget =
+    RETURN_TARGETS[(searchParams.get("source") || "").trim().toLowerCase()] ?? DEFAULT_RETURN;
   const [waitlistContact, setWaitlistContact] = useState("");
   const [waitlistBoard, setWaitlistBoard] = useState("");
   const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
@@ -772,7 +795,7 @@ export default function PricingPage() {
     <main className="lt-pricing-page" aria-label="LazyTopper pricing">
       <style dangerouslySetInnerHTML={{ __html: PRICING_CSS }} />
       <div className="lt-pricing-inner">
-        <ReturnContextBar backTo="/" backLabel="Back to home" />
+        <ReturnContextBar backTo={returnTarget.backTo} backLabel={returnTarget.backLabel} />
 
         <section className="lt-pricing-header">
           <h1 className="lt-pricing-title">Simple, Student-Friendly Plans</h1>
