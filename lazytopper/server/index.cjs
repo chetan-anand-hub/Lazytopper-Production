@@ -129,7 +129,12 @@ const { buildMoreLikeThisUserPrompt } = require('./prompts/promptLearn.cjs');
 const { createAiQuestionsRoute } = require('./routes/aiQuestions.cjs');
 const { createTutorCache } = require('./services/tutorCache.cjs');
 const { pickFromPool, markServed, saveToPool } = require('./services/generatedQuestionPool.cjs');
-const { createWarmPoolRunner } = require('./services/warmQuestionPool.cjs');
+const {
+  createWarmPoolRunner,
+  resolveWarmPoolGates,
+  scheduleWarmPool,
+} = require('./services/warmQuestionPool.cjs');
+const { ensureGeneratedQuestionsTable } = require('./db/ensureGeneratedQuestionsTable.cjs');
 const { createQuestionReportRoutes } = require('./routes/questionReport.cjs');
 const { createAdminSolutionCacheRoutes } = require('./routes/adminSolutionCache.cjs');
 // Admin-gated READ path for the token + rate-limit telemetry. #540 wired the
@@ -602,44 +607,35 @@ server.listen(config.PORT, () => {
   );
   if (envUsedLabel) console.log(`EnvUsed: ${envUsedLabel}`);
 
+  // ── Unattended question generation ────────────────────────────────────────
+  // ★ GATE FIRST, SCHEMA SECOND. Resolve and PRINT the state of every path
+  // that can reach Gemini without a student before anything is armed and
+  // before the table exists. The 2026-08-05 log announced the recurring job
+  // as disabled and then started a full generation run anyway; these lines
+  // name each path individually so that cannot recur silently.
+  const warmGates = resolveWarmPoolGates({
+    env: process.env,
+    stubMode: config.STUB_MODE,
+    topUpIntervalMs: config.WARM_POOL_TOP_UP_INTERVAL_MS,
+  });
+  warmGates.logLines.forEach((line) => console.log(line));
+
+  scheduleWarmPool({
+    gates: warmGates,
+    runWarmPool: (opts) => warmPoolRunner.runWarmPool(opts),
+    isRunning: () => _warmPoolRunning,
+    setRunning: (v) => { _warmPoolRunning = v; },
+  });
+
+  // Schema, AFTER the gate. DDL only — no Gemini call, nothing scheduled.
+  // The student-triggered pool readers/writers (pickFromPool / saveToPool on
+  // "More like this") need this table too, so it is ensured whenever a
+  // database is configured, independently of whether the warm pool is armed.
   if (!config.STUB_MODE && process.env.DATABASE_URL) {
-    const topUpIntervalMs = config.WARM_POOL_TOP_UP_INTERVAL_MS;
-
-    console.log('[warm] Scheduling background question pool pre-warm (60 s delay)...');
-    setTimeout(() => {
-      if (_warmPoolRunning) {
-        console.log('[warm] Startup warm skipped — another run already in progress.');
-        return;
-      }
-      _warmPoolRunning = true;
-      warmPoolRunner.runWarmPool({ delayMs: 400 }).catch(
-        (e) => console.error('[warm] Startup runWarmPool error:', e.message)
-      ).finally(() => { _warmPoolRunning = false; });
-    }, 60_000);
-
-    if (topUpIntervalMs > 0) {
-      const intervalLabel = topUpIntervalMs >= 3_600_000
-        ? `${(topUpIntervalMs / 3_600_000).toFixed(1)} h`
-        : `${(topUpIntervalMs / 60_000).toFixed(1)} min`;
-      console.log(`[warm] Scheduling recurring pool top-up every ${intervalLabel} (WARM_POOL_TOP_UP_INTERVAL_MS=${topUpIntervalMs}).`);
-
-      const topUpTimer = setInterval(() => {
-        if (_warmPoolRunning) {
-          console.log('[warm] Top-up skipped — a warm run is already in progress.');
-          return;
-        }
-        console.log('[warm] Starting scheduled pool top-up run...');
-        _warmPoolRunning = true;
-        warmPoolRunner.runWarmPool({ delayMs: 400 }).catch(
-          (e) => console.error('[warm] Scheduled top-up runWarmPool error:', e.message)
-        ).finally(() => { _warmPoolRunning = false; });
-      }, topUpIntervalMs);
-
-      topUpTimer.unref();
-    } else {
-      console.log('[warm] Recurring pool top-up disabled (WARM_POOL_TOP_UP_INTERVAL_MS=0).');
-    }
+    ensureGeneratedQuestionsTable().catch(
+      (e) => console.warn('[gen-q-schema] ensure failed:', e.message)
+    );
   } else {
-    console.log('[warm] Skipping pool pre-warm (STUB_MODE or no DATABASE_URL).');
+    console.log('[gen-q-schema] skipped — STUB_MODE or no DATABASE_URL.');
   }
 });

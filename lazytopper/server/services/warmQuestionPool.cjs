@@ -21,6 +21,7 @@
 
 const path = require('path');
 const { isCompleteVariant } = require('./questionCompleteness.cjs');
+const { ensureGeneratedQuestionsTable } = require('../db/ensureGeneratedQuestionsTable.cjs');
 
 // ---------------------------------------------------------------------------
 // Fallback chapter lists (used only when canonical TS files cannot be loaded)
@@ -125,6 +126,178 @@ function targetForDifficulty(difficulty) {
 
 const QUESTIONS_PER_CALL = 5;
 const MAX_RETRIES_PER_COMBO = 3;
+
+// ---------------------------------------------------------------------------
+// Boot gates — the ONLY thing standing between a deploy and an unattended
+// Gemini generation run.
+// ---------------------------------------------------------------------------
+//
+// ★★ WHAT WENT WRONG ON 2026-08-05, AND WHY THIS IS A NEW VARIABLE.
+//
+// `WARM_POOL_TOP_UP_INTERVAL_MS=0` was set FIRST, deliberately, as the brake.
+// It reads as "off" — and it governs the RECURRING top-up ONLY. The one-time
+// STARTUP pre-warm was never gated by it, was never gated by anything, and
+// started a full chapter x marks x difficulty generation run within a minute
+// of the deploy. The boot log said
+//
+//     [warm] Recurring pool top-up disabled (WARM_POOL_TOP_UP_INTERVAL_MS=0).
+//     [warm] Starting pool warm run: ... combinations
+//
+// — it announced one gate holding while another fired. Widening the meaning of
+// WARM_POOL_TOP_UP_INTERVAL_MS would have made the SAME name mean two
+// different scopes depending on which deploy you were reading, and would have
+// left an operator who has read the old logs believing `=0` had always meant
+// "nothing runs". A variable that misleads is worse than one that does not
+// exist, so the arming decision moves to a NEW, positively-phrased, default-OFF
+// switch and the old variable keeps exactly the meaning it already had.
+//
+//   WARM_POOL_ENABLED            master arm for ALL unattended generation.
+//                                UNSET / empty / 0 / false  =>  nothing runs.
+//   WARM_POOL_TOP_UP_INTERVAL_MS second, independent brake on the recurring
+//                                job only. Still means what it always meant.
+//
+// Both must be satisfied for the recurring job; only the master for the
+// startup pre-warm. Neither can open the other.
+
+/** One-time startup pre-warm delay, unchanged from the pre-gate behaviour. */
+const STARTUP_PREWARM_DELAY_MS = 60_000;
+
+const TRUTHY_VALUES = new Set(['1', 'true', 'yes', 'on', 'enabled']);
+
+/** Explicit positive opt-in. Anything not on the allowlist is OFF. */
+function isTruthyFlag(value) {
+  return TRUTHY_VALUES.has(String(value ?? '').trim().toLowerCase());
+}
+
+/**
+ * Decide, and be able to SAY, what is armed at boot.
+ *
+ * @param {{ env?: object, stubMode?: boolean, topUpIntervalMs?: number }} [options]
+ * @returns {{
+ *   optIn: boolean, databaseConfigured: boolean, stubMode: boolean,
+ *   startupPrewarmArmed: boolean, recurringTopUpArmed: boolean,
+ *   adminEndpointArmed: boolean, topUpIntervalMs: number,
+ *   startupDelayMs: number, logLines: string[]
+ * }}
+ */
+function resolveWarmPoolGates(options = {}) {
+  const env = options.env || process.env;
+  const stubMode = Boolean(options.stubMode);
+  const topUpIntervalMs = Math.max(0, Number(options.topUpIntervalMs) || 0);
+
+  const rawEnabled = env.WARM_POOL_ENABLED;
+  const optIn = isTruthyFlag(rawEnabled);
+  const databaseConfigured = Boolean(env.DATABASE_URL);
+  const adminEndpointArmed = Boolean(env.WARM_POOL_ADMIN_SECRET);
+
+  const startupPrewarmArmed = optIn && databaseConfigured && !stubMode;
+  const recurringTopUpArmed = startupPrewarmArmed && topUpIntervalMs > 0;
+
+  // The reason a path is closed, in the order the code checks it, so the log
+  // never says "disabled" without saying which condition did it.
+  let blockedBy = null;
+  if (!optIn) blockedBy = 'WARM_POOL_ENABLED is not set to a truthy value (1/true/yes/on)';
+  else if (stubMode) blockedBy = 'STUB_MODE is on (no Gemini credentials configured)';
+  else if (!databaseConfigured) blockedBy = 'DATABASE_URL is not set';
+
+  const rawLabel = rawEnabled === undefined || rawEnabled === null || rawEnabled === ''
+    ? '(unset)'
+    : String(rawEnabled);
+
+  const logLines = [
+    `[warm] gate WARM_POOL_ENABLED=${rawLabel} | DATABASE_URL=${databaseConfigured ? 'set' : 'unset'} | STUB_MODE=${stubMode ? 'on' : 'off'}`,
+    `[warm] path startup-prewarm (one-time, ${STARTUP_PREWARM_DELAY_MS} ms after boot, full chapter x marks x difficulty Gemini generation run): ${
+      startupPrewarmArmed ? `ARMED — WARM_POOL_ENABLED=${rawLabel}` : `DISABLED — ${blockedBy}`
+    }`,
+    `[warm] path recurring-top-up (WARM_POOL_TOP_UP_INTERVAL_MS=${topUpIntervalMs}): ${
+      recurringTopUpArmed
+        ? `ARMED — every ${topUpIntervalMs} ms`
+        : `DISABLED — ${blockedBy || 'WARM_POOL_TOP_UP_INTERVAL_MS=0'}`
+    }`,
+    `[warm] path admin-endpoint POST /api/admin/warm-question-pool: ${
+      adminEndpointArmed
+        ? 'ARMED — WARM_POOL_ADMIN_SECRET is set; an authenticated admin request can start a full run'
+        : 'DISABLED — WARM_POOL_ADMIN_SECRET is not set (endpoint answers 503)'
+    }`,
+  ];
+
+  const armedPaths = [
+    startupPrewarmArmed ? 'startup-prewarm' : null,
+    recurringTopUpArmed ? 'recurring-top-up' : null,
+  ].filter(Boolean);
+
+  logLines.push(
+    armedPaths.length === 0
+      ? '[warm] no unattended question generation is scheduled'
+      : `[warm] AI SPEND WARNING: unattended question generation is scheduled: ${armedPaths.join(', ')}`
+  );
+
+  return {
+    optIn,
+    databaseConfigured,
+    stubMode,
+    startupPrewarmArmed,
+    recurringTopUpArmed,
+    adminEndpointArmed,
+    topUpIntervalMs,
+    startupDelayMs: STARTUP_PREWARM_DELAY_MS,
+    logLines,
+  };
+}
+
+/**
+ * Arm the timers the gates permit — and NOTHING when they permit nothing.
+ *
+ * Every dependency is injectable so the boot behaviour can be exercised for
+ * real (real gate resolution, real runner, counted Gemini calls) without
+ * standing up an HTTP server.
+ *
+ * @returns {{ startupTimer: any, topUpTimer: any }}
+ */
+function scheduleWarmPool(options = {}) {
+  const {
+    gates,
+    runWarmPool,
+    isRunning = () => false,
+    setRunning = () => {},
+    log = console.log,
+    logError = console.error,
+    setTimeoutFn = setTimeout,
+    setIntervalFn = setInterval,
+  } = options;
+
+  const timers = { startupTimer: null, topUpTimer: null };
+  if (!gates) return timers;
+
+  const launch = (label) => {
+    if (isRunning()) {
+      log(`[warm] ${label} skipped — a warm run is already in progress.`);
+      return;
+    }
+    log(`[warm] ${label} starting a pool warm run now.`);
+    setRunning(true);
+    Promise.resolve()
+      .then(() => runWarmPool({ delayMs: 400 }))
+      .catch((e) => logError(`[warm] ${label} runWarmPool error:`, e && e.message))
+      .finally(() => setRunning(false));
+  };
+
+  if (gates.startupPrewarmArmed) {
+    timers.startupTimer = setTimeoutFn(
+      () => launch('startup-prewarm'),
+      gates.startupDelayMs ?? STARTUP_PREWARM_DELAY_MS
+    );
+  }
+
+  if (gates.recurringTopUpArmed) {
+    timers.topUpTimer = setIntervalFn(() => launch('recurring-top-up'), gates.topUpIntervalMs);
+    if (timers.topUpTimer && typeof timers.topUpTimer.unref === 'function') {
+      timers.topUpTimer.unref();
+    }
+  }
+
+  return timers;
+}
 
 // ---------------------------------------------------------------------------
 // Prompt builder
@@ -257,8 +430,13 @@ function sleep(ms) {
  */
 function createWarmPoolRunner(deps) {
   const { callGemini, saveToPool, GEMINI_MODEL } = deps;
+  // Test seam: lets a suite drive the REAL runner over a fake Postgres and
+  // count the Gemini calls it makes. Production passes nothing and gets pg.
+  const createPgPool = deps.createPgPool || null;
+  const ensureSchema = deps.ensureSchema || ensureGeneratedQuestionsTable;
 
   async function getPgPool() {
+    if (createPgPool) return createPgPool();
     if (!process.env.DATABASE_URL) return null;
     try {
       const pg = require('pg');
@@ -376,7 +554,14 @@ function createWarmPoolRunner(deps) {
       return { total: 0, skipped: 0, saved: 0, errors: 0 };
     }
 
-    const { mathsTopicKeys, scienceTopicKeys } = loadTopicKeys();
+    // The table must exist before the first countInPool, or every combination
+    // reports 0 in pool and the run generates the whole bank from scratch.
+    // DDL only — this makes no Gemini call and schedules nothing.
+    await ensureSchema(pgPool);
+
+    // `topicKeys` is a test seam: production passes nothing and gets the
+    // canonical registries.
+    const { mathsTopicKeys, scienceTopicKeys } = options.topicKeys || loadTopicKeys();
 
     const combos = [];
     for (const topicKey of mathsTopicKeys) {
@@ -457,7 +642,16 @@ function createWarmPoolRunner(deps) {
   return { runWarmPool };
 }
 
-module.exports = { createWarmPoolRunner, loadTopicKeys, MARKS_VALUES, DIFFICULTIES };
+module.exports = {
+  createWarmPoolRunner,
+  loadTopicKeys,
+  MARKS_VALUES,
+  DIFFICULTIES,
+  resolveWarmPoolGates,
+  scheduleWarmPool,
+  isTruthyFlag,
+  STARTUP_PREWARM_DELAY_MS,
+};
 
 // ---------------------------------------------------------------------------
 // Standalone mode: node warmQuestionPool.cjs
