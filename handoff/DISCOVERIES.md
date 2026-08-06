@@ -204,3 +204,70 @@ When the FIRST document of a brand-new top-level collection is written, the Fire
 collection list does NOT live-update — the collection only shows after a **page reload**. "I can't see the
 collection" therefore does NOT mean "the write failed." When live-verifying a first-ever write (as with
 `practiceInsights` in #322), reload the console before concluding anything is broken.
+
+## D34 — A cropped screenshot will stand in for the page, and the crop wins
+During `#616` the cofounder asserted that the `email-already-in-use` state rendered copy saying
+"…or reset your password" while **no reset control was visible in that state**, and specced a fix.
+The claim came from an owner screenshot **cropped at the submit button** — and `offerReset`'s
+"Reset my password" button renders *below* the submit. It had been firing correctly since round 1,
+and a test already asserted it.
+★★ THE MECHANISM, WHICH IS THE POINT: **the crop agreed with the argument he had just made, so the
+search ended there.** Evidence confirming the current hypothesis stops investigation earlier than
+evidence contradicting it, and a cropped image is indistinguishable from a complete one unless you
+go looking for the edge.
+LESSON: a screenshot is a claim about a VIEWPORT, never about a page. Before speccing a fix from
+one, confirm the region you care about was actually IN it — `fullPage: true`, or a DOM query.
+
+## D35 — A test snippet in a spec can be unrunnable, and it will look authoritative
+`#616`'s round-2 brief supplied a replacement test asserting
+`expect(signInWithEmailPassword).toHaveBeenCalledTimes(1)` after clicking through to the returning
+branch — **with nothing submitted**. It cannot pass. The lane kept the structure, added the submit,
+and reported the correction.
+Same round, the same file needed `signInWithEmailPassword` **added to its `vi.mock` factory**:
+`AuthDoor` destructures it, so an absent member reads `undefined` and the component **throws on
+submit**. That file's own comment already recorded exactly this reasoning for its phone members —
+the omission was in the brief, not the file.
+LESSON: **code in a brief is a proposal, not a fixture.** Run it before trusting it. A snippet that
+compiles-by-eye can still be logically impossible, and an incomplete mock factory fails at the call
+site with an error naming the component, not the omission.
+
+## D36 — A static grep cannot verify a claim about files that defeat static greps
+`#616`'s allowlist named four `Login*` test files, derived from an import-pattern grep. **CI found
+eight** files that mount the auth door. The two the grep missed — `SignUpPage.name.test.tsx` and
+`SignUpPage.phone.test.tsx` — use a **dynamic `await import("./Login")` inside the test body**.
+★★ That form is invisible to BOTH methods this project uses: a path glob
+(`vitest run src/pages/Login`) never matches the filename, and a `from "./Login"` grep never matches
+the import.
+LESSON: to enumerate "every test that exercises X", grep **both** import forms
+(`from "./X"` AND `import("./X")`) — or run the whole suite and read what mounted. The enumerated
+eight for the auth door are in `[FU-DOOR-TEST-SURFACE-EIGHT-FILES]`. This is a specific instance of
+ENUMERATE THE SET; DO NOT GREP A MEMBER, with the sharper edge that here even a *correctly written*
+grep returns the wrong set.
+
+## D37 — A duplicate CSS selector is a correctness bug when a test source-scans, and it fails naming the wrong cause
+`Login.oneDoor.test.tsx` pins dark-theme colours by reading `Login.tsx` as text: its `ruleBody()`
+helper resolves a selector with `src.indexOf(selector)` and returns **only the FIRST match**.
+`#616` added a *second* `.lt-login-page[data-login-theme="dark"] .lt-google` rule (a green lift)
+**above** the existing one. The pinned `color: #071a3d` was still present and still applied in the
+browser — the cascade was fine — but the test read the new block, found no colour, and went red
+**reporting a missing colour that was there.**
+LESSON: where a test scans source rather than the DOM, **duplicate selectors are a correctness
+problem, not a style one** — merge into one rule. And when a source-scanning test fails, check
+whether the assertion is even looking at the block you changed before "fixing" the product.
+⇒ `ruleBody()` should assert its selector appears exactly once: `[FU-TEST-SOURCESCAN-FIRST-MATCH-ONLY]`.
+
+## D38 — A contrast probe that ignores alpha and gradients returns numbers that are simply wrong
+`#616` built a browser contrast probe. Its first version took the nearest non-transparent
+`backgroundColor` up the tree and fed the string to a luminance function reading the first three
+numbers — so `rgba(22,185,106,0.1)`, a **10%-alpha wash**, scored as **solid** green. It also never
+saw the login brand panel at all: that navy is a `background-image` **gradient**, whose
+`backgroundColor` is `transparent`, so the walk sailed straight past it.
+It **reported 1.09:1 for text that reads perfectly.** Rewritten to composite translucent layers over
+the first opaque backdrop and — on meeting a gradient — to score against **every colour stop and
+keep the worst**, it immediately found a genuine **PRE-EXISTING 3.76:1** on the mobile offer strip
+(0.86rem/0.8rem text, nowhere near the large-text exemption) that no assertion in the repo could see.
+★★ LESSON: **a measurement that cries wolf is as dangerous as one that sleeps** — the natural
+response to a false 1.09:1 is to relax the threshold, which then hides the true failures. Any
+contrast check added anywhere in this repo must composite alpha AND handle gradient backdrops.
+Reference figures, verified twice (computed and in-browser, agreeing exactly): white `#ffffff` on
+`#16b96a` = **2.57:1 (fails)**; navy `#071a3d` on `#16b96a` = **6.68:1 (passes)**.

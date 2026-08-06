@@ -1,6 +1,131 @@
 # LazyTopper — Current State
 
-## [CURRENT] #611-#617 merged -- WAVE 5E: THE BATCH-GRADING ARC BUILT AND UNBLOCKED, A SITEMAP GOOGLE HAD NEVER FETCHED, AND THREE CAPABILITIES THAT ARE STILL DORMANT -- trunk `9cfcb09a`
+## [CURRENT] #615-#616 merged — THE LOGIN DOOR REWORKED AND LIVE-VERIFIED · A CANONICAL THAT FINALLY RESOLVES · AND THE PHONE PATH STILL LEAVES STUDENTS NAMELESS — trunk `1b477e5f`
+
+**Two standalone owner-run lanes, both merged AFTER `#618` closed Wave 5E. Both live-verified by the
+owner on production, desktop and mobile, and both PASSED.**
+
+```
+1b477e5f  NAME-1 v2  the login door rework                              #616
+c54f7f9a  META-3     sitemap + canonical point at URLs that resolve     #615
+0a9c9f97  WAVE-5E    handoff, closed the wave                           #618
+```
+**Trunk moved `9cfcb09a` → `0a9c9f97` → `c54f7f9a` → `1b477e5f`.**
+Verified ON TRUNK BY CONTENT, not by PR state — **this repo squash-merges.**
+
+**Nothing is open and the owner's.** Wave 5F's two server lanes (`#619` WARM-GATE-1, `#620`
+TELEMETRY-1) are open as drafts and are not part of this record.
+
+### ***** THE SENTENCE THAT MATTERS MOST IN THIS HANDOFF *****
+
+> ## **The Quick Practice results surface is BUILT AND UNREACHABLE.**
+> ## **`RESULTS-1` (`#617`) is merged and dormant by design.**
+> ## **`WIRE-2` is the ONLY thing that makes it live.**
+
+**NEITHER LANE IN THIS HANDOFF CHANGES ANY OF THAT. THE ARC STILL CARRIES *THREE* DORMANT
+CAPABILITIES, NAMED HERE TOGETHER BECAUSE THAT IS THE WHOLE POINT:**
+
+| Built | When | Called by |
+|---|---|---|
+| **`#578`** — the grader's per-question image support | 1 August | **nothing.** Its live-verify has never run |
+| **`#611`** — `gradeQuickPracticeBatch`, proven by 25 tests | 5 August | **nothing.** Zero callers on trunk |
+| **`#617`** — the graded answer sheet | 6 August | **nothing.** One caller: its own test file |
+
+**`WIRE-2` IS THE SINGLE LANE THAT ENDS ALL THREE.** It is specced, on disk, and NOT dispatched —
+still the first lane of Wave 5F. **The absence of exactly this paragraph cost five days on `#578`.**
+It is restated here, not merely left in the demoted block, because a reader who stops after the top
+section must still learn it.
+
+⚠ **`#611` swallows the 402** — an unconditional catch turning `PremiumRequiredError` into
+`skipped-error`. **LATENT while nothing calls it; live the moment `WIRE-2` ships.**
+
+### ★★ WHAT `#616` DID **NOT** DO — read this before assuming the name defect is closed
+
+> ## **`§9`, the phone segmented control, was NOT STARTED.**
+> ## **PHONE-FIRST STUDENTS STILL LAND NAMELESS.**
+
+`mapFirebaseUser` only ever **reads** `displayName`. Google supplies one; **phone does not**, and
+nothing in the product sets one for a phone account. Phone is one of three equal methods on the door
+and is made prominent, so this is not a corner case. The lane declined `§9` on the owner's own
+priority order rather than half-build it — **a phone control that renders but never passes the name
+is worse than one that does not exist.** `[FU-AUTH-PHONE-DISPLAYNAME-NEVER-SET]` stands, actively
+re-confirmed. The follow-on lane is **`NAME-2`** (`NEXT_ACTION.md`).
+
+⚠ **AND NOTHING BACKFILLS.** Accounts already created without a name are not repaired by `#616` and
+will not be repaired by `NAME-2`. `[FU-AUTH-DISPLAYNAME-NO-BACKFILL]` — **a sequencing constraint,
+not a nice-to-have: it must land BEFORE the ~50-student QA pass**, or that cohort starts permanently
+nameless.
+
+### `#615` META-3 — a canonical that resolves, and the measurement that proves it
+
+- **`sitemap.xml`: four URLs → three.** Dropped `/topic-hub`, `/highly-probable/10/Maths`,
+  `/practice/10/Maths` — all auth- or premium-gated, and **all 404 at the root**. Kept `/app/`,
+  `/app/exam-trends`, `/app/pricing`.
+- **`index.html` canonical:** `https://lazytopper.com/` → `https://www.lazytopper.com/app/`.
+- `crawlerReachability.guard.test.ts` **+473 lines**; `domain.guard.test.ts` amended; `llms.txt` updated.
+
+★ **MEASURED ON PRODUCTION — this is why the new canonical is right, and the measurement is the
+record, not the change:**
+
+```
+lazytopper.com/          308 -> www.lazytopper.com/
+www.lazytopper.com/      307 -> www.lazytopper.com/app/
+www.lazytopper.com/app/  200   <- the only URL that resolves
+```
+
+**The old canonical cost two redirect hops.** ⇒ `[FU-SEO-ROOT-IS-A-REDIRECT]`: **the domain has no
+homepage of its own.** `/` is a redirect into an app shell, so reaching content costs two hops. That
+blocks any public content layer at root paths and is **the largest open SEO decision**.
+
+### `#616` NAME-1 v2 — the login door rework
+
+Six files, all `Login*` plus `SignUpPage.name.test.tsx`. Five sections:
+
+1. **The blocking assertion REPLACED, not deleted.** The predecessor pinned "no name field on the
+   sign-IN door", which the self-declared control makes false on arrival. What it *protected* — **a
+   returning student never types a name** — is now pinned, and carried through to the CALL: the
+   returning branch reaches `signInWithEmailPassword` and **never** `signUp`.
+2. **Forgot password confined to the returning branch**, which freed the create branch's
+   **"Create a password"** label. It had been rendering on "I'm new here" — offering a reset for an
+   account that does not exist. `Login.forgotPassword.test.tsx`: **85 added, 0 deleted — zero
+   assertions weakened.** The `email-already-in-use` state's **Reset my password** button now opens
+   the reset pane, with a control proving a clean create offers neither.
+3. **Legal returned to the auth column at every width**, the `isDesktop` conditional deleted. The
+   desktop consent line had been **below the fold**, in a column no student scrolls.
+4. **Right-panel hierarchy** — Google given primary weight (bordered and lifted, deliberately **not**
+   filled, so it cannot compete with the navy submit), guidance reduced to a footnote with every word
+   intact, and a real footer floor.
+5. **Segmented control in product green.** Navy on `#16b96a` measures **6.68:1**; **white measures
+   2.57:1 and FAILS**, because 0.9rem bold is not large text.
+
+**Owner live-verify: PASSED on production, desktop and mobile.**
+
+### ★★ WHAT THE LANES FOUND THAT THEIR SPECS DID NOT KNOW
+
+**Four cofounder spec errors were disproved by `#616`. The mechanisms are recorded in
+`handoff/DISCOVERIES.md` (D34–D37); the summary:**
+
+1. **A cropped screenshot stood in for the page.** The cofounder asserted the `email-already-in-use`
+   state offered no reset control — reading it off an owner screenshot **cropped at the submit
+   button**, and that control renders *below* the submit. It had been firing since round 1.
+   ⇒ **The crop agreed with the argument he had just made, so the search ended.**
+2. **A test snippet that could not pass** — it asserted `signInWithEmailPassword` had been called
+   once **without submitting anything**.
+3. **A mock-factory omission** — `AuthDoor` destructures `signInWithEmailPassword`; an absent member
+   reads `undefined` and the component **throws on submit**.
+4. **A static grep used to verify a claim about files that defeat static greps.** The import-pattern
+   grep found five door-mounting test files; **CI found eight.**
+
+★ **And the lane caused one itself, caught by a test:** adding a second dark `.lt-google` rule
+**shadowed** the AUTH-3 one, because `ruleBody()` resolves selectors with `src.indexOf` and reads
+only the **first** match — so the suite went red **naming the wrong cause**.
+
+⚠ **This is the property worth protecting: every lane in the last four waves disproved part of its
+own spec, and every one of those errors was the cofounder's. That is the system working.**
+
+---
+
+## (superseded) [CURRENT] #611-#617 merged -- WAVE 5E: THE BATCH-GRADING ARC BUILT AND UNBLOCKED, A SITEMAP GOOGLE HAD NEVER FETCHED, AND THREE CAPABILITIES THAT ARE STILL DORMANT -- trunk `9cfcb09a`
 
 **Four controller lanes plus two owner-run lanes. The controller stood down after this handoff;
 Wave 5F opens with `WIRE-2` as its first lane.**
@@ -15,8 +140,12 @@ fd11a664  META-2     robots/sitemap/llms/favicon served at the root             
 **Trunk moved `583ed062` -> `1def94c8` -> `9717248c` -> `fd11a664` -> `035de5d5` -> `9cfcb09a`.**
 Verified ON TRUNK BY CONTENT, not by PR state -- **this repo squash-merges.**
 **Full controller record: `handoff/WAVE_STATE_WAVE5E_ARCHIVE.md`.**
-**OPEN and the owner's:** `#615` META-3 (sitemap + canonical) - `#616` NAME-1 v2 (the login door
-rework). **`AUTH-1` is NOT queued** -- the name/link work moved to a new cofounder session.
+~~**OPEN and the owner's:** `#615` META-3 (sitemap + canonical) - `#616` NAME-1 v2 (the login door
+rework).~~ ⚠ **CORRECTED 2026-08-06 — BOTH ARE MERGED.** `#615` at `c54f7f9a`, `#616` at
+`1b477e5f`, both live-verified on production. This line was true on its date and is left struck
+rather than rewritten, per the board's own rule that a dated entry is evidence of what was known
+when. **See the `[CURRENT]` block above.**
+**`AUTH-1` is NOT queued** -- the name/link work moved to a new cofounder session.
 
 ### ***** THE SENTENCE THAT MATTERS MOST IN THIS HANDOFF *****
 

@@ -13,6 +13,113 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 ---
 
 
+## 2026-08-06 — #615-#616 (two standalone owner-run lanes, merged after Wave 5E closed). Trunk `1b477e5f`.
+
+**CLOSED — resolved and shipped**
+
+- **The nameless-account defect — ★ ON THE EMAIL PATH ONLY.** `#616` closes it for email/password:
+  the name is captured on the create branch, required not optional, and passed as the **third
+  argument** to `signUpWithEmailPassword` — the only `updateProfile` call in product code. Verified
+  on the wire (the `accounts:update` request body) and live-verified by the owner on production.
+  ⚠ **THIS CLOSURE IS EMAIL-ONLY AND MUST NOT BE READ AS COVERING PHONE.** Google supplies a
+  `displayName` of its own; **phone supplies nothing and `#616` did not touch it.** See
+  `[FU-AUTH-PHONE-DISPLAYNAME-NEVER-SET]`, immediately below and still open.
+
+**MUST STAY OPEN — do not close**
+
+- **`[FU-AUTH-PHONE-DISPLAYNAME-NEVER-SET]`** — ★ **ACTIVELY RE-CONFIRMED BY THIS LANE, NOT MERELY
+  CARRIED.** `mapFirebaseUser` only ever *reads* `displayName`. Google supplies one; **phone does
+  not**, and nothing in the product sets one for a phone account. `#616`'s `§9` — the phone
+  segmented control — **was not started**, so phone-first students still land nameless and the shell
+  falls back to rendering whatever it has. Phone is one of three equal methods on the door and is
+  made prominent, so this is not a corner case. **Closed by `NAME-2`, not by `#616`.**
+
+- **`[FU-AUTH-EMAIL-LINK-DIRECTION]`** — `AUTH-1`'s, and it runs alone. Only `linkWithPhoneNumber`
+  exists: an email or Google account can **absorb** a phone; **a phone-first account can never absorb
+  an email.** A phone-first student who later signs in with Google gets a **SECOND** account with
+  different progress, different Mistake Intelligence and a different subscription.
+  ⚠ **SPLIT ACCOUNTS ARE UNRECOVERABLE BY DESIGN — prevention is the only tool we have.** That is
+  why `#616`'s merged guidance block advises *starting* with email or Google, and why that copy must
+  not be trimmed for length until this ships.
+
+**NEW — OPEN**
+
+- **`[FU-AUTH-DISPLAYNAME-NO-BACKFILL]`** — ★★ **nothing repairs accounts already created without a
+  name.** Neither `#616` nor the queued `NAME-2` backfills; both only affect accounts created after
+  they ship. Every account made before `#616` — and every phone account until `NAME-2` — carries a
+  null `displayName` permanently, because there is no second `updateProfile` writer and no admin
+  path that sets one.
+  ⚠ **THIS IS A SEQUENCING CONSTRAINT, NOT A NICE-TO-HAVE: it must land BEFORE the ~50-student QA
+  pass**, or that entire cohort starts permanently nameless and the first thing fifty students see
+  is their own email address where their name belongs.
+
+- **`[FU-DOOR-TEST-SURFACE-EIGHT-FILES]`** — the auth door is mounted by **EIGHT** test files, not
+  the four an allowlist named. The eighth, `SignUpPage.phone.test.tsx` (8 tests), was found **by CI**
+  — after the lane had already been surprised once by `SignUpPage.name.test.tsx`.
+  ★★ **A dynamic `await import("./Login")` is invisible to path globs AND to import greps**, which
+  defeats every static method this project uses to answer "what are all the tests for X?".
+  **The enumerated eight:** `Login.oneDoor`, `Login.nameCapture`, `Login.legalLinks`,
+  `Login.forgotPassword`, `SignUpPage.name`, `SignUpPage.phone`, `SignUpPage.redirect`,
+  `PublicLegalFooter.reach` (+ `OfferStrip.test.tsx` mounts it too, via the same dynamic form).
+  ⇒ **`NAME-2`'s allowlist must be all eight**, and any future door lane should run the whole suite
+  rather than trusting a glob.
+
+- **`[FU-TEST-SOURCESCAN-FIRST-MATCH-ONLY]`** — `ruleBody()` in `Login.oneDoor.test.tsx` resolves a
+  selector with `src.indexOf(...)` and reads only the **FIRST** match. So a **duplicate CSS selector
+  is a correctness bug**, and worse, **the suite fails naming the wrong cause**: `#616` added a
+  second dark `.lt-google` rule for a green lift, the pinned `color: #071a3d` was still present but
+  no longer first, and the test reported a missing colour that was there. Fixed by merging both
+  concerns into one rule. ⇒ **`ruleBody()` should assert its selector appears exactly once** rather
+  than silently taking the first.
+
+- **`[FU-A11Y-CONTRAST-PROBE-ALPHA]`** — ★★ **a repo-wide method defect, in two parts.**
+  **(a)** A **pre-existing 3.76:1** on the mobile offer strip — a real WCAG-AA failure for normal
+  text (0.86rem / 0.8rem, nowhere near the large-text exemption), fixed in `#616`.
+  **(b)** The reason nobody had seen it: **a contrast check that does not composite alpha over its
+  backdrop returns numbers that are simply wrong.** The lane's own first probe scored
+  `rgba(22,185,106,0.1)` — a 10%-alpha wash — as **solid** green, and never saw the brand panel at
+  all, because that navy is a `background-image` gradient whose `backgroundColor` is transparent. It
+  **reported 1.09:1 for text that reads perfectly.** Rewritten to composite layers and to score
+  against every gradient stop worst-case, it immediately found the real 3.76:1.
+  ⚠ **A measurement that cries wolf is as dangerous as one that sleeps** — the temptation is to relax
+  the threshold, which loses the true signal. **Any contrast assertion added anywhere in this repo
+  must composite alpha and handle gradient backdrops.**
+
+- **`[FU-SEO-ROOT-IS-A-REDIRECT]`** — ★ **the domain has no homepage of its own.** Measured on
+  production during `#615`:
+  ```
+  lazytopper.com/          308 -> www.lazytopper.com/
+  www.lazytopper.com/      307 -> www.lazytopper.com/app/
+  www.lazytopper.com/app/  200   <- the only URL that resolves
+  ```
+  `/` is a redirect into an app shell, so reaching any content costs **two hops**, and the old
+  canonical pointed at the first of them. `#615` fixed the canonical; it did not and could not fix
+  the shape. ⇒ **This blocks any public content layer at root paths** (marketing pages, topic
+  landing pages, anything a crawler should index without entering the app) and is **the largest open
+  SEO decision on the board.**
+
+**NEW LANE — logged, NOT built**
+
+- **`NAME-2`** — the phone segmented control, closing `[FU-AUTH-PHONE-DISPLAYNAME-NEVER-SET]`.
+  **Allowlist: all eight door-mounting test files** (above), `lazytopper/src/pages/Login.tsx`, and
+  `lazytopper/src/context/AuthContext.tsx` for **one signature change only**:
+  ```ts
+  verifyPhoneOtp: (code: string, displayName?: string) => Promise<void>;
+  ```
+  ★★ **`AuthContext.passwordReset.test.tsx:175` pins `Object.keys(ctx!).sort()` — the KEY SET. A new
+  PARAMETER leaves that identical; a new KEY does not.** That distinction is the whole reason this is
+  a small lane and not `AUTH-1`, and it is the same seam
+  `signUpWithEmailPassword(email, password, displayName?)` already occupies. The 25 `vi.mock`
+  complete replacements are unaffected — a `vi.fn()` does not care how many arguments it receives.
+  ⚠ **If the lane finds itself adding a KEY, it must stop and report.**
+  Also: reuse `.lt-login-seg` so `#616`'s green treatment applies without a second rule; keep
+  `role="group"` with `aria-pressed` (**`Login.oneDoor.test.tsx` asserts ZERO elements with
+  `role="tab"`**); `updateProfile` only when the authenticated user has **no** existing
+  `displayName`, never overwriting one; and the copy at `Login.tsx:2283` — *"New or returning — phone
+  works the same either way"* — **stops being true the moment you ask, and must change.**
+  ⚠ Its acceptance bar (a real phone account, name in Firebase Console) **costs real SMS** and cannot
+  be met from a dev box with no Firebase config — it needs the preview or the owner's device.
+
 ## 2026-08-06 - WAVE 5E (#611-#617). Full bodies in `handoff/WAVE_STATE_WAVE5E_ARCHIVE.md` and the four lane reports.
 
 **NEW - OPEN**

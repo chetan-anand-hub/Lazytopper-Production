@@ -1,7 +1,63 @@
 # LazyTopper — Next Action
-# Updated: 2026-08-06 (post-**#611-#617 -- WAVE 5E**. Trunk `9cfcb09a`. Controller stood down after this handoff; Wave 5F opens with `WIRE-2`. Full record in `handoff/WAVE_STATE_WAVE5E_ARCHIVE.md`.)
+# Updated: 2026-08-06 (post-**#615-#616**, two standalone owner-run lanes merged after Wave 5E closed. Trunk `1b477e5f`. Both live-verified on production. Wave 5F still opens with `WIRE-2`.)
 
-## NEXT -- 2026-08-06 (post-#611-#617, WAVE 5E). Read this block first.
+## NEXT — 2026-08-06 (post-#615-#616). Read this block first.
+
+### 0 — ***** THE ONE THING THAT MUST NOT BE MISSED — UNCHANGED BY EITHER LANE *****
+
+> ## **The Quick Practice results surface is BUILT AND UNREACHABLE.**
+> ## **`RESULTS-1` (`#617`) is merged and dormant by design.**
+> ## **`WIRE-2` is the ONLY thing that makes it live.**
+
+**THREE DORMANT CAPABILITIES STILL SIT IN THIS ARC, AND ONE LANE ENDS ALL THREE:**
+
+| Built | When | Called by |
+|---|---|---|
+| **`#578`** the grader's per-question image support | 1 Aug | **nothing** — live-verify never run |
+| **`#611`** `gradeQuickPracticeBatch`, 25 tests | 5 Aug | **nothing** — zero callers |
+| **`#617`** the graded answer sheet | 6 Aug | **nothing** — one caller, its own test |
+
+**`WIRE-2` is specced, on disk at `C:\Users\Chetan\OneDrive\Desktop\diff\wave 5e\`, and NOT
+dispatched. Do not re-spec it.** ⚠ `#611` swallows the 402 — latent while uncalled, **live the
+moment `WIRE-2` ships.**
+
+### THE ORDER, WITH REASONS
+
+1. **`WIRE-2`** — still the first lane of Wave 5F, and **still the only thing that ends three
+   dormancies**. Nothing below changes that.
+2. **`NAME-2`** — the phone segmented control. Small and scoped; full allowlist and the
+   KEY-vs-SIGNATURE reasoning are in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+   ⚠ **Phone-first students land nameless until this ships**, and
+   `[FU-AUTH-DISPLAYNAME-NO-BACKFILL]` means it repairs nobody already created.
+3. **The SEO decision** — `[FU-SEO-ROOT-IS-A-REDIRECT]`, and whether a public content layer gets
+   built at all. `#615` fixed the canonical; it could not fix the shape. **The domain has no
+   homepage of its own** and reaching content costs two hops.
+4. **Bank expansion Batch 12** — trigonometry + circles + carbon-and-its-compounds.
+   ⚠ **DARK SINCE `#419` ON 13 JULY; 12 of 26 topics remain.** Nothing has expanded since — **the
+   four bank commits after it are all corrective**, not additive. This is the longest-running stall
+   on the board and it is easy to miss because the file keeps changing.
+
+### ⚠ THE CRITICAL PATH IS UNCHANGED, AND NONE OF IT IS FEATURES
+
+**DPDP · the ~50-student QA pass · GSTIN → Razorpay KYC → live keys.**
+
+★ **The plan-shape decision (one-time "till boards" vs recurring) is STILL OPEN and now blocks TWO
+things** — `PAY-1`'s spec, and the login door's `/ month` framing. `#616` deliberately kept the
+founding-member line as **one self-contained replaceable sentence** in each offer variant so a
+plan-shape change is a one-line edit and not a re-layout.
+
+⚠ **`[FU-AUTH-DISPLAYNAME-NO-BACKFILL]` is a sequencing constraint on the QA pass**, not a
+nice-to-have: without it, ~50 students start permanently nameless.
+
+### ⚠ `LAUNCH_REMAINING.md` IS STALE — DO NOT READ IT AS CURRENT
+
+**Last reconciled at `a8f36ab` on 2026-07-13, and it is still discussing `#423`.** Trunk has moved
+through five waves since. **It was deliberately NOT fixed in this handoff** — reconciling it is a job
+of its own, not a line-item in a docs PR, and half-updating it would make it *more* misleading by
+looking fresh. **Treat every date, SHA and open-item list in that file as unverified until it is
+reconciled.**
+
+## (superseded) NEXT -- 2026-08-06 (post-#611-#617, WAVE 5E).
 
 ### 0 - ***** THE ONE THING THAT MUST NOT BE MISSED *****
 

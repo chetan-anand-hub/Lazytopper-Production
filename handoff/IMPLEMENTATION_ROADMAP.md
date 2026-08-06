@@ -1,5 +1,31 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-08-06 — #615-#616 **COMPLETE** (two standalone owner-run lanes, trunk `1b477e5f`) — the login door reworked and live-verified, and a canonical that finally resolves
+
+**STAGES COMPLETE:**
+- **`META-3` (#615)** — sitemap trimmed **four URLs → three**; canonical moved to
+  `https://www.lazytopper.com/app/`, the only URL that resolves (measured `308 → 307 → 200`).
+  `crawlerReachability.guard.test.ts` +473 lines. **Owner live-verified on production.**
+- **`NAME-1 v2` (#616)** — the login door rework: a self-declared branch (one call, first-submit
+  error reporting), forgot-password confined to the returning branch, legal returned to the auth
+  column at every width, right-panel hierarchy, and a product-green segmented control at **6.68:1**.
+  **Owner live-verified on production, desktop and mobile.**
+  ⚠ **`§9` NOT STARTED — this closes the EMAIL path only. Phone-first students still land nameless.**
+
+**NOT COMPLETE, AND NOT STARTED BY EITHER LANE:**
+- **`NAME-2`** — the phone segmented control. Closes `[FU-AUTH-PHONE-DISPLAYNAME-NEVER-SET]`.
+  Logged with its full allowlist and the KEY-vs-SIGNATURE reasoning in
+  `OPEN_QUESTIONS_AND_FOLLOWUPS.md`; **logged, not built.**
+- ⚠ **`[FU-AUTH-DISPLAYNAME-NO-BACKFILL]`** — nothing repairs accounts already created without a
+  name. **A sequencing constraint on the ~50-student QA pass**, not a nice-to-have.
+
+**UNCHANGED BY BOTH LANES — still the head of Wave 5F:**
+- **`WIRE-2`** — the Quick Practice results surface is **BUILT AND UNREACHABLE**. `#578`, `#611` and
+  `#617` are all merged and called by nothing; **`WIRE-2` is the single lane that ends all three.**
+  Specced, on disk, **not dispatched.**
+
+---
+
 ## 2026-08-06 - WAVE 5E **COMPLETE** (#611-#617, trunk `9cfcb09a`) - the batch arc built and unblocked, and THREE capabilities still dormant
 
 **STAGES COMPLETE:**
