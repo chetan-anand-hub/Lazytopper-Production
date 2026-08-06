@@ -114,7 +114,7 @@ async function createAccount(
 ) {
   if (opts.name) await u.type(screen.getByLabelText("Your name"), opts.name);
   await u.type(screen.getByLabelText("Email address"), opts.email ?? NEW_EMAIL);
-  await u.type(screen.getByLabelText("Password"), opts.password ?? PASSWORD);
+  await u.type(screen.getByLabelText("Create a password"), opts.password ?? PASSWORD);
   await u.click(screen.getByRole("button", { name: /Create my account/ }));
 }
 
@@ -434,16 +434,62 @@ describe("the surrounding contracts survive", () => {
     expect(await screen.findByText("LANDED ON CHECK AND IMPROVE")).toBeTruthy();
   });
 
-  it("forgot-password is reachable on BOTH branches", async () => {
-    // A student who declared themselves new but is actually returning still
-    // needs the route out; hiding it would push them into an
-    // already-registered message with nothing to do about it.
+  it("★ forgot-password belongs to the RETURNING branch only", async () => {
+    // Offering a reset to a student who has just declared themselves NEW is
+    // offering it for an account that does not exist — a defect the owner caught
+    // on the preview. The create branch's route out is `offerReset`, which
+    // appears only when Firebase says the address is already registered.
     renderDoor();
     const u = await openEmailStep();
-    expect(screen.getByRole("button", { name: "Forgot password?" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Forgot password?" })).toBeNull();
+    // CONTROL — the create form really did render.
+    expect(screen.getByLabelText("Your name")).toBeTruthy();
 
     await u.click(screen.getByRole("button", { name: "Already have an account" }));
+    // PERMANENT here: on the field itself, before any submit or failure.
     expect(screen.getByRole("button", { name: "Forgot password?" })).toBeTruthy();
+  });
+
+  it("★★ email-already-in-use offers a REACHABLE reset from the create branch", async () => {
+    // The already-registered copy says "…or reset your password". This proves
+    // that sentence points at something the student can actually operate from
+    // the branch they are standing on — which has no permanent Forgot password?.
+    renderDoor();
+    signUpWithEmailPassword.mockRejectedValue(authError("auth/email-already-in-use"));
+
+    const u = await openEmailStep();
+    await createAccount(u, { name: REAL_NAME });
+
+    expect(await screen.findByRole("alert")).toBeTruthy();
+    await u.click(screen.getByRole("button", { name: "Reset my password" }));
+    expect(await screen.findByRole("form", { name: "Reset your password" })).toBeTruthy();
+  });
+
+  it("CONTROL — a SUCCESSFUL create offers no reset at all", async () => {
+    // Without this, the assertion above would pass against a page that rendered
+    // "Reset my password" unconditionally.
+    renderDoor();
+    const u = await openEmailStep();
+    await createAccount(u, { name: REAL_NAME });
+
+    await waitFor(() => expect(signUpWithEmailPassword).toHaveBeenCalled());
+    expect(screen.queryByRole("button", { name: "Reset my password" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Forgot password?" })).toBeNull();
+  });
+
+  it("★ switching modes KEEPS the typed email and password", async () => {
+    // A student who has typed three fields and then realises they are returning
+    // must not have to retype them. `switchEmailMode` clears only the error and
+    // the reset offer, deliberately.
+    renderDoor();
+    const u = await openEmailStep();
+    await u.type(screen.getByLabelText("Email address"), NEW_EMAIL);
+    await u.type(screen.getByLabelText("Create a password"), PASSWORD);
+
+    await u.click(screen.getByRole("button", { name: "Already have an account" }));
+
+    expect((screen.getByLabelText("Email address") as HTMLInputElement).value).toBe(NEW_EMAIL);
+    expect((screen.getByLabelText("Password") as HTMLInputElement).value).toBe(PASSWORD);
   });
 
   it("★ the CREATE door still asks up front AND still sends the name as the third argument", async () => {
@@ -478,7 +524,7 @@ describe("the surrounding contracts survive", () => {
 
     await u.type(nameField, REAL_NAME);
     await u.type(screen.getByLabelText("Email address"), NEW_EMAIL);
-    await u.type(screen.getByLabelText("Password"), PASSWORD);
+    await u.type(screen.getByLabelText("Create a password"), PASSWORD);
     await u.click(screen.getByRole("button", { name: /Create my account/ }));
 
     await waitFor(() => expect(signUpWithEmailPassword).toHaveBeenCalled());
@@ -503,7 +549,7 @@ describe("the surrounding contracts survive", () => {
     const u = userEvent.setup({ delay: null });
     await u.click(screen.getByRole("button", { name: /Continue with email/ }));
     await u.type(screen.getByLabelText("Email address"), NEW_EMAIL);
-    await u.type(screen.getByLabelText("Password"), PASSWORD);
+    await u.type(screen.getByLabelText("Create a password"), PASSWORD);
     await u.click(screen.getByRole("button", { name: /Create my account/ }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Enter your name.");

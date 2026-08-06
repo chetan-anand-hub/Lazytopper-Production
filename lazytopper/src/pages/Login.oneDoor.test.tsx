@@ -119,7 +119,7 @@ async function submitEmail(
   }
   await u.type(screen.getByLabelText("Email address"), email);
   await u.type(
-    screen.getByLabelText("Password"),
+    screen.getByLabelText(mode === "new" ? "Create a password" : "Password"),
     password,
   );
   await u.click(

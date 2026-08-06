@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate, useSearchParams } from "react-router-do
 import { useAuth, type AuthUser } from "../context/AuthContext";
 import OfferStrip from "../components/auth/OfferStrip";
 import VerifyEmailGate from "../components/auth/VerifyEmailGate";
-import { useIsDesktop } from "../hooks/useIsDesktop";
 import { trackUxEvent } from "../services/uxTelemetry";
 import { creditPendingReferral } from "../services/referralService";
 
@@ -219,31 +218,6 @@ const LOGIN_CSS = `
     box-shadow: 0 0 0 5px rgba(22, 185, 106, 0.14);
   }
 
-  /* Replaced the product-loop strip that used to close this column. The strip
-     restated navigation the student has not reached yet; the consent line is
-     the one thing on the page they are actually agreeing to. */
-  .lt-login-brand-legal {
-    position: relative;
-    z-index: 1;
-    margin: 0;
-    padding-top: 22px;
-    border-top: 1px solid rgba(53, 242, 160, 0.24);
-    font-size: 0.86rem;
-    line-height: 1.6;
-    color: #a9c0da;
-  }
-
-  .lt-login-brand-legal a {
-    color: #e4eefb;
-    font-weight: 700;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-
-  .lt-login-brand-legal a:hover {
-    color: #7ff3c0;
-  }
-
   .lt-login-auth-panel {
     min-width: 0;
     display: flex;
@@ -347,6 +321,16 @@ const LOGIN_CSS = `
     font-weight: 600;
   }
 
+  /* ★ GOOGLE CARRIES PRIMARY WEIGHT among the three methods. It is the fastest
+     path and most CBSE students already hold a Gmail account, so three visually
+     identical outline buttons made every student choose where one choice is
+     clearly better.
+
+     ⚠ DELIBERATELY NOT A FILLED BUTTON. A filled control here would compete
+     with the navy submit on the email step, and the page would then have two
+     things claiming to be the primary action. A green-tinted border plus a
+     stronger shadow is enough to lead without shouting — the background stays
+     white, which Google's brand guidance requires anyway. */
   .lt-google {
     width: 100%;
     display: flex;
@@ -354,16 +338,23 @@ const LOGIN_CSS = `
     justify-content: center;
     gap: 11px;
     background: #ffffff;
-    border: 1px solid #dbe3ee;
+    border: 1.5px solid rgba(22, 185, 106, 0.55);
     border-radius: 12px;
     padding: 13px;
+    box-shadow: 0 4px 14px rgba(22, 185, 106, 0.16);
     font-family: 'Inter', system-ui, sans-serif;
     font-size: 0.95rem;
     font-weight: 700;
     color: var(--lt-ink);
     cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
   }
+
+  .lt-google:hover {
+    border-color: var(--lt-green);
+    box-shadow: 0 6px 18px rgba(22, 185, 106, 0.24);
+  }
+
 
   .lt-google:hover:not(:disabled) {
     border-color: #bcc9dc;
@@ -382,12 +373,28 @@ const LOGIN_CSS = `
      rgb(248,250,252) on rgb(255,255,255). The background STAYS white on
      purpose (Google's brand guidance for the sign-in button); it is the INK
      that has to be pinned dark rather than inherited. */
+  /* ⚠ ONE RULE, BOTH CONCERNS — deliberately not a second block.
+     A separate dark .lt-google rule added later in the file for the green lift
+     SHADOWED this one for Login.oneDoor.test.tsx, whose ruleBody() helper
+     resolves a selector with src.indexOf(...) and reads only the FIRST match.
+     The suite went red naming the wrong cause: the pinned color #071a3d was
+     still present, just no longer first. Source-scanning tests make duplicate
+     selectors a correctness problem, not a style one.
+
+     ⚠ AND NO BACKTICKS IN THIS BLOCK — the stylesheet is a template literal, so
+     one ends the string. This comment contained three on its first draft and
+     took the whole file down with a transform error. Second time this lane. */
   .lt-login-page[data-login-theme="dark"] .lt-google {
     color: #071a3d;
+    border-color: rgba(53, 242, 160, 0.6);
+    box-shadow: 0 4px 16px rgba(53, 242, 160, 0.2);
   }
 
-  /* The phone and email doors. Deliberately the SAME weight as the Google
-     button — three equal methods, no tabs and no visual hierarchy between
+  /* The phone and email doors. Now deliberately LIGHTER than the Google button
+     — see the Google rule above: Google is the fastest path for this audience
+     and three identical outlines made every student choose where one choice is
+     clearly better. They keep the plain outline treatment they always had; it
+     is Google that gained weight, not these that lost it. Formerly identical to
      them, because the student's right answer depends only on which account
      they already have. */
   .lt-method {
@@ -493,25 +500,40 @@ const LOGIN_CSS = `
      good news, it is a fact about how accounts work that they need before
      choosing. Red here would read as "you have done something wrong" on a
      screen where they have not yet done anything. */
+  /* ★ A FOOTNOTE, NOT A PANEL — and not one word of the copy changes.
+     Filled, bordered and 600-weight, four dense lines of it OUTWEIGHED the
+     three outline method buttons directly above it: guidance was louder than
+     the actions. The copy is doing prevention work — until AUTH-1 ships the
+     other link direction it is the only thing standing between a student and an
+     unrecoverable split account — so the WEIGHT comes down, never the content.
+     A green left rule on transparent ground keeps it findable without
+     competing. */
   .lt-login-linkwarn {
     margin: 14px 0 0;
-    padding: 10px 12px;
-    border-radius: 10px;
+    padding: 1px 0 1px 12px;
+    border: 0;
+    border-left: 2px solid var(--lt-green);
+    border-radius: 0;
+    background: transparent;
     color: var(--lt-muted);
-    background: rgba(7, 26, 61, 0.04);
-    border: 1px solid var(--lt-line);
-    font-size: 0.78rem;
-    line-height: 1.5;
-    font-weight: 600;
+    font-size: 0.76rem;
+    line-height: 1.55;
+    font-weight: 500;
   }
 
   .lt-login-page[data-login-theme="dark"] .lt-login-linkwarn {
-    background: rgba(255, 255, 255, 0.05);
+    background: transparent;
+    border-left-color: #35f2a0;
+    color: rgba(248, 250, 252, 0.72);
   }
 
   .lt-login-linkwarn b {
     color: var(--lt-ink);
-    font-weight: 800;
+    font-weight: 700;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-login-linkwarn b {
+    color: #f8fafc;
   }
 
   .lt-field-label {
@@ -659,11 +681,17 @@ const LOGIN_CSS = `
     transition: background 0.15s, color 0.15s, border-color 0.15s;
   }
 
+  /* ★★ PRODUCT GREEN, WITH NAVY INK — and the ink colour is the whole point.
+     White on #16b96a measures 2.57:1. These labels are 0.9rem bold, which is
+     nowhere near the 18.66px-bold large-text exemption, so 4.5:1 is the bar and
+     white FAILS it. Navy #071a3d on the same green passes comfortably. Both
+     figures were re-measured in a real browser by this lane's probe rather than
+     taken on trust — see the report. */
   .lt-login-seg button[aria-pressed="true"] {
-    background: #ffffff;
-    border-color: var(--lt-line);
+    background: var(--lt-green);
+    border-color: var(--lt-green);
     color: var(--lt-ink);
-    box-shadow: 0 2px 8px rgba(7, 26, 61, 0.08);
+    box-shadow: 0 2px 10px rgba(22, 185, 106, 0.28);
   }
 
   .lt-login-seg button:disabled {
@@ -682,10 +710,14 @@ const LOGIN_CSS = `
     color: rgba(248, 250, 252, 0.72);
   }
 
+  /* Dark pair — also green, not a grey pill. The brighter #35f2a0 is used
+     because the dark ground makes the light-theme green read as muddy; navy ink
+     still sits on it, so the same contrast argument holds. */
   .lt-login-page[data-login-theme="dark"] .lt-login-seg button[aria-pressed="true"] {
-    background: rgba(255, 255, 255, 0.14);
-    border-color: rgba(255, 255, 255, 0.22);
-    color: #f8fafc;
+    background: #35f2a0;
+    border-color: #35f2a0;
+    color: #071a3d;
+    box-shadow: 0 2px 10px rgba(53, 242, 160, 0.26);
   }
 
   /* A note that sits BETWEEN two fields has to carry the gap the form normally
@@ -938,14 +970,26 @@ const LOGIN_CSS = `
     color: var(--lt-muted);
   }
 
+  /* ★ THE COLUMN NEEDS A FLOOR. Card, then guidance, then a lone back-link
+     above dead space read as unfinished. With the consent line restored here
+     (it belongs in the column the student is acting in), the two together
+     compose a real footer — back-link left, consent right, one hairline rule
+     above. That closes the void without adding ornament. */
   .lt-login-foot {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 14px;
+    margin-top: 4px;
+    padding-top: 14px;
+    border-top: 1px solid var(--lt-line);
     color: var(--lt-muted);
     font-size: 0.78rem;
     font-weight: 700;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-login-foot {
+    border-top-color: rgba(255, 255, 255, 0.14);
   }
 
   .lt-login-back-link {
@@ -1426,16 +1470,6 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
 
   const isCreate = intent === "create";
 
-  /**
-   * ⚠ Drives WHICH legal mount renders — never a CSS toggle. 1024px, the same
-   * threshold at which `.lt-login-brand-panel` goes display:none, so the two
-   * can never disagree about which column exists.
-   *
-   * jsdom does not implement `matchMedia`; `src/test/setup.ts` polyfills it and
-   * defaults to FALSE (mobile), which is why Login.legalLinks.test.tsx resolves
-   * the footer mount without being modified.
-   */
-  const isDesktop = useIsDesktop();
 
   const [isLight, setIsLight] = useState(
     () => document.documentElement.getAttribute("data-theme") === "light"
@@ -1915,27 +1949,18 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
         </div>
 
         {/*
-          ★ LEGAL REPLACES THE PRODUCT-LOOP STRIP. The strip was decoration; a
-          reachable consent line is load-bearing, and this is a minors audience.
+          ⚠ THE BRAND COLUMN ENDS HERE, AND NOTHING REPLACES THE OFFER BLOCK.
 
-          ⚠ CONDITIONAL RENDER, NOT CSS — and the distinction is the whole
-          point. A CSS-hidden duplicate is still in the DOM, so
-          `getByRole("link", { name: "Terms of Service" })` would throw on two
-          matches and every consumer of that query would have to be weakened to
-          `getAllBy[0]` — which is how a real duplicate ships. Exactly one mount
-          exists at any width, and Login.legalLinks.test.tsx still resolves it.
+          An earlier revision of this lane moved the consent line down here,
+          replacing the product-loop strip. The owner's live-verify reversed it:
+          on a real desktop the line sat BELOW THE FOLD, and a student has no
+          reason to scroll a brand column they are not acting in. Consent has to
+          be visible at the point of action, which is the auth panel — so it is
+          worse than before the move, and the move is gone.
 
-          The mobile mount is the auth-panel footer, which is where this lived
-          before and where it must stay below 1024px: this panel does not exist
-          there, and a student consenting with no reachable policy link is a
-          launch blocker, not a layout bug.
+          Leaving this column short is the fix, not a gap to fill: adding
+          anything here brings the scroll back.
         */}
-        {isDesktop ? (
-          <p className="lt-login-brand-legal" data-testid="lt-legal-panel">
-            By signing in, you agree to our <Link to="/legal/terms">Terms of Service</Link> and{" "}
-            <Link to="/legal/privacy">Privacy Policy</Link>
-          </p>
-        ) : null}
       </section>
 
       <section className="lt-login-auth-panel" aria-label="Sign in">
@@ -2207,39 +2232,47 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                     </div>
                     <div className="lt-login-field-row">
                       {/*
-                        ⚠ THE LABEL STAYS "Password" ON BOTH BRANCHES — a
-                        deliberate deviation from the v2 prototype, which shows
-                        "Create a password" on the new branch.
+                        ★ THE LABEL NOW SPLITS, and it is the reset confinement
+                        below that made it possible.
 
-                        The label IS the accessible name, and
-                        Login.forgotPassword.test.tsx:278 and :296 resolve this
-                        field with getByLabelText("Password") as their control
-                        that the password form came back. That file is NOT on
-                        this lane's allowlist, so renaming the label would have
-                        reddened a suite this lane may not repair.
-
-                        The placeholder still distinguishes the two branches —
-                        a student creating an account sees "At least 6
-                        characters" — so the prototype's intent survives while
-                        the accessible name stays stable.
+                        An earlier revision kept "Password" on both branches
+                        because Login.forgotPassword.test.tsx resolves this field
+                        by `getByLabelText("Password")` — and a label IS the
+                        accessible name. With reset confined to the returning
+                        branch, that suite always reaches this field on the
+                        returning branch, where the label is still exactly
+                        "Password". So the create branch is free to say what it
+                        means.
                       */}
                       <label className="lt-field-label" htmlFor="lt-login-password">
-                        Password
+                        {creatingAccount ? "Create a password" : "Password"}
                       </label>
                       {/*
-                        Reset is offered on BOTH modes. A student who declared
-                        themselves new but is actually returning still needs the
-                        route out, and hiding it here would push them into the
-                        create path and an already-registered message.
+                        ⚠ RETURNING BRANCH ONLY — a defect the owner caught on
+                        the preview. Offering "Forgot password?" to a student who
+                        has just declared themselves NEW is offering a reset for
+                        an account that does not exist. It is noise at best, and
+                        at worst it teaches them the flow is confused about who
+                        they are.
+
+                        ★ THE RESET FLOW IS NOT WEAKENED BY THIS. On the
+                        returning branch the link is PERMANENT — on the field
+                        itself, not behind a failed attempt and not in a menu —
+                        and a student who lands on `email-already-in-use` while
+                        creating gets `offerReset`, which renders a reachable
+                        "Reset my password" button below the submit. Both routes
+                        are pinned by tests.
                       */}
-                      <button
-                        type="button"
-                        className="lt-login-linkbtn lt-login-forgot"
-                        onClick={openReset}
-                        disabled={busy}
-                      >
-                        Forgot password?
-                      </button>
+                      {!creatingAccount ? (
+                        <button
+                          type="button"
+                          className="lt-login-linkbtn lt-login-forgot"
+                          onClick={openReset}
+                          disabled={busy}
+                        >
+                          Forgot password?
+                        </button>
+                      ) : null}
                     </div>
                     <div className="lt-field">
                       <input
@@ -2388,18 +2421,20 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
               {isStartTrial ? "<- Back to landing" : "<- Back to home"}
             </Link>
             {/*
-              ⚠ THE MOBILE MOUNT OF THE CONSENT LINE, and it is the reason the
-              desktop one is a conditional render rather than a CSS toggle. The
-              brand panel that carries the desktop copy is display:none here, so
-              this is the ONLY reachable route to the policies below 1024px.
-              Exactly one of the two exists at any width.
+              ★ ONE MOUNT, EVERY WIDTH — restored to trunk's behaviour after the
+              owner's live-verify. Consent belongs in the column the student is
+              acting in, at the point of action; a desktop mount in the brand
+              column sat below the fold and was strictly worse.
+
+              Unconditional, so there is no width at which a duplicate or an
+              absence is possible — which is also why the tests can assert
+              getAllByRole(...).toHaveLength(1) at BOTH 1440 and 390 with no
+              matchMedia setup at all.
             */}
-            {!isDesktop ? (
-              <span className="lt-login-terms" data-testid="lt-legal-footer">
-                By signing in, you agree to our <Link to="/legal/terms">Terms of Service</Link> and{" "}
-                <Link to="/legal/privacy">Privacy Policy</Link>
-              </span>
-            ) : null}
+            <span className="lt-login-terms" data-testid="lt-legal-footer">
+              By signing in, you agree to our <Link to="/legal/terms">Terms of Service</Link> and{" "}
+              <Link to="/legal/privacy">Privacy Policy</Link>
+            </span>
           </div>
         </div>
       </section>

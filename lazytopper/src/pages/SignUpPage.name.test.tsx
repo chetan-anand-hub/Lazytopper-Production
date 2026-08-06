@@ -31,6 +31,10 @@ import { MemoryRouter } from "react-router-dom";
 const signUpWithEmailPassword =
   vi.fn(async (_email: string, _password: string, _displayName?: string) => {});
 const signInWithGoogle = vi.fn(async () => {});
+// NAME-1 v2: the shared door now has a RETURNING branch that calls this. Same
+// reasoning as the phone members below — AuthDoor destructures it, so an absent
+// one reads undefined at the call site and the component throws on submit.
+const signInWithEmailPassword = vi.fn(async (_email: string, _password: string) => {});
 // Phone members: SignUpPage destructures these, so an absent one reads
 // undefined at the call site and the component throws. Kept in step with
 // SignUpPage.redirect.test.tsx, which has the same requirement.
@@ -44,6 +48,7 @@ vi.mock("../context/AuthContext", () => ({
     // effect must not fire and navigate away mid-test.
     user: null,
     signInWithGoogle,
+    signInWithEmailPassword,
     signUpWithEmailPassword,
     initPhoneRecaptcha,
     sendPhoneOtp,
@@ -57,6 +62,7 @@ import SignUpPage from "./SignUpPage";
 afterEach(() => {
   cleanup();
   signUpWithEmailPassword.mockReset();
+  signInWithEmailPassword.mockReset();
   signInWithGoogle.mockReset();
 });
 
@@ -92,7 +98,11 @@ async function fillAndSubmit(opts: { name?: string; email: string; password: str
     await user.type(screen.getByLabelText("Your name"), opts.name);
   }
   await user.type(screen.getByLabelText("Email address"), opts.email);
-  await user.type(screen.getByLabelText("Password"), opts.password);
+  // NAME-1 v2: the create branch's label is now "Create a password". It could
+  // split from the returning branch's plain "Password" only once reset was
+  // confined to the returning branch — Login.forgotPassword.test.tsx resolves
+  // that field by its accessible name.
+  await user.type(screen.getByLabelText("Create a password"), opts.password);
   await user.click(screen.getByRole("button", { name: /create my account/i }));
 }
 
@@ -125,10 +135,24 @@ describe("SignUpPage — the name field exists and is labelled", () => {
     expect(ids).toEqual(["lt-login-name", "lt-login-email", "lt-login-password"]);
   });
 
-  it("does NOT ask for a name on the sign-IN door — only the create door", async () => {
-    // The friction win: a returning student types two things, not three. This
-    // is the other half of the name decision and it only holds because the
-    // create door above still asks.
+  it("never asks a returning student for a name — they declare, then type two things", async () => {
+    /**
+     * ★★ THIS REPLACES A GUARD; IT DOES NOT DELETE ONE.
+     *
+     * The predecessor asserted that the sign-IN door renders no name field at
+     * all, immediately on reaching the email step. NAME-1 v2 gives the student a
+     * self-declared choice with "I'm new here" pre-selected, so a name field IS
+     * on screen at that moment — and the old assertion failed a sound page.
+     *
+     * What it PROTECTED is untouched and is what is pinned here: A RETURNING
+     * STUDENT NEVER TYPES A NAME. It now costs one declaration first, and the
+     * proof is stronger than before — the old test stopped at "no field on
+     * screen", this one carries through to the call and shows the returning path
+     * reaches sign-in and never reaches create.
+     *
+     * Deleting it instead would have been the FORBID-1 failure: a rule removed
+     * because the layout moved, taking its protection with it.
+     */
     const { default: Login } = await import("./Login");
     cleanup();
     render(
@@ -136,13 +160,23 @@ describe("SignUpPage — the name field exists and is labelled", () => {
         <Login />
       </MemoryRouter>,
     );
-    await userEvent.setup().click(screen.getByRole("button", { name: /Continue with email/ }));
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: /Continue with email/ }));
+    await user.click(screen.getByRole("button", { name: /Already have an account/ }));
 
     expect(screen.queryByLabelText("Your name")).toBeNull();
-    // CONTROL — the email form really did render; the absence above is a
+    // CONTROL — the returning form really did render; the absence above is a
     // decision, not a failed render.
     expect(screen.getByLabelText("Email address")).toBeDefined();
     expect(screen.getByLabelText("Password")).toBeDefined();
+
+    // ...and it carries through to the CALL, which the predecessor never did.
+    await user.type(screen.getByLabelText("Email address"), "known@example.com");
+    await user.type(screen.getByLabelText("Password"), "hunter2secret");
+    await user.click(screen.getByRole("button", { name: /^Sign in/ }));
+
+    await waitFor(() => expect(signInWithEmailPassword).toHaveBeenCalledTimes(1));
+    expect(signUpWithEmailPassword).not.toHaveBeenCalled();
   });
 });
 

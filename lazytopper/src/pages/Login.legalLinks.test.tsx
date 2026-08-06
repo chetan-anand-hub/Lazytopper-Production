@@ -46,82 +46,46 @@ describe("Login footer — legal links (Lane C, test 1)", () => {
 });
 
 /**
- * ★★ EXTENSION — NAME-1 v2 dual-mounts the consent line.
+ * ★ NAME-1 v2 — ONE consent mount, at every width.
  *
- * The line moved into the dark brand panel on desktop, replacing the
- * product-loop strip. But that panel is `display: none` below 1024px, so a
- * naive move would leave every phone student consenting with no reachable
- * policy link — with a minors audience that is a launch blocker, not a layout
- * bug. It is therefore mounted in BOTH places, one at a time.
+ * An earlier revision of this lane moved the line into the dark brand column on
+ * desktop and dual-mounted it to the footer on mobile. The owner's live-verify
+ * reversed that: on a real desktop it sat BELOW THE FOLD, in a column the
+ * student has no reason to scroll, so consent was less visible at the point of
+ * action than before the move.
  *
- * ⚠ A CONDITIONAL RENDER, NOT CSS, and these tests are what prove it. jsdom
- * ignores media queries, so a CSS-hidden duplicate would still be in the DOM —
- * and `getByRole("link", { name: "Terms of Service" })` above THROWS on two
- * matches. Every existing consumer of that query would then have to be weakened
- * to `getAllBy[0]`, which is precisely how a real duplicate ships unnoticed.
+ * ⚠ WHAT THIS PINS IS THE ABSENCE OF A WIDTH CONDITION. The mount is now
+ * unconditional, so a duplicate or a disappearance can only come back by
+ * someone re-introducing one — and this asserts at both ends of the breakpoint
+ * that nothing does.
  *
- * ★ ASSERTED WITH `getAllByRole(...).toHaveLength(1)`, not `getByRole`. The
- * throw is how the bug SURFACES, but a lane debugging that throw can "fix" it by
- * switching to `getAllBy[0]`. `toHaveLength(1)` names the real failure.
- *
- * ⚠ `setMatchMediaMatches` must be called BEFORE `render`: `useIsDesktop`'s
- * `useState` initializer reads `matchMedia` at mount, and the effect only
- * re-syncs. Setting it afterwards tests the wrong branch.
+ * ★ `getAllByRole(...).toHaveLength(1)`, never `getByRole`. A duplicate must
+ * fail BY NAME. `getByRole` throws on two matches, and a lane debugging that
+ * throw can "fix" it with `getAllBy[0]` and ship the duplicate.
  */
-describe("Login legal consent — dual-mounted, exactly one at a time (NAME-1 v2)", () => {
-  function renderLogin() {
-    return render(
-      <MemoryRouter>
-        <Login />
-      </MemoryRouter>,
-    );
+describe("Login legal consent — one mount, every width (NAME-1 v2)", () => {
+  for (const [label, matches] of [
+    ["desktop (>=1024px)", true],
+    ["mobile (<1024px)", false],
+  ] as const) {
+    it(`renders exactly ONE Terms and ONE Privacy link at ${label}`, () => {
+      setMatchMediaMatches(matches);
+      render(
+        <MemoryRouter>
+          <Login />
+        </MemoryRouter>,
+      );
+
+      expect(screen.getAllByRole("link", { name: "Terms of Service" })).toHaveLength(1);
+      expect(screen.getAllByRole("link", { name: "Privacy Policy" })).toHaveLength(1);
+
+      // CONTROL — it is in the auth-panel footer, the column the student is
+      // acting in, and not in the brand column at either width.
+      const footer = screen.getByTestId("lt-legal-footer");
+      expect(footer.closest(".lt-login-foot")).not.toBeNull();
+      expect(footer.closest(".lt-login-brand-panel")).toBeNull();
+    });
   }
-
-  it("DESKTOP (>=1024px): exactly one Terms and one Privacy link, in the BRAND PANEL", () => {
-    setMatchMediaMatches(true);
-    const { container } = renderLogin();
-
-    expect(screen.getAllByRole("link", { name: "Terms of Service" })).toHaveLength(1);
-    expect(screen.getAllByRole("link", { name: "Privacy Policy" })).toHaveLength(1);
-
-    // CONTROL — it is in the brand column, and NOT in the auth-panel footer.
-    const panel = screen.getByTestId("lt-legal-panel");
-    expect(panel.closest(".lt-login-brand-panel")).not.toBeNull();
-    expect(screen.queryByTestId("lt-legal-footer")).toBeNull();
-    // ...and the brand panel really is rendered, so that closest() means something.
-    expect(container.querySelector(".lt-login-brand-panel")).not.toBeNull();
-  });
-
-  it("MOBILE (<1024px): exactly one of each, in the auth-panel FOOTER", () => {
-    setMatchMediaMatches(false);
-    renderLogin();
-
-    expect(screen.getAllByRole("link", { name: "Terms of Service" })).toHaveLength(1);
-    expect(screen.getAllByRole("link", { name: "Privacy Policy" })).toHaveLength(1);
-
-    // CONTROL — it is in the footer, and the desktop mount is absent. This is
-    // the reachability that matters: below 1024px the brand panel is gone, so
-    // this is the ONLY route a student has to the policies they are agreeing to.
-    const footer = screen.getByTestId("lt-legal-footer");
-    expect(footer.closest(".lt-login-foot")).not.toBeNull();
-    expect(screen.queryByTestId("lt-legal-panel")).toBeNull();
-  });
-
-  it("the hrefs are right at BOTH widths — a reachable mount with a dead href is not reachable", () => {
-    for (const isDesktop of [true, false]) {
-      setMatchMediaMatches(isDesktop);
-      renderLogin();
-      expect(screen.getAllByRole("link", { name: "Terms of Service" })[0]).toHaveAttribute(
-        "href",
-        "/legal/terms",
-      );
-      expect(screen.getAllByRole("link", { name: "Privacy Policy" })[0]).toHaveAttribute(
-        "href",
-        "/legal/privacy",
-      );
-      cleanup();
-    }
-  });
 });
 
 describe("Login responsive behaviour — unregressed by Lane C (test 5)", () => {
