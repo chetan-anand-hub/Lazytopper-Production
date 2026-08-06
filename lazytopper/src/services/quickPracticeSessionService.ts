@@ -591,7 +591,7 @@ export async function gradeQuickPracticeBatch(args: {
 
   let response: WorksheetGradeResponse;
   try {
-    for (const oneQ of questions) response = await grade({ worksheetId, subject, questions: [oneQ], uploads });
+    response = await grade({ worksheetId, subject, questions, uploads });
   } catch (error) {
     // ★★ §4b · THE 402 IS NOT AN ERROR AND MUST NOT BE SWALLOWED HERE. The catch used
     // to be unconditional, so a free-past-trial student pressing Finish got
