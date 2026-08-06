@@ -176,9 +176,100 @@ const OFFER_STRIP_CSS = `
     color: var(--lt-ink, #071a3d);
   }
 
+  /* ★★ THE PANEL VARIANT SITS ON A PERMANENTLY DARK BACKDROP, so its colours
+     cannot key off the PAGE theme.
+
+     Every rule above pairs a light-theme colour with a
+     .lt-login-page[data-login-theme="dark"] override — correct while the strip
+     lived in the auth column, which really does follow the page theme. The
+     brand panel does not: it is navy in BOTH themes. So in LIGHT theme the
+     strip rendered #49627f body text and #0b8f50 links on near-black navy —
+     the same class of defect as the 1.04:1 white-on-white AUTH-3 fixed, and
+     invisible to every assertion in the suite.
+
+     Caught by a 1440px screenshot after the move, not by a test. These rules
+     are scoped to the panel variant only, so the mobile mirror keeps following
+     the page theme exactly as before.
+
+     NO BACKTICKS ANYWHERE IN THIS STRING. It is a template literal, so one
+     would terminate it and take the build down. */
+  .lt-offer-strip--panel {
+    color: #b6f2d5;
+    background: rgba(53, 242, 160, 0.085);
+    border-color: rgba(53, 242, 160, 0.3);
+  }
+
+  .lt-offer-strip--panel .lt-offer-strip-lead {
+    color: #a7f7d0;
+  }
+
+  .lt-offer-strip--panel .lt-offer-strip-body,
+  .lt-offer-strip--panel .lt-offer-strip-note {
+    color: #cfe0f2;
+  }
+
+  .lt-offer-strip--panel .lt-offer-strip-badge {
+    color: #8ff0c0;
+    background: rgba(53, 242, 160, 0.16);
+  }
+
+  .lt-offer-strip--panel .lt-offer-strip-price {
+    color: #ffffff;
+  }
+
+  .lt-offer-strip--panel .lt-offer-strip-was {
+    color: rgba(207, 224, 242, 0.62);
+  }
+
+  .lt-offer-strip--panel .lt-offer-strip-link {
+    color: #7ff3c0;
+  }
+
+  .lt-offer-strip--panel .lt-login-aftertrial {
+    color: #cfe0f2;
+  }
+
+  .lt-offer-strip--panel .lt-login-aftertrial strong {
+    color: #ffffff;
+  }
+
+  /* The compact strip mirrors the panel one for phones, so it is the exact
+     inverse of the brand panel: hidden while the panel is visible, shown once
+     the panel is removed. Same reasoning as the after-trial mirror above, and
+     the same breakpoint — 1023px, which is where Login.tsx sets
+     .lt-login-brand-panel to display:none. */
+  .lt-offer-strip--mobile {
+    display: none;
+    /* ⚠ 3.76:1 BEFORE THIS LINE — a real WCAG-AA failure for normal text, and
+       PRE-EXISTING on trunk rather than introduced here.
+
+       The strip inherits var(--lt-green-dark, #0b8f50) and sits on its own
+       rgba(22,185,106,0.1) wash over white, which composites to about #e8f8f0.
+       The lead is 0.86rem and the link 0.8rem — nowhere near the 18.66px-bold
+       large-text exemption, so 4.5:1 is the bar and it missed.
+
+       Found by this lane's own contrast probe once that probe was fixed to
+       composite alpha instead of scoring a 10%-alpha wash as solid green. The
+       original measurement reported 1.09:1 for legible text and would never
+       have been believed; a correct measurement found a defect nobody had seen.
+
+       Scoped to the mobile variant, which is the only place this colour lands
+       on a light backdrop now. The dark-theme rule has higher specificity and
+       still wins, so dark theme is untouched. */
+    color: #07713f;
+  }
+
+  .lt-offer-strip--mobile .lt-offer-strip-link {
+    color: #07713f;
+  }
+
   @media (max-width: 1023px) {
     .lt-login-aftertrial--mobile {
       display: block;
+    }
+
+    .lt-offer-strip--mobile {
+      display: flex;
     }
   }
 `;
@@ -200,12 +291,57 @@ export function AfterTrialLine({ variant }: { variant: "panel" | "mobile" }) {
   );
 }
 
-export default function OfferStrip() {
+/**
+ * ★ TWO VARIANTS, ONE COMPONENT, ONE PRICE CONSTANT — NAME-1 v2.
+ *
+ * `panel` (default) is the full block. It lives in the login page's dark brand
+ * column, which is `display: none` below 1024px, so it needs no breakpoint rule
+ * of its own — its parent already disappears.
+ *
+ * `mobile` is the compact mirror inside the auth column, and it deliberately
+ * DROPS THE PRICE. The two lines do different jobs: "then free Basic" reduces
+ * the anxiety that makes a student abandon signup, while the founding rate
+ * sells. On a phone, where the whole offer competes with the form itself, only
+ * the first earns its space — the second goes one tap away behind the link.
+ *
+ * Both read the same constants, so the two can never drift.
+ *
+ * ⚠ The default is `panel` on purpose: every standalone render in
+ * OfferStrip.test.tsx (the price, badge, strike, never-a-count and no-literal
+ * suites) asserts against the FULL block, and a default of `mobile` would have
+ * silently emptied all of them.
+ */
+export default function OfferStrip({
+  variant = "panel",
+}: { variant?: "panel" | "mobile" } = {}) {
+  if (variant === "mobile") {
+    return (
+      <div
+        className="lt-offer-strip lt-offer-strip--mobile"
+        data-testid="lt-offer-strip-mobile"
+        aria-label="What you are joining"
+      >
+        <style dangerouslySetInnerHTML={{ __html: OFFER_STRIP_CSS }} />
+        <p className="lt-offer-strip-lead">7-day full trial, then free Basic</p>
+        <AfterTrialLine variant="mobile" />
+        <Link className="lt-offer-strip-link" to="/pricing?source=login">
+          {"See plans and founding-member price →"}
+        </Link>
+      </div>
+    );
+  }
+
   return (
-    <div className="lt-offer-strip" data-testid="lt-offer-strip" aria-label="What you are joining">
+    <div
+      className="lt-offer-strip lt-offer-strip--panel"
+      data-testid="lt-offer-strip"
+      aria-label="What you are joining"
+    >
       <style dangerouslySetInnerHTML={{ __html: OFFER_STRIP_CSS }} />
 
       <p className="lt-offer-strip-lead">7-day full trial, then free Basic</p>
+
+      <AfterTrialLine variant="panel" />
 
       {FOUNDING_OFFER_OPEN ? (
         <>

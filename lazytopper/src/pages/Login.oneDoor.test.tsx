@@ -97,13 +97,36 @@ function renderDoor(entry: { pathname: string; state?: unknown } = { pathname: "
   );
 }
 
-/** Walk the door to the email form and fill it. */
-async function submitEmail(email: string, password: string) {
+/**
+ * Walk the door to the email form and submit it.
+ *
+ * NAME-1 v2: the email step now opens on a self-declared mode. "I'm new here"
+ * pre-selects, so a test that wants the RETURNING path has to say so — which is
+ * the point of the control, and worth having to spell out here.
+ */
+async function submitEmail(
+  email: string,
+  password: string,
+  opts: { mode?: "new" | "returning"; name?: string } = {},
+) {
+  const mode = opts.mode ?? "returning";
   const u = userEvent.setup({ delay: null });
   await u.click(screen.getByRole("button", { name: /Continue with email/ }));
+  if (mode === "returning") {
+    await u.click(screen.getByRole("button", { name: "Already have an account" }));
+  } else if (opts.name) {
+    await u.type(screen.getByLabelText("Your name"), opts.name);
+  }
   await u.type(screen.getByLabelText("Email address"), email);
-  await u.type(screen.getByLabelText("Password"), password);
-  await u.click(screen.getByRole("button", { name: /^Continue as/ }));
+  await u.type(
+    screen.getByLabelText("Password"),
+    password,
+  );
+  await u.click(
+    screen.getByRole("button", {
+      name: mode === "new" ? /Create my account/ : /^Sign in/,
+    }),
+  );
   return u;
 }
 
@@ -144,7 +167,24 @@ describe("the door — three equal methods, no tabs", () => {
     expect(screen.queryAllByRole("tab")).toHaveLength(0);
   });
 
-  it("never asks the student whether they already have an account", async () => {
+  it("the DOOR itself never asks whether the student already has an account", async () => {
+    renderDoor();
+
+    // ★ THE DOOR IS STILL ONE DOOR. NAME-1 v2 added a self-declared control,
+    // but it lives one level in, on the email sub-screen. The entrance — the
+    // three equal methods — still classifies nobody, which is what AUTH-3's
+    // redesign was for.
+    expect(screen.queryByRole("group", { name: /already have an account/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: "I'm new here" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Already have an account" })).toBeNull();
+
+    // CONTROL — the method screen really is rendered, so those absences mean
+    // something. `queryBy -> null` passes just as happily on a broken render.
+    expect(screen.getByRole("button", { name: /Continue with Google/ })).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Continue with email/ })).toBeTruthy();
+  });
+
+  it("⚠ NO branch on the email path ever DISCLOSES whether an address is registered", async () => {
     renderDoor();
     const u = userEvent.setup({ delay: null });
     await u.click(screen.getByRole("button", { name: /Continue with email/ }));
@@ -152,44 +192,82 @@ describe("the door — three equal methods, no tabs", () => {
     // ⚠ The superseded prototype had a "No account found — create one?" step.
     // It must NOT ship: disclosing non-existence re-opens by hand the exact leak
     // Email Enumeration Protection was enabled to close.
+    //
+    // ★ A SELF-DECLARED CHOICE IS NOT THAT. "I'm new here" is the STUDENT
+    // stating a fact about themselves; "No account found" would be the SERVER
+    // stating a fact about an address. Nothing here branches on a server answer.
     expect(screen.queryByText(/no account found/i)).toBeNull();
     expect(screen.queryByText(/create one\?/i)).toBeNull();
-    expect(screen.queryByRole("button", { name: /Create my account/ })).toBeNull();
+    expect(screen.queryByText(/isn't registered/i)).toBeNull();
+    expect(screen.queryByText(/doesn't exist/i)).toBeNull();
 
-    // CONTROL — the email form really is on screen, so those absences mean
-    // something. `queryBy -> null` passes just as happily on a broken render.
+    // CONTROL — the email form and the declaration really are on screen.
     expect(screen.getByLabelText("Email address")).toBeTruthy();
-    expect(screen.getByRole("button", { name: /^Continue as|^Continue$/ })).toBeTruthy();
+    expect(screen.getByTestId("lt-email-mode")).toBeTruthy();
   });
 
-  it("echoes the typed address in the CTA, which is the free half of the typo defence", async () => {
+  it("echoes the typed address in the SIGN-IN CTA, the free half of the typo defence", async () => {
+    renderDoor();
+    const u = userEvent.setup({ delay: null });
+    await u.click(screen.getByRole("button", { name: /Continue with email/ }));
+    await u.click(screen.getByRole("button", { name: "Already have an account" }));
+
+    // Before anything is typed there is nothing to echo.
+    expect(screen.getByRole("button", { name: "Sign in" })).toBeTruthy();
+
+    await u.type(screen.getByLabelText("Email address"), "ananya@example.com");
+    expect(
+      screen.getByRole("button", { name: "Sign in as ananya@example.com" }),
+    ).toBeTruthy();
+  });
+
+  it("★ 'I'm new here' is pre-selected — the form opens ready to create", async () => {
     renderDoor();
     const u = userEvent.setup({ delay: null });
     await u.click(screen.getByRole("button", { name: /Continue with email/ }));
 
-    // Before anything is typed there is nothing to echo.
-    expect(screen.getByRole("button", { name: "Continue" })).toBeTruthy();
-
-    await u.type(screen.getByLabelText("Email address"), "ananya@example.com");
+    // Returning students overwhelmingly arrive via Google, so whoever reaches
+    // this form is disproportionately new.
+    expect(screen.getByRole("button", { name: "I'm new here" }).getAttribute("aria-pressed")).toBe(
+      "true",
+    );
     expect(
-      screen.getByRole("button", { name: "Continue as ananya@example.com" }),
-    ).toBeTruthy();
+      screen.getByRole("button", { name: "Already have an account" }).getAttribute("aria-pressed"),
+    ).toBe("false");
+    // ...and the create fields are the ones on screen.
+    expect(screen.getByLabelText("Your name")).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Create my account/ })).toBeTruthy();
   });
 
   it("warns that email and phone are separate WITHOUT promising a link that does not exist", () => {
     renderDoor();
     const warning = screen.getByTestId("lt-link-warning").textContent ?? "";
 
-    expect(warning).toContain("Use the same method each time.");
-    expect(warning).toContain("Email and phone are separate accounts until you link them");
+    expect(warning).toContain("Use the same method every time.");
 
-    // ⚠ AuthContext exposes sendLinkPhoneOtp / confirmLinkPhoneOtp and imports
-    // linkWithPhoneNumber — and nothing else. The link runs in ONE direction:
-    // an email or Google student can ADD a phone; a phone-first student can
-    // never add an email. This page makes phone prominent, so promising them
-    // that capability would be a lie told to the students most affected.
+    // ★ AMENDED BY NAME-1 v2, and the change is a CORRECTNESS fix. The old copy
+    // read "Email and phone are separate accounts UNTIL YOU LINK THEM", which is
+    // FALSE for a phone-first student: AuthContext exposes sendLinkPhoneOtp /
+    // confirmLinkPhoneOtp and imports linkWithPhoneNumber and nothing else, so
+    // the link runs in ONE direction — an email or Google account can ADD a
+    // phone; a phone-first account can never add an email. This page makes phone
+    // prominent, so it was a promise made to exactly the students who cannot
+    // keep it.
+    //
+    // It now ADVISES THE DIRECTION THAT WORKS instead. Until AUTH-1 builds the
+    // other direction, this sentence is the only thing standing between a
+    // student and an unrecoverable split account — so it is pinned, not trimmed.
+    expect(warning).toMatch(/start with email or google/i);
+    expect(warning).toMatch(/add your phone later/i);
+    expect(warning).toMatch(/phone works on its own/i);
+    // The single message now carries what the separate helper note used to say.
+    expect(warning).toMatch(/attempts, checked answers and progress/i);
+
+    // ⚠ BOTH ORIGINAL GUARDS SURVIVE: the copy must still never promise a link
+    // that does not exist, in either of the two shapes that were tried before.
     expect(warning).not.toMatch(/account menu/i);
     expect(warning).not.toMatch(/link both/i);
+    expect(warning).not.toMatch(/until you link them/i);
   });
 });
 
@@ -197,39 +275,37 @@ describe("the door — three equal methods, no tabs", () => {
 // 2 · Try-then-create
 // ---------------------------------------------------------------------------
 
-describe("the email flow — try, then create", () => {
-  it("a NEW student is asked for a name, created WITH it, and never shown an ERROR", async () => {
+describe("the email flow — one declared branch, one call", () => {
+  it("a NEW student is created WITH a name, in ONE submit, and never shown an error", async () => {
     renderDoor();
-    signInWithEmailPassword.mockRejectedValue(authError("auth/invalid-credential"));
 
-    const u = await submitEmail("new@example.com", "hunter2secret");
+    await submitEmail("new@example.com", "hunter2secret", {
+      mode: "new",
+      name: "Ananya Sharma",
+    });
 
-    // ⚠ REWRITTEN BY NAME-1, and the old assertion is worth recording: it was
+    // ⚠ THE ORIGINAL ASSERTION HERE IS WORTH RECORDING: it was
     //     expect(signUpWithEmailPassword).toHaveBeenCalledWith(email, password)
     // — a TWO-argument create, pinning the defect rather than catching it.
-    // Nothing in `src/` links to `/sign-up` (nine links go to `/login`), so the
-    // create door's name field was unreachable and this line created EVERY
-    // account in the product with a null displayName. The shell then fell back
-    // to the raw email address wherever the student's name belongs.
-    //
-    // The ambiguous branch now stops for a name before it commits.
-    expect(signUpWithEmailPassword).not.toHaveBeenCalled();
-
-    await u.type(await screen.findByLabelText("Your name"), "Ananya Sharma");
-    await u.click(screen.getByRole("button", { name: /^Continue as/ }));
-
+    // Nothing in `src/` links to `/sign-up`, so the create door's name field was
+    // unreachable and that line created EVERY account in the product with a null
+    // displayName; the shell then fell back to the raw email address wherever
+    // the student's name belongs.
     await waitFor(() => expect(signUpWithEmailPassword).toHaveBeenCalled());
     expect(signUpWithEmailPassword).toHaveBeenCalledWith(
       "new@example.com",
       "hunter2secret",
       "Ananya Sharma",
     );
-    // Still the whole point: no "we couldn't sign you in" ERROR on the way to
-    // being created. The name prompt is `role="status"`, deliberately.
+
+    // ★ NO PROBE. v1 tried sign-in first and created on an ambiguous failure;
+    // the declaration removes the guess, so the create path never touches
+    // sign-in at all.
+    expect(signInWithEmailPassword).not.toHaveBeenCalled();
     expect(screen.queryByRole("alert")).toBeNull();
   });
 
-  it("a RETURNING student with the right password signs in and is NEVER passed to create", async () => {
+  it("a RETURNING student signs in and is NEVER passed to create", async () => {
     renderDoor();
     signInWithEmailPassword.mockResolvedValue(undefined);
 
@@ -241,42 +317,37 @@ describe("the email flow — try, then create", () => {
     expect(signUpWithEmailPassword).not.toHaveBeenCalled();
   });
 
-  it("a WRONG password says so and offers a reset — it does not claim an account was created", async () => {
+  it("★★ a returning student's failure is reported on the FIRST submit, and stays AMBIGUOUS", async () => {
     renderDoor();
     signInWithEmailPassword.mockRejectedValue(authError("auth/invalid-credential"));
-    signUpWithEmailPassword.mockRejectedValue(authError("auth/email-already-in-use"));
 
-    const u = await submitEmail("known@example.com", "wrongpassword");
+    await submitEmail("known@example.com", "wrongpassword");
 
-    // ⚠ A COST NAME-1 ACCEPTED, RECORDED HERE RATHER THAN HIDDEN. This message
-    // used to arrive on the FIRST submit. It cannot any more: the only way to
-    // learn that the account exists is the `email-already-in-use` rejection
-    // from the create call, and the create call may no longer run without a
-    // name (it would create a nameless account for a student who is new).
-    //
-    // The two orderings are mutually exclusive and each costs something:
-    //   create-first — this message lands immediately, but every new account
-    //                  is created without a name. That is what shipped.
-    //   name-first   — every new account gets a name; this message lands one
-    //                  submit later.
-    // The permanent "Forgot password?" link is on the form throughout, so a
-    // returning student is never without a route out.
-    await u.type(await screen.findByLabelText("Your name"), "Ananya Sharma");
-    await u.click(screen.getByRole("button", { name: /^Continue as/ }));
-
+    // ★ ONE submit. v1 had to attempt a create before it could say anything
+    // useful here, which cost this student an extra round trip. The declared
+    // branch calls sign-in directly and reports its own outcome.
     const alert = await screen.findByRole("alert");
-    expect(alert).toHaveTextContent("That password doesn't match. Try again, or reset it.");
+    expect(signInWithEmailPassword).toHaveBeenCalledTimes(1);
+    expect(signUpWithEmailPassword).not.toHaveBeenCalled();
+
+    const text = alert.textContent ?? "";
+    // ⚠ IT MUST NOT NAME THE PASSWORD AS THE FAULT. With Enumeration Protection
+    // on, this same code comes back for an address with no account at all, so
+    // "that password is wrong" would assert the account EXISTS.
+    expect(text).toContain("That email and password didn't match");
+    expect(text).not.toMatch(/that password (is|doesn't)/i);
+    expect(text).not.toMatch(/no account/i);
+    expect(text).not.toMatch(/already in use/i);
+    // The three real routes out are all named.
+    expect(text).toMatch(/reset your password/i);
+    expect(text).toMatch(/new here/i);
     expect(screen.getByRole("button", { name: "Reset my password" })).toBeTruthy();
-    // The raw Firebase wording would be actively misleading here: the student
-    // is signing IN, and "email already in use" reads as "you already have an
-    // account" — which they know.
-    expect(alert.textContent).not.toMatch(/already in use/i);
   });
 
-  it("⚠ a NON-AMBIGUOUS sign-in failure is reported and NEVER falls through to create", async () => {
+  it("⚠ a NON-AMBIGUOUS sign-in failure keeps its own accurate message", async () => {
     renderDoor();
-    // A rate limit is not "these credentials did not match". Falling through
-    // would answer a throttle with a second write call.
+    // A rate limit is not "these credentials did not match", and it must not be
+    // collapsed into the ambiguous copy.
     signInWithEmailPassword.mockRejectedValue(authError("auth/too-many-requests"));
 
     await submitEmail("known@example.com", "hunter2secret");
@@ -284,6 +355,28 @@ describe("the email flow — try, then create", () => {
     const alert = await screen.findByRole("alert");
     expect(alert).toHaveTextContent("Too many attempts. Please try again in a few minutes.");
     expect(signUpWithEmailPassword).not.toHaveBeenCalled();
+  });
+
+  it("★ an already-registered address INVITES A SWITCH rather than asserting existence", async () => {
+    renderDoor();
+    signUpWithEmailPassword.mockRejectedValue(authError("auth/email-already-in-use"));
+
+    await submitEmail("known@example.com", "hunter2secret", {
+      mode: "new",
+      name: "Ananya Sharma",
+    });
+
+    // ⚠ THIS DISCLOSURE IS INHERENT, NOT INTRODUCED. Firebase returns
+    // `email-already-in-use` from create whatever the UI does — Enumeration
+    // Protection covers sign-in only — so every create path in every product
+    // reaches here, including the try-then-create this replaces.
+    const alert = await screen.findByRole("alert");
+    const text = alert.textContent ?? "";
+    expect(text).toContain("already registered here");
+    expect(text).toMatch(/Already have an account/);
+    // The raw Firebase wording would be meaningless to a student.
+    expect(text).not.toMatch(/already in use/i);
+    expect(screen.getByRole("button", { name: "Reset my password" })).toBeTruthy();
   });
 
   it("a disabled account keeps its own accurate message rather than being re-created", async () => {
