@@ -13,6 +13,100 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 ---
 
 
+## 2026-08-06 — #623 `NAME-2` (one standalone lane, owner live-verified on a real handset). Trunk `2ca9a3d0`.
+
+**CLOSED — resolved and shipped**
+
+- **`[FU-AUTH-PHONE-DISPLAYNAME-NEVER-SET]`** — ★ **CLOSED FOR NEW ACCOUNTS.** The phone number step
+  now captures a name on its create branch and passes it as `verifyPhoneOtp`'s **second argument**;
+  `AuthContext` calls `updateProfile` with it **only when the authenticated user has no
+  `displayName`**, then re-syncs the context so the name is visible without a reload.
+  ★★ **Verified LIVE on a real handset, not only by test**: a real phone account created with a real
+  name, **confirmed in Firebase Console → Authentication → Display Name.**
+  ⚠ **THIS CLOSURE IS FORWARD-ONLY AND MUST NOT BE READ AS COVERING EXISTING ACCOUNTS.** See
+  `[FU-AUTH-DISPLAYNAME-NO-BACKFILL]`, still open below.
+
+**MUST STAY OPEN — do not close**
+
+- **`[FU-AUTH-DISPLAYNAME-NO-BACKFILL]`** — ★★ **STILL OPEN, AND `#623` DID NOT RELIEVE IT — IT
+  SHARPENED IT.** With `#616` and `#623` both merged, *every* method now names a new account, which
+  makes the un-named population **fixed, finite and permanent**: everyone created before those two
+  lanes. There is still **no second `updateProfile` writer and no admin path** that sets a name, so
+  nothing in the product repairs them.
+  ⚠ **IT REMAINS A SEQUENCING CONSTRAINT ON THE ~50-STUDENT QA PASS, NOT A NICE-TO-HAVE.** Run that
+  pass on accounts created before `#623` and **fifty students start permanently nameless**, and the
+  first thing they see is their own phone number or email where their name belongs.
+  ⇒ **Either recruit the QA cohort fresh AFTER `#623`, or land a backfill lane before the pass.**
+  This is a decision, not a task, and it is the owner's.
+
+- **`[FU-AUTH-EMAIL-LINK-DIRECTION]`** — **`AUTH-1`'s, and it still runs alone.** `#623` deliberately
+  did **not** touch it. Only `linkWithPhoneNumber` exists: an email or Google account can **absorb** a
+  phone; **a phone-first account can never absorb an email.** A phone-first student who later signs
+  in with Google gets a **SECOND** account with different progress, different Mistake Intelligence
+  and a different subscription.
+  ⚠ **SPLIT ACCOUNTS ARE UNRECOVERABLE BY DESIGN — prevention is the only tool we have.**
+  ★ **Why it cannot ride along with a small lane:** it needs **new `AuthContext` KEYS**, which is
+  precisely what `#623` avoided by using a parameter. A key fails
+  `AuthContext.passwordReset.test.tsx`'s exact-equality pin **and** every one of the ~25 full
+  `vi.mock` replacements. **That is the size difference between the two lanes, stated concretely.**
+
+**RENAMED — the id was actively misleading**
+
+- **`[FU-DOOR-TEST-SURFACE-SIXTEEN-FILES]`** *(was `[FU-DOOR-TEST-SURFACE-EIGHT-FILES]`; the old id
+  is retained here as a search term and must not be used going forward)* —
+  ★★ **THREE ENUMERATIONS OF THE SAME SET GAVE FIVE, NINE AND SIXTEEN.** An import-pattern grep found
+  five; CI found eight; a cofounder re-run found nine; **`#623` running the union found SIXTEEN.**
+  **The old id asserted a number that was wrong by half, and an id that carries a false count is
+  worse than one that carries none** — it invites the next lane to stop at eight.
+  ★★ **NEITHER STATIC METHOD IS THE SET, AND THEY FAIL IN OPPOSITE DIRECTIONS.** A dynamic
+  `await import("./Login")` is invisible to path globs and to import greps — but a *string* grep for
+  `Login` catches it, and then **misses `SignUpPage.redirect.test.tsx`, which contains no literal
+  `Login` at all** and reaches the door transitively through `SignUpPage`. Four more
+  (`LinkSignInMethodModal`, `AuthContext.signupIdentity`, `homeDestinations`, `PricingPage.backnav`)
+  are invisible to a path glob but not to a string grep.
+  ⇒ **ONLY RUNNING IT IS THE SET.** Any future door lane must run the suite and read the result, not
+  trust an enumeration — and must re-derive the number rather than carrying sixteen forward.
+  **The sixteen, each run in isolation and green at `2ca9a3d0`:** `Login.forgotPassword`,
+  `Login.legalLinks`, `Login.nameCapture`, `Login.oneDoor`, `SignUpPage.name`, `SignUpPage.phone`,
+  `SignUpPage.redirect`, `OfferStrip`, `PublicLegalFooter.reach`, `LinkSignInMethodModal`,
+  `AuthContext.passwordReset`, `AuthContext.linkPhone`, `AuthContext.autotrial`,
+  `AuthContext.signupIdentity`, `homeDestinations`, `PricingPage.backnav` — **plus the two `#623`
+  added**, `Login.phoneNameCapture` and `AuthContext.phoneName`.
+
+**NEW — OPEN**
+
+- **`[FU-DOOR-TAB-GUARD-MISSED-PHONE-STEP]`** — ★★ **A VACUOUS GUARD READS EXACTLY LIKE A REAL ONE,
+  AND THIS ONE HAD BEEN GREEN SINCE AUTH-3.** `Login.oneDoor.test.tsx` asserts
+  `expect(screen.queryAllByRole("tab")).toHaveLength(0)` — the pin that protects AUTH-3's ruling that
+  the door has no new-vs-returning tabs. **It never opens the phone step**, so it could never have
+  caught a `role="tab"` regression there, and its green said nothing about the surface a reader would
+  assume it covered.
+  ★★ **THE INSTRUMENT IS THE FINDING: DIFFERENTIAL MUTATION.** `#623` changed `role="group"` to
+  `role="tab"` on the phone control; the new suite went **RED** and `Login.oneDoor.test.tsx` stayed
+  **GREEN** on the same mutated tree. **A single-suite mutation run would have reported a red and
+  concluded the guard worked.** ⇒ **When two suites claim the same invariant, mutate once and check
+  BOTH — a guard that stays green under a mutation it should catch is absent, whatever its name
+  says.**
+  ⚠ **NOT FIXED BY `#623`.** The new suite covers the phone control; `Login.oneDoor.test.tsx`'s own
+  assertion is still scoped to the step it happens to have open. **Widening it is a small, separate
+  edit and it is not this lane's** — logged so it is not lost.
+
+- **`[FU-PS-MEASURE-OBJECT-SKIPS-BLANKS]`** — ⚠ **A MEASUREMENT TOOL THAT SILENTLY ANSWERS A
+  DIFFERENT QUESTION.** PowerShell `(Get-Content $f | Measure-Object -Line).Lines` **excludes blank
+  lines**, so it is **not** `wc -l`. Proven both directions at `ecacdfed`: `Login.tsx` is **2457**
+  lines by `wc -l` and **2230** by non-blank count — and `Measure-Object -Line` returns **2230**.
+  ★ **This produced a wrong finding in `#623`'s own report**, which recorded `Login.tsx:2318` as a
+  stale cite on the reasoning that *"the file is 2230 lines"*. **The cite was correct**; the copy sits
+  at exactly `:2318`. **A correct measurement of the wrong quantity, reported as a fact about the
+  spec.**
+  ⇒ **Use `wc -l` (or `(Get-Content).Count`) whenever the number will be compared against a line
+  number.** And ⇒ **the lane's own recommendation still stands but for the opposite reason: cite by
+  quote or symbol, because verifying a line cite is itself easy to get wrong.**
+  ★★ **Logged rather than left in a report** — an unexplained number is exactly the kind that travels
+  three documents later unchallenged.
+
+---
+
 ## 2026-08-06 — #615-#616 (two standalone owner-run lanes, merged after Wave 5E closed). Trunk `1b477e5f`.
 
 **CLOSED — resolved and shipped**

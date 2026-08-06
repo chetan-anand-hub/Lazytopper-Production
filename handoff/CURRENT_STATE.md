@@ -1,6 +1,163 @@
 # LazyTopper — Current State
 
-## [CURRENT] #615-#616 merged — THE LOGIN DOOR REWORKED AND LIVE-VERIFIED · A CANONICAL THAT FINALLY RESOLVES · AND THE PHONE PATH STILL LEAVES STUDENTS NAMELESS — trunk `1b477e5f`
+## [CURRENT] #623 merged — THE PHONE PATH NAMES ITS STUDENTS · A GUARD THAT WAS VACUOUS AND GREEN · AND A MUTATION THAT COULD NOT LAND, RECORDED AS GREEN — trunk `2ca9a3d0`
+
+**One standalone lane, `NAME-2`. Merged and OWNER LIVE-VERIFIED ON A REAL HANDSET.**
+
+```
+2ca9a3d0  NAME-2  the phone step captures a name                        #623
+ecacdfed  DOCS    the #615-#616 handoff                                 #622
+1b477e5f  NAME-1 v2  the login door rework                              #616
+```
+**Trunk moved `1b477e5f` → `ecacdfed` → `2ca9a3d0`.**
+Verified ON TRUNK BY CONTENT, not by PR state — **this repo squash-merges.**
+`verifyPhoneOtp: (code: string, displayName?: string)` at `AuthContext.tsx:110`; `lt-phone-mode`
+present in `Login.tsx`; **zero occurrences of "phone works the same either way"**; both new suites on
+disk.
+
+### ***** THE SENTENCE THAT MATTERS MOST IN THIS HANDOFF — UNCHANGED BY THIS LANE *****
+
+> ## **The Quick Practice results surface is BUILT AND UNREACHABLE.**
+> ## **`RESULTS-1` (`#617`) is merged and dormant by design.**
+> ## **`WIRE-2` is the ONLY thing that makes it live.**
+
+**`#623` CHANGES NOTHING ABOUT ANY OF THIS. THE ARC STILL CARRIES *THREE* DORMANT CAPABILITIES,
+NAMED HERE TOGETHER BECAUSE THAT IS THE WHOLE POINT:**
+
+| Built | When | Called by |
+|---|---|---|
+| **`#578`** — the grader's per-question image support | 1 August | **nothing.** Its live-verify has never run |
+| **`#611`** — `gradeQuickPracticeBatch`, proven by 25 tests | 5 August | **nothing.** Zero callers on trunk |
+| **`#617`** — the graded answer sheet | 6 August | **nothing.** One caller: its own test file |
+
+**`WIRE-2` IS THE SINGLE LANE THAT ENDS ALL THREE.** It is specced, on disk at
+`C:\Users\Chetan\OneDrive\Desktop\diff\wave 5e\`, and NOT dispatched — **still the first lane of
+Wave 5F.** **The absence of exactly this paragraph cost five days on `#578`.** It is restated here,
+not merely left in the demoted block, because a reader who stops after the top section must still
+learn it.
+
+⚠ **`#611` swallows the 402** — an unconditional catch turning `PremiumRequiredError` into
+`skipped-error`. **LATENT while nothing calls it; live the moment `WIRE-2` ships.**
+
+### ★★ THE HEADLINE CORRECTION — the block below this one is now FALSE
+
+The demoted `[CURRENT]` ends *"AND THE PHONE PATH STILL LEAVES STUDENTS NAMELESS."* **That is no
+longer true on trunk.** `#623` closes it for every phone account created from now on.
+`[FU-AUTH-PHONE-DISPLAYNAME-NEVER-SET]` is **CLOSED for new accounts**.
+
+⚠ **AND IT IS STILL ONLY NEW ACCOUNTS.** `[FU-AUTH-DISPLAYNAME-NO-BACKFILL]` **stays open** —
+students created before this stay nameless and **nothing in the product repairs them.**
+★ **It remains a sequencing constraint against the ~50-student QA pass**, not a nice-to-have: run
+that pass on pre-`#623` accounts and fifty students start permanently nameless.
+
+### `#623` NAME-2 — what shipped, and why it was a small lane
+
+**Six files. `App.tsx` zero-diff; nothing under `server/` or `scripts/`.**
+
+1. **★★ `verifyPhoneOtp` gained a PARAMETER, NOT A KEY** — `(code: string, displayName?: string)`.
+   **That distinction is the entire reason this was a small lane rather than `AUTH-1`.**
+   `AuthContext.passwordReset.test.tsx` pins the context key set by **exact equality**, and ~25
+   suites replace the module with a `vi.mock` factory that is a **full** replacement. An extra
+   argument leaves `Object.keys(ctx)` identical and a `vi.fn()` does not care how many arguments it
+   receives; **an extra key or export fails both.** The suite passed **UNMODIFIED** — `5 passed (5)`.
+   Same seam `signUpWithEmailPassword(email, password, displayName?)` already occupies.
+2. **The phone step REUSES `.lt-login-seg`** rather than adding a second rule set — which
+   **sidesteps `[FU-TEST-SOURCESCAN-FIRST-MATCH-ONLY]` by construction**, the duplicate-selector trap
+   that bit `#616`. `role="group"` + `aria-pressed`, never `role="tab"`; `data-testid="lt-phone-mode"`.
+3. **`updateProfile` fires ONLY when the user has no `displayName`**, then **re-syncs the context** —
+   `updateProfile` mutates `currentUser` in place and re-emits no auth-state event, so without the
+   re-sync the student would see their phone NUMBER as their name for the whole first session.
+   Same trap as the email path. `[FU-DISPLAYNAME-NOT-VISIBLE-UNTIL-RELOAD]`.
+4. **The copy changed on BOTH branches, and it was required rather than cosmetic.** The retired line
+   promised the branches were identical; that stopped being true the moment the step asked.
+   Create: *"We'll create your account and start your 7-day trial. No password to remember."*
+   Returning: *"Welcome back — we'll text you a code. No password to remember."*
+   **No enumeration disclosure on either branch** — neither asserts whether an account exists.
+
+**CI run `31094918947` — `Tests 1416 passed (1416)`** (passed equals the parenthesised total, so
+zero skips), **root guard matrix `196/196`, `# skipped 0`.**
+
+### ★★ THE LIVE PROBE IS DONE, AND ONE OF ITS CHECKS COULD NOT HAVE BEEN A TEST
+
+**Owner live-verified on a real handset:** a real phone account created with a real name, **confirmed
+in Firebase Console → Authentication → Display Name**; the returning branch showing no name field;
+and — the one that matters — **the no-overwrite guard proven by a SECOND sign-in on the same number.**
+
+★ **Nothing but a live round trip could make that last check.** The unit test proves
+`updateProfile` is not called when a `displayName` exists **on a mock**; only a second real sign-in
+proves the guard fires **against a live Firebase record that already carries a name.**
+
+⚠ **The lane itself could not run this and said so** rather than letting twenty screenshots stand in
+for a round trip. **Zero SMS were sent by the agent.** Recorded because the report being honest
+about its own gap is what made the owner's probe land on the right check.
+
+### ★★ WHAT THIS LANE FOUND THAT ITS SPEC DID NOT KNOW — three, and two generalise
+
+**Full mechanisms in `handoff/DISCOVERIES.md` (D39–D41); the summary:**
+
+1. **★★ A VACUOUS GUARD READS EXACTLY LIKE A REAL ONE.** `Login.oneDoor.test.tsx` asserts
+   `queryAllByRole("tab")).toHaveLength(0)` — but **never opens the phone step**, so it could never
+   have caught a `role="tab"` regression there. **Found by DIFFERENTIAL MUTATION**: the same mutation
+   went **red in the new suite and stayed GREEN in `oneDoor`**. ⇒ **Record the instrument, not just
+   the fix.** A guard whose green is indistinguishable from absence is worse than no guard, because
+   it stops anyone looking. `[FU-DOOR-TAB-GUARD-MISSED-PHONE-STEP]`.
+2. **★★ A MUTATION THAT CANNOT LAND MUST BE RECORDED GREEN, NOT SILENTLY SWAPPED.** The brief's M4
+   cleared the name in `goToStep`, which runs on step **entry**, before a name exists — so it could
+   never go red. **The lane fired it, recorded the green, then used the honest mutation**
+   (clearing at the `number → otp` transition), which is red on four tests. **That is the
+   discipline.** Quietly substituting a working mutation would have reported six reds and hidden that
+   the spec's model of the flow was wrong.
+3. **Three enumerations of the door's test surface gave FIVE, NINE and SIXTEEN.** Neither an import
+   grep nor a string grep is the set — **`SignUpPage.redirect.test.tsx` carries no literal `Login`
+   at all** and reaches the door transitively. **Only running it is the set.**
+
+### ⚠ A CORRECTION TO THE LANE'S OWN REPORT — and where the number came from
+
+The `#623` report recorded `Login.tsx:2318` as a **stale cite**, reasoning that *"the file is 2230
+lines."* **That finding was WRONG, and the cite was correct**: at `ecacdfed` the file is **2457**
+lines and `New or returning` sits at **exactly `:2318`**.
+
+**Where 2230 came from — it is a real number, from a real command, and it is not a line count.**
+The lane measured with PowerShell `(Get-Content $f | Measure-Object -Line).Lines`.
+**`Measure-Object -Line` silently excludes blank lines.** Proven both directions on trunk:
+
+```
+git show ecacdfed:.../Login.tsx | wc -l                    -> 2457   (real lines)
+git show ecacdfed:.../Login.tsx | grep -c '[^[:space:]]'   -> 2230   (non-blank)
+Get-Content (branch copy) | Measure-Object -Line           -> 2368
+(branch copy) raw array .Count                             -> 2604   (real lines)
+```
+
+**2230 is the non-blank count of the very file the spec cited.** The lane then compared that
+undercount against `:2318`, concluded the line was out of range, and reported a stale cite — **a
+wrong conclusion drawn from a correct measurement of the wrong quantity.**
+
+★ **The lane's recommendation survives its own error: cite by quote or symbol, not by line.** But the
+reason is now the opposite of the one recorded — **not because the cite was stale, but because
+verifying a line cite is itself easy to get wrong.** ⇒ **`Measure-Object -Line` is not `wc -l`.**
+`[FU-PS-MEASURE-OBJECT-SKIPS-BLANKS]`, D41.
+
+⚠ **This is exactly the class of number that travels three documents later unchallenged.** It is
+corrected here, at the head, rather than left in a report nobody re-opens.
+
+### STILL OPEN AND UNCHANGED BY THIS LANE
+
+- **`[FU-AUTH-EMAIL-LINK-DIRECTION]`** — `AUTH-1`'s, **runs alone**, needs new context keys. Only
+  `linkWithPhoneNumber` exists: a phone-first student **can never absorb an email**, and one who
+  later signs in with Google gets a **SECOND** account. ⚠ **SPLIT ACCOUNTS ARE UNRECOVERABLE BY
+  DESIGN** — prevention is the only tool.
+- **`[FU-AUTH-DISPLAYNAME-NO-BACKFILL]`** — see the sequencing constraint above.
+- **`LAUNCH_REMAINING.md` and `SURFACE_TRACKER.md` both remain STALE and both remain NOTED.** Neither
+  sync header was advanced. **Advancing a sync header over unreviewed content asserts a review that
+  never happened.**
+
+---
+
+## (superseded) [CURRENT] #615-#616 merged — THE LOGIN DOOR REWORKED AND LIVE-VERIFIED · A CANONICAL THAT FINALLY RESOLVES · AND THE PHONE PATH STILL LEAVES STUDENTS NAMELESS — trunk `1b477e5f`
+
+⚠ **SUPERSEDED BY `#623`.** This block's headline — *"AND THE PHONE PATH STILL LEAVES STUDENTS
+NAMELESS"* — **was true on its date and is now FALSE on trunk.** Left as written per the board's own
+rule that a dated entry is evidence of what was known when. **See the `[CURRENT]` block above.**
 
 **Two standalone owner-run lanes, both merged AFTER `#618` closed Wave 5E. Both live-verified by the
 owner on production, desktop and mobile, and both PASSED.**

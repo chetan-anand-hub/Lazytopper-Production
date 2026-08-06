@@ -3,6 +3,44 @@
 
 ---
 
+## ⚠ 2026-08-06 — #623 `NAME-2`. THIS FILE'S `Trunk at last sync` LINE IS STILL STALE, AND IS STILL DELIBERATELY NOT UPDATED.
+
+**Re-derived: trunk is `2ca9a3d0`. The header at the top of this file still reads `203fb370`
+(Wave 5C) — now several handoffs behind.**
+
+★ **Left as it stands, for the same reason as last time.** Advancing a sync header over content
+nobody has re-reviewed asserts that everything below has been reconciled against the current trunk,
+and it has not. The header would then be evidence of a review that never happened. **The lag is
+recorded here instead**, where a reader meets it before trusting the matrix. Reconciling this file is
+a job of its own; it is not a line-item in a docs PR.
+
+**#623: NO CORE-MATRIX COMPLETION CELL CHANGES, and NO Scope cell changes.** Stated explicitly per
+§10 — **silence is not an answer.** The lane moved one surface that is already ✅ Built / Verified, so
+no cell moves. What changed, recorded for shape rather than state:
+
+- **Login / Auth (`#623`)** — **the phone step now captures a name.** The same self-declared
+  segmented control the email step got at `#616`, reusing `.lt-login-seg` rather than a second rule
+  set (`role="group"`, "I'm new here" pre-selected, `data-testid="lt-phone-mode"`), a required
+  `Your name` field on the create branch only, and per-branch copy replacing the retired *"phone
+  works the same either way"* line — which stopped being true the moment the step began asking.
+  **Owner LIVE-VERIFIED on a real handset**, including a **second sign-in on the same number** proving
+  the no-overwrite guard fires against a live Firebase record.
+  ★ **The surface's nameless-account defect is now closed on ALL THREE methods** — Google supplies a
+  name, `#616` closed email, `#623` closes phone. **`[FU-AUTH-PHONE-DISPLAYNAME-NEVER-SET]` is
+  CLOSED for new accounts.**
+  ⚠ **The surface is STILL not complete, and the remaining gaps are unchanged by this lane:**
+  **nothing backfills accounts already created without a name** (`[FU-AUTH-DISPLAYNAME-NO-BACKFILL]`
+  — ★ a sequencing constraint on the ~50-student QA pass), and **a phone-first student still cannot
+  add an email**, so one who later signs in with Google gets a second account
+  (`[FU-AUTH-EMAIL-LINK-DIRECTION]`, `AUTH-1`'s, runs alone, **split accounts unrecoverable by
+  design**). Recorded as honest limits on what shipped, not as regressions.
+
+**No Scope cell changes:** Login is `Locked`, and `#623` added **no new necessary piece for its own
+definition-of-done** — it delivered a piece already named and queued as `NAME-2` in the previous
+handoff. **No scope was discovered by this lane.**
+
+---
+
 ## ⚠ 2026-08-06 — #615-#616. THIS FILE'S `Trunk at last sync` LINE IS STALE, AND IS DELIBERATELY NOT UPDATED.
 
 **Re-derived: trunk is `1b477e5f`. The header above still reads `203fb370` (Wave 5C).**
