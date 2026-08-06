@@ -3,6 +3,7 @@ import { render, screen, cleanup } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { setMatchMediaMatches } from "../test/setup";
 
 /**
  * Login footer — Terms of Service / Privacy Policy are reachable links (Lane C).
@@ -42,6 +43,49 @@ describe("Login footer — legal links (Lane C, test 1)", () => {
     expect(terms).toHaveAttribute("href", "/legal/terms");
     expect(privacy).toHaveAttribute("href", "/legal/privacy");
   });
+});
+
+/**
+ * ★ NAME-1 v2 — ONE consent mount, at every width.
+ *
+ * An earlier revision of this lane moved the line into the dark brand column on
+ * desktop and dual-mounted it to the footer on mobile. The owner's live-verify
+ * reversed that: on a real desktop it sat BELOW THE FOLD, in a column the
+ * student has no reason to scroll, so consent was less visible at the point of
+ * action than before the move.
+ *
+ * ⚠ WHAT THIS PINS IS THE ABSENCE OF A WIDTH CONDITION. The mount is now
+ * unconditional, so a duplicate or a disappearance can only come back by
+ * someone re-introducing one — and this asserts at both ends of the breakpoint
+ * that nothing does.
+ *
+ * ★ `getAllByRole(...).toHaveLength(1)`, never `getByRole`. A duplicate must
+ * fail BY NAME. `getByRole` throws on two matches, and a lane debugging that
+ * throw can "fix" it with `getAllBy[0]` and ship the duplicate.
+ */
+describe("Login legal consent — one mount, every width (NAME-1 v2)", () => {
+  for (const [label, matches] of [
+    ["desktop (>=1024px)", true],
+    ["mobile (<1024px)", false],
+  ] as const) {
+    it(`renders exactly ONE Terms and ONE Privacy link at ${label}`, () => {
+      setMatchMediaMatches(matches);
+      render(
+        <MemoryRouter>
+          <Login />
+        </MemoryRouter>,
+      );
+
+      expect(screen.getAllByRole("link", { name: "Terms of Service" })).toHaveLength(1);
+      expect(screen.getAllByRole("link", { name: "Privacy Policy" })).toHaveLength(1);
+
+      // CONTROL — it is in the auth-panel footer, the column the student is
+      // acting in, and not in the brand column at either width.
+      const footer = screen.getByTestId("lt-legal-footer");
+      expect(footer.closest(".lt-login-foot")).not.toBeNull();
+      expect(footer.closest(".lt-login-brand-panel")).toBeNull();
+    });
+  }
 });
 
 describe("Login responsive behaviour — unregressed by Lane C (test 5)", () => {

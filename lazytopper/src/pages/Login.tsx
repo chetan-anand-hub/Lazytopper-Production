@@ -1,7 +1,7 @@
 import { type CSSProperties, type FormEvent, useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth, type AuthUser } from "../context/AuthContext";
-import OfferStrip, { AfterTrialLine } from "../components/auth/OfferStrip";
+import OfferStrip from "../components/auth/OfferStrip";
 import VerifyEmailGate from "../components/auth/VerifyEmailGate";
 import { trackUxEvent } from "../services/uxTelemetry";
 import { creditPendingReferral } from "../services/referralService";
@@ -218,33 +218,6 @@ const LOGIN_CSS = `
     box-shadow: 0 0 0 5px rgba(22, 185, 106, 0.14);
   }
 
-  .lt-login-loop {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-    color: #adc1d5;
-    font-size: 0.82rem;
-    font-weight: 800;
-  }
-
-  .lt-login-loop span {
-    display: inline-flex;
-    min-height: 32px;
-    align-items: center;
-    border-radius: 999px;
-    padding: 0 12px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-  }
-
-  .lt-login-loop strong {
-    color: #dffff0;
-    font-weight: 900;
-  }
-
   .lt-login-auth-panel {
     min-width: 0;
     display: flex;
@@ -348,6 +321,16 @@ const LOGIN_CSS = `
     font-weight: 600;
   }
 
+  /* ★ GOOGLE CARRIES PRIMARY WEIGHT among the three methods. It is the fastest
+     path and most CBSE students already hold a Gmail account, so three visually
+     identical outline buttons made every student choose where one choice is
+     clearly better.
+
+     ⚠ DELIBERATELY NOT A FILLED BUTTON. A filled control here would compete
+     with the navy submit on the email step, and the page would then have two
+     things claiming to be the primary action. A green-tinted border plus a
+     stronger shadow is enough to lead without shouting — the background stays
+     white, which Google's brand guidance requires anyway. */
   .lt-google {
     width: 100%;
     display: flex;
@@ -355,16 +338,23 @@ const LOGIN_CSS = `
     justify-content: center;
     gap: 11px;
     background: #ffffff;
-    border: 1px solid #dbe3ee;
+    border: 1.5px solid rgba(22, 185, 106, 0.55);
     border-radius: 12px;
     padding: 13px;
+    box-shadow: 0 4px 14px rgba(22, 185, 106, 0.16);
     font-family: 'Inter', system-ui, sans-serif;
     font-size: 0.95rem;
     font-weight: 700;
     color: var(--lt-ink);
     cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
   }
+
+  .lt-google:hover {
+    border-color: var(--lt-green);
+    box-shadow: 0 6px 18px rgba(22, 185, 106, 0.24);
+  }
+
 
   .lt-google:hover:not(:disabled) {
     border-color: #bcc9dc;
@@ -383,12 +373,28 @@ const LOGIN_CSS = `
      rgb(248,250,252) on rgb(255,255,255). The background STAYS white on
      purpose (Google's brand guidance for the sign-in button); it is the INK
      that has to be pinned dark rather than inherited. */
+  /* ⚠ ONE RULE, BOTH CONCERNS — deliberately not a second block.
+     A separate dark .lt-google rule added later in the file for the green lift
+     SHADOWED this one for Login.oneDoor.test.tsx, whose ruleBody() helper
+     resolves a selector with src.indexOf(...) and reads only the FIRST match.
+     The suite went red naming the wrong cause: the pinned color #071a3d was
+     still present, just no longer first. Source-scanning tests make duplicate
+     selectors a correctness problem, not a style one.
+
+     ⚠ AND NO BACKTICKS IN THIS BLOCK — the stylesheet is a template literal, so
+     one ends the string. This comment contained three on its first draft and
+     took the whole file down with a transform error. Second time this lane. */
   .lt-login-page[data-login-theme="dark"] .lt-google {
     color: #071a3d;
+    border-color: rgba(53, 242, 160, 0.6);
+    box-shadow: 0 4px 16px rgba(53, 242, 160, 0.2);
   }
 
-  /* The phone and email doors. Deliberately the SAME weight as the Google
-     button — three equal methods, no tabs and no visual hierarchy between
+  /* The phone and email doors. Now deliberately LIGHTER than the Google button
+     — see the Google rule above: Google is the fastest path for this audience
+     and three identical outlines made every student choose where one choice is
+     clearly better. They keep the plain outline treatment they always had; it
+     is Google that gained weight, not these that lost it. Formerly identical to
      them, because the student's right answer depends only on which account
      they already have. */
   .lt-method {
@@ -494,25 +500,40 @@ const LOGIN_CSS = `
      good news, it is a fact about how accounts work that they need before
      choosing. Red here would read as "you have done something wrong" on a
      screen where they have not yet done anything. */
+  /* ★ A FOOTNOTE, NOT A PANEL — and not one word of the copy changes.
+     Filled, bordered and 600-weight, four dense lines of it OUTWEIGHED the
+     three outline method buttons directly above it: guidance was louder than
+     the actions. The copy is doing prevention work — until AUTH-1 ships the
+     other link direction it is the only thing standing between a student and an
+     unrecoverable split account — so the WEIGHT comes down, never the content.
+     A green left rule on transparent ground keeps it findable without
+     competing. */
   .lt-login-linkwarn {
     margin: 14px 0 0;
-    padding: 10px 12px;
-    border-radius: 10px;
+    padding: 1px 0 1px 12px;
+    border: 0;
+    border-left: 2px solid var(--lt-green);
+    border-radius: 0;
+    background: transparent;
     color: var(--lt-muted);
-    background: rgba(7, 26, 61, 0.04);
-    border: 1px solid var(--lt-line);
-    font-size: 0.78rem;
-    line-height: 1.5;
-    font-weight: 600;
+    font-size: 0.76rem;
+    line-height: 1.55;
+    font-weight: 500;
   }
 
   .lt-login-page[data-login-theme="dark"] .lt-login-linkwarn {
-    background: rgba(255, 255, 255, 0.05);
+    background: transparent;
+    border-left-color: #35f2a0;
+    color: rgba(248, 250, 252, 0.72);
   }
 
   .lt-login-linkwarn b {
     color: var(--lt-ink);
-    font-weight: 800;
+    font-weight: 700;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-login-linkwarn b {
+    color: #f8fafc;
   }
 
   .lt-field-label {
@@ -632,6 +653,92 @@ const LOGIN_CSS = `
     font-size: 0.8rem;
     font-weight: 600;
     line-height: 1.4;
+  }
+
+  /* The self-declaration control. Two equal halves, no tab semantics — these
+     change what the form DOES, they do not swap panels. */
+  .lt-login-seg {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    padding: 5px;
+    margin: 14px 0 4px;
+    background: var(--lt-soft);
+    border: 1px solid var(--lt-line);
+    border-radius: 13px;
+  }
+
+  .lt-login-seg button {
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 11px 10px;
+    border-radius: 9px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--lt-muted);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+
+  /* ★★ PRODUCT GREEN, WITH NAVY INK — and the ink colour is the whole point.
+     White on #16b96a measures 2.57:1. These labels are 0.9rem bold, which is
+     nowhere near the 18.66px-bold large-text exemption, so 4.5:1 is the bar and
+     white FAILS it. Navy #071a3d on the same green passes comfortably. Both
+     figures were re-measured in a real browser by this lane's probe rather than
+     taken on trust — see the report. */
+  .lt-login-seg button[aria-pressed="true"] {
+    background: var(--lt-green);
+    border-color: var(--lt-green);
+    color: var(--lt-ink);
+    box-shadow: 0 2px 10px rgba(22, 185, 106, 0.28);
+  }
+
+  .lt-login-seg button:disabled {
+    cursor: default;
+  }
+
+  /* Dark theme: the light-theme rule above hardcodes a white pill, and the ink
+     that sits on it is near-white in dark — the 1.04:1 trap AUTH-3 fixed on the
+     Google button and the input fields. Both halves are re-pinned here. */
+  .lt-login-page[data-login-theme="dark"] .lt-login-seg {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.14);
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-login-seg button {
+    color: rgba(248, 250, 252, 0.72);
+  }
+
+  /* Dark pair — also green, not a grey pill. The brighter #35f2a0 is used
+     because the dark ground makes the light-theme green read as muddy; navy ink
+     still sits on it, so the same contrast argument holds. */
+  .lt-login-page[data-login-theme="dark"] .lt-login-seg button[aria-pressed="true"] {
+    background: #35f2a0;
+    border-color: #35f2a0;
+    color: #071a3d;
+    box-shadow: 0 2px 10px rgba(53, 242, 160, 0.26);
+  }
+
+  /* A note that sits BETWEEN two fields has to carry the gap the form normally
+     gets from the .lt-field-label + .lt-field margin-bottom. Plain
+     .lt-login-note has no bottom margin and .lt-field-label has no top margin,
+     so the next label renders butted straight against the note's last line — no
+     breathing room at all, while every other label on the form has 12px.
+
+     Found by a 390px screenshot in NAME-1 v1, where the name prompt's notice
+     hit it; every assertion in the suite passed with it broken. v2 moved the
+     name field but reintroduced the same adjacency (name hint, then the Email
+     address label), so the rule is repurposed rather than deleted.
+
+     Scoped to its own class rather than widening .lt-login-note, which the
+     phone step also uses and whose rhythm is correct as it stands.
+
+     ⚠ NO BACKTICKS IN THIS BLOCK. The whole stylesheet is a template literal,
+     so a backtick in a CSS comment ends the string — it took the dev server
+     down with a Babel parse error the moment it was introduced. */
+  .lt-login-note.lt-login-note--between {
+    margin: 4px 0 14px;
   }
 
   .lt-continue {
@@ -863,45 +970,26 @@ const LOGIN_CSS = `
     color: var(--lt-muted);
   }
 
-  .lt-login-helper {
-    display: grid;
-    grid-template-columns: 28px minmax(0, 1fr);
-    gap: 11px;
-    align-items: start;
-    padding: 13px 14px;
-    border-radius: 14px;
-    color: var(--lt-muted);
-    background: rgba(255, 255, 255, 0.72);
-    border: 1px solid var(--lt-line);
-    font-size: 0.84rem;
-    line-height: 1.45;
-    font-weight: 600;
-  }
-
-  .lt-login-page[data-login-theme="dark"] .lt-login-helper {
-    background: rgba(255, 255, 255, 0.08);
-  }
-
-  .lt-login-helper-icon {
-    width: 28px;
-    height: 28px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 9px;
-    color: #06281b;
-    background: #c9f4df;
-    font-weight: 900;
-  }
-
+  /* ★ THE COLUMN NEEDS A FLOOR. Card, then guidance, then a lone back-link
+     above dead space read as unfinished. With the consent line restored here
+     (it belongs in the column the student is acting in), the two together
+     compose a real footer — back-link left, consent right, one hairline rule
+     above. That closes the void without adding ornament. */
   .lt-login-foot {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 14px;
+    margin-top: 4px;
+    padding-top: 14px;
+    border-top: 1px solid var(--lt-line);
     color: var(--lt-muted);
     font-size: 0.78rem;
     font-weight: 700;
+  }
+
+  .lt-login-page[data-login-theme="dark"] .lt-login-foot {
+    border-top-color: rgba(255, 255, 255, 0.14);
   }
 
   .lt-login-back-link {
@@ -979,10 +1067,6 @@ const LOGIN_CSS = `
       font-size: 0.8rem;
     }
 
-    .lt-login-loop span {
-      min-height: 28px;
-    }
-
     .lt-login-auth-panel {
       padding-top: 24px;
       padding-bottom: 24px;
@@ -1005,10 +1089,6 @@ const LOGIN_CSS = `
       padding: 16px;
     }
 
-    .lt-login-helper {
-      padding: 10px 12px;
-      font-size: 0.8rem;
-    }
   }
 
   @media (max-width: 1023px) {
@@ -1204,15 +1284,46 @@ const AMBIGUOUS_SIGN_IN_CODES = new Set([
 ]);
 
 /**
- * The wrong-password message — a CONSCIOUS disclosure, not an inherited default.
+ * The RETURNING path's failure message — and it must stay AMBIGUOUS.
  *
- * Reaching it means sign-in failed AND create returned `email-already-in-use`,
- * so we know the account exists. Saying so is the same disclosure every login
- * form on the internet makes, and the student is already holding the address.
- * The alternative — a vague "could not sign you in" — would leave a student who
- * simply mistyped their password with no idea what to do next.
+ * ⚠ IT DELIBERATELY DOES NOT SAY "that password is wrong". With Email
+ * Enumeration Protection on, a wrong password and an address with no account
+ * return the SAME code (see AMBIGUOUS_SIGN_IN_CODES), so naming the password as
+ * the fault would assert that the account EXISTS — an existence oracle built by
+ * hand out of copy, defeating the setting the project turned on.
+ *
+ * ★ It names the three things the student can actually do without claiming
+ * which one applies: re-check, reset, or switch to creating an account. The
+ * switch is the honest resolution of the ambiguity — if they are in fact new,
+ * that is the tab that works, and nothing here had to tell them so.
+ *
+ * ⚠ ITS PREDECESSOR IS WORTH REMEMBERING. This replaces "That password doesn't
+ * match. Try again, or reset it." — which was reachable ONLY after a create
+ * attempt returned `email-already-in-use`, and that really did prove the account
+ * existed. The returning branch no longer calls create, so the proof is gone.
+ * Keeping the words while losing the proof is precisely the shape of defect this
+ * repo has shipped before.
  */
-const WRONG_PASSWORD_MESSAGE = "That password doesn't match. Try again, or reset it.";
+const AMBIGUOUS_SIGN_IN_MESSAGE =
+  "That email and password didn't match. Check them, reset your password, or " +
+  'switch to "I\'m new here" to create an account.';
+
+/**
+ * The CREATE path's already-registered message.
+ *
+ * ⚠ THIS ONE DOES DISCLOSE, and it is inherent rather than chosen. Firebase
+ * returns `auth/email-already-in-use` from `createUserWithEmailAndPassword`
+ * whatever we do — Enumeration Protection covers sign-in, not create. EVERY
+ * create path has this property, including the try-then-create this replaces,
+ * so it is not a regression introduced by the redesign.
+ *
+ * ★ The copy therefore INVITES A SWITCH rather than announcing a finding: it
+ * reports what the attempt did, hands over the two routes out, and never
+ * phrases itself as an answer to "does this address have an account?".
+ */
+const EMAIL_TAKEN_MESSAGE =
+  "That address is already registered here. Switch to \"Already have an " +
+  'account" to sign in, or reset your password.';
 
 function describeAuthError(err: unknown): string {
   const code = authErrorCode(err);
@@ -1310,16 +1421,24 @@ type DoorStep = "choose" | "email" | "phone" | "verify";
 export type AuthDoorProps = {
   /**
    * Which door the student came through. Both render the same three methods —
-   * the intent only changes the framing copy and, for email, whether the form
-   * COLLECTS A NAME.
+   * the intent only changes the framing copy and WHEN the email form collects
+   * a name: `"create"` asks up front, `"signin"` asks only at the moment the
+   * flow is about to create (see `nameRequested`).
    *
    * ⚠ `intent="create"` keeps the required name field, and that is not
    * cosmetic. `signUpWithEmailPassword` is the ONLY `updateProfile` call in
-   * product code, so this form is the only place a `displayName` is ever
-   * captured — `FirstSession` deliberately does not ask (it would need a
+   * product code, so this form is one of only two places a `displayName` is
+   * ever captured — `FirstSession` deliberately does not ask (it would need a
    * context key). Dropping it here would silently re-open the defect PR-B2
    * closed: every new account rendering its raw email address as the student's
    * name across the shell. See [FU-AUTH-NAME-PROMPT].
+   *
+   * ⚠ AND `intent="create"` IS UNREACHABLE FROM THE PRODUCT. Its only route is
+   * `/sign-up`, and NAME-1 found zero links to it in `src/` against nine to
+   * `/login` — App.tsx's two `<Route>` lines are the only references that
+   * exist. So this prop's create branch fixes nothing on its own: every real
+   * student arrives through `intent="signin"`. That is why the signin door now
+   * captures a name of its own rather than relying on this one.
    */
   intent: "signin" | "create";
   /**
@@ -1350,6 +1469,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
   } = useAuth();
 
   const isCreate = intent === "create";
+
 
   const [isLight, setIsLight] = useState(
     () => document.documentElement.getAttribute("data-theme") === "light"
@@ -1399,6 +1519,56 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
   const [error, setError] = useState<string | null>(null);
   const [offerReset, setOfferReset] = useState(false);
 
+  /**
+   * ★★ THE UNLOCK — the page no longer GUESSES who is new. The student says so.
+   *
+   * Email Enumeration Protection means Firebase will not tell us whether an
+   * address is registered, and the previous design worked around that by trying
+   * sign-in first and creating on an ambiguous failure. It worked, but it cost
+   * the returning student who mistyped a password an extra submit before they
+   * could be told anything useful, because the only way to learn the account
+   * existed was to attempt the create.
+   *
+   * A self-declared choice removes the guess entirely, and it is NOT an
+   * enumeration disclosure: no branch depends on a server answer, and nothing
+   * on screen asserts that an address does or does not exist. The student is
+   * simply the other source of a fact Firebase declines to give.
+   *
+   * ⚠ "new" PRE-SELECTS, deliberately. Returning students overwhelmingly arrive
+   * through Google; whoever reaches this email form is disproportionately new.
+   *
+   * ⚠ The three-method door above is UNTOUCHED by this. There are still no
+   * new-vs-returning tabs at the entrance — this control lives one level in, on
+   * the email sub-screen only, which is the one method where the distinction
+   * changes what has to happen.
+   */
+  const [emailMode, setEmailMode] = useState<"new" | "returning">("new");
+
+  /**
+   * ★★ THE SAME SELF-DECLARATION, ON THE PHONE STEP — and phone needs it for a
+   * DIFFERENT reason than email did.
+   *
+   * Email needed it because Enumeration Protection hides whether an account
+   * exists. Phone never had that problem: OTP signs in and creates through one
+   * identical call. What phone had instead is that Firebase supplies NO
+   * `displayName` for a phone credential, and nothing in product code set one —
+   * so every phone-first student was created nameless and their raw number
+   * rendered wherever their name belonged, permanently.
+   * [FU-AUTH-PHONE-DISPLAYNAME-NEVER-SET]
+   *
+   * Asking is the only repair, and it can only be asked of a student who is
+   * NEW — which is a fact the phone flow, like the email flow, has no way to
+   * learn except from the student. Hence the same control, deliberately the
+   * same component and the same `.lt-login-seg` rules, so the two sub-screens
+   * cannot drift apart visually.
+   *
+   * ⚠ "new" PRE-SELECTS, matching the email step.
+   *
+   * ⚠ Still NOT tabs at the door. The three methods above remain equal and
+   * unclassified — AUTH-3's ruling is untouched; this lives one level in.
+   */
+  const [phoneMode, setPhoneMode] = useState<"new" | "returning">("new");
+
   // Set once the verify gate reports success. Without it the `user` effect,
   // which still sees a context user carrying the STALE `emailVerified: false`
   // (`reload()` mutates the Firebase user in place and re-emits nothing), would
@@ -1445,6 +1615,58 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     navigate(nextPath, { replace: true });
   }, [user, nextPath, navigate, reason, verificationCleared]);
 
+  /**
+   * True whenever this submit will CREATE. The `/sign-up` door forces it; the
+   * one door reads the student's own declaration.
+   *
+   * ★ One derived value, read by the handler, the field set, the labels and the
+   * CTA alike — so what the button says and what the submit does cannot drift.
+   */
+  const creatingAccount = isCreate || emailMode === "new";
+
+  /**
+   * The phone twin of `creatingAccount`. One derived value read by the field
+   * set, the copy and the submit handler alike, so what the step shows and what
+   * it sends cannot drift.
+   *
+   * ⚠ Deliberately SEPARATE from `creatingAccount`. The two sub-screens are
+   * never on screen together, and fusing them would let a student who declared
+   * "returning" on email be silently treated as new after switching to phone.
+   */
+  const creatingPhoneAccount = isCreate || phoneMode === "new";
+
+  /**
+   * Switching modes clears the error and the reset offer, because both describe
+   * the OTHER branch's attempt. Leaving "that address is already registered"
+   * on screen after the student has switched to signing in would be reporting a
+   * failure they have already acted on.
+   *
+   * The typed email and password are deliberately KEPT — the student re-submits
+   * the same credentials down the other path, and clearing them would punish
+   * the correction this control exists to make cheap.
+   */
+  const switchEmailMode = (next: "new" | "returning") => {
+    if (busy) return;
+    setError(null);
+    setOfferReset(false);
+    setEmailMode(next);
+  };
+
+  /**
+   * Phone twin of `switchEmailMode`. Clears the error only — the typed NUMBER
+   * is kept, exactly as the email step keeps the typed address, because the
+   * student re-submits the same number down the other branch and clearing it
+   * would punish the correction this control exists to make cheap.
+   *
+   * The typed NAME is kept too: switching to "returning" only stops it being
+   * sent, and a student who switches back should not have to type it twice.
+   */
+  const switchPhoneMode = (next: "new" | "returning") => {
+    if (busy) return;
+    setError(null);
+    setPhoneMode(next);
+  };
+
   const goToStep = (next: DoorStep) => {
     setError(null);
     setOfferReset(false);
@@ -1475,17 +1697,21 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     const trimmedName = name.trim();
     const trimmedEmail = email.trim();
 
-    if (isCreate && !trimmedName) {
-      // The name is REQUIRED on the create door, not optional, and that is a
-      // deliberate call: it is a ONE-WAY DOOR. An account created without a name
-      // cannot be backfilled without asking the student again, so an OPTIONAL
-      // field would close the defect only for students who happened to fill it in
-      // and permanently re-create it for everyone who skipped.
+    // The student has declared which they are, so each branch runs ONE call and
+    // reports its own outcome. No probing, no fallthrough between them.
+    const creating = isCreate || emailMode === "new";
+
+    if (creating && !trimmedName) {
+      // The name is REQUIRED, not optional, and that is a deliberate call: it is
+      // a ONE-WAY DOOR. An account created without a name cannot be backfilled
+      // without asking the student again, so an OPTIONAL field would close the
+      // defect only for students who happened to fill it in and permanently
+      // re-create it for everyone who skipped.
       setError("Enter your name.");
       return;
     }
     if (!trimmedEmail || !password) {
-      setError(isCreate ? "Enter an email and a password." : "Enter your email and password.");
+      setError(creating ? "Enter an email and a password." : "Enter your email and password.");
       return;
     }
     if (password.length < 6) {
@@ -1499,45 +1725,52 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
 
     setBusy(true);
 
-    if (isCreate) {
+    if (creating) {
+      // ── CREATE, DIRECTLY ────────────────────────────────────────────────
+      // One call. The name is already in hand because the field is above the
+      // submit and required, which is what makes this possible at all:
+      // `signUpWithEmailPassword` is the only `updateProfile` in product code,
+      // so a name that is not held HERE can never be set afterwards.
       try {
         await signUpWithEmailPassword(trimmedEmail, password, trimmedName);
         // Navigation (or the verify gate) is handled by the `user` effect.
       } catch (err) {
-        setError(describeAuthError(err));
+        if (authErrorCode(err) === "auth/email-already-in-use") {
+          // ⚠ Enumeration Protection does NOT suppress this code on create —
+          // it covers sign-in only. Every create path in every product can
+          // reach here, including the try-then-create this replaces, so it is
+          // inherent rather than introduced. The copy invites a switch instead
+          // of announcing a finding.
+          setError(EMAIL_TAKEN_MESSAGE);
+          setOfferReset(true);
+        } else {
+          setError(describeAuthError(err));
+        }
         setBusy(false);
       }
       return;
     }
 
-    // ── TRY-THEN-CREATE ────────────────────────────────────────────────────
+    // ── SIGN IN, DIRECTLY ──────────────────────────────────────────────────
+    // ★ ONE call, and its failure is reported on THIS submit. That is the whole
+    // gain of the self-declared control: the previous design had to attempt a
+    // create before it could say anything useful to a student who mistyped a
+    // password, which cost them a second submit. Nothing is probed here, so
+    // nothing has to be inferred.
     try {
       await signInWithEmailPassword(trimmedEmail, password);
-      return; // the `user` effect takes it from here
+      // the `user` effect takes it from here
     } catch (signInErr) {
-      if (!AMBIGUOUS_SIGN_IN_CODES.has(authErrorCode(signInErr))) {
-        // Explainable failure — report it and STOP. Never probe with a write
-        // call after a rate limit, a dead network or a disabled account.
-        setError(describeAuthError(signInErr));
-        setBusy(false);
-        return;
-      }
-    }
-
-    try {
-      // ⚠ COMMITMENT, NOT A PROBE. If no account exists this CREATES one — there
-      // is no dry run, and asking "create one?" first would disclose
-      // non-existence. The verify gate is what catches the typo.
-      await signUpWithEmailPassword(trimmedEmail, password);
-      // Created. The `user` effect routes to the verification gate.
-    } catch (createErr) {
-      if (authErrorCode(createErr) === "auth/email-already-in-use") {
-        // Sign-in failed AND the address is taken ⇒ the account exists and the
-        // password was wrong. This is the ONE case the two calls can separate.
-        setError(WRONG_PASSWORD_MESSAGE);
+      if (AMBIGUOUS_SIGN_IN_CODES.has(authErrorCode(signInErr))) {
+        // ⚠ AMBIGUOUS BY CONSTRUCTION — these codes cannot separate "wrong
+        // password" from "no such account", so the message must not name either
+        // as the cause. See AMBIGUOUS_SIGN_IN_MESSAGE.
+        setError(AMBIGUOUS_SIGN_IN_MESSAGE);
         setOfferReset(true);
       } else {
-        setError(describeAuthError(createErr));
+        // Explainable failure — a rate limit, a disabled account, a dead
+        // network — keeps its own accurate message.
+        setError(describeAuthError(signInErr));
       }
       setBusy(false);
     }
@@ -1597,6 +1830,14 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     if (busy) return;
     setError(null);
     if (phoneStep === "number") {
+      // REQUIRED on the create branch, not optional — the same one-way-door
+      // call the email step makes. An account created without a name cannot be
+      // backfilled from anywhere in the product, so an optional field would
+      // close this defect only for the students who happened to fill it in.
+      if (creatingPhoneAccount && !name.trim()) {
+        setError("Enter your name.");
+        return;
+      }
       if (phone.length !== 10) {
         setError("Enter your 10-digit mobile number.");
         return;
@@ -1619,7 +1860,15 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     }
     setBusy(true);
     try {
-      await verifyPhoneOtp(otp);
+      // ★ The name is typed on the NUMBER step and spent HERE, at confirm —
+      // the only moment a Firebase user exists to attach it to. It survives the
+      // number -> otp transition because nothing on that path clears it:
+      // `goToStep` resets `phoneStep`/`otp` but is not on this path at all, and
+      // `handleChangeNumber` deliberately leaves the name alone.
+      //
+      // Sent only on the create branch; the returning branch passes nothing, so
+      // there is no name to overwrite an existing one with.
+      await verifyPhoneOtp(otp, creatingPhoneAccount ? name.trim() : undefined);
       // Navigation is handled by the `user` effect once auth state updates.
     } catch (err) {
       setError(describeAuthError(err));
@@ -1695,14 +1944,14 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
 
   const trimmedEmail = email.trim();
   const continueLabel = busy
-    ? isCreate
+    ? creatingAccount
       ? "Creating account..."
-      : "Checking..."
-    : isCreate
+      : "Signing in..."
+    : creatingAccount
       ? "Create my account"
       : trimmedEmail
-        ? `Continue as ${trimmedEmail}`
-        : "Continue";
+        ? `Sign in as ${trimmedEmail}`
+        : "Sign in";
 
   const backToOptions = (
     <button
@@ -1757,22 +2006,28 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
             </div>
           </div>
 
-          {/* The after-trial line. "Free trial" reads to a parent as "a card gets
-              charged in seven days"; naming what happens next is what removes
-              that. It is rendered again inside the gate for <1024px, where this
-              whole panel is display:none — see AfterTrialLine. */}
-          <AfterTrialLine variant="panel" />
+          {/* The offer, merged and moved here. It carries the after-trial line
+              (the sentence that stops "free trial" reading as "a card gets
+              charged in seven days") AND the founding rate, so the auth column
+              is left for the act of signing in. A compact mirror without the
+              price renders inside the gate below 1024px, where this whole panel
+              is display:none — see OfferStrip's two variants. */}
+          <OfferStrip variant="panel" />
         </div>
 
-        <div className="lt-login-loop" aria-label="LazyTopper product loop">
-          <span>Exam Trends</span>
-          <strong>to</strong>
-          <span>Practice</span>
-          <strong>to</strong>
-          <span>Check & Improve</span>
-          <strong>to</strong>
-          <span>Me / Progress</span>
-        </div>
+        {/*
+          ⚠ THE BRAND COLUMN ENDS HERE, AND NOTHING REPLACES THE OFFER BLOCK.
+
+          An earlier revision of this lane moved the consent line down here,
+          replacing the product-loop strip. The owner's live-verify reversed it:
+          on a real desktop the line sat BELOW THE FOLD, and a student has no
+          reason to scroll a brand column they are not acting in. Consent has to
+          be visible at the point of action, which is the auth panel — so it is
+          worse than before the move, and the move is gone.
+
+          Leaving this column short is the fix, not a gap to fill: adding
+          anything here brings the scroll back.
+        */}
       </section>
 
       <section className="lt-login-auth-panel" aria-label="Sign in">
@@ -1872,9 +2127,33 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                   become common, and promising them a capability that does not
                   exist is worse than saying nothing.
                 */}
+                {/*
+                  ★★ ONE BLOCK, MERGED FROM TWO — and the merge is a CORRECTNESS
+                  fix, not a tidy-up. This replaced both the old link-warning and
+                  the separate helper note at the foot of the gate, which said
+                  overlapping things in two places.
+
+                  ⚠ "until you link them" IS GONE, because it is FALSE for a
+                  phone-first student. Only `linkWithPhoneNumber` exists, so an
+                  email or Google account can ABSORB a phone while a phone-first
+                  account can never absorb an email. The old copy promised a
+                  capability to precisely the students who do not have it.
+
+                  ★ So it now ADVISES A DIRECTION instead: start with email or
+                  Google, because that is the direction that can absorb a phone
+                  later. Until AUTH-1 builds the other direction, this sentence
+                  is the only thing standing between a student and an
+                  unrecoverable split account. Do not trim it for length.
+
+                  It points at surfaces that ALREADY SHIP: LinkPhoneNudge on
+                  both Homes, LinkSignInMethodModal from the account menus.
+                */}
                 <p className="lt-login-linkwarn" data-testid="lt-link-warning">
-                  <b>Use the same method each time.</b> Email and phone are separate
-                  accounts until you link them.
+                  <b>Use the same method every time.</b> Your attempts, checked answers
+                  and progress stay with that account. Start with email or Google and
+                  you can add your phone later from Home — both then open the same
+                  account. No email? Phone works on its own; just sign in with that
+                  same number each time.
                 </p>
               </>
             ) : step === "email" ? (
@@ -1931,13 +2210,59 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                 ) : (
                   <form onSubmit={handleEmailSubmit} noValidate>
                     <h2 className="lt-login-stephead">Continue with email</h2>
+
+                    {/*
+                      ★★ THE SELF-DECLARATION. Not tabs at the door — the three
+                      methods above are still equal and unclassified. This sits
+                      one level in, on the only method where new and returning
+                      genuinely need different work, and it replaces a guess the
+                      server refuses to answer.
+
+                      `role="group"` rather than `tablist`: these do not switch
+                      between two panels of the same form, they change what the
+                      form DOES. Login.oneDoor.test.tsx asserts zero elements
+                      with role="tab" and that stays true.
+                    */}
+                    {!isCreate ? (
+                      <div
+                        className="lt-login-seg"
+                        role="group"
+                        aria-label="Do you already have an account?"
+                        data-testid="lt-email-mode"
+                      >
+                        <button
+                          type="button"
+                          aria-pressed={emailMode === "new"}
+                          onClick={() => switchEmailMode("new")}
+                          disabled={busy}
+                        >
+                          I'm new here
+                        </button>
+                        <button
+                          type="button"
+                          aria-pressed={emailMode === "returning"}
+                          onClick={() => switchEmailMode("returning")}
+                          disabled={busy}
+                        >
+                          Already have an account
+                        </button>
+                      </div>
+                    ) : null}
+
                     <p className="lt-login-stepsub">
-                      {isCreate
+                      {creatingAccount
                         ? "We'll create your account and start your 7-day trial."
-                        : "If you don't have an account yet, we'll create one."}
+                        : "Welcome back — sign in to pick up where you left off."}
                     </p>
 
-                    {isCreate ? (
+                    {/*
+                      Name FIRST on the create path — before the email, before
+                      the password. Required, never optional: an account created
+                      without a name cannot be backfilled from this page, because
+                      `signUpWithEmailPassword` is the only `updateProfile` in
+                      product code.
+                    */}
+                    {creatingAccount ? (
                       <>
                         <label className="lt-field-label" htmlFor="lt-login-name">
                           Your name
@@ -1947,11 +2272,15 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                             id="lt-login-name"
                             type="text"
                             autoComplete="name"
-                            placeholder="Ananya Sharma"
+                            placeholder="What should we call you?"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                           />
                         </div>
+                        <p className="lt-login-note lt-login-note--between">
+                          This is what LazyTopper calls you on Progress and Mistake
+                          Intelligence.
+                        </p>
                       </>
                     ) : null}
 
@@ -1969,28 +2298,60 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                       />
                     </div>
                     <div className="lt-login-field-row">
+                      {/*
+                        ★ THE LABEL NOW SPLITS, and it is the reset confinement
+                        below that made it possible.
+
+                        An earlier revision kept "Password" on both branches
+                        because Login.forgotPassword.test.tsx resolves this field
+                        by `getByLabelText("Password")` — and a label IS the
+                        accessible name. With reset confined to the returning
+                        branch, that suite always reaches this field on the
+                        returning branch, where the label is still exactly
+                        "Password". So the create branch is free to say what it
+                        means.
+                      */}
                       <label className="lt-field-label" htmlFor="lt-login-password">
-                        Password
+                        {creatingAccount ? "Create a password" : "Password"}
                       </label>
-                      <button
-                        type="button"
-                        className="lt-login-linkbtn lt-login-forgot"
-                        onClick={openReset}
-                        disabled={busy}
-                      >
-                        Forgot password?
-                      </button>
+                      {/*
+                        ⚠ RETURNING BRANCH ONLY — a defect the owner caught on
+                        the preview. Offering "Forgot password?" to a student who
+                        has just declared themselves NEW is offering a reset for
+                        an account that does not exist. It is noise at best, and
+                        at worst it teaches them the flow is confused about who
+                        they are.
+
+                        ★ THE RESET FLOW IS NOT WEAKENED BY THIS. On the
+                        returning branch the link is PERMANENT — on the field
+                        itself, not behind a failed attempt and not in a menu —
+                        and a student who lands on `email-already-in-use` while
+                        creating gets `offerReset`, which renders a reachable
+                        "Reset my password" button below the submit. Both routes
+                        are pinned by tests.
+                      */}
+                      {!creatingAccount ? (
+                        <button
+                          type="button"
+                          className="lt-login-linkbtn lt-login-forgot"
+                          onClick={openReset}
+                          disabled={busy}
+                        >
+                          Forgot password?
+                        </button>
+                      ) : null}
                     </div>
                     <div className="lt-field">
                       <input
                         id="lt-login-password"
                         type="password"
-                        autoComplete={isCreate ? "new-password" : "current-password"}
-                        placeholder={isCreate ? "At least 6 characters" : "Your password"}
+                        autoComplete={creatingAccount ? "new-password" : "current-password"}
+                        placeholder={creatingAccount ? "At least 6 characters" : "Your password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                       />
                     </div>
+
                     {error ? (
                       <p className="lt-login-error" role="alert">
                         {error}
@@ -2020,10 +2381,90 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                   {phoneStep === "number" ? (
                     <>
                       <h2 className="lt-login-stephead">Continue with phone</h2>
+
+                      {/*
+                        ★★ Same control, same `.lt-login-seg` rules as the email
+                        step — DELIBERATELY not a second set of styles, so the
+                        two sub-screens cannot drift and the dark-theme pair is
+                        maintained in one place.
+
+                        `role="group"` with `aria-pressed`, NOT `role="tab"`:
+                        these do not switch between two panels of one form, they
+                        change what the form DOES. Login.oneDoor.test.tsx
+                        asserts zero elements with role="tab" and that holds
+                        with BOTH controls in the file.
+                      */}
+                      {!isCreate ? (
+                        <div
+                          className="lt-login-seg"
+                          role="group"
+                          aria-label="Do you already have an account?"
+                          data-testid="lt-phone-mode"
+                        >
+                          <button
+                            type="button"
+                            aria-pressed={phoneMode === "new"}
+                            onClick={() => switchPhoneMode("new")}
+                            disabled={busy}
+                          >
+                            I'm new here
+                          </button>
+                          <button
+                            type="button"
+                            aria-pressed={phoneMode === "returning"}
+                            onClick={() => switchPhoneMode("returning")}
+                            disabled={busy}
+                          >
+                            Already have an account
+                          </button>
+                        </div>
+                      ) : null}
+
+                      {/*
+                        ⚠ COPY CHANGE, and it is required rather than cosmetic.
+                        This read "New or returning — phone works the same either
+                        way. No password to remember." That stopped being true
+                        the moment the step started asking which one you are.
+
+                        Neither branch discloses whether an account exists: both
+                        strings describe what THIS submit will do, and the
+                        student chose the branch themselves.
+                      */}
                       <p className="lt-login-stepsub">
-                        New or returning — phone works the same either way. No password
-                        to remember.
+                        {creatingPhoneAccount
+                          ? "We'll create your account and start your 7-day trial. No password to remember."
+                          : "Welcome back — we'll text you a code. No password to remember."}
                       </p>
+
+                      {/*
+                        The name, on the create branch only, ABOVE the number —
+                        the same order the email step uses. This is the only
+                        moment a phone-first student can be asked: Firebase
+                        supplies no displayName for a phone credential, and
+                        nothing downstream backfills one.
+                      */}
+                      {creatingPhoneAccount ? (
+                        <>
+                          <label className="lt-field-label" htmlFor="lt-login-phone-name">
+                            Your name
+                          </label>
+                          <div className="lt-field">
+                            <input
+                              id="lt-login-phone-name"
+                              type="text"
+                              autoComplete="name"
+                              placeholder="What should we call you?"
+                              value={name}
+                              onChange={(e) => setName(e.target.value)}
+                            />
+                          </div>
+                          <p className="lt-login-note lt-login-note--between">
+                            This is what LazyTopper calls you on Progress and Mistake
+                            Intelligence.
+                          </p>
+                        </>
+                      ) : null}
+
                       <label className="lt-field-label" htmlFor="lt-login-phone">
                         Mobile number
                       </label>
@@ -2109,11 +2550,11 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
             )}
           </div>
 
-          {/* What the student is actually joining, stated under the primary
-              action. Every figure reads from src/config/pricing.ts; the strip
-              never renders a remaining-seats count. */}
-          <OfferStrip />
-          <AfterTrialLine variant="mobile" />
+          {/* The compact offer — phones only, and WITHOUT the price. The full
+              block with the founding rate lives in the brand panel, which does
+              not exist at this width. Both variants read src/config/pricing.ts;
+              neither ever renders a remaining-seats count. */}
+          <OfferStrip variant="mobile" />
 
           {/*
             Invisible reCAPTCHA host — always mounted (NOT inside the phone
@@ -2122,21 +2563,22 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
           */}
           <div id={recaptchaContainerId} />
 
-          <div className="lt-login-helper">
-            <span className="lt-login-helper-icon" aria-hidden="true">
-              i
-            </span>
-            <span>
-              Use the same Google, email, or phone account you want LazyTopper to
-              remember. Sign-in is required for saved learning actions.
-            </span>
-          </div>
-
           <div className="lt-login-foot">
             <Link to="/" className="lt-login-back-link">
               {isStartTrial ? "<- Back to landing" : "<- Back to home"}
             </Link>
-            <span className="lt-login-terms">
+            {/*
+              ★ ONE MOUNT, EVERY WIDTH — restored to trunk's behaviour after the
+              owner's live-verify. Consent belongs in the column the student is
+              acting in, at the point of action; a desktop mount in the brand
+              column sat below the fold and was strictly worse.
+
+              Unconditional, so there is no width at which a duplicate or an
+              absence is possible — which is also why the tests can assert
+              getAllByRole(...).toHaveLength(1) at BOTH 1440 and 390 with no
+              matchMedia setup at all.
+            */}
+            <span className="lt-login-terms" data-testid="lt-legal-footer">
               By signing in, you agree to our <Link to="/legal/terms">Terms of Service</Link> and{" "}
               <Link to="/legal/privacy">Privacy Policy</Link>
             </span>
