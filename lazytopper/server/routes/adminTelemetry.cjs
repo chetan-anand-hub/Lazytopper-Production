@@ -78,6 +78,46 @@ const TOKEN_METRICS = Object.freeze({
   fallback: 'fallbackCount',
 });
 
+/**
+ * The WORKLOAD axis (TELEMETRY-1) — what the model actually DID, as opposed to
+ * which billing bucket it consumed. Kept in sync with geminiClient's
+ * WORKLOAD_CLASSES by requiring it rather than re-declaring it: two hand-copied
+ * lists that drift is how the signed-out lockout counter went missing above.
+ */
+const {
+  WORKLOAD_CLASSES,
+  UNCLASSIFIED_WORKLOAD,
+} = require('../services/geminiClient.cjs');
+
+const REPORTED_WORKLOAD_CLASSES = Object.freeze([
+  ...WORKLOAD_CLASSES,
+  UNCLASSIFIED_WORKLOAD,
+]);
+
+/**
+ * ★ THE OUTPUT RATE IS NOT A HARDCODED CURRENCY FIGURE. Google bills THINKING at
+ * the OUTPUT rate, which is what makes an input-side optimisation target ~2.5% of
+ * a bill that is 98% output tokens. The rate itself changes and is not this
+ * repo's to assert, so it is read from the environment and the response says
+ * WHICH source it came from. A default is supplied so the endpoint is useful out
+ * of the box, and it is labelled `assumed-default` so no reader can mistake it
+ * for a measurement.
+ *
+ * USD per million tokens, matching how the rate is published. No INR conversion
+ * is performed: an FX rate invented here would be a second unverified number
+ * multiplying the first.
+ */
+const DEFAULT_OUTPUT_RATE_USD_PER_MTOK = 2.5;
+const DEFAULT_INPUT_RATE_USD_PER_MTOK = 0.3;
+
+function envRate(name, fallback) {
+  const raw = process.env[name];
+  if (raw === undefined || raw === '') return { value: fallback, source: 'assumed-default' };
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n < 0) return { value: fallback, source: 'assumed-default' };
+  return { value: n, source: 'env' };
+}
+
 /** Rate-limiter counters worth reading back, same closed-set discipline. */
 const RATE_LIMIT_METRICS = Object.freeze({
   call: 'calls',
@@ -130,6 +170,33 @@ function sumRows(rows) {
     }
   }
   return total;
+}
+
+/**
+ * Cost estimate for one aggregate row.
+ *
+ * ★ THINKING IS CHARGED WITH OUTPUT, and that single line is the reason this
+ * whole endpoint exists: 98% of the 2026-08 increase was one SKU, "Generate
+ * content OUTPUT token count", and thinking is invisible in any estimate derived
+ * from prompt structure. `thoughtsTokenCount + candidatesTokenCount` is therefore
+ * the billable-at-output-rate quantity, not `candidatesTokenCount` alone.
+ */
+function estimateCostUsd(row, outputRate, inputRate) {
+  if (!row) return null;
+  const outputBilled =
+    toNumber(row.thoughtsTokenCount) + toNumber(row.candidatesTokenCount);
+  const inputBilled = toNumber(row.promptTokenCount);
+  const usd =
+    (outputBilled * outputRate) / 1e6 + (inputBilled * inputRate) / 1e6;
+  const calls = toNumber(row.calls);
+  return {
+    outputRateTokens: outputBilled,
+    inputRateTokens: inputBilled,
+    // Six decimals: a single call costs on the order of $0.001-$0.01, so two
+    // would round most real rows to zero.
+    estUsd: Number(usd.toFixed(6)),
+    estUsdPerCall: calls > 0 ? Number((usd / calls).toFixed(6)) : null,
+  };
 }
 
 function createAdminTelemetryRoutes(deps) {
@@ -190,6 +257,78 @@ function createAdminTelemetryRoutes(deps) {
       counters, 'rate_limit', RATE_LIMIT_METRICS, RATE_LIMIT_CLASSES,
     );
 
+    /* ── The WORKLOAD axis (TELEMETRY-1) ─────────────────────────────────────
+       Aggregates come from the counter map, by the same closed-set iteration as
+       everything above — the content firewall is preserved on this axis too.
+       Percentiles come from the sample store in telemetry.cjs, because a
+       percentile cannot be recovered from a sum. */
+    const byWorkload = aggregateByClass(
+      counters, 'gemini_workload', TOKEN_METRICS, REPORTED_WORKLOAD_CLASSES,
+    );
+
+    const outputRate = envRate('GEMINI_OUTPUT_RATE_USD_PER_MTOK', DEFAULT_OUTPUT_RATE_USD_PER_MTOK);
+    const inputRate = envRate('GEMINI_INPUT_RATE_USD_PER_MTOK', DEFAULT_INPUT_RATE_USD_PER_MTOK);
+
+    let workloadStats = { byWorkload: {}, byMarksBand: {} };
+    try {
+      if (telemetry && typeof telemetry.workloadStats === 'function') {
+        workloadStats = telemetry.workloadStats() || workloadStats;
+      }
+    } catch {
+      workloadStats = { byWorkload: {}, byMarksBand: {} };
+    }
+
+    // Attach percentiles + a cost estimate to each exercised workload row.
+    //
+    // ★ ABSENT, NEVER ZERO-FILLED. A workload with no samples gets NO
+    // `thoughtsPercentiles` key at all rather than a triple of zeroes, and a
+    // marks band nobody has graded simply does not appear. A zero p90 in a
+    // budgeting input is indistinguishable from a measured one, and the whole
+    // failure this lane corrects is a proxy standing in for the thing.
+    const workloadDetail = {};
+    for (const [klass, row] of Object.entries(byWorkload)) {
+      const stats = workloadStats.byWorkload && workloadStats.byWorkload[klass];
+      const detail = {
+        ...row,
+        cost: estimateCostUsd(row, outputRate.value, inputRate.value),
+      };
+      if (stats) {
+        detail.sampleSize = toNumber(stats.sampleSize);
+        if (stats.thoughtsPercentiles) detail.thoughtsPercentiles = stats.thoughtsPercentiles;
+        if (stats.latencyMsPercentiles) detail.latencyMsPercentiles = stats.latencyMsPercentiles;
+      }
+      workloadDetail[klass] = detail;
+    }
+
+    // Per-marks-band percentiles — the specific ask, because a 5-mark answer with
+    // photographed working thinks far more than a 1-marker and a single budget
+    // across both is either wasteful or damaging.
+    //
+    // ★ ONE BAND PER MARK VALUE. Deliberately NOT the product's coarse
+    // "1"/"23"/"5"/"4" buckets, which FUSE 2- and 3-mark questions.
+    const byMarksBand = {};
+    for (const [klass, bands] of Object.entries(workloadStats.byMarksBand || {})) {
+      if (!REPORTED_WORKLOAD_CLASSES.includes(klass)) continue;
+      const out = {};
+      for (const [band, stats] of Object.entries(bands || {})) {
+        if (!stats) continue;
+        const row = {
+          calls: toNumber(stats.calls),
+          promptTokenCount: toNumber(stats.promptTokenCount),
+          candidatesTokenCount: toNumber(stats.candidatesTokenCount),
+          thoughtsTokenCount: toNumber(stats.thoughtsTokenCount),
+          totalTokenCount: toNumber(stats.totalTokenCount),
+          latencyMsTotal: toNumber(stats.latencyMsTotal),
+          sampleSize: toNumber(stats.sampleSize),
+        };
+        row.cost = estimateCostUsd(row, outputRate.value, inputRate.value);
+        if (stats.thoughtsPercentiles) row.thoughtsPercentiles = stats.thoughtsPercentiles;
+        if (stats.latencyMsPercentiles) row.latencyMsPercentiles = stats.latencyMsPercentiles;
+        out[band] = row;
+      }
+      if (Object.keys(out).length > 0) byMarksBand[klass] = out;
+    }
+
     // Dynamic label surface — filtered, never trusted.
     const byModel = {};
     for (const [key, value] of Object.entries(counters)) {
@@ -222,6 +361,44 @@ function createAdminTelemetryRoutes(deps) {
       uptimeSeconds: Math.floor(process.uptime()),
       byCallClass,
       totals: sumRows(byCallClass),
+      // ── The workload axis (TELEMETRY-1) ──────────────────────────────────
+      // `byCallClass` answers "which billing bucket"; this answers "what did the
+      // model actually do". `vision` alone covered grading, detect-question AND
+      // worksheet, so a grade could not be told from a warm-pool generation —
+      // and budgeting the grader off that mixed sample budgets the wrong
+      // workload.
+      byWorkload: workloadDetail,
+      // Present ONLY for (workload, band) pairs actually observed. An absent band
+      // means NOT MEASURED, which is the true answer when it is true.
+      byMarksBandNote:
+        'Bands are the question\'s actual mark value, one band per value. A band is '
+        + 'present only where calls carrying that mark value were recorded; absence '
+        + 'means not measured, never zero. Only single-question grading carries marks '
+        + '(see marksAvailability).',
+      byMarksBand,
+      // ★ Which workloads can be banded AT ALL — this is what decides whether a
+      // banded budget is possible, so it is stated rather than left to be
+      // inferred from an empty object.
+      marksAvailability: {
+        banded: ['grade-single'],
+        unbanded: {
+          'detect-question': 'determining the marks is what this call is FOR — nothing upstream knows them',
+          worksheet: 'grades a SET of questions with differing marks; no single band describes it',
+          'grade-batch': 'grades a SET of questions with differing marks; no single band describes it',
+          'step-solution': 'generation is keyed on question+marks but the call is not request-banded here',
+          'warm-pool': 'generates questions rather than grading one; marks are an input, not a property of a student answer',
+        },
+      },
+      costModel: {
+        note:
+          'Google bills THINKING at the OUTPUT rate, so estUsd charges '
+          + '(thoughtsTokenCount + candidatesTokenCount) at the output rate. Rates are '
+          + 'USD per million tokens. No INR conversion is applied.',
+        outputRateUsdPerMTok: outputRate.value,
+        outputRateSource: outputRate.source,
+        inputRateUsdPerMTok: inputRate.value,
+        inputRateSource: inputRate.source,
+      },
       byModel,
       rateLimit: {
         byClass: rateLimitByClass,
@@ -276,4 +453,6 @@ module.exports = {
   RATE_LIMIT_CLASSES,
   TOKEN_METRICS,
   RATE_LIMIT_METRICS,
+  REPORTED_WORKLOAD_CLASSES,
+  estimateCostUsd,
 };

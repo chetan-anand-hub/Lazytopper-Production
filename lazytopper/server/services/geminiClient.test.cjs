@@ -153,6 +153,12 @@ test('a successful call emits a telemetry record with every token + metadata fie
         'thoughtsTokenCount',
         'totalTokenCount',
         'usedFallback',
+        // TELEMETRY-1. A label from a CLOSED SET (WORKLOAD_CLASSES), reviewed on
+        // the same terms as `callClass`: it cannot carry content because an
+        // unrecognised value degrades to `unclassified` rather than passing
+        // through. `marksBand` is deliberately NOT here — it is OMITTED when
+        // unknown, so it is absent from this no-marks call by design (§9.10).
+        'workloadClass',
       ],
       'record shape is frozen — a new field must be reviewed for content leakage'
     );
@@ -782,6 +788,229 @@ test('the schema survives a 429 backoff retry unchanged (the ladders do not inte
     assert.equal(f.seen.length, 2);
     assert.deepEqual(f.seen[1].body.generationConfig.responseSchema, SCHEMA,
       'a 429 is not a structured-output rejection — the schema must be re-sent intact');
+  } finally {
+    f.restore();
+  }
+});
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §9 · TELEMETRY-1 — the WORKLOAD axis.
+
+   The transport axis (`callClass`) answers "which billing bucket". It cannot
+   answer "what did the model DO", because `vision` covers grading,
+   detect-question and worksheet together — so a grade cannot be told from a
+   warm-pool generation, and budgeting the grader off that mixed sample budgets
+   the wrong workload. This axis answers the second question WITHOUT disturbing
+   the first: §5's rate-limiter join above must stay green throughout.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+const {
+  WORKLOAD_CLASSES,
+  UNCLASSIFIED_WORKLOAD,
+  WORKLOAD_BY_HANDLER,
+  classifyWorkload,
+  toMarksBand,
+} = require('./geminiClient.cjs');
+
+// MUTATION VERIFIED: add any workload label to CALL_CLASSES => §5 goes RED.
+test('§9.1 ★★ the two axes are SEPARATE — widening callClass is not how this is done', () => {
+  assert.deepEqual(CALL_CLASSES.slice().sort(), ['practice', 'tutor', 'vision', 'visual'],
+    'the rate-limiter join is unchanged by this lane');
+  for (const w of WORKLOAD_CLASSES) {
+    if (['tutor', 'visual'].includes(w)) continue; // names that legitimately collide
+    assert.equal(CALL_CLASSES.includes(w), false,
+      `"${w}" must NOT be in CALL_CLASSES — that list is pinned to PAID_ENDPOINTS' values`);
+  }
+});
+
+// MUTATION VERIFIED: drop `workloadClass` from the emit call site in callGemini
+// => this goes RED ("expected 'grade-single' to equal 'unclassified'").
+test('§9.2 ★ an explicit workloadClass is recorded on the call', async () => {
+  const f = stubFetch([jsonResponse(okBody())]);
+  const sink = recorder();
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: sink });
+    await client.callGemini('gemini-2.5-flash', CONTENTS, { workloadClass: 'grade-single', marks: 3 });
+    const rec = client.getTokenTelemetry()[0];
+    assert.equal(rec.workloadClass, 'grade-single');
+    assert.equal(rec.marksBand, '3');
+    assert.equal(sink.valueOf('gemini_workload.call.grade-single'), 1);
+  } finally {
+    f.restore();
+  }
+});
+
+test('§9.3 ★ an UNRECOGNISED label degrades to unclassified — it never becomes a new column', async () => {
+  const f = stubFetch([jsonResponse(okBody())]);
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    await client.callGemini('gemini-2.5-flash', CONTENTS, { workloadClass: 'not-a-real-workload' });
+    assert.equal(client.getTokenTelemetry()[0].workloadClass, UNCLASSIFIED_WORKLOAD);
+  } finally {
+    f.restore();
+  }
+});
+
+// MUTATION VERIFIED: remove `generateVariants` from WORKLOAD_BY_HANDLER => RED.
+test('§9.4 ★ a warm-pool call is classified separately, from its own stack frame', async () => {
+  const f = stubFetch([jsonResponse(okBody())]);
+  const sink = recorder();
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: sink });
+    // The real chain: runWarmPool -> warmOne -> generateVariants -> callGemini.
+    async function generateVariants() {
+      return client.callGemini('gemini-2.5-flash', CONTENTS, {});
+    }
+    async function warmOne() { return generateVariants(); }
+    async function runWarmPool() { return warmOne(); }
+    await runWarmPool();
+
+    const rec = client.getTokenTelemetry()[0];
+    assert.equal(rec.workloadClass, 'warm-pool',
+      'the 2026-08-05 pre-warm fired 312 combinations and NOTHING counted them');
+    assert.equal(sink.valueOf('gemini_workload.call.warm-pool'), 1);
+    // CONTROL — it is counted SEPARATELY, not folded into a grading class.
+    assert.equal(sink.valueOf('gemini_workload.call.grade-single'), undefined);
+  } finally {
+    f.restore();
+  }
+});
+
+// ★ THE DIVERGENCE FROM THE TRANSPORT AXIS, ASSERTED. A model-solution generation
+// triggered by the grader is a step-solution WORKLOAD in a vision BUCKET. Both
+// answers are correct and they are different answers.
+// MUTATION VERIFIED: remove `generateModelSolution` from WORKLOAD_BY_HANDLER =>
+// the workload assertion goes RED (reads 'unclassified').
+test('§9.5 ★★ the scheme-first generation is NOT charged to the grade that triggered it', async () => {
+  const f = stubFetch([jsonResponse(okBody())]);
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    async function generateModelSolution() {
+      return client.callGemini('gemini-2.5-flash', CONTENTS, {});
+    }
+    async function handleCheckSolution() { return generateModelSolution(); }
+    await handleCheckSolution();
+
+    const rec = client.getTokenTelemetry()[0];
+    assert.equal(rec.workloadClass, 'step-solution',
+      'the innermost mapped frame wins — otherwise a generation inflates cost-per-grade');
+    assert.equal(rec.callClass, 'vision', 'the BILLING bucket still follows the caller — unchanged');
+  } finally {
+    f.restore();
+  }
+});
+
+test('§9.6 ★ CONTROL — an unmapped stack with no explicit tag reads unclassified, never a guess', () => {
+  assert.equal(classifyWorkload({}, 'at somethingNobodyMapped (/app/x.cjs:1:1)'), UNCLASSIFIED_WORKLOAD);
+  assert.equal(classifyWorkload(null, ''), UNCLASSIFIED_WORKLOAD);
+  // CONTROL that the matcher CAN fire on the same input shape.
+  assert.equal(classifyWorkload({}, '    at async generateVariants (/app/x.cjs:1:1)'), 'warm-pool');
+});
+
+test('§9.7 ★ every value in WORKLOAD_BY_HANDLER is a member of the closed set', () => {
+  for (const [handler, klass] of Object.entries(WORKLOAD_BY_HANDLER)) {
+    assert.ok(WORKLOAD_CLASSES.includes(klass), `${handler} -> "${klass}" is not a known workload`);
+  }
+});
+
+/* ── marks bands: ABSENT, never zero ──────────────────────────────────────── */
+
+// MUTATION VERIFIED: `return null` -> `return '0'` in toMarksBand => RED.
+test('§9.8 ★★ an unknown marks value yields NO band — absent, not zero', () => {
+  assert.equal(toMarksBand(undefined), null);
+  assert.equal(toMarksBand(null), null);
+  assert.equal(toMarksBand(0), null);
+  assert.equal(toMarksBand('not a number'), null);
+  // CONTROL — a real value DOES render a band, so the null above is a decision.
+  assert.equal(toMarksBand(3), '3');
+  assert.equal(toMarksBand(5), '5');
+  assert.equal(toMarksBand(9), '6+');
+});
+
+// ★ 2 AND 3 GET THEIR OWN BANDS. The product's coarse "1"/"23"/"5"/"4" buckets
+// FUSE them (CLAUDE.md §7); a budget banded on a fused bucket is banded on a
+// number that describes neither question.
+test('§9.9 ★ 2-mark and 3-mark are DISTINCT bands — the coarse buckets fuse them', () => {
+  assert.notEqual(toMarksBand(2), toMarksBand(3));
+  assert.equal(toMarksBand(2), '2');
+});
+
+// MUTATION VERIFIED: emit `marksBand` unconditionally => RED (the key appears).
+test('§9.10 ★★ a record with no marks OMITS the key entirely', () => {
+  const withMarks = buildTokenTelemetryRecord({ usageMetadata: {}, workloadClass: 'grade-single', marks: 5 });
+  assert.equal(withMarks.marksBand, '5');
+  assert.equal('marksBand' in withMarks, true, 'CONTROL — the key IS rendered when marks are known');
+
+  const without = buildTokenTelemetryRecord({ usageMetadata: {}, workloadClass: 'detect-question' });
+  assert.equal('marksBand' in without, false,
+    'a marksBand of 0 would become a band in every downstream aggregate and look like data');
+});
+
+/* ── the request is untouched ─────────────────────────────────────────────── */
+
+// ★★ THIS IS THE #578 INVARIANT AT THE GATEWAY. checkSolution.test.cjs §7.1 pins
+// sha256(contents); this pins the OTHER half — that the new config keys cannot
+// reach the body at all.
+// MUTATION VERIFIED: add `body.generationConfig.workloadClass = config.workloadClass`
+// to buildBody => RED.
+test('§9.11 ★★ workloadClass and marks CANNOT reach the outgoing body', async () => {
+  const f = stubFetch([jsonResponse(okBody())]);
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    await client.callGemini('gemini-2.5-flash', CONTENTS, {
+      workloadClass: 'grade-single',
+      marks: 5,
+      temperature: 0.05,
+      maxOutputTokens: 16000,
+    });
+    const sent = f.seen[0].body;
+    assert.deepEqual(sent.contents, CONTENTS, 'contents is byte-identical — #578 cannot move');
+    assert.deepEqual(Object.keys(sent.generationConfig).sort(), ['maxOutputTokens', 'temperature']);
+    assert.equal(JSON.stringify(sent).includes('grade-single'), false);
+    assert.equal(JSON.stringify(sent).includes('workloadClass'), false);
+  } finally {
+    f.restore();
+  }
+});
+
+// ★ THIS LANE IS OBSERVATION, NOT CONTROL.
+test('§9.12 ★★ recording a class introduces NO thinkingBudget and no generationConfig field', async () => {
+  const f = stubFetch([jsonResponse(okBody())]);
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    await client.callGemini('gemini-2.5-flash', CONTENTS, { workloadClass: 'grade-single', marks: 5 });
+    const sent = f.seen[0].body;
+    assert.equal(sent.generationConfig.thinkingConfig, undefined,
+      'NOTHING IS CAPPED IN THIS LANE — SERVER-2 sets a budget FROM this output, later');
+  } finally {
+    f.restore();
+  }
+});
+
+// A telemetry failure must NEVER fail a Gemini call — extended to the new sink call.
+test('§9.13 a sink whose recordWorkloadSample throws does not fail the call', async () => {
+  const f = stubFetch([jsonResponse(okBody())]);
+  try {
+    const client = createGeminiClient({
+      ...GEMINI_CFG,
+      telemetry: {
+        increment: () => {},
+        recordWorkloadSample: () => { throw new Error('telemetry backend exploded'); },
+      },
+    });
+    const result = await client.callGemini('gemini-2.5-flash', CONTENTS, { workloadClass: 'tutor' });
+    assert.ok(result && typeof result.text === 'string');
+  } finally {
+    f.restore();
+  }
+});
+
+test('§9.14 a sink WITHOUT recordWorkloadSample still works (the key is optional)', async () => {
+  const f = stubFetch([jsonResponse(okBody())]);
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: { increment: () => {} } });
+    const result = await client.callGemini('gemini-2.5-flash', CONTENTS, { workloadClass: 'tutor' });
+    assert.ok(result && typeof result.text === 'string');
   } finally {
     f.restore();
   }

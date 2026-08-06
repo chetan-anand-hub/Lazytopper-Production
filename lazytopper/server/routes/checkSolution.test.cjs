@@ -995,3 +995,98 @@ test('§7.14 EVERY per-question upload goes through the image validator — one 
   assert.deepEqual(seen, ['IMG1', 'IMG2'], 'each photo is validated in turn — not just the first');
   assert.equal(h.calls.length, 0);
 });
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §8 · TELEMETRY-1 — every grading call site is TAGGED, and the tag is a
+   TELEMETRY HINT that cannot reach the wire.
+
+   ★ WHY THESE ASSERT ON `genConfig` AND NOT ON A COUNTER. The harness replaces
+   `callGemini` wholesale, so no real telemetry runs here. What this file CAN
+   prove — and what nothing else can — is that each of the three endpoints hands
+   DOWN a distinct, correct label. Whether that label is then recorded is proven
+   in geminiClient.test.cjs, and whether it is reported is proven in
+   adminTelemetry.test.cjs. Three files, three links, no gap.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+const { WORKLOAD_CLASSES } = require('../services/geminiClient.cjs');
+
+test('§8.1 ★ the GRADING call is tagged grade-single AND carries the marks', async () => {
+  const h = buildRoute({ replies: [GOOD_GRADE] });
+  await h.route.handleCheckSolution({ ...SUBJECTIVE_REQ(), marks: 5 }, {});
+  const cfg = h.calls[0].genConfig;
+  assert.equal(cfg.workloadClass, 'grade-single');
+  assert.equal(cfg.marks, 5,
+    'marks ARE available at this call site — this is what makes a banded budget possible');
+});
+
+test('§8.2 ★ a grading call and a detect-question call land in DIFFERENT classes', async () => {
+  const grade = buildRoute({ replies: [GOOD_GRADE] });
+  await grade.route.handleCheckSolution(SUBJECTIVE_REQ(), {});
+  const detect = buildRoute({ replies: [{ detectedMarks: 3, detectedSubject: 'Maths' }] });
+  await detect.route.handleDetectQuestion({ question: 'What is x?' }, {});
+
+  assert.equal(grade.calls[0].genConfig.workloadClass, 'grade-single');
+  assert.equal(detect.calls[0].genConfig.workloadClass, 'detect-question');
+  assert.notEqual(
+    grade.calls[0].genConfig.workloadClass,
+    detect.calls[0].genConfig.workloadClass,
+    'both were `vision` before this lane, which is why a grade could not be told from a detect',
+  );
+});
+
+test('§8.3 ★ DETECT carries NO marks — determining them is what the call is FOR', async () => {
+  const h = buildRoute({ replies: [{ detectedMarks: 3, detectedSubject: 'Maths' }] });
+  await h.route.handleDetectQuestion({ question: 'What is x?', marks: 3 }, {});
+  assert.equal(h.calls[0].genConfig.marks, undefined,
+    'a band here would be fabricated from the answer the call has not produced yet');
+});
+
+test('§8.4 ★ ONE call site, TWO workloads: uploads => grade-batch, no uploads => worksheet', async () => {
+  const ws = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await ws.route.handleGradeWorksheet(PINNED_REQ(), {});
+  assert.equal(ws.calls[0].genConfig.workloadClass, 'worksheet');
+
+  const batch = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await batch.route.handleGradeWorksheet({ ...PINNED_REQ(), uploads: [UP(1)] }, {});
+  assert.equal(batch.calls[0].genConfig.workloadClass, 'grade-batch',
+    'N answer photos is a different read from one PDF — derived from the request, not guessed');
+});
+
+test('§8.5 ★ the SET graders carry NO marks — a set of differing marks has no single band', async () => {
+  const ws = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await ws.route.handleGradeWorksheet(PINNED_REQ(), {});
+  assert.equal(ws.calls[0].genConfig.marks, undefined,
+    'PINNED_REQ mixes a 3-mark and a 1-mark question — banding it on either would be a fabrication');
+});
+
+test('§8.6 ★ NO grading call site falls through to unclassified by accident', async () => {
+  const grade = buildRoute({ replies: [GOOD_GRADE] });
+  await grade.route.handleCheckSolution(SUBJECTIVE_REQ(), {});
+  const detect = buildRoute({ replies: [{ detectedMarks: 3, detectedSubject: 'Maths' }] });
+  await detect.route.handleDetectQuestion({ question: 'q' }, {});
+  const ws = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await ws.route.handleGradeWorksheet(PINNED_REQ(), {});
+
+  const tags = [grade, detect, ws].map((h) => h.calls[0].genConfig.workloadClass);
+  for (const tag of tags) {
+    assert.ok(tag, 'a missing tag falls to `unclassified`, which is what 83 of 84 calls read on 2026-08-05');
+    assert.ok(WORKLOAD_CLASSES.includes(tag), `"${tag}" is not in the closed set`);
+  }
+  assert.equal(new Set(tags).size, 3, `three endpoints, three classes — got ${JSON.stringify(tags)}`);
+});
+
+test('§8.7 ★★ CONTROL — the tags are TELEMETRY-ONLY and change NOTHING about the request', async () => {
+  // The properties #578 and PR-C2 pin, re-asserted with the tags present. If a tag
+  // had leaked into a generationConfig field, one of these would move.
+  const grade = buildRoute({ replies: [GOOD_GRADE] });
+  await grade.route.handleCheckSolution(SUBJECTIVE_REQ(), {});
+  assert.equal(grade.calls[0].genConfig.maxOutputTokens, 16000);
+  assert.equal(grade.calls[0].genConfig.thinkingConfig, undefined,
+    'THIS LANE IS OBSERVATION, NOT CONTROL — no thinking budget is introduced here');
+  assert.equal(grade.calls[0].genConfig.responseSchema, GRADE_RESPONSE_SCHEMA);
+
+  const detect = buildRoute({ replies: [{ detectedMarks: 3, detectedSubject: 'Maths' }] });
+  await detect.route.handleDetectQuestion({ question: 'q' }, {});
+  assert.deepEqual(detect.calls[0].genConfig.thinkingConfig, { thinkingBudget: 0 },
+    'the ONE pre-existing budget in the server is untouched');
+});
