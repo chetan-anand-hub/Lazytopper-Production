@@ -1090,3 +1090,158 @@ test('§8.7 ★★ CONTROL — the tags are TELEMETRY-ONLY and change NOTHING ab
   assert.deepEqual(detect.calls[0].genConfig.thinkingConfig, { thinkingBudget: 0 },
     'the ONE pre-existing budget in the server is untouched');
 });
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §9 · TYPED-1 — a CHANNEL for the student's TYPED working.
+
+   ★★ THE GAP. Rule 1's batch branch has always told the model to "grade the typed
+      answer given in its block IF ONE IS SHOWN". No block ever showed one: that
+      clause and `blockFor` were born in the SAME commit (c5570592, BATCH-1) and the
+      guard has never once been met. A student who types instead of photographing —
+      the free-tier path, no camera to hand or working on a laptop — had NO channel
+      into a batch grade at all.
+
+   ★★ WHY THE CONDITION IS THE WHOLE DESIGN. `blockFor` feeds BOTH prompt paths, and
+      the no-uploads one is pinned BYTE-IDENTICAL by §7.1's sha256 across four live
+      surfaces. So the emission is conditional on a non-empty `textAnswer`: §9.3
+      proves the absent case is unchanged, and §9.5 proves — as a POSITIVE CONTROL —
+      that the pin CAN still see this field when it IS present. An "unchanged" claim
+      from an assertion that could not have detected a change is worth nothing.
+
+   ★ IT ADDS NO PART. The typed text goes inside the question's OWN existing text
+      part, so `buildUploadParts` still emits one text part per question and one
+      image part per upload. §9.4 proves the interleave's pairing is unmoved rather
+      than assuming it.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+const TYPED = 'Let x be the smaller root.\nx^2 - 2x - 8 = 0 -> (x-4)(x+2) = 0\nSo x = 4 or x = -2.';
+const shaOf = (h) => crypto.createHash('sha256').update(JSON.stringify(h.calls[0].contents)).digest('hex');
+
+test("§9.1 ★ NO-UPLOADS path: a typed answer is EMITTED in that question's block", async () => {
+  const h = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await h.route.handleGradeWorksheet(
+    WORKSHEET_REQ([Q(1, { textAnswer: TYPED }), Q(2)]), {});
+  const text = textOf(h);
+  assert.ok(text.includes("The student's typed answer is:"),
+    'rule 1 promises the model a typed answer "if one is shown" — this is the showing');
+  assert.ok(text.includes('(x-4)(x+2) = 0'), "the student's OWN working must reach the model verbatim");
+  // POSITIVE: it sits inside Q1's block, not appended to the end of the prompt.
+  const q1 = text.slice(text.indexOf('Q1 text'), text.indexOf('Q2 text'));
+  assert.ok(q1.includes("The student's typed answer is:"),
+    'the typed answer belongs to the question it was typed for');
+  // NEGATIVE: Q2 typed nothing, so Q2's block must claim nothing.
+  const q2 = text.slice(text.indexOf('Q2 text'));
+  assert.ok(!q2.includes("The student's typed answer is:"),
+    'a question with no typed answer must not be given one');
+});
+
+test('§9.2 ★ UPLOADS path: the SAME emission happens at the interleave call site', async () => {
+  // `blockFor` has exactly TWO call sites — `questions.map(blockFor)` and the push
+  // inside `buildUploadParts`. Emitting at only one is mutation M2, and this is the
+  // assertion that catches it.
+  const h = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await h.route.handleGradeWorksheet(
+    { ...WORKSHEET_REQ([Q(1, { textAnswer: TYPED }), Q(2)]), uploads: [UP(2)] }, {});
+  const parts = partsOf(h);
+  const i1 = parts.findIndex((p) => typeof p.text === 'string' && p.text.includes('Q1 text'));
+  assert.ok(parts[i1].text.includes("The student's typed answer is:"),
+    'Q1 typed its working and photographed nothing — the batch path must carry the typing');
+  assert.ok(parts[i1].text.includes('(x-4)(x+2) = 0'));
+});
+
+test('§9.3 ★★ ABSENT typed answer ⇒ the block is BYTE-IDENTICAL to before the field existed', async () => {
+  // Three spellings of "nothing typed" must produce the same bytes as omitting the
+  // key entirely: empty string, whitespace only, and null. A client that always
+  // sends the key is the likeliest real shape — §7.2 made the same argument for
+  // `uploads: []`.
+  const base = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await base.route.handleGradeWorksheet(PINNED_REQ(), {});
+  for (const [label, value] of [['empty string', ''], ['whitespace only', '   \n  '], ['null', null]]) {
+    const req = PINNED_REQ();
+    req.questions = req.questions.map((q) => ({ ...q, textAnswer: value }));
+    const h = buildImageRoute({ replies: [WS_OK([1, 2])] });
+    await h.route.handleGradeWorksheet(req, {});
+    assert.deepEqual(h.calls[0].contents, base.calls[0].contents, `"${label}" must not change one byte`);
+  }
+  // And the same on the uploads path, where the block is its own part.
+  const u0 = buildImageRoute({ replies: [WS_OK([1])] });
+  await u0.route.handleGradeWorksheet({ ...WORKSHEET_REQ([Q(1)]), uploads: [UP(1)] }, {});
+  const u1 = buildImageRoute({ replies: [WS_OK([1])] });
+  await u1.route.handleGradeWorksheet({ ...WORKSHEET_REQ([Q(1, { textAnswer: '  ' })]), uploads: [UP(1)] }, {});
+  assert.deepEqual(u1.calls[0].contents, u0.calls[0].contents);
+});
+
+test('§9.4 ★ the IMAGE-PAIRING invariant survives — a typed block shifts NO image', async () => {
+  // The failure this guards against: if the typed answer were pushed as its OWN
+  // part, every image after it would slide one question along and Q2 would be graded
+  // against Q1's photo. Q1 and Q3 type; Q2 does not; all three photograph.
+  const h = buildImageRoute({ replies: [WS_OK([1, 2, 3])] });
+  await h.route.handleGradeWorksheet({
+    ...WORKSHEET_REQ([Q(1, { textAnswer: TYPED }), Q(2), Q(3, { textAnswer: 'x = 7' })]),
+    uploads: [UP(1), UP(2), UP(3)],
+  }, {});
+  const parts = partsOf(h);
+  assert.equal(parts.length, 8, 'header + 3x(block,image) + footer — the typed text added NO part');
+  for (const n of [1, 2, 3]) {
+    const i = parts.findIndex((p) => typeof p.text === 'string' && p.text.includes('Q' + n + ' text'));
+    assert.ok(isImage(parts[i + 1]), 'Q' + n + "'s image must still be the VERY NEXT part");
+    assert.equal(parts[i + 1].inline_data.data, 'IMG' + n,
+      'Q' + n + ' must still carry its OWN image — an off-by-one here IS the stitching bug');
+  }
+  // A question may carry BOTH typed working AND a photo; neither suppresses the other.
+  const i1 = parts.findIndex((p) => typeof p.text === 'string' && p.text.includes('Q1 text'));
+  assert.ok(parts[i1].text.includes("The student's typed answer is:"));
+  assert.equal(parts.filter(isImage).length, 3);
+});
+
+test("§9.5 ★★ POSITIVE CONTROL — a PRESENT typed answer DOES move §7.1's sha256; an ABSENT one does not", async () => {
+  // §7.1 asserts a fixed hash and passes. On its own that is equally consistent with
+  // a pin that has gone BLIND to this field. This proves it has not: the same
+  // fixture with one typed answer added hashes DIFFERENTLY. That is what makes
+  // §7.1's green evidence rather than decoration.
+  const absent = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await absent.route.handleGradeWorksheet(PINNED_REQ(), {});
+  assert.equal(shaOf(absent), NO_UPLOADS_CONTENTS_SHA256, 'absent ⇒ the pinned prompt, unchanged');
+
+  const req = PINNED_REQ();
+  req.questions[0] = { ...req.questions[0], textAnswer: TYPED };
+  const present = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await present.route.handleGradeWorksheet(req, {});
+  assert.notEqual(shaOf(present), NO_UPLOADS_CONTENTS_SHA256,
+    'were these equal, the typed answer never reached the model and §9.1 is testing a mirage');
+});
+
+test('§9.6 ★ the typed working is FENCED and its newlines are PRESERVED', async () => {
+  const h = buildImageRoute({ replies: [WS_OK([1])] });
+  await h.route.handleGradeWorksheet(WORKSHEET_REQ([Q(1, { textAnswer: TYPED })]), {});
+  const text = textOf(h);
+  assert.ok(text.includes('"""\n' + TYPED + '\n'),
+    'the working sits inside the same """ fence the SINGLE-question grader has used since 57224f49');
+  assert.ok(text.includes('\nSo x = 4 or x = -2.'),
+    "collapsing the student's newlines would merge their steps into one line and lose the step marking");
+});
+
+test('§9.7 ★ a typed answer alone reaches the model — the free-tier path is not a 400', async () => {
+  const h = buildImageRoute({ replies: [WS_OK([1])] });
+  await h.route.handleGradeWorksheet(
+    { worksheetId: 'w', subject: 'Maths', imageBase64: 'PDFB64', imageMimeType: 'application/pdf',
+      questions: [Q(1, { textAnswer: TYPED })] }, {});
+  assert.equal(h.body().ok, true);
+  assert.equal(h.calls.length, 1);
+  assert.ok(textOf(h).includes('So x = 4 or x = -2.'));
+});
+
+test('§9.8 ★ the CAP the client can now read is the SAME number the server refuses above', async () => {
+  // `src/config/gradingLimits.ts` exports 12 as a UI hint. The hint must never
+  // BECOME the guard: this re-asserts the server's own 400 with typed working
+  // present, so a future lane that "moves the check to the client" turns it red.
+  // The two numbers are pinned equal by `src/config/gradingLimits.guard.test.ts`,
+  // which reads this very file.
+  const many = Array.from({ length: 13 }, (_, i) => i + 1);
+  const h = buildImageRoute({ replies: [WS_OK(many)] });
+  await h.route.handleGradeWorksheet(
+    { ...WORKSHEET_REQ(many.map((n) => Q(n, { textAnswer: 'typed' }))), uploads: many.map((n) => UP(n)) }, {});
+  assert.equal(h.status(), 400, 'typed working does not buy a way past the upload cap');
+  assert.match(h.body().error, /at most 12/);
+  assert.equal(h.calls.length, 0);
+});
