@@ -271,3 +271,73 @@ response to a false 1.09:1 is to relax the threshold, which then hides the true 
 contrast check added anywhere in this repo must composite alpha AND handle gradient backdrops.
 Reference figures, verified twice (computed and in-browser, agreeing exactly): white `#ffffff` on
 `#16b96a` = **2.57:1 (fails)**; navy `#071a3d` on `#16b96a` = **6.68:1 (passes)**.
+
+## D39 — A vacuous guard reads exactly like a real one, and only DIFFERENTIAL MUTATION tells them apart
+
+`Login.oneDoor.test.tsx` carries `expect(screen.queryAllByRole("tab")).toHaveLength(0)` — the pin
+protecting AUTH-3's ruling that the door has no new-vs-returning tabs. It had been green since
+AUTH-3. **It never opens the phone step**, so when `NAME-2` added a segmented control there, that
+assertion could not have caught a `role="tab"` regression on it. Its green was indistinguishable
+from its absence.
+
+`#623` mutated `role="group"` to `role="tab"` on the phone control **once**, then ran both suites
+against the same mutated tree: the new `Login.phoneNameCapture.test.tsx` went **RED (2 failed)** and
+`Login.oneDoor.test.tsx` stayed **GREEN (26 passed)**.
+
+★★ LESSON: **a single-suite mutation run would have reported a red and concluded the guard worked.**
+The red came from the new test; the old one was asleep. **When two suites claim the same invariant,
+mutate once and check BOTH** — and treat a suite that stays green under a mutation it should catch
+as **absent**, whatever its name says. A negative assertion (`toHaveLength(0)`, `queryBy… → null`)
+passes just as happily when the thing it guards was never rendered in the first place, which is why
+every absence claim in this repo is required to ship with a control that renders the thing.
+
+⚠ **Not fixed.** `Login.oneDoor.test.tsx`'s assertion is still scoped to whichever step it happens to
+have open. `[FU-DOOR-TAB-GUARD-MISSED-PHONE-STEP]`.
+
+## D40 — A mutation that cannot land must be recorded GREEN, never silently swapped for one that works
+
+`NAME-2`'s brief specified six mutations. **M4 — "clear the name in `goToStep` → test 4 red" — could
+not go red**, because `goToStep` runs on step **ENTRY**, before the student has typed anything; it is
+not on the `number → otp` path at all. The lane fired it anyway and got `Tests 15 passed (15)`.
+
+It then **recorded that green in its report**, and separately built the honest mutation — clearing
+the name where `setPhoneStep("otp")` is called, which is on the path — which went **red on four
+tests**.
+
+★★ LESSON: the tempting move is to quietly substitute the working mutation and report six clean reds.
+That would have been a **strictly worse outcome than a failing test**: the mutation table would have
+looked perfect while concealing that **the spec's model of the flow was wrong**, and the next lane to
+touch this step would have inherited the same wrong model. **A mutation is evidence about the code
+AND about the spec. Report both readings.**
+
+★ Corollary already standing in this repo (`fresh-worktree` era): assert `mutated-sha != baseline-sha`
+**before** recording any red, or a mutation that never applied reads as a passing guard. D40 is the
+mirror case — the mutation applied perfectly and still proved nothing about what it claimed to.
+
+## D41 — PowerShell `Measure-Object -Line` is not `wc -l`: it silently excludes blank lines
+
+`(Get-Content $file | Measure-Object -Line).Lines` **does not count blank lines.** Verified both
+directions on `lazytopper/src/pages/Login.tsx` at `ecacdfed`:
+
+```
+git show ecacdfed:.../Login.tsx | wc -l                    -> 2457   (real lines)
+git show ecacdfed:.../Login.tsx | grep -c '[^[:space:]]'   -> 2230   (non-blank)
+Get-Content <branch copy> | Measure-Object -Line           -> 2368
+(Get-Content <branch copy>).Count                          -> 2604   (real lines)
+```
+
+`Measure-Object -Line` returns the **non-blank** count, exactly.
+
+★ **This produced a wrong finding in a report.** `#623` measured 2230, compared it against the
+brief's cite `Login.tsx:2318`, concluded the line was out of range, and recorded the cite as **stale**
+in its report and its PR body. **The cite was correct** — `New or returning` sits at exactly `:2318`.
+**A correct measurement of the wrong quantity, published as a fact about someone else's document.**
+
+★★ LESSON, and it is the general one: **the error was invisible because the number was real.** It
+came from a real command run against the real file, so nothing about it looked like a guess — which
+is precisely why it would have survived being copied into a third document. **Any number that will be
+compared against a line number must come from `wc -l` or `(Get-Content).Count`.**
+
+★ The lane's recommendation — **cite by quote or symbol, not by line** — survives its own error, but
+the reason inverts: not because line cites go stale, but because **verifying a line cite is itself
+easy to get wrong.** `[FU-PS-MEASURE-OBJECT-SKIPS-BLANKS]`.
