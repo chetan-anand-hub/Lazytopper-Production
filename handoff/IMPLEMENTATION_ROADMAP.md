@@ -1,6 +1,44 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-08-06 — #623 **COMPLETE** (one standalone lane, trunk `2ca9a3d0`) — the phone path names its students, live-verified on a real handset
+
+**STAGES COMPLETE:**
+- **`NAME-2` (#623)** — the phone number step captures a name. A self-declared segmented control
+  reusing `.lt-login-seg` ("I'm new here" pre-selected, `role="group"`, `data-testid="lt-phone-mode"`),
+  a required `Your name` field on the create branch only, and per-branch copy replacing the retired
+  *"phone works the same either way"* line. `verifyPhoneOtp` gained a **PARAMETER, not a key** —
+  `(code, displayName?)` — so `AuthContext.passwordReset.test.tsx` passed **unmodified** and none of
+  the ~25 `vi.mock` factories were touched. `updateProfile` fires **only when the user has no
+  `displayName`**, then re-syncs. **Six files, `App.tsx` zero-diff.**
+  **CI `31094918947`: `Tests 1416 passed (1416)`, root matrix `196/196`, `# skipped 0`.**
+  ★★ **OWNER LIVE-VERIFIED ON A REAL HANDSET** — a real phone account with a real name confirmed in
+  Firebase Console → Display Name, the returning branch showing no name field, and **the no-overwrite
+  guard proven by a second sign-in on the same number**, which is a check no test could make.
+
+**CLOSED BY THIS LANE:**
+- **`[FU-AUTH-PHONE-DISPLAYNAME-NEVER-SET]`** — ★ **for NEW accounts only.** The email path closed at
+  `#616`; the phone path closes here. The nameless-account defect is now shut on all three methods
+  **going forward**.
+
+**NOT CLOSED, AND SHARPENED RATHER THAN RELIEVED:**
+- ⚠ **`[FU-AUTH-DISPLAYNAME-NO-BACKFILL]`** — nothing repairs accounts created **before** `#623`.
+  ★★ **A SEQUENCING CONSTRAINT ON THE ~50-STUDENT QA PASS**, not a nice-to-have: run that pass on
+  pre-`#623` accounts and fifty students start permanently nameless. Either recruit the cohort fresh
+  after `#623`, or land a backfill lane first.
+- **`[FU-AUTH-EMAIL-LINK-DIRECTION]`** — `AUTH-1`'s, **runs alone**, needs new context keys (exactly
+  what this lane avoided). **Split accounts are unrecoverable by design.**
+
+**UNCHANGED BY THIS LANE — still the head of Wave 5F:**
+- **`WIRE-2`** — the Quick Practice results surface is **BUILT AND UNREACHABLE**. `#578`, `#611` and
+  `#617` are all merged and called by nothing; **`WIRE-2` is the single lane that ends all three.**
+  Specced, on disk, **not dispatched.**
+
+---
+
 ## 2026-08-06 — #615-#616 **COMPLETE** (two standalone owner-run lanes, trunk `1b477e5f`) — the login door reworked and live-verified, and a canonical that finally resolves
+
+⚠ **Its `NAME-2` row below — "logged, not built" — is CLOSED BY `#623`.** Left as written; it was
+true on its date.
 
 **STAGES COMPLETE:**
 - **`META-3` (#615)** — sitemap trimmed **four URLs → three**; canonical moved to
