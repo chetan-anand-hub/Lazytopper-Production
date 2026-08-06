@@ -1284,17 +1284,47 @@ function createCheckSolutionRoute(deps) {
         'Grade EACH question against ITS OWN marking scheme, exactly as a real teacher marking with a red pen. ' +
         'Respond ONLY with valid JSON, no markdown fences.';
 
+    // ── TYPED-1 · the student's TYPED working, when they typed instead of
+    // photographing ─────────────────────────────────────────────────────────
+    // ★ THE GAP THIS CLOSES. Rule 1's batch branch already tells the model to
+    // "grade the typed answer given in its block if one is shown" — but no block
+    // has ever shown one, because `blockFor` emitted only the question and its
+    // scheme. That clause and this function were born in the same commit
+    // (c5570592, BATCH-1) and the `if one is shown` guard has never once been
+    // met. Typed working is the free-tier path (no camera to hand, or a laptop),
+    // so a batch grade silently had NO channel for it.
+    //
+    // ★ THE SHAPE IS NOT NEW. It mirrors the SINGLE-question grader verbatim —
+    // `handleCheckSolution` has emitted `The student's typed answer is:` inside a
+    // `"""` fence since 57224f49. One convention, two paths.
+    //
+    // ★★ CONDITIONAL, AND THAT IS THE REGRESSION GUARD. With no typed answer the
+    // returned block is BYTE-IDENTICAL to before, which is what keeps #578's
+    // sha256(contents) pin over the four no-uploads surfaces (worksheets, chapter
+    // tests, full mocks, multi-question C&I) intact. See §7.1 and §9 of
+    // checkSolution.test.cjs.
+    //
+    // ★ IT ADDS NO PART, SO IT CANNOT MOVE THE PAIRING. This text goes INSIDE the
+    // question's own existing part; `buildUploadParts` still pushes exactly one
+    // text part per question and one image part per upload, so "the image
+    // immediately after a question's block is that question's answer" is
+    // untouched. §9.4 asserts that rather than assuming it.
     const blockFor = (q) => {
         const scheme = Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0
           ? '\n     Marking scheme:\n' +
             q.solutionSteps.map((s, i) => '       Step ' + (i + 1) + ': ' + String(s)).join('\n') +
             (q.finalAnswer ? '\n       Final answer: ' + String(q.finalAnswer) : '')
           : '';
+        const typed = String((q && q.textAnswer) || '').trim();
+        const typedBlock = typed
+          ? '\n     The student\'s typed answer is:\n     """\n' + typed + '\n     """'
+          : '';
         return (
           '  Q' + q.qNumber + '. [' + (Number(q.marks) || 1) + ' mark(s)' +
           (q.topicLabel || q.topic ? ' · ' + String(q.topicLabel || q.topic) : '') + ']\n' +
           '     ' + String(q.questionText || '').replace(/\n/g, ' ') +
-          scheme
+          scheme +
+          typedBlock
         );
     };
 
@@ -1518,6 +1548,13 @@ function createCheckSolutionRoute(deps) {
         solutionSteps: Array.isArray(q && q.solutionSteps) ? q.solutionSteps.map(String) : null,
         finalAnswer: q && q.finalAnswer ? String(q.finalAnswer).trim() : null,
         correctOption: q && q.correctOption ? String(q.correctOption).trim() : null,
+        // TYPED-1 (additive): the student's TYPED working for this question, for a
+        // student who typed instead of photographing. Empty for every existing
+        // caller, and `blockFor` emits nothing for an empty value — so the prompt
+        // the four no-uploads surfaces send stays byte-identical. Coerced and
+        // trimmed exactly like the single-question path's `payload.textAnswer`
+        // (57224f49); '' rather than null because `blockFor` tests emptiness.
+        textAnswer: String((q && q.textAnswer) || '').trim(),
       }))
       .filter((q) => q.qNumber > 0 && q.questionText);
 
