@@ -701,3 +701,58 @@ describe("13 · above the photo cap the excluded set is named, never a bare 400"
       .toBeInTheDocument();
   }, 120_000);
 });
+
+// ---------------------------------------------------------------------------
+// 14 · ★★ NO RAW `\uXXXX` ESCAPE REACHES A STUDENT'S SCREEN.
+//
+// Found by a SCREENSHOT, not by an assertion: the confirmation step rendered the six
+// literal characters `·` where a middle dot belonged. `\uXXXX` is a JS escape and
+// decodes inside a string or template literal — but a JSX TEXT NODE is not a string
+// literal, so `<span>Saved · free</span>` renders the backslash. `PracticePage.tsx`
+// is written with `\uXXXX` escapes throughout, which makes this a standing trap in this
+// file specifically, and TWO instances were live: the one this lane added and
+// `"Marked now · free"`, which #621 shipped. Both now sit inside string literals.
+//
+// ★ This asserts the RENDERED text, so it catches the class, not the two instances.
+// ---------------------------------------------------------------------------
+describe("14 · no raw unicode escape reaches the student", () => {
+  const RAW_ESCAPE = /\\u[0-9a-fA-F]{4}/;
+
+  it("★★ the confirmation step renders no literal \\uXXXX — and the middle dots are real", async () => {
+    await buildSet([mkItem(1, true), mkItem(2, false), mkItem(3, false)]);
+    // An MCQ pick lights the "Marked now · free" label (#621's own instance) …
+    fireEvent.click(await screen.findByRole("button", { name: /q1-correct/ }));
+    // … and a photo lights the "Ready to grade" rows.
+    await saveAPhotoFor(2);
+    finish();
+    const confirm = await screen.findByTestId("qp-confirm");
+    expect(confirm.textContent ?? "").not.toMatch(RAW_ESCAPE);
+    // ★ CONTROL — the labels that carry a middle dot DID render, with a real one, so the
+    // clean scan above is not merely a screen with nothing on it.
+    expect(within(confirm).getByText("Marked now · free")).toBeInTheDocument();
+    expect(within(confirm).getByText(/^Photo · 3 marks$/)).toBeInTheDocument();
+  });
+
+  it("★★ the over-cap rows render no literal \\uXXXX either", async () => {
+    await buildSet(
+      Array.from({ length: MAX_BATCH_UPLOADS + 1 }, (_, i) => mkItem(i + 1, false)),
+      { count: MAX_BATCH_UPLOADS + 1 },
+    );
+    for (let n = 1; n <= MAX_BATCH_UPLOADS + 1; n += 1) await saveAPhotoFor(n);
+    finish();
+    const confirm = await screen.findByTestId("qp-confirm");
+    expect(confirm.textContent ?? "").not.toMatch(RAW_ESCAPE);
+    // CONTROL — the held-back row is on screen, with its real middle dot.
+    expect(within(confirm).getByText("Saved · not in this grade")).toBeInTheDocument();
+  }, 120_000);
+
+  it("★ the graded sheet renders no literal \\uXXXX", async () => {
+    gradeWorksheet.mockResolvedValue(okBatch([okGrade(1)]));
+    await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, false)]);
+    await saveTypedFor(1);
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    await waitFor(() => expect(screen.getByText("Diagnosed from your working")).toBeInTheDocument());
+    expect(document.body.textContent ?? "").not.toMatch(RAW_ESCAPE);
+  });
+});

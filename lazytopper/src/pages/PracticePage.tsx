@@ -2864,7 +2864,7 @@ const packTopicKey = useMemo(() => {
         <div className="qp-cf__body">
           {markedNowRows.length > 0 && (
             <>
-              <div className="qp-cf__lbl">Marked now \u00b7 free</div>
+              <div className="qp-cf__lbl">{"Marked now \u00b7 free"}</div>
               {markedNowRows.map((r) => (
                 <div key={`now-${r.tag}`} className={`qp-cf__row qp-cf__row--${r.tone}`}>
                   <span className="qp-cf__tag">{r.tag}</span>
@@ -2908,7 +2908,7 @@ const packTopicKey = useMemo(() => {
               {batchSelection.overCap.map((a) => (
                 <div key={`cap-${a.qNumber}`} className="qp-cf__row">
                   <span className="qp-cf__tag">{`Q${a.qNumber}`}</span>
-                  <span>Saved \u00b7 not in this grade</span>
+                  <span>{"Saved \u00b7 not in this grade"}</span>
                 </div>
               ))}
             </>
