@@ -127,9 +127,30 @@ async function openResetPane() {
   // form — and with it "Forgot password?" — is one step in. The reset flow
   // itself is unchanged, and everything below this line still pins it.
   await user.click(screen.getByRole("button", { name: /Continue with email/ }));
+  // NAME-1 v2: the email step opens on a self-declared mode with "I'm new here"
+  // pre-selected, and reset is confined to the RETURNING branch — offering a
+  // student who just declared themselves new a reset for an account that does
+  // not exist was a defect. So the path is one click longer.
+  //
+  // ⚠ CLICK-PATH ONLY. Not one assertion in this file was weakened, softened or
+  // removed to accommodate it; every behaviour proved here before is still
+  // proved here.
+  await user.click(screen.getByRole("button", { name: "Already have an account" }));
   await user.click(screen.getByRole("button", { name: "Forgot password?" }));
   const form = await screen.findByRole("form", { name: "Reset your password" });
   return { user, form };
+}
+
+/**
+ * ★ Walk to the returning branch's password form WITHOUT opening reset —
+ * for the tests that assert where the link does and does not render.
+ */
+async function openReturningEmailStep() {
+  const user = userEvent.setup({ delay: null });
+  renderLogin();
+  await user.click(screen.getByRole("button", { name: /Continue with email/ }));
+  await user.click(screen.getByRole("button", { name: "Already have an account" }));
+  return user;
 }
 
 /** Open the reset pane, type an address, submit; return the rendered notice text. */
@@ -245,6 +266,8 @@ describe("Login — forgot password (test 3: the link belongs to the EMAIL pane 
     expect(screen.getByRole("button", { name: /Continue with email/ })).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: /Continue with email/ }));
+    // NAME-1 v2 — CLICK-PATH ONLY: reset lives on the RETURNING branch.
+    await user.click(screen.getByRole("button", { name: "Already have an account" }));
     expect(screen.getByRole("button", { name: "Forgot password?" })).toBeInTheDocument();
 
     // Phone accounts have no password — the link must not appear there.
@@ -259,6 +282,66 @@ describe("Login — forgot password (test 3: the link belongs to the EMAIL pane 
     // Back to email restores it.
     await user.click(screen.getByRole("button", { name: "<- All sign-in options" }));
     await user.click(screen.getByRole("button", { name: /Continue with email/ }));
+    await user.click(screen.getByRole("button", { name: "Already have an account" }));
+    expect(screen.getByRole("button", { name: "Forgot password?" })).toBeInTheDocument();
+  });
+
+  it("★ NAME-1 v2 — it is PERMANENT on the returning branch, and absent on the create branch", async () => {
+    // ⚠ ADDED, NOT SUBSTITUTED. Two properties, and both are load-bearing:
+    //
+    // 1. Offering a reset to a student who has just declared themselves NEW is
+    //    offering it for an account that does not exist — the defect the owner
+    //    caught on the preview.
+    // 2. It must be PERMANENT on the returning branch — on the field itself,
+    //    NOT revealed by a failed attempt and not buried in a menu. A student
+    //    who cannot remember their password should never have to guess wrong
+    //    once to be shown the way out.
+    const user = userEvent.setup({ delay: null });
+    renderLogin();
+    await user.click(screen.getByRole("button", { name: /Continue with email/ }));
+
+    // "I'm new here" is pre-selected — no reset here.
+    expect(screen.queryByRole("button", { name: "Forgot password?" })).toBeNull();
+    // CONTROL — the create form really did render, so that absence is a
+    // decision rather than a failed render.
+    expect(screen.getByLabelText("Your name")).toBeInTheDocument();
+    expect(screen.getByLabelText("Create a password")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Already have an account" }));
+    // Present IMMEDIATELY — before any submit, before any failure.
+    expect(screen.getByRole("button", { name: "Forgot password?" })).toBeInTheDocument();
+    expect(sendPasswordResetEmail).not.toHaveBeenCalled();
+    expect(signInWithEmailAndPassword).not.toHaveBeenCalled();
+  });
+
+  it("★ NAME-1 v2 — reachable from the state a student lands in after email-already-in-use", async () => {
+    // The create branch's already-registered copy says "…or reset your
+    // password". This proves that sentence points at something a student can
+    // actually reach from where they are standing.
+    const user = userEvent.setup({ delay: null });
+    // Reached through the mocked module rather than by hoisting a new handle —
+    // this file's mock factory is left exactly as it was.
+    const { createUserWithEmailAndPassword } = await import("firebase/auth");
+    vi.mocked(createUserWithEmailAndPassword).mockRejectedValue(
+      Object.assign(new Error("auth/email-already-in-use"), {
+        code: "auth/email-already-in-use",
+      }),
+    );
+    renderLogin();
+    await user.click(screen.getByRole("button", { name: /Continue with email/ }));
+    await user.type(screen.getByLabelText("Your name"), "Ananya Sharma");
+    await user.type(screen.getByLabelText("Email address"), "known@example.com");
+    await user.type(screen.getByLabelText("Create a password"), "hunter2secret");
+    await user.click(screen.getByRole("button", { name: /Create my account/ }));
+
+    // The in-place route out, offered on the branch they are already on.
+    const resetOffer = await screen.findByRole("button", { name: "Reset my password" });
+    await user.click(resetOffer);
+    expect(await screen.findByRole("form", { name: "Reset your password" })).toBeInTheDocument();
+
+    // ...and the switch invitation also lands them somewhere with the link.
+    await user.click(screen.getByRole("button", { name: "<- Back to sign in" }));
+    await user.click(screen.getByRole("button", { name: "Already have an account" }));
     expect(screen.getByRole("button", { name: "Forgot password?" })).toBeInTheDocument();
   });
 
@@ -267,6 +350,7 @@ describe("Login — forgot password (test 3: the link belongs to the EMAIL pane 
     renderLogin();
 
     await user.click(screen.getByRole("button", { name: /Continue with email/ }));
+    await user.click(screen.getByRole("button", { name: "Already have an account" }));
     await user.click(screen.getByRole("button", { name: "Forgot password?" }));
     expect(screen.getByRole("button", { name: /Send reset link/ })).toBeInTheDocument();
 
@@ -274,6 +358,7 @@ describe("Login — forgot password (test 3: the link belongs to the EMAIL pane 
     expect(screen.queryByRole("button", { name: /Send reset link/ })).toBeNull();
 
     await user.click(screen.getByRole("button", { name: /Continue with email/ }));
+    await user.click(screen.getByRole("button", { name: "Already have an account" }));
     // Back on the sign-in form, not stranded in the reset pane.
     expect(screen.getByLabelText("Password")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Send reset link/ })).toBeNull();

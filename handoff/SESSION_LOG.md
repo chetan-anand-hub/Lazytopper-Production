@@ -1,5 +1,52 @@
 ---
 
+## 2026-08-06 — #615-#616 (two standalone owner-run lanes, merged AFTER Wave 5E closed): the login door reworked and live-verified · a canonical that finally resolves · and the phone path still leaves students nameless — trunk `1b477e5f`
+
+**Both live-verified by the owner on production, desktop and mobile. Both PASSED.**
+**Trunk moved `9cfcb09a` → `0a9c9f97` (#618, the Wave 5E handoff) → `c54f7f9a` → `1b477e5f`.**
+
+> **Unchanged by either lane: the Quick Practice results surface is BUILT AND UNREACHABLE.
+> `RESULTS-1` (#617) is merged and dormant by design. `WIRE-2` is the ONLY thing that makes it
+> live** — it ends `#578`, `#611` and `#617` together, three capabilities built, tested and called
+> by nothing. Still specced, on disk, and NOT dispatched.
+
+- **`#615` META-3** — the sitemap dropped from **four URLs to three** (`/topic-hub`,
+  `/highly-probable/10/Maths`, `/practice/10/Maths` are auth- or premium-gated and **all 404 at the
+  root**), and the canonical moved `https://lazytopper.com/` → `https://www.lazytopper.com/app/`.
+  ★ **The measurement is the record, not the change** — on production:
+  `lazytopper.com/` **308→** `www.lazytopper.com/` **307→** `www.lazytopper.com/app/` **200**. That
+  last URL is **the only one that resolves**; the old canonical cost two redirect hops.
+  `crawlerReachability.guard.test.ts` +473 lines. ⇒ `[FU-SEO-ROOT-IS-A-REDIRECT]`.
+
+- **`#616` NAME-1 v2** — the login door rework, six files. The blocking assertion **replaced, not
+  deleted** (a returning student declares, then types two things; the returning branch is pinned to
+  call `signInWithEmailPassword`, never `signUp`). **Forgot password confined to the returning
+  branch**, which freed the create branch's "Create a password" label — it had been offering a reset
+  for an account that does not exist. `Login.forgotPassword.test.tsx`: **85 added, 0 deleted, zero
+  assertions weakened.** **Legal returned to the auth column at every width** — the desktop consent
+  line had been below the fold, in a column no student scrolls. Right-panel hierarchy: Google given
+  primary weight, guidance reduced to a footnote, a real footer. **Segmented control in product
+  green** — navy on `#16b96a` measures **6.68:1**, white measures **2.57:1 and fails**, because
+  0.9rem bold is not large text.
+
+  ⚠ **`§9`, the phone segmented control, was NOT STARTED. Phone-first students still land
+  nameless.** Declined on the owner's own priority order rather than half-built — a phone control
+  that renders but never passes the name is worse than one that does not exist.
+  `[FU-AUTH-PHONE-DISPLAYNAME-NEVER-SET]` actively re-confirmed; follow-on lane is **`NAME-2`**.
+
+  ⚠ **Nothing backfills accounts already created without a name** —
+  `[FU-AUTH-DISPLAYNAME-NO-BACKFILL]`, a sequencing constraint that must land **before the
+  ~50-student QA pass**.
+
+- **★★ FOUR COFOUNDER SPEC ERRORS DISPROVED BY `#616`** — mechanisms in `DISCOVERIES.md` D34–D37:
+  a **cropped screenshot** stood in for the page (the reset control renders *below* the crop and had
+  been firing since round 1 — the crop agreed with the argument just made, so the search ended); a
+  **test snippet that could not pass** (asserting a call with nothing submitted); a **mock-factory
+  omission** that throws on submit; and **a static grep used to verify a claim about files that
+  defeat static greps** — it found five door-mounting test files, **CI found eight**.
+  ★ The lane also caused one itself, caught by a test: a **duplicate CSS selector** shadowed a pinned
+  rule, and the suite failed **naming the wrong cause**.
+
 ## 2026-08-06 -- #611-#617 (WAVE 5E, four controller lanes + two owner lanes): the batch-grading arc built and unblocked - a sitemap Google had never fetched - and THREE capabilities that are still dormant - trunk `9cfcb09a`
 
 Full controller record: `handoff/WAVE_STATE_WAVE5E_ARCHIVE.md`.
