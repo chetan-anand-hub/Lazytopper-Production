@@ -1,6 +1,110 @@
 # LazyTopper — Current State
 
-## [CURRENT] #606-#609 merged -- WAVE 5D: THE SIGNED-OUT FRONT DOOR REACHES THE PRIVACY POLICY - TWO BRIEFS WHOSE HEADLINE ITEMS WERE ALREADY SHIPPED - AND A STACKED PR THAT DEADLOCKED WITH ITS OWN BASE -- trunk `51f7712`
+## [CURRENT] #611-#617 merged -- WAVE 5E: THE BATCH-GRADING ARC BUILT AND UNBLOCKED, A SITEMAP GOOGLE HAD NEVER FETCHED, AND THREE CAPABILITIES THAT ARE STILL DORMANT -- trunk `9cfcb09a`
+
+**Four controller lanes plus two owner-run lanes. The controller stood down after this handoff;
+Wave 5F opens with `WIRE-2` as its first lane.**
+
+```
+9cfcb09a  RESULTS-1  the Quick Practice graded answer sheet, DORMANT by design   #617
+035de5d5  FORBID-6   the ResultsScorecard zero-diff ban lifted in BOTH gates     #614
+fd11a664  META-2     robots/sitemap/llms/favicon served at the root              #613
+9717248c  META-1b    og:image pointed at the path it is actually served from     #612
+1def94c8  BATCH-1b   gradeQuickPracticeBatch, 25 tests, DORMANT -- no caller     #611
+```
+**Trunk moved `583ed062` -> `1def94c8` -> `9717248c` -> `fd11a664` -> `035de5d5` -> `9cfcb09a`.**
+Verified ON TRUNK BY CONTENT, not by PR state -- **this repo squash-merges.**
+**Full controller record: `handoff/WAVE_STATE_WAVE5E_ARCHIVE.md`.**
+**OPEN and the owner's:** `#615` META-3 (sitemap + canonical) - `#616` NAME-1 v2 (the login door
+rework). **`AUTH-1` is NOT queued** -- the name/link work moved to a new cofounder session.
+
+### ***** THE SENTENCE THAT MATTERS MOST IN THIS HANDOFF *****
+
+> ## **The Quick Practice results surface is BUILT AND UNREACHABLE.**
+> ## **`RESULTS-1` (`#617`) is merged and dormant by design.**
+> ## **`WIRE-2` is the ONLY thing that makes it live.**
+
+**AND IT IS NOT ALONE. THIS ARC NOW CARRIES *THREE* DORMANT CAPABILITIES, NAMED HERE TOGETHER
+BECAUSE THAT IS THE WHOLE POINT:**
+
+| Built | When | Called by |
+|---|---|---|
+| **`#578`** -- the grader's per-question image support | 1 August | **nothing.** Its live-verify has never run |
+| **`#611`** -- `gradeQuickPracticeBatch`, proven by 25 tests | 5 August | **nothing.** Zero callers on trunk |
+| **`#617`** -- the graded answer sheet | 6 August | **nothing.** One caller: its own test file |
+
+**`WIRE-2` IS THE SINGLE LANE THAT ENDS ALL THREE.** It is specced, on disk, and NOT dispatched.
+**The absence of exactly this paragraph cost five days on `#578`. It is written here so the next
+reader cannot miss it.**
+
+### WHAT THE LANES FOUND THAT THEIR SPECS DID NOT KNOW
+
+**Every brief was disproved in part, including two the controller wrote.**
+
+- **`BATCH-1b` (#611) shipped a complete, tested, UNCALLED function -- and said so in the module
+  header, not only its report.** It could not wire the trigger: that lives in `PracticePage.tsx`,
+  outside its allowlist. **It refused to build outside scope rather than widen it.**
+  It also found **typed answers have no channel at all** -- `WorksheetGradeQuestionInput` has no
+  `textAnswer` field, so the server's own rule about grading "the typed answer given in its block"
+  refers to something `blockFor()` never emits. Classified `typed-no-channel` and **returned, not
+  silently dropped.** => **batching covers PHOTO working ONLY. Do not record it as complete.**
+- **`WIRE-1` returned BLOCKED having built NOTHING, and that was correct.** It found the wiring brief
+  encoded a product decision nobody had made: the student today taps "Check my answer" and sees the
+  grade **inline, immediately**, and the brief's core assertion would have deleted that silently.
+  It also found **`#611` swallows the 402** -- an unconditional catch turning `PremiumRequiredError`
+  into `skipped-error`, so an unentitled student would finish with **no grades, no upgrade sheet, no
+  explanation.** LATENT while nothing calls it; **live the moment `WIRE-2` ships.**
+  **It declined to run gates against an empty diff** -- reporting them PASS would have been the exact
+  silent no-op this project keeps paying for.
+- **`FORBID-6` (#614) found the ban was protecting something no test covered.** Neither C&I gate
+  asserted **one byte of rendered behaviour**; those FORBIDDEN entries were the ENTIRE protection for
+  **the return ticket reaching a clickable button -- drop an action or its `onClick` and the tutor
+  overlay becomes impossible to close, with nothing red.** It caught **two silent no-ops in its own
+  work**, including a mutation run that reported all-red because `execSync` used cmd.exe and vitest
+  never executed.
+- **`RESULTS-1` (#617) found a second way to kill an openness guarantee, and no mutation could have
+  caught it.** `#614`'s openness test proves itself with the literal `"quick-practice-batch"`; had the
+  lane CLAIMED that name, **the test would have kept passing while silently ceasing to test an
+  unrecognised surface.** It added no new `ScorecardSurface` member at all -- closed by construction.
+  **It found this by READING the guard, not by testing it.**
+  Its screenshots also caught a defect **latent on trunk today**: see the FU below.
+
+### DOCTRINE -- six items, and the first two are the wave's real output
+
+**A TEST THAT PROVES OPENNESS WITH A SPECIFIC PLACEHOLDER NAME IS ONLY OPEN UNTIL SOMEONE TAKES THAT
+NAME. THE GUARD AND ITS OWN FIXTURE CAN COLLIDE.** No mutation catches this; it was found by reading.
+
+**ASSERTIONS TEST WHAT A COMPONENT RENDERS; SCREENSHOTS TEST WHETHER A STUDENT CAN REACH IT.**
+**Third consecutive wave in which screenshots caught what every assertion passed.**
+
+**THROWING BEATS CLAMPING.** `ObjectiveMarkNotBinaryError` makes the 1-marker ruling structurally
+impossible to soften, not merely tested against.
+
+**SHIP THE SPEC, FLAG THE DOUBT, DO NOT SILENTLY IMPROVE.** It turned a cofounder copy error into a
+decision rather than a drift.
+
+**A WARNING IN YOUR OWN BRIEF DOES NOT PROTECT YOU FROM THE THING IT WARNS ABOUT.** A brief warned in
+bold against pinning what a file happens to do today, then two paragraphs later told the lane to do
+exactly that. **The discipline was present and applied selectively.**
+
+**WHEN A RULE IS BREACHED THREE TIMES BY THREE COMPETENT LANES, SUSPECT THE WORK, NOT THE WORDING.**
+Three lanes returned at 3%, 6% and 3% against a 25% floor. The cause was **brief size, not judgement**;
+shorter briefs produced a 22% return. The residual is **environment**, not discipline.
+
+### THE AI COST INVESTIGATION -- **OPEN. CAUSE NOT ESTABLISHED.**
+
+**INR 586.96 for 31 July - 5 August, against ~INR 10 the prior week. 98% is ONE SKU: output tokens --
+and thinking bills at the output rate.** The forecast has returned to **INR 13.33**, so **nothing
+unattended is running.**
+
+**THE CAUSE IS NOT ESTABLISHED. THREE CONCLUSIONS WERE REACHED AND RETRACTED IN NINETY MINUTES.**
+The full account is in `LazyTopper_AI_Cost_Investigation_2026-08-06.md`, **which the owner holds** --
+it is not in this repo and **must not be reconstructed from memory.**
+**`TELEMETRY-1` is what ends the guessing. Nothing should be capped before it.**
+
+---
+
+## [PREVIOUS] #606-#609 merged -- WAVE 5D: THE SIGNED-OUT FRONT DOOR REACHES THE PRIVACY POLICY - TWO BRIEFS WHOSE HEADLINE ITEMS WERE ALREADY SHIPPED - AND A STACKED PR THAT DEADLOCKED WITH ITS OWN BASE -- trunk `51f7712`
 
 **Four lanes and one read-only scout, under the controller + subagent model. Zero failed lanes.**
 
@@ -105,7 +209,7 @@ count would have succeeded and generation would have proceeded.**
 
 ---
 
-## [PREVIOUS] #601–#604 merged — ★★ WAVE 5C: A BLANKET BAN REPLACED BY TESTS THAT ACTUALLY FIRE · THE LOCKED CTA SHIPPED · 40 DEFECTIVE SOLUTIONS PULLED FROM LIVE STUDENT PATHS · AND A CI FAST PATH THAT SPLITS THE GATE WITHOUT TRIMMING IT — trunk `203fb370`
+## [EARLIER] #601–#604 merged — ★★ WAVE 5C: A BLANKET BAN REPLACED BY TESTS THAT ACTUALLY FIRE · THE LOCKED CTA SHIPPED · 40 DEFECTIVE SOLUTIONS PULLED FROM LIVE STUDENT PATHS · AND A CI FAST PATH THAT SPLITS THE GATE WITHOUT TRIMMING IT — trunk `203fb370`
 
 **Four PRs, four lanes, under the controller + subagent model. OWNER LIVE-VERIFY PASSED.**
 

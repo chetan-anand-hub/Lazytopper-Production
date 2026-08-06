@@ -13,6 +13,50 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 ---
 
 
+## 2026-08-06 - WAVE 5E (#611-#617). Full bodies in `handoff/WAVE_STATE_WAVE5E_ARCHIVE.md` and the four lane reports.
+
+**NEW - OPEN**
+
+- **`[FU-SCORECARD-DESKTOP-SCROLL-CEILING]`** -- **LATENT ON TRUNK TODAY**, not only in the lane that
+  found it. `max-height` applied only **below** 1024px against a `position:fixed` dim means a long
+  variant's **head AND footer, return ticket included, are unreachable with nothing to scroll.**
+  Fixed for the graded sheet in `#617`; **any other long variant on trunk still has it.**
+- **`[FU-BATCH-402-SWALLOWED-BY-HONEST-FAILURE]`** -- `gradeQuickPracticeBatch`'s catch is
+  **unconditional** and turns `PremiumRequiredError` into `skipped-error`. **LATENT while nothing
+  calls it; LIVE the moment `WIRE-2` ships** -- a free-past-trial student would finish with no grades,
+  no upgrade sheet, no explanation. **Must be fixed in WIRE-2's own PR.**
+- **`[FU-BATCH-QP-MI-FEED-REHOMING]`** -- mistakes reach MI via `handleCheck` -> `recordMistake`, and
+  **that path is GONE under exam-shape.** If the batched path does not record mistakes, **Quick
+  Practice stops feeding Mistake Intelligence entirely.**
+- **`[FU-BATCH-TYPED-ANSWER-NO-CHANNEL]`** *(canonical, SINGULAR -- the lane filed it first and its
+  report references it; the plural is an ALIAS, not a second entry)* -- `WorksheetGradeQuestionInput`
+  has no `textAnswer` field. **Batching covers PHOTO working only.** A server lane must add the field.
+- **`[FU-BATCH-UPLOAD-CAP-12]`** -- `MAX_BATCH_UPLOADS=12`, **CAP not chunk** (chunking reintroduces
+  the calls batching exists to remove). No client-side count cap exists; the server hard-400s.
+- **`[FU-WINDOWS-VITEST-BRINGUP-COST]`** -- the residual context cost in lanes is **environment**
+  (Windows vitest bring-up, mutation-runner entry), **not discipline.**
+- **`[FU-FORBIDDEN-BANS-MASK-ABSENT-COVERAGE]`** -- remaining zero-diff entries: **CONV 5, OVL 2,
+  QP-overlay 4.** **When the next one lifts, expect to WRITE the coverage, not find it** -- neither
+  C&I gate asserted any rendered behaviour at all.
+- **`[FU-QP-DOUBLE-BACK-TAG]`** -- the return ticket and "Keep practising this set" were both tagged
+  "Back". Fixed in `#617`.
+- **`[FU-BATCH-QP-DEFER-IS-A-UX-DECISION]`** `[FU-BATCH-1B-UNCALLED-SEAM]`
+  `[FU-578-LIVE-VERIFY-STILL-OWED]` `[FU-WIRE1-ALLOWLIST-ONE-FILE-SHORT]`
+  `[FU-FORBID6-MUTATION-RUNNER-SHELL]` `[FU-FORBID6-DIRTY-MODULE-STATE-BASELINE]`
+  `[FU-SCORECARD-ONRETURN-RECEIVES-EVENT]` `[FU-CONV-GATE-SECTION-HEADERS-STALE]`
+
+**OPEN - AND THE BIGGEST UNKNOWN ON THE BOARD**
+
+- **AI COST: CAUSE NOT ESTABLISHED.** INR 586.96 for 31 Jul - 5 Aug against ~INR 10 the prior week.
+  **98% is ONE SKU: output tokens, and thinking bills at the output rate.** Forecast has returned to
+  INR 13.33, so **nothing unattended is running.** **Three conclusions were reached and retracted in
+  ninety minutes.** Full account: `LazyTopper_AI_Cost_Investigation_2026-08-06.md`, **held by the
+  owner, not in this repo -- do not reconstruct it from memory.**
+  **`TELEMETRY-1` is what ends the guessing. Nothing should be capped before it.**
+
+**CLOSED this wave** -- `[FU-LEGAL-WELCOME-LANDING-FOOTER]` (#609, prior wave) - the
+`ResultsScorecard` ban (#614) - `og:image` and root-asset 404s (#612/#613).
+
 ## 2026-08-05 — WAVE 5D (#606–#609). Full bodies in `handoff/WAVE_STATE_WAVE5D_ARCHIVE.md`.
 
 **Four lanes, one read-only scout, zero lanes that failed.** Every brief was disproved in part —
