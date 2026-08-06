@@ -490,6 +490,12 @@ import {
   type QuickPracticeEntry,
   type QuickPracticeSavedAnswer,
 } from "../services/quickPracticeSessionService";
+/** ★★ THE CAP IS READ, NEVER REDECLARED. `src/config/gradingLimits.ts` mirrors the
+ *  server's own `MAX_BATCH_UPLOADS` and `gradingLimits.guard.test.ts` fails if the two
+ *  drift. ⚠ NOT from `src/ai/aiClient.ts`: three suites `vi.mock` that module with a
+ *  partial factory, so a VALUE import from it throws "No X export is defined on the
+ *  mock" in any suite that loads this page. */
+import { MAX_BATCH_UPLOADS } from "../config/gradingLimits";
 import { toSessionSubject } from "../services/checkImproveGradeService";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -2136,6 +2142,12 @@ const packTopicKey = useMemo(() => {
     () => batchSelection.skipped.map((a) => `Q${a.qNumber}`),
     [batchSelection.skipped],
   );
+  /** ★ The SAME naming shape as `unansweredLabels`, deliberately — a student who is
+   *  over the photo cap is told WHICH questions were held back, not a count. */
+  const overCapLabels = useMemo(
+    () => batchSelection.overCap.map((a) => `Q${a.qNumber}`),
+    [batchSelection.overCap],
+  );
 
   /** "Marked now \u00b7 free" \u2014 EVERY option pick, whether or not working was also saved.
    *  \u2605 An MCQ with working appears in BOTH halves deliberately: the MARK came from the
@@ -2788,17 +2800,18 @@ const packTopicKey = useMemo(() => {
       }
       answers.push(answer);
     }
-    // Typed-only working: SAVED, and honestly unGRADEABLE \u2014 the batch grader has no field
-    // for typed student work at all ([FU-BATCH-TYPED-ANSWER-NO-CHANNEL]).
-    for (const typed of batchSelection.typedNoChannel) {
-      const marks = Number(typed.marks) || 0;
+    // \u2605\u2605 OVER THE PHOTO CAP: saved, honestly NOT in this grade. One call takes at most
+    // MAX_BATCH_UPLOADS answer photos and the server refuses the whole batch above it, so
+    // these are held back BY NAME rather than costing the student every other grade.
+    for (const over of batchSelection.overCap) {
+      const marks = Number(over.marks) || 0;
       answers.push({
-        label: `Question ${typed.qNumber}`,
+        label: `Question ${over.qNumber}`,
         descriptor: `${marks} mark${marks === 1 ? "" : "s"}`,
         ungraded: {
-          reason: "typed-no-channel",
-          title: "Typed working is not graded yet",
-          detail: "Photograph your working for this one and it will be marked with the rest.",
+          reason: "over-upload-cap",
+          title: "Not included in this grade",
+          detail: `One grade takes up to ${MAX_BATCH_UPLOADS} answer photos. Grade this one in a second round \u2014 nothing has been scored 0.`,
         },
       });
     }
@@ -2868,20 +2881,34 @@ const packTopicKey = useMemo(() => {
             >
               <span className="qp-cf__tag">{`Q${a.qNumber}`}</span>
               <span>
-                {a.imageMimeType === "application/pdf" ? "PDF" : "Photo"}
+                {/* \u2605 NAME WHAT WAS SAVED. Typed working now rides the batch, so calling
+                    every row "Photo" would be a label that lies about the student's own
+                    work. Both is both \u2014 the grader is sent both. */}
+                {a.imageBase64
+                  ? (a.textAnswer
+                    ? (a.imageMimeType === "application/pdf" ? "PDF + typed" : "Photo + typed")
+                    : (a.imageMimeType === "application/pdf" ? "PDF" : "Photo"))
+                  : "Typed"}
                 {a.objective
                   ? " \u00b7 diagnose only"
                   : ` \u00b7 ${Number(a.marks) || 0} mark${(Number(a.marks) || 0) === 1 ? "" : "s"}`}
               </span>
             </div>
           ))}
-          {batchSelection.typedNoChannel.length > 0 && (
+          {/* \u2605\u2605 THE CAP, NAMED BEFORE THE CALL. Above MAX_BATCH_UPLOADS photos the server
+              returns 400 and grades NOTHING, so these are held out and listed by number
+              instead of costing the student the whole grade. The server keeps its own
+              refusal \u2014 this is the courtesy, never the guard. */}
+          {batchSelection.overCap.length > 0 && (
             <>
-              <div className="qp-cf__lbl">Saved \u00b7 not gradeable yet</div>
-              {batchSelection.typedNoChannel.map((a) => (
-                <div key={`tnc-${a.qNumber}`} className="qp-cf__row">
+              <div className="qp-cf__lbl">Not in this grade</div>
+              <p className="qp-cf__note">
+                {`One grade takes up to ${MAX_BATCH_UPLOADS} answer photos. ${overCapLabels.join(" and ")} ${overCapLabels.length === 1 ? "is" : "are"} saved and not included \u2014 grade ${overCapLabels.length === 1 ? "it" : "them"} in a second round.`}
+              </p>
+              {batchSelection.overCap.map((a) => (
+                <div key={`cap-${a.qNumber}`} className="qp-cf__row">
                   <span className="qp-cf__tag">{`Q${a.qNumber}`}</span>
-                  <span>Typed \u2014 photograph this working and it will be marked with the rest.</span>
+                  <span>Saved \u00b7 not in this grade</span>
                 </div>
               ))}
             </>

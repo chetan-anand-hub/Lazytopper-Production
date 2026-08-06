@@ -115,6 +115,11 @@ vi.mock("../components/practice/practiceQuestionBuilder", async (importActual) =
 
 import PracticePage from "./PracticePage";
 import { buildPracticeQuestionsWithAiTopup } from "../components/practice/practiceQuestionBuilder";
+// ★★ THE CAP IS READ, NEVER RE-TYPED — the same module the page reads, so a drift in
+// `src/config/gradingLimits.ts` moves the test and the product together. ⚠ NOT from
+// `../ai/aiClient`: this file mocks that module, and a VALUE import from a mocked module
+// throws "No X export is defined on the mock".
+import { MAX_BATCH_UPLOADS } from "../config/gradingLimits";
 
 const mockBuild = vi.mocked(buildPracticeQuestionsWithAiTopup);
 type PQ = import("../data/predictionDataService").PracticeQuestion;
@@ -180,11 +185,11 @@ afterEach(() => {
 
 /** Build a 3-question set on the FULL-PAGE preset path. `overlay` mounts the same page
  *  the tutor panel mounts — same component, one router, no nesting. */
-async function buildSet(pool: PQ[], opts: { overlay?: () => void } = {}) {
+async function buildSet(pool: PQ[], opts: { overlay?: () => void; count?: number } = {}) {
   mockBuild.mockResolvedValue(pool);
   setMatchMediaMatches(true);
   const view = render(
-    <MemoryRouter initialEntries={["/practice/10/maths?topic=real-numbers&count=3"]}>
+    <MemoryRouter initialEntries={[`/practice/10/maths?topic=real-numbers&count=${opts.count ?? 3}`]}>
       <Routes>
         <Route
           path="/practice/:grade/:subject"
@@ -208,9 +213,7 @@ function answerTriggers(): HTMLElement[] {
 }
 
 /** Open question `n`'s answer panel and attach a PHOTO, then save it.
- *  ★ A PHOTO, not typed text: typed working has no channel to the batch grader at all
- *  (`WorksheetGradeQuestionInput` has no `textAnswer` field), so a typed-only session
- *  would prove nothing about batching — see [FU-BATCH-TYPED-ANSWER-NO-CHANNEL]. */
+ *  ★ AMEND-621: typed working now has a channel too — see `saveTypedFor` and §12. */
 async function saveAPhotoFor(n: number) {
   fireEvent.click(answerTriggers()[n - 1]);
 
@@ -224,6 +227,22 @@ async function saveAPhotoFor(n: number) {
   fireEvent.click(save);
   await screen.findByTestId("qp-saved-confirmation");
   // Collapse the panel again so the next question's trigger index is unambiguous.
+  fireEvent.click(answerTriggers()[n - 1]);
+}
+
+/** ★★ AMEND-621 — open question `n`'s panel, switch to the TYPE tab, type working and
+ *  save it. NO photo is ever attached, which is the whole point: before this lane a
+ *  typed-only answer was short-circuited to `typed-no-channel` and never sent. */
+async function saveTypedFor(n: number, text = "x = 4 and x = -2") {
+  fireEvent.click(answerTriggers()[n - 1]);
+  const tabs = screen.getAllByRole("tab", { name: "Type my working" });
+  fireEvent.click(tabs[tabs.length - 1]);
+  const boxes = screen.getAllByLabelText("Type your working and answer");
+  await act(async () => {
+    fireEvent.change(boxes[boxes.length - 1], { target: { value: text } });
+  });
+  fireEvent.click(await screen.findByTestId("qp-save-answer"));
+  await screen.findByTestId("qp-saved-confirmation");
   fireEvent.click(answerTriggers()[n - 1]);
 }
 
@@ -530,4 +549,155 @@ describe("copy · the owner's wording", () => {
     });
     expect(screen.queryByText("Ready to grade")).toBeNull();
   });
+});
+
+// ---------------------------------------------------------------------------
+// 12 · ★★ AMEND-621 — TYPED WORKING IS GRADED, AND THE CAP IS NAMED
+//
+// The acceptance bar is NOT "the classifier returns batch" — it is a typed answer
+// appearing in the BATCH PAYLOAD and coming back MARKED on the sheet. Every test here
+// goes through the real page: type, save, Finish, confirm, grade.
+// ---------------------------------------------------------------------------
+describe("12 · typed working rides the batch (AMEND-621)", () => {
+  it("★★ a TYPED answer with no photo reaches the grader's PAYLOAD, verbatim", async () => {
+    gradeWorksheet.mockResolvedValue(okBatch([okGrade(1)]));
+    await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, false)]);
+    await saveTypedFor(1, "x = 4 and x = -2");
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
+    const sent = gradeWorksheet.mock.calls[0][0] as {
+      questions: { qNumber: number; textAnswer?: string }[];
+      uploads?: unknown[];
+    };
+    expect(sent.questions.map((q) => q.qNumber)).toEqual([1]);
+    expect(sent.questions[0].textAnswer).toBe("x = 4 and x = -2");
+    // ★ It rode inside the question's own block — it added no image part.
+    expect(sent.uploads ?? []).toEqual([]);
+  });
+
+  it("★ it is COUNTED in 'Grade my N answers'", async () => {
+    await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, false)]);
+    await saveTypedFor(1);
+    finish();
+    expect(await screen.findByRole("button", { name: "Grade my 1 answer" })).toBeInTheDocument();
+    // CONTROL — a SECOND typed answer moves the count, so the "1" was not a constant.
+    fireEvent.click(screen.getByRole("button", { name: /^(Keep practising this set|Go back and add )/ }));
+    await saveTypedFor(2, "y = 9");
+    finish();
+    expect(await screen.findByRole("button", { name: "Grade my 2 answers" })).toBeInTheDocument();
+  });
+
+  it("★★ the typed answer comes back MARKED on the graded sheet — not 'not graded'", async () => {
+    gradeWorksheet.mockResolvedValue(okBatch([okGrade(1)]));
+    await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, false)]);
+    await saveTypedFor(1);
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    await waitFor(() => expect(screen.getByText("Diagnosed from your working")).toBeInTheDocument());
+    // A real mark for the typed answer, and the honest-ungraded copy is absent.
+    expect(screen.getByText("Question 1")).toBeInTheDocument();
+    expect(screen.queryByText("Typed working is not graded yet")).toBeNull();
+    expect(screen.queryByText("Not included in this grade")).toBeNull();
+  });
+
+  it("★★ NO SURFACE tells a student typed working will not be graded", async () => {
+    gradeWorksheet.mockResolvedValue(okBatch([okGrade(1)]));
+    await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, false)]);
+    await saveTypedFor(1);
+    // (a) at the moment of saving — the panel's own confirmation (reopen the panel the
+    // helper collapsed; this is the surface the student is looking at right after saving)
+    fireEvent.click(answerTriggers()[0]);
+    expect(within(await screen.findByTestId("qp-saved-confirmation")).getByText("Saved. Graded when you finish."))
+      .toBeInTheDocument();
+    const notGraded = /not graded|photograph this working|not gradeable/i;
+    expect(document.body.textContent).not.toMatch(notGraded);
+    // (b) at the confirmation step
+    finish();
+    const confirm = await screen.findByTestId("qp-confirm");
+    expect(confirm.textContent).not.toMatch(notGraded);
+    // ★ CONTROL — the row RENDERS, and it names the working honestly as typed.
+    expect(within(confirm).getByText("Typed · 3 marks")).toBeInTheDocument();
+    // (c) on the graded sheet
+    fireEvent.click(screen.getByTestId("qp-grade-batch"));
+    await waitFor(() => expect(screen.getByText("Diagnosed from your working")).toBeInTheDocument());
+    expect(document.body.textContent).not.toMatch(notGraded);
+  });
+
+  it("★ CONTROL — a bare MCQ pick is STILL not batched; the by-working rule survives", async () => {
+    await buildSet([mkItem(1, true), mkItem(2, true), mkItem(3, true)]);
+    fireEvent.click(await screen.findByRole("button", { name: /q1-correct/ }));
+    finish();
+    // No confirmation step at all → no grade call is even reachable.
+    expect(screen.queryByTestId("qp-confirm")).toBeNull();
+    expect(gradeWorksheet).not.toHaveBeenCalled();
+  });
+
+  it("★★ EXACTLY ONE grade call for a session mixing typed and photographed working", async () => {
+    gradeWorksheet.mockResolvedValue(okBatch([okGrade(1), okGrade(2), okGrade(3)]));
+    await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, false)]);
+    await saveTypedFor(1);
+    await saveAPhotoFor(2);
+    await saveTypedFor(3, "z = 1");
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    await waitFor(() => expect(screen.getByText("Diagnosed from your working")).toBeInTheDocument());
+    expect(gradeWorksheet).toHaveBeenCalledTimes(1);
+    expect(checkSolutionImage).not.toHaveBeenCalled();
+    const sent = gradeWorksheet.mock.calls[0][0] as {
+      questions: { qNumber: number; textAnswer?: string }[];
+      uploads?: { qNumber: number }[];
+    };
+    expect(sent.questions.map((q) => q.qNumber)).toEqual([1, 2, 3]);
+    expect(sent.questions.map((q) => q.textAnswer)).toEqual(["x = 4 and x = -2", undefined, "z = 1"]);
+    expect(sent.uploads?.map((u) => u.qNumber)).toEqual([2]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 13 · ★★ THE UPLOAD CAP — a 400 never reaches the student, and the held-back
+//      questions are NAMED. The server keeps its own refusal; this is the courtesy.
+// ---------------------------------------------------------------------------
+describe("13 · above the photo cap the excluded set is named, never a bare 400", () => {
+  const bigPool = Array.from({ length: MAX_BATCH_UPLOADS + 2 }, (_, i) => mkItem(i + 1, false));
+
+  it("★★ two photos over the cap: the cap is graded, the surplus is NAMED, no error is shown", async () => {
+    gradeWorksheet.mockResolvedValue(
+      okBatch(Array.from({ length: MAX_BATCH_UPLOADS }, (_, i) => okGrade(i + 1))),
+    );
+    await buildSet(bigPool, { count: MAX_BATCH_UPLOADS + 2 });
+    for (let n = 1; n <= MAX_BATCH_UPLOADS + 2; n += 1) await saveAPhotoFor(n);
+    finish();
+    const confirm = await screen.findByTestId("qp-confirm");
+    // ★ NAMED, not counted — the same shape the unanswered list already uses.
+    expect(within(confirm).getByText(
+      new RegExp("One grade takes up to " + MAX_BATCH_UPLOADS + " answer photos\\. Q" +
+        (MAX_BATCH_UPLOADS + 1) + " and Q" + (MAX_BATCH_UPLOADS + 2) + " are saved and not included"),
+    )).toBeInTheDocument();
+    expect(within(confirm).getByRole("button", { name: "Grade my " + MAX_BATCH_UPLOADS + " answers" }))
+      .toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("qp-grade-batch"));
+    await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
+    // ★ The payload is LEGAL — the server's 400 boundary is never crossed.
+    const sent = gradeWorksheet.mock.calls[0][0] as { uploads?: unknown[] };
+    expect(sent.uploads).toHaveLength(MAX_BATCH_UPLOADS);
+    // ★ ASSERT POSITIVELY: the sheet rendered, and the held-back ones say so honestly.
+    await waitFor(() => expect(screen.getByText("Diagnosed from your working")).toBeInTheDocument());
+    expect(screen.getAllByText("Not included in this grade")).toHaveLength(2);
+    expect(screen.queryByRole("alert")).toBeNull();
+  }, 120_000);
+
+  it("★ CONTROL — a session AT the cap excludes nothing and names nothing", async () => {
+    gradeWorksheet.mockResolvedValue(
+      okBatch(Array.from({ length: MAX_BATCH_UPLOADS }, (_, i) => okGrade(i + 1))),
+    );
+    await buildSet(bigPool.slice(0, MAX_BATCH_UPLOADS), { count: MAX_BATCH_UPLOADS });
+    for (let n = 1; n <= MAX_BATCH_UPLOADS; n += 1) await saveAPhotoFor(n);
+    finish();
+    const confirm = await screen.findByTestId("qp-confirm");
+    expect(confirm.textContent).not.toMatch(/not included/i);
+    expect(within(confirm).getByRole("button", { name: "Grade my " + MAX_BATCH_UPLOADS + " answers" }))
+      .toBeInTheDocument();
+  }, 120_000);
 });
