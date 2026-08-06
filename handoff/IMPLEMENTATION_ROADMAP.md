@@ -1,5 +1,23 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-08-06 - WAVE 5E **COMPLETE** (#611-#617, trunk `9cfcb09a`) - the batch arc built and unblocked, and THREE capabilities still dormant
+
+**STAGES COMPLETE:**
+- **`BATCH-1b` (#611)** -- the Quick Practice batch caller, 25 tests. **DORMANT: no caller.**
+- **`META-1b` (#612)** / **`META-2` (#613)** -- owner-authored. Root-served robots/sitemap/llms/
+  favicon. **Google had never fetched the sitemap.**
+- **`FORBID-6` (#614)** -- the `ResultsScorecard` zero-diff ban lifted in **BOTH** C&I gates, replaced
+  by a contract test. **Unblocks the graded sheet.**
+- **`RESULTS-1` (#617)** -- the graded answer sheet. **DORMANT BY DESIGN.**
+
+**NOT SHIPPED, DELIBERATELY:** `WIRE-1` (blocked; its premise was wrong) -- superseded by `WIRE-2`.
+
+> **STILL DORMANT AFTER THIS WAVE: `#578`, `#611`, `#617`. `WIRE-2` is the single lane that ends all
+> three, and it is specced, on disk, and NOT dispatched. It is Wave 5F's first lane.**
+
+**BLOCKED:** `SERVER-2` thinking budget (needs `TELEMETRY-1`) - `DATABASE_URL` (needs `WARM-GATE-1`;
+the startup pre-warm is ungated) - `BATCH-2` UI (needs `WIRE-2`).
+
 ## 2026-08-05 - ★★ ✅ WAVE 5D **COMPLETE** (#606–#609, trunk `51f7712`) - four lanes + one read-only scout, zero failed lanes, and every brief disproved in part
 
 **STAGES COMPLETE:**
