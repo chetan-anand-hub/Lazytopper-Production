@@ -1219,6 +1219,20 @@ function createCheckSolutionRoute(deps) {
       if (n > 0 && u.imageBase64 && !uploadByNumber.has(n)) uploadByNumber.set(n, u);
     }
     const hasUploads = uploadByNumber.size > 0;
+    // ── TYPED-2 · a TYPED-ONLY batch has NEITHER a document NOR any answer photo ──
+    // The no-uploads branch below was written for a worksheet PDF that is always
+    // present: it tells the model "the attached PDF contains the student's answers"
+    // and it appends an image part built unconditionally from `imageBase64`. For a
+    // typed-only batch that would send an EMPTY image part and describe a document
+    // that does not exist. The per-question branch is already correct for this case
+    // — its rule 1 says "a question with no image following it has no photographed
+    // answer — grade the typed answer given in its block if one is shown", and it
+    // appends an image ONLY where an upload exists, i.e. nowhere here.
+    // ★ THE #578 PIN IS UNMOVED: all four shipped no-uploads surfaces (worksheets,
+    // chapter tests, full mocks, multi-question C&I) post one `imageBase64`, so
+    // `hasDocument` is true and `perQuestionParts` is exactly `hasUploads` for them.
+    const hasDocument = String(imageBase64 || '').trim().length > 0;
+    const perQuestionParts = hasUploads || !hasDocument;
 
     if (isStubMode()) {
       const stub = buildStructuredStub(questions);
@@ -1272,7 +1286,7 @@ function createCheckSolutionRoute(deps) {
       );
     }
 
-    const systemPrompt = hasUploads
+    const systemPrompt = perQuestionParts
       ? "You are a CBSE Class 10 board examiner grading a student's whole worksheet. " +
         'Each question below is followed IMMEDIATELY by the image of the student\'s handwritten answer to THAT question. ' +
         'The image directly after a question\'s block IS that question\'s answer — do not search for question numbers inside the images, and never match an image to a different question. ' +
@@ -1333,7 +1347,7 @@ function createCheckSolutionRoute(deps) {
     // Rule 1 — the LOCATE instruction is wrong for per-question images: there is
     // nothing to locate, and telling the model to look would invite it to match an
     // image to a different question. Adopted verbatim from the BATCH-1 findings.
-    const rule1 = hasUploads
+    const rule1 = perQuestionParts
       ? '1. Grade each question against ITS OWN scheme using the image that immediately follows that question\'s block. A question with no image following it has no photographed answer — grade the typed answer given in its block if one is shown. Award marks by the [bracket] weights in each scheme step, or distribute evenly if none.\n'
       : '1. For EACH question Q1…QN, locate that numbered answer in the PDF and grade it against ITS scheme. Award marks by the [bracket] weights in each scheme step, or distribute evenly if none.\n';
 
@@ -1341,7 +1355,7 @@ function createCheckSolutionRoute(deps) {
     // becomes "READ the image supplied for a question". The whole anti-fabrication
     // tail (the Don't-know exception, the crossed-out exception) is byte-identical
     // on both branches; splitting the head from the tail is what keeps it so.
-    const rule6Head = hasUploads
+    const rule6Head = perQuestionParts
       ? '6. HONEST READ — anti-fabrication: if you CANNOT confidently READ the image supplied for a question, set "couldNotRead": true for THAT question and OMIT a grade.'
       : '6. HONEST READ — anti-fabrication: if you CANNOT confidently locate or read a question\'s answer in the upload, set "couldNotRead": true for that question and OMIT a grade.';
 
@@ -1413,7 +1427,7 @@ function createCheckSolutionRoute(deps) {
       return p;
     };
 
-    const parts = hasUploads
+    const parts = perQuestionParts
       ? buildUploadParts()
       : [
         { text: systemPrompt + '\n\n' + userPrompt },
@@ -1594,8 +1608,19 @@ function createCheckSolutionRoute(deps) {
         error: 'Too many answer photos in one grade — send at most ' + MAX_BATCH_UPLOADS + '.',
       });
     }
-    if (!imageBase64 && uploads.length === 0) {
-      return sendJson(res, 400, { ok: false, error: 'Upload one PDF of your answers to grade.' });
+    // TYPED-2: a batch may carry TYPED working instead of any photograph. The guard
+    // below predates batch grading — written for the worksheet flow, where a PDF was
+    // always present — and it refused every typed-only batch at the front door, so
+    // TYPED-1's `blockFor` typed emission was never reached. It is NARROWED, not
+    // removed: a request with no PDF, no per-question photos AND no typed working is
+    // still nothing to grade, and is still refused. The message no longer names a PDF
+    // as the only way in, because that is false for a student who typed.
+    const hasTypedWorking = questions.some((q) => q.textAnswer.length > 0);
+    if (!imageBase64 && uploads.length === 0 && !hasTypedWorking) {
+      return sendJson(res, 400, {
+        ok: false,
+        error: 'Nothing to grade yet — type your answer or add a photo of your working, then try again.',
+      });
     }
     if (imageBase64) {
       const imgCheck = validateMentorImagePayload(payload);
