@@ -1245,3 +1245,127 @@ test('§9.8 ★ the CAP the client can now read is the SAME number the server re
   assert.match(h.body().error, /at most 12/);
   assert.equal(h.calls.length, 0);
 });
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §10 · TYPED-2 · A TYPED-ONLY BATCH IS ADMITTED AT THE ENDPOINT
+
+   ★★ THE LIVE DEFECT. `POST /api/grade-worksheet` answered 400
+      `'Upload one PDF of your answers to grade.'` for every typed-only batch.
+      §9 proved `blockFor` EMITS the typed working — and it was never reached,
+      because the admission guard above it refused a zero-upload request outright.
+      A FIELD REACHING THE EMITTER IS NOT THE SAME AS THE REQUEST REACHING IT.
+
+   ⚠ §9.7 is titled "a typed answer alone reaches the model" and its fixture sends
+      `imageBase64: 'PDFB64'` — so it never exercised a zero-upload request and could
+      not have caught this. §10.1 is the assertion §9.7's title describes.
+
+   ★ §10.2 IS THE CONTROL FOR §10.1. "the endpoint admits things" passes just as
+      happily with the guard deleted; only a surviving refusal for
+      no-photos-AND-no-typing distinguishes a NARROWED guard from a REMOVED one.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+// A typed-only batch: no `imageBase64`, no `uploads`, one non-empty `textAnswer`.
+const TYPED_ONLY_REQ = (questions) => ({ worksheetId: 'ws-typed', subject: 'Maths', questions });
+
+test('§10.1 ★★ a TYPED-ONLY batch (zero uploads, no PDF) is GRADED, not refused with a 400', async () => {
+  const h = buildImageRoute({ replies: [WS_OK([1])] });
+  await h.route.handleGradeWorksheet(TYPED_ONLY_REQ([Q(1, { textAnswer: TYPED })]), {});
+  assert.equal(h.status(), 200, 'the live defect: this was 400 and typed work was never once graded');
+  assert.equal(h.body().ok, true);
+  assert.equal(h.calls.length, 1, 'the request must REACH the model, not merely be accepted');
+  assert.equal(h.body().results.length, 1);
+  assert.equal(h.body().results[0].couldNotRead, false, 'a typed answer is readable — never honest-pending');
+  assert.ok(h.body().gradedMarksTotal > 0, 'marks are actually returned for the typed question');
+  // And the typing itself reached the prompt — admitted AND emitted.
+  assert.ok(textOf(h).includes('(x-4)(x+2) = 0'));
+  // No image part exists on this path at all.
+  assert.equal(partsOf(h).filter(isImage).length, 0);
+});
+
+test('§10.2 ★ CONTROL — no PDF, no photos AND no typing is STILL refused: the guard was narrowed, not deleted', async () => {
+  for (const [label, q] of [
+    ['no textAnswer key', Q(1)],
+    ['empty textAnswer', Q(1, { textAnswer: '' })],
+    ['whitespace-only textAnswer', Q(1, { textAnswer: '   \n  ' })],
+  ]) {
+    const h = buildImageRoute({ replies: [WS_OK([1])] });
+    await h.route.handleGradeWorksheet(TYPED_ONLY_REQ([q]), {});
+    assert.equal(h.status(), 400, label + ' is nothing to grade and must still be refused');
+    assert.equal(h.body().ok, false);
+    assert.equal(h.calls.length, 0, 'a request with nothing to grade must never cost a model call');
+  }
+});
+
+test('§10.3 ★ the refusal names what is ACTUALLY missing — it no longer demands a PDF', async () => {
+  const h = buildImageRoute({ replies: [WS_OK([1])] });
+  await h.route.handleGradeWorksheet(TYPED_ONLY_REQ([Q(1)]), {});
+  assert.equal(h.body().error,
+    'Nothing to grade yet — type your answer or add a photo of your working, then try again.');
+  // The old copy was FALSE for a student who typed: it named the one channel that is
+  // no longer the only one. Assert its absence, not merely the new string's presence.
+  assert.ok(!/one PDF/i.test(h.body().error), 'a PDF is not the only way in — the copy must not say it is');
+  assert.match(h.body().error, /type your answer/i);
+});
+
+test('§10.4 a MIXED batch — some photographed, some typed — is admitted and both reach the model', async () => {
+  const h = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await h.route.handleGradeWorksheet(
+    { ...TYPED_ONLY_REQ([Q(1, { textAnswer: TYPED }), Q(2)]), uploads: [UP(2)] }, {});
+  assert.equal(h.body().ok, true);
+  assert.equal(h.body().results.length, 2);
+  const parts = partsOf(h);
+  const i1 = parts.findIndex((p) => typeof p.text === 'string' && p.text.includes('Q1 text'));
+  assert.ok(parts[i1].text.includes("The student's typed answer is:"), 'Q1 typed');
+  const i2 = parts.findIndex((p) => typeof p.text === 'string' && p.text.includes('Q2 text'));
+  assert.ok(isImage(parts[i2 + 1]) && parts[i2 + 1].inline_data.data === 'IMG2', 'Q2 photographed');
+});
+
+test('§10.5 ★ the single-PDF worksheet path is UNCHANGED — admitted exactly as before, with NO typing', async () => {
+  // The CONTROL that keeps §10.1 honest from the other side: the four shipped
+  // no-uploads surfaces still go through, and §7.1's byte pin still holds for them.
+  const h = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await h.route.handleGradeWorksheet(PINNED_REQ(), {});
+  assert.equal(h.status(), 200);
+  assert.equal(h.body().ok, true);
+  assert.equal(h.calls.length, 1);
+  assert.equal(shaOf(h), NO_UPLOADS_CONTENTS_SHA256,
+    'TYPED-2 is an ADMISSION-layer change — it must not move the pinned payload by one byte');
+});
+
+test('§10.6 typed working does not bypass the OTHER request guards (no questions, bad photo)', async () => {
+  // A narrowed guard must not become a way around the guards beside it.
+  const noQ = buildImageRoute({ replies: [WS_OK([1])] });
+  await noQ.route.handleGradeWorksheet({ worksheetId: 'w', subject: 'Maths', questions: [] }, {});
+  assert.equal(noQ.status(), 400);
+  assert.match(noQ.body().error, /No worksheet questions/);
+
+  const bad = buildImageRoute({
+    replies: [WS_OK([1])],
+    depOverrides: { validateMentorImagePayload: () => ({ ok: false, error: 'Image is too large. Max size is 3 MB.' }) },
+  });
+  await bad.route.handleGradeWorksheet(
+    { ...TYPED_ONLY_REQ([Q(1, { textAnswer: TYPED })]), uploads: [UP(1)] }, {});
+  assert.equal(bad.status(), 400, 'typed working must not excuse an invalid photo in the same batch');
+  assert.equal(bad.calls.length, 0);
+});
+
+test('§10.7 ★★ a typed-only batch is never told about an "attached PDF" that does not exist', async () => {
+  // The second half of the defect, and admission alone does NOT fix it: the
+  // no-uploads prompt branch is written for a worksheet PDF and appends an image
+  // part built from `imageBase64`. Admitting a typed-only request through THAT
+  // branch would send an empty image and describe a document the student never sent.
+  const h = buildImageRoute({ replies: [WS_OK([1])] });
+  await h.route.handleGradeWorksheet(TYPED_ONLY_REQ([Q(1, { textAnswer: TYPED })]), {});
+  const text = textOf(h);
+  assert.ok(!/attached PDF/i.test(text), 'nothing was attached — the prompt must not say one was');
+  assert.ok(!/locate that numbered answer in the PDF/i.test(text));
+  assert.ok(text.includes('A question with no image following it has no photographed answer'),
+    'rule 1 must be the branch that knows an answer can be typed rather than photographed');
+  assert.equal(partsOf(h).filter(isImage).length, 0, 'an EMPTY image part is not "no image"');
+
+  // CONTROL, from the other side: with a PDF present the worksheet wording is intact.
+  const pdf = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await pdf.route.handleGradeWorksheet(PINNED_REQ(), {});
+  assert.ok(/attached PDF/i.test(textOf(pdf)), 'the PDF path must keep saying PDF');
+  assert.equal(partsOf(pdf).filter(isImage).length, 1);
+});
