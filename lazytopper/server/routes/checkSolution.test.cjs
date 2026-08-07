@@ -419,8 +419,20 @@ test('§5.11 worksheet: `couldNotRead` is an honest failure — never fabricated
   await h.route.handleGradeWorksheet(WORKSHEET_REQ([{ qNumber: 1, marks: 5, questionText: 'Q1' }]), {});
   const r = h.body().results[0];
   assert.equal(r.couldNotRead, true);
-  assert.equal(r.marksAwarded, undefined, 'no mark is invented for an unreadable answer');
+  // ⚠ TYPED-3 CHANGED THIS LINE, DELIBERATELY. It read
+  // `assert.equal(r.marksAwarded, undefined, 'no mark is invented …')`. The INTENT —
+  // never fabricate a grade — is preserved and re-asserted positively below; what
+  // changed is the SHAPE. Omitting the field left `totalMarks: 5` as the only number
+  // on the entry, and `totalMarks` MEANS marks available while READING AS marks
+  // scored: the owner saw a garbled answer rendered 4/4 "flawless" on mobile.
+  assert.equal(r.marksAwarded, 0, 'a marks-awarded value is ALWAYS present, so no renderer can mistake totalMarks for it');
   assert.equal(r.totalMarks, 5);
+  // THE INTENT, ASSERTED DIRECTLY: 0 here is not "graded 0". `couldNotRead` is still
+  // the pending signal and the entry is still excluded from the graded totals.
+  assert.equal(h.body().gradedMarksAwarded, 0);
+  assert.equal(h.body().gradedMarksTotal, 0, 'a pending question contributes nothing to the graded denominator');
+  assert.equal(h.body().pendingCount, 1);
+  assert.equal(r.annotatedSteps, undefined, 'no steps are fabricated for an answer that was not graded');
 });
 
 test('§5.12 worksheet: a question the model OMITTED becomes couldNotRead, never a silent zero', async () => {
@@ -1368,4 +1380,168 @@ test('§10.7 ★★ a typed-only batch is never told about an "attached PDF" tha
   await pdf.route.handleGradeWorksheet(PINNED_REQ(), {});
   assert.ok(/attached PDF/i.test(textOf(pdf)), 'the PDF path must keep saying PDF');
   assert.equal(partsOf(pdf).filter(isImage).length, 1);
+});
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §11 · TYPED-3 · A TYPED ANSWER IS TEXT, NOT AN UNREADABLE PHOTOGRAPH
+
+   ★★ THE LIVE DEFECT (owner, production, five typed questions of deliberate
+      nonsense): every question came back `{"couldNotRead": true, "totalMarks": 4}`
+      with "re-upload this page", and the summary advised the student to "ensure
+      your responses are clear and legible". TYPED-2 fixed the DOOR — the request
+      is admitted and the text arrives. This fixes the ROOM: the prompt still
+      framed the task as reading a photograph, so for nonsense TEXT the nearest
+      available verdict was "I couldn't read it". Wrong diagnosis, wrong lesson,
+      and "re-upload this page" names a page nobody uploaded.
+
+   ★★ THE LIMIT OF EVERY TEST BELOW. `callGemini` is stubbed. These prove what the
+      PROMPT SAYS and what the PIPELINE DOES with a reply. They CANNOT prove what
+      the model does with the prompt — that is owner live-verify, all three cases.
+
+   ★ §11.3 IS THE CONTROL. "typed answers are never unreadable" passes just as
+      happily with `couldNotRead` deleted outright; only a surviving, still-
+      instructed `couldNotRead` for a genuine IMAGE distinguishes NARROWED from
+      REMOVED. A genuinely unreadable photo is a real state protecting a real
+      student.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+// A photo batch: no document, one PER-QUESTION answer image, no typing.
+const PHOTO_ONLY_REQ = (questions, ups) => ({ ...TYPED_ONLY_REQ(questions), uploads: ups });
+
+test('§11.1 ★★ a typed-only prompt says a WRONG typed answer scores 0 WITH A REASON — and forbids couldNotRead', async () => {
+  const h = buildImageRoute({ replies: [WS_OK([1])] });
+  await h.route.handleGradeWorksheet(TYPED_ONLY_REQ([Q(1, { textAnswer: 'aksjdhakjdhakjdads' })]), {});
+  const text = textOf(h);
+  // POSITIVE — the instruction the live defect needed and did not have.
+  assert.ok(/is GRADED, not unreadable/.test(text),
+    'a wrong typed answer must be told to be graded, not recorded as unreadable');
+  assert.ok(/marksAwarded 0/.test(text) && /teacherNote saying WHY/.test(text),
+    '0 WITH A REASON — a bare 0 teaches nothing');
+  assert.ok(/"couldNotRead" DOES NOT APPLY/.test(text));
+  assert.ok(/never tell the student to re-upload or to write more clearly/.test(text));
+  // NEGATIVE — the photo framing that produced the wrong verdict must be GONE.
+  assert.ok(!/CANNOT confidently READ the image supplied/.test(text),
+    'the image-reading rule 6 head is what made "unreadable" the nearest verdict');
+  assert.ok(!/followed IMMEDIATELY by the image/.test(text),
+    'no image was sent — the system prompt must not say every question has one');
+  assert.ok(!/For an unreadable answer: \{ "qNumber"/.test(text),
+    'the JSON example must not offer an unreadable shape on a path with no images');
+  assert.equal(partsOf(h).filter(isImage).length, 0);
+});
+
+test('§11.2 ★ PIPELINE: a wrong typed answer graded 0 comes back as a GRADED 0, not honest-pending', async () => {
+  // The model's side of the contract, exercised: `couldNotRead` absent, one step
+  // marked incorrect, zero marks. The response must carry a REASON and must not
+  // be routed into the pending bucket.
+  const h = buildImageRoute({
+    replies: [{
+      results: [{
+        qNumber: 1,
+        annotatedSteps: [{ description: 'Solve', studentWork: 'aksjdhakjdhakjdads', status: 'incorrect',
+          marksAwarded: 0, marksDeducted: 4, teacherAnnotation: 'This is not an attempt at the question.' }],
+        teacherNote: 'Nothing here addresses the question — start from the formula.',
+      }],
+      summary: 'Focus on setting up the equation next time.',
+    }],
+  });
+  await h.route.handleGradeWorksheet(
+    TYPED_ONLY_REQ([{ qNumber: 1, marks: 4, questionText: 'Q1 text', textAnswer: 'aksjdhakjdhakjdads' }]), {});
+  const r = h.body().results[0];
+  assert.equal(r.couldNotRead, false, 'the whole defect: a wrong typed answer is NOT unreadable');
+  assert.equal(r.marksAwarded, 0);
+  assert.equal(r.totalMarks, 4);
+  assert.ok(r.teacherNote.length > 0, '0 with a REASON');
+  assert.equal(h.body().pendingCount, 0);
+  assert.equal(h.body().gradedCount, 1, 'it is GRADED — it counts in the denominator, unlike a pending page');
+});
+
+test('§11.3 ★★ CONTROL — couldNotRead is STILL instructed AND still returned for a genuine IMAGE', async () => {
+  // Without this, §11.1 and §11.2 are vacuous: deleting couldNotRead entirely
+  // would satisfy both. A genuinely unreadable photo is a real state.
+  const h = buildImageRoute({ replies: [{ results: [{ qNumber: 1, couldNotRead: true }], summary: 's' }] });
+  await h.route.handleGradeWorksheet(PHOTO_ONLY_REQ([{ qNumber: 1, marks: 4, questionText: 'Q1 text' }], [UP(1)]), {});
+  const text = textOf(h);
+  // ⚠ ANCHOR THE WHOLE HEAD, not a fragment of it. A first pass asserted only the
+  // `CANNOT confidently READ…` fragment, and mutation M3 — which PREPENDED
+  // "NEVER set couldNotRead." to that very sentence — stayed GREEN. A fragment
+  // survives a prefix that inverts it; the anchored head does not.
+  assert.ok(text.includes('6. HONEST READ — anti-fabrication: if you CANNOT confidently READ the image supplied for a question, set "couldNotRead": true for THAT question and OMIT a grade.'),
+    'the image path must KEEP the honest-read instruction VERBATIM — narrowed, not deleted, not qualified');
+  // ⚠ NOT a blanket `!/never set couldNotRead/i` — rule 6's own pre-existing tail
+  // legitimately says "Never set couldNotRead for a clearly-written non-attempt
+  // phrase", so that regex fails on GOOD code. The anchored head above is what
+  // kills M3: prefixing a prohibition breaks the exact sentence.
+  assert.ok(!/"couldNotRead" DOES NOT APPLY/.test(text), 'the typed-only wording must not leak onto a photo batch');
+  assert.equal(partsOf(h).filter(isImage).length, 1);
+  const r = h.body().results[0];
+  assert.equal(r.couldNotRead, true, 'an unreadable PHOTO still returns honest-pending');
+  assert.equal(r.note, "We couldn't read your answer for this question clearly — re-upload this page.",
+    'and for a photo, "re-upload this page" is the TRUE thing to say');
+  assert.equal(h.body().pendingCount, 1);
+
+  // THE MIXED CASE, asserted so the `hasAnyTyped` clause is not a silent no-op:
+  // one photographed answer and one typed. couldNotRead survives for the photo,
+  // and the typed question is told it is legible by definition.
+  const mixed = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await mixed.route.handleGradeWorksheet(
+    PHOTO_ONLY_REQ([Q(1), Q(2, { textAnswer: TYPED })], [UP(1)]), {});
+  const mt = textOf(mixed);
+  assert.ok(mt.includes('if you CANNOT confidently READ the image supplied for a question, set "couldNotRead": true'),
+    'the photographed half keeps the honest-read instruction');
+  assert.ok(mt.includes('A question answered as TYPED TEXT is legible by definition'),
+    'the typed half is told text is not a photograph');
+  assert.equal(partsOf(mixed).filter(isImage).length, 1);
+});
+
+test('§11.4 ★ NO result entry omits a marks-awarded value — pending or graded, typed or photographed', async () => {
+  // DEFECT B: `couldNotRead` entries carried `totalMarks: 4` and OMITTED
+  // `marksAwarded`, leaving ONE number on the object — and `totalMarks` MEANS
+  // marks available while READING AS marks scored. The owner saw 4/4 "flawless"
+  // for garbled work on mobile.
+  const h = buildImageRoute({
+    replies: [{ results: [
+      { qNumber: 1, couldNotRead: true },
+      { qNumber: 2, annotatedSteps: [{ description: 's', studentWork: 'w', status: 'correct', marksAwarded: 1 }] },
+    ], summary: 's' }],
+  });
+  await h.route.handleGradeWorksheet(
+    PHOTO_ONLY_REQ([{ qNumber: 1, marks: 4, questionText: 'Q1 text' }, Q(2)], [UP(1), UP(2)]), {});
+  for (const r of h.body().results) {
+    assert.equal(typeof r.marksAwarded, 'number',
+      'Q' + r.qNumber + ': a marks-awarded value must ALWAYS be present, so totalMarks is never the only number');
+    assert.ok(Object.prototype.hasOwnProperty.call(r, 'marksAwarded'));
+  }
+  assert.equal(h.body().results.find((r) => r.qNumber === 1).marksAwarded, 0);
+  // AND it is not "graded 0": the pending entry is still excluded from the graded totals.
+  assert.equal(h.body().gradedMarksTotal, 1);
+  assert.equal(h.body().pendingCount, 1);
+});
+
+test('§11.5 the summary rule never advises LEGIBILITY on a typed-only session', async () => {
+  const typed = buildImageRoute({ replies: [WS_OK([1])] });
+  await typed.route.handleGradeWorksheet(TYPED_ONLY_REQ([Q(1, { textAnswer: TYPED })]), {});
+  assert.ok(/must NEVER mention handwriting, legibility/.test(textOf(typed)),
+    '"ensure your responses are clear and legible" is wrong advice to a student who typed');
+  // CONTROL — the PDF path must NOT carry the clause (and §7.1's byte pin agrees).
+  const pdf = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await pdf.route.handleGradeWorksheet(PINNED_REQ(), {});
+  assert.ok(!/must NEVER mention handwriting/.test(textOf(pdf)),
+    'a scanned worksheet CAN legitimately be illegible — the clause is typed-only');
+  assert.equal(shaOf(pdf), NO_UPLOADS_CONTENTS_SHA256, '#578 pin: the PDF prompt is byte-identical');
+});
+
+test('§11.6 ★ the pending NOTE is never "re-upload this page" for a student who TYPED', async () => {
+  // A prompt is advice to a model, not a guarantee. If a couldNotRead comes back
+  // for typed text anyway, the copy must still be true of what the student did.
+  const h = buildImageRoute({
+    replies: [{ results: [{ qNumber: 1, couldNotRead: true, note: 'Please re-upload a clearer photo of this page.' }], summary: 's' }],
+  });
+  await h.route.handleGradeWorksheet(
+    TYPED_ONLY_REQ([{ qNumber: 1, marks: 4, questionText: 'Q1 text', textAnswer: 'aksjdhakjdhakjdads' }]), {});
+  const r = h.body().results[0];
+  assert.ok(!/re-?upload|photo|legib|clearer/i.test(r.note),
+    'no page was uploaded — advice about photographs is incoherent here');
+  assert.equal(r.note,
+    "We couldn't grade your typed answer for this question — try writing out your working step by step and submit again.");
+  assert.equal(r.marksAwarded, 0);
 });

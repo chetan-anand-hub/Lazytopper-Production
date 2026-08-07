@@ -1019,6 +1019,24 @@ function createCheckSolutionRoute(deps) {
   // only awards WITHIN it. Mirrors handleCheckSolution's per-step normalisation +
   // additive-floor mistakeSummary reconcile, so MI routing is identical to the
   // wired Check & Improve path.
+  // ── TYPED-3 · the honest-pending NOTE, made true of what the student actually did ─
+  // "re-upload this page" is incoherent for a typed answer — no page was uploaded.
+  // A model-supplied note is preferred, EXCEPT when the student typed and the note
+  // advises on photography/legibility: that is advice about a channel this student
+  // never used, and it is exactly the wrong lesson (write more clearly, instead of
+  // this answer is incorrect). Nothing is fabricated; the entry stays pending.
+  const PHOTO_ADVICE = /re-?upload|re-?scan|re-?photograph|photo|picture|image|scan|legib|handwrit|hand-writ|clear(er|ly)? (?:writ|hand)/i;
+  const TYPED_PENDING_NOTE =
+    "We couldn't grade your typed answer for this question — try writing out your working step by step and submit again.";
+  const PHOTO_PENDING_NOTE =
+    "We couldn't read your answer for this question clearly — re-upload this page.";
+  function typedNote(q, modelNote) {
+    const typed = String((q && q.textAnswer) || '').trim().length > 0;
+    if (!typed) return modelNote || PHOTO_PENDING_NOTE;
+    if (!modelNote || PHOTO_ADVICE.test(modelNote)) return TYPED_PENDING_NOTE;
+    return modelNote;
+  }
+
   function normaliseStructuredResult(q, raw) {
     const VALID_MISTAKE_TYPES = new Set(['conceptual', 'calculation', 'silly', 'presentation']);
     const totalMarks = Number(q.marks) > 0 ? Number(q.marks) : 1;
@@ -1031,8 +1049,28 @@ function createCheckSolutionRoute(deps) {
         qNumber: q.qNumber,
         couldNotRead: true,
         totalMarks,
-        note: String((raw && raw.note) || '').trim() ||
-          "We couldn't read your answer for this question clearly — re-upload this page.",
+        // ── TYPED-3 · DEFECT B — never leave `totalMarks` as the only number ──────
+        // `totalMarks` MEANS marks AVAILABLE and READS AS marks SCORED. With
+        // `marksAwarded` omitted it was the only number on the entry, and a renderer
+        // that reaches for "the marks" finds 4 — the owner saw exactly that on
+        // mobile: garbled work shown as 4/4 with "flawless solution".
+        // ★ EMIT-ALWAYS, not rename: `totalMarks` is a shipped contract read by
+        //   `aiClient.ts`, `CheckImproveGradedPrintDoc.tsx` (`${q.marksAwarded ?? 0} /
+        //   ${q.totalMarks}`), `SolutionChecker.tsx`, `WorksheetGradePanel.tsx` and
+        //   `scorecardVariants.ts`; renaming it would break every one of them, and
+        //   this lane may not touch `src/`. 0 makes the wrong reading IMPOSSIBLE
+        //   rather than merely unlikely — there is no longer a lone number to grab.
+        // ⚠ THIS IS NOT "graded 0". `couldNotRead: true` remains the honest-pending
+        //   signal, and every aggregate — `gradedMarksAwarded`/`gradedMarksTotal`
+        //   here, plus every `if (r.couldNotRead) continue` in the client — filters
+        //   on it BEFORE reading any marks, so no total moves by this.
+        marksAwarded: 0,
+        // ★ TYPED-3 · "re-upload this page" is INCOHERENT for a student who typed —
+        //   no page was ever uploaded. The prompt now forbids `couldNotRead` on a
+        //   typed answer, but a prompt is advice to a model, not a guarantee: if one
+        //   comes back anyway the copy must still be true of what the student did.
+        //   Nothing is fabricated here — the entry stays honest-pending.
+        note: typedNote(q, String((raw && raw.note) || '').trim()),
       };
     }
 
@@ -1233,6 +1271,27 @@ function createCheckSolutionRoute(deps) {
     // `hasDocument` is true and `perQuestionParts` is exactly `hasUploads` for them.
     const hasDocument = String(imageBase64 || '').trim().length > 0;
     const perQuestionParts = hasUploads || !hasDocument;
+    // ── TYPED-3 · A TYPED ANSWER IS TEXT, NOT AN UNREADABLE PHOTOGRAPH ────────
+    // TYPED-2 fixed the TRANSPORT; the prompt still framed the task as reading a
+    // photograph. Captured live: five typed questions, deliberate nonsense text,
+    // and the model answered `couldNotRead: true` + "re-upload this page" for all
+    // five — because with a prompt written around images, the nearest available
+    // verdict for nonsense text is "I couldn't read it". A student who typed a
+    // WRONG answer was told their WRITING was unclear, and no page was uploaded.
+    // ★ `typedOnly` is the ONLY new condition: no answer photo and no document,
+    //   so EVERY answer in the batch is text. It is false for all four shipped
+    //   no-uploads surfaces (`hasDocument` true) and false for every BATCH-1
+    //   photo batch (`hasUploads` true) — #578's byte pin cannot move.
+    // ⚠ `couldNotRead` is NARROWED, never removed: it remains fully reachable for
+    //   an image the model genuinely cannot read (the mixed and photo batches keep
+    //   it, and §11.3 is the control that proves it).
+    const typedOnly = !hasUploads && !hasDocument;
+    // ★ And the MIXED case: a batch where SOME answers are photographed and some
+    //   typed. Those typed questions have the same problem in miniature, so the
+    //   "typed text is legible by definition" clause is added whenever ANY answer
+    //   is typed — and, critically, NOT when none is. A photo-only batch must carry
+    //   no prohibition on `couldNotRead` whatsoever (§11.3 asserts that absence).
+    const hasAnyTyped = questions.some((q) => String((q && q.textAnswer) || '').trim().length > 0);
 
     if (isStubMode()) {
       const stub = buildStructuredStub(questions);
@@ -1286,7 +1345,14 @@ function createCheckSolutionRoute(deps) {
       );
     }
 
-    const systemPrompt = perQuestionParts
+    const systemPrompt = typedOnly
+      ? "You are a CBSE Class 10 board examiner grading a student's whole worksheet. " +
+        'The student TYPED their answers — this submission contains NO images and NO document. ' +
+        'Each question below carries the student\'s typed answer as TEXT inside its own block. ' +
+        'Typed text is legible by definition: grade what it says. An answer that is wrong, off-topic or meaningless scores 0 WITH A REASON — it is never "unreadable". ' +
+        'Grade EACH question against ITS OWN marking scheme, exactly as a real teacher marking with a red pen. ' +
+        'Respond ONLY with valid JSON, no markdown fences.'
+      : perQuestionParts
       ? "You are a CBSE Class 10 board examiner grading a student's whole worksheet. " +
         'Each question below is followed IMMEDIATELY by the image of the student\'s handwritten answer to THAT question. ' +
         'The image directly after a question\'s block IS that question\'s answer — do not search for question numbers inside the images, and never match an image to a different question. ' +
@@ -1347,7 +1413,9 @@ function createCheckSolutionRoute(deps) {
     // Rule 1 — the LOCATE instruction is wrong for per-question images: there is
     // nothing to locate, and telling the model to look would invite it to match an
     // image to a different question. Adopted verbatim from the BATCH-1 findings.
-    const rule1 = perQuestionParts
+    const rule1 = typedOnly
+      ? '1. Grade each question against ITS OWN scheme using the student\'s TYPED answer given in that question\'s block. There are no images in this submission — nothing was photographed, so never ask for an image and never say an answer could not be read. A question with no image following it has no photographed answer — grade the typed answer given in its block. Award marks by the [bracket] weights in each scheme step, or distribute evenly if none.\n'
+      : perQuestionParts
       ? '1. Grade each question against ITS OWN scheme using the image that immediately follows that question\'s block. A question with no image following it has no photographed answer — grade the typed answer given in its block if one is shown. Award marks by the [bracket] weights in each scheme step, or distribute evenly if none.\n'
       : '1. For EACH question Q1…QN, locate that numbered answer in the PDF and grade it against ITS scheme. Award marks by the [bracket] weights in each scheme step, or distribute evenly if none.\n';
 
@@ -1355,8 +1423,13 @@ function createCheckSolutionRoute(deps) {
     // becomes "READ the image supplied for a question". The whole anti-fabrication
     // tail (the Don't-know exception, the crossed-out exception) is byte-identical
     // on both branches; splitting the head from the tail is what keeps it so.
-    const rule6Head = perQuestionParts
-      ? '6. HONEST READ — anti-fabrication: if you CANNOT confidently READ the image supplied for a question, set "couldNotRead": true for THAT question and OMIT a grade.'
+    const rule6Head = typedOnly
+      ? '6. HONEST READ — anti-fabrication: this submission contains NO images, so "couldNotRead" DOES NOT APPLY to any question here — never set it, and never tell the student to re-upload or to write more clearly. A typed answer is legible by definition. A typed answer that is wrong, nonsense, off-topic or unrelated to the question is GRADED, not unreadable: status "incorrect", marksAwarded 0, marks deducted = question marks, mistakeType null when no working can be diagnosed, and a teacherNote saying WHY it earns no marks.'
+      : perQuestionParts
+      ? '6. HONEST READ — anti-fabrication: if you CANNOT confidently READ the image supplied for a question, set "couldNotRead": true for THAT question and OMIT a grade.' +
+        (hasAnyTyped
+          ? ' A question answered as TYPED TEXT is legible by definition — do not use "couldNotRead" for it; grade the text, awarding 0 with a reason if it is wrong.'
+          : '')
       : '6. HONEST READ — anti-fabrication: if you CANNOT confidently locate or read a question\'s answer in the upload, set "couldNotRead": true for that question and OMIT a grade.';
 
     const rules =
@@ -1367,7 +1440,10 @@ function createCheckSolutionRoute(deps) {
       '4. ERROR CARRIED FORWARD: if one upstream slip makes later steps wrong, mark those later steps status "incorrect" with mistakeType null — never re-charge one slip as several mistakes. ERROR-CARRIED-FORWARD (ECF) MARKING. When a step is wrong ONLY because it correctly applied the right method to a value carried from an earlier mistake: award that step its method/process marks and do NOT treat it as a fresh mistake (mistakeType null). Withhold ONLY the mark(s) attributable to reaching the correct FINAL answer — so a wrong final answer NEVER earns full marks, but correct method NEVER earns zero. On a single-mark question there are no separate method marks, so a wrong answer scores 0. Award marks in HALF-MARK units (½ is the smallest unit; no finer). Awarded marks must sum to a ½-multiple not exceeding the question\'s total, allocated to the ACTUAL steps — never invented to hit a number.\n' +
       '5. NO WORKING SHOWN → mistakeType null. If the student shows NO working — only a final answer (e.g. just a chosen MCQ option such as "(d)") — and it is wrong, you CANNOT diagnose the cause: set mistakeType null for that step. Never guess "conceptual" (or any type) from a bare wrong answer. A wrong answer with no working is undiagnosable, not conceptual — the marks are still not earned (status stays "incorrect"), only the type is null.\n' +
       rule6Head + ' NEVER guess a mark, and NEVER record an unreadable/absent answer as 0. Only grade answers you can actually read. IMPORTANT EXCEPTION: a student writing \'Don\'t know\', \'Dont know\', \'I don\'t know\', \'DK\', or any similar explicit non-attempt phrase IS legible — it is NOT couldNotRead. Grade it as: status "incorrect", marks deducted = question marks, mistakeType null (undiagnosable — no working shown). Never set couldNotRead for a clearly-written non-attempt phrase. Similarly, an answer that is clearly and completely crossed out with no replacement written is a NO-ATTEMPT — grade it as: status "incorrect", marks deducted = question marks, mistakeType null. Never set couldNotRead for a clearly crossed-out answer with no replacement.\n' +
-      '7. teacherNote per question: 1–2 short plain-English sentences. "summary": 2–3 encouraging, exam-useful sentences about the whole worksheet (answer-writing tips where relevant).\n' +
+      '7. teacherNote per question: 1–2 short plain-English sentences. "summary": 2–3 encouraging, exam-useful sentences about the whole worksheet (answer-writing tips where relevant).' +
+      (typedOnly
+        ? ' The student TYPED these answers, so the summary must NEVER mention handwriting, legibility, clarity of writing, scanning, photographing or re-uploading — advise on the MATHS/SCIENCE and on answer structure only.'
+        : '') + '\n' +
       '8. WORD-PROBLEM FINAL ANSWER: when a question asks to "find a number/value/quantity", correctly solving the equation earns the equation-solving marks. Explicitly stating which root satisfies the problem context (e.g. "N = 8 since N must be a natural number; N = -20 rejected") is a required final step. If the student solves correctly but omits this explicit contextual statement, deduct ½ mark as a presentation step — never deduct more than ½ for this alone if the equation and roots are both correct. PARTIAL CREDIT: award marks strictly by the step weights in the marking scheme. A step the student attempted correctly earns its allocated marks even if a later step is wrong. A step with a calculation error earns 0 for that step only — never redistribute or re-weight marks across steps. If no explicit per-step weight exists, distribute the question\'s total marks evenly across required steps. OBJECTIVE EXCEPTION (MCQ / Assertion-Reason / Section A): NEVER step-mark an objective question and NEVER split its marks across steps — it scores the WHOLE mark on the correct option or 0 on a wrong one, never a fraction. Any working the student wrote for an MCQ is read ONLY to classify the mistake type, never to award partial marks.\n' +
       '9. QUESTION MISCOPY: if the student\'s working is internally consistent and mathematically correct but solves a DIFFERENT equation/expression/problem than the one stated in the question (i.e. they appear to have miscopied or misread the question from the paper), award 0 marks for the entire question and classify mistakeType as \'silly\'. A correctly solved wrong problem earns no credit. Tell-tale sign: the student\'s equation/values do not match the question\'s stated coefficients/values, yet their algebraic steps are internally correct for what they wrote.';
 
@@ -1385,7 +1461,9 @@ function createCheckSolutionRoute(deps) {
       '      "mistakeSummary": { "conceptual": 0, "calculation": 0, "silly": 0, "presentation": 0 },\n' +
       '      "teacherNote": "1-2 sentence per-question summary"\n' +
       '    }\n' +
-      '    // ...one object per question. For an unreadable answer: { "qNumber": N, "couldNotRead": true }\n' +
+      (typedOnly
+        ? '    // ...one object per question. Every answer here is typed text, so EVERY question gets a real grade — never { "couldNotRead": true }.\n'
+        : '    // ...one object per question. For an unreadable answer: { "qNumber": N, "couldNotRead": true }\n') +
       '  ],\n' +
       '  "summary": "2-3 sentence encouraging whole-worksheet summary"\n' +
       '}';
@@ -1421,7 +1499,9 @@ function createCheckSolutionRoute(deps) {
         }
       }
       p.push({
-        text: '\n\nEvery question above that has a photographed answer is followed by exactly one image of that answer, in the order listed.\n\n' +
+        text: (typedOnly
+          ? '\n\nEvery answer above is the student\'s own TYPED text. No images are attached to this request.'
+          : '\n\nEvery question above that has a photographed answer is followed by exactly one image of that answer, in the order listed.') + '\n\n' +
           jsonSchema + '\n\n' + rules,
       });
       return p;
