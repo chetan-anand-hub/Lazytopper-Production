@@ -1,6 +1,187 @@
 # LazyTopper — Current State
 
-## [CURRENT] #623 merged — THE PHONE PATH NAMES ITS STUDENTS · A GUARD THAT WAS VACUOUS AND GREEN · AND A MUTATION THAT COULD NOT LAND, RECORDED AS GREEN — trunk `2ca9a3d0`
+## [CURRENT] Wave 5F CLOSED — #619 · #620 · #625 · #621 · #626 · #627 — trunk `fbfb57fa`
+
+### ***** THE SENTENCE THAT DEFINES THIS WAVE *****
+
+> ## **Six PRs, four lanes, 1,400+ tests, six green CI runs — AND TYPED GRADING HAD NEVER ONCE WORKED IN PRODUCTION until the owner tried it on his phone. No gate found it.**
+
+**That, in one sentence, is the argument for the ~50-student QA pass: our gates prove what the code
+does, and only a real student on a real device proves what the product does.** Fourth consecutive
+wave in which the deployed-product check found what the suite could not.
+
+### THE SIX PRs — verified ON TRUNK BY MERGE-COMMIT ANCESTRY, not by PR state (this repo squash-merges)
+
+```
+#619  c3c9de18  WARM-GATE-1  gate the startup pre-warm, then the schema
+#620  6783850b  TELEMETRY-1  attribute the AI spend by workload
+#625  b48d6e38  TYPED-1      a channel for typed working + an exported upload cap
+#621  d03550e1  WIRE-2       flip Quick Practice to collect-and-batch grading
+#626  a307cfc4  TYPED-2      admit a typed-only batch at the grading endpoint
+#627  fbfb57fa  TYPED-3      a typed answer is text, not an unreadable photograph
+```
+**Trunk moved NINE times across this wave. Re-derive before every dispatch — proven nine times.**
+**ZERO open PRs at closure.**
+
+| PR | what it made TRUE |
+|---|---|
+| **`#619`** | The startup pre-warm is **disabled by a gate, not by a missing database.** Boot log proven in production with `DATABASE_URL=set` — the exact configuration that started 312 Gemini combinations on 5 Aug. `/api/health` 200; `POST /api/admin/warm-question-pool` **503 in 5 ms without touching Gemini.** `WARM_POOL_ENABLED` deliberately **UNSET** — absent already means off. |
+| **`#620`** | AI spend is **attributable by workload** from the next spike onward. (The Rs 586.96 stays unattributable **forever**; `#620` fixes the future, not the past.) Its output is what `SERVER-2` will be scoped from — **from the OUTPUT, never from a document.** |
+| **`#625`** | `WorksheetGradeQuestionInput` carries a **student-typed-work field**, emitted by `blockFor` at **both** call sites, and `MAX_BATCH_UPLOADS` is **exported** at `lazytopper/src/config/gradingLimits.ts` so the client can finally learn the cap. Merged as a **capability with no caller**. |
+| **`#621`** | Quick Practice **collects and batches**: one grading call at Finish, the client sends `textAnswer`, `uploads` is filtered so a typed-only answer cannot shift a later photo, and the client reads the exported cap and **warns before the call instead of taking a bare 400**. It ended THREE dormancies at once — `#578`, `#611`, `#617`. |
+| **`#626`** | The endpoint **admits a typed-only batch.** The guard was **narrowed, never deleted** — no PDF, no photos AND no typing is still refused, now with copy that names what is actually missing: *"Nothing to grade yet — type your answer or add a photo of your working, then try again."* |
+| **`#627`** | A typed answer is **graded as text.** `couldNotRead` narrowed to the image path (**not made unreachable**), the mixed-batch typed half fixed too, the *"re-upload this page"* note made honest for a student who uploaded nothing, and `marksAwarded` **always emitted (0 when ungraded)** so marks-available can never read as marks-scored. |
+
+### ★★ THE LIVE-VERIFY — ALL THREE CHECKS PASSED, **INCLUDING THE CONTROL**
+
+```
+typed WRONG   ->  0 with a REASON, not "unreadable"
+typed CORRECT ->  marks AWARDED
+blurry PHOTO  ->  couldNotRead STILL FIRES      <- THE CONTROL
+```
+**The control is the load-bearing one:** it proves `#627` NARROWED `couldNotRead` rather than
+disabling it. Without it, assertion 1 would have been vacuous.
+★ **`#578`'s seam has now executed against real Gemini.** It sat dead for nine days. **Typed
+grading works end to end.**
+
+### ★★ THE DEFECT THE WHOLE SUITE MISSED — and why it is the wave's subject
+
+`#621` merged with a **full zero-skip CI receipt** — 196/196 root matrix, `Tests 1463 passed
+(1463)`, CodeQL genuinely executing ~45 queries, zero open alerts. **And a typed answer had never
+once been graded in production.** The owner found it on his phone:
+
+```
+POST /api/grade-worksheet  ->  400
+{ ok: false, error: 'Upload one PDF of your answers to grade.' }
+```
+
+**Root cause: `handleGradeWorksheet` REFUSED a zero-upload request** — a guard predating batch
+grading, written for a worksheet flow where a PDF was always present. `#625`'s typed emission was
+never reached: **the request was refused at the front door.**
+★★ **A FIELD REACHING THE EMITTER IS NOT THE SAME AS THE REQUEST REACHING THE EMITTER.** Same
+family as MOUNT != LIVE, one layer further out.
+★★ And it was **two layers, not one** (`#626` finding 1): admitting the request and **building a
+coherent prompt for it** are different problems — the no-uploads branch still described *"the
+attached PDF"* and appended an empty image part unconditionally.
+★★ And even then the model was told to **read a photograph** (`#627`): Gemini received a perfectly
+readable `textAnswer` of typed nonsense and returned `couldNotRead: true` with *"re-upload this
+page"*. **A student who typed a wrong answer was told their handwriting was unclear.** Wrong
+diagnosis, and it teaches the wrong lesson. And *"re-upload this page"* is incoherent: no page exists.
+
+**Why no gate saw it:** the existing test titled *"a typed answer alone reaches the model — the
+free-tier path is not a 400"* **sent `imageBase64: 'PDFB64'`.** ★★ **A TITLE IS NOT AN ASSERTION.**
+Four lanes and the cofounder read that title and saw the path as covered.
+-> `[FU-TYPED2-SUITE-TITLE-VS-FIXTURE]`
+
+### 🛑 THE ONE PRE-LAUNCH BLOCKER THIS WAVE CREATED THE EVIDENCE FOR
+
+**`[FU-UPLOAD-LIMIT-BLOCKS-PHONE-PHOTOS]`** — a normal phone photo (3 MB+) **EXCEEDS the upload
+limit.** The owner had to photograph, convert to PDF, then upload. **A photo-grading product that
+rejects phone photos is broken for its primary use case — and this is the FREE-TIER path.**
+Fix: raise images to ~10 MB **AND** add client-side downscale (~2000 px long edge, ~85% quality —
+a 4 MB photo becomes ~600 KB with no loss of legibility, and it cuts input tokens too).
+⚠ **CHECK THE SERVER CAP TOO, or raising the client yields a 413 instead of a friendly refusal —
+the same shape as the `MAX_BATCH_UPLOADS` 400 this wave already paid for.**
+
+### ⚠ CARRIED UNRULED INTO WAVE 5G — the owner's decision, deliberately deferred
+
+**1 · THE FENCE.** `[FU-TYPED1-FENCE-IS-NOT-ESCAPING]` / `[FU-AMEND621-FENCE-ESCAPE-IS-SERVER-SIDE]`
+/ `[FU-AMEND621-BATCH-WIDENS-INJECTION-BLAST-RADIUS]`.
+★ **PRODUCT-WIDE, AND LIVE TODAY ON CHECK & IMPROVE.** The brief's premise that this arc *created*
+the surface was **FALSE** — `SolutionChecker.tsx` and `DesktopCheckImprovePage.tsx` have shipped
+student free text through the identical triple-quote fence since `57224f49`. **This arc EXTENDS an
+existing injection surface; it does not open one.** Facts settled from source:
+forgeable **YES** (any line whose content is the fence token; no escape, no filter, no truncation —
+the only bound is an ~8 MB body cap); blast radius **reaches other questions in the same call**;
+what an injection can move is **the SUBJECTIVE MARK** (qNumber reconciliation, the per-question mark
+ceiling, the keyed objective clamp and the status allowlists all survive); **the privilege boundary
+HOLDS — entitlement and rate limiting are pre-handler, and the damage is self-inflicted grade
+inflation and a polluted OWN MI, never another student's.** The fix is **2 sites in 1 server file**;
+the WIDER free-text surface is **19 sites across 6 server files, of which `/api/tutor` is 9.**
+=> **Its own lane, covering all three call sites.**
+
+**2 · `/admin/diagram-*` AUTHENTICATION.** Reported as the only `/admin/*` routes **not** wrapped in
+`<RequireAuth>`, posting a free-text textarea to `/api/generate-diagram` — **the one plausible
+UNAUTHENTICATED free-text path to Gemini.** ⚠ **NOT ESTABLISHED whether it is blocked server-side:**
+`entitlement.cjs` / `verifiedCaller.cjs` were never opened for that route. **The owner will not rule
+from a name — this needs the finding first.**
+
+### 🛑 CARRY THIS LOUDLY: **`[FU-WARMGATE-DRIZZLE-SCHEMA-DRIFT]` — NO `drizzle-kit push`**
+
+A **second** migration mechanism exists (Drizzle, `lib/db/src/schema/generatedQuestions.ts`) whose
+`generated_questions` **OMITS** `answer` / `solution_steps` / `final_answer` **and** the unique index
+that `saveToPool`'s `ON CONFLICT` requires. `drizzle-kit push` alone would create a table the live
+server **CANNOT WRITE TO — and it would look like success.** Not fixed; outside every allowlist this
+wave. **Do not run it until this is settled.**
+
+### THE GITHUB ACTIONS OUTAGE — recorded because it nearly cost a code change
+
+`#621`'s three CI gates all went red on a clean head. **Root cause: a GitHub Actions MAJOR OUTAGE**
+(`githubstatus.com` — Actions `major_outage`, incident impact CRITICAL, opened 15:22:49Z; `#621`'s
+first failing run started 17:00:53Z, an hour and a half in). Three converging lines of evidence, in
+ascending order of strength: (1) the logs — `Service Unavailable` at *Set up job*, zero steps, a job
+whose every step passed and which the SERVICE marked failure 45 minutes later; (2) ★★ **THE
+CONTROL — Lane Overlap flipped failure -> SUCCESS on the SAME head with ZERO code changes**; (3) an
+external, independent status page.
+**ZERO LINES WERE CHANGED. Nothing was suppressed, baselined or excluded.** ★★ **A gate that flips
+to green with no code change cannot have been failing on the code**, and editing code to chase such
+a green is how a real regression gets introduced while cleaning up a phantom.
+★★ And the controller's own watch was wrong in the same family: **a watch that polls for job
+COMPLETION cannot see a job that was never CREATED.** "Waiting for the outage" and "no run exists"
+look identical from outside. **Before waiting on CI, confirm a RUN EXISTS.** The owner's empty-commit
+test is what established that dispatch had died repo-wide, and the correctly-specified replacement
+watch is what detected its recovery.
+
+### ★★ DOCTRINE EARNED THIS WAVE — eight items, three from TYPED-3 alone
+
+1. **A CORRECTION IS NOT EVIDENCE — IT IS A NEWER CLAIM.** Verify BOTH versions. **Twice this wave a
+   superseding correction was itself wrong**, and both were the cofounder's. `:283` is
+   `propertyOrdering`, **not** `required` — a grep hit read without reading the two lines around it.
+2. **A MUTATION THAT GOES GREEN MAY BE A HOLE IN THE TEST, NOT THE ABSENCE OF A TRAP.** `#627`'s M3
+   passed because the assertion pinned a FRAGMENT; re-anchored to the whole rule-6 head, it reddened.
+   **A lane that had recorded M3 as "no trap" would have shipped an assertion that could not fail.**
+3. **AN EXISTING GREEN TEST CAN PIN THE DEFECT IT WAS MEANT TO PREVENT.** `§5.11` asserted
+   `marksAwarded === undefined`. Same family as `#490`'s `Login.oneDoor.test.tsx`.
+4. **A FIELD REACHING THE EMITTER IS NOT THE REQUEST REACHING THE EMITTER.**
+5. **A TITLE IS NOT AN ASSERTION** — check every new test's FIXTURE against its title.
+6. **A GREP HIT IS NOT LIVE CODE.** Two `typed-no-channel` hits on trunk were both COMMENTS
+   explaining what replaced the hinge. Checking by content took one command and prevented
+   re-dispatching a lane that had already merged.
+7. **A WATCH THAT POLLS FOR COMPLETION CANNOT SEE A JOB NEVER CREATED.**
+8. **A LOGGER'S SEVERITY IS ABOUT THE STATUS CODE, NOT ABOUT WHETHER ANYTHING WENT WRONG.** Third
+   instance in a single day: `[warm] Recurring pool top-up disabled` while 312 combinations STARTED;
+   `[warm] Skipping pool pre-warm` meaning the OLD code was deployed; `pino-http` logging a
+   DELIBERATE 503 as *"request errored"* with a stack trace of pino's own frames. **READ THE FIELDS,
+   NOT THE WORD.**
+
+★ **The thread through all eight:** *the signal is present, and it reads as its own opposite.*
+
+### ALSO STANDING FROM THIS WAVE
+
+- **NEVER COMMIT WHILE A MUTATION HARNESS IS RUNNING.** `#621`'s commit `16dd9506` captured mutation
+  M3 because the commit RACED a background harness. The restore was byte-perfect; **the COMMIT was
+  the bad snapshot**, and the only signal is a "modified" file that reads like noise. Fixed FORWARD,
+  and the other mutations proven not to have leaked **by grepping the committed BLOBS.**
+- **A `\uXXXX` ESCAPE DECODES IN A STRING AND RENDERS LITERALLY IN A JSX TEXT NODE.** Two were live
+  on `#621`'s branch, one of them already shipped. **Found only by screenshot** — third consecutive
+  wave in which screenshots changed code. `[FU-AMEND621-JSX-TEXT-UNICODE-ESCAPE]`.
+- **CONTROLLER RULING: merge trunk IN, do not REBASE a pushed branch.** A rebase would require
+  `git push --force`, which `CLAUDE.md` §3 lists as NEVER auto-approved, and under squash-merge it
+  buys nothing. **A brief instructing a never-auto-approved operation is a spec error to catch BEFORE
+  dispatch, not a permission to grant quietly.**
+- ⚠ **`[FU-CI-VERIFY-PRODUCTION-BUILD-NOT-WIRED]`** — `node scripts/verify-production-build.mjs`,
+  **required by `CLAUDE.md` §6, has NEVER run in CI.** The string appears zero times in the Quality
+  Gate log; the Build step is `vite build` alone. **A gate named in our own standing instructions
+  that no run executes is a silent no-op, one level up from the code.**
+
+### THE FULL RECORD
+
+**`handoff/WAVE_STATE_WAVE5F_ARCHIVE.md`** is the complete wave record, archived verbatim under
+RULE 0. Lane reports on disk at `Desktop\diff\wave 5f\report\`.
+
+---
+
+## [SUPERSEDED by Wave 5F] #623 merged — THE PHONE PATH NAMES ITS STUDENTS · A GUARD THAT WAS VACUOUS AND GREEN · AND A MUTATION THAT COULD NOT LAND, RECORDED AS GREEN — trunk `2ca9a3d0`
 
 **One standalone lane, `NAME-2`. Merged and OWNER LIVE-VERIFIED ON A REAL HANDSET.**
 

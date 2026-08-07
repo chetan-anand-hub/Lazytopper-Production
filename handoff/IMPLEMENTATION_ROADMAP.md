@@ -1,5 +1,96 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-08-07 — WAVE 5F **COMPLETE** (six PRs / four lanes + a scout + a CI-diagnosis lane, trunk `fbfb57fa`) — Quick Practice becomes exam-shaped, and typed grading works for the first time
+
+> ★★ **Six PRs, four lanes, 1,400+ tests, six green CI runs — AND TYPED GRADING HAD NEVER ONCE
+> WORKED IN PRODUCTION until the owner tried it on his phone. No gate found it.**
+
+**STAGES COMPLETE — all six verified ON TRUNK BY MERGE-COMMIT ANCESTRY (this repo squash-merges):**
+
+- **`WARM-GATE-1` (`#619`, `c3c9de18`)** — a master gate over unattended question generation, and
+  **the schema drift behind it found and recorded.** ★★ **LIVE-VERIFIED IN PRODUCTION with
+  `DATABASE_URL=set`** — the exact configuration that started 312 Gemini combinations on 5 Aug.
+  Boot log: `[warm] gate WARM_POOL_ENABLED=(unset) | DATABASE_URL=set | STUB_MODE=off`, then
+  startup pre-warm, recurring top-up **and** the admin endpoint all DISABLED, and
+  `[warm] no unattended question generation is scheduled`. `/api/health` 200;
+  `POST /api/admin/warm-question-pool` **503 in 5 ms without touching Gemini.**
+  ★ **The pre-warm is disabled BY THE GATE, not by a missing database** — the sentence the lane
+  existed to make true, never testable before. `WARM_POOL_ENABLED` deliberately **UNSET**.
+- **`TELEMETRY-1` (`#620`, `6783850b`)** — AI spend attributable **by workload**, on a second
+  orthogonal axis rather than a widened `CALL_CLASSES` (pinned equal to `rateLimiter.PAID_ENDPOINTS`
+  **so the datasets JOIN**). **`SERVER-2` is scoped from its OUTPUT, never from a document.**
+- **`TYPED-1` (`#625`, `b48d6e38`)** — a typed-working field on `WorksheetGradeQuestionInput`,
+  emitted by `blockFor` at **both** call sites, and `MAX_BATCH_UPLOADS` exported at
+  `lazytopper/src/config/gradingLimits.ts`. **Shipped as a capability with no caller**; the prompt
+  needed no change because rule 1 already instructed the model.
+- **`WIRE-2` (`#621`, `d03550e1`)** — Quick Practice flipped to **collect-and-batch**: one grading
+  call at Finish, `textAnswer` sent, `uploads` filtered so a typed-only answer cannot shift a later
+  photo, and the exported cap read client-side so a 13-photo session **warns instead of taking a
+  bare 400**. **It ended THREE dormancies at once** — `#578`, `#611`, `#617`.
+- **`TYPED-2` (`#626`, `a307cfc4`)** — the endpoint **admits a typed-only batch**. Guard **narrowed,
+  never deleted**; the no-uploads prompt branch no longer describes a PDF the student never sent nor
+  appends an empty image part; new honest copy *"Nothing to grade yet — type your answer or add a
+  photo of your working, then try again."*
+- **`TYPED-3` (`#627`, `fbfb57fa`)** — a typed answer is **graded as text**. `couldNotRead` narrowed
+  to the image path (**still reachable for a real photo — that is the control**), the mixed-batch
+  typed half fixed, the *"re-upload this page"* note made honest, and `marksAwarded` **always emitted
+  (0 when ungraded)** so marks-available can never read as marks-scored.
+
+**★★ OWNER LIVE-VERIFIED — ALL THREE, INCLUDING THE CONTROL:** typed WRONG -> **0 with a reason**;
+typed CORRECT -> **marks awarded**; blurry PHOTO -> **`couldNotRead` still fires**.
+**`#578`'s seam has executed against real Gemini. Typed grading works end to end.**
+
+**CLOSED BY THIS WAVE:**
+- **`[FU-BATCH-TYPED-ANSWER-NO-CHANNEL]`** — closed by `#625` + `#621` + `#626` + `#627` together.
+  ⚠ **`#625` alone did NOT close it** — see below.
+- **`[FU-QP-BATCH-CAP-13-UPLOADS-400]`** — closed by `#625`'s export + `#621`'s client reader.
+- **`[FU-TYPED1-AMEND621-DELETE-HINGE]`**, **`[FU-TYPED1-CAP-HAS-NO-CLIENT-READER]`** — closed by `#621`.
+- **`[FU-578-LIVE-VERIFY-STILL-OWED]` / `[FU-TYPED1-LIVE-VERIFY-OWED]`** — **DISCHARGED** by the
+  owner's live-verify.
+- **The mobile "full marks" report** — **NOT a defect.** The first mobile test ran before `#626`
+  reached Railway. Closed so nobody re-opens it as a device-specific bug.
+
+**★★ THE STAGE THAT LOOKED COMPLETE AND WAS NOT — the wave's real lesson:**
+`#621` merged with a **full zero-skip receipt** (196/196 root matrix, `Tests 1463 passed (1463)`,
+CodeQL genuinely executing ~45 queries, zero alerts) **and typed grading still returned a 400 on
+every attempt.** `handleGradeWorksheet` refused a zero-upload request at the front door.
+⇒ ★★ **A FIELD REACHING THE EMITTER IS NOT THE REQUEST REACHING THE EMITTER**, and the test that
+should have caught it was titled for the coverage its **fixture omitted**. **Two further stages
+(`#626`, `#627`) were needed after the stage that was supposed to finish it.**
+
+**🛑 NOT CLOSED — PRE-LAUNCH BLOCKING, CREATED BY THE LIVE-VERIFY:**
+- **`[FU-UPLOAD-LIMIT-BLOCKS-PHONE-PHOTOS]`** — a normal phone photo exceeds the upload limit on the
+  **FREE-TIER** path. **A photo-grading product that rejects phone photos is broken for its primary
+  use case.** Raise to ~10 MB **and** downscale client-side; ⚠ **check the SERVER cap in the same
+  lane or you get a 413 instead of a friendly refusal.**
+
+**NOT CLOSED — carried, with teeth:**
+- **`[FU-QP-GRADED-SHEET-NO-STEPWISE-MARKING]`** — a teacher marks step by step; two lines naming
+  where marks were lost is a score, not a diagnosis the tutor can teach from. `RESULTS-1` §1b
+  promised *"the same board-style depth Check & Improve gives today"*. **Its own lane.**
+- **`[FU-GRADING-CONSISTENCY-UNMEASURED]`** — **a harness, not a fix, and it GATES `SERVER-2`.**
+  Temperature is already 0.05 and `responseSchema` shipped in `#559`: **the easy determinism levers
+  are spent** and the residual variance has never been measured.
+- **`[FU-QP-GRADED-SHEET-NOT-A-ROUTE]`** — **DEFERRED, NOT RESOLVED** (owner ruling 3A, in which he
+  reversed his own earlier ruling). Section 9b's `App.tsx` authorization **stays granted**.
+- **`[FU-WARMGATE-DRIZZLE-SCHEMA-DRIFT]`** — 🛑 **NO `drizzle-kit push`.** It would create a table the
+  live server cannot write to, **and it would look like success.**
+- **`[FU-CI-VERIFY-PRODUCTION-BUILD-NOT-WIRED]`** — a `CLAUDE.md` §6 gate **CI has never run.**
+
+**CARRIED UNRULED INTO WAVE 5G — the owner's calls, not a lane's:**
+- **THE FENCE** — product-wide and **live today on Check & Improve**; this arc extended a surface
+  open since `57224f49`, it did not create one. Own lane, **all three call sites**.
+- **`/admin/diagram-*` AUTHENTICATION** — **NOT ESTABLISHED** whether blocked server-side. Needs a
+  finding before a ruling.
+
+**WAVE 5G — the order:** `ME-PROGRESS` (⚠ **two owner amendments owed first**: its stale GATE-3 CTA
+paragraph, and expecting `lane_overlap`'s GATED_FILES warning) -> `SERVER-2` (**gated by
+`[FU-GRADING-CONSISTENCY-UNMEASURED]`**) -> `DPDP` -> `SEO-1` ->
+`[FU-SCORECARD-DESKTOP-SCROLL-CEILING]` -> the graded-sheet route lane -> `AUTH-1` ->
+`FORBID-7` + `BATCH-2` history.
+
+---
+
 ## 2026-08-06 — #623 **COMPLETE** (one standalone lane, trunk `2ca9a3d0`) — the phone path names its students, live-verified on a real handset
 
 **STAGES COMPLETE:**

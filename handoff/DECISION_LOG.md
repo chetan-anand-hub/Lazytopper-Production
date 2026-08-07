@@ -1,3 +1,221 @@
+## 2026-08-07 — WAVE 5F, four lanes + a scout + a CI-diagnosis lane (#619 · #620 · #625 · #621 · #626 · #627, trunk `fbfb57fa`)
+
+> ★★ **Six PRs, four lanes, 1,400+ tests, six green CI runs — AND TYPED GRADING HAD NEVER ONCE
+> WORKED IN PRODUCTION until the owner tried it on his phone. No gate found it.** That is the
+> argument for the ~50-student QA pass, in one sentence.
+
+### ★★ DOCTRINE EARNED — eight items, three from the `#627` lane alone
+
+**1 — A CORRECTION IS NOT EVIDENCE. IT IS A NEWER CLAIM.** The cofounder told the owner *"there is no
+`marksAwarded` field"*, then corrected himself to *"it is in the response schema's REQUIRED set"*.
+**BOTH were wrong on mechanism.** The cited `:283` is `propertyOrdering`; `required` is `['qNumber']`
+alone, and the omission is the **server's hand-built early return**, not the model's. The controller's
+instruction — *do not inherit EITHER version on faith, re-locate BY SYMBOL* — is what caught it, and
+it was the **second time in one wave** that a superseding correction was itself wrong. **Verify both
+versions; a later claim is not a verified one.**
+★ Related and load-bearing: **a line reference is a derived value nothing re-checks — cite by symbol
+or by quote.** (Third wave running that this has cost something.)
+
+**2 — A MUTATION THAT GOES GREEN MAY BE A HOLE IN THE TEST, NOT THE ABSENCE OF A TRAP.** `#627`'s M3
+went green because the assertion pinned a **fragment** of the rule-6 head; a prepended *"NEVER set
+couldNotRead."* survived it. Re-anchored to the **whole** head, it reddened. **The hole was in the
+test.** A lane that had recorded M3 as "no trap" would have shipped an assertion that could not fail.
+⇒ **A green mutation is a question, not an answer.** (Compare Wave 5D's converse: a mutation that
+never APPLIED reported all-green and accused a good test of being fake. **Prove the mutation landed,
+then interpret its colour.**)
+
+**3 — AN EXISTING GREEN TEST CAN PIN THE DEFECT IT WAS MEANT TO PREVENT.** `§5.11` asserted
+`marksAwarded === undefined` — i.e. it pinned the ambiguity that let a renderer show 4/4 with
+"outstanding work" for an ungraded answer. Fixing the shape **required** changing it; the intent was
+re-asserted **positively**. Same family as `#490`'s `Login.oneDoor.test.tsx`, and as `#621`'s
+`quickPracticeSessionService.batch.test.ts` §6, which pinned `"typed-no-channel"` and reddened **by
+construction** when the hinge was deleted. **An allowlist exception to invert such a test is
+justified; silently working around it is not.**
+
+**4 — A FIELD REACHING THE EMITTER IS NOT THE REQUEST REACHING THE EMITTER.** `#625`'s brief said
+*"`blockFor` emits the typed working when present"* and **never asked whether a request carrying only
+typed answers is admitted**. It was not: `handleGradeWorksheet` refused a zero-upload request at the
+front door, so the emitter was never reached. **The lane did exactly what it was told.** Same family
+as MOUNT != LIVE, one layer further out. ⇒ **A brief for a data-flow change must name the ADMISSION
+check, not only the emission site.**
+★ And `#626` showed it is **two layers, not one**: admitting the request and **building a coherent
+prompt for it** are different problems. **The brief named the door and not the room behind it.**
+
+**5 — A TITLE IS NOT AN ASSERTION.** The test titled *"a typed answer alone reaches the model — the
+free-tier path is not a 400"* **sent `imageBase64: 'PDFB64'`.** It never exercised a zero-upload
+request at all, and its title read as exactly the coverage that was missing — so four lanes and the
+cofounder all saw the path as covered. Sibling of *"a test with a data guard passes while asserting
+nothing"*; here **the FIXTURE is what hollowed it out.** ⇒ **Every new test's fixture must be quoted
+in the lane report and checked against its title.** `[FU-TYPED2-SUITE-TITLE-VS-FIXTURE]`
+
+**6 — A GREP HIT IS NOT LIVE CODE.** Two `typed-no-channel` hits remained on trunk after `#621`;
+**both were COMMENTS** that exist *because* the hinge was deleted, explaining what replaced it. The
+live code reads `if (nonEmpty(answer.imageBase64) || nonEmpty(answer.textAnswer)) return "batch";`
+and `typed-no-channel` is gone from the union type itself. **Checking by content took one command and
+prevented re-dispatching a lane that had already merged.**
+
+**7 — A WATCH THAT POLLS FOR COMPLETION CANNOT SEE A JOB THAT WAS NEVER CREATED.** The owner's
+correction, and it was right. *"Waiting for the outage"* and *"no run exists"* look **identical** from
+outside, and the check the controller specced (`gh pr checks` / run conclusions) is silent when there
+is nothing to conclude. **Before waiting on CI, confirm a RUN EXISTS — not merely that the PR is
+BLOCKED.** `mergeState=BLOCKED` with no run means **nothing ran**, not that a gate failed. The
+empty-commit test proved dispatch had died **repo-wide**; a watch re-specced on RUN EXISTENCE
+detected its recovery, and the completion watch it replaced would have stayed silent through exactly
+that transition.
+
+**8 — A LOGGER'S SEVERITY IS ABOUT THE STATUS CODE, NOT ABOUT WHETHER ANYTHING WENT WRONG.** Recorded
+by the owner from `#619`'s live-verify, and it was the **third instance in a single day**:
+`[warm] Recurring pool top-up disabled` while 312 combinations STARTED; `[warm] Skipping pool
+pre-warm` meaning the OLD code was deployed, not that a gate held; and `pino-http` logging the
+**deliberate** 503 refusal as *"request errored"* **with a stack trace of pino's own frames.** The
+guard HELD; the log said "errored". ⇒ **READ THE FIELDS, NOT THE WORD.**
+
+★ **THE THREAD THROUGH ALL EIGHT, and through `[FU-WARMGATE-DRIZZLE-SCHEMA-DRIFT]` (*"it would look
+like success"*) and the mutation-harness race (*"reads like noise"*): the signal is present, and it
+reads as its own opposite.**
+
+### OWNER RULINGS
+
+**RULING 1A — the server field lands BEFORE `#621` merges.** Typed working is the **free-tier** path:
+a student without a camera, or on a laptop, types. Regressing it hits the students **least able to
+work around it**, and *"a later lane will fix it"* is exactly how `#578` sat dead for eight days.
+**1C rejected STRUCTURALLY** — it breaks the "exactly one call per session" invariant the whole lane
+rests on. ★ `WIRE-2` was **RIGHT not to reach for `server/**`** — the allowlist working as designed.
+⚠ It also made the one **dishonest string** in the flow true before any student saw it: the
+kind-independent heading *"Saved. Graded when you finish."* was being shown to typed answers that
+would never be graded. Under the rejected option it would have been a **live doctrine breach**.
+
+**RULING 2A — the client-side upload cap folds into the same server lane.** A hard 400 with no
+explanation is the silent failure this project keeps paying for, and it is nearly free to fix while a
+server lane is running anyway. ⚠ **It required an EXPORTED constant, not merely a client `if`** —
+`MAX_BATCH_UPLOADS` was purely server-side at three sites and **the client could not even learn the
+cap**. ⚠ **And it is why `#621` MUST NOT BE SPLIT:** on trunk, Quick Practice's builder was uncapped
+and presets go to 20, a **latent 400** inert only because nothing called it. `#621` adds both the
+trigger **and** the cap; a trigger merged without the cap re-opens exactly this.
+
+**RULING 3A — THE OWNER REVERSED HIS OWN RULING** on the graded sheet (route vs modal). He had ruled
+"route" partly on **1,877 px of content inside a 540 px card** — and `RESULTS-1` (`#617`) had
+**already** fixed that overflow with max-height + scroll. ★★ **He ruled on a measurement that was
+superseded before the lane opened — the count rule applied to a LAYOUT.** His remaining reason (a
+graded paper is something a student RETURNS to) still stands, but does not justify bolting a
+top-level branch onto `PracticePage.tsx`, whose GUARD 3 pins `<PracticePage />` **propless** and which
+has a production-break history. **He recorded the lane's reasoning as better than his own.**
+⇒ `[FU-QP-GRADED-SHEET-NOT-A-ROUTE]` is **DEFERRED, NOT RESOLVED**, and section 9b's `App.tsx`
+authorization **STAYS GRANTED** for the future graded-sheet route lane.
+
+### CONTROLLER RULINGS
+
+**MERGE TRUNK IN; DO NOT REBASE A PUSHED BRANCH.** The `AMEND-621` brief said *"rebase `#621`'s branch
+onto trunk"*. That branch was already pushed, so a rebase requires `git push --force`, which
+`CLAUDE.md` §3 lists as **NEVER auto-approved**. A `git merge origin/base/approved-thru-437` resolves
+it identically, and because this repo **squash-merges** the intermediate history collapses and never
+reaches trunk — **a rebase buys nothing.** ⇒ ★★ **A brief instructing a never-auto-approved operation
+is a SPEC ERROR the controller must catch BEFORE dispatch, not a permission to grant quietly.**
+Relatedly, the lane was told **not** to "clean up" the fixed-forward mutation commit `16dd9506`:
+known, deliberate, harmless under squash-merge, and tidying it would mean a force-push for no benefit.
+
+**A LANE'S CI CLAIM IS A READING TAKEN AT ONE MOMENT.** `AMEND-621` returned PASS with all local gates
+green and CI *"queued behind CodeQL"*, correctly noting that the earlier conclusions on that head were
+concurrency **CANCELLATIONS** rendered as `failure` at run level. **That was true when it looked, and
+stopped being true.** The runs later completed as failures while the wave state still recorded the PR
+as "complete, awaiting CI". ⇒ ★★ **A lane dies before the run finishes; the controller must re-read
+the TERMINAL state itself, never inherit the lane's.** (And: **read the JOB, not the RUN.**)
+
+**DIAGNOSE, NEVER GUESS.** The controller offered two hypotheses for Lane Overlap's red — a
+`GATED_FILES` condition failing rather than warning, or a tool error. **Both were disproven**:
+`GATED` appears nowhere in the log, and the source documents that path as *"WARNS (never fails)"* with
+`process.exit(0)`. The job's every step was `success`.
+
+**AN AVAILABILITY PROBLEM IS NOT A DEFECT TO FIX IN THE BRANCH.** `CI-FIX-621` changed **zero lines**
+and suppressed, baselined and excluded **nothing**. ★★ **The CONTROL settled it: Lane Overlap flipped
+`failure` -> `SUCCESS` on the same head with zero code changes** — worth more than the three log
+diagnoses, because it is a control rather than an interpretation. Corroborated by an **external**
+source (GitHub Actions `major_outage`, CRITICAL, opened 90 minutes before the first failing run) and
+by a **15m02s queue expiry on a run against TRUNK itself**, which contains none of the diff.
+⚠ **CodeQL was held as a possible genuine security finding, and that caution was CORRECT to hold** —
+the head in question opens a student-free-text channel into an LLM grading prompt. The answer was
+infra: its only step was `Set up job = failure`, **the analysis never ran**. It was later re-run and
+**genuinely executed** — extractor loaded, database built, ~45 queries, SARIF uploaded, **zero open
+alerts on the branch**. ⇒ **The security question is answered by an analysis that ran, not by a tick.**
+
+### SCOPE ACCEPTED BEYOND THE DECLARED ALLOWLISTS — each justified, none silent
+
+- **`#619`'s `lazytopper/package.json` edit — REQUIRED, not scope creep.** ★ **The shared lock that
+  almost bit:** root guard-matrix check `a15` **enumerates `server/**/*.test.cjs` FROM DISK** and
+  reddens if one is unwired, so any lane adding a server test **must** edit the same two lines.
+  ⇒ **A declared-allowlist comparison cannot see a lock created by a gate that enumerates from disk.
+  ACTUAL PR file lists are checkable, and that check is the CONTROLLER's job, not the lane's.**
+- **`#620`'s `geminiClient.cjs` + `telemetry.cjs`** — the brief named `tokenTelemetry.cjs`, **which
+  does not exist**. And its **second orthogonal axis** was accepted over widening `CALL_CLASSES`,
+  which is pinned equal to `rateLimiter.PAID_ENDPOINTS` **so the two datasets JOIN**.
+- **`#621`'s `PracticeQuestionList.tsx`** — the **only** edge between page and card, pure
+  pass-through, flagged by the lane. **The brief's allowlist was both WRONG** (`PracticeQuestionCard`
+  lives under `components/practice/`, not `components/question/`) **and INCOMPLETE.**
+- **`#627`'s change to the existing `§5.11`** — see doctrine item 3.
+
+### DISJOINTNESS AND SEQUENCING
+
+**All three parallel lanes verified mutually disjoint by comparing ACTUAL PR file lists, not declared
+allowlists. Zero shared paths.** `App.tsx` was **never touched**; section 9b's authorization went
+unused and **stays granted**. ⚠ **The server lane could only be cut AFTER `#620` merged** — it shares
+`checkSolution.cjs` — and **PRs are never stacked** (a stacked PR deadlocks with its own base in
+`lane_overlap`, proven in Wave 5D). Merge order held: `#619` -> `#620` -> `#625` -> `#621` -> `#626`
+-> `#627`.
+
+### CARRIED UNRULED INTO WAVE 5G — deliberately deferred, the OWNER's calls
+
+**1 · THE FENCE.** ★ **PRODUCT-WIDE, AND LIVE TODAY ON CHECK & IMPROVE.** The `AMEND-621` brief's
+premise — *"until this merges, no student-typed text has ever reached the grading prompt"* — was
+**FALSE**; it already does, from `SolutionChecker.tsx` and `DesktopCheckImprovePage.tsx`, through the
+**identical** fence, since `57224f49`. **This arc EXTENDS an existing injection surface.** The lane
+therefore **declined to write the assertion its brief requested — it would have been FALSE** — and
+asserted the true property instead (the delimiter is carried **verbatim**; the client neither mangles
+nor escapes it). Settled from source: **forgeable YES** (no escape, no filter, no truncation; the only
+bound is an ~8 MB body cap); **blast radius reaches other questions in the same call** (one
+`callGemini`, one user turn, `questions[]` uncapped to 20 while the 12-cap bounds only `uploads[]`);
+**the subjective mark is what an injection can inflate**, while qNumber reconciliation, the
+per-question mark ceiling, the keyed objective clamp and the status allowlists all survive; **the
+privilege boundary HOLDS — the damage is self-inflicted grade inflation and a polluted OWN MI.**
+Fix = **2 sites in 1 server file, no client change**; the wider free-text surface is **19 sites across
+6 server files, of which `/api/tutor` is 9**, and `figures[].label` / `brief.*` reach the **SYSTEM**
+prompt uncapped. ⇒ **Its own lane, covering all three call sites.**
+⚠ **NOT ESTABLISHED: whether a real Gemini model actually OBEYS a forged fence.** Nobody has run it.
+
+**2 · `/admin/diagram-*` AUTHENTICATION.** Reported as the only `/admin/*` routes **not** wrapped in
+`<RequireAuth>`, posting a free-text textarea to `/api/generate-diagram` — **the one plausible
+UNAUTHENTICATED free-text path to Gemini**, with cost **and** abuse exposure.
+⚠ **NOT ESTABLISHED whether it is blocked server-side**; `entitlement.cjs` / `verifiedCaller.cjs` were
+never opened for that route. **The owner will not rule from a name — this needs the finding first.**
+
+### CLAIMS REFUTED THIS WAVE — recorded so nobody re-inherits them
+
+- **"Full Mock silently 400s on the upload cap" — FALSE.** The cap counts **answer photos in
+  `uploads[]`**, not questions; Full Mock's call literal has **no `uploads` key**, so `0 > 12` is
+  false. *"A CBSE mock has far more than 12 questions"* is **true but irrelevant** — nothing bounds
+  `questions.length`. (Full Mock does carry a different real risk: truncation at
+  `maxOutputTokens: 32000`, already tracked as `[FU-ASYNC-GRADING]`.)
+- **"The mobile full-marks reading is a device-specific defect" — FALSE.** The owner's first mobile
+  test ran **before `#626` reached Railway**. The same session now grades correctly on both surfaces.
+  **Not a mobile defect and not non-determinism — a pre-`#626` failed-request path. CLOSED.**
+- **"The client half of `WIRE-2` is a DELETION, not a rewrite" — FALSE.** Deleting the hinge alone
+  would have been a **silent no-op**; the payload builder had no `textAnswer` passthrough, and
+  `uploads` had to be **filtered** or a typed-only answer sends `imageBase64: "undefined"` and
+  **shifts every later photo**.
+- **"`#625` closes typed grading" — FALSE at the time.** It merged as **a capability with no caller**;
+  merging it changed nothing live.
+
+### LESSONS ABOUT THE WAVE-STATE INSTRUMENT ITSELF
+
+⚠ **A SECTION-LIST DIFF IS NOT A COMPLETENESS CHECK EITHER.** The standing controller note says to
+diff the SECTION LIST after every whole-file rewrite. It was done every pass and passed every pass —
+**while a DECISION LINE inside a section went missing** (the Drizzle record, restored in pass 8).
+**A section-list diff catches dropped SECTIONS, not dropped LINES** — the same failure the note
+describes, one level down. ⇒ **Also diff the LINE COUNT per section, or grep a known load-bearing
+token from each section, before writing.** The FU entry survived, which is why it was recoverable.
+⚠ **A `\uXXXX` escape in a non-raw string aborted a state write** while the identical defect class
+rendered **silently** in JSX. **The defect class is live in TOOLING, not just in product code.**
+
+---
 ## 2026-08-06 - Wave 5E, four controller lanes + two owner lanes (#611-#617, trunk `9cfcb09a`)
 
 **1 - QUICK PRACTICE BECOMES EXAM-SHAPED. Nothing grades per question; ONE batched call at Finish.**
