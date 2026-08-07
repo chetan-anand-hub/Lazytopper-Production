@@ -1,5 +1,187 @@
 ---
 
+## 2026-08-07 — WAVE 5F CLOSED: #619 · #620 · #625 · #621 · #626 · #627 (four lanes + a scout + a CI-diagnosis lane, controller + subagent model) — trunk `fbfb57fa`
+
+> ## ★★ **Six PRs, four lanes, 1,400+ tests, six green CI runs — AND TYPED GRADING HAD NEVER ONCE WORKED IN PRODUCTION until the owner tried it on his phone. No gate found it.**
+> **That is the argument for the ~50-student QA pass, in one sentence.** Fourth consecutive wave in
+> which the deployed-product check found what the suite could not.
+
+**ZERO open PRs at closure. All six merge commits verified ON TRUNK BY ANCESTRY, not by PR state —
+this repo squash-merges.** Trunk moved **nine times** across the wave.
+
+```
+#619  c3c9de18  WARM-GATE-1  gate the startup pre-warm, then the schema
+#620  6783850b  TELEMETRY-1  attribute the AI spend by workload
+#625  b48d6e38  TYPED-1      a channel for typed working + an exported upload cap
+#621  d03550e1  WIRE-2       flip Quick Practice to collect-and-batch grading
+#626  a307cfc4  TYPED-2      admit a typed-only batch at the grading endpoint
+#627  fbfb57fa  TYPED-3      a typed answer is text, not an unreadable photograph
+```
+
+### ★★ THE OWNER'S LIVE-VERIFY PASSED ON ALL THREE, **INCLUDING THE CONTROL**
+
+- typed **WRONG** -> **0 with a REASON**, not "unreadable"
+- typed **CORRECT** -> **marks AWARDED**
+- **blurry PHOTO** -> `couldNotRead` **STILL FIRES** ← **the control**; `#627` narrowed it, did not delete it
+
+**`#578`'s seam has now executed against real Gemini** — nine days after it merged. **Typed grading
+works end to end.**
+
+### THE SIX LANES
+
+- **`#619` WARM-GATE-1** — the startup pre-warm now has a master gate, and it is **proven in
+  production**: with `DATABASE_URL=set` (the exact configuration that started 312 Gemini combinations
+  on 5 Aug) the boot log read `[warm] gate WARM_POOL_ENABLED=(unset) | DATABASE_URL=set | STUB_MODE=off`
+  and then DISABLED for startup pre-warm, recurring top-up **and** the admin endpoint.
+  ★★ **The pre-warm is disabled by the GATE, not by a missing database** — the sentence the lane
+  existed to make true, and it had never been testable before. `/api/health` 200;
+  `POST /api/admin/warm-question-pool` **503 in 5 ms without touching Gemini.**
+  ★ `WARM_POOL_ENABLED` was deliberately **NOT SET** — absent already means off, and adding a
+  variable to achieve a state you already have is a change for no reason. **RECORDED AS UNSET.**
+  ⚠ It also surfaced **`[FU-WARMGATE-DRIZZLE-SCHEMA-DRIFT]`**, the wave's most dangerous finding.
+- **`#620` TELEMETRY-1** — AI spend attributable by workload. The brief named `tokenTelemetry.cjs`,
+  **which does not exist**; the lane used `geminiClient.cjs` + `telemetry.cjs` and added a **second
+  orthogonal axis** rather than widening `CALL_CLASSES`, which is pinned equal to
+  `rateLimiter.PAID_ENDPOINTS` **so the two datasets JOIN**. Its output is what `SERVER-2` gets
+  scoped from — **from the output, never from a document.**
+- **`#625` TYPED-1** — the typed-working channel plus `MAX_BATCH_UPLOADS` exported at
+  `lazytopper/src/config/gradingLimits.ts`. ★★ **The lane proved its own spec's mutation 4 does NOT
+  go red as written**: a VALUE export added to `aiClient.ts` alone leaves the forbid-gate at 20/20,
+  because `vi.mock` replaces a module **for its importers** and an export nothing imports is INERT.
+  The trap fires one step later, with a consumer. **A lane that ran only the specced M4, saw green
+  and concluded "no trap" would have detonated inside the next lane — which IS that consumer.**
+  Also: `#578`'s `sha256(contents)` pin unmodified; the image-pairing invariant proven POSITIVELY
+  (`parts.length === 8`, typed text adding no part); the spec's test count stale (71, not 64).
+- **`#621` WIRE-2 (+ AMEND-621 + CI-FIX-621)** — Quick Practice flipped to collect-and-batch, ending
+  three dormancies at once (`#578`, `#611`, `#617`).
+  ★★ **The brief's central claim — "the client half is a DELETION, not a rewrite" — WAS WRONG.**
+  Deleting the `typed-no-channel` hinge alone would have been a **silent no-op**: the payload builder
+  had no `textAnswer` passthrough, and `uploads` had to be FILTERED or a typed-only answer sends
+  `imageBase64: "undefined"` and **shifts every later photo**, destroying the very pairing invariant
+  `#625` protected.
+  ★★ **Screenshots changed code for the third consecutive wave, and caught one of `#621`'s OWN
+  already-shipped defects**: a `\uXXXX` escape decodes in a string and renders **literally** in a JSX
+  text node. Proven by hex. (The controller hit the same class of bug writing the wave state — it
+  fails loudly in Python and **silently** in JSX, which is why only a screenshot found it.)
+  ★ **M0 CONTROL earned its place:** the first mutation harness used `execSync` (stdout only) and
+  **vitest writes to stderr**, so it reported "RAN? NO" for a suite that HAD run. Rebuilt on
+  `spawnSync` before trusting any red.
+  ⚠ **NEVER COMMIT WHILE A MUTATION HARNESS IS RUNNING** — commit `16dd9506` captured mutation M3.
+  Fixed FORWARD (no force-push), and the other mutations proven not to have leaked **by grepping the
+  committed BLOBS**, not the working tree.
+- **`#626` TYPED-2** — admits a typed-only batch. ★★ **The cofounder's root cause was HALF the bug:**
+  the no-uploads prompt branch is itself written for a worksheet PDF (*"the attached PDF contains the
+  student's handwritten answers"*) and appended an image part **unconditionally**, so a request that
+  got past the guard would still send an **empty image part** and describe a document the student
+  never sent. **Admitting the request and building a coherent prompt for it are two different
+  things — the brief named the door and not the room behind it.** The guard was **narrowed, never
+  deleted** (the §10.2 control: no PDF, no photos AND no typing is still refused).
+- **`#627` TYPED-3** — a typed answer is graded as TEXT. ★★ **The lane disproved the spec AND its
+  correction.** `couldNotRead` narrowed to the image path, never made unreachable; the mixed-batch
+  typed half fixed (unnamed by the spec); the *"re-upload this page"* note made honest; and Defect B
+  resolved as **emit-always `marksAwarded: 0`, not a rename** — because the contract grep found
+  `totalMarks` read by **five** sites and `src/` was off-limits.
+
+### ★★ THE DEFECT THAT DEFINES THE WAVE — found by the owner, on his phone, after a full green receipt
+
+`#621` merged carrying a **zero-skip receipt**: root matrix `# tests 196 # suites 29 # pass 196
+# fail 0 # skipped 0`, `Tests 1463 passed (1463)`, CodeQL genuinely running ~45 queries with zero
+open alerts, mojibake `enforced_hits=0`. **And typed working still could not be graded:**
+
+```
+POST /api/grade-worksheet  ->  400   { ok:false, error:'Upload one PDF of your answers to grade.' }
+```
+
+`handleGradeWorksheet` **refused a zero-upload request** — a guard predating batch grading. It
+explains every symptom exactly: the classifier worked, the builder worked, `textAnswer` WAS sent,
+MCQs were unaffected, and it failed **every** time rather than intermittently.
+★★ **A FIELD REACHING THE EMITTER IS NOT THE REQUEST REACHING THE EMITTER.** The `#625` brief said
+*"blockFor emits the typed working when present"* and **never asked whether a request carrying only
+typed answers is admitted.** The lane did exactly what it was told; the endpoint refused the call one
+layer up. Same family as MOUNT != LIVE, one layer out.
+
+**And the reason four lanes and the cofounder all read the path as covered:** the existing test
+titled *"a typed answer alone reaches the model — the free-tier path is not a 400"* **sent
+`imageBase64: 'PDFB64'`.** ★★ **A TITLE IS NOT AN ASSERTION** — here the FIXTURE, not a data guard,
+is what hollowed the test out. `[FU-TYPED2-SUITE-TITLE-VS-FIXTURE]`
+
+### THE GITHUB ACTIONS OUTAGE — three red gates that were not about the code
+
+All three of `#621`'s gates completed as failure on a byte-clean head. **CI-FIX-621 changed ZERO
+LINES and suppressed, baselined and excluded nothing.** Evidence in ascending strength:
+1. The logs — CodeQL's only step was `Set up job = failure` (`Service Unavailable` ×3): **the
+   analysis never ran**, no checkout, no database, no queries. Lane Overlap's every step was
+   `success` with `PASS: no lane overlap` in the log, then sat **45 minutes** before the SERVICE
+   marked it failure. Quality Gate: conclusion `cancelled`, zero steps, an identical **15m02s queue
+   expiry across four runs — including one on TRUNK itself**, which contains none of `#621`'s diff.
+2. ★★ **THE CONTROL — Lane Overlap flipped `failure` -> `SUCCESS` on the SAME head, zero code
+   changes.** A gate that flips to green with no code change **cannot have been failing on the code**.
+3. An **external, independent** source: `githubstatus.com` reporting Actions `major_outage`,
+   incident impact CRITICAL, opened 15:22:49Z — **`#621`'s first failing run started 17:00:53Z, an
+   hour and a half into it.**
+
+⚠ **Both controller hypotheses were WRONG** (`GATED` appears nowhere in the log; the source
+documents that path as *"WARNS (never fails)"* with `process.exit(0)`). **Diagnose, never guess.**
+⚠ **The controller's own correction to own:** the lane returned PASS reporting CI as merely "queued",
+noting that earlier conclusions were concurrency CANCELLATIONS rendered as `failure` at RUN level.
+**That was true of the moment it looked, and stopped being true.** ★★ **A lane's CI claim is a
+reading taken at one moment, and a lane dies before the run finishes. The controller must re-read
+the terminal state itself.**
+★★ And the replacement watch was wrong in the same family: **a watch that polls for job COMPLETION
+cannot see a job that was never CREATED.** The owner's empty-commit test proved dispatch had died
+**repo-wide** (zero runs for the new head, on any workflow, on any branch). A watch re-specced on
+RUN EXISTENCE is what detected recovery.
+
+### ★★ DOCTRINE EARNED — eight items, three from `#627` alone
+
+1. **A CORRECTION IS NOT EVIDENCE — IT IS A NEWER CLAIM.** `:283` is `propertyOrdering`, **not**
+   `required`; `required` is `['qNumber']` alone, and the omission was the **server's hand-built
+   early return**, not the model's. **Both** the cofounder's original claim and his correction were
+   wrong on mechanism — the second time this wave a superseding correction was itself wrong.
+2. **A MUTATION THAT GOES GREEN MAY BE A HOLE IN THE TEST, NOT THE ABSENCE OF A TRAP.**
+3. **AN EXISTING GREEN TEST CAN PIN THE DEFECT IT WAS MEANT TO PREVENT.**
+4. **A field reaching the emitter is not the request reaching the emitter.**
+5. **A title is not an assertion.**
+6. **A grep hit is not live code** — two trunk hits for `typed-no-channel` were both COMMENTS
+   explaining what replaced the hinge; checking by content took one command and prevented
+   re-dispatching an already-merged lane.
+7. **A watch that polls for completion cannot see a job never created.**
+8. **A logger's severity is about the status code, not about whether anything went wrong** — third
+   instance in a single day, including `pino-http` logging a DELIBERATE 503 as *"request errored"*
+   with a stack trace of **pino's own frames**. **Read the fields, not the word.**
+
+★ **The thread through all eight: the signal is present, and it reads as its own opposite.**
+
+### THREE NEW FUs FROM THE LIVE-VERIFY
+
+- 🛑 **`[FU-UPLOAD-LIMIT-BLOCKS-PHONE-PHOTOS]` — PRE-LAUNCH BLOCKING.** A normal phone photo exceeds
+  the limit **on the FREE-TIER path**; the owner had to photograph, convert to PDF, then upload.
+  Fix: raise to ~10 MB **and** client-side downscale. ⚠ **Check the SERVER cap too or you get a 413
+  instead of a friendly refusal.**
+- **`[FU-QP-GRADED-SHEET-NO-STEPWISE-MARKING]`** — the graded sheet names where marks were lost in
+  two lines. **A teacher marks step by step.** Its own lane.
+- **`[FU-GRADING-CONSISTENCY-UNMEASURED]`** — temperature is already 0.05 and `responseSchema`
+  shipped in `#559`, so **the easy determinism levers are spent**; the remaining variance is
+  UNMEASURED. **A harness, not a fix — and it GATES `SERVER-2`.**
+
+### CARRIED UNRULED INTO WAVE 5G
+
+**THE FENCE** (product-wide, **live today on Check & Improve**, its own lane, all three call sites)
+and **`/admin/diagram-*` authentication** (**NOT ESTABLISHED** whether blocked server-side; the owner
+will not rule from a name). See `DECISION_LOG.md` and `CURRENT_STATE.md` for the settled facts.
+
+⚠ **`[FU-WARMGATE-DRIZZLE-SCHEMA-DRIFT]` — NO `drizzle-kit push` until it is settled.** It would
+create a table the live server **cannot write to, and it would look like success.**
+
+### THE STANDING CI GAP FOUND WHILE READING A GREEN RUN
+
+**`[FU-CI-VERIFY-PRODUCTION-BUILD-NOT-WIRED]`** — `node scripts/verify-production-build.mjs`,
+required by `CLAUDE.md` §6, appears **zero times** in the Quality Gate log. **CI has never run it.**
+A gate named in our own standing instructions that no run executes is the definition of a silent
+no-op, one level up from the code.
+
+---
+
 ## 2026-08-06 — #623 `NAME-2` (one standalone lane): the phone path names its students · a guard that was vacuous and green · and a mutation that could not land, recorded as green — trunk `2ca9a3d0`
 
 **Owner LIVE-VERIFIED on a real handset. PASSED.**

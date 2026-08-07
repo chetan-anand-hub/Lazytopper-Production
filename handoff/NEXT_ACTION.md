@@ -1,7 +1,119 @@
 # LazyTopper — Next Action
-# Updated: 2026-08-06 (post-**#623** `NAME-2`, one standalone lane. Trunk `2ca9a3d0`. Owner live-verified on a real handset. Wave 5F still opens with `WIRE-2`.)
+# Updated: 2026-08-07 (post-**WAVE 5F**: #619 · #620 · #625 · #621 · #626 · #627, four lanes. Trunk `fbfb57fa`. ZERO open PRs. Typed grading LIVE-VERIFIED end to end, including the control. **Wave 5G opens with `ME-PROGRESS`.**)
 
-## NEXT — 2026-08-06 (post-#623). Read this block first.
+## NEXT — 2026-08-07 (post-Wave 5F). Read this block first.
+
+### 0 — ***** THE ONE THING THAT MUST NOT BE MISSED *****
+
+> ## **Six PRs, four lanes, 1,400+ tests, six green CI runs — AND TYPED GRADING HAD NEVER ONCE WORKED IN PRODUCTION until the owner tried it on his phone. No gate found it.**
+> ## **That is the argument for the ~50-student QA pass, in one sentence.**
+
+**Every static gate this project owns was green while the product's free-tier grading path returned
+a 400 on every single attempt.** Fourth consecutive wave in which the deployed-product check found
+what the suite could not. ⇒ **Any change touching a live round-trip closes on the DEPLOYED state,
+never the merged state.**
+
+### ★★ WHAT CHANGED IN THIS LIST — the Quick Practice arc is CLOSED
+
+**`WIRE-2` is DONE (`#621`), and with it the three dormancies it existed to end.** The previous two
+handoffs opened with *"the Quick Practice results surface is BUILT AND UNREACHABLE"*. **That is no
+longer true.** `#578`, `#611` and `#617` all have callers; the batch executes; and `#626` + `#627`
+made the server actually grade what the client sends. **Do not carry that paragraph forward.**
+
+⚠ **One line from it survives and must not be lost:** `#611` swallows the 402 with an unconditional
+catch turning `PremiumRequiredError` into `skipped-error`. **It was latent while nothing called it.
+`#621` shipped the caller — it is LIVE now.** See `[FU-BATCH-402-SWALLOWED-BY-HONEST-FAILURE]`.
+
+### 🛑 THE PRE-LAUNCH BLOCKER THIS WAVE FOUND — fix it before the QA pass
+
+**`[FU-UPLOAD-LIMIT-BLOCKS-PHONE-PHOTOS]`** — a normal phone photo (3 MB+) **exceeds the upload
+limit**, on the **FREE-TIER** path. The owner had to photograph, convert to PDF, then upload.
+**A photo-grading product that rejects phone photos is broken for its primary use case.**
+Fix = raise images to ~10 MB **AND** client-side downscale (~2000 px long edge, ~85% quality).
+⚠ **CHECK THE SERVER CAP IN THE SAME LANE**, or raising the client yields a **413** instead of a
+friendly refusal — the identical shape to the `MAX_BATCH_UPLOADS` 400 this wave already paid for.
+
+### 🛑 STANDING PROHIBITION — carry it loudly
+
+**NO `drizzle-kit push` until `[FU-WARMGATE-DRIZZLE-SCHEMA-DRIFT]` is resolved.** A second migration
+mechanism exists whose `generated_questions` omits `answer` / `solution_steps` / `final_answer` and
+the unique index `saveToPool`'s `ON CONFLICT` requires. **It would create a table the live server
+cannot write to — and it would look like success.**
+
+### THE ORDER, WITH REASONS
+
+1. **`ME-PROGRESS` — WAVE 5G's FIRST LANE.** It could not run in 5F because it edits `App.tsx`'s
+   `/me` route while `WIRE-2` held section 9b's authorization, and **ruling 3A does NOT free it**,
+   because the graded-sheet route lane will need the same file.
+   ⚠ **TWO AMENDMENTS ARE OWED BY THE OWNER BEFORE IT DISPATCHES:**
+   (a) its **section 5 gate-CTA paragraph is STALE** — `GATE-3` shipped the locked Premium
+   treatment, so `/me`'s premium CTAs must **match what shipped**, not the July prototype;
+   (b) it must **EXPECT `lane_overlap`'s GATED_FILES owner-review warning** on `App.tsx`.
+2. **`SERVER-2`** — **scoped from `#620`'s OUTPUT, never from a document.** Marks ARE available at
+   the grade-single call site, so the thinking budget CAN be banded — **one band per MARK VALUE,
+   never the coarse `"23"` bucket that fuses 2- and 3-mark questions.**
+   ⚠ **AND IT IS NOW GATED BY `[FU-GRADING-CONSISTENCY-UNMEASURED]`.** Temperature is already 0.05
+   and `responseSchema` shipped in `#559` — **the easy determinism levers are spent**, and nobody has
+   MEASURED the residual variance. **Measure before tuning**, or a rubric/thinking-budget change
+   cannot be told apart from noise.
+3. **`DPDP`** — launch blocker. Erasure + export, plus the 9 clear-text-storage CodeQL alerts.
+4. **`SEO-1`** — per-route metadata.
+5. **`[FU-SCORECARD-DESKTOP-SCROLL-CEILING]`** — live on trunk TODAY.
+6. **The graded-sheet route lane** — carries `[FU-QP-GRADED-SHEET-NOT-A-ROUTE]` and the **still-granted
+   section 9b `App.tsx` authorization** (ruling 3A kept it granted for exactly this).
+   ⚠ It should absorb **`[FU-QP-GRADED-SHEET-NO-STEPWISE-MARKING]`** or explicitly decline it.
+7. **`AUTH-1`** — email/Google link direction. A phone-first student who later signs in with Google
+   gets a **SECOND account**, and **split accounts are unrecoverable by design.** ⚠ Note `#616` and
+   `#623` merged and **phone-first students are named now — but pre-`#623` accounts are still
+   nameless and nothing repairs them** (`[FU-AUTH-DISPLAYNAME-NO-BACKFILL]`).
+8. **`FORBID-7` + `BATCH-2` history.**
+
+### ⚠ TWO ITEMS CARRIED UNRULED — the OWNER decides, not a lane
+
+**1 · THE FENCE.** `[FU-TYPED1-FENCE-IS-NOT-ESCAPING]` / `[FU-AMEND621-FENCE-ESCAPE-IS-SERVER-SIDE]`
+/ `[FU-AMEND621-BATCH-WIDENS-INJECTION-BLAST-RADIUS]`.
+★ **PRODUCT-WIDE AND LIVE TODAY ON CHECK & IMPROVE** — this arc **extended** an injection surface
+that had been open on two client paths since `57224f49`; it did not create one. **Its own lane,
+covering ALL THREE call sites.** Settled facts: forgeable **YES**, no escape/filter/truncation
+anywhere; the blast radius reaches **other questions in the same call**; **the subjective mark is
+what an injection can inflate** (qNumber reconciliation, the per-question mark ceiling, the keyed
+objective clamp and the status allowlists all survive); **the privilege boundary HOLDS — the damage
+is self-inflicted grade inflation and a polluted OWN MI.** Fix = **2 sites in 1 server file**; the
+wider free-text surface is **19 sites across 6 files, of which `/api/tutor` is 9**, and
+`figures[].label` / `brief.*` reach the **SYSTEM** prompt uncapped.
+
+**2 · `/admin/diagram-*` AUTHENTICATION.** The only `/admin/*` routes **not** wrapped in
+`<RequireAuth>`, posting a free-text textarea to `/api/generate-diagram` — **the one plausible
+UNAUTHENTICATED free-text path to Gemini**, with both cost and abuse exposure.
+⚠ **NOT ESTABLISHED whether it is blocked server-side.** `entitlement.cjs` / `verifiedCaller.cjs`
+were never opened for that route. **The owner will not rule from a name — this needs the finding
+first, and a finding is a scout, not a build lane.**
+
+### STILL OWED BY THE OWNER
+
+- **`ME-PROGRESS`'s two amendments** (above) — it cannot dispatch without them.
+- **`MASTER_TRACKER.md`.**
+- **A ruling on the fence**, and **a scout dispatched on `/admin/diagram-*`.**
+
+### STANDING DOCTRINE ADDED THIS WAVE — read before writing any brief
+
+- **A CORRECTION IS NOT EVIDENCE — IT IS A NEWER CLAIM.** Verify both versions. **Twice in one wave
+  a superseding correction was itself wrong.**
+- **A MUTATION THAT GOES GREEN MAY BE A HOLE IN THE TEST**, not the absence of a trap.
+- **AN EXISTING GREEN TEST CAN PIN THE DEFECT IT WAS MEANT TO PREVENT.**
+- **A FIELD REACHING THE EMITTER IS NOT THE REQUEST REACHING THE EMITTER.**
+- **A TITLE IS NOT AN ASSERTION** — quote every new test's FIXTURE and check it against its title.
+- **A GREP HIT IS NOT LIVE CODE.**
+- **A WATCH THAT POLLS FOR COMPLETION CANNOT SEE A JOB NEVER CREATED.**
+- **A LOGGER'S SEVERITY IS ABOUT THE STATUS CODE, NOT ABOUT WHETHER ANYTHING WENT WRONG.**
+- **NEVER COMMIT WHILE A MUTATION HARNESS IS RUNNING.**
+- **NEVER STACK PRs**, and **a controller must re-read a lane's CI claim to its terminal state.**
+- ⚠ **`[FU-CI-VERIFY-PRODUCTION-BUILD-NOT-WIRED]`** — `verify-production-build.mjs` is required by
+  `CLAUDE.md` §6 and **has never run in CI**. Do not treat a green Quality Gate as covering it.
+
+---
+
+## [SUPERSEDED by Wave 5F] NEXT — 2026-08-06 (post-#623)
 
 ### 0 — ***** THE ONE THING THAT MUST NOT BE MISSED — UNCHANGED BY `#623` *****
 

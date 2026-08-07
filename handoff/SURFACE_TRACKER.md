@@ -3,6 +3,89 @@
 
 ---
 
+## ⚠ 2026-08-07 — WAVE 5F (#619 · #620 · #625 · #621 · #626 · #627). THIS FILE'S `Trunk at last sync` LINE IS STILL STALE, AND IS STILL DELIBERATELY NOT UPDATED.
+
+**Re-derived: trunk is `fbfb57fa`. The header at the top of this file still reads `203fb370`
+(Wave 5C) — now several handoffs behind.**
+
+★ **Left as it stands, for the same reason as the last three times.** Advancing a sync header over
+content nobody has re-reviewed asserts that everything below has been reconciled against the current
+trunk, and it has not. The header would then be evidence of a review that never happened. **The lag
+is recorded here instead**, where a reader meets it before trusting the matrix. Reconciling this file
+is a job of its own; it is not a line-item in a docs PR.
+
+### ★★ THIS IS THE FIRST WAVE IN THIS RUN THAT MOVES A COMPLETION CELL — and it is Quick Practice
+
+**QUICK PRACTICE MOVED, AND IT MOVED IN BOTH DIRECTIONS BEFORE SETTLING.** Stated explicitly per
+§10 — **silence is not an answer.**
+
+- **Quick Practice — `Built` / `Verified`: ✅ MOVES TO VERIFIED.** The surface was **exam-shaped but
+  functionally dormant** at the start of this wave: `#578` (per-question image support), `#611`
+  (`gradeQuickPracticeBatch`) and `#617` (the graded answer sheet) were all **merged with zero
+  callers**. `#621` supplied the caller — **one batched grading call at Finish**, `textAnswer` sent,
+  `uploads` filtered so a typed-only answer cannot shift a later photo, and the exported
+  `MAX_BATCH_UPLOADS` read client-side so a 13-photo session **warns instead of taking a bare 400**.
+  `#626` and `#627` then made the SERVER actually grade what the client sends.
+  ★★ **VERIFIED means live-verified, and here that is load-bearing:** `#621` shipped with a **full
+  zero-skip CI receipt and typed grading still returned a 400 on every attempt.** The cell moves to
+  Verified on the **owner's three-check live-verify including the control** — typed wrong -> 0 with a
+  reason, typed correct -> marks awarded, blurry photo -> `couldNotRead` still fires — **not on the
+  merge.**
+  ⚠ **Honest limits on what shipped, recorded as limits and not as regressions:**
+  the graded sheet is **NOT a route** — not linkable, not bookmarkable, not reachable from history,
+  and QP sessions therefore **do not appear in `SurfaceHistory`** alongside Chapter Test and Full Mock
+  (`[FU-QP-GRADED-SHEET-NOT-A-ROUTE]`, **deferred not resolved**, `[FU-QP-HISTORY-RAIL]` now cheap);
+  the sheet names where marks were lost in **two lines** rather than **step by step**
+  (`[FU-QP-GRADED-SHEET-NO-STEPWISE-MARKING]`); **a failed batch writes no session record**
+  (`[FU-QP-BATCH-FAILURE-NO-RECORD]`); and ⚠ **a declared GATE-3 regression** — in collect mode the
+  locked "Check my answer" CTA is **not rendered**, so the paywall boundary on this surface **is the
+  402 at Finish** (`[FU-QP-GATE3-COLLECT-MODE-PREMIUM-PREVIEW]`).
+  🛑 **AND ONE THAT IS NOT A LIMIT BUT A BLOCKER:** a normal phone photo **exceeds the upload limit**
+  on the **free-tier** path (`[FU-UPLOAD-LIMIT-BLOCKS-PHONE-PHOTOS]`). **The surface's primary input
+  method does not work from a phone.** It is recorded here so nobody reads "Verified" as "ready for
+  the ~50-student QA pass".
+
+- **Check & Improve — no cell moves, and one fact must be recorded against it.** ★ **The prompt-fence
+  injection surface is LIVE ON THIS SURFACE TODAY**, and has been since `57224f49` —
+  `SolutionChecker.tsx` and `DesktopCheckImprovePage.tsx` send student free text through the identical
+  fence. **Wave 5F EXTENDED that surface to the batch path; it did not create it.** Forgeable **yes**;
+  the damage is **self-inflicted grade inflation and a polluted OWN MI** (the privilege boundary
+  holds). **Carried UNRULED into Wave 5G as its own lane, covering all three call sites.**
+
+- **Grading / AI back end — no cell moves; tooling and infrastructure, not a student surface.**
+  `#619` gated unattended question generation (**proven in production**, and it found
+  `[FU-WARMGATE-DRIZZLE-SCHEMA-DRIFT]` — 🛑 **no `drizzle-kit push`**); `#620` made AI spend
+  attributable by workload from the next spike onward.
+
+- **Admin — ⚠ NOT ESTABLISHED, and recorded here rather than assumed.** The two `/admin/diagram-*`
+  pages are reported as the only `/admin/*` routes **not** wrapped in `<RequireAuth>`, posting free
+  text to `/api/generate-diagram`. **Whether they are blocked server-side is unknown.** No cell moves
+  on an unverified claim — **the finding comes first.**
+
+- **MI cell unmoved on every row.** Nothing this wave changed what MI is or says. ⚠ An injection can
+  pollute a student's **OWN** MI, which is a property of the fence item above, not a change to MI.
+
+### §2a — SCOPE DISCOVERED THIS WAVE
+
+★★ **SCOPE WAS DISCOVERED, and it belongs to Quick Practice.** The definition-of-done for this
+surface grew by **two necessary pieces nobody had named** before the owner ran it:
+
+1. **The server had to ADMIT and then CORRECTLY PROMPT a typed-only batch.** The wave was planned as
+   one client lane; it took **three further PRs** (`#625`, `#626`, `#627`) because
+   **a field reaching the emitter is not the request reaching the emitter**, and **admitting the
+   request is not the same as building a coherent prompt for it.**
+2. **The upload path has to accept a phone photo.** `[FU-UPLOAD-LIMIT-BLOCKS-PHONE-PHOTOS]` is not a
+   polish item — **it is the surface's primary input method**, and it is pre-launch blocking.
+
+⇒ **Quick Practice's Scope cell is set to `Settling`.** It is not `Locked`: two necessary pieces for
+its own definition-of-done were discovered inside a single wave, and one of them is still open.
+Logged in `DECISION_LOG.md` for the same date.
+
+**No other surface's Scope cell changes.** Check & Improve is already `Settling`; the fence item is a
+**pre-existing** property of that surface, not scope this wave discovered on it.
+
+---
+
 ## ⚠ 2026-08-06 — #623 `NAME-2`. THIS FILE'S `Trunk at last sync` LINE IS STILL STALE, AND IS STILL DELIBERATELY NOT UPDATED.
 
 **Re-derived: trunk is `2ca9a3d0`. The header at the top of this file still reads `203fb370`

@@ -13,6 +13,279 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 ---
 
 
+## 2026-08-07 — WAVE 5F (#619 · #620 · #625 · #621 · #626 · #627, four lanes + a scout + a CI-diagnosis lane). Trunk `fbfb57fa`.
+
+> ★★ **Six PRs, four lanes, 1,400+ tests, six green CI runs — AND TYPED GRADING HAD NEVER ONCE
+> WORKED IN PRODUCTION until the owner tried it on his phone. No gate found it.**
+
+**43 FU ids are carried below. Every body is taken from the wave archive or from the lane report on
+disk — none is reconstructed from an id.** (Standing rule: **NEVER reconstruct an FU body from its
+id.** A plausible-but-wrong FU is harder to detect than a missing one.)
+
+---
+
+### 🛑 PRE-LAUNCH BLOCKING — from the owner's live-verify
+
+- **`[FU-UPLOAD-LIMIT-BLOCKS-PHONE-PHOTOS]`** — ★ **PRE-LAUNCH BLOCKING.** A normal phone photo
+  (3 MB+) **EXCEEDS the upload limit**; the owner had to photograph, convert to PDF, then upload.
+  **A photo-grading product that rejects phone photos is broken for its primary use case — and this
+  is the FREE-TIER path.** Fix: raise images to **~10 MB** **AND** add **client-side downscale**
+  (~2000 px long edge, ~85% quality — a 4 MB photo becomes ~600 KB with no loss of legibility, and it
+  cuts input tokens too).
+  ⚠ **CHECK THE SERVER CAP TOO, or raising the client yields a 413 instead of a friendly refusal —
+  the same shape as the `MAX_BATCH_UPLOADS` 400 this wave already paid for.**
+
+### OTHER NEW FUs FROM THE LIVE-VERIFY
+
+- **`[FU-QP-GRADED-SHEET-NO-STEPWISE-MARKING]`** — the graded sheet shows annotated working but only
+  **two lines** naming where marks were lost. **A TEACHER MARKS STEP BY STEP.** Without that, the
+  tutor receives a score and a mistake type, **not a diagnosis it can teach from** — and `RESULTS-1`
+  §1b promised *"the same board-style depth Check & Improve gives today"*. Owner-observed. **Its own
+  lane** (candidate to fold into the graded-sheet route lane, or to be explicitly declined by it).
+
+- **`[FU-GRADING-CONSISTENCY-UNMEASURED]`** — temperature is **already 0.05** on grading and
+  `responseSchema` shipped in `#559`, so **the easy determinism levers are spent.** The remaining
+  variance is judgement on ambiguous inputs, and **nobody has MEASURED it**: grade the same answer
+  ten times and compare. **A HARNESS, not a fix.** ⚠ **It GATES any rubric or thinking-budget work,
+  including `SERVER-2`** — otherwise a tuning change cannot be told apart from noise.
+
+---
+
+### 🛑 THE SERIOUS ONE — READ BEFORE ANY DATABASE WORK
+
+- **`[FU-WARMGATE-DRIZZLE-SCHEMA-DRIFT]`** — ★★ **NO `drizzle-kit push` UNTIL THIS IS RESOLVED.**
+  A **SECOND** migration mechanism exists (Drizzle, `lib/db/src/schema/generatedQuestions.ts`) whose
+  `generated_questions` **OMITS `answer` / `solution_steps` / `final_answer`** **AND** the unique
+  index that `saveToPool`'s `ON CONFLICT` requires. `drizzle-kit push` alone would create a table the
+  live server **CANNOT WRITE TO — and IT WOULD LOOK LIKE SUCCESS.** Outside every allowlist this
+  wave; **not fixed.**
+
+### THE FENCE CLUSTER — carried UNRULED into Wave 5G, and it is PRODUCT-WIDE
+
+- **`[FU-TYPED1-FENCE-IS-NOT-ESCAPING]`** — ★ **the owner's eye, and it is CORRECT.** A student who
+  types the fence delimiter closes it early: **a fence is a delimiter, not escaping.** ⚠ **But the
+  brief's premise around it was FALSE** — student-typed text **already reaches the grading prompt
+  LIVE**, from `SolutionChecker.tsx` and `DesktopCheckImprovePage.tsx`, through the **identical**
+  fence, and identically on the single-question path since `57224f49`. **This arc EXTENDS an existing
+  injection surface; it does not create one.** Settled from source: **forgeable YES** — any line whose
+  content is the fence token; the chain is client `String(textAnswer).trim()` -> `JSON.stringify` ->
+  server `String(q.textAnswer || '').trim()` -> **RAW CONCATENATION**, with **no escape, no filter,
+  no truncation**, and the only bound an ~8 MB body cap. Only the student's FIRST line inherits the
+  5-space indent, so a forged fence lands at column 0. **Fix = 2 sites in 1 server file
+  (`handleCheckSolution` and `blockFor`, both in `checkSolution.cjs`), NO CLIENT CHANGE.**
+  ⚠ **The WIDER free-text surface is 19 sites across 6 server files, of which `/api/tutor` is 9** — a
+  larger, older surface — plus `/api/check-solution` ×3, `/api/grade-worksheet` ×2, and one each for
+  detect-question, step-solution, generate-diagram, generate-visual, more-like-this.
+  **`figures[].label` and `brief.*` reach the SYSTEM prompt, uncapped and unvalidated.**
+  ⚠ **NOT ESTABLISHED: whether a real Gemini model actually OBEYS a forged fence. Nobody has run it.**
+
+- **`[FU-AMEND621-FENCE-ESCAPE-IS-SERVER-SIDE]`** — the fence is a delimiter, not escaping, on
+  **BOTH** the single-question and batch paths. **One shared server-side decision**, outside any
+  client lane's allowlist. The `#621` lane therefore did **not** write its brief's requested
+  assertion — **it would have been FALSE** — and asserted the true property instead: the delimiter is
+  carried **VERBATIM** (the client neither mangles nor escapes it).
+
+- **`[FU-AMEND621-BATCH-WIDENS-INJECTION-BLAST-RADIUS]`** — in a batch prompt one question's typed
+  text **shares a prompt with up to 11 others**, so an injection can reach the student's **other
+  grades in that session**. Same student, **wider than the single-question path**. What SURVIVES an
+  injection: schema shape, the parse gate + one retry, **qNumber reconciliation** (unknown qNumbers
+  dropped; omitted -> `couldNotRead`, never a silent zero), the **per-question mark ceiling**
+  (`Math.min(totalAwarded, totalMarks)` with `totalMarks` from the REQUEST), per-step half-mark
+  rounding, the **keyed objective 0/full clamp** (which OVERRIDES the model), the `status` /
+  `mistakeType` allowlists and the no-working honesty guard. What does **NOT** survive: **the
+  SUBJECTIVE MARK ITSELF** — nothing compares it to the work — plus `couldNotRead`, every free-text
+  field shown to the student, MI `mistakeSummary` counts, and the **KEYLESS** `flaggedObjective`
+  ≤1-mark verdict. ★ **The privilege boundary HOLDS** (entitlement and rate limiting are pre-handler
+  and prompt-independent): **the damage is self-inflicted grade inflation and a polluted OWN MI, not
+  another student's.**
+
+### `/admin/diagram-*` — a finding is owed before a ruling
+
+- ⚠ **NOT ESTABLISHED, carried into Wave 5G:** the two `/admin/diagram-*` pages are reported as the
+  **only `/admin/*` routes NOT wrapped in `<RequireAuth>`**, and they post a free-text textarea to
+  `/api/generate-diagram` — **the one plausible UNAUTHENTICATED free-text path to Gemini** in the
+  enumeration. **Whether they are blocked SERVER-side is unknown**: `entitlement.cjs` /
+  `verifiedCaller.cjs` were never opened for that route. **Cost AND abuse exposure if unauthenticated.
+  Needs its own check.** (No id assigned — the owner will not rule from a name, and a finding comes
+  first.)
+
+---
+
+### `WARM-GATE-1` (`#619`)
+
+- **`[FU-WARMGATE-ADMIN-ENDPOINT-UNGATED-BY-MASTER]`** — `POST /api/admin/warm-question-pool` still
+  bypasses `WARM_POOL_ENABLED` entirely; it is gated only by `WARM_POOL_ADMIN_SECRET`. That is
+  deliberate (it is an explicit human request, and the master switch is about *unattended* runs), but
+  if the owner wants one switch meaning "no generation runs, full stop", the admin route needs the
+  master gate too. **Owner decision.**
+- **`[FU-WARMGATE-PACKAGEJSON-SHARED-LOCK]`** — every new `server/**/*.test.cjs` must edit the same
+  two lines of `lazytopper/package.json` (docs-lane check `a15` **enumerates from disk**). Concurrent
+  lanes adding server tests **will conflict**. ⇒ **Sequence them; do not parallelise.**
+- **`[FU-WARMGATE-ENV-EXAMPLE]`** — `lazytopper/server/.env.example` documents **no `WARM_POOL_*`
+  variable at all** (not before this PR, not after). `WARM_POOL_ENABLED` should be listed there with
+  its default-off semantics. Outside that lane's allowlist.
+
+### `TELEMETRY-1` (`#620`)
+
+- **`[FU-TELEMETRY1-WARM-TRIGGER-UNSPLIT]`** — warm-pool cannot distinguish **startup pre-warm** from
+  **recurring top-up** from **admin-triggered**; it needs a tag from `index.cjs` (`#619`'s file).
+- **`[FU-TELEMETRY1-OFFLINE-SCRIPTS-UNMEASURED]`** — `eval/graderEval.cjs` and the three
+  `server/scripts/*.cjs` build their own clients in their own processes: **real spend, invisible to
+  this instrumentation.** (Note: `services/warmQuestionPool.cjs` builds its own client **only** under
+  `require.main === module`; in the server it receives the shared wrapper, so live warm-pool calls
+  **do** land in the shared counters.)
+- **`[FU-TELEMETRY1-MENTOR-BUILDER-DEAD]`** — `routes/mentorResponseBuilder.cjs` is an **ORPHAN**
+  holding **10** `callGemini` invocations that never run; candidate for deletion.
+- **`[FU-TELEMETRY1-STREAM-UNINSTRUMENTED]`** — `callGeminiStream` records nothing; **harmless while
+  it has no consumer, invisible the day it gets one.**
+- **`[FU-TELEMETRY1-RATE-FROM-ENV]`** — set `GEMINI_OUTPUT_RATE_USD_PER_MTOK` /
+  `GEMINI_INPUT_RATE_USD_PER_MTOK` in Railway to turn `costModel` from an **assumption** into a
+  **configured figure**.
+- **`[FU-TELEMETRY1-SAMPLES-VOLATILE]`** — samples **die on restart**; a durable distribution needs a
+  datastore, i.e. `DATABASE_URL`, i.e. `#619` first.
+
+### `TYPED-1` (`#625`)
+
+- **`[FU-TYPED1-AMEND621-DELETE-HINGE]`** — **CLOSED by `#621`.** It required deleting
+  `if (nonEmpty(answer.textAnswer)) return "typed-no-channel";` from
+  `classifyQuickPracticeAnswer`. ⚠ **Deleting it ALONE would have been a silent no-op** — see the
+  `#621` entries below.
+- **`[FU-TYPED1-CAP-HAS-NO-CLIENT-READER]`** — **CLOSED by `#621`.** The exported
+  `MAX_BATCH_UPLOADS` had no client reader; the page now reads it and **warns before the call.**
+- **`[FU-TYPED1-LIVE-VERIFY-OWED]`** — **DISCHARGED 2026-08-07** by the owner's three-check
+  live-verify. ⚠ **One stated limit was never covered and stays true:** every capture was
+  **clean-state**, so **a student mid-session across the deploy is untested** (Quick Practice holds
+  saved answers in page state, but the seen-set and MI store are persisted).
+
+### `WIRE-2` / `AMEND-621` (`#621`)
+
+- **`[FU-AMEND621-JSX-TEXT-UNICODE-ESCAPE]`** — `PracticePage.tsx` is written with `\uXXXX` escapes
+  and **a JSX text node does not decode them.** **Two instances were live**, one of them already
+  shipped on the branch. The added rendered-text guard covers **Quick Practice's three screens only**;
+  ⚠ **the same trap is open on every other file written this way and nothing scans for it repo-wide.**
+- **`[FU-AMEND621-SCORECARDVARIANTS-STALE-COMMENT]`** — `scorecardVariants.ts` still documents
+  `typed-no-channel` as *"today's live reason"*. **It no longer exists.**
+- **`[FU-QP-GATE3-COLLECT-MODE-PREMIUM-PREVIEW]`** — ⚠ **a declared GATE-3 regression.** In collect
+  mode the locked "Check my answer" CTA is **not rendered** — saving is free, and locking it would
+  refuse an action that costs nothing — so the surface loses GATE-3's *learn-before-you-tap*
+  property; **the boundary is now the 402 at Finish.** Restoring a locked preview needs
+  `useSubscription` in `PracticePage`, and **adding a hook to that page has its own history (`#575`).**
+- **`[FU-QP-OBJECTIVE-NONBINARY-FROM-SERVER]`** — a fractional objective mark is converted to the
+  honest ungraded state **in the page** rather than thrown (a throw in render is an error page for the
+  student). The builder's guard is untouched.
+- **`[FU-QP-BATCH-FAILURE-NO-RECORD]`** — **a failed batch writes no session record.**
+- **`[FU-RESULTS1-SPLIT-HEADING-COMMENT-STALE]`** — `SplitBlock`'s doc comment still says *"the two
+  headings are the prototype's, verbatim"*; one is now the corrected post-grade wording. Left alone to
+  respect the one-line authorization it was under.
+- **`[FU-WIRE2-ALLOWLIST-MISSING-QUESTIONLIST]`** — `PracticeQuestionList.tsx` is **the only edge
+  between the page and the card** and was **not on the allowlist**. (Accepted; see `DECISION_LOG`.)
+- **`[FU-MUTATION-HARNESS-RACES-COMMIT]`** — ★★ **NEVER COMMIT WHILE A MUTATION HARNESS IS RUNNING.**
+  Commit `16dd9506` captured mutation M3 because the commit **raced** a background harness. The
+  restore was byte-perfect; **the COMMIT was the bad snapshot**, and the only signal is a "modified"
+  file that reads like noise. **Verify the committed BLOBS, not the working tree.** (Fixed forward, no
+  force-push; this repo squash-merges so the bad intermediate cannot reach trunk — **on a
+  merge-commit repo it would have.**)
+- **`[FU-QP-GRADED-SHEET-NOT-A-ROUTE]`** (also recorded as **`[FU-QP-GRADED-SHEET-ROUTE]`** in the
+  lane report — **same finding, two ids; do not treat them as separate items**) — ⚠ **LOGGED WITH
+  TEETH BY THE OWNER: DEFERRED, NOT RESOLVED.** The graded sheet is **NOT linkable, NOT bookmarkable,
+  NOT reachable from history**, so Quick Practice sessions will **not** appear in `SurfaceHistory`
+  alongside Chapter Test and Full Mock. It was not built as a route on three grounds, chief among them
+  that `quick_practice_overlay_additive_acceptance.mjs` **GUARD 3 pins `<PracticePage />` PROPLESS in
+  `App.tsx`**, so a route host would need a second top-level branch in the file with the
+  production-break history. **Section 9b's `App.tsx` authorization is UNUSED and STAYS GRANTED for
+  that future lane.**
+- **`[FU-QP-HISTORY-RAIL]`** — ★ **now CHEAP and still not taken.** `quick-practice` was **already**
+  in the `SessionSurface` union and in `SurfaceHistory`'s `SURFACE_COPY`, and **the reason
+  `SurfaceHistory`'s own comment gives for not mounting it is REMOVED by `#621`**: it says *"QP's
+  scorecard is 'X of N attempted', so a QP row cannot reuse this container's marks-based card."*
+  **After `#621` a batched QP session IS marks-based.**
+
+### `TYPED-2` (`#626`)
+
+- **`[FU-TYPED2-SUITE-TITLE-VS-FIXTURE]`** — ★★ **the reason every gate missed the original defect.**
+  The existing test `§9.7` — *"a typed answer alone reaches the model — the free-tier path is not a
+  400"* — **SENDS `imageBase64: 'PDFB64'`.** It never exercised a zero-upload request at all.
+  **A TEST TITLE THAT DESCRIBES AN ASSERTION THE TEST DOES NOT MAKE.** The title reads as exactly the
+  coverage that was missing, so **four lanes and the cofounder saw the path as covered.** Sibling of
+  *"a test with a data guard passes while asserting nothing"* — here **the FIXTURE, not the guard, is
+  what hollowed it out.** ⇒ **Quote every new test's fixture and check it against its title.**
+- **`[FU-TYPED2-WORKLOAD-CLASS-TYPED-ONLY]`** — `workloadClass` is `'grade-batch'` when photos exist
+  and `'worksheet'` otherwise, so **a typed-only batch is telemetered as `'worksheet'`** although it
+  sends zero images and no document. Telemetry-only, outside `contents`. **Decide whether a third
+  class (`'grade-typed'`) is worth the split** — ⚠ it matters for `SERVER-2`, which is scoped from
+  exactly this data.
+- **`[FU-TYPED2-BODY-CAP-COPY]`** — `'Upload too large or invalid. Keep the PDF under 5 MB.'` still
+  names a **PDF as the only payload**; a typed-only batch that trips the 8 MB cap gets copy that does
+  not describe it. Cosmetic. ⚠ **Related to `[FU-UPLOAD-LIMIT-BLOCKS-PHONE-PHOTOS]` — the upload-limit
+  lane should fix both messages at once.**
+
+### `TYPED-3` (`#627`)
+
+- **`[FU-TYPED3-GRADED-DENOMINATOR-PAIRING]`** — `gradedMarksAwarded` / `gradedMarksTotal` are a
+  symmetric pair and do **not** share `totalMarks`'s ambiguity — ⚠ **but `worksheetTotalMarks` vs
+  `gradedMarksTotal` is a WRONG-DENOMINATOR hazard, the same shape as `#501`** (where "of N" read the
+  over-fetched pool rather than the displayed set). **Reported, not widened.**
+- **`[FU-TYPED3-AICLIENT-DOC-COMMENT-STALE]`** — `src/ai/aiClient.ts` documents the worksheet result
+  as *"Present only when `couldNotRead` is false"* for the graded fields; **`marksAwarded` is now
+  always present.** The TYPE is optional so nothing breaks, but **the COMMENT is now a claim that is
+  false.** `src/` was outside that lane's allowlist. (See also: *a doc comment is a CLAIM, not a fact.*)
+- **`[FU-TYPED3-STUB-COULDNOTREAD-COPY]`** — `buildStructuredStub` hard-codes the **photo** pending
+  note for its last question. It is now corrected downstream by `typedNote()` when the question was
+  typed, but **the stub's own literal still assumes a photograph.**
+- **`[FU-TYPED3-MODEL-BEHAVIOUR-UNMEASURED]`** — every assertion in that lane is over **the prompt
+  text** or the server's handling of a **stubbed** reply. Whether Gemini actually grades typed nonsense
+  as 0-with-a-reason rather than `couldNotRead` was UNMEASURED pre-merge.
+  ★ **The owner's live-verify has since answered it in the affirmative for the three checked cases** —
+  but it remains **unmeasured at scale**, which is precisely `[FU-GRADING-CONSISTENCY-UNMEASURED]`.
+
+### CI / INFRASTRUCTURE
+
+- **`[FU-CI-VERIFY-PRODUCTION-BUILD-NOT-WIRED]`** — ★ **`node scripts/verify-production-build.mjs`,
+  the post-build bundle verifier REQUIRED BY `CLAUDE.md` §6, is ABSENT FROM CI.** The string
+  `verify-production-build` appears **zero times** in the Quality Gate log; the Build step is
+  `vite build` alone. **CI HAS NEVER RUN IT.** ⇒ **A gate named in our own standing instructions that
+  no run executes is the definition of a silent no-op, one level up from the code.**
+- **`[FU-CIFIX621-CANCELLED-IS-NOT-FAILED]`** — a **queue-expired or concurrency-cancelled** job
+  renders as `failure` at RUN level. ⚠ **READ THE JOB, NOT THE RUN.** The Quality Gate produced **no
+  conclusion anywhere in this repo for nearly three and a half hours**, returning red ticks that
+  contained **no information**.
+- **`[FU-CIFIX621-JOB-RED-WITH-ALL-STEPS-GREEN]`** — run `31121805441` is the reference case: **every
+  step `success`, job `failure`, 45 minutes** between the last log line and `completed_at`.
+- **`[FU-CIFIX621-TRUNK-QG-NEVER-COMPLETED]`** — trunk `b48d6e38` carried a **red, never-re-run
+  Quality Gate**, and every PR branched from it **inherits that unverified base.** ⇒ **Re-run trunk's
+  own bar so it is known before the next lane branches from it.**
+
+### CLOSED BY THIS WAVE
+
+- **`[FU-BATCH-TYPED-ANSWER-NO-CHANNEL]`** — **CLOSED**, by `#625` + `#621` + `#626` + `#627`
+  **together**, and confirmed by live-verify. ⚠ **`#625` alone did NOT close it** — it merged as a
+  capability with no caller, and even with a caller the request was refused at the endpoint's front
+  door and then handed a photograph-framed prompt. **Recorded because "the field exists" was mistaken
+  for "the path works" twice.**
+- **`[FU-QP-BATCH-CAP-13-UPLOADS-400]`** — **CLOSED.** A 14-photo session now sends **exactly 12** with
+  Q13/Q14 **named** and **no 400**, proven by a real intercepted request body.
+- **`[FU-TYPED1-AMEND621-DELETE-HINGE]`**, **`[FU-TYPED1-CAP-HAS-NO-CLIENT-READER]`** — **CLOSED.**
+- **`[FU-TYPED1-LIVE-VERIFY-OWED]`** and **`[FU-578-LIVE-VERIFY-STILL-OWED]`** — **DISCHARGED.**
+  `#578`'s seam has executed against real Gemini, nine days after it merged.
+- **The mobile "full marks" report** — **NOT A DEFECT, CLOSED.** The owner's first mobile test ran
+  **before `#626` reached Railway**; the same session now grades correctly on both surfaces.
+  **Not device-specific, not non-deterministic — a pre-`#626` failed-request path.** Recorded so
+  nobody re-opens it as a device bug.
+
+### ⚠ STILL OPEN AND SHARPENED BY THIS WAVE
+
+- **`[FU-BATCH-402-SWALLOWED-BY-HONEST-FAILURE]`** — `#611`'s unconditional catch turns
+  `PremiumRequiredError` into `skipped-error`. **It was LATENT while nothing called it. `#621`
+  shipped the caller — IT IS LIVE NOW.**
+- **`[FU-ASYNC-GRADING]`** — Full Mock's real risk on the grading surface is **truncation at
+  `maxOutputTokens: 32000` -> one retry -> `{ok:false}`**, already flagged in-code. ⚠ **It is NOT the
+  upload cap** — see the refuted claim in `DECISION_LOG`.
+- **`[FU-SCORECARD-DESKTOP-SCROLL-CEILING]`** — **live on trunk today.**
+- **`[FU-AUTH-DISPLAYNAME-NO-BACKFILL]`** — unchanged by this wave, and still **a sequencing
+  constraint on the ~50-student QA pass.**
+
+---
+
 ## 2026-08-06 — #623 `NAME-2` (one standalone lane, owner live-verified on a real handset). Trunk `2ca9a3d0`.
 
 **CLOSED — resolved and shipped**
