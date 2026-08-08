@@ -5,7 +5,42 @@
 ## NEXT — 2026-08-09 (post-Wave ME-A). Read this block first.
 
 **`2026-08-08T23:31:55Z UTC / 2026-08-09 05:01 IST`** · **Trunk `e8f8986373cc9434858697df0186ca2acabb65a4`**
-(re-derive with `git ls-remote origin base/approved-thru-437` — it moved five times during this wave).
+(re-derive with `git ls-remote origin base/approved-thru-437` — it moved five times during this wave,
+**and twice more while this handoff was being written; see immediately below**).
+
+### ⚠ TRUNK MOVED WHILE THIS HANDOFF WAS BEING WRITTEN — read this before trusting the SHA above
+
+**`2026-08-08T23:42Z UTC / 2026-08-09 05:12 IST`.** This handoff was authored against trunk
+**`e8f89863`** and covers the nine commits up to it. **Two more merged mid-lane**, both belonging to
+the **DPDP arc, which is a DIFFERENT and STILL-OPEN wave**:
+
+```
+c9445a1e  CLEARTEXT-1  prove only the uid reaches the nine localStorage sinks  #640  (merged 23:30:57Z)
+6ef083b5  USERS-1      a login no longer writes a child's identity to a dead
+                       collection                                             #639  (merged 23:42:14Z)
+```
+
+**Trunk is therefore `6ef083b5486a292880a0ba5cd1a1d8da1cfc7f7e`, not `e8f89863`. Re-derive it — do
+not read the SHA above as current.**
+
+⛔ **`#639` and `#640` ARE DELIBERATELY NOT WRITTEN UP HERE, and that is not an omission.** They are
+**another controller's lanes in an open wave** (`#638` ERASE-1 is still an open draft). **Their
+close-out belongs to the DPDP wave's own handoff, with their own reasoning attached.** Recording
+what they did without the reasoning behind them would produce exactly the reconstruction hazard this
+handoff refuses for `#629`/`#630`: **a plausible account is indistinguishable from a record, and the
+next lane cannot tell them apart.** What landed, by content only, so the gap is visible rather than
+silent:
+- **`#640`** — 5 NEW `*.uidOnly.test.ts` files, +1,323 lines, **test-only**.
+- **`#639`** — 6 files, +468/−70, touching `AuthContext.tsx`, `learnerAccountService.ts` and
+  `studentDataMap.ts`.
+
+⭐ **THE ONE THING THE DPDP CLOSE-OUT MUST CHECK, because ME-A created the condition:** `#640` asserts
+**only the uid reaches the localStorage sinks**, and `#637` (this wave) **changed what
+`mistakeIntelligence` writes** — it now adds `concept` and `questionId` to the entry. `#640` merged
+**after** `#637`, so **`#640` must be re-checked AGAINST `#637`, not merely re-run.** The new fields
+are not PII and no conflict is expected — ⚠ **but expectation is not evidence, and `lane_overlap.mjs`
+cannot see a semantic overlap; only exact-path disjointness was ever proven.**
+
 
 ### THE NEXT TASK — **WAVE ME-B, under a FRESH CONTROLLER**
 
