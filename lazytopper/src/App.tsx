@@ -96,11 +96,10 @@ const QrAnswerUploadPage = lazy(() => import("./pages/QrAnswerUploadPage"));
 // The retired twins remain on disk for PR-G deletion (imports removed so tsc
 // noUnusedLocals stays green).
 const WorksheetGenerator = lazy(() => import("./components/worksheet/WorksheetGenerator"));
-// Me / Progress — one surface per width. Desktop (>=1024px) = the locked DesktopMePage;
-// mobile = MobileMePage (arc PR-4 — the cross-device progress arc, replacing the retired
-// legacy streak/XP hero at pages/app/Me.tsx, which is now un-routed for PR-G deletion).
-const DesktopMePage = lazy(() => import("./pages/desktop/DesktopMePage"));
-const MobileMe          = lazy(() => import("./pages/mobile/MobileMePage"));
+// Me / Progress — ONE responsive surface at every width. The DesktopMePage /
+// MobileMePage twins were DELETED in the convergence; layout is driven by
+// useIsDesktop() inside the page.
+const MeProgressPage = lazy(() => import("./pages/MeProgressPage"));
 
 // Tutor surface (Stage 1) — the fresh /tutor route (D-TUT-12): a NEW engine, not the
 // old mentor/TeachFlow. Bare full-screen (see BARE_FULLSCREEN_PREFIXES), premium-gated;
@@ -179,7 +178,8 @@ function RootEntry() {
  *   • `/browse`  — MobileHome draws its own locked-design brand bar.
  *   • `/welcome` — MobileWelcome (also suppressed via `isPublicLandingRoute`; kept
  *                  here defensively to document intent).
- *   • `/me`      — the arc-PR-4 MobileMePage owns ONE clean header (MobileShell)
+ *   • `/me`      — the converged MeProgressPage gets ONE clean header from the
+ *                  route-layer <MobileSelfChrome> (MobileShell)
  *                  matching the desktop treatment; the old thin LT brand bar is
  *                  retired on this surface. (The mobile BottomNav is unaffected —
  *                  it is gated separately in BottomNav and is preserved.)
@@ -533,8 +533,8 @@ function isDesktopShellRoute(pathname: string, hasSession: boolean = true): bool
   if (pathname === "/topic-hub" || pathname.startsWith("/topic-hub/")) return true;
   // Desktop Phase 5 — exact "/check-improve" only.
   if (pathname === "/check-improve") return true;
-  // Desktop Phase 6 — exact "/me" only. Mobile width continues to render
-  // the legacy MobileMe page unchanged.
+  // Desktop Phase 6 — exact "/me" only. Mobile width renders the SAME
+  // MeProgressPage, reflowed by useIsDesktop() rather than shell-wrapped.
   if (pathname === "/me") return true;
   // Desktop Phase 7 (PR-D) — exact "/practice/worksheets" only. The shared
   // "/practice/worksheets/ready" route remains intentionally NOT shell-wrapped
@@ -1144,16 +1144,21 @@ export default function App() {
             }
           />
 
-          {/* Me — desktop renders the locked DesktopMePage inside DesktopShell
-              at >=1024px (Phase 6); mobile width keeps the legacy MobileMe
-              page unchanged. */}
+          {/* Me — ONE responsive MeProgressPage at every width (the Option-B
+              convergence already shipped for Exam Trends and Worksheets). The
+              desktop/mobile twin split is retired: layout comes from
+              useIsDesktop() inside the page, never from two page files. At
+              desktop width it mounts inside DesktopShell (isDesktopShellRoute);
+              at mobile width MobileSelfChrome supplies the ONE clean header that
+              MobileMePage used to own, applied at the route layer so the
+              RequireAuth blocked state carries it too. */}
           <Route
             path="/me"
             element={
               <RequireAuth>
-                {isDesktop
-                  ? withRouteSuspense(<DesktopMePage />)
-                  : withRouteSuspense(<MobileMe />)}
+                <MobileSelfChrome title="Me" subtitle="Your study mirror">
+                  {withRouteSuspense(<MeProgressPage />)}
+                </MobileSelfChrome>
               </RequireAuth>
             }
           />
