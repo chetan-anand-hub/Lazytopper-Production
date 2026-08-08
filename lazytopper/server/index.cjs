@@ -175,6 +175,13 @@ const { createVerifiedCaller } = require('./services/verifiedCaller.cjs');
 // ★ Fails OPEN with a warning AND a counter: a student who paid must never be
 // locked out by an infrastructure blip. Watch `entitlement.fail_open`.
 const { createEntitlementGate } = require('./services/entitlement.cjs');
+// DPDP account erasure (ERASE-1). Owner-scoped: a student erases their OWN account,
+// uid taken from the verified token and from nowhere else. Walks STUDENT_DATA_MAP —
+// the map is the spec, so a collection added there is erased without touching this
+// file. ★ Subcollections are deleted EXPLICITLY (Firestore does not cascade) and a
+// zero-match delete reports `notFound`, never success.
+const { createAccountErasureService } = require('./services/accountErasure.cjs');
+const { createAccountErasureRoutes, ACCOUNT_ERASE_PATH } = require('./routes/accountErasure.cjs');
 
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
 
@@ -291,6 +298,17 @@ const tutorRoute = createTutorRoute(routeDeps);
 const rateLimiter = createRateLimiter({ telemetry });
 const verifiedCaller = createVerifiedCaller({ firebaseAdmin, telemetry });
 const entitlementGate = createEntitlementGate({ adminFirestore, telemetry, sendJson });
+// DPDP erasure. The service loads STUDENT_DATA_MAP through the require.extensions
+// ['.ts'] hook installed at the top of this file — the same mechanism that already
+// loads trianglesGrindContract.ts at boot. A map that fails to load does NOT kill the
+// gateway: isAvailable() goes false and the route answers 503 with the reason.
+const accountErasure = createAccountErasureService(routeDeps);
+const accountErasureRoutes = createAccountErasureRoutes({
+  ...routeDeps,
+  telemetry,
+  verifiedCaller,
+  accountErasure,
+});
 
 async function handleRequest(req, res) {
   const reqUrlRaw = String(req.url || "");
@@ -315,6 +333,9 @@ async function handleRequest(req, res) {
       /^\/api\/admin\/question-reports\/\d+\/resolve$/.test(reqPath) ||
       reqPath === '/api/ai-questions' ||
       reqPath === '/api/qr-upload/new' ||
+      // ★ MOUNT IS NOT REACH. The browser sends Authorization on this POST, so
+      // without a preflight entry the student's request never leaves the browser.
+      reqPath === ACCOUNT_ERASE_PATH ||
       /^\/api\/qr-upload\/pickup\/[^/]+$/.test(reqPath) ||
       /^\/api\/qr-upload\/[^/]+\/status$/.test(reqPath) ||
       /^\/api\/qr-upload\/[^/]+$/.test(reqPath) ||
@@ -380,6 +401,14 @@ async function handleRequest(req, res) {
   }
   if (req.method === 'GET' && String(req.url || '').startsWith('/api/shared-report')) {
     return shareRoutes.handleSharedReport(req, res, SHARE_SECRET);
+  }
+
+  // ── DPDP account erasure ─────────────────────────────────────────────────────
+  // Owner-scoped and self-gating: the handler resolves the uid from the verified
+  // token and 401s on empty BEFORE it does anything else. Nothing is passed in from
+  // here — there is no uid parameter on this route by design.
+  if (req.method === 'POST' && reqPath === ACCOUNT_ERASE_PATH) {
+    return accountErasureRoutes.handleErase(req, res);
   }
 
   // ── QR answer handoff ────────────────────────────────────────────────────────

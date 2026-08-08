@@ -84,8 +84,10 @@ function createVerifiedCaller(deps = {}) {
       emit(UNVERIFIED_EVENT);
       return "";
     } catch {
-      // Expired, forged, clock-skewed, or the network to Google is down. Fall
-      // back to the header — never to anonymous.
+      // Expired, forged, clock-skewed, or the network to Google is down. Return
+      // "" — this function NEVER reads the header. resolveCaller in rateLimiter.cjs
+      // is what falls back to it, so a caller that refuses "" (the DPDP erasure
+      // route) is fail-closed and the header cannot reach it.
       emit(UNVERIFIED_EVENT);
       return "";
     }
