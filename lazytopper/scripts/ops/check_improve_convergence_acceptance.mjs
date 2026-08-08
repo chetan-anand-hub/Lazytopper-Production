@@ -494,7 +494,57 @@ const FORBIDDEN = [
   // All 13 mutations proven RED. Its PRESENCE AND WIRING are asserted below, so
   // this lift cannot decay into "no protection at all".
   // Do NOT re-add the blanket entry without a deliberate owner decision.
-  'lazytopper/src/services/mistakeIntelligence.ts',
+  //
+  // ★★ mistakeIntelligence.ts — blanket ban LIFTED 2026-08-08 (owner decision, Wave ME-A
+  // lane OPS-LIFT-1). Precedent: #519 (DesktopShell.tsx), PR-C1 (checkSolution.cjs), #581
+  // (SolutionChecker.tsx), #601 (App.tsx), #606 (quickPracticeSessionService.ts), FORBID-6
+  // (ResultsScorecard.tsx). THE PROTECTION CHANGES FORM, IT DOES NOT DISAPPEAR.
+  //
+  // WHY NOW: the Me/Progress arc writes THROUGH this front door. MI-CONCEPT-1 (#637) adds
+  // the bank `concept` and the `questionId` write-through to the log entry — additively,
+  // 0 deletions — and ARRIVAL-1 / RETRY-1 queue behind it. This array is PR-scoped with no
+  // lane-scoping and no exception mechanism, so the ban blocked the arc outright while
+  // reading as a considered decision about each of those lanes. It was not: it predates
+  // all of them.
+  //
+  // WHAT THIS BAN WAS ACTUALLY BUYING, made explicit — because a blanket ban says
+  // "something here must not change" and never says what. ★ NOTHING IN THIS GATE ASSERTED
+  // ONE BYTE OF THIS MODULE'S BEHAVIOUR: the only other mention of it anywhere in this file
+  // is the §2 check that the C&I page IMPORTS `recordMistake` — which says nothing about
+  // what the front door then does — so the FORBIDDEN entry was its ENTIRE protection.
+  // Concretely the ban was the only thing standing between the mistake log and:
+  //   (a) A SECOND WRITER. `recordMistake` is the single ingestion door into the store the
+  //       tutor and /me read. A second module importing `logMistakes` is a DOUBLE-WRITE
+  //       HAZARD, and it is the one failure no behavioural test can catch — you cannot
+  //       prove a negative existential by calling a function;
+  //   (b) THE TAXONOMY DRIFTING off the four types (conceptual / calculation / silly /
+  //       presentation) that every downstream aggregate, hotspot and insight keys on;
+  //   (c) `marksLost` accounting regressing — a negative deficit propagates into every /me
+  //       aggregate as a CREDIT, silently cancelling real mark loss elsewhere;
+  //   (d) ONE-ENTRY-PER-QUESTION becoming N — the fan-out that would surface as duplicated
+  //       attempts in Mistake Intelligence, the exact corruption the controller model
+  //       records as the double-write near-miss;
+  //   (e) ★ CARELESS MISTAKES BECOMING A TOPIC WEAKNESS. silly + presentation must never
+  //       reach the weak-area bridge, or a student who understands a topic is sent back to
+  //       re-learn it. This is the moat, and it is a two-line condition away from breaking.
+  //
+  // THE REPLACEMENT: `lazytopper/src/services/mistakeIntelligence.contract.test.ts` —
+  // targeted tests pinning every item above (count deliberately NOT recorded here: a
+  // carried number goes stale the first time a test is added, and this comment is not what
+  // re-reads it). Each of the five is mutation-proven RED against a green control.
+  // ★★ THE REPLACEMENT DELIBERATELY DOES NOT PIN THE ENTRY'S KEY SET, the context field
+  // list, or the dedup signature — #637 ADDS `concept` and `questionId` to the entry, and a
+  // test pinning today's shape would forbid exactly the change this lift exists to permit.
+  // That is the FORBID-1 failure, whose replacement asserted a CTA was enabled: true on the
+  // day, unrelated to the ban, and it blocked GATE-2 four days later. The suite's
+  // `additive-shape openness` block is the positive proof it cannot become a freeze.
+  // Its PRESENCE, WIRING AND SUBJECT are asserted below, so this lift cannot decay into
+  // "no protection at all".
+  //
+  // → THE OTHER FOUR ENTRIES REMAIN, BY DELIBERATE DECISION: the Me/Progress arc reads
+  // practiceInsights and the MI panels but writes neither, and it does not go near the C&I
+  // persist seam. Do NOT re-add this entry without a deliberate owner decision — the
+  // absence assertion below will fail if you do.
   'lazytopper/src/services/practiceInsights.ts',
   'lazytopper/src/services/checkImproveGradeService.ts',
   'lazytopper/src/components/desktop/MistakeIntelCard.tsx',
@@ -629,16 +679,19 @@ const FORBIDDEN = [
 // ELSE. Deleting that check with its entry (FORBID-6) would have left this gate with no
 // unconditional membership assertion at all, so the five survivors are enumerated here
 // instead: the lift must not cost the gate a guarantee it already had.
+// ★ OPS-LIFT-1 CONFIRMS THE WARNING ABOVE IS LOAD-BEARING, NOT DECORATION: the
+// mistakeIntelligence.ts line left BOTH this list and FORBIDDEN in the SAME PR. Removing it
+// from FORBIDDEN alone would have failed the gate on its own amendment — this loop asserts
+// membership UNCONDITIONALLY, so it does not care why the entry went away.
 for (const f of [
-  'lazytopper/src/services/mistakeIntelligence.ts',
   'lazytopper/src/services/practiceInsights.ts',
   'lazytopper/src/services/checkImproveGradeService.ts',
   'lazytopper/src/components/desktop/MistakeIntelCard.tsx',
   'lazytopper/src/components/desktop/l2/MistakeIntelligencePanel.tsx',
 ]) {
-  check(`FORBIDDEN(wired): ${f} is still in the guarded set (FORBID-1 lifted SolutionChecker.tsx; FORBID-6 lifted ResultsScorecard.tsx — nothing else)`,
+  check(`FORBIDDEN(wired): ${f} is still in the guarded set (FORBID-1 lifted SolutionChecker.tsx; FORBID-6 lifted ResultsScorecard.tsx; OPS-LIFT-1 lifted mistakeIntelligence.ts — nothing else)`,
     FORBIDDEN.includes(f),
-    'both lifts were deliberate ONE-FILE amendments — this entry must survive them');
+    'all three lifts were deliberate ONE-FILE amendments — this entry must survive them');
 }
 
 // ★ THE INVERSE ASSERTION for FORBID-6 — what makes the scorecard lift itself OBSERVABLE.
@@ -659,6 +712,18 @@ check('FORBIDDEN(lifted): SolutionChecker.tsx is NOT in the guarded set (ban rep
   're-adding the blanket entry needs an owner decision AND removal of the replacement tests');
 check('FORBIDDEN(wired): EquationInput.tsx is NOT guarded (it legitimately gains autoGrow; §7 proves it stays default-off)',
   !FORBIDDEN.some((f) => f.endsWith('equation/EquationInput.tsx')));
+
+// ★ THE INVERSE ASSERTION for OPS-LIFT-1 — what makes the MI front-door lift OBSERVABLE.
+// A silent re-add turns this red and forces a deliberate owner decision instead of quietly
+// re-blocking the Me/Progress arc (#637 MI-CONCEPT-1, then ARRIVAL-1 and RETRY-1) with no
+// discussion. ⚠ CHECKED IN BOTH DIRECTIONS ON PURPOSE: the membership loop above proves the
+// FOUR survivors are still guarded, and this proves the ONE that left really left. A
+// half-amendment — dropped from FORBIDDEN but still asserted as wired, or the reverse —
+// fails one of the two, which is exactly the trap the comment above that loop names.
+check('FORBIDDEN(lifted): mistakeIntelligence.ts is NOT in the guarded set (ban replaced by mistakeIntelligence.contract.test.ts)',
+  !FORBIDDEN.includes('lazytopper/src/services/mistakeIntelligence.ts'),
+  're-adding the blanket entry needs an owner decision AND removal of the replacement tests — '
+  + 'it would also re-block the Me/Progress arc, which writes through this front door');
 
 // ★★ THE REPLACEMENT PROTECTION FOR THE LIFTED SolutionChecker BAN (FORBID-1).
 // Identical reasoning to the GRADER-TESTS block below: a deleted FORBIDDEN entry plus a
@@ -774,6 +839,67 @@ check('SOLUTIONCHECKER-PREMIUM: the lock is still proven through a REAL PARENT\'
   /PracticeQuestionCard/.test(scEntSrc) && /MOUNT != LIVE/.test(scEntSrc),
   'the trigger trace is what separates this from the MentorSolveDrawer defect — imported, '
   + 'rendered, and dead');
+
+// ★★ THE REPLACEMENT PROTECTION FOR THE LIFTED MI FRONT-DOOR BAN (OPS-LIFT-1).
+// Same three-part reasoning as the two blocks above, because the failure mode is the same:
+// a deleted FORBIDDEN entry plus a test file nobody invokes is strictly WORSE than the ban
+// it replaced, since it READS as protection. So all three halves are asserted — the tests
+// EXIST, they RUN in CI, and they are COLLECTED by the include glob.
+// ⚠ THIS SUITE IS A `.test.ts`, NOT A `.test.tsx` — it exercises a service, not a render.
+// The include glob is `src/**/*.test.{ts,tsx}`, so both are collected; the assertion below
+// checks THIS file's own extension rather than copying the `.tsx` line from the blocks
+// above, which would have passed vacuously while collecting nothing.
+// Filesystem-only (no subprocess, no git base), so this can never skip.
+const MI_TESTS = 'lazytopper/src/services/mistakeIntelligence.contract.test.ts';
+check(`MI-CONTRACT-TESTS: ${MI_TESTS} exists (the replacement for the lifted blanket ban)`,
+  existsSync(path.join(ROOT, MI_TESTS)),
+  'the blanket FORBIDDEN entry was lifted in favour of these tests — without them the single '
+  + 'ingestion door into the store the tutor and /me read is unguarded');
+check('MI-CONTRACT-TESTS: they RUN — quality-gate.yml has a required lazytopper `vitest run` step',
+  /pnpm --filter lazytopper exec vitest run/.test(qualityGate),
+  'a test nobody runs guards nothing — the CI vitest step is what executes this suite');
+check('MI-CONTRACT-TESTS: they are COLLECTED — vitest include glob covers src/**/*.test.ts',
+  /include:\s*\["src\/\*\*\/\*\.test\.\{ts,tsx\}"\]/.test(read(path.join(LAZY, 'vitest.config.ts')))
+  && MI_TESTS.startsWith('lazytopper/src/') && MI_TESTS.endsWith('.test.ts'),
+  'the file exists and CI runs vitest, but the include glob would not pick it up');
+// ★ SUBJECT, not just presence — a replacement that stopped asserting the thing the ban was
+// buying is the silent no-op this whole exercise exists to prevent. All FIVE subjects the
+// lift record above enumerates are named here, so a future edit that guts any one of them
+// turns THIS gate red as well and not merely that suite.
+const miTests = existsSync(path.join(ROOT, MI_TESTS)) ? read(path.join(ROOT, MI_TESTS)) : '';
+check('MI-CONTRACT-TESTS (T1): the SINGLE-WRITER scan over the tree is still there',
+  /scanMistakeLogWriters/.test(miTests) && /namespaceImporters/.test(miTests)
+  && /dynamicImporters/.test(miTests) && /reExporters/.test(miTests),
+  'a second module importing `logMistakes` is a DOUBLE-WRITE HAZARD into the store the tutor '
+  + 'reads — and the three bypass routes must stay scanned, or the scan measures a subset');
+check('MI-CONTRACT-TESTS (T1): the scanner is proven to REJECT, not merely to accept',
+  /the scanner REJECTS, not merely accepts/.test(miTests),
+  'a parser only ever run over the real tree can be shown to ACCEPT and never to REJECT — '
+  + 'its green is worthless without the fixtures that prove it fires');
+check('MI-CONTRACT-TESTS (T2): the four-type taxonomy is pinned by IDENTITY, not by a count',
+  /the mistake taxonomy is exactly the four types/.test(miTests)
+  && /the set is not SMALLER/.test(miTests) && /the set is not LARGER/.test(miTests),
+  'a count passes while the set is wrong — both directions must stay asserted');
+check('MI-CONTRACT-TESTS (T3): marksLost accounting, including the zero clamp',
+  /marksLost accounting/.test(miTests) && /CLAMPED AT ZERO/.test(miTests),
+  'a negative deficit propagates into every /me aggregate as a CREDIT');
+check('MI-CONTRACT-TESTS (T4): one entry per graded question — never one per mistake',
+  /one entry per graded question/.test(miTests) && /exactly ONE log write/.test(miTests),
+  'the fan-out surfaces as duplicated attempts in Mistake Intelligence');
+check('MI-CONTRACT-TESTS (T5): careless mistakes are still proven NOT to become a topic weakness',
+  /careless mistakes never become a topic weakness/.test(miTests)
+  && /never bridged to weak areas/.test(miTests) && /CONTROL/.test(miTests),
+  'THE MOAT — silly/presentation must not reach the weak-area bridge, and the conceptual/'
+  + 'calculation CONTROL is what stops that assertion passing over a dead bridge');
+// ★★ AND THE OPENNESS PROOF — the half that stops this replacement becoming the ban again.
+// FORBID-1's replacement pinned an incidental present-day fact and blocked a later lane for
+// a reason nobody could act on. #637 ADDS `concept` and `questionId` to the persisted entry;
+// a suite pinning today's key set would forbid exactly the change this lift exists to permit.
+check('MI-CONTRACT-TESTS: the entry shape stays OPEN to additive change (the anti-FORBID-1 half)',
+  /additive-shape openness/.test(miTests)
+  && !/toEqual\(\s*\[\s*"timestamp"/.test(miTests),
+  'a replacement that froze the entry\'s key set would re-impose the lifted ban by the back '
+  + 'door and block MI-CONCEPT-1, ARRIVAL-1 and RETRY-1');
 
 // ★★ THE REPLACEMENT PROTECTION FOR THE LIFTED GRADER BAN (PR-C1).
 // Lifting a blanket ban is only safe if the thing replacing it actually runs. A
@@ -969,5 +1095,6 @@ console.log('  five purples gone · QR + camera + Your-papers intact · SHOW_DET
 console.log('  question-side parity: EquationInput + QR(question mode) + camera + paste · autoGrow default-off ·');
 console.log('  QR "question" mode threaded (client type + both COPY maps + server allowlist; answer byte-identical) ·');
 console.log('  bans LIFTED, protection re-formed: SolutionChecker → SolutionChecker.contract.test.tsx (FORBID-1) ·');
-console.log('  ResultsScorecard → ResultsScorecard.contract.test.tsx (FORBID-6) — presence, CI execution,');
-console.log('  collection and SUBJECT asserted for each; five MI/persist entries still guarded\n');
+console.log('  ResultsScorecard → ResultsScorecard.contract.test.tsx (FORBID-6) ·');
+console.log('  mistakeIntelligence → mistakeIntelligence.contract.test.ts (OPS-LIFT-1) — presence, CI execution,');
+console.log('  collection and SUBJECT asserted for each; FOUR MI/persist entries still guarded\n');

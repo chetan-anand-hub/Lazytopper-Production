@@ -334,3 +334,21 @@ Every session must update `handoff/SESSION_LOG.md` and, if needed, `handoff/CURR
 - environment issue is discovered
 - data-honesty rule is clarified
 - session is ending
+
+## WAVE STATE DOCS — LIFECYCLE
+
+`handoff/WAVE_STATE_<WAVE>_LIVE.md` is the controller's working state for an OPEN wave.
+It is untracked by design: it churns every pass and would bury the diff.
+
+**On wave close, before opening the next wave:**
+
+1. Copy `WAVE_STATE_<WAVE>_LIVE.md` to `WAVE_STATE_<WAVE>_ARCHIVE.md`.
+2. Commit the ARCHIVE in the wave's closing docs PR.
+3. Verify it landed by content on trunk, THEN delete the local `_LIVE`.
+
+**The `_LIVE` file is the ONLY copy until step 2 lands.** It is not backed up, not on a
+remote, and not recoverable if the disk fails. A wave that opens before the previous
+wave's ARCHIVE is on trunk has put unrecoverable state at risk.
+
+Waves 4 and 5A stalled at step 1 and stayed laptop-only until this commit. Nothing in
+this README had ever stated the rule, which is how that happened.
