@@ -33,7 +33,6 @@ import { hydrateSubscriptionFromCloud } from "../services/subscriptionService";
 import { hydrateMistakeLogsFromCloud } from "../services/mistakeLogService";
 import { authClient, firebaseConfigured } from "../services/firebaseClient";
 import { restoreFromDB } from "../services/dbSyncService";
-import { ensureLearnerAccountMetadata } from "../services/learnerAccountService";
 
 export type AuthUser = {
   uid: string;
@@ -295,7 +294,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const uid = user?.uid || null;
     setActiveProgressUser(uid);
     if (!user || !uid || user.isLocalSession) return;
-    const activeUser = user;
 
     let cancelled = false;
 
@@ -304,18 +302,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       await Promise.allSettled([
         restoreFromDB(uid),
-        ensureLearnerAccountMetadata({
-          uid,
-          email: activeUser.email,
-          phoneNumber: activeUser.phoneNumber,
-          displayName: activeUser.displayName,
-          authProvider:
-            activeUser.phoneNumber && !activeUser.email
-              ? "firebase-phone"
-              : activeUser.email
-                ? "firebase-email"
-                : "firebase",
-        }),
+        // ★ ensureLearnerAccountMetadata(...) was HERE and is gone on purpose. It mirrored
+        // the child's DIRECT IDENTIFIERS (email, phoneNumber, displayName, authProvider)
+        // into a Firestore `users/{uid}` doc on every login. `users` has never been
+        // declared in firestore.rules, so the read preceding that write was denied and
+        // threw, an empty catch swallowed it and this Promise.allSettled swallowed it
+        // again — the write was never issued in ~85 days, and nothing was ever built to
+        // read the collection. Do NOT restore this call, and do NOT add a `users` rules
+        // block to make it work: every field it carried already lives in Firebase Auth's
+        // own account record. See learnerAccountService.ts. [USERS-1, wave DPDP-A]
         ensureLearnerCloudBaseline(uid),
         ensureLearnerProgressBaseline(uid),
         hydrateLocalProgressFromCloud(uid),
