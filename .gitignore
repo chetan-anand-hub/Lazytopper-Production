@@ -98,3 +98,7 @@ attached_assets/
 # Claude Code local config
 .mcp.json
 .claude/
+
+# Ad-hoc REST scratch (gh api --input / curl -d). May contain credentials.
+body.json
+/*.request.json
