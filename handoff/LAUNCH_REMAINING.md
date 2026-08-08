@@ -165,6 +165,28 @@ These are independent of surface completeness and are each easy to forget.
 ---
 
 ## §8 · CHANGE LOG (append one dated line per change — newest first)
+- **2026-08-09 (post-WAVE ME-A, #634 · #641 · #637 · #636, trunk `e8f89863`)** — ⛔ **NO CRITICAL-PATH
+  ITEM ADVANCED. §2 is UNCHANGED and this line records why, rather than leaving the absence to be
+  inferred.** `2026-08-08T23:31:55Z UTC / 2026-08-09 05:01 IST`.
+  **Wave ME-A was ENGINE WORK for the v7 `/me` rebuild, and the v7 rebuild is not a domino on this
+  board** — §2 item 5 (**Home nudge PR-5**) remains the immediate next domino and §2 item 6 (the §6
+  pre-launch gates + MockViewGate flips + owner live-verify sweep) is unchanged. `#634` merged **with
+  no consumer at all**; `#641` changed an ops guard; `#637` added two fields to a persisted record
+  that nothing renders yet; `#636`'s `expectedMarks` is **tree-shaken out of the bundle** and
+  **HPQ's live ranking is explicitly unchanged**, i.e. Exam Trends and HPQ did not move either.
+  ⚠ **ONE CAVEAT AGAINST §2 ITEM 4, which reads *"Me/Progress DONE + OWNER LIVE-VERIFIED (Verified
+  cell ✅)"*:** `#631` (`6c94d8f0`) **rebuilt `/me`** onto one responsive `MeProgressPage.tsx` and
+  **DELETED the two pages that live-verify was performed against**. It fixed a real live defect —
+  the page **stopped reading device-local data** (6 `getWindowedProgress`, 0 `loadInsights` on
+  trunk), so a student who practised on a phone no longer sees a different, emptier `/me` on a
+  laptop — **but the domino's "owner live-verified" evidence now describes a page that no longer
+  exists.** ➜ **Not re-flagged 🟡 here unilaterally: that is an owner call, logged as
+  `[FU-ME-VERIFIED-CELL-PREDATES-631-REBUILD]`** (see `OPEN_QUESTIONS_AND_FOLLOWUPS.md` and
+  `SURFACE_TRACKER.md`'s dated section). ⚠ **§6 gates: none cleared, none newly blocked by this
+  wave.** ⚠ **This file's `Trunk at last sync` header (`a8f36ab`, last reconciled 2026-07-13) is far
+  behind and is deliberately NOT advanced** — advancing it would assert a reconciliation nobody
+  performed. **Reconciling this file remains a job of its own.**
+
 - **2026-07-13 (post-#423)** — **FINAL MOBILE-PARITY SWEEP #423 MERGED (`a8f36ab`) + OWNER LIVE-VERIFIED (360px) → §2 item 6's "mobile-parity confirms" DONE; §5 Exam Trends + HPQ fully ✅.** Route-level `<MobileSelfChrome>` one-header on `/practice/worksheets` · `/topic-hub*` · `/highly-probable*` · the practice runner (matchers mirror `isDesktopShellRoute`; wrapper around the gates so upsell/limit states carry the header). Closes the live subset of [FU-MOBILE-OLD-HEADER-STRAGGLERS]. New non-gating: [FU-LEGAL-FOOTER-LINK] (pre-launch compliance-flavoured — legal pages have no live inbound link) + [FU-MOBILE-SHELL-PADDING-STACK] (cosmetic).
 - **2026-07-13 (post-#412)** — **PR-B-v2 progress-engine fixes #412 MERGED (`1228c95`) + OWNER LIVE-VERIFIED → Me/Progress Verified ✅; §2 dominoes #3+#4 (progress data + Me/Progress) CLOSED.** The arc shows REAL data across all four surfaces (unified stream incl. CT/FM objective marks; canonical keys both sides; activity-median split + honest short-term label; Topic Hub sparkline). **Next domino = Home nudge (arc PR-5).** New non-gating FUs: `[FU-PROGRESS-PRESENTATION-REDESIGN]` (later presentation pass) + `[FU-PROG-PRE403-QP-BACKFILL]` (historical). Trunk sync `9749fc9` (parallel #410/#411 disjoint).
 - **2026-07-13 (post-#403)** — **PR-B progress memory layer #403 MERGED** (code trunk `894ef6a`). **Launch-path domino #3 DONE** → the `getWindowedProgress` cross-device multi-rung engine is LIVE; the desktop Me arc reads it. **Arc PR-4 (Me/Progress) is now the immediate next domino**, with a requirement set from PR-B owner live-verify: `[FU-PROGRESS-WINDOW-SPLIT-UX]` + `[FU-TOPICHUB-PROGRESS-ARC]` + **`[FU-MOBILE-ME-PROGRESS-PARITY]`** (the arc is desktop-only; mobile still legacy — non-negotiable) + `[FU-MOBILE-CI-PARITY]` (separate C&I lane). Engine is CORRECT — the 4 findings are consumption-surface gaps, not PR-B bugs. vitest still Codespaces-only.

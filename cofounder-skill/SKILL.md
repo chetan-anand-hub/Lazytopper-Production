@@ -233,6 +233,34 @@ anti-fabrication holds) were right. So the cure is mechanical, not "try harder":
     wrong — the FU's, and the spec that superseded it (which said "derive from the full-screen overlay landscape",
     pointing at ~1100) — before anyone measured.
 
+## ★★ EVIDENCE THAT CANNOT BE RE-CHECKED (2026-08-09, Wave ME-A — two species: a hash with no recipe, and a gate that inspected nothing)
+**Both passed as evidence. Neither was.** Same shape as the GREEN-BOARD TRAP above, one layer in: there the
+signal described a world that had moved; here the signal is **unfalsifiable by anyone but its author**.
+
+- **★★ A HASH WITHOUT ITS RECIPE IS NOT EVIDENCE.** A hash quoted as proof, **without the serialization recipe
+  that produced it, is a derived value no later lane can re-check — the same class of defect as a bare line
+  number** (see LINE REFERENCES ARE DERIVED VALUES). **The instance:** an HPQ pin was reported as proven by
+  `md5 aa58d9fd…`; the recipe was never recorded, and **five reconstruction attempts all produced different
+  hashes**. ⭐ **The conclusion was still TRUE** — identity was provable against the frozen 140-row on-disk
+  literal in `cbse5SignalScoring.hpqPin.test.ts`, which is the artefact that actually gates — **but the evidence
+  given for it could not be checked by anyone else.**
+  - ➜ **Cite the artefact that GATES, or record the exact recipe beside the hash.** A hash over an artefact CI
+    already pins is re-derivable by anyone; a hash over an ad-hoc in-memory serialization is re-derivable by nobody.
+  - ➜ ★★ **And when this happens: KEEP THE CONCLUSION AND WITHDRAW THE EVIDENCE, EXPLICITLY.** Do not quietly
+    substitute better proof. **A correct outcome resting on a false premise still poisons the record, because the
+    premise is what the next lane inherits** — and it travels further than the change did.
+
+- **★★ `scope:guard` IS VACUOUS ON AN UPDATE-ONLY LANE — a NEW silent-no-op class.** `scope:guard` reads only
+  **staged / unstaged / untracked** files and has **no base-ref mode**. A lane that merely merges trunk into an
+  existing branch — a **refresh, merge-only or rebase-only** lane — **authors no working-tree change**, so the
+  guard reports `inspected=0` and **exits green**. ⚠ **That green is indistinguishable from a real pass**, and
+  reporting it as one is a silent no-op: **a gate that runs, reports, and inspects nothing.** (Compare A GUARD'S
+  WORKING DIRECTORY IS PART OF ITS BLAST RADIUS — same failure, different cause.)
+  - ➜ **REMEDY, proven in Wave ME-A:** reproduce the authoring condition in a **throwaway worktree at trunk** and
+    re-run the guard there. The refresh lane got **`inspected=5 untracked=4` — exactly the original lane's figures.**
+  - ➜ **Every refresh / merge-only / rebase-only lane must state WHICH invocation it ran** — the vacuous one or the
+    reconstructed one. **An unqualified `scope:guard ✓` from such a lane is not evidence.**
+
 ## HARD-WON RULES (the 2026-06 grader saga — each cost real, avoidable turns)
 - **A shared FILE is not a shared FUNCTION.** When touching shared infra, grep ALL implementations and call-sites of that behavior and fix + test them in ONE PR. Honor any in-file "keep in sync" comment. *(The grader fix patched one of two grading functions, passed every gate, and shipped a half-fix that only live-verify caught.)*
 - **Test the real path with adversarial data, not a convenient mock.** Drive the actual code path the surface uses; feed the data shape production really produces; include the case where the model fights the rule. A green test against a non-representative mock is false confidence.
@@ -327,6 +355,21 @@ Read the relevant appendix before that kind of work; do not rely on memory for b
 - Build: `pnpm run build` · Verifier: `node scripts/verify-production-build.mjs`.
 - Root matrix: `cd scripts && pnpm run test:matrix:all` (counts GROW — report the real number, never hardcode).
 - Ops matrix: `pnpm run test:matrix:all` (in lazytopper). Mojibake: `pnpm run check:mojibake`. Git: `git diff --check`.
+- **Scope guard: `cd lazytopper && pnpm run scope:guard --mode <product|mixed|docs>`** — modes: `product` ·
+  `mixed` (product+scripts; does **NOT** allow docs) · `docs` (handoff-only lanes) · bare = auto-detect.
+  ⚠ **Run it BEFORE `git add`** — it reads the WORKING TREE and goes vacuous once committed. **Local only; it is
+  deliberately NOT in CI**, because a clean CI checkout has nothing for it to classify (a false PASS).
+  ⚠ **On a refresh / merge-only / rebase-only lane it inspects NOTHING and still exits green** — see
+  EVIDENCE THAT CANNOT BE RE-CHECKED above for the remedy and the reporting requirement.
+- **`check:mojibake` treats `handoff/` as REPORT-ONLY** (`REPORT_ONLY_PREFIXES = ['handoff/']`): hits there are
+  counted and printed on every run but **never fail the build** — deliberately, because a handful of lines in
+  `handoff/` are mojibake specimens quoted inside lessons *about* mojibake. ⚠ **So a green `check:mojibake` is NO
+  evidence a handoff file is clean.** On any docs PR touching `handoff/`, scan your own added lines with the
+  scanner's own regex **and inject a mojibake sequence into one of them to prove the matcher can fire on that
+  exact input** — a zero from a matcher nobody proved can fire is indistinguishable from a dead matcher.
+  *(The older wording "the gate sets `repoRoot` to `lazytopper/` and is structurally blind to `handoff/`" is
+  STALE — GUARD-3 moved `repoRoot` to `git rev-parse --show-toplevel`. The conclusion is unchanged; the mechanism
+  is not.)*
 - Vitest: **a REQUIRED CI gate** — `quality-gate.yml` runs `pnpm --filter lazytopper exec vitest run` on every PR,
   and a red suite fails CI. Locally it is **linux-pinned** (`pnpm-workspace.yaml` strips the non-linux rollup
   binary), so a Codespace is the reliable way to run it by hand; plain-Node diagnostics (no vitest) can run on

@@ -1,3 +1,179 @@
+## 2026-08-09 — WAVE ME-A, four lanes + two scouts under a controller + subagent model (#634 · #641 · #637 · #636, trunk `e8f89863`)
+
+**`2026-08-08T23:31:55Z UTC / 2026-08-09 05:01 IST`**
+
+> ★★ **Four lanes, and every one disproved part of its own spec — including the CONTROLLER'S OWN
+> suggested fix shape. The verdicts below are useless without their reasons, so the reasons are
+> recorded and the verdicts are not recorded alone.**
+
+### ⭐ OWNER RULING — MI-CONCEPT-1 takes "OPTION 4", none of the three the controller offered
+
+**RESOLVE THE CONCEPT FROM THE QUESTION ID AT RECORD TIME.**
+
+**Why the ruling was needed:** a disjointness scout disproved the arc's §0 premise — *"`CanonicalQuestion.subtopic`
+is required, so every write site already holds `q.subtopic`"*. The owner confirmed it in his own
+words: *"true of the bank question, false of what's persisted and replayed at grade time."*
+
+**Why option 4 beats all three offered options — the owner's reasoning, kept because the reasoning
+is what the next lane inherits:**
+- The **persisted shapes already carry what is needed** — `PersistedWorksheetQuestion.id` and
+  `QuickPracticeSavedAnswer.questionId`, documented in-repo as *"The real bank question id"*.
+- So a small memoised **id → subtopic index over `canonicalQuestionBank`** closes gap 1 **completely
+  this wave, including the four grade paths** ⇒ **beats the 1a/1b split** (no split, no waiting).
+- With **no persisted-shape change at all** ⇒ **beats the widened lane** — the old-client-state
+  migration that broke production past 1,082 green tests in Wave 4 **never happens**.
+- And **nothing logged meanwhile stays unattributable** ⇒ **beats narrow-only**.
+
+**FOUR RULES ON THE LOOKUP, carried verbatim into the lane brief:**
+1. **Pure read, memoised, built once, never writes.**
+2. **Prefer `q.subtopic` when in hand**; resolve from the id only where it is not.
+3. ⭐⭐ **Return the bank's subtopic VERBATIM — never re-derived, never normalised.** **A second
+   resolution is a second vocabulary**; `quickPracticeSessionService.ts` already warns of exactly
+   this (`[FU-PROG-TOPIC-KEY-MISMATCH]`).
+4. ⭐ **An unresolvable id yields NO concept — never a guess, never a topic-level fallback.**
+   Withheld and deleted questions will not resolve, and **absent is honest where approximate is
+   not.**
+
+**Check & Improve is unchanged:** free-typed answers are not bank questions, so **no id and no
+concept** — and that is correct behaviour, not a gap.
+
+### D1 — (a) A SEPARATE OPS LANE. Dispatched as `OPS-LIFT-1` (`#641`). `#637` needed no rework.
+
+**The owner read `check_improve_convergence_acceptance.mjs` on trunk himself.** ⭐ **The guard
+documents its own amendment procedure and carries two precedents for exactly this.**
+- The FORBIDDEN zero-diff array and a **separate unconditional membership assertion** exist so a
+  shallow checkout still proves the guards are wired.
+- The comment above the second one says it outright: ⚠ *"THE LIFTED ENTRY'S LINE MUST LEAVE THIS
+  LIST TOO — a removal from FORBIDDEN alone would fail the gate on its own amendment."*
+  **The guard anticipates being lifted and tells you how.**
+- **Two prior lifts are recorded in the same file with reasoning** — `checkSolution.cjs` (Wave 3
+  PR-C1) and `DesktopShell.tsx` (PR-B1) — both replaced a blanket ban with **targeted tests whose
+  presence and wiring are themselves asserted**, so a lift *"cannot decay into no protection at
+  all."*
+- **The lane was right to STOP rather than edit outside its allowlist**, and right that routing
+  around the guard would have created **a second MI writer into the store the tutor reads.**
+
+> ⭐⭐ **THE ONE THING THE OPS LANE HAD TO GET RIGHT — FORBID-1 GOT IT WRONG AND IT COST FOUR DAYS.**
+> **A guard replacing a blanket ban pins what the ban PROTECTED, not what the file did that day.**
+> FORBID-1 asserted a CTA was enabled — **true on the day, unrelated to the ban** — and it **blocked
+> GATE-2 four days later.**
+> ➜ So the replacement tests pin **the MI contract**: `recordMistake` is the **single writer** into
+> the log · the **four-type taxonomy is exactly those four** · **`marksLost` accounting** · **one
+> entry per graded question, never N** · **careless types never surfacing as a topic weakness.**
+> Each mutation-verified.
+> ➜ ⛔ **A test asserting *"`buildEntry` has a concept field"* WOULD HAVE BEEN THE FORBID-1 MISTAKE
+> REPEATED.**
+
+### D2 — (a) RATIFY chapter-echo suppression, **with one enumeration first**
+
+⭐ **The controller's reversibility argument was only half true, and the owner corrected it:**
+worksheet, full-mock and chapter-test store **synthetic ids**, so for those three paths a suppressed
+concept **cannot be recomputed from the log. Reversible for Quick Practice only.**
+
+**REQUIRED BEFORE RATIFICATION, and the reason:** enumerate what `isChapterEchoSubtopic` **actually
+matches across the WHOLE bank** and **prove zero real subtopics are caught** — *"ENUMERATE; DO NOT
+SPOT-CHECK. If it over-matches even one, we lose real data irreversibly on three paths."*
+
+**✅ PRECONDITION SATISFIED.** A scout **imported and ran the real exported symbol** (no
+reproduction) at `55d5ee19`: the predicate matches exactly three things — empty/whitespace-only,
+**exact** `general`, and **prefix** `chapter practice`. Over **8,543 questions / 1,914 distinct
+subtopic values**: **14 matches, ALL echo, ZERO real subtopics caught.** `"General"` ×224 across 25
+topicKeys, plus 13 `"Chapter Practice — <chapter>"` values totalling 549 questions ⇒ **773 / 8,543 =
+9.05% suppressed.**
+⭐ **The one near-miss is safe BY CONSTRUCTION, not by luck:** `"AP: nth Term and General Term
+Formula (Applications)"` contains "general" but the predicate uses **exact equality, not
+substring**. Zero values in the bank carry leading/trailing whitespace, double internal spaces, NBSP
+or zero-width characters.
+⚠ **Recorded honestly: the predicate is brittle where it does not matter today** — it misses
+`"Chapter-Practice"`, `"Chapter Practise"`, inner-double-space and NBSP variants. **The bank contains
+none of those**, so it is correct now and **one bank edit from silently admitting an echo as a
+concept.** ➜ `[FU-CHAPTER-ECHO-PREDICATE-BRITTLE]`.
+
+⚠ **AN UNRESOLVED CONTRADICTION, RECORDED RATHER THAN SMOOTHED OVER.** The scout reported evidence
+that the owner's irreversibility correction **may not hold** — the worksheet/CT/FM path in
+`progressStore.ts` deliberately reads **real bank ids out of `record.questionIds[]`**, not the
+synthetic attempt id. **The scout verified the PREDICATE, not `#637`'s wiring**, and says so itself.
+➜ **The ratification is unaffected either way — reversibility only makes it safer — but the REASON
+must be corrected in the record, because the reason is what the next lane inherits.**
+➜ `[FU-MI-CONCEPT-REVERSIBILITY-UNCONFIRMED]`.
+
+### D3 — (a) HOLD THE HPQ PIN. But the follow-up is **sharpened to a LIVE CORRECTNESS DEFECT.**
+
+**Reason:** a **37% HPQ ranking change does not ride inside a lane that was told to pin HPQ**, and it
+deserves its own live-verify. Canonical strategies staying **built-but-not-default** means flipping
+later is **config, not rebuild** — the correct shape.
+➜ ⭐ **Logged as a LIVE CORRECTNESS DEFECT, not a follow-up.**
+`legacyFuzzyMatch("Circles","Areas Related to Circles") → true` conflates two distinct CBSE chapters
+**in production today**, and **predictions for each are contaminated by the other's evidence.**
+➜ ⭐ **CONNECT IT:** the owner had previously flagged `fuzzyMatch` in the trends audit as a
+**silent-MISS** risk when labels drift across ten years. **This lane proved it also produces silent
+HITS. Same root cause** — and it is precisely why `#636`'s shared primitive routes everything
+through `resolveCanonicalSlug`.
+➜ **The owner is the CBSE authority on whether conflating those two chapters materially misleads a
+student. That ruling is his, not a lane's.** **STILL OPEN.**
+
+### D4 — CORRECT `CLAUDE.md` §6 in the closing docs PR ✅ **DONE IN THIS PR**
+
+§6 stated the Vite production build **cannot** run on a Windows dev box. **It is wrong — three lanes
+ran it locally during this wave.**
+➜ **Corrected, AND the method recorded**, so the next lane **reproduces rather than rediscovers**:
+drop **`@rollup/rollup-win32-x64-msvc@4.59.0`** into
+`node_modules/.pnpm/rollup@4.59.0/node_modules/@rollup/`.
+➜ **Why it mattered enough to be an owner ruling:** as written, §6 **discouraged the strongest
+available `MOUNT != LIVE` proof** — ★★ **a test proves the code works; a chunk proves it ships.**
+➜ `[FU-WINDOWS-BUILD-RUNS-WITH-ROLLUP-BINARY]` **CLOSED by this PR.**
+
+### CONTROLLER DECISIONS, with reasons
+
+1. **Wrote all four owner attachments to disk before any dispatch** — ★★ *an attached document is
+   not a file*; none existed on disk, and the prototype is ME-C's only authority for flow and copy.
+2. **Transcribed the addendum as v1.1 with §6 replaced**, retaining v1.0 §6 marked NOT IN FORCE —
+   **because a superseded rule left in place reads as current**, and that one named a controller
+   which cannot outlive its author.
+3. **Scouted the call-site set instead of assuming the brief's "8 write sites"** — the arc file
+   itself says RE-DERIVE, and *enumerate the set, do not grep a member*. **It cost one subagent and
+   caught a false premise that would otherwise have surfaced mid-build.**
+4. **Dispatched MARKS-1 and TRENDS-MARKS-1 without waiting for the MI-CONCEPT-1 ruling** — both are
+   unaffected by that ruling **under every option on the table** and are verified disjoint by exact
+   path. **Idling two lanes on a question that does not touch them buys nothing.**
+5. **Did NOT unilaterally narrow MI-CONCEPT-1** — **scaling scope down is the owner's call.** The
+   compounding argument for dispatching it first survived the scout's finding (only the *mechanism*
+   was wrong), so the ruling went to the owner immediately rather than being deferred.
+6. **Told both lanes NOT to run `test:matrix:all` locally** — it is CI-only on this box and two
+   concurrent runs have OOM-killed the editor, with two lanes running in parallel.
+
+### ⭐ A CORRECTION THIS WAVE MADE TO ITS OWN RECORD — kept, because withdrawing evidence is the point
+
+**An earlier version of the wave-state file, and the controller's report to the owner, cited `#636`'s
+`md5 aa58d9fd6583a827066ff51d004c3683` as the proof the HPQ ranking had not moved.** The refresh lane
+found **that md5 is not independently reproducible** — the serialization recipe was never recorded,
+and five reconstruction variants all differ.
+⭐ **This is NOT evidence the ranking moved.** Identity was re-proven on the new base: all 140 HPQ
+questions scored with the lane scorer and with trunk's pre-lane scorer swapped in produced
+`md5 619eb330af44294a17745d685f889a1e` on **both** sides **in the same run**, with the swap **proven
+applied** (blob `620d5c3b` != `34704b87`) and the restore verified byte-exact; the tamper control
+turned RED on one changed digit in 1 of 140 rows, then restored green.
+➜ ⭐ **What was wrong was the EVIDENCE CITED, not the conclusion — so the conclusion is kept and the
+evidence is WITHDRAWN, explicitly.** ➜ **Future lanes must rely on the frozen 140-row literal in
+`cbse5SignalScoring.hpqPin.test.ts`, which is the artefact that actually gates. Do not cite either
+md5 as portable proof.**
+
+### ⭐ DECISION TAKEN BY THIS DOCS LANE — the dormancy block was RESTATED AS CORRECTED
+
+**The brief commissioning this handoff instructed that `expectedMarks` be added to the WIRE-2
+dormancy block *"as a FOURTH dormant capability beside `#578`, `#611`, `#617`."*** ⭐ **Verified
+against trunk and it is wrong: `WIRE-2` shipped as `#621` in Wave 5F and ENDED all three.**
+`gradeQuickPracticeBatch` has a real production caller in `lazytopper/src/pages/PracticePage.tsx`,
+and the Wave 5F `[CURRENT]` states it in its own words.
+➜ **Decision: preserve the historical block unchanged in the demoted sections, and restate it in the
+new `[CURRENT]` AS CORRECTED — `expectedMarks` is the ONLY dormant capability, not the fourth.**
+➜ **Reason:** copying a carry-forward instruction through unexamined would have published three
+false *"dormant"* entries **under the authority of a rule about not losing them.** ⭐ **A
+carry-forward instruction is itself a claim about the repo, and it goes stale exactly like any
+other.**
+
+---
+
 ## 2026-08-07 — WAVE 5F, four lanes + a scout + a CI-diagnosis lane (#619 · #620 · #625 · #621 · #626 · #627, trunk `fbfb57fa`)
 
 > ★★ **Six PRs, four lanes, 1,400+ tests, six green CI runs — AND TYPED GRADING HAD NEVER ONCE

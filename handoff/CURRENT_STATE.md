@@ -1,6 +1,227 @@
 # LazyTopper — Current State
 
-## [CURRENT] Wave 5F CLOSED — #619 · #620 · #625 · #621 · #626 · #627 — trunk `fbfb57fa`
+## [CURRENT] Wave ME-A CLOSED — #634 · #641 · #637 · #636 (+ the four unrecorded commits before them) — trunk `e8f89863`
+
+**`2026-08-08T23:31:55Z UTC / 2026-08-09 05:01 IST`** — closing docs PR for Wave ME-A.
+**This handoff covers NINE commits.** `handoff/` was nine commits stale; the last handoff was `#628`
+at `9f78ebc1`. Re-derived with `git log 9f78ebc1..origin/base/approved-thru-437 --oneline`:
+
+```
+e0ed7588  FENCE-1         a student cannot forge the typed-answer delimiter          #629
+a0c9c50b  DPDP-1          the verified student data map + a drift guard              #630
+7786878d  premise-ledger  a gate for agent specs                                     #632
+6c94d8f0  ME-PROGRESS     /me converged onto one responsive page                     #631
+8d813a41  DOCS            wave archives + the wave-state lifecycle in README.md      #633
+55d5ee19  MARKS-1         carry raw marks through the progress rungs                 #634
+1b50b4fd  OPS-LIFT-1      replace the MI front-door freeze with contract tests       #641
+92cc9fc4  MI-CONCEPT-1    record concept and questionId on the mistake log           #637
+e8f89863  TRENDS-MARKS-1  shared appearance primitive + expectedMarks                #636
+```
+
+**Trunk verified by content, not by PR state — this repo squash-merges.**
+
+### ***** THE SENTENCE THAT DEFINES THIS WAVE *****
+
+> ## **Four lanes, and every one of them disproved part of its own spec. Four spec premises fell — including one the controller wrote itself — and none of them would have been caught by building what the spec said.**
+
+**The record's most valuable content this wave is not what shipped. It is the four premises that
+turned out to be false**, listed in full below, because a premise is what the next lane inherits.
+
+---
+
+### THE FOUR ME-A LANES — what each means for a STUDENT
+
+| lane | PR | what it makes true for a student |
+|---|---|---|
+| **MARKS-1** | **`#634`** | The engine **stopped discarding the raw marks it was already computing** at `marksPercentOf`. Percentages and point-counts are untouched — this only stops throwing numbers away. **Without it the new `/me` could only ever speak in percentages**; with it, it can say "51 secured" and "7 of 12 lost". |
+| **OPS-LIFT-1** | **`#641`** | A blanket *"this file may not change"* ban became **five tests pinning what the ban actually protected**: `recordMistake` is the single writer into the mistake log · the four-type taxonomy is exactly those four · marks accounting · one entry per graded question, never N · careless slips never surfacing as a topic weakness. ★★ **The protection is now STRONGER than the freeze, because a freeze can only say *no* — it can never say *what for*.** |
+| **MI-CONCEPT-1** | **`#637`** | Every mistake logged from a bank question now records **which concept** it was and **which question** — so **a lost mark can be ATTRIBUTED instead of merely counted**. Free-typed Check & Improve answers correctly record **neither**. ✅ **OWNER LIVE-VERIFIED IN PRODUCTION, BOTH DIRECTIONS** (see below). |
+| **TRENDS-MARKS-1** | **`#636`** | One shared appearance-per-subtopic-per-year primitive now feeds the exam signal, and a new `expectedMarks` can tell **a subtopic asked yearly as a 1-marker from one asked yearly as a 5-marker**. **HPQ's live ranking is unchanged**, pinned by a test proven able to fail. |
+
+**`#637` live-verify, both directions, in production:** a bank question logged
+`concept: "Ammeter Properties"` / `questionId: "ELEC-EXMPLR-11-SA-003"` with `stepDetails` carrying
+`mistakeType: "conceptual"`; a Check & Improve free-typed answer logged **neither field** and saved
+cleanly. ★ **The second half is the load-bearing one** — without it, "concept is recorded" would be
+indistinguishable from "concept is fabricated for everything".
+
+---
+
+### CARRIED IN — the four commits that were already stale when this wave opened
+
+**`#631` is the one that matters most to a student.** `/me` converged onto a single responsive
+`MeProgressPage.tsx`; both device-specific twins (`pages/desktop/DesktopMePage.tsx`,
+`pages/mobile/MobileMePage.tsx`) were **deleted**; and the page **stopped reading device-local
+data** — verified on trunk as **6 `getWindowedProgress`, 0 `loadInsights`**. **Before it, a student
+who practised on a phone and opened `/me` on a laptop saw a different, emptier page. That was a live
+defect and it is fixed.**
+
+⚠ **`#629` and `#630` are PRIOR-SESSION LANES. What landed is recorded here BY CONTENT on trunk. The
+reasoning behind them is NOT recorded here — it lives in the handoff for the wave that ran them.**
+**A plausible reconstruction is indistinguishable from a record, and the next lane cannot tell them
+apart, so none is offered.**
+
+- **`#629` FENCE-1 (`e0ed7588`)** — *what landed:* 2 files, +303/−3 —
+  `lazytopper/server/routes/checkSolution.cjs` (+94) and `checkSolution.test.cjs` (+212).
+  Subject line: *"a student cannot forge the typed-answer delimiter."*
+  **Why: not recorded here — see the handoff for the wave that ran it (the `[FU-TYPED1-FENCE-IS-NOT-ESCAPING]` cluster carried unruled out of Wave 5F).**
+- **`#630` DPDP-1 (`a0c9c50b`)** — *what landed:* 2 NEW files, +706/−0 —
+  `lazytopper/src/services/studentDataMap.ts` (+419) and `studentDataMap.test.ts` (+287).
+  Subject line: *"the verified student data map + a drift guard."*
+  **Why: not recorded here — see the earlier handoff. It is the opening lane of the DPDP arc, which is STILL OPEN (#638/#639/#640).**
+- **`#632` premise-ledger (`7786878d`)** — 1 NEW file, `scripts/premise_ledger_check.mjs` (+392): a
+  gate for agent specs. **Why: not recorded here.**
+- **`#633` (`8d813a41`)** — the owner's own docs PR: archived Waves 4 and 5A and **wrote the
+  wave-state lifecycle into `handoff/README.md`**. ⚠ **It was ARCHIVE HOUSEKEEPING, not a wave
+  close-out** — it touched none of the seven core files, which is why the close-out for
+  `#629`/`#630`/`#632`/`#631` was still owed and is discharged here.
+
+---
+
+### ⚠⚠ DORMANCY — RESTATED, AND CORRECTED. `expectedMarks` IS NOW THE DORMANT ONE.
+
+**The WIRE-2 dormancy block is preserved verbatim in the demoted sections below and is restated here
+deliberately, because a reader who stops after the top section must still learn it. Its absence once
+cost five days on `#578`.**
+
+★★ **BUT IT MUST BE RESTATED AS CORRECTED, NOT AS WRITTEN — AND THIS CONTRADICTS THE BRIEF THAT
+COMMISSIONED THIS HANDOFF.** That brief asked for `expectedMarks` to be added *"as a FOURTH dormant
+capability beside `#578`, `#611`, `#617`"*. **It is not the fourth. It is the only one.**
+**`WIRE-2` SHIPPED as `#621` in Wave 5F and ENDED all three dormancies.** Verified by content on
+trunk, not by the record: `gradeQuickPracticeBatch` is called from
+`lazytopper/src/pages/PracticePage.tsx` (imported at the `pages/PracticePage.tsx` import block and
+invoked in the Finish handler) — **it is no longer a capability with zero callers.** The Wave 5F
+`[CURRENT]` says so in its own words: *"It ended THREE dormancies at once — `#578`, `#611`, `#617`"*,
+and *"`#578`'s seam has now executed against real Gemini. It sat dead for nine days."*
+
+| capability | status on trunk `e8f89863` | evidence |
+|---|---|---|
+| `#578` grader per-question images | ✅ **LIVE** — ended by `#621` | live-verified through typed grading in Wave 5F |
+| `#611` `gradeQuickPracticeBatch` | ✅ **LIVE** — ended by `#621` | real caller in `PracticePage.tsx`, not just its test file |
+| `#617` the graded answer sheet | ✅ **LIVE** — ended by `#621` | reached via the `#621` Finish path |
+| ⚠ **`expectedMarks` (`#636`)** | 🛑 **DORMANT — tree-shaken out of the bundle** | see below |
+
+⚠ **`expectedMarks` IS DORMANT AND THE PROOF IS BUILD OUTPUT, NOT ARGUMENT.** `#636` demonstrated
+that `"legacy-fuzzy"` **is** present in `assets/predictionCore-*.js` — the shared primitive is on the
+live path — while **`expectedMarks`, `marksBasis`, `canonical-topic` and `canonical-strict` are
+ABSENT FROM EVERY `assets/*.js`.** Re-checked here against trunk source: `expectedMarks` and
+`MarksBasis` are **exported** from `lazytopper/src/prediction/historicalAppearanceIndex.ts` and
+appear in `cbse5SignalScoring.ts` **only inside a comment**. **There is no production consumer.**
+
+➜ ⭐ **`ME-2`'s brief MUST name `expectedMarks` as a capability it is required to WIRE, not merely to
+consume if convenient.** **A capability that merges and is called by nothing is invisible to every
+gate** — that is the durable lesson, and it is why this block exists whether or not any entry in it
+is currently red.
+
+---
+
+### ⭐⭐ THE FOUR SPEC PREMISES THIS WAVE DISPROVED
+
+**This is the most valuable content in this handoff. Three of the four were in the arc spec; the
+second was the CONTROLLER'S OWN suggested fix shape.**
+
+1. **"Every write site already holds `q.subtopic`, so this is field-plumbing."** — **FALSE AT ALL
+   SIX** production call sites. `CanonicalQuestion.subtopic` *is* required, but **the PERSISTED
+   shapes drop it at persist time**: `PersistedWorksheetQuestion` and `QuickPracticeSavedAnswer`
+   carry no `subtopic`, and `SolutionChecker.tsx` receives scalar props with the bank `q` one level
+   up in `PracticeQuestionCard.tsx`, unforwarded. ➜ `[FU-MI-PERSISTED-SHAPE-DROPS-SUBTOPIC]`.
+2. **"Resolve centrally in `buildEntry`."** — ⭐ **THE CONTROLLER'S OWN SUGGESTION, AND IT FAILS FOR
+   3 OF THE 4 GRADE PATHS.** Worksheet, full-mock and chapter-test pass **synthetic attempt ids**
+   (`ws:` / `fm:` / `ct:`) that **can never resolve against the bank**. ➜
+   `[FU-RETRY-SYNTHETIC-QUESTION-ID]`, which **changes a later lane's scope** (see below).
+3. **"Build a memoised id→subtopic index."** — **`progressBankIndex.ts` ALREADY EXISTED**, and is
+   already `/me`'s concept source. ★★ **Building a second would have created the exact second
+   vocabulary the byte-identical rule exists to prevent** — the hazard already flagged in-repo at
+   `quickPracticeSessionService.ts` (`[FU-PROG-TOPIC-KEY-MISMATCH]`).
+4. **"Canonicalise both signals" AND "pin HPQ"** — ⭐ **MUTUALLY EXCLUSIVE.** Routing through
+   `resolveCanonicalSlug` moves **52 of 140** live HPQ questions (topic-only still moves 5), because
+   it is a **chapter** authority that degrades to a slugifier below chapter level. The spec asked for
+   both and could not have both.
+
+---
+
+### 🛑 TWO LIVE DEFECTS FOUND AND DELIBERATELY NOT FIXED — both logged with evidence
+
+**1 · `[FU-TRENDS-FUZZY-CHAPTER-CONFLATION]` — LIVE IN PRODUCTION TODAY.**
+`legacyFuzzyMatch("Circles", "Areas Related to Circles")` returns **`true`**, conflating **two
+distinct CBSE chapters**. **Each chapter's predictions are contaminated by the other's evidence.**
+Not fixed in `#636` because **any fix moves the HPQ pin**, and a 37% ranking change does not ride
+inside a lane instructed to pin HPQ.
+★ **CONNECT IT:** `fuzzyMatch` was **already** flagged in the trends audit as a **silent-MISS** risk
+when labels drift across ten years. **This wave proved it also produces silent HITS — same root
+cause**, and it is precisely why `#636`'s shared primitive routes everything through
+`resolveCanonicalSlug`.
+➜ ⭐ **THE OWNER IS THE CBSE AUTHORITY ON WHETHER THIS MATERIALLY MISLEADS A STUDENT. That ruling is
+his, not a lane's.** OPEN.
+
+**2 · `[FU-GRADER-DEDUCTION-WITHOUT-TYPE]` — FOUND BY THE OWNER'S LIVE-VERIFY. PRE-EXISTING,
+SERVER-SIDE, UNRELATED TO `#637`.**
+The C&I grader returned an annotated step carrying a **−2 deduction with NO `mistakeType`**, so
+`reconcileCounts` produced **all-zero counts against `marksLost: 2`**.
+➜ 🛑 **A student sees *"you lost 2 marks"* beside *"no mistakes of this type"* — four times over.**
+⭐ **CONSEQUENCE FOR `ME-2`, AND IT CHANGES THE DESIGN:** the v7 **unclassified marks bucket has TWO
+sources** — (a) legitimate binary 1-markers, which carry no type by CBSE ruling and are the honest
+case the segment was invented for, and (b) **this defect**, which is untyped marks that *should*
+have had a type. ➜ ⛔ **THE BUCKET MUST NOT BE DESIGNED AS A DUMPING GROUND.** Folding (b) in
+silently would make **a grader bug indistinguishable from correct behaviour**, and would let it hide
+behind the very honesty device built to prevent that.
+
+---
+
+### ⭐ CARRY FORWARD TO ME-2 (Wave ME-C) — verbatim, from the lanes that earned them
+
+- ⭐⭐ **DO NOT `?? 0` THE MARKS FIELDS.** Some rungs genuinely have **no marks denominator**
+  (`buildMistakeTypeRung` is a composition *share*), and `marksPercentOf` is documented on trunk as
+  returning **`null` when nothing is measurable**. Coalescing absent-or-null to `0` turns *"this rung
+  has no marks concept"* into **a fabricated "0 of 0 marks" rendered to a student** — the exact
+  honesty failure the v7 unclassified segment exists to prevent. **Absent must stay absent.**
+  ⚠ **Re-read the actual declarations in `progressStore.ts` before coding against them** — the
+  controller saw both required-looking and nullable forms in a partial grep and **did not establish
+  which shape sits on `RungTrend` specifically.** The rule holds either way; the exact type does not
+  come from this record.
+- ⭐⭐ **9.05% OF THE BANK CAN NEVER YIELD A CONCEPT, AND THE PAGE MUST DEGRADE HONESTLY.**
+  Enumerated over the whole bank: **8,543 questions / 1,914 distinct subtopics; 14 values match
+  `isChapterEchoSubtopic`; ALL 14 are echo; ZERO real subtopics caught.** `"General"` ×224 across 25
+  topicKeys, plus 13 `"Chapter Practice — <chapter>"` values totalling 549 questions = **773 / 8,543
+  = 9.05%**. ★ **13 chapterwise Science files carry the SAME echo subtopic on EVERY row** — the
+  predicate is **not destroying detail; the detail was never authored.**
+  ➜ v7's *"By concept"* slicer and *"Start here"* ranking will legitimately have **NOTHING to show**
+  for those chapters. **That is an honest empty state, not a bug to paper over — and it must NOT be
+  filled with a topic-level fallback**, which is the same dishonesty the arrival rule forbids. The
+  *"By chapter"* slicer still works for them; only the concept drill inside them is empty.
+  **Design for that case explicitly.** ➜ `[FU-BANK-13-SCIENCE-CHAPTERS-NO-SUBTOPICS]`.
+- ⭐ **`expectedMarks` MUST BE WIRED, NOT MERELY CONSUMED IF CONVENIENT.** See the dormancy block.
+- ⭐ **THE LIVE-VERIFY DEBT FOR MARKS-1 TRANSFERS TO ME-2.** `#634` has no consumer, so nothing a
+  student can see changed and it carries no live-verify of its own. When ME-2 lands it must be
+  verified on **both surfaces** AND **in a session carrying state from before `#634`** — the read
+  path reconstructs marks from records written by older code, and **an incognito session never
+  exercises that.** ★ This is the precise blind spot that shipped a live break past 1,082 green
+  tests in Wave 4. ➜ `[FU-MARKS-NO-CONSUMER-YET]`.
+- **`[FU-ME-MOBILESELFCHROME-NESTING]`** — `#631` nests `<MobileSelfChrome>` INSIDE `<RequireAuth>`
+  for `/me` while eight other usages wrap the gate, and carries a fresh comment the nesting
+  contradicts. **Folded into ME-2 by owner instruction. Fix the nesting or the comment.**
+
+---
+
+### ⚠ PROVENANCE — read before trusting the controller docs at the repo root
+
+`LazyTopper_Controller_Subagent_Model.md`, `CONTROLLER_MeProgress_v7_Arc.md`,
+`CONTROLLER_ADDENDUM_Context_Safeguards.md` and `LazyTopper_MeProgress_v7_FINAL.html` are
+**CONTROLLER TRANSCRIPTIONS of owner-supplied attachments**, written to disk 2026-08-08 because none
+of them existed on disk. **They are faithful copies, not the owner's original bytes.** The addendum
+on disk is **v1.1** (its §6 replaced per the owner's 2026-08-08 ruling that the handoff rule is
+POSITIONAL / per-wave, not *"ME owns it"*; v1.0 §6 is retained at the bottom marked SUPERSEDED / NOT
+IN FORCE). `CONTROLLER_MeProgress_v7_Arc.md` §1 (*"#631 is NOT on trunk"*) is **HISTORY — it merged.**
+
+### ⚠ WAVE STATE AT RISK — the owner should know
+
+`handoff/WAVE_STATE_WAVE_DPDP_A_LIVE.md` (**46,040 bytes**) is the **only copy in existence** of the
+DPDP arc's controller state, and that wave is **OPEN** (`#638`/`#639`/`#640` are live drafts).
+**It is correctly NOT archived here** — archiving an open wave's churning state is wrong, and the
+file belongs to another controller. **But it is laptop-only and unrecoverable if the disk fails.**
+This handoff archives the two files whose waves have closed (`ME_A`, and `WAVE5G` as a rescue) and
+leaves DPDP_A alone.
+
+## (superseded) [CURRENT] Wave 5F CLOSED — #619 · #620 · #625 · #621 · #626 · #627 — trunk `fbfb57fa`
 
 ### ***** THE SENTENCE THAT DEFINES THIS WAVE *****
 

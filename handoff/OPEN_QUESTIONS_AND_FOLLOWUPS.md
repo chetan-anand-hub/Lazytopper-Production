@@ -11,6 +11,277 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 ---
+## 2026-08-09 — WAVE ME-A (#634 · #641 · #637 · #636, four lanes + two scouts). Trunk `e8f89863`.
+
+**`2026-08-08T23:31:55Z UTC / 2026-08-09 05:01 IST`**
+
+> ★★ **Four lanes, four disproved spec premises — one of them the controller's own.**
+
+**25 FU ids are carried below, each with its own heading and body per Standing Rule 1.** Bodies are
+taken from `handoff/WAVE_STATE_ME_A_ARCHIVE.md` (committed in this same PR) or from the lane report
+on disk — **none is reconstructed from an id.** ⚠ **Standing rule: NEVER reconstruct an FU body from
+its id.** A plausible-but-wrong FU is harder to detect than a missing one.
+⚠ **Where the controller did not verify a lane's or scout's claim, the entry says so.** A controller
+cannot verify a code claim; it can only decide how much weight to put on an unverified one.
+
+---
+
+### 🛑 `[FU-GRADER-DEDUCTION-WITHOUT-TYPE]` — a student is told "you lost 2 marks" beside "no mistakes of this type"
+
+**FOUND BY THE OWNER'S LIVE-VERIFY of `#637`. PRE-EXISTING, SERVER-SIDE, AND UNRELATED TO `#637`.**
+The Check & Improve grader returned an annotated step carrying a **−2 deduction with NO
+`mistakeType`**, so `reconcileCounts` produced **all-zero counts against `marksLost: 2`**.
+➜ **A student sees *"you lost 2 marks"* next to *"no mistakes of this type"* — four times over in
+the observed session.**
+
+⭐⭐ **CONSEQUENCE FOR `ME-2`, AND IT CHANGES THE DESIGN.** The v7 **unclassified marks bucket has
+TWO sources**: (a) legitimate binary 1-markers, which carry no type by CBSE ruling and are the
+honest case the segment was invented for; and (b) **this defect** — untyped marks that *should* have
+had a type.
+➜ ⛔ **THE BUCKET MUST NOT BE DESIGNED AS A DUMPING GROUND.** Folding (b) in silently would make **a
+grader bug indistinguishable from correct behaviour**, and would let it hide behind the very honesty
+device built to prevent that. **OPEN. Server-side fix; owner-facing.**
+
+### 🛑 `[FU-TRENDS-FUZZY-CHAPTER-CONFLATION]` — two distinct CBSE chapters conflated in production today
+
+`legacyFuzzyMatch("Circles", "Areas Related to Circles")` returns **`true`**. These are **two
+distinct CBSE chapters**, and **each chapter's predictions are contaminated by the other's
+evidence — live, right now.**
+**Not fixed in `#636` because any fix moves the HPQ pin** (`resolveCanonicalSlug` moves **52 of 140**
+live HPQ questions), and the brief ruled the pin outranks the feature.
+⭐ **CONNECT IT:** `fuzzyMatch` was **already** flagged in the trends audit as a **silent-MISS** risk
+when labels drift across ten years. **This wave proved it also produces silent HITS. Same root
+cause** — and it is exactly why `#636`'s shared primitive routes everything through
+`resolveCanonicalSlug`.
+➜ ⭐ **THE OWNER IS THE CBSE AUTHORITY on whether conflating those two chapters materially misleads
+a student. That ruling is his, not a lane's.** **OPEN — reported by the lane, UNVERIFIED by the
+controller.**
+
+### ⚠ `[FU-RETRY-SYNTHETIC-QUESTION-ID]` — this one CHANGES A LATER LANE'S SCOPE
+
+Worksheet, full-mock and chapter-test paths pass **synthetic attempt ids** (`ws:` / `fm:` / `ct:`)
+as `ctx.questionId`. **`RETRY-1`'s premise is *"re-serve the exact question by `questionId`"* — and
+for those three paths the stored id DOES NOT IDENTIFY A BANK QUESTION.**
+The arc already rules the fallback: if the exact question cannot be re-served, **the copy must not
+say *"Re-do that one"*** — rename to *"Try one like it"* and report.
+➜ ⭐ **ME-B MUST SCOPE `RETRY-1` AGAINST THIS, NOT AGAINST THE ARC'S ASSUMPTION.** **OPEN.**
+
+### ⭐ `[FU-BANK-13-SCIENCE-CHAPTERS-NO-SUBTOPICS]` — 9.05% of the bank can never yield a concept
+
+**A CONTENT gap, not a code gap.** **13 chapterwise Science files carry a single chapter-echo
+subtopic on EVERY row** (549 questions), and `"General"` covers **224 more across 25 topicKeys** ⇒
+**773 / 8,543 = 9.05% of the bank cannot yield a concept.** ★ **The predicate is not destroying
+detail — the detail was never authored.**
+➜ **ME-2's *"By concept"* slicer and *"Start here"* ranking will legitimately have NOTHING to show
+for those chapters. That is an HONEST EMPTY STATE, not a bug to paper over, and it must NOT be
+filled with a topic-level fallback** — the same dishonesty the arrival rule forbids. **The *"By
+chapter"* slicer still works for them**; only the concept drill inside them is empty.
+➜ Also feeds the **bank-completion track**. **OPEN.**
+
+### `[FU-MI-PERSISTED-SHAPE-DROPS-SUBTOPIC]` — why concept could not reach four of six write paths
+
+`PersistedWorksheetQuestion` and `QuickPracticeSavedAnswer` **drop `subtopic` at persist time.**
+`CanonicalQuestion.subtopic` *is* required (in `data/predictionTypes.ts`, a **globally forbidden**
+file), but that is true of the **bank** question, not of **what is persisted and replayed at grade
+time**. This is the mechanism behind the wave's first disproved premise.
+**Carrying subtopic on the persisted shapes would be a persisted-shape MIGRATION, not
+field-plumbing** — and it would inherit the standing rule *test the migration FROM THE OLD SHAPE,
+not from clean*. **Option 4 avoided it entirely.** **OPEN (recorded; deliberately not acted on).**
+*(Reported by a scout; UNVERIFIED by the controller.)*
+
+### `[FU-MI-CONCEPT-CHAPTER-ECHO-POLICY]` — ✅ **RATIFIED by owner D2(a)**
+
+The lane suppresses `"General"` and `"Chapter Practice — …"` as concepts via the existing
+`isChapterEchoSubtopic`, matching the `/me` rung. **RATIFIED on the enumeration evidence the owner
+required: 14 matches across 1,914 distinct subtopics, ALL echo, ZERO real.** **CLOSED.**
+
+### ⚠ `[FU-MI-CONCEPT-REVERSIBILITY-UNCONFIRMED]` — an unresolved contradiction, recorded not smoothed over
+
+The owner corrected the controller that echo suppression is **irreversible** on the
+worksheet/full-mock/chapter-test paths because they store synthetic ids. **A scout reports that may
+not hold:** the worksheet/CT/FM path in `progressStore.ts` deliberately reads **real bank ids out of
+`record.questionIds[]`** (paper order), not the synthetic attempt id.
+⚠ **The scout verified the PREDICATE, not `#637`'s wiring**, and says so itself.
+➜ **Confirm against `#637`'s actual diff before anyone records "irreversible" as fact.**
+➜ **The ratification is unaffected either way — reversibility only makes it safer — but the REASON
+must be corrected, because the reason is what the next lane inherits.** **OPEN.**
+
+### ⚠ `[FU-CHAPTER-ECHO-PREDICATE-BRITTLE]` — correct today, one bank edit from wrong
+
+`isChapterEchoSubtopic` is case-insensitive, outer-whitespace-insensitive and dash-insensitive, but
+**misses `"Chapter-Practice"`, British `"Chapter Practise"`, inner-double-space and NBSP variants.**
+**The bank contains ZERO such values today**, so the predicate is correct now — and **one bank edit
+from silently admitting an echo as a concept.** **OPEN — a content-lane tripwire, not a code bug.**
+
+### `[FU-MARKS-RUNGTREND-OPTIONALITY]` — the new marks fields are OPTIONAL by NECESSITY
+
+`RungTrend.marksScored` / `marksAvailable` are optional **not by preference**: `buildMistakeTypeRung`
+is a composition *share* with **no marks denominator**, so a required field would force a fabricated
+*"0 of 0 marks"*; and **two files outside MARKS-1's allowlist build full `RungTrend` literals**,
+which a required field would have broken — **green locally and RED in CI.** Recorded so a later lane
+does not "tidy" the optionality away. **OPEN (informational).**
+
+### `[FU-MARKS-NO-CONSUMER-YET]` — MARKS-1's live-verify debt transfers to ME-2
+
+Nothing reads `marksScored` / `marksAvailable` yet; **ME-2 is the first consumer.** `#634` therefore
+carries **no live-verify of its own** — nothing a student can see changed.
+➜ ⭐ **When ME-2 lands it must be verified on BOTH surfaces AND in a session carrying state from
+BEFORE `#634`** — the read path reconstructs marks from records written by older code, and **an
+incognito session never exercises that.** ★ **This is the precise blind spot that shipped a live
+break past 1,082 green tests in Wave 4.** **OPEN.**
+
+### ⚠ `[FU-ME-MOBILESELFCHROME-NESTING]` — folded into ME-2 by owner instruction
+
+`#631` nests `<MobileSelfChrome>` **INSIDE** `<RequireAuth>` for `/me`, while **eight other usages
+wrap the gate**, and it carries a fresh comment that the nesting contradicts.
+➜ **Fix the nesting or fix the comment — one of the two is wrong.** **OPEN, assigned to ME-2 (Wave
+ME-C).**
+
+### `[FU-TRENDS-EXPECTEDMARKS-DORMANT]` — merged, and called by nothing
+
+`expectedMarks` is **tree-shaken out of the bundle.** `#636` proved it by **build output, not
+argument**: `"legacy-fuzzy"` **is** present in `assets/predictionCore-*.js` (the shared primitive is
+on the live path) while **`expectedMarks`, `marksBasis`, `canonical-topic` and `canonical-strict`
+are ABSENT from every `assets/*.js`.** Re-checked against trunk source in this docs lane:
+`expectedMarks` / `MarksBasis` are exported from `prediction/historicalAppearanceIndex.ts` and
+appear in `cbse5SignalScoring.ts` **only inside a comment** — **no production consumer.**
+➜ ⭐ **ME-2's brief MUST name it as a capability to WIRE, not merely to consume if convenient.**
+**A capability that merges and is called by nothing is invisible to every gate.** **OPEN.**
+
+### `[FU-TRENDS-CANONICAL-SUBTOPIC-AUTHORITY]` — a chapter authority used below chapter level
+
+`resolveCanonicalSlug` is a **chapter** authority that **degrades to a plain slugifier below chapter
+level.** That is why canonicalising the exam-signal match moves **52 of 140** live HPQ questions.
+Canonical strategies are **built, wired and tested in `#636` but NOT default** — so flipping later is
+**a config change, not a rebuild.** **OPEN.** *(Reported by the lane; UNVERIFIED by the controller.)*
+
+### `[FU-TRENDS-DEAD-APPEARANCE-HELPERS]` — two helpers with zero callers and DIFFERENT semantics
+
+`getTopicAppearanceByYear` / `getSubtopicAppearanceByYear` in `historicalDataset.ts` have **zero
+callers** and **different semantics from the new primitive** — no `official_board` filter.
+⭐ **Deliberately NOT reused by `#636`: reuse would have moved HPQ.** Recorded so the next lane does
+not "de-duplicate" them into the live path. **OPEN.**
+
+### `[FU-TRENDS-HPQCONFIDENCE-DEAD]` — dead product code
+
+`hpqConfidence.ts` / `deriveHPQConfidence` has **zero callers.** The live HPQ path is
+`predictionCore` → `predictionScoring` → `compute5SignalScore`. **OPEN — a deletion candidate, not a
+defect.**
+
+### `[FU-MI-CALLER-COUNT-STALE]` / `[FU-MI-STALE-FIVE-CALLERS-COMMENT]` — the same finding, twice
+
+⚠ **These two ids name ONE finding and are recorded as a pair deliberately rather than silently
+merged** (Standing Rule 2 prefers the recoverable failure). **Five in-repo comments assert
+`recordMistake` has five callers. The actual count is SIX FILES / EIGHT OCCURRENCES**, counted by a
+scout at `6c94d8f0` and **re-derived and confirmed independently by the lane.**
+➜ **A later lane that trusts the comments will enumerate the wrong set.** **OPEN — correct the
+comments.**
+
+### `[FU-MI-ISSAFEENTRY-PERMISSIVE]` / `[FU-MI-ISSAFEENTRY-UNVALIDATED-FIELDS]` — also one finding under two ids
+
+⚠ **Same treatment as above.** `isSafeEntry` in `mistakeInsightsService.ts` validates **only
+`timestamp` and `mistakeCounts`.** The new optional fields (`concept`, `questionId`) **pass
+unvalidated.** Not a live defect today — nothing untrusted writes them — but the validator's name
+promises more than it checks. **OPEN.** *(Reported; UNVERIFIED by the controller.)*
+
+### `[FU-MI-CONCEPT-GRADEPATH-TEST-COVERAGE]` — see the `#637` lane report §14
+
+Recorded here as an id with a body per Standing Rule 1: the lane flagged residual gaps in grade-path
+test coverage for the concept write-through and documented them in **§14 of its own report on disk**.
+⚠ **The detail is NOT reproduced here because reproducing it from the id would be reconstruction.**
+➜ **Read the `#637` lane report before scoping any follow-on.** **OPEN.**
+
+### ✅ `[FU-WINDOWS-BUILD-RUNS-WITH-ROLLUP-BINARY]` — **CLOSED by this PR (owner ruling D4)**
+
+`CLAUDE.md` §6 stated the Vite production build **cannot** run on a Windows dev box. **It is wrong —
+three lanes ran it locally during this wave** after dropping
+**`@rollup/rollup-win32-x64-msvc@4.59.0`** into
+`node_modules/.pnpm/rollup@4.59.0/node_modules/@rollup/`. That is what made the **build-chunk
+evidence** in those lanes possible.
+➜ ⭐ **Why it mattered: as written, §6 discouraged the strongest available `MOUNT != LIVE` proof — a
+test proves the code works; a CHUNK proves it ships.** **§6 corrected in this PR, with the method
+recorded so the next lane reproduces rather than rediscovers. CLOSED.**
+
+### ⭐ `[FU-SCOPEGUARD-VACUOUS-ON-UPDATE-ONLY-LANE]` — a NEW silent-no-op class, earned this wave
+
+**`scope:guard` reads only staged / unstaged / untracked files and has NO base-ref mode.** A lane
+that merely merges trunk into an existing branch — a refresh, merge-only or rebase-only lane —
+**authors no working-tree change**, so the guard reports `inspected=0` and **exits green.**
+⚠ **That green is INDISTINGUISHABLE from a real pass**, and reporting it as one is a silent no-op:
+a gate that runs, reports, and inspects nothing.
+➜ **REMEDY, proven in this wave:** reproduce the authoring condition in a **throwaway worktree at
+trunk** and re-run the guard there. The `#636` refresh lane got **`inspected=5 untracked=4`, exactly
+the original lane's figures.**
+➜ **Every refresh / merge-only / rebase-only lane must state WHICH invocation it ran.** **An
+unqualified `scope:guard ✓` from such a lane is not evidence.** **OPEN as standing doctrine — also
+written into `cofounder-skill/SKILL.md` by this PR.**
+
+### ⭐ `[FU-EVIDENCE-HASH-WITHOUT-RECIPE]` — a hash quoted as proof, with no way to re-check it
+
+**A hash cited as evidence without the serialization recipe that produced it is a DERIVED VALUE no
+later lane can re-check — the same class of defect as a bare line number.**
+**Instance:** `#636`'s HPQ pin was reported as proven by `md5 aa58d9fd6583a827066ff51d004c3683`; the
+recipe was never recorded and **five reconstruction attempts all produced different hashes.**
+⭐ **The conclusion was still TRUE** — identity was re-proven against the frozen 140-row on-disk
+literal in `cbse5SignalScoring.hpqPin.test.ts`, which is the artefact that actually gates — **but
+the evidence given for it could not be checked by anyone else.**
+➜ **Cite the artefact that gates, or record the exact recipe beside the hash.**
+➜ ⭐ **And when this happens: KEEP THE CONCLUSION AND WITHDRAW THE EVIDENCE, EXPLICITLY.** A correct
+outcome resting on a false premise still poisons the record, because **the premise is what the next
+lane inherits.** **OPEN as standing doctrine — also written into `cofounder-skill/SKILL.md`.**
+
+### ⚠ `[FU-HANDOFF-DORMANCY-BLOCK-STALE-CARRYFORWARD]` — NEW, found by this docs lane
+
+**The brief commissioning this handoff instructed that `expectedMarks` be recorded as *"a FOURTH
+dormant capability beside `#578`, `#611`, `#617`."*** ⭐ **Verified against trunk: it is wrong.
+`WIRE-2` shipped as `#621` in Wave 5F and ENDED all three dormancies** —
+`gradeQuickPracticeBatch` has a real production caller in `lazytopper/src/pages/PracticePage.tsx`,
+and the Wave 5F `[CURRENT]` says so in its own words.
+➜ **Handled: the historical block is preserved unchanged in the demoted sections, and RESTATED AS
+CORRECTED in the new `[CURRENT]` — `expectedMarks` is the ONLY dormant capability, not the fourth.**
+➜ ⭐⭐ **THE DURABLE LESSON: a CARRY-FORWARD INSTRUCTION IS ITSELF A CLAIM ABOUT THE REPO, AND IT
+GOES STALE EXACTLY LIKE ANY OTHER.** Copying it through unexamined would have published three false
+*"dormant"* entries **under the authority of a rule about not losing them.** **Re-verify the block
+you are told to preserve, before you preserve it.** **CLOSED by this PR (handled); the lesson stays
+standing.**
+
+### ⚠ `[FU-MOJIBAKE-HANDOFF-DESCRIPTION-STALE]` — NEW. The gate is REPORT-ONLY, not "structurally blind"
+
+**The widely-repeated wording — *"`check:mojibake` sets `repoRoot` to `lazytopper/` and is
+structurally blind to `handoff/`"* — is STALE.** Read from `lazytopper/scripts/check-mojibake.cjs`
+on trunk: **GUARD-3 (`#571`) moved `repoRoot` to `git rev-parse --show-toplevel`**, so `handoff/`
+**IS scanned**. It is now **REPORT-ONLY** via an explicit `REPORT_ONLY_PREFIXES = ['handoff/']`
+denylist — hits are **counted and printed on every run, green or red**, but never fail the build.
+**That is deliberate:** 8 lines in `handoff/` are **mojibake specimens quoted inside lessons about
+mojibake**, and the owner rejected both proposed "fixes" as destroying the lesson.
+➜ ⭐ **THE PRACTICAL CONCLUSION IS UNCHANGED — a green `check:mojibake` is still NO evidence a
+handoff file is clean, so scan your own added lines with the scanner's own regex and prove the
+matcher can fire.** ➜ **But a lane repeating the old "structurally blind" wording is asserting
+something FALSE about the gate, and the correct instruction now is *"read the REPORT count"*.**
+**OPEN — a wording correction owed wherever the old phrasing is repeated.**
+
+### ⚠ `[FU-ME-VERIFIED-CELL-PREDATES-631-REBUILD]` — NEW, found by this docs lane. Owner decision.
+
+`SURFACE_TRACKER.md`'s **Me / Progress** row shows **Verified ✅**, earned by `#408` / `#412` and
+attributed to *"owner LIVE-VERIFIED on the stable link"*. ⚠ **`#631` then DELETED both pages that
+verification was performed against** (`DesktopMePage.tsx`, `MobileMePage.tsx`) and replaced them with
+`MeProgressPage.tsx`.
+➜ **The cell's evidence describes a page that no longer exists.** **No cell was flipped by this docs
+lane** — flipping a Verified cell is a claim about the product, and this lane has no live access.
+➜ ⭐ **OWNER DECISION: does `/me` need a fresh live-verify against `MeProgressPage.tsx`?** Note this
+compounds with `[FU-ME-MOBILESELFCHROME-NESTING]` on the same page. **OPEN.**
+
+### ⚠ `[FU-WAVESTATE-LIVE-FILES-UNTRACKED-NOT-IGNORED]` — NEW. Nothing keeps them out of a diff.
+
+`#633` added `body.json` and `/*.request.json` to `.gitignore`. **It did NOT add
+`handoff/WAVE_STATE_*_LIVE.md` or `handoff/BRIEF_*.md`** — `git check-ignore` returns nothing for
+them. They are **untracked but NOT ignored**, so they are invisible to lanes working in their own
+worktrees but **will be swept into any `git add -A` from the shared checkout.**
+➜ **Whoever opens a handoff PR must keep them out of the diff deliberately; nothing does it for
+them.** **OPEN.**
+
+---
+
 
 
 ## 2026-08-07 — WAVE 5F (#619 · #620 · #625 · #621 · #626 · #627, four lanes + a scout + a CI-diagnosis lane). Trunk `fbfb57fa`.
