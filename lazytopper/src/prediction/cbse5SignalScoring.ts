@@ -1,4 +1,8 @@
-import { getCanonicalHistoricalDataset, type HistoricalQuestionItem } from "./historicalDataset";
+import {
+  getSubtopicAppearance,
+  laplaceRate,
+  normalizeLabel,
+} from "./historicalAppearanceIndex";
 import { computeRotationSignal, type RotationSignal } from "./rotationPairTracker";
 import { computeSQPSignal, type SQPSignal } from "./sqpIngestionPipeline";
 import { isGuaranteedArchetype, getGuaranteedBoost } from "./guaranteedArchetypes";
@@ -107,28 +111,21 @@ function normalizeTopicKey(raw: string): string {
   return raw.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/[^a-zA-Z0-9]+/g, " ").trim();
 }
 
-function norm(raw: string): string {
-  return raw.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
-}
+const norm = normalizeLabel;
 
-function fuzzyMatch(a: string, b: string): boolean {
-  const na = norm(a);
-  const nb = norm(b);
-  if (na === nb) return true;
-  if (na.includes(nb) || nb.includes(na)) return true;
-  const wordsA = new Set(na.split(" "));
-  const wordsB = new Set(nb.split(" "));
-  let overlap = 0;
-  for (const w of wordsA) if (wordsB.has(w)) overlap++;
-  return Math.min(wordsA.size, wordsB.size) >= 2 && overlap / Math.min(wordsA.size, wordsB.size) >= 0.7;
-}
-
-function getFilteredItems(cutoffYear?: number): HistoricalQuestionItem[] {
-  const dataset = getCanonicalHistoricalDataset();
-  if (cutoffYear == null) return dataset.items;
-  return dataset.items.filter(i => i.sourceYear < cutoffYear);
-}
-
+/**
+ * "What will be asked" — measures PRESENCE across official board years.
+ *
+ * ⚠ THIS SERVES THE LIVE HIGHLY PROBABLE QUESTIONS SURFACE. Its output is
+ * pinned byte-for-byte by `cbse5SignalScoring.hpqPin.test.ts`. It now reads the
+ * shared appearance primitive instead of walking the corpus itself, and the
+ * default `LEGACY_FUZZY_STRATEGY` reproduces the pre-extraction matching
+ * semantics exactly so that extraction is observationally a no-op here.
+ *
+ * The marks-weighted counterpart is `expectedMarks` in
+ * `historicalAppearanceIndex.ts` — this signal cannot distinguish a subtopic
+ * asked yearly as a 1-marker from one asked yearly as a 5-marker.
+ */
 function computeHistoricalFrequencySignal(
   subject: "Maths" | "Science",
   topic: string,
@@ -136,27 +133,13 @@ function computeHistoricalFrequencySignal(
   targetYear: number,
   cutoffYear?: number
 ): number {
-  const items = getFilteredItems(cutoffYear).filter(i => i.subject === subject);
-  const boardYears = [...new Set(items.filter(i => i.sourceType === "official_board").map(i => i.sourceYear))];
-  const totalBoardYears = Math.max(boardYears.length, 1);
+  const appearance = getSubtopicAppearance(subject, topic, subtopic, { cutoffYear });
+  const yearsWithSubtopic = new Set(appearance.yearsWithSubtopic);
 
-  const yearsWithSubtopic = new Set<number>();
-  const yearsWithTopic = new Set<number>();
+  const subtopicRate = laplaceRate(appearance.yearsWithSubtopic.length, appearance.totalBoardYears);
+  const topicRate = laplaceRate(appearance.yearsWithTopic.length, appearance.totalBoardYears);
 
-  for (const item of items) {
-    if (item.sourceType !== "official_board") continue;
-    if (fuzzyMatch(item.topic, topic)) {
-      yearsWithTopic.add(item.sourceYear);
-      if (fuzzyMatch(item.subtopic, subtopic)) {
-        yearsWithSubtopic.add(item.sourceYear);
-      }
-    }
-  }
-
-  const subtopicRate = (yearsWithSubtopic.size + 1) / (totalBoardYears + 2);
-  const topicRate = (yearsWithTopic.size + 1) / (totalBoardYears + 2);
-
-  const recentYears = boardYears.filter(y => y >= targetYear - 3);
+  const recentYears = appearance.boardYears.filter(y => y >= targetYear - 3);
   let recentHits = 0;
   for (const y of recentYears) {
     if (yearsWithSubtopic.has(y)) recentHits++;

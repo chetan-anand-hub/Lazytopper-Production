@@ -17,6 +17,28 @@ export interface MistakeLogEntry {
   timestamp: string;
   questionText: string;
   topic: string;
+  /**
+   * MI-CONCEPT-1 — the bank row's `subtopic`, VERBATIM, resolved from the question
+   * id at write time (see services/mistakeConcept.ts).
+   *
+   * ★ OPTIONAL AND IT MUST STAY OPTIONAL. Every entry written before MI-CONCEPT-1
+   * shipped has neither this nor `questionId`, and those entries must keep parsing.
+   * ★ ABSENT MEANS UNKNOWABLE, NOT ZERO. A free-typed Check & Improve answer is not
+   * a bank question, and a withheld/deleted id no longer resolves — both correctly
+   * carry no concept. Never substitute the topic for a missing concept.
+   */
+  concept?: string;
+  /**
+   * MI-CONCEPT-1 — the id the grading surface identified this answer by, written
+   * through from `RecordMistakeContext.questionId`.
+   *
+   * ⚠ NOT ALWAYS A BANK ID. Quick Practice and the per-question SolutionChecker
+   * write the bare bank id; worksheet / full-mock / chapter-test / multi-question
+   * Check & Improve write a surface-scoped SYNTHETIC attempt id
+   * (`ws:`/`fm:`/`ct:`/`ci:`). Anything re-serving a question from this field must
+   * handle that (see [FU-RETRY-SYNTHETIC-QUESTION-ID]).
+   */
+  questionId?: string;
   subject: string;
   totalMarks: number;
   marksLost: number;

@@ -154,12 +154,25 @@ export interface ProgressTrend {
   now: number;
   /** now − before (positive = rising). */
   delta: number;
+  /** POINT counts — how many measurable questions fell in each half. NOT marks: a
+   *  single 5-mark question is ONE point. See marksScored/marksAvailable below. */
   sampleBefore: number;
   sampleNow: number;
   /** Days between the first and last point actually used (≥1). When this is short
    *  relative to the window (isShortSpan), the consumer labels the trend honestly
    *  as short-term rather than claiming the whole window. */
   spanDays: number;
+  /** RAW MARKS across the whole measurable window (both halves) — the denomination
+   *  the Me/Progress page speaks in ("N marks on the table", "51 secured"). Always
+   *  present: every ProgressTrend is produced by spreading a SplitTrend. */
+  marksScored: number;
+  marksAvailable: number;
+  /** The same marks split at the activity median, mirroring sampleBefore/sampleNow.
+   *  before + now === the whole-window totals above, by construction. */
+  marksScoredBefore: number;
+  marksAvailableBefore: number;
+  marksScoredNow: number;
+  marksAvailableNow: number;
   window: ProgressWindow;
 }
 
@@ -186,8 +199,16 @@ interface MarkPoint {
   available: number;
 }
 
-/** Marks % over a set of MarkPoints. null when nothing measurable (marksAvailable≤0). */
-function marksPercentOf(points: MarkPoint[]): { pct: number; sample: number } | null {
+/** Marks % over a set of MarkPoints. null when nothing measurable (marksAvailable≤0).
+ *  Returns the two RAW marks totals alongside the percentage — `scored` and
+ *  `available` are the numbers the percentage is a ratio OF, and the Me/Progress
+ *  page is denominated in marks, not percentages ("N marks on the table",
+ *  "51 secured", "7 of 12 lost"). They were already computed here and discarded.
+ *  ⚠ `sample` is a POINT COUNT (how many measurable questions), NEVER marks — the
+ *  two are different units and conflating them is what the control test pins. */
+function marksPercentOf(
+  points: MarkPoint[],
+): { pct: number; sample: number; scored: number; available: number } | null {
   let scored = 0;
   let available = 0;
   let sample = 0;
@@ -199,7 +220,7 @@ function marksPercentOf(points: MarkPoint[]): { pct: number; sample: number } | 
     sample += 1;
   }
   if (available <= 0 || sample === 0) return null;
-  return { pct: Math.round((scored / available) * 1000) / 10, sample };
+  return { pct: Math.round((scored / available) * 1000) / 10, sample, scored, available };
 }
 
 interface SplitTrend {
@@ -209,6 +230,12 @@ interface SplitTrend {
   sampleBefore: number;
   sampleNow: number;
   spanDays: number;
+  marksScored: number;
+  marksAvailable: number;
+  marksScoredBefore: number;
+  marksAvailableBefore: number;
+  marksScoredNow: number;
+  marksAvailableNow: number;
 }
 
 /**
@@ -239,6 +266,18 @@ function splitTrendOf(points: MarkPoint[]): SplitTrend | null {
     sampleBefore: before.sample,
     sampleNow: later.sample,
     spanDays,
+    // Raw marks, carried alongside the percentages (never replacing them). The
+    // whole-window totals are the sum of the two halves BY CONSTRUCTION: `usable`
+    // is filtered to available>0 and then split with no remainder, so
+    // before ∪ now IS the measurable set. Summing here rather than making the
+    // consumer add four numbers is deliberate — the hero bar is where an
+    // off-by-one-half would ship as a wrong mark total.
+    marksScored: before.scored + later.scored,
+    marksAvailable: before.available + later.available,
+    marksScoredBefore: before.scored,
+    marksAvailableBefore: before.available,
+    marksScoredNow: later.scored,
+    marksAvailableNow: later.available,
   };
 }
 
@@ -360,11 +399,31 @@ export interface RungTrend {
    *  this type is a LARGER share of your mistakes — the consumer reads polarity per
    *  type (conceptual/calculation up = weakness growing; silly/presentation is careless). */
   delta: number;
+  /** POINT counts — measurable questions per half. NOT marks (one 5-mark question
+   *  is ONE point); the marks live in marksScored/marksAvailable below. */
   sampleBefore: number;
   sampleNow: number;
   /** Days between the first and last point this rung actually used (≥1) — the honest
    *  span for the short-term-trend label (see isShortSpan). */
   spanDays: number;
+  /** RAW MARKS across the whole measurable window for this rung — what the
+   *  Me/Progress page renders ("7 of 12 lost", the 80-mark bar). Percentages stay
+   *  in before/now; these do not replace them.
+   *
+   *  ⚠ OPTIONAL, AND THE ABSENCE IS MEANINGFUL — not an oversight. The marks rungs
+   *  (subject / topic / concept / section) always carry them. The mistake-type rung
+   *  does NOT: it is a COMPOSITION SHARE (%) of typed mistakes, not a score, so it
+   *  has no marks denominator at all. A consumer must render these only when
+   *  present and must NEVER coerce absence to 0 — "0 of 0 marks" on the mistake-type
+   *  rung would be an invented figure, which is exactly the fabrication the
+   *  honest-or-silent rule forbids. */
+  marksScored?: number;
+  marksAvailable?: number;
+  /** The same marks split at the activity median (marks rungs only, see above). */
+  marksScoredBefore?: number;
+  marksAvailableBefore?: number;
+  marksScoredNow?: number;
+  marksAvailableNow?: number;
 }
 
 /** Deduped mistakeLog readout — ENRICHMENT ONLY. Never feeds a before→now rate
@@ -425,7 +484,9 @@ function emptyWindowed(window: ProgressWindow): WindowedProgress {
 }
 
 /** Split MarkPoints at the activity median → a marks before→now RungTrend, or null
- *  (SILENT) unless BOTH halves carry ≥ MIN_HALF_SAMPLE measurable points. */
+ *  (SILENT) unless BOTH halves carry ≥ MIN_HALF_SAMPLE measurable points.
+ *  The spread carries SplitTrend's raw marks through, so every rung built here is
+ *  marks-denominated (unlike the mistake-type share rung — see buildMistakeTypeRung). */
 function marksTrend(points: MarkPoint[], key: string, label: string): RungTrend | null {
   const t = splitTrendOf(points);
   return t ? { key, label, ...t } : null;
@@ -725,6 +786,11 @@ function buildMistakeTypeRung(records: SessionRecord[]): RungTrend[] {
       sampleBefore: half,
       sampleNow: graded.length - half,
       spanDays,
+      // ⚠ marksScored / marksAvailable are DELIBERATELY ABSENT here, and this is not
+      // an oversight to be tidied up later. This rung is a composition SHARE of typed
+      // mistakes, not a score — there is no marks denominator behind it. Filling them
+      // with 0 to "complete the shape" would put an invented "0 of 0 marks" on screen.
+      // Absent is the honest value. See RungTrend's field docs.
     };
   });
 }
