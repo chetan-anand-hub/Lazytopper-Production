@@ -32,6 +32,7 @@ import {
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "./worksheetSessionStore";
 import { saveWorksheetGrade } from "./worksheetSessionStore";
 import { recordMistake, type RecordMistakeOutcome } from "./mistakeIntelligence";
+import { conceptForBankQuestionId } from "./mistakeConcept";
 import { recordAttempt } from "./practiceInsights";
 import {
   buildChapterTestSessionRecord,
@@ -292,6 +293,11 @@ export async function gradeChapterTestUpload(args: {
       topicKey: q.topicKey,
       question: q.questionText,
       questionId,
+      // MI-CONCEPT-1 — `questionId` above is the SYNTHETIC attempt id (`ct:…`), which
+      // is not a bank id and cannot resolve. The BANK id is `q.id` on the persisted
+      // question, so resolve here and hand the concept to the front door. Unresolvable
+      // (withheld / deleted) → undefined, and the entry carries no concept.
+      concept: conceptForBankQuestionId(q.id),
     });
     recordAttempt(user, {
       subject: q.subject,
