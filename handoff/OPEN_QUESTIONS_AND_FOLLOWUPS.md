@@ -17,7 +17,13 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 > ★★ **Four lanes, four disproved spec premises — one of them the controller's own.**
 
-**25 FU ids are carried below, each with its own heading and body per Standing Rule 1.** Bodies are
+**27 FU ids are carried below across 25 entries, each id named in its own heading with a body, per
+Standing Rule 1.** *(25 entries, not 27, because two of them each carry a PAIR of ids naming ONE
+finding — `[FU-MI-CALLER-COUNT-STALE]` / `[FU-MI-STALE-FIVE-CALLERS-COMMENT]`, and
+`[FU-MI-ISSAFEENTRY-PERMISSIVE]` / `[FU-MI-ISSAFEENTRY-UNVALIDATED-FIELDS]`. **Both ids appear in
+their heading, so neither is a reference-without-a-definition.** They are kept as visible duplicates
+rather than silently merged, per Standing Rule 2: a visible duplicate is recoverable by anyone
+reading, a silent loss by nobody.)* Bodies are
 taken from `handoff/WAVE_STATE_ME_A_ARCHIVE.md` (committed in this same PR) or from the lane report
 on disk — **none is reconstructed from an id.** ⚠ **Standing rule: NEVER reconstruct an FU body from
 its id.** A plausible-but-wrong FU is harder to detect than a missing one.
