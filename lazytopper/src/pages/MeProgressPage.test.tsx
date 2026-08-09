@@ -211,21 +211,25 @@ describe("1 · every CTA carries BOTH back-nav mechanisms", () => {
 /* ══════════════ 2 · honest-or-silent ══════════════ */
 
 describe("2 · honest-or-silent on an empty read", () => {
+  // ME-2 NOTE: the probe was `progress-window-arc`. That component renders PERCENTAGES
+  // at 8 sites and /me was its only mount; "marks, never percentages" and mounting it
+  // cannot both hold, so it is no longer on this page ([FU-ME-PROGRESSWINDOWARC-DORMANT]).
+  // The guarantee under test is unchanged: an empty read fabricates NOTHING.
   it("renders NO number in any rung when getWindowedProgress returns empty", async () => {
     mockGetWindowedProgress.mockResolvedValue(EMPTY);
     renderPage();
-    await screen.findByTestId("progress-window-arc");
+    await screen.findByTestId("me-first-run");
 
     // The absence: no rung list exists at all.
     expect(screen.queryByTestId("me-mistake-mix")).toBeNull();
     expect(screen.queryByTestId("me-drill-topics")).toBeNull();
-    // ...and the honest empty copy is present in its place.
+    expect(screen.queryByTestId("me-hero-bar")).toBeNull();
+    // ...and the honest first-run copy is present in its place, explicitly labelled as
+    // somebody else's sheet rather than a fabricated one of the student's own.
     expect(
-      screen.getByText(/Your topics appear here after you practise/i),
+      screen.getByText(/the sheet below belongs to an example student/i),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(/Section-by-section marks appear after a worksheet/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Example — not your marks/i)).toBeInTheDocument();
   });
 
   it("★ CONTROL: the same queries DO find rungs when the read returns data", async () => {
@@ -294,35 +298,68 @@ describe("4 · an unresolved topic never emits a broken route", () => {
   });
 });
 
-/* ══════════════ 5 · the Science stream filter ══════════════ */
+/* ══════════════ 5 · SUBJECT PURITY — two papers, never mixed ══════════════
+ *
+ * ME-2 NOTE: this describe replaces "Science + Physics filters the drill". The Science
+ * STREAM sub-filter is gone: the page is now scoped to ONE PAPER, and a stream cannot
+ * scope `concepts`/`sections` rungs (they carry no stream), so a stream filter would
+ * have silently broken the reconciliation between the hero and the deeper views.
+ *
+ * What replaces it is strictly stronger and is what the paper switch actually promises:
+ * Maths and Science are two separate 80-mark exams and NOTHING below the switch mixes
+ * them — in BOTH directions, each with a CONTROL. */
 
-describe("5 · Science + Physics filters the drill to Physics topics only", () => {
-  it("shows only Physics topics once the stream toggle is set", async () => {
+describe("5 · subject purity — no Maths row under Science, and no Science row under Maths", () => {
+  const MIXED = windowed({
+    subjects: [rung("maths", "Maths"), rung("science", "Science")],
+    topics: [
+      rung("real-numbers", "Real Numbers"),
+      rung("light-reflection-and-refraction", "Light"),
+    ],
+  });
+
+  it("shows no Science chapter while the Maths paper is selected — and the control proves the query works", async () => {
     const user = userEvent.setup();
-    mockGetWindowedProgress.mockResolvedValue(
-      windowed({
-        topics: [
-          rung("light-reflection-and-refraction", "Light"),
-          rung("acids-bases-and-salts", "Acids, Bases and Salts"),
-          rung("real-numbers", "Real Numbers"),
-        ],
-      }),
-    );
+    mockGetWindowedProgress.mockResolvedValue(MIXED);
     renderPage();
     await screen.findByTestId("me-drill-topics");
 
-    await user.click(screen.getByRole("button", { name: "Science" }));
-    // ★ CONTROL first: with the stream at All, BOTH science topics are listed.
-    let drill = screen.getByTestId("me-drill-topics");
-    expect(within(drill).getByText("Light - Reflection & Refraction")).toBeInTheDocument();
-    expect(within(drill).getByText("Acids Bases & Salts")).toBeInTheDocument();
+    await user.click(screen.getByTestId("me-paper-maths"));
+    const drill = screen.getByTestId("me-drill-topics");
+    // ★ CONTROL: the Maths chapter IS found by the same query in the same container.
+    expect(within(drill).getByText("Real Numbers")).toBeInTheDocument();
+    // The absence.
+    expect(within(drill).queryByText("Light - Reflection & Refraction")).toBeNull();
+  });
 
-    await user.click(screen.getByTestId("me-stream-physics"));
-    drill = screen.getByTestId("me-drill-topics");
+  it("★ THE OTHER DIRECTION: shows no Maths chapter while the Science paper is selected", async () => {
+    const user = userEvent.setup();
+    mockGetWindowedProgress.mockResolvedValue(MIXED);
+    renderPage();
+    await screen.findByTestId("me-drill-topics");
+
+    await user.click(screen.getByTestId("me-paper-science"));
+    const drill = screen.getByTestId("me-drill-topics");
+    // ★ CONTROL first: the Science chapter IS listed here.
     expect(within(drill).getByText("Light - Reflection & Refraction")).toBeInTheDocument();
-    expect(within(drill).queryByText("Acids Bases & Salts")).toBeNull();
-    // Maths never survives the Science subject filter.
     expect(within(drill).queryByText("Real Numbers")).toBeNull();
+  });
+
+  it("★ the paper switch SCOPES THE READ rather than filtering after it", async () => {
+    // Subject purity for `concepts` and `sections` is only achievable in the read —
+    // those rungs carry no subject of their own. If this ever regresses to a
+    // post-filter, those two views silently mix the papers with no visible symptom.
+    const user = userEvent.setup();
+    mockGetWindowedProgress.mockResolvedValue(MIXED);
+    renderPage();
+    await screen.findByTestId("me-drill-topics");
+
+    await user.click(screen.getByTestId("me-paper-science"));
+    const scopes = mockGetWindowedProgress.mock.calls.map((c) => c[2]);
+    expect(scopes).toContainEqual({ subject: "science" });
+    // ★ CONTROL: the lowercase key is not an accident of the assertion — the label
+    //   casing ("Science") would NOT satisfy `SessionSubject`.
+    expect(scopes).not.toContainEqual({ subject: "Science" });
   });
 });
 
@@ -330,19 +367,23 @@ describe("5 · Science + Physics filters the drill to Physics topics only", () =
 
 describe("6 · one component, two widths — useIsDesktop drives layout", () => {
   it("renders the same page at desktop and mobile width, flagged by a class only", async () => {
+    mockGetWindowedProgress.mockResolvedValue(
+      windowed({ topics: [rung("real-numbers", "Real Numbers")] }),
+    );
     mockIsDesktop = true;
     const desktop = renderPage();
     const desktopRoot = desktop.container.querySelector(".lt-me");
     expect(desktopRoot?.className).toContain("lt-me--desktop");
-    expect(await screen.findByTestId("progress-window-arc")).toBeInTheDocument();
+    expect(await screen.findByTestId("me-drill-topics")).toBeInTheDocument();
     desktop.unmount();
 
     mockIsDesktop = false;
     const mobile = renderPage();
     const mobileRoot = mobile.container.querySelector(".lt-me");
     expect(mobileRoot?.className).toContain("lt-me--mobile");
-    // The SAME surface, not a second page file.
-    expect(await screen.findByTestId("progress-window-arc")).toBeInTheDocument();
+    // The SAME surface, not a second page file: the SAME testid resolves at both
+    // widths, from one component.
+    expect(await screen.findByTestId("me-drill-topics")).toBeInTheDocument();
   });
 });
 
@@ -352,8 +393,12 @@ describe("7 · exactly one router in the tree", () => {
   it("★ mounts inside the app's always-present outer router and renders its content", async () => {
     // Written positively: a `not.toThrow()` here would pass even if the page were
     // broken, which is exactly how #490's own guard was a silent no-op.
+    mockGetWindowedProgress.mockResolvedValue(
+      windowed({ topics: [rung("real-numbers", "Real Numbers")] }),
+    );
     renderPage();
-    expect(await screen.findByTestId("progress-window-arc")).toBeInTheDocument();
+    expect(await screen.findByTestId("me-drill-topics")).toBeInTheDocument();
+    // getByRole is SINGULAR — this also pins "exactly one h1 in every state".
     expect(screen.getByRole("heading", { level: 1 })).toBeInTheDocument();
   });
 
@@ -424,17 +469,29 @@ describe("9 · premium CTAs match GATE-3's locked treatment", () => {
   });
 });
 
-/* ══════════════ 10 · the device-local history seam ══════════════ */
+/* ══════════════ 10 · attempt history — REMOVED, and the removal is pinned ══════════════
+ *
+ * ME-2 NOTE. The v7.1 spec removes "Recent work": nothing on it was actionable, and
+ * Check & Improve, Chapter Test and Full Mock each own their own history. The old test
+ * here asserted the DEVICE-LOCAL SEAM COPY inside `me-history-empty` — it pinned the
+ * very section the spec deletes, so it cannot be adapted, only replaced.
+ *
+ * ⚠ WHAT IS LOST WITH IT: [FU-ME-HISTORY-DEVICE-LOCAL] no longer has a rendered
+ * statement anywhere in the product. That is recorded in the lane report as a
+ * follow-up, not silently dropped. What is pinned INSTEAD is that the section really
+ * is gone, so it cannot creep back untested. */
 
-describe("10 · the device-local attempt-history seam is stated, not hidden", () => {
-  it("says the history is per-device when a cross-device hero sits above an empty list", async () => {
+describe("10 · the attempt-history section is gone (v7.1 removes Recent work)", () => {
+  it("renders no history list and no history empty-state", async () => {
     mockGetRecentSessions.mockReturnValue([]);
     mockGetWindowedProgress.mockResolvedValue(
-      windowed({ subjects: [rung("maths", "Maths")] }),
+      windowed({ topics: [rung("real-numbers", "Real Numbers")] }),
     );
     renderPage();
-    const empty = await screen.findByTestId("me-history-empty");
-    expect(empty.textContent).toMatch(/stored per device/i);
-    expect(empty.textContent).toMatch(/another device/i);
+    // ★ CONTROL FIRST: the page really did render, so the absences below are not an
+    //   unmounted component.
+    expect(await screen.findByTestId("me-drill-topics")).toBeInTheDocument();
+    expect(screen.queryByTestId("me-history")).toBeNull();
+    expect(screen.queryByTestId("me-history-empty")).toBeNull();
   });
 });

@@ -546,6 +546,9 @@ export default function MeProgressPage() {
   const [pickerOpen, setPickerOpen] = useState(false);
 
   const [all, setAll] = useState<WindowedProgress | null>(null);
+  // Tracks the UNSCOPED read specifically. Without it, the window between the two
+  // reads resolving renders "you have no work yet" to a student who does.
+  const [allLoading, setAllLoading] = useState(true);
   const [data, setData] = useState<WindowedProgress | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
   const [openConcepts, setOpenConcepts] = useState<RungTrend[]>([]);
@@ -559,6 +562,7 @@ export default function MeProgressPage() {
   /* -- the UNSCOPED read: both papers' totals for the switch + the has-data decision -- */
   useEffect(() => {
     let cancelled = false;
+    setAllLoading(true);
     void (async () => {
       try {
         const next = await getWindowedProgress(realUid, windowSel);
@@ -566,6 +570,8 @@ export default function MeProgressPage() {
       } catch {
         // Honest degradation: no data beats a guessed number.
         if (!cancelled) setAll(null);
+      } finally {
+        if (!cancelled) setAllLoading(false);
       }
     })();
     return () => {
@@ -705,6 +711,8 @@ export default function MeProgressPage() {
   const studentName =
     user?.displayName?.trim().split(" ")[0] || user?.email?.split("@")[0] || "";
 
+  const booting = dataLoading || allLoading;
+
   const hasAnyWork =
     (all?.subjects.length ?? 0) > 0 ||
     (all?.topics.length ?? 0) > 0 ||
@@ -832,7 +840,9 @@ export default function MeProgressPage() {
 
       <header className="lt-me__header">
         <div className="lt-me__eyebrow">Me &middot; Progress</div>
-        {!hasAnyWork && !dataLoading ? (
+        {booting ? (
+          <h1 className="lt-me__title">Your journey</h1>
+        ) : !hasAnyWork ? (
           <h1 className="lt-me__title">This is where your marks will show up.</h1>
         ) : split ? (
           <h1 className="lt-me__title">
@@ -861,7 +871,11 @@ export default function MeProgressPage() {
         ))}
       </div>
 
-      {!hasAnyWork && !dataLoading ? (
+      {booting ? (
+        <p className="lt-me__empty-body" data-testid="me-booting">
+          Reading your saved work&hellip;
+        </p>
+      ) : !hasAnyWork ? (
         <FirstRun
           practiceAttempts={all?.activity.practiceAttempts ?? 0}
           quickPracticePath={quickPracticePath}
@@ -1881,13 +1895,22 @@ const ME_CSS = `
 /* --- MOBILE. ONE responsive design, not two: the chapter list is a stacked grid by
        default and becomes a horizontal snap rail ONLY below the 1024px breakpoint. --- */
 .lt-me--mobile .lt-me__chapter { grid-template-columns: auto 1fr; }
-.lt-me--mobile .lt-me__chapter-ctas { grid-column: 1 / -1; justify-content: stretch; }
-.lt-me--mobile .lt-me__chapter-ctas > * { flex: 1; }
+.lt-me--mobile .lt-me__chapter-ctas {
+  grid-column: 1 / -1; flex-direction: column; align-items: stretch;
+}
+/* Full width, one per line. Splitting a ~300px row three ways left ~95px per control,
+   which is narrower than the word "Premium" - the label then broke to one letter per
+   line. Again: caught by a screenshot, not by an assertion. */
+.lt-me--mobile .lt-me__chapter-ctas > * { width: 100%; align-self: stretch; justify-content: center; }
 .lt-me--mobile .lt-me__papers { width: 100%; }
 .lt-me--mobile .lt-me__paper { flex: 1; }
 .lt-me--mobile .lt-me__bar { height: 44px; }
 .lt-me--mobile .lt-me__seg { font-size: 16px; }
 .lt-me--mobile .lt-me__row, .lt-me--mobile .lt-me__acchead { grid-template-columns: 1fr auto; }
+/* The remainder row is a SENTENCE, not a two-column row. Without this it inherits the
+   rule above (equal specificity, earlier in the sheet) and renders one letter per line.
+   Found only by a 390px screenshot - every assertion about it still passed. */
+.lt-me--mobile .lt-me__row--rest { grid-template-columns: 1fr; }
 .lt-me--mobile .lt-me__row .lt-me__rowcta { grid-column: 2; }
 .lt-me--mobile .lt-me__journey { align-items: flex-start; }
 
