@@ -4,6 +4,10 @@ import {
   buildDesktopConceptPracticePath,
   buildDesktopChapterTestPath,
   buildDesktopPracticePath,
+  buildDesktopTopicHubPath,
+  buildDesktopWorksheetPath,
+  buildDesktopCheckPath,
+  buildDesktopMePath,
 } from "./navigation";
 
 /**
@@ -145,5 +149,158 @@ describe("buildDesktopChapterTestPath — Topic Hub Chapter test button (PR-E1 i
     const qs = new URLSearchParams(href.split("?")[1]);
     expect(qs.get("source")).toBe("topicHub");
     expect(qs.get("returnTo")).toBe("/topic-hub/10/Maths/trigonometry");
+  });
+});
+
+/* ══════════════ ME-2 — buildDesktopTopicHubPath, previously UNTESTED ══════════════
+ *
+ * [FU-TOPICHUBPATH-ZERO-TEST-COVERAGE]. Before ME-2 this file did not reference
+ * `buildDesktopTopicHubPath` at all, and it is the ONE builder whose output #647's
+ * `DesktopTopicHubPage` reads back as an arrival intent.
+ *
+ * ★ THE ARRIVAL CONCEPT IS A THIRD, OPTIONAL ARGUMENT — NOT A FIELD ON
+ *   `DesktopRouteContext`. `addContext` is shared by all seven builders in this file,
+ *   so a `concept?` on the shared context type would silently let SIX unrelated URLs
+ *   emit `concept`. The last describe below is the CONTROL that protects exactly that:
+ *   it re-runs every other builder with a `concept` bolted onto its input and proves
+ *   none of them emits the key.
+ */
+
+describe("buildDesktopTopicHubPath — the ?concept= arrival (ME-2 produces, #647 consumes)", () => {
+  it("emits NO concept key when the third argument is omitted (it is optional)", () => {
+    const href = buildDesktopTopicHubPath("trigonometry", { source: "me", returnTo: "/me" });
+    const qs = new URLSearchParams(href.split("?")[1]);
+    expect(qs.has("concept")).toBe(false);
+    // ...while the context half is still carried, so the absence is not "nothing ran".
+    expect(qs.get("source")).toBe("me");
+    expect(qs.get("returnTo")).toBe("/me");
+  });
+
+  it("emits NO concept key for an empty / whitespace-only concept", () => {
+    expect(
+      new URLSearchParams(buildDesktopTopicHubPath("trigonometry", {}, {}).split("?")[1]).has(
+        "concept",
+      ),
+    ).toBe(false);
+    expect(
+      new URLSearchParams(
+        buildDesktopTopicHubPath("trigonometry", {}, { concept: "   " }).split("?")[1],
+      ).has("concept"),
+    ).toBe(false);
+  });
+
+  it("★ carries the boardEssentials NAME VERBATIM — never slugified or case-folded", () => {
+    // A real `boardEssentials[].name` shape: capitals, spaces and an apostrophe.
+    const name = "Ohm's law and resistance";
+    const href = buildDesktopTopicHubPath("electricity", { source: "me", returnTo: "/me" }, {
+      concept: name,
+    });
+    const qs = new URLSearchParams(href.split("?")[1]);
+    // Round-trips to the EXACT string #647 compares with `c.name === raw`.
+    expect(qs.get("concept")).toBe(name);
+    // ...and it is URI-encoded on the wire, not raw.
+    expect(href).toContain("concept=Ohm");
+    expect(href).not.toContain("concept=Ohm's law and resistance");
+  });
+
+  it("★ CONTROL: a slugified value does NOT round-trip to the name — the failure is visible", () => {
+    const name = "Ohm's law and resistance";
+    const slug = "ohms-law-and-resistance";
+    const href = buildDesktopTopicHubPath("electricity", {}, { concept: slug });
+    const qs = new URLSearchParams(href.split("?")[1]);
+    expect(qs.get("concept")).toBe(slug);
+    // This is the mutation M2 assertion in miniature: a slug is NOT the name, so
+    // #647's `boardEssentials.find((c) => c.name === raw)` would resolve to null.
+    expect(qs.get("concept")).not.toBe(name);
+  });
+
+  it("trims surrounding whitespace so a stray space cannot break the exact match", () => {
+    const href = buildDesktopTopicHubPath("electricity", {}, { concept: "  Refraction  " });
+    expect(new URLSearchParams(href.split("?")[1]).get("concept")).toBe("Refraction");
+  });
+
+  it("still encodes the topic slug in the path", () => {
+    const href = buildDesktopTopicHubPath("light-reflection-and-refraction", {}, {
+      concept: "Refraction",
+    });
+    expect(href.startsWith("/topic-hub/light-reflection-and-refraction")).toBe(true);
+  });
+});
+
+describe("★ CONTROL — the concept param is confined to the Topic Hub builder", () => {
+  /**
+   * The leak this protects against: putting `concept` on `DesktopRouteContext` (which
+   * `addContext` writes for EVERY builder). If that happened, these six would start
+   * emitting `concept` and six unrelated URLs would change meaning. Each input below
+   * carries a `concept` property that the builder must IGNORE.
+   */
+  const withConcept = { concept: "Ohm's law and resistance" } as Record<string, unknown>;
+
+  const cases: Array<[string, string]> = [
+    [
+      "buildDesktopConceptPracticePath",
+      buildDesktopConceptPracticePath({
+        subject: "Maths",
+        topic: "trigonometry",
+        ...withConcept,
+      } as Parameters<typeof buildDesktopConceptPracticePath>[0]),
+    ],
+    [
+      "buildDesktopPracticePath",
+      buildDesktopPracticePath({
+        scope: "full-subject",
+        subject: "Maths",
+        ...withConcept,
+      } as Parameters<typeof buildDesktopPracticePath>[0]),
+    ],
+    [
+      "buildDesktopWorksheetPath",
+      buildDesktopWorksheetPath({
+        scope: "full-subject",
+        subject: "Maths",
+        mistakeAware: true,
+        ...withConcept,
+      } as Parameters<typeof buildDesktopWorksheetPath>[0]),
+    ],
+    [
+      "buildDesktopChapterTestPath",
+      buildDesktopChapterTestPath({
+        subject: "Maths",
+        topicKey: "trigonometry",
+        ...withConcept,
+      } as Parameters<typeof buildDesktopChapterTestPath>[0]),
+    ],
+    [
+      "buildDesktopCheckPath",
+      buildDesktopCheckPath("trigonometry", {
+        source: "me",
+        ...withConcept,
+      } as Parameters<typeof buildDesktopCheckPath>[1]),
+    ],
+    [
+      "buildDesktopMePath",
+      buildDesktopMePath({ source: "home", ...withConcept } as Parameters<
+        typeof buildDesktopMePath
+      >[0]),
+    ],
+  ];
+
+  it.each(cases)("%s emits NO concept key", (_name, href) => {
+    expect(new URLSearchParams(href.split("?")[1]).has("concept")).toBe(false);
+  });
+
+  it("★ POSITIVE CONTROL: the SAME assertion DOES fire for the Topic Hub builder", () => {
+    // Without this, the six absences above could all be a broken query.
+    const href = buildDesktopTopicHubPath("electricity", {}, withConcept);
+    expect(new URLSearchParams(href.split("?")[1]).has("concept")).toBe(true);
+  });
+
+  it("★ the worksheet builder still emits mistakeAware=1 — the six are not inert", () => {
+    const href = buildDesktopWorksheetPath({
+      scope: "full-subject",
+      subject: "Maths",
+      mistakeAware: true,
+    });
+    expect(new URLSearchParams(href.split("?")[1]).get("mistakeAware")).toBe("1");
   });
 });
