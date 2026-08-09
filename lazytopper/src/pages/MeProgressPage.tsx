@@ -118,14 +118,26 @@ const KNOWLEDGE_TYPES = new Set(["conceptual", "calculation"]);
 /**
  * The four-type palette. Page-local and NOT exported: the scorecard colours its
  * swatches with CSS classes and the MI panel owns a separate `TYPE_TONE` with
- * different values, so this map has exactly one consumer - this file. Kept as a
- * deliberate design choice (controller ruling D5), not because it is shared.
+ * different values, so this map has exactly one consumer - this file.
+ *
+ * TONED FOR CONTRAST, NOT FOR TASTE. Every value here must carry a
+ * var(--me-navy) numeral at 4.5:1 - the NORMAL-text threshold - because the bar
+ * prints its marks inside the segment. Navy is the darker colour of the pair, so
+ * the tone has to be LIGHT enough, not dark enough: a segment needs relative
+ * luminance >= 0.3238 to clear 4.5 against navy's 0.0331. Saturation is raised
+ * alongside lightness so the hue stays definite instead of washing out.
+ *
+ * Measured, alpha-composited, navy-on-tone:
+ *   conceptual 4.84 - calculation 6.24 - silly 4.84 - presentation 4.91
+ *
+ * If you change a value here, re-measure it and update the matching legend
+ * swatch in ME_CSS, which repeats these colours literally.
  */
 const MISTAKE_TONE: Record<string, string> = {
-  conceptual: "hsl(215, 75%, 60%)",
+  conceptual: "hsl(215, 85%, 68%)",
   calculation: "hsl(38, 80%, 58%)",
-  silly: "hsl(0, 70%, 62%)",
-  presentation: "hsl(280, 55%, 62%)",
+  silly: "hsl(0, 80%, 72%)",
+  presentation: "hsl(280, 65%, 72%)",
 };
 
 /**
@@ -139,15 +151,41 @@ const GROUP_HEADING = {
   careless: "Careless mark-loss — not a weakness",
 } as const;
 
+/**
+ * The two non-mistake segments. Both already clear 4.5:1 against var(--me-navy)
+ * unchanged - secured 4.68, unclassified 6.16, both measured with the same
+ * alpha-compositing probe - so neither is retoned. Do not darken them: navy is
+ * the text, so darkening a segment REDUCES the numeral's contrast.
+ */
 const SECURED_TONE = "hsl(152, 55%, 45%)";
 const UNCLASSIFIED_TONE = "hsl(215, 15%, 72%)";
 
 /**
- * Below this share a segment is too narrow to carry its numeral. At 360px a 7%
- * segment is about 23px and an 18.66px bold two-digit numeral does not fit; the
- * legend prints every number anyway, so the honest move is to let the legend carry it.
+ * The share a segment needs PER CHARACTER of its numeral before that numeral is
+ * printed inside the bar. Below it the segment stays silent and the legend - which
+ * prints every number in full - carries it.
+ *
+ * DERIVED, NOT CHOSEN. Measured in a real browser at 360px, the narrowest width the
+ * product supports and therefore the one that governs:
+ *   - the bar's content box is 248px;
+ *   - .lt-me__seg renders at 16px/700 there, where one digit advances 9.2035px;
+ *   - a numeral reads as belonging to its segment only while colour remains on both
+ *     sides of it, so it may fill at most about 70% of the segment.
+ *   9.2035 / 0.70 / 248 = 0.0530 per character.
+ *
+ * PER CHARACTER, because one flat share cannot serve both ends: a one-character
+ * numeral needs 5.3% and a three-character one needs 15.9%. A flat threshold either
+ * hides numerals that would have fitted, or lets a three-digit numeral overflow a
+ * segment whose overflow is hidden - which would clip 100 into a DIFFERENT, WRONG
+ * number on screen. String length, not digit count, so a value like 7.5 is measured
+ * as the three characters it actually renders.
+ *
+ * This REPLACES a flat 0.12 sized for an 18.66px bold numeral, i.e. for the
+ * large-text contrast workaround. That workaround is gone - the segment tones now
+ * clear 4.5:1 at normal text size. (Its 18.66px premise never held below 1024px in
+ * any case: .lt-me--mobile .lt-me__seg has always rendered 16px.)
  */
-const SEGMENT_NUMERAL_MIN_SHARE = 0.12;
+const SEGMENT_NUMERAL_MIN_SHARE_PER_CHAR = 0.053;
 
 /** How many chapter cards "Start here" shows before Show more. */
 const START_HERE_VISIBLE = 3;
@@ -912,6 +950,8 @@ export default function MeProgressPage() {
                 <div className="lt-me__bar" role="img" aria-label={barLabel} data-testid="me-hero-bar">
                   {segments.map((seg) => {
                     const share = seg.value / split.available;
+                    const numeral = String(seg.value);
+                    const fits = share >= numeral.length * SEGMENT_NUMERAL_MIN_SHARE_PER_CHAR;
                     return (
                       <div
                         key={seg.key}
@@ -919,7 +959,7 @@ export default function MeProgressPage() {
                         data-segment={seg.key}
                         style={{ width: `${(share * 100).toFixed(1)}%`, background: seg.tone }}
                       >
-                        {share >= SEGMENT_NUMERAL_MIN_SHARE ? seg.value : ""}
+                        {fits ? seg.value : ""}
                       </div>
                     );
                   })}
@@ -1696,9 +1736,13 @@ const ME_CSS = `
 .lt-me__paper small { display: block; font-size: 10.5px; font-weight: 600; color: var(--me-muted); margin-top: 1px; }
 .lt-me__paper--on small { color: hsl(152, 55%, 30%); }
 
-/* --- the bar. Numerals are navy and 700-weight at 19px, which clears the large-text
-       3:1 threshold on all three tones. Segments narrower than 12% render no numeral;
-       the legend prints every number. --- */
+/* --- the bar. Numerals are var(--me-navy) at 700 weight, 19px on desktop and 16px
+       below 1024px. They are NORMAL text at that size, so every segment tone has to
+       clear 4.5:1 against navy on its own - measured live at 360px: secured 4.67,
+       careless 4.82, gaps 4.84, unclassified 6.15. Nothing here leans on the
+       large-text 3:1 exemption, which 16px/700 never qualified for anyway.
+       A segment too narrow for its numeral prints nothing and the legend, which
+       prints every number, carries it - see SEGMENT_NUMERAL_MIN_SHARE_PER_CHAR. --- */
 .lt-me__barcap {
   display: flex; justify-content: space-between; align-items: baseline;
   font-size: 12px; color: var(--me-muted); font-weight: 600;
@@ -1719,9 +1763,12 @@ const ME_CSS = `
 .lt-me__lg { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; line-height: 1.5; color: var(--me-muted); }
 .lt-me__lg b { display: block; font-weight: 700; color: var(--me-fg); }
 .lt-me__sw { width: 11px; height: 11px; border-radius: 3px; flex: none; margin-top: 4px; }
+/* These four repeat SECURED_TONE, MISTAKE_TONE.silly, MISTAKE_TONE.conceptual and
+   UNCLASSIFIED_TONE literally. A legend swatch that does not match its segment
+   stops binding the legend to the bar, so they move together or not at all. */
 .lt-me__sw[data-tone="secured"] { background: hsl(152, 55%, 45%); }
-.lt-me__sw[data-tone="careless"] { background: hsl(0, 70%, 62%); }
-.lt-me__sw[data-tone="knowledge"] { background: hsl(215, 75%, 60%); }
+.lt-me__sw[data-tone="careless"] { background: hsl(0, 80%, 72%); }
+.lt-me__sw[data-tone="knowledge"] { background: hsl(215, 85%, 68%); }
 .lt-me__sw[data-tone="unclassified"] { background: hsl(215, 15%, 72%); }
 
 /* --- the four-type mix --- */
