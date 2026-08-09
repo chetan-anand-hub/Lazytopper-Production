@@ -32,6 +32,9 @@ const {
   DISCLOSURE_THIRD_PARTY,
   DISCLOSURE_NOT_EXPORTABLE,
   DISCLOSURE_CLIENT_LOCAL,
+  PLAN_CONCURRENCY,
+  READ_CONCURRENCY,
+  mapWithConcurrency,
 } = require('./accountExport.cjs');
 
 const { loadStudentDataMap } = require('./accountErasure.cjs');
@@ -809,4 +812,392 @@ test('★ the export payload keeps student fields the sink would have rewritten'
     'I confused V and I',
     'the export must return the student\'s own words, not a redaction of them'
   );
+});
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   10 · EXPORT-PERF — THE WALK IS CONCURRENT, BOUNDED, ORDERED AND TIME-BUDGETED
+
+   ★★ THE DEFECT THESE GUARD. In production this route ran ~120 s and the connection
+   died under the api-server; the browser got a 502 and a student could not complete a
+   legally-required DPDP flow. Nothing had crashed — the export was still reading, one
+   document at a time.
+
+   ★★ AND THE 29 LOCATIONS WERE NOT THE DOMINANT COST. Measured against the previous
+   revision: MAX CONCURRENT I/O WAS 1 and the round-trip count tracked DOCUMENTS, not
+   locations. The assertions below are therefore written against DOCUMENT-level
+   concurrency, because a fix that only fanned out the 29 locations would leave the
+   real critical path untouched AND WOULD PASS A LOCATION-LEVEL TEST.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/**
+ * A driver that records how many reads are in flight at once.
+ *
+ * ★ Every simulated read yields to the event loop, so overlap is a property of the
+ * CODE UNDER TEST rather than of timing luck: a sequential walker can never show more
+ * than one in flight here, whatever the machine is doing.
+ */
+function makeInstrumented({ seed = {}, files = [], users = {}, delayMs = 0, ...opts } = {}) {
+  const stats = { ops: 0, maxInFlight: 0, inFlight: 0, order: [] };
+
+  async function io(label) {
+    stats.ops += 1;
+    stats.inFlight += 1;
+    if (stats.inFlight > stats.maxInFlight) stats.maxInFlight = stats.inFlight;
+    if (delayMs > 0) await new Promise((r) => setTimeout(r, delayMs));
+    else await new Promise((r) => setImmediate(r));
+    stats.inFlight -= 1;
+    stats.order.push(label);
+  }
+
+  const docs = new Map(Object.entries(seed));
+
+  function docRef(fullPath) {
+    return {
+      path: fullPath,
+      id: fullPath.split('/').pop(),
+      collection: (name) => collRef(`${fullPath}/${name}`),
+      async get() {
+        await io(fullPath);
+        return { exists: docs.has(fullPath), id: this.id, ref: this, data: () => docs.get(fullPath) };
+      },
+    };
+  }
+  function childDocPaths(collPath) {
+    const prefix = `${collPath}/`;
+    const out = new Set();
+    for (const p of docs.keys()) {
+      if (!p.startsWith(prefix)) continue;
+      out.add(prefix + p.slice(prefix.length).split('/')[0]);
+    }
+    return [...out];
+  }
+  function snapshotOf(paths) {
+    return {
+      empty: paths.length === 0,
+      size: paths.length,
+      docs: paths.map((p) => ({ id: p.split('/').pop(), ref: docRef(p), data: () => docs.get(p) })),
+    };
+  }
+  function collRef(collPath) {
+    return {
+      path: collPath,
+      doc: (id) => docRef(`${collPath}/${id}`),
+      async listDocuments() {
+        await io(`list:${collPath}`);
+        return childDocPaths(collPath).map(docRef);
+      },
+      async get() {
+        await io(`get:${collPath}`);
+        return snapshotOf(childDocPaths(collPath).filter((p) => docs.has(p)));
+      },
+      where(field, op, value) {
+        return {
+          async get() {
+            await io(`where:${collPath}`);
+            return snapshotOf(
+              childDocPaths(collPath).filter(
+                (p) => docs.has(p) && op === '==' && docs.get(p) && docs.get(p)[field] === value
+              )
+            );
+          },
+        };
+      },
+    };
+  }
+
+  const bucket = {
+    async getFiles({ prefix }) {
+      await io(`storage:${prefix}`);
+      return [
+        files
+          .filter((f) => f.name.startsWith(prefix))
+          .map((f) => ({
+            name: f.name,
+            metadata: {
+              size: f.size ?? f.body.length,
+              contentType: 'image/jpeg',
+              updated: '2026-08-09T00:00:00.000Z',
+            },
+            async download() {
+              stats.ops += 1;
+              stats.inFlight += 1;
+              if (stats.inFlight > stats.maxInFlight) stats.maxInFlight = stats.inFlight;
+              await new Promise((r) => setTimeout(r, f.downloadMs ?? 0));
+              stats.inFlight -= 1;
+              stats.order.push(`download:${f.name}`);
+              return [Buffer.from(f.body)];
+            },
+          })),
+      ];
+    },
+  };
+
+  const admin = {
+    auth: () => ({
+      async getUser(uid) {
+        await io(`auth:${uid}`);
+        if (!Object.prototype.hasOwnProperty.call(users, uid)) {
+          const e = new Error('no user');
+          e.code = 'auth/user-not-found';
+          throw e;
+        }
+        return users[uid];
+      },
+    }),
+    storage: () => ({ bucket: () => bucket }),
+  };
+
+  const service = createAccountExportService({
+    firebaseAdmin: admin,
+    adminFirestore: { collection: collRef },
+    resolveBucketName: () => 'test-bucket',
+    ...opts,
+  });
+  return { service, stats };
+}
+
+/** A student whose documents live in ONE collection — the real production shape. */
+function manyDocsSeed(n, uid = UID) {
+  const seed = { [`sessionRecords/${uid}`]: {} };
+  for (let i = 0; i < n; i += 1) seed[`sessionRecords/${uid}/perQuestion/q${i}`] = { typed: `answer ${i}` };
+  return seed;
+}
+
+const DEEP_FIXTURE = [
+  {
+    id: 'fx.records',
+    kind: 'firestore-collection',
+    path: 'sessionRecords/{uid}/perQuestion/{questionId}',
+    holds: 'Per-question answers.',
+    mechanism: 'browser-sdk',
+    exportable: true,
+  },
+];
+
+test('★★ THE HEADLINE — documents within ONE location are read CONCURRENTLY, not one at a time', async () => {
+  const N = 40;
+  const { service, stats } = makeInstrumented({
+    locations: DEEP_FIXTURE,
+    seed: manyDocsSeed(N),
+  });
+  const result = await service.exportAccount(UID);
+
+  // CONTROL: the work actually happened, so a low concurrency number below could not
+  // be "nothing ran". All N documents came back.
+  assert.equal(byId(result, 'fx.records').recordCount, N, 'control failed: the documents were not read at all');
+  assert.ok(stats.ops > N, `control failed: only ${stats.ops} reads were issued for ${N} documents`);
+
+  // ★★ THE ASSERTION THAT GOES RED ON THE PREVIOUS REVISION. Its per-document read was
+  // a plain `for … await`, so maxInFlight was EXACTLY 1 for any number of documents.
+  assert.ok(
+    stats.maxInFlight > 1,
+    `the per-document read is still sequential: max ${stats.maxInFlight} read(s) in flight across ${N} documents`
+  );
+});
+
+test('★ the concurrency is BOUNDED — an unbounded fan-out is a different way to hurt the gateway', async () => {
+  const N = 300;
+  const { service, stats } = makeInstrumented({
+    locations: DEEP_FIXTURE,
+    seed: manyDocsSeed(N),
+  });
+  await service.exportAccount(UID);
+
+  const ceiling = PLAN_CONCURRENCY * READ_CONCURRENCY;
+  assert.ok(
+    stats.maxInFlight <= ceiling,
+    `${stats.maxInFlight} reads were in flight at once, over the stated ceiling of ${ceiling}`
+  );
+
+  // ★★ AND AN ABSOLUTE NUMBER, because the assertion above is written in terms of the
+  // very constants it guards: raise READ_CONCURRENCY to 500 and the "ceiling" rises
+  // with it, so that check alone can never fail. A literal is what actually holds the
+  // fan-out down to something a gateway survives.
+  const ABSOLUTE_CEILING = 64;
+  assert.ok(
+    ceiling <= ABSOLUTE_CEILING,
+    `the configured ceiling is ${ceiling}, above the ${ABSOLUTE_CEILING} this module is willing to aim at a gateway`
+  );
+  assert.ok(
+    stats.maxInFlight <= ABSOLUTE_CEILING,
+    `${stats.maxInFlight} reads were in flight at once, over the absolute ceiling of ${ABSOLUTE_CEILING}`
+  );
+  // CONTROL: with 300 documents the pool must actually have filled, or the bound above
+  // is satisfied by a walk that never parallelised at all.
+  assert.ok(stats.maxInFlight > 1, 'control failed: nothing ran concurrently, so no bound was tested');
+});
+
+test('★ the whole-map walk runs locations concurrently too', async () => {
+  const { service, stats } = makeInstrumented({
+    locations: loadStudentDataMap(),
+    seed: realSeed(),
+    users: { [UID]: { uid: UID, toJSON: () => ({ uid: UID }) } },
+  });
+  await service.exportAccount(UID);
+  assert.ok(stats.maxInFlight > 1, 'the 29-location walk is still sequential');
+});
+
+test('★★ ORDER SURVIVES CONCURRENCY — rows, records and disclosures are assembled by INDEX', async () => {
+  // ★ Reads finish in an order nobody controls once they overlap. A file a parent opens
+  // must still be byte-stable, so ordering is asserted against the MAP, not against a
+  // previous run of the same code.
+  const locations = loadStudentDataMap();
+  const opts = {
+    locations,
+    seed: realSeed(),
+    users: { [UID]: { uid: UID, toJSON: () => ({ uid: UID }) } },
+    files: [{ name: `qr-uploads/${UID}/a.jpg`, body: 'AAA' }],
+  };
+
+  const first = await makeInstrumented(opts).service.exportAccount(UID);
+  const second = await makeInstrumented(opts).service.exportAccount(UID);
+
+  assert.deepEqual(
+    first.locations.map((r) => r.id),
+    locations.map((l) => l.id),
+    'the rows are no longer in map order — the file a parent reads has been reshuffled'
+  );
+  assert.deepEqual(
+    first.locations.map((r) => r.id),
+    second.locations.map((r) => r.id),
+    'two runs of the same account produced different row orders'
+  );
+  assert.deepEqual(
+    first.disclosures.map((d) => d.id),
+    second.disclosures.map((d) => d.id),
+    'the disclosures are ordered by whichever read finished first'
+  );
+
+  // ★ Records WITHIN a location keep their order too.
+  const msgs = byId(first, 'learnerProfiles.sessions.messages').records.map((r) => r.path);
+  assert.deepEqual(
+    msgs,
+    byId(second, 'learnerProfiles.sessions.messages').records.map((r) => r.path),
+    'records inside a location come back in completion order'
+  );
+  assert.deepEqual(msgs, [...msgs].sort(), 'the records are not in a stable path order');
+});
+
+/* ── the time budget, answered through the contract that already existed ──────── */
+
+test('★★ OVER BUDGET — unread locations are FAILED BY NAME and the run reports ok:false (a 207)', async () => {
+  // Each read costs 20ms against a 5ms budget, so the deadline passes during the first
+  // location and every later one is refused a start. planConcurrency 1 makes that crisp.
+  const { service } = makeInstrumented({
+    locations: loadStudentDataMap(),
+    seed: realSeed(),
+    users: { [UID]: { uid: UID, toJSON: () => ({ uid: UID }) } },
+    delayMs: 20,
+    budgetMs: 5,
+    planConcurrency: 1,
+    readConcurrency: 1,
+  });
+  const result = await service.exportAccount(UID);
+
+  const starved = result.locations.filter(
+    (r) => r.status === EXPORT_STATUS.FAILED && /time budget/.test(r.reason || '')
+  );
+  assert.ok(starved.length > 0, 'the budget never fired — nothing was reported as unread');
+
+  // ★★ REUSE, NOT A SECOND MECHANISM. `ok:false` is what `routes/accountExport.cjs`
+  // already turns into a 207, and the disclosure list is the same one the storage caps
+  // populate. A budget that invented its own partial channel would be a divergence
+  // hazard, not redundancy.
+  assert.equal(result.ok, false, 'an export that could not read everything must never report ok');
+  for (const row of starved) {
+    const d = disclosureFor(result, row.id);
+    assert.ok(d, `${row.id} was not read and was NOT disclosed — a silent omission is the defect`);
+    assert.match(d.detailReason, /time budget/);
+  }
+
+  // ★ And it is still a usable file: what WAS read is returned, not thrown away.
+  assert.ok(
+    result.locations.some((r) => r.status === EXPORT_STATUS.EXPORTED),
+    'the budget discarded everything, which denies the student the part we did read'
+  );
+});
+
+test('★ a generous budget changes nothing — the budget is a ceiling, not a filter', async () => {
+  const { service } = makeInstrumented({
+    locations: loadStudentDataMap(),
+    seed: realSeed(),
+    users: { [UID]: { uid: UID, toJSON: () => ({ uid: UID }) } },
+    budgetMs: 600_000,
+  });
+  const result = await service.exportAccount(UID);
+  assert.ok(
+    !result.locations.some((r) => /time budget/.test(r.reason || '')),
+    'a run well inside its budget reported budget omissions'
+  );
+  assert.equal(byId(result, 'learnerProfiles').status, EXPORT_STATUS.EXPORTED);
+});
+
+/* ── the storage caps stay DETERMINISTIC once downloads overlap ───────────────── */
+
+test('★★ WHICH FILE IS OMITTED DOES NOT DEPEND ON WHICH DOWNLOAD FINISHES FIRST', async () => {
+  // ★ The hazard concurrency introduces here: the old walk accumulated the total
+  // against bytes AS THEY ARRIVED, so overlapping downloads would decide the cap by
+  // completion order. Same account, same files, downloads timed in OPPOSITE orders —
+  // the exported file must be identical.
+  const files = (fastFirst) => [
+    { name: `qr-uploads/${UID}/one.jpg`, body: 'aaaaaaaaaa', downloadMs: fastFirst ? 0 : 30 },
+    { name: `qr-uploads/${UID}/two.jpg`, body: 'bbbbbbbbbb', downloadMs: fastFirst ? 30 : 0 },
+    { name: `qr-uploads/${UID}/three.jpg`, body: 'cccccccccc', downloadMs: 0 },
+  ];
+  const opts = { locations: loadStudentDataMap(), seed: {}, users: {}, maxTotalFileBytes: 15 };
+
+  const a = await makeInstrumented({ ...opts, files: files(true) }).service.exportAccount(UID);
+  const b = await makeInstrumented({ ...opts, files: files(false) }).service.exportAccount(UID);
+
+  const rowOf = (r) => r.locations.find((x) => x.kind === 'storage-prefix');
+  const omittedOf = (r) => rowOf(r).records.filter((x) => x.data.contentOmitted).map((x) => x.path);
+
+  // CONTROL: the cap must actually have bitten, or "identical" proves nothing.
+  assert.ok(omittedOf(a).length > 0, 'control failed: the total cap never fired');
+  assert.deepEqual(
+    omittedOf(a),
+    omittedOf(b),
+    'the omitted file changed when the download timings changed — the cap is completion-order dependent'
+  );
+  assert.deepEqual(
+    rowOf(a).records.map((x) => x.path),
+    rowOf(b).records.map((x) => x.path),
+    'the file listing order changed with download timing'
+  );
+  assert.deepEqual(rowOf(a).omissions, rowOf(b).omissions, 'the disclosures changed with download timing');
+});
+
+test('★ the images still download CONCURRENTLY', async () => {
+  const { service, stats } = makeInstrumented({
+    locations: loadStudentDataMap(),
+    seed: {},
+    users: {},
+    files: Array.from({ length: 10 }, (_, i) => ({
+      name: `qr-uploads/${UID}/f${i}.jpg`,
+      body: `image-${i}`,
+      downloadMs: 15,
+    })),
+  });
+  const result = await service.exportAccount(UID);
+  assert.equal(result.locations.find((r) => r.kind === 'storage-prefix').recordCount, 10);
+  assert.ok(stats.maxInFlight > 1, 'the handwriting photos are still downloaded one at a time');
+});
+
+/* ── the pool itself ──────────────────────────────────────────────────────────── */
+
+test('mapWithConcurrency preserves input order and respects its limit', async () => {
+  let inFlight = 0;
+  let peak = 0;
+  const items = Array.from({ length: 25 }, (_, i) => i);
+  const out = await mapWithConcurrency(items, 4, async (n) => {
+    inFlight += 1;
+    peak = Math.max(peak, inFlight);
+    await new Promise((r) => setTimeout(r, n % 3));
+    inFlight -= 1;
+    return n * 2;
+  });
+  assert.deepEqual(out, items.map((n) => n * 2), 'results came back out of order');
+  assert.ok(peak > 1, 'control failed: nothing overlapped, so the limit was never exercised');
+  assert.ok(peak <= 4, `the limit was exceeded: ${peak} in flight`);
+  assert.deepEqual(await mapWithConcurrency([], 4, async () => 1), [], 'an empty input must not hang');
 });

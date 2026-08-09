@@ -191,6 +191,38 @@ const NOT_LIVE_MESSAGE =
   "us and we will do it for you.";
 
 /**
+ * ★★ A 5xx IS NOT "NOT BUILT" — IT IS BUILT AND HAVING A BAD DAY.
+ *
+ * `[FU-EXPORT-502-READS-AS-NOT-BUILT]`. A slow export used to reach a student as
+ * `NOT_LIVE_MESSAGE` — "This is not switched on yet" — because a gateway 502/504 from
+ * the platform edge is an HTML page, so `readJsonEnvelope` returns `parsed: null` and
+ * the undeployed-route guard claimed it. On a legally-required DPDP flow, telling a
+ * child the feature does not exist is the wrong side to err on: it invites them to stop
+ * asking. The reassurance a student actually needs — NOTHING WAS CHANGED — is kept.
+ */
+const SERVER_TROUBLE_MESSAGE =
+  "Something went wrong at our end. Nothing was changed and your data is safe. Please " +
+  "try again in a few minutes, or email us and we will do it for you.";
+
+/**
+ * ★ How long the browser waits for an export before giving up ON PURPOSE.
+ *
+ * `[FU-EXPORT-FETCH-NO-TIMEOUT]`. `fetch` has no default timeout, so when the upstream
+ * abandoned the request the promise simply never settled: the button stayed in its
+ * working state forever. `AccountDataControls.tsx` is CORRECT — its `setExportBusy(false)`
+ * runs unconditionally after the await; the await never returned.
+ *
+ * ★ It must sit ABOVE the server's own budget (`LT_EXPORT_BUDGET_MS`, 45s) — otherwise
+ * the client would abandon a run the server was about to answer honestly with a 207 —
+ * and BELOW the ~120s at which the production edge gave up.
+ */
+export const EXPORT_TIMEOUT_MS = 90_000;
+
+const EXPORT_TIMEOUT_MESSAGE =
+  "This took too long, so we stopped waiting. Nothing was changed and your data is " +
+  "safe. Please try again in a few minutes, or email us and we will send your file to you.";
+
+/**
  * Bearer headers for an owner-scoped account route. Throws when identity is unavailable
  * — see the fail-closed note in the file header.
  */
@@ -231,6 +263,13 @@ function classifyFailure(res: Response, parsed: Record<string, unknown> | null):
           ? String(parsed.error)
           : "This is unavailable right now. Nothing was changed.",
     };
+  }
+  // ★ Every other 5xx. Deliberately NOT surfacing `parsed.error`: a gateway answers
+  // 502 with "AI Gateway unavailable", which is a sentence for an engineer reading a
+  // log, not for a 15-year-old who asked for their data. 503 above keeps its own body
+  // because the export route writes student-facing copy there on purpose.
+  if (res.status >= 500) {
+    return { status: "unavailable", message: SERVER_TROUBLE_MESSAGE };
   }
   return {
     status: "error",
@@ -292,8 +331,19 @@ export async function eraseMyAccountOnServer(): Promise<AccountActionOutcome> {
 
   // ★ The undeployed-route guard. A JSON body carrying a boolean `ok` is the only
   // evidence the real handler ran; the SPA shell has neither.
+  //
+  // ★ SAME 5xx CORRECTION AS THE EXPORT PATH, because the defect is the file's, not the
+  // export's: an HTML gateway error page reaches here as `parsed: null` too, and this
+  // branch would call a struggling erasure route "not switched on yet".
+  //
+  // ★★ AND DELIBERATELY NO TIMEOUT ON THIS ONE. Erasure is DESTRUCTIVE and the server
+  // keeps going after a client gives up, so a timeout here would report "nothing was
+  // changed" over a deletion that is still running — the fake-certainty failure this
+  // surface exists to avoid. The export is safe to abandon; this is not.
   if (!parsed || typeof parsed.ok !== "boolean") {
-    return { status: "unavailable", message: NOT_LIVE_MESSAGE };
+    return res.status >= 500
+      ? { status: "unavailable", message: SERVER_TROUBLE_MESSAGE }
+      : { status: "unavailable", message: NOT_LIVE_MESSAGE };
   }
 
   if (parsed.ok === true && res.status === 200) {
@@ -331,7 +381,10 @@ export type ExportOutcome =
   | { status: "rate-limited"; message: string }
   | { status: "error"; message: string };
 
-export async function downloadMyDataFromServer(now: Date = new Date()): Promise<ExportOutcome> {
+export async function downloadMyDataFromServer(
+  now: Date = new Date(),
+  timeoutMs: number = EXPORT_TIMEOUT_MS
+): Promise<ExportOutcome> {
   let headers: Record<string, string>;
   try {
     headers = await ownerAuthHeaders();
@@ -342,17 +395,47 @@ export async function downloadMyDataFromServer(now: Date = new Date()): Promise<
     };
   }
 
+  // ★ The timeout is the caller's only defence against an upstream that abandons the
+  // request without answering. Without it the promise never settles — see EXPORT_TIMEOUT_MS.
+  const controller = typeof AbortController === "function" ? new AbortController() : null;
+  let timedOut = false;
+  const timer =
+    controller && timeoutMs > 0
+      ? setTimeout(() => {
+          timedOut = true;
+          controller.abort();
+        }, timeoutMs)
+      : null;
+
   let res: Response;
   try {
-    res = await fetch(ACCOUNT_EXPORT_ENDPOINT, { method: "GET", headers });
+    res = await fetch(ACCOUNT_EXPORT_ENDPOINT, {
+      method: "GET",
+      headers,
+      ...(controller ? { signal: controller.signal } : {}),
+    });
   } catch {
-    return { status: "error", message: "We could not reach the server. Nothing was downloaded." };
+    // ★ An abort we asked for is a TIMEOUT and says so; anything else is a real network
+    // failure. Reporting both as "could not reach the server" would hide the one this
+    // lane exists to make visible.
+    return timedOut
+      ? { status: "unavailable", message: EXPORT_TIMEOUT_MESSAGE }
+      : { status: "error", message: "We could not reach the server. Nothing was downloaded." };
+  } finally {
+    if (timer !== null) clearTimeout(timer);
   }
 
   const { parsed, raw } = await readJsonEnvelope(res);
 
   if (!parsed) {
-    return { status: "unavailable", message: NOT_LIVE_MESSAGE };
+    // ★★ THE PRODUCTION SHAPE OF THIS LANE'S DEFECT. A platform edge answers a timed-out
+    // or crashed upstream with an HTML error page, so `parsed` is null and the
+    // undeployed-route guard below used to claim it — reporting a slow-but-working
+    // export as "not switched on yet". The guard is kept for what it is actually for: a
+    // 200 carrying the SPA shell, which is what an undeployed route really looks like.
+    return res.status >= 500
+      ? { status: "unavailable", message: SERVER_TROUBLE_MESSAGE }
+      : { status: "unavailable", message: NOT_LIVE_MESSAGE };
   }
 
   if (res.status !== 200 && res.status !== 207) {
