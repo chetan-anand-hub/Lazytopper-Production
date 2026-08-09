@@ -22,15 +22,25 @@
  * set-differenced against each other:
  *   1. every `collection()`/`doc()` call site in `src/**` and `server/**`
  *   2. every `match /<name>/{uid}` block in `firestore.rules`
- * (1) minus (2) found `users` and `qrUploadSlots`. (2) minus (1) was EMPTY — which is
- * the CONTROL: the code scan demonstrably finds every collection the rules file knows
- * about, so its extra two are real findings and not scan noise.
+ * (1) minus (2) originally found `users` and `qrUploadSlots`. (2) minus (1) was EMPTY —
+ * which is the CONTROL: the code scan demonstrably finds every collection the rules file
+ * knows about, so its extras are real findings and not scan noise.
+ *
+ * ★ (1) minus (2) is now just `qrUploadSlots`, because USERS-1 removed the product's only
+ * `users` write (see that entry's notes). `users` REMAINS mapped below — the map is the
+ * set of places a child's data COULD live, not the set the code currently writes.
  *
  * ★ LIMITS — deliberately NOT built here, because a half-working deletion is worse
  * than none:
- *   - No erasure is performed. Three of the locations below are provably unreachable
- *     from a browser (`adminSdkRequired: true`), so a client-side deletion would report
- *     success while leaving a child's identity, subscription and handwriting behind.
+ *   - No erasure is performed. FIVE of the locations below are provably unreachable
+ *     from a browser (`mechanism: "admin-sdk-required"` — `auth-account`, `users`,
+ *     `subscriptions`, `qrUploadSlots`, `storage.qr-uploads`), so a client-side deletion
+ *     would report success while leaving a child's identity, subscription and
+ *     handwriting behind.
+ *     ★ Re-derive this count from `mechanism` before citing it; there is no
+ *     `adminSdkRequired` field, and an earlier version of this comment said "Three"
+ *     and named exactly that non-existent field. Use `adminOnlyLocations()`.
+ *     [FU-DPDP-MAP-HEADER-COUNT-DRIFT, closed by USERS-1]
  *   - Registering an admin-credential route needs `server/index.cjs`; a settings screen
  *     needs `src/pages/**` + `App.tsx`. Both were outside DPDP-1's allowlist.
  */
@@ -100,12 +110,24 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
     mechanism: "admin-sdk-required",
     exportable: true,
     notes:
-      "★★ NOT DECLARED in firestore.rules — it falls through to the deny-all " +
-      "`match /{document=**}` catch-all. learnerAccountService.ensureLearnerAccountMetadata " +
-      "writes it from the browser inside a try/catch that swallows the error, so the write " +
-      "is a SILENT NO-OP against the committed rules. Whether prod holds data here depends " +
-      "on the DEPLOYED rules and must be checked live before erasure is trusted. " +
-      "See [FU-DPDP-USERS-COLLECTION-UNDECLARED].",
+      "★★ NOTHING IN THE PRODUCT WRITES THIS ANY MORE, AND THE ENTRY STAYS ANYWAY. " +
+      "learnerAccountService.ensureLearnerAccountMetadata mirrored the child's direct " +
+      "identifiers here on every login from PR #78 (0addba3f, 2026-05-16) until USERS-1 " +
+      "removed it. It NEVER ONCE SUCCEEDED: `users` has never been declared in " +
+      "firestore.rules in the repo's entire history, so it fell through to the deny-all " +
+      "`match /{document=**}` catch-all; the read preceding the write was denied and threw, " +
+      "an empty catch and the caller's Promise.allSettled swallowed it twice, and the write " +
+      "was never issued. Nothing was ever built to read it. Owner confirmed in the Firebase " +
+      "Console that no `users` collection exists. " +
+      "★★ KEPT LISTED DELIBERATELY (owner ruling, pinned by studentDataMap.test.ts): " +
+      "de-listing is the one move that could make a future erasure LIE about its coverage, " +
+      "whereas erasing a path that was never written is a harmless no-op. The committed " +
+      "rules are not the DEPLOYED rules, so an erasure must still sweep this path and must " +
+      "not treat its absence from the code as proof prod is empty. " +
+      "★★ DO NOT re-enable by adding a `users` rules block — every field it carried already " +
+      "lives in the `auth-account` entry above, so it would only create a SECOND copy of a " +
+      "child's identity to erase. See [FU-DPDP-USERS-COLLECTION-UNDECLARED] (closed by " +
+      "USERS-1) and [FU-DPDP-USERS-WRITE-DEAD-BOTH-DIRECTIONS].",
   },
 
   // ── Firestore: learner profile tree ──────────────────────────────────────────────

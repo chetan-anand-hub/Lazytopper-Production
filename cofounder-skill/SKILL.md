@@ -233,6 +233,106 @@ anti-fabrication holds) were right. So the cure is mechanical, not "try harder":
     wrong — the FU's, and the spec that superseded it (which said "derive from the full-screen overlay landscape",
     pointing at ~1100) — before anyone measured.
 
+## ★★ EVIDENCE THAT CANNOT BE RE-CHECKED (2026-08-09, Wave ME-A — three species: a hash with no recipe, a gate that inspected nothing, and a carried-forward claim nobody re-derived)
+**All three passed as evidence. None was.** Same shape as the GREEN-BOARD TRAP above, one layer in: there the
+signal described a world that had moved; here the signal is **unfalsifiable by anyone but its author** — or, in the
+third case, falsifiable in one command that nobody ran.
+
+- **★★ A HASH WITHOUT ITS RECIPE IS NOT EVIDENCE.** A hash quoted as proof, **without the serialization recipe
+  that produced it, is a derived value no later lane can re-check — the same class of defect as a bare line
+  number** (see LINE REFERENCES ARE DERIVED VALUES). **The instance:** an HPQ pin was reported as proven by
+  `md5 aa58d9fd…`; the recipe was never recorded, and **five reconstruction attempts all produced different
+  hashes**. ⭐ **The conclusion was still TRUE** — identity was provable against the frozen 140-row on-disk
+  literal in `cbse5SignalScoring.hpqPin.test.ts`, which is the artefact that actually gates — **but the evidence
+  given for it could not be checked by anyone else.**
+  - ➜ **Cite the artefact that GATES, or record the exact recipe beside the hash.** A hash over an artefact CI
+    already pins is re-derivable by anyone; a hash over an ad-hoc in-memory serialization is re-derivable by nobody.
+  - ➜ ★★ **And when this happens: KEEP THE CONCLUSION AND WITHDRAW THE EVIDENCE, EXPLICITLY.** Do not quietly
+    substitute better proof. **A correct outcome resting on a false premise still poisons the record, because the
+    premise is what the next lane inherits** — and it travels further than the change did.
+
+- **★★ `scope:guard` IS VACUOUS ON AN UPDATE-ONLY LANE — a NEW silent-no-op class.** `scope:guard` reads only
+  **staged / unstaged / untracked** files and has **no base-ref mode**. A lane that merely merges trunk into an
+  existing branch — a **refresh, merge-only or rebase-only** lane — **authors no working-tree change**, so the
+  guard reports `inspected=0` and **exits green**. ⚠ **That green is indistinguishable from a real pass**, and
+  reporting it as one is a silent no-op: **a gate that runs, reports, and inspects nothing.** (Compare A GUARD'S
+  WORKING DIRECTORY IS PART OF ITS BLAST RADIUS — same failure, different cause.)
+  - ➜ **REMEDY, proven in Wave ME-A:** reproduce the authoring condition in a **throwaway worktree at trunk** and
+    re-run the guard there. The refresh lane got **`inspected=5 untracked=4` — exactly the original lane's figures.**
+  - ➜ **Every refresh / merge-only / rebase-only lane must state WHICH invocation it ran** — the vacuous one or the
+    reconstructed one. **An unqualified `scope:guard ✓` from such a lane is not evidence.**
+
+- **★★ A CARRY-FORWARD INSTRUCTION IS ITSELF A CLAIM ABOUT THE REPO — AND IT ROTS LIKE ANY OTHER.** A block marked
+  *CARRY FORWARD VERBATIM* survives by being **copied, not re-derived**. That is the point of it, and it is also the
+  failure: **`CARRY FORWARD VERBATIM` must never mean `CARRY FORWARD UNCHECKED`.** **The instance:** a "three dormant
+  capabilities await `WIRE-2`" block (`#578`, `#611`, `#617`) was carried across several waves and restated as a
+  requirement in a new `[CURRENT]`, a cross-arc signal file, a controller state file and a dispatched brief.
+  **`WIRE-2` had already shipped as `#621` (`d03550e`) and ended all three** — `gradeQuickPracticeBatch` is imported
+  at `PracticePage.tsx:485` and **invoked** at `:2223`. The commit was sitting in the controller's own first
+  trunk-log read of the session. **Only one capability was actually dormant.**
+  - ➜ **Re-verify every carried-forward claim against trunk at the moment you carry it**, exactly as you would
+    re-derive a line number or a test count. The verbatim marker protects the *wording*; it guarantees nothing about
+    the *truth*.
+  - ➜ ⚠ **And when the claim turns out to be stale, chase every place the amplified version landed** — the repo, the
+    state file, cross-arc signals, dispatched briefs, memory. **A retracted finding left in the repo is still a live
+    instruction.**
+  - ➜ ⭐ **The owner's note on this one:** *"I told you to carry the dormancy block forward verbatim, and verbatim is
+    what preserved the staleness."* **The instruction was the vector.**
+
+## ★★★ ONLY A BOOT PROVES IT RUNS (2026-08-09, Wave DPDP-A — the missing rung, plus two rules about what evidence is NOT)
+
+⚠ **`[FU-DOCS-STANDING-RULES-TWO-HOMES]` applies to all three entries below.** The owner's boundary is
+that `ops/AGENT_STANDING_RULES.md` is what **AGENTS** read and this file is what the **COFOUNDER** reads,
+and **no rule is written in both.** All three are arguably agent-facing execution rules — especially the
+false-RED one — **but `ops/AGENT_STANDING_RULES.md` DOES NOT EXIST ON TRUNK** (`#635` is open and failing
+its repo-boundary check), so this is the only home that exists today. ➜ **They are candidates to MIGRATE —
+not copy — once `#635` lands.** Recorded because the failure mode is the one the ruling exists to prevent:
+**a rule living in the file its audience does not read.**
+
+- **★★★ THE EVIDENCE LADDER GAINS A RUNG: A TEST PROVES THE CODE WORKS. A BUILD CHUNK PROVES IT SHIPS.
+  ONLY A BOOT PROVES IT RUNS.** Named beneath `MOUNT ≠ LIVE`, one level lower than this project had ever
+  gone: **RESOLVES-IN-DEV ≠ RESOLVES-IN-THE-DEPLOYED-IMAGE.**
+  - **The instance:** `#638` shipped a server route that imports a `.ts` data map at runtime. Its deployment
+    **crashed on boot** — `Cannot find package 'tsx' imported from /app/lazytopper/` — and Railway rolled it
+    back, so production kept serving the previous build. `tsx` was declared in one workspace package and
+    never in the gateway; **pnpm workspaces isolate dependencies per package.**
+  - ★★ **THE PART THAT GENERALISES IS NOT THE BUG.** This was **not** a lane that skipped its proof. A scout
+    flagged the premise as *inference, not an executed import*; the controller **promoted it to
+    lane-blocking**; the lane ran it and reported `MAP IMPORT IN SERVER PROCESS: EXECUTED PASS` — **and that
+    report was true.** It executed in a **dev worktree**, where every workspace dependency resolves.
+  - ➜ ★★ **MAKING A PROOF MANDATORY IS NOT ENOUGH — THE BRIEF NEVER SAID WHERE IT HAD TO RUN.** *A
+    lane-blocking proof executed in the wrong environment reads exactly like a met requirement*, and nothing
+    downstream can tell the two apart.
+  - ➜ **OPERATIONAL FORM, ATTACH IT TO THE BRIEF: any lane that adds a runtime import to a server must state
+    WHICH IMAGE it executed in.** An `EXECUTED PASS` is scoped to the environment that executed it.
+  - ➜ **And the acceptance test for the fix is a SUCCESSFUL BOOT, not a green suite.** No gate in this
+    repository can produce that evidence — which is the whole reason the rung was missing.
+
+- **★★ THE ALERT LIST IS NOT THE SET.** CodeQL flagged **4 of the 6** `setItem` calls in
+  `referralService.ts`. **Anyone remediating from the alert list covers four, believes they are done, and
+  ships.** The guard that landed audits all six, because it enumerated the set **from the file** rather than
+  from the tool's output.
+  - ➜ **Generalises to every scanner this project uses** — CodeQL, Dependabot, lint, the ops matrices.
+    **A scanner reports what its rules match, which is never the same claim as "here is the set."**
+  - ➜ **It recurred the same day, in the same file:** `Math.random()` in a **user-facing** referral code — a
+    flat `CLAUDE.md` §7 violation — sits on trunk **unflagged by anything.**
+  - ➜ **Same family as *a zero from something nobody proved can fire*.** When a tool returns N, the question
+    is not "are these N real" but **"what is N a count OF."**
+
+- **★★ A RULE AGAINST FALSE REDS — the inverse defence this project never had.** A year of rules against
+  false GREENS, and nothing against the mirror image: a mutation harness `execFileSync`-ing the
+  **extensionless `.bin/vitest`** returned `ENOENT`, **which reads exactly like a failing test. Five false
+  reds** were recorded as evidence before anyone looked.
+  - ➜ **THE FAILURE MUST QUOTE THE INJECTED VALUE.** If the red does not contain the thing you injected, it
+    is not evidence about your mutation.
+  - ➜ **Plus a pre-mutation GREEN and a did-it-actually-run assertion**, and the existing
+    `mutated-sha ≠ baseline-sha` precondition to prove the mutation LANDED.
+  - ➜ ★ **A mutation that "fails" for a reason unrelated to the mutation is as worthless as one that never
+    landed** — and it is more dangerous, because it *looks* like the strongest evidence a lane can produce.
+  - ⚠ **Corollary seen the same wave: a suite that fails to COLLECT looks nothing like a suite that fails an
+    ASSERTION, and only one of them is evidence.** A `vi.mock` TDZ fault degraded a mutation run into a
+    collection error that a green tree had hidden.
+
 ## HARD-WON RULES (the 2026-06 grader saga — each cost real, avoidable turns)
 - **A shared FILE is not a shared FUNCTION.** When touching shared infra, grep ALL implementations and call-sites of that behavior and fix + test them in ONE PR. Honor any in-file "keep in sync" comment. *(The grader fix patched one of two grading functions, passed every gate, and shipped a half-fix that only live-verify caught.)*
 - **Test the real path with adversarial data, not a convenient mock.** Drive the actual code path the surface uses; feed the data shape production really produces; include the case where the model fights the rule. A green test against a non-representative mock is false confidence.
@@ -327,6 +427,21 @@ Read the relevant appendix before that kind of work; do not rely on memory for b
 - Build: `pnpm run build` · Verifier: `node scripts/verify-production-build.mjs`.
 - Root matrix: `cd scripts && pnpm run test:matrix:all` (counts GROW — report the real number, never hardcode).
 - Ops matrix: `pnpm run test:matrix:all` (in lazytopper). Mojibake: `pnpm run check:mojibake`. Git: `git diff --check`.
+- **Scope guard: `cd lazytopper && pnpm run scope:guard --mode <product|mixed|docs>`** — modes: `product` ·
+  `mixed` (product+scripts; does **NOT** allow docs) · `docs` (handoff-only lanes) · bare = auto-detect.
+  ⚠ **Run it BEFORE `git add`** — it reads the WORKING TREE and goes vacuous once committed. **Local only; it is
+  deliberately NOT in CI**, because a clean CI checkout has nothing for it to classify (a false PASS).
+  ⚠ **On a refresh / merge-only / rebase-only lane it inspects NOTHING and still exits green** — see
+  EVIDENCE THAT CANNOT BE RE-CHECKED above for the remedy and the reporting requirement.
+- **`check:mojibake` treats `handoff/` as REPORT-ONLY** (`REPORT_ONLY_PREFIXES = ['handoff/']`): hits there are
+  counted and printed on every run but **never fail the build** — deliberately, because a handful of lines in
+  `handoff/` are mojibake specimens quoted inside lessons *about* mojibake. ⚠ **So a green `check:mojibake` is NO
+  evidence a handoff file is clean.** On any docs PR touching `handoff/`, scan your own added lines with the
+  scanner's own regex **and inject a mojibake sequence into one of them to prove the matcher can fire on that
+  exact input** — a zero from a matcher nobody proved can fire is indistinguishable from a dead matcher.
+  *(The older wording "the gate sets `repoRoot` to `lazytopper/` and is structurally blind to `handoff/`" is
+  STALE — GUARD-3 moved `repoRoot` to `git rev-parse --show-toplevel`. The conclusion is unchanged; the mechanism
+  is not.)*
 - Vitest: **a REQUIRED CI gate** — `quality-gate.yml` runs `pnpm --filter lazytopper exec vitest run` on every PR,
   and a red suite fails CI. Locally it is **linux-pinned** (`pnpm-workspace.yaml` strips the non-linux rollup
   binary), so a Codespace is the reliable way to run it by hand; plain-Node diagnostics (no vitest) can run on

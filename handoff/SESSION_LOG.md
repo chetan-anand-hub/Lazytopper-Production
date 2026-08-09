@@ -1,5 +1,298 @@
 ---
 
+## 2026-08-09 — WAVE DPDP-A CLOSED: #640 · #639 · #638 — the erasure a student can trigger, and the build that cannot boot — trunk `6f7da56e`
+
+**`2026-08-09`** · three lanes + two read-only scouts, controller + subagent model.
+
+> ## 🛑🛑 **`#638` IS MERGED AND CANNOT DEPLOY. Production is serving the `#639` build.** The `#638` deployment crashed on boot — `Cannot find package 'tsx' imported from /app/lazytopper/` — and Railway rolled it back. **ERASE-1's live-verify is MOOT, not pending.**
+
+> ## ★★★ **A test proves the code works. A build chunk proves it ships. ONLY A BOOT PROVES IT RUNS.**
+
+**What landed, verified on trunk by content (this repo squash-merges):**
+
+```
+c9445a1e  CLEARTEXT-1  prove only the uid reaches the nine localStorage sinks   #640
+6ef083b5  USERS-1      a login no longer writes a child's identity to a dead
+                       collection                                              #639
+6f7da56e  ERASE-1      a student can erase their own account, and a zero-match
+                       delete says so                                          #638
+```
+
+Quality Gate on trunk `6f7da56e`: run `31285980321` **PASS**. Per-lane CI, each on its own head:
+`#638` run `31263073127` @ `c359744c`; `#639` runs `31263327480` / `31263327461` / `31263327502`
+@ `3d5e5a93`; `#640` run `31264700568` @ `b88cba42`. **All PASS, zero skipped** — `#638` quoted both
+ways (root matrix `# suites 29 # pass 196 # fail 0 # skipped 0 # todo 0`; vitest
+`Test Files 120 passed (120) / Tests 1534 passed (1534)`), `#639` `Test Files 122 passed (122) /
+Tests 1546 passed (1546)`, `#640` `Test Files 125 passed (125) / Tests 1555 passed (1555)` with all
+five `uidOnly` suites **named individually in the CI log** — the difference between *the suite
+exists* and *the suite ran*.
+
+### The three lanes
+
+- **`#638` ERASE-1** — an authenticated, owner-scoped server route that walks all 29 locations of
+  `studentDataMap.ts`, deletes the 11 subcollections **explicitly** because Firestore does not
+  cascade, uses admin credentials for the five locations that require them **including the
+  handwriting images in Storage**, and reports Gemini (unreachable) and browser `localStorage` (no
+  server can reach it) **as not deleted rather than implying success.** Every location returns
+  `deleted:N` **or** `notFound`, and the caller distinguishes them. Route + service on trunk at
+  `lazytopper/server/routes/accountErasure.cjs` and `lazytopper/server/services/accountErasure.cjs`.
+  ⚠ **Allowlist breach, ACCEPTED and flagged rather than hidden:** `lazytopper/package.json`, 3
+  lines — `ci_docs_lane a15` enumerates `server/**/*.test.cjs` **from disk** and fails any unwired
+  suite, so omitting it meant **red CI *and* a suite gated by nothing.** Wiring count 9 → 11. The
+  owner byte-reviewed and approved; the change is **scripts-only, so no lockfile update was owed.**
+  ⚠ `scope:guard --mode product` **cannot** pass that PR; `--mode mixed` is correct and passed.
+- **`#639` USERS-1** — deletes the dead login-time write of a child's identity into a `users`
+  collection that **has never appeared in `firestore.rules` in the repo's entire history**
+  (`git log -S` empty; only the deny-all catch-all matches `users/{uid}`). 6 files, all in
+  allowlist, **verified locally AND against the remote PR** — the reconciliation `CLAUDE.md` §8 has
+  never had a gate for. `users` **stays declared** in the map; the drift guard's exact `toEqual` was
+  **kept, not loosened**, so re-adding a write turns it red.
+- **`#640` CLEARTEXT-1** — five new `*.uidOnly.test.ts` guards sitting **beside** each storage call,
+  pinning that only the uid reaches the nine `localStorage` sinks. **Zero production-code change**,
+  all five `.ts` byte-identical to trunk by `git hash-object`. Confirmed **on the WRITTEN BYTES at
+  runtime**, not on source text; 9 of 9 sinks driven through a real exported path.
+
+### ★★ What each lane disproved — every one of them disproved a premise of its own dispatching document
+
+- **SCOUT-1:** *"pick which server surface is live"* was a **false dichotomy** — both are live in one
+  process tree; `artifacts/api-server/dist/index.mjs` **spawns** `lazytopper/server/index.cjs`.
+  **`artifacts/` is the deploy entrypoint, not a De-Replit archive.**
+- **SCOUT-2:** the `users` write is not *"silently denied"* — **it is never issued**; the preceding
+  `getDoc` is denied first and throws, and two layers swallow it. Also: **all 9 CodeQL
+  `clear-text-storage` alerts are false positives** (analysis `1589869170` @ `6c94d8f`, the analysed
+  commit **is** trunk, so the set was current, not carried).
+- **ERASE-1** disproved **its own first classifier** — a nested path with no `{uid}` was being
+  field-queried, a silent miss found only because the brief said *audit all 29, do not spot-check*.
+- **USERS-1's mutation stayed GREEN** and that was a **real hole in the drift guard**:
+  `doc(firestoreDb!, …)` evaded its pattern. Fixed by making the scanner a **pure function with
+  fixture tests that prove REJECTION**, not merely acceptance.
+- **CLEARTEXT-1 disproved the CONTROLLER'S OWN §0 amendment** — `#637` does not collide — and proved
+  it **by swapping in `#637`'s real file blob** (`56c262bb`) → guard GREEN `4 passed (4)` → restored.
+- **The OWNER disproved SCOUT-1 on `resolveVerifiedUid`**, which made ERASE-1 **smaller**: it is
+  already fail-closed and never reads a header. The fail-open is in the **callers**.
+
+### ⭐ The check `#642` asked this close-out to make — answered by blob identity
+
+`#642` flagged that `#640` merged **after** `#637` and must be re-checked **against** it. **Already
+done, and exactly:** the blob CLEARTEXT-1 swapped in was `56c262bb`, and
+`origin/base/approved-thru-437:lazytopper/src/services/mistakeIntelligence.ts` on trunk is
+**`56c262bb1e742b8c96c6997f56b505442d1166b0`** — byte-identical. The merge introduced no third
+version. ⭐ **`#642` was right to demand it; the answer is cheap only because CLEARTEXT-1 tested the
+artefact rather than a description of it.**
+
+### Findings that outlive the wave
+
+- ★★ **THE ALERT LIST IS NOT THE SET.** CodeQL flagged **4 of the 6** `setItem` calls in
+  `referralService.ts`. Anyone remediating from the alert list covers four, believes they are done,
+  and ships. **It recurred the same day:** `Math.random()` in a **user-facing** referral code
+  (`referralService.generateCode()`, a `CLAUDE.md` §7 violation) sits on trunk **unflagged**.
+- ★★ **A RULE AGAINST FALSE REDS.** CLEARTEXT-1's own first mutation harness produced **five false
+  reds** — `execFileSync` on the extensionless `.bin/vitest` returned `ENOENT`, which reads exactly
+  like a failing test. Caught by **requiring the failure to QUOTE THE INJECTED VALUE**, then rebuilt
+  with a pre-mutation green and a did-it-actually-run assertion. **A mutation that "fails" for a
+  reason unrelated to the mutation is as worthless as one that never landed.**
+- ⚠ **Two ERASE-1 mutations were ABORTED as unapplied** by the `mutated-sha != baseline-sha`
+  precondition — which is exactly why that precondition exists.
+- ⚠ **ERASE-1 reported the brief's mutation-4 recipe was wrong as written** — it went red for the
+  wrong reason (a call-shape assertion fired first), so it split the test to make the red *be* the
+  zero match. **The rule "check a red is red for the reason you claimed" applied to the controller's
+  own brief.**
+- ⚠ **`[FU-DEPENDABOT-BLOCKS-RAILWAY-DEPLOY]` — six Dependabot jobs are FAILING on trunk** (`re2`,
+  `dompurify`, `nanoid`, `js-yaml`, `react-router`, `hono`), and Railway gates on the branch check
+  suite ⇒ **a bot failure blocks every production deploy**, visible only as a **"Skipped" badge**.
+  ★★ **Same root cause as the `tsx` blocker:** the repo uses **pnpm catalogs** and Dependabot's
+  `npm_and_yarn` updater cannot resolve the `catalog:` protocol. **Fix them as one lane.**
+- 🛑🛑 **`[FU-DPDP-GUARDIAN-CHANNEL-LEGAL]` — ESCALATE.** India's DPDP Act treats data of **anyone
+  under 18** as a child's data requiring **verifiable parental consent to PROCESS it**, and **every
+  LazyTopper student is in that class.** ⇒ **This potentially reaches SIGNUP ITSELF, not just
+  deletion.** No one here is a lawyer. **A launch blocker requiring legal advice.**
+
+### Corrections this entry makes to the record
+
+- **`check:mojibake` is NOT structurally blind to `handoff/`.** `GUARD-3` (`#571`) set `repoRoot`
+  from `git rev-parse --show-toplevel`; `handoff/` **is scanned** and is **REPORT-ONLY** — hits
+  counted and printed on the `MOJIBAKE_REPORT_ONLY:` line, never failing the build. The pass is
+  still not enforcement evidence for these files, **but the reason is scoping, not blindness.**
+- **`CLAUDE.md` §6 still claims "SIX suites / 190 checks"; it reports 196 / 29.** Present on trunk
+  at line 132; `#642` edited `CLAUDE.md` without fixing it. Logged, not edited — out of allowlist.
+- **`ops/AGENT_STANDING_RULES.md` is not on trunk** (`#635` open, failing its repo-boundary check),
+  so `cofounder-skill/SKILL.md` is the only home that exists. Three findings written there.
+
+---
+
+## 2026-08-09 — WAVE ME-A CLOSED: #634 · #641 · #637 · #636, plus the four commits that were already unrecorded (#629 · #630 · #632 · #631 · #633) — trunk `e8f89863`
+
+**`2026-08-08T23:31:55Z UTC / 2026-08-09 05:01 IST`**
+
+> ## ★★ **Four lanes, and every one of them disproved part of its own spec. Four premises fell — including one the CONTROLLER wrote itself — and not one would have been caught by building what the spec said.**
+
+**`handoff/` was NINE commits stale.** Last handoff was `#628` at `9f78ebc1`. This entry covers all
+nine, re-derived with `git log 9f78ebc1..origin/base/approved-thru-437 --oneline`:
+
+```
+e0ed7588  FENCE-1         #629     a0c9c50b  DPDP-1          #630
+7786878d  premise-ledger  #632     6c94d8f0  ME-PROGRESS     #631
+8d813a41  DOCS/archives   #633     55d5ee19  MARKS-1         #634
+1b50b4fd  OPS-LIFT-1      #641     92cc9fc4  MI-CONCEPT-1    #637
+e8f89863  TRENDS-MARKS-1  #636
+```
+
+### The four ME-A lanes
+
+- **`#634` MARKS-1** (2 files, +483/−4) — `RungTrend` now carries the raw `marksScored` /
+  `marksAvailable` the engine was **already computing at `marksPercentOf` and throwing away**.
+  Percentages and point-counts untouched. **Without it the new `/me` could only speak in
+  percentages.** ⚠ **The fields had to be OPTIONAL, not by preference but by necessity** —
+  `buildMistakeTypeRung` is a composition *share* with no marks denominator, so a required field
+  would force a fabricated *"0 of 0 marks"*; and two files outside the allowlist build full
+  `RungTrend` literals, which would have been **green locally and RED in CI**.
+- **`#641` OPS-LIFT-1** (2 files, +740/−6) — the blanket *"this file may not change"* freeze on
+  `mistakeIntelligence.ts` became **five contract tests pinning what the ban actually protected**.
+  ★★ **The protection is stronger than the freeze, because a freeze can only say *no*, never *what
+  for*.** It also **proved in advance that `#637` would go green as-is once lifted** — by running
+  both guards against `#637`'s head — and that prediction held: `#641` landed first and `#637`
+  needed **zero rework**.
+  ⚠ **What it disproved:** that amending the two lists was the whole job. The guard's **summary
+  footer carried a stale count** a two-list fix would have left printing a false statement on **every
+  green run**; and the existing `COLLECTED` checks assert `.test.tsx`, so copying that line for a
+  `.test.ts` service suite **would have passed while collecting nothing.**
+- **`#637` MI-CONCEPT-1** (9 files, +524) — every mistake logged from a bank question now records
+  **which concept** and **which question**. ✅ **OWNER LIVE-VERIFIED IN PRODUCTION, BOTH
+  DIRECTIONS:** a bank question logged `concept: "Ammeter Properties"` /
+  `questionId: "ELEC-EXMPLR-11-SA-003"` with `mistakeType: "conceptual"`; a Check & Improve
+  free-typed answer logged **neither** and saved cleanly. ★ **The second direction is the
+  load-bearing one** — without it, "concept is recorded" is indistinguishable from "concept is
+  fabricated for everything".
+- **`#636` TRENDS-MARKS-1** (5 files, +997/−42) — one shared appearance-per-subtopic-per-year
+  primitive feeds the exam signal, and `expectedMarks` can distinguish **a subtopic asked yearly as
+  a 1-marker from one asked yearly as a 5-marker**. **HPQ's live ranking unchanged, pinned by a test
+  proven able to fail.**
+
+### The four commits carried in
+
+**`#631` ME-PROGRESS is the one that matters most to a student** (5 files, +1602/−2381): `/me`
+converged onto one responsive `MeProgressPage.tsx`, `DesktopMePage.tsx` and `MobileMePage.tsx`
+**deleted**, and the page **stopped reading device-local data** — verified on trunk as **6
+`getWindowedProgress`, 0 `loadInsights`**. **Before it, a student who practised on a phone and opened
+`/me` on a laptop saw a different, emptier page. A live defect, now fixed.**
+
+⚠ **`#629` and `#630` are PRIOR-SESSION LANES.** What landed is recorded **by content on trunk**;
+**their reasoning is NOT reconstructed here** — it lives in the earlier handoff. `#629` FENCE-1:
+`checkSolution.cjs` +94 / `checkSolution.test.cjs` +212, *"a student cannot forge the typed-answer
+delimiter."* `#630` DPDP-1: two NEW files, `studentDataMap.ts` +419 / `studentDataMap.test.ts` +287,
+*"the verified student data map + a drift guard."* `#632`: `scripts/premise_ledger_check.mjs` +392.
+`#633`: the owner's own docs PR — archived Waves 4 and 5A and **wrote the wave-state lifecycle into
+`handoff/README.md`**; ⚠ **archive housekeeping, NOT a wave close-out**, which is why the close-out
+for `#629`/`#630`/`#632`/`#631` was still owed until this entry.
+
+### Owner decisions, with their reasons
+
+- **Ruling "option 4" on MI-CONCEPT-1** — resolve concept **from the question id at record time**,
+  none of the three options the controller offered. **Reason:** the persisted shapes already carry
+  `PersistedWorksheetQuestion.id` / `QuickPracticeSavedAnswer.questionId`, so a memoised
+  id→subtopic index closes the gap **completely this wave including the four grade paths** (no
+  1a/1b split, no waiting), with **no persisted-shape change at all** — avoiding the
+  old-client-state migration that broke production past 1,082 green tests in Wave 4.
+- **D1(a) — a SEPARATE ops lane**, because **the guard documents its own amendment procedure and two
+  precedents** (`checkSolution.cjs`, `DesktopShell.tsx`), and its own comment warns that removing
+  from the FORBIDDEN list alone *"would fail the gate on its own amendment."*
+- **D2(a) — chapter-echo suppression RATIFIED, on enumeration evidence, not spot-checks.**
+- **D3(a) — HOLD the HPQ pin**, because a 37% ranking change does not ride inside a lane told to pin
+  HPQ; strategies stay built-but-not-default, so flipping later is **config, not rebuild**.
+- **D4 — correct `CLAUDE.md` §6 in this docs PR**, recording *how*, so the next lane reproduces
+  rather than rediscovers.
+
+### Session learnings
+
+- ★★ **A DORMANCY BLOCK MUST BE RESTATED AS CORRECTED, NOT AS WRITTEN.** The brief commissioning
+  this handoff asked for `expectedMarks` to be added *"as a FOURTH dormant capability beside `#578`,
+  `#611`, `#617`."* **It is not the fourth — it is the only one.** `WIRE-2` shipped as `#621` in
+  Wave 5F and **ended all three**, verified here by content on trunk (`gradeQuickPracticeBatch` has a
+  real caller in `PracticePage.tsx`, not merely its own test file). ⭐ **A carry-forward instruction
+  is itself a claim about the repo, and it goes stale exactly like any other. Re-verify the block you
+  are told to preserve before you preserve it** — copying it forward unchanged would have published
+  three false "dormant" entries under the authority of a rule about not losing them.
+- ★★ **`check:mojibake` IS NO LONGER "STRUCTURALLY BLIND" TO `handoff/` — THE MECHANISM CHANGED AND
+  THE OLD DESCRIPTION IS STALE.** GUARD-3 (`#571`) moved `repoRoot` to `git rev-parse
+  --show-toplevel`, so `handoff/` **is** scanned. It is now **REPORT-ONLY** by an explicit
+  `REPORT_ONLY_PREFIXES = ['handoff/']` denylist: hits are counted and printed but **never fail the
+  build**, deliberately, because 8 lines in `handoff/` are **mojibake specimens quoted inside lessons
+  about mojibake**. ⭐ **The practical conclusion is UNCHANGED — a green `check:mojibake` is still no
+  evidence a handoff file is clean — but the reason is different, and a lane repeating the old
+  "blind" wording is asserting something false about the gate.**
+- ★★ **A HASH WITHOUT ITS RECIPE IS NOT EVIDENCE.** `#636`'s HPQ pin was reported as proven by
+  `md5 aa58d9fd…`; **the serialization recipe was never recorded and five reconstruction attempts
+  all produced different hashes.** ⭐ **The conclusion was still true** — identity was re-proven
+  against the frozen 140-row on-disk literal in `cbse5SignalScoring.hpqPin.test.ts`, which is the
+  artefact that actually gates — **but the evidence given for it could not be checked by anyone
+  else.** ➜ **Cite the artefact that gates, or record the exact recipe beside the hash.** ➜ ⭐ **And
+  when this happens, keep the conclusion and WITHDRAW THE EVIDENCE, explicitly** — a correct outcome
+  resting on a false premise still poisons the record, because the premise is what the next lane
+  inherits.
+- ★★ **`scope:guard` IS VACUOUS ON AN UPDATE-ONLY LANE — a new silent-no-op class.** It reads only
+  **staged / unstaged / untracked** files and has **no base-ref mode**. A lane that merely merges
+  trunk into an existing branch **authors no working-tree change**, so it reports `inspected=0` and
+  **exits green**. ⚠ **That green is indistinguishable from a real pass.** ➜ **REMEDY, proven this
+  wave:** reproduce the authoring condition in a **throwaway worktree at trunk** and re-run there —
+  the `#636` refresh lane got `inspected=5 untracked=4`, **exactly the original lane's figures.**
+  ➜ **Every refresh / merge-only / rebase-only lane must state WHICH invocation it ran.**
+- ★★ **A MUTATION THAT DOES NOT LAND READS AS A FINDING.** MARKS-1 fired a fourth mutation whose
+  file SHA was **unchanged** — a `\n` inside a perl `\Q…\E` block is literal. **The pre-red
+  `mutated-sha != baseline-sha` assertion caught it.** Without that assertion the lane would have
+  reported a confident, entirely false *"the test has a hole"*, and the controller would have
+  amplified it to the owner. ⭐ **The standing rule paid for itself in the same wave it was written
+  into the briefs. Keep requiring it.**
+- ★ **A CONTROLLER'S OWN FIX SHAPE IS A PREMISE LIKE ANY OTHER.** Premise 2 below was the
+  controller's suggestion, not the spec's, and it was **wrong for 3 of the 4 grade paths**. Being
+  the person who proposed it is not evidence.
+- ★ **ENUMERATE, DO NOT SPOT-CHECK — and the result can be "safe BY CONSTRUCTION".** The
+  chapter-echo scout enumerated **8,543 questions / 1,914 distinct subtopics**: 14 matches, **all
+  echo, zero real.** The one near-miss (`"AP: nth Term and General Term Formula (Applications)"`)
+  cannot match because the predicate uses **exact equality, not substring** — **safe by
+  construction, not by luck.** That distinction is what made ratification possible.
+- ⚠ **THE WAVE-STATE `_LIVE` FILES ARE UNTRACKED AND NOT IGNORED.** `#633` added `body.json` and
+  `/*.request.json` to `.gitignore` but **not** `handoff/WAVE_STATE_*_LIVE.md` or
+  `handoff/BRIEF_*.md`. They are **untracked but not ignored**, so whoever opens a handoff PR must
+  keep them out of the diff deliberately — nothing does it for them.
+
+### The four spec premises disproved
+
+1. *"Every write site already holds `q.subtopic`"* — **FALSE AT ALL SIX.** The persisted shapes
+   drop `subtopic` at persist time.
+2. *"Resolve centrally in `buildEntry`"* (**the controller's own suggestion**) — **fails for 3 of
+   the 4 grade paths**, which pass synthetic `ws:` / `fm:` / `ct:` ids that can never resolve.
+3. *"Build a memoised id→subtopic index"* — **`progressBankIndex.ts` already existed** and is
+   already `/me`'s concept source. **A second would have created the exact second vocabulary the
+   byte-identical rule exists to prevent.**
+4. *"Canonicalise both signals"* + *"pin HPQ"* — **mutually exclusive**; canonicalising moves **52
+   of 140** live HPQ questions.
+
+### Two live defects found and deliberately NOT fixed
+
+- 🛑 `[FU-TRENDS-FUZZY-CHAPTER-CONFLATION]` — `legacyFuzzyMatch("Circles","Areas Related to
+  Circles") === true` conflates two distinct CBSE chapters **in production today**; each chapter's
+  predictions are contaminated by the other's evidence. **Any fix moves the HPQ pin.** ★ Related:
+  `fuzzyMatch` was already flagged as a silent-**MISS** risk; this wave proved it also produces
+  silent **HITS** — same root cause. ➜ **The owner is the CBSE authority on whether it materially
+  misleads a student.**
+- 🛑 `[FU-GRADER-DEDUCTION-WITHOUT-TYPE]` — found by the **owner's live-verify**; **pre-existing,
+  server-side, unrelated to `#637`.** The C&I grader returned an annotated step with a **−2
+  deduction and no `mistakeType`**, so `reconcileCounts` produced all-zero counts against
+  `marksLost: 2`. **A student sees *"you lost 2 marks"* beside *"no mistakes of this type"*, four
+  times.** ⭐ **Consequence for ME-2:** the unclassified bucket has **two** sources — legitimate
+  binary 1-markers and this defect — so **it must NOT be designed as a dumping ground**, or a grader
+  bug becomes indistinguishable from correct behaviour.
+
+### Archives committed this entry
+
+`handoff/WAVE_STATE_ME_A_ARCHIVE.md` (this wave) and `handoff/WAVE_STATE_WAVE5G_ARCHIVE.md` — ⭐ **a
+RESCUE: Wave 5G closed without ever being archived**, its controller having run to ~4% context, and
+it is the wave that produced `#631`. Both were the **only copy in existence** until this commit.
+⚠ `handoff/WAVE_STATE_WAVE_DPDP_A_LIVE.md` (46,040 bytes) is **deliberately untouched** — that wave
+is **OPEN** and belongs to another controller — but it is **laptop-only and at risk**.
+
+---
+
 ## 2026-08-07 — WAVE 5F CLOSED: #619 · #620 · #625 · #621 · #626 · #627 (four lanes + a scout + a CI-diagnosis lane, controller + subagent model) — trunk `fbfb57fa`
 
 > ## ★★ **Six PRs, four lanes, 1,400+ tests, six green CI runs — AND TYPED GRADING HAD NEVER ONCE WORKED IN PRODUCTION until the owner tried it on his phone. No gate found it.**
