@@ -233,9 +233,10 @@ anti-fabrication holds) were right. So the cure is mechanical, not "try harder":
     wrong — the FU's, and the spec that superseded it (which said "derive from the full-screen overlay landscape",
     pointing at ~1100) — before anyone measured.
 
-## ★★ EVIDENCE THAT CANNOT BE RE-CHECKED (2026-08-09, Wave ME-A — two species: a hash with no recipe, and a gate that inspected nothing)
-**Both passed as evidence. Neither was.** Same shape as the GREEN-BOARD TRAP above, one layer in: there the
-signal described a world that had moved; here the signal is **unfalsifiable by anyone but its author**.
+## ★★ EVIDENCE THAT CANNOT BE RE-CHECKED (2026-08-09, Wave ME-A — three species: a hash with no recipe, a gate that inspected nothing, and a carried-forward claim nobody re-derived)
+**All three passed as evidence. None was.** Same shape as the GREEN-BOARD TRAP above, one layer in: there the
+signal described a world that had moved; here the signal is **unfalsifiable by anyone but its author** — or, in the
+third case, falsifiable in one command that nobody ran.
 
 - **★★ A HASH WITHOUT ITS RECIPE IS NOT EVIDENCE.** A hash quoted as proof, **without the serialization recipe
   that produced it, is a derived value no later lane can re-check — the same class of defect as a bare line
@@ -260,6 +261,23 @@ signal described a world that had moved; here the signal is **unfalsifiable by a
     re-run the guard there. The refresh lane got **`inspected=5 untracked=4` — exactly the original lane's figures.**
   - ➜ **Every refresh / merge-only / rebase-only lane must state WHICH invocation it ran** — the vacuous one or the
     reconstructed one. **An unqualified `scope:guard ✓` from such a lane is not evidence.**
+
+- **★★ A CARRY-FORWARD INSTRUCTION IS ITSELF A CLAIM ABOUT THE REPO — AND IT ROTS LIKE ANY OTHER.** A block marked
+  *CARRY FORWARD VERBATIM* survives by being **copied, not re-derived**. That is the point of it, and it is also the
+  failure: **`CARRY FORWARD VERBATIM` must never mean `CARRY FORWARD UNCHECKED`.** **The instance:** a "three dormant
+  capabilities await `WIRE-2`" block (`#578`, `#611`, `#617`) was carried across several waves and restated as a
+  requirement in a new `[CURRENT]`, a cross-arc signal file, a controller state file and a dispatched brief.
+  **`WIRE-2` had already shipped as `#621` (`d03550e`) and ended all three** — `gradeQuickPracticeBatch` is imported
+  at `PracticePage.tsx:485` and **invoked** at `:2223`. The commit was sitting in the controller's own first
+  trunk-log read of the session. **Only one capability was actually dormant.**
+  - ➜ **Re-verify every carried-forward claim against trunk at the moment you carry it**, exactly as you would
+    re-derive a line number or a test count. The verbatim marker protects the *wording*; it guarantees nothing about
+    the *truth*.
+  - ➜ ⚠ **And when the claim turns out to be stale, chase every place the amplified version landed** — the repo, the
+    state file, cross-arc signals, dispatched briefs, memory. **A retracted finding left in the repo is still a live
+    instruction.**
+  - ➜ ⭐ **The owner's note on this one:** *"I told you to carry the dormancy block forward verbatim, and verbatim is
+    what preserved the staleness."* **The instruction was the vector.**
 
 ## HARD-WON RULES (the 2026-06 grader saga — each cost real, avoidable turns)
 - **A shared FILE is not a shared FUNCTION.** When touching shared infra, grep ALL implementations and call-sites of that behavior and fix + test them in ONE PR. Honor any in-file "keep in sync" comment. *(The grader fix patched one of two grading functions, passed every gate, and shipped a half-fix that only live-verify caught.)*
