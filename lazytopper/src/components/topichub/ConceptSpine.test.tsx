@@ -469,20 +469,21 @@ describe("ConceptSpine — arrival concept marker (?concept= lands here)", () =>
     );
   });
 
-  it("the arrival badge pins the owner-ratified copy and carries NO NUMERIC figure", () => {
+  it("the arrival badge pins the exact copy, claims no performance, shows no figure", () => {
     const target = trigContent.boardEssentials[1].name;
     const { container } = renderWithArrival(target);
     const badge = container.querySelector(".lt-spine__badge--arrival")!;
     // Pin the exact owner ruling so a silent revert or drift is caught.
-    expect(badge.textContent).toBe("This is the one costing you marks.");
-    // NOTE, deliberately: this copy DOES assert a qualitative marks claim, from a URL
-    // param, on a page that holds no graded data — owner-ratified, and logged as
-    // [FU-ARRIVAL-COPY-ASSERTS-UNBACKED-MARKS-CLAIM]. The earlier version of this test
-    // claimed the marker carried NO performance claim; that assertion is no longer true,
-    // so it is not kept in a form that would pass vacuously. What IS still forbidden,
-    // and what this pins, is a NUMERIC claim: no figure, count, percentage or score.
+    expect(badge.textContent).toBe("You came here for this.");
+    // The copy states only HOW the student arrived, so the no-performance-claim
+    // assertion is restored alongside the numeric one. (A "costing you marks" wording
+    // was withdrawn by the owner on doctrine grounds; this guard was REPLACED rather
+    // than deleted at each step, because its old regex did not match that wording and
+    // would have passed vacuously while shipping the very claim its name denied.)
     expect(badge.textContent).not.toMatch(/[0-9]/);
-    expect(badge.textContent).not.toMatch(/%|accuracy|score|attempts?|lost/i);
+    expect(badge.textContent).not.toMatch(
+      /marks|mistake|accuracy|weak|%|score|attempts?|lost|costing/i,
+    );
   });
 
   it("no row is collapsed by an arrival — every row keeps its use line", () => {

@@ -446,10 +446,9 @@ export interface ConceptSpineProps {
    *  When it matches a rendered row, that row is marked and scrolled into view.
    *  Absent / null / unmatched ⇒ the spine renders exactly as it does on the normal
    *  entry — no marker, no scroll. An unrecognised concept is a normal state, never an
-   *  error state. ⚠ The marker's owner-ratified copy asserts the concept is costing the
-   *  student marks, from a URL param and with no graded data behind it — see
-   *  [FU-ARRIVAL-COPY-ASSERTS-UNBACKED-MARKS-CLAIM]. No NUMERIC performance figure is
-   *  rendered here regardless (MI stays sidebar chrome — item 9). */
+   *  error state. The marker's copy states only how the student arrived and asserts
+   *  nothing about performance; no NUMERIC performance figure is rendered here either
+   *  (MI stays sidebar chrome — item 9). */
   arrivalConceptName?: string | null;
 }
 
@@ -622,13 +621,15 @@ export function ConceptSpine({
           // null instead of a wrong concepts[0]).
           const hasVisual =
             findVisualForConcept(topic.subject, topic.slug, [concept.name]) !== null;
-          // The arrival marker — the concept the student was pointed at.
-          // ⚠ COPY IS OWNER-RATIFIED AND MAKES A QUALITATIVE PERFORMANCE CLAIM
-          // ("costing you marks"). It is asserted from a URL PARAM: this page holds no
-          // graded/mistake data of any kind, so the claim is not backed by anything the
-          // page can see. Flagged as [FU-ARRIVAL-COPY-ASSERTS-UNBACKED-MARKS-CLAIM].
-          // Whatever the wording, no NUMERIC performance figure may ever be rendered
-          // here — MI stays sidebar chrome — and the test below pins that.
+          // The arrival marker — the concept the student was pointed at. The copy
+          // states only HOW THE STUDENT GOT HERE, which is true however they arrived,
+          // and asserts nothing about performance.
+          // (An earlier "costing you marks" wording was WITHDRAWN by the owner on
+          // doctrine grounds: this page holds no graded or mistake data, so a marks
+          // claim asserted from a URL param was unbacked. Gating the badge on real MI
+          // data was considered and REJECTED — it would make TopicHub read Mistake
+          // Intelligence, which is navy-sidebar chrome only.)
+          // No NUMERIC performance figure may ever be rendered here; the test pins that.
           const isArrival = concept.name === arrivalName;
           return (
             <Card
@@ -647,7 +648,7 @@ export function ConceptSpine({
                     <span className="lt-spine__marks">{concept.marks} marks</span>
                     {isArrival && (
                       <span className="lt-spine__badge lt-spine__badge--arrival">
-                        This is the one costing you marks.
+                        You came here for this.
                       </span>
                     )}
                     {hasVisual && (

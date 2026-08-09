@@ -97,7 +97,7 @@ describe("DesktopTopicHubPage — arrival concept (?concept=)", () => {
     const marked = arrivalRows(container);
     expect(marked).toHaveLength(1);
     expect(marked[0].textContent).toContain(target);
-    expect(screen.getAllByText("This is the one costing you marks.")).toHaveLength(1);
+    expect(screen.getAllByText("You came here for this.")).toHaveLength(1);
     expect(scrollSpy).toHaveBeenCalledTimes(1);
   });
 
@@ -109,7 +109,7 @@ describe("DesktopTopicHubPage — arrival concept (?concept=)", () => {
       conceptNames.length,
     );
     expect(arrivalRows(container)).toHaveLength(0);
-    expect(screen.queryByText("This is the one costing you marks.")).toBeNull();
+    expect(screen.queryByText("You came here for this.")).toBeNull();
     expect(scrollSpy).not.toHaveBeenCalled();
   });
 
@@ -124,7 +124,7 @@ describe("DesktopTopicHubPage — arrival concept (?concept=)", () => {
       conceptNames.length,
     );
     expect(arrivalRows(container)).toHaveLength(0);
-    expect(screen.queryByText("This is the one costing you marks.")).toBeNull();
+    expect(screen.queryByText("You came here for this.")).toBeNull();
     expect(scrollSpy).not.toHaveBeenCalled();
     // Honest fallback: a missing concept is a NORMAL state, never an error state.
     expect(screen.queryByText(/Topic not found/)).toBeNull();
