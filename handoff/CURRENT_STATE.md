@@ -1,6 +1,260 @@
 # LazyTopper — Current State
 
-## [CURRENT] Wave ME-A CLOSED — #634 · #641 · #637 · #636 (+ the four unrecorded commits before them) — trunk `e8f89863`
+## [CURRENT] Wave DPDP-A CLOSED — #640 · #639 · #638 — trunk `6f7da56e` — a student can erase their own account, AND THE CODE IS NOT RUNNING IN PRODUCTION
+
+**`2026-08-09` · closing docs PR for Wave DPDP-A.** Three lanes, all on trunk, verified **by content
+and by log — never by `merge-base` on a PR head, because this repo squash-merges**:
+
+```
+6f7da56e  ERASE-1      a student can erase their own account, and a zero-match delete says so   #638
+6ef083b5  USERS-1      a login no longer writes a child's identity to a dead collection         #639
+c9445a1e  CLEARTEXT-1  prove only the uid reaches the nine localStorage sinks                   #640
+```
+
+**Trunk at close of the wave's PRODUCT lanes: `6f7da56ea9495fcfdbe80c577bc13b16a987f456`.** Quality
+Gate on that exact SHA: run `31285980321` **PASS** (CodeQL `31285980316`, State Board `31285980317`
+also green).
+
+⚠ **TRUNK MOVED WHILE THIS HANDOFF WAS BEING WRITTEN, and the distinction matters.** `#642` (the
+Wave ME-A handoff) merged at `2026-08-09T01:58:22Z` as **`516e50ffbc2fe4bab31c6bd7de7f4a265597c62c`**,
+which is now the tip. **It is DOCS-ONLY** — `handoff/`, `cofounder-skill/SKILL.md` and `CLAUDE.md`.
+⇒ **`6f7da56e` remains the SHA at which this wave's product lanes completed, and `516e50ff` is the
+SHA this handoff is authored against.** Re-derive before trusting either:
+`git ls-remote origin base/approved-thru-437`.
+
+★ **COVERAGE WAS MEASURED, NOT ASSUMED.** A per-file census (`git show <trunk>:handoff/<f> | grep -c
+"#<n>"` across all seven files) was run against trunk **before** writing and **again after `#642`
+merged**. `#642` records `#629`–`#634`, `#636`, `#637` and `#641`; **`SESSION_LOG.md` carries ZERO
+mentions of `#638`, `#639` and `#640`**, and `#642` says in its own words that they are
+*"DELIBERATELY NOT WRITTEN UP HERE"* because they were another controller's lanes in an open wave.
+⇒ **This handoff covers exactly those three and does not duplicate `#642`.**
+
+### 🛑🛑 READ THIS BEFORE ANYTHING ELSE — #638 IS MERGED AND CANNOT DEPLOY
+
+**Production is serving the `#639` build. The `#638` deployment CRASHED ON BOOT and Railway rolled
+it back.** Owner-reported, and the mechanism is **re-verified here by command against trunk**:
+
+```
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'tsx' imported from /app/lazytopper/
+```
+
+`tsx` is declared in **`artifacts/api-server/package.json` only** (`"tsx": "catalog:"`, line 34) and
+is **absent from `lazytopper/package.json` and from the root manifest** — all three checked on
+`6f7da56e`. pnpm workspaces isolate dependencies per package, so the gateway cannot resolve it. The
+Dockerfile does **not** prune (`# do NOT run --prod / prune`) ⇒ **this is an UNDECLARED dependency,
+not a stripped one.**
+
+⇒ **`[FU-ERASE-1-GATEWAY-TSX-UNDECLARED]` is a LIVE DEPLOY BLOCKER and is DPDP-B's FIRST lane**,
+ahead of `EXPORT-1` and `SETTINGS-1`.
+
+★★ **ERASE-1's live-verify is MOOT, not pending.** A Console check against production today would be
+checking a build **that does not contain the code**. Do not record it as "live-verify owed" and do
+not schedule it — **it cannot be attempted until the `tsx` fix deploys.** The abandoned-QR-upload
+verification waits on the same fix.
+
+⚠ **For the fix lane, two things that will otherwise cost a cycle each:**
+- **A manifest change without a matching `pnpm-lock.yaml` update fails the Vercel build too.**
+- ★★ **The acceptance test is a SUCCESSFUL RAILWAY BOOT, not a green suite.** Nothing in this
+  repository's gate set can produce that evidence.
+
+### ★★★ THE LESSON OF THIS WAVE — the missing rung on the evidence ladder
+
+> ## **A test proves the code works. A build chunk proves it ships. ★ ONLY A BOOT PROVES IT RUNS.**
+
+`MOUNT ≠ LIVE` has a level beneath it this project had never named:
+**RESOLVES-IN-DEV ≠ RESOLVES-IN-THE-DEPLOYED-IMAGE.**
+
+**This is not a lane that skipped its proof. It is a lane whose proof was demanded, delivered, and
+still wrong.** SCOUT-1 flagged *"the gateway can import the map is strong INFERENCE from an existing
+hook, not an executed import"*; the controller **promoted it to lane-blocking**; ERASE-1 reported
+`MAP IMPORT IN SERVER PROCESS: EXECUTED PASS` — **and that report was true.** The import executed in
+a **dev worktree, where every workspace dependency resolves**, and never in the **production image,
+where pnpm's per-package isolation applies.**
+
+★★ **The requirement was RIGHT. It was NOT MET — and nothing could tell the difference.** Making the
+proof mandatory was not enough, because **the brief never specified WHERE it had to run**, and
+**a lane-blocking proof executed in the wrong environment reads exactly like a met requirement.**
+
+➜ ⭐ **Standing rule, now in `cofounder-skill/SKILL.md`: any lane that adds a runtime import to a
+server must state WHICH IMAGE it executed in.**
+
+### ⚠⚠ DORMANCY — RESTATED, AND IT NOW HAS TWO ENTRIES
+
+**Carried forward from the `#642` block below, which had already CORRECTED the old four-name list —
+that correction is preserved here, not re-litigated.** `#578`, `#611` and `#617` are **LIVE**;
+`WIRE-2` shipped as `#621` and ended all three. **Do not re-add them.**
+
+| capability | status on trunk `6f7da56e` | evidence |
+|---|---|---|
+| `#578` grader per-question images | ✅ **LIVE** — ended by `#621` | live-verified through typed grading in Wave 5F |
+| `#611` `gradeQuickPracticeBatch` | ✅ **LIVE** — ended by `#621` | real caller in `PracticePage.tsx`, not just its test file |
+| `#617` the graded answer sheet | ✅ **LIVE** — ended by `#621` | reached via the `#621` Finish path |
+| ⚠ **`expectedMarks` (`#636`)** | 🛑 **DORMANT — tree-shaken out of the bundle** | absent from every `assets/*.js`; no production consumer. `ME-2` must WIRE it. |
+| 🛑🛑 **`ERASE-1` (`#638`)** | 🛑🛑 **DORMANT IN THE SHARPEST FORM THIS PROJECT HAS RECORDED — MERGED, UNDEPLOYED, UNREACHABLE** | see below |
+
+🛑🛑 **`ERASE-1` is a NEW SPECIES of dormancy and the block must not flatten it into the others.**
+The other entries are *built but unwired* — the code ships in the bundle and nothing calls it.
+**ERASE-1 is not running at all.** Three things are true at once and each alone would keep it dark:
+1. **The production image does not contain a bootable build of it** (the `tsx` blocker above).
+2. **No client caller exists anywhere in the repo** — `[FU-DPDP-ERASE-NO-CLIENT-CALLER]`.
+3. **No student-facing surface exists** — that is `SETTINGS-1`, wave DPDP-B, not yet built.
+
+⇒ **Nothing ships to students on this arc until `SETTINGS-1` lands, and `SETTINGS-1` cannot be
+verified until the `tsx` fix deploys.** Stated here, in the block, and not only in the prose above.
+
+### ⭐ ANSWERING THE QUESTION `#642` LEFT FOR THIS CLOSE-OUT — settled, by blob identity
+
+`#642` asked, correctly, that this handoff check one thing: *"`#640` asserts only the uid reaches
+the localStorage sinks, and `#637` changed what `mistakeIntelligence` writes — `#640` merged AFTER
+`#637`, so `#640` must be re-checked AGAINST `#637`, not merely re-run."*
+
+**It was already checked against `#637`, before either merged, and the check is exact rather than
+equivalent.** CLEARTEXT-1 did not argue the point — it **swapped `#637`'s actual file blob into the
+tree**, ran the guard, got `4 passed (4)`, and restored. That blob was `56c262bb`.
+
+★★ **Re-derived here on trunk:**
+`git rev-parse origin/base/approved-thru-437:lazytopper/src/services/mistakeIntelligence.ts`
+returns **`56c262bb1e742b8c96c6997f56b505442d1166b0`** — **byte-identical to the blob CLEARTEXT-1
+tested.** The merge introduced no third version. ⇒ **The question is CLOSED, and closed by identity
+rather than by re-running a suite against something that merely resembles `#637`.**
+⭐ **`#642` was right to demand the check and right that expectation is not evidence.** The answer is
+cheap only because CLEARTEXT-1 had tested the artefact instead of a description of it.
+
+### THE THREE DPDP-A LANES — what each means for a STUDENT
+
+| lane | PR | what it makes true for a student | what it disproved |
+|---|---|---|---|
+| **ERASE-1** | **`#638`** | For the first time a minor's data can actually be **removed on request** — an authenticated, owner-scoped route walks the 29-location data map, deletes all 11 subcollections **explicitly** (Firestore does not cascade), uses admin credentials for the five locations that need them **including the handwriting images in Storage**, and reports the one location we cannot reach (Gemini) and the one no server can reach (browser `localStorage`) **as NOT DELETED rather than implying success.** 🛑 **Not running in production — see the blocker above.** | **its own first classifier.** A nested path with no `{uid}` was being field-queried — a silent miss found **only** because the brief said *audit all 29, do not spot-check* |
+| **USERS-1** | **`#639`** | A login **no longer writes a child's identity** — name, email, phone — to a `users` collection that **has never appeared in `firestore.rules` in the repo's entire history**. ✅ Deployed; this is the build production is currently serving. | **that the drift guard protecting the data map was sound.** `doc(firestoreDb!, …)` evaded its pattern entirely |
+| **CLEARTEXT-1** | **`#640`** | Nothing changes for a student, and that is the finding: a guard now sits **beside each storage call** pinning that **only the uid** reaches the nine `localStorage` sinks. **Zero production-code change** — all five `.ts` files byte-identical to trunk by `git hash-object`. | **that the nine CodeQL `clear-text-storage` alerts were defects.** All nine are false positives — CodeQL taints the whole `UserCredential` from one point in `AuthContext.tsx`, and only the uid arrives |
+
+### ★★ THE SIGNATURE OF THIS WAVE — every lane disproved a premise of the document that dispatched it
+
+**That is not a coincidence and it is the part worth inheriting.** Six premises fell, and **two were
+the controller's own**:
+
+- **SCOUT-1 disproved *"pick which server surface is live."*** A false dichotomy — **both are live,
+  in one process tree**: `railway.json` + Dockerfile start `artifacts/api-server/dist/index.mjs`,
+  which **spawns** `lazytopper/server/index.cjs`. ⇒ **`artifacts/` is the deploy entrypoint, NOT a
+  De-Replit archive.**
+- **SCOUT-2 disproved *"the `users` write is silently denied."*** **It is never issued at all** — the
+  preceding `getDoc` is denied first and throws; an empty `catch` plus the caller's
+  `Promise.allSettled` swallow it twice. *"Silently denied"* understates it.
+- **ERASE-1 disproved its own first classifier** (above), and **executed** the map-import premise
+  SCOUT-1 could only infer — 29 locations read inside the server process.
+- **USERS-1's mutation that stayed GREEN** was the most valuable single result of the wave — below.
+- **CLEARTEXT-1 disproved the CONTROLLER'S OWN §0 amendment.** The controller had told CLEARTEXT-1
+  *and the owner* that `#637` would collide and whichever merged second would see a correct red.
+  **It does not collide**, proven by swapping in `#637`'s real blob.
+- **The OWNER disproved SCOUT-1 on `resolveVerifiedUid`, and that made ERASE-1 SMALLER.** SCOUT-1
+  described it as *"advisory, falls back to a spoofable header"*; the owner read the file and found
+  it **already fail-closed** — every path returns `""` and **it never consults the header.** ⇒ **No
+  new gate to build.** The fail-open is in the **callers**. ★ **Do not propagate SCOUT-1's phrasing.**
+
+### ★★ THE MOST VALUABLE RESULT IN THE WAVE WAS A MUTATION THAT DID *NOT* GO RED
+
+USERS-1's mutation 1, as the controller specified it, **stayed green** — and that was **a real hole
+in the drift guard protecting the student data map.** `doc(firestoreDb!, …)` — legal, since
+`firestoreDb` is nullable — **evaded the guard's pattern entirely.**
+
+**Nothing is unmapped today**; all 47 real call sites use the guarded style. **But the next such
+call site would have been invisible, and that guard is the only thing standing between a new
+collection and an erasure that silently misses it.**
+
+⇒ **Closed properly, not patched:** the scanner is now a **pure function with fixture tests that
+prove REJECTION, not merely acceptance** — the exact remedy for *"a parser only run on the real file
+can be shown to ACCEPT, never to REJECT."*
+
+★ **Standing rule vindicated: when a mutation does not go red, the first hypothesis is that the
+SUITE has a hole, not that the code is fine. It did.**
+
+### ★★ A DELETE THAT MATCHES NOTHING USED TO REPORT SUCCESS
+
+`qrUploadSlots` keys the uid as a **field, not a document id** — so the obvious doc-id delete was a
+**silent no-op sitting directly in the erasure path.** The owner's ruling, which promoted it to
+lane-blocking: *"That is the worst failure available to this lane. A minor's handwriting images stay
+live while the product tells a parent the account was erased."*
+
+**Closed and PROVEN closed.** Every location now returns `deleted:N` **or** `notFound`, and the
+caller distinguishes them. Mutation M4 (field-keyed → doc-id) went red with
+`actual: 'notFound' / expected: 'deleted'` — **red because zero documents matched**, which is the
+exact proof the owner asked for, not an assertion that changed.
+
+★ **`notFound` is a DEFINITE OUTCOME, not a failure** — a path never written to is legitimately
+empty. ⇒ **`SETTINGS-1` must not render `notFound` to a student as an error.** The route returns
+**200 when every reachable location returned a definite outcome; 207 only on genuine failure** — and
+★★ **the body enumerates all 29 locations with their outcome REGARDLESS of status code. The code is
+for machines; the body is the evidence, and `SETTINGS-1` will read the body.**
+
+### 🛑🛑 A LAUNCH-BLOCKING LEGAL QUESTION, NOT AN ENGINEERING ITEM
+
+**`[FU-DPDP-GUARDIAN-CHANNEL-LEGAL]` — ESCALATE. DO NOT MERELY FILE.**
+
+> India's DPDP Act treats the data of **anyone under 18** as a child's data and requires
+> **verifiable parental consent to PROCESS it**. **Every LazyTopper student is in that class.**
+> ⇒ **This potentially reaches SIGNUP ITSELF, not just deletion.** A guardian erasure channel is the
+> visible corner of a much larger question. **Neither the owner nor any agent here is a lawyer.**
+> **This is a launch blocker requiring legal advice, not a backlog item about a delete button.**
+
+### ⚠ THE DEPENDABOT FAILURES AND THE `tsx` BLOCKER ARE ONE ROOT CAUSE, NOT TWO
+
+**`[FU-DEPENDABOT-BLOCKS-RAILWAY-DEPLOY]`.** Verified on trunk `6f7da56e`: **six Dependabot Update
+jobs are FAILING** (`re2`, `dompurify`, `nanoid`, `js-yaml`, `react-router`, `hono` — runs
+`31285986176`, `31285986107`, `31285986109`, `31285986076`, `31285986077`, `31285986074`). Railway
+gates on the branch **check suite**, so **a bot failure blocks every production deploy.**
+
+⚠ **It is visible only as a "Skipped" badge** — the most dangerous shape available: **an
+infrastructure stop presenting as a non-event.**
+
+★★ **Owner-diagnosed 2026-08-09, and it is the SAME root cause as the deploy blocker.** The repo
+uses **pnpm catalogs** — 17 entries in `pnpm-workspace.yaml`, six packages referencing `catalog:`.
+**Dependabot's `npm_and_yarn` updater cannot resolve that protocol**, so every security-update job
+fails. `tsx` was declared `"tsx": "catalog:"` in one package and never added to the gateway; **the
+same catalog mechanism is what the updater chokes on.**
+
+⇒ **The 4 critical security alerts and the `tsx` deploy blocker are ONE problem. Write the fix lane
+that way — a lane treating them as unrelated will fix one and leave the other.**
+
+### ★ THE HONEST LIMIT — stated first, not buried
+
+- The erasure is reachable today **only by an authenticated API call**.
+- **It is not currently deployed at all.**
+- **Nothing ships to students on this arc until `SETTINGS-1` lands** in wave DPDP-B.
+- ERASE-1's live-verify **cannot be run**, and when it can, if the abandoned QR upload cannot be
+  produced the owner has fixed the phrasing to be used **verbatim rather than softened**:
+  > **"live-verified on 28 of 29 rows, unproven on the one row this lane was built for."**
+
+  The fixture-integrity test already establishes the hazard below the live layer, **so the gap is
+  honest rather than fatal — but it must not read as full coverage.**
+
+### ★ WHAT THIS WAVE ESTABLISHED THAT WAS NOT TRUE BEFORE IT
+
+Before DPDP-A, `studentDataMap.ts` (`#630`) had **no consumer but its own test** — the inventory of
+a minor's data existed and **nothing in the product acted on it.** ERASE-1 is its first consumer.
+`[FU-DPDP-MAP-NO-CONSUMER]` is **closed in the repository** — and ⚠ **reopened in production by the
+`tsx` blocker**, which is the distinction this whole `[CURRENT]` exists to make.
+
+### ⚠ CORRECTIONS TO THE RECORD, MADE BY THIS HANDOFF
+
+- **`CLAUDE.md` §6 still says the root matrix is "SIX suites / 190 checks"** — it reports **196 / 29**,
+  in the same paragraph instructing the reader never to hardcode the count. **Verified still present
+  on trunk `6f7da56e` at line 132, and `#642` touched `CLAUDE.md` without fixing it.** `CLAUDE.md`
+  is in no lane's allowlist; logged as `[FU-CLAUDEMD-MATRIX-COUNT-STALE-AGAIN]`.
+- **`check:mojibake` is NOT "structurally blind to `handoff/`"** — that description is stale and is
+  corrected here. `GUARD-3` (`#571`) changed `repoRoot` to `git rev-parse --show-toplevel`, so
+  `handoff/` **IS scanned.** It is **REPORT-ONLY**: hits are counted and printed on every run via
+  the `MOJIBAKE_REPORT_ONLY:` line and never fail the build. ⇒ **A green `check:mojibake` is still
+  not evidence that a `handoff/` edit is clean — but the reason is SCOPING, not blindness, and the
+  log line carries the real count.** See `[FU-MOJIBAKE-HANDOFF-REPORT-ONLY-NOT-BLIND]`.
+- **`ops/AGENT_STANDING_RULES.md` DOES NOT EXIST ON TRUNK.** `#635` is open and failing its
+  repo-boundary check. ⇒ **`cofounder-skill/SKILL.md` is the only home that exists today**, which is
+  where this wave's three findings were written. `[FU-DOCS-STANDING-RULES-TWO-HOMES]` records them
+  as candidates to **MIGRATE — not copy — when convergence is resolved.** ★★ **No rule is written in
+  both.**
+
+---
+
+## (superseded) [CURRENT] Wave ME-A CLOSED — #634 · #641 · #637 · #636 (+ the four unrecorded commits before them) — trunk `e8f89863`
 
 **`2026-08-08T23:31:55Z UTC / 2026-08-09 05:01 IST`** — closing docs PR for Wave ME-A.
 **This handoff covers NINE commits.** `handoff/` was nine commits stale; the last handoff was `#628`

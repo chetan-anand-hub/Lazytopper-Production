@@ -1,5 +1,125 @@
 ---
 
+## 2026-08-09 — WAVE DPDP-A CLOSED: #640 · #639 · #638 — the erasure a student can trigger, and the build that cannot boot — trunk `6f7da56e`
+
+**`2026-08-09`** · three lanes + two read-only scouts, controller + subagent model.
+
+> ## 🛑🛑 **`#638` IS MERGED AND CANNOT DEPLOY. Production is serving the `#639` build.** The `#638` deployment crashed on boot — `Cannot find package 'tsx' imported from /app/lazytopper/` — and Railway rolled it back. **ERASE-1's live-verify is MOOT, not pending.**
+
+> ## ★★★ **A test proves the code works. A build chunk proves it ships. ONLY A BOOT PROVES IT RUNS.**
+
+**What landed, verified on trunk by content (this repo squash-merges):**
+
+```
+c9445a1e  CLEARTEXT-1  prove only the uid reaches the nine localStorage sinks   #640
+6ef083b5  USERS-1      a login no longer writes a child's identity to a dead
+                       collection                                              #639
+6f7da56e  ERASE-1      a student can erase their own account, and a zero-match
+                       delete says so                                          #638
+```
+
+Quality Gate on trunk `6f7da56e`: run `31285980321` **PASS**. Per-lane CI, each on its own head:
+`#638` run `31263073127` @ `c359744c`; `#639` runs `31263327480` / `31263327461` / `31263327502`
+@ `3d5e5a93`; `#640` run `31264700568` @ `b88cba42`. **All PASS, zero skipped** — `#638` quoted both
+ways (root matrix `# suites 29 # pass 196 # fail 0 # skipped 0 # todo 0`; vitest
+`Test Files 120 passed (120) / Tests 1534 passed (1534)`), `#639` `Test Files 122 passed (122) /
+Tests 1546 passed (1546)`, `#640` `Test Files 125 passed (125) / Tests 1555 passed (1555)` with all
+five `uidOnly` suites **named individually in the CI log** — the difference between *the suite
+exists* and *the suite ran*.
+
+### The three lanes
+
+- **`#638` ERASE-1** — an authenticated, owner-scoped server route that walks all 29 locations of
+  `studentDataMap.ts`, deletes the 11 subcollections **explicitly** because Firestore does not
+  cascade, uses admin credentials for the five locations that require them **including the
+  handwriting images in Storage**, and reports Gemini (unreachable) and browser `localStorage` (no
+  server can reach it) **as not deleted rather than implying success.** Every location returns
+  `deleted:N` **or** `notFound`, and the caller distinguishes them. Route + service on trunk at
+  `lazytopper/server/routes/accountErasure.cjs` and `lazytopper/server/services/accountErasure.cjs`.
+  ⚠ **Allowlist breach, ACCEPTED and flagged rather than hidden:** `lazytopper/package.json`, 3
+  lines — `ci_docs_lane a15` enumerates `server/**/*.test.cjs` **from disk** and fails any unwired
+  suite, so omitting it meant **red CI *and* a suite gated by nothing.** Wiring count 9 → 11. The
+  owner byte-reviewed and approved; the change is **scripts-only, so no lockfile update was owed.**
+  ⚠ `scope:guard --mode product` **cannot** pass that PR; `--mode mixed` is correct and passed.
+- **`#639` USERS-1** — deletes the dead login-time write of a child's identity into a `users`
+  collection that **has never appeared in `firestore.rules` in the repo's entire history**
+  (`git log -S` empty; only the deny-all catch-all matches `users/{uid}`). 6 files, all in
+  allowlist, **verified locally AND against the remote PR** — the reconciliation `CLAUDE.md` §8 has
+  never had a gate for. `users` **stays declared** in the map; the drift guard's exact `toEqual` was
+  **kept, not loosened**, so re-adding a write turns it red.
+- **`#640` CLEARTEXT-1** — five new `*.uidOnly.test.ts` guards sitting **beside** each storage call,
+  pinning that only the uid reaches the nine `localStorage` sinks. **Zero production-code change**,
+  all five `.ts` byte-identical to trunk by `git hash-object`. Confirmed **on the WRITTEN BYTES at
+  runtime**, not on source text; 9 of 9 sinks driven through a real exported path.
+
+### ★★ What each lane disproved — every one of them disproved a premise of its own dispatching document
+
+- **SCOUT-1:** *"pick which server surface is live"* was a **false dichotomy** — both are live in one
+  process tree; `artifacts/api-server/dist/index.mjs` **spawns** `lazytopper/server/index.cjs`.
+  **`artifacts/` is the deploy entrypoint, not a De-Replit archive.**
+- **SCOUT-2:** the `users` write is not *"silently denied"* — **it is never issued**; the preceding
+  `getDoc` is denied first and throws, and two layers swallow it. Also: **all 9 CodeQL
+  `clear-text-storage` alerts are false positives** (analysis `1589869170` @ `6c94d8f`, the analysed
+  commit **is** trunk, so the set was current, not carried).
+- **ERASE-1** disproved **its own first classifier** — a nested path with no `{uid}` was being
+  field-queried, a silent miss found only because the brief said *audit all 29, do not spot-check*.
+- **USERS-1's mutation stayed GREEN** and that was a **real hole in the drift guard**:
+  `doc(firestoreDb!, …)` evaded its pattern. Fixed by making the scanner a **pure function with
+  fixture tests that prove REJECTION**, not merely acceptance.
+- **CLEARTEXT-1 disproved the CONTROLLER'S OWN §0 amendment** — `#637` does not collide — and proved
+  it **by swapping in `#637`'s real file blob** (`56c262bb`) → guard GREEN `4 passed (4)` → restored.
+- **The OWNER disproved SCOUT-1 on `resolveVerifiedUid`**, which made ERASE-1 **smaller**: it is
+  already fail-closed and never reads a header. The fail-open is in the **callers**.
+
+### ⭐ The check `#642` asked this close-out to make — answered by blob identity
+
+`#642` flagged that `#640` merged **after** `#637` and must be re-checked **against** it. **Already
+done, and exactly:** the blob CLEARTEXT-1 swapped in was `56c262bb`, and
+`origin/base/approved-thru-437:lazytopper/src/services/mistakeIntelligence.ts` on trunk is
+**`56c262bb1e742b8c96c6997f56b505442d1166b0`** — byte-identical. The merge introduced no third
+version. ⭐ **`#642` was right to demand it; the answer is cheap only because CLEARTEXT-1 tested the
+artefact rather than a description of it.**
+
+### Findings that outlive the wave
+
+- ★★ **THE ALERT LIST IS NOT THE SET.** CodeQL flagged **4 of the 6** `setItem` calls in
+  `referralService.ts`. Anyone remediating from the alert list covers four, believes they are done,
+  and ships. **It recurred the same day:** `Math.random()` in a **user-facing** referral code
+  (`referralService.generateCode()`, a `CLAUDE.md` §7 violation) sits on trunk **unflagged**.
+- ★★ **A RULE AGAINST FALSE REDS.** CLEARTEXT-1's own first mutation harness produced **five false
+  reds** — `execFileSync` on the extensionless `.bin/vitest` returned `ENOENT`, which reads exactly
+  like a failing test. Caught by **requiring the failure to QUOTE THE INJECTED VALUE**, then rebuilt
+  with a pre-mutation green and a did-it-actually-run assertion. **A mutation that "fails" for a
+  reason unrelated to the mutation is as worthless as one that never landed.**
+- ⚠ **Two ERASE-1 mutations were ABORTED as unapplied** by the `mutated-sha != baseline-sha`
+  precondition — which is exactly why that precondition exists.
+- ⚠ **ERASE-1 reported the brief's mutation-4 recipe was wrong as written** — it went red for the
+  wrong reason (a call-shape assertion fired first), so it split the test to make the red *be* the
+  zero match. **The rule "check a red is red for the reason you claimed" applied to the controller's
+  own brief.**
+- ⚠ **`[FU-DEPENDABOT-BLOCKS-RAILWAY-DEPLOY]` — six Dependabot jobs are FAILING on trunk** (`re2`,
+  `dompurify`, `nanoid`, `js-yaml`, `react-router`, `hono`), and Railway gates on the branch check
+  suite ⇒ **a bot failure blocks every production deploy**, visible only as a **"Skipped" badge**.
+  ★★ **Same root cause as the `tsx` blocker:** the repo uses **pnpm catalogs** and Dependabot's
+  `npm_and_yarn` updater cannot resolve the `catalog:` protocol. **Fix them as one lane.**
+- 🛑🛑 **`[FU-DPDP-GUARDIAN-CHANNEL-LEGAL]` — ESCALATE.** India's DPDP Act treats data of **anyone
+  under 18** as a child's data requiring **verifiable parental consent to PROCESS it**, and **every
+  LazyTopper student is in that class.** ⇒ **This potentially reaches SIGNUP ITSELF, not just
+  deletion.** No one here is a lawyer. **A launch blocker requiring legal advice.**
+
+### Corrections this entry makes to the record
+
+- **`check:mojibake` is NOT structurally blind to `handoff/`.** `GUARD-3` (`#571`) set `repoRoot`
+  from `git rev-parse --show-toplevel`; `handoff/` **is scanned** and is **REPORT-ONLY** — hits
+  counted and printed on the `MOJIBAKE_REPORT_ONLY:` line, never failing the build. The pass is
+  still not enforcement evidence for these files, **but the reason is scoping, not blindness.**
+- **`CLAUDE.md` §6 still claims "SIX suites / 190 checks"; it reports 196 / 29.** Present on trunk
+  at line 132; `#642` edited `CLAUDE.md` without fixing it. Logged, not edited — out of allowlist.
+- **`ops/AGENT_STANDING_RULES.md` is not on trunk** (`#635` open, failing its repo-boundary check),
+  so `cofounder-skill/SKILL.md` is the only home that exists. Three findings written there.
+
+---
+
 ## 2026-08-09 — WAVE ME-A CLOSED: #634 · #641 · #637 · #636, plus the four commits that were already unrecorded (#629 · #630 · #632 · #631 · #633) — trunk `e8f89863`
 
 **`2026-08-08T23:31:55Z UTC / 2026-08-09 05:01 IST`**

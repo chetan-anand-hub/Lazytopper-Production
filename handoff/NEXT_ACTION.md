@@ -1,8 +1,127 @@
 # LazyTopper — Next Action
-# Updated: 2026-08-09 (post-**WAVE ME-A**: #634 · #641 · #637 · #636, four lanes + two scouts, plus the four commits already unrecorded when it opened — #629 · #630 · #632 · #631 · #633. Trunk `e8f89863`. FOUR open PRs, none of them ME: #638/#639/#640 are the DPDP arc's live drafts, #635 is the owner's ops-docs PR. Every ME-A lane disproved part of its own spec. **Wave ME-B opens with `ARRIVAL-1` + `RETRY-1` under a FRESH controller; `ME-2` is Wave ME-C.**)
+# Updated: 2026-08-09 (post-**WAVE DPDP-A**: #640 · #639 · #638, three lanes + two read-only scouts. Trunk `6f7da56e`. 🛑🛑 **`#638` IS MERGED AND CANNOT DEPLOY** — production serves the `#639` build; the `#638` boot crashed on an undeclared `tsx` and Railway rolled it back. **DPDP-B's FIRST lane is that fix, ahead of `EXPORT-1` and `SETTINGS-1`.** Every DPDP-A lane disproved a premise of its own dispatching document, two of them the controller's own. **ONLY A BOOT PROVES IT RUNS.**)
+# Previously: 2026-08-09 (post-**WAVE ME-A**: #634 · #641 · #637 · #636, four lanes + two scouts, plus the four commits already unrecorded when it opened — #629 · #630 · #632 · #631 · #633. Trunk `e8f89863`. FOUR open PRs, none of them ME: #638/#639/#640 are the DPDP arc's live drafts, #635 is the owner's ops-docs PR. Every ME-A lane disproved part of its own spec. **Wave ME-B opens with `ARRIVAL-1` + `RETRY-1` under a FRESH controller; `ME-2` is Wave ME-C.**)
 # Previously: 2026-08-07 (post-**WAVE 5F**: #619 · #620 · #625 · #621 · #626 · #627, four lanes. Trunk `fbfb57fa`. ZERO open PRs. Typed grading LIVE-VERIFIED end to end, including the control. **Wave 5G opens with `ME-PROGRESS`.**)
 
-## NEXT — 2026-08-09 (post-Wave ME-A). Read this block first.
+## NEXT — 2026-08-09 (post-Wave DPDP-A). Read this block first.
+
+**Trunk `6f7da56ea9495fcfdbe80c577bc13b16a987f456`** — re-derive with
+`git ls-remote origin base/approved-thru-437`; it moved five times in two days.
+
+### 0 — ***** THE ONE THING THAT MUST NOT BE MISSED *****
+
+> ## 🛑🛑 **`#638` IS MERGED AND CANNOT DEPLOY. PRODUCTION IS SERVING THE `#639` BUILD.**
+> ## **The `#638` deployment crashed on boot and Railway rolled it back:**
+> ## `Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'tsx' imported from /app/lazytopper/`
+
+**`tsx` is declared only in `artifacts/api-server/package.json` (`"tsx": "catalog:"`) and is absent
+from `lazytopper/package.json` and the root** — re-verified on trunk `6f7da56e`. pnpm workspaces
+isolate per package; the Dockerfile does **not** prune ⇒ **undeclared, not stripped.**
+
+★★ **DO NOT record ERASE-1's live-verify as "pending". It is MOOT.** A Console check against
+production would be checking a build **that does not contain the code**. The abandoned-QR-upload
+verification waits on the same fix.
+
+### THE NEXT TASK — **WAVE DPDP-B, under a FRESH CONTROLLER**
+
+**Lane order is fixed by the owner:**
+
+1. 🛑 **The `tsx` deploy fix — FIRST, ahead of everything.** `[FU-ERASE-1-GATEWAY-TSX-UNDECLARED]`.
+   ⚠ **Write it together with `[FU-DEPENDABOT-BLOCKS-RAILWAY-DEPLOY]` — they are ONE root cause**
+   (the `catalog:` protocol), not two bugs. **A lane that treats them as unrelated will fix one and
+   leave the other.**
+   - ⚠ **A manifest change without a matching `pnpm-lock.yaml` update fails the Vercel build too.**
+   - ★★ **The acceptance test is a SUCCESSFUL RAILWAY BOOT, not a green suite.** No gate in this
+     repository can produce that evidence. **State which image the import resolved in.**
+2. **`EXPORT-1`** — data export. It **reuses ERASE-1's map-walker**; a second walker is a drift
+   hazard, not redundancy. ⚠ It collides with ERASE-1 on `lazytopper/server/index.cjs` by exact
+   path, which is why it was sequenced rather than raced — that constraint is now discharged,
+   ERASE-1 is on trunk.
+3. **`SETTINGS-1`** — the student-facing surface. **Nothing ships to students on this arc until it
+   lands.** ⭐ It **reads the response body, not the status code** — the body enumerates all 29
+   locations with their outcome regardless of status. ⭐ **It must not render `notFound` as an error
+   to a student**: a path never written to is legitimately empty. It also owns the browser
+   `localStorage` half of erasure, which no server can reach.
+   - ★ `SETTINGS-1`'s original blocker (`MI-CONCEPT-1` reaching trunk) is **DISCHARGED** — `#637`
+     merged as `92cc9fc4`. Its remaining blocker is the deploy fix.
+   - ★ **Student-facing Gemini disclosure wording is `SETTINGS-1`'s and the OWNER rules on copy.**
+
+### 🛑🛑 ESCALATION — A LAUNCH-BLOCKING LEGAL QUESTION, NOT A LANE
+
+**`[FU-DPDP-GUARDIAN-CHANNEL-LEGAL]`.** India's DPDP Act treats data of **anyone under 18** as a
+child's data and requires **verifiable parental consent to PROCESS it. Every LazyTopper student is
+in that class.** ⇒ **This potentially reaches SIGNUP ITSELF, not just deletion.** **Neither the
+owner nor any agent here is a lawyer. This needs legal advice before launch.** It is not a backlog
+item about a delete button and must not be softened into one.
+
+### ⭐ THE STANDING DOCTRINE THIS WAVE ADDED — put it in every brief
+
+> **A test proves the code works. A build chunk proves it ships. ★ ONLY A BOOT PROVES IT RUNS.**
+> Named beneath `MOUNT ≠ LIVE`: **resolves-in-dev ≠ resolves-in-the-deployed-image.**
+> ➜ **Any lane adding a runtime import to a server must state WHICH IMAGE it executed in.**
+
+★★ **The generalisation is sharper than the bug.** ERASE-1's map-import proof was **demanded, made
+lane-blocking, delivered, and honestly reported** — `EXECUTED PASS` was true in a dev worktree and
+false in the production image. **Making a proof mandatory was not enough; the brief never said
+WHERE it had to run, and a lane-blocking proof run in the wrong environment reads exactly like a met
+requirement.**
+
+Two more, both now in `cofounder-skill/SKILL.md`:
+- **THE ALERT LIST IS NOT THE SET.** CodeQL flagged 4 of the 6 `setItem` calls in
+  `referralService.ts`. **Generalises to every scanner this project uses** — and it recurred the
+  same day: a `Math.random()` user-facing referral code sits on trunk unflagged.
+- **A MUTATION'S RED MUST QUOTE THE INJECTED VALUE.** Five false reds came from an `ENOENT` that
+  read exactly like a failing test. Add a pre-mutation green and a did-it-actually-run assertion.
+
+### ⚠ OPEN PRs AND THE HANDOFF LOCK
+
+- **`#635`** (`docs(ops): commit the agent standing rules`) is **OPEN and BLOCKED** — failing its
+  repo-boundary check. ⇒ **`ops/AGENT_STANDING_RULES.md` DOES NOT EXIST ON TRUNK. Do not create it
+  from another lane.** `cofounder-skill/SKILL.md` is the only home that exists today.
+- ✅ **`#642`** (the Wave ME-A handoff) **MERGED** at `2026-08-09T01:58:22Z` as `516e50ff`, which is
+  now the trunk tip. **It is docs-only.** ⇒ **No handoff PR is open as of this writing** — but that
+  is a fact with a shelf life. **Re-run the command.**
+- ★★ **EXACTLY ONE HANDOFF PR MAY BE OPEN AT ANY MOMENT — not one ever.** Two *in sequence* is
+  correct; two *at once* is the failure. ⚠ **Force-merging two handoffs through the GitHub UI has
+  silently preserved stale content over corrections with no gate catching it.** Run
+  `gh pr list --state open` **as a command**, not as a habit.
+- ★★ **AND CUT A DOCS BRANCH FROM THE OPEN HANDOFF PR'S TIP, NEVER FROM TRUNK BENEATH IT.** This
+  handoff was written while `#642` was open; a branch cut from trunk would have produced a PR whose
+  diff **reverted all twelve of `#642`'s files**, and merging it would have silently undone the ME-A
+  handoff. **No gate in this repository detects that.** See `DECISION_LOG.md`.
+
+### ⭐ WHAT DPDP-B INHERITS — do not re-derive these
+
+- **Both server surfaces are LIVE, in one process tree.** `railway.json` + Dockerfile start
+  `artifacts/api-server/dist/index.mjs`, which **spawns** `lazytopper/server/index.cjs`;
+  `vercel.json` rewrites `/api/*` → gateway and `/shared-api/*` → api-server, same Railway host.
+  **`artifacts/` is the deploy entrypoint, NOT a De-Replit archive.**
+- **`resolveVerifiedUid` in `verifiedCaller.cjs` is ALREADY FAIL-CLOSED** (owner-verified). Every
+  path returns `""` and **it never consults a header.** ⇒ **No new gate to build** — consume it and
+  refuse empty. **The fail-open is in the CALLERS.** ★ SCOUT-1's "advisory / spoofable header"
+  phrasing is **wrong; do not propagate it.**
+- ⚠ **The spoofable-header hazard is nonetheless REAL AND CURRENT** (owner-verified):
+  `verifiedCaller.cjs` and `rateLimiter.cjs` both read `X-Lazytopper-Uid`.
+  **The Wave 5D header strip does NOT cover this** — it strips `x-user-id` at the api-server proxy:
+  **different header, different surface.**
+- **Rate limiting: the repo-wide belief "caps are per-UID, never per-IP" is WRONG.** An IP tier
+  exists (`ip:<xff>`, 3/day, signed-out) on the **gateway only**; **api-server has no limiter at
+  all.**
+- **`users` STAYS LISTED in `studentDataMap.ts`** even though the write is gone, until production is
+  verified empty. **De-listing is the one move that could make a future erasure LIE about what it
+  covered.**
+- **The map is server-consumable and this is EXECUTED, not inferred** — 29 locations read inside the
+  server process via `require.extensions['.ts']`. ⚠ **In a dev worktree. See §0.**
+
+### ⚠ ONE CORRECTION THAT IS OWED AND IS IN NO LANE'S ALLOWLIST
+
+**`CLAUDE.md` §6 says the root guard matrix is "SIX suites / 190 checks". It reports 196 / 29** — in
+the same paragraph that says never to hardcode the count. Still present on trunk at line 132; `#642`
+edited `CLAUDE.md` without fixing it. `[FU-CLAUDEMD-MATRIX-COUNT-STALE-AGAIN]`.
+
+---
+
+## [SUPERSEDED by Wave DPDP-A] NEXT — 2026-08-09 (post-Wave ME-A). Read this block first.
 
 **`2026-08-08T23:31:55Z UTC / 2026-08-09 05:01 IST`** · **Trunk `e8f8986373cc9434858697df0186ca2acabb65a4`**
 (re-derive with `git ls-remote origin base/approved-thru-437` — it moved five times during this wave,

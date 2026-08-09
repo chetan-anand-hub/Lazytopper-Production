@@ -1,3 +1,178 @@
+## 2026-08-09 — WAVE DPDP-A, three lanes + two read-only scouts under a controller + subagent model (#640 · #639 · #638, trunk `6f7da56e`)
+
+**`2026-08-09`**
+
+> ★★ **Every lane disproved a premise of the document that dispatched it — two of them the
+> CONTROLLER'S OWN, and one of them the OWNER'S, which made a lane smaller. The verdicts below are
+> useless without their reasons, so the reasons are recorded and the verdicts are not recorded
+> alone.**
+
+### ⭐ OWNER RULING Q1 — the erasure lives on the GATEWAY (`lazytopper/server/**`)
+
+**And the owner VERIFIED THE CRUX HIMSELF, which made the lane smaller.** `resolveVerifiedUid` in
+`verifiedCaller.cjs` is **ALREADY FAIL-CLOSED**: every path — no token, no admin SDK, unverified,
+expired, forged, network down — returns `""`, and **it never consults the header.**
+
+⇒ **There was no new gate to build.** The route consumes what exists and refuses empty:
+`const uid = await resolveVerifiedUid(req); if (!uid) return 401;` — **no change to
+`verifiedCaller`, no effect on any existing route.**
+
+★ **SCOUT-1's phrasing — *"`resolveVerifiedUid` is advisory and falls back to a spoofable header"* —
+is CORRECTED. Do not propagate it.** The header-reading is a **different function in the same file**.
+★★ **The likely cause of the scout's error is recorded because it is reusable:** a `catch` in that
+file carried the comment *"Fall back to the header — never to anonymous"* while the code returned
+`""` — **a security-critical function documented as doing the opposite of what it does.** `#638`
+fixed the comment; verified absent from trunk.
+
+★ **The spoofing hazard is nonetheless REAL AND CURRENT** (owner-verified): `verifiedCaller.cjs` and
+`rateLimiter.cjs` both read `X-Lazytopper-Uid`. ⚠ **The Wave 5D header strip does NOT protect the
+gateway** — it covers `x-user-id` at the api-server proxy: **different header, different surface.**
+
+### ⭐ OWNER RULING Q2 — dismiss the 9 CodeQL alerts as false positives, WITH a guard
+
+★ **THE TEST IS THE DELIVERABLE, NOT THE DISMISSAL.** It must sit **beside the storage call, not in
+a distant suite**, so a future change trips it.
+
+**Reason given, and it is the general form:** remediating a persisted value read on every load is
+**the exact class that broke production past 1,082 green tests** — an unacceptable risk to take for a
+**false positive**. The dismissal rationale must record that **the "7" span two rule ids**, so nobody
+later suppresses by rule id and leaves two open.
+
+⚠ **The dismissal itself is the OWNER's action.** A CodeQL dismissal is an **outward-facing
+repo-state change**, same class as "push as draft, never merge". CLEARTEXT-1 authored the rationale
+and the exact commands and **deliberately did not execute them.**
+
+### ⭐ OWNER RULING Q3 — delete the dead `users` write, own lane, this wave
+
+**Reason:** an FU only asks people to remember; **removing the write closes the door permanently**
+against someone later "fixing" it with a rules block.
+
+★ **But `users` STAYS LISTED in `studentDataMap.ts`.** Erasing a path that was never written is a
+harmless no-op, and **de-listing is the single move that could make a future erasure LIE about what
+it covered.** ⇒ **Listing a collection that turns out to be empty costs nothing; omitting one that is
+not is the failure this entire arc exists to prevent.**
+
+### ★★ OWNER RULING — the `qrUploadSlots` finding is PROMOTED TO LANE-BLOCKING
+
+The controller had reported it at the bottom of a message as *"worth knowing"*. The owner's ruling:
+> *"That is the worst failure available to this lane. A minor's handwriting images stay live while
+> the product tells a parent the account was erased."*
+
+**The four requirements he attached, kept verbatim in substance because each one is load-bearing:**
+1. The erasure **must query by field** for that location, **never by doc id**.
+2. ★★ **A delete that matches nothing MUST NOT report success.** Every location returns `deleted N`
+   **or** `not found`, and **the caller distinguishes them.**
+3. **Mutation:** point it back at a doc-id delete → the test goes red **because zero documents
+   matched**, not because an assertion changed.
+4. ★ **Audit all 29 locations for the same shape. Enumerate; do not spot-check.**
+
+⇒ **Requirement 4 paid for itself immediately** — it found a **second** instance the lane's own first
+classifier had got wrong. **A spot-check of the one known location would have shipped it.**
+
+### ⭐ OWNER RULING — 200 vs 207, and what `SETTINGS-1` must read
+
+**200** when every reachable location returned a **definite outcome**; **207 only on genuine
+failure.** ★★ **And — the owner's addition, which the controller had not proposed — the body
+enumerates all 29 locations with their outcome REGARDLESS of status code. The code is for machines;
+the body is the evidence, and `SETTINGS-1` will read the body.**
+
+★ **`notFound` is a DEFINITE OUTCOME, not a failure** — a path never written to is legitimately
+empty. ⇒ **Carried to `SETTINGS-1`: it must not render `notFound` to a student as an error.**
+
+### ⭐ OWNER RULING — EXPORT-1 and SETTINGS-1 go to a FRESH controller (DPDP-B)
+
+★★ **The owner asked that this framing be kept for whoever replaces the controller — IT IS NOT A
+CONTEXT CALCULATION.** Addendum §1 is deliberately **positional**: *a controller that finishes with
+context left stands down anyway.*
+⇒ **The arithmetic version — *"do I have enough context for one more lane?"* — would justify
+precisely the behaviour §1 exists to prevent.** **Never reason about your lifetime by measuring your
+remaining context.**
+
+Secondary reason: EXPORT-1 could not start until `#638` was **on trunk**, which would have meant
+idling through three merges and three live-verifies.
+
+**And the `tsx` deploy fix is DPDP-B's FIRST lane, ahead of both** — owner-assigned.
+
+### CONTROLLER DECISIONS, with the reason each was made
+
+- **Two READ-ONLY SCOUTS dispatched before any product lane.** **Reason:** three separate premises in
+  the dispatch spec were unverified and **each one determined an allowlist** — (a) which server
+  surface is live, (b) whether a `.ts` module under `src/services/` is reachable from a `.cjs`
+  server, (c) the CodeQL count. **Writing an allowlist on an unverified premise is how a lane gets
+  rebuilt.** ⇒ **All three premises moved, and two of them were wrong.**
+- **ERASE-1 and EXPORT-1 SEQUENCE; they do not race.** **Reason:** both must register a route in
+  `lazytopper/server/index.cjs` — an **exact-path collision** (`lane_overlap.mjs` is
+  `files.filter(f => mineSet.has(f))`). EXPORT-1 **reuses ERASE-1's map-walker**; a second walker
+  would drift from the first the day the map changes.
+- **Cap of 2 lanes in flight.** **Reason:** ★ **parallelism on this box is bounded by RAM, not by
+  file sets** — two concurrent full matrices have OOM-killed the editor before. All three lanes were
+  file-disjoint; **the constraint was the machine, not the lanes.**
+- **`AuthContext.tsx` assigned to USERS-1 ONLY and explicitly FORBIDDEN to CLEARTEXT-1.**
+  **Reason:** it is the CodeQL **taint source** and therefore the one file that could pull both lanes
+  together. CLEARTEXT-1 did not need it — the owner ruled *dismiss*, not *remediate*, so that lane
+  changed **no production code at all**.
+- **The `client-local` (`localStorage`) location is OUT of ERASE-1's scope, and ERASE-1 must REPORT it
+  rather than pretend it erased it.** **Reason:** **no server can reach a browser's `localStorage`.**
+  The arc already assigns the browser half to `SETTINGS-1`.
+- **Student-facing Gemini disclosure wording DEFERRED to `SETTINGS-1`.** **Reason:** it is student
+  copy, **and the owner rules on copy.** ERASE-1 needed only the machine-readable *"not deleted /
+  cannot be deleted"* field.
+- **The controller wrote all three attached specs to disk before dispatching.** **Reason:** the
+  standing rule **"AN ATTACHED DOCUMENT IS NOT A FILE."**
+
+### ⚠ CONTROLLER ERRORS RECORDED — because a wave that only logs its wins is not a record
+
+- **The controller's §0 amendment to CLEARTEXT-1 was WRONG, and was disproved empirically.** It told
+  the lane *and the owner* that `#637` would collide and whichever merged second would see a correct
+  red. **It does not collide** — `#637`'s `concept`/`questionId` land on the Firestore
+  `MistakeLogEntry` via `buildEntry`, never on the `localStorage` dedup payload. Proven by swapping
+  `#637`'s actual blob (`56c262bb`) into the tree → guard GREEN `4 passed (4)` → restored.
+  ⇒ ★ **And the corollary the lane stated rather than buried:** the controller's argument *"if `#637`
+  had added an identifying field your guard would catch it"* is **false for this case** — the guard's
+  boundary is the `localStorage` sinks, not the Firestore log. **The allowlist shape is still right
+  (it fails safe); the justification given for it was not. Fix the reason, not just the outcome.**
+- **The controller's mutation-4 recipe for ERASE-1 was wrong as written** — it went red **for the
+  wrong reason** (a call-shape assertion fired first), so the lane split the test to make the red
+  *be* the zero match. ★ **That is the rule "when a mutation goes red, check it is red for the reason
+  you claimed" applied to the controller's own brief.**
+- **The controller asserted a four-name dormancy list from memory** — *in the same paragraph where it
+  wrote "do not invent the block's contents"* — and the owner corrected it. `WIRE-2` (`#621`) had
+  already ended `#578`, `#611` and `#617`. ★★ **The hedge saved nothing; the assertion still
+  propagated into a dispatched instruction.** ⇒ **Read the real block on trunk; verify every name
+  against the file.**
+
+### ★★ THE DECISION THIS HANDOFF MADE ON ITS OWN — and it should be reviewed, not assumed
+
+**This PR's branch was cut from `#642`'s head (`c2e6bebb`), NOT from trunk (`6f7da56e`), and that is
+a deliberate deviation from the brief that commissioned it.**
+
+**Reason:** `#642` (the ME-A handoff) was **still open** when this content was written, and it
+rewrites the top of all seven `handoff/` files. A branch cut from trunk would produce a PR whose diff
+**reverts every one of `#642`'s changes** — the exact silent-revert failure the project has already
+recorded as a stale-base hazard, and one that no gate in this repository detects.
+
+**Cut from `#642`'s head instead, the diff contains only this wave's additions**, and after `#642`
+squash-merges as `S` the branch replays cleanly with
+`git rebase --onto S c2e6bebb docs/post-wave-dpdp-a-handoff`.
+
+⚠ **The tradeoff was stated rather than hidden:** if `#642` had been **closed unmerged**, this branch
+would have carried ME-A's content and needed a conflicted rebase onto trunk.
+
+✅ **OUTCOME — the decision resolved while this handoff was being written.** `#642` **merged** at
+`2026-08-09T01:58:22Z` as `516e50ff`, and its squash tree is **byte-identical to `c2e6bebb`**
+(`git diff --stat 516e50ff c2e6bebb` is empty). The branch was rebased onto trunk with
+`git rebase --onto 516e50ff c2e6bebb`, **zero conflicts**, and its diff against trunk is exactly the
+nine docs files in this PR.
+
+★★ **The counterfactual is why this entry exists.** Had the branch been cut from trunk as the brief
+directed, the PR opened after `#642` merged would have shown a diff **reverting all twelve of
+`#642`'s files** — and **merging it would have silently undone the ME-A handoff.** ⚠ **No gate in
+this repository detects that**, and the project has already recorded one force-merge of two handoffs
+that silently preserved stale content over corrections. ⇒ **A docs branch must be cut from the tip of
+whatever handoff PR is already open, never from trunk beneath it.**
+
+---
+
 ## 2026-08-09 — WAVE ME-A, four lanes + two scouts under a controller + subagent model (#634 · #641 · #637 · #636, trunk `e8f89863`)
 
 **`2026-08-08T23:31:55Z UTC / 2026-08-09 05:01 IST`**
