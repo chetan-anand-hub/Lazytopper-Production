@@ -7,19 +7,56 @@
 # This file configures VERSION updates only (routine "a newer release exists"
 # bumps). It does NOT enable, and cannot enable:
 #
-#   * Dependabot ALERTS            — repo Settings > Code security. VERIFIED
-#                                    DISABLED on 2026-08-03 (GET
-#                                    /repos/.../vulnerability-alerts -> 404
-#                                    "Vulnerability alerts are disabled.").
-#   * Dependabot SECURITY updates  — same page, separate toggle. VERIFIED
-#                                    DISABLED on 2026-08-03
-#                                    (security_and_analysis
-#                                     .dependabot_security_updates = disabled).
+#   * Dependabot ALERTS            — repo Settings > Code security.
+#   * Dependabot SECURITY updates  — same page, separate toggle.
 #
 # Those two are what turn a published CVE into a PR. They are Settings toggles
 # with no file representation, so merging this file does not switch them on.
-# Until the owner does, this repo gets routine bumps and NO vulnerability
-# response. See the SUPPLY-1 report.
+#
+# ===========================================================================
+# DATED CORRECTION — 2026-08-09, lane SUPPLY-2. NOT a silent edit.
+# ===========================================================================
+# The two bullets above previously read "VERIFIED DISABLED on 2026-08-03", and
+# the paragraph after them said this repo gets "NO vulnerability response".
+# BOTH ARE NOW FALSE — the owner switched both toggles ON after 2026-08-03.
+# Re-verified 2026-08-09:
+#
+#   GET /repos/.../vulnerability-alerts  -> HTTP 204   (204 = ENABLED; it
+#                                           returned 404 on 2026-08-03)
+#   .security_and_analysis.dependabot_security_updates.status -> "enabled"
+#
+# There were 121 open alerts on 2026-08-09 (4 critical / 45 high / 59 medium /
+# 13 low). A file that asserts its own subject is switched OFF while it is
+# switched ON sends the next reader to the wrong conclusion, so this is
+# corrected in place and dated rather than quietly deleted.
+#
+# ---------------------------------------------------------------------------
+# WHY MOST ALERTS HERE NEVER BECOME A DEPENDABOT PR — read before filing a bug
+# against this file
+# ---------------------------------------------------------------------------
+# 116 of those 121 alerts are TRANSITIVE, and Dependabot cannot update
+# transitive dependencies for the pnpm package manager at all (dependabot-core
+# #13177). The job spec generated for this repo carries
+# "update-subdependencies": false and
+# "allowed-updates": [{"dependency-type":"direct","update-type":"all"}].
+# Such a job runs `pnpm update <pkg> --lockfile-only --no-save -r`, which is a
+# NO-OP for a package no manifest declares; it then reads back the unchanged
+# lockfile and exits `security_update_not_possible`. That is a RED "Dependabot
+# Updates" run that opens no PR — 43 of the last 60 runs on 2026-08-09. This is
+# UPSTREAM behaviour, not a defect in this file, and no key below can change it.
+#
+#   => Remedy for a transitive advisory here is a normal PR doing a targeted
+#      `pnpm update --lockfile-only --depth Infinity -r <pkg>`, or an
+#      `overrides:` entry in pnpm-workspace.yaml. Lane SUPPLY-2 did the former
+#      for 9 packages on 2026-08-09 (121 alerts -> 57 resolved, 4/4 criticals).
+#   => WATCH OUT: a parent may pin the child EXACTLY, in which case the PARENT
+#      is what must move. react-router-dom@7.14.0 pins react-router 7.14.0, so
+#      updating `react-router` alone changes nothing.
+#   => AND ALWAYS MOVE THE LOCKFILE WITH THE MANIFEST. Dependabot's own
+#      PR #594 (vitest 3.2.4 -> 3.2.6) edited lazytopper/package.json without
+#      updating pnpm-lock.yaml and died on
+#      `ERR_PNPM_OUTDATED_LOCKFILE ... vitest (lockfile: 3.2.4, manifest:
+#      3.2.6)`. An exact pin is what forces Dependabot down that path.
 #
 # ---------------------------------------------------------------------------
 # WHY WEEKLY AND WHY THE LIMITS ARE LOW
@@ -72,11 +109,18 @@ updates:
   # resolves the workspace from the root manifest + pnpm-lock.yaml, so a
   # per-package entry is not needed and would fight the single lockfile.
   #
-  # DELIBERATELY ABSENT: a `/lazytopper` entry. lazytopper/package-lock.json is
-  # tracked in git but is a stale npm artifact -- lazytopper is a pnpm
-  # workspace member and CI installs with `pnpm install --frozen-lockfile`.
-  # Pointing an npm directory at it would generate PRs editing a lockfile
-  # nothing installs from. Tracked as [FU-SUPPLY1-STALE-NPM-LOCKFILE].
+  # DELIBERATELY ABSENT: a `/lazytopper` entry. lazytopper is a pnpm workspace
+  # member; CI installs with `pnpm install --frozen-lockfile` from the single
+  # root lockfile. Pointing an npm directory at it would generate PRs editing a
+  # lockfile nothing installs from.
+  #
+  # DATED CORRECTION — 2026-08-09, lane SUPPLY-2. This paragraph previously
+  # said "lazytopper/package-lock.json is tracked in git but is a stale npm
+  # artifact". THAT FILE IS NOT TRACKED. Enumerating every lockfile at
+  # eeafb99b (`git ls-tree -r --name-only HEAD | grep -iE
+  # "package-lock|shrinkwrap|yarn.lock|pnpm-lock"`) returns exactly one path:
+  # pnpm-lock.yaml. [FU-SUPPLY1-STALE-NPM-LOCKFILE] is therefore already
+  # resolved, and the reasoning above stands on the pnpm-workspace fact alone.
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
