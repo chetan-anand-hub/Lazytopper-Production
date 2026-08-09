@@ -1,6 +1,6 @@
 ---
 
-## 2026-08-09 — WAVE ME-B CLOSED: `#647` (draft) · `RETRY-1` (pushed, no PR) — three concept resolvers in a row were wrong, and nothing this wave built is on trunk — trunk `376e30b0`
+## 2026-08-09 — WAVE ME-B CLOSED: `#647` TOPICHUB-1 · `#649` RETRY-1, both GREEN DRAFTS — three concept resolvers in a row were wrong, and nothing this wave built is on trunk — trunk `376e30b0`
 
 **`2026-08-09`** · three build lanes + two read-only scouts, controller + subagent model. **Controller
 ME-B, lifetime one wave, stood down at handoff per addendum §1.**
