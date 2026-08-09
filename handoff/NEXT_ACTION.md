@@ -1,9 +1,175 @@
 # LazyTopper — Next Action
-# Updated: 2026-08-09 (post-**WAVE DPDP-A**: #640 · #639 · #638, three lanes + two read-only scouts. Trunk `6f7da56e`. 🛑🛑 **`#638` IS MERGED AND CANNOT DEPLOY** — production serves the `#639` build; the `#638` boot crashed on an undeclared `tsx` and Railway rolled it back. **DPDP-B's FIRST lane is that fix, ahead of `EXPORT-1` and `SETTINGS-1`.** Every DPDP-A lane disproved a premise of its own dispatching document, two of them the controller's own. **ONLY A BOOT PROVES IT RUNS.**)
+# Updated: 2026-08-09 (post-**WAVE ME-B**: `#647` TOPICHUB-1 + `#649` RETRY-1, **BOTH OPEN DRAFTS WITH GREEN CI AND NEITHER ON TRUNK** - `gh pr ready` is the owner's step. Trunk `376e30b0`, which moved FOUR times during the wave. `ARRIVAL-1` returned BLOCKED with ZERO FILES and that was correct. **`ME-2` was NOT STARTED and passes whole to Wave ME-C.** **THREE consecutive concept resolvers were specified and all three were wrong**, caught only because each was handed on flagged UNVERIFIED. **`#647` is a CONSUMER WITH NO PRODUCER - if `ME-2` does not ship, it is dead code.**)
+# Previously: 2026-08-09 (post-**WAVE DPDP-A**: #640 · #639 · #638, three lanes + two read-only scouts. Trunk `6f7da56e`. 🛑🛑 **`#638` IS MERGED AND CANNOT DEPLOY** — production serves the `#639` build; the `#638` boot crashed on an undeclared `tsx` and Railway rolled it back. **DPDP-B's FIRST lane is that fix, ahead of `EXPORT-1` and `SETTINGS-1`.** Every DPDP-A lane disproved a premise of its own dispatching document, two of them the controller's own. **ONLY A BOOT PROVES IT RUNS.**)
 # Previously: 2026-08-09 (post-**WAVE ME-A**: #634 · #641 · #637 · #636, four lanes + two scouts, plus the four commits already unrecorded when it opened — #629 · #630 · #632 · #631 · #633. Trunk `e8f89863`. FOUR open PRs, none of them ME: #638/#639/#640 are the DPDP arc's live drafts, #635 is the owner's ops-docs PR. Every ME-A lane disproved part of its own spec. **Wave ME-B opens with `ARRIVAL-1` + `RETRY-1` under a FRESH controller; `ME-2` is Wave ME-C.**)
 # Previously: 2026-08-07 (post-**WAVE 5F**: #619 · #620 · #625 · #621 · #626 · #627, four lanes. Trunk `fbfb57fa`. ZERO open PRs. Typed grading LIVE-VERIFIED end to end, including the control. **Wave 5G opens with `ME-PROGRESS`.**)
 
-## NEXT — 2026-08-09 (post-Wave DPDP-A). Read this block first.
+## NEXT — 2026-08-09 (post-Wave ME-B). Read this block first.
+
+**Trunk `376e30b0931eea69353c582011ed71f38da788f5`** — re-derive with
+`git ls-remote origin base/approved-thru-437`; **it moved four times inside Wave ME-B alone.**
+
+### 0 — ***** THE ONE THING THAT MUST NOT BE MISSED *****
+
+> ## 🛑 **NOTHING WAVE ME-B BUILT IS ON TRUNK.** Both lanes are **GREEN DRAFT PRs**, and
+> ## **`gh pr ready` is the OWNER's step, never an agent's.**
+
+```
+#647  TOPICHUB-1  DRAFT · head 9144c216 · Quality Gate 31308051980 PASS
+                  # suites 29 / # pass 196 / # skipped 0
+                  Test Files 138 passed (138) / Tests 1719 passed (1719)
+#649  RETRY-1     DRAFT · head 25862843 · base 376e30b0 · Quality Gate 31308051342 PASS
+                  # tests 196  # suites 29  # pass 196  # fail 0  # skipped 0  # todo 0
+                  Test Files 138 passed (138) / Tests 1723 passed (1723)
+                  own suite named as run:  mistakeRetry.test.ts (22 tests)
+```
+
+⚠ **`#647`'s head is `9144c216`, NOT the `81406ea5` an earlier record pinned** — the `R7` badge-copy
+fix (`94f760c8`) and two trunk merges landed after. **Read CI at the head SHA, never at the PR.**
+⚠ **The vitest counts moved 1719 → 1723 between two runs on the same day** (and 1662 earlier in the
+same wave). **Read them from the run; never carry one as a fixed number.**
+⚠ **`#649`'s one `skipped` STEP is the docs fast-path acceptance, correctly bypassed** because the
+classifier routed the PR to FULL BAR — **a skipped step is not a skipped test.**
+
+⇒ **Do not open Wave ME-C believing either lane is history. Both are open work awaiting the owner.**
+
+### THE NEXT TASK — **WAVE ME-C, under a FRESH CONTROLLER, running lane `ME-2`**
+
+**`ME-2` is the v7 `/me` page — the largest single lane in the arc, plus the UI half of the retry
+affordance.** It was deliberately NOT started in ME-B: the controller was below the addendum §3 35%
+floor with two merges still owner-gated, and **a fresh controller with a written handoff beats half a
+lane and an unwritten one.**
+
+> ### ⭐ **`ME-2`'s brief is ALREADY WRITTEN: `handoff/BRIEF_ME-2.md`.**
+> ⚠⚠ **IT IS UNTRACKED — it exists in the shared checkout on the owner's machine and is NOT in the
+> repository.** No `BRIEF_*.md` has ever been tracked here (`git ls-files handoff/` lists none), so
+> this is convention, not an accident — **but it means the brief does not travel with a fresh clone
+> or a worktree.** Find it at `C:\Projects\Lazytopper-Production\handoff\BRIEF_ME-2.md`.
+>
+> ⛔ **RE-VERIFY IT AGAINST CURRENT TRUNK BEFORE DISPATCHING IT.** It was authored during ME-B,
+> against a trunk that has since moved. **A carry-forward instruction is itself a claim about the
+> repo and goes stale** — that is a standing lesson from Wave 5E, and this brief is exactly the
+> shape that went stale then.
+
+**`ME-2`'s allowlist, as ratified this wave:** `lazytopper/src/pages/MeProgressPage.tsx` + its tests,
+**and `lazytopper/src/lib/desktop/navigation.ts`** (see §1 below).
+
+### ⭐ THE `RETRY-1` CONTRACT `ME-2` CONSUMES — copy it exactly, do not re-derive it
+
+```
+planMistakeRetry(entry)  ->  plan
+ALWAYS label via retryCopyFor(plan). NEVER retype the strings.
+
+  "exact"    ->  "Re-do that one"        re-serve plan.bankQuestionId
+  "similar"  ->  "Try one like it"       plan.concept ?? plan.topic,
+                                         plus NUMERIC plan.marks
+  "none"     ->  null                    render nothing at all
+```
+
+🛑 **`plan.marks` is the NUMERIC `q.marks`, never the coarse `"1"`/`"23"`/`"5"`/`"4"` buckets** — the
+buckets FUSE 2-and-3-mark questions and cannot isolate a single mark value (`CLAUDE.md` §7).
+⚠ **`"none"` renders NOTHING** — `R10`: *"a retry affordance on an entry that can't identify its
+question is decoration, and the student can already reach that topic from every other row. Silence is
+the honest option."*
+⭐ **Importing `mistakeRetry.ts` is what flips `[FU-RETRY-NO-BUILD-CHUNK-YET]` from *test-only* to
+*ships*.** `#649`'s CI build ran (1124 modules, 9.69s) and emitted **no `mistakeRetry` chunk** —
+**verified, not asserted.**
+
+### 1 — ⚠⚠ `ME-2`'S FIRST OBLIGATION IS THE PRODUCER, NOT THE PAGE
+
+**`#647` ships a reader that nothing calls.** No code emits `?concept=` into `/topic-hub`:
+`buildDesktopTopicHubPath`'s `DesktopRouteContext` is `{source, returnTo}` only, and HPQ does not
+link to `/topic-hub` at all. ⇒ **IF `ME-2` DOES NOT SHIP, `#647` IS DEAD CODE ON TRUNK.**
+*(Owner-ratified, `R6`, recorded verbatim at his instruction.)*
+
+⚠ **`ME-2` must emit EXACTLY:**
+`/topic-hub/<grade>/<subject>/<topicSlug>?concept=<EXACT boardEssentials name, URI-encoded>`
+— **the verbatim label. NOT a slug, NOT a `conceptKey`, NOT lower-cased.** `BoardConcept` has no key
+field; the row's identity **is** its name. Three separate resolvers were tried and all three were
+wrong; **do not introduce a fourth.**
+
+### 2 — 🛑 THE REGRESSION `ME-2` WILL SHIP IF NOBODY READS THIS
+
+**`#646` (`SETTINGS-1`, `3d3a32a9`) ADDED `<AccountDataControls />` TO `MeProgressPage.tsx` as its
+last section.** `ME-2` rebuilds that file wholesale. **Deleting that section silently removes a
+student's DPDP data-download and account-delete controls** — a privacy regression shipped by a
+redesign, on the one arc where that is least acceptable. **Diff against trunk `376e30b0` or later,
+never against a brief written before it.**
+
+### 3 — THE OWNER'S RULINGS ARE BINDING ON `ME-2` AND SUPERSEDE BOTH THE PROTOTYPE AND THE ARC DOC
+
+- **`R1` bar buckets** — ⛔ none of the three options offered. **Mirror `ResultsScorecard`'s own
+  grouping:** keep **four** segments and fix the **naming** —
+  `secured` · `careless slips` (Silly + Presentation) · `knowledge gaps` (Conceptual + Calculation) ·
+  `unclassified`. **The legend names all four MI types under their two headings**, so nothing is
+  invisible and nothing is dumped into `unclassified`.
+- **`R2` bar numerals** — the owner **retracted his own contrast figures**; the scout's measurements
+  were right. The fix is **the WCAG large-text threshold** (AA large = **3:1**, large = 14pt bold =
+  **18.66px**; the numerals are **already `font-weight:700`**) ⇒ **navy passes at ≥18.66px bold. NO
+  token change, NO global colour shift** — `MISTAKE_TONE` is used verbatim across the scorecard, the
+  MI card and history, so darkening it would repaint the product's whole mistake vocabulary.
+  ⚠ **Raise the segment render threshold from 7% to ~12%** — at 360px a 7% segment is ~23px and a
+  two-digit 18.66px bold numeral will not fit. **The legend already prints every number, so nothing
+  is lost.**
+- **`R3` reconciliation** — **the hero is truth.** Each deeper view carries an **explicit remainder
+  row** so all three sum to the hero (*"6 marks not yet traced to a concept"*). ⛔ The hero
+  under-reporting real lost marks is the one thing the page cannot do.
+- **`R5`** the thin-state self-contradiction and the mis-tagged first-run example are both to be
+  fixed. **`R9`** HPQ stays *"Try one like it"* — folding HPQ into the canonical bank is an **owner
+  content decision with syllabus implications, not a lane.** **`R10`** an entry with no `questionId`
+  **offers no affordance at all** — silence is the honest option, and `RETRY-1` already returns null
+  for it.
+
+### 4 — THE PROTOTYPE IS LOCKED **AND NOT DEFECT-FREE**: 11 defects `ME-2` must NOT reproduce
+
+Full table with measurements in `handoff/WAVE_STATE_ME_B_ARCHIVE.md`. The ones that will cost a cycle
+if missed:
+- **F1 the prototype file is MOJIBAKE-CORRUPTED** — 151×`â`, 16×`Â`, **zero em-dashes survive.**
+  Copying its strings literally ships mojibake **and trips `check:mojibake`, which is ENFORCED
+  everywhere outside `handoff/`.** Use the scout's supplied intended strings.
+- **F2** the thin state contradicts itself — *"34 marks on the table"* directly above *"Two checked
+  answers isn't enough to name anything yet."* **An honesty violation on the honesty page.**
+- **F6** `.go--soft` has no `:hover`, so `.go:hover` (0,2,0) beats it (0,1,0) → **navy-on-navy at
+  1.21:1** on *"Learn {chapter}"*, *"Re-do that one"*, *"Try a quick practice set"*.
+- **F11** the picker options and the first-run CTAs are **INERT** (`wire()` is skipped in first run)
+  ⇒ **those flows were never clickable in the prototype and `ME-2` must define them.**
+- ⚠ **F3 (three views that do not reconcile) and F4/F5 (`Calculation` and `Presentation` have no bar
+  segment) were ESCALATED and are ANSWERED by `R3` and `R1`.** Do not re-open them.
+- **Not a defect:** `.mask` is `position:fixed` and escapes the review harness's simulated frame. At
+  true 390×900 / 360×900 device viewports it measures 354/324px and fits.
+
+**Every structural check the prototype passed is load-bearing and `ME-2` must reproduce it** —
+subject purity in both directions across 3 tabs × collapsed+expanded × 3 widths, single-open
+accordion, **rail ≤1023 / grid ≥1024 (desktop does NOT inherit a rail)**, no horizontal overflow at
+360, and **ZERO `%` in rendered text.** **Pin them with tests.**
+
+### 5 — STILL OPEN ON THE OTHER ARC, and nobody has written it up
+
+⚠ **DPDP-B merged `#644`, `#645` and `#646` and stood down WITHOUT handing over a close-out**, so
+those three lanes exist on trunk as PR titles and nowhere as a lane record.
+`[FU-DPDP-B-NO-CLOSEOUT-HANDED-OVER]`
+
+🛑🛑 **`[FU-DPDP-GUARDIAN-CHANNEL-LEGAL]` REMAINS OPEN AND LAUNCH-BLOCKING.** India's DPDP Act treats
+data of **anyone under 18** as a child's data and requires **verifiable parental consent to PROCESS
+it. Every LazyTopper student is in that class.** **This needs legal advice before launch. It is not a
+backlog item about a delete button and must not be softened into one.**
+
+⭐ **`[FU-STEP-SOLUTIONS-TABLE-NEVER-CREATED]` is new and is probably costing money today** — the
+deploy log shows `relation "step_solutions" does not exist` and **nothing in the repo ever creates
+that table.** The cache fails soft, so **every step solution has always been regenerated from
+Gemini.** Owner-supplied, not agent-verified.
+
+### 6 — THE PRACTICE THAT CAUGHT EVERYTHING THIS WAVE — put it in every brief
+
+> ⭐⭐ **Pass every unverified claim on FLAGGED `UNVERIFIED`, with an explicit instruction to VERIFY
+> rather than INHERIT.** Three wrong concept resolvers were caught this way, **including one the
+> controller itself had put in the brief.** A candidate handed over as fact would have shipped.
+
+> ⚠ **A controller AMPLIFIES.** A restated finding is harder to reject than a raw one — so a
+> subagent's unverified claim must reach the next reader **at the confidence it arrived with.**
+
+
+## [SUPERSEDED by Wave ME-B] NEXT — 2026-08-09 (post-Wave DPDP-A). Read this block first.
 
 **Trunk `6f7da56ea9495fcfdbe80c577bc13b16a987f456`** — re-derive with
 `git ls-remote origin base/approved-thru-437`; it moved five times in two days.

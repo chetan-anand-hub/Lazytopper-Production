@@ -1,5 +1,95 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-08-09 — WAVE ME-B: **TWO LANES BUILT AND GATED, NEITHER ON TRUNK** (three lanes + two read-only scouts under a controller + subagent model, trunk `376e30b0`) — the Topic Hub can be opened on a named concept, and a mistake now knows whether it can be re-served
+
+**`2026-08-09`**
+
+> ## 🛑 **NO STAGE OF THIS WAVE IS RECORDED AS COMPLETE ON TRUNK, BECAUSE NONE OF IT IS ON TRUNK.** `#647` and `#649` are **open DRAFTS with green CI**, awaiting the owner's `gh pr ready`. They are recorded below as **BUILT AND GATED**, which is a strictly weaker claim than *complete*, and the distinction is the point.
+
+**STAGES BUILT + GATED — and explicitly NOT merged, NOT deployed, NOT reachable:**
+
+- **`TOPICHUB-1` (`#647`, OPEN DRAFT, head `9144c216`, 4 files)** — `/topic-hub` reads `?concept=`,
+  **marks and scrolls that concept's spine row**, and falls back honestly when the label does not
+  match. `pages/desktop/DesktopTopicHubPage.tsx` · `components/topichub/ConceptSpine.tsx` + both test
+  files. Three mutations restored byte-exact.
+  ⚠⚠ **IT IS A CONSUMER WITH NO PRODUCER.** Nothing in the product emits `?concept=` into
+  `/topic-hub` — `buildDesktopTopicHubPath`'s `DesktopRouteContext` is `{source, returnTo}` only, and
+  **HPQ does not link to `/topic-hub` at all.** ⇒ **reachable today only by a hand-typed URL. MOUNT ≠
+  LIVE.** ➜ **IF `ME-2` DOES NOT SHIP, THIS IS DEAD CODE ON TRUNK** (owner-ratified, `R6`).
+  **Quality Gate `31308051980` PASS** — `# suites 29 / # pass 196 / # skipped 0`;
+  `Test Files 138 passed (138)` / `Tests 1719 passed (1719)`.
+  ⚠ Its head moved past the SHA an earlier record pinned (`81406ea5`, run `31306745098`,
+  `135 (135)` / `1662`): the `R7` badge-copy fix (`94f760c8`) and two trunk merges landed after.
+  **A green run quoted against a PR rather than a head SHA goes stale the moment the branch moves.**
+  ⭐⭐ A remote trunk-merge landed mid-push and the push was **rejected**; the lane **did not
+  force-push** — it fetched, inspected both directions, merged, and re-reconciled the PR's file list
+  against base (**still exactly 4 files**). **The Wave-4 force-push mechanism avoided, not survived.**
+- **`RETRY-1` (`#649`, OPEN DRAFT, head `25862843`, base `376e30b0`, 2 files)** —
+  `services/mistakeRetry.ts` + test classify a mistake-log id into **exact-retry · similar-only ·
+  nothing.** Pure logic, both files new, colliding with nothing.
+  **Quality Gate `31308051342` PASS** — `# tests 196  # suites 29  # pass 196  # fail 0  # skipped 0
+  # todo 0`; `Test Files 138 passed (138)` / `Tests 1723 passed (1723)`; own suite named as run:
+  `mistakeRetry.test.ts (22 tests)`. **Gates RE-RUN post-rebase, not carried forward.**
+  ⭐ **Its evidence ceiling is VERIFIED, not asserted:** CI's build ran (1124 modules, 9.69s) and
+  emitted **no `mistakeRetry` chunk** ⇒ the rung is still *test-only* and **flips to *ships* when
+  `ME-2` imports the module.** `[FU-RETRY-NO-BUILD-CHUNK-YET]`
+  ⭐⭐ **Merge-base reconciliation was performed** — `gh pr view --json files` matched
+  `git diff --name-only 376e30b0..25862843` **exactly**, which is the check the operating model says
+  *nothing does today*. **A squash merge diffs against the base at merge time**, so a PR's own file
+  list is not necessarily what lands.
+  ★ The rebase `3cf01287` → `376e30b0` used **`git reset` + `git merge --ff-only`, NOT
+  `git reset --hard`** — never auto-approved here, and unnecessary with no commits yet.
+
+**STAGE DELIBERATELY NOT STARTED, and carried whole to Wave ME-C:**
+
+- **`ME-2` — the v7 `/me` page + the UI half of the retry affordance. NOT STARTED.** The controller
+  was below the addendum §3 **35% floor** with two merges still owner-gated, and the rule is explicit:
+  **a fresh controller with a written handoff beats half a lane and an unwritten one.**
+  Its brief is written — `handoff/BRIEF_ME-2.md`, ⚠ **untracked, so it does not travel with the
+  repository** — and **must be re-verified against current trunk before dispatch.**
+  **Allowlist as ratified this wave:** `pages/MeProgressPage.tsx` + tests **and
+  `lib/desktop/navigation.ts`** (it must become `?concept=`'s producer).
+  🛑 **`#646` added `<AccountDataControls />` to `MeProgressPage.tsx` as its last section. `ME-2`
+  rebuilds that file and MUST PRESERVE it**, or the redesign silently deletes a student's DPDP
+  data-download and account-delete controls.
+
+**STAGE CLOSED WITH ZERO FILES, and that is the correct outcome:**
+
+- **`ARRIVAL-1` — ⛔ BLOCKED.** Superseded by `TOPICHUB-1` for its TopicHub half; its `TutorBrief`
+  half was **CUT from the wave** because `TutorBrief`'s only consumer is `briefBlock()` in
+  `lazytopper/server/prompts/tutorSystemPrompt.cjs`, **under `server/**`, which is DPDP-B's
+  exact-path territory.** Shipping the field without its consumer is a **silent no-op**, which the
+  standing rules forbid outright. It returned **nine findings disproving its own spec** and wrote
+  nothing.
+
+### WHAT LANDED ON TRUNK FROM THE OTHER ARC WHILE THIS WAVE RAN
+
+```
+3cf01287  #644  TSX-1       the gateway boots again        DPDP-B
+3d6dce0c  #645  EXPORT-1    a student can download their own data       DPDP-B
+3d3a32a9  #646  SETTINGS-1  the student-facing data + delete surface     DPDP-B
+baf9b67a  #635  ·  376e30b0  #648   ops / agent standing rules           owner
+```
+
+🛑 **`TSX-1` DISCHARGES `[FU-ERASE-1-GATEWAY-TSX-UNDECLARED]`, the blocker that defined the previous
+stage.** Owner-reported from the deploy logs: **the gateway now boots**, and `ERASE-1`, `EXPORT-1`
+and `SETTINGS-1` are **running code, not merely merged.** ⚠ Owner-supplied, not agent-verified — and
+the acceptance evidence for that class is a **successful Railway boot**, which no gate here produces.
+
+⚠⚠ **The three DPDP-B stages above are recorded from trunk commit metadata only. DPDP-B stood down
+without opening a handoff and without handing over a close-out**, so they have **no lane write-up
+anywhere.** `[FU-DPDP-B-NO-CLOSEOUT-HANDED-OVER]` ⇒ **the next controller must not treat these four
+lines as one.**
+
+### ⭐ THE DOCTRINE THIS WAVE ADDS — put it in every brief
+
+> **Pass every unverified claim on FLAGGED `UNVERIFIED`, with an explicit instruction to VERIFY
+> rather than INHERIT.** Three consecutive wrong concept resolvers were caught this way —
+> `resolveCanonicalSlug` (the owner's), `conceptKeyForLabel` (the controller's, **~35% silent-null**),
+> and `conceptForBankQuestionId` (**not an existence test; ~9% would have been wrongly demoted**).
+> **A candidate handed over as fact would have shipped all three times.**
+
+
 ## 2026-08-09 — WAVE DPDP-A **COMPLETE IN THE REPOSITORY, NOT IN PRODUCTION** (three lanes + two read-only scouts under a controller + subagent model, trunk `6f7da56e`) — a minor's data can be erased, and the code is not running
 
 **`2026-08-09`**

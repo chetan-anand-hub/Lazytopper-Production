@@ -1,6 +1,213 @@
 # LazyTopper — Current State
 
-## [CURRENT] Wave DPDP-A CLOSED — #640 · #639 · #638 — trunk `6f7da56e` — a student can erase their own account, AND THE CODE IS NOT RUNNING IN PRODUCTION
+## [CURRENT] Wave ME-B CLOSED — the student's *why* now survives the click, three consecutive concept resolvers were wrong, and both lanes sit on GREEN DRAFT PRs that are **not on trunk** — trunk `376e30b0`
+
+**`2026-08-09` · closing docs PR for Wave ME-B.** Three build lanes were dispatched. **Two returned
+PASS, one returned BLOCKED with ZERO FILES — and that was the correct outcome.** A fourth (`ME-2`,
+the v7 `/me` page) was **deliberately not started** and passes whole to Wave ME-C.
+
+**Trunk at authoring: `376e30b0931eea69353c582011ed71f38da788f5`** —
+`feat(ops): make the premise gate the agent's first command (#648)`. Re-derive before trusting it:
+`git ls-remote origin base/approved-thru-437`. ⚠ **It moved FOUR times during this wave**
+(`baf9b67a` → `3cf01287` → `3d6dce0c` → `3d3a32a9` → `376e30b0`); one lane caught a move itself and
+re-cut rather than trust the SHA its brief pinned.
+
+### 🛑 READ THIS FIRST — BOTH LANES ARE GREEN, AND NEITHER IS ON TRUNK
+
+```
+#647  TOPICHUB-1  OPEN · DRAFT · head 9144c216 · Quality Gate 31308051980  PASS
+#649  RETRY-1     OPEN · DRAFT · head 25862843 · Quality Gate 31308051342  PASS
+```
+
+**`gh pr ready` is the OWNER's step, never an agent's.** ⇒ **`git log` on trunk contains neither
+lane.** Anything below that reads as "shipped" is a claim about a **draft**, and the distinction is
+the whole point of this section.
+
+**Zero-skip proof, quoted from each run rather than summarised:**
+- `#647` — root matrix `# suites 29 / # pass 196 / # skipped 0`; vitest
+  `Test Files 138 passed (138)` / `Tests 1719 passed (1719)`.
+  (Lane Overlap `31308051997`, CodeQL `31308051983`.)
+- `#649` — root matrix
+  `# tests 196  # suites 29  # pass 196  # fail 0  # skipped 0  # todo 0`; vitest
+  `Test Files 138 passed (138)` / `Tests 1723 passed (1723)`; own suite **named as run**:
+  `✓ src/services/mistakeRetry.test.ts (22 tests) 33ms`.
+  ⚠ **Its one `skipped` STEP is the docs fast-path acceptance, correctly bypassed** because the
+  classifier routed the PR to FULL BAR — **a skipped step is not a skipped test.**
+
+⚠⚠ **THE COUNTS MOVED BETWEEN TWO RUNS ON THE SAME DAY** — `1719` on `#647` and `1723` on `#649`,
+against `1662` recorded earlier in the same wave and `1387` in older notes. **They are read-at-the-
+time values. Never carry one forward as a fixed number; read it from the run you are quoting.**
+
+### What is on trunk since the last handoff (`#643`, `f654dc64`) — and who it belongs to
+
+```
+376e30b0  #648  ops: make the premise gate the agent's first command          owner/ops
+3d3a32a9  #646  SETTINGS-1  a student can download their data and delete
+                            their account                                     DPDP-B
+3d6dce0c  #645  EXPORT-1    a student can download their own data, and the
+                            file says what it left out                        DPDP-B
+3cf01287  #644  TSX-1       declare tsx in lazytopper so the spawned warmup
+                            child can resolve its loader                      DPDP-B
+baf9b67a  #635  ops: commit the agent standing rules                          owner/ops
+```
+
+⚠⚠ **THE HONEST LIMIT ON THE THREE DPDP-B LINES ABOVE: they are transcribed from trunk commit
+metadata, NOT from a close-out.** Addendum §6 requires the closing controller to *"ask that controller
+for its bounded close-out first and WAIT for it"*. **DPDP-B stood down without opening a handoff and
+without handing one over.** ⇒ **These three lanes have PR titles recorded here and no lane write-up
+anywhere.** The next handoff must not read the lines above as a substitute for one.
+`[FU-DPDP-B-NO-CLOSEOUT-HANDED-OVER]`
+
+🛑 **`TSX-1` (`#644`) discharges `[FU-ERASE-1-GATEWAY-TSX-UNDECLARED]`, the deploy blocker that was the
+headline of the previous `[CURRENT]`** — owner-reported from the deploy logs: *"the gateway now boots;
+`ERASE-1`, `EXPORT-1` and `SETTINGS-1` are RUNNING CODE, not merely merged."* ⚠ **Owner-supplied and
+not independently verified by this controller** — the acceptance evidence for that class is a
+successful Railway boot, which no gate in this repository can produce.
+
+### The lanes
+
+| lane | outcome | state | what it changed | what it disproved |
+|---|---|---|---|---|
+| `ARRIVAL-1` | ⛔ **BLOCKED — 0 files** | no branch, no PR | **nothing, by design** | `TutorBrief`'s only consumer is under `server/**`; *"TopicHub reads no query params at all"* was FALSE; the resolver its spec named was the wrong symbol |
+| `TOPICHUB-1` | ✅ PASS — 4 files | **`#647` OPEN, DRAFT, CI GREEN** | TopicHub reads `?concept=`, marks and scrolls that spine row, honest fallback when the label does not match | `resolveCanonicalSlug` **and** `conceptKeyForLabel` both wrong; `BoardConcept` has **no key field**; spine rows were never collapsed, so *"expand"* had no referent |
+| `RETRY-1` | ✅ PASS — 2 files | **`#649` OPEN, DRAFT, CI GREEN** | `services/mistakeRetry.ts` — classify a mistake-log id into exact-retry vs similar-only vs nothing | **HPQ does NOT resolve** — 0 of 140 HPQ ids appear among the 8543 bank ids; `conceptForBankQuestionId` is **not an existence test**; a fifth prefix `qp:` would have demoted every Quick Practice entry |
+| `ME-2` | **NOT STARTED** | — | — | — |
+| `SCOUT-PROTO` · `SCOUT-RETRY` | ✅ returned | wrote nothing | read-only | both re-scoped the lane that followed them |
+
+⭐ **THE WAVE'S REAL OUTPUT WAS DISPROOF.** Eight spec premises fell — the owner's, the controller's,
+and **three consecutive wrong concept resolvers**, the third of which was caught only because the
+candidate was passed on flagged `UNVERIFIED` with an instruction to verify rather than inherit.
+**All 28 numbered findings, with their provenance and confidence, are in
+`handoff/WAVE_STATE_ME_B_ARCHIVE.md`** — archived byte-identical to the live state file and verified
+by `sha256sum`, not by `git diff`.
+
+### ⭐⭐ TWO GIT BEHAVIOURS THIS WAVE THAT ARE WORTH MORE THAN THE CODE
+
+1. **A rejected push was handled WITHOUT a force-push.** A remote trunk-merge (`26d3c8b1`, carrying
+   `#644`/`#645`/`#646`/`#648`) landed on `#647`'s branch mid-push and the push was **rejected**. The
+   lane **fetched, inspected both directions, merged remote into its branch**, and afterwards
+   **re-reconciled `gh pr view 647 --json files` against the base — still exactly 4 files.**
+   ⇒ **This is the Wave-4 force-push mechanism — which once dropped two merged PRs off trunk —
+   AVOIDED rather than survived.**
+2. ⭐⭐ **MERGE-BASE RECONCILIATION WAS ACTUALLY PERFORMED**, on `#649`:
+   `gh pr view --json files` compared against `git diff --name-only 376e30b0..25862843`, found
+   **IDENTICAL**. **This is the check the operating model describes as *"the missing check, and the
+   data already exists — nothing does today"*.** It matters because **a squash merge diffs against
+   the base AT MERGE TIME, so a PR's own file list is not necessarily what lands** — a product PR
+   once reported 4 files and landed 13. ➜ **Make it standard.**
+   ★ The same lane rebased `3cf01287` → `376e30b0` with **`git reset` + `git merge --ff-only`, NOT
+   `git reset --hard`** — never auto-approved in this repo, and unnecessary because no commits
+   existed yet. **All gates were RE-RUN post-rebase rather than carried forward**, and
+   `MeProgressPage.tsx` was re-checked as untouched **after** the rebase, since `#646` had landed
+   changes to that very file in the meantime.
+
+### ⇒ CARRY FORWARD VERBATIM — ⚠ RE-DERIVED AGAINST TRUNK `376e30b0`, NOT COPIED
+
+**ONE dormant capability, not five.** `WIRE-2` (`#621`) ended `#578`, `#611` and `#617` —
+`gradeQuickPracticeBatch` **is invoked in `lazytopper/src/pages/PracticePage.tsx`**, at the call
+`const result = await gradeQuickPracticeBatch({` (line 2223 today — **a derived value; re-locate by
+the quoted call, not the number**). **`expectedMarks` is the ONLY remaining dormant item.**
+
+**Recipe, so this is re-checkable rather than asserted:**
+
+```bash
+git grep -ln 'expectedMarks' 376e30b0 -- lazytopper/src | grep -v 'lazytopper/src/prediction/'
+#  -> EMPTY.  All three hits are cbse5SignalScoring.ts, historicalAppearanceIndex.ts
+#             and historicalAppearanceIndex.test.ts, every one under src/prediction/.
+git grep -n 'gradeQuickPracticeBatch' 376e30b0 -- lazytopper/src/pages/PracticePage.tsx
+#  -> line 2223 is a real invocation, not an import or a comment.
+```
+
+⚠⚠ **`ME-2` DID NOT RUN, SO `expectedMarks` IS STILL DORMANT AT THE CLOSE OF THIS WAVE**, with zero
+consumers outside `src/prediction/`. **`ME-2` is still the thing that ends it.**
+`[FU-HANDOFF-DORMANCY-BLOCK-STALE-CARRYFORWARD]` **stays OPEN** — anyone restating this block must
+re-derive it against trunk with the commands above, not paste it.
+
+⭐ **A SECOND dormancy now has VERIFIED, not asserted, status.** `#649`'s CI build ran (1124 modules,
+9.69s) and **emitted no `mistakeRetry` chunk** — the evidence ladder's rung is still *test-only*, and
+it **flips to "ships" the moment `ME-2` imports the module.** `[FU-RETRY-NO-BUILD-CHUNK-YET]` is a
+tracking item for ME-C, **not a defect.**
+
+### ⚠⚠ THE RISK THAT MUST TRAVEL — `#647` IS A CONSUMER WITH NO PRODUCER
+
+**Nothing in the product emits `?concept=` into `/topic-hub`.** `buildDesktopTopicHubPath` is
+structurally incapable of it (`DesktopRouteContext` is `{source, returnTo}` only) and HPQ does not
+link to `/topic-hub` at all ⇒ **reachable today only by a hand-typed URL. MOUNT ≠ LIVE.**
+
+➜ **IF `ME-2` DOES NOT SHIP, `#647` IS DEAD CODE ON TRUNK.** *(Owner-ratified, `R6`, and recorded
+verbatim at his instruction.)* `lazytopper/src/lib/desktop/navigation.ts` therefore moves into
+**`ME-2`'s** allowlist — `ME-2` owns `MeProgressPage.tsx` and must emit the CTAs anyway, so it is the
+natural producer. **`ME-C` must treat the producer as `ME-2`'s FIRST obligation, not a trailing
+detail.** `[FU-TOPICHUB-CONCEPT-PRODUCER]`
+
+⚠ **`ME-2` must emit EXACTLY**
+`/topic-hub/<grade>/<subject>/<topicSlug>?concept=<EXACT boardEssentials name, URI-encoded>`
+— **the verbatim label. NOT a slug, NOT a `conceptKey`, NOT lower-cased.** `BoardConcept` has no key
+field; **the row's identity IS its name.** `[FU-CONCEPT-LABEL-IS-THE-ONLY-CONCEPT-ID]`
+
+### ⚠ NEW SINCE THE LANES WERE BRIEFED — `ME-C` MUST ABSORB THIS BEFORE WRITING A LINE
+
+**`#646` (`SETTINGS-1`, `3d3a32a9`) TOUCHED `lazytopper/src/pages/MeProgressPage.tsx`** — it adds an
+import and renders `<AccountDataControls />` as the page's **last section**. **`ME-2` rebuilds that
+file wholesale and MUST PRESERVE that section.** Deleting it would silently remove a student's DPDP
+data-download and account-delete controls — **a privacy regression shipped by a redesign.**
+⇒ **Verify against trunk `376e30b0` or later, never against a brief written before it.**
+⭐ `RETRY-1` already met this standard: it re-checked that file as untouched **after** its rebase,
+precisely because `#646` had landed in the interval.
+
+### The owner's rulings, and the one he withdrew
+
+`R1` bar buckets mirror `ResultsScorecard`'s existing two headings — **four segments, renamed**
+(`secured` · `careless slips` · `knowledge gaps` · `unclassified`), because it is **the product's
+existing model rather than a new one**. `R2` the contrast fix is the **large-text threshold**
+(the numerals are already `font-weight:700`; AA large = 3:1 at ≥18.66px) — **no token change** — with
+the render threshold raised **7% → ~12%** so a 360px bar stops printing numerals that do not fit.
+`R3` **hero is truth**; each deeper view carries an explicit remainder row so all three sum to it.
+`R5` both controller self-fixes approved. `R8` `RETRY-1` commit+push approved, draft only.
+`R9` **HPQ into the canonical bank is NOT a lane** — an owner content decision with syllabus
+implications. `R10` a no-`questionId` entry **offers nothing**; silence is the honest option, and
+`RETRY-1`'s `kind:"none"` already returns null — **confirmed, not altered.**
+
+⭐⭐ **`R7` — THE OWNER WITHDREW HIS OWN `R4`.** `R4` had set the arrival badge to
+*"This is the one costing you marks."* The lane **implemented it as ruled** and then reported that it
+is **a performance claim asserted from a URL parameter**, on a page holding no graded or mistake data
+— so a shared or stale link could tell a student a concept is costing them marks **for a concept they
+never attempted.** Owner: *"you were right and my ruling was wrong. I ruled on voice; you found a
+doctrine conflict I hadn't considered."* **Final string: `You came here for this.`** — true however
+the student arrived, asserts nothing about performance, keeps the voice. **The withdrawn wording
+never shipped outside draft.**
+⛔ **The gate-on-MI-data option was REJECTED** — it would require TopicHub to read Mistake
+Intelligence, which its brief forbids for good reason.
+★★ **THE GUARD WAS UPDATED A THIRD TIME, NEVER DELETED.** The original regex (*"the marker carries no
+performance claim"*) **would have passed VACUOUSLY** under `R4`'s copy, because it does not match
+*"costing you marks"*. The final guard **pins the new exact string, KEEPS the no-numeric-figure
+assertion, and RESTORES the no-performance-claim assertion widened so `costing` is a banned token** —
+⇒ **the withdrawn wording cannot return.** Textbook *replace a guard, never delete it — pin what it
+PROTECTED.* ✅ `[FU-ARRIVAL-COPY-ASSERTS-UNBACKED-MARKS-CLAIM]` **CLOSED BY REMOVAL OF THE CAUSE, not
+deferred.**
+
+### ⭐ `[FU-STEP-SOLUTIONS-TABLE-NEVER-CREATED]` — an owner finding from the deploy logs, not a lane
+
+The same logs that showed the gateway booting also show `relation "step_solutions" does not exist`,
+and **nothing in the repository ever creates that table** — every reference reads or writes it; there
+is no `CREATE TABLE`. The cache **fails soft**, so functionality is unaffected — **but every step
+solution has always been regenerated from Gemini.** ⇒ **likely a real, standing cost line.**
+**Owner-supplied; not independently verified by this controller.**
+
+### VALIDATION (this docs PR)
+
+`check:mojibake` (staged first, so `git ls-files` can see the files — an unstaged pass is vacuous) ·
+`scope:guard --mode docs` · `git diff --check` · a **per-file heading census, before vs after, proving
+the after-set a strict superset** — uniqueness is not completeness. **Scope: `handoff/` only, zero
+product files.**
+⭐ **This PR's CI run is the wave's only full-bar integration check**, because it runs the complete
+gate against trunk with `#644`, `#645`, `#646` and `#648` composed together — something no product
+PR does, since each runs against its own base.
+
+---
+
+
+## (superseded) [CURRENT] Wave DPDP-A CLOSED — #640 · #639 · #638 — trunk `6f7da56e` — a student can erase their own account, AND THE CODE IS NOT RUNNING IN PRODUCTION
 
 **`2026-08-09` · closing docs PR for Wave DPDP-A.** Three lanes, all on trunk, verified **by content
 and by log — never by `merge-base` on a PR head, because this repo squash-merges**:
