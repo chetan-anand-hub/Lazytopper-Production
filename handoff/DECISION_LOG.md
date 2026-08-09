@@ -1,4 +1,4 @@
-## 2026-08-09 — WAVE ME-B, three lanes + two read-only scouts under a controller + subagent model (`#647` draft · `RETRY-1` pushed unPR'd, trunk `376e30b0`)
+## 2026-08-09 — WAVE ME-B, three lanes + two read-only scouts under a controller + subagent model (`#647` · `#649`, both DRAFT with green CI, trunk `376e30b0`)
 
 **`2026-08-09`**
 
