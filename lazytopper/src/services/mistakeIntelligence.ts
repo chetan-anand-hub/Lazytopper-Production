@@ -33,6 +33,11 @@ import { logMistakes, type MistakeLogEntry } from "./mistakeLogService";
 import { isSafeEntry } from "./mistakeInsightsService";
 import { recordWrongAnswer } from "./adaptivePracticeEngine";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
+// MI-CONCEPT-1 — concept resolution. Lives in its own module (NOT here) on purpose:
+// `mistakeIntelligence` is vi.mock'd as a COMPLETE replacement by several suites
+// (worksheetGradeService.test.ts, SolutionChecker.contract/entitlement.test.tsx), so
+// an export added here would be missing in every module those suites exercise.
+import { conceptForBankQuestionId } from "./mistakeConcept";
 
 export interface RecordMistakeContext {
   subject: string;
@@ -46,6 +51,19 @@ export interface RecordMistakeContext {
   /** Stable question id when the surface has one (Quick Practice / HPQ /
    *  TopicHub). Free-typed Check & Improve has none. */
   questionId?: string;
+  /**
+   * MI-CONCEPT-1 — the concept (bank `subtopic`), supplied by a call site that holds
+   * the BANK id when `questionId` is a surface-scoped SYNTHETIC attempt id.
+   *
+   * ★ Worksheet / full-mock / chapter-test pass `ws:`/`fm:`/`ct:` attempt ids as
+   * `questionId` (they are the dedup + weak-area bridge key and must not change),
+   * so the central fallback below cannot resolve them. Those three resolve from
+   * `PersistedWorksheetQuestion.id` themselves and pass the result here.
+   * ★ Surfaces whose `questionId` IS the bank id (Quick Practice, SolutionChecker)
+   * leave this unset — `buildEntry` resolves it centrally.
+   * ★ Supply it ONLY from the bank. Never a topic, never a guess.
+   */
+  concept?: string;
   /** Optional difficulty for the bridged wrong-answer signal. */
   difficulty?: string;
 }
@@ -132,9 +150,25 @@ function buildEntry(
       mistakeType: String(s.mistakeType),
       marksDeducted: s.marksDeducted,
     }));
+  // ── MI-CONCEPT-1 — questionId write-through + concept resolution ──────────
+  // `questionId` already reached this function (dedup + the weak-area bridge read
+  // it); it was simply never written onto the entry. Write it through.
+  const questionId = ctx.questionId && ctx.questionId.trim() ? ctx.questionId.trim() : undefined;
+  // Prefer a concept the call site resolved from the BANK id (worksheet /
+  // full-mock / chapter-test, whose ctx.questionId is a synthetic attempt id).
+  // Otherwise resolve centrally — correct for Quick Practice and SolutionChecker,
+  // which pass the bare bank id, and correctly a no-op for free-typed Check &
+  // Improve, which passes no id at all.
+  // ★ VERBATIM. Nothing here re-derives, slugifies or case-folds the value.
+  const concept = ctx.concept?.trim() ? ctx.concept : conceptForBankQuestionId(questionId);
+  // Both keys are OMITTED when absent rather than written as `undefined`, so an
+  // entry with no bank identity is byte-identical in shape to a pre-MI-CONCEPT-1
+  // entry — absent, not "present and empty".
   return {
     timestamp: new Date().toISOString(),
     questionText: ctx.question,
+    ...(questionId ? { questionId } : {}),
+    ...(concept ? { concept } : {}),
     topic: ctx.topic,
     subject: ctx.subject,
     totalMarks: Number(result.totalMarks) || 0,
