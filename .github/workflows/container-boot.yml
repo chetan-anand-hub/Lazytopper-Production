@@ -1,0 +1,179 @@
+name: Container Boot
+
+# ★★ THE RUNG THE EVIDENCE LADDER WAS MISSING.
+#   A test proves the code works. A build chunk proves it ships. ONLY A BOOT PROVES IT RUNS.
+#
+# Every other gate in this repo executes in a dev worktree where the whole pnpm workspace
+# resolves. An EXECUTED PASS is scoped to the environment that executed it, so
+# `resolves-in-a-worktree` has never been evidence of `resolves-in-the-deployed-image` —
+# and until this workflow existed, NOTHING here built the image at all. #638 merged, passed
+# every gate, and the deployed container was the first thing to have an opinion about it.
+#
+# ★★ WHAT IT CATCHES IS NARROWER THAN IT LOOKS, AND THAT IS STATED ON PURPOSE.
+# Of the three sightings this was commissioned against it catches ONE (the unguarded
+# `require('typescript')`, in its LATENT form — see scripts/ci/container_boot_gate.mjs, which
+# carries the full per-sighting reasoning). The `tsx` sighting is NOT a boot crash: the warmup
+# child is spawned on a 45s timer, only when DATABASE_URL is set, and its failure is a
+# logger.error with no process.exit — so a container can boot perfectly green with tsx absent.
+# That one is caught by lazytopper/server/spawnedLoaderResolution.test.cjs in the ops matrix.
+# A guard advertised as catching three classes while catching one is a silent no-op.
+#
+# ★ SEPARATE WORKFLOW, NOT A STEP IN quality-gate.yml — this is the cost decision.
+# GitHub runs workflows CONCURRENTLY. As a step inside Quality Gate the image build would be
+# SERIAL and would add its full duration to every PR's wall clock. As its own workflow it runs
+# alongside, so the PR's wall-clock cost is max(quality-gate, container-boot) instead of the
+# sum — i.e. ZERO added minutes for as long as this finishes inside Quality Gate's measured
+# ~7 minutes. Numbers are in the lane report.
+#
+# ★ THE RELEVANCE DECISION HAPPENS INSIDE THE JOB, NEVER AS A WORKFLOW-LEVEL `paths:` FILTER.
+# quality-gate.yml records why: a REQUIRED status check that never runs leaves the PR stuck on
+# "expected — waiting for status", unmergeable with no error. This workflow is NOT required
+# today, but writing it this way means it can be made required without becoming a trap.
+
+on:
+  pull_request:
+    branches: [base/approved-thru-437]
+  push:
+    branches: [base/approved-thru-437]
+  workflow_dispatch:
+
+concurrency:
+  group: container-boot-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  container-boot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Fetch PR base branch (for the merge-base diff)
+        if: github.event_name == 'pull_request'
+        run: git fetch --no-tags origin "+refs/heads/${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}"
+
+      # Node is preinstalled on ubuntu-latest and this script has no dependencies, so this
+      # job never runs `pnpm install` on the runner — the IMAGE does its own frozen install,
+      # which is the thing under test. Installing here would measure the wrong environment
+      # and cost minutes to do it.
+      - name: Decide whether this change set can move the image
+        id: classify
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+        run: node scripts/ci/container_boot_gate.mjs --classify
+
+      - name: Set up Buildx (layer cache)
+        if: steps.classify.outputs.skip != 'true'
+        uses: docker/setup-buildx-action@v3
+
+      # Cache is best-effort: a cache miss costs time, never correctness. The install and
+      # build layers dominate, and they only re-run when a manifest or the lockfile moves.
+      - name: Build the image
+        if: steps.classify.outputs.skip != 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: lazytopper-boot-gate:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # PORT is already ENV'd in the Dockerfile; passing it explicitly mirrors what the
+      # Railway dashboard does and keeps the run self-describing. No API keys, no
+      # DATABASE_URL: the gateway's resolveConfig() has no required-key validation and no
+      # throw, so the boot path must survive a bare environment. If that ever stops being
+      # true this gate goes red, which is correct — production sets those, but a crash on
+      # their absence is still a defect worth seeing.
+      - name: Boot the container
+        if: steps.classify.outputs.skip != 'true'
+        run: |
+          docker run -d --name lt-boot -p 8080:8080 -e PORT=8080 lazytopper-boot-gate:ci
+          echo "container started, waiting for ready lines"
+
+      # ★ READING A HANG. A container that never prints its ready line is BLOCKED, not slow.
+      # This loop bounds the wait and, on expiry, dumps the log and the exit state so the
+      # failure is diagnosable from CI alone — read the GAP, not the last line.
+      - name: Wait for both ready lines
+        if: steps.classify.outputs.skip != 'true'
+        run: |
+          deadline=$((SECONDS + 120))
+          while [ $SECONDS -lt $deadline ]; do
+            log=$(docker logs lt-boot 2>&1 || true)
+            if echo "$log" | grep -q "Server listening" \
+               && echo "$log" | grep -q "LazyTopper AI server running on port"; then
+              echo "both ready lines observed after ${SECONDS}s"
+              exit 0
+            fi
+            if [ "$(docker inspect -f '{{.State.Running}}' lt-boot 2>/dev/null)" != "true" ]; then
+              echo "::error::container exited before printing its ready lines"
+              docker logs lt-boot 2>&1 || true
+              docker inspect -f 'exit code: {{.State.ExitCode}}' lt-boot || true
+              exit 1
+            fi
+            sleep 2
+          done
+          echo "::error::timed out after 120s — the container is HUNG, not slow"
+          docker logs lt-boot 2>&1 || true
+          exit 1
+
+      - name: Assert ready lines and the Railway healthcheck
+        if: steps.classify.outputs.skip != 'true'
+        run: |
+          docker logs lt-boot > /tmp/lt-boot.log 2>&1
+          node scripts/ci/container_boot_gate.mjs --assert --log /tmp/lt-boot.log --url http://localhost:8080
+
+      # ══════════════════════════════════════════════════════════════════════════════
+      # IN-IMAGE RESOLUTION PROBES — the part no dev-worktree test can make.
+      #
+      # These run INSIDE the running container, so they answer "does it resolve in the
+      # IMAGE", which is a different question from the one the worktree suites answer.
+      # ══════════════════════════════════════════════════════════════════════════════
+      - name: In-image resolution probes (with controls)
+        if: steps.classify.outputs.skip != 'true'
+        run: |
+          set -e
+
+          echo "─── CONTROL: a bogus loader MUST fail from /app/lazytopper ───"
+          # ★ Without this, the probe below is indistinguishable from a dead one: a
+          #   docker exec that always exited 0 would look exactly like a pass.
+          if docker exec -w /app/lazytopper lt-boot \
+               node --import lt-not-a-real-package-9f3a2c/esm -e '' 2>/dev/null; then
+            echo "::error::CONTROL FAILED — a bogus loader exited 0, so this probe proves nothing"
+            exit 1
+          fi
+          echo "control behaved: bogus loader is rejected"
+
+          echo "─── SIGHTING 2: the gateway's unguarded require('typescript') resolves IN THE IMAGE ───"
+          # lazytopper/server/index.cjs line 4 is `const ts = require('typescript');` with NO
+          # try/catch, while firebase-admin five lines below it HAS one. typescript is a
+          # devDependency that ships only because the Dockerfile does not prune. This probe is
+          # what turns that from a comment into a checked fact — add a prune and it goes red.
+          docker exec -w /app/lazytopper/server lt-boot \
+            node -e "require('typescript'); console.log('typescript resolves from the gateway cwd')"
+
+          echo "─── SIGHTING 1 (image variant): the warmup loader resolves from /app/lazytopper ───"
+          # The exact production invocation: artifacts/api-server/src/index.ts spawns
+          # `node --import tsx/esm <script>` with cwd: lazytopperDir. Node resolves an --import
+          # specifier against the process CWD. This does NOT make the boot depend on tsx (the
+          # warmup is 45s-delayed and DATABASE_URL-gated) — it checks the same coupling the
+          # worktree suite checks, in the environment that actually ships.
+          docker exec -w /app/lazytopper lt-boot \
+            node --import tsx/esm -e "console.log('tsx/esm resolves from /app/lazytopper')"
+
+      - name: Container log (always, so a green run is auditable too)
+        if: always() && steps.classify.outputs.skip != 'true'
+        run: docker logs lt-boot 2>&1 || true
+
+      - name: Tear down
+        if: always() && steps.classify.outputs.skip != 'true'
+        run: docker rm -f lt-boot 2>/dev/null || true
+
+      - name: Which path did this run take
+        if: always()
+        run: |
+          echo "CONTAINER_BOOT_SKIPPED: ${{ steps.classify.outputs.skip || 'unset (ran)' }}"
+          echo "CONTAINER_BOOT_REASON: ${{ steps.classify.outputs.reason || 'n/a' }}"
