@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Card } from "../grammar/Card";
 import NoteModal from "../notes/NoteModal";
@@ -263,6 +263,17 @@ const SPINE_CSS = `
   border: 1px solid hsl(214, 70%, 86%);
   white-space: nowrap;
 }
+/* Arrival concept ("?concept=") — the row the student was pointed at. A green ring
+   via box-shadow, NOT border-color: Card sets its 1px border as an INLINE style, which
+   a class cannot override. Purely a which-one marker; carries no performance claim. */
+.lt-spine__card--arrival {
+  box-shadow: 0 0 0 2px hsl(152, 55%, 45%);
+}
+.lt-spine__badge--arrival {
+  background: hsl(152, 55%, 95%);
+  color: hsl(152, 55%, 28%);
+  border-color: hsl(152, 40%, 78%);
+}
 .lt-spine__row-use {
   margin: 6px 0 0;
   font-size: 12.5px;
@@ -430,6 +441,16 @@ export interface ConceptSpineProps {
    *  card. Honest-or-silent — the page passes a node that renders nothing when there is
    *  no data-backed trend, so ConceptSpine's layout is unchanged when absent. */
   topicProgressSlot?: ReactNode;
+  /** The concept the student arrived pointed at (`?concept=`), as an EXACT
+   *  `BoardConcept.name` already resolved by the page against THIS topic's rows.
+   *  When it matches a rendered row, that row is marked and scrolled into view.
+   *  Absent / null / unmatched ⇒ the spine renders exactly as it does on the normal
+   *  entry — no marker, no scroll. An unrecognised concept is a normal state, never an
+   *  error state. ⚠ The marker's owner-ratified copy asserts the concept is costing the
+   *  student marks, from a URL param and with no graded data behind it — see
+   *  [FU-ARRIVAL-COPY-ASSERTS-UNBACKED-MARKS-CLAIM]. No NUMERIC performance figure is
+   *  rendered here regardless (MI stays sidebar chrome — item 9). */
+  arrivalConceptName?: string | null;
 }
 
 export function ConceptSpine({
@@ -443,9 +464,11 @@ export function ConceptSpine({
   askTutorHref,
   tutorHrefForConcept,
   topicProgressSlot,
+  arrivalConceptName,
 }: ConceptSpineProps) {
   const [tipsOpen, setTipsOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
+  const arrivalRowRef = useRef<HTMLDivElement | null>(null);
 
   // PR-F — the pre-authored note-spec for this topic (notes/specs/<slug>.json),
   // or null → the honest "coming soon" empty state below. Content arrives only
@@ -454,6 +477,25 @@ export function ConceptSpine({
 
   const concepts = actionable.boardEssentials;
   const trendTier = topic.trendTier;
+
+  // The arrival concept. Safety against an UNMATCHED name is structural, not a guard:
+  // `isArrival` below is exact string equality against the rows actually rendered, and
+  // `arrivalRowRef` is attached ONLY to a row that matched — so a name matching nothing
+  // marks nothing and leaves the ref null, and the scroll below cannot fire.
+  // (An explicit `concepts.some(...)` membership re-check was written here first and
+  // then mutated away: the suite stayed green at 41/41, proving it could never change
+  // behaviour. An unfireable guard is not a guard, so it is gone rather than decorative.)
+  const arrivalName = arrivalConceptName || null;
+
+  // Bring the arrival row into view. Guarded because jsdom does not implement
+  // scrollIntoView, and because an unmatched/absent concept must be a complete no-op.
+  useEffect(() => {
+    if (!arrivalName) return;
+    const el = arrivalRowRef.current;
+    if (el && typeof el.scrollIntoView === "function") {
+      el.scrollIntoView({ block: "center" });
+    }
+  }, [arrivalName]);
 
   // The one genuine per-topic tip we hold today. It seeds a preview in the tips
   // panel; the full 3–4 per-topic tip set is PR-F. Sample-preview topics carry a
@@ -580,13 +622,34 @@ export function ConceptSpine({
           // null instead of a wrong concepts[0]).
           const hasVisual =
             findVisualForConcept(topic.subject, topic.slug, [concept.name]) !== null;
+          // The arrival marker — the concept the student was pointed at.
+          // ⚠ COPY IS OWNER-RATIFIED AND MAKES A QUALITATIVE PERFORMANCE CLAIM
+          // ("costing you marks"). It is asserted from a URL PARAM: this page holds no
+          // graded/mistake data of any kind, so the claim is not backed by anything the
+          // page can see. Flagged as [FU-ARRIVAL-COPY-ASSERTS-UNBACKED-MARKS-CLAIM].
+          // Whatever the wording, no NUMERIC performance figure may ever be rendered
+          // here — MI stays sidebar chrome — and the test below pins that.
+          const isArrival = concept.name === arrivalName;
           return (
-            <Card key={`${concept.name}-${idx}`} padding={14}>
-              <div className="lt-spine__row">
+            <Card
+              key={`${concept.name}-${idx}`}
+              padding={14}
+              className={isArrival ? "lt-spine__card--arrival" : undefined}
+            >
+              <div
+                className="lt-spine__row"
+                ref={isArrival ? arrivalRowRef : undefined}
+                data-arrival-concept={isArrival ? "true" : undefined}
+              >
                 <div className="lt-spine__row-main">
                   <div className="lt-spine__row-head">
                     <span className="lt-spine__row-name">{concept.name}</span>
                     <span className="lt-spine__marks">{concept.marks} marks</span>
+                    {isArrival && (
+                      <span className="lt-spine__badge lt-spine__badge--arrival">
+                        This is the one costing you marks.
+                      </span>
+                    )}
                     {hasVisual && (
                       <span className="lt-spine__badge">
                         <span aria-hidden="true">✦</span> Visual
