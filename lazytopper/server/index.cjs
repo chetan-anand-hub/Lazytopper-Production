@@ -182,6 +182,13 @@ const { createEntitlementGate } = require('./services/entitlement.cjs');
 // zero-match delete reports `notFound`, never success.
 const { createAccountErasureService } = require('./services/accountErasure.cjs');
 const { createAccountErasureRoutes, ACCOUNT_ERASE_PATH } = require('./routes/accountErasure.cjs');
+// DPDP data export (EXPORT-1) — the read-side twin of the erasure above. Same map,
+// same walker (planErasure/classifyLocation are consumed from accountErasure.cjs, not
+// re-implemented), same owner-scoped identity. ★ The map's `exportable` flag decides
+// what goes in; the one location it excludes is DISCLOSED in the file rather than
+// silently omitted, because silence would tell a parent the location does not exist.
+const { createAccountExportService } = require('./services/accountExport.cjs');
+const { createAccountExportRoutes, ACCOUNT_EXPORT_PATH } = require('./routes/accountExport.cjs');
 
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
 
@@ -309,6 +316,19 @@ const accountErasureRoutes = createAccountErasureRoutes({
   verifiedCaller,
   accountErasure,
 });
+// DPDP export. Constructed exactly like its erasure twin, and just as defensively: a
+// map that fails to load does NOT kill the gateway — isAvailable() goes false and the
+// route answers 503 with the reason.
+// ★ corsOrigin is passed because the export payload is written directly rather than
+// through sendJson, whose error-redaction would rewrite a student's own field values.
+const accountExport = createAccountExportService(routeDeps);
+const accountExportRoutes = createAccountExportRoutes({
+  ...routeDeps,
+  telemetry,
+  verifiedCaller,
+  accountExport,
+  corsOrigin: config.CORS_ORIGIN,
+});
 
 async function handleRequest(req, res) {
   const reqUrlRaw = String(req.url || "");
@@ -336,6 +356,10 @@ async function handleRequest(req, res) {
       // ★ MOUNT IS NOT REACH. The browser sends Authorization on this POST, so
       // without a preflight entry the student's request never leaves the browser.
       reqPath === ACCOUNT_ERASE_PATH ||
+      // ★ SAME REASON, ON A GET. Authorization is not a CORS-safelisted header, so a
+      // credentialed GET is preflighted exactly like the POST above. Without this
+      // entry the download request never leaves the browser.
+      reqPath === ACCOUNT_EXPORT_PATH ||
       /^\/api\/qr-upload\/pickup\/[^/]+$/.test(reqPath) ||
       /^\/api\/qr-upload\/[^/]+\/status$/.test(reqPath) ||
       /^\/api\/qr-upload\/[^/]+$/.test(reqPath) ||
@@ -409,6 +433,16 @@ async function handleRequest(req, res) {
   // here — there is no uid parameter on this route by design.
   if (req.method === 'POST' && reqPath === ACCOUNT_ERASE_PATH) {
     return accountErasureRoutes.handleErase(req, res);
+  }
+
+  // ── DPDP data export ─────────────────────────────────────────────────────────
+  // Owner-scoped and self-gating, exactly as the erasure above: the handler resolves
+  // the uid from the verified token and 401s on empty before it reads anything. GET,
+  // because reading your own data has no side effects — which also means the global
+  // POST-only limiter at the top of this function never sees it, so the route carries
+  // its own cap.
+  if (req.method === 'GET' && reqPath === ACCOUNT_EXPORT_PATH) {
+    return accountExportRoutes.handleExport(req, res);
   }
 
   // ── QR answer handoff ────────────────────────────────────────────────────────
