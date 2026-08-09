@@ -11,6 +11,158 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 ---
+## 2026-08-09 — WAVE CLOSEOUT (lane `HANDOFF-CATCHUP`, docs-only, no PR of its own until this one). Trunk `eeafb99b`.
+
+**`2026-08-09`**
+
+> ## ⭐⭐ **TWO OF THE THREE IDS BELOW EXIST BECAUSE A RECORD LIVED ON ONE DISK.** An owner change request was ruled, written down, and merged past. A whole wave's close-out was one `rm` from gone. **Standing Rule 1 is about a name without a body; these are about a body without a repository.**
+
+**3 new ids and 1 closed id are recorded below, each with its own heading and body, per Standing
+Rule 1.** ★ **All three new ids were found while writing this handoff, not by a build lane** — two of
+them by re-deriving a claim the dispatching brief carried, which is the rule *if the spec is wrong,
+your verified finding wins* operating on a docs lane.
+
+---
+
+### ✅ `[FU-DPDP-B-NO-CLOSEOUT-HANDED-OVER]` — **CLOSED**
+
+**Opened by `#650`**, which found it while writing that handoff: Wave DPDP-B stood down without
+opening a handoff and without handing one over, leaving `#644`, `#645` and `#646` — including a
+**student-facing DPDP surface** — with PR titles on trunk and **no lane write-up anywhere.**
+
+**Closed by supplying the missing artefact, not by deferral.** `handoff/WAVE_STATE_WAVE_DPDP_B_LIVE.md`
+(39,759 bytes, untracked, shared checkout only) is archived in this PR as
+`handoff/WAVE_STATE_WAVE_DPDP_B_ARCHIVE.md`, **byte-identical**, proven by blob hash rather than by
+`git diff`:
+
+```bash
+$ git hash-object handoff/WAVE_STATE_WAVE_DPDP_B_LIVE.md      # shared checkout
+38b00b1f71c5b958f1a53c57b8bbb014e43a9b16
+$ git hash-object handoff/WAVE_STATE_WAVE_DPDP_B_ARCHIVE.md   # this PR
+38b00b1f71c5b958f1a53c57b8bbb014e43a9b16
+```
+
+**THE MECHANISM, stated so it binds the next controller:**
+
+> **A controller standing down without opening a handoff PR must state the EXACT PATH of its
+> close-out file, and the fact that it is UNARCHIVED, as the LAST LINE of its final message.**
+
+**One line among many is not a handover.** ⭐ **The DPDP-B controller did the hard part correctly** —
+it wrote a complete, honest close-out to disk and **refused to open a premature handoff PR**, which
+was the right call under Rule 0 because none of its lanes were on trunk at the time. **What failed
+was purely the handover of the file's LOCATION.** ⚠ This is the **FOURTH** single-disk exposure in
+the project (Waves 4, 5A, 5G, now DPDP-B); the first three all needed rescuing after the fact.
+
+---
+
+### 🛑 `[FU-TSX-DECLARED-IN-DEVDEPENDENCIES]` — an owner change request was ruled, recorded, and merged past
+
+**NEW. Found by this lane, by re-deriving a claim rather than inheriting it.**
+
+The DPDP-B close-out carries the owner's ruling verbatim: *"the Dockerfile explicitly anticipates
+'tsx if/when added' — **but declare `tsx` in `dependencies`, NOT `devDependencies`.** It is a genuine
+runtime need for the gateway, and depending on 'we never prune' makes correctness contingent on a
+comment nobody is testing. ⇒ **VERIFY `#644` DECLARED IT IN `dependencies`; if it went to
+`devDependencies`, that is a change request before merge.**"*
+
+Verified against trunk `eeafb99b`:
+
+```bash
+$ node -e "const p=require('./lazytopper/package.json'); console.log(p.dependencies&&p.dependencies.tsx, p.devDependencies&&p.devDependencies.tsx)"
+undefined  catalog:
+```
+
+⇒ **`#644` merged with `tsx` in `devDependencies`.** The change request was never actioned **because
+the only place it was written down was an untracked file on one machine.**
+
+**Why it matters beyond tidiness:** `lazytopper/server/index.cjs` line 4 is a bare, unguarded
+`require('typescript')` — also a devDependency — while `firebase-admin` two lines below sits inside a
+`try`. **The gateway cannot boot at all unless the Dockerfile's no-prune holds.** Adding `tsx` to the
+same class widens a contingency that **nothing in this repository tests**, because **nothing here
+builds the Docker image** (`[FU-TSX1-NO-CONTAINER-GATE]`).
+
+**Remedy:** a one-line move from `devDependencies` to `dependencies` in `lazytopper/package.json`,
+with the matching `pnpm-lock.yaml` update — **both move together, always**, or the Vercel build fails
+too. ⚠ **Owner decision, not a lane's**, and it collides on exact path with `SUPPLY-2`; fold it into
+that lane rather than opening a second.
+
+⭐ **The lesson is larger than the line: a ruling recorded only in an untracked state file is a ruling
+that does not exist.** Same failure as the missing close-out, one level down. **Rulings belong in a
+PR body, a tracked handoff file, or both — never only in a wave-state file.**
+
+---
+
+### ⚠ `[FU-HANDOFF-DOCS-PR-STALE-AT-MERGE]` — a handoff `[CURRENT]` ages between authoring and merge
+
+**NEW. Found by this lane.**
+
+`#650`'s `[CURRENT]` headlines *"both lanes sit on GREEN DRAFT PRs that are **not on trunk** — trunk
+`376e30b0`"*. That was **accurate when authored**. `#647` (`024db49a`) and `#649` (`6ea6e590`) then
+merged **before** `#650` (`eeafb99b`) did, so **the statement was false at the moment it landed** —
+and it is not the ordinary one-commit handoff lag, it is **a claim that student-facing code is
+unshipped when it is shipped.**
+
+```bash
+$ git merge-base --is-ancestor 024db49 origin/base/approved-thru-437   # -> ANCESTOR
+$ git merge-base --is-ancestor 6ea6e59 origin/base/approved-thru-437   # -> ANCESTOR
+```
+
+**This is the stale-base hazard arriving through the docs lane rather than a product one.** The same
+mechanism has already been recorded from the other direction — *a docs PR left open while trunk moves
+can silently REVERT another lane.* **This is its evidential twin: the docs PR does not revert
+anything, it simply becomes untrue, and no gate can see that.**
+
+**Remedy, and it is cheap:** **any handoff PR not merged the same hour it is authored must re-derive
+trunk and re-check its own headline immediately before merge**, exactly as a product lane rebases.
+⚠ **No gate can catch this** — CI verifies the tree, not the truth of prose — so it has to be a step
+in the merge procedure. ⭐ **Do NOT edit the stale block when correcting it. Demote it.** A dated
+record that was true when written is evidence; a silently-updated one is not, and Standing Rule 3
+above says so.
+
+---
+
+### 💰 `[FU-STEP-SOLUTIONS-TABLE-NEVER-CREATED]` — CONFIRMED, and the mechanism is sharper than reported
+
+**Relayed to this lane as an owner reading of the deploy log, flagged UNVERIFIED. Verified here, and
+the correction changes the remedy.**
+
+The log shows `relation "step_solutions" does not exist` (42P01). The claim as relayed was *"nothing
+in the repo creates it — every reference SELECTs/INSERTs/DELETEs, there is no `CREATE TABLE`."*
+**Enumerated rather than counted, on an existence question:**
+
+```bash
+$ git grep -n 'step_solutions' -- . ':!handoff/' ':!docs/' ':!*.md'      # 12 hits
+$ git grep -in 'create table' -- . ':!handoff/' ':!docs/' ':!*.md'       #  8 hits
+$ git grep -n 'stepSolutionsTable' -- .                                  #  3 hits
+```
+
+- 11 of the 12 are `SELECT`/`INSERT`/`DELETE` (`server/routes/stepSolution.cjs`,
+  `adminSolutionCache.cjs`, `questions.cjs`, `scripts/pregen-step-solutions.mjs`,
+  `scripts/warmup-solution-cache.mjs`).
+- **The 12th is a DECLARATION:** `lib/db/src/schema/stepSolutions.ts` —
+  `export const stepSolutionsTable = pgTable("step_solutions", { … })`.
+- All 8 `CREATE TABLE` sites are for `generated_questions` and `question_reports`. **None for
+  `step_solutions`.**
+- `stepSolutionsTable` has **ZERO importers** outside its own file.
+
+⇒ **The table IS declared — as a Drizzle schema that nothing applies at runtime.**
+`lib/db/package.json` exposes `"push": "drizzle-kit push --config ./drizzle.config.ts"`, a **manual**
+operation wired into no boot path and no CI job. **Contrast `generated_questions`, which has BOTH the
+Drizzle schema AND a runtime `CREATE TABLE IF NOT EXISTS` in
+`server/db/ensureGeneratedQuestionsTable.cjs` invoked at boot from `server/index.cjs`** — which is
+exactly why the same deploy log reports that one `ready`.
+
+**Impact:** the cache **fails soft** — `getCachedSolution` catches and returns `null` — so
+correctness is unaffected. **But every step solution has always been regenerated from Gemini.**
+⇒ **a standing COST line, not a bug**, and a candidate for the unexplained August spend.
+
+**Remedy is one command or one small module, not schema work:** either run the existing
+`drizzle-kit push` against production, or give `step_solutions` the same boot-time
+`CREATE TABLE IF NOT EXISTS` treatment `generated_questions` already has. ⭐ **The second is
+preferable for the same reason the first failed: a manual step nobody runs is indistinguishable from
+no step at all** — which is what the last several months of Gemini spend demonstrates.
+
+
 ## 2026-08-09 — WAVE ME-B (`#647` · `#649`, both DRAFT; three lanes + two read-only scouts). Trunk `376e30b0`.
 
 **`2026-08-09`**

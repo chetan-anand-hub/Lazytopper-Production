@@ -1,5 +1,67 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-08-09 — WAVE CLOSEOUT: **STAGES PREVIOUSLY RECORDED AS "BUILT, NOT MERGED" ARE NOW COMPLETE ON TRUNK** (one docs-only lane, trunk `eeafb99b`) — and the DPDP arc's shipped stages get the record they never had
+
+**`2026-08-09`**
+
+> ## ✅ **THE PREVIOUS ENTRY RECORDED `#647` AND `#649` AS "BUILT AND GATED, EXPLICITLY NOT MERGED".** Both merged before the handoff that said so. **They are COMPLETE on trunk.** The distinction it was drawing was the right one; the facts moved underneath it between authoring and merge.
+
+**STAGES NOW COMPLETE ON TRUNK — promoted from "built and gated":**
+
+- **`TOPICHUB-1` (`#647`, `024db49a`)** — `/topic-hub` reads `?concept=`, marks and scrolls that
+  concept's spine row, and falls back honestly when the label does not match.
+  🛑 **STILL A CONSUMER WITH NO PRODUCER, AND THAT IS NOW WORSE, NOT BETTER.** While it was a draft,
+  "no producer" was a constraint on a branch. **It is now shipped code no student can reach**:
+  `git grep -n 'concept=' … navigation.ts` returns **ZERO**, `buildDesktopTopicHubPath`'s
+  `DesktopRouteContext` is `{source, returnTo}` only, and HPQ does not link to `/topic-hub` at all.
+  ⇒ **reachable only by a hand-typed URL. MOUNT ≠ LIVE.** ➜ **`ME-2` is the producer and it is
+  `ME-2`'s FIRST obligation** (owner-ratified `R6`). `[FU-TOPICHUB-CONCEPT-PRODUCER]`
+- **`RETRY-1` (`#649`, `6ea6e590`)** — `services/mistakeRetry.ts` classifies a mistake-log id into
+  exact-retry / similar-only / nothing. ⚠ **Still test-only on the evidence ladder**: `#649`'s CI
+  build emitted **no `mistakeRetry` chunk**. **It flips to "ships" the moment `ME-2` imports the
+  module.** `[FU-RETRY-NO-BUILD-CHUNK-YET]` — a tracking item, not a defect.
+
+**STAGES COMPLETE ON TRUNK SINCE `#643` THAT THIS ROADMAP HAD NEVER RECORDED AS STAGES AT ALL** —
+recovered from `handoff/WAVE_STATE_WAVE_DPDP_B_ARCHIVE.md`, archived in this PR:
+
+- **`TSX-1` (`#644`, `3cf01287`)** — declared `tsx`, so `runWarmup()`'s spawned ESM child, which
+  **had never run since `be86cd94`**, can resolve its loader. ⭐⭐ **The lane DISPROVED the wave's
+  founding diagnosis**: `tsx` cannot have caused `#638`'s rollback. ⚠ **Merged with `tsx` in
+  `devDependencies`, against the owner's explicit ruling that it belongs in `dependencies`.**
+  `[FU-TSX-DECLARED-IN-DEVDEPENDENCIES]`
+- **`EXPORT-1` (`#645`, `3d6dce0c`)** — a student can download their own data, **and the file says
+  what it left out**; map-driven from `STUDENT_DATA_MAP`, reusing ERASE-1's walker unmodified.
+- **`SETTINGS-1` (`#646`, `3d3a32a9`)** — 🛑 **THE DPDP FRONT IS NOW STUDENT-FACING.** Download-my-data
+  and delete-my-account on `/me`, behind a type-to-confirm flow proportionate to an irreversible act
+  on a minor's account, with an un-softened line that the AI provider retains what it retains.
+  Verified mounted, not asserted: `MeProgressPage.tsx:41` imports and `:980` renders
+  `<AccountDataControls />`. **14 files, screenshots at 360px.**
+- **`#635` / `#648`** — owner/ops docs stages: the agent standing rules, and the premise gate as the
+  agent's first command.
+
+### 🛑 THE STAGE THAT CHANGED STATUS WITHOUT ANY STAGE BEING BUILT
+
+**The DPDP-A entry below records that the erasure code was merged and NOT RUNNING IN PRODUCTION.**
+It is running now — `#644` landed and the gateway boots (`Server listening :8080` ·
+`AI Gateway started :3001` · `/shared-api/healthz 200` · `Gemini: ON`), and `#646` gave it a surface.
+⚠ **Owner-supplied deploy log; not independently verified — no gate in this repository can produce a
+Railway boot.** ⚠ **And "running" is not "verified": no owner live-verify of the deployed
+download/delete flow has been reported.** Record it as **shipped and unverified-live.**
+
+### REMAINING BEFORE THE DPDP ARC CLOSES
+
+- **`SUPPLY-2` — the arc's one outstanding lane, and it is now UNBLOCKED.** It waited on `TSX-1`
+  merging (exact-path `pnpm-lock.yaml` collision; `lane_overlap.mjs` compares exact membership).
+  Owner-ruled scope `R1` = **(c) targeted now**, target `R2` = **vitest `3.2.6`** (trunk still pins
+  exact `"3.2.4"`). ⚠ **Its recorded allowlist names the wrong file** — the `esbuild: "0.27.3"`
+  override is in **`pnpm-workspace.yaml`**, not root `package.json`, which has no `pnpm.overrides`
+  key at all.
+- 🛑 **`[FU-DPDP-GUARDIAN-CONSENT]` — LAUNCH-BLOCKING and LEGAL, not engineering.** May reach
+  **SIGNUP**, not just deletion. **Owner's call; no lane rules on it.**
+- 🛑 **`#638`'s rollback cause is STILL UNKNOWN.** Two lanes independently cleared the gateway; a
+  gateway boot crash cannot fail the Railway healthcheck. **Only the owner has the first error line.**
+
+
 ## 2026-08-09 — WAVE ME-B: **TWO LANES BUILT AND GATED, NEITHER ON TRUNK** (three lanes + two read-only scouts under a controller + subagent model, trunk `376e30b0`) — the Topic Hub can be opened on a named concept, and a mistake now knows whether it can be re-served
 
 **`2026-08-09`**
