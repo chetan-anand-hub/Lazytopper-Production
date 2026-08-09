@@ -1,8 +1,96 @@
 # LazyTopper — Next Action
-# Updated: 2026-08-09 (post-**WAVE ME-B**: `#647` TOPICHUB-1 + `#649` RETRY-1, **BOTH OPEN DRAFTS WITH GREEN CI AND NEITHER ON TRUNK** - `gh pr ready` is the owner's step. Trunk `376e30b0`, which moved FOUR times during the wave. `ARRIVAL-1` returned BLOCKED with ZERO FILES and that was correct. **`ME-2` was NOT STARTED and passes whole to Wave ME-C.** **THREE consecutive concept resolvers were specified and all three were wrong**, caught only because each was handed on flagged UNVERIFIED. **`#647` is a CONSUMER WITH NO PRODUCER - if `ME-2` does not ship, it is dead code.**)
+# Updated: 2026-08-09 (post-**WAVE CLOSEOUT**, lane `HANDOFF-CATCHUP`, docs-only. Trunk `eeafb99b`. **THE PREVIOUS BLOCK IS WRONG, NOT MERELY STALE:** `#647` and `#649` **ARE** on trunk - both merged BEFORE `#650`, which says they are drafts. **The DPDP code IS running in production** - `#644` landed, the gateway boots, and `#646` gave it a student-facing surface on `/me`. Wave DPDP-B's close-out existed on ONE DISK and is now archived. **`ME-2` is the next lane and carries THREE hard constraints, one of them a privacy regression risk.** `SUPPLY-2` is UNBLOCKED and is the DPDP arc's last lane.)
+# Previously: 2026-08-09 (post-**WAVE ME-B**: `#647` TOPICHUB-1 + `#649` RETRY-1, **BOTH OPEN DRAFTS WITH GREEN CI AND NEITHER ON TRUNK** - `gh pr ready` is the owner's step. Trunk `376e30b0`, which moved FOUR times during the wave. `ARRIVAL-1` returned BLOCKED with ZERO FILES and that was correct. **`ME-2` was NOT STARTED and passes whole to Wave ME-C.** **THREE consecutive concept resolvers were specified and all three were wrong**, caught only because each was handed on flagged UNVERIFIED. **`#647` is a CONSUMER WITH NO PRODUCER - if `ME-2` does not ship, it is dead code.**)
 # Previously: 2026-08-09 (post-**WAVE DPDP-A**: #640 · #639 · #638, three lanes + two read-only scouts. Trunk `6f7da56e`. 🛑🛑 **`#638` IS MERGED AND CANNOT DEPLOY** — production serves the `#639` build; the `#638` boot crashed on an undeclared `tsx` and Railway rolled it back. **DPDP-B's FIRST lane is that fix, ahead of `EXPORT-1` and `SETTINGS-1`.** Every DPDP-A lane disproved a premise of its own dispatching document, two of them the controller's own. **ONLY A BOOT PROVES IT RUNS.**)
 # Previously: 2026-08-09 (post-**WAVE ME-A**: #634 · #641 · #637 · #636, four lanes + two scouts, plus the four commits already unrecorded when it opened — #629 · #630 · #632 · #631 · #633. Trunk `e8f89863`. FOUR open PRs, none of them ME: #638/#639/#640 are the DPDP arc's live drafts, #635 is the owner's ops-docs PR. Every ME-A lane disproved part of its own spec. **Wave ME-B opens with `ARRIVAL-1` + `RETRY-1` under a FRESH controller; `ME-2` is Wave ME-C.**)
 # Previously: 2026-08-07 (post-**WAVE 5F**: #619 · #620 · #625 · #621 · #626 · #627, four lanes. Trunk `fbfb57fa`. ZERO open PRs. Typed grading LIVE-VERIFIED end to end, including the control. **Wave 5G opens with `ME-PROGRESS`.**)
+
+## NEXT — 2026-08-09 (post-Wave CLOSEOUT). Read this block first.
+
+**Trunk `eeafb99b0c437998067478f603af66d32e431b58`** — re-derive with
+`git ls-remote origin base/approved-thru-437`.
+
+### 0 — ***** THE ONE THING THAT MUST NOT BE MISSED *****
+
+> ## ✅ **`#647` AND `#649` ARE ON TRUNK.** The previous block said they were not. It was true when
+> ## authored at `376e30b0` and false by the time it merged.
+> ## 🛑 **BUT `#647` IS DEAD CODE UNTIL `ME-2` SHIPS ITS PRODUCER** — nothing emits `?concept=`.
+
+```bash
+$ git merge-base --is-ancestor 024db49 origin/base/approved-thru-437   # -> ANCESTOR  (#647)
+$ git merge-base --is-ancestor 6ea6e59 origin/base/approved-thru-437   # -> ANCESTOR  (#649)
+$ git grep -n 'concept=' origin/base/approved-thru-437 -- lazytopper/src/lib/desktop/navigation.ts
+#  -> ZERO hits.  A shipped consumer with no producer.
+```
+
+### 1 — THE NEXT LANE IS `ME-2`, AND IT CARRIES THREE HARD CONSTRAINTS
+
+`ME-2` (the v7 `/me` page) was deliberately not started in Wave ME-B and passes whole to **Wave ME-C**.
+It is now load-bearing for **three** separate things, not one:
+
+1. **It is `#647`'s producer.** `lazytopper/src/lib/desktop/navigation.ts` moves into `ME-2`'s
+   allowlist. **The producer is `ME-2`'s FIRST obligation, not a trailing detail** (owner-ratified,
+   `R6`). It must emit **exactly**
+   `/topic-hub/<grade>/<subject>/<topicSlug>?concept=<EXACT boardEssentials name, URI-encoded>` —
+   **the verbatim label; NOT a slug, NOT a `conceptKey`, NOT lower-cased.** `BoardConcept` has **no
+   key field**; the row's identity **is** its name. Three consecutive resolvers were specified and all
+   three were wrong.
+2. **It is what ends `expectedMarks`'s dormancy.** Zero consumers outside `src/prediction/` today.
+3. 🛑 **IT MUST PRESERVE `<AccountDataControls />`.** `#646` added it to `MeProgressPage.tsx`
+   (`:41` import, `:980` render). **`ME-2` rebuilds that file wholesale.** Deleting that section
+   silently removes a student's DPDP download and delete controls — **a privacy regression shipped by
+   a redesign.** ⇒ **verify against trunk `eeafb99b` or later, never against a brief written before
+   it.**
+
+### 2 — THE DPDP ARC HAS EXACTLY ONE LANE LEFT: `SUPPLY-2`, NOW UNBLOCKED
+
+It was blocked on `TSX-1` merging — an exact-path `pnpm-lock.yaml` collision, and `lane_overlap.mjs`
+compares exact membership. **`#644` has merged, so the block is gone.**
+
+- **Scope is owner-ruled `R1`: (c) targeted now, full sweep as a separate later PR.**
+- **Target is owner-ruled `R2`: vitest `3.2.6`.** Still pinned exact `"3.2.4"` on trunk — verified.
+- ⚠ **The allowlist recorded in the DPDP-B close-out names the WRONG FILE.** It says *"root
+  `package.json` (esbuild override)"*. **Root `package.json` has no `pnpm.overrides` key at all** —
+  the override lives in **`pnpm-workspace.yaml`**, where `overrides:` pins `esbuild: "0.27.3"`,
+  **below** the patched `0.28.1`. Granting the wrong file reproduces the unsatisfiable-allowlist
+  failure DPDP-B already made once with `EXPORT-1`. **Grant `pnpm-workspace.yaml`.**
+- ⚠ **A manifest change without a matching `pnpm-lock.yaml` update fails the Vercel build too. Both
+  move together, ALWAYS.**
+
+### 3 — OWNER ITEMS, NONE OF THEM DELEGABLE
+
+- 🛑 **`[FU-DPDP-GUARDIAN-CONSENT]` is LAUNCH-BLOCKING and is a LEGAL question, not an engineering
+  one.** DPDP treats under-18 data as a child's data requiring verifiable parental consent, and
+  **every LazyTopper student is in that class** — so it may reach **SIGNUP**, not just deletion.
+  Neither controller nor lane rules on it.
+- ⚠ **Railway "Wait for CI" is OFF.** Disabled to get past the SUPPLY-2 blocker. **A merge right now
+  deploys with no check having passed.** Restore it the moment `SUPPLY-2` lands.
+- 🛑 **`#638`'s rollback cause is still UNKNOWN.** Two lanes independently cleared the gateway — a
+  gateway boot crash **cannot** fail the Railway healthcheck, because `/shared-api/healthz` is served
+  by api-server's Express router and the gateway is a restarting child. **The first error line from
+  `#638`'s failed deployment is the only remaining input and only the owner has it.**
+- ⚠ **`tsx` merged into `devDependencies`, against the owner's own ruling** that it belongs in
+  `dependencies`. One-line move, owner's call. `[FU-TSX-DECLARED-IN-DEVDEPENDENCIES]`
+- ⚠ **LIVE-VERIFY OWED on the DPDP surface.** `/me` download-my-data and delete-my-account are
+  **shipped and never exercised in production.** Per the standing rule, live-verify means **both
+  surfaces, and at least one session carrying state from before the change** — mobile is where most
+  students are and it is the surface verified least.
+- 💰 **`[FU-STEP-SOLUTIONS-TABLE-NEVER-CREATED]` is a COST line, not a bug** — the cache fails soft,
+  so every step solution has always been regenerated from Gemini. **The fix is one command, not a
+  schema project:** the table is already declared at `lib/db/src/schema/stepSolutions.ts` and
+  `lib/db/package.json` has a `push` script; nothing applies it at boot, unlike
+  `generated_questions`.
+
+### 4 — THE PROCESS FIX THIS WAVE OWES THE NEXT ONE
+
+**A handoff PR's `[CURRENT]` is a claim about trunk that ages between authoring and merge.** `#650`
+was accurate when written and wrong when merged, because two product PRs landed in between. ➜ **any
+handoff PR not merged the same hour it is authored must re-derive trunk and re-check its own headline
+immediately before merge**, exactly as a product lane rebases. `[FU-HANDOFF-DOCS-PR-STALE-AT-MERGE]`
+
+**And its sibling:** *a ruling recorded only in an untracked state file is a ruling that does not
+exist.* The `tsx`-in-`dependencies` change request is the instance.
+
 
 ## NEXT — 2026-08-09 (post-Wave ME-B). Read this block first.
 

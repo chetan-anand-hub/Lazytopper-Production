@@ -135,7 +135,8 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.5",
-    "recharts": "^3.8.1"
+    "recharts": "^3.8.1",
+    "tsx": "catalog:"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
@@ -158,11 +159,10 @@
     "globals": "^16.5.0",
     "jsdom": "29.1.1",
     "madge": "^8.0.0",
-    "tsx": "catalog:",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.3",
     "vite": "^7.2.2",
-    "vitest": "3.2.4",
+    "vitest": "3.2.6",
     "yaml": "^2.8.2"
   }
 }

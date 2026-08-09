@@ -1,5 +1,101 @@
 ---
 
+## 2026-08-09 — WAVE CLOSEOUT: `handoff/` was WRONG, not stale — `#647`/`#649` **are** on trunk, DPDP-B's close-out is rescued from one disk, and the DPDP code is running in production — trunk `eeafb99b`
+
+**`2026-08-09`** · one docs-only lane, `HANDOFF-CATCHUP`, under the controller + subagent model.
+**No product file touched.**
+
+> ## 🛑 **THE PREVIOUS HANDOFF ASSERTED THAT SHIPPED STUDENT-FACING CODE WAS UNSHIPPED.** `#650`'s `[CURRENT]` headlines *"both lanes sit on GREEN DRAFT PRs that are not on trunk"*. `#647` and `#649` merged **before** `#650`. It was **true when authored at `376e30b0` and false by the time it merged** — a docs PR left open while trunk moved. **Demoted, not edited:** a dated record of what was known when, and rewriting it would destroy the evidence of exactly this failure mode.
+
+> ## ⭐⭐ **AN ENTIRE WAVE'S CLOSE-OUT EXISTED ON ONE DISK.** `WAVE_STATE_WAVE_DPDP_B_LIVE.md`, 39,759 bytes, untracked, in the shared checkout only — holding the lane table, every decision **with its reason**, and all FU ids for `#644`/`#645`/`#646`. **Archived byte-identical in this PR.** This is the **FOURTH** single-disk exposure in the project (Waves 4, 5A, 5G, now DPDP-B); the first three all needed rescuing after the fact.
+
+### What is on trunk since the last handoff (`#650`, `eeafb99b` is itself that handoff)
+
+```
+eeafb99b  #650  docs(handoff): Wave ME-B closed                            ME-B
+6ea6e590  #649  RETRY-1     a mistake entry offers the retry it can keep   ME-B   <- said to be a draft
+024db49a  #647  TOPICHUB-1  open the Topic Hub on a named concept          ME-B   <- said to be a draft
+376e30b0  #648  ops: make the premise gate the agent's first command       owner/ops
+3d3a32a9  #646  SETTINGS-1  download your data, delete your account        DPDP-B  <- no lane record
+3d6dce0c  #645  EXPORT-1    download your data, and the file says what
+                            it left out                                    DPDP-B  <- no lane record
+3cf01287  #644  TSX-1       declare tsx so the warmup child resolves it    DPDP-B  <- no lane record
+baf9b67a  #635  ops: commit the agent standing rules                       owner/ops
+```
+
+**All five DPDP-B / ops commits now have a lane record, sourced from the archived close-out rather
+than reconstructed from commit metadata** — reconstruction is precisely the gap that left `#646`, a
+**student-facing DPDP surface**, with no write-up at all.
+
+### The three corrections this handoff makes
+
+| # | the record said | trunk says | how proven |
+|---|---|---|---|
+| 1 | `#647`/`#649` are green drafts **not on trunk** | **both are ancestors of trunk**, merged before `#650` | `git merge-base --is-ancestor 024db49` / `6ea6e59` → ANCESTOR; `git log --oneline -4` |
+| 2 | *"a student can erase their own account, **and the code is not running in production**"* | **it is running.** `#644` landed, the gateway boots (`Server listening :8080` · `AI Gateway started :3001` · `/shared-api/healthz 200` · `Gemini: ON`), and `#646` gave it a student-facing surface | owner-supplied deploy log — ⚠ **not independently verified; no gate here can produce a Railway boot** |
+| 3 | five commits with **no lane record anywhere** | recorded, from the archive | `git hash-object` on both files → identical blob `38b00b1f…`, 39,759 bytes |
+
+⚠ **Corrections 1 and 2 are recorded in a NEW `[CURRENT]`; neither prior block was edited.** Standing
+Rule 3 on the follow-ups board: a log silently updated stops being evidence of what was known when.
+
+### ⭐⭐ THE FINDING THIS LANE PRODUCED THAT NO GATE COULD
+
+**An owner change request was ruled, recorded, and merged past — because the record lived on one
+disk.** The DPDP-B close-out carries, verbatim: *"declare `tsx` in `dependencies`, NOT
+`devDependencies` … if it went to `devDependencies`, that is a change request before merge."*
+
+```bash
+$ node -e "const p=require('./lazytopper/package.json'); console.log(p.dependencies&&p.dependencies.tsx, p.devDependencies&&p.devDependencies.tsx)"
+undefined  catalog:
+```
+
+⇒ **`#644` merged with `tsx` in `devDependencies`.** The gateway's warmup child is correct only while
+the Dockerfile's no-prune comment holds — the exact contingency `[FU-DEVDEPS-SHIP-TO-PRODUCTION]`
+names. ⭐ **The lesson is larger than the line: a ruling recorded only in an untracked state file is a
+ruling that does not exist.** Same failure as the missing close-out, one level down.
+`[FU-TSX-DECLARED-IN-DEVDEPENDENCIES]`
+
+### ⭐ A SECOND FINDING: THE `step_solutions` DIAGNOSIS WAS NEARLY RIGHT, AND THE DIFFERENCE IS THE REMEDY
+
+The deploy log shows `relation "step_solutions" does not exist` (42P01), and the claim relayed to this
+lane was *"nothing in the repo creates it."* **Enumerated rather than counted, that is not quite
+true — and the correction is worth more than the confirmation.**
+
+- 12 code references to `step_solutions`; 11 are `SELECT`/`INSERT`/`DELETE`. **The 12th is a
+  declaration:** `lib/db/src/schema/stepSolutions.ts` — `pgTable("step_solutions", { … })`.
+- 8 `CREATE TABLE` sites in code, for `generated_questions` and `question_reports`. **None for
+  `step_solutions`.**
+- `stepSolutionsTable` has **zero importers** outside its own file.
+
+⇒ **the table is DECLARED as a Drizzle schema that nothing applies.** `lib/db/package.json` has
+`"push": "drizzle-kit push"` — a **manual** step in no boot path and no CI job. **Contrast
+`generated_questions`, which has both the schema AND a runtime `CREATE TABLE IF NOT EXISTS` invoked
+at boot**, which is why the same log reports it `ready`. The cache fails soft
+(`getCachedSolution` catches → `null`), so correctness is unaffected — **but every step solution has
+always been regenerated from Gemini.** ⇒ **a standing COST line, and the fix is one command, not
+schema work.** `[FU-STEP-SOLUTIONS-TABLE-NEVER-CREATED]`
+
+### ✅ `[FU-DPDP-B-NO-CLOSEOUT-HANDED-OVER]` — CLOSED by supplying the artefact, with the mechanism named
+
+> **A controller standing down without opening a handoff PR must state the EXACT PATH of its
+> close-out file, and the fact that it is UNARCHIVED, as the LAST LINE of its final message.**
+
+**One line among many is not a handover.** ⭐ The DPDP-B controller did the hard part right — it wrote
+a complete, honest close-out to disk and **refused to open a premature handoff PR**, correctly, under
+Rule 0, because none of its lanes were on trunk at the time. **What failed was the handover of the
+file's LOCATION**, and the cost was a wave of student-facing work travelling with no record.
+
+### VALIDATION
+
+`scope:guard --mode docs` **before `git add`** · `check:mojibake` **after staging** · `git diff
+--check` · **per-file heading census, set-differenced before vs after** — uniqueness is not
+completeness. ⚠ **mojibake's green is REPORT-ONLY for `handoff/`**, so an **injection control** was
+run to prove the matcher fires on this lane's own added lines. **`handoff/` only, zero product
+files.** ⭐ **This PR's CI is the first full-bar run to see `#644`–`#649` composed on one tree.**
+
+
+---
+
 ## 2026-08-09 — WAVE ME-B CLOSED: `#647` TOPICHUB-1 · `#649` RETRY-1, both GREEN DRAFTS — three concept resolvers in a row were wrong, and nothing this wave built is on trunk — trunk `376e30b0`
 
 **`2026-08-09`** · three build lanes + two read-only scouts, controller + subagent model. **Controller
