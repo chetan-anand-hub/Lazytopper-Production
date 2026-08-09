@@ -1,5 +1,84 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-08-09 — WAVE DPDP-A **COMPLETE IN THE REPOSITORY, NOT IN PRODUCTION** (three lanes + two read-only scouts under a controller + subagent model, trunk `6f7da56e`) — a minor's data can be erased, and the code is not running
+
+**`2026-08-09`**
+
+> ## 🛑🛑 **This wave is COMPLETE ON TRUNK and NOT DEPLOYED.** `#638` merged, crashed on boot, and Railway rolled it back. **Production is serving the `#639` build.** The stage is recorded as complete **in the repository** and explicitly **NOT** as delivered to students.
+
+**STAGES COMPLETE — all three verified ON TRUNK BY CONTENT (this repo squash-merges):**
+
+- **`CLEARTEXT-1` (`#640`, `c9445a1e`)** — five new `*.uidOnly.test.ts` guards, one **beside each**
+  storage call, pinning that **only the uid** reaches the nine `localStorage` sinks.
+  **+1,323 / −0, test-only; ZERO production-code change**, all five `.ts` files byte-identical to
+  trunk by `git hash-object`. The deliverable is **the test, not the dismissal** — it sits beside the
+  call so a future change trips it, rather than in a distant suite.
+  ⚠ **The CodeQL dismissal itself is the OWNER's action, not an agent's** — it is an outward-facing
+  repo-state change, same class as "push as draft, never merge". The rationale and the exact
+  commands were authored by the lane; **the dismissal was deliberately not executed.**
+  ⚠ The rationale records that **the "7" diagram alerts span TWO rule ids**, so a rule-id
+  suppression would leave two open.
+- **`USERS-1` (`#639`, `6ef083b5`)** — the dead login-time write of a child's identity into a `users`
+  collection that **has never appeared in `firestore.rules` in the repo's entire history** is gone.
+  6 files, +468 / −70, **all in allowlist, verified locally AND against the remote PR.** `users`
+  **stays declared** in `studentDataMap.ts`; the drift guard's exact `toEqual` was **kept, not
+  loosened.** ✅ **This is the build production is currently serving.**
+- **`ERASE-1` (`#638`, `6f7da56e`)** — an authenticated, owner-scoped server route that walks all 29
+  mapped locations, deletes the 11 subcollections **explicitly** (Firestore does not cascade), uses
+  admin credentials for the five that require them **including the handwriting images in Storage**,
+  and reports Gemini and browser `localStorage` **as not deleted rather than implying success.**
+  Every location returns `deleted:N` **or** `notFound`; the caller distinguishes them. 200 when every
+  reachable location returned a **definite outcome**, 207 only on **genuine failure** — and the body
+  enumerates all 29 with their outcome **regardless of status code.**
+  🛑🛑 **MERGED, UNDEPLOYED, UNREACHABLE. See the blocker below.**
+
+**STAGES NOT STARTED, and the order is the owner's:**
+
+1. 🛑 **The `tsx` deploy fix** — `[FU-ERASE-1-GATEWAY-TSX-UNDECLARED]`, **DPDP-B's first lane.**
+   ⚠ **Same root cause as `[FU-DEPENDABOT-BLOCKS-RAILWAY-DEPLOY]` — the `catalog:` protocol. One
+   lane, not two.**
+2. **`EXPORT-1`** — deferred from this wave with its reason recorded: it collides with ERASE-1 on
+   `lazytopper/server/index.cjs` by exact path, so the two **sequenced rather than raced**, and
+   EXPORT-1 **reuses ERASE-1's map-walker** because a second walker is a drift hazard, not
+   redundancy. That constraint is now discharged.
+3. **`SETTINGS-1`** — the student-facing surface. **Nothing on this arc reaches a student until it
+   lands**, and it cannot be verified until the deploy fix ships. Its original blocker
+   (`MI-CONCEPT-1` on trunk) is **discharged** — `#637` merged as `92cc9fc4`.
+
+### 🛑 THE BLOCKER THAT DEFINES THIS STAGE
+
+`Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'tsx' imported from /app/lazytopper/`
+
+`tsx` is declared **only** in `artifacts/api-server/package.json`; **absent from
+`lazytopper/package.json` and the root** — re-verified on trunk. pnpm workspaces isolate per
+package; the Dockerfile does not prune ⇒ **undeclared, not stripped.**
+
+★★ **The rung this adds to the project's evidence ladder:**
+**A test proves the code works. A build chunk proves it ships. ONLY A BOOT PROVES IT RUNS.**
+The map-import proof was demanded, made lane-blocking, delivered and honestly reported — and was
+**true in a dev worktree, false in the production image.** ⇒ **Any lane adding a runtime import to a
+server must state WHICH IMAGE it executed in.**
+
+### ★★ WHAT THIS STAGE MOVED FOR A STUDENT — and the exact limit of it
+
+**Moved:** for the first time, a minor's data **can** be removed on request, and where it cannot be
+(Gemini; the browser's own `localStorage`) the product **says so instead of implying success**. A
+login **no longer writes a child's name, email and phone** to a collection that never existed.
+
+**Limit, stated first rather than buried:** the erasure is reachable **only by an authenticated API
+call**, **it is not currently deployed at all**, and **no student-facing surface exists.** Nothing
+here is a delivered capability yet.
+
+⚠ **`[FU-DPDP-MAP-NO-CONSUMER]` is closed in the repository and REOPENED in production by the
+blocker.** Before this wave, `studentDataMap.ts` (`#630`) had no consumer but its own test.
+
+### 🛑🛑 A LAUNCH-BLOCKING ITEM THAT IS NOT AN ENGINEERING STAGE
+
+**`[FU-DPDP-GUARDIAN-CHANNEL-LEGAL]`** — India's DPDP Act treats data of **anyone under 18** as a
+child's data requiring **verifiable parental consent to PROCESS it**, and **every LazyTopper student
+is in that class.** ⇒ **This potentially reaches SIGNUP ITSELF, not just deletion.** **Requires legal
+advice. It cannot be closed by a lane.**
+
 ## 2026-08-09 — WAVE ME-A **COMPLETE** (four lanes + two scouts under a controller + subagent model, trunk `e8f89863`) — the engine gains the numbers the new `/me` needs
 
 **`2026-08-08T23:31:55Z UTC / 2026-08-09 05:01 IST`**

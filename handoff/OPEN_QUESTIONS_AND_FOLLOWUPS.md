@@ -11,6 +11,373 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 ---
+## 2026-08-09 — WAVE DPDP-A (#640 · #639 · #638, three lanes + two read-only scouts). Trunk `6f7da56e`.
+
+**`2026-08-09`**
+
+> ## 🛑🛑 **The first entry on this board is a LIVE DEPLOY BLOCKER and the second is a LAUNCH-BLOCKING LEGAL QUESTION.** Neither is a backlog item.
+
+**23 open ids and 7 closed ids are recorded below, each in its own heading with a body, per Standing
+Rule 1.** ★ Two of the open ids are **new to this handoff** and were found while writing it, not by a
+lane: `[FU-CLAUDEMD-MATRIX-COUNT-STALE-AGAIN]` and `[FU-MOJIBAKE-HANDOFF-REPORT-ONLY-NOT-BLIND]`.
+
+---
+
+### 🛑🛑 `[FU-ERASE-1-GATEWAY-TSX-UNDECLARED]` — LIVE DEPLOY BLOCKER. DPDP-B's FIRST LANE.
+
+**`#638` is merged and CANNOT DEPLOY. Production is serving the `#639` build.** The `#638`
+deployment crashed on boot and Railway rolled it back:
+
+```
+Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'tsx' imported from /app/lazytopper/
+```
+
+**Mechanism, re-verified on trunk `6f7da56e` rather than carried:** `tsx` is declared **only** in
+`artifacts/api-server/package.json` (`"tsx": "catalog:"`, line 34) and is **absent from
+`lazytopper/package.json` and from the root manifest**. pnpm workspaces isolate dependencies per
+package, so the gateway cannot resolve it. The Dockerfile does **not** prune
+(`# do NOT run --prod / prune`) ⇒ **this is an UNDECLARED dependency, not a stripped one.**
+
+⚠ **Two traps for the fix lane:**
+- **A manifest change without a matching `pnpm-lock.yaml` update fails the Vercel build too.**
+- ★★ **The acceptance test is a SUCCESSFUL RAILWAY BOOT, not a green suite.** Nothing in this
+  repository's gate set can produce that evidence.
+
+⚠ **Write this up and fix it TOGETHER with `[FU-DEPENDABOT-BLOCKS-RAILWAY-DEPLOY]` — they are ONE
+root cause.**
+
+★★ **The mechanism matters more than the fix, and it is why this entry is long.** SCOUT-1 flagged the
+premise (*"the gateway can import the map is strong INFERENCE, not an executed import"*); the
+controller **promoted it to lane-blocking**; ERASE-1 reported `MAP IMPORT IN SERVER PROCESS:
+EXECUTED PASS` — **and that report was true.** It executed in a **dev worktree**, where every
+workspace dependency resolves, and never in the **production image**, where pnpm's per-package
+isolation applies. **The requirement was right. It was not met. Nothing could tell the difference.**
+➜ **Any lane adding a runtime import to a server must state WHICH IMAGE it executed in.**
+
+### 🛑🛑 `[FU-DPDP-GUARDIAN-CHANNEL-LEGAL]` — ESCALATE. LAUNCH-BLOCKING. NOT AN ENGINEERING ITEM.
+
+> India's DPDP Act treats the data of **anyone under 18** as a child's data and requires
+> **verifiable parental consent to PROCESS it**. **Every LazyTopper student is in that class.**
+> ⇒ **This potentially reaches SIGNUP ITSELF, not just deletion.** A guardian erasure channel is the
+> visible corner of a much larger question. **Neither the owner nor any agent here is a lawyer.**
+> **This must read as a launch blocker requiring legal advice, not as a backlog item about a delete
+> button.**
+
+⚠ **Do not soften this into an engineering nicety and do not assign it to a lane.** No agent can
+close it. It needs external legal advice before launch.
+
+### 🛑 `[FU-DEPENDABOT-BLOCKS-RAILWAY-DEPLOY]` — same root cause as the `tsx` blocker
+
+**Six Dependabot Update workflows are FAILING on trunk**, verified on `6f7da56e`: `re2`, `dompurify`,
+`nanoid`, `js-yaml`, `react-router`, `hono` (runs `31285986176`, `31285986107`, `31285986109`,
+`31285986076`, `31285986077`, `31285986074`). **Railway gates on the branch CHECK SUITE** ⇒ **a bot
+failure blocks every production deploy.**
+
+⚠ **It is visible only as a "Skipped" badge** — the most dangerous shape available: **an
+infrastructure stop presenting as a non-event.** Same family as this wave's other findings: *a zero
+from something nobody proved can fire.*
+
+★★ **Owner-diagnosed, and it is the SAME root cause as the deploy blocker, not a second problem.**
+The repo uses **pnpm catalogs** — 17 entries in `pnpm-workspace.yaml`, six packages referencing
+`catalog:`. **Dependabot's `npm_and_yarn` updater cannot resolve that protocol**, so every
+security-update job fails. `tsx` was declared `"tsx": "catalog:"` in one package and never added to
+the gateway; **the same catalog mechanism is what the updater chokes on.**
+
+⇒ **The 4 critical security alerts and the `tsx` deploy blocker are ONE root cause. A fix lane that
+treats them as two unrelated bugs will fix one and leave the other.**
+
+### `[FU-REFERRAL-MATH-RANDOM-USER-FACING]`
+
+`referralService.generateCode()` uses **`Math.random()` for a user-facing referral code** — a direct
+`CLAUDE.md` §7 violation (*"No `Math.random()` for any user-facing data"*) **living on trunk today.**
+
+★ **CodeQL did not flag it.** ⇒ **Same lesson as the 4-of-6 finding: the scanner's output is not the
+set.** Out of CLEARTEXT-1's scope (that lane changed zero production code by design). **Needs its own
+small lane.**
+
+### `[FU-CLEARTEXT-REFERRAL-UNFLAGGED-SINKS]` — THE ALERT LIST IS NOT THE SET
+
+**CodeQL flagged 4 of the 6 `setItem` calls in `referralService.ts`.** ⇒ **Anyone remediating "the
+referral sinks" from the alert list would cover four, believe they were done, and ship.** The
+CLEARTEXT-1 guard audits **all six**, because it enumerated the set from the file rather than from
+the alert list.
+
+➜ **Generalises to every scanner this project uses.** Recorded here as a standing hazard, and also
+written into `cofounder-skill/SKILL.md` because it is a method rule, not a bug.
+
+### `[FU-CLEARTEXT-MUTATION-HARNESS-ENOENT-FALSE-RED]` — a rule against FALSE REDS
+
+CLEARTEXT-1's own first mutation harness produced **FIVE FALSE REDS**: `execFileSync` on the
+**extensionless `.bin/vitest`** returned `ENOENT`, **which reads exactly like a failing test.**
+
+★★ **This project has a year of defences against false GREENS and had nothing against the inverse.**
+Caught only by **requiring the failure to QUOTE THE INJECTED VALUE**; the harness was then rebuilt
+with a **pre-mutation green** and a **did-it-actually-run assertion**.
+
+➜ **New standing rule (also in `cofounder-skill/SKILL.md`): a mutation's red must quote the injected
+value.** ★ **A mutation that "fails" for a reason unrelated to the mutation is as worthless as one
+that never landed.**
+
+### `[FU-DPDP-DRIFT-GUARD-MISSED-NONNULL-ASSERTION]` — CLOSED AS A DEFECT, KEPT AS A LESSON
+
+**The most valuable result of the wave was a mutation that did NOT go red.** USERS-1's mutation 1
+stayed green, and that was **a real hole in the drift guard protecting `studentDataMap.ts`**:
+`doc(firestoreDb!, …)` — legal, because `firestoreDb` is nullable — **evaded the guard's pattern
+entirely.**
+
+**Nothing is unmapped today** (all 47 real call sites use the guarded style), **but the next such
+call site would have been invisible**, and that guard is the only thing standing between a new
+collection and an erasure that silently misses it.
+
+**Fixed in `#639`:** the scanner is now a **pure function with fixture tests that prove REJECTION,
+not merely acceptance** — the exact remedy for *"a parser only run on the real file can be shown to
+ACCEPT, never to REJECT."* ★ **Kept open as a LESSON, not a defect: when a mutation does not go red,
+the first hypothesis is that the SUITE has a hole, not that the code is fine.**
+
+### `[FU-DPDP-DRIFT-GUARD-SCAN-ROOTS-NARROW]`
+
+The data-map drift guard scans a **narrow set of roots**. A Firestore collection reached from a path
+outside those roots would be undeclared and invisible to it — and therefore invisible to the erasure
+that walks the map. **Not exploited today; widen the roots or prove the narrow set complete.**
+⚠ Related to but **distinct from** the non-null-assertion hole above: that was a *pattern* gap, this
+is a *coverage* gap.
+
+### `[FU-VITEST-MOCK-FACTORY-TDZ-NEEDS-HOISTED]`
+
+USERS-1's own new suite carried a `vi.mock` **TDZ fault that a green tree hid.** Under mutation it
+degraded to a **collection error instead of an assertion failure.** Fixed with `vi.hoisted()`.
+
+★★ **The durable point: a suite that fails to COLLECT looks nothing like a suite that fails an
+ASSERTION, and only one of them is evidence.** A mutation run that reports "red" without
+distinguishing the two proves nothing. **Check other `vi.mock` factories for the same shape.**
+
+### `[FU-DPDP-SILENT-CATCH-NO-OBSERVABILITY]`
+
+The dead `users` write was swallowed **twice** — an empty `catch` in `learnerAccountService.ts` plus
+the caller's `Promise.allSettled` in `AuthContext.tsx`. ⇒ **A permission denial on the auth spine
+produced no signal anywhere**, which is why it survived from PR #78 (2026-05-16) to `#639`.
+
+**The write is gone, but the swallowing pattern remains on the auth spine.** ⇒ **Audit the remaining
+empty catches there and decide what a denial should emit.** An error that no one can observe is
+indistinguishable from success.
+
+### `[FU-DPDP-LEARNERACCOUNTSERVICE-MODULE-FULLY-DEAD]`
+
+`lazytopper/src/services/learnerAccountService.ts` is now **inert and uncalled** — confirmed still on
+disk on trunk `6f7da56e`. It was **deliberately kept**, not overlooked: `vi.mock` needs the path to
+resolve, **7 `vi.mock` sites** reference it, and **2 of the 7 are outside USERS-1's allowlist**; its
+export surface was kept **byte-identical**.
+
+**Owner ruling: LEAVE IT** — DPDP-B is already working in that tree and can delete it with the two
+outside test files in scope. ⇒ **Deleting it is a DPDP-B decision, and it must move the 7 `vi.mock`
+sites in the same PR.**
+
+### `[FU-DPDP-ERASE-NO-CLIENT-CALLER]`
+
+**The erasure route has zero callers anywhere in the repo.** This is by design — `SETTINGS-1` (wave
+DPDP-B) is the student-facing surface — but it is recorded as a dormancy, not as a plan, because
+**a capability that merges and is called by nothing is invisible to every gate.**
+
+⇒ **See the dormancy block in `CURRENT_STATE.md`: combined with the `tsx` blocker, `ERASE-1` is
+MERGED, UNDEPLOYED and UNREACHABLE — three independent reasons it is dark.**
+
+### `[FU-DPDP-ERASE-DOUBLE-TOKEN-VERIFY]`
+
+The erasure path **verifies the caller's ID token more than once** on a single request. Correct but
+wasteful, and each verification is a network-dependent call. **Measure it before optimising** — and
+⚠ **do not "fix" it by caching a verification result**, which is how a fail-closed check becomes
+fail-open.
+
+### `[FU-DPDP-ERASE-UID-FIELD-NAME-ASSUMED]`
+
+For the field-keyed locations, the erasure **assumes the uid field's NAME**. It is correct for
+`qrUploadSlots` and was audited across all 29 locations, **but the name is an assumption rather than
+a value read from the map** — the map does not currently carry a `uidField` for those rows.
+
+⇒ **Add the field name to `studentDataMap.ts` and read it**, so a rename is caught by the drift guard
+instead of silently producing `notFound` on a location that has data. **This is the same class as
+the `qrUploadSlots` finding, one level up.**
+
+### `[FU-DPDP-QRUPLOADSLOTS-FIELD-KEYED]` — ✅ CLOSED THIS WAVE, kept for the lesson
+
+`qrUploadSlots` keys the uid as a **field, not a document id** — so the obvious doc-id delete was a
+**silent no-op sitting directly in the erasure path.** The owner promoted it to lane-blocking:
+*"That is the worst failure available to this lane. A minor's handwriting images stay live while the
+product tells a parent the account was erased."*
+
+**Closed and PROVEN closed in `#638`.** Every location returns `deleted:N` or `notFound`; the caller
+distinguishes them. **Mutation M4 (field-keyed → doc-id) went red with `actual: 'notFound' /
+expected: 'deleted'` — red BECAUSE ZERO DOCUMENTS MATCHED**, not because an assertion changed.
+
+★ **The instruction that paid for itself: *audit all 29, do not spot-check.*** It found a **second**
+instance the lane's own first classifier had got wrong — a nested path with no `{uid}` being
+field-queried. **A spot-check of the one known location would have shipped it.**
+
+### `[FU-DPDP-GATEWAY-SPOOFABLE-UID-HEADER]` — owner-verified, REAL and CURRENT
+
+`verifiedCaller.cjs` and `rateLimiter.cjs` **both read `X-Lazytopper-Uid`, which is trivially
+spoofable.**
+
+⚠ **The Wave 5D header strip does NOT cover this.** It strips `x-user-id` at the **api-server** proxy
+(`app.proxy-headers.test.ts`): **a different header on a different surface.** Anyone who reads "the
+header strip landed in Wave 5D" and concludes this is handled will be wrong.
+
+★ **Not ERASE-1's to fix, and ERASE-1 does not depend on it** — it consumes `resolveVerifiedUid`,
+which never reads the header. **Still open for whoever owns the gateway's auth surface.**
+
+### `[FU-DPDP-APISERVER-NO-RATE-LIMIT]`
+
+**`artifacts/api-server` has no rate limiter at all.** The four CodeQL `missing-rate-limiting` alerts
+are in that package, **not** in the gateway. ⚠ **Both surfaces are live in one process tree**, so
+"the gateway is limited" is not a statement about the product's exposed surface.
+
+### `[FU-DPDP-RATE-LIMIT-PER-IP-EXISTS]` — corrects a repo-wide belief
+
+**The belief recorded elsewhere in this project — "caps are per-UID, never per-IP" — is WRONG.** An
+IP tier exists: `ip:<xff>`, 3/day, signed-out. **Gateway only.**
+
+⇒ **Correct it wherever it is relied on.** A belief this specific, held repo-wide and false, will be
+used as a premise by some lane that never re-derives it.
+
+### `[FU-DPDP-QRCHANNEL-INTERNALS-COMMENT]`
+
+The QR channel's internals carry a **comment describing behaviour that the code does not implement.**
+Same class as the `verifiedCaller` stale comment closed this wave — and that one **was the most
+likely source of a scout's incorrect description of a security-critical function.**
+⇒ **A stale comment on a security path is not cosmetic. Fix or delete it.**
+
+### `[FU-CODEQL-CLEARTEXT-NINE-FALSE-POSITIVE]` — OPEN, and it is OWED BY THE OWNER, not a lane
+
+**All 9 `clear-text-storage` alerts are false positives.** CodeQL taints the whole `UserCredential`
+from a single point in `AuthContext.tsx`; **only the uid** reaches the nine `localStorage` sinks —
+re-verified three ways by CLEARTEXT-1, including **on the WRITTEN BYTES at runtime**, not on source
+text, with a control grep finding zero occurrences of email / password / phoneNumber / displayName in
+all five files.
+
+**The owner ruled: dismiss, WITH the guard** — and ★ **the TEST is the deliverable, not the
+dismissal.** The guard sits **beside** each storage call so a future change trips it.
+
+⚠ **THE DISMISSAL ITSELF HAS NOT BEEN PERFORMED and must NOT be performed by an agent.** It is an
+**outward-facing repo-state change**, the same class as "push as draft, never merge". The rationale
+and the exact commands were authored by CLEARTEXT-1; **the owner executes.** Flagged here so it is
+not silently dropped.
+
+### `[FU-CODEQL-DIAGRAMS-SEVEN-SPAN-TWO-RULES]`
+
+The "7" diagram-related CodeQL alerts **span TWO rule ids, not one.** ⇒ **A suppression by rule id
+would leave two alerts open while appearing to clear the group.** Recorded in the dismissal rationale
+for exactly this reason. **Enumerate the alerts, not the rule.**
+
+### `[FU-CLEARTEXT-GUARD-KIT-DUPLICATED]`
+
+The uid-only guard kit is **duplicated across all five `*.uidOnly.test.ts` files.** Accepted for now;
+**schedule extraction to `src/test/`.**
+
+★★ **The owner elevated the reasoning to a standing rule, and it is the reason the duplication was
+the right call:**
+> **Duplication that keeps a lane honest about its scope is cheaper than the scope breach that
+> avoiding it would require. A lane that widens its allowlist to DRY something has traded a real
+> guarantee for a cosmetic one.**
+
+### `[FU-DOCS-STANDING-RULES-TWO-HOMES]` — MIGRATE, DO NOT COPY
+
+**The owner's boundary:** `ops/AGENT_STANDING_RULES.md` is what **AGENTS** read;
+`cofounder-skill/SKILL.md` is what the **COFOUNDER** reads. SKILL.md **points at** the ops file and
+**does not restate it.** ★★ **NO RULE IS WRITTEN IN BOTH.**
+
+⚠ **But `ops/AGENT_STANDING_RULES.md` DOES NOT EXIST ON TRUNK** — `#635` is open and **failing its
+repo-boundary check**. ⇒ **`cofounder-skill/SKILL.md` is the only home that exists today**, and this
+handoff wrote three findings there under that constraint.
+
+⚠ **An unresolved tension, recorded rather than silently decided:** all three are arguably
+**AGENT-facing execution rules** — especially the false-RED rule, which governs how an agent runs a
+mutation. **By the boundary above they would belong in the ops file.** ⇒ **They are candidates to
+MIGRATE — not copy — once `#635` lands.** ★ Recorded because the failure mode is exactly the one the
+ruling exists to prevent: **a rule living in the file its audience does not read.**
+
+⚠ **Do not resolve the convergence while branches are open against those paths.**
+
+### ⭐ `[FU-CLAUDEMD-MATRIX-COUNT-STALE-AGAIN]` — NEW, found while writing this handoff
+
+**`CLAUDE.md` §6 says the root guard matrix is "SIX suites / 190 checks as of 2026-07-28". It reports
+196 checks across 29 suites** — and the stale number sits **in the same paragraph that instructs the
+reader to "verify what the suite reports now, do NOT hardcode a number."**
+
+**Verified still present on trunk `6f7da56e` at line 132.** ⚠ **`#642` edited `CLAUDE.md` and did not
+fix it** — so this is not a case of a pending correction already in flight.
+
+⚠ **`CLAUDE.md` is in no lane's allowlist, including this one. It is logged, NOT edited.** ★ This is
+a **recurrence** — `#572` corrected the same line once before, which is the argument for a gate
+rather than another manual fix.
+
+### ⭐ `[FU-MOJIBAKE-HANDOFF-REPORT-ONLY-NOT-BLIND]` — NEW, and it CORRECTS a claim in circulation
+
+**A description repeated in briefs and notes — *"`check:mojibake` sets `repoRoot` to `lazytopper/`
+and is structurally blind to `handoff/`"* — is STALE and wrong.**
+
+**`GUARD-3` (`#571`) fixed exactly that.** `lazytopper/scripts/check-mojibake.cjs` now derives
+`repoRoot` from `git rev-parse --show-toplevel` and falls back to the old anchor **only** if git is
+unavailable. ⇒ **`handoff/` IS scanned.**
+
+**What is actually true:** `handoff/` is in `REPORT_ONLY_PREFIXES`. Hits there are **counted and
+printed on every run** — `MOJIBAKE_REPORT_ONLY: handoff/: N non-enforced hits across M files` — and
+**never fail the build**, deliberately, because the tree contains **8 mojibake specimens quoted
+inside lessons about mojibake** and a hard gate would be **red on a correct repo.**
+
+⇒ **The practical conclusion is unchanged — a green `check:mojibake` is NOT evidence that a
+`handoff/` edit is clean — but the reason is SCOPING, not blindness, and the log line carries the
+real count.** ⚠ **The distinction matters: the stale version implies nothing can be learned from the
+gate, when in fact the count line is exactly the monitoring signal.** ⚠ **It also scans TRACKED FILES
+ONLY.**
+
+➜ **Correct this description wherever it is carried.** ★ Same class as the carry-forward lesson `#642`
+recorded: **a claim about the repo rots, and "carry forward verbatim" preserves the staleness.**
+
+---
+
+### ✅ CLOSED THIS WAVE — with the evidence, not just the verdict
+
+- **`[FU-DPDP-USERS-COLLECTION-UNDECLARED]` — ANSWERED and CLOSED.** One site. Introduced by **PR #78
+  "PR-K2H-3: Auth/session shell hardening"** (`0addba3f`, merged 2026-05-16), whose own body says it
+  *"adds safe learner account metadata sync without storing credentials"* — a **login-time
+  signup/last-seen roster mirroring the Firebase Auth record.** Every field it carried **already
+  lives in the map's auth-account entry**, and **nothing was ever built to consume it.**
+- **`[FU-DPDP-USERS-WRITE-DEAD-BOTH-DIRECTIONS]` — CLOSED by `#639`.** Dead in both directions, and
+  **sharper than the spec stated: the write is never issued at all** — the preceding `getDoc` is
+  denied first and throws. ⚠ **`users` has NEVER appeared in `firestore.rules` in the repo's entire
+  history** (`git log -S` empty); only the deny-all catch-all matches `users/{uid}`. SCOUT-2 read
+  **all 13** match blocks, not the first — the right method, since a restriction is only as strong as
+  the **most permissive** rule that matches.
+- **`[FU-DPDP-MAP-HEADER-COUNT-DRIFT]` — CLOSED by `#639`**, and **fixed by RE-DERIVATION, not by
+  copying the brief**: 5 `admin-sdk-required` (auth-account, users, subscriptions, qrUploadSlots,
+  storage.qr-uploads), census `5 + 22 + 1 + 1 = 29`. The header had said "Three" and named a field
+  `adminSdkRequired` that does not exist (the discriminant is `mechanism`).
+- **`[FU-DPDP-QRUPLOADSLOTS-FIELD-KEYED]` — CLOSED by `#638`.** Full entry above.
+- **`[FU-DPDP-VERIFIEDCALLER-STALE-COMMENT]` — CLOSED by `#638`, verified by content on trunk.** The
+  `catch` had said *"Fall back to the header — never to anonymous"* while the code returned `""`.
+  **That phrase no longer appears in `lazytopper/server/verifiedCaller.cjs` on `6f7da56e`.**
+  ★ **This stale comment is the most likely source of SCOUT-1's incorrect description of a
+  security-critical function** — documented as doing the opposite of what it did.
+  ⚠ **Neither the brief that commissioned this handoff nor its closed list mentioned this id; it was
+  recovered from the wave state file and its closure verified against trunk.**
+- **`[FU-DPDP-MAP-NO-CONSUMER]` — CLOSED in the repository, ⚠ REOPENED in production.** ERASE-1 is the
+  map's first consumer, **but the code is not running** (see the `tsx` blocker). Recorded this way
+  deliberately: *closed* and *delivered* are different claims.
+- **`[FU-DPDP-MAP-SERVER-IMPORT-SMOKE]` — CLOSED IN DEV, ⚠⚠ REOPENED IN PRODUCTION.** 29 locations
+  were read inside the server process via `require.extensions['.ts']` — **executed, not inferred.**
+  **And the production image cannot boot that code.** ★★ **This is the single most instructive pair
+  on the board: the same claim is TRUE in one environment and FALSE in the other, and the proof that
+  was demanded could not tell them apart.**
+- **`[FU-DPDP-ERASE-PACKAGE-JSON-OUT-OF-ALLOWLIST]` — CLOSED AS ACCEPTED, NOT AS A DEFECT.** The owner
+  byte-reviewed the 3-line `lazytopper/package.json` change, ruled it **scripts-only so no lockfile
+  update is owed**, and approved it. ★ **The lane reported its own breach rather than silently
+  widening the allowlist or silently dropping the tests** — that is the "your verified finding wins"
+  clause working.
+- **`[FU-DPDP-GATEWAY-NO-OWNER-AUTH]` — WITHDRAWN, not closed.** It rested on SCOUT-1's description of
+  `resolveVerifiedUid` as advisory, **which the owner disproved by reading the file.** Superseded by
+  `[FU-DPDP-GATEWAY-SPOOFABLE-UID-HEADER]`. ⚠ **Recorded rather than deleted, because a withdrawn
+  finding that leaves no trace is how the wrong version becomes the memorable one.**
+
 ## 2026-08-09 — WAVE ME-A (#634 · #641 · #637 · #636, four lanes + two scouts). Trunk `e8f89863`.
 
 **`2026-08-08T23:31:55Z UTC / 2026-08-09 05:01 IST`**
