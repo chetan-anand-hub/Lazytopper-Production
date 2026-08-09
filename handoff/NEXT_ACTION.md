@@ -1,5 +1,134 @@
 # LazyTopper — Next Action
-# Updated: 2026-08-07 (post-**WAVE 5F**: #619 · #620 · #625 · #621 · #626 · #627, four lanes. Trunk `fbfb57fa`. ZERO open PRs. Typed grading LIVE-VERIFIED end to end, including the control. **Wave 5G opens with `ME-PROGRESS`.**)
+# Updated: 2026-08-09 (post-**WAVE ME-A**: #634 · #641 · #637 · #636, four lanes + two scouts, plus the four commits already unrecorded when it opened — #629 · #630 · #632 · #631 · #633. Trunk `e8f89863`. FOUR open PRs, none of them ME: #638/#639/#640 are the DPDP arc's live drafts, #635 is the owner's ops-docs PR. Every ME-A lane disproved part of its own spec. **Wave ME-B opens with `ARRIVAL-1` + `RETRY-1` under a FRESH controller; `ME-2` is Wave ME-C.**)
+# Previously: 2026-08-07 (post-**WAVE 5F**: #619 · #620 · #625 · #621 · #626 · #627, four lanes. Trunk `fbfb57fa`. ZERO open PRs. Typed grading LIVE-VERIFIED end to end, including the control. **Wave 5G opens with `ME-PROGRESS`.**)
+
+## NEXT — 2026-08-09 (post-Wave ME-A). Read this block first.
+
+**`2026-08-08T23:31:55Z UTC / 2026-08-09 05:01 IST`** · **Trunk `e8f8986373cc9434858697df0186ca2acabb65a4`**
+(re-derive with `git ls-remote origin base/approved-thru-437` — it moved five times during this wave,
+**and twice more while this handoff was being written; see immediately below**).
+
+### ⚠ TRUNK MOVED WHILE THIS HANDOFF WAS BEING WRITTEN — read this before trusting the SHA above
+
+**`2026-08-08T23:42Z UTC / 2026-08-09 05:12 IST`.** This handoff was authored against trunk
+**`e8f89863`** and covers the nine commits up to it. **Two more merged mid-lane**, both belonging to
+the **DPDP arc, which is a DIFFERENT and STILL-OPEN wave**:
+
+```
+c9445a1e  CLEARTEXT-1  prove only the uid reaches the nine localStorage sinks  #640  (merged 23:30:57Z)
+6ef083b5  USERS-1      a login no longer writes a child's identity to a dead
+                       collection                                             #639  (merged 23:42:14Z)
+```
+
+**Trunk is therefore `6ef083b5486a292880a0ba5cd1a1d8da1cfc7f7e`, not `e8f89863`. Re-derive it — do
+not read the SHA above as current.**
+
+⛔ **`#639` and `#640` ARE DELIBERATELY NOT WRITTEN UP HERE, and that is not an omission.** They are
+**another controller's lanes in an open wave** (`#638` ERASE-1 is still an open draft). **Their
+close-out belongs to the DPDP wave's own handoff, with their own reasoning attached.** Recording
+what they did without the reasoning behind them would produce exactly the reconstruction hazard this
+handoff refuses for `#629`/`#630`: **a plausible account is indistinguishable from a record, and the
+next lane cannot tell them apart.** What landed, by content only, so the gap is visible rather than
+silent:
+- **`#640`** — 5 NEW `*.uidOnly.test.ts` files, +1,323 lines, **test-only**.
+- **`#639`** — 6 files, +468/−70, touching `AuthContext.tsx`, `learnerAccountService.ts` and
+  `studentDataMap.ts`.
+
+⭐ **THE ONE THING THE DPDP CLOSE-OUT MUST CHECK, because ME-A created the condition:** `#640` asserts
+**only the uid reaches the localStorage sinks**, and `#637` (this wave) **changed what
+`mistakeIntelligence` writes** — it now adds `concept` and `questionId` to the entry. `#640` merged
+**after** `#637`, so **`#640` must be re-checked AGAINST `#637`, not merely re-run.** The new fields
+are not PII and no conflict is expected — ⚠ **but expectation is not evidence, and `lane_overlap.mjs`
+cannot see a semantic overlap; only exact-path disjointness was ever proven.**
+
+
+### THE NEXT TASK — **WAVE ME-B, under a FRESH CONTROLLER**
+
+**Wave ME-A is CLOSED.** Its four lanes (`#634` MARKS-1, `#641` OPS-LIFT-1, `#637` MI-CONCEPT-1,
+`#636` TRENDS-MARKS-1) are all on trunk, and this handoff records them plus the four commits that
+were already unrecorded when the wave opened.
+
+**ME-B's candidate lanes, both unblocked by `#637` landing on trunk:**
+- **`ARRIVAL-1`** — needed `MI-CONCEPT-1` on trunk. ✅ **Unblocked** (`92cc9fc4`).
+- **`RETRY-1`** — needed `questionId` on trunk. ✅ **Unblocked** — ⚠ **but see the scope warning
+  below; its premise is wrong for three of four paths.**
+
+⚠ **`ME-2` (the v7 `/me` page) is WAVE ME-C, not ME-B.** It needed all three ME-A engine lanes on
+trunk; they are there now, but ME-B's two lanes come first.
+
+### ⛔ THE ONE THING ME-B MUST NOT MISS — `RETRY-1`'s PREMISE IS ALREADY DISPROVED
+
+➜ **`[FU-RETRY-SYNTHETIC-QUESTION-ID]`.** Worksheet, full-mock and chapter-test pass **synthetic
+attempt ids** (`ws:` / `fm:` / `ct:`) as `ctx.questionId`. **`RETRY-1`'s premise is *"re-serve the
+exact question by `questionId`"* — and for those three paths the stored id DOES NOT IDENTIFY A BANK
+QUESTION.**
+**The arc already rules the fallback:** if the exact question cannot be re-served, **the copy must
+not say *"Re-do that one"*** — rename it to *"Try one like it"* and report.
+➜ ⭐ **SCOPE `RETRY-1` AGAINST THIS, NOT AGAINST THE ARC'S ASSUMPTION.** Discovering it mid-build
+costs a lane.
+
+### ⚠ THE OTHER ARC IS STILL OPEN — sequence, do not collide
+
+**The DPDP arc is LIVE with three open drafts: `#638` ERASE-1, `#639` USERS-1, `#640` CLEARTEXT-1.**
+They are **exact-path disjoint** from every ME lane and `Lane Overlap` agrees — **but `#640` and
+`#637` both concern `mistakeIntelligence`, and `lane_overlap.mjs` cannot see that.** `#640` asserts
+*only the uid reaches the localStorage sinks*; `#637` **changed what that module writes** (adds
+`concept` and `questionId`). The new fields are not PII, so no conflict is expected — ⚠ **but
+expectation is not evidence.**
+➜ ⭐ **`#640` NOW MERGES SECOND, SO IT MUST BE RE-CHECKED AGAINST `#637`, not merely re-run.**
+Exact-path disjointness is the only thing that was ever proven here.
+
+### 🛑 TWO OWNER DECISIONS ARE OWED BEFORE THE RELEVANT LANE CAN BE SCOPED
+
+1. **`[FU-TRENDS-FUZZY-CHAPTER-CONFLATION]` — a LIVE production defect, and the ruling is the
+   owner's because it is a CBSE content question.** `legacyFuzzyMatch("Circles","Areas Related to
+   Circles")` returns `true`, conflating two distinct chapters; **each chapter's predictions are
+   contaminated by the other's evidence.** **Any fix moves the HPQ pin** (`resolveCanonicalSlug`
+   moves 52 of 140 live HPQ questions). ➜ **Does this materially mislead a student? That is not a
+   lane's call.**
+2. **Switch the exam signals to canonical matching, accepting the 37% HPQ ranking change?**
+   **Default taken: NO** — the brief said the pin outranks the feature and the lane obeyed.
+   Strategies are **built, wired and tested but not default**, so flipping later is **a config
+   change, not a rebuild** — the correct shape.
+
+### ⭐ THE STANDING DOCTRINE THIS WAVE ADDED — put it in every brief
+
+- **`scope:guard` IS VACUOUS ON AN UPDATE-ONLY LANE.** It reads only staged / unstaged / untracked
+  files and has **no base-ref mode**, so a refresh / merge-only / rebase-only lane authors nothing,
+  gets `inspected=0`, and **exits green**. ⚠ **That green is indistinguishable from a real pass.**
+  ➜ **Remedy, proven this wave:** reconstruct the authoring condition in a throwaway worktree at
+  trunk. ➜ **Every such lane must state WHICH invocation it ran.**
+- **A HASH WITHOUT ITS RECIPE IS NOT EVIDENCE** — the same class of defect as a bare line number.
+  **Cite the artefact that gates, or record the exact recipe beside the hash.**
+- **A MUTATION MUST BE PROVEN APPLIED (`mutated-sha != baseline-sha`) BEFORE ITS RED OR GREEN IS
+  EVIDENCE.** MARKS-1's fourth mutation did not land, and only that assertion stopped a confident
+  false finding reaching the owner.
+- **DO NOT run `test:matrix:all` locally on this box.** It is CI-only here; two concurrent runs have
+  OOM-killed the editor.
+- ✅ **`CLAUDE.md` §6 is CORRECTED in this PR** — the Vite production build **does** run on a Windows
+  dev box after dropping `@rollup/rollup-win32-x64-msvc@4.59.0` into
+  `node_modules/.pnpm/rollup@4.59.0/node_modules/@rollup/`. **This matters because it re-enables the
+  strongest `MOUNT != LIVE` proof available: a test proves the code works; a chunk proves it ships.**
+
+### ⭐ WHAT ME-2 (Wave ME-C) INHERITS — do not re-derive these
+
+Full bodies are in `handoff/CURRENT_STATE.md`'s `[CURRENT]` block. In one line each:
+**never `?? 0` the marks fields** (absent must stay absent) · **9.05% of the bank can never yield a
+concept**, so the concept slicer must degrade to an honest empty state and **never a topic-level
+fallback** · **`expectedMarks` must be WIRED, not merely consumed** (it is tree-shaken out of every
+`assets/*.js` today) · **the unclassified marks bucket must NOT be a dumping ground**, because
+`[FU-GRADER-DEDUCTION-WITHOUT-TYPE]` would hide inside it · **`[FU-ME-MOBILESELFCHROME-NESTING]`
+from `#631`** · **MARKS-1's live-verify debt transfers to ME-2 and needs a session carrying state
+from BEFORE `#634`.**
+
+### ⚠ ONE FILE IS AT RISK AND IT IS NOT THIS WAVE'S TO SAVE
+
+`handoff/WAVE_STATE_WAVE_DPDP_A_LIVE.md` (46,040 bytes) is the **only copy** of the open DPDP arc's
+controller state. **Correctly left untouched here** — archiving an open wave is wrong and the file
+belongs to another controller — **but it is laptop-only and unrecoverable if the disk fails.**
+**The DPDP controller archives it when that wave closes.**
+
+---
 
 ## NEXT — 2026-08-07 (post-Wave 5F). Read this block first.
 

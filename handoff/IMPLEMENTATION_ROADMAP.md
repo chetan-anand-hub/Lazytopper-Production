@@ -1,5 +1,65 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-08-09 — WAVE ME-A **COMPLETE** (four lanes + two scouts under a controller + subagent model, trunk `e8f89863`) — the engine gains the numbers the new `/me` needs
+
+**`2026-08-08T23:31:55Z UTC / 2026-08-09 05:01 IST`**
+
+> ★★ **Four lanes, and every one of them disproved part of its own spec. Four premises fell —
+> including one the CONTROLLER wrote itself — and none would have been caught by building what the
+> spec said.**
+
+**STAGES COMPLETE — all four verified ON TRUNK BY CONTENT (this repo squash-merges):**
+
+- **`MARKS-1` (`#634`, `55d5ee19`)** — `RungTrend` carries the raw `marksScored` / `marksAvailable`
+  the engine was **already computing at `marksPercentOf` and discarding**. 2 files, +483/−4.
+  **Without it the v7 `/me` could only ever speak in percentages.** ⚠ **The fields are OPTIONAL by
+  necessity, not preference** — `buildMistakeTypeRung` is a composition *share* with no marks
+  denominator, so a required field would force a fabricated *"0 of 0 marks"*; and two files outside
+  the allowlist build full `RungTrend` literals, which would have been **green locally and RED in
+  CI**. ⚠ **NO CONSUMER YET — the live-verify debt transfers to ME-2.**
+- **`OPS-LIFT-1` (`#641`, `1b50b4fd`)** — the blanket zero-diff freeze on `mistakeIntelligence.ts`
+  replaced by **five contract tests pinning what the ban actually protected**. 2 files, +740/−6.
+  ★★ **The protection is stronger than the freeze it replaced, because a freeze can only say *no* —
+  it can never say *what for*.** ⭐ **It also PROVED IN ADVANCE that `#637` would go green as-is**,
+  by running both guards against `#637`'s head; the prediction held and `#637` needed **zero
+  rework.**
+- **`MI-CONCEPT-1` (`#637`, `92cc9fc4`)** — every mistake logged from a bank question records
+  **which concept** and **which question**; free-typed Check & Improve answers record **neither**.
+  9 files, +524. ✅ **OWNER LIVE-VERIFIED IN PRODUCTION, BOTH DIRECTIONS.**
+- **`TRENDS-MARKS-1` (`#636`, `e8f89863`)** — one shared appearance-per-subtopic-per-year primitive
+  feeds the exam signal, and `expectedMarks` distinguishes **a subtopic asked yearly as a 1-marker
+  from one asked yearly as a 5-marker**. 5 files, +997/−42. **HPQ's live ranking unchanged, pinned
+  by a test proven able to fail.** ⚠ **`expectedMarks` is DORMANT — tree-shaken out of every
+  `assets/*.js` until ME-2 wires it.**
+
+**ALSO RECORDED HERE — four commits that were already unrecorded when this wave opened:**
+
+- **`ME-PROGRESS` (`#631`, `6c94d8f0`)** — ⭐ **the one that matters most to a student.** `/me`
+  converged onto one responsive `MeProgressPage.tsx`; `pages/desktop/DesktopMePage.tsx` and
+  `pages/mobile/MobileMePage.tsx` **deleted**; and the page **stopped reading device-local data** —
+  verified on trunk as **6 `getWindowedProgress`, 0 `loadInsights`**. 5 files, +1602/−2381.
+  **Before it, a student who practised on a phone and opened `/me` on a laptop saw a different,
+  emptier page. That was a live defect and it is fixed.**
+- **`FENCE-1` (`#629`, `e0ed7588`)** — 2 files, +303/−3 (`checkSolution.cjs` +94,
+  `checkSolution.test.cjs` +212): *"a student cannot forge the typed-answer delimiter."*
+  ⚠ **PRIOR-SESSION LANE — what landed is recorded by content; the reasoning is NOT reconstructed
+  here and lives in the earlier handoff.**
+- **`DPDP-1` (`#630`, `a0c9c50b`)** — 2 NEW files, +706 (`studentDataMap.ts` +419,
+  `studentDataMap.test.ts` +287): the verified student data map and a drift guard. ⚠ **PRIOR-SESSION
+  LANE, same treatment. It opens the DPDP arc, which is STILL OPEN (`#638`/`#639`/`#640`).**
+- **`#632` (`7786878d`)** — `scripts/premise_ledger_check.mjs` (+392), a premise-ledger gate for
+  agent specs. **`#633` (`8d813a41`)** — the owner's own docs PR: archived Waves 4 and 5A and wrote
+  the **wave-state lifecycle** into `handoff/README.md`. ⚠ **Archive housekeeping, NOT a wave
+  close-out.**
+
+**NEXT STAGE: WAVE ME-B, under a FRESH CONTROLLER** — `ARRIVAL-1` and `RETRY-1`, both unblocked by
+`#637` reaching trunk. ⛔ **`RETRY-1`'s premise is already disproved** — three of four paths store
+synthetic `ws:` / `fm:` / `ct:` ids that do not identify a bank question, so *"Re-do that one"* must
+become *"Try one like it"*. **Scope it against `[FU-RETRY-SYNTHETIC-QUESTION-ID]`, not against the
+arc's assumption.** **`ME-2` (the v7 page) is WAVE ME-C, after ME-B.**
+
+---
+
 ## 2026-08-07 — WAVE 5F **COMPLETE** (six PRs / four lanes + a scout + a CI-diagnosis lane, trunk `fbfb57fa`) — Quick Practice becomes exam-shaped, and typed grading works for the first time
 
 > ★★ **Six PRs, four lanes, 1,400+ tests, six green CI runs — AND TYPED GRADING HAD NEVER ONCE

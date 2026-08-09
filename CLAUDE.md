@@ -139,10 +139,30 @@ SECOND, independent step, `pnpm --filter lazytopper run typecheck:test`
 (`tsconfig.test.json`). A type error in any `.test.ts(x)` is GREEN locally and RED in
 CI, so BOTH configs belong in your local set. See `[FU-TYPECHECK-TEST-SEPARATE-GATE]`.
 
-The production build (`vite build`) is pinned to linux-x64 (the CI linux runner / GitHub
-Codespaces; non-linux platform binaries are stripped in `pnpm-workspace.yaml`). Windows
-dev boxes cannot run it locally — it is gated by CI on linux (see §6a). The other gates
-above run on any platform.
+The production build (`vite build`) is pinned to linux-x64 by default (the CI linux runner /
+GitHub Codespaces; non-linux platform binaries are stripped in `pnpm-workspace.yaml`), and it
+is gated by CI on linux (see §6a). The other gates above run on any platform.
+
+CORRECTED 2026-08-09 (owner ruling D4, Wave ME-A). This paragraph previously read "Windows
+dev boxes cannot run it locally". THAT WAS WRONG. Three lanes ran `vite build` locally on
+Windows during Wave ME-A (exit 0 in 15.91s). The stripping in `pnpm-workspace.yaml` removes
+the binary; it does not make the build unrunnable.
+
+HOW — reproduce it, do not rediscover it. Drop `@rollup/rollup-win32-x64-msvc@4.59.0` into:
+
+    node_modules/.pnpm/rollup@4.59.0/node_modules/@rollup/
+
+(match the rollup version in the path to the one actually installed). The build then runs
+locally like any other gate.
+
+WHY THIS MATTERS ENOUGH TO CORRECT. As written, this paragraph discouraged the single
+strongest form of `MOUNT != LIVE` proof available: A TEST PROVES THE CODE WORKS; A CHUNK
+PROVES IT SHIPS. Citing a component's emitted `assets/*.js` chunk alongside its test count
+closes a gap no test can — a component can pass every test while being unreachable from the
+bundle graph. Wave ME-A used exactly this to prove `expectedMarks` is tree-shaken and dormant
+(`"legacy-fuzzy"` present in `assets/predictionCore-*.js`; `expectedMarks` / `marksBasis` /
+`canonical-topic` / `canonical-strict` absent from every `assets/*.js`) — a fact no test in
+the repo could have established. See `[FU-WINDOWS-BUILD-RUNS-WITH-ROLLUP-BINARY]` (CLOSED).
 
 Report each result explicitly: PASS or FAIL with details.
 If any step fails: STOP. Do not proceed to commit. Report to owner.
