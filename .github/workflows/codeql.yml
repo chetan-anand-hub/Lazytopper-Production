@@ -92,7 +92,7 @@ jobs:
         # shallow checkout is correct and much faster on this ~170 MB repo.
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
+        uses: github/codeql-action/init@v4
         with:
           # One language. `javascript-typescript` covers both the lazytopper
           # React/TS app and the .cjs server under lazytopper/server/.
@@ -106,6 +106,6 @@ jobs:
           build-mode: none
 
       - name: Perform CodeQL analysis
-        uses: github/codeql-action/analyze@v3
+        uses: github/codeql-action/analyze@v4
         with:
           category: "/language:javascript-typescript"
