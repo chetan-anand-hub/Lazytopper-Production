@@ -48,3 +48,31 @@ Any local vitest run uses --poolOptions.threads.maxThreads=2.
 
 WHAT THIS DOES NOT CHANGE: nothing merges unverified. Only WHERE gates run and
 WHO watches them.
+
+### The premise gate — your first command, every lane
+
+Every instruction file you receive carries a `§0 PREMISE LEDGER`: the claims the spec
+depends on, each with `file:line` evidence and an anchor string. Before you read the task,
+open a file, or think about the problem:
+
+1. Save the instruction file VERBATIM to `ops/.specs/<LANE-ID>.md` (gitignored).
+2. From the worktree root, run:
+   `node scripts/premise_ledger_check.mjs ops/.specs/<LANE-ID>.md --worktree=. --strict-anchor`
+3. Paste the full output including the exit code.
+4. Non-zero → STOP and report. Do not repair the spec; a broken ledger is the author's
+   defect and the author must see it.
+
+**If the instruction file has no §0 ledger at all, that is the defect.** Report it and stop.
+Do not proceed on an unledgered spec however clear the task looks, and do not write the
+ledger yourself — you would be certifying premises you did not author.
+
+WHY THIS IS A COMMAND AND NOT A HABIT: the discipline of verifying premises before writing a
+spec has been stated in the cofounder skill five separate times and failed anyway. Eight
+specs were authored in one day and the checker was run on none of them, because nothing made
+it run. Meanwhile every wrong premise that day was caught by a lane, not by the author.
+Prose is a hope; a check is a fact. This runs because it is step one, not because someone
+remembered.
+
+WHAT THE GATE DOES NOT DO: it checks that evidence is well-formed and that anchors still
+resolve against the tree. It cannot check whether a claim is TRUE. That is §0c.1, and it is
+still yours. A gate that passed is not a premise that holds.

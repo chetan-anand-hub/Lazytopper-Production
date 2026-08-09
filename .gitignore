@@ -102,3 +102,7 @@ attached_assets/
 # Ad-hoc REST scratch (gh api --input / curl -d). May contain credentials.
 body.json
 /*.request.json
+
+# Agent instruction files saved by lanes for the premise gate. Never committed.
+ops/.specs/
+
