@@ -169,6 +169,34 @@ export default function DesktopTopicHubPage() {
     [currentUrl],
   );
 
+  // ── Arrival concept (`?concept=`) ────────────────────────────────────────
+  // A student can arrive pointed at ONE concept — "this is the thing to look at".
+  // Read through the SAME mechanism this page already uses for topic/source/returnTo
+  // (the memoised `queryParams`), and as a QUERY PARAM rather than location.state, so
+  // it survives a reload and a bare <a href>.
+  //
+  // The param carries the concept LABEL, which is this product's cross-surface
+  // vocabulary for a concept: it is what `buildTutorPath` already emits
+  // (`concept: concept.name`) and what the tutor's figure catalogue uses as its own
+  // documented lookup key. Resolution is therefore an EXACT match against THIS topic's
+  // rendered rows (`actionable.boardEssentials[].name`) — the only set the spine can
+  // actually scroll to.
+  //
+  // Deliberately NOT `resolveCanonicalSlug`: that is the canonical CHAPTER-key
+  // authority and returns a topic slug, never a concept. Deliberately NOT
+  // `conceptKeyForLabel`: it resolves against the figure catalogue, which is a strict
+  // SUBSET of the live concept rows, so it returns null for concepts that exist and
+  // are on screen. And no slugifying — a conceptKey is editorial and is never
+  // re-derived by transforming a label.
+  //
+  // Unresolved (or absent) is a NORMAL state, not an error: it yields null and the
+  // page renders exactly as it does today, at the top.
+  const arrivalConceptName = useMemo(() => {
+    const raw = queryParams.get("concept")?.trim();
+    if (!raw || !actionable) return null;
+    return actionable.boardEssentials.find((c) => c.name === raw)?.name ?? null;
+  }, [queryParams, actionable]);
+
   // In-page back button: honour an explicit (safe) returnTo, else go to Exam Trends.
   const querySource = queryParams.get("source");
   const safeReturnTo = safeInternalReturnTo(
@@ -262,6 +290,7 @@ export default function DesktopTopicHubPage() {
       practiceHrefForConcept={practiceHrefForConcept}
       askTutorHref={askTutorHref}
       tutorHrefForConcept={tutorHrefForConcept}
+      arrivalConceptName={arrivalConceptName}
       topicProgressSlot={
         <TopicProgressTrend topicKey={normalizeTopicKey(topic.slug) || topic.slug} />
       }
