@@ -11,6 +11,249 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 ---
+## 2026-08-09 — WAVE ME-B (`#647` · `#649`, both DRAFT; three lanes + two read-only scouts). Trunk `376e30b0`.
+
+**`2026-08-09`**
+
+> ## ⭐⭐ **THREE CONCEPT RESOLVERS WERE SPECIFIED IN ONE WAVE AND ALL THREE WERE WRONG.** Two of the ids below exist only because each candidate was handed on flagged `UNVERIFIED` with an instruction to VERIFY rather than INHERIT.
+
+**14 open ids and 3 closed ids are recorded below, each with its own heading and body, per Standing
+Rule 1.** ★ **Four of the open ids are cross-references the wave-state file made in passing** —
+`[FU-ARRIVAL-CONTROL-PATH]`, `[FU-ARRIVAL-CONCEPT-RESOLVER]`, `[FU-SPINE-NO-ROW-EXPANSION]` and
+`[FU-ARRIVAL-BRIEF-REDUNDANT]` — **given bodies here rather than left as mentions, because Standing
+Rule 1 says a referenced-but-undefined id reads as recorded and is effectively lost.**
+★ **One id is new to this handoff and was found while writing it, not by a lane:**
+`[FU-DPDP-B-NO-CLOSEOUT-HANDED-OVER]`.
+
+---
+
+### ⭐⭐ `[FU-CONCEPT-RESOLVER-SILENT-NULL]` — a resolver that returns null for ~35% of live concepts
+
+`conceptKeyForLabel` (`pages/tutor/conceptVisualCatalogue.ts`) resolves against the tutor **FIGURE**
+catalogue — a strict subset — and **returns null for 39 of 112 live concepts (~35% silent-null)**.
+Its own data file states *"conceptKey … never resolve on it"*.
+
+⚠ **This controller put that symbol into a lane brief** after `ARRIVAL-1` disproved the owner's
+`resolveCanonicalSlug`. **`TOPICHUB-1` disproved it in turn** and used **exact match on
+`actionable.boardEssentials[].name`** instead. ⇒ **Two wrong resolvers were specified in one wave, and
+a third (`conceptForBankQuestionId`) fell in the same wave — see below.**
+
+**The open question is not TopicHub's** (it no longer uses this symbol) — it is **who else calls
+`conceptKeyForLabel` and silently gets null.** Nobody has enumerated its call sites. ⭐ **A silent
+null in a resolver is the shape that hides longest**, because the caller renders an honest empty state
+and looks correct.
+
+### 🛑 `[FU-TOPICHUB-CONCEPT-PRODUCER]` — `#647` ships a reader that nothing calls
+
+**Nothing in the product emits `?concept=` into `/topic-hub`.** `buildDesktopTopicHubPath` is
+structurally incapable — `DesktopRouteContext` is `{source, returnTo}` only — and **HPQ does not link
+to `/topic-hub` at all.** ⇒ **reachable today only by a hand-typed URL. MOUNT ≠ LIVE.**
+
+➜ **IF `ME-2` DOES NOT SHIP, `#647` IS DEAD CODE ON TRUNK.** Owner-ratified (`R6`), and he asked for
+the consequence to travel verbatim. **`lazytopper/src/lib/desktop/navigation.ts` is therefore in
+`ME-2`'s allowlist**, and the producer is **`ME-2`'s first obligation, not a trailing detail.**
+
+⚠ **The emitted URL must be EXACTLY**
+`/topic-hub/<grade>/<subject>/<topicSlug>?concept=<EXACT boardEssentials name, URI-encoded>`.
+
+### `[FU-CONCEPT-LABEL-IS-THE-ONLY-CONCEPT-ID]` — `BoardConcept` has no key field
+
+*"Resolve the label to a concept KEY"* had **no target**: `BoardConcept` carries no key. **The row's
+identity IS its name.** ⇒ any future feature keying off a concept must use **the verbatim label — not
+a slug, not a `conceptKey`, not lower-cased.**
+
+**Open question for the owner/`ME-C`:** is that acceptable long-term, or does `BoardConcept` need a
+stable id? **Today an editorial rename of a concept label silently breaks every `?concept=` link that
+was ever shared or bookmarked.** ⚠ This is the standing lesson *"`conceptKey` is editorial and must
+never be re-derived from a label"* meeting a data model that has no key at all.
+
+### `[FU-CONCEPT-CATALOGUE-COVERAGE]` — the catalogue header's count is stale
+
+The concept catalogue's header says **54 rows**; the file holds **74 rows / 73 labels.** A
+self-describing count that nothing checks. **Low severity, trivially fixable, and recorded because
+this project has now been bitten by stale self-reported counts in `CLAUDE.md`, in the vitest totals
+and here.**
+
+### `[FU-RETRY-HPQ-NOT-BANK-BACKED]` — OPEN, OWNER-PARKED (`R9`). Not a lane.
+
+**`RETRY-1` proved HPQ ids do not resolve against the canonical bank: 0 of 140 HPQ ids appear among
+the 8543 bank ids.** `conceptForQuestionId("rn-hpq-2")` returned null while the **CONTROL**
+`conceptForQuestionId("2026-TRI-P1-A-001")` returned a full row **in the same run.**
+⚠ **The case is LIVE, not hypothetical** — `HighlyProbableQuestions.tsx` passes `questionId={q.id}` to
+`SolutionChecker`, so HPQ ids really do reach the mistake log.
+**HPQ ids have no common prefix** (`rn-hpq-2`, `ple-hpq-1`, `math-real-hpq-3`, `rn-comp-01`)
+⇒ **prefix detection is impossible; the classifier must ask the bank.**
+
+⇒ **HPQ entries get *"Try one like it"*, and that is correct today.**
+**`R9`: folding HPQ into the canonical bank is NOT NOW and NOT A LANE — it is an owner CONTENT
+decision with syllabus implications.** **Parked deliberately, not neglected.**
+
+### `[FU-RETRY-CHAPTER-ECHO-CONCEPT-NULL]` — OPEN. The obvious resolver was again the wrong one.
+
+`conceptForBankQuestionId` **suppresses chapter-echo subtopics**, so it is **NOT an existence test**:
+using it as one would have **wrongly demoted 773 of 8543 rows (~9%)** to *"similar"*.
+⇒ **existence = `conceptForQuestionId`; concept = `conceptForBankQuestionId`.** Mutation **M3** proves
+the distinction load-bearing.
+
+**Still open:** the suppression itself means **~9% of bank rows have no concept to name**, so those
+entries get *"Try one like it"* scoped to the **topic** rather than the concept. **That is honest, and
+it is also a coverage gap somebody should decide about** — it is not a defect in `RETRY-1`.
+
+### `[FU-RETRY-NO-BUILD-CHUNK-YET]` — OPEN, and now **VERIFIED rather than asserted**
+
+`RETRY-1` is pure logic with **no consumer**, so the lane declined to claim a build chunk or a
+live-verify. ⭐ **`#649`'s CI build then measured it: 1124 modules, 9.69s, and NO `mistakeRetry`
+chunk emitted.** ⇒ the evidence ladder's rung is genuinely *test-only*.
+
+**It flips to *ships* the moment `ME-2` imports the module.** ⇒ **a tracking item for ME-C, not a
+defect** — and a clean example of *a test proves the code works; a chunk proves it ships.*
+
+### `[FU-ARRIVAL-CONTROL-PATH]` — ⚠ a control that could not run, recorded as if it had
+
+`ARRIVAL-1`'s brief carried a control intended to catch a false grep result. **The control's own file
+path was wrong** — `HighlyProbableQuestions.tsx` is at `lazytopper/src/pages/`, **not
+`pages/desktop/`**. Confirmed by `git cat-file -e` (ABSENT at the written path) and independently
+corroborated by `SCOUT-RETRY`, which cited the correct path for a different reason.
+
+➜ ★★ **A CONTROL THAT CANNOT RUN IS NOT A CONTROL. Verify a control's path before trusting it.**
+This is the second-order form of the standing lesson about vacuous guards: **the guard was written,
+was believed, and inspected nothing.**
+
+### `[FU-ARRIVAL-CONCEPT-RESOLVER]` — `resolveCanonicalSlug` is the CHAPTER-key authority
+
+Reported by `ARRIVAL-1`, **not independently verified by this controller.** Feeding it a *concept*
+falls through to `normalizeTopicSlug` and yields a string that is **neither a concept nor a chapter
+key.** ⚠ **Both the owner's arc doc AND the controller's brief named this symbol** — it is the first
+of the wave's three wrong resolvers.
+
+**Open only as a cleanup question:** does anything else in the product feed a concept to
+`resolveCanonicalSlug`? Nobody has checked.
+
+### `[FU-SPINE-NO-ROW-EXPANSION]` — "expand the spine row" had no referent
+
+`ConceptSpine` concept rows have **no expand state**, because **they are never collapsed and have no
+hidden content** — every `BoardConcept` field always renders. ⇒ *"expand and scroll that spine row"*
+could only have been (a) a fake affordance or (b) a **regression that hides content from students who
+arrive with no param.** **`TOPICHUB-1` built marking + scrolling instead. Correct call.**
+
+**Recorded, not closed**, because the owner's original intent — *give the arriving student something
+that visibly opens* — has not been re-specified. **`ME-C`/owner may still want an answer to it.**
+
+### ⛔ `[FU-ARRIVAL-BRIEF-REDUNDANT]` — ONE SUBAGENT'S UNVERIFIED CLAIM. **OWNER LIVE-VERIFY ONLY.**
+
+**Reported:** that the owner's non-negotiable product rule **may already be live on trunk** —
+`selectTutorDemoQuestion({subject, topicKey, concept})` reportedly already picks the first worked
+example by concept, `TutorPage` already reads `searchParams.get("concept")`, and all three `arrival`
+fields reportedly already exist (`concept`; `brief.mistakes.marksLostRecent`;
+`brief.mistakes.topType`).
+
+⛔ **THIS MUST NOT BE RESTATED AS FACT.** A controller amplifies; **a restated finding is harder to
+reject than a raw one.** It is recorded here at the confidence it arrived with.
+
+**Recipe for the owner:** open a Topic Hub (e.g. Carbon and its Compounds), click *"Stuck? Ask"* on a
+specific concept row, and confirm **(a)** the tutor's first worked example is on **that** concept and
+**(b)** its opening words carry **no marks-lost figure.**
+
+⚠ **The same report warns that a SECOND marks-lost copy placed OUTSIDE the server's `hasData` gate
+would CREATE the *"report card wearing a tutor's face"* hazard the owner ruled against** ⇒ **building
+`arrival` naively is not neutral, it is a regression risk.** **Live-verify this before anyone
+re-opens the work.**
+
+### `[FU-MISTAKE-INSIGHTS-PANEL-DEAD]` — reported dead, ⚠ NOT independently confirmed
+
+`components/dashboard/MistakeInsightsPanel.tsx` calls `getMistakeLogs` and is **imported nowhere**.
+Reported by `SCOUT-RETRY`; **this controller did not confirm it.**
+
+⛔ **DO NOT DELETE ON THIS EVIDENCE ALONE.** The dead-page sweep established that **a page dead to
+users can still be a `readFileSync` fixture for an ops gate** — eight unrouted pages are exactly
+that. **Enumerate the gates before touching it.**
+
+### ⭐ `[FU-STEP-SOLUTIONS-TABLE-NEVER-CREATED]` — probably a real, standing cost line
+
+**Owner finding from the deploy logs, not a lane; not independently verified here.** The same logs
+that show the gateway booting also show `relation "step_solutions" does not exist`, and **nothing in
+the repository ever creates that table** — every reference reads or writes it; **there is no
+`CREATE TABLE`.**
+
+**The cache fails soft, so functionality is unaffected — which is exactly why nobody noticed. ⇒ every
+step solution has always been regenerated from Gemini.** **This is a cost question, and it has been
+true since the cache was written.**
+
+### ⚠ `[FU-DPDP-B-NO-CLOSEOUT-HANDED-OVER]` — **NEW, found while writing this handoff**
+
+Addendum §6 requires the controller closing a wave to write the handoff for **everything landed since
+the last one — its own arc and the other's** — and to **ask the other controller for its bounded
+close-out first and WAIT for it.**
+
+**DPDP-B merged `#644` (TSX-1), `#645` (EXPORT-1) and `#646` (SETTINGS-1) and stood down without
+opening a handoff and without handing over a close-out.** ⇒ **those three lanes are recorded in this
+handoff from trunk commit metadata only** — PR titles and SHAs, and **no FU ids, no disproved
+premises, no evidence ceilings, no allowlist notes.**
+
+⚠ **`#646` is a STUDENT-FACING SURFACE** (download your data, delete your account) **with no lane
+record and no live-verify recorded anywhere.** ➜ **Owner decision owed:** reconstruct a close-out from
+the PRs, or accept the gap knowingly. **Written down rather than papered over.**
+
+### KEPT OPEN, unchanged by this wave
+
+- **`[FU-HANDOFF-DORMANCY-BLOCK-STALE-CARRYFORWARD]`** — the dormancy block must be **RE-DERIVED at
+  every handoff, never copied.** It was re-derived here against trunk `376e30b0`:
+  `git grep -ln 'expectedMarks' 376e30b0 -- lazytopper/src` returns **three files, all under
+  `src/prediction/`** ⇒ **zero consumers outside it.** ⚠⚠ **`ME-2` did not run, so `expectedMarks` is
+  STILL DORMANT at the close of this wave.**
+- **`[FU-GRADER-DEDUCTION-WITHOUT-TYPE]`** — carried; **this wave neither touched nor tested it.**
+- **`[FU-ME-VERIFIED-CELL-PREDATES-631-REBUILD]`** — **the OWNER's live-verify, and explicitly not an
+  agent's to discharge.** `Me / Progress` reads `Verified ✅`, earned by `#408`/`#412` **against two
+  pages `#631` has since deleted.** ⛔ **The `SURFACE_TRACKER` cell was deliberately NOT flipped —
+  neither up (nothing shipped) nor down (a docs lane has no live access, and flipping it would assert
+  a review it did not perform).**
+
+---
+
+### ✅ CLOSED THIS WAVE
+
+**`[FU-ARRIVAL-COPY-ASSERTS-UNBACKED-MARKS-CLAIM]` — CLOSED BY REMOVAL OF THE CAUSE, not deferred.**
+Owner ruling `R4` had set the arrival badge to *"This is the one costing you marks."* on **voice**
+grounds. The lane **implemented it as ruled**, flagged it in-code, in the prop doc and in the PR body,
+and reported the conflict: **a performance claim asserted from a URL parameter**, on a page holding
+**no graded or mistake data** — so a hand-typed, shared or stale URL **can tell a student a concept is
+costing them marks for a concept they never attempted.** It contradicted the lane's own brief and
+`CLAUDE.md` §5.
+**`R7`: the owner WITHDREW `R4`** — *"you were right and my ruling was wrong. I ruled on voice; you
+found a doctrine conflict I hadn't considered."* **Final string `You came here for this.`**, which is
+**true however the student arrived. The withdrawn wording never shipped outside draft.**
+⛔ **Gating the badge on real MI data was REJECTED** — it would require TopicHub to read Mistake
+Intelligence, which its brief forbids.
+★★ **The guard was UPDATED A THIRD TIME, never deleted:** it **pins the new exact string, KEEPS the
+no-numeric-figure assertion, and RESTORES the no-performance-claim assertion widened so `costing` is a
+banned token** ⇒ **the withdrawn wording cannot return.** ⭐ The ORIGINAL guard **would have passed
+VACUOUSLY** under `R4`'s copy — its regex does not match *"costing you marks"*. **That is why it was
+replaced rather than removed: pin what it PROTECTED.**
+
+**`[FU-RETRY-CI-SINGLE-PATH-NO-ID]` — CLOSED BY OWNER RULING (`R10`).**
+The brief said Check & Improve *"has no id at all"*; the truth is **two paths**: the **multi-question**
+path writes a synthetic `ci:{sessionCode}:q{n}`, and **only the single-question path omits
+`questionId` entirely.** (The same enumeration found **four** synthetic prefixes — `ws:`, `fm:`,
+`ct:`, `ci:` — where the brief listed three.)
+**`R10`: an entry that cannot identify its question OFFERS NOTHING** — not even a topic-scoped *"Try
+one like it"*. Owner: *"a retry affordance on an entry that can't identify its question is decoration,
+and the student can already reach that topic from every other row. Silence is the honest option."*
+⭐ **`RETRY-1`'s build already matched the ruling** (`kind:"none"` returns null) ⇒ **confirmed, not
+altered. No code changed to satisfy it.**
+
+**`[FU-ERASE-1-GATEWAY-TSX-UNDECLARED]` — CLOSED by `TSX-1` (`#644`, `3cf01287`). ⚠ OWNER-REPORTED.**
+The previous handoff's headline blocker: `#638` merged and could not deploy —
+`Cannot find package 'tsx' imported from /app/lazytopper/`. **Owner-reported from the deploy logs
+after `#644` merged: the gateway now boots, and `ERASE-1`, `EXPORT-1` and `SETTINGS-1` are running
+code, not merely merged.**
+⚠ **Not independently verified by this controller, and no gate in this repository can verify it** —
+**the acceptance evidence for this class is a successful Railway boot.** ⇒ recorded as closed **on the
+owner's observation**, which is the only instrument that exists for it.
+★ **`ONLY A BOOT PROVES IT RUNS` was the doctrine the previous wave added; this is the first time it
+was used to close something.**
+
+---
+
 ## 2026-08-09 — WAVE DPDP-A (#640 · #639 · #638, three lanes + two read-only scouts). Trunk `6f7da56e`.
 
 **`2026-08-09`**

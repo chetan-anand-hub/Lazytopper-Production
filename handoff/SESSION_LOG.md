@@ -1,5 +1,261 @@
 ---
 
+## 2026-08-09 — WAVE ME-B CLOSED: `#647` (draft) · `RETRY-1` (pushed, no PR) — three concept resolvers in a row were wrong, and nothing this wave built is on trunk — trunk `376e30b0`
+
+**`2026-08-09`** · three build lanes + two read-only scouts, controller + subagent model. **Controller
+ME-B, lifetime one wave, stood down at handoff per addendum §1.**
+
+> ## 🛑 **NOT ONE LINE OF THIS WAVE'S PRODUCT WORK IS ON TRUNK.** `#647` and `#649` are both **GREEN DRAFT PRs** awaiting the owner's `gh pr ready`, which is never an agent's step. Open work, not history.
+
+> ## ⭐⭐ **THE WAVE'S OUTPUT WAS DISPROOF.** Eight spec premises fell — the owner's, the controller's, and **three consecutive wrong concept resolvers.** One lane returned **BLOCKED with zero files, and that was the right answer.**
+
+**Trunk moved FOUR times during the wave** —
+`baf9b67a` → `3cf01287` (#644) → `3d6dce0c` (#645) → `3d3a32a9` (#646) → `376e30b0` (#648).
+`RETRY-1` caught a move itself and re-cut from the newer SHA rather than the one its brief pinned.
+
+### What is on trunk since the last handoff (`#643`, `f654dc64`)
+
+```
+376e30b0  #648  ops: make the premise gate the agent's first command       owner/ops
+3d3a32a9  #646  SETTINGS-1  download your data, delete your account        DPDP-B
+3d6dce0c  #645  EXPORT-1    download your own data, and the file says
+                            what it left out                               DPDP-B
+3cf01287  #644  TSX-1       declare tsx so the warmup child resolves it    DPDP-B
+baf9b67a  #635  ops: commit the agent standing rules                       owner/ops
+```
+
+⚠⚠ **The three DPDP-B lines are transcribed from trunk commit metadata, not from a close-out.**
+Addendum §6 requires asking the other controller for its bounded close-out and waiting for it.
+**DPDP-B stood down without opening a handoff and without handing one over.** ⇒ these three lanes
+have PR titles here and **no lane write-up anywhere.** `[FU-DPDP-B-NO-CLOSEOUT-HANDED-OVER]`
+
+🛑 **`TSX-1` discharges the previous handoff's headline blocker.** Owner-reported from the deploy
+logs: the gateway now boots, and `ERASE-1` / `EXPORT-1` / `SETTINGS-1` are **running code, not merely
+merged.** ⚠ Owner-supplied, not independently verified here — the acceptance evidence for that class
+is a successful Railway boot, which no gate in this repository can produce.
+
+### The three lanes
+
+- **`ARRIVAL-1` — ⛔ BLOCKED, ZERO FILES, and that is the correct outcome.** It was briefed to add
+  `?concept=` handling to TopicHub **and** an `arrival` block to `TutorBrief`. It returned **nine
+  findings disproving its own spec** and wrote nothing.
+  - ⭐ ***"TopicHub reads NO query params at all" is FALSE*** — it already parses `topic`, `source`
+    and `returnTo` via `new URLSearchParams(location.search)`. **The `grep -c useSearchParams → 0`
+    that was quoted was ACCURATE and measured the WRONG QUESTION.** ⇒ **the conclusion survives**
+    (TopicHub genuinely never read `concept`) **and the evidence is WITHDRAWN.**
+  - ⚠ **The control that was supposed to catch this could not run — its path was wrong.**
+    `HighlyProbableQuestions.tsx` is at `lazytopper/src/pages/`, not `pages/desktop/`; confirmed by
+    `git cat-file -e` (ABSENT at the written path) and corroborated independently by `SCOUT-RETRY`.
+    ➜ ★★ **A control that cannot run is not a control. Verify a control's path before trusting it.**
+    `[FU-ARRIVAL-CONTROL-PATH]`
+  - **`resolveCanonicalSlug` is the CHAPTER-key authority, not a concept resolver** — feeding it a
+    concept falls through to `normalizeTopicSlug` and yields a string that is neither.
+    **Both the owner's arc doc and the controller's brief named it.** `[FU-ARRIVAL-CONCEPT-RESOLVER]`
+  - **`ConceptSpine` rows have no expand state**, so *"expand and scroll that spine row"* was new UI
+    against a file outside the allowlist. `[FU-SPINE-NO-ROW-EXPANSION]` ⇒ the allowlist was widened.
+  - **The owner's count was off** — *"nine `focus`/`markBand` references"* is nine for `focus`
+    **alone**; combined is 15. **Conclusion stands (nothing to build in `navigation.ts`); evidence
+    withdrawn.**
+  - ⚠⚠ **REPORTED, UNVERIFIED, AND MUST NOT BE RESTATED AS FACT:** that the owner's non-negotiable
+    product rule may **already be live on trunk** — `selectTutorDemoQuestion({subject, topicKey,
+    concept})` reportedly already picks the first worked example by concept, `TutorPage` already
+    reads `searchParams.get("concept")`, and all three `arrival` fields reportedly already exist.
+    **One subagent's claim. OWNER LIVE-VERIFY ONLY.** `[FU-ARRIVAL-BRIEF-REDUNDANT]`
+    Recipe: open a Topic Hub (e.g. Carbon and its Compounds), click *"Stuck? Ask"* on a concept row,
+    confirm the tutor's first worked example is on **that** concept **and** that its opening words
+    carry no marks-lost figure.
+  - It also warns that a **second marks-lost copy placed outside the server's `hasData` gate would
+    CREATE** the *"report card wearing a tutor's face"* hazard the owner ruled against ⇒ building
+    `arrival` naively is **not neutral, it is a regression risk.**
+
+- **`TOPICHUB-1` (`#647`, OPEN DRAFT, 4 files) — supersedes `ARRIVAL-1`.** TopicHub reads
+  `?concept=`, marks and scrolls that spine row, and falls back honestly when the label does not
+  match. Files: `pages/desktop/DesktopTopicHubPage.tsx`, `components/topichub/ConceptSpine.tsx` and
+  both their test files.
+  - ⭐⭐ **NEITHER resolver candidate was correct — including the one the controller put in the
+    brief.** `conceptKeyForLabel` resolves against the tutor **FIGURE** catalogue, a strict subset
+    that returns null for **39 of 112** live concepts (**~35% silent-null**), and whose own data file
+    states *"conceptKey … never resolve on it"*. **The lane used exact match on
+    `actionable.boardEssentials[].name` instead.** ⇒ ARRIVAL-1 correctly killed `resolveCanonicalSlug`
+    **and its replacement was also wrong.** ★ **The candidate was passed on flagged `UNVERIFIED` with
+    an instruction to verify rather than inherit — that instruction is the only reason this was
+    caught.** `[FU-CONCEPT-RESOLVER-SILENT-NULL]`
+  - **`BoardConcept` has NO key field** — *"resolve the label to a concept KEY"* had no target.
+    **The row's identity IS its name.** `[FU-CONCEPT-LABEL-IS-THE-ONLY-CONCEPT-ID]`
+  - ⚠⚠ **IT SHIPS AS A CONSUMER WITH NO PRODUCER.** Nothing emits `?concept=` into `/topic-hub`;
+    `buildDesktopTopicHubPath` is structurally incapable (`DesktopRouteContext` is
+    `{source, returnTo}` only) and **HPQ does not link to `/topic-hub` at all.** Reachable today only
+    by hand-typed URL. **MOUNT ≠ LIVE.** `[FU-TOPICHUB-CONCEPT-PRODUCER]`
+  - **The owner's *"expand and scroll that spine row"* rested on a false premise** — rows have no
+    expand state **because they are never collapsed and have no hidden content**; every
+    `BoardConcept` field always renders. An "expand" could only be a fake affordance or a regression
+    hiding content from students who arrive with no param. **The lane built marking + scrolling
+    instead. Correct call.**
+  - ⭐ **A defensive guard the lane wrote (M0) was proven DEAD by its own mutation and REMOVED**
+    rather than shipped decorative — the silent-no-op rule obeyed unprompted.
+  - **Stale counts again:** the catalogue header says 54 rows; the file holds **74 rows / 73 labels.**
+    `[FU-CONCEPT-CATALOGUE-COVERAGE]`
+  - **FINAL STATE:** head **`9144c216`**, **Quality Gate `31308051980` PASS** (Lane Overlap
+    `31308051997`, CodeQL `31308051983`). Zero-skip: `# suites 29 / # pass 196 / # skipped 0`;
+    `Test Files 138 passed (138)` / `Tests 1719 passed (1719)`.
+    ⚠ **An earlier record in this wave pinned head `81406ea5` and run `31306745098`
+    (`Test Files 135 passed (135)` / `Tests 1662 passed (1662)`)** — three commits landed after it:
+    `26d3c8b1` (trunk merge), **`94f760c8` the `R7` badge-copy fix**, `9144c216` (trunk merge).
+    ➜ ★★ **A green CI run quoted against a PR rather than a head SHA goes stale the moment the
+    branch moves. Read CI at the head.**
+  - ⭐⭐ **A REJECTED PUSH WAS HANDLED WITHOUT A FORCE-PUSH.** A remote trunk-merge (`26d3c8b1`,
+    carrying `#644`/`#645`/`#646`/`#648`) landed on the branch mid-push and the push was **rejected**.
+    The lane **did NOT force-push**: it fetched, **inspected both directions**, merged remote into its
+    branch, and afterwards **re-reconciled `gh pr view 647 --json files` against the base — still
+    exactly 4 files.** ⇒ **This is the Wave-4 force-push mechanism, which once dropped two merged PRs
+    off trunk, AVOIDED rather than survived.** It is recorded because the correct behaviour under a
+    rejected push has cost this project real time before.
+  - ★★ **The guard was updated a THIRD time, and never deleted.** The original regex (*"the marker
+    carries no performance claim"*) **would have passed VACUOUSLY** under `R4`'s copy — it does not
+    match *"costing you marks"*. The final guard **pins the new exact string, KEEPS the
+    no-numeric-figure assertion, and RESTORES the no-performance-claim assertion widened so
+    `costing` is a banned token** ⇒ **the withdrawn wording cannot come back.**
+
+- **`RETRY-1` (`#649`, OPEN DRAFT, head `25862843`, base `376e30b0`, 2 files)** —
+  `services/mistakeRetry.ts` + its test classify a mistake-log id into **exact-retry vs similar-only
+  vs nothing.** **RE-SCOPED mid-wave to logic only.** Both files new, both in allowlist.
+  **Quality Gate `31308051342` PASS** — root matrix
+  `# tests 196  # suites 29  # pass 196  # fail 0  # skipped 0  # todo 0`; vitest
+  `Test Files 138 passed (138)` / `Tests 1723 passed (1723)`; **own suite named as run:**
+  `✓ src/services/mistakeRetry.test.ts (22 tests) 33ms`. ⚠ **The single `skipped` STEP is the docs
+  fast-path acceptance, correctly bypassed** because the classifier routed the PR to FULL BAR —
+  **a skipped step is not a skipped test.**
+  - ⭐⭐ **SPEC PREMISE DISPROVED — HPQ DOES NOT RESOLVE.** *"Quick Practice and HPQ re-serve the exact
+    question"* is **wrong for HPQ**: **0 of 140 HPQ ids appear among the 8543 bank ids**;
+    `conceptForQuestionId("rn-hpq-2")` returned null while the **CONTROL**
+    `conceptForQuestionId("2026-TRI-P1-A-001")` returned a full row **in the same run.**
+    ⚠ **The case is LIVE, not moot** — `HighlyProbableQuestions.tsx` passes `questionId={q.id}` to
+    `SolutionChecker`, so HPQ ids really do reach the log. ⇒ **HPQ gets *"Try one like it"*.**
+    `[FU-RETRY-HPQ-NOT-BANK-BACKED]`
+  - ⭐⭐ **THE OBVIOUS RESOLVER WAS AGAIN THE WRONG ONE — the third in one wave.**
+    `conceptForBankQuestionId` **suppresses chapter-echo subtopics**, so it is **NOT an existence
+    test**: **773 of 8543 rows (~9%) would have been wrongly demoted to "similar".**
+    ⇒ **existence = `conceptForQuestionId`; concept = `conceptForBankQuestionId`.** Mutation M3
+    proves the distinction load-bearing. `[FU-RETRY-CHAPTER-ECHO-CONCEPT-NULL]`
+  - ⭐ **A fifth candidate prefix `qp:` was found and CORRECTLY EXCLUDED** — it is a `SessionRecord`
+    id, **never a mistake-log `questionId`.** Listing it would have **demoted every Quick Practice
+    entry** to "similar", i.e. the one class that genuinely can re-serve exactly. **A near-miss that
+    only enumeration caught.**
+  - **HPQ ids have NO common prefix** (`rn-hpq-2`, `ple-hpq-1`, `math-real-hpq-3`, `rn-comp-01`)
+    ⇒ **prefix detection is impossible; the classifier must ask the bank.**
+  - **The brief said three synthetic prefixes; there are FOUR** (`ws:`, `fm:`, `ct:`, **`ci:`**), and
+    **C&I is TWO paths, not one** — the multi-question path writes `ci:{sessionCode}:q{n}`; only the
+    single-question path omits `questionId` entirely. `[FU-RETRY-CI-SINGLE-PATH-NO-ID]`
+  - ⭐ **`typecheck:test` earned its keep again** — it went **RED with five `TS2339`** while
+    `tsconfig.app.json` was **simultaneously GREEN.** The separate-gate rule is not theoretical.
+  - **Honest evidence ceiling stated unprompted, then UPGRADED FROM ASSERTED TO VERIFIED:** pure
+    logic with no consumer yet ⇒ no build chunk to cite and no live-verify claimed. ⭐ **CI's build
+    ran (1124 modules, 9.69s) and emitted NO `mistakeRetry` chunk** — so the ladder rung really is
+    *test-only*, measured rather than assumed. **It flips to *ships* when `ME-2` imports the module.**
+    `[FU-RETRY-NO-BUILD-CHUNK-YET]` — **a tracking item for ME-C, not a defect.**
+  - ⭐⭐ **MERGE-BASE RECONCILIATION WAS ACTUALLY PERFORMED.** `gh pr view --json files` was compared
+    against `git diff --name-only 376e30b0..25862843` and found **IDENTICAL**. **This is the check
+    the operating model names as *"the missing check, and the data already exists — nothing does
+    today"*.** It matters because **a squash merge diffs against the base AT MERGE TIME, so a PR's own
+    file list is not necessarily what lands** — a product PR once reported 4 files and landed 13.
+    ➜ **Make it standard.**
+  - ⭐ **The rebase `3cf01287` → `376e30b0` was done as `git reset` + `git merge --ff-only`, NOT
+    `git reset --hard`** — the lane's stated reason: `reset --hard` is **never auto-approved in this
+    repo** and was **unnecessary here because no commits existed yet.** ⇒ **the correct pattern.**
+  - ★ **All gates were RE-RUN post-rebase rather than carried forward**, and `MeProgressPage.tsx` was
+    re-checked as untouched **after** the rebase — **because `#646` had landed changes to that very
+    file in the interval.** That is the `ME-2` hazard being respected by the lane that did not own it.
+  - Gates run locally by the lane before CI: tsc app **and** test ✓ · mojibake ✓ (**control injected,
+    exit 1**) · `scope:guard inspected=2` (**not vacuous**) · vitest 22/22 · root guard matrix
+    **196 tests / 29 suites / fail 0 / skipped 0** · **3 mutations restored byte-identical.**
+
+### The two scouts, and what they bought
+
+- **`SCOUT-RETRY`** located the retry surface and **re-scoped the lane that followed it.** Its finding:
+  **there is no per-entry mistake-log UI anywhere in the product today** — every consumer aggregates,
+  and in `MeProgressPage.tsx` the fetched `MistakeLogEntry[]` is used **only as a gate**
+  (`mistakeLogs.length > 0`). ⇒ `RETRY-1` was never *"add a button to a list"*; it was *"build the
+  list"*, into the one file `ME-2` rebuilds wholesale. **Splitting logic from UI dissolved the file
+  collision.**
+  It also reported `components/dashboard/MistakeInsightsPanel.tsx` calls `getMistakeLogs` and is
+  **imported nowhere.** **Not independently confirmed; do not delete on this evidence alone** — the
+  dead-page sweep established that a page dead to users can still be a `readFileSync` fixture for an
+  ops gate. `[FU-MISTAKE-INSIGHTS-PANEL-DEAD]`
+- **`SCOUT-PROTO`** rendered the locked v7 prototype at 1180/390/360 × 3 states — **51 screenshots**
+  — and found **every structural check PASSING** (subject purity both directions × 3 tabs ×
+  collapsed+expanded × 3 widths with **zero violations**; single-open accordion; **rail ≤1023 / grid
+  ≥1024, so desktop does NOT inherit a rail**; no horizontal overflow at 360; **zero `%` in rendered
+  text**). ⇒ **the v6 rail bug and the percentage rule are genuinely clean in v7 — `ME-2` must pin
+  them with tests.**
+  ⛔ **And 11 defects the prototype must not pass on**, including **F1 the prototype file is
+  mojibake-corrupted** (151×`â`, 16×`Â`, zero surviving em-dashes — copying its strings literally
+  ships mojibake **and trips `check:mojibake`, which is ENFORCED outside `handoff/`**), **F2 a thin
+  state that contradicts itself**, **F6 a `.go--soft` hover specificity bug giving navy-on-navy at
+  1.21:1**, and **F11 inert first-run CTAs (`wire()` is skipped) — flows that were never clickable.**
+  ⚠⚠ **F7: the prototype's own AA claim is FALSE.** It asserts navy numerals measure 5.7–6.7:1; the
+  scout measured **4.67 / 3.51 / 3.73**, and the owner **recomputed and retracted his own figures** —
+  the 5.7–6.7 was computed against the **LOGIN** page's `#071a3d`, not MeProgress's
+  `--me-navy: hsl(222,47%,24%)`. **The scout's numbers match to two decimals. Its probe is sound.**
+  ⭐ **The scout also distinguished a HARNESS ARTIFACT from a product bug** — `.mask` is
+  `position:fixed` and escapes the simulated frame, so the sheet only *appears* clipped; at true
+  390×900 / 360×900 it measures 354/324px and fits. **It reported that instead of a false red.**
+
+### ⭐⭐ The owner ruling that matters most: `R7`, in which the owner withdrew his own `R4`
+
+`R4` had changed the arrival badge to **"This is the one costing you marks."** on voice grounds. The
+lane **implemented it as ruled**, flagged it in-code, in the prop doc and in the PR body, and reported
+that it is **a performance claim asserted from a URL parameter** on a page that holds no graded or
+mistake data — so a hand-typed, shared or stale URL **can tell a student a concept is costing them
+marks for a concept they never attempted.** It contradicted the lane's own brief (*"do not add a
+marks-lost figure, a mistake count, or any performance claim to this page"*) and `CLAUDE.md` §5
+(*"no fake data — no invented … MI insights, weak areas"*).
+
+**Owner: *"you were right and my ruling was wrong. I ruled on voice; you found a doctrine conflict I
+hadn't considered."*** ⇒ final string **`You came here for this.`** — true however the student
+arrived, asserts nothing about performance, keeps the voice. ⛔ **Gating the badge on real MI data was
+REJECTED** — it would require TopicHub to read Mistake Intelligence, which its brief forbids.
+★ **The guard was REPLACED, NOT DELETED.** The old regex (*"the marker carries no performance
+claim"*) **does not match *"costing you marks"* and would have PASSED VACUOUSLY** under the new copy;
+the replacement **pins the exact string and keeps the no-numeric-figure assertion.** Textbook
+*replace a guard, never delete it — pin what it PROTECTED.*
+✅ `[FU-ARRIVAL-COPY-ASSERTS-UNBACKED-MARKS-CLAIM]` **CLOSED by `R7`.**
+
+### Counts that grew again — and this time they grew BETWEEN TWO RUNS ON THE SAME DAY
+
+**`#647` reported `Test Files 138 passed (138)` / `Tests 1719 passed (1719)`; `#649` reported
+`138 (138)` / `Tests 1723 passed (1723)`** — and earlier in this same wave `#647`'s superseded head
+reported `135 (135)` / `1662`. Older notes say 112/1387, then 120/1534, then 125/1555. **The root
+guard matrix is 196 checks / 29 suites.**
+➜ ⚠⚠ **These are read-at-the-time values, not constants. Two PRs open on the same afternoon do not
+agree, because trunk merges land between their runs. Quote the number from the run you are citing and
+never carry one forward.**
+
+### ✅ `[FU-ARRIVAL-COPY-ASSERTS-UNBACKED-MARKS-CLAIM]` — CLOSED BY REMOVAL OF THE CAUSE, NOT DEFERRED
+
+The offending string was withdrawn by the owner before it left draft, and the guard was widened so it
+cannot return. **The FU is closed because the thing it described no longer exists** — not because it
+was accepted, scheduled or downgraded. That distinction is why it is stated here in those words.
+
+### The carry-forward, RE-DERIVED against trunk `376e30b0` rather than pasted
+
+**ONE dormant capability, not five.** `WIRE-2` (`#621`) ended `#578`, `#611` and `#617` —
+`gradeQuickPracticeBatch` is invoked in `lazytopper/src/pages/PracticePage.tsx` at
+`const result = await gradeQuickPracticeBatch({`. **`expectedMarks` is the only remaining dormant
+item**: `git grep -ln 'expectedMarks' 376e30b0 -- lazytopper/src` returns **three files, all under
+`src/prediction/`** — zero consumers outside it. ⚠⚠ **`ME-2` did not run, so `expectedMarks` is STILL
+DORMANT at the close of this wave.** `[FU-HANDOFF-DORMANCY-BLOCK-STALE-CARRYFORWARD]` stays open.
+
+### VALIDATION (this docs PR)
+
+`check:mojibake` (**files staged first — it reads `git ls-files`, so an unstaged pass is vacuous**) ·
+`scope:guard --mode docs` · `git diff --check` · **per-file heading census before vs after, proving a
+strict superset.** Scope: `handoff/` only, **zero product files.** ⭐ **This PR's CI run is the wave's
+only full-bar integration check** — it runs the whole gate against trunk with `#644`, `#645`, `#646`
+and `#648` composed together, which no product PR does because each runs against its own base.
+
+
+---
+
 ## 2026-08-09 — WAVE DPDP-A CLOSED: #640 · #639 · #638 — the erasure a student can trigger, and the build that cannot boot — trunk `6f7da56e`
 
 **`2026-08-09`** · three lanes + two read-only scouts, controller + subagent model.

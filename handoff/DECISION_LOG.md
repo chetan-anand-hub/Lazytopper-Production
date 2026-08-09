@@ -1,3 +1,196 @@
+## 2026-08-09 — WAVE ME-B, three lanes + two read-only scouts under a controller + subagent model (`#647` draft · `RETRY-1` pushed unPR'd, trunk `376e30b0`)
+
+**`2026-08-09`**
+
+> ★★ **Three concept resolvers were specified in one wave and ALL THREE WERE WRONG — the owner's,
+> the controller's, and the obvious one. Every catch came from the same practice: the candidate was
+> handed on flagged `UNVERIFIED` with an instruction to VERIFY rather than INHERIT.** The verdicts
+> below are useless without their reasons, so the reasons are recorded and the verdicts are not
+> recorded alone.
+
+### DECISION 1 — trunk is re-derived at every step and never carried
+
+**It moved FOUR times inside one wave:** `baf9b67a` → `3cf01287` (#644) → `3d6dce0c` (#645) →
+`3d3a32a9` (#646) → `376e30b0` (#648).
+
+**Reason:** `git ls-remote origin base/approved-thru-437` is the only authority, and the owner's
+dispatching brief was a day old — it quoted `f654dc64`, which **ancestry checked in BOTH directions**
+(not just equality) showed to be an ancestor, not the tip. ⭐ **`RETRY-1` caught a move by itself and
+re-cut from the newer SHA rather than the one its brief pinned.** ⇒ **A SHA in a brief is a claim
+about the past.**
+
+### DECISION 2 — `RETRY-1` was SPLIT into logic (its own lane) and UI (folded into `ME-2`)
+
+**Reason, and it came from a scout that wrote nothing:** `SCOUT-RETRY` established that **there is no
+per-entry mistake-log UI anywhere in the product today.** Every consumer aggregates, and in
+`MeProgressPage.tsx` the fetched `MistakeLogEntry[]` is used **only as a gate**
+(`mistakeLogs.length > 0`). ⇒ `RETRY-1` was never *"add a button to a list"* — it was *"build the
+list"*, into **the one file `ME-2` rebuilds wholesale.** Keeping them together would have had
+`RETRY-1` author a list and `ME-2` delete it.
+
+⇒ **The split dissolved the file collision entirely.** The logic half is pure, new-file and collides
+with nothing; the lanes stayed ordered only for RAM headroom, not for correctness.
+
+### DECISION 3 — `arrival` on `TutorBrief` was CUT from the wave, on disjointness grounds
+
+**Reason, and it holds whether or not the redundancy finding is true:** `TutorBrief`'s only consumer
+is `briefBlock()` in `lazytopper/server/prompts/tutorSystemPrompt.cjs` — **path CONFIRMED by the
+controller** — which is under `lazytopper/server/**`, **DPDP-B's exact-path territory.** ME-B cannot
+touch it, and **shipping the field without its consumer is a silent no-op**, which the standing rules
+forbid outright.
+
+★ **Two independent reasons existed and the verified one was used.** A subagent separately reported
+that the capability **may already be live on trunk** (`[FU-ARRIVAL-BRIEF-REDUNDANT]`) — that would
+make the work *unnecessary*; the disjointness makes it *impossible*. **The second is sufficient on
+its own, and it is the one that was verified.** ⇒ **the unverified claim was not load-bearing for the
+decision, and was passed on marked as unverified rather than used as justification.**
+
+### DECISION 4 — `lib/desktop/navigation.ts` moved into `ME-2`'s allowlist, because `ME-2` must be the producer
+
+**Reason:** `TOPICHUB-1` ships a reader that **nothing calls** — `buildDesktopTopicHubPath` is
+structurally incapable of emitting `?concept=` (`DesktopRouteContext` is `{source, returnTo}` only)
+and HPQ does not link to `/topic-hub` at all. **`ME-2` owns `MeProgressPage.tsx` and must emit the
+CTAs anyway**, so it is the natural producer; `buildDesktopTopicHubPath` must learn `concept`.
+The file was in `ARRIVAL-1`'s original allowlist and was **never touched**, so there is no conflict.
+
+⭐ **Owner-ratified (`R6`), and he ordered the consequence recorded verbatim:**
+**⇒ IF `ME-2` DOES NOT SHIP, `TOPICHUB-1` IS DEAD CODE.** His reason: *"MOUNT ≠ LIVE caught before
+merge rather than six documents later."*
+
+### DECISION 5 — `ME-2` was NOT STARTED, and the wave closed instead
+
+**Reason:** the controller was below the addendum §3 **35% floor** with two merges still owner-gated.
+Addendum §1 is explicit — **a controller's lifetime is one wave**, and **a fresh controller with full
+context beats half a lane and an unwritten handoff.** The §2 HANDOFF DRAFT was written incrementally
+after every lane returned, so closing cost minutes rather than being unreachable.
+
+⚠ **The cost is named rather than hidden:** `expectedMarks` **stays dormant**, `#647` **stays a
+consumer with no producer**, and both are now Wave ME-C's opening obligations.
+
+### DECISION 6 — every unverified claim was passed on FLAGGED `UNVERIFIED`, with an instruction to verify
+
+⭐⭐ **This is the single practice that caught all three wrong concept resolvers, and one of them was
+the controller's own.**
+
+- `resolveCanonicalSlug` — **the owner's**, in the arc doc and repeated in the controller's brief.
+  Disproved by `ARRIVAL-1`: it is the **chapter-key** authority; feeding it a concept falls through
+  to `normalizeTopicSlug`.
+- `conceptKeyForLabel` — **the controller's own replacement**, passed on flagged `UNVERIFIED`.
+  Disproved by `TOPICHUB-1`: it resolves against the tutor **FIGURE** catalogue, a strict subset that
+  returns null for **39 of 112** live concepts (**~35% silent-null**) — and whose own data file says
+  *"conceptKey … never resolve on it"*. **The lane used exact match on
+  `actionable.boardEssentials[].name` instead.**
+- `conceptForBankQuestionId` — the obvious choice for an existence test. Disproved by `RETRY-1`: it
+  **suppresses chapter-echo subtopics**, so **773 of 8543 rows (~9%) would have been wrongly demoted
+  to "similar"**. ⇒ **existence = `conceptForQuestionId`; concept = `conceptForBankQuestionId`.**
+
+> **Owner: keep that instruction in every brief.** A candidate handed over as fact would have shipped
+> three times.
+
+### ⭐⭐ OWNER RULING `R7` — THE OWNER WITHDREW HIS OWN `R4`, ON THE LANE'S DOCTRINE FINDING
+
+`R4` had changed the arrival badge to **"This is the one costing you marks."**, on **voice** grounds —
+*"Why you're here"* is the page talking about itself. The lane **implemented it as ruled**, flagged it
+in-code, in the prop doc and as a FLAG in the PR body, and then reported the conflict: it is **a
+performance claim asserted from a URL parameter**, on a page holding **no graded or mistake data**, so
+a hand-typed, shared or stale URL **can tell a student a concept is costing them marks for a concept
+they never attempted.** It contradicted the lane's own brief (*"do not add a marks-lost figure, a
+mistake count, or any performance claim to this page"*) and `CLAUDE.md` §5.
+
+**Owner: *"you were right and my ruling was wrong. I ruled on voice; you found a doctrine conflict I
+hadn't considered."*** ⇒ final string **`You came here for this.`**
+
+**Reason it is the right string:** it is **true regardless of how the student arrived**, asserts
+nothing about performance, and keeps the voice `R4` was reaching for.
+⛔ **The gate-on-MI-data option was REJECTED** — it would require TopicHub to read Mistake
+Intelligence, **which its brief forbids for good reason.**
+★ **The guard was REPLACED, NOT DELETED.** The old regex (*"the marker carries no performance
+claim"*) **does not match *"costing you marks"* and would have passed VACUOUSLY** under `R4`'s copy.
+The replacement **pins the exact string and keeps the no-numeric-figure assertion** — *replace a
+guard, never delete it; pin what it PROTECTED.*
+
+### THE OTHER BINDING RULINGS, WITH THE OWNER'S REASONS
+
+- **`R1` bar buckets — ⛔ none of the three options offered.** **Mirror `ResultsScorecard`'s own
+  grouping:** it already groups the four MI types under two headings (*"Knowledge gaps — worth
+  practising"* = Conceptual + Calculation; *"Careless mark-loss — not a weakness"* = Silly +
+  Presentation). ⇒ **keep four segments, fix the NAMING:** `secured` · `careless slips` ·
+  `knowledge gaps` · `unclassified`, **with the legend naming all four MI types under their two
+  headings.** **Reason: it is the product's EXISTING model rather than a new one**, the student
+  already met it on their graded sheet, nothing is invisible, nothing is dumped into `unclassified`,
+  and it dodges the six-segment option's 360px blank-segment problem entirely.
+- **`R2` bar numerals — the owner RETRACTED HIS OWN FIGURES; the scout was right.** The 5.7–6.7:1
+  claim was computed against the **LOGIN** page's `#071a3d`; MeProgress uses
+  **`--me-navy: hsl(222,47%,24%)`**. Recomputed: 4.68 / 3.53 / 3.74 — **matching the scout's 4.67 /
+  3.51 / 3.73 to two decimals.** ⇒ **re-measuring is off the table, and the probe is SOUND.**
+  The fix is neither darkening tones nor switching to white: it is **the WCAG large-text threshold**
+  (AA large = 3:1; large = 14pt bold = 18.66px; **the numerals are already `font-weight:700`**) ⇒
+  **at ≥18.66px bold, navy passes all three. No token change, no global colour shift.**
+  **Reason for rejecting the darken option: `MISTAKE_TONE` is used VERBATIM across the scorecard, the
+  MI card and history** — it would repaint the product's entire mistake vocabulary to fix one bar.
+  ⚠ **Constraint accepted with it:** at 360px a 7% segment is ~23px and an 18.66px bold two-digit
+  numeral will not fit ⇒ **raise the render threshold 7% → ~12% and let the legend carry the rest.**
+  The legend already prints every number, **so nothing is lost — the bar stops pretending to show a
+  figure where it cannot.**
+- **`R3` reconciliation — option (a): the hero is truth**, and each deeper view carries an **explicit
+  remainder row** so all three sum to the hero. **Reason:** *"6 marks not yet traced to a concept"* is
+  a sentence a student can accept; **three unexplained totals is not** — it is the same honesty device
+  as `unclassified`, one level down. (b) rejected because it **leaves the student to do the
+  reconciling**; (c) rejected outright because **the hero under-reporting real lost marks is the one
+  thing the page cannot do.**
+- **`R5`** both controller self-fixes approved — the thin-state self-contradiction, and a first-run
+  example tagged `Conceptual gap` over a dropped-state-symbols subtext (**`CLAUDE.md` §13 makes that
+  PRESENTATION**). Owner: *"a page whose diagnosis contradicts its own label at the top has no claim
+  on the rest."*
+- **`R8`** `RETRY-1` commit + push approved, **draft only** — landed as **`#649`, DRAFT, CI green.**
+  **`gh pr ready` remains the owner's step.**
+- **`R9` HPQ into the canonical bank — NOT NOW, NOT A LANE.** **Reason: it is an owner CONTENT
+  decision with syllabus implications**, not an engineering task. HPQ stays *"Try one like it"*;
+  `[FU-RETRY-HPQ-NOT-BANK-BACKED]` stays open.
+- **`R10` an entry with no `questionId` OFFERS NOTHING** — not even a topic-scoped *"Try one like
+  it"*. Owner: *"a retry affordance on an entry that can't identify its question is decoration, and
+  the student can already reach that topic from every other row. Silence is the honest option."*
+  ⇒ **`RETRY-1`'s build already matched this** (`kind:"none"` returns null). **Confirmed, not
+  altered — no code change was made to satisfy the ruling.**
+
+### ⭐⭐ THREE GIT PRACTICES THIS WAVE, RECORDED BECAUSE EACH ONE HAS COST THIS PROJECT TIME BEFORE
+
+**1 · A REJECTED PUSH WAS HANDLED WITHOUT A FORCE-PUSH.** A remote trunk-merge (`26d3c8b1`, carrying
+`#644`/`#645`/`#646`/`#648`) landed on `#647`'s branch mid-push and the push was **rejected.** The
+lane **did NOT force-push.** It fetched, **inspected both directions**, merged remote into its branch,
+and afterwards **re-reconciled `gh pr view 647 --json files` against the base — still exactly 4
+files.**
+**Reason it is recorded:** this is the **Wave-4 force-push mechanism, which once dropped two merged
+PRs off trunk**, being **AVOIDED rather than survived.** ⇒ **A rejected push is a signal to look, not
+an obstacle to overpower.**
+
+**2 · MERGE-BASE RECONCILIATION WAS ACTUALLY PERFORMED**, on `#649`: `gh pr view --json files`
+compared against `git diff --name-only 376e30b0..25862843`, **IDENTICAL.**
+**Reason it matters:** **a squash merge diffs against the base AT MERGE TIME, so a PR's own file list
+is not necessarily what lands** — a product PR once reported 4 files and landed 13. The operating
+model names this as *"the missing check, and the data already exists — nothing does today."*
+⇒ **It has now been done once. Make it standard.**
+
+**3 · THE REBASE USED `git reset` + `git merge --ff-only`, NOT `git reset --hard`.**
+**Reason given by the lane:** `reset --hard` is **never auto-approved in this repository**, and it was
+**unnecessary** because no commits existed on the branch yet. ⇒ **the correct pattern when a lane
+needs to move its base.** ★ **All gates were RE-RUN post-rebase rather than carried forward**, and
+`MeProgressPage.tsx` was re-checked as untouched **after** the rebase — because `#646` had landed
+changes to that exact file in the interval. **That is a lane respecting a hazard it does not own.**
+
+### ⚠ A PROCESS DECISION RECORDED BECAUSE IT WAS NOT FOLLOWED BY THE OTHER ARC
+
+Addendum §6 requires the controller closing a wave to write the handoff for **everything landed since
+the last one — its own arc and the other's** — and to **ask the other controller for its bounded
+close-out first and WAIT for it.** **DPDP-B merged `#644`, `#645` and `#646` and stood down without
+opening a handoff and without handing one over.**
+
+⇒ **Those three lanes are recorded in this handoff from trunk commit metadata only.** That is enough
+to stop them vanishing and **nowhere near enough to be a lane record** — no FU ids, no disproved
+premises, no evidence ceilings, no allowlist breaches. **This is written down as a gap, not papered
+over.** `[FU-DPDP-B-NO-CLOSEOUT-HANDED-OVER]`
+
+
 ## 2026-08-09 — WAVE DPDP-A, three lanes + two read-only scouts under a controller + subagent model (#640 · #639 · #638, trunk `6f7da56e`)
 
 **`2026-08-09`**
