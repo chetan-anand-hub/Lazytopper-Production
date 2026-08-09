@@ -1,6 +1,254 @@
 # LazyTopper — Current State
 
-## [CURRENT] Wave ME-B CLOSED — the student's *why* now survives the click, three consecutive concept resolvers were wrong, and both lanes sit on GREEN DRAFT PRs that are **not on trunk** — trunk `376e30b0`
+## [CURRENT] Wave CLOSEOUT — the record catches up with trunk: `#647` and `#649` **ARE** on trunk, DPDP-B's five unrecorded commits finally have a lane record, and the DPDP code **is running in production** — trunk `eeafb99b`
+
+**`2026-08-09` · a docs-only catch-up PR, lane `HANDOFF-CATCHUP`.** This handoff exists because
+`handoff/` was **wrong, not merely stale**: it asserted that shipped student-facing code was unshipped,
+and a whole wave's close-out existed on one disk only.
+
+**Trunk at authoring: `eeafb99b0c437998067478f603af66d32e431b58`** — re-derived, not remembered:
+
+```bash
+$ git ls-remote origin base/approved-thru-437
+eeafb99b0c437998067478f603af66d32e431b58	refs/heads/base/approved-thru-437
+```
+
+### 🛑 CORRECTION 1 — `#650` SAYS `#647` AND `#649` ARE NOT ON TRUNK. **THEY ARE.**
+
+The demoted block below headlines *"both lanes sit on GREEN DRAFT PRs that are **not on trunk** —
+trunk `376e30b0`"*. **That is false against trunk today**, and it is not the ordinary one-commit
+handoff lag — it is a claim that **student-facing code is unshipped when it is shipped.**
+
+```bash
+$ git merge-base --is-ancestor 024db49 origin/base/approved-thru-437 && echo ANCESTOR
+ANCESTOR
+$ git merge-base --is-ancestor 6ea6e59 origin/base/approved-thru-437 && echo ANCESTOR
+ANCESTOR
+$ git log --oneline -4 origin/base/approved-thru-437
+eeafb99b  docs(handoff): Wave ME-B closed ... (#650)
+6ea6e590  feat(me): a mistake entry offers the retry it can actually keep (RETRY-1) (#649)
+024db49a  feat(topichub): open the Topic Hub on a named concept (TOPICHUB-1) (#647)
+376e30b0  feat(ops): make the premise gate the agent's first command (#648)
+```
+
+**`#647` and `#649` merged BEFORE `#650`.** The ME-B block was **true when authored at `376e30b0`
+and false by the time it merged** — the docs PR sat open while trunk moved underneath it. ⇒ **the
+stale-base hazard, arriving through the docs lane rather than a product one.** The block is
+**demoted, not edited**: it is a dated record of what was known when it was written, and rewriting it
+would destroy the evidence of exactly this failure mode. `[FU-HANDOFF-DOCS-PR-STALE-AT-MERGE]`
+
+➜ **Generalisation worth more than the correction: a handoff PR's `[CURRENT]` is a claim about trunk
+that ages between authoring and merge.** Any handoff PR that is not merged the same hour it is
+authored must **re-derive trunk and re-check its own headline immediately before merge**, exactly as
+a product lane rebases.
+
+### 🛑 CORRECTION 2 — **THE DPDP CODE IS RUNNING IN PRODUCTION NOW**
+
+The DPDP-A block further down still headlines *"a student can erase their own account, **AND THE CODE
+IS NOT RUNNING IN PRODUCTION**."* **That is no longer the state.** `#644` (`TSX-1`) landed and the
+gateway boots — owner-supplied deploy log: `Server listening :8080` · `AI Gateway started :3001` ·
+`/shared-api/healthz 200` · `Gemini: ON`. `#646` (`SETTINGS-1`) then gave it a **student-facing
+surface**. ⚠ **Owner-supplied and not independently verified here** — the acceptance evidence for that
+class is a successful Railway boot, which no gate in this repository can produce. **The DPDP-A block
+is left exactly as written**; the change of state is recorded here, per Standing Rule 3 on the
+follow-ups board.
+
+⇒ **What a student can actually do today, for the first time in this arc: open `/me`, download their
+data, and delete their account.** Verified as mounted, not asserted:
+
+```bash
+$ git grep -n 'AccountDataControls' origin/base/approved-thru-437 -- lazytopper/src/pages/MeProgressPage.tsx
+lazytopper/src/pages/MeProgressPage.tsx:41:import AccountDataControls from "../components/account/AccountDataControls";
+lazytopper/src/pages/MeProgressPage.tsx:980:      <AccountDataControls />
+```
+
+⚠ **MOUNT ≠ LIVE still applies to the reachability claim, not to the mount.** `/me` is routed under
+`RequireAuth` and reachable from the mobile BottomNav profile icon and the desktop header avatar
+(established by `SETTINGS-1`); **no owner live-verify of the deployed download/delete flow has been
+reported.** Record it as **shipped and unverified-live**, never as verified.
+
+### CORRECTION 3 — FIVE COMMITS HAD NO LANE RECORD ANYWHERE. THEY DO NOW.
+
+`#650` listed these five by PR title and said so honestly: *"these three lanes have PR titles recorded
+here and no lane write-up anywhere."* ⭐ **The source was not missing — it was on one disk.**
+`handoff/WAVE_STATE_WAVE_DPDP_B_LIVE.md` (39,759 bytes, untracked, shared checkout only) held the
+`[CURRENT]` prose, the lane table, every decision **with its reason** and all FU ids.
+
+**It is now archived in this PR as `handoff/WAVE_STATE_WAVE_DPDP_B_ARCHIVE.md`, byte-identical**,
+proven by blob hash rather than by `git diff`:
+
+```bash
+$ git hash-object handoff/WAVE_STATE_WAVE_DPDP_B_LIVE.md      # shared checkout, untracked
+38b00b1f71c5b958f1a53c57b8bbb014e43a9b16
+$ git hash-object handoff/WAVE_STATE_WAVE_DPDP_B_ARCHIVE.md   # this PR
+38b00b1f71c5b958f1a53c57b8bbb014e43a9b16
+```
+
+⚠ **This is the FOURTH single-disk exposure in this project** (Waves 4, 5A, 5G, now DPDP-B). The
+first three all needed rescuing after the fact. **Everything below about `#644`/`#645`/`#646` is read
+from that file, not reconstructed from commit metadata** — reconstruction is precisely the gap that
+left `#646` unrecorded.
+
+| commit | PR | lane | what it changed for a student | what it disproved |
+|---|---|---|---|---|
+| `baf9b67a` | `#635` | owner/ops | nothing — commits the agent standing rules | — |
+| `3cf01287` | `#644` | `TSX-1` (DPDP-B) | declared `tsx`, so `runWarmup()`'s spawned ESM child — **which had never run since `be86cd94`** — can resolve its loader | ⭐⭐ **the wave's founding diagnosis.** `tsx` **cannot** have caused `#638`'s rollback: the spawn predates `#638`, fires 45s after boot, only if `DATABASE_URL` is set, and its stderr goes to `logger.warn` with no `process.exit`. Also: ERASE-1's `EXECUTED PASS` was **valid** and the accusation against it withdrawn; and the failure was never hidden by the dev environment — it reproduced locally first try, because **nobody had ever run the command** |
+| `3d6dce0c` | `#645` | `EXPORT-1` (DPDP-B) | a student can download their own data, and **the file says what it left out** — map-driven from `STUDENT_DATA_MAP`, reusing ERASE-1's walker unmodified | the controller's own allowlist, **unsatisfiable as written** (check `a15` forces `lazytopper/package.json` for any new server `.test.cjs`); `exportable:false` and `third-party` are **ONE ROW, not two**; and `sendJson`'s `redactErrorDetails` would have **corrupted a student's own fields** had the payload gone through it |
+| `3d3a32a9` | `#646` | `SETTINGS-1` (DPDP-B) | **the student-facing DPDP surface on `/me`** — download-my-data and delete-my-account behind a type-to-confirm flow, with an un-softened line that the AI provider retains what it retains. 14 files, screenshots at 360px | ⭐⭐ **the escape it was sent to find.** `?ref=` is **SAFE** (the `lazytopper.refstore.` prefix is concatenated at the FRONT, proven through the real referral chain with 11 hostile values plus a control). **The real escape is `lazyTopper.vibeMode` — capital T** — which a case-sensitive `lazytopper.` sweep walks straight past. Also: **no `App.tsx` blocker existed**; `/settings` was retired and `/profile` redirects to `/me`, already the routed account surface |
+| `376e30b0` | `#648` | owner/ops | nothing — makes the premise gate the agent's first command | — |
+
+⭐ **`SUPPLY-2` never ran.** It was blocked on `TSX-1` merging (exact-path `pnpm-lock.yaml` collision,
+`lane_overlap.mjs` compares exact membership). **`TSX-1` has now merged, so `SUPPLY-2` is UNBLOCKED**
+and is the DPDP arc's one outstanding lane. Its scope is owner-ruled: **(c) targeted now, full sweep
+as a separate later PR.**
+
+### ⭐⭐ WHAT THE ARCHIVE CONTAINS THAT NO COMMIT MESSAGE COULD
+
+Three items from `WAVE_STATE_WAVE_DPDP_B_ARCHIVE.md` that would have been lost outright:
+
+1. 🛑 **`[FU-DEVDEPS-SHIP-TO-PRODUCTION]` — the load-bearing fact about this backend.**
+   `lazytopper/server/index.cjs` line 4 is a **bare, unguarded `require('typescript')`** while
+   `firebase-admin` two lines below sits inside a `try` — **and `typescript` is a devDependency.**
+   ⇒ **the gateway cannot boot at all unless the Dockerfile's no-prune holds.** The install is
+   unfiltered and the no-prune is deliberate, so *"not reachable, it's a devDependency"* is **FALSE
+   for this project** — **all 121 Dependabot alerts are production surfaces**, whichever manifest
+   section they sit in. It bit **three times in one wave** (`tsx`, the `typescript` require, and
+   `accountExport.test.cjs`'s runtime TS load).
+2. 🛑 **`#638`'s rollback cause is STILL UNKNOWN, and the search space narrowed rather than closed.**
+   **Two lanes independently cleared the gateway:** a gateway boot crash **cannot fail the Railway
+   healthcheck at all**, because `/shared-api/healthz` is served by api-server's Express router and
+   the gateway is a **restarting child**. ⇒ **do not read `#644`'s green deploy as having fixed the
+   rollback.** The first error line from `#638`'s failed deployment is the only remaining input and
+   **only the owner has it.**
+3. ⚠ **Railway "Wait for CI" is OFF.** The owner disabled it to get past the SUPPLY-2 blocker.
+   **A merge right now deploys with no check having passed.** State it plainly either way in the next
+   handoff; restore it the moment `SUPPLY-2` lands. ⭐ The owner also **retracted his own claim** that
+   *"a bot failure blocks every production deploy"* — he observed **one** skipped deployment
+   (`fc4ed9d5`). **The accurate statement: Railway gated the deploy of `#638` on THAT COMMIT's check
+   suite. Whether it gates every commit is UNKNOWN.** Do not let any lane inherit the universal.
+
+### ⇒ CARRY FORWARD VERBATIM — ⚠ RE-DERIVED AGAINST TRUNK `eeafb99b`, NOT COPIED
+
+**⭐ CARRY FORWARD VERBATIM NEVER MEANS CARRY FORWARD UNCHECKED.** A carry-forward instruction is
+**itself a claim about the repo** and goes stale; this one has already cost five days once and a
+superseded wave-note once.
+
+**`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy — do not restate that trio as dormant.**
+What is dormant **now**, at `eeafb99b`, is **two things, both ended by the same lane:**
+
+1. **`expectedMarks`** — zero consumers outside `src/prediction/`. **`ME-2` is what ends it.**
+2. **`#647` (`TOPICHUB-1`) is a CONSUMER WITH NO PRODUCER — dead code on trunk until `ME-2` ships.**
+
+```bash
+$ git grep -n 'concept=' origin/base/approved-thru-437 -- lazytopper/src/lib/desktop/navigation.ts
+#  -> ZERO hits.  Nothing in the product emits ?concept= into /topic-hub.
+```
+
+### ⚠⚠ THE RISK THAT MUST TRAVEL — `#647` IS NOW **DEAD CODE ON TRUNK**, NOT A DORMANT DRAFT
+
+This is a **live risk, not a note**, and its status changed when `#647` merged. While `#647` was a
+draft, "consumer with no producer" was a design constraint on a branch. **It is now shipped code that
+no student can reach**, awaiting a producer that has not been built. **`buildDesktopTopicHubPath` is
+structurally incapable of emitting it** (`DesktopRouteContext` is `{source, returnTo}` only) and HPQ
+does not link to `/topic-hub` at all ⇒ **reachable today only by a hand-typed URL.**
+
+➜ `lazytopper/src/lib/desktop/navigation.ts` belongs in **`ME-2`'s** allowlist; `ME-2` owns
+`MeProgressPage.tsx` and must emit the CTAs anyway, so it is the natural producer. **`ME-C` must treat
+the producer as `ME-2`'s FIRST obligation, not a trailing detail.** *(Owner-ratified, `R6`.)*
+`[FU-TOPICHUB-CONCEPT-PRODUCER]`
+
+⚠ **`ME-2` must emit EXACTLY**
+`/topic-hub/<grade>/<subject>/<topicSlug>?concept=<EXACT boardEssentials name, URI-encoded>`
+— **the verbatim label. NOT a slug, NOT a `conceptKey`, NOT lower-cased.** `BoardConcept` has **no key
+field**; **the row's identity IS its name.** `[FU-CONCEPT-LABEL-IS-THE-ONLY-CONCEPT-ID]`
+
+⚠ **`#646` TOUCHED `lazytopper/src/pages/MeProgressPage.tsx`** — it imports and renders
+`<AccountDataControls />` as the page's last section (verified above by line and symbol). **`ME-2`
+rebuilds that file wholesale and MUST PRESERVE that section.** Deleting it would silently remove a
+student's DPDP data-download and account-delete controls — **a privacy regression shipped by a
+redesign.**
+
+### ⭐ `[FU-STEP-SOLUTIONS-TABLE-NEVER-CREATED]` — VERIFIED HERE, AND THE MECHANISM IS SHARPER THAN REPORTED
+
+The deploy log shows `relation "step_solutions" does not exist` (42P01). **The earlier statement
+that *nothing in the repo creates it* is very nearly right but not exact, and the difference changes
+the remedy.** Enumerated, never counted:
+
+```bash
+$ git grep -n 'step_solutions' -- . ':!handoff/' ':!docs/' ':!*.md'
+#  -> 12 hits.  11 are SELECT / INSERT / DELETE in stepSolution.cjs, adminSolutionCache.cjs,
+#     questions.cjs, pregen-step-solutions.mjs, warmup-solution-cache.mjs.
+#     The 12th is a DECLARATION:  lib/db/src/schema/stepSolutions.ts:3
+#       export const stepSolutionsTable = pgTable("step_solutions", { ... })
+$ git grep -in 'create table' -- . ':!handoff/' ':!docs/' ':!*.md'
+#  -> 8 hits.  generated_questions and question_reports only.  NONE for step_solutions.
+$ git grep -n 'stepSolutionsTable' -- .
+#  -> 3 hits, ALL inside lib/db/src/schema/stepSolutions.ts.  ZERO importers.
+```
+
+⇒ **The table IS declared — as a Drizzle schema nothing applies.** `lib/db/package.json` exposes
+`"push": "drizzle-kit push --config ./drizzle.config.ts"`, a **manual** operation wired into no boot
+path and no CI job. **Contrast `generated_questions`, which has BOTH the Drizzle schema AND a runtime
+`CREATE TABLE IF NOT EXISTS` in `server/db/ensureGeneratedQuestionsTable.cjs`, invoked at boot from
+`server/index.cjs`** — which is why the same deploy log reports it `ready`.
+
+The cache **fails soft** — `getCachedSolution` catches and returns `null` — so correctness is
+unaffected. **But every step solution has always been regenerated from Gemini.** ⇒ **a COST line, not
+a bug**, and a candidate for the unexplained August spend. **The remedy is one command or one
+`ensure*` module, not new schema work** — that is what the correction buys.
+
+### 🛑 NEW — AN OWNER CHANGE REQUEST WAS RULED, THEN MERGED PAST
+
+The DPDP-B close-out records the owner's ruling verbatim: *"declare `tsx` in `dependencies`, NOT
+`devDependencies` … **VERIFY `#644` DECLARED IT IN `dependencies`; if it went to `devDependencies`,
+that is a change request before merge.**"* Verified against trunk:
+
+```bash
+$ node -e "const p=require('./lazytopper/package.json'); console.log(p.dependencies&&p.dependencies.tsx, p.devDependencies&&p.devDependencies.tsx)"
+undefined  catalog:          # i.e. devDependencies.tsx = "catalog:", dependencies.tsx absent
+```
+
+⇒ **`#644` merged with `tsx` in `devDependencies`.** The ruling was recorded in a file that lived on
+one disk and never reached a reviewer. **The gateway's warmup child is therefore correct only while
+the Dockerfile's no-prune comment holds** — which is the exact contingency
+`[FU-DEVDEPS-SHIP-TO-PRODUCTION]` exists to name. **This is a one-line move, and it is an owner
+decision, not a lane's.** `[FU-TSX-DECLARED-IN-DEVDEPENDENCIES]`
+
+⭐ **The general lesson, which is bigger than the line:** *a ruling recorded only in an untracked
+state file is a ruling that does not exist.* This is the same failure as the missing close-out,
+one level down.
+
+### ✅ `[FU-DPDP-B-NO-CLOSEOUT-HANDED-OVER]` — **CLOSED**, and the mechanism named
+
+Closed **by supplying the missing artefact**, not by deferral: the close-out is archived above.
+**The mechanism, stated so it binds the next controller:**
+
+> **A controller standing down without opening a handoff PR must state the EXACT PATH of its
+> close-out file, and the fact that it is UNARCHIVED, as the LAST LINE of its final message.**
+
+**One line among many is not a handover.** The DPDP-B controller did the hard part correctly — it
+wrote a complete, honest close-out to disk and **refused to open a premature handoff PR**, which was
+the right call under Rule 0 because none of its lanes were on trunk at the time. **What failed was
+purely the handover of the file's location**, and the cost was one wave's student-facing work
+travelling with no record at all.
+
+### VALIDATION (this docs PR)
+
+`scope:guard --mode docs` **before `git add`** (it reads the working tree and goes vacuous once
+committed) · `check:mojibake` **after staging** (`git ls-files`, tracked-only, so an unstaged file is
+invisible to it) · `git diff --check` · **a per-file heading census, before vs after, set-differenced
+per file** — uniqueness is not completeness.
+⚠ **`check:mojibake`'s green is REPORT-ONLY for `handoff/`** (`REPORT_ONLY_PREFIXES = ['handoff/']`),
+so **an injection control was run** to prove the matcher can fire on this lane's own added lines —
+**a zero from a matcher nobody proved can fire is indistinguishable from a dead matcher**, and 608
+mojibake lines once sat on trunk in this very file while the gate ran green.
+⭐ **This PR's CI run is the first full-bar integration check that sees `#644`, `#645`, `#646`, `#647`,
+`#648` and `#649` composed together on one tree** — every product PR runs only against its own base.
+
+---
+
+
+## (superseded) [CURRENT] Wave ME-B CLOSED — the student's *why* now survives the click, three consecutive concept resolvers were wrong, and both lanes sit on GREEN DRAFT PRs that are **not on trunk** — trunk `376e30b0`
 
 **`2026-08-09` · closing docs PR for Wave ME-B.** Three build lanes were dispatched. **Two returned
 PASS, one returned BLOCKED with ZERO FILES — and that was the correct outcome.** A fourth (`ME-2`,
