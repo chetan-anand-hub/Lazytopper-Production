@@ -35,6 +35,10 @@ import {
   progressArcStateKind,
 } from "../components/progress/ProgressWindowArc";
 import { UpgradeSheet } from "../components/subscription/UpgradeSheet";
+// ★ DPDP (SETTINGS-1). /me is the account surface — /settings was retired and /profile
+// redirects here — so the student's export and erasure rights live on the one routed
+// page a signed-in student can already reach from the nav.
+import AccountDataControls from "../components/account/AccountDataControls";
 
 /**
  * MeProgressPage — ONE responsive Me / Progress surface for every width.
@@ -969,6 +973,11 @@ export default function MeProgressPage() {
           )}
         </div>
       </section>
+
+      {/* ── DPDP: download my data / delete my account (SETTINGS-1) ──
+          Last section on the page by design: it is a rarely-used, irreversible control
+          and must not sit above the student's work. */}
+      <AccountDataControls />
 
       <p className="lt-me__footer">
         Every number here comes from your saved attempts and graded answers. An empty
