@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, screen, cleanup, within, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { setMatchMediaMatches } from "../../test/setup";
@@ -386,5 +386,112 @@ describe("findVisualForConcept — no wrong visual (PR-C anti-fabrication)", () 
 
   it("returns null when the chapter does not resolve at all", () => {
     expect(findVisualForConcept("Maths", "no-such-chapter", ["anything"])).toBeNull();
+  });
+});
+
+describe("ConceptSpine — arrival concept marker (?concept= lands here)", () => {
+  // jsdom does not implement scrollIntoView and the component guards on its presence,
+  // so the spy is what makes the scroll observable at all.
+  let scrollSpy: ReturnType<typeof vi.fn>;
+  let had: boolean;
+
+  beforeEach(() => {
+    had = "scrollIntoView" in Element.prototype;
+    scrollSpy = vi.fn();
+    (Element.prototype as unknown as { scrollIntoView: unknown }).scrollIntoView =
+      scrollSpy;
+  });
+  afterEach(() => {
+    if (!had) {
+      delete (Element.prototype as unknown as { scrollIntoView?: unknown })
+        .scrollIntoView;
+    }
+  });
+
+  function renderWithArrival(arrivalConceptName?: string | null) {
+    return render(
+      <MemoryRouter>
+        <ConceptSpine
+          topic={trig}
+          actionable={trigContent}
+          backHref="/exam-trends"
+          backLabel="Back to Exam Trends"
+          practiceAllHref="/practice-hub?scope=topic"
+          chapterTestHref="/chapter-test/10/Maths/trigonometry?source=topicHub"
+          practiceHrefForConcept={(c) =>
+            `/practice/10/Maths?focus=${encodeURIComponent(c.name)}`
+          }
+          tutorHrefForConcept={(c) =>
+            `/tutor/10/Maths/trigonometry?concept=${encodeURIComponent(c.name)}`
+          }
+          arrivalConceptName={arrivalConceptName}
+        />
+      </MemoryRouter>,
+    );
+  }
+
+  it("marks exactly the named row and scrolls it into view", () => {
+    const target = trigContent.boardEssentials[1].name;
+    const { container } = renderWithArrival(target);
+    const marked = container.querySelectorAll('[data-arrival-concept="true"]');
+    expect(marked).toHaveLength(1);
+    expect(marked[0].textContent).toContain(target);
+    expect(scrollSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("gives the marked row the green ring class, and no other row", () => {
+    const target = trigContent.boardEssentials[1].name;
+    const { container } = renderWithArrival(target);
+    expect(container.querySelectorAll(".lt-spine__card--arrival")).toHaveLength(1);
+  });
+
+  it("CONTROL — with no arrival concept nothing is marked and nothing scrolls", () => {
+    const { container } = renderWithArrival(undefined);
+    expect(
+      container.querySelectorAll('[data-arrival-concept="true"]'),
+    ).toHaveLength(0);
+    expect(container.querySelectorAll(".lt-spine__card--arrival")).toHaveLength(0);
+    expect(scrollSpy).not.toHaveBeenCalled();
+    // Every row still renders — the default path is untouched.
+    expect(container.querySelectorAll(".lt-spine__row")).toHaveLength(
+      trigContent.boardEssentials.length,
+    );
+  });
+
+  it("a name that matches no row is a no-op, not an error", () => {
+    const { container } = renderWithArrival("qqqzzz-not-a-concept");
+    expect(
+      container.querySelectorAll('[data-arrival-concept="true"]'),
+    ).toHaveLength(0);
+    expect(scrollSpy).not.toHaveBeenCalled();
+    expect(container.querySelectorAll(".lt-spine__row")).toHaveLength(
+      trigContent.boardEssentials.length,
+    );
+  });
+
+  it("the arrival badge pins the exact copy, claims no performance, shows no figure", () => {
+    const target = trigContent.boardEssentials[1].name;
+    const { container } = renderWithArrival(target);
+    const badge = container.querySelector(".lt-spine__badge--arrival")!;
+    // Pin the exact owner ruling so a silent revert or drift is caught.
+    expect(badge.textContent).toBe("You came here for this.");
+    // The copy states only HOW the student arrived, so the no-performance-claim
+    // assertion is restored alongside the numeric one. (A "costing you marks" wording
+    // was withdrawn by the owner on doctrine grounds; this guard was REPLACED rather
+    // than deleted at each step, because its old regex did not match that wording and
+    // would have passed vacuously while shipping the very claim its name denied.)
+    expect(badge.textContent).not.toMatch(/[0-9]/);
+    expect(badge.textContent).not.toMatch(
+      /marks|mistake|accuracy|weak|%|score|attempts?|lost|costing/i,
+    );
+  });
+
+  it("no row is collapsed by an arrival — every row keeps its use line", () => {
+    // The rows have no hidden content and are never collapsed, so an arrival must not
+    // remove information from the other rows.
+    const target = trigContent.boardEssentials[1].name;
+    const { container } = renderWithArrival(target);
+    const withUse = trigContent.boardEssentials.filter((c) => c.oneLineUse).length;
+    expect(container.querySelectorAll(".lt-spine__row-use")).toHaveLength(withUse);
   });
 });
