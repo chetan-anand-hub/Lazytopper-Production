@@ -1,3 +1,251 @@
+## 2026-08-11 — WAVE ME-C (one product lane + one read-only scout) and WAVE CLOSEOUT (four lanes), all on trunk `9682ba02`
+
+**`2026-08-11`**
+
+> ★★ **The verdicts below are useless without their reasons, so the reasons are recorded and the
+> verdicts are not recorded alone.** Two of this wave's most useful entries are decisions that were
+> **later disproved** — an owner ruling withdrawn by the owner himself, and two controller stall
+> diagnoses that were confidently wrong. **Both the outcome and the reasoning are kept, because a
+> right outcome reached by wrong reasoning is the failure mode this project has a standing rule
+> about.**
+
+### DECISION 1 — trunk is re-derived at every step and never carried
+
+**The brief that dispatched this handoff quoted `a18c6e45`. It had already moved** — `#656`
+(Dependabot, `codeql-action` 3→4) merged after dispatch. `git ls-remote origin base/approved-thru-437`
+is the only authority.
+
+**Reason:** this is the **second wrong SHA handed to a lane in this wave** (the first was a stale
+byte-count and hash pair for a source file, corrected in the brief itself), and the brief explicitly
+predicted a third. ★ **A figure quoted in a brief is a claim about the repo at authoring time, and a
+brief is never authored at the moment it is read.**
+
+### DECISION 2 — cover the CENSUS, not the carried list
+
+The brief named four unrecorded PRs and **instructed the lane not to trust that list.** A per-file
+grep of all seven `handoff/` files on trunk, for **every** merged PR number, returned **six** zeroes:
+`#651`, `#652`, `#653`, `#654`, `#655`, **`#656`**.
+
+**Reason:** the carried list **omitted `#656` entirely** — a Dependabot merge nobody tracked — and
+could not include `#651`, because **a docs PR never names itself.** ★ **That instrument has now proved
+a carried number wrong three waves running.** **Run the census; do not cover the list.**
+
+### DECISION 3 — both wave-state files were ARCHIVED INTO THE REPO BEFORE ANY EDITING
+
+`handoff/WAVE_STATE_ME_C_ARCHIVE.md` and `handoff/WAVE_STATE_CLOSEOUT_ARCHIVE.md`, verified
+byte-identical with **`git hash-object`, never `git diff`**:
+`b650485b967c39007d464802cdbeb33ddf6afa68` and `4cc7f91972520d8b4cd912b95b45027cd2158444`, source and
+archive alike.
+
+**Reason:** both existed on **ONE DISK**, untracked, in the shared checkout only. **These are the
+FIFTH and SIXTH single-disk exposures this project has had, and the first four all needed rescuing
+after the fact.** `git diff` was refused as the verification method because it compares working-tree
+content through normalisation; `hash-object` compares the bytes git will actually store.
+`[FU-DPDP-B-NO-CLOSEOUT-HANDED-OVER]`
+
+### DECISION 4 — `DesktopRouteContext` must NOT gain a `concept` field
+
+A dedicated **optional third argument** was used instead.
+
+**Reason:** `addContext` is shared by **all SEVEN builders** (`buildDesktopConceptPracticePath`,
+`…PracticePath`, `…WorksheetPath`, `…ChapterTestPath`, `…TopicHubPath`, `…CheckPath`, `…MePath`).
+A field on the shared type **would silently let six unrelated URLs emit `concept`.** ★ **Mutation M5
+proved the hazard was real — it leaked all six other builders at once.** The spec's framing
+(*"DesktopRouteContext is {source, returnTo} only"*) reads as an invitation to widen it; **that is the
+hazard, not the fix.**
+
+### DECISION 5 — the concept identifier is the EXACT `boardEssentials` label, URI-encoded
+
+`?concept=Tetravalency+and+catenation+of+carbon`. **Not a slug. Not a `conceptKey`. Not lower-cased.**
+
+**Reason:** **`BoardConcept` has NO key field — a concept's identity IS its name.**
+⚠ **Three consecutive concept resolvers were specified across this arc and ALL THREE WERE WRONG.**
+Every catch came from the same practice: **the candidate was handed on flagged `UNVERIFIED` with an
+instruction to VERIFY rather than INHERIT.** `[FU-CONCEPT-LABEL-IS-THE-ONLY-CONCEPT-ID]`
+
+### DECISION 6 — `<AccountDataControls />` is PRESERVED, last section, copy verbatim, portal intact
+
+**Reason:** `#646` put it into `MeProgressPage.tsx`, and `ME-2` rebuilt that file **wholesale**.
+Deleting it would silently remove a minor's DPDP data-download and account-delete controls — **a
+privacy regression shipped by a redesign.** ⚠ **It renders through a `document.body` portal that is
+LOAD-BEARING against the transformed `<main>`**; a rebuild that "tidies" the portal away makes the
+confirm button **unreachable** — the exact defect the DPDP screenshots caught the previous wave.
+✅ **Verified preserved by absence, not by assertion:** `MeProgressPage.dpdpReach.test.tsx` is
+**ABSENT from `#655`'s diff**, so the compliance tests passed **unmodified** against 2,311 changed
+lines.
+
+### DECISION 7 — `handoff/BRIEF_ME-2.md` was marked DO-NOT-FOLLOW and superseded
+
+**Reason:** it is **UNTRACKED, absent from trunk, never reviewed, never CI-exposed** — and **its page
+spec enumerates EIGHT sections omitting the DPDP controls entirely.** A lane following it literally
+**deletes a minor's legally-required export and erasure controls and reds 9 tests.** Its ten
+genuinely-unique specifications were folded into a v2 brief.
+➜ ★ **A brief written to `handoff/` but never committed has no provenance, no review, no CI exposure,
+and is invisible from every worktree. Commit it or do not cite it as authority.**
+`[FU-BRIEF-UNTRACKED-AUTHORITY]`
+
+### DECISION 8 — ★★ THE LANE DISPROVED THE OWNER RULING IT WAS GIVEN, AND THE OWNER WITHDREW IT
+
+**Ruling as given:** *"darken the segment tones to clear 4.5:1 with navy at normal size."*
+**Ruling as shipped: LIGHTER — the opposite of the literal instruction, for a measured reason.**
+
+**Reason:** `--me-navy` is the **TEXT** colour, so **darkening a segment LOWERS the ratio.** Contrast
+is `(L_lighter + 0.05)/(L_darker + 0.05)` and **navy is the darker surface.** Segments need
+`L ≥ 0.3238`; the two failures sat at `0.2426`/`0.2607`. The lane **also measured the literal darken
+route** — white numerals would need `L ≤ 0.1833`, taking `unclassified` from 72% → 48% and
+**abandoning the ruling's own criterion** — and then **reported instead of building around it.**
+
+✅ **The owner independently recomputed the threshold and both baselines, found they match to four
+decimals, and withdrew his own ruling.** ★ **The handling is the decision worth reusing: build the
+measured thing, state plainly that it contradicts the instruction, and hand back the arithmetic.**
+
+★★ **AND THE WORKAROUND IT REPLACED WAS NEVER VALID.** The `18.66px` large-text premise the entire
+original ruling rested on **was never true below 1024px** — `.lt-me--mobile .lt-me__seg` renders
+**16px/700**. At 360/390/1023 those numerals were **normal text at 3.51/3.73 with no exemption at
+all.** *The ruling was right for a stronger reason than the one given.*
+
+### DECISION 9 — the segment render floor is PER-CHARACTER, not flat
+
+`0.12 flat → 0.053 per character` (1ch 5.3% / 2ch 10.6% / 3ch 15.9%), derived at 360px from a
+**measured** 9.2035px digit advance in a 248px bar.
+
+**Reason, owner-approved verbatim:** *"a flat floor clipping a three-digit numeral into a different
+number under `overflow:hidden` is a correctness bug, not a cosmetic one."* ★ **A flat floor could not
+simply be lowered** — 11% flat clips a 3-digit numeral into **a different, wrong number.** 360px
+result: before printed `46/18` only; after prints `46/18/9/7`, DOM-verified.
+
+### DECISION 10 — ★★★ A CONTRAST FIGURE IS MEASURED, OR IT IS NOT A FIGURE
+
+> *"Every contrast number I've been wrong about in this arc was **arithmetic I did rather than
+> measured**."* — the owner
+
+**Four wrong figures in one arc, all four the cofounder's, all four computed rather than measured, and
+the measuring probe was right every time.** ➜ **Do not publish a computed ratio.**
+`[FU-CONTRAST-FIGURES-MUST-BE-MEASURED]`
+⚠ **Corollary from the login arc: a probe that does not composite alpha, or that ignores gradient
+backdrops, reports FALSE failures.** The probe must be right before its disagreement is evidence.
+
+### DECISION 11 — `[FU-ME-LEGEND-SWATCH-NONTEXT-CONTRAST]` ruled ACCEPTABLE, border DEFERRED
+
+**Reason:** the swatches are `aria-hidden` and **the adjacent label carries the meaning**, so
+**WCAG 1.4.11's 3:1 does not bind.** The owner offered a `1px --line` border *"if it's free"*.
+⚠ **It was not free** — `#655`'s base was already updated and CI was running on the merged head, so
+another push cost a full CI cycle and delayed the merge. **Deferred to the follow-up, and flagged so
+the owner could overrule.**
+
+### DECISION 12 — inline styles are permitted for DATA-DRIVEN values only
+
+Segment width and segment colour may use an inline style object; **all static styling goes in the
+page's CSS classes.**
+
+**Reason:** `CLAUDE.md` §7 bans inline styles *"in new components"*, and a full rebuild arguably makes
+this new. **Ruled rather than left to guess**, and flagged to the owner as a doctrine-adjacent ruling
+rather than silently taken.
+
+### DECISION 13 — "Journey — +N marks a paper" was NOT BUILT
+
+**Reason:** it is a **percentage delta × an 80-mark paper the student has not sat** — a performance
+projection, which `CLAUDE.md` §5 forbids. ★ **This is the no-fake-data doctrine catching a line in the
+OWNER-APPROVED PROTOTYPE.** Honest raw-marks movement shipped instead. **Owner ruling owed on whether
+to overrule.**
+
+### DECISION 14 — `ProgressWindowArc` was UNMOUNTED rather than retained
+
+**Reason:** it renders `%` at **8 sites** and `/me` was its **ONLY** mount. *"Marks, never
+percentages"* and mounting it cannot both hold.
+⚠ **The cost is recorded with the decision:** it is now **zero-mounts-with-a-live-suite — the
+`MentorSolveDrawer` shape that read as LIVE across six handoff documents.** **A green suite on an
+unreachable component is the evidence that misleads the next reader.**
+➜ **Delete-or-keep is owed.** `[FU-PROGRESSWINDOWARC-UNMOUNTED]`
+
+### DECISION 15 — lanes were RESUMED, not re-dispatched, after two mid-run deaths
+
+**Reason:** a resumed agent keeps its context (`ME-2`'s run 1 held ~180k tokens of it); a fresh lane
+would have to **re-derive what is already committed.** Both recoveries used `SendMessage` on the same
+agentId. `ME-2`'s resume was instructed to (1) state context remaining before anything else,
+(2) checkpoint a report + commit **before building further**, and (3) return BLOCKED if below ~35%.
+
+★★ **The rule this broke, and the fix:** the standing rule writes the report *after gates pass, before
+composing the return* — **a mid-run crash lands EARLIER than that.** ➜ **Write a partial report at the
+FIRST SUBSTANTIVE FINDING, not the first green gate.**
+`[FU-SUBAGENT-DIES-BEFORE-GATES-LOSES-EVERYTHING]`
+
+### DECISION 16 — ⚠ TWO CONTROLLER STALL DIAGNOSES WERE WRONG, AND ARE KEPT VISIBLE
+
+`CONTAINER-GATE`'s stall was diagnosed as a long-running Docker build or CI watch. **Both wrong.** It
+was **the harness's own Bash safety classifier returning "temporarily unavailable"**, and **no
+long-running local command was ever started** — ★ **Docker is not even installed on this box**
+(`docker: command not found`), so no local build was ever possible and nothing competed with
+`EXPORT-PERF`.
+
+**Reason for keeping the wrong version:** the recovery instruction that worked was written **on** the
+wrong diagnosis. **The outcome was right and the reason was wrong**, which is precisely the failure
+mode this project has a standing rule about. ⚠ Same shape, same wave: the controller **serialised
+lanes partly on a box size of 7.8 GB. The box is 23.77 GB.** The constraint turned out moot; **the
+reasoning was wrong and it was his.** `[FU-SUPPLY2-BOX-SIZE-STALE]`
+
+### DECISION 17 — `EXPORT-PERF` got ONE literal `src/` path, never a glob
+
+`lazytopper/src/services/accountDataService.ts`, named literally, with `MeProgressPage.tsx` and
+`AccountDataControls.tsx` **explicitly FORBIDDEN**.
+
+**Reason:** the wave brief called the lanes *"exact-path disjoint"* from ME-C, **which was true only
+under a constraint the brief did not state** — that path sits **inside** ME-C's `lazytopper/src/**`
+prefix. It is not prefix-disjoint; it is disjoint **file-by-file**. ★ **A glob allowlist here would
+have made a collision with ME-C possible and INVISIBLE UNTIL MERGE.**
+
+### DECISION 18 — `SUPPLY-2` was dispatched on a CORRECTED allowlist
+
+`.github/dependabot.yml`, `pnpm-workspace.yaml`, `lazytopper/package.json`, `pnpm-lock.yaml` —
+**not** root `package.json`.
+
+**Reason:** root `package.json` has **no `pnpm.overrides`**; the `esbuild "0.27.3"` pin lives in
+**`pnpm-workspace.yaml`**. ★ **Granting the wrong file reproduces the unsatisfiable-allowlist failure
+DPDP-B already made once** — and shipping an unsatisfiable allowlist is a failure this project has
+already paid for.
+
+### DECISION 19 — `tsx`→`dependencies` folded into `SUPPLY-2` rather than getting its own lane
+
+**Reason:** exact-path collision on `lazytopper/package.json`. **Two lanes editing one manifest is how
+a lockfile race starts.**
+⚠ **The finding behind it is bigger than the fix: `#644` merged with `tsx` in `devDependencies`
+AGAINST THE OWNER'S EXPLICIT RULING**, recorded in the DPDP-B close-out as *"that is a change request
+before merge."* **The ruling existed only on one disk.** ➜ **A RULING RECORDED ONLY IN AN UNTRACKED
+STATE FILE IS A RULING THAT DOES NOT EXIST.** It is not that a record was lost — **an owner decision
+was silently not carried out and no gate could see it.**
+
+### DECISION 20 — `#651` was merged AS AUTHORED rather than rewritten to cover the wave
+
+**Reason, and it is the reusable part:** `#650` was **WRONG** — it asserted shipped code was
+unshipped. **`#651` was merely INCOMPLETE** — authored before `#652`/`#653`/`#654` existed, it made
+**no claim about them at all.** ⚠ **Incomplete is safe to merge; wrong is not.** Rewriting `#651` to
+describe three unmerged drafts **would have recreated `#650`'s exact failure**, which is the very
+thing `#651` shipped as a finding. **The remainder is covered here, after the fact, by census.**
+`[FU-HANDOFF-DOCS-PR-STALE-AT-MERGE]`
+
+### DECISION 21 — the container gate is a SEPARATE workflow with relevance classified INSIDE the job
+
+**Reason:** GitHub runs workflows concurrently, so PR cost is **`max()`, not `sum`** — measured:
+**added wall-clock ZERO**, baseline 6m57s median (n=10) → 7m05s, with Container Boot finishing **4m13s
+EARLIER** than Quality Gate. ★ **Never a workflow-level `paths:` filter, because a required check that
+never runs strands a PR on "expected — waiting for status".** The classifier emits `skip`, never
+`relevant`, so it **fails OPEN**, and it was proven **both ways**.
+
+### DECISION 22 — a mutation that would be a FALSE RED was recorded, not banked
+
+The `remove tsx` mutation against the container gate dies on `ERR_PNPM_OUTDATED_LOCKFILE` **before
+reaching the probe**.
+
+**Reason:** ★ **an acceptance criterion satisfied by something you did not build does not test what
+you built** — and a red that comes from the wrong cause is not evidence at all. Related, and worse:
+**the brief's stated minimum bar contained a `MOUNT != LIVE` error** — *"AI Gateway started"* is **the
+PARENT's post-`spawn()` log**. **Control-proven: a log carrying the parent line but not the child's
+FAILS the lane's gate; using the brief's line it would have gone GREEN. The gate as specified would
+have been decorative.**
+
+
+---
+
 ## 2026-08-09 — WAVE ME-B, three lanes + two read-only scouts under a controller + subagent model (`#647` · `#649`, both DRAFT with green CI, trunk `376e30b0`)
 
 **`2026-08-09`**

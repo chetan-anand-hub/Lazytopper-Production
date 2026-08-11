@@ -1,9 +1,131 @@
 # LazyTopper — Next Action
-# Updated: 2026-08-09 (post-**WAVE CLOSEOUT**, lane `HANDOFF-CATCHUP`, docs-only. Trunk `eeafb99b`. **THE PREVIOUS BLOCK IS WRONG, NOT MERELY STALE:** `#647` and `#649` **ARE** on trunk - both merged BEFORE `#650`, which says they are drafts. **The DPDP code IS running in production** - `#644` landed, the gateway boots, and `#646` gave it a student-facing surface on `/me`. Wave DPDP-B's close-out existed on ONE DISK and is now archived. **`ME-2` is the next lane and carries THREE hard constraints, one of them a privacy regression risk.** `SUPPLY-2` is UNBLOCKED and is the DPDP arc's last lane.)
+# Updated: 2026-08-11 (post-**WAVE ME-C** + the close of **WAVE CLOSEOUT**, docs-only. Trunk `9682ba02`. **`/me` IS REBUILT AND ON TRUNK** - `#655` shipped the v7.1 page: a four-segment marks bar, the concepts costing the most, and a Topic Hub that opens on the exact concept. **All four CLOSEOUT lanes merged** - `#651`/`#652`/`#653`/`#654`. **`expectedMarks` IS STILL DORMANT** - the brief predicted two dormancies would end and only `?concept=` and `mistakeRetry` did. **`ProgressWindowArc` is now the `MentorSolveDrawer` shape: zero mounts, live suite.** **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.** Two live-verifies OWED.)
+# Previously: 2026-08-09 (post-**WAVE CLOSEOUT**, lane `HANDOFF-CATCHUP`, docs-only. Trunk `eeafb99b`. **THE PREVIOUS BLOCK IS WRONG, NOT MERELY STALE:** `#647` and `#649` **ARE** on trunk - both merged BEFORE `#650`, which says they are drafts. **The DPDP code IS running in production** - `#644` landed, the gateway boots, and `#646` gave it a student-facing surface on `/me`. Wave DPDP-B's close-out existed on ONE DISK and is now archived. **`ME-2` is the next lane and carries THREE hard constraints, one of them a privacy regression risk.** `SUPPLY-2` is UNBLOCKED and is the DPDP arc's last lane.)
 # Previously: 2026-08-09 (post-**WAVE ME-B**: `#647` TOPICHUB-1 + `#649` RETRY-1, **BOTH OPEN DRAFTS WITH GREEN CI AND NEITHER ON TRUNK** - `gh pr ready` is the owner's step. Trunk `376e30b0`, which moved FOUR times during the wave. `ARRIVAL-1` returned BLOCKED with ZERO FILES and that was correct. **`ME-2` was NOT STARTED and passes whole to Wave ME-C.** **THREE consecutive concept resolvers were specified and all three were wrong**, caught only because each was handed on flagged UNVERIFIED. **`#647` is a CONSUMER WITH NO PRODUCER - if `ME-2` does not ship, it is dead code.**)
 # Previously: 2026-08-09 (post-**WAVE DPDP-A**: #640 · #639 · #638, three lanes + two read-only scouts. Trunk `6f7da56e`. 🛑🛑 **`#638` IS MERGED AND CANNOT DEPLOY** — production serves the `#639` build; the `#638` boot crashed on an undeclared `tsx` and Railway rolled it back. **DPDP-B's FIRST lane is that fix, ahead of `EXPORT-1` and `SETTINGS-1`.** Every DPDP-A lane disproved a premise of its own dispatching document, two of them the controller's own. **ONLY A BOOT PROVES IT RUNS.**)
 # Previously: 2026-08-09 (post-**WAVE ME-A**: #634 · #641 · #637 · #636, four lanes + two scouts, plus the four commits already unrecorded when it opened — #629 · #630 · #632 · #631 · #633. Trunk `e8f89863`. FOUR open PRs, none of them ME: #638/#639/#640 are the DPDP arc's live drafts, #635 is the owner's ops-docs PR. Every ME-A lane disproved part of its own spec. **Wave ME-B opens with `ARRIVAL-1` + `RETRY-1` under a FRESH controller; `ME-2` is Wave ME-C.**)
 # Previously: 2026-08-07 (post-**WAVE 5F**: #619 · #620 · #625 · #621 · #626 · #627, four lanes. Trunk `fbfb57fa`. ZERO open PRs. Typed grading LIVE-VERIFIED end to end, including the control. **Wave 5G opens with `ME-PROGRESS`.**)
+
+## NEXT — 2026-08-11 (post-Wave ME-C). Read this block first.
+
+**Trunk `9682ba02e135daa98f0db6a30ecfac76652dd226`** — re-derive with
+`git ls-remote origin base/approved-thru-437`. ⚠ **The brief that dispatched this handoff quoted
+`a18c6e45` and it had already moved** (`#656` merged after dispatch). Re-derive; never inherit.
+
+### 0 — ***** THE ONE THING THAT MUST NOT BE MISSED *****
+
+> ## ✅ **A student can now see, on `/me`: where their marks went in a four-segment bar, the concepts costing them most, and a Topic Hub that opens on the exact concept they came for. Both papers separately. In marks, never percentages.**
+> ## 🛑 **BUT `expectedMarks` IS STILL DORMANT.** The ME-C brief predicted `ME-2` would end TWO dormancies. **It ended `?concept=` and `mistakeRetry` ONLY** — both proven by differential build against trunk. **Do not let the next document inherit the claim that `expectedMarks` was wired.**
+> ## 🛑 **AND A NEW DORMANCY OPENED: `ProgressWindowArc` has ZERO MOUNTS AND A LIVE TEST SUITE** — the exact `MentorSolveDrawer` shape that read as LIVE across six handoff documents.
+
+### 1 — ⚠⚠ OWNER, LAUNCH-BLOCKING AND UNRULED: `[FU-DPDP-GUARDIAN-CONSENT]`
+
+**Class 10 students are minors.** The DPDP arc has now shipped export (`#645`, `#652`), erasure
+(`#638`), and the student-facing controls (`#646`) — **and the guardian-consent question has never
+been ruled.** This is not an engineering task and no agent lane can close it. It is **legal, and it
+blocks launch.** Ruling it is the single highest-value thing the owner can do next.
+
+Alongside it: **`[FU-EXPORT-BLOB-INLINE-LEGAL-CALL]` — must a DPDP export inline the student's
+uploaded images at all?** `EXPORT-PERF` was instructed to RAISE and NOT decide it. Still open.
+
+### 2 — TWO LIVE-VERIFIES ARE OWED, AND ONE HAS A TRAP
+
+**`#652` — the DPDP export.** Download `/api/account/export` in production on an account **with
+uploaded photos**. ⚠ **Check Railway's active commit FIRST** — a merge is evidence about the
+repository, not about the running system. **What a CORRECT result looks like, so it is not misread:**
+completes, no 502; `recordsExported` non-zero; **`"complete": false` is CORRECT** (`ok` should be
+`true`); **a `207` is the budget working as designed** — read the disclosures and ask for
+`LT_EXPORT_BUDGET_MS` to be raised; `locations[]` in map order. Both surfaces, one session carrying
+pre-change state.
+
+**`#655` — `/me`.** Open `/me` as a student with graded attempts. Confirm the four-segment bar, the
+concept CTAs, and that tapping one **opens the Topic Hub on the named concept** and not on the
+chapter. ⚠ Also confirm the **DPDP controls are still there, last on the page, and the confirm
+button is clickable** — the portal is load-bearing and a rebuild is exactly when it goes.
+
+### 3 — DECISIONS OWED BEFORE THE NEXT LANE IS SCOPED
+
+1. **`ProgressWindowArc`** — delete, re-home, or overrule marks-only on `/me`? ⚠ **Do not let it sit
+   unmounted-but-tested.** A green suite on an unreachable component is the evidence that misleads
+   the next reader. `[FU-PROGRESSWINDOWARC-UNMOUNTED]`
+2. **`/full-mock` lost its `/me` entry point** — the section is absent from the prototype AND both
+   briefs. Intended? `[FU-ME-FULLMOCK-ENTRY-POINT]`
+3. **The journey line** — accept honest raw-marks movement, or rule that "+N marks a paper" is
+   allowed? ⚠ It is a **percentage delta × an 80-mark paper the student has not sat**, i.e. a
+   performance projection, which `CLAUDE.md` §5 forbids. **The lane declined to build it and said so.**
+4. **The device-local attempt-history seam has no rendered statement anywhere.**
+   `[FU-ME-HISTORY-DEVICE-LOCAL]`
+5. **Railway Wait-for-CI: ON or OFF?** The CLOSEOUT brief said back ON; `HANDOFF-CATCHUP` reported
+   still OFF; `SUPPLY-2` **could not verify** (no CLI, no token, dashboard-only, absent from
+   `railway.json`) and its one discriminating test **failed to discriminate**. **Dashboard question,
+   owner's alone.** Nothing shipped depends on the answer; only urgency framing does.
+
+### 4 — THE DEPENDABOT BACKLOG IS PARTLY A TRIAGE HABIT, NOT A CODE FAULT
+
+★★★ **`#589` (dompurify) passed ALL FIVE checks on 2026-08-03 and was CLOSED UNMERGED.**
+**43 fail / 10 succeed in 60 runs — Dependabot works for DIRECT deps and fails only on transitive.**
+`SUPPLY-2` fixed the transitive half (57/121 advisories, 4/4 criticals). **The other half is merge
+behaviour.** `[FU-SUPPLY2-DEPENDABOT-PRS-CLOSED-UNMERGED]`
+
+⚠ **Three bot PRs are open right now: `#657` (npm-minor-and-patch group, 58 updates), `#658` (jsdom
+29→30), `#659` (@testing-library/jest-dom 6→7).** `#656` (codeql-action 3→4) merged cleanly — a
+DIRECT bump, consistent with the finding. **Triage them; do not let them age into the same backlog.**
+Remaining sweep: `[FU-SUPPLY2-FULL-SWEEP]` (64 of 121 advisories still open).
+
+### 5 — CANDIDATE LANES, IN THE ORDER THEY ARE WORTH DOING
+
+1. **`[FU-ERASE-SEQUENTIAL-WALK-ABORT-RISK]` — OPEN/CONFIRMED, and it needs its own lane and a
+   throwaway account.** The erasure path does a sequential walk with one-at-a-time
+   `delete`/`ref.delete`/`file.delete`. `EXPORT-PERF` confirmed it and was instructed to report, not
+   fix. **This is the export bug's twin on a path that DESTROYS data**, which is why it is first.
+2. **`ProgressWindowArc` delete-or-keep**, once ruled (item 3.1). Small, and it clears a
+   `MentorSolveDrawer`-shaped trap.
+3. **`expectedMarks`** — decide whether it gets a consumer or gets deleted. It has now survived two
+   waves being described as "about to be wired". `[FU-EXPECTEDMARKS-STILL-DORMANT]`
+4. **`[FU-STEP-SOLUTIONS-TABLE-NEVER-CREATED]`** — ★ **the remedy is ONE COMMAND, not schema work.**
+   `step_solutions` IS declared (`lib/db/src/schema/stepSolutions.ts`, Drizzle `pgTable`) with **zero
+   importers**, and `drizzle-kit push` is manual and in no boot path.
+5. **`[FU-GATEWAY-UNGUARDED-TYPESCRIPT-REQUIRE]`** — five `require('typescript')` sites, only
+   `warmQuestionPool.cjs` guards it.
+6. **`[FU-CONTAINER-GATE-NOT-REQUIRED-CHECK]`** — the container gate is not a required check, so it
+   can go red without blocking. ⚠ Making it required has a known trap: **a required check that never
+   runs strands a PR on "expected — waiting for status"**, which is why relevance is classified
+   INSIDE the job and the classifier fails OPEN. Do not "simplify" it into a `paths:` filter.
+
+### 6 — ⚠ STANDING METHOD NOTES THIS WAVE EARNED
+
+★★ **A FILE WITH THE RIGHT NAME IS NOT THE RIGHT FILE.** *"An attached document is not a file"* tells
+you to write attachments to disk. It does **not** tell you to check that the file **already sitting
+there under that name** is the same version. `LazyTopper_MeProgress_v7_FINAL.html` — named LOCKED and
+FINAL — **was v7**; v7.1 existed only as a chat attachment. **The artefact created specifically to
+prevent the DPDP deletion would have caused it.** `[FU-LOCKED-ARTEFACT-VERSION-UNVERIFIED]`
+
+★★ **A CONTRAST FIGURE IS MEASURED OFF THE RENDERED DOM WITH ALPHA COMPOSITING, OR IT IS NOT A
+FIGURE.** Four were wrong in this arc, **all four computed rather than measured, and the probe was
+right every time.** Do not publish a computed ratio.
+`[FU-CONTRAST-FIGURES-MUST-BE-MEASURED]`
+
+★★ **A LANE MUST CHECKPOINT DURING THE BUILD, NOT AT THE END OF IT.** The standing rule says write
+the report to disk *after gates pass, before composing the return*. **A mid-run crash lands EARLIER
+than that.** `ME-2`'s run 1 died at ~180k tokens with **no report on disk**; `CONTAINER-GATE` stalled
+with **one unpushed commit as the only copy of its work and every piece of its evidence lost.**
+➜ **write a partial report at the FIRST SUBSTANTIVE FINDING, not the first green gate.**
+`[FU-SUBAGENT-DIES-BEFORE-GATES-LOSES-EVERYTHING]`
+
+★ **Resume, do not re-dispatch.** Both stalled lanes were recovered by `SendMessage` on the same
+agentId, preserving context. A fresh lane would have re-derived what was already committed.
+
+★ **Two stall diagnoses this wave were WRONG, and both were the controller's.** `CONTAINER-GATE`'s
+stall was **the harness's own Bash safety classifier returning "temporarily unavailable"** — no
+long-running local command was ever started, and **Docker is not even installed on this box.**
+**The outcome was right and the reason was wrong**, which is the failure mode this project has a
+standing rule about.
+
+★ **Line references are not carried.** All shifted by `#646` and again by `#655`. Cite by quote or
+symbol, never by line number.
+
+
+---
 
 ## NEXT — 2026-08-09 (post-Wave CLOSEOUT). Read this block first.
 

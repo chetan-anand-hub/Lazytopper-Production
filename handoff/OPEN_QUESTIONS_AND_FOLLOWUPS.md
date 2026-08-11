@@ -11,6 +11,323 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 ---
+## 2026-08-11 — WAVE ME-C + WAVE CLOSEOUT (lane `HANDOFF-ME-C`, docs-only). Trunk `9682ba02`.
+
+**`2026-08-11`**
+
+> ## ⭐⭐ **THE ENTRY BELOW THAT MATTERS MOST IS NOT A BUG. It is `[FU-CONTRAST-FIGURES-MUST-BE-MEASURED]` — a method finding with four instances in one arc, all four the cofounder's, ALL FOUR COMPUTED RATHER THAN MEASURED, and the measuring probe was right every single time.**
+
+> ## 🛑 **AND THE ONE THAT BLOCKS LAUNCH IS `[FU-DPDP-GUARDIAN-CONSENT]`. It is UNRULED. It is the owner's. No agent lane can close it.**
+
+---
+
+### `[FU-CONTRAST-FIGURES-MUST-BE-MEASURED]` — NEW. ★ **The wave's method finding.**
+
+**A contrast figure is measured off the rendered DOM with alpha compositing, or it is not a figure.**
+
+Four contrast figures were wrong across the `/me` arc. **All four were the cofounder's. All four were
+computed rather than measured. Every one that was later measured moved, and the live
+alpha-compositing probe disagreed with hand-arithmetic in all four cases and was right in all four.**
+
+The four:
+1. The login page's `#071a3d` substituted for `--me-navy` — **wrong surface colour.**
+2. `BRIEF_ME-2_v2.md` §6's white-on-conceptual cell says **`4.03`; it measures `3.38`.**
+3. **The "darken" direction.** `--me-navy` is the TEXT colour, so darkening a segment **LOWERS** the
+   ratio: contrast is `(L_lighter + 0.05)/(L_darker + 0.05)` and **navy is the darker surface.**
+4. **The `18.66px` large-text premise** the whole original ruling rested on — **never true below
+   1024px.** `.lt-me--mobile .lt-me__seg` renders **16px/700**, which does not qualify. At
+   360/390/1023 those numerals were **normal text at 3.51/3.73 with no exemption at all.**
+
+Owner, in his own words: *"Every contrast number I've been wrong about in this arc was **arithmetic I
+did rather than measured**."*
+
+➜ **REMEDY: do not publish a computed ratio.** Composite the alpha, read the rendered DOM, and quote
+the measurement with its recipe. ⚠ **A probe that does not composite alpha, or that ignores gradient
+backdrops, reports FALSE failures** — the login arc saw `1.09:1` for legible text from exactly that
+bug. **The probe must be right before its disagreement is evidence.**
+
+---
+
+### `[FU-PROGRESSWINDOWARC-UNMOUNTED]` — NEW. **Decide delete-or-keep. Do not leave it.**
+
+`ProgressWindowArc` **renders `%` at 8 sites and `/me` was its ONLY mount.** *"Marks, never
+percentages"* and mounting it cannot both hold, so `#655` removed the mount.
+
+**It is now ZERO MOUNTS WITH A LIVE TEST SUITE — the exact `MentorSolveDrawer` shape that read as
+LIVE across SIX handoff documents and was not.** ★ **A green suite on an unreachable component is
+the evidence that misleads the next reader**, because a reader who greps for coverage finds it and
+stops looking.
+
+➜ **Owner decision: retire it, re-home it onto a surface where percentages are honest, or overrule
+marks-only on `/me`.** ⚠ **Do not let it sit unmounted-but-tested.** That is the state this project
+has now been burned by twice.
+
+---
+
+### `[FU-EXPECTEDMARKS-STILL-DORMANT]` — NEW, and it is a **correction to a prediction**
+
+The Wave ME-C brief's Rule 0 said `ME-2` would end **two** dormancies — `expectedMarks`, and `#647`'s
+dead-consumer status. **Only the second happened.**
+
+**Ended, both proven by differential build against trunk (not asserted):** `?concept=` (`set("concept"`
+absent from trunk's navigation chunk, present after; live browser emitted
+`?concept=Tetravalency+and+catenation+of+carbon`) and `mistakeRetry` (`"Re-do that one"` /
+`"Try one like it"` in **no chunk at `eeafb99b`**, present after).
+
+**NOT ended:** `expectedMarks` has **zero consumers outside `src/prediction/`** and `#655` did not
+reach it. ⚠ **It has now survived two waves being described as "about to be wired."**
+➜ **Give it a consumer or delete it. Do not let a third document inherit the claim that it is live.**
+
+---
+
+### `[FU-ME-LEGEND-SWATCH-NONTEXT-CONTRAST]` — **RULED ACCEPTABLE. NO FIX. Recorded with its reason.**
+
+Legend swatches must match the segments, so swatch-vs-card drops to `2.62`/`2.61` (`secured 2.70` and
+`unclassified 2.05` already failed). **WCAG 1.4.11's 3:1 does NOT bind here:** the swatches are
+`aria-hidden` and **the adjacent text label carries the meaning**, so they are decorative rather than
+a required non-text indicator.
+
+Owner: add a `1px --line` border *"if it's free"*. ⚠ **It was not free** — `#655`'s base was already
+updated and CI was running on the merged head; another push cost a full CI cycle. **DEFERRED, not
+shipped in `#655`.** ➜ **Pick it up in any lane that next touches the page CSS.**
+
+★ Recorded in full because *a verdict without its reason is useless*: a later reader who sees only
+"acceptable" will re-raise it, and a later reader who sees only "2.61" will "fix" a non-defect.
+
+---
+
+### `[FU-SUPPLY2-DEPENDABOT-PRS-CLOSED-UNMERGED]` — NEW. ★ **A triage habit, not a code fault.**
+
+**`#589` (dompurify) opened on 2026-08-03, passed ALL FIVE checks, and was CLOSED UNMERGED.**
+Measured across 60 runs: **43 fail / 10 succeed.** **Dependabot is NOT universally broken — it works
+for DIRECT dependencies and fails only on transitive ones**, because the job spec sets
+**`"update-subdependencies": false`** (the catalog hypothesis is **disproved**:
+`security_update_not_possible {"dependency-name":"react-router", …}` in the log, and `grep -in catalog`
+→ exit 1 with a control proving the grep works).
+
+➜ **The wave premise — *"Dependabot is broken, fix the root cause"* — was HALF WRONG, and the half
+that was wrong is the owner's own merge behaviour.** `#654` fixed the transitive half.
+**The other half is triage.**
+⚠ **Live right now: `#657` (npm-minor-and-patch group, 58 updates), `#658` (jsdom 29→30), `#659`
+(@testing-library/jest-dom 6→7) are OPEN and un-triaged.** `#656` (codeql-action 3→4) merged
+cleanly — **a DIRECT bump, exactly as the finding predicts.**
+Related: `[FU-SUPPLY2-FULL-SWEEP]` (64 of 121 advisories remain) ·
+`[FU-SUPPLY2-LANE-OVERLAP-BLOCKS-DEPENDABOT]` (`lane-overlap` COUNTS DRAFTS, so bot PRs deadlock
+against lanes) · `[FU-SUPPLY2-JSYAML-4X-PINNED-BY-ORVAL]` ·
+`[FU-SUPPLY2-ESBUILD-OVERRIDE-PINS-VULNERABLE]` (the `esbuild "0.27.3"` pin lives in
+**`pnpm-workspace.yaml`**, NOT root `package.json` — root has **no `pnpm.overrides`**; granting the
+wrong file reproduces the unsatisfiable-allowlist failure DPDP-B already made once) ·
+`[FU-SUPPLY2-MSYS-NOPATHCONV-BREAKS-NATIVE-TOOLS]` (`MSYS_NO_PATHCONV=1`, the `gh api` remedy in
+circulation, **breaks native Windows binaries taking paths in the same shell**) ·
+`[FU-SUPPLY2-BOX-SIZE-STALE]` (**the box is 23.77 GB, not the 7.8 GB every brief states** — lanes
+were serialised partly on that stale number; **the constraint turned out moot, but the reasoning was
+wrong, and it was the controller's**).
+
+---
+
+### `[FU-STEP-SOLUTIONS-TABLE-NEVER-CREATED]` — **VERIFIED AND REFINED. The remedy is ONE COMMAND.**
+
+The deploy log shows `relation "step_solutions" does not exist` (42P01). The earlier statement that
+*nothing in the repo creates it* is **very nearly right but not exact, and the difference changes the
+remedy.**
+
+**`step_solutions` IS declared** — `lib/db/src/schema/stepSolutions.ts`, a Drizzle `pgTable` — with
+**ZERO importers**, and **`drizzle-kit push` is manual and in no boot path.** By contrast
+`generated_questions` has **both** a schema **and** a boot-time `CREATE TABLE IF NOT EXISTS`.
+
+➜ **The cost conclusion stands; the mechanism previously relayed did not.** This is a `drizzle-kit
+push` (or an equivalent boot-time create), **not schema work.** ★ Kept open deliberately: a finding
+whose remedy was mis-stated will be re-scoped as a large task by the next reader.
+
+---
+
+### `[FU-DOCKERFILE-ENV-ORDER-UNDEFENDED]` — NEW
+
+The Dockerfile's `ENV` ordering is load-bearing at boot and **nothing asserts it.** `#653` now builds
+and boots the image, so **a gate that could catch a reordering finally exists** — but this specific
+invariant is not yet asserted inside it. Fold into the next lane touching the container gate.
+Related: `[FU-CONTAINER-GATE-NOT-REQUIRED-CHECK]` — the container gate is **not a required check**, so
+it can go red without blocking a merge. ⚠ **Making it required has a known trap: a required check
+that never runs strands a PR on "expected — waiting for status"**, which is exactly why relevance is
+classified INSIDE the job and the classifier **fails OPEN** (emits `skip`, never `relevant`). **Do
+not "simplify" it into a workflow-level `paths:` filter.**
+Also `[FU-CONTAINER-GATE-TSX-MUTATION-IS-LOCKFILE-RED]` — the obvious `remove tsx` mutation against
+the container gate is a **FALSE RED**: a frozen install dies on `ERR_PNPM_OUTDATED_LOCKFILE` before
+reaching the probe. **Recorded, never banked as evidence.**
+And `[FU-GATEWAY-UNGUARDED-TYPESCRIPT-REQUIRE]` — the brief cited ONE `require('typescript')`;
+**there are FIVE**, and only `warmQuestionPool.cjs` guards it.
+
+---
+
+### `[FU-ERASE-SEQUENTIAL-WALK-ABORT-RISK]` — **OPEN / CONFIRMED. Needs its own lane.**
+
+`EXPORT-PERF` **confirmed** this one rather than disproving it: the erasure path does a sequential
+walk with one-at-a-time `delete` / `ref.delete` / `file.delete`. **Reported, not fixed**, exactly as
+instructed.
+
+★ **This is the export bug's twin on a path that DESTROYS data.** The export version was measured at
+**MAX CONCURRENT I/O = 1** and **327 sequential round trips for 300 documents in ONE location** — and
+crucially, **fixing only the location-level walk would have PASSED A LOCATION-LEVEL TEST while
+leaving ~300 of 327 round trips untouched.** ⚠ **Any erasure lane must assert at the DOCUMENT level,
+or it will ship a green suite over a still-broken flow.**
+➜ **Needs a throwaway account. Do not test this on real data.**
+
+---
+
+### `[FU-EXPORT-BLOB-INLINE-LEGAL-CALL]` — **OWNER. Legal, not engineering.**
+
+**Must a DPDP export inline the student's uploaded images at all?** `EXPORT-PERF` was instructed to
+RAISE and **not decide** it, and did. It drives export size, cost and latency, and it is the single
+biggest remaining lever on the export path. **Raise alongside `[FU-DPDP-GUARDIAN-CONSENT]`.**
+Companion: `[FU-EXPORT-GETALL-BATCHING]` (NEW) — the batching remedy that made `10374 ms → 810 ms`
+possible with **identical 667 I/O ops and 625 records**.
+
+---
+
+### 🛑 `[FU-DPDP-GUARDIAN-CONSENT]` — **OWNER · UNRULED · LAUNCH-BLOCKING**
+
+**Class 10 students are minors.** The DPDP arc has now shipped export (`#645`, `#652`), erasure
+(`#638`), and the student-facing controls (`#646`), and the gateway boots (`#644`, gated by `#653`).
+**The engineering is done. The consent question has never been ruled.**
+
+**No agent lane can close this.** It is a legal determination and it blocks launch. ⚠ It has been
+carried across **four** waves as "referenced" — Standing Rule 1 exists precisely because a name
+without a body reads as recorded. **This is its body. It is unruled.**
+
+---
+
+### `[FU-LOCKED-ARTEFACT-VERSION-UNVERIFIED]` — NEW. ★★ **A file with the right name is not the right file.**
+
+`LazyTopper_MeProgress_v7_FINAL.html` on disk — named **LOCKED** and **FINAL** — **was v7, not
+v7.1.** Zero hits for `ydata`, `yourData`, "Download my data", "Delete my account" or the string
+`v7.1`; its `render()` called `deeper(d) + pickerSheet()` with **no DPDP section in the pipeline at
+all.** **v7.1 existed only as a chat attachment.**
+
+⚠ **Had `ME-2` been dispatched at the file bearing the LOCKED/FINAL name, it would have received the
+prototype WITHOUT the DPDP section and read the absence as a deletion** — the precise harm the wave
+brief spends a paragraph warning against. ➜ **The artefact created specifically to prevent the DPDP
+deletion would have caused it.**
+
+★ **THE EXISTING RULE IS NOT SUFFICIENT, AND THAT IS THE FINDING.** *"An attached document is not a
+file"* tells you to write attachments to disk on receipt. **It does not tell you to check that the
+file already sitting there under that name is the same version.** ➜ **VERIFY THE VERSION, NOT THE
+FILENAME.** Caught only because the controller checked the prototype for on-disk mojibake and noticed
+the `<title>` said `v7` while the attachment said `v7.1`.
+Related: `[FU-BRIEF-UNTRACKED-AUTHORITY]` — **a brief written to `handoff/` but never committed has
+no provenance, no review, no CI exposure, and is invisible from every worktree** — yet
+`handoff/BRIEF_ME-2.md` was dispatched as authority and **its page spec enumerates EIGHT sections
+omitting the DPDP controls entirely.** A lane following it literally **deletes a minor's
+legally-required export and erasure controls and reds 9 tests.** **Commit it or do not cite it.**
+
+---
+
+### `[FU-SUBAGENT-DIES-BEFORE-GATES-LOSES-EVERYTHING]` — NEW, and it fired TWICE in one wave
+
+The standing rule says write the report to disk *after gates pass, before composing the return*.
+**A mid-run crash lands EARLIER than that**, so the rule as written has a window in which everything
+is lost.
+
+- **`ME-2` run 1** was killed by an API error at ~180k subagent tokens and 27 tool uses, at the moment
+  it announced *"Now the rebuild. Writing the new page."* — **zero commits, nothing pushed, NO REPORT
+  FILE WRITTEN.**
+- **`CONTAINER-GATE` stalled** with **one unpushed commit (`a4791733`) as the only copy of its work**,
+  and the mutation result, cost measurement and per-sighting analysis existing **only in that agent's
+  context.**
+
+➜ **REMEDY: a partial report written at the FIRST SUBSTANTIVE FINDING, not at the first green gate.**
+★ **Recovery that worked, both times: `SendMessage` to RESUME the same agentId**, preserving its
+context. A fresh lane would have to re-derive what is already committed.
+⚠ **Related, and it is a controller error worth keeping visible:** the stall was diagnosed as a long
+local command. **It was the harness's own Bash safety classifier returning "temporarily unavailable",
+and Docker is not even installed on this box.** **The outcome was right and the reason was wrong** —
+the failure mode this project has a standing rule about.
+
+---
+
+### `[FU-HANDOFF-DOCS-PR-STALE-AT-MERGE]` — carried, and it **nearly fired again this wave**
+
+*A handoff PR not merged the same hour must re-check its own headline before merge.* `#650` was
+**TRUE when authored at `376e30b0` and false by the time it merged.**
+
+★ **The distinction that decides what to do with an aging docs PR:** `#650` was **WRONG** (it
+asserted shipped code was unshipped). `#651` was merely **INCOMPLETE** (authored before `#652`/`#653`/
+`#654` existed, it made no claim about them). ⚠ **Incomplete is safe to merge; wrong is not** — and
+rewriting `#651` to describe three unmerged drafts **would have recreated `#650`'s exact failure.**
+It was merged as-authored and this PR covers the rest. **That was the right call and the reasoning is
+recorded so it can be reused.**
+
+---
+
+### `[FU-MISTAKE-TONE-FREEZE-RATIONALE-FALSE]` — NEW
+
+The freeze's stated reason — *"used verbatim across the scorecard, MI card and history"* — is
+**FALSE**: `MISTAKE_TONE` is declared **inside `MeProgressPage.tsx`, is not exported, and has exactly
+ONE consumer (the same file)**. The scorecard uses CSS classes; the MI panel has a separate
+`TYPE_TONE` with **different values**.
+
+★ **The reason was fixed, not just the outcome** — *a lane that verifies a false reason concludes the
+whole rule is void.* The owner subsequently **unfroze it**, confirming the disproof himself.
+⚠ **Corollary that must travel: `MISTAKE_TONE` is page-local, so a rebuild that forgets to carry it
+forward loses it silently.**
+
+---
+
+### Smaller `/me` entries — all NEW from `#655`
+
+- **`[FU-ME-DUPLICATE-H1-AT-MOBILE]`** — two `<h1>` exist on `/me` below 1024px. **PRE-EXISTING**,
+  from `MobileShell.tsx`. ★ **Invisible to the suite because tests mount the page without the app
+  shell** — the same class of blind spot as `[FU-TEST-MUST-MOUNT-THE-OUTER-ROUTER]`.
+- **`[FU-ME-FULLMOCK-ENTRY-POINT]`** — `/full-mock` lost its `/me` entry point; the section is absent
+  from the prototype **and both briefs**. **Owner: confirm intended.**
+- **`[FU-ME-HISTORY-DEVICE-LOCAL]`** — the device-local attempt-history seam now has **no rendered
+  statement anywhere.** A student is not told their history does not follow them between devices.
+- **`[FU-ME-STREAM-FILTER-REMOVED]`** and **`[FU-ME-CROSS-STREAM-SPLIT-SKEW]`** — the stream filter is
+  gone and the two-paper split can skew when a student's attempts are lopsided across streams.
+- **`[FU-GRADER-DEDUCTION-WITHOUT-TYPE]`** — carried, **server-side, out of `ME-2`'s scope.** The
+  grader deducts on a step carrying **no `mistakeType`**, which feeds the `unclassified` segment.
+  ⚠ **This is a live defect behind a number a student now reads on `/me`.**
+
+---
+
+### Closed this wave
+
+- **`[FU-TOPICHUB-CONCEPT-PRODUCER]`** — CLOSED by `#655`. ⚠ **`[FU-CONCEPT-LABEL-IS-THE-ONLY-CONCEPT-ID]`
+  stands as doctrine:** `BoardConcept` has **no key field; a concept's identity IS its name.** The URL
+  carries **the exact `boardEssentials` label, URI-encoded — not a slug, not a `conceptKey`, not
+  lower-cased.** **Three consecutive resolvers were specified in one wave and all three were wrong.**
+- **`[FU-TOPICHUBPATH-ZERO-TEST-COVERAGE]`** — CLOSED by `#655`.
+- **`[FU-RETRY-NO-BUILD-CHUNK-YET]`** — CLOSED; chunk cited.
+- **`[FU-TSX-DECLARED-IN-DEVDEPENDENCIES]`** — CLOSED by `#654`. ⚠ **It took an extra wave because
+  the owner's ruling existed only on one disk.** ➜ **A ruling recorded only in an untracked state
+  file is a ruling that does not exist.**
+- **`[FU-EXPORT-FETCH-NO-TIMEOUT]`**, **`[FU-EXPORT-502-READS-AS-NOT-BUILT]`** — CLOSED by `#652`.
+  ⚠ The prescribed 5xx fix was **insufficient on its own**: `classifyFailure` is reached only when the
+  body **parses as JSON**, and production's 502 is an **HTML edge page** hitting the earlier
+  `!parsed` return — **which is where `NOT_LIVE_MESSAGE` actually came from.**
+- **`[FU-TSX1-NO-CONTAINER-GATE]`** — CLOSED by `#653`.
+- **`[FU-DPDP-B-NO-CLOSEOUT-HANDED-OVER]`** — CLOSED by `#651`, mechanism named. ★ **This wave
+  honoured it:** both wave-state files were **archived into the repo before any editing**, verified
+  byte-identical with `git hash-object` (ME-C `b650485b967c39007d464802cdbeb33ddf6afa68`, CLOSEOUT
+  `4cc7f91972520d8b4cd912b95b45027cd2158444`). **The fifth and sixth single-disk exposures; the first
+  four all needed rescuing after the fact.**
+
+### Carried, NOT closed
+
+- **`[FU-DEVDEPS-SHIP-TO-PRODUCTION]`** — ⚠ **"it's a devDependency" is FALSE in this repo (no-prune).**
+  `tsx` is fixed; **`typescript` is still exposed.**
+- **`[FU-HANDOFF-DORMANCY-BLOCK-STALE-CARRYFORWARD]`** — ★ **earned itself again this wave.** The
+  WIRE-2 block was carried forward and **its content changed for the third time**: `WIRE-2` ended the
+  `#578`/`#611`/`#617` trio; `#655` ended `#647`'s; **`expectedMarks` did NOT end**; and
+  `ProgressWindowArc` **newly began**. ➜ **A carry-forward instruction is itself a claim about the
+  repo and goes stale. CARRY FORWARD VERBATIM NEVER MEANS CARRY FORWARD UNCHECKED.**
+- **Railway Wait-for-CI** — **UNADJUDICATED.** The CLOSEOUT brief said ON; `HANDOFF-CATCHUP` said
+  OFF; `SUPPLY-2` **could not verify** (no CLI, no token, dashboard-only, absent from `railway.json`)
+  and ★ **its one discriminating test failed to discriminate** — Railway deployed a fully-green
+  commit, **consistent with ON *or* OFF.** **Owner's call; it is a dashboard question.** Nothing
+  shipped depends on the answer, only the urgency framing.
+
+---
+
 ## 2026-08-09 — WAVE CLOSEOUT (lane `HANDOFF-CATCHUP`, docs-only, no PR of its own until this one). Trunk `eeafb99b`.
 
 **`2026-08-09`**

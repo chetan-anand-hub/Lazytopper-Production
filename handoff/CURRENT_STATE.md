@@ -1,6 +1,368 @@
 # LazyTopper — Current State
 
-## [CURRENT] Wave CLOSEOUT — the record catches up with trunk: `#647` and `#649` **ARE** on trunk, DPDP-B's five unrecorded commits finally have a lane record, and the DPDP code **is running in production** — trunk `eeafb99b`
+## [CURRENT] Wave ME-C + Wave CLOSEOUT — a student can see where their marks went, and open the Topic Hub on the exact concept that cost them — trunk `9682ba02`
+
+**`2026-08-11` · one docs-only PR closing TWO waves at once.** Wave CLOSEOUT built four lanes and
+merged none of them when its controller wrote its draft; all four are now on trunk. Wave ME-C ran
+ONE product lane, `ME-2`, and it is on trunk too.
+
+> ## ✅ **A student can now see, on `/me`: where their marks went in a four-segment bar, the concepts costing them most, and a Topic Hub that opens on the exact concept they came for. Both papers separately. In marks, never percentages.**
+
+**Trunk at authoring: `9682ba02e135daa98f0db6a30ecfac76652dd226`** — re-derived, not remembered:
+
+```bash
+$ git ls-remote origin base/approved-thru-437
+9682ba02e135daa98f0db6a30ecfac76652dd226	refs/heads/base/approved-thru-437
+```
+
+⚠ **The dispatching brief for this handoff quoted `a18c6e45`. It had already moved** — `#656`
+(Dependabot, `codeql-action` 3→4) merged after dispatch. Re-derived, not inherited. **Second wrong
+figure handed to a lane in this wave; the standing instruction to re-derive earned itself again.**
+
+### ⇒ WHAT IS ON TRUNK SINCE THE LAST HANDOFF (`#651`, `485f6a36`)
+
+```
+9682ba02  #656  chore(deps): bump github/codeql-action from 3 to 4          Dependabot
+a18c6e45  #655  ME-2            rebuild /me on the v7.1 prototype           Wave ME-C
+50170da8  #652  EXPORT-PERF     a student can finish their data export      Wave CLOSEOUT
+65a5a2ab  #653  CONTAINER-GATE  build and boot the image                    Wave CLOSEOUT
+e9ec4e0a  #654  SUPPLY-2        patch what Dependabot cannot reach          Wave CLOSEOUT
+485f6a36  #651  docs(handoff)   the record catches up with trunk            Wave CLOSEOUT
+```
+
+★ **The census that produced this list is the instrument, not the carried list.** The dispatching
+brief named four unrecorded PRs (`#652`/`#653`/`#654`/`#655`) and told this lane not to trust it.
+A per-file grep of all seven `handoff/` files on trunk for every merged PR number returned **six**
+zeroes, not four: **`#656` was omitted from the brief entirely** (a Dependabot merge nobody
+tracked), and **`#651` appears nowhere in its own output** because a docs PR never names itself.
+Both are covered here. **That instrument has now proved a carried number wrong three waves running.**
+
+---
+
+### 🛑 THREE CLAIMS THE NEXT DOCUMENT MUST NOT INHERIT
+
+**1 · `expectedMarks` IS STILL DORMANT.** The ME-C brief predicted `ME-2` would end **two**
+dormancies. It ended **`?concept=` and `mistakeRetry` ONLY.** Both endings were proven by a
+**differential build against trunk** — the strings `"Re-do that one"` / `"Try one like it"` appear in
+**no chunk at `eeafb99b`** and appear in `MeProgressPage-*.js` after; `set("concept"` is absent from
+trunk's navigation chunk and present after. **`expectedMarks` was not reached and has zero consumers
+outside `src/prediction/`.** Do not let any document claim it was wired.
+`[FU-EXPECTEDMARKS-STILL-DORMANT]`
+
+**2 · `ProgressWindowArc` is now ZERO-MOUNTS-WITH-A-LIVE-SUITE — the `MentorSolveDrawer` shape.**
+That is the exact configuration that read as **LIVE across six handoff documents** and was not. It
+renders `%` at 8 sites and `/me` was its **ONLY** mount; "marks, never percentages" and mounting it
+cannot both hold, so `ME-2` removed the mount. **A green suite on an unreachable component is the
+evidence that misleads the next reader.** ➜ **decide delete-or-keep; do not let it sit
+unmounted-but-tested.** `[FU-PROGRESSWINDOWARC-UNMOUNTED]`
+
+**3 · THE DPDP SURFACE SURVIVED THE REBUILD.** `MeProgressPage.dpdpReach.test.tsx` is **ABSENT from
+`#655`'s diff** — verified twice, on head `8656cfb1` and again on head `e2e8a793`, by reconciling
+`gh pr view --json files` against `git diff --name-only <merge-base>..<head>` (identical lists, 5
+files both times). **The compliance tests passed UNMODIFIED against 2,311 changed lines.** They were
+not rewritten to fit new markup. This is the strongest available evidence that
+`<AccountDataControls />` was preserved rather than reshaped — and it is the second wave running in
+which a document handed to a lane omitted that section entirely.
+
+---
+
+### ⇒ CARRY FORWARD VERBATIM — ⚠ RE-DERIVED AGAINST TRUNK `9682ba02`, NOT COPIED
+
+**⭐ CARRY FORWARD VERBATIM NEVER MEANS CARRY FORWARD UNCHECKED.** A carry-forward instruction is
+**itself a claim about the repo** and goes stale.
+
+**THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — and it has changed again.**
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.**
+The previous handoff then recorded **two** things dormant at `eeafb99b`. **One of those is now
+resolved, one is not, and a new one has opened:**
+
+1. ~~`#647` (`TOPICHUB-1`) is a consumer with no producer~~ — **ENDED by `#655`.** `navigation.ts`
+   now emits `?concept=`, verified live in a browser as
+   `?concept=Tetravalency+and+catenation+of+carbon` — the **exact `boardEssentials` name,
+   URI-encoded. The label, not a slug, not a `conceptKey`, not lower-cased.** `BoardConcept` has
+   **no key field**; the row's identity IS its name.
+   `[FU-TOPICHUB-CONCEPT-PRODUCER]` **CLOSED.** `[FU-CONCEPT-LABEL-IS-THE-ONLY-CONCEPT-ID]` stands
+   as doctrine.
+2. **`expectedMarks` is STILL DORMANT** — see claim 1 above. `ME-2` did **not** end it.
+3. **NEW: `ProgressWindowArc` is dormant** — see claim 2 above.
+
+⚠ **`<AccountDataControls />` ships inside `MeProgressPage.tsx` and is a legal-compliance surface.**
+Any future lane rebuilding that page must preserve it, **last, with its copy and its `document.body`
+portal intact** — the portal is load-bearing against the transformed `<main>`; "tidying" it away
+makes the confirm button unreachable, the exact defect the DPDP screenshots caught last wave.
+
+---
+
+## Wave ME-C — lane `ME-2`, PR `#655`, merged `a18c6e45`
+
+| lane | PR | what it changed | what it disproved |
+|---|---|---|---|
+| SCOUT-1 | — (read-only) | nothing | 12 stale claims across two inherited briefs — incl. a brief whose page spec omitted the DPDP controls entirely |
+| ME-2 | **#655** `a18c6e45` | `/me` rebuilt on v7.1; emits `?concept=`; consumes `mistakeRetry` | 6 further spec premises |
+
+GATES on `#655`: tsc app / tsc test / mojibake / `scope:guard` (pre-add) / build / verifier /
+lt matrix / root matrix **196 checks, 29 suites, fail 0, skipped 0** / vitest **85 passed (85)**.
+CI **31329859746 PASS** on head `e2e8a793`: `Tests 1800 passed (1800)` / `Test Files 140 passed (140)`.
+CHUNK: `assets/MeProgressPage-D36Ut9li.js` 57,562 bytes. **5 mutations, one at a time, each proven
+applied (`mutated-sha ≠ baseline`), all restored by sha — M1..M5 all RED.** Screenshots at
+1440 / 1023 / 390 / 360.
+
+★ **Controller verification that this project's operating model says nothing currently does:**
+`gh pr view --json files` **reconciled exactly** with `git diff --name-only <merge-base>..<head>` —
+5 files, identical lists, on **both** heads. **This is the check whose absence let `#566` author 4
+files and land 13.** Run here; clean.
+
+### ★ What `ME-2` disproved — six, on top of SCOUT-1's twelve
+
+1. **The prototype's "wiring gap 3" is FALSE.** `marksScored`/`marksAvailable` are ALREADY on
+   `RungTrend` at trunk, doc-commented for this exact page. **The marks hero was buildable all
+   along** — the gap list said it could not exist.
+2. **`ProgressWindowArc` renders `%` at 8 sites and `/me` was its ONLY mount.** Removed.
+3. **"Journey — +N marks a paper" is a PERFORMANCE PROJECTION** (a percentage delta × an 80-mark
+   paper the student has not sat). **NOT BUILT** — honest raw-marks movement shipped instead.
+   ★ This is `CLAUDE.md` §5 "no fake data" catching a line in the **owner-approved prototype**.
+4. **The prototype's first-run example ships the exact tag/subtext contradiction the brief warns
+   about** — "Conceptual gap" against dropped state symbols, which are Presentation. The brief
+   predicted the defect in the abstract; it was live in the locked artefact. Fixed.
+5. **Screenshots found 3 defects every assertion passed:** the remainder row and chapter CTAs
+   rendered ONE LETTER PER LINE at mobile, and a returning student could see another student's
+   example sheet for a beat. ★ *Screenshots change code* — third wave running.
+6. **Two `<h1>` exist on `/me` below 1024px — PRE-EXISTING**, from `MobileShell.tsx`, invisible to
+   the suite because tests mount the page without the app shell.
+   `[FU-ME-DUPLICATE-H1-AT-MOBILE]`
+
+### ★★ THE LANE DISPROVED THE OWNER RULING IT WAS GIVEN — "DARKEN" WAS THE WRONG DIRECTION
+
+The owner ruled *"darken the segment tones to clear 4.5:1 with navy at normal size"*. **`--me-navy`
+is the TEXT colour, so darkening a segment LOWERS the ratio.** Contrast is
+`(L_lighter + 0.05) / (L_darker + 0.05)` and **navy is the darker surface**. A segment needs
+`L ≥ 0.3238`; the two failing segments sat at `0.2426` / `0.2607`. **The lane built LIGHTER**, also
+measured the literal darken route (white numerals would need `L ≤ 0.1833`, taking `unclassified`
+from 72% → 48% and abandoning the ruling's own criterion), and **reported instead of building around
+it.**
+
+✅ **The owner independently recomputed the `L ≥ 0.3238` threshold and both baselines, confirmed they
+match to four decimals, and WITHDREW HIS OWN RULING.** Ship the lighter tones; do **not** go white.
+
+CONTRAST, live alpha-composited off the rendered DOM (navy on tone):
+`careless 3.509 → 4.819` · `gaps 3.729 → 4.835` · `presentation 3.49 → 4.91` ·
+`secured 4.672`, `unclassified 6.153`, `calculation 6.24` already passed and were NOT touched.
+
+**AND THE WORKAROUND IT REPLACED WAS NEVER VALID.** The `18.66px` large-text premise the original
+ruling rested on **was never true below 1024px** — `.lt-me--mobile .lt-me__seg` renders **16px/700**,
+which does not qualify as large text. At 360/390/1023 those numerals were **normal text at
+3.51/3.73 with no exemption at all.** The ruling was right for a stronger reason than the one given.
+
+**Render threshold: `0.12 flat → 0.053 PER CHARACTER`** (1ch 5.3% / 2ch 10.6% / 3ch 15.9%), derived
+at 360px from a measured 9.2035px digit advance in a 248px bar. ★ **A flat floor could not simply be
+lowered — 11% flat clips a 3-digit numeral into a different, wrong number under `overflow:hidden`.**
+Owner approved: *"a flat floor clipping a three-digit numeral into a different number under
+`overflow:hidden` is a correctness bug, not a cosmetic one."* 360px RESULT: before printed `46/18`
+only; after prints `46/18/9/7`, DOM-verified.
+
+### ★★★ THE MECHANISM BEHIND ALL FOUR WRONG CONTRAST FIGURES — owner-identified
+
+> *"Every contrast number I've been wrong about in this arc was **arithmetic I did rather than
+> measured**."*
+
+**This is the finding, not the four corrections.** Four figures were wrong across this arc: the login
+page's `#071a3d` substituted for `--me-navy`; the `4.03` white-on-conceptual cell that **measures
+`3.38`**; the "darken" direction; and the `18.66px` large-text premise. **Every one was computed;
+every one that was later measured moved. The live alpha-compositing probe disagreed with
+hand-arithmetic in all four cases and was right in all four.**
+
+➜ **RULE: a contrast figure is measured off the rendered DOM with alpha compositing, or it is not a
+figure. Do not publish a computed ratio.** `[FU-CONTRAST-FIGURES-MUST-BE-MEASURED]`
+
+### ★★ A FILE WITH THE RIGHT NAME IS NOT THE RIGHT FILE — the wave's standing lesson
+
+`LazyTopper_MeProgress_v7_FINAL.html` on disk — named **LOCKED** and **FINAL** — **was v7, not
+v7.1**: zero hits for `ydata`, `yourData`, "Download my data", "Delete my account" or the string
+`v7.1`, and its `render()` called `deeper(d) + pickerSheet()` with **no DPDP section in the pipeline
+at all.** **v7.1 existed only as a chat attachment.**
+
+⚠ **Had `ME-2` been dispatched at the file bearing the LOCKED/FINAL name, it would have received the
+prototype WITHOUT the DPDP section and read the absence as a deletion.** ➜ **The artefact created
+specifically to prevent the DPDP deletion would have caused it.**
+
+★ **The existing rule is NOT sufficient.** *"An attached document is not a file"* says write
+attachments to disk on receipt. It does **not** say *verify that the file already sitting there under
+the same name is the same version*. **VERIFY THE VERSION, NOT THE FILENAME.** This was caught only
+because the controller checked the prototype for on-disk mojibake and noticed the `<title>` said
+`v7` while the attachment said `v7.1`. `[FU-LOCKED-ARTEFACT-VERSION-UNVERIFIED]`
+
+Remediation taken: built `LazyTopper_MeProgress_v7.1_FINAL.html` = byte-identical locked v7 **plus**
+the three attachment additions (`.ydata` CSS, `yourData()`, its call in `render()`).
+`sha256[:16] = cead874ff631c316`, 39,676 bytes, all six markers present. **v7 left untouched at
+`sha256[:16] = bdd8c818bb43fa1b`, 37,416 bytes.**
+
+---
+
+## Wave CLOSEOUT — four lanes, all now on trunk
+
+### Lane HANDOFF-CATCHUP — `#651`, merged `485f6a36`, CI `31316045316` PASS
+
+`handoff/` was made to describe trunk. `#650`'s `[CURRENT]` was **demoted, not edited**.
+`WAVE_STATE_WAVE_DPDP_B_ARCHIVE.md` is now tracked, byte-identical
+(`38b00b1f71c5b958f1a53c57b8bbb014e43a9b16`, both sides, via `git hash-object`) — **the fourth
+single-disk exposure, and the first closed before it needed rescuing.**
+Mojibake: `ADDED_LINES=735 HITS=0 CONTROL_INJECTED_DETECTED=true`.
+
+★★ **The most consequential thing it found, and not what it was sent for: `#644` merged with `tsx`
+in `devDependencies`, against the owner's explicit ruling** — recorded in the DPDP-B close-out as
+*"that is a change request before merge."* **The ruling existed only on one disk.**
+➜ **A RULING RECORDED ONLY IN AN UNTRACKED STATE FILE IS A RULING THAT DOES NOT EXIST.** Not that
+the record was lost — that **an owner decision was silently not carried out and no gate could see
+it.** `[FU-TSX-DECLARED-IN-DEVDEPENDENCIES]` — **CLOSED by `#654`.**
+
+It also disproved three claims in its own brief: defect 1 was **structural, not carelessness**
+(`#650`'s claim was TRUE when authored at `376e30b0`, false by merge —
+`[FU-HANDOFF-DOCS-PR-STALE-AT-MERGE]`); defect 2 **overstated it** (the five commits DO appear in
+`#650` by PR title — *"no lane record"* is right, *"no record anywhere"* is not); and
+`[FU-STEP-SOLUTIONS-TABLE-NEVER-CREATED]` was **nearly right, not exact** — `step_solutions` **IS**
+declared in `lib/db/src/schema/stepSolutions.ts` as a Drizzle `pgTable` with **zero importers**, and
+`drizzle-kit push` is manual and in no boot path. **The remedy is one command, not schema work.**
+
+### Lane EXPORT-PERF — `#652`, merged `50170da8`, CI `31316880420` PASS
+
+The DPDP export that ran ~120 s and died under the api-server now completes: **10374 ms → 810 ms**,
+with **identical 667 I/O ops and 625 records — the same work, not less work.** A 5xx no longer tells
+the student the feature does not exist, and the client fails honestly on a timeout instead of
+waiting on an upstream abort. ⚠ **LIVE-VERIFY OWED — not accepted until a real download completes in
+production** on an account with uploaded photos.
+
+★★ **The spec sent it at the wrong bottleneck.** Cause #1 was real but **NOT DOMINANT**: measured
+**MAX CONCURRENT I/O = 1** and **327 sequential round trips for 300 documents in ONE location**. The
+critical path was **O(documents), not O(locations)**. ➜ **Fixing only the 29-location walk — exactly
+what the brief prescribed — would have left ~300 of 327 round trips untouched AND PASSED A
+LOCATION-LEVEL TEST.** A green suite over a still-broken flow. The lane fixed both levels.
+★ The prescribed 5xx fix was **necessary but insufficient**: `classifyFailure` is only reached when
+the body **parses as JSON**, and production's 502 is an **HTML edge page**, so it hits the earlier
+`!parsed` return — **which is where `NOT_LIVE_MESSAGE` actually came from.** Fixed in both places,
+on the export **and** erase paths. Also: **`app.ts` is NOT under `lazytopper/server/`** — the
+`proxyReq.on("error")` handler lives in `artifacts/api-server/src/app.ts`.
+
+`tsc test` **caught a TS2493 the app config cannot see** — the separate-gate rule earning itself again.
+3 mutations one at a time, each restore sha-verified against the mutated file (`feba1a22`), plus 2
+revert-to-trunk red proofs.
+
+### Lane CONTAINER-GATE — `#653`, merged `65a5a2ab`, CI `31318183353` Container Boot PASS 2m52s
+
+The repo now **builds the image and boots the container**, and asserts the gateway actually started
+from **inside** it. ★ **Added wall-clock cost: ZERO — observed, not modelled.** Baseline PR time
+**6m57s median (n=10)** → **7m05s**; Container Boot ran **concurrently** and finished **4m13s
+EARLIER** than Quality Gate. `docker build` was 150.5s on a **cold** cache; boot+assert+probes
+**2.9s**. Shape: a **separate** workflow (GitHub runs workflows concurrently, so PR cost is `max()`,
+not `sum`) with relevance classified **inside** the job — never a workflow-level `paths:` filter,
+because **a required check that never runs strands a PR on "expected — waiting for status".** The
+classifier emits `skip`, never `relevant`, so it **fails OPEN**. Proven both ways
+(`src/`+`handoff/` → `WILL_RUN false`; any `package.json` → `WILL_RUN true`).
+
+★★ **"All three sightings share one root cause" is FALSE** — three different environments (deployed
+image, dev worktree, delayed child process); **caught: 1:NO · 2:YES-but-LATENT · 3:NO.**
+★★ **The controller's own correction was ALSO wrong, and more confidently wrong than the spec.** He
+reasoned sighting 1 (undeclared `tsx`) *would* go red in a booting container. **It does not:**
+`scheduleWarmup` fires `runWarmup` on a **45 000 ms `setTimeout`**, `runWarmup` **returns early
+unless `DATABASE_URL` is set**, its failure path is `logger.error` with **no `process.exit`**, and
+`healthz` is a static route touching neither. **A container boots green with `tsx` absent.** ➜ the
+Dockerfile premise was right; the conclusion drawn from it was not. **Both belong in the record.**
+★★ **The brief's ACCEPTANCE MUTATION tests code the lane did not write** — `remove tsx → RED` goes
+red on **pre-existing** trunk code. **An acceptance criterion satisfied by something you did not
+build does not test what you built.**
+★★ **The brief's stated minimum bar contained a `MOUNT != LIVE` error.** *"AI Gateway started"* is
+**the PARENT's post-`spawn()` log**, not evidence the gateway booted. **Control-proven:** a log
+carrying the parent line but not the child's **FAILS** the lane's gate — **using the brief's line it
+would have gone GREEN. The gate as specified would have been decorative.**
+**The brief cited ONE `require('typescript')`. There are FIVE** — only `warmQuestionPool.cjs` guards
+it. `[FU-GATEWAY-UNGUARDED-TYPESCRIPT-REQUIRE]`
+**Docker is not installed on this box**; the whole lane was evidenced **through CI, pre-merge** —
+"unverifiable until merged" disproved again. ⚠ The same `tsx` mutation against the container gate
+would be a **FALSE RED** — a frozen install dies on `ERR_PNPM_OUTDATED_LOCKFILE` before reaching the
+probe. **Recorded, not banked as evidence.**
+
+### Lane SUPPLY-2 — `#654`, merged `e9ec4e0a`, CI `31319023732` PASS
+
+**57 of 121 advisories resolved** (baseline 0/121, measured as the scorer's own control) and
+**4/4 criticals** = 3 distinct GHSAs. **`tsx` moved to `dependencies` — the owner's ruling from Wave
+DPDP-B is finally landed.** Of the criticals, **only `protobufjs` is reachable in this product**
+(loaded by the live api-server via `firebase-admin`, parsing Google's own protobufs, **no student
+input**); `vitest` and `websocket-driver` are not reachable, each disproved with a control.
+
+**ROOT CAUSE, FROM THE LOG — the catalog hypothesis is DISPROVED.**
+`security_update_not_possible {"dependency-name":"react-router", …}` (run `31306588583`).
+`grep -in catalog` → **exit 1**, with a control proving the grep works. The real mechanism is the job
+spec's **`"update-subdependencies": false`.**
+
+★★★ **THE ACCEPTANCE BAR WAS ALREADY MET ON 2026-08-03.** `#589` (dompurify) **opened and passed ALL
+FIVE checks — then was CLOSED UNMERGED by the owner.** **Dependabot is NOT universally broken:
+43 fail / 10 succeed in 60 runs. It works for DIRECT deps and fails only on transitive.** ➜ **Part
+of this backlog is TRIAGE, not tooling — a triage habit, not a code fault.** The wave premise
+(*Dependabot is broken, fix the root cause*) was **half wrong, and the half that was wrong is the
+owner's own merge behaviour.** `[FU-SUPPLY2-DEPENDABOT-PRS-CLOSED-UNMERGED]`
+
+Also: **`react-router` did NOT move when named** — `react-router-dom@7.14.0` pins it **EXACTLY**, so
+the **parent** had to move; the scout's remedy table is wrong on that row. **`#594` proposed this
+exact vitest bump and FAILED** `ERR_PNPM_OUTDATED_LOCKFILE (lockfile 3.2.4, manifest 3.2.6)` —
+Dependabot edited the manifest **without** the lockfile and **the exact pin forced that**. ★
+**PRODUCTION IS DEPLOYING** — trunk `eeafb99b` shows *"Deployed to Railway"*; **DPDP-B's "production
+still cannot deploy" is STALE.** ★ `@vitest/ui` "absent": the scout's grep returned 0, **a broader
+pattern returns 2** — the conclusion holds, **the evidence was pattern-luck. A grep is only as good
+as its pattern, again.** ⚠ **The box is 23.77 GB, not the 7.8 GB every brief states** —
+`[FU-SUPPLY2-BOX-SIZE-STALE]`; the controller serialised lanes partly on that stale number. **The
+constraint turned out moot (Docker was never installed), but the reasoning was wrong.**
+
+Config validated **POSITIVELY**, in its strongest form: `yaml.safe_load(trunk) == yaml.safe_load(branch)`
+→ `True` with **zero non-comment changed lines**, so behaviour is **provably unchanged**; plus a
+control mutation proving the validator rejects a broken file. `target-branch` asserted **absent**.
+
+**RAILWAY WAIT-FOR-CI: "I COULD NOT VERIFY."** No CLI, no token, dashboard-only, absent from
+`railway.json`. ★ **The one discriminating test failed to discriminate** — Railway deployed
+`eeafb99b`, which was fully green, **consistent with ON *or* OFF**. ⚠ **The wave brief said it was
+back ON; HANDOFF-CATCHUP reported it still OFF. NEITHER CLAIM IS ADJUDICATED — it is a dashboard
+question and remains the owner's.** Nothing in the shipped fix depends on the answer; only the
+urgency framing does.
+
+### `#656` — Dependabot, `github/codeql-action` 3→4
+
+Merged `9682ba02`. **Recorded because the census found it, not because anyone tracked it.** ★ Note
+the shape: this is a **DIRECT** dependency bump and it merged cleanly — consistent with SUPPLY-2's
+finding that Dependabot works for direct deps and fails on transitive ones.
+
+⚠ **Three Dependabot PRs are OPEN and un-triaged at authoring: `#657` (npm-minor-and-patch group,
+58 updates), `#658` (jsdom 29→30), `#659` (@testing-library/jest-dom 6→7).** Named here because
+`[FU-SUPPLY2-DEPENDABOT-PRS-CLOSED-UNMERGED]` says **the backlog is partly a triage habit**, and
+three open bot PRs is exactly the state that finding describes.
+
+---
+
+### ⚠ OWNER DECISIONS OWED
+
+1. **`[FU-DPDP-GUARDIAN-CONSENT]` — UNRULED and LAUNCH-BLOCKING.** Class 10 students are minors.
+2. **Whether a DPDP export must inline the student's uploaded images at all.** Legal, not
+   engineering. `[FU-EXPORT-BLOB-INLINE-LEGAL-CALL]`
+3. **`ProgressWindowArc`** — retire, re-home, or overrule marks-only on `/me`?
+   `[FU-PROGRESSWINDOWARC-UNMOUNTED]`
+4. Accept the non-projected journey line, or rule that "+N marks a paper" is allowed?
+5. **`/full-mock` lost its `/me` entry point** (the section is absent from the prototype AND both
+   briefs) — confirm that is intended. `[FU-ME-FULLMOCK-ENTRY-POINT]`
+6. The device-local attempt-history seam now has no rendered statement anywhere.
+   `[FU-ME-HISTORY-DEVICE-LOCAL]`
+7. **Railway Wait-for-CI: ON or OFF?** Two lanes reported opposite answers; neither could verify.
+
+### ⚠ LIVE-VERIFY OWED
+
+- **`#652`** — download `/api/account/export` in production on an account **with uploaded photos**.
+  ⚠ **Check Railway's active commit first.** Expect: completes, no 502; `recordsExported` non-zero;
+  **`"complete": false` is CORRECT** (`ok` should be `true`); **a `207` is the budget working as
+  designed** — read the disclosures and ask for `LT_EXPORT_BUDGET_MS` to be raised; `locations[]` in
+  map order. Both surfaces, one session carrying pre-change state.
+- **`#655`** — open `/me` as a student with graded attempts; confirm the four-segment bar, the
+  concept CTAs, and that the Topic Hub opens **on the named concept**.
+
+---
+
+
+## (superseded) [CURRENT] Wave CLOSEOUT — the record catches up with trunk: `#647` and `#649` **ARE** on trunk, DPDP-B's five unrecorded commits finally have a lane record, and the DPDP code **is running in production** — trunk `eeafb99b`
 
 **`2026-08-09` · a docs-only catch-up PR, lane `HANDOFF-CATCHUP`.** This handoff exists because
 `handoff/` was **wrong, not merely stale**: it asserted that shipped student-facing code was unshipped,
