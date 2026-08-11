@@ -179,9 +179,36 @@ export const buildDesktopChapterTestPath = (
   );
 };
 
-export const buildDesktopTopicHubPath = (topicSlug: string, context: DesktopRouteContext = {}): string => {
+/**
+ * The Topic Hub ARRIVAL intent — what the student came to that page FOR.
+ *
+ * ★ DELIBERATELY ITS OWN TYPE, AND A SEPARATE ARGUMENT, RATHER THAN A FIELD ON
+ *   `DesktopRouteContext`. `addContext` is shared by all seven builders
+ *   (concept-practice / practice / worksheet / chapter-test / topic-hub / check / me),
+ *   so a `concept?` on the shared context type would silently let SIX unrelated URLs
+ *   emit `concept`. Only the Topic Hub reads it, so only the Topic Hub builder takes it.
+ *
+ * ★ `concept` IS THE EXACT `boardEssentials[].name`, VERBATIM. `BoardConcept` is
+ *   `{name, oneLineUse, marks}` — it has NO key field, so a concept's identity IS its
+ *   name, and `DesktopTopicHubPage` resolves it with a full-string
+ *   `boardEssentials.find((c) => c.name === raw)`. A slug, a `conceptKey`, a
+ *   lower-cased or otherwise "tidied" value silently fails to match and the arrival
+ *   highlight never fires. Never re-derive it — pass the string you read.
+ *   (URI-encoding is `URLSearchParams`'s job; do not pre-encode.)
+ */
+export interface DesktopTopicHubArrival {
+  concept?: string;
+}
+
+export const buildDesktopTopicHubPath = (
+  topicSlug: string,
+  context: DesktopRouteContext = {},
+  arrival: DesktopTopicHubArrival = {},
+): string => {
   const params = new URLSearchParams();
   addContext(params, context);
+  const concept = arrival.concept?.trim();
+  if (concept) params.set("concept", concept);
   return withQuery(`/topic-hub/${encodeURIComponent(topicSlug)}`, params);
 };
 
