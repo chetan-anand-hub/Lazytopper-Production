@@ -52,6 +52,39 @@
  * whose read throws is `failed` with its reason, the run continues, `ok` goes false,
  * and the route answers 207 rather than 200. An export that read 27 of 29 locations
  * must never render as "here is your data".
+ *
+ * ★★ WHY THIS WALK IS CONCURRENT AND TIME-BOUNDED — the defect EXPORT-PERF fixed.
+ *
+ * Owner-observed in production, on a real account:
+ *
+ *     request aborted · GET /api/account/export · res.statusCode: null · responseTime: 119978
+ *
+ * ~120 seconds, then the connection died under the api-server and the browser got a
+ * 502. NOTHING CRASHED — the export was still reading. A student could not complete a
+ * legally-required DPDP flow.
+ *
+ * ★★ AND THE DOMINANT COST WAS NOT THE 29 LOCATIONS. Measured against the previous
+ * revision with an instrumented driver: MAX CONCURRENT I/O WAS 1, and the round-trip
+ * count tracked DOCUMENTS, not locations — 300 seeded documents produced 327
+ * sequential round trips. The critical path was O(documents), because the final read
+ * in `readFirestoreDocTree` fetched one document per round trip in series. Making only
+ * the 29-location walk concurrent would have left ~300 of those 327 round trips
+ * exactly where they were. Both levels are concurrent here, and the per-document read
+ * is the one that mattered.
+ *
+ * ★ THE BOUND IS EXPLICIT, because an unbounded `Promise.all` over a student's whole
+ * tree is just a different way to hurt the gateway: `PLAN_CONCURRENCY` locations in
+ * flight, `READ_CONCURRENCY` reads inside each — a stated ceiling of their product.
+ *
+ * ★ AND THE BUDGET REUSES THE CONTRACT THAT ALREADY EXISTED, rather than inventing a
+ * second one beside it. A run that reaches `budgetMs` stops starting new work and
+ * reports what it could not read through the SAME `omissions` / `failed` channel the
+ * storage caps already used — which already drives `ok:false`, which the route already
+ * turns into a 207. No new partial mechanism, no divergence hazard.
+ *
+ * ★ ORDER IS PRESERVED REGARDLESS OF COMPLETION ORDER. Rows, records and disclosures
+ * are assembled by INDEX, never by whichever read finished first, so the file a parent
+ * opens is byte-stable across runs. `accountExport.test.cjs` pins this.
  */
 
 const {
@@ -227,6 +260,54 @@ function safeReason(e) {
 }
 
 /* ────────────────────────────────────────────────────────────────────────────
+   Concurrency and the time budget — see the header for why both exist
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/** Locations read at once. */
+const PLAN_CONCURRENCY = 6;
+/** Documents or files read at once WITHIN one location. */
+const READ_CONCURRENCY = 8;
+/**
+ * ★ The wall-clock ceiling on a single export.
+ *
+ * Production died at ~120s against an upstream that had already given up. This sits
+ * far enough below that the run still has time to serialise and send what it DID
+ * read — a 207 naming the gap is a usable answer, an aborted connection is not.
+ */
+const DEFAULT_BUDGET_MS = 45_000;
+
+/**
+ * Run `fn` over `items` with at most `limit` in flight, RESULTS IN INPUT ORDER.
+ *
+ * ★ A worker pool, deliberately not `Promise.all` over a mapped array: the pool never
+ * materialises more than `limit` in-flight operations, so a student with twenty
+ * thousand documents does not create twenty thousand live promises at once. Order is
+ * carried by writing into `out[i]`, so nothing downstream depends on completion order.
+ */
+async function mapWithConcurrency(items, limit, fn) {
+  const list = Array.isArray(items) ? items : [...items];
+  const out = new Array(list.length);
+  if (list.length === 0) return out;
+
+  let cursor = 0;
+  const workers = new Array(Math.max(1, Math.min(limit, list.length))).fill(null).map(async () => {
+    for (;;) {
+      const i = cursor;
+      cursor += 1;
+      if (i >= list.length) return;
+      out[i] = await fn(list[i], i);
+    }
+  });
+  await Promise.all(workers);
+  return out;
+}
+
+/** Has the run used up its wall-clock budget? A null deadline means "no budget". */
+function pastDeadline(deadline) {
+  return typeof deadline === 'number' && Date.now() >= deadline;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
    Readers — one per strategy the shared walker can produce
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -254,33 +335,62 @@ async function listCollectionDocRefs(coll) {
  * BE THE SAME SET. If they diverge, a student can be handed a file that omits
  * something erasure will still destroy, or shown data erasure will leave behind.
  */
-async function readFirestoreDocTree(db, pathTemplate, uid) {
+async function readFirestoreDocTree(db, pathTemplate, uid, opts = {}) {
+  const { concurrency = READ_CONCURRENCY, deadline = null } = opts;
   const segs = templateSegments(pathTemplate);
+  const omissions = [];
   let level = [null];
 
   for (let i = 0; i < segs.length; i += 2) {
     const collectionName = segs[i];
     const docSegment = segs[i + 1];
-    const next = [];
-    for (const parent of level) {
-      const coll = parent ? parent.collection(collectionName) : db.collection(collectionName);
-      if (isUidSegment(docSegment)) {
-        next.push(coll.doc(uid));
-        continue;
+    const collFor = (parent) =>
+      parent ? parent.collection(collectionName) : db.collection(collectionName);
+
+    if (isUidSegment(docSegment)) {
+      // No I/O: a `{uid}` segment names exactly one document per parent.
+      level = level.map((parent) => collFor(parent).doc(uid));
+    } else {
+      if (pastDeadline(deadline)) {
+        omissions.push(
+          `the export time budget was reached before the "${collectionName}" collection could be listed`
+        );
+        level = [];
+        break;
       }
-      for (const ref of await listCollectionDocRefs(coll)) next.push(ref);
+      // ★ Each parent's listing is an independent round trip; they fan out.
+      const listed = await mapWithConcurrency(level, concurrency, (parent) =>
+        listCollectionDocRefs(collFor(parent))
+      );
+      level = listed.flat();
     }
-    level = next;
     if (level.length === 0) break;
   }
 
-  const records = [];
-  for (const ref of level) {
+  // ★★ THE READ THAT DOMINATED THE 120-SECOND RUN. One round trip per document, and
+  // it used to be a plain `for … await`. The pool keeps it bounded; `out[i]` keeps the
+  // records in path order whatever order the reads land in.
+  const results = await mapWithConcurrency(level, concurrency, async (ref) => {
+    if (pastDeadline(deadline)) return { overBudget: true };
     const snap = await ref.get();
-    if (!snap || !snap.exists) continue;
-    records.push({ path: ref.path || null, id: ref.id || null, data: toPlainJson(snap.data()) });
+    if (!snap || !snap.exists) return null;
+    return { record: { path: ref.path || null, id: ref.id || null, data: toPlainJson(snap.data()) } };
+  });
+
+  const records = [];
+  let overBudget = 0;
+  for (const r of results) {
+    if (!r) continue;
+    if (r.overBudget) overBudget += 1;
+    else records.push(r.record);
   }
-  return records;
+  if (overBudget > 0) {
+    omissions.push(
+      `${overBudget} document(s) under "${pathTemplate}" were not read: the export time budget was reached`
+    );
+  }
+
+  return { records, omissions };
 }
 
 /**
@@ -320,15 +430,22 @@ function storagePrefixFor(pathTemplate, uid) {
  * reason, and its location reports `partial` — the same rule as everywhere else here:
  * we may leave something out, we may never leave it out quietly.
  */
-async function readStoragePrefix(bucket, pathTemplate, uid, caps) {
+async function readStoragePrefix(bucket, pathTemplate, uid, caps, opts = {}) {
+  const { concurrency = READ_CONCURRENCY, deadline = null } = opts;
   const prefix = storagePrefixFor(pathTemplate, uid);
   if (!prefix) throw new Error('storage location has no {uid} segment');
   const result = await bucket.getFiles({ prefix });
   const files = (Array.isArray(result) ? result[0] : result) || [];
 
-  const records = [];
-  const omissions = [];
-  let totalBytes = 0;
+  /* ── Pass 1 · admission, decided from METADATA ALONE, in listing order.
+     ★★ THIS PASS IS WHY THE DOWNLOADS CAN SAFELY RUN AT ONCE. The old code accumulated
+     the total against bytes AS THEY ARRIVED, so once downloads overlap, WHICH file is
+     omitted depends on which download happens to finish first. On a legal artefact
+     that is not acceptable: the same account must export the same file twice running.
+     Sizes are known before any transfer, so the whole decision is made here, in order,
+     and the transfer below cannot influence it. */
+  const planned = [];
+  let projectedBytes = 0;
 
   for (const file of files) {
     const meta = file.metadata || {};
@@ -347,26 +464,46 @@ async function readStoragePrefix(bucket, pathTemplate, uid, caps) {
     let omitted = null;
     if (Number.isFinite(size) && size > caps.maxFileBytes) {
       omitted = `file is ${size} bytes, over the ${caps.maxFileBytes}-byte per-file export limit`;
-    } else if (totalBytes >= caps.maxTotalBytes) {
+    } else if (projectedBytes >= caps.maxTotalBytes) {
       omitted = `the ${caps.maxTotalBytes}-byte total export limit for files was already reached`;
     }
 
     if (omitted) {
       record.data.contentOmitted = true;
       record.data.contentOmittedReason = omitted;
-      omissions.push(`${file.name}: ${omitted}`);
+      planned.push({ record, file, admitted: false, omitted });
     } else {
-      const downloaded = await file.download();
-      const buf = Buffer.isBuffer(downloaded) ? downloaded : Buffer.from(downloaded[0]);
-      totalBytes += buf.length;
-      record.data.encoding = 'base64';
-      record.data.content = buf.toString('base64');
-      if (record.data.sizeBytes === null) record.data.sizeBytes = buf.length;
+      if (Number.isFinite(size) && size > 0) projectedBytes += size;
+      planned.push({ record, file, admitted: true, omitted: null });
     }
-    records.push(record);
   }
 
-  return { records, omissions };
+  /* ── Pass 2 · the admitted files transfer concurrently. */
+  await mapWithConcurrency(
+    planned.filter((p) => p.admitted),
+    concurrency,
+    async (p) => {
+      if (pastDeadline(deadline)) {
+        p.omitted = 'the export time budget was reached before this file could be downloaded';
+        p.record.data.contentOmitted = true;
+        p.record.data.contentOmittedReason = p.omitted;
+        return;
+      }
+      const downloaded = await p.file.download();
+      const buf = Buffer.isBuffer(downloaded) ? downloaded : Buffer.from(downloaded[0]);
+      p.record.data.encoding = 'base64';
+      p.record.data.content = buf.toString('base64');
+      if (p.record.data.sizeBytes === null) p.record.data.sizeBytes = buf.length;
+    }
+  );
+
+  /* ── Pass 3 · disclosures collected IN LISTING ORDER, not completion order. */
+  const omissions = [];
+  for (const p of planned) {
+    if (p.omitted) omissions.push(`${p.record.path}: ${p.omitted}`);
+  }
+
+  return { records: planned.map((p) => p.record), omissions };
 }
 
 /**
@@ -405,6 +542,10 @@ function createAccountExportService(deps = {}) {
     maxFileBytes = DEFAULT_MAX_FILE_BYTES,
     maxTotalFileBytes = DEFAULT_MAX_TOTAL_FILE_BYTES,
     now = () => new Date(),
+    /** Wall-clock ceiling for one export. `0` disables the budget. */
+    budgetMs = Number(process.env.LT_EXPORT_BUDGET_MS || DEFAULT_BUDGET_MS),
+    planConcurrency = PLAN_CONCURRENCY,
+    readConcurrency = READ_CONCURRENCY,
   } = deps;
 
   const caps = { maxFileBytes, maxTotalBytes: maxTotalFileBytes };
@@ -450,16 +591,16 @@ function createAccountExportService(deps = {}) {
     return planErasure(locations).slice().sort((a, b) => a.index - b.index);
   }
 
-  async function readOne(step, uid) {
+  async function readOne(step, uid, ctx) {
     switch (step.strategy) {
       case STRATEGY.FIRESTORE_DOC_TREE:
-        return { records: await readFirestoreDocTree(adminFirestore, step.path, uid) };
+        return readFirestoreDocTree(adminFirestore, step.path, uid, ctx);
       case STRATEGY.FIRESTORE_FIELD_QUERY:
         return {
           records: await readFirestoreByField(adminFirestore, step.path, uid, step.field || UID_FIELD),
         };
       case STRATEGY.STORAGE_PREFIX:
-        return readStoragePrefix(bucket(), step.path, uid, caps);
+        return readStoragePrefix(bucket(), step.path, uid, caps, ctx);
       case STRATEGY.AUTH_ACCOUNT:
         return { records: await readAuthAccount(firebaseAdmin, uid) };
       default:
@@ -480,10 +621,14 @@ function createAccountExportService(deps = {}) {
     if (!trimmed) throw new Error('exportAccount requires a uid');
 
     const byId = new Map(locations.map((l) => [l.id, l]));
-    const rows = [];
-    const disclosures = [];
 
-    for (const step of plan()) {
+    // ★ ONE DEADLINE FOR THE WHOLE RUN, fixed before any read starts, so every
+    // location is measured against the same clock rather than against its own start.
+    const deadline = budgetMs > 0 ? Date.now() + budgetMs : null;
+    const ctx = { concurrency: readConcurrency, deadline };
+
+    /** One location → its row and, if it owes the reader an explanation, its disclosure. */
+    async function walkStep(step) {
       const location = byId.get(step.id) || {};
       const row = {
         id: step.id,
@@ -496,6 +641,10 @@ function createAccountExportService(deps = {}) {
         recordCount: 0,
         records: [],
       };
+      const disclose = (extra) => ({
+        id: step.id, kind: step.kind, path: step.path, holds: row.holds,
+        status: row.status, ...extra,
+      });
 
       // ★★ THE EXPORTABLE FLAG IS CHECKED FIRST AND ON ITS OWN. It is a property of
       // the location, not of its mechanism, and the two must never be conflated:
@@ -505,68 +654,79 @@ function createAccountExportService(deps = {}) {
         row.status = EXPORT_STATUS.EXCLUDED;
         const reasons = [DISCLOSURE_NOT_EXPORTABLE];
         if (step.mechanism === 'third-party-unreachable') reasons.push(DISCLOSURE_THIRD_PARTY);
-        disclosures.push({
-          id: step.id,
-          kind: step.kind,
-          path: step.path,
-          holds: row.holds,
-          status: row.status,
-          reasons,
-        });
-        rows.push(row);
-        continue;
+        return { row, disclosure: disclose({ reasons }) };
       }
 
       if (step.strategy === STRATEGY.NOT_DELETABLE) {
         // Exportable in principle, unreachable in fact: it left the product.
         row.status = EXPORT_STATUS.NOT_EXPORTABLE;
-        disclosures.push({
-          id: step.id, kind: step.kind, path: step.path, holds: row.holds,
-          status: row.status, reasons: [DISCLOSURE_THIRD_PARTY],
-        });
-      } else if (step.strategy === STRATEGY.NOT_SERVER_ERASABLE) {
+        return { row, disclosure: disclose({ reasons: [DISCLOSURE_THIRD_PARTY] }) };
+      }
+      if (step.strategy === STRATEGY.NOT_SERVER_ERASABLE) {
         row.status = EXPORT_STATUS.NOT_SERVER_EXPORTABLE;
-        disclosures.push({
-          id: step.id, kind: step.kind, path: step.path, holds: row.holds,
-          status: row.status, reasons: [DISCLOSURE_CLIENT_LOCAL],
-        });
-      } else if (step.strategy === STRATEGY.UNSUPPORTED) {
+        return { row, disclosure: disclose({ reasons: [DISCLOSURE_CLIENT_LOCAL] }) };
+      }
+      if (step.strategy === STRATEGY.UNSUPPORTED) {
         row.status = EXPORT_STATUS.REFUSED;
         row.reason = step.reason;
-        disclosures.push({
-          id: step.id, kind: step.kind, path: step.path, holds: row.holds,
-          status: row.status, reasons: [DISCLOSURE_REFUSED], detailReason: step.reason,
-        });
-      } else {
-        try {
-          const { records, omissions } = await readOne(step, trimmed);
-          row.records = records;
-          row.recordCount = records.length;
-          // ★★ AN EMPTY ACCOUNT IS AN HONEST EMPTY, NOT AN ERROR AND NOT A SHELL.
-          row.status = records.length > 0 ? EXPORT_STATUS.EXPORTED : EXPORT_STATUS.EMPTY;
-          if (omissions && omissions.length) {
-            row.partial = true;
-            row.omissions = omissions;
-            disclosures.push({
-              id: step.id, kind: step.kind, path: step.path, holds: row.holds,
-              status: row.status, partial: true,
-              reasons: omissions.map((o) => `Part of this location was not included — ${o}`),
-            });
-          }
-        } catch (e) {
-          // Swallowing this is the defect class the dead `users` write shipped with:
-          // it failed for months and nothing noticed. Record it, keep going, and let
-          // the caller see an incomplete export as incomplete.
-          row.status = EXPORT_STATUS.FAILED;
-          row.reason = safeReason(e);
-          disclosures.push({
-            id: step.id, kind: step.kind, path: step.path, holds: row.holds,
-            status: row.status, reasons: [DISCLOSURE_FAILED], detailReason: row.reason,
-          });
-        }
+        return {
+          row,
+          disclosure: disclose({ reasons: [DISCLOSURE_REFUSED], detailReason: step.reason }),
+        };
       }
 
-      rows.push(row);
+      // ★ A location the budget ran out on before it was even started is FAILED with
+      // that reason — the same channel a thrown read uses, so it reaches the student
+      // through the contract that already exists rather than a second one.
+      if (pastDeadline(deadline)) {
+        row.status = EXPORT_STATUS.FAILED;
+        row.reason = `not read: the ${budgetMs}ms export time budget was reached before this location was started`;
+        return {
+          row,
+          disclosure: disclose({ reasons: [DISCLOSURE_FAILED], detailReason: row.reason }),
+        };
+      }
+
+      try {
+        const { records, omissions } = await readOne(step, trimmed, ctx);
+        row.records = records;
+        row.recordCount = records.length;
+        // ★★ AN EMPTY ACCOUNT IS AN HONEST EMPTY, NOT AN ERROR AND NOT A SHELL.
+        row.status = records.length > 0 ? EXPORT_STATUS.EXPORTED : EXPORT_STATUS.EMPTY;
+        if (omissions && omissions.length) {
+          row.partial = true;
+          row.omissions = omissions;
+          return {
+            row,
+            disclosure: disclose({
+              partial: true,
+              reasons: omissions.map((o) => `Part of this location was not included — ${o}`),
+            }),
+          };
+        }
+        return { row, disclosure: null };
+      } catch (e) {
+        // Swallowing this is the defect class the dead `users` write shipped with:
+        // it failed for months and nothing noticed. Record it, keep going, and let
+        // the caller see an incomplete export as incomplete.
+        row.status = EXPORT_STATUS.FAILED;
+        row.reason = safeReason(e);
+        return {
+          row,
+          disclosure: disclose({ reasons: [DISCLOSURE_FAILED], detailReason: row.reason }),
+        };
+      }
+    }
+
+    // ★ Locations run concurrently; the results come back IN MAP ORDER, so `rows` and
+    // `disclosures` below are assembled by index and never by who finished first.
+    const outcomes = await mapWithConcurrency(plan(), planConcurrency, walkStep);
+
+    const rows = [];
+    const disclosures = [];
+    for (const outcome of outcomes) {
+      rows.push(outcome.row);
+      if (outcome.disclosure) disclosures.push(outcome.disclosure);
     }
 
     const summary = { total: rows.length, recordsExported: 0 };
@@ -614,4 +774,8 @@ module.exports = {
   DISCLOSURE_FAILED,
   DEFAULT_MAX_FILE_BYTES,
   DEFAULT_MAX_TOTAL_FILE_BYTES,
+  PLAN_CONCURRENCY,
+  READ_CONCURRENCY,
+  DEFAULT_BUDGET_MS,
+  mapWithConcurrency,
 };

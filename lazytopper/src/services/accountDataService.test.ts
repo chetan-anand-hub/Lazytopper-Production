@@ -14,6 +14,7 @@
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 
 import {
+  EXPORT_TIMEOUT_MS,
   clearLocalStudentData,
   collectStudentLocalKeys,
   downloadMyDataFromServer,
@@ -418,5 +419,141 @@ describe("5 · the third-party disclosure is map-derived", () => {
     // Re-derived at read time — if a second third party is added to the map, this
     // fails and forces the UI to disclose it rather than keep naming Gemini alone.
     expect(thirdPartyDisclosureIds()).toEqual(["third-party.gemini"]);
+  });
+});
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   6 · EXPORT-PERF — A SLOW EXPORT FAILS HONESTLY, AND IS NEVER CALLED "NOT BUILT"
+
+   ★★ THE PRODUCTION EVIDENCE these are written against:
+       request aborted · GET /api/account/export · res.statusCode: null · responseTime: 119978
+   The export ran ~120 s, the upstream gave up, and the student was told the feature
+   was not switched on yet. Two separate defects, both fixed here.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/** ★ What a PLATFORM edge returns for a dead or timed-out upstream: HTML, and a 5xx. */
+function gatewayHtmlResponse(status: number) {
+  return {
+    status,
+    headers: { get: () => null },
+    text: async () => "<html><head><title>502 Bad Gateway</title></head><body>502</body></html>",
+  } as unknown as Response;
+}
+
+describe("6 · a slow or failing export reports honestly", () => {
+  it("★★ THE HEADLINE — a request that never settles is abandoned, not waited on forever", async () => {
+    // ★ The real shape of the defect: the upstream accepts the request and never
+    // answers. `fetch` has no default timeout, so this promise settles ONLY if the
+    // service imposes one. Without the fix this hangs until vitest kills it.
+    let aborted = false;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        (_url: string, init: RequestInit) =>
+          new Promise((_resolve, reject) => {
+            init.signal?.addEventListener("abort", () => {
+              aborted = true;
+              reject(new DOMException("The operation was aborted.", "AbortError"));
+            });
+          })
+      )
+    );
+
+    const result = await downloadMyDataFromServer(new Date(), 25);
+
+    expect(result.status).toBe("unavailable");
+    const message = (result as { message: string }).message;
+    // ★ It must say it gave up waiting — and must NOT claim the feature is missing.
+    expect(message).toMatch(/took too long/i);
+    expect(message).toMatch(/Nothing was changed/);
+    expect(message).not.toMatch(/not switched on yet/i);
+
+    // ★ CONTROL: the request really was aborted, so the outcome above is the timeout
+    // firing rather than the stub rejecting of its own accord.
+    expect(aborted).toBe(true);
+  });
+
+  it("★ the request carries an abort signal at all — without one nothing can cancel it", async () => {
+    // ★ The spy is typed to the REAL fetch signature on purpose. A bare
+    // `vi.fn(async () => …)` takes no parameters, so `mock.calls[0]` is the empty tuple
+    // `[]` and indexing it is a TS2493 that `tsconfig.app.json` never sees — green
+    // locally, red in CI's separate `typecheck:test` step.
+    const fetchSpy = vi.fn(async (_url: string, _init?: RequestInit) =>
+      jsonResponse(200, { ok: true })
+    );
+    vi.stubGlobal("fetch", fetchSpy);
+    await downloadMyDataFromServer();
+    expect(fetchSpy.mock.calls[0][1]?.signal).toBeDefined();
+  });
+
+  it("★ the timeout does NOT fire on a healthy response — the ceiling is not a filter", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => jsonResponse(200, { ok: true, readme: "fine" })));
+    const result = await downloadMyDataFromServer(new Date(), 5_000);
+    expect(result.status).toBe("ok");
+  });
+
+  it("★★ A 502 HTML GATEWAY PAGE IS 'SOMETHING WENT WRONG', NOT 'NOT SWITCHED ON YET'", async () => {
+    // ★ THIS IS THE EXACT PRODUCTION PATH. The edge answers with HTML, so the JSON
+    // envelope is null and the undeployed-route guard used to claim it — telling a
+    // child a legally-required feature does not exist, when it exists and is slow.
+    vi.stubGlobal("fetch", vi.fn(async () => gatewayHtmlResponse(502)));
+    const result = await downloadMyDataFromServer();
+
+    expect(result.status).toBe("unavailable");
+    const message = (result as { message: string }).message;
+    expect(message).not.toMatch(/not switched on yet/i);
+    expect(message).toMatch(/Nothing was changed/);
+  });
+
+  it("★ 500 and 504 read the same way, and never leak gateway-speak to a student", async () => {
+    for (const status of [500, 504]) {
+      vi.stubGlobal("fetch", vi.fn(async () => gatewayHtmlResponse(status)));
+      const html = await downloadMyDataFromServer();
+      expect((html as { message: string }).message).not.toMatch(/not switched on yet/i);
+
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(async () => jsonResponse(status, { ok: false, error: "AI Gateway unavailable" }))
+      );
+      const json = await downloadMyDataFromServer();
+      expect((json as { message: string }).message).not.toMatch(/AI Gateway/i);
+      expect((json as { message: string }).message).not.toMatch(/not switched on yet/i);
+    }
+  });
+
+  it("★★ CONTROL: a genuinely undeployed route STILL reads as 'not switched on yet'", async () => {
+    // ★ The guard the 5xx branch must not have broken. A real undeployed route is a
+    // 200 carrying the SPA shell — status < 500 — and that message is correct there.
+    vi.stubGlobal("fetch", vi.fn(async () => spaShellResponse()));
+    const result = await downloadMyDataFromServer();
+    expect(result.status).toBe("unavailable");
+    expect((result as { message: string }).message).toMatch(/not switched on yet/i);
+  });
+
+  it("★ the erase path gets the same 5xx correction — the defect was the file's, not the export's", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => gatewayHtmlResponse(502)));
+    const result = await eraseMyAccountOnServer();
+    expect(result.status).toBe("unavailable");
+    expect((result as { message: string }).message).not.toMatch(/not switched on yet/i);
+
+    // CONTROL: the undeployed-route message survives on the erase path too.
+    vi.stubGlobal("fetch", vi.fn(async () => spaShellResponse()));
+    const shell = await eraseMyAccountOnServer();
+    expect((shell as { message: string }).message).toMatch(/not switched on yet/i);
+  });
+
+  it("★ a genuine network failure is still an honest error, not a timeout claim", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => { throw new Error("offline"); }));
+    const result = await downloadMyDataFromServer();
+    expect(result.status).toBe("error");
+    expect((result as { message: string }).message).toMatch(/could not reach the server/i);
+  });
+
+  it("★ the export timeout sits above the server's own budget and below the observed abort", () => {
+    // ★ A client that gives up BEFORE the server's 45s budget would abandon a run the
+    // server was about to answer honestly with a 207; one that waits past the ~120s at
+    // which the edge dropped the connection is waiting on nothing.
+    expect(EXPORT_TIMEOUT_MS).toBeGreaterThan(45_000);
+    expect(EXPORT_TIMEOUT_MS).toBeLessThan(120_000);
   });
 });
