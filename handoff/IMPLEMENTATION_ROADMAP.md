@@ -1,5 +1,77 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-08-11 — WAVE ME-C + WAVE CLOSEOUT: **EVERY STAGE PREVIOUSLY RECORDED AS "BUILT, NOT MERGED" IS NOW COMPLETE ON TRUNK** — trunk `9682ba02`
+
+**`2026-08-11`**
+
+> ## ✅ **THE PREVIOUS ENTRY CLOSED WITH FOUR CLOSEOUT LANES "BUILT AND GATED, NONE MERGED".** All four are on trunk. **Rule 0 is satisfied: `handoff/` describes trunk.** Wave ME-C's single product lane is on trunk too.
+
+**STAGES NOW COMPLETE ON TRUNK — promoted from "built and gated":**
+
+- **`ME-2` (`#655`, `a18c6e45`)** — **`/me` rebuilt on the locked v7.1 prototype.** A student sees
+  where their marks went in a four-segment bar, the concepts costing them most, and a Topic Hub that
+  opens on the exact concept they came for. **Both papers separately. In marks, never percentages.**
+  ✅ **`TOPICHUB-1` (`#647`) IS NO LONGER A CONSUMER WITH NO PRODUCER** — `navigation.ts` emits
+  `?concept=<EXACT boardEssentials name, URI-encoded>`, proven by differential build against trunk
+  and by a live browser emission. `[FU-TOPICHUB-CONCEPT-PRODUCER]` **CLOSED.**
+  ✅ **`RETRY-1` (`#649`) IS NO LONGER A DEAD MODULE** — `mistakeRetry.ts` is consumed;
+  `"Re-do that one"` / `"Try one like it"` appear in **no chunk at `eeafb99b`** and in
+  `MeProgressPage-*.js` here. `[FU-RETRY-NO-BUILD-CHUNK-YET]` **CLOSED.**
+  🛑 **`expectedMarks` IS STILL DORMANT.** The stage was scoped to end **two** dormancies and ended
+  **one of the two named**. **Do not record this stage as closing `expectedMarks`.**
+  ⚠ **NEW DORMANCY: `ProgressWindowArc` is unmounted with a live suite** — it renders `%` at 8 sites
+  and `/me` was its only mount. `[FU-PROGRESSWINDOWARC-UNMOUNTED]`
+  ✅ **The DPDP surface survived the rebuild** — `MeProgressPage.dpdpReach.test.tsx` is **absent from
+  the diff**, so the compliance tests passed **unmodified** against 2,311 changed lines.
+
+- **`HANDOFF-CATCHUP` (`#651`, `485f6a36`)** — `handoff/` describes trunk; DPDP-B's close-out is
+  tracked, byte-identical. **The fourth single-disk exposure, and the first closed before it needed
+  rescuing.**
+
+- **`EXPORT-PERF` (`#652`, `50170da8`)** — **the DPDP export a student could not finish now
+  finishes.** `10374 ms → 810 ms` with **identical 667 I/O ops and 625 records — the same work, not
+  less work.** ⚠ **STAGE NOT ACCEPTED until a real production download completes** on an account with
+  uploaded photos. **This is the DPDP arc's last engineering blocker; the remaining one is legal.**
+
+- **`CONTAINER-GATE` (`#653`, `65a5a2ab`)** — **the repo builds the image and boots the container for
+  the first time**, asserting the gateway started from **inside** it. ★ **Added wall-clock cost:
+  ZERO — observed, not modelled.** This is the gate that would have caught the `#638` boot crash.
+  `[FU-TSX1-NO-CONTAINER-GATE]` **CLOSED.**
+
+- **`SUPPLY-2` (`#654`, `e9ec4e0a`)** — **57/121 advisories, 4/4 criticals**, and **`tsx` moved to
+  `dependencies`, landing the owner's Wave DPDP-B ruling at last.** ⚠ **This stage does NOT close the
+  supply-chain item** — 64 advisories remain (`[FU-SUPPLY2-FULL-SWEEP]`) and
+  `[FU-DEVDEPS-SHIP-TO-PRODUCTION]` is **carried, not closed: `typescript` is still exposed.**
+
+- **`#656`, `9682ba02`** — Dependabot `codeql-action` 3→4. **Not a planned stage; recorded because
+  the census found it.**
+
+### 🛑 WHAT THIS MEANS FOR THE DPDP ARC — it is engineering-complete and legally blocked
+
+Export (`#645`, `#652`), erasure (`#638`), student-facing controls (`#646`), a booting gateway
+(`#644`, gated by `#653`). **The code path a student walks is now complete and, for the export, fast
+enough to finish.** ⚠ **Two things stand between that and "done":**
+1. **`[FU-DPDP-GUARDIAN-CONSENT]` — UNRULED, owner-only, LAUNCH-BLOCKING.** Class 10 students are
+   minors. No agent lane can close this.
+2. **`[FU-ERASE-SEQUENTIAL-WALK-ABORT-RISK]` — OPEN/CONFIRMED.** The erasure path is the export bug's
+   twin, on a path that **destroys** data. **Needs its own lane and a throwaway account.**
+
+### ⚠ STAGES THAT ARE NOT WHAT AN EARLIER ROADMAP ENTRY IMPLIED
+
+- **The `/me` "Journey — +N marks a paper" line was NOT BUILT and should not be re-scoped without a
+  ruling.** It is a **percentage delta × an 80-mark paper the student has not sat** — a performance
+  projection, which `CLAUDE.md` §5 forbids. ★ **The doctrine caught a line in the owner-approved
+  prototype.** Honest raw-marks movement shipped instead.
+- **`/full-mock` lost its `/me` entry point.** The section is absent from the prototype **and both
+  briefs**. **Confirm intended before treating `/full-mock` as reachable from `/me`.**
+  `[FU-ME-FULLMOCK-ENTRY-POINT]`
+- **`step_solutions` is NOT a schema stage.** It **IS** declared
+  (`lib/db/src/schema/stepSolutions.ts`, Drizzle `pgTable`) with **zero importers**, and
+  `drizzle-kit push` is manual and in no boot path. ★ **The remedy is one command, not schema work.**
+
+
+---
+
 ## 2026-08-09 — WAVE CLOSEOUT: **STAGES PREVIOUSLY RECORDED AS "BUILT, NOT MERGED" ARE NOW COMPLETE ON TRUNK** (one docs-only lane, trunk `eeafb99b`) — and the DPDP arc's shipped stages get the record they never had
 
 **`2026-08-09`**
