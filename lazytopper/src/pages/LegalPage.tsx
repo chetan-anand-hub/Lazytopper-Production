@@ -278,7 +278,7 @@ const PAGES: Record<string, PageDef> = {
         <h2>Third-Party Services</h2>
         <p>We use Firebase Authentication (Google) for secure sign-in. We do not sell your data to any third party.</p>
         <h2>Your Rights</h2>
-        <p>You can request deletion of your account and all associated data by contacting us.</p>
+        <p>You can request deletion of your account and all associated data by contacting us. A parent or guardian may also write to us to review, export or delete their child's data.</p>
       </>
     ),
     contact: (
@@ -299,7 +299,7 @@ const PAGES: Record<string, PageDef> = {
         <h2>Disclaimer</h2>
         <p>LazyTopper provides data-driven predictions based on historical CBSE patterns. These are not guaranteed exam questions. We do not guarantee any specific exam results or scores.</p>
         <h2>User Accounts</h2>
-        <p>You are responsible for maintaining the confidentiality of your account. You must be at least 13 years old to use LazyTopper.</p>
+        <p>You are responsible for maintaining the confidentiality of your account. You must be at least 13 years old to use LazyTopper. If you are under 18, you must have your parent or guardian's permission to use LazyTopper. By creating an account, you confirm that you have it.</p>
         <h2>Subscription &amp; Payment</h2>
         <p>Free tier features are available without payment. Premium features require a subscription at the listed prices. You can cancel your subscription at any time.</p>
         <h2>Intellectual Property</h2>
