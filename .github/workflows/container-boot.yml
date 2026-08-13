@@ -74,7 +74,7 @@ jobs:
       # build layers dominate, and they only re-run when a manifest or the lockfile moves.
       - name: Build the image
         if: steps.classify.outputs.skip != 'true'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           load: true
