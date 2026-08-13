@@ -140,8 +140,28 @@ differs from the one recorded here, **your measurement wins and this file is wha
 - **★★ THE PREMISE GATE'S ONLY ENFORCEMENT POINT IS YOUR REFUSAL. NOTHING IN CI CAN SEE A SPEC.** An
   instruction file is never in a PR: `ops/.specs/` is gitignored (`git check-ignore -v
   ops/.specs/<LANE>.md` → `.gitignore:107:ops/.specs/`), so no workflow has an artefact to inspect.
-  - **Establishing command:** `grep -rn "premise_ledger" .github/ package.json` → **no output, exit 1**
-    (re-run 2026-08-13). No workflow, no npm script, no hook invokes `scripts/premise_ledger_check.mjs`.
+  - **Establishing command** (re-run 2026-08-13) — evidence the claim, which is that no SPEC is ever
+    available to CI, not that CI never touches the checker:
+    ```
+    git ls-files 'ops/.specs/'                       # → nothing: no spec is ever committed
+    git check-ignore -v ops/.specs/<LANE>.md         # → .gitignore:107:ops/.specs/
+    ```
+  - ⚠ **CI DOES invoke the checker — it simply never has a spec to point it at.** Do not read the claim
+    above as "nothing runs it". `scripts/src/premiseLedgerGuard.test.ts` `spawnSync`s
+    `scripts/premise_ledger_check.mjs`, and `scripts/package.json:20` lists that test in
+    `test:matrix:all`, which `.github/workflows/quality-gate.yml:180` runs on every non-docs PR
+    (`if: steps.classify.outputs.docs_only != 'true'`). Its inputs are `ops/AGENT_SPEC_TEMPLATE.md` and
+    throwaway `mkdtempSync` fixtures, so it pins the CHECKER'S BEHAVIOUR and still gates no spec.
+    Measured at this SHA: `node --experimental-strip-types --test src/premiseLedgerGuard.test.ts` →
+    `# pass 6  # fail 0  # skipped 0  # todo 0`.
+    - **This bullet previously read** *"No workflow, no npm script, no hook invokes
+      `scripts/premise_ledger_check.mjs`"*, **and that was false.** It was established by
+      `grep -rn "premise_ledger" .github/ package.json`, which searches `.github/` and the ROOT
+      `package.json` only — so it cannot reach `scripts/package.json`, and the chain runs through an
+      npm script NAME (`test:matrix:all`) that contains the string "premise" nowhere. A grep whose
+      reach is narrower than the claim it supports returns a true "no output" under a false sentence.
+      One invocation that does span it: `grep -rn "premise\|test:matrix:all" package.json
+      scripts/package.json .github/workflows/quality-gate.yml`.
   - ➜ **So a lane that skips step one of THE PREMISE GATE is invisible to every gate and to any reviewer
     reading CI.** The gate holds because the agent runs it and pastes the exit code, and for no other
     reason. **Paste the exit code even when it is zero** — an unquoted gate and an unrun gate are the same
@@ -204,3 +224,42 @@ differs from the one recorded here, **your measurement wins and this file is wha
     (`de980441c3ab…`).**
   - ➜ **LF-normalise explicitly, then hash.** Do not rely on the ambient setting, and **state the setting
     you hashed under** whenever you quote a hash as evidence.
+
+### ★★ A STOP CONDITION MUST QUOTE THE TEXT IT GUARDS, NEVER PARAPHRASE IT (Wave OPS-1, 2026-08-13)
+
+**A STOP condition must quote the text it guards, never paraphrase it.**
+
+`[FU-SPEC-GUARD-MIS-SUMMARISES-WHAT-IT-GUARDS]` — owner-accepted 2026-08-13, filed as its own class.
+
+**WHY THIS IS A CLASS OF ITS OWN AND NOT A BULLET UNDER EVIDENCE HYGIENE.** Every previously-recorded
+false signal in this project came from an INSTRUMENT: a guard that could not fire, a matcher blind to a
+directory, a grep that is not a CRLF detector, a gate vacuous on untracked files. In the owner's words,
+this one was
+
+> *a false RED originating in the spec, with no faulty instrument anywhere. Every prior instance was a
+> tool misreporting; this one was the author.*
+
+**There was no faulty instrument.** The spec paraphrased the thing it was guarding, the paraphrase and the
+original disagreed, and so a correct tool reported a real mismatch — against a condition the author had
+never actually stated. Nothing downstream can tell that apart from a genuine failure: the lane sees a red,
+the instrument is behaving perfectly, and the defect is in the sentence that commissioned the check.
+
+- **Establishing command** — run it on every STOP condition you write, against the file it guards:
+  ```
+  grep -Fn "<the exact string the STOP condition quotes>" <the file the condition guards>
+  ```
+  **Zero hits means you are guarding text that does not exist.** `-F` is load-bearing: without it, a
+  paraphrase containing regex metacharacters can match something it does not equal, which turns this
+  check into one more instrument that cannot fire.
+- ➜ **Quote, then cite.** Paste the guarded text verbatim into the condition and name its file. A
+  condition that describes the guarded text in the author's own words is a derived value with nothing
+  re-checking it — **the same defect as a bare line number**, one level up.
+- ➜ **It binds the AUTHOR, and a lane cannot discharge it.** The lane re-reads a correct instrument
+  reporting a real mismatch, so re-running anything only reproduces the red. Only the author, comparing
+  their own words against the source before dispatch, can catch it.
+- ➜ **Applies to acceptance criteria and allowlists too**, not just literal STOP blocks — any spec
+  sentence a lane is expected to check something against.
+- ⚠ **The same defect one level down is a CITATION that under-describes what it is evidence for.** The
+  blind `grep -rn "premise_ledger" .github/ package.json` corrected in this same wave (see *Evidence
+  hygiene* above, and `ops/agent-spec/SKILL.md`) is the identical failure: the author summarising the
+  evidence instead of quoting it, and the summary reaching less far than the claim it supports.

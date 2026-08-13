@@ -89,9 +89,13 @@ number in prose.
   not bundle a duplicate. Two copies of one truth is the drift that got `references/`
   deleted. **What makes it fire is §0c.0 of the template — the agent runs the gate on its
   own instruction file as its FIRST command.** Nothing in CI can see a spec, because a spec
-  is never in a PR: `grep -rn "premise_ledger" .github/ package.json` returns nothing.
-  `scripts/src/premiseLedgerGuard.test.ts` pins the checker's behaviour in CI; it does not
-  and cannot gate a spec.
+  is never in a PR: `git ls-files 'ops/.specs/'` returns nothing, and `ops/.specs/` is
+  gitignored (`git check-ignore -v` → `.gitignore:107:ops/.specs/`). CI *does* run the
+  checker — `scripts/src/premiseLedgerGuard.test.ts` spawns it, and `scripts/package.json`
+  lists that test in the root `test:matrix:all` — but only against
+  `ops/AGENT_SPEC_TEMPLATE.md` and throwaway fixtures. So it pins the checker's behaviour
+  and still cannot gate a spec. Full chain and its commands: **Evidence hygiene** in
+  `ops/AGENT_STANDING_RULES.md` — one home, not restated here.
 - **Template:** `ops/AGENT_SPEC_TEMPLATE.md` **in the repo** — not bundled beside this
   file. Same one-copy rule as the gate.
 - **Volatile state** (trunk SHA, lane status, open follow-ups) lives in `handoff/` and is
