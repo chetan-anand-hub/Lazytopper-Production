@@ -1,10 +1,55 @@
 # LazyTopper — Next Action
-# Updated: 2026-08-11 (post-**WAVE ME-C** + the close of **WAVE CLOSEOUT**, docs-only. Trunk `9682ba02`. **`/me` IS REBUILT AND ON TRUNK** - `#655` shipped the v7.1 page: a four-segment marks bar, the concepts costing the most, and a Topic Hub that opens on the exact concept. **All four CLOSEOUT lanes merged** - `#651`/`#652`/`#653`/`#654`. **`expectedMarks` IS STILL DORMANT** - the brief predicted two dormancies would end and only `?concept=` and `mistakeRetry` did. **`ProgressWindowArc` is now the `MentorSolveDrawer` shape: zero mounts, live suite.** **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.** Two live-verifies OWED.)
+
+```
+⚠⚠ READ THIS BEFORE PROVISIONING ANY DATABASE TABLE.
+
+PROVISIONING `tutor_cache` OR `step_solutions` MAKES #671's CRASH PATH REACHABLE.
+The hit-count UPDATE in lazytopper/server/services/tutorCache.cjs sits behind
+`bestScore >= SIMILARITY_THRESHOLD && bestRow`; `bestRow` requires the SELECT to succeed,
+which it cannot while the table is absent. The crash is latent ONLY because the cache never
+hits. #671 is on trunk — CONFIRM IT IS DEPLOYED, NOT MERELY MERGED, before creating either
+table. Merged is not deployed.
+```
+
+# Updated: 2026-08-13 (post-**WAVE OPS-1**, docs-only. Trunk `6de74d3f`. **WAVE OPS-1 — CLOSED. All twelve PRs on trunk.** ⚠⚠ **PROVISIONING `tutor_cache` OR `step_solutions` MAKES #671's CRASH PATH REACHABLE — read the warning at the top of this file before provisioning any database table.** **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.**)
+# Previously: 2026-08-11 (post-**WAVE ME-C** + the close of **WAVE CLOSEOUT**, docs-only. Trunk `9682ba02`. **`/me` IS REBUILT AND ON TRUNK** - `#655` shipped the v7.1 page: a four-segment marks bar, the concepts costing the most, and a Topic Hub that opens on the exact concept. **All four CLOSEOUT lanes merged** - `#651`/`#652`/`#653`/`#654`. **`expectedMarks` IS STILL DORMANT** - the brief predicted two dormancies would end and only `?concept=` and `mistakeRetry` did. **`ProgressWindowArc` is now the `MentorSolveDrawer` shape: zero mounts, live suite.** **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.** Two live-verifies OWED.)
 # Previously: 2026-08-09 (post-**WAVE CLOSEOUT**, lane `HANDOFF-CATCHUP`, docs-only. Trunk `eeafb99b`. **THE PREVIOUS BLOCK IS WRONG, NOT MERELY STALE:** `#647` and `#649` **ARE** on trunk - both merged BEFORE `#650`, which says they are drafts. **The DPDP code IS running in production** - `#644` landed, the gateway boots, and `#646` gave it a student-facing surface on `/me`. Wave DPDP-B's close-out existed on ONE DISK and is now archived. **`ME-2` is the next lane and carries THREE hard constraints, one of them a privacy regression risk.** `SUPPLY-2` is UNBLOCKED and is the DPDP arc's last lane.)
 # Previously: 2026-08-09 (post-**WAVE ME-B**: `#647` TOPICHUB-1 + `#649` RETRY-1, **BOTH OPEN DRAFTS WITH GREEN CI AND NEITHER ON TRUNK** - `gh pr ready` is the owner's step. Trunk `376e30b0`, which moved FOUR times during the wave. `ARRIVAL-1` returned BLOCKED with ZERO FILES and that was correct. **`ME-2` was NOT STARTED and passes whole to Wave ME-C.** **THREE consecutive concept resolvers were specified and all three were wrong**, caught only because each was handed on flagged UNVERIFIED. **`#647` is a CONSUMER WITH NO PRODUCER - if `ME-2` does not ship, it is dead code.**)
 # Previously: 2026-08-09 (post-**WAVE DPDP-A**: #640 · #639 · #638, three lanes + two read-only scouts. Trunk `6f7da56e`. 🛑🛑 **`#638` IS MERGED AND CANNOT DEPLOY** — production serves the `#639` build; the `#638` boot crashed on an undeclared `tsx` and Railway rolled it back. **DPDP-B's FIRST lane is that fix, ahead of `EXPORT-1` and `SETTINGS-1`.** Every DPDP-A lane disproved a premise of its own dispatching document, two of them the controller's own. **ONLY A BOOT PROVES IT RUNS.**)
 # Previously: 2026-08-09 (post-**WAVE ME-A**: #634 · #641 · #637 · #636, four lanes + two scouts, plus the four commits already unrecorded when it opened — #629 · #630 · #632 · #631 · #633. Trunk `e8f89863`. FOUR open PRs, none of them ME: #638/#639/#640 are the DPDP arc's live drafts, #635 is the owner's ops-docs PR. Every ME-A lane disproved part of its own spec. **Wave ME-B opens with `ARRIVAL-1` + `RETRY-1` under a FRESH controller; `ME-2` is Wave ME-C.**)
 # Previously: 2026-08-07 (post-**WAVE 5F**: #619 · #620 · #625 · #621 · #626 · #627, four lanes. Trunk `fbfb57fa`. ZERO open PRs. Typed grading LIVE-VERIFIED end to end, including the control. **Wave 5G opens with `ME-PROGRESS`.**)
+
+## NEXT — 2026-08-13 (post-Wave OPS-1). Read this block first.
+
+**Trunk `6de74d3ff799f2faa60cbd3e82664c7e43619701`** — re-derive with `git ls-remote origin base/approved-thru-437`.
+
+```
+NEXT, in priority order — all QUEUED, none dispatched:
+
+1. `[FU-TUTOR-CACHE-TABLE-NEVER-CREATED]` + `[FU-STEP-SOLUTIONS-TABLE-NEVER-CREATED]`.
+   The wave's largest finding. Two documented caches, neither created, both failing soft,
+   both costing a Gemini call on every request. See OPEN_QUESTIONS_AND_FOLLOWUPS.
+2. `[FU-OPS-J-NO-STANDING-GUARD-AGAINST-NEW-FLOATING-PROMISES]`. #671 is a POINT fix; nothing
+   stops the next one and no gate would see it — tsc does not check .cjs and this workspace
+   has no no-floating-promises lint. OPS-J's tripwired scanner exists and is wired to nothing.
+3. `[FU-DPDP-GUARDIAN-CONSENT]` vs #667 — owner ruling owed. Launch-blocking.
+4. `[FU-PREMISE-ANCHOR-BACKTICK-ESCAPE]` — the gate reports a TRUE premise as ROTTED when its
+   anchor holds escaped backticks. The misdiagnosis is the bug, not the rejection.
+5. `[FU-SHARED-CHECKOUT-NODE-MODULES-DANGLING]` — four checkouts point into a deleted
+   worktree; tsc cannot run in the repo root.
+6. `SIGNAL_*` gitignore entry (owner-ruled) · `[FU-OPSD-ESBUILD-KIT-OVERRIDE-ORPHANED]`
+   (⚠ pnpm-workspace.yaml:150 esbuild MUST STAY) · `[FU-OPS-DOCS-PR-IS-NOT-A-FULL-BAR-CHECK]`.
+
+DOCTRINE ADDED THIS WAVE — every lane inherits it:
+- A STOP condition must quote the text it guards, never paraphrase it.
+- An assertion about the repo, in a durable document, must carry the command that
+  establishes it. Authors are not exempt; the unledgered-spec STOP binds controller briefs.
+- Any tracked-enumerating gate (check:mojibake, test:repo-boundary) is VACUOUS on new files
+  until staged. Run after `git add`; prove non-vacuity by the tracked-count delta.
+- A docs-only PR does NOT run the full bar. Put [ci-full] in the title or nine gates skip
+  and the run is green anyway.
+- When relaying a measurement, relay WHERE IT WAS TAKEN.
+```
 
 ## NEXT — 2026-08-11 (post-Wave ME-C). Read this block first.
 

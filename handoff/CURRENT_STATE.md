@@ -1,6 +1,43 @@
 # LazyTopper — Current State
 
-## [CURRENT] Wave ME-C + Wave CLOSEOUT — a student can see where their marks went, and open the Topic Hub on the exact concept that cost them — trunk `9682ba02`
+## [CURRENT] Wave OPS-1 — CLOSED. All twelve PRs on trunk. The documents that govern how every lane in this project runs are in git — trunk `6de74d3f`
+
+**`2026-08-13`** · docs-only closeout, lane `OPS-CLOSEOUT`.
+
+```
+BASE SHA: 6de74d3ff799f2faa60cbd3e82664c7e43619701
+WAVE: OPS-1 — CLOSED. All twelve PRs on trunk.
+STAGE: governance/ops preservation, plus one product fix. No product SURFACE moved.
+
+Wave OPS-1 landed the documents that govern how every lane in this project runs. They had
+existed only on one laptop, untracked, while one of them was cited as binding by 11 of the 23
+briefs in handoff/. `ops/` on trunk now holds AGENT_SPEC_TEMPLATE, AGENT_STANDING_RULES,
+CONTROLLER_SUBAGENT_MODEL, CONTROLLER_ADDENDUM_Context_Safeguards, agent-spec/SKILL.md and
+five arc records under ops/arcs/. All 7 of 7 governing documents are preserved.
+
+THE WAVE'S TWELVE MERGED PRs, oldest first:
+  #665 OPS-A  preserve the five clean governing documents
+  #663 OPS-C  the standing rules move to the file agents actually read
+  #662 OPS-B  the untracked handoff briefs are dispatches, not lane reports
+  #664        file the GATE-1 lane report (post-#661)          — not an OPS-1 lane
+  #666 OPS-E  the agent-spec skill gets a source of truth      — owner-run
+  #667        name guardian permission for students under 18   — not an OPS-1 lane; see below
+  #670 OPS-H  the schema for two live Postgres tables survives the deletion of lib/db
+  #668 OPS-G  a STOP condition that paraphrases what it guards is a false red
+  #669 OPS-D  delete the dead Drizzle stack
+  #673 OPS-F  the two governing documents are in git, repaired and auditable
+  #672 OPS-K  land the ME-2 owner rulings addendum under its landing header
+  #671 OPS-J  a database blip on a cache hit no longer kills the API server
+
+⚠ #667 IS ON TRUNK AND ITS RELATIONSHIP TO A LAUNCH-BLOCKER IS UNRULED.
+`[FU-DPDP-GUARDIAN-CONSENT]` is recorded at OPEN_QUESTIONS_AND_FOLLOWUPS.md:187 as
+"OWNER · UNRULED · LAUNCH-BLOCKING", and at :20 as the one item that blocks launch. #667
+("docs(legal): name guardian permission for students under 18") landed during this wave.
+WHETHER IT DISCHARGES THAT FU IS THE OWNER'S CALL AND HAS NOT BEEN MADE. No agent lane can
+close it. Recorded here so the status is explicit on trunk rather than ambiguous.
+```
+
+## [PREVIOUS] Wave ME-C + Wave CLOSEOUT — a student can see where their marks went, and open the Topic Hub on the exact concept that cost them — trunk `9682ba02`
 
 **`2026-08-11` · one docs-only PR closing TWO waves at once.** Wave CLOSEOUT built four lanes and
 merged none of them when its controller wrote its draft; all four are now on trunk. Wave ME-C ran

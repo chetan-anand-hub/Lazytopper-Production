@@ -11,6 +11,176 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 ---
+## 2026-08-13 — WAVE OPS-1 (lane `OPS-CLOSEOUT`, docs-only). Trunk `6de74d3f`.
+
+**`2026-08-13`**
+
+### Resolved this wave
+
+**The dated entry for `[FU-WARMGATE-DRIZZLE-SCHEMA-DRIFT]` is left exactly as written**, per standing rule 3 at the top of this board — it is the entry whose headline carries the anchor "UNTIL THIS IS RESOLVED". The resolution is recorded here, in the current section, instead:
+
+- **[FU-WARMGATE-DRIZZLE-SCHEMA-DRIFT]** — RESOLVED BY DELETION (OPS-D, #669). The second
+  migration mechanism no longer exists: `lib/db` and its three Drizzle `pgTable` declarations
+  are deleted, `drizzle-orm` is gone from the api-server manifest and the workspace catalog,
+  and there is no longer any `drizzle-kit push` to run. The `generated_questions` DDL of record
+  is now solely `lazytopper/server/db/ensureGeneratedQuestionsTable.cjs`, which DOES declare
+  `answer` / `solution_steps` / `final_answer` and the unique index `saveToPool`'s `ON CONFLICT`
+  requires. The DDL of record for `step_solutions` and `tutor_cache` — which had no definition
+  outside `lib/db` — is preserved in `lazytopper/server/db/POSTGRES_SCHEMA_REFERENCE.md`
+  (OPS-H, #670), with the source Drizzle declaration quoted beside each derived `CREATE TABLE`
+  and mechanical mappings separated from inferred ones. It is a reference, not an executable
+  migration: creating either table remains a deliberate act.
+
+### New entries
+
+- **[FU-TUTOR-CACHE-TABLE-NEVER-CREATED]** and **[FU-STEP-SOLUTIONS-TABLE-NEVER-CREATED]** —
+  ★★ **THE LARGER FINDING OF THIS WAVE, and it is a live production cost, not a doc problem.**
+  `DATABASE_URL` is set and the pool works (boot log: `DATABASE_URL=set`,
+  `[gen-q-schema] generated_questions ready`; and a 42P01 requires a successful connection —
+  Postgres cannot report a missing relation without connecting). **But neither `tutor_cache`
+  nor `step_solutions` exists.** Verified against trunk: the only executable
+  `CREATE TABLE IF NOT EXISTS` statements are `generated_questions`
+  (`ensureGeneratedQuestionsTable.cjs:64`), `question_reports` (`questionReport.cjs:40`) and a
+  test fixture. Both other tables appear with `CREATE TABLE` **only** in
+  `lazytopper/server/db/POSTGRES_SCHEMA_REFERENCE.md` — a markdown file, explicitly
+  non-executable, whose own line 263 says so.
+  ⇒ **Two documented caches, neither created, both failing soft, both costing a Gemini call on
+  every request.** Every cacheable tutor question and every step-solution lookup issues a
+  SELECT that 42P01s, is caught, and returns a miss. **The caches have never once hit.**
+  ⇒ This is also why #671's crash path is **latent**: `tutorCache.cjs:146` sits behind
+  `bestScore >= SIMILARITY_THRESHOLD && bestRow`, and `bestRow` requires the SELECT to succeed.
+  **Creating the table makes the crash reachable** — so #671 must land BEFORE either table is
+  provisioned, not after.
+  ⇒ Fixing this is a decision, not a chore: it needs the DDL applied (the reference is ready),
+  and it changes cost and latency the moment it works. Not in scope for OPS-1.
+
+- **[FU-OPS-F-LOSSY-GOVERNING-DOCS] — CLOSED by #673.** Both documents are on trunk, repaired
+  in-repo from their own bytes with an 18-rule table published inside each file (2 MECHANICAL /
+  15 INFERRED / 1 AMBIGUOUS), a provenance header separating recovery from inference, and **4
+  genuinely ambiguous glyphs left visibly marked `U+2047` rather than guessed.** ASCII-stripped
+  diff empty against both sources — no word added, removed or reordered. **Owner spot-check of
+  the inferred set is still owed**, starting with the MeProgress §2 diagram, §5 item 3, and the
+  four markers. The two repo-root originals remain untracked and are still the only witnesses
+  to the pre-repair bytes; deleting them is the owner's call after verifying by content.
+  *Retained below for the reasoning, which outlived the exposure:*
+
+- ~~**[FU-OPS-F-LOSSY-GOVERNING-DOCS]**~~ — ★★ LIVE EXPOSURE, not a backlog item.
+  CONTROLLER_ADDENDUM_Context_Safeguards.md (10,223 b, 65 offending lines) and
+  CONTROLLER_MeProgress_v7_Arc.md (22,786 b, 153) are single untracked copies on one laptop,
+  lossily corrupted and therefore unpreservable verbatim without turning the enforced mojibake
+  gate red. Owner declined to work around the gate. See NEXT_ACTION for the ruled approach and
+  the two prohibitions.
+
+- **[FU-OPS-LANE-REPORTS-LIVE-OUTSIDE-THE-REPO]** — handoff/BRIEF_* are controller dispatches,
+  not lane reports. The reports live in OneDrive because CLAUDE.md §9/§11 sends them there.
+  OPEN: is that intended? Every OPS-B question follows from this one.
+
+- **[FU-OPS-CLAUDEMD-S11-VS-HANDOFF-REPORT-PATH]** — CLAUDE.md §11 says never write output
+  files into handoff/; this wave's specs told lanes to write reports there. Direct conflict.
+
+- **[FU-OPS-ME2V2-PAIRED-AUTHORITY-UNRESOLVED]** — BRIEF_ME-2_v2_ADDENDUM_OWNER_RULINGS.md
+  classifies RULING but its pair BRIEF_ME-2_v2.md classifies INSTRUCTION. The both-or-neither
+  rule fired, so NEITHER landed and SIX OWNER RULINGS REMAIN UNTRACKED.
+
+- **[FU-OPS-TRACKED-ENUM-GATES-VACUOUS-PRE-STAGE]** — check:mojibake and test:repo-boundary
+  both enumerate via `git ls-files`, so both are vacuous on new files until staged. Run after
+  `git add`; prove non-vacuity by the tracked-count delta, never by the exit code.
+
+- **[FU-OPS-DOCS-PR-IS-NOT-A-FULL-BAR-CHECK]** — contradicts §5 of
+  ops/CONTROLLER_SUBAGENT_MODEL.md, which calls a docs-only PR "the cheapest full-bar check
+  available". Measured false: CI_DOCS_LANE_PATH_FULL_BAR_RAN: false, nine gates skipped, green.
+  The manual was committed verbatim and deliberately NOT corrected — its provenance header
+  forbids editing. Correct it here instead, or in a lane that owns the file.
+
+- **[FU-OPS-DOCS-CLASSIFIER-DISAGREEMENT]** — CI classifies cofounder-skill/SKILL.md and
+  ops/AGENT_STANDING_RULES.md as code/FULL BAR while scope:guard --mode docs calls them docs.
+  Two "docs" classifiers, two answers.
+
+- **[FU-OPS-GREP-IS-NOT-A-CRLF-DETECTOR]** — grep -c $'\r' returns 0 on a CRLF file under
+  Git-Bash (same file: 643 CR bytes in Node). Use a byte-level count.
+
+- **[FU-OPS-CP1252-CONSOLE-NOT-FILE]** — ★★ a cp1252 stdout renders a CLEAN UTF-8 file as
+  mojibake and a naive verifier reports corruption that is not there. Plausibly how
+  CONTROLLER_SUBAGENT_MODEL.md acquired two of its three manglings. Byte-level reads only;
+  print codepoints, not characters.
+
+- **[FU-OPS-SIGNAL-FILES-WONT-CLASSIFY]** — SIGNAL_* holds verified evidence found nowhere
+  else and fits none of REPORT/INSTRUCTION/RULING. Owner decision owed: a fifth class?
+
+- **[FU-OPS-BRIEF-GATE-1-OUTSIDE-THE-REPO]** — BRIEF_GATE-1.md, cited by the wave brief as the
+  REPORT exemplar, is not in the repo at all. Import it into handoff/?
+
+- **[FU-OPS-WAVE-STATE-FILES-UNPRESERVED]** — five handoff/WAVE_STATE_*_LIVE.md files are
+  durable records no OPS-1 allowlist reached.
+
+- **[FU-OPS-UNLEDGERED-DISPATCH]** — two specs were dispatched with no §0 PREMISE LEDGER
+  against a standing rule landed one commit earlier. OWNER DECISION OWED: is the STOP
+  unconditional? If yes the rule must say what, if anything, substitutes — it currently does
+  not, and the lane that flagged it proceeded on in-band verification instead.
+
+- **[FU-OPS-STALE-V1-WORKTREE]** — C:/Projects/LT-worktrees/ops-a, branch
+  docs/ops-1-preserve-governing-docs, files staged, no commit. Owner cleanup; branch deletion
+  is never auto-approved.
+
+- **[FU-TUTORCACHE-VOID-QUERY-UNHANDLED-REJECTION]** — ★★ **LIVE DEFECT, needs its own lane.**
+  `lazytopper/server/services/tutorCache.cjs:146-149` does `void pool.query('UPDATE tutor_cache
+  SET hit_count…')` — a floating promise with no `.catch()`. **The enclosing `try` cannot catch
+  it, and Node 22 kills the process on an unhandled rejection.** Requires a cache hit, so it
+  needs the table to exist. `stepSolution.cjs:559` has the same shape and is SAFE because
+  `saveSolution` catches internally — the asymmetry is real, and assuming symmetry between
+  these two files gets the answer wrong in both directions.
+
+- **[FU-638-UNHANDLED-REJECTION-SHAPE]** — ⚠ **A SHAPE, NOT A CAUSE. Recorded at the confidence
+  it arrived with.** *OPS-H observes* that an unhandled rejection kills a Node process without
+  failing a healthcheck first, which is the shape of failure the #638 rollback mystery has been
+  missing — two lanes cleared the gateway on the reasoning that a gateway crash cannot fail the
+  healthcheck. **The lane explicitly did not claim causation and neither does this entry.**
+  Route to whoever owns #638. Do not promote it to a diagnosis on the way.
+
+- **[FU-OPSD-ESBUILD-KIT-OVERRIDE-ORPHANED]** — `pnpm-workspace.yaml:149`
+  (`@esbuild-kit/esm-loader`) is orphaned once drizzle-kit goes; its sole consumer was
+  `drizzle-kit@0.31.9`. Owner ruling D13: **leave it, separate lane** — removing a security
+  override deserves its own diff and review. ⚠ **`:150` esbuild MUST STAY** (api-server
+  declares esbuild directly, plus vite/tsx).
+
+- **[FU-OPSD-FRESH-WORKTREE-TS6305]** — api-server `typecheck` fails TS6305 on a fresh worktree
+  BEFORE any change, until root `tsc --build` runs. **It mimics a deletion-caused failure**;
+  only a control run distinguishes them.
+
+- **[FU-SHARED-CHECKOUT-NODE-MODULES-DANGLING]** — ★★ **the worktree-lifecycle problem's first
+  FUNCTIONAL failure, not just disk cost.** The shared checkout's `node_modules` top-level links
+  point into `LT-worktrees/pr1-signup-redirect`, **a worktree that no longer exists**, so
+  `typescript` is a dangling link and `tsc` cannot run there. `ops-a`, `ops-c` and `ops-g` are
+  in the same state — **four checkouts.** Until now, leaving worktrees behind cost disk; it now
+  costs the ability to run a gate in the repo's own root.
+  **The working method, for the next lane that hits this** (*OPS-H*): find a worktree with a
+  healthy install AND a `pnpm-lock.yaml` blob byte-identical to your base (`me-2`, blob
+  `e08e3e32`), junction to it, run the gate, then remove the junction with `rmdir` — **LINK
+  ONLY, never `rm -rf`, which would delete the donor's real files.** Re-verify the donor intact
+  afterwards. `pnpm install` was never run and the lockfile never written.
+  ⇒ **The worktree close-step now has a concrete cost attached, not just a count.** Removing a
+  worktree must also mean removing what points into it.
+
+- **[FU-PREMISE-ANCHOR-BACKTICK-ESCAPE]** — `premise_ledger_check.mjs` reports a TRUE premise
+  as *"The premise has ROTTED"* when its anchor contains markdown-escaped backticks: the gate
+  searches for a literal string containing backslashes that can never match. A comma-list
+  citation (`path:15,18`) is rejected the same way. **A checker bug, not a spec bug**, and the
+  diagnosis it prints is wrong, which is the expensive part.
+
+- **[FU-OPSD-DDL-OF-RECORD-LOST]** — **CLOSED by #670** before it could open. Retained only so
+  the reasoning survives: a prior lane
+  (`WAVE_STATE_WAVE5B_ARCHIVE.md:827-828`) concluded `lib/db` could not be deleted because its
+  Drizzle schema was the only DDL for three tables. Partly right — `generated_questions` had
+  real runtime DDL and Drizzle was a wrong duplicate there; the other two had none.
+
+- **[FU-OPSD-STALE-LIBDB-COMMENT]** · **[FU-OPSD-APISERVER-SRC-COUNT-STALE]** ·
+  **[FU-OPSD-LOCKFILE-LANE-CONTENTION]** · **[FU-STEPSOLUTION-WARMER-HASH-MISSING-CACHE-VERSION]**
+  · **[FU-ROOT-MATRIX-COUNT-DOC-DRIFT]** · **[FU-BLIND-CITATION-NARROWER-THAN-ITS-CLAIM]** ·
+  **[FU-GUARD-TEST-INPUTS-ARE-SYNTHETIC]** — bodies in the lane reports at
+  `"C:\Users\Chetan\OneDrive\Desktop\diff\handover\Ops Session\"`.
+
+---
+
 ## 2026-08-11 — WAVE ME-C + WAVE CLOSEOUT (lane `HANDOFF-ME-C`, docs-only). Trunk `9682ba02`.
 
 **`2026-08-11`**
