@@ -17,8 +17,50 @@ WHAT WAS INFERRED FROM CONTEXT (a human should spot-check these):
   2x   MOUNT != LIVE     -- restored from the known phrase in cofounder-skill/SKILL.md
   11x  bold double marker -> two stars
   15x  bold single marker -> one star
-  3x   marker + wide gap  -> double arrow
+  3x   marker + wide gap  -> warning sign        [CORRECTED 2026-08-13 - was "double arrow"]
   91x  everything else    -> em dash (the dominant original use)
+
+THE RULE TABLE. Per rule: WHAT WAS MAPPED TO WHAT, and whether that mapping was MECHANICAL
+(byte-recoverable, certain) or INFERRED (a judgement a human should spot-check). This is the
+format lane OPS-F published inside ops/CONTROLLER_ADDENDUM_Context_Safeguards.md and
+ops/arcs/CONTROLLER_MeProgress_v7_Arc.md - see those two files on trunk for the worked example
+and the full derivation; they are not restated here. Counts are OCCURRENCES OF THE RULE.
+Damaged sequences are written as CODEPOINTS, never as the damaged characters themselves, so
+that this header does not itself trip the mojibake gate.
+
+  M1   x7    -> · middle dot                MECHANICAL  exact decode; nothing was lost
+  M2   x1    -> § section sign              MECHANICAL  exact decode; nothing was lost
+  M3   x1    -> … ellipsis                  MECHANICAL  an A0-or-above third byte survived and narrows it
+  I1   x2    -> MOUNT != LIVE               INFERRED    restored from the known phrase in cofounder-skill/SKILL.md
+  I2   x11   -> ★★ two stars                INFERRED    the house emphasis ladder, double tier
+  I3   x15   -> ★ one star                  INFERRED    the house emphasis ladder, single tier
+  I4   x3    -> ⚠ warning sign              INFERRED    marker + wide gap; SEE THE CORRECTION BELOW
+  I5   x91   -> — em dash                   INFERRED    the dominant original use; the DEFAULT rule, and therefore the least certain large class
+  TOTAL 131 substitutions - 9 MECHANICAL, 122 INFERRED
+
+THE CORRECTION, 2026-08-13 (lane OPS-CLOSEOUT, owner-ruled; the class was found by lane OPS-F
+while repairing this file's two siblings). Rule I4 previously read "marker + wide gap -> double
+arrow", and the three sites carried U+21D2. They now carry U+26A0.
+THE ARGUMENT IS MECHANICAL, NOT STYLISTIC. A WIDE GAP CAN ONLY COME FROM AN A0-TAILED GLYPH.
+The warning sign is E2 9A A0 - A0-tailed - and its surviving 0xA0 was later normalised from a
+no-break space to an ordinary space, which IS the observed wide gap. The double arrow is
+E2 87 92 and has no A0 tail, so it cannot have produced the gap that was observed. All three
+sites read as standalone warnings, not as logical consequences. The identical class is resolved
+the identical way, independently, as rule R9 in ops/CONTROLLER_ADDENDUM_Context_Safeguards.md.
+Reproducible by anyone with hexdump.
+
+WHY THIS FILE NEEDS A RULE TABLE AND NOT JUST COUNTS - THE MECHANICAL-LABEL DEFECT.
+OPS-F reports that a proposed rule U+00C3 U+00A7 -> U+00E7, labelled MECHANICAL, decodes
+correctly and is THE WRONG CHARACTER: it would have published "[c-cedilla]2 applies regardless
+of who opens the PR" where the source had a SECTION SIGN. It was reclassified INFERRED.
+"MECHANICALLY RECOVERABLE" DESCRIBES THE BYTES, NOT THE MEANING. A MECHANICAL label asserts a
+certainty byte arithmetic cannot supply, and a reader who trusts the label will not re-check
+the glyph. Counts tell you HOW MUCH was guessed; only the table tells you WHAT was guessed, and
+lets a human find the guess that is wrong.
+Two further rule defects in that lane were caught ONLY BY READING THE RENDERED OUTPUT. No gate
+saw them, and the ASCII-stripped byte-identity proof was blind to them, because it proves no
+WORD moved and says nothing about whether the right GLYPH was chosen.
+THE BYTE PROOF IS NECESSARY AND NOT SUFFICIENT.
 
 NO WORDS WERE ADDED, REMOVED, OR REORDERED. Only marker glyphs were restored.
 If the owner still holds the original attachment, replace this file with it and delete
@@ -256,7 +298,7 @@ were blocked from writing report files, which makes **a lost relay a lost report
 subagent to write its full report to the reports directory **as its FIRST action after gates pass,
 BEFORE composing its return message.**
 
-> — ⇒ **AND SAY IN THE BRIEF THAT THE HARNESS WILL REFUSE.** Confirmed independently by **two** lanes
+> — ⚠ **AND SAY IN THE BRIEF THAT THE HARNESS WILL REFUSE.** Confirmed independently by **two** lanes
 > in Wave 4: **the `Write` tool refuses to create `.md` report files for subagents** — *"Subagents
 > should return findings as text."* **It is satisfiable only via the shell.**
 > — **A requirement that reads as impossible gets quietly dropped** — and a compliant subagent would
@@ -272,7 +314,7 @@ each other and were both wrong about what was on trunk.**
 > `git merge-base --is-ancestor <mergeCommit> origin/base/approved-thru-437`
 > and, independently, `git log origin/base/... -- <a path that PR changed>`.
 > **Run both after any merge you are told landed, and before building on that base.**
-> ⇒ Never read the shared checkout for this without `git fetch` first.
+> ⚠ Never read the shared checkout for this without `git fetch` first.
 
 **★★ LIVE-VERIFY MEANS BOTH SURFACES, AND AT LEAST ONE WITH EXISTING STATE.** *(Wave 4 — a live
 production break that every gate passed.)*
@@ -334,7 +376,7 @@ mojibake sequence into one of those lines to prove the regex fires on that exact
 
 > **A zero from a matcher nobody proved can fire is indistinguishable from a dead matcher.**
 > Report it as `ADDED_LINES=n MOJIBAKE_HITS=0 CONTROL_INJECTED_DETECTED=true`.
-> ⇒ 608 mojibake lines sat on trunk in `handoff/CURRENT_STATE.md` for months while the gate ran green.
+> ⚠ 608 mojibake lines sat on trunk in `handoff/CURRENT_STATE.md` for months while the gate ran green.
 
 **★ A DOCS-ONLY PR IS THE CHEAPEST FULL-BAR CHECK AVAILABLE — and the only one that sees the merged
 whole.** It runs root typecheck, `typecheck:test`, **build**, mojibake, Firestore rules tests and

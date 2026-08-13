@@ -1,5 +1,17 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-08-13 — WAVE OPS-1: **THE DOCUMENTS THAT GOVERN HOW EVERY LANE RUNS ARE IN GIT** — trunk `6de74d3f`
+
+**`2026-08-13`**
+
+- [x] Wave OPS-1 — governance artefact preservation (2026-08-13). CLOSED, 12 PRs.
+      ops/ now holds the operating model, standing rules, spec template, the context-safeguards
+      addendum, the agent-spec skill and five arc records. 7 of 7 governing documents
+      preserved — the two lossily-corrupted ones repaired in-repo with a published rule table
+      (#673). The dead Drizzle stack deleted (#669) and the DDL of record for two live Postgres
+      tables preserved first (#670). One product fix: an unhandled-rejection crash path in the
+      tutor cache closed (#671). No product SURFACE moved.
+
 ## 2026-08-11 — WAVE ME-C + WAVE CLOSEOUT: **EVERY STAGE PREVIOUSLY RECORDED AS "BUILT, NOT MERGED" IS NOW COMPLETE ON TRUNK** — trunk `9682ba02`
 
 **`2026-08-11`**
