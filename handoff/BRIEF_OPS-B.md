@@ -222,6 +222,46 @@ Outside my allowlist (`handoff/BRIEF_*.md`, new files only) but untracked and un
 
 → `[FU-OPS-WAVE-STATE-AND-CONTROLLER-DOCS-UNPRESERVED]`
 
+### F6 — A docs-only PR does NOT run the full bar. CI has a docs fast path.
+
+§4 states: *"A docs-only PR is the cheapest full-bar check available, and the only one that
+sees the merged whole — CI will run root typecheck, `typecheck:test`, build, mojibake,
+Firestore rules tests and edge security tests…"*
+
+**Of those six named gates, exactly one ran.** The first CI run on this PR (`31671201621`,
+bound to `cf33d441`) reported **success** — and its own final step printed:
+
+```
+CI_DOCS_LANE_PATH_TAKEN: docs-only
+CI_DOCS_LANE_PATH_INSPECTED_FILES: 1
+CI_DOCS_LANE_PATH_FULL_BAR_RAN: false
+```
+
+Nine substantive steps were **skipped**: Firestore rules tests, root guard matrix, root
+typecheck, edge security tests, build, ops matrix, `typecheck:test`, Vitest suites, and the
+Java/ripgrep setup they depend on. Only the classifier acceptance and **mojibake** ran —
+`quality-gate.yml` gates ten steps behind `steps.classify.outputs.docs_only != 'true'`, and
+the classifier's own suite pins this by design:
+*"a11 — mojibake runs on every path … it is the one gate a docs PR can fail."*
+
+**This is deliberate and correct behaviour, not a defect** — the workflow header explains the
+trade, and *"a14 — a push to trunk always takes the full bar"* means the integration check
+happens at **merge**, not on the PR. What is wrong is the belief, now recorded in a dispatched
+spec, that a green docs-PR tick is a full-bar result. It is a green tick over nine skipped
+gates. This is the standing lesson *"a green CI tick is not evidence the tests RAN"*, met in
+the wild, and it was caught only by reading the log.
+
+**I did not merely record it — I closed it.** The classifier honours an explicit
+`[ci-full]` marker in the **PR title** (`FULL_BAR_MARKER`, read from
+`PR_TITLE: ${{ github.event.pull_request.title }}`). The title of `#662` was amended to carry
+it before the final push, so the run quoted in §7 is a **real** full-bar run, which is what §4
+intended to obtain. The PR was re-checked as still DRAFT afterwards, because `gh pr edit`
+silently un-drafts.
+
+→ `[FU-OPS-DOCS-PR-IS-NOT-A-FULL-BAR-CHECK]` — the "docs-only PR = free integration check"
+belief appears in this lane's spec and in prior wave lore. Any docs lane that wants the check
+must put `[ci-full]` in the PR title; otherwise it gets mojibake and nothing else.
+
 ---
 
 ## 6 · MOJIBAKE — §3c
@@ -274,7 +314,7 @@ file. I ran the three-step control against **my own added lines** instead:
 | `git diff --check` | clean — no whitespace errors |
 | `git diff --name-only 267f26b0` | `handoff/BRIEF_OPS-B.md` — one file, one addition, nothing else |
 | Forbidden files | **none touched.** The six shared-lock files, `WAVE_STATE_OPS_1_LIVE.md`, everything under `ops/`, all product source, `lazytopper/**`, `scripts/**`, `lib/**` and `pnpm-lock.yaml` are all absent from the diff |
-| CI | __CI2__ |
+| CI | **see §7a below** — the first run took the docs fast path (F6); the full bar was then forced via `[ci-full]` |
 
 ---
 
@@ -302,6 +342,11 @@ file. I ran the three-step control against **my own added lines** instead:
 - **`[FU-OPS-INSTRUCTION-TEMPLATE-DEFEATS-MARKER-GREP]`** — Any future automated triage of these
   files must not grep for report markers: instruction files embed the report template they
   demand and score as REPORTs. Discriminate on the opening lines.
+
+- **`[FU-OPS-DOCS-PR-IS-NOT-A-FULL-BAR-CHECK]`** — A docs-only PR runs mojibake and the
+  classifier acceptance, and skips nine substantive gates. The "docs PR = free integration
+  check" belief is in this lane's spec and in prior wave lore. Put `[ci-full]` in the PR title
+  when the check is actually wanted. See F6.
 
 - **`[FU-OPS-ME2V2-PAIRED-AUTHORITY-UNRESOLVED]`** — The `ME-2` → `ME-2_v2` → `ADDENDUM`
   precedence chain is unresolved and nothing is on trunk. See §3.
