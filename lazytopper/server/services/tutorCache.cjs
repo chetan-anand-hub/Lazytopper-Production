@@ -143,9 +143,15 @@ async function findSimilarResponse(fingerprint, normalizedMode, subject) {
     }
 
     if (bestScore >= SIMILARITY_THRESHOLD && bestRow) {
+      // Fire-and-forget: the student is waiting on the cached response, so the
+      // hit-count bump must never be awaited. The `.catch` is not optional —
+      // the enclosing try CANNOT catch a floating promise, and an unhandled
+      // rejection terminates the Node 22 process.
       void pool.query(
         'UPDATE tutor_cache SET hit_count = hit_count + 1, updated_at = NOW() WHERE id = $1',
         [bestRow.id]
+      ).catch(
+        e => console.warn('[tutor-cache] hit_count update error (non-fatal):', e.message)
       );
       _stats.hits++;
       console.info(`[tutor-cache] HIT jaccard=${bestScore.toFixed(3)} id=${bestRow.id}`);
