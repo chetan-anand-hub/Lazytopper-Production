@@ -314,7 +314,45 @@ file. I ran the three-step control against **my own added lines** instead:
 | `git diff --check` | clean — no whitespace errors |
 | `git diff --name-only 267f26b0` | `handoff/BRIEF_OPS-B.md` — one file, one addition, nothing else |
 | Forbidden files | **none touched.** The six shared-lock files, `WAVE_STATE_OPS_1_LIVE.md`, everything under `ops/`, all product source, `lazytopper/**`, `scripts/**`, `lib/**` and `pnpm-lock.yaml` are all absent from the diff |
-| CI | **see §7a below** — the first run took the docs fast path (F6); the full bar was then forced via `[ci-full]` |
+| CI | **PASS (full bar)** — run `31671422418` on `8c7d7b6b`: `CI_DOCS_LANE_PATH_FULL_BAR_RAN: true`, vitest `1800 passed (1800)`, `# fail 0 # skipped 0`. See §7a |
+
+### 7a · CI — what actually ran, and on which commit
+
+**A CI run id is bound to a commit, not a PR.** Both runs below are named with the commit they
+ran against, because that is the only form of this evidence that can be re-checked.
+
+| run | commit | path | verdict |
+|---|---|---|---|
+| `31671201804` … `31671201621` | `cf33d441` | **docs-only fast path** — `CI_DOCS_LANE_PATH_FULL_BAR_RAN: false` | green over 9 skipped gates. See **F6** |
+| **`31671422418`** | **`8c7d7b6b`** | **full bar** — `CI_DOCS_LANE_PATH_TAKEN: full` / `CI_DOCS_LANE_PATH_FULL_BAR_RAN: true` | **PASS** |
+
+The full-bar run executed every step the fast path had skipped, all green: Firestore rules
+tests, root guard matrix, root typecheck, edge security tests, mojibake, **build (lazytopper)**,
+ops matrix, `typecheck:test`, and the Vitest suites.
+
+**Zero-skip proof — read from the log, not from the tick:**
+
+```
+ Test Files  140 passed (140)
+      Tests  1800 passed (1800)
+```
+
+and across the 17 `node --test` suites in the run, summed:
+
+```
+# pass 643   # fail 0   # skipped 0   # todo 0
+```
+
+Passed-equals-total in both harnesses, so nothing was skipped, todo-ed or silently absent.
+
+⚠ Two counts worth not hard-coding anywhere: the lazytopper vitest suite is now **140 files /
+1800 tests** (prior lore said 112 / 1387). Read it from the run.
+
+**One honest limit.** This report's own final commit lands *after* the run quoted above, so
+that run did not see these last paragraphs. The `[ci-full]` marker lives in the PR title and
+persists, so the tail commit takes the identical full bar; its result is on `#662`'s checks.
+The evidence above is bound to `8c7d7b6b` and is stated as such rather than as "the PR is
+green".
 
 ---
 
