@@ -1,5 +1,155 @@
 ---
 
+## 2026-08-13 — Wave OPS-1 (CONTROLLER/SUBAGENT model) — governance preservation
+
+Five artefacts governing how every lane runs existed only on one laptop. One of them,
+LazyTopper_Controller_Subagent_Model.md, is cited as binding by 11 of 23 briefs and its own §5
+reads "AN ATTACHED DOCUMENT IS NOT A FILE" — the rule the situation violated by existing.
+
+LANDED — all twelve: #665 (OPS-A) · #663 (OPS-C) · #662 (OPS-B) · #664 · #666 (OPS-E) · #667 ·
+#670 (OPS-H) · #668 (OPS-G) · #669 (OPS-D) · #673 (OPS-F) · #672 (OPS-K) · #671 (OPS-J).
+7 of 7 governing documents preserved. Wave CLOSED.
+
+WHAT THE WAVE ACTUALLY FOUND — four spec premises were disproved by the lanes sent to act on
+them, three of them controller-authored:
+
+1. "handoff/BRIEF_* are lane reports to preserve" — INVERTED. They are controller DISPATCHES:
+   0 REPORT / 1 RULING / 21 INSTRUCTION / 1 UNCLASSIFIED across 23 files. The real reports live
+   OUTSIDE version control because CLAUDE.md §9/§11 sends them there. Agents had been complying
+   exactly. There was nothing to preserve; the classification record became the deliverable.
+2. "all six non-model docs carry mojibake" — FALSE. Four are clean; three have literally ZERO
+   non-ASCII bytes. Only that finding made a partial ship possible when the gate went red.
+3. "check:mojibake is report-only on ops/" — FALSE. REPORT_ONLY_PREFIXES = ['handoff/'] only,
+   proven by injection driving exit 1. ops/ is ENFORCED.
+4. "the repaired operating manual has 0 mojibake" — true of the owner's file, FALSE of the copy
+   that reached the controller as an attachment (135 bare markers, 0 em dashes).
+
+THREE DISTINCT CORRUPTION MECHANISMS were separated for the first time, having previously been
+conflated as one recurring "the file is corrupt again":
+  (a) an older damaged generation genuinely sitting on disk;
+  (b) a lossy ATTACHMENT CHANNEL — confirmed from both ends, owner and controller;
+  (c) a cp1252 CONSOLE that renders a perfectly clean file as `â€"`.
+(c) is the most dangerous: it invites a well-meaning agent to "repair" a file that is already
+correct, which is plausibly how this document acquired manglings two and three. Byte-level
+reads only — [System.IO.File]::ReadAllBytes or Python open(...,'rb').decode('utf-8'). Never
+Get-Content, and print CODEPOINTS, not characters.
+
+GATE FINDINGS:
+- Tracked-enumerating gates are vacuous on unstaged new files. check:mojibake returned
+  enforced_hits=0 exit 0 with the files untracked; `git add` made it red at 218. The same
+  blindness affects test:repo-boundary. Proof of non-vacuity is the tracked-count delta
+  (1821→1826 / 1552→1557), not the exit code.
+- A docs-only PR does NOT run the full bar: a green run carried
+  CI_DOCS_LANE_PATH_FULL_BAR_RAN: false with nine gates skipped. [ci-full] in the title fixes it.
+- grep -c $'\r' returns 0 on a CRLF file under Git-Bash. grep is not a CRLF detector.
+- core.autocrlf=true here, so `git hash-object` normalises — byte-identity needs an unfiltered
+  hash computed separately.
+
+CONTROLLER DEFECTS, recorded because the wave's subject is unreliable records:
+- Two specs (OPS-B, OPS-C) were dispatched with no §0 PREMISE LEDGER, against a standing rule
+  landed by #661 one commit earlier. OPS-C caught it and reported the controller.
+- OPS-A v1.0 was 255 lines against a 250-line budget and the gate rejected it before any work.
+  The lane correctly refused to trim someone else's spec.
+
+STALE LORE CORRECTED: lazytopper vitest is 140 files / 1800 tests (was recorded as 112 / 1387);
+root guard matrix is 202 checks / 30 suites (was 190, then 196).
+
+LATER LANES: #668 (OPS-G, doctrine) · #669 (OPS-D, Drizzle deletion, 13 files) · #670 (OPS-H,
+DDL preservation). Merge order D14: #670 → #668 → #669 → dependabot rebases.
+
+SIX controller-authored premises were disproved by the lanes sent to act on them, and the
+lanes were right every time they contradicted the spec. Two specs were dispatched with no §0
+ledger; one was 255 lines against a 250 budget; one allowlist was unsatisfiable (the second
+this project has produced); one claimed a lockfile exclusivity that dependabot disproved by
+turning CI red; one ledger omitted a table (`tutor_cache`) whose loss was the wave's last real
+finding; and one suspected an `ON CONFLICT` defect that did not exist. The countermeasure that
+worked every time was the same: pass unverified claims through FLAGGED UNVERIFIED with an
+instruction to verify, and require a CONTROL alongside every finding.
+
+THE SIX WRONG PREMISES ARE ONE CLASS, AND NAMING IT IS WORTH MORE THAN THE COUNT.
+Every one was a claim about the EXTENT OF A SET, asserted from a sample instead of an
+enumeration:
+  1. "the repaired copy has 0 mojibake"        — one artefact stood in for its channel
+  2. "all six docs carry mojibake"             — two dirty members stood in for six
+  3. "check:mojibake is report-only on ops/"   — a known prefix stood in for a neighbour
+  4. "the only lane touching pnpm-lock.yaml"   — the lanes I controlled stood in for all open PRs
+  5. the OPS-D allowlist and ledger            — the workspace-glob graph stood in for the
+                                                 tsconfig-references graph; two tables for three
+  6. "ON CONFLICT may lack a unique index"     — a query pattern stood in for the declaration
+Not one was a reasoning error. Each was a plausible generalisation from a real observation,
+and the lane that checked it found the exception every time.
+THE MECHANISM IS STRUCTURAL, NOT CARELESS. A controller cannot read code, so when a spec needs
+an extent it substitutes plausible uniformity for enumeration. But HALF of the six were things
+the controller COULD have enumerated with a metadata command it is allowed to run — `gh pr
+list` would have caught #4, `git grep` on tsconfigs #5, `git show` on the declaration #6. The
+defect was not inability; it was not asking.
+THE COUNTERMEASURE, now doctrine: when a spec asserts the EXTENT of a set, either enumerate it
+with a command the controller can actually run and cite the output, or mark it UNVERIFIED with
+a §0b question. Never state it flat. "WHERE ELSE?" has always been a rule for subagents at
+execution time; it belongs to the author at writing time, and that is where it kept failing.
+
+A NINTH, AND IT ALMOST SHIPPED THIS VERY DOCUMENT: THE PARTIAL REFRESH. The controller updated
+this payload's FRONT MATTER to "all lanes are on trunk" and left §§1-4 saying OPS-D, OPS-G and
+OPS-F were pending and two governing documents unpreserved. Applied verbatim it would have put a
+record on trunk **declaring the wave unfinished** — the mirror of the payload's own Rule 0, a
+handoff that does not describe trunk. Caught by the closeout lane, which stopped with zero files
+changed rather than filling in the gaps, correctly noting that repairing §§2 and §4 would be
+**authoring, not scribing.**
+⇒ **A PARTIAL REFRESH IS MORE DANGEROUS THAN NO REFRESH, BECAUSE THE UPDATED PART CERTIFIES THE
+STALE PART.** A reader who sees a current header stops checking the body. Same shape as the
+darken ruling and the blind citation: the visible half vouches for the half nobody re-read.
+⇒ Structural gap it exposed: **`premise_ledger_check.mjs` passed a spec whose payload was
+stale, because the payload is gitignored and the gate never reads it.** A ledger certifies the
+spec's premises, not the correctness of the content the spec points at.
+`[FU-OPS-PAYLOAD-BODY-STALE-VS-FRONT-MATTER]`, `[FU-PREMISE-GATE-DOES-NOT-SEE-THE-PAYLOAD]`.
+
+AN EIGHTH INSTANCE WITH A DISTINCT MECHANISM: THE CARRIED PREMISE. The controller reported
+production as Node 22. It is **v24.19.0**, measured from the running service. The "22" came
+from a lane's LOCAL harness banner (`Node.js v22.20.0`) quoted inside its control output, and
+was relayed as a fact about production. Nobody asserted it falsely; it was **inherited across a
+context boundary where its scope silently changed** — true of the lane's machine, never claimed
+of the deployed one. The conclusion survived (unhandled rejections have been fatal by default
+since Node 15) but the premise did not, and a premise that travels further than its evidence is
+the same defect as an anchor that outlives its lines.
+⇒ Rule: **when relaying a measurement, relay WHERE IT WAS TAKEN.** A version, a path or a count
+from a subagent's local run describes that run. Production facts come from production.
+
+A SECOND, SEPARATE CLASS: SPEC-FORMAT DEFECTS THE GATE CAUGHT — and this one is a success
+story, not a failure. Five specs tripped `premise_ledger_check.mjs` or its budget: 255 lines
+against 250; a comma-list citation; an anchor containing escaped backticks; §0c.0 ordered
+before the §0c.1 step that creates the worktree it runs in; and an UNVERIFIED row with no
+matching §0b question while the body asserted it as fact. **Every one was caught before the
+lane did any work, and in each case the lane correctly refused to repair someone else's spec.**
+Two of the five were the CHECKER's fault, not the author's — an escaped-backtick anchor and a
+comma-list citation are both reported as "The premise has ROTTED", which is the wrong
+diagnosis and sent one lane looking for rot that did not exist.
+⇒ The gate is doing exactly what it exists for. The cost is a re-dispatch, which is cheap. The
+one improvement worth making is the misdiagnosis: `[FU-PREMISE-ANCHOR-BACKTICK-ESCAPE]`.
+
+THE CLASS IS NOT THE CONTROLLER'S ALONE, AND THE OWNER RECORDED HIS OWN INSTANCE. A ruling
+issued this wave asserted that `BRIEF_ME-2_v2.md` "could not be located". The file existed,
+untracked, in a `git status` its author had already read. Owner's instruction: *"Record that as
+the same class as the darken ruling: an unverified claim about the repo, written into a durable
+document."* Both were caught the same way — by a reader who checked the claim instead of
+inheriting it — and in both cases the OUTCOME was right and the REASON was wrong, which is the
+version that travels. ⇒ The rule earned this wave (a STOP condition must quote the text it
+guards, never paraphrase it) has a sibling: **an assertion about the repo, in a durable
+document, must carry the command that establishes it.** Authors are not exempt from either;
+the unledgered-spec STOP was ruled to bind controller briefs exactly as it binds lane specs.
+
+A SEVENTH ERROR WAS SEQUENCING, NOT A PREMISE, AND IT IS THE MORE EXPENSIVE KIND. The lane
+covering the only irreplaceable artefacts in the wave — two governing documents existing as
+single copies on one laptop — was correctly identified as outranking everything, in writing,
+and then queued behind four PRs whose contents are all recoverable from git. A stated priority
+that does not change dispatch order is not a priority; it is a note.
+
+CONTROLS EARNED THEIR KEEP THREE TIMES: a mutation pair whose arms both failed on a bad `tsc`
+path (invalid, caught by its author); a fresh-worktree TS6305 that mimics a deletion-caused
+failure; and a cp1252 console that renders a clean UTF-8 file as mojibake. In each case the
+control, not the finding, is what distinguished a real result from an artefact.
+
+---
+
 ## 2026-08-11 — WAVE ME-C + WAVE CLOSEOUT CLOSED: `/me` rebuilt and shipped, four CLOSEOUT lanes landed, and the "locked FINAL" prototype was the wrong version — trunk `9682ba02`
 
 **`2026-08-11`** · one docs-only lane, `HANDOFF-ME-C`, under the controller + subagent model.
