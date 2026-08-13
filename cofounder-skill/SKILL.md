@@ -40,6 +40,16 @@ If you cannot reach the repo, follow this file — but **say so explicitly in yo
 owner knows you are working from a possibly-stale method rather than the current one.
 
 ## SKILL SYNC (this file lives in TWO places — keep them identical)
+**Version 2.6 · 2026-08-13.** *Supersedes 2.5 (2026-07-22). Wave OPS-1 / lane OPS-C. **Corrects a false fact
+and MIGRATES three rules out of this file.** The `ONLY A BOOT PROVES IT RUNS` section claimed
+`ops/AGENT_STANDING_RULES.md` **"DOES NOT EXIST ON TRUNK"** and that `#635` was **"open and failing its
+repo-boundary check"** — both false since 2026-08-09, when `#635` merged as `baf9b67a…` (verified an ancestor
+of `base/approved-thru-437`). Under the owner's AGENTS/COFOUNDER boundary the three rules it guarded belong in
+`ops/AGENT_STANDING_RULES.md`, so they were **moved there, not copied** — this file now carries only a pointer,
+and `[FU-DOCS-STANDING-RULES-TWO-HOMES]` is discharged. Also notes the drift this ledger itself accumulated:
+**the 2026-08-09 Wave ME-A and DPDP-A sections landed with no ledger entry**, leaving the header at 2.5 while
+the body had moved twice — the same defect 2.5 recorded against 2.4, recurring because the fix was prose.*
+
 **Version 2.5 · 2026-07-22.** *Supersedes 2.4 (same day). Adds two findings from the #528 stand-down, both learned
 by RUNNING the commands rather than reasoning about them:* **(1) a new GREEN-BOARD-TRAP species — "a derived value
 outlives the facts it was derived from, and nothing re-checks it."** `[FU-HUB-DROPDOWN-ZINDEX]` logged `zIndex: 55`
@@ -279,59 +289,31 @@ third case, falsifiable in one command that nobody ran.
   - ➜ ⭐ **The owner's note on this one:** *"I told you to carry the dormancy block forward verbatim, and verbatim is
     what preserved the staleness."* **The instruction was the vector.**
 
-## ★★★ ONLY A BOOT PROVES IT RUNS (2026-08-09, Wave DPDP-A — the missing rung, plus two rules about what evidence is NOT)
+## ★ WHERE THE DPDP-A AGENT RULES WENT (2026-08-13, Wave OPS-1 — migrated, not copied)
 
-⚠ **`[FU-DOCS-STANDING-RULES-TWO-HOMES]` applies to all three entries below.** The owner's boundary is
-that `ops/AGENT_STANDING_RULES.md` is what **AGENTS** read and this file is what the **COFOUNDER** reads,
-and **no rule is written in both.** All three are arguably agent-facing execution rules — especially the
-false-RED one — **but `ops/AGENT_STANDING_RULES.md` DOES NOT EXIST ON TRUNK** (`#635` is open and failing
-its repo-boundary check), so this is the only home that exists today. ➜ **They are candidates to MIGRATE —
-not copy — once `#635` lands.** Recorded because the failure mode is the one the ruling exists to prevent:
-**a rule living in the file its audience does not read.**
+**Three rules stood here and have MOVED to `ops/AGENT_STANDING_RULES.md`** — *only a boot proves it runs*
+(the evidence ladder's lowest rung), *the alert list is not the set*, and *a rule against false REDs*. They
+were **moved, not copied**: they are not in this file any more, and this file does not restate them. Read
+them in the ops file.
 
-- **★★★ THE EVIDENCE LADDER GAINS A RUNG: A TEST PROVES THE CODE WORKS. A BUILD CHUNK PROVES IT SHIPS.
-  ONLY A BOOT PROVES IT RUNS.** Named beneath `MOUNT ≠ LIVE`, one level lower than this project had ever
-  gone: **RESOLVES-IN-DEV ≠ RESOLVES-IN-THE-DEPLOYED-IMAGE.**
-  - **The instance:** `#638` shipped a server route that imports a `.ts` data map at runtime. Its deployment
-    **crashed on boot** — `Cannot find package 'tsx' imported from /app/lazytopper/` — and Railway rolled it
-    back, so production kept serving the previous build. `tsx` was declared in one workspace package and
-    never in the gateway; **pnpm workspaces isolate dependencies per package.**
-  - ★★ **THE PART THAT GENERALISES IS NOT THE BUG.** This was **not** a lane that skipped its proof. A scout
-    flagged the premise as *inference, not an executed import*; the controller **promoted it to
-    lane-blocking**; the lane ran it and reported `MAP IMPORT IN SERVER PROCESS: EXECUTED PASS` — **and that
-    report was true.** It executed in a **dev worktree**, where every workspace dependency resolves.
-  - ➜ ★★ **MAKING A PROOF MANDATORY IS NOT ENOUGH — THE BRIEF NEVER SAID WHERE IT HAD TO RUN.** *A
-    lane-blocking proof executed in the wrong environment reads exactly like a met requirement*, and nothing
-    downstream can tell the two apart.
-  - ➜ **OPERATIONAL FORM, ATTACH IT TO THE BRIEF: any lane that adds a runtime import to a server must state
-    WHICH IMAGE it executed in.** An `EXECUTED PASS` is scoped to the environment that executed it.
-  - ➜ **And the acceptance test for the fix is a SUCCESSFUL BOOT, not a green suite.** No gate in this
-    repository can produce that evidence — which is the whole reason the rung was missing.
+**The boundary that moved them is unchanged and is the reason for the move:**
+`ops/AGENT_STANDING_RULES.md` is what **AGENTS** read; this file is what the **COFOUNDER** reads.
+**SKILL.md points at the ops file and does not restate it — ★★ NO RULE IS WRITTEN IN BOTH.** All three are
+agent-facing *execution* rules — how a lane runs a mutation, reads a scanner, proves a deploy — so the ops
+file is their audience's file. `[FU-DOCS-STANDING-RULES-TWO-HOMES]` is discharged by the migration.
 
-- **★★ THE ALERT LIST IS NOT THE SET.** CodeQL flagged **4 of the 6** `setItem` calls in
-  `referralService.ts`. **Anyone remediating from the alert list covers four, believes they are done, and
-  ships.** The guard that landed audits all six, because it enumerated the set **from the file** rather than
-  from the tool's output.
-  - ➜ **Generalises to every scanner this project uses** — CodeQL, Dependabot, lint, the ops matrices.
-    **A scanner reports what its rules match, which is never the same claim as "here is the set."**
-  - ➜ **It recurred the same day, in the same file:** `Math.random()` in a **user-facing** referral code — a
-    flat `CLAUDE.md` §7 violation — sits on trunk **unflagged by anything.**
-  - ➜ **Same family as *a zero from something nobody proved can fire*.** When a tool returns N, the question
-    is not "are these N real" but **"what is N a count OF."**
-
-- **★★ A RULE AGAINST FALSE REDS — the inverse defence this project never had.** A year of rules against
-  false GREENS, and nothing against the mirror image: a mutation harness `execFileSync`-ing the
-  **extensionless `.bin/vitest`** returned `ENOENT`, **which reads exactly like a failing test. Five false
-  reds** were recorded as evidence before anyone looked.
-  - ➜ **THE FAILURE MUST QUOTE THE INJECTED VALUE.** If the red does not contain the thing you injected, it
-    is not evidence about your mutation.
-  - ➜ **Plus a pre-mutation GREEN and a did-it-actually-run assertion**, and the existing
-    `mutated-sha ≠ baseline-sha` precondition to prove the mutation LANDED.
-  - ➜ ★ **A mutation that "fails" for a reason unrelated to the mutation is as worthless as one that never
-    landed** — and it is more dangerous, because it *looks* like the strongest evidence a lane can produce.
-  - ⚠ **Corollary seen the same wave: a suite that fails to COLLECT looks nothing like a suite that fails an
-    ASSERTION, and only one of them is evidence.** A `vi.mock` TDZ fault degraded a mutation run into a
-    collection error that a green tree had hidden.
+⚠ **They sat in the wrong file for four days because of a claim that was FALSE, and the claim is recorded
+here rather than silently deleted, because how it rotted is the lesson.** This section used to read:
+*"`ops/AGENT_STANDING_RULES.md` DOES NOT EXIST ON TRUNK (`#635` is open and failing its repo-boundary
+check), so this is the only home that exists today."* **`#635` merged on 2026-08-09** as
+`baf9b67a8b460471bbddbad70243ec3a1e104baa`, verified an ancestor of `base/approved-thru-437`
+(`git merge-base --is-ancestor baf9b67a origin/base/approved-thru-437`), and `ops/AGENT_STANDING_RULES.md`
+has been tracked ever since (`git ls-tree -r origin/base/approved-thru-437 -- ops/`). The statement was
+true when written and stale within hours. **Nothing re-checked it, because a fact asserted in prose has no
+gate** — the same shape as A CARRY-FORWARD INSTRUCTION IS ITSELF A CLAIM ABOUT THE REPO, above.
+➜ **When you write "X does not exist yet" into a durable document, you are writing an expiry date you
+cannot see.** Write the command that decides it next to the claim, so the next reader can re-run it in one
+line instead of inheriting it.
 
 ## HARD-WON RULES (the 2026-06 grader saga — each cost real, avoidable turns)
 - **A shared FILE is not a shared FUNCTION.** When touching shared infra, grep ALL implementations and call-sites of that behavior and fix + test them in ONE PR. Honor any in-file "keep in sync" comment. *(The grader fix patched one of two grading functions, passed every gate, and shipped a half-fix that only live-verify caught.)*
