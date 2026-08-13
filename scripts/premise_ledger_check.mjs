@@ -30,6 +30,7 @@
  *     [--worktree=DIR]        resolve evidence against a real tree (STRONGLY recommended)
  *     [--max-lines=250]       spec line budget; 0 disables
  *     [--strict-anchor]       every VERIFIED row must carry an anchor string
+ *     [--template]            this IS the template: accept the all-zero placeholder SHA
  *     [--json]                machine-readable output
  *
  * Exit: 0 = all specs pass. 1 = at least one ERROR. 2 = bad invocation.
@@ -165,7 +166,7 @@ function checkSpec(file, opts) {
   const openRange = sectionRange(lines, H_OPEN);
   const preflightRange = sectionRange(lines, H_PREFLIGHT);
 
-  if (!ledgerRange) add('ERROR', 0, `missing a "${H_LEDGER}" section`, 'Copy templates/AGENT_SPEC_TEMPLATE.md.');
+  if (!ledgerRange) add('ERROR', 0, `missing a "${H_LEDGER}" section`, 'Copy ops/AGENT_SPEC_TEMPLATE.md.');
   if (!openRange) add('ERROR', 0, `missing a "${H_OPEN}" section`, 'Include it even when empty — write "None." explicitly.');
   if (!preflightRange)
     add('ERROR', 0, `missing a "${H_PREFLIGHT}" section`, "The agent's FIRST output must be the premise re-check.");
@@ -173,6 +174,18 @@ function checkSpec(file, opts) {
   const shaMatch = text.match(SHA_RE);
   if (!shaMatch) {
     add('ERROR', 0, 'no `Base SHA:` declared', 'Re-derive it: git ls-remote origin <trunk>. Never copy a written SHA.');
+  } else if (/^0+$/.test(shaMatch[1]) && !opts.template) {
+    // SHA_RE deliberately accepts any 7-40 hex, so the template's placeholder passes the
+    // presence check above. Presence was never the point: a spec still carrying the zero
+    // SHA has not been ANCHORED, and no agent should act on it. Only the template itself
+    // may carry it, and only when it says so with --template.
+    add(
+      'ERROR',
+      0,
+      `Base SHA is the all-zero placeholder (\`${shaMatch[1]}\`) — this spec has not been anchored`,
+      'Re-derive it: git ls-remote origin <trunk>. Never copy a written SHA from a doc, a ' +
+        'handoff file, or a memory. If this IS ops/AGENT_SPEC_TEMPLATE.md, pass --template.'
+    );
   }
 
   if (!ledgerRange) return { file, findings, sha: null };
@@ -324,11 +337,12 @@ function checkSpec(file, opts) {
 
 function main(argv) {
   const files = [];
-  const opts = { worktree: null, maxLines: 250, strictAnchor: false, json: false };
+  const opts = { worktree: null, maxLines: 250, strictAnchor: false, template: false, json: false };
 
   for (const arg of argv) {
     if (arg === '--json') opts.json = true;
     else if (arg === '--strict-anchor') opts.strictAnchor = true;
+    else if (arg === '--template') opts.template = true;
     else if (arg.startsWith('--worktree=')) opts.worktree = arg.slice(11);
     else if (arg.startsWith('--max-lines=')) opts.maxLines = Number(arg.slice(12));
     else if (arg === '-h' || arg === '--help') {
