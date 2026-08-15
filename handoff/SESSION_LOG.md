@@ -1,5 +1,69 @@
 ---
 
+## 2026-08-15 — Wave MI-INTEGRITY (controller + 3 parallel premise lanes) — CLOSED WITH NO PRODUCT CHANGE
+
+Four lanes were specced to repair Mistake Intelligence integrity. Three dispatched in parallel as
+**§0c-only premise phases**. **All three passed `premise_ledger_check.mjs --strict-anchor` at exit 0,
+and all three then contradicted their own spec at §0c.1 — before a single file was edited, committed
+or pushed.** The fourth (`SHEET-1`) was never dispatched; it waits on `TAX-1`, which cannot proceed
+as written. **Zero product files changed. That is the result, not the absence of one.**
+
+**THE WAVE-LEVEL FINDING.** Every anchor resolved, every line number was right, every quoted string
+was really there — and the sentences built on them were wrong in all three lanes. `TAX-1`'s "shared"
+predicate has **zero production consumers**. `QR-1`'s missing capability **already exists**, blocked
+by a pre-emptive guard. `GRD-1`'s attributed **cause is not the cause**. ⇒ **Each spec named a
+mechanism its author had inferred rather than executed. `--strict-anchor` verifies CITATIONS, never
+REASONING** — §0c.1 is where the entire value was, and §0c.1 must never be collapsed into §0c.0.
+
+**`TAX-1` BLOCKED** — P8 found a fourth careless definition at `ResultsScorecard.tsx:176-178` and the
+grouping §5 live-verifies **hardcoded** at `:308-317` in that same out-of-scope file, so **the spec's
+allowlist could not reach its own acceptance criteria**; nine further independent grouping sites
+enumerated. Not three homes for one truth — about thirteen.
+
+**`QR-1` PASS** — P5 = branch (c), flagged loosely worded: the "3 MB" refusal comes from
+`checkUploadFile`'s **picker guard refusing an oversized image before the existing compressor can
+run**, built from the very constant the compressor exists to satisfy. `prepareQrImage` has one caller
+and **five other entry points bypass it**. P6 = `QrAnswerUploadPage.tsx:99–113`, no `TAX-1` collision.
+Also: **the entire QR path has zero vitest coverage**, so §3's required mutation was unsatisfiable.
+
+**`GRD-1` PASS** — **defect (c)'s premise DISPROVED**: both owner artifacts traversed the same path
+and prompt, so prompt de-duplication cannot explain the 2/2-vs-1/2 and would not have prevented it.
+**Ledger surface labels REVERSED** (`:792` is `handleCheckSolution`; `:1208` is the structured grader
+serving four of five surfaces). **Defect (b) has two scheme sites, the ledger anchors one.** **P7: no
+step-link field exists, and `cjs:1156` overwrites `stepNumber` with the array index.**
+
+**OWNER RULINGS.** `TAX-1` rewritten and split — `ResultsScorecard.tsx` in scope, all ~13 sites
+regroup, `mistakeIntelligence.ts:272-277` becomes its own lane `TAX-2` (*the screen is cosmetic and
+the bridge is behavioural*). `QR-1` split — crop now, branch (c) after `SHEET-1`;
+`QrAnswerUploadPage.tsx` authorized; must author the QR path's first assertions before mutating one;
+**do not touch `uploadLimits.ts` constants** (`qr_upload_channel_acceptance.mjs:300` goes red).
+`GRD-1` — **positional adjacency REJECTED, ask the model for the dependency and fail open when
+absent**; defect (c) retracted as mechanism, unification kept on weaker-block ground; defect (b)
+widened to both sites; P1/P2 labels swapped; **temperature to 0**. ⇒ Every ruling enlarges its lane,
+so per addendum §1 this is a new wave: **`MI-INTEGRITY-2`, fresh controller, rewritten specs.**
+
+**SPEC DELIVERY DEFECT, CAUGHT NOT ABSORBED.** All five spec artefacts reached the controller as
+transport-corrupted chat attachments. The controller flagged its own transcriptions as untrusted
+rather than using them; the owner placed clean copies; **all five hash-verified SHA-256 before
+dispatch and the transcriptions were discarded.** Binding rule: `Copy-Item` + `Get-FileHash`, never a
+text cmdlet. And `--worktree` must never run in the shared checkout — stale anchors **could produce a
+FALSE RED on a sound spec**.
+
+**CONTROLLER ERROR RECORDED.** The dispatch said *"TAX-1 and QR-1 own the client"* where the spec said
+*"TAX-1 and SHEET-1"* — both true at different phases, and the lane had to flag it. Owner-ruled root
+cause: **a wave with a sequenced lane has more than one ownership table and no artefact said so.**
+
+**New FU ids:** `[FU-GRADER-NONDETERMINISTIC-TEMPERATURE]` · `[FU-QR-PATH-ZERO-COVERAGE]` ·
+`[FU-CALCULATION-KNOWLEDGE-BRIDGE]` · `[FU-SPEC-REPORT-PATH-UNSTATED]`.
+**Retracted as a mechanism:** `[FU-GRADER-CROSS-SURFACE-DIVERGENCE]` — **the symptom stands, the
+cause does not.** Two new gate lines added to `ops/AGENT_STANDING_RULES.md` (consumer enumeration;
+cite the enclosing function by name).
+
+**Reports:** `C:\Users\Chetan\OneDrive\Desktop\diff\Wave MI-INTEGRITY\Report\` — three lane reports
+plus `CONTROLLER_CLOSEOUT_MI_INTEGRITY.md`.
+
+---
+
 ## 2026-08-13 — Wave OPS-1 (CONTROLLER/SUBAGENT model) — governance preservation
 
 Five artefacts governing how every lane runs existed only on one laptop. One of them,
