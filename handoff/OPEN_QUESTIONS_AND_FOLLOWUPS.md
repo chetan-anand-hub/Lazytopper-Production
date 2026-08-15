@@ -12,6 +12,128 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ---
 
+
+## 2026-08-15 — WAVE QR-UPLOAD + WAVE MI-INTEGRITY-2 — new and re-stated follow-ups (trunk `e077b3a3`)
+
+*Per standing rule 1, every ID below has its own heading and body. Per standing rule 3, no dated entry
+elsewhere in this file has been rewritten — the corrections are recorded here.*
+
+### `[FU-QR-CROP-DOUBLE-READ]` — NEW
+The QR crop path reads the selected file **twice** — once to render the crop preview and once to
+produce the payload. Harmless at current file sizes and on the measured devices; recorded so nobody
+re-derives it as a defect. **No lane. Report-only.**
+
+### `[FU-QR-CROP-NO-ROTATION]` — NEW
+The crop step offers **no rotation**. A student who photographs a page sideways can crop it but cannot
+turn it upright, and the grader then reads rotated handwriting. **Not built, not specced.**
+
+### `[FU-QR-CROP-EXIF-ORIENTATION]` — NEW
+EXIF orientation is **not consulted** when the image is drawn to canvas. On devices that record
+orientation in EXIF rather than in pixel order, the crop rectangle and the visible photo can disagree.
+**Unmeasured on real devices — do not spec a fix before reproducing it on one.**
+
+### `[FU-GRD-ECF-RULE2-CONTRADICTS-PROMPT]` — NEW · **OWNER-VERIFIED**
+Both grader prompts carry, verbatim, *"a wrong final answer NEVER earns full marks, but correct method
+NEVER earns zero"*. **The contradiction with `ECF_POLICY_V1` rule 2 is REAL.** Owner ruling **R1**
+NARROWS rule 2 rather than dropping it and **amends BOTH prompts**; the replacement wording is quoted
+verbatim in `CURRENT_STATE.md` §11. ★ **SINGLE-SOURCE the ECF block across both prompts — two copies of
+one doctrine is how they diverge.**
+
+### `[FU-GRD-DIVERGENCE-IS-SAME-PATH]` — NEW · **LANE-REPORTED**
+The founding evidence of the divergence — one photograph, two surfaces, two marks — involved **two
+documents graded by the SAME path.** The symptom stands; the path-difference explanation does not.
+See also the already-retracted `[FU-GRADER-CROSS-SURFACE-DIVERGENCE]` mechanism.
+
+### `[FU-GRD-STEPNUMBER-TWO-SITES]` — NEW · **LANE-REPORTED**
+`stepNumber` is index-overwritten at **TWO** sites where the ledger named one. A fix keyed to one site
+leaves the other writing the old value.
+
+### `[FU-GRD-TEMP0-NOT-DETERMINISM]` — NEW · owner ruling **R3**
+Temperature moves `0.05 → 0`, **but that is NOT a determinism guarantee.** The twice-upload determinism
+check is **deleted** from the `GRD-1v2` live-verify and replaced with: *"upload twice; if marks differ,
+record both — that is evidence for the divergence item, not a lane failure."* ★ **A live-verify that
+can fail for reasons the lane cannot control is a bad gate.**
+
+### `[FU-GRD-EVAL-TEMPERATURE-DRIFT]` — NEW
+Evaluation runs and production runs are not pinned to the same sampling settings, so an eval result is
+not automatically evidence about production output. **Unquantified.**
+
+### `[FU-GRD-STALE-INTERNAL-LINE-REF]` — NEW
+An internal line reference inside the grading documentation is **off by one line**. Recorded because a
+line reference is a derived value nothing re-checks.
+
+### `[FU-GRD-P4-TWO-EMISSION-SITES]` — NEW · **LANE-REPORTED**
+The `P4` value has **two emission sites**, not the one the ledger recorded. Same shape as
+`[FU-GRD-STEPNUMBER-TWO-SITES]`: a cap or fix keyed to one site leaks at the other.
+
+### `[FU-HANDOFF-CLAIM-ROT-ON-FILE-DELETION]` — NEW · **HANDOFF-VERIFIED**
+★★ **A `handoff/` claim about a FILE SET is falsified when a file in that set is DELETED by an
+unrelated PR, and nothing in the repo connects the deletion to the sentence that depended on it.**
+Instance: *"all four inputs, both pages, via the new shared `checkUploadFile()"*. It was **TRUE when
+written** — `#451` shipped `DesktopCheckImprovePage.tsx` **and** `CheckImprove.tsx`, and the owner
+live-verified both pages including WEBP-on-mobile — and it became false when the Check & Improve
+Option-B convergence **DELETED `pages/app/CheckImprove.tsx`** at its PR-2. **True extent today: two
+inputs on ONE page.**
+★★ **This is a THIRD carry-forward rot mode and must not be filed as the usual one.** It is **NOT** an
+unearned extent claim asserted from a sample; both the scout and the controller's draft diagnosed it
+that way, and that diagnosis is **REFUTED**. The two failures have different fixes — a sample-as-set
+defect is fixed by enumerating; this one is fixed by **re-checking every claim that names a file when
+that file is deleted.**
+
+### `[FU-UPLOAD-GUARD-CONVERGE]` — RESTATED, and the case is stronger than recorded · **HANDOFF-VERIFIED**
+The `NOTE` in `uploadLimits.ts` names **TWO** surfaces that inline their own copy of the picker guard.
+The true count is **THREE**: `ChapterTestUploadPanel.handleFile`, `WorksheetGradePanel.handleFile`, and
+the unrecorded **`SolutionChecker.handleFileSelect`**.
+★ **The note also calls the copies *"byte-identical"*, and they are not.** The two panels refuse a
+wrong type with *"JPG/PNG **photo** of your answers"* where `checkUploadFile` says ***image*** — the
+**D4 (2026-07-17) noun ruling recorded in that same file never propagated to the inline copies** — and
+`SolutionChecker` diverges furthest (*"Please select a JPG, PNG, or PDF file"* / *"File must be under
+3 MB"*). ⇒ **three copies, three refusal vocabularies. This is DIVERGENCE, not duplication**, which is
+precisely the drift the file's own mandate exists to prevent.
+
+### `[FU-UPLOAD-LIMIT-COMMENT-FALSE]` — NEW · **HANDOFF-VERIFIED**
+The doc comment on `MAX_UPLOAD_IMAGE_BYTES` reads *"Images are downscaled to fit this, so it is a
+target, not a wall the student hits."* **It is FALSE at FOUR of the five enforcement sites** —
+`checkUploadFile`, `ChapterTestUploadPanel.handleFile`, `WorksheetGradePanel.handleFile` and
+`SolutionChecker.handleFileSelect` all refuse on **raw `file.size` with no canvas anywhere in the
+path** — and **TRUE at exactly ONE, `qrUploadService.prepareQrImage`**, which downscales and steps
+quality down a first-fit ladder. *(A scout had reported "false at both of its own call sites"; that
+counts only the two uses inside `uploadLimits.ts`. **This lane's count supersedes it.**)*
+★ **This independently confirms the compression justification — code contradicting its own comment —
+WITHOUT leaning on the unreproduced refusal report.** ⇒ **the compression footing does NOT depend on
+`[FU-QR-UPLOAD-REFUSAL-UNREPRODUCED]`.**
+
+### `[FU-QR-UPLOAD-REFUSAL-UNREPRODUCED]` — **OPEN and unreproduced. Restated deliberately.**
+**No lane may build a fix for this item** until it is reproduced with its wording captured.
+**"Branch (c)" remains RETRACTED as settled.** ⚠ **HEIC is report-only, no lane.**
+
+### `[FU-MARKING-SCHEME-ZERO-TEST-ASSERTIONS]` — NEW · CANDIDATE, controller-raised
+`Marking scheme` appears **twice, both in production code, with ZERO test assertions anywhere in the
+repo.** Raised as a candidate, not a dispatched item.
+
+### `[FU-GRADER-PROMPT-NEVER-CAPTURED]` — NEW · **the item that blocks the whole divergence line**
+★★ **Three mechanisms have now been argued from the source for one observed divergence, and NONE has
+been checked against what the grader was actually sent.** The evidence that would settle it is a
+**captured prompt** for each of the two documents, and **no such capture exists in the repo.**
+★ **RECOMMENDATION: capture the two prompts on the DEPLOYED product before scouting or speccing a
+fourth mechanism.** ⚠ **Mechanism #4 (scheme CONTENT — cache-generated vs bank step weights, feeding
+rule 8) is a LEAD, NOT A FINDING**; the scout that raised it said explicitly **"do not spec it on my
+say-so."**
+
+### `[FU-PREMISE-GATE-WEASEL-SUBSTRING]` — NEW · LATENT, do not chase until it bites
+`premise_ledger_check.mjs`'s weasel-token matching is **bare substring, NOT word-bounded**: `"search"`
+matches *research*, `"named"` matches *renamed*, `"rg "` matches *"org "*. **A future spec can be
+failed by a word that merely CONTAINS a banned token.** All **22** tokens were extracted
+programmatically from the gate's own array during the QR-UPLOAD diagnosis.
+
+### `[FU-DPDP-GUARDIAN-CONSENT]` — STILL OPEN · **UNRULED and LAUNCH-BLOCKING**
+Carried forward unchanged. Neither wave touched it.
+
+### `[FU-BANK-MARKING-SCHEME-COVERAGE]` — STILL OPEN
+**207 of 401 bank files carry `[N mark]` steps — half the bank is unanchored.** This is **authoring
+work, not code**, and no lane can close it.
+
+---
 ## ⚠ RETRACTED AS A MECHANISM — `[FU-GRADER-CROSS-SURFACE-DIVERGENCE]`
 
 **Owner-ruled 2026-08-15. The SYMPTOM stands and is NOT retracted:** one photograph, two surfaces,
