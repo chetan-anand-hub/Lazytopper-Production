@@ -1,5 +1,29 @@
 # LazyTopper Implementation Roadmap
 
+
+## 2026-08-15 — WAVE MI-INTEGRITY: **CLOSED WITH NO PRODUCT CHANGE — THREE LANES STOPPED AT THE PREMISE GATE** — trunk `b3554a6f`
+
+**`2026-08-15`**
+
+**STAGE OUTCOME: the premise phase paid for the wave.** Four lanes specced; three dispatched in
+parallel as §0c-only premise phases; **all three passed `--strict-anchor` at exit 0 and all three
+then contradicted their own spec** before a file was edited. `SHEET-1` never dispatched. **Zero
+product files changed, zero PRs opened against product code.**
+
+- ❌ **`TAX-1` — BLOCKED at §0b.** Spec allowlist cannot reach its own §5 acceptance criteria;
+  ~13 grouping sites, not 3; the "shared" predicate has zero consumers. **Rewrite, plus new lane
+  `TAX-2`.**
+- ✅ **`QR-1` — PASS at §0b.** Compression already exists; the defect is a pre-emptive picker guard.
+  **Split: crop now, branch (c) later.** QR path has zero test coverage.
+- ✅ **`GRD-1` — PASS at §0b.** **Defect (c)'s premise disproved**; ledger surface labels reversed;
+  defect (b) has two scheme sites; no step-link field exists. **Rewrite.**
+- ⏸ **`SHEET-1` — never dispatched.** Waits on `TAX-1`. **P7 still unanswered.**
+
+**NEXT STAGE: Wave `MI-INTEGRITY-2` — fresh controller, rewritten specs, five lanes.** See
+`NEXT_ACTION.md` for the ordered lane list and the binding pre-dispatch conditions.
+
+---
+
 ## 2026-08-13 — WAVE OPS-1: **THE DOCUMENTS THAT GOVERN HOW EVERY LANE RUNS ARE IN GIT** — trunk `6de74d3f`
 
 **`2026-08-13`**

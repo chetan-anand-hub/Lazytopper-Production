@@ -19,6 +19,54 @@ table. Merged is not deployed.
 # Previously: 2026-08-09 (post-**WAVE ME-A**: #634 · #641 · #637 · #636, four lanes + two scouts, plus the four commits already unrecorded when it opened — #629 · #630 · #632 · #631 · #633. Trunk `e8f89863`. FOUR open PRs, none of them ME: #638/#639/#640 are the DPDP arc's live drafts, #635 is the owner's ops-docs PR. Every ME-A lane disproved part of its own spec. **Wave ME-B opens with `ARRIVAL-1` + `RETRY-1` under a FRESH controller; `ME-2` is Wave ME-C.**)
 # Previously: 2026-08-07 (post-**WAVE 5F**: #619 · #620 · #625 · #621 · #626 · #627, four lanes. Trunk `fbfb57fa`. ZERO open PRs. Typed grading LIVE-VERIFIED end to end, including the control. **Wave 5G opens with `ME-PROGRESS`.**)
 
+
+## 2026-08-15 — NEXT ACTION: DISPATCH WAVE `MI-INTEGRITY-2` WITH A FRESH CONTROLLER AND REWRITTEN SPECS
+
+**Wave MI-INTEGRITY closed with NO product change.** Three lanes passed their premise gate at exit 0
+and then contradicted their own specs at §0c.1. **Every ruling the owner made enlarges its lane**, so
+per `ops/CONTROLLER_ADDENDUM_Context_Safeguards.md` §1 this is a **new wave, not a continuation.**
+
+⚠⚠ **DO NOT RE-DISPATCH THE OLD SPECS.** All four are now known-defective at the premise level. The
+lanes' findings win; the specs must be rewritten before anything is dispatched.
+
+**The five lanes `MI-INTEGRITY-2` must carry, in this order:**
+
+1. **`GRD-1` (rewritten) — highest value.** Swap the P1/P2 surface labels (`:792` is
+   `handleCheckSolution`; `:1208` is the structured grader serving **four of five** surfaces).
+   Widen defect (b) to **BOTH** scheme sites (`623/638` **and** `1469/1482`) — clamping one leaves
+   QP, Chapter Test, Worksheet and Full Mock unanchored. `ECF_POLICY_V1` rule 2: **positional
+   adjacency REJECTED — ask the model for the dependency and FAIL OPEN when absent.**
+   **Temperature to 0.** Defect (c) retracted as a mechanism; keep unification **on the
+   weaker-block ground only**.
+2. **`TAX-1` (rewritten).** `ResultsScorecard.tsx` **joins scope** — §5's own live-verify surface is
+   hardcoded there. **All ~13 sites regroup.**
+3. **`TAX-2` (NEW).** `mistakeIntelligence.ts:272-277` — the weak-areas bridge.
+   *The screen is cosmetic and the bridge is behavioural.*
+4. **`SHEET-1`** — after `TAX-1` merges. ⚠ **P7 is STILL UNANSWERED:** does `annotatedSteps` populate
+   on `qp:` documents? Proven for `ct:` and `ci:` only. **If QP lacks it, that lane is materially
+   larger than specced and must STOP.**
+5. **`QR-1` crop (2 files)** — `qrUploadService.ts` + `QrAnswerUploadPage.tsx:99–113`, authorized.
+   **Must author the QR path's FIRST assertions before it can mutate one.**
+   ⚠ **Do NOT touch `uploadLimits.ts` constants** — `qr_upload_channel_acceptance.mjs:300` goes red.
+   **Branch (c) is its own lane, AFTER `SHEET-1`** (it spans five files, one adjacent to `SHEET-1`).
+
+**⚠ OWNER QUESTION OUTSTANDING, and only the owner can answer it:** did the upload refusal he
+observed carry a **byte count**? **If it did not, QR-1's branch (b) reopens** and the crop lane's
+premise changes.
+
+**Binding on the `MI-INTEGRITY-2` controller before its first dispatch:**
+- **Report path is `C:\Users\Chetan\OneDrive\Desktop\diff\Wave MI-INTEGRITY\Report\`** and it must be
+  written into every spec's §4 — `[FU-SPEC-REPORT-PATH-UNSTATED]`.
+- **Specs travel by `Copy-Item` + `Get-FileHash` only, never a text cmdlet** (cp1252 boundary).
+- **Never run `premise_ledger_check --worktree` in the shared checkout** — stale anchors can produce
+  a **FALSE RED on a sound spec**.
+- **State which PHASE each ownership table describes** — a wave with a sequenced lane has more than
+  one, and that ambiguity cost a lane a flag this wave.
+- **Both new gate lines apply:** consumer enumeration for every symbol premise; cite the enclosing
+  function by name.
+
+---
+
 ## NEXT — 2026-08-13 (post-Wave OPS-1). Read this block first.
 
 **Trunk `6de74d3ff799f2faa60cbd3e82664c7e43619701`** — re-derive with `git ls-remote origin base/approved-thru-437`.

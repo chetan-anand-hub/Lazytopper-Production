@@ -1,6 +1,144 @@
 # LazyTopper — Current State
 
-## [CURRENT] Wave OPS-1 — CLOSED. All twelve PRs on trunk. The documents that govern how every lane in this project runs are in git — trunk `6de74d3f`
+## [CURRENT] Wave MI-INTEGRITY — CLOSED WITH NO PRODUCT CHANGE. Three lanes stopped before a file was edited, and the wave's founding diagnosis was disproved by the lane sent to act on it — trunk `b3554a6f`
+
+**No product code changed. That is the result, not the absence of one.** Four lanes were specced to
+repair Mistake Intelligence integrity. Three dispatched in parallel; **all three passed their premise
+gate at exit 0, and all three then contradicted their own spec** at §0c.1 — before a single file was
+edited, committed or pushed. The fourth (`SHEET-1`) was never dispatched: it waits on `TAX-1`, and
+`TAX-1` cannot proceed as written.
+
+**What building these specs as authored would have shipped:** a taxonomy fix that changes nothing a
+student sees (`TAX-1`'s "shared" predicate has **zero consumers**); a crop bolted onto an upload path
+whose real defect is a guard refusing images the compressor could already have saved (`QR-1`); and a
+grader clamp aimed by a ledger whose **surface labels are reversed**, fixing a prompt divergence that
+**is not what made one photograph score 2/2 and 1/2** (`GRD-1`).
+
+**The owner's evidence stands entirely.** Two Firestore documents, one photograph, two marks and two
+diagnoses — real, reproduced, still unexplained by the mechanism the wave attributed to them.
+**A demonstrated symptom is not a demonstrated cause.**
+
+### ⭐ THE WAVE-LEVEL FINDING — three lanes, one class of defect
+
+**All three lanes passed `--strict-anchor` at exit 0 and all three then contradicted their spec.**
+Every anchor resolved, every line number was right, every quoted string was really there — and the
+*sentences built on them* were wrong in all three lanes:
+
+- **`TAX-1`** — the predicate the spec calls "shared" has **zero production consumers**; its only
+  importer is its own test. §2 steps 1–2 would have changed nothing a student sees.
+- **`QR-1`** — the capability the spec was written to add **already exists**; a pre-emptive picker
+  guard prevents it running.
+- **`GRD-1`** — the **cause** the wave attributes to a real symptom **is not the cause**.
+
+⇒ **Each spec named a mechanism its author had inferred rather than executed.**
+**`--strict-anchor` verifies CITATIONS, never REASONING.** §0c.1 is where the entire value was, and a
+lane's `STOP and report` is the wave's most valuable output, not its least. **This is the strongest
+available argument that §0c.1 must never be collapsed into §0c.0.**
+
+### The three §0b stops
+
+**`TAX-1` — BLOCKED.** Gate exit 0 (`682910B8736F`), P1–P7 OK by text-grep against the cited lines.
+**P8 found a FOURTH careless definition at `ResultsScorecard.tsx:176-178`, and the "Where your marks
+went" grouping that §5 live-verifies is HARDCODED at `ResultsScorecard.tsx:308-317`** — a file **not
+in §2**, so **the spec's allowlist could not reach its own acceptance criteria.** Nine further
+independent grouping sites: `SurfaceHistory.tsx:87` · `WorksheetGradePanel.tsx:83` ·
+`FullMockPage.tsx:112` · `ChapterTestPage.tsx:91` · `DesktopCheckImprovePage.tsx:1210,2681,2731` ·
+`SolutionChecker.tsx:710` · `ChapterTestHistoryRail.tsx:31-35` · `ProgressWindowArc.tsx:211` ·
+`MeProgressPage.tsx:358,415,441,447`. P2 also omits the knowledge-side twin `KNOWLEDGE_TYPES`
+(`MeProgressPage.tsx:116`, consumed `:268`). **Not three homes for one truth — about thirteen.**
+
+**`QR-1` — PASS.** Gate exit 0 (`522E8EE4EBE7`), P1–P3 OK. **P5 resolves to branch (c), and the lane
+flags the label as loosely worded for what it found:** the observed "3 MB" refusal is producible by
+**exactly one path** — `checkUploadFile`'s **picker guard, which refuses an oversized image BEFORE
+the existing compressor is allowed to run.** Not a forgotten call: **a pre-emptive wall built from
+the very constant the compressor exists to satisfy.** `uploadLimits.ts:38` calls that constant
+*"a target, not a wall"* — **true everywhere except the QR path.** P4: `prepareQrImage` has **one**
+caller (`QrAnswerUploadPage.tsx:113`) but **five other upload entry points across four files read a
+`File` and never call it** (four search shapes run). P6: `QrAnswerUploadPage.tsx:99–113`, **no
+collision with `TAX-1`** — which closed the wave's one open disjointness edge, proven by the lane
+rather than asserted by the controller.
+
+**`GRD-1` — PASS.** Gate exit 0 (`CEF2C0B64DF9`), P1–P4 OK with the shared P1/P2 anchor confirmed at
+**both** occurrences independently.
+- ⭐⭐⭐ **Defect (c)'s premise is DISPROVED.** Both owner artifacts traversed **the same path and the
+  same prompt**: `ct:` ids build at `chapterTestGradeService.ts:47` → `gradeWorksheet:248`; `ci:` ids
+  build **only** in the `gradeWorksheet` branch at `DesktopCheckImprovePage.tsx:1389/:1473`.
+  **Prompt de-duplication cannot explain the 2/2-vs-1/2 divergence and would not have prevented it.**
+  Surviving candidate cause: **scheme PRESENCE** (Chapter Test forwards bank `solutionSteps` at
+  `chapterTestGradeService.ts:260`; pasted C&I questions have none) — **i.e. defect (b)** — plus
+  temperature non-determinism.
+- ⭐⭐ **The ledger's surface labels are REVERSED, which inverts the blast radius.** `:792` is
+  `handleCheckSolution`, the single-question `/api/check-solution` path; `:1208` is the **structured
+  grader**. **P2, not P1, serves four of five surfaces** — Quick Practice
+  (`quickPracticeSessionService.ts:590`), Chapter Test (`chapterTestGradeService.ts:248`), Worksheet
+  (`worksheetGradeService.ts:100`), Full Mock (`fullMockGradeService.ts:148`) and C&I multi-question
+  (`DesktopCheckImprovePage.tsx:1388`) all reach `/api/grade-worksheet`; only C&I single-question
+  (`:1534`) and `SolutionChecker.tsx:559` reach `/api/check-solution`. **A clamp aimed by those
+  labels would have hit the minority path.** **No third path exists** — P5 answered clean.
+- ⭐⭐ **Defect (b) has TWO scheme sites and the ledger anchors ONE.** The structured path builds its
+  own at `cjs:1469`, concatenated at `cjs:1482`. **Clamping only `623/638` leaves Quick Practice,
+  Chapter Test, Worksheet and Full Mock unanchored.**
+- ⭐⭐ **P7 — NO link field, and worse than absent.** `annotatedStepSchema` (`cjs:103-127`) has nine
+  keys, none linking; zero hits for `derivedFrom`/`dependsOn`/`sourceStep`. **And `cjs:1156`
+  overwrites `stepNumber` with the array index `i + 1`**, so even the fallback ordering is
+  synthesised rather than model-reported.
+- **P6 — DIFFERENT**, so the literal STOP did not fire: Block A (`cjs:531-543`, rich, both worked
+  examples) vs Block B `STRUCTURED_MISTAKE_TAXONOMY` (`cjs:1085-1091`, abridged) — **and the weaker
+  block drives four of five surfaces.**
+
+### Owner rulings, 2026-08-15 — every one enlarges its lane
+
+| Lane | Ruling |
+|---|---|
+| **`TAX-1`** | **Rewrite, do not patch.** `ResultsScorecard.tsx` joins scope; **all ~13 sites regroup**; `mistakeIntelligence.ts:272-277` becomes **its own lane `TAX-2`**, because **the screen is cosmetic and the bridge is behavioural**. Owner: *"That was my fence being wrong."* |
+| **`QR-1`** | **Split accepted** — crop now (2 files); branch (c) as its own lane **after `SHEET-1`**. `QrAnswerUploadPage.tsx` + new test files **authorized**. The lane **must author the QR path's first assertions before it can mutate one**. ⚠ **Do NOT touch `uploadLimits.ts` constants** — `qr_upload_channel_acceptance.mjs:300` goes red. One question is the owner's alone and he is answering it separately: **whether the refusal he saw carried a byte count** (if not, branch (b) reopens) |
+| **`GRD-1`** | **Positional adjacency REJECTED** — **ask the model for the dependency and FAIL OPEN when absent.** Defect (c) **retracted as a MECHANISM**, unification kept **on the weaker-block ground**. Defect (b) **widened to BOTH scheme sites**. **P1/P2 labels swapped:** `:792` is `handleCheckSolution`, `:1208` is the structured grader. **Temperature to 0.** |
+| **`SHEET-1`** | Never dispatched. Its **P7 is still unanswered** — does `annotatedSteps` populate on `qp:` documents? Still capable of making that lane materially larger |
+
+⇒ **`TAX-1` became three lanes, `QR-1` split, `GRD-1` rewritten.** Per addendum §1 that is a **new
+wave**: **`MI-INTEGRITY-2`, fresh controller, rewritten specs.** This controller stood down at ~35%.
+
+### ⚠ THE SPEC DELIVERY PATH ITSELF WAS DEFECTIVE — and it was caught, not absorbed
+
+The four lane specs and the controller brief reached the controller's context as **chat attachments,
+transport-corrupted** in the same lossy cp1252 class documented in the provenance headers of
+`ops/CONTROLLER_SUBAGENT_MODEL.md` and `ops/CONTROLLER_ADDENDUM_Context_Safeguards.md`. The
+controller began transcribing them, **flagged its own copies as untrusted rather than using them
+silently**, and the owner then placed clean copies at `C:\Projects\LT-specs\MI-INTEGRITY\`.
+**All five hash-verified SHA-256 before dispatch, five for five**, and each lane re-verified its own
+copy after `Copy-Item`. **The transcriptions were discarded** — *a file with the right name is not
+the right file*, and two copies of one spec is the exact defect this wave was convened to repair in
+the taxonomy.
+
+**Binding transport rule:** `Copy-Item -LiteralPath … -Force`, then `Get-FileHash`. **Never a text
+cmdlet** (`Get-Content`/`Set-Content`/`Out-File`) — that is the cp1252 boundary. The corruption never
+reached the gate: **every anchor string, path and line number in all four `§0` ledgers is pure
+ASCII**, and `ops/.specs/` is gitignored.
+
+⚠ **`--worktree` must never be run in the shared checkout.** `C:\Projects\Lazytopper-Production` runs
+arbitrarily far behind trunk, so anchors would resolve against stale code and **could produce a FALSE
+RED on a sound spec.** Each lane ran its gate in its own fresh worktree at a freshly derived SHA.
+
+### ⚠ CONTROLLER ERROR RECORDED — the ownership table changes shape between phases and no artefact said so
+
+The dispatch told `GRD-1` that *"TAX-1 and QR-1 own the client"* where its spec §1 said *"TAX-1 and
+SHEET-1"*. **Both are true, at different points in the same wave** — the dispatch named the lanes
+running concurrently, the spec named the wave's eventual client owners — and **the lane had to flag
+the discrepancy itself.** Owner-ruled root cause: **a wave with a sequenced lane has more than one
+ownership table, and no artefact declared which phase each describes.** ⇒ **Every future spec must
+state the phase its ownership table applies to.**
+
+### ⭐ CARRY FORWARD VERBATIM NEVER MEANS CARRY FORWARD UNCHECKED. A carry-forward instruction is **itself a claim about the repo** and goes stale.
+
+**THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this wave.**
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.**
+**Wave MI-INTEGRITY changed no product code and therefore moved no dormancy.** The full block,
+including the `#647`/`#655` resolution and every subsequent amendment, is preserved verbatim in the
+demoted `[CURRENT]` sections below and must be read there before any lane acts on it.
+
+---
+
+## (superseded) [CURRENT] Wave OPS-1 — CLOSED. All twelve PRs on trunk. The documents that govern how every lane in this project runs are in git — trunk `6de74d3f`
 
 **`2026-08-13`** · docs-only closeout, lane `OPS-CLOSEOUT`.
 

@@ -11,6 +11,97 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 ---
+
+## ⚠ RETRACTED AS A MECHANISM — `[FU-GRADER-CROSS-SURFACE-DIVERGENCE]`
+
+**Owner-ruled 2026-08-15. The SYMPTOM stands and is NOT retracted:** one photograph, two surfaces,
+two marks and two diagnoses — `ct:CT-M-QE-01` scored 2/2 / 100% / `ok:true` calling the slip
+*conceptual*, `ci:CI-M-QUAD-14` scored 1/2 calling it *silly*. **Both documents are in Firestore and
+both remain real.**
+
+**What is withdrawn is the CAUSE.** The id was filed as *"the two grading prompts diverge."* `GRD-1`
+established that **both artifacts traversed the same path and the same prompt** — `ct:` ids build at
+`chapterTestGradeService.ts:47` → `gradeWorksheet:248`, `ci:` ids build only in the `gradeWorksheet`
+branch at `DesktopCheckImprovePage.tsx:1389/:1473`. **Prompt divergence cannot explain the
+observation, and de-duplicating the prompts would not have prevented it.**
+
+The two taxonomy blocks **are** genuinely different — Block A (`cjs:531-543`, rich, both worked
+examples) vs Block B `STRUCTURED_MISTAKE_TAXONOMY` (`cjs:1085-1091`, abridged) — and **the weaker
+block drives four of five surfaces**, so unifying them remains worth doing **on its own merits**.
+**It must never again be recorded as the fix for the demonstrated divergence.** Re-open the cause
+under **scheme presence (defect b)** and **temperature non-determinism**.
+
+⭐⭐ **This retraction is the record correcting itself, and the reason matters more than the outcome.**
+A future lane reading the original id would have unified two prompts, watched the divergence persist,
+and had no idea why. **Fix the reason, not just the verdict — the reason is what the next lane
+inherits, and it travels further than the change did.**
+
+## `[FU-GRADER-NONDETERMINISTIC-TEMPERATURE]`
+
+The grader runs at temperature `0.05`, not `0`. **Identical input can therefore produce different
+marks and different `mistakeType`s on repeat submission** — a surviving candidate cause for the
+owner's 2/2-vs-1/2, and **one that no server-side clamp fixes.** Owner ruled 2026-08-15:
+**temperature to 0.** ⚠ **Any future reproduction attempt must run the same photograph N times before
+concluding anything from a single pair** — a one-shot comparison cannot distinguish a systematic
+divergence from sampling noise, and this wave's founding evidence was exactly such a pair.
+
+## `[FU-QR-PATH-ZERO-COVERAGE]`
+
+**The entire QR upload path has zero vitest coverage.** `QR-1` §3 ordered *"run the scoped suites for
+`qrUploadService` and the capture page"* — **those suites do not exist**, which made the lane's own
+**required mutation unsatisfiable**. ⇒ **A gate instruction that has never executed reads identically
+to one that passes.** Same family as *a zero from a matcher nobody proved can fire*, one level up: the
+instrument was never built, and the spec could not tell. **The crop lane must author the first
+assertions on this path before it can mutate one** (owner-authorized 2026-08-15).
+
+## `[FU-CALCULATION-KNOWLEDGE-BRIDGE]` — becomes lane `TAX-2`
+
+`mistakeIntelligence.ts:272-277` counts `calculation` as a knowledge gap **and bridges the topic into
+weak-areas**; `tutorRoundTrip.ts:274/357/513` groups it as *"method"*. Under D1, a student making a
+calculation slip would **read** "recoverable technique" on every surface **while still being routed to
+practise that topic as a weakness.**
+
+⭐⭐ **The lane's sentence is the finding of the wave: "A presentation-layer regrouping cannot undo a
+routing decision made in a service."** Owner-ruled 2026-08-15: **`TAX-1`'s scope fence was wrong**,
+and this becomes **its own lane `TAX-2`** — *the screen is cosmetic and the bridge is behavioural.*
+**D1 is not deliverable from `TAX-1`'s file list alone.**
+
+## `[FU-SPEC-REPORT-PATH-UNSTATED]`
+
+The wave's agreed report path — `C:\Users\Chetan\OneDrive\Desktop\diff\Wave MI-INTEGRITY\Report\` —
+**was settled with the owner and never written into any dispatch or spec**, so all three lanes
+correctly wrote to the flat path their specs named. **Nothing was lost and nothing was redone**; the
+reports were `Copy-Item`ed into the folder and hash-verified after the fact.
+
+⇒ **A convention that exists only in conversation is not a convention.** Owner-ruled his own omission.
+**Every future spec must state its report path in §4**, and every controller brief must state the
+wave's report folder before the first dispatch. Same class as *an attached document is not a file*:
+**the artefact is the only thing that survives the context that agreed it.**
+
+## ⭐⭐ TWO NEW GATE LINES — owner-ruled 2026-08-15, for `ops/AGENT_STANDING_RULES.md`
+
+**1 · NO PREMISE ABOUT A SYMBOL ENTERS A LEDGER WITHOUT ITS CONSUMER ENUMERATION.** List **every
+non-test consumer by `file:line`, or the literal word `NONE`.** **Any claim using "shared", "single",
+"the only", "central" or "choke point" REQUIRES it.**
+> The instances, same wave: `TAX-1`'s P1 named a *"shared predicate"* with **zero production
+> consumers** — its only importer was its own test — so §2 steps 1–2 would have changed nothing a
+> student sees. `QR-1`'s `prepareQrImage` had **one** caller and **five entry points that bypass it**.
+> ⇒ **A definition's existence is not its reach.** `MOUNT ≠ LIVE` one level down: a symbol can exist,
+> compile, be tested, and be consumed by nobody. **Importers are what a grep matches; consumers are
+> the claim** — the same distinction as *the alert list is not the set*.
+
+**2 · CITE THE ENCLOSING FUNCTION BY NAME**, not the line alone, for every `file:line` in a ledger.
+> ⚠ **RECONSTRUCTED BY THE CONTROLLER — the owner's message truncated mid-sentence at "Cite the
+> ENCLOSING FUNCTION BY NAME,". The rule below is written from the finding that established it and
+> the owner should correct it if the intended wording differed.**
+>
+> The instance: `GRD-1`'s P1 and P2 cited **the same anchor string at two different lines and
+> labelled the two surfaces backwards** — `:792` is `handleCheckSolution` (single-question), `:1208`
+> is the structured grader serving **four of five surfaces**. **Both anchors resolved.
+> `--strict-anchor` passed. A clamp aimed by those labels would have hit the minority path.**
+> ⇒ Extends *line references are derived values*: **the enclosing function is the part a reader can
+> re-check, and it is what distinguishes two identical lines from one another.**
+
 ## 2026-08-13 — WAVE OPS-1 (lane `OPS-CLOSEOUT`, docs-only). Trunk `6de74d3f`.
 
 **`2026-08-13`**
