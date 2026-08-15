@@ -1,6 +1,342 @@
 # LazyTopper — Current State
 
-## [CURRENT] Wave MI-INTEGRITY — CLOSED WITH NO PRODUCT CHANGE. Three lanes stopped before a file was edited, and the wave's founding diagnosis was disproved by the lane sent to act on it — trunk `b3554a6f`
+## [CURRENT] Wave QR-UPLOAD + Wave MI-INTEGRITY-2 — two waves, eight lanes, ONE product change, and the reason is the specs, not the lanes — trunk `e077b3a3`
+
+★ **PROVENANCE.** Code-level statements below are labelled with their source: **OWNER-VERIFIED**,
+**LANE-REPORTED**, or **SCOUT-REPORTED**. **A controller cannot verify a code claim; it can only
+decide how much weight to put on an unverified one.** Do not strip these labels. Where the
+`HANDOFF-MI2` lane re-verified a claim itself at `e077b3a3` before writing it, it is marked
+**HANDOFF-VERIFIED** and the method is stated.
+
+**Trunk `e077b3a3`.** Ancestry verified: `a2be5915` is an ancestor, trunk moved FORWARD, exactly one
+commit since `#678`.
+
+### 1 · WHAT LANDED — and it is one thing
+
+**`QR-A` / `#679` only.** Four files, all under `lazytopper/src/`: `QrAnswerUploadPage.tsx`,
+`services/qrUploadService.ts`, and their two new crop tests. **No server file. No grading file. No
+`handoff/` file. No `App.tsx`.** The file list was reconciled two ways — `gh pr view --json files`
+against the three-dot compare — and is identical both ways, which is the pre-merge check
+`CONTROLLER_SUBAGENT_MODEL.md` §5 says nothing does today.
+
+A student on the QR phone-upload path can now **crop the photo before it is sent**, so the grader marks
+the working the student meant. The crop is **optional and skippable**, runs **BEFORE** compression, and
+its **default selection is the whole image** — nothing changes for a student who ignores it.
+
+**Everything else across both waves stopped before editing a file.** Not "made partial progress" —
+**stopped, deliberately, with nothing written.** That is the honest description and it should not be
+dressed up.
+
+### 2 · ★★ THE FINDING OF BOTH WAVES
+
+> **Eight lanes dispatched, one product change. TAX-A failed its shape check with every claim TRUE;
+> GRD-1v2 passed its shape check with five claims FALSE. The checker and the truth of a premise are
+> INDEPENDENT PROPERTIES, and this wave measured both directions in one day. `--strict-anchor` verifies
+> citations, never reasoning. The bottleneck was upstream of the lanes — in the cofounder's specs — and
+> the fix is now standing: any spec asserting more than three repo facts gets a read-only scout BEFORE
+> it is written, not a premise phase after it is dispatched.**
+
+★ **The owner's ruling on the record:** *"You are not failing. Zero product change across two waves is
+what correct refusal looks like when the specs are wrong. Your lanes have been right seven times out of
+seven."*
+
+**The new rule paid for itself on first use.** Three mechanisms have now been proposed to explain one
+observation — the same photographed answer marked two different ways on two surfaces. **#1 and #2 were
+inferred, written into specs, dispatched, and disproved by the lanes sent to act on them. #3 was
+scouted BEFORE it was written into a spec, and it is also wrong** — at the cost of one read-only scout
+instead of one lane.
+
+### 3 · ★★ A THIRD ANCHOR-ROT MODE — new doctrine
+
+The standing doctrine says anchors rot **two** ways: the cited lines MOVING, or the anchor TEXT being
+edited. QR-UPLOAD's premise-gate failure was **neither**, and both prior diagnoses of it were wrong.
+
+**Every P1 line number and the anchor were byte-correct all along.** The gate rejected the
+**`How verified` CELL for containing the token `grep`** — a weasel-word lint at
+`premise_ledger_check.mjs:275-285` (`lower.includes(needle)`, case-insensitive substring; token list at
+`:58`). *(LANE-REPORTED, mutation-verified by the lane.)*
+
+> ⇒ **THIRD ROT MODE: the EVIDENCE-METHOD cell can be rejected on its wording while every line and
+> anchor are perfect.**
+
+★ **And the gate was RIGHT — this is the part worth carrying.** *"Consumer enumeration by repo-wide
+symbol grep"* **is** the unearned-extent claim the standing gate line bans: **a grep is not the same as
+opening every consumer.** The gate caught a real evidentiary weakness. And the enumeration it was
+demanding, once actually performed, **confirmed the premise fully intact.**
+**The premise was true; the proof offered for it was not.**
+
+**The one-cell fix was mutation-verified, not asserted:** the scout re-introduced the original wording
+in its own worktree, reproduced the identical failure (same row, same message, exit 1), then restored
+to exit 0. *A diagnosis never made to fire is a hypothesis.* All **22** weasel tokens were extracted
+programmatically **from the gate's own array** and tested against every row, so no second failure was
+hiding behind the first.
+
+⚠ **LATENT HAZARD, recorded so nobody re-derives it.** The weasel matching is **bare substring, NOT
+word-bounded**: `"search"` matches *research*, `"named"` matches *renamed*, `"rg "` matches *"org "*.
+**A future spec can be failed by a word that merely CONTAINS a banned token.** Nobody should chase this
+until it bites.
+
+### 4 · ⚠ THE SPEC HASH CHAIN — recorded here because the file cannot explain itself
+
+`QR-A.md` **`0641D4BF0CFC`** (8993 bytes, cofounder original, owner-verified) →
+**`E53284F08419`** (9008 bytes, controller-edited under owner ruling R2 — **one cell**).
+Source and `ops/.specs/` copy are byte-identical to each other.
+
+> ⚠ **A future lane dispatched on the OLD hash will hard-stop and report. That is the CORRECT, SAFE
+> failure — the transport check working.** But **the explanation lives in the close-out, not in the
+> file**, so a stopped lane will not find it where it looks. **It is recorded here so it is findable.**
+
+Contrast, deliberately: MI-INTEGRITY-2's own four specs were **never edited** — the report-path
+contradiction was resolved by an **erratum passed alongside the spec (ERRATA-1)**, precisely so the
+hashes kept matching.
+
+### 5 · THREE `handoff/` CORRECTIONS — scout-raised, then RE-VERIFIED by `HANDOFF-MI2` before writing
+
+The `HANDOFF-MI2` lane was instructed not to write a correction it had not established itself. All
+three were re-derived at `e077b3a3` **by opening every referenced file**, never by a grep count — that
+being the exact defect these corrections are about. **Two verified as stated. One verified in its
+number and was REFUTED in its diagnosis, and the refutation is recorded below rather than suppressed.**
+
+**a. The `"all four inputs, both pages"` claim — TRUE WHEN WRITTEN, now STALE. HANDOFF-VERIFIED.**
+The claim sits at **`handoff/CURRENT_STATE.md`, the `#451` row of the QR-lane PR table**, and at
+**`handoff/IMPLEMENTATION_ROADMAP.md`, the `#451` bullet** (located by the text `all four inputs, both
+pages`, not by line number).
+**True extent today: TWO inputs on ONE page.** Every repo reference to `checkUploadFile` was opened.
+Non-test invocations are **`DesktopCheckImprovePage.tsx` → `handleFileChosen` (`"answers"`) and
+`handleQuestionFile` (`"question"`)** — two calls plus one import, **all in that single file.** **Test
+consumers: NONE.** The only other reference in the repo is
+`lazytopper/scripts/ops/check_improve_convergence_acceptance.mjs`, which asserts on that file's **TEXT**
+by regex and never invokes the function.
+★★ **BUT THE DIAGNOSIS THE SCOUT ATTACHED IS WRONG, AND SO WAS THE DRAFT'S.** Both framed this as *"an
+extent claim in the handoff asserted from a sample — the identical defect this wave found in its own
+spec."* **It is not.** `#451` genuinely shipped four inputs across two pages: its own file list in
+`IMPLEMENTATION_ROADMAP.md` names **`DesktopCheckImprovePage.tsx` +51/−6 AND `CheckImprove.tsx`
++54/−6**, and the owner live-verified *"both inputs on both pages (incl. WEBP-on-mobile)"*. The second
+page **no longer exists**: the Check & Improve Option-B convergence **DELETED**
+`pages/app/CheckImprove.tsx` at its PR-2, and `App.tsx`'s `/check-improve` route comment says so in its
+own words — *"The mobile twin (pages/app/CheckImprove.tsx) is DELETED as of the convergence's PR-2,
+after live-verify."* One responsive page now renders at every width.
+⇒ **This is ROT, not an unearned extent claim.** The sentence was true on its date and was falsified by
+a later PR that had no reason to look at it. **That is a different failure with a different fix** — a
+claim about a file set must be re-checked when a file in it is deleted — and conflating the two would
+have taught the wrong lesson from the right correction. *Recorded under
+`OPEN_QUESTIONS_AND_FOLLOWUPS.md` standing rule 3: the dated entries are NOT rewritten.*
+
+**b. `uploadLimits.ts` names TWO inline guard copies against a true count of THREE. HANDOFF-VERIFIED,
+and the note is wrong a second way as well.**
+The `NOTE` immediately above `checkUploadFile` names `ChapterTestUploadPanel` + `WorksheetGradePanel`.
+Enumerating every non-test file that imports `MAX_UPLOAD_IMAGE_BYTES`/`MAX_UPLOAD_PDF_BYTES` and
+re-implements the type+size guard inline rather than calling `checkUploadFile`, there are **THREE**:
+`ChapterTestUploadPanel.tsx` → `handleFile`, `WorksheetGradePanel.tsx` → `handleFile`, and the omitted
+**`SolutionChecker.tsx` → `handleFileSelect`**. That file is MI-INTEGRITY-2 territory, which is why
+QR-UPLOAD correctly did not pursue it.
+★ **The note also calls the copies *"byte-identical"*, and they are not.** All three refuse a wrong
+type with **different wording**, and the two panels still say *"JPG/PNG **photo** of your answers"*
+where `checkUploadFile` says *"JPG/PNG **image** of your answers"* — i.e. the **D4 (2026-07-17) noun
+ruling recorded in that same file never propagated to the inline copies.** `SolutionChecker` diverges
+furthest (*"Please select a JPG, PNG, or PDF file"* / *"File must be under 3 MB"*). ⇒ **Three copies,
+three refusal vocabularies. This is DIVERGENCE, not duplication, which is the stronger case for
+`[FU-UPLOAD-GUARD-CONVERGE]` than the note itself makes.**
+
+**c. `"a target, not a wall"` is FALSE wherever the constant is ENFORCED. HANDOFF-VERIFIED — and the
+COUNT the scout gave is superseded by this lane's measurement.**
+The doc comment on `MAX_UPLOAD_IMAGE_BYTES` reads *"Images are downscaled to fit this, so it is a
+target, not a wall the student hits."* Every non-test reference to that constant was opened:
+`UPLOAD_LIMIT_SENTENCE` (student-facing copy, reads as a ceiling) · `checkUploadFile` ·
+`ChapterTestUploadPanel.handleFile` · `WorksheetGradePanel.handleFile` ·
+`SolutionChecker.handleFileSelect` — **all four of those enforcement sites refuse on raw `file.size`
+with no canvas anywhere in the path** — and `qrUploadService.prepareQrImage`, which downscales to a
+target long edge and steps quality down a first-fit ladder.
+⇒ **FALSE at FOUR enforcement sites; TRUE at EXACTLY ONE, `prepareQrImage`.** The scout reported
+*"false at both of its own call sites"*, which counts only the two uses inside `uploadLimits.ts`
+itself. **The substance verifies; this lane's count is the one to carry.**
+★ **The downstream conclusion SURVIVES and is strengthened: the compression justification is confirmed
+by code contradicting its own comment, WITHOUT leaning on the unreproduced refusal report.** ⇒ **the
+compression footing does NOT depend on `[FU-QR-UPLOAD-REFUSAL-UNREPRODUCED]`.** The footing matters.
+
+### 6 · THE `checkUploadFile` ENUMERATION — settled, and admissible under gate line 1
+
+**Non-test consumers: 2 invocations + 1 import, ALL IN ONE FILE** — `DesktopCheckImprovePage.tsx`,
+`handleFileChosen` and `handleQuestionFile`. **Test consumers: NONE.**
+
+The wall is genuinely **pre-compression** (raw `file.size`, no canvas anywhere), and *"3 MB"* is
+**derived, not literal** — `formatUploadLimit(3*1024*1024)`. ★ **The QR phone path does NOT reach
+`checkUploadFile` at all**; it uses `prepareQrImage`, an entirely separate route. **Non-QR upload entry
+points visible from `src/`: 5 — counted, not rounded up.**
+⇒ **This claim satisfies gate line 1 and MAY NOW ENTER A LEDGER.**
+
+### 7 · LANES — both waves
+
+| lane | wave | PR | what it changed | what it disproved |
+|---|---|---|---|---|
+| **QR-A** | QR-UPLOAD | **#679 MERGED + LIVE-VERIFIED** | optional pre-compression crop on the QR phone path + that path's first tests | that the grader was marking the right working |
+| QR-B | QR-UPLOAD | — | NOT DISPATCHED — condition unmet, and it genuinely collides with MI-INTEGRITY-2 | — |
+| TAX-A | MI-INT-2 | none | nothing — stopped at the premise gate, exit 1 | that a ledger passing its shape check and a ledger holding true are the same property, in EITHER direction |
+| GRD-1v2 | MI-INT-2 | none | nothing — gate exit 0, five premises then fell | the wave's founding evidence: BOTH documents were graded by the SAME path |
+| TAX-B | MI-INT-2 | — | blocked behind TAX-A | — |
+| SHEET-1v2 | MI-INT-2 | — | blocked behind TAX-A | — |
+| HANDOFF-MI2 | both | this PR | `handoff/` only — six files, zero product files | that the `"four inputs, both pages"` correction was the defect the draft said it was (§5a) |
+
+### 8 · LIVE-VERIFY — `#679`, owner-executed, PASSED on all six tests
+
+Recorded as **OWNER-VERIFIED, not claimed**. Desktop **and** mobile, **including a session carrying
+state from before the change** — the blind spot that shipped a production break in Wave 4.
+
+- **Crop → send:** the graded sheet quoted **ONLY the cropped solution.** ★ **The grading-accuracy win
+  is confirmed by DOCUMENT COMPARISON, not inference.**
+- **Re-crop:** cropped onto solution A, re-cropped onto B **without sending**, screenshotted the final
+  box, then sent once. The graded sheet contains **B's working and NO trace of A.** ⇒ **The FINAL crop
+  is what ships; the stale-first-selection hazard does not exist.**
+- **Reset · skip-the-crop · a 7.5 MB photo · pre-change state · untouched desktop upload:** all pass.
+- **All four crop drag-handles fully visible at the default selection** — the clipped-handle regression
+  is gone.
+
+★ **The clipped handles are worth their own line: screenshots caught a defect all 25 of the lane's
+assertions missed** — the first build clipped all four handles at the DEFAULT selection, **failing on
+precisely the complaint the feature exists to answer.** Fixed before commit.
+**A suite can be green on the exact case a human sees fail.**
+⚠ Same wave, same shape: the lane's first full-suite run **predated that fix**, so its `1825 passed`
+described **a tree that was not shipping.** Re-run after the fix: `Test Files 142 passed (142)` /
+`Tests 1825 passed (1825)`. **A green suite quoted from before the last commit is not evidence about
+what ships.**
+
+### 9 · WAVE MI-INTEGRITY-2 — what the two blocked lanes established
+
+**TAX-A** stopped at its first command. Two of eight ledger rows were rejected — a `path:line` cell
+carrying two lines at once, and a "How verified" cell reading `grep`. **Neither was a false premise:**
+the lane reports both claims substantively correct, with only their evidence cells malformed.
+
+**GRD-1v2** passed its gate at exit 0 and then disproved the evidence the lane was built on. **The
+owner independently verified three load-bearing claims himself at `a2be5915` before ruling** — these
+are **OWNER-VERIFIED**, not lane-reported:
+- `:540` and `:1516` — both grader prompts carry, verbatim, *"a wrong final answer NEVER earns full
+  marks, but correct method NEVER earns zero"*. **The contradiction with `ECF_POLICY_V1` rule 2 is
+  REAL.**
+- `:793` — `Math.min(totalAwarded, effectiveMarks)` already caps at the question total. **There is NO
+  50% cap. An implementer following the spec files a no-op.**
+- `:1487` and `:1574` — `blockFor` has **TWO** consumers; a cap keyed to one leaks.
+
+The lane further reports (**LANE-REPORTED**) that both documents in the founding evidence were graded
+by the **same** path, an anchor off by one line, and `stepNumber` index-overwritten at **two** sites
+where the ledger named one.
+
+### 10 · THE TWO SCOUTS
+
+**`tax-enumeration`** was sent to count something a spec had already asserted: *"the ~13
+label/definition sites."* It found **55**, and identified where 13 came from — **one grep shape**, the
+four-member union, which occurs exactly 13 times. **A sample reported as a set: this project's most
+expensive recurring defect, reproduced inside the spec written to correct the product's
+inconsistency.** *(SCOUT-REPORTED.)*
+
+Two findings changed what the work is. **Nine groupings exist, not four** — one live inside a service,
+three as anonymous inline re-derivations inside a file belonging to a different lane. And **every one
+of them encodes knowledge = conceptual + calculation**, so the owner's **D1** ruling — knowledge gaps
+are Conceptual **alone** — **has ZERO sites in the product already agreeing with it.** D1 is not a
+relabelling; it is a behavioural change across nine sites. ⇒ **D9 becomes empirical rather than
+asserted: a presentation-layer regrouping cannot undo a routing decision made in a service, and the
+label lane cannot make D1 true by construction.**
+
+Also: `MeProgressPage` reads the careless partition **twice, from two independent definitions**. **Ten
+structurally identical four-member unions exist under ten different names; no canonical type exists.**
+`PracticePage.tsx` carries **two label maps giving each category a different name on one page.**
+
+★ **`ProgressWindowArc.tsx` is DEAD** — zero production importers, static or lazy — **and two `vi.mock`
+calls in another page's tests mock a module that page does not import.** *A dead module kept looking
+alive by tests mocking something nobody loads.* The scout reported **MOUNT established, not
+reachability**, naming which rung of the evidence ladder it had reached.
+
+**`blockfor-source`** tested mechanism #3 and **REFUTED** it. `blockFor` cannot track question source
+**because no source field exists anywhere on the question object.** Worse for the hypothesis: a
+scheme-first cache hook immediately upstream has a filter predicate that is the **exact logical
+complement** of `blockFor`'s emptiness test, and **populates the field for precisely the questions the
+hypothesis predicted would lack it** — using the hypothesis's own vocabulary in its comment, then
+erasing the distinction. The hook is **not optional in production**. The correlation **fails in both
+directions**, and the `:1487`/`:1574` split is a **transport split, not a source split.**
+*(SCOUT-REPORTED.)*
+
+★ **The most useful thing it found is what is MISSING:** the evidence that would settle the question is
+a **captured prompt** for each of the two documents, and **no such capture exists in the repo.**
+`Marking scheme` appears twice, both in production code, with **ZERO test assertions.**
+**Three mechanisms have now been argued from the code; none has been checked against what the grader
+was actually sent.**
+
+### 11 · OWNER RULINGS THIS PERIOD
+
+- **R1 · `ECF_POLICY_V1` rule 2 — NARROWED, not dropped, and BOTH PROMPTS AMENDED.** Dropping it fails
+  on the owner's own arithmetic: rule 5 alone gives `0.5+0+0.5+0 = 1.0`, capped at 50% of 2 = 1.0, i.e.
+  **1/2 — not the 0.5/2 he ruled as a teacher.** Replacement wording, verbatim:
+  > *"ECF pays for demonstrating a value point the question tests. It does not pay for mechanically
+  > re-expressing a value the student themselves produced in error. A step whose only content is
+  > rearranging, distributing or restating an earlier erroneous result — with no independently tested
+  > method demonstrated — earns 0. A step applying a DISTINCT method correctly to a carried value earns
+  > its method marks in full."*
+  ★ **The owner is the CBSE authority and the prompt follows the ruling, not the reverse.**
+  ★ **SINGLE-SOURCE the ECF block across both prompts — two copies of one doctrine is how they
+  diverge.**
+- **R2 · Scout-before-spec accepted** (see §2).
+- **R3 · Temperature 0.05 → 0, but it is NOT a determinism guarantee.** The twice-upload determinism
+  check is **deleted** from GRD-1v2 §5 and replaced with: *"upload twice; if marks differ, record both
+  — that is evidence for the divergence item, not a lane failure."* **A live-verify that can fail for
+  reasons the lane cannot control is a bad gate.**
+
+### 12 · ⚠ THE PREMISE-GATE BYPASS — A DEVIATION, NOT A PRECEDENT
+
+QR-UPLOAD's lane **proceeded past a premise gate that exited 1.** It was flagged and discharged by
+reading every cited line; the code is unaffected; **the owner is NOT reverting it. But it is not
+blessed.** *"An unledgered or failing spec is a defect the agent must refuse"* is load-bearing
+**precisely because it is not negotiable** — **#678 records wave 1 shipping NOTHING because three lanes
+honoured it**, and blessing one bypass makes the next one cheaper.
+
+★ **A PASSING GATE DOES NOT RATIFY A SKIPPED GATE.** Flagging it rather than letting a green CI run
+ratify it was the right instinct.
+
+★★ **And this period supplies the contrast for free: TAX-A refused on exit 1 and was RIGHT to.** One
+lane proceeded past a failing gate and one refused, days apart. **They must not be read as equivalent
+— the merged one is the memorable one.**
+
+### 13 · ⭐ CARRY FORWARD VERBATIM NEVER MEANS CARRY FORWARD UNCHECKED. A carry-forward instruction is **itself a claim about the repo** and goes stale.
+
+**THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this period.**
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.**
+**Wave QR-UPLOAD changed one file set on the QR phone path and moved NO dormancy; Wave MI-INTEGRITY-2
+changed no product code at all and therefore moved no dormancy.** The full block, including the
+`#647`/`#655` resolution and every subsequent amendment, is preserved verbatim in the demoted
+`[CURRENT]` sections below and must be read there before any lane acts on it.
+
+- `[FU-QR-UPLOAD-REFUSAL-UNREPRODUCED]` remains **OPEN and unreproduced**; **"branch (c)" is RETRACTED
+  as settled.**
+- ★ **`git ls-remote`, never a local ref.** QR-SCOUT's own trunk derivation came back **stale by one
+  commit** because it read a local ref — *the shared-checkout lag trap appearing inside a lane that had
+  been warned about it.* Its findings are unaffected; it read at the correct SHA.
+- ★★ **And this period adds a third rot mode for carry-forwards themselves (§5a): a claim about a FILE
+  SET is falsified when a file in the set is DELETED by an unrelated PR.** `"all four inputs, both
+  pages"` was true when written and is false now, and nothing in the repo connected the convergence's
+  deletion to the sentence that depended on it.
+
+### 14 · STATE OF THE WAVE — for whoever picks this up
+
+**MI-INTEGRITY-2 is NOT closed. Three of four lanes are blocked upstream:**
+
+| lane | blocked on | whose action |
+|---|---|---|
+| GRD-1v2 | R1/R3 folded in + a **re-aimed** spec | cofounder |
+| TAX-A | a **re-scoped** spec — 55 sites, not ~13 | cofounder |
+| TAX-B · SHEET-1v2 | TAX-A merging | — |
+
+★ **TAX-A v2 needs RE-SCOPING, not just re-ledgering.** The two malformed cells are now the smaller
+problem: at 55 sites across nine groupings spanning components, services and pages — **three of them
+inside TAX-B's file** — **the Phase-1/Phase-2 split as drawn cannot deliver D1.**
+
+⚠ **Mechanism #4 (scheme CONTENT — cache-generated vs bank step weights, feeding rule 8) is a LEAD, NOT
+A FINDING.** The scout that raised it said explicitly: **"Do not spec it on my say-so."**
+★ **RECOMMENDATION: capture the two prompts on the deployed product before scouting or speccing a
+fourth mechanism.** Three have been argued from the source and none checked against what the grader was
+actually sent. *Every genuine defect this project has found came from a human using the deployed
+product.*
+
+---
+
+## (superseded) [CURRENT] Wave MI-INTEGRITY — CLOSED WITH NO PRODUCT CHANGE. Three lanes stopped before a file was edited, and the wave's founding diagnosis was disproved by the lane sent to act on it — trunk `b3554a6f`
 
 **No product code changed. That is the result, not the absence of one.** Four lanes were specced to
 repair Mistake Intelligence integrity. Three dispatched in parallel; **all three passed their premise

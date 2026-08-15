@@ -1,5 +1,134 @@
 ---
 
+## 2026-08-15 — Wave QR-UPLOAD + Wave MI-INTEGRITY-2 (two controllers, eight lanes, two scouts) — ONE product change, `#679` — trunk `e077b3a3`
+
+★ **PROVENANCE.** Code claims below carry their source: **OWNER-VERIFIED** / **LANE-REPORTED** /
+**SCOUT-REPORTED** / **HANDOFF-VERIFIED** (re-derived by the `HANDOFF-MI2` lane at `e077b3a3`).
+**A controller cannot verify a code claim.**
+
+**WHAT LANDED: `QR-A` / `#679` only.** Four files, all under `lazytopper/src/` —
+`QrAnswerUploadPage.tsx`, `services/qrUploadService.ts` and two new crop tests. No server file, no
+grading file, no `App.tsx`, no `handoff/` file. A student on the QR phone path can now **crop the photo
+before it is sent**, so the grader marks the working the student meant. The crop is **optional and
+skippable**, runs **BEFORE** compression, and its **default selection is the whole image.**
+**Everything else across both waves stopped before editing a file** — not partial progress; stopped,
+deliberately, with nothing written.
+
+**★★ THE FINDING OF BOTH WAVES.** *Eight lanes dispatched, one product change. **TAX-A failed its shape
+check with every claim TRUE; GRD-1v2 passed its shape check with five claims FALSE.** The checker and
+the truth of a premise are INDEPENDENT PROPERTIES, and this period measured both directions in one day.
+`--strict-anchor` verifies citations, never reasoning.* The bottleneck was **upstream of the lanes, in
+the specs**, and the fix is now standing: **any spec asserting more than three repo facts gets a
+read-only scout BEFORE it is written**, not a premise phase after it is dispatched. ★ Owner's ruling on
+the record: *"You are not failing. Zero product change across two waves is what correct refusal looks
+like when the specs are wrong. Your lanes have been right seven times out of seven."*
+**The new rule paid for itself on first use:** three mechanisms have now been proposed for one
+observation (the same photographed answer marked two ways on two surfaces) — **#1 and #2 were inferred,
+specced, dispatched and disproved by the lanes sent to act on them; #3 was scouted BEFORE it was
+specced, and it is also wrong**, at the cost of one read-only scout instead of one lane.
+
+**★★ A THIRD ANCHOR-ROT MODE.** Doctrine said anchors rot two ways — cited lines MOVING, anchor TEXT
+edited. QR-UPLOAD's premise-gate failure was **neither**: every line number and the anchor were
+byte-correct, and the gate rejected the **`How verified` CELL for containing the token `grep`**
+(weasel-word lint, `premise_ledger_check.mjs`, case-insensitive substring). ⇒ **the EVIDENCE-METHOD
+cell can be rejected on its wording while every line and anchor are perfect.** ★ **And the gate was
+RIGHT** — *"consumer enumeration by repo-wide symbol grep"* is exactly the unearned-extent claim it
+bans, **a grep is not the same as opening every consumer** — and the enumeration it demanded, once
+performed, **confirmed the premise fully intact. The premise was true; the proof offered for it was
+not.** The fix was **mutation-verified** (original wording re-introduced, identical failure reproduced,
+restored to exit 0), with all **22** weasel tokens extracted from the gate's own array so no second
+failure hid behind the first. ⚠ LATENT: the matching is **bare substring, not word-bounded** —
+`"search"` matches *research*, `"named"` matches *renamed*.
+
+**★★ THREE `handoff/` CORRECTIONS — scout-raised, RE-VERIFIED by `HANDOFF-MI2` by opening every file,
+never by a grep count.** Two verified as stated; **one verified in its number and was REFUTED in its
+diagnosis**, and the refutation is recorded rather than suppressed:
+
+- **(a) `"all four inputs, both pages"` — TRUE WHEN WRITTEN, now STALE.** True extent today is **two
+  inputs on ONE page**: `checkUploadFile` is invoked only at `DesktopCheckImprovePage.handleFileChosen`
+  and `handleQuestionFile` — two calls + one import in one file — with **zero test consumers**; the only
+  other repo reference asserts on that file's TEXT by regex. ★★ **But the scout's and the draft's
+  diagnosis — *"an extent claim asserted from a sample, the identical defect this wave found in its own
+  spec"* — is WRONG.** `#451` really did ship four inputs across two pages; the second page was
+  **DELETED** by the Check & Improve Option-B convergence at its PR-2, as `App.tsx`'s own route comment
+  states. ⇒ **This is ROT, not an unearned extent claim — a different failure with a different fix**,
+  and conflating them would have taught the wrong lesson from the right correction.
+- **(b) `uploadLimits.ts` names TWO inline guard copies against a true count of THREE** — the omitted
+  one is **`SolutionChecker.tsx` → `handleFileSelect`**. ★ **The note also calls them *"byte-identical"*
+  and they are not**: the two panels still say *"JPG/PNG **photo** of your answers"* where
+  `checkUploadFile` says ***image*** — the D4 noun ruling recorded in that same file **never propagated
+  to the inline copies** — and `SolutionChecker` diverges further still. **Three copies, three refusal
+  vocabularies: DIVERGENCE, not duplication.**
+- **(c) `"a target, not a wall"` is FALSE wherever the constant is ENFORCED** — **FALSE at FOUR
+  enforcement sites** (`checkUploadFile`, `ChapterTestUploadPanel.handleFile`,
+  `WorksheetGradePanel.handleFile`, `SolutionChecker.handleFileSelect`, all refusing on raw `file.size`
+  with no canvas in the path) and **TRUE at exactly ONE, `prepareQrImage`.** The scout said "both call
+  sites"; **this lane's count supersedes it.** ⇒ **the compression footing does NOT depend on
+  `[FU-QR-UPLOAD-REFUSAL-UNREPRODUCED]`.**
+
+**LIVE-VERIFY `#679` — OWNER-EXECUTED, PASSED on all six tests**, desktop and mobile, **including a
+session carrying state from before the change**. Crop → send: the graded sheet quoted **only** the
+cropped solution (**confirmed by document comparison, not inference**). Re-crop onto a second solution
+without sending: the sheet contains **B's working and no trace of A** ⇒ the FINAL crop ships.
+★ **Screenshots caught a defect all 25 of the lane's assertions missed** — the first build clipped all
+four drag-handles at the DEFAULT selection, **failing on precisely the complaint the feature exists to
+answer.** ⚠ And the lane's first full-suite run **predated that fix**, so its `1825 passed` described a
+tree that was not shipping; re-run after the fix gave `Test Files 142 passed (142)` /
+`Tests 1825 passed (1825)`. **A green suite quoted from before the last commit is not evidence about
+what ships.**
+
+**MI-INTEGRITY-2 — the two blocked lanes.** `TAX-A` stopped at its first command, two of eight ledger
+rows rejected, **neither a false premise**. `GRD-1v2` passed at exit 0 and then disproved the evidence
+it was built on; **the owner verified three load-bearing claims himself** (OWNER-VERIFIED): both grader
+prompts carry the same verbatim ECF sentence, so **the contradiction with `ECF_POLICY_V1` rule 2 is
+REAL**; `Math.min(totalAwarded, effectiveMarks)` already caps at the question total, so **there is NO
+50% cap and an implementer following the spec files a no-op**; `blockFor` has **TWO** consumers.
+
+**THE TWO SCOUTS.** `tax-enumeration` was sent to count *"the ~13 label/definition sites"* and found
+**55**, identifying where 13 came from — **one grep shape.** ★★ **A sample reported as a set: this
+project's most expensive recurring defect, reproduced inside the spec written to correct the product's
+inconsistency.** Nine groupings exist, not four, and **every one encodes knowledge = conceptual +
+calculation**, so the owner's D1 ruling **has zero sites already agreeing with it** — D1 is a
+behavioural change across nine sites, not a relabelling. `ProgressWindowArc.tsx` is **DEAD**, kept
+looking alive by two `vi.mock` calls in another page's tests for a module that page does not import.
+`blockfor-source` **REFUTED** mechanism #3: `blockFor` cannot track question source **because no source
+field exists on the question object**, and an upstream cache hook populates the field for precisely the
+questions the hypothesis predicted would lack it. ★ **The most useful thing it found is what is
+MISSING:** the settling evidence is a **captured prompt** for each document, and **no such capture
+exists in the repo.**
+
+**OWNER RULINGS.** **R1** — `ECF_POLICY_V1` rule 2 **NARROWED, not dropped**, and **both prompts
+amended**, because dropping it fails on the owner's own arithmetic; the replacement wording is quoted
+verbatim in `CURRENT_STATE.md` §11. ★ **SINGLE-SOURCE the ECF block across both prompts.** **R2** —
+scout-before-spec accepted. **R3** — temperature `0.05 → 0`, **but it is NOT a determinism guarantee**;
+the twice-upload determinism check is deleted. **A live-verify that can fail for reasons the lane
+cannot control is a bad gate.**
+
+**⚠ THE PREMISE-GATE BYPASS — A DEVIATION, NOT A PRECEDENT.** QR-UPLOAD's lane proceeded past a gate
+that exited 1. Flagged, discharged by reading every cited line, code unaffected, **not reverted — and
+not blessed.** ★ **A PASSING GATE DOES NOT RATIFY A SKIPPED GATE.** ★★ The contrast came free the same
+period: **TAX-A refused on exit 1 and was RIGHT to.** They must not be read as equivalent — **the
+merged one is the memorable one.**
+
+**★★ WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED.** `WIRE-2` (`#621`) **ENDED** the
+`#578`/`#611`/`#617` dormancy — **do not restate that trio as dormant.** Neither wave moved any
+dormancy. The full block is preserved verbatim in the demoted `[CURRENT]` sections of
+`CURRENT_STATE.md`.
+
+**HANDOFF-MI2** — this docs-only PR. Six `handoff/` files, **zero product files.** A per-file heading
+census was taken before and after the prepend and set-differenced: **no heading lost in any file.**
+Mojibake was scanned with the scanner's own regex over the added lines, **with a control sequence
+injected to prove the matcher fires.** ★ **And a premise in this lane's own brief was FALSE and is
+corrected here:** `check:mojibake` does **NOT** set `repoRoot` to `lazytopper/` and is **NOT blind to
+`handoff/`** — it resolves `repoRoot` from `git rev-parse --show-toplevel` and **scans `handoff/`,
+printing a `MOJIBAKE_REPORT_ONLY` count on every run.** `handoff/` is **REPORT-ONLY, not exempt and
+not skipped**: a hit there is counted and printed but does not fail the build. *A silent skip would be
+indistinguishable from a blind spot; the count is what makes it monitoring rather than exemption.*
+⇒ the gate's **green is still not evidence these files are clean**, but for the right reason — **it does
+not enforce there**, not that it cannot see there.
+
+---
+
 ## 2026-08-15 — Wave MI-INTEGRITY (controller + 3 parallel premise lanes) — CLOSED WITH NO PRODUCT CHANGE
 
 Four lanes were specced to repair Mistake Intelligence integrity. Three dispatched in parallel as

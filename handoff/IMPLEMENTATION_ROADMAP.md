@@ -1,6 +1,47 @@
 # LazyTopper Implementation Roadmap
 
 
+## 2026-08-15 — WAVE QR-UPLOAD + WAVE MI-INTEGRITY-2: **EIGHT LANES, ONE PRODUCT CHANGE (`#679`) — AND THE REASON IS THE SPECS, NOT THE LANES** — trunk `e077b3a3`
+
+**`2026-08-15`**
+
+**STAGE OUTCOME: `QR-A` COMPLETE and LIVE-VERIFIED; MI-INTEGRITY-2 NOT CLOSED.** Two waves ran in the
+same period. One product change shipped. **Everything else stopped before editing a file** — not
+partial progress; stopped, deliberately, with nothing written.
+
+- ✅ **`QR-A` — `#679` MERGED + OWNER-LIVE-VERIFIED on all six tests.** Optional **pre-compression**
+  crop on the QR phone path, plus that path's **first tests**. Four files, all `lazytopper/src/`:
+  `QrAnswerUploadPage.tsx` · `services/qrUploadService.ts` · two new crop tests. The crop is
+  **optional, skippable, and defaults to the whole image** — nothing changes for a student who ignores
+  it. ★ **Screenshots caught a defect all 25 assertions missed** (all four drag-handles clipped at the
+  default selection). ⚠ The lane's first full-suite run **predated that fix**; the shipping tree
+  measures `Test Files 142 passed (142)` / `Tests 1825 passed (1825)`.
+- ⏸ **`QR-B` — NOT DISPATCHED.** Condition unmet, and it genuinely collides with MI-INTEGRITY-2.
+- ❌ **`TAX-A` — BLOCKED at the premise gate, exit 1.** Two of eight ledger rows rejected on their
+  **evidence cells**, not their claims. **Needs RE-SCOPING, not just re-ledgering: 55 sites across
+  nine groupings, not the ~13 the spec asserted** — three of them inside `TAX-B`'s file — so **the
+  Phase-1/Phase-2 split as drawn cannot deliver D1.**
+- ❌ **`GRD-1v2` — gate exit 0, then FIVE premises fell.** Owner-verified: **no 50% cap exists** (a
+  spec-following implementer files a no-op), the ECF rule-2 contradiction **is real**, and `blockFor`
+  has **two** consumers. **Rewrite, with R1 and R3 folded in.**
+- ⏸ **`TAX-B` · `SHEET-1v2` — blocked behind `TAX-A`.**
+- ✅ **`HANDOFF-MI2` — this docs-only PR.** Six `handoff/` files, **zero product files**; three
+  `handoff/` corrections re-verified from the code before being written, **one of which refuted the
+  draft's own diagnosis of it.**
+
+**★★ THE STAGE'S FINDING.** **TAX-A failed its shape check with every claim TRUE; GRD-1v2 passed its
+shape check with five claims FALSE.** The checker and the truth of a premise are **independent
+properties**, and this period measured both directions in one day. ⇒ **the bottleneck is upstream of
+the lanes, in the specs**, and the standing fix is now: **any spec asserting more than three repo facts
+gets a read-only scout BEFORE it is written.** It paid for itself on first use — mechanism #3 was
+scouted and refuted at the cost of one read-only scout instead of one lane.
+
+**NEXT STAGE: rewritten `TAX-A` and `GRD-1v2` specs from the cofounder — plus, ahead of any fourth
+mechanism, CAPTURE THE TWO GRADER PROMPTS ON THE DEPLOYED PRODUCT.** Three mechanisms have been argued
+from source and **none checked against what the grader was actually sent.** See `NEXT_ACTION.md`.
+
+---
+
 ## 2026-08-15 — WAVE MI-INTEGRITY: **CLOSED WITH NO PRODUCT CHANGE — THREE LANES STOPPED AT THE PREMISE GATE** — trunk `b3554a6f`
 
 **`2026-08-15`**

@@ -11,7 +11,8 @@ hits. #671 is on trunk — CONFIRM IT IS DEPLOYED, NOT MERELY MERGED, before cre
 table. Merged is not deployed.
 ```
 
-# Updated: 2026-08-13 (post-**WAVE OPS-1**, docs-only. Trunk `6de74d3f`. **WAVE OPS-1 — CLOSED. All twelve PRs on trunk.** ⚠⚠ **PROVISIONING `tutor_cache` OR `step_solutions` MAKES #671's CRASH PATH REACHABLE — read the warning at the top of this file before provisioning any database table.** **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.**)
+# Updated: 2026-08-15 (post-**WAVE QR-UPLOAD** + **WAVE MI-INTEGRITY-2**, docs-only lane `HANDOFF-MI2`. Trunk `e077b3a3`. **EIGHT LANES, ONE PRODUCT CHANGE — `QR-A` / `#679`, merged and owner-LIVE-VERIFIED on all six tests: a student can crop the photo before it is sent.** Everything else across both waves **stopped before editing a file**. ★★ **TAX-A failed its shape check with every claim TRUE; GRD-1v2 passed its shape check with five claims FALSE** — the checker and the truth of a premise are INDEPENDENT PROPERTIES. **MI-INTEGRITY-2 is NOT CLOSED**; `TAX-A` needs RE-SCOPING (**55 sites, not ~13**) and `GRD-1v2` needs re-aiming with R1/R3 folded in — both are the cofounder's action. ⚠⚠ **DO NOT SPEC A FOURTH DIVERGENCE MECHANISM** — three have been argued from source and **none checked against what the grader was actually sent**; capture the two prompts on the DEPLOYED product first. **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.**)
+# Previously: 2026-08-13 (post-**WAVE OPS-1**, docs-only. Trunk `6de74d3f`. **WAVE OPS-1 — CLOSED. All twelve PRs on trunk.** ⚠⚠ **PROVISIONING `tutor_cache` OR `step_solutions` MAKES #671's CRASH PATH REACHABLE — read the warning at the top of this file before provisioning any database table.** **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.**)
 # Previously: 2026-08-11 (post-**WAVE ME-C** + the close of **WAVE CLOSEOUT**, docs-only. Trunk `9682ba02`. **`/me` IS REBUILT AND ON TRUNK** - `#655` shipped the v7.1 page: a four-segment marks bar, the concepts costing the most, and a Topic Hub that opens on the exact concept. **All four CLOSEOUT lanes merged** - `#651`/`#652`/`#653`/`#654`. **`expectedMarks` IS STILL DORMANT** - the brief predicted two dormancies would end and only `?concept=` and `mistakeRetry` did. **`ProgressWindowArc` is now the `MentorSolveDrawer` shape: zero mounts, live suite.** **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.** Two live-verifies OWED.)
 # Previously: 2026-08-09 (post-**WAVE CLOSEOUT**, lane `HANDOFF-CATCHUP`, docs-only. Trunk `eeafb99b`. **THE PREVIOUS BLOCK IS WRONG, NOT MERELY STALE:** `#647` and `#649` **ARE** on trunk - both merged BEFORE `#650`, which says they are drafts. **The DPDP code IS running in production** - `#644` landed, the gateway boots, and `#646` gave it a student-facing surface on `/me`. Wave DPDP-B's close-out existed on ONE DISK and is now archived. **`ME-2` is the next lane and carries THREE hard constraints, one of them a privacy regression risk.** `SUPPLY-2` is UNBLOCKED and is the DPDP arc's last lane.)
 # Previously: 2026-08-09 (post-**WAVE ME-B**: `#647` TOPICHUB-1 + `#649` RETRY-1, **BOTH OPEN DRAFTS WITH GREEN CI AND NEITHER ON TRUNK** - `gh pr ready` is the owner's step. Trunk `376e30b0`, which moved FOUR times during the wave. `ARRIVAL-1` returned BLOCKED with ZERO FILES and that was correct. **`ME-2` was NOT STARTED and passes whole to Wave ME-C.** **THREE consecutive concept resolvers were specified and all three were wrong**, caught only because each was handed on flagged UNVERIFIED. **`#647` is a CONSUMER WITH NO PRODUCER - if `ME-2` does not ship, it is dead code.**)
@@ -19,6 +20,86 @@ table. Merged is not deployed.
 # Previously: 2026-08-09 (post-**WAVE ME-A**: #634 · #641 · #637 · #636, four lanes + two scouts, plus the four commits already unrecorded when it opened — #629 · #630 · #632 · #631 · #633. Trunk `e8f89863`. FOUR open PRs, none of them ME: #638/#639/#640 are the DPDP arc's live drafts, #635 is the owner's ops-docs PR. Every ME-A lane disproved part of its own spec. **Wave ME-B opens with `ARRIVAL-1` + `RETRY-1` under a FRESH controller; `ME-2` is Wave ME-C.**)
 # Previously: 2026-08-07 (post-**WAVE 5F**: #619 · #620 · #625 · #621 · #626 · #627, four lanes. Trunk `fbfb57fa`. ZERO open PRs. Typed grading LIVE-VERIFIED end to end, including the control. **Wave 5G opens with `ME-PROGRESS`.**)
 
+
+
+## 2026-08-15 — NEXT ACTION: **REWRITTEN `TAX-A` AND `GRD-1v2` SPECS — AND, BEFORE ANY FOURTH MECHANISM, CAPTURE THE TWO GRADER PROMPTS ON THE DEPLOYED PRODUCT**
+
+**Trunk `e077b3a3`.** `QR-A` / `#679` is merged and owner-live-verified. **MI-INTEGRITY-2 is NOT
+closed** — three of its four lanes are blocked upstream, on the cofounder, not on any lane.
+
+| lane | blocked on | whose action |
+|---|---|---|
+| `GRD-1v2` | R1/R3 folded in + a **re-aimed** spec | cofounder |
+| `TAX-A` | a **re-scoped** spec — **55 sites, not ~13** | cofounder |
+| `TAX-B` · `SHEET-1v2` | `TAX-A` merging | — |
+
+⚠⚠ **DO NOT RE-DISPATCH `TAX-A` AS WRITTEN. IT NEEDS RE-SCOPING, NOT JUST RE-LEDGERING.** The two
+malformed evidence cells are now the smaller problem. At **55 sites across nine groupings** spanning
+components, services and pages — **three of them inside `TAX-B`'s file** — **the Phase-1/Phase-2 split
+as drawn cannot deliver D1.** And because **every one of the nine groupings encodes
+`knowledge = conceptual + calculation`**, owner ruling **D1 has ZERO sites in the product already
+agreeing with it**: it is a **behavioural change across nine sites, not a relabelling.**
+⇒ **D9 is now empirical rather than asserted** — a presentation-layer regrouping **cannot undo a
+routing decision made in a service**, and the label lane cannot make D1 true by construction.
+
+⚠⚠ **DO NOT SPEC A FOURTH DIVERGENCE MECHANISM YET.** ★★ **Three mechanisms have been argued from the
+source and NONE has been checked against what the grader was actually sent.** The evidence that would
+settle it is a **captured prompt** for each of the two documents, and **no such capture exists in the
+repo.** **Mechanism #4 (scheme CONTENT — cache-generated vs bank step weights, feeding rule 8) is a
+LEAD, NOT A FINDING**; the scout that raised it said explicitly **"do not spec it on my say-so."**
+★ **CAPTURE THE TWO PROMPTS ON THE DEPLOYED PRODUCT FIRST.** *Every genuine defect this project has
+found came from a human using the deployed product.*
+
+### STANDING DOCTRINE ADDED THIS PERIOD
+
+- ★★ **SCOUT BEFORE SPEC.** **Any spec asserting more than three repo facts gets a read-only scout
+  BEFORE it is written**, not a premise phase after it is dispatched. **It paid for itself on first
+  use** — mechanism #3 was refuted at the cost of one read-only scout instead of one lane.
+- ★★ **THE CHECKER AND THE TRUTH OF A PREMISE ARE INDEPENDENT PROPERTIES.** `TAX-A` **failed** its
+  shape check with **every claim TRUE**; `GRD-1v2` **passed** its shape check with **five claims
+  FALSE.** Both directions were measured in one day. **`--strict-anchor` verifies citations, never
+  reasoning** — never read a green gate as a true premise, or a red gate as a false one.
+- ★★ **A THIRD ANCHOR-ROT MODE: the EVIDENCE-METHOD cell can be rejected on its wording while every
+  line and anchor are byte-perfect.** ★ And when it happened, **the gate was RIGHT**: *"consumer
+  enumeration by repo-wide symbol grep"* **is** an unearned extent claim — **a grep is not the same as
+  opening every consumer** — and the enumeration it demanded, once performed, **confirmed the premise
+  fully intact. The premise was true; the proof offered for it was not.**
+- ★★ **A FOURTH ROT MODE, for carry-forwards themselves: a claim about a FILE SET is falsified when a
+  file in the set is DELETED by an unrelated PR.** See `[FU-HANDOFF-CLAIM-ROT-ON-FILE-DELETION]`.
+  **Re-check every claim that names a file when that file is deleted.**
+- ★ **A PASSING GATE DOES NOT RATIFY A SKIPPED GATE.** QR-UPLOAD's lane proceeded past a premise gate
+  that exited 1. It was flagged, discharged by reading every cited line, and **is not being reverted —
+  but it is NOT blessed.** ★★ The contrast came free the same period: **`TAX-A` refused on exit 1 and
+  was RIGHT to.** **The merged one is the memorable one, and that is the danger.**
+- ★ **`git ls-remote`, never a local ref.** QR-SCOUT's own trunk derivation came back **stale by one
+  commit** because it read a local ref — the shared-checkout lag trap, inside a lane that had been
+  warned about it.
+
+### ⚠ THE `QR-A.md` SPEC HASH CHAIN — a stopped lane will not find the explanation where it looks
+
+`QR-A.md` **`0641D4BF0CFC`** (8993 bytes, cofounder original, owner-verified) → **`E53284F08419`**
+(9008 bytes, controller-edited under owner ruling R2 — **one cell**). Source and the `ops/.specs/` copy
+are byte-identical to each other. **A future lane dispatched on the OLD hash will hard-stop and report
+— that is the CORRECT, SAFE failure**, the transport check working. It is recorded here and in
+`CURRENT_STATE.md` §4 **because the file cannot explain itself.**
+
+### ★★ THE WIRE-2 DORMANCY BLOCK — RESTATED AS REQUIRED
+
+`WIRE-2` (`#621`) **ENDED** the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.**
+**`QR-A` moved no dormancy and MI-INTEGRITY-2 changed no product code at all**, so nothing in this
+block moved this period. The full block, including the `#647`/`#655` resolution and every subsequent
+amendment, is preserved verbatim in the demoted `[CURRENT]` sections of `CURRENT_STATE.md` and **must
+be read there before any lane acts on it.** ★ **CARRY FORWARD VERBATIM NEVER MEANS CARRY FORWARD
+UNCHECKED — a carry-forward instruction is itself a claim about the repo and goes stale.**
+
+### STILL OPEN, unchanged by either wave
+
+- **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.**
+- **`[FU-QR-UPLOAD-REFUSAL-UNREPRODUCED]` is OPEN and unreproduced.** **No lane may build a fix for it**
+  until it is reproduced with its wording captured. **"Branch (c)" remains RETRACTED as settled.**
+  ⚠ **HEIC is report-only, no lane.**
+- **`[FU-BANK-MARKING-SCHEME-COVERAGE]`** — 207 of 401 bank files carry `[N mark]` steps. **Half the
+  bank is unanchored.** Authoring work, not code.
 
 ## 2026-08-15 — NEXT ACTION: DISPATCH WAVE `MI-INTEGRITY-2` WITH A FRESH CONTROLLER AND REWRITTEN SPECS
 
