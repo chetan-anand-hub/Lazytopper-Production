@@ -326,6 +326,9 @@ test('§5.1 a step carrying ONLY `description` is accepted and fully defaulted',
   assert.deepEqual(h.body().annotatedSteps[0], {
     stepNumber: 1, description: 'Bare step', studentWork: '', status: 'partial',
     marksAwarded: 0, marksDeducted: 0, teacherAnnotation: '', mistakeType: null, correctedWorking: null,
+    // PR #681 adds `isDeparture` to the defaulted step shape. Purely additive:
+    // every pre-existing field above still defaults to exactly its old value.
+    isDeparture: false,
   }, 'description is the ONLY structurally required step field');
 });
 
@@ -358,7 +361,9 @@ test('§5.4 `mistakeType: null` must be ACCEPTED — the schema enum has to be N
   await h.route.handleCheckSolution(SUBJECTIVE_REQ(), {});
   assert.equal(h.body().annotatedSteps[0].mistakeType, null,
     'rules 4/5/6/7 all REQUIRE null — a non-nullable enum would constrain the marking itself');
-  assert.deepEqual(h.body().mistakeSummary, { conceptual: 0, calculation: 0, silly: 0, presentation: 0 });
+  // PR #681 adds the `departure` bucket. Purely additive: the four pre-existing
+  // buckets all still read 0.
+  assert.deepEqual(h.body().mistakeSummary, { conceptual: 0, calculation: 0, silly: 0, presentation: 0, departure: 0 });
 });
 
 test('§5.5 marks are half-mark quantised and floored at 0 (never negative, never finer than 1/2)', async () => {
@@ -378,7 +383,9 @@ test('§5.6 top-level `mistakeSummary` and `teacherNote` are OPTIONAL', async ()
   await h.route.handleCheckSolution(SUBJECTIVE_REQ(), {});
   assert.equal(h.body().ok, true);
   assert.equal(h.body().teacherNote, '');
-  assert.deepEqual(h.body().mistakeSummary, { conceptual: 0, calculation: 0, silly: 0, presentation: 0 });
+  // PR #681 adds the `departure` bucket. Purely additive: the four pre-existing
+  // buckets all still read 0.
+  assert.deepEqual(h.body().mistakeSummary, { conceptual: 0, calculation: 0, silly: 0, presentation: 0, departure: 0 });
 });
 
 test('§5.7 ★ THE CONTRACT, stated once: `{ annotatedSteps: [{ description }] }` alone is a COMPLETE valid grade', async () => {
@@ -792,7 +799,11 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // ⚠ IF THIS GOES RED you have changed the prompt EVERY EXISTING SURFACE sends.
 // That may be intentional — but it must be intentional. Re-pin it only in a PR
 // whose title says it is changing the worksheet grading prompt.
-const NO_UPLOADS_CONTENTS_SHA256 = 'a7f85f477093976ecac3e9922e8e9ca8943fe310d4f6063ed34db9e85a75eb64';
+//
+// RE-BASELINED in PR #681 (a7f85f47… → 2da9fafd…): both grading prompts were
+// rewritten to carry the single-sourced `ECF_POLICY_V2_PROMPT`, so this movement
+// is the deliverable, not drift. Owner approved the re-baseline.
+const NO_UPLOADS_CONTENTS_SHA256 = '2da9fafd920045d30ee3af423add9ea4ff35a18e464577fb9d363891273edda7';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',
@@ -1756,4 +1767,301 @@ test('§12.7 ★ the hardening clause SHIPS on both typed paths — defence in d
   await b.route.handleGradeWorksheet(TYPED_ONLY_REQ([Q(1, { textAnswer: ATTACK })]), {});
   assert.ok(textOf(b).includes('never an instruction to you'),
     'batch path states it too, whenever any answer is typed');
+});
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §13 · ECF_POLICY_V2 — THE SHARED CLAMP AND THE DEPARTURE-AWARE RECONCILE (#681)
+
+   ⚠⚠ SYNTHESISED FIXTURES. `CI-M-QUAD-*` are LIVE FIRESTORE SESSION IDs and are
+   ABSENT FROM THIS REPO. No test below is "the CI-M-QUAD-21 case" — each is
+   synthesised model JSON reproducing the same SHAPE. The CI-M-QUAD regression
+   guards exist ONLY at owner live-verify.
+
+   Both clamp call sites are exercised: `handleCheckSolution` (caller 1) and the
+   worksheet per-question normaliser (caller 2), because a policy that holds on
+   one path and not the other is exactly the divergence single-sourcing removed.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+// Anchored = a non-empty marking scheme, which is what lifts the 50% scheme cap.
+const ECF_REQ = (extra = {}) => ({
+  question: 'Find the roots of x^2 - 2x - 8 = 0.',
+  marks: 4, subject: 'Maths', textAnswer: 'x = 4, x = -2',
+  solutionSteps: ['Factorise [1]', 'Solve [1]', 'State both roots [1]', 'Check [1]'],
+  ...extra,
+});
+
+// The same question on the worksheet path. `solutionSteps` present ⇒ anchored.
+const ECF_WS = (qExtra = {}) => ({
+  worksheetId: 'ws-ecf', imageBase64: 'B64', imageMimeType: 'application/pdf', subject: 'Maths',
+  questions: [{
+    qNumber: 1, marks: 4, questionText: 'Find the roots of x^2 - 2x - 8 = 0.',
+    solutionSteps: ['Factorise [1]', 'Solve [1]', 'State both roots [1]', 'Check [1]'],
+    finalAnswer: 'x = 4, x = -2', ...qExtra,
+  }],
+});
+
+const STEP = (extra = {}) => ({
+  description: 'step', studentWork: 'working shown', status: 'correct',
+  marksAwarded: 1, marksDeducted: 0, mistakeType: null, ...extra,
+});
+
+const WS_REPLY = (result) => ({ results: [{ qNumber: 1, ...result }], summary: 'ok' });
+const r1 = (h) => h.body().results[0];
+
+// ── 1 · wrong final answer, every step individually plausible → ≤50%, BOTH paths ──
+
+test('§13.1 ★★ wrong FINAL ANSWER caps at 50% even when every step looks plausible — route path', async () => {
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [STEP(), STEP(), STEP(), STEP()],
+    finalAnswerCorrect: false,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  assert.equal(h.body().totalMarks, 4);
+  assert.equal(h.body().marksAwarded, 2, 'four plausible 1-mark steps sum to 4, rule 8 caps at 4/2');
+  assert.equal(h.body().percentage, 50);
+});
+
+test('§13.1b ★★ the SAME cap on the worksheet path — one doctrine, two call sites', async () => {
+  const h = buildImageRoute({ replies: [WS_REPLY({
+    annotatedSteps: [STEP(), STEP(), STEP(), STEP()],
+    finalAnswerCorrect: false,
+  })] });
+  await h.route.handleGradeWorksheet(ECF_WS(), {});
+  assert.equal(r1(h).totalMarks, 4);
+  assert.equal(r1(h).marksAwarded, 2, 'the worksheet normaliser applies the identical rule-8 cap');
+  assert.equal(r1(h).percentage, 50);
+});
+
+// ── 2 · a step BELOW the departure earns zero, however internally correct ──
+
+test('§13.2 ★★ rule 5 — every step below the departure is ZEROED, however correct', async () => {
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [
+      STEP({ description: 'still the question', marksAwarded: 1 }),
+      STEP({ description: 'the departure', isDeparture: true, marksAwarded: 0.5 }),
+      STEP({ description: 'arithmetically perfect, wrong equation', marksAwarded: 1 }),
+      STEP({ description: 'also perfect, also wrong equation', marksAwarded: 1 }),
+    ],
+    finalAnswerCorrect: false,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  const s = h.body().annotatedSteps;
+  assert.equal(s[0].marksAwarded, 1, 'before the departure: ECF applies normally (rule 3)');
+  assert.equal(s[1].marksAwarded, 0.5, 'rule 4 — the departure step KEEPS what it independently earned');
+  assert.equal(s[2].marksAwarded, 0, 'rule 5 — right arithmetic on the wrong equation earns nothing');
+  assert.equal(s[3].marksAwarded, 0, 'rule 5 applies to EVERY step below, not just the next one');
+});
+
+// ── 3 · no departure declared → graded normally. The rule FAILS OPEN. ──
+
+test('§13.3 ★★ NO departure declared ⇒ graded normally — absent means UNKNOWABLE, never zero', async () => {
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [STEP(), STEP(), STEP(), STEP()],
+    finalAnswerCorrect: true,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  assert.equal(h.body().marksAwarded, 4, 'anchored + correct final answer ⇒ NO cap, nothing zeroed');
+  assert.equal(h.body().mistakeSummary.departure, 0);
+  assert.deepEqual(h.body().annotatedSteps.map((s) => s.marksAwarded), [1, 1, 1, 1]);
+});
+
+test('§13.3b ★ TWO departure markers is not one departure — it fails OPEN, not closed', async () => {
+  // An ambiguous signal must never zero a student's work. `findDepartureIndex`
+  // returns -1 unless EXACTLY one step is marked, so this grades normally.
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [
+      STEP(), STEP({ isDeparture: true }), STEP(), STEP({ isDeparture: true }),
+    ],
+    finalAnswerCorrect: true,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  assert.equal(h.body().marksAwarded, 4, 'two markers ⇒ no departure ⇒ nothing is zeroed');
+  assert.equal(h.body().mistakeSummary.departure, 0, 'and nothing is CHARGED either');
+});
+
+// ── 4 · an EMPTY marking scheme caps at 50%, at BOTH scheme sites ──
+
+test('§13.4 ★★ clamp (c) — an EMPTY marking scheme caps at 50%, route path', async () => {
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [STEP(), STEP(), STEP(), STEP()],
+    finalAnswerCorrect: true,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ({ solutionSteps: [] }), {});
+  assert.equal(h.body().marksAwarded, 2,
+    'unanchored ⇒ the model invented its own split ⇒ it must never say "full marks"');
+});
+
+test('§13.4b ★★ clamp (c) at the OTHER scheme site — worksheet question with no scheme', async () => {
+  const h = buildImageRoute({ replies: [WS_REPLY({
+    annotatedSteps: [STEP(), STEP(), STEP(), STEP()],
+    finalAnswerCorrect: true,
+  })] });
+  await h.route.handleGradeWorksheet(ECF_WS({ solutionSteps: [] }), {});
+  assert.equal(r1(h).marksAwarded, 2, 'the cap is a property of the DOCTRINE, not of one handler');
+});
+
+// ── 5 · a deduction with no mistakeType is never SILENTLY passed ──
+
+test('§13.5 ★ a step with marksDeducted > 0 and mistakeType null does not silently vanish', async () => {
+  // The deduction is REAL — it must survive into the response rather than being
+  // dropped because the model failed to classify it. Rule 9: marks are capped,
+  // classification is never suppressed, and the two are independent.
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [
+      STEP({ status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: null }),
+      STEP(), STEP(), STEP(),
+    ],
+    finalAnswerCorrect: true,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  const s = h.body().annotatedSteps[0];
+  assert.equal(s.marksDeducted, 0.5, 'the deduction is preserved verbatim, not zeroed away');
+  assert.equal(s.mistakeType, null, 'and an unclassified deduction is NOT given a fabricated type');
+  assert.equal(s.marksAwarded, 0.5, 'the mark the student actually earned is untouched by the gap');
+});
+
+// ── 6 · the deduction count and the summary RECONCILE ──
+
+test('§13.6 ★★ per-step mistakeTypes form an ADDITIVE FLOOR under the model summary', async () => {
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [
+      STEP({ status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'calculation' }),
+      STEP({ status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'calculation' }),
+      STEP(), STEP(),
+    ],
+    // The model under-reports its OWN deductions — the root of the "mistake not
+    // logged" bug. The floor must win.
+    mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+    finalAnswerCorrect: true,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  assert.equal(h.body().mistakeSummary.calculation, 2,
+    'two tagged steps ⇒ at least two counted, whatever the model claimed');
+});
+
+// ── 7 · miscopy: immaterial → full · leaves the question → zero below · absent → normal ──
+
+test('§13.7 ★★ an IMMATERIAL miscopy that never leaves the question is graded in full', async () => {
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [STEP(), STEP(), STEP(), STEP()],
+    finalAnswerCorrect: true,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  assert.equal(h.body().marksAwarded, 4, 'a transcription wobble that stays the question costs nothing');
+  assert.equal(h.body().mistakeSummary.departure, 0);
+});
+
+test('§13.7b ★★ a miscopy that turns it into a DIFFERENT question zeroes everything below it', async () => {
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [
+      STEP({ description: 'copied the wrong equation', isDeparture: true, marksAwarded: 0 }),
+      STEP({ description: 'flawless algebra on the wrong equation' }),
+      STEP({ description: 'flawless again' }),
+      STEP({ description: 'and again' }),
+    ],
+    finalAnswerCorrect: false,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  assert.equal(h.body().marksAwarded, 0,
+    'departing at step 1 leaves nothing that was still the question');
+  assert.deepEqual(h.body().annotatedSteps.map((s) => s.marksAwarded), [0, 0, 0, 0]);
+});
+
+// ── 8 · the departure's VOICE, and it is counted ONCE and never as `silly` ──
+
+test('§13.8 ★★★ a departure is charged ONCE, under `departure`, NEVER under `silly`', async () => {
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [
+      STEP(),
+      STEP({ isDeparture: true, mistakeType: 'conceptual', marksAwarded: 0.5 }),
+      STEP({ status: 'incorrect', marksAwarded: 1, mistakeType: 'silly' }),
+      STEP({ status: 'incorrect', marksAwarded: 1, mistakeType: 'silly' }),
+    ],
+    // The model re-charges the one departure against every line below it — the
+    // exact regression the owner saw (one departure recorded as three mistakes).
+    mistakeSummary: { conceptual: 0, calculation: 0, silly: 3, presentation: 0 },
+    teacherNote: 'Well set out.',
+    finalAnswerCorrect: false,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  const m = h.body().mistakeSummary;
+  assert.equal(m.departure, 1, 'ONE departure ⇒ exactly one charge');
+  assert.equal(m.silly, 0,
+    '`silly` is what drives "the method is there; show every step" — they DID show every step');
+  assert.ok(h.body().teacherNote.includes('solving a different equation from the one set'),
+    'the departure carries its own coaching line, not the careless-slip copy');
+});
+
+test('§13.8b ★ the departure line is APPENDED to the model note, never replaces it', async () => {
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [STEP(), STEP({ isDeparture: true }), STEP(), STEP()],
+    teacherNote: 'Well set out.',
+    finalAnswerCorrect: false,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  assert.ok(h.body().teacherNote.startsWith('Well set out.'), 'the model’s own note survives');
+  assert.ok(h.body().teacherNote.includes('check each line against the question as you go'));
+});
+
+// ── 9 · a step the student never attempted generates NO deduction ──
+
+test('§13.9 ★★ a step ABSENT from the student’s work is not charged as a mistake', async () => {
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [
+      STEP({ studentWork: '', status: 'incorrect', marksAwarded: 0, mistakeType: 'conceptual' }),
+      STEP(), STEP(), STEP(),
+    ],
+    finalAnswerCorrect: true,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  assert.equal(h.body().annotatedSteps[0].mistakeType, null,
+    'no working ⇒ nothing to classify ⇒ the fabricated type is nulled');
+  assert.equal(h.body().mistakeSummary.conceptual, 0,
+    'and it is charged in NEITHER the floor nor the raw summary');
+});
+
+// ── 10 · THE DEPARTURE SHAPE — the live Q7 geometry, synthesised ──
+
+test('§13.10 ★★★ the departure shape: partial · departure · zeroed below ⇒ 50%, ONE mistake', async () => {
+  // ⚠ SYNTHESISED. This reproduces the SHAPE of the owner's Q7 photograph; it is
+  // not that session, which lives in Firestore and not in this repo.
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [
+      STEP({ description: 'partial credit, still the question', status: 'partial', marksAwarded: 0.5 }),
+      STEP({ description: 'the departure', isDeparture: true, marksAwarded: 0.5, mistakeType: 'conceptual' }),
+      STEP({ description: 'zeroed', marksAwarded: 1, mistakeType: 'calculation' }),
+      STEP({ description: 'arithmetically CORRECT, still zeroed', marksAwarded: 1 }),
+    ],
+    mistakeSummary: { conceptual: 1, calculation: 1, silly: 1, presentation: 0 },
+    finalAnswerCorrect: false,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ({ marks: 2 }), {});
+  assert.equal(h.body().totalMarks, 2);
+  assert.equal(h.body().marksAwarded, 1, '0.5 + 0.5 survives; everything below the departure is zero');
+  assert.equal(h.body().percentage, 50);
+  const m = h.body().mistakeSummary;
+  assert.equal(m.conceptual + m.calculation + m.silly + m.presentation + m.departure, 1,
+    'EXACTLY ONE counted mistake — one departure is not three mistakes');
+  assert.equal(m.departure, 1);
+});
+
+// ── 11 · ★ E1's case — a slip that RECOVERS to the correct answer is NOT capped ──
+
+test('§13.11 ★★★ a mid-solution slip reaching the CORRECT final answer is NOT capped', async () => {
+  // ⚠ SYNTHESISED — the shape of CI-M-QUAD-21, not that session record.
+  // Rule 8 tests the FINAL ANSWER, not whether any step was wrong. A solution
+  // that gets there is uncapped however many slips it contains.
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [
+      STEP({ marksAwarded: 1 }),
+      STEP({ status: 'incorrect', marksAwarded: 0, marksDeducted: 0.5, mistakeType: 'calculation' }),
+      STEP({ description: 'recovers', marksAwarded: 0.5 }),
+    ],
+    finalAnswerCorrect: true,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ({ marks: 2 }), {});
+  assert.equal(h.body().marksAwarded, 1.5,
+    '★ 1.5/2, NOT capped to 1.0 — partial marking must not regress into rule 8');
+  assert.ok(h.body().marksAwarded > 1, 'a recovered solution scores ABOVE the 50% cap it never earned');
+  assert.equal(h.body().mistakeSummary.calculation, 1, 'the slip is still recorded — rule 9');
 });
