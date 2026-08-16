@@ -32,6 +32,13 @@ const { resolveConfig } = require('../services/serverConfig.cjs');
 const { createGeminiClient } = require('../services/geminiClient.cjs');
 const { extractJsonObjectFromText } = require('../services/httpUtils.cjs');
 const { isObjectiveType } = require('../services/serverUtils.cjs');
+// ECF_POLICY_V2 — the ONE marking rule, imported from the shipped route rather
+// than re-implemented here. Requiring this module only defines functions.
+const {
+  applyEcfPolicyV2,
+  resolveFinalAnswerCorrect,
+  buildMistakeSummary,
+} = require('../routes/checkSolution.cjs');
 
 // resolveConfig() loads server/.env (if present) and reads the Codespace/CI secret
 // from process.env.API_KEY — the script never reads or prints the key itself.
@@ -100,6 +107,7 @@ function normaliseStructuredResult(q, raw) {
       teacherAnnotation: String(s.teacherAnnotation || '').trim(),
       mistakeType: VALID_MISTAKE_TYPES.has(s.mistakeType) ? s.mistakeType : null,
       correctedWorking: s.correctedWorking ? String(s.correctedWorking).trim() : null,
+      isDeparture: s.isDeparture === true,
     }));
 
   // No-working / objective honesty guard (MI integrity), byte-aligned with the route.
@@ -115,23 +123,20 @@ function normaliseStructuredResult(q, raw) {
     }
   }
 
-  const totalAwarded = annotatedSteps.reduce((sum, s) => sum + s.marksAwarded, 0);
-  const capped = Math.min(totalAwarded, totalMarks);
+  // ── ECF_POLICY_V2 · THE SHARED CLAMP (caller 3 of 3) ────────────────────────
+  // ★ THIS WAS THE THIRD COPY of the naked sum. The harness must measure the code
+  // that SHIPS, so it now calls the product's own clamp instead of reproducing it.
+  const schemeAnchored = Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0;
+  const finalAnswerCorrect = resolveFinalAnswerCorrect(raw, annotatedSteps);
+  const policy = applyEcfPolicyV2({ annotatedSteps, totalMarks, schemeAnchored, finalAnswerCorrect });
+  const capped = policy.marksAwarded;
 
-  const rawSummary = raw.mistakeSummary || {};
-  const stepFloor = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
-  for (const s of annotatedSteps) {
-    if (s.mistakeType && Object.prototype.hasOwnProperty.call(stepFloor, s.mistakeType)) {
-      stepFloor[s.mistakeType] += 1;
-    }
-  }
-  const rawAdjusted = (cat) => Number(rawSummary[cat] || 0) - noWorkingNulled[cat];
-  const mistakeSummary = {
-    conceptual: Math.max(0, rawAdjusted('conceptual'), stepFloor.conceptual),
-    calculation: Math.max(0, rawAdjusted('calculation'), stepFloor.calculation),
-    silly: Math.max(0, rawAdjusted('silly'), stepFloor.silly),
-    presentation: Math.max(0, rawAdjusted('presentation'), stepFloor.presentation),
-  };
+  const mistakeSummary = buildMistakeSummary({
+    annotatedSteps,
+    rawSummary: raw.mistakeSummary,
+    noWorkingNulled,
+    departureIndex: policy.departureIndex,
+  });
 
   return {
     qNumber: q.qNumber,
@@ -210,7 +215,10 @@ async function gradeStructuredSetText(questions) {
   const parts = [{ text: systemPrompt + '\n\n' + userPrompt }];
   const contents = [{ role: 'user', parts }];
 
-  const genConfig = { temperature: 0.05, maxOutputTokens: 32000, responseMimeType: 'application/json' };
+  // ★★ CLAMP (a). Shipping production at 0 while the harness that MEASURES
+  // reproducibility runs at 0.05 would measure a configuration that no longer
+  // ships. The instrument tracks the instrument's subject.
+  const genConfig = { temperature: 0, maxOutputTokens: 32000, responseMimeType: 'application/json' };
   const gradeOnce = async () => {
     const r = await callGemini(GEMINI_MODEL, contents, genConfig);
     return { reply: r, parsed: extractJsonObjectFromText(r.text) };

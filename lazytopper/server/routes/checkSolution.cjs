@@ -52,6 +52,223 @@ const STEP_STATUS_VALUES = ['correct', 'partial', 'incorrect', 'missing'];
 const MAX_BATCH_UPLOADS = 12;
 const MARKS_SOURCE_VALUES = ['stated', 'inferred'];
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+   ECF_POLICY_V2 — GRADE THE TRAJECTORY, NOT THE STEP  (GRD-CLAMPS, MI-INTEGRITY-3)
+   ══════════════════════════════════════════════════════════════════════════════
+   The grader judged each step in isolation ("was this line internally correct?").
+   A CBSE examiner asks "is this line still working the question that was set?".
+
+   Owner ruling (he is the CBSE authority here): a miscopy is a SLIP only while the
+   solution is still recoverably the question. Once the student's own subsequent
+   work is consistent with the miscopied form they did not slip — they adopted a
+   DIFFERENT problem, and from that point no step can earn a mark however
+   internally correct it is. Right arithmetic on the wrong equation is worth
+   nothing.
+
+   ★ ONE SHARED IMPLEMENTATION, THREE CALLERS. `handleCheckSolution` (a route
+   handler holding `effectiveMarks`) and `normaliseStructuredResult` (a per-question
+   normaliser holding a locally derived `totalMarks`) are NOT peer handlers, and
+   `server/eval/graderEval.cjs` carried a THIRD copy of the same naked sum. Three
+   copies of one rule is exactly how they diverge, so the marking rule lives here
+   once and all three call it. Do NOT inline it again.
+
+   ⚠ THE DEPARTURE IS NEVER POSITIONAL. `stepNumber` is overwritten with the array
+   index at both normalisers, so adjacency means nothing and sub-parts are
+   independent. The model must NAME the departure with a per-step boolean
+   (`isDeparture`). Zero marked, or more than one marked ⇒ rule 7: grade normally.
+   ★★ Absent means UNKNOWABLE, not zero — a solution that never restates the
+   question is graded on its merits, never zeroed for the absence of evidence.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/** Rule 2 — "there is at most one departure". Returns its index, or -1 for
+ *  rule 7 (no departure identifiable ⇒ grade normally). ZERO and MORE-THAN-ONE
+ *  both return -1: an ambiguous signal is not evidence, and the fail-safe
+ *  direction is to grade the student normally rather than to zero their work. */
+function findDepartureIndex(annotatedSteps) {
+  const steps = Array.isArray(annotatedSteps) ? annotatedSteps : [];
+  let index = -1;
+  let count = 0;
+  for (let i = 0; i < steps.length; i += 1) {
+    if (steps[i] && steps[i].isDeparture === true) {
+      count += 1;
+      index = i;
+    }
+  }
+  return count === 1 ? index : -1;
+}
+
+/** Rule 8's input. The model states `finalAnswerCorrect` explicitly; when it does
+ *  NOT (an older backend, or geminiClient's ladder having STRIPPED the schema) the
+ *  verdict is DERIVED from the last annotated step's status rather than defaulted.
+ *  ★ A default of `false` would cap a flawless solution at 50% on model silence;
+ *  a default of `true` would make clamp (b) a rule the model can ignore, which is
+ *  the exact defect this lane exists to remove. Deriving it uses only fields the
+ *  contract already carries. */
+function resolveFinalAnswerCorrect(raw, annotatedSteps) {
+  if (raw && raw.finalAnswerCorrect === true) return true;
+  if (raw && raw.finalAnswerCorrect === false) return false;
+  const steps = Array.isArray(annotatedSteps) ? annotatedSteps : [];
+  if (steps.length === 0) return false;
+  return steps[steps.length - 1].status === 'correct';
+}
+
+/**
+ * ★★★ THE ONE MARK CLAMP. Every subjective mark in this product is produced here.
+ *
+ * Rule 3  before the departure — ECF applies normally, every step on its merits.
+ * Rule 4  the departure step KEEPS whatever it independently earned (zeroing it
+ *         would punish genuine method — the correct numerator earns its half mark).
+ * Rule 5  AFTER the departure — ZERO, however internally correct.
+ * Rule 8  a wrong or absent FINAL ANSWER caps the question at 50%. ★ It tests the
+ *         FINAL ANSWER, not whether any step was wrong: a solution that reaches the
+ *         correct answer is NOT capped however many slips it contains (that is why
+ *         a mid-solution slip recovering to the right answer still scores 1.5/2).
+ * clamp c an EMPTY MARKING SCHEME caps at 50% BEFORE rule 8 is consulted. With no
+ *         scheme the model invents its own mark split; an unanchored grader must
+ *         never say "full marks".
+ * Rule 9  marks are capped; CLASSIFICATION IS NEVER SUPPRESSED — this function
+ *         never touches `mistakeType`.
+ *
+ * ⚠ OBJECTIVE QUESTIONS NEVER REACH HERE. Their mark is the deterministic 0/full
+ * verdict from `clampObjectiveResult`; a 50% cap on a 1-mark MCQ would produce the
+ * fractional mark that clamp forbids. Both callers gate on `questionIsObjective`.
+ *
+ * Mutates `marksAwarded` on post-departure steps (rule 5) and returns the mark.
+ */
+function applyEcfPolicyV2({ annotatedSteps, totalMarks, schemeAnchored, finalAnswerCorrect }) {
+  const steps = Array.isArray(annotatedSteps) ? annotatedSteps : [];
+  const total = Number(totalMarks) > 0 ? Number(totalMarks) : 1;
+  const departureIndex = findDepartureIndex(steps);
+
+  // Rule 5 — right arithmetic on the wrong equation earns nothing. Rule 4 leaves
+  // the departure step itself untouched, so the loop starts BELOW it.
+  if (departureIndex >= 0) {
+    for (let i = departureIndex + 1; i < steps.length; i += 1) {
+      steps[i].marksAwarded = 0;
+    }
+  }
+
+  const totalAwarded = steps.reduce((sum, s) => sum + (Number(s.marksAwarded) || 0), 0);
+
+  const halfCapApplies = schemeAnchored !== true || finalAnswerCorrect !== true;
+  const cap = halfCapApplies ? total / 2 : total;
+  const marksAwarded = Math.max(0, Math.round(Math.min(totalAwarded, cap) * 2) / 2);
+
+  return {
+    marksAwarded,
+    departureIndex,
+    schemeCapApplied: schemeAnchored !== true,
+    finalAnswerCapApplied: finalAnswerCorrect !== true,
+  };
+}
+
+/**
+ * The additive-floor reconcile, MADE DEPARTURE-AWARE.
+ *
+ * ★ Rule 6 was prompt advice and the model ignored it — the same defect clamp (b)
+ * condemns — so the count is now computed in code. Rule 9 still holds: every step
+ * KEEPS its `mistakeType` for display and for the graded sheet. What changes is the
+ * COUNT: the departure is charged ONCE and the steps below it are not charged at
+ * all. (Regression the owner saw: one departure recorded as three mistakes.)
+ *
+ * ⚠ WITH a departure the model's self-reported summary is DISCARDED rather than
+ * max'd in. `Math.max(rawSummary, stepFloor)` would let the model re-introduce the
+ * downstream charges through the raw counter even though the floor excluded them,
+ * and "exactly one counted mistake" would silently become three.
+ *
+ * ⚠ THE DEPARTURE IS NOT COUNTED AS `silly`. The client's `buildCiCoaching` derives
+ * its coaching line from counts alone and `careless` IS the silly bucket, so filing
+ * the departure there makes the product say "the method is there; show every step"
+ * — they DID show every step, they left the question. It carries its own kind so it
+ * cannot trigger that copy. [FU-GRD-DEPARTURE-VOICE-NEEDS-SRC]
+ *
+ * With NO departure (`departureIndex < 0`) this is byte-for-byte the previous
+ * additive-floor reconcile, so every existing caller is unchanged.
+ */
+function buildMistakeSummary({ annotatedSteps, rawSummary, noWorkingNulled, departureIndex }) {
+  const steps = Array.isArray(annotatedSteps) ? annotatedSteps : [];
+  const raw = rawSummary || {};
+  const stepFloor = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
+  const limit = departureIndex >= 0 ? departureIndex : steps.length;
+  for (let i = 0; i < limit; i += 1) {
+    const s = steps[i];
+    if (s && s.mistakeType && Object.prototype.hasOwnProperty.call(stepFloor, s.mistakeType)) {
+      stepFloor[s.mistakeType] += 1;
+    }
+  }
+
+  if (departureIndex >= 0) {
+    return {
+      conceptual: stepFloor.conceptual,
+      calculation: stepFloor.calculation,
+      silly: stepFloor.silly,
+      presentation: stepFloor.presentation,
+      departure: 1,
+    };
+  }
+
+  const rawAdjusted = (cat) => Number(raw[cat] || 0) - noWorkingNulled[cat];
+  return {
+    conceptual: Math.max(0, rawAdjusted('conceptual'), stepFloor.conceptual),
+    calculation: Math.max(0, rawAdjusted('calculation'), stepFloor.calculation),
+    silly: Math.max(0, rawAdjusted('silly'), stepFloor.silly),
+    presentation: Math.max(0, rawAdjusted('presentation'), stepFloor.presentation),
+    departure: 0,
+  };
+}
+
+/** The departure's VOICE. Server-produced and appended to `teacherNote`, which is
+ *  already rendered on every surface — so the student sees it without a `src/`
+ *  edit. Today the departure case is told "the method is there; show every step and
+ *  check the final line", which is the wrong lesson. */
+const DEPARTURE_TEACHER_LINE =
+  'From this step on you were solving a different equation from the one set — check each line ' +
+  'against the question as you go.';
+
+function withDepartureNote(teacherNote, departureIndex) {
+  const note = String(teacherNote || '').trim();
+  if (departureIndex < 0) return note;
+  return note ? note + ' ' + DEPARTURE_TEACHER_LINE : DEPARTURE_TEACHER_LINE;
+}
+
+/* ── The ECF doctrine, SINGLE-SOURCED ──────────────────────────────────────────
+   Two copies of one doctrine is how they diverge — the two grader prompts carried
+   the identical ECF paragraph and would have been amended apart. `correct method
+   NEVER earns zero` is TRUE WITHIN THE QUESTION and FALSE OUTSIDE IT, so it is
+   amended here rather than deleted, once, for both prompts. */
+const ECF_POLICY_V2_PROMPT =
+  'ECF_POLICY_V2 — GRADE THE TRAJECTORY, NOT THE STEP. Assess the solution AS A WHOLE before ' +
+  'marking any step: what is being solved, and does it remain the question that was set?\n' +
+  '   (a) DEPARTURE STEP: the first step after which the artefact is no longer the question as ' +
+  'set — the student\'s own later work is consistent with a DIFFERENT equation/expression they ' +
+  'adopted, not with the question. There is AT MOST ONE. Mark it with "isDeparture": true on that ' +
+  'step and on no other. If the solution never leaves the question, set "isDeparture": false on ' +
+  'every step — never guess one.\n' +
+  '   (b) BEFORE the departure: ECF applies normally. A step wrong ONLY because it correctly ' +
+  'applied the right method to a value carried from an earlier mistake keeps its method marks and ' +
+  'is NOT a fresh mistake (mistakeType null). Every step is judged on its own merits — never ' +
+  'waved through, never blanket-zeroed.\n' +
+  '   (c) THE DEPARTURE STEP keeps whatever it independently earned on work that was still the ' +
+  'question (e.g. a correct numerator earns its half mark even though the denominator was ' +
+  'miscopied). Do NOT zero it — that would punish genuine method.\n' +
+  '   (d) AFTER the departure: ZERO, however internally correct. Right arithmetic on the wrong ' +
+  'equation earns nothing. ★ This is the ONE case where correct method DOES earn zero: within ' +
+  'the question correct method never earns zero, but work that has left the question is no longer ' +
+  'the question and earns nothing.\n' +
+  '   (e) THE DEPARTURE IS ONE MISTAKE, not one per downstream step. Classify the departure step ' +
+  'itself; mark the steps below it status "incorrect" with mistakeType null. Never re-charge one ' +
+  'departure against every line below it.\n' +
+  '   (f) NO DEPARTURE ⇒ grade normally. Absent means UNKNOWABLE, not zero — a solution you cannot ' +
+  'show has left the question is graded on its merits and is NEVER zeroed for the absence of ' +
+  'evidence.\n' +
+  '   (g) FINAL ANSWER: set "finalAnswerCorrect" true only if the student\'s final answer is ' +
+  'actually correct for the question AS SET. A wrong or absent final answer caps the question at ' +
+  '50%. ★ This tests the FINAL ANSWER, not whether any step was wrong — a solution that reaches ' +
+  'the correct final answer is not capped however many slips it contains along the way.\n' +
+  '   (h) Award marks in HALF-MARK units (½ is the smallest unit; no finer), allocated to the ' +
+  'ACTUAL steps — never invented to hit a number. On a single-mark question there are no separate ' +
+  'method marks, so a wrong answer scores 0.';
+
 function deepFreeze(value) {
   if (value && typeof value === 'object' && !Object.isFrozen(value)) {
     Object.freeze(value);
@@ -113,6 +330,11 @@ function annotatedStepSchema() {
       teacherAnnotation: { type: 'STRING', nullable: true },
       mistakeType: { type: 'STRING', nullable: true },
       correctedWorking: { type: 'STRING', nullable: true },
+      // ECF_POLICY_V2 · the departure marker. NULLABLE and NOT required: absent
+      // means "no departure identified", which is rule 7 (grade normally), never
+      // an error. Declared per-STEP because `stepNumber` is the array index at
+      // both normalisers — a positional departure would be meaningless.
+      isDeparture: { type: 'BOOLEAN', nullable: true },
     },
     // Ordering hint only — mirrors the order of the prompt's own JSON example
     // (:213-:223) so the model describes a step before it judges it. Carries no
@@ -120,7 +342,7 @@ function annotatedStepSchema() {
     propertyOrdering: [
       'stepNumber', 'description', 'studentWork', 'status',
       'marksAwarded', 'marksDeducted', 'teacherAnnotation',
-      'mistakeType', 'correctedWorking',
+      'mistakeType', 'correctedWorking', 'isDeparture',
     ],
     required: ['description'],
   };
@@ -140,6 +362,13 @@ function mistakeSummarySchema() {
     },
     propertyOrdering: ['conceptual', 'calculation', 'silly', 'presentation'],
   };
+}
+
+/** ECF_POLICY_V2 · rule 8's input, stated by the model rather than guessed at.
+ *  Nullable and never required — `resolveFinalAnswerCorrect` derives it from the
+ *  last step's status when the model does not state it. */
+function finalAnswerCorrectSchema() {
+  return { type: 'BOOLEAN', nullable: true };
 }
 
 /**
@@ -176,10 +405,12 @@ const GRADE_RESPONSE_SCHEMA = deepFreeze({
     annotatedSteps: { type: 'ARRAY', items: annotatedStepSchema() },
     mistakeSummary: mistakeSummarySchema(),
     teacherNote: { type: 'STRING', nullable: true },
+    finalAnswerCorrect: finalAnswerCorrectSchema(),
   },
   propertyOrdering: [
     'detectedSubject', 'detectedTopic', 'detectedMarks', 'marksSource',
     'totalMarks', 'marksAwarded', 'annotatedSteps', 'mistakeSummary', 'teacherNote',
+    'finalAnswerCorrect',
   ],
   required: ['annotatedSteps'],
 });
@@ -278,10 +509,11 @@ const WORKSHEET_RESPONSE_SCHEMA = deepFreeze({
           annotatedSteps: { type: 'ARRAY', nullable: true, items: annotatedStepSchema() },
           mistakeSummary: mistakeSummarySchema(),
           teacherNote: { type: 'STRING', nullable: true },
+          finalAnswerCorrect: finalAnswerCorrectSchema(),
         },
         propertyOrdering: [
           'qNumber', 'couldNotRead', 'note', 'marksAwarded',
-          'annotatedSteps', 'mistakeSummary', 'teacherNote',
+          'annotatedSteps', 'mistakeSummary', 'teacherNote', 'finalAnswerCorrect',
         ],
         required: ['qNumber'],
       },
@@ -537,7 +769,7 @@ function createCheckSolutionRoute(deps) {
         '   - "calculation": the METHOD is right but the arithmetic/algebra is wrong — e.g. 12 × 1.73 worked out as 20.16, a wrong expansion, a wrong number substituted into a correct formula.\n' +
         '   - "silly": the student CLEARLY understands but made a mechanical slip — a sign misread off their OWN correct working, a dropped negative, a copying/transcription error, swapped values. Tell-tale: their other steps prove they know better. Example: factors (x−4)(x+2) correctly but then writes a root as x = −4 instead of +4 — a SILLY sign-misread, NOT conceptual (the correct factoring proves the method was understood).\n' +
         '   - "presentation": mathematically/chemically RIGHT but board-format short — missing the required formula (e.g. −b/a), missing units, no conclusion/"verified" line, working not shown, required diagram absent, (Science) a correct reaction left UNBALANCED, missing state symbols. The answer is right; only the formal presentation is incomplete. A correct but unbalanced equation is PRESENTATION, not conceptual.\n' +
-        '4. ERROR PROPAGATION → ONE root cause. If a single upstream slip makes later steps wrong, that is ONE mistake attributed to the SOURCE step. Mark each downstream step as following correctly from the wrong value (error carried forward): status "incorrect" but mistakeType null. This includes a verification/check step that only "fails" because it was correctly applied to the carried-forward wrong value (e.g. the student plugs their own wrong root into the sum check and honestly notes it does not match) — that is carried forward (mistakeType null), not a presentation or conceptual fault of its own. Do NOT label each propagated step as a fresh mistake, and never inflate one slip into several (especially several conceptual) mistakes. ERROR-CARRIED-FORWARD (ECF) MARKING. When a step is wrong ONLY because it correctly applied the right method to a value carried from an earlier mistake: award that step its method/process marks and do NOT treat it as a fresh mistake (mistakeType null). Withhold ONLY the mark(s) attributable to reaching the correct FINAL answer — so a wrong final answer NEVER earns full marks, but correct method NEVER earns zero. On a single-mark question there are no separate method marks, so a wrong answer scores 0. Award marks in HALF-MARK units (½ is the smallest unit; no finer). Awarded marks must sum to a ½-multiple not exceeding the question\'s total, allocated to the ACTUAL steps — never invented to hit a number.\n' +
+        '4. ERROR PROPAGATION → ONE root cause. If a single upstream slip makes later steps wrong, that is ONE mistake attributed to the SOURCE step. Mark each downstream step as following correctly from the wrong value (error carried forward): status "incorrect" but mistakeType null. This includes a verification/check step that only "fails" because it was correctly applied to the carried-forward wrong value (e.g. the student plugs their own wrong root into the sum check and honestly notes it does not match) — that is carried forward (mistakeType null), not a presentation or conceptual fault of its own. Do NOT label each propagated step as a fresh mistake, and never inflate one slip into several (especially several conceptual) mistakes. ' + ECF_POLICY_V2_PROMPT + '\n' +
         '5. A CORRECT step ALWAYS has mistakeType null. Never invent a mistake on a right step.\n' +
         '6. MISSING is ALWAYS mistakeType null. A required step the student left ENTIRELY BLANK / did not attempt gets status "missing" and mistakeType null — the marks are simply not earned; it is never a typed mistake (not presentation, not conceptual), even when the thing left out is a required formula, unit, conclusion, or verification line. Do NOT manufacture extra "missing" steps; only list a step as missing if that whole step was genuinely required and wholly absent. NOTE ON NON-ATTEMPTS: if the student\'s response is a legible phrase like \'Don\'t know\', \'Dont know\', \'I don\'t know\', or \'DK\', this IS a readable response — grade it as a single step with status "incorrect", full marks deducted, mistakeType null (no working shown, undiagnosable). Never treat a legible non-attempt phrase as a missing or unreadable submission.\n' +
         '7. NO WORKING SHOWN → mistakeType null. If the student shows NO working — only a final answer — and it is wrong, you CANNOT diagnose the cause: set mistakeType null for that step. Never guess "conceptual" (or any type) from a bare wrong answer. A wrong answer with no working is undiagnosable, not conceptual — the marks are still not earned (status stays "incorrect"), only the type is null.\n' +
@@ -552,7 +784,7 @@ function createCheckSolutionRoute(deps) {
           : '12. For Science: check terminology, balanced equations, state symbols (s/l/g/aq), NCERT-standard language, diagrams labelled.\n') +
         '13. Be accurate but encouraging — exactly as a real CBSE board examiner would grade. Attribute a type PER STEP; never blanket-label the whole answer.\n' +
         '14. WORD-PROBLEM FINAL ANSWER: when a question asks to "find a number/value/quantity", correctly solving the equation earns the equation-solving marks. Explicitly stating which root satisfies the problem context (e.g. "N = 8 since N must be a natural number; N = -20 rejected") is a required final step. If the student solves correctly but omits this explicit contextual statement, deduct ½ mark as a presentation step — never deduct more than ½ for this alone if the equation and roots are both correct. PARTIAL CREDIT: award marks strictly by the step weights in the marking scheme. A step the student attempted correctly earns its allocated marks even if a later step is wrong. A step with a calculation error earns 0 for that step only — never redistribute or re-weight marks across steps. If no explicit per-step weight exists, distribute the question\'s total marks evenly across required steps. OBJECTIVE EXCEPTION (MCQ / Assertion-Reason / Section A): NEVER step-mark an objective question and NEVER split its marks across steps — it scores the WHOLE mark on the correct option or 0 on a wrong one, never a fraction. Any working the student wrote for an MCQ is read ONLY to classify the mistake type, never to award partial marks.\n' +
-        '15. QUESTION MISCOPY: if the student\'s working is internally consistent and mathematically correct but solves a DIFFERENT equation/expression/problem than the one stated in the question (i.e. they appear to have miscopied or misread the question from the paper), award 0 marks for the entire question and classify mistakeType as \'silly\'. A correctly solved wrong problem earns no credit. Tell-tale sign: the student\'s equation/values do not match the question\'s stated coefficients/values, yet their algebraic steps are internally correct for what they wrote.';
+        '15. QUESTION MISCOPY — READ THIS AS ECF_POLICY_V2, NOT AS A FLAT ZERO. If the student\'s working is internally consistent and mathematically correct but solves a DIFFERENT equation/expression/problem than the one stated in the question (they miscopied or misread it), that is a DEPARTURE: mark the first step whose work is no longer the question with "isDeparture": true, leave that step whatever it independently earned on work that WAS still the question, and award ZERO for every step below it. Do NOT award 0 for the entire question — a miscopy is a slip while the solution is still recoverably the question, and genuine method up to that point is still worth its marks. Tell-tale sign: the student\'s equation/values do not match the question\'s stated coefficients/values, yet their algebraic steps are internally correct for what they wrote.';
 
       const jsonSchema =
         'RESPOND with this exact JSON:\n' +
@@ -575,10 +807,12 @@ function createCheckSolutionRoute(deps) {
         '      "marksDeducted": <marks lost (0 if correct)>,\n' +
         '      "teacherAnnotation": "brief teacher comment — \u2713 Good / \u00d7 Error explanation / \u00bd Partially correct",\n' +
         '      "mistakeType": null | "conceptual" | "calculation" | "silly" | "presentation",\n' +
-        '      "correctedWorking": null | "the correct version of this step"\n' +
+        '      "correctedWorking": null | "the correct version of this step",\n' +
+        '      "isDeparture": false | true\n' +
         '    }\n' +
         '  ],\n' +
         '  "mistakeSummary": { "conceptual": 0, "calculation": 0, "silly": 0, "presentation": 0 },\n' +
+        '  "finalAnswerCorrect": true | false,\n' +
         '  "teacherNote": "3–4 sentence plain-language teacher summary"\n' +
         '}';
 
@@ -659,7 +893,14 @@ function createCheckSolutionRoute(deps) {
       //       not a target: short grades cost the same; only truncated ones change);
       //   (b) on a parse-gate miss, re-issue the grading call ONCE before giving up.
       const gradingGenConfig = {
-        temperature: 0.05,
+        // ★★ CLAMP (a) · DETERMINISM FIRST — 0.05 -> 0. The owner graded ONE
+        // photograph FOUR times on ONE surface and got 0.5/2 once and 1/2 three
+        // times, with the same miscopy called a Concept gap once and a Careless
+        // slip three times. THE GRADER WAS NON-DETERMINISTIC IN THE MARK A STUDENT
+        // SEES, and if the mark is not reproducible no other clamp is testable.
+        // ⚠ This is VARIANCE REDUCTION, not a guarantee of determinism — the
+        // provider makes no bitwise promise at temperature 0.
+        temperature: 0,
         maxOutputTokens: 16000,
         responseMimeType: 'application/json',
         // Constrained decoding (PR-C2). Derived from THIS path's parser — see
@@ -754,6 +995,10 @@ function createCheckSolutionRoute(deps) {
             teacherAnnotation: String(s.teacherAnnotation || '').trim(),
             mistakeType: VALID_MISTAKE_TYPES.has(s.mistakeType) ? s.mistakeType : null,
             correctedWorking: s.correctedWorking ? String(s.correctedWorking).trim() : null,
+            // ECF_POLICY_V2. Coerced to a REAL boolean, never left undefined: this
+            // object is persisted to Firestore by the client and an `undefined`
+            // field is rejected outright there.
+            isDeparture: s.isDeparture === true,
           }));
 
         // ── Uniform OBJECTIVE handling — BYTE-ALIGNED with normaliseStructuredResult ─
@@ -789,8 +1034,24 @@ function createCheckSolutionRoute(deps) {
           options: objectiveMeta.options,
         });
 
-        const totalAwarded = annotatedSteps.reduce((sum, s) => sum + s.marksAwarded, 0);
-        const capped = questionIsObjective ? objectiveMarksAwarded : Math.min(totalAwarded, effectiveMarks);
+        // ── ECF_POLICY_V2 · THE SHARED CLAMP (caller 1 of 3) ────────────────────
+        // The naked sum capped only at the question total is GONE. This handler
+        // holds `effectiveMarks` and knows whether a marking scheme was actually
+        // sent (`markingSchemeBlock` is emitted iff `schemeSteps` is non-empty —
+        // the SAME condition, so the clamp cannot disagree with the prompt about
+        // whether this grade was anchored). Objective questions keep the
+        // deterministic 0/full verdict and never enter the policy.
+        const schemeAnchored = !!(schemeSteps && schemeSteps.length > 0);
+        const finalAnswerCorrect = resolveFinalAnswerCorrect(parsed, annotatedSteps);
+        const policy = questionIsObjective
+          ? { marksAwarded: objectiveMarksAwarded, departureIndex: -1 }
+          : applyEcfPolicyV2({
+              annotatedSteps,
+              totalMarks: effectiveMarks,
+              schemeAnchored,
+              finalAnswerCorrect,
+            });
+        const capped = policy.marksAwarded;
 
         // Additive-floor reconcile: the LLM's self-reported mistakeSummary is
         // unreliable — it frequently leaves the four counters at 0 even when it
@@ -806,20 +1067,16 @@ function createCheckSolutionRoute(deps) {
         // the no-working honesty guard must drive the bucket to 0 from BOTH sources.
         // The step→category map is 1:1 (annotatedSteps[].mistakeType is already one
         // of the four categories, validated above).
-        const rawSummary = parsed.mistakeSummary || {};
-        const stepFloor = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
-        for (const s of annotatedSteps) {
-          if (s.mistakeType && Object.prototype.hasOwnProperty.call(stepFloor, s.mistakeType)) {
-            stepFloor[s.mistakeType] += 1;
-          }
-        }
-        const rawAdjusted = (cat) => Number(rawSummary[cat] || 0) - noWorkingNulled[cat];
-        const mistakeSummary = {
-          conceptual: Math.max(0, rawAdjusted('conceptual'), stepFloor.conceptual),
-          calculation: Math.max(0, rawAdjusted('calculation'), stepFloor.calculation),
-          silly: Math.max(0, rawAdjusted('silly'), stepFloor.silly),
-          presentation: Math.max(0, rawAdjusted('presentation'), stepFloor.presentation),
-        };
+        // ★ DEPARTURE-AWARE (E2): with a departure the count is computed in code,
+        // charged ONCE, and the steps below it are excluded — rule 6 stops being
+        // prompt advice the model can ignore. Without one this is the previous
+        // additive-floor reconcile unchanged.
+        const mistakeSummary = buildMistakeSummary({
+          annotatedSteps,
+          rawSummary: parsed.mistakeSummary,
+          noWorkingNulled,
+          departureIndex: policy.departureIndex,
+        });
 
         return sendJson(res, 200, {
           ok: true,
@@ -828,7 +1085,12 @@ function createCheckSolutionRoute(deps) {
           percentage: Math.round((capped / effectiveMarks) * 100),
           annotatedSteps,
           mistakeSummary,
-          teacherNote: String(parsed.teacherNote || '').trim(),
+          // ECF_POLICY_V2 · the departure's VOICE, appended server-side because
+          // `teacherNote` already renders on every surface and this lane may not
+          // touch `src/`. The aggregate coaching line stays wrong for now —
+          // [FU-GRD-DEPARTURE-VOICE-NEEDS-SRC].
+          teacherNote: withDepartureNote(parsed.teacherNote, policy.departureIndex),
+          questionDepartureError: policy.departureIndex >= 0,
           // Objective echo (additive; PAIRED with normaliseStructuredResult below —
           // keep both in sync). For an objective question the clamp above zeroed every
           // per-step mark BY DESIGN (the whole mark lives at answer level, PR-348), so
@@ -1205,8 +1467,18 @@ function createCheckSolutionRoute(deps) {
 
     // Total marks. Objective → the whole-question verdict (0/full) from the clamp.
     // Subjective → the (capped) sum of per-step awards, UNCHANGED.
-    const totalAwarded = annotatedSteps.reduce((sum, s) => sum + s.marksAwarded, 0);
-    const capped = questionIsObjective ? objectiveMarksAwarded : Math.min(totalAwarded, totalMarks);
+    // ── ECF_POLICY_V2 · THE SHARED CLAMP (caller 2 of 3) ──────────────────────
+    // ⚠ This is a per-question NORMALISER, not a peer of the route handler above:
+    // it holds a locally derived `totalMarks` and reads the scheme off `q`. The
+    // anchored test is the SAME condition `blockFor` uses to emit the scheme into
+    // the prompt, so the clamp and the prompt cannot disagree about whether this
+    // question was anchored.
+    const schemeAnchored = Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0;
+    const finalAnswerCorrect = resolveFinalAnswerCorrect(raw, annotatedSteps);
+    const policy = questionIsObjective
+      ? { marksAwarded: objectiveMarksAwarded, departureIndex: -1 }
+      : applyEcfPolicyV2({ annotatedSteps, totalMarks, schemeAnchored, finalAnswerCorrect });
+    const capped = policy.marksAwarded;
 
     // Additive-floor reconcile (mirror of handleCheckSolution): take the MAX of the
     // model's self-reported summary and the per-step mistakeType counts — but first
@@ -1214,20 +1486,13 @@ function createCheckSolutionRoute(deps) {
     // wrongly tagged is removed from BOTH the floor and the raw summary (mirror of
     // handleCheckSolution's rawAdjusted; keep stepFloor in the max so legitimately
     // tagged worked steps are still protected).
-    const rawSummary = raw.mistakeSummary || {};
-    const stepFloor = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
-    for (const s of annotatedSteps) {
-      if (s.mistakeType && Object.prototype.hasOwnProperty.call(stepFloor, s.mistakeType)) {
-        stepFloor[s.mistakeType] += 1;
-      }
-    }
-    const rawAdjusted = (cat) => Number(rawSummary[cat] || 0) - noWorkingNulled[cat];
-    const mistakeSummary = {
-      conceptual: Math.max(0, rawAdjusted('conceptual'), stepFloor.conceptual),
-      calculation: Math.max(0, rawAdjusted('calculation'), stepFloor.calculation),
-      silly: Math.max(0, rawAdjusted('silly'), stepFloor.silly),
-      presentation: Math.max(0, rawAdjusted('presentation'), stepFloor.presentation),
-    };
+    // ★ DEPARTURE-AWARE (E2) — the same shared reconcile the route handler calls.
+    const mistakeSummary = buildMistakeSummary({
+      annotatedSteps,
+      rawSummary: raw.mistakeSummary,
+      noWorkingNulled,
+      departureIndex: policy.departureIndex,
+    });
 
     return {
       qNumber: q.qNumber,
@@ -1238,7 +1503,8 @@ function createCheckSolutionRoute(deps) {
       percentage: Math.round((capped / totalMarks) * 100),
       annotatedSteps,
       mistakeSummary,
-      teacherNote: String(raw.teacherNote || '').trim(),
+      teacherNote: withDepartureNote(raw.teacherNote, policy.departureIndex),
+      questionDepartureError: policy.departureIndex >= 0,
       // Objective echo (additive; PAIRED with handleCheckSolution above — keep both in
       // sync). Same meaning: the clamp zeroed the per-step marks by design, so the view
       // suppresses the misleading per-step chip. `bankObjective || flaggedObjective`,
@@ -1513,7 +1779,7 @@ function createCheckSolutionRoute(deps) {
       rule1 +
       '2. marksAwarded (per question) = sum of that question\'s annotatedSteps[].marksAwarded. Never exceed the question\'s stated marks.\n' +
       '3. ' + STRUCTURED_MISTAKE_TAXONOMY + '\n' +
-      '4. ERROR CARRIED FORWARD: if one upstream slip makes later steps wrong, mark those later steps status "incorrect" with mistakeType null — never re-charge one slip as several mistakes. ERROR-CARRIED-FORWARD (ECF) MARKING. When a step is wrong ONLY because it correctly applied the right method to a value carried from an earlier mistake: award that step its method/process marks and do NOT treat it as a fresh mistake (mistakeType null). Withhold ONLY the mark(s) attributable to reaching the correct FINAL answer — so a wrong final answer NEVER earns full marks, but correct method NEVER earns zero. On a single-mark question there are no separate method marks, so a wrong answer scores 0. Award marks in HALF-MARK units (½ is the smallest unit; no finer). Awarded marks must sum to a ½-multiple not exceeding the question\'s total, allocated to the ACTUAL steps — never invented to hit a number.\n' +
+      '4. ERROR CARRIED FORWARD: if one upstream slip makes later steps wrong, mark those later steps status "incorrect" with mistakeType null — never re-charge one slip as several mistakes. ' + ECF_POLICY_V2_PROMPT + '\n' +
       '5. NO WORKING SHOWN → mistakeType null. If the student shows NO working — only a final answer (e.g. just a chosen MCQ option such as "(d)") — and it is wrong, you CANNOT diagnose the cause: set mistakeType null for that step. Never guess "conceptual" (or any type) from a bare wrong answer. A wrong answer with no working is undiagnosable, not conceptual — the marks are still not earned (status stays "incorrect"), only the type is null.\n' +
       rule6Head + ' NEVER guess a mark, and NEVER record an unreadable/absent answer as 0. Only grade answers you can actually read. IMPORTANT EXCEPTION: a student writing \'Don\'t know\', \'Dont know\', \'I don\'t know\', \'DK\', or any similar explicit non-attempt phrase IS legible — it is NOT couldNotRead. Grade it as: status "incorrect", marks deducted = question marks, mistakeType null (undiagnosable — no working shown). Never set couldNotRead for a clearly-written non-attempt phrase. Similarly, an answer that is clearly and completely crossed out with no replacement written is a NO-ATTEMPT — grade it as: status "incorrect", marks deducted = question marks, mistakeType null. Never set couldNotRead for a clearly crossed-out answer with no replacement.\n' +
       '7. teacherNote per question: 1–2 short plain-English sentences. "summary": 2–3 encouraging, exam-useful sentences about the whole worksheet (answer-writing tips where relevant).' +
@@ -1521,7 +1787,7 @@ function createCheckSolutionRoute(deps) {
         ? ' The student TYPED these answers, so the summary must NEVER mention handwriting, legibility, clarity of writing, scanning, photographing or re-uploading — advise on the MATHS/SCIENCE and on answer structure only.'
         : '') + '\n' +
       '8. WORD-PROBLEM FINAL ANSWER: when a question asks to "find a number/value/quantity", correctly solving the equation earns the equation-solving marks. Explicitly stating which root satisfies the problem context (e.g. "N = 8 since N must be a natural number; N = -20 rejected") is a required final step. If the student solves correctly but omits this explicit contextual statement, deduct ½ mark as a presentation step — never deduct more than ½ for this alone if the equation and roots are both correct. PARTIAL CREDIT: award marks strictly by the step weights in the marking scheme. A step the student attempted correctly earns its allocated marks even if a later step is wrong. A step with a calculation error earns 0 for that step only — never redistribute or re-weight marks across steps. If no explicit per-step weight exists, distribute the question\'s total marks evenly across required steps. OBJECTIVE EXCEPTION (MCQ / Assertion-Reason / Section A): NEVER step-mark an objective question and NEVER split its marks across steps — it scores the WHOLE mark on the correct option or 0 on a wrong one, never a fraction. Any working the student wrote for an MCQ is read ONLY to classify the mistake type, never to award partial marks.\n' +
-      '9. QUESTION MISCOPY: if the student\'s working is internally consistent and mathematically correct but solves a DIFFERENT equation/expression/problem than the one stated in the question (i.e. they appear to have miscopied or misread the question from the paper), award 0 marks for the entire question and classify mistakeType as \'silly\'. A correctly solved wrong problem earns no credit. Tell-tale sign: the student\'s equation/values do not match the question\'s stated coefficients/values, yet their algebraic steps are internally correct for what they wrote.' +
+      '9. QUESTION MISCOPY — READ THIS AS ECF_POLICY_V2, NOT AS A FLAT ZERO. If the student\'s working is internally consistent and mathematically correct but solves a DIFFERENT equation/expression/problem than the one stated in the question (they miscopied or misread it), that is a DEPARTURE: mark the first step whose work is no longer the question with "isDeparture": true, leave that step whatever it independently earned on work that WAS still the question, and award ZERO for every step below it. Do NOT award 0 for the entire question — a miscopy is a slip while the solution is still recoverably the question, and genuine method up to that point is still worth its marks. Tell-tale sign: the student\'s equation/values do not match the question\'s stated coefficients/values, yet their algebraic steps are internally correct for what they wrote.' +
       // FENCE-1 · defence in depth, CONDITIONAL on a typed answer actually being
       // present. A photo-only batch carries no fenced student text, so it must
       // carry no clause about one — and that is also what keeps #578's byte pin
@@ -1538,9 +1804,10 @@ function createCheckSolutionRoute(deps) {
       '      "couldNotRead": false,\n' +
       '      "marksAwarded": <number>,\n' +
       '      "annotatedSteps": [\n' +
-      '        { "stepNumber": 1, "description": "...", "studentWork": "what the student wrote", "status": "correct" | "partial" | "incorrect" | "missing", "marksAwarded": <number>, "marksDeducted": <number>, "teacherAnnotation": "...", "mistakeType": null | "conceptual" | "calculation" | "silly" | "presentation", "correctedWorking": null | "..." }\n' +
+      '        { "stepNumber": 1, "description": "...", "studentWork": "what the student wrote", "status": "correct" | "partial" | "incorrect" | "missing", "marksAwarded": <number>, "marksDeducted": <number>, "teacherAnnotation": "...", "mistakeType": null | "conceptual" | "calculation" | "silly" | "presentation", "correctedWorking": null | "...", "isDeparture": false | true }\n' +
       '      ],\n' +
       '      "mistakeSummary": { "conceptual": 0, "calculation": 0, "silly": 0, "presentation": 0 },\n' +
+      '      "finalAnswerCorrect": true | false,\n' +
       '      "teacherNote": "1-2 sentence per-question summary"\n' +
       '    }\n' +
       (typedOnly
@@ -1606,7 +1873,10 @@ function createCheckSolutionRoute(deps) {
     // `annotatedSteps`) and, critically, `annotatedSteps` is OPTIONAL here so a
     // couldNotRead entry is never forced to fabricate steps.
     const genConfig = {
-      temperature: 0.05,
+      // ★★ CLAMP (a), the worksheet/batch grading path — see the per-question
+      // grader's note. ⚠ `handleDetectQuestion`'s 0.1 is NOT touched: that call is
+      // question DETECTION / OCR, not grading, and is out of this lane's scope.
+      temperature: 0,
       maxOutputTokens: 32000,
       responseMimeType: 'application/json',
       responseSchema: WORKSHEET_RESPONSE_SCHEMA,
@@ -1856,4 +2126,13 @@ module.exports = {
   // reason — the route tests prove it is WIRED, these prove it is CORRECT.
   quoteFenceFor,
   buildTypedAnswerBlock,
+  // ECF_POLICY_V2 — exported so the ONE marking rule can be fixture-tested as a
+  // pure function AND so `server/eval/graderEval.cjs` calls the same code the
+  // product ships instead of keeping its own third copy of the naked sum.
+  applyEcfPolicyV2,
+  findDepartureIndex,
+  resolveFinalAnswerCorrect,
+  buildMistakeSummary,
+  DEPARTURE_TEACHER_LINE,
+  ECF_POLICY_V2_PROMPT,
 };
