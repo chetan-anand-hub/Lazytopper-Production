@@ -1808,28 +1808,72 @@ const STEP = (extra = {}) => ({
 const WS_REPLY = (result) => ({ results: [{ qNumber: 1, ...result }], summary: 'ok' });
 const r1 = (h) => h.body().results[0];
 
-// ── 1 · wrong final answer, every step individually plausible → ≤50%, BOTH paths ──
+// ── 1 · wrong final answer with NO departure → step marks STAND, full marks withheld ──
+//
+// ⚠ CORRECTED 2026-08-16 (Wave MI-INTEGRITY-3, owner ruling as CBSE authority).
+// §13.1/§13.1b PREVIOUSLY ASSERTED THE DEFECT. They pinned a NON-DEPARTURE fixture at
+// 2/4 — the flat 50% cap — on the strength of a wrong final answer alone. That is the
+// over-reach the owner withdrew: "ECF exists to protect method marks, not to cap them."
+// This work never left the question, so every step KEEPS what it earned and the only
+// thing rule 8 still withholds is FULL marks. The 50% cap has NOT gone away — its
+// trigger MOVED to a departure (§13.1c, §13.7b, §13.10), and it remains independent of
+// clamp (c), which §13.1d and §13.4/§13.4b pin at an unchanged 2/4.
 
-test('§13.1 ★★ wrong FINAL ANSWER caps at 50% even when every step looks plausible — route path', async () => {
+test('§13.1 ★★★ NARROWED rule 8 — a wrong FINAL ANSWER with NO departure keeps its step marks; only FULL marks are withheld — route path', async () => {
   const h = buildRoute({ replies: [{
     annotatedSteps: [STEP(), STEP(), STEP(), STEP()],
     finalAnswerCorrect: false,
   }] });
   await h.route.handleCheckSolution(ECF_REQ(), {});
   assert.equal(h.body().totalMarks, 4);
-  assert.equal(h.body().marksAwarded, 2, 'four plausible 1-mark steps sum to 4, rule 8 caps at 4/2');
-  assert.equal(h.body().percentage, 50);
+  assert.equal(h.body().marksAwarded, 3.5,
+    'the solution never left the question, so the four earned step marks STAND; a wrong ' +
+    'final answer withholds full marks only — it does not halve legitimately earned method');
+  assert.notEqual(h.body().marksAwarded, 4, 'a wrong final answer NEVER earns full marks');
+  assert.equal(h.body().percentage, 88);
 });
 
-test('§13.1b ★★ the SAME cap on the worksheet path — one doctrine, two call sites', async () => {
+test('§13.1b ★★★ the SAME narrowed rule on the worksheet path — one doctrine, two call sites', async () => {
   const h = buildImageRoute({ replies: [WS_REPLY({
     annotatedSteps: [STEP(), STEP(), STEP(), STEP()],
     finalAnswerCorrect: false,
   })] });
   await h.route.handleGradeWorksheet(ECF_WS(), {});
   assert.equal(r1(h).totalMarks, 4);
-  assert.equal(r1(h).marksAwarded, 2, 'the worksheet normaliser applies the identical rule-8 cap');
-  assert.equal(r1(h).percentage, 50);
+  assert.equal(r1(h).marksAwarded, 3.5,
+    'the worksheet normaliser applies the identical NARROWED rule-8 withholding');
+  assert.notEqual(r1(h).marksAwarded, 4, 'a wrong final answer NEVER earns full marks');
+  assert.equal(r1(h).percentage, 88);
+});
+
+test('§13.1c ★★★ the 50% cap SURVIVES the narrowing on a DEPARTURE fixture — the control proving the trigger MOVED rather than vanished', async () => {
+  // Identical to §13.1 but for ONE flag: the first step declares the departure. Rule 4
+  // leaves that step its own mark, rule 5 zeroes the three below it, and rule 8's half
+  // cap is still armed because the solution DID leave the question.
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [STEP({ isDeparture: true }), STEP(), STEP(), STEP()],
+    finalAnswerCorrect: false,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  assert.equal(h.body().totalMarks, 4);
+  assert.deepEqual(h.body().annotatedSteps.map((s) => s.marksAwarded), [1, 0, 0, 0]);
+  assert.equal(h.body().marksAwarded, 1,
+    'departure at step 1: it keeps its own 1, the three below are zeroed, and the ' +
+    'half cap (2) stays armed above that sum — the narrowing did not disarm it');
+});
+
+test('§13.1d ★★★ the two caps stay INDEPENDENT — an unanchored scheme AND a wrong final answer with NO departure still caps at 50%, because clamp (c) was NOT narrowed', async () => {
+  // THE FOLDING TRAP. If the narrowing had been merged into one predicate, dropping the
+  // half cap for a non-departure wrong answer would have dropped clamp (c) with it.
+  // Same fixture as §13.1 (which now scores 3.5) minus the marking scheme: 2, not 3.5.
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [STEP(), STEP(), STEP(), STEP()],
+    finalAnswerCorrect: false,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ({ solutionSteps: [] }), {});
+  assert.equal(h.body().marksAwarded, 2,
+    'clamp (c) is UNCHANGED and independently triggered: with no marking scheme the ' +
+    'grader must never say "full marks", and 4/2 binds ahead of rule 8\'s withholding');
 });
 
 // ── 2 · a step BELOW the departure earns zero, however internally correct ──

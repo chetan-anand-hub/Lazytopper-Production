@@ -83,7 +83,8 @@ describe("worksheet grader: no-working honesty (port of #301)", () => {
       const r = body.results[0];
       expect(r.annotatedSteps[0].studentWork).toBe("");
       expect(r.annotatedSteps[0].mistakeType).toBeNull();
-      expect(r.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0 });
+      // class 3b — `departure` ADDED; the other four counters are unmoved.
+      expect(r.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0, departure: 0 });
       // Attempt preserved.
       expect(r.annotatedSteps[0].status).toBe("incorrect");
       expect(r.annotatedSteps[0].marksAwarded).toBe(0);
@@ -161,7 +162,8 @@ describe("worksheet grader: no-working honesty (port of #301)", () => {
     const { body } = await buildRoute(grade).run(basePayload(oneQ(2)));
     const r = body.results[0];
     expect(r.annotatedSteps[0].mistakeType).toBeNull();
-    expect(r.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0 });
+    // class 3b — `departure` ADDED; the other four counters are unmoved.
+    expect(r.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0, departure: 0 });
     expect(r.annotatedSteps[0].status).toBe("incorrect");
     expect(r.annotatedSteps[0].marksDeducted).toBe(2);
   });
@@ -196,7 +198,8 @@ describe("worksheet grader: objective (MCQ/AR) deterministic honesty", () => {
     const { body } = await buildRoute(grade).run(basePayload(objQ(1)));
     const r = body.results[0];
     expect(r.annotatedSteps[0].mistakeType).toBeNull(); // objective -> deterministically nulled
-    expect(r.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0 });
+    // class 3b — `departure` ADDED; the other four counters are unmoved.
+    expect(r.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0, departure: 0 });
     // Mark still lost at the QUESTION level; attempt still recorded. Per-step marks are
     // now STRIPPED for objective questions (steps carry no marks — the whole-question
     // clamp owns the 0/full verdict), so marksDeducted is 0 at the step.
@@ -221,7 +224,8 @@ describe("worksheet grader: objective (MCQ/AR) deterministic honesty", () => {
     const { body } = await buildRoute(grade).run(basePayload(objQ(1)));
     const r = body.results[0];
     expect(r.annotatedSteps[0].mistakeType).toBeNull();
-    expect(r.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0 });
+    // class 3b — `departure` ADDED; the other four counters are unmoved.
+    expect(r.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0, departure: 0 });
   });
 
   // (g) REGRESSION: a wrong SUBJECTIVE worked answer must STILL keep its real type and
@@ -323,7 +327,8 @@ describe("worksheet grader: deterministic MCQ scoring (correctOption)", () => {
     const { body } = await buildRoute(grade).run(basePayload(objQNoKey(1)));
     const r = body.results[0];
     expect(r.annotatedSteps[0].mistakeType).toBeNull(); // objective guard nulls the bare pick's type
-    expect(r.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0 });
+    // class 3b — `departure` ADDED; the other four counters are unmoved.
+    expect(r.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0, departure: 0 });
     expect(r.annotatedSteps[0].status).toBe("incorrect"); // model's binary verdict was incorrect
     expect(r.annotatedSteps[0].marksAwarded).toBe(0);
     expect(r.annotatedSteps[0].marksDeducted).toBe(0); // per-step marks stripped for objective

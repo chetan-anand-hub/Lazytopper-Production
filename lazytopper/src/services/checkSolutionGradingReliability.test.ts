@@ -141,21 +141,28 @@ const worksheetPayload = {
 };
 
 describe("grading reliability — config + prompt changes on BOTH paths", () => {
-  it("(a) handleCheckSolution grading genConfig has temperature 0.05", async () => {
+  // ⚠ EXPECTATION MOVED 2026-08-16 (Wave MI-INTEGRITY-3), 0.05 -> 0, on both paths.
+  // These two pinned the PRE-CLAMP-(a) value. The owner then ruled temperature 0 for
+  // GRADING after grading ONE photograph FOUR times on ONE surface and getting 0.5/2
+  // once and 1/2 three times: the grader was non-deterministic in the mark a student
+  // sees. The code is deliberately `temperature: 0` at both grading call sites; the
+  // tests, not the code, were stale. ⚠ `handleDetectQuestion`'s 0.1 is untouched — that
+  // call is question DETECTION/OCR, not grading.
+  it("(a) handleCheckSolution grading genConfig has temperature 0 (clamp (a) — determinism first)", async () => {
     const route = buildCheckRoute(oneStepGrade);
     await route.run(checkPayload);
     expect(route.calls.length).toBeGreaterThan(0);
-    expect(route.calls[0].genConfig.temperature).toBe(0.05);
+    expect(route.calls[0].genConfig.temperature).toBe(0);
     // The other genConfig fields are untouched (additive change).
     expect(route.calls[0].genConfig.maxOutputTokens).toBe(16000);
     expect(route.calls[0].genConfig.responseMimeType).toBe("application/json");
   });
 
-  it("(b) gradeStructuredSet grading genConfig has temperature 0.05", async () => {
+  it("(b) gradeStructuredSet grading genConfig has temperature 0 (clamp (a) — the same doctrine on the batch path)", async () => {
     const route = buildWorksheetRoute(worksheetGrade);
     await route.run(worksheetPayload);
     expect(route.calls.length).toBeGreaterThan(0);
-    expect(route.calls[0].genConfig.temperature).toBe(0.05);
+    expect(route.calls[0].genConfig.temperature).toBe(0);
     expect(route.calls[0].genConfig.maxOutputTokens).toBe(32000);
     expect(route.calls[0].genConfig.responseMimeType).toBe("application/json");
   });
@@ -217,24 +224,50 @@ describe("grading reliability — config + prompt changes on BOTH paths", () => 
     expect(ws.calls[0].prompt).toContain("never redistribute or re-weight marks across steps");
   });
 
-  it("(j) the QUESTION MISCOPY rule is present in BOTH prompts", async () => {
+  // ⚠ EXPECTATION MOVED 2026-08-16 (Wave MI-INTEGRITY-3) — TWO stale substrings, not
+  // one. Only `classify mistakeType as 'silly'` appeared in the failure output, because
+  // `expect` short-circuits at the first miss; `A correctly solved wrong problem earns
+  // no credit` was equally gone and would have surfaced on the next run. THE RUNNER'S
+  // LIST WAS NOT THE SET — both were confirmed absent by `grep -cF` (0 hits each).
+  // WHY they are gone: the miscopy rule was REWRITTEN by ECF_POLICY_V2 from a flat zero
+  // into a DEPARTURE. Awarding 0 for the whole question is now exactly what the prompt
+  // forbids, and `silly` is exactly the bucket the departure must NOT be filed under,
+  // so re-anchoring to the nearest surviving phrase would have re-pinned the retired
+  // doctrine. These four replacements are load-bearing: each is a clause the rule would
+  // be wrong without, and each is verified present in BOTH prompts (`grep -cF` = 2).
+  it("(j) the QUESTION MISCOPY rule — as ECF_POLICY_V2, not a flat zero — is present in BOTH prompts", async () => {
     // The miscopy rule must land on BOTH grading functions (rule 15 in
     // handleCheckSolution, rule 9 in gradeStructuredSet) — never one and not the
-    // other. A correctly-solved WRONG problem (the student miscopied the question
-    // from the paper) earns 0 and is classified 'silly'.
+    // other. A correctly-solved WRONG problem (the student miscopied the question from
+    // the paper) is a DEPARTURE: the first step that is no longer the question is
+    // marked, whatever was still the question keeps its marks, and every step below
+    // earns zero.
+    const expectedClauses = [
+      "QUESTION MISCOPY",
+      "solves a DIFFERENT equation/expression/problem",
+      // The four below are the ECF_POLICY_V2 rewrite, each load-bearing:
+      "READ THIS AS ECF_POLICY_V2, NOT AS A FLAT ZERO", // the doctrine's name + its negation
+      '"isDeparture": true', // the machine-readable marker findDepartureIndex reads
+      "award ZERO for every step below it", // rule 5
+      "Do NOT award 0 for the entire question", // the flat zero, explicitly retired
+    ];
+
     const check = buildCheckRoute(oneStepGrade);
     await check.run(checkPayload);
-    expect(check.calls[0].prompt).toContain("QUESTION MISCOPY");
-    expect(check.calls[0].prompt).toContain("solves a DIFFERENT equation/expression/problem");
-    expect(check.calls[0].prompt).toContain("classify mistakeType as 'silly'");
-    expect(check.calls[0].prompt).toContain("A correctly solved wrong problem earns no credit");
+    for (const clause of expectedClauses) {
+      expect(check.calls[0].prompt).toContain(clause);
+    }
+    // CONTROL — the RETIRED flat-zero doctrine must be absent, not merely unasserted.
+    expect(check.calls[0].prompt).not.toContain("classify mistakeType as 'silly'");
+    expect(check.calls[0].prompt).not.toContain("A correctly solved wrong problem earns no credit");
 
     const ws = buildWorksheetRoute(worksheetGrade);
     await ws.run(worksheetPayload);
-    expect(ws.calls[0].prompt).toContain("QUESTION MISCOPY");
-    expect(ws.calls[0].prompt).toContain("solves a DIFFERENT equation/expression/problem");
-    expect(ws.calls[0].prompt).toContain("classify mistakeType as 'silly'");
-    expect(ws.calls[0].prompt).toContain("A correctly solved wrong problem earns no credit");
+    for (const clause of expectedClauses) {
+      expect(ws.calls[0].prompt).toContain(clause);
+    }
+    expect(ws.calls[0].prompt).not.toContain("classify mistakeType as 'silly'");
+    expect(ws.calls[0].prompt).not.toContain("A correctly solved wrong problem earns no credit");
   });
 });
 
@@ -286,7 +319,8 @@ describe("(e) existing grading behavior is unchanged (additive PR — no logic c
     };
     const { body } = await buildCheckRoute(grade).run(checkPayload);
     expect(body.annotatedSteps[0].mistakeType).toBeNull();
-    expect(body.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0 });
+    // class 3b — `departure` ADDED; conceptual/calculation/silly/presentation unmoved.
+    expect(body.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0, departure: 0 });
   });
 
   it("an objective (MCQ/Section A) wrong pick still hits the isObjectiveType guard (worksheet)", async () => {
@@ -328,7 +362,8 @@ describe("(e) existing grading behavior is unchanged (additive PR — no logic c
     const { body } = await buildWorksheetRoute(grade).run(payload);
     const r = body.results[0];
     expect(r.annotatedSteps[0].mistakeType).toBeNull();
-    expect(r.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0 });
+    // class 3b — `departure` ADDED; conceptual/calculation/silly/presentation unmoved.
+    expect(r.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0, departure: 0 });
     // Attempt still records fully.
     expect(r.annotatedSteps[0].status).toBe("incorrect");
     expect(r.totalMarks).toBe(1);
@@ -388,7 +423,8 @@ describe("follow-up fixes — crossed-out NO-ATTEMPT (A) + partial credit by ste
     expect(r.annotatedSteps[0].mistakeType).toBeNull();
     expect(r.marksAwarded).toBe(0);
     expect(r.totalMarks).toBe(3);
-    expect(r.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0 });
+    // class 3b — `departure` ADDED; conceptual/calculation/silly/presentation unmoved.
+    expect(r.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 0, presentation: 0, departure: 0 });
   });
 
   it("(i) partial credit follows step weights — a correct step earns its mark even when a later step is wrong (deterministic total)", async () => {
@@ -436,7 +472,20 @@ describe("follow-up fixes — crossed-out NO-ATTEMPT (A) + partial credit by ste
       mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
       teacherNote: "Two steps right, last calc slipped.",
     };
-    const { body } = await buildCheckRoute(grade).run({ ...checkPayload, marks: 3 });
+    // ⚠ FIXTURE CORRECTED 2026-08-16 (Wave MI-INTEGRITY-3) — `solutionSteps` ADDED, and
+    // the ASSERTIONS BELOW ARE UNTOUCHED. The owner ruled this test correct and it is;
+    // but the shared `checkPayload` carries NO marking scheme, and an unanchored grade
+    // is capped at 50% by clamp (c) — a SEPARATE, deliberately un-narrowed rule. So the
+    // observed 1.5 was clamp (c) binding at 3/2, NOT rule 8 over-reaching. Narrowing
+    // rule 8 is NECESSARY but NOT SUFFICIENT here: without a scheme this fixture returns
+    // 1.5 under the narrowed code too. Supplying the 3-step scheme the test's own first
+    // comment already describes ("3-step question, 1 mark each") makes the fixture test
+    // what its title claims — step-weighted partial credit — instead of clamp (c).
+    const { body } = await buildCheckRoute(grade).run({
+      ...checkPayload,
+      marks: 3,
+      solutionSteps: ["Setup / formula [1]", "Substitution [1]", "Final value [1]"],
+    });
 
     // The two correct steps keep their marks; the wrong step earns 0; total is exact.
     expect(body.annotatedSteps[0].marksAwarded).toBe(1);
@@ -503,6 +552,8 @@ describe("follow-up fixes — crossed-out NO-ATTEMPT (A) + partial credit by ste
     // / objective honesty guard leaves the diagnosable type intact.
     expect(r.annotatedSteps[0].mistakeType).toBe("silly");
     expect(r.mistakeSummary.silly).toBe(1);
-    expect(r.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 1, presentation: 0 });
+    // class 3b — `departure` ADDED; `silly: 1` and the other three are unmoved. ⚠ This
+    // miscopy is NOT declared with `isDeparture`, so it stays `silly` and departure is 0.
+    expect(r.mistakeSummary).toEqual({ conceptual: 0, calculation: 0, silly: 1, presentation: 0, departure: 0 });
   });
 });

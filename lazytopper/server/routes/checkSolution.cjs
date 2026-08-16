@@ -119,13 +119,27 @@ function resolveFinalAnswerCorrect(raw, annotatedSteps) {
  * Rule 4  the departure step KEEPS whatever it independently earned (zeroing it
  *         would punish genuine method — the correct numerator earns its half mark).
  * Rule 5  AFTER the departure — ZERO, however internally correct.
- * Rule 8  a wrong or absent FINAL ANSWER caps the question at 50%. ★ It tests the
- *         FINAL ANSWER, not whether any step was wrong: a solution that reaches the
- *         correct answer is NOT capped however many slips it contains (that is why
- *         a mid-solution slip recovering to the right answer still scores 1.5/2).
- * clamp c an EMPTY MARKING SCHEME caps at 50% BEFORE rule 8 is consulted. With no
- *         scheme the model invents its own mark split; an unanchored grader must
- *         never say "full marks".
+ * Rule 8  NARROWED 2026-08-16 (owner ruling as CBSE authority, Wave MI-INTEGRITY-3).
+ *         A wrong or absent FINAL ANSWER never earns FULL marks, but the 50% CAP
+ *         applies only where the solution DEPARTED from the question, or where no
+ *         method marks were legitimately earned. Where the work remained the question
+ *         throughout, STEP MARKS STAND AS AWARDED — the wrong final step already
+ *         earns 0 under step marking, and ECF exists to PROTECT method marks, not to
+ *         cap them. ★ Three correct-then-slipped steps of one mark each are 2/3 to an
+ *         examiner; the pre-narrowing cap returned 1.5, taking half a mark off work
+ *         that had legitimately earned it.
+ *         ★ It still tests the FINAL ANSWER, not whether any step was wrong: a
+ *         solution reaching the correct answer is NOT capped however many slips it
+ *         contains (that is why a mid-solution slip recovering to the right answer
+ *         still scores 1.5/2).
+ *         ⚠ "no method marks legitimately earned" needs no branch of its own: with a
+ *         step sum of 0 every cap yields 0, so `Math.min` already satisfies it.
+ * clamp c an EMPTY MARKING SCHEME caps at 50%. With no scheme the model invents its
+ *         own mark split; an unanchored grader must never say "full marks".
+ *         ⚠ UNCHANGED BY THE NARROWING AND INDEPENDENT OF RULE 8. The two caps have
+ *         DIFFERENT TRIGGERS and are deliberately NOT folded into one predicate;
+ *         each reports its own flag, and folding them is how a wrong fix would still
+ *         pass the tests.
  * Rule 9  marks are capped; CLASSIFICATION IS NEVER SUPPRESSED — this function
  *         never touches `mistakeType`.
  *
@@ -150,15 +164,31 @@ function applyEcfPolicyV2({ annotatedSteps, totalMarks, schemeAnchored, finalAns
 
   const totalAwarded = steps.reduce((sum, s) => sum + (Number(s.marksAwarded) || 0), 0);
 
-  const halfCapApplies = schemeAnchored !== true || finalAnswerCorrect !== true;
-  const cap = halfCapApplies ? total / 2 : total;
+  // ★★ TWO CAPS, TWO TRIGGERS — DELIBERATELY NOT FOLDED INTO ONE PREDICATE.
+  //   clamp (c) — unanchored scheme: UNCHANGED, still a flat 50%.
+  //   rule 8    — wrong/absent final answer: NARROWED. Half ONLY where the solution
+  //               departed; otherwise the step sum stands and only FULL marks are
+  //               withheld, because the step marking already charged the wrong step.
+  const schemeCapApplied = schemeAnchored !== true;
+  const finalAnswerCapApplied = finalAnswerCorrect !== true;
+
+  const schemeCap = schemeCapApplied ? total / 2 : total;
+  // `total - 0.5` is the smallest withholding on this product's half-mark grid: it
+  // makes full marks unreachable without touching a single legitimately earned step.
+  const finalAnswerCap = !finalAnswerCapApplied
+    ? total
+    : departureIndex >= 0
+      ? total / 2
+      : Math.max(0, total - 0.5);
+
+  const cap = Math.min(schemeCap, finalAnswerCap);
   const marksAwarded = Math.max(0, Math.round(Math.min(totalAwarded, cap) * 2) / 2);
 
   return {
     marksAwarded,
     departureIndex,
-    schemeCapApplied: schemeAnchored !== true,
-    finalAnswerCapApplied: finalAnswerCorrect !== true,
+    schemeCapApplied,
+    finalAnswerCapApplied,
   };
 }
 
