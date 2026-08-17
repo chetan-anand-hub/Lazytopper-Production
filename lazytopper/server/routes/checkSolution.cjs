@@ -134,12 +134,29 @@ function resolveFinalAnswerCorrect(raw, annotatedSteps) {
  *         still scores 1.5/2).
  *         ⚠ "no method marks legitimately earned" needs no branch of its own: with a
  *         step sum of 0 every cap yields 0, so `Math.min` already satisfies it.
- * clamp c an EMPTY MARKING SCHEME caps at 50%. With no scheme the model invents its
- *         own mark split; an unanchored grader must never say "full marks".
- *         ⚠ UNCHANGED BY THE NARROWING AND INDEPENDENT OF RULE 8. The two caps have
- *         DIFFERENT TRIGGERS and are deliberately NOT folded into one predicate;
- *         each reports its own flag, and folding them is how a wrong fix would still
- *         pass the tests.
+ * clamp c REMOVED 2026-08-16 (owner ruling as CBSE authority, Wave MI-INTEGRITY-3).
+ *         It capped an UNANCHORED question — one with no stored marking scheme — at
+ *         50%. ★★★ THAT IS CHECK & IMPROVE'S PRODUCTION PATH: a student may upload
+ *         ANY question, so there is no stored scheme, there never will be, and there
+ *         is nothing wrong with that. It was ruled on 2026-06-09 that the checker
+ *         must DERIVE its own marking scheme for arbitrary uploads, with the
+ *         scheme-absent regime recorded as the real production path. The cap
+ *         therefore halved every grade on the product's primary surface — punishing
+ *         the student for a gap in OUR data. Same shape as "absent means unknowable,
+ *         not zero", pointed at marks instead of classification.
+ *         ★ CBSE says the scheme was never the authority. General Instruction 4:
+ *         "The Marking scheme carries only suggested value points… These are in the
+ *         nature of Guidelines only and do not constitute the complete answer."
+ *         ⇒ what replaces the cap is DERIVE-AND-STATE in ECF_POLICY_V2_PROMPT: with
+ *         no scheme the grader derives the value points FROM THE QUESTION, states
+ *         them, and marks against them — which is what an examiner does.
+ *         ⚠ `schemeAnchored` SURVIVES AS A REPORTED FLAG. We lose the cap, not the
+ *         information.
+ *         ⚠⚠ RULE 8 AND THIS WERE DELIBERATELY NEVER FOLDED INTO ONE PREDICATE, and
+ *         that is the only reason this defect was visible: had they been one
+ *         condition, narrowing rule 8 would have carried clamp (c) with it and the
+ *         50% cap would have shipped invisibly on the primary surface. KEEP EVERY
+ *         CAP'S TRIGGER SEPARATE AND INDEPENDENTLY OBSERVABLE.
  * Rule 9  marks are capped; CLASSIFICATION IS NEVER SUPPRESSED — this function
  *         never touches `mistakeType`.
  *
@@ -164,15 +181,20 @@ function applyEcfPolicyV2({ annotatedSteps, totalMarks, schemeAnchored, finalAns
 
   const totalAwarded = steps.reduce((sum, s) => sum + (Number(s.marksAwarded) || 0), 0);
 
-  // ★★ TWO CAPS, TWO TRIGGERS — DELIBERATELY NOT FOLDED INTO ONE PREDICATE.
-  //   clamp (c) — unanchored scheme: UNCHANGED, still a flat 50%.
-  //   rule 8    — wrong/absent final answer: NARROWED. Half ONLY where the solution
-  //               departed; otherwise the step sum stands and only FULL marks are
-  //               withheld, because the step marking already charged the wrong step.
-  const schemeCapApplied = schemeAnchored !== true;
+  // ★★ ONE CAP, ONE TRIGGER — AND IT STAYS ON ITS OWN PREDICATE.
+  //   clamp (c) — unanchored scheme: REMOVED (see the header). `schemeAnchored` is
+  //               now REPORTED ONLY and caps nothing; the grader derives and states
+  //               its own value points instead.
+  //   rule 8    — wrong/absent final answer: NARROWED and UNCHANGED by this lane.
+  //               Half ONLY where the solution departed; otherwise the step sum
+  //               stands and only FULL marks are withheld, because the step marking
+  //               already charged the wrong step.
+  // ⚠ The two were never folded and the survivor is not folded into anything either:
+  // each cap keeps its OWN predicate, its OWN named bound and its OWN reported flag,
+  // so a future cap is added beside `finalAnswerCap` rather than merged into it.
+  const isSchemeAnchored = schemeAnchored === true;
   const finalAnswerCapApplied = finalAnswerCorrect !== true;
 
-  const schemeCap = schemeCapApplied ? total / 2 : total;
   // `total - 0.5` is the smallest withholding on this product's half-mark grid: it
   // makes full marks unreachable without touching a single legitimately earned step.
   const finalAnswerCap = !finalAnswerCapApplied
@@ -181,13 +203,17 @@ function applyEcfPolicyV2({ annotatedSteps, totalMarks, schemeAnchored, finalAns
       ? total / 2
       : Math.max(0, total - 0.5);
 
-  const cap = Math.min(schemeCap, finalAnswerCap);
+  const cap = finalAnswerCap;
   const marksAwarded = Math.max(0, Math.round(Math.min(totalAwarded, cap) * 2) / 2);
 
   return {
     marksAwarded,
     departureIndex,
-    schemeCapApplied,
+    // ★ The information the cap used to carry, kept. Callers can still see whether
+    // this grade had a stored scheme behind it; it just no longer costs the student
+    // half the question. (It has never been surfaced on the HTTP response — this is
+    // the same visibility the flag had before, minus the cap.)
+    schemeAnchored: isSchemeAnchored,
     finalAnswerCapApplied,
   };
 }
@@ -292,12 +318,43 @@ const ECF_POLICY_V2_PROMPT =
   'show has left the question is graded on its merits and is NEVER zeroed for the absence of ' +
   'evidence.\n' +
   '   (g) FINAL ANSWER: set "finalAnswerCorrect" true only if the student\'s final answer is ' +
-  'actually correct for the question AS SET. A wrong or absent final answer caps the question at ' +
-  '50%. ★ This tests the FINAL ANSWER, not whether any step was wrong — a solution that reaches ' +
+  'actually correct for the question AS SET. A wrong or absent final answer NEVER earns FULL ' +
+  'marks. Where the solution DEPARTED from the question it is capped at 50%; where the work ' +
+  'remained the question throughout, the step marks STAND as awarded — the wrong final step has ' +
+  'already earned 0 under step marking, and method marks legitimately earned are not taken back. ' +
+  '★ This tests the FINAL ANSWER, not whether any step was wrong — a solution that reaches ' +
   'the correct final answer is not capped however many slips it contains along the way.\n' +
   '   (h) Award marks in HALF-MARK units (½ is the smallest unit; no finer), allocated to the ' +
   'ACTUAL steps — never invented to hit a number. On a single-mark question there are no separate ' +
-  'method marks, so a wrong answer scores 0.';
+  'method marks, so a wrong answer scores 0.\n' +
+  '   (i) NO MARKING SCHEME SUPPLIED — DERIVE ONE, AND STATE IT. If no marking scheme is given ' +
+  'for this question, do NOT withhold marks for its absence and do NOT cap the question. Instead, ' +
+  'do what an examiner does with an unfamiliar question: FIRST derive the value points for the ' +
+  'question, THEN state them explicitly, THEN mark the student\'s work against them.\n' +
+  '       - The derived value points MUST sum to the question\'s stated mark value.\n' +
+  '       - ⚠ DERIVE THEM FROM THE QUESTION AND ITS MARK VALUE — NEVER FROM THE STUDENT\'S ' +
+  'ANSWER. Deriving the scheme from what the student wrote would make every answer ' +
+  'self-justifying: whatever they did would become the scheme they are marked against, and no ' +
+  'answer could ever be wrong. Read the question, decide what a correct solution must contain, ' +
+  'and only then look at the work.\n' +
+  '       - STATE the derived value points at the START of "teacherNote", as a short list with ' +
+  'the marks against each (e.g. "Marked against: setup 1, substitution 1, final value with unit ' +
+  '1."), so the student can see what they were marked against.\n' +
+  '   (j) CBSE\'S OWN GENERAL INSTRUCTIONS TO EXAMINERS. These are the board\'s words, not ours, ' +
+  'and they outrank any habit of marking cautiously:\n' +
+  '       CBSE 11: "No marks to be deducted for the cumulative effect of an error. It should be ' +
+  'penalized only once."\n' +
+  '       CBSE 3: "…answers which are based on latest information or knowledge and/or are ' +
+  'innovative, they may be assessed for their correctness otherwise and due marks be awarded to ' +
+  'them… even if reply is not from marking scheme but correct competency is enumerated by the ' +
+  'candidate, due marks should be awarded." ⚠ METHOD FREEDOM: a student who solves the question ' +
+  'by a valid method OTHER than the scheme\'s earns FULL marks. This applies EVEN WHEN a marking ' +
+  'scheme IS supplied — a stored scheme is never a reason to penalise a correct alternative ' +
+  'method. CBSE 4: the scheme "carries only suggested value points… These are in the nature of ' +
+  'Guidelines only and do not constitute the complete answer."\n' +
+  '       CBSE 12: "Please do not hesitate to award full marks if the answer deserves it."\n' +
+  '       CBSE 15: "…if the answer is found to be totally incorrect, it should be marked as cross ' +
+  'and awarded zero."';
 
 function deepFreeze(value) {
   if (value && typeof value === 'object' && !Object.isFrozen(value)) {
@@ -930,6 +987,19 @@ function createCheckSolutionRoute(deps) {
         // SEES, and if the mark is not reproducible no other clamp is testable.
         // ⚠ This is VARIANCE REDUCTION, not a guarantee of determinism — the
         // provider makes no bitwise promise at temperature 0.
+        // ★ RE-DECIDED ON RESEARCH 2026-08-16 (Wave MI-INTEGRITY-3) and CONFIRMED at
+        // 0: greedy decoding is what high-performing LLM graders use, reported up to
+        // r = 0.98 against human graders when paired with explicit output
+        // constraints. The June concern was that 0 would make the model over-commit
+        // on ambiguous HANDWRITING; the reported limitation for handwritten script
+        // grading is not visual transcription but reasoning-based assessment of
+        // incomplete or flawed logic — which is the half temperature 0 stabilises.
+        // ⚠ `topP: 1.0` was specified alongside it and is DELIBERATELY NOT SET HERE:
+        // geminiClient's `buildBody` reads a CLOSED set of config keys (temperature,
+        // maxOutputTokens, responseMimeType, responseSchema, thinkingConfig), so a
+        // `topP` added here would never reach the outgoing body — a silent no-op of
+        // exactly the kind geminiClient.test.cjs pins against. Making it real needs
+        // an edit to geminiClient.cjs. [FU-GRADER-TOPP-NEEDS-CLIENT-KEY]
         temperature: 0,
         maxOutputTokens: 16000,
         responseMimeType: 'application/json',
@@ -1906,6 +1976,8 @@ function createCheckSolutionRoute(deps) {
       // ★★ CLAMP (a), the worksheet/batch grading path — see the per-question
       // grader's note. ⚠ `handleDetectQuestion`'s 0.1 is NOT touched: that call is
       // question DETECTION / OCR, not grading, and is out of this lane's scope.
+      // ★ CONFIRMED at 0 on research 2026-08-16 — see the per-question grader's note,
+      // including why `topP` is not set here. [FU-GRADER-TOPP-NEEDS-CLIENT-KEY]
       temperature: 0,
       maxOutputTokens: 32000,
       responseMimeType: 'application/json',

@@ -472,20 +472,17 @@ describe("follow-up fixes — crossed-out NO-ATTEMPT (A) + partial credit by ste
       mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
       teacherNote: "Two steps right, last calc slipped.",
     };
-    // ⚠ FIXTURE CORRECTED 2026-08-16 (Wave MI-INTEGRITY-3) — `solutionSteps` ADDED, and
-    // the ASSERTIONS BELOW ARE UNTOUCHED. The owner ruled this test correct and it is;
-    // but the shared `checkPayload` carries NO marking scheme, and an unanchored grade
-    // is capped at 50% by clamp (c) — a SEPARATE, deliberately un-narrowed rule. So the
-    // observed 1.5 was clamp (c) binding at 3/2, NOT rule 8 over-reaching. Narrowing
-    // rule 8 is NECESSARY but NOT SUFFICIENT here: without a scheme this fixture returns
-    // 1.5 under the narrowed code too. Supplying the 3-step scheme the test's own first
-    // comment already describes ("3-step question, 1 mark each") makes the fixture test
-    // what its title claims — step-weighted partial credit — instead of clamp (c).
-    const { body } = await buildCheckRoute(grade).run({
-      ...checkPayload,
-      marks: 3,
-      solutionSteps: ["Setup / formula [1]", "Substitution [1]", "Final value [1]"],
-    });
+    // ⚠⚠ FIXTURE REVERTED TO UNANCHORED 2026-08-16 (GRD-FINAL, owner ruling as CBSE
+    // authority). Earlier the same day this fixture was given a 3-step `solutionSteps`
+    // scheme so that clamp (c) — the flat 50% cap on a question with no stored scheme —
+    // would stop binding at 1.5. That was a reasonable call under an instruction that
+    // has since been REVERSED, and the reason is bigger than this test: a student may
+    // upload ANY question to Check & Improve, so the scheme-ABSENT regime is the REAL
+    // PRODUCTION PATH. Supplying a scheme converted this suite's only unanchored mark
+    // assertion into an anchored one and hid the production path behind the exception.
+    // ★ `checkPayload` carries NO `solutionSteps`, deliberately — this test now guards
+    // the C&I path, and it passes because clamp (c) is GONE, not because it was dodged.
+    const { body } = await buildCheckRoute(grade).run({ ...checkPayload, marks: 3 });
 
     // The two correct steps keep their marks; the wrong step earns 0; total is exact.
     expect(body.annotatedSteps[0].marksAwarded).toBe(1);

@@ -803,7 +803,13 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // RE-BASELINED in PR #681 (a7f85f47… → 2da9fafd…): both grading prompts were
 // rewritten to carry the single-sourced `ECF_POLICY_V2_PROMPT`, so this movement
 // is the deliverable, not drift. Owner approved the re-baseline.
-const NO_UPLOADS_CONTENTS_SHA256 = '2da9fafd920045d30ee3af423add9ea4ff35a18e464577fb9d363891273edda7';
+// RE-BASELINED AGAIN in PR #681 (2da9fafd… → f499f752…) by GRD-FINAL: `ECF_POLICY_V2_PROMPT`
+// gained the derive-and-state instruction (g)/(i) and CBSE's General Instructions 3, 11, 12
+// and 15 quoted verbatim, and clause (g) was reworded to match the NARROWED rule 8 ("never
+// earns FULL marks", not "caps at 50%"). Both grading prompts single-source that constant, so
+// the worksheet prompt moves with it. THIS MOVEMENT IS THE DELIVERABLE, not drift — five tests
+// assert this one constant and all five moved together, which is the pin working.
+const NO_UPLOADS_CONTENTS_SHA256 = 'f499f752e1cb4606511dc07abc4de310916d1a59060acaaa31b6603f2fb51fbc';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',
@@ -1816,8 +1822,12 @@ const r1 = (h) => h.body().results[0];
 // over-reach the owner withdrew: "ECF exists to protect method marks, not to cap them."
 // This work never left the question, so every step KEEPS what it earned and the only
 // thing rule 8 still withholds is FULL marks. The 50% cap has NOT gone away — its
-// trigger MOVED to a departure (§13.1c, §13.7b, §13.10), and it remains independent of
-// clamp (c), which §13.1d and §13.4/§13.4b pin at an unchanged 2/4.
+// trigger MOVED to a departure (§13.1c, §13.7b, §13.10).
+// ⚠ SECOND CORRECTION, same day (GRD-FINAL): this note previously ended "…and it
+// remains independent of clamp (c), which §13.1d and §13.4/§13.4b pin at an unchanged
+// 2/4." CLAMP (c) IS NOW REMOVED — §13.1d and §13.4/§13.4b pin its ABSENCE. The
+// independence was real and is what made the removal visible; the cap it protected was
+// the defect. Rule 8 is now the ONLY cap, and it is untouched by that removal.
 
 test('§13.1 ★★★ NARROWED rule 8 — a wrong FINAL ANSWER with NO departure keeps its step marks; only FULL marks are withheld — route path', async () => {
   const h = buildRoute({ replies: [{
@@ -1862,18 +1872,95 @@ test('§13.1c ★★★ the 50% cap SURVIVES the narrowing on a DEPARTURE fixtur
     'half cap (2) stays armed above that sum — the narrowing did not disarm it');
 });
 
-test('§13.1d ★★★ the two caps stay INDEPENDENT — an unanchored scheme AND a wrong final answer with NO departure still caps at 50%, because clamp (c) was NOT narrowed', async () => {
-  // THE FOLDING TRAP. If the narrowing had been merged into one predicate, dropping the
-  // half cap for a non-departure wrong answer would have dropped clamp (c) with it.
-  // Same fixture as §13.1 (which now scores 3.5) minus the marking scheme: 2, not 3.5.
+test('§13.1d ★★★ REQUIRED CASE 1 — THE C&I PATH: an UNANCHORED question with correct early steps and a wrong final step scores the STEP SUM, not half the question', async () => {
+  // ⚠ REWRITTEN 2026-08-16 (GRD-FINAL). This test previously pinned clamp (c) at 2/4
+  // and called it "the two caps stay INDEPENDENT". The caps ARE independent — that is
+  // exactly what let clamp (c) be seen and removed — but the behaviour it pinned was
+  // the defect: a student pasting their OWN question into Check & Improve has no
+  // stored scheme, so this fixture IS the primary surface, and 2/4 halved it.
+  // Same fixture as §13.1 minus the marking scheme; it now scores what §13.1 scores.
   const h = buildRoute({ replies: [{
-    annotatedSteps: [STEP(), STEP(), STEP(), STEP()],
+    annotatedSteps: [STEP(), STEP(), STEP(), STEP({ marksAwarded: 0 })],
     finalAnswerCorrect: false,
   }] });
   await h.route.handleCheckSolution(ECF_REQ({ solutionSteps: [] }), {});
-  assert.equal(h.body().marksAwarded, 2,
-    'clamp (c) is UNCHANGED and independently triggered: with no marking scheme the ' +
-    'grader must never say "full marks", and 4/2 binds ahead of rule 8\'s withholding');
+  assert.equal(h.body().marksAwarded, 3,
+    'no stored scheme is a gap in OUR data, never the student\'s fault: the three ' +
+    'earned step marks stand and only FULL marks are withheld for the wrong final step');
+  assert.notEqual(h.body().marksAwarded, 2, 'the removed clamp (c) would have returned 2');
+});
+
+test('§13.1e ★★★ REQUIRED CASE 3 — REGRESSION GUARD: the ANCHORED twin of §13.1d is UNMOVED by the removal', async () => {
+  // The control for §13.1d. Byte-identical model reply, the only difference being that
+  // the marking scheme is present — an anchored grade must behave exactly as before.
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [STEP(), STEP(), STEP(), STEP({ marksAwarded: 0 })],
+    finalAnswerCorrect: false,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  assert.equal(h.body().marksAwarded, 3, 'anchored: unchanged by removing the unanchored cap');
+});
+
+test('§13.1f ★★ REQUIRED CASE 4 — a WRONG final answer never reaches full marks, anchored OR unanchored', async () => {
+  // Rule 8 is the cap that SURVIVES, and removing clamp (c) must not have let a
+  // full-credit step sum through on the unanchored side.
+  const reply = { replies: [{
+    annotatedSteps: [STEP(), STEP(), STEP(), STEP()],
+    finalAnswerCorrect: false,
+  }] };
+  const anchored = buildRoute(reply);
+  await anchored.route.handleCheckSolution(ECF_REQ(), {});
+  assert.equal(anchored.body().marksAwarded, 3.5, 'anchored: 4 earned, full marks withheld');
+  assert.notEqual(anchored.body().marksAwarded, 4);
+
+  const unanchored = buildRoute(reply);
+  await unanchored.route.handleCheckSolution(ECF_REQ({ solutionSteps: [] }), {});
+  assert.equal(unanchored.body().marksAwarded, 3.5, 'unanchored: the SAME withholding, no extra cap');
+  assert.notEqual(unanchored.body().marksAwarded, 4,
+    'the removal lifted the 50% cap, NOT the wrong-final-answer rule');
+});
+
+test('§13.1g ★★★ REQUIRED CASE 6 — a correct ALTERNATIVE METHOD earns FULL marks against a stored scheme that used a DIFFERENT method (CBSE instruction 3)', async () => {
+  // The scheme says factorise; the student completed the square, correctly, and reached
+  // the right roots. CBSE 3: "even if reply is not from marking scheme but correct
+  // competency is enumerated by the candidate, due marks should be awarded." An ANCHORED
+  // grade must not withhold anything for the method being off-scheme.
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [
+      STEP({ description: 'Completing the square (scheme says factorise)', studentWork: 'x^2-2x = 8' }),
+      STEP({ description: '(x-1)^2 = 9', studentWork: '(x-1)^2 = 9' }),
+      STEP({ description: 'x - 1 = ±3', studentWork: 'x - 1 = ±3' }),
+      STEP({ description: 'x = 4, x = -2', studentWork: 'x = 4, x = -2' }),
+    ],
+    finalAnswerCorrect: true,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  assert.equal(h.body().marksAwarded, 4,
+    'a valid method the stored scheme does not use is still FULL marks — the scheme ' +
+    'carries suggested value points, not the only admissible route');
+  assert.equal(h.body().percentage, 100);
+});
+
+test('§13.1h ★★ the PROMPT carries CBSE\'s own General Instructions VERBATIM, on BOTH grading paths', async () => {
+  // The doctrine is single-sourced in ECF_POLICY_V2_PROMPT, so it must arrive at both
+  // prompts. These are quotations from the board — assert the board's words, not ours.
+  const single = buildRoute({ replies: [{ annotatedSteps: [STEP()] }] });
+  await single.route.handleCheckSolution(ECF_REQ(), {});
+  const batch = buildImageRoute({ replies: [WS_REPLY({ annotatedSteps: [STEP()] })] });
+  await batch.route.handleGradeWorksheet(ECF_WS(), {});
+
+  for (const [name, text] of [['single-question', textOf(single)], ['worksheet', textOf(batch)]]) {
+    assert.ok(text.includes('No marks to be deducted for the cumulative effect of an error. It should be penalized only once.'),
+      'CBSE 11 must be quoted verbatim in the ' + name + ' prompt');
+    assert.ok(text.includes('even if reply is not from marking scheme but correct competency is enumerated by the candidate, due marks should be awarded.'),
+      'CBSE 3 (method freedom) must be quoted verbatim in the ' + name + ' prompt');
+    assert.ok(text.includes('Please do not hesitate to award full marks if the answer deserves it.'),
+      'CBSE 12 must be quoted verbatim in the ' + name + ' prompt');
+    assert.ok(text.includes('if the answer is found to be totally incorrect, it should be marked as cross and awarded zero.'),
+      'CBSE 15 must be quoted verbatim in the ' + name + ' prompt');
+    assert.ok(/METHOD FREEDOM[\s\S]{0,400}EVEN WHEN a marking scheme IS supplied/.test(text),
+      'method freedom must be stated to apply in the ANCHORED regime too (' + name + ')');
+  }
 });
 
 // ── 2 · a step BELOW the departure earns zero, however internally correct ──
@@ -1923,25 +2010,63 @@ test('§13.3b ★ TWO departure markers is not one departure — it fails OPEN, 
   assert.equal(h.body().mistakeSummary.departure, 0, 'and nothing is CHARGED either');
 });
 
-// ── 4 · an EMPTY marking scheme caps at 50%, at BOTH scheme sites ──
+// ── 4 · an EMPTY marking scheme CAPS NOTHING, at BOTH scheme sites ──
+//
+// ⚠⚠ REVERSED 2026-08-16 (GRD-FINAL, owner ruling as CBSE authority). §13.4/§13.4b
+// PREVIOUSLY PINNED CLAMP (c) — an unanchored question capped at a flat 50% — at both
+// scheme sites. Clamp (c) is REMOVED, not narrowed: a student may upload ANY question
+// to Check & Improve, so the unanchored regime IS the primary surface, and the cap
+// halved every grade on it for a gap in OUR data. What replaces it is derive-and-state
+// in the prompt (§13.4c). CBSE General Instruction 4: the marking scheme "carries only
+// suggested value points… in the nature of Guidelines only".
 
-test('§13.4 ★★ clamp (c) — an EMPTY marking scheme caps at 50%, route path', async () => {
+test('§13.4 ★★★ REQUIRED CASE 2 — an EMPTY marking scheme with a CORRECT final answer is UNCAPPED, route path', async () => {
   const h = buildRoute({ replies: [{
     annotatedSteps: [STEP(), STEP(), STEP(), STEP()],
     finalAnswerCorrect: true,
   }] });
   await h.route.handleCheckSolution(ECF_REQ({ solutionSteps: [] }), {});
-  assert.equal(h.body().marksAwarded, 2,
-    'unanchored ⇒ the model invented its own split ⇒ it must never say "full marks"');
+  assert.equal(h.body().marksAwarded, 4,
+    'unanchored ⇒ the grader DERIVES and STATES its own value points and marks against ' +
+    'them; a correct solution to a question we happen not to hold a scheme for is 4/4');
+  assert.notEqual(h.body().marksAwarded, 2, 'the removed clamp (c) would have returned 2');
+  assert.equal(h.body().percentage, 100);
 });
 
-test('§13.4b ★★ clamp (c) at the OTHER scheme site — worksheet question with no scheme', async () => {
+test('§13.4b ★★★ the removal holds at the OTHER scheme site — worksheet question with no scheme', async () => {
   const h = buildImageRoute({ replies: [WS_REPLY({
     annotatedSteps: [STEP(), STEP(), STEP(), STEP()],
     finalAnswerCorrect: true,
   })] });
   await h.route.handleGradeWorksheet(ECF_WS({ solutionSteps: [] }), {});
-  assert.equal(r1(h).marksAwarded, 2, 'the cap is a property of the DOCTRINE, not of one handler');
+  assert.equal(r1(h).marksAwarded, 4,
+    'the removal is a property of the DOCTRINE, not of one handler — as the cap was');
+  assert.notEqual(r1(h).marksAwarded, 2);
+});
+
+test('§13.4c ★★★ what REPLACES the cap: the prompt tells the grader to DERIVE the value points, STATE them, and derive them from the QUESTION — on BOTH paths', async () => {
+  // The cap is gone; the fabrication risk it was reaching for is answered by an
+  // instruction instead. Deriving the scheme from the STUDENT'S ANSWER would make
+  // every answer self-justifying, so the prompt must forbid exactly that.
+  const single = buildRoute({ replies: [{ annotatedSteps: [STEP()] }] });
+  await single.route.handleCheckSolution(ECF_REQ({ solutionSteps: [] }), {});
+  const batch = buildImageRoute({ replies: [WS_REPLY({ annotatedSteps: [STEP()] })] });
+  await batch.route.handleGradeWorksheet(ECF_WS({ solutionSteps: [] }), {});
+
+  for (const [name, text] of [['single-question', textOf(single)], ['worksheet', textOf(batch)]]) {
+    assert.ok(/NO MARKING SCHEME SUPPLIED — DERIVE ONE, AND STATE IT/.test(text),
+      'the derive-and-state instruction must reach the ' + name + ' prompt');
+    assert.ok(/do NOT withhold marks for its absence and do NOT cap the question/.test(text),
+      'the ' + name + ' prompt must say the absence of a scheme costs the student nothing');
+    assert.ok(/MUST sum to the question's stated mark value/.test(text),
+      'the derived scheme must be required to sum to the question marks (' + name + ')');
+    assert.ok(/NEVER FROM THE STUDENT'S ANSWER/.test(text),
+      'the fabrication risk must be named in the ' + name + ' prompt');
+    assert.ok(/self-justifying/.test(text),
+      'and named in those terms — deriving from the answer makes every answer correct (' + name + ')');
+    assert.ok(/STATE the derived value points at the START of "teacherNote"/.test(text),
+      'the student must be able to see what they were marked against (' + name + ')');
+  }
 });
 
 // ── 5 · a deduction with no mistakeType is never SILENTLY passed ──
