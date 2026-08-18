@@ -161,4 +161,129 @@ describe("premise_ledger_check.mjs — what counts as an anchored spec", () => {
     const r = runChecker([]);
     assert.equal(r.status, 1, `the silent-skip law requires exit 1, got ${r.status}:\n${r.output}`);
   });
+
+  // ── Row splitting and coverage (CHECKER-FIX) ──────────────────────────────
+  //
+  // These four pin the two defects that were actively blocking lanes: a row was split on
+  // EVERY pipe, so an anchor containing one shifted every column to its right and the
+  // Status column reported an anchor fragment; and a row rejected on SHAPE was never
+  // anchor-checked, with nothing in the output saying so.
+  //
+  // The fixtures cite a file written into the SAME temp dir and resolved with
+  // --worktree=<dir>. Deliberate: a fixture citing a repo file would rot the first time
+  // that file's lines moved — which is precisely how this lane's own spec rotted.
+
+  /** Build a one-premise spec citing `target.txt:1`, with the anchor cell supplied raw. */
+  function specCiting(anchorCell: string, evidence = "target.txt:1"): string {
+    return [
+      "# LazyTopper — Agent Task: FIXTURE",
+      "",
+      "## §0 PREMISE LEDGER",
+      "",
+      "Base SHA: `97f39197974b2865ead913200c91765e0a75ea0a`",
+      "",
+      "| ID | Claim | Evidence | Anchor | How verified | Status |",
+      "|----|-------|----------|--------|--------------|--------|",
+      `| P1 | a claim the fixture depends on | \`${evidence}\` | ${anchorCell} | read the lines in a clean extract @ base SHA | VERIFIED |`,
+      "",
+      "## §0b OPEN PREMISES — YOU MUST ESTABLISH THESE BEFORE WORK",
+      "",
+      "None.",
+      "",
+      "## §0c PRE-FLIGHT — BEFORE ANY EDIT",
+      "",
+      "Run the premise gate first.",
+      "",
+    ].join("\n");
+  }
+
+  /** Write spec + target into a throwaway dir and run the checker against that worktree. */
+  function runInFixture(anchorCell: string, targetLine: string, evidence?: string): RunResult {
+    const dir = mkdtempSync(join(tmpdir(), "premise-ledger-"));
+    try {
+      writeFileSync(join(dir, "target.txt"), `${targetLine}\n`, "utf8");
+      const spec = join(dir, "SPEC.md");
+      writeFileSync(spec, specCiting(anchorCell, evidence), "utf8");
+      return runChecker([spec, `--worktree=${dir}`, "--strict-anchor"]);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }
+
+  test("6. an anchor containing an ESCAPED pipe keeps the row's cell count and is unescaped", () => {
+    // The anchor cell holds `a \| b`; the target file holds the literal `a | b`.
+    // Under the old splitter this row split into 8 cells, the Status column read an
+    // anchor fragment, and the row was rejected with a bogus status value.
+    const r = runInFixture("`a \\| b`", "a | b");
+    assert.equal(
+      r.status,
+      0,
+      `a row whose anchor carries an escaped pipe must parse and resolve, got ${r.status}:\n${r.output}`
+    );
+    assert.match(
+      r.output,
+      /coverage: 1\/1 claim rows had their anchor RESOLVED/,
+      `the escaped pipe must be unescaped to "a | b" and the anchor RESOLVED; got:\n${r.output}`
+    );
+    // The bogus-status symptom that sent two authors hunting the wrong defect is gone.
+    assert.doesNotMatch(
+      r.output,
+      /Status must be VERIFIED or UNVERIFIED/,
+      `the row must not be misread as a bad Status; got:\n${r.output}`
+    );
+  });
+
+  test("7. a row whose cell count differs from the header's is REJECTED, naming the mismatch", () => {
+    // A BARE pipe is still a delimiter — that is the point. The row now splits into more
+    // cells than the header has, and must be refused BY NAME rather than silently
+    // mis-assigning every column to its right.
+    const r = runInFixture("`a | b`", "a | b");
+    assert.equal(r.status, 1, `a mis-shaped row must fail, got ${r.status}:\n${r.output}`);
+    assert.match(
+      r.output,
+      /P1: row has \d+ cells, header has 6 — columns cannot be assigned/,
+      `the rejection must NAME the cell-count mismatch, not report a bogus Status; got:\n${r.output}`
+    );
+    // A shape rejection is UNCHECKED, and must say so distinctly from an anchor failure.
+    assert.match(
+      r.output,
+      /unchecked: P1 \(L9: rejected on SHAPE — anchor never resolved\)/,
+      `a row rejected on SHAPE must be listed as UNCHECKED by name; got:\n${r.output}`
+    );
+  });
+
+  test("8. REGRESSION: a row with no pipes behaves exactly as before", () => {
+    // The most important case in this block. The fix must be invisible to every ledger
+    // that never contained a pipe — which is nearly all of them.
+    const r = runInFixture("`plain anchor text`", "plain anchor text");
+    assert.equal(r.status, 0, `an ordinary pipe-free row must still pass, got ${r.status}:\n${r.output}`);
+    assert.match(
+      r.output,
+      /✓ ledger complete, evidence well-formed/,
+      `a clean pipe-free ledger must still report complete; got:\n${r.output}`
+    );
+    assert.match(
+      r.output,
+      /coverage: 1\/1 claim rows had their anchor RESOLVED · 0 UNCHECKED/,
+      `a clean spec must report zero UNCHECKED rows; got:\n${r.output}`
+    );
+  });
+
+  test("9. the coverage line reports resolved vs unchecked, and NAMES the unchecked rows", () => {
+    // An instrument must declare what it EXAMINED, not only its verdict. Here the cited
+    // file does not exist, so the anchor is never resolved — and the run must SAY so
+    // rather than leaving the reader to assume the anchor was checked.
+    const r = runInFixture("`never looked at`", "irrelevant", "absent.txt:1");
+    assert.equal(r.status, 1, `a missing cited file must fail, got ${r.status}:\n${r.output}`);
+    assert.match(
+      r.output,
+      /coverage: 0\/1 claim rows had their anchor RESOLVED · 1 UNCHECKED/,
+      `the coverage line must report 0 resolved and 1 unchecked; got:\n${r.output}`
+    );
+    assert.match(
+      r.output,
+      /unchecked: P1 \(L9: cited file missing — anchor never resolved\)/,
+      `the unchecked row must be NAMED with its reason; got:\n${r.output}`
+    );
+  });
 });
