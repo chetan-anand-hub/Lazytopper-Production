@@ -809,7 +809,19 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // earns FULL marks", not "caps at 50%"). Both grading prompts single-source that constant, so
 // the worksheet prompt moves with it. THIS MOVEMENT IS THE DELIVERABLE, not drift — five tests
 // assert this one constant and all five moved together, which is the pin working.
-const NO_UPLOADS_CONTENTS_SHA256 = 'f499f752e1cb4606511dc07abc4de310916d1a59060acaaa31b6603f2fb51fbc';
+// RE-BASELINED AGAIN in GRD-CLOSE (f499f752… → 67c062f5…): the derive-and-state instruction
+// was EXTRACTED from clause (i) into `DERIVE_RUBRIC_FIRST_PROMPT` and is now emitted BEFORE
+// the student's work at all three assembly sites, with clause (i) reduced to a back-reference
+// that additionally forbids re-deriving the scheme after the work has been seen. The worksheet
+// prompt therefore changes in TWO places (the new leading block, and the shortened clause (i)).
+// ⚠ THIS MOVEMENT IS THE DELIVERABLE, not drift — ORDER IS THE FIX: the rubric was previously
+// derived while the model was already looking at the working, which is why one 2-mark question
+// graded twice produced two different derived schemes (1/2 and 1.5/2). Owner PRE-APPROVED this
+// re-baseline. The same five tests moved together again, which is the pin working.
+// ★ The same re-baseline ALSO carries the second half of GRD-CLOSE: clause (e) of
+// `ECF_POLICY_V2_PROMPT` now instructs `"marksDeducted": 0` on every step below the departure,
+// so the PROMPT and the CODE state one rule instead of the code silently correcting the model.
+const NO_UPLOADS_CONTENTS_SHA256 = '67c062f5c35fd4a233d03a546dbf145235c6bd5bc9311b80aa1b8955790f9ccb';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',
@@ -2233,4 +2245,255 @@ test('§13.11 ★★★ a mid-solution slip reaching the CORRECT final answer is
     '★ 1.5/2, NOT capped to 1.0 — partial marking must not regress into rule 8');
   assert.ok(h.body().marksAwarded > 1, 'a recovered solution scores ABOVE the 50% cap it never earned');
   assert.equal(h.body().mistakeSummary.calculation, 1, 'the slip is still recorded — rule 9');
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// §14 · GRD-CLOSE — the DEDUCTION ledger shares the departure boundary
+// ══════════════════════════════════════════════════════════════════════════════
+//
+// ★★★ THE DEFECT, and it is an ARITHMETIC CONTRADICTION rather than a taxonomy bug.
+// Three ledgers describe one departure: the AWARD (`marksAwarded`, zeroed below the
+// departure by rule 5), the COUNT (`mistakeSummary`, capped at the departure by
+// `buildMistakeSummary`) and the DEDUCTION (`marksDeducted`) — which was passed
+// through exactly as the model sent it. On the owner's paper (`ci:CI-M-POLY-01`)
+// that left steps 5, 6 and 7 deducting 2 marks between them while ALSO being, by
+// policy (e), "not separate mistakes". A step cannot be both.
+//
+// ⚠ WHAT THIS IS NOT. `mistakeType: null` on those steps is CORRECT and deliberate,
+// and the four zeros in `mistakeSummary` are HONEST — no type is invented here. Nor
+// is this "every untyped step": §14.5 pins the cases where a null type carries a
+// REAL deduction (missing / no working / non-attempt), which must survive untouched.
+
+const POLY_REQ = (extra = {}) => ({
+  question: 'Factorise 4x^2 - 4x - 15.',
+  marks: 3, subject: 'Maths', textAnswer: 'working shown',
+  ...extra,
+});
+
+test('§14.1 ★★★ a PROPAGATED step (mistakeType null, below the departure) has its deduction normalised to 0', async () => {
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [
+      STEP({ marksAwarded: 0.5 }),
+      STEP({ description: 'wrong grouping', isDeparture: true, status: 'incorrect',
+        marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'calculation' }),
+      STEP({ description: 'propagated', status: 'incorrect',
+        marksAwarded: 0, marksDeducted: 1, mistakeType: null }),
+    ],
+    finalAnswerCorrect: false,
+  }] });
+  await h.route.handleCheckSolution(POLY_REQ(), {});
+  const steps = h.body().annotatedSteps;
+  assert.equal(steps[2].marksDeducted, 0,
+    'a step the policy says is NOT a separate mistake cannot carry a separate charge');
+  assert.equal(steps[2].mistakeType, null,
+    '⚠ and NO type is invented to justify the zero — the null is the honest answer');
+});
+
+test('§14.2 ★★ the DEPARTURE step keeps BOTH its mistakeType and its deduction', async () => {
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [
+      STEP({ marksAwarded: 0.5 }),
+      STEP({ description: 'wrong grouping', isDeparture: true, status: 'incorrect',
+        marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'calculation' }),
+      STEP({ description: 'propagated', status: 'incorrect',
+        marksAwarded: 0, marksDeducted: 1, mistakeType: null }),
+    ],
+    finalAnswerCorrect: false,
+  }] });
+  await h.route.handleCheckSolution(POLY_REQ(), {});
+  const dep = h.body().annotatedSteps[1];
+  assert.equal(dep.marksDeducted, 0.5, 'the ONE thing being penalised keeps its charge');
+  assert.equal(dep.mistakeType, 'calculation', 'and keeps its classification — rule 9');
+  assert.equal(h.body().mistakeSummary.departure, 1, 'penalised ONCE — CBSE 11');
+});
+
+test('§14.3 ★★ a GENUINE separate mistake ABOVE the departure keeps its deduction', async () => {
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [
+      STEP({ description: 'a real, independent slip', status: 'incorrect',
+        marksAwarded: 0, marksDeducted: 0.5, mistakeType: 'calculation' }),
+      STEP({ description: 'departs here', isDeparture: true, status: 'incorrect',
+        marksAwarded: 0, marksDeducted: 0.5, mistakeType: 'conceptual' }),
+      STEP({ description: 'propagated', status: 'incorrect',
+        marksAwarded: 0, marksDeducted: 0.5, mistakeType: null }),
+    ],
+    finalAnswerCorrect: false,
+  }] });
+  await h.route.handleCheckSolution(POLY_REQ(), {});
+  const steps = h.body().annotatedSteps;
+  assert.equal(steps[0].marksDeducted, 0.5,
+    '★ THE STUDENT\'S OWN, INDEPENDENT MISTAKE IS STILL CHARGED — this change narrows nothing above the departure');
+  assert.equal(steps[1].marksDeducted, 0.5, 'the departure itself is untouched');
+  assert.equal(steps[2].marksDeducted, 0, 'only what is BELOW the departure is cleared');
+  assert.equal(h.body().mistakeSummary.calculation, 1,
+    'and the independent mistake is still COUNTED — the count boundary is unchanged');
+});
+
+test('§14.4 ★★★ REGRESSION — the owner\'s paper `ci:CI-M-POLY-01`: the departure carries the ONLY deduction', async () => {
+  // The live Firestore document, reproduced step for step: 3 marks, departure at
+  // step 3, steps 4-7 propagated with mistakeType null and 0 / 1 / 0.5 / 0.5 deducted.
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [
+      STEP({ description: 'step 1', marksAwarded: 0.5 }),
+      STEP({ description: 'step 2', marksAwarded: 0.5 }),
+      STEP({ description: 'step 3 — wrong grouping', isDeparture: true, status: 'incorrect',
+        marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'calculation' }),
+      STEP({ description: 'step 4', status: 'incorrect', marksAwarded: 0, marksDeducted: 0, mistakeType: null }),
+      STEP({ description: 'step 5', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: null }),
+      STEP({ description: 'step 6', status: 'incorrect', marksAwarded: 0, marksDeducted: 0.5, mistakeType: null }),
+      STEP({ description: 'step 7', status: 'incorrect', marksAwarded: 0, marksDeducted: 0.5, mistakeType: null }),
+    ],
+    finalAnswerCorrect: false,
+  }] });
+  await h.route.handleCheckSolution(POLY_REQ(), {});
+  const steps = h.body().annotatedSteps;
+
+  // ★ BEFORE this change these four summed to 2. That was the contradiction.
+  const propagatedTotal = steps.slice(3).reduce((n, s) => n + s.marksDeducted, 0);
+  assert.equal(propagatedTotal, 0, 'steps 4-7 deduct NOTHING between them');
+  for (const i of [3, 4, 5, 6]) {
+    assert.equal(steps[i].marksDeducted, 0, 'step ' + (i + 1) + ' deducts 0');
+    assert.equal(steps[i].mistakeType, null, 'step ' + (i + 1) + ' stays honestly unclassified');
+  }
+  assert.equal(steps[2].marksDeducted, 0.5, 'the departure carries the only deduction');
+
+  const sum = h.body().mistakeSummary;
+  assert.equal(sum.departure, 1, 'departure 1 — CBSE instruction 11, penalised once');
+  assert.equal(sum.calculation, 0, 'and the four type counts stay 0 — the zeros were always HONEST');
+  assert.equal(sum.conceptual, 0);
+  assert.equal(sum.silly, 0);
+  assert.equal(sum.presentation, 0);
+});
+
+test('§14.5 ★★★ CONTROL — with NO departure, an untyped deduction is NOT touched (the narrow rule, not "every null type")', async () => {
+  // ⚠ THE COUNTER-CASE THAT DEFINES THE SCOPE OF §14.1. The prompts deliberately
+  // emit `mistakeType: null` WITH a real deduction for a missing step, a bare wrong
+  // answer with no working, an explicit non-attempt ("Don't know") and a crossed-out
+  // answer. Those deductions are HONEST and zeroing them would DISCARD real content —
+  // the mirror-image fabrication. §13.5 already pins this; §14.5 pins that GRD-CLOSE
+  // did not break it, because nothing here is below a departure.
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [
+      STEP({ description: 'no working shown, wrong answer', status: 'incorrect',
+        marksAwarded: 0, marksDeducted: 1, mistakeType: null }),
+      STEP({ description: 'left entirely blank', status: 'missing',
+        marksAwarded: 0, marksDeducted: 1, mistakeType: null }),
+      STEP({ marksAwarded: 1 }),
+    ],
+    finalAnswerCorrect: false,
+  }] });
+  await h.route.handleCheckSolution(POLY_REQ(), {});
+  const steps = h.body().annotatedSteps;
+  assert.equal(steps[0].marksDeducted, 1,
+    'an undiagnosable wrong answer STILL costs the student — the deduction is real');
+  assert.equal(steps[1].marksDeducted, 1, 'so does a step left blank');
+  assert.equal(h.body().mistakeSummary.departure, 0, 'and there is no departure here at all');
+});
+
+test('§14.6 ★★ REGRESSION — an ANCHORED, no-departure question is byte-for-byte unaffected', async () => {
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [
+      STEP(),
+      STEP({ status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'calculation' }),
+      STEP(), STEP(),
+    ],
+    finalAnswerCorrect: true,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  const steps = h.body().annotatedSteps;
+  assert.equal(steps[1].marksDeducted, 1, 'a scheme-bearing question keeps every deduction it had');
+  assert.equal(h.body().marksAwarded, 3, 'and the mark is unchanged');
+  assert.equal(h.body().mistakeSummary.calculation, 1, 'and the count is unchanged');
+});
+
+// ── §14.7 · CHANGE 2 — the rubric is FIXED BEFORE the work is read ────────────
+//
+// ⚠ WHAT IS AND IS NOT TESTABLE HERE. The property the owner observed — the SAME
+// question graded twice producing two different derived schemes (1/2 and 1.5/2) — is
+// a property of the MODEL, and no test in this repo can assert it; it is the owner's
+// live-verify. What IS testable, and what these cases pin, is the PROMPT the model
+// receives: that the derive-and-state instruction reaches it BEFORE any student work,
+// identically, at all three assembly sites. ORDER is the change; stability is the hope.
+
+const RUBRIC_HEAD = 'FIX THE MARKING SCHEME BEFORE YOU READ THE ANSWER.';
+
+test('§14.7 ★★★ single-question path: the rubric instruction precedes the student\'s work AND the grading rules', async () => {
+  const h = buildRoute({ replies: [{ annotatedSteps: [STEP()] }] });
+  await h.route.handleCheckSolution(POLY_REQ({ textAnswer: '4x^2 - 4x - 15 = (2x-5)(2x+3)' }), {});
+  const text = textOf(h);
+
+  const rubricAt = text.indexOf(RUBRIC_HEAD);
+  const workAt = text.indexOf('The student\'s typed answer is:');
+  const rulesAt = text.indexOf('GRADING RULES:');
+
+  assert.ok(rubricAt >= 0, 'the rubric instruction must reach the single-question prompt');
+  assert.ok(workAt >= 0, 'CONTROL — the student\'s work must actually be in this prompt');
+  assert.ok(rulesAt >= 0, 'CONTROL — the grading rules must actually be in this prompt');
+  assert.ok(rubricAt < workAt,
+    '★★★ THE WHOLE OF CHANGE 2: the scheme is fixed BEFORE the work is presented, not after');
+  assert.ok(rubricAt < rulesAt,
+    'and before `gradingRules`, which is where it used to live — appended LAST');
+  assert.equal(text.split(RUBRIC_HEAD).length - 1, 1,
+    'emitted EXACTLY ONCE — clause (i) back-references it rather than restating it');
+});
+
+test('§14.8 ★★ the SAME question at the SAME marks builds the SAME rubric block whatever the student wrote', async () => {
+  // Two runs, two different answers and two different segmentations. The rubric the
+  // model is handed must be identical, and must precede the work in both.
+  const a = buildRoute({ replies: [{ annotatedSteps: [STEP()] }] });
+  await a.route.handleCheckSolution(POLY_REQ({ textAnswer: 'one line only' }), {});
+  const b = buildRoute({ replies: [{ annotatedSteps: [STEP(), STEP(), STEP()] }] });
+  await b.route.handleCheckSolution(POLY_REQ({ textAnswer: 'step 1\nstep 2\nstep 3\nstep 4' }), {});
+
+  const sliceRubric = (t) => t.slice(t.indexOf(RUBRIC_HEAD), t.indexOf('The student\'s typed answer is:'));
+  const ra = sliceRubric(textOf(a));
+  const rb = sliceRubric(textOf(b));
+  assert.ok(ra.length > 200, 'CONTROL — the slice actually captured the rubric block');
+  assert.equal(ra, rb,
+    '★ the marking scheme handed to the grader does not vary with how the student segmented their working');
+  assert.ok(/MUST NOT vary with how the student segmented their working/i.test(ra),
+    'and the instruction says so in as many words');
+});
+
+test('§14.9 ★★ worksheet path: the rubric instruction precedes the questions in BOTH assemblies', async () => {
+  // (a) the single-image worksheet assembly
+  const flat = buildImageRoute({ replies: [WS_OK([1])] });
+  await flat.route.handleGradeWorksheet(WORKSHEET_REQ([Q(1)]), {});
+  const flatText = textOf(flat);
+  assert.ok(flatText.indexOf(RUBRIC_HEAD) >= 0, 'it must reach the worksheet prompt');
+  assert.ok(flatText.indexOf(RUBRIC_HEAD) < flatText.indexOf('QUESTIONS AND MARKING SCHEMES:'),
+    'before the question blocks');
+
+  // (b) ★ THE INTERLEAVED assembly — each answer photo follows its OWN question, so
+  //     the ONLY position before all of the student's work is the LEADING text part.
+  const woven = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await woven.route.handleGradeWorksheet(
+    { ...WORKSHEET_REQ([Q(1), Q(2)]), uploads: [UP(1), UP(2)] }, {});
+  const parts = partsOf(woven);
+  const firstImageAt = parts.findIndex(isImage);
+  const rubricPartAt = parts.findIndex((p) => typeof p.text === 'string' && p.text.includes(RUBRIC_HEAD));
+  assert.ok(firstImageAt > 0, 'CONTROL — an answer photo really is interleaved into these parts');
+  assert.equal(rubricPartAt, 0, 'the rubric is in the LEADING text part');
+  assert.ok(rubricPartAt < firstImageAt,
+    '★ so it is read before the first photograph of the student\'s work');
+});
+
+test('§14.10 ★★★ PROMPT/CODE PARITY — the no-deduction-below-the-departure rule is stated to the model too, on BOTH paths', async () => {
+  // ⚠ THE SILENT-FAILURE MODE THIS GUARDS. A prompt is a SECOND IMPLEMENTATION of the
+  // same rule. `applyEcfPolicyV2` now clears `marksDeducted` below the departure in
+  // CODE; if the prompt never said so, the model would keep emitting deductions the
+  // server silently erased, and the two would drift with nothing to notice. The rule
+  // is single-sourced in ECF_POLICY_V2_PROMPT, which BOTH prompts carry — so this
+  // asserts it ARRIVES at both, not merely that the constant contains it.
+  const single = buildRoute({ replies: [{ annotatedSteps: [STEP()] }] });
+  await single.route.handleCheckSolution(ECF_REQ({ solutionSteps: [] }), {});
+  const batch = buildImageRoute({ replies: [WS_REPLY({ annotatedSteps: [STEP()] })] });
+  await batch.route.handleGradeWorksheet(ECF_WS({ solutionSteps: [] }), {});
+
+  for (const [name, text] of [['single-question', textOf(single)], ['worksheet', textOf(batch)]]) {
+    assert.ok(/SET "marksDeducted": 0 ON EVERY STEP BELOW THE DEPARTURE/.test(text),
+      'the ' + name + ' prompt must carry the same rule the code enforces');
+    assert.ok(/penalized only once/.test(text),
+      'and cite CBSE 11, which is the authority for it (' + name + ')');
+  }
 });
