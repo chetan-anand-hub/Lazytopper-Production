@@ -1606,6 +1606,15 @@ function createCheckSolutionRoute(deps) {
         teacherAnnotation: String(s.teacherAnnotation || '').trim(),
         mistakeType: VALID_MISTAKE_TYPES.has(s.mistakeType) ? s.mistakeType : null,
         correctedWorking: s.correctedWorking ? String(s.correctedWorking).trim() : null,
+        // ECF_POLICY_V2 · THE DEPARTURE MARKER — PARITY WITH handleCheckSolution.
+        // Without this field every step reaches applyEcfPolicyV2 with isDeparture
+        // undefined, so findDepartureIndex could only ever return -1 on this path:
+        // nothing below a departure was zeroed, the departure cap never fired and
+        // mistakeSummary.departure was always 0 on EVERY structured surface.
+        // Coerced to a REAL boolean for the same reason as the single-question
+        // site: this object is persisted to Firestore by the client, which rejects
+        // an undefined field outright.
+        isDeparture: s.isDeparture === true,
       }));
 
     // ── Uniform OBJECTIVE (MCQ / AR / Section A) handling ─────────────────────

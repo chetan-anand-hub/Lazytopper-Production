@@ -2497,3 +2497,197 @@ test('§14.10 ★★★ PROMPT/CODE PARITY — the no-deduction-below-the-depart
       'and cite CBSE 11, which is the authority for it (' + name + ')');
   }
 });
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §15 · DEPARTURE-DEAD — the departure flag reaches the STRUCTURED path (#nnn)
+
+   ★★★ WHAT THIS SECTION PINS, AND WHY IT COULD NOT EXIST BEFORE. `isDeparture` was
+   written onto a normalised step at exactly ONE site — `handleCheckSolution`'s
+   mapper. `normaliseStructuredResult` produced nine fields and dropped the tenth,
+   so every step reaching `applyEcfPolicyV2` on the structured path carried
+   `isDeparture: undefined`. `findDepartureIndex` could therefore only ever return
+   -1 there: nothing below a departure was zeroed, the departure cap never fired,
+   and `mistakeSummary.departure` was 0 for every worksheet ever graded.
+
+   ⚠ THE BLAST RADIUS IS FIVE SURFACES, NOT THREE. Everything that calls
+   `gradeWorksheet` reaches this normaliser: Worksheet, Chapter Test, Full Mock,
+   Quick Practice (batch) AND Check & Improve's MULTI-QUESTION upload — C&I calls
+   `gradeWorksheet` directly, and only its SINGLE-question flow used the path that
+   worked. §15.7 is the convergence proof: one model reply, both normalisers, one
+   grade.
+
+   ⚠ §15.4/§15.5 are the REGRESSION guards and matter more than the feature cases.
+   Measured against the pre-change tree, the no-departure structured grade and BOTH
+   single-question grades are unchanged; the only difference on those fixtures is
+   the additive `isDeparture: false` field, which the single-question path has
+   always emitted and which the response schema already declares.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+// One model reply, reused across §15 so the two normalisers are compared on
+// IDENTICAL input. Step 2 (index 1) is the departure; the two below it are
+// internally correct and separately charged, which is exactly what rule 5 voids.
+const DEP_STEPS = () => [
+  STEP(),
+  STEP({ isDeparture: true, mistakeType: 'conceptual' }),
+  STEP({ marksDeducted: 0.5, mistakeType: 'calculation' }),
+  STEP({ marksDeducted: 0.5, mistakeType: 'silly' }),
+];
+const NO_DEP_STEPS = () => [
+  STEP(),
+  STEP({ mistakeType: 'conceptual' }),
+  STEP({ marksDeducted: 0.5, mistakeType: 'calculation' }),
+  STEP({ marksDeducted: 0.5, mistakeType: 'silly' }),
+];
+const DEP_EXTRAS = {
+  mistakeSummary: { conceptual: 1, calculation: 1, silly: 1, presentation: 0 },
+  teacherNote: 'Model note.',
+  finalAnswerCorrect: false,
+};
+
+// ── 1 · the departure is FOUND on the structured path — the case impossible before ──
+
+test('§15.1 ★★★ a departure marked by the model on the STRUCTURED path is FOUND — impossible before this lane', async () => {
+  const h = buildRoute({ replies: [WS_REPLY({ annotatedSteps: DEP_STEPS(), ...DEP_EXTRAS })] });
+  await h.route.handleGradeWorksheet(ECF_WS(), {});
+
+  // `questionDepartureError` IS `policy.departureIndex >= 0` — the direct observable
+  // of findDepartureIndex having located the step. Pre-change this was false here.
+  assert.equal(r1(h).questionDepartureError, true,
+    'the structured normaliser must carry isDeparture through so findDepartureIndex can see it');
+  assert.equal(r1(h).annotatedSteps[1].isDeparture, true,
+    'and the flag must survive onto the normalised step the client persists');
+  // The departure cap (rule 8 with a departure) is what MOVES the mark: 4 -> 2.
+  assert.equal(r1(h).marksAwarded, 2,
+    'the 50% departure cap now fires on this path — pre-change this graded 3.5/4');
+});
+
+// ── 2 · rule 5 on the structured path — everything below the departure is zeroed ──
+
+test('§15.2 ★★ every step BELOW the departure is zeroed on the STRUCTURED path, award AND deduction', async () => {
+  const h = buildRoute({ replies: [WS_REPLY({ annotatedSteps: DEP_STEPS(), ...DEP_EXTRAS })] });
+  await h.route.handleGradeWorksheet(ECF_WS(), {});
+  const s = r1(h).annotatedSteps;
+
+  assert.equal(s[0].marksAwarded, 1, 'above the departure: graded normally (rule 3)');
+  assert.equal(s[1].marksAwarded, 1, 'rule 4 — the departure step KEEPS what it independently earned');
+  assert.deepEqual(s.map((x) => x.marksAwarded), [1, 1, 0, 0],
+    'rule 5 — right arithmetic on the wrong equation earns nothing');
+  assert.deepEqual(s.map((x) => x.marksDeducted), [0, 0, 0, 0],
+    'a step below the departure is not a separate mistake, so it carries no separate charge');
+});
+
+// ── 3 · the departure is counted ONCE in the structured path's summary ──
+
+test('§15.3 ★★ the departure is counted ONCE in the STRUCTURED path summary, and not as `silly`', async () => {
+  const h = buildRoute({ replies: [WS_REPLY({ annotatedSteps: DEP_STEPS(), ...DEP_EXTRAS })] });
+  await h.route.handleGradeWorksheet(ECF_WS(), {});
+  const m = r1(h).mistakeSummary;
+
+  assert.equal(m.departure, 1, 'ONE departure ⇒ exactly one charge');
+  assert.equal(m.silly, 0, 'and never filed under the careless bucket — that copy is the wrong lesson');
+  assert.equal(m.conceptual + m.calculation + m.silly + m.presentation + m.departure, 1,
+    'EXACTLY ONE counted mistake — the model self-reported three and they are DISCARDED below the departure');
+  assert.match(r1(h).teacherNote, /solving a different equation from the one set/,
+    'the departure carries its own voice, appended to the model note');
+});
+
+// ── 4 · THE REGRESSION GUARD THAT MATTERS MOST — no departure ⇒ nothing moved ──
+//
+// ⚠ Every value below was MEASURED against the pre-change tree, not asserted from
+// intent: the same fixture through the same route with the carry-through removed
+// produced exactly these numbers. The one and only difference the change makes on
+// this fixture is the additive `isDeparture: false` field.
+
+test('§15.4 ★★★ REGRESSION — a STRUCTURED response with NO departure is graded exactly as before', async () => {
+  const h = buildRoute({ replies: [WS_REPLY({ annotatedSteps: NO_DEP_STEPS(), ...DEP_EXTRAS })] });
+  await h.route.handleGradeWorksheet(ECF_WS(), {});
+  const g = r1(h);
+
+  assert.equal(g.marksAwarded, 3.5, 'rule 8 without a departure still only withholds FULL marks');
+  assert.equal(g.percentage, 88);
+  assert.deepEqual(g.annotatedSteps.map((s) => s.marksAwarded), [1, 1, 1, 1], 'nothing is zeroed');
+  assert.deepEqual(g.annotatedSteps.map((s) => s.marksDeducted), [0, 0, 0.5, 0.5], 'no deduction is cleared');
+  assert.deepEqual(g.mistakeSummary, { conceptual: 1, calculation: 1, silly: 1, presentation: 0, departure: 0 },
+    'the additive-floor reconcile is byte-for-byte the previous one');
+  assert.equal(g.teacherNote, 'Model note.', 'no departure line is appended');
+  assert.equal(g.questionDepartureError, false);
+  // The ONE intended difference, stated so it can never be mistaken for a regression.
+  assert.deepEqual(g.annotatedSteps.map((s) => s.isDeparture), [false, false, false, false],
+    'the field is present and a REAL boolean — Firestore rejects undefined, and the single-question path has always emitted it');
+});
+
+// ── 5 · SECOND REGRESSION GUARD — the single-question path is untouched ──
+
+test('§15.5 ★★★ REGRESSION — the SINGLE-QUESTION path is byte-identical, with and without a departure', async () => {
+  // With a departure: this path always worked, and must still produce the same grade.
+  const dep = buildRoute({ replies: [{ annotatedSteps: DEP_STEPS(), ...DEP_EXTRAS }] });
+  await dep.route.handleCheckSolution(ECF_REQ(), {});
+  assert.equal(dep.body().marksAwarded, 2);
+  assert.deepEqual(dep.body().annotatedSteps.map((s) => s.marksAwarded), [1, 1, 0, 0]);
+  assert.equal(dep.body().mistakeSummary.departure, 1);
+  assert.equal(dep.body().questionDepartureError, true);
+
+  // Without one: the ordinary grade, unmoved.
+  const plain = buildRoute({ replies: [{ annotatedSteps: NO_DEP_STEPS(), ...DEP_EXTRAS }] });
+  await plain.route.handleCheckSolution(ECF_REQ(), {});
+  assert.equal(plain.body().marksAwarded, 3.5);
+  assert.deepEqual(plain.body().annotatedSteps.map((s) => s.marksAwarded), [1, 1, 1, 1]);
+  assert.deepEqual(plain.body().mistakeSummary,
+    { conceptual: 1, calculation: 1, silly: 1, presentation: 0, departure: 0 });
+  assert.equal(plain.body().questionDepartureError, false);
+});
+
+// ── 6 · more than one marker → the EXISTING ambiguity rule, not a new one ──
+
+test('§15.6 ★★ TWO departure markers on the STRUCTURED path fails OPEN — the existing rule, unchanged', async () => {
+  // findDepartureIndex returns -1 for ZERO and for MORE-THAN-ONE alike: an ambiguous
+  // signal is not evidence, and the fail-safe direction is to grade normally rather
+  // than to zero a student's work. This lane reports that rule; it does not add one.
+  const h = buildRoute({ replies: [WS_REPLY({
+    annotatedSteps: [STEP(), STEP({ isDeparture: true }), STEP(), STEP({ isDeparture: true })],
+    mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+    teacherNote: 'Model note.', finalAnswerCorrect: false,
+  })] });
+  await h.route.handleGradeWorksheet(ECF_WS(), {});
+
+  assert.equal(h.body().results[0].questionDepartureError, false, 'two markers ⇒ no departure identified');
+  assert.equal(r1(h).marksAwarded, 3.5, 'so nothing is zeroed and the departure cap does NOT fire');
+  assert.equal(r1(h).mistakeSummary.departure, 0, 'and nothing is CHARGED either');
+  assert.equal(r1(h).teacherNote, 'Model note.', 'no departure voice on an ambiguous signal');
+  // CONTROL — the flags really did arrive; the rule rejected them, the wire did not drop them.
+  assert.deepEqual(r1(h).annotatedSteps.map((s) => s.isDeparture), [false, true, false, true],
+    'CONTROL: both markers reached the normalised steps — this is the RULE failing open, not the carry-through failing');
+});
+
+// ── 7 · THE CONVERGENCE — one reply, two normalisers, one grade ──
+
+test('§15.7 ★★★ THE ARC\'S ACCEPTANCE TEST IN CODE — the SAME departure reply now grades IDENTICALLY on both paths', async () => {
+  // ★★ This is the assertion the whole grader arc was built toward and the one that
+  // could not be written before: a paper that departs the question earns the same
+  // mark whether a student uploads it to Check & Improve (single-question) or to a
+  // Worksheet / Chapter Test / Full Mock / Quick Practice batch (structured).
+  // ⚠ It is deliberately a COMPARISON, not two copies of a hardcoded number: if a
+  // future change moves one path, this goes red even if the new value looks right.
+  const single = buildRoute({ replies: [{ annotatedSteps: DEP_STEPS(), ...DEP_EXTRAS }] });
+  await single.route.handleCheckSolution(ECF_REQ(), {});
+  const batch = buildRoute({ replies: [WS_REPLY({ annotatedSteps: DEP_STEPS(), ...DEP_EXTRAS })] });
+  await batch.route.handleGradeWorksheet(ECF_WS(), {});
+
+  const s = single.body();
+  const b = r1(batch);
+
+  assert.equal(b.marksAwarded, s.marksAwarded, 'the same work must earn the same mark on both paths');
+  assert.equal(b.totalMarks, s.totalMarks);
+  assert.deepEqual(b.mistakeSummary, s.mistakeSummary, 'and be counted as the same ONE mistake');
+  assert.equal(b.questionDepartureError, s.questionDepartureError);
+  assert.deepEqual(
+    b.annotatedSteps.map((x) => [x.marksAwarded, x.marksDeducted, x.isDeparture]),
+    s.annotatedSteps.map((x) => [x.marksAwarded, x.marksDeducted, x.isDeparture]),
+    'step for step, award and deduction and departure marker alike');
+  assert.equal(b.teacherNote, s.teacherNote, 'and be told the same thing about why');
+
+  // CONTROL — the fixture really does depart, so the equality above is not two
+  // no-ops agreeing. A non-departure fixture must NOT produce this grade.
+  assert.equal(s.questionDepartureError, true, 'CONTROL: the shared fixture genuinely declares a departure');
+  assert.notEqual(s.marksAwarded, s.totalMarks, 'CONTROL: and the departure actually cost marks');
+});
