@@ -1,6 +1,64 @@
 # LazyTopper Implementation Roadmap
 
 
+## 2026-08-18 — WAVE MI-INTEGRITY-4: **THE GRADER ARC IS FIXED ON ONE SURFACE OUT OF FIVE — `#684` AND `#685` ON TRUNK, `#682` STILL A DRAFT** — trunk `ffd352fb`
+
+**`2026-08-18`**
+
+**STAGE OUTCOME: TWO LANES COMPLETE AND MERGED; ONE PARTIAL AND UNMERGED; THE ARC IS NOT CLOSED.**
+Three lanes plus one read-only scout. **The arc does not close on code landing — it closes on an owner
+live-verify of the departure behaviour on chapter test, worksheet and full mock, and no gate in this
+repository can produce that evidence.**
+
+- ✅ **`CHECKER-FIX` — `#684` MERGED (`da44285f`).** The premise-ledger row splitter now splits on
+  **unescaped pipes only** and unescapes `\|` back. Two `scripts/` files, **zero `lazytopper/` files
+  touched.** Tests `# tests 6 -> 10  # pass 10  # fail 0  # skipped 0`, mutation reds quoting the
+  injected value, restores sha-proven. ★★ **The two pipe fixes cover DISJOINT HALVES** — escaped
+  `\|\|` and a **bare `|`** are different bugs, and **a bare pipe stays a delimiter**; treating one as
+  primary ships half a fix. ⚠ **Rot mode 6 is now fixed on trunk.**
+- ✅ **`GRD-CLOSE` — `#685` MERGED (`ffd352fb`).** Propagated steps no longer deduct (award, count and
+  deduction now share **one boundary**, landing at all three callers through the shared function
+  **without editing the forbidden `graderEval.cjs`**), and the rubric is now derived and stated
+  **BEFORE** the student's work is read at **all three assemblies**. Two `server/` files, +373/-16.
+  `# tests 132  # pass 132  # fail 0  # skipped 0` plus vitest `Tests 42 passed (42)`, baseline
+  `# pass 122` stated. ★★ **It built NARROWER than the spec asked and was right** — the literal rule
+  would have discarded honest deductions an existing test already pinned — **and added a control so
+  the narrowing cannot later be silently widened.**
+- ⚠ **`SHEET-FINISH` — `#682` PARTIAL, PUSHED `534f4f32`, STILL A DRAFT.** Steps 1 and 7 built; Steps
+  2 and 4 **not** built, blocked for verified reasons. Four files under
+  `lazytopper/src/components/`. ⚠⚠ **BOTH NEW SYMBOLS SHIP DORMANT — zero non-test consumers**, so
+  **nothing misleads a student today.** Its **first** return was **BLOCKED with zero files edited**,
+  and that was correct: **re-citation would have made the gate green while the ledger asserted
+  something untrue.** **ONE MERGE PRECONDITION REMAINS: the `gradedCount` comment.**
+- ✅ **`SHEET-STEP1-RECONCILE` — read-only scout, repo writes 0** (verified at start **and** finish),
+  location method **BY TEXT throughout**. It **disproved the suspicion it was sent to confirm** —
+  Step 1 is a **genuine bridge**, not signature theatre — **and found the one real defect**:
+  unattempted questions are rendered as graded. ★ **The owner withdrew a correction on its evidence.**
+- ✅ **`HANDOFF-MI4` — this docs-only PR.** Six `handoff/` files, **zero product files.**
+
+**★★★ THE STAGE'S FINDING — A NEW DEFECT CLASS.** *A spec whose allowlist cannot reach the data its
+own ruling requires. The lane never discovers it — it either stops or synthesises the number again.*
+**Operational form: before writing an allowlist, name the file that holds the DATA, not the file that
+holds the SYMPTOM.** ⚠ Distinct from *extent-from-a-sample*: that is a claim about **how big a set
+is**, this about **where a fix can reach.**
+
+**★★★ THE STAGE'S OTHER FINDING — THE ARC HAS BEEN VERIFIED ON ONE SURFACE.** `isDeparture` is set
+only inside `handleCheckSolution`, so **rule 5, the departure cap and `mistakeSummary.departure` are
+all DEAD on chapter test, worksheet and full mock.** **Until `DEPARTURE-DEAD` lands, *"the grader is
+fixed"* is true of Check & Improve only.**
+
+**⚠ RECORD GAP CLOSED BY SHA ONLY.** `#681` (Wave MI-INTEGRITY-3 — GRD-CLAMPS, GRD-FINISH,
+GRD-FINISH-2 and GRD-FINAL, all in one PR) **reaches `handoff/` for the first time in this cycle**;
+that wave closed **without a handoff PR** and its archive was never committed. **No narrative is
+invented for it here.**
+
+**NEXT STAGE: `DEPARTURE-DEAD` — spec staged (13424 B, `3EF6C3F7D800`), IT RUNS ALONE**, two stop
+conditions (**P5**, **P6**), and **its line numbers have almost certainly moved — rot mode 1,
+expected, not a stop; locate by TEXT.** Then the **`gradedCount` comment lane**, then **`STUB-503`**,
+**and then the arc closes.** See `NEXT_ACTION.md`.
+
+---
+
 ## 2026-08-15 — WAVE QR-UPLOAD + WAVE MI-INTEGRITY-2: **EIGHT LANES, ONE PRODUCT CHANGE (`#679`) — AND THE REASON IS THE SPECS, NOT THE LANES** — trunk `e077b3a3`
 
 **`2026-08-15`**
