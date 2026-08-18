@@ -164,7 +164,33 @@ function resolveFinalAnswerCorrect(raw, annotatedSteps) {
  * verdict from `clampObjectiveResult`; a 50% cap on a 1-mark MCQ would produce the
  * fractional mark that clamp forbids. Both callers gate on `questionIsObjective`.
  *
- * Mutates `marksAwarded` on post-departure steps (rule 5) and returns the mark.
+ * Mutates `marksAwarded` AND `marksDeducted` on post-departure steps (rule 5) and
+ * returns the mark.
+ *
+ * ★★★ RULE 5 NOW CLEARS THE DEDUCTION LEDGER TOO (GRD-CLOSE). Three ledgers describe
+ * one departure and they must share ONE boundary:
+ *     award    — `applyEcfPolicyV2` zeroes `marksAwarded` for i > departureIndex
+ *     count    — `buildMistakeSummary` counts mistakeTypes only for i < departureIndex
+ *     DEDUCTION — `marksDeducted`, which until now was left exactly as the model sent it
+ * The owner's paper (`ci:CI-M-POLY-01`, 3 marks, departure at step 3) came back with
+ * steps 5, 6 and 7 carrying `mistakeType: null` — CORRECT, and deliberate: policy (e)
+ * and prompt rule 4 both instruct it so ONE slip is not re-charged as several — while
+ * still deducting 1 + 0.5 + 0.5 = 2 marks between them. ★ A STEP CANNOT BE BOTH "not a
+ * separate mistake" AND a charge against the student: the departure zeroed their AWARD
+ * while the DEDUCTION went on accumulating. That is CBSE 11 — "No marks to be deducted
+ * for the cumulative effect of an error. It should be penalized only once" — applied to
+ * two of the three ledgers and not the third.
+ *
+ * ⚠ THIS IS DELIBERATELY THE POST-DEPARTURE SET, NOT "every untyped step". `mistakeType:
+ * null` is NOT a propagation marker in this contract — no such marker exists — and the
+ * prompts use a null type for several honest cases that DO carry a real deduction: a
+ * `missing` step, a bare wrong answer with no working shown, an explicit non-attempt
+ * ("Don't know"), a crossed-out answer, and typed nonsense. Zeroing those would DISCARD
+ * a real deduction, which `checkSolution.test.cjs` §13.5 pins against ("the deduction is
+ * preserved verbatim, not zeroed away"). The post-departure set is the only set the code
+ * can identify as cumulative-effect, and it is exactly the set rule 5 already zeroes.
+ *
+ * ⚠ Rule 9 STILL HOLDS: `mistakeType` is not touched here, only the deduction.
  */
 function applyEcfPolicyV2({ annotatedSteps, totalMarks, schemeAnchored, finalAnswerCorrect }) {
   const steps = Array.isArray(annotatedSteps) ? annotatedSteps : [];
@@ -173,9 +199,14 @@ function applyEcfPolicyV2({ annotatedSteps, totalMarks, schemeAnchored, finalAns
 
   // Rule 5 — right arithmetic on the wrong equation earns nothing. Rule 4 leaves
   // the departure step itself untouched, so the loop starts BELOW it.
+  // ★ The SAME loop clears `marksDeducted`: a step below the departure is not a
+  //   separate mistake, so it cannot carry a separate charge. The departure step
+  //   itself (index `departureIndex`) keeps BOTH its type and its deduction — it is
+  //   the one thing that IS being penalised, and it is penalised once.
   if (departureIndex >= 0) {
     for (let i = departureIndex + 1; i < steps.length; i += 1) {
       steps[i].marksAwarded = 0;
+      steps[i].marksDeducted = 0;
     }
   }
 
@@ -287,6 +318,56 @@ function withDepartureNote(teacherNote, departureIndex) {
   return note ? note + ' ' + DEPARTURE_TEACHER_LINE : DEPARTURE_TEACHER_LINE;
 }
 
+/* ── THE RUBRIC IS FIXED BEFORE THE STUDENT'S WORK IS READ (GRD-CLOSE) ─────────
+   ★★★ ORDER IS THE FIX, AND IT IS MOST OF THE FIX.
+
+   This instruction already existed — as clause (i) of `ECF_POLICY_V2_PROMPT`. But
+   `ECF_POLICY_V2_PROMPT` reaches the model only inside `gradingRules` (single
+   question) and `rules` (worksheet), and BOTH assemblies append those LAST — i.e.
+   AFTER the student's answer has already been presented. The model was therefore
+   told to "derive the value points from the question alone" at a point where it had
+   already read the working.
+
+   ⚠ THE OBSERVED CONSEQUENCE, and it is not theoretical: the owner graded ONE 2-mark
+   question TWICE and got two different derived schemes — "splitting middle term (1),
+   factorization (0.5), roots (0.5)" against a 0.5-weighted split — scoring 1/2 and
+   1.5/2. ★ NO CLAMP WAS INVOLVED: each total is internally consistent with its own
+   derived scheme. The instability is in the DERIVATION, and the derivation is
+   unstable because it was never made first.
+
+   ⇒ The full instruction is emitted BEFORE the student's work at all THREE assembly
+   sites (single-question `userPrompt`; worksheet `userPrompt`; the interleaved
+   `buildUploadParts`, where each answer photo follows its own question and so the
+   only position before ANY work is the leading text part).
+
+   ★ SINGLE-SOURCED, NOT COPIED. Clause (i) of `ECF_POLICY_V2_PROMPT` now BACK-REFERENCES
+   this constant instead of restating it, and additionally forbids re-deriving the
+   scheme now that the work has been seen. This file has carried three copies of one
+   rule before; this is one string, emitted once, referred to once. */
+const DERIVE_RUBRIC_FIRST_PROMPT =
+  'FIX THE MARKING SCHEME BEFORE YOU READ THE ANSWER.\n' +
+  'NO MARKING SCHEME SUPPLIED — DERIVE ONE, AND STATE IT. If no marking scheme is given ' +
+  'for this question, do NOT withhold marks for its absence and do NOT cap the question. Instead, ' +
+  'do what an examiner does with an unfamiliar question: FIRST derive the value points for the ' +
+  'question, THEN state them explicitly, THEN mark the student\'s work against them.\n' +
+  '  - The derived value points MUST sum to the question\'s stated mark value.\n' +
+  '  - ⚠ DERIVE THEM FROM THE QUESTION AND ITS MARK VALUE — NEVER FROM THE STUDENT\'S ' +
+  'ANSWER. Deriving the scheme from what the student wrote would make every answer ' +
+  'self-justifying: whatever they did would become the scheme they are marked against, and no ' +
+  'answer could ever be wrong. Read the question, decide what a correct solution must contain, ' +
+  'and only then look at the work.\n' +
+  '  - ⚠ THE SAME QUESTION AT THE SAME MARK VALUE MUST ALWAYS PRODUCE THE SAME VALUE POINTS ' +
+  'AND THE SAME WEIGHTS. Derive them from the question, its mark value and the CBSE step ' +
+  'conventions ALONE. They must NOT vary with how the student segmented their working — the ' +
+  'same question is marked against the same scheme whether the student wrote three lines or ' +
+  'seven. Decide the weights NOW, state them, and do NOT revise them once you have seen the ' +
+  'work.\n' +
+  '  - The number of value points is NOT the number of steps the student wrote. A value point ' +
+  'is earned wherever the work satisfies it, however many lines the student took to get there.\n' +
+  '  - STATE the derived value points at the START of "teacherNote", as a short list with ' +
+  'the marks against each (e.g. "Marked against: setup 1, substitution 1, final value with unit ' +
+  '1."), so the student can see what they were marked against.';
+
 /* ── The ECF doctrine, SINGLE-SOURCED ──────────────────────────────────────────
    Two copies of one doctrine is how they diverge — the two grader prompts carried
    the identical ECF paragraph and would have been amended apart. `correct method
@@ -313,7 +394,11 @@ const ECF_POLICY_V2_PROMPT =
   'the question and earns nothing.\n' +
   '   (e) THE DEPARTURE IS ONE MISTAKE, not one per downstream step. Classify the departure step ' +
   'itself; mark the steps below it status "incorrect" with mistakeType null. Never re-charge one ' +
-  'departure against every line below it.\n' +
+  'departure against every line below it. ⚠ AND SET "marksDeducted": 0 ON EVERY STEP BELOW THE ' +
+  'DEPARTURE. The departure is penalised ONCE, on its own step, which keeps BOTH its mistakeType ' +
+  'and its deduction. A step that is not a separate mistake cannot carry a separate charge — ' +
+  'CBSE 11: "No marks to be deducted for the cumulative effect of an error. It should be ' +
+  'penalized only once."\n' +
   '   (f) NO DEPARTURE ⇒ grade normally. Absent means UNKNOWABLE, not zero — a solution you cannot ' +
   'show has left the question is graded on its merits and is NEVER zeroed for the absence of ' +
   'evidence.\n' +
@@ -327,19 +412,11 @@ const ECF_POLICY_V2_PROMPT =
   '   (h) Award marks in HALF-MARK units (½ is the smallest unit; no finer), allocated to the ' +
   'ACTUAL steps — never invented to hit a number. On a single-mark question there are no separate ' +
   'method marks, so a wrong answer scores 0.\n' +
-  '   (i) NO MARKING SCHEME SUPPLIED — DERIVE ONE, AND STATE IT. If no marking scheme is given ' +
-  'for this question, do NOT withhold marks for its absence and do NOT cap the question. Instead, ' +
-  'do what an examiner does with an unfamiliar question: FIRST derive the value points for the ' +
-  'question, THEN state them explicitly, THEN mark the student\'s work against them.\n' +
-  '       - The derived value points MUST sum to the question\'s stated mark value.\n' +
-  '       - ⚠ DERIVE THEM FROM THE QUESTION AND ITS MARK VALUE — NEVER FROM THE STUDENT\'S ' +
-  'ANSWER. Deriving the scheme from what the student wrote would make every answer ' +
-  'self-justifying: whatever they did would become the scheme they are marked against, and no ' +
-  'answer could ever be wrong. Read the question, decide what a correct solution must contain, ' +
-  'and only then look at the work.\n' +
-  '       - STATE the derived value points at the START of "teacherNote", as a short list with ' +
-  'the marks against each (e.g. "Marked against: setup 1, substitution 1, final value with unit ' +
-  '1."), so the student can see what they were marked against.\n' +
+  '   (i) THE MARKING SCHEME WAS ALREADY FIXED, BEFORE YOU READ THE ANSWER. Where no scheme was ' +
+  'supplied you derived and stated the value points under "FIX THE MARKING SCHEME BEFORE YOU ' +
+  'READ THE ANSWER" above, from the question and its mark value alone. Mark against THOSE value ' +
+  'points, exactly as stated. ⚠ Do NOT re-derive them now that you have seen the working, and do ' +
+  'NOT adjust their weights to fit how the student segmented their answer.\n' +
   '   (j) CBSE\'S OWN GENERAL INSTRUCTIONS TO EXAMINERS. These are the board\'s words, not ours, ' +
   'and they outrank any habit of marking cautiously:\n' +
   '       CBSE 11: "No marks to be deducted for the cumulative effect of an error. It should be ' +
@@ -958,6 +1035,11 @@ function createCheckSolutionRoute(deps) {
             (topic ? 'Chapter/Topic: ' + topic + '\n' : '')) +
         markingSchemeBlock +
         '\n' +
+        // ★★ SITE 1 OF 3 — the rubric is fixed HERE, before a single line of the
+        //    student's work is presented. `gradingRules` carries the same doctrine's
+        //    back-reference (via ECF_POLICY_V2_PROMPT) but is appended LAST, which is
+        //    precisely why the instruction could not live there alone.
+        DERIVE_RUBRIC_FIRST_PROMPT + '\n\n' +
         (hasImage
           ? 'The attached ' + (isPdf ? 'PDF (may contain multiple pages of handwritten work)' : 'image') + ' shows the student\'s handwritten answer. Read ALL content carefully and evaluate the complete solution.\n\n'
           : 'The student\'s typed answer is:\n' + buildTypedAnswerBlock(textAnswer, '') + '\n'
@@ -1919,6 +2001,13 @@ function createCheckSolutionRoute(deps) {
 
     const userPrompt =
       'Grade this student\'s worksheet. There are ' + questions.length + ' questions.\n\n' +
+      // ★★ SITE 2 OF 3 — placed BEFORE the question blocks, which is the only
+      //    position that is before the student's work in BOTH worksheet assemblies
+      //    (see site 3: the interleaved build puts each answer photo immediately
+      //    after its own question, so anything after the first part is already
+      //    after some of the work). Kept byte-identical between the two so the
+      //    interleaved and non-interleaved worksheet prompts cannot drift.
+      DERIVE_RUBRIC_FIRST_PROMPT + '\n\n' +
       'QUESTIONS AND MARKING SCHEMES:\n' + questionBlocks + '\n\n' +
       'The attached ' + (isPdf ? 'PDF' : 'image') + ' is the student\'s handwritten answers, labelled by question number. ' +
       'Read ALL pages carefully and grade every question you can read.\n\n' +
@@ -1934,6 +2023,11 @@ function createCheckSolutionRoute(deps) {
         {
           text: systemPrompt + '\n\n' +
             'Grade this student\'s worksheet. There are ' + questions.length + ' questions.\n\n' +
+            // ★★ SITE 3 OF 3 — the LEADING text part. Every answer photo is pushed
+            //    inside the loop below, immediately after its own question, so this
+            //    is the only position in the interleaved build that precedes ALL of
+            //    the student's work.
+            DERIVE_RUBRIC_FIRST_PROMPT + '\n\n' +
             'QUESTIONS AND MARKING SCHEMES:',
         },
       ];
