@@ -106,11 +106,42 @@ function sectionRange(lines, needle) {
   return [start, end];
 }
 
+/**
+ * Split a markdown table row into cells on UNESCAPED pipes only, and unescape `\|` back
+ * to a literal `|` inside the cell it belonged to.
+ *
+ * WHY: splitting on EVERY pipe shifted every column to the right of an anchor that
+ * contained one, so the parser read an anchor fragment as the Status column and reported
+ * a bogus status value. That sent two spec authors (SHEET-1v3, GRD-FINISH-2) hunting a
+ * defect that was not there, and it silently forbade anchoring on a large class of real
+ * code — any line containing a pipe.
+ *
+ * Only `\|` is an escape sequence here. A backslash before anything else stays literal,
+ * so anchors carrying `\d`, `\s` or a Windows path survive byte-for-byte.
+ */
 function splitRow(line) {
   let s = line.trim();
   if (s.startsWith('|')) s = s.slice(1);
-  if (s.endsWith('|')) s = s.slice(0, -1);
-  return s.split('|').map((c) => c.trim());
+  // A trailing pipe is the row delimiter only when it is not itself escaped.
+  if (s.endsWith('|') && s[s.length - 2] !== '\\') s = s.slice(0, -1);
+
+  const cells = [];
+  let cell = '';
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] === '\\' && s[i + 1] === '|') {
+      cell += '|';
+      i++;
+      continue;
+    }
+    if (s[i] === '|') {
+      cells.push(cell);
+      cell = '';
+      continue;
+    }
+    cell += s[i];
+  }
+  cells.push(cell);
+  return cells.map((c) => c.trim());
 }
 
 const isSeparator = (line) => /^\|?[\s:|-]*-{2,}[\s:|-]*\|?$/.test(line.trim());
@@ -216,8 +247,37 @@ function checkSpec(file, opts) {
   const openText = openRange ? lines.slice(openRange[0], openRange[1]).join('\n') : '';
   const seenIds = new Set();
 
+  // --- coverage ------------------------------------------------------------
+  // AN INSTRUMENT MUST DECLARE ITS COVERAGE, NOT ONLY ITS VERDICT. A row rejected on
+  // SHAPE never reaches the anchor check, and the checker never used to say so — the
+  // most load-bearing premise of one spec went THROUGH this gate with its anchor never
+  // resolved. That is not a false green; it is an instrument misreporting what it read.
+  const anchorsChecked = [];
+  const anchorsUnchecked = [];
+  let unverifiedRows = 0;
+  const noteUnchecked = (tag, at, why) => anchorsUnchecked.push(`${tag} (L${at}: ${why})`);
+
   for (const row of rows) {
     const at = row.line;
+
+    // SHAPE FIRST. With the wrong cell count every column index below points at the
+    // wrong cell, so name the mismatch instead of reporting a bogus value from it.
+    // NOTE: parseTable consumed the HEADER row before this loop, so this can never
+    // fire on the header — only on a body row.
+    if (row.cells.length !== header.length) {
+      const shapeTag = stripCode(row.cells[0] ?? '') || `row@${at}`;
+      add(
+        'ERROR',
+        at,
+        `${shapeTag}: row has ${row.cells.length} cells, header has ${header.length} — columns cannot be assigned`,
+        'A literal `|` inside a cell must be written `\\|`. An unescaped one splits the ' +
+          'row and shifts every column to its right, so the Status you see may be an ' +
+          'anchor fragment.'
+      );
+      noteUnchecked(shapeTag, at, 'rejected on SHAPE — anchor never resolved');
+      continue;
+    }
+
     const id = stripCode(row.cells[col.id]);
     const claim = stripCode(row.cells[col.claim]);
     const evidenceRaw = (row.cells[col.evidence] ?? '').trim();
@@ -235,10 +295,12 @@ function checkSpec(file, opts) {
 
     if (status !== 'VERIFIED' && status !== 'UNVERIFIED') {
       add('ERROR', at, `${tag}: Status must be VERIFIED or UNVERIFIED, got "${status}"`);
+      noteUnchecked(tag, at, 'unreadable Status — anchor never resolved');
       continue;
     }
 
     if (status === 'UNVERIFIED') {
+      unverifiedRows++;
       if (!BLANK.has(evidence.toLowerCase())) {
         add(
           'ERROR',
@@ -294,6 +356,14 @@ function checkSpec(file, opts) {
     }
 
     // --- resolve against a real tree -------------------------------------
+    // `anchorResolved` records that the lookup RAN. A row whose anchor was looked up and
+    // NOT found is CHECKED and failed — reported distinctly from a row never checked.
+    let anchorResolved = false;
+    let unresolvedWhy = null;
+    if (!m) unresolvedWhy = 'evidence is not `path:line` — anchor never resolved';
+    else if (!opts.worktree) unresolvedWhy = 'no --worktree — evidence FORMAT checked, anchor never resolved';
+    else if (!anchor || BLANK.has(anchor.toLowerCase())) unresolvedWhy = 'no anchor string to resolve';
+
     if (opts.worktree && m) {
       const [, relPath, startS, endS] = m;
       const abs = path.resolve(opts.worktree, relPath);
@@ -305,6 +375,7 @@ function checkSpec(file, opts) {
           'An empty or surprising result indicts your command, not the world — but verify in a ' +
             'CLEAN worktree (git worktree add --detach), never a dirty tree that keeps ghosts.'
         );
+        noteUnchecked(tag, at, 'cited file missing — anchor never resolved');
         continue;
       }
       const fileLines = fs.readFileSync(abs, 'utf8').split(/\r?\n/);
@@ -312,9 +383,11 @@ function checkSpec(file, opts) {
       const end = endS ? Number(endS) : start;
       if (end > fileLines.length) {
         add('ERROR', at, `${tag}: ${relPath} has ${fileLines.length} lines, evidence cites ${end}`);
+        noteUnchecked(tag, at, 'cited line is beyond EOF — anchor never resolved');
         continue;
       }
       if (anchor && !BLANK.has(anchor.toLowerCase())) {
+        anchorResolved = true;
         const pad = 3;
         const window = fileLines.slice(Math.max(0, start - 1 - pad), Math.min(fileLines.length, end + pad)).join('\n');
         if (!window.includes(anchor)) {
@@ -328,9 +401,18 @@ function checkSpec(file, opts) {
         }
       }
     }
+
+    if (anchorResolved) anchorsChecked.push(tag);
+    else noteUnchecked(tag, at, unresolvedWhy ?? 'anchor never resolved');
   }
 
-  return { file, findings, sha: shaMatch?.[1] ?? null, premises: rows.length };
+  return {
+    file,
+    findings,
+    sha: shaMatch?.[1] ?? null,
+    premises: rows.length,
+    coverage: { checked: anchorsChecked, unchecked: anchorsUnchecked, unverified: unverifiedRows },
+  };
 }
 
 /* ------------------------------------------------------------------ main */
@@ -390,6 +472,17 @@ function main(argv) {
         if (f.fix) console.log(`      → ${f.fix}`);
       }
       if (!errors.length && !warns.length) console.log('  ✓ ledger complete, evidence well-formed');
+      // Coverage, always — a verdict without it does not say what was EXAMINED.
+      const cov = r.coverage;
+      if (cov) {
+        const claimRows = cov.checked.length + cov.unchecked.length;
+        console.log(
+          `  coverage: ${cov.checked.length}/${claimRows} claim rows had their anchor RESOLVED` +
+            ` · ${cov.unchecked.length} UNCHECKED` +
+            (cov.unverified ? ` · ${cov.unverified} UNVERIFIED (open by design)` : '')
+        );
+        for (const u of cov.unchecked) console.log(`      unchecked: ${u}`);
+      }
     }
   }
 

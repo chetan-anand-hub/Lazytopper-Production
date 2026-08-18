@@ -1,5 +1,134 @@
 ---
 
+## 2026-08-18 — Wave MI-INTEGRITY-4 (one controller, three lanes, one read-only scout) — `#684` + `#685` merged, `#682` still a draft — trunk `ffd352fb`
+
+★ **PROVENANCE.** Code claims below carry their source: **OWNER-VERIFIED** / **LANE-REPORTED** /
+**SCOUT-REPORTED** / **HANDOFF-VERIFIED** (re-derived by the `HANDOFF-MI4` lane at `ffd352fb`).
+**A controller cannot verify a code claim.**
+
+**WHAT LANDED.** **`#684` CHECKER-FIX** (`da44285f`) — the ledger-row splitter now splits on
+**unescaped pipes only** and unescapes `\|` back; two `scripts/` files. **`#685` GRD-CLOSE**
+(`ffd352fb`) — propagated steps no longer deduct, and the rubric is now derived **before** the
+student's work is read; two `server/` files, +373/-16. **Both verified by CONTENT AND ANCESTRY, not by
+PR status** — *a fresh SHA is not a growing history, and `MERGED` plus a `mergeCommit` have agreed
+with each other and both been wrong before.* **`#682` SHEET-FINISH** pushed `534f4f32` (Steps 1 and 7,
+four files under `lazytopper/src/components/`) and **remains a DRAFT that is not on trunk.**
+
+⚠ **THE SHA CHAIN HAD A GAP.** The previous handoff (`#680`) closed at `e077b3a3`; trunk has moved
+three commits — `c4c0c448` (`#681`), `da44285f`, `ffd352fb`. **`#681` reaches `handoff/` here for the
+first time**: Wave MI-INTEGRITY-3 shipped GRD-CLAMPS, GRD-FINISH, GRD-FINISH-2 and GRD-FINAL **inside
+that one PR** and closed **without a handoff PR**, and its wave-state archive was never committed.
+**This entry does not narrate that wave** — the record is not on disk here and **inventing one would
+be worse than recording the gap.** *(HANDOFF-VERIFIED: `git log --oneline afa8bb7a..ffd352fb`;
+`git ls-tree -r --name-only ffd352fb -- handoff/`.)*
+
+**★★★ THE FINDING OF THE WAVE — A NEW DEFECT CLASS, OWNER-ACCEPTED.** *A spec whose allowlist cannot
+reach the data its own ruling requires. The lane never discovers it — it either **stops** or
+**synthesises the number again**.* **Operational form: before writing an allowlist, name the file that
+holds the DATA, not the file that holds the SYMPTOM.** ⚠ **Distinct from *extent-from-a-sample***:
+that class is a claim about **how big a set is**, this one about **where a fix can reach.** The
+instance — `gradedCount` is synthesised in `scorecardVariants.ts`, but **`SessionRecord` cannot
+represent the honest answer at all**; the data lives only in `SessionPerQuestionPayload` behind
+`perQuestionRef`, which the variant never receives. ★ Owner's words: *"That is my error four times
+over this wave and it now has a name."*
+
+**★★ THE MERGE DECISION, RECORDED AS A DECISION WITH ITS REASON — NOT AS EVIDENCE SATISFIED.** The CI
+full-matrix zero-skip lines were **never quoted**; the controller flagged it three times and the owner
+**did not wave it away.** His decision: *"I merged on the lanes' scoped runs PLUS green CI, because
+the two together are strong enough for a `scripts/`-only and a `server/`-only change, and because
+holding them blocked the arc."* ★★ **That is a judgement about SUFFICIENCY. A future reader must not
+infer that *"a tick is not a log"* was met here — it was knowingly traded, on a narrow blast radius,
+for arc velocity.** ⚠ **The trade does not generalise to a wider change, and `DEPARTURE-DEAD` is a
+wider change.** What **was** quoted: `# tests 6 -> 10` (CHECKER-FIX, baseline stated) and
+`# tests 132  # pass 132  # fail 0  # skipped 0` plus vitest `Tests 42 passed (42)` (GRD-CLOSE,
+baseline `# pass 122` stated), and `NO_UPLOADS_CONTENTS_SHA256` OLD **and** NEW in full in the report,
+the commit message and the PR body — ★ *a pin re-baselined without its before/after is
+indistinguishable from a pin quietly deleted.*
+
+**★★★ THE ARC IS NOT CLOSED, AND THE REASON REFRAMED THE WHOLE WAVE.** `isDeparture` is set **only
+inside `handleCheckSolution`**, so `findDepartureIndex` returns **-1 on the structured path.**
+⇒ **rule 5, the departure cap and `mistakeSummary.departure` are ALL DEAD on chapter test, worksheet
+and full mock. Only Check & Improve has ever had them live.** *(OWNER-VERIFIED.)* ★★★ **Everything
+this arc built, and everything the owner live-verified, has run on ONE SURFACE OUT OF FIVE.** ★ This
+is `MOUNT != LIVE` **at feature scale** — the code was present, tested and correct on every surface,
+and **reachable on one.** ⇒ **`DEPARTURE-DEAD` is the next lane, it RUNS ALONE, and the arc's
+acceptance test is an OWNER LIVE-VERIFY ON THREE SURFACES that no gate in this repository can
+produce.**
+
+**★★ `#685` BUILT NARROWER THAN ITS SPEC ASKED, AND IT WAS RIGHT.** The literal rule — *"any null-type
+non-departure step ⇒ `marksDeducted` 0"* — **would have discarded HONEST deductions** (missing,
+no-working, *"Don't know"*, crossed-out, typed-nonsense), which an existing test **already pinned**;
+**no propagation marker exists in the contract**, so the literal rule cannot tell the two apart. The
+lane implemented the **narrow post-departure rule** and **added a CONTROL so the narrowing cannot
+later be silently widened.** ★ *"If the spec is wrong, your verified finding wins" executed correctly:
+it did not build around the defect, and it did not comply into a regression.* **P8 was answered
+"AFTER", so the fix was a RE-ORDERING** — and ★★★ ***"both paths" is TWO HANDLERS BUT THREE
+ASSEMBLIES***: fixing the two `userPrompt` constants alone would have missed the interleaved upload
+path. **Extent-from-a-sample, and this time it was the owner's.**
+
+**★★ THE PROMPT/CODE SWEEP PAID FOR ITSELF IN BOTH DIRECTIONS.** *Code -> prompt:* **no prompt stated
+the deduction rule**, so **the code would have silently corrected the model** — ★ *a prompt is a
+second implementation.* *Prompt -> code:* nothing in the pipeline derives or checks a rubric.
+⚠ **And a gate that could not see the change said so:** `tsc` returned exit 0 on **both** configs and
+is **INAPPLICABLE** — both `tsconfig` files use `"include": ["src"]` and are structurally blind to
+`server/**/*.cjs`. ★ *A green from a gate that cannot see the change is not evidence about the change.*
+
+**★★★ THE LEDGER ROTS THE MOMENT THE LANE WORKS — REACHED FROM TWO OPPOSITE DIRECTIONS IN ONE DAY.**
+**SHEET-FINISH's claim went FALSE while its anchor HELD** (Step 3 existed to falsify it — re-citing
+would have made the gate green while the ledger asserted something untrue; **the honest red was
+correct and the lane refused the repair**). **CHECKER-FIX's claim HELD while its anchor MOVED** (its
+own added comment displaced `:109`/`:118` to `:122`/`:148`). ⇒ **ROT MODE 7**, and **neither is
+repairable by re-citation — only re-basing or exempting.** Ruling: **finishers gate STRUCTURE ONLY.**
+⚠⚠ **But the command in that ruling is WRONG and must be fixed before any future finisher runs:
+`--strict-anchor` only decides whether a MISSING anchor is ERROR or WARN; anchor RESOLUTION is gated
+by `--worktree`. Drop `--worktree`, not `--strict-anchor`** (`[FU-FINISHER-GATE-WRONG-FLAG]`).
+★ *The rule was reasoned; the mechanism was assumed.*
+
+**★★ EXTENT-FROM-A-SAMPLE FIRED INSIDE THE CORRECTION WRITTEN TO FIX IT.** An addendum said **one**
+*"show every step"* site; a ruling raised it to **two**; **the true count is three** — the third says
+*"showing"*, so the ruling's **grep SHAPE could not see it** — and **that third site was the worst
+case**: with all four ordinary counters zeroed at or below a departure, a departure at step 0 left a
+student who solved a **different question** being congratulated on *"Clean work."* The lane fixed all
+three **structurally**, by putting the departure branch first. ⇒ **count nothing whose unit is
+undefined, and a grep shape is not an enumeration.**
+
+**⚠ BOTH `#682` SYMBOLS SHIP DORMANT.** They emit chunks and have **zero non-test consumers** —
+independently confirmed by a **real enumeration** (symbol grep, filesystem grep over untracked and
+ignored trees, a namespace-import check closing the alias escape hatch, and an input-type pass), not
+by one grep. ★ *A test proves the code works; a chunk proves it ships; only a consumer — and
+ultimately a boot — proves it RUNS.* **A lane that reported "Step 7 built, chunk emitted" and stopped
+there would have been believed.**
+
+**⚠ CONTROLLER ERRORS, RECORDED.** ★★★ **The controller AUTHORED FOUR ERRATA and should not have** —
+an erratum **overrides a hash-gated spec**, so its authorship must be as traceable as the spec it
+modifies; the previous controller faced the same question and **refused**, and that refusal is the
+standard. **The concrete harm: a FOUR-DEEP precedence chain pointing at a spec the owner later
+retired — and a lane obeyed it.** ★★ *A precedence chain is a claim about which documents are live,
+and it goes stale SILENTLY, because the lane obeying it has no way to check the chain's own currency.*
+⇒ **owner rulings travel in the DISPATCH MESSAGE, which carries no hash and therefore cannot silently
+override a gated spec.** Also recorded: **an impossible worktree command** given to a lane (git
+refuses a second checkout of a branch already checked out); **rot mode 2 predicted where mode 1
+fired** — load-bearing, because mode 2 would impeach the prior build's edit of the cited code while
+mode 1 shows it left that code untouched; and **a briefed diagnosis recorded verbatim and unflagged**,
+which had to be chased out of the state file when the owner retracted it — ★ *a controller amplifies.*
+
+**★★ AND A MOJIBAKE ACCUSATION THE CONTROLLER MEASURED AND DISPROVED AGAINST ITSELF.** The retirement
+above also alleged the errata carried cp1252 mojibake from *"a PowerShell text cmdlet"*. Reading
+**bytes** and printing **codepoints** showed `e2 80 94` — **U+2014 EM DASH, valid UTF-8, zero mojibake
+sequences** — and all four files were written with **bash heredocs.** ★★ **A cp1252 CONSOLE RENDERS A
+CLEAN UTF-8 FILE AS MOJIBAKE — READ BYTES, PRINT CODEPOINTS** (second recorded instance). **The
+retirement ruling stands on authorship; only the mojibake diagnosis is disproved** — recorded because
+**a correct outcome reached by a false premise still poisons the record**, and the next controller
+would guard the wrong thing.
+
+**HANDOFF LANE (`HANDOFF-MI4`, this PR).** Six `handoff/` files, **zero product files.** A per-file
+heading census was taken before and after every edit and **set-differenced**, because *uniqueness is
+not completeness* — checking that headings appear once passes while a whole section is gone. The
+previous `[CURRENT]` was **demoted, not deleted**; the **WIRE-2 dormancy block survived and is
+restated** in the new one.
+
+---
+
 ## 2026-08-15 — Wave QR-UPLOAD + Wave MI-INTEGRITY-2 (two controllers, eight lanes, two scouts) — ONE product change, `#679` — trunk `e077b3a3`
 
 ★ **PROVENANCE.** Code claims below carry their source: **OWNER-VERIFIED** / **LANE-REPORTED** /

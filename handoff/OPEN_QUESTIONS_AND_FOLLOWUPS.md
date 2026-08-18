@@ -13,6 +13,250 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 ---
 
 
+## 2026-08-18 — WAVE MI-INTEGRITY-4 — new, re-stated and closed follow-ups (trunk `ffd352fb`)
+
+*Per standing rule 1, every ID below has its own heading and body — including the ones being carried
+forward or closed, so no reader meets a bare cross-reference. Per standing rule 3, no dated entry
+elsewhere in this file has been rewritten; the corrections and status changes are recorded here.*
+
+### `[FU-DEPARTURE-DEAD-ON-STRUCTURED-PATH]` — NEW · **OWNER-VERIFIED** · ★★★ **THE ARC'S LAST BUILD UNIT**
+`isDeparture` is set **only at `:1101` inside `handleCheckSolution`**, so `findDepartureIndex` returns
+**-1 on the structured path.** ⇒ **rule 5, the departure cap AND `mistakeSummary.departure` are ALL
+DEAD on CHAPTER TEST, WORKSHEET and FULL MOCK. Only Check & Improve has ever had them live.**
+★★★ **Every departure behaviour this arc built, and everything the owner live-verified, has run on ONE
+SURFACE OUT OF FIVE.** ★ `MOUNT != LIVE` at feature scale: present, tested and correct on every
+surface, **reachable on one.**
+**LANE: `DEPARTURE-DEAD`, spec staged 13424 B `3EF6C3F7D800`. IT RUNS ALONE.** ⚠ **Two stop conditions
+carry into its dispatch verbatim: P5 — the structured prompt is ABSENT; P6 — a not-found path doing
+something OTHER than "no departure".** ⚠ **One line would switch three behaviours on at once, on paths
+never live-verified**, and the caps are ruled settled — **it is not a one-liner, it is a lane.**
+⚠ **Its premises sit in `checkSolution.cjs`, the file `#685` just changed: expect ROT MODE 1, treat it
+as EXPECTED and NOT a stop, and locate anchors BY TEXT.**
+
+### `[FU-QP-STORED-GRADEDCOUNT-SYNTHESISED]` — NEW · **SCOUT-REPORTED** · **PARKED, WITH A MARKER OWED**
+In `lazytopper/src/components/results/scorecardVariants.ts`,
+`gradedCount === totalQuestions === record.questionIds.length` — **the whole displayed set** — while
+`results` is **sparse** (*"Unattempted — omitted entirely"*). ⇒ a 6-of-10 session would render
+*"across 10 of 10 questions graded"*. ★★ **This violates the unattempted ruling in the WORSE
+direction: it does not score unattempted questions 0, it CLAIMS THEM AS GRADED — a number that
+asserts work a student never did.** ⚠ **The LIVE surface already gets this right**
+(`gradedCount: response.gradedCount` vs `totalQuestions: response.totalQuestions`, plus
+`nothingSaved: unansweredLabels`) — **the stored variant is the regression, not the standard.**
+⚠ **No test constructs an unattempted record**, which is why 53 green tests missed it.
+**STATUS: DORMANT (zero non-test consumers) ⇒ PARKED by owner ruling; `#682` merges as is.**
+⚠⚠ **ONE PRECONDITION: a one-line comment on the `gradedCount` line stating it is SYNTHESISED from
+`questionIds` and WRONG for a partial session.** ★ **Owner's reason: dormant code with a known defect
+and NO MARKER is how a future lane wires it up in good faith.**
+⚠ **DO NOT FIX IT IN THAT FILE.** `SessionRecord` **cannot represent the honest answer** — the data
+lives only in `SessionPerQuestionPayload` behind `perQuestionRef`, which the variant never receives.
+**Folds into the QP-HISTORY-HOST lane**, which must touch `perQuestionRef` anyway.
+
+### `[FU-FINISHER-GATE-WRONG-FLAG]` — NEW · **LANE-REPORTED** · ⚠⚠ **FIX BEFORE ANY FUTURE FINISHER RUNS**
+The ruling that finisher lanes gate **structure only** is sound, **but the command in it is wrong.**
+`premise_ledger_check.mjs` **`:289` vs `:320`: `--strict-anchor` only decides whether a MISSING anchor
+is ERROR or WARN. Anchor RESOLUTION is gated by `--worktree`.** ⇒ **omitting `--strict-anchor` does
+NOT make the gate structural; DROPPING `--worktree` does** (structure-only then passes 9/9 at exit 0).
+**NO FINISHER CAN GET A STRUCTURAL-ONLY GREEN THE WAY THE RULING INSTRUCTS.**
+★★ **The shape is the lesson: a governing rule was changed to fix a real problem, and THE FLAG NAMED
+IN THE RULING WAS NOT THE FLAG THAT CONTROLS THE BEHAVIOUR. The rule was reasoned; the mechanism was
+assumed.**
+
+### `[FU-FINISHER-LEDGER-PRE-STATE-ROT]` — NEW · **LANE-REPORTED** · **ROT MODE 7**
+**A PREMISE FALSIFIED BY THE LANE'S OWN COMPLETED WORK.** On any finisher lane, every premise
+describing a **pre-state the build was commissioned to CHANGE** is guaranteed to fail
+`--strict-anchor`. **The anchor and the claim rot in OPPOSITE directions:** the anchor string stays
+byte-identical and merely moves, while the **CLAIM becomes false by design, because the build
+falsified it on purpose.** ⇒ **RE-CITATION CANNOT REPAIR IT** — re-pointing the line would make the
+gate green while the ledger asserted something untrue. **The honest red is correct.**
+**Binds every future finisher lane: the ledger must be re-based or the row exempted.**
+
+### `[FU-SPEC-ANCHOR-INTO-EDITED-FILE]` — NEW · **LANE-REPORTED**
+**THE LEDGER ROTS THE MOMENT THE LANE WORKS.** `CHECKER-FIX`'s P1/P2 cited `:109`/`:118` **inside the
+very file the task edits**; the lane's own added comment moved them to `:122`/`:148`.
+⚠⚠ **A re-anchor did NOT escape this, and NO LINE ANCHOR INTO AN EDITED FILE CAN.** ⇒ *a spec citing
+the file its own task edits fails its own §0c.0 by construction.* **Same family as rot mode 7, reached
+from the opposite direction: SHEET's claim went false while its anchor held; CHECKER-FIX's claim held
+while its anchor moved. Re-anchoring is not a fix. Only re-basing or exempting is.**
+
+### `[FU-CI-COACHING-TWO-SHOW-EVERY-STEP-SITES]` — NEW · **LANE-REPORTED** · ⚠ **THE ID UNDERCOUNTS: THERE ARE THREE**
+`buildCiCoaching` emits *"show every step"* coaching at **`:114`, `:122` AND `:125`.** A spec addendum
+said **one** site; a ruling raised it to **two**; **the true count is three.** The third **says
+*"showing"***, so **the ruling's grep SHAPE could not see it.**
+⚠⚠ **And `:125` is the WORST case, proven from the server's own logic:** the server **zeroes all four
+ordinary counters at or below a departure**, so a departure at step 0 left the student who solved a
+**DIFFERENT QUESTION** being congratulated on *"Clean work."*
+★ **`#682`'s implementation puts the departure branch FIRST**, so **no count-derived branch is
+reachable while a departure is present** — fixing all three **structurally** rather than site by site,
+with a **co-occurring test** written. ⚠ **The id is left unrenamed deliberately** — renaming it would
+break every existing reference; **the count is corrected here instead.**
+★★ **THE CLASS: EXTENT-FROM-A-SAMPLE FIRED INSIDE THE CORRECTION WRITTEN TO FIX IT. Count nothing
+whose unit is undefined, and a grep shape is not an enumeration.**
+
+### `[FU-SHEET-DORMANT-NO-CONSUMER]` — NEW · **LANE-REPORTED, scout-confirmed independently**
+`storedQuickPracticeScorecardVariant` (Step 1) and the Step 7 departure branch **ship in emitted
+chunks and have ZERO non-test consumers.** **The chunk proves they are reachable from the bundle
+graph; it says nothing about a TRIGGER.** ⇒ **Step 7 is NOT live for a student today.**
+Wiring Step 7 needs `aiClient.ts` (**+`departure?: number`**) and `DesktopCheckImprovePage.tsx`
+`:1231`/`:1273` — **both outside the allowlist. The lane did NOT build around it.** **Owner decision
+owed.** ★ Dormancy was established by a **real enumeration** — symbol grep (11 hits = 1 definition +
+10 in its own test), a filesystem grep over untracked/ignored/`node_modules` (identical 11), a
+namespace-import check **closing the alias escape hatch a name-grep alone would leave open**, and an
+input-type pass. ★ *A grep is not an enumeration; that was an enumeration.*
+
+### `[FU-DEPARTURE-TYPE-MISSING-CLIENT-SIDE]` — NEW · **LANE-REPORTED**
+`departure`'s **TypeScript type is ABSENT FROM TRUNK** — the contract ships **SERVER-SIDE ONLY.**
+⇒ **the client has no typed knowledge of the field `#685` populates.** **That is the gap between
+`GRD-CLOSE` and `SHEET`, and nothing currently closes it.**
+
+### `[FU-LEDGER-PIPE-ESCAPE-UNDOCUMENTED]` — NEW · **LANE-REPORTED**
+`#684` made the ledger checker support `\|` as an escaped literal pipe. **No repo document mentions
+pipes or escaping at all** — the prompt-grep gate line came back **EMPTY, and the lane said so rather
+than skipping it.** ⇒ **the `\|` rule the code now enforces is documented NOWHERE.** All three
+candidate files were outside the lane's allowlist, so it **logged this instead of editing** — correct
+scope discipline. ★ **Related and load-bearing: the two pipe fixes cover DISJOINT HALVES** — escaped
+`\|\|` and a **bare `|`** are different bugs, **a bare pipe stays a delimiter**, and **anyone treating
+one as the main fix and the other as a follow-up ships half a fix.**
+
+### `[FU-SCRIPTS-TEST-TYPECHECK-UNGATED]` — NEW · **LANE-REPORTED** · confirms a known gap
+`scripts/tsconfig.json` **excludes its own test files and has NO companion config**, so a type error
+in a `scripts/` test is green everywhere. ⚠ **This is the `scripts/` twin of the known
+`typecheck:test` separation on `lazytopper/`** — where a companion config **does** exist and CI runs
+it as a second, independent step. **There is no such second step for `scripts/`.**
+
+### `[FU-QP-DOUBLE-BACK-TAG]` — NEW · **LANE-REPORTED**
+A spec cited **`[FU-QP-VARIANT-THROWS-FRACTIONAL]`**, which **does not exist in the tree (0 hits).**
+The real tag is **`[FU-QP-OBJECTIVE-NONBINARY-FROM-SERVER]`**, and **the guard tests NON-BINARY, not
+fractional** — so the cited predicate was wrong as well as the id.
+★★ **AN FU ID CITED FROM MEMORY IS A DERIVED VALUE NOTHING RE-CHECKS — the same defect class as a bare
+line number.** ⇒ **cite an FU id by a command that finds it, or mark it UNVERIFIED.**
+
+### `[FU-STALE-WORKTREE-CHECKER-FIX]` — NEW · housekeeping
+`C:/Projects/LT-worktrees/checker-fix` is **an abandoned prior attempt, clean, at a superseded base.**
+The lane **left it untouched** and worked in `C:/Projects/LT-worktrees/checker-fix2`.
+⚠ **Do not confuse the two.** Clean up the stale one, together with
+`C:/Projects/LT-worktrees/sheet-finish` and `C:/Projects/LT-worktrees/sheet-1v4`.
+⚠ `git worktree remove` errors on `node_modules` but **de-registers anyway**; worktree `node_modules`
+may be **JUNCTIONS to main — delete the LINK only, never `rm -rf`.**
+
+### `[FU-GRD-WORKSHEET-DEPARTURE-STRIPPED]` — KEPT OPEN · **LANE-REPORTED, pre-existing** · **F4**
+`normaliseStructuredResult` **strips `isDeparture`** when building steps, so `findDepartureIndex`
+always returns -1 there. **NOT caused by `#685` and deliberately NOT fixed by it.**
+★ **The lane correctly REFUSED to make that call**: the one-line fix **would switch on the departure
+cap and post-departure zeroing for worksheets, chapter tests and full mocks ALL AT ONCE — a real marks
+change on a path that has NEVER been live-verified** — and the caps are ruled settled.
+**Owner ruling: DO NOT FIX IT THERE.** ⇒ **it belongs to `[FU-DEPARTURE-DEAD-ON-STRUCTURED-PATH]` and
+its own lane.**
+
+### `[FU-GRD-DEDUCTION-SUM-NOT-MARKS-LOST]` — KEPT OPEN · **OWNER-VERIFIED** · **F2** · ⚠ **READ BEFORE ANY LIVE-VERIFY**
+A spec stated *"the marks total may change — that is the fix."* **THAT IS WRONG.** **No consumer
+derives the mark from `marksDeducted`** — the mark is the **`marksAwarded` sum**, and at `:1647`
+`marksDeducted` is itself derived **FROM** `totalMarks - awarded`.
+⇒ **CORRECTED EXPECTATION: on the `#685` re-run the polynomial mark is UNCHANGED; only the per-step
+deduction badges change.** ★★ **Recorded because an uncorrected expectation would have made a CORRECT
+FIX READ AS A FAILED ONE.** *The owner corrected his own live-verify line here.*
+
+### `[FU-GRD-PROPAGATION-HAS-NO-MARKER]` — KEPT OPEN · **LANE-REPORTED** · **F3**
+**The grading contract has no marker distinguishing a PROPAGATED step from a genuinely
+unworked/missing one.** Both can carry `mistakeType: null`, and the prompts **deliberately** emit a
+null type **with a real deduction** for missing / no-working / *"Don't know"* / crossed-out /
+typed-nonsense — which an existing test **already pins** (*"preserved verbatim, not zeroed away"*).
+⇒ the spec's literal rule (*any null-type non-departure step ⇒ `marksDeducted` 0*) **would have
+DISCARDED HONEST DEDUCTIONS** and turned a deliberate test red.
+★★ **`#685` implemented the NARROW post-departure rule instead and added a CONTROL so the narrowing
+cannot later be silently widened.** **Ratified by the owner as the best judgement in the PR.**
+**Until a marker exists, the narrow rule is the only safe one — do not widen it.**
+
+### `[FU-GRD-TAXONOMY-DISPLAY-ZEROS]` — KEPT OPEN · **LANE-REPORTED** · **F1** · corrects an earlier record
+**`mistakeIntelligence.ts` filters on `s.mistakeType && s.marksDeducted > 0`, so propagated steps
+(null type) are ALREADY EXCLUDED today.** ⇒ **`#685`'s change 1 alters NOTHING reaching Mistake
+Intelligence** — a justification recorded earlier for that change is therefore **FALSE, and is
+corrected here rather than by editing the dated entry.**
+**Change 1's real value is the DISPLAYED AND RECORDED CONTRADICTION across five `src/` surfaces**, and
+**that belongs to the TAXONOMY lane, not to the grader lane.**
+⚠⚠ **DO NOT invent a `mistakeType` for a propagated step to "fix" the zeros — that would be
+FABRICATION, and the zeros are HONEST.**
+
+### `[FU-GRD-DEPARTURE-VOICE-NEEDS-SRC]` — KEPT OPEN · **LANE-REPORTED**
+The departure-aware coaching voice built into `#682`'s Step 7 **cannot reach a student** without
+client-side changes outside that lane's allowlist (`aiClient.ts`, `DesktopCheckImprovePage.tsx`).
+**Owner decision owed.** See `[FU-SHEET-DORMANT-NO-CONSUMER]` and
+`[FU-DEPARTURE-TYPE-MISSING-CLIENT-SIDE]` — **the three are one wiring problem seen from three sides.**
+
+### `[FU-QP-HISTORY-RAIL]` — KEPT OPEN · **re-stated, and a spec premise fell on it**
+**Quick Practice has NO history surface.** ⇒ **`#682`'s Step 2 CANNOT BE BUILT AS WRITTEN — its
+premise is false.** Step 4 is blocked alongside it: `exportGradedWorksheetPdf` requires a
+`PersistedWorksheet`, and **QP's `worksheetId` is a SYNTHETIC `qp:{code}`**, so QP needs **its own
+resolver**; keying on `getWorksheetSession` yields a silent `undefined` — **no crash, no download.**
+⚠ **The FU carries an OPEN DESIGN QUESTION and is pre-existing** — it is not a defect introduced by
+this wave. **Steps 2 and 4 belong to the QP-history lane**, which is also where
+`[FU-QP-STORED-GRADEDCOUNT-SYNTHESISED]` folds in.
+
+### `[FU-QP-OBJECTIVE-NONBINARY-FROM-SERVER]` — KEPT OPEN · **the correctly-named tag**
+This is the real tag a spec mis-cited as `[FU-QP-VARIANT-THROWS-FRACTIONAL]`, and **its predicate is
+NON-BINARY, not fractional.** ⚠ Related and worth not re-deriving: `#682`'s Step 1 **cannot inherit
+`ObjectiveMarkNotBinaryError`** — the throw loops over `answers[]` and a **record-based variant has
+none.** ★ **That is STRUCTURALLY SATISFIED, NOT FIXED, and it is documented in-code that way.**
+**Writing "fixed" would send the next lane to re-fix a bug that cannot occur.**
+
+### `[FU-MOJIBAKE-HANDOFF-DESCRIPTION-STALE]` — KEPT OPEN · inherited, **NOT introduced here**
+`ops/CONTROLLER_SUBAGENT_MODEL.md` still says `check:mojibake` is *"structurally blind to
+`handoff/`"*. **IT IS NOT.** `handoff/` is **REPORT_ONLY: scanned on every run, every hit printed, a
+count printed green or red — merely not enforced.** *(HANDOFF-VERIFIED at `ffd352fb` by opening
+`lazytopper/scripts/check-mojibake.cjs`: `REPORT_ONLY_PREFIXES = ['handoff/']`, and the tracked-file
+loop reads every one of them.)* **The false sentence is still in the file on trunk. No dispatch this
+wave repeated it, and no handoff document should.**
+
+### `[FU-GRADER-CROSS-SURFACE-DIVERGENCE]` — **CLOSED AS VARIANCE. DO NOT RE-OPEN.**
+**Closed on measurement, not on a mechanism.** One photograph, four runs, **one surface**: **0.5/2
+once and 1/2 three times**; the same miscopy called *"Concept gap"* once and *"Careless slip"* three
+times; **one run invented a fifth step and deducted for it.**
+⇒ ★★★ **THE GRADER IS NON-DETERMINISTIC IN THE MARK A STUDENT SEES.** The cross-surface difference
+never needed an explanation — **three mechanisms were argued for something that was within-condition
+variance.**
+★★★ **BEFORE EXPLAINING A DIFFERENCE BETWEEN TWO CONDITIONS, MEASURE THE VARIANCE WITHIN ONE.**
+⚠⚠ **NO LANE MAY PROPOSE A FOURTH MECHANISM.**
+
+### `[FU-READ-HOST-WORKSHEET-FAMILY]` — **CLOSED by owner ruling, not deferred**
+Closed on the ground that **a worksheet is DOWNLOADED, not scrolled** — `WorksheetGradedPrintDoc`
+having **no on-screen host** is the **intended design.**
+★ **A TRUE FINDING IS NOT AUTOMATICALLY A DEFECT.** ⚠ Consequence worth carrying: capturing
+screenshots of that family needs a **RENDER HARNESS, which no lane has been given**, so `#682`'s
+**0 of 4 screenshots is STRUCTURAL, not neglect.** ⚠ Steps 3 and 5's screenshots remain
+**uncaptured** from the original build — **owner decision owed on whether a harness is commissioned.**
+
+### `[FU-SCOUT-BRIEF-HAS-NO-PREMISE-LEDGER]` — **CLOSED by owner ruling**
+**A scout carries no premise ledger; requiring one INVERTS THE MECHANISM.** A scout exists to
+establish facts a spec would otherwise assert — demanding it certify premises first is asking it to
+supply the very thing it was sent to find. **Waive the gate up front on a scout brief, in writing, so
+the scout does not halt at step one.**
+
+---
+
+## ⚠ 2026-08-18 — DECISIONS OWED TO THE OWNER, CARRIED INTO THE NEXT WAVE
+
+*Recorded here so they are not lost between controllers. None of these is an agent's call.*
+
+1. **Wire Step 7?** It needs `aiClient.ts` (**+`departure?: number`**) and
+   `DesktopCheckImprovePage.tsx` `:1231`/`:1273` — **both outside `#682`'s allowlist.** **Without it
+   Step 7 is DORMANT.**
+2. **Authorize `PracticePage.tsx` for Step 4**, and rule on **synthesising a `PersistedWorksheet`**
+   for Quick Practice's graded PDF.
+3. **Step 2 / `[FU-QP-HISTORY-RAIL]`** — own lane, or re-scope? **Its premise is false as written.**
+4. **Fix the finisher premise-gate command** — **drop `--worktree`, NOT `--strict-anchor`**
+   (`[FU-FINISHER-GATE-WRONG-FLAG]`). ⚠ **Before any future finisher runs.**
+5. **Screenshots for `#682`'s Steps 3 and 5 remain uncaptured** — needs a **render harness**.
+
+⚠ **`#682` IS SCOPE-BLOCKED, NOT CONTEXT-BLOCKED. It is NOT a baton PARTIAL.** ⇒ **a fresh subagent on
+the unchanged spec CANNOT proceed** — four of the five decisions above are **prerequisites, not
+preferences.** **Do not re-dispatch that lane until they are ruled.**
+
+⚠ **AND ONE ITEM THAT IS NOT A DECISION BUT AN ABSENCE:** Wave MI-INTEGRITY-3 closed **without a
+handoff PR**, and its wave-state archive was never committed. **`#681` reaches `handoff/` for the
+first time in this cycle, by SHA and content only.** *(HANDOFF-VERIFIED at `ffd352fb`.)* **No
+narrative has been invented for that wave.** Whether it is reconstructed is the owner's call.
+
+---
+
 ## 2026-08-15 — WAVE QR-UPLOAD + WAVE MI-INTEGRITY-2 — new and re-stated follow-ups (trunk `e077b3a3`)
 
 *Per standing rule 1, every ID below has its own heading and body. Per standing rule 3, no dated entry
