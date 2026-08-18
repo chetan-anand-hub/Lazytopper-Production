@@ -100,8 +100,13 @@ export function buildCiCoaching(args: {
   knowledge: number;
   careless: number;
   pendingCount: number;
+  /** `mistakeSummary.departure` — 0 or 1. The server charges a departure ONCE and
+   *  files it under its OWN kind, never `silly` (checkSolution.cjs
+   *  `buildMistakeSummary`). Optional so every existing caller is unchanged. */
+  departure?: number;
 }): string {
   const { gradedMarksAwarded, gradedMarksTotal, knowledge, careless, pendingCount } = args;
+  const departure = args.departure ?? 0;
   const parts: string[] = [];
   if (gradedMarksTotal > 0) {
     parts.push(`You scored ${gradedMarksAwarded} of ${gradedMarksTotal} on the work we could read.`);
@@ -109,7 +114,31 @@ export function buildCiCoaching(args: {
   // NOTE: `knowledge`/`careless` are COUNTS of flagged mistakes (not marks) — they
   // must never be phrased as "N marks" (that would invent an accuracy figure). Match
   // the header chips ("N knowledge gaps" / "N careless slips").
-  if (knowledge > 0 && careless > 0) {
+  if (departure > 0) {
+    // ⚠ A departure student DID show their working — they answered a DIFFERENT
+    // question. Telling them to "show every step" is the OPPOSITE of the correct
+    // instruction, and the per-step `teacherNote` on the same sheet already names the
+    // departure, so the two would contradict each other on one page.
+    // [FU-GRD-DEPARTURE-VOICE-NEEDS-SRC]
+    //
+    // ⚠ This branch must come FIRST. The server zeroes the four ordinary counters for
+    // every step at or below the departure, so a departure at step 0 arrives here with
+    // knowledge === 0 AND careless === 0 — which would otherwise fall through to the
+    // final `else` and congratulate the student on "Clean work".
+    parts.push(
+      "From one step on you were solving a different question — check each line against the question as you go.",
+    );
+    const also: string[] = [];
+    if (knowledge > 0) {
+      also.push(`${knowledge} knowledge gap${knowledge === 1 ? "" : "s"}`);
+    }
+    if (careless > 0) {
+      also.push(`${careless} careless slip${careless === 1 ? "" : "s"}`);
+    }
+    if (also.length > 0) {
+      parts.push(`Before that, ${also.join(" and ")} also cost you marks.`);
+    }
+  } else if (knowledge > 0 && careless > 0) {
     parts.push(
       `${knowledge} knowledge gap${knowledge === 1 ? "" : "s"} (revise the method) and ${careless} careless slip${careless === 1 ? "" : "s"} (slow down and show every step) cost you marks.`,
     );

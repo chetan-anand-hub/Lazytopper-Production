@@ -1862,3 +1862,77 @@ export function storedCheckImproveScorecardVariant(
     actions: [{ label: "Done", tone: "ghost", onClick: input.onDone }],
   };
 }
+
+// ── STORED re-open variant: read-only Quick Practice scorecard from a record ──
+
+export interface StoredQuickPracticeVariantInput {
+  /** A pre-formatted date label (the host formats `gradedAt`; keeps this builder pure). */
+  gradedDateLabel: string;
+  /** Close the read-only re-open. */
+  onDone: () => void;
+  /** Download the graded-sheet PDF. Present ONLY when the host can actually resolve a
+   *  sheet for this record — absent otherwise, so the affordance never promises a sheet
+   *  it cannot produce. ⚠ A QP record's `worksheetId` is the synthetic `qp:{code}` and
+   *  has NO PersistedWorksheet behind it, so the worksheet history's resolver returns
+   *  nothing for QP; a QP host must supply its own. */
+  onDownload?: () => void;
+  downloading?: boolean;
+}
+
+/**
+ * Rebuild a STORED Quick Practice `SessionRecord` into a READ-ONLY scorecard — the FIFTH
+ * stored variant, following the existing four exactly (score + four-type + code, all from
+ * the stored record; invent nothing). Like its siblings it does NOT reconstruct
+ * per-question working; the only graded-sheet access is the optional download.
+ *
+ * ★★ IT CANNOT INHERIT `ObjectiveMarkNotBinaryError`, STRUCTURALLY — and that is the point.
+ * `quickPracticeGradedScorecardVariant` throws by looping over `answers[]`; a record-based
+ * variant HAS no `answers[]`, so there is no loop to inherit. ⚠ This is STRUCTURALLY
+ * SATISFIED, NOT FIXED: the live variant's throw is untouched and still correct there.
+ * Do not record this as a fix, or the next lane will re-fix a bug that cannot occur here.
+ *
+ * ★ FRACTIONAL MARKS PASS THROUGH UNROUNDED. Half-marks are real in CBSE step marking
+ * (CLAUDE.md §13), and the whole point of a stored variant is replaying history — so
+ * `0.5` is carried to the shell as `0.5`, never rounded and never thrown on.
+ *
+ * ⚠ A QP record's `status` is ALWAYS "graded" (QP has no upload cycle), so there is no
+ * pending-upload branch here. Adding one would render a state that cannot occur.
+ */
+export function storedQuickPracticeScorecardVariant(
+  record: SessionRecord,
+  input: StoredQuickPracticeVariantInput,
+): ScorecardVariant {
+  const { gradedDateLabel, onDone, onDownload, downloading = false } = input;
+  const totalQuestions = record.questionIds?.length ?? 0;
+
+  const actions: ScorecardAction[] = [];
+  if (onDownload) {
+    actions.push({
+      label: "Download graded answer sheet (PDF)",
+      tone: "primary",
+      onClick: onDownload,
+      disabled: downloading,
+      busy: downloading,
+      busyLabel: "Preparing PDF…",
+    });
+  }
+  actions.push({ label: "Done", tone: "ghost", onClick: onDone });
+
+  return {
+    surface: "quick-practice",
+    title: record.title,
+    subtitle: `${record.id} · graded ${gradedDateLabel}`,
+    score: {
+      kind: "marks",
+      awarded: record.marksAwarded,
+      total: record.marksTotal,
+      // Claim a graded-count ONLY when the record actually carries question ids — an
+      // empty set omits it rather than fabricate "0 of 0".
+      ...(totalQuestions > 0 ? { gradedCount: totalQuestions, totalQuestions } : {}),
+    },
+    fourType: record.fourType,
+    pending: null,
+    allPending: null,
+    actions,
+  };
+}
