@@ -376,11 +376,24 @@ const DERIVE_RUBRIC_FIRST_PROMPT =
 const ECF_POLICY_V2_PROMPT =
   'ECF_POLICY_V2 — GRADE THE TRAJECTORY, NOT THE STEP. Assess the solution AS A WHOLE before ' +
   'marking any step: what is being solved, and does it remain the question that was set?\n' +
-  '   (a) DEPARTURE STEP: the first step after which the artefact is no longer the question as ' +
-  'set — the student\'s own later work is consistent with a DIFFERENT equation/expression they ' +
-  'adopted, not with the question. There is AT MOST ONE. Mark it with "isDeparture": true on that ' +
-  'step and on no other. If the solution never leaves the question, set "isDeparture": false on ' +
-  'every step — never guess one.\n' +
+  '   (a) THE DEPARTURE TEST — ASK IT AT EVERY STEP: IS THIS LINE STILL WORKING THE QUESTION THAT ' +
+  'WAS SET? ⚠ Judge it from THE QUESTION AND THE STUDENT\'S OWN SUBSEQUENT STEPS TOGETHER — ' +
+  'never from the question alone. A wrong VALUE, TERM, PRINCIPLE, ORGAN, REACTANT, LAW or PREMISE ' +
+  'that the student then WORKS CONSISTENTLY FROM has been ADOPTED; from that point the artefact ' +
+  'is a different problem, and the step at which they adopted it is the DEPARTURE STEP.\n' +
+  '       ★ THIS TEST IS SUBJECT-NEUTRAL BY CONSTRUCTION. It is NOT about equations. In ' +
+  'Science the adopted thing is a wrong organ, a wrong reactant, a wrong law or a wrong ' +
+  'definition, and the student\'s own subsequent PROSE confirms the adoption exactly as later ' +
+  'algebra does in Maths.\n' +
+  '       ⚠ THE ADOPTION NEED NOT BE A MISCOPY OF THE QUESTION STEM. A student may state the ' +
+  'question CORRECTLY at line 1 and adopt a wrong value LATER — e.g. writes c = 6 correctly, ' +
+  'then substitutes 9 into the discriminant and works flawlessly from 9. THAT IS A DEPARTURE at ' +
+  'the substitution step. Do NOT require the question to look miscopied before you will call a ' +
+  'departure, and do NOT classify such a step \"silly\" and carry it forward: the ' +
+  'student\'s own consistent later work on the wrong value is what proves the adoption.\n' +
+  '       There is AT MOST ONE departure — the FIRST such step. Mark it with \"isDeparture\": ' +
+  'true on that step and on no other. If the solution never leaves the question, set ' +
+  '\"isDeparture\": false on every step — never guess one.\n' +
   '   (b) BEFORE the departure: ECF applies normally. A step wrong ONLY because it correctly ' +
   'applied the right method to a value carried from an earlier mistake keeps its method marks and ' +
   'is NOT a fresh mistake (mistakeType null). Every step is judged on its own merits — never ' +
@@ -430,8 +443,82 @@ const ECF_POLICY_V2_PROMPT =
   'method. CBSE 4: the scheme "carries only suggested value points… These are in the nature of ' +
   'Guidelines only and do not constitute the complete answer."\n' +
   '       CBSE 12: "Please do not hesitate to award full marks if the answer deserves it."\n' +
-  '       CBSE 15: "…if the answer is found to be totally incorrect, it should be marked as cross ' +
-  'and awarded zero."';
+  '       CBSE 15: \"…if the answer is found to be totally incorrect, it should be marked as cross ' +
+  'and awarded zero.\"\n' +
+  '   (k) CASE LAW — THESE RULINGS ARE DECIDED. Apply them; do not re-reason them:\n' +
+  '       1. A wrong VALUE substituted and worked consistently from, never recovered ⇒ ' +
+  'DEPARTURE at the substitution. Every step below it earns ZERO, however internally correct.\n' +
+  '       2. A slip the student then CORRECTS, reaching the right answer for the question as ' +
+  'set ⇒ NOT a departure. The marks are KEPT; deduct only for the slip itself. Do NOT cap and ' +
+  'do NOT zero anything.\n' +
+  '       3. The QUESTION STEM miscopied at line 1 and then worked consistently ⇒ DEPARTURE ' +
+  'AT LINE 1, keeping only what that line independently earned.\n' +
+  '       4. A miscopy that made the question EASIER ⇒ ZERO below it. They avoided the very ' +
+  'difficulty being tested, so the work below earns nothing.\n' +
+  '       5. A miscopy that is IMMATERIAL — the mathematics is identical and NO value point ' +
+  'was avoided ⇒ FULL MARKS. Not every misreading is a departure.\n' +
+  '       6. A departure in ONE SUB-PART with a LATER SUB-PART also answered ⇒ a genuinely ' +
+  'INDEPENDENT sub-part is a question in its own right and is marked ON ITS OWN MERITS. ⚠ But ' +
+  'if the later part CONSUMES a value from the departed part, it CARRIES the error and is ' +
+  'deducted. RELATEDNESS decides this, NOT position on the page.\n' +
+  '       7. TWO SEPARATE SLIPS, neither carried forward ⇒ TWO ORDINARY MISTAKES and NO ' +
+  'departure. Nothing was adopted, so nothing was left behind.\n' +
+  '       8. The RIGHT ANSWER reached by an INVALID method ⇒ award the ANSWER mark ONLY; ' +
+  'method marks zero; classify \"conceptual\". ⚠⚠ AND IT FAILS SAFE: if you cannot ' +
+  'DEMONSTRATE that the method is invalid — show that it fails IN GENERAL, not merely that it ' +
+  'is not the scheme\'s method — treat it as a VALID ALTERNATIVE and award IN FULL. ' +
+  '\"Unfamiliar\" is not \"invalid\", and CBSE 3 protects innovative methods.\n' +
+  '       9. AN ANSWER ONLY, with no working ⇒ UNDIAGNOSABLE and NOT a departure. mistakeType ' +
+  'null. Never fabricate a type, and never call a bare wrong answer a departure.\n' +
+  '       10. A departure after which the student RETURNS TO THE REAL QUESTION ⇒ THE DEPARTURE ' +
+  'ENDS THERE. Later correct work on the question as set EARNS ITS MARKS. Where the student ' +
+  'returns and the excursion left nothing behind, do not mark a departure at all — grade the ' +
+  'excursion as an ordinary mistake.\n' +
+  '   (l) SCIENCE — THE BOUNDARY THAT MATTERS IS DEPARTURE vs PRESENTATION. These two look ' +
+  'alike and grade OPPOSITELY:\n' +
+  '       S1. Answering a DIFFERENT QUESTION — explaining respiration when asked for ' +
+  'photosynthesis ⇒ DEPARTURE AT THE FIRST LINE. The whole answer is a different question.\n' +
+  '       S2. Naming the WRONG ORGAN, LAW or PRINCIPLE at step 1 and then describing THAT one ' +
+  'correctly ⇒ DEPARTURE. Identical in shape to the Maths wrong-value case: adopted, then ' +
+  'worked from.\n' +
+  '       S3. An equation with the WRONG REACTANT OR PRODUCT, then correct stoichiometry from ' +
+  'it ⇒ DEPARTURE. The chemistry below is right for a reaction nobody asked about.\n' +
+  '       S4. A CORRECT reaction left UNBALANCED, or missing state symbols ⇒ NOT A DEPARTURE. ' +
+  'This is PRESENTATION: chemically right, board-format short.\n' +
+  '       ⚠⚠ S3 AND S4 ARE ONE KEYSTROKE APART IN A STUDENT\'S ANSWER AND MUST GRADE ' +
+  'OPPOSITELY. A WRONG REACTANT CHANGES THE QUESTION AND IS A DEPARTURE. AN UNBALANCED ' +
+  'EQUATION DOES NOT CHANGE THE QUESTION AND IS PRESENTATION. Check WHICH SPECIES are written ' +
+  'before you check whether the coefficients balance.\n' +
+  '       S5. The RIGHT PRINCIPLE with a WRONG NUMERICAL SUBSTITUTION into a physics formula, ' +
+  'worked on ⇒ DEPARTURE. Identical to the Maths case.\n' +
+  '       S6. A CORRECT answer with a required DIAGRAM ABSENT or UNLABELLED ⇒ NOT A ' +
+  'DEPARTURE. PRESENTATION.\n' +
+  '   (m) DIAGRAMS — A FIGURE IS A PREMISE, AND A WRONG PREMISE IS A DEPARTURE:\n' +
+  '       D1. A diagram DRAWN BUT WRONG — wrong construction, mislabelled vertices, wrong ' +
+  'circuit — and then worked correctly FROM IT ⇒ DEPARTURE. A wrong premise was adopted and ' +
+  'worked from. ⚠ The working can be FLAWLESS and still earn NOTHING below the figure.\n' +
+  '       D2. A required diagram ABSENT with the written answer otherwise correct ⇒ ' +
+  'PRESENTATION, AND the figure mark is LOST. That is TWO deductions, not one: CBSE awards the ' +
+  'figure as its own value point.\n' +
+  '       D3. A CORRECT diagram that the WORKING CONTRADICTS ⇒ DEPARTURE at the first ' +
+  'contradicting step — the student stopped using their own correct figure.\n' +
+  '       ⚠⚠ THE DIAGRAM FAIL-SAFE, AND IT IS NOT OPTIONAL. IF YOU CANNOT ESTABLISH WHAT THE ' +
+  'DRAWING SHOWS, YOU MUST NOT INVENT A DEPARTURE FROM IT. Hand-drawn figures are often hard ' +
+  'to read. ABSENT MEANS UNKNOWABLE, APPLIED TO FIGURES: D1 and D3 fire ONLY on POSITIVE ' +
+  'evidence about what was actually drawn. Where the figure is illegible, unclear or ambiguous, ' +
+  'GRADE THE WRITTEN WORK NORMALLY and never zero a step for a figure you could not read.\n' +
+  '   (n) THE STORED MARKING SCHEME CORROBORATES; IT IS NEVER AUTHORITY ON METHOD.\n' +
+  '       - DERIVE the value points from the QUESTION and its MARK VALUE FIRST — ALWAYS, ' +
+  'whether or not a scheme is supplied.\n' +
+  '       - WHERE A STORED SCHEME IS SUPPLIED IT CORROBORATES THE MARK DISTRIBUTION — it ' +
+  'confirms how many marks sit at each stage. ★ IT IS NEVER AUTHORITY ON METHOD. A stored ' +
+  'scheme must NEVER be the reason a correct alternative method loses marks.\n' +
+  '       - WHERE YOUR DERIVATION AND THE STORED SCHEME DISAGREE, SAY SO IN \"teacherNote\" in ' +
+  'one short sentence naming the disagreement. The stored scheme is a guideline and may itself ' +
+  'be wrong or garbled; your derivation from the question governs the METHOD.\n' +
+  '       - ⚠ A STORED SCHEME MAY NEVER BE THE REASON A REQUIRED ELEMENT GOES UNCHECKED. If the ' +
+  'question requires a figure, a unit, a balanced equation or a conclusion and the stored ' +
+  'scheme is SILENT about it, the DERIVED rubric STILL EXPECTS IT.';
 
 function deepFreeze(value) {
   if (value && typeof value === 'object' && !Object.isFrozen(value)) {
@@ -1019,10 +1106,10 @@ function createCheckSolutionRoute(deps) {
       }
 
       const markingSchemeBlock = schemeSteps && schemeSteps.length > 0
-        ? '\n\nOFFICIAL CBSE MARKING SCHEME (use this as your reference for grading):\n' +
+        ? '\n\nSTORED MARKING SCHEME — CORROBORATION, NEVER AUTHORITY ON METHOD:\n' +
           schemeSteps.map((step, i) => '  Step ' + (i + 1) + ': ' + step).join('\n') +
           (finalAnswer ? '\n  Final answer: ' + finalAnswer : '') +
-          '\n\nGrade the student\'s work step-by-step against these official steps. For each official step, assess whether the student hit it (correct), partially hit it (partial), missed it entirely (missing), or got it wrong (incorrect). Award marks according to the weights shown in [brackets] in each step, or distribute evenly if no brackets are present. Note which official steps the student completed and which they skipped.\n'
+          '\n\nDERIVE the value points from the question and its mark value FIRST, then read the stored scheme above as CORROBORATION OF THE MARK DISTRIBUTION - it confirms how many marks sit at each stage, and you award by the weights shown in [brackets], or distribute evenly if no brackets are present. IT IS NEVER AUTHORITY ON METHOD. A correct alternative method earns FULL marks even though it appears nowhere in this scheme, and this scheme is NEVER the reason such a method loses a mark - where a step the student took is right but is not this scheme\'s step, CREDIT IT. Where your derived rubric and this stored scheme DISAGREE, grade on your derivation and say in \"teacherNote\" that the two differ. A required element the question demands (a figure, a unit, a balanced equation, a conclusion) is STILL EXPECTED even if this scheme is silent about it. Assess for each value point whether the student hit it (correct), partially hit it (partial), missed it entirely (missing), or got it wrong (incorrect).\n'
         : '';
 
       const userPrompt =
@@ -1924,7 +2011,7 @@ function createCheckSolutionRoute(deps) {
     // untouched. §9.4 asserts that rather than assuming it.
     const blockFor = (q) => {
         const scheme = Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0
-          ? '\n     Marking scheme:\n' +
+          ? '\n     Stored marking scheme (CORROBORATION only - never authority on method):\n' +
             q.solutionSteps.map((s, i) => '       Step ' + (i + 1) + ': ' + String(s)).join('\n') +
             (q.finalAnswer ? '\n       Final answer: ' + String(q.finalAnswer) : '')
           : '';

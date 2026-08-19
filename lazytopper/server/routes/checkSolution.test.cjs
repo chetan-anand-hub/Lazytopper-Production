@@ -821,7 +821,18 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // ★ The same re-baseline ALSO carries the second half of GRD-CLOSE: clause (e) of
 // `ECF_POLICY_V2_PROMPT` now instructs `"marksDeducted": 0` on every step below the departure,
 // so the PROMPT and the CODE state one rule instead of the code silently correcting the model.
-const NO_UPLOADS_CONTENTS_SHA256 = '67c062f5c35fd4a233d03a546dbf145235c6bd5bc9311b80aa1b8955790f9ccb';
+// RE-BASELINED AGAIN in GRD-UNIFORM (67c062f5… → 30c97bcf…): `ECF_POLICY_V2_PROMPT` gained
+// the owner's DEPARTURE TEST in place of the old question-stem tell-tale, plus clauses (k)
+// (the ten Maths rulings), (l) (the six Science rulings and the S3-vs-S4 keystroke), (m)
+// (the three diagram rulings and the DIAGRAM FAIL-SAFE) and (n) (the stored scheme
+// CORROBORATES and is never authority on METHOD). `blockFor`'s scheme label changed with it.
+// ⚠ THIS MOVEMENT IS THE DELIVERABLE, not drift, and the owner PRE-APPROVED the re-baseline.
+// OLD 67c062f5c35fd4a233d03a546dbf145235c6bd5bc9311b80aa1b8955790f9ccb
+// NEW 30c97bcf613c0c4bbd8d005bb3c0f4f021520df38fe5bd131eef7a40ef004dc1
+// The same five tests moved together again, which is the pin working. §16.13 is the new
+// companion assertion: it enumerates all 26 rulings and fails naming any that reaches only
+// ONE grading path — the pin catches drift, §16.13 catches DIVERGENCE.
+const NO_UPLOADS_CONTENTS_SHA256 = '30c97bcf613c0c4bbd8d005bb3c0f4f021520df38fe5bd131eef7a40ef004dc1';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',
@@ -2690,4 +2701,407 @@ test('§15.7 ★★★ THE ARC\'S ACCEPTANCE TEST IN CODE — the SAME departure
   // no-ops agreeing. A non-departure fixture must NOT produce this grade.
   assert.equal(s.questionDepartureError, true, 'CONTROL: the shared fixture genuinely declares a departure');
   assert.notEqual(s.marksAwarded, s.totalMarks, 'CONTROL: and the departure actually cost marks');
+});
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §16 · GRD-UNIFORM — the departure TEST, nineteen scenarios, and the stored
+          scheme as CORROBORATION
+
+   ★★ WHAT IS PINNED HERE, AND WHAT HONESTLY CANNOT BE. The nineteen scenarios are
+   RULINGS THE MODEL MAKES, not branches the code takes. `checkSolution.cjs` owns
+   no logic that can tell scenario 1 (a value adopted and worked from ⇒ departure)
+   from scenario 7 (two slips, neither carried forward ⇒ no departure): both arrive
+   as an `isDeparture` flag the MODEL already decided. So for most scenarios the
+   only place the ruling can live is the PROMPT, and the only honest assertion is
+   that the ruling is STATED and REACHES BOTH GRADING PATHS.
+   ⚠ That is not a weak test. The defect this lane exists to fix was a ruling that
+   reached one path and not the other, and the defect the arc lost a round to was a
+   prompt clause silently re-imposing a rule the code had dropped. A prompt-content
+   assertion is exactly the instrument for both.
+   ★ Where a scenario DOES have a machine-observable consequence — the zeroing
+   below a departure, the departure cap, the no-departure regression — it is
+   asserted BEHAVIOURALLY as well, on BOTH paths, and compared path-to-path.
+
+   ⚠⚠ SYNTHESISED FIXTURES, STATED PLAINLY. The live cases that motivated this lane
+   (`CI-M-*`, `ct:*`) are Firestore records and are NOT in this repo. NO test below
+   IS one of those cases. Each is synthesised JSON reproducing the SHAPE.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+// The two assembled prompts. `textOf` joins every text part, so this is what the
+// model actually receives on each path.
+const U_A = async () => {
+  const h = buildRoute({ replies: [{ annotatedSteps: [{ description: 'd' }] }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  return textOf(h);
+};
+const U_B = async () => {
+  const h = buildRoute({ replies: [WS_REPLY({ annotatedSteps: [{ description: 'd' }] })] });
+  await h.route.handleGradeWorksheet(ECF_WS(), {});
+  return textOf(h);
+};
+
+// ★ THE "ONE RULE, TWO PLACES" ASSERTION, made once and reused nineteen times.
+// A ruling that reaches only one path is the exact defect this lane was opened for.
+async function bothPathsSay(needle, what) {
+  const a = await U_A();
+  const b = await U_B();
+  assert.ok(a.includes(needle), 'SINGLE-QUESTION path (handleCheckSolution) never states: ' + what);
+  assert.ok(b.includes(needle), 'STRUCTURED path (gradeStructuredSet) never states: ' + what);
+}
+
+const U_EXTRAS = (finalAnswerCorrect) => ({
+  mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+  teacherNote: 'Model note.',
+  finalAnswerCorrect,
+});
+
+// Scenario 1 in fixture form: five steps, the WRONG VALUE adopted at step 3
+// (index 2), the two below it internally correct and separately charged.
+const U_SC1_STEPS = () => [
+  STEP(),
+  STEP(),
+  STEP({ isDeparture: true, mistakeType: 'conceptual', marksDeducted: 0.5 }),
+  STEP({ mistakeType: 'calculation', marksDeducted: 0.5 }),
+  STEP({ mistakeType: 'silly', marksDeducted: 0.5 }),
+];
+
+// Scenario 2 / regression 11: a mid-solution slip that RECOVERS. No departure
+// anywhere, and the final answer is right for the question as set.
+const U_SC2_STEPS = () => [
+  STEP(),
+  STEP({ status: 'incorrect', mistakeType: 'silly', marksAwarded: 0.5, marksDeducted: 0.5 }),
+  STEP(),
+  STEP(),
+];
+
+// Regression 12: a correct ALTERNATIVE method against a stored scheme that used a
+// different one. Every step correct, final answer right, question ANCHORED.
+const U_ALT_STEPS = () => [
+  STEP({ studentWork: 'x = (2 ± sqrt(4 + 32)) / 2   [quadratic formula, not the scheme\'s factorisation]' }),
+  STEP({ studentWork: 'x = (2 ± 6) / 2' }),
+  STEP({ studentWork: 'x = 4, x = -2' }),
+  STEP({ studentWork: 'Both roots satisfy the equation' }),
+];
+
+const U_SINGLE = async (steps, finalAnswerCorrect) => {
+  const h = buildRoute({ replies: [{ annotatedSteps: steps, ...U_EXTRAS(finalAnswerCorrect) }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  return h.body();
+};
+const U_BATCH = async (steps, finalAnswerCorrect) => {
+  const h = buildRoute({ replies: [WS_REPLY({ annotatedSteps: steps, ...U_EXTRAS(finalAnswerCorrect) })] });
+  await h.route.handleGradeWorksheet(ECF_WS(), {});
+  return r1(h);
+};
+
+// ── §16.0 · THE CONTROL ───────────────────────────────────────────────────────
+// Without this, every `includes()` below could be passing against a prompt that
+// silently failed to assemble, and nineteen green tests would mean nothing.
+
+test('§16.0 ★★ CONTROL — both prompts assemble, and a phrase that is NOT in them is NOT found', async () => {
+  const a = await U_A();
+  const b = await U_B();
+  assert.ok(a.length > 2000, 'the single-question prompt did not assemble');
+  assert.ok(b.length > 2000, 'the structured prompt did not assemble');
+  // A negative control: the matcher really can say no.
+  const absent = 'THIS SENTENCE IS NOT IN EITHER GRADING PROMPT';
+  assert.ok(!a.includes(absent) && !b.includes(absent),
+    'the includes() probe reports true for text that is absent — every §16 assertion is worthless');
+  // And the OLD tell-tale that keyed on the question stem is GONE as the sole test.
+  await bothPathsSay('IS THIS LINE STILL WORKING THE QUESTION THAT WAS SET',
+    'the owner\'s departure test');
+});
+
+// ── §16.1–§16.10 · THE TEN MATHS SCENARIOS ────────────────────────────────────
+
+test('§16.1 ★★★ SCENARIO 1 — a wrong VALUE adopted mid-solution is a DEPARTURE, and everything below it is ZERO', async () => {
+  // ★ THE FOUNDING CASE. A student wrote c = 6 correctly at line 1, substituted 9
+  // at the discriminant, then worked flawlessly from 9. The old wording's tell-tale
+  // looked at whether the QUESTION was miscopied — line 1 matched, so nothing fired
+  // and the model called it `silly` with ordinary ECF.
+  await bothPathsSay('1. A wrong VALUE substituted and worked consistently from',
+    'scenario 1, the wrong-value departure');
+  await bothPathsSay('THE ADOPTION NEED NOT BE A MISCOPY OF THE QUESTION STEM',
+    'that a departure can begin mid-solution with the stem stated correctly');
+  await bothPathsSay('Every step below it earns ZERO, however internally correct',
+    'that work below the departure earns nothing');
+
+  // BEHAVIOURAL, on BOTH paths: the two steps below the departure are zeroed.
+  for (const grade of [await U_SINGLE(U_SC1_STEPS(), false), await U_BATCH(U_SC1_STEPS(), false)]) {
+    assert.equal(grade.questionDepartureError, true, 'the departure must be found');
+    assert.equal(grade.annotatedSteps[2].isDeparture, true, 'and located at the adoption step');
+    for (const i of [3, 4]) {
+      assert.equal(grade.annotatedSteps[i].marksAwarded, 0, 'step ' + (i + 1) + ' below the departure must earn 0');
+      assert.equal(grade.annotatedSteps[i].marksDeducted, 0, 'and must not be separately charged');
+    }
+    assert.equal(grade.annotatedSteps[0].marksAwarded, 1, 'work ABOVE the departure keeps its marks');
+  }
+});
+
+test('§16.2 ★★ SCENARIO 2 — a slip the student CORRECTS is NOT a departure; the marks are kept', async () => {
+  await bothPathsSay('2. A slip the student then CORRECTS', 'scenario 2, the recovered slip');
+  await bothPathsSay('The marks are KEPT; deduct only for the slip itself',
+    'that a recovered slip keeps its marks');
+
+  const s = await U_SINGLE(U_SC2_STEPS(), true);
+  const b = await U_BATCH(U_SC2_STEPS(), true);
+  for (const grade of [s, b]) {
+    assert.equal(grade.questionDepartureError, false, 'a recovered slip is NOT a departure');
+    assert.equal(grade.marksAwarded, 3.5, 'the slip costs its half mark and nothing else is zeroed or capped');
+  }
+  assert.equal(b.marksAwarded, s.marksAwarded, 'and both surfaces agree');
+});
+
+test('§16.3 SCENARIO 3 — a miscopied QUESTION STEM is a departure at line 1', async () => {
+  await bothPathsSay('3. The QUESTION STEM miscopied at line 1', 'scenario 3');
+  await bothPathsSay('keeping only what that line independently earned',
+    'that the departure step keeps what it independently earned');
+});
+
+test('§16.4 ★ SCENARIO 4 — a miscopy that made the question EASIER earns ZERO below it', async () => {
+  await bothPathsSay('4. A miscopy that made the question EASIER', 'scenario 4');
+  await bothPathsSay('They avoided the very difficulty being tested',
+    'WHY an easier miscopy earns nothing');
+});
+
+test('§16.5 ★ SCENARIO 5 — an IMMATERIAL miscopy earns FULL MARKS', async () => {
+  await bothPathsSay('5. A miscopy that is IMMATERIAL', 'scenario 5');
+  await bothPathsSay('NO value point ' , 'the value-point test that makes a miscopy immaterial');
+  await bothPathsSay('Not every misreading is a departure',
+    'the explicit guard against over-firing the departure test');
+});
+
+test('§16.6 ★★ SCENARIO 6 — an INDEPENDENT sub-part is marked on its own merits; a DEPENDENT one carries the error', async () => {
+  await bothPathsSay('6. A departure in ONE SUB-PART', 'scenario 6');
+  await bothPathsSay('is a question in its own right and is marked ON ITS OWN MERITS',
+    'that an independent sub-part survives a departure elsewhere');
+  await bothPathsSay('CONSUMES a value from the departed part', 'the dependent-sub-part carve-out');
+  await bothPathsSay('RELATEDNESS decides this, NOT position on the page',
+    'the rule that decides it — relatedness, not position');
+});
+
+test('§16.7 SCENARIO 7 — two separate slips, neither carried forward, are TWO ORDINARY MISTAKES and no departure', async () => {
+  await bothPathsSay('7. TWO SEPARATE SLIPS', 'scenario 7');
+  await bothPathsSay('Nothing was adopted, so nothing was left behind',
+    'WHY two uncarried slips are not a departure');
+});
+
+test('§16.8 ★★ SCENARIO 8 — the right answer by an INVALID method, and it FAILS SAFE', async () => {
+  await bothPathsSay('8. The RIGHT ANSWER reached by an INVALID method', 'scenario 8');
+  await bothPathsSay('award the ANSWER mark ONLY', 'the answer-mark-only ruling');
+  // ★ The fail-safe is the half that protects students, and it is the half most
+  // likely to be dropped by a future edit.
+  await bothPathsSay('if you cannot DEMONSTRATE that the method is invalid',
+    'the FAIL-SAFE on scenario 8');
+  await bothPathsSay('show that it fails IN GENERAL, not merely that it is not the scheme',
+    'the standard of proof for calling a method invalid');
+  await bothPathsSay('treat it as a VALID ALTERNATIVE and award IN FULL',
+    'what to do when invalidity cannot be demonstrated');
+});
+
+test('§16.9 SCENARIO 9 — an answer with NO working is UNDIAGNOSABLE and never a departure', async () => {
+  await bothPathsSay('9. AN ANSWER ONLY, with no working', 'scenario 9');
+  await bothPathsSay('Never fabricate a type, and never call a bare wrong answer a departure',
+    'the anti-fabrication half of scenario 9');
+});
+
+test('§16.10 ★★★ SCENARIO 10 — a student who RETURNS to the real question ends the departure there', async () => {
+  // ⚠ This is the scenario the machinery CANNOT express: `applyEcfPolicyV2` zeroes
+  // everything below a departure index, full stop. "The departure ends there" is
+  // therefore a ruling the MODEL must apply when it decides whether to set the flag
+  // at all — which is precisely why it has to be in the prompt, and why this test
+  // is a prompt test and says so.
+  await bothPathsSay('10. A departure after which the student RETURNS TO THE REAL QUESTION', 'scenario 10');
+  await bothPathsSay('THE DEPARTURE ENDS THERE', 'that returning ends the departure');
+  await bothPathsSay('Later correct work on the question as set EARNS ITS MARKS',
+    'that work after a return is paid');
+  await bothPathsSay('do not mark a departure at all', 'what the model must do when the student returns');
+});
+
+// ── §16.S1–§16.S6 · THE SIX SCIENCE SCENARIOS ─────────────────────────────────
+
+test('§16.S1 SCIENCE — answering a DIFFERENT question is a departure at the first line', async () => {
+  await bothPathsSay('S1. Answering a DIFFERENT QUESTION', 'Science scenario S1');
+  await bothPathsSay('The whole answer is a different question', 'the S1 ruling');
+});
+
+test('§16.S2 ★★ SCIENCE — the wrong ORGAN/LAW/PRINCIPLE named then described correctly is a DEPARTURE', async () => {
+  await bothPathsSay('S2. Naming the WRONG ORGAN, LAW or PRINCIPLE', 'Science scenario S2');
+  await bothPathsSay('Identical in shape to the Maths wrong-value case',
+    'that S2 and the Maths wrong-value case are one rule');
+  // ★ The subject-neutrality of the test itself must be stated, or a future reader
+  // will re-read the departure clause as an algebra rule, which is how it was read.
+  await bothPathsSay('THIS TEST IS SUBJECT-NEUTRAL BY CONSTRUCTION',
+    'that the departure test is not about equations');
+});
+
+test('§16.S3 ★★ SCIENCE — a WRONG REACTANT worked through correctly is a DEPARTURE', async () => {
+  await bothPathsSay('S3. An equation with the WRONG REACTANT OR PRODUCT', 'Science scenario S3');
+  await bothPathsSay('right for a reaction nobody asked about', 'the S3 ruling');
+});
+
+test('§16.S4 ★★ SCIENCE — a correct reaction left UNBALANCED is PRESENTATION, not a departure', async () => {
+  await bothPathsSay('S4. A CORRECT reaction left UNBALANCED', 'Science scenario S4');
+  await bothPathsSay('This is PRESENTATION: chemically right, board-format short', 'the S4 ruling');
+});
+
+test('§16.S3v4 ★★★ THE KEYSTROKE — S3 and S4 are distinguished IN WORDS, not merely implied', async () => {
+  // ⚠ In a student's answer a wrong reactant and an unbalanced equation are one
+  // keystroke apart and grade OPPOSITELY. A prompt that only implies the
+  // distinction will not hold under a real paper, so the contrast is pinned as a
+  // single explicit sentence rather than inferred from S3 and S4 sitting near
+  // each other.
+  await bothPathsSay('ONE KEYSTROKE APART', 'that S3 and S4 are one keystroke apart');
+  await bothPathsSay('A WRONG REACTANT CHANGES THE QUESTION AND IS A DEPARTURE',
+    'the departure half of the contrast');
+  await bothPathsSay('AN UNBALANCED EQUATION DOES NOT CHANGE THE QUESTION AND IS PRESENTATION',
+    'the presentation half of the contrast');
+  await bothPathsSay('Check WHICH SPECIES are written before you check whether the coefficients balance',
+    'the ORDER OF CHECKS that separates the two');
+});
+
+test('§16.S5 SCIENCE — a wrong numerical substitution into the right physics formula is a DEPARTURE', async () => {
+  await bothPathsSay('S5. The RIGHT PRINCIPLE with a WRONG NUMERICAL SUBSTITUTION', 'Science scenario S5');
+  await bothPathsSay('Identical to the Maths case', 'that S5 is the Maths wrong-value rule');
+});
+
+test('§16.S6 SCIENCE — a correct answer with the diagram absent or unlabelled is PRESENTATION', async () => {
+  await bothPathsSay('S6. A CORRECT answer with a required DIAGRAM ABSENT', 'Science scenario S6');
+});
+
+// ── §16.D1–§16.D3 · THE THREE DIAGRAM SCENARIOS, AND THE FAIL-SAFE ────────────
+
+test('§16.D1 ★★ DIAGRAM — a WRONG figure worked correctly from is a DEPARTURE', async () => {
+  await bothPathsSay('D1. A diagram DRAWN BUT WRONG', 'diagram scenario D1');
+  await bothPathsSay('A wrong premise was adopted and worked from', 'the D1 ruling');
+  await bothPathsSay('The working can be FLAWLESS and still earn NOTHING below the figure',
+    'that flawless working below a wrong figure earns nothing');
+});
+
+test('§16.D2 ★★ DIAGRAM — an ABSENT required figure is PRESENTATION *and* the lost figure mark: TWO deductions', async () => {
+  await bothPathsSay('D2. A required diagram ABSENT', 'diagram scenario D2');
+  await bothPathsSay('That is TWO deductions, not one',
+    'that D2 costs the presentation deduction AND the figure mark');
+  await bothPathsSay('CBSE awards the figure as its own value point', 'why the figure mark is separate');
+});
+
+test('§16.D3 DIAGRAM — working that CONTRADICTS the student\'s own correct figure is a DEPARTURE', async () => {
+  await bothPathsSay('D3. A CORRECT diagram that the WORKING CONTRADICTS', 'diagram scenario D3');
+  await bothPathsSay('the student stopped using their own correct figure', 'the D3 ruling');
+});
+
+test('§16.D0 ★★★ THE DIAGRAM FAIL-SAFE — an unreadable figure must NEVER produce an invented departure', async () => {
+  // ⚠⚠ The image reaches the model as native base64 with no OCR step, and nobody
+  // has established that a HAND-DRAWN figure is read reliably. D1 and D3 both zero
+  // a student's work on the strength of what the grader believes it saw. Without
+  // this clause the failure mode is a confident departure invented from a smudge.
+  // ★ "Absent means unknowable" is already the rule for departures generally
+  // (clause (f)); this applies the same principle to FIGURES.
+  await bothPathsSay('THE DIAGRAM FAIL-SAFE', 'that the fail-safe exists at all');
+  await bothPathsSay('IF YOU CANNOT ESTABLISH WHAT THE DRAWING SHOWS, YOU MUST NOT INVENT A DEPARTURE FROM IT',
+    'the fail-safe itself');
+  await bothPathsSay('D1 and D3 fire ONLY on POSITIVE evidence about what was actually drawn',
+    'that D1/D3 require positive evidence');
+  await bothPathsSay('GRADE THE WRITTEN WORK NORMALLY and never zero a step for a figure you could not read',
+    'what to do instead when the figure is illegible');
+});
+
+// ── §16.11 / §16.12 · THE TWO REGRESSION GUARDS ───────────────────────────────
+
+test('§16.11 ★★★ REGRESSION — a mid-solution slip that RECOVERS is NOT capped and NOT zeroed', async () => {
+  // ⚠ This is the guard that matters more than any feature case above. The whole
+  // lane pushes the grader toward zeroing more work; this pins the boundary that
+  // must NOT move. A student who slips and recovers keeps their marks.
+  const s = await U_SINGLE(U_SC2_STEPS(), true);
+  const b = await U_BATCH(U_SC2_STEPS(), true);
+
+  for (const [name, g] of [['single-question', s], ['structured', b]]) {
+    assert.equal(g.questionDepartureError, false, name + ': a recovery is not a departure');
+    assert.equal(g.marksAwarded, 3.5, name + ': 3.5 of 4 — nothing capped, nothing zeroed');
+    assert.equal(g.annotatedSteps[2].marksAwarded, 1, name + ': the step AFTER the slip still earns');
+    assert.equal(g.annotatedSteps[3].marksAwarded, 1, name + ': and so does the final step');
+  }
+  // CONTROL — the same fixture WITH a departure really does grade differently, so
+  // the equalities above are not two no-ops agreeing.
+  const departed = await U_SINGLE(U_SC1_STEPS(), false);
+  assert.notEqual(departed.marksAwarded, s.marksAwarded,
+    'CONTROL: a departed solution must NOT grade the same as a recovered one');
+});
+
+test('§16.12 ★★★ REGRESSION — a correct ALTERNATIVE method against a stored scheme earns FULL MARKS (CBSE 3)', async () => {
+  // ★ The stored scheme for ECF_WS/ECF_REQ factorises. This student used the
+  // quadratic formula. CBSE instruction 3 protects that, and a stored scheme must
+  // never be the reason it loses a mark.
+  await bothPathsSay('IT IS NEVER AUTHORITY ON METHOD', 'the scheme-corroboration ruling');
+  await bothPathsSay('CORROBORATES THE MARK DISTRIBUTION', 'what the stored scheme IS for');
+  await bothPathsSay('A stored scheme must NEVER be the reason a correct alternative method loses marks',
+    'the method-freedom guarantee');
+  await bothPathsSay('WHERE YOUR DERIVATION AND THE STORED SCHEME DISAGREE',
+    'that a scheme/derivation divergence must be surfaced in the teacher note');
+  await bothPathsSay('A STORED SCHEME MAY NEVER BE THE REASON A REQUIRED ELEMENT GOES UNCHECKED',
+    'that a silent scheme does not excuse a required element');
+
+  // ★★ THE AUTHORITY WORDING IS GONE from the single-question scheme block. It read
+  // "OFFICIAL CBSE MARKING SCHEME (use this as your reference for grading)" and told
+  // the model to grade "against these official steps" — that is authority on METHOD,
+  // and it contradicted clause (j) in the same prompt.
+  const a = await U_A();
+  assert.ok(!a.includes('OFFICIAL CBSE MARKING SCHEME'),
+    'the stored scheme must not be presented to the model as OFFICIAL');
+  assert.ok(!a.includes('against these official steps'),
+    'the model must not be told to grade step-by-step against the stored scheme as authority');
+  assert.ok(a.includes('STORED MARKING SCHEME'), 'and it must still be supplied, as corroboration');
+  const b = await U_B();
+  assert.ok(b.includes('CORROBORATION only - never authority on method'),
+    'the structured path labels its stored scheme the same way');
+
+  // BEHAVIOURAL: an anchored question, every step correct by a different method,
+  // final answer right ⇒ FULL marks on both paths, no cap, no departure.
+  for (const [name, g] of [['single-question', await U_SINGLE(U_ALT_STEPS(), true)],
+    ['structured', await U_BATCH(U_ALT_STEPS(), true)]]) {
+    assert.equal(g.questionDepartureError, false, name + ': an alternative method is not a departure');
+    assert.equal(g.marksAwarded, 4, name + ': a correct alternative method earns FULL marks');
+    assert.equal(g.marksAwarded, g.totalMarks, name + ': full is full');
+  }
+});
+
+test('§16.13 ★★ THE UNIFORMITY PROOF — every §2 ruling reaches BOTH grading paths, enumerated', async () => {
+  // ⚠ "Both grading paths must receive every change" is the trap this arc has
+  // already lost a round to. Rather than trust that `ECF_POLICY_V2_PROMPT` is
+  // shared, this walks the whole ruling set and fails naming the one that drifted.
+  const a = await U_A();
+  const b = await U_B();
+  const RULINGS = [
+    'IS THIS LINE STILL WORKING THE QUESTION THAT WAS SET',
+    'THIS TEST IS SUBJECT-NEUTRAL BY CONSTRUCTION',
+    'THE ADOPTION NEED NOT BE A MISCOPY OF THE QUESTION STEM',
+    '1. A wrong VALUE substituted and worked consistently from',
+    '2. A slip the student then CORRECTS',
+    '3. The QUESTION STEM miscopied at line 1',
+    '4. A miscopy that made the question EASIER',
+    '5. A miscopy that is IMMATERIAL',
+    '6. A departure in ONE SUB-PART',
+    '7. TWO SEPARATE SLIPS',
+    '8. The RIGHT ANSWER reached by an INVALID method',
+    '9. AN ANSWER ONLY, with no working',
+    '10. A departure after which the student RETURNS TO THE REAL QUESTION',
+    'S1. Answering a DIFFERENT QUESTION',
+    'S2. Naming the WRONG ORGAN, LAW or PRINCIPLE',
+    'S3. An equation with the WRONG REACTANT OR PRODUCT',
+    'S4. A CORRECT reaction left UNBALANCED',
+    'ONE KEYSTROKE APART',
+    'S5. The RIGHT PRINCIPLE with a WRONG NUMERICAL SUBSTITUTION',
+    'S6. A CORRECT answer with a required DIAGRAM ABSENT',
+    'D1. A diagram DRAWN BUT WRONG',
+    'D2. A required diagram ABSENT',
+    'D3. A CORRECT diagram that the WORKING CONTRADICTS',
+    'IF YOU CANNOT ESTABLISH WHAT THE DRAWING SHOWS',
+    'CORROBORATES THE MARK DISTRIBUTION',
+    'IT IS NEVER AUTHORITY ON METHOD',
+  ];
+  const missingA = RULINGS.filter((r) => !a.includes(r));
+  const missingB = RULINGS.filter((r) => !b.includes(r));
+  assert.deepEqual(missingA, [], 'rulings absent from the SINGLE-QUESTION prompt');
+  assert.deepEqual(missingB, [], 'rulings absent from the STRUCTURED prompt');
+  assert.equal(RULINGS.length, 26, 'the enumeration itself must not silently shrink');
 });

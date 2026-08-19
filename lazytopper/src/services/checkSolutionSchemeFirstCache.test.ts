@@ -145,7 +145,7 @@ describe("handleCheckSolution — scheme-first hook", () => {
     expect(JSON.stringify(calls[0])).not.toContain("my answer");
     // The grading prompt carries the injected scheme through the EXISTING block.
     const gradingPrompt = geminiPrompts[0];
-    expect(gradingPrompt).toContain("OFFICIAL CBSE MARKING SCHEME");
+    expect(gradingPrompt).toContain("STORED MARKING SCHEME — CORROBORATION, NEVER AUTHORITY ON METHOD:");
     expect(gradingPrompt).toContain(SCHEME[0]);
     expect(gradingPrompt).toContain(SCHEME[1]);
   });
