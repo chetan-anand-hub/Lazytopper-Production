@@ -19,6 +19,9 @@ import {
   storedFullMockScorecardVariant,
   checkImproveScorecardVariant,
   storedCheckImproveScorecardVariant,
+  storedQuickPracticeScorecardVariant,
+  quickPracticeGradedScorecardVariant,
+  ObjectiveMarkNotBinaryError,
 } from "./scorecardVariants";
 
 // A minimal grade-response fixture. `couldNotRead` questions carry NO grade and must
@@ -771,5 +774,131 @@ describe("storedCheckImproveScorecardVariant", () => {
     );
     expect(v.message).toContain("no single topic's progress is guessed");
     expect(v.message).toContain("Graded portion shown");
+  });
+});
+
+// ── SHEET-1v4 Step 1 — the FIFTH stored variant: Quick Practice ────────────────
+describe("storedQuickPracticeScorecardVariant", () => {
+  const qpRecord = (over: Partial<SessionRecord> = {}): SessionRecord => ({
+    id: "QP-M-REAL-1a2b3c4d",
+    // Internal anchor only — QP has NO PersistedWorksheet behind this id.
+    worksheetId: "qp:QP-M-REAL-1a2b3c4d",
+    surface: "quick-practice",
+    title: "Real Numbers · Quick practice",
+    subject: "maths",
+    topicKeys: ["real-numbers"],
+    questionIds: ["q1", "q2", "q3"],
+    marksAwarded: 7,
+    marksTotal: 10,
+    // QP has no upload cycle — a QP record is ALWAYS graded.
+    status: "graded",
+    fourType: { conceptual: 1, calculation: 2, silly: 0, presentation: 0 },
+    sectionBreakdown: null,
+    gradedAt: 1751500000000,
+    perQuestionRef: "qp:QP-M-REAL-1a2b3c4d",
+    dedupKey: "uid::QP-M-REAL-1a2b3c4d",
+    ...over,
+  });
+  const noop = () => {};
+
+  it("rebuilds a stored QP session: marks, four-type and a code+date subtitle, all from the record", () => {
+    const v = storedQuickPracticeScorecardVariant(qpRecord(), {
+      gradedDateLabel: "3 July",
+      onDone: noop,
+    });
+    expect(v.surface).toBe("quick-practice");
+    expect(v.title).toBe("Real Numbers · Quick practice");
+    expect(v.subtitle).toBe("QP-M-REAL-1a2b3c4d · graded 3 July");
+    expect(v.score).toEqual({
+      kind: "marks",
+      awarded: 7,
+      total: 10,
+      gradedCount: 3,
+      totalQuestions: 3,
+    });
+    expect(v.fourType).toEqual({ conceptual: 1, calculation: 2, silly: 0, presentation: 0 });
+  });
+
+  it("★ carries a FRACTIONAL mark through UNROUNDED — half-marks are real in CBSE step marking", () => {
+    const v = storedQuickPracticeScorecardVariant(
+      qpRecord({ marksAwarded: 2.5, marksTotal: 6 }),
+      { gradedDateLabel: "3 July", onDone: noop },
+    );
+    expect(v.score).toMatchObject({ kind: "marks", awarded: 2.5, total: 6 });
+  });
+
+  it("★★ does NOT throw on a fractional mark — structurally, because it has no answers[] loop", () => {
+    // ⚠ STRUCTURALLY SATISFIED, NOT FIXED. The live variant's guard is untouched and
+    // still correct there; a record-based variant simply has no per-answer loop to
+    // inherit it. Recording this as a "fix" would send the next lane hunting a bug
+    // that cannot occur on this surface.
+    expect(() =>
+      storedQuickPracticeScorecardVariant(qpRecord({ marksAwarded: 0.5, marksTotal: 1 }), {
+        gradedDateLabel: "3 July",
+        onDone: noop,
+      }),
+    ).not.toThrow();
+  });
+
+  it("CONTROL — the LIVE graded variant still throws on a non-binary objective mark", () => {
+    // The positive control for the case above: if this stopped throwing, the previous
+    // test would pass vacuously and prove nothing about the stored variant.
+    expect(() =>
+      quickPracticeGradedScorecardVariant({
+        marksAwarded: 0.5,
+        marksTotal: 1,
+        gradedCount: 1,
+        totalQuestions: 1,
+        answers: [{ label: "Q1", objective: true, awarded: 0.5, available: 1 }],
+      }),
+    ).toThrow(ObjectiveMarkNotBinaryError);
+  });
+
+  it("offers the download CTA only when the host can resolve a sheet", () => {
+    const withDownload = storedQuickPracticeScorecardVariant(qpRecord(), {
+      gradedDateLabel: "3 July",
+      onDone: noop,
+      onDownload: noop,
+    });
+    expect(withDownload.actions.map((a) => a.label)).toEqual([
+      "Download graded answer sheet (PDF)",
+      "Done",
+    ]);
+
+    // ⚠ No resolver ⇒ NO promise of a sheet we cannot produce. A QP record's
+    // `worksheetId` is synthetic, so the worksheet resolver yields nothing for QP.
+    const withoutDownload = storedQuickPracticeScorecardVariant(qpRecord(), {
+      gradedDateLabel: "3 July",
+      onDone: noop,
+    });
+    expect(withoutDownload.actions.map((a) => a.label)).toEqual(["Done"]);
+  });
+
+  it("marks the download busy while a PDF is being prepared", () => {
+    const v = storedQuickPracticeScorecardVariant(qpRecord(), {
+      gradedDateLabel: "3 July",
+      onDone: noop,
+      onDownload: noop,
+      downloading: true,
+    });
+    expect(v.actions[0]).toMatchObject({ busy: true, disabled: true, busyLabel: "Preparing PDF…" });
+  });
+
+  it("omits the graded-count rather than fabricate '0 of 0' when the record has no question ids", () => {
+    const v = storedQuickPracticeScorecardVariant(qpRecord({ questionIds: [] }), {
+      gradedDateLabel: "3 July",
+      onDone: noop,
+    });
+    expect(v.score).toEqual({ kind: "marks", awarded: 7, total: 10 });
+    expect(v.score).not.toHaveProperty("gradedCount");
+  });
+
+  it("renders no pending state — a QP record is always graded", () => {
+    const v = storedQuickPracticeScorecardVariant(qpRecord(), {
+      gradedDateLabel: "3 July",
+      onDone: noop,
+    });
+    expect(v.pending).toBeNull();
+    expect(v.allPending).toBeNull();
   });
 });
