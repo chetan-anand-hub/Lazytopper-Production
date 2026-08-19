@@ -837,7 +837,10 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 //
 //   ORIGINAL (trunk, pre-lane)  67c062f5c35fd4a233d03a546dbf145235c6bd5bc9311b80aa1b8955790f9ccb
 //   after CORRECTION 1         30c97bcf613c0c4bbd8d005bb3c0f4f021520df38fe5bd131eef7a40ef004dc1
-//   after CORRECTION 2 (now)   dd49f211ad5559abb4b310a5e7be65e4a820ff6f9dc797dbaac52963d3bd4572
+//   after CORRECTION 2         aedfc9ceaffc004be168ab6086c94ba84320735a73189270181a959691004eda
+//     (intermediate, commit 4cff6dcc, chemistry buckets only:
+//      dd49f211ad5559abb4b310a5e7be65e4a820ff6f9dc797dbaac52963d3bd4572 — named so the value
+//      in that commit is not an unexplained sha to anyone reading the history)
 //
 // CORRECTION 1 — the departure test, the nineteen scenarios, and the stored scheme demoted
 // from AUTHORITY ON METHOD to CORROBORATION at both scheme sites.
@@ -848,10 +851,16 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // CALCULATION (recount the atoms), and only balanced-but-missing-state-symbols is
 // PRESENTATION. Split at BOTH taxonomy definitions (one per grading path) and stated once in
 // the shared constant. ⚠ This defect PREDATES the lane and was inherited by S4.
+// CORRECTION 2 carries THREE things, all in the same prompt block, so the second move is
+// fully explained by this one entry:
+//   (a) the three chemistry buckets above (S4a conceptual / S4b calculation / S4c presentation);
+//   (b) UNITS — a correct answer with no unit is PRESENTATION, never conceptual or calculation;
+//   (c) MULTI-PART — a SKIPPED sub-part is UNATTEMPTED: status "missing", mistakeType null,
+//       no deduction, NEVER a departure, never counted, and REPORTED rather than omitted.
 // ⚠ Both re-baselines were owner PRE-APPROVED. The same five tests moved together both times
 // (§7.1, §9.5, §10.5, §11.5, §12.6) and went green on a single constant update each time — no
 // test was individually doctored. That is the pin working, twice.
-const NO_UPLOADS_CONTENTS_SHA256 = 'dd49f211ad5559abb4b310a5e7be65e4a820ff6f9dc797dbaac52963d3bd4572';
+const NO_UPLOADS_CONTENTS_SHA256 = 'aedfc9ceaffc004be168ab6086c94ba84320735a73189270181a959691004eda';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',
@@ -3161,6 +3170,8 @@ test('§16.13 ★★ THE UNIFORMITY PROOF — every §2 ruling reaches BOTH grad
     'S4b. WRONG COEFFICIENTS while genuinely attempting to balance',
     'S4c. BALANCED correctly but MISSING STATE SYMBOLS (s/l/g/aq)',
     'ANYTHING THAT CHANGES WHETHER THE CHEMISTRY OR MATHEMATICS IS RIGHT IS NOT PRESENTATION',
+    'UNITS. A CORRECT answer written WITHOUT ITS UNIT',
+    'MULTI-PART QUESTIONS AND THE UNATTEMPTED SUB-PART',
     'ONE KEYSTROKE APART',
     'S5. The RIGHT PRINCIPLE with a WRONG NUMERICAL SUBSTITUTION',
     'S6. A CORRECT answer with a required DIAGRAM ABSENT',
@@ -3175,5 +3186,80 @@ test('§16.13 ★★ THE UNIFORMITY PROOF — every §2 ruling reaches BOTH grad
   const missingB = RULINGS.filter((r) => !b.includes(r));
   assert.deepEqual(missingA, [], 'rulings absent from the SINGLE-QUESTION prompt');
   assert.deepEqual(missingB, [], 'rulings absent from the STRUCTURED prompt');
-  assert.equal(RULINGS.length, 30, 'the enumeration itself must not silently shrink');
+  assert.equal(RULINGS.length, 32, 'the enumeration itself must not silently shrink');
+});
+
+// ── §16.14 / §16.15 · CORRECTION 2, cases 5 and 6 ────────────────────────────
+
+test('§16.14 ★★ UNITS — a correct answer with no unit is PRESENTATION, never conceptual or calculation', async () => {
+  // ★ The cleanest illustration of the narrowed boundary: a missing unit does NOT
+  // change whether the mathematics is right, so it cannot leave the presentation
+  // bucket. CLAUDE.md §13 already pins the size of it (half a mark).
+  await bothPathsSay('UNITS. A CORRECT answer written WITHOUT ITS UNIT', 'the units case');
+  await bothPathsSay('IT IS NEVER "conceptual" AND NEVER "calculation": THE STUDENT DID THE MATHEMATICS',
+    'that a missing unit never leaves the presentation bucket');
+  await bothPathsSay('A missing unit does not change whether the mathematics is right',
+    'WHY it is presentation — the governing boundary, applied');
+
+  // ★★ THIS CASE CLOSES A REAL PATH-B GAP, not just a wording gap. The
+  // "PRESENTATION vs MISSING" rule that covered missing units existed ONLY in
+  // handleCheckSolution's numbered rules; gradeStructuredSet never had it. Putting
+  // the case in the SHARED constant is what gives the structured path the rule at all.
+  const b = await U_B();
+  assert.ok(!b.includes('PRESENTATION vs MISSING'),
+    'CONTROL: the structured path still has no numbered PRESENTATION-vs-MISSING rule ...');
+  assert.ok(b.includes('UNITS. A CORRECT answer written WITHOUT ITS UNIT'),
+    '... so the shared constant is the ONLY thing carrying the units ruling to it');
+});
+
+test('§16.15 ★★★ MULTI-PART — a SKIPPED sub-part is UNATTEMPTED: never typed, never counted, never a departure, never invisible', async () => {
+  // ⚠ This is the owner's existing unattempted ruling applied to SUB-PARTS, and it
+  // needs stating because a blank sub-part could otherwise read as a DEPARTURE or as
+  // a missing step that earns a mistake type — and this lane just switched the
+  // departure machinery on across four more surfaces.
+  await bothPathsSay('MULTI-PART QUESTIONS AND THE UNATTEMPTED SUB-PART', 'the multi-part case');
+  await bothPathsSay('never count it as a mistake', 'that it stays out of the mistake counts');
+  await bothPathsSay('never treat it as a wrong answer that scored zero', 'that it is never scored 0');
+
+  // ★★★ THE DEPARTURE INTERACTION — the reason this case is in THIS lane.
+  await bothPathsSay('AND IT IS NOT A DEPARTURE', 'that a blank sub-part is not a departure');
+  await bothPathsSay('they wrote NOTHING, so there is nothing to have been adopted',
+    'WHY a blank sub-part cannot be a departure');
+  await bothPathsSay('never zero the parts below it because of one',
+    'that a blank sub-part must not zero the work below it');
+
+  // ★★ UNCOUNTED IS NOT UNREPORTED. Two rulings meet here and the distinction is the
+  // SURFACE: the skipped part must stay OUT of the mistake taxonomy and MI, but must
+  // stay VISIBLE to the student. A prompt that only said "uncounted" would invite the
+  // model to omit it entirely.
+  await bothPathsSay('REPORT the skipped part as a step with status', 'that it must still be reported');
+  await bothPathsSay('Uncounted is not the same as unreported', 'the distinction stated in terms');
+  await bothPathsSay('THE PART THEY DID ANSWER IS MARKED ON ITS OWN MERITS',
+    'that the answered part is marked on its merits');
+
+  // ★ The blank-vs-written contrast, so "DK" is not swept into unattempted.
+  await bothPathsSay('Blank is unattempted; written is attempted', 'the blank-vs-written line');
+
+  // BEHAVIOURAL: the representation the prompt asks for is one the CODE already
+  // honours end-to-end — status "missing" + mistakeType null survives normalisation,
+  // is REPORTED, and contributes NOTHING to the mistake summary, on BOTH paths.
+  // ⚠ Nothing was invented: STEP_STATUS_VALUES has no "unattempted" member.
+  const STEPS = () => [
+    STEP(),
+    STEP({ status: 'missing', studentWork: '', marksAwarded: 0, marksDeducted: 0, mistakeType: null }),
+  ];
+  for (const [name, g] of [['single-question', await U_SINGLE(STEPS(), true)],
+    ['structured', await U_BATCH(STEPS(), true)]]) {
+    const skipped = g.annotatedSteps[1];
+    assert.equal(skipped.status, 'missing', name + ': the skipped part keeps status missing');
+    assert.equal(skipped.mistakeType, null, name + ': and is NEVER given a mistake type');
+    assert.equal(skipped.marksDeducted, 0, name + ': and carries NO deduction');
+    assert.equal(skipped.isDeparture, false, name + ': and is NEVER a departure');
+    assert.equal(g.questionDepartureError, false, name + ': a blank sub-part must not trip the departure path');
+    assert.equal(g.annotatedSteps.length, 2, name + ': it is REPORTED, not dropped from the response');
+    const m = g.mistakeSummary;
+    assert.equal(m.conceptual + m.calculation + m.silly + m.presentation, 0,
+      name + ': an unattempted part contributes NOTHING to the mistake summary (so nothing reaches MI)');
+    assert.equal(g.annotatedSteps[0].marksAwarded, 1, name + ': the ANSWERED part keeps its marks');
+  }
 });

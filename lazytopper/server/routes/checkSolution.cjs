@@ -533,7 +533,32 @@ const ECF_POLICY_V2_PROMPT =
   'be wrong or garbled; your derivation from the question governs the METHOD.\n' +
   '       - ⚠ A STORED SCHEME MAY NEVER BE THE REASON A REQUIRED ELEMENT GOES UNCHECKED. If the ' +
   'question requires a figure, a unit, a balanced equation or a conclusion and the stored ' +
-  'scheme is SILENT about it, the DERIVED rubric STILL EXPECTS IT.';
+  'scheme is SILENT about it, the DERIVED rubric STILL EXPECTS IT.\n' +
+  '   (o) TWO MORE BOUNDARY CASES, NEITHER OF THEM SCIENCE-SPECIFIC:\n' +
+  '       UNITS. A CORRECT answer written WITHOUT ITS UNIT — "r = 7" where the answer is 7 cm ' +
+  '— is "presentation". ⚠⚠ IT IS NEVER "conceptual" AND NEVER "calculation": THE STUDENT ' +
+  'DID THE MATHEMATICS. A missing unit does not change whether the mathematics is right, which ' +
+  'is precisely the boundary above — it is a FORMAT omission, the same family as a balanced ' +
+  'equation missing its state symbols. CBSE deducts about half a mark for it; deduct on that ' +
+  'scale and no more.\n' +
+  '       MULTI-PART QUESTIONS AND THE UNATTEMPTED SUB-PART. Where a question has parts and the ' +
+  'student ANSWERED ONE and SKIPPED ANOTHER, the skipped part is UNATTEMPTED. Give it status ' +
+  '"missing" with "mistakeType": null and "marksDeducted": 0. ⚠ It is NOT a mistake of any ' +
+  'kind: never give it a mistakeType, never count it as a mistake, and never treat it as a ' +
+  'wrong answer that scored zero — the marks are simply NOT EARNED.\n' +
+  '       ⚠⚠ AND IT IS NOT A DEPARTURE. A blank sub-part is not the student adopting a ' +
+  'different problem — they wrote NOTHING, so there is nothing to have been adopted and ' +
+  'nothing to work consistently from. NEVER set "isDeparture": true on an unattempted part, ' +
+  'and never zero the parts below it because of one.\n' +
+  '       ★ BUT DO NOT MAKE IT INVISIBLE. REPORT the skipped part as a step with status ' +
+  '"missing" rather than OMITTING it from your response — the student must be able to see ' +
+  'that it was not attempted. Uncounted is not the same as unreported.\n' +
+  '       ★ THE PART THEY DID ANSWER IS MARKED ON ITS OWN MERITS, in full, exactly as if the ' +
+  'other part did not exist.\n' +
+  '       ⚠ NOTE THE CONTRAST WITH A LEGIBLE NON-ATTEMPT: a part where the student WROTE ' +
+  'something — "Don\'t know", "DK" — is a READ response and is graded "incorrect" with ' +
+  'mistakeType null. A part left ENTIRELY BLANK is "missing". Blank is unattempted; written ' +
+  'is attempted, however little was written.';
 
 function deepFreeze(value) {
   if (value && typeof value === 'object' && !Object.isFrozen(value)) {
