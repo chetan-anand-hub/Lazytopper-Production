@@ -1926,6 +1926,27 @@ export function storedQuickPracticeScorecardVariant(
       kind: "marks",
       awarded: record.marksAwarded,
       total: record.marksTotal,
+      // ⚠ THIS `gradedCount` IS SYNTHESISED, NOT MEASURED — [FU-QP-STORED-GRADEDCOUNT-SYNTHESISED].
+      // `totalQuestions` is the length of the record's stored question-id list, i.e. the whole
+      // DISPLAYED set, and the same number is handed out as the graded count. A `SessionRecord`
+      // carries no graded count and no unattempted list, so there is nothing honest to read here.
+      // ⇒ a session where 6 of 10 were attempted renders as "10 of 10 questions graded". That
+      // does not merely score the other 4 zero — it CLAIMS THEM AS GRADED WORK THE STUDENT
+      // NEVER DID, which is the no-fake-data line rather than an empty-state question.
+      //
+      // ★ AND NOTHING HERE CATCHES IT. The worksheet sibling withholds the count on a `partial`
+      // record; this variant has no such condition at all — and one would be dead if it did,
+      // because QP has no upload-grade cycle: `buildQuickPracticeSessionRecord` writes
+      // `status: "graded"` as a literal, so a QP record is never `partial`. No test constructs
+      // an unattempted record, which is why the suite is green over the wrong number.
+      //
+      // The honest number is not lost, only out of reach: the grade response knows both counts
+      // (attempted vs displayed) and they survive in the per-question payload behind
+      // `record.perQuestionRef` — which this variant is never handed. So the fix is not a local
+      // edit; it belongs to a lane already reaching that payload for its own reasons.
+      //
+      // ⚠ DO NOT WIRE THIS VARIANT TO A LIVE CONSUMER UNTIL THAT FU IS CLOSED. It has none
+      // today, and that is the only reason this is dormant rather than shipped.
       // Claim a graded-count ONLY when the record actually carries question ids — an
       // empty set omits it rather than fabricate "0 of 0".
       ...(totalQuestions > 0 ? { gradedCount: totalQuestions, totalQuestions } : {}),
