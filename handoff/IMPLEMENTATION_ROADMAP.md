@@ -1,6 +1,100 @@
 # LazyTopper Implementation Roadmap
 
 
+## 2026-08-20 — WAVE MI-INTEGRITY-6: **THE ARC'S ACCEPTANCE TEST CAME BACK 6-OF-8 AND THE STAGE STILL DOES NOT CLOSE — ONE PR, `#690`, AND IT IS A DRAFT** — trunk `62078cb8`, unmoved
+
+**`2026-08-20`**
+
+**STAGE OUTCOME: FOUR UNITS RAN; ONE PRODUCED A PR AND THAT PR IS NOT ON TRUNK. NOTHING MERGED THIS
+WAVE.** One build lane run twice, one read-only scout, two lanes that returned HOLD with zero files
+changed.
+
+⚠⚠ **DO NOT RECORD THIS AS A CODE-DELIVERY WAVE. ITS MAIN OUTPUT WAS DIAGNOSIS.**
+★★★ **FOUR OF FIVE STAGED SPECS FAILED THEIR OWN PREMISE GATE**, and **three lanes refused to build on
+a bad premise. Every refusal was correct, and two of them changed an owner ruling.**
+
+⚠ **THE PREVIOUS STAGE ENTRY SAID THE LIVE-VERIFY WAS "IN PROGRESS". IT IS COMPLETE — 6 OF 8 PASS.**
+That entry is left unedited below; **this one supersedes it.**
+
+### THE STAGE GATE — **PARTLY DISCHARGED, AND THE REMAINDER IS NAMED**
+
+**MI-5's stage gate was an owner live-verify of the departure behaviour on FIVE surfaces.** It ran:
+
+- ✅ **Test 1 PASSES** — the departure fired, the steps below it were zeroed, and the coaching line
+  **NAMED** it. ★★★ **The paper that started this arc now grades the way the owner would.**
+- ✅ **Tests 3-7 PASS.** 2a/2b/2c returned **CONCEPTUAL / CALCULATION / PRESENTATION on ONE question** —
+  the whole taxonomy working across three uploads.
+- ⚠ **8b FAILED** — Path B awarded `+1` for *"Write the balanced chemical equation"* against a wrong
+  half coefficient, **with its own correct model answer rendered beside it.**
+- ⚠ **8a failed on CLASSIFICATION, not on the mark.** ★★★ **The owner has since ruled that Path A's
+  `:1060` is RIGHT and his own 8a ruling was WRONG** — a wrong substitution is `calculation`, not
+  `silly`.
+
+⇒ **BOTH REMAINING FAILURES ARE PATH B AND BOTH ARE INSIDE `#690`.** ⚠ **"The grader is fixed" is
+still a claim about Path A.** ★ **The stage closes on `#690` merging AND the corrected three-paper
+chemistry live-verify passing — the 8b re-run is the decisive test.**
+
+### ⚠⚠ A PREREQUISITE THE STAGE GATE DID NOT HAVE BEFORE: **FIX THE JUDGING ARTEFACTS FIRST**
+
+> ★★★ **A CORRECTION LANDED IN THE CODE AND NEVER REACHED THE ARTEFACTS THAT *JUDGE* THE CODE.**
+
+**"Unbalanced equation = `presentation`" was written in THREE judging artefacts** —
+`graderEval.cjs:73-79`, `SUBJECT-RULES-PORT.md` §3 case 2, and **the owner's own §5 live-verify
+checklist** — **while trunk's `checkSolution.cjs:1656-1662` said `conceptual`/`calculation`.**
+⇒ **His checklist would have made him read correct output as a failure, and `graderEval` would have
+agreed with it.** ⚠ **§5 has been corrected by the owner; `graderEval.cjs` has NOT.**
+**Running the live-verify before D1 is fixed produces a FALSE REGRESSION.**
+`[FU-CORRECTION-2-NOT-PROPAGATED-TO-JUDGING-ARTEFACTS]`
+
+### WHAT RAN
+
+- ⏸ **`SUBJECT-RULES-PORT` (U8) — PR `#690` OPEN AS A DRAFT, CI FULLY GREEN, ⚠ NOT MERGED.**
+  **STATED 2026-08-20 — re-derive with `gh pr view 690`; this line decays.** Commit
+  `0f67cb094a94`, two files both allowlisted, **316 insertions / 22 deletions.** Ports **eleven of
+  fourteen** Path-A-only instructions to the structured path **by SHARING, not copying** (twelve new
+  shared constants on top of the three that existed). ✅ **`:1059`-`:1062` HELD** for
+  TAXONOMY-3BUCKET. **Counts read from its own CI run:** server `node --test` **175 pass / 0 fail /
+  0 skipped / 0 todo**; root guard matrix **206** *(grown from 202 — the count grows, never hardcode
+  it)*; vitest **144 files / 1852 tests.**
+  ★★★ **IT CLAIMS THE INSTRUCTIONS, NOT THE OUTCOME.** The `calculation` mapping already reached Path
+  B — **the taxonomy was never the gap**; what was missing was any instruction to check the balancing
+  **at all** against a silent scheme. **Whether the MARK changes is model behaviour no static gate here
+  can prove.** `[FU-PROMPT-EDIT-IS-NOT-A-BEHAVIOUR-PROOF]`
+  ★★★ **A HOUSE STANDARD CAME OUT OF IT: THE INTERMEDIATE CHECKPOINT** — 167/167 with both pins
+  unmoved **after the refactor, before the behaviour change** ⇒ the extraction proven a pure no-op
+  **separately.** ⚠ **It cannot be produced after the fact, so it must be instructed in the dispatch.**
+- ⏹ **`SCOUT-CT-PANEL` — read-only, no PR, zero repo writes. DIAGNOSIS COMPLETE.**
+  ★★ **`#682` never touched the Chapter Test; the block was NEVER BUILT** ⇒ **not a regression, nothing
+  to revert.** There is **no `ChapterTestGradedPrintDoc`** — CT reuses the **Worksheet** print doc.
+  **An adapter drops the data.** ⚠⚠ **A pure wire cannot work: the shell has no step field.**
+  ⚠⚠ **The split is Chapter Test AND Full Mock, plus Quick Practice partially.**
+  ⇒ **This is a BUILD, not a WIRE**, and **fixing CT alone would repeat the one-path-not-the-other
+  pattern a SIXTH time, in the wave convened to end it.**
+  `[FU-CT-FULLMOCK-GRADED-STEP-BLOCK-NEVER-BUILT]` · `[FU-CT-READ-SHEET-ACTION-ONLY-CLOSES-MODAL]`
+- ⏸ **`TAXONOMY-3BUCKET` — HOLD. ZERO FILES CHANGED. 4 owner decisions owed.**
+  **38 partition sites / 19 product files, with the ruler published.** ⚠ **Build from the FIVE
+  EMISSIONS, not from `grep -c "fourType:"`** — the right count from the wrong set.
+- ⏸ **`EVAL-HARNESS` — HOLD. ZERO FILES CHANGED. 5 owner decisions owed. No model quota consumed.**
+  ★★★ **The grader's accuracy has never been measured — nothing invokes the harness**, and the control
+  fires, so the zero is real. **The expected values already exist; what is missing is ground truth and
+  an invocation.** ⚠ **FIVE drifts remain, two of which invalidate any number it produces.**
+
+### THE BOARD AFTER THIS STAGE
+
+| unit | state |
+|---|---|
+| **`#690`** | **DRAFT, green, NOT MERGED** *(re-derive)* — then the corrected live-verify |
+| **QP-GRADEDCOUNT** | ✅ **DISPATCH-READY** — the only clean spec on the board |
+| **STUB-503** | ⛔ **BLOCKED** — dead base SHA `3d22ff88`; re-anchoring is the owner's |
+| **TAXONOMY-3BUCKET** | ⏸ HOLD — 4 owner decisions |
+| **EVAL-HARNESS** | ⏸ HOLD — 5 owner decisions |
+| **SCOUT-CT-PANEL** | ⏸ PARKED — 4 owner decisions |
+
+⚠⚠ **THIRTEEN OWNER DECISIONS ARE OWED, NOT THE EIGHT THE CONTROLLER'S CLOSING NOTE COUNTED.**
+**SCOUT-CT-PANEL was absent from that board entirely and EVAL-HARNESS's fifth was dropped.**
+★ **A decision that is not on the list is not going to be made.**
+
+
 ## 2026-08-19 — WAVE MI-INTEGRITY-5: **THE GRADER ARC'S CODE IS COMPLETE ON ALL FIVE SURFACES — AND THE ARC IS NOT CLOSED. `#687`, `#682` AND `#688` ALL ON TRUNK** — trunk `caed0e1f`
 
 **`2026-08-19`**
