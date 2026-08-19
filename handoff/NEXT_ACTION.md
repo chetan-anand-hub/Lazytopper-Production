@@ -11,7 +11,8 @@ hits. #671 is on trunk — CONFIRM IT IS DEPLOYED, NOT MERELY MERGED, before cre
 table. Merged is not deployed.
 ```
 
-# Updated: 2026-08-15 (post-**WAVE QR-UPLOAD** + **WAVE MI-INTEGRITY-2**, docs-only lane `HANDOFF-MI2`. Trunk `e077b3a3`. **EIGHT LANES, ONE PRODUCT CHANGE — `QR-A` / `#679`, merged and owner-LIVE-VERIFIED on all six tests: a student can crop the photo before it is sent.** Everything else across both waves **stopped before editing a file**. ★★ **TAX-A failed its shape check with every claim TRUE; GRD-1v2 passed its shape check with five claims FALSE** — the checker and the truth of a premise are INDEPENDENT PROPERTIES. **MI-INTEGRITY-2 is NOT CLOSED**; `TAX-A` needs RE-SCOPING (**55 sites, not ~13**) and `GRD-1v2` needs re-aiming with R1/R3 folded in — both are the cofounder's action. ⚠⚠ **DO NOT SPEC A FOURTH DIVERGENCE MECHANISM** — three have been argued from source and **none checked against what the grader was actually sent**; capture the two prompts on the DEPLOYED product first. **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.**)
+# Updated: 2026-08-18 (post-**WAVE MI-INTEGRITY-4**, docs-only lane `HANDOFF-MI4`. Trunk `ffd352fb` — ⚠⚠ **`c4c0c448` IS DEAD AS A BASE SHA**. **THREE LANES + ONE SCOUT; `#684` AND `#685` MERGED, `#682` STILL A DRAFT.** ★★★ **THE ARC IS NOT CLOSED: `isDeparture` is set only inside `handleCheckSolution`, so RULE 5, THE DEPARTURE CAP AND `mistakeSummary.departure` ARE ALL DEAD ON CHAPTER TEST, WORKSHEET AND FULL MOCK — everything this arc built and everything the owner live-verified has run on ONE SURFACE OUT OF FIVE.** **NEXT: `DEPARTURE-DEAD` — spec staged, 13424 B, `3EF6C3F7D800` — IT RUNS ALONE**, carries **TWO STOP CONDITIONS (P5, P6)**, and its line numbers **have almost certainly moved** because its premises sit in `checkSolution.cjs`, the file `#685` just changed — **rot mode 1, EXPECTED, NOT A STOP; locate by TEXT.** Then the **`gradedCount` comment lane** (`#682`'s merge precondition), then **`STUB-503`**. ★★★ **NEW DEFECT CLASS: a spec whose allowlist cannot reach the data its own ruling requires — BEFORE WRITING AN ALLOWLIST, NAME THE FILE THAT HOLDS THE DATA, NOT THE FILE THAT HOLDS THE SYMPTOM.** ⚠ **`#681` reaches `handoff/` for the first time in this cycle** — Wave MI-INTEGRITY-3 closed without a handoff PR. **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.**)
+# Previously: 2026-08-15 (post-**WAVE QR-UPLOAD** + **WAVE MI-INTEGRITY-2**, docs-only lane `HANDOFF-MI2`. Trunk `e077b3a3`. **EIGHT LANES, ONE PRODUCT CHANGE — `QR-A` / `#679`, merged and owner-LIVE-VERIFIED on all six tests: a student can crop the photo before it is sent.** Everything else across both waves **stopped before editing a file**. ★★ **TAX-A failed its shape check with every claim TRUE; GRD-1v2 passed its shape check with five claims FALSE** — the checker and the truth of a premise are INDEPENDENT PROPERTIES. **MI-INTEGRITY-2 is NOT CLOSED**; `TAX-A` needs RE-SCOPING (**55 sites, not ~13**) and `GRD-1v2` needs re-aiming with R1/R3 folded in — both are the cofounder's action. ⚠⚠ **DO NOT SPEC A FOURTH DIVERGENCE MECHANISM** — three have been argued from source and **none checked against what the grader was actually sent**; capture the two prompts on the DEPLOYED product first. **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.**)
 # Previously: 2026-08-13 (post-**WAVE OPS-1**, docs-only. Trunk `6de74d3f`. **WAVE OPS-1 — CLOSED. All twelve PRs on trunk.** ⚠⚠ **PROVISIONING `tutor_cache` OR `step_solutions` MAKES #671's CRASH PATH REACHABLE — read the warning at the top of this file before provisioning any database table.** **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.**)
 # Previously: 2026-08-11 (post-**WAVE ME-C** + the close of **WAVE CLOSEOUT**, docs-only. Trunk `9682ba02`. **`/me` IS REBUILT AND ON TRUNK** - `#655` shipped the v7.1 page: a four-segment marks bar, the concepts costing the most, and a Topic Hub that opens on the exact concept. **All four CLOSEOUT lanes merged** - `#651`/`#652`/`#653`/`#654`. **`expectedMarks` IS STILL DORMANT** - the brief predicted two dormancies would end and only `?concept=` and `mistakeRetry` did. **`ProgressWindowArc` is now the `MentorSolveDrawer` shape: zero mounts, live suite.** **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.** Two live-verifies OWED.)
 # Previously: 2026-08-09 (post-**WAVE CLOSEOUT**, lane `HANDOFF-CATCHUP`, docs-only. Trunk `eeafb99b`. **THE PREVIOUS BLOCK IS WRONG, NOT MERELY STALE:** `#647` and `#649` **ARE** on trunk - both merged BEFORE `#650`, which says they are drafts. **The DPDP code IS running in production** - `#644` landed, the gateway boots, and `#646` gave it a student-facing surface on `/me`. Wave DPDP-B's close-out existed on ONE DISK and is now archived. **`ME-2` is the next lane and carries THREE hard constraints, one of them a privacy regression risk.** `SUPPLY-2` is UNBLOCKED and is the DPDP arc's last lane.)
@@ -21,6 +22,149 @@ table. Merged is not deployed.
 # Previously: 2026-08-07 (post-**WAVE 5F**: #619 · #620 · #625 · #621 · #626 · #627, four lanes. Trunk `fbfb57fa`. ZERO open PRs. Typed grading LIVE-VERIFIED end to end, including the control. **Wave 5G opens with `ME-PROGRESS`.**)
 
 
+
+## 2026-08-18 — NEXT ACTION: **`DEPARTURE-DEAD`, ALONE — AND THE ARC DOES NOT CLOSE UNTIL THE OWNER LIVE-VERIFIES THREE SURFACES**
+
+**Trunk `ffd352fb28a9773dcae48ba875316d288dbef5fd`** — re-derive it with
+`git ls-remote origin base/approved-thru-437`, never from a document. ⚠⚠ **`c4c0c448` IS DEAD.**
+
+`#684` (CHECKER-FIX) and `#685` (GRD-CLOSE) are **on trunk, verified by content and ancestry.**
+`#682` (SHEET-FINISH) is a **green DRAFT that is NOT on trunk** and is the **least urgent merge on the
+board** — both symbols it adds are **dormant with zero non-test consumers.**
+
+### THE THREE UNITS, IN ORDER
+
+| # | unit | why now | constraint |
+|---|---|---|---|
+| **1** | **`DEPARTURE-DEAD`** | the departure feature has **never run** on chapter test, worksheet or full mock | **RUNS ALONE.** Server-side. Collides with `STUB-503`. |
+| **2** | **the `gradedCount` comment lane** | `#682`'s **merge precondition** | one line, but a **LANE**, not a controller edit |
+| **3** | **`STUB-503`** | **the ONLY grader item after those two** | same file as `DEPARTURE-DEAD` |
+
+**Then the arc closes.** No lane after those three.
+
+### 1 · `DEPARTURE-DEAD` — READ EVERY LINE OF THIS BEFORE DISPATCHING
+
+**Spec staged and hash-verified: `C:\Projects\LT-specs\MI-INTEGRITY-3\DEPARTURE-DEAD.md` — 13424 B,
+`3EF6C3F7D800`.** Verify with `Get-FileHash` before dispatch; **mismatch is a HARD STOP.**
+
+★★★ **WHY IT IS THE ONE.** `isDeparture` is set **only inside `handleCheckSolution`**, so
+`findDepartureIndex` returns **-1 on the structured path.** ⇒ **RULE 5, THE DEPARTURE CAP AND
+`mistakeSummary.departure` ARE ALL DEAD ON CHAPTER TEST, WORKSHEET AND FULL MOCK. ONLY CHECK & IMPROVE
+HAS EVER HAD THEM LIVE.** **Until this lands, *"the grader is fixed"* is true of Check & Improve only.**
+
+⚠⚠ **TWO STOP CONDITIONS — CARRY THEM INTO THE DISPATCH VERBATIM:**
+- **P5 — the structured prompt is ABSENT.**
+- **P6 — a not-found path doing something OTHER than "no departure".**
+
+⚠⚠ **ITS LINE NUMBERS HAVE ALMOST CERTAINLY MOVED, AND THAT IS NOT A STOP.** The spec was written
+against `c4c0c448`; **all three of its premises sit in `checkSolution.cjs`, the file `#685` just
+changed.** ★ **THAT IS ROT MODE 1 — EXPECTED. LOCATE ANCHORS BY TEXT (`grep -n "<phrase>"`) AND REPORT
+WHAT WAS FOUND.** `#681` had already landed **+469 lines** in that same file; `#685` added more.
+**Trust enclosing function names, never numbers.**
+
+⚠ **IT RUNS ALONE.** It **changes marks on three surfaces at once, on paths never live-verified**, it
+may return BLOCKED, it may need a reissue, and it carries an **owner live-verify cycle on three
+surfaces.** **DO NOT DISPATCH IT ON A THIN BUDGET** — *starting a three-surface marks change at ~37%
+context is how a controller dies mid-lane.*
+⚠ **The merge trade recorded for `#684`/`#685` — scoped local runs plus green CI, no full-matrix
+zero-skip lines — WAS A NARROW-BLAST-RADIUS JUDGEMENT AND DOES NOT GENERALISE TO THIS LANE.**
+
+### 2 · THE `gradedCount` COMMENT LANE — `#682`'s ONLY REMAINING PRECONDITION
+
+One comment on the `gradedCount` line in
+`lazytopper/src/components/results/scorecardVariants.ts` (branch `lane/sheet-1v4-graded-uniformity`,
+`#682`, head `534f4f32`), stating the value is **SYNTHESISED from `questionIds` and WRONG for a
+partial session.**
+
+★ **THE REASON, which is the whole point: dormant code with a known defect and NO MARKER is how a
+future lane wires it up in good faith.**
+
+⚠ **IT IS A LANE, NOT A CONTROLLER EDIT** — `tsc` on **both** configs, `scope:guard` **PRE-`git add`**,
+the scoped suites re-run, and a push to `#682`. *A controller that writes product source has become a
+subagent with a plan attached.*
+⚠ **DO NOT "FIX" THE DEFECT ITSELF IN THAT FILE.** `SessionRecord` **cannot represent the honest
+answer** — no graded count and no unattempted list is persisted; the data survives only in
+`SessionPerQuestionPayload` behind `perQuestionRef`, which the variant never receives.
+`[FU-QP-STORED-GRADEDCOUNT-SYNTHESISED]` **folds into the QP-HISTORY-HOST lane**, which must touch
+`perQuestionRef` for its own download resolver anyway.
+
+### 3 · `STUB-503`
+
+`isStubMode()` must never return a grade. A credential outage returns **HTTP 200 with a fabricated
+70%, invented `studentWork` and an invented presentation mistake — and it flows into MI.** It fires at
+**THREE sites, not one** ⚠ *(the recorded numbers `:814` / `:1277` / `:1738` are pre-`#685` —
+**re-derive them by text**)*. **LATENT**; the credential is confirmed set. **Fix: 503 with an honest
+message**, plus a test that stub mode **never returns 200 with `marksAwarded`.**
+
+### ★★★ THE ARC'S ACCEPTANCE TEST — AND NO GATE IN THIS REPO CAN PRODUCE IT
+
+> **THE ARC CLOSES WHEN THE OWNER HAS LIVE-VERIFIED THE DEPARTURE BEHAVIOUR ON CHAPTER TEST,
+> WORKSHEET AND FULL MOCK.** Not when the code lands. Not when CI is green.
+> **NO GATE IN THIS REPOSITORY CAN PRODUCE THAT EVIDENCE.**
+
+⚠ **AND ON `#685` SPECIFICALLY: EXPECT THE RE-RUN POLYNOMIAL MARK UNCHANGED.** No consumer derives the
+mark from `marksDeducted` — the mark is the `marksAwarded` sum. **Only the per-step deduction badges
+change.** ★ **Without this correction a correct fix reads as a failed one.** *(The owner corrected his
+own live-verify line here.)*
+
+### STANDING DOCTRINE ADDED THIS WAVE
+
+- ★★★ **A SPEC WHOSE ALLOWLIST CANNOT REACH THE DATA ITS OWN RULING REQUIRES.** *The lane never
+  discovers it — it either STOPS or SYNTHESISES THE NUMBER AGAIN.* **OPERATIONAL FORM: BEFORE WRITING
+  AN ALLOWLIST, NAME THE FILE THAT HOLDS THE DATA, NOT THE FILE THAT HOLDS THE SYMPTOM.**
+  ⚠ **DISTINCT from *extent-from-a-sample***: that class is a claim about **how big a set is**; this
+  one is a claim about **where a fix can reach.** Owner's words: *"That is my error four times over
+  this wave and it now has a name."*
+- ★★★ **A CONTROLLER MUST NOT AUTHOR AN ERRATUM.** An erratum **overrides a hash-gated spec**, so its
+  authorship must be as traceable as the spec it modifies. **THE OWNER'S RULINGS TRAVEL IN THE
+  DISPATCH MESSAGE, NOT IN A FILE** — a dispatch carries no hash and therefore cannot silently
+  override a gated spec. **If a ruling needs a file, THE OWNER writes and hashes it.**
+  ★★ **A PRECEDENCE CHAIN IS A CLAIM ABOUT WHICH DOCUMENTS ARE LIVE, AND IT GOES STALE SILENTLY** —
+  the lane obeying it has no way to check the chain's own currency. **The deeper the chain, the more
+  of the board it can freeze.** ⚠ **RETIRED HASHES — IF ANY APPEARS ON A DISPATCH, STOP:**
+  `B8B8BED12A44` · `997B3BF05BF1` · `124F50A1064E` · `B0B9B75DE8FF` · `18AABAE9963D` · `543826E76CF9`.
+  ⚠ **AND the merged-in-`#681` specs likewise: GRD-CLAMPS · GRD-FINISH · GRD-FINISH-2 · GRD-FINAL.**
+- ★★ **ROT MODE 7 — A PREMISE FALSIFIED BY THE LANE'S OWN COMPLETED WORK.** The anchor stays
+  byte-identical and merely moves while the **CLAIM goes false by design.** ⇒ **RE-CITATION CANNOT
+  REPAIR IT.** Ruling: **finishers gate STRUCTURE ONLY**; §0c.1 carries the verification.
+  ⚠⚠ **THE COMMAND IN THAT RULING IS WRONG — FIX IT BEFORE ANY FUTURE FINISHER RUNS
+  (`[FU-FINISHER-GATE-WRONG-FLAG]`): `--strict-anchor` only decides whether a MISSING anchor is ERROR
+  or WARN. Anchor RESOLUTION is gated by `--worktree`. DROP `--worktree`, NOT `--strict-anchor`.**
+  ★ *The rule was reasoned; the mechanism was assumed.*
+- ★★ **THE TWO PIPE FIXES COVER DISJOINT HALVES.** Escaped `\|\|` and a **bare `|`** are different
+  bugs; **a bare pipe stays a delimiter.** **Anyone treating one as primary and the other as a
+  follow-up ships half a fix.** ⚠ **The `\|` rule `#684` now supports is documented NOWHERE in the
+  repo** — `[FU-LEDGER-PIPE-ESCAPE-UNDOCUMENTED]`.
+- ★★ **IF THE SPEC IS WRONG, THE LANE'S VERIFIED FINDING WINS — AND BUILDING NARROWER CAN BE THE
+  RIGHT ANSWER.** `#685` refused a literal rule that **would have discarded honest deductions** and an
+  existing test already pinned, built the narrow rule instead, **and added a CONTROL so the narrowing
+  cannot later be silently widened.** ★ *Better than asked for.*
+- ★★ **A cp1252 CONSOLE RENDERS A CLEAN UTF-8 FILE AS MOJIBAKE — READ BYTES, PRINT CODEPOINTS.**
+  Second recorded instance in this project. ⚠ `check:mojibake` is **NOT** *"structurally blind to
+  `handoff/`"* — `handoff/` is **REPORT_ONLY: scanned every run, every hit printed, merely not
+  enforced.** `ops/CONTROLLER_SUBAGENT_MODEL.md` still carries the false sentence
+  (`[FU-MOJIBAKE-HANDOFF-DESCRIPTION-STALE]`). **Do not repeat it.**
+- ★ **A GREEN FROM A GATE THAT CANNOT SEE THE CHANGE IS NOT EVIDENCE ABOUT THE CHANGE.** Both
+  `tsconfig` files use `"include": ["src"]` and are **structurally blind to `server/**/*.cjs`.**
+- ★ **PROVE A MUTATION APPLIED BEFORE ITS RED IS EVIDENCE.** *A mutation that "fails" for a reason
+  unrelated to the mutation is as worthless as one that never landed, and more dangerous.*
+- ★ **A PIN RE-BASELINED WITHOUT ITS BEFORE/AFTER ON THE RECORD IS INDISTINGUISHABLE FROM A PIN
+  QUIETLY DELETED.** State OLD and NEW in full, every time.
+- ★ **RUN THE §8 RECONCILE BEFORE EVERY MERGE.** `gh pr view --json files` vs
+  `git diff --name-only <merge-base>..<head>`. **`#566` reported 4 files and landed 13 because
+  nothing did this.**
+
+### ⚠ HOUSEKEEPING OWED
+
+- **Worktrees to clean:** `C:/Projects/LT-worktrees/checker-fix` (an abandoned prior attempt at a
+  superseded base — **do not confuse it with `checker-fix2`**), `C:/Projects/LT-worktrees/checker-fix2`,
+  `C:/Projects/LT-worktrees/sheet-finish`, `C:/Projects/LT-worktrees/sheet-1v4`.
+  ⚠ `git worktree remove` errors on `node_modules` but **de-registers anyway**; worktree
+  `node_modules` may be **JUNCTIONS to main — delete the LINK only, never `rm -rf`.**
+- **Wave MI-INTEGRITY-3 has no handoff record and its wave-state archive was never committed.**
+  `#681` is recorded in this cycle by SHA and content only. **Do not invent a narrative for it.**
+- ⚠ **`#683` and `#677` are dependabot PRs, unrelated to this arc.** Recorded so a next controller
+  does not mis-scope them as lane work.
 
 ## 2026-08-15 — NEXT ACTION: **REWRITTEN `TAX-A` AND `GRD-1v2` SPECS — AND, BEFORE ANY FOURTH MECHANISM, CAPTURE THE TWO GRADER PROMPTS ON THE DEPLOYED PRODUCT**
 
