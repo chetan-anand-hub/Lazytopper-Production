@@ -1,6 +1,91 @@
 # LazyTopper Implementation Roadmap
 
 
+## 2026-08-19 — WAVE MI-INTEGRITY-5: **THE GRADER ARC'S CODE IS COMPLETE ON ALL FIVE SURFACES — AND THE ARC IS NOT CLOSED. `#687`, `#682` AND `#688` ALL ON TRUNK** — trunk `caed0e1f`
+
+**`2026-08-19`**
+
+**STAGE OUTCOME: FOUR UNITS COMPLETE AND MERGED ACROSS THREE PRs; THE STAGE IS NOT CLOSED.**
+Three build lanes, one read-only scout, and two in-branch corrections before the last merge.
+⚠⚠ **The stage does not close on code landing.** It closes on an owner live-verify of the departure
+behaviour on **FIVE** surfaces — **C&I single-question (the only control), C&I multi-question upload,
+Chapter Test, Worksheet and Quick Practice batch** — and **no gate in this repository can produce that
+evidence.** ★ **The live-verify is IN PROGRESS. Nothing below may be read as "the grader is fixed."**
+
+- ✅ **`DEPARTURE-DEAD` (U2) — `#687` MERGED (`3d22ff88`).** `isDeparture` now carries through
+  `normaliseStructuredResult`. **Product diff `+9/-0`; test file `+194/-0`** — ★ *the spec said "one
+  field, one path, that is the whole change" and the numstat agrees with the sentence; a `+9/-0`
+  product diff cannot have quietly removed a behaviour.* Server `node --test` **139 pass / 0 fail /
+  0 skipped / 0 todo** against a 132 baseline, so *"139 of what"* is answered: **seven new cases.**
+  ★★★ **THE FOUNDING QUESTION OF THE ARC WAS ANSWERED RATHER THAN INFERRED:**
+  `normaliseStructuredResult` emitted **nine fields and `isDeparture` was not among them**, so
+  `findDepartureIndex` **could only ever return -1 on the structured path.**
+  ★★ **AND IT DISPROVED THE SENTENCE THE WHOLE ARC WAS BUILT ON** — C&I's **multi-question** upload
+  calls `gradeWorksheet` directly, so **C&I ran on the dead path too** ⇒ **five surfaces, not three**,
+  with a fifth caller nobody had named at `quickPracticeSessionService.ts:590`.
+- ✅ **`SHEET-1v4` (Steps 1 + 7) + `QP-GRADEDCOUNT-MARKER` (U1) — `#682` MERGED (`fe74a09e`).**
+  The graded sheet renders honestly for MCQ and unstepped answers, and the stored Quick Practice
+  `gradedCount` now carries a comment saying it is **SYNTHESISED and wrong for a partial session.**
+  Six files under `lazytopper/src/components/`, **+789/-4.** ⚠ **Steps 2 and 4 remain unbuilt and are
+  ADDITIVE; a later lane takes them.** The marker itself was **comments only — 21 insertions, 0
+  deletions, 0 non-comment added lines, MECHANICALLY VERIFIED — and the suite was BYTE-IDENTICAL
+  pre/post.** ★ *A comment that changed a test result would have changed behaviour, and that was a
+  STOP condition rather than a curiosity.*
+- ✅ **`GRD-UNIFORM` (U7) — `#688` MERGED (`caed0e1f`).** **19 of 19 scenarios built** (+2 regression
+  guards, +a control, +a keystroke case, +the diagram fail-safe, +a uniformity walk = **25 tests**,
+  rising to 166 server tests after two corrections against a 139 baseline). The stored marking scheme
+  is demoted from **authority on method** to **corroboration**. ⚠⚠ **THE SPEC'S OWN PROSE SAID "TEN
+  SCENARIOS" AND ITS ENUMERATION LISTED NINETEEN.** ★★ **A lane that built ten would have PASSED ITS
+  OWN GATES AND SHIPPED A THIRD OF THE WORK** — the count sentence and the list disagreed, and **only
+  the list is checkable.** The controller ruled **the enumeration governs.**
+- ✅ **`TAXONOMY-U4` — read-only scout, REPO WRITES 0** (verified at start **and** finish), location
+  method **BY TEXT throughout**, shared checkout never read. ★★★ **IT WITHDREW ITS OWN UNIT:** a
+  code-only U4 is **INERT**, because **the taxonomy is defined in the PROMPT, not in TypeScript.**
+- ✅ **`HANDOFF-MI5` — this docs-only PR.** **Seven `handoff/` files, zero product files.**
+
+**★★★ THE STAGE'S FINDING — AND IT IS A PROPERTY, NOT A BUG.**
+*A rule written on the SINGLE-QUESTION path and absent from the STRUCTURED one — **found FOUR times,
+four different KINDS**: a **FIELD** (`isDeparture`), a **CALLER** (C&I multi-question), an
+**INSTRUCTION** (the subject checklist), and a **CLAUSE** (the units rule).*
+⇒ **"That is no longer a bug; it is a STRUCTURAL PROPERTY OF `checkSolution.cjs`, and the next lane
+should ASSUME it rather than DISCOVER it."** ⇒ **`[FU-SUBJECT-RULES-SINGLE-PATH-ONLY]` is the largest
+remaining grader defect and the whole reason U8 exists.**
+
+**⚠ WHAT THIS STAGE DELIBERATELY DID NOT DO.**
+- **It did not port the subject rules into the structured path.** The U7 lane **STOPPED at P8 and
+  reported it** rather than building around it; nothing it wrote conceals the gap, and clauses (l) and
+  (m) **NARROW the gap without closing it.** ⇒ **A NEW LANE EITHER WAY, and the owner writes the spec.**
+- **It did not rule on the crossed-out-attempt case**, which is now the more dangerous half of U8.
+  ★★★ **The owner's reason: IT MUST BE ESTABLISHED BEFORE IT IS RULED, NOT RULED AND THEN ESTABLISHED.**
+- **It did not take `SUBJECT-RULES-PORT` or `STUB-503`**, both staged and hash-verified. ★ **A
+  controller budget call, owner-accepted: a lane landing AFTER the handoff PR merges re-opens the exact
+  MI-3 hole this handoff exists to close** — `handoff/` would describe trunk minus that PR.
+- **It did not re-open `[FU-GRADER-CROSS-SURFACE-DIVERGENCE]`**, which is CLOSED AS VARIANCE.
+
+**⚠⚠ THE MERGE-BEFORE-VERIFY DECISION, RECORDED WITH ITS REASON.** `#688` merged **before** its
+live-verify because **Firestore auth accepts only the deployed domains, so nothing is testable until
+it is on trunk.** ★ *This is the `#638` shape inverted — there only a boot could prove it ran; here
+only trunk can prove anything at all.* ⇒ **`#688` merged on gate evidence alone, KNOWINGLY. Do not
+later read it as a skipped gate.**
+
+**★★ THE STAGE ALSO CLOSED A RECORD GAP THAT WAS OLDER THAN ITSELF.** Wave MI-INTEGRITY-3 closed with
+a build still in flight and **its record never reached `handoff/`** — `#681` landed after the wave had
+correctly stood down. **It is reconstructed in `CURRENT_STATE.md` §4**, with an explicit statement of
+what the source archive does **not** support. ⇒ ★★★ **A "NOTHING LANDED" RULING IS TRUE AT AN INSTANT
+AND DECAYS.**
+
+**GATES AT THE STAGE'S TIP (`caed0e1f`) — READ FROM THE RUNS, NOT FROM A DOCUMENT:**
+root guard matrix **`# suites 30  # tests 206  # pass 206  # fail 0  # skipped 0  # todo 0`** ·
+full vitest **144 files / 1852 tests** · server `node --test` **166 pass / 0 fail** ·
+build **1124 modules transformed** · **Container Boot: image, boot, both ready lines, Railway
+healthcheck and in-image probes WITH CONTROLS — all success.**
+⚠ **`tsc` is structurally blind to the server CommonJS routes**, so for `#687` and `#688` the matrix,
+vitest, the build and the **boot** were the only gates with any reach over the changed file. ★ **The
+boot is the top rung of the evidence ladder and it was reached.**
+⚠⚠ **`verify-production-build.mjs` DOES NOT RUN IN CI** — zero hits in a 7,746-line log — so the
+post-build bundle verifier **has never gated a PR.** **Irrelevant to `#687` and `#688` (no bundle
+chunk), load-bearing for U4, U5 and U6.**
+
 ## 2026-08-18 — WAVE MI-INTEGRITY-4: **THE GRADER ARC IS FIXED ON ONE SURFACE OUT OF FIVE — `#684` AND `#685` ON TRUNK, `#682` STILL A DRAFT** — trunk `ffd352fb`
 
 **`2026-08-18`**

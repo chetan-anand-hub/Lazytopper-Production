@@ -13,6 +13,323 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 ---
 
 
+## 2026-08-19 — WAVE MI-INTEGRITY-5 — new, re-stated and closed follow-ups (trunk `caed0e1f`)
+
+*Per standing rule 1, every ID below has its own heading and body — including the ones being carried
+forward or closed, so no reader meets a bare cross-reference. Per standing rule 3, **no dated entry
+elsewhere in this file has been rewritten**; the corrections and status changes are recorded here.*
+
+### `[FU-SUBJECT-RULES-SINGLE-PATH-ONLY]` — NEW · **OWNER-VERIFIED** · ★★★ **THE LARGEST REMAINING GRADER DEFECT**
+**The subject-specific checklists reach ONE PATH ONLY.** Present in `handleCheckSolution`; **NONE** in
+`gradeStructuredSet`. ⇒ **FIVE surfaces grade Science without them** — Worksheet, Chapter Test, Full
+Mock, Quick Practice batch **and multi-question Check & Improve** — ⚠⚠ **and the MATHS checklist is
+equally absent from Path B.** The owner verified it himself: grepping *"terminology, balanced
+equations"* across the structured path **returns nothing.**
+★★★ **THIS IS THE FOURTH INSTANCE OF ONE SHAPE, FOUND FOUR DIFFERENT WAYS: a FIELD (`isDeparture`) ·
+a CALLER (C&I multi-question) · an INSTRUCTION (this) · a CLAUSE (the units rule).** ⇒ **"No longer a
+bug; a STRUCTURAL PROPERTY of `checkSolution.cjs`, and the next lane should ASSUME it rather than
+DISCOVER it."**
+**LANE: U8 `SUBJECT-RULES-PORT`, spec staged `83BC0AEE0189`. The owner writes it.** ⚠ **It carries
+`[FU-CROSSED-OUT-ATTEMPT-PATH-COVERAGE]` with it** — both are *"what reaches which path"* questions.
+★ **The U7 lane did NOT build around it and nothing it wrote conceals it**; two clauses **narrow** the
+gap without closing it, because their mechanism is the shared constant both paths already consume.
+
+### `[FU-CROSSED-OUT-ATTEMPT-PATH-COVERAGE]` — NEW · **OWNER-RAISED** · ⚠⚠ **THE MOST DANGEROUS ITEM ON THIS BOARD**
+**A student writes TWO attempts and CROSSES ONE OUT.** CBSE ignores struck-through work and marks the
+surviving attempt. **A no-attempt/crossed-out handler already exists SOMEWHERE, and nobody knows
+whether it reaches both paths or what it currently does.**
+⚠⚠ **FAILURE MODE: a struck-out WRONG attempt beside a CORRECT one could read as a DEPARTURE and ZERO
+THE STUDENT'S CORRECT WORK. THAT IS THE WORST OUTCOME THIS GRADER CAN PRODUCE.**
+⚠⚠ **THE EXPOSURE IS BRAND NEW.** `#687` made departures fire on four more surfaces; **before this
+wave it could only have happened on C&I single-question.**
+⛔ **It is an INVENTORY, not a ruling, and the correction lane was told NOT to rule on it, NOT to
+implement it and NOT to go looking.** ⇒ ★★★ **THE OWNER'S REASON, AND IT IS THE PRINCIPLE THIS ARC HAS
+BEEN RE-LEARNING: IT MUST BE ESTABLISHED BEFORE IT IS RULED, NOT RULED AND THEN ESTABLISHED.**
+**Assigned to U8**, the lane already enumerating what reaches which path.
+
+### `[FU-DEPARTURE-LIVE-VERIFY-FIVE-SURFACES]` — NEW · **OWNER-ADOPTED** · ★★★ **THE ARC'S ACCEPTANCE TEST. IN PROGRESS.**
+**The arc closes on an owner live-verify of FIVE surfaces, not three:** **1** C&I single question
+*(★ the ONLY control, and the only path that already worked)* · **2** C&I multi-question upload
+*(⚠ a CHANGED surface, NOT a control)* · **3** Chapter Test · **4** Worksheet · **5** Quick Practice
+batch.
+**On EACH, all four must hold:** a departure is **identified** · the steps below it are **uncredited**
+· it is counted **ONCE** · the coaching line **NAMES it** rather than saying *"show every step"*.
+⚠ **THE SHAPE IS COMPARED, NOT THE MARK** — the questions differ across surfaces.
+★ **No gate in this repository can produce that evidence.** ⇒ **Until it passes, *"the grader is
+fixed"* remains a claim about ONE surface out of five.**
+⚠⚠ **CONDITION 4 MAY NOT BE CHECKABLE ON ALL FIVE — UNVERIFIED, CONTROLLER INFERENCE.**
+`buildCiCoaching` is **named for Check & Improve**; if the coaching line exists only on C&I surfaces,
+condition 4 must be scoped. ★ **One cheap read settles it — do it before starting the verify.**
+
+### `[FU-CI-MULTIQ-NOT-A-CONTROL]` — NEW · **LANE-REPORTED, owner-adopted in full**
+**Check & Improve's MULTI-question upload calls `gradeWorksheet` DIRECTLY** at
+`DesktopCheckImprovePage.tsx:1388`, **so C&I ran on the dead structured path too.**
+⇒ **The sentence the whole arc was built on was corrected:** *"everything this arc built ran on Check
+& Improve ONLY"* became **"ran on C&I's SINGLE-QUESTION path only."**
+⚠⚠ **The owner's own written control was invalid and he corrected it himself:** *"Check & Improve is
+unchanged"* holds **ONLY for a single-question re-run.**
+★★ **A CONTROL THAT IS ITSELF CHANGED BY THE THING IT IS CONTROLLING FOR IS NOT A CONTROL** — and
+nothing in this repository could have caught it. ★ *`MOUNT != LIVE` at feature scale, one layer
+deeper than the arc had gone: the surface believed to be the reference was itself half-dead.*
+
+### `[FU-ANCHOR-IS-A-SHAPE-NOT-A-LOCATOR]` — NEW · **LANE-REPORTED** · ★★★ **ROT MODE 8. THE OWNER CALLS IT THE MOST DANGEROUS ON THE RECORD.**
+**`gradedCount: totalQuestions, totalQuestions` is a SHAPE SHARED BY FOUR STORED VARIANTS** —
+`scorecardVariants.ts:723`, `:1128`, `:1557`, `:1931`. **The anchor resolves. It resolves to the WRONG
+FUNCTION. The premise gate passed clean — exit 0, zero failing rows.**
+⚠⚠ **THE PREMISE GATE CANNOT SEE ENCLOSING SYMBOLS**, so the ledger's `how verified` cell claimed the
+wrong enclosing function and nothing caught it.
+★★ **This is NOT one of the seven earlier rot modes and it defeats a GREEN gate: the anchor string is
+byte-perfect, the line resolves, the ledger passes — and the citation still points at the wrong code.**
+⇒ **"It is why my `--strict-anchor` confidence was misplaced all wave."**
+★ **THE CURE IS ALREADY THE HOUSE RULE — *cite the enclosing function BY NAME* — AND NOTHING CHECKS IT.**
+> **PROPOSED CHECKER RULE, OWNER-AUTHORED, FOR A FUTURE MECHANISM LANE (NOT A GRADER LANE):**
+> **AN ANCHOR MATCHING AT MORE THAN ONE SITE IN A FILE IS REJECTED UNLESS THE ROW NAMES ITS ENCLOSING
+> SYMBOL.**
+
+### `[FU-ANCHOR-QUOTES-RENDERED-NOT-SOURCE]` — NEW · **LANE-REPORTED, owner claims the defect as his** · ★★ **ROT MODE 9**
+**A premise's claim was TRUE and its cited line was CORRECT.** It failed **only** because the source
+writes the apostrophe as a **JS escape** and the spec quoted the **rendered** character.
+⇒ **The anchor described what the string MEANS rather than what the file CONTAINS** — **a false RED
+from a correct instrument.**
+★★ **MODE 8 RESOLVES TO THE WRONG PLACE; MODE 9 FAILS TO RESOLVE TO THE RIGHT ONE. BOTH ARE INVISIBLE
+TO A GREEN GATE.** ⇒ **AN ANCHOR MUST BE QUOTED AS THE SOURCE WRITES IT.**
+⚠ **CANDIDATE DETECTOR for a future checker lane: any anchor containing a backslash escape.**
+⚠ **THERE ARE NOW NINE ROT MODES. ANY SPEC WHOSE §0c.0 SAYS "SIX" IS STALE.**
+
+### `[FU-PREMISE-CHECKER-SEARCH-WORDING]` — NEW · **LANE-REPORTED**
+**An evidence cell was rejected on its WORDING while its lines and anchors were byte-perfect.**
+⇒ **This has now cost a round THREE TIMES.** ★ **It is rot mode 3, and this wave a controller
+mis-applied the brand-new mode 8 to an instance of it** — *the claim was true, the evidence cell was
+false, and that is mode 3, not mode 8.*
+⚠ **Recorded so the next controller does not reach for the newest mode first.**
+
+### `[FU-DOCTRINE-ONE-LINER-AMBIGUOUS]` — NEW · **SCOUT-REPORTED** · ★★★ **BLOCKS U4a. NOT A MEASUREMENT FAULT.**
+**`handoff/WAVE_STATE_MI_INTEGRITY_ARCHIVE.md:105-112`, under the header *"DECISIONS INHERITED — D1–D8,
+do not re-open"*, states D1 as one line: *"calculation leaves knowledge gaps"*.**
+**`grep -rn "calculation leaves"` returns THIS ONE LINE AND NOTHING ELSE. THE REPO NEVER EXPANDS D1.**
+> ★★★ **"LEAVES" PARSES TWO WAYS AND THEY ARE OPPOSITES:**
+> **(a) leaves = leaves behind / PRODUCES** ⇒ calculation **IS** a knowledge gap
+> **(b) leaves = DEPARTS / exits** ⇒ knowledge gaps are conceptual **ALONE**
+> **NEITHER IS A MISREADING. THE ONE-LINE SUMMARY FORM CREATED IT.**
+
+| definition | agree | contradict | undetermined |
+|---|---|---|---|
+| **D1-as-repo, parse (a)** | **25 compatible** (17 explicit + 8 compatible-and-silent) | **0** | — |
+| **D1-as-owner, parse (b)** | **0** | **17 EXPLICITLY CONTRADICT** | **8** |
+
+★★ **THE 8 UNDETERMINED ARE A SPEC REQUIREMENT, NOT A LOOSE END.** They define only
+`{silly, presentation}` as careless and **never name calculation**, so their verdict depends on **WHERE
+CALCULATION GOES**: a **third category** leaves them untouched; the **careless bucket** breaks them.
+> ★★★ **THE SPEC MUST SAY WHERE CALCULATION *LANDS*, NOT ONLY THAT IT *LEAVES*.**
+
+**IT IS A RULING, NOT A DESCRIPTION ⇒ U4 IS A MIGRATION.** Three grounds: the header says *"DECISIONS
+... do not re-open"*; **sibling D7 asserts something ZERO sites do today and a CI guard forbids**, so
+the list cannot be describing the code; and decisively, **under parse (a) D1 would be the ONLY one of
+eight decisions requiring no change at all.** ⚠ **REACH, stated by the scout: inference from the
+header plus D7's demonstrated non-existence.**
+⚠⚠ **It sat inside a list headed *"do not re-open"* — the form that most discourages the question that
+would have caught it.** ★ **ONE UNAMBIGUOUS OWNER SENTENCE CLOSES IT, and that is the whole remaining
+blocker on U4a.**
+
+### `[FU-VERIFY-PRODUCTION-BUILD-NOT-IN-CI]` — NEW · **CI-LOG-VERIFIED** · ⚠⚠ **OWNER CALLS IT THE MORE IMPORTANT OF TWO FINDINGS**
+**`verify-production-build.mjs` DID NOT RUN: zero hits across a 7,746-line Quality Gate log.**
+★ **It is a LOCAL gate only; it is not wired into `quality-gate.yml`.**
+⚠⚠ **`CLAUDE.md` §6 lists it in the required gate set immediately after `pnpm run build`, and §6a
+describes CI as gating "the full bar" — a reader would REASONABLY BELIEVE CI RUNS IT. IT DOES NOT.**
+⇒ **The post-build bundle verifier has NEVER gated a PR.**
+⚠ **Irrelevant to `#687` and `#688`** — a `server/*.cjs` change emits no bundle chunk.
+⚠⚠ **LOAD-BEARING FOR U4, U5 AND U6, WHICH ARE ALL `src/` UNITS TOUCHING RENDERED OUTPUT.**
+★ **CARRY INTO EVERY SUCH DISPATCH, OWNER-ORDERED: the report must STATE that the bundle verifier did
+NOT run in CI, and the lane must run it LOCALLY and QUOTE it. Do not let a `src/` unit merge believing
+CI checked its bundle.** ⚠ **This also applied to `#682`, which does change rendered output.**
+
+### `[FU-CI-LOG-RETENTION-LOSES-STEP-NAMES]` — NEW · **LANE-REPORTED**
+**A lane trying to recover a vitest baseline from an older Quality Gate run found EVERY LINE READING
+`UNKNOWN STEP`, and `grep -c "Vitest"` returning 0.**
+⇒ ★★ **A BASELINE YOU DID NOT CAPTURE AT THE TIME MAY BE UNRECOVERABLE.** ★ **The lane refused to
+manufacture the comparison and said so**, which is why the discrepancy was resolved correctly rather
+than papered over.
+⇒ **Operational form: capture and QUOTE gate counts in the report at the time of the run. Do not plan
+to look them up later.**
+
+### `[FU-SCHEMEFIRSTCACHE-VACUOUS-NEGATIVES]` — NEW · **LANE-REPORTED** · **DELIBERATELY LEFT OPEN**
+`src/services/checkSolutionSchemeFirstCache.test.ts` **`:181` and `:195` are now TAUTOLOGIES** — they
+assert the ABSENCE of a string **that no longer exists anywhere in the repository.**
+⚠ **They were deliberately NOT touched.** The allowlist was widened by exactly one file for exactly
+one assertion (`:148`), and ★ *a scope creep inside a widened allowlist is how the widening gets
+regretted.* ⇒ **The FU stays OPEN and a later lane rewrites them into assertions that can fail.**
+
+### `[FU-GRADEREVAL-SCHEME-LABEL-DRIFT]` — NEW · **LANE-REPORTED** · **ASSIGNED TO U6**
+**`server/eval/graderEval.cjs:167` is a THIRD marking-scheme site**, outside U7's allowlist, and it is
+**now drifted from BOTH production prompts.** ⇒ **The eval harness no longer describes the thing it
+evaluates.** ★ *"It lands on the eval-harness lane, which is where a drifted harness belongs."*
+
+### `[FU-ECF-PROMPT-SIZE]` — NEW · **LANE-REPORTED** · low priority, recorded so it is not rediscovered
+**Roughly 4,000 characters were added to EVERY grading call on BOTH paths.** ⚠ **Not a correctness
+issue; a cost and latency one**, and it compounds with every future clause added to the shared
+constant. **No action ordered.**
+
+### `[FU-DEPARTURE-RETURNS-NOT-EXPRESSIBLE]` — NEW · **LANE-REPORTED** · ★ **A WORKAROUND WAS SHIPPED AND LABELLED AS ONE**
+**A student who DEPARTS and then genuinely RETURNS to the correct method cannot be paid by the code**,
+because `applyEcfPolicyV2` **zeroes everything below the departure index UNCONDITIONALLY** — even if
+the model wanted to award those steps.
+⇒ **The prompt now tells the model not to set the flag in that case.** ⚠⚠ **THAT IS A WORKAROUND, NOT
+A FIX, AND THE LANE SAID SO RATHER THAN LETTING THE SCENARIO READ AS IMPLEMENTED.**
+★ *Scenario 10 is therefore prompt-only; the machinery to express a genuine return does not exist.*
+
+### `[FU-UNATTEMPTED-OMIT-VS-REPORT-BOUNDARY]` — NEW · **CONTROLLER-RAISED** · **OWNER'S TO RULE**
+**Session-level and sub-part-level "unattempted" have OPPOSITE DEFAULTS.**
+`quickPracticeSessionService.test.ts:110` **OMITS** an unattempted question from the response; **this
+wave's ruling says a skipped SUB-PART must NOT be omitted.**
+★ **Both may be right — the distinction is the SURFACE:** on a **student-facing scorecard** the item
+must be **VISIBLE and NAMED**, never silently dropped; in the **grader taxonomy and MI** it must **not
+enter mistake counts, not get a mistake type, not reach MI and not be scored 0.**
+⚠ **BUT NOBODY HAS STATED THE BOUNDARY**, and *two rulings using opposite words for the same state is
+exactly how a lane ends up implementing one and breaking the other.*
+★ **The prompt now carries the reconciling sentence verbatim — *"uncounted is not the same as
+unreported"*** — and the schema check came back YES, so **nothing was invented**: `status:"missing"` +
+`mistakeType:null` already means *reported, never typed, never counted, never in MI.*
+
+### `[FU-CLAUDEMD-S10-OMITS-DECISION-LOG]` — NEW · **HANDOFF-VERIFIED** · ★★ **THE FIFTH INSTANCE, PREVENTED RATHER THAN DIAGNOSED**
+**`CLAUDE.md` §10 names SIX `handoff/` files to update after every merged PR. `handoff/DECISION_LOG.md`
+is not one of them**, so **a handoff lane working strictly to §10 never opens it** — which is why its
+companion entry had been **OWED AND UNWRITTEN SINCE WAVE MI-4.**
+⇒ **This wave's allowlist was SEVEN files because someone named the seventh before the lane started.**
+★★★ **That is the *allowlist-cannot-reach* defect class caught in the act rather than after the fact,
+and it is the first time.**
+⚠⚠ **`CLAUDE.md` is not editable by a docs-only lane, so THE RULE ITSELF IS STILL WRONG.** ⇒ **Either
+`CLAUDE.md` §10 gains a seventh entry (owner's edit), or EVERY future handoff dispatch must name
+`handoff/DECISION_LOG.md` EXPLICITLY.** **Until one of those happens, this recurs by default.**
+
+### `[FU-DEPARTURE-DEAD-ON-STRUCTURED-PATH]` — ✅ **CLOSED by `#687` (`3d22ff88`)**
+`isDeparture` now carries through `normaliseStructuredResult`. **Product diff `+9/-0`.**
+★★★ **THE FOUNDING PREMISE OF THE ARC WAS VERIFIED RATHER THAN INFERRED BEFORE IT WAS FIXED:**
+`normaliseStructuredResult` emitted **nine fields and `isDeparture` was not among them**, so
+`findDepartureIndex` **could only ever have returned -1 on the structured path.**
+**Neither of the lane's two STOP conditions fired:** the structured prompt **DOES** request the flag
+(clause 9, the JSON example and the response schema) ⇒ **the fix is a CARRY-THROUGH, not a prompt
+change**; and **all five not-found paths already behaved as "no departure"** ⇒ **no hidden behaviour.**
+★★ **P5 INVERTED THE USUAL DRIFT:** the house rule says grep the prompts when you change a rule in
+code — **here the PROMPT was already correct on both paths and the CODE was out of step**, which is
+why `NO_UPLOADS_CONTENTS_SHA256` did not move and no re-baselining was needed.
+⚠ **CARRIED FORWARD, VOLUNTEERED BY THE LANE:** the no-departure path is **NOT purely additive** —
+normalised steps now carry `isDeparture: false`. **Convergence, not divergence** (the single-question
+path always emitted it and the schema declares it) **but it IS a persisted-shape change**, and this
+project's own rule is to test the migration FROM THE OLD SHAPE.
+⚠⚠ **CLOSING THIS FU DOES NOT CLOSE THE ARC.** See `[FU-DEPARTURE-LIVE-VERIFY-FIVE-SURFACES]`.
+
+### `[FU-STORED-VARIANT-GRADEDCOUNT-SIBLINGS-UNCHECKED]` — ✅ **CLOSED. A CLEAN NEGATIVE.**
+**Both siblings are HONEST.** `scorecardVariants.ts:1128` (`storedChapterTestScorecardVariant`) and
+`:1557` (`storedFullMockScorecardVariant`) **guard the emission with
+`record.status === "graded" && totalQuestions > 0`.**
+**THE GUARD MAKES EQUALITY A THEOREM:** `status === "graded"` implies `gradedCount > 0 &&
+pendingCount === 0`, **ONE builder produces both surfaces' responses**
+(`fullMockGradeService.ts:66` is literally `return buildChapterTestResponse(args)`), and that builder
+sets `gradedCount + pendingCount === totalQuestions` exactly. ⇒ `pendingCount === 0` implies
+`gradedCount === totalQuestions`.
+**CAN THEY DIVERGE? NO — and that is the HONEST outcome, not a suppressed truth.** When the numbers
+*would* differ (`pendingCount > 0` ⇒ status `"partial"`), **no count is emitted at all** and the
+surface says *"Graded portion shown — some pages were pending."*
+> ★★★ **THE CONTROLLER'S COUNTER-EVIDENCE WAS RIGHT ABOUT THE CONCLUSION AND WRONG ABOUT THE
+> MECHANISM.** It argued they were safe **because they destructure `response`.** **They are safe
+> because of a GUARD, not because the count is read.** ⇒ ★★ *A shared shape was not evidence of a
+> shared source — but it resolved the OTHER WAY.* ⚠ **A correct outcome reached by a false premise
+> still poisons the record, so the mechanism is corrected here and not just the verdict.**
+⚠ **A NIT, NOT A DEFECT, recorded so nobody re-finds it as a bug:** `status === "graded" && !response`
+is reachable, so the fallback `record.questionIds?.length` applies; `questionIds` is built with
+`.filter(Boolean)`, so **a falsy id shrinks BOTH numbers together** — *"N of N"* stays consistent and
+**never over-claims**, but **N could UNDERSTATE the paper.**
+⚠ **REACH:** verified **statically in the client builder**. **The surfaces were not run**, and no
+exhaustive proof was made that no OTHER path constructs a response reaching these variants. **None was
+found.** ⇒ **No no-fake-data violation is live on `ChapterTestPage` or `FullMockPage`.**
+
+### `[FU-QP-STORED-GRADEDCOUNT-SYNTHESISED]` — **UPDATED, NOT CLOSED** · ★★ **TWO CANDIDATE FIX SHAPES NOW**
+**The marker owed by MI-4 is SHIPPED** — `#682` added a comment, **21 insertions / 0 deletions /
+0 non-comment added lines, MECHANICALLY VERIFIED**, with the suite **BYTE-IDENTICAL pre/post.**
+⚠⚠ **THE DEFECT IS STILL LIVE-IN-WAITING AND STILL DORMANT. U5 FIXES IT.**
+> ★★ **THE "ALLOWLIST CANNOT REACH" PREMISE ON THIS INSTANCE WAS INCOMPLETE: `response.gradedCount`
+> IS COMPUTED at `persistQuickPracticeSession` — AND DISCARDED.**
+⇒ **The honest number does NOT survive only in the per-question payload.** ★ **An additive-optional
+`SessionRecord` field is a SECOND VALID FIX SHAPE, and it is far cheaper than reaching
+`perQuestionRef`.** **U5's spec must consider BOTH.**
+⚠ **This SOFTENS the defect class as applied to THIS instance — the data is not unreachable, it is
+THROWN AWAY — but the class itself still stands.**
+★★ **AND THE ANNOTATION ALMOST WENT IN WRONG.** A correction passed down said the `!partial` guard was
+*"present but dead"* at `:722`. ⇒ **TRUE of `storedWorksheetScorecardVariant` and FALSE at the
+annotated QP site, where the guard is GENUINELY ABSENT.** **The lane wrote the accurate version
+instead.** ★ **It reconciles with MI-4's own scout rather than contradicting it** — *two independent
+reads agree; one intermediate claim was wrong.* **The owner retracted it himself.**
+
+### `[FU-CI-COACHING-TWO-SHOW-EVERY-STEP-SITES]` — **RE-STATED. THE COUNT IS THREE. THE ID STANDS.**
+⚠ **The id says TWO. The verified count is THREE** — `buildCiCoaching` emits *"show every step"*
+coaching at **`:114`, `:122` AND `:125`**, and the third says ***"showing"***, so the ruling's grep
+SHAPE could not see it.
+★ **THE ID IS DELIBERATELY NOT RENAMED: renaming it orphans every existing reference to it, in this
+file and in every report and spec that cites it.** **The count is corrected in the body — here, and in
+MI-4's section where it was first corrected — never by editing the identifier.** ⚠ **Nobody "fixes"
+the id.**
+★★ **`#682`'s Step 7 fixes all three STRUCTURALLY rather than site by site** — the departure branch is
+placed **FIRST**, so **no count-derived branch is reachable while a departure is present** — with a
+co-occurring test.
+⚠⚠ **BUT SEE `[FU-SHEET-DORMANT-NO-CONSUMER]`: shipping on trunk is not the same as reaching a
+student**, and **this FU is also load-bearing for condition 4 of the five-surface live-verify**, which
+may not be checkable on non-C&I surfaces at all.
+★★ **THE CLASS THIS BELONGS TO: EXTENT-FROM-A-SAMPLE FIRED INSIDE THE CORRECTION WRITTEN TO FIX IT.
+Count nothing whose unit is undefined, and a grep shape is not an enumeration.**
+
+### `[FU-SHEET-DORMANT-NO-CONSUMER]` — **KEPT OPEN, and its status CHANGED without the FU closing**
+**`#682` IS ON TRUNK (`fe74a09e`), so the two symbols are no longer dormant *on an unmerged branch*
+— they are dormant *on trunk*.** ★ **The chunk proves they are reachable from the bundle graph; it
+says NOTHING about a TRIGGER.**
+**Wiring Step 7 still needs `aiClient.ts` (`+ departure?: number`) and `DesktopCheckImprovePage.tsx`
+— both were outside that lane's allowlist and the lane did NOT build around it.**
+⇒ **Step 7 is NOT live for a student today.** ⚠ **Owner decision still owed.**
+
+### `[FU-MOJIBAKE-HANDOFF-DESCRIPTION-STALE]` — **KEPT OPEN, and now MEASURED rather than asserted**
+`ops/CONTROLLER_SUBAGENT_MODEL.md` §5 says `check:mojibake` is *"structurally blind to `handoff/`"*.
+**IT IS FALSE, and there is now CI-QUOTED PROOF:** a Quality Gate run printed
+**`enforced_hits=0 report_only_hits=17`** — ⇒ **17 hits INSIDE `handoff/`, produced by the scanner
+itself.** **`handoff/` IS SCANNED and merely UNENFORCED.** *(The 17 are the pre-existing deliberate
+specimens; DO NOT "tidy" them — they are the lesson.)*
+⚠ **A CONTROLLER DOES NOT AUTHOR THE ERRATUM.** ★ **The owner will write the correction himself,
+hashed, when the arc closes** — confirming that declining to write it was right.
+
+### `[FU-FINISHER-GATE-WRONG-FLAG]` — **KEPT OPEN, and the RULING'S MECHANISM IS CONFIRMED WRONG**
+The standing instruction tells finishers to run the premise gate **without** `--strict-anchor`.
+⚠⚠ **THE MECHANISM IN THAT RULING IS WRONG:** `--strict-anchor` only decides whether a **MISSING**
+anchor is ERROR or WARN; **anchor RESOLUTION is gated by `--worktree`** (checker `:289` vs `:320`).
+⇒ **Dropping the flag does NOT produce a structural-only run**, so dropping it costs the gate its
+evidence value for nothing. **This wave ran every gate exactly as written, flag included**, and
+governed non-zero exits by telling the lane to **name the rot mode and CONTINUE.** ★ **That is why the
+gate's evidence value survived three lanes.** ⚠ **The instruction itself is still on the record and
+still needs correcting by whoever owns it.**
+
+### `[FU-GRADER-CROSS-SURFACE-DIVERGENCE]` — **STILL CLOSED AS VARIANCE. DO NOT RE-OPEN.**
+Restated here **only** because this wave found four real single-path defects and a future reader may
+be tempted to reach back for a fifth divergence mechanism. ⛔ **No lane may propose one.** ★ *Three
+mechanisms were argued for something that never needed one.*
+
+---
+
+## ⚠ 2026-08-19 — DECISIONS OWED TO THE OWNER, CARRIED INTO THE NEXT WAVE
+
+1. ⛔⛔ **THE FIVE-SURFACE LIVE-VERIFY.** In progress. **It is the only thing that closes the arc**, and
+   **no agent lane can do it.** ⚠ **Settle first whether condition 4 is checkable on non-C&I surfaces.**
+2. **ONE UNAMBIGUOUS SENTENCE STATING D1** — including **where calculation LANDS**, not only that it
+   leaves. **U4a is blocked on exactly this and nothing else.**
+3. **THE D7 RULING** — *"presentation is a learnable gap"* — ⚠ **a PRODUCT decision, because it
+   contradicts a live system prompt and a green CI gate.** ★ **Easier to defend now that presentation
+   means FORMAT ONLY.**
+4. **`[FU-UNATTEMPTED-OMIT-VS-REPORT-BOUNDARY]`** — state the boundary between session-level and
+   sub-part-level unattempted.
+5. **`[FU-SHEET-DORMANT-NO-CONSUMER]`** — wire Step 7, or record that it stays dormant and why.
+6. **`CLAUDE.md` §10 vs the seven-file handoff** — fix the rule, or accept that every dispatch must
+   name `DECISION_LOG.md`.
+7. **`[FU-DPDP-GUARDIAN-CONSENT]` — STILL UNRULED and STILL LAUNCH-BLOCKING.** ⚠ **Carried unchanged
+   for a fourth consecutive wave. No agent lane can close it.**
+
+---
+
 ## 2026-08-18 — WAVE MI-INTEGRITY-4 — new, re-stated and closed follow-ups (trunk `ffd352fb`)
 
 *Per standing rule 1, every ID below has its own heading and body — including the ones being carried

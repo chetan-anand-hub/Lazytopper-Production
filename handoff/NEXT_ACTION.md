@@ -11,7 +11,8 @@ hits. #671 is on trunk — CONFIRM IT IS DEPLOYED, NOT MERELY MERGED, before cre
 table. Merged is not deployed.
 ```
 
-# Updated: 2026-08-18 (post-**WAVE MI-INTEGRITY-4**, docs-only lane `HANDOFF-MI4`. Trunk `ffd352fb` — ⚠⚠ **`c4c0c448` IS DEAD AS A BASE SHA**. **THREE LANES + ONE SCOUT; `#684` AND `#685` MERGED, `#682` STILL A DRAFT.** ★★★ **THE ARC IS NOT CLOSED: `isDeparture` is set only inside `handleCheckSolution`, so RULE 5, THE DEPARTURE CAP AND `mistakeSummary.departure` ARE ALL DEAD ON CHAPTER TEST, WORKSHEET AND FULL MOCK — everything this arc built and everything the owner live-verified has run on ONE SURFACE OUT OF FIVE.** **NEXT: `DEPARTURE-DEAD` — spec staged, 13424 B, `3EF6C3F7D800` — IT RUNS ALONE**, carries **TWO STOP CONDITIONS (P5, P6)**, and its line numbers **have almost certainly moved** because its premises sit in `checkSolution.cjs`, the file `#685` just changed — **rot mode 1, EXPECTED, NOT A STOP; locate by TEXT.** Then the **`gradedCount` comment lane** (`#682`'s merge precondition), then **`STUB-503`**. ★★★ **NEW DEFECT CLASS: a spec whose allowlist cannot reach the data its own ruling requires — BEFORE WRITING AN ALLOWLIST, NAME THE FILE THAT HOLDS THE DATA, NOT THE FILE THAT HOLDS THE SYMPTOM.** ⚠ **`#681` reaches `handoff/` for the first time in this cycle** — Wave MI-INTEGRITY-3 closed without a handoff PR. **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.**)
+# Updated: 2026-08-19 (post-**WAVE MI-INTEGRITY-5**, docs-only lane `HANDOFF-MI5`. Trunk `caed0e1f` — ⚠⚠ **`ffd352fb`, `1af3637a`, `3d22ff88` AND `fe74a09e` ARE ALL DEAD AS BASE SHAs**; trunk moved FOUR times inside one wave. **THREE BUILD LANES + ONE READ-ONLY SCOUT + TWO IN-BRANCH CORRECTIONS; `#687`, `#682` AND `#688` ALL MERGED — FOUR UNITS ON THREE PRs.** ⚠⚠⚠ **THE ARC IS NOT CLOSED. THE CODE IS COMPLETE AND THE ACCEPTANCE TEST IS A FIVE-SURFACE OWNER LIVE-VERIFY THAT IS IN PROGRESS — no gate in this repository can produce that evidence, and nothing here may be read as "the grader is fixed".** ★★★ **THE FINDING OF THE ARC: a rule written on the SINGLE-QUESTION path and absent from the STRUCTURED one, FOUND FOUR TIMES, FOUR DIFFERENT KINDS — a FIELD (`isDeparture`), a CALLER (C&I multi-question), an INSTRUCTION (the subject checklist), a CLAUSE (the units rule). THAT IS NO LONGER A BUG; IT IS A STRUCTURAL PROPERTY OF `checkSolution.cjs`, AND IT IS THE EVIDENCE BASE FOR U8.** **NEXT: `SUBJECT-RULES-PORT` (U8) — spec staged `83BC0AEE0189`, now the LARGEST remaining grader defect and carrying the crossed-out-attempt inventory with it — then `STUB-503` (`4EA889565A54`); both `server/`, both unblocked now `#688` is on trunk.** ⚠ **U4 TAXONOMY is WITHDRAWN AS SPECCED** — a code-only U4 is INERT because the taxonomy lives in the PROMPT, and it is blocked on ONE unambiguous owner sentence: **the repo's D1 clause parses two opposite ways and BOTH were measured, 25-of-25 agreeing under one reading and 0-of-25 under the other.** ⚠ **U4/U5/U6 dispatches MUST state that `verify-production-build.mjs` does NOT run in CI and must be run LOCALLY and quoted.** ★★ **Record item (a) DISCHARGED — Wave MI-INTEGRITY-3's record is reconstructed and its stated gap is closed; a "NOTHING LANDED" ruling is true at an instant and DECAYS.** ★★ **Record item (b) DISCHARGED BY CONSTRUCTION — `DECISION_LOG.md` was named in the allowlist before the lane started.** **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.**)
+# Previously: 2026-08-18 (post-**WAVE MI-INTEGRITY-4**, docs-only lane `HANDOFF-MI4`. Trunk `ffd352fb` — ⚠⚠ **`c4c0c448` IS DEAD AS A BASE SHA**. **THREE LANES + ONE SCOUT; `#684` AND `#685` MERGED, `#682` STILL A DRAFT.** ★★★ **THE ARC IS NOT CLOSED: `isDeparture` is set only inside `handleCheckSolution`, so RULE 5, THE DEPARTURE CAP AND `mistakeSummary.departure` ARE ALL DEAD ON CHAPTER TEST, WORKSHEET AND FULL MOCK — everything this arc built and everything the owner live-verified has run on ONE SURFACE OUT OF FIVE.** **NEXT: `DEPARTURE-DEAD` — spec staged, 13424 B, `3EF6C3F7D800` — IT RUNS ALONE**, carries **TWO STOP CONDITIONS (P5, P6)**, and its line numbers **have almost certainly moved** because its premises sit in `checkSolution.cjs`, the file `#685` just changed — **rot mode 1, EXPECTED, NOT A STOP; locate by TEXT.** Then the **`gradedCount` comment lane** (`#682`'s merge precondition), then **`STUB-503`**. ★★★ **NEW DEFECT CLASS: a spec whose allowlist cannot reach the data its own ruling requires — BEFORE WRITING AN ALLOWLIST, NAME THE FILE THAT HOLDS THE DATA, NOT THE FILE THAT HOLDS THE SYMPTOM.** ⚠ **`#681` reaches `handoff/` for the first time in this cycle** — Wave MI-INTEGRITY-3 closed without a handoff PR. **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.**)
 # Previously: 2026-08-15 (post-**WAVE QR-UPLOAD** + **WAVE MI-INTEGRITY-2**, docs-only lane `HANDOFF-MI2`. Trunk `e077b3a3`. **EIGHT LANES, ONE PRODUCT CHANGE — `QR-A` / `#679`, merged and owner-LIVE-VERIFIED on all six tests: a student can crop the photo before it is sent.** Everything else across both waves **stopped before editing a file**. ★★ **TAX-A failed its shape check with every claim TRUE; GRD-1v2 passed its shape check with five claims FALSE** — the checker and the truth of a premise are INDEPENDENT PROPERTIES. **MI-INTEGRITY-2 is NOT CLOSED**; `TAX-A` needs RE-SCOPING (**55 sites, not ~13**) and `GRD-1v2` needs re-aiming with R1/R3 folded in — both are the cofounder's action. ⚠⚠ **DO NOT SPEC A FOURTH DIVERGENCE MECHANISM** — three have been argued from source and **none checked against what the grader was actually sent**; capture the two prompts on the DEPLOYED product first. **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.**)
 # Previously: 2026-08-13 (post-**WAVE OPS-1**, docs-only. Trunk `6de74d3f`. **WAVE OPS-1 — CLOSED. All twelve PRs on trunk.** ⚠⚠ **PROVISIONING `tutor_cache` OR `step_solutions` MAKES #671's CRASH PATH REACHABLE — read the warning at the top of this file before provisioning any database table.** **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.**)
 # Previously: 2026-08-11 (post-**WAVE ME-C** + the close of **WAVE CLOSEOUT**, docs-only. Trunk `9682ba02`. **`/me` IS REBUILT AND ON TRUNK** - `#655` shipped the v7.1 page: a four-segment marks bar, the concepts costing the most, and a Topic Hub that opens on the exact concept. **All four CLOSEOUT lanes merged** - `#651`/`#652`/`#653`/`#654`. **`expectedMarks` IS STILL DORMANT** - the brief predicted two dormancies would end and only `?concept=` and `mistakeRetry` did. **`ProgressWindowArc` is now the `MentorSolveDrawer` shape: zero mounts, live suite.** **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.** Two live-verifies OWED.)
@@ -22,6 +23,150 @@ table. Merged is not deployed.
 # Previously: 2026-08-07 (post-**WAVE 5F**: #619 · #620 · #625 · #621 · #626 · #627, four lanes. Trunk `fbfb57fa`. ZERO open PRs. Typed grading LIVE-VERIFIED end to end, including the control. **Wave 5G opens with `ME-PROGRESS`.**)
 
 
+
+## 2026-08-19 — NEXT ACTION: **THE OWNER'S FIVE-SURFACE LIVE-VERIFY CLOSES THE ARC. THEN `SUBJECT-RULES-PORT` (U8).**
+
+**Trunk `caed0e1f04e501dd94c10134ac5f822dcc3351c2`** — re-derive it with
+`git ls-remote origin base/approved-thru-437`, never from a document.
+⚠⚠ **`ffd352fb`, `1af3637a`, `3d22ff88` AND `fe74a09e` ARE ALL DEAD AS BASE SHAs.**
+
+**`#687` (`3d22ff88`), `#682` (`fe74a09e`) and `#688` (`caed0e1f`) are ALL on trunk**, verified by
+**content and ancestry**, not by PR status. **No lane branches remain. `#677` (dependabot, 57 npm
+updates) is the only open PR and it merges LAST, when no lane is in flight.**
+
+### 0 — THE ONE THING THAT IS NOT DONE, AND IT IS NOT A LANE
+
+**THE ARC'S ACCEPTANCE TEST IS AN OWNER LIVE-VERIFY ON FIVE SURFACES, AND IT IS IN PROGRESS.**
+
+| # | surface | note |
+|---|---------|------|
+| 1 | **C&I single question** | ★ **the ONLY control, and the only path that already worked** |
+| 2 | **C&I multi-question upload** | ⚠ **a CHANGED surface, NOT a control** |
+| 3 | **Chapter Test** | |
+| 4 | **Worksheet** | |
+| 5 | **Quick Practice batch** | the fifth caller nobody had named |
+
+**On each of the five, all four must hold:** **(1)** a departure is identified · **(2)** the steps
+below it are uncredited · **(3)** it is counted ONCE · **(4)** the coaching line NAMES it rather than
+saying *"show every step"*.
+⚠ **THE SHAPE IS COMPARED, NOT THE MARK** — the questions differ across surfaces.
+⇒ **All four true on all five = the arc's acceptance test PASSES.** ★ **No gate in this repository can
+produce that evidence. It is the owner's, and it is the only thing that closes the arc.**
+
+⚠⚠ **CONDITION 4 MAY NOT BE CHECKABLE ON ALL FIVE — UNVERIFIED, CONTROLLER INFERENCE.**
+`buildCiCoaching` is **named for Check & Improve.** If the coaching line exists only on C&I surfaces,
+condition 4 must be scoped to the surfaces that have one. ★ **One cheap read settles it — do it before
+starting the verify, not when it stalls half-done.**
+
+⚠ **AND READ `[FU-GRD-DEDUCTION-SUM-NOT-MARKS-LOST]` BEFORE ANY LIVE-VERIFY.** It is carried on this
+board precisely because it changes how a mark on screen should be read.
+
+### 1 — `SUBJECT-RULES-PORT` (U8) — **THE LARGEST REMAINING GRADER DEFECT**
+
+**Spec STAGED: `83BC0AEE0189`.** ⚠ **Verify the hash with `Get-FileHash` before dispatch; mismatch is
+a HARD STOP.** **Unblocked now `#688` is on trunk** (same file, so it could not run before).
+
+★★★ **WHY IT IS THE ONE.** `[FU-SUBJECT-RULES-SINGLE-PATH-ONLY]`. **The Science checks reach ONE PATH
+ONLY** — present in `handleCheckSolution`, **NONE** in `gradeStructuredSet` — ⇒ **five surfaces grade
+Science without them**: Worksheet, Chapter Test, Full Mock, Quick Practice **and multi-question C&I.**
+⚠⚠ **AND THE MATHS CHECKLIST IS EQUALLY ABSENT FROM PATH B.** The owner verified it himself: grepping
+*"terminology, balanced equations"* across the structured path **returns nothing.**
+
+⚠⚠ **U8 IS NOW TWO JOBS, AND THEY BELONG TOGETHER BECAUSE BOTH ARE "WHAT REACHES WHICH PATH" QUESTIONS.**
+1. **The P8 port.**
+2. **`[FU-CROSSED-OUT-ATTEMPT-PATH-COVERAGE]` — the inventory.** ★★ **A student writes TWO attempts and
+   CROSSES ONE OUT.** CBSE ignores struck-through work and marks the surviving attempt. **A
+   no-attempt/crossed-out handler already exists SOMEWHERE, and nobody knows whether it reaches both
+   paths or what it currently does.**
+   ⚠⚠ **FAILURE MODE: a struck-out WRONG attempt beside a CORRECT one could read as a DEPARTURE and
+   ZERO THE STUDENT'S CORRECT WORK. THAT IS THE WORST OUTCOME THIS GRADER CAN PRODUCE.**
+   ⚠⚠ **AND THE EXPOSURE IS BRAND NEW: `#687` made departures fire on four more surfaces.** Before
+   this wave it could only have happened on C&I single-question.
+   > ★★★ **OWNER'S REASON FOR MAKING IT AN INVENTORY AND NOT A RULING: IT MUST BE ESTABLISHED BEFORE
+   > IT IS RULED, NOT RULED AND THEN ESTABLISHED.**
+
+★ **CARRY INTO THE DISPATCH: assume the single-path shape rather than discovering it.** It has now
+been found four times, four different ways. **Telling the U7 lane to treat it as LIKELY rather than
+exotic, and to STOP at it, is why this wave has a clean finding instead of a half-built port.**
+
+### 2 — `STUB-503` (U3)
+
+**Spec STAGED: `4EA889565A54`.** `server/routes/checkSolution.cjs` — **same file as U8, so it is
+SEQUENTIAL with it, never parallel.** Unblocked now `#688` is on trunk.
+
+### 3 — U4 TAXONOMY — **WITHDRAWN AS SPECCED. DO NOT DISPATCH IT AS WRITTEN.**
+
+**Its own scout corrected two of the three premises in its description.** ★★★ **A CODE-ONLY U4 IS
+INERT: the taxonomy is defined in the PROMPT, not in TypeScript.** `checkSolution.cjs` grading rule 3
+is what **assigns** a category; the `src/` code only ever **receives** one. **Six prompt restatements,
+three separate `VALID_MISTAKE_TYPES` Sets, and two of the prompt copies carry hand-written *"must be
+kept in sync"* comments** — the divergence is already known and unautomated.
+
+⚠⚠ **IT IS BLOCKED ON ONE OWNER SENTENCE, AND THE BLOCKER IS AMBIGUOUS ENGLISH, NOT A MISMEASUREMENT.**
+> **The repo's D1 clause — *"calculation leaves knowledge gaps"*, the ONLY line in the repo stating it
+> — PARSES TWO OPPOSITE WAYS. BOTH readings were measured. 25-of-25 sites agree under one; 0-of-25
+> under the other, with 17 explicitly contradicting.**
+> **(a) "leaves" = leaves behind / PRODUCES** ⇒ calculation **IS** a knowledge gap.
+> **(b) "leaves" = DEPARTS / exits** ⇒ knowledge gaps are conceptual **ALONE**.
+> **NEITHER IS A MISREADING.** `[FU-DOCTRINE-ONE-LINER-AMBIGUOUS]`
+
+★★ **THE SPEC MUST SAY WHERE CALCULATION *LANDS*, NOT ONLY THAT IT *LEAVES*** — **8 of the 25 sites
+cannot be scoped until it does.** They define only `{silly, presentation}` as careless and never name
+calculation, so a **third category** leaves them untouched while the **careless bucket** breaks them.
+
+**U4 SPLITS INTO TWO, OWNER-RULED:**
+- **U4a — the PROMPT taxonomy** *(because a code-only U4 is inert)*
+- **U4b — the presentation-as-learnable-gap RULING (D7)** ⚠ **D7 collides head-on with
+  `tutorSystemPrompt.cjs:221` (*"a careless or presentation pattern is NOT a weakness"*) and with
+  `check_improve_convergence_acceptance.mjs:527`, which FAILS if presentation reaches the weak-area
+  bridge.** ★ **That is a PRODUCT decision for the owner, not a wiring one.**
+
+★ **THE NOTE THAT MUST SURVIVE INTO U4's SPEC: this wave NARROWED PRESENTATION to "FORMAT ONLY"**, so
+the bucket is **smaller and more precisely learnable than when D7 was ruled** — which makes D7 easier
+to defend, not harder.
+
+⚠ **DO NOT WRITE U4 AS "DEFINITIONS FIRST, THEN LABELS" — THAT SPLIT IS NOT AVAILABLE.** Six of the
+ten unions sit in the SAME FILE as their own label map (two of them **two lines apart**), and **19
+`Record<Union,...>` constructs make any membership change a same-PR `tsc` break.**
+⚠ **AND A CI GUARD PINS THE MEMBER LIST BY REGEX, so a taxonomy change turns a GREEN GATE RED BY
+DESIGN.** That is expected, and a spec that does not say so will read as a regression.
+⚠ **PICK THE RULER BEFORE QUOTING A COUNT.** The scout measured **133 sites / 9 groupings repo-wide
+across 40 non-test files** and **explicitly declined to call the earlier 55/9 wrong** — *"the
+discrepancy is DEFINITIONAL, NOT FACTUAL."*
+
+### 4 — U5 QP-GRADEDCOUNT and U6 EVAL-HARNESS
+
+**U5** — `[FU-QP-STORED-GRADEDCOUNT-SYNTHESISED]` now has **TWO candidate fix shapes**, because
+`response.gradedCount` **IS computed at `persistQuickPracticeSession` and then DISCARDED.** ⇒ **an
+additive-optional `SessionRecord` field is a second valid fix and is far cheaper than reaching
+`perQuestionRef`.** **U5's spec must consider both.**
+**U6** — inherits `[FU-GRADEREVAL-SCHEME-LABEL-DRIFT]`: `server/eval/graderEval.cjs:167` is a **THIRD**
+scheme site, forbidden to U7 and **now drifted from BOTH production prompts.** ★ *A drifted harness
+belongs on the eval-harness lane.*
+
+### 5 — ⚠⚠ A GATE FACT EVERY `src/` DISPATCH MUST CARRY
+
+**`verify-production-build.mjs` DOES NOT RUN IN CI.** Zero hits across a 7,746-line Quality Gate log.
+⚠ **`CLAUDE.md` §6 lists it in the required set and §6a describes CI as gating "the full bar", so a
+reader would reasonably believe CI runs it. IT DOES NOT — the post-build bundle verifier has never
+gated a PR.** ⇒ **U4, U5 and U6 touch rendered output: their reports must STATE this and their lanes
+must run it LOCALLY and QUOTE it.** `[FU-VERIFY-PRODUCTION-BUILD-NOT-IN-CI]`
+
+### 6 — THE STANDING CONSTRAINTS THAT DID NOT MOVE
+
+- ⚠⚠ **PROVISIONING `tutor_cache` OR `step_solutions` MAKES `#671`'s CRASH PATH REACHABLE** — read the
+  block at the top of this file before provisioning any database table.
+- **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.** No agent lane can close it.
+- ⚠ **`[FU-GRADER-CROSS-SURFACE-DIVERGENCE]` is CLOSED AS VARIANCE. No lane may propose a fourth
+  mechanism.**
+- ⚠ **THERE ARE NINE ANCHOR-ROT MODES.** Any spec whose §0c.0 says "six" is stale. **Modes 8 and 9 are
+  both invisible to a green gate**: mode 8 resolves to the wrong place, mode 9 fails to resolve to the
+  right one. ⇒ **Cite the enclosing function BY NAME, and quote an anchor AS THE SOURCE WRITES IT.**
+- ★★ **BEFORE WRITING AN ALLOWLIST: name the file that holds the DATA, not the file that holds the
+  SYMPTOM — and name the file that holds the ASSERTION your ruling will break.** Five instances.
+- ⚠ **`CLAUDE.md` §10 names SIX handoff files; the handoff is SEVEN.** **Every future handoff dispatch
+  must name `handoff/DECISION_LOG.md` explicitly** or its entry goes unwritten again.
+  `[FU-CLAUDEMD-S10-OMITS-DECISION-LOG]`
 
 ## 2026-08-18 — NEXT ACTION: **`DEPARTURE-DEAD`, ALONE — AND THE ARC DOES NOT CLOSE UNTIL THE OWNER LIVE-VERIFIES THREE SURFACES**
 
