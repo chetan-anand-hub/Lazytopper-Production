@@ -1,3 +1,224 @@
+## 2026-08-20 — WAVE MI-INTEGRITY-6 (one build lane run twice, one read-only scout, two HOLDs), **ONE PR AND IT IS A DRAFT** — trunk `62078cb8`, unmoved
+
+**`2026-08-20`**
+
+> ⚠⚠ **A NOTE ON THE NUMBERING, BECAUSE THE BRIEF THAT COMMISSIONED THIS ENTRY GOT IT WRONG AND THE
+> ERROR IS INSTRUCTIVE.**
+> The dispatch warned: *"`DECISION_LOG.md` already has TWO entries numbered 13 (`:168` and `:426`) — do
+> not create a third. Use the next genuinely free number."*
+> **THE STRING FACT IS TRUE. THE INFERENCE DRAWN FROM IT IS FALSE, AND COMPLYING WOULD HAVE DAMAGED THE
+> FILE.**
+> **HANDOFF-VERIFIED by enumerating every `### DECISION N` heading in the file and mapping each to its
+> enclosing dated section:** **the numbering is SECTION-LOCAL and restarts at 1 in every wave section.**
+> **EVERY number from 1 to 20 appears two or three times** — 1 through 6 appear three times, 7 through
+> 20 twice, and only 21 and 22 are unique. **The `:168` DECISION 13 is in the 2026-08-19 MI-5 section;
+> the `:426` DECISION 13 is in the 2026-08-11 ME-C / CLOSEOUT section.** ⇒ **They are not a collision.
+> They are two different waves each having their own thirteenth decision.**
+> ⚠ **"The next genuinely free number" is UNSATISFIABLE — there is no globally free number below 21 —
+> and picking 23 would have been the only entry in the file numbered against a global sequence, breaking
+> the convention every other section follows.**
+> ⇒ ★ **THIS SECTION THEREFORE STARTS AT `DECISION 1`, which is the file's actual convention.**
+> ★★★ **A TRUE FACT CAN CARRY A FALSE INFERENCE, AND THE INFERENCE IS THE PART THAT TRAVELS** — the same
+> lesson `TAXONOMY-3BUCKET` returned this wave, and **the same shape as the wave's other ruler failures:
+> the count of two was RIGHT and the ruler, global uniqueness, was WRONG.**
+> ⚠ **`CLAUDE.md` §10 still lists SIX handoff files and this is the seventh. Every handoff dispatch must
+> keep naming it explicitly.** `[FU-CLAUDEMD-S10-OMITS-DECISION-LOG]`
+
+> ★★ **The verdicts below are useless without their reasons, so the reasons are recorded and the
+> verdicts are not recorded alone.** ⚠ **Three of this wave's most valuable decisions are ones that were
+> DISPROVED or RETRACTED** — an owner ruling he withdrew, a controller amplification a lane corrected,
+> and a controller instruction a lane refused. **All three are kept, both outcome and reasoning.**
+
+### DECISION 1 — **PORT ELEVEN OF THE FOURTEEN ABSENCES, NOT ALL FOURTEEN** *(owner)*
+
+**PORTED:** the subject checklist · the three scheme-assessment directives · *"Identify EVERY step"* ·
+PRESENTATION-vs-MISSING · `correctedWorking` · per-step attribution · the ECF verification clause ·
+anti-fabrication · the systemPrompt cause-reasoning.
+⚠ **HELD BACK: the four taxonomy drift deltas (`:1059`-`:1062`).**
+**REASON: they are `TAXONOMY-3BUCKET`'s subject, and porting them here would PRE-EMPT AN OWNER RULING ON
+BUCKET MEMBERSHIP.**
+> ★★ **THIS RULING IS ALSO THE DISJOINTNESS FIX.** Both lanes had a plausible claim on the taxonomy
+> region of the same file. **The overlap is resolved by SCOPE, not by sequencing.** **Recorded because a
+> future reader will otherwise see two lanes authorized near the same lines and assume a collision was
+> missed.** ✅ **The carve-out HELD — `#690` left `:1059`-`:1062` untouched.**
+
+### DECISION 2 — ★★★ **THE OWNER RETRACTED HIS OWN LIVE-VERIFY RULING: PATH A's `:1060` IS RIGHT AND HIS 8a CALL WAS WRONG**
+
+**A wrong number substituted into a correct formula is `calculation`, NOT `silly`.** `silly` is a
+COPYING / TRANSCRIPTION slip.
+**REASON: the lane solved 8a mechanistically — Path B lacks BOTH discriminators, so `conceptual` was the
+only bucket left — and then flagged that closing the drift alone would NOT produce the ruled behaviour.
+It would produce what `:1060` rules, and `:1060` is correct.**
+> ★★★ **THE LANE'S REFUSAL TO COMPLY IS WHAT PRODUCED THE CORRECT ANSWER.** A lane that had quietly
+> complied would have made Path B agree with a Path A the owner had already called wrong — **and every
+> gate would have been green.** ★ **Independently confirmed by a second lane reading the source
+> separately.** **Second time in this arc the owner retracted a ruling on a lane's mechanism.**
+
+### DECISION 3 — **SINGLE-SOURCE BOTH DUPLICATED PAIRS IN THE SAME PR** *(owner)* — ⚠ **AND A CORRECTION THE CONTROLLER OWNED**
+
+**FIX: make the rule number a PARAMETER.**
+⚠⚠ **THE PAIRS WERE NOT BYTE-IDENTICAL. The lane reported "byte-identical"; the controller restated that
+to the owner AS A FACT rather than as the lane's claim; the owner diffed them and it was false.**
+**They differ in exactly one field — the rule number** (`"14."` vs `"8."`), **lengths differing by 1.**
+> ★★★ **THAT IS WORSE THAN IDENTICAL: A NAIVE DEDUP FINDS NOTHING AND THE PAIR LOOKS DISTINCT TO EVERY
+> TOOL.**
+> ★★ **`A CONTROLLER AMPLIFIES` — the rule firing on the controller, in the mild form.** *"The subagent
+> reports X"* **is not the same claim as** *"X"*, **and the two were collapsed.** ★ **The controller
+> checked where the amplified version had travelled and corrected it in each place, by a NEW DATED
+> ENTRY rather than an edit.** ✅ **It never reached a dispatched instruction file.**
+> ★ **THREE SUCCESSIVE REFINEMENTS OF ONE FACT — lane says byte-identical, owner reads and says one
+> character, lane MEASURES and says one FIELD. Owner: "I refined twice from READING and once from
+> MEASURING, and only the measured one was right."**
+
+### DECISION 4 — **ACCEPTANCE CRITERION §3 CASE 5 RESCOPED BY ITS AUTHOR BEFORE A SINGLE EDIT**
+
+**REASON: as written it asserted a repo property that WAS ALREADY FALSE AT THE BASE SHA** — *"no
+instruction exists in more than one literal copy"* — **so it would have gone RED ON ARRIVAL, against a
+condition the author never established, and the lane would have been blamed for a state it inherited.**
+> ⚠ **This is `[FU-SPEC-GUARD-MIS-SUMMARISES-WHAT-IT-GUARDS]` ONE LEVEL UP: not a STOP condition that
+> paraphrases its target, but an ACCEPTANCE CRITERION asserting a repo property that does not hold.**
+> ★ **Caught before any edit, by an inventory the spec itself demanded.**
+
+### DECISION 5 — **THE OWNER CLAIMED THE MALFORMED EVIDENCE CELL AND THE ROT MISATTRIBUTION AS HIS OWN**
+
+`SUBJECT-RULES-PORT`'s P3 was prose where `path:line` was required. **And its §0 comment blamed
+`GRD-UNIFORM` for its line drift — but TRUNK NEVER MOVED FROM THE BASE SHA**, so the `+127` offset was
+**stale the day the spec was written.**
+**REASON, in his words: *"I attributed a stale citation to a later merge rather than to my own
+reading."* ⇒ ROT MODE 5 — base SHA and citation tree being different trees — SELF-INFLICTED AT
+AUTHORING TIME.**
+> ★★ **A PREDICTED ROT AND AN ALREADY-PRESENT ERROR ARE INDISTINGUISHABLE TO A LANE THAT FINDS THE
+> ANCHOR MOVED. The spec supplied an explanation ready to absorb a defect it did not have.**
+> ⚠ **A candidate "TENTH rot mode" was raised for this and CORRECTLY RETRACTED — it is mode 5, already
+> on the register. NINE REMAINS THE NUMBER.** ★ **Retracted rather than left to inflate the count.**
+> ★★★ **AND THE SYMMETRY IS THE REAL FINDING: `STUB-503` declares base `3d22ff88`, which genuinely
+> predates `GRD-UNIFORM`, so for THAT spec the identical sentence is the CORRECT diagnosis.** ⚠⚠ **The
+> same sentence is a false excuse in one spec and true in another, and NOTHING ON THE PAGE
+> DISTINGUISHES THEM — only the declared Base SHA does, and it is one line most readers skip. THAT IS
+> WHY THE BASE SHA IS A LEDGER FIELD AND NOT A COURTESY.**
+
+### DECISION 6 — **RE-ISSUE U8 AT THE IDENTICAL SPEC HASH. NO NEW SPEC FILE, NO ERRATUM AUTHORED.**
+
+**The five rulings were carried IN THE DISPATCH; the spec's bytes were not touched** — the house
+`ERRATA-1` mechanism, **correct a spec WITHOUT touching its bytes.**
+**REASON: A CONTROLLER NEVER AUTHORS AN ERRATUM.** Editing the spec would make the controller the author
+of premises it did not establish, **and would break the one property that makes a hash worth verifying.**
+⚠ **The premise gate was NOT disabled.** The lane was told to run it, paste the exit code, **confirm the
+failure set was EXACTLY the three named and nothing else**, and proceed only on that exact set.
+> ★★★ **AND THE REASON THIS IS SAFE IS THE MI-2 LESSON: THE PREMISE CHECKER AND THE TRUTH OF A PREMISE
+> ARE INDEPENDENT PROPERTIES.** **P3's CLAIM IS TRUE — only its EVIDENCE CELL is malformed.**
+> ⚠ **A lane that refused on the exit code alone would be refusing a TRUE premise for a FORMATTING
+> defect in its citation.** ✅ **The conditional proceed worked exactly as specified.**
+
+### DECISION 7 — **THREE LANES RETURNED HOLD OR READ-ONLY, AND ALL THREE WERE UPHELD**
+
+`TAXONOMY-3BUCKET` and `EVAL-HARNESS` returned **HOLD with zero files changed**; `SCOUT-CT-PANEL`
+returned diagnosis with **zero repo writes**; `U8` returned **HOLD** on its first run.
+**REASON: each refused to build on a premise it had disproved, rather than building through it.**
+> ★★★ **FOUR OF FIVE STAGED SPECS FAILED THEIR OWN PREMISE GATE.** ⚠ **This is a pattern in the
+> AUTHORING, not four coincidences** — three malformed evidence cells and one dead base anchor, from one
+> authoring pass. ⇒ `[FU-SPEC-AUTHORING-LEDGER-DEFECTS]`, **which RENAMES
+> `[FU-SPEC-AUTHORING-MALFORMED-EVIDENCE-CELLS]` and RETAINS it as a sub-case so neither reference
+> breaks.**
+
+### DECISION 8 — **A CONTROLLER FINDING PASSED TO THE NEXT LANE AS A FLAGGED HYPOTHESIS, NOT AS FACT — AND IT PAID FOR ITSELF IMMEDIATELY**
+
+The `SUBJECT-RULES-PORT` finding *"the taxonomy lives in the prompt"* was passed to `TAXONOMY-3BUCKET`
+**flagged for verification.** **The fact was CONFIRMED; the inference *"therefore a `src/`-only change is
+INERT"* was REFUTED** — it answers **ASSIGNMENT** while that lane asks **PARTITION**.
+> ⚠⚠ **HAD IT BEEN PASSED AS FACT, THE LANE HAD A READY-MADE, PLAUSIBLE AND WRONG REASON TO DECLARE
+> ITSELF INERT AND STOP** — and the owner's most important assertion in the whole five-spec set would
+> have gone unbuilt **on the authority of a true sentence answering a different question.**
+> ★★★ **A TRUE FACT CAN CARRY A FALSE INFERENCE, AND THE INFERENCE IS THE PART THAT TRAVELS.**
+> ⇒ **STANDING: pass unverified claims flagged UNVERIFIED, with an instruction to VERIFY, not inherit.**
+
+### DECISION 9 — ★★★ **A LANE REFUSED A CONTROLLER INSTRUCTION TO CLAIM AN OUTCOME, AND WAS RIGHT**
+
+The controller wrote: *"Your change should make that a calculation mistake rather than a pass. If it
+does, say so explicitly — the PR should claim it."* **The lane declined.**
+**REASON: the `calculation` bucket mapping ALREADY reached Path B. THE TAXONOMY WAS NEVER THE GAP.** What
+was missing was any instruction to **check the balancing at all** against a silent scheme. ⇒ **The PR
+claims the INSTRUCTIONS, not the OUTCOME.**
+> ★★★ **A CONTROLLER ASKED A LANE TO CLAIM AN OUTCOME NO GATE IN THIS REPOSITORY CAN ESTABLISH.**
+> **A CONTROLLER AMPLIFIES — and the amplification nearly caused would have been a PR asserting a
+> student-visible behaviour change on the strength of a prompt edit.**
+> ⇒ **THE EVIDENCE LADDER GAINS ITS LAST RUNG: a test proves the code works · a chunk proves it ships ·
+> a boot proves it runs · AND FOR AN LLM-BACKED PATH, ONLY A LIVE RUN PROVES THE MODEL OBEYS.**
+> `[FU-PROMPT-EDIT-IS-NOT-A-BEHAVIOUR-PROOF]`
+
+### DECISION 10 — **THE INTERMEDIATE CHECKPOINT IS PROMOTED TO A HOUSE STANDARD** *(owner)*
+
+**Any lane that REFACTORS and CHANGES BEHAVIOUR in one PR must record a checkpoint between the two
+halves.** `#690`'s was **167/167 green with both pins unmoved, after the share-not-copy refactor and
+BEFORE wiring Path B** ⇒ **the extraction proven a pure no-op SEPARATELY from the behaviour change.**
+> ★★ **THE LOAD-BEARING CLAUSE IS "CANNOT BE PRODUCED AFTER THE FACT."** A refactor+behaviour PR
+> otherwise offers **no way to tell which half moved a test.** ⇒ **INSTRUCT IT IN THE DISPATCH, NOT IN
+> THE REVIEW.** ★ **Nobody asked for it.**
+
+### DECISION 11 — **`#690` PUSHED AS A DRAFT AND NOT MERGED; THE WAVE CLOSES WITHOUT IT ON TRUNK**
+
+**REASON: it needs a live grading round-trip that no gate here can produce, and the corrected §5
+three-paper chemistry checklist is that test.** ★ **The 8b re-run is the decisive one.**
+⚠⚠ **CONSEQUENCE, STATED PLAINLY: Rule 0 is satisfied by the RECORD, not by the code.** `handoff/`
+describes trunk; **trunk does not contain this wave's work.**
+★ **STATED AS OF 2026-08-20 AND THIS SENTENCE DECAYS — re-derive with `gh pr view 690`.**
+
+### DECISION 12 — **THE CORRECTIVE HANDOFF WAS NOT DISPATCHED MID-WAVE, AND THE REASONING IS RECORDED BECAUSE IT IS ARGUABLE**
+
+The controller found trunk's `handoff/` false about the live-verify **early in the wave** and **did not
+dispatch a corrective handoff on its own authority.**
+**REASON GIVEN: it is a scope widening the owner did not ask for, and addendum §6 makes the handoff
+POSITIONAL — whoever closes the wave writes it.** **Raised as an owner decision instead.**
+⚠ **THE COST IS REAL AND SHOULD BE WEIGHED NEXT TIME: the two false statements stood on trunk for the
+whole wave**, and a handoff lane is disjoint from any product lane (`handoff/**` vs `server/**`), **so
+it could have run in parallel at no risk.** ★ **Recorded as a genuine trade-off, not as a mistake — a
+controller that quietly widens its own wave is doing the thing this model exists to stop.**
+
+### DECISION 13 — **THIS LANE SUPERSEDED THE FOUR DEAD-HASH SITES RATHER THAN DELETING THEM** *(this lane's own call)*
+
+The dispatch offered *"remove or supersede."* **SUPERSEDE was chosen.**
+**REASON: all four sites sit inside DATED entries, and this board's standing rule 3 and the house
+doctrine both forbid rewriting a dated entry to match today's facts — a dated entry is evidence of what
+was known when.** ⇒ **The correction is a NEW dated entry, and the trap is neutralised by placement: a
+loud banner at the TOP of `NEXT_ACTION.md`, above the file's own header, so a reader meets the
+correction before the instruction.**
+⚠ **HANDOFF-VERIFIED CORRECTION TO THE DISPATCH: it named TWO sites; `grep -rn` found FOUR across THREE
+files** — `NEXT_ACTION.md:14`, `NEXT_ACTION.md:66`, `CURRENT_STATE.md:196`,
+`OPEN_QUESTIONS_AND_FOLLOWUPS.md:32`. ★★★ **A CLAIM ABOUT THE EXTENT OF A SET, ASSERTED FROM A SAMPLE.
+Superseding only the two named sites would have left the trap live in two more files.**
+
+### DECISION 14 — **FOUR DIVERGENCES BETWEEN THE LANE REPORTS AND THE CONTROLLER'S STATE FILE WERE RESOLVED IN THE LANE REPORTS' FAVOUR** *(this lane's own call)*
+
+**REASON: the state file is the controller's own record and says so; a lane report is closer to the
+measurement.** The four:
+1. ⚠ **TWO FU IDS CLOSED BY `#690` WERE NEVER RECORDED AS CLOSED** —
+   `[FU-GRADER-DUPLICATED-LITERAL-INSTRUCTIONS]` and `[FU-SUBJECT-CHECKLIST-DUPLICATED-WITHIN-PATH-A]`.
+   **The state file's last word on the first was "CONFIRMED AND SHARPENED", written before the build.**
+   ★ **The single most consequential gap — a carried-open list that is over-long sends the next lane
+   after work already done.**
+2. ⚠ **EVAL-HARNESS HAS FIVE DRIFTS, NOT FOUR.** **D5 — four `file:line` rule-body diffs — is absent
+   from the state file entirely, so the recorded re-spec sequence has no place for it.**
+3. ⚠ **ONE FU WAS SILENTLY RENAMED.** The lane minted `[FU-SPEC-CASE2-CONTRADICTS-CORRECTION-2]`; the
+   controller coined the broader `[FU-CORRECTION-2-NOT-PROPAGATED-TO-JUDGING-ARTEFACTS]` and the lane's
+   id appears **nowhere** in the state file. **The substance was preserved and correctly WIDENED — but
+   the lane's own reference would not have resolved.** ⇒ **Both ids are now recorded.**
+4. ⚠ **`SCOUT-CT-PANEL` WAS ABSENT FROM THE CLOSING BOARD, and EVAL-HARNESS's fifth owner decision was
+   dropped.** ⇒ **THE WAVE IS PARKED ON THIRTEEN OWNER DECISIONS, NOT EIGHT.**
+> ★ **A DECISION THAT IS NOT ON THE LIST IS NOT GOING TO BE MADE**, and a successor working from the
+> closing board alone would have shipped a Chapter Test fix with no ruling on its size, on Full Mock, or
+> on the dead primary CTA.
+
+### DECISION 15 — **THE NUMBERING OF THIS VERY SECTION** *(this lane's own call — see the note at the top)*
+
+**Started at `DECISION 1`, against an explicit dispatch instruction to "use the next genuinely free
+number."**
+**REASON: the instruction rests on a false inference. The numbering in this file is SECTION-LOCAL and
+restarts every wave; every number 1-20 already appears two or three times. "The next genuinely free
+number" is unsatisfiable, and complying would have made this the only section in the file numbered
+against a global sequence.** ★ **The string fact behind the instruction was true and the ruler was
+wrong — the wave's own signature failure, met one last time on the way out.**
+
+
 ## 2026-08-19 — WAVE MI-INTEGRITY-5 (three build lanes, one read-only scout, two in-branch corrections), all on trunk `caed0e1f`
 
 **`2026-08-19`**

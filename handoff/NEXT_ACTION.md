@@ -1,6 +1,29 @@
 # LazyTopper — Next Action
 
 ```
+⛔⛔ READ THIS BEFORE DISPATCHING `SUBJECT-RULES-PORT` OR `STUB-503`.
+
+`83BC0AEE0189` IS A DEAD SPEC HASH. THE LIVE SUBJECT-RULES-PORT SPEC IS `41C887056BB8`
+(15,587 bytes). The dead hash still appears at FOUR sites in THREE files under handoff/ --
+NEXT_ACTION.md (twice), CURRENT_STATE.md and OPEN_QUESTIONS_AND_FOLLOWUPS.md -- all of them
+inside DATED entries that are deliberately NOT edited, because a dated entry is evidence of
+what was known when. THIS BANNER SUPERSEDES ALL FOUR.
+An agent that COMPLIES with those lines dispatches a spec the owner REPLACED because his own
+live-verify disproved it, and no gate in this repository would stop it.
+=> That work is DONE and is PR #690 (draft as of 2026-08-20 -- re-derive with `gh pr view 690`).
+
+STUB-503 IS BLOCKED, NOT READY. Its declared Base SHA `3d22ff88` is DEAD -- three merges
+behind trunk -- and all four of its anchors fail the premise gate. RE-ANCHORING IS THE
+OWNER'S JOB; a controller may not author it.
+
+WARNING ABOUT THE GATE ITSELF: `premise_ledger_check.mjs --worktree=.` resolves anchors
+against WHATEVER TREE YOU ARE STANDING IN and NEVER compares it to the ledger's declared
+Base SHA. Cut your worktree at the spec's Base SHA and gate it from INSIDE that worktree.
+A red means "check the tree" BEFORE it means "the citation is wrong".
+[FU-PREMISE-GATE-IGNORES-DECLARED-BASE-SHA]
+```
+
+```
 ⚠⚠ READ THIS BEFORE PROVISIONING ANY DATABASE TABLE.
 
 PROVISIONING `tutor_cache` OR `step_solutions` MAKES #671's CRASH PATH REACHABLE.
@@ -11,7 +34,8 @@ hits. #671 is on trunk — CONFIRM IT IS DEPLOYED, NOT MERELY MERGED, before cre
 table. Merged is not deployed.
 ```
 
-# Updated: 2026-08-19 (post-**WAVE MI-INTEGRITY-5**, docs-only lane `HANDOFF-MI5`. Trunk `caed0e1f` — ⚠⚠ **`ffd352fb`, `1af3637a`, `3d22ff88` AND `fe74a09e` ARE ALL DEAD AS BASE SHAs**; trunk moved FOUR times inside one wave. **THREE BUILD LANES + ONE READ-ONLY SCOUT + TWO IN-BRANCH CORRECTIONS; `#687`, `#682` AND `#688` ALL MERGED — FOUR UNITS ON THREE PRs.** ⚠⚠⚠ **THE ARC IS NOT CLOSED. THE CODE IS COMPLETE AND THE ACCEPTANCE TEST IS A FIVE-SURFACE OWNER LIVE-VERIFY THAT IS IN PROGRESS — no gate in this repository can produce that evidence, and nothing here may be read as "the grader is fixed".** ★★★ **THE FINDING OF THE ARC: a rule written on the SINGLE-QUESTION path and absent from the STRUCTURED one, FOUND FOUR TIMES, FOUR DIFFERENT KINDS — a FIELD (`isDeparture`), a CALLER (C&I multi-question), an INSTRUCTION (the subject checklist), a CLAUSE (the units rule). THAT IS NO LONGER A BUG; IT IS A STRUCTURAL PROPERTY OF `checkSolution.cjs`, AND IT IS THE EVIDENCE BASE FOR U8.** **NEXT: `SUBJECT-RULES-PORT` (U8) — spec staged `83BC0AEE0189`, now the LARGEST remaining grader defect and carrying the crossed-out-attempt inventory with it — then `STUB-503` (`4EA889565A54`); both `server/`, both unblocked now `#688` is on trunk.** ⚠ **U4 TAXONOMY is WITHDRAWN AS SPECCED** — a code-only U4 is INERT because the taxonomy lives in the PROMPT, and it is blocked on ONE unambiguous owner sentence: **the repo's D1 clause parses two opposite ways and BOTH were measured, 25-of-25 agreeing under one reading and 0-of-25 under the other.** ⚠ **U4/U5/U6 dispatches MUST state that `verify-production-build.mjs` does NOT run in CI and must be run LOCALLY and quoted.** ★★ **Record item (a) DISCHARGED — Wave MI-INTEGRITY-3's record is reconstructed and its stated gap is closed; a "NOTHING LANDED" ruling is true at an instant and DECAYS.** ★★ **Record item (b) DISCHARGED BY CONSTRUCTION — `DECISION_LOG.md` was named in the allowlist before the lane started.** **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.**)
+# Updated: 2026-08-20 (post-**WAVE MI-INTEGRITY-6**, docs-only lane `HANDOFF-MI6`. Trunk `62078cb8` — ⚠ **trunk did NOT move during this wave; `62078cb8` is `#689`'s merge commit and no product code landed.** **ONE BUILD LANE RUN TWICE + ONE READ-ONLY SCOUT + TWO LANES THAT RETURNED HOLD WITH ZERO FILES — FOUR UNITS, ONE PR, AND IT IS A DRAFT.** ⚠⚠ **THIS WAS A DIAGNOSIS WAVE, NOT A CODE-DELIVERY WAVE.** ⛔⛔ **`83BC0AEE0189` IS A DEAD SPEC HASH AND IT STOOD ON TRUNK AS THE THING TO DO NEXT — THE LIVE SPEC IS `41C887056BB8`.** It survives at FOUR sites in THREE files, all inside dated entries deliberately left unedited; **the banner at the top of this file supersedes all four.** ⚠⚠ **AND THE FIVE-SURFACE LIVE-VERIFY IS NOT "IN PROGRESS" — IT IS COMPLETE, 6 OF 8 PASS.** **Test 1 passes: the departure fired, the steps below were zeroed, and the coaching line NAMED it — the paper that started this arc now grades the way the owner would.** ⚠ **8a and 8b FAILED, both on Path B, both inside the draft `#690`** — and **the owner has RETRACTED his own 8a ruling: a wrong substitution is `calculation`, not `silly`; Path A's `:1060` was right all along.** ★★★ **THE ARC'S CLOSING LESSON: A CORRECTION LANDED IN THE CODE AND NEVER REACHED THE ARTEFACTS THAT *JUDGE* THE CODE** — "unbalanced equation = `presentation`" was written in `graderEval.cjs:73-79`, the spec's §3 case 2 AND **the owner's own §5 live-verify checklist**, while trunk said `conceptual`/`calculation` ⇒ **his checklist would have made him read correct output as a failure and `graderEval` would have agreed with it — two independent instruments confirming each other and both wrong.** **§5 is corrected; `graderEval.cjs` IS NOT — fix D1 BEFORE the next live-verify or it reports a false regression.** `[FU-CORRECTION-2-NOT-PROPAGATED-TO-JUDGING-ARTEFACTS]` ⚠⚠ **FOUR OF FIVE STAGED SPECS FAILED THEIR OWN PREMISE GATE** — three malformed evidence cells and one DEAD BASE SHA — `[FU-SPEC-AUTHORING-LEDGER-DEFECTS]`. ★★★ **AND THE GATE ITSELF IS DEFECTIVE: `premise_ledger_check.mjs` resolves anchors against WHATEVER TREE YOU STAND IN and NEVER compares it to the ledger's declared Base SHA** ⇒ **a spec anchored to a dead SHA PASSES CLEANLY if gated in a tree at that dead SHA, which is exactly how `STUB-503`'s defect survived authoring.** `[FU-PREMISE-GATE-IGNORES-DECLARED-BASE-SHA]` **NEXT: merge `#690` (DRAFT — re-derive with `gh pr view 690`), then the CORRECTED three-paper chemistry live-verify; `QP-GRADEDCOUNT` is the only clean dispatch-ready spec; `STUB-503` is BLOCKED on a dead base SHA and re-anchoring is the OWNER's.** ⚠⚠ **THIRTEEN OWNER DECISIONS ARE OWED, NOT EIGHT — `SCOUT-CT-PANEL`'s four were missing from the controller's closing board and `EVAL-HARNESS` owes a fifth.** **`[FU-DPDP-GUARDIAN-CONSENT]` is STILL UNRULED and LAUNCH-BLOCKING.**)
+# Previously: 2026-08-19 (post-**WAVE MI-INTEGRITY-5**, docs-only lane `HANDOFF-MI5`. Trunk `caed0e1f` — ⚠⚠ **`ffd352fb`, `1af3637a`, `3d22ff88` AND `fe74a09e` ARE ALL DEAD AS BASE SHAs**; trunk moved FOUR times inside one wave. **THREE BUILD LANES + ONE READ-ONLY SCOUT + TWO IN-BRANCH CORRECTIONS; `#687`, `#682` AND `#688` ALL MERGED — FOUR UNITS ON THREE PRs.** ⚠⚠⚠ **THE ARC IS NOT CLOSED. THE CODE IS COMPLETE AND THE ACCEPTANCE TEST IS A FIVE-SURFACE OWNER LIVE-VERIFY THAT IS IN PROGRESS — no gate in this repository can produce that evidence, and nothing here may be read as "the grader is fixed".** ★★★ **THE FINDING OF THE ARC: a rule written on the SINGLE-QUESTION path and absent from the STRUCTURED one, FOUND FOUR TIMES, FOUR DIFFERENT KINDS — a FIELD (`isDeparture`), a CALLER (C&I multi-question), an INSTRUCTION (the subject checklist), a CLAUSE (the units rule). THAT IS NO LONGER A BUG; IT IS A STRUCTURAL PROPERTY OF `checkSolution.cjs`, AND IT IS THE EVIDENCE BASE FOR U8.** **NEXT: `SUBJECT-RULES-PORT` (U8) — spec staged `83BC0AEE0189`, now the LARGEST remaining grader defect and carrying the crossed-out-attempt inventory with it — then `STUB-503` (`4EA889565A54`); both `server/`, both unblocked now `#688` is on trunk.** ⚠ **U4 TAXONOMY is WITHDRAWN AS SPECCED** — a code-only U4 is INERT because the taxonomy lives in the PROMPT, and it is blocked on ONE unambiguous owner sentence: **the repo's D1 clause parses two opposite ways and BOTH were measured, 25-of-25 agreeing under one reading and 0-of-25 under the other.** ⚠ **U4/U5/U6 dispatches MUST state that `verify-production-build.mjs` does NOT run in CI and must be run LOCALLY and quoted.** ★★ **Record item (a) DISCHARGED — Wave MI-INTEGRITY-3's record is reconstructed and its stated gap is closed; a "NOTHING LANDED" ruling is true at an instant and DECAYS.** ★★ **Record item (b) DISCHARGED BY CONSTRUCTION — `DECISION_LOG.md` was named in the allowlist before the lane started.** **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.**)
 # Previously: 2026-08-18 (post-**WAVE MI-INTEGRITY-4**, docs-only lane `HANDOFF-MI4`. Trunk `ffd352fb` — ⚠⚠ **`c4c0c448` IS DEAD AS A BASE SHA**. **THREE LANES + ONE SCOUT; `#684` AND `#685` MERGED, `#682` STILL A DRAFT.** ★★★ **THE ARC IS NOT CLOSED: `isDeparture` is set only inside `handleCheckSolution`, so RULE 5, THE DEPARTURE CAP AND `mistakeSummary.departure` ARE ALL DEAD ON CHAPTER TEST, WORKSHEET AND FULL MOCK — everything this arc built and everything the owner live-verified has run on ONE SURFACE OUT OF FIVE.** **NEXT: `DEPARTURE-DEAD` — spec staged, 13424 B, `3EF6C3F7D800` — IT RUNS ALONE**, carries **TWO STOP CONDITIONS (P5, P6)**, and its line numbers **have almost certainly moved** because its premises sit in `checkSolution.cjs`, the file `#685` just changed — **rot mode 1, EXPECTED, NOT A STOP; locate by TEXT.** Then the **`gradedCount` comment lane** (`#682`'s merge precondition), then **`STUB-503`**. ★★★ **NEW DEFECT CLASS: a spec whose allowlist cannot reach the data its own ruling requires — BEFORE WRITING AN ALLOWLIST, NAME THE FILE THAT HOLDS THE DATA, NOT THE FILE THAT HOLDS THE SYMPTOM.** ⚠ **`#681` reaches `handoff/` for the first time in this cycle** — Wave MI-INTEGRITY-3 closed without a handoff PR. **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.**)
 # Previously: 2026-08-15 (post-**WAVE QR-UPLOAD** + **WAVE MI-INTEGRITY-2**, docs-only lane `HANDOFF-MI2`. Trunk `e077b3a3`. **EIGHT LANES, ONE PRODUCT CHANGE — `QR-A` / `#679`, merged and owner-LIVE-VERIFIED on all six tests: a student can crop the photo before it is sent.** Everything else across both waves **stopped before editing a file**. ★★ **TAX-A failed its shape check with every claim TRUE; GRD-1v2 passed its shape check with five claims FALSE** — the checker and the truth of a premise are INDEPENDENT PROPERTIES. **MI-INTEGRITY-2 is NOT CLOSED**; `TAX-A` needs RE-SCOPING (**55 sites, not ~13**) and `GRD-1v2` needs re-aiming with R1/R3 folded in — both are the cofounder's action. ⚠⚠ **DO NOT SPEC A FOURTH DIVERGENCE MECHANISM** — three have been argued from source and **none checked against what the grader was actually sent**; capture the two prompts on the DEPLOYED product first. **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.**)
 # Previously: 2026-08-13 (post-**WAVE OPS-1**, docs-only. Trunk `6de74d3f`. **WAVE OPS-1 — CLOSED. All twelve PRs on trunk.** ⚠⚠ **PROVISIONING `tutor_cache` OR `step_solutions` MAKES #671's CRASH PATH REACHABLE — read the warning at the top of this file before provisioning any database table.** **`[FU-DPDP-GUARDIAN-CONSENT]` is UNRULED and LAUNCH-BLOCKING.**)
@@ -22,6 +46,121 @@ table. Merged is not deployed.
 # Previously: 2026-08-09 (post-**WAVE ME-A**: #634 · #641 · #637 · #636, four lanes + two scouts, plus the four commits already unrecorded when it opened — #629 · #630 · #632 · #631 · #633. Trunk `e8f89863`. FOUR open PRs, none of them ME: #638/#639/#640 are the DPDP arc's live drafts, #635 is the owner's ops-docs PR. Every ME-A lane disproved part of its own spec. **Wave ME-B opens with `ARRIVAL-1` + `RETRY-1` under a FRESH controller; `ME-2` is Wave ME-C.**)
 # Previously: 2026-08-07 (post-**WAVE 5F**: #619 · #620 · #625 · #621 · #626 · #627, four lanes. Trunk `fbfb57fa`. ZERO open PRs. Typed grading LIVE-VERIFIED end to end, including the control. **Wave 5G opens with `ME-PROGRESS`.**)
 
+
+
+## 2026-08-20 — NEXT ACTION: **MERGE `#690`, THEN RUN THE *CORRECTED* THREE-PAPER CHEMISTRY LIVE-VERIFY. ⚠ FIX THE JUDGING ARTEFACTS FIRST OR IT REPORTS A FALSE REGRESSION.**
+
+**Trunk `62078cb896885c94a68ab5366bdec22a45483801`** — re-derive it with
+`git ls-remote origin base/approved-thru-437`, never from a document.
+⚠ **Trunk did NOT move during Wave MI-INTEGRITY-6. `62078cb8` is `#689`'s merge commit and is still
+trunk at the close. The wave changed no product code on trunk.**
+
+### ⛔ 0 — THE TWO FALSE STATEMENTS THIS ENTRY SUPERSEDES
+
+**`#689` merged as-is and two of its sentences became false while the owner ran his uploads.**
+
+1. ⚠ **THE FIVE-SURFACE LIVE-VERIFY IS NOT IN PROGRESS. IT IS COMPLETE — 6 OF 8 PASS.** Every
+   "pending"/"in progress" statement below this line, and in `CURRENT_STATE.md`, `SESSION_LOG.md` and
+   `IMPLEMENTATION_ROADMAP.md`, is **superseded.** Those blocks are **left unedited on purpose.**
+2. ⛔ **`83BC0AEE0189` IS DEAD. THE LIVE SPEC IS `41C887056BB8`.** See the banner at the top of this
+   file. **FOUR sites in THREE files, not the two originally reported.**
+
+### 1 — DO THIS FIRST: **THE JUDGING ARTEFACTS ARE WRONG AND THEY WILL LIE TO YOU**
+
+> ★★★ **A CORRECTION LANDED IN THE CODE AND NEVER REACHED THE ARTEFACTS THAT *JUDGE* THE CODE.**
+
+**Trunk's `checkSolution.cjs:1656-1662` says an unbalanced equation is `conceptual`/`calculation` and
+explicitly NOT `presentation`. THREE judging artefacts said the opposite:** `graderEval.cjs:73-79`,
+`SUBJECT-RULES-PORT.md` §3 case 2, and **the owner's own §5 live-verify checklist.**
+
+⚠⚠ **THE §5 CHECKLIST HAS ALREADY BEEN CORRECTED BY THE OWNER. USE THE CORRECTED ONE.** Three lines,
+one per bucket, **the same question** each time:
+
+| submission | shape | expected |
+|---|---|---|
+| `Zn + HCl -> ZnCl2 + H2` | unbalanced | **`conceptual`** |
+| `Zn + 2HCl -> ZnCl2 + 3H2` | tried, miscounted | **`calculation`** |
+| `Zn + 2HCl -> ZnCl2 + H2` | balanced, no state symbols | **`presentation`** |
+
+⚠ **`graderEval.cjs:73-79` IS STILL WRONG ON TRUNK.** It is the pre-correction copy — its
+`calculation` line is **bare, with no chemistry clause at all.** **Nothing runs it today, so it harms
+nobody today** — but **anyone who runs it before D1 is fixed gets the shipped fix scored as a
+regression.** `[FU-CORRECTION-2-NOT-PROPAGATED-TO-JUDGING-ARTEFACTS]`
+
+### 2 — THE ORDERED BOARD
+
+1. ⚠⚠ **MERGE `#690`, THEN LIVE-VERIFY IT.** **STATED 2026-08-20 — `#690` is a green DRAFT and NOT on
+   trunk. RE-DERIVE WITH `gh pr view 690`; do not trust this line.** Two files, both allowlisted; CI
+   fully green on four workflows, logs read. ★ **The 8b re-run is the decisive test.**
+   ⚠⚠ **AND KNOW WHAT `#690` CLAIMS: THE INSTRUCTIONS, NOT THE OUTCOME.** Whether the MARK changes is
+   **model behaviour that no static gate in this repository can prove.**
+   ★★★ **A TEST PROVES THE CODE WORKS · A CHUNK PROVES IT SHIPS · A BOOT PROVES IT RUNS · AND FOR AN
+   LLM-BACKED PATH, ONLY A LIVE RUN PROVES THE MODEL OBEYS.**
+2. ✅ **`QP-GRADEDCOUNT` IS THE ONLY CLEAN, DISPATCH-READY SPEC ON THE BOARD.** Premise gate **PASS,
+   exit 0**, verified at trunk. **It needs nothing.**
+3. ⛔ **`STUB-503` IS BLOCKED — DO NOT DISPATCH IT.** Dead base SHA `3d22ff88`; all four anchors fail.
+   ⚠⚠ **AND RE-ANCHORING IS NOT THE WHOLE JOB. THE OPEN QUESTION NO GATE CAN ANSWER: are its four
+   claims TRUE with stale citations, or did `#688` CHANGE the stub values?** `#688` edited that very
+   file. **Its whole premise is a fabricated 70% reaching a student.** If `#688` changed that value,
+   **the spec describes a defect that no longer has the shape it claims.**
+   ★★★ **THE CHECKER AND THE TRUTH OF A PREMISE ARE INDEPENDENT PROPERTIES.**
+4. ⏸ **`TAXONOMY-3BUCKET` — HOLD on 4 owner decisions.** ⚠ **Build from the FIVE EMISSIONS, not from
+   `grep -c "fourType:"`** — that ruler returns the right number from the wrong set and **silently
+   leaves Worksheet on the old partition.**
+5. ⏸ **`EVAL-HARNESS` — HOLD on 5 owner decisions.** ⚠ **The spec's ordering is BACKWARDS. Fix D1
+   FIRST** — a baseline taken now bakes in the drift.
+6. ⏸ **`SCOUT-CT-PANEL` — PARKED on 4 owner decisions.** ⚠ **This lane was missing from the
+   controller's own closing board; do not lose it again.**
+
+⚠⚠ **THE WAVE IS PARKED ON THIRTEEN OWNER DECISIONS, NOT EIGHT.** The controller's closing note said
+*"the eight decisions go to the owner in ONE message"* — that counted TAXONOMY-3BUCKET's four and
+EVAL-HARNESS's four, **omitted SCOUT-CT-PANEL's four entirely, and dropped EVAL-HARNESS's fifth**
+*(behavioural invariants vs the owner's numeric marks — the re-spec's last step depends on it)*.
+★ **A DECISION THAT IS NOT ON THE LIST IS NOT GOING TO BE MADE.**
+
+### 3 — ⚠⚠ FOUR OF FIVE STAGED SPECS FAILED THEIR OWN PREMISE GATE. READ THIS BEFORE WRITING ANOTHER.
+
+| spec | gate | failure |
+|---|---|---|
+| SUBJECT-RULES-PORT | **FAIL** | P3 malformed evidence cell *(prose where `path:line` required)* |
+| EVAL-HARNESS | **FAIL** | P1 **bare filename** — the anchor was never resolved |
+| TAXONOMY-3BUCKET | **FAIL** | P5 **bare filename** — the anchor was never resolved |
+| **STUB-503** | **FAIL** | all four anchors unresolved — **DEAD BASE SHA** |
+| QP-GRADEDCOUNT | ✅ **PASS** | — |
+
+**`A BARE FILENAME IS NOT EVIDENCE` is stated in `ops/AGENT_SPEC_TEMPLATE.md` itself.**
+⇒ `[FU-SPEC-AUTHORING-LEDGER-DEFECTS]` *(supersedes and retains
+`[FU-SPEC-AUTHORING-MALFORMED-EVIDENCE-CELLS]` as its sub-case)*.
+⇒ **AT INTAKE, GATE EVERY STAGED SPEC AND COMPARE EVERY DECLARED BASE SHA TO TRUNK — not only the one
+being dispatched. Two commands.** `[FU-CONTROLLER-MUST-GATE-ALL-STAGED-SPECS-AT-INTAKE]`
+
+### 4 — ★★★ THE INSTRUMENT WARNING EVERY LANE NEEDS BEFORE ITS FIRST COMMAND
+
+**`premise_ledger_check.mjs --worktree=<path>` resolves anchors against whatever tree it is standing
+in and NEVER compares it to the ledger's declared `Base SHA:`.** The field is **parsed and displayed
+but not ENFORCED.**
+
+- **FALSE RED** — correct citations, stale worktree ⇒ *"The premise has ROTTED"*, a confident,
+  specific, wrong diagnosis. ⚠ **The correct response to a red is to CHECK THE TREE, not to re-cite.**
+- ⚠⚠ **FALSE GREEN — a spec anchored to a DEAD SHA passes cleanly if gated in a tree at that dead
+  SHA.** ★★★ **That is exactly how `STUB-503`'s defect survived authoring.**
+
+⇒ **CUT YOUR WORKTREE AT THE SPEC'S DECLARED BASE SHA AND RUN THE GATE FROM INSIDE IT.**
+`[FU-PREMISE-GATE-IGNORES-DECLARED-BASE-SHA]`
+
+### 5 — STANDING, UNCHANGED
+
+- ⚠ **`[FU-DPDP-GUARDIAN-CONSENT]` IS UNRULED AND LAUNCH-BLOCKING.**
+- ⚠ **`tsc` IS INAPPLICABLE TO `server/**/*.cjs`, NEVER "PASSING"** — `tsconfig.app.json` is
+  `"include": ["src"]`; `tsconfig.test.json` pulls `.cjs` in via `allowJs` with `checkJs: false`.
+  **Nothing collects `graderEval.cjs` at all.**
+- ⚠ **THE COUNTS GROW — READ THEM FROM YOUR RUN.** Last read from `#690`'s CI, 2026-08-19: root guard
+  matrix **206**, vitest **144 files / 1852 tests**.
+- ⚠ **`CLAUDE.md` §10 NAMES SIX `handoff/` FILES; THE HANDOFF IS SEVEN.** **Name
+  `handoff/DECISION_LOG.md` explicitly in every handoff dispatch** or its entry goes unwritten.
+- ⚠ **VITEST ON THE OWNER'S WINDOWS BOX NEEDS THE STRIPPED ROLLUP BINARY RESTORED** — drop
+  `@rollup/rollup-win32-x64-msvc@4.59.0` into `node_modules/.pnpm/rollup@4.59.0/node_modules/@rollup/`,
+  then confirm `pnpm-lock.yaml` is unmodified. **`#690` lost time to this; it is written down now.**
 
 
 ## 2026-08-19 — NEXT ACTION: **THE OWNER'S FIVE-SURFACE LIVE-VERIFY CLOSES THE ARC. THEN `SUBJECT-RULES-PORT` (U8).**
