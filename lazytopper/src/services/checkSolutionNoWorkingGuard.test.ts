@@ -112,11 +112,13 @@ describe("grader no-working guard: a bare wrong answer is undiagnosable, not con
 
     // It contributes 0 to every bucket: only the CONTROL conceptual survives, so
     // the bucket is 1 (not 2). Had the guard not fired, both would count -> 2.
+    // class 3b — `departure` ADDED; `conceptual: 1` and the other three are unmoved.
     expect(body.mistakeSummary).toEqual({
       conceptual: 1,
       calculation: 0,
       silly: 0,
       presentation: 0,
+      departure: 0,
     });
   });
 
@@ -178,11 +180,13 @@ describe("grader no-working guard: a bare wrong answer is undiagnosable, not con
     // Per-step type nulled, AND the rawSummary leak is closed → bucket is 0.
     expect(s.mistakeType).toBeNull();
     expect(body.mistakeSummary.conceptual).toBe(0);
+    // class 3b — `departure` ADDED; the other four counters are unmoved.
     expect(body.mistakeSummary).toEqual({
       conceptual: 0,
       calculation: 0,
       silly: 0,
       presentation: 0,
+      departure: 0,
     });
     // Attempt still records fully.
     expect(s.status).toBe("incorrect");
@@ -229,11 +233,13 @@ describe("grader no-working guard: a bare wrong answer is undiagnosable, not con
       expect(s.studentWork).toBe("");
       // Type suppressed; 0 buckets.
       expect(s.mistakeType).toBeNull();
+      // class 3b — `departure` ADDED; the other four counters are unmoved.
       expect(body.mistakeSummary).toEqual({
         conceptual: 0,
         calculation: 0,
         silly: 0,
         presentation: 0,
+        departure: 0,
       });
       // Attempt preserved: status + marks + totals unchanged.
       expect(s.status).toBe("incorrect");

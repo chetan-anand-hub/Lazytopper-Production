@@ -68,7 +68,7 @@ jobs:
 
       - name: Set up Buildx (layer cache)
         if: steps.classify.outputs.skip != 'true'
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       # Cache is best-effort: a cache miss costs time, never correctness. The install and
       # build layers dominate, and they only re-run when a manifest or the lockfile moves.

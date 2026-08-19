@@ -1,5 +1,403 @@
 ---
 
+## 2026-08-20 — Wave MI-INTEGRITY-6 (one controller, one build lane run twice, one read-only scout, two lanes that returned HOLD) — **ONE PR, `#690`, AND IT IS A DRAFT** — trunk `62078cb8`, unmoved
+
+★ **PROVENANCE.** Code claims below carry their source: **OWNER-VERIFIED** / **LANE-REPORTED** /
+**SCOUT-REPORTED** / **CONTROLLER-RECORDED** / **HANDOFF-VERIFIED** (re-derived by the `HANDOFF-MI6`
+lane at `62078cb8`). **A controller cannot verify a code claim.**
+
+⚠⚠ **THIS WAS A DIAGNOSIS WAVE, NOT A CODE-DELIVERY WAVE. Do not read it as one.** Four units ran and
+**exactly one produced a PR** — `#690`, **DRAFT, CI fully green, NOT MERGED as of 2026-08-20.**
+★ **RE-DERIVE ITS STATE WITH `gh pr view 690`; this sentence decays.** **Trunk did not move during the
+wave.** ★★★ **FOUR OF FIVE STAGED SPECS FAILED THEIR OWN PREMISE GATE, and three lanes returned HOLD
+or read-only rather than build on a bad premise. Every one of those refusals was correct, and two of
+them changed an owner ruling.**
+
+⚠⚠ **THIS ENTRY CORRECTS TRUNK.** `#689` merged as-is and two of its statements became false while the
+owner ran his uploads: **(a)** the five-surface live-verify was recorded as **IN PROGRESS** and it is
+**COMPLETE, 6 of 8 PASS**; **(b)** `NEXT_ACTION.md` pointed the next agent at spec hash
+`83BC0AEE0189`, which is **DEAD** — the live spec is `41C887056BB8`. ⚠ **HANDOFF-VERIFIED correction to
+this lane's own brief: the dead hash stands at FOUR sites in THREE files, not two.** All four are
+superseded, none edited. ★★★ **A STATED GAP IN `handoff/` IS A LIVE INSTRUCTION TO THE NEXT READER
+THAT NOTHING HAPPENED** — the fourth timescale of the decay lesson, and it was sitting inside the
+artefact built to prevent it.
+
+**★★★ THE ARC'S CLOSING LESSON.** *A CORRECTION LANDED IN THE CODE AND NEVER REACHED THE ARTEFACTS
+THAT JUDGE THE CODE.* "Unbalanced equation = `presentation`" was written in **three judging
+artefacts** — `graderEval.cjs:73-79`, the spec's §3 case 2, and **the owner's own §5 live-verify
+checklist** — while trunk's `checkSolution.cjs:1656-1662` said `conceptual`/`calculation`. ⇒ **His
+checklist would have made him read correct output as a FAILURE, and `graderEval` would have AGREED
+with it — two independent instruments confirming each other and both wrong.** *(OWNER-VERIFIED; he
+read the source himself rather than take the controller's synthesis.)* **Seventh instance of the arc's
+structural finding and the FIRST outside the source file.** He then corrected **his own spec**, not
+the code: §3 case 2 and §5 replaced with a three-way distinction that is **new information** —
+unbalanced ⇒ `conceptual`, wrong coefficients while genuinely attempting ⇒ `calculation`, balanced but
+no state symbols ⇒ `presentation`. `[FU-CORRECTION-2-NOT-PROPAGATED-TO-JUDGING-ARTEFACTS]`
+
+**THE ACCEPTANCE TEST — 6 OF 8** *(OWNER-VERIFIED)*. **Test 1 PASSES: the departure fired, the steps
+below were zeroed, and the coaching line NAMED it — the paper that started this arc now grades the way
+the owner would.** 2a/2b/2c returned **CONCEPTUAL / CALCULATION / PRESENTATION on ONE question**;
+tests 3-7 pass. ⚠ **8b FAILED** — Path B awarded `+1` for *"Write the balanced chemical equation"*
+against a wrong half coefficient, **with its own correct model answer rendered beside it.** ⚠ **8a
+failed on CLASSIFICATION, not on the mark.** ★★★ **The owner has since ruled that Path A's `:1060` is
+RIGHT and his own 8a ruling was WRONG — a wrong substitution is `calculation`, not `silly`** — the
+**second time in this arc he retracted a ruling because a lane's mechanism disproved it.** **A lane
+that had quietly complied would have made Path B agree with a Path A he had already called wrong, and
+every gate would have been green.** ⇒ `[FU-SUBSTITUTION-SILLY-VS-CALCULATION-CONFLICT]` **CLOSED in
+Path A's favour.** **Both remaining failures are Path B and both are inside `#690`.**
+
+**`#690` SUBJECT-RULES-PORT** *(LANE-REPORTED, CI logs read)* — the lane ran **twice**: v1 returned
+**HOLD** on three coinciding stop conditions, the owner issued **five rulings**, and v2 built at the
+**identical spec hash with no new spec file and no erratum authored** *(the house `ERRATA-1`
+mechanism — correct a spec without touching its bytes)*. It ports **eleven of fourteen** Path-A-only
+instructions to the structured path **by SHARING, not copying**, adding twelve shared constants to the
+three that existed. Two files, both allowlisted, **316 insertions / 22 deletions**;
+✅ **`:1059`-`:1062` HELD UNTOUCHED** for TAXONOMY-3BUCKET, so ruling ①'s carve-out survived the build.
+**Counts read from ITS CI run, never hardcoded:** server `node --test` **175 pass / 0 fail / 0 skipped
+/ 0 todo**; root guard matrix **206 pass / 0 fail / 0 skipped / 0 todo** *(grown from 202)*; vitest
+**144 files / 1852 tests.** ★★★ **IT CLAIMS THE INSTRUCTIONS, NOT THE OUTCOME, and it corrected the
+controller in order to do so** — the `calculation` mapping already reached Path B, **the taxonomy was
+never the gap**; what was missing was any instruction to check the balancing **at all** against a
+silent scheme. ⇒ **Whether the mark changes is model behaviour no static gate here can prove.**
+`[FU-PROMPT-EDIT-IS-NOT-A-BEHAVIOUR-PROOF]`
+★★★ **ONE ARTEFACT IS PROMOTED TO A HOUSE STANDARD: THE INTERMEDIATE CHECKPOINT** — 167/167 green with
+both pins unmoved **after the refactor and before wiring Path B**, proving the extraction a pure no-op
+**separately** from the behaviour change. ⚠ **The load-bearing clause is "CANNOT BE PRODUCED AFTER THE
+FACT"** — instruct it in the dispatch, not in the review.
+⚠ **Two catches nobody had flagged:** **§16.14 carried a control that asserted Path B LACKED the rule —
+it PINNED THE DEFECT** and would have gone red on the fix *(the `#490` lesson again)*; and **a
+cross-reference is PATH-RELATIVE** — the ported rule said *"per rule 6"* and on Path B rule 6 is
+HONEST READ. ⇒ **PARAMETERISE, NEVER COPY.**
+
+**SCOUT-CT-PANEL** *(SCOUT-REPORTED, read-only, zero repo writes)* — ★★ **`#682` never touched the
+Chapter Test; the block was NEVER BUILT, so this is not a regression and there is nothing to revert.**
+There is **no `ChapterTestGradedPrintDoc`** — CT reuses the **Worksheet** print doc, which is why
+`#682` improved CT's PDF and not its screen. **An adapter drops the data:**
+`chapterTestScorecardVariant` reads `annotatedSteps` for aggregates then never sets `gradedAnswers`.
+⚠⚠ **A pure wire cannot work** — the shell has zero `annotatedSteps` references and no step field, so
+it would render per-question cards with no steps. ★ **The scout contradicted its own brief on the
+point that mattered, and was right.** ⚠⚠ **The split is Chapter Test AND Full Mock identically, plus
+Quick Practice partially — the owner asked about one surface and the answer is two-and-a-half.** ⚠ **A
+defect nobody asked for, which plausibly is what he actually saw:** the PRIMARY action *"Read my graded
+answer sheet"* is `onReadSheet: () => setScorecardOpen(false)` — **it only closes the modal**, revealing
+a page body with no sheet at all. **A control that lies about what it returns, and it survives any fix
+that only adds the block.**
+
+**EVAL-HARNESS — HOLD, zero files, no model quota consumed** *(LANE-REPORTED)* — ★★★ **the grader's
+accuracy has NEVER been measured**: nothing invokes `graderEval.cjs`. ★★ **And the control fires** —
+the same grep shape finds `checkSolution.test.cjs` wired and reachable from CI, **so this is not a zero
+from a matcher nobody proved can fire.** ★★ **The expected values ALREADY EXIST** — five cases, each
+with an `expect`, a runner and an exit code. **The scaffolding is complete and UNRUN; what is missing
+is owner-sourced ground truth and an invocation, not an eval set.** ⇒ **When a spec says "build X",
+check whether X already exists under another name.** ⚠ **FIVE drifts remain** — D1 the inverted
+taxonomy · **D2 the departure path CANNOT FIRE** *(`isDeparture` absent from the harness's JSON schema
+yet read at three sites ⇒ a control that cannot fire, for the very defect this arc exists to fix)* ·
+D3 label drift · **D4 the harness LEAKS THE ANSWER** ⇒ any Regime-B number is inflated by construction ·
+**D5 four smaller rule-body drifts.** ⚠ **HANDOFF-VERIFIED correction: the controller's record carries
+FOUR drifts; the lane report carries FIVE. D5 is absent from the state file and is restored here.**
+⇒ **The spec's ordering is BACKWARDS — fix D1 first, because a baseline taken now bakes in the drift.**
+
+**TAXONOMY-3BUCKET — HOLD, zero files** *(LANE-REPORTED)* — ★★★ **A TRUE FACT CAN CARRY A FALSE
+INFERENCE, AND THE INFERENCE IS THE PART THAT TRAVELS.** The prior lane's *"the taxonomy lives in the
+prompt"* was **confirmed**; its inference *"therefore a `src/`-only change is inert"* was **refuted** —
+it answers **assignment** while this lane asks **partition**, and neither grader prompt buckets the four
+types into weak/not-weak at all. ⚠⚠ **Had the controller passed that finding as FACT rather than as a
+flagged hypothesis, this lane had a ready-made, plausible and WRONG reason to declare itself inert and
+stop.** ★★★ **And the owner's "five sites" number is RIGHT while his RULER is wrong** —
+`grep -c "fourType:"` returns 5, but that set is four builders plus an interface declaration and
+**misses `buildWorksheetSessionRecord` entirely** because it uses a `reduce`. ⚠⚠ **Building from that
+ruler would silently leave Worksheet on the old partition** — precisely the split-brain the ruling
+exists to prevent. ★★★ **THE RIGHT COUNT FROM THE WRONG SET IS THE MOST DANGEROUS FORM OF A COUNT.**
+
+**★★★ THE INSTRUMENT FINDING OF THE WAVE, and this lane reproduced it as its own first command:**
+**`premise_ledger_check.mjs --worktree=<path>` resolves anchors against whatever tree it stands in and
+NEVER compares it to the ledger's declared `Base SHA:`.** Same spec, same command, same flags —
+**exit 1 with all four anchors "ROTTED" in the stale shared checkout, exit 0 with 4/4 resolved in a
+worktree at the declared base.** ⚠⚠ **It cuts both ways: a spec anchored to a DEAD SHA passes cleanly
+if gated in a tree at that dead SHA — which is exactly how `STUB-503`'s defect survived authoring.**
+**The fix is one comparison.** `[FU-PREMISE-GATE-IGNORES-DECLARED-BASE-SHA]`
+⇒ ★★ **A MEASUREMENT WHOSE SCOPE IS WRONG PRODUCES A CONFIDENT, WRONG, AND SPECIFIC ANSWER** — four
+instances this wave. ⇒ ★★★ **A RED MUST BE ATTRIBUTED TO A CAUSE BEFORE IT IS ACTED ON: ask what the
+instrument actually LOOKED AT before believing what it says about your work.**
+
+**HANDOFF `HANDOFF-MI6` (this entry, docs-only, seven files).** Gates: `scope:guard --mode docs`
+**non-vacuous**, `check:mojibake` **with an injected control proving the matcher fires**, per-file
+heading census **set-differenced before and after**, `git diff --check` clean, and a §8 reconcile after
+push. ⚠ **Three corrections to the controller's own record are folded in rather than inherited: the
+dead hash is at four sites not two · EVAL-HARNESS has five drifts not four · and two FU ids CLOSED by
+`#690` were never recorded as closed** — `[FU-GRADER-DUPLICATED-LITERAL-INSTRUCTIONS]` and
+`[FU-SUBJECT-CHECKLIST-DUPLICATED-WITHIN-PATH-A]`. **A fourth: `SCOUT-CT-PANEL` was absent from the
+closing board, so the wave is parked on THIRTEEN owner decisions, not eight.**
+★ **Where a lane report and the controller's state file disagree, the lane report is closer to the
+measurement, and that is the rule that produced all four corrections.**
+
+---
+
+## 2026-08-19 — Wave MI-INTEGRITY-5 (one controller, three build lanes, one read-only scout, two in-branch corrections) — `#687` + `#682` + `#688` all merged — trunk `caed0e1f`
+
+★ **PROVENANCE.** Code claims below carry their source: **OWNER-VERIFIED** / **LANE-REPORTED** /
+**SCOUT-REPORTED** / **HANDOFF-VERIFIED** (re-derived by the `HANDOFF-MI5` lane at `caed0e1f`).
+**A controller cannot verify a code claim.**
+
+⚠⚠ **THE ARC IS NOT CLOSED. Do not read this entry as "the grader is fixed."** Every build unit is on
+trunk; **the acceptance test is a FIVE-SURFACE OWNER LIVE-VERIFY that is IN PROGRESS**, and no gate in
+this repository can produce that evidence. See `CURRENT_STATE.md` §3.
+
+**WHAT LANDED - FOUR UNITS ON THREE PRs.** **`#687` DEPARTURE-DEAD** (`3d22ff88`) - `isDeparture` now
+carries through `normaliseStructuredResult`; product diff **+9/-0**, test +194/-0. **`#682`
+SHEET-1v4 + QP-GRADEDCOUNT-MARKER** (`fe74a09e`) - Steps 1 and 7 of the honest graded sheet, plus a
+comment marking the stored QP `gradedCount` as synthesised; six files under `src/components/`.
+**`#688` GRD-UNIFORM** (`caed0e1f`) - 19 scenarios, the departure test, the stored scheme demoted from
+authority to corroboration, and **two in-branch corrections before merge.** **All three verified on
+trunk by ANCESTRY AND CONTENT, not by PR status** - ★ the strongest single check being that
+`checkSolution.cjs` went **2334 -> 2343 lines**, exactly `#687`'s `+9/-0`. **Trunk moved four times
+inside this one wave; `ffd352fb`, `1af3637a`, `3d22ff88` and `fe74a09e` are all dead as base SHAs.**
+
+**★★★ THE FINDING OF THE ARC, OWNER-PROMOTED.** *A rule written on the SINGLE-QUESTION path and
+absent from the STRUCTURED one - found FOUR times, four different KINDS: a FIELD (`isDeparture`), a
+CALLER (C&I multi-question calls `gradeWorksheet` directly at `DesktopCheckImprovePage.tsx:1388`), an
+INSTRUCTION (the entire subject-specific checklist), and a CLAUSE (the units rule - "PRESENTATION vs
+MISSING", `grep -c` returns 1 for the whole file).* ⇒ **"That is no longer a bug; it is a STRUCTURAL
+PROPERTY OF THIS FILE, and the next lane should assume it rather than discover it."** ★ The fourth
+instance is the sharpest: putting units into the **shared constant** is what gives Path B the ruling
+**at all** - a **path fix presented as a restatement.** ⇒ **This is the evidence base for U8,
+`[FU-SUBJECT-RULES-SINGLE-PATH-ONLY]`, now the largest remaining grader defect.**
+
+**★★ THE SENTENCE THE ARC WAS BUILT ON WAS CORRECTED BY THE LANE SENT TO ACT ON IT.** *"Everything
+this arc built ran on Check & Improve ONLY"* became *"ran on C&I's SINGLE-QUESTION path only"* - **so
+the blast radius is FIVE surfaces, not three**, and a fifth caller nobody had named exists at
+`quickPracticeSessionService.ts:590`. ⚠⚠ **The owner's own control was invalid as written and he
+corrected it himself:** *"a multi-question C&I re-run is a CHANGED surface, not a control."* ★★ **A
+control that is itself changed by the thing it is controlling for is not a control** - and nothing in
+this repo could have caught it. **The lane did.**
+
+**★ THE STRONGEST ARTEFACT OF THE WAVE - THE STASH-AND-RERUN.** The `#687` lane **stashed its change
+and re-ran the same five fixtures**, proving its regression guards instead of asserting them. The
+single-question fixtures came back **byte-identical**, and the structured fixture now **EQUALS** the
+single-question one exactly - same reply, both normalisers, same grade **2/4, `[1,1,0,0]`,
+`departure:1`.** ★★★ **OWNER'S WORDS: "A HARDCODED PAIR DRIFTS; AN EQUALITY CANNOT."** ★ Its
+volunteered caveat is kept: the no-departure path is **not purely additive** - normalised steps now
+carry `isDeparture: false`, **convergence rather than divergence, but a persisted-shape change.**
+
+**⚠ `#688` MERGED BEFORE ITS LIVE-VERIFY, AND THAT IS A DECISION WITH A REASON, NOT A SKIPPED GATE.**
+**Firestore auth accepts only the deployed domains, so nothing is testable until it is on trunk.**
+★ *This is the `#638` shape inverted - there only a boot could prove it ran; here only trunk can prove
+anything at all.* **`#688` merged on gate evidence alone, knowingly.**
+
+**★★ THE DEFECT CLASS GAINED A SECOND CLAUSE AND WAS THEN USED TO PREVENT ITS OWN NEXT INSTANCE.**
+*An allowlist that cannot reach what the ruling requires* - **third instance in the code lanes**, and
+this time **the spec's own ruling broke a test its own allowlist forbade it to touch.** ⇒ **CLAUSE 2:
+*name the file that holds the ASSERTION your ruling will break.*** ★★ It was then applied
+**pre-emptively** on the next dispatch, which needed no widening at all. ★★★ **And the fifth instance
+overall was PREVENTED rather than diagnosed: `handoff/DECISION_LOG.md` sits outside the `CLAUDE.md`
+section-10 six-file list, which is exactly why its companion entry had been owed since MI-4 - it was
+named in this lane's allowlist before the lane started.** `[FU-CLAUDEMD-S10-OMITS-DECISION-LOG]`
+
+**★★ TWO NEW ANCHOR-ROT MODES. THERE ARE NOW NINE.** **Mode 8** - *an anchor that is a SHAPE, not a
+locator*: `gradedCount: totalQuestions, totalQuestions` is shared by **four** stored variants, so it
+**resolves, resolves to the WRONG function, and the premise gate passes clean at exit 0.** ⚠ **Every
+other mode announces itself; this one is byte-perfect and GREEN.** **Mode 9** - *the anchor quotes the
+RENDERED string, not the SOURCE*: a true claim on a correct line failed only because the file writes
+the apostrophe as a JS escape. ⇒ **MODE 8 RESOLVES TO THE WRONG PLACE; MODE 9 FAILS TO RESOLVE TO THE
+RIGHT ONE.** ⚠ **A controller applied mode 8 on its first day to a case that was actually mode 3, and
+the lane disproved it** - ★★ **an instruction to VERIFY survives its author being wrong; an
+instruction to COMPLY does not.**
+
+**★★★ THE OWNER RETRACTED HIS OWN CORRECTION, IN HIS OWN WORDS.** *"I read `:722`, saw the `!partial`
+guard and told you it was present-but-dead - true of the WRONG FUNCTION. The guard is genuinely
+ABSENT at the QP site, MI-4's original scout said exactly that, and the lane caught my error before it
+reached a comment."* ★★ **The model working as designed: a controller passed a ruling through WITH
+PROVENANCE INTACT rather than as fact, and the lane was free to disprove it.**
+
+**⚠ U4 IS WITHDRAWN AS SPECCED, ON ITS OWN SCOUT'S EVIDENCE.** ★★★ **A code-only U4 would be INERT -
+the taxonomy is defined in the PROMPT, not in TypeScript**, with six prompt restatements and three
+separate `VALID_MISTAKE_TYPES` Sets; the house rule *grep the prompts when you change a rule in code*
+**inverts here.** The scout also named **a second, undocumented taxonomy pipeline (`fourType`)**, that
+**`MeProgressPage` reads `getMistakeLogs` DIRECTLY rather than via `progressStore`** (⚠ the chain the
+arc had been describing all session was wrong in one link), **eight `recordMistake` call sites** (not
+seven, not the five a stale comment claims), and **a CI guard that pins the member list by regex, so a
+taxonomy change turns a green gate RED BY DESIGN.** ⇒ **U4 splits into U4a (prompt) and U4b (the
+presentation ruling), both blocked on the owner.**
+
+**★★★ AND U4's BLOCKER TURNED OUT NOT TO BE A MEASUREMENT FAULT AT ALL.** The repo's D1 clause -
+*"calculation leaves knowledge gaps"*, the **only** line in the repo that states it - **parses two
+opposite ways**, and both readings were measured: **25-of-25 sites agree under one, 0-of-25 under the
+other, with 17 explicitly contradicting.** **Neither reading is a misreading; the one-line summary
+form created the ambiguity** ⇒ `[FU-DOCTRINE-ONE-LINER-AMBIGUOUS]`. ⚠ **It sat inside a list headed
+*"DECISIONS INHERITED - do not re-open"* - the form that most discourages the question that would have
+caught it.** ★ **One unambiguous owner sentence closes it**, and the spec must say **where calculation
+LANDS, not only that it LEAVES** - 8 sites cannot be scoped until it does.
+
+**★★ A CLEAN NEGATIVE, WITH ITS MECHANISM CORRECTED.** `[FU-STORED-VARIANT-GRADEDCOUNT-SIBLINGS-UNCHECKED]`
+is **CLOSED**: `storedChapterTestScorecardVariant` and `storedFullMockScorecardVariant` are **both
+HONEST.** ⚠ **But the controller's counter-evidence was right about the conclusion and WRONG about the
+mechanism** - they are safe because of a **GUARD** (`status === "graded" && totalQuestions > 0`), not
+because they read the count. ★ *A correct outcome reached by a false premise still poisons the record,
+so the mechanism is corrected and not merely the verdict.*
+
+**⚠ TWO GAPS IN THE GATE BAR, BOTH FOUND BY READING LOGS RATHER THAN TICKS.**
+`verify-production-build.mjs` **does NOT run in CI** - zero hits across a 7,746-line log - while
+`CLAUDE.md` section 6 lists it as required and section 6a calls CI *"the full bar"*; ⇒ **the
+post-build bundle verifier has never gated a PR**, and every future `src/` dispatch must run it
+locally and quote it. And **CI log retention degrades step names**, so a lane trying to recover an
+older baseline found every line reading `UNKNOWN STEP` - ⇒ **a baseline you did not capture at the
+time may be unrecoverable.** ★ *The lane refused to manufacture the comparison and said so.*
+
+**RECORD ITEM (a) - MI-INTEGRITY-3's RECORD IS RECONSTRUCTED AND ITS STATED GAP IS CLOSED.** MI-4
+recorded, correctly for the material it had, that it could not narrate that wave. ⚠⚠ **A stated gap in
+`handoff/` is a live instruction to the next reader that nothing happened.** ⇒ ★★★ **A "NOTHING
+LANDED" RULING IS TRUE AT AN INSTANT AND DECAYS** - MI-3's ruling 8 was correct when made (trunk
+`afa8bb7a`, zero merges, both lanes unmerged drafts) and **`#681` landed afterwards as `c4c0c448`.**
+The wave is now narrated in `CURRENT_STATE.md` section 4 from the controller's archived state file
+(**49,882 B, `295fc6753d6b`, hash-verified before writing**), **including an explicit statement of
+what that archive does NOT support.** ⚠ **No narrative was invented.**
+
+**GATES AT `caed0e1f`** - root matrix **`# suites 30  # tests 206  # pass 206  # fail 0  # skipped 0
+# todo 0`**; full vitest **144 files / 1852 tests**; server `node --test` **166 pass / 0 fail** against
+a 139 baseline. ★★★ **A COUNT IS BOUND TO THE TREE THAT PRODUCED IT** - `142/1825` was trunk AT `3d22ff88` and
+`144/1852` is trunk NOW, because `#682` merged (two new test files, 27 new tests). **Closed twice
+independently and in agreement** - and then the earlier sentence *"142/1825 IS trunk"* **DECAYED the
+moment `#682` landed**, which is this wave's own lesson firing on the record that describes it. ⚠ **Root matrix
+is 206/30, not the 202/30 on the older standing record. THE COUNT GROWS - read it from the run.**
+⚠ **`tsc` is structurally blind to the server CommonJS routes**, so for `#687` and `#688` the matrix,
+vitest, the build and the **container boot** were the only gates with reach - and the boot reached both
+ready lines, passed the Railway healthcheck, and had **an in-image control that fired.**
+
+**THIS DOCS PR IS THE FIRST FULL-BAR RUN TO SEE `#682`, `#687` AND `#688` COMPOSED.** ★ *A product
+PR's CI runs against its own base; only a docs-only PR sees the merged whole.* **`#682`'s green was
+measured on a tree without `#685` and `#687`**, and its Step 7 coaching line and `#687`'s departure
+carry-through are **semantically coupled**. ⇒ **This PR is the integration check no product PR could
+give.**
+
+## 2026-08-18 — Wave MI-INTEGRITY-4 (one controller, three lanes, one read-only scout) — `#684` + `#685` merged, `#682` still a draft — trunk `ffd352fb`
+
+★ **PROVENANCE.** Code claims below carry their source: **OWNER-VERIFIED** / **LANE-REPORTED** /
+**SCOUT-REPORTED** / **HANDOFF-VERIFIED** (re-derived by the `HANDOFF-MI4` lane at `ffd352fb`).
+**A controller cannot verify a code claim.**
+
+**WHAT LANDED.** **`#684` CHECKER-FIX** (`da44285f`) — the ledger-row splitter now splits on
+**unescaped pipes only** and unescapes `\|` back; two `scripts/` files. **`#685` GRD-CLOSE**
+(`ffd352fb`) — propagated steps no longer deduct, and the rubric is now derived **before** the
+student's work is read; two `server/` files, +373/-16. **Both verified by CONTENT AND ANCESTRY, not by
+PR status** — *a fresh SHA is not a growing history, and `MERGED` plus a `mergeCommit` have agreed
+with each other and both been wrong before.* **`#682` SHEET-FINISH** pushed `534f4f32` (Steps 1 and 7,
+four files under `lazytopper/src/components/`) and **remains a DRAFT that is not on trunk.**
+
+⚠ **THE SHA CHAIN HAD A GAP.** The previous handoff (`#680`) closed at `e077b3a3`; trunk has moved
+three commits — `c4c0c448` (`#681`), `da44285f`, `ffd352fb`. **`#681` reaches `handoff/` here for the
+first time**: Wave MI-INTEGRITY-3 shipped GRD-CLAMPS, GRD-FINISH, GRD-FINISH-2 and GRD-FINAL **inside
+that one PR** and closed **without a handoff PR**, and its wave-state archive was never committed.
+**This entry does not narrate that wave** — the record is not on disk here and **inventing one would
+be worse than recording the gap.** *(HANDOFF-VERIFIED: `git log --oneline afa8bb7a..ffd352fb`;
+`git ls-tree -r --name-only ffd352fb -- handoff/`.)*
+
+**★★★ THE FINDING OF THE WAVE — A NEW DEFECT CLASS, OWNER-ACCEPTED.** *A spec whose allowlist cannot
+reach the data its own ruling requires. The lane never discovers it — it either **stops** or
+**synthesises the number again**.* **Operational form: before writing an allowlist, name the file that
+holds the DATA, not the file that holds the SYMPTOM.** ⚠ **Distinct from *extent-from-a-sample***:
+that class is a claim about **how big a set is**, this one about **where a fix can reach.** The
+instance — `gradedCount` is synthesised in `scorecardVariants.ts`, but **`SessionRecord` cannot
+represent the honest answer at all**; the data lives only in `SessionPerQuestionPayload` behind
+`perQuestionRef`, which the variant never receives. ★ Owner's words: *"That is my error four times
+over this wave and it now has a name."*
+
+**★★ THE MERGE DECISION, RECORDED AS A DECISION WITH ITS REASON — NOT AS EVIDENCE SATISFIED.** The CI
+full-matrix zero-skip lines were **never quoted**; the controller flagged it three times and the owner
+**did not wave it away.** His decision: *"I merged on the lanes' scoped runs PLUS green CI, because
+the two together are strong enough for a `scripts/`-only and a `server/`-only change, and because
+holding them blocked the arc."* ★★ **That is a judgement about SUFFICIENCY. A future reader must not
+infer that *"a tick is not a log"* was met here — it was knowingly traded, on a narrow blast radius,
+for arc velocity.** ⚠ **The trade does not generalise to a wider change, and `DEPARTURE-DEAD` is a
+wider change.** What **was** quoted: `# tests 6 -> 10` (CHECKER-FIX, baseline stated) and
+`# tests 132  # pass 132  # fail 0  # skipped 0` plus vitest `Tests 42 passed (42)` (GRD-CLOSE,
+baseline `# pass 122` stated), and `NO_UPLOADS_CONTENTS_SHA256` OLD **and** NEW in full in the report,
+the commit message and the PR body — ★ *a pin re-baselined without its before/after is
+indistinguishable from a pin quietly deleted.*
+
+**★★★ THE ARC IS NOT CLOSED, AND THE REASON REFRAMED THE WHOLE WAVE.** `isDeparture` is set **only
+inside `handleCheckSolution`**, so `findDepartureIndex` returns **-1 on the structured path.**
+⇒ **rule 5, the departure cap and `mistakeSummary.departure` are ALL DEAD on chapter test, worksheet
+and full mock. Only Check & Improve has ever had them live.** *(OWNER-VERIFIED.)* ★★★ **Everything
+this arc built, and everything the owner live-verified, has run on ONE SURFACE OUT OF FIVE.** ★ This
+is `MOUNT != LIVE` **at feature scale** — the code was present, tested and correct on every surface,
+and **reachable on one.** ⇒ **`DEPARTURE-DEAD` is the next lane, it RUNS ALONE, and the arc's
+acceptance test is an OWNER LIVE-VERIFY ON THREE SURFACES that no gate in this repository can
+produce.**
+
+**★★ `#685` BUILT NARROWER THAN ITS SPEC ASKED, AND IT WAS RIGHT.** The literal rule — *"any null-type
+non-departure step ⇒ `marksDeducted` 0"* — **would have discarded HONEST deductions** (missing,
+no-working, *"Don't know"*, crossed-out, typed-nonsense), which an existing test **already pinned**;
+**no propagation marker exists in the contract**, so the literal rule cannot tell the two apart. The
+lane implemented the **narrow post-departure rule** and **added a CONTROL so the narrowing cannot
+later be silently widened.** ★ *"If the spec is wrong, your verified finding wins" executed correctly:
+it did not build around the defect, and it did not comply into a regression.* **P8 was answered
+"AFTER", so the fix was a RE-ORDERING** — and ★★★ ***"both paths" is TWO HANDLERS BUT THREE
+ASSEMBLIES***: fixing the two `userPrompt` constants alone would have missed the interleaved upload
+path. **Extent-from-a-sample, and this time it was the owner's.**
+
+**★★ THE PROMPT/CODE SWEEP PAID FOR ITSELF IN BOTH DIRECTIONS.** *Code -> prompt:* **no prompt stated
+the deduction rule**, so **the code would have silently corrected the model** — ★ *a prompt is a
+second implementation.* *Prompt -> code:* nothing in the pipeline derives or checks a rubric.
+⚠ **And a gate that could not see the change said so:** `tsc` returned exit 0 on **both** configs and
+is **INAPPLICABLE** — both `tsconfig` files use `"include": ["src"]` and are structurally blind to
+`server/**/*.cjs`. ★ *A green from a gate that cannot see the change is not evidence about the change.*
+
+**★★★ THE LEDGER ROTS THE MOMENT THE LANE WORKS — REACHED FROM TWO OPPOSITE DIRECTIONS IN ONE DAY.**
+**SHEET-FINISH's claim went FALSE while its anchor HELD** (Step 3 existed to falsify it — re-citing
+would have made the gate green while the ledger asserted something untrue; **the honest red was
+correct and the lane refused the repair**). **CHECKER-FIX's claim HELD while its anchor MOVED** (its
+own added comment displaced `:109`/`:118` to `:122`/`:148`). ⇒ **ROT MODE 7**, and **neither is
+repairable by re-citation — only re-basing or exempting.** Ruling: **finishers gate STRUCTURE ONLY.**
+⚠⚠ **But the command in that ruling is WRONG and must be fixed before any future finisher runs:
+`--strict-anchor` only decides whether a MISSING anchor is ERROR or WARN; anchor RESOLUTION is gated
+by `--worktree`. Drop `--worktree`, not `--strict-anchor`** (`[FU-FINISHER-GATE-WRONG-FLAG]`).
+★ *The rule was reasoned; the mechanism was assumed.*
+
+**★★ EXTENT-FROM-A-SAMPLE FIRED INSIDE THE CORRECTION WRITTEN TO FIX IT.** An addendum said **one**
+*"show every step"* site; a ruling raised it to **two**; **the true count is three** — the third says
+*"showing"*, so the ruling's **grep SHAPE could not see it** — and **that third site was the worst
+case**: with all four ordinary counters zeroed at or below a departure, a departure at step 0 left a
+student who solved a **different question** being congratulated on *"Clean work."* The lane fixed all
+three **structurally**, by putting the departure branch first. ⇒ **count nothing whose unit is
+undefined, and a grep shape is not an enumeration.**
+
+**⚠ BOTH `#682` SYMBOLS SHIP DORMANT.** They emit chunks and have **zero non-test consumers** —
+independently confirmed by a **real enumeration** (symbol grep, filesystem grep over untracked and
+ignored trees, a namespace-import check closing the alias escape hatch, and an input-type pass), not
+by one grep. ★ *A test proves the code works; a chunk proves it ships; only a consumer — and
+ultimately a boot — proves it RUNS.* **A lane that reported "Step 7 built, chunk emitted" and stopped
+there would have been believed.**
+
+**⚠ CONTROLLER ERRORS, RECORDED.** ★★★ **The controller AUTHORED FOUR ERRATA and should not have** —
+an erratum **overrides a hash-gated spec**, so its authorship must be as traceable as the spec it
+modifies; the previous controller faced the same question and **refused**, and that refusal is the
+standard. **The concrete harm: a FOUR-DEEP precedence chain pointing at a spec the owner later
+retired — and a lane obeyed it.** ★★ *A precedence chain is a claim about which documents are live,
+and it goes stale SILENTLY, because the lane obeying it has no way to check the chain's own currency.*
+⇒ **owner rulings travel in the DISPATCH MESSAGE, which carries no hash and therefore cannot silently
+override a gated spec.** Also recorded: **an impossible worktree command** given to a lane (git
+refuses a second checkout of a branch already checked out); **rot mode 2 predicted where mode 1
+fired** — load-bearing, because mode 2 would impeach the prior build's edit of the cited code while
+mode 1 shows it left that code untouched; and **a briefed diagnosis recorded verbatim and unflagged**,
+which had to be chased out of the state file when the owner retracted it — ★ *a controller amplifies.*
+
+**★★ AND A MOJIBAKE ACCUSATION THE CONTROLLER MEASURED AND DISPROVED AGAINST ITSELF.** The retirement
+above also alleged the errata carried cp1252 mojibake from *"a PowerShell text cmdlet"*. Reading
+**bytes** and printing **codepoints** showed `e2 80 94` — **U+2014 EM DASH, valid UTF-8, zero mojibake
+sequences** — and all four files were written with **bash heredocs.** ★★ **A cp1252 CONSOLE RENDERS A
+CLEAN UTF-8 FILE AS MOJIBAKE — READ BYTES, PRINT CODEPOINTS** (second recorded instance). **The
+retirement ruling stands on authorship; only the mojibake diagnosis is disproved** — recorded because
+**a correct outcome reached by a false premise still poisons the record**, and the next controller
+would guard the wrong thing.
+
+**HANDOFF LANE (`HANDOFF-MI4`, this PR).** Six `handoff/` files, **zero product files.** A per-file
+heading census was taken before and after every edit and **set-differenced**, because *uniqueness is
+not completeness* — checking that headings appear once passes while a whole section is gone. The
+previous `[CURRENT]` was **demoted, not deleted**; the **WIRE-2 dormancy block survived and is
+restated** in the new one.
+
+---
+
 ## 2026-08-15 — Wave QR-UPLOAD + Wave MI-INTEGRITY-2 (two controllers, eight lanes, two scouts) — ONE product change, `#679` — trunk `e077b3a3`
 
 ★ **PROVENANCE.** Code claims below carry their source: **OWNER-VERIFIED** / **LANE-REPORTED** /
