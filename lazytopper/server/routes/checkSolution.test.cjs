@@ -860,7 +860,21 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // ⚠ Both re-baselines were owner PRE-APPROVED. The same five tests moved together both times
 // (§7.1, §9.5, §10.5, §11.5, §12.6) and went green on a single constant update each time — no
 // test was individually doctored. That is the pin working, twice.
-const NO_UPLOADS_CONTENTS_SHA256 = 'aedfc9ceaffc004be168ab6086c94ba84320735a73189270181a959691004eda';
+// RE-BASELINED AGAIN in SUBJECT-RULES-PORT (aedfc9ce… → 4640c453…). ELEVEN instructions
+// that reached the SINGLE-QUESTION path and not the STRUCTURED one were carried across
+// BY SHARING a constant: the subject checklist, the three scheme-assessment directives,
+// "Identify EVERY step", PRESENTATION-vs-MISSING, correctedWorking, per-step attribution,
+// the ECF verification clause, the no-manufactured-missing clause, and the systemPrompt
+// cause-reasoning sentences. The same change ALSO single-sourced the two instructions that
+// existed as near-copies differing ONLY in their rule number (path A 14/15, path B 8/9).
+// ⚠ THE STRUCTURED PROMPT IS THE ONLY ONE THAT MOVED. §17.1 pins the single-question
+// prompt byte-for-byte across the same change and did NOT move — that is the regression
+// guard, and it is why this re-baseline is the deliverable rather than drift.
+//   OLD aedfc9ceaffc004be168ab6086c94ba84320735a73189270181a959691004eda
+//   NEW 4640c4530529d424fa4b50e0f07e82b04853f95856e5dd77f3900ce7e8522ad9
+// ★ The same five tests (§7.1, §9.5, §10.5, §11.5, §12.6) moved together again and went
+// green on a single constant update — no test was individually doctored. The pin working.
+const NO_UPLOADS_CONTENTS_SHA256 = '4640c4530529d424fa4b50e0f07e82b04853f95856e5dd77f3900ce7e8522ad9';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',
@@ -3206,10 +3220,17 @@ test('§16.14 ★★ UNITS — a correct answer with no unit is PRESENTATION, ne
   // handleCheckSolution's numbered rules; gradeStructuredSet never had it. Putting
   // the case in the SHARED constant is what gives the structured path the rule at all.
   const b = await U_B();
-  assert.ok(!b.includes('PRESENTATION vs MISSING'),
-    'CONTROL: the structured path still has no numbered PRESENTATION-vs-MISSING rule ...');
+  // ⚠⚠ THIS CONTROL WAS INVERTED BY SUBJECT-RULES-PORT, DELIBERATELY AND WITH ITS
+  //    REASON RECORDED. It previously asserted that the structured path had NO
+  //    numbered PRESENTATION-vs-MISSING rule — which is to say it PINNED THE DEFECT
+  //    this lane was opened to remove. A control that asserts the structure it is
+  //    meant to detect will pass forever and block the fix. The units ruling still
+  //    arrives via the shared ECF constant (asserted above, unchanged); what changed
+  //    is that the numbered rule now reaches path B too, from ONE shared string.
+  assert.ok(b.includes('PRESENTATION vs MISSING'),
+    'the structured path must NOW carry the numbered PRESENTATION-vs-MISSING rule');
   assert.ok(b.includes('UNITS. A CORRECT answer written WITHOUT ITS UNIT'),
-    '... so the shared constant is the ONLY thing carrying the units ruling to it');
+    'the shared constant still carries the units ruling to the structured path');
 });
 
 test('§16.15 ★★★ MULTI-PART — a SKIPPED sub-part is UNATTEMPTED: never typed, never counted, never a departure, never invisible', async () => {
@@ -3261,5 +3282,234 @@ test('§16.15 ★★★ MULTI-PART — a SKIPPED sub-part is UNATTEMPTED: never 
     assert.equal(m.conceptual + m.calculation + m.silly + m.presentation, 0,
       name + ': an unattempted part contributes NOTHING to the mistake summary (so nothing reaches MI)');
     assert.equal(g.annotatedSteps[0].marksAwarded, 1, name + ': the ANSWERED part keeps its marks');
+  }
+});
+
+// ── §17 · SUBJECT-RULES-PORT · the guards for the eleven ported instructions ──
+/* ══════════════════════════════════════════════════════════════════════════════
+   WHY §17 EXISTS. Eleven instructions reached the SINGLE-QUESTION path and not the
+   STRUCTURED one, so five surfaces (Worksheet, Chapter Test, Full Mock, Quick
+   Practice, multi-question C&I) graded Science with no subject rules at all. This
+   lane carries them across BY SHARING a constant, never by copying text — this
+   file already held the mistake taxonomy in three drifted copies, two of them
+   under hand-written "keep in sync" comments that did not keep them in sync.
+   ⚠ §17.1 is the guard that matters most: it pins the SINGLE-QUESTION prompt
+   BYTE-FOR-BYTE, so a refactor that was supposed to change only path B cannot
+   silently reword path A. Its baseline was taken BEFORE the port.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+const SINGLE_Q_CONTENTS_SHA256 = 'c38244672289ced5d86db0da02a06520d1a81d2c2c1930cfcc970c2a88cbf46a';
+
+test('§17.1 ★★★ REGRESSION — the SINGLE-QUESTION prompt is BYTE-IDENTICAL across the port', async () => {
+  const h = buildRoute({ replies: [{ annotatedSteps: [{ description: 'd' }] }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  const sha = crypto.createHash('sha256').update(JSON.stringify(h.calls[0].contents)).digest('hex');
+  assert.equal(sha, SINGLE_Q_CONTENTS_SHA256,
+    'the single-question prompt changed — this lane must not touch path A');
+});
+
+/* ═════════════════════════════════════════════════════════════════════════════
+   §17.2-§17.7 · the ported instructions, and the shape of the port.
+   ⚠ §17.6 is the one that would have caught this lane failing at its own purpose:
+   it asserts each ported instruction exists as EXACTLY ONE literal in the source
+   AND reaches BOTH assembled prompts. One string, two consumers — which is the
+   only configuration that cannot drift.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+// ⚠ U_A / U_B are MATHS fixtures, so they correctly receive the MATHS checklist.
+//   The subject checklist is CONDITIONAL BY DESIGN on both paths, so proving the
+//   Science checks arrive needs a Science submission — asserting Science strings
+//   against a Maths prompt would be asserting a bug.
+const U_A_SCI = async () => {
+  const h = buildRoute({ replies: [{ annotatedSteps: [{ description: 'd' }] }] });
+  await h.route.handleCheckSolution(ECF_REQ({ subject: 'Science' }), {});
+  return textOf(h);
+};
+const U_B_SCI = async () => {
+  const h = buildRoute({ replies: [WS_REPLY({ annotatedSteps: [{ description: 'd' }] })] });
+  await h.route.handleGradeWorksheet({ ...ECF_WS(), subject: 'Science' }, {});
+  return textOf(h);
+};
+
+const GRADER_SOURCE = require('node:fs').readFileSync(
+  require('node:path').join(__dirname, 'checkSolution.cjs'), 'utf8');
+
+// The eleven ported instructions, by a distinctive fragment of each.
+const PORTED = [
+  ['is STILL EXPECTED even if this scheme is silent about it', 'a demanded element survives the scheme\'s silence'],
+  ['Assess for each value point whether the student hit it', 'per-value-point assessment'],
+  ['Where your derived rubric and this stored scheme DISAGREE', 'the derived-vs-stored rule'],
+  ['Identify EVERY step', 'step enumeration'],
+  ['PRESENTATION vs MISSING', 'the presentation-vs-missing rule'],
+  ['correctedWorking: for incorrect/partial steps ONLY', 'the correctedWorking instruction'],
+  ['Attribute a type PER STEP; never blanket-label', 'per-step attribution'],
+  ['This includes a verification/check step that only', 'the ECF verification clause'],
+  ['Do NOT manufacture extra "missing" steps', 'the anti-fabrication clause'],
+  ['WHAT THE ERROR REVEALS ABOUT THE STUDENT', 'systemPrompt cause-reasoning'],
+];
+
+test('§17.2 ★★★ THE LANE — a SCIENCE set on the STRUCTURED path is checked for balanced equations and state symbols', async () => {
+  // ⚠ IMPOSSIBLE BEFORE THIS LANE, and the reason it exists: Worksheet, Chapter
+  //   Test, Full Mock, Quick Practice and multi-question C&I graded Science with
+  //   no subject rules at all.
+  const b = await U_B_SCI();
+  assert.ok(b.includes('balanced equations'), 'the structured prompt never asks for balanced equations');
+  assert.ok(b.includes('state symbols (s/l/g/aq)'), 'the structured prompt never asks for state symbols');
+  assert.ok(b.includes('NCERT-standard language'), 'the structured prompt never asks for NCERT terminology');
+  assert.ok(b.includes('diagrams labelled'), 'the structured prompt never asks for labelled diagrams');
+});
+
+test('§17.3 ★★ the scheme-assessment directives reach BOTH paths — the owner\'s 8b bug', async () => {
+  // ★★★ THE DECISIVE ONE. Path B emitted the stored scheme and said "grade against
+  //     ITS OWN scheme", then never said what comparing MEANT — so a scheme silent
+  //     about balancing read as permission, and a wrong coefficient was marked
+  //     Correct with the right equation rendered beside it on the same screen.
+  await bothPathsSay('is STILL EXPECTED even if this scheme is silent about it',
+    'that a demanded element survives the scheme\'s silence');
+  await bothPathsSay('Assess for each value point whether the student hit it',
+    'that each value point is assessed individually');
+  await bothPathsSay('Where your derived rubric and this stored scheme DISAGREE',
+    'what to do when the derived rubric and the stored scheme disagree');
+  // ★ TWO independent clauses name a balanced equation, and neither reached path B.
+  const b = await U_B();
+  assert.ok(b.includes('a balanced equation'), 'the structured path must name a balanced equation as a demanded element');
+});
+
+test('§17.4 the subject checklist reaches BOTH paths, for BOTH subjects', async () => {
+  // MATHS — U_A / U_B are Maths fixtures.
+  await bothPathsSay('formula, substitution, calculation, proper notation', 'the Maths subject checklist');
+  // SCIENCE — the same instruction, the same shared atoms, a Science submission.
+  const aSci = await U_A_SCI();
+  const bSci = await U_B_SCI();
+  for (const needle of ['terminology, balanced equations', 'state symbols (s/l/g/aq)', 'NCERT-standard language', 'diagrams labelled']) {
+    assert.ok(aSci.includes(needle), 'SINGLE-QUESTION Science prompt lost: ' + needle);
+    assert.ok(bSci.includes(needle), 'STRUCTURED Science prompt never states: ' + needle);
+  }
+  // ★ THE CONTROL — the checklist is CONDITIONAL, not unconditional. A Maths
+  //   submission must NOT be told to check state symbols, on either path.
+  const a = await U_A();
+  const b = await U_B();
+  assert.ok(!a.includes('NCERT-standard language'), 'CONTROL: a MATHS single-question prompt must not carry the Science checks');
+  assert.ok(!b.includes('NCERT-standard language'), 'CONTROL: a MATHS structured prompt must not carry the Science checks');
+});
+
+test('§17.5 ★ REGRESSION — every DELIBERATE divergence is still on ONE path only', async () => {
+  // ⚠ The spec's warning, made executable: porting an instruction because it
+  //   appeared in an inventory is the failure mode. These are path-specific by
+  //   design — path B grades a SET, path A grades ONE submission — and a later
+  //   lane must not 'unify' them.
+  const a = await U_A();
+  const b = await U_B();
+  const B_ONLY = [
+    ['couldNotRead', 'the per-question omit-a-grade slot (path A returns one grade)'],
+    ['crossed out', 'the crossed-out NO-ATTEMPT rule'],
+    ['"summary"', 'the whole-worksheet summary (path A has no set to summarise)'],
+    ['[bracket] weights', 'the inline per-question weight instruction'],
+  ];
+  for (const [needle, what] of B_ONLY) {
+    assert.ok(b.includes(needle), 'STRUCTURED path lost: ' + what);
+    assert.ok(!a.includes(needle), 'SINGLE-QUESTION path must NOT have gained: ' + what);
+  }
+  // And the one that runs the other way: path A's 3-4 sentence teacherNote budget.
+  assert.ok(a.includes('3–4 plain-English sentences'), 'path A lost its teacherNote length budget');
+  assert.ok(b.includes('1–2 short plain-English sentences'), 'path B lost its teacherNote length budget');
+});
+
+test('§17.6 ★★★ ONE LITERAL, TWO CONSUMERS — no ported instruction exists in more than one copy', async () => {
+  /* ★ RESCOPED, and the reason is worth stating. As first written this case read
+     'no instruction exists in more than one literal copy', and it was FALSE ON
+     TRUNK BEFORE ANY EDIT — it would have gone red on arrival. The owner rescoped
+     it to: no instruction exists in more than one literal copy, EXCEPT where the
+     copies differ only in rule numbering, and this lane single-sources those.
+     ★★ THE PAIRS WERE NOT BYTE-IDENTICAL. They differed in exactly one field — the
+     rule number — which is WORSE than identical: a naive duplicate scan finds
+     nothing and the pair looks distinct to every tool, while 2,080 characters of
+     grading doctrine sit there with nothing holding them together. */
+  const a = await U_A();
+  const b = await U_B();
+  for (const [needle, what] of PORTED) {
+    const copies = GRADER_SOURCE.split(needle).length - 1;
+    assert.equal(copies, 1, what + ': expected exactly ONE literal copy in checkSolution.cjs, found ' + copies);
+    assert.ok(a.includes(needle), what + ': absent from the SINGLE-QUESTION prompt');
+    assert.ok(b.includes(needle), what + ': absent from the STRUCTURED prompt');
+  }
+  // The subject checklist atoms: ONE literal each, and each reaches both paths on
+  // a submission of its own subject (§17.4 asserts the reach; this asserts the
+  // single-sourcing, which is what stops path A's TWO framings drifting apart).
+  for (const [needle, what] of [
+    ['terminology, balanced equations, state symbols (s/l/g/aq)', 'the SCIENCE checklist atom'],
+    ['formula, substitution, calculation, proper notation', 'the MATHS checklist atom'],
+  ]) {
+    assert.equal(GRADER_SOURCE.split(needle).length - 1, 1,
+      what + ' must exist as exactly ONE literal — it was previously written twice inside path A alone');
+  }
+});
+
+test('§17.7 ★★ the two rule-numbered near-copies are now ONE string, numbered at the call site', async () => {
+  const WORD = 'WORD-PROBLEM FINAL ANSWER: when a question asks to';
+  const MISC = 'QUESTION MISCOPY — READ THIS AS ECF_POLICY_V2';
+  for (const [needle, what] of [[WORD, 'the word-problem instruction'], [MISC, 'the question-miscopy instruction']]) {
+    assert.equal(GRADER_SOURCE.split(needle).length - 1, 1, what + ' must exist as exactly ONE literal');
+  }
+  // ★ The CONTROL: one string, but still numbered DIFFERENTLY on each path.
+  const a = await U_A();
+  const b = await U_B();
+  assert.ok(a.includes('14. ' + WORD), 'path A must still number the word-problem rule 14');
+  assert.ok(b.includes('8. ' + WORD), 'path B must still number the word-problem rule 8');
+  assert.ok(a.includes('15. ' + MISC), 'path A must still number the miscopy rule 15');
+  assert.ok(b.includes('9. ' + MISC), 'path B must still number the miscopy rule 9');
+});
+
+test('§17.8 ⚠ the ported cross-reference points at the right rule ON EACH PATH', async () => {
+  // ★ A verbatim port would have pointed the structured path at ITS rule 6, which
+  //   is the HONEST READ rule — a dangling reference to the wrong instruction.
+  const a = await U_A();
+  const b = await U_B();
+  assert.ok(a.includes('missing per rule 6.'), 'path A: blank-step rule is 6');
+  assert.ok(b.includes('missing per rule 3.'), 'path B: the blank-step rule lives in the taxonomy, rule 3');
+  assert.ok(!b.includes('missing per rule 6.'), 'path B must NOT point at its own HONEST READ rule');
+});
+
+test('§17.9 ★★★ CORRECTED CASE 2 — the THREE-WAY chemistry distinction, in the RIGHT bucket, on BOTH paths', async () => {
+  /* ⚠ THIS CRITERION ARRIVED AFTER THE BUILD (owner's corrected §3 case 2,
+     2026-08-19). It is asserted here AS WRITTEN against what was actually built —
+     the code was NOT adjusted to fit it. It passes because trunk's CORRECTION 2
+     already expresses all three buckets on both paths; this lane did not touch
+     the taxonomy (:1059-:1062 is TAXONOMY-3BUCKET's, held under ruling ①).
+     ★ THE INSTRUMENT IS SCOPED TO THE TAXONOMY BLOCK ON PURPOSE. The bucket
+     markers also occur inside ECF_POLICY_V2_PROMPT, so a whole-prompt "last
+     marker before the clause" scan reports `presentation` for ALL THREE clauses —
+     a broken instrument that looks like a finding. The marker-count assertion
+     below is what stops this test silently degrading into that. */
+  const order = ['"conceptual":', '"calculation":', '"silly":', '"presentation":'];
+  const taxOf = (p) => {
+    const s = p.indexOf('3. mistakeType — choose by the CAUSE');
+    if (s >= 0) return p.slice(s, p.indexOf('4. ERROR PROPAGATION', s));
+    const s2 = p.indexOf('3. For each mistake choose the type by the CAUSE');
+    return p.slice(s2, p.indexOf('4. ERROR CARRIED FORWARD', s2));
+  };
+  const bucketOf = (tax, clause) => {
+    const idx = tax.indexOf(clause);
+    if (idx < 0) return 'ABSENT';
+    let cur = 'NONE';
+    for (const b of order) { const bi = tax.indexOf(b); if (bi >= 0 && bi < idx) cur = b.replace(/["':]/g, ''); }
+    return cur;
+  };
+  const CLAUSES = [
+    ['AN EQUATION LEFT UNBALANCED WHEN THE QUESTION ASKED FOR A BALANCED EQUATION', 'conceptual'],
+    ['WRONG COEFFICIENTS while genuinely attempting to balance', 'calculation'],
+    ['a correctly BALANCED equation MISSING STATE SYMBOLS (s/l/g/aq)', 'presentation'],
+  ];
+  for (const [label, prompt] of [['SINGLE-QUESTION', await U_A_SCI()], ['STRUCTURED', await U_B_SCI()]]) {
+    const tax = taxOf(prompt);
+    assert.ok(tax.length > 500, label + ': the taxonomy block was not located');
+    for (const b of order) {
+      assert.equal(tax.split(b).length - 1, 1,
+        label + ': INSTRUMENT CHECK — ' + b + ' must appear exactly ONCE inside the taxonomy block, or the bucket scan is meaningless');
+    }
+    for (const [clause, want] of CLAUSES) {
+      assert.equal(bucketOf(tax, clause), want,
+        label + ': "' + clause.slice(0, 44) + '..." must be ' + want);
+    }
   }
 });
