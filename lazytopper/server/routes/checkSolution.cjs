@@ -483,12 +483,27 @@ const ECF_POLICY_V2_PROMPT =
   'worked from.\n' +
   '       S3. An equation with the WRONG REACTANT OR PRODUCT, then correct stoichiometry from ' +
   'it ⇒ DEPARTURE. The chemistry below is right for a reaction nobody asked about.\n' +
-  '       S4. A CORRECT reaction left UNBALANCED, or missing state symbols ⇒ NOT A DEPARTURE. ' +
-  'This is PRESENTATION: chemically right, board-format short.\n' +
+  '       S4. A CORRECT reaction left UNBALANCED, or missing state symbols ⇒ NOT A DEPARTURE ' +
+  '(the species are right, so the question is unchanged) — but the BUCKET depends on WHAT \n' +
+  'WOULD FIX IT, and these are THREE different faults, not one:\n' +
+  '         S4a. UNBALANCED when the question ASKED for a balanced equation ⇒ "conceptual". ' +
+  'The student did not do the chemistry that was asked. The fix is learning that equations ' +
+  'must balance — conservation of mass — NOT learning a format.\n' +
+  '         S4b. WRONG COEFFICIENTS while genuinely attempting to balance ⇒ "calculation". ' +
+  'The fix is to recount the atoms.\n' +
+  '         S4c. BALANCED correctly but MISSING STATE SYMBOLS (s/l/g/aq) ⇒ "presentation". ' +
+  'This is the ONLY one of the three that is presentation.\n' +
+  '       ⚠⚠ PRESENTATION IS CBSE\'S FORMAT — state symbols, answer structure, labelled ' +
+  'diagrams, units, conclusion lines. ANYTHING THAT CHANGES WHETHER THE CHEMISTRY OR ' +
+  'MATHEMATICS IS RIGHT IS NOT PRESENTATION.\n' +
+  '       ★ MARK-SIZE SANITY CHECK: a CBSE scheme typically pays 1 mark for the correct ' +
+  'species and 1 for balancing, so calling an unbalanced equation "presentation" would cost ' +
+  'the student HALF the question. Presentation deductions are never that size — if a bucket ' +
+  'implies a deduction that large, it is the wrong bucket.\n' +
   '       ⚠⚠ S3 AND S4 ARE ONE KEYSTROKE APART IN A STUDENT\'S ANSWER AND MUST GRADE ' +
   'OPPOSITELY. A WRONG REACTANT CHANGES THE QUESTION AND IS A DEPARTURE. AN UNBALANCED ' +
-  'EQUATION DOES NOT CHANGE THE QUESTION AND IS PRESENTATION. Check WHICH SPECIES are written ' +
-  'before you check whether the coefficients balance.\n' +
+  'EQUATION DOES NOT CHANGE THE QUESTION AND IS NOT A DEPARTURE — it is graded by S4a/S4b/S4c ' +
+  'above. Check WHICH SPECIES are written before you check whether the coefficients balance.\n' +
   '       S5. The RIGHT PRINCIPLE with a WRONG NUMERICAL SUBSTITUTION into a physics formula, ' +
   'worked on ⇒ DEPARTURE. Identical to the Maths case.\n' +
   '       S6. A CORRECT answer with a required DIAGRAM ABSENT or UNLABELLED ⇒ NOT A ' +
@@ -1016,10 +1031,10 @@ function createCheckSolutionRoute(deps) {
         '1. Identify EVERY step in the student\'s work in order — don\'t skip any.\n' +
         '2. marksAwarded (total) = sum of all annotatedSteps[].marksAwarded, capped at ' + (autoDetect ? 'the totalMarks you determine for this question' : marks) + '.\n' +
         '3. mistakeType — choose by the CAUSE the error reveals about understanding, not by where it appears:\n' +
-        '   - "conceptual": the METHOD or understanding itself is wrong — wrong formula/law/theorem for the situation, confused concepts, misread what the question asks, (Science) wrong principle/organ/law. The student does not know the right approach. Example: reads the coefficients of x^2 - 2x - 8 and writes "zeroes are 2 and 8" without factoring — wrong method, conceptual.\n' +
-        '   - "calculation": the METHOD is right but the arithmetic/algebra is wrong — e.g. 12 × 1.73 worked out as 20.16, a wrong expansion, a wrong number substituted into a correct formula.\n' +
+        '   - "conceptual": the METHOD or understanding itself is wrong — wrong formula/law/theorem for the situation, confused concepts, misread what the question asks, (Science) wrong principle/organ/law, (Science) AN EQUATION LEFT UNBALANCED WHEN THE QUESTION ASKED FOR A BALANCED EQUATION (the species may be right, but the student did not do the chemistry that was asked — the fix is learning that equations must balance, conservation of mass, NOT learning a format). The student does not know the right approach. Example: reads the coefficients of x^2 - 2x - 8 and writes "zeroes are 2 and 8" without factoring — wrong method, conceptual.\n' +
+        '   - "calculation": the METHOD is right but the arithmetic/algebra is wrong — e.g. 12 × 1.73 worked out as 20.16, a wrong expansion, a wrong number substituted into a correct formula, (Science) WRONG COEFFICIENTS while genuinely attempting to balance an equation (the fix is to recount the atoms).\n' +
         '   - "silly": the student CLEARLY understands but made a mechanical slip — a sign misread off their OWN correct working, a dropped negative, a copying/transcription error, swapped values. Tell-tale: their other steps prove they know better. Example: factors (x−4)(x+2) correctly but then writes a root as x = −4 instead of +4 — a SILLY sign-misread, NOT conceptual (the correct factoring proves the method was understood).\n' +
-        '   - "presentation": mathematically/chemically RIGHT but board-format short — missing the required formula (e.g. −b/a), missing units, no conclusion/"verified" line, working not shown, required diagram absent, (Science) a correct reaction left UNBALANCED, missing state symbols. The answer is right; only the formal presentation is incomplete. A correct but unbalanced equation is PRESENTATION, not conceptual.\n' +
+        '   - "presentation": mathematically/chemically RIGHT but board-format short — missing the required formula (e.g. −b/a), missing units, no conclusion/"verified" line, working not shown, required diagram absent, (Science) a correctly BALANCED equation MISSING STATE SYMBOLS (s/l/g/aq). The answer is right; only the formal presentation is incomplete. ⚠⚠ PRESENTATION IS CBSE\'S FORMAT — state symbols, answer structure, labelled diagrams, units, conclusion lines. ANYTHING THAT CHANGES WHETHER THE CHEMISTRY OR MATHEMATICS IS RIGHT IS NOT PRESENTATION. An equation left UNBALANCED is therefore NOT presentation: it is conceptual when the question asked for a balanced equation, or calculation when the student was genuinely balancing and miscounted.\n' +
         '4. ERROR PROPAGATION → ONE root cause. If a single upstream slip makes later steps wrong, that is ONE mistake attributed to the SOURCE step. Mark each downstream step as following correctly from the wrong value (error carried forward): status "incorrect" but mistakeType null. This includes a verification/check step that only "fails" because it was correctly applied to the carried-forward wrong value (e.g. the student plugs their own wrong root into the sum check and honestly notes it does not match) — that is carried forward (mistakeType null), not a presentation or conceptual fault of its own. Do NOT label each propagated step as a fresh mistake, and never inflate one slip into several (especially several conceptual) mistakes. ' + ECF_POLICY_V2_PROMPT + '\n' +
         '5. A CORRECT step ALWAYS has mistakeType null. Never invent a mistake on a right step.\n' +
         '6. MISSING is ALWAYS mistakeType null. A required step the student left ENTIRELY BLANK / did not attempt gets status "missing" and mistakeType null — the marks are simply not earned; it is never a typed mistake (not presentation, not conceptual), even when the thing left out is a required formula, unit, conclusion, or verification line. Do NOT manufacture extra "missing" steps; only list a step as missing if that whole step was genuinely required and wholly absent. NOTE ON NON-ATTEMPTS: if the student\'s response is a legible phrase like \'Don\'t know\', \'Dont know\', \'I don\'t know\', or \'DK\', this IS a readable response — grade it as a single step with status "incorrect", full marks deducted, mistakeType null (no working shown, undiagnosable). Never treat a legible non-attempt phrase as a missing or unreadable submission.\n' +
@@ -1615,10 +1630,10 @@ function createCheckSolutionRoute(deps) {
   // `handleCheckSolution` rule 3 and must be kept in sync if that rule changes.
   const STRUCTURED_MISTAKE_TAXONOMY =
     'For each mistake choose the type by the CAUSE the error reveals about understanding, not by where it appears:\n' +
-    '- "conceptual": the METHOD or understanding is wrong — wrong formula/law/theorem, confused concepts, misread the question, (Science) wrong principle/organ/law.\n' +
-    '- "calculation": the METHOD is right but the arithmetic/algebra is wrong.\n' +
+    '- "conceptual": the METHOD or understanding is wrong — wrong formula/law/theorem, confused concepts, misread the question, (Science) wrong principle/organ/law, (Science) AN EQUATION LEFT UNBALANCED WHEN THE QUESTION ASKED FOR A BALANCED EQUATION — the species may be right, but the student did not do the chemistry that was asked, and the fix is learning that equations must balance (conservation of mass), not learning a format.\n' +
+    '- "calculation": the METHOD is right but the arithmetic/algebra is wrong, (Science) WRONG COEFFICIENTS while genuinely attempting to balance an equation — the fix is to recount the atoms.\n' +
     '- "silly": the student CLEARLY understands but made a mechanical slip — a sign misread off their OWN correct working, a dropped negative, a copying error.\n' +
-    '- "presentation": mathematically/chemically RIGHT but board-format short — missing formula, missing units, no conclusion/"verified" line, working not shown, (Science) a correct reaction left UNBALANCED, missing state symbols.\n' +
+    '- "presentation": mathematically/chemically RIGHT but board-format short — missing formula, missing units, no conclusion/"verified" line, working not shown, (Science) a correctly BALANCED equation MISSING STATE SYMBOLS (s/l/g/aq). ⚠⚠ PRESENTATION IS CBSE\'S FORMAT — state symbols, answer structure, labelled diagrams, units, conclusion lines. ANYTHING THAT CHANGES WHETHER THE CHEMISTRY OR MATHEMATICS IS RIGHT IS NOT PRESENTATION. An equation left UNBALANCED is NOT presentation: it is conceptual when a balanced equation was asked for, or calculation when the student was balancing and miscounted.\n' +
     'A CORRECT step has mistakeType null. A step left ENTIRELY BLANK gets status "missing" and mistakeType null (marks simply not earned, never a typed mistake). An alternative valid method that reaches the answer is NOT a mistake — award full marks.';
 
   // Validate + normalise one model-returned per-question result against the KNOWN

@@ -832,7 +832,26 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // The same five tests moved together again, which is the pin working. §16.13 is the new
 // companion assertion: it enumerates all 26 rulings and fails naming any that reaches only
 // ONE grading path — the pin catches drift, §16.13 catches DIVERGENCE.
-const NO_UPLOADS_CONTENTS_SHA256 = '30c97bcf613c0c4bbd8d005bb3c0f4f021520df38fe5bd131eef7a40ef004dc1';
+// ★★ RE-BASELINED A SECOND TIME WITHIN GRD-UNIFORM. THE FULL CHAIN, so two changes on one
+// PR cannot read as tampering to a later reader:
+//
+//   ORIGINAL (trunk, pre-lane)  67c062f5c35fd4a233d03a546dbf145235c6bd5bc9311b80aa1b8955790f9ccb
+//   after CORRECTION 1         30c97bcf613c0c4bbd8d005bb3c0f4f021520df38fe5bd131eef7a40ef004dc1
+//   after CORRECTION 2 (now)   dd49f211ad5559abb4b310a5e7be65e4a820ff6f9dc797dbaac52963d3bd4572
+//
+// CORRECTION 1 — the departure test, the nineteen scenarios, and the stored scheme demoted
+// from AUTHORITY ON METHOD to CORROBORATION at both scheme sites.
+// CORRECTION 2 — the PRESENTATION BUCKET NARROWED TO FORMAT ONLY. The pre-existing taxonomy
+// clause lumped "a correct reaction left UNBALANCED, missing state symbols" into presentation
+// as ONE item. They are THREE faults with three remedies: unbalanced-when-balancing-was-asked
+// is CONCEPTUAL (learn conservation of mass), wrong-coefficients-while-balancing is
+// CALCULATION (recount the atoms), and only balanced-but-missing-state-symbols is
+// PRESENTATION. Split at BOTH taxonomy definitions (one per grading path) and stated once in
+// the shared constant. ⚠ This defect PREDATES the lane and was inherited by S4.
+// ⚠ Both re-baselines were owner PRE-APPROVED. The same five tests moved together both times
+// (§7.1, §9.5, §10.5, §11.5, §12.6) and went green on a single constant update each time — no
+// test was individually doctored. That is the pin working, twice.
+const NO_UPLOADS_CONTENTS_SHA256 = 'dd49f211ad5559abb4b310a5e7be65e4a820ff6f9dc797dbaac52963d3bd4572';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',
@@ -2940,9 +2959,54 @@ test('§16.S3 ★★ SCIENCE — a WRONG REACTANT worked through correctly is a 
   await bothPathsSay('right for a reaction nobody asked about', 'the S3 ruling');
 });
 
-test('§16.S4 ★★ SCIENCE — a correct reaction left UNBALANCED is PRESENTATION, not a departure', async () => {
+test('§16.S4 ★★★ SCIENCE — UNBALANCED is NOT presentation: three faults, three buckets, decided by WHAT FIXES IT', async () => {
+  // ⚠⚠ THIS CORRECTS A DEFECT THAT PREDATES THIS LANE. The taxonomy clause lumped
+  // "a correct reaction left UNBALANCED, missing state symbols" into PRESENTATION as a
+  // single item. Those are TWO different defects with two different remedies and two
+  // different mark costs, and only ONE of them is presentation.
+  // ★ THE TEST IS THE REMEDY: ask what the student must LEARN to stop getting it wrong.
+  //   unbalanced when balancing was ASKED FOR -> learn conservation of mass  -> conceptual
+  //   wrong coefficients while balancing      -> recount the atoms           -> calculation
+  //   balanced, state symbols missing         -> learn the board format      -> presentation
+  // ⚠ MARK-SIZE CROSS-CHECK: CBSE typically pays 1 mark for species and 1 for balancing,
+  // so mis-bucketing unbalanced-as-presentation costs HALF the question. Presentation
+  // deductions are never that size.
   await bothPathsSay('S4. A CORRECT reaction left UNBALANCED', 'Science scenario S4');
-  await bothPathsSay('This is PRESENTATION: chemically right, board-format short', 'the S4 ruling');
+  await bothPathsSay('NOT A DEPARTURE', 'that an unbalanced equation does not change the question');
+
+  // (a) UNBALANCED when a balanced equation was asked for => CONCEPTUAL
+  await bothPathsSay('S4a. UNBALANCED when the question ASKED for a balanced equation',
+    'S4a, the conceptual case');
+  await bothPathsSay('The fix is learning that equations ',
+    'the REMEDY that makes S4a conceptual');
+
+  // (b) wrong coefficients while genuinely balancing => CALCULATION
+  await bothPathsSay('S4b. WRONG COEFFICIENTS while genuinely attempting to balance',
+    'S4b, the calculation case');
+  await bothPathsSay('The fix is to recount the atoms', 'the REMEDY that makes S4b calculation');
+
+  // (c) THE TRUE PRESENTATION CASE — pinned so it cannot drift back into the others
+  await bothPathsSay('S4c. BALANCED correctly but MISSING STATE SYMBOLS (s/l/g/aq)',
+    'S4c, the ONLY presentation case');
+  await bothPathsSay('This is the ONLY one of the three that is presentation',
+    'that S4c alone is presentation');
+
+  // ★★ THE GOVERNING LINE. Without it the three cases read as arbitrary and a future
+  // edit re-merges them; with it, the boundary is derivable.
+  await bothPathsSay('ANYTHING THAT CHANGES WHETHER THE CHEMISTRY OR MATHEMATICS IS RIGHT IS NOT PRESENTATION',
+    'the rule that NARROWS presentation to format only');
+  await bothPathsSay('MARK-SIZE SANITY CHECK', 'the mark-size cross-check for edge cases');
+
+  // NEGATIVE CONTROL — the OLD, WRONG rule must be gone from BOTH prompts. This is the
+  // assertion that would have caught the defect in the first place.
+  const a = await U_A();
+  const b = await U_B();
+  for (const [name, t] of [['single-question', a], ['structured', b]]) {
+    assert.ok(!t.includes('A correct but unbalanced equation is PRESENTATION'),
+      name + ': the old unbalanced-is-presentation rule must NOT survive');
+    assert.ok(!t.includes('a correct reaction left UNBALANCED, missing state symbols'),
+      name + ': unbalanced and missing-state-symbols must NOT be one lumped item');
+  }
 });
 
 test('§16.S3v4 ★★★ THE KEYSTROKE — S3 and S4 are distinguished IN WORDS, not merely implied', async () => {
@@ -2954,8 +3018,12 @@ test('§16.S3v4 ★★★ THE KEYSTROKE — S3 and S4 are distinguished IN WORDS
   await bothPathsSay('ONE KEYSTROKE APART', 'that S3 and S4 are one keystroke apart');
   await bothPathsSay('A WRONG REACTANT CHANGES THE QUESTION AND IS A DEPARTURE',
     'the departure half of the contrast');
-  await bothPathsSay('AN UNBALANCED EQUATION DOES NOT CHANGE THE QUESTION AND IS PRESENTATION',
-    'the presentation half of the contrast');
+  await bothPathsSay('AN UNBALANCED EQUATION DOES NOT CHANGE THE QUESTION AND IS NOT A DEPARTURE',
+    'the non-departure half of the contrast');
+  // ⚠ The contrast is about DEPARTURE vs NOT-a-departure. It is NOT about the bucket:
+  // an unbalanced equation is not a departure AND is not presentation (see §16.S4).
+  await bothPathsSay('it is graded by S4a/S4b/S4c',
+    'that the contrast defers the BUCKET to S4a/S4b/S4c rather than asserting presentation');
   await bothPathsSay('Check WHICH SPECIES are written before you check whether the coefficients balance',
     'the ORDER OF CHECKS that separates the two');
 });
@@ -3089,6 +3157,10 @@ test('§16.13 ★★ THE UNIFORMITY PROOF — every §2 ruling reaches BOTH grad
     'S2. Naming the WRONG ORGAN, LAW or PRINCIPLE',
     'S3. An equation with the WRONG REACTANT OR PRODUCT',
     'S4. A CORRECT reaction left UNBALANCED',
+    'S4a. UNBALANCED when the question ASKED for a balanced equation',
+    'S4b. WRONG COEFFICIENTS while genuinely attempting to balance',
+    'S4c. BALANCED correctly but MISSING STATE SYMBOLS (s/l/g/aq)',
+    'ANYTHING THAT CHANGES WHETHER THE CHEMISTRY OR MATHEMATICS IS RIGHT IS NOT PRESENTATION',
     'ONE KEYSTROKE APART',
     'S5. The RIGHT PRINCIPLE with a WRONG NUMERICAL SUBSTITUTION',
     'S6. A CORRECT answer with a required DIAGRAM ABSENT',
@@ -3103,5 +3175,5 @@ test('§16.13 ★★ THE UNIFORMITY PROOF — every §2 ruling reaches BOTH grad
   const missingB = RULINGS.filter((r) => !b.includes(r));
   assert.deepEqual(missingA, [], 'rulings absent from the SINGLE-QUESTION prompt');
   assert.deepEqual(missingB, [], 'rulings absent from the STRUCTURED prompt');
-  assert.equal(RULINGS.length, 26, 'the enumeration itself must not silently shrink');
+  assert.equal(RULINGS.length, 30, 'the enumeration itself must not silently shrink');
 });
