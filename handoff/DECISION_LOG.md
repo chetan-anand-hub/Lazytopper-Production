@@ -1,3 +1,284 @@
+## 2026-08-19 — WAVE MI-INTEGRITY-5 (three build lanes, one read-only scout, two in-branch corrections), all on trunk `caed0e1f`
+
+**`2026-08-19`**
+
+> ⚠⚠ **THIS ENTRY WAS OWED SINCE WAVE MI-4 AND IS ONLY HERE BECAUSE SOMEONE NAMED THE FILE.**
+> `CLAUDE.md` §10 lists **SIX** `handoff/` files to update after every merged PR. **This file is not
+> one of them.** ⇒ **A handoff lane working strictly to §10 never opens `DECISION_LOG.md`, so its
+> entry silently does not get written** — which is exactly what happened last wave.
+> ★★★ **THAT IS THE FIFTH INSTANCE OF THIS PROJECT'S NEWEST DEFECT CLASS — *an allowlist that cannot
+> reach what the rule requires* — AND THE FIRST TIME IT WAS PREVENTED RATHER THAN DIAGNOSED.** The
+> seventh file was named in this lane's dispatch **before the lane started.**
+> ⚠ **STANDING CONSEQUENCE: `CLAUDE.md` is not editable by a docs lane, so every future handoff
+> dispatch must name `handoff/DECISION_LOG.md` EXPLICITLY, or this entry goes unwritten again.**
+> `[FU-CLAUDEMD-S10-OMITS-DECISION-LOG]`
+
+> ★★ **The verdicts below are useless without their reasons, so the reasons are recorded and the
+> verdicts are not recorded alone.** Three of this wave's most useful entries are decisions that were
+> **later disproved** — an owner correction the owner himself retracted, a controller dispatch note a
+> lane refuted, and a controller counter-argument that reached the right verdict by the wrong
+> mechanism. **All three are kept, both outcome and reasoning**, because a right outcome reached by
+> wrong reasoning is the failure mode this project has a standing rule about.
+
+### DECISION 1 — FETCH BEFORE ASSERTING ANYTHING ABOUT THE REPO
+
+`git show <trunk-sha>:<path>` returned `fatal: not a tree object` from the shared checkout at wave
+start. The controller fetched, then spoke.
+
+**Reason:** **the stale-checkout trap fired on the controller itself.** Had the report gone out from
+the unfetched tree it would have said **three governance documents do not exist on trunk. They do.**
+★ **A controller must `git fetch` before stating what is or is not in the repo — metadata is not
+code, and an absence measured from a stale tree is not an absence.**
+
+### DECISION 2 — NEVER DISPATCH A UNIT WITHOUT A HASH-VERIFIED SPEC FILE
+
+Only one of seven units had a spec at wave start. It was dispatched; **the other six were held.**
+
+**Reason:** a spec the controller has not hash-verified cannot be dispatched, because the lane's
+`ops/.specs/` copy is checked against a hash the controller supplies. ⚠ **Two dead hashes were also
+confirmed ABSENT BY MEASUREMENT** (zero hits each in the staging folder) rather than assumed
+superseded — *two near-identical spec names with one superseded is the hazard that nearly caused a
+deletion once.*
+
+### DECISION 3 — STALE SPEC ITEMS WERE RESOLVED IN THE DISPATCH MESSAGE, AND NO ERRATUM WAS AUTHORED
+
+Four stale items in `DEPARTURE-DEAD.md` were resolved **in the dispatch message only.** The spec file
+stayed byte- and hash-stable.
+
+**Reason:** the MI-4 controller authored four errata and the owner ruled that **a controller must
+not.** An erratum **overrides a hash-gated spec**, so its authorship must be as traceable as the spec
+it modifies. **The concrete harm last wave was a four-deep precedence chain pointing at a retired
+spec.** ★ **A dispatch message carries no hash and therefore cannot silently override a gated spec.**
+⇒ **The same reasoning kept `[FU-MOJIBAKE-HANDOFF-DESCRIPTION-STALE]` open all wave: the false
+sentence in `ops/CONTROLLER_SUBAGENT_MODEL.md` §5 is the owner's to correct, hashed, and a controller
+does not write it for him.**
+
+### DECISION 4 — THE STOP CONDITION IN A STALE SPEC WAS DISCHARGED, NOT OBEYED
+
+`DEPARTURE-DEAD.md` §0c.1.1 said *"if trunk MOVED, STOP — PRs #682, #684 and #685 are merge
+candidates."* The lane was told **DO NOT STOP.**
+
+**Reason:** **the STOP's stated reason was already discharged** — #684 and #685 were merged, #682 was
+open but **provably disjoint** (its files are all `src/components/`; the spec forbids all of `src/`).
+★ **A STOP is only as live as the reason written beside it, and this one had expired.** ⚠ **Related
+and deliberately NOT relaxed: the same spec's `scripts/` prohibition carried the stale reason *"#684
+is open there"*. The PROHIBITION STANDS; only its reason is stale** — and the lane was told so, so it
+would not go hunting for an open #684.
+
+### DECISION 5 — THE PREMISE GATE WAS RUN EXACTLY AS WRITTEN, FLAG INCLUDED, AND A NON-ZERO EXIT WAS NOT A STOP
+
+A standing instruction told finishers to drop `--strict-anchor`. **It was not applied here**, and the
+lane was told to **report the failing rows, name the rot mode, and CONTINUE.**
+
+**Reason, two parts.** ★ **The lane was not a finisher** — a fresh lane's own work does not invalidate
+its own ledger. ★★ **And the mechanism in the ruling naming that flag is WRONG:** `--strict-anchor`
+only decides whether a **MISSING** anchor is ERROR or WARN; **anchor RESOLUTION is gated by
+`--worktree`.** ⇒ **Dropping the flag would not have produced a structural-only run**, so dropping it
+would have cost the gate its evidence value for nothing. **Rot modes 1 and 5 were MEASURED in advance**
+(`#685` moved the file 2240 → 2334 lines), which is why a non-zero exit was expected rather than
+alarming.
+
+### DECISION 6 — A BRIEF/SPEC DISAGREEMENT WAS RECORDED, NOT RESOLVED
+
+The brief said a lane *"RUNS ALONE"*, unqualified; **the spec scoped "alone" to `lazytopper/server/`.**
+
+**Reason:** they are **different claims**, and only the owner can settle whether the constraint binds
+**DISPATCH** or **MERGE**. **Nothing was blocked by deferring it.** ★ *A controller resolving an
+ambiguity on its own authority converts an owner decision into an invisible one.*
+
+### DECISION 7 — A NEAR-EXHAUSTED LANE WAS STOOD DOWN RATHER THAN RESUMED TO READ CI LOGS
+
+A lane at roughly 46% context was released; **a fresh, disposable read-only reader** was dispatched to
+quote the CI numbers.
+
+**Reason:** **a full Quality Gate log is not bounded work at that level**, two agents were watching
+the same runs, and **a subagent that finishes its PR returns and dies while the next job gets a fresh
+full budget.** ★ **Reading a CI log is bounded work; the lane's context is the scarce thing.**
+⇒ **And the read was load-bearing, not ceremonial: `tsc` is structurally blind to the server CommonJS
+routes, so the matrix, the full vitest run and the BUILD were the only gates with reach over the
+changed file.** ⚠ **A green tick is not a log.**
+
+### DECISION 8 — THE ENUMERATION GOVERNS, NOT THE COUNT SENTENCE
+
+`GRD-UNIFORM.md` said *"one per scenario, TEN IN TOTAL"* in its prose and its title said *"ten
+scenarios"*. **The enumeration directly beneath listed nineteen.** The lane was told to build all
+nineteen.
+
+**Reason:** ★★ **a lane that built ten would have PASSED ITS OWN GATES AND SHIPPED A THIRD OF THE
+WORK.** The count sentence and the list disagree, and **only the list is checkable.** ⇒ **When a
+document states a total and also enumerates the members, the members are the specification and the
+total is a comment.**
+
+### DECISION 9 — THE RED GATE WAS CLOSED BY WIDENING THE ALLOWLIST BY EXACTLY ONE FILE
+
+U7's own §2.3 ruling broke `src/services/checkSolutionSchemeFirstCache.test.ts:148`, **a file its own
+§1 forbade it to touch.** The owner widened the allowlist by **one test file, one assertion.**
+
+**Reason:** ⚠⚠ **RETAINING THE PHRASE WAS NEVER AN OPTION.** `:148` asserted
+`toContain("OFFICIAL CBSE MARKING SCHEME")` — **a test PINNING THE EXACT PHRASE the ruling removes** —
+and the prompt around it read *"grade the student's work step-by-step against these official steps."*
+> **"That is scheme-as-authority in the plainest possible words, and it calls OUR bank's steps
+> OFFICIAL — a bank with roughly 76 misbanded and 61 garbled rows. It contradicts CBSE General
+> Instruction 4."**
+★ **The replacement is STRICTLY STRONGER, not merely different:** `:148` now pins a header containing
+**`CORROBORATION, NEVER AUTHORITY ON METHOD`** — *it pins the new contract rather than merely
+stopping pinning the old one.*
+⚠ **`:181` and `:195` were deliberately left untouched and their FU stays OPEN.** *A scope creep
+inside a widened allowlist is how the widening gets regretted.* ★ **Two corrections later the widening
+is still `+1/−1`, verified by the controller rather than taken on the lane's word.**
+
+### DECISION 10 — THE DEFECT CLASS GAINED A SECOND CLAUSE, AND WAS THEN USED PRE-EMPTIVELY
+
+> **AN ALLOWLIST THAT CANNOT REACH WHAT THE RULING REQUIRES.**
+> **CLAUSE 1:** *before writing an allowlist, **NAME THE FILE THAT HOLDS THE DATA**, not the file that
+> holds the SYMPTOM.*
+> **★ CLAUSE 2, NEW:** ***NAME THE FILE THAT HOLDS THE ASSERTION YOUR RULING WILL BREAK.***
+
+**Reason:** clause 1 was written to explain instance three; **clause 2 was paid for by instance four,
+which clause 1 did not cover** — the data was reachable, it was an **assertion** that was not.
+★★ **It was then applied to the very next dispatch — the correction lane was told to NAME any test
+file its ruling would break BEFORE editing, and to STOP rather than widen. No widening was needed.**
+⇒ **The doctrine is now being used to PREVENT the next instance rather than to explain the last one.**
+
+### DECISION 11 — P8 WAS STOPPED AT, NOT BUILT AROUND, AND BECOMES ITS OWN LANE
+
+The Science and Maths checklists reach **one path only.** The lane **reported it and stopped**; the
+port is a new lane and **the owner writes the spec.**
+
+**Reason:** ★ **the controller told the lane to treat P8 as LIKELY rather than exotic — "same shape as
+`isDeparture`-on-one-path" — and to STOP at it.** ⇒ **A clean finding instead of a half-built port.**
+⚠ **The lane still completed §2, and that is not "building around it": §2's mechanism is the SHARED
+CONSTANT both paths already consume**, so finishing it **narrows the gap without concealing it.**
+⇒ ★★★ **The finding is now FOUR instances deep and the owner promoted it from bug to property:
+`isDeparture` (a FIELD) · C&I multi-question (a CALLER) · the subject checklist (an INSTRUCTION) ·
+the units rule (a CLAUSE).**
+
+### DECISION 12 — THE CROSSED-OUT-ATTEMPT CASE WAS DELIBERATELY LEFT OUT OF THE CORRECTION LANE
+
+**A student writes two attempts and crosses one out.** The lane was told **NOT to rule on it, NOT to
+implement it, and NOT to go looking.**
+
+**Reason, and it is the principle the whole arc has been re-learning:**
+> ★★★ **IT MUST BE ESTABLISHED BEFORE IT IS RULED, NOT RULED AND THEN ESTABLISHED.**
+⚠⚠ **And the exposure is brand new**: `#687` made departures fire on four more surfaces, so **a
+struck-out WRONG attempt beside a CORRECT one could now read as a DEPARTURE and zero the student's
+correct work** — **the worst outcome this grader can produce.** ⇒ **It becomes an INVENTORY, folded
+into U8 alongside the P8 port, because both are *"what reaches which path"* questions.**
+
+### DECISION 13 — `#688` MERGED BEFORE ITS LIVE-VERIFY, KNOWINGLY
+
+**Reason:** ⚠⚠ **Firestore auth accepts only the DEPLOYED DOMAINS, so nothing is testable until it is
+on trunk.** ★ *This is the `#638` shape inverted — there, only a boot could prove it ran; here, only
+trunk can prove anything at all.* ⇒ **`#688` merged on gate evidence alone because the environment
+makes pre-merge verification impossible.** ⚠ **RECORDED AS A DECISION WITH ITS REASON, NOT AS A
+SKIPPED GATE** — that distinction is the entire content of this entry.
+
+### DECISION 14 — HANDOFF FIRST, LIVE-VERIFY IN PARALLEL. THE OWNER REVERSED HIS OWN SEQUENCING.
+
+> **"Your sequencing is right and mine was wrong... I was recreating the MI-3 shape on the wave that
+> closes the arc."**
+
+**Reason:** **if the verify surfaces defects, a fresh controller inherits a WRITTEN record instead of
+an unwritten one.** ★ **That is the entire lesson of record item (a): MI-3 closed with a build still
+in flight, its controller correctly stood down, and the record was never written.**
+
+### DECISION 15 — THE CONTROLLER DECLINED THE LAST TWO STAGED SPECS ON BUDGET, AND THE REASONING WAS CHECKED FOR CONSISTENCY
+
+`SUBJECT-RULES-PORT` and `STUB-503` pass to a fresh controller.
+
+**Reason:** **a lane landing AFTER the handoff PR merges re-opens the exact MI-3 hole this handoff
+exists to close** — `handoff/` would describe trunk minus that PR. ★ **And the call was checked
+against its own precedent: a SMALLER server lane was declined at 63%; taking a LARGER one at ~49%
+would have been the opposite call on worse arithmetic.** ⚠ **`SUBJECT-RULES-PORT` needed the room:
+`GRD-UNIFORM` took TWO correction rounds and five controller round-trips.**
+
+### DECISION 16 — THREE CLAIMS WERE PASSED DOWN **WITH PROVENANCE INTACT**, AND ALL THREE WERE DISPROVED BY THE RECEIVING LANE
+
+**Reason, stated once for all three:** ★★ **A CONTROLLER AMPLIFIES.** A ruling restated as the
+controller's own is **harder to reject**; a ruling passed on **as the owner's, flagged as unverified,
+leaves the lane free to check it.** All three were checked.
+
+1. **The owner's `!partial` correction.** *"The guard IS present at `:722`; the point is it can never
+   fire."* ⇒ **TRUE of the WORKSHEET variant and FALSE at the annotated site.** The guard is
+   **genuinely absent** in the Quick Practice variant. **Spec §2 item 3 would have produced a
+   MISLEADING COMMENT.** ★★★ **The owner retracted it in his own words: *"the lane caught my error
+   before it reached a comment... two independent reads agree; one intermediate claim — mine — was
+   wrong."*** ⇒ **THE ACCURATE COMMENT STANDS.**
+2. **The controller's `R2` dispatch note.** It claimed an anchor string matched twice and applied the
+   brand-new **rot mode 8** to it. ⇒ **`grep -c` returns 1.** The second site is a **different
+   symbol**. **The claim was TRUE and the EVIDENCE CELL was FALSE — that is rot mode 3, not 8.**
+   ★★ **A brand-new mode applied on its first day to a case that was an old one.** Cost: nothing.
+   > ★★★ **AN INSTRUCTION TO VERIFY SURVIVES ITS AUTHOR BEING WRONG. AN INSTRUCTION TO COMPLY DOES
+   > NOT.** The instruction was *"verify BOTH sites"*, and **verifying is what disproved it.**
+3. **The controller's counter-evidence on the two sibling scorecards.** It argued they were safe
+   **because they destructure `response`.** ⇒ **Right about the verdict, WRONG about the mechanism:
+   they are safe because of a GUARD.** ★ *A correct outcome reached by a false premise still poisons
+   the record, so the mechanism was corrected and not merely the verdict.*
+
+### DECISION 17 — TWO NEW ANCHOR-ROT MODES WERE ACCEPTED. THERE ARE NOW NINE, AND BOTH NEW ONES DEFEAT A GREEN GATE.
+
+- **Mode 8 — `[FU-ANCHOR-IS-A-SHAPE-NOT-A-LOCATOR]`.** An anchor string shared by **four** functions
+  **resolves, resolves to the WRONG one, and the premise gate exits 0 with zero failing rows.**
+  ⚠⚠ **The gate cannot see enclosing symbols.** ★★ **Every other rot mode announces itself; this one
+  is byte-perfect, GREEN, and still points at the wrong code** — which is why the owner calls it the
+  most dangerous on the record and why *"my `--strict-anchor` confidence was misplaced all wave."*
+- **Mode 9 — `[FU-ANCHOR-QUOTES-RENDERED-NOT-SOURCE]`.** A true claim on a correct line failed **only
+  because the file writes the apostrophe as a JS escape and the spec wrote the rendered character.**
+  ⇒ **The anchor described what the string MEANS rather than what the file CONTAINS.**
+
+**Reason for recording them together:** ★★ **MODE 8 RESOLVES TO THE WRONG PLACE; MODE 9 FAILS TO
+RESOLVE TO THE RIGHT ONE. BOTH ARE INVISIBLE TO A GREEN GATE**, which is what makes them a different
+class from the seven that came before. ⇒ **The cure for mode 8 is already the house rule — *cite the
+enclosing function by name* — and NOTHING CHECKS IT.** **Owner-authored checker rule, for a future
+mechanism lane, not this one: AN ANCHOR MATCHING AT MORE THAN ONE SITE IN A FILE IS REJECTED UNLESS
+THE ROW NAMES ITS ENCLOSING SYMBOL.**
+
+### DECISION 18 — U4 WAS WITHDRAWN AS SPECCED, ON ITS OWN SCOUT'S EVIDENCE, AND SPLIT IN TWO
+
+**Reason:** ★★★ **a code-only U4 would have been INERT — the taxonomy is defined in the PROMPT, not in
+TypeScript.** The scout also established that **the planned "definitions first, then labels" seam does
+not exist**, that there is a **second, undocumented taxonomy pipeline (`fourType`)**, that
+**`recordMistake` has EIGHT call sites** (not the seven a brief claimed nor the five a code comment
+still claims), and that **a CI guard pins the member list by regex so a taxonomy change turns a green
+gate RED BY DESIGN.** ⇒ **U4a (prompt) and U4b (the D7 presentation ruling), both blocked on the
+owner.** ⚠ **U4b is a PRODUCT decision, not a wiring one: D7 contradicts a live system prompt and a
+green convergence gate.**
+
+### DECISION 19 — THE D1 AMBIGUITY WAS SETTLED AS A **DOCUMENT DEFECT**, NOT A MEASUREMENT FAULT
+
+Two competent readers measured the same 25 sites and got **25-of-25 agree** and **0-of-25 agree.**
+
+**Reason:** **both were right.** The repo's only statement of D1 — *"calculation leaves knowledge
+gaps"* — **parses two opposite ways** (*leaves behind / produces* versus *departs / exits*), and
+**NEITHER IS A MISREADING.** ⇒ ★★★ **A NEW DEFECT CLASS THAT IS NOT A MEASUREMENT FAULT AT ALL: A
+DOCTRINE ENTRY COMPRESSED TO ONE LINE BECAME AMBIGUOUS, AND TWO COMPETENT READERS TOOK OPPOSITE
+MEANINGS.** `[FU-DOCTRINE-ONE-LINER-AMBIGUOUS]`
+⚠⚠ **It sat inside a list headed *"DECISIONS INHERITED — do not re-open"* — the form that most
+discourages the question that would have caught it.**
+★ **Ruled a RULING and not a description**, on three grounds, the decisive one being that **under the
+other parse D1 would be the only one of eight inherited decisions requiring no change at all.**
+⇒ **U4 is a MIGRATION, and one unambiguous owner sentence unblocks it.** ★★ **The spec must say where
+calculation LANDS, not only that it LEAVES** — 8 of the 25 sites cannot be scoped until it does.
+
+### DECISION 20 — THE HANDOFF ALLOWLIST WAS SEVEN FILES, AND THREE HANDOFF-LANE RULES WERE APPLIED THAT ARE WORTH REPEATING
+
+1. **`DECISION_LOG.md` was named in the dispatch** — see the block at the top of this entry.
+2. **The previous `[CURRENT]` was DEMOTED, NOT DELETED**, and its text is preserved verbatim under the
+   new prefix. **Exactly one un-superseded `[CURRENT]` exists.** ★ **Supersede, never delete — the
+   same discipline a lane applied to its own report this wave when its status section went stale
+   within a single commit.**
+3. **No dated entry anywhere in `OPEN_QUESTIONS_AND_FOLLOWUPS.md` was rewritten to match today's
+   facts** (that board's standing rule 3). **Corrections are recorded in the new dated section.**
+   ⚠ **This is why `[FU-CI-COACHING-TWO-SHOW-EVERY-STEP-SITES]` still says TWO in its id and in its
+   original entry**, while the corrected count of **THREE** is restated in the current section.
+   ★ **The id is deliberately NOT renamed: renaming orphans every reference.**
+
+**Reason for recording the handoff lane's own decisions here at all:** ★ **a handoff PR is the only
+PR in this project whose subject is the record itself, so the decisions it makes about the record are
+exactly the ones nothing else will capture.**
+
+---
+
 ## 2026-08-11 — WAVE ME-C (one product lane + one read-only scout) and WAVE CLOSEOUT (four lanes), all on trunk `9682ba02`
 
 **`2026-08-11`**
