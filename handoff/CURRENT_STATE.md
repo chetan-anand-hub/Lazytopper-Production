@@ -287,17 +287,28 @@ ruler."* ★ **That is *what is N a count OF* answered properly, instead of a nu
 
 ```
 root guard matrix   # suites 30   # tests 206   # pass 206   # fail 0   # skipped 0   # todo 0
-full vitest         Test Files 142 passed (142)   /   Tests 1825 passed (1825)
+full vitest         Test Files 144 passed (144)   /   Tests 1852 passed (1852)
 node --test (server) 166 pass / 0 fail / 0 skipped / 0 todo   (baseline 139 before this wave)
 ```
 
 ★★★ **A COUNT IS BOUND TO THE TREE THAT PRODUCED IT.** This wave produced two vitest totals and they
 were briefly read as an anomaly:
-- **`142/1825` IS TRUNK** - corroborated by **three independent runs** (`#686`, `#687`, `#688`).
-- **`144/1852` IS TRUNK + `#682`** - `#682` adds **two new test FILES** and 27 tests.
+- **`142/1825` WAS TRUNK AT `3d22ff88`** - corroborated by **three independent runs** (`#686`, `#687`, `#688`).
+- **`144/1852` IS TRUNK *NOW*, BECAUSE `#682` MERGED** - it adds **two new test FILES** and 27 tests.
 ⇒ **142 + 2 = 144; 1825 + 27 = 1852. There was never an anomaly.** ★ **Closed TWICE, independently**
 - once by a `git ls-tree` file census, once by a lane that rebased onto the new base and **re-ran both
 runners rather than trusting numbers measured against the old one.** **Both agreed.**
+
+> ★★★ **AND THE LESSON FIRED A THIRD TIME - ON THIS HANDOFF ITSELF, AND IT IS RECORDED BECAUSE IT WAS
+> CAUGHT.** The controller's state file carried the sentence **"`142/1825` IS TRUNK"**. It was **TRUE
+> when written**, at trunk `3d22ff88`. **`#682` then merged, and the sentence DECAYED** - trunk now
+> carries both of `#682`'s new test files. **This lane copied that sentence forward as a present-tense
+> fact about `caed0e1f` and had to correct itself**, by `git ls-tree` on `caed0e1f` (both new test
+> files **PRESENT**; both **ABSENT** at `3d22ff88`) and by its own Quality Gate run.
+> ⚠⚠ **A STATUS SENTENCE IS A CLAIM WITH A TIMESTAMP, AND NOTHING RE-CHECKS IT** - the decay lesson,
+> now at **THREE** instances in one wave: over a WAVE (MI-3's ruling), over a SINGLE COMMIT (a lane's
+> own report), and over a MERGE (this count). ★ **"Read it from the run" is not advice about
+> hardcoding; it is advice about TIME.**
 ⚠⚠ **THE ERROR WAS A CONTROLLER BRIEF QUOTING A BRANCH TOTAL AS THOUGH IT WERE TRUNK'S** - the same
 defect as a run id quoted without its commit.
 ⚠ **The root matrix is 206/30, NOT the 202/30 that sat on the standing record from 2026-08-13.**
@@ -444,7 +455,7 @@ in the demoted `[PREVIOUS]` sections below and must be read there before any lan
 
 **ALSO CARRIED FORWARD VERBATIM:**
 - ★★★ **A COUNT IS BOUND TO THE TREE THAT PRODUCED IT** - `142/1825` = trunk, `144/1852` = trunk +
-  `#682`. **Two independent derivations agreed.** ⚠ **Root matrix 206/30 and vitest 142/1825 as of
+  `#682`. **Two independent derivations agreed.** ⚠ **Root matrix 206/30 and vitest 144/1852 as of
   `caed0e1f` - THE COUNT GROWS; READ IT FROM THE RUN, NEVER HARDCODE IT.**
 - ★★ **AN INSTRUCTION TO VERIFY SURVIVES ITS AUTHOR BEING WRONG; AN INSTRUCTION TO COMPLY DOES NOT.**
 - ★★ **A PIN MOVING TWICE ON ONE PR READS AS TAMPERING - NAME EVERY TRANSITION AND EVERY INTERMEDIATE SHA.**

@@ -120,10 +120,11 @@ The wave is now narrated in `CURRENT_STATE.md` section 4 from the controller's a
 what that archive does NOT support.** ⚠ **No narrative was invented.**
 
 **GATES AT `caed0e1f`** - root matrix **`# suites 30  # tests 206  # pass 206  # fail 0  # skipped 0
-# todo 0`**; full vitest **142 files / 1825 tests**; server `node --test` **166 pass / 0 fail** against
-a 139 baseline. ★★★ **A COUNT IS BOUND TO THE TREE THAT PRODUCED IT** - `142/1825` is trunk and
-`144/1852` is trunk + `#682` (two new test files, 27 new tests), **closed twice independently and in
-agreement**, after a controller brief quoted a branch total as though it were trunk's. ⚠ **Root matrix
+# todo 0`**; full vitest **144 files / 1852 tests**; server `node --test` **166 pass / 0 fail** against
+a 139 baseline. ★★★ **A COUNT IS BOUND TO THE TREE THAT PRODUCED IT** - `142/1825` was trunk AT `3d22ff88` and
+`144/1852` is trunk NOW, because `#682` merged (two new test files, 27 new tests). **Closed twice
+independently and in agreement** - and then the earlier sentence *"142/1825 IS trunk"* **DECAYED the
+moment `#682` landed**, which is this wave's own lesson firing on the record that describes it. ⚠ **Root matrix
 is 206/30, not the 202/30 on the older standing record. THE COUNT GROWS - read it from the run.**
 ⚠ **`tsc` is structurally blind to the server CommonJS routes**, so for `#687` and `#688` the matrix,
 vitest, the build and the **container boot** were the only gates with reach - and the boot reached both

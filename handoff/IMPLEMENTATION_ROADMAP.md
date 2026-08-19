@@ -76,7 +76,7 @@ AND DECAYS.**
 
 **GATES AT THE STAGE'S TIP (`caed0e1f`) — READ FROM THE RUNS, NOT FROM A DOCUMENT:**
 root guard matrix **`# suites 30  # tests 206  # pass 206  # fail 0  # skipped 0  # todo 0`** ·
-full vitest **142 files / 1825 tests** · server `node --test` **166 pass / 0 fail** ·
+full vitest **144 files / 1852 tests** · server `node --test` **166 pass / 0 fail** ·
 build **1124 modules transformed** · **Container Boot: image, boot, both ready lines, Railway
 healthcheck and in-image probes WITH CONTROLS — all success.**
 ⚠ **`tsc` is structurally blind to the server CommonJS routes**, so for `#687` and `#688` the matrix,
