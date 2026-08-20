@@ -995,9 +995,19 @@ function createCheckSolutionRoute(deps) {
     return { ok: false, code: 'grading_unavailable', error: GRADING_UNAVAILABLE_MESSAGE };
   }
 
-  /* ⚠ STUB-503 — RETAINED BUT NO LONGER REACHABLE FROM ANY GRADING PATH. Kept
-     rather than deleted because whether a fabricating stub builder should exist at
-     all is the owner's call, not this lane's. Nothing calls it. */
+  /* ⚠⚠ UNREACHABLE — DEAD SINCE PR #695 (STUB-503). DO NOT WIRE THIS BACK UP.
+     This function FABRICATES: a flat `percentage: 70`, a `studentWork: 'Written
+     correctly'` the student never wrote, a `presentation: 1` mistake they never made,
+     and a teacher note telling them they "should score very well in the board exam".
+     It used to be returned with HTTP 200 whenever no provider credential resolved, and
+     it flowed onward into Mistake Intelligence. It has ZERO call sites and
+     `checkSolution.test.cjs §18.6` fails if it gains one.
+
+     ★ RETAINED ON THE OWNER'S RULING, not by oversight: deleting inside a safety PR
+     enlarges the diff on the change that most needs a small one — but an unreachable
+     fabricator with NO MARKER is how a future lane wires it back up in good faith.
+     This comment is that marker. Deletion is tracked as
+     [FU-DELETE-UNREACHABLE-STUB-FABRICATORS]. */
   function buildStubResponse(marks) {
     return {
       ok: true,
@@ -1926,11 +1936,16 @@ function createCheckSolutionRoute(deps) {
   // a key. Representative — partial marks + a per-step mistakeType so MI routing is
   // visible; the LAST question is marked unreadable so the honest-pending path and
   // the "graded X/Y + N pending" totals are exercised too.
-  /* ⚠ STUB-503 — RETAINED BUT NO LONGER REACHABLE FROM ANY GRADING PATH, exactly as
-     `buildStubResponse` above. It fabricated a 60% with an alternating
-     conceptual/presentation `mistakeType` and a `studentWork: 'Attempted'` the
-     student never wrote, on every batch surface (Worksheet, Chapter Test, Full Mock,
-     Quick Practice). Nothing calls it; deletion is the owner's call, not this lane's. */
+  /* ⚠⚠ UNREACHABLE — DEAD SINCE PR #695 (STUB-503). DO NOT WIRE THIS BACK UP.
+     The batch twin of `buildStubResponse`, and the more dangerous of the two because it
+     reached FOUR shipped surfaces at once — Worksheet, Chapter Test, Full Mock and
+     multi-question Check & Improve. It FABRICATES: a 60% mark, a
+     `studentWork: 'Attempted'` the student never wrote, and a `mistakeType` ALTERNATED
+     by question index so that both Mistake-Intelligence routes were seeded. It has ZERO
+     call sites and `checkSolution.test.cjs §18.6` fails if it gains one.
+
+     ★ RETAINED ON THE OWNER'S RULING, for the reason recorded on `buildStubResponse`
+     above. Deletion is tracked as [FU-DELETE-UNREACHABLE-STUB-FABRICATORS]. */
   function buildStructuredStub(questions) {
     const results = questions.map((q, idx) => {
       const isLast = idx === questions.length - 1 && questions.length > 1;
