@@ -21,7 +21,8 @@
 // an invented insight. This module is PURE (no React, no I/O) so the flex-points are unit-
 // testable; <ResultsScorecard> is the shell that renders a variant.
 
-import type { WorksheetGradeResponse } from "../../ai/aiClient";
+import type { CheckSolutionAnnotatedStep, WorksheetGradeResponse } from "../../ai/aiClient";
+import { buildGradedAnswersFromWorksheetResponse } from "../../services/gradedAnswerAssembly";
 import type {
   SessionFourType,
   SessionRecord,
@@ -206,6 +207,19 @@ export interface ScorecardGradedAnswer {
    *  channel to the batch grader at all ([FU-BATCH-TYPED-ANSWER-NO-CHANNEL]). `reason`
    *  is a free string on purpose — a closed set here would forbid the next reason. */
   ungraded?: { reason: string; title: string; detail: string } | null;
+  /** GRADED-STEP-BLOCK - the student's OWN marked working, step by step: the working they
+   *  wrote, the marks that step earned or lost, and the examiner annotation on it.
+   *
+   *  REUSED, NOT REINVENTED. This is `CheckSolutionAnnotatedStep` from `src/ai/aiClient.ts`,
+   *  the exact shape the two per-step renderers already in the product consume - `StepRow`
+   *  (components/worksheet/WorksheetGradePanel.tsx) and `AnnotatedStepRow`
+   *  (pages/desktop/DesktopCheckImprovePage.tsx). Defining a second step type here would be
+   *  the two-shapes-for-one-truth defect this arc exists to end.
+   *
+   *  ADDITIVE AND OPTIONAL. Absent or null renders NOTHING extra - not a placeholder, not an
+   *  empty panel, not four zeros. Absent means unknowable. A surface that supplies no steps
+   *  renders exactly as it did before this field existed. */
+  steps?: CheckSolutionAnnotatedStep[] | null;
 }
 
 /**
@@ -1019,6 +1033,8 @@ export function chapterTestScorecardVariant(input: ChapterTestVariantInput): Sco
     },
   ];
 
+  const ctGradedAnswers = buildGradedAnswersFromWorksheetResponse(response, input.questions);
+
   return {
     surface: "chapter-test",
     title: name,
@@ -1033,6 +1049,13 @@ export function chapterTestScorecardVariant(input: ChapterTestVariantInput): Sco
     fourType: aggregateFourType(response),
     sectionLens: deriveChapterTestSectionLens(response),
     conceptLens: input.questions ? deriveChapterTestConceptLens(response, input.questions) : null,
+    // GRADED-STEP-BLOCK - the per-answer sheet, with the student's own per-step working.
+    // Before this lane the chapter test emitted NO gradedAnswers at all, so the shell's
+    // GradedSheetBlock could never mount here however the shell was written, and the
+    // "Read my graded answer sheet" action had nothing to lead to. Built through the
+    // SHARED assembly, the same one Quick Practice uses - one shape, one clamp, one set
+    // of honest-ungraded rules.
+    gradedAnswers: ctGradedAnswers.length > 0 ? ctGradedAnswers : null,
     pending:
       response.pendingCount > 0
         ? { count: response.pendingCount, worksheetTotalMarks: response.worksheetTotalMarks }
@@ -1440,6 +1463,8 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
     },
   ];
 
+  const fmGradedAnswers = buildGradedAnswersFromWorksheetResponse(response, input.questions);
+
   return {
     surface: "full-mock",
     title: name,
@@ -1455,6 +1480,10 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
     note: input.focusLine ?? null,
     fourType: aggregateFourType(response),
     sectionLens: deriveFullMockSectionLens(response, input.questions),
+    // GRADED-STEP-BLOCK - see the chapter-test twin above. Full Mock shipped the SAME
+    // defect and ships the SAME fix in the same lane: fixing one and not the other would
+    // have been the seventh one-path-fixed-one-not in this arc.
+    gradedAnswers: fmGradedAnswers.length > 0 ? fmGradedAnswers : null,
     chapterLens,
     chapterLensNote,
     pending:

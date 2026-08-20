@@ -10,8 +10,6 @@ import {
 } from "../utils/topicResolver";
 import {
   fetchStepSolution,
-  type CheckSolutionAnnotatedStep,
-  type CheckSolutionMistakeSummary,
   type CheckSolutionResponse,
   type StepSolutionResponse,
 } from "../ai/aiClient";
@@ -398,66 +396,14 @@ export const quickPracticeBatchId = (filterSignature: string, startedAt: number)
   return `qp-${startedAt}-${h.toString(16).padStart(8, "0")}`;
 };
 
-/** The chip label for each MI kind. The KIND drives the shell's careless-vs-knowledge-gap
- *  framing; this is only what the student reads. */
-export const MISTAKE_KIND_LABEL: Record<ScorecardMistakeKind, string> = {
-  conceptual: "Concept gap",
-  calculation: "Calculation",
-  silly: "Silly slip",
-  presentation: "Presentation",
-};
-
-/** PURE. The single mistake kind to badge one answer with: the one the grader counted
- *  most. Ties resolve in CBSE severity order (a concept gap outranks a slip). Returns
- *  null when the grader reported NO mistakes \u2014 honest silence, never a default chip. */
-export const dominantMistakeKind = (
-  summary: CheckSolutionMistakeSummary | null | undefined,
-): ScorecardMistakeKind | null => {
-  if (!summary) return null;
-  const order: ScorecardMistakeKind[] = ["conceptual", "calculation", "silly", "presentation"];
-  let best: ScorecardMistakeKind | null = null;
-  let bestN = 0;
-  for (const kind of order) {
-    const n = Number(summary[kind]) || 0;
-    if (n > bestN) { best = kind; bestN = n; }
-  }
-  return best;
-};
-
-/** PURE. The teacher's line for where the mark went: the annotation on the FIRST step
- *  that lost something. Null when every step was clean \u2014 the shell then renders no
- *  "where the mark went" block at all rather than an empty one. */
-export const firstMistakeDetail = (
-  steps: CheckSolutionAnnotatedStep[] | null | undefined,
-): string | null => {
-  if (!Array.isArray(steps)) return null;
-  for (const step of steps) {
-    const lost = (Number(step?.marksDeducted) || 0) > 0 || step?.status === "incorrect" || step?.status === "partial" || step?.status === "missing";
-    const note = String(step?.teacherAnnotation || "").trim();
-    if (lost && note) return note;
-  }
-  return null;
-};
-
-/** PURE. Sort key for a graded-sheet row, from its "Question N" label \u2014 so the sheet
- *  reads in DISPLAYED order even though the ungraded rows are appended last. */
-export const gradedAnswerOrder = (label: string): number => {
-  const m = /(\d+)/.exec(String(label || ""));
-  return m ? Number(m[1]) : Number.MAX_SAFE_INTEGER;
-};
-
-/** PURE. The option LETTER for a piece of option text ("b"), or null when the text is
- *  not one of the options. Never guesses \u2014 an unresolvable pick renders no letter. */
-export const optionLetter = (
-  options: readonly string[] | null | undefined,
-  text: string | null | undefined,
-): string | null => {
-  if (!Array.isArray(options) || options.length === 0) return null;
-  const want = String(text ?? "").trim().toLowerCase();
-  if (!want) return null;
-  const idx = options.findIndex((o) => String(o ?? "").trim().toLowerCase() === want);
-  return idx >= 0 ? String.fromCharCode(97 + idx) : null;
-};
+/* GRADED-STEP-BLOCK - MISTAKE_KIND_LABEL, dominantMistakeKind, firstMistakeDetail,
+ * gradedAnswerOrder and optionLetter were LIFTED OUT of this page into
+ * `src/services/gradedAnswerAssembly.ts`, together with the graded-answer assembly that
+ * used them. They were never Quick-Practice-specific; keeping them here made this page the
+ * only place a `ScorecardGradedAnswer` could be built, which is why Chapter Test and Full
+ * Mock had no graded answer sheet at all. This page is now a CALL SITE of that module, on
+ * equal footing with the other two surfaces. Imported at the top of this file.
+ */
 
 export const shouldResetBuiltOnPop = (
   isBuilt: boolean,
@@ -471,6 +417,15 @@ import {
   resolveCanonicalTopicForStrategy,
 } from "../services/questionTypeFirstResolver";
 import { trackUxEvent } from "../services/uxTelemetry";
+import {
+  MISTAKE_KIND_LABEL,
+  buildGradedAnswer,
+  dominantMistakeKind,
+  marksDescriptor,
+  optionLetter,
+  sortGradedAnswers,
+  ungradedAnswer,
+} from "../services/gradedAnswerAssembly";
 import {
   computeAdaptiveDifficultyMix,
   getWrongConceptsForTopic,
@@ -537,7 +492,6 @@ import {
   quickPracticeGradedScorecardVariant,
   quickPracticeScorecardVariant,
   type ScorecardGradedAnswer,
-  type ScorecardMistakeKind,
   type ScorecardSplitRow,
 } from "../components/results/scorecardVariants";
 import type { SolutionCheckerSavedWorking } from "../components/question/SolutionChecker";
@@ -2744,78 +2698,50 @@ const packTopicKey = useMemo(() => {
       const graded = entry?.graded;
       const marks = Number(saved.marks) || 0;
       const label = `Question ${saved.qNumber}`;
-      const descriptor = saved.objective
-        ? `MCQ \u00b7 ${marks} mark${marks === 1 ? "" : "s"}`
-        : `${marks} mark${marks === 1 ? "" : "s"}`;
+      const objective = saved.objective === true;
+      const descriptor = marksDescriptor(marks, objective);
       if (!graded) {
-        // \u2605 HONEST-UNGRADED. The grader could not read this answer, so there is NO mark.
-        // Rendering a 0 would be the fabrication (CLAUDE.md \u00a75).
-        answers.push({
+        // ★ HONEST-UNGRADED. The grader could not read this answer, so there is NO mark.
+        // Rendering a 0 would be the fabrication (CLAUDE.md §5).
+        answers.push(ungradedAnswer(
           label, descriptor,
-          ungraded: {
-            reason: "could-not-read",
-            title: "We could not read this one",
-            detail: "Your working did not come back readable. Nothing has been scored 0 for it.",
-          },
-        });
+          "could-not-read",
+          "We could not read this one",
+          "Your working did not come back readable. Nothing has been scored 0 for it.",
+        ));
         continue;
       }
-      const kind = dominantMistakeKind(graded.mistakeSummary);
-      const detail = firstMistakeDetail(graded.annotatedSteps) || graded.teacherNote || null;
-      const answer: ScorecardGradedAnswer = {
+      // ★ THE SHARED ASSEMBLY. The objective binary clamp and the honest-ungraded
+      // conversion live in `gradedAnswerAssembly` now, so Quick Practice, Chapter Test and
+      // Full Mock cannot drift apart on the rules that decide what a student is shown.
+      // ⚠ `includeSteps` is NOT set here: Quick Practice shipped this sheet before a
+      // per-step block existed, and its rendered output must be unchanged by this lane.
+      // [FU-QP-COULD-ADOPT-STEP-BLOCK]
+      answers.push(buildGradedAnswer({
         label,
         descriptor,
-        awarded: graded.marksAwarded,
-        available: graded.totalMarks,
-        objective: saved.objective === true,
-        verdict: saved.objective
-          ? "Whole mark or nothing \u2014 MCQs are never step-marked."
-          : graded.teacherNote || null,
-        lostLabel: detail ? (saved.objective ? "What your working shows:" : "Where the mark went:") : null,
-        lostDetail: detail,
-        mistakeType: kind ? MISTAKE_KIND_LABEL[kind] : null,
-        mistakeKind: kind,
-      };
-      // \u2605\u2605 THE OBJECTIVE BINARY RULE, ENFORCED BEFORE THE BUILDER SEES IT.
-      // `quickPracticeGradedScorecardVariant` THROWS on a fractional objective mark \u2014
-      // deliberately, and RESULTS-1's guard is untouched. But a throw inside a page render
-      // is an ERROR PAGE for the student (App.tsx wraps <Routes> in an ErrorBoundary), so
-      // the anomaly is converted here into the honest ungraded state rather than rendered
-      // as partial credit OR taken out on the student.
-      // [FU-QP-OBJECTIVE-NONBINARY-FROM-SERVER]
-      if (
-        answer.objective &&
-        typeof answer.awarded === "number" && typeof answer.available === "number" &&
-        answer.awarded !== 0 && answer.awarded !== answer.available
-      ) {
-        answers.push({
-          label, descriptor,
-          ungraded: {
-            reason: "objective-mark-not-binary",
-            title: "We could not mark this one reliably",
-            detail: "An MCQ is whole mark or nothing, and this came back part-marked. Nothing has been scored for it.",
-          },
-        });
-        continue;
-      }
-      answers.push(answer);
+        objective,
+        marksAwarded: graded.marksAwarded,
+        totalMarks: graded.totalMarks,
+        teacherNote: graded.teacherNote,
+        mistakeSummary: graded.mistakeSummary,
+        annotatedSteps: graded.annotatedSteps,
+      }));
     }
-    // \u2605\u2605 OVER THE PHOTO CAP: saved, honestly NOT in this grade. One call takes at most
+    // ★★ OVER THE PHOTO CAP: saved, honestly NOT in this grade. One call takes at most
     // MAX_BATCH_UPLOADS answer photos and the server refuses the whole batch above it, so
     // these are held back BY NAME rather than costing the student every other grade.
     for (const over of batchSelection.overCap) {
       const marks = Number(over.marks) || 0;
-      answers.push({
-        label: `Question ${over.qNumber}`,
-        descriptor: `${marks} mark${marks === 1 ? "" : "s"}`,
-        ungraded: {
-          reason: "over-upload-cap",
-          title: "Not included in this grade",
-          detail: `One grade takes up to ${MAX_BATCH_UPLOADS} answer photos. Grade this one in a second round \u2014 nothing has been scored 0.`,
-        },
-      });
+      answers.push(ungradedAnswer(
+        `Question ${over.qNumber}`,
+        `${marks} mark${marks === 1 ? "" : "s"}`,
+        "over-upload-cap",
+        "Not included in this grade",
+        `One grade takes up to ${MAX_BATCH_UPLOADS} answer photos. Grade this one in a second round — nothing has been scored 0.`,
+      ));
     }
-    answers.sort((x, y) => gradedAnswerOrder(x.label) - gradedAnswerOrder(y.label));
+    sortGradedAnswers(answers);
 
     return (
       <ResultsScorecard

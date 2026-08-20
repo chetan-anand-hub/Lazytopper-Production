@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import type { CheckSolutionAnnotatedStep } from "../../ai/aiClient";
 import type {
   ScorecardVariant,
   ScorecardScore,
@@ -232,6 +233,78 @@ function SplitBlock({ split }: { split: ScorecardSplit }) {
  * still carries a mistake type, because the working is read for DIAGNOSIS. Both facts
  * render together here; the builder is what makes a fraction impossible.
  */
+/**
+ * GRADED-STEP-BLOCK - the student's own marked working, step by step.
+ *
+ * SHAPE REUSED, NOT REINVENTED: `CheckSolutionAnnotatedStep` (src/ai/aiClient.ts), the same
+ * shape `StepRow` (worksheet) and `AnnotatedStepRow` (C&I) already consume. The status ->
+ * tone mapping and the objective mark-chip suppression are deliberately IDENTICAL to
+ * `StepRow`'s, so one truth reads the same way wherever a student meets it.
+ *
+ * ONE DELIBERATE ADDITION over `StepRow`: this renders `studentWork`. The whole point of the
+ * block on a Chapter Test / Full Mock scorecard is that the student sees WHAT THEY WROTE
+ * beside the mark it earned; the worksheet panel shows it in the page around the steps.
+ *
+ * ONE DELIBERATE OMISSION: no per-step mistake-type tag. `StepRow` renders one via a label
+ * map local to the worksheet panel, and importing that map here would couple the universal
+ * shell to a worksheet component for a chip the card already shows at answer level.
+ *
+ * HALF MARKS ARE REAL and render as halves - CBSE awards 0.5 for a correct formula alone.
+ * No rounding, anywhere in this block.
+ */
+function GradedStepRow({ step, objective }: { step: CheckSolutionAnnotatedStep; objective?: boolean }) {
+  const tone =
+    step.status === "correct"
+      ? "ok"
+      : step.status === "incorrect"
+        ? "bad"
+        : step.status === "missing"
+          ? "miss"
+          : "part";
+  return (
+    <li className={`lt-sc__gst lt-sc__gst--${tone}`}>
+      <div className="lt-sc__gst-head">
+        <span className="lt-sc__gst-n">Step {step.stepNumber}</span>
+        <span className="lt-sc__gst-desc">{step.description}</span>
+        {/* Objective question -> per-step marks are zeroed BY DESIGN (the whole mark lives
+            at answer level), so the "0" chip would be misleading. Suppress the chip, keep
+            every annotation. Same rule as `StepRow`. */}
+        {!objective && (
+          <span className="lt-sc__gst-mk">
+            {step.marksAwarded > 0
+              ? `+${step.marksAwarded}`
+              : step.marksDeducted > 0
+                ? `−${step.marksDeducted}`
+                : "0"}
+          </span>
+        )}
+      </div>
+      {step.studentWork && <div className="lt-sc__gst-work">{step.studentWork}</div>}
+      {step.teacherAnnotation && <div className="lt-sc__gst-note">{step.teacherAnnotation}</div>}
+      {step.correctedWorking && (
+        <div className="lt-sc__gst-fix">Should be: {step.correctedWorking}</div>
+      )}
+    </li>
+  );
+}
+
+/** HONEST EMPTY STATE. No steps -> this renders NOTHING AT ALL: no heading, no panel, no
+ *  zeros. Absent means unknowable, and a surface that supplies no steps looks exactly as it
+ *  did before the field existed. */
+function GradedStepBlock({ answer }: { answer: ScorecardGradedAnswer }) {
+  if (!Array.isArray(answer.steps) || answer.steps.length === 0) return null;
+  return (
+    <div className="lt-sc__gsteps">
+      <div className="lt-sc__gst-hd">Your working, step by step</div>
+      <ol className="lt-sc__gstlist">
+        {answer.steps.map((s) => (
+          <GradedStepRow key={s.stepNumber} step={s} objective={answer.objective} />
+        ))}
+      </ol>
+    </div>
+  );
+}
+
 function GradedAnswerCard({ answer }: { answer: ScorecardGradedAnswer }) {
   const hasMark = typeof answer.awarded === "number" && typeof answer.available === "number";
   const tone = !hasMark
@@ -268,6 +341,7 @@ function GradedAnswerCard({ answer }: { answer: ScorecardGradedAnswer }) {
           {answer.lostDetail}
         </div>
       )}
+      <GradedStepBlock answer={answer} />
       {answer.mistakeType && (
         <div
           className={`lt-sc__ga-mtype lt-sc__ga-mtype--${careless ? "careless" : "gap"}`}
@@ -280,6 +354,34 @@ function GradedAnswerCard({ answer }: { answer: ScorecardGradedAnswer }) {
   );
 }
 
+/**
+ * The id the "Read my graded answer sheet" action scrolls to.
+ *
+ * WHY AN ANCHOR AND NOT A STATE FLAG: the sheet is ALREADY rendered inside the scorecard
+ * whenever the surface supplies graded answers. The affordance was never asking for the
+ * sheet to be BUILT - it was asking to be TAKEN there. Scrolling is therefore the whole
+ * job, and it keeps the student inside the panel they were reading.
+ */
+export const GRADED_SHEET_ANCHOR_ID = "lt-sc-graded-sheet";
+
+/**
+ * Take the student to their graded answer sheet inside the open scorecard.
+ *
+ * ⚠ THIS REPLACES A `setScorecardOpen(false)` CALL ON CHAPTER TEST AND FULL MOCK. That call
+ * was never a "dead" handler: on Check & Improve the identical call is CORRECT, because C&I
+ * renders a bespoke graded view in the page body underneath and closing the modal is how a
+ * student reaches it (see DesktopCheckImprovePage.tsx, "the bespoke graded views below stay
+ * byte-intact underneath"). Chapter Test and Full Mock have no such view underneath, so the
+ * same call dropped the student onto a summary card whose only primary action reopened the
+ * panel they had just left. A WORKING PATTERN WITH NO DESTINATION, not a dead call.
+ */
+export function revealGradedSheet(): void {
+  if (typeof document === "undefined") return;
+  const el = document.getElementById(GRADED_SHEET_ANCHOR_ID);
+  if (!el) return;
+  el.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
 /** The graded answer sheet. The careless sentence renders ONCE, under the sheet, and
  *  only when a careless mistake type actually appeared — an honest footnote rather than
  *  a per-card refrain. */
@@ -287,7 +389,7 @@ function GradedSheetBlock({ answers }: { answers: ScorecardGradedAnswer[] }) {
   const anyCareless = answers.some((a) => isCareless(a.mistakeKind));
   return (
     <>
-      <div className="lt-sc__mbk lt-sc__mbk--sheet">Your graded answers</div>
+      <div id={GRADED_SHEET_ANCHOR_ID} className="lt-sc__mbk lt-sc__mbk--sheet">Your graded answers</div>
       <div className="lt-sc__galist">
         {answers.map((a) => (
           <GradedAnswerCard key={a.label} answer={a} />
@@ -618,6 +720,50 @@ const SC_CSS = `
 .lt-sc__ga-mtype--gap { background: rgba(239, 68, 68, 0.16); color: #ffb3b3; }
 .lt-sc__ga-mtype--careless { background: rgba(232, 147, 12, 0.16); color: #ffd28a; }
 .lt-sc__ga-carenote { font-size: 11.5px; color: #8695ac; font-style: italic; margin: 4px 0 0; line-height: 1.5; }
+/* GRADED-STEP-BLOCK - the student's own marked working inside a graded answer card.
+   Tones mirror the worksheet panel's step states so one truth reads the same everywhere.
+   No rule here renders when steps is absent: the block returns null before any of it.
+   (No backticks in this comment - the whole stylesheet is a template literal.) */
+.lt-sc__gsteps { margin-top: 9px; }
+.lt-sc__gst-hd {
+  font-size: 10.5px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+  color: #9fb0c6; margin-bottom: 6px;
+}
+.lt-sc__gstlist { list-style: none; margin: 0; padding: 0; }
+.lt-sc__gst {
+  border-left: 2px solid rgba(255, 255, 255, 0.14);
+  padding: 6px 0 6px 10px; margin-bottom: 7px;
+}
+.lt-sc__gst--ok { border-left-color: #4fd6a0; }
+.lt-sc__gst--part { border-left-color: #f2c879; }
+.lt-sc__gst--bad { border-left-color: #ef8686; }
+.lt-sc__gst--miss { border-left-color: #8695ac; }
+.lt-sc__gst-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.lt-sc__gst-n {
+  font-size: 10px; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase;
+  color: #8695ac; flex-shrink: 0;
+}
+.lt-sc__gst-desc { font-size: 12.5px; color: #d7e0ec; line-height: 1.45; flex: 1 1 auto; }
+.lt-sc__gst-mk {
+  font-family: "Fraunces", Georgia, serif; font-weight: 700; font-size: 13px;
+  font-variant-numeric: tabular-nums; color: #cfd9e6; flex-shrink: 0; white-space: nowrap;
+}
+.lt-sc__gst-work {
+  font-family: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  font-size: 12px; color: #eaf1f8; background: rgba(255, 255, 255, 0.05);
+  border-radius: 7px; padding: 6px 9px; margin-top: 5px; line-height: 1.5;
+  white-space: pre-wrap; overflow-wrap: anywhere;
+}
+.lt-sc__gst-note { font-size: 12px; color: #a9b8cc; margin-top: 5px; line-height: 1.5; }
+.lt-sc__gst-fix { font-size: 12px; color: #9ee6c4; margin-top: 4px; line-height: 1.5; }
+
+/* The step block reflows with the sheet on the mobile bottom-sheet breakpoint - the mark
+   chip drops under the description rather than squeezing it to one word per line. */
+@media (max-width: 1023px) {
+  .lt-sc__gst-head { gap: 6px; }
+  .lt-sc__gst-desc { flex: 1 1 100%; order: 3; }
+}
+
 
 .lt-sc__allpend { padding: 8px 0 18px; }
 .lt-sc__allpend-t { font-family: "Fraunces", Georgia, serif; font-weight: 700; font-size: 22px; margin-bottom: 8px; }
