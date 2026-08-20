@@ -38,6 +38,10 @@ const {
   applyEcfPolicyV2,
   resolveFinalAnswerCorrect,
   buildMistakeSummary,
+  // D2 - the DEPARTURE DEFINITION itself, imported (it is exported) rather than
+  // copied, so the rule the model is given cannot drift from the rule the
+  // product ships. Without it `isDeparture` is a field with no instruction.
+  ECF_POLICY_V2_PROMPT,
 } = require('../routes/checkSolution.cjs');
 
 // resolveConfig() loads server/.env (if present) and reads the Codespace/CI secret
@@ -72,10 +76,10 @@ const GEMINI_MODEL = config.GEMINI_MODEL;
 // ── Verbatim copies from routes/checkSolution.cjs (kept in sync intentionally) ──
 const STRUCTURED_MISTAKE_TAXONOMY =
   'For each mistake choose the type by the CAUSE the error reveals about understanding, not by where it appears:\n' +
-  '- "conceptual": the METHOD or understanding is wrong — wrong formula/law/theorem, confused concepts, misread the question, (Science) wrong principle/organ/law.\n' +
-  '- "calculation": the METHOD is right but the arithmetic/algebra is wrong.\n' +
+  '- "conceptual": the METHOD or understanding is wrong — wrong formula/law/theorem, confused concepts, misread the question, (Science) wrong principle/organ/law, (Science) AN EQUATION LEFT UNBALANCED WHEN THE QUESTION ASKED FOR A BALANCED EQUATION — the species may be right, but the student did not do the chemistry that was asked, and the fix is learning that equations must balance (conservation of mass), not learning a format.\n' +
+  '- "calculation": the METHOD is right but the arithmetic/algebra is wrong, (Science) WRONG COEFFICIENTS while genuinely attempting to balance an equation — the fix is to recount the atoms.\n' +
   '- "silly": the student CLEARLY understands but made a mechanical slip — a sign misread off their OWN correct working, a dropped negative, a copying error.\n' +
-  '- "presentation": mathematically/chemically RIGHT but board-format short — missing formula, missing units, no conclusion/"verified" line, working not shown, (Science) a correct reaction left UNBALANCED, missing state symbols.\n' +
+  '- "presentation": mathematically/chemically RIGHT but board-format short — missing formula, missing units, no conclusion/"verified" line, working not shown, (Science) a correctly BALANCED equation MISSING STATE SYMBOLS (s/l/g/aq). ⚠⚠ PRESENTATION IS CBSE\'S FORMAT — state symbols, answer structure, labelled diagrams, units, conclusion lines. ANYTHING THAT CHANGES WHETHER THE CHEMISTRY OR MATHEMATICS IS RIGHT IS NOT PRESENTATION. An equation left UNBALANCED is NOT presentation: it is conceptual when a balanced equation was asked for, or calculation when the student was balancing and miscounted.\n' +
   'A CORRECT step has mistakeType null. A step left ENTIRELY BLANK gets status "missing" and mistakeType null (marks simply not earned, never a typed mistake). An alternative valid method that reaches the answer is NOT a mistake — award full marks.';
 
 // Verbatim from normaliseStructuredResult (checkSolution.cjs). The marks scale is
@@ -167,7 +171,12 @@ async function gradeStructuredSetText(questions) {
         ? '\n     Marking scheme:\n' +
           q.solutionSteps.map((s, i) => '       Step ' + (i + 1) + ': ' + String(s)).join('\n') +
           (q.finalAnswer ? '\n       Final answer: ' + String(q.finalAnswer) : '')
-        : (q.finalAnswer ? '\n     Final answer: ' + String(q.finalAnswer) : '');
+        // D3 - SCHEME-ABSENT EMITS NOTHING. The shipped `blockFor` in
+        // routes/checkSolution.cjs (anchor: `const scheme = Array.isArray(q.solutionSteps)`)
+        // has `: ''` on this branch. Emitting `Final answer: ...` handed the model the
+        // answer it was being scored on, so every scheme-absent score was inflated BY
+        // CONSTRUCTION - and scheme-absent is Check & Improve, the primary surface.
+        : '';
       return (
         '  Q' + q.qNumber + '. [' + (Number(q.marks) || 1) + ' mark(s)' +
         (q.topicLabel || q.topic ? ' · ' + String(q.topicLabel || q.topic) : '') + ']\n' +
@@ -183,7 +192,7 @@ async function gradeStructuredSetText(questions) {
     '1. For EACH question Q1…QN, grade the transcribed student answer against ITS scheme. Award marks by the [bracket] weights in each scheme step, or distribute evenly if none.\n' +
     '2. marksAwarded (per question) = sum of that question\'s annotatedSteps[].marksAwarded. Never exceed the question\'s stated marks.\n' +
     '3. ' + STRUCTURED_MISTAKE_TAXONOMY + '\n' +
-    '4. ERROR CARRIED FORWARD: if one upstream slip makes later steps wrong, mark those later steps status "incorrect" with mistakeType null — never re-charge one slip as several mistakes.\n' +
+    '4. ERROR CARRIED FORWARD: if one upstream slip makes later steps wrong, mark those later steps status "incorrect" with mistakeType null — never re-charge one slip as several mistakes. ' + ECF_POLICY_V2_PROMPT + '\n' +
     '5. NO WORKING SHOWN → mistakeType null. If the student shows NO working — only a final answer (e.g. just a chosen MCQ option such as "(d)") — and it is wrong, you CANNOT diagnose the cause: set mistakeType null for that step. Never guess "conceptual" (or any type) from a bare wrong answer. A wrong answer with no working is undiagnosable, not conceptual — the marks are still not earned (status stays "incorrect"), only the type is null.\n' +
     '6. HONEST READ — anti-fabrication: a student writing \'Don\'t know\', \'Dont know\', \'I don\'t know\', \'DK\', or any similar explicit non-attempt phrase IS legible — grade it as: status "incorrect", marks deducted = question marks, mistakeType null (undiagnosable — no working shown).\n' +
     '7. teacherNote per question: 1–2 short plain-English sentences. "summary": 2–3 encouraging, exam-useful sentences about the whole worksheet.\n' +
@@ -198,9 +207,10 @@ async function gradeStructuredSetText(questions) {
     '      "couldNotRead": false,\n' +
     '      "marksAwarded": <number>,\n' +
     '      "annotatedSteps": [\n' +
-    '        { "stepNumber": 1, "description": "...", "studentWork": "what the student wrote", "status": "correct" | "partial" | "incorrect" | "missing", "marksAwarded": <number>, "marksDeducted": <number>, "teacherAnnotation": "...", "mistakeType": null | "conceptual" | "calculation" | "silly" | "presentation", "correctedWorking": null | "..." }\n' +
+    '        { "stepNumber": 1, "description": "...", "studentWork": "what the student wrote", "status": "correct" | "partial" | "incorrect" | "missing", "marksAwarded": <number>, "marksDeducted": <number>, "teacherAnnotation": "...", "mistakeType": null | "conceptual" | "calculation" | "silly" | "presentation", "correctedWorking": null | "...", "isDeparture": false | true }\n' +
     '      ],\n' +
     '      "mistakeSummary": { "conceptual": 0, "calculation": 0, "silly": 0, "presentation": 0 },\n' +
+    '      "finalAnswerCorrect": true | false,\n' +
     '      "teacherNote": "1-2 sentence per-question summary"\n' +
     '    }\n' +
     '  ],\n' +
