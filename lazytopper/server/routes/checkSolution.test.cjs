@@ -3513,3 +3513,183 @@ test('§17.9 ★★★ CORRECTED CASE 2 — the THREE-WAY chemistry distinction,
     }
   }
 });
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §18 · STUB-503 — A CREDENTIAL OUTAGE MUST NEVER FABRICATE A GRADE
+
+   WHY THIS SECTION EXISTS. `isStubMode()` is `STUB_MODE || isNoProviderEnabled()`,
+   and `STUB_MODE` (serverConfig.cjs) is `!HAS_REPLIT_PROXY && !HAS_DIRECT_KEY &&
+   !HAS_ANTHROPIC_PROXY` — pure credential ABSENCE, with NO dev-only guard. An env
+   var lost in a deploy therefore flipped both GRADING paths into fabricators that
+   answered HTTP 200 with an invented mark, an invented `studentWork` string and an
+   invented `mistakeType` — and that fabrication flowed onward into Mistake
+   Intelligence. These tests pin the honest refusal.
+
+   ⚠ THREE `isStubMode()` SITES EXIST AND ONLY TWO ARE GRADING. The third
+   (`handleDetectQuestion`) is question DETECTION — it awards nothing, so its stub is
+   not a fabricated grade and is deliberately UNCHANGED. §18.7 is that regression
+   guard: it fails if a later lane "tidies" the detection stub into a 503 too.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+const STUB503_ROUTE_SRC = require('node:fs').readFileSync(
+  require('node:path').join(__dirname, 'checkSolution.cjs'), 'utf8');
+
+// Every token that would mean a mark had been invented, checked against the WHOLE
+// serialised body rather than named fields — a fabrication nested one level deeper
+// than the assertion is still a fabrication.
+const MARK_TOKENS = ['marksAwarded', 'percentage', 'annotatedSteps', 'mistakeSummary', 'mistakeType', 'teacherNote'];
+
+test('§18.1 ★★ CASE 1 — stub mode on the SINGLE-QUESTION grading endpoint is a non-2xx with NO mark anywhere in the body', async () => {
+  const h = buildRoute({ stub: true });
+  await h.route.handleCheckSolution(SUBJECTIVE_REQ(), {});
+  assert.equal(h.status(), 503, 'a grading path with no grader must refuse, not answer');
+  assert.equal(h.body().ok, false);
+  const serialised = JSON.stringify(h.body());
+  for (const t of MARK_TOKENS) {
+    assert.equal(serialised.includes(t), false, 'the refusal body must not carry ' + t);
+  }
+});
+
+test('§18.2 ★★ CASE 1 (batch) — stub mode on the WORKSHEET grading endpoint is a non-2xx with NO mark anywhere in the body', async () => {
+  const h = buildImageRoute({ stub: true });
+  await h.route.handleGradeWorksheet(WORKSHEET_REQ([Q(1), Q(2)]), {});
+  assert.equal(h.status(), 503, 'gradeStructuredSet feeds four surfaces — Worksheet, Chapter Test, Full Mock, Quick Practice');
+  assert.equal(h.body().ok, false);
+  const serialised = JSON.stringify(h.body());
+  for (const t of MARK_TOKENS) {
+    assert.equal(serialised.includes(t), false, 'the refusal body must not carry ' + t);
+  }
+  assert.equal(serialised.includes('results'), false, 'no per-question results either');
+});
+
+test('§18.3 CASE 2 — the body carries an honest human sentence, and `error` is PROSE not a code', async () => {
+  const drivers = [
+    ['single', async () => { const h = buildRoute({ stub: true }); await h.route.handleCheckSolution(SUBJECTIVE_REQ(), {}); return h; }],
+    ['batch', async () => { const h = buildImageRoute({ stub: true }); await h.route.handleGradeWorksheet(WORKSHEET_REQ([Q(1)]), {}); return h; }],
+  ];
+  for (const [label, drive] of drivers) {
+    const b = (await drive()).body();
+    // ★ `aiClient.ts` handleJsonResponse throws `details.error` AS THE Error MESSAGE, and
+    //   SolutionChecker / ChapterTestPage / FullMockPage / WorksheetGradePanel each render
+    //   `err.message` verbatim. A code in `error` would show a student "grading_unavailable".
+    assert.equal(typeof b.error, 'string', label);
+    assert.ok(b.error.length > 40, label + ': `error` must be a sentence a student can read');
+    assert.ok(/\s/.test(b.error) && !/^[a-z_]+$/.test(b.error), label + ': `error` must not be a bare code');
+    assert.ok(/unavailable/i.test(b.error), label + ': it must say grading is unavailable');
+    assert.equal(b.code, 'grading_unavailable', label + ': the machine-readable twin lives in `code`');
+    assert.equal(/\d+\s*%/.test(b.error), false, label + ': no percentage in the copy');
+    // ⚠ It must not claim a save that does not happen — nothing is persisted on this path.
+    assert.equal(/\bsaved\b/i.test(b.error), false, label + ': do not promise a save this path never performs');
+  }
+});
+
+test('§18.4 ★★ CASE 3 — NO fabricated `studentWork` string is reachable from any grading path', async () => {
+  // The two fabricated literals, one per stub builder. These are the strings that
+  // reached Mistake Intelligence as if the student had written them.
+  const FABRICATED = ['Written correctly', 'Mostly correct but presentation unclear', 'Attempted'];
+
+  const a = buildRoute({ stub: true });
+  await a.route.handleCheckSolution(SUBJECTIVE_REQ(), {});
+  const b = buildImageRoute({ stub: true });
+  await b.route.handleGradeWorksheet(WORKSHEET_REQ([Q(1), Q(2)]), {});
+
+  for (const [label, h] of [['single', a], ['batch', b]]) {
+    const serialised = JSON.stringify(h.body());
+    assert.equal(serialised.includes('studentWork'), false, label + ': the key itself must be absent');
+    for (const lit of FABRICATED) {
+      assert.equal(serialised.includes(lit), false, label + ': fabricated studentWork "' + lit + '" must be unreachable');
+    }
+  }
+
+  // ★★ INSTRUMENT CHECK — without this the assertions above would pass just as well
+  //    if the literals had never existed, and would tell us nothing. They DO still
+  //    exist in the source; the point is that nothing can reach them.
+  for (const lit of FABRICATED) {
+    assert.ok(STUB503_ROUTE_SRC.includes(lit),
+      'the fabricated literal "' + lit + '" is gone from the source — this test is now vacuous and must be rewritten');
+  }
+});
+
+test('§18.5 CASE 4 — no fabricated `mistakeType` is emitted on any stub grading path', async () => {
+  const a = buildRoute({ stub: true });
+  await a.route.handleCheckSolution(SUBJECTIVE_REQ(), {});
+  const b = buildImageRoute({ stub: true });
+  await b.route.handleGradeWorksheet(WORKSHEET_REQ([Q(1), Q(2)]), {});
+  for (const [label, h] of [['single', a], ['batch', b]]) {
+    const serialised = JSON.stringify(h.body());
+    for (const t of ['mistakeType', 'conceptual', 'presentation', 'calculation', 'silly']) {
+      assert.equal(serialised.includes(t), false, label + ': ' + t + ' must never be invented');
+    }
+  }
+});
+
+test('§18.6 ★★ NEITHER stub GRADE builder is reachable — both are declaration-only', () => {
+  // A grep-shaped guard on purpose: the defect returns the moment either name gains a
+  // CALL site again, and that is exactly one occurrence more than a declaration.
+  // ⚠ Counted as a CALL SHAPE (`name(`), not as a bare name: both are named in prose
+  // in the comments that explain why they are retained, and counting mentions would
+  // make this guard fire on documentation instead of on a re-wiring.
+  for (const fn of ['buildStubResponse', 'buildStructuredStub']) {
+    const calls = STUB503_ROUTE_SRC.split(fn + '(').length - 1;
+    const decls = STUB503_ROUTE_SRC.split('function ' + fn + '(').length - 1;
+    assert.equal(decls, 1, fn + ' must still be DECLARED exactly once');
+    assert.equal(calls, 1, fn + ' has ' + (calls - 1) + ' call site(s) — a grading path can reach the fabricator again');
+  }
+});
+
+test('§18.7 ★★ CASE 5 — the NON-GRADING stub path (question DETECTION) is UNCHANGED', async () => {
+  // ⚠ REGRESSION GUARD, and the one most likely to be broken by a well-meaning lane.
+  // handleDetectQuestion awards nothing: it reads marks/subject OFF THE QUESTION before
+  // the student has committed an answer. A stub there invents no grade, so it keeps its
+  // 200 — turning it into a 503 would break the detect-then-confirm flow for no honesty gain.
+  const h = buildRoute({ stub: true });
+  await h.route.handleDetectQuestion({ question: 'Find the roots of x^2 - 2x - 8 = 0.' }, {});
+  assert.equal(h.status(), 200, 'DETECTION is not GRADING — this path must not have been touched');
+  assert.equal(h.body().ok, true);
+  assert.equal(h.body().detectedMarks, 3);
+  assert.equal(h.body().detectedSubject, 'Maths');
+  assert.equal(h.body().marksSource, 'inferred');
+  assert.equal(h.body().questions.length, 1);
+  // and it still awards nothing — the property that makes leaving it alone correct
+  assert.equal(JSON.stringify(h.body()).includes('marksAwarded'), false);
+});
+
+test('§18.8 ★★ CASE 6 — with a WORKING provider, normal grading is untouched on BOTH paths', async () => {
+  // The guard that matters most: this lane must be invisible whenever a key is present.
+  const a = buildRoute({ replies: [GOOD_GRADE] });
+  await a.route.handleCheckSolution(SUBJECTIVE_REQ(), {});
+  assert.equal(a.status(), 200);
+  assert.equal(a.body().ok, true);
+  assert.equal(a.calls.length, 1, 'exactly one model call, as before');
+  assert.equal(a.body().annotatedSteps[0].description, 'Formula stated');
+
+  const b = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await b.route.handleGradeWorksheet(WORKSHEET_REQ([Q(1), Q(2)]), {});
+  assert.equal(b.status(), 200);
+  assert.equal(b.body().ok, true);
+  assert.equal(b.body().results.length, 2);
+  assert.equal(b.body().gradedCount, 2);
+});
+
+test('§18.9 the UNREADABLE-SCAN refusal keeps its 200 — "cannot read this" and "cannot grade at all" are different truths', async () => {
+  // `gradeStructuredSet` already returned `{ ok:false }` for an unparseable model reply,
+  // and handleGradeWorksheet answered 200 with "try a clearer scan". STUB-503 adds a
+  // DISTINCT flag rather than reusing that branch, so this copy must be unmoved.
+  const h = buildImageRoute({ replies: [PARSE_MISS, PARSE_MISS] });
+  await h.route.handleGradeWorksheet(WORKSHEET_REQ([Q(1)]), {});
+  assert.equal(h.status(), 200, 'an unreadable scan is not a provider outage');
+  assert.equal(h.body().ok, false);
+  assert.ok(/clearer scan/.test(h.body().error), 'the pre-existing copy must be byte-unmoved');
+  assert.equal(h.body().code, undefined, 'and it must NOT be labelled grading_unavailable');
+});
+
+test('§18.10 CONTROL — stub mode spends NO model call on either grading path', async () => {
+  // If a call were still made, the refusal would be costing money AND the stub branch
+  // would not be where we think it is.
+  const a = buildRoute({ stub: true });
+  await a.route.handleCheckSolution(SUBJECTIVE_REQ(), {});
+  assert.equal(a.calls.length, 0);
+  const b = buildImageRoute({ stub: true });
+  await b.route.handleGradeWorksheet(WORKSHEET_REQ([Q(1)]), {});
+  assert.equal(b.calls.length, 0);
+});

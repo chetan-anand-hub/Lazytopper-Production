@@ -969,6 +969,35 @@ function createCheckSolutionRoute(deps) {
     solutionCache,
   } = deps;
 
+  /* ── STUB-503 · THE ONE HONEST BODY EVERY GRADING PATH RETURNS WITH NO PROVIDER ──
+     `isStubMode()` (stubHandlers.cjs) is `STUB_MODE || isNoProviderEnabled()`, and
+     `STUB_MODE` (serverConfig.cjs) is `!HAS_REPLIT_PROXY && !HAS_DIRECT_KEY &&
+     !HAS_ANTHROPIC_PROXY` — pure credential ABSENCE, with no dev-only guard. So an
+     env var lost in a deploy silently turned both GRADING paths into fabricators:
+     HTTP 200 carrying `percentage: 70`, a `studentWork` string the student never
+     wrote, and a `presentation` mistake they never made — all of it flowing through
+     `recordMistake` into Mistake Intelligence and from there into the tutor's view
+     of the student. Honest or silent: a grading path with no grader returns an
+     error, never a mark.
+
+     ★ `error` carries the STUDENT-FACING SENTENCE, not a code, because four of the
+     six client call sites render this field verbatim — `aiClient.ts`'s
+     `handleJsonResponse` throws `details.error` as the Error message, and
+     SolutionChecker / ChapterTestPage / FullMockPage / WorksheetGradePanel each
+     surface `err.message`. A code in `error` would show a student
+     "grading_unavailable". `code` is the machine-readable twin.
+     ⚠ It deliberately does NOT claim the work was SAVED: nothing is persisted on
+     this path, and inventing a reassurance would be the same class of defect this
+     lane exists to remove. */
+  const GRADING_UNAVAILABLE_MESSAGE = 'Grading is temporarily unavailable — your answer has not been marked. Your work is still here; please try again in a few minutes.';
+
+  function gradingUnavailableBody() {
+    return { ok: false, code: 'grading_unavailable', error: GRADING_UNAVAILABLE_MESSAGE };
+  }
+
+  /* ⚠ STUB-503 — RETAINED BUT NO LONGER REACHABLE FROM ANY GRADING PATH. Kept
+     rather than deleted because whether a fabricating stub builder should exist at
+     all is the owner's call, not this lane's. Nothing calls it. */
   function buildStubResponse(marks) {
     return {
       ok: true,
@@ -1076,8 +1105,9 @@ function createCheckSolutionRoute(deps) {
       }
     }
 
+    // STUB-503 · GRADING PATH — an honest 503, never an invented grade.
     if (isStubMode()) {
-      return sendJson(res, 200, buildStubResponse(marks));
+      return sendJson(res, 503, gradingUnavailableBody());
     }
 
     try {
@@ -1896,6 +1926,11 @@ function createCheckSolutionRoute(deps) {
   // a key. Representative — partial marks + a per-step mistakeType so MI routing is
   // visible; the LAST question is marked unreadable so the honest-pending path and
   // the "graded X/Y + N pending" totals are exercised too.
+  /* ⚠ STUB-503 — RETAINED BUT NO LONGER REACHABLE FROM ANY GRADING PATH, exactly as
+     `buildStubResponse` above. It fabricated a 60% with an alternating
+     conceptual/presentation `mistakeType` and a `studentWork: 'Attempted'` the
+     student never wrote, on every batch surface (Worksheet, Chapter Test, Full Mock,
+     Quick Practice). Nothing calls it; deletion is the owner's call, not this lane's. */
   function buildStructuredStub(questions) {
     const results = questions.map((q, idx) => {
       const isLast = idx === questions.length - 1 && questions.length > 1;
@@ -2013,16 +2048,13 @@ function createCheckSolutionRoute(deps) {
     //   no prohibition on `couldNotRead` whatsoever (§11.3 asserts that absence).
     const hasAnyTyped = questions.some((q) => String((q && q.textAnswer) || '').trim().length > 0);
 
+    // STUB-503 · GRADING PATH. This function is NOT a route — it returns a value to
+    // its single caller `handleGradeWorksheet`, which owns the HTTP status. So the
+    // refusal is signalled with a flag the caller turns into the 503, and it is kept
+    // DISTINCT from the pre-existing `{ ok: false }` (an unparseable model reply),
+    // which must keep its 200 + "try a clearer scan" copy byte-for-byte.
     if (isStubMode()) {
-      const stub = buildStructuredStub(questions);
-      return {
-        ok: true,
-        results: questions.map((q) => {
-          const raw = stub.results.find((r) => Number(r.qNumber) === Number(q.qNumber));
-          return normaliseStructuredResult(q, raw);
-        }),
-        summary: stub.summary,
-      };
+      return { ok: false, gradingUnavailable: true };
     }
 
     // ── C&I PR-3 · scheme-first cache hook (read-before-grade) ────────────────
@@ -2492,6 +2524,12 @@ function createCheckSolutionRoute(deps) {
 
     try {
       const graded = await gradeStructuredSet({ questions, imageBase64, imageMimeType, subject, uploads });
+      // STUB-503 — checked BEFORE the `!graded.ok` branch below, which is the
+      // unreadable-scan case and is deliberately left untouched: "we couldn't read
+      // this" and "we cannot grade at all right now" are different truths.
+      if (graded.gradingUnavailable) {
+        return sendJson(res, 503, gradingUnavailableBody());
+      }
       if (!graded.ok) {
         return sendJson(res, 200, {
           ok: false,

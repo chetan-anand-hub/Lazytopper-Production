@@ -19,9 +19,23 @@
  *        per-step mark (the reason the view must suppress the chip). Negative control: a
  *        subjective question keeps its per-step marks AND reports objective falsy.
  *
+ *   §2b  STUB-503 · a GRADING path with no provider credential REFUSES (HTTP 503) and
+ *        emits no mark, no annotatedSteps and no fabricated studentWork. Negative
+ *        control: question DETECTION, which is NOT grading, still answers 200.
+ *
  * Drives the REAL modules — the dedup key via transpile-then-require of the actual
- * client TS (never a text scan), the grader via its dep-injection seam with a canned
- * grade / stub mode (no live LLM, no Firebase, no network).
+ * client TS (never a text scan), the grader via its dep-injection seam with a CANNED
+ * MODEL REPLY (no live LLM, no Firebase, no network).
+ *
+ * ⚠⚠ STUB-503 — WHY §2 NO LONGER USES `stub: true`. Until this change, the
+ * normaliseStructuredResult half of §2 drove handleGradeWorksheet in STUB mode, because
+ * that was the cheap way to push questions through the normaliser without a model. Stub
+ * mode returned an INVENTED grade — a 60%, a `studentWork: 'Attempted'` the student
+ * never wrote, and an alternating conceptual/presentation mistakeType — so THIS GATE WAS
+ * FIXTURED ON THE DEFECT: it required the grader to fabricate in order to go green, and
+ * it went red on the fix. It now drives the same normaliser with a CANNED WORKSHEET
+ * REPLY, which is what §2 always meant to test, and §2b pins the refusal.
+ * ★ A GATE WHOSE FIXTURE IS THE BUG WILL DEFEND THE BUG. Encode the fix, not the defect.
  */
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, writeFileSync } from 'node:fs';
@@ -120,12 +134,41 @@ const cannedCorrect = {
   teacherNote: 'ok',
 };
 
-function buildRoute({ stub }) {
+// The worksheet-shaped twin of `cannedCorrect`, for the STRUCTURED path. Same
+// principle: q1's step carries a NONZERO mark so the objective clamp zeroing it is
+// observable rather than a no-op, and q2 stays subjective as the negative control.
+const cannedWorksheetCorrect = {
+  results: [
+    {
+      qNumber: 1,
+      marksAwarded: 1,
+      annotatedSteps: [
+        { stepNumber: 1, description: 'Picks option B', studentWork: 'B', status: 'correct',
+          marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'right', mistakeType: null, correctedWorking: null },
+      ],
+      mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+      teacherNote: 'ok',
+    },
+    {
+      qNumber: 2,
+      marksAwarded: 3,
+      annotatedSteps: [
+        { stepNumber: 1, description: 'Method and substitution', studentWork: 'x = 4', status: 'partial',
+          marksAwarded: 3, marksDeducted: 2, teacherAnnotation: 'ok', mistakeType: 'calculation', correctedWorking: null },
+      ],
+      mistakeSummary: { conceptual: 0, calculation: 1, silly: 0, presentation: 0 },
+      teacherNote: 'ok',
+    },
+  ],
+  summary: 'ok',
+};
+
+function buildRoute({ stub, reply = cannedCorrect }) {
   let captured = null;
   const deps = {
     sendJson: (_res, status, body) => { captured = { status, body }; },
     readJson: async (req) => req,
-    callGemini: async () => ({ text: JSON.stringify(cannedCorrect), raw: {} }),
+    callGemini: async () => ({ text: JSON.stringify(reply), raw: {} }),
     GEMINI_MODEL: 'test-model',
     ACTIVE_PROVIDER: 'test',
     isStubMode: () => stub,
@@ -165,10 +208,13 @@ function buildRoute({ stub }) {
     JSON.stringify(subj.annotatedSteps?.map((s) => s.marksAwarded)));
 }
 
-// ── normaliseStructuredResult (worksheet / C&I multi-question path) via handleGradeWorksheet
-//    in STUB mode, which routes every question through normaliseStructuredResult. ──
+// ── normaliseStructuredResult (worksheet / C&I multi-question path) via
+//    handleGradeWorksheet, which routes every question through normaliseStructuredResult.
+//    ⚠ STUB-503: `stub: false` + a canned worksheet reply. This block used to pass
+//    `stub: true`; see the header. THE FOUR ASSERTIONS BELOW ARE UNCHANGED — only the way
+//    the results are produced changed, from a fabricated grade to a mocked model reply. ──
 {
-  const { route, get } = buildRoute({ stub: true });
+  const { route, get } = buildRoute({ stub: false, reply: cannedWorksheetCorrect });
   await route.handleGradeWorksheet(
     { worksheetId: 'ws1', imageBase64: 'x', imageMimeType: 'application/pdf', subject: 'Maths',
       questions: [
@@ -186,6 +232,61 @@ function buildRoute({ stub }) {
     JSON.stringify(r2 && r2.objective));
   check('both grader functions emit the field (keep-in-sync invariant holds)',
     get().body && r1 && 'objective' in r1);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// §2b · STUB-503 · a GRADING path with no provider credential REFUSES
+// ─────────────────────────────────────────────────────────────────────────────
+// ★★ THIS IS THE BLOCK THAT MAKES THIS GATE FIRE. Re-fixturing §2 off stub mode removes
+// the false red, but on its own it would leave the matrix with NOTHING asserting the
+// refusal — a gate that merely stopped failing. These checks go red the moment either
+// fabricator is wired back into a grading path.
+console.log('\n§2b · STUB-503 — a credential outage refuses instead of inventing a grade:');
+{
+  // (a) the SINGLE-QUESTION grading path
+  const { route, get } = buildRoute({ stub: true });
+  await route.handleCheckSolution(
+    { question: 'Find the roots of x^2 - 2x - 8 = 0.', marks: 3, subject: 'Maths', textAnswer: 'x = 4, x = -2' }, {});
+  const single = get();
+  check('handleCheckSolution: stub mode REFUSES with a non-2xx (503), never a grade',
+    single && single.status === 503, 'status=' + (single && single.status));
+  const singleBody = JSON.stringify(single && single.body);
+  for (const t of ['marksAwarded', 'percentage', 'annotatedSteps', 'mistakeType', 'studentWork', 'Written correctly']) {
+    check('handleCheckSolution: the refusal carries NO ' + t, !singleBody.includes(t));
+  }
+  check('handleCheckSolution: the refusal carries a human-readable sentence, not a bare code',
+    single && typeof single.body.error === 'string' && single.body.error.length > 40 && /unavailable/i.test(single.body.error),
+    JSON.stringify(single && single.body && single.body.error));
+}
+{
+  // (b) the STRUCTURED / worksheet grading path — the one that feeds Worksheet, Chapter
+  //     Test, Full Mock and multi-question Check & Improve, all four at once.
+  const { route, get } = buildRoute({ stub: true });
+  await route.handleGradeWorksheet(
+    { worksheetId: 'ws1', imageBase64: 'x', imageMimeType: 'application/pdf', subject: 'Maths',
+      questions: [
+        { qNumber: 1, marks: 1, section: 'A', questionText: 'MCQ item', answer: 'B', options: ['A', 'B', 'C', 'D'] },
+        { qNumber: 2, marks: 5, questionText: 'Long subjective item' },
+      ] }, {});
+  const ws = get();
+  check('handleGradeWorksheet: stub mode REFUSES with a non-2xx (503), never a grade',
+    ws && ws.status === 503, 'status=' + (ws && ws.status));
+  const wsBody = JSON.stringify(ws && ws.body);
+  for (const t of ['marksAwarded', 'results', 'annotatedSteps', 'mistakeType', 'studentWork', 'Attempted']) {
+    check('handleGradeWorksheet: the refusal carries NO ' + t, !wsBody.includes(t));
+  }
+}
+{
+  // (c) NEGATIVE CONTROL — question DETECTION is NOT grading. It awards nothing, so its
+  //     stub invents no grade and must be LEFT ALONE. Without this check, "turn every
+  //     isStubMode() site into a 503" would look correct.
+  const { route, get } = buildRoute({ stub: true });
+  await route.handleDetectQuestion({ question: 'Find the roots of x^2 - 2x - 8 = 0.' }, {});
+  const det = get();
+  check('negative control: question DETECTION is not grading and still answers 200',
+    det && det.status === 200 && det.body && det.body.ok === true, 'status=' + (det && det.status));
+  check('negative control: and it awards nothing, which is why leaving it alone is correct',
+    det && !JSON.stringify(det.body).includes('marksAwarded'));
 }
 
 console.log(
