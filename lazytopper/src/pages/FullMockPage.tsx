@@ -72,7 +72,7 @@ import {
   deriveStoredFullMockChapterLens,
   fullMockFocusLine,
 } from "../components/results/scorecardVariants";
-import ResultsScorecard from "../components/results/ResultsScorecard";
+import ResultsScorecard, { revealGradedSheet } from "../components/results/ResultsScorecard";
 import { exportWorksheetPdf, exportGradedWorksheetPdf } from "../components/worksheet/worksheetPdfExport";
 import { buildDesktopWorksheetPath } from "../lib/desktop/navigation";
 import { CT_CSS } from "../components/chaptertest/chapterTestStyles";
@@ -1262,7 +1262,13 @@ export default function FullMockPage() {
                 deltaLine,
                 focusLine,
                 downloading,
-                onReadSheet: () => setScorecardOpen(false),
+                // GRADED-STEP-BLOCK - the read-sheet action now TAKES the student to their
+                // graded answer sheet inside the open scorecard, instead of closing the panel.
+                // It was never a dead handler: the identical call is CORRECT on Check & Improve,
+                // which renders a bespoke graded view in the page body underneath. This surface
+                // has no such view, so closing dropped the student onto a summary card whose only
+                // primary action reopened the panel they had just left - a loop with no way on.
+                onReadSheet: revealGradedSheet,
                 onPractiseChapter: () => {
                   setScorecardOpen(false);
                   practiseWorstChapter();
