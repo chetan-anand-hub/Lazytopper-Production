@@ -756,3 +756,105 @@ describe("14 · no raw unicode escape reaches the student", () => {
     expect(document.body.textContent ?? "").not.toMatch(RAW_ESCAPE);
   });
 });
+
+// ---------------------------------------------------------------------------
+// 13 · QP-COMBINED · 6a THE NONSENSE LINE, AND 7a THE STEP BLOCK
+// ---------------------------------------------------------------------------
+// ⚠⚠ NOTHING IN THIS REPO PINNED EITHER BEHAVIOUR BEFORE THIS BLOCK. All four
+// PracticePage suites were 35/35 GREEN both BEFORE and AFTER the two-flag change that
+// fixes 6a and ships 7a — which is precisely why `#696` needed a 1440px SCREENSHOT to
+// find 6a at all, after 199 assertions, a clean build, a verified bundle and two proven
+// mutations had passed. These are the assertions that would have caught it.
+
+/** A fully-correct grade: full marks, every step clean, and a teacher note that is the
+ *  VERDICT ("Fully correct.") rather than a lost-mark explanation. ★ This fixture is the
+ *  whole of 6a: with `lostFromStepsOnly` unset, that note leaks into `lostDetail`. */
+const cleanGrade = (qNumber: number) =>
+  okGrade(qNumber, {
+    marksAwarded: 3,
+    totalMarks: 3,
+    percentage: 100,
+    teacherNote: "Fully correct.",
+    mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+    annotatedSteps: [
+      {
+        stepNumber: 1,
+        description: "Set up and solve",
+        studentWork: "14 x 75 = 1050",
+        status: "correct",
+        marksAwarded: 3,
+        marksDeducted: 0,
+        teacherAnnotation: "",
+        mistakeType: null,
+        correctedWorking: null,
+      },
+    ],
+  });
+
+describe("13 · 6a — a student who got it RIGHT is not told where the mark went", () => {
+  it("★★ 6a — a FULLY CORRECT answer renders NO 'Where the mark went' line at all", async () => {
+    gradeWorksheet.mockResolvedValue(okBatch([cleanGrade(1)]));
+    await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, false)]);
+    await saveAPhotoFor(1);
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    await waitFor(() => expect(screen.getByText("Diagnosed from your working")).toBeInTheDocument());
+
+    // ⚠ THE DEFECT, STATED AS AN ASSERTION. Before the two flags `lostDetail` fell back to
+    // `teacherNote` — which is ALREADY rendered as the row's verdict — so this sheet read
+    // "Where the mark went: Fully correct." to a student who lost nothing.
+    expect(screen.queryByText(/Where the mark went/)).toBeNull();
+    expect(document.body.textContent ?? "").not.toMatch(/Where the mark went/);
+
+    // ★★ AND IT IS PRINTED ONCE, NOT TWICE. The second half of 6a was the SAME sentence
+    // appearing under two different labels; counting occurrences is what pins that.
+    const body = document.body.textContent ?? "";
+    expect(body.split("Fully correct.").length - 1).toBe(1);
+  });
+
+  it("★ CONTROL — an answer that DID lose marks still shows the line, from the STEP not the note", async () => {
+    // ⚠ WITHOUT THIS CONTROL the test above would pass just as well if the row, the sheet
+    // or the whole scorecard had vanished. `okGrade` loses a mark at step 2 and carries a
+    // DIFFERENT teacherNote ("Method correct throughout."), so this also proves WHICH
+    // source the detail comes from: the step annotation, never the overall note.
+    gradeWorksheet.mockResolvedValue(okBatch([okGrade(1)]));
+    await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, false)]);
+    await saveAPhotoFor(1);
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    await waitFor(() => expect(screen.getByText("Diagnosed from your working")).toBeInTheDocument());
+
+    expect(screen.getByText(/Where the mark went/)).toBeInTheDocument();
+    expect(document.body.textContent ?? "").toMatch(/14 x 75 evaluated as 1030, not 1050\./);
+  });
+});
+
+describe("13 · 7a — the step block, and its honest empty state", () => {
+  it("★★ 7a — an answer WITH written working renders the per-step block", async () => {
+    gradeWorksheet.mockResolvedValue(okBatch([okGrade(1)]));
+    await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, false)]);
+    await saveAPhotoFor(1);
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    await waitFor(() => expect(screen.getByText("Diagnosed from your working")).toBeInTheDocument());
+
+    // The block, the student's OWN working, and the per-step annotation beside it.
+    expect(screen.getByText("Your working, step by step")).toBeInTheDocument();
+    expect(document.querySelector(".lt-sc__gsteps")).toBeTruthy();
+    expect(document.body.textContent ?? "").toMatch(/14 x 75 = 1030/);
+  });
+
+  it("⚠ 7a — an MCQ answered with NO working shows NO step block and NO placeholder (D-PROG-2)", async () => {
+    // A bare option click is scored LOCALLY and never batched, so there are no steps to
+    // show. ★ That is legitimate — D-PROG-2, not a gap to fill — so the block must render
+    // NOTHING AT ALL: no heading, no empty panel, no zeros.
+    await buildSet([mkItem(1, true), mkItem(2, true), mkItem(3, true)]);
+    fireEvent.click(screen.getByText("q1-correct"));
+    finish();
+    await waitFor(() => expect(document.querySelector(".lt-sc__big")).toBeTruthy());
+
+    expect(screen.queryByText("Your working, step by step")).toBeNull();
+    expect(document.querySelector(".lt-sc__gsteps")).toBeNull();
+    expect(screen.queryByText(/Where the mark went/)).toBeNull();
+  });
+});

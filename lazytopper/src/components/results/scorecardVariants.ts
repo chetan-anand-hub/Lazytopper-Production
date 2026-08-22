@@ -1906,6 +1906,20 @@ export interface StoredQuickPracticeVariantInput {
    *  nothing for QP; a QP host must supply its own. */
   onDownload?: () => void;
   downloading?: boolean;
+  /** ★★ THE HONEST GRADED COUNT — how many of the record's questions were actually GRADED.
+   *
+   *  ⚠ SUPPLIED BY THE HOST, NEVER DERIVED HERE. A `SessionRecord` carries no graded count,
+   *  so this builder has nothing honest to compute from. The real number lives in the
+   *  per-question payload behind `record.perQuestionRef` — `persistQuickPracticeSession`
+   *  writes the whole `WorksheetGradeResponse` there, `gradedCount` included — which a host
+   *  reaches with `getSessionPerQuestion`, exactly as ChapterTestPage, FullMockPage and the
+   *  tutor already do. Passing it IN keeps this builder pure and keeps ONE source of truth.
+   *
+   *  ★ ABSENT MEANS UNKNOWABLE, NOT ZERO. Omitted ⇒ the scorecard renders the question total
+   *  and NO graded count at all. It is NEVER synthesised from the question-id list — doing
+   *  that is what claimed unattempted questions as graded work.
+   *  [FU-QP-STORED-GRADEDCOUNT-SYNTHESISED] */
+  gradedCount?: number;
 }
 
 /**
@@ -1931,8 +1945,11 @@ export function storedQuickPracticeScorecardVariant(
   record: SessionRecord,
   input: StoredQuickPracticeVariantInput,
 ): ScorecardVariant {
-  const { gradedDateLabel, onDone, onDownload, downloading = false } = input;
+  const { gradedDateLabel, onDone, onDownload, downloading = false, gradedCount } = input;
   const totalQuestions = record.questionIds?.length ?? 0;
+  // ★ Only a real, finite number counts as KNOWN. Anything else is treated as ABSENT — and
+  //   absent renders no graded count at all, never a synthesised one.
+  const hasHonestCount = typeof gradedCount === "number" && Number.isFinite(gradedCount);
 
   const actions: ScorecardAction[] = [];
   if (onDownload) {
@@ -1955,30 +1972,32 @@ export function storedQuickPracticeScorecardVariant(
       kind: "marks",
       awarded: record.marksAwarded,
       total: record.marksTotal,
-      // ⚠ THIS `gradedCount` IS SYNTHESISED, NOT MEASURED — [FU-QP-STORED-GRADEDCOUNT-SYNTHESISED].
-      // `totalQuestions` is the length of the record's stored question-id list, i.e. the whole
-      // DISPLAYED set, and the same number is handed out as the graded count. A `SessionRecord`
-      // carries no graded count and no unattempted list, so there is nothing honest to read here.
-      // ⇒ a session where 6 of 10 were attempted renders as "10 of 10 questions graded". That
-      // does not merely score the other 4 zero — it CLAIMS THEM AS GRADED WORK THE STUDENT
-      // NEVER DID, which is the no-fake-data line rather than an empty-state question.
+      // ★★ THE GRADED COUNT IS SUPPLIED, NEVER SYNTHESISED — [FU-QP-STORED-GRADEDCOUNT-SYNTHESISED].
       //
-      // ★ AND NOTHING HERE CATCHES IT. The worksheet sibling withholds the count on a `partial`
-      // record; this variant has no such condition at all — and one would be dead if it did,
-      // because QP has no upload-grade cycle: `buildQuickPracticeSessionRecord` writes
-      // `status: "graded"` as a literal, so a QP record is never `partial`. No test constructs
-      // an unattempted record, which is why the suite is green over the wrong number.
+      // WHAT THIS USED TO DO, AND WHY IT WAS A DOCTRINE VIOLATION RATHER THAN A COSMETIC BUG:
+      // `totalQuestions` is the length of the record's stored question-id list — the whole
+      // DISPLAYED set — and the same number was handed out as the graded count. So a session
+      // where a student answered 6 of 10 rendered as "10 of 10 questions graded". That does not
+      // merely score the other four zero; IT CLAIMS THEM AS GRADED WORK THE STUDENT NEVER DID,
+      // which is the CLAUDE.md §5 no-fake-data line, not an empty-state question.
       //
-      // The honest number is not lost, only out of reach: the grade response knows both counts
-      // (attempted vs displayed) and they survive in the per-question payload behind
-      // `record.perQuestionRef` — which this variant is never handed. So the fix is not a local
-      // edit; it belongs to a lane already reaching that payload for its own reasons.
+      // ★ THE HONEST NUMBER IS NOT LOST — it was only out of reach FROM HERE. The grade response
+      // knows both counts and they survive in the per-question payload behind
+      // `record.perQuestionRef`. A host that has fetched that payload passes the real number in
+      // as `input.gradedCount`; this builder stays pure and derives nothing.
       //
-      // ⚠ DO NOT WIRE THIS VARIANT TO A LIVE CONSUMER UNTIL THAT FU IS CLOSED. It has none
-      // today, and that is the only reason this is dormant rather than shipped.
-      // Claim a graded-count ONLY when the record actually carries question ids — an
-      // empty set omits it rather than fabricate "0 of 0".
-      ...(totalQuestions > 0 ? { gradedCount: totalQuestions, totalQuestions } : {}),
+      // ⚠ ABSENT MEANS UNKNOWABLE, NOT ZERO. Older records were written before any host passed
+      // the count, so the count will often be missing — and a missing count renders the question
+      // TOTAL WITH NO GRADED COUNT AT ALL. The shell already does exactly this: `ResultsScorecard`
+      // gates the "across G of T" line on `gradedCount != null && totalQuestions != null`, so
+      // omitting the field removes the claim rather than printing a wrong one.
+      //
+      // ⚠ AND A RECORD WITH NO QUESTION IDS CLAIMS NOTHING — no "0 of 0", not even a total.
+      ...(totalQuestions > 0
+        ? hasHonestCount
+          ? { gradedCount, totalQuestions }
+          : { totalQuestions }
+        : {}),
     },
     fourType: record.fourType,
     pending: null,

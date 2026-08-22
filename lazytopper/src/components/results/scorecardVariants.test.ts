@@ -809,11 +809,16 @@ describe("storedQuickPracticeScorecardVariant", () => {
     expect(v.surface).toBe("quick-practice");
     expect(v.title).toBe("Real Numbers · Quick practice");
     expect(v.subtitle).toBe("QP-M-REAL-1a2b3c4d · graded 3 July");
+    // ⚠ NO `gradedCount` HERE, DELIBERATELY. The host passed none and a `SessionRecord`
+    // carries none, so the honest render is the question TOTAL and no graded count at all.
+    // ★ BEFORE QP-GRADEDCOUNT THIS ASSERTED `gradedCount: 3` — the DEFECT PINNED AS AN
+    // EXPECTATION. Three ids were DISPLAYED, so three were reported GRADED, however few the
+    // student actually attempted. The suite was green over a number that claimed work nobody
+    // did; that is why the case-1 test below exists.
     expect(v.score).toEqual({
       kind: "marks",
       awarded: 7,
       total: 10,
-      gradedCount: 3,
       totalQuestions: 3,
     });
     expect(v.fourType).toEqual({ conceptual: 1, calculation: 2, silly: 0, presentation: 0 });
@@ -891,6 +896,83 @@ describe("storedQuickPracticeScorecardVariant", () => {
     });
     expect(v.score).toEqual({ kind: "marks", awarded: 7, total: 10 });
     expect(v.score).not.toHaveProperty("gradedCount");
+  });
+
+  // ── QP-GRADEDCOUNT · the honest graded count (owner ruling 4a) ──────────────────────
+  //
+  // ⚠ THE COUNT IS SUPPLIED BY THE HOST, NEVER DERIVED HERE. A `SessionRecord` has no graded
+  // count; the real one lives in the per-question payload behind `perQuestionRef`. These pin
+  // the three states this scorecard can honestly be in: KNOWN, UNKNOWN, and nothing to say.
+
+  it("★★ CASE 1 — a 6-of-10 session renders 6 of 10, NOT 10 of 10", () => {
+    const v = storedQuickPracticeScorecardVariant(
+      qpRecord({ questionIds: ["q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8", "q9", "q10"] }),
+      { gradedDateLabel: "3 July", onDone: noop, gradedCount: 6 },
+    );
+    expect(v.score).toEqual({
+      kind: "marks",
+      awarded: 7,
+      total: 10,
+      gradedCount: 6,
+      totalQuestions: 10,
+    });
+  });
+
+  it("CASE 2 — a FULLY graded session still renders N of N (regression guard)", () => {
+    const v = storedQuickPracticeScorecardVariant(qpRecord(), {
+      gradedDateLabel: "3 July",
+      onDone: noop,
+      gradedCount: 3,
+    });
+    expect(v.score).toEqual({
+      kind: "marks",
+      awarded: 7,
+      total: 10,
+      gradedCount: 3,
+      totalQuestions: 3,
+    });
+  });
+
+  it("★ CASE 3 — a record WITHOUT the count renders the total and NO graded count", () => {
+    // ⚠ THE MIGRATION CASE, AND THE ONE THAT MATTERS. Every record written before a host
+    // supplies the count looks exactly like this — the old code answered it with the id-list
+    // length, and the honest answer is to say nothing. Tested from the OLD shape, not clean.
+    const v = storedQuickPracticeScorecardVariant(qpRecord(), {
+      gradedDateLabel: "3 July",
+      onDone: noop,
+    });
+    expect(v.score).not.toHaveProperty("gradedCount");
+    expect(v.score).toMatchObject({ totalQuestions: 3 });
+  });
+
+  it("CASE 3b — a count of ZERO is a measurement and IS rendered, not read as absent", () => {
+    // ⚠ 0 IS FALSY. A truthiness check here would silently turn "nothing was graded" into
+    // "we do not know", which is a different and less honest claim. This is the control that
+    // catches `gradedCount ? … : …` being written in place of the finite-number test.
+    const v = storedQuickPracticeScorecardVariant(qpRecord(), {
+      gradedDateLabel: "3 July",
+      onDone: noop,
+      gradedCount: 0,
+    });
+    expect(v.score).toMatchObject({ gradedCount: 0, totalQuestions: 3 });
+  });
+
+  it("CASE 3c — a non-finite count is treated as ABSENT rather than rendered", () => {
+    const v = storedQuickPracticeScorecardVariant(qpRecord(), {
+      gradedDateLabel: "3 July",
+      onDone: noop,
+      gradedCount: Number.NaN,
+    });
+    expect(v.score).not.toHaveProperty("gradedCount");
+  });
+
+  it("⚠ a record with NO question ids claims nothing, even when a count IS supplied", () => {
+    const v = storedQuickPracticeScorecardVariant(qpRecord({ questionIds: [] }), {
+      gradedDateLabel: "3 July",
+      onDone: noop,
+      gradedCount: 4,
+    });
+    expect(v.score).toEqual({ kind: "marks", awarded: 7, total: 10 });
   });
 
   it("renders no pending state — a QP record is always graded", () => {

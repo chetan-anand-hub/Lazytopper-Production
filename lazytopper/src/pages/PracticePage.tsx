@@ -2714,9 +2714,28 @@ const packTopicKey = useMemo(() => {
       // ★ THE SHARED ASSEMBLY. The objective binary clamp and the honest-ungraded
       // conversion live in `gradedAnswerAssembly` now, so Quick Practice, Chapter Test and
       // Full Mock cannot drift apart on the rules that decide what a student is shown.
-      // ⚠ `includeSteps` is NOT set here: Quick Practice shipped this sheet before a
-      // per-step block existed, and its rendered output must be unchanged by this lane.
-      // [FU-QP-COULD-ADOPT-STEP-BLOCK]
+      // ★★ BOTH FLAGS ON, MATCHING CHAPTER TEST AND FULL MOCK EXACTLY. `#696` built the
+      // shared assembly and set both for CT/FM (`gradedAnswerAssembly.ts:252-253`) while
+      // deliberately leaving Quick Practice byte-identical, so its own lane would not widen
+      // its scope. That was correct then; this lane closes it, and QP now reaches the sheet
+      // through the SAME two switches rather than any logic of its own.
+      // ⇒ CLOSES [FU-QP-COULD-ADOPT-STEP-BLOCK] and [FU-QP-LOSTDETAIL-DUPLICATES-VERDICT].
+      //
+      // ⚠ `lostFromStepsOnly` — 6a, AND IT WAS LIVE. Without it `buildGradedAnswer` falls back
+      // to `stepDetail || teacherNote` (`gradedAnswerAssembly.ts:153`), and `teacherNote` is
+      // ALREADY rendered as the row's `verdict`. On a fully-correct answer that printed the
+      // nonsense line "Where the mark went: Fully correct." — telling a student who got the
+      // question RIGHT where their mark went — and on any answer it printed the same sentence
+      // twice under two labels. With the flag set, the detail comes from `firstMistakeDetail`
+      // ALONE: the annotation on the first step that actually LOST marks, and null when every
+      // step is clean, so a clean answer renders no "Where the mark went" block at all.
+      //
+      // ⚠ `includeSteps` — 7a. The student's own working, per-step marks and per-step
+      // annotations. The honest empty state travels WITH the flag and needs nothing here:
+      // `gradedAnswerAssembly.ts:174-178` attaches steps ONLY when the grader actually
+      // returned some, and `steps: []` / `steps: null` are indistinguishable to the shell, so
+      // no steps renders NOTHING EXTRA — no placeholder, no empty panel. ★ AN MCQ ANSWERED
+      // WITH NO WORKING LEGITIMATELY HAS NO STEPS; that is D-PROG-2, not a gap to fill.
       answers.push(buildGradedAnswer({
         label,
         descriptor,
@@ -2726,6 +2745,8 @@ const packTopicKey = useMemo(() => {
         teacherNote: graded.teacherNote,
         mistakeSummary: graded.mistakeSummary,
         annotatedSteps: graded.annotatedSteps,
+        includeSteps: true,
+        lostFromStepsOnly: true,
       }));
     }
     // ★★ OVER THE PHOTO CAP: saved, honestly NOT in this grade. One call takes at most
