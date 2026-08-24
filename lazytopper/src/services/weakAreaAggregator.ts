@@ -150,15 +150,34 @@ export function getWeakAreas(options?: { subject?: "Maths" | "Science"; limit?: 
 
     const mockData = mockTopicScores.get(topicKey);
 
-    let confidenceScore = 0;
-    if (masteryPercent < 50) confidenceScore += (50 - masteryPercent) * 0.4;
-    if (accuracy < 60 && attemptData.total >= 2) confidenceScore += (60 - accuracy) * 0.3;
-    if (wrongData.count > 0) confidenceScore += Math.min(wrongData.count * 5, 30);
-    if (attemptData.total === 0) confidenceScore += 15;
-    if (masteryState === "unseen") confidenceScore += 10;
-    if (mockData && mockData.avgPercent < 50) confidenceScore += (50 - mockData.avgPercent) * 0.25;
+    // EVIDENCE clauses — each fires only because the student DID something we
+    // observed: answered below par, got questions wrong, or scored low in a mock.
+    // Unchanged in weight and form; they are the only clauses that may QUALIFY a
+    // topic as a weakness.
+    let evidenceScore = 0;
+    if (accuracy < 60 && attemptData.total >= 2) evidenceScore += (60 - accuracy) * 0.3;
+    if (wrongData.count > 0) evidenceScore += Math.min(wrongData.count * 5, 30);
+    if (mockData && mockData.avgPercent < 50) evidenceScore += (50 - mockData.avgPercent) * 0.25;
 
-    if (confidenceScore > 5) {
+    // The two MASTERY clauses are REMOVED, not re-weighted. Mastery is the retired
+    // predecessor of progress-arc + MI: the only writer of a mastery snapshot lives
+    // in DailyMixPage, whose routes were severed, so `masteryPercent` is permanently
+    // 0 and `masteryState` permanently "unseen". Those are the store's CORRECT and
+    // INTENDED answers, not defects — but scoring them charged every student +30 for
+    // a retired system's silence, which qualified all 26 chapters as weak areas for
+    // everyone, forever. A clause reading a store with no writer carries no
+    // information, so narrowing it would only keep a dead input alive at a lower
+    // weight. Absent means unknowable, not zero.
+
+    let confidenceScore = evidenceScore;
+
+    // "Never attempted" STAYS — it is honest and useful for ordering — but it is a
+    // DIFFERENT statement from "you are weak here", so it may not qualify a topic on
+    // its own. It contributes to the score; it cannot cross the bar unaided.
+    if (attemptData.total === 0) confidenceScore += 15;
+
+    // Where there is no evidence either way, the honest output is SILENCE.
+    if (evidenceScore > 0 && confidenceScore > 5) {
       weakAreas.push({
         topicKey,
         topicName: getTopicDisplayName(topicKey),
