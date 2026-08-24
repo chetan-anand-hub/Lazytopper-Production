@@ -329,6 +329,10 @@ test('§5.1 a step carrying ONLY `description` is accepted and fully defaulted',
     // PR #681 adds `isDeparture` to the defaulted step shape. Purely additive:
     // every pre-existing field above still defaults to exactly its old value.
     isDeparture: false,
+    // DEPARTURE-COUNT-AND-RETURN adds `isReturn` on the same terms, and it MUST
+    // default to `false`: `false` is "no return marked", which is the fail-safe that
+    // zeroes to the end of the list exactly as before the field existed.
+    isReturn: false,
   }, 'description is the ONLY structurally required step field');
 });
 
@@ -874,7 +878,32 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 //   NEW 4640c4530529d424fa4b50e0f07e82b04853f95856e5dd77f3900ce7e8522ad9
 // ★ The same five tests (§7.1, §9.5, §10.5, §11.5, §12.6) moved together again and went
 // green on a single constant update — no test was individually doctored. The pin working.
-const NO_UPLOADS_CONTENTS_SHA256 = '4640c4530529d424fa4b50e0f07e82b04853f95856e5dd77f3900ce7e8522ad9';
+// RE-BASELINED AGAIN in DEPARTURE-COUNT-AND-RETURN (4640c453… → 6e37c236…), and
+// this one was PREDICTED BEFORE IT WAS OBSERVED rather than discovered by a red.
+//   OLD 4640c4530529d424fa4b50e0f07e82b04853f95856e5dd77f3900ce7e8522ad9
+//   NEW 6e37c236d962a3111f80d044867cad4621991c110f9b54809cef3d6cee2a72ce
+// WHAT MOVED IT — change 3 only, and specifically these THREE edits to PROMPT TEXT:
+//   1. `ECF_POLICY_V2_PROMPT` case 10 gained the `isReturn` instruction, the
+//      no-return-⇒-zero-including-the-final-answer rule, and the POSITIVE-EVIDENCE
+//      fail-safe with clause (f) restated beside it.
+//   2. `ECF_POLICY_V2_PROMPT` clause (a) gained a one-line pointer to case 10.
+//   3. The structured path's JSON example gained `"isReturn": false | true`.
+// ⚠ WHAT DID **NOT** MOVE IT, AND IS THEREFORE NOT COVERED BY THIS PIN AT ALL: the
+// `responseSchema` change. `isReturn` was added to `annotatedStepSchema()`, and this
+// constant hashes the `contents` ARGUMENT while `responseSchema` travels in
+// `generationConfig` — as the note at `checkSolution.cjs` :2483-2486 already says of
+// the telemetry hint. The schema contract is pinned by §6, not here. A green §7.1 is
+// evidence about the PROMPT and about nothing else.
+// ★ THE PIN WORKED, TWICE OVER. All FIVE dependent tests (§7.1, §9.5, §10.5, §11.5,
+// §12.6) moved together to the SAME new value and went green on a single constant
+// update — no intermediate hash, no test individually doctored. And §17.1 moved in
+// the same change, which is CORRECT here and was NOT correct in the port above:
+// `ECF_POLICY_V2_PROMPT` is single-sourced into BOTH assemblies (`checkSolution.cjs`
+// :1163 single-question, :2222 structured), so an edit to it that moved only ONE pin
+// would have meant the constant had silently stopped being shared.
+// ⚠ NO CRLF CAVEAT APPLIES. This hashes `JSON.stringify(contents)` — an in-memory
+// object — not a file on disk, so `core.autocrlf` cannot reach it.
+const NO_UPLOADS_CONTENTS_SHA256 = '6e37c236d962a3111f80d044867cad4621991c110f9b54809cef3d6cee2a72ce';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',
@@ -2274,9 +2303,16 @@ test('§13.10 ★★★ the departure shape: partial · departure · zeroed belo
   assert.equal(h.body().marksAwarded, 1, '0.5 + 0.5 survives; everything below the departure is zero');
   assert.equal(h.body().percentage, 50);
   const m = h.body().mistakeSummary;
-  assert.equal(m.conceptual + m.calculation + m.silly + m.presentation + m.departure, 1,
-    'EXACTLY ONE counted mistake — one departure is not three mistakes');
-  assert.equal(m.departure, 1);
+  // ⚠ UPDATED BY DEPARTURE-COUNT-AND-RETURN. This assertion previously summed the four
+  // type counts TOGETHER WITH `departure` and demanded 1 — which only held because the
+  // four counts were ALL ZERO. It was therefore pinning the defect: the departure step
+  // is `conceptual` here and the student was shown four zeros. The rule it was reaching
+  // for — ONE departure is not three mistakes — is now stated on the two ledgers
+  // separately, which is the only way to state it without the zeros hiding inside it.
+  assert.equal(m.conceptual, 1, 'the departure step is counted, under ITS OWN type');
+  assert.equal(m.calculation + m.silly + m.presentation, 0,
+    'and the two steps BELOW it are still uncounted — rule 6, one departure is not three mistakes');
+  assert.equal(m.departure, 1, 'charged ONCE — the internal marker, never a rendered bucket');
 });
 
 // ── 11 · ★ E1's case — a slip that RECOVERS to the correct answer is NOT capped ──
@@ -2412,10 +2448,20 @@ test('§14.4 ★★★ REGRESSION — the owner\'s paper `ci:CI-M-POLY-01`: the 
 
   const sum = h.body().mistakeSummary;
   assert.equal(sum.departure, 1, 'departure 1 — CBSE instruction 11, penalised once');
-  assert.equal(sum.calculation, 0, 'and the four type counts stay 0 — the zeros were always HONEST');
+  // ⚠⚠ CORRECTED BY DEPARTURE-COUNT-AND-RETURN, AND THIS IS THE CORRECTION THAT MATTERS
+  // MOST IN THE FILE. This block previously asserted `sum.calculation === 0` under the
+  // comment "the four type counts stay 0 — THE ZEROS WERE ALWAYS HONEST". They were not.
+  // This fixture IS the owner's paper, its departure step at index 2 carries
+  // `mistakeType: 'calculation'`, and the graded sheet showed that type to the student —
+  // while the scorecard showed CONCEPTUAL 0 · CALCULATION 0 · SILLY 0 · PRESENTATION 0.
+  // A test asserted the defect as doctrine, with a confident sentence beside it.
+  assert.equal(sum.calculation, 1,
+    'the departure step IS counted, under the type its own sheet already showed the student');
   assert.equal(sum.conceptual, 0);
   assert.equal(sum.silly, 0);
   assert.equal(sum.presentation, 0);
+  assert.equal(sum.conceptual + sum.calculation + sum.silly + sum.presentation, 1,
+    'and it is counted exactly ONCE — steps 4-7 below it contribute nothing (rule 6)');
 });
 
 test('§14.5 ★★★ CONTROL — with NO departure, an untyped deduction is NOT touched (the narrow rule, not "every null type")', async () => {
@@ -2637,9 +2683,16 @@ test('§15.3 ★★ the departure is counted ONCE in the STRUCTURED path summary
   const m = r1(h).mistakeSummary;
 
   assert.equal(m.departure, 1, 'ONE departure ⇒ exactly one charge');
-  assert.equal(m.silly, 0, 'and never filed under the careless bucket — that copy is the wrong lesson');
-  assert.equal(m.conceptual + m.calculation + m.silly + m.presentation + m.departure, 1,
-    'EXACTLY ONE counted mistake — the model self-reported three and they are DISCARDED below the departure');
+  // ★★ `silly` STAYS 0 HERE, AND FOR THE RIGHT REASON — which is the whole owner ruling.
+  // The departure step in DEP_STEPS carries `conceptual`, so it is counted as
+  // `conceptual`. It is NOT force-filed into `silly`, and step 3 below it — which the
+  // model DID mark `silly` — is still uncounted. ⚠ Before this change `silly` was also 0,
+  // but for the WRONG reason: nothing was counted at all. This assertion could not tell
+  // those two states apart, which is why the one below it is now split in two.
+  assert.equal(m.silly, 0, 'never force-filed into the careless bucket — that copy is the wrong lesson');
+  assert.equal(m.conceptual, 1, 'counted under the type the departure step actually carries');
+  assert.equal(m.conceptual + m.calculation + m.silly + m.presentation, 1,
+    'EXACTLY ONE counted mistake — the model self-reported three and the two BELOW the departure are DISCARDED');
   assert.match(r1(h).teacherNote, /solving a different equation from the one set/,
     'the departure carries its own voice, appended to the model note');
 });
@@ -2948,11 +3001,18 @@ test('§16.9 SCENARIO 9 — an answer with NO working is UNDIAGNOSABLE and never
 });
 
 test('§16.10 ★★★ SCENARIO 10 — a student who RETURNS to the real question ends the departure there', async () => {
-  // ⚠ This is the scenario the machinery CANNOT express: `applyEcfPolicyV2` zeroes
-  // everything below a departure index, full stop. "The departure ends there" is
-  // therefore a ruling the MODEL must apply when it decides whether to set the flag
-  // at all — which is precisely why it has to be in the prompt, and why this test
-  // is a prompt test and says so.
+  // ⚠⚠ THIS COMMENT WAS CORRECTED BY DEPARTURE-COUNT-AND-RETURN, AND THE CORRECTION IS
+  // THE POINT OF THAT LANE. It previously read: "This is the scenario the machinery
+  // CANNOT express: `applyEcfPolicyV2` zeroes everything below a departure index, full
+  // stop." That was TRUE WHEN WRITTEN and is now FALSE — `applyEcfPolicyV2` stops
+  // zeroing at a step marked `isReturn`, and §19.4 exercises it end to end.
+  // ★ The workaround the sentence describes — "so the model must decide not to set the
+  // flag at all" — SURVIVES DELIBERATELY as the safe fallback, and case 10 still tells
+  // the model to use it where the excursion left nothing behind. What changed is that a
+  // marked departure is no longer a one-way door.
+  // ★ This test remains a PROMPT test and still earns its place: the machinery can only
+  // act on a marker the model actually emits, so the instruction is still the thing
+  // most likely to be lost by a future edit.
   await bothPathsSay('10. A departure after which the student RETURNS TO THE REAL QUESTION', 'scenario 10');
   await bothPathsSay('THE DEPARTURE ENDS THERE', 'that returning ends the departure');
   await bothPathsSay('Later correct work on the question as set EARNS ITS MARKS',
@@ -3298,7 +3358,19 @@ test('§16.15 ★★★ MULTI-PART — a SKIPPED sub-part is UNATTEMPTED: never 
    silently reword path A. Its baseline was taken BEFORE the port.
    ══════════════════════════════════════════════════════════════════════════════ */
 
-const SINGLE_Q_CONTENTS_SHA256 = 'c38244672289ced5d86db0da02a06520d1a81d2c2c1930cfcc970c2a88cbf46a';
+// ⚠⚠ RE-BASELINED BY DEPARTURE-COUNT-AND-RETURN, AND A READER MUST NOT MISTAKE THIS
+// FOR THE FAILURE §17.1 EXISTS TO CATCH. §17.1 guards against a change that was meant
+// to touch only path B silently rewording path A. This change was meant to touch BOTH:
+// it edits `ECF_POLICY_V2_PROMPT`, which :1163 (single-question) and :2222 (structured)
+// BOTH consume, and it adds `"isReturn"` to BOTH JSON examples.
+//   OLD c38244672289ced5d86db0da02a06520d1a81d2c2c1930cfcc970c2a88cbf46a
+//   NEW ddca918d1a57f0f6fa87eb494fe74fbda4027d0e7030beac502eedc6c956989c
+// ★ SO THE TWO PINS MOVING TOGETHER IS THE EVIDENCE, NOT THE PROBLEM: had this pin
+// held while `NO_UPLOADS_CONTENTS_SHA256` moved, the single-sourcing that the port
+// established would have been broken and one grading path would be running the old
+// departure doctrine. §17.1 stays exactly as valuable — it is now baselined on a
+// prompt that carries the return rule.
+const SINGLE_Q_CONTENTS_SHA256 = 'ddca918d1a57f0f6fa87eb494fe74fbda4027d0e7030beac502eedc6c956989c';
 
 test('§17.1 ★★★ REGRESSION — the SINGLE-QUESTION prompt is BYTE-IDENTICAL across the port', async () => {
   const h = buildRoute({ replies: [{ annotatedSteps: [{ description: 'd' }] }] });
@@ -3692,4 +3764,466 @@ test('§18.10 CONTROL — stub mode spends NO model call on either grading path'
   const b = buildImageRoute({ stub: true });
   await b.route.handleGradeWorksheet(WORKSHEET_REQ([Q(1)]), {});
   assert.equal(b.calls.length, 0);
+});
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §19 · DEPARTURE-COUNT-AND-RETURN — the departure is COUNTED, and it can END
+
+   ★★★ WHY THIS SECTION EXISTS. The owner uploaded one paper — `6x² + 6 = 4kx`, with
+   `c = 6` written correctly and `9` substituted later and worked from consistently —
+   and it exposed three defects at once:
+     1. the graded sheet named the substitution `silly, −0.5` while the scorecard
+        showed CONCEPTUAL 0 · CALCULATION 0 · SILLY 0 · PRESENTATION 0, because the
+        tally loop's bound EXCLUDED the departure step;
+     2. a student who catches their own slip and corrects it had the corrected work
+        zeroed anyway, because the zeroing ran to the end of the list unconditionally;
+     3. there was no way for the model to say a departure had ENDED.
+   ⚠⚠ SYNTHESISED FIXTURES, exactly as §13 warns: `CI-M-*` are live Firestore session
+   ids and are absent from this repo. These reproduce the SHAPE, not the session.
+
+   ⚠⚠ THE TWO FAIL-SAFES ARE THE MOST IMPORTANT ASSERTIONS BELOW, because change 2
+   makes departure detection load-bearing in the harshest direction: a FALSE departure
+   now costs a student the WHOLE question, not merely the steps under it.
+     FAIL-SAFE 1 (behaviour) — §19.5, §19.8, §19.9: no return marked ⇒ zero to the end,
+       final answer included. A missing marker must NEVER accidentally restore marks.
+     FAIL-SAFE 2 (detection) — §19.10: the prompt must demand POSITIVE EVIDENCE and must
+       restate "no departure identified ⇒ grade normally" beside the return rule.
+   ★ A fail-safe nobody proved can fire is not present, so each is asserted directly
+   rather than inferred from a green elsewhere.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+// The owner's paper, in fixture form. `c = 6` is stated correctly at index 2; `9` is
+// substituted at index 3 and worked from consistently below. 4 marks, ECF_REQ's shape.
+const OWNER_PAPER = (departureExtra = {}, tailExtra = {}) => [
+  STEP({ description: 'writes 6x^2 - 4kx + 6 = 0 in standard form', marksAwarded: 1 }),
+  STEP({ description: 'states a = 6, b = -4k', marksAwarded: 1 }),
+  STEP({ description: 'states c = 6 — CORRECT, still the question', marksAwarded: 1 }),
+  STEP({ description: 'substitutes 9 for c into b^2 - 4ac', status: 'incorrect',
+    marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'silly', isDeparture: true,
+    ...departureExtra }),
+  STEP({ description: 'works consistently from 9 — internally correct, wrong question',
+    marksAwarded: 1, marksDeducted: 0.5, mistakeType: 'calculation', ...tailExtra }),
+];
+
+/* ── CASE 1 ─ the defect the owner actually saw ───────────────────────────── */
+
+test('§19.1 ★★★ THE OWNER\'S PAPER — a departure marked `silly` produces `silly: 1`, not four zeros', async () => {
+  const h = buildRoute({ replies: [{
+    annotatedSteps: OWNER_PAPER(),
+    mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+    finalAnswerCorrect: false,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  const m = h.body().mistakeSummary;
+
+  // ⚠ BEFORE THIS LANE every one of these four was 0 while the graded sheet beside them
+  // said `silly`. That is the whole bug, in four assertions.
+  assert.equal(m.silly, 1, 'the departure step is counted under the type its own sheet showed');
+  assert.equal(m.conceptual, 0, 'and NOT re-filed as a knowledge gap — a copying slip is not a concept gap');
+  assert.equal(m.calculation, 0);
+  assert.equal(m.presentation, 0);
+  assert.equal(m.departure, 1, 'charged ONCE — the internal marker');
+  assert.equal(m.conceptual + m.calculation + m.silly + m.presentation, 1,
+    'ONE counted mistake — the student sees one careless slip, not four zeros and not three mistakes');
+});
+
+/* ── CASE 2 ─ no fixed bucket: the departure carries its OWN type ─────────── */
+
+test('§19.2 ★★ a departure marked `conceptual` produces `conceptual: 1` — there is NO fixed departure bucket', async () => {
+  const h = buildRoute({ replies: [{
+    annotatedSteps: OWNER_PAPER({ mistakeType: 'conceptual' }),
+    finalAnswerCorrect: false,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  const m = h.body().mistakeSummary;
+  assert.equal(m.conceptual, 1, 'a wrong formula is a conceptual departure');
+  assert.equal(m.silly, 0, '★ THE SAME FIXTURE, ONE FIELD CHANGED, LANDS IN A DIFFERENT BUCKET —');
+  assert.equal(m.departure, 1, 'which is what "no fifth category" MEANS, and what §19.1 alone cannot show');
+});
+
+test('§19.2b ★ and a departure marked `calculation` lands there too — a miscount while balancing', async () => {
+  const h = buildRoute({ replies: [{
+    annotatedSteps: OWNER_PAPER({ mistakeType: 'calculation' }),
+    finalAnswerCorrect: false,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  const m = h.body().mistakeSummary;
+  assert.equal(m.calculation, 1);
+  assert.equal(m.conceptual + m.silly + m.presentation, 0);
+});
+
+/* ── CASE 3 ─ rule 6 regression guard: BELOW the departure stays uncounted ── */
+
+test('§19.3 ★★★ RULE 6 REGRESSION GUARD — the steps BELOW the departure are still UNCOUNTED', async () => {
+  // ⚠ THE BOUND MOVED BY EXACTLY ONE STEP AND MUST NOT HAVE MOVED BY TWO. The fixture's
+  // step at index 4 is explicitly `mistakeType: 'calculation'` and sits below the
+  // departure; if the new bound over-reached it would show up here as calculation 1.
+  const h = buildRoute({ replies: [{
+    annotatedSteps: OWNER_PAPER(),
+    mistakeSummary: { conceptual: 3, calculation: 3, silly: 3, presentation: 3 },
+    finalAnswerCorrect: false,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  const m = h.body().mistakeSummary;
+  assert.equal(m.calculation, 0,
+    'the `calculation` step BELOW the departure is not a separate mistake — CBSE 11, penalised once');
+  assert.equal(m.conceptual + m.calculation + m.silly + m.presentation, 1,
+    'and the model\'s self-reported 3/3/3/3 is DISCARDED, not max\'d in');
+});
+
+/* ── CASE 4 ─ the return: zeroing stops, later work earns ─────────────────── */
+
+// ★★ THE CONTRAST IS THE ASSERTION. These two fixtures are byte-identical apart from a
+// single `isReturn: true`, so the difference between them IS the feature, and neither
+// number alone could establish it.
+const RETURN_STEPS = (withReturn) => [
+  STEP({ description: 'still the question', marksAwarded: 1 }),
+  STEP({ description: 'THE DEPARTURE', isDeparture: true, status: 'incorrect',
+    marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'silly' }),
+  STEP({ description: 'worked from the wrong value — zeroed either way', marksAwarded: 1,
+    marksDeducted: 0.5, mistakeType: 'calculation' }),
+  STEP({ description: 'CAUGHT IT — back on the question as set', marksAwarded: 1,
+    ...(withReturn ? { isReturn: true } : {}) }),
+];
+
+test('§19.4 ★★★ A MARKED RETURN — the steps between are zeroed, the work from the return EARNS', async () => {
+  const withRet = buildRoute({ replies: [{ annotatedSteps: RETURN_STEPS(true), finalAnswerCorrect: true }] });
+  await withRet.route.handleCheckSolution(ECF_REQ(), {});
+  const rs = withRet.body().annotatedSteps;
+
+  assert.equal(rs[0].marksAwarded, 1, 'above the departure: untouched (rule 3)');
+  assert.equal(rs[1].marksAwarded, 0.5, 'the departure keeps what it independently earned (rule 4)');
+  assert.equal(rs[2].marksAwarded, 0, 'BETWEEN departure and return: zeroed (rule 5)');
+  assert.equal(rs[2].marksDeducted, 0, 'and carries no separate charge — one departure, one penalty');
+  assert.equal(rs[3].marksAwarded, 1, '★★★ FROM THE RETURN: EARNS NORMALLY — the product no longer punishes catching your own mistake');
+  assert.equal(withRet.body().marksAwarded, 2.5, '1 + 0.5 + 0 + 1');
+
+  // ── the SAME fixture without the marker ──
+  const noRet = buildRoute({ replies: [{ annotatedSteps: RETURN_STEPS(false), finalAnswerCorrect: true }] });
+  await noRet.route.handleCheckSolution(ECF_REQ(), {});
+  assert.equal(noRet.body().annotatedSteps[3].marksAwarded, 0, 'without the marker that same step is zeroed');
+  assert.equal(noRet.body().marksAwarded, 1.5, 'the ONE marker is worth exactly the 1 mark it restores');
+  assert.equal(withRet.body().marksAwarded - noRet.body().marksAwarded, 1,
+    '★ THE CONTRAST IS THE FEATURE — one field, one mark, everything else held constant');
+});
+
+test('§19.4b ★★ the RETURN also changes the student\'s teacher note — it no longer says they never came back', async () => {
+  const withRet = buildRoute({ replies: [{ annotatedSteps: RETURN_STEPS(true), finalAnswerCorrect: true }] });
+  await withRet.route.handleCheckSolution(ECF_REQ(), {});
+  assert.match(withRet.body().teacherNote, /caught it yourself and came back/,
+    'a student who recovered is told so, on the same page that pays them for recovering');
+  assert.doesNotMatch(withRet.body().teacherNote, /From this step on you were solving/,
+    'and is NOT told "from this step on you were solving a different equation" — that is now false of them');
+
+  const noRet = buildRoute({ replies: [{ annotatedSteps: RETURN_STEPS(false), finalAnswerCorrect: true }] });
+  await noRet.route.handleCheckSolution(ECF_REQ(), {});
+  assert.match(noRet.body().teacherNote, /From this step on you were solving a different equation/,
+    'CONTROL — with no return the ORIGINAL line is unchanged');
+});
+
+/* ── CASE 5 ─ FAIL-SAFE 1: no return ⇒ zero to the end, answer included ───── */
+
+test('§19.5 ★★★ FAIL-SAFE 1 — a departure with NO return zeroes EVERYTHING below it, THE FINAL ANSWER INCLUDED', async () => {
+  // ⚠⚠ EVEN THOUGH THAT FINAL ANSWER IS CORRECT FOR THE QUESTION AS SET. Owner ruling:
+  // an answer reached from a different problem is coincidence, not work, and CBSE pays
+  // for demonstrated method, not for landing on the right number.
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [
+      STEP({ description: 'still the question', marksAwarded: 1 }),
+      STEP({ description: 'THE DEPARTURE', isDeparture: true, status: 'incorrect',
+        marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'conceptual' }),
+      STEP({ description: 'worked from the wrong value', marksAwarded: 1 }),
+      STEP({ description: 'final answer — CORRECT for the question as set', status: 'correct',
+        marksAwarded: 1 }),
+    ],
+    finalAnswerCorrect: true,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  const st = h.body().annotatedSteps;
+  assert.equal(st[3].marksAwarded, 0,
+    '★★★ THE FINAL ANSWER EARNS NOTHING — this is the assertion the owner ruling turns on');
+  assert.equal(st[2].marksAwarded, 0);
+  assert.equal(h.body().marksAwarded, 1.5, 'only the work that was still the question is paid');
+});
+
+/* ── CASE 6 ─ the guard that matters most ────────────────────────────────── */
+
+test('§19.6 ★★★ NO DEPARTURE AT ALL ⇒ graded EXACTLY as before — the guard that matters most', async () => {
+  // ⚠ Every number here was MEASURED against the pre-change tree, not asserted from
+  // intent. This is also the BONUS CONTROL for §19.M1/§19.M2 (see the mutation note in
+  // the lane report): it must stay GREEN under both mutations, because it exercises a
+  // path that never reaches either bound.
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [
+      STEP({ marksAwarded: 1 }),
+      STEP({ marksAwarded: 1, marksDeducted: 0.5, mistakeType: 'calculation', status: 'partial' }),
+      STEP({ marksAwarded: 1, marksDeducted: 0.5, mistakeType: 'silly', status: 'partial' }),
+      STEP({ marksAwarded: 1 }),
+    ],
+    mistakeSummary: { conceptual: 0, calculation: 1, silly: 1, presentation: 0 },
+    finalAnswerCorrect: true,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  const m = h.body().mistakeSummary;
+  assert.equal(m.departure, 0, 'no departure identified');
+  assert.equal(m.calculation, 1, 'both ordinary mistakes counted, on their own merits');
+  assert.equal(m.silly, 1);
+  assert.equal(h.body().marksAwarded, 4, 'nothing zeroed, nothing capped');
+  assert.deepEqual(h.body().annotatedSteps.map((x) => x.marksAwarded), [1, 1, 1, 1]);
+  assert.equal(h.body().annotatedSteps.every((x) => x.isReturn === false), true,
+    'the new field defaults false everywhere and changes nothing');
+});
+
+/* ── CASE 7 ─ unfamiliar is not invalid ──────────────────────────────────── */
+
+test('§19.7 ★★ AN UNUSUAL BUT VALID METHOD with no departure still earns FULL marks — CBSE instruction 3', async () => {
+  // ⚠ THE DISCRIMINATOR IS THE DEPARTURE, NOT THE METHOD'S UNFAMILIARITY. This fixture
+  // solves the question a way the scheme never mentions and never leaves the question,
+  // so nothing about it may be zeroed, counted or capped.
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [
+      STEP({ description: 'completes the square instead of factorising — not the scheme\'s method', marksAwarded: 1 }),
+      STEP({ description: 'valid, unfamiliar, still the question', marksAwarded: 1 }),
+      STEP({ description: 'valid, unfamiliar, still the question', marksAwarded: 1 }),
+      STEP({ description: 'correct final answer', status: 'correct', marksAwarded: 1 }),
+    ],
+    finalAnswerCorrect: true,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  assert.equal(h.body().marksAwarded, 4, 'FULL marks — a valid alternative method is not penalised');
+  assert.equal(h.body().mistakeSummary.departure, 0, 'and it is NOT a departure');
+  assert.equal(h.body().mistakeSummary.conceptual, 0);
+  assert.equal(h.body().questionDepartureError, false);
+  assert.doesNotMatch(h.body().teacherNote || '', /different equation|different question/,
+    'and the student is never told they left the question');
+});
+
+/* ── FAIL-SAFE 1, the two ways a marker can be MISSING or MEANINGLESS ─────── */
+
+test('§19.8 ★★★ FAIL-SAFE 1 — a model that emits NO `isReturn` field at all grades exactly as before', async () => {
+  // ⚠ THE OLDER-BACKEND CASE. The field is absent from the JSON entirely, not false.
+  const bare = [
+    { description: 'still the question', status: 'correct', marksAwarded: 1 },
+    { description: 'THE DEPARTURE', status: 'incorrect', marksAwarded: 0.5, mistakeType: 'silly', isDeparture: true },
+    { description: 'below', status: 'correct', marksAwarded: 1 },
+    { description: 'below', status: 'correct', marksAwarded: 1 },
+  ];
+  const h = buildRoute({ replies: [{ annotatedSteps: bare, finalAnswerCorrect: false }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  assert.deepEqual(h.body().annotatedSteps.map((x) => x.marksAwarded), [1, 0.5, 0, 0],
+    'absent ⇒ zero to the end, which is the PRE-CHANGE behaviour byte for byte');
+  assert.equal(h.body().annotatedSteps.every((x) => x.isReturn === false), true,
+    'and the absent field is coerced to a real boolean, never left undefined (Firestore rejects undefined)');
+});
+
+test('§19.9 ★★★ FAIL-SAFE 1 — a return marked AT or ABOVE the departure is IGNORED, not obeyed', async () => {
+  // ⚠ A marker in a meaningless position must not restore marks. "Before the departure"
+  // is not a return from anything, and a model that mislabels must fail toward today's
+  // behaviour — never toward paying for work that left the question.
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [
+      STEP({ description: 'marked isReturn ABOVE the departure', marksAwarded: 1, isReturn: true }),
+      STEP({ description: 'THE DEPARTURE, also marked isReturn', isDeparture: true, isReturn: true,
+        status: 'incorrect', marksAwarded: 0.5, mistakeType: 'silly' }),
+      STEP({ description: 'below — must still be zeroed', marksAwarded: 1 }),
+      STEP({ description: 'below — must still be zeroed', marksAwarded: 1 }),
+    ],
+    finalAnswerCorrect: false,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  assert.deepEqual(h.body().annotatedSteps.map((x) => x.marksAwarded), [1, 0.5, 0, 0],
+    'neither marker is a return, so zeroing runs to the end');
+});
+
+test('§19.9b ★ TWO returns below one departure — the FIRST ends the excursion', async () => {
+  // ★ DELIBERATELY UNLIKE `findDepartureIndex`, WHICH FAILS SAFE ON AMBIGUITY. A second
+  // departure is a contradiction that must void the first; a second RETURN is describing
+  // work that is already being paid, and rule 10 says the departure ends at the return.
+  const h = buildRoute({ replies: [{
+    annotatedSteps: [
+      STEP({ marksAwarded: 1 }),
+      STEP({ isDeparture: true, status: 'incorrect', marksAwarded: 0.5, mistakeType: 'silly' }),
+      STEP({ description: 'FIRST return', marksAwarded: 1, isReturn: true }),
+      STEP({ description: 'second marker, already being paid', marksAwarded: 1, isReturn: true }),
+    ],
+    finalAnswerCorrect: true,
+  }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  assert.deepEqual(h.body().annotatedSteps.map((x) => x.marksAwarded), [1, 0.5, 1, 1],
+    'nothing is zeroed between a departure and a return that is immediately adjacent to it');
+});
+
+/* ── FAIL-SAFE 2, at DETECTION — and it lives in the prompt, on BOTH paths ── */
+
+test('§19.10 ★★★ FAIL-SAFE 2 — the prompt demands POSITIVE EVIDENCE and restates "no departure ⇒ grade normally"', async () => {
+  // ⚠⚠ THIS IS THE ASSERTION THAT PROTECTS STUDENTS FROM CHANGE 2. A false departure now
+  // costs the WHOLE question, so the only defence is that the model never marks one on
+  // suspicion. That defence is prompt text, and prompt text is what a future edit drops.
+  await bothPathsSay('MARK A DEPARTURE ONLY ON POSITIVE EVIDENCE',
+    'the positive-evidence standard for calling a departure');
+  await bothPathsSay('NEVER on suspicion', 'that suspicion is not evidence');
+  await bothPathsSay('NEVER because you cannot follow it',
+    'that illegible or unfamiliar work is not a departure');
+  await bothPathsSay('NO DEPARTURE IDENTIFIED ⇒ GRADE NORMALLY',
+    'clause (f) restated BESIDE the return rule so the two are read together');
+  await bothPathsSay('WHEN IN DOUBT THERE IS NO DEPARTURE', 'the direction the rule fails in');
+  await bothPathsSay('costs the student EVERY step below it',
+    'WHY the standard is now this high — the cost of being wrong changed');
+});
+
+test('§19.11 ★★ the prompt tells the model HOW to mark a return, and what happens if it never does', async () => {
+  await bothPathsSay('"isReturn": true on the FIRST step that is working the question AS SET again',
+    'the return marker instruction');
+  await bothPathsSay('NEVER set it on a step at or above the departure',
+    'the positional constraint the code also enforces');
+  await bothPathsSay('IF THE STUDENT NEVER RETURNS, MARK NO RETURN AT ALL',
+    'the no-return instruction');
+  await bothPathsSay('THE FINAL ANSWER INCLUDED, EVEN IF THAT ANSWER HAPPENS TO BE CORRECT',
+    'that a coincidentally-correct answer earns nothing');
+  await bothPathsSay('"isReturn": false | true',
+    'the field in the JSON example — an instruction the model cannot obey without the shape');
+});
+
+/* ── PARITY — the structured path is not a second implementation ──────────── */
+
+test('§19.12 ★★★ STRUCTURED-PATH PARITY — the return works on the worksheet grader too', async () => {
+  // ⚠ THE DEPARTURE MARKER ITSELF SHIPPED BROKEN ON THIS PATH ONCE (§15): the normaliser
+  // dropped the field, so `findDepartureIndex` could only ever return -1 there. The
+  // return marker is exactly as droppable, and this is the assertion that would catch it.
+  const h = buildRoute({ replies: [WS_REPLY({
+    annotatedSteps: RETURN_STEPS(true),
+    mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+    teacherNote: 'Model note.',
+    finalAnswerCorrect: true,
+  })] });
+  await h.route.handleGradeWorksheet(ECF_WS(), {});
+  const g = r1(h);
+  assert.deepEqual(g.annotatedSteps.map((x) => x.marksAwarded), [1, 0.5, 0, 1],
+    'the structured normaliser carries `isReturn` through so findReturnIndex can see it');
+  assert.equal(g.mistakeSummary.silly, 1, 'and the departure is counted on this path too');
+  assert.equal(g.mistakeSummary.departure, 1);
+  assert.match(g.teacherNote, /caught it yourself and came back/);
+});
+
+/* ── THE UNIT BOUNDARY, asserted directly ────────────────────────────────── */
+
+test('§19.13 ★ `findReturnIndex` — the fail-safe stated as a unit, every uncertain case is -1', async () => {
+  const { findReturnIndex } = require('./checkSolution.cjs');
+  const S = (isReturn) => ({ description: 'x', isReturn });
+  assert.equal(findReturnIndex([S(false), S(false), S(true)], 1), 2, 'the marked step below the departure');
+  assert.equal(findReturnIndex([S(false), S(false), S(true)], -1), -1, 'no departure ⇒ no return');
+  assert.equal(findReturnIndex([S(true), S(false), S(false)], 1), -1, 'a marker ABOVE the departure ⇒ -1');
+  assert.equal(findReturnIndex([S(false), S(true), S(false)], 1), -1, 'a marker ON the departure ⇒ -1');
+  assert.equal(findReturnIndex([S(false), S(false), S(false)], 1), -1, 'nothing marked ⇒ -1');
+  assert.equal(findReturnIndex([], 1), -1, 'no steps ⇒ -1');
+  assert.equal(findReturnIndex(null, 1), -1, 'not an array ⇒ -1');
+  assert.equal(findReturnIndex([S(false), S(false), { description: 'x' }], 1), -1,
+    'an ABSENT field is not a return — only `=== true` counts');
+  assert.equal(findReturnIndex([S(false), S(false), { description: 'x', isReturn: 'yes' }], 1), -1,
+    'and a truthy non-boolean is not a return either');
+});
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §19.14-§19.17 · Q1 — THE UNCOUNTED WINDOW ENDS AT THE RETURN
+
+   ★★★ OWNER RULING, and his framing of the defect, recorded verbatim because it names
+   the shape rather than the instance:
+     "the same shape as the original bug — a rule right in spirit, applied one step too
+      far. TWICE IN ONE FUNCTION, FROM THE SAME AUTHOR, FOR THE SAME REASON. Rule 6's
+      'penalised once' became 'not counted at all'; the return rule's 'steps below'
+      became 'everything after'. Both mine."
+
+   ⚠ The spec's "steps BELOW the departure remain uncounted" was written BEFORE the
+   return rule existed. After a return the student is demonstrably back on the question,
+   so a mistake there is a real mistake on the real question and MUST COUNT.
+   ★ THE SYMMETRY IS THE RULING: marks and counts share ONE boundary. A step the product
+   pays for and deducts on, but refuses to name in the scorecard, is this lane's own
+   defect relocated one step to the right.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+// Six steps spanning every region the rule distinguishes:
+//   0 above · 1 DEPARTURE(silly) · 2 between(presentation) · 3 RETURN · 4 after(calculation) · 5 after
+const Q1_STEPS = (withReturn) => [
+  STEP({ description: 'above the departure', marksAwarded: 1 }),
+  STEP({ description: 'THE DEPARTURE', isDeparture: true, status: 'incorrect',
+    marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'silly' }),
+  STEP({ description: 'BETWEEN departure and return', marksAwarded: 1,
+    marksDeducted: 0.5, mistakeType: 'presentation' }),
+  STEP({ description: 'THE RETURN — back on the question as set', marksAwarded: 1,
+    ...(withReturn ? { isReturn: true } : {}) }),
+  STEP({ description: 'AFTER the return — a genuine, separate slip', status: 'partial',
+    marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'calculation' }),
+  STEP({ description: 'after the return, clean', marksAwarded: 1 }),
+];
+
+test('§19.14 ★★★ Q1 — a mistake AFTER the return IS COUNTED, and one BETWEEN departure and return is NOT', async () => {
+  const h = buildRoute({ replies: [{ annotatedSteps: Q1_STEPS(true), finalAnswerCorrect: true }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  const m = h.body().mistakeSummary;
+
+  assert.equal(m.silly, 1, 'the DEPARTURE step still counts once, under its own type (change 1, unchanged)');
+  assert.equal(m.presentation, 0,
+    '★ RULE 6 UNCHANGED — the step BETWEEN departure and return is not a separate mistake');
+  assert.equal(m.calculation, 1,
+    '★★★ THE RULING — after the return the student is back on the question, so this slip is REAL and COUNTS');
+  assert.equal(m.conceptual, 0, 'and nothing gained a type it did not already carry');
+  assert.equal(m.departure, 1, '`departure` stays the internal marker — still never a bucket');
+});
+
+test('§19.15 ★★★ Q1 SYMMETRY — the counted window and the ZEROED window share ONE boundary', async () => {
+  // ⚠ THIS IS THE ASSERTION THE RULING ACTUALLY TURNS ON. Marks and counts must agree
+  // step for step: a step that EARNS must be COUNTABLE, and a step that is zeroed must
+  // be uncounted. Before Q1 step 4 was paid 0.5, deducted 0.5, and named nowhere.
+  const h = buildRoute({ replies: [{ annotatedSteps: Q1_STEPS(true), finalAnswerCorrect: true }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  const st = h.body().annotatedSteps;
+
+  assert.deepEqual(st.map((x) => x.marksAwarded), [1, 0.5, 0, 1, 0.5, 1],
+    'zeroed BETWEEN departure and return only');
+  assert.equal(st[4].marksAwarded, 0.5, 'step 4 EARNS');
+  assert.equal(st[4].marksDeducted, 0.5, 'step 4 is DEDUCTED on');
+  assert.equal(h.body().mistakeSummary.calculation, 1,
+    '⇒ and step 4 is therefore NAMED. Paid, charged and unnamed was the defect');
+  assert.equal(st[2].marksAwarded, 0, 'step 2 is zeroed');
+  assert.equal(st[2].marksDeducted, 0, 'carries no charge');
+  assert.equal(h.body().mistakeSummary.presentation, 0, '⇒ and is correspondingly unnamed');
+});
+
+test('§19.16 ★★★ Q1 FAIL-SAFE 1 IS UNTOUCHED — with NO return, everything below is zeroed AND uncounted, to the end', async () => {
+  // ⚠⚠ THE SAME SIX-STEP FIXTURE, ONE FIELD REMOVED. The Q1 rule must apply ONLY when a
+  // return is marked; a missing marker must never restore a COUNT any more than a MARK.
+  const h = buildRoute({ replies: [{ annotatedSteps: Q1_STEPS(false), finalAnswerCorrect: true }] });
+  await h.route.handleCheckSolution(ECF_REQ(), {});
+  const m = h.body().mistakeSummary;
+
+  assert.deepEqual(h.body().annotatedSteps.map((x) => x.marksAwarded), [1, 0.5, 0, 0, 0, 0],
+    'no return ⇒ zeroed to the end of the list');
+  assert.equal(m.silly, 1, 'only the departure step is counted');
+  assert.equal(m.calculation, 0, '★ the SAME step 4 that §19.14 counts is UNCOUNTED here — the marker is the whole difference');
+  assert.equal(m.presentation, 0);
+  assert.equal(m.conceptual, 0);
+  assert.equal(m.conceptual + m.calculation + m.silly + m.presentation, 1,
+    'exactly the pre-Q1 behaviour, byte for byte');
+});
+
+test('§19.17 ★★ Q1 — a caller that never passes `returnIndex` degrades to the fail-safe, not to a crash', async () => {
+  // ⚠ THIS IS NOT HYPOTHETICAL. `server/eval/graderEval.cjs:138` calls buildMistakeSummary
+  // with { annotatedSteps, rawSummary, noWorkingNulled, departureIndex } and NOTHING ELSE.
+  // That file is outside this lane's authorisation, so the new parameter MUST be optional
+  // and MUST fail safe when absent — `undefined >= 0` is false, which is uncounted-to-the-end.
+  const { buildMistakeSummary } = require('./checkSolution.cjs');
+  const steps = [
+    { description: 'a', mistakeType: null },
+    { description: 'DEPARTURE', mistakeType: 'silly', isDeparture: true },
+    { description: 'below', mistakeType: 'calculation' },
+    { description: 'below, marked isReturn but the caller never looked', mistakeType: 'conceptual', isReturn: true },
+  ];
+  const zero = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
+  const unaware = buildMistakeSummary({ annotatedSteps: steps, rawSummary: {}, noWorkingNulled: zero, departureIndex: 1 });
+  assert.deepEqual(unaware, { conceptual: 0, calculation: 0, silly: 1, presentation: 0, departure: 1 },
+    'no returnIndex supplied ⇒ uncounted to the end — the unaware caller is unchanged by Q1');
+
+  const aware = buildMistakeSummary({ annotatedSteps: steps, rawSummary: {}, noWorkingNulled: zero, departureIndex: 1, returnIndex: 3 });
+  assert.deepEqual(aware, { conceptual: 1, calculation: 0, silly: 1, presentation: 0, departure: 1 },
+    'CONTROL — the same steps WITH the index counted from the return, proving the fixture can move at all');
 });
