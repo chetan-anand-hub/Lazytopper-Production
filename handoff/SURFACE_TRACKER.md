@@ -2,6 +2,159 @@
 **Home:** this file lives at `handoff/SURFACE_TRACKER.md` in the repo (version-controlled, beside CURRENT_STATE). **Trunk at last sync:** `203fb370` (**#601-#604 - WAVE 5C, four PRs / four lanes under a controller + subagent model**: #601 replaced the `App.tsx` blanket ban with targeted routing tests in BOTH overlay gates, where the lane's OWN first-draft guard was a SILENT NO-OP - `not.toThrow()` passed under a nested `<MemoryRouter>` because `App.tsx` wraps `<Routes>` in an `<ErrorBoundary>`, so the app ERROR-PAGES instead of crashing and a throw-assertion cannot tell the difference, caught only by mutation - and which also found QP-OVL's GUARD 3 was a COMMENT, not a check, leaving the propless-`/practice` invariant with ZERO executable coverage repo-wide; #602 shipped the VISIBLE paywall layer (the locked CTA that OPENS THE SHEET rather than doing nothing), disproving its spec's parent list - the four named parents are `useSubscription` CONSUMERS, not `SolutionChecker` render sites, of which there are TWO and none of the four is one - and DECLINING to build the `entitled` prop because a prop CREATES the mount-not-live risk it was meant to solve, since a third render site added later ships un-gated by default; #603 cut 40 defective Section A questions after refuting its own brief WITH A CONTROL - the packs were ALREADY LIVE, so the defective solutions were reaching students, not latent - and then overturned the owner's own remedy by adjudicating all 79 questions to show 48 sound and the defect 100% confined to Section A, separable by a MECHANICAL `section` filter, root cause a solution pool MIS-PAIRED against a question pool (`ME-E07`/`ME-E14` swapped); #604 split the CI gate without trimming it, retaining the full bar deliberately for the wave-closing handoff because a product PR's CI runs against ITS OWN BASE and that docs run is the project's ONLY integration check, and proving `scope:guard` CANNOT go in a CI fast path because it reads the WORKING TREE, so a clean CI checkout measures `inspected=0` and passes forever. THE WAVE'S SUBJECT: EVERY LANE DISPROVED PART OF ITS OWN SPEC, and the three spec errors were the cofounder's, not the lanes'. CONTROLLER ERRORS RECORDED: a non-existent doctrine contradiction reported and retracted; BANK-1 traffic MISROUTED TO CI-DOCS TWICE, the second time carrying an instruction to delete files CI-DOCS was forbidden to touch - IT REFUSED AND PROVED THE MISROUTE, and only the receiving lane stood between that and a destructive cross-lane write; and `[FU-GATE3-SIGNED-OUT-GRADING-FAILS-OPEN]` amplified as a live product hole when it is LATENT and curl-only.) Previous sync: `59ba4da2` (**#579–#582 — WAVE 5A, four PRs / five lanes under a controller + subagent model**: #580 closed the 🛑 P0 by enforcing entitlement on the SERVER for the paid AI endpoints — where ★★ **the spec's §1 was incomplete in a way that would have left the P0 OPEN, because the effective tier is `applyExpiry(repairInterruptedTrial(...))` and NOT the stored `tier` field**, so reading the raw field would have served **every expired trial** *and* **locked out every mid-trial student** at once, and would have re-opened Wave 4's #574 P0 on the server side; ★ its 402 was proven by a **real HTTP POST against the real `index.cjs`** with firebase-admin swapped before `require`, so **no test seam entered production code**, and **denials are never cached** so an upgrade is honoured on the next call; its GATE-1b wiring commit then showed ★★ **43 passing tests that CI had never executed — a grep returning ZERO, with a control on an already-wired sibling in the same before-log**, which is the difference between *"the count changed"* and *"the count changed BECAUSE OF MY EDIT"*; #582 rebuilt the auth door as **one door with a blocking email verification**, ★★ **declining its own spec's §6 because "reduce `SignUpPage` to a thin render" would have DELETED the product's only name capture**, forced deleting 7 guard tests and re-opened PR-B2's one-way-door defect — `App.tsx` diff **ZERO**, **0 of 25 `vi.mock` factories touched**, and ★★ **16 screenshots found two PRE-EXISTING contrast defects invisible to every assertion in the repo** (white-on-white input text; the primary Google button measured `rgb(248,250,252)` on `rgb(255,255,255)`); #581 replaced the `SolutionChecker` blanket ban with targeted tests, finding ★★ **the ban was the ENTIRE protection — nothing anywhere asserted one line of that component's behaviour** — a **strict increase**, not a trade, with 19 mutations ALL RED and ★★★ **M2b proving that renaming a CSS class made a negative assertion go VACUOUS and still pass, caught only by the POSITIVE CONTROL**; and #579 added Dependabot + CodeQL, which ★★ **proved its own spec wrong in BOTH directions** — secret scanning and push protection were **already enabled**, while **Dependabot ALERTS and SECURITY UPDATES** are the ones actually off ⇒ ⚠⚠ **`dependabot.yml` configures VERSION updates only, so #579 delivers routine bumps and NO vulnerability response at all**, and **must not be recorded as closing the supply-chain item.** 🛑🛑 **THE WAVE'S SUBJECT: `MERGED` IS NOT `DEPLOYED`.** GATE-1 merged, **Vercel never built it and Railway did**, and for ~2 hours the server enforced a rule the client had no code to explain — a free student saw the raw string `premium_required` in red, **the exact defect the merged, green, CORRECT §3D was written to prevent.** Caught by **fetching the live bundle and grepping it** (absent from all 65 chunks). ⇒ **two deploy targets build independently from one trunk; a merge confirms neither; confirm by asking the running system, not a dashboard** — ⚠ **Vercel "Redeploy" rebuilds the ORIGINAL commit, not the branch tip**, and branch protection makes **a Deploy Hook the only manual trigger.** ★★ **Its generalisation: every lane proved "a green CI run is evidence only about what it EXECUTED"; this proves the sequel — a merge is evidence only about the REPOSITORY.** ✅ **BOTH owner live-verifies are DONE** — the paywall by a three-way production discrimination with an account-specific `trialEndedAt` proving the gate really read Firestore, and the door end-to-end including that a wrong password creates **no second account**. 🛑 **TWO LAUNCH-BLOCKING items are OPEN and neither was visible to any gate** — the upgrade modal **sells four RETIRED surfaces to a student being asked ₹599** (fix belongs in GATE-2's spec, not a separate lane), and the verification mail **lands in Spam on a BLOCKING gate** (owner/DNS work, not an agent lane).) Previous sync: `fcdbfa65` (**#566–#575 — WAVE 4, ten PRs under a controller + subagent model**: #566 stated the founding offer on the sign-in surface — where ★ **the load-bearing part was the MOBILE MIRROR**, because the live `Login.tsx` hides the entire brand panel below 1024px while the prototype's split collapses to one column, so the spec's fallback **would have been invisible to every phone student**, and ★★ *the prototype is not the product — it is authoritative when a lane INVENTS visual language and wrong when a lane must MATCH it*; #567 wrote the `MONTHLY_INLINE` hard gate into `NEXT_ACTION.md`, finding ★ **a second, independent way the trap fires — `pricing.ts`'s own doc comment on that constant claims "this one line is the entire switch" and it is FALSE**; #568 restored GUARD-2, wiring two acceptance suites that CI had **never run** and fixing a boundary auditor that kept a **stale private copy of `classifyFile` missing four lanes** — ★ *the blind spot did not merely hide the stale copy, it hid its magnitude: 158 tracked files unclassified* — and its log now **names its subject**, `tracked=1715 outside_anchor=334`; #569 gave a zero-attempt student a first-session start card on both Home pages with ★ **TRI-STATE hydration, never boolean**, so the card can appear only after a completed read returning zero rows, and ★★ *a test proves the code works; a CHUNK proves it ships* — the CI log carried both the suite line and the emitted `FirstSession` asset; #570 cleared **616 legacy mojibake lines in `handoff/` down to 8**, and ★★ **its first blanket pass destroyed 8 DELIBERATE SPECIMENS quoted inside lessons about mojibake — the lesson was destroyed by the repair — and the same agent caught and reversed it before pushing**; #571 swept the cwd-frame blind spot out of every ops gate and made `check:mojibake` **SCOPED**, where ★★★ **it was told to write an ENFORCE-list and wrote a one-entry EXEMPT list instead, so a new top-level tree defaults to ENFORCED — it fails safe** — under the ruling that ★★ *mojibake is a DEFECT in product text and a legitimate SUBJECT in documentation about mojibake, and a gate that cannot tell those apart is not detecting a bug, it is banning a character*; #572 corrected `CLAUDE.md`'s stale suite count in **exactly one line**, where ★★ **the file already contradicted itself fifteen lines apart and the correct line was documenting its own past staleness**; #573 merged the duplicate Home cards, removed a redundant mobile "Signed in" pill and deleted a search placeholder that **lied about what it returns**, and ★★★ **caught its own predecessor faking evidence — the prior session's "with-attempts" screenshots were the same state photographed twice**; #574 fixed a 🛑 **launch-blocking P0 in which every new student's trial downgraded to free during its own activation** — `serverTimestamp()` is a sentinel and `snap.data()` materialised it as `null`, so ★★ *the defect was the CLIENT evaluating a correct rule before the proof could exist, and no rules test could ever have caught it*; and #575 fixed a 🛑 **live mobile crash (React #310)** caused by a `useState` below an early return, where ★★ **the real variable was PERSISTED SESSION, not email vs phone and not viewport** — *"a student with cleared site data never crossed it … that is why clearing site data 'fixed' it and why 1082 green tests never saw it: every one of them starts from clean state."* ★★ **THE WAVE'S SUBJECT IS ONE FINDING WITH FOUR INSTANCES:** `check:mojibake` blind to `handoff/`, two acceptance suites CI never ran, `react-hooks/rules-of-hooks` reporting "0 violations" while running nothing, and a GitHub branch ruleset that was Active with "Block force pushes" enabled and **exempted the only person who could trigger it** ⇒ **a check that cannot be shown to have looked, and to be capable of failing, is not coverage — it is the APPEARANCE of coverage, which is worse, because it stops anyone looking**, and **a protection with a bypass is only as strong as its bypass list.** ⚠ **A force push from the shared checkout dropped #564 and #565 mid-wave**; #565 re-landed as #568 and **#564's content was restored in full by #566's squash, verified whole on trunk.** ⚠ **TWO owner live-verifies are OWED**, and for #575 only one path proves it — mobile `/browse` as a returning student **without clearing site data**.) Previous sync: `25e995a7` (**#557–#563 — WAVE 3, four lanes under a controller + subagent model**: #557 put a one-time phone-linking nudge on both Home pages — ★★ after proving the returning-session signal the spec assumed existed **does not exist**, by enumerating ~170 `lazytopper.*` keys and tracing every candidate to its **writer**; #558 replaced the grader's blanket FORBIDDEN ban with 32 targeted tests in **both** gates (`checkSolution.cjs` byte-identical to trunk), because ★ *a lift verified in only one gate leaves the other silently protecting nothing*, and ★★ its one mutation that ran GREEN turned out to be **the mutation's bug, not the test's** — the anchor exists twice at different indentation and patched the wrong near-duplicate grader; #559 constrained grader output with `responseSchema` — **THREE parsers ⇒ THREE schemas**, with Schema C deliberately not requiring `annotatedSteps` because reusing Schema A **would have forced the model to fabricate steps for an unreadable answer**, and `mistakeType` **nullable with no enum** because a forced value would have made **Mistake Intelligence learn from noise** — owner LIVE-VERIFIED, including the null path; #560 made `scope:guard` see the whole repo — it ran with `cwd=lazytopper`, so an entire **new top-level directory was invisible**, and ★ *a self-check asserted against its own input is a tautology*; its new zero-match meta-assertion immediately caught a ceiling check **passing with count = 0**; #561 + #563 closed **all three** client-side routes to free premium — Firestore, localStorage and a **forged trial** nobody had counted — under one principle: ★★ **entitlement must derive from data the client cannot forge**, so the trial's START is a server timestamp the rules pin and its END is **derived, never stored**; #562 deleted the retired `pages/Home.tsx` and the dead AI learning path, where ★★ *a deadness analysis that enumerates only the fixtures you expected is not an enumeration* — a pricing guard asserted the price walk **reaches** that file and would have gone CI-red. ★★ **THE WAVE'S LESSON SITS BELOW EVERY GATE THIS PROJECT OWNS:** merging #561 did **not** deploy it — a `firestore:rules` deploy from the shared checkout re-shipped **six-commit-stale** rules and printed `Deploy complete!`; **the two-word difference between `skipping upload` and `uploading rules` is the whole signal**, and a lane whose outcome depends on a deploy now **closes on the DEPLOYED state, never the MERGED state**. Rules are deployed and **read back from the Firebase Console**. ⚠ **The honest limit:** the API server checks **rate limits, not plan**, so paid features are protected **IN THE UI** — which is not the claim “paid features are protected.” **ONE owner live-verify remains OWED** — `hasPhoneLinked` against a real phone-linked account.) Previous sync: `e8b15735` (**#546–#552 - WAVE 2, LANES A + B**: #546 closed the api-server front door — a bare `app.use(cors())` in front of both entry points on the service Railway actually runs — with a **missing Origin allowed unconditionally**, because the Vercel rewrite is server-side and real production traffic arrives without one; ★★ **a CORS refusal is header OMISSION, not a block**, so `cb(null,false)` still returns 200 and it is `cb(new Error())` that 500s every caller; ★★ **an unobservable rule is untestable** — `cb(null,true)` with no origin to reflect emits no header at all, byte-identical to a refusal, so the no-Origin case answers `"*"`; helmet with CSP off (it governs nothing where no document is served) and **HSTS off**, measured at a full year with `includeSubDomains` and pinnable onto the apex domain through the rewrite; ★ **it also added the first CI gates `artifacts/api-server` has ever had** — before it, the only thing catching a type error in the production front door was the Railway deploy. #547 restored a grader protection that had **never been in force**: both C&I gates listed `checkSolution.cjs` without the `lazytopper/` prefix against an exact-membership check fed repo-root-relative paths, ★★ **proven by CONTROL CASE** — a commit that really did modify the grader passed both gates printing `ok FORBIDDEN: ... shows zero changes` at 91/91 and 31/31, so the gate did not fail to notice, it *asserted the file was untouched*; ★★ **`FORBIDDEN(wired)` proves MEMBERSHIP, not MATCHABILITY**, and the new filesystem-only `FORBIDDEN(path)` loop cannot skip. #549 gave the token telemetry a reader — `snapshot()` and `getTokenTelemetry()` had **no caller anywhere in the repo**, so #540 measured into a void from the day it merged; the endpoint reports the rate-limit counters **including `anonKey`** because a diagnostic with no reader is not a diagnostic, and ★★ **its own test caught a real bug**: reusing the Gemini call-class list for the limiter aggregation silently dropped `rate_limit.hard_block.anonymous`, the signed-out lockout counter, i.e. exactly the number the diagnostic exists to surface. #548/#550/#551 published founding+list pricing from one constant, made the sign-up name REQUIRED (the one-way door), and made phone sign-up reachable — where ★★ **a fix that cannot be shown to change behaviour is not a fix**: the brief's "use a distinct container id" would have done nothing, because `initPhoneRecaptcha` early-returned and ignored the container argument entirely. #552 was a **★ LAUNCH BLOCKER** — the client never sent `X-Lazytopper-Uid`, so every signed-in student was rate-limited as anonymous at 3/day, sharing one bucket with everyone behind the same IP; ★★ **it defeated four PRs of rate limiting that were each individually green, because the gap was BETWEEN two correct halves**, and ★★ **it was a RECURRENCE** of `[FU-XUSERID-PROXY-STRIP]`, fixed in `dbSyncService` only and closed. **★ `[FU-TELEMETRY-NO-READ-PATH]` is CLOSED and the efficiency tier is UNBLOCKED.** **FOUR owner live-verifies are OWED** — see `NEXT_ACTION.md`; A3 and B4 are settled by a single curl.)
 
 
+## 2026-08-24 — WAVE MI-INTEGRITY-7 + WAVE MI-INTEGRITY-8 (nine units, three controllers, **FOUR PRs MERGED**). **THREE CELLS MOVE ON TRUNK — and one of them is the surface MI-6 recorded as never built.**
+
+**`2026-08-24`** · **Re-derived: trunk is `deddf595da87f3f5ef871ac3473c0925d5ddd93a`, and it moved
+FOUR times across these two waves** (`fd85835e` → `6260db7c` → `f75e8356` → `deddf595`). The header at
+the top of this file still reads `203fb370` (Wave 5C) — now **fifteen** handoffs behind.
+★ **Left as it stands, for the same reason as the last fourteen times.** Advancing a sync header over
+content nobody has re-reviewed **asserts that everything below has been reconciled against the current
+trunk, and it has not.** The header would then be evidence of a review that never happened. **The lag
+is recorded here instead**, where a reader meets it before trusting the matrix.
+
+> ✅ **UNLIKE THE LAST TWO WAVES, THINGS MERGED.** `#694` (`fd85835e`), `#695` (`6260db7c`), `#696`
+> (`f75e8356`) and `#697` (`deddf595`) are **ALL ON TRUNK**, each verified by this lane with
+> `gh pr view <n> --json mergeCommit` **and** `git log --oneline -- <path>`.
+> ⚠⚠ **THAT VERIFICATION WAS NECESSARY, NOT CEREMONIAL: Controller A's own close-out says *"NOTHING OF
+> MINE IS ON TRUNK"* and lists A3 as `NOT PUSHED`. BOTH ITS PRs MERGED.** ⇒ ★ **Never flip a cell on
+> a close-out. Flip it on `gh`/`git`.**
+
+### ✅ CELL 1 — the GRADED ANSWER SHEET on CHAPTER TEST and FULL MOCK — **NOT BUILT → BUILT AND ON TRUNK**
+
+**Scope: Settling → Settling.** **`#696` / `f75e8356`.** *(LANE-REPORTED, screenshot-verified; merge
+HANDOFF-VERIFIED.)*
+
+⚠ **THE PREVIOUS ENTRY RE-CLASSIFIED THIS CELL AS *"NOT A REGRESSION — IT WAS NEVER BUILT."* THAT WAS
+CORRECT, AND IT IS NOW BUILT.**
+
+**WHAT THE STUDENT GETS TODAY, ON TRUNK:**
+- ✅ **A per-step block on the scorecard** — their own working, the marks earned per step, and the
+  per-step annotations.
+- ✅ **The read-sheet action stops dead-ending.** Before, the most prominent button on the scorecard
+  **closed the panel and showed nothing**, dropping the student into a card whose only action was
+  *"View scorecard"* — a loop with no way out. **Touched at `ChapterTestPage.tsx:809` and
+  `FullMockPage.tsx:1265`.**
+- ✅ **The marks they had already earned reach the screen.** They existed and were **discarded one
+  function short of it.**
+
+⚠ **WHAT DID NOT MOVE, AND IT IS DELIBERATE:** the **two Check & Improve sites were LEFT UNTOUCHED**,
+because on that surface `setScorecardOpen(false)` is **deliberate dismiss-to-reveal, with a comment in
+the source saying so.** ★★ **The call was named as the defect in our own spec and it is not one —
+the owner corrected his own framing on the lane's evidence.** `[FU-READSHEET-FOUR-SITES-TWO-SEMANTICS]`
+
+⚠⚠ **AND THE COST, WHICH OWNER RULING FORBIDS SMOOTHING:** **this cell moved by shipping a THIRD
+component over ONE shape**, so the convergence debt `[FU-READ-SHEET-TWO-PATTERNS]` is **LARGER after
+this wave than before it.** ★ **CHOSEN, NOT OVERLOOKED.**
+
+### ✅ CELL 2 — QUICK PRACTICE — **MOVES ON THREE COUNTS, AND ONE OF THEM WAS LIVE NONSENSE**
+
+**Scope: Settling → Settling.** **`#697` / `deddf595`.** *(LANE-REPORTED, 12/12 screenshots at
+1440/1023/390/360, two verified BY EYE; merge HANDOFF-VERIFIED.)*
+
+- ✅ **THE GRADED COUNT IS HONEST.** A 6-of-10 session no longer claims *"10 of 10 graded"* — **a
+  sentence that asserted work the student never did.**
+- ✅ **A CORRECT ANSWER IS NO LONGER TOLD WHERE ITS MARK WENT.** A **2/2** answer was rendering
+  *"Where the mark went: **Fully correct.**"*, **twice on Q1.** ⚠ **THIS WAS LIVE ON QUICK PRACTICE,
+  not latent.**
+- ✅ **THE STEP BLOCK ARRIVES HERE TOO — for the cost of TWO BOOLEANS.** ★ **`gradedAnswerAssembly.ts`
+  is NOT in this PR's diff** — reuse proven by absence.
+
+> ★★★ **READ THIS BEFORE TRUSTING ANY CELL IN THIS TRACKER THAT WAS FLIPPED ON A GREEN SUITE.**
+> **All four `PracticePage` suites were 35/35 green BEFORE AND AFTER this fix.** **Nothing in the repo
+> pinned Quick Practice's `lostDetail` source or its step block.** ⇒ **THE ENTIRE EXISTING SUITE WAS
+> INDIFFERENT TO A DEFECT A STUDENT COULD SEE**, and it took a screenshot to find it — **the second
+> time in these two waves.** ★★ **A FIX REMOVES A DEFECT; CLOSING THE HOLE REMOVES THE REASON IT
+> SURVIVED** — the lane added the five assertions that would have caught it.
+
+### ✅ CELL 3 — the GRADER (`lazytopper/server/routes/checkSolution.cjs` + `server/eval/graderEval.cjs`) — **TWO REAL MOVES**
+
+**Scope: Settling → Settling.** **`#694` / `fd85835e` and `#695` / `6260db7c`.** *(LANE-REPORTED;
+merges HANDOFF-VERIFIED.)*
+
+- ✅ **THE GRADER CANNOT INVENT A MARK DURING A CREDENTIAL OUTAGE.** The two grading stub sites now
+  return **HTTP 503** rather than a fabricated grade, and **the CI gate that REQUIRED the fabrication
+  now forbids it.**
+- ✅ **THE EVAL HARNESS STOPPED MARKING A PAPER THE PRODUCT NO LONGER SETS.** Three drifts closed —
+  the sharpest emitted a `"Final answer:"` header on **both** branches of its scheme ternary where the
+  shipped path emits an empty string ⇒ **every scheme-absent score was inflated by construction, and
+  scheme-absent is Check & Improve, the product's primary surface.**
+
+⚠⚠⚠ **THE SEVERITY THAT MUST TRAVEL WITH THIS CELL:** **losing `AI_PROVIDER` alone, with a perfectly
+valid API key present, flipped production into fabricating grades — HTTP 200, a fabricated 70%, an
+invented sentence about a student's own working, an invented presentation mistake, all flowing into
+Mistake Intelligence, the store the tutor reads.** ⇒ ★★★ **ONE ENVIRONMENT VARIABLE WAS THE WHOLE
+DISTANCE BETWEEN THIS PRODUCT AND INVENTING MARKS FOR CHILDREN.**
+⚠ **THE OWNER LIVE-VERIFY IS OWED AND ITS METHOD IS PART OF THE CHECK: UNSET THE VARIABLE AND RESTART.
+Revoking a key at runtime tests the wrong thing and returns a clean result that means nothing.**
+**Until that runs, this cell does not go green.**
+
+### ⚠⚠⚠ CELL 4 — `/daily-mix` — **SEVERED PAGE, LIVE BUTTONS. A CELL THIS TRACKER HAD NOT RECORDED AT ALL.**
+
+**Scope: UNTRACKED → flagged.** *(Controller C, MI-RECOVERY-SCOUT. LANE-REPORTED via C; not
+re-measured by the handoff lane. Added by amendment 2026-08-24.)*
+
+> **SIX live clickable navigations to a page with no Route** — `Dashboard.tsx:314` · `:317` · `:323`
+> · `:665` · `:738` · `DailyMixPreview.tsx:36`, against `App.tsx:1027-1030`. **A student clicks and
+> the catch-all bounces them home.** ★★★ **THE PAGE WAS SEVERED; THE BUTTONS WERE NOT.**
+
+⚠ **This is live on trunk today, it is student-facing, and it belongs to no lane and no spec.**
+⚠ **Its knock-on is CELL 5's root cause:** the severed page was the **sole writer of mastery**
+(`DailyMixPage.tsx:102-103`), which is why the weak-area list is saturated — **and why
+`[FU-MASTERY-REPLAY-CYCLE]` replays a closed cycle fed only by a page nobody can reach.**
+
+> ★★ **THE LESSON FOR THIS TRACKER: SEVERING A ROUTE IS NOT RETIRING A SURFACE.** The route died, the
+> entry points lived, and the data it alone produced went quietly missing — **and the tracker recorded
+> none of the three.** A retirement cell should name the route, its entry points, and its outputs.
+
+
+### ⛔ THE TAXONOMY CELL — **DOES NOT MOVE, AND THE REASON IS NOT "NOBODY GOT TO IT"**
+
+**`U3 TAXONOMY-3BUCKET` is specified (`15547 / 5D4DC3B95304`), repaired on four defects, and NOT
+BUILT.** It was stopped by a **hard collision with Controller C on its own primary target** —
+`mistakeIntelligence.ts` is both C's `MI-INTAKE-FILTER` target (`:147`) and U3's weak-area bridge
+(`:272`). **⚖ OWNER-RULED: `MI-INTAKE-FILTER` merges FIRST, then U3, NOT merged into one lane.**
+
+⚠⚠ **AND A WARNING ABOUT HOW THIS CELL WILL LOOK WHEN IT DOES MOVE — CARRY IT IN THESE WORDS OR A
+READER TAKES AN INERT SURFACE FOR A FAILED LANE:** **re-partitioning will NOT change which topics a
+student is told they are weak at.** ⚠⚠ **MEASURED, corrected before merge from Controller C's
+close-out; the figures first written here were relayed and were understated.** The gate is
+**`confidenceScore > 5` at `weakAreaAggregator.ts:161`** — **the owner's line numbers were ALL ONE
+LOW** — **THREE OF SIX** clauses fire on **ABSENCE**, and ⚠ **the writer is NOT absent: it is
+`DailyMixPage.tsx:102-103`, a page with NO ROUTE** (`App.tsx:1027-1030`, severed). **A NEW student
+scores 45; a PERFECT-RECORD student scores 30, against a threshold of 5.** ⇒ **ALL 26 CHAPTERS
+QUALIFY FOR EVERY STUDENT, PERMANENTLY.**
+★ **U3 is NOT wrong** — nine consumer files and three student-facing headings still matter —
+⚠ **but NOBODY MAY LIVE-VERIFY U3 BY LOOKING AT THE WEAK-AREA LIST**, in either direction.
+⚠⚠ **AND THIS TRACKER MUST RECORD WHO SEES IT: `server/routes/share.cjs:128` serves the weak-area
+list into the SHARED PARENT REPORT.** **PARENTS SEE IT** — a fifth consumer, **invisible to any
+`src/`-scoped search.**
+
+★★ **A DISTINCTION THIS TRACKER MUST NOT BLUR:** **that is a SATURATION, not a dormancy.** A dormant
+surface is code that never runs. **This is live code with a saturated input** — it runs, and it
+returns the same answer for everyone. **They look identical from the screen and they are fixed by
+different work.**
+
+### CELLS NOT MOVED, AND SAID SO EXPLICITLY
+
+- **Me/Progress** — untouched. ⚠ **It still renders TWO taxonomy headings, one of them *"Careless
+  mark-loss — not a weakness"*, and U3's three-bucket routing would send `presentation` into weak
+  areas beneath a heading saying it is not one.** **The split-brain in the COPY layer, invisible to
+  every data-level test.**
+- **Worksheet** — untouched by these waves. **`[FU-SHEET-DORMANT-NO-CONSUMER]` stays open**: `#682` is
+  on trunk, but **on trunk is not triggered** — the wiring still needs `aiClient.ts` and
+  `DesktopCheckImprovePage.tsx`.
+- **Check & Improve** — deliberately frozen by owner ruling for the duration of these waves. **Its two
+  read-sheet sites were left untouched on evidence, not by omission.**
+- **Everything else** — no movement.
+
+### ⚠ ONE MEASUREMENT DISCIPLINE THESE WAVES ADD TO HOW THIS TRACKER SHOULD BE READ
+
+**Two cells above moved on defects that every automated gate in this repository was green on.** ⇒
+★★★ **A GREEN SUITE IS NOT EVIDENCE ABOUT WHAT A STUDENT SEES. IT IS EVIDENCE ABOUT WHAT SOMEONE
+THOUGHT TO ASSERT.** A cell flipped on assertions alone carries that limit, and this tracker should
+say so wherever a screenshot was not taken.
+
+
 ## 2026-08-20 — WAVE MI-INTEGRITY-6 (four units, ONE PR, and it is a DRAFT). **NO SURFACE MOVES ON TRUNK. TWO SURFACES ARE RE-CLASSIFIED BY MEASUREMENT, AND ONE OF THEM WAS NEVER BUILT AT ALL.**
 
 **`2026-08-20`** · **Re-derived: trunk is `62078cb8`, and it did NOT move during this wave.** The header
