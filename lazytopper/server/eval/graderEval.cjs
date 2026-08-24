@@ -42,35 +42,56 @@ const {
   // copied, so the rule the model is given cannot drift from the rule the
   // product ships. Without it `isDeparture` is a field with no instruction.
   ECF_POLICY_V2_PROMPT,
+  // EVAL-PARITY - the shipped rule strings, IMPORTED not copied, so the harness
+  // cannot drift from the prompt production actually sends. Each is module-level
+  // in routes/checkSolution.cjs ABOVE createCheckSolutionRoute (:954); the source
+  // line for each is named at its use site below.
+  ECF_VERIFICATION_STEP_CLAUSE,
+  WORD_PROBLEM_FINAL_ANSWER_PROMPT,
+  QUESTION_MISCOPY_PROMPT,
+  IDENTIFY_EVERY_STEP_PROMPT,
+  presentationVsMissingPrompt,
+  CORRECTED_WORKING_PROMPT,
+  PER_STEP_ATTRIBUTION_PROMPT,
+  NO_MANUFACTURED_MISSING_STEPS_PROMPT,
+  SCHEME_ASSESSMENT_DIRECTIVES,
+  subjectChecklistBody,
 } = require('../routes/checkSolution.cjs');
 
 // resolveConfig() loads server/.env (if present) and reads the Codespace/CI secret
 // from process.env.API_KEY — the script never reads or prints the key itself.
 const config = resolveConfig();
 
-// ── Key presence check (never echo the value) ─────────────────────────────────
-const HAS_KEY = Boolean(config.GEMINI_API_KEY);
-console.log('API_KEY: ' + (HAS_KEY ? 'PRESENT' : 'MISSING'));
-console.log('AI_PROVIDER: ' + (process.env.AI_PROVIDER || '(unset)'));
-console.log('GEMINI_MODEL: ' + config.GEMINI_MODEL);
-console.log('');
-if (!HAS_KEY) {
-  console.error(
-    'No Gemini key resolved. Set API_KEY (Codespace secret or server/.env) with ' +
-    'AI_PROVIDER=gemini, then re-run. Refusing to run the eval against the stub.',
-  );
-  process.exit(1);
+// Key presence check (never echo the value) - LAZY, so that requiring this module
+// for a prompt-parity test does not exit the process. The guard is unchanged in
+// strength: nothing can reach the model without passing through here.
+let _client = null;
+function requireGeminiClient() {
+  const HAS_KEY = Boolean(config.GEMINI_API_KEY);
+  console.log('API_KEY: ' + (HAS_KEY ? 'PRESENT' : 'MISSING'));
+  console.log('AI_PROVIDER: ' + (process.env.AI_PROVIDER || '(unset)'));
+  console.log('GEMINI_MODEL: ' + config.GEMINI_MODEL);
+  console.log('');
+  if (!HAS_KEY) {
+    console.error(
+      'No Gemini key resolved. Set API_KEY (Codespace secret or server/.env) with ' +
+      'AI_PROVIDER=gemini, then re-run. Refusing to run the eval against the stub.',
+    );
+    process.exit(1);
+  }
+  if (!_client) {
+    _client = createGeminiClient({
+      GEMINI_API_KEY: config.GEMINI_API_KEY,
+      HAS_REPLIT_PROXY: config.HAS_REPLIT_PROXY,
+      REPLIT_GEMINI_BASE_URL: config.REPLIT_GEMINI_BASE_URL,
+      REPLIT_GEMINI_API_KEY: config.REPLIT_GEMINI_API_KEY,
+      DIRECT_GEMINI_API_KEY: config.DIRECT_GEMINI_API_KEY,
+      GEMINI_TUTOR_MODEL: config.GEMINI_TUTOR_MODEL,
+      GEMINI_TIMEOUT_MS: config.GEMINI_TIMEOUT_MS,
+    });
+  }
+  return _client;
 }
-
-const { callGemini } = createGeminiClient({
-  GEMINI_API_KEY: config.GEMINI_API_KEY,
-  HAS_REPLIT_PROXY: config.HAS_REPLIT_PROXY,
-  REPLIT_GEMINI_BASE_URL: config.REPLIT_GEMINI_BASE_URL,
-  REPLIT_GEMINI_API_KEY: config.REPLIT_GEMINI_API_KEY,
-  DIRECT_GEMINI_API_KEY: config.DIRECT_GEMINI_API_KEY,
-  GEMINI_TUTOR_MODEL: config.GEMINI_TUTOR_MODEL,
-  GEMINI_TIMEOUT_MS: config.GEMINI_TIMEOUT_MS,
-});
 const GEMINI_MODEL = config.GEMINI_MODEL;
 
 // ── Verbatim copies from routes/checkSolution.cjs (kept in sync intentionally) ──
@@ -157,6 +178,57 @@ function normaliseStructuredResult(q, raw) {
 
 // Faithful reproduction of gradeStructuredSet's prompt + call, with studentWork
 // injected as transcribed text instead of via an attached PDF.
+// ── THE GRADING RULES, ASSEMBLED ─────────────────────────────────────────────
+// Hoisted out of gradeStructuredSetText and EXPORTED so the assembled prompt can be
+// asserted against the SHIPPED rule strings WITHOUT spending a model call. Every
+// imported constant below is the one routes/checkSolution.cjs sends in production,
+// so a test comparing them compares the harness to the product - not to a copy
+// someone typed. Only STRUCTURED_MISTAKE_TAXONOMY is a local copy, because it is
+// sealed inside createCheckSolutionRoute (checkSolution.cjs:1756) and cannot be
+// imported; it is content-identical to the shipped text and §3 pins that.
+function buildGradingRules() {
+  return (
+      'GRADING RULES:\n' +
+      '1. For EACH question Q1…QN, grade the transcribed student answer against ITS scheme. Award marks by the [bracket] weights in each scheme step, or distribute evenly if none.\n' +
+      '2. marksAwarded (per question) = sum of that question\'s annotatedSteps[].marksAwarded. Never exceed the question\'s stated marks.\n' +
+      '3. ' + STRUCTURED_MISTAKE_TAXONOMY + '\n' +
+      '4. ERROR CARRIED FORWARD: if one upstream slip makes later steps wrong, mark those later steps status "incorrect" with mistakeType null — never re-charge one slip as several mistakes. ' + ECF_VERIFICATION_STEP_CLAUSE + ' ' + ECF_POLICY_V2_PROMPT + '\n' +
+      '5. NO WORKING SHOWN → mistakeType null. If the student shows NO working — only a final answer (e.g. just a chosen MCQ option such as "(d)") — and it is wrong, you CANNOT diagnose the cause: set mistakeType null for that step. Never guess "conceptual" (or any type) from a bare wrong answer. A wrong answer with no working is undiagnosable, not conceptual — the marks are still not earned (status stays "incorrect"), only the type is null.\n' +
+      // Rule 6 TAIL ported per owner ruling: the crossed-out-answer GRADING RULING.
+      //   ⚠ COPIED verbatim from checkSolution.cjs:2224 — it is an INLINE literal
+      //   there, not a named constant, so there is nothing to import. The couldNotRead
+      //   HEAD is deliberately NOT ported: it is image-reading and cannot apply to
+      //   text injected already-transcribed.
+      '6. HONEST READ — anti-fabrication: a student writing \'Don\'t know\', \'Dont know\', \'I don\'t know\', \'DK\', or any similar explicit non-attempt phrase IS legible — grade it as: status "incorrect", marks deducted = question marks, mistakeType null (undiagnosable — no working shown). Similarly, an answer that is clearly and completely crossed out with no replacement written is a NO-ATTEMPT — grade it as: status \"incorrect\", marks deducted = question marks, mistakeType null.\n' +
+      '7. teacherNote per question: 1–2 short plain-English sentences. "summary": 2–3 encouraging, exam-useful sentences about the whole worksheet.\n' +
+      // Rule 8 previously carried ONLY the PARTIAL CREDIT tail of this constant;
+      // the word-problem head and the OBJECTIVE EXCEPTION were both absent. (:951)
+      '8. ' + WORD_PROBLEM_FINAL_ANSWER_PROMPT + '\n' +
+      '9. ' + QUESTION_MISCOPY_PROMPT + '\n' +
+      // ⚠⚠ RULE 10 RUNS IN AUTO-DETECT MODE, NOT WITH A DECLARED SUBJECT. The shipped
+      //   path passes ONE subject for the whole set; the harness's CASES carry `topic`,
+      //   not `subject`, so there is none to pass. 'auto' emits the BOTH-subjects
+      //   checklist, which is the honest framing — a guessed single subject would
+      //   silently withhold the Science checks from a Science paper. ★ THIS IS A KNOWN,
+      //   DELIBERATE DIVERGENCE FROM PRODUCTION. DO NOT READ IT AS PARITY.
+      '10. ' + subjectChecklistBody('auto') + '\n' +          // shipped 10 (:919)
+      '11. ' + IDENTIFY_EVERY_STEP_PROMPT + '\n' +           // shipped 11 (:926)
+      // 3, not 6: on this path the blank-step rule lives in the TAXONOMY (rule 3) -
+      //   the same argument the shipped structured path passes, for the same reason.
+      '12. ' + presentationVsMissingPrompt(3) + '\n' +       // shipped 12 (:933)
+      '13. ' + CORRECTED_WORKING_PROMPT + '\n' +             // shipped 13 (:937)
+      '14. ' + PER_STEP_ATTRIBUTION_PROMPT + '\n' +          // shipped 14 (:938)
+      '15. ' + NO_MANUFACTURED_MISSING_STEPS_PROMPT + '\n' + // shipped 15 (:939)
+      // shipped 16 (:949) - THE RULE THE OWNER'S LIVE-VERIFY FAILED ON. The shipped
+      //   source says so in its own words: "Rule 16 is the one the owner's live-verify
+      //   failed on: path B emitted the stored scheme and told the model to grade
+      //   against it, but never said what that entailed - so a scheme silent about
+      //   balancing read as permission." Without it the harness cannot measure the
+      //   central fix of the arc it exists to measure.
+      '16. ' + SCHEME_ASSESSMENT_DIRECTIVES
+  );
+}
+
 async function gradeStructuredSetText(questions) {
   const systemPrompt =
     "You are a CBSE Class 10 board examiner grading a student's whole worksheet. " +
@@ -168,7 +240,7 @@ async function gradeStructuredSetText(questions) {
   const questionBlocks = questions
     .map((q) => {
       const scheme = Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0
-        ? '\n     Marking scheme:\n' +
+        ? '\n     Stored marking scheme (CORROBORATION only - never authority on method):\n' +
           q.solutionSteps.map((s, i) => '       Step ' + (i + 1) + ': ' + String(s)).join('\n') +
           (q.finalAnswer ? '\n       Final answer: ' + String(q.finalAnswer) : '')
         // D3 - SCHEME-ABSENT EMITS NOTHING. The shipped `blockFor` in
@@ -187,16 +259,7 @@ async function gradeStructuredSetText(questions) {
     })
     .join('\n\n');
 
-  const rules =
-    'GRADING RULES:\n' +
-    '1. For EACH question Q1…QN, grade the transcribed student answer against ITS scheme. Award marks by the [bracket] weights in each scheme step, or distribute evenly if none.\n' +
-    '2. marksAwarded (per question) = sum of that question\'s annotatedSteps[].marksAwarded. Never exceed the question\'s stated marks.\n' +
-    '3. ' + STRUCTURED_MISTAKE_TAXONOMY + '\n' +
-    '4. ERROR CARRIED FORWARD: if one upstream slip makes later steps wrong, mark those later steps status "incorrect" with mistakeType null — never re-charge one slip as several mistakes. ' + ECF_POLICY_V2_PROMPT + '\n' +
-    '5. NO WORKING SHOWN → mistakeType null. If the student shows NO working — only a final answer (e.g. just a chosen MCQ option such as "(d)") — and it is wrong, you CANNOT diagnose the cause: set mistakeType null for that step. Never guess "conceptual" (or any type) from a bare wrong answer. A wrong answer with no working is undiagnosable, not conceptual — the marks are still not earned (status stays "incorrect"), only the type is null.\n' +
-    '6. HONEST READ — anti-fabrication: a student writing \'Don\'t know\', \'Dont know\', \'I don\'t know\', \'DK\', or any similar explicit non-attempt phrase IS legible — grade it as: status "incorrect", marks deducted = question marks, mistakeType null (undiagnosable — no working shown).\n' +
-    '7. teacherNote per question: 1–2 short plain-English sentences. "summary": 2–3 encouraging, exam-useful sentences about the whole worksheet.\n' +
-    '8. PARTIAL CREDIT: award marks strictly by the step weights in the marking scheme. A step the student attempted correctly earns its allocated marks even if a later step is wrong. A step with a calculation error earns 0 for that step only — never redistribute or re-weight marks across steps. If no explicit per-step weight exists, distribute the question\'s total marks evenly across required steps.';
+  const rules = buildGradingRules();
 
   const jsonSchema =
     'RESPOND with this exact JSON shape:\n' +
@@ -230,6 +293,7 @@ async function gradeStructuredSetText(questions) {
   // ships. The instrument tracks the instrument's subject.
   const genConfig = { temperature: 0, maxOutputTokens: 32000, responseMimeType: 'application/json' };
   const gradeOnce = async () => {
+    const { callGemini } = requireGeminiClient();
     const r = await callGemini(GEMINI_MODEL, contents, genConfig);
     return { reply: r, parsed: extractJsonObjectFromText(r.text) };
   };
@@ -405,7 +469,25 @@ async function main() {
   process.exit(passed === CASES.length ? 0 : 1);
 }
 
-main().catch((err) => {
-  console.error('EVAL harness crashed:', err && err.stack ? err.stack : err);
-  process.exit(1);
-});
+// ── ENTRY ────────────────────────────────────────────────────────────────────
+// MANUAL ONLY. Run with `pnpm --filter lazytopper run eval:grader` (or
+// `node server/eval/graderEval.cjs`). It calls a REAL model and consumes quota,
+// so it is deliberately NOT wired into test:matrix:all, any workflow or any hook -
+// a model-calling gate is non-deterministic and rate-limited, and that decision is
+// the owner's. Guarded on require.main so that requiring this module for the
+// prompt-parity test neither spends a call nor exits the process.
+if (require.main === module) {
+  main().catch((err) => {
+    console.error('EVAL harness crashed:', err && err.stack ? err.stack : err);
+    process.exit(1);
+  });
+}
+
+module.exports = {
+  // Exported for server/eval/graderEval.parity.test.cjs, which asserts the
+  // assembled prompt against the SHIPPED strings without spending a model call.
+  buildGradingRules,
+  CASES,
+  evaluateCase,
+  questionStatus,
+};
