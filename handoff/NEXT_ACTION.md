@@ -91,6 +91,46 @@ trunk.** ⚠ **Trunk moved FOUR times across Waves MI-INTEGRITY-7 and -8. Every 
    ⇒ ★ **Derive a lane table from `gh pr view <n> --json mergeCommit` and `git log -- <path>`, never
    from a close-out.**
 
+### 0a — ⚠⚠⚠ **A LIVE STUDENT-FACING DEFECT THAT BELONGS TO NO LANE. READ IT BEFORE PLANNING ANYTHING ELSE.**
+
+> ## `[FU-DAILYMIX-DEAD-BUTTONS]` — **SIX LIVE BUTTONS TO A SEVERED PAGE**
+> **`Dashboard.tsx:314` · `:317` · `:323` · `:665` · `:738` · `DailyMixPreview.tsx:36`** navigate to
+> `/daily-mix`, **which has no Route** (`App.tsx:1027-1030`). **A student clicks and is bounced home
+> by the catch-all.** ★★★ **THE PAGE WAS SEVERED; THE BUTTONS WERE NOT.**
+> ⚠ **Live on trunk today. Student-facing. Owned by NO lane and named in NO spec.**
+> *(Controller C, MI-RECOVERY-SCOUT. LANE-REPORTED via C; not re-measured by the handoff lane.)*
+
+### 0b — ⛔ **FIVE OWNER DECISIONS BLOCK CONTROLLER C's WAVE FROM LANDING. TWO STUDENT-FACING FIXES ARE BUILT AND GREEN, WAITING ONLY ON A RULING.**
+
+**Nothing of C's is on trunk** — verified by C with `git ls-remote --heads origin 'refs/heads/lane/*'`
+= 0 and `rev-list --count deddf595..HEAD` = 0 on every worktree. **These are decisions, not merges.**
+
+1. **`WEAK-AREA-SATURATION`: commit + push?** *(C recommends YES.)* It removes both mastery clauses.
+   ★ **The lane re-derived the owner's own figures and found them understated and his line numbers
+   all one low.**
+2. **`MI-INTAKE-FILTER` P5** — four consumers sum `marksDeducted` into student-visible numbers, but
+   **all four are provably invariant** (three re-filter `marks > 0`; the fourth adds zero as a no-op).
+   ★ **The stop condition fired on its letter, not its substance, and the lane escalated rather than
+   decide — correctly.** ⚠ **The defect it fixes is LARGER than specified: `stepDetails` was always
+   empty for EVERY objective question, right and wrong alike** — and it closes a defect
+   `handoff/SURFACE_TRACKER.md:189-191` **already records as unfixed and belonging to no lane.**
+3. **`EVAL-PARITY`: which of the 16 rules port?** Four are flagged arguable as path-specific.
+4. **`EVAL-PARITY`: behavioural invariants, or numeric marks?** *(Already owed at `CURRENT_STATE:183`.)*
+5. **`EVAL-PARITY`: may `checkSolution.cjs` gain EXPORT LINES ONLY?** It is FORBIDDEN. ⚠ **The
+   constants are NOT closure-sealed as the spec, the harness header and the controller all assumed** —
+   11 are module-level and merely unexported. **This is the difference between importing one source
+   of truth and authoring a fourth drifted copy.**
+
+⚠⚠⚠ **AND THE ONE THAT BLOCKS ANY GRADER BASELINE:** `[FU-EVAL-PROMPT-PARITY-8-OF-16]` — **the eval
+harness sends 8 prompt rules; the shipped route sends 16.** Per the shipped code's own comment, the
+missing **rule 16 (`SCHEME_ASSESSMENT_DIRECTIVES`) is the rule the owner's live-verify failed on.**
+⇒ **A number from this harness measures a different grader than the one students meet. Do not
+commission a grader baseline until this closes.**
+
+⚠ **`EXPORT-PROMPT` IS REINSTATABLE AND CHEAP.** The owner has recorded its withdrawal as resting on
+a **false premise** — see `CURRENT_STATE.md` §3. **It is export lines, not a refactor.**
+
+
 ### 1 — DO THIS FIRST: **`MI-INTAKE-FILTER` (Controller C). ONE PREDICATE.**
 
 **`lazytopper/src/services/mistakeIntelligence.ts:147`.** It merges **before** U3, and the reason is
@@ -155,10 +195,14 @@ artefact.**
 
 ### 3 — ★★ THE SATURATION CAVEAT — **CARRY IT IN THESE WORDS OR U3 LOOKS LIKE A FAILED LANE**
 
-**Re-partitioning will NOT change which topics a student is told they are weak at.** Three clauses in
-`weakAreaAggregator.ts` fire on **ABSENCE** — `:153` +20, `:156` +15, `:157` +10 — against a
-**threshold of 5**, and the mastery store has **NO LIVE WRITER.** ⇒ **ALL 26 CHAPTERS QUALIFY FOR
-EVERY STUDENT. THE WEAK-AREA LIST IS A CONSTANT TODAY.**
+**Re-partitioning will NOT change which topics a student is told they are weak at.** ⚠⚠ **MEASURED
+NUMBERS, corrected before merge from Controller C's close-out — the figures first written here were
+RELAYED, and C's own lane re-derived them and found the defect WORSE than counted.** The qualifying
+gate is **`confidenceScore > 5` at `weakAreaAggregator.ts:161`** (**the owner's clause line numbers
+were ALL ONE LOW**); **THREE OF SIX** clauses fire on **ABSENCE**, not three of three; and ⚠ **the
+writer is NOT absent — it is `DailyMixPage.tsx:102-103`, a page with NO ROUTE**
+(`App.tsx:1027-1030`, severed). **A NEW student scores 45; a PERFECT-RECORD student scores 30. Both
+against a threshold of 5.** ⇒ **ALL 26 CHAPTERS QUALIFY FOR EVERY STUDENT, PERMANENTLY.**
 
 ★ **U3 is NOT wrong** — nine consumer files and the three student-facing headings all still matter.
 ⚠⚠ **BUT NOBODY MAY LIVE-VERIFY U3 BY LOOKING AT THE WEAK-AREA LIST.** **This must be in the lane's

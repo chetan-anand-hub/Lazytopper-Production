@@ -68,11 +68,36 @@ HAVE COLLIDED ON A LANE'S PRIMARY TARGET.**
 > verifiable change hostage to the largest lane of the arc.**
 
 ⚠⚠ **AND THE STAGE'S VERIFICATION METHOD IS CONSTRAINED IN A WAY A ROADMAP READER MUST KNOW:**
-**re-partitioning will NOT change which topics a student is told they are weak at.** Three clauses in
-`weakAreaAggregator.ts` fire on **ABSENCE** against a threshold of 5 and the mastery store has **no
-live writer** ⇒ **all 26 chapters qualify for every student; the weak-area list is a CONSTANT today.**
+**re-partitioning will NOT change which topics a student is told they are weak at.** ⚠ **MEASURED
+figures, corrected before merge from Controller C's close-out:** the gate is **`confidenceScore > 5`
+at `weakAreaAggregator.ts:161`**, **THREE OF SIX** clauses fire on **ABSENCE**, and the writer is not
+missing but **unrouted** — `DailyMixPage.tsx:102-103` against a severed route. **A new student scores
+45, a perfect-record student 30, against a threshold of 5** ⇒ **all 26 chapters qualify for every
+student, permanently; the weak-area list is a CONSTANT today.**
 ★ **U3 is not wrong** — nine consumer files and three student-facing headings still matter — ⚠ **but
 NOBODY MAY LIVE-VERIFY U3 BY LOOKING AT THE WEAK-AREA LIST.**
+
+### CONTROLLER C's WAVE (MI-INTEGRITY-3) — **FIVE LANES, NOTHING ON TRUNK, TWO FIXES BUILT AND BLOCKED ON RULINGS**
+
+*Folded in by amendment on 2026-08-24, from `CLOSEOUT_MI_INTEGRITY_3_CONTROLLER_C.md`.*
+⚠ **THE MERGED-PR TABLE ABOVE IS UNCHANGED AND CORRECT** — C verified `git ls-remote` = 0 remote lane
+branches and `rev-list --count deddf595..HEAD` = 0 on every worktree. **Nothing of C's is on trunk.**
+
+| lane | verdict | state |
+|---|---|---|
+| MI-RECOVERY-SCOUT | PASS | read-only, 0 files |
+| EVAL-SET | HOLD | 0 files — did not build, correctly |
+| **WEAK-AREA-SATURATION** | **PASS** | **built and green — awaiting owner commit + push** |
+| **MI-INTAKE-FILTER** | **PARTIAL** | **built and green — awaiting owner P5 ruling** |
+| EVAL-PARITY | HOLD | blocked on 3 owner rulings |
+
+⛔ **FIVE OWNER DECISIONS BLOCK THIS SUB-STAGE FROM LANDING** — enumerated in `NEXT_ACTION.md` §0b.
+⚠⚠⚠ **AND ONE OF THEM BLOCKS THE ARC'S ACCEPTANCE TEST ITSELF:** `[FU-EVAL-PROMPT-PARITY-8-OF-16]` —
+**the eval harness sends 8 prompt rules against the shipped route's 16**, and per the shipped code's
+own comment **the missing rule 16 is the rule the owner's live-verify failed on.**
+⇒ ★★★ **THE STAGE CANNOT PRODUCE A GRADER NUMBER. The only instrument that could is measuring a
+different grader than the one students meet.** **No baseline may be commissioned until this closes.**
+
 
 ### ★★★ THE STAGE'S REAL OUTPUT, STATED AS THE ROADMAP SHOULD STATE IT
 

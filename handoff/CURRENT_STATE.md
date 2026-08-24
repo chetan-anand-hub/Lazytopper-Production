@@ -16,9 +16,45 @@ TIMES across these two waves** (`fd85835e` → `6260db7c` → `f75e8356` → `de
 ⚠⚠ **THIS ENTRY COVERS TWO WAVES AND THREE CONTROLLERS, BECAUSE WAVE MI-INTEGRITY-7 CLOSED WITHOUT A
 HANDOFF PR.** **Controller A** (`lazytopper/server/`) stood down after `#694`/`#695`; **Controller B**
 (`src/components` + `src/pages`) shipped `#696`/`#697` and held the handoff lock; **Controller C** is
-live on `src/services/` + `server/eval/` and **opened no handoff PR**. ⛔ **NO CONTROLLER C CLOSE-OUT
-EXISTED ON DISK WHEN THIS ENTRY WAS WRITTEN — checked by `ls handoff/` at authoring time. Nothing
-below is C's content, and none of it has been invented on C's behalf.**
+live on `src/services/` + `server/eval/` and **opened no handoff PR**.
+
+⛔⛔ **CORRECTION, 2026-08-24, BEFORE MERGE — THE STRUCK SENTENCE BELOW WAS TRUE WHEN WRITTEN AND IS
+FALSE NOW. IT IS STRUCK RATHER THAN DELETED, BECAUSE IT IS THE EVIDENCE FOR THE FINDING OF THE WAVE.**
+
+> ~~**NO CONTROLLER C CLOSE-OUT EXISTED ON DISK WHEN THIS ENTRY WAS WRITTEN — checked by
+> `ls handoff/` at authoring time. Nothing below is C's content, and none of it has been invented on
+> C's behalf.**~~
+
+**IT EXISTS. IT WAS NEVER IN `handoff/`.** Controller C wrote to
+`C:\Users\Chetan\OneDrive\Desktop\diff\Wave MI Integrity 3\Report\`, and its first line reads
+*"FOR CONTROLLER B, who writes the single handoff PR for this wave. I open none."*
+**C's content is folded in below (§8b), from the close-out itself.**
+
+### 0a - ★★★ THE FINDING OF THE WAVE — **"ON DISK" IS NOT A LOCATION.** `[FU-ON-DISK-IS-NOT-A-LOCATION]`
+
+**OWNED BY THE OWNER, BY HIS OWN INSTRUCTION.** He told three controllers to write their close-out
+**TO DISK** and **never once gave a path.**
+
+```
+13:17  the handoff lane runs `ls handoff/` looking for a Controller C close-out  -> NONE. TRUE.
+13:36  COORD_MI_INTEGRITY_3_C_TO_B_SRC_SERVICES.md  appears -- addressed TO CONTROLLER B
+13:56  the handoff PR is pushed, asserting no C close-out exists
+14:03  CLOSEOUT_MI_INTEGRITY_3_CONTROLLER_C.md  appears
+       -- all three under C:\Users\Chetan\OneDrive\Desktop\diff\Wave MI Integrity 3\Report\
+```
+
+**Controller A wrote its close-out to `handoff/`. Controller C wrote its close-out to the Desktop
+report folder. BOTH COMPLIED WITH THE SAME INSTRUCTION. NEITHER COULD FIND THE OTHER.**
+
+> ★★★ **"A write-it-to-disk instruction without a path is an instruction to write it somewhere the
+> reader won't look."**
+
+⚠⚠ **AND THIS IS THE SAME FAILURE THE HANDOFF LOCK EXISTS TO PREVENT — the one that lost Controller
+A's twenty-one follow-ups — ARRIVING INSIDE THE VERY PR THAT RECOVERED THEM.** The recovery and the
+recurrence are in the same seven files. ★ *Nobody was wrong. The instruction was.*
+
+⇒ **THE FIX IS A PATH, NOT A REMINDER.** See §11a: every cross-controller artefact is now named by
+its **exact absolute path**, and a reader must check **BOTH** conventions.
 
 ### 0 - ★★★ WHAT A STUDENT GETS THAT THEY DID NOT HAVE
 
@@ -91,10 +127,18 @@ MockBuilder deletion, where two ops gates froze `App.tsx` zero-diff.
   **deliberate dismiss-to-reveal, with a comment in the source saying so.** It is **a working pattern
   with no destination** on two surfaces — a different bug with a different fix. ★ **The owner
   corrected his own framing on the lane's evidence.**
-- **`EXPORT-PROMPT` disproved that its own spec could be executed at all** — the constant it was told
-  to export is **closure-private**, so exporting it needs a hoist its own allowlist forbids. §1 and §2
-  are **mutually unsatisfiable.** The owner withdrew the spec on the lane's argument.
-
+- ⚠⚠ **`EXPORT-PROMPT` WAS WITHDRAWN ON A PREMISE THAT WAS LATER DISPROVED — AND THE OWNER HAS
+  RECORDED THAT AS HIS OWN ERROR RATHER THAN AS A JUDGEMENT THAT HELD.** The lane reported the
+  constant as **closure-private**, so exporting it would need a hoist its own allowlist forbids, and
+  the spec was withdrawn on that argument. **Controller C's `EVAL-PARITY` lane then measured the
+  opposite:** `[FU-EVAL-CONSTANTS-NOT-SEALED]` — **11 rule constants are MODULE-LEVEL and merely
+  UNEXPORTED; only `STRUCTURED_MISTAKE_TAXONOMY` is genuinely closure-sealed.**
+  > **OWNER, VERBATIM:** *"I WITHDREW EXPORT-PROMPT ON THE PREMISE THAT HOISTING WAS A REAL REFACTOR.
+  > That premise is disproved. The withdrawal rested on a false premise and must be recorded that
+  > way, NOT as a judgement that held."*
+  ⇒ ★★ **THE SUCCESSOR INHERITS A REINSTATABLE LANE, NOT A CLOSED ONE.** Exporting eleven of the
+  twelve constants is **export lines, not a refactor**, and it is **the difference between importing
+  one source of truth and authoring a fourth drifted copy.**
 > ★★★ **THE PATTERN THIS ARC PUT BEYOND ARGUMENT.** *"An allowlist that cannot reach what the ruling
 > requires"* stood at **five** instances when MI-7 opened. It closed MI-7 at **EIGHT** and MI-8 added
 > more: a constant sealed in a **closure**; a fix needing a **sibling directory** the lane cannot
@@ -103,6 +147,25 @@ MockBuilder deletion, where two ops gates froze `App.tsx` zero-diff.
 > ⇒ **This is no longer a recurring accident. It is the default outcome of writing an allowlist from
 > a FILE LIST instead of from the FIX**, and it belongs as a standing pre-flight question on every
 > spec: *"can this allowlist reach every file the ruling touches — including the files that TEST it?"*
+
+### 3a - ⚠⚠⚠ A LIVE STUDENT-FACING DEFECT THIS HANDOFF WILL NOT LET MERGE UNFLAGGED
+
+> ## ⚠⚠⚠ `[FU-DAILYMIX-DEAD-BUTTONS]` — **SIX LIVE BUTTONS TO A SEVERED PAGE. A STUDENT CLICKS AND LANDS NOWHERE.**
+>
+> **`Dashboard.tsx:314` · `:317` · `:323` · `:665` · `:738` · `DailyMixPreview.tsx:36`** are live
+> clickable navigations to `/daily-mix`, **a page that was severed** (`App.tsx:1027-1030`). They
+> **bounce the student home via the catch-all route.**
+>
+> ★★★ **THE PAGE WAS SEVERED; THE BUTTONS WERE NOT.**
+>
+> ⚠ **STUDENT-FACING, LIVE ON TRUNK TODAY, AND OWNED BY NO LANE.** It is not scheduled, not
+> specified, and belongs to no dispatch. **It is recorded here rather than in a list, because a line
+> in a list is how the last twenty-one findings were lost.**
+> *(Controller C, `MI-RECOVERY-SCOUT`. LANE-REPORTED via C; not re-measured by this lane.)*
+
+⚠ **Its sibling:** `[FU-MASTERY-REPLAY-CYCLE]` — `studentProgressStore.ts:251` via
+`AuthContext.tsx:316` replays cloud mastery to localStorage, **a closed cycle fed only by the severed
+page.** Universal for post-sever accounts, possibly PARTIAL for legacy ones.
 
 ### 4 - ★★★ TWICE A SCREENSHOT FOUND A DEFECT AFTER EVERY GATE WAS GREEN
 
@@ -145,13 +208,26 @@ needs to know it was chosen, not overlooked."* **Do not soften this in a future 
    `src/pages`" WAS NOT A PARTITION OF THE WORK** — U3 lives in `src/services/` too, and C reaches
    into `src/pages/`.
 4. ★★ **THE SATURATION CAVEAT — CARRY IT IN THESE WORDS OR A READER TAKES AN INERT SURFACE FOR A
-   FAILED LANE:** **re-partitioning will NOT change which topics a student is told they are weak at,
-   because three clauses in `weakAreaAggregator.ts` fire on ABSENCE (`:153` +20, `:156` +15,
-   `:157` +10) against a threshold of 5, and the mastery store has NO LIVE WRITER — so ALL 26
-   CHAPTERS QUALIFY FOR EVERY STUDENT. THE WEAK-AREA LIST IS A CONSTANT TODAY.**
+   FAILED LANE:** **re-partitioning will NOT change which topics a student is told they are weak at.**
+   ⚠⚠ **CORRECTED 2026-08-24 FROM CONTROLLER C's CLOSE-OUT — the numbers previously here were
+   RELAYED, and C's own lane re-derived them and found the defect WORSE than either the owner or the
+   controller had counted. These are the MEASURED ones:**
+   - **The owner's clause line numbers were ALL ONE LOW.** The qualifying gate is
+     **`confidenceScore > 5` at `weakAreaAggregator.ts:161`.**
+   - **THREE OF SIX clauses fire on ABSENCE** — not three of three.
+   - ⚠ **THE WRITER IS NOT ABSENT.** It is **`DailyMixPage.tsx:102-103` — a page with NO ROUTE**
+     (`App.tsx:1027-1030`, severed). *"A dead page's missing data is being read as a student's
+     ignorance."*
+   - **A NEW student scores 45. A student with a PERFECT RECORD scores 30.** Both against a
+     **threshold of 5.**
+   ⇒ **ALL 26 CANONICAL CHAPTERS QUALIFY FOR EVERY STUDENT, PERMANENTLY. THE WEAK-AREA LIST IS A
+   CONSTANT TODAY — it was never earned and it cannot be un-earned.**
    ★ **U3 is NOT wrong — nine consumer files and the three student-facing headings all still matter.**
-   ⚠ **BUT NOBODY MAY LIVE-VERIFY U3 BY LOOKING AT THE WEAK-AREA LIST.** *(CONTROLLER-RECORDED from
-   C's finding, relayed; not independently re-measured by this lane.)*
+   ⚠⚠ **BUT NOBODY MAY LIVE-VERIFY U3 BY LOOKING AT THE WEAK-AREA LIST**, and nobody may conclude
+   from that surface either that the change worked or that it failed. **At the weak-area surface a
+   correct re-partition would be INERT — a silent no-op that passes every gate.**
+   *(C's SCOUT-REPORTED finding, carried at C's own stated confidence: not verified by C, not
+   verified by B's lane.)*
 5. **U3's FOUR REPAIRED DEFECTS, all accepted by the owner:**
    - **D1 — the carve-out was ROTTED: `:1159`-`:1161` OUT, `:1162` IN.** ★ **The rot predates `#695`
      entirely — `#695` IS EXONERATED**, and the controller's attribution of the drift to it was
@@ -202,6 +278,60 @@ lane. **HANDOFF-VERIFIED.**
 | **#696** | `f75e8356` | B | U1 GRADED-STEP-BLOCK | 7 files — the per-step graded block on **Chapter Test + Full Mock**; new `src/services/gradedAnswerAssembly.ts`; the assembly **LIFTED** out of `PracticePage.tsx` | *"the shell fixes every surface at once"* — **false**; CT/FM never emitted `gradedAnswers`. Round 1 of this lane returned **HOLD with 0 files** and that was correct |
 | **#697** | `deddf595` | B | QP-COMBINED | 4 files — **Quick Practice**: honest graded count + the duplicated-verdict fix + the step block, **via two booleans** | *"`gradedCount` is discarded at persistence"* — **false.** And **no existing test broke**, which is the finding |
 | — | — | B | U3 TAXONOMY-3BUCKET | **HOLD. ZERO FILES. NO PR.** Then **NOT RE-DISPATCHED** — hard collision with Controller C | Four spec defects (D1-D4), one of them the controller's own; and the wave's disjointness assumption, for the sixth time |
+
+### 8b - CONTROLLER C's WAVE (MI-INTEGRITY-3) — **FIVE LANES, NOTHING ON TRUNK, AND TWO STUDENT-FACING FIXES BUILT AND WAITING**
+
+**Folded in on 2026-08-24 from `CLOSEOUT_MI_INTEGRITY_3_CONTROLLER_C.md`.** ⚠ **THE LANE TABLE IN §8
+IS UNCHANGED AND CORRECT** — C verified with `git ls-remote --heads origin 'refs/heads/lane/*'` = **0**
+and `git rev-list --count deddf595..HEAD` = **0** on every worktree. **Nothing of C's is on trunk, and
+nothing of C's needs to appear as a merged change.** What follows is findings and follow-ups only.
+
+| lane | verdict | territory | state |
+|---|---|---|---|
+| MI-RECOVERY-SCOUT | **PASS** | read-only by design | 0 files |
+| EVAL-SET | **HOLD** | `server/eval/**` | 0 files — did not build, correctly |
+| WEAK-AREA-SATURATION | **PASS** | `src/services/weakAreaAggregator.ts` + test | **built and green — awaiting owner commit + push** |
+| MI-INTAKE-FILTER | **PARTIAL** | `src/services/mistakeIntelligence.ts` + test | **built and green — awaiting owner P5 ruling** |
+| EVAL-PARITY | **HOLD** | `server/eval/**` | blocked on 3 owner rulings |
+
+**★★ TWO STUDENT-FACING FIXES ARE BUILT AND GREEN, WAITING ONLY ON RULINGS:**
+1. **WEAK-AREA-SATURATION** removes both mastery clauses. ★ **The lane re-derived the owner's own
+   figures and found them understated and his line numbers all one low.**
+2. **MI-INTAKE-FILTER** admits a typed step with no deduction. ★ **It closes a defect
+   `handoff/SURFACE_TRACKER.md:189-191` ALREADY RECORDS AS UNFIXED and belonging to no dispatched
+   lane** — *"a full-marks answer with a typed step can become the tutor's most common recent slip."*
+   ⚠ **And the defect was LARGER than specified: `stepDetails` was always empty for EVERY objective
+   question, right and wrong alike.**
+
+**⛔ FIVE OWNER DECISIONS BLOCK C's WAVE FROM LANDING:**
+1. **WEAK-AREA-SATURATION: commit + push?** *(C recommends YES.)*
+2. **MI-INTAKE-FILTER P5** — four consumers sum `marksDeducted` into student-visible numbers, but all
+   four are **provably invariant** (three re-filter `marks > 0`; the fourth adds zero as a no-op).
+   ★ **The stop condition fired on its letter, not its substance, and the lane escalated instead of
+   deciding — correctly.**
+3. **EVAL-PARITY: which of the 16 rules port?** Four are flagged arguable as path-specific.
+4. **EVAL-PARITY: behavioural invariants, or numeric marks?** *(Already owed at `CURRENT_STATE:183`.)*
+5. **EVAL-PARITY: may `checkSolution.cjs` gain EXPORT LINES ONLY?** It is FORBIDDEN — see §3.
+
+⚠⚠⚠ **AND THE ONE THAT BLOCKS ANY GRADER BASELINE AT ALL:** `[FU-EVAL-PROMPT-PARITY-8-OF-16]` —
+**the eval harness sends 8 prompt rules; the shipped route sends 16.** Rules 9-16 are absent and
+harness rule 8 is a *different rule at the same number*. **Per the shipped code's own comment, the
+missing rule 16 (`SCHEME_ASSESSMENT_DIRECTIVES`) is the rule the owner's live-verify failed on.**
+> ★★★ **A NUMBER FROM THIS HARNESS MEASURES A DIFFERENT GRADER THAN THE ONE STUDENTS MEET** — *"the
+> grader we spent thirteen lanes improving still has no number, because the only instrument that
+> could produce one is speaking half the grader's language."*
+
+★★ **C's TWO ADDITIONS TO THE ARC'S RULE — *a check that passes tells you nothing unless you know
+what it measured* — AND BOTH WERE MADE ABOVE THE LANES:**
+- **#7 — A DRIFT CHECK SCOPED TO NAMED CLAUSES.** `EVAL-SET`'s P7 asked after three named
+  corrections, found all three intact, and **returned CLEAN over a prompt missing half its rules.**
+  **Written into a spec's premise ledger by its author.**
+- **#8 — A PATH-SCOPED SEARCH REPORTED WITHOUT ITS SCOPE.** C's scout's `src/`-scoped enumeration
+  missed a live **server** consumer that puts weak areas in front of **PARENTS**. ★ **The scout caught
+  and reported this against itself**, which is why its other findings can be trusted.
+- ★★ **And the wave's headline is a third instance:** *"a zero-hit on GUESSED names is not an
+  absence"* — the recovery counterpart **does** exist (`clearWrongAnswer`, live, tested, shipped),
+  **named for what it REMOVES rather than what it OBSERVES, so a name-grep could never have found it.**
 
 ### 9 - ⚠ THE COUNTS, READ FROM THE RUN AT `deddf595` — **NEVER HARDCODED, AND THEY GROW**
 
@@ -300,6 +430,32 @@ in the demoted `[CURRENT]` sections below and must be read there before any lane
   silently preserved stale content over corrections on this repo before.** **Check
   `gh pr list --state open` as a COMMAND immediately before pushing a handoff, not as a rule you
   remember.**
+
+### 11a - ⚠⚠ WHERE THE ARTEFACTS ACTUALLY ARE — **EXACT PATHS, SO `[FU-ON-DISK-IS-NOT-A-LOCATION]` CANNOT RECUR**
+
+**A READER MUST CHECK BOTH CONVENTIONS. This wave proved that checking one is not checking.**
+
+```
+CONVENTION 1 -- handoff/ (in-repo, and the only one a lane in a clean worktree can reach)
+  handoff/WAVE_STATE_MI_INTEGRITY_7_LIVE.md      Controller A's wave state   (UNTRACKED)
+  handoff/WAVE_STATE_MI_INTEGRITY_8_LIVE.md      Controller B's wave state   (UNTRACKED)
+  handoff/COORD_MI_INTEGRITY_7_CONTROLLER_A.md   A's close-out  -- STALE, see the warning in §8
+  handoff/COORD_MI_INTEGRITY_8_TO_CONTROLLER_C.md   B's outbound coordination to C
+  handoff/BRIEF_*.md                             every lane dispatch          (UNTRACKED)
+
+CONVENTION 2 -- C:\Users\Chetan\OneDrive\Desktop\diff\Wave MI Integrity 3\Report\
+  CLOSEOUT_MI_INTEGRITY_3_CONTROLLER_C.md        Controller C's CLOSE-OUT
+  WAVE_STATE_MI_INTEGRITY_3_CONTROLLER_C.md      Controller C's wave state
+  COORD_MI_INTEGRITY_3_C_TO_B_SRC_SERVICES.md    C's coordination TO Controller B
+  report-mi-recovery-scout-2026-08-20.md   report-eval-set-2026-08-20.md
+  report-weak-area-saturation-2026-08-20.md   report-mi-intake-filter-2026-08-22.md
+  report-eval-parity-2026-08-20.md
+  -- and EVERY lane report for this arc, including this handoff's own
+```
+
+⚠ **EVERYTHING IN CONVENTION 1 IS UNTRACKED. It is a SOURCE, never a CITATION** — a reader in a
+clean worktree cannot open it. **Cite `handoff/DECISION_LOG.md`, which IS tracked.**
+⚠ **NOTHING IN CONVENTION 2 IS IN THE REPOSITORY AT ALL.** It exists on one machine.
 
 ### 11 - NEXT, IN ORDER
 

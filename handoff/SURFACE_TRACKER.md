@@ -88,6 +88,25 @@ DISTANCE BETWEEN THIS PRODUCT AND INVENTING MARKS FOR CHILDREN.**
 Revoking a key at runtime tests the wrong thing and returns a clean result that means nothing.**
 **Until that runs, this cell does not go green.**
 
+### ⚠⚠⚠ CELL 4 — `/daily-mix` — **SEVERED PAGE, LIVE BUTTONS. A CELL THIS TRACKER HAD NOT RECORDED AT ALL.**
+
+**Scope: UNTRACKED → flagged.** *(Controller C, MI-RECOVERY-SCOUT. LANE-REPORTED via C; not
+re-measured by the handoff lane. Added by amendment 2026-08-24.)*
+
+> **SIX live clickable navigations to a page with no Route** — `Dashboard.tsx:314` · `:317` · `:323`
+> · `:665` · `:738` · `DailyMixPreview.tsx:36`, against `App.tsx:1027-1030`. **A student clicks and
+> the catch-all bounces them home.** ★★★ **THE PAGE WAS SEVERED; THE BUTTONS WERE NOT.**
+
+⚠ **This is live on trunk today, it is student-facing, and it belongs to no lane and no spec.**
+⚠ **Its knock-on is CELL 5's root cause:** the severed page was the **sole writer of mastery**
+(`DailyMixPage.tsx:102-103`), which is why the weak-area list is saturated — **and why
+`[FU-MASTERY-REPLAY-CYCLE]` replays a closed cycle fed only by a page nobody can reach.**
+
+> ★★ **THE LESSON FOR THIS TRACKER: SEVERING A ROUTE IS NOT RETIRING A SURFACE.** The route died, the
+> entry points lived, and the data it alone produced went quietly missing — **and the tracker recorded
+> none of the three.** A retirement cell should name the route, its entry points, and its outputs.
+
+
 ### ⛔ THE TAXONOMY CELL — **DOES NOT MOVE, AND THE REASON IS NOT "NOBODY GOT TO IT"**
 
 **`U3 TAXONOMY-3BUCKET` is specified (`15547 / 5D4DC3B95304`), repaired on four defects, and NOT
@@ -97,11 +116,18 @@ BUILT.** It was stopped by a **hard collision with Controller C on its own prima
 
 ⚠⚠ **AND A WARNING ABOUT HOW THIS CELL WILL LOOK WHEN IT DOES MOVE — CARRY IT IN THESE WORDS OR A
 READER TAKES AN INERT SURFACE FOR A FAILED LANE:** **re-partitioning will NOT change which topics a
-student is told they are weak at.** Three clauses in `weakAreaAggregator.ts` fire on **ABSENCE**
-(`:153` +20, `:156` +15, `:157` +10) against a **threshold of 5**, and the mastery store has **NO LIVE
-WRITER** ⇒ **ALL 26 CHAPTERS QUALIFY FOR EVERY STUDENT. THE WEAK-AREA LIST IS A CONSTANT TODAY.**
+student is told they are weak at.** ⚠⚠ **MEASURED, corrected before merge from Controller C's
+close-out; the figures first written here were relayed and were understated.** The gate is
+**`confidenceScore > 5` at `weakAreaAggregator.ts:161`** — **the owner's line numbers were ALL ONE
+LOW** — **THREE OF SIX** clauses fire on **ABSENCE**, and ⚠ **the writer is NOT absent: it is
+`DailyMixPage.tsx:102-103`, a page with NO ROUTE** (`App.tsx:1027-1030`, severed). **A NEW student
+scores 45; a PERFECT-RECORD student scores 30, against a threshold of 5.** ⇒ **ALL 26 CHAPTERS
+QUALIFY FOR EVERY STUDENT, PERMANENTLY.**
 ★ **U3 is NOT wrong** — nine consumer files and three student-facing headings still matter —
-⚠ **but NOBODY MAY LIVE-VERIFY U3 BY LOOKING AT THE WEAK-AREA LIST.**
+⚠ **but NOBODY MAY LIVE-VERIFY U3 BY LOOKING AT THE WEAK-AREA LIST**, in either direction.
+⚠⚠ **AND THIS TRACKER MUST RECORD WHO SEES IT: `server/routes/share.cjs:128` serves the weak-area
+list into the SHARED PARENT REPORT.** **PARENTS SEE IT** — a fifth consumer, **invisible to any
+`src/`-scoped search.**
 
 ★★ **A DISTINCTION THIS TRACKER MUST NOT BLUR:** **that is a SATURATION, not a dormancy.** A dormant
 surface is code that never runs. **This is live code with a saturated input** — it runs, and it

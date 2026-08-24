@@ -133,6 +133,64 @@ is a defect nobody fixes.**
   ★ *The instruction survived its author's wrong attribution because it said LOCATE BY TEXT rather
   than "assume `#695` moved it".*
 
+### DECISION 12 — ⚠⚠ **AMENDED BEFORE MERGE: "ON DISK" IS NOT A LOCATION, AND THE INSTRUCTION WAS THE DEFECT**
+
+**This section was written asserting that no Controller C close-out existed. That was TRUE when
+written and FALSE by the time the PR was pushed.** The struck sentence is preserved in
+`CURRENT_STATE.md` and `SESSION_LOG.md` rather than deleted, **because it is the evidence.**
+
+```
+13:17  `ls handoff/` for a C close-out    -> NONE. TRUE AT THAT INSTANT.
+13:36  C's coord to Controller B appears
+13:56  the handoff PR is pushed asserting no C close-out exists
+14:03  C's CLOSE-OUT appears
+       all three under  C:\Users\Chetan\OneDrive\Desktop\diff\Wave MI Integrity 3\Report\
+```
+
+**RULING, AND THE OWNER HAS CLAIMED THE DEFECT AS HIS:** he told three controllers to write their
+close-out **TO DISK** and **never gave a path.** **Controller A wrote to `handoff/`. Controller C
+wrote to the Desktop report folder. BOTH COMPLIED. NEITHER COULD FIND THE OTHER.**
+
+> ★★★ **"A write-it-to-disk instruction without a path is an instruction to write it somewhere the
+> reader won't look."**
+
+⚠⚠ **It is the same failure the handoff lock exists to prevent — the one that lost Controller A's
+twenty-one follow-ups — ARRIVING INSIDE THE VERY PR THAT RECOVERED THEM.**
+⇒ **THE FIX IS A PATH, NOT A REMINDER.** `CURRENT_STATE.md` §11a now names every cross-controller
+artefact by exact absolute path under **both** conventions, and a reader must check both.
+`[FU-ON-DISK-IS-NOT-A-LOCATION]`
+
+### DECISION 13 — **THE `EXPORT-PROMPT` WITHDRAWAL IS RECORDED AS RESTING ON A FALSE PREMISE, NOT AS A JUDGEMENT THAT HELD**
+
+**Controller C's `EVAL-PARITY` lane measured that 11 rule constants are MODULE-LEVEL and merely
+UNEXPORTED; only `STRUCTURED_MISTAKE_TAXONOMY` is genuinely closure-sealed.**
+
+> **OWNER, VERBATIM:** *"I WITHDREW EXPORT-PROMPT ON THE PREMISE THAT HOISTING WAS A REAL REFACTOR.
+> That premise is disproved. The withdrawal rested on a false premise and must be recorded that way,
+> NOT as a judgement that held. The successor may reinstate it cheaply."*
+
+⇒ ★★ **THE SUCCESSOR INHERITS A REINSTATABLE LANE, NOT A CLOSED ONE.** ★ *Two controllers and a spec
+author all assumed a seal that was never there — and none of them ran the check.* Same family as the
+withdrawn rollup claim and the `[FU-EVAL-KEY-EXISTS-WORKTREE-ARTEFACT]` amplification: **an inference
+hardened into a statement without the one-line command.**
+
+### DECISION 14 — **THE GOVERNING-DOC DEFECT IS RECORDED AGAINST TWO FILES, AND NEITHER IS EDITED HERE**
+
+**`CLAUDE.md` §10 AND `ops/CONTROLLER_SUBAGENT_MODEL.md` §4 both name SIX handoff files. There are
+SEVEN.** Only `ops/CONTROLLER_ADDENDUM_Context_Safeguards.md` §6 is correct.
+⇒ ⚠⚠ **TWO OF THE THREE GOVERNING DOCS ARE WRONG, AND THEY ARE THE TWO A LANE READS FIRST.**
+⚠ **This PR edits neither.** It is a docs-only handoff, and **no controller or lane authors that
+erratum — it is the owner's to commission.** *Recorded rather than fixed, deliberately.*
+
+### DECISION 15 — **C's LANES ARE FOLDED IN AS FINDINGS, AND THE LANE TABLE IS LEFT UNCHANGED**
+
+**Controller C ran five lanes and put nothing on trunk** — verified by C with
+`git ls-remote --heads origin 'refs/heads/lane/*'` = 0 and `rev-list --count deddf595..HEAD` = 0 on
+every worktree. ⇒ **The merged-PR table stays as it was; C's content enters as findings, follow-ups
+and blocked decisions only.** ★ *A controller's verification of its own lanes' cleanliness is the one
+claim that can be checked without reading code, so it was checked rather than relayed.*
+
+
 ### ⚠ ADDENDUM TO THE ROT-MODE REGISTER — **NINE MODES REMAIN NINE**
 
 **The "tenth" mode proposed in MI-6 was WITHDRAWN.** It is **mode 5 — BASE SHA AND CITATION TREE BEING

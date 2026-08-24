@@ -8,9 +8,17 @@ lane at `deddf595`). **A controller cannot verify a code claim.**
 
 ⚠⚠ **THIS IS ONE ENTRY FOR TWO WAVES, BECAUSE WAVE MI-INTEGRITY-7 CLOSED WITHOUT A HANDOFF PR.**
 **Controller A** ran MI-7 on `lazytopper/server/` and stood down. **Controller B** ran MI-8 on
-`src/components` + `src/pages` and held the handoff lock. **Controller C** is live on `src/services/`
-+ `server/eval/` and **opens no handoff PR**. ⛔ **NO CONTROLLER C CLOSE-OUT EXISTED ON DISK WHEN THIS
-ENTRY WAS WRITTEN.** Nothing here is C's, and none of it was invented on C's behalf.
+`src/components` + `src/pages` and held the handoff lock. **Controller C** ran MI-3 on `src/services/`
++ `server/eval/` and **opened no handoff PR**.
+
+⛔⛔ **CORRECTION MADE BEFORE MERGE — THE STRUCK SENTENCE WAS TRUE WHEN WRITTEN AND FALSE BY THE TIME
+THIS PR WAS PUSHED. STRUCK, NOT DELETED: it is the evidence for the finding of the wave.**
+
+> ~~**NO CONTROLLER C CLOSE-OUT EXISTED ON DISK WHEN THIS ENTRY WAS WRITTEN.** Nothing here is C's,
+> and none of it was invented on C's behalf.~~
+
+**IT EXISTS, AND IT WAS NEVER IN `handoff/`** — C wrote to
+`C:\Users\Chetan\OneDrive\Desktop\diff\Wave MI Integrity 3\Report\`. **C's content is folded in.**
 
 **WHAT LANDED, EVERY ROW RE-DERIVED BY THIS LANE** with `gh pr view <n> --json mergeCommit` and
 `git log --oneline -- <path>` at `deddf595` — **not from any close-out, because Controller A's is
@@ -82,12 +90,23 @@ work.** **OWNER-RULED SEQUENCE: `MI-INTAKE-FILTER` merges FIRST, THEN U3, NOT ME
 because MI-INTAKE is one predicate and U3 is ~52 sites across 19 files, **and merging them makes a
 small verifiable change hostage to the largest lane of the arc.**
 
-★★ **THE SATURATION CAVEAT, WHICH MUST TRAVEL IN THESE WORDS:** re-partitioning **will NOT change
-which topics a student is told they are weak at**, because three clauses in `weakAreaAggregator.ts`
-fire on **ABSENCE** (`:153` +20, `:156` +15, `:157` +10) against a threshold of 5 and the mastery
-store has **NO LIVE WRITER** ⇒ **ALL 26 CHAPTERS QUALIFY FOR EVERY STUDENT. THE WEAK-AREA LIST IS A
-CONSTANT TODAY.** ★ **U3 is not wrong** — nine consumer files and three student-facing headings still
-matter — ⚠ **but nobody may live-verify U3 by looking at the weak-area list.**
+★★ **THE SATURATION CAVEAT, WHICH MUST TRAVEL IN THESE WORDS** — ⚠⚠ **and the numbers below are the
+MEASURED ones, corrected before merge from Controller C's close-out; the figures first written here
+were RELAYED, and C's own lane re-derived them and found the defect WORSE than either the owner or
+the controller had counted.** Re-partitioning **will NOT change which topics a student is told they
+are weak at.** The qualifying gate is **`confidenceScore > 5` at `weakAreaAggregator.ts:161`** — the
+owner's clause line numbers were **ALL ONE LOW** — and **THREE OF SIX** clauses fire on **ABSENCE**,
+not three of three. ⚠ **The writer is NOT absent: it is `DailyMixPage.tsx:102-103`, a page with NO
+ROUTE** (`App.tsx:1027-1030`, severed). **A NEW student scores 45; a student with a PERFECT RECORD
+scores 30. Both against a threshold of 5.** ⇒ **ALL 26 CHAPTERS QUALIFY FOR EVERY STUDENT,
+PERMANENTLY. THE WEAK-AREA LIST IS A CONSTANT TODAY — never earned, and impossible to un-earn.**
+★ **U3 is not wrong** — nine consumer files and three student-facing headings still matter —
+⚠⚠ **but NOBODY MAY LIVE-VERIFY U3 BY LOOKING AT THE WEAK-AREA LIST**, in either direction: at that
+surface a correct re-partition is **INERT, a silent no-op that passes every gate.**
+> ★★★ **C's one sentence for this handoff:** *the weak-area list was never earned and cannot be
+> un-earned — it is a dead page's silence being shown to students and their parents as a verdict on
+> 26 chapters.* ⚠ **PARENTS SEE IT:** `server/routes/share.cjs:128` serves this list into the shared
+> parent report, a fifth consumer **invisible to any `src/`-scoped search.**
 
 **COUNTS, READ FROM TRUNK'S OWN CI RUN (`gh run view 32542241464 --log`), NOT INHERITED —
 HANDOFF-VERIFIED:** lazytopper vitest **`Test Files 145 passed (145)` / `Tests 1882 passed (1882)`** ·

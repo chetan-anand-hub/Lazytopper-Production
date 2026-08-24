@@ -13,6 +13,138 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 ---
 
 
+---
+
+## 2026-08-24 (AMENDMENT, pre-merge) — CONTROLLER C's follow-ups, and the finding that C's close-out was NOT WHERE ANYONE LOOKED
+
+*Added to this PR before merge, after Controller C's close-out was found at a path outside the
+repository. Per standing rule 1, every ID below has its own heading and body.*
+
+### ★★★ `[FU-ON-DISK-IS-NOT-A-LOCATION]` — the finding of the wave, and the owner has claimed it as his
+
+**NEW. OWNED BY THE OWNER BY HIS OWN INSTRUCTION.** He told three controllers to write their
+close-out **TO DISK** and **never once gave a path.**
+
+```
+13:17  handoff lane runs `ls handoff/` for a Controller C close-out  -> NONE. TRUE AT THAT INSTANT.
+13:36  COORD_MI_INTEGRITY_3_C_TO_B_SRC_SERVICES.md appears -- addressed TO CONTROLLER B
+13:56  the handoff PR is pushed, asserting no C close-out exists
+14:03  CLOSEOUT_MI_INTEGRITY_3_CONTROLLER_C.md appears
+       all three under  C:\Users\Chetan\OneDrive\Desktop\diff\Wave MI Integrity 3\Report\
+```
+
+**Controller A wrote to `handoff/`. Controller C wrote to the Desktop report folder. BOTH COMPLIED.
+NEITHER COULD FIND THE OTHER.**
+
+> ★★★ **"A write-it-to-disk instruction without a path is an instruction to write it somewhere the
+> reader won't look."**
+
+⚠⚠ **THIS IS THE SAME FAILURE THE HANDOFF LOCK EXISTS TO PREVENT — the one that lost Controller A's
+twenty-one follow-ups — ARRIVING INSIDE THE VERY PR THAT RECOVERED THEM.** ★ *Nobody was wrong; the
+instruction was.* **The fix is a path, not a reminder:** `CURRENT_STATE.md` §11a now names every
+cross-controller artefact by exact absolute path, under both conventions.
+
+### ⚠⚠⚠ `[FU-DAILYMIX-DEAD-BUTTONS]` — SIX LIVE BUTTONS TO A SEVERED PAGE. STUDENT-FACING, LIVE, UNOWNED.
+
+**NEW, PRODUCT, AND THE MOST URGENT ITEM ON THIS BOARD.** `Dashboard.tsx:314` · `:317` · `:323` ·
+`:665` · `:738` · `DailyMixPreview.tsx:36` are **live clickable navigations to `/daily-mix`, a page
+that was severed** (`App.tsx:1027-1030`). They **bounce the student home via the catch-all.**
+★★★ **THE PAGE WAS SEVERED; THE BUTTONS WERE NOT.** ⚠ **Live on trunk today and owned by no lane.**
+*(Controller C, MI-RECOVERY-SCOUT. LANE-REPORTED via C, not re-measured here.)*
+
+### ★★★ `[FU-WEAKAREA-SATURATED-BY-DEAD-PAGE]` — a dead page's missing data read as a student's ignorance
+
+**NEW, PRODUCT. C's most valuable finding, and student-facing.** The qualifying gate is
+`confidenceScore > 5` (`weakAreaAggregator.ts:161`); **three of six clauses fire on MISSING DATA**,
+because the sole writer of mastery is `DailyMixPage.tsx:102-103` — **a page with no Route.**
+**A new student scores 45; a PERFECT-RECORD student scores 30.** ⇒ **All 26 canonical chapters
+qualify for every student, permanently.** ⚠ **A correct taxonomy re-partition is therefore INERT at
+this surface — a silent no-op that passes every gate.** **C has a fix built and green, awaiting a
+commit ruling.**
+
+### `[FU-WEAKAREA-CLOSED-COUNTER-ALWAYS-ZERO]` — the only recovery affordance a student can see can never fire
+
+**NEW, PRODUCT.** The counter at `WeakAreaPracticePage.tsx:397` is gated on `mastery.percent >= 70`
+and is therefore **structurally always 0.**
+
+### `[FU-TUTOR-TOLD-EVERY-TOPIC-UNSEEN]` — the tutor is told every topic is unseen, for every student, always
+
+**NEW, PRODUCT.** Same root cause as the two entries above: the mastery store has only one writer and
+that writer is unrouted.
+
+### ⚠⚠ `[FU-WEAKAREA-FIFTH-CONSUMER-SERVER-SHARE]` — **PARENTS SEE IT**
+
+**NEW, PRODUCT.** `server/routes/share.cjs:128` (wired `index.cjs:283` / `:427`) serves the weak-area
+list into the **shared parent report.** ⚠ **A fifth consumer, INVISIBLE TO ANY `src/`-SCOPED SEARCH**
+— and C's own scout **caught and reported this against itself**, which is why its other findings can
+be trusted. ⇒ **The saturated list is shown to parents as a verdict on 26 chapters.**
+
+### ⚠⚠⚠ `[FU-EVAL-PROMPT-PARITY-8-OF-16]` — the harness speaks half the grader's language, and it BLOCKS ANY BASELINE
+
+**NEW.** The eval harness sends **8** prompt rules; the shipped route sends **16.** Rules 9-16 are
+absent, and **harness rule 8 is a different rule at the same number.** Per the shipped code's own
+comment, the missing **rule 16 (`SCHEME_ASSESSMENT_DIRECTIVES`) is the rule the owner's live-verify
+failed on.** ⇒ ★★★ **A NUMBER FROM THIS HARNESS MEASURES A DIFFERENT GRADER THAN THE ONE STUDENTS
+MEET.** **No grader baseline is possible until this closes.**
+
+### `[FU-EVAL-CONSTANTS-NOT-SEALED]` — and it reopens a spec the owner withdrew
+
+**NEW.** **11 rule constants are MODULE-LEVEL and merely UNEXPORTED; only
+`STRUCTURED_MISTAKE_TAXONOMY` is genuinely closure-sealed.** ⚠⚠ **This disproves the premise
+`EXPORT-PROMPT` was withdrawn on.** See `CURRENT_STATE.md` §3 — **the owner has recorded the
+withdrawal as resting on a false premise, and the lane as REINSTATABLE CHEAPLY.** It is **the
+difference between importing one source of truth and authoring a fourth drifted copy.**
+
+### `[FU-EVAL-SPEC-LEDGER-STALE-POST-694]` — **NOT CLOSED. IT FIRED A SECOND TIME.**
+
+**RE-RAISED.** `EVAL-SET.md`'s P2/P3 anchors moved (`:221` to `:231`, `:73` to `:77`): **claims TRUE,
+addresses STALE**, and the ledger **fails its own gate at exit 1.** ⚠ **The re-spec inherited the
+predecessor's stale P-row line numbers EVEN THOUGH its Base SHA was re-anchored** — rot mode 5, second
+instance. **A re-issue needs a new SHA-256.**
+
+### `[FU-EVAL-REGIME-B-SUBJECTIVE-UNCOVERED]` — the primary surface is exercised by nothing
+
+**NEW.** The lone Regime B case is an **objective MCQ**, so the **scheme-absent SUBJECTIVE path —
+Check & Improve, the product's primary surface — has no coverage at all.**
+
+### `[FU-EVAL-OWNER-MARKS-DO-NOT-EXIST]` — uncollected, and no agent can produce them
+
+**NEW, OWNER-ONLY.** The reference marks the harness would be scored against **do not exist**, and
+**no agent can create them.**
+
+### `[FU-MI-INTAKE-NARROWER-THAN-INTENDED]` — the guards that make the fix safe also limit it
+
+**NEW.** The `marks > 0` guards that make `MI-INTAKE-FILTER` provably invariant **also mean
+mark-weighted views still ignore the newly admitted diagnoses.**
+
+### `[FU-MASTERY-REPLAY-CYCLE]` — a closed cycle fed only by a severed page
+
+**NEW.** `studentProgressStore.ts:251` via `AuthContext.tsx:316` replays cloud mastery to
+localStorage. **Universal for post-sever accounts, possibly PARTIAL for legacy ones.**
+
+### `[FU-EVAL-KEY-EXISTS-WORKTREE-ARTEFACT]` — a repo fact that was only ever a worktree fact
+
+**NEW, AND C RECORDED IT AGAINST ITSELF.** The harness had been **declared unrunnable for lanes** on
+an artefact of worktree isolation: the API key lives in the shared checkout's gitignored
+`server/.env`, so **every fresh worktree reports it absent.** ⇒ **A controller amplified one lane's
+worktree observation into a repo fact.** ★ *The same shape as this arc's withdrawn rollup claim.*
+
+### `[FU-HANDOFF-D1-STALE]` — three handoff files still assert D1 live
+
+**NEW.** `#694` closed D1/D2/D4, but three handoff files still assert D1 is live.
+⚠ **Lane-reported and explicitly NOT verified by Controller C — its corroborating grep measured
+nothing**, which is a null result, not a confirmation. **Carry it at that confidence.**
+
+### ⚠ `[FU-CLAUDEMD-S10-OMITS-DECISION-LOG]` — **AMENDED: THE DEFECT IS IN TWO GOVERNING DOCS, NOT ONE**
+
+**`CLAUDE.md` §10 names SIX handoff files and there are SEVEN** — and **`ops/CONTROLLER_SUBAGENT_MODEL.md`
+§4 carries the SAME defect** ("the six handoff files"). Only
+`ops/CONTROLLER_ADDENDUM_Context_Safeguards.md` §6 is correct at seven.
+⇒ ⚠⚠ **TWO OF THE THREE GOVERNING DOCS ARE WRONG, AND THEY ARE THE TWO A LANE READS FIRST.**
+⚠ **Neither is edited by this PR** — this is a docs-only handoff, and **no controller or lane authors
+that erratum; it is the owner's to commission.**
+
+
 ## 2026-08-24 — WAVE MI-INTEGRITY-7 + WAVE MI-INTEGRITY-8 — new, re-stated and closed follow-ups (trunk `deddf595`; `#694` · `#695` · `#696` · `#697` all merged)
 
 *Per standing rule 1, every ID below has its own heading and body. Per standing rule 3, **no dated
