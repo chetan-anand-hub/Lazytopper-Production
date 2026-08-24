@@ -605,3 +605,170 @@ describe("additive-shape openness — this suite must NOT freeze the entry shape
       .toEqual(["calculation", "conceptual", "presentation", "silly"]);
   });
 });
+
+/* ══════════════════════════════════════════════════════════════════════════
+   T6 · INTAKE PREDICATE — a diagnosis enters MI on its TYPE, not on whether it
+   cost marks. (Lane MI-INTAKE-FILTER.)
+   ══════════════════════════════════════════════════════════════════════════
+
+   WHY THIS IS FULL DISCIPLINE AND NOT A THIN TEST. It pins a DECISION with two
+   opposite failure modes, and the product breaks differently in each direction:
+
+     · drop the TYPE test  -> MI fabricates a diagnosis for an undiagnosed step,
+                             which is the honesty doctrine breaking outright;
+     · restore the DEDUCTION test -> every diagnosis on an OBJECTIVE question is
+                             silently discarded again, because the grader sets
+                             `marksDeducted = 0` on EVERY step of an MCQ /
+                             1-mark item by design
+                             (`server/routes/objectiveScoring.cjs`,
+                             `clampObjectiveResult`), while
+                             `applyObjectiveMistakeGuard` deliberately KEEPS the
+                             mistakeType whenever there is real working to
+                             classify. That is precisely the case
+                             solution-upload-on-a-1-mark-question exists for.
+
+   Both directions are mutation-verified. */
+describe("T6 · intake predicate — type admits, deduction does not gate", () => {
+  it("★ records a step carrying a mistakeType with marksDeducted 0 (a right answer reached by a flawed method)", async () => {
+    await recordMistake(
+      USER,
+      graded({ total: 1, awarded: 1, steps: [{ n: 1, type: "conceptual", deducted: 0 }] }),
+      ctx({ questionId: "objective-correct-but-flawed" }),
+    );
+    expect(logMistakesMock).toHaveBeenCalledTimes(1);
+    const details = loggedEntry().stepDetails as Array<Record<string, unknown>>;
+    expect(details).toHaveLength(1);
+    expect(details[0].mistakeType).toBe("conceptual");
+    expect(details[0].marksDeducted).toBe(0);
+    expect(details[0].stepNumber).toBe(1);
+  });
+
+  it("★ ANTI-FABRICATION: a step with NO mistakeType is still NOT recorded, however it scored", async () => {
+    await recordMistake(
+      USER,
+      graded({ total: 4, awarded: 2, steps: [{ n: 1, type: null, deducted: 2 }] }),
+      ctx({ questionId: "untyped-but-costly" }),
+    );
+    // The entry itself is logged (marks were lost), but the untyped step must not
+    // appear in the per-step detail: inventing a type would be fabrication.
+    expect(logMistakesMock).toHaveBeenCalledTimes(1);
+    expect(loggedEntry().stepDetails).toEqual([]);
+  });
+
+  it("a typed step WITH a deduction is recorded exactly as before (regression guard)", async () => {
+    await recordMistake(
+      USER,
+      graded({ total: 5, awarded: 2, steps: [{ n: 2, type: "calculation", deducted: 3 }] }),
+      ctx({ questionId: "typed-and-costly" }),
+    );
+    expect(loggedEntry().stepDetails).toEqual([
+      { stepNumber: 2, mistakeType: "calculation", marksDeducted: 3 },
+    ]);
+  });
+
+  it("mixes: only the typed steps ride, untyped ones never do, deduction irrelevant", async () => {
+    await recordMistake(
+      USER,
+      graded({
+        total: 5,
+        awarded: 4,
+        steps: [
+          { n: 1, type: "presentation", deducted: 0 },
+          { n: 2, type: null, deducted: 1 },
+          { n: 3, type: "silly", deducted: 1 },
+        ],
+      }),
+      ctx({ questionId: "mixed-steps" }),
+    );
+    const details = loggedEntry().stepDetails as Array<Record<string, unknown>>;
+    expect(details.map((d) => d.stepNumber)).toEqual([1, 3]);
+  });
+
+  it("coerces a junk marksDeducted to 0 rather than persisting NaN/undefined", async () => {
+    const junk = graded({ total: 2, awarded: 2, steps: [{ n: 1, type: "silly", deducted: 0 }] }) as unknown as {
+      annotatedSteps: Array<Record<string, unknown>>;
+    };
+    delete junk.annotatedSteps[0].marksDeducted;
+    await recordMistake(USER, junk as never, ctx({ questionId: "junk-deduction" }));
+    const details = loggedEntry().stepDetails as Array<Record<string, unknown>>;
+    expect(details).toHaveLength(1);
+    expect(details[0].marksDeducted).toBe(0);
+    expect(Number.isNaN(details[0].marksDeducted)).toBe(false);
+  });
+
+  /* ★★ CASE 4 — THE SAFETY GUARD. This lane must add a DIAGNOSIS without adding a
+     LOST MARK. `marksLost` is computed from the QUESTION TOTALS
+     (`totalMarks - marksAwarded`), never by summing the per-step list, so the
+     figure has to be identical no matter what the step list contains. */
+  it("★★ marksLost is UNCHANGED by what enters the per-step list", async () => {
+    const variants: Array<{ label: string; steps: Array<{ n: number; type: string | null; deducted: number }> }> = [
+      { label: "no steps", steps: [] },
+      { label: "typed, zero deduction", steps: [{ n: 1, type: "conceptual", deducted: 0 }] },
+      { label: "untyped, with deduction", steps: [{ n: 1, type: null, deducted: 3 }] },
+      { label: "typed, with deduction", steps: [{ n: 1, type: "conceptual", deducted: 3 }] },
+      {
+        label: "many typed, zero deduction",
+        steps: [
+          { n: 1, type: "conceptual", deducted: 0 },
+          { n: 2, type: "silly", deducted: 0 },
+          { n: 3, type: "presentation", deducted: 0 },
+        ],
+      },
+    ];
+    const seen: number[] = [];
+    for (const v of variants) {
+      logMistakesMock.mockReset();
+      logMistakesMock.mockResolvedValue(undefined);
+      window.localStorage.clear();
+      await recordMistake(
+        USER,
+        graded({ total: 6, awarded: 2, steps: v.steps }),
+        ctx({ questionId: `marks-invariance-${v.label}` }),
+      );
+      seen.push(loggedEntry().marksLost as number);
+    }
+    // 6 - 2 = 4, for every single variant.
+    expect(seen).toEqual([4, 4, 4, 4, 4]);
+  });
+
+  /* ★ CASE 5 — CONSUMER SAFETY. Four shipped modules read `stepDetails`, and each
+     one that SUMS `marksDeducted` into a student-visible number re-filters to a
+     POSITIVE value first, so a zero-deduction entry contributes exactly nothing:
+
+       · pages/desktop/DesktopPracticePage.tsx  `marksLostForBucket`
+           `if (type.includes(bucket) && Number.isFinite(marks) && marks > 0) total += marks;`
+       · pages/MeProgressPage.tsx  (paper split, and the chapter gap type)
+           `if (!Number.isFinite(marks) || marks <= 0) continue;`   x2
+       · services/mistakeInsightsService.ts  `summarizeCareless`
+           `marksLost += Number(s.marksDeducted) || 0;`  — no guard needed: adding
+           zero is an arithmetic no-op.
+
+     A behavioural test cannot reach three of those (they are module-private), so
+     what this pins instead is the hazard a future change actually creates: a NEW,
+     unreviewed consumer appearing. Same shape and same reasoning as T1's
+     single-writer scan — you cannot prove a negative existential by calling a
+     function. If this goes red, a human re-runs the zero-deduction analysis above
+     for the file that appeared. */
+  it("★ the set of shipped modules reading `stepDetails` is the reviewed set", () => {
+    const readers = collectShippedSources(SRC_ROOT)
+      .filter((f) => f.source.includes("stepDetails"))
+      .map((f) => f.path)
+      .sort();
+    expect(readers).toEqual(
+      [
+        // doc comment only — describes the intake rule, reads nothing
+        "pages/desktop/DesktopCheckImprovePage.tsx",
+        // consumer — sums, guarded `marks > 0`
+        "pages/desktop/DesktopPracticePage.tsx",
+        // consumer x2 — sums, guarded `marks <= 0 continue`
+        "pages/MeProgressPage.tsx",
+        // consumer — sums, `|| 0` no-op on zero
+        "services/mistakeInsightsService.ts",
+        // the producer this lane changed
+        "services/mistakeIntelligence.ts",
+        // the type declaration
+        "services/mistakeLogService.ts",
+      ].sort(),
+    );
+  });
+});
