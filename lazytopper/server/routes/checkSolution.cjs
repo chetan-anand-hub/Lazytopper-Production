@@ -2608,4 +2608,23 @@ module.exports = {
   buildMistakeSummary,
   DEPARTURE_TEACHER_LINE,
   ECF_POLICY_V2_PROMPT,
+  // EVAL-PARITY. Exported PURELY so `server/eval/graderEval.cjs` can assemble its
+  // grading prompt from THE SHIPPED STRINGS instead of keeping its own copies.
+  // Every name below is a module-level const/function defined ABOVE
+  // `createCheckSolutionRoute` (:954) and is UNCHANGED by this export block —
+  // adding a name to module.exports cannot alter the prompt bytes, which the two
+  // contents pins (NO_UPLOADS_CONTENTS_SHA256, SINGLE_Q_CONTENTS_SHA256) verify.
+  // ⚠ A COPY THAT KNOWS IT IS A COPY IS SURVIVABLE; ONE THAT DOES NOT IS THE NEXT
+  // DRIFT — this file family already carried three drifted copies of one taxonomy,
+  // two with hand-written "keep in sync" comments that did not keep them in sync.
+  ECF_VERIFICATION_STEP_CLAUSE,
+  WORD_PROBLEM_FINAL_ANSWER_PROMPT,
+  QUESTION_MISCOPY_PROMPT,
+  IDENTIFY_EVERY_STEP_PROMPT,
+  presentationVsMissingPrompt,
+  CORRECTED_WORKING_PROMPT,
+  PER_STEP_ATTRIBUTION_PROMPT,
+  NO_MANUFACTURED_MISSING_STEPS_PROMPT,
+  SCHEME_ASSESSMENT_DIRECTIVES,
+  subjectChecklistBody,
 };

@@ -117,6 +117,8 @@
     "verify:fast": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/ops/codex_testing/codex_verify.ps1 -TaskName quick -Suite fast",
     "verify:full": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/ops/codex_testing/codex_verify.ps1 -TaskName full -Suite full",
     "tutor:eval": "node scripts/tutorEval.mjs",
+    "eval:grader": "node server/eval/graderEval.cjs",
+    "test:eval:parity": "node --test server/eval/graderEval.parity.test.cjs",
     "start:safe": "node scripts/startSafe.mjs",
     "start:quick": "npx tsc -p tsconfig.app.json --noEmit && npm run build",
     "test": "vitest run",
