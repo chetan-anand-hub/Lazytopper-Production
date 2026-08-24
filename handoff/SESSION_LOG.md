@@ -1,5 +1,134 @@
 ---
 
+## 2026-08-24 — Wave MI-INTEGRITY-7 + Wave MI-INTEGRITY-8 (three controllers, nine units) — **FOUR PRs MERGED: `#694` · `#695` · `#696` · `#697`** — trunk `deddf595`, moved FOUR times
+
+★ **PROVENANCE.** Code claims below carry their source: **OWNER-VERIFIED** / **LANE-REPORTED** /
+**SCOUT-REPORTED** / **CONTROLLER-RECORDED** / **HANDOFF-VERIFIED** (re-derived by the `HANDOFF-MI8`
+lane at `deddf595`). **A controller cannot verify a code claim.**
+
+⚠⚠ **THIS IS ONE ENTRY FOR TWO WAVES, BECAUSE WAVE MI-INTEGRITY-7 CLOSED WITHOUT A HANDOFF PR.**
+**Controller A** ran MI-7 on `lazytopper/server/` and stood down. **Controller B** ran MI-8 on
+`src/components` + `src/pages` and held the handoff lock. **Controller C** ran MI-3 on `src/services/`
++ `server/eval/` and **opened no handoff PR**.
+
+⛔⛔ **CORRECTION MADE BEFORE MERGE — THE STRUCK SENTENCE WAS TRUE WHEN WRITTEN AND FALSE BY THE TIME
+THIS PR WAS PUSHED. STRUCK, NOT DELETED: it is the evidence for the finding of the wave.**
+
+> ~~**NO CONTROLLER C CLOSE-OUT EXISTED ON DISK WHEN THIS ENTRY WAS WRITTEN.** Nothing here is C's,
+> and none of it was invented on C's behalf.~~
+
+**IT EXISTS, AND IT WAS NEVER IN `handoff/`** — C wrote to
+`C:\Users\Chetan\OneDrive\Desktop\diff\Wave MI Integrity 3\Report\`. **C's content is folded in.**
+
+**WHAT LANDED, EVERY ROW RE-DERIVED BY THIS LANE** with `gh pr view <n> --json mergeCommit` and
+`git log --oneline -- <path>` at `deddf595` — **not from any close-out, because Controller A's is
+STALE ON ITS OWN CENTRAL FACT: it says "NOTHING OF MINE IS ON TRUNK" and lists A3 as NOT PUSHED, and
+BOTH ITS PRs MERGED.**
+
+| PR | merged as | files | what a student gets |
+|---|---|---|---|
+| `#694` | `fd85835e` | 1 | The grader's examiner stops marking a paper the product no longer sets. Three drifts closed in `graderEval.cjs` — the sharpest emitted a `"Final answer:"` header on **both** branches of its scheme ternary where the shipped path emits an empty string, so **every scheme-absent score was inflated by construction, and scheme-absent is Check & Improve** |
+| `#695` | `6260db7c` | 3 | A credential outage **refuses instead of inventing a grade** — HTTP 503, not a fabricated 70% — and **the CI gate that REQUIRED the fabrication now forbids it** |
+| `#696` | `f75e8356` | 7 | **Chapter Test and Full Mock show the per-step block** — the student's own working, per-step marks, per-step annotations — where the most prominent button on the scorecard previously **closed the panel and showed nothing** |
+| `#697` | `deddf595` | 4 | **Quick Practice tells the truth about how much was graded** (a 6-of-10 session stops claiming *"10 of 10 graded"*), **stops telling a correct answer *"Where the mark went: Fully correct."* — twice** — and gains the step block **for two booleans** |
+
+⚠⚠⚠ **THE FINDING THAT OUTWEIGHS THE FIXES, OWNER-DIRECTED AND CARRIED VERBATIM:**
+
+> **My spec said "a credential expiring at runtime." A3 proved that would 500, because
+> `resolveConfig` runs ONCE AT BOOT. The real trigger is a credential MISSING AT BOOT — and losing
+> `AI_PROVIDER` ALONE, with a perfectly valid API key present, flipped production into fabricating
+> grades: HTTP 200, a fabricated 70%, an invented sentence about a student's own working, an
+> invented presentation mistake, all flowing into Mistake Intelligence, the store the tutor reads.**
+>
+> ★★★ **ONE ENVIRONMENT VARIABLE WAS THE WHOLE DISTANCE BETWEEN THIS PRODUCT AND INVENTING MARKS
+> FOR CHILDREN.**
+
+★ **The spec's threat model was wrong in the direction that made the bug invisible**, and the lane
+sent to fix the spec's version found the real one. ⚠ **The live-verify must UNSET THE VARIABLE AND
+RESTART — revoking a key at runtime tests the wrong thing and comes back falsely clean.**
+
+★★★ **FIVE UNITS ACROSS THE TWO WAVES REFUSED TO BUILD, AND EVERY REFUSAL WAS CORRECT.**
+`EXPORT-PROMPT` found its own spec **unexecutable** — the constant it was told to export is
+**closure-private**, so exporting it needs a hoist its own allowlist forbids, and the owner withdrew
+the spec on the lane's argument. `STUB-503` round 1 declined to push a red PR because the one gate it
+failed was **fixtured on the very defect it was fixing.** `GRADED-STEP-BLOCK` round 1 returned **HOLD
+with zero files** on finding that Chapter Test and Full Mock **never emit `gradedAnswers`** — one
+producer exists in the whole file — so the shell block **could never have mounted on the two surfaces
+the lane existed for.** `QP-GRADEDCOUNT` round 1 returned **HOLD with zero files** because its field
+belongs in `sessionRecords.ts`, which **two CI gates freeze zero-diff.** `TAXONOMY-3BUCKET` returned
+**HOLD with zero files and no PR**, carrying four defects in its own spec.
+
+> ★★★ **THE CLASS, NOW BEYOND ARGUMENT: A SPEC WHOSE ALLOWLIST CANNOT EXPRESS ITS ACCEPTANCE CRITERIA
+> IS UNBUILDABLE, AND A COMPLIANT LANE SHIPS THE DEFECT.** Three shapes appeared in MI-7 (a constant
+> sealed in a **closure**; a fix needing a **sibling directory**; a **CI gate fixtured on the
+> defect**) and two more in MI-8 (**a zero-diff CI freeze invisible to allowlist review**; **a scope
+> extended without extending the allowlist**). ⇒ **It is the default outcome of writing an allowlist
+> from a FILE LIST instead of from the FIX.**
+
+★★★ **TWICE A SCREENSHOT FOUND A DEFECT AFTER EVERY GATE WAS GREEN.** On `#696`: a **2/2** answer
+rendered *"Where the mark went: **Fully correct.**"* and **Q1 printed it twice** — with 199 passing
+assertions, a clean build, a verified bundle and two proven mutations behind it. On `#697` it was
+worse — **all four `PracticePage` suites were 35/35 green BEFORE AND AFTER the fix**, because
+**nothing in the repo pinned Quick Practice's `lostDetail` source or its step block.** ⇒ **THE ENTIRE
+EXISTING SUITE WAS INDIFFERENT TO A DEFECT A STUDENT COULD SEE.** ★★ **A FIX REMOVES A DEFECT;
+CLOSING THE HOLE REMOVES THE REASON IT SURVIVED** — the lane added the five assertions that would
+have caught it.
+
+⚠⚠ **THE COST, RECORDED UN-SOFTENED BY OWNER RULING:** **`#696` knowingly ships a THIRD component over
+ONE shape**, so the convergence follow-up `[FU-READ-SHEET-TWO-PATTERNS]` it defers is **LARGER after
+this lane than before it.** ★ **It was CHOSEN, NOT OVERLOOKED**, and *"the next reader needs to know
+that."*
+
+⚠⚠ **THE WAVE STOPPED ONE UNIT SHORT, AND SAID WHY.** `U3 TAXONOMY-3BUCKET` was **not dispatched**
+after a **hard collision with Controller C, verified by command rather than accepted**:
+**`mistakeIntelligence.ts` is BOTH C's `MI-INTAKE-FILTER` target (`:147`) AND U3's P1 weak-area bridge
+(`:272`)** — the single condition the whole three-bucket ruling turns on — with
+`mistakeInsightsService.ts` a second overlap. ⇒ ★★★ **SIXTH TIME THE DISJOINTNESS ASSUMPTION HAS BEEN
+WRONG IN THIS ARC, AND THE FIRST THAT WOULD HAVE COLLIDED ON A LANE'S PRIMARY TARGET.** The territory
+sentence *"C: `src/services/`; B: `src/components` + `src/pages`"* **was not a partition of the
+work.** **OWNER-RULED SEQUENCE: `MI-INTAKE-FILTER` merges FIRST, THEN U3, NOT MERGED INTO ONE LANE** —
+because MI-INTAKE is one predicate and U3 is ~52 sites across 19 files, **and merging them makes a
+small verifiable change hostage to the largest lane of the arc.**
+
+★★ **THE SATURATION CAVEAT, WHICH MUST TRAVEL IN THESE WORDS** — ⚠⚠ **and the numbers below are the
+MEASURED ones, corrected before merge from Controller C's close-out; the figures first written here
+were RELAYED, and C's own lane re-derived them and found the defect WORSE than either the owner or
+the controller had counted.** Re-partitioning **will NOT change which topics a student is told they
+are weak at.** The qualifying gate is **`confidenceScore > 5` at `weakAreaAggregator.ts:161`** — the
+owner's clause line numbers were **ALL ONE LOW** — and **THREE OF SIX** clauses fire on **ABSENCE**,
+not three of three. ⚠ **The writer is NOT absent: it is `DailyMixPage.tsx:102-103`, a page with NO
+ROUTE** (`App.tsx:1027-1030`, severed). **A NEW student scores 45; a student with a PERFECT RECORD
+scores 30. Both against a threshold of 5.** ⇒ **ALL 26 CHAPTERS QUALIFY FOR EVERY STUDENT,
+PERMANENTLY. THE WEAK-AREA LIST IS A CONSTANT TODAY — never earned, and impossible to un-earn.**
+★ **U3 is not wrong** — nine consumer files and three student-facing headings still matter —
+⚠⚠ **but NOBODY MAY LIVE-VERIFY U3 BY LOOKING AT THE WEAK-AREA LIST**, in either direction: at that
+surface a correct re-partition is **INERT, a silent no-op that passes every gate.**
+> ★★★ **C's one sentence for this handoff:** *the weak-area list was never earned and cannot be
+> un-earned — it is a dead page's silence being shown to students and their parents as a verdict on
+> 26 chapters.* ⚠ **PARENTS SEE IT:** `server/routes/share.cjs:128` serves this list into the shared
+> parent report, a fifth consumer **invisible to any `src/`-scoped search.**
+
+**COUNTS, READ FROM TRUNK'S OWN CI RUN (`gh run view 32542241464 --log`), NOT INHERITED —
+HANDOFF-VERIFIED:** lazytopper vitest **`Test Files 145 passed (145)` / `Tests 1882 passed (1882)`** ·
+root `scripts/` matrix **`# suites 30` / `# pass 206`** · lazytopper ops matrix **`# suites 8` /
+`# pass 24`**. ★ *The predecessor entry recorded 206/30 and 144/1852; the matrix held and the vitest
+figure moved. **That is why the instruction is to read it from the run.***
+
+**HANDOFF DISCIPLINE, HELD:** the previous `[CURRENT]` was **demoted, not deleted**; the **WIRE-2
+dormancy block survived the prepend and is restated in the new `[CURRENT]` §10**; **all SEVEN handoff
+files were updated, including `DECISION_LOG.md`, which `CLAUDE.md` §10 still omits**
+(`[FU-CLAUDEMD-S10-OMITS-DECISION-LOG]`, now raised independently by four lanes); and the handoff lock
+was checked as a command — `gh pr list --state open` → `#693`/`#692`, dependabot only — **immediately
+before push**, because force-merging two handoffs has silently preserved stale content on this repo
+before.
+
+⚠ **ONE DORMANCY IS DISCHARGED BY THIS ENTRY:** MI-6 recorded *"the graded step block is absent on
+Chapter Test AND Full Mock, and it is a BUILD, not a wire."* **`#696` BUILT IT.** Do not restate it as
+dormant. **`[FU-SHEET-DORMANT-NO-CONSUMER]` STAYS OPEN** — `#682` is on trunk, but on trunk is not
+triggered, and nothing in these waves touched it.
+
+---
+
 ## 2026-08-20 — Wave MI-INTEGRITY-6 (one controller, one build lane run twice, one read-only scout, two lanes that returned HOLD) — **ONE PR, `#690`, AND IT IS A DRAFT** — trunk `62078cb8`, unmoved
 
 ★ **PROVENANCE.** Code claims below carry their source: **OWNER-VERIFIED** / **LANE-REPORTED** /

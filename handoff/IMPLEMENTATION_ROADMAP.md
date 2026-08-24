@@ -1,6 +1,134 @@
 # LazyTopper Implementation Roadmap
 
 
+## 2026-08-24 — WAVE MI-INTEGRITY-7 + WAVE MI-INTEGRITY-8: **THE GRADER ARC'S LAST WAVE SHIPPED FOUR PRs AND STOPPED A FIFTH — `#694` · `#695` · `#696` · `#697` ARE ALL ON TRUNK** — trunk `deddf595`, moved four times
+
+**`2026-08-24`**
+
+**STAGE OUTCOME: NINE UNITS ACROSS TWO WAVES UNDER THREE CONTROLLERS. FOUR PRs MERGED. FIVE UNITS
+RETURNED HOLD WITH ZERO FILES, AND EVERY REFUSAL WAS CORRECT.** One unit — `U3 TAXONOMY-3BUCKET` — was
+specified, repaired on four defects, and **deliberately not dispatched.**
+
+⚠⚠ **ONE STAGE ENTRY COVERS TWO WAVES BECAUSE WAVE MI-INTEGRITY-7 CLOSED WITHOUT A HANDOFF PR.**
+Its record — including twenty-one follow-up IDs — lived only in an **untracked** state file for four
+days. ⇒ ★ **A wave does not close when its PRs merge. It closes when `handoff/` describes trunk.**
+
+⚠⚠ **AND THE PREVIOUS STAGE ENTRY'S SUCCESSOR-FACING CLAIMS ARE NOW FALSE.** MI-6 recorded `#690` as a
+draft and `STUB-503` as blocked. **`#690` merged as `40e7f505`; `STUB-503` merged as `#695`.** That
+entry is left unedited below; **this one supersedes it.**
+
+### THE STAGE GATE — **PARTLY DISCHARGED, AND THE REMAINDER IS NAMED**
+
+**MI-6's stage gate was owner live-verify plus the repair of the judging artefacts it had found
+wrong.** Status:
+
+- ✅ **`graderEval.cjs` D1 IS FIXED — `#694`.** MI-6's closing warning was that the harness would
+  **report a false regression** on the next live-verify. **That warning is discharged.** Three drifts
+  closed; the sharpest **inflated every scheme-absent score by construction**, and scheme-absent is
+  Check & Improve, the product's primary surface.
+- ✅ **THE GRADER CAN NO LONGER INVENT A MARK DURING A CREDENTIAL OUTAGE — `#695`.** HTTP 503, not a
+  fabricated 70%. **And the CI gate that REQUIRED the fabrication now forbids it.**
+- ⚠⚠ **A NEW LIVE-VERIFY IS OWED, AND ITS METHOD IS PART OF THE GATE:** **UNSET `AI_PROVIDER` AND
+  RESTART.** `resolveConfig` runs **once at boot**, so revoking a key at runtime **tests the wrong
+  thing and comes back falsely clean.** **Surfaces: `/check-solution` · `/grade-worksheet` across
+  Worksheet / ChapterTest / FullMock · plus the cloud Firestore document.**
+- ✅ **THE STEP BLOCK IS BUILT ON CHAPTER TEST AND FULL MOCK — `#696`** — and MI-6's record of it as a
+  dormancy (*"absent on CT AND FM … this is a build, not a wire"*) **is DISCHARGED. Do not restate it
+  as dormant.**
+- ✅ **QUICK PRACTICE TELLS THE TRUTH ABOUT HOW MUCH WAS GRADED — `#697`**, stopped printing *"Where
+  the mark went: Fully correct."* to students who were correct, and adopted the step block.
+- ⛔ **THE STAGE DOES NOT CLOSE.** `U3 TAXONOMY-3BUCKET` is unbuilt, and the taxonomy split-brain it
+  exists to end is still in the product.
+
+### WHAT MERGED — **EVERY ROW RE-DERIVED, NOT TAKEN FROM A CLOSE-OUT**
+
+**HANDOFF-VERIFIED with `gh pr view <n> --json mergeCommit,files` and `git log --oneline -- <path>` at
+`deddf595`.** ⚠⚠ **This was necessary, not ceremonial: Controller A's close-out says *"NOTHING OF MINE
+IS ON TRUNK"* and lists A3 as `NOT PUSHED`, and BOTH ITS PRs MERGED.**
+
+| PR | merged as | controller | files | stage effect |
+|---|---|---|---|---|
+| `#694` | `fd85835e` | A | 1 | The grader's eval harness stops measuring a prompt the product no longer ships |
+| `#695` | `6260db7c` | A | 3 | A credential outage refuses instead of inventing a grade; the CI gate re-fixtured to encode the fix |
+| `#696` | `f75e8356` | B | 7 | Per-step graded block on Chapter Test + Full Mock; assembly lifted to `src/services/gradedAnswerAssembly.ts` |
+| `#697` | `deddf595` | B | 4 | Honest graded count on Quick Practice + the duplicated-verdict fix + the step block, via two booleans |
+
+### ⛔ THE STAGE THAT DID NOT MOVE, AND WHY — **THIS IS THE PART THAT DECIDES THE NEXT WAVE**
+
+**`U3 TAXONOMY-3BUCKET` was NOT dispatched** after a **hard collision with Controller C, verified by
+command rather than accepted.** **`lazytopper/src/services/mistakeIntelligence.ts` is BOTH C's
+`MI-INTAKE-FILTER` target (`:147`) AND U3's P1 weak-area bridge (`:272`)** — the single condition the
+whole three-bucket ruling turns on — with `mistakeInsightsService.ts` a second overlap.
+⇒ ★★★ **SIXTH TIME THE DISJOINTNESS ASSUMPTION HAS BEEN WRONG IN THIS ARC, AND THE FIRST THAT WOULD
+HAVE COLLIDED ON A LANE'S PRIMARY TARGET.**
+
+**⚖ OWNER-RULED SEQUENCE FOR THE NEXT STAGE, WITH ITS REASON, BECAUSE THE REASON IS THE RULING:**
+> **C's `MI-INTAKE-FILTER` merges FIRST. THEN U3. THEY ARE NOT MERGED INTO ONE LANE.**
+> **MI-INTAKE is ONE predicate; U3 is ~52 sites across 19 files. Merging them makes a small
+> verifiable change hostage to the largest lane of the arc.**
+
+⚠⚠ **AND THE STAGE'S VERIFICATION METHOD IS CONSTRAINED IN A WAY A ROADMAP READER MUST KNOW:**
+**re-partitioning will NOT change which topics a student is told they are weak at.** ⚠ **MEASURED
+figures, corrected before merge from Controller C's close-out:** the gate is **`confidenceScore > 5`
+at `weakAreaAggregator.ts:161`**, **THREE OF SIX** clauses fire on **ABSENCE**, and the writer is not
+missing but **unrouted** — `DailyMixPage.tsx:102-103` against a severed route. **A new student scores
+45, a perfect-record student 30, against a threshold of 5** ⇒ **all 26 chapters qualify for every
+student, permanently; the weak-area list is a CONSTANT today.**
+★ **U3 is not wrong** — nine consumer files and three student-facing headings still matter — ⚠ **but
+NOBODY MAY LIVE-VERIFY U3 BY LOOKING AT THE WEAK-AREA LIST.**
+
+### CONTROLLER C's WAVE (MI-INTEGRITY-3) — **FIVE LANES, NOTHING ON TRUNK, TWO FIXES BUILT AND BLOCKED ON RULINGS**
+
+*Folded in by amendment on 2026-08-24, from `CLOSEOUT_MI_INTEGRITY_3_CONTROLLER_C.md`.*
+⚠ **THE MERGED-PR TABLE ABOVE IS UNCHANGED AND CORRECT** — C verified `git ls-remote` = 0 remote lane
+branches and `rev-list --count deddf595..HEAD` = 0 on every worktree. **Nothing of C's is on trunk.**
+
+| lane | verdict | state |
+|---|---|---|
+| MI-RECOVERY-SCOUT | PASS | read-only, 0 files |
+| EVAL-SET | HOLD | 0 files — did not build, correctly |
+| **WEAK-AREA-SATURATION** | **PASS** | **built and green — awaiting owner commit + push** |
+| **MI-INTAKE-FILTER** | **PARTIAL** | **built and green — awaiting owner P5 ruling** |
+| EVAL-PARITY | HOLD | blocked on 3 owner rulings |
+
+⛔ **FIVE OWNER DECISIONS BLOCK THIS SUB-STAGE FROM LANDING** — enumerated in `NEXT_ACTION.md` §0b.
+⚠⚠⚠ **AND ONE OF THEM BLOCKS THE ARC'S ACCEPTANCE TEST ITSELF:** `[FU-EVAL-PROMPT-PARITY-8-OF-16]` —
+**the eval harness sends 8 prompt rules against the shipped route's 16**, and per the shipped code's
+own comment **the missing rule 16 is the rule the owner's live-verify failed on.**
+⇒ ★★★ **THE STAGE CANNOT PRODUCE A GRADER NUMBER. The only instrument that could is measuring a
+different grader than the one students meet.** **No baseline may be commissioned until this closes.**
+
+
+### ★★★ THE STAGE'S REAL OUTPUT, STATED AS THE ROADMAP SHOULD STATE IT
+
+**Five units refused to build, and the refusals are worth more than two of the merges.** A spec whose
+export target is **closure-private**; a fix whose one failing gate was **fixtured on the defect being
+fixed**; a shell block that **could never have mounted** because its two surfaces never emitted the
+data; a field whose home is **frozen zero-diff by two CI gates**; and a taxonomy spec carrying **a
+rotted carve-out that passed `--strict-anchor` 5/5 because the rot was in PROSE.**
+
+> ★★★ **A SPEC WHOSE ALLOWLIST CANNOT EXPRESS ITS ACCEPTANCE CRITERIA IS UNBUILDABLE, AND A COMPLIANT
+> LANE SHIPS THE DEFECT.** ⇒ **Standing pre-flight question on every spec from here:** *"can this
+> allowlist reach every file the ruling touches — including the files that TEST it?"*
+
+⚠⚠ **THE COST, OWNER-RULED NOT TO BE SMOOTHED:** **`#696` knowingly ships a THIRD component over ONE
+shape**, so `[FU-READ-SHEET-TWO-PATTERNS]` is **LARGER after this stage than before it.** ★ **CHOSEN,
+NOT OVERLOOKED.**
+
+**COUNTS AT THE STAGE BOUNDARY, READ FROM TRUNK'S OWN CI RUN — NEVER HARDCODE THEM:** vitest
+**145 files / 1882 tests** · root `scripts/` matrix **30 suites / 206 checks** · lazytopper ops matrix
+**8 suites / 24 checks**.
+
+### NEXT STAGE, IN ORDER
+
+1. **C's `MI-INTAKE-FILTER`** — one predicate at `mistakeIntelligence.ts:147`. **Merges first.**
+2. **`U3 TAXONOMY-3BUCKET`** — spec `15547 / 5D4DC3B95304` (⚠ `168944EC3C03` and `70CD15ED1062` are
+   DEAD), re-anchored against the tree MI-INTAKE leaves. **Locate the carve-out BY TEXT; no gate reads
+   prose.**
+3. **`[FU-READ-SHEET-TWO-PATTERNS]`** — the deferred convergence, now larger.
+4. 🛑 **`[FU-DPDP-GUARDIAN-CONSENT]` remains UNRULED and LAUNCH-BLOCKING**, untouched by this stage.
+
+
 ## 2026-08-20 — WAVE MI-INTEGRITY-6: **THE ARC'S ACCEPTANCE TEST CAME BACK 6-OF-8 AND THE STAGE STILL DOES NOT CLOSE — ONE PR, `#690`, AND IT IS A DRAFT** — trunk `62078cb8`, unmoved
 
 **`2026-08-20`**
