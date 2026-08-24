@@ -1,3 +1,171 @@
+## 2026-08-24 — WAVE MI-INTEGRITY-7 + WAVE MI-INTEGRITY-8 (three controllers, nine units, **FOUR PRs MERGED**) — trunk `deddf595`, moved four times
+
+**`2026-08-24`**
+
+> ⚠ **NUMBERING.** Per this file's actual convention, **`DECISION N` is SECTION-LOCAL and restarts at
+> 1 in every wave section.** This section starts at `DECISION 1`. *(Recorded again because a dispatch
+> once inferred a global sequence from two same-numbered headings and the inference was false.)*
+> ⚠ **`CLAUDE.md` §10 still lists SIX handoff files and this is the SEVENTH. Every handoff dispatch
+> must keep naming it explicitly.** `[FU-CLAUDEMD-S10-OMITS-DECISION-LOG]` — **now raised
+> independently by four lanes.**
+
+> ⚠⚠⚠ **THIS SECTION CARRIES TWO WAVES, BECAUSE WAVE MI-INTEGRITY-7 CLOSED WITHOUT A HANDOFF PR AND
+> ITS DECISIONS NEVER REACHED THIS TRACKED FILE.** They lived only in
+> `handoff/WAVE_STATE_MI_INTEGRITY_7_LIVE.md`, **which is untracked and which a lane in a clean
+> worktree cannot open.** ⇒ ★★★ **A DECISION RECORDED ONLY IN AN UNTRACKED STATE FILE IS NOT
+> RECORDED**, and this is the register lanes are told to cite. **THE ROT-MODE REGISTER IS THIS FILE.**
+
+### DECISION 1 — **THE LANE TABLE IS DERIVED FROM `gh`/`git`, NEVER FROM A CLOSE-OUT**
+
+**Controller A's close-out says *"NOTHING OF MINE IS ON TRUNK"* and lists A3 as `NOT PUSHED`. BOTH ITS
+PRs MERGED.** Every row of this wave's record was re-derived by the handoff lane with
+`gh pr view <n> --json mergeCommit,files` **and** `git log --oneline -- <path>` at `deddf595`:
+
+```
+#694  fd85835e5e1c9178f8b6321e60bad7a49d8b2bc4   1 file   lane/gradereval-drift
+#695  6260db7c0f90e1837d18909051767ff661018672   3 files  lane/stub-503
+#696  f75e835645748a86af9f3e41bcb39a2ef8808614   7 files  lane/graded-step-block
+#697  deddf595da87f3f5ef871ac3473c0925d5ddd93a   4 files  lane/qp-gradedcount   <- IS trunk
+```
+
+**REASON:** ★★ **a close-out is written at an instant and its central facts decay.** A's was true when
+the controller stood down and false within hours. ⇒ **A HANDOFF VERIFIES MERGE STATE AS A COMMAND.**
+
+### DECISION 2 — **⚖ SEQUENCING: `MI-INTAKE-FILTER` MERGES FIRST, THEN `U3`. NOT MERGED INTO ONE LANE.**
+
+**REASON, AND THE REASON IS PART OF THE RULING RATHER THAN A JUSTIFICATION OF IT:**
+> **`MI-INTAKE-FILTER` is ONE predicate at `lazytopper/src/services/mistakeIntelligence.ts:147`.
+> `U3 TAXONOMY-3BUCKET` is ~52 sites across 19 files. Merging them makes a small verifiable change
+> hostage to the largest lane of the arc. MI-INTAKE lands fast, and U3 then re-anchors against a
+> SETTLED tree rather than Controller C rebasing onto a 19-file change.**
+
+★ **Recorded with its reason so a future controller cannot read it as a preference and reverse it for
+convenience.**
+
+### DECISION 3 — **U3 WAS NOT DISPATCHED. A HARD COLLISION, VERIFIED BY COMMAND RATHER THAN ACCEPTED.**
+
+The controller was told *"C is live on `src/services/`; you hold `src/components` and `src/pages` —
+disjoint, confirm it yourself."* **He confirmed it himself and it was NOT disjoint.**
+**`mistakeIntelligence.ts` is BOTH C's `MI-INTAKE-FILTER` target (`:147`) AND U3's P1 weak-area bridge
+(`:272`)** — the single condition the whole three-bucket ruling turns on. **`mistakeInsightsService.ts`
+is a second overlap.**
+
+> ⇒ ★★★ **SIXTH TIME THE DISJOINTNESS ASSUMPTION HAS BEEN WRONG IN THIS ARC, AND THE FIRST THAT WOULD
+> HAVE COLLIDED ON A LANE'S PRIMARY TARGET.** **"C: `src/services/`; B: `src/components` +
+> `src/pages`" WAS NOT A PARTITION OF THE WORK** — U3 lives in `src/services/` too, and C reaches into
+> `src/pages/`.
+
+**AND THE DECISION THAT FOLLOWED IT:** ★ **the handoff was written INSTEAD of spending the last
+dispatch on a colliding lane**, per the owner's standing instruction: *"if the repairs need another
+round, THE HANDOFF COMES FIRST … your successor takes the rebuild from a current, resumable draft.
+That is not a fallback; it is the instruction."*
+
+### DECISION 4 — **⚖ THE `#696` COST SENTENCE IS PROTECTED AND MAY NOT BE SMOOTHED**
+
+**`#696` knowingly ships a THIRD component over ONE shape**, so `[FU-READ-SHEET-TWO-PATTERNS]` is
+**LARGER after that lane than before it.**
+**RULING:** the sentence stays un-softened in every downstream document. **REASON, owner's words:**
+*"the next reader needs to know it was chosen, not overlooked."*
+
+### DECISION 5 — **⚖ `[FU-RESTORE-PROOF-VACUOUS-ON-DIRTY-TREE]` GOES INTO `ops/AGENT_STANDING_RULES.md`, NOT MERELY ONTO THE FU BOARD**
+
+**`git diff` empty is the wrong restore proof on a build lane** — the tree legitimately holds changes,
+so it can never be empty and **can therefore never detect a failed restore.**
+**RULING:** *"EVERY MUTATION THIS PROJECT HAS RUN ON A BUILD LANE HAS USED THE WRONG PROOF. SHA
+IDENTITY TO THE PRE-MUTATION BASELINE IS THE CORRECT ONE AND IS THE STANDARD FROM HERE."*
+⚠ **A controller does not author that edit — it is the owner's to commission.** ⚠ **Until it is
+written there, it is a ruling in a state file.**
+
+### DECISION 6 — **⚖ THE PUSH CONVENTION IS SETTLED: `CLAUDE.md` §3 WINS**
+
+**ASK before commit AND before push.** **Lane asks controller → controller asks owner → owner
+approves → THEN the lane pushes.** One lane refused to push unasked and was right; another deviated;
+**no penalty, because the convention genuinely was ambiguous.**
+`[FU-DRAFT-PUSH-VS-CLAUDEMD-S3-ASK-FIRST]` **CLOSED.** ⚠ **Until it reaches
+`ops/AGENT_STANDING_RULES.md`, the next controller inherits a practice again.**
+
+### DECISION 7 — **⚖ `[FU-DELETE-UNREACHABLE-STUB-FABRICATORS]` MUST CARRY THE `§18.4` UPDATE IN ITS OWN SPEC**
+
+**It may NOT rely on a comment in the source it is deleting**, because **`§18.4` currently asserts the
+fabricated literals are STILL PRESENT** ⇒ **a compliant lane that deletes only the fabricators turns
+CI red.**
+> ★★★ **THAT IS THE MARKER DOCTRINE'S OWN LIMIT, STATED HONESTLY: A MARKER WRITTEN INSIDE THE THING
+> BEING DELETED VANISHES AT EXACTLY THE MOMENT IT IS NEEDED.** The warning has to live in the SPEC of
+> the lane that does the deleting.
+
+### DECISION 8 — **⚖ `[FU-695-EXCEEDS-STUB503-ALLOWLIST]` RATIFIED — and the reason it is written here at all**
+
+The owner had authorised the companion edit **in a message** and **never amended the spec.**
+> ★★★ **AN AUTHORISATION LIVING ONLY IN A CHAT MESSAGE IS A RULING WITH NO ARTEFACT.**
+⇒ **A ruling must reach the lane's brief AND the record, not just a controller's context.**
+★ **Applied immediately afterwards: when `PracticePage.tsx` was authorised (D8 of that wave), the
+owner's paragraph went into the lane's brief VERBATIM before the lane was dispatched.**
+
+### DECISION 9 — **⚖ `lane/taxonomy-3bucket` IS TO BE DELETED — REMOVE, DO NOT RENAME**
+
+The branch is held by a **stale worktree at `62078cb8`.**
+⚠ **A controller or lane NEVER deletes a branch unasked. This entry is the authorisation**, recorded
+here rather than left in a chat message, per DECISION 8.
+
+### DECISION 10 — **THREE SPEC DEFECTS WERE ACCEPTED AS THE OWNER'S, BY NAME**
+
+`[FU-SPEC-AUTHORIZES-CI-FROZEN-FILE]` (a file **nothing** may change) · `[FU-SPEC-ALLOWLIST-NOT-EXTENDED-WITH-SCOPE]`
+(a file **the new scope requires**, forgotten) · `[FU-SPEC-VERIFY-BUILD-PATH-WRONG]` (a path that does
+not exist).
+> ⚠⚠ **OWNER, VERBATIM:** *"THE FAILURE IS MINE, PLAINLY: I extended the scope to 4a+6a+7a and NEVER
+> EXTENDED THE ALLOWLIST."* ★ *"That is now the third instance this wave and **it is mine every
+> time.**"*
+
+**RECORDED AS HIS RATHER THAN AS GENERIC PROCESS DEBT, BY HIS OWN INSTRUCTION:** *"the next author
+needs to know which failures belong to the person writing specs."* ★ **A defect attributed to nobody
+is a defect nobody fixes.**
+
+### DECISION 11 — **THE PREMISE GATE'S TWO UNRULED GROUNDS ARE RECORDED, NOT WORKED AROUND SILENTLY**
+
+- `[FU-PREMISE-GATE-L0-UNRULED-GROUND]` — **a spec cannot both satisfy the checker and instruct its
+  lane to re-anchor**: §0 deliberately unsets the Base SHA, and the checker requires one. **The
+  controller's conditional proceed was RATIFIED**, on the ground that **the gate's PURPOSE was served
+  more thoroughly than a passing L0 would have served it.**
+- ★★ `[FU-PREMISE-GATE-BLIND-TO-PROSE-ANCHORS]` — **a spec can pass `--strict-anchor` 5/5 and still
+  carry a rotted line reference in its RULING PROSE, because no gate reads prose.** ⇒ **LOCATE
+  CARVE-OUTS BY TEXT.** ★★ **And the attribution of that rot was itself wrong: the controller blamed
+  `#695` and the lane disproved it — the rot predates `#695` entirely. `#695` IS EXONERATED.**
+  ★ *The instruction survived its author's wrong attribution because it said LOCATE BY TEXT rather
+  than "assume `#695` moved it".*
+
+### ⚠ ADDENDUM TO THE ROT-MODE REGISTER — **NINE MODES REMAIN NINE**
+
+**The "tenth" mode proposed in MI-6 was WITHDRAWN.** It is **mode 5 — BASE SHA AND CITATION TREE BEING
+DIFFERENT TREES** — already on the register.
+**What these two waves add is not a new mode but two new WAYS TO MISS AN EXISTING ONE:**
+1. **The gate cannot see it** — the rot was in **prose**, and `--strict-anchor` passed 5/5.
+2. **The blame is wrong even when the detection is right** — the drift was real and the PR accused of
+   causing it was innocent.
+> ★★★ **AND THE COUNTER-CASE THAT MATTERS MOST:** one spec's five anchors **all resolved exactly**
+> under the same inference that was stale by 60 lines in its sibling. **That vindicated the
+> conclusion, not the reasoning.** ⇒ **BEING RIGHT BY LUCK IS NOT BEING RIGHT. THE INFERENCE STAYS
+> STRUCK.**
+
+### ⚠ ADDENDUM — **THE FIVE SILENT-NO-OP SPECIMENS, EACH NAMING NOT WHAT FAILED BUT HOW IT LIES**
+
+> **a control that cannot fire · a typecheck that exits 0 without seeing the edited file · a piped
+> gate that exits 0 unconditionally · a mutation that fails to apply and produces a green run · a run
+> id read as a verdict when it spans attempts and the CLI picks one silently.**
+
+⇒ **All five report something while measuring nothing, or measuring something else.**
+★★★ **SPECIMEN 5 WAS PRODUCED BY THE AUTHOR OF THE RULE RATHER THAN BY A LANE** — the discipline
+caught the person enforcing it, from below, in the last hour of a fifteen-hour arc.
+★★ **A rule is not held by whoever wrote it down. It is held by whoever runs the check next.**
+
+### ⚠ ADDENDUM — **A WITHDRAWAL A CONTROLLER OWNED AS HIS OWN**
+
+**The claim that the rollup pin `4.59.0` was stale is WITHDRAWN.** It is **installed, and the Windows
+workaround works — measured by three lanes.** ★ **It began as one controller's inference, was hardened
+into an imperative by another, and neither ran the one-line command.**
+**What survives: re-derive the rollup version from your own worktree. What is withdrawn: the claim
+that it is stale.**
+
+
 ## 2026-08-20 — WAVE MI-INTEGRITY-6 (one build lane run twice, one read-only scout, two HOLDs), **ONE PR AND IT IS A DRAFT** — trunk `62078cb8`, unmoved
 
 **`2026-08-20`**

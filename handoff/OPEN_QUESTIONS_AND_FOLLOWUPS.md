@@ -13,6 +13,356 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 ---
 
 
+## 2026-08-24 — WAVE MI-INTEGRITY-7 + WAVE MI-INTEGRITY-8 — new, re-stated and closed follow-ups (trunk `deddf595`; `#694` · `#695` · `#696` · `#697` all merged)
+
+*Per standing rule 1, every ID below has its own heading and body. Per standing rule 3, **no dated
+entry elsewhere in this file has been rewritten**; corrections and status changes are recorded here.*
+
+> ⚠⚠⚠ **READ THIS BEFORE ANYTHING ELSE IN THIS SECTION. TWENTY-ONE OF THE IDs BELOW ARE APPEARING ON
+> THIS BOARD FOR THE FIRST TIME, AND THEY ARE FOUR DAYS OLD.**
+> **Wave MI-INTEGRITY-7 closed without a handoff PR.** Its twenty-one follow-ups lived only in the
+> untracked `handoff/WAVE_STATE_MI_INTEGRITY_7_LIVE.md`, **which a lane in a clean worktree cannot
+> reach.** **HANDOFF-VERIFIED by this lane** — every one of them was grepped against this file at
+> `deddf595` and returned **zero mentions**, heading or otherwise.
+> ⇒ ★★★ **A FOLLOW-UP RECORDED ONLY IN AN UNTRACKED STATE FILE IS NOT RECORDED.** It is exactly the
+> silent loss standing rule 1 exists to prevent, one level up: not a mention without a body, but a
+> whole wave's board with no file. **This is the second time an MI wave has closed without a handoff
+> PR** — Wave MI-INTEGRITY-3 was the first, and its record had to be reconstructed afterwards.
+> ⇒ ⚠ **A wave does not close when its PRs merge. It closes when `handoff/` describes trunk.**
+
+---
+
+### ⚠⚠ `[FU-AI-PROVIDER-SINGLE-VAR-TRAPDOOR]` — one environment variable was the distance between this product and inventing marks for children
+
+**CLOSED BY `#695` (`6260db7c`), AND RECORDED BECAUSE THE SHAPE MUST OUTLIVE THE FIX.** A credential
+**missing at boot** — not expiring at runtime — made the grader return **HTTP 200 with a fabricated
+70%**, an invented sentence about the student's own working and an invented presentation mistake,
+**all flowing into Mistake Intelligence, the store the tutor reads.** ⚠ **Losing `AI_PROVIDER` alone,
+with a perfectly valid API key present, was enough.** `resolveConfig` runs **once at boot**, so the
+obvious live-verify — pull the credential at runtime and watch — **tests the wrong thing and returns a
+clean result that means nothing.** ⇒ **UNSET THE VARIABLE AND RESTART.**
+★ **The spec's threat model was wrong in the direction that made the bug invisible.**
+
+### ⚠ `[FU-STUB-MODE-HAS-NO-PRODUCTION-GUARD]` — nothing prevents stub mode running in production
+
+**OPEN.** The grader's stub path is selected by configuration with **no environment assertion** that
+it cannot be reached in production. `#695` made the two grading sites refuse rather than fabricate,
+which removes the worst consequence; **it does not add the guard.**
+
+### ⚠ `[FU-DELETE-UNREACHABLE-STUB-FABRICATORS]` — and it MUST carry the `§18.4` update in its own spec
+
+**OPEN, WITH A TRAP ATTACHED, AND THE TRAP IS THE POINT.** Owner ruling ④ kept the now-unreachable
+fabricators and marked them UNREACHABLE. **`§18.4`'s instrument check currently asserts the fabricated
+literals are STILL PRESENT in the source** ⇒ **a future lane that complies and deletes only the
+fabricators TURNS CI RED.** Same shape as the MockBuilder deletion, where two ops gates froze
+`App.tsx` zero-diff.
+> ⚖ **OWNER RULING: the `§18.4` update must be carried IN THE DELETING LANE'S OWN SPEC. It may NOT
+> rely on a comment in the source it is deleting.**
+> ★★★ **THAT IS THE MARKER DOCTRINE'S OWN LIMIT, STATED HONESTLY: a marker written INSIDE the thing
+> being deleted vanishes at exactly the moment it is needed.**
+
+### ⚠ `[FU-OPS-GATES-FIXTURED-ON-DEFECTS]` — a CI gate can require the very behaviour a fix removes
+
+**OPEN (generalised from the singular).** `objective_dedup_acceptance.mjs` **required** the grading
+stub to fabricate, so fixing the fabrication turned the gate red — and `STUB-503` round 1 correctly
+declined to push a red PR rather than weaken the fix. `#695` re-fixtured the gate to **encode the fix
+instead of the defect.** ⚠ **The class is open: no inventory exists of which other ops gates are
+fixtured on behaviour the product intends to change.**
+
+### `[FU-CHECKSOLUTION-HAS-A-SOURCE-TEXT-GATE]` — a gate that greps the source text of the file it guards
+
+**OPEN.** `checkSolution.cjs` is guarded in part by a gate matching **literal source text**, so edits
+that are semantically harmless can turn it red and edits that are semantically wrong can pass.
+**Named so the next lane in that file expects it.**
+
+### `[FU-GRADEREVAL-KEEPS-ITS-OWN-COPY]` — the harness duplicates rather than imports
+
+**OPEN.** `graderEval.cjs` maintains its **own copy** of grader rules rather than importing them, which
+is the mechanism behind every drift ID below. `#694` closed three drifts and **imported the ECF rule
+rather than copying it** — the first structural repair — but the copying pattern remains for the rest.
+
+### `[FU-GRADEREVAL-PROMPT-CONSTANTS-UNEXPORTED]` — the harness cannot import what it needs
+
+**OPEN.** The prompt constants the harness must agree with are **not exported**. This is the same
+closure-privacy that made `EXPORT-PROMPT` unexecutable, seen from the consumer side.
+
+### `[FU-GRADER-PROMPT-CONSTANTS-NOT-SHAREABLE]` — and exporting them needs a hoist
+
+**OPEN — the successor to the withdrawn `EXPORT-PROMPT` lane.** The constant is **closure-private**, so
+making it shareable requires a **hoist**, which is a structural change to `checkSolution.cjs` rather
+than an export line. ⚠ **Two lanes reached OPPOSITE recommendations on whether this deserves its own
+PR at all** — A1 recommended widening it to the 12 unexported constants, A2 concluded the lane may not
+be worth a PR. **Both went to the owner un-reconciled, and it is still his call.**
+
+### `[FU-GRADEREVAL-RULES-9-TO-17-ABSENT]` — the harness models 8 rules of a 17-rule prompt
+
+**OPEN.** *"Three drifts"* was an undercount: the shipped prompt carries **17 rules** and the harness
+models **8**. **The remaining nine are unmodelled, so the harness cannot detect a regression in any of
+them.**
+
+### `[FU-GRADEREVAL-SCHEME-HEADER-DRIFT]` — the drift that inflated every scheme-absent score
+
+**CLOSED BY `#694`.** The harness emitted a `"Final answer:"` header on **both** branches of its scheme
+ternary, where the shipped path emits an **empty string** when no marking scheme exists.
+⚠ **Scheme-absent is Check & Improve — the product's primary surface — so every scheme-absent score
+was inflated by construction.** ★ **The examiner was marking easier than the examiner it was built to
+imitate.**
+
+### `[FU-GRADEREVAL-HARNESS-RULE8-MISSING-OBJECTIVE-EXCEPTION]` — rule 8 modelled without its exception
+
+**CLOSED BY `#694`.** The harness's rule 8 omitted the objective-question exception the shipped prompt
+carries.
+
+### `[FU-GRADEREVAL-TAXONOMY-DRIFTED-759-CHARS]` — the taxonomy block had drifted by 759 characters
+
+**CLOSED BY `#694`.** ⚠ **This is the same defect class as
+`[FU-CORRECTION-2-NOT-PROPAGATED-TO-JUDGING-ARTEFACTS]` from MI-6: a correction landing in the code and
+never reaching the artefacts that JUDGE the code.** `isDeparture` and `finalAnswerCorrect` are now
+declared in the harness, and the ECF rule is imported rather than copied.
+
+### ⚠ `[FU-TSC-APP-CONFIG-BLIND-TO-SERVER-CJS]` — the typecheck exits 0 without seeing the edited file
+
+**OPEN, AND IT IS SILENT-NO-OP SPECIMEN 2.** `tsc -p tsconfig.app.json --noEmit` **does not see
+`server/**/*.cjs` at all**, so a lane editing server code can report a green typecheck that **never
+looked at its own diff.** **Proved three ways in MI-7.** ⇒ **For server work the load-bearing gate is
+`node --test`, never `tsc`.**
+
+### ★★ `[FU-PIPED-EXIT-CODE-READS-AS-PASS]` — a gate run through a pipe reports PASS no matter what it did
+
+**OPEN AS A DOCUMENTATION ITEM; MEASURED AND BEYOND DISPUTE AS A FACT.** `$?` after a pipeline is the
+**last element's** status:
+```
+node scripts/ops/lane_overlap.mjs >/dev/null 2>&1 ; echo $?     ->  1     the truth
+node scripts/ops/lane_overlap.mjs 2>&1 | head -3 >/dev/null; $? ->  0     READS AS PASS
+                                             ${PIPESTATUS[0]}  ->  1     the truth again
+```
+⚠ **Agents pipe gate output to `head`/`tail` constantly to save context, which silently converts every
+gate in this repo into a no-op that reports success.** ⇒ **RUN GATES UNPIPED, or quote
+`${PIPESTATUS[0]}`.** **Confirmed by two independent measurements in MI-7.**
+
+### `[FU-LANE-OVERLAP-CANNOT-RUN-PREFLIGHT]` — the overlap gate cannot answer the question it is asked
+
+**OPEN.** `lane_overlap.mjs` compares **exact paths** and **counts drafts**, so it cannot answer
+*"will these two lanes collide?"* before either has a PR. ⚠ **This wave paid for it: the U3/Controller-C
+collision on `mistakeIntelligence.ts` was found by a controller grepping every staged spec by hand, not
+by a gate.**
+
+### ⚠ `[FU-ROT-MODE-REGISTER-IS-UNTRACKED]` — and the fix is to cite the tracked file
+
+**OPEN, WITH THE MITIGATION STATED.** The rot-mode register must be citable by a lane in a clean
+worktree. ⇒ **Cite `handoff/DECISION_LOG.md`, which IS tracked. NEVER cite a `WAVE_STATE_*_LIVE.md`
+file to a lane — it cannot reach it.** ★ **This entry's own section header is the proof of why it
+matters: twenty-one IDs sat in an untracked file for four days.**
+
+### `[FU-ALLOWLIST-CANNOT-REACH-RULING-7TH]` — the seventh instance of the arc's dominant class
+
+**OPEN AS A CLASS, NOT AN ITEM. AND IT IS NO LONGER SEVEN.** It stood at **five** when MI-7 opened,
+closed MI-7 at **EIGHT**, and MI-8 added two more shapes.
+> ⇒ ★★★ **THIS IS NOT A RECURRING ACCIDENT. IT IS THE DEFAULT OUTCOME OF WRITING AN ALLOWLIST FROM A
+> FILE LIST INSTEAD OF FROM THE FIX.** **Standing pre-flight question on every spec:** *"can this
+> allowlist reach every file the ruling touches — including the files that TEST it?"*
+
+### `[FU-EXPORT-PROMPT-P2-ROT-MODE-5]` — a declared base SHA does not imply current anchors
+
+**CLOSED AS A LESSON, OPEN AS A GATE GAP.** `EXPORT-PROMPT`'s P2 cited `:1656`; the truth was `:1716`.
+★★★ **AND THE COUNTER-CASE IS THE MORE IMPORTANT HALF:** `STUB-503`'s five anchors **all resolved
+exactly** under the identical inference. **That vindicated the conclusion, not the reasoning** —
+> ★★★ **BEING RIGHT BY LUCK IS NOT BEING RIGHT. THE INFERENCE STAYS STRUCK.**
+
+### `[FU-GATE-LIST-OMITS-FULL-VITEST-SUITE]` — the largest gate in CI is named in no gate list
+
+**OPEN.** CI runs the full lazytopper vitest suite — **`145 files / 1882 tests` at `deddf595`,
+HANDOFF-VERIFIED from `gh run view 32542241464 --log`** — and it appears in **no gate list**, including
+`CLAUDE.md` §6a. ⚠ **COUNTS GROW; READ THEM FROM THE RUN.** *(This entry recorded 144/1852 one wave
+ago.)*
+
+### `[FU-WORKSHEET-TOPICKEY-TEST-ORDER-DEPENDENT]` — one control arm never ran
+
+**OPEN, AND STATED RATHER THAN ROUNDED UP.** A worksheet topickey suite is order-dependent, and **one
+control arm was never executed.** ★ *The lane reported the gap instead of reporting the suite green.*
+
+---
+
+### ★★★ `[FU-SPEC-AUTHORIZES-CI-FROZEN-FILE]` — a spec authorised a file that nothing in the repo may change
+
+**NEW. OWNED BY THE OWNER BY HIS OWN INSTRUCTION.** `QP-GRADEDCOUNT` round 1 required a field on
+`SessionRecord`, in `lazytopper/src/services/sessionRecords.ts` — **which two CI gates freeze
+zero-diff** — while lifting those bans needs a directory the same allowlist forbids. **The lane
+returned HOLD with zero files, and that was correct: a COMPLIANT lane would have shipped the defect.**
+> ★★ **A ZERO-DIFF CI FREEZE IS INVISIBLE TO AN ALLOWLIST REVIEW.** ⇒ **Check acceptance-vs-allowlist
+> AND acceptance-vs-CI-freeze before dispatch.**
+
+### ★★ `[FU-SPEC-ALLOWLIST-NOT-EXTENDED-WITH-SCOPE]` — the scope grew and the allowlist did not
+
+**NEW. OWNED BY THE OWNER BY HIS OWN INSTRUCTION, IN HIS OWN WORDS:**
+> ⚠⚠ *"THE FAILURE IS MINE, PLAINLY: I extended the scope to 4a+6a+7a and NEVER EXTENDED THE
+> ALLOWLIST."* ★ *"That is now the third instance this wave and **it is mine every time.**"*
+
+**Distinct from `[FU-SPEC-AUTHORIZES-CI-FROZEN-FILE]` and the distinction is the useful part:** that
+one authorised a file **nothing may change**; this one **forgot** a file **the new scope requires.**
+⇒ *"Different failure, same root: a ruling written without checking which file holds the thing it
+rules."* **Resolved for the lane by owner decision D8, which authorised `PracticePage.tsx` + its
+tests.** ⚠ **The spec's own bytes still carry the un-extended allowlist; the DISPATCH carried the
+amendment.**
+
+### `[FU-PREMISE-GATE-L0-UNRULED-GROUND]` — a spec cannot both satisfy the checker and instruct its lane to re-anchor
+
+**NEW. OWNED BY THE OWNER.** In his words:
+> *"§0 **DELIBERATELY** unsets the Base SHA so the lane re-anchors; the checker **REQUIRES** one.
+> ⇒ **A SPEC CANNOT BOTH SATISFY THIS CHECKER AND INSTRUCT ITS LANE TO RE-ANCHOR.**"*
+
+**The controller's L0 conditional proceed was RATIFIED (D9)** — ★ *the gate's PURPOSE was served more
+thoroughly than a passing L0 would have served it: trunk re-derived, ancestry verified on both hops,
+every row located by text.* **Checker and template to be reconciled next session.**
+
+### ★★ `[FU-PREMISE-GATE-BLIND-TO-PROSE-ANCHORS]` — 5/5 anchors RESOLVED, and a rotted line reference in the ruling text
+
+**NEW, PROCESS, AND IT IS THE GATE GAP NOBODY HAD NAMED.** `TAXONOMY-3BUCKET` v3.0 says *"re-anchored
+at `f75e8356`"* — **but only its §0 LEDGER was re-derived. The carve-out is PROSE IN §2, AND NO GATE
+CAN READ PROSE.**
+> ⇒ ★★★ **A SPEC CAN PASS `--strict-anchor` 5/5 AND STILL CARRY A ROTTED LINE REFERENCE IN ITS RULING
+> PROSE.**
+
+**Consequence, measured:** the carve-out `:1059`-`:1062` was TRUE at `62078cb8` and is
+**`:1159`-`:1162` at the spec's own declared base.** ★★ **AND THE ATTRIBUTION WAS WRONG TOO — the
+controller blamed `#695` and the lane disproved it: the rot PREDATES `#695` entirely.
+`#695` IS EXONERATED.** ★ *The controller's instruction survived his own attribution because it said
+LOCATE BY TEXT rather than "assume `#695` moved it".*
+
+### ★★ `[FU-RESTORE-PROOF-VACUOUS-ON-DIRTY-TREE]` — `git diff` empty is the wrong restore proof on a build lane
+
+**NEW, PROCESS. ⚖ OWNER-RULED INTO `ops/AGENT_STANDING_RULES.md`, NOT MERELY ONTO THIS BOARD.**
+On a build lane the tree **legitimately holds changes**, so `git diff` **can never be empty and can
+therefore never detect a failed restore.** ⇒ **Prove a mutation restore by SHA IDENTITY back to the
+pre-mutation baseline**, with each RED **quoting the injected value**.
+> ⚠ **EVERY MUTATION THIS PROJECT HAS RUN ON A BUILD LANE BEFORE `#696` USED THE WRONG PROOF.**
+⚠ **A controller does not author that standing-rules edit — it is the owner's to commission.**
+
+### `[FU-SPEC-VERIFY-BUILD-PATH-WRONG]` — a spec named a path that does not exist
+
+**NEW, PROCESS. CLOSED AS A PROPAGATION QUESTION, OPEN AS A SPEC BYTE.** `GRADED-STEP-BLOCK.md:126`
+names `scripts/ops/verify-production-build.mjs`, **which does not exist.** The real path is
+**`lazytopper/scripts/verify-production-build.mjs`**, which is what `CLAUDE.md` §6 has always said.
+★ **PROPAGATION TRACED BY COMMAND AND THE ANSWER IS: IT DID NOT PROPAGATE** —
+`grep -rn "scripts/ops/verify-production-build" handoff/ ops/ CLAUDE.md` returns **no hit outside the
+quotation of the finding itself.** ⚠ **The wrong path exists only in the spec, whose bytes only the
+owner may amend.** **The lane ran the real one.** ★ *Reported as measured rather than as "fixed
+everywhere", which would have been the easier thing to claim.*
+
+---
+
+### ⚠⚠ `[FU-READ-SHEET-TWO-PATTERNS]` — the deferred convergence, and it is LARGER after `#696` than before it
+
+**NEW, PRODUCT. ⚖ THE COST SENTENCE IS PROTECTED BY OWNER RULING AND MUST NOT BE SMOOTHED IN ANY
+FUTURE HANDOFF.**
+> **`#696` KNOWINGLY SHIPS A THIRD COMPONENT OVER ONE SHAPE.**
+★ **IT WAS CHOSEN, NOT OVERLOOKED**, and *"the next reader needs to know that."* Two read-sheet
+patterns now exist across three components; converging them is the deferred work, and the deferral got
+more expensive rather than less.
+
+### `[FU-CT-FM-NO-GRADED-ANSWERS-PRODUCER]` — the surfaces never emitted the data the block needs
+
+**NEW, PRODUCT. ADDRESSED BY `#696`, RECORDED BECAUSE IT DISPROVED THE SPEC.** Chapter Test and Full
+Mock **never emitted `gradedAnswers`** — **one producer exists in the whole file** — so *"the fix in
+the shell fixes every surface at once"* was **false**, and the shell block **could never have mounted
+on the two surfaces the lane existed for.**
+
+### `[FU-GRADED-ANSWER-ASSEMBLY-LIVES-IN-PRACTICEPAGE]` — the assembly sat in a forbidden file
+
+**NEW, PRODUCT. RESOLVED BY `#696` VIA OWNER DECISION 1a — LIFT TO A SHARED MODULE.** The assembly the
+fix needed lived inside `PracticePage.tsx`, which the original allowlist forbade. It now lives in
+**`lazytopper/src/services/gradedAnswerAssembly.ts`** — **HANDOFF-VERIFIED on trunk with
+`git log --oneline -- lazytopper/src/services/gradedAnswerAssembly.ts` → `f75e8356`.**
+★★ **P8 REUSE PROVEN BY ABSENCE on the next lane: `gradedAnswerAssembly.ts` is NOT in `#697`'s diff.
+The whole Quick Practice fix is two booleans.** *Exactly what "reuse, do not reimplement" is supposed
+to produce.*
+
+### ⚠ `[FU-FIRSTMISTAKEDETAIL-DISCARDS-ALL-BUT-ONE-STEP]` — the data dies one function short of the screen
+
+**NEW, PRODUCT, AND STILL OPEN.** The per-step marks a student earned **already exist**; the detail
+builder keeps **one** step and discards the rest. `#696` routes around it for the step block; **the
+discard itself is unchanged.** ⚠ **The correct line reference is `:430`, NOT `:429`** — a lane audited
+its own earlier report and corrected it, and a second lane had it right first.
+
+### `[FU-READSHEET-FOUR-SITES-TWO-SEMANTICS]` — the same call means two different things
+
+**NEW, PRODUCT.** `setScorecardOpen(false)` appears at **four** sites carrying **two** semantics.
+⚠⚠ **IT WAS CALLED THE DEFECT IN OUR OWN SPEC AND IT IS NOT.** On Check & Improve it is **deliberate
+dismiss-to-reveal, with a comment in the source saying so.** On the other two it is **a working
+pattern with no destination** — a different bug with a different fix. ★ **The owner corrected his own
+framing on the lane's evidence.** **`#696` touched the two Chapter Test / Full Mock sites
+(`ChapterTestPage.tsx:809`, `FullMockPage.tsx:1265`) and left the two C&I sites, and said why.**
+
+### `[FU-TWO-STEP-ROW-COMPONENTS-ONE-SHAPE]` — two components render one shape
+
+**NEW, PRODUCT.** Two distinct step-row components render the same shape. **Part of the same
+convergence debt as `[FU-READ-SHEET-TWO-PATTERNS]`, tracked separately so neither hides the other.**
+
+### `[FU-QP-SESSIONRECORD-DOUBLE-BAN]` — the field's home is frozen by two gates at once
+
+**NEW, PRODUCT.** `lazytopper/src/services/sessionRecords.ts` is frozen zero-diff by **two** CI guards
+simultaneously (`check_improve_overlay` and `quick_practice_overlay`). ✅ **`#697` shipped with the
+frozen file untouched** — the matrix printed *"sessionRecords.ts shows zero changes"* **twice, once per
+guard, with the diff in the tree.** **The ban is intact and the fix went around it.**
+
+### `[FU-QP-HISTORY-RAIL]` — **KEPT OPEN**
+
+**Unchanged by these waves.** Carried forward so it does not fall off the board.
+
+### ⚠ `[FU-CLAUDEMD-S10-OMITS-DECISION-LOG]` — **KEPT OPEN, AND NOW RAISED INDEPENDENTLY BY FOUR LANES**
+
+**`CLAUDE.md` §10 lists SIX handoff files. There are SEVEN. The omitted one is
+`handoff/DECISION_LOG.md`.** ⚠ **A dispatch that copies §10 verbatim silently drops it.** **Every
+handoff dispatch must keep naming it explicitly** — this one did, and this file records that all seven
+were updated.
+
+### `[FU-SPEC-AUTHORING-MALFORMED-EVIDENCE-CELLS]` — **KEPT OPEN**
+
+**Unchanged by these waves.** ⚠ **Note the neighbouring finding it must not be confused with:** the
+premise **CHECKER** and the **TRUTH** of a premise are independent properties — a spec can fail its
+shape check with every claim true, or pass it with claims false. `[FU-PREMISE-GATE-BLIND-TO-PROSE-ANCHORS]`
+adds a third: it can pass **5/5 on anchors** and still be wrong **in its prose.**
+
+---
+
+### ✅ `[FU-QP-COULD-ADOPT-STEP-BLOCK]` — **CLOSED by `#697`**
+
+Quick Practice adopted the step block. ★ **It cost ONE FLAG**, *"which makes deferring it the more
+expensive choice, not the safer one."*
+
+### ✅ `[FU-QP-LOSTDETAIL-DUPLICATES-VERDICT]` — **CLOSED by `#697`. It was LIVE on Quick Practice.**
+
+A **2/2** answer rendered *"Where the mark went: **Fully correct.**"*, and **Q1 printed the same
+sentence twice** — `lostDetail` fell back to `teacherNote`, **which is already the verdict.**
+★★★ **FOUND BY A SCREENSHOT AFTER EVERY GATE WAS GREEN, and the entire existing suite was indifferent
+to it: all four `PracticePage` suites were 35/35 green BEFORE AND AFTER the fix.** ⇒ **Nothing in the
+repo pinned Quick Practice's `lostDetail` source or its step block.** ★★ **The lane added the five
+assertions that WOULD have caught it — closing the hole, not just the bug.**
+
+### ✅ `[FU-QP-STORED-GRADEDCOUNT-SYNTHESISED]` — **CLOSED for the builder by `#697`**
+
+⚠ **A distinction that was nearly lost and must not be re-lost:** the **STORED** variant was proved to
+have **no non-test consumer** (namespace-import check included) and was therefore **dormant** — while
+**6a's surface is a DIFFERENT one and it was LIVE.** ★★ **ONE "NONE" WAS NOT ALLOWED TO COVER BOTH.**
+*The alert list is not the set, caught before it could mislead.*
+
+### ✅ `[FU-DRAFT-PUSH-VS-CLAUDEMD-S3-ASK-FIRST]` — **CLOSED. `CLAUDE.md` §3 WINS.**
+
+**ASK before commit AND before push.** **Lane asks controller → controller asks owner → owner
+approves → THEN the lane pushes.** One lane refused to push unasked and was right; another deviated;
+**no penalty, because the convention genuinely was ambiguous.**
+⚠ **Until it is written into `ops/AGENT_STANDING_RULES.md` it is a ruling in a state file, and the
+next controller inherits a practice again.** *A correction that is not pushed does not exist.*
+
+### ✅ `[FU-695-EXCEEDS-STUB503-ALLOWLIST]` — **RATIFIED, and recorded because the ruling had no artefact**
+
+The owner had authorised the companion edit **in a message** and **never amended the spec.**
+> ★★★ **AN AUTHORISATION LIVING ONLY IN A CHAT MESSAGE IS A RULING WITH NO ARTEFACT.**
+⇒ **A ruling must reach the lane's brief AND the record, not just a controller's context.** ★ *The
+same gap was hit again two decisions later on D8, and that time it was written down first.*
+
+---
+
 ## 2026-08-20 — WAVE MI-INTEGRITY-6 — new, re-stated, closed and CORRECTED follow-ups (trunk `62078cb8`, unmoved)
 
 *Per standing rule 1, every ID below has its own heading and body — including the ones being carried
