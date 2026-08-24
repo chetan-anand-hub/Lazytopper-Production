@@ -97,6 +97,33 @@ function findDepartureIndex(annotatedSteps) {
   return count === 1 ? index : -1;
 }
 
+/** Rule 10's input — "a departure ENDS when the student RETURNS to the question that
+ *  was set". Returns the index of the FIRST step BELOW `departureIndex` that the model
+ *  marked `isReturn: true`, or -1 when there is none.
+ *
+ *  ⚠⚠ FAIL-SAFE, AND IT IS THE MOST IMPORTANT PROPERTY OF THIS FUNCTION: -1 is the
+ *  answer for EVERY uncertain case — no marker at all, a marker at or ABOVE the
+ *  departure, or no departure to return from. -1 reproduces the PRE-CHANGE behaviour
+ *  EXACTLY (zero to the end of the list), so a model that never learns to emit the
+ *  marker grades precisely as it does today. ★ A MISSING MARKER CAN ONLY EVER WITHHOLD
+ *  MARKS THAT WERE ALREADY WITHHELD; it can never restore marks by accident.
+ *
+ *  ★ UNLIKE `findDepartureIndex`, MORE THAN ONE MARKER IS NOT AMBIGUOUS HERE and is not
+ *  punished. A departure is a claim that COSTS the student marks, so two of them is a
+ *  contradiction that must fail safe to "no departure". A return only ever GIVES marks
+ *  back, and the FIRST return is the one that ends the excursion — every later marker
+ *  describes work that is already being paid. Taking the first is both the student-safe
+ *  reading and the only one consistent with rule 10's "THE DEPARTURE ENDS THERE".
+ */
+function findReturnIndex(annotatedSteps, departureIndex) {
+  if (!(departureIndex >= 0)) return -1;
+  const steps = Array.isArray(annotatedSteps) ? annotatedSteps : [];
+  for (let i = departureIndex + 1; i < steps.length; i += 1) {
+    if (steps[i] && steps[i].isReturn === true) return i;
+  }
+  return -1;
+}
+
 /** Rule 8's input. The model states `finalAnswerCorrect` explicitly; when it does
  *  NOT (an older backend, or geminiClient's ladder having STRIPPED the schema) the
  *  verdict is DERIVED from the last annotated step's status rather than defaulted.
@@ -118,7 +145,10 @@ function resolveFinalAnswerCorrect(raw, annotatedSteps) {
  * Rule 3  before the departure — ECF applies normally, every step on its merits.
  * Rule 4  the departure step KEEPS whatever it independently earned (zeroing it
  *         would punish genuine method — the correct numerator earns its half mark).
- * Rule 5  AFTER the departure — ZERO, however internally correct.
+ * Rule 5  AFTER the departure — ZERO, however internally correct, UNTIL THE STUDENT
+ *         RETURNS TO THE QUESTION (rule 10). From a step marked `isReturn` the work is
+ *         the question again and earns normally. ⚠ NO RETURN MARKED ⇒ zero to the end,
+ *         the final answer included — which is the pre-change behaviour, unchanged.
  * Rule 8  NARROWED 2026-08-16 (owner ruling as CBSE authority, Wave MI-INTEGRITY-3).
  *         A wrong or absent FINAL ANSWER never earns FULL marks, but the 50% CAP
  *         applies only where the solution DEPARTED from the question, or where no
@@ -169,8 +199,15 @@ function resolveFinalAnswerCorrect(raw, annotatedSteps) {
  *
  * ★★★ RULE 5 NOW CLEARS THE DEDUCTION LEDGER TOO (GRD-CLOSE). Three ledgers describe
  * one departure and they must share ONE boundary:
- *     award    — `applyEcfPolicyV2` zeroes `marksAwarded` for i > departureIndex
- *     count    — `buildMistakeSummary` counts mistakeTypes only for i < departureIndex
+ *     award    — `applyEcfPolicyV2` zeroes `marksAwarded` for departureIndex < i <
+ *                `returnIndex` (or to the end of the list when no return is marked)
+ *     count    — `buildMistakeSummary` counts mistakeTypes for i <= departureIndex
+ *   ⚠ CORRECTED BY DEPARTURE-COUNT-AND-RETURN. Both bounds above previously read
+ *   `i > departureIndex` and `i < departureIndex`: the award ledger ran to the END of
+ *   the list unconditionally, and the count ledger EXCLUDED the departure step, so the
+ *   departure's own mistakeType was never tallied and a student who caught their own
+ *   mistake still had the corrected work zeroed. The three ledgers still share ONE
+ *   boundary — the boundary simply now has a lower AND an upper edge.
  *     DEDUCTION — `marksDeducted`, which until now was left exactly as the model sent it
  * The owner's paper (`ci:CI-M-POLY-01`, 3 marks, departure at step 3) came back with
  * steps 5, 6 and 7 carrying `mistakeType: null` — CORRECT, and deliberate: policy (e)
@@ -203,8 +240,20 @@ function applyEcfPolicyV2({ annotatedSteps, totalMarks, schemeAnchored, finalAns
   //   separate mistake, so it cannot carry a separate charge. The departure step
   //   itself (index `departureIndex`) keeps BOTH its type and its deduction — it is
   //   the one thing that IS being penalised, and it is penalised once.
+  // ★★★ THE ZEROING STOPS AT THE RETURN, NOT AT THE END OF THE LIST
+  //   (DEPARTURE-COUNT-AND-RETURN). Owner ruling: zeroing runs from the departure
+  //   UNTIL THE STUDENT RETURNS TO THE QUESTION. A student who mis-substitutes,
+  //   CATCHES IT, corrects downstream and reaches the right answer had that correct
+  //   later work zeroed — the product punished them for catching their own mistake.
+  //   ⚠⚠ FAIL-SAFE: `findReturnIndex` returns -1 for every uncertain case, and -1
+  //   makes `zeroUntil` `steps.length` — i.e. BYTE-FOR-BYTE the previous behaviour,
+  //   zeroing to the end INCLUDING the final-answer step even when that answer is
+  //   correct for the question as set. An answer reached from a different problem is
+  //   coincidence, not work. NO RETURN MARKED ⇒ NOTHING CHANGES.
+  const returnIndex = findReturnIndex(steps, departureIndex);
   if (departureIndex >= 0) {
-    for (let i = departureIndex + 1; i < steps.length; i += 1) {
+    const zeroUntil = returnIndex >= 0 ? returnIndex : steps.length;
+    for (let i = departureIndex + 1; i < zeroUntil; i += 1) {
       steps[i].marksAwarded = 0;
       steps[i].marksDeducted = 0;
     }
@@ -240,6 +289,9 @@ function applyEcfPolicyV2({ annotatedSteps, totalMarks, schemeAnchored, finalAns
   return {
     marksAwarded,
     departureIndex,
+    // ★ Reported for the same reason `departureIndex` is: a caller (and a test) can
+    //   see WHERE the excursion ended. -1 means "no return", which is the fail-safe.
+    returnIndex,
     // ★ The information the cap used to carry, kept. Callers can still see whether
     // this grade had a stored scheme behind it; it just no longer costs the student
     // half the question. (It has never been surfaced on the HTTP response — this is
@@ -263,21 +315,83 @@ function applyEcfPolicyV2({ annotatedSteps, totalMarks, schemeAnchored, finalAns
  * downstream charges through the raw counter even though the floor excluded them,
  * and "exactly one counted mistake" would silently become three.
  *
- * ⚠ THE DEPARTURE IS NOT COUNTED AS `silly`. The client's `buildCiCoaching` derives
- * its coaching line from counts alone and `careless` IS the silly bucket, so filing
- * the departure there makes the product say "the method is there; show every step"
- * — they DID show every step, they left the question. It carries its own kind so it
- * cannot trigger that copy. [FU-GRD-DEPARTURE-VOICE-NEEDS-SRC]
+ * ★★★ THE DEPARTURE STEP IS COUNTED, UNDER ITS OWN TYPE — REVISED BY
+ * DEPARTURE-COUNT-AND-RETURN. This paragraph previously read "THE DEPARTURE IS NOT
+ * COUNTED AS `silly`", and the bound below implemented that by excluding the departure
+ * step from the tally ENTIRELY. ⚠⚠ THE TWO ARE NOT THE SAME THING, and the gap between
+ * them was the defect: the owner's paper was marked `silly, -0.5` on the graded sheet
+ * and the scorecard showed four zeros. NOT FORCING every departure into one bucket is
+ * right; NOT COUNTING IT AT ALL was not.
+ * ★ Owner ruling: a departure is whatever type its step already carries — a miscopy is
+ * `silly`, a wrong formula `conceptual`, a miscount while balancing `calculation`.
+ * There is NO fifth bucket, and `departure: 1` stays an INTERNAL marker meaning
+ * "penalised once, not once per line". It never enters the four counts and it never
+ * reaches the client: `CheckSolutionMistakeSummary` does not declare it, and every
+ * default-fill spread in `src/services/*GradeService.ts` drops it.
+ * ⚠⚠ THE COACHING-COPY CONCERN THIS PARAGRAPH RAISED IS REAL AND IS NOW LIVE, so it is
+ * recorded rather than deleted. `buildCiCoaching` (CheckImproveGradedPrintDoc.tsx:97)
+ * derives its line from counts alone and `careless` IS the silly bucket, so a
+ * silly-typed departure now yields "the method is there; show every step" — which is
+ * the wrong lesson. ★ It is still a STRICT IMPROVEMENT on what shipped before: with
+ * four zeros that same function fell through to "Clean work — keep showing every step",
+ * i.e. it CONGRATULATED a student who had just scored zero. ★ `buildCiCoaching` ALREADY
+ * has a correct `departure > 0` branch and NO CALL SITE PASSES IT; wiring that up is a
+ * `src/` change and is out of scope here. [FU-GRD-DEPARTURE-VOICE-NEEDS-SRC] stands.
+ * ⚠ And note `src/services/mistakeIntelligence.ts` `reconcileCounts` ALREADY counts the
+ * departure step client-side (it walks every annotatedStep and knows nothing of
+ * `departureIndex`), so before this change the MISTAKE LOG said silly:1 while the
+ * SCORECARD said silly:0. This change removes that divergence rather than creating
+ * one, and the log's dedup key is unaffected.
  *
  * With NO departure (`departureIndex < 0`) this is byte-for-byte the previous
  * additive-floor reconcile, so every existing caller is unchanged.
  */
-function buildMistakeSummary({ annotatedSteps, rawSummary, noWorkingNulled, departureIndex }) {
+function buildMistakeSummary({ annotatedSteps, rawSummary, noWorkingNulled, departureIndex, returnIndex }) {
   const steps = Array.isArray(annotatedSteps) ? annotatedSteps : [];
   const raw = rawSummary || {};
   const stepFloor = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
-  const limit = departureIndex >= 0 ? departureIndex : steps.length;
-  for (let i = 0; i < limit; i += 1) {
+  // ★★★ THE DEPARTURE STEP IS COUNTED, UNDER ITS OWN TYPE
+  //   (DEPARTURE-COUNT-AND-RETURN). The bound was `departureIndex`, EXCLUSIVE, so the
+  //   departure step's own `mistakeType` was never tallied: the owner's paper marked
+  //   the substitution `silly, -0.5` on the graded sheet and the scorecard showed
+  //   CONCEPTUAL 0 · CALCULATION 0 · SILLY 0 · PRESENTATION 0. A student lost marks
+  //   and was shown four zeros with no explanation. ⚠ The rule was "the departure is
+  //   PENALISED ONCE"; it was implemented as "the departure is NOT COUNTED AT ALL",
+  //   and the comment at `applyEcfPolicyV2` already said the departure step "keeps
+  //   BOTH its type and its deduction" — the code disagreed with its own file.
+  //   ⚠⚠ NO NEW MISTAKE TYPE. A departure is whatever type its step already carries:
+  //   a miscopy is `silly`, a wrong formula is `conceptual`, a miscount while
+  //   balancing is `calculation`. Forcing every departure into one bucket would tell a
+  //   student "conceptual gap" for a copying slip — the exact mis-diagnosis this arc
+  //   removed. `departure: 1` stays an INTERNAL marker meaning "penalised once, not
+  //   once per line"; it is never rendered as a bucket and never enters the four
+  //   counts.
+  //   ★ RULE 6 IS PRESERVED: the departure is charged ONCE and the steps BELOW it
+  //   remain uncounted — the bound moves by exactly one step, from EXCLUSIVE of the
+  //   departure to INCLUSIVE of it, and by nothing else.
+  // ★★★ THE UNCOUNTED WINDOW RUNS FROM THE DEPARTURE TO THE RETURN — NOT TO THE END
+  //   OF THE LIST (owner ruling, Q1). It is the EXACT MIRROR of the zeroing window in
+  //   `applyEcfPolicyV2`, and that symmetry IS the ruling: if marks earn normally from
+  //   the return onward, then mistakes must COUNT from the return onward. A step the
+  //   product pays for and deducts on, but refuses to name in the scorecard, is the
+  //   very defect this lane exists to remove.
+  //   ⚠⚠ OWNER'S FRAMING, RECORDED VERBATIM BECAUSE IT NAMES THE SHAPE: "the same shape
+  //   as the original bug — a rule right in spirit, applied one step too far. TWICE IN
+  //   ONE FUNCTION, FROM THE SAME AUTHOR, FOR THE SAME REASON. Rule 6's 'penalised once'
+  //   became 'not counted at all'; the return rule's 'steps below' became 'everything
+  //   after'. Both mine."
+  //   ⚠⚠ FAIL-SAFE 1 IS UNTOUCHED AND STILL SUPREME: `returnIndex < 0` (no return
+  //   marked, or an unaware caller that never passes it — `server/eval/graderEval.cjs`
+  //   is exactly that caller) makes `uncountedUntil` `steps.length`, i.e. uncounted to
+  //   the end, which is the pre-Q1 behaviour byte for byte. A MISSING MARKER CAN NEVER
+  //   RESTORE A COUNT ANY MORE THAN IT CAN RESTORE A MARK.
+  //   ★ The three invariants this must not widen past: the departure step itself still
+  //   counts ONCE under its own type (i <= departureIndex); steps STRICTLY BETWEEN the
+  //   departure and the return stay uncounted (rule 6); and no step ever gains a new
+  //   type — a mistake after the return is whatever type it already carries.
+  const uncountedUntil = returnIndex >= 0 ? returnIndex : steps.length;
+  for (let i = 0; i < steps.length; i += 1) {
+    if (departureIndex >= 0 && i > departureIndex && i < uncountedUntil) continue;
     const s = steps[i];
     if (s && s.mistakeType && Object.prototype.hasOwnProperty.call(stepFloor, s.mistakeType)) {
       stepFloor[s.mistakeType] += 1;
@@ -312,10 +426,30 @@ const DEPARTURE_TEACHER_LINE =
   'From this step on you were solving a different equation from the one set — check each line ' +
   'against the question as you go.';
 
-function withDepartureNote(teacherNote, departureIndex) {
+/** ★★ THE RETURN'S VOICE. Change 2 of DEPARTURE-COUNT-AND-RETURN FALSIFIED
+ *  `DEPARTURE_TEACHER_LINE` for one case: "From this step on you were solving a
+ *  different equation" is simply NOT TRUE of a student who caught the slip and came
+ *  back, and it now contradicts the marks the same response just awarded them for the
+ *  work after the return. ⚠ This is not a new feature bolted on — it is change 2
+ *  finishing itself. Telling a student who recovered that they never did, on the same
+ *  page that pays them for recovering, is the same defect class as the four zeros.
+ *  ★ And it is deliberately SUBJECT-NEUTRAL ("question", not "equation"). The departure
+ *  test is subject-neutral by construction — a wrong organ, reactant or law departs
+ *  exactly as a wrong value does — so the new line does not deepen the Maths bias that
+ *  `DEPARTURE_TEACHER_LINE` already carries. [FU-GRD-DEPARTURE-LINE-MATHS-BIASED] */
+const DEPARTURE_RETURN_TEACHER_LINE =
+  'For a few lines there you were working a different question from the one set — then you ' +
+  'caught it yourself and came back, and the work from that point earns its marks. Check each ' +
+  'line against the question as you go and you will catch it sooner.';
+
+function withDepartureNote(teacherNote, departureIndex, returnIndex) {
   const note = String(teacherNote || '').trim();
   if (departureIndex < 0) return note;
-  return note ? note + ' ' + DEPARTURE_TEACHER_LINE : DEPARTURE_TEACHER_LINE;
+  // ⚠ FAIL-SAFE, SAME SHAPE AS THE MARKS: only a return that was actually FOUND
+  // (>= 0) changes the line. Absent, undefined or -1 ⇒ the original sentence, so a
+  // caller that has not been updated behaves exactly as it did before.
+  const line = returnIndex >= 0 ? DEPARTURE_RETURN_TEACHER_LINE : DEPARTURE_TEACHER_LINE;
+  return note ? note + ' ' + line : line;
 }
 
 /* ── THE RUBRIC IS FIXED BEFORE THE STUDENT'S WORK IS READ (GRD-CLOSE) ─────────
@@ -394,6 +528,9 @@ const ECF_POLICY_V2_PROMPT =
   '       There is AT MOST ONE departure — the FIRST such step. Mark it with \"isDeparture\": ' +
   'true on that step and on no other. If the solution never leaves the question, set ' +
   '\"isDeparture\": false on every step — never guess one.\n' +
+  '       ★ AND A DEPARTURE CAN END. If the student later picks the REAL question back up, ' +
+  'mark that step \"isReturn\": true — see case 10 under (k). If they never pick it back ' +
+  'up, mark no return at all.\n' +
   '   (b) BEFORE the departure: ECF applies normally. A step wrong ONLY because it correctly ' +
   'applied the right method to a value carried from an earlier mistake keeps its method marks and ' +
   'is NOT a fresh mistake (mistakeType null). Every step is judged on its own merits — never ' +
@@ -474,6 +611,22 @@ const ECF_POLICY_V2_PROMPT =
   'ENDS THERE. Later correct work on the question as set EARNS ITS MARKS. Where the student ' +
   'returns and the excursion left nothing behind, do not mark a departure at all — grade the ' +
   'excursion as an ordinary mistake.\n' +
+  '       ★ WHERE YOU DO MARK A DEPARTURE AND THE STUDENT LATER RETURNS, SAY SO IN THE ' +
+  'OUTPUT: set \"isReturn\": true on the FIRST step that is working the question AS SET ' +
+  'again — the step where they picked the real question back up. Everything from that step ' +
+  'onward is marked NORMALLY, on its own merits. Mark \"isReturn\" on that ONE step, ' +
+  'leave it false everywhere else, and NEVER set it on a step at or above the departure.\n' +
+  '       ⚠⚠ IF THE STUDENT NEVER RETURNS, MARK NO RETURN AT ALL. Every step below the ' +
+  'departure then earns ZERO — THE FINAL ANSWER INCLUDED, EVEN IF THAT ANSWER HAPPENS TO BE ' +
+  'CORRECT FOR THE QUESTION AS SET. An answer reached from a different problem is coincidence, ' +
+  'not work, and CBSE pays for DEMONSTRATED METHOD, not for landing on the right number.\n' +
+  '       ⚠⚠ AND MARK A DEPARTURE ONLY ON POSITIVE EVIDENCE — the student\'s OWN SUBSEQUENT ' +
+  'WORK, visibly consistent with the changed value, term, law, organ, reactant or premise. ' +
+  'NEVER on suspicion, NEVER because a line merely looks wrong, and NEVER because you cannot ' +
+  'follow it. ★ CLAUSE (f) IS RESTATED HERE SO THE TWO ARE READ TOGETHER: NO DEPARTURE ' +
+  'IDENTIFIED ⇒ GRADE NORMALLY, on the merits, and never zeroed for the absence of evidence. ' +
+  '⚠ A departure you cannot demonstrate now costs the student EVERY step below it — the WHOLE ' +
+  'question — so WHEN IN DOUBT THERE IS NO DEPARTURE.\n' +
   '   (l) SCIENCE — THE BOUNDARY THAT MATTERS IS DEPARTURE vs PRESENTATION. These two look ' +
   'alike and grade OPPOSITELY:\n' +
   '       S1. Answering a DIFFERENT QUESTION — explaining respiration when asked for ' +
@@ -626,6 +779,16 @@ function annotatedStepSchema() {
       // an error. Declared per-STEP because `stepNumber` is the array index at
       // both normalisers — a positional departure would be meaningless.
       isDeparture: { type: 'BOOLEAN', nullable: true },
+      // ECF_POLICY_V2 · the RETURN marker (DEPARTURE-COUNT-AND-RETURN). NULLABLE and
+      // NOT required, exactly like `isDeparture`: absent means "no return identified",
+      // which zeroes to the end of the list — the behaviour before this field existed.
+      // ⚠ It is ADDITIVE and it FAILS SAFE. An older backend, or a model that ignores
+      // the field, produces the PRE-CHANGE grade rather than an error, and an absent
+      // marker can only ever WITHHOLD marks that were already withheld — never restore
+      // them by accident. Declared per-STEP for the same reason as `isDeparture`:
+      // `stepNumber` is the array index at both normalisers, so a positional return
+      // would be meaningless.
+      isReturn: { type: 'BOOLEAN', nullable: true },
     },
     // Ordering hint only — mirrors the order of the prompt's own JSON example
     // (:213-:223) so the model describes a step before it judges it. Carries no
@@ -633,7 +796,7 @@ function annotatedStepSchema() {
     propertyOrdering: [
       'stepNumber', 'description', 'studentWork', 'status',
       'marksAwarded', 'marksDeducted', 'teacherAnnotation',
-      'mistakeType', 'correctedWorking', 'isDeparture',
+      'mistakeType', 'correctedWorking', 'isDeparture', 'isReturn',
     ],
     required: ['description'],
   };
@@ -1199,7 +1362,8 @@ function createCheckSolutionRoute(deps) {
         '      "teacherAnnotation": "brief teacher comment — \u2713 Good / \u00d7 Error explanation / \u00bd Partially correct",\n' +
         '      "mistakeType": null | "conceptual" | "calculation" | "silly" | "presentation",\n' +
         '      "correctedWorking": null | "the correct version of this step",\n' +
-        '      "isDeparture": false | true\n' +
+        '      "isDeparture": false | true,\n' +
+        '      "isReturn": false | true\n' +
         '    }\n' +
         '  ],\n' +
         '  "mistakeSummary": { "conceptual": 0, "calculation": 0, "silly": 0, "presentation": 0 },\n' +
@@ -1408,6 +1572,10 @@ function createCheckSolutionRoute(deps) {
             // object is persisted to Firestore by the client and an `undefined`
             // field is rejected outright there.
             isDeparture: s.isDeparture === true,
+            // ECF_POLICY_V2 · THE RETURN MARKER. Coerced to a REAL boolean for the
+            // same reason as `isDeparture`: this object is persisted to Firestore by
+            // the client, which rejects an `undefined` field outright.
+            isReturn: s.isReturn === true,
           }));
 
         // ── Uniform OBJECTIVE handling — BYTE-ALIGNED with normaliseStructuredResult ─
@@ -1485,6 +1653,7 @@ function createCheckSolutionRoute(deps) {
           rawSummary: parsed.mistakeSummary,
           noWorkingNulled,
           departureIndex: policy.departureIndex,
+          returnIndex: policy.returnIndex,
         });
 
         return sendJson(res, 200, {
@@ -1498,7 +1667,7 @@ function createCheckSolutionRoute(deps) {
           // `teacherNote` already renders on every surface and this lane may not
           // touch `src/`. The aggregate coaching line stays wrong for now —
           // [FU-GRD-DEPARTURE-VOICE-NEEDS-SRC].
-          teacherNote: withDepartureNote(parsed.teacherNote, policy.departureIndex),
+          teacherNote: withDepartureNote(parsed.teacherNote, policy.departureIndex, policy.returnIndex),
           questionDepartureError: policy.departureIndex >= 0,
           // Objective echo (additive; PAIRED with normaliseStructuredResult below —
           // keep both in sync). For an objective question the clamp above zeroed every
@@ -1842,6 +2011,12 @@ function createCheckSolutionRoute(deps) {
         // site: this object is persisted to Firestore by the client, which rejects
         // an undefined field outright.
         isDeparture: s.isDeparture === true,
+        // ECF_POLICY_V2 · THE RETURN MARKER — PARITY WITH handleCheckSolution, and for
+        // exactly the reason the departure marker needed it: without this field every
+        // step reaches applyEcfPolicyV2 with `isReturn` undefined, so findReturnIndex
+        // could only ever return -1 on this path and a student who caught their own
+        // mistake would still be zeroed on EVERY structured surface.
+        isReturn: s.isReturn === true,
       }));
 
     // ── Uniform OBJECTIVE (MCQ / AR / Section A) handling ─────────────────────
@@ -1910,6 +2085,7 @@ function createCheckSolutionRoute(deps) {
       rawSummary: raw.mistakeSummary,
       noWorkingNulled,
       departureIndex: policy.departureIndex,
+      returnIndex: policy.returnIndex,
     });
 
     return {
@@ -1921,7 +2097,7 @@ function createCheckSolutionRoute(deps) {
       percentage: Math.round((capped / totalMarks) * 100),
       annotatedSteps,
       mistakeSummary,
-      teacherNote: withDepartureNote(raw.teacherNote, policy.departureIndex),
+      teacherNote: withDepartureNote(raw.teacherNote, policy.departureIndex, policy.returnIndex),
       questionDepartureError: policy.departureIndex >= 0,
       // Objective echo (additive; PAIRED with handleCheckSolution above — keep both in
       // sync). Same meaning: the clamp zeroed the per-step marks by design, so the view
@@ -2257,7 +2433,7 @@ function createCheckSolutionRoute(deps) {
       '      "couldNotRead": false,\n' +
       '      "marksAwarded": <number>,\n' +
       '      "annotatedSteps": [\n' +
-      '        { "stepNumber": 1, "description": "...", "studentWork": "what the student wrote", "status": "correct" | "partial" | "incorrect" | "missing", "marksAwarded": <number>, "marksDeducted": <number>, "teacherAnnotation": "...", "mistakeType": null | "conceptual" | "calculation" | "silly" | "presentation", "correctedWorking": null | "...", "isDeparture": false | true }\n' +
+      '        { "stepNumber": 1, "description": "...", "studentWork": "what the student wrote", "status": "correct" | "partial" | "incorrect" | "missing", "marksAwarded": <number>, "marksDeducted": <number>, "teacherAnnotation": "...", "mistakeType": null | "conceptual" | "calculation" | "silly" | "presentation", "correctedWorking": null | "...", "isDeparture": false | true, "isReturn": false | true }\n' +
       '      ],\n' +
       '      "mistakeSummary": { "conceptual": 0, "calculation": 0, "silly": 0, "presentation": 0 },\n' +
       '      "finalAnswerCorrect": true | false,\n' +
@@ -2604,9 +2780,11 @@ module.exports = {
   // product ships instead of keeping its own third copy of the naked sum.
   applyEcfPolicyV2,
   findDepartureIndex,
+  findReturnIndex,
   resolveFinalAnswerCorrect,
   buildMistakeSummary,
   DEPARTURE_TEACHER_LINE,
+  DEPARTURE_RETURN_TEACHER_LINE,
   ECF_POLICY_V2_PROMPT,
   // EVAL-PARITY. Exported PURELY so `server/eval/graderEval.cjs` can assemble its
   // grading prompt from THE SHIPPED STRINGS instead of keeping its own copies.
