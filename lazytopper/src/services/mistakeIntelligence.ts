@@ -143,12 +143,32 @@ function buildEntry(
   counts: ReconciledCounts,
 ): Omit<MistakeLogEntry, "id"> {
   const marksLost = Math.max(0, (Number(result.totalMarks) || 0) - (Number(result.marksAwarded) || 0));
+  // ── MI-INTAKE-FILTER — a diagnosis enters MI on its TYPE, not on whether it
+  // cost marks. The old predicate also required `marksDeducted > 0`, which
+  // silently discarded every diagnosis on an OBJECTIVE question: the grader's
+  // `clampObjectiveResult` sets `marksDeducted = 0` on EVERY step of an MCQ /
+  // 1-mark item by design (objective steps carry no per-step marks — the
+  // whole-question mark lives at the question level), while
+  // `applyObjectiveMistakeGuard` deliberately KEEPS the mistakeType whenever
+  // there is real working to classify. So a student who answers correctly by a
+  // flawed method — or wrongly but with working — was diagnosed by the grader
+  // and then had that diagnosis dropped here. It also left `stepDetails`
+  // contradicting `mistakeCounts` on the same entry, since `reconcileCounts`
+  // never had a deduction guard.
+  //
+  // The type test STAYS: an untyped step is nothing to record, and inventing a
+  // type would be fabrication.
+  // `marksLost` above is computed from the QUESTION TOTALS and is NOT summed
+  // from this list, so admitting a zero-deduction entry adds a DIAGNOSIS
+  // without adding a lost mark.
   const stepDetails = (result.annotatedSteps ?? [])
-    .filter((s) => s.mistakeType && s.marksDeducted > 0)
+    .filter((s) => s.mistakeType)
     .map((s) => ({
       stepNumber: s.stepNumber,
       mistakeType: String(s.mistakeType),
-      marksDeducted: s.marksDeducted,
+      // Coerced because the dropped `> 0` test was also what previously
+      // guaranteed this field was a real number before it reached Firestore.
+      marksDeducted: Number(s.marksDeducted) || 0,
     }));
   // ── MI-CONCEPT-1 — questionId write-through + concept resolution ──────────
   // `questionId` already reached this function (dedup + the weak-area bridge read
