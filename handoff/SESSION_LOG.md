@@ -1,5 +1,108 @@
 ---
 
+## 2026-08-25 — Wave MI-INTEGRITY-3 CLOSED — **FOUR PRs MERGED: `#699` · `#700` · `#701` · `#702`** — trunk `65b6c0e2`, and the grader can finally be measured
+
+★ **PROVENANCE.** Code claims carry their source: **OWNER-VERIFIED** / **LANE-REPORTED** /
+**CONTROLLER-RECORDED** / **HANDOFF-VERIFIED** (re-derived by the `HANDOFF-MI9` lane at `65b6c0e2`).
+**A controller cannot verify a code claim.** Metadata claims below are HANDOFF-VERIFIED by command.
+
+**Trunk `65b6c0e2b1973d4042a383931a25d66c9330b95c`** — re-derived by this lane with
+`git ls-remote origin base/approved-thru-437`, **not taken from any document**, and re-derived a second
+time after a mid-lane reissue. **HANDOFF-VERIFIED.**
+
+### WHAT A STUDENT ACTUALLY GOT
+
+- **A chapter is a weakness only on EVIDENCE** (`#699`, `f34c395b`). Every chapter qualified as a
+  weakness for every student, permanently. A brand-new student scored **45** and **a student with a
+  PERFECT RECORD still scored 30**, against a threshold of **5** — because **a retired page's silence
+  was being scored as ignorance.** ⚠ **Parents saw this too.** The weak-area list was a CONSTANT: a
+  surface showing the same thing for every student.
+- **A right answer reached by broken reasoning is now visible** to Mistake Intelligence and the tutor
+  (`#700`, `ec97f743`). A diagnosed mistake now enters MI **on its TYPE, not on whether it cost
+  marks.** ⚠ And for objective questions `stepDetails` was **always empty — right and wrong alike**,
+  so there was nothing to diagnose from in the first place.
+- **A student who loses marks is told WHY, and one who catches their own slip keeps the marks**
+  (`#701`, `c587a4ae`). The departure step is counted under its own type. **The product had been
+  punishing self-correction.**
+- **The grader can finally be measured** (`#702`, `29220c44`). The eval harness sends the prompt
+  production sends: **8 rules to 16, and ten of them arrive by IMPORT, not by copy** — so the harness
+  cannot drift from the grader by transcription, which is how the first eight diverged.
+
+⇒ ★★ **These four had been on trunk with NO handoff entry.** Their lane NAMES appeared in
+`CURRENT_STATE.md` and `DECISION_LOG.md` as **pending** work — *"awaiting owner commit + push"*,
+*"HOLD"*, *"blocked on 3 owner rulings"* — which is worse than absence: **the record actively said
+they had not shipped.** ⚠ **The v1 spec's phrasing "their changes appear in NO handoff" was itself
+literally false, and the lane corrected it.**
+
+### THE LANE THAT WAS BLOCKED, AND WHY THAT WAS THE RIGHT OUTCOME
+
+`HANDOFF-MI9` **v1 refused to start.** Its §0c.0 premise gate exited **1**: the ledger carried three
+columns where `scripts/premise_ledger_check.mjs` requires six, so the checker **returned early and no
+premise row was ever anchor-checked.** The spec forbids repairing a broken ledger — *"a broken ledger
+is the author's defect and the author must see it"* — and the lane stopped.
+
+⇒ ★★ **THE FOUR COLUMN ERRORS WERE ALL TRUE AND STILL UNDER-DESCRIBED WHAT THE RUN ESTABLISHED**,
+which was nothing at all about the premises. **That is specimen 11 fired on the gate's own output.**
+⇒ **CONTROL:** the repo's own `ops/AGENT_SPEC_TEMPLATE.md` fails at **row** level having **passed** the
+column stage — proving the stage is passable and that MI9 v1 specifically failed it, rather than the
+checker being broken.
+
+**The controller reissued as v2 with a conforming ledger, having run the gate himself first.** The
+lane re-ran it independently: `PASS · 10 premises · 7/7 anchors RESOLVED · 0 UNCHECKED · 3 UNVERIFIED ·
+exit 0`. ★ **A gate the author ran is not a gate you ran.**
+
+### FOUR CONTROLLER PREMISES OVERTURNED FROM BELOW
+
+1. **The ledger shape** (above).
+2. **`CLAUDE.md` §10.** v1 claimed *"expect NO hit in section 10"*. **FALSE** — `CLAUDE.md:241`, inside
+   §10 (lines 232-247), says *"log it in `DECISION_LOG`"*. ⇒ **§10 is INTERNALLY INCONSISTENT: it
+   directs you to log to the very file it omits from its own update list.** A sharper indictment than
+   "it omits it", and it had been paraphrased rather than quoted.
+3. **The mojibake blindness.** `ops/CONTROLLER_SUBAGENT_MODEL.md:373` says `check:mojibake` is
+   *"structurally blind to `handoff/`"*. **DISPROVED BY CONTROL** — see below.
+4. **The WIRE-2 contradiction.** v1 asked the lane to escalate one. It escalated, then found the record
+   **unanimous across NINE restatements**. **B2 struck.**
+
+⇒ ★★★ **The instruction that produced all four is "RE-DERIVE IT, DON'T INHERIT IT — if your finding
+differs from the controller's, YOURS WINS."**
+
+### B1 SETTLED BY CONTROL — `check:mojibake` DOES REACH `handoff/`
+
+`repoRoot` is `git rev-parse --show-toplevel` (the git root, **not** `lazytopper/`), and `handoff/`
+sits in `REPORT_ONLY_PREFIXES`: **scanned, counted and printed on every run — merely not enforced.**
+
+```
+baseline                                    enforced=0  report_only=17   exit 0
+inject -> handoff/CURRENT_STATE.md          enforced=0  report_only=18   exit 0   SEEN, not enforced
+inject -> ops/AGENT_STANDING_RULES.md       enforced=1  report_only=17   exit 1   ENFORCED, red
+both reverted; removal proven; baseline re-measured identical
+```
+
+⇒ ★★ **"STRUCTURALLY BLIND" IS NOT "REPORT-ONLY."** The claim was true of an older revision, was fixed
+under `[GUARD-3]`, and **survived as a restated fact in three dispatches after it stopped being true.**
+The probe **lifted the live regex out of the scanner at runtime** rather than re-typing it, and was
+verified in both directions (`MATCHES_CONTROL=true`, `MATCHES_PLAIN_ASCII=false`) — **a matcher that
+fires on everything is not a matcher.**
+
+### SPECIMENS 9-15 REACHED THE RULES
+
+`ops/AGENT_STANDING_RULES.md` contained **ZERO** specimens before this lane. It now carries 9-15 with
+their answers, sourced from the **CANONICAL** table (the same close-out's earlier table is superseded
+and has **11 and 12 transposed**). Owner's reason: *"a finding in a report is a finding that dies with
+the report — that is the twenty-one-follow-ups lesson."*
+
+### GATES
+
+`premise gate` PASS exit 0 (10 premises, 7/7 anchors, 0 unchecked) · `check:mojibake`
+`enforced_hits=0 report_only_hits=17` exit 0, **plus the two-sided injection control** ·
+`scope:guard --mode docs` with `inspected` **non-zero** · per-file **heading census set-differenced
+before against after, zero headings lost** · `git diff --name-only 65b6c0e2` **zero product files**.
+
+⚠ **The erratum slot is RESERVED AND EMPTY** — the owner writes it himself. **The PR did not open
+until he supplied the text.**
+
+---
+
 ## 2026-08-24 — Wave MI-INTEGRITY-7 + Wave MI-INTEGRITY-8 (three controllers, nine units) — **FOUR PRs MERGED: `#694` · `#695` · `#696` · `#697`** — trunk `deddf595`, moved FOUR times
 
 ★ **PROVENANCE.** Code claims below carry their source: **OWNER-VERIFIED** / **LANE-REPORTED** /

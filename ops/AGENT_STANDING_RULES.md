@@ -263,3 +263,195 @@ the instrument is behaving perfectly, and the defect is in the sentence that com
   blind `grep -rn "premise_ledger" .github/ package.json` corrected in this same wave (see *Evidence
   hygiene* above, and `ops/agent-spec/SKILL.md`) is the identical failure: the author summarising the
   evidence instead of quoting it, and the summary reaching less far than the claim it supports.
+
+### ★★★ THE SPECIMEN FAMILY — ALL SEVENTEEN, INTO THE RULES AGENTS READ (Wave MI-INTEGRITY-3, 2026-08-25)
+
+**Why these are here at all, in the owner's words:**
+
+> *a finding in a report is a finding that dies with the report — that is the twenty-one-follow-ups lesson.*
+
+Specimens 1-15 were on record in close-out reports and **in none of the rules any agent reads.** This
+section ends that. **Specimens 1-8 are the pre-existing family: checks that MEASURE THE WRONG THING.**
+
+**SOURCE, AND WHICH TABLE.** Taken from the table headed **"SPECIMEN NUMBERING — SETTLED BY THE OWNER.
+THIS TABLE IS CANONICAL."** in
+`C:\Users\Chetan\OneDrive\Desktop\diff\Wave MI Integrity 3\Report\CLOSEOUT_MI_INTEGRITY_3_CONTROLLER_C.md`
+(53288 bytes; sha256 measured, begins `a58040899fd8df8e`).
+⚠ **THAT FILE CONTAINS TWO SPECIMEN TABLES AND THE EARLIER ONE IS SUPERSEDED** — it has **11 and 12
+TRANSPOSED.** The owner ruled: *"the PAIRING defect is #11; the dying-agent status is #12. It is the
+subtlest and deserves the earlier slot."* **The earlier table reads like a complete list, which is
+exactly specimen 11 committed on the specimens themselves: two true lists presented as one.**
+⇒ **If you cite a specimen number, cite which table you read it from.**
+
+| # | specimen | mechanism |
+|---|---|---|
+| **1-6** | **the six earliest — RECORDED, BUT NEVER NUMBERED** | ⚠ **no document assigns the numbers 1-6 to any six instances.** See "THE #1-#6 GAP" below, which names every candidate instead of guessing |
+| **7** | **a drift check scoped to NAMED CLAUSES** | asked after three named corrections, found all three intact, and **returned CLEAN over a prompt missing half its rules** — *"blind to the eight nobody thought to name"* |
+| **8** | **a path-scoped search reported without its scope** | an `src/`-scoped enumeration missed a live **server** consumer that puts weak areas in front of **PARENTS**. ★ **The scout caught and reported this against itself** |
+| **9** | **a test that PINNED THE DEFECT AS DOCTRINE** | measures the RIGHT thing, **records the WRONG ANSWER AS EXPECTED** — a test that DEFENDS the bug |
+| **10** | **a binary that never ran** | dead `.bin/tsc` symlink, no output, piped to a counter -> 0; **zero is indistinguishable from a true negative** |
+| **11** | **a citation under-describing what it is evidence for** | two rows, **both TRUE**, grepped with DIFFERENT patterns, presented side by side as comparable. **NEITHER NUMBER IS FALSE — THE COMPARISON IS THE LIE** |
+| **12** | **a dying agent's last line reads like success** | `<result>` "Complete. Writing the final report." vs `<status> failed` |
+| **13** | **a status word matched as a substring of DATA** | "skipped" matched TEST NAMES containing `skipped-error` — **the matcher fires correctly and means nothing** |
+| **14** | **a green whose referent has since changed** | `lane-overlap` is bound to **the set of open PRs at the instant it ran**; observed in BOTH directions |
+| **15** | **a partial check set is not a verdict** (the owner's) | reading a red as "and everything else passed" while some checks **have not reported** |
+
+**THE ANSWERS, paired to the specimen each one defeats:**
+- **#9 ➜ A TEST CAN BE GREEN *BECAUSE* IT ENCODES THE BUG.** When a test asserts current behaviour,
+  ask what it would take to make it fail; if the answer is "fixing the defect", it is not a test.
+- **#10 ➜ PROVE THE BINARY IS LIVE BEFORE TRUSTING ITS SILENCE.** `--version`, non-empty output.
+  ⚠ **A PIPED COMMAND EXITS WITH THE EXIT CODE OF THE LAST STAGE** — `missing-binary | wc -l` exits 0
+  and prints `0`. Capture `${PIPESTATUS[0]}`, or do not pipe.
+- **#11 ➜ AN ENUMERATION YOU CAN CHECK BEATS A COUNT YOU MUST TRUST.** Name the members. A count is a
+  derived value with nothing re-checking it. **This specimen defeats every single-row defence** — no
+  control, no mutation, no ruler-stating, no scope-naming catches it, because each row passes every
+  defence INDIVIDUALLY and **the defect exists only in the RELATION BETWEEN TWO TRUE FACTS.**
+- **#12 ➜ READ `<status>`, NOT `<result>`.** An agent that died mid-sentence still emits a confident
+  last line.
+- **#13 ➜ THE ZERO-SKIP PROOF IS THE ABSENCE OF A SEGMENT, NOT THE ABSENCE OF A WORD.** vitest renders
+  skips as an extra summary segment (`Tests 5 skipped | 1877 passed`); **`Tests N passed (N)` with no
+  such segment is the proof.** Grepping for "skipped" false-positives on test names.
+- **#14 ➜ A GREEN IS BOUND TO THE STATE THAT PRODUCED IT.** State WHEN it ran and against WHAT. **Do
+  not read a stale green as a current fact** — and the converse is equally live: a PERSISTENT RED can
+  be about a commit that no longer exists.
+- **#15 ➜ A PARTIAL CHECK SET IS NOT A VERDICT.** Before concluding anything from a run, confirm every
+  check has REPORTED. Reading a red as "everything else passed" is the same error as reading a green
+  tick as a log.
+- **THE WHOLE FAMILY ➜ PROVE COLLECTION, NOT ABSENCE OF FAILURE.** *"205 is not an absence of failures
+  until you know 205 things ran."*
+
+**TWO MORE, OWNER-NUMBERED, ADDED 2026-08-25:**
+- **#16 — A GREP ON ONE FILE IS NOT AN ENUMERATION.** A scout concluded from a **single-file** grep
+  that `ScorecardGradedAnswer.steps` was never populated. **It is populated**, at
+  `gradedAnswerAssembly.ts:192`. ⇒ **A grep's silence is scoped to what it searched.** The answer:
+  **enumerate the consumers and OPEN them.** ★ The scout **caught this against itself**, which is
+  why the rest of that report carries weight.
+- **#17 — WHEN YOUR COUNT DISAGREES WITH ANOTHER AGENT'S, COMPARE THE RULERS BEFORE THE NUMBERS.**
+  Two agents checked the same question during an erratum verification; one returned **1** and one
+  returned **0**. **BOTH NUMBERS WERE TRUE.** One pattern carried a third term the other did not,
+  and that term matched the checking agent's **own surrounding prose** — not the thing they were
+  both looking for. ⇒ **Two greps with different patterns are not two measurements of one thing.**
+  ⚠ **Had the discrepancy been relayed as a discrepancy, it would have travelled as an INVENTED
+  CONFLICT CARRYING AN ENDORSEMENT, and it would have been believed.** ★ **What stopped it was
+  looking at WHAT MATCHED before calling it a disagreement.**
+  ⇒ **Kin to #11, one level up:** there the defect lives in the relation between two true ROWS;
+  here, in the relation between two true COUNTS **OF DIFFERENT QUESTIONS**.
+
+  ★★ **TWO LIVE FIRINGS ON THE DAY IT WAS WRITTEN — a rule with a live example beats a rule stated
+  abstractly, and these are both real:**
+  - **THE AUTHOR'S OWN, within minutes of writing the rule.** While editing the spec that widened a
+    lane's allowlist, the controller grepped for `forbidden` to confirm that no clause still forbade
+    what another clause now authorized. **The grep returned a hit.** ⇒ **The hit was the controller's
+    own newly-written line saying those files are NO LONGER forbidden.** **Looking at WHAT MATCHED,
+    before calling it a contradiction, was the whole difference.** ⚠ **#17 fired on the very commit
+    that adds it.**
+  - **THE LANE'S OWN, sourcing these specimens.** `ops/CONTROLLER_SUBAGENT_MODEL.md` §5 lists **six**
+    silent-no-op instances, and the close-out says **six** specimens were on record. **Two sixes.**
+    They are **counts of DIFFERENT QUESTIONS by different rulers** — one is "instances this month",
+    the other "specimens numbered before this wave" — and the two lists **share not one entry**.
+    **Reporting them as agreeing would have invented a mapping and pinned six arbitrary instances to
+    the numbers #1-#6.** The rulers were compared first, and the numbering was left open instead.
+  ⇒ ★ **In BOTH cases the discrepancy was not a discrepancy, and in both the tell was the same: look
+  at what actually matched before you report a conflict.** ⚠ **An unrelayed near-miss is still the
+  rule working — a conflict relayed with an endorsement attached is believed.**
+
+**⚠⚠ THE #1-#6 GAP — NAMED, NOT PADDED.**
+**Specimens #7 through #17 are individually sourced above. #1-#6 are NOT, and this section will not
+pretend otherwise.** The canonical table collapses them to one row — *"the pre-existing eight |
+checks that measure the wrong thing"* — and the close-out that introduced #7 and #8 says only that
+*"Six specimens were on record"*, **without listing them.** They have lived in reports and close-outs
+the whole time; **no document found assigns the numbers 1-6 to any six instances.**
+
+⇒ ★★ **AN ENUMERATION YOU CAN CHECK BEATS A COUNT YOU MUST TRUST, and that cuts both ways: a padded
+list of eight would be worse than an honest six, because the next reader could not tell which entries
+were real.** So the recorded instances of the family are carried below **WITH THEIR SOURCES AND
+WITHOUT NUMBERS**, and the numbering is left open for the owner.
+
+**RECORDED INSTANCES OF THE FAMILY — ELEVEN, FROM TWO SOURCES THAT DO NOT OVERLAP AT ALL:**
+
+*From `ops/CONTROLLER_SUBAGENT_MODEL.md` §5, the SILENT NO-OPS bullet ("instances this month"):*
+- a `FORBIDDEN` path entry that **could never match**
+- `Object.setPrototypeOf` whose **removal changed nothing**
+- a **vitest pool key ignored by the running pool**
+- a **merged PR silently swallowing pushes**
+- a **reCAPTCHA fix that ignored its own argument**
+- an **ops guard whose pattern matched zero times**
+
+*From the Wave MI-INTEGRITY-7 record, a five-row table titled "how it lies":*
+- **`isDeparture`** — read but never declared: a control that **cannot fire**; always false
+- **`tsc -p tsconfig.app.json`** with `include:["src"]` and no `allowJs` — **exits 0 without ever
+  seeing the edited file**
+- **a piped gate** — `$?` is the last pipe element, so it **exits 0 unconditionally**
+- **a mutation that fails to apply** — produces a GREEN run **indistinguishable from a caught one**
+- **a run id read as a verdict** — spans multiple attempts; the CLI reports the latest, silently
+
+⚠ **THESE TWO LISTS SHARE NOT ONE ENTRY.** Eleven distinct instances, and the canonical numbering
+selects six. **Which six is not recoverable from any document available, and guessing would commit
+specimen #11 on the specimens themselves** — two true lists presented as one. ⇒ **OWNER DECISION
+OWED: which six are #1-#6, or should the numbering be re-based on this enumeration?**
+
+### ★★ A MERGE COUNT IS NOT A COMMIT COUNT ON THIS REPO (owner ruling, 2026-08-25)
+
+**This repository SQUASH-MERGES.** Therefore `git log --merges <a>..<b>` returns **0** on a range that
+contains real work, while `git rev-list --count <a>..<b>` returns the actual drift.
+
+- **Establishing command** — both, always, never one alone:
+  ```
+  git log --merges f75e8356..65b6c0e2 | wc -l     # -> 0
+  git rev-list --count f75e8356..65b6c0e2         # -> 7
+  ```
+  *(Re-derived by lane `HANDOFF-MI9` at base `65b6c0e2` on 2026-08-25: `0` and `7`.)*
+- ➜ **Anyone reasoning about drift from merge counts on this repo will be wrong every time**, and the
+  wrongness is silent — `0` is a perfectly plausible answer that no error message contradicts.
+- ⚠ **This is specimen 10's shape at the repository level:** a zero produced by a command that cannot
+  produce anything else here is **indistinguishable from a true negative.**
+- ➜ **A squash-merged PR head is also never an ancestor of trunk**, so `git merge-base --is-ancestor`
+  is the WRONG merge test here. Verify by CONTENT on trunk, or against the PR's `mergeCommit`.
+
+### ★★ "ON DISK" IS NOT A LOCATION (owner ruling, 2026-08-25)
+
+`[FU-ON-DISK-IS-NOT-A-LOCATION]` — **third instance, same author.**
+
+**A path named in one dispatch and omitted from the next is the same failure as no path at all.** An
+agent told a file is "on disk" has been given a property, not an address, and must then guess — and a
+guess that lands in the shared checkout reads a tree that lags trunk.
+
+- **THE STANDING SPEC-STAGING FOLDER IS `C:\Projects\LT-specs\<WAVE>\`.**
+- ➜ **State absolute paths in full, always** — in dispatches, in specs, in reports, and inside the
+  report about the report.
+- ➜ **A relative path is only a location if the reader's working directory is also stated.** Subagent
+  threads reset their working directory between calls, so a relative path is not durable there at all.
+
+### ★★★ `check:mojibake` AND `handoff/` — SETTLED BY CONTROL (Wave MI-INTEGRITY-3, 2026-08-25)
+
+**THE ANSWER: `check:mojibake` DOES reach `handoff/`.** It scans it, counts it, and prints the count on
+every run. **`handoff/` is REPORT-ONLY, not unreachable.**
+
+⛔ **The claim that it is "structurally blind to `handoff/`" is FALSE on trunk `65b6c0e2`.** It was TRUE
+of an older revision, was fixed under the `[GUARD-3]` tag, and **survived as a restated fact in three
+dispatches after it stopped being true.**
+
+- `repoRoot` is `git rev-parse --show-toplevel` — **the git root**, not `lazytopper/`.
+- `handoff/` is listed in `REPORT_ONLY_PREFIXES`: hits there are **detected, printed and counted, but
+  do not fail the gate.** Everything else is ENFORCED by default, so a new top-level tree fails safe.
+- ➜ **"STRUCTURALLY BLIND" AND "REPORT-ONLY" ARE NOT THE SAME FACT.** Blind means the bytes were never
+  read. Report-only means they were read, matched, and deliberately not enforced. **Conflating them
+  loses the only signal that would reveal a regression back to blindness** — the printed count.
+
+- **THE CONTROL THAT SETTLED IT** — reading the source establishes intent; only injection establishes
+  behaviour. **A zero from a matcher nobody proved can fire is indistinguishable from a dead matcher.**
+  ```
+  baseline                         enforced_hits=0  report_only_hits=17   exit 0
+  inject into handoff/CURRENT_STATE.md
+                                   enforced_hits=0  report_only_hits=18   exit 0   <- SEEN, not enforced
+  revert; git status --porcelain empty; grep -c returns 0
+  inject into ops/AGENT_STANDING_RULES.md   (outside REPORT_ONLY_PREFIXES)
+                                   enforced_hits=1  report_only_hits=17   exit 1   <- ENFORCED, build red
+  revert; baseline re-measured identical
+  ```
+  **Both directions matter.** The `handoff/` injection alone would not show that the enforcing side is
+  alive; the `ops/` injection alone would not show that `handoff/` is reached.
+- ➜ **The probe LIFTED THE LIVE REGEX OUT OF THE SCANNER at runtime rather than re-typing it.** A
+  re-typed copy proves only that your copy fires. And it was checked in **both** directions —
+  `REGEX_MATCHES_CONTROL=true`, `REGEX_MATCHES_PLAIN_ASCII=false` — because **a matcher that fires on
+  everything is not a matcher.**

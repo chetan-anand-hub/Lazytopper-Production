@@ -15,6 +15,183 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ---
 
+## 2026-08-25 — WAVE MI-INTEGRITY-3 — new, re-stated and closed follow-ups (trunk `65b6c0e2`, unmoved; `#699` · `#700` · `#701` · `#702` all merged)
+
+**`2026-08-25`** · docs-only lane `HANDOFF-MI9`. **All `file:line` references below were re-derived at
+`65b6c0e2` in a clean worktree, located by TEXT (`grep -n "<phrase>"`), never by inherited number.**
+
+---
+
+### ⚠⚠ RESERVED — **THE OWNER'S ERRATUM ON THE `GRADER-LIVE-DEFECTS-SCOUT` BRIEF**
+
+> **THE OWNER SUPPLIED THIS TEXT HIMSELF ON 2026-08-25. IT IS REPRODUCED VERBATIM BELOW —
+> not one character of it was authored, edited, reformatted, renumbered or re-dated by any agent.**
+>
+> Six premises in the `GRADER-LIVE-DEFECTS-SCOUT` brief were disproved, **four of them wrong
+> statements about the repo.**
+>
+> ⛔ **A CONTROLLER NEVER AUTHORS AN ERRATUM AND NEITHER DOES A LANE** — not as a draft, not as a
+> paraphrase, not as a "placeholder to be helpful". Lane `HANDOFF-MI9` was offered the opportunity
+> twice and declined both times, which is the correct behaviour and is recorded here so the next
+> lane does not treat the empty slot as an omission to fill.
+
+### [ERRATUM-MI9-1] Six premises in the GRADER-LIVE-DEFECTS brief were disproved by the scout
+**Cofounder-authored · 2026-08-24 · corrects a brief, not a merged artefact.**
+
+⚠ Four of the six are wrong statements about this repo, written by the cofounder and dispatched.
+1 · "SIX grading call sites" — it is SEVEN entry points, and checkImproveGradeService.ts does not
+    grade at all; its own docblock says it is a persistence seam.
+2 · "objectiveScoring.cjs:137 fires only when no key is present" — INCOMPLETE. It also fires WITH a
+    key, because firstStudentPick:125 returns the first non-empty working line rather than the
+    option, so the key compare returns resolved:false. WORKING DEFEATS THE KEY EVEN WHERE A KEY IS
+    SENT.
+3 · "Defect 7's cause is concept-matching" — WRONG. `concept` appears ZERO times in splitPaperMarks
+    (control: 44 elsewhere in the file). The real cause is an overflow fail-safe, and defects 6 and 7
+    are ONE defect.
+4 · "Defect 1's deduction was waived by the return path" — WRONG. It was NEVER CHARGED.
+    applyEcfPolicyV2 zeroes from departureIndex+1, so no site deducts AT the departure step. The
+    comment above it says the step "keeps BOTH its type and its deduction", but nothing enforces one.
+    "2.5/3 logged silly" is unreachable by any code path as written.
+5 · ":181–183" — off by one; it is :182–184. The description was otherwise exact.
+6 · "The mistake-type divergence is a clause or two" — it is SIX discriminating clauses. Path B's
+    STRUCTURED_MISTAKE_TAXONOMY, serving five surfaces, is Path A's rule 3 minus six clauses,
+    including the two whose absence best explains arithmetic slips typed conceptual. ★ SIXTH INSTANCE
+    of one-path-not-the-other.
+
+★★★ AND THE FINDING THAT REFRAMES THE ARC: the owner's binding ruling is ALREADY the code's own
+written invariant, at objectiveScoring.cjs:4-7, IN THE FILE THAT BREAKS IT. The rule was never
+missing. It was written at the top of the file and not obeyed by the code beneath it.
+⚠⚠ AND THE INSTRUMENT WAS BLIND TO ALL OF IT: graderEval.cjs never requires the objective clamp and
+never passes returnIndex. The first-ever 5/5 accuracy measurement does not cover a single
+objective-path or return-path defect on this list.
+
+---
+
+### `[FU-MOJIBAKE-HANDOFF-DRIFT-UNGATED]` — NEW. **`handoff/` mojibake is counted but never enforced, and the count has drifted with nothing to notice**
+
+**STATUS: OPEN.** Raised by lane `HANDOFF-MI9`, 2026-08-25. **Do not "fix" the hits — the question is
+the missing signal, not the bytes.**
+
+`lazytopper/scripts/check-mojibake.cjs` scans `handoff/` and reports it as a **report-only** tree, by
+a deliberate and correct owner ruling: the residual hits are **specimens quoted inside lessons about
+mojibake**, and enforcing them would turn CI red on a correct repo.
+
+⚠ **BUT THE SCANNER'S OWN COMMENT SAYS `"The residual 8"` AND THE GATE REPORTS 17 ACROSS 6 FILES.**
+
+- **MY RULER, STATED:** the number is whatever `MOJIBAKE_REPORT_ONLY:` prints for the `handoff/`
+  prefix on a clean worktree at the base SHA. Measured at `65b6c0e2`: **`17 non-enforced hits across
+  6 files`**, `enforced_hits=0`, exit 0.
+- **AND THE ENUMERATION, BECAUSE A COUNT IS A DERIVED VALUE WITH NOTHING RE-CHECKING IT** (specimen
+  11's answer): `BRIEF_GATE-1.md` x1 · `CURRENT_STATE.md` x2 · `OPEN_QUESTIONS_AND_FOLLOWUPS.md` x3 ·
+  `SESSION_LOG.md` x4 · `WAVE_STATE_OPS_1_ARCHIVE.md` x3 · `WAVE_STATE_WAVE4_ARCHIVE.md` x4.
+- ⇒ **THE QUESTION FOR THE OWNER:** are the extra nine further legitimate specimens, or is that real
+  corruption sitting unenforced behind a number nobody reads? **Because `handoff/` is report-only,
+  NOTHING WILL EVER GO RED on this drift** — which is the precise condition under which 616 lines
+  accumulated before `[GUARD-3]`.
+- ➜ **Suggested shape of a fix (NOT this lane's to make):** pin the expected report-only count and
+  fail when it MOVES, the way other shrink-only guards in this repo work. A monitored number with no
+  expectation attached is a log line, not a gate.
+
+---
+
+### `[FU-CONTROLLER-MODEL-373-MOJIBAKE-CLAIM-FALSE]` — NEW. **A governing doc states as fact something disproved by control**
+
+**STATUS: OPEN — FORBIDDEN TO A DOCS LANE. THE OWNER RULES ON WHO CORRECTS A GOVERNING DOC.**
+
+- **FILE:LINE:** `ops/CONTROLLER_SUBAGENT_MODEL.md:373`
+- **CURRENT TEXT:** asserts `check:mojibake` sets *"`repoRoot` to `lazytopper/`"* and is
+  **"structurally blind to `handoff/`"**, and therefore that its pass is *"no evidence"* about `handoff/`.
+- **THIS IS FALSE ON TRUNK `65b6c0e2`**, established **by two-sided control**, not by reading:
+  injection into `handoff/CURRENT_STATE.md` moved report-only hits `17 -> 18` at exit 0; injection into
+  the enforced `ops/AGENT_STANDING_RULES.md` moved enforced hits `0 -> 1` at **exit 1**; both reverted,
+  removal proven, baseline re-measured identical.
+- **CORRECTED TEXT (proposed, for the owner to accept or rewrite):**
+  > `check:mojibake` resolves `repoRoot` with `git rev-parse --show-toplevel` — the git root, not
+  > `lazytopper/`. `handoff/` is listed in `REPORT_ONLY_PREFIXES`: it is **scanned, matched and
+  > counted on every run, and printed whether the run is green or red — but not enforced.** A pass is
+  > therefore real evidence that `handoff/` was inspected; it is **not** evidence that `handoff/` is
+  > clean. **"Structurally blind" and "report-only" are different facts.**
+- ⚠⚠ **WHY THIS MATTERS BEYOND THE ONE LINE.** The claim was **TRUE of an older revision**, was fixed
+  under the `[GUARD-3]` tag, and then **survived as a restated fact in THREE dispatches after it
+  stopped being true.** The owner had already withdrawn it as unverified before this lane ran.
+  ⇒ ★★ **A fact inherited from a governing doc is a HYPOTHESIS with good manners.**
+
+---
+
+### `[FU-CONTROLLER-MODEL-181-SIX-HANDOFF-FILES]` — NEW. **The lock is seven files; this line says six**
+
+**STATUS: OPEN — FORBIDDEN TO A DOCS LANE.**
+
+- **FILE:LINE:** `ops/CONTROLLER_SUBAGENT_MODEL.md:181`
+- **CURRENT TEXT:** *"The six handoff files are a single shared lock."*
+- **MEASURED:** `git ls-tree -r --name-only 65b6c0e2 -- handoff/` shows `handoff/DECISION_LOG.md`
+  present. The lock is **seven**. Only `ops/CONTROLLER_ADDENDUM_Context_Safeguards.md:242` gets this
+  right (*"The seven `handoff/` files"*).
+- **CORRECTED TEXT:** *"The **seven** handoff files are a single shared lock"* — enumerating
+  `CURRENT_STATE.md`, `NEXT_ACTION.md`, `SESSION_LOG.md`, `IMPLEMENTATION_ROADMAP.md`,
+  `OPEN_QUESTIONS_AND_FOLLOWUPS.md`, `SURFACE_TRACKER.md`, **`DECISION_LOG.md`**.
+- ➜ **Enumerate them, do not count them.** A bare "seven" rots the same way "six" did.
+
+---
+
+### `[FU-CLAUDEMD-S10-OMITS-DECISION-LOG]` — RE-STATED, AND **SHARPENED**. Now raised by **FIVE** lanes
+
+**STATUS: OPEN — FORBIDDEN TO A DOCS LANE.** Previously recorded as "§10 omits `DECISION_LOG.md`".
+**That description is too weak and this lane replaces it.**
+
+- **FILE:LINE:** `CLAUDE.md` §10, lines **232-247**; the operative line is **`CLAUDE.md:241`**.
+- ⛔ **§10 IS INTERNALLY INCONSISTENT, NOT MERELY INCOMPLETE.** At `:241` it instructs the agent to
+  *"log it in `DECISION_LOG`"* — **inside the very section whose "Update these files in `handoff/`"
+  list omits `DECISION_LOG.md`.** The section both requires you to write to the file and leaves it
+  off the list of files to update.
+- ⚠ **A METHOD NOTE WORTH MORE THAN THE FINDING.** The `HANDOFF-MI9` v1 spec asserted this premise
+  with the establishing command `grep -n "DECISION_LOG" CLAUDE.md` **and the expectation "expect NO
+  hit in section 10"**. There IS a hit in §10. ⇒ ★★ **A premise whose stated expectation is falsified
+  by its own command is a premise nobody ran** — and the sharper finding was hiding in exactly the
+  hit the expectation dismissed.
+- **CORRECTED TEXT:** add `DECISION_LOG.md` to §10's update list with its own bullet, and make the
+  `SURFACE_TRACKER.md` bullet's cross-reference point at it.
+
+---
+
+### `[FU-SPEC-AUTHOR-MUST-RUN-OWN-PREMISE-GATE]` — NEW. **Authors are not exempt from the gate they commissioned**
+
+**STATUS: OPEN as a process rule; the immediate instance is CLOSED.**
+
+`HANDOFF-MI9` **v1 was BLOCKED at its own §0c.0.** Its premise ledger carried **three** columns where
+`scripts/premise_ledger_check.mjs` requires **six** (`id|claim|evidence|anchor|how verified|status`).
+The checker **returned early**, so **not one premise row was ever anchor-checked.**
+
+⇒ ★★ **THE FOUR COLUMN ERRORS WERE ALL TRUE AND STILL UNDER-DESCRIBED THE RUN** — a reader could take
+them for "a formatting problem in an otherwise examined ledger". **The ledger was never examined.
+Specimen 11, fired on the gate's own output.**
+⇒ **CONTROL:** `ops/AGENT_SPEC_TEMPLATE.md` fails at **ROW** level having **PASSED** the column stage
+— proving the stage is passable and that v1 specifically failed it, rather than the checker being broken.
+- ➜ **RULE:** the controller runs the premise gate on their own spec **before dispatch**, in a clean
+  worktree at the Base SHA, and **pastes the output into the spec.** v2 did this.
+- ➜ **AND THE LANE STILL RE-RUNS IT.** ★ **A gate the author ran is not a gate you ran.**
+
+---
+
+### ✅ CLOSED — `[FU-MOJIBAKE-HANDOFF-REACHABILITY]` (B1)
+
+**SETTLED BY CONTROL, 2026-08-25.** `check:mojibake` **does** reach `handoff/`; the tree is
+**report-only**, not invisible. Recorded with its full two-sided control in
+`ops/AGENT_STANDING_RULES.md` so the next lane inherits a **measured fact** rather than a fourth
+restatement of an unverified one. **The residual question about the COUNT is tracked separately as
+`[FU-MOJIBAKE-HANDOFF-DRIFT-UNGATED]` above.**
+
+### ✅ CLOSED — the alleged **WIRE-2 dormancy contradiction** (B2)
+
+**DISPROVED, NOT RECONCILED.** The `HANDOFF-MI9` v1 spec asked the lane to escalate a possible conflict
+between the ADDENDUM's requirement that the WIRE-2 block survive every prepend, and records saying
+WIRE-2 (`#621`) **ENDED** the `#578`/`#611`/`#617` dormancy. The lane escalated, then measured:
+`handoff/CURRENT_STATE.md` is **unanimous across NINE restatements**.
+⇒ ★★ **The apparent conflict was a CATEGORY ERROR between the BLOCK (mandatory to carry forward) and
+its SUBJECT (ended) — which is precisely WHY the block must be carried.** **B2 struck from the spec.**
+
+---
+
 ## 2026-08-24 (AMENDMENT, pre-merge) — CONTROLLER C's follow-ups, and the finding that C's close-out was NOT WHERE ANYONE LOOKED
 
 *Added to this PR before merge, after Controller C's close-out was found at a path outside the

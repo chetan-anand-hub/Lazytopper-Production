@@ -1,3 +1,166 @@
+## 2026-08-25 — WAVE MI-INTEGRITY-3 CLOSE-OUT (lane `HANDOFF-MI9`, docs-only) — trunk `65b6c0e2`, PRs `#699` `#700` `#701` `#702`
+
+**`2026-08-25`**
+
+> ⚠ **NUMBERING.** `DECISION N` is SECTION-LOCAL and restarts at 1 in every wave section. This section
+> starts at `DECISION 1`.
+> ⚠ **`CLAUDE.md` §10 still lists SIX handoff files and this is the SEVENTH.**
+> `[FU-CLAUDEMD-S10-OMITS-DECISION-LOG]` — **now raised independently by FIVE lanes.**
+> ★ **AND THE FINDING IS NOW SHARPER THAN "IT OMITS IT":** §10 (lines 232-247) tells you at
+> `CLAUDE.md:241` to *"log it in `DECISION_LOG`"* **while leaving `DECISION_LOG.md` out of its own
+> list of files to update.** §10 is **INTERNALLY INCONSISTENT**, not merely incomplete.
+
+### DECISION 1 — **THE HANDOFF LOCK IS SEVEN FILES. TWO OF THE THREE GOVERNING DOCS SAY SIX.**
+
+Enumerated from trunk, not from a doc: `git ls-tree -r --name-only 65b6c0e2 -- handoff/`.
+
+| doc | says | correct? |
+|---|---|---|
+| `CLAUDE.md` §10 | six, and is internally inconsistent (`:241`) | **NO** |
+| `ops/CONTROLLER_SUBAGENT_MODEL.md:181` | "The six handoff files are a single shared lock" | **NO** |
+| `ops/CONTROLLER_ADDENDUM_Context_Safeguards.md:242` | "The seven `handoff/` files" | **YES — the only correct one** |
+
+⇒ **A dispatch that inherits the six-file count silently drops this file.** Until the governing docs
+are corrected, **every handoff dispatch must name `DECISION_LOG.md` explicitly.**
+
+### DECISION 2 — **`check:mojibake` REACHES `handoff/`. THE "STRUCTURALLY BLIND" CLAIM IS FALSE.**
+
+`ops/CONTROLLER_SUBAGENT_MODEL.md:373` asserts the gate sets `repoRoot` to `lazytopper/` and is
+**"structurally blind to `handoff/`"**. **Measured false at `65b6c0e2`.** `repoRoot` is the git root;
+`handoff/` is in `REPORT_ONLY_PREFIXES` — **scanned and counted, merely not enforced.**
+
+**Settled by two-sided CONTROL, not by reading:** injection into `handoff/CURRENT_STATE.md` moved
+report-only hits `17 -> 18` at exit 0; injection into the enforced `ops/AGENT_STANDING_RULES.md` moved
+enforced hits `0 -> 1` at **exit 1**. Both reverted; removal proven; baseline re-measured identical.
+
+⇒ ★★ **"STRUCTURALLY BLIND" IS NOT "REPORT-ONLY."** The claim was TRUE of an older revision, was fixed
+under `[GUARD-3]`, and **survived as a restated fact in three dispatches after it stopped being true.**
+The owner had already withdrawn it as unverified; it is now **disproved**, and recorded in
+`ops/AGENT_STANDING_RULES.md` with its control so no fourth restatement is possible.
+
+### DECISION 3 — **THE WIRE-2 "CONTRADICTION" WAS INVENTED BY THE SPEC AND IS STRUCK.**
+
+The `HANDOFF-MI9` v1 spec asked the lane to escalate a possible conflict between the ADDENDUM's
+requirement that the WIRE-2 dormancy block survive every prepend, and records saying WIRE-2 **ENDED**
+the `#578`/`#611`/`#617` dormancy. **The lane escalated, then disproved it.**
+
+`handoff/CURRENT_STATE.md` is **unanimous across NINE restatements** — L353, L821, L1326, L1745,
+L2102, L2272, L2388, L2811, L3029 — all saying *"`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617`
+dormancy. Do not restate that trio as dormant."*
+
+⇒ ★★ **THE APPARENT CONFLICT WAS A CATEGORY ERROR BETWEEN THE BLOCK AND ITS SUBJECT.** The *block* is
+mandatory to carry forward; its *subject* has ended. **That is precisely why it must be carried** — to
+stop a future lane re-reporting the trio as dormant. **Nothing to reconcile. B2 struck.**
+
+### DECISION 4 — **SPECIMENS 9-15 ARE NOW IN THE RULES AGENTS READ, NOT ONLY IN A REPORT.**
+
+Owner: *"a finding in a report is a finding that dies with the report — that is the
+twenty-one-follow-ups lesson."* Before this lane, `ops/AGENT_STANDING_RULES.md` contained **ZERO**
+specimens (verified: `grep -i specimen` returned no section). It now carries 9-15 with their answers.
+
+⚠ **SOURCED FROM THE CANONICAL TABLE**, headed *"SPECIMEN NUMBERING — SETTLED BY THE OWNER. THIS TABLE
+IS CANONICAL."* The same file's EARLIER table is **SUPERSEDED and has 11 and 12 TRANSPOSED.** Owner's
+ruling: **11 = the pairing/citation defect, 12 = the dying-agent status** — *"it is the subtlest and
+deserves the earlier slot."*
+⇒ **That trap is itself specimen 11: two true lists presented as one, the earlier reading complete.**
+
+### DECISION 5 — **AUTHORS ARE NOT EXEMPT FROM THE GATE THEY COMMISSIONED.**
+
+`HANDOFF-MI9` **v1 was BLOCKED at its own §0c.0**: its premise ledger carried three columns where
+`scripts/premise_ledger_check.mjs` requires six (`id|claim|evidence|anchor|how verified|status`). The
+checker **returned early**, so **no premise row was ever anchor-checked** — a FAIL that established
+nothing whatever about the premises.
+
+⇒ ★★ **THE FOUR COLUMN ERRORS WERE ALL TRUE AND STILL UNDER-DESCRIBED THE RUN — specimen 11 again.**
+A reader could take them for "a formatting problem in an otherwise examined ledger". The ledger was
+never examined.
+⇒ **RULE: the controller runs the premise gate on their own spec before dispatch, in a clean worktree
+at the Base SHA.** v2 was gated before dispatch and passed `10 premises · 7/7 anchors RESOLVED · 0
+UNCHECKED · 3 UNVERIFIED · exit 0`; **the lane re-ran it independently and got the same result.**
+
+### DECISION 6 — **FOUR v1 PREMISES WERE CORRECTED BY THE LANE, NOT BY THE CONTROLLER.**
+
+The ledger, the §10 finding, the mojibake blindness and the WIRE-2 contradiction were all overturned
+from below. ⇒ ★★★ **The instruction that produced all four is "RE-DERIVE IT, DON'T INHERIT IT — if
+your finding differs from the controller's, YOURS WINS."** It is now load-bearing and must survive
+into every dispatch.
+
+### DECISION 7 — **THE OWNER'S ERRATUM SLOT IS RESERVED AND DELIBERATELY EMPTY.**
+
+Six premises in the `GRADER-LIVE-DEFECTS-SCOUT` brief were disproved, four of them wrong statements
+about the repo. **The owner writes that text himself.** ⇒ **A controller never authors an erratum and
+neither does a lane** — not as a draft, not as a paraphrase, not "to be helpful". The slot is held
+open in `handoff/OPEN_QUESTIONS_AND_FOLLOWUPS.md` and **the PR does not open until he supplies it.**
+
+### DECISION 8 — **THREE GOVERNING-DOC CORRECTIONS ARE FOLLOW-UPS, NOT THIS LANE'S EDITS.**
+
+`ops/CONTROLLER_SUBAGENT_MODEL.md:373`, the same file's `:181`, and `CLAUDE.md` §10 are all **wrong and
+all FORBIDDEN** to a docs lane under CLAUDE.md §8 scope discipline. They are recorded as follow-ups
+with `file:line` and corrected text. ⇒ **The owner rules on who corrects a governing doc.** A lane that
+"just fixes" a forbidden file has converted a docs-only PR into a scope breach.
+
+> ⚠ **AMENDED THE SAME DAY — SUPERSEDED, NOT DELETED.** The owner answered the question this decision
+> raised: **he widened the allowlist and gave the three corrections to this lane.** `CLAUDE.md` and
+> `ops/CONTROLLER_SUBAGENT_MODEL.md` are **no longer forbidden**; `ops/CONTROLLER_ADDENDUM_Context_Safeguards.md`
+> **remains forbidden** as the one governing doc already correct at seven. **See DECISION 9.**
+> ★ **The decision above was still right when made** — a lane that "just fixes" a forbidden file
+> breaches scope. **What changed is the authorization, not the principle.**
+
+### DECISION 9 — **THE THREE GOVERNING-DOC CORRECTIONS ARE MADE. TWO OF THEM WERE STALE FACTS, NOT TYPOS.**
+
+By owner ruling of 2026-08-25, this lane corrected all three:
+
+1. **`ops/CONTROLLER_SUBAGENT_MODEL.md:373`** — the *"structurally blind to `handoff/`"* claim, replaced
+   with what was established by control: `repoRoot` is the git root and `handoff/` is **REPORT-ONLY**.
+   ⇒ ★★ **The rule's POINT is kept, for a better reason than it used to give: a report-only hit never
+   turns anything red**, so proving the matcher can fire still matters.
+   ⚠⚠ **This was A TRUE STATEMENT ABOUT A PAST STATE, RESTATED AS PRESENT FACT** — the scanner's own
+   comment marks the frame bug fixed under `[GUARD-3]` — and **it survived three dispatches after it
+   stopped being true.** ★ **CI then corroborated the correction on a machine nobody here controls:**
+   the runner printed `root=/home/runner/work/Lazytopper-Production/Lazytopper-Production` and
+   `report_only_hits=17`, matching the local measurement exactly.
+2. **`:181`** — "the six handoff files" is now **SEVEN, ENUMERATED**. ⇒ **A bare "seven" would rot
+   exactly the way "six" did; the names are what a future reader can check.**
+3. **`CLAUDE.md` §10** — `DECISION_LOG.md` added; the list is now seven bullets.
+   ⇒ **The finding was sharper than "it omits the file": §10 was INTERNALLY INCONSISTENT**, directing
+   you at `:241` to *"log it in `DECISION_LOG`"* while omitting that file from its own update list.
+   **Five lanes raised it.** `[FU-CLAUDEMD-S10-OMITS-DECISION-LOG]` — **CLOSED.**
+
+⇒ ★★ **THE CLASS, AND IT IS THE ONE TO CARRY:** two of these three were not errors of writing. They
+were **facts that were true when written and were never re-checked.** **A governing doc is the last
+place a stale fact gets caught, because everyone downstream treats it as settled.**
+
+### DECISION 10 — ★★★ **THE 250-LINE SPEC BUDGET: AN AUTHOR-SIDE FAILURE CLASS, AND IT MAY EXPLAIN MORE OF THIS ARC'S COST THAN ANYTHING ELSE ON RECORD**
+
+**Recorded at the owner's explicit request, in his own framing.**
+
+`scripts/premise_ledger_check.mjs` enforces a **250-line budget on the spec itself**, and its own
+message states the finding:
+
+> **"Spec size, not agent judgement, is what pushed three lanes past the context floor."**
+
+**The owner's admission, faithfully represented:** *"The gate has now corrected me five separate ways
+on one file, and I did not know the budget existed while writing every spec in this arc. Several of
+mine are well over 250 lines. That belongs in the handoff as an author-side failure class, and IT MAY
+EXPLAIN MORE OF THIS ARC'S COST THAN ANYTHING I HAVE WRITTEN DOWN."*
+
+⇒ ★★★ **THIS REFRAMES LANE BURN-OUT FROM AN AGENT-DISCIPLINE PROBLEM INTO AN AUTHORING PROBLEM.**
+A lane that returns past the context floor has been read, for the whole of this arc, as a lane that
+managed its context badly. **The guard says the spec did it.** ⚠ **Every remedy aimed at the lane —
+tighter reporting, less exploration, stricter budgets on the agent — was aimed at the wrong party.**
+
+**THE FIVE WAYS THE GATE HAS CORRECTED THIS ARC'S AUTHOR, on one file:** the six-column ledger · the
+grep prohibition in "How verified" · `path:line` + anchor evidence · question-form for UNVERIFIED
+rows · **the size budget.** *(This lane was BLOCKED by the first of those, and was right to be.)*
+
+⇒ ⛔ **THE OPERATIONAL FORM, ONE LINE: WHOEVER WRITES THE NEXT SPEC RUNS
+`node scripts/premise_ledger_check.mjs <spec> --worktree=. --strict-anchor` BEFORE DISPATCH.**
+**Two seconds.** ★ **And the lane still re-runs it — a gate the author ran is not a gate you ran.**
+⇒ ★ **This is a wave-level lesson about HOW WORK IS COMMISSIONED, not about how a lane behaves**,
+which is why it is recorded here and not only in `ops/AGENT_STANDING_RULES.md`.
+
+---
+
 ## 2026-08-24 — WAVE MI-INTEGRITY-7 + WAVE MI-INTEGRITY-8 (three controllers, nine units, **FOUR PRs MERGED**) — trunk `deddf595`, moved four times
 
 **`2026-08-24`**
