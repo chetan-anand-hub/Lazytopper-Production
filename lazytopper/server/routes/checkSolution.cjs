@@ -902,6 +902,12 @@ const DETECT_RESPONSE_SCHEMA = deepFreeze({
     detectedSubject: { type: 'STRING', nullable: true },
     detectedTopic: { type: 'STRING', nullable: true },
     detectedObjective: { type: 'BOOLEAN', nullable: true },
+    // ADDITIVE + NULLABLE (OBJECTIVE-MARK-INVARIANT §2.4). Before this field the detect
+    // shape declared NOTHING that could carry a correct answer, so a PASTED Check &
+    // Improve question could never reach the grader with an answer key - structurally,
+    // by construction - and every keyless objective grade fell to the model's verdict.
+    // A question whose answer cannot be determined must produce NULL, never a guess.
+    detectedAnswer: { type: 'STRING', nullable: true },
     questions: {
       type: 'ARRAY',
       items: {
@@ -912,15 +918,16 @@ const DETECT_RESPONSE_SCHEMA = deepFreeze({
           marks: { type: 'NUMBER', nullable: true },
           marksSource: { type: 'STRING', enum: MARKS_SOURCE_VALUES.slice() },
           objective: { type: 'BOOLEAN', nullable: true },
+          answer: { type: 'STRING', nullable: true },
         },
-        propertyOrdering: ['questionNumber', 'questionText', 'marks', 'marksSource', 'objective'],
+        propertyOrdering: ['questionNumber', 'questionText', 'marks', 'marksSource', 'objective', 'answer'],
         required: ['questionText'],
       },
     },
   },
   propertyOrdering: [
     'detectedMarks', 'marksSource', 'detectedSubject', 'detectedTopic',
-    'detectedObjective', 'questions',
+    'detectedObjective', 'detectedAnswer', 'questions',
   ],
 });
 
@@ -1598,7 +1605,14 @@ function createCheckSolutionRoute(deps) {
         //    unconditionally for objective questions — never fractional/step-distributed.
         let objectiveMarksAwarded = null;
         if (questionIsObjective) {
-          objectiveMarksAwarded = clampObjectiveResult(objectiveMeta, annotatedSteps, effectiveMarks).marksAwarded;
+          // The model's RAW stated final-answer verdict is passed in as the keyless
+          // fallback. It must be `parsed.finalAnswerCorrect` and NOT
+          // `resolveFinalAnswerCorrect(...)`: that helper falls back to the LAST STEP'S
+          // STATUS, and deriving an objective mark from a step status is the defect
+          // this clamp now exists to prevent. Absent stays absent (could-not-read).
+          objectiveMarksAwarded = clampObjectiveResult(
+            objectiveMeta, annotatedSteps, effectiveMarks, parsed && parsed.finalAnswerCorrect,
+          ).marksAwarded;
         }
 
         // D) The shared mistake-type honesty guard. Nulls a fabricated mistakeType only
@@ -1787,13 +1801,14 @@ function createCheckSolutionRoute(deps) {
       '- detectedSubject: "Maths" or "Science".\n' +
       '- detectedTopic: the canonical topic key from the list below (exact string), or null if none clearly fits.\n' +
       '- objective: true ONLY if the question is a multiple-choice question (lettered options like (a)/(b)/(c)/(d)) or an assertion-reason question; false for any question that needs written working, a derivation, a proof, or step-by-step reasoning. Apply this per question.\n' +
+      '- answer: for an OBJECTIVE question ONLY, the CORRECT option - its letter ("a"/"b"/"c"/"d") or its exact printed option text. Set it ONLY when the correct option is printed in the document (an answer key, a marked answer) or is unambiguously determinable from the question itself. If you are not certain, set it to null. NEVER guess: a wrong key is worse than no key, because it is used to mark the student. Set null for every non-objective question.\n' +
       topicListBlock +
       // The multi-question instruction is placed LAST (after the topic list, right
       // before RESPOND) so the model reads it most recently — recency keeps it from
       // stopping after the first question on a multi-question paper.
       '- questions: if the document contains MULTIPLE questions (e.g. Q1, Q2, Q3 …), identify ALL of them and list each in the "questions" array with its printed question number, FULL question text exactly as printed, marks (apply the SAME stated-vs-inferred rule per question), and its objective flag. List EVERY question you find — do not stop after the first. If only ONE question is present, still include it as a single-item array. Set the top-level detectedMarks/marksSource/detectedSubject/detectedTopic/detectedObjective to the FIRST question\'s values for backward compatibility.\n' +
       '\nRESPOND with this exact JSON:\n' +
-      '{ "detectedMarks": <first question marks>, "marksSource": "stated"|"inferred", "detectedSubject": "Maths"|"Science", "detectedTopic": "<canonical key or null>", "detectedObjective": <true|false>, "questions": [ { "questionNumber": 1, "questionText": "<full text of Q1 exactly as printed>", "marks": <number>, "marksSource": "stated"|"inferred", "objective": <true|false> }, { "questionNumber": 2, "questionText": "<full text of Q2 exactly as printed>", "marks": <number>, "marksSource": "stated"|"inferred", "objective": <true|false> }, ... one object per question found ] }';
+      '{ "detectedMarks": <first question marks>, "marksSource": "stated"|"inferred", "detectedSubject": "Maths"|"Science", "detectedTopic": "<canonical key or null>", "detectedObjective": <true|false>, "detectedAnswer": "<correct option or null>", "questions": [ { "questionNumber": 1, "questionText": "<full text of Q1 exactly as printed>", "marks": <number>, "marksSource": "stated"|"inferred", "objective": <true|false>, "answer": "<correct option or null>" }, { "questionNumber": 2, "questionText": "<full text of Q2 exactly as printed>", "marks": <number>, "marksSource": "stated"|"inferred", "objective": <true|false>, "answer": "<correct option or null>" }, ... one object per question found ] }';
 
     try {
       const parts = hasImage
@@ -1864,6 +1879,16 @@ function createCheckSolutionRoute(deps) {
       // byte-unchanged.
       const detectedObjective = parsed.detectedObjective === true || parsed.detectedObjective === 'true';
 
+      // Detected answer key (additive, OBJECTIVE-MARK-INVARIANT §2.4). NULL unless the
+      // model actually supplied a non-empty string - a model that omits it, or returns
+      // the literal "null", yields null and the grade is byte-unchanged. We never
+      // manufacture a key: a fabricated one would be used to MARK the student.
+      const rawAnswer = parsed.detectedAnswer;
+      const detectedAnswer =
+        rawAnswer != null && String(rawAnswer).trim() && String(rawAnswer).trim().toLowerCase() !== 'null'
+          ? String(rawAnswer).trim()
+          : null;
+
       // Multi-question array (additive). Each entry is normalised the SAME way the
       // single-question detectedMarks is: marks clamped to the CBSE 1–6 range
       // (falling back to the top-level detectedMarks when the model omits/garbles a
@@ -1884,6 +1909,11 @@ function createCheckSolutionRoute(deps) {
             marks,
             marksSource: q && q.marksSource === 'stated' ? 'stated' : 'inferred',
             objective: q && (q.objective === true || q.objective === 'true') ? true : false,
+            answer:
+              q && q.answer != null && String(q.answer).trim() &&
+              String(q.answer).trim().toLowerCase() !== 'null'
+                ? String(q.answer).trim()
+                : null,
           };
         })
         .filter((q) => q.questionText.length > 0);
@@ -1895,6 +1925,7 @@ function createCheckSolutionRoute(deps) {
         detectedTopic,
         marksSource,
         detectedObjective,
+        detectedAnswer,
         questions,
         provider: ACTIVE_PROVIDER,
         model: GEMINI_MODEL,
@@ -2043,7 +2074,10 @@ function createCheckSolutionRoute(deps) {
     //    objective question can exit the grader fractional or step-distributed.
     let objectiveMarksAwarded = null;
     if (questionIsObjective) {
-      objectiveMarksAwarded = clampObjectiveResult(q, annotatedSteps, totalMarks).marksAwarded;
+      // RAW stated verdict, not resolveFinalAnswerCorrect — see handleCheckSolution.
+      objectiveMarksAwarded = clampObjectiveResult(
+        q, annotatedSteps, totalMarks, raw && raw.finalAnswerCorrect,
+      ).marksAwarded;
     }
 
     // D) THE SHARED MISTAKE-TYPE HONESTY GUARD (MI integrity). Nulls a fabricated

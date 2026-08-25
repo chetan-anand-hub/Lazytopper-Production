@@ -119,30 +119,113 @@ describe("objectiveHasWorking — bare pick vs real reasoning", () => {
 describe("clampObjectiveResult — 0/full verdict, per-step marks stripped", () => {
   const opts = ["0", "7", "14", "1"];
 
+  // ★★★ THE RULING (OBJECTIVE-MARK-INVARIANT): an objective question is scored 0 or
+  // FULL ON THE ANSWER ALONE. Uploaded working exists ONLY so a student can see the
+  // gap in their understanding — it may neither DESTROY a correct answer's mark nor
+  // RESCUE a wrong one. Correctness comes from (1) the answer key compared against the
+  // EXTRACTED OPTION, else (2) the model's OWN STATED `finalAnswerCorrect`, else
+  // (3) nothing at all — `resolved: false`, an honest could-not-read.
+  // ⚠ A step's status must NEVER contribute to an objective mark, by any path.
+
   it("key + correct: full marks, step stripped, status aligned correct (overrides a 0.5 model award)", () => {
     const steps = [step({ studentWork: "7", status: "incorrect", marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: "calculation" })];
     const r = O.clampObjectiveResult({ section: "A", answer: "7", options: opts }, steps, 1);
-    expect(r).toEqual({ marksAwarded: 1, correct: true });
+    expect(r).toEqual({ marksAwarded: 1, correct: true, resolved: true });
     expect([steps[0].marksAwarded, steps[0].marksDeducted, steps[0].status]).toEqual([0, 0, "correct"]);
   });
 
   it("key + wrong: 0, overrides a model that (wrongly) said correct", () => {
     const steps = [step({ studentWork: "14", status: "correct", marksAwarded: 1, marksDeducted: 0 })];
     const r = O.clampObjectiveResult({ section: "A", answer: "7", options: opts }, steps, 1);
-    expect(r).toEqual({ marksAwarded: 0, correct: false });
+    expect(r).toEqual({ marksAwarded: 0, correct: false, resolved: true });
     expect([steps[0].marksAwarded, steps[0].marksDeducted, steps[0].status]).toEqual([0, 0, "incorrect"]);
   });
 
-  it("NO key + model returns 0.5 (incorrect) -> clamped to 0 (model binary verdict)", () => {
-    const steps = [step({ studentWork: "(d)", status: "incorrect", marksAwarded: 0.5, marksDeducted: 0.5 })];
-    const r = O.clampObjectiveResult({ section: "A" }, steps, 1);
-    expect(r).toEqual({ marksAwarded: 0, correct: false });
+  it("NO key + NO stated verdict -> could-not-read (0, resolved:false), NOT a verdict derived from step status", () => {
+    // ⚠⚠ THIS ASSERTION IS INVERTED FROM ITS PRE-RULING FORM. It used to read
+    // "NO key + model says correct -> clamped to full" and expected 1 mark, because
+    // `modelSaysObjectiveCorrect` computed `steps.every(s => s.status === "correct")`.
+    // That is exactly the defect: one flagged line of working destroyed a correct
+    // MCQ's mark, and a step the model happened to label "correct" manufactured one.
+    // ★ ABSENT MEANS UNKNOWABLE, NOT WRONG — and not right either.
+    const steps = [step({ studentWork: "(a)", status: "correct", marksAwarded: 0.5, marksDeducted: 0 })];
+    expect(O.clampObjectiveResult({ section: "A" }, steps, 1))
+      .toEqual({ marksAwarded: 0, correct: false, resolved: false });
     expect([steps[0].marksAwarded, steps[0].marksDeducted]).toEqual([0, 0]);
   });
 
-  it("NO key + model says correct -> clamped to full", () => {
-    const steps = [step({ studentWork: "(a)", status: "correct", marksAwarded: 0.5, marksDeducted: 0 })];
-    expect(O.clampObjectiveResult({ section: "A" }, steps, 1)).toEqual({ marksAwarded: 1, correct: true });
+  it("NO key + the model STATES finalAnswerCorrect -> that verdict decides, 0 or full", () => {
+    const yes = [step({ studentWork: "(a)", status: "incorrect", marksAwarded: 0.5, marksDeducted: 0.5 })];
+    expect(O.clampObjectiveResult({ section: "A" }, yes, 1, true))
+      .toEqual({ marksAwarded: 1, correct: true, resolved: true });
+    expect(yes[0].status).toBe("correct");
+
+    const no = [step({ studentWork: "(a)", status: "correct", marksAwarded: 1, marksDeducted: 0 })];
+    expect(O.clampObjectiveResult({ section: "A" }, no, 1, false))
+      .toEqual({ marksAwarded: 0, correct: false, resolved: true });
+    expect([no[0].marksAwarded, no[0].marksDeducted, no[0].status]).toEqual([0, 0, "incorrect"]);
+  });
+
+  it("★★★ CORRECT option + FLAWED working -> FULL marks (the live defect: this scored 0)", () => {
+    // The owner picked the right option and uploaded working with one flawed line.
+    // The old `firstStudentPick` read "D = b^2 - 4ac" as the OPTION, the key compare
+    // could not normalise it, and THE ANSWER KEY WAS ABANDONED.
+    const steps = [
+      step({ studentWork: "D = b^2 - 4ac", status: "incorrect", marksAwarded: 0, marksDeducted: 0.5, mistakeType: "calculation", teacherAnnotation: "sign slip" }),
+      step({ studentWork: "Answer: (b)", status: "correct" }),
+    ];
+    const r = O.clampObjectiveResult({ section: "A", answer: "7", options: ["0", "7", "14", "1"] }, steps, 1);
+    expect(r).toEqual({ marksAwarded: 1, correct: true, resolved: true });
+    // ★ the diagnostic step KEEPS the model's status — its annotation is true and it
+    // carries no marks. Overwriting it is what showed "Incorrect" beside a ✓.
+    expect(steps[0].status).toBe("incorrect");
+    expect(steps[1].status).toBe("correct");
+  });
+
+  it("★★ THE MIRROR — WRONG option + correct-looking working -> 0 (working must not rescue either)", () => {
+    const steps = [
+      step({ studentWork: "D = b^2 - 4ac", status: "correct", teacherAnnotation: "correct formula" }),
+      step({ studentWork: "Answer: (c)", status: "correct" }),
+    ];
+    const r = O.clampObjectiveResult({ section: "A", answer: "7", options: ["0", "7", "14", "1"] }, steps, 1);
+    expect(r).toEqual({ marksAwarded: 0, correct: false, resolved: true });
+    expect(steps[0].status).toBe("correct");   // diagnostic, annotation is true
+    expect(steps[1].status).toBe("incorrect"); // the answer step carries the verdict
+  });
+});
+
+describe("extractOptionPick — the pick must be THE PICK, never a working line", () => {
+  const opts = ["0", "7", "14", "1"];
+
+  it("reads an option DECLARATION, not the first working line", () => {
+    const steps = [step({ studentWork: "D = b^2 - 4ac" }), step({ studentWork: "Answer: (b)" })];
+    expect(O.extractOptionPick(steps, opts)).toEqual({ pick: "b", stepIndex: 1 });
+  });
+
+  it("returns NOTHING when no option can be identified — never a working-line fallback", () => {
+    const steps = [step({ studentWork: "D = b^2 - 4ac" }), step({ studentWork: "so the roots are real" })];
+    expect(O.extractOptionPick(steps, opts)).toEqual({ pick: "", stepIndex: -1 });
+  });
+
+  it("CONTROL — the forms that ARE options still resolve", () => {
+    expect(O.extractOptionPick([step({ studentWork: "(c)" })], opts).pick).toBe("c");
+    expect(O.extractOptionPick([step({ studentWork: "14" })], opts).pick).toBe("14");
+    expect(O.extractOptionPick([step({ studentWork: "I picked d" })], opts).pick).toBe("d");
+    expect(O.extractOptionPick([step({ studentWork: "Ans = a" })], opts).pick).toBe("a");
+  });
+});
+
+describe("modelStatedAnswerCorrect — a tri-state, because absent is unknowable", () => {
+  it("absent is null, never false", () => {
+    expect(O.modelStatedAnswerCorrect(undefined)).toBeNull();
+    expect(O.modelStatedAnswerCorrect(null)).toBeNull();
+    expect(O.modelStatedAnswerCorrect("")).toBeNull();
+  });
+  it("stated booleans (and the tolerated string forms) pass through", () => {
+    expect(O.modelStatedAnswerCorrect(true)).toBe(true);
+    expect(O.modelStatedAnswerCorrect("true")).toBe(true);
+    expect(O.modelStatedAnswerCorrect(false)).toBe(false);
+    expect(O.modelStatedAnswerCorrect("false")).toBe(false);
   });
 });
 
