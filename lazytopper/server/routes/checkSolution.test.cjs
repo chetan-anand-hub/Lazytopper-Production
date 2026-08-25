@@ -4227,3 +4227,347 @@ test('§19.17 ★★ Q1 — a caller that never passes `returnIndex` degrades to
   assert.deepEqual(aware, { conceptual: 1, calculation: 0, silly: 1, presentation: 0, departure: 1 },
     'CONTROL — the same steps WITH the index counted from the return, proving the fixture can move at all');
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// §20 · OBJECTIVE-MARK-INVARIANT — a correct MCQ answer must score full marks
+//
+// THE DEFECT, OBSERVED LIVE: the owner answered a 1-mark MCQ, picked the CORRECT
+// option, uploaded working containing one flawed line, and scored 0/1. The same
+// question with CLEAN working scored 1/1. Every step on the graded sheet read
+// "Incorrect" beside a teacher annotation saying it was correct.
+//
+// TWO INDEPENDENT CAUSES, both in objectiveScoring.cjs:
+//   (a) `firstStudentPick` read the FIRST NON-EMPTY WORKING LINE as the student's
+//       option. On an upload starting "D = b^2 - 4ac", THAT STRING became the
+//       "pick"; the key compare could not normalise it, returned resolved:false,
+//       and THE ANSWER KEY WAS ABANDONED. Working defeated the key even where a
+//       key was sent. It is now `extractOptionPick`, which reads an OPTION or
+//       NOTHING.
+//   (b) with no resolved key, `modelSaysObjectiveCorrect` derived the verdict as
+//       `steps.every(s => s.status === 'correct')` — so ONE flagged working step
+//       destroyed the mark. It is now the model's OWN STATED `finalAnswerCorrect`,
+//       and absent means UNKNOWABLE (resolved:false), never wrong.
+//
+// A step's status must NEVER contribute to an objective mark, by any path.
+// These tests are the eight cases the ruling requires.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const OBJ = require('./objectiveScoring.cjs');
+
+// A 1-mark MCQ carrying a bank answer key, graded through the LIVE route.
+const MCQ_REQ = (extra = {}) => ({
+  question: 'Which expression is the discriminant of ax^2 + bx + c = 0?',
+  marks: 1,
+  subject: 'Maths',
+  section: 'A',
+  format: 'mcq',
+  qType: 'mcq',
+  answer: 'b^2 - 4ac',
+  options: ['b^2 + 4ac', 'b^2 - 4ac', '2a', '-b/2a'],
+  textAnswer: 'see uploaded working',
+  ...extra,
+});
+
+// The model's reply for a CORRECT pick written under one FLAWED working line.
+// ★ Note the annotation on step 0: it says the formula is CORRECT while the status
+//   says incorrect — the exact contradiction the student was shown.
+const MCQ_FLAWED_WORKING = (extra = {}) => ({
+  totalMarks: 1,
+  marksAwarded: 0,
+  annotatedSteps: [
+    { description: 'Discriminant', studentWork: 'D = b^2 - 4ac', status: 'incorrect',
+      marksAwarded: 0, marksDeducted: 0.5, teacherAnnotation: 'Sign slip in the discriminant',
+      mistakeType: 'calculation', correctedWorking: null },
+    { description: 'Option chosen', studentWork: 'Answer: (b)', status: 'correct',
+      marksAwarded: 0, marksDeducted: 0, teacherAnnotation: 'Correct option',
+      mistakeType: null, correctedWorking: null },
+  ],
+  mistakeSummary: { conceptual: 0, calculation: 1, silly: 0, presentation: 0 },
+  teacherNote: 'Watch the sign.',
+  ...extra,
+});
+
+test('§20.1 ★★★ THE DEFECT — CORRECT option + FLAWED working scores FULL marks (was 0/1 live)', async () => {
+  const h = buildRoute({ replies: [MCQ_FLAWED_WORKING()] });
+  await h.route.handleCheckSolution(MCQ_REQ(), {});
+  const b = h.body();
+
+  assert.equal(b.marksAwarded, 1,
+    '★★★ THE WHOLE LANE: the student picked the right option. One flawed line of working ' +
+    'must not cost the mark — an objective question scores 0 or FULL on the ANSWER ALONE.');
+  assert.equal(b.totalMarks, 1);
+});
+
+test('§20.2 CORRECT option + CLEAN working still scores FULL marks — regression guard', async () => {
+  const clean = MCQ_FLAWED_WORKING({
+    annotatedSteps: [
+      { description: 'Option chosen', studentWork: 'Answer: (b)', status: 'correct',
+        marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'Correct', mistakeType: null,
+        correctedWorking: null },
+    ],
+    mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+  });
+  const h = buildRoute({ replies: [clean] });
+  await h.route.handleCheckSolution(MCQ_REQ(), {});
+  assert.equal(h.body().marksAwarded, 1, 'the pre-existing good case must not regress');
+});
+
+test('§20.3 WRONG option + clean working scores 0 — regression guard', async () => {
+  const wrong = MCQ_FLAWED_WORKING({
+    annotatedSteps: [
+      { description: 'Option chosen', studentWork: 'Answer: (c)', status: 'correct',
+        marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'Neat', mistakeType: null,
+        correctedWorking: null },
+    ],
+    mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+  });
+  const h = buildRoute({ replies: [wrong] });
+  await h.route.handleCheckSolution(MCQ_REQ(), {});
+  assert.equal(h.body().marksAwarded, 0,
+    'the key says (b); the student wrote (c). A model that called the step "correct" is OVERRIDDEN.');
+});
+
+test('§20.4 ★★ THE MIRROR — WRONG option + working full of CORRECT steps still scores 0', async () => {
+  // Working must not RESCUE a wrong answer any more than it may DESTROY a right one.
+  const rescue = MCQ_FLAWED_WORKING({
+    annotatedSteps: [
+      { description: 'Discriminant', studentWork: 'D = b^2 - 4ac', status: 'correct',
+        marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'Correct formula',
+        mistakeType: null, correctedWorking: null },
+      { description: 'Option chosen', studentWork: 'Answer: (c)', status: 'correct',
+        marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'ok', mistakeType: null,
+        correctedWorking: null },
+    ],
+    mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+  });
+  const h = buildRoute({ replies: [rescue] });
+  await h.route.handleCheckSolution(MCQ_REQ(), {});
+  assert.equal(h.body().marksAwarded, 0,
+    '★★ every step is "correct" and the answer is still wrong — the KEY decides, not the working');
+});
+
+test('§20.5 ★ a step the MODEL called correct is never re-displayed as Incorrect', async () => {
+  // ⚠ THE LIVE SYMPTOM: "every step on the graded sheet read `Incorrect` beside a ✓
+  // annotation saying it was correct". That contradiction was MANUFACTURED BY THE
+  // CLAMP — it overwrote EVERY decisive status from the whole-question verdict, so a
+  // wrong answer stamped `incorrect` onto steps the model had annotated as correct.
+  // The fixture therefore needs a WRONG verdict over CORRECT-annotated working.
+  const contradiction = MCQ_FLAWED_WORKING({
+    annotatedSteps: [
+      { description: 'Discriminant', studentWork: 'D = b^2 - 4ac', status: 'correct',
+        marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'Correct formula',
+        mistakeType: null, correctedWorking: null },
+      { description: 'Rearrangement', studentWork: 'so D > 0 here', status: 'correct',
+        marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'Correct reasoning',
+        mistakeType: null, correctedWorking: null },
+      { description: 'Option chosen', studentWork: 'Answer: (c)', status: 'correct',
+        marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'Option (c)',
+        mistakeType: null, correctedWorking: null },
+    ],
+    mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+  });
+  const h = buildRoute({ replies: [contradiction] });
+  await h.route.handleCheckSolution(MCQ_REQ(), {});
+  const b = h.body();
+  const steps = b.annotatedSteps;
+
+  assert.equal(b.marksAwarded, 0, 'the answer IS wrong — the mark is 0, on the key alone');
+
+  // THE ANSWER STEP carries the verdict...
+  assert.equal(steps[2].status, 'incorrect', 'the answer step is aligned to the wrong verdict');
+
+  // ...and the two DIAGNOSTIC steps keep what the model said. Their annotations are
+  // true, they carry no marks, and the student must not read two opposite verdicts
+  // on one line. ⚠ BOTH of these were 'incorrect' before this lane.
+  assert.equal(steps[0].status, 'correct',
+    '★ the model called this step correct and annotated it "Correct formula" — it must still say correct');
+  assert.equal(steps[1].status, 'correct', '★ likewise');
+
+  // The general property, asserted over every step rather than a hand-picked one.
+  for (const s of steps) {
+    const saysCorrect = /correct/i.test(s.teacherAnnotation) &&
+      !/incorrect|not correct/i.test(s.teacherAnnotation);
+    if (saysCorrect) {
+      assert.notEqual(s.status, 'incorrect',
+        '★ a step whose annotation says it is correct must never be shown as Incorrect: ' +
+        JSON.stringify({ annotation: s.teacherAnnotation, status: s.status }));
+    }
+  }
+
+  // CONTROL — the property is not vacuous: at least one step DID carry a
+  // correct-affirming annotation, so the loop above actually tested something.
+  const affirming = steps.filter((s) => /correct/i.test(s.teacherAnnotation) &&
+    !/incorrect|not correct/i.test(s.teacherAnnotation));
+  assert.ok(affirming.length >= 2,
+    'CONTROL — the fixture really does carry correct-affirming annotations (found ' +
+    affirming.length + ')');
+});
+
+test('§20.6 NO key and NO model verdict ⇒ an honest could-not-read, never a derived one', () => {
+  // The pure unit — this is where the derivation used to live.
+  const steps = [
+    { description: 'a', studentWork: '(a)', status: 'correct', marksAwarded: 0.5, marksDeducted: 0 },
+  ];
+  const r = OBJ.clampObjectiveResult({ section: 'A' }, steps, 1);
+  assert.deepEqual(r, { marksAwarded: 0, correct: false, resolved: false },
+    '★ ABSENT MEANS UNKNOWABLE. The old code returned FULL MARKS here purely because the ' +
+    'model had labelled the step "correct" — a step status deciding an objective mark.');
+
+  // CONTROL — the SAME steps WITH the model actually stating a verdict do resolve,
+  // proving the fixture can move at all and that the unresolved result above is
+  // the absence of a verdict, not a broken call.
+  const steps2 = [
+    { description: 'a', studentWork: '(a)', status: 'correct', marksAwarded: 0.5, marksDeducted: 0 },
+  ];
+  assert.deepEqual(OBJ.clampObjectiveResult({ section: 'A' }, steps2, 1, true),
+    { marksAwarded: 1, correct: true, resolved: true },
+    'CONTROL — a STATED verdict resolves');
+
+  const steps3 = [
+    { description: 'a', studentWork: '(a)', status: 'correct', marksAwarded: 0.5, marksDeducted: 0 },
+  ];
+  assert.deepEqual(OBJ.clampObjectiveResult({ section: 'A' }, steps3, 1, false),
+    { marksAwarded: 0, correct: false, resolved: true },
+    'CONTROL — a STATED false verdict resolves to 0, distinguishable from could-not-read by `resolved`');
+});
+
+test('§20.7 the DIAGNOSIS on flawed working still reaches the mistake summary', async () => {
+  // The feature must survive the fix: full marks for the right option, AND the
+  // student still sees what was wrong with their working.
+  const h = buildRoute({ replies: [MCQ_FLAWED_WORKING()] });
+  await h.route.handleCheckSolution(MCQ_REQ(), {});
+  const b = h.body();
+
+  assert.equal(b.marksAwarded, 1, 'full marks');
+  assert.equal(b.mistakeSummary.calculation, 1,
+    '★ the whole point of uploading working: the diagnosis survives a full-marks grade');
+  assert.equal(b.annotatedSteps[0].mistakeType, 'calculation',
+    'the per-step type is kept — there IS working to classify');
+});
+
+test('§20.8 ★★ SUBJECTIVE grading is untouched — the guard that matters most', async () => {
+  // No section/format/qType and no objective flag ⇒ the clamp never runs.
+  const h = buildRoute({ replies: [GOOD_GRADE] });
+  await h.route.handleCheckSolution(SUBJECTIVE_REQ(), {});
+  const b = h.body();
+
+  assert.equal(b.marksAwarded, 1, 'the step sum, exactly as before — no objective clamp applied');
+  assert.equal(b.annotatedSteps[0].marksAwarded, 1,
+    '★ per-step marks are NOT stripped on a subjective question');
+  assert.equal(b.annotatedSteps[0].status, 'correct');
+});
+
+test('§20.9 ★★ THE PICK MUST BE THE PICK — a working line is never read as an option', () => {
+  const options = ['b^2 + 4ac', 'b^2 - 4ac', '2a', '-b/2a'];
+
+  // The live upload: the first non-empty studentWork is WORKING, not an option.
+  // The old `firstStudentPick` returned this string and the key was abandoned.
+  const steps = [
+    { description: 'w', studentWork: 'D = b^2 - 4ac', status: 'incorrect' },
+    { description: 'a', studentWork: 'Answer: (b)', status: 'correct' },
+  ];
+  assert.deepEqual(OBJ.extractOptionPick(steps, options), { pick: 'b', stepIndex: 1 },
+    '★ the option is read from the DECLARATION on step 1, not from the working on step 0');
+
+  // No option anywhere ⇒ NOTHING. We never fall back to a working line.
+  const noPick = [
+    { description: 'w', studentWork: 'D = b^2 - 4ac', status: 'incorrect' },
+    { description: 'w2', studentWork: 'so the roots are real', status: 'incorrect' },
+  ];
+  assert.deepEqual(OBJ.extractOptionPick(noPick, options), { pick: '', stepIndex: -1 },
+    '⚠ no identifiable option ⇒ return nothing and let the caller be honest');
+
+  // CONTROL — the forms that ARE options still resolve, proving the extractor is live.
+  assert.equal(OBJ.extractOptionPick([{ studentWork: '(c)' }], options).pick, 'c', 'bare letter');
+  assert.equal(OBJ.extractOptionPick([{ studentWork: '2a' }], options).pick, '2a', 'bare option text');
+  assert.equal(OBJ.extractOptionPick([{ studentWork: 'I picked d' }], options).pick, 'd', 'declaration');
+});
+
+test('§20.10 ★★ no step status can reach an objective mark — the deriving helper is GONE', () => {
+  // Structural, not behavioural: the function that turned step statuses into a
+  // verdict (`modelSaysObjectiveCorrect`) no longer exists in the module, so the
+  // path cannot be re-opened by accident.
+  assert.equal(typeof OBJ.modelSaysObjectiveCorrect, 'undefined',
+    '`modelSaysObjectiveCorrect` must not exist — it derived a MARK from step statuses');
+  assert.equal(typeof OBJ.firstStudentPick, 'undefined',
+    '`firstStudentPick` must not exist — it read a WORKING LINE as the student option');
+  assert.equal(typeof OBJ.extractOptionPick, 'function', 'CONTROL — the replacement IS exported');
+  assert.equal(typeof OBJ.modelStatedAnswerCorrect, 'function', 'CONTROL — the replacement IS exported');
+
+  // And the tri-state helper is honest about absence.
+  assert.equal(OBJ.modelStatedAnswerCorrect(undefined), null, 'absent ⇒ null, not false');
+  assert.equal(OBJ.modelStatedAnswerCorrect(null), null);
+  assert.equal(OBJ.modelStatedAnswerCorrect(true), true);
+  assert.equal(OBJ.modelStatedAnswerCorrect('true'), true, 'the parser tolerates the string form');
+  assert.equal(OBJ.modelStatedAnswerCorrect(false), false);
+});
+
+test('§20.11 §2.4 the DETECTION SHAPE can now carry an answer key — additive and nullable', async () => {
+  // Before this lane the detect shape declared NO field carrying a correct answer,
+  // so a PASTED Check & Improve question could never reach the grader with a key.
+  const h = buildRoute({ replies: [{
+    detectedMarks: 1, marksSource: 'stated', detectedSubject: 'Maths', detectedTopic: null,
+    detectedObjective: true, detectedAnswer: '(b)',
+    questions: [{ questionNumber: 1, questionText: 'Q1', marks: 1, marksSource: 'stated',
+      objective: true, answer: 'b^2 - 4ac' }],
+  }] });
+  await h.route.handleDetectQuestion({ question: 'Which is the discriminant?' }, {});
+  const b = h.body();
+
+  assert.equal(b.detectedAnswer, '(b)', 'the top-level key is returned');
+  assert.equal(b.questions[0].answer, 'b^2 - 4ac', 'the per-question key is returned');
+
+  // The schema declares it, nullable — so the model may decline.
+  const schema = h.calls[0].genConfig.responseSchema || h.calls[0].genConfig.response_schema;
+  assert.deepEqual(schema.properties.detectedAnswer, { type: 'STRING', nullable: true },
+    'declared, nullable — a question whose answer cannot be determined produces null');
+  assert.deepEqual(schema.properties.questions.items.properties.answer,
+    { type: 'STRING', nullable: true });
+});
+
+test('§20.12 §2.4 a model that omits or nulls the answer produces NULL — never a guess', async () => {
+  const h = buildRoute({ replies: [{
+    detectedMarks: 1, marksSource: 'stated', detectedSubject: 'Maths', detectedTopic: null,
+    detectedObjective: true,
+    questions: [{ questionNumber: 1, questionText: 'Q1', marks: 1, marksSource: 'stated', objective: true }],
+  }] });
+  await h.route.handleDetectQuestion({ question: 'Which is the discriminant?' }, {});
+  assert.equal(h.body().detectedAnswer, null, 'omitted ⇒ null');
+  assert.equal(h.body().questions[0].answer, null, 'omitted per-question ⇒ null');
+
+  // The literal string "null" and an empty string are also honest nulls.
+  const h2 = buildRoute({ replies: [{
+    detectedObjective: true, detectedAnswer: 'null',
+    questions: [{ questionNumber: 1, questionText: 'Q1', objective: true, answer: '   ' }],
+  }] });
+  await h2.route.handleDetectQuestion({ question: 'Q' }, {});
+  assert.equal(h2.body().detectedAnswer, null, 'the literal "null" ⇒ null');
+  assert.equal(h2.body().questions[0].answer, null, 'blank ⇒ null');
+});
+
+test('§20.13 the WORKSHEET grader gets the same ruling (normaliseStructuredResult)', async () => {
+  // Caller 2 of the clamp. Same fixture shape, the other grading path.
+  const h = buildRoute({ replies: [{ results: [{
+    qNumber: 1,
+    annotatedSteps: [
+      { description: 'w', studentWork: 'D = b^2 - 4ac', status: 'incorrect',
+        marksAwarded: 0, marksDeducted: 0.5, teacherAnnotation: 'Correct formula',
+        mistakeType: 'calculation', correctedWorking: null },
+      { description: 'a', studentWork: 'Answer: (b)', status: 'correct',
+        marksAwarded: 0, marksDeducted: 0, teacherAnnotation: 'ok', mistakeType: null,
+        correctedWorking: null },
+    ],
+    mistakeSummary: { conceptual: 0, calculation: 1, silly: 0, presentation: 0 },
+  }] }] });
+
+  await h.route.handleGradeWorksheet(WORKSHEET_REQ([
+    Q(1, { section: 'A', format: 'mcq', qType: 'mcq', marks: 1,
+      answer: 'b^2 - 4ac', options: ['b^2 + 4ac', 'b^2 - 4ac', '2a', '-b/2a'] }),
+  ]), {});
+
+  const r = h.body().results[0];
+  assert.equal(r.marksAwarded, 1,
+    '★ the worksheet path obeys the SAME ruling — one impl, two callers, no drift');
+  assert.equal(r.annotatedSteps[0].status, 'incorrect', 'the diagnostic step is untouched');
+  assert.equal(r.annotatedSteps[1].status, 'correct', 'the answer step carries the verdict');
+});
