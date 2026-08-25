@@ -1,3 +1,106 @@
+## 2026-08-25 — WAVE MI-INTEGRITY-3 CLOSE-OUT (lane `HANDOFF-MI9`, docs-only) — trunk `65b6c0e2`, PRs `#699` `#700` `#701` `#702`
+
+**`2026-08-25`**
+
+> ⚠ **NUMBERING.** `DECISION N` is SECTION-LOCAL and restarts at 1 in every wave section. This section
+> starts at `DECISION 1`.
+> ⚠ **`CLAUDE.md` §10 still lists SIX handoff files and this is the SEVENTH.**
+> `[FU-CLAUDEMD-S10-OMITS-DECISION-LOG]` — **now raised independently by FIVE lanes.**
+> ★ **AND THE FINDING IS NOW SHARPER THAN "IT OMITS IT":** §10 (lines 232-247) tells you at
+> `CLAUDE.md:241` to *"log it in `DECISION_LOG`"* **while leaving `DECISION_LOG.md` out of its own
+> list of files to update.** §10 is **INTERNALLY INCONSISTENT**, not merely incomplete.
+
+### DECISION 1 — **THE HANDOFF LOCK IS SEVEN FILES. TWO OF THE THREE GOVERNING DOCS SAY SIX.**
+
+Enumerated from trunk, not from a doc: `git ls-tree -r --name-only 65b6c0e2 -- handoff/`.
+
+| doc | says | correct? |
+|---|---|---|
+| `CLAUDE.md` §10 | six, and is internally inconsistent (`:241`) | **NO** |
+| `ops/CONTROLLER_SUBAGENT_MODEL.md:181` | "The six handoff files are a single shared lock" | **NO** |
+| `ops/CONTROLLER_ADDENDUM_Context_Safeguards.md:242` | "The seven `handoff/` files" | **YES — the only correct one** |
+
+⇒ **A dispatch that inherits the six-file count silently drops this file.** Until the governing docs
+are corrected, **every handoff dispatch must name `DECISION_LOG.md` explicitly.**
+
+### DECISION 2 — **`check:mojibake` REACHES `handoff/`. THE "STRUCTURALLY BLIND" CLAIM IS FALSE.**
+
+`ops/CONTROLLER_SUBAGENT_MODEL.md:373` asserts the gate sets `repoRoot` to `lazytopper/` and is
+**"structurally blind to `handoff/`"**. **Measured false at `65b6c0e2`.** `repoRoot` is the git root;
+`handoff/` is in `REPORT_ONLY_PREFIXES` — **scanned and counted, merely not enforced.**
+
+**Settled by two-sided CONTROL, not by reading:** injection into `handoff/CURRENT_STATE.md` moved
+report-only hits `17 -> 18` at exit 0; injection into the enforced `ops/AGENT_STANDING_RULES.md` moved
+enforced hits `0 -> 1` at **exit 1**. Both reverted; removal proven; baseline re-measured identical.
+
+⇒ ★★ **"STRUCTURALLY BLIND" IS NOT "REPORT-ONLY."** The claim was TRUE of an older revision, was fixed
+under `[GUARD-3]`, and **survived as a restated fact in three dispatches after it stopped being true.**
+The owner had already withdrawn it as unverified; it is now **disproved**, and recorded in
+`ops/AGENT_STANDING_RULES.md` with its control so no fourth restatement is possible.
+
+### DECISION 3 — **THE WIRE-2 "CONTRADICTION" WAS INVENTED BY THE SPEC AND IS STRUCK.**
+
+The `HANDOFF-MI9` v1 spec asked the lane to escalate a possible conflict between the ADDENDUM's
+requirement that the WIRE-2 dormancy block survive every prepend, and records saying WIRE-2 **ENDED**
+the `#578`/`#611`/`#617` dormancy. **The lane escalated, then disproved it.**
+
+`handoff/CURRENT_STATE.md` is **unanimous across NINE restatements** — L353, L821, L1326, L1745,
+L2102, L2272, L2388, L2811, L3029 — all saying *"`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617`
+dormancy. Do not restate that trio as dormant."*
+
+⇒ ★★ **THE APPARENT CONFLICT WAS A CATEGORY ERROR BETWEEN THE BLOCK AND ITS SUBJECT.** The *block* is
+mandatory to carry forward; its *subject* has ended. **That is precisely why it must be carried** — to
+stop a future lane re-reporting the trio as dormant. **Nothing to reconcile. B2 struck.**
+
+### DECISION 4 — **SPECIMENS 9-15 ARE NOW IN THE RULES AGENTS READ, NOT ONLY IN A REPORT.**
+
+Owner: *"a finding in a report is a finding that dies with the report — that is the
+twenty-one-follow-ups lesson."* Before this lane, `ops/AGENT_STANDING_RULES.md` contained **ZERO**
+specimens (verified: `grep -i specimen` returned no section). It now carries 9-15 with their answers.
+
+⚠ **SOURCED FROM THE CANONICAL TABLE**, headed *"SPECIMEN NUMBERING — SETTLED BY THE OWNER. THIS TABLE
+IS CANONICAL."* The same file's EARLIER table is **SUPERSEDED and has 11 and 12 TRANSPOSED.** Owner's
+ruling: **11 = the pairing/citation defect, 12 = the dying-agent status** — *"it is the subtlest and
+deserves the earlier slot."*
+⇒ **That trap is itself specimen 11: two true lists presented as one, the earlier reading complete.**
+
+### DECISION 5 — **AUTHORS ARE NOT EXEMPT FROM THE GATE THEY COMMISSIONED.**
+
+`HANDOFF-MI9` **v1 was BLOCKED at its own §0c.0**: its premise ledger carried three columns where
+`scripts/premise_ledger_check.mjs` requires six (`id|claim|evidence|anchor|how verified|status`). The
+checker **returned early**, so **no premise row was ever anchor-checked** — a FAIL that established
+nothing whatever about the premises.
+
+⇒ ★★ **THE FOUR COLUMN ERRORS WERE ALL TRUE AND STILL UNDER-DESCRIBED THE RUN — specimen 11 again.**
+A reader could take them for "a formatting problem in an otherwise examined ledger". The ledger was
+never examined.
+⇒ **RULE: the controller runs the premise gate on their own spec before dispatch, in a clean worktree
+at the Base SHA.** v2 was gated before dispatch and passed `10 premises · 7/7 anchors RESOLVED · 0
+UNCHECKED · 3 UNVERIFIED · exit 0`; **the lane re-ran it independently and got the same result.**
+
+### DECISION 6 — **FOUR v1 PREMISES WERE CORRECTED BY THE LANE, NOT BY THE CONTROLLER.**
+
+The ledger, the §10 finding, the mojibake blindness and the WIRE-2 contradiction were all overturned
+from below. ⇒ ★★★ **The instruction that produced all four is "RE-DERIVE IT, DON'T INHERIT IT — if
+your finding differs from the controller's, YOURS WINS."** It is now load-bearing and must survive
+into every dispatch.
+
+### DECISION 7 — **THE OWNER'S ERRATUM SLOT IS RESERVED AND DELIBERATELY EMPTY.**
+
+Six premises in the `GRADER-LIVE-DEFECTS-SCOUT` brief were disproved, four of them wrong statements
+about the repo. **The owner writes that text himself.** ⇒ **A controller never authors an erratum and
+neither does a lane** — not as a draft, not as a paraphrase, not "to be helpful". The slot is held
+open in `handoff/OPEN_QUESTIONS_AND_FOLLOWUPS.md` and **the PR does not open until he supplies it.**
+
+### DECISION 8 — **THREE GOVERNING-DOC CORRECTIONS ARE FOLLOW-UPS, NOT THIS LANE'S EDITS.**
+
+`ops/CONTROLLER_SUBAGENT_MODEL.md:373`, the same file's `:181`, and `CLAUDE.md` §10 are all **wrong and
+all FORBIDDEN** to a docs lane under CLAUDE.md §8 scope discipline. They are recorded as follow-ups
+with `file:line` and corrected text. ⇒ **The owner rules on who corrects a governing doc.** A lane that
+"just fixes" a forbidden file has converted a docs-only PR into a scope breach.
+
+---
+
 ## 2026-08-24 — WAVE MI-INTEGRITY-7 + WAVE MI-INTEGRITY-8 (three controllers, nine units, **FOUR PRs MERGED**) — trunk `deddf595`, moved four times
 
 **`2026-08-24`**

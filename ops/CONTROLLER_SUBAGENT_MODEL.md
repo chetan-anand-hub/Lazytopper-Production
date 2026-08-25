@@ -178,7 +178,11 @@ file — `git ls-remote origin base/approved-thru-437` each time.
 **Disjointness is the controller's job, not the subagent's.** The controller assigns allowlists that
 cannot overlap; the subagent verifies but does not negotiate.
 
-**Handoff PRs queue; product PRs may race.** The six handoff files are a single shared lock. Only the
+**Handoff PRs queue; product PRs may race.** The **SEVEN** handoff files are a single shared lock —
+`CURRENT_STATE.md`, `NEXT_ACTION.md`, `SESSION_LOG.md`, `IMPLEMENTATION_ROADMAP.md`,
+`OPEN_QUESTIONS_AND_FOLLOWUPS.md`, `SURFACE_TRACKER.md` and **`DECISION_LOG.md`**. ⚠ **This line said
+SIX until 2026-08-25 and silently dropped `DECISION_LOG.md`; FIVE lanes raised it before it was fixed.
+ENUMERATE THEM, DO NOT COUNT THEM — a bare "seven" rots exactly the way "six" did.** Only the
 controller writes the handoff, and only after every lane in the wave is on trunk.
 
 ---
@@ -368,10 +372,22 @@ A mutation that failed to go red — and that failure was the most valuable resu
 
 **Test the invocation a human types, not the one a script does.** And when a mutation does not go
 red, **the first hypothesis is that the suite has a hole**, not that the code is fine.
+**★ PROVE THE MATCHER CAN FIRE — on every docs PR touching `handoff/`.** `check:mojibake` resolves
+`repoRoot` with `git rev-parse --show-toplevel` — **the git root, not `lazytopper/`** — and `handoff/`
+is listed in `REPORT_ONLY_PREFIXES`: it is **scanned, matched, counted and printed on every run, green
+or red, but NOT ENFORCED.** So a pass IS evidence that `handoff/` was inspected; it is **not** evidence
+that `handoff/` is clean, because **a report-only hit never turns anything red.** ⇒ **The rule below
+stands — for a different reason than this paragraph used to give.** Scan your own added lines with the
+scanner's own regex, **and inject a mojibake sequence into one of those lines to prove the regex fires
+on that exact input.**
 
-**★ PROVE THE MATCHER CAN FIRE — on every docs PR touching `handoff/`.** `check:mojibake` sets
-`repoRoot` to `lazytopper/` and is **structurally blind to `handoff/`**, so its pass is **no evidence
-at all** about a handoff file. Scan your own added lines with the scanner's own regex, **and inject a
+> ⚠⚠ **THIS PARAGRAPH SAID `handoff/` WAS "STRUCTURALLY BLIND" UNTIL 2026-08-25. THAT WAS A TRUE
+> STATEMENT ABOUT A PAST STATE, RESTATED AS PRESENT FACT** — the scanner's own comment marks that frame
+> bug FIXED under `[GUARD-3]`. It survived **three dispatches after it stopped being true**, and was
+> disproved by control: injection into `handoff/CURRENT_STATE.md` moved report-only hits `17 -> 18` at
+> **exit 0**, while injection into an enforced tree moved enforced hits `0 -> 1` at **exit 1**.
+> ★ **"Structurally blind" and "report-only" are different facts, and conflating them loses the only
+> signal that would reveal a regression back to blindness — the printed count.**
 mojibake sequence into one of those lines to prove the regex fires on that exact input.**
 
 > **A zero from a matcher nobody proved can fire is indistinguishable from a dead matcher.**

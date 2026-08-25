@@ -1,6 +1,41 @@
 # LazyTopper Implementation Roadmap
 
 
+## 2026-08-25 — WAVE MI-INTEGRITY-3: **THE GRADER ARC'S FOUR FIXES ARE ON TRUNK AND THE RECORD FINALLY SAYS SO — `#699` · `#700` · `#701` · `#702` ALL MERGED** — trunk `65b6c0e2`, unmoved
+
+**`2026-08-25`**
+
+**STAGE OUTCOME: THE GRADER ARC'S PRODUCT WORK IS COMPLETE ON TRUNK AND THE RECORD HAD NOT CAUGHT UP.**
+Four PRs merged before this wave's docs lane ran; **their changes appeared in no handoff entry**, and
+their lane names appeared only as PENDING work. **This stage closes the record gap, not the code.**
+
+| PR | merge | stage item | state |
+|---|---|---|---|
+| `#699` | `f34c395b` | weak-area saturation — evidence-gated | **DONE on trunk** |
+| `#700` | `ec97f743` | MI intake on mistake TYPE, not marks lost | **DONE on trunk** |
+| `#701` | `c587a4ae` | departure counted under its own type; self-correction keeps marks | **DONE on trunk** |
+| `#702` | `29220c44` | eval harness parity — 8 rules to 16, ten by IMPORT | **DONE on trunk** |
+| — | — | **docs: seven handoff files + specimens 9-15 into the standing rules** | **THIS LANE** |
+| — | — | the owner's erratum | ⚠ **RESERVED, EMPTY — owner writes it** |
+
+**WHAT THIS UNBLOCKS.** `#702` is the first time the grader's own eval harness sends the prompt
+production sends, with **ten of sixteen rules arriving by IMPORT rather than copy** — so
+*"the grader can be measured"* stops being aspirational. **The four rules still carried by copy are
+the remaining drift surface** and should be named in any future eval lane.
+
+⚠ **WHAT THIS STAGE DOES NOT CLOSE.**
+- **`[FU-SHEET-DORMANT-NO-CONSUMER]`** — `#682` is on trunk; **being on trunk is not being TRIGGERED.**
+  The wiring still needs `aiClient.ts` and `DesktopCheckImprovePage.tsx`.
+- **`[FU-DPDP-GUARDIAN-CONSENT]`** — still unruled and **launch-blocking**.
+- **Three governing-doc corrections** (`ops/CONTROLLER_SUBAGENT_MODEL.md:373` and `:181`,
+  `CLAUDE.md` §10) — **forbidden to a docs lane; the owner rules on who makes them.**
+
+★★ **PROCESS OUTCOME, AND IT OUTWEIGHS THE STAGE ITEMS.** The lane assigned to this stage **refused to
+start**: its spec's premise ledger had three columns where the gate requires six, the checker returned
+early, and **no premise row was ever anchor-checked.** The spec was reissued with a conforming ledger
+and **four of its premises had been corrected by the lane, not the author.** ⇒ **A stage is not
+dispatchable until its spec passes the gate the author commissioned.**
+
 ## 2026-08-24 — WAVE MI-INTEGRITY-7 + WAVE MI-INTEGRITY-8: **THE GRADER ARC'S LAST WAVE SHIPPED FOUR PRs AND STOPPED A FIFTH — `#694` · `#695` · `#696` · `#697` ARE ALL ON TRUNK** — trunk `deddf595`, moved four times
 
 **`2026-08-24`**

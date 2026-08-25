@@ -232,13 +232,14 @@ as in §6). The human merge gate is retained — CI does NOT auto-merge product 
 ## 10. Handoff Update Rule
 
 After every merged PR, a docs-only handoff update must be created before starting the next product PR.
-Update these files in `handoff/`:
+Update these **SEVEN** files in `handoff/`:
 - `CURRENT_STATE.md` — update SHA, stage, PR state
 - `NEXT_ACTION.md` — update next task and doctrine
 - `SESSION_LOG.md` — prepend new entry at the TOP (newest-first)
 - `IMPLEMENTATION_ROADMAP.md` — mark completed stage
 - `OPEN_QUESTIONS_AND_FOLLOWUPS.md` — add any new follow-ups
 - `SURFACE_TRACKER.md` — flip cells for any surface this PR moved; if scope was discovered, log it in `DECISION_LOG` + the tracker's §2a and set that surface's Scope to Settling; if none moved, state so
+- `DECISION_LOG.md` — record every decision this wave made, **with its reason**. ⚠ **THIS FILE WAS MISSING FROM THIS LIST UNTIL 2026-08-25, WHICH MADE THIS SECTION INTERNALLY INCONSISTENT: the `SURFACE_TRACKER.md` bullet above directs you to "log it in `DECISION_LOG`" while the list omitted the file itself.** Five separate lanes raised it. `[FU-CLAUDEMD-S10-OMITS-DECISION-LOG]` — CLOSED.
 
 Never append SESSION_LOG entries at the bottom — always prepend at the top.
 

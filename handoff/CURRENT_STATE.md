@@ -1,6 +1,137 @@
 # LazyTopper — Current State
 
-## [CURRENT] Wave MI-INTEGRITY-7 + Wave MI-INTEGRITY-8 — **THE GRADER ARC'S LAST WAVE SHIPPED FOUR PRs AND STOPPED A FIFTH — AND THE MOST VALUABLE THING IT PRODUCED WAS THE LANE THAT REFUSED TO BUILD.** `#694` · `#695` · `#696` · `#697` are ALL ON TRUNK — trunk `deddf595`
+## [CURRENT] Wave MI-INTEGRITY-3 — **THE GRADER ARC'S FOUR FIXES ARE ON TRUNK AND THE RECORD FINALLY SAYS SO — and the wave's most valuable output was a lane that refused to start.** `#699` · `#700` · `#701` · `#702` are ALL ON TRUNK — trunk `65b6c0e2`
+
+★ **PROVENANCE.** Code-level statements below are labelled **OWNER-VERIFIED**, **LANE-REPORTED**,
+**SCOUT-REPORTED** or **CONTROLLER-RECORDED**. Where the `HANDOFF-MI9` lane re-derived a claim itself
+at `65b6c0e2` before writing it, it is marked **HANDOFF-VERIFIED** and the method is stated.
+**Do not strip these labels.** A controller cannot verify a code claim; it can only decide how much
+weight to put on an unverified one.
+
+**Trunk `65b6c0e2b1973d4042a383931a25d66c9330b95c`** — re-derived by this lane with
+`git ls-remote origin base/approved-thru-437`, **not taken from any document**, and re-derived a
+SECOND time after a mid-lane spec reissue. **HANDOFF-VERIFIED.**
+
+### 1 - WHAT SHIPPED, AND WHAT A STUDENT GOT
+
+| PR | merge | what changed for a student |
+|---|---|---|
+| `#699` | `f34c395b` | **A chapter is a weakness only on EVIDENCE.** A retired page's silence had been scored as ignorance. |
+| `#700` | `ec97f743` | **A right answer reached by broken reasoning is now visible** to MI and the tutor. |
+| `#701` | `c587a4ae` | **A student who loses marks is told WHY; one who catches their own slip KEEPS the marks.** |
+| `#702` | `29220c44` | **The grader can finally be measured** — 8 rules to 16, ten arriving by IMPORT, not copy. |
+
+- **`#699` — the weak-area list was a CONSTANT.** Every chapter qualified for every student,
+  permanently. A brand-new student scored **45**; **a PERFECT-RECORD student still scored 30**;
+  the threshold is **5**. ⚠ **Parents saw it too.** ★ **A surface that shows the same thing for every
+  student is not dormant code — it is live code with a saturated input**, and the two must never be
+  confused in a future entry.
+- **`#700`** — a diagnosed mistake now enters MI **on its TYPE**, not on whether it cost marks.
+  ⚠ For objective questions `stepDetails` was **always empty, right and wrong alike.**
+- **`#701`** — the departure step is counted under its own type. **The product had been punishing
+  self-correction.**
+- **`#702`** — the eval harness now sends the prompt production sends, and **ten of the sixteen rules
+  arrive by IMPORT rather than copy**, so the harness cannot drift from the grader by transcription.
+
+⇒ ★★ **ALL FOUR WERE ON TRUNK WITH NO HANDOFF ENTRY.** Their lane NAMES appeared here and in
+`DECISION_LOG.md` as **PENDING** — *"awaiting owner commit + push"*, *"HOLD"*, *"blocked on 3 owner
+rulings"*. **That is worse than absence: the record actively asserted they had not shipped.**
+⚠ **The v1 spec's phrasing "their changes appear in NO handoff" was itself literally false**, and the
+lane corrected it. **HANDOFF-VERIFIED** by `git log --oneline f75e8356..65b6c0e2` plus a grep of
+`handoff/`.
+
+### 2 - THE HANDOFF LOCK IS SEVEN FILES. NAME THE SEVENTH.
+
+`handoff/DECISION_LOG.md` is the seventh. **HANDOFF-VERIFIED** by
+`git ls-tree -r --name-only 65b6c0e2 -- handoff/`.
+
+⛔ **`CLAUDE.md` §10 and `ops/CONTROLLER_SUBAGENT_MODEL.md:181` both say SIX.** Only
+`ops/CONTROLLER_ADDENDUM_Context_Safeguards.md:242` says seven.
+★ **AND §10 IS INTERNALLY INCONSISTENT, WHICH IS SHARPER THAN "IT OMITS IT":** at `CLAUDE.md:241`,
+INSIDE §10 (lines 232-247), it tells you to *"log it in `DECISION_LOG`"* **while leaving that file out
+of its own list of files to update.** `[FU-CLAUDEMD-S10-OMITS-DECISION-LOG]` — **five lanes now.**
+⇒ **Until the governing docs are corrected, every handoff dispatch must name `DECISION_LOG.md`
+explicitly.** All three corrections are **FORBIDDEN** to a docs lane; the owner rules on who makes them.
+
+### 3 - `check:mojibake` REACHES `handoff/`. THE "STRUCTURALLY BLIND" CLAIM IS FALSE.
+
+`ops/CONTROLLER_SUBAGENT_MODEL.md:373` asserts the gate sets `repoRoot` to `lazytopper/` and is
+**"structurally blind to `handoff/`"**. **DISPROVED AT `65b6c0e2`.** `repoRoot` is
+`git rev-parse --show-toplevel`; `handoff/` sits in `REPORT_ONLY_PREFIXES` — **scanned, counted and
+printed on every run, merely NOT ENFORCED.**
+
+**Settled by two-sided CONTROL** (injection into `handoff/CURRENT_STATE.md`: `17 -> 18`, exit 0;
+injection into enforced `ops/AGENT_STANDING_RULES.md`: `0 -> 1`, **exit 1**; both reverted, removal
+proven, baseline re-measured identical). **HANDOFF-VERIFIED.**
+
+⇒ ★★ **"STRUCTURALLY BLIND" IS NOT "REPORT-ONLY."** Blind means the bytes were never read; report-only
+means they were read, matched and deliberately not enforced. **The claim was TRUE of an older revision,
+was fixed under `[GUARD-3]`, and survived as a restated fact in three dispatches after it stopped being
+true.** Recorded with its control in `ops/AGENT_STANDING_RULES.md` so a fourth restatement is not
+possible.
+
+### 4 - A LANE REFUSED TO START, AND IT WAS RIGHT
+
+`HANDOFF-MI9` **v1 was BLOCKED at its own §0c.0.** Its premise ledger carried three columns where
+`scripts/premise_ledger_check.mjs` requires six, so the checker **returned early and NO premise row was
+ever anchor-checked.** ⇒ ★★ **The four column errors were all TRUE and still under-described what the
+run established — which was nothing whatever about the premises. Specimen 11, fired on the gate's own
+output.** **CONTROL:** `ops/AGENT_SPEC_TEMPLATE.md` fails at ROW level having PASSED the column stage,
+proving the stage is passable and that v1 specifically failed it.
+
+**v2 was gated by the controller BEFORE dispatch** and the lane re-ran it independently:
+`PASS · 10 premises · 7/7 anchors RESOLVED · 0 UNCHECKED · 3 UNVERIFIED · exit 0`.
+⇒ **RULE: authors are not exempt from the gate they commissioned.** ★ **A gate the author ran is not a
+gate you ran.**
+
+**FOUR v1 premises were overturned FROM BELOW** — the ledger shape, the §10 finding, the mojibake
+blindness, and an invented WIRE-2 contradiction. ⇒ ★★★ **The instruction that produced all four is
+"RE-DERIVE IT, DON'T INHERIT IT — if your finding differs from the controller's, YOURS WINS."**
+
+### 5 - SPECIMENS 9-15 ARE NOW IN THE RULES AGENTS READ
+
+`ops/AGENT_STANDING_RULES.md` contained **ZERO** specimens before this lane. It now carries **9-15**
+with the answer each one defeats, plus the two owner-ruled corrections and the B1 record.
+⚠ **Sourced from the CANONICAL table** (*"SPECIMEN NUMBERING — SETTLED BY THE OWNER"*); the same
+close-out's EARLIER table is **SUPERSEDED and has 11 and 12 TRANSPOSED.** ⇒ **That trap is itself
+specimen 11: two true lists presented as one, the earlier reading complete.**
+
+### 6 - ★ CARRY FORWARD VERBATIM — AND CARRY FORWARD VERBATIM NEVER MEANS CARRY FORWARD UNCHECKED
+
+**THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this wave.**
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.**
+**Wave MI-INTEGRITY-3 moved NO dormancy in that trio.**
+
+⛔ **A "CONTRADICTION" IN THIS BLOCK WAS RAISED BY THE v1 SPEC AND IS STRUCK.** The lane was asked to
+escalate a possible conflict between the ADDENDUM's requirement that this block survive every prepend
+and records saying WIRE-2 **ENDED** the trio. It escalated, then **disproved it**: this file is
+**unanimous across NINE restatements** — L353, L821, L1326, L1745, L2102, L2272, L2388, L2811, L3029
+in the pre-prepend numbering. ⇒ ★★ **The apparent conflict was a CATEGORY ERROR between the BLOCK
+(mandatory to carry forward) and its SUBJECT (ended). That is precisely WHY it must be carried — to
+stop a future lane re-reporting the trio as dormant.** **Nothing to reconcile.**
+
+What this wave changes about the dormancy record inherited from MI-7/MI-8:
+- **The MI-6 graded-step-block dormancy remains DISCHARGED** (`#696` built it, `#697` extended it to
+  Quick Practice). **Do not restate it.**
+- ⚠ **`[FU-SHEET-DORMANT-NO-CONSUMER]` STAYS OPEN.** `#682` is on trunk, but **being on trunk is not
+  the same as being TRIGGERED** — the wiring still needs `aiClient.ts` and
+  `DesktopCheckImprovePage.tsx`. **Nothing in this wave touched it.**
+- **The weak-area SATURATION recorded by MI-7/MI-8 is now RESOLVED by `#699`** — it was never a
+  dormancy, it was live code with a saturated input, and the input is now evidence-gated.
+**These are additions to the dormancy record, not amendments to the WIRE-2 trio.** The full WIRE-2
+block, including the `#647`/`#655` resolution and every subsequent amendment, is **preserved verbatim
+in the demoted `[CURRENT]` sections below and must be read there before any lane acts on it.**
+
+### 7 - ⚠ THE OWNER'S ERRATUM SLOT IS RESERVED AND EMPTY
+
+Six premises in the `GRADER-LIVE-DEFECTS-SCOUT` brief were disproved, four of them wrong statements
+about the repo. **The owner writes that text himself.** ⇒ **A controller never authors an erratum and
+neither does a lane** — not as a draft, not as a paraphrase. The slot is held in
+`handoff/OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
+---
+
+## (superseded) [CURRENT] Wave MI-INTEGRITY-7 + Wave MI-INTEGRITY-8 — **THE GRADER ARC'S LAST WAVE SHIPPED FOUR PRs AND STOPPED A FIFTH — AND THE MOST VALUABLE THING IT PRODUCED WAS THE LANE THAT REFUSED TO BUILD.** `#694` · `#695` · `#696` · `#697` are ALL ON TRUNK — trunk `deddf595`
 
 ★ **PROVENANCE.** Code-level statements below are labelled **OWNER-VERIFIED**, **LANE-REPORTED**,
 **SCOUT-REPORTED** or **CONTROLLER-RECORDED**. Where the `HANDOFF-MI8` lane re-derived a claim itself
