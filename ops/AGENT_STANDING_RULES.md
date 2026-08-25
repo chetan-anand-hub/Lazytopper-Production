@@ -337,6 +337,24 @@ exactly specimen 11 committed on the specimens themselves: two true lists presen
   ⇒ **Kin to #11, one level up:** there the defect lives in the relation between two true ROWS;
   here, in the relation between two true COUNTS **OF DIFFERENT QUESTIONS**.
 
+  ★★ **TWO LIVE FIRINGS ON THE DAY IT WAS WRITTEN — a rule with a live example beats a rule stated
+  abstractly, and these are both real:**
+  - **THE AUTHOR'S OWN, within minutes of writing the rule.** While editing the spec that widened a
+    lane's allowlist, the controller grepped for `forbidden` to confirm that no clause still forbade
+    what another clause now authorized. **The grep returned a hit.** ⇒ **The hit was the controller's
+    own newly-written line saying those files are NO LONGER forbidden.** **Looking at WHAT MATCHED,
+    before calling it a contradiction, was the whole difference.** ⚠ **#17 fired on the very commit
+    that adds it.**
+  - **THE LANE'S OWN, sourcing these specimens.** `ops/CONTROLLER_SUBAGENT_MODEL.md` §5 lists **six**
+    silent-no-op instances, and the close-out says **six** specimens were on record. **Two sixes.**
+    They are **counts of DIFFERENT QUESTIONS by different rulers** — one is "instances this month",
+    the other "specimens numbered before this wave" — and the two lists **share not one entry**.
+    **Reporting them as agreeing would have invented a mapping and pinned six arbitrary instances to
+    the numbers #1-#6.** The rulers were compared first, and the numbering was left open instead.
+  ⇒ ★ **In BOTH cases the discrepancy was not a discrepancy, and in both the tell was the same: look
+  at what actually matched before you report a conflict.** ⚠ **An unrelayed near-miss is still the
+  rule working — a conflict relayed with an endorsement attached is believed.**
+
 **⚠⚠ THE #1-#6 GAP — NAMED, NOT PADDED.**
 **Specimens #7 through #17 are individually sourced above. #1-#6 are NOT, and this section will not
 pretend otherwise.** The canonical table collapses them to one row — *"the pre-existing eight |

@@ -99,6 +99,66 @@ all FORBIDDEN** to a docs lane under CLAUDE.md §8 scope discipline. They are re
 with `file:line` and corrected text. ⇒ **The owner rules on who corrects a governing doc.** A lane that
 "just fixes" a forbidden file has converted a docs-only PR into a scope breach.
 
+> ⚠ **AMENDED THE SAME DAY — SUPERSEDED, NOT DELETED.** The owner answered the question this decision
+> raised: **he widened the allowlist and gave the three corrections to this lane.** `CLAUDE.md` and
+> `ops/CONTROLLER_SUBAGENT_MODEL.md` are **no longer forbidden**; `ops/CONTROLLER_ADDENDUM_Context_Safeguards.md`
+> **remains forbidden** as the one governing doc already correct at seven. **See DECISION 9.**
+> ★ **The decision above was still right when made** — a lane that "just fixes" a forbidden file
+> breaches scope. **What changed is the authorization, not the principle.**
+
+### DECISION 9 — **THE THREE GOVERNING-DOC CORRECTIONS ARE MADE. TWO OF THEM WERE STALE FACTS, NOT TYPOS.**
+
+By owner ruling of 2026-08-25, this lane corrected all three:
+
+1. **`ops/CONTROLLER_SUBAGENT_MODEL.md:373`** — the *"structurally blind to `handoff/`"* claim, replaced
+   with what was established by control: `repoRoot` is the git root and `handoff/` is **REPORT-ONLY**.
+   ⇒ ★★ **The rule's POINT is kept, for a better reason than it used to give: a report-only hit never
+   turns anything red**, so proving the matcher can fire still matters.
+   ⚠⚠ **This was A TRUE STATEMENT ABOUT A PAST STATE, RESTATED AS PRESENT FACT** — the scanner's own
+   comment marks the frame bug fixed under `[GUARD-3]` — and **it survived three dispatches after it
+   stopped being true.** ★ **CI then corroborated the correction on a machine nobody here controls:**
+   the runner printed `root=/home/runner/work/Lazytopper-Production/Lazytopper-Production` and
+   `report_only_hits=17`, matching the local measurement exactly.
+2. **`:181`** — "the six handoff files" is now **SEVEN, ENUMERATED**. ⇒ **A bare "seven" would rot
+   exactly the way "six" did; the names are what a future reader can check.**
+3. **`CLAUDE.md` §10** — `DECISION_LOG.md` added; the list is now seven bullets.
+   ⇒ **The finding was sharper than "it omits the file": §10 was INTERNALLY INCONSISTENT**, directing
+   you at `:241` to *"log it in `DECISION_LOG`"* while omitting that file from its own update list.
+   **Five lanes raised it.** `[FU-CLAUDEMD-S10-OMITS-DECISION-LOG]` — **CLOSED.**
+
+⇒ ★★ **THE CLASS, AND IT IS THE ONE TO CARRY:** two of these three were not errors of writing. They
+were **facts that were true when written and were never re-checked.** **A governing doc is the last
+place a stale fact gets caught, because everyone downstream treats it as settled.**
+
+### DECISION 10 — ★★★ **THE 250-LINE SPEC BUDGET: AN AUTHOR-SIDE FAILURE CLASS, AND IT MAY EXPLAIN MORE OF THIS ARC'S COST THAN ANYTHING ELSE ON RECORD**
+
+**Recorded at the owner's explicit request, in his own framing.**
+
+`scripts/premise_ledger_check.mjs` enforces a **250-line budget on the spec itself**, and its own
+message states the finding:
+
+> **"Spec size, not agent judgement, is what pushed three lanes past the context floor."**
+
+**The owner's admission, faithfully represented:** *"The gate has now corrected me five separate ways
+on one file, and I did not know the budget existed while writing every spec in this arc. Several of
+mine are well over 250 lines. That belongs in the handoff as an author-side failure class, and IT MAY
+EXPLAIN MORE OF THIS ARC'S COST THAN ANYTHING I HAVE WRITTEN DOWN."*
+
+⇒ ★★★ **THIS REFRAMES LANE BURN-OUT FROM AN AGENT-DISCIPLINE PROBLEM INTO AN AUTHORING PROBLEM.**
+A lane that returns past the context floor has been read, for the whole of this arc, as a lane that
+managed its context badly. **The guard says the spec did it.** ⚠ **Every remedy aimed at the lane —
+tighter reporting, less exploration, stricter budgets on the agent — was aimed at the wrong party.**
+
+**THE FIVE WAYS THE GATE HAS CORRECTED THIS ARC'S AUTHOR, on one file:** the six-column ledger · the
+grep prohibition in "How verified" · `path:line` + anchor evidence · question-form for UNVERIFIED
+rows · **the size budget.** *(This lane was BLOCKED by the first of those, and was right to be.)*
+
+⇒ ⛔ **THE OPERATIONAL FORM, ONE LINE: WHOEVER WRITES THE NEXT SPEC RUNS
+`node scripts/premise_ledger_check.mjs <spec> --worktree=. --strict-anchor` BEFORE DISPATCH.**
+**Two seconds.** ★ **And the lane still re-runs it — a gate the author ran is not a gate you ran.**
+⇒ ★ **This is a wave-level lesson about HOW WORK IS COMMISSIONED, not about how a lane behaves**,
+which is why it is recorded here and not only in `ops/AGENT_STANDING_RULES.md`.
+
 ---
 
 ## 2026-08-24 — WAVE MI-INTEGRITY-7 + WAVE MI-INTEGRITY-8 (three controllers, nine units, **FOUR PRs MERGED**) — trunk `deddf595`, moved four times
