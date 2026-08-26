@@ -4571,3 +4571,76 @@ test('§20.13 the WORKSHEET grader gets the same ruling (normaliseStructuredResu
   assert.equal(r.annotatedSteps[0].status, 'incorrect', 'the diagnostic step is untouched');
   assert.equal(r.annotatedSteps[1].status, 'correct', 'the answer step carries the verdict');
 });
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   §17 · OBJECTIVE-ANSWER-NOT-SENT — THE STUDENT'S CHOSEN OPTION REACHES THE MODEL
+
+   `blockFor` emitted the question, its stored scheme and the typed working — and
+   never what the student actually PICKED. On an MCQ that left the model grading the
+   WORKING, because the working was all it was given, and a correct option with one
+   flawed working line came back wrong.
+
+   ⚠ DIAGNOSIS, NOT SCORING. The mark for an objective question is decided by the
+   CLIENT's local compare against the stored answer key. What is pinned here is only
+   that the pick REACHES the prompt, and that its absence changes nothing.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+test('§17.1 ★★ the chosen option REACHES the prompt, fenced, and is labelled as the student\'s', async () => {
+  const h = buildImageRoute({ replies: [WS_OK([1])] });
+  await h.route.handleGradeWorksheet(WORKSHEET_REQ([Q(1, { pickedOption: 'root 2' })]), {});
+  const text = textOf(h);
+  assert.ok(text.includes('The option the student chose is:'),
+    'without this line the model never learns what the student picked — the whole defect');
+  assert.ok(text.includes('"""\nroot 2\n'),
+    'the pick sits inside the same unforgeable fence the typed answer uses: it crosses the wire from a client');
+});
+
+test('§17.2 ★★ ACCEPTANCE — an ABSENT pick leaves the prompt BYTE-IDENTICAL (§7.1 pin holds)', async () => {
+  // This is the regression guard for the four surfaces that record no pick. If this
+  // ever fails, worksheets / chapter tests / full mocks / multi-question C&I have had
+  // their prompt changed by a lane that only meant to touch Quick Practice.
+  const h = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await h.route.handleGradeWorksheet(PINNED_REQ(), {});
+  assert.equal(shaOf(h), NO_UPLOADS_CONTENTS_SHA256,
+    'the no-pick worksheet prompt has changed — see the comment above NO_UPLOADS_CONTENTS_SHA256');
+});
+
+test('§17.3 ★★ POSITIVE CONTROL — a PRESENT pick DOES move §7.1\'s sha256', async () => {
+  // §17.2 asserts a fixed hash and passes. On its own that is equally consistent with
+  // a pin gone BLIND to this field, or with an emission that never fires. This proves
+  // neither: the same fixture with one pick added hashes DIFFERENTLY.
+  const req = PINNED_REQ();
+  req.questions[1] = { ...req.questions[1], pickedOption: 'root 2' };
+  const present = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await present.route.handleGradeWorksheet(req, {});
+  assert.notEqual(shaOf(present), NO_UPLOADS_CONTENTS_SHA256,
+    'were these equal, the pick never reached the model and §17.1 is testing a mirage');
+});
+
+test('§17.4 an EMPTY or whitespace pick is treated as ABSENT, never emitted as a blank', async () => {
+  for (const blank of ['', '   ']) {
+    const h = buildImageRoute({ replies: [WS_OK([1])] });
+    await h.route.handleGradeWorksheet(WORKSHEET_REQ([Q(1, { pickedOption: blank })]), {});
+    assert.ok(!textOf(h).includes('The option the student chose is:'),
+      'a blank pick must omit the block entirely — emitting an empty fence would move the pin for nothing');
+  }
+});
+
+test('§17.5 ★ the pick ADDS NO PART, so the image-to-question pairing is untouched', async () => {
+  // The text goes INSIDE the question's own existing part. `buildUploadParts` still
+  // pushes exactly one text part per question and one image part per upload, so
+  // "the image immediately after a question's block is that question's answer" holds.
+  const h = buildImageRoute({ replies: [WS_OK([1, 2])] });
+  await h.route.handleGradeWorksheet({
+    ...WORKSHEET_REQ([Q(1, { pickedOption: 'root 2' }), Q(2)]),
+    uploads: [UP(1), UP(2)],
+  }, {});
+  const parts = partsOf(h);
+  assert.equal(parts.length, 6, 'header + 2x(block,image) + footer — the pick added NO part');
+  for (const n of [1, 2]) {
+    const i = parts.findIndex((p) => typeof p.text === 'string' && p.text.includes('Q' + n + ' text'));
+    assert.ok(isImage(parts[i + 1]), 'Q' + n + "'s image must still be the VERY NEXT part");
+    assert.equal(parts[i + 1].inline_data.data, 'IMG' + n,
+      'an off-by-one here IS the stitching bug');
+  }
+});

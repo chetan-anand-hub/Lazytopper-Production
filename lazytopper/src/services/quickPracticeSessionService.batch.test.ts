@@ -47,6 +47,7 @@ const {
   selectQuickPracticeBatch,
   buildBatchQuestionInput,
   batchGradeToCheckSolution,
+  applyLocalObjectiveMark,
   gradeQuickPracticeBatch,
   persistQuickPracticeSession,
 } = await import("./quickPracticeSessionService");
@@ -546,5 +547,181 @@ describe("9 · the request built for /api/grade-worksheet", () => {
     expect(res.entries[1].graded).toBeDefined();
     expect(res.entries[4].graded).toBeDefined();
     expect(res.entries[0].graded).toBeUndefined();
+  });
+});
+
+/* ───────────────────────────────────────────────────────────────────────────
+   9 · OBJECTIVE-ANSWER-NOT-SENT — THE MARK COMES FROM THE LOCAL COMPARE.
+
+   THE BUG THIS PINS, observed live on Quick Practice: an MCQ answered CORRECTLY
+   with one flawed line in the uploaded working scored 0 / 1, and printed directly
+   above that zero the sentence "Whole mark or nothing - MCQs are never step-marked."
+   The invariant was rendered to the student on the screen it was violated on.
+
+   THE CAUSE: `buildBatchQuestionInput` never forwarded the student's pick, so the
+   model was asked to grade the WORKING, because the working was all it was given.
+
+   ★★ EVERY CASE BELOW USES THE DEFAULT GRADER, WHICH RETURNS 2 / 3 — a number that
+   is WRONG for a 1-mark MCQ in both value and denominator. That is deliberate: if the
+   local compare ever stops governing, these tests do not merely fail, they fail
+   showing the model's number, which names the regression.
+   ─────────────────────────────────────────────────────────────────────────── */
+describe("9 · the objective mark comes from the local compare, never the working", () => {
+  /** The bank key for `mcq()` is "root 2"; "2" is the wrong option. */
+  const RIGHT = "root 2";
+  const WRONG = "2";
+
+  it("★★★ CASE 1 — correct option + FLAWED working ⇒ FULL marks, and the diagnosis SURVIVES", async () => {
+    // The model marks the working down to 2/3 and reports a conceptual mistake.
+    const res = await run([mcq(1, { pickedOption: RIGHT, pickedCorrect: true, imageBase64: IMG })]);
+    const graded = res.entries[0].graded;
+    // THE MARK: from the compare, not the model.
+    expect(graded?.marksAwarded).toBe(1);
+    expect(graded?.totalMarks).toBe(1);
+    expect(graded?.percentage).toBe(100);
+    // THE DIAGNOSIS: untouched, so the student still sees what their working shows.
+    expect(graded?.mistakeSummary).toEqual({ conceptual: 1, calculation: 0, silly: 0, presentation: 0 });
+    expect(graded?.teacherNote).toBe("Good method.");
+  });
+
+  it("CASE 2 — correct option + CLEAN working ⇒ FULL marks (regression guard)", async () => {
+    grader = vi.fn<Grader>(async (req) =>
+      okResponse(req.questions.map((qq) => gradeResult(qq.qNumber, {
+        marksAwarded: 3, percentage: 100, teacherNote: "Fully correct.",
+        mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+      }))),
+    );
+    const res = await run([mcq(1, { pickedOption: RIGHT, pickedCorrect: true, imageBase64: IMG })]);
+    expect(res.entries[0].graded?.marksAwarded).toBe(1);
+    expect(res.entries[0].graded?.totalMarks).toBe(1);
+  });
+
+  it("CASE 3 — WRONG option + clean working ⇒ 0 (regression guard)", async () => {
+    const res = await run([mcq(1, { pickedOption: WRONG, pickedCorrect: false, imageBase64: IMG })]);
+    expect(res.entries[0].graded?.marksAwarded).toBe(0);
+    expect(res.entries[0].graded?.totalMarks).toBe(1);
+    expect(res.entries[0].graded?.percentage).toBe(0);
+  });
+});
+
+describe("9b · the working may not rescue a wrong answer, and an absent pick is not a zero", () => {
+  const RIGHT = "root 2";
+  const WRONG = "2";
+
+  it("★★ CASE 4 — WRONG option + working the model marks FULLY CORRECT ⇒ still 0", async () => {
+    // The working must not RESCUE a wrong answer any more than it may destroy a right one.
+    grader = vi.fn<Grader>(async (req) =>
+      okResponse(req.questions.map((qq) => gradeResult(qq.qNumber, {
+        marksAwarded: 3, percentage: 100, teacherNote: "Fully correct.",
+      }))),
+    );
+    const res = await run([mcq(1, { pickedOption: WRONG, pickedCorrect: false, imageBase64: IMG })]);
+    expect(res.entries[0].graded?.marksAwarded).toBe(0);
+  });
+
+  it("★ CASE 5 — an ABSENT pick ⇒ HONEST-UNGRADED, never a 0 (with the control that DOES grade)", async () => {
+    // Absent means unknowable, not wrong. No mark is invented and the working is not
+    // fallen back on, so the surface can say the answer could not be read.
+    const absent = await run([mcq(1, { imageBase64: IMG })]);
+    expect(absent.entries[0].graded).toBeUndefined();
+    // CONTROL, same spy, same shape: with a pick recorded it DOES produce a grade — so the
+    // undefined above is the classification talking, not a dead seam.
+    const present = await run([mcq(1, { pickedOption: RIGHT, pickedCorrect: true, imageBase64: IMG })]);
+    expect(present.entries[0].graded?.marksAwarded).toBe(1);
+  });
+
+  it("★ CASE 5b — an UNREADABLE pick (matching no option and no letter) ⇒ HONEST-UNGRADED", async () => {
+    const res = await run([mcq(1, { pickedOption: "!!!", imageBase64: IMG })]);
+    expect(res.entries[0].graded).toBeUndefined();
+  });
+
+  it("★ a step's status cannot contribute to an objective mark, by any path", async () => {
+    // Every step reported incorrect, and the model awarding 0 — on a CORRECT pick.
+    grader = vi.fn<Grader>(async (req) =>
+      okResponse(req.questions.map((qq) => gradeResult(qq.qNumber, {
+        marksAwarded: 0, percentage: 0,
+        annotatedSteps: [
+          {
+            stepNumber: 1, description: "Simplify", studentWork: "wrong line",
+            status: "incorrect", marksAwarded: 0, marksDeducted: 1,
+            teacherAnnotation: "Sign slip.", mistakeType: "calculation", correctedWorking: null,
+          },
+        ],
+      }))),
+    );
+    const res = await run([mcq(1, { pickedOption: RIGHT, pickedCorrect: true, imageBase64: IMG })]);
+    expect(res.entries[0].graded?.marksAwarded).toBe(1);
+  });
+});
+
+describe("9c · the answer is SENT, subjective grading is untouched, and the two numbers agree", () => {
+  const RIGHT = "root 2";
+  const WRONG = "2";
+
+  it("★★ CASE 6 — the chosen option IS PRESENT in what the grader receives (the FIELD, not the mark)", async () => {
+    await run([mcq(1, { pickedOption: RIGHT, pickedCorrect: true, imageBase64: IMG })]);
+    expect(grader.mock.calls[0][0].questions[0].pickedOption).toBe(RIGHT);
+  });
+
+  it("CASE 6b — an answer with NO pick omits the key entirely rather than sending a blank", async () => {
+    // The conditional is what keeps the no-pick prompt byte-identical for every other
+    // surface (and #578's sha256 pin with it).
+    await run([q(1, { imageBase64: IMG })]);
+    expect(grader.mock.calls[0][0].questions[0]).not.toHaveProperty("pickedOption");
+  });
+
+  it("★★ CASE 7 — SUBJECTIVE grading is unchanged, proven BY IDENTITY (the guard that matters most)", async () => {
+    const res = await run([q(1, { imageBase64: IMG })]);
+    // The model's numbers pass through untouched: 2 of 3, not clamped, not replaced.
+    expect(res.entries[0].graded?.marksAwarded).toBe(2);
+    expect(res.entries[0].graded?.totalMarks).toBe(3);
+    // Stronger than value equality: for a non-objective answer the helper returns the
+    // SAME OBJECT, so it cannot be rewriting a subjective grade by any path.
+    const passthrough = batchGradeToCheckSolution(gradeResult(1))!;
+    expect(applyLocalObjectiveMark(q(1, { imageBase64: IMG }), passthrough)).toBe(passthrough);
+  });
+
+  it("★★ CASE 8 — the SUMMARY number and the GRADED-ANSWER number AGREE for the same question", async () => {
+    // The two numbers the owner saw disagree on one screen come from two readers: the
+    // summary renders `pickedCorrect`, the graded sheet renders `graded.marksAwarded`.
+    // Pinned at the join both readers draw from, in BOTH directions.
+    const correct = mcq(1, { pickedOption: RIGHT, pickedCorrect: true, imageBase64: IMG });
+    const wrong = mcq(2, { pickedOption: WRONG, pickedCorrect: false, imageBase64: IMG });
+    const res = await run([correct, wrong]);
+    const expected = [correct, wrong].map((a) => (a.pickedCorrect ? Number(a.marks) : 0));
+    expect(res.entries.slice(0, 2).map((e) => e.graded?.marksAwarded)).toEqual(expected);
+  });
+
+  it("a BARE pick with no working still never reaches the grader (classification unchanged)", async () => {
+    const res = await run([mcq(1, { pickedOption: RIGHT, pickedCorrect: true })]);
+    expect(grader).not.toHaveBeenCalled();
+    expect(res.entries[0].mcq).toBe("correct");
+  });
+});
+
+describe("9d · the carve-out: an objective question with NO stored answer key is left alone", () => {
+  /** Section A, 1 mark, objective — and NO `options`, NO `answer`. A fill-in-the-blank
+   *  is the real shape: `isObjectiveQuestion` flags it, but there is nothing to compare
+   *  the student's writing against, so the grader's reading is the ONLY mechanism that
+   *  has ever existed for it. */
+  const keyless = (qNumber: number, over: Partial<SavedAnswer> = {}): SavedAnswer =>
+    q(qNumber, { marks: 1, section: "A", objective: true, ...over });
+
+  it("★★ a key-less objective answer keeps the GRADER's mark — the local compare does not claim it", async () => {
+    // Found by §8 of the wire suite, not by design: the first version of this fix claimed
+    // every `objective` question and turned these into a silent ungraded blackout.
+    const res = await run([keyless(1, { imageBase64: IMG, pickedOption: "(b)" })]);
+    expect(res.entries[0].graded?.marksAwarded).toBe(2);
+    expect(res.entries[0].graded?.totalMarks).toBe(3);
+  });
+
+  it("CONTROL — the SAME question WITH a key does hand the mark to the local compare", async () => {
+    // Same spy, same shape, one field added: so the pass above is the carve-out talking,
+    // not the local compare having quietly stopped working.
+    const res = await run([keyless(1, {
+      imageBase64: IMG, options: ["2", "root 2"], answer: "root 2", pickedOption: "root 2",
+    })]);
+    expect(res.entries[0].graded?.marksAwarded).toBe(1);
+    expect(res.entries[0].graded?.totalMarks).toBe(1);
   });
 });
