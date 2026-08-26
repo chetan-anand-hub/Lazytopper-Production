@@ -40,6 +40,16 @@ If you cannot reach the repo, follow this file — but **say so explicitly in yo
 owner knows you are working from a possibly-stale method rather than the current one.
 
 ## SKILL SYNC (this file lives in TWO places — keep them identical)
+**Version 2.7 · 2026-08-26.** *Supersedes 2.6 (2026-08-13). Wave MI-INTEGRITY-3 / lane DOCS-AUTHOR-FAILURE-CLASSES.
+Adds **`## ★★★ THE AUTHOR-SIDE FAILURE CLASSES`** — the four classes behind sixteen HOLDs in the grader/MI arc,
+every one of them the SPEC AUTHOR's defect rather than an agent's — and a **SIXTH law, "Scope by BEHAVIOUR, never
+by SYMPTOM."** ⚠ **The heading still reads `THE FIVE LAWS` and now carries six entries.** Renumbering or rewording
+a law is exactly the silent edit this file exists to prevent, so the count mismatch is left STANDING and REPORTED
+for the owner to rule — it is not this lane's to decide. ★ **ONE HOME PER RULE:** the enforceable mechanism lives
+in `CLAUDE.md` — **§4a** (grading-behaviour uniformity across the six grading surfaces) and **§13** (the
+mistake-type ruler and the objective invariant) — and this file **POINTS** at them rather than restating them, so
+the two cannot drift apart.*
+
 **Version 2.6 · 2026-08-13.** *Supersedes 2.5 (2026-07-22). Wave OPS-1 / lane OPS-C. **Corrects a false fact
 and MIGRATES three rules out of this file.** The `ONLY A BOOT PROVES IT RUNS` section claimed
 `ops/AGENT_STANDING_RULES.md` **"DOES NOT EXIST ON TRUNK"** and that `#635` was **"open and failing its
@@ -119,6 +129,50 @@ OF TRUTH. A LIVE copy runs in Anthropic's skill system (what actually auto-loads
 3. **Never rubber-stamp an agent.** Pull the branch, diff it byte-level against its TRUE base, confirm scope + forbidden files + additive-only on shared infra. Reports are claims, not proof.
 4. **Anti-fabrication is absolute.** Real PYQ/NCERT/reference questions only; honest empty-states beat fake data; every student-facing number traces to a real source. MI's careless-vs-weakness split is the moat — never surface silly/presentation as a topic weakness.
 5. **Recommend, then let Chetan decide and merge.** Push back on risk honestly; then engineer it down. He is the only one who ships.
+6. **Scope by BEHAVIOUR, never by SYMPTOM.** A defect reported on one surface is a defect on every surface that shares the behaviour. Before writing an allowlist, ask where the BEHAVIOUR lives, not where the REPORT came from. Six defects in one arc stayed live on five surfaces each because the spec named only the file the owner happened to be looking at. See CLAUDE.md §4a.
+
+## ★★★ THE AUTHOR-SIDE FAILURE CLASSES (2026-08-26, the grader/MI arc — every one is the SPEC AUTHOR's, not an agent's)
+
+Across one arc, lanes returned HOLD sixteen times and were right sixteen times. Every HOLD
+was a spec defect. They reduce to four classes, and each has a mechanical cure — because
+agreeing in chat is not a mechanism, and every one of these was agreed to in chat first.
+
+1. SCOPED TO THE SYMPTOM, NOT THE BEHAVIOUR. A defect is reported on one surface; the
+   author opens that file, finds the cause, and scopes the lane to that file. The other
+   surfaces are never in the spec, so no lane looks. Six instances in one arc.
+   CURE: CLAUDE.md §4a, which states the mechanism. Follow it; do not restate it here.
+
+2. AN ALLOWLIST THAT CANNOT REACH WHAT THE RULING REQUIRES. Eight instances. Three shapes:
+   a constant sealed in a closure; a fix needing a sibling directory; a gate that goes red
+   BECAUSE you fixed the bug. A ninth: a spec's own ruling breaking a test its own allowlist
+   forbids touching.
+   CURE: before writing an allowlist, name the file that holds the DATA, not the file that
+   holds the SYMPTOM — and name the file that holds the ASSERTION your ruling will break.
+
+3. ASSERTED FROM A GREP, NOT A READ. `path` where the checker demands `path:line`, four
+   times. A cause inferred from a hit count and disproved by a scout, twice. A clause
+   ratified as correct without opening it. A gate list naming a file that does not exist.
+   CURE: you may assert a repo fact ONLY from lines you opened and read. A grep is a
+   pointer, never a finding. An enumeration you can check beats a count you must trust.
+   AND QUOTE THE SHA BESIDE THE READING: a reading is dated the moment trunk moves. One
+   author quoted a function as current that a merged PR had already removed.
+
+4. A RULING WITH NO ARTEFACT. An authorization living only in a chat message; a spec staged
+   in a folder no dispatch ever named; "write it to disk" with no path, three times; a
+   finding recorded in a report and in no tracked file.
+   CURE: every ruling reaches a hashed file or the state file. Every path is absolute and
+   stated in the artefact itself. "On disk" is not a location.
+
+AND ONE MECHANICAL LIMIT THE AUTHOR DID NOT KNOW EXISTED: `premise_ledger_check.mjs`
+enforces a 250-LINE SPEC BUDGET. Its own message: "SPEC SIZE, NOT AGENT JUDGEMENT, IS WHAT
+PUSHED THREE LANES PAST THE CONTEXT FLOOR." Several specs in this arc were well over it.
+Check the budget before writing, not after.
+
+THE SHAPE UNDERNEATH ALL FOUR: a rule stated in prose is read one step further than it was
+meant. "Penalised once" shipped as "not counted at all." "Steps below stay uncounted"
+shipped as "everything after stays uncounted." "A return ends the departure" shipped as "a
+return erases the slip." Three times, one function, one author — and NO TEST COULD TELL THE
+TWO READINGS APART, which is why each survived until a human uploaded a paper.
 
 ## THE INFERENCE TRAP (2026-07-15 — every repo error this session was ONE failure mode)
 Three wrong claims in one session (QP/Worksheet "can't see the bank" ×3), a spec that reversed a LOCKED contract, a

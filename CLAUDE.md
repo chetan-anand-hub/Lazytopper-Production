@@ -73,6 +73,34 @@ Globally forbidden across all PRs unless explicitly scoped:
 - `firestore.rules`
 - Any file under `lazytopper/src/data/`
 
+## 4a. Grading-Behaviour Uniformity — Non-Negotiable
+
+The grader is ONE behaviour reached through SIX surfaces:
+  Check & Improve (single question) · Check & Improve (multi-question upload) ·
+  Worksheet · Chapter Test · Full Mock · Quick Practice
+
+Two prompt-assembly paths serve them: the single-question path (`handleCheckSolution`)
+and the structured path (`gradeStructuredSet` / `normaliseStructuredResult`).
+A rule added to one is NOT added to the other.
+
+This repo has produced the SAME defect shape SIX times: a grading rule present on one
+path and absent from the other. Every instance was found by a human using the deployed
+product. None was found by a gate.
+
+THEREFORE, for any lane that changes grading behaviour — marks, mistake types, departure
+handling, the objective clamp, or any prompt rule:
+
+- §0b MUST enumerate ALL SIX SURFACES and state, for each, whether the change reaches it.
+  "The file is shared" is NOT an answer; name the call site.
+- §5 live-verify MUST name AT LEAST TWO surfaces, and one of them must be on the path the
+  defect was NOT reported on.
+- A lane that verifies one surface returns PARTIAL, never PASS.
+- A spec whose allowlist reaches only the file where the defect was FOUND, rather than
+  every file where the BEHAVIOUR lives, is defective. Report it rather than building it.
+
+Scoping a fix to where a defect was observed is how a defect stays live on five surfaces
+while its PR is green.
+
 ---
 
 ## 5. Product Doctrine — Never Violate
@@ -296,3 +324,18 @@ CBSE step-marking principles (source: official CBSE OSM guide, cbseacademic.nic.
   — store these as two separate `solutionSteps` entries.
 - Science diagrams: label as Step "Diagram: [description]"; accuracy and labels are
   separately marked — store as two `solutionSteps` entries if both are required.
+
+Mistake-type ruler — the type describes the ERROR, not its consequence:
+- COPIED wrongly from the student's own earlier line -> `silly`, whether or not it is
+  later corrected.
+- PERFORMED wrongly (arithmetic; a middle-term split whose parts do not sum) ->
+  `calculation`.
+- A method or principle NOT UNDERSTOOD -> `conceptual`.
+- CBSE format only (state symbols, units, labels, structure) -> `presentation`. Anything
+  that changes whether the chemistry or mathematics is RIGHT is not presentation.
+- Tell-tale: if the student's later steps prove they know the method, it is NOT conceptual.
+
+Objective invariant — an MCQ or 1-mark objective question scores 0 or FULL on the ANSWER
+ALONE. No step marking, as in a real CBSE exam. Uploaded working is analysed ONLY to
+classify the mistake type for Mistake Intelligence; it must NEVER change the mark, in
+either direction — it may not destroy a right answer nor rescue a wrong one.
