@@ -39,7 +39,36 @@ told an agent its correctly-merged PR had been orphaned.** A mirror nobody can a
 If you cannot reach the repo, follow this file — but **say so explicitly in your first response**, so the
 owner knows you are working from a possibly-stale method rather than the current one.
 
-## SKILL SYNC (this file lives in TWO places — keep them identical)
+## SKILL SYNC — RETIRED (this file no longer has a second copy to keep in step; see SKILL LOADER below)
+
+### ★★★ SKILL LOADER — WHY THIS FILE NO LONGER NEEDS SYNCING (2026-08-26)
+
+This file used to exist in two copies: here in the repo, and in Anthropic's skill store where a
+cofounder session loads it. The rule was "keep them identical." THE RULE WAS A PROMISE TO REMEMBER,
+AND IT FAILED THREE TIMES — the ledger below records the same drift at 2.4, at 2.5 and at 2.6, and
+records that it recurred BECAUSE EACH FIX WAS PROSE. A fourth prose fix would have failed the same way.
+
+THE FIX IS NOT A BETTER LEDGER. IT IS TO STOP HAVING TWO COPIES.
+
+The Anthropic-side skill now carries NO METHOD AT ALL. It is a loader stub whose only instruction is:
+re-derive trunk, fetch THIS file from the repo, read it, and STOP rather than proceed from memory if
+the fetch fails. The stub is reproduced at `cofounder-skill/ANTHROPIC_LOADER_STUB.md`.
+
+CONSEQUENCES, AND THEY ARE THE POINT:
+- THIS FILE IS THE ONLY COPY OF THE METHOD. It cannot drift from a copy that does not exist.
+- Editing it here is the whole of the change. There is no second step, and no one to remind.
+- A version string can only report what somebody typed; it can never detect drift. That is why the
+  ledger below is now HISTORY, not a control.
+
+WHAT STILL LIVES ON THE ANTHROPIC SIDE, AND IS THE OWNER'S:
+- The stub itself. Uploaded ONCE. If the repo path or the fetch pattern ever changes, it changes too.
+- The skill's DESCRIPTION — the text that decides when the skill triggers. It is not method, it is
+  routing, and it is not in this file.
+
+⚠ IF YOU ARE A COFOUNDER SESSION READING THIS FROM A LOADED SKILL FILE RATHER THAN FROM A CODELOAD
+FETCH, THE STUB DID NOT DO ITS JOB. Say so, fetch this file from the repo at the re-derived tip, and
+work from that copy — not from what was loaded.
+
 **Version 2.7 · 2026-08-26.** *Supersedes 2.6 (2026-08-13). Wave MI-INTEGRITY-3 / lane DOCS-AUTHOR-FAILURE-CLASSES.
 Adds **`## ★★★ THE AUTHOR-SIDE FAILURE CLASSES`** — the four classes behind sixteen HOLDs in the grader/MI arc,
 every one of them the SPEC AUTHOR's defect rather than an agent's — and a **SIXTH law, "Scope by BEHAVIOUR, never
