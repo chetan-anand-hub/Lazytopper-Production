@@ -2379,11 +2379,38 @@ function createCheckSolutionRoute(deps) {
         const typedBlock = typed
           ? '\n     The student\'s typed answer is:\n' + buildTypedAnswerBlock(typed, '     ')
           : '';
+        // ── OBJECTIVE-ANSWER-NOT-SENT · the student's CHOSEN OPTION ──────────────
+        // ★ THE GAP THIS CLOSES. This builder emitted the question, its scheme and the
+        // typed working — and never what the student actually PICKED. So on an MCQ the
+        // model had only the working to judge, and judged it: a correct option with one
+        // flawed working line came back wrong. The clamp downstream could not save it
+        // either, because it recovers the pick from the MODEL'S OWN annotated steps
+        // (`objectiveScoring.cjs` extractOptionPick) — i.e. from the working again.
+        //
+        // ★★ DIAGNOSIS, NOT SCORING. The mark for an objective question is decided by the
+        // client's local compare against the stored answer key, never here. This exists so
+        // the model can explain the gap between what the student chose and what their
+        // working shows. No prompt RULE is added — a rule line lives outside this function
+        // and would move the byte pins for every surface unconditionally.
+        //
+        // ★★ CONDITIONAL, AND THAT IS THE REGRESSION GUARD. With no pick the returned
+        // block is BYTE-IDENTICAL to before, which keeps #578's sha256(contents) pin over
+        // the four no-uploads surfaces intact. Only Quick Practice records a pick in its
+        // own UI, so only Quick Practice moves. See §7.1 and §9.6 of checkSolution.test.cjs.
+        //
+        // ★ FENCED like the typed answer. This value crosses the wire from a client, so it
+        // is student-controlled text and gets the same unforgeable delimiter rather than
+        // being trusted because it is usually one of the bank's own option strings.
+        const picked = String((q && q.pickedOption) || '').trim();
+        const pickedBlock = picked
+          ? '\n     The option the student chose is:\n' + buildTypedAnswerBlock(picked, '     ')
+          : '';
         return (
           '  Q' + q.qNumber + '. [' + (Number(q.marks) || 1) + ' mark(s)' +
           (q.topicLabel || q.topic ? ' · ' + String(q.topicLabel || q.topic) : '') + ']\n' +
           '     ' + String(q.questionText || '').replace(/\n/g, ' ') +
           scheme +
+          pickedBlock +
           typedBlock
         );
     };
@@ -2678,6 +2705,17 @@ function createCheckSolutionRoute(deps) {
         // trimmed exactly like the single-question path's `payload.textAnswer`
         // (57224f49); '' rather than null because `blockFor` tests emptiness.
         textAnswer: String((q && q.textAnswer) || '').trim(),
+        // OBJECTIVE-ANSWER-NOT-SENT (additive): the OPTION THE STUDENT CHOSE, for a
+        // surface that recorded the pick in its own UI (Quick Practice today, and only
+        // it). ★ NOT `answer` and NOT `correctOption` — both of those carry the bank's
+        // CORRECT key. Empty for every existing caller, and `blockFor` emits nothing for
+        // an empty value, so the four no-uploads surfaces stay byte-identical (§17.2).
+        //
+        // ⚠ THIS MAPPER IS A WHITELIST, AND THAT IS WHY THIS LINE EXISTS. Adding the
+        // emission in `blockFor` WITHOUT this line is a silent no-op: the field is
+        // dropped here, the prompt never changes, and every test that only checks the
+        // byte pin still passes. §17.1 and §17.3 are what catch it.
+        pickedOption: String((q && q.pickedOption) || '').trim(),
       }))
       .filter((q) => q.qNumber > 0 && q.questionText);
 

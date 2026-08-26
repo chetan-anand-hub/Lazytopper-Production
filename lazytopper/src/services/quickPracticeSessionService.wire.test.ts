@@ -239,3 +239,79 @@ describe("9 · a 402 is carried out, not swallowed", () => {
     expect(premium.outcome).not.toBe(outage.outcome);
   });
 });
+
+// ---------------------------------------------------------------------------
+// 9 · ★★★ OBJECTIVE-ANSWER-NOT-SENT — SITE 2 OF 2: WHAT MISTAKE INTELLIGENCE STORES
+//
+// The MI loop re-derives its own grade rather than reading `entries`, so the local
+// objective mark has to be applied THERE as well as at the render join. Had this fix
+// landed in `PracticePage` instead, the screen would read correctly while `recordAttempt`
+// wrote the model's wrong mark into the store the tutor reads — permanently, and with
+// nothing anywhere to show it. A RENDER SITE IS NOT A PRODUCTION SITE.
+// ---------------------------------------------------------------------------
+describe("9 · the objective mark reaching MI is the LOCAL one", () => {
+  const mcq = (qNumber: number, over: Partial<SavedAnswer> = {}): SavedAnswer =>
+    q(qNumber, {
+      marks: 1, section: "A", format: "mcq", objective: true,
+      options: ["2", "root 2"], answer: "root 2", ...over,
+    });
+
+  it("★★★ recordAttempt stores FULL marks for a correct pick the model marked down", async () => {
+    // The model returns 2 of 3 — wrong in value AND denominator for a 1-mark MCQ.
+    const grader = vi.fn<Grader>(async () => okResponse([grade(1)]));
+    await gradeQuickPracticeBatch({
+      worksheetId: "qp-obj-1", subject: "maths", user: USER, grade: grader,
+      answers: [mcq(1, { pickedOption: "root 2", pickedCorrect: true, imageBase64: IMG })],
+    });
+    expect(recordAttempt).toHaveBeenCalledTimes(1);
+    expect(recordAttempt.mock.calls[0][1]).toMatchObject({
+      questionId: "bank-1", marksScored: 1, marksAvailable: 1, mode: "graded",
+    });
+  });
+
+  it("★★ recordAttempt stores 0 for a wrong pick the model marked CORRECT", async () => {
+    const grader = vi.fn<Grader>(async () => okResponse([grade(1, { marksAwarded: 3, percentage: 100 })]));
+    await gradeQuickPracticeBatch({
+      worksheetId: "qp-obj-2", subject: "maths", user: USER, grade: grader,
+      answers: [mcq(1, { pickedOption: "2", pickedCorrect: false, imageBase64: IMG })],
+    });
+    expect(recordAttempt.mock.calls[0][1]).toMatchObject({ marksScored: 0, marksAvailable: 1 });
+  });
+
+  it("★ recordMistake receives the LOCAL mark too — one grade object feeds both sinks", async () => {
+    const grader = vi.fn<Grader>(async () => okResponse([grade(1)]));
+    await gradeQuickPracticeBatch({
+      worksheetId: "qp-obj-3", subject: "maths", user: USER, grade: grader,
+      answers: [mcq(1, { pickedOption: "root 2", pickedCorrect: true, imageBase64: IMG })],
+    });
+    expect(recordMistake.mock.calls[0][1]).toMatchObject({ marksAwarded: 1, totalMarks: 1 });
+  });
+
+  it("★ an UNRESOLVABLE pick writes NOTHING to MI (with the control that DOES write)", async () => {
+    // No pick recorded ⇒ no grade ⇒ no MI write, exactly as couldNotRead behaves.
+    // Recording a 0 would be the fabrication the module header forbids.
+    const grader = vi.fn<Grader>(async () => okResponse([grade(1)]));
+    await gradeQuickPracticeBatch({
+      worksheetId: "qp-obj-4", subject: "maths", user: USER, grade: grader,
+      answers: [mcq(1, { imageBase64: IMG })],
+    });
+    expect(recordAttempt).not.toHaveBeenCalled();
+    expect(recordMistake).not.toHaveBeenCalled();
+    // CONTROL — same spies, same shape, a pick present: they DO fire.
+    await gradeQuickPracticeBatch({
+      worksheetId: "qp-obj-5", subject: "maths", user: USER, grade: grader,
+      answers: [mcq(1, { pickedOption: "root 2", pickedCorrect: true, imageBase64: IMG })],
+    });
+    expect(recordAttempt).toHaveBeenCalledTimes(1);
+    expect(recordMistake).toHaveBeenCalledTimes(1);
+  });
+
+  it("★★ a SUBJECTIVE answer still stores the model's marks, unchanged", async () => {
+    const grader = vi.fn<Grader>(async () => okResponse([grade(1)]));
+    await gradeQuickPracticeBatch({
+      worksheetId: "qp-obj-6", subject: "maths", user: USER, grade: grader,
+      answers: [q(1, { imageBase64: IMG })],
+    });
+    expect(recordAttempt.mock.calls[0][1]).toMatchObject({ marksScored: 2, marksAvailable: 3 });
+  });
+});
