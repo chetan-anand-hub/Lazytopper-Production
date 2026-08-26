@@ -36,6 +36,11 @@ import {
   type WorksheetQuestionGrade,
 } from "../ai/aiClient";
 import { MAX_BATCH_UPLOADS } from "../config/gradingLimits";
+// ★ IMPORT ONLY. `lib/objectiveScoring.ts` is the TS twin of the server's
+// `objectiveScoring.cjs`, pinned to it by a parity unit test. Quick Practice scores its
+// own objective questions through THIS function rather than a local re-implementation,
+// so the client and the server cannot drift on what "correct" means. Never fork it.
+import { scoreObjective } from "../lib/objectiveScoring";
 import { recordAttempt, type PracticeAttempt } from "./practiceInsights";
 import { recordMistake, type RecordMistakeOutcome } from "./mistakeIntelligence";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
@@ -470,6 +475,14 @@ export function buildBatchQuestionInput(answer: QuickPracticeSavedAnswer): Works
   // keeps #578's byte-identical no-typed-answer prompt (and its sha256 pin) intact for
   // every existing caller.
   if (nonEmpty(answer.textAnswer)) input.textAnswer = String(answer.textAnswer).trim();
+  // ★★★ THE STUDENT'S ANSWER, SENT TO THE THING THAT MARKS IT. Before this line the
+  // grader received the question, the scheme and the working and NEVER the pick, so its
+  // verdict on an MCQ judged the WORKING — a correct option with one flawed working line
+  // scored 0 / 1. Conditional for the same reason `textAnswer` is: an absent/blank pick
+  // omits the key entirely, which keeps #578's byte-identical prompt (and its sha256 pin,
+  // checkSolution.test.cjs §7.1) intact for every caller that records no pick.
+  // ⚠ DIAGNOSIS ONLY — `applyLocalObjectiveMark` below, never this, decides the mark.
+  if (nonEmpty(answer.pickedOption)) input.pickedOption = String(answer.pickedOption).trim();
   return input;
 }
 
@@ -497,6 +510,69 @@ export function batchGradeToCheckSolution(grade: WorksheetQuestionGrade): CheckS
     mistakeSummary: grade.mistakeSummary ?? { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
     teacherNote: grade.teacherNote ?? "",
     ...(grade.objective === true ? { objective: true } : {}),
+  };
+}
+
+/**
+ * PURE. ★★★ THE OBJECTIVE MARK COMES FROM THE LOCAL COMPARE. The batch grade call does
+ * DIAGNOSIS ONLY.
+ *
+ * THE OWNER'S RULING, and `objectiveScoring.cjs:4` has said it in prose the whole time:
+ * an MCQ or 1-mark objective question is scored 0 or FULL **on the answer alone**, as in a
+ * real CBSE exam. The uploaded working exists so a student can SEE THE GAP in their
+ * understanding. It must never change the mark — it may not destroy a right answer nor
+ * rescue a wrong one.
+ *
+ * ★ WHY A NUMBER HAD TO BE ADDED RATHER THAN WIRED UP. Nothing in this product computed
+ * one. The page computes a BOOLEAN (`pickedCorrect`) and formats it into a STRING
+ * ("Correct · 1 mark"); the only local-scoring branch, `localEntry` below, is gated on the
+ * `"local-mcq"` disposition — which is FALSE for exactly the broken case, because an MCQ
+ * WITH working classifies as `"batch"`. So a correct pick reached the grader, the grader
+ * judged the working, and the sheet rendered `0 / 1` beneath the very sentence that
+ * forbids it ("Whole mark or nothing — MCQs are never step-marked.").
+ *
+ * ⚠ A STEP'S STATUS MUST NEVER CONTRIBUTE TO AN OBJECTIVE MARK, BY ANY PATH. The diagnosis
+ * fields (`annotatedSteps`, `mistakeSummary`, `teacherNote`) pass through UNTOUCHED so the
+ * student still sees what their working shows; only the NUMBERS are replaced.
+ *
+ * ★ RETURNS null FOR AN UNRESOLVABLE PICK — absent, unreadable, or a question with no
+ * stored answer key. Null means HONEST-UNGRADED, never 0: `absent means unknowable, not
+ * wrong`. Callers already treat a null grade as "no grade" (the couldNotRead contract), so
+ * the surface says the answer could not be read instead of presenting a derived 0 as a
+ * graded one. Never invents a mark and never falls back to the working.
+ *
+ * ⚠ SUBJECTIVE QUESTIONS ARE RETURNED UNCHANGED, by identity — the guard that matters most.
+ */
+export function applyLocalObjectiveMark(
+  answer: QuickPracticeSavedAnswer,
+  graded: CheckSolutionResponse,
+): CheckSolutionResponse | null {
+  if (answer.objective !== true) return graded;
+  // ★★ NO STORED ANSWER KEY ⇒ NO LOCAL COMPARE IS POSSIBLE ⇒ LEAVE THE GRADE ALONE.
+  // The owner's ruling is "compare the student's option TO THE STORED ANSWER", which
+  // presupposes there is one. `isObjectiveQuestion` also flags a Section-A item that has
+  // NO options and NO key — a fill-in-the-blank, say — and for those the grader's reading
+  // of the written answer is the only mechanism there has ever been. Returning
+  // honest-ungraded for them would delete working grading rather than correct it.
+  // ⚠ THIS CARVE-OUT WAS FOUND BY A PRE-EXISTING TEST, NOT BY DESIGN: the first version of
+  // this function claimed every `objective` question and turned §8's key-less fixture into
+  // a silent MI blackout. The guard was right and the code was wrong.
+  if (!nonEmpty(answer.answer)) return graded;
+  const totalMarks = Number(answer.marks) || 1;
+  // The SHARED compare — the server's own twin, imported, never re-implemented.
+  const score = scoreObjective({
+    answerKey: answer.answer,
+    studentPick: answer.pickedOption,
+    options: Array.isArray(answer.options) ? answer.options : undefined,
+    totalMarks,
+  });
+  if (!score.resolved) return null;
+  return {
+    ...graded,
+    totalMarks,
+    marksAwarded: score.marksAwarded,
+    percentage: score.correct ? 100 : 0,
+    objective: true,
   };
 }
 
@@ -708,9 +784,17 @@ export async function gradeQuickPracticeBatch(args: {
     const entry = localEntry(answer);
     const result = byQNumber.get(answer.qNumber);
     if (!result) return entry;
-    const graded = batchGradeToCheckSolution(result);
+    const raw = batchGradeToCheckSolution(result);
+    // ★★★ SITE 1 of 2 — WHAT THE SCORECARD RENDERS. `entry.graded` is the value
+    // `PracticePage` hands to `buildGradedAnswer`, so an objective question's mark is
+    // replaced by the LOCAL compare HERE, before any renderer sees it. Fixing this in the
+    // page instead would have left SITE 2 below feeding Mistake Intelligence a wrong mark
+    // permanently — a correct screen over a corrupt store, which nothing would ever show.
+    const graded = raw ? applyLocalObjectiveMark(answer, raw) : null;
     // couldNotRead → no grade at all. The question stays honestly unattempted-looking
-    // rather than being recorded as a 0 the student did not earn.
+    // rather than being recorded as a 0 the student did not earn. An objective question
+    // whose pick could not be resolved arrives here as null for the SAME reason and is
+    // treated identically: honest-ungraded, never a derived 0.
     if (graded) entry.graded = graded;
     return entry;
   });
@@ -747,7 +831,14 @@ export async function gradeQuickPracticeBatch(args: {
   for (const answer of selection.batch) {
     const result = byQNumber.get(answer.qNumber);
     if (!result) continue;
-    const csr = batchGradeToCheckSolution(result);
+    // ★★★ SITE 2 of 2 — WHAT MISTAKE INTELLIGENCE STORES. This loop re-derives its own
+    // grade rather than reading `entries`, so the local objective mark MUST be applied
+    // here too or `recordAttempt` writes the model's wrong number into the store the
+    // tutor reads — invisibly, and forever. A RENDER SITE IS NOT A PRODUCTION SITE.
+    const rawCsr = batchGradeToCheckSolution(result);
+    const csr = rawCsr ? applyLocalObjectiveMark(answer, rawCsr) : null;
+    // Unresolvable objective pick ⇒ no grade ⇒ NO MI WRITE, exactly as couldNotRead does.
+    // Recording a 0 would be the fabrication this module's header forbids.
     if (!csr) continue;
     const questionId = String(answer.questionId);
     const topic = String(answer.topicLabel || "");

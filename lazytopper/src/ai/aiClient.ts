@@ -524,6 +524,29 @@ export interface WorksheetGradeQuestionInput {
    *  partial factory, so a new runtime export they do not list throws. That is why
    *  MAX_BATCH_UPLOADS lives in `src/config/gradingLimits.ts` and not here. */
   textAnswer?: string;
+  /** OBJECTIVE-ANSWER-NOT-SENT — the OPTION THE STUDENT CHOSE, for a surface that
+   *  recorded the pick in its own UI (Quick Practice today, and only it).
+   *
+   *  ★ THIS IS THE STUDENT'S ANSWER. It is NOT `answer` and NOT `correctOption`,
+   *  both of which carry the CORRECT key from the bank. Before this field the grader
+   *  received the question, the scheme and the working — and never what the student
+   *  actually picked — so the model's verdict on an MCQ judged the WORKING, because
+   *  the working was all it was given. A correct pick with one flawed working line
+   *  scored 0 / 1 on Quick Practice.
+   *
+   *  ★ ADDITIVE AND OPTIONAL. Every existing caller omits it and `blockFor()` emits
+   *  nothing for an absent/empty value, so the prompt the worksheet, chapter test,
+   *  full mock and multi-question Check & Improve surfaces send is BYTE-IDENTICAL —
+   *  which is what keeps #578's sha256 pin intact (checkSolution.test.cjs §7.1).
+   *
+   *  ⚠ DIAGNOSIS ONLY. Forwarding this does NOT make the grader authoritative on an
+   *  objective mark. The mark comes from the LOCAL compare against the stored answer
+   *  key (`quickPracticeSessionService.applyLocalObjectiveMark`); this field exists so
+   *  the model can explain the gap, never so it can score it.
+   *
+   *  ⚠ THIS IS A TYPE, ERASED AT RUNTIME — the same constraint the field above
+   *  carries. An interface field is safe here; a VALUE export would not be. */
+  pickedOption?: string;
 }
 
 /** A single per-question grade result, keyed to its worksheet question number.
