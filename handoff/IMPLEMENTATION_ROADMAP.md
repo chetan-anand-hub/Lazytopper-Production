@@ -1,5 +1,54 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-08-27 — WAVE MI-INTEGRITY-10: **THE OBJECTIVE-MARK ARC REACHES THE PRODUCT AND THE RECORD TOGETHER — `#703` · `#704` · `#706` · `#707` ALL MERGED** — trunk `f07f33ce` (`#708` merged mid-lane; `#707` is `02fa7c0a`)
+
+**`2026-08-27`**
+
+**STAGE OUTCOME: THE GRADER'S OBJECTIVE PATH IS FIXED ON THE ONE SURFACE THAT COULD ADOPT THE FIX,
+AND THE RECORD GAP FROM THE PREVIOUS WAVE IS CLOSED.**
+
+| PR | merge | stage item | state |
+|---|---|---|---|
+| `#703` | `740d1243` | dependency bump (`actions/setup-java` 4 -> 5) | **DONE on trunk** |
+| `#704` | `d1a36901` | objective mark invariant — correct MCQ scores full; working cannot subtract | **DONE on trunk** |
+| `#706` | `2b7446b5` | the chosen option is SENT; the objective mark comes from the LOCAL compare | **DONE on trunk, OWNER LIVE-VERIFIED** |
+| `#707` | `02fa7c0a` | `CLAUDE.md` §4a + §13 ruler/invariant; `SKILL.md` four author-side failure classes | **DONE on trunk — ⚠ PARTIAL, see below** |
+| — | — | **docs: seven handoff files** | **THIS LANE** |
+| — | — | `ops/AGENT_STANDING_RULES.md` — six rules + one correction | ⚠ **OWED, other window** |
+| — | — | `CLAUDE.md` §4a applicability carve-out | ⛔ **RULED AND NOT LANDED** |
+
+**WHAT THIS UNBLOCKS.** `#706` is the first PR in this arc to reach **all three rungs of the evidence
+ladder on one PR** — *a test proves it works, a chunk proves it ships, only a boot proves it runs.*
+Tests green, `pickedOption` present in the emitted `assets/PracticePage-*.js` chunk, and **Container
+Boot BUILT AND BOOTED** the image (`WILL_RUN: true`, `[PASS] apiServerListening`,
+`/shared-api/healthz -> 200`). ⇒ **The objective path is now safe to build Lane B on top of.**
+
+⚠ **WHAT THIS STAGE DOES NOT CLOSE.**
+- ⛔ **`#707` IS PARTIAL.** The owner's §4a amendment — *"every surface" means every surface **where
+  the behaviour is applicable***, and a lane must **state** the structural exclusions — **is NOT on
+  trunk.** Verified with a positive control at `02fa7c0a` and RE-VERIFIED at `f07f33ce`.
+  `[FU-CLAUDEMD-S4A-APPLICABILITY-CARVEOUT-NOT-LANDED]`. **As written, §4a commissions an impossible
+  fix on Worksheet and C&I.**
+- ⛔ **P7 IS OPEN ON ALL SIX SURFACES.** The `resolved` flag is discarded at both clamp call sites, so
+  **an UNREAD answer renders as a GRADED ZERO**, and the ungraded copy **conflates "unreadable" with
+  "no option tapped."** **That is Lane B and it is the next stage item.**
+- ⚠ **`[FU-SHEET-DORMANT-NO-CONSUMER]`** — `#682` is on trunk; **being on trunk is not being
+  TRIGGERED.** Untouched by this wave.
+- ⚠ **`[FU-MOBILE-QP-UNBUILT]`** — **Quick Practice does not exist on mobile at all**
+  (`MobileAppPracticePage.tsx` is a 25-line stub, "Task #437"). **Every QP fix in this arc reached
+  desktop only.**
+- ⚠ **`[FU-DPDP-GUARDIAN-CONSENT]`** — still unruled and **launch-blocking.**
+- **`TAXONOMY-DIVERGENCE`, `TAXONOMY-3BUCKET`, `SPLITPAPER-OVERFLOW`** remain **HELD**, and
+  `TAXONOMY-DIVERGENCE` is being **RE-SCOPED, not re-issued** — its own founding shape was wrong
+  (**neither prompt path encodes copied-vs-computed at all**, so 3 of 5 owner papers need **new
+  authoring, not a port**).
+
+★ **THE STAGE-LEVEL LESSON, AND IT IS ABOUT THIS DOCUMENT AS MUCH AS THE CODE:** four PRs merged and
+**none of them reached any handoff file** until this lane ran. The previous wave's `#705` had covered
+`#699`-`#702` and stopped there. ⇒ **A wave that closes without a handoff PR loses every finding it
+did not ship as code**, and the roadmap is where that loss is invisible longest.
+
+
 
 ## 2026-08-25 — WAVE MI-INTEGRITY-3: **THE GRADER ARC'S FOUR FIXES ARE ON TRUNK AND THE RECORD FINALLY SAYS SO — `#699` · `#700` · `#701` · `#702` ALL MERGED** — trunk `65b6c0e2`, unmoved
 

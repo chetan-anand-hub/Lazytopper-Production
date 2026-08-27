@@ -1,6 +1,63 @@
 # LazyTopper — Next Action
 
 ```
+⛔⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW IT. Wave MI-INTEGRITY-10 IS CLOSED.
+
+TRUNK IS `f07f33ceed9fc8ad10bd7a7c43e7d385470cb289` (#708), MEASURED 2026-08-27.
+RE-DERIVE IT BEFORE ACTING -- THIS LINE IS A STATUS CLAIM AND IT IS STAMPED FOR A REASON:
+  git ls-remote origin base/approved-thru-437
+
+⚠ OPEN PRs: ZERO, measured 2026-08-27, AFTER #708 merged (f07f33ce, cofounder-skill/ only).
+  ⚠⚠ DO NOT READ THAT AS A STANDING PROPERTY. During this one lane, SKILL-SINGLE-SOURCE was
+  reported UNPUSHED, then found OPEN as #708, then found MERGED -- and ALL THREE REPORTS WERE
+  TRUE WHEN MADE. A STATUS FACT IS A PROPERTY OF AN INSTANT.
+  ⇒ AND THE RULE HAD ALREADY BEEN WRITTEN DOWN BY THE PARTY THAT THEN DID NOT APPLY IT.
+    A RULE THE AUTHOR HAS WRITTEN DOWN IS NOT A RULE THE AUTHOR IS APPLYING.
+  `lane-overlap` COUNTS DRAFTS and compares EXACT paths: no lane may list `cofounder-skill/SKILL.md`.
+
+★ NEXT ACTION IS **LANE B** — the `resolved` flag and the false ungraded sentence, all six surfaces.
+  ITS ALLOWLIST MUST REACH FOUR SITES, NOT TWO:
+     `checkSolution.cjs:1613` and `:2078`        -- where `resolved` is DISCARDED
+     `PracticePage.tsx:2702` and
+     `gradedAnswerAssembly.ts:237-238`           -- where the false sentence renders, DUPLICATED
+  RENDERER-ONLY = correct words over destroyed data. CALL-SITES-ONLY = fixed data under false words.
+  ⚠ LOCATE THOSE FOUR BY TEXT, NOT BY THE NUMBER. #706 changed `checkSolution.cjs` by +38 lines,
+  so anchors written at `3d16a643` are stale. THE TEXT WINS, AND SAY WHICH METHOD YOU USED.
+
+⛔ THE ORDER IS SEQUENTIAL AND THE FIRST THREE SHARE ONE FILE:
+     Lane B  ->  taxonomy re-scope  ->  departure/unattempted  ->  splitpaper scout
+             ->  TAXONOMY-3BUCKET   ->  Me/Progress
+  Lane B, the taxonomy re-scope and departure/unattempted ALL EDIT `checkSolution.cjs`.
+  NEVER RUN TWO OF THEM AT ONCE. No allowlist can separate two lanes on one file.
+
+⛔⛔ THREE DEBTS THAT ARE NOT LANE B's, AND WILL BE LOST IF NOBODY CLAIMS THEM:
+  1. `ops/AGENT_STANDING_RULES.md` OWES SEVEN SPECIMENS/RULES from this wave and ONE CORRECTION.
+     An `ops/`-ONLY LANE IN ANOTHER WINDOW OWNS IT. ✅ #708 HAS LANDED, so it can be anchored now.
+     ★ HANDED OVER SOLVED: the sentence to correct at `:106-107` WRAPS ACROSS TWO LINES, so a
+     line-based `grep -F` for the whole sentence returns ZERO — which the standing rules define as
+     "guarding text that does not exist." USE THE SINGLE-LINE FRAGMENT ON LINE 107.
+     ⇒ AN ANCHOR MUST NOT SPAN A LINE WRAP.
+     ⛔ DO NOT ASSIGN THE NEW SPECIMEN A NUMBER. The ledger tips at #17 and the #11-vs-#12
+     ambiguity is unresolved — guessing would be specimen #11 committed ON the specimens.
+  2. `CLAUDE.md` §4a's APPLICABILITY CARVE-OUT WAS RULED AND NEVER LANDED.
+     `[FU-CLAUDEMD-S4A-APPLICABILITY-CARVEOUT-NOT-LANDED]`. §4a on trunk is ABSOLUTE: it has no
+     provision for a surface where the behaviour cannot apply, so as written it commissions an
+     impossible fix on Worksheet and C&I multi. RE-VERIFIED at `f07f33ce` with a positive control.
+     ⇒ OWNER'S RULING: "MY RULING DIED IN A BRIEF AND NEVER REACHED THE FILE LANES READ. THAT IS
+       FAILURE CLASS 4 — A RULING WITH NO ARTEFACT — FIRING ON THE VERY AMENDMENT MADE TO
+       PREVENT THAT CLASS."
+     A DOCS LANE MAY NOT EDIT `CLAUDE.md`. THE OWNER RULES WHO DOES.
+  3. `cofounder-skill/SKILL.md`'s "THE FIVE LAWS" HEADING CARRIES SIX ENTRIES (#707 added the
+     sixth and left the heading standing). ⛔ OWNER'S RULING: LEAVE IT.
+     "VISIBLE DRIFT BEATS A SILENT RENUMBER." Recorded as owed, deliberately NOT fixed —
+     a quietly corrected heading is indistinguishable from one that was always right.
+
+★ AND THE RULE THAT PRODUCED ALL THREE OF THOSE ENTRIES:
+     A RULING THAT LIVES ONLY IN A BRIEF IS A RULING THAT DIES WITH THE BRIEF.
+     A finding in a report is a finding that dies with the report.
+```
+
+```
 ⛔⛔ THIS BANNER SUPERSEDES THE `SUBJECT-RULES-PORT` / `STUB-503` BANNER BELOW. BOTH ARE DONE.
 
 The block below says "STUB-503 IS BLOCKED, NOT READY" and points at #690 as a draft.

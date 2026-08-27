@@ -1,6 +1,433 @@
 # LazyTopper — Current State
 
-## [CURRENT] Wave MI-INTEGRITY-3 — **THE GRADER ARC'S FOUR FIXES ARE ON TRUNK AND THE RECORD FINALLY SAYS SO — and the wave's most valuable output was a lane that refused to start.** `#699` · `#700` · `#701` · `#702` are ALL ON TRUNK — trunk `65b6c0e2`
+## [CURRENT] Wave MI-INTEGRITY-10 — **THE STUDENT'S ANSWER NOW REACHES THE THING THAT MARKS IT, AND A HANDOFF CORRECTED THE DISPATCH THAT COMMISSIONED IT BEFORE WRITING A LINE.** `#703` · `#704` · `#706` · `#707` are ALL ON TRUNK — trunk `02fa7c0a`
+
+★ **PROVENANCE.** Code-level statements below are labelled **OWNER-VERIFIED**, **LANE-REPORTED**,
+**SCOUT-REPORTED** or **CONTROLLER-RECORDED**. Where the `HANDOFF-MI10` lane re-derived a claim
+itself at `02fa7c0a` before writing it, it is marked **HANDOFF-VERIFIED** and the method is stated.
+**Do not strip these labels.** A controller cannot verify a code claim; it can only decide how much
+weight to put on an unverified one.
+
+**Trunk `02fa7c0a491528286b89748a304e6aa92d5d0803`** — re-derived by this lane with
+`git ls-remote origin base/approved-thru-437`, **not taken from any document.** **HANDOFF-VERIFIED.**
+
+### 1 - ⚠⚠ THE FIRST ACT OF THIS HANDOFF WAS AN ENUMERATION, AND IT CORRECTED ITS OWN COMMISSIONING DISPATCH
+
+**The owner's dispatch said: *"`#699` through `#706` are in no handoff file; `#698` was the last."***
+**The controller measured that and reported it STALE before writing the spec. This lane re-measured
+it independently at `02fa7c0a` and CONFIRMS the controller's correction.** **HANDOFF-VERIFIED:**
+
+```
+git log origin/base/approved-thru-437 --oneline -- handoff/
+  -> 3d16a643  docs(handoff): ... (HANDOFF-MI9) [ci-full] (#705)    <- NEWER THAN #698
+     2fb1ed67  docs(handoff): ... (HANDOFF-MI8) [ci-full] (#698)
+git show --name-only --format="" 3d16a643 -- handoff/  -> ALL SEVEN handoff files
+```
+
+⇒ **`#705` IS A FULL HANDOFF PR AND IS THE TRUE PREDECESSOR OF THIS ONE.**
+
+**AND THE QUESTION THE CONTROLLER REFUSED TO ANSWER FROM METADATA — *is `#704` already recorded in
+`#705`?* — IS NOW SETTLED BY READING THE FILES.** `#704` merged `07:32Z` and `#705` at `09:31Z` the
+same day, so it was chronologically possible. **IT IS NOT RECORDED. HANDOFF-VERIFIED**, per file, by
+grepping each of the seven at `02fa7c0a` for every PR reference in `#695`-`#709`:
+
+| where | PR references present |
+|---|---|
+| **found in EVERY ONE of the seven files** | `#695` `#696` `#697` `#699` `#700` `#701` `#702` |
+| **found in NONE of the seven** | **`#703` · `#704` · `#706` · `#707`** |
+
+⇒ ★★★ **THE REAL GAP IS `#703`, `#704`, `#706`, `#707` — FOUR PRs, NOT EIGHT.** Writing
+*"`#699`-`#706` are in no handoff file"* would have been **FALSE ON TRUNK** and would have
+**duplicated or contradicted `#705`'s own entries** — ★ **the exact stale-record defect this handoff
+exists to correct, committed BY the corrective artefact.** ⇒ ★★★ **A HANDOFF MUST ENUMERATE WHAT IS
+ALREADY RECORDED BEFORE IT WRITES WHAT IS MISSING.**
+
+### 2 - WHAT SHIPPED, AND WHAT A STUDENT GOT
+
+| PR | merge | what changed for a student |
+|---|---|---|
+| `#703` | `740d1243` | **Nothing student-facing.** Dependabot: `actions/setup-java` 4 -> 5. Recorded because a gap in the record is a gap whatever filled it. |
+| `#704` | `d1a36901` | **A correct MCQ answer scores FULL MARKS, and uploaded working can no longer take marks away.** (`OBJECTIVE-MARK-INVARIANT`) |
+| `#706` | `2b7446b5` | **The student's chosen option is finally SENT to the grader, and the objective mark comes from the LOCAL compare.** (`OBJECTIVE-ANSWER-NOT-SENT`) |
+| `#707` | `02fa7c0a` | **`CLAUDE.md` gains §4a** (grading-behaviour uniformity across six surfaces) **and §13 gains the mistake-type ruler + the objective invariant**; `SKILL.md` gains four author-side failure classes and a sixth law. |
+
+★★★ **THE SENTENCE THAT DESCRIBES THE WHOLE ARC, AND IT IS `#706`'s:** **the student's answer was
+never sent to the thing that marks it.** `buildBatchQuestionInput` never forwarded `pickedOption`,
+`WorksheetGradeQuestionInput` had no field for it, and `blockFor` never told the model the question
+was an MCQ — so `finalAnswerCorrect` was judging **the working**. **A correct MCQ with one flawed
+working line rendered `0 / 1` directly beneath the printed words *"Whole mark or nothing — MCQs are
+never step-marked."*** ⇒ ★★ **The invariant was rendered to the student on the same screen it was
+being violated on.** *(SCOUT-REPORTED and LANE-REPORTED; the 0/1 was OWNER-OBSERVED live.)*
+
+⚠ **`#704` AND `#706` ARE NOT THE SAME FIX AND THE RECORD MUST NOT MERGE THEM.** `#704` made the
+objective mark obey the invariant **where the grader was reached at all**; `#706` made the grader
+**receive the answer**. `#704` shipped a working clamp; `#706` stopped feeding it the wrong inputs.
+⇒ **"a correct instrument fed the wrong inputs"** — the scout's phrase, **OWNER-RATIFIED**, after
+*"the defect is inside the clamp"* was read three times and **withdrawn by its author all three
+times.**
+
+### 3 - THE FOUR LIVE-VERIFY PASSES ON `#706` — OWNER-EXECUTED AGAINST THE REAL DEPLOYMENT
+
+**No gate in this repository produced any of this.** Every material defect this month was found by
+**using the product.** *(OWNER-VERIFIED, at trunk `2b7446b5`.)*
+
+| test | what was done | result |
+|---|---|---|
+| **A** | Quick Practice: correct option + ONE flawed working line | **`1/1`. Summary and graded answer AGREE. Diagnosis still shown.** ⇒ the owner-observed defect is CLOSED |
+| **B** | Check & Improve, same paper | **UNCHANGED. `#704` did not regress.** The must-not-change surface held |
+| **D** | Wrong option + correct-LOOKING working | **`0`.** Working does not rescue a wrong answer |
+| **E** | Chapter Test MCQ, **no option tapped** | **`0/1`, as predicted** |
+
+★★ **TEST E IS LANE B's EVIDENCE, MEASURED RATHER THAN ARGUED** — and it was found by testing a
+surface **the fix did not touch.** **P7 is REAL on the local-scoring surfaces.**
+
+### 4 - ⚠⚠ TEST C — THE BEHAVIOUR IS RIGHT AND THE WORDS ARE FALSE. IT IS STUDENT-FACING.
+
+`[FU-UNGRADED-COPY-CONFLATES-UNREADABLE-WITH-NO-PICK]` *(OWNER-VERIFIED, live.)*
+
+**THE BEHAVIOUR IS CORRECT:** *"Nothing has been scored 0 for it"* — honest-ungraded exactly as ruled.
+**THE WORDS ARE FALSE:** it says ***"Your working did not come back readable."*** **The working WAS
+readable and HAD BEEN SAVED. What was missing was THE OPTION TAP.**
+
+⇒ ★★★ **ONE STRING IS COVERING TWO DIFFERENT STATES** — *"we could not read your upload"* and *"you
+did not choose an option."*
+⇒ ⚠⚠ **A student who wrote a fine solution is told their HANDWRITING failed, so THEY WILL REWRITE THE
+SOLUTION INSTEAD OF TAPPING THE ANSWER. The product sends them to fix the one thing that was not
+wrong.** ★ **Same class this arc already named: a factually false statement about a student's own
+work, from the thing teaching them** — kin to *"Incorrect substitution for 'a' and 'b' in the -4ac
+term"* when there is no `b` in `4ac`.
+
+⛔ **OWNER'S BINDING INSTRUCTION, CARRIED HERE VERBATIM IN SUBSTANCE: DO NOT LET A LANE INVENT
+WORDING WITHOUT FIRST ESTABLISHING WHETHER THE CODE CAN TELL THE TWO STATES APART. IF IT CANNOT,
+THAT IS THE FINDING AND THE FIX IS UPSTREAM.** ★ **Question first, wording second.**
+
+### 5 - ⛔⛔ THE `CLAUDE.md` §4a CARVE-OUT IS **NOT ON TRUNK**. THIS IS THIS LANE'S OWN FINDING AND IT CONTRADICTS ITS BRIEF.
+
+**HANDOFF-VERIFIED at `02fa7c0a` by this lane, with a positive control.**
+
+The owner amended §4a during Wave MI-INTEGRITY-10: ***"every surface" means every surface WHERE THE
+BEHAVIOUR IS APPLICABLE, and a lane must STATE the structural exclusions rather than omit them.***
+The dispatch brief for this handoff records that amendment as settled doctrine. **IT DID NOT LAND.**
+
+```
+grep -n -i "applicab|structurally exclud|carve"  CLAUDE.md                 -> ZERO HITS
+grep -n -i "applicab|structurally exclud"        cofounder-skill/SKILL.md  -> ZERO HITS
+CONTROL: grep -c -i "six surfaces" CLAUDE.md                               -> 2  (the instrument fires)
+git show 02fa7c0a -- CLAUDE.md | grep "^+" | grep -i "applicab|exclud"     -> NONE
+```
+
+⇒ **`#707` shipped §4a in its UNAMENDED, ABSOLUTE form.** As written on trunk today, §4a says
+*"§0b MUST enumerate ALL SIX SURFACES"* and *"a lane that verifies one surface returns PARTIAL"* with
+**no provision for a surface where the behaviour cannot apply.**
+⇒ ⚠⚠ **THE OWNER'S OWN WORDS ON WHY THAT MATTERS:** *"without that carve-out my own rule commissions
+an impossible fix on two surfaces, which is the same class of defect the rule exists to prevent."*
+⇒ ⛔ **RECORDED AS OWED, NOT AS DOCTRINE.** `[FU-CLAUDEMD-S4A-APPLICABILITY-CARVEOUT-NOT-LANDED]`.
+
+⚠⚠ **THE OWNER VERIFIED THIS FINDING INDEPENDENTLY AND RULED ON IT. HIS WORDS:**
+> ***"MY RULING DIED IN A BRIEF AND NEVER REACHED THE FILE LANES READ. THAT IS FAILURE CLASS 4 — A
+> RULING WITH NO ARTEFACT — FIRING ON THE VERY AMENDMENT MADE TO PREVENT THAT CLASS."***
+
+⇒ ★★★ **THE AMENDMENT WAS MADE TO STOP A RULE COMMISSIONING AN IMPOSSIBLE FIX, AND IT WAS LOST TO THE
+EXACT FAILURE CLASS `#707` SHIPPED INTO `SKILL.md` IN THE SAME PR.** ⚠ **Until it lands, §4a as
+written commissions an impossible fix on Worksheet and C&I multi.**
+★ **A docs lane cannot land it, and leaving `CLAUDE.md` untouched was correct** — owner-confirmed.
+**RE-VERIFIED AT THE LATER TRUNK `f07f33ce` (after `#708` merged): `applicab` = 0, `structurally
+exclud` = 0, `carve` = 0; control `grep -ci "six surfaces"` = 2.** ⇒ **Still absent. Still OWED.**
+**A docs lane may not edit `CLAUDE.md`; the owner rules who does.**
+
+★★ **AND THIS IS EXACTLY THE CLASS THE HANDOFF EXISTS TO CATCH.** The amendment was ruled, recorded
+in a controller state file, relayed into a dispatch brief, and **never reached the file that binds
+lanes.** ⇒ **A RULING THAT LIVES ONLY IN A BRIEF IS A RULING THAT DIES WITH THE BRIEF.**
+
+**THE EXCLUSIONS THEMSELVES, MEASURED BY LANE A AND STATED HERE SO THEY SURVIVE** *(LANE-REPORTED,
+owner-accepted)*: **Worksheet · C&I multi · C&I single — NO UI-RECORDED PICK EXISTS** (the answer
+lives in an upload) ⇒ **inapplicable BY CONSTRUCTION.** **Chapter Test · Full Mock — ALREADY CORRECT;
+sending would REGRESS.** ⇒ **Quick Practice was the only one of six that could adopt `#706`.**
+
+### 6 - THE NEW SPECIMENS — **OWED TO THE `ops/` LANE. THESE ARE NOT RULES IN `handoff/`.**
+
+⛔ **DO NOT NUMBER THEM HERE, AND DO NOT READ THEM AS RULES.** Specimens live in
+`ops/AGENT_STANDING_RULES.md`, which an **`ops/`-only lane in another window owns**. `handoff/` is a
+RECORD, not a rulebook; a rule written into a record has no reader. **HANDOFF-VERIFIED at `02fa7c0a`:
+the ledger tips at `#17` (`ops/AGENT_STANDING_RULES.md:329`), and `:359` reads *"Specimens #7 through
+#17 are individually sourced above. #1-#6 are NOT"*.** The payload-whitelist specimen is **`#18`
+SUBJECT TO THE OWNER'S OUTSTANDING `#11`-vs-`#12` DECISION** — **owed, not assigned.**
+⚠⚠ **OWNER'S RULING ON WHY IT STAYS UNNUMBERED, AND IT IS SHARPER THAN "WAIT FOR THE DECISION":**
+> ***"The `#11`-vs-`#12` ambiguity is unresolved, and guessing a number would be specimen `#11`
+> committed on the specimens themselves."***
+
+⇒ ★★★ **SPECIMEN `#11` IS *TWO TRUE LISTS PRESENTED AS ONE, THE EARLIER READING COMPLETE.* Assigning
+`#18` from a ledger whose `#11`/`#12` are transposed in one of two candidate tables would commit
+exactly that defect ON THE LEDGER THAT DEFINES IT.** ⇒ **RECORD THE SPECIMEN UNNUMBERED, WITH ITS
+EVIDENCE.** The evidence is what survives; the number is a pointer that can be assigned later, and a
+wrong pointer is worse than none.
+
+1. ★★★ **THE PAYLOAD WHITELIST — A SILENT NO-OP NOBODY PREDICTED** (not the owner, not the scout,
+   not the controller). `handleGradeWorksheet` filters its payload through a **field whitelist**, so
+   the new field was **dropped before `blockFor` ever saw it. The prompt never changed — AND THE
+   BYTE-PIN TEST STILL PASSED, because nothing drifted.** ⇒ **The instrument built to catch prompt
+   drift was blind to a prompt that never arrived.** **This fix needed THREE hunks, not the two every
+   plan described.** *(LANE-REPORTED; caught only by a purpose-built assertion, 221/2 -> 223/0.)*
+2. ★★ **A SUITE AUTHORED ALONGSIDE A FIX INHERITS THE FIX'S BLIND SPOT.** The owner wants the lane's
+   own line verbatim: ***"my own tests could not have found this — every fixture I wrote had a
+   key."*** `objective === true` is **NOT** a proxy for *"has an answer key"*; the first version
+   turned a key-less fixture into a **silent MI blackout** (2 MI writes -> 1). ★ **IT FIXED ITS CODE,
+   NOT ITS TEST** — *"fixing the test would have been specimen #9, a test pinning the defect as
+   doctrine, authored in the same hour."*
+   ⇒ ★★★ **ITS PAIRED REMEDY, ALSO OWED:** **a gate written by someone else, for another purpose, is
+   worth more than any self-authored test on the same surface.** `test:ci:convergence` **124/124
+   independently asserted CHECK & IMPROVE WAS INTACT** — the must-not-regress surface — **and the
+   lane did not write it.** ⇒ **When reading a CI log, weight the gates you did not write above the
+   ones you did.** ★ **The two findings pair: one names the weakness, the other names the remedy.**
+3. ★★★ **`scope:guard` MEASURED IN BOTH DIRECTIONS, ON THE GUARD'S OWN OUTPUT — A CONTROL, NOT A
+   CITATION:**
+   ```
+   PRE-`git add`   scope:guard -> inspected=6   SCOPE_GUARD_OK   (load-bearing; 6 = its 6 files)
+   POST-commit     scope:guard -> inspected=0   SCOPE_GUARD_OK   (STILL "OK" - A VACUOUS GREEN)
+   ```
+   ⇒ **BOTH SAY `OK`. ONLY ONE MEASURED ANYTHING.** ⇒ **`scope:guard` runs PRE-`git add`;
+   `base...HEAD` guards run POST-commit; the two run at OPPOSITE times and neither substitutes for
+   the other. A PASSING `scope:guard` PROVES NOTHING UNTIL YOU READ `inspected=N`.**
+4. ★★ **`--strict-anchor` PROVES A STRING RESOLVES, NEVER THAT THE TEXT STILL SAYS WHAT THE SPEC
+   CLAIMS.** ⇒ **ANCHORS ROT TWO WAYS: the cited LINES move, and the anchor TEXT gets edited.**
+   `#706` changed `checkSolution.cjs` by **+38 lines**, so every spec anchored at `3d16a643` now
+   cites line numbers that are almost certainly wrong. **LOCATE BY TEXT, compare against the cited
+   number, and where they disagree THE TEXT WINS — and SAY WHICH METHOD YOU USED.**
+5. ★★ **SEARCH BY NAME, NEVER `cat-file` A PATH YOU ASSEMBLED.** The controller reported
+   `aiClient.ts` MISSING; it had tested `src/services/aiClient.ts`, **a path it invented.** The file
+   is at `lazytopper/src/ai/aiClient.ts`. ⇒ **A CHECK WHOSE SCOPE IS NARROWER THAN THE CLAIM IT
+   SUPPORTS RETURNS A TRUE "NOT FOUND" UNDER A FALSE SENTENCE.** *(Caught before it was relayed.)*
+6. ★★ **AN ALLOWLIST IS A PERMISSION, NOT AN INSTRUCTION.** `objectiveScoring.cjs` was authorized and
+   **deliberately left alone** because editing it *"would be a silent no-op today."* ⇒ **Declining
+   authorized scope is a result, not an omission.**
+
+⇒ ★★★ **THIS IS THE TWENTY-ONE-FOLLOW-UPS LESSON ABOUT TO REPEAT, AND IT IS WHY THIS SECTION EXISTS
+AS A DEBT RATHER THAN A SILENCE.** *A finding in a report is a finding that dies with the report.*
+**Specimens 1-15 sat in close-outs and in NONE of the rules any agent reads, for months.**
+
+### 7 - THE TWO STALE RECORDS ON TRUNK — **WITH THE OWNER'S RULING, NOT JUST THE DEFECT**
+
+1. ⛔ **`#689`'s MERGED TITLE SAYS *"the grader arc's code is complete on all five surfaces."* THERE
+   ARE SIX, AND IT IS WRONG EITHER WAY** — the owner's words: *"the arc's code is not complete on
+   five surfaces or six."*
+   ⇒ **RULING: THE TITLE CANNOT BE AMENDED.** This repo **squash-merges** and trunk history is not
+   rewritten. ⇒ ★★ **THE ENTRY IS THE INSTRUCTION: CITE `CLAUDE.md` §4a, NEVER `#689`.** A stale
+   record that cannot be corrected is corrected by **redirecting every future citation away from it.**
+2. ⛔ **`ops/AGENT_STANDING_RULES.md:106-107` — *"No gate in this repository can produce that
+   evidence"*, about the boot rung — IS FALSE ON TRUNK.** `.github/workflows/container-boot.yml`
+   **EXISTS** (**HANDOFF-VERIFIED**: one of five workflows — `codeql`, `container-boot`,
+   `lane-overlap`, `quality-gate`, `state-board`) **and it RAN ON `#707`.** On `#706` it produced
+   `[PASS] apiServerListening / gatewayParentSpawn / gatewayChildListening` and
+   `/shared-api/healthz -> 200`. ⇒ **The sentence was TRUE WHEN WRITTEN and is FALSE NOW.**
+   ★★★ *"The file that teaches agents what evidence IS contains a claim about evidence its own CI
+   disproves."*
+   ⇒ **RULING: THE CORRECTION IS AN `ops/` LANE THE OTHER WINDOW OWNS. RECORDED AS OWED; NOT FIXED
+   HERE.** ⛔ **Do not fix it from a handoff lane.**
+
+⇒ ★★ **HANDED TO THE `ops/` LANE SOLVED, BECAUSE IT WILL OTHERWISE COST A HOLD — HANDOFF-VERIFIED BY
+THIS LANE AT `02fa7c0a`:**
+```
+grep -c "No gate in this repository can produce that evidence"   ops/AGENT_STANDING_RULES.md -> 0
+grep -c "repository can produce that evidence"                   ops/AGENT_STANDING_RULES.md -> 1
+```
+**THE SENTENCE WRAPS ACROSS LINES 106 AND 107.** A line-based `grep -F` for the full sentence returns
+**ZERO** — which the standing rules themselves define as *"guarding text that does not exist."*
+⇒ ★★★ **THAT CHECK, RUN AGAINST THIS VERY CORRECTION'S TARGET, RETURNS A FALSE ZERO.** **A
+SINGLE-LINE ANCHOR IS REQUIRED** — use line 107's fragment,
+`repository can produce that evidence — which is the whole reason the rung was missing.`
+⇒ ★★ **GENERAL FORM: AN ANCHOR MUST NOT SPAN A LINE WRAP.** `--strict-anchor` and `grep -F` are both
+line-based, so **a wrapped quotation is unanchorable by construction — and it fails looking exactly
+like a rotted anchor.**
+
+### 8 - ★ THE `WIRE-2` QUESTION — **ASKED AS A QUESTION. NOT A CAUSAL CLAIM.**
+
+The **previous** commit touching `quickPracticeSessionService.ts` before `#706` is
+**`d03550e1 feat(practice): flip Quick Practice to collect-and-batch grading (WIRE-2) (#621)`**.
+**`WIRE-2` is what put Quick Practice on the BATCH path — the very path where the student's pick was
+never forwarded.**
+
+⚠⚠ **THE RULER IS A COMMIT SUBJECT AND A FILE HISTORY, NOT THE CODE. NOBODY HAS ASSERTED THAT
+`#621` INTRODUCED THE DEFECT, AND THIS ENTRY DOES NOT ASSERT IT EITHER.**
+⇒ **THE QUESTION, FOR WHOEVER READS THE CODE: did `#621` create it, and did it live from `#621` to
+`#706`?** If so, **the defect was created by a shipped feature and survived from one to the other** —
+and ★ **the `WIRE-2` dormancy block that every handoff must carry forward verbatim is about this
+exact surface.** ⇒ **Establish it; do not inherit it either way.**
+
+### 9 - ★ CARRY FORWARD VERBATIM — AND CARRY FORWARD VERBATIM NEVER MEANS CARRY FORWARD UNCHECKED
+
+**THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this wave.**
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.**
+**Wave MI-INTEGRITY-10 moved NO dormancy in that trio.**
+
+⚠ **§8 above asks a question ABOUT THE `WIRE-2` COMMIT. IT DOES NOT AMEND THIS BLOCK.** The block is
+about **three dormancies `WIRE-2` ENDED**; §8 is about **a defect the same commit may have started.**
+★★ **Those are different questions about the same PR, and confusing them would re-open a category
+error this record already disposed of once** — `HANDOFF-MI9` was asked to escalate an apparent
+conflict in this block, escalated it, and then **disproved it**: this file is **unanimous across
+every restatement.** **Nothing to reconcile.**
+
+What this wave changes about the dormancy record inherited from MI-3/MI-7/MI-8:
+- **The MI-6 graded-step-block dormancy remains DISCHARGED** (`#696` built it, `#697` extended it to
+  Quick Practice). **Do not restate it.**
+- ⚠ **`[FU-SHEET-DORMANT-NO-CONSUMER]` STAYS OPEN.** `#682` is on trunk, but **being on trunk is not
+  being TRIGGERED** — the wiring still needs `aiClient.ts` and `DesktopCheckImprovePage.tsx`.
+  **Nothing in this wave touched it.**
+- **The weak-area SATURATION remains RESOLVED by `#699`** — never a dormancy; **live code with a
+  saturated input**, now evidence-gated.
+- **NEW, and it is a dormancy of a different kind:** **`[FU-MOBILE-QP-UNBUILT]` — Quick Practice does
+  not exist on mobile at all.** `MobileAppPracticePage.tsx` is a **25-line stub ("Task #437")**,
+  controller-confirmed by line count on trunk. ⇒ **Every QP fix in this arc reached desktop only,
+  because there is nothing else to reach.**
+**These are additions to the dormancy record, not amendments to the WIRE-2 trio.** The full WIRE-2
+block, including the `#647`/`#655` resolution and every subsequent amendment, is **preserved verbatim
+in the demoted `[CURRENT]` sections below and must be read there before any lane acts on it.**
+
+### 10 - THE SUCCESSOR'S ORDER — **STRICTLY SEQUENTIAL AT THE HEAD**
+
+**Lane B -> taxonomy re-scope -> departure/unattempted -> splitpaper scout -> `TAXONOMY-3BUCKET` ->
+Me/Progress.**
+⚠⚠ **THE FIRST THREE ALL EDIT `checkSolution.cjs`. THEY RUN STRICTLY SEQUENTIALLY, NEVER IN
+PARALLEL** — no allowlist can separate two lanes on one file; **sequencing is the only safety.**
+
+★★ **LANE B's ALLOWLIST MUST REACH FOUR SITES, NOT TWO** *(OWNER-VERIFIED, both halves)*: the
+`resolved` flag is **discarded at `checkSolution.cjs:1613` AND `:2078`**, while the false sentence
+renders — **DUPLICATED** — at **`PracticePage.tsx:2702` AND `gradedAnswerAssembly.ts:237-238`.**
+⇒ ★★★ **RENDERER-ONLY = CORRECT WORDS OVER DESTROYED DATA. CALL-SITES-ONLY = FIXED DATA UNDER FALSE
+WORDS.** ⇒ **An allowlist reaching only one class repeats Lane A's HOLD for Lane A's reason.**
+⚠ **Those four line numbers are anchored at `2b7446b5`/`02fa7c0a`. LOCATE THEM BY TEXT — see §6.4.**
+★ **If the 250-line spec budget bites, SPLIT ON ROOT CAUSE (data-separability vs wording), NEVER ON
+SURFACES.** The last time the budget was flagged the split turned out **structural, not cosmetic.**
+⚠ **AND A QUESTION FOR LANE B's §0b, RAISED AS A QUESTION:** **there may be a THIRD state, not two** —
+key-less Section-A items (fill-in-the-blank) are **legitimately model-graded**, which is neither
+*unreadable* nor *no pick*. **Establish whether that third state shares the same string BEFORE any
+wording is written.**
+
+### 11 - ★★ ONE FACT, THREE SUCCESSIVE STATES, AND ALL THREE REPORTS WERE TRUE WHEN MADE
+
+**`SKILL-SINGLE-SOURCE` was reported to this lane three times and changed state between each report.**
+
+| when | what was reported | true then? |
+|---|---|---|
+| at dispatch | *"committed, UNPUSHED — no `lane/*` branch exists on the remote. Open PRs: ZERO."* | **YES** |
+| when this lane measured it | **OPEN as `#708`**, `isDraft=false`, `lane/skill-single-source` **on the remote** | **YES** |
+| at commit time | **MERGED** — `f07f33ce`, `2026-08-26T23:39:27Z`. **Open PRs: ZERO again** | **YES** |
+
+⇒ ★★★ **NOT ONE OF THE THREE WAS AN ERROR OF MEASUREMENT. EVERY ONE WAS A CORRECT READING OF A
+DIFFERENT INSTANT.** ⇒ **A STATUS FACT IS A PROPERTY OF AN INSTANT, AND A STATUS CLAIM WITHOUT ITS
+INSTANT IS UNFALSIFIABLE — the reader cannot tell a stale truth from a present one.**
+
+⚠⚠ **AND THE PART THAT MAKES THIS WORTH A SECTION RATHER THAN A FOOTNOTE: THE RULE WAS ALREADY
+KNOWN.** *"A scope fact is a property of a diff; a status fact is a property of an instant"* was
+**written down by the controller, in its own state file, EARLIER IN THE SAME SESSION — and then not
+applied to the very next status claim it made.** ⇒ ★★★ **A RULE THE AUTHOR HAS WRITTEN DOWN IS NOT A
+RULE THE AUTHOR IS APPLYING. Knowing it and doing it are different events, and only the second one
+protects anybody.**
+
+⚠ **SAY THE REST PLAINLY, IN THE OWNER'S WORDS: THE DISJOINTNESS CONCLUSION HELD ANYWAY, SO THE WRONG
+PREMISE NEVER BECAME A WRONG DECISION — *BUT THAT WAS LUCK, NOT METHOD.*** `cofounder-skill/` and
+`handoff/` were disjoint whichever state `#708` was in, so the parallel-safety call survived a premise
+that was false when it was relied on. ⇒ **A conclusion that survives a false premise is not evidence
+the premise did not matter. Next time the premise carries a different conclusion and there is no luck
+left.**
+
+**WHAT IS ACTUALLY TRUE AT COMMIT TIME:** **`#708` IS MERGED. TRUNK IS
+`f07f33ceed9fc8ad10bd7a7c43e7d385470cb289`. OPEN PRs: ZERO** *(re-derived by this lane at commit time
+— **and by the time you read this, re-derive it again**)*. **`#708` touched exactly two files,
+`cofounder-skill/SKILL.md` and `cofounder-skill/ANTHROPIC_LOADER_STUB.md` — ZERO `handoff/` files and
+ZERO `CLAUDE.md`.**
+
+**What it did:** it retired the two-copy skill sync. `SKILL.md`'s sync heading becomes **SKILL SYNC -
+RETIRED**, and `cofounder-skill/ANTHROPIC_LOADER_STUB.md` makes the Anthropic-side skill carry **NO
+METHOD** — only instructions to re-derive trunk and fetch the repo copy. ⇒ **There is now ONE copy of
+the method and nothing left to sync.**
+
+⚠ **`lane-overlap` COUNTS DRAFTS AND COMPARES EXACT PATHS.** Its greens read *"Comparing against N
+other open PR(s)"* — **bound to the instant, never a standing property.**
+
+**STILL OWED, OWNED ELSEWHERE:** the **`ops/`-only lane** carrying §6's specimens and §7's
+boot-sentence correction into `ops/AGENT_STANDING_RULES.md`. ★ **It can now be anchored: `#708` has
+landed**, and `SKILL.md` and `AGENT_STANDING_RULES.md` are under a standing *"no rule is written in
+both"* constraint whose boundary moves when either changes.
+
+### 12 - ⚠ THE OWNER'S TWO DOCUMENTS LIVE OUTSIDE THE REPO — NAMED HERE, DEPENDED ON NOWHERE
+
+★★ **A DOCUMENT OUTSIDE THE REPO IS A DOCUMENT A LANE CANNOT READ. NOTHING IN THIS HANDOFF DEPENDS ON
+EITHER, AND NOTHING IN A FUTURE ONE MAY.** They are named **BY NAME ONLY**, so a human knows to ask
+for them.
+
+- **`LazyTopper_COFOUNDER_HANDOFF_GRADER_ARC_2026-08-25.md`** — the arc handoff.
+- **`LazyTopper_REMAINING_TASKS_2026-08-26.md`** — the remaining-tasks addendum.
+
+⚠⚠ **AND A FINDING THAT PROVES THE RULE RATHER THAN ILLUSTRATING IT: THE SECOND NAME DID NOT RESOLVE
+TO A FILE THIS LANE COULD FIND.** A **name search with its scope stated** — `find` over the whole of
+`C:\Users\Chetan\OneDrive\Desktop` for `*REMAINING_TASKS*`, and again for `*REMAINING*` restricted to
+files modified since 2026-08-25 — **returned ZERO**, while the arc handoff above resolved on the
+first try in the same sweep. ⇒ **The name is recorded because the owner gave it; its LOCATION is
+recorded as UNVERIFIED, because this lane could not confirm one.**
+
+★★★ **THIS IS `[FU-ON-DISK-IS-NOT-A-LOCATION]` FIRING AGAIN, AND IT IS THE FOURTH-PLUS INSTANCE IN
+THIS ARC** — the same shape as a spec named *staged, 12914 bytes* that a full byte-size enumeration
+proved existed nowhere in the tree. ⇒ **AN ATTACHED DOCUMENT IS NOT A FILE, AND A FILENAME IS NOT A
+PATH.** ⇒ **Which is exactly why nothing here may depend on either document: this section could not
+even establish that one of them is reachable, let alone read it.**
+★ **Recorded as a negative with a stated scope so it can be RE-RUN rather than believed** — an
+enumeration you can check beats a claim you must trust.
+
+### 13 - FINDINGS THIS LANE MEASURED THAT CONTRADICTED WHAT IT WAS TOLD — **AND ONE THE OWNER NAMES AS HIS OWN**
+
+★ **The brief's own instruction: *"if this brief is wrong, your verified finding wins."*** It was
+invoked four times, and **three of the four corrections were accepted by the party that was wrong.**
+
+1. ⛔ **THE `CLAUDE.md` §4a CARVE-OUT IS NOT ON TRUNK** (§5). **OWNER-VERIFIED INDEPENDENTLY and ruled
+   as *failure class 4 — a ruling with no artefact — firing on the very amendment made to prevent
+   that class.*** **The most consequential of the four: it is the doctrine this handoff was told it
+   was handing forward.**
+2. ★ **THE GAP WAS FOUR PRs, NOT EIGHT — AND THE OWNER NAMES THE ERROR AS HIS.** His words: the
+   correction is *"proven by enumerating all seven files at `02fa7c0a` rather than by reasoning about
+   merge order. An enumeration you can check, again beating a count I asserted."*
+   ⇒ ★★ **THE METHOD IS THE POINT: `#704` sat between `#703` and `#705` in merge order, so ORDER
+   ALONE MADE ITS INCLUSION PLAUSIBLE. Only reading the files settled it.**
+3. ⚠ **"Open PRs: ZERO" and "no `lane/*` on the remote" were FALSE when relied on** (§11) — and have
+   since become **true again** by a different route. **All three states were correctly observed.**
+4. ⚠ **The brief described `SKILL-SINGLE-SOURCE` as "committed, unpushed."** It was **open as `#708`**,
+   and is now **merged**. ★ **The disjointness conclusion drawn from the stale premise was CORRECT —
+   but that was luck, not method** (§11).
+
+### 13a - ★★ A CONTROL THAT ITSELF RETURNS ZERO IS NOT A CONTROL — IT IS A SECOND UNVERIFIED MEASUREMENT
+
+**Recorded because it nearly produced a false discrepancy AGAINST A LANE THAT WAS RIGHT, and because
+it is one level deeper than the rule it sits beside.**
+
+Checking §5, the controller ran the positive control **case-sensitively** and got a result that
+disagreed with this lane's:
+
+```
+grep -c  "six surfaces"  CLAUDE.md   ->  0     (controller)
+grep -ci "six surfaces"  CLAUDE.md   ->  2     (this lane)
+the two matching lines, at trunk f07f33ce:
+  78: The grader is ONE behaviour reached through SIX surfaces:
+  93: - §0b MUST enumerate ALL SIX SURFACES and state, for each, whether the change reaches it.
+```
+⇒ **BOTH OCCURRENCES ARE UPPERCASE `SIX`. The case-sensitive control could not fire ON ANY REPO
+STATE WHATEVER.**
+
+⇒ ★★★ **THE TRAP: THE MEASUREMENT AND ITS CONTROL BOTH RETURNED ZERO, FOR TWO COMPLETELY DIFFERENT
+REASONS** — `applicab` = 0 **because the text is genuinely absent**, `six surfaces` = 0 **because the
+casing was wrong.** **A reader cannot tell those two zeros apart.** ⇒ **A control's whole job is to
+distinguish *"absent"* from *"the instrument never fired."* **A control returning zero has not done
+that job — it has merely added a second unexplained zero**, and it makes the finding look refuted
+when the finding is correct.
+⇒ ⚠⚠ **THE ONLY VALID CONTROL IS ONE THAT RETURNS NON-ZERO. If your control returns zero, FIX THE
+CONTROL BEFORE YOU DOUBT THE MEASUREMENT.**
+
+★ **FILE IT BESIDE *"COMPARE THE RULERS BEFORE THE NUMBERS"* — SAME FAMILY, ONE LEVEL DEEPER.** That
+rule says two disagreeing counts may be answering different questions. **This one says a count and
+its own control may be answering different questions**, and the ruler that differed here was a single
+`-i` flag. ⇒ **Owed to the `ops/` lane with the other six.**
+
+---
+
+## (superseded) [CURRENT] Wave MI-INTEGRITY-3 — **THE GRADER ARC'S FOUR FIXES ARE ON TRUNK AND THE RECORD FINALLY SAYS SO — and the wave's most valuable output was a lane that refused to start.** `#699` · `#700` · `#701` · `#702` are ALL ON TRUNK — trunk `65b6c0e2`
 
 ★ **PROVENANCE.** Code-level statements below are labelled **OWNER-VERIFIED**, **LANE-REPORTED**,
 **SCOUT-REPORTED** or **CONTROLLER-RECORDED**. Where the `HANDOFF-MI9` lane re-derived a claim itself
