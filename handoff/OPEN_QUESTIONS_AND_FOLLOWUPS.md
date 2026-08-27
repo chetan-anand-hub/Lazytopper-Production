@@ -209,6 +209,37 @@ DEEPER.** `#17` says two disagreeing counts may answer different questions; **th
 its OWN control may answer different questions.** Here the differing ruler was a single `-i` flag.
 ⇒ **Owed to the `ops/` lane with the other six.**
 
+### `[FU-ON-DISK-IS-NOT-A-LOCATION]` — **RE-STATED, AND THE STATEMENT SHARPENS. FIRED AGAIN THIS WAVE.**
+
+**THE OLD STATEMENT was "an attached document is not a file."** ⇒ ⚠⚠ **THE SHARPER ONE, EARNED HERE:
+THE DEFECT IS *A STATED PATH NOBODY VERIFIED* — NOT *A FILE THAT IS ABSENT.***
+
+**THE INSTANCE.** This lane was told the remaining-tasks addendum was *"saved outside the repo
+alongside"* the arc handoff. A **name search with its scope stated** —
+`find C:\Users\Chetan\OneDrive\Desktop -iname "*REMAINING_TASKS*"`, and again for `*REMAINING*`
+restricted to files modified since 2026-08-25 — **returned ZERO**, while the arc handoff **resolved on
+the first try in the same sweep** (the positive control that makes the zero mean something).
+
+**THE RESOLUTION CONFIRMED THE NEGATIVE AND MOVED THE DEFECT:**
+`LazyTopper_REMAINING_TASKS_2026-08-26.md` **EXISTS** — the owner holds it and another window has read
+all 255 lines — **but it is NOT under `Desktop`. THE DOCUMENT WAS NEVER MISSING. THE PATH WAS NEVER
+TRUE.**
+
+⇒ ★★★ **A LOCATION CAN BE ASSERTED, RELAYED THROUGH TWO BRIEFS, AND NEVER ONCE CHECKED — AND IT THEN
+FAILS LOOKING EXACTLY LIKE A MISSING FILE.** That is the expensive part: **the two failures have
+opposite remedies.** A missing document must be re-created or abandoned; **a mis-stated path only
+needs asking.** ⇒ **A lane that reports "not found" without its scope sends the next reader hunting
+for the wrong thing.**
+★★ **AND IT FIRED ON THE SECTION ARGUING THAT A DOCUMENT OUTSIDE THE REPO IS ONE A LANE CANNOT READ**
+(`CURRENT_STATE.md` §12) — that section **could not establish that one of its own two documents was
+reachable.** **The argument, demonstrated on itself.**
+★ **WHAT MADE IT RESOLVABLE: THE SCOPE WAS PRINTED.** A bare "not found" would have read as *someone
+looked once* and could not have been confirmed or refuted. ⇒ **RECORD NEGATIVES WITH THEIR SCOPE AND
+THEIR POSITIVE CONTROL, ALWAYS** — it is what lets somebody else close them.
+⚠ **PRIOR INSTANCES THIS ARC:** a spec named *"staged, 12914 bytes"* that a full byte-size
+enumeration proved existed nowhere in the tree; and the same spec later **arriving on disk**, which
+resolved that one **by arrival** rather than by correction. **Fourth-plus firing. STILL OPEN.**
+
 ### `[FU-MOBILE-QP-UNBUILT]` — **NEW. PRODUCT FACT FOR THE OWNER.**
 
 **Quick Practice does not exist on mobile at all.** `MobileAppPracticePage.tsx` is a **25-line stub

@@ -94,17 +94,27 @@ in `CURRENT_STATE.md` or anywhere else depends on either.**
 **REASON:** ★★ **A DOCUMENT OUTSIDE THE REPO IS A DOCUMENT A LANE CANNOT READ.** Naming it lets a
 human ask for it; **depending on it would make the handoff unusable by the agents it is written for.**
 
-⚠⚠ **AND A MEASURED FINDING THAT PROVES THE REASON RATHER THAN ILLUSTRATING IT.** A **name search
-with its scope stated** — `find` over all of `C:\Users\Chetan\OneDrive\Desktop` for
-`*REMAINING_TASKS*`, then for `*REMAINING*` restricted to files modified since 2026-08-25 —
-**returned ZERO for the second document**, while the arc handoff **resolved on the first try in the
-same sweep** (the positive control that makes the zero mean something).
-⇒ **The NAME is recorded because the owner gave it. Its LOCATION is recorded as UNVERIFIED.**
-★★★ **This is `[FU-ON-DISK-IS-NOT-A-LOCATION]` firing again — the same shape as a spec named
-*"staged, 12914 bytes"* that a full byte-size enumeration proved existed nowhere in the tree.**
-⇒ **AN ATTACHED DOCUMENT IS NOT A FILE, AND A FILENAME IS NOT A PATH.** ⇒ **Which is precisely why
-nothing may depend on either: this lane could not even establish that one of them is reachable.**
-★ **Recorded as a negative WITH ITS SCOPE so it can be re-run rather than believed.**
+⚠⚠ **AND A MEASURED FINDING THAT RELOCATED THE DEFECT.** This lane was given a path for the second
+document and could not resolve it. **A name search with its scope stated** — `find` over all of
+`C:\Users\Chetan\OneDrive\Desktop` for `*REMAINING_TASKS*`, then for `*REMAINING*` restricted to
+files modified since 2026-08-25 — **returned ZERO**, while the arc handoff **resolved on the first
+try in the same sweep.** ★ **That positive control is what made the zero mean anything.**
+
+⇒ ★★★ **RESOLVED, AND THE NEGATIVE WAS CONFIRMED: THE DOCUMENT EXISTS** — the owner holds it and
+another window has read all 255 lines — **BUT IT IS NOT UNDER `Desktop`. ITS LOCATION IS OWNER-HELD
+AND UNRECORDED. THE DOCUMENT WAS NEVER MISSING; THE PATH WAS NEVER TRUE.**
+
+⇒ ⚠⚠ **`[FU-ON-DISK-IS-NOT-A-LOCATION]` STANDS AND ITS STATEMENT SHARPENS: THE DEFECT IS *A STATED
+PATH NOBODY VERIFIED*, NOT *A FILE THAT IS ABSENT.*** **A location can be asserted, relayed through
+two briefs, and never once checked — and it then fails looking exactly like a missing file, which
+sends the next reader hunting for the wrong thing.** ★ Same family as the spec named *"staged, 12914
+bytes"* that a full byte-size enumeration proved existed nowhere in the tree.
+★★ **AND IT FIRED ON THE VERY SECTION ARGUING THAT A DOCUMENT OUTSIDE THE REPO IS ONE A LANE CANNOT
+READ** — that section could not establish one of its own two documents was reachable. **The argument,
+demonstrated on itself.**
+★ **THE SEARCH SCOPE IS KEPT IN THE RECORD DELIBERATELY.** It is what made the negative re-runnable,
+and it is now **the evidence that the path was wrong rather than the document lost.** ⇒ **A negative
+without its scope could not have been resolved at all — it would have read as "someone looked once."**
 
 ### DECISION 6 — **`[ci-full]` IS IN THE PR TITLE BECAUSE THE MECHANISM WAS VERIFIED, NOT INHERITED.**
 

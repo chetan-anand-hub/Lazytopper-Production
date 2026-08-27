@@ -355,23 +355,33 @@ both"* constraint whose boundary moves when either changes.
 EITHER, AND NOTHING IN A FUTURE ONE MAY.** They are named **BY NAME ONLY**, so a human knows to ask
 for them.
 
-- **`LazyTopper_COFOUNDER_HANDOFF_GRADER_ARC_2026-08-25.md`** — the arc handoff.
-- **`LazyTopper_REMAINING_TASKS_2026-08-26.md`** — the remaining-tasks addendum.
+- **`LazyTopper_COFOUNDER_HANDOFF_GRADER_ARC_2026-08-25.md`** — the arc handoff. **Location known.**
+  ⚠ **Its own header states trunk `3d16a643` and "zero open PRs, zero lane branches" — BOTH STALE.**
+  ★ **The document says so about itself:** *"RE-DERIVE TRUNK BEFORE TRUSTING ANY SHA IN THIS FILE —
+  it moved twenty-four times during this arc."*
+- **`LazyTopper_REMAINING_TASKS_2026-08-26.md`** — the remaining-tasks addendum. **THE DOCUMENT
+  EXISTS** — the owner holds it and another window has read all 255 lines. ⛔ **ITS LOCATION IS
+  OWNER-HELD AND UNRECORDED. IT IS NOT UNDER `Desktop`.**
 
-⚠⚠ **AND A FINDING THAT PROVES THE RULE RATHER THAN ILLUSTRATING IT: THE SECOND NAME DID NOT RESOLVE
-TO A FILE THIS LANE COULD FIND.** A **name search with its scope stated** — `find` over the whole of
-`C:\Users\Chetan\OneDrive\Desktop` for `*REMAINING_TASKS*`, and again for `*REMAINING*` restricted to
-files modified since 2026-08-25 — **returned ZERO**, while the arc handoff above resolved on the
-first try in the same sweep. ⇒ **The name is recorded because the owner gave it; its LOCATION is
-recorded as UNVERIFIED, because this lane could not confirm one.**
+⚠⚠ **AND A MEASURED FINDING THAT SHARPENS THE RULE RATHER THAN ILLUSTRATING IT.** This lane was given
+a path for the second document and **could not resolve it.** A **name search with its scope stated** —
+`find` over the whole of `C:\Users\Chetan\OneDrive\Desktop` for `*REMAINING_TASKS*`, and again for
+`*REMAINING*` restricted to files modified since 2026-08-25 — **returned ZERO**, while the arc handoff
+**resolved on the first try in the same sweep.** ★ **That positive control is what made the zero mean
+anything;** a bare "not found" would have been indistinguishable from a search that never ran.
 
-★★★ **THIS IS `[FU-ON-DISK-IS-NOT-A-LOCATION]` FIRING AGAIN, AND IT IS THE FOURTH-PLUS INSTANCE IN
-THIS ARC** — the same shape as a spec named *staged, 12914 bytes* that a full byte-size enumeration
-proved existed nowhere in the tree. ⇒ **AN ATTACHED DOCUMENT IS NOT A FILE, AND A FILENAME IS NOT A
-PATH.** ⇒ **Which is exactly why nothing here may depend on either document: this section could not
-even establish that one of them is reachable, let alone read it.**
-★ **Recorded as a negative with a stated scope so it can be RE-RUN rather than believed** — an
-enumeration you can check beats a claim you must trust.
+⇒ ★★★ **THE ANSWER CONFIRMED THE NEGATIVE AND RELOCATED THE DEFECT. THE DOCUMENT WAS NEVER MISSING —
+THE PATH WAS NEVER TRUE.** ⇒ ⚠⚠ **`[FU-ON-DISK-IS-NOT-A-LOCATION]` STANDS, AND ITS STATEMENT
+SHARPENS: THE DEFECT IS *A STATED PATH NOBODY VERIFIED*, NOT *A FILE THAT IS ABSENT.*** A location can
+be asserted, relayed through two briefs and never once checked, and it fails looking exactly like a
+missing file — **which sends the next reader hunting for the wrong thing.**
+★★ **AND IT FIRED ON THE SECTION ARGUING THAT A DOCUMENT OUTSIDE THE REPO IS ONE A LANE CANNOT READ.**
+This section could not establish that one of its own two documents was reachable — **which is the
+argument, demonstrated on itself.**
+★ **The search scope is KEPT IN THIS RECORD DELIBERATELY.** It is what made the negative re-runnable,
+and it is now the evidence that **the path was wrong rather than the document lost.** ⇒ **An
+enumeration you can check beats a claim you must trust — including when the claim turns out to be
+half right.**
 
 ### 13 - FINDINGS THIS LANE MEASURED THAT CONTRADICTED WHAT IT WAS TOLD — **AND ONE THE OWNER NAMES AS HIS OWN**
 
