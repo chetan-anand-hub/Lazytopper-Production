@@ -1,3 +1,203 @@
+## 2026-08-27 — WAVE MI-INTEGRITY-10 CLOSE-OUT (lane `HANDOFF-MI10`, docs-only) — trunk `02fa7c0a`, PRs `#703` `#704` `#706` `#707`
+
+**`2026-08-27`**
+
+> ⚠ **NUMBERING.** `DECISION N` is SECTION-LOCAL and restarts at 1 in every wave section. This
+> section starts at `DECISION 1`.
+> ✅ **`[FU-CLAUDEMD-S10-OMITS-DECISION-LOG]` IS CLOSED.** `#707` corrected §10: it now says **SEVEN**
+> and lists this file. **Verified in `CLAUDE.md` §10 at `02fa7c0a`.** ⇒ **Future handoff dispatches no
+> longer need to name `DECISION_LOG.md` explicitly to avoid dropping it — but ENUMERATE THE SEVEN
+> ANYWAY. A bare count rots exactly the way "six" did.**
+
+### DECISION 1 — **ENUMERATE WHAT IS ALREADY RECORDED BEFORE WRITING WHAT IS MISSING.**
+
+**The commissioning dispatch said *"`#699` through `#706` are in no handoff file; `#698` was the
+last."* The controller measured that and reported it STALE. This lane re-measured independently and
+CONFIRMED the correction, then answered the question the metadata could not.**
+
+**METHOD (HANDOFF-VERIFIED at `02fa7c0a`):** `git log origin/base/approved-thru-437 --oneline --
+handoff/` shows `#705` (`3d16a643`, `HANDOFF-MI9`) **newer than `#698`**, and
+`git show --name-only 3d16a643 -- handoff/` shows it touched **all seven** files. Then every one of
+the seven was grepped for PR references in the `#695`-`#709` range.
+
+| result | PRs |
+|---|---|
+| present in **EVERY** one of the seven | `#695` `#696` `#697` `#699` `#700` `#701` `#702` |
+| present in **NONE** of the seven | **`#703` `#704` `#706` `#707`** |
+
+⇒ **`#704` IS NOT RECORDED IN `#705`, ANSWERED BY READING, NOT BY TIMESTAMPS** (it merged `07:32Z`,
+`#705` at `09:31Z`, so it was chronologically possible). ⇒ **THE REAL GAP WAS FOUR PRs, NOT EIGHT.**
+
+**REASON THIS IS A DECISION AND NOT A CHORE:** writing the dispatch's sentence would have put a
+**false statement about trunk** into the artefact that exists to correct stale records, and would
+have **duplicated or contradicted `#705`'s own entries.** ⇒ ★★★ **THE STALE-RECORD DEFECT, COMMITTED
+BY THE CORRECTIVE ARTEFACT.** Same class as `#689`'s "five surfaces" title, one layer up.
+
+### DECISION 2 — **THE `CLAUDE.md` §4a CARVE-OUT IS RECORDED AS *OWED*, NOT AS DOCTRINE.**
+
+**This lane's own finding, and it contradicts its brief.** The owner's §4a amendment — *"every
+surface" means every surface **where the behaviour is applicable**, and a lane must **state** the
+structural exclusions — **is NOT on trunk.** **HANDOFF-VERIFIED with a positive control:** `grep -i`
+for `applicab` / `structurally exclud` / `carve` returns **ZERO** in `CLAUDE.md` and `SKILL.md`, while
+`grep -c -i "six surfaces" CLAUDE.md` returns **2**.
+
+**REASON:** the alternative was to write the amendment into `handoff/` as if it bound lanes. **It does
+not — lanes read `CLAUDE.md`, not this record.** Recording a rule where nobody enforces it is the
+same failure the specimen debt below describes. **`CLAUDE.md` is FORBIDDEN to this lane;** the entry
+is a debt with an FU id, `[FU-CLAUDEMD-S4A-APPLICABILITY-CARVEOUT-NOT-LANDED]`, and the owner rules
+who fixes it. ⇒ ★★ **A RULING THAT LIVES ONLY IN A BRIEF IS A RULING THAT DIES WITH THE BRIEF.**
+
+⚠⚠ **THE OWNER VERIFIED IT INDEPENDENTLY AND RULED. HIS WORDS:** ***"MY RULING DIED IN A BRIEF AND
+NEVER REACHED THE FILE LANES READ. THAT IS FAILURE CLASS 4 — A RULING WITH NO ARTEFACT — FIRING ON
+THE VERY AMENDMENT MADE TO PREVENT THAT CLASS."***
+⇒ ★★★ **`#707` SHIPPED THE AUTHOR-SIDE FAILURE CLASSES INTO `SKILL.md` AND LOST ITS OWN AMENDMENT TO
+CLASS 4 IN THE SAME PR.** ★ **Leaving `CLAUDE.md` untouched was confirmed correct.**
+**RE-DERIVED AT THE NEW TRUNK `f07f33ce` after `#708` merged — still absent, control still fires.**
+
+### DECISION 3 — **THE WAVE'S SIX NEW RULES ARE RECORDED AS A DEBT, WITH NO SPECIMEN NUMBERS.**
+
+**REASON, two parts.** *(a)* **Specimens live in `ops/AGENT_STANDING_RULES.md`, which an `ops/`-only
+lane in another window owns.** `handoff/` is a RECORD, not a rulebook; **a rule written into a record
+has no reader** — which is precisely how specimens 1-15 sat in close-outs for months while no agent
+ever read them. *(b)* **Numbering them here would fork the ledger.** **HANDOFF-VERIFIED at
+`02fa7c0a`:** the ledger tips at **`#17` (`:329`)**, and **`:359`** reads *"Specimens #7 through #17
+are individually sourced above. #1-#6 are NOT"*. The payload-whitelist specimen is **`#18` SUBJECT TO
+THE OWNER'S OUTSTANDING `#11`-vs-`#12` DECISION.** ⇒ **Owed, not assigned.**
+
+⚠⚠ **OWNER'S RULING, AND IT IS SHARPER THAN "WAIT FOR THE DECISION":** ***"The `#11`-vs-`#12`
+ambiguity is unresolved, and guessing a number would be specimen `#11` committed on the specimens
+themselves."***
+⇒ ★★★ **SPECIMEN `#11` IS *TWO TRUE LISTS PRESENTED AS ONE, THE EARLIER READING COMPLETE.* Assigning
+`#18` from a ledger whose `#11`/`#12` are transposed in one of two candidate tables would commit
+exactly that defect ON THE LEDGER THAT DEFINES IT.**
+⇒ **RECORD THE SPECIMEN UNNUMBERED, WITH ITS EVIDENCE. The evidence is what survives; a number is a
+pointer that can be assigned later, and a WRONG pointer is worse than NO pointer.**
+
+### DECISION 4 — **THE `WIRE-2` QUESTION IS RECORDED AS A QUESTION, AND EXPLICITLY WALLED OFF FROM THE `WIRE-2` DORMANCY BLOCK.**
+
+The previous commit touching `quickPracticeSessionService.ts` before `#706` is **`d03550e1 …
+(WIRE-2) (#621)`**, which flipped QP to collect-and-batch grading — **the path where the pick was
+never forwarded.** **The ruler is a COMMIT SUBJECT and a FILE HISTORY, not the code.**
+
+**REASON FOR THE WALL:** the mandatory `WIRE-2` dormancy block says `#621` **ENDED** three dormancies.
+§8 of `CURRENT_STATE.md` asks whether the same commit **STARTED** a defect. ★★ **Those are different
+questions about the same PR**, and merging them would re-open a category error `HANDOFF-MI9` already
+escalated and then disproved. **The block is restated verbatim; the question is stated separately and
+labelled as not amending it.**
+
+### DECISION 5 — **THE OWNER'S OUT-OF-REPO DOCUMENTS ARE NAMED — BY NAME ONLY — AND NOTHING DEPENDS ON THEM.**
+
+**Both are named:** `LazyTopper_COFOUNDER_HANDOFF_GRADER_ARC_2026-08-25.md` (the arc handoff) and
+`LazyTopper_REMAINING_TASKS_2026-08-26.md` (the remaining-tasks addendum). **BY NAME ONLY. No entry
+in `CURRENT_STATE.md` or anywhere else depends on either.**
+
+**REASON:** ★★ **A DOCUMENT OUTSIDE THE REPO IS A DOCUMENT A LANE CANNOT READ.** Naming it lets a
+human ask for it; **depending on it would make the handoff unusable by the agents it is written for.**
+
+⚠⚠ **AND A MEASURED FINDING THAT RELOCATED THE DEFECT.** This lane was given a path for the second
+document and could not resolve it. **A name search with its scope stated** — `find` over all of
+`C:\Users\Chetan\OneDrive\Desktop` for `*REMAINING_TASKS*`, then for `*REMAINING*` restricted to
+files modified since 2026-08-25 — **returned ZERO**, while the arc handoff **resolved on the first
+try in the same sweep.** ★ **That positive control is what made the zero mean anything.**
+
+⇒ ★★★ **RESOLVED, AND THE NEGATIVE WAS CONFIRMED: THE DOCUMENT EXISTS** — the owner holds it and
+another window has read all 255 lines — **BUT IT IS NOT UNDER `Desktop`. ITS LOCATION IS OWNER-HELD
+AND UNRECORDED. THE DOCUMENT WAS NEVER MISSING; THE PATH WAS NEVER TRUE.**
+
+⇒ ⚠⚠ **`[FU-ON-DISK-IS-NOT-A-LOCATION]` STANDS AND ITS STATEMENT SHARPENS: THE DEFECT IS *A STATED
+PATH NOBODY VERIFIED*, NOT *A FILE THAT IS ABSENT.*** **A location can be asserted, relayed through
+two briefs, and never once checked — and it then fails looking exactly like a missing file, which
+sends the next reader hunting for the wrong thing.** ★ Same family as the spec named *"staged, 12914
+bytes"* that a full byte-size enumeration proved existed nowhere in the tree.
+★★ **AND IT FIRED ON THE VERY SECTION ARGUING THAT A DOCUMENT OUTSIDE THE REPO IS ONE A LANE CANNOT
+READ** — that section could not establish one of its own two documents was reachable. **The argument,
+demonstrated on itself.**
+★ **THE SEARCH SCOPE IS KEPT IN THE RECORD DELIBERATELY.** It is what made the negative re-runnable,
+and it is now **the evidence that the path was wrong rather than the document lost.** ⇒ **A negative
+without its scope could not have been resolved at all — it would have read as "someone looked once."**
+
+### DECISION 6 — **`[ci-full]` IS IN THE PR TITLE BECAUSE THE MECHANISM WAS VERIFIED, NOT INHERITED.**
+
+**HANDOFF-VERIFIED:** `lazytopper/scripts/ops/ci_docs_lane_acceptance.mjs` defines
+`FULL_BAR_MARKER = "[ci-full]"` (`:92`) and a `waveCloserForcesFull` rule (`:62`, `:159`);
+`quality-gate.yml` passes `PR_TITLE` into the classifier (`:110`) and gates every full-bar step on
+`steps.classify.outputs.docs_only != 'true'`. The classifier's **own acceptance suite** asserts
+`a6_wave_closer_forces_full_on_a_pure_markdown_changeset` with **exactly this shape** — a
+`handoff/*.md` changeset plus `[ci-full]` -> `"full"`.
+
+**REASON:** ★ **A docs-only PR is the cheapest full-bar check available and the only one that sees
+the merged whole** — it runs the bar against trunk with every product merge COMPOSED. **A green on
+the docs fast path would have proven nothing about that.** The convention was observed on `#705`,
+`#698`, `#691`, `#689`, `#686`, `#707` and `#708` — **but observation is not a mechanism**, so the
+mechanism was read. ★ **The `!= 'true'` polarity means even a MISSING classifier output runs
+everything: it fails safe.**
+
+### DECISION 7 — **STATUS CLAIMS IN THIS RECORD CARRY THE INSTANT THEY WERE READ — AND THE FAILURE THAT FORCED IT IS RECORDED, NOT SMOOTHED.**
+
+**One fact, THREE successive states, and ALL THREE REPORTS WERE TRUE WHEN MADE.**
+`SKILL-SINGLE-SOURCE` was **"committed, unpushed; open PRs ZERO"** at dispatch · **OPEN as `#708`,
+`isDraft=false`, branch on the remote** when this lane measured it · **MERGED as `f07f33ce`, open PRs
+ZERO again** at commit time. ⇒ **No measurement error occurred at any point.**
+
+**REASON THIS IS A DECISION:** ★★★ **the rule against it was ALREADY WRITTEN DOWN BY THE PARTY WHO
+THEN DID NOT APPLY IT.** *"A scope fact is a property of a diff; a status fact is a property of an
+instant"* was authored by the controller **in its own state file, earlier in the same session** — and
+the very next status claim it issued carried no instant. ⇒ ★★ **A RULE THE AUTHOR HAS WRITTEN DOWN IS
+NOT A RULE THE AUTHOR IS APPLYING.** **The remedy adopted here is mechanical, not attitudinal: every
+open-PR / branch-existence / trunk claim in this record is stamped with when it was measured and tells
+the reader to re-derive.**
+
+⚠⚠ **AND THE HONEST REST, IN THE OWNER'S WORDS: THE DISJOINTNESS CONCLUSION HELD ANYWAY, SO THE WRONG
+PREMISE NEVER BECAME A WRONG DECISION — *BUT THAT WAS LUCK, NOT METHOD.*** ⇒ **A conclusion that
+survives a false premise is not evidence the premise was harmless.** The next reuse carries a
+different conclusion and there is no luck left.
+
+### DECISION 8 — **`#703`, A DEPENDABOT BUMP, IS RECORDED.**
+
+**REASON:** it is one of the four PRs in the gap. **A gap in the record is a gap whatever filled it**,
+and a record that silently omits the boring entries teaches the next reader that the list is curated
+rather than complete. ⇒ **Recorded with an explicit "nothing student-facing."**
+
+### DECISION 9 — **A CONTROL THAT RETURNS ZERO IS TREATED AS A BROKEN INSTRUMENT, NOT AS A REFUTATION.**
+
+Verifying DECISION 2's §4a finding, the controller ran the positive control **case-sensitively** and
+got a result that disagreed with this lane's:
+```
+grep -c  "six surfaces"  CLAUDE.md  ->  0   (controller)
+grep -ci "six surfaces"  CLAUDE.md  ->  2   (this lane)
+at f07f33ce:  :78 "...reached through SIX surfaces:"   :93 "...ALL SIX SURFACES..."
+```
+**Both occurrences are uppercase `SIX`** ⇒ **the case-sensitive control could not have fired on ANY
+state of the repository.**
+
+**THE DECISION: the disagreement was resolved by RE-DERIVING BOTH CASINGS AND PRINTING THE MATCHING
+LINES, not by either side conceding a number.** ⇒ **Exact agreement, and the finding stands.**
+
+**REASON, and it is why this is a decision rather than a footnote:** ★★★ **the measurement and its
+control both returned ZERO for entirely different reasons** — `applicab` = 0 **because the text is
+genuinely absent**, `six surfaces` = 0 **because the casing was wrong** — **and nothing in the output
+distinguishes them.** A control exists to separate *"absent"* from *"the instrument never fired."*
+**A control that returns zero has not done that job; it has added a second unexplained zero, and it
+makes a correct finding look refuted.** ⇒ ⚠⚠ **THE ONLY VALID CONTROL IS ONE THAT RETURNS NON-ZERO.
+IF YOUR CONTROL RETURNS ZERO, FIX THE CONTROL BEFORE YOU DOUBT THE MEASUREMENT.**
+★ **Filed beside specimen `#17` — *compare the rulers before the numbers* — as the same family one
+level deeper: `#17` is about two counts; this is about a count and its OWN control.** Here the
+differing ruler was a single `-i` flag. ⇒ **Owed to the `ops/` lane.**
+
+### DECISION 10 — **THE BASE MOVED MID-LANE, AND THE COMMIT WAS RECONCILED RATHER THAN ASSUMED SAFE.**
+
+This lane cut its worktree at `02fa7c0a`. **`#708` merged during the lane and trunk became
+`f07f33ceed9fc8ad10bd7a7c43e7d385470cb289`.**
+
+**REASON FOR RECONCILING ANYWAY:** `#708` touched **only** `cofounder-skill/SKILL.md` and
+`cofounder-skill/ANTHROPIC_LOADER_STUB.md` — **zero `handoff/` files, and `CLAUDE.md` is byte-identical
+between the two SHAs** — so no conflict was expected. ⇒ ★★ **BUT *"SHOULD BE IDENTICAL" IS NOT A
+CHECK.*** `#566` authored four files and **landed thirteen, green**. The file lists were compared
+explicitly rather than reasoned about, and the §4a finding was **re-derived at the NEW trunk** rather
+than carried forward from the old one — **a code reading is dated the moment trunk moves.**
+
+---
+
 ## 2026-08-25 — WAVE MI-INTEGRITY-3 CLOSE-OUT (lane `HANDOFF-MI9`, docs-only) — trunk `65b6c0e2`, PRs `#699` `#700` `#701` `#702`
 
 **`2026-08-25`**
