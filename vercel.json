@@ -3,7 +3,7 @@
     {
       "source": "/",
       "destination": "/app/",
-      "permanent": false
+      "permanent": true
     }
   ],
   "rewrites": [
@@ -30,6 +30,10 @@
     {
       "source": "/favicon.svg",
       "destination": "/app/favicon.svg"
+    },
+    {
+      "source": "/a6c1861da61f4d36898e5e27a71c36d6.txt",
+      "destination": "/app/a6c1861da61f4d36898e5e27a71c36d6.txt"
     },
     {
       "source": "/app/:path*",

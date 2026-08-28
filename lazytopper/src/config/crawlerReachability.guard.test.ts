@@ -855,13 +855,10 @@ describe("route reachability — every advertised URL names a REAL route, not ju
     const sitemapHost = new URL(sitemapLines[0].url).hostname;
     const locHosts = [...new Set(locs.map((a) => new URL(a.url).hostname))];
 
-    // ★ NAME THE DIVERGENCE ON EVERY RUN, GREEN INCLUDED. `robots.txt` is not in
-    // META-3's allowlist, so its Sitemap: line is still on the apex while every
-    // <loc> is on www. Measured 2026-08-05: the apex form is 200 after 1 redirect
-    // (-> www), so it works — but Google treats apex and www as DIFFERENT hosts,
-    // and a sitemap fetched at one host listing URLs on another is a cross-
-    // submission it discards unless both are Search-Console-verified. The 308
-    // makes that probably-fine, not provably-fine. [FU-ROBOTS-SITEMAP-WWW-HOST]
+    // ★ NAME THE HOSTS ON EVERY RUN, GREEN INCLUDED. Google treats apex and www as
+    // DIFFERENT hosts, and a sitemap fetched at one host listing URLs on another is
+    // a cross-submission it discards unless both are Search-Console-verified. Both
+    // sides are on www as of CRAWL-1; printing them keeps a regression visible.
     // eslint-disable-next-line no-console
     console.log(
       `SITEMAP_HOST_CONSISTENCY: robots_sitemap_host=${sitemapHost} ` +
@@ -870,19 +867,92 @@ describe("route reachability — every advertised URL names a REAL route, not ju
         `registrable_match=${locHosts.every((h) => bare(h) === bare(sitemapHost))}`,
     );
 
-    // ⚠ THE WEAKER OF THE TWO ASSERTIONS, and it is weaker ON PURPOSE rather than
-    // by oversight: tightening it to exact host equality requires a one-line edit
-    // to robots.txt, which this lane is not scoped to touch. Registrable-domain
-    // equality still catches the failure that actually happened five times in this
-    // file family — a URL pointing at a domain the project does not serve.
     for (const h of locHosts) {
       expect(
-        bare(h),
+        h,
         `sitemap <loc> host "${h}" and robots.txt Sitemap: host "${sitemapHost}" are ` +
-          `different sites. Google will not accept a sitemap that indexes a domain ` +
-          `it was not served from.`,
-      ).toBe(bare(sitemapHost));
+          `different hosts. Google will not accept a sitemap that indexes a host ` +
+          `it was not served from, and apex/www are different hosts to it.`,
+      ).toBe(sitemapHost);
     }
+  });
+});
+
+describe("crawl control — the sitemap's freshness signal and the IndexNow key file", () => {
+  // The IndexNow protocol identifies the key by the FILENAME and verifies it by
+  // the CONTENTS: the file must be named <key>.txt and contain exactly <key>.
+  // Deriving the expectation from the filename is the whole point — a hardcoded
+  // key compared against itself would pass while the file on disk disagreed.
+  const KEY_FILE = /^[0-9a-f]{32}\.txt$/;
+
+  it("★ the IndexNow key file exists, and its contents are exactly its filename stem", () => {
+    const keys = readdirSync(PUBLIC_ROOT).filter((f) => KEY_FILE.test(f));
+    expect(
+      keys.length,
+      `expected exactly one IndexNow key file (<32-hex>.txt) in public/, found ` +
+        `${keys.length}. Bing verifies ownership by fetching this file.`,
+    ).toBe(1);
+
+    const name = keys[0];
+    const stem = name.replace(/\.txt$/, "");
+    const body = readFileSync(join(PUBLIC_ROOT, name), "utf8");
+    expect(
+      body,
+      `IndexNow key file "${name}" must contain exactly its own stem and nothing ` +
+        `else — no newline, no BOM, no trailing whitespace. Bing compares the two ` +
+        `byte-for-byte and rejects the key otherwise. Got ${JSON.stringify(body)}.`,
+    ).toBe(stem);
+  });
+
+  it("★★ the IndexNow key file RESOLVES AT THE ROOT — public/ ships under /app/, so this needs a rewrite", () => {
+    // THE DEFECT THIS FILE EXISTS FOR, one more time. Vite's base is "/app/", so a
+    // file dropped in public/ is served at /app/<name> and is 404 at the root.
+    // IndexNow fetches the key from the ROOT by protocol and never looks under
+    // /app/ — so without a vercel.json rewrite the key is correct and unreachable.
+    const keys = readdirSync(PUBLIC_ROOT).filter((f) => KEY_FILE.test(f));
+    expect(keys.length, "no IndexNow key file — the check below would be vacuous").toBe(1);
+
+    const r = resolvePath(`/${keys[0]}`);
+    expect(
+      isReachable(r),
+      `/${keys[0]} does not resolve at the site root. IndexNow fetches the key ` +
+        `from the root and will never look under ${SERVED_PREFIX}/. ` +
+        `Resolution: ${describeResolution(r)}`,
+    ).toBe(true);
+  });
+
+  it("★ every sitemap <loc> carries a <lastmod>, and no <changefreq> or <priority>", () => {
+    const xml = readFileSync(join(PUBLIC_ROOT, "sitemap.xml"), "utf8");
+
+    const locCount = [...xml.matchAll(/<loc>/gi)].length;
+    expect(locCount, "sitemap.xml yielded no <loc> — these checks would be vacuous")
+      .toBeGreaterThan(0);
+
+    const lastmods = [...xml.matchAll(/<lastmod>\s*([^<\s]+)\s*<\/lastmod>/gi)].map((m) => m[1]);
+    expect(
+      lastmods.length,
+      `${locCount} <loc> but ${lastmods.length} <lastmod>. Google reads <lastmod> ` +
+        `and ignores <changefreq>/<priority>; a sitemap without it gives the ` +
+        `crawler no reason to revisit.`,
+    ).toBe(locCount);
+
+    for (const d of lastmods) {
+      expect(d, `<lastmod> "${d}" is not a W3C date (YYYY-MM-DD)`).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      expect(
+        Date.parse(d) <= Date.now(),
+        `<lastmod> "${d}" is in the future — a fabricated freshness signal is worse ` +
+          `than none, and Google discounts the whole sitemap for it.`,
+      ).toBe(true);
+    }
+
+    expect(
+      /<changefreq>/i.test(xml),
+      "sitemap.xml still declares <changefreq>; Google ignores it — drop it.",
+    ).toBe(false);
+    expect(
+      /<priority>/i.test(xml),
+      "sitemap.xml still declares <priority>; Google ignores it — drop it.",
+    ).toBe(false);
   });
 });
 
@@ -956,8 +1026,8 @@ describe("route reachability — every advertised URL names a REAL route, not ju
  *         Two routes declaring the same path (App.tsx currently declares
  *         `/topic-hub` twice) are indistinguishable here.
  *
- * 9. IT CANNOT PIN robots.txt's `Sitemap:` HOST EXACTLY. That line is on the apex
- *    while every <loc> is on www; the check asserts registrable-domain equality
- *    only, because tightening it needs an edit to a file META-3 was not scoped to
- *    touch. See [FU-ROBOTS-SITEMAP-WWW-HOST].
+ * 9. (RESOLVED BY CRAWL-1 — NOT A LIMIT ANY MORE.) The `Sitemap:` host is now
+ *    pinned EXACTLY — robots.txt and every <loc> are on www, the check asserts
+ *    strict host equality, and the registrable-domain fallback is GONE (`bare()`
+ *    survives only in the diagnostic line). [FU-ROBOTS-SITEMAP-WWW-HOST] CLOSED.
  * ------------------------------------------------------------------------- */

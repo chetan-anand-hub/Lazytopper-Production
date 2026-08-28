@@ -3,7 +3,6 @@ Allow: /
 
 # Ignore private and non-product paths
 Disallow: /api/
-Disallow: /.codex_runs/
-Disallow: /node_modules/
+Disallow: /admin/
 
-Sitemap: https://lazytopper.com/sitemap.xml
+Sitemap: https://www.lazytopper.com/sitemap.xml
