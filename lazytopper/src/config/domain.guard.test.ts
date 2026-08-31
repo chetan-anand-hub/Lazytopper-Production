@@ -213,13 +213,15 @@ describe("domain guard — the never-owned lazytopper.app appears nowhere in the
     ).toBe(true);
 
     // The share-image URLs must resolve too, or every WhatsApp / X card is blank.
-    // ⚠ DELIBERATELY LEFT ON THE APEX FORM #612 shipped. Measured 2026-08-05:
-    // https://lazytopper.com/app/og-image.png -> 200 after 1 redirect (-> www).
-    // A redirecting IMAGE costs a hop and nothing else — scrapers follow it and the
-    // bytes arrive — which is a different class of problem from a redirecting
-    // DIRECTIVE. Moving these is [FU-OG-IMAGE-WWW-HOST], not this lane.
-    expect(html).toContain('property="og:image" content="https://lazytopper.com/app/og-image.png"');
-    expect(html).toContain('name="twitter:image" content="https://lazytopper.com/app/og-image.png"');
+    // ★ MOVED TO www BY OG-1, SUPERSEDING #612's apex form. #612's reasoning was
+    // sound at the time — a redirecting IMAGE costs a hop and the bytes still arrive,
+    // unlike a redirecting DIRECTIVE. What changed: these URLs are about to be
+    // distributed at volume, and not every scraper follows a redirect on an image
+    // fetch. Removing the hop is cheap insurance, so the pin now expects www and
+    // [FU-OG-IMAGE-WWW-HOST] is CLOSED. A future apex form is a regression, not a
+    // deliberate choice, and this assertion is what will say so.
+    expect(html).toContain('property="og:image" content="https://www.lazytopper.com/app/og-image.png"');
+    expect(html).toContain('name="twitter:image" content="https://www.lazytopper.com/app/og-image.png"');
   });
 });
 
