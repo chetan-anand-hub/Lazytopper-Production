@@ -20,6 +20,7 @@
     "lint:debt:check": "node scripts/lintDebtCheck.mjs",
     "ci:smoke": "npm run scope:guard:tutor && npm run build && npm run tutor:eval && npm run lint:ci",
     "check:mojibake": "node scripts/check-mojibake.cjs",
+    "seo:questions": "tsx scripts/seo/generateQuestionPages.ts",
     "typecheck:test": "tsc -p tsconfig.test.json --noEmit",
     "prebuild": "npm run bom:guard && node scripts/prebuild.cjs",
     "server": "node server/index.cjs",

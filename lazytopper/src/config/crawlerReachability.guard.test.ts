@@ -546,6 +546,34 @@ function resolveAgainstRouteTable(urlPath: string): RouteVerdict {
   };
 }
 
+/**
+ * ★★ THE STATIC-PAGE ESCAPE, AND WHY THE ROUTE CHECK NEEDS ONE (ENGINE-0).
+ *
+ * The route-table check above exists for ONE stated reason:
+ * `/app/:path* -> /app/index.html` makes EVERY path under `/app/` return the SPA
+ * shell, so a 200 proves nothing and only React Router's table can tell a real
+ * route from an empty shell.
+ *
+ * That reasoning is about the SHELL. It does not reach a URL that resolves to a
+ * REAL STATIC FILE, because there is no shell in the picture: the bytes on the
+ * wire ARE the page. ENGINE-0 ships exactly that — pre-rendered question pages
+ * under `public/questions/**`, reached at the root through the
+ * `/questions/:path* -> /app/questions/:path*` rewrite, whose entire purpose is
+ * to be readable by a crawler that runs no JavaScript. Such a URL has no
+ * `<Route>` and must never have one; demanding it prove otherwise would be this
+ * check firing outside the defect it was built for.
+ *
+ * ⚠ THE EXEMPTION IS DELIBERATELY NARROW, AND THE SECOND CLAUSE IS THE WHOLE
+ * POINT. Without `!== /app/index.html`, every SPA path would qualify — the
+ * catch-all rewrite lands them all on index.html as `kind: "file"` — and this
+ * one function would exempt the entire site, re-opening LIMITS §8 in a single
+ * line. It returns true ONLY for a file that is not the shell.
+ */
+function servedAsStaticPage(urlPath: string): boolean {
+  const r = resolvePath(urlPath);
+  return r.kind === "file" && r.path !== `${SERVED_PREFIX}/index.html`;
+}
+
 // --------------------------------------------------------------------------
 // 3 · THE ASSERTIONS
 // --------------------------------------------------------------------------
@@ -794,9 +822,39 @@ describe("route reachability — every advertised URL names a REAL route, not ju
       .toBeGreaterThan(0);
 
     const dead: string[] = [];
+    const staticPages: string[] = [];
+    const routed: string[] = [];
     for (const a of locs) {
+      // ★ ENGINE-0: a <loc> served as a real static file is content in itself and
+      // has no route to name. Classified, not waved through — and COUNTED below,
+      // so the split is visible on a green run instead of silently absorbing a
+      // URL that stopped resolving.
+      if (servedAsStaticPage(a.path)) {
+        staticPages.push(a.url);
+        continue;
+      }
       const v = resolveAgainstRouteTable(a.path);
-      if (!v.ok) dead.push(`  ${a.url}\n      ${v.reason}`);
+      if (v.ok) routed.push(a.url);
+      else dead.push(`  ${a.url}\n      ${v.reason}`);
+    }
+    // eslint-disable-next-line no-console
+    console.log(
+      `SITEMAP_LOC_CLASSIFICATION: total=${locs.length} routed=${routed.length} ` +
+        `static_pages=${staticPages.length} dead=${dead.length} ` +
+        `static=${JSON.stringify(staticPages)}`,
+    );
+    // ★ THE ESCAPE CANNOT BECOME A BLANKET. Every static <loc> must be a file that
+    // is NOT the SPA shell — assert it a second way, from the resolution itself,
+    // so a future change that made `servedAsStaticPage` return true for shell
+    // paths goes red here rather than quietly exempting the whole sitemap.
+    for (const url of staticPages) {
+      const r = resolvePath(new URL(url).pathname);
+      expect(
+        r.kind === "file" && r.path !== `${SERVED_PREFIX}/index.html`,
+        `${url} was classified as a pre-rendered static page, but it resolves as ` +
+          `${describeResolution(r)}. Only a real file that is not the SPA shell may ` +
+          `skip the route check.`,
+      ).toBe(true);
     }
     expect(
       dead,
