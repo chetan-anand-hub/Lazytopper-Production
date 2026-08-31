@@ -45,6 +45,18 @@ const SITEMAP = resolve(PUBLIC_ROOT, "sitemap.xml");
 export const ORIGIN = "https://www.lazytopper.com";
 
 /**
+ * Escape a literal string for safe interpolation into a `RegExp`.
+ *
+ * ★ WHY THIS EXISTS. `ORIGIN` reads as a plain host, but every `.` in it is a
+ * regex wildcard once interpolated into a pattern, so a check for
+ * `<loc>https://www.lazytopper.com/</loc>` would also match
+ * `<loc>https://wwwXlazytopperYcom/</loc>`. Not exploitable here — the input is
+ * our own sitemap — but CodeQL `js/incomplete-hostname-regexp` is right, and a
+ * dismissed High alert on a brand-new file sets a precedent that outlives it.
+ */
+export const RX = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
  * ★ ONE PAGE, NOT A MATRIX. ENGINE-0's whole scope is a single topic; scaling is
  * ENGINE-1's job. The shape is a list so the next lane does not have to
  * re-architect, but adding a row here is a deliberate act, not a config knob.
@@ -110,7 +122,7 @@ function upsertSitemap(emitted: readonly Emitted[]): { added: number; updated: n
     const entry = `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${e.date}</lastmod>\n  </url>\n`;
     // Match this URL's existing <url> block, whatever its lastmod.
     const existing = new RegExp(
-      `[ \\t]*<url>\\s*<loc>${loc.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</loc>[\\s\\S]*?</url>\\s*`,
+      `[ \\t]*<url>\\s*<loc>${RX(loc)}</loc>[\\s\\S]*?</url>\\s*`,
       "",
     );
     if (existing.test(xml)) {
@@ -125,7 +137,7 @@ function upsertSitemap(emitted: readonly Emitted[]): { added: number; updated: n
   // ★ §2.6 holds `/` OUT of the sitemap on purpose —
   // [FU-CRAWL1-SITEMAP-ROOT-URL-HELD]. Assert it rather than trusting the edit
   // above not to have introduced one.
-  if (new RegExp(`<loc>\\s*${ORIGIN}/\\s*</loc>`).test(xml)) {
+  if (new RegExp(`<loc>\\s*${RX(ORIGIN)}/\\s*</loc>`).test(xml)) {
     throw new Error("sitemap now advertises the site root, which CRAWL-1 held back");
   }
 

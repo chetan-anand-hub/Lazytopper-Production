@@ -22,7 +22,7 @@ import {
   yearAttribution,
   type NoteSpec,
 } from "../../scripts/seo/questionPageModel";
-import { ORIGIN, PAGES } from "../../scripts/seo/generateQuestionPages";
+import { ORIGIN, PAGES, RX } from "../../scripts/seo/generateQuestionPages";
 
 /**
  * GUARD — ENGINE-0's static question pages.
@@ -624,7 +624,7 @@ describe("ENGINE-0 · §3.6 the sitemap entry resolves through the new rewrite",
 
     const entry = xml.match(
       new RegExp(
-        `<loc>${loc.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</loc>\\s*<lastmod>(\\d{4}-\\d{2}-\\d{2})</lastmod>`,
+        `<loc>${RX(loc)}</loc>\\s*<lastmod>(\\d{4}-\\d{2}-\\d{2})</lastmod>`,
       ),
     );
     expect(entry, "the new <loc> has no <lastmod>").not.toBeNull();
@@ -636,7 +636,7 @@ describe("ENGINE-0 · §3.6 the sitemap entry resolves through the new rewrite",
 
     // §2.6 — `/` is held out of the sitemap by CRAWL-1.
     expect(
-      new RegExp(`<loc>\\s*${ORIGIN}/\\s*</loc>`).test(xml),
+      new RegExp(`<loc>\\s*${RX(ORIGIN)}/\\s*</loc>`).test(xml),
       "the sitemap now advertises the site root, which CRAWL-1 deliberately held back",
     ).toBe(false);
   });
