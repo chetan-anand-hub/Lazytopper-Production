@@ -40,7 +40,7 @@
       "destination": "/app/questions/:path"
     },
     {
-      "source": "/app/:path*",
+      "source": "/app/:path(.*)",
       "destination": "/app/index.html"
     }
   ]

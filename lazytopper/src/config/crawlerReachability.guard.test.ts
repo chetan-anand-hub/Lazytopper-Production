@@ -727,6 +727,45 @@ describe("crawler reachability — every URL the app advertises resolves to some
       ).toBe(true);
     }
   });
+
+  it("★★ the /app/ catch-all matches a TRAILING SLASH — the (.*) form, not :path*", () => {
+    // SLASH-1. `/app/:path*` compiles to SEGMENTS and does not match a path ending
+    // in "/", so every SPA deep link 404d when written with a trailing slash.
+    // Measured live 2026-08-31 on www.lazytopper.com: /app/pricing/ and
+    // /app/exam-trends/ — two of this domain's three indexable URLs — both 404,
+    // while their slashless twins returned 200. The cure is the SAME construction
+    // already proven live by rewrite [7], `/questions/:path(.*)`, shipped in #714.
+    //
+    // ★ The destination could not have been at fault: `/app/index.html` is a
+    // LITERAL, always-present file that cannot fail to resolve. If the destination
+    // cannot fail and the request still 404s, the SOURCE is what failed to match.
+    const { rewrites } = readVercelConfig();
+    const appRule = rewrites.find((w) => w.destination === "/app/index.html");
+    expect(appRule, "the /app/ catch-all rewrite is gone").toBeDefined();
+    expect(
+      (appRule as Rule).source,
+      "the /app/ catch-all must use the (.*) form — `:path*` does not match a trailing slash",
+    ).toBe("/app/:path(.*)");
+
+    // ★ RED/GREEN: with `:path*` these three resolve nowhere at all.
+    for (const probe of ["/app/pricing/", "/app/exam-trends/", "/app/practice/"]) {
+      const r = resolvePath(probe);
+      expect(
+        r.kind === "file" && r.path,
+        `${probe} must resolve to the SPA shell`,
+      ).toBe("/app/index.html");
+    }
+
+    // ★ CONTROL — the slashless twins already worked and must NOT regress. Without
+    // this, a rule that matched nothing would still fail the loop above for the
+    // wrong reason, and a rule that matched everything would look like a fix.
+    for (const probe of ["/app/pricing", "/app/exam-trends", "/app/practice"]) {
+      const r = resolvePath(probe);
+      expect(r.kind === "file" && r.path, `CONTROL ${probe} regressed`).toBe(
+        "/app/index.html",
+      );
+    }
+  });
 });
 
 describe("route reachability — every advertised URL names a REAL route, not just a 200", () => {
