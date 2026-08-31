@@ -596,14 +596,37 @@ describe("ENGINE-0 · §3.6 the sitemap entry resolves through the new rewrite",
     };
     const mine = vercel.rewrites.filter((r) => r.source.startsWith("/questions"));
     expect(mine.length, "expected exactly one /questions rewrite").toBe(1);
+    // ★★ `:path(.*)`, NOT `:path*` — AND THE DIFFERENCE IS THE WHOLE PAGE.
+    // Vercel compiles `source` with path-to-regexp, where `:path*` matches a
+    // sequence of SEGMENTS and therefore does NOT match a path that ends in "/".
+    // The advertised URL ends in "/". Measured on preview
+    // lazytopper-production-desktop-6fmd5d68a.vercel.app (X-Vercel-Id: bom1):
+    //
+    //   /questions/.../light-reflection-and-refraction/   404 (X-Vercel-Error: NOT_FOUND)
+    //   /questions/.../light-reflection-and-refraction    200 (the page)
+    //   /app/questions/.../light-reflection-and-refraction/  200  <- the destination
+    //                                                              resolves fine on
+    //                                                              its own
+    //   /app/practice/                                   404  <- and `/app/:path*`
+    //                                                             fails the same way,
+    //                                                             with a LITERAL
+    //                                                             destination, which
+    //                                                             is how we know the
+    //                                                             SOURCE is what did
+    //                                                             not match
+    //
+    // `"trailingSlash": true` was tried first (Vercel's documented switch) and is
+    // NOT the fix: on preview 51vwjetsl it left the advertised URL at 404 and
+    // additionally 308'd every SPA deep link into the same dead end
+    // (/app/practice -> /app/practice/ -> 404).
     expect(mine[0]).toEqual({
-      source: "/questions/:path*",
-      destination: "/app/questions/:path*",
+      source: "/questions/:path(.*)",
+      destination: "/app/questions/:path",
     });
 
     // ★ ORDER IS LOAD-BEARING. Vercel takes the FIRST matching rewrite, and the
     // SPA catch-all `/app/:path*` must stay last or it swallows everything.
-    const idx = vercel.rewrites.findIndex((r) => r.source === "/questions/:path*");
+    const idx = vercel.rewrites.findIndex((r) => r.source === "/questions/:path(.*)");
     const spa = vercel.rewrites.findIndex((r) => r.source === "/app/:path*");
     expect(idx, "/questions rewrite not found").toBeGreaterThan(-1);
     expect(spa, "the SPA catch-all must be the last rewrite").toBe(

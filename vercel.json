@@ -1,5 +1,4 @@
 {
-  "trailingSlash": true,
   "redirects": [
     {
       "source": "/",
@@ -37,8 +36,8 @@
       "destination": "/app/a6c1861da61f4d36898e5e27a71c36d6.txt"
     },
     {
-      "source": "/questions/:path*",
-      "destination": "/app/questions/:path*"
+      "source": "/questions/:path(.*)",
+      "destination": "/app/questions/:path"
     },
     {
       "source": "/app/:path*",

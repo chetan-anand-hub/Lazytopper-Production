@@ -122,16 +122,34 @@ function readVercelConfig(): { redirects: Rule[]; rewrites: Rule[] } {
  * ⚠ This is a MODEL of Vercel's matcher, not Vercel's matcher. It is deliberately
  * strict: an unsupported pattern construct throws rather than silently failing to
  * match, because a silent non-match would make an unreachable path look reachable.
+ *
+ * ★★★ THIS MODEL ONCE DIVERGED FROM VERCEL, AND THE DIVERGENCE SHIPPED A 404.
+ * It modelled `:name*` as `(.*)`, which matches a trailing slash. Vercel compiles
+ * `source` with path-to-regexp, where `:name*` matches a sequence of SEGMENTS and
+ * does NOT match a path ending in "/". So the model called
+ * `/questions/class-10/science/light-reflection-and-refraction/` reachable while
+ * the real preview returned 404 (X-Vercel-Error: NOT_FOUND, X-Vercel-Id: bom1) —
+ * a green guard over a dead URL. The direction of the error is the dangerous one:
+ * the model was MORE PERMISSIVE than Vercel, so it could only ever hide a 404,
+ * never invent one.
+ *
+ * `:name*` is therefore modelled as segments-with-no-trailing-slash. Proof that
+ * the SOURCE is what fails to match, rather than the destination failing to
+ * resolve: `/app/practice/` also 404s, and `/app/:path*`'s destination is the
+ * LITERAL, existing file `/app/index.html`.
  */
 function matchSource(source: string, path: string): Record<string, string> | null {
   if (!source.startsWith("/")) {
     throw new Error(`unsupported vercel source (must start with "/"): ${source}`);
   }
-  if (/[()^$?+]/.test(source)) {
+  // `:name(pattern)` is a supported construct, so its regex characters are
+  // removed before the unsupported-construct sweep rather than tripping it.
+  const residue = source.replace(/:[A-Za-z0-9_]+\([^()]*\)/g, "");
+  if (/[()^$?+]/.test(residue)) {
     throw new Error(
       `unsupported vercel source construct (regex) in "${source}" — this guard ` +
-        `models literal and :param patterns only. Extend matchSource() or the ` +
-        `guard will mis-report reachability.`,
+        `models literal, :param, :param* and :param(pattern) only. Extend ` +
+        `matchSource() or the guard will mis-report reachability.`,
     );
   }
   const names: string[] = [];
@@ -139,10 +157,16 @@ function matchSource(source: string, path: string): Record<string, string> | nul
     .split("/")
     .map((seg) => {
       if (seg === "") return "";
+      const custom = seg.match(/^:([A-Za-z0-9_]+)\(([^()]*)\)$/);
+      if (custom) {
+        names.push(custom[1]);
+        return `(${custom[2]})`;
+      }
       const star = seg.match(/^:([A-Za-z0-9_]+)\*$/);
       if (star) {
         names.push(star[1]);
-        return "(.*)";
+        // ★ SEGMENTS, AND NEVER A TRAILING SLASH — see the divergence note above.
+        return "((?:[^/]+(?:/[^/]+)*)?)";
       }
       const one = seg.match(/^:([A-Za-z0-9_]+)$/);
       if (one) {
