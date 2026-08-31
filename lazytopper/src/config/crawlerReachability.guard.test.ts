@@ -122,16 +122,34 @@ function readVercelConfig(): { redirects: Rule[]; rewrites: Rule[] } {
  * ⚠ This is a MODEL of Vercel's matcher, not Vercel's matcher. It is deliberately
  * strict: an unsupported pattern construct throws rather than silently failing to
  * match, because a silent non-match would make an unreachable path look reachable.
+ *
+ * ★★★ THIS MODEL ONCE DIVERGED FROM VERCEL, AND THE DIVERGENCE SHIPPED A 404.
+ * It modelled `:name*` as `(.*)`, which matches a trailing slash. Vercel compiles
+ * `source` with path-to-regexp, where `:name*` matches a sequence of SEGMENTS and
+ * does NOT match a path ending in "/". So the model called
+ * `/questions/class-10/science/light-reflection-and-refraction/` reachable while
+ * the real preview returned 404 (X-Vercel-Error: NOT_FOUND, X-Vercel-Id: bom1) —
+ * a green guard over a dead URL. The direction of the error is the dangerous one:
+ * the model was MORE PERMISSIVE than Vercel, so it could only ever hide a 404,
+ * never invent one.
+ *
+ * `:name*` is therefore modelled as segments-with-no-trailing-slash. Proof that
+ * the SOURCE is what fails to match, rather than the destination failing to
+ * resolve: `/app/practice/` also 404s, and `/app/:path*`'s destination is the
+ * LITERAL, existing file `/app/index.html`.
  */
 function matchSource(source: string, path: string): Record<string, string> | null {
   if (!source.startsWith("/")) {
     throw new Error(`unsupported vercel source (must start with "/"): ${source}`);
   }
-  if (/[()^$?+]/.test(source)) {
+  // `:name(pattern)` is a supported construct, so its regex characters are
+  // removed before the unsupported-construct sweep rather than tripping it.
+  const residue = source.replace(/:[A-Za-z0-9_]+\([^()]*\)/g, "");
+  if (/[()^$?+]/.test(residue)) {
     throw new Error(
       `unsupported vercel source construct (regex) in "${source}" — this guard ` +
-        `models literal and :param patterns only. Extend matchSource() or the ` +
-        `guard will mis-report reachability.`,
+        `models literal, :param, :param* and :param(pattern) only. Extend ` +
+        `matchSource() or the guard will mis-report reachability.`,
     );
   }
   const names: string[] = [];
@@ -139,10 +157,16 @@ function matchSource(source: string, path: string): Record<string, string> | nul
     .split("/")
     .map((seg) => {
       if (seg === "") return "";
+      const custom = seg.match(/^:([A-Za-z0-9_]+)\(([^()]*)\)$/);
+      if (custom) {
+        names.push(custom[1]);
+        return `(${custom[2]})`;
+      }
       const star = seg.match(/^:([A-Za-z0-9_]+)\*$/);
       if (star) {
         names.push(star[1]);
-        return "(.*)";
+        // ★ SEGMENTS, AND NEVER A TRAILING SLASH — see the divergence note above.
+        return "((?:[^/]+(?:/[^/]+)*)?)";
       }
       const one = seg.match(/^:([A-Za-z0-9_]+)$/);
       if (one) {
@@ -546,6 +570,34 @@ function resolveAgainstRouteTable(urlPath: string): RouteVerdict {
   };
 }
 
+/**
+ * ★★ THE STATIC-PAGE ESCAPE, AND WHY THE ROUTE CHECK NEEDS ONE (ENGINE-0).
+ *
+ * The route-table check above exists for ONE stated reason:
+ * `/app/:path* -> /app/index.html` makes EVERY path under `/app/` return the SPA
+ * shell, so a 200 proves nothing and only React Router's table can tell a real
+ * route from an empty shell.
+ *
+ * That reasoning is about the SHELL. It does not reach a URL that resolves to a
+ * REAL STATIC FILE, because there is no shell in the picture: the bytes on the
+ * wire ARE the page. ENGINE-0 ships exactly that — pre-rendered question pages
+ * under `public/questions/**`, reached at the root through the
+ * `/questions/:path* -> /app/questions/:path*` rewrite, whose entire purpose is
+ * to be readable by a crawler that runs no JavaScript. Such a URL has no
+ * `<Route>` and must never have one; demanding it prove otherwise would be this
+ * check firing outside the defect it was built for.
+ *
+ * ⚠ THE EXEMPTION IS DELIBERATELY NARROW, AND THE SECOND CLAUSE IS THE WHOLE
+ * POINT. Without `!== /app/index.html`, every SPA path would qualify — the
+ * catch-all rewrite lands them all on index.html as `kind: "file"` — and this
+ * one function would exempt the entire site, re-opening LIMITS §8 in a single
+ * line. It returns true ONLY for a file that is not the shell.
+ */
+function servedAsStaticPage(urlPath: string): boolean {
+  const r = resolvePath(urlPath);
+  return r.kind === "file" && r.path !== `${SERVED_PREFIX}/index.html`;
+}
+
 // --------------------------------------------------------------------------
 // 3 · THE ASSERTIONS
 // --------------------------------------------------------------------------
@@ -794,9 +846,39 @@ describe("route reachability — every advertised URL names a REAL route, not ju
       .toBeGreaterThan(0);
 
     const dead: string[] = [];
+    const staticPages: string[] = [];
+    const routed: string[] = [];
     for (const a of locs) {
+      // ★ ENGINE-0: a <loc> served as a real static file is content in itself and
+      // has no route to name. Classified, not waved through — and COUNTED below,
+      // so the split is visible on a green run instead of silently absorbing a
+      // URL that stopped resolving.
+      if (servedAsStaticPage(a.path)) {
+        staticPages.push(a.url);
+        continue;
+      }
       const v = resolveAgainstRouteTable(a.path);
-      if (!v.ok) dead.push(`  ${a.url}\n      ${v.reason}`);
+      if (v.ok) routed.push(a.url);
+      else dead.push(`  ${a.url}\n      ${v.reason}`);
+    }
+    // eslint-disable-next-line no-console
+    console.log(
+      `SITEMAP_LOC_CLASSIFICATION: total=${locs.length} routed=${routed.length} ` +
+        `static_pages=${staticPages.length} dead=${dead.length} ` +
+        `static=${JSON.stringify(staticPages)}`,
+    );
+    // ★ THE ESCAPE CANNOT BECOME A BLANKET. Every static <loc> must be a file that
+    // is NOT the SPA shell — assert it a second way, from the resolution itself,
+    // so a future change that made `servedAsStaticPage` return true for shell
+    // paths goes red here rather than quietly exempting the whole sitemap.
+    for (const url of staticPages) {
+      const r = resolvePath(new URL(url).pathname);
+      expect(
+        r.kind === "file" && r.path !== `${SERVED_PREFIX}/index.html`,
+        `${url} was classified as a pre-rendered static page, but it resolves as ` +
+          `${describeResolution(r)}. Only a real file that is not the SPA shell may ` +
+          `skip the route check.`,
+      ).toBe(true);
     }
     expect(
       dead,
