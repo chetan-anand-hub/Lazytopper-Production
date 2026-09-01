@@ -615,6 +615,11 @@ describe("ENGINE-0 · §3.6 the sitemap entry resolves through the new rewrite",
     //                                                             SOURCE is what did
     //                                                             not match
     //
+    // ⚠ THE MEASURED BLOCK ABOVE RECORDS THE PRE-SLASH-1 CONFIG, and is kept
+    // as the diagnosis that identified the SOURCE as the culprit. Both entries now
+    // read the `(.*)` form: `/questions/:path(.*)` (#714) and `/app/:path(.*)`
+    // (SLASH-1). The 404s recorded above are what the old `:path*` sources did.
+    //
     // `"trailingSlash": true` was tried first (Vercel's documented switch) and is
     // NOT the fix: on preview 51vwjetsl it left the advertised URL at 404 and
     // additionally 308'd every SPA deep link into the same dead end
@@ -625,9 +630,14 @@ describe("ENGINE-0 · §3.6 the sitemap entry resolves through the new rewrite",
     });
 
     // ★ ORDER IS LOAD-BEARING. Vercel takes the FIRST matching rewrite, and the
-    // SPA catch-all `/app/:path*` must stay last or it swallows everything.
+    // SPA catch-all `/app/:path(.*)` must stay last or it swallows everything.
     const idx = vercel.rewrites.findIndex((r) => r.source === "/questions/:path(.*)");
-    const spa = vercel.rewrites.findIndex((r) => r.source === "/app/:path*");
+    // ★ PINNED BY DESTINATION, NOT BY SOURCE SPELLING. `/app/index.html` is the
+    // catch-all's IDENTITY (and is the only rewrite that names it); `:path*` vs
+    // `:path(.*)` is its incidental FORM. SLASH-1 changed that form and the old
+    // `r.source === "/app/:path*"` pin went to -1 and went red without anything
+    // being wrong. Anchor by identity, never by incidental form.
+    const spa = vercel.rewrites.findIndex((r) => r.destination === "/app/index.html");
     expect(idx, "/questions rewrite not found").toBeGreaterThan(-1);
     expect(spa, "the SPA catch-all must be the last rewrite").toBe(
       vercel.rewrites.length - 1,
