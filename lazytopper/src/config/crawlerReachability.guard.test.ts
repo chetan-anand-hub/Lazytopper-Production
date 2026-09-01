@@ -414,7 +414,7 @@ const QUARANTINE = new Map<string, string>([]);
  * LIMITS §8 of this file (see the bottom) named this as its biggest hole, proven
  * by mutation: #613 pointed a sitemap <loc> at `/app/this-route-does-not-exist`
  * and this guard stayed GREEN. It was not a modelling error — production returns
- * 200 there too. `/app/:path* -> /app/index.html` means EVERY path under `/app/`
+ * 200 there too. `/app/:path(.*) -> /app/index.html` means EVERY path under `/app/`
  * serves the SPA shell, so an HTTP check, a `resolvePath` check, and a live curl
  * all agree on 200 for a route that does not exist. Google would index an empty
  * shell and count it against the site.
@@ -574,7 +574,7 @@ function resolveAgainstRouteTable(urlPath: string): RouteVerdict {
  * ★★ THE STATIC-PAGE ESCAPE, AND WHY THE ROUTE CHECK NEEDS ONE (ENGINE-0).
  *
  * The route-table check above exists for ONE stated reason:
- * `/app/:path* -> /app/index.html` makes EVERY path under `/app/` return the SPA
+ * `/app/:path(.*) -> /app/index.html` makes EVERY path under `/app/` return the SPA
  * shell, so a 200 proves nothing and only React Router's table can tell a real
  * route from an empty shell.
  *
@@ -610,7 +610,7 @@ describe("crawler reachability — every URL the app advertises resolves to some
     // Known-served: a real file under the served prefix.
     expect(resolvePath("/app/robots.txt").kind).toBe("file");
 
-    // ★ FILESYSTEM BEATS REWRITE. `/app/:path* -> /app/index.html` would swallow
+    // ★ FILESYSTEM BEATS REWRITE. `/app/:path(.*) -> /app/index.html` would swallow
     // this if rewrites ran first. It resolves to the real file, matching the live
     // deployment, which returns text/plain robots content at that URL.
     const robots = resolvePath("/app/robots.txt");
