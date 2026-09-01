@@ -414,7 +414,7 @@ const QUARANTINE = new Map<string, string>([]);
  * LIMITS §8 of this file (see the bottom) named this as its biggest hole, proven
  * by mutation: #613 pointed a sitemap <loc> at `/app/this-route-does-not-exist`
  * and this guard stayed GREEN. It was not a modelling error — production returns
- * 200 there too. `/app/:path* -> /app/index.html` means EVERY path under `/app/`
+ * 200 there too. `/app/:path(.*) -> /app/index.html` means EVERY path under `/app/`
  * serves the SPA shell, so an HTTP check, a `resolvePath` check, and a live curl
  * all agree on 200 for a route that does not exist. Google would index an empty
  * shell and count it against the site.
@@ -574,7 +574,7 @@ function resolveAgainstRouteTable(urlPath: string): RouteVerdict {
  * ★★ THE STATIC-PAGE ESCAPE, AND WHY THE ROUTE CHECK NEEDS ONE (ENGINE-0).
  *
  * The route-table check above exists for ONE stated reason:
- * `/app/:path* -> /app/index.html` makes EVERY path under `/app/` return the SPA
+ * `/app/:path(.*) -> /app/index.html` makes EVERY path under `/app/` return the SPA
  * shell, so a 200 proves nothing and only React Router's table can tell a real
  * route from an empty shell.
  *
@@ -610,7 +610,7 @@ describe("crawler reachability — every URL the app advertises resolves to some
     // Known-served: a real file under the served prefix.
     expect(resolvePath("/app/robots.txt").kind).toBe("file");
 
-    // ★ FILESYSTEM BEATS REWRITE. `/app/:path* -> /app/index.html` would swallow
+    // ★ FILESYSTEM BEATS REWRITE. `/app/:path(.*) -> /app/index.html` would swallow
     // this if rewrites ran first. It resolves to the real file, matching the live
     // deployment, which returns text/plain robots content at that URL.
     const robots = resolvePath("/app/robots.txt");
@@ -725,6 +725,45 @@ describe("crawler reachability — every URL the app advertises resolves to some
           `"${(firstMatch as Rule).destination}", which is not the external backend ` +
           `proxy. A rewrite is shadowing the API.`,
       ).toBe(true);
+    }
+  });
+
+  it("★★ the /app/ catch-all matches a TRAILING SLASH — the (.*) form, not :path*", () => {
+    // SLASH-1. `/app/:path*` compiles to SEGMENTS and does not match a path ending
+    // in "/", so every SPA deep link 404d when written with a trailing slash.
+    // Measured live 2026-08-31 on www.lazytopper.com: /app/pricing/ and
+    // /app/exam-trends/ — two of this domain's three indexable URLs — both 404,
+    // while their slashless twins returned 200. The cure is the SAME construction
+    // already proven live by rewrite [7], `/questions/:path(.*)`, shipped in #714.
+    //
+    // ★ The destination could not have been at fault: `/app/index.html` is a
+    // LITERAL, always-present file that cannot fail to resolve. If the destination
+    // cannot fail and the request still 404s, the SOURCE is what failed to match.
+    const { rewrites } = readVercelConfig();
+    const appRule = rewrites.find((w) => w.destination === "/app/index.html");
+    expect(appRule, "the /app/ catch-all rewrite is gone").toBeDefined();
+    expect(
+      (appRule as Rule).source,
+      "the /app/ catch-all must use the (.*) form — `:path*` does not match a trailing slash",
+    ).toBe("/app/:path(.*)");
+
+    // ★ RED/GREEN: with `:path*` these three resolve nowhere at all.
+    for (const probe of ["/app/pricing/", "/app/exam-trends/", "/app/practice/"]) {
+      const r = resolvePath(probe);
+      expect(
+        r.kind === "file" && r.path,
+        `${probe} must resolve to the SPA shell`,
+      ).toBe("/app/index.html");
+    }
+
+    // ★ CONTROL — the slashless twins already worked and must NOT regress. Without
+    // this, a rule that matched nothing would still fail the loop above for the
+    // wrong reason, and a rule that matched everything would look like a fix.
+    for (const probe of ["/app/pricing", "/app/exam-trends", "/app/practice"]) {
+      const r = resolvePath(probe);
+      expect(r.kind === "file" && r.path, `CONTROL ${probe} regressed`).toBe(
+        "/app/index.html",
+      );
     }
   });
 });
