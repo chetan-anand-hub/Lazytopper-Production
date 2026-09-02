@@ -1,7 +1,8 @@
 // @vitest-environment node
 import { describe, it, expect } from "vitest";
-import { readFileSync, existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { readFileSync, existsSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
 
 import {
   canonicalQuestionBank,
@@ -9,6 +10,7 @@ import {
 } from "../data/canonicalQuestionBank";
 import type { CanonicalQuestion } from "../data/predictionTypes";
 import {
+  DATE_PLACEHOLDER,
   MIN_QUESTIONS,
   MAX_QUESTIONS,
   dependsOnSuppliedFigure,
@@ -27,6 +29,7 @@ import {
   PAGES,
   RX,
   publishableQuestions,
+  resolveDate,
 } from "../../scripts/seo/generateQuestionPages";
 import { isPublishable, stepMarks } from "../../scripts/seo/publishability";
 
@@ -944,5 +947,47 @@ describe("ENGINE-1 · the generator emits ONLY what the contract calls publishab
         `publishable_pool=${publishableQuestions().length}`,
     );
     expect(nonAi.length).toBeGreaterThan(0);
+  });
+
+  it("★★★ IDEMPOTENCE SURVIVES A CRLF CHECKOUT — no fabricated freshness date", () => {
+    // ★ THE SECOND INSTANCE OF THE SAME BUG, AND THE REASON THIS TEST EXISTS.
+    //   `pageHtml()` above fixed a CRLF artefact in an ASSERTION. This one was in
+    //   the PRODUCT PATH: `resolveDate` compared the previous file (CRLF on a fresh
+    //   Windows checkout) against freshly rendered HTML (always LF), found them
+    //   unequal ON IDENTICAL CONTENT, and stamped today's date.
+    //
+    //   ⚠ THAT IS A FABRICATED FRESHNESS SIGNAL — `dateModified` in the JSON-LD and
+    //   `<lastmod>` in the sitemap would tell a crawler the content changed on a day
+    //   it did not, on the one surface a stranger can check. "No fake data" reaches
+    //   generated metadata, not just numbers shown to a student.
+    const dir = mkdtempSync(join(tmpdir(), "engine1-date-"));
+    const file = join(dir, "index.html");
+    const OLD = "2026-08-20";
+    // What the renderer produces: always LF, date still a placeholder.
+    const rendered = `<html>\n<body>\nLine one.\nLast updated ${DATE_PLACEHOLDER}\n</body>\n</html>\n`;
+    const onDisk = rendered.split(DATE_PLACEHOLDER).join(OLD);
+
+    // 1 — LF checkout: unchanged content keeps its date. (The behaviour that always worked.)
+    writeFileSync(file, onDisk, "utf8");
+    expect(resolveDate(file, rendered)).toBe(OLD);
+
+    // 2 — CRLF checkout, BYTE-FOR-BYTE THE SAME CONTENT. This is the regression.
+    const crlf = onDisk.replace(/\n/g, "\r\n");
+    expect(crlf, "the CRLF fixture did not actually differ — the case is not exercised")
+      .not.toBe(onDisk);
+    writeFileSync(file, crlf, "utf8");
+    expect(
+      resolveDate(file, rendered),
+      "a CRLF checkout bumped dateModified on unchanged content — that is a freshness " +
+        "signal we would be inventing for a crawler",
+    ).toBe(OLD);
+
+    // 3 — CONTROL: genuinely changed content MUST still bump, or the fix has simply
+    //     disabled the date and the first two assertions pass for the wrong reason.
+    writeFileSync(file, onDisk.replace("Line one.", "Line one, edited."), "utf8");
+    expect(resolveDate(file, rendered)).not.toBe(OLD);
+    expect(resolveDate(file, rendered)).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+
+    rmSync(dir, { recursive: true, force: true });
   });
 });

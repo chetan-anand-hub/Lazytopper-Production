@@ -127,15 +127,32 @@ function today(): string {
  * old date. "dateModified" then means what it says — the day the CONTENT last
  * changed — instead of the day someone last ran a script.
  */
-function resolveDate(outFile: string, rendered: string): string {
+export function resolveDate(outFile: string, rendered: string): string {
   if (!existsSync(outFile)) return today();
-  const previous = readFileSync(outFile, "utf8");
-  const dateRe = /\d{4}-\d{2}-\d{2}/;
+  // ★★ READ THE PAGE AS THE REPOSITORY STORES IT, NOT AS THIS PLATFORM CHECKED IT
+  //    OUT — AND THIS IS A CORRECTNESS BUG, NOT TIDINESS.
+  //
+  //    `core.autocrlf=true` with no `.gitattributes` means a fresh Windows checkout
+  //    of this committed page carries CRLF while `rendered` is always LF. The
+  //    equality below then FAILS ON IDENTICAL CONTENT, and the function falls
+  //    through to `today()`.
+  //
+  //    Proven, same bytes, only the endings differing:
+  //      previous file LF   -> date kept at 2026-08-20   (idempotent, correct)
+  //      previous file CRLF -> date bumped to 2026-09-02 (content unchanged)
+  //
+  //    ⚠ THE CONSEQUENCE IS A FABRICATED FRESHNESS SIGNAL. `dateModified` in the
+  //    JSON-LD and `<lastmod>` in the sitemap would tell Google the content changed
+  //    on a day it did not — on the one surface a stranger can check, in the lane
+  //    whose whole purpose is to be credible to a crawler. It also churns the
+  //    committed artefact on every Windows regeneration, so its diff stops meaning
+  //    anything. That is the exact promise the comment above this function makes
+  //    and the exact promise the platform was breaking.
+  const previous = readFileSync(outFile, "utf8").replace(/\r\n/g, "\n");
   const previousDate = previous.match(/Last updated (\d{4}-\d{2}-\d{2})/)?.[1];
   if (!previousDate) return today();
   const masked = previous.split(previousDate).join(DATE_PLACEHOLDER);
   if (masked === rendered) return previousDate;
-  void dateRe;
   return today();
 }
 
