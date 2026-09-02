@@ -349,8 +349,8 @@ export const LIFE_CFPQ: CanonicalQuestion[] = [
       "When some particles (like sand or dust) fall into our eyes, our eyes start to water on their own and we blink to get the particle out of our eyes. This is a type of reaction to a stimulus that the human body shows.\n\n(a) Is the above-mentioned reaction involuntary or voluntary?\n\n(b) What is the specific name given to the pathway that brings about this immediate reaction to a stimulus?\n\n(c) What are the names given to:\n(i) the organ that responds to a stimulus\n(ii) the part of the brain that receives sensory impulses",
     answer: "(a) involuntary; (b) reflex arc; (c)(i) effector (ii) forebrain",
     solutionSteps: [
-      "[½ mark] (a) involuntary",
-      "[½ mark] (b) reflex arc",
+      "[0.5 mark] [½ mark] (a) involuntary",
+      "[0.5 mark] [½ mark] (b) reflex arc",
       "[1 mark] (c) 0.5 marks for each correct answer: (i) effector; (ii) forebrain",
     ],
     finalAnswer: "(a) involuntary; (b) the reflex arc; (c)(i) effector, (ii) forebrain.",

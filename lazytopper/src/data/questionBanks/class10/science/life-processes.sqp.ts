@@ -27,7 +27,7 @@ export const LIFE_PROCESSES_SQP: CanonicalQuestion[] = [
     ],
     "answer": "(B) Mushroom",
     "solutionSteps": [
-      "Mushrooms are saprophytes (fungi) and use extracellular digestion: enzymes are secreted onto food (decaying matter), digestion happens outside the body, and the dissolved nutrients are absorbed across the cell wall. Amoeba and Paramoecium do intracellular digestion; lice ingest food internally. Answer: (B)."
+      "[1 mark] Mushrooms are saprophytes (fungi) and use extracellular digestion: enzymes are secreted onto food (decaying matter), digestion happens outside the body, and the dissolved nutrients are absorbed across the cell wall. Amoeba and Paramoecium do intracellular digestion; lice ingest food internally. Answer: (B)."
     ],
     "finalAnswer": "(B) Mushroom",
     "isCompetencyBased": false
@@ -51,7 +51,7 @@ export const LIFE_PROCESSES_SQP: CanonicalQuestion[] = [
     ],
     "answer": "(C) lack of oxygen and formation of lactic acid.",
     "solutionSteps": [
-      "During heavy exercise, oxygen supply to muscles becomes insufficient. Muscles then switch to anaerobic respiration: pyruvate → lactic acid + small ATP. Accumulated lactic acid causes muscle cramps. Ethanol formation happens in yeast, not in human muscles. Answer: (C)."
+      "[1 mark] During heavy exercise, oxygen supply to muscles becomes insufficient. Muscles then switch to anaerobic respiration: pyruvate → lactic acid + small ATP. Accumulated lactic acid causes muscle cramps. Ethanol formation happens in yeast, not in human muscles. Answer: (C)."
     ],
     "finalAnswer": "(C) lack of oxygen and formation of lactic acid.",
     "isCompetencyBased": true
@@ -70,8 +70,8 @@ export const LIFE_PROCESSES_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "Main: To filter nitrogenous waste from blood; storage = urinary bladder; release = urethra. OR Alt: Arteries — high-pressure blood → thick elastic walls. Veins — low pressure → valves prevent backflow.",
     "solutionSteps": [
-      "Main: Purpose of urine formation — to filter out nitrogenous waste products like urea and uric acid from the blood. Organ for storage: urinary bladder. Organ for release: urethra.",
-      "OR (alternative): Blood emerges from the heart under high pressure and flows through arteries — hence the arteries have thick and elastic walls to bear this pressure. Veins carry blood at lower pressure back to the heart, often against gravity; they have valves to ensure that blood flows in only one direction (preventing backflow)."
+      "[1 mark] Main: Purpose of urine formation — to filter out nitrogenous waste products like urea and uric acid from the blood. Organ for storage: urinary bladder. Organ for release: urethra.",
+      "[1 mark] OR (alternative): Blood emerges from the heart under high pressure and flows through arteries — hence the arteries have thick and elastic walls to bear this pressure. Veins carry blood at lower pressure back to the heart, often against gravity; they have valves to ensure that blood flows in only one direction (preventing backflow)."
     ],
     "finalAnswer": "Main: Filter waste; storage = bladder; release = urethra. OR Alt: Arteries thick for high pressure; veins have valves for unidirectional flow.",
     "isCompetencyBased": false

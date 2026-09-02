@@ -117,7 +117,7 @@ describe("RULE 2 — both mark conventions are valid", () => {
     expect(stepMarks("Substitute into the lens equation")).toBeNull();
   });
 
-  it("the addressable step-marking backlog is 3,003 rows", () => {
+  it("the addressable step-marking backlog is 2,806 rows", () => {
     /**
      * ★ NOT 5,105. The raw unmarked count is 5,105, but 2,102 of those are AI-pack
      * rows that Rule 1 rejects permanently and that policy says to RETIRE, not
@@ -132,7 +132,15 @@ describe("RULE 2 — both mark conventions are valid", () => {
     // 3,003 -> 3,013: 10 of the 130 newly-wired CFPQ rows arrive unmarked and join
     // the backlog. Still NOT 5,105 - 2,102 unmarked rows are legacy-ai, which Rule 1
     // rejects permanently and policy says to retire, not repair.
-    expect(addressable).toHaveLength(3013);
+    // 3,013 -> 2,806: -207. STEPMARK-1 batch 1 (life-processes) mark-annotated 207 of
+    // that topic's 228 addressable rows. The backlog shrinks by exactly the number
+    // annotated because annotation is the only thing that clears "unmarked-step".
+    // The remaining 21 life-processes rows are SKIPPED, not fixed: their existing
+    // steps cannot sum to q.marks at CBSE 0.5-mark granularity (e.g. AR-LP-001..010
+    // carry 4 steps on a 1-mark assertion-reason item; CASE-SCI-LP-001 carries 26
+    // steps on 4 marks). Forcing them would require merging or splitting steps, which
+    // the lane forbids. They are a content defect for a later lane.
+    expect(addressable).toHaveLength(2806);
   });
 });
 
@@ -351,13 +359,19 @@ describe("the publishable population", () => {
    * intended — a derived value pinned in prose outlives the facts it came from; a
    * derived value pinned in a test fails loudly when they change.
    */
-  it("2,248 rows are publishable today", () => {
+  it("2,538 rows are publishable today", () => {
     const publishable = canonicalQuestionBank.filter((q) => isPublishable(q, AI).ok);
     // 2,248 -> 2,333: +85. Of the 130 CFPQ rows wired by #721, 85 publish immediately,
     // 10 join the step-marking backlog and 35 are held by the figure rule. ~3.8% growth,
     // and the first time in this arc that BANK work moved this number: every earlier
     // gain came from correcting the predicate, not from adding rows.
-    expect(publishable).toHaveLength(2333);
+    // 2,333 -> 2,538: +205. STEPMARK-1 batch 1 (life-processes) annotated 207 rows;
+    // 205 of them become publishable and 2 do NOT, because those 2 are ALSO held by
+    // Rule 5 (figure). That reconciliation is the batch's evidence: Rule 2 runs before
+    // Rule 5, so a figure-dependent row reports "unmarked-step" and annotating it
+    // clears the backlog without moving this count. 207 annotated - 2 figure-held
+    // = 205. The bank length is UNCHANGED at 8,673 - this lane authors no rows.
+    expect(publishable).toHaveLength(2538);
   });
 
   it("no publishable row is AI-generated — the property retirement depends on", () => {
