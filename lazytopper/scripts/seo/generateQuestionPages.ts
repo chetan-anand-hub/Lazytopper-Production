@@ -27,7 +27,9 @@ import {
   canonicalQuestionBank,
   AI_GENERATED_QUESTION_IDS,
 } from "../../src/data/canonicalQuestionBank";
+import type { CanonicalQuestion } from "../../src/data/predictionTypes";
 import { SURFACE_BANNED_PHRASES, scanContentForPhrases } from "../../../scripts/src/syllabusGuard";
+import { isPublishable } from "./publishability";
 import {
   DATE_PLACEHOLDER,
   MIN_QUESTIONS,
@@ -73,6 +75,39 @@ export const PAGES: ReadonlyArray<{ topicKey: string; noteSpec: string; urlPath:
     urlPath: "/questions/class-10/science/light-reflection-and-refraction/",
   },
 ];
+
+/**
+ * ★★★ THE SINGLE DEFINITION OF "PUBLISHABLE", APPLIED WHERE PAGES ARE MADE.
+ *
+ * The contract in `publishability.ts` says: "The generator emits a question ONLY
+ * if isPublishable() returns ok." IT DID NOT. The generator selected through
+ * `questionPageModel.selectQuestions`, whose figure filter is a SECOND
+ * implementation — `dependsOnSuppliedFigure`, which also scans `solutionSteps`
+ * and matches a bare "as shown". Measured at 2339ebf7 over the 5,721 non-AI rows,
+ * the two predicates disagree on 421 rows, and the disagreement was not academic:
+ * the LIVE page shipped `CBE-S-LGHT-B-003`, which `isPublishable` rejects, and
+ * four other topics would have shipped six more.
+ *
+ * ⚠ THE FIX IS TO NARROW THE INPUT, NOT TO ADD A THIRD RULE. Everything the
+ * generator can see is filtered through the contract first, so the emitted set is
+ * a SUBSET of the publishable set BY CONSTRUCTION rather than by agreement. The
+ * band-spread and provenance ordering in `selectQuestions` are untouched.
+ *
+ * ★ WHY THE SOLUTION-STEP SCAN MATTERS RIGHT NOW. `publishability.ts` scans the
+ * QUESTION only, deliberately: "a solution a content lane AUTHORS can silently
+ * un-publish an otherwise-fine question. Step-marking a row — the single largest
+ * job on the content track — would then remove it from the site." A lane is
+ * step-marking the bank as this ships. The stricter predicate is the one that
+ * would have deleted its work from the site.
+ *
+ * Exported so `seoGenerator.guard.test.ts` asserts against THIS function and not
+ * a copy of it. A second copy is the defect this function exists to end.
+ */
+export function publishableQuestions(
+  bank: readonly CanonicalQuestion[] = canonicalQuestionBank,
+): CanonicalQuestion[] {
+  return bank.filter((q) => isPublishable(q, AI_GENERATED_QUESTION_IDS).ok);
+}
 
 function log(line: string): void {
   process.stdout.write(`${line}\n`);
@@ -153,10 +188,35 @@ export function generate(): Emitted[] {
       readFileSync(resolve(REPO_ROOT, page.noteSpec), "utf8"),
     ) as NoteSpec;
 
+    // ★ THE CONTRACT IS APPLIED TO THE INPUT. `selectQuestions` keeps its own
+    //   rules; it simply never sees a row the contract rejects.
     const { selected, counts } = selectQuestions(
+      publishableQuestions(),
+      page.topicKey,
+      AI_GENERATED_QUESTION_IDS,
+    );
+
+    // ⚠ THE DELTA IS LOGGED, NOT INFERRED. Running the SAME selector over the
+    //    UNFILTERED bank says exactly which rows the contract removed from this
+    //    page — the evidence that the filter fires, printed on every run rather
+    //    than reconstructed by whoever is reading the diff.
+    const unfiltered = selectQuestions(
       canonicalQuestionBank,
       page.topicKey,
       AI_GENERATED_QUESTION_IDS,
+    );
+    const rejected = unfiltered.selected.filter(
+      (q) => !isPublishable(q, AI_GENERATED_QUESTION_IDS).ok,
+    );
+    log(
+      `ENGINE1_PUBLISHABILITY topic=${page.topicKey} ` +
+        `selected_unfiltered=${unfiltered.selected.length} selected_filtered=${selected.length} ` +
+        `removed_by_contract=${rejected.length}` +
+        (rejected.length
+          ? ` ids=${rejected
+              .map((q) => `${q.id}:${(isPublishable(q, AI_GENERATED_QUESTION_IDS) as { reason: string }).reason}`)
+              .join(",")}`
+          : ""),
     );
 
     log(

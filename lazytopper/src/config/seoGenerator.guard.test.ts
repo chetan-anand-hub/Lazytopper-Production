@@ -22,7 +22,13 @@ import {
   yearAttribution,
   type NoteSpec,
 } from "../../scripts/seo/questionPageModel";
-import { ORIGIN, PAGES, RX } from "../../scripts/seo/generateQuestionPages";
+import {
+  ORIGIN,
+  PAGES,
+  RX,
+  publishableQuestions,
+} from "../../scripts/seo/generateQuestionPages";
+import { isPublishable, stepMarks } from "../../scripts/seo/publishability";
 
 /**
  * GUARD — ENGINE-0's static question pages.
@@ -60,7 +66,24 @@ function pageHtml(): string {
       `\`pnpm --filter lazytopper run seo:questions\` and commit the output — the ` +
       `page is a COMMITTED artefact, not a build-time side effect.`,
   ).toBe(true);
-  return readFileSync(PAGE_FILE, "utf8");
+  // ★★ LINE ENDINGS ARE NORMALISED, AND THIS IS NOT COSMETIC — IT IS THE
+  //    DIFFERENCE BETWEEN A GUARD YOU CAN ATTRIBUTE AND ONE YOU CANNOT.
+  //
+  //    This file was RED on Windows and GREEN in CI at the same commit, and both
+  //    were correct. `core.autocrlf=true` with no `.gitattributes` checks the page
+  //    out with CRLF (274 pairs, 29,488 bytes) while the committed blob is LF
+  //    (274 bare LF, 29,214 bytes). Question text comes from a TypeScript string
+  //    literal, so its newline is always a real LF — and therefore
+  //    `html.includes(escapeHtml(q.questionText))` cannot match on Windows for any
+  //    question whose text spans lines. Exactly the two multi-line questions of the
+  //    twelve failed; all ten single-line ones passed. Nothing was wrong with the
+  //    product, the page, or CI.
+  //
+  //    A platform-dependent red is worse than no guard: the next lane to edit this
+  //    file cannot tell its own failure from the inherited one. Reading the page as
+  //    the repository STORES it removes the ambiguity, and the control at the foot
+  //    of this file proves the normalisation cannot mask a real difference.
+  return readFileSync(PAGE_FILE, "utf8").replace(/\r\n/g, "\n");
 }
 
 /** The ids the emitted page actually renders, read from the HTML, not the model. */
@@ -729,5 +752,197 @@ describe("ENGINE-0 · §3.6 the sitemap entry resolves through the new rewrite",
     });
     expect(withIdea).toContain('class="lede"');
     expect(withIdea).toContain("A real tagline.");
+  });
+});
+
+/**
+ * ★★★ ENGINE-1 — THE CONTRACT AND THE GENERATOR MUST AGREE, AND THE AGREEMENT IS ASSERTED.
+ *
+ * `publishability.ts` opens by declaring itself "THE CONTRACT BETWEEN THE BANK TRACK
+ * AND THE SEO TRACK", and states the mechanism plainly: "The generator emits a
+ * question ONLY if isPublishable() returns ok." IT DID NOT.
+ *
+ * The generator selected through `questionPageModel.selectQuestions`, whose figure
+ * filter is a SECOND implementation of the same idea. Measured at 2339ebf7 the two
+ * disagreed on 421 of 5,721 non-AI rows, and the live page shipped a question the
+ * contract rejects. Two definitions of one word, one of them shipping pages.
+ *
+ * ⚠ WHY AN ASSERTION AND NOT JUST THE FIX. This file already documents four
+ * constructs in `publishability.ts` that READ AS LIVE AND WERE NOT — Rule 4 behind
+ * Rule 1, the old pattern 5, a declared-and-unreferenced `INLINE_CAPABLE`, and a
+ * subsumed positional pattern. None changed behaviour; all four survived review. A
+ * fix with nothing asserting it is the fifth. The two predicates diverge again the
+ * moment someone edits either one, and nothing would say so.
+ */
+describe("ENGINE-1 · the generator emits ONLY what the contract calls publishable", () => {
+  /** Every topic in the bank, not just the ones `PAGES` currently lists. */
+  const allTopics = (): string[] =>
+    [...new Set(canonicalQuestionBank.map((q) => q.topicKey))].sort();
+
+  /** What the generator would select for one topic, from a given pool. */
+  const selectionFor = (pool: readonly CanonicalQuestion[], topic: string) =>
+    selectQuestions(pool, topic, AI_GENERATED_QUESTION_IDS).selected;
+
+  it("★★★ COUNT EQUALITY — across EVERY topic, selected === selected-and-publishable", () => {
+    const pool = publishableQuestions();
+
+    // ★ NOT VACUOUS. A pool identical to the bank would make the equality below
+    //   true by construction and assert nothing. The filter must actually remove
+    //   rows, and it must leave enough behind to fill pages.
+    expect(
+      pool.length,
+      "the publishability filter removed nothing — it is a no-op and this suite is vacuous",
+    ).toBeLessThan(canonicalQuestionBank.length);
+    expect(pool.length).toBeGreaterThan(MIN_QUESTIONS);
+
+    let selectedTotal = 0;
+    let publishableTotal = 0;
+    const offenders: string[] = [];
+
+    for (const topic of allTopics()) {
+      for (const q of selectionFor(pool, topic)) {
+        selectedTotal += 1;
+        const verdict = isPublishable(q, AI_GENERATED_QUESTION_IDS);
+        if (verdict.ok) publishableTotal += 1;
+        else offenders.push(`${topic}/${q.id}:${verdict.reason}`);
+      }
+    }
+
+    // A count equality, so a single divergent row fails the gate loudly.
+    expect(
+      selectedTotal,
+      "no topic produced a selection — the assertion has no subject",
+    ).toBeGreaterThan(0);
+    expect(
+      publishableTotal,
+      `the generator would emit ${selectedTotal - publishableTotal} question(s) the ` +
+        `contract rejects: ${offenders.join(", ")}`,
+    ).toBe(selectedTotal);
+  });
+
+  it("★★ CONTROL — the equality REALLY fails when the filter is absent", () => {
+    // R4: an assertion that cannot be shown to fail has not been shown to run.
+    //
+    // ⚠ TWO EARLIER VERSIONS OF THIS CONTROL WERE WRONG, AND BOTH FAILURES ARE
+    //    THE SAME MISTAKE — poisoning a row in a way the OTHER predicate also
+    //    rejects, which proves nothing about the gap between them.
+    //      v1 poisoned a real bank row and asserted the unfiltered selector still
+    //         picked it. Widening the pool changes which rows win their mark band,
+    //         so it vanished for an unrelated reason. A control whose outcome
+    //         depends on bank churn tests the bank, not the rule.
+    //      v2 stripped a step-mark annotation. `selectQuestions` ALSO rejects an
+    //         unannotated step, so both paths dropped it and the "divergence" was
+    //         imaginary.
+    //
+    // ★ THE ONLY REAL DIVERGENCE IS THE FIGURE RULE, so the control must sit
+    //   exactly there. "Study the table and answer" is caught by the CONTRACT's
+    //   imperative-to-consult pattern and NOT by `dependsOnSuppliedFigure`, whose
+    //   list has no bare `table` and no imperative. That is the same shape as
+    //   `CBE-S-LGHT-B-003`, the row that actually shipped.
+    const NONE = new Set<string>();
+    const OK = (id: string): CanonicalQuestion =>
+      fixtureQuestion({ id, questionText: `Fixture question ${id}.` });
+
+    const clean = ["F-01", "F-02", "F-03", "F-04", "F-05", "F-06", "F-07", "F-08", "F-09"].map(OK);
+    const poisonedId = "F-05";
+    const poisonText = "Study the table and answer the question.";
+    const poisoned = clean.map((q) =>
+      q.id === poisonedId ? ({ ...q, questionText: poisonText } as CanonicalQuestion) : q,
+    );
+
+    // PROVE THE MUTATION APPLIED, AND THAT IT LANDS IN THE GAP. A mutation that
+    // did not apply produces a green run and announces nothing.
+    const victim = poisoned.find((q) => q.id === poisonedId)!;
+    expect(victim.questionText).toBe(poisonText);
+    expect(isPublishable(clean.find((q) => q.id === poisonedId)!, NONE).ok).toBe(true);
+    const verdict = isPublishable(victim, NONE);
+    expect(verdict.ok).toBe(false);
+    expect(verdict.ok === false ? verdict.reason : null).toBe("requires-absent-figure");
+    // ★ AND THE OTHER PREDICATE DOES NOT AGREE — without this line the control
+    //   could be satisfied by a row both paths reject, which is not a divergence.
+    expect(
+      dependsOnSuppliedFigure(victim),
+      "both predicates reject the poisoned row, so it does not sit in the gap and " +
+        "this control proves nothing about the post-filter",
+    ).toBe(false);
+
+    const topic = "fixture-topic";
+    const sel = (bank: readonly CanonicalQuestion[]) =>
+      selectQuestions(bank, topic, NONE).selected;
+
+    // WITHOUT the filter, the generator picks the row the contract rejects —
+    // precisely the defect that shipped on the live page.
+    const unfiltered = sel(poisoned);
+    expect(unfiltered.map((q) => q.id)).toContain(poisonedId);
+    expect(
+      unfiltered.filter((q) => !isPublishable(q, NONE).ok).length,
+      "the count equality would have HELD without the filter, so it proves nothing",
+    ).toBeGreaterThan(0);
+
+    // WITH the filter, the same bank yields a selection the contract accepts.
+    const filtered = sel(publishableQuestions(poisoned));
+    expect(filtered.map((q) => q.id)).not.toContain(poisonedId);
+    expect(filtered.filter((q) => !isPublishable(q, NONE).ok)).toEqual([]);
+    // And it removes ONLY the poisoned row — a scalpel, not a scythe.
+    expect(filtered.length).toBe(clean.length - 1);
+  });
+
+  it("★★ ON THE REAL BYTES — every question the COMMITTED page renders is publishable", () => {
+    // A model that agrees with itself proves nothing about what ships. This reads
+    // the ids out of the committed HTML, which is the artefact a crawler fetches.
+    const ids = emittedQuestionIds(pageHtml());
+    expect(ids.length).toBeGreaterThanOrEqual(MIN_QUESTIONS);
+    const bad = ids
+      .map(questionById)
+      .map((q) => [q.id, isPublishable(q, AI_GENERATED_QUESTION_IDS)] as const)
+      .filter(([, v]) => !v.ok)
+      .map(([id, v]) => `${id}:${v.ok === false ? v.reason : ""}`);
+    expect(
+      bad,
+      `the committed page renders question(s) the contract rejects: ${bad.join(", ")}`,
+    ).toEqual([]);
+
+    // ★ THE SPECIFIC ROW THAT SHIPPED, NAMED. A regression is then unmistakable
+    //   rather than a count moving by one.
+    expect(
+      ids,
+      "CBE-S-LGHT-B-003 is back on the page; the contract rejects it as requires-absent-figure",
+    ).not.toContain("CBE-S-LGHT-B-003");
+  });
+
+  it("★ CONTROL — line-ending normalisation cannot mask a real difference", () => {
+    // The normalisation in `pageHtml()` exists because this file was red on
+    // Windows and green on linux at one commit. It must be a NO-OP on content
+    // with no CRLF, or it could hide a genuine mismatch.
+    const raw = readFileSync(PAGE_FILE, "utf8");
+    const lf = raw.replace(/\r\n/g, "\n");
+    expect(lf.replace(/\r\n/g, "\n")).toBe(lf); // idempotent
+    expect(lf.includes("\r\n")).toBe(false);
+    // It changes ONLY line endings: no other byte moves, and no line is lost.
+    expect(lf.split("\n").length).toBe(raw.split("\n").length);
+    expect(lf.replace(/\n/g, "")).toBe(raw.replace(/\r?\n/g, ""));
+  });
+
+  it("DIAGNOSTIC — how far apart the two figure predicates actually are", () => {
+    // Printed, never asserted. A pinned number here would rot the moment a
+    // content lane annotates a batch, and a rotting pin is how a guard starts
+    // failing for a reason nobody can attribute. [FU-SEO-TWO-FIGURE-PREDICATES]
+    const nonAi = canonicalQuestionBank.filter((q) => !AI_GENERATED_QUESTION_IDS.has(q.id));
+    let modelOnly = 0;
+    let contractOnly = 0;
+    for (const q of nonAi) {
+      const m = dependsOnSuppliedFigure(q);
+      const c = isPublishable(q, AI_GENERATED_QUESTION_IDS);
+      const cFigure = c.ok === false && c.reason === "requires-absent-figure";
+      if (m && !cFigure) modelOnly += 1;
+      if (cFigure && !m) contractOnly += 1;
+    }
+    // eslint-disable-next-line no-console
+    console.log(
+      `ENGINE1_PREDICATE_DELTA: non_ai_rows=${nonAi.length} ` +
+        `model_only_rejects=${modelOnly} contract_only_rejects=${contractOnly} ` +
+        `publishable_pool=${publishableQuestions().length}`,
+    );
+    expect(nonAi.length).toBeGreaterThan(0);
   });
 });
