@@ -493,6 +493,16 @@ import { ourEnvironmentPYQ2024 } from './questionBanks/class10/science/ourEnviro
 import { LGHT_FND, LGHT_FND_BEYOND_BOARD, LGHT_FND_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/light-reflection-and-refraction.fnd';
 // CBSE-official additions (2026-07-04): CFPQ ch.10 (official rubrics) + SQP 2025-26 (official MS)
 import { LGHT_CFPQ_SQP25, LGHT_CFPQ_SQP25_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/light-reflection-and-refraction.cfpq-sqp25';
+import { CHEM_CFPQ, CHEM_CFPQ_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/chemical-reactions-and-equations.cfpq';
+import { ABS_CFPQ, ABS_CFPQ_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/acids-bases-and-salts.cfpq';
+import { MNM_CFPQ, MNM_CFPQ_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/metals-and-non-metals.cfpq';
+import { CARB_CFPQ, CARB_CFPQ_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/carbon-and-its-compounds.cfpq';
+import { LIFE_CFPQ, LIFE_CFPQ_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/life-processes.cfpq';
+import { CTRL_CFPQ, CTRL_CFPQ_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/control-and-coordination.cfpq';
+import { REPR_CFPQ, REPR_CFPQ_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/how-do-organisms-reproduce.cfpq';
+import { EYE_CFPQ, EYE_CFPQ_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/human-eye-and-colourful-world.cfpq';
+import { ELEC_CFPQ, ELEC_CFPQ_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/electricity.cfpq';
+import { ENV_CFPQ, ENV_CFPQ_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/our-environment.cfpq';
 // gdrive high-marks extraction (2026-07-04): essay/numericals/guide/worksheet sources, 2-5 mark only
 import { LGHT_GDR, LGHT_GDR_BEYOND_BOARD, LGHT_GDR_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/light-reflection-and-refraction.gdr';
 
@@ -945,6 +955,16 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...LGHT_FND_BEYOND_BOARD,
   // CBSE-official additions 2026-07-04 — CFPQ ch.10 + SQP 2025-26 (official key/rubrics/MS)
   ...LGHT_CFPQ_SQP25,
+  ...CHEM_CFPQ,
+  ...ABS_CFPQ,
+  ...MNM_CFPQ,
+  ...CARB_CFPQ,
+  ...LIFE_CFPQ,
+  ...CTRL_CFPQ,
+  ...REPR_CFPQ,
+  ...EYE_CFPQ,
+  ...ELEC_CFPQ,
+  ...ENV_CFPQ,
   // gdrive high-marks extraction 2026-07-04 — 2-5 mark items only (see LGHT_GDR_AUTHORED_SOLUTION_IDS)
   ...LGHT_GDR,
   ...LGHT_GDR_BEYOND_BOARD,
@@ -1956,6 +1976,16 @@ export const AI_GENERATED_SOLUTION_IDS: ReadonlySet<string> = new Set([
   ...LGHT_FND_AUTHORED_SOLUTION_IDS,
   // CFPQ/SQP25 additions (2026-07-04): key-anchored MCQ steps + one rubric override
   ...LGHT_CFPQ_SQP25_AUTHORED_SOLUTION_IDS,
+  ...CHEM_CFPQ_AUTHORED_SOLUTION_IDS,
+  ...ABS_CFPQ_AUTHORED_SOLUTION_IDS,
+  ...MNM_CFPQ_AUTHORED_SOLUTION_IDS,
+  ...CARB_CFPQ_AUTHORED_SOLUTION_IDS,
+  ...LIFE_CFPQ_AUTHORED_SOLUTION_IDS,
+  ...CTRL_CFPQ_AUTHORED_SOLUTION_IDS,
+  ...REPR_CFPQ_AUTHORED_SOLUTION_IDS,
+  ...EYE_CFPQ_AUTHORED_SOLUTION_IDS,
+  ...ELEC_CFPQ_AUTHORED_SOLUTION_IDS,
+  ...ENV_CFPQ_AUTHORED_SOLUTION_IDS,
   // gdrive high-marks batch (2026-07-04): sources carry no printed solutions for these rows
   ...LGHT_GDR_AUTHORED_SOLUTION_IDS,
   // Class-(b) step-marking pass (2026-07-21, [FU-BANK-SCARCE-BAND-MISBANDING] Class b):

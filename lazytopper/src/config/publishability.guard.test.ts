@@ -15,6 +15,11 @@
  * A hand-built fixture cannot catch a rule that is inert against real data — that is
  * exactly how v1 passed review. These counts FAIL when the bank moves, which is the
  * point: a test fails when the world moves, a sentence in a doc does not.
+ *
+ * WHEN THESE COUNTS MOVE, FIND OUT WHY BEFORE EDITING THEM. They are pinned so
+ * that a bank change is LOUD. #721 moved three of them and the cause was known
+ * and intended. A count updated without a stated cause is drift being laundered
+ * into a green suite - which is the exact failure this file exists to prevent.
  */
 
 import { describe, it, expect } from "vitest";
@@ -73,7 +78,11 @@ describe("RULE 1 — provenance is an id-set, not a `sources` field", () => {
 
     expect(rejected).toHaveLength(2952);
     expect(AI.size).toBe(2952);
-    expect(canonicalQuestionBank).toHaveLength(8543);
+    // 8,543 -> 8,673: #721 wired the ten .cfpq.ts files into the assembly array.
+    // The files landed in #720 but nothing imported them, so the bank did not grow
+    // until #721. Committed-but-unwired is MOUNT != LIVE: the rows existed and could
+    // not reach a student or a page.
+    expect(canonicalQuestionBank).toHaveLength(8673);
   });
 
   /**
@@ -120,7 +129,10 @@ describe("RULE 2 — both mark conventions are valid", () => {
       const v = isPublishable(q, AI);
       return !v.ok && (v.reason === "unmarked-step" || v.reason === "no-solution-steps");
     });
-    expect(addressable).toHaveLength(3003);
+    // 3,003 -> 3,013: 10 of the 130 newly-wired CFPQ rows arrive unmarked and join
+    // the backlog. Still NOT 5,105 - 2,102 unmarked rows are legacy-ai, which Rule 1
+    // rejects permanently and policy says to retire, not repair.
+    expect(addressable).toHaveLength(3013);
   });
 });
 
@@ -341,7 +353,11 @@ describe("the publishable population", () => {
    */
   it("2,248 rows are publishable today", () => {
     const publishable = canonicalQuestionBank.filter((q) => isPublishable(q, AI).ok);
-    expect(publishable).toHaveLength(2248);
+    // 2,248 -> 2,333: +85. Of the 130 CFPQ rows wired by #721, 85 publish immediately,
+    // 10 join the step-marking backlog and 35 are held by the figure rule. ~3.8% growth,
+    // and the first time in this arc that BANK work moved this number: every earlier
+    // gain came from correcting the predicate, not from adding rows.
+    expect(publishable).toHaveLength(2333);
   });
 
   it("no publishable row is AI-generated — the property retirement depends on", () => {
