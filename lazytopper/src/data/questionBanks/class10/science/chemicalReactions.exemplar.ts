@@ -545,12 +545,12 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "Fe₂O₃(s) + 2Al(s) → 2Fe(l) + Al₂O₃(s) + Heat. Type: displacement reaction (Al displaces Fe from Fe₂O₃) and it is also a highly exothermic redox reaction.",
     solutionSteps: [
-      "Write skeletal equation: Fe₂O₃ + Al → Fe + Al₂O₃.",
-      "Balance Fe: LHS=2 → RHS needs 2 Fe.",
-      "Balance Al: RHS Al₂O₃ has 2 Al → LHS needs 2 Al.",
-      "Balance O: LHS=3, RHS=3 ✓.",
-      "Final: Fe₂O₃(s) + 2Al(s) → 2Fe(l) + Al₂O₃(s).",
-      "Type: Al is more reactive than Fe → it displaces Fe from Fe₂O₃ → displacement reaction. Heat released is intense enough to keep Fe molten → highly exothermic.",
+      "[0.5 mark] Write skeletal equation: Fe₂O₃ + Al → Fe + Al₂O₃.",
+      "[0.5 mark] Balance Fe: LHS=2 → RHS needs 2 Fe.",
+      "[0.5 mark] Balance Al: RHS Al₂O₃ has 2 Al → LHS needs 2 Al.",
+      "[0.5 mark] Balance O: LHS=3, RHS=3 ✓.",
+      "[0.5 mark] Final: Fe₂O₃(s) + 2Al(s) → 2Fe(l) + Al₂O₃(s).",
+      "[0.5 mark] Type: Al is more reactive than Fe → it displaces Fe from Fe₂O₃ → displacement reaction. Heat released is intense enough to keep Fe molten → highly exothermic.",
     ],
     finalAnswer: "Fe₂O₃ + 2Al → 2Fe + Al₂O₃; displacement (exothermic)",
     ncertRef: "Exemplar Ex 1.2 Q20a (SA)",
@@ -571,10 +571,10 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "(a) Endothermic — decomposition requires heat input.\n(b) Exothermic — acid dilution releases a large amount of heat.\n(c) Exothermic — dissolution of NaOH in water releases heat (the solution warms up).\n(d) Endothermic — dissolution of NH₄Cl absorbs heat (the solution cools down).",
     solutionSteps: [
-      "(a) 2FeSO₄ --Heat--> Fe₂O₃ + SO₂ + SO₃. Heat must be supplied → endothermic.",
-      "(b) Concentrated H₂SO₄ in water → exothermic (strong hydration of H⁺ ions releases heat — always add acid to water!).",
-      "(c) NaOH dissolution in water: hydration of Na⁺ and OH⁻ is highly exothermic.",
-      "(d) NH₄Cl in water absorbs heat (lattice energy > hydration energy) — endothermic. Often used in instant cold packs.",
+      "[1 mark] (a) 2FeSO₄ --Heat--> Fe₂O₃ + SO₂ + SO₃. Heat must be supplied → endothermic.",
+      "[0.5 mark] (b) Concentrated H₂SO₄ in water → exothermic (strong hydration of H⁺ ions releases heat — always add acid to water!).",
+      "[0.5 mark] (c) NaOH dissolution in water: hydration of Na⁺ and OH⁻ is highly exothermic.",
+      "[1 mark] (d) NH₄Cl in water absorbs heat (lattice energy > hydration energy) — endothermic. Often used in instant cold packs.",
     ],
     finalAnswer:
       "(a) endothermic (b) exothermic (c) exothermic (d) endothermic",
@@ -596,11 +596,11 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "(a) NH₃ is the reducing agent (it loses H / gets oxidised, donating electrons to O₂).\n(b) H₂O is the reducing agent (loses H to form HOF and HF).\n(c) CO is the reducing agent (loses electrons, gets oxidised to CO₂; reduces Fe₂O₃ to Fe).\n(d) H₂ is the reducing agent (gets oxidised, loses electrons to O₂).",
     solutionSteps: [
-      "Reducing agent = substance that gets oxidised (loses H, gains O, or loses electrons) and thereby reduces another species.",
-      "(a) N in NH₃ goes from −3 to +2 (oxidised) → NH₃ is reducing agent; O₂ is oxidising agent.",
-      "(b) H in H₂O goes from +1 to … in HF/HOF the H is still +1 but O₂⁻ becomes O in HOF (0). Looking at electrons donated → H₂O reduces F₂.",
-      "(c) C in CO is +2; in CO₂ is +4 (oxidised). So CO is reducing agent; Fe₂O₃ is oxidising agent (Fe³⁺ → Fe⁰).",
-      "(d) H in H₂ is 0; in H₂O is +1 (oxidised). H₂ is reducing agent; O₂ is oxidising agent.",
+      "[1 mark] Reducing agent = substance that gets oxidised (loses H, gains O, or loses electrons) and thereby reduces another species.",
+      "[0.5 mark] (a) N in NH₃ goes from −3 to +2 (oxidised) → NH₃ is reducing agent; O₂ is oxidising agent.",
+      "[0.5 mark] (b) H in H₂O goes from +1 to … in HF/HOF the H is still +1 but O₂⁻ becomes O in HOF (0). Looking at electrons donated → H₂O reduces F₂.",
+      "[0.5 mark] (c) C in CO is +2; in CO₂ is +4 (oxidised). So CO is reducing agent; Fe₂O₃ is oxidising agent (Fe³⁺ → Fe⁰).",
+      "[0.5 mark] (d) H in H₂ is 0; in H₂O is +1 (oxidised). H₂ is reducing agent; O₂ is oxidising agent.",
     ],
     finalAnswer:
       "(a) NH₃ (b) H₂O (c) CO (d) H₂",
@@ -622,10 +622,10 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "KCl(aq) + AgNO₃(aq) → AgCl(s)↓ + KNO₃(aq). Type: double displacement reaction (ions exchanged) and also a precipitation reaction (white insoluble AgCl forms).",
     solutionSteps: [
-      "Two solutions mix; ions exchange — K⁺ pairs with NO₃⁻, Ag⁺ pairs with Cl⁻.",
-      "Equation: KCl(aq) + AgNO₃(aq) → AgCl(s)↓ + KNO₃(aq).",
-      "AgCl is insoluble in water → forms a white curdy precipitate.",
-      "Type: double displacement reaction; also a precipitation reaction.",
+      "[1 mark] Two solutions mix; ions exchange — K⁺ pairs with NO₃⁻, Ag⁺ pairs with Cl⁻.",
+      "[0.5 mark] Equation: KCl(aq) + AgNO₃(aq) → AgCl(s)↓ + KNO₃(aq).",
+      "[0.5 mark] AgCl is insoluble in water → forms a white curdy precipitate.",
+      "[1 mark] Type: double displacement reaction; also a precipitation reaction.",
     ],
     finalAnswer:
       "KCl + AgNO₃ → AgCl↓ + KNO₃ — double displacement / precipitation.",
@@ -647,10 +647,10 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "2FeSO₄(s) --Heat--> Fe₂O₃(s) + SO₂(g) + SO₃(g). Type: thermal decomposition reaction. The SO₂ produced has the characteristic pungent smell of burning sulphur.",
     solutionSteps: [
-      "Heating FeSO₄ crystals breaks them into ferric oxide and sulphur oxides.",
-      "Balance: 2 FeSO₄ → 1 Fe₂O₃ (Fe 2=2), 1 SO₂ + 1 SO₃ (S 2=2, O: LHS=8, RHS=3+2+3=8 ✓).",
-      "Final balanced equation: 2FeSO₄(s) --Δ--> Fe₂O₃(s) + SO₂(g) + SO₃(g).",
-      "Single reactant → multiple products = decomposition; heat-driven → thermal decomposition.",
+      "[1 mark] Heating FeSO₄ crystals breaks them into ferric oxide and sulphur oxides.",
+      "[0.5 mark] Balance: 2 FeSO₄ → 1 Fe₂O₃ (Fe 2=2), 1 SO₂ + 1 SO₃ (S 2=2, O: LHS=8, RHS=3+2+3=8 ✓).",
+      "[0.5 mark] Final balanced equation: 2FeSO₄(s) --Δ--> Fe₂O₃(s) + SO₂(g) + SO₃(g).",
+      "[1 mark] Single reactant → multiple products = decomposition; heat-driven → thermal decomposition.",
     ],
     finalAnswer:
       "2FeSO₄ --Heat--> Fe₂O₃ + SO₂ + SO₃; thermal decomposition.",
@@ -671,10 +671,10 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "Silver chloride undergoes photochemical decomposition in the presence of sunlight: 2AgCl(s) --sunlight--> 2Ag(s) + Cl₂(g). To prevent this decomposition during storage, AgCl is kept in dark coloured (usually amber/brown) bottles that block sunlight.",
     solutionSteps: [
-      "AgCl is a light-sensitive compound (used historically in photography).",
-      "Sunlight provides energy for the reaction: 2AgCl(s) → 2Ag(s) + Cl₂(g).",
-      "If kept in transparent bottles, AgCl would slowly turn grey due to deposition of metallic silver.",
-      "Dark/amber coloured bottles block most visible/UV light, preventing the decomposition. The chemical stays pure during storage.",
+      "[1 mark] AgCl is a light-sensitive compound (used historically in photography).",
+      "[0.5 mark] Sunlight provides energy for the reaction: 2AgCl(s) → 2Ag(s) + Cl₂(g).",
+      "[0.5 mark] If kept in transparent bottles, AgCl would slowly turn grey due to deposition of metallic silver.",
+      "[1 mark] Dark/amber coloured bottles block most visible/UV light, preventing the decomposition. The chemical stays pure during storage.",
     ],
     finalAnswer:
       "Sunlight decomposes AgCl to Ag + Cl₂. Dark bottles block light, preserving AgCl.",
@@ -696,10 +696,10 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "(a) N₂(g) + 3H₂(g) --(773K, cat.)--> 2NH₃(g) — combination reaction.\n(b) NaOH(aq) + CH₃COOH(aq) → CH₃COONa(aq) + H₂O(l) — neutralisation / double displacement.\n(c) C₂H₅OH + CH₃COOH --(conc. H₂SO₄)--> CH₃COOC₂H₅ + H₂O — substitution (esterification, a combination-with-elimination).\n(d) C₂H₄(g) + 3O₂(g) → 2CO₂(g) + 2H₂O(g) + heat + light — combustion (combination / oxidation).",
     solutionSteps: [
-      "(a) N: LHS=2, RHS in NH₃=1 → put 2 NH₃. H: RHS=6 → put 3 H₂. Two elements combine to give one product → combination reaction.",
-      "(b) Already balanced. An acid (CH₃COOH) and a base (NaOH) react to give a salt + water → neutralisation, which is a special double displacement.",
-      "(c) Esterification: ethanol + ethanoic acid → ester + water. Carbon and oxygen balanced as written; H 6+4=4+6+2? Let's check: LHS H = 6(EtOH)+4(acid)=10; RHS H = 8(ester)+2(water)=10 ✓. Type: substitution-elimination (forms ester).",
-      "(d) Burn ethene: C₂H₄ + O₂ → CO₂ + H₂O. C: LHS=2 → put 2 CO₂. H: LHS=4 → put 2 H₂O. O: RHS=4+2=6 → put 3 O₂ on LHS. Type: combustion (a redox combination reaction).",
+      "[1 mark] (a) N: LHS=2, RHS in NH₃=1 → put 2 NH₃. H: RHS=6 → put 3 H₂. Two elements combine to give one product → combination reaction.",
+      "[0.5 mark] (b) Already balanced. An acid (CH₃COOH) and a base (NaOH) react to give a salt + water → neutralisation, which is a special double displacement.",
+      "[0.5 mark] (c) Esterification: ethanol + ethanoic acid → ester + water. Carbon and oxygen balanced as written; H 6+4=4+6+2? Let's check: LHS H = 6(EtOH)+4(acid)=10; RHS H = 8(ester)+2(water)=10 ✓. Type: substitution-elimination (forms ester).",
+      "[1 mark] (d) Burn ethene: C₂H₄ + O₂ → CO₂ + H₂O. C: LHS=2 → put 2 CO₂. H: LHS=4 → put 2 H₂O. O: RHS=4+2=6 → put 3 O₂ on LHS. Type: combustion (a redox combination reaction).",
     ],
     finalAnswer:
       "(a) N₂+3H₂→2NH₃ — combination. (b) NaOH+CH₃COOH→CH₃COONa+H₂O — neutralisation. (c) C₂H₅OH+CH₃COOH→CH₃COOC₂H₅+H₂O — esterification. (d) C₂H₄+3O₂→2CO₂+2H₂O — combustion.",
@@ -721,9 +721,9 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "(a) 3Mg(s) + N₂(g) → Mg₃N₂(s) — combination.\n(b) Cl₂(g) + 2KI(aq) → 2KCl(aq) + I₂(s) — displacement (Cl displaces I).\n(c) C₂H₅OH(l) + 3O₂(g) → 2CO₂(g) + 3H₂O(g) + heat — combustion.",
     solutionSteps: [
-      "(a) Mg: in Mg₃N₂ has 3, so put 3 Mg on LHS. N: in N₂ has 2, matches N₂ in Mg₃N₂. Two elements combine to give one product → combination.",
-      "(b) Cl₂ + KI → KCl + I₂. K: 1=1, so put 2 KI and 2 KCl to match Cl 2 and I 2 (RHS I₂). Cl is more reactive than I → displaces I from KI → displacement reaction.",
-      "(c) Ethanol + O₂ → CO₂ + H₂O. C: LHS=2 → put 2 CO₂. H: LHS=6 → put 3 H₂O. O: RHS=4+3=7; LHS O in C₂H₅OH=1; remaining 6 must come from O₂ → put 3 O₂. Type: combustion (a redox combination releasing heat).",
+      "[1 mark] (a) Mg: in Mg₃N₂ has 3, so put 3 Mg on LHS. N: in N₂ has 2, matches N₂ in Mg₃N₂. Two elements combine to give one product → combination.",
+      "[1 mark] (b) Cl₂ + KI → KCl + I₂. K: 1=1, so put 2 KI and 2 KCl to match Cl 2 and I 2 (RHS I₂). Cl is more reactive than I → displaces I from KI → displacement reaction.",
+      "[1 mark] (c) Ethanol + O₂ → CO₂ + H₂O. C: LHS=2 → put 2 CO₂. H: LHS=6 → put 3 H₂O. O: RHS=4+3=7; LHS O in C₂H₅OH=1; remaining 6 must come from O₂ → put 3 O₂. Type: combustion (a redox combination releasing heat).",
     ],
     finalAnswer:
       "(a) 3Mg+N₂→Mg₃N₂ — combination. (b) Cl₂+2KI→2KCl+I₂ — displacement. (c) C₂H₅OH+3O₂→2CO₂+3H₂O — combustion.",
@@ -745,10 +745,10 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "(a) x = s (PbI₂ is an insoluble yellow precipitate); y = aq (KNO₃ remains in solution).\n(b) x = Ag (silver, deposited as solid).\n(c) x = aq (ZnSO₄ is soluble); y = g (H₂ released as gas).\n(d) x = Heat (Δ) — thermal decomposition condition.",
     solutionSteps: [
-      "(a) PbI₂ is insoluble in water → state symbol is (s); the precipitate is bright yellow. KNO₃ is soluble → (aq).",
-      "(b) Cu displaces Ag from AgNO₃. The silver formed is a solid metal → x = Ag(s).",
-      "(c) ZnSO₄ is soluble → (aq). H₂ is liberated as gas (bubbles) → (g).",
-      "(d) The arrow with x represents the condition. Heating limestone is required to decompose CaCO₃ — x = Heat (Δ).",
+      "[1 mark] (a) PbI₂ is insoluble in water → state symbol is (s); the precipitate is bright yellow. KNO₃ is soluble → (aq).",
+      "[0.5 mark] (b) Cu displaces Ag from AgNO₃. The silver formed is a solid metal → x = Ag(s).",
+      "[0.5 mark] (c) ZnSO₄ is soluble → (aq). H₂ is liberated as gas (bubbles) → (g).",
+      "[1 mark] (d) The arrow with x represents the condition. Heating limestone is required to decompose CaCO₃ — x = Heat (Δ).",
     ],
     finalAnswer:
       "(a) x=s, y=aq. (b) x=Ag. (c) x=aq, y=g. (d) x=Heat (Δ).",
@@ -797,9 +797,9 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "(a) Na₂CO₃(aq) + HCl(aq) → NaCl(aq) + NaHCO₃(aq) — 1:1 molar ratio gives partial neutralisation.\n(b) NaHCO₃(aq) + HCl(aq) → NaCl(aq) + H₂O(l) + CO₂(g).\n(c) 2CuSO₄(aq) + 4KI(aq) → Cu₂I₂(s) + I₂(s) + 2K₂SO₄(aq).",
     solutionSteps: [
-      "(a) With 1:1 mole ratio, only one H from H₂CO₃ is exchanged: Na 2 LHS → 1 in NaCl + 1 in NaHCO₃ = 2 ✓. Cl 1=1 ✓. HCO₃: 1 formed from CO₃ + H ✓. Balanced as written.",
-      "(b) NaHCO₃ + HCl → NaCl + H₂CO₃; H₂CO₃ decomposes to H₂O + CO₂. Net: NaHCO₃ + HCl → NaCl + H₂O + CO₂. Na 1=1, H 1+1=2, C 1=1, O 3=3, Cl 1=1 ✓.",
-      "(c) Cu²⁺ is reduced to Cu⁺ (in Cu₂I₂); I⁻ is oxidised to I₂. Balance: 2 Cu (for Cu₂I₂); 4 I needed → 4 KI; 2 K₂SO₄ on RHS gives 4 K; 2 SO₄ on LHS = 2 on RHS ✓. Half of the I⁻ goes to Cu₂I₂ (2 I), half becomes I₂ (2 I) → balanced.",
+      "[1 mark] (a) With 1:1 mole ratio, only one H from H₂CO₃ is exchanged: Na 2 LHS → 1 in NaCl + 1 in NaHCO₃ = 2 ✓. Cl 1=1 ✓. HCO₃: 1 formed from CO₃ + H ✓. Balanced as written.",
+      "[1 mark] (b) NaHCO₃ + HCl → NaCl + H₂CO₃; H₂CO₃ decomposes to H₂O + CO₂. Net: NaHCO₃ + HCl → NaCl + H₂O + CO₂. Na 1=1, H 1+1=2, C 1=1, O 3=3, Cl 1=1 ✓.",
+      "[1 mark] (c) Cu²⁺ is reduced to Cu⁺ (in Cu₂I₂); I⁻ is oxidised to I₂. Balance: 2 Cu (for Cu₂I₂); 4 I needed → 4 KI; 2 K₂SO₄ on RHS gives 4 K; 2 SO₄ on LHS = 2 on RHS ✓. Half of the I⁻ goes to Cu₂I₂ (2 I), half becomes I₂ (2 I) → balanced.",
     ],
     finalAnswer:
       "(a) Na₂CO₃+HCl→NaCl+NaHCO₃. (b) NaHCO₃+HCl→NaCl+H₂O+CO₂. (c) 2CuSO₄+4KI→Cu₂I₂+I₂+2K₂SO₄.",
@@ -820,10 +820,10 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "Fireflies contain a light-emitting biochemical called luciferin. In the presence of the enzyme luciferase, luciferin reacts with oxygen and ATP, undergoing oxidation. The energy released in this exothermic chemical reaction is emitted as visible light (yellow-green) — this is bioluminescence. Almost no heat is produced (it is 'cold light').",
     solutionSteps: [
-      "Fireflies have specialised organs in their abdomens that contain luciferin (substrate) and luciferase (enzyme).",
-      "Reaction: Luciferin + O₂ --(luciferase, ATP)--> Oxyluciferin + Light. This is an oxidation reaction.",
-      "The energy released by oxidising luciferin is emitted almost entirely as light (photons of yellow-green visible light), not heat. This makes bioluminescence highly energy-efficient.",
-      "The glow at night is therefore an example of a chemical reaction directly producing light — chemiluminescence in a biological system.",
+      "[1 mark] Fireflies have specialised organs in their abdomens that contain luciferin (substrate) and luciferase (enzyme).",
+      "[0.5 mark] Reaction: Luciferin + O₂ --(luciferase, ATP)--> Oxyluciferin + Light. This is an oxidation reaction.",
+      "[0.5 mark] The energy released by oxidising luciferin is emitted almost entirely as light (photons of yellow-green visible light), not heat. This makes bioluminescence highly energy-efficient.",
+      "[1 mark] The glow at night is therefore an example of a chemical reaction directly producing light — chemiluminescence in a biological system.",
     ],
     finalAnswer:
       "Bioluminescence: luciferin + O₂ → oxyluciferin + light (catalysed by luciferase, fuelled by ATP).",
@@ -845,10 +845,10 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "On the plant, grapes are protected by the plant's biological defences and an intact skin — yeast cannot easily access sugars. Once plucked, grapes lose this protection. Fermentation begins when yeast (already present on the grape skin) reaches the sugars in suitable conditions: warm temperature (20–35 °C), moisture, and absence of oxygen (anaerobic). Yeast converts sugar to ethanol + CO₂. This is a CHEMICAL change — new substances (ethanol, CO₂) form and the change is irreversible.",
     solutionSteps: [
-      "On the plant, grapes are alive — the plant's cellular activity, intact skin and sap flow prevent microbial fermentation.",
-      "After plucking, grapes are no longer connected to the plant's living tissues. The skin gradually breaks, sugars become accessible to yeast naturally present on grape surfaces.",
-      "Conditions for fermentation: warmth (≈25–30 °C), moisture, absence of air (anaerobic). Yeast then converts glucose: C₆H₁₂O₆ --(yeast)--> 2C₂H₅OH + 2CO₂.",
-      "Fermentation is a CHEMICAL change — sugars are converted into new substances (ethanol + CO₂); the change is irreversible; energy is released. The smell and taste also change.",
+      "[1 mark] On the plant, grapes are alive — the plant's cellular activity, intact skin and sap flow prevent microbial fermentation.",
+      "[0.5 mark] After plucking, grapes are no longer connected to the plant's living tissues. The skin gradually breaks, sugars become accessible to yeast naturally present on grape surfaces.",
+      "[0.5 mark] Conditions for fermentation: warmth (≈25–30 °C), moisture, absence of air (anaerobic). Yeast then converts glucose: C₆H₁₂O₆ --(yeast)--> 2C₂H₅OH + 2CO₂.",
+      "[1 mark] Fermentation is a CHEMICAL change — sugars are converted into new substances (ethanol + CO₂); the change is irreversible; energy is released. The smell and taste also change.",
     ],
     finalAnswer:
       "Conditions: warmth, moisture, anaerobic environment (with yeast). It is a CHEMICAL change.",
@@ -870,12 +870,12 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "(a) Physical — only state changes (liquid → vapour), petrol molecules unchanged.\n(b) Chemical — LPG burns: hydrocarbon + O₂ → CO₂ + H₂O + heat. New substances formed.\n(c) Physical — heating iron changes its temperature/colour but no new substance forms (assuming no air access to cause oxidation).\n(d) Chemical — milk proteins denature; lactose converts to lactic acid (by bacteria). Irreversible; new substances formed.\n(e) Physical — NH₄Cl sublimes (solid → gas directly), molecules unchanged.",
     solutionSteps: [
-      "A physical change alters only state/form/appearance with no new substance formed and is usually reversible. A chemical change forms new substances and is usually irreversible, often with heat / light / colour / gas changes.",
-      "(a) Evaporation: petrol stays petrol (just in gaseous form) → physical.",
-      "(b) Burning of LPG: butane (C₄H₁₀) + O₂ → CO₂ + H₂O → chemical change.",
-      "(c) Red-hot iron: changes temperature and colour but the iron itself is still iron → physical.",
-      "(d) Curdling: lactic acid bacteria convert milk sugar (lactose) to lactic acid; casein denatures and forms curd → new substances, chemical change.",
-      "(e) Sublimation of NH₄Cl: solid → gas directly; the substance is still NH₄Cl → physical.",
+      "[0.5 mark] A physical change alters only state/form/appearance with no new substance formed and is usually reversible. A chemical change forms new substances and is usually irreversible, often with heat / light / colour / gas changes.",
+      "[0.5 mark] (a) Evaporation: petrol stays petrol (just in gaseous form) → physical.",
+      "[0.5 mark] (b) Burning of LPG: butane (C₄H₁₀) + O₂ → CO₂ + H₂O → chemical change.",
+      "[0.5 mark] (c) Red-hot iron: changes temperature and colour but the iron itself is still iron → physical.",
+      "[0.5 mark] (d) Curdling: lactic acid bacteria convert milk sugar (lactose) to lactic acid; casein denatures and forms curd → new substances, chemical change.",
+      "[0.5 mark] (e) Sublimation of NH₄Cl: solid → gas directly; the substance is still NH₄Cl → physical.",
     ],
     finalAnswer:
       "(a) Physical (b) Chemical (c) Physical (d) Chemical (e) Physical",
@@ -897,11 +897,11 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "(a) Ag is below H in the reactivity series and cannot displace H from HCl → no reaction.\n(b) Al is highly reactive (above H); the reaction 2Al + 6HCl → 2AlCl₃ + 3H₂ is highly exothermic → temperature rises.\n(c) Na is at the top of the reactivity series; it reacts violently and explosively with HCl: 2Na + 2HCl → 2NaCl + H₂ + a lot of heat → explosion.\n(d) Pb is moderately reactive (above H, below most active metals); reaction Pb + 2HCl → PbCl₂ + H₂ is slow, partly because PbCl₂ is poorly soluble in cold dilute HCl and forms a slightly protective layer → only slow bubble formation.",
     solutionSteps: [
-      "Reactivity series (relevant): K > Na > Ca > Mg > Al > Zn > Fe > Pb > H > Cu > Hg > Ag > Au.",
-      "(a) Ag is below H in this series — it cannot displace H from acids → no reaction with dilute HCl.",
-      "(b) Al is above H; reaction with HCl liberates H₂ gas and releases heat (exothermic) → temperature of the mixture rises.",
-      "(c) Na is highly reactive (top of series). With acid (and even water inside the acid solution), Na reacts violently with explosive evolution of H₂ and release of large heat.",
-      "(d) Pb is above H but lower in the series than Al/Zn. The reaction is slow because PbCl₂ has low solubility in cold dil HCl and partially coats the metal — only a few bubbles of H₂ appear.",
+      "[1 mark] Reactivity series (relevant): K > Na > Ca > Mg > Al > Zn > Fe > Pb > H > Cu > Hg > Ag > Au.",
+      "[0.5 mark] (a) Ag is below H in this series — it cannot displace H from acids → no reaction with dilute HCl.",
+      "[0.5 mark] (b) Al is above H; reaction with HCl liberates H₂ gas and releases heat (exothermic) → temperature of the mixture rises.",
+      "[0.5 mark] (c) Na is highly reactive (top of series). With acid (and even water inside the acid solution), Na reacts violently with explosive evolution of H₂ and release of large heat.",
+      "[0.5 mark] (d) Pb is above H but lower in the series than Al/Zn. The reaction is slow because PbCl₂ has low solubility in cold dil HCl and partially coats the metal — only a few bubbles of H₂ appear.",
     ],
     finalAnswer:
       "Reactivity order explains all observations: Ag below H → no reaction; Al above H + exothermic → temp rises; Na very reactive → explosive; Pb above H but slow due to poorly soluble PbCl₂.",
@@ -923,10 +923,10 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "X is calcium oxide (CaO, quicklime). Reasoning: Ca is a group 2 element, present in bones (as calcium phosphate). CaO is used widely in cement manufacture. CaO + H₂O → Ca(OH)₂ (calcium hydroxide, slaked lime). Ca(OH)₂ is basic — turns red litmus blue.",
     solutionSteps: [
-      "Group 2 elements include Be, Mg, Ca, Sr, Ba. Of these, the oxide used in cement industry and the element present in bones is calcium (Ca). So X = CaO (calcium oxide / quick lime).",
-      "Industrial usage: cement clinker is produced by heating limestone (CaCO₃) to give CaO; CaO is then a key component of cement.",
-      "Reaction with water: CaO(s) + H₂O(l) → Ca(OH)₂(aq) + Heat. This is a combination reaction (also exothermic — known as slaking of lime).",
-      "Test with litmus: Ca(OH)₂ is alkaline (pH > 7) and turns red litmus blue → confirms the basic nature of the product.",
+      "[1 mark] Group 2 elements include Be, Mg, Ca, Sr, Ba. Of these, the oxide used in cement industry and the element present in bones is calcium (Ca). So X = CaO (calcium oxide / quick lime).",
+      "[0.5 mark] Industrial usage: cement clinker is produced by heating limestone (CaCO₃) to give CaO; CaO is then a key component of cement.",
+      "[0.5 mark] Reaction with water: CaO(s) + H₂O(l) → Ca(OH)₂(aq) + Heat. This is a combination reaction (also exothermic — known as slaking of lime).",
+      "[1 mark] Test with litmus: Ca(OH)₂ is alkaline (pH > 7) and turns red litmus blue → confirms the basic nature of the product.",
     ],
     finalAnswer:
       "X = CaO. Reaction: CaO + H₂O → Ca(OH)₂ (basic, turns red litmus blue).",
@@ -948,10 +948,10 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "(a) Pb(CH₃COO)₂(aq) + 2HCl(aq) → PbCl₂(s) + 2CH₃COOH(aq) — double displacement.\n(b) 2Na(s) + 2C₂H₅OH(l) → 2C₂H₅ONa + H₂(g) — displacement (Na displaces H of alcohol).\n(c) Fe₂O₃(s) + 3CO(g) → 2Fe(s) + 3CO₂(g) — displacement / redox.\n(d) 2H₂S(g) + O₂(g) → 2S(s) + 2H₂O(l) — combination / oxidation.",
     solutionSteps: [
-      "(a) Acetate (CH₃COO) and Cl exchange — double displacement. Balance: Pb 1=1; CH₃COO 2 on LHS → 2 CH₃COOH on RHS; Cl 2 LHS → 2 in PbCl₂; H 2 LHS → 2 RHS ✓.",
-      "(b) Na replaces the active H of ethanol: 2Na + 2C₂H₅OH → 2C₂H₅ONa + H₂. Na 2=2; C 4=4; H 12=10+2 ✓.",
-      "(c) CO reduces Fe₂O₃ to Fe; CO is oxidised to CO₂. Balance: Fe 2 in Fe₂O₃ → put 2 Fe on RHS. O: LHS=3(in Fe₂O₃)+3(in 3CO)=6; RHS=6 (in 3CO₂). C 3=3 ✓.",
-      "(d) Partial oxidation of H₂S: H balance gives 2 H₂S → 2 H₂O; S: LHS=2 → 2 S on RHS; O: LHS=2, RHS=2 ✓. This is a combination reaction with simultaneous redox (S in H₂S is -2 → 0 in S; O is 0 → -2 in H₂O).",
+      "[1 mark] (a) Acetate (CH₃COO) and Cl exchange — double displacement. Balance: Pb 1=1; CH₃COO 2 on LHS → 2 CH₃COOH on RHS; Cl 2 LHS → 2 in PbCl₂; H 2 LHS → 2 RHS ✓.",
+      "[0.5 mark] (b) Na replaces the active H of ethanol: 2Na + 2C₂H₅OH → 2C₂H₅ONa + H₂. Na 2=2; C 4=4; H 12=10+2 ✓.",
+      "[0.5 mark] (c) CO reduces Fe₂O₃ to Fe; CO is oxidised to CO₂. Balance: Fe 2 in Fe₂O₃ → put 2 Fe on RHS. O: LHS=3(in Fe₂O₃)+3(in 3CO)=6; RHS=6 (in 3CO₂). C 3=3 ✓.",
+      "[1 mark] (d) Partial oxidation of H₂S: H balance gives 2 H₂S → 2 H₂O; S: LHS=2 → 2 S on RHS; O: LHS=2, RHS=2 ✓. This is a combination reaction with simultaneous redox (S in H₂S is -2 → 0 in S; O is 0 → -2 in H₂O).",
     ],
     finalAnswer:
       "(a) Pb(CH₃COO)₂+2HCl→PbCl₂+2CH₃COOH — double displacement. (b) 2Na+2C₂H₅OH→2C₂H₅ONa+H₂ — displacement. (c) Fe₂O₃+3CO→2Fe+3CO₂ — displacement/redox. (d) 2H₂S+O₂→2S+2H₂O — combination/oxidation.",
@@ -973,12 +973,12 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "(a) Mg + Cl₂ → MgCl₂ — combination.\n(b) 2HgO → 2Hg + O₂ — thermal decomposition.\n(c) 2Na + S → Na₂S — combination.\n(d) TiCl₄ + 2Mg → Ti + 2MgCl₂ — displacement.\n(e) CaO + SiO₂ → CaSiO₃ — combination.\n(f) 2H₂O₂ → 2H₂O + O₂ — photochemical decomposition.",
     solutionSteps: [
-      "(a) Mg 1=1; Cl 2=2 ✓. Two elements combine to one product → combination.",
-      "(b) Hg 2=2 → put 2 HgO. O 2=2 (in O₂) ✓. Heat causes single reactant to break into two → thermal decomposition.",
-      "(c) Na 2=2 → 2 Na on LHS; S 1=1 ✓. Two elements combine → combination.",
-      "(d) Cl 4 LHS → 4 in 2 MgCl₂ → put 2 MgCl₂; Mg 2 needed → put 2 Mg on LHS; Ti 1=1 ✓. Mg displaces Ti from TiCl₄ → displacement.",
-      "(e) Ca 1=1; Si 1=1; O 1+2=3 ✓. Two oxides combine to one product → combination.",
-      "(f) H 4=4 → put 2 H₂O₂ and 2 H₂O. O 4=2+2 ✓. UV light decomposes one substance → photochemical decomposition.",
+      "[0.5 mark] (a) Mg 1=1; Cl 2=2 ✓. Two elements combine to one product → combination.",
+      "[0.5 mark] (b) Hg 2=2 → put 2 HgO. O 2=2 (in O₂) ✓. Heat causes single reactant to break into two → thermal decomposition.",
+      "[0.5 mark] (c) Na 2=2 → 2 Na on LHS; S 1=1 ✓. Two elements combine → combination.",
+      "[0.5 mark] (d) Cl 4 LHS → 4 in 2 MgCl₂ → put 2 MgCl₂; Mg 2 needed → put 2 Mg on LHS; Ti 1=1 ✓. Mg displaces Ti from TiCl₄ → displacement.",
+      "[0.5 mark] (e) Ca 1=1; Si 1=1; O 1+2=3 ✓. Two oxides combine to one product → combination.",
+      "[0.5 mark] (f) H 4=4 → put 2 H₂O₂ and 2 H₂O. O 4=2+2 ✓. UV light decomposes one substance → photochemical decomposition.",
     ],
     finalAnswer:
       "(a) Mg+Cl₂→MgCl₂ combination. (b) 2HgO→2Hg+O₂ thermal decomposition. (c) 2Na+S→Na₂S combination. (d) TiCl₄+2Mg→Ti+2MgCl₂ displacement. (e) CaO+SiO₂→CaSiO₃ combination. (f) 2H₂O₂→2H₂O+O₂ photochemical decomposition.",
@@ -1000,10 +1000,10 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "(a) X = MgO (magnesium oxide, white powder); Y = Mg₃N₂ (magnesium nitride, greenish-yellow).\n(b) When X (MgO) is dissolved in water: MgO(s) + H₂O(l) → Mg(OH)₂(aq) — a slightly soluble base.",
     solutionSteps: [
-      "(a) Mg + O₂ in air gives the white compound MgO with brilliant white flame: 2Mg + O₂ → 2MgO. So X = MgO.",
-      "(a) In N₂ atmosphere (no oxygen), magnesium reacts with nitrogen: 3Mg + N₂ → Mg₃N₂. So Y = Mg₃N₂ (magnesium nitride).",
-      "(b) MgO is a basic oxide. With water it forms magnesium hydroxide (sparingly soluble base): MgO(s) + H₂O(l) → Mg(OH)₂(aq).",
-      "Mg(OH)₂ solution is mildly alkaline; turns red litmus blue. (This is the active ingredient of milk of magnesia.)",
+      "[1 mark] (a) Mg + O₂ in air gives the white compound MgO with brilliant white flame: 2Mg + O₂ → 2MgO. So X = MgO.",
+      "[0.5 mark] (a) In N₂ atmosphere (no oxygen), magnesium reacts with nitrogen: 3Mg + N₂ → Mg₃N₂. So Y = Mg₃N₂ (magnesium nitride).",
+      "[0.5 mark] (b) MgO is a basic oxide. With water it forms magnesium hydroxide (sparingly soluble base): MgO(s) + H₂O(l) → Mg(OH)₂(aq).",
+      "[1 mark] Mg(OH)₂ solution is mildly alkaline; turns red litmus blue. (This is the active ingredient of milk of magnesia.)",
     ],
     finalAnswer:
       "(a) X = MgO; Y = Mg₃N₂. (b) MgO + H₂O → Mg(OH)₂.",
@@ -1024,9 +1024,9 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "In the reactivity series, Zn is above H but Cu is below H. A more reactive metal can displace a less reactive element from its compound; a less reactive metal cannot. Hence Zn displaces H from HCl (Zn + 2HCl → ZnCl₂ + H₂) but Cu does not react with dilute HCl.",
     solutionSteps: [
-      "The reactivity series: K > Na > Ca > Mg > Al > Zn > Fe > Pb > H > Cu > Hg > Ag > Au.",
-      "Zn lies above H — Zn is more reactive than hydrogen, so it can replace H⁺ from HCl: Zn + 2HCl → ZnCl₂ + H₂(g)↑.",
-      "Cu lies below H — Cu is less reactive than hydrogen, so Cu cannot displace H from HCl. No reaction occurs between Cu and dilute HCl at ordinary temperatures.",
+      "[1 mark] The reactivity series: K > Na > Ca > Mg > Al > Zn > Fe > Pb > H > Cu > Hg > Ag > Au.",
+      "[1 mark] Zn lies above H — Zn is more reactive than hydrogen, so it can replace H⁺ from HCl: Zn + 2HCl → ZnCl₂ + H₂(g)↑.",
+      "[1 mark] Cu lies below H — Cu is less reactive than hydrogen, so Cu cannot displace H from HCl. No reaction occurs between Cu and dilute HCl at ordinary temperatures.",
     ],
     finalAnswer: "Zn is above H in reactivity series (can displace H from HCl); Cu is below H (cannot).",
     ncertRef: "Exemplar Ex 1.2 Q37 (SA)",
@@ -1047,10 +1047,10 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "(a) The air contains small amounts of hydrogen sulphide (H₂S) gas. Silver reacts with H₂S to form a thin black layer on the surface: 2Ag(s) + H₂S(g) → Ag₂S(s) + H₂(g). The phenomenon is called corrosion (specifically, tarnishing of silver).\n(b) The black substance is silver sulphide; formula Ag₂S.",
     solutionSteps: [
-      "(a) Air contains traces of H₂S from various sources (eggs, burning fossil fuels, decomposing organic matter).",
-      "(a) Silver reacts with H₂S in presence of moisture: 2Ag + H₂S → Ag₂S + H₂. A thin black layer of Ag₂S forms on the surface.",
-      "(a) This metal-attacked-by-environment process is called corrosion. For silver, it is also called tarnishing.",
-      "(b) The black layer is silver sulphide (Ag₂S). Toothpaste contains a mild abrasive — rubbing removes the Ag₂S layer, exposing fresh silver beneath.",
+      "[1 mark] (a) Air contains traces of H₂S from various sources (eggs, burning fossil fuels, decomposing organic matter).",
+      "[0.5 mark] (a) Silver reacts with H₂S in presence of moisture: 2Ag + H₂S → Ag₂S + H₂. A thin black layer of Ag₂S forms on the surface.",
+      "[0.5 mark] (a) This metal-attacked-by-environment process is called corrosion. For silver, it is also called tarnishing.",
+      "[1 mark] (b) The black layer is silver sulphide (Ag₂S). Toothpaste contains a mild abrasive — rubbing removes the Ag₂S layer, exposing fresh silver beneath.",
     ],
     finalAnswer:
       "(a) Ag reacts with H₂S in air → black Ag₂S layer; phenomenon = corrosion (tarnishing). (b) Ag₂S (silver sulphide).",
@@ -1074,11 +1074,11 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "(a) CO₂: turns lime water (Ca(OH)₂ solution) milky due to formation of insoluble CaCO₃. Excess CO₂ makes the milkiness disappear (Ca(HCO₃)₂ is soluble).\n(b) SO₂: turns acidified potassium dichromate (orange) green; or decolourises acidified KMnO₄. Also has a pungent smell of burning sulphur.\n(c) O₂: relights a glowing splinter (the splinter bursts into flame in pure O₂).\n(d) H₂: produces a 'pop' sound with a burning splinter — H₂ burns explosively in air to form water.",
     solutionSteps: [
-      "(a) Pass the gas through fresh lime water. White milkiness = CaCO₃ formed. Test reaction: CO₂ + Ca(OH)₂ → CaCO₃↓ + H₂O.",
-      "(b) Pass gas through acidified K₂Cr₂O₇ solution. Orange → green colour change indicates SO₂ (Cr⁶⁺ reduced to Cr³⁺).",
-      "(c) Bring a glowing wooden splinter near the mouth of the test tube; in pure O₂ it bursts into flame because O₂ supports combustion vigorously.",
-      "(d) Bring a burning splinter near the mouth; H₂ + O₂(air) → H₂O with a characteristic 'pop' sound.",
-      "These are the standard four diagnostic gas tests taught in Class 10.",
+      "[1 mark] (a) Pass the gas through fresh lime water. White milkiness = CaCO₃ formed. Test reaction: CO₂ + Ca(OH)₂ → CaCO₃↓ + H₂O.",
+      "[1 mark] (b) Pass gas through acidified K₂Cr₂O₇ solution. Orange → green colour change indicates SO₂ (Cr⁶⁺ reduced to Cr³⁺).",
+      "[1 mark] (c) Bring a glowing wooden splinter near the mouth of the test tube; in pure O₂ it bursts into flame because O₂ supports combustion vigorously.",
+      "[1 mark] (d) Bring a burning splinter near the mouth; H₂ + O₂(air) → H₂O with a characteristic 'pop' sound.",
+      "[1 mark] These are the standard four diagnostic gas tests taught in Class 10.",
     ],
     finalAnswer:
       "CO₂ — lime water milky; SO₂ — dichromate orange→green; O₂ — glowing splinter relights; H₂ — pop sound with burning splinter.",
@@ -1100,12 +1100,12 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "(a) BaCl₂(aq) + Na₂SO₃(aq) → BaSO₃(s)↓ + 2NaCl(aq).\n(b) It is also a double displacement reaction (ions exchanged).\n(c) Dilute HCl reacts with BaSO₃ to give soluble BaCl₂ and SO₂ gas + water: BaSO₃(s) + 2HCl(aq) → BaCl₂(aq) + SO₂(g) + H₂O(l). As the insoluble BaSO₃ dissolves, the white precipitate disappears (and SO₂ gas escapes with a smell of burning sulphur).",
     solutionSteps: [
-      "(a) Two ionic solutions mix and exchange ions. Balance: Cl 2 (LHS) → 2 NaCl on RHS. Na 2=2; Ba 1=1; SO₃ 1=1 ✓.",
-      "(a) Balanced: BaCl₂(aq) + Na₂SO₃(aq) → BaSO₃(s)↓ + 2NaCl(aq).",
-      "(b) BaSO₃ is insoluble and precipitates as a white solid → precipitation reaction. The ion exchange between two compounds also makes it a double displacement reaction.",
-      "(c) Adding HCl protonates the SO₃²⁻ to form H₂SO₃, which decomposes to SO₂(g) + H₂O.",
-      "(c) Net: BaSO₃(s) + 2HCl(aq) → BaCl₂(aq) + H₂O(l) + SO₂(g)↑.",
-      "(c) As BaSO₃ is consumed, the white precipitate dissolves into the solution. SO₂ escapes as a gas (with characteristic pungent smell).",
+      "[1 mark] (a) Two ionic solutions mix and exchange ions. Balance: Cl 2 (LHS) → 2 NaCl on RHS. Na 2=2; Ba 1=1; SO₃ 1=1 ✓.",
+      "[1 mark] (a) Balanced: BaCl₂(aq) + Na₂SO₃(aq) → BaSO₃(s)↓ + 2NaCl(aq).",
+      "[0.5 mark] (b) BaSO₃ is insoluble and precipitates as a white solid → precipitation reaction. The ion exchange between two compounds also makes it a double displacement reaction.",
+      "[0.5 mark] (c) Adding HCl protonates the SO₃²⁻ to form H₂SO₃, which decomposes to SO₂(g) + H₂O.",
+      "[1 mark] (c) Net: BaSO₃(s) + 2HCl(aq) → BaCl₂(aq) + H₂O(l) + SO₂(g)↑.",
+      "[1 mark] (c) As BaSO₃ is consumed, the white precipitate dissolves into the solution. SO₂ escapes as a gas (with characteristic pungent smell).",
     ],
     finalAnswer:
       "(a) BaCl₂+Na₂SO₃→BaSO₃↓+2NaCl. (b) Double displacement reaction. (c) Dilute HCl converts insoluble BaSO₃ to soluble BaCl₂ and releases SO₂ gas — precipitate dissolves.",
@@ -1127,12 +1127,12 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "(a) 2Cu(NO₃)₂(s) --Heat--> 2CuO(s) + 4NO₂(g) + O₂(g).\n(b) Brown gas X = nitrogen dioxide (NO₂).\n(c) Thermal decomposition reaction.\n(d) Aqueous solution of NO₂ (which dissolves to give HNO₃ + HNO₂) is strongly acidic; pH range ≈ 1–3.",
     solutionSteps: [
-      "(a) Heating Cu(NO₃)₂ breaks the salt into CuO + NO₂ + O₂. Start: Cu(NO₃)₂ → CuO + NO₂ + O₂.",
-      "(a) Balance: Cu 1=1 (we'll multiply later). N: each Cu(NO₃)₂ has 2 N → so put 2 NO₂. O: LHS 6, RHS 1 (in CuO) + 4 (in 2NO₂) + 2 (in O₂) = 7. Doesn't balance. Multiply Cu(NO₃)₂ by 2: 2 Cu(NO₃)₂ → LHS gives 4 N, 12 O, 2 Cu. RHS: put 2 CuO (Cu 2), 4 NO₂ (N 4, O 8), 1 O₂ (O 2). Total O RHS = 2+8+2 = 12 ✓. Balanced: 2Cu(NO₃)₂ → 2CuO + 4NO₂ + O₂.",
-      "(b) The brown gas evolved is nitrogen dioxide (NO₂) — characteristic reddish-brown colour with pungent smell.",
-      "(c) A single reactant (Cu(NO₃)₂) decomposes into multiple products by heat → thermal decomposition reaction.",
-      "(d) NO₂ dissolves in water: 3NO₂ + H₂O → 2HNO₃ + NO (an acidic oxide). The solution is strongly acidic.",
-      "(d) Strong acid solution: pH range typically 1 to 3.",
+      "[1 mark] (a) Heating Cu(NO₃)₂ breaks the salt into CuO + NO₂ + O₂. Start: Cu(NO₃)₂ → CuO + NO₂ + O₂.",
+      "[1 mark] (a) Balance: Cu 1=1 (we'll multiply later). N: each Cu(NO₃)₂ has 2 N → so put 2 NO₂. O: LHS 6, RHS 1 (in CuO) + 4 (in 2NO₂) + 2 (in O₂) = 7. Doesn't balance. Multiply Cu(NO₃)₂ by 2: 2 Cu(NO₃)₂ → LHS gives 4 N, 12 O, 2 Cu. RHS: put 2 CuO (Cu 2), 4 NO₂ (N 4, O 8), 1 O₂ (O 2). Total O RHS = 2+8+2 = 12 ✓. Balanced: 2Cu(NO₃)₂ → 2CuO + 4NO₂ + O₂.",
+      "[0.5 mark] (b) The brown gas evolved is nitrogen dioxide (NO₂) — characteristic reddish-brown colour with pungent smell.",
+      "[0.5 mark] (c) A single reactant (Cu(NO₃)₂) decomposes into multiple products by heat → thermal decomposition reaction.",
+      "[1 mark] (d) NO₂ dissolves in water: 3NO₂ + H₂O → 2HNO₃ + NO (an acidic oxide). The solution is strongly acidic.",
+      "[1 mark] (d) Strong acid solution: pH range typically 1 to 3.",
     ],
     finalAnswer:
       "(a) 2Cu(NO₃)₂→2CuO+4NO₂+O₂. (b) X = NO₂. (c) Thermal decomposition. (d) Acidic (pH ≈ 1–3).",
@@ -1154,12 +1154,12 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "(a) Zn is more reactive than Cu → Zn displaces Cu. Blue colour of CuSO₄ fades; brown Cu deposits on Zn. Equation: Zn(s) + CuSO₄(aq) → ZnSO₄(aq) + Cu(s).\n(b) Al is more reactive than H → Al displaces H from HCl. Effervescence of H₂ gas; solution becomes warm. Equation: 2Al(s) + 6HCl(aq) → 2AlCl₃(aq) + 3H₂(g).\n(c) Ag is less reactive than Cu → no reaction. Ag cannot displace Cu from CuSO₄.",
     solutionSteps: [
-      "(a) From the reactivity series, Zn is above Cu. Zn can give electrons to Cu²⁺ → Zn²⁺ goes into solution, Cu⁰ deposits.",
-      "(a) Observation: blue CuSO₄ fades (Cu²⁺ consumed) → colourless/pale ZnSO₄; brown copper coating appears on the zinc.",
-      "(a) Equation: Zn(s) + CuSO₄(aq) → ZnSO₄(aq) + Cu(s). Displacement reaction.",
-      "(b) Al is above H — it displaces H from HCl. Balance: 2 Al + 6 HCl → 2 AlCl₃ + 3 H₂. Cl 6=6, H 6=6 ✓.",
-      "(b) Observation: vigorous effervescence (H₂ bubbles); mixture becomes warm (exothermic).",
-      "(c) Reactivity check: Ag is BELOW Cu in the activity series. So Ag cannot displace Cu from CuSO₄. No reaction; the blue CuSO₄ stays blue and the Ag remains shiny.",
+      "[1 mark] (a) From the reactivity series, Zn is above Cu. Zn can give electrons to Cu²⁺ → Zn²⁺ goes into solution, Cu⁰ deposits.",
+      "[1 mark] (a) Observation: blue CuSO₄ fades (Cu²⁺ consumed) → colourless/pale ZnSO₄; brown copper coating appears on the zinc.",
+      "[0.5 mark] (a) Equation: Zn(s) + CuSO₄(aq) → ZnSO₄(aq) + Cu(s). Displacement reaction.",
+      "[0.5 mark] (b) Al is above H — it displaces H from HCl. Balance: 2 Al + 6 HCl → 2 AlCl₃ + 3 H₂. Cl 6=6, H 6=6 ✓.",
+      "[1 mark] (b) Observation: vigorous effervescence (H₂ bubbles); mixture becomes warm (exothermic).",
+      "[1 mark] (c) Reactivity check: Ag is BELOW Cu in the activity series. So Ag cannot displace Cu from CuSO₄. No reaction; the blue CuSO₄ stays blue and the Ag remains shiny.",
     ],
     finalAnswer:
       "(a) Zn+CuSO₄→ZnSO₄+Cu (displacement). (b) 2Al+6HCl→2AlCl₃+3H₂ (displacement). (c) No reaction (Ag below Cu in reactivity series).",
@@ -1181,12 +1181,12 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "Zn with dilute H₂SO₄: Zn + H₂SO₄ → ZnSO₄ + H₂↑ (displacement; H₂ evolves).\nZn with dilute HCl: Zn + 2HCl → ZnCl₂ + H₂↑ (displacement; H₂ evolves).\nZn with dilute HNO₃: HNO₃ is an oxidising acid, so H₂ is generally NOT liberated. Products depend on concentration (typically NO/NO₂/NH₄⁺ instead of H₂). With very dilute HNO₃ at low temperature, a small amount of H₂ may form, but in standard NCERT treatment: Zn does not give H₂ with HNO₃.\nZn with NaCl: no reaction — NaCl is a neutral salt; Zn cannot displace Na (Na is far more reactive).\nZn with NaOH: 2NaOH(aq) + Zn(s) → Na₂ZnO₂(aq) + H₂(g)↑ — Zn is amphoteric, dissolves in alkali to form sodium zincate.",
     solutionSteps: [
-      "Step 1 — Zn + H₂SO₄: Zn above H in reactivity → displaces H. Equation: Zn(s) + H₂SO₄(aq) → ZnSO₄(aq) + H₂(g)↑. Observation: bubbles of H₂.",
-      "Step 2 — Zn + 2HCl: same reasoning. Equation: Zn(s) + 2HCl(aq) → ZnCl₂(aq) + H₂(g)↑. Observation: bubbles of H₂.",
-      "Step 3 — Zn + HNO₃: HNO₃ is an oxidising acid. The H released initially is oxidised to water by HNO₃, so H₂ is not collected. Instead, brown NO₂ or colourless NO is evolved depending on concentration. NCERT-level answer: H₂ is NOT liberated.",
-      "Step 4 — Zn + NaCl: NaCl is neutral. Zn is below Na in the reactivity series, so Zn cannot displace Na. No reaction occurs.",
-      "Step 5 — Zn + NaOH: Zinc is amphoteric — it reacts with both acids and strong bases. Equation: Zn(s) + 2NaOH(aq) → Na₂ZnO₂(aq) + H₂(g)↑ (sodium zincate is formed and H₂ evolves).",
-      "Summary: H₂ is evolved with H₂SO₄, HCl, and NaOH; no H₂ with HNO₃ (oxidising acid) and NaCl (no reaction).",
+      "[1 mark] Step 1 — Zn + H₂SO₄: Zn above H in reactivity → displaces H. Equation: Zn(s) + H₂SO₄(aq) → ZnSO₄(aq) + H₂(g)↑. Observation: bubbles of H₂.",
+      "[1 mark] Step 2 — Zn + 2HCl: same reasoning. Equation: Zn(s) + 2HCl(aq) → ZnCl₂(aq) + H₂(g)↑. Observation: bubbles of H₂.",
+      "[0.5 mark] Step 3 — Zn + HNO₃: HNO₃ is an oxidising acid. The H released initially is oxidised to water by HNO₃, so H₂ is not collected. Instead, brown NO₂ or colourless NO is evolved depending on concentration. NCERT-level answer: H₂ is NOT liberated.",
+      "[0.5 mark] Step 4 — Zn + NaCl: NaCl is neutral. Zn is below Na in the reactivity series, so Zn cannot displace Na. No reaction occurs.",
+      "[1 mark] Step 5 — Zn + NaOH: Zinc is amphoteric — it reacts with both acids and strong bases. Equation: Zn(s) + 2NaOH(aq) → Na₂ZnO₂(aq) + H₂(g)↑ (sodium zincate is formed and H₂ evolves).",
+      "[1 mark] Summary: H₂ is evolved with H₂SO₄, HCl, and NaOH; no H₂ with HNO₃ (oxidising acid) and NaCl (no reaction).",
     ],
     finalAnswer:
       "H₂SO₄: Zn+H₂SO₄→ZnSO₄+H₂. HCl: Zn+2HCl→ZnCl₂+H₂. HNO₃: no H₂ (oxidising acid). NaCl: no reaction. NaOH: Zn+2NaOH→Na₂ZnO₂+H₂.",
@@ -1208,15 +1208,15 @@ export const CHEM_REACTIONS_EXEMPLAR: CanonicalQuestion[] = [
     answer:
       "Copper container can store: dilute HCl, ZnCl₂ solution, and H₂O (Cu does not react with HCl since Cu is below H; Cu cannot displace Zn from ZnCl₂; Cu does not react with water). Copper CANNOT store dilute HNO₃ (HNO₃ is an oxidising acid and attacks Cu).\nAluminium container can store: only H₂O (the protective Al₂O₃ layer prevents corrosion). Aluminium CANNOT store dil HCl (Al + HCl → AlCl₃ + H₂), CANNOT store dil HNO₃ (Al may dissolve / react slowly), and CANNOT store ZnCl₂ (Al is more reactive than Zn — displaces Zn from ZnCl₂).",
     solutionSteps: [
-      "Copper + dil HCl: Cu is below H in reactivity → no reaction. SAFE to store in Cu container.",
-      "Copper + dil HNO₃: HNO₃ is an oxidising acid that attacks Cu (Cu + 4HNO₃ → Cu(NO₃)₂ + 2NO₂ + 2H₂O). NOT safe in Cu container.",
-      "Copper + ZnCl₂: Cu is below Zn in reactivity series — cannot displace Zn. SAFE.",
-      "Copper + H₂O: Cu does not react with water. SAFE.",
-      "Aluminium + dil HCl: Al above H — reacts (2Al + 6HCl → 2AlCl₃ + 3H₂). NOT safe.",
-      "Aluminium + dil HNO₃: Al reacts with dilute HNO₃ producing NO/NO₂. NOT safe. (Concentrated HNO₃ passivates Al but the question specifies dilute.)",
-      "Aluminium + ZnCl₂: Al is above Zn in reactivity → Al displaces Zn: 2Al + 3ZnCl₂ → 2AlCl₃ + 3Zn. NOT safe.",
-      "Aluminium + H₂O: Al has a protective oxide layer; does not react with water at room temperature. SAFE.",
-      "Summary table — Cu container: HCl ✓ HNO₃ ✗ ZnCl₂ ✓ H₂O ✓; Al container: HCl ✗ HNO₃ ✗ ZnCl₂ ✗ H₂O ✓.",
+      "[1 mark] Copper + dil HCl: Cu is below H in reactivity → no reaction. SAFE to store in Cu container.",
+      "[0.5 mark] Copper + dil HNO₃: HNO₃ is an oxidising acid that attacks Cu (Cu + 4HNO₃ → Cu(NO₃)₂ + 2NO₂ + 2H₂O). NOT safe in Cu container.",
+      "[0.5 mark] Copper + ZnCl₂: Cu is below Zn in reactivity series — cannot displace Zn. SAFE.",
+      "[0.5 mark] Copper + H₂O: Cu does not react with water. SAFE.",
+      "[0.5 mark] Aluminium + dil HCl: Al above H — reacts (2Al + 6HCl → 2AlCl₃ + 3H₂). NOT safe.",
+      "[0.5 mark] Aluminium + dil HNO₃: Al reacts with dilute HNO₃ producing NO/NO₂. NOT safe. (Concentrated HNO₃ passivates Al but the question specifies dilute.)",
+      "[0.5 mark] Aluminium + ZnCl₂: Al is above Zn in reactivity → Al displaces Zn: 2Al + 3ZnCl₂ → 2AlCl₃ + 3Zn. NOT safe.",
+      "[0.5 mark] Aluminium + H₂O: Al has a protective oxide layer; does not react with water at room temperature. SAFE.",
+      "[0.5 mark] Summary table — Cu container: HCl ✓ HNO₃ ✗ ZnCl₂ ✓ H₂O ✓; Al container: HCl ✗ HNO₃ ✗ ZnCl₂ ✗ H₂O ✓.",
     ],
     finalAnswer:
       "Cu container: stores HCl, ZnCl₂, H₂O (not HNO₃). Al container: stores only H₂O.",

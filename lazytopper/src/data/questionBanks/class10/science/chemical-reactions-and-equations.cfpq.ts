@@ -156,8 +156,8 @@ export const CHEM_CFPQ: CanonicalQuestion[] = [
     answer: "Arrangement Y",
     solutionSteps: [
       "[1 mark] Arrangement Y.",
-      "[½ mark] Rusting is a surface phenomenon.",
-      "[½ mark] Arrangement Y has a larger surface area exposed to air.",
+      "[0.5 mark] [½ mark] Rusting is a surface phenomenon.",
+      "[0.5 mark] [½ mark] Arrangement Y has a larger surface area exposed to air.",
     ],
     finalAnswer:
       "Arrangement Y - rusting is a surface phenomenon and Y has a larger surface area exposed to air.",
