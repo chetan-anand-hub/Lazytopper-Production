@@ -506,7 +506,17 @@ import { ENV_CFPQ, ENV_CFPQ_AUTHORED_SOLUTION_IDS } from './questionBanks/class1
 // gdrive high-marks extraction (2026-07-04): essay/numericals/guide/worksheet sources, 2-5 mark only
 import { LGHT_GDR, LGHT_GDR_BEYOND_BOARD, LGHT_GDR_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/light-reflection-and-refraction.gdr';
 
-const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
+// ★ EXPORTED FOR CONTROLS THAT MUST OUTLIVE WITHHOLDING (QUARANTINE-1, 2026-09-03).
+// The bank below is the raw concatenation, BEFORE `WITHHELD_QUESTION_IDS` is applied.
+// A control that exists to prove a RULE is not over-broad must be asserted against
+// THIS array, not the filtered `canonicalQuestionBank` — otherwise quarantining a row
+// for an unrelated reason silently HALVES the control's evidence while it stays green,
+// and repeated, it ends at `toHaveLength(0)` asserting nothing. Withholding is a
+// PUBLICATION decision; a rule-shape control is a statement about the RULE, and the two
+// must not be coupled. See `publishability.guard.test.ts`, the 2023 ray-diagram control.
+// ⚠ NOT for product code: every surface must import `canonicalQuestionBank` so withheld
+// rows stay withheld. This export exists for guards and tooling.
+export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...TRIANGLES_PACK1_QUESTIONS,
   ...trianglesPack2Questions,
   ...TR3_PACK3,

@@ -32,6 +32,7 @@ import {
 } from "../../scripts/seo/publishability";
 import {
   canonicalQuestionBank,
+  RAW_CANONICAL_QUESTION_BANK,
   AI_GENERATED_QUESTION_IDS,
 } from "../data/canonicalQuestionBank";
 
@@ -82,7 +83,14 @@ describe("RULE 1 — provenance is an id-set, not a `sources` field", () => {
     // The files landed in #720 but nothing imported them, so the bank did not grow
     // until #721. Committed-but-unwired is MOUNT != LIVE: the rows existed and could
     // not reach a student or a page.
-    expect(canonicalQuestionBank).toHaveLength(8673);
+    // 8,673 -> 8,638: QUARANTINE-1 withheld 35 glyph-damaged rows that step-marking had
+    // made publishable. Data-only and reversible: the rows stay intact in their packs and
+    // RECOVER-1 removes each id from WITHHELD_QUESTION_IDS as it repairs that row from the
+    // source paper, so this count walks back UP to 8,673 one row at a time. -35 exactly,
+    // matched by the publishable count below; if these two ever move by DIFFERENT amounts,
+    // a withheld row was not publishable and the withheld list is measuring something
+    // other than what it claims.
+    expect(canonicalQuestionBank).toHaveLength(8638);
   });
 
   /**
@@ -185,9 +193,19 @@ describe("RULE 5 — C4, both directions", () => {
    * DIRECTION 1 — AN INSTRUCTION TO THE STUDENT IS NOT A FIGURE REFERENCE.
    * A naive filter banning "diagram" deleted all the genuine 2023 board questions
    * from the first generated page. Every gate stayed green.
+   *
+   * ★★ SOURCED FROM `RAW_CANONICAL_QUESTION_BANK`, DELIBERATELY — NOT from the
+   * filtered bank, and NOT to be "fixed" by pointing it back at `canonicalQuestionBank`.
+   * QUARANTINE-1 withheld `PYQ-S-LIGHT-011` and `-013` for glyph damage, which is a
+   * PUBLICATION decision that has nothing to do with the figure rule. Read from the
+   * filtered bank this control would have silently dropped to TWO rows and stayed
+   * green — HALVING the evidence it carries — and RECOVER-1 would move it again.
+   * Repeated, that ends at `toHaveLength(0)`: a control asserting nothing, which is
+   * the exact failure mode this file exists to catch. The rows still EXIST in the raw
+   * bank; only their eligibility to be published changed. Assert on the RULE.
    */
   it("publishes the four 2023 'draw a ray diagram' rows", () => {
-    const rows = canonicalQuestionBank.filter(
+    const rows = RAW_CANONICAL_QUESTION_BANK.filter(
       (q) =>
         !AI.has(q.id) &&
         /draw\s+(a|the)\s+ray\s+diagram/i.test(q.questionText) &&
@@ -202,9 +220,10 @@ describe("RULE 5 — C4, both directions", () => {
     ]);
 
     /**
-     * ⚠ ASSERTED ON THE FIGURE RULE ONLY. Two of these four fail `isPublishable`
-     * for UNRELATED reasons — PYQ-S-LIGHT-006 and -015 carry Private-Use-Area glyph
-     * damage from the P4 verbatim-PYQ import ([FU-BANK-GARBLED-EXPANDED-SCOPE]).
+     * ⚠ ASSERTED ON THE FIGURE RULE ONLY. All four of these fail `isPublishable`
+     * for UNRELATED reasons — every one carries glyph damage: PYQ-S-LIGHT-006 and
+     * -015 from the P4 verbatim-PYQ import ([FU-BANK-GARBLED-EXPANDED-SCOPE]), and
+     * -011 and -013 are withheld by QUARANTINE-1 for the same class of damage.
      * Asserting `ok: true` here would tie this control to a defect in another lane
      * and go red when RECOVER-1 lands. The control is about the FIGURE rule.
      */
@@ -402,7 +421,11 @@ describe("the publishable population", () => {
     // without moving this count. 158 annotated - 2 figure-held = 156, which is the batch's
     // reconciliation and its only evidence. Bank length UNCHANGED at 8,673 - this lane still
     // authors no rows.
-    expect(publishable).toHaveLength(2851);
+    // 2,851 -> 2,816: -35, the SAME 35 rows the bank count lost, and this equality is the
+    // whole proof of QUARANTINE-1. Every withheld row was publishable, so both counts move
+    // together. A smaller delta here than on the bank would mean some withheld row was
+    // already unpublishable for another reason -- STOP rather than adjusting this number.
+    expect(publishable).toHaveLength(2816);
   });
 
   it("no publishable row is AI-generated — the property retirement depends on", () => {
@@ -487,9 +510,17 @@ describe("the achievable ceiling — ruling 5", () => {
     expect(cannotSum - 24).toBe(422);
 
     // ✗ NOT the achievable figure: ignores that 422 rows can never be annotated.
-    expect(publishable + addressable.length - held).toBe(5244);
+    // 5,244 -> 5,209 and 4,822 -> 4,787: both -35, and for ONE reason. All 35 rows
+    // QUARANTINE-1 withheld were publishable, so they leave `publishable` and were never
+    // in `addressable` (which requires !ok). `addressable`, `held`, `cannotSum` and
+    // `excluded` are therefore UNCHANGED -- which the two assertions above still prove.
+    // ★ The comment on this describe block says a batch that moves these numbers has
+    // done something other than annotate. That is exactly right: withholding REMOVES
+    // rows from the bank, it does not move them between sets, so the invariant that
+    // holds for STEPMARK-1 correctly does not hold here.
+    expect(publishable + addressable.length - held).toBe(5209);
 
     // ★ THE AUTHORITATIVE ACHIEVABLE FIGURE.
-    expect(publishable + addressable.length - excluded).toBe(4822);
+    expect(publishable + addressable.length - excluded).toBe(4787);
   });
 });
