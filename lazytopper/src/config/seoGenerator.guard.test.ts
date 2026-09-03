@@ -790,6 +790,58 @@ describe("ENGINE-1 · the generator emits ONLY what the contract calls publishab
   const selectionFor = (pool: readonly CanonicalQuestion[], topic: string) =>
     selectQuestions(pool, topic, AI_GENERATED_QUESTION_IDS).selected;
 
+  /**
+   * ★★★ WHAT THIS COMPARES, STATED SO NOBODY HAS TO INFER IT FROM THE DIAGNOSTIC.
+   *
+   * TWO SETS, BOTH TAKEN AFTER THE FILTER:
+   *   A = every question `selectQuestions` returns, for EVERY topic in the bank,
+   *       when fed `publishableQuestions()` — i.e. EXACTLY WHAT THE GENERATOR
+   *       WOULD EMIT. (303 questions across 26 topics at abfb1e81.)
+   *   B = the subset of A that `isPublishable` accepts.
+   * The gate is `|A| === |B|`, and it names every offender when it fails.
+   *
+   * ⚠ THIS IS *NOT* AN ASSERTION THAT THE TWO PREDICATES AGREE. THEY DO NOT, AND
+   * THEY ARE NOT MEANT TO. The `ENGINE1_PREDICATE_DELTA` diagnostic below prints a
+   * NON-ZERO divergence on a green run — 191 and 19 at abfb1e81 — and a guard that
+   * is green beside a non-zero number is exactly the shape that proves less than it
+   * claims, so here is precisely what those numbers are:
+   *
+   *   `model_only_rejects=191` — SAFE DIRECTION. `dependsOnSuppliedFigure` rejects
+   *     where the contract's figure rule does not. 166 of the 191 the contract
+   *     rejects anyway for another reason (overwhelmingly `unmarked-step`), so only
+   *     25 are genuinely publishable rows the generator declines to use. That is
+   *     LOST INVENTORY, not a correctness risk: a stricter generator emits fewer
+   *     pages, never a wrong one. [FU-SEO-TWO-FIGURE-PREDICATES]
+   *
+   *   `contract_only_rejects=19` — THE DANGEROUS DIRECTION, and the reason this
+   *     file exists. The contract rejects; `selectQuestions` alone would not.
+   *     SEVEN of those 19 actually reach a selection on the unfiltered path — they
+   *     are the seven that shipped, including CBE-S-LGHT-B-003 on the live page.
+   *     THE POST-FILTER IS WHAT TAKES THAT 7 TO 0.
+   *
+   * Measured, both ways, at abfb1e81:
+   *     EMITTED (post-filter): selected=303  not-publishable=0
+   *     UNFILTERED:            selected=303  not-publishable=7
+   *
+   * ⚠ NEITHER 191 NOR 19 IS BOUNDED, and neither is pinned. They drift with the
+   * bank — they were 195 and 18 at 2339ebf7 and are 191 and 19 at abfb1e81, moved
+   * by a content lane annotating two chapters. Pinning them would turn every
+   * content batch red for no defect. WHAT IS PINNED IS THE INVARIANT THAT MATTERS:
+   * nothing the generator emits is a row the contract rejects.
+   *
+   * ★★ WHAT ACTUALLY TURNS THIS ASSERTION RED — and the honest answer is NOT the
+   * mutation that proved the post-filter:
+   *   M1 (filter deleted; `return [...bank]`) fires the NON-VACUITY check ABOVE
+   *      first — "the filter removed nothing" — and execution stops there, so the
+   *      equality is NEVER EVALUATED. M1 proves the filter is load-bearing. It does
+   *      NOT prove this equality.
+   *   M6 (filter kept but pointed at a DIFFERENT predicate — drop AI rows only, so
+   *      the pool still shrinks 8673 -> 5721 and non-vacuity passes) IS what fires
+   *      THIS assertion: "the generator would emit 7 question(s) the contract
+   *      rejects", naming all seven.
+   * Both mutations were needed. A guard shown red by only one of them would have
+   * been credited with an assertion that had never run.
+   */
   it("★★★ COUNT EQUALITY — across EVERY topic, selected === selected-and-publishable", () => {
     const pool = publishableQuestions();
 
