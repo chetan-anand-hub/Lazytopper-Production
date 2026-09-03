@@ -1774,6 +1774,51 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-S-2024-LIGHT-001",    // garbled — stem ("2 3 and 3 4") + options both damaged; key = MS boilerplate
   "PYQ-S-2024-ELEC-001",     // figure — "as shown"; attract-vs-repel is undecidable without the figure; key = MS boilerplate
   "PYQ-S-2024-MAG-002",      // out-of-syllabus — positron (e⁻/p⁺) is not Class-10 CBSE 2026-27 (owner ruling 2026-07-15)
+  // ---- garbled: glyph damage that step-marking made publishable (QUARANTINE-1, 2026-09-03) ----
+  // Withheld pending RECOVER-1. Each row's damage class is stated. Remove an id when its
+  // row is repaired from the source paper — NEVER when a gate merely goes green.
+  // -- acids-bases-and-salts --
+  "SCQ-S-ACID-044",              // garbled: trailing-op
+  // -- arithmetic-progression --
+  "PYQ-M-AP-007",                // garbled: pua
+  // -- chemical-reactions-and-equations --
+  "PYQ-S-2024-CHEMRXN-006",      // garbled: pua
+  "PYQ-S-2024-CHEMRXN-007",      // garbled: pua+trailing-op
+  "PYQ-S-2024-CHEMRXN-012",      // garbled: pua
+  "PYQ-S-2024-CHEMRXN-014",      // garbled: trailing-op
+  "PYQ-S-2024-CHEMRXN-015",      // garbled: pua+trailing-op
+  "PYQ-S-2024-CHEMRXN-016",      // garbled: pua
+  "PYQ-S-2024-CHEMRXN-017",      // garbled: pua
+  "PYQ-S-2025-CHEMRXN-010",      // garbled: pua+trailing-op
+  "PYQ-S-2025-CHEMRXN-018",      // garbled: pua
+  "PYQ-S-2025-CHEMRXN-019",      // garbled: pua
+  "PYQ-S-CHEM-002",              // garbled: truncated-options
+  "PYQ-S-CHEM-006",              // garbled: pua
+  "PYQ-S-CHEM-013",              // garbled: pua
+  "PYQ-S-CHEM-016",              // garbled: trailing-op
+  "SCQ-S-CHEM-026",              // garbled: trailing-op
+  "SCQ-S-CHEM-039",              // garbled: trailing-op
+  // -- electricity --
+  "PYQ-S-ELEC-005",              // garbled: pua
+  "SCQ-S-ELEC-037",              // garbled: trailing-op
+  // -- life-processes --
+  "PYQ-S-2025-LIFEP-004",        // garbled: pua
+  "PYQ-S-2026-LIFEP-006",        // garbled: pua
+  "PYQ-S-LIFE-010",              // garbled: trailing-op
+  "PYQ-S-LIFE-015",              // garbled: pua+trailing-op
+  "PYQ-S-LIFE-016",              // garbled: pua+trailing-op
+  "PYQ-S-LIFE-017",              // garbled: trailing-op
+  // -- light-reflection-and-refraction --
+  "PYQ-S-LIGHT-011",             // garbled: pua
+  "PYQ-S-LIGHT-012",             // garbled: pua
+  "PYQ-S-LIGHT-013",             // garbled: pua
+  // -- metals-and-non-metals --
+  "CBE-S-MNM-B-006",             // garbled: trailing-op
+  "PYQ-S-2024-METAL-001",        // garbled: pua
+  "PYQ-S-2025-METAL-005",        // garbled: pua
+  "PYQ-S-2026-METAL-010",        // garbled: pua+trailing-op
+  "PYQ-S-2026-METAL-011",        // garbled: pua
+  "SCQ-S-METAL-044",             // garbled: trailing-op
 ]);
 
 /**
