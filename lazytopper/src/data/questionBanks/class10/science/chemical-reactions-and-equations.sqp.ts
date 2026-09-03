@@ -27,7 +27,7 @@ export const CHEMICAL_REACTIONS_SQP: CanonicalQuestion[] = [
     ],
     "answer": "(B) Barium sulphate",
     "solutionSteps": [
-      "BaCl₂(aq) + Na₂SO₄(aq) → BaSO₄(s) ↓ + 2NaCl(aq). Barium sulphate is insoluble and precipitates as a white solid; NaCl remains in solution. Answer: (B)."
+      "[1 mark] BaCl₂(aq) + Na₂SO₄(aq) → BaSO₄(s) ↓ + 2NaCl(aq). Barium sulphate is insoluble and precipitates as a white solid; NaCl remains in solution. Answer: (B)."
     ],
     "finalAnswer": "(B) Barium sulphate",
     "isCompetencyBased": false
@@ -51,7 +51,7 @@ export const CHEMICAL_REACTIONS_SQP: CanonicalQuestion[] = [
     ],
     "answer": "(B) Colourless",
     "solutionSteps": [
-      "Zn(s) + CuSO₄(aq) → ZnSO₄(aq) + Cu(s). Zinc is more reactive than copper, so it displaces Cu²⁺ from solution. CuSO₄ is blue; ZnSO₄ is colourless. After 30 minutes, the blue colour fades to colourless and reddish-brown Cu deposits on the zinc strip. Answer: (B)."
+      "[1 mark] Zn(s) + CuSO₄(aq) → ZnSO₄(aq) + Cu(s). Zinc is more reactive than copper, so it displaces Cu²⁺ from solution. CuSO₄ is blue; ZnSO₄ is colourless. After 30 minutes, the blue colour fades to colourless and reddish-brown Cu deposits on the zinc strip. Answer: (B)."
     ],
     "finalAnswer": "(B) Colourless",
     "isCompetencyBased": false
@@ -75,7 +75,7 @@ export const CHEMICAL_REACTIONS_SQP: CanonicalQuestion[] = [
     ],
     "answer": "(D) Assertion is false but Reason is true.",
     "solutionSteps": [
-      "Rusting of iron (4Fe + 3O₂ + 6H₂O → 4Fe(OH)₃) is in fact EXOTHERMIC — energy is released. So the Assertion is false. However, the Reason is true: because rusting is very slow, the small heat released is dissipated and barely evident, which is exactly what tempts learners to call it endothermic. A is false, R is true. Answer: (D)."
+      "[1 mark] Rusting of iron (4Fe + 3O₂ + 6H₂O → 4Fe(OH)₃) is in fact EXOTHERMIC — energy is released. So the Assertion is false. However, the Reason is true: because rusting is very slow, the small heat released is dissipated and barely evident, which is exactly what tempts learners to call it endothermic. A is false, R is true. Answer: (D)."
     ],
     "finalAnswer": "(D)",
     "isCompetencyBased": true
@@ -94,8 +94,8 @@ export const CHEMICAL_REACTIONS_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "Any two of: evolution of gas (H₂ bubbles); change in colour (Zn silvery-grey → black); change in temperature (exothermic).",
     "solutionSteps": [
-      "Reaction: Zn(s) + 2HCl(aq) → ZnCl₂(aq) + H₂(g). Observable evidence of a chemical change (any two of the following arguments):",
-      "(1) Bubbles of gas / evolution of gas — H₂ is released as the metal reacts. (2) Change in colour — the silvery-grey Zn surface turns black. (3) Change in temperature — the reaction is exothermic, so the test tube becomes warm to touch."
+      "[1 mark] Reaction: Zn(s) + 2HCl(aq) → ZnCl₂(aq) + H₂(g). Observable evidence of a chemical change (any two of the following arguments):",
+      "[1 mark] (1) Bubbles of gas / evolution of gas — H₂ is released as the metal reacts. (2) Change in colour — the silvery-grey Zn surface turns black. (3) Change in temperature — the reaction is exothermic, so the test tube becomes warm to touch."
     ],
     "finalAnswer": "Two arguments: evolution of H₂ gas; colour change of Zn (silvery-grey → black); temperature rise.",
     "isCompetencyBased": false

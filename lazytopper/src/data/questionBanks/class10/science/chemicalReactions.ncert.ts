@@ -24,9 +24,9 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "Magnesium ribbon develops a layer of magnesium oxide on its surface when exposed to air. This MgO layer prevents the ribbon from burning effectively, so it must be cleaned (rubbed with sandpaper) to remove the oxide layer so that fresh magnesium can react with oxygen.",
     solutionSteps: [
-      "Magnesium metal in air slowly reacts with O2 to form a thin protective layer of magnesium oxide (MgO) on its surface.",
-      "This oxide layer is inert and prevents the metal beneath from coming in contact with oxygen during burning.",
-      "Cleaning the ribbon with sandpaper removes the MgO layer, exposing fresh magnesium that ignites readily to give the characteristic dazzling white flame.",
+      "[1 mark] Magnesium metal in air slowly reacts with O2 to form a thin protective layer of magnesium oxide (MgO) on its surface.",
+      "[0.5 mark] This oxide layer is inert and prevents the metal beneath from coming in contact with oxygen during burning.",
+      "[0.5 mark] Cleaning the ribbon with sandpaper removes the MgO layer, exposing fresh magnesium that ignites readily to give the characteristic dazzling white flame.",
     ],
     finalAnswer: "To remove the protective MgO layer so fresh magnesium can burn readily.",
     ncertRef: "In-text Q1 (after §1.1)",
@@ -47,10 +47,10 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "(i) H₂ + Cl₂ → 2HCl\n(ii) 3BaCl₂ + Al₂(SO₄)₃ → 3BaSO₄ + 2AlCl₃\n(iii) 2Na + 2H₂O → 2NaOH + H₂",
     solutionSteps: [
-      "(i) H atoms: LHS=2 (from H₂), RHS=1 (in HCl). Put coefficient 2 before HCl. Now Cl: LHS=2, RHS=2 ✓. H: LHS=2, RHS=2 ✓.",
-      "(ii) Start with the compound having most atoms: Al₂(SO₄)₃. Balance SO₄: 3 on LHS (in Al₂(SO₄)₃) → put 3 before BaSO₄. Balance Ba: 3 on RHS → put 3 before BaCl₂. Balance Al: 2 on LHS → put 2 before AlCl₃. Check Cl: LHS=6, RHS=6 ✓.",
-      "(iii) Na: LHS=1, RHS=1. H: LHS=2 (in H₂O), RHS=1+2=3. Put 2 before H₂O: LHS H=4. Put 2 before NaOH: RHS H=2+2=4 ✓. Now Na: LHS=1 → put 2. Final: 2Na + 2H₂O → 2NaOH + H₂.",
-      "All three equations are balanced when atoms of each element are equal on both sides.",
+      "[1 mark] (i) H atoms: LHS=2 (from H₂), RHS=1 (in HCl). Put coefficient 2 before HCl. Now Cl: LHS=2, RHS=2 ✓. H: LHS=2, RHS=2 ✓.",
+      "[0.5 mark] (ii) Start with the compound having most atoms: Al₂(SO₄)₃. Balance SO₄: 3 on LHS (in Al₂(SO₄)₃) → put 3 before BaSO₄. Balance Ba: 3 on RHS → put 3 before BaCl₂. Balance Al: 2 on LHS → put 2 before AlCl₃. Check Cl: LHS=6, RHS=6 ✓.",
+      "[0.5 mark] (iii) Na: LHS=1, RHS=1. H: LHS=2 (in H₂O), RHS=1+2=3. Put 2 before H₂O: LHS H=4. Put 2 before NaOH: RHS H=2+2=4 ✓. Now Na: LHS=1 → put 2. Final: 2Na + 2H₂O → 2NaOH + H₂.",
+      "[1 mark] All three equations are balanced when atoms of each element are equal on both sides.",
     ],
     finalAnswer:
       "(i) H₂ + Cl₂ → 2HCl  (ii) 3BaCl₂ + Al₂(SO₄)₃ → 3BaSO₄ + 2AlCl₃  (iii) 2Na + 2H₂O → 2NaOH + H₂",
@@ -72,10 +72,10 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "(i) BaCl₂(aq) + Na₂SO₄(aq) → BaSO₄(s) + 2NaCl(aq)\n(ii) NaOH(aq) + HCl(aq) → NaCl(aq) + H₂O(l)",
     solutionSteps: [
-      "Identify reactants and products with their state symbols: 'aq' for aqueous solution, 's' for solid, 'l' for liquid.",
-      "(i) Ba: LHS=1, RHS=1 ✓. Cl: LHS=2, RHS=1 → put 2 before NaCl. Na: LHS=2 (in Na₂SO₄), RHS=2 ✓. SO₄: LHS=1, RHS=1 ✓.",
-      "(ii) Already balanced: Na 1=1, O 1+1=1+1, H 1+1=2, Cl 1=1.",
-      "Mark insoluble BaSO₄ as solid (s); all soluble salts and acid/base as aqueous (aq); water as liquid (l).",
+      "[1 mark] Identify reactants and products with their state symbols: 'aq' for aqueous solution, 's' for solid, 'l' for liquid.",
+      "[0.5 mark] (i) Ba: LHS=1, RHS=1 ✓. Cl: LHS=2, RHS=1 → put 2 before NaCl. Na: LHS=2 (in Na₂SO₄), RHS=2 ✓. SO₄: LHS=1, RHS=1 ✓.",
+      "[0.5 mark] (ii) Already balanced: Na 1=1, O 1+1=1+1, H 1+1=2, Cl 1=1.",
+      "[1 mark] Mark insoluble BaSO₄ as solid (s); all soluble salts and acid/base as aqueous (aq); water as liquid (l).",
     ],
     finalAnswer:
       "(i) BaCl₂(aq) + Na₂SO₄(aq) → BaSO₄(s) + 2NaCl(aq)  (ii) NaOH(aq) + HCl(aq) → NaCl(aq) + H₂O(l)",
@@ -97,10 +97,10 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "(i) X is calcium oxide (quick lime); formula CaO.\n(ii) CaO(s) + H₂O(l) → Ca(OH)₂(aq) + Heat (an exothermic combination reaction)",
     solutionSteps: [
-      "Quick lime (calcium oxide, CaO) is used for whitewashing because it reacts with water to form slaked lime, Ca(OH)₂.",
-      "The slaked lime is then applied to walls. It slowly reacts with CO₂ in air to form CaCO₃ (a thin shiny layer) over two-three days.",
-      "Reaction of CaO with water: CaO(s) + H₂O(l) → Ca(OH)₂(aq).",
-      "This is a combination reaction and is highly exothermic (heat released, the container feels warm).",
+      "[1 mark] Quick lime (calcium oxide, CaO) is used for whitewashing because it reacts with water to form slaked lime, Ca(OH)₂.",
+      "[0.5 mark] The slaked lime is then applied to walls. It slowly reacts with CO₂ in air to form CaCO₃ (a thin shiny layer) over two-three days.",
+      "[0.5 mark] Reaction of CaO with water: CaO(s) + H₂O(l) → Ca(OH)₂(aq).",
+      "[1 mark] This is a combination reaction and is highly exothermic (heat released, the container feels warm).",
     ],
     finalAnswer: "X = CaO (quick lime); CaO(s) + H₂O(l) → Ca(OH)₂(aq) + Heat",
     ncertRef: "In-text Q1 (after §1.2.2)",
@@ -121,9 +121,9 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "In Activity 1.7 (electrolysis of water), water decomposes into hydrogen and oxygen in the ratio 2:1 by volume because each water molecule has 2 H atoms and 1 O atom (2H₂O → 2H₂ + O₂). The gas collected in double amount is hydrogen.",
     solutionSteps: [
-      "Activity 1.7 carries out electrolysis of acidified water: 2H₂O(l) → 2H₂(g) + O₂(g).",
-      "From the stoichiometry, 2 moles of H₂ are produced per 1 mole of O₂.",
-      "Therefore the volume of H₂ collected is twice that of O₂. The gas in double amount is hydrogen.",
+      "[1 mark] Activity 1.7 carries out electrolysis of acidified water: 2H₂O(l) → 2H₂(g) + O₂(g).",
+      "[0.5 mark] From the stoichiometry, 2 moles of H₂ are produced per 1 mole of O₂.",
+      "[0.5 mark] Therefore the volume of H₂ collected is twice that of O₂. The gas in double amount is hydrogen.",
     ],
     finalAnswer: "Volume ratio H₂:O₂ = 2:1 (water has H:O = 2:1). The gas in double quantity is hydrogen.",
     ncertRef: "In-text Q2 (after §1.2.2)",
@@ -144,9 +144,9 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "Iron is more reactive than copper, so iron displaces copper from copper sulphate solution: Fe(s) + CuSO₄(aq) → FeSO₄(aq) + Cu(s). The blue colour of CuSO₄ fades to pale green of FeSO₄, and brown copper deposits on the nail.",
     solutionSteps: [
-      "Iron is placed above copper in the reactivity series, so Fe can displace Cu from its salt solution.",
-      "Reaction: Fe(s) + CuSO₄(aq) → FeSO₄(aq) + Cu(s) — a displacement reaction.",
-      "Blue CuSO₄ is consumed (colour fades). Greenish FeSO₄ forms; brown metallic copper coats the iron nail.",
+      "[1 mark] Iron is placed above copper in the reactivity series, so Fe can displace Cu from its salt solution.",
+      "[0.5 mark] Reaction: Fe(s) + CuSO₄(aq) → FeSO₄(aq) + Cu(s) — a displacement reaction.",
+      "[0.5 mark] Blue CuSO₄ is consumed (colour fades). Greenish FeSO₄ forms; brown metallic copper coats the iron nail.",
     ],
     finalAnswer: "Fe displaces Cu from CuSO₄: Fe + CuSO₄ → FeSO₄ + Cu. Blue fades; greenish FeSO₄ and brown Cu deposit appear.",
     ncertRef: "In-text Q1 (after §1.2.5)",
@@ -167,9 +167,9 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "Example: AgNO₃(aq) + NaCl(aq) → AgCl(s)↓ + NaNO₃(aq). Ag⁺ and Na⁺ ions are exchanged, and a white precipitate of silver chloride is formed.",
     solutionSteps: [
-      "In a double displacement reaction, two compounds exchange ions to form two new compounds.",
-      "Example: AgNO₃(aq) + NaCl(aq) → AgCl(s) + NaNO₃(aq).",
-      "Ag⁺ goes from AgNO₃ to AgCl; Na⁺ goes from NaCl to NaNO₃. An insoluble white precipitate of AgCl forms — this is also a precipitation reaction.",
+      "[1 mark] In a double displacement reaction, two compounds exchange ions to form two new compounds.",
+      "[0.5 mark] Example: AgNO₃(aq) + NaCl(aq) → AgCl(s) + NaNO₃(aq).",
+      "[0.5 mark] Ag⁺ goes from AgNO₃ to AgCl; Na⁺ goes from NaCl to NaNO₃. An insoluble white precipitate of AgCl forms — this is also a precipitation reaction.",
     ],
     finalAnswer: "AgNO₃(aq) + NaCl(aq) → AgCl(s) + NaNO₃(aq)",
     ncertRef: "In-text Q2 (after §1.2.5)",
@@ -190,10 +190,10 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "(i) Na is oxidised (gains O); O₂ is reduced.\n(ii) H₂ is oxidised (gains O); CuO is reduced (loses O).",
     solutionSteps: [
-      "Definition: Gain of oxygen → oxidation; Loss of oxygen → reduction.",
-      "(i) Na combines with O to form Na₂O — Na gains oxygen, so Na is oxidised. O₂ has been consumed by gaining electrons / accepting from Na, so O is reduced.",
-      "(ii) CuO loses its oxygen to become Cu — CuO is reduced. H₂ gains oxygen to become H₂O — H₂ is oxidised.",
-      "Both reactions are redox: one species oxidised, the other reduced simultaneously.",
+      "[1 mark] Definition: Gain of oxygen → oxidation; Loss of oxygen → reduction.",
+      "[0.5 mark] (i) Na combines with O to form Na₂O — Na gains oxygen, so Na is oxidised. O₂ has been consumed by gaining electrons / accepting from Na, so O is reduced.",
+      "[0.5 mark] (ii) CuO loses its oxygen to become Cu — CuO is reduced. H₂ gains oxygen to become H₂O — H₂ is oxidised.",
+      "[1 mark] Both reactions are redox: one species oxidised, the other reduced simultaneously.",
     ],
     finalAnswer: "(i) Na oxidised; O₂ reduced. (ii) H₂ oxidised; CuO reduced.",
     ncertRef: "In-text Q3 (after §1.2.5)",
@@ -296,10 +296,10 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "A balanced chemical equation has equal numbers of atoms of each element on both reactant and product sides. Equations must be balanced to satisfy the Law of Conservation of Mass — mass can neither be created nor destroyed in a chemical reaction.",
     solutionSteps: [
-      "A balanced chemical equation is one in which the number of atoms of each element is the same on both the reactant (LHS) and product (RHS) sides.",
-      "The Law of Conservation of Mass (studied in Class IX) requires that total mass of products equals total mass of reactants.",
-      "An unbalanced equation would violate this law — atoms cannot appear from nowhere or disappear.",
-      "Therefore every chemical equation must be balanced to give a true representation of the reaction.",
+      "[1 mark] A balanced chemical equation is one in which the number of atoms of each element is the same on both the reactant (LHS) and product (RHS) sides.",
+      "[0.5 mark] The Law of Conservation of Mass (studied in Class IX) requires that total mass of products equals total mass of reactants.",
+      "[0.5 mark] An unbalanced equation would violate this law — atoms cannot appear from nowhere or disappear.",
+      "[1 mark] Therefore every chemical equation must be balanced to give a true representation of the reaction.",
     ],
     finalAnswer:
       "Equal atoms of each element on both sides. Required by the Law of Conservation of Mass.",
@@ -321,10 +321,10 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "(a) 3H₂ + N₂ → 2NH₃\n(b) 2H₂S + 3O₂ → 2H₂O + 2SO₂\n(c) 3BaCl₂ + Al₂(SO₄)₃ → 2AlCl₃ + 3BaSO₄\n(d) 2K + 2H₂O → 2KOH + H₂",
     solutionSteps: [
-      "(a) N: LHS=2 → RHS needs 2 N → put 2 before NH₃. H: RHS=6 → put 3 before H₂. Balanced.",
-      "(b) S: LHS=1 → RHS needs 1; put 2 before H₂S and 2 before SO₂ to keep S equal. H: LHS=4 → put 2 before H₂O. O: RHS=2+2=4 → put 3 before O₂ on LHS. Final: 2H₂S+3O₂→2H₂O+2SO₂.",
-      "(c) SO₄: 3 in Al₂(SO₄)₃ → put 3 BaSO₄. Ba: 3 → put 3 BaCl₂. Al: 2 → put 2 AlCl₃. Cl check: LHS=6, RHS=6 ✓.",
-      "(d) K: LHS=1 → put 2 K, 2 KOH. H: LHS in H₂O=2; RHS=2(in 2KOH)+2(in H₂)=4 → put 2 H₂O. O: LHS=2, RHS=2 ✓.",
+      "[1 mark] (a) N: LHS=2 → RHS needs 2 N → put 2 before NH₃. H: RHS=6 → put 3 before H₂. Balanced.",
+      "[0.5 mark] (b) S: LHS=1 → RHS needs 1; put 2 before H₂S and 2 before SO₂ to keep S equal. H: LHS=4 → put 2 before H₂O. O: RHS=2+2=4 → put 3 before O₂ on LHS. Final: 2H₂S+3O₂→2H₂O+2SO₂.",
+      "[0.5 mark] (c) SO₄: 3 in Al₂(SO₄)₃ → put 3 BaSO₄. Ba: 3 → put 3 BaCl₂. Al: 2 → put 2 AlCl₃. Cl check: LHS=6, RHS=6 ✓.",
+      "[1 mark] (d) K: LHS=1 → put 2 K, 2 KOH. H: LHS in H₂O=2; RHS=2(in 2KOH)+2(in H₂)=4 → put 2 H₂O. O: LHS=2, RHS=2 ✓.",
     ],
     finalAnswer:
       "(a) 3H₂+N₂→2NH₃ (b) 2H₂S+3O₂→2H₂O+2SO₂ (c) 3BaCl₂+Al₂(SO₄)₃→2AlCl₃+3BaSO₄ (d) 2K+2H₂O→2KOH+H₂",
@@ -346,10 +346,10 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "(a) 2HNO₃ + Ca(OH)₂ → Ca(NO₃)₂ + 2H₂O\n(b) 2NaOH + H₂SO₄ → Na₂SO₄ + 2H₂O\n(c) NaCl + AgNO₃ → AgCl + NaNO₃ (already balanced)\n(d) BaCl₂ + H₂SO₄ → BaSO₄ + 2HCl",
     solutionSteps: [
-      "(a) NO₃: LHS=1, RHS=2 → put 2 HNO₃. H: LHS=2(HNO₃)+2(OH)=4 → put 2 H₂O on RHS. Check: Ca 1=1, NO₃ 2=2, H 4=4, O balanced.",
-      "(b) Na: LHS=1, RHS=2 → put 2 NaOH. H: LHS=2+2=4 → put 2 H₂O. SO₄ 1=1 ✓.",
-      "(c) Each side: 1 Na, 1 Cl, 1 Ag, 1 NO₃ — already balanced.",
-      "(d) Cl: LHS=2 → put 2 HCl. H: LHS=2 (H₂SO₄), RHS=2 ✓. Ba 1=1, SO₄ 1=1.",
+      "[1 mark] (a) NO₃: LHS=1, RHS=2 → put 2 HNO₃. H: LHS=2(HNO₃)+2(OH)=4 → put 2 H₂O on RHS. Check: Ca 1=1, NO₃ 2=2, H 4=4, O balanced.",
+      "[0.5 mark] (b) Na: LHS=1, RHS=2 → put 2 NaOH. H: LHS=2+2=4 → put 2 H₂O. SO₄ 1=1 ✓.",
+      "[0.5 mark] (c) Each side: 1 Na, 1 Cl, 1 Ag, 1 NO₃ — already balanced.",
+      "[1 mark] (d) Cl: LHS=2 → put 2 HCl. H: LHS=2 (H₂SO₄), RHS=2 ✓. Ba 1=1, SO₄ 1=1.",
     ],
     finalAnswer:
       "(a) 2HNO₃+Ca(OH)₂→Ca(NO₃)₂+2H₂O (b) 2NaOH+H₂SO₄→Na₂SO₄+2H₂O (c) already balanced (d) BaCl₂+H₂SO₄→BaSO₄+2HCl",
@@ -371,10 +371,10 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "(a) Ca(OH)₂ + CO₂ → CaCO₃ + H₂O\n(b) Zn + 2AgNO₃ → Zn(NO₃)₂ + 2Ag\n(c) 2Al + 3CuCl₂ → 2AlCl₃ + 3Cu\n(d) BaCl₂ + K₂SO₄ → BaSO₄ + 2KCl",
     solutionSteps: [
-      "(a) Ca 1=1, O 2+2=3+1 wait: Ca(OH)₂ has 2 O; CO₂ has 2 O; CaCO₃ has 3 O; H₂O has 1 O. Total LHS O = 4, RHS O = 4 ✓. H 2=2 ✓. C 1=1 ✓. Balanced as written.",
-      "(b) NO₃: 1 vs 2 → put 2 AgNO₃ and Zn(NO₃)₂. Ag: 2 → put 2 Ag. Zn 1=1 ✓.",
-      "(c) Cl: 2 (CuCl₂) vs 3 (AlCl₃). LCM=6. Put 3 CuCl₂ and 2 AlCl₃. Al: 2 LHS = 2 RHS. Cu: 3 LHS = 3 RHS.",
-      "(d) Cl 2=2 → put 2 KCl. K: 2=2. Ba 1=1, SO₄ 1=1 ✓.",
+      "[1 mark] (a) Ca 1=1, O 2+2=3+1 wait: Ca(OH)₂ has 2 O; CO₂ has 2 O; CaCO₃ has 3 O; H₂O has 1 O. Total LHS O = 4, RHS O = 4 ✓. H 2=2 ✓. C 1=1 ✓. Balanced as written.",
+      "[0.5 mark] (b) NO₃: 1 vs 2 → put 2 AgNO₃ and Zn(NO₃)₂. Ag: 2 → put 2 Ag. Zn 1=1 ✓.",
+      "[0.5 mark] (c) Cl: 2 (CuCl₂) vs 3 (AlCl₃). LCM=6. Put 3 CuCl₂ and 2 AlCl₃. Al: 2 LHS = 2 RHS. Cu: 3 LHS = 3 RHS.",
+      "[1 mark] (d) Cl 2=2 → put 2 KCl. K: 2=2. Ba 1=1, SO₄ 1=1 ✓.",
     ],
     finalAnswer:
       "(a) Ca(OH)₂+CO₂→CaCO₃+H₂O (b) Zn+2AgNO₃→Zn(NO₃)₂+2Ag (c) 2Al+3CuCl₂→2AlCl₃+3Cu (d) BaCl₂+K₂SO₄→BaSO₄+2KCl",
@@ -396,11 +396,11 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "(a) 2KBr(aq) + BaI₂(aq) → 2KI(aq) + BaBr₂(s) — double displacement\n(b) ZnCO₃(s) → ZnO(s) + CO₂(g) — decomposition (thermal)\n(c) H₂(g) + Cl₂(g) → 2HCl(g) — combination\n(d) Mg(s) + 2HCl(aq) → MgCl₂(aq) + H₂(g) — displacement",
     solutionSteps: [
-      "(a) Balance: I 2 from BaI₂ → 2 KI. K 2=2; Br 2=2. Two compounds exchange ions (K⁺↔Ba²⁺ pair with Br⁻ and I⁻) → double displacement reaction.",
-      "(b) Already balanced: Zn 1=1, C 1=1, O 3=3. A single reactant breaks into two products → decomposition reaction (here driven by heat → thermal decomposition).",
-      "(c) H₂+Cl₂→HCl, then balance H: put 2 before HCl. Cl 2=2 ✓. Two elements combine to form a single product → combination reaction.",
-      "(d) H: LHS in HCl=1; put 2 HCl. Then Cl 2=2 → MgCl₂. Mg displaces H from HCl → displacement reaction.",
-      "Summary types: (a) double displacement; (b) decomposition; (c) combination; (d) displacement.",
+      "[1 mark] (a) Balance: I 2 from BaI₂ → 2 KI. K 2=2; Br 2=2. Two compounds exchange ions (K⁺↔Ba²⁺ pair with Br⁻ and I⁻) → double displacement reaction.",
+      "[1 mark] (b) Already balanced: Zn 1=1, C 1=1, O 3=3. A single reactant breaks into two products → decomposition reaction (here driven by heat → thermal decomposition).",
+      "[1 mark] (c) H₂+Cl₂→HCl, then balance H: put 2 before HCl. Cl 2=2 ✓. Two elements combine to form a single product → combination reaction.",
+      "[1 mark] (d) H: LHS in HCl=1; put 2 HCl. Then Cl 2=2 → MgCl₂. Mg displaces H from HCl → displacement reaction.",
+      "[1 mark] Summary types: (a) double displacement; (b) decomposition; (c) combination; (d) displacement.",
     ],
     finalAnswer:
       "(a) double displacement (b) decomposition (c) combination (d) displacement",
@@ -421,10 +421,10 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "Exothermic reaction: releases heat (and sometimes light) along with formation of products. Example: CH₄ + 2O₂ → CO₂ + 2H₂O + heat (burning of methane).\nEndothermic reaction: absorbs heat from surroundings to proceed. Example: 2AgCl --(sunlight)--> 2Ag + Cl₂ (decomposition of silver chloride).",
     solutionSteps: [
-      "Exothermic reactions release energy to the surroundings. The reaction mixture becomes warm.",
-      "Examples of exothermic: combustion of fuels (CH₄+2O₂→CO₂+2H₂O+heat); slaking of lime (CaO+H₂O→Ca(OH)₂+heat); respiration in cells.",
-      "Endothermic reactions absorb energy from the surroundings. The reaction mixture cools or requires external heating.",
-      "Examples of endothermic: thermal decomposition of CaCO₃→CaO+CO₂ (requires heat); photochemical decomposition of AgCl→Ag+Cl₂ (requires sunlight).",
+      "[1 mark] Exothermic reactions release energy to the surroundings. The reaction mixture becomes warm.",
+      "[0.5 mark] Examples of exothermic: combustion of fuels (CH₄+2O₂→CO₂+2H₂O+heat); slaking of lime (CaO+H₂O→Ca(OH)₂+heat); respiration in cells.",
+      "[0.5 mark] Endothermic reactions absorb energy from the surroundings. The reaction mixture cools or requires external heating.",
+      "[1 mark] Examples of endothermic: thermal decomposition of CaCO₃→CaO+CO₂ (requires heat); photochemical decomposition of AgCl→Ag+Cl₂ (requires sunlight).",
     ],
     finalAnswer:
       "Exothermic: releases heat (e.g. CH₄+2O₂→CO₂+2H₂O). Endothermic: absorbs heat (e.g. CaCO₃→CaO+CO₂).",
@@ -445,11 +445,11 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "Respiration breaks down glucose in cells using oxygen to release CO₂, water, and energy: C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + Energy. Because energy is released, respiration is exothermic. This energy is essential for body functions and maintaining body temperature.",
     solutionSteps: [
-      "Food we eat (carbohydrates) is digested to glucose.",
-      "Glucose combines with O₂ inside body cells in the presence of enzymes (cellular respiration).",
-      "Reaction: C₆H₁₂O₆(aq) + 6O₂(aq) → 6CO₂(aq) + 6H₂O(l) + Energy.",
-      "Energy is released — used by cells for growth, movement, maintaining body temperature, etc.",
-      "Since heat/energy is released, respiration is classified as an exothermic reaction.",
+      "[1 mark] Food we eat (carbohydrates) is digested to glucose.",
+      "[0.5 mark] Glucose combines with O₂ inside body cells in the presence of enzymes (cellular respiration).",
+      "[0.5 mark] Reaction: C₆H₁₂O₆(aq) + 6O₂(aq) → 6CO₂(aq) + 6H₂O(l) + Energy.",
+      "[0.5 mark] Energy is released — used by cells for growth, movement, maintaining body temperature, etc.",
+      "[0.5 mark] Since heat/energy is released, respiration is classified as an exothermic reaction.",
     ],
     finalAnswer:
       "Respiration: C₆H₁₂O₆+6O₂→6CO₂+6H₂O+energy. Energy is released → exothermic.",
@@ -471,10 +471,10 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "In a combination reaction, two or more reactants combine to form a single product. In a decomposition reaction, a single reactant breaks down into two or more products. They are opposites in direction of change. Example combination: CaO + H₂O → Ca(OH)₂. Example decomposition: CaCO₃ → CaO + CO₂.",
     solutionSteps: [
-      "Combination: 2 or more substances → 1 product. Example: 2H₂(g) + O₂(g) → 2H₂O(l) (formation of water from its elements).",
-      "Decomposition: 1 substance → 2 or more products. Example: 2H₂O --(electricity)--> 2H₂ + O₂ (electrolysis of water).",
-      "They are reverse processes of each other — combination joins, decomposition breaks.",
-      "Combination is usually exothermic (bond formation releases energy); decomposition is usually endothermic (bond breaking absorbs energy).",
+      "[1 mark] Combination: 2 or more substances → 1 product. Example: 2H₂(g) + O₂(g) → 2H₂O(l) (formation of water from its elements).",
+      "[0.5 mark] Decomposition: 1 substance → 2 or more products. Example: 2H₂O --(electricity)--> 2H₂ + O₂ (electrolysis of water).",
+      "[0.5 mark] They are reverse processes of each other — combination joins, decomposition breaks.",
+      "[1 mark] Combination is usually exothermic (bond formation releases energy); decomposition is usually endothermic (bond breaking absorbs energy).",
     ],
     finalAnswer:
       "Combination joins reactants (A+B→AB); decomposition splits one substance (AB→A+B). They are opposites.",
@@ -496,10 +496,10 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "Heat (thermal): CaCO₃(s) --Δ--> CaO(s) + CO₂(g)\nLight (photochemical): 2AgCl(s) --sunlight--> 2Ag(s) + Cl₂(g)\nElectricity (electrolytic): 2H₂O(l) --electricity--> 2H₂(g) + O₂(g)",
     solutionSteps: [
-      "Heat-driven decomposition (thermal): CaCO₃(s) --Heat--> CaO(s) + CO₂(g). Used industrially for lime production.",
-      "Light-driven decomposition (photochemical): 2AgCl(s) --Sunlight--> 2Ag(s) + Cl₂(g). The basis of black-and-white photography.",
-      "Electricity-driven decomposition (electrolysis): 2H₂O(l) --Electricity--> 2H₂(g) + O₂(g). Water electrolysis gives H₂ at cathode and O₂ at anode in 2:1 volume ratio.",
-      "All three are endothermic — they need energy input to break bonds.",
+      "[1 mark] Heat-driven decomposition (thermal): CaCO₃(s) --Heat--> CaO(s) + CO₂(g). Used industrially for lime production.",
+      "[0.5 mark] Light-driven decomposition (photochemical): 2AgCl(s) --Sunlight--> 2Ag(s) + Cl₂(g). The basis of black-and-white photography.",
+      "[0.5 mark] Electricity-driven decomposition (electrolysis): 2H₂O(l) --Electricity--> 2H₂(g) + O₂(g). Water electrolysis gives H₂ at cathode and O₂ at anode in 2:1 volume ratio.",
+      "[1 mark] All three are endothermic — they need energy input to break bonds.",
     ],
     finalAnswer:
       "Heat: CaCO₃→CaO+CO₂. Light: 2AgCl→2Ag+Cl₂. Electricity: 2H₂O→2H₂+O₂.",
@@ -521,10 +521,10 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "Displacement: a more reactive element displaces a less reactive element from its compound (one element changes places). Double displacement: two compounds exchange their ions to form two new compounds (two pairs of ions swap).\nDisplacement: Fe + CuSO₄ → FeSO₄ + Cu.\nDouble displacement: Na₂SO₄ + BaCl₂ → BaSO₄↓ + 2NaCl.",
     solutionSteps: [
-      "Displacement involves ONE element replacing another. The more reactive metal kicks out the less reactive one from its salt.",
-      "Example: Zn(s) + CuSO₄(aq) → ZnSO₄(aq) + Cu(s).",
-      "Double displacement involves TWO compounds exchanging their ions simultaneously. Often produces a precipitate or gas.",
-      "Example: AgNO₃(aq) + NaCl(aq) → AgCl(s) + NaNO₃(aq). Or Na₂SO₄ + BaCl₂ → BaSO₄ + 2NaCl.",
+      "[1 mark] Displacement involves ONE element replacing another. The more reactive metal kicks out the less reactive one from its salt.",
+      "[0.5 mark] Example: Zn(s) + CuSO₄(aq) → ZnSO₄(aq) + Cu(s).",
+      "[0.5 mark] Double displacement involves TWO compounds exchanging their ions simultaneously. Often produces a precipitate or gas.",
+      "[1 mark] Example: AgNO₃(aq) + NaCl(aq) → AgCl(s) + NaNO₃(aq). Or Na₂SO₄ + BaCl₂ → BaSO₄ + 2NaCl.",
     ],
     finalAnswer:
       "Displacement: one element replaces another (Fe+CuSO₄→FeSO₄+Cu). Double displacement: two compounds exchange ions (Na₂SO₄+BaCl₂→BaSO₄+2NaCl).",
@@ -545,9 +545,9 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
       "In the refining of silver, the recovery of silver from silver nitrate solution involved displacement by copper metal. Write down the reaction involved.",
     answer: "Cu(s) + 2AgNO₃(aq) → Cu(NO₃)₂(aq) + 2Ag(s). Copper is more reactive than silver, so it displaces Ag from AgNO₃ solution; silver gets deposited and the solution turns blue (due to Cu(NO₃)₂).",
     solutionSteps: [
-      "Copper lies above silver in the reactivity series → Cu can displace Ag from its salt.",
-      "Cu(s) + 2AgNO₃(aq) → Cu(NO₃)₂(aq) + 2Ag(s).",
-      "The solution turns blue (formation of Cu(NO₃)₂); pure silver precipitates out.",
+      "[1 mark] Copper lies above silver in the reactivity series → Cu can displace Ag from its salt.",
+      "[0.5 mark] Cu(s) + 2AgNO₃(aq) → Cu(NO₃)₂(aq) + 2Ag(s).",
+      "[0.5 mark] The solution turns blue (formation of Cu(NO₃)₂); pure silver precipitates out.",
     ],
     finalAnswer: "Cu(s) + 2AgNO₃(aq) → Cu(NO₃)₂(aq) + 2Ag(s) — displacement reaction.",
     ncertRef: "Exercise Q14",
@@ -567,10 +567,10 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "A precipitation reaction is one in which two soluble reactants combine in solution to form an insoluble solid (precipitate). Example: AgNO₃(aq) + NaCl(aq) → AgCl(s)↓ + NaNO₃(aq); the white precipitate is AgCl. Another: Na₂SO₄(aq) + BaCl₂(aq) → BaSO₄(s)↓ + 2NaCl(aq).",
     solutionSteps: [
-      "When solutions of two ionic compounds are mixed and an insoluble salt is formed, the insoluble salt settles out as a precipitate.",
-      "Example 1: BaCl₂(aq) + Na₂SO₄(aq) → BaSO₄(s)↓ (white precipitate) + 2NaCl(aq).",
-      "Example 2: AgNO₃(aq) + NaCl(aq) → AgCl(s)↓ (white curdy precipitate) + NaNO₃(aq).",
-      "Precipitation reactions are usually double-displacement reactions where one of the products is insoluble in water.",
+      "[1 mark] When solutions of two ionic compounds are mixed and an insoluble salt is formed, the insoluble salt settles out as a precipitate.",
+      "[0.5 mark] Example 1: BaCl₂(aq) + Na₂SO₄(aq) → BaSO₄(s)↓ (white precipitate) + 2NaCl(aq).",
+      "[0.5 mark] Example 2: AgNO₃(aq) + NaCl(aq) → AgCl(s)↓ (white curdy precipitate) + NaNO₃(aq).",
+      "[1 mark] Precipitation reactions are usually double-displacement reactions where one of the products is insoluble in water.",
     ],
     finalAnswer:
       "A reaction producing an insoluble solid (precipitate) from two soluble solutions. E.g. BaCl₂+Na₂SO₄→BaSO₄↓+2NaCl.",
@@ -592,14 +592,14 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "(a) Oxidation = gain of oxygen (or loss of hydrogen) by a substance.\nExamples: (i) 2Cu + O₂ → 2CuO (Cu is oxidised). (ii) 2Mg + O₂ → 2MgO (Mg is oxidised).\n(b) Reduction = loss of oxygen (or gain of hydrogen) by a substance.\nExamples: (i) CuO + H₂ → Cu + H₂O (CuO is reduced). (ii) ZnO + C → Zn + CO (ZnO is reduced).",
     solutionSteps: [
-      "Oxidation in terms of oxygen: A substance that gains oxygen during a reaction is said to be oxidised.",
-      "Example 1 of oxidation: 2Cu + O₂ → 2CuO. Copper gains O to form copper(II) oxide — Cu is oxidised.",
-      "Example 2 of oxidation: 2Mg + O₂ → 2MgO. Magnesium gains O — Mg is oxidised.",
-      "Reduction in terms of oxygen: A substance that loses oxygen during a reaction is said to be reduced.",
-      "Example 1 of reduction: CuO + H₂ → Cu + H₂O. CuO loses O — CuO is reduced (and H₂ is oxidised).",
-      "Example 2 of reduction: ZnO + C → Zn + CO. ZnO loses O — ZnO is reduced (and C is oxidised).",
-      "Note that oxidation and reduction always occur together in a redox reaction.",
-      "Some textbooks extend the definition: gain of oxygen OR loss of hydrogen = oxidation; loss of oxygen OR gain of hydrogen = reduction.",
+      "[1 mark] Oxidation in terms of oxygen: A substance that gains oxygen during a reaction is said to be oxidised.",
+      "[0.5 mark] Example 1 of oxidation: 2Cu + O₂ → 2CuO. Copper gains O to form copper(II) oxide — Cu is oxidised.",
+      "[0.5 mark] Example 2 of oxidation: 2Mg + O₂ → 2MgO. Magnesium gains O — Mg is oxidised.",
+      "[0.5 mark] Reduction in terms of oxygen: A substance that loses oxygen during a reaction is said to be reduced.",
+      "[0.5 mark] Example 1 of reduction: CuO + H₂ → Cu + H₂O. CuO loses O — CuO is reduced (and H₂ is oxidised).",
+      "[0.5 mark] Example 2 of reduction: ZnO + C → Zn + CO. ZnO loses O — ZnO is reduced (and C is oxidised).",
+      "[0.5 mark] Note that oxidation and reduction always occur together in a redox reaction.",
+      "[1 mark] Some textbooks extend the definition: gain of oxygen OR loss of hydrogen = oxidation; loss of oxygen OR gain of hydrogen = reduction.",
     ],
     finalAnswer:
       "Oxidation = gain of O (Cu→CuO; Mg→MgO). Reduction = loss of O (CuO→Cu; ZnO→Zn).",
@@ -621,9 +621,9 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "X is copper (Cu). On heating in air it forms a black coating of copper(II) oxide (CuO): 2Cu + O₂ → 2CuO.",
     solutionSteps: [
-      "A shiny brown metal that turns black on heating in air is copper.",
-      "On heating: 2Cu(s) + O₂(g) → 2CuO(s). The black coating is copper(II) oxide.",
-      "This is an oxidation reaction (Cu gains oxygen).",
+      "[1 mark] A shiny brown metal that turns black on heating in air is copper.",
+      "[0.5 mark] On heating: 2Cu(s) + O₂(g) → 2CuO(s). The black coating is copper(II) oxide.",
+      "[0.5 mark] This is an oxidation reaction (Cu gains oxygen).",
     ],
     finalAnswer: "X = Copper (Cu); black compound = Copper(II) oxide (CuO).",
     ncertRef: "Exercise Q17",
@@ -643,10 +643,10 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "Paint forms a protective coating that prevents iron from coming in contact with air (oxygen) and moisture. This prevents the oxidation of iron, i.e. rusting (corrosion).",
     solutionSteps: [
-      "Rusting of iron requires both air (oxygen) and moisture.",
-      "Paint creates a barrier that prevents these reactants from reaching the iron surface.",
-      "Without contact between iron and O₂/H₂O, rusting cannot occur.",
-      "Hence painting prevents corrosion and prolongs the life of the iron article.",
+      "[0.5 mark] Rusting of iron requires both air (oxygen) and moisture.",
+      "[0.5 mark] Paint creates a barrier that prevents these reactants from reaching the iron surface.",
+      "[0.5 mark] Without contact between iron and O₂/H₂O, rusting cannot occur.",
+      "[0.5 mark] Hence painting prevents corrosion and prolongs the life of the iron article.",
     ],
     finalAnswer:
       "To prevent rusting by blocking contact between iron and air/moisture.",
@@ -667,10 +667,10 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "Nitrogen is an inert (unreactive) gas. Flushing oil/fat-containing food packets with nitrogen displaces the oxygen that would otherwise oxidise the fats/oils. This prevents rancidity (development of unpleasant smell and taste) and extends shelf life.",
     solutionSteps: [
-      "Fats and oils get oxidised by air (oxygen), producing peroxides that smell and taste bad — this is rancidity.",
-      "Nitrogen (N₂) is chemically inert at room conditions and does not react with fats/oils.",
-      "Flushing chip/snack packets with N₂ replaces the O₂ inside the packet.",
-      "Without O₂, oxidation cannot occur, so the food stays fresh for longer.",
+      "[0.5 mark] Fats and oils get oxidised by air (oxygen), producing peroxides that smell and taste bad — this is rancidity.",
+      "[0.5 mark] Nitrogen (N₂) is chemically inert at room conditions and does not react with fats/oils.",
+      "[0.5 mark] Flushing chip/snack packets with N₂ replaces the O₂ inside the packet.",
+      "[0.5 mark] Without O₂, oxidation cannot occur, so the food stays fresh for longer.",
     ],
     finalAnswer:
       "Nitrogen replaces oxygen in the packaging, preventing oxidation of fats (rancidity).",
@@ -691,10 +691,10 @@ export const CHEM_REACTIONS_NCERT: CanonicalQuestion[] = [
     answer:
       "(a) Corrosion: when a metal is attacked by substances around it (moisture, acids, gases in air), it forms a tarnished/eaten-away surface. Example: rusting of iron — iron objects develop a reddish-brown coating of Fe₂O₃·xH₂O on exposure to moist air.\n(b) Rancidity: the development of unpleasant smell and taste in fat-/oil-containing foods, caused by oxidation of those fats/oils. Example: butter or oily food kept open in air for several days develops a foul smell — it has become rancid.",
     solutionSteps: [
-      "(a) Corrosion is the slow attack of a metal by air/moisture/acids in the surroundings, leading to formation of an oxide or compound on the surface.",
-      "Example of corrosion: rusting of iron — Fe in moist air slowly converts to hydrated iron(III) oxide (rust). Black tarnish on silver and green coating on copper are other examples.",
-      "(b) Rancidity is the oxidative spoilage of fats and oils in food, producing peroxides and short-chain acids with unpleasant smell and taste.",
-      "Example of rancidity: ghee or oil left exposed to air for days develops an off-odour. Antioxidants, vacuum packing, and N₂ flushing are used to slow rancidity.",
+      "[1 mark] (a) Corrosion is the slow attack of a metal by air/moisture/acids in the surroundings, leading to formation of an oxide or compound on the surface.",
+      "[0.5 mark] Example of corrosion: rusting of iron — Fe in moist air slowly converts to hydrated iron(III) oxide (rust). Black tarnish on silver and green coating on copper are other examples.",
+      "[0.5 mark] (b) Rancidity is the oxidative spoilage of fats and oils in food, producing peroxides and short-chain acids with unpleasant smell and taste.",
+      "[1 mark] Example of rancidity: ghee or oil left exposed to air for days develops an off-odour. Antioxidants, vacuum packing, and N₂ flushing are used to slow rancidity.",
     ],
     finalAnswer:
       "(a) Corrosion: metal attacked by moisture/air → rusting of iron. (b) Rancidity: oxidation of fats/oils → spoiled smell/taste in food.",

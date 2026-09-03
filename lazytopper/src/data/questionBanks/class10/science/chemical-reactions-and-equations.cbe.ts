@@ -39,8 +39,8 @@ export const CHEM_CBE: CanonicalQuestion[] = [
     "options": [],
     "answer": "Any two from: wear goggles; use a heat-resistant container; use small quantities of CaO.",
     "solutionSteps": [
-      "[½ mark] Wear safety goggles to protect the eyes (the reaction is vigorous and exothermic).",
-      "[½ mark] Use a heat-resistant container and only small quantities of CaO."
+      "[0.5 mark] [½ mark] Wear safety goggles to protect the eyes (the reaction is vigorous and exothermic).",
+      "[0.5 mark] [½ mark] Use a heat-resistant container and only small quantities of CaO."
     ],
     "finalAnswer": "Wear goggles; use a heat-resistant container / small quantities of CaO.",
     "isCompetencyBased": false

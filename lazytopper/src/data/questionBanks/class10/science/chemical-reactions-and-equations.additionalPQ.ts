@@ -11,7 +11,7 @@ export const CHEMICAL_REACTIONS_APQ: CanonicalQuestion[] = [
     questionText: "A single displacement reaction is represented below: PQ + R → PR + Q. Which of the following is true about the reactants and products? Option A: R = cation in product, PR more stable than PQ. Option B: R = cation in product, PR less stable. Option C: R = anion in product, PR more stable. Option D: R = anion in product, PR less stable.",
     options: ["A", "B", "C", "D"],
     answer: "C",
-    solutionSteps: ["Single displacement: R displaces Q from PQ ⟹ R bonds with P. For R to displace Q, R must form a more stable compound (PR) than PQ.", "R in original was free element; after reaction in PR, P is the cation (metal) and R becomes the anion (gained electrons from displacement). So R = anion, PR more stable."],
+    solutionSteps: ["[0.5 mark] Single displacement: R displaces Q from PQ ⟹ R bonds with P. For R to displace Q, R must form a more stable compound (PR) than PQ.", "[0.5 mark] R in original was free element; after reaction in PR, P is the cation (metal) and R becomes the anion (gained electrons from displacement). So R = anion, PR more stable."],
     finalAnswer: "(c) C",
     ncertRef: "APQ Science-PQ Q1", isCompetencyBased: true },
 
@@ -36,7 +36,7 @@ export const CHEMICAL_REACTIONS_APQ: CanonicalQuestion[] = [
       "Red-coloured copper is oxidized to black-coloured copper(II) oxide"
     ],
     answer: "Red-coloured copper is oxidized to black-coloured copper(II) oxide",
-    solutionSteps: ["When copper is heated strongly in air, it combines with atmospheric oxygen — this is an oxidation reaction: 2 Cu + O2 → 2 CuO.", "The product CuO (copper(II) oxide) is BLACK in colour. Reddish-brown copper is converted to black CuO; the metal undergoes oxidation (gain of oxygen)."],
+    solutionSteps: ["[0.5 mark] When copper is heated strongly in air, it combines with atmospheric oxygen — this is an oxidation reaction: 2 Cu + O2 → 2 CuO.", "[0.5 mark] The product CuO (copper(II) oxide) is BLACK in colour. Reddish-brown copper is converted to black CuO; the metal undergoes oxidation (gain of oxygen)."],
     finalAnswer: "(d) Red-coloured copper is oxidized to black-coloured copper(II) oxide",
     ncertRef: "APQ Science-PQ2 Q1", isCompetencyBased: true,
     strategyHint: "REQUIRES-FIGURE: experimental set-up of copper being heated in air over a flame." },
