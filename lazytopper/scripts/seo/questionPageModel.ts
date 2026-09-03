@@ -343,6 +343,26 @@ export function mathToText(input: string): string {
 /** The token the renderer leaves where the modification date goes. */
 export const DATE_PLACEHOLDER = "__ENGINE0_DATE_MODIFIED__";
 
+/**
+ * ★★★ THE BOARD SUBJECT, DERIVED — NEVER THE WORD "SCIENCE" TYPED IN.
+ *
+ * ⚠ THIS WAS A LIVE FABRICATION WAITING FOR THE SECOND PAGE. Until this function
+ * existed the renderer hardcoded "Class 10 Science" in SEVEN places — `<title>`,
+ * `<h1>`, `og:title`, the meta description and both JSON-LD blocks — which was
+ * true of ENGINE-0's single Physics page and FALSE of five of the ten topics
+ * ENGINE-1 emits. `Triangles — Class 10 Science, NCERT Chapter 6` is a wrong fact
+ * about the CBSE syllabus, published under our name, on the one surface a stranger
+ * can check. That is the "no fake data" doctrine, not a copy nit.
+ *
+ * `meta.subject` in the note specs is the FINE-GRAINED strand — physics,
+ * chemistry, biology, maths. CBSE examines the first three as ONE subject,
+ * "Science", and maths as "Mathematics". The board's name is what a student
+ * searches for, so the board's name is what the page says.
+ */
+export function boardSubject(specSubject: string): string {
+  return specSubject.trim().toLowerCase() === "maths" ? "Mathematics" : "Science";
+}
+
 export interface NoteSpec {
   meta: {
     topic_key: string;
@@ -360,6 +380,16 @@ export interface NoteSpec {
   source_ledger?: Array<{ item: string; type: string; source: string }>;
 }
 
+/** One sibling page this page links to. §4's interlinking is built from these. */
+export interface RelatedPage {
+  /** Site-absolute path, e.g. `/questions/class-10/maths/triangles/`. */
+  urlPath: string;
+  /** The chapter title as the note spec states it. */
+  title: string;
+  /** One line describing the chapter, for the hub and the related list. */
+  blurb: string;
+}
+
 export interface PageInput {
   note: NoteSpec;
   questions: readonly CanonicalQuestion[];
@@ -367,6 +397,21 @@ export interface PageInput {
   /** Site-absolute path this page is served at, e.g. `/questions/a/b/`. */
   urlPath: string;
   origin: string;
+  /**
+   * ★★ THE OTHER PAGES IN THE SET, AND THE HUB ABOVE THEM. §4 — and this is the
+   * half ENGINE-0 lacked. Its one page was an ORPHAN: `href="/questions/…"` count
+   * was ZERO, and Google returned "Crawled — currently not indexed". A hub with
+   * ten children reads as a section of a site; one page in an empty namespace
+   * reads as nothing to evaluate. The spec says this "may matter more than the
+   * content change".
+   *
+   * Optional so ENGINE-0's fixtures and any single-page call still render.
+   */
+  related?: readonly RelatedPage[];
+  /** The subject hub this page belongs under, e.g. `/questions/class-10/maths/`. */
+  hubPath?: string;
+  /** The hub's human name, e.g. "Class 10 Mathematics". */
+  hubTitle?: string;
 }
 
 /**
@@ -381,14 +426,15 @@ export function renderPage(input: PageInput): string {
   const meta = note.meta;
   const canonical = `${origin}${urlPath}`;
   const totalMarks = questions.reduce((a, q) => a + q.marks, 0);
+  const subject = boardSubject(meta.subject);
+  const related = input.related ?? [];
 
   // Note-spec prose carries LaTeX; this page has no KaTeX and must stay
   // script-free, so maths is flattened to readable text BEFORE escaping.
   const noteText = (s: string) => escapeHtml(mathToText(s));
 
   const title = escapeHtml(meta.title);
-  const heading =
-    `${title} — Class 10 Science, NCERT Chapter ${meta.chapter_no}`;
+  const heading = `${title} — Class 10 ${subject}, NCERT Chapter ${meta.chapter_no}`;
 
   // ---- notes -------------------------------------------------------------
   const bigIdea =
@@ -402,24 +448,48 @@ export function renderPage(input: PageInput): string {
         "";
 
   const boardAsks = note.board_asks
-    ? `<section class="block"><h2>What the board actually asks</h2><p>${noteText(
+    ? `<section class="block" id="board-asks"><h2>What the board actually asks</h2><p>${noteText(
         note.board_asks,
       )}</p></section>`
     : "";
 
+  /**
+   * ★★ EACH DEFINITION CARRIES ITS NCERT PAGE CITATION (§3.4).
+   *
+   * The citation is the specificity a content farm cannot fake, and the spec puts
+   * it ON the definition rather than in a list at the foot — a page number three
+   * screens away from the term it belongs to is not a citation a reader can use.
+   *
+   * ⚠ MATCHED, NEVER SYNTHESISED. `source_ledger[].item` is matched against
+   * `definitions[].term`, case- and space-insensitively. Where the ledger has no
+   * row for a term the citation is OMITTED — measured at 2339ebf7, `triangles`
+   * resolves 7 of 10 and every other spec resolves all of them. Inventing "NCERT
+   * p.___" for the other three would be the exact fabrication this page exists to
+   * be trusted against, so the honest empty state applies here too.
+   */
+  const ledgerFor = new Map<string, string>();
+  for (const row of note.source_ledger ?? []) {
+    const key = (row.item ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+    if (key && row.source && !ledgerFor.has(key)) ledgerFor.set(key, row.source);
+  }
+  const citationFor = (term: string): string => {
+    const src = ledgerFor.get(term.trim().toLowerCase().replace(/\s+/g, " "));
+    return src ? ` <span class="cite">${escapeHtml(src)}</span>` : "";
+  };
+
   const definitions = (note.definitions ?? []).length
-    ? `<section class="block"><h2>Definitions to know</h2><dl>${(note.definitions ?? [])
+    ? `<section class="block" id="definitions"><h2>Key definitions</h2><dl>${(note.definitions ?? [])
         .map(
           (d) =>
             `<dt>${noteText(d.term)}</dt><dd>${noteText(
               (d.plain ?? d.verbatim ?? "").trim(),
-            )}</dd>`,
+            )}${citationFor(d.term)}</dd>`,
         )
         .join("")}</dl></section>`
     : "";
 
   const formulas = (note.formula_strip ?? []).length
-    ? `<section class="block"><h2>Formula strip</h2><ul class="formulas">${(
+    ? `<section class="block" id="formula-sheet"><h2>Formula sheet</h2><ul class="formulas">${(
         note.formula_strip ?? []
       )
         .map((f) => `<li><b>${noteText(f.label)}</b> ${noteText(f.math)}</li>`)
@@ -427,7 +497,7 @@ export function renderPage(input: PageInput): string {
     : "";
 
   const pitfalls = (note.pitfalls ?? []).length
-    ? `<section class="block"><h2>Where marks are lost</h2><ul>${(note.pitfalls ?? [])
+    ? `<section class="block" id="pitfalls"><h2>Common mistakes — where marks are lost</h2><ul>${(note.pitfalls ?? [])
         .map((p) => `<li>${noteText(p.text)}</li>`)
         .join("")}</ul></section>`
     : "";
@@ -438,6 +508,35 @@ export function renderPage(input: PageInput): string {
       )}</p><ul class="ledger">${(note.source_ledger ?? [])
         .map((s) => `<li>${noteText(s.item)} — ${escapeHtml(s.source)}</li>`)
         .join("")}</ul></section>`
+    : "";
+
+
+  /**
+   * ★★★ THE INTERLINKING — §4, AND THE HALF ENGINE-0 DID NOT HAVE.
+   *
+   * ENGINE-0 shipped one page. Google crawled it and returned "Crawled — currently
+   * not indexed", and a site-search for its exact `<h1>` returns nothing. That is a
+   * JUDGEMENT, not a routing failure: an orphan page in an empty namespace gave the
+   * crawler nothing to evaluate. Measured on trunk, this renderer emitted ZERO
+   * `href="/questions/…"` links.
+   *
+   * A hub with ten children, each linking back to the hub and across to its
+   * siblings, reads as a SECTION OF A SITE. The spec says this "may matter more
+   * than the content change", and it costs nothing to be right about.
+   */
+  const relatedBlock = related.length
+    ? `<section class="block" id="related"><h2>More Class 10 board-question pages</h2><ul class="related">${related
+        .map(
+          (r) =>
+            `<li><a href="${escapeHtml(r.urlPath)}">${escapeHtml(r.title)}</a> — ${escapeHtml(r.blurb)}</li>`,
+        )
+        .join("")}</ul>${
+        input.hubPath
+          ? `<p class="hublink"><a href="${escapeHtml(input.hubPath)}">All ${escapeHtml(
+              input.hubTitle ?? `Class 10 ${subject}`,
+            )} chapters</a></p>`
+          : ""
+      }</section>`
     : "";
 
   // ---- questions ---------------------------------------------------------
@@ -476,9 +575,9 @@ export function renderPage(input: PageInput): string {
   const learningResource = {
     "@context": "https://schema.org",
     "@type": ["LearningResource", "Course"],
-    name: `${meta.title} — Class 10 Science`,
+    name: `${meta.title} — Class 10 ${subject}`,
     description:
-      `Step-marked CBSE Class 10 Science questions on ${meta.title} (NCERT ` +
+      `Step-marked CBSE Class 10 ${subject} questions on ${meta.title} (NCERT ` +
       `Chapter ${meta.chapter_no}), with the mark scheme shown step by step.`,
     url: canonical,
     inLanguage: "en",
@@ -517,7 +616,7 @@ export function renderPage(input: PageInput): string {
   const jsonLd = (o: unknown) => JSON.stringify(o, null, 2).replace(/<\//g, "<\\/");
 
   const description =
-    `${questions.length} step-marked CBSE Class 10 Science questions on ` +
+    `${questions.length} step-marked CBSE Class 10 ${subject} questions on ` +
     `${meta.title} (NCERT Chapter ${meta.chapter_no}), ${totalMarks} marks in ` +
     `total, each with the mark scheme shown step by step.`;
 
@@ -562,6 +661,12 @@ dl dd{margin:2px 0 0 0;color:#3b4a5e}
 .final{background:var(--soft);border-left:3px solid var(--accent);padding:8px 12px;margin:12px 0 0}
 .cta{margin:36px 0 0;background:var(--navy);color:#fff;border-radius:12px;padding:20px}
 .cta a{display:inline-block;margin-top:10px;background:var(--accent);color:#fff;text-decoration:none;padding:10px 18px;border-radius:8px;font-weight:600}
+.cite{display:block;margin-top:2px;color:#5b6b80;font-size:.82rem}
+.related{padding-left:22px}
+.related li{margin:6px 0}
+.related a{color:var(--navy);font-weight:600}
+.hublink{margin:12px 0 0}
+.hublink a{color:var(--navy);font-weight:600}
 footer.site{border-top:1px solid var(--line);margin-top:40px;padding-top:14px;color:#5b6b80;font-size:.85rem}
 </style>
 <script type="application/ld+json">
@@ -578,14 +683,15 @@ ${jsonLd(quiz)}
 <h1>${heading}</h1>
 <p class="facts">Board weightage: ${escapeHtml(meta.weightage)} &middot; ${questions.length} step-marked questions &middot; ${totalMarks} marks in total</p>
 ${bigIdea}
-${boardAsks}
-${definitions}
 ${formulas}
-${pitfalls}
-<section class="block"><h2>Step-marked board questions</h2>
+${definitions}
+${boardAsks}
+<section class="block" id="questions"><h2>Practice questions with worked solutions</h2>
 <p class="facts">Every solution below is broken into the steps CBSE awards marks for, so you can see where each mark is earned.</p>
 ${questionBlocks}
 </section>
+${pitfalls}
+${relatedBlock}
 ${ledger}
 <aside class="cta">
 <b>Practise this chapter with the mark scheme in front of you.</b>

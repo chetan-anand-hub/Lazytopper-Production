@@ -10,6 +10,7 @@ import {
 } from "../data/canonicalQuestionBank";
 import type { CanonicalQuestion } from "../data/predictionTypes";
 import {
+  boardSubject,
   DATE_PLACEHOLDER,
   MIN_QUESTIONS,
   MAX_QUESTIONS,
@@ -30,6 +31,9 @@ import {
   RX,
   publishableQuestions,
   resolveDate,
+  HUB_SCIENCE,
+  HUB_MATHS,
+  HUB_ROOT,
 } from "../../scripts/seo/generateQuestionPages";
 import { isPublishable, stepMarks } from "../../scripts/seo/publishability";
 
@@ -989,5 +993,236 @@ describe("ENGINE-1 · the generator emits ONLY what the contract calls publishab
     expect(resolveDate(file, rendered)).toMatch(/^\d{4}-\d{2}-\d{2}$/);
 
     rmSync(dir, { recursive: true, force: true });
+  });
+});
+
+/**
+ * ★★★ ENGINE-1 — THE SET, NOT THE SPECIMEN.
+ *
+ * ⚠ EVERY ASSERTION IN THIS FILE BEFORE THIS BLOCK READS `PAGES[0]`. That was
+ * right when `PAGES` had one row. It is now a SAMPLE OF TEN, and a suite that
+ * checks the first row is exactly the "one rendered example is not coverage"
+ * shape this repo has already paid for: the subject bug below was INVISIBLE to
+ * every green run precisely because `PAGES[0]` is a Science topic and the five
+ * broken pages were Maths.
+ *
+ * These assert over EVERY emitted page and BOTH hubs.
+ */
+describe("ENGINE-1 · every emitted page, not just the first", () => {
+  const pageFileFor = (urlPath: string) => resolve(PUBLIC_ROOT, `.${urlPath}index.html`);
+  const readPage = (urlPath: string) =>
+    readFileSync(pageFileFor(urlPath), "utf8").replace(/\r\n/g, "\n");
+  const specFor = (noteSpec: string) =>
+    JSON.parse(readFileSync(resolve(REPO_ROOT, noteSpec), "utf8")) as NoteSpec;
+
+  it("★★★ THE SUBJECT IS DERIVED — no Maths page calls itself Science", () => {
+    // THE DEFECT THIS REPLACES: the renderer hardcoded "Class 10 Science" in seven
+    // places. Five of the ten topics are Maths. `Triangles — Class 10 Science,
+    // NCERT Chapter 6` is a wrong fact about the CBSE syllabus published under our
+    // name, on the one surface a stranger can check.
+    const maths = PAGES.filter((p) => p.urlPath.includes("/maths/"));
+    const science = PAGES.filter((p) => p.urlPath.includes("/science/"));
+    expect(maths.length, "no Maths page — this assertion has no subject").toBeGreaterThan(0);
+    expect(science.length).toBeGreaterThan(0);
+
+    for (const p of maths) {
+      const html = readPage(p.urlPath);
+      expect(html, `${p.topicKey} calls itself Science`).not.toContain("Class 10 Science,");
+      expect(html).toContain("Class 10 Mathematics");
+    }
+    for (const p of science) {
+      expect(readPage(p.urlPath), `${p.topicKey} calls itself Mathematics`).toContain("Class 10 Science");
+    }
+    // CONTROL — the helper really discriminates, both directions.
+    expect(boardSubject("maths")).toBe("Mathematics");
+    expect(boardSubject("physics")).toBe("Science");
+    expect(boardSubject("chemistry")).toBe("Science");
+    expect(boardSubject("biology")).toBe("Science");
+  });
+
+  it("★★★ INTERLINKED — every page links to every sibling AND up to its hub", () => {
+    // §4. ENGINE-0's page was an ORPHAN: this count was ZERO, and Google returned
+    // "Crawled — currently not indexed".
+    for (const p of PAGES) {
+      const html = readPage(p.urlPath);
+      for (const s of PAGES.filter((o) => o.topicKey !== p.topicKey)) {
+        expect(html, `${p.topicKey} does not link to ${s.topicKey}`).toContain(`href="${s.urlPath}"`);
+      }
+      // ...and never to itself.
+      expect(
+        html.includes(`<li><a href="${p.urlPath}">`),
+        `${p.topicKey} links to itself in its own related list`,
+      ).toBe(false);
+      const hub = p.urlPath.includes("/maths/") ? HUB_MATHS : HUB_SCIENCE;
+      expect(html, `${p.topicKey} has no hub link`).toContain(`href="${hub}"`);
+    }
+  });
+
+  it("★★ THE HUBS EXIST, LIST ONLY EMITTED PAGES, AND CROSS-LINK", () => {
+    for (const hub of [HUB_SCIENCE, HUB_MATHS, HUB_ROOT]) {
+      expect(existsSync(pageFileFor(hub)), `hub missing at ${hub}`).toBe(true);
+    }
+    const science = readPage(HUB_SCIENCE);
+    const maths = readPage(HUB_MATHS);
+    for (const p of PAGES) {
+      const isMaths = p.urlPath.includes("/maths/");
+      const target = isMaths ? maths : science;
+      const other = isMaths ? science : maths;
+      expect(target, `${p.topicKey} missing from its hub`).toContain(`href="${p.urlPath}"`);
+      // A hub must not advertise the other subject's children as its own.
+      expect(other.includes(`<li><a href="${p.urlPath}">`)).toBe(false);
+    }
+    expect(science).toContain(`href="${HUB_MATHS}"`);
+    expect(maths).toContain(`href="${HUB_SCIENCE}"`);
+    const root = readPage(HUB_ROOT);
+    expect(root).toContain(`href="${HUB_SCIENCE}"`);
+    expect(root).toContain(`href="${HUB_MATHS}"`);
+  });
+
+  it("★★ SECTION ORDER IS THE SPEC'S ORDER — the formula sheet leads", () => {
+    // §3: the formula strip is "the scarcest artefact and the most bookmarked page
+    // type in this category", and it leads the note sections. On trunk it rendered
+    // THIRD, behind board_asks and definitions.
+    for (const p of PAGES) {
+      const order = [...readPage(p.urlPath).matchAll(/<h2>([^<]*)<\/h2>/g)].map((m) => m[1]);
+      const spec = specFor(p.noteSpec);
+      const idx = (needle: string) => order.findIndex((h) => h.includes(needle));
+      if ((spec.formula_strip ?? []).length) {
+        expect(idx("Formula sheet"), `${p.topicKey}: no formula sheet`).toBe(0);
+        expect(idx("Formula sheet")).toBeLessThan(idx("Key definitions"));
+      } else {
+        // Honest empty state: omitted, never faked.
+        expect(idx("Formula sheet")).toBe(-1);
+      }
+      expect(idx("Key definitions")).toBeLessThan(idx("What the board actually asks"));
+      expect(idx("What the board actually asks")).toBeLessThan(idx("Practice questions"));
+      expect(idx("Practice questions")).toBeLessThan(idx("Common mistakes"));
+      expect(idx("Common mistakes")).toBeLessThan(idx("More Class 10 board-question pages"));
+    }
+  });
+
+  it("★★ DEFINITIONS CARRY THEIR NCERT CITATION — matched, never synthesised", () => {
+    // §3.4. The citation is the specificity a content farm cannot fake.
+    let cited = 0;
+    let uncited = 0;
+    for (const p of PAGES) {
+      const html = readPage(p.urlPath);
+      const spec = specFor(p.noteSpec);
+      const norm = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ");
+      const ledger = new Set((spec.source_ledger ?? []).map((r) => norm(r.item ?? "")));
+      for (const d of spec.definitions ?? []) {
+        if (ledger.has(norm(d.term))) cited += 1;
+        else uncited += 1;
+      }
+      // Every RENDERED citation must come from the ledger — never invented.
+      const sources = new Set((spec.source_ledger ?? []).map((r) => r.source));
+      for (const m of html.matchAll(/<span class="cite">([^<]*)<\/span>/g)) {
+        expect(
+          sources.has(m[1]),
+          `${p.topicKey}: rendered a citation absent from source_ledger: ${m[1]}`,
+        ).toBe(true);
+      }
+    }
+    expect(cited, "no definition resolved a citation — the feature is dead").toBeGreaterThan(0);
+    // ★ THE OMISSION IS REAL, NOT THEORETICAL: at abfb1e81 `triangles` resolves 7
+    //   of 10, and those three render with NO citation rather than a made-up page
+    //   number. Asserted as "> 0" and never pinned, so annotating the ledger later
+    //   cannot turn this red.
+    expect(uncited).toBeGreaterThan(0);
+  });
+
+  it("★★ EVERY EMITTED PAGE IS IN THE SITEMAP, AND EVERY QUESTION ON IT IS PUBLISHABLE", () => {
+    // R2: MOUNT IS NOT LIVE. A page on disk that nothing advertises is invisible to
+    // Google, which is the exact failure this lane answers.
+    const xml = readFileSync(SITEMAP, "utf8");
+    for (const p of PAGES) {
+      expect(xml, `${p.urlPath} is not advertised`).toContain(`<loc>${ORIGIN}${p.urlPath}</loc>`);
+      const ids = emittedQuestionIds(readPage(p.urlPath));
+      expect(ids.length, `${p.topicKey} is below the floor`).toBeGreaterThanOrEqual(MIN_QUESTIONS);
+      const bad = ids
+        .map(questionById)
+        .filter((q) => !isPublishable(q, AI_GENERATED_QUESTION_IDS).ok)
+        .map((q) => q.id);
+      expect(bad, `${p.topicKey} renders unpublishable question(s)`).toEqual([]);
+    }
+    for (const hub of [HUB_SCIENCE, HUB_MATHS, HUB_ROOT]) {
+      expect(xml, `hub ${hub} is not advertised`).toContain(`<loc>${ORIGIN}${hub}</loc>`);
+    }
+  });
+
+  it("★ NO PAGE LEAKS A FIGURE ASSET, RAW LaTeX, OR AN EXECUTABLE SCRIPT", () => {
+    for (const p of PAGES) {
+      const html = readPage(p.urlPath);
+      expect(html, `${p.topicKey} references notes/assets`).not.toContain("notes/assets");
+      expect(html, `${p.topicKey} has raw LaTeX`).not.toMatch(/\dfrac|\text\{/);
+      // A crawler that runs NO JavaScript must see everything, so the only scripts
+      // on the page may be JSON-LD data blocks.
+      for (const m of html.matchAll(/<script([^>]*)>/g)) {
+        expect(m[1], `${p.topicKey} has an executable script`).toContain("application/ld+json");
+      }
+    }
+  });
+});
+
+/**
+ * ★★ SPEC §6's ACCEPTANCE CONTROL, ENFORCED AT BUILD TIME.
+ *
+ * The live check is: a real page is ~29KB and a bogus path under `/questions/`
+ * returns the SPA shell at ~3KB — "distinguish by BODY SIZE, never status, because
+ * both return 200".
+ *
+ * ⚠ THE ROOT HUB FIRST SHIPPED AT 3,285 BYTES, because §4 asks it only to link the
+ * two subject hubs. That is INDISTINGUISHABLE IN SIZE FROM A SOFT 404 — it defeats
+ * the only control that separates a real page from the shell — and it is a thin
+ * page in its own right, which is what this whole lane exists not to ship. It now
+ * indexes all ten chapters (7,497 bytes).
+ *
+ * ★★ TWO THRESHOLDS, BECAUSE THEY ARE TWO DIFFERENT ARTEFACTS, AND A SINGLE
+ * ARBITRARY NUMBER WOULD HAVE BEEN TUNED UNTIL IT PASSED. A topic page is an
+ * article and is enormous next to the shell. A hub is a DIRECTORY: it is
+ * legitimately smaller, so for a hub the honest discriminator is not size at all
+ * but CONTENT — the child links it exists to carry. That is R1's own doctrine
+ * ("assert page-specific content, not a status code"); size is merely the crude
+ * proxy available to a live `curl | wc -c`.
+ */
+describe("ENGINE-1 · no emitted page can be mistaken for the SPA shell", () => {
+  const SHELL_BYTES = 3 * 1024;
+  const sizeOf = (urlPath: string) =>
+    Buffer.byteLength(
+      readFileSync(resolve(PUBLIC_ROOT, `.${urlPath}index.html`), "utf8").replace(/\r\n/g, "\n"),
+    );
+
+  it("★★ a topic page is many times the shell — the live size control is unambiguous", () => {
+    for (const p of PAGES) {
+      const bytes = sizeOf(p.urlPath);
+      expect(
+        bytes,
+        `${p.urlPath} is ${bytes} bytes — too close to the ~${SHELL_BYTES}-byte SPA shell ` +
+          `for spec §6's size control to tell them apart`,
+      ).toBeGreaterThan(SHELL_BYTES * 4);
+    }
+  });
+
+  it("★★ a hub proves itself by its CHILD LINKS, not by its size", () => {
+    for (const hub of [HUB_SCIENCE, HUB_MATHS, HUB_ROOT]) {
+      const html = readFileSync(resolve(PUBLIC_ROOT, `.${hub}index.html`), "utf8");
+      const children = [...html.matchAll(/<li><a href="(\/questions\/[^"]+)"/g)].map((m) => m[1]);
+      expect(children.length, `${hub} lists no chapters — it is a shell, not a hub`).toBeGreaterThan(0);
+      // Every child it advertises must be a page this run actually emitted.
+      for (const c of children) {
+        expect(
+          PAGES.some((p) => p.urlPath === c),
+          `${hub} advertises ${c}, which is not an emitted page`,
+        ).toBe(true);
+      }
+      // Still clearly bigger than the shell, just not article-sized.
+      expect(sizeOf(hub)).toBeGreaterThan(SHELL_BYTES + 1024);
+    }
+    // The root hub indexes the whole namespace, not just the two subject hubs.
+    const rootChildren = [
+      ...readFileSync(resolve(PUBLIC_ROOT, `.${HUB_ROOT}index.html`), "utf8")
+        .matchAll(/<li><a href="(\/questions\/[^"]+)"/g),
+    ];
+    expect(rootChildren.length).toBe(PAGES.length);
   });
 });
