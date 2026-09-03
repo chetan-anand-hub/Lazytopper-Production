@@ -27,7 +27,7 @@ export const METALS_NON_METALS_SQP: CanonicalQuestion[] = [
     ],
     "answer": "(A) Sodium",
     "solutionSteps": [
-      "Only metals above hydrogen in the reactivity series displace H₂ from dilute H₂SO₄. Among the options, sodium (very reactive) reacts vigorously and releases H₂ — the colourless gas that burns with a 'pop' sound when a burning matchstick is brought near it. Sulphur is a non-metal; Cu and Ag are below H in reactivity. Answer: (A)."
+      "[1 mark] Only metals above hydrogen in the reactivity series displace H₂ from dilute H₂SO₄. Among the options, sodium (very reactive) reacts vigorously and releases H₂ — the colourless gas that burns with a 'pop' sound when a burning matchstick is brought near it. Sulphur is a non-metal; Cu and Ag are below H in reactivity. Answer: (A)."
     ],
     "finalAnswer": "(A) Sodium",
     "isCompetencyBased": true
@@ -46,9 +46,9 @@ export const METALS_NON_METALS_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "(a) Highly exothermic; metal liberated in molten state. (b) Al oxidised; MnO₂ reduced. (c) Al is more reactive than Fe/Mn (placed above them in reactivity series).",
     "solutionSteps": [
-      "(a) The reaction is highly exothermic — large amount of heat released. The metal liberated (Mn or Fe) is obtained in a molten / liquid state because of the heat generated. Hence the name 'thermite' (heat-producing) reaction.",
-      "(b) Substance oxidised: Al (loses electrons; oxidation state 0 → +3 in Al₂O₃). Substance reduced: MnO₂ (gains electrons; Mn oxidation state +4 → 0 as Mn metal).",
-      "(c) Aluminium is preferably used because it lies above Fe and Mn in the reactivity series. Being more reactive than these metals, Al can displace them from their oxides, accompanied by a large release of energy."
+      "[1 mark] (a) The reaction is highly exothermic — large amount of heat released. The metal liberated (Mn or Fe) is obtained in a molten / liquid state because of the heat generated. Hence the name 'thermite' (heat-producing) reaction.",
+      "[1 mark] (b) Substance oxidised: Al (loses electrons; oxidation state 0 → +3 in Al₂O₃). Substance reduced: MnO₂ (gains electrons; Mn oxidation state +4 → 0 as Mn metal).",
+      "[1 mark] (c) Aluminium is preferably used because it lies above Fe and Mn in the reactivity series. Being more reactive than these metals, Al can displace them from their oxides, accompanied by a large release of energy."
     ],
     "finalAnswer": "(a) Exothermic, molten metal; (b) Al oxidised, MnO₂ reduced; (c) Al more reactive than Fe/Mn.",
     "isCompetencyBased": true
@@ -67,10 +67,10 @@ export const METALS_NON_METALS_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "Main: MCl₃ and M₂(SO₄)₃; ionic bond (M is Al, loses 3 e⁻); compounds conduct in molten/aqueous state but not in solid state. OR Alt: X = Copper (Cu); Y = CuO.",
     "solutionSteps": [
-      "Main: Element M has electron config 2, 8, 3 — three valence electrons — so it forms M³⁺ by losing 3 electrons to attain stable neon (2,8) configuration.",
-      "Compounds formed: with Cl⁻ → MCl₃ (1 M³⁺ balances 3 Cl⁻). With SO₄²⁻ → M₂(SO₄)₃ (2 M³⁺ = +6; 3 SO₄²⁻ = −6).",
-      "M forms ionic bonds in general (metal donating electrons to non-metal anions). The compounds MCl₃ and M₂(SO₄)₃ are ionic — they conduct electricity in molten or aqueous solution (ions free to move) but not in solid state (ions held in fixed lattice). In contrast, M itself (a metal) conducts in solid state via free electrons.",
-      "OR (alternative): X = Copper (Cu) — reddish-brown; Y = CuO (copper(II) oxide) — black. 2Cu + O₂ → 2CuO (heating in air); CuO + H₂ → Cu + H₂O (reduction with H₂). Cu is refined by electrolysis: impure Cu = anode, pure Cu = cathode, CuSO₄ solution = electrolyte. Pure Cu deposits on cathode; impurities settle as anode mud. Refined Cu is used in electrical wiring due to high conductivity."
+      "[1 mark] Main: Element M has electron config 2, 8, 3 — three valence electrons — so it forms M³⁺ by losing 3 electrons to attain stable neon (2,8) configuration.",
+      "[0.5 mark] Compounds formed: with Cl⁻ → MCl₃ (1 M³⁺ balances 3 Cl⁻). With SO₄²⁻ → M₂(SO₄)₃ (2 M³⁺ = +6; 3 SO₄²⁻ = −6).",
+      "[0.5 mark] M forms ionic bonds in general (metal donating electrons to non-metal anions). The compounds MCl₃ and M₂(SO₄)₃ are ionic — they conduct electricity in molten or aqueous solution (ions free to move) but not in solid state (ions held in fixed lattice). In contrast, M itself (a metal) conducts in solid state via free electrons.",
+      "[1 mark] OR (alternative): X = Copper (Cu) — reddish-brown; Y = CuO (copper(II) oxide) — black. 2Cu + O₂ → 2CuO (heating in air); CuO + H₂ → Cu + H₂O (reduction with H₂). Cu is refined by electrolysis: impure Cu = anode, pure Cu = cathode, CuSO₄ solution = electrolyte. Pure Cu deposits on cathode; impurities settle as anode mud. Refined Cu is used in electrical wiring due to high conductivity."
     ],
     "finalAnswer": "Main: MCl₃, M₂(SO₄)₃; ionic; conducts in molten/aqueous state only. OR Alt: X = Cu, Y = CuO; electrolytic refining diagram.",
     "isCompetencyBased": true
