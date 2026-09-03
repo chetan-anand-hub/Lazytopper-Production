@@ -1644,11 +1644,11 @@ const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
     "answer": "",
     "explanation": "",
     "solutionSteps": [
-      "Define corrosion as the slow eating up of metals by the action of air, moisture or chemicals on their surface.",
-      "Explain that rusting of iron is a specific type of corrosion where iron reacts with oxygen and moisture to form hydrated iron(III) oxide (rust).",
-      "State methods to prevent rusting: (i) painting or coating with oil/grease to prevent contact with air and moisture.",
-      "(ii) Galvanisation: coating iron with a thin layer of zinc to protect it.",
-      "Other accepted methods: alloying iron to form stainless steel or using plastic coating."
+      "[1 mark] Define corrosion as the slow eating up of metals by the action of air, moisture or chemicals on their surface.",
+      "[0.5 mark] Explain that rusting of iron is a specific type of corrosion where iron reacts with oxygen and moisture to form hydrated iron(III) oxide (rust).",
+      "[0.5 mark] State methods to prevent rusting: (i) painting or coating with oil/grease to prevent contact with air and moisture.",
+      "[0.5 mark] (ii) Galvanisation: coating iron with a thin layer of zinc to protect it.",
+      "[0.5 mark] Other accepted methods: alloying iron to form stainless steel or using plastic coating."
     ],
     "finalAnswer": "",
     "strategyHint": "",
