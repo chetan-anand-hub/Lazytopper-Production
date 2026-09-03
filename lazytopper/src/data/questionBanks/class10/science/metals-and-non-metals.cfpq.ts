@@ -324,9 +324,9 @@ export const MNM_CFPQ: CanonicalQuestion[] = [
     answer:
       "(a) Aluminium; (b) Al₂O₃ + 2NaOH → 2NaAlO₂ + H₂O and Al₂O₃ + 6HCl → 2AlCl₃ + 3H₂O; (c) It would displace iron to form aluminium oxide.",
     solutionSteps: [
-      "[½ mark] (a) Aluminium",
+      "[0.5 mark] [½ mark] (a) Aluminium",
       "[2 marks] (b) 1 mark each for correct equations: Al₂O₃ + 2NaOH → 2NaAlO₂ + H₂O; Al₂O₃ + 6HCl → 2AlCl₃ + 3H₂O",
-      "[½ mark] (c) It would displace iron to form aluminium oxide.",
+      "[0.5 mark] [½ mark] (c) It would displace iron to form aluminium oxide.",
     ],
     finalAnswer:
       "(a) aluminium; (b) Al₂O₃ + 2NaOH → 2NaAlO₂ + H₂O and Al₂O₃ + 6HCl → 2AlCl₃ + 3H₂O; (c) it displaces iron, forming aluminium oxide.",

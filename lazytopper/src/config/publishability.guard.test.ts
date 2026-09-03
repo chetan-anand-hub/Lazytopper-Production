@@ -117,7 +117,7 @@ describe("RULE 2 — both mark conventions are valid", () => {
     expect(stepMarks("Substitute into the lens equation")).toBeNull();
   });
 
-  it("the addressable step-marking backlog is 2,646 rows", () => {
+  it("the addressable step-marking backlog is 2,488 rows", () => {
     /**
      * ★ NOT 5,105. The raw unmarked count is 5,105, but 2,102 of those are AI-pack
      * rows that Rule 1 rejects permanently and that policy says to RETIRE, not
@@ -147,7 +147,18 @@ describe("RULE 2 — both mark conventions are valid", () => {
     // same 0.5-granularity wall (CHEM-EXMPLR-1-MCQ-001..018 carry 3-5 steps on a 1-mark
     // MCQ; CHEM-EXMPLR-1-SA-010 carries 7 steps on 3 marks). No [0 mark] annotation was
     // used to force them: that is an open owner question, [FU-STEPMARK-ZERO-MARK-STEPS].
-    expect(addressable).toHaveLength(2646);
+    // 2,646 -> 2,488: -158. STEPMARK-1 batch 3 (metals-and-non-metals) mark-annotated 158
+    // of that topic's 173 addressable rows. Same mechanism as batches 1 and 2: the backlog
+    // shrinks by EXACTLY the number annotated, because annotation is the only thing that
+    // clears "unmarked-step". The remaining 15 rows are SKIPPED, not fixed -- the same
+    // 0.5-granularity wall (METAL-NCERT-3-MCQ-001..004 and nine METAL-EXMPLR-3-MCQ rows
+    // carry 3-5 steps on a 1-mark MCQ; PYQ-S-METAL-003 carries 47 steps on 4 marks).
+    // THIRD topic in a row whose entire skip list is over-stepped 1-mark items:
+    // [FU-STEPMARK-EXEMPLAR-MCQ-OVERSTEPPED] is a bank-wide authoring artefact, not
+    // scattered accidents. No [0 mark] annotation was used to force them -- owner ruling 6
+    // (2026-09-03) CLOSED [FU-STEPMARK-ZERO-MARK-STEPS] as REFUSED, so these rows are
+    // permanently unrecoverable by annotation.
+    expect(addressable).toHaveLength(2488);
   });
 });
 
@@ -366,7 +377,7 @@ describe("the publishable population", () => {
    * intended — a derived value pinned in prose outlives the facts it came from; a
    * derived value pinned in a test fails loudly when they change.
    */
-  it("2,695 rows are publishable today", () => {
+  it("2,851 rows are publishable today", () => {
     const publishable = canonicalQuestionBank.filter((q) => isPublishable(q, AI).ok);
     // 2,248 -> 2,333: +85. Of the 130 CFPQ rows wired by #721, 85 publish immediately,
     // 10 join the step-marking backlog and 35 are held by the figure rule. ~3.8% growth,
@@ -384,8 +395,14 @@ describe("the publishable population", () => {
     // CFPQ-S-CHEM-005. Rule 2 runs before Rule 5, so a figure-dependent row reports
     // "unmarked-step" and annotating it clears the backlog without moving this count.
     // 160 annotated - 3 figure-held = 157, which is the batch's reconciliation and its
-    // only evidence. Bank length UNCHANGED at 8,673 - this lane still authors no rows.
-    expect(publishable).toHaveLength(2695);
+    // 2,695 -> 2,851: +156. STEPMARK-1 batch 3 (metals-and-non-metals) annotated 158 rows;
+    // 156 become publishable and 2 do NOT, because those 2 are ALSO held by Rule 5 (figure):
+    // METAL-NCERT-3-VSA-006 and PYQ-S-2026-METAL-005. Rule 2 runs before Rule 5, so a
+    // figure-dependent row reports "unmarked-step" and annotating it clears the backlog
+    // without moving this count. 158 annotated - 2 figure-held = 156, which is the batch's
+    // reconciliation and its only evidence. Bank length UNCHANGED at 8,673 - this lane still
+    // authors no rows.
+    expect(publishable).toHaveLength(2851);
   });
 
   it("no publishable row is AI-generated — the property retirement depends on", () => {
@@ -393,5 +410,86 @@ describe("the publishable population", () => {
       (q) => isPublishable(q, AI).ok && AI.has(q.id),
     );
     expect(leaked).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// THE ACHIEVABLE CEILING — OWNER RULING 5, 2026-09-03
+// ---------------------------------------------------------------------------
+
+/**
+ * ★ ONE NUMBER, DEFINED IN WORDS, SO THAT NO THIRD NUMBER CAN APPEAR.
+ *
+ * Two figures were in circulation and they do NOT measure the same thing. Both are
+ * derived here from the assembled bank rather than quoted, because a number quoted
+ * without its recipe cannot be re-checked.
+ *
+ *   5,244 = publishable + addressable - (addressable rows Rule 5 holds for a figure)
+ *           "every remaining addressable row can be annotated." It counts a row that
+ *           can NEVER be annotated without asserting a step earns nothing.
+ *
+ *   4,822 = publishable + addressable - |figure-held UNION cannot-sum|
+ *           "every addressable row that can be annotated WITHOUT a [0 mark] step,
+ *            and that Rule 5 does not hold, becomes publishable."
+ *
+ * ★ 4,822 IS THE AUTHORITATIVE ACHIEVABLE FIGURE. Owner ruling 6 (2026-09-03) CLOSED
+ * [FU-STEPMARK-ZERO-MARK-STEPS] as REFUSED, so the cannot-sum rows are permanently
+ * unrecoverable by annotation and 5,244 overstates what this track can reach.
+ *
+ * ⚠ THE TWO EXCLUDED SETS OVERLAP; THEY ARE NOT DISJOINT AND NEITHER IS NESTED.
+ * 24 addressable rows are BOTH figure-held AND cannot-sum. Subtracting the two counts
+ * independently double-counts those 24 and yields 4,798, which is wrong. The gap
+ * 5,244 - 4,822 = 422 is therefore NOT the cannot-sum count (that is 446) -- it is
+ * the cannot-sum rows that are not ALREADY excluded as figure-held: 446 - 24 = 422.
+ *
+ * ★ BOTH FIGURES ARE INVARIANT UNDER THIS LANE'S OPERATION, which is why they still
+ * measure the same after three batches. Annotating a non-figure row moves one row from
+ * `addressable` to `publishable`; annotating a figure-held row removes it from
+ * `addressable` and from the figure-held set at once. Either way the expression is
+ * conserved. A batch that MOVES these numbers has done something other than annotate.
+ */
+describe("the achievable ceiling — ruling 5", () => {
+  const figureHeld = (q: (typeof canonicalQuestionBank)[number]) =>
+    Boolean((q as { requiresDiagram?: boolean }).requiresDiagram) ||
+    demandsSuppliedFigure(`${q.questionText}\n${q.answer ?? ""}`);
+
+  /** A row can be annotated iff its unmarked steps can each take at least 0.5 and
+   *  the remainder lands on the 0.5 grid. `[0 mark]` is refused (ruling 6). */
+  const canBeAnnotated = (q: (typeof canonicalQuestionBank)[number]) => {
+    const steps = q.solutionSteps ?? [];
+    if (steps.length === 0) return false;
+    const existing = steps.map(stepMarks);
+    const unmarked = existing.filter((m) => m === null).length;
+    if (unmarked === 0) return false;
+    const remaining = q.marks - existing.reduce((a: number, m) => a + (m ?? 0), 0);
+    return (
+      remaining >= 0.5 * unmarked - 1e-9 &&
+      Math.abs(remaining * 2 - Math.round(remaining * 2)) < 1e-9
+    );
+  };
+
+  it("4,822 is the achievable publishable ceiling, and 5,244 is not", () => {
+    const publishable = canonicalQuestionBank.filter((q) => isPublishable(q, AI).ok).length;
+    const addressable = canonicalQuestionBank.filter((q) => {
+      if (AI.has(q.id)) return false;
+      const v = isPublishable(q, AI);
+      return !v.ok && (v.reason === "unmarked-step" || v.reason === "no-solution-steps");
+    });
+
+    const held = addressable.filter(figureHeld).length;
+    const cannotSum = addressable.filter((q) => !canBeAnnotated(q)).length;
+    const excluded = addressable.filter((q) => figureHeld(q) || !canBeAnnotated(q)).length;
+
+    // the two excluded sets OVERLAP by 24 — this is the assertion the controller's
+    // arithmetic would have got wrong, and it is why 4,822 is not 5,244 minus 446.
+    expect(held + cannotSum - excluded).toBe(24);
+    expect(cannotSum).toBe(446);
+    expect(cannotSum - 24).toBe(422);
+
+    // ✗ NOT the achievable figure: ignores that 422 rows can never be annotated.
+    expect(publishable + addressable.length - held).toBe(5244);
+
+    // ★ THE AUTHORITATIVE ACHIEVABLE FIGURE.
+    expect(publishable + addressable.length - excluded).toBe(4822);
   });
 });
