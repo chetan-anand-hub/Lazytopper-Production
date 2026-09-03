@@ -85,7 +85,7 @@ describe("Welcome — the signed-out desktop landing reaches the policies", () =
  * leave it green. Mutation M2 (a link repointed at an unserved slug) turns this red
  * precisely because the hrefs come out of the rendered page.
  */
-function renderedLegalHrefs(): string[] {
+function renderedFooterHrefs(): string[] {
   const { unmount } = renderWelcome();
   const foot = screen.getByRole("contentinfo", { name: "Legal" });
   const hrefs = within(foot)
@@ -95,12 +95,25 @@ function renderedLegalHrefs(): string[] {
   return hrefs;
 }
 
+/** [LINK-1] The static questions link the footer also carries. Not a /legal/:slug route. */
+const QUESTIONS_HREF = "/questions/class-10/science/light-reflection-and-refraction/";
+
 describe("every slug the landing's legal links point at renders real policy content", () => {
-  const hrefs = renderedLegalHrefs();
+  const allHrefs = renderedFooterHrefs();
+  // ★ The footer also carries the [LINK-1] questions anchor, a plain link into the STATIC
+  // namespace with no /legal/:slug route to render. Narrow to the legal links only. This
+  // does NOT weaken mutation M2: a link repointed at an unserved slug still starts with
+  // "/legal/", so it is still harvested and still turns this red.
+  const hrefs = allHrefs.filter((h) => h.startsWith("/legal/"));
 
   it("harvested the landing's real hrefs (control: the harvest is not empty)", () => {
+    // Still exactly three: a legal link deleted or repointed off /legal/ turns this red,
+    // so the filter above cannot quietly swallow one.
     expect(hrefs.length).toBe(EXPECTED_LABELS.length);
     expect(hrefs.every((h) => h.startsWith("/legal/"))).toBe(true);
+    // ...and the filter must not hide the questions link, which the desktop landing
+    // must also carry — Welcome.tsx is one of the three host pages.
+    expect(allHrefs).toContain(QUESTIONS_HREF);
   });
 
   it.each(hrefs)("%s renders a policy, not the not-found card", (href) => {
