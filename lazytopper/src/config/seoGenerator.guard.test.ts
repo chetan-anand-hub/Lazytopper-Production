@@ -12,6 +12,7 @@ import type { CanonicalQuestion } from "../data/predictionTypes";
 import {
   boardSubject,
   DATE_PLACEHOLDER,
+  jsonLdBlock,
   MIN_QUESTIONS,
   MAX_QUESTIONS,
   dependsOnSuppliedFigure,
@@ -62,6 +63,25 @@ const REPO_ROOT = resolve(LAZYTOPPER_ROOT, "..");
 const PUBLIC_ROOT = resolve(LAZYTOPPER_ROOT, "public");
 const VERCEL_JSON = resolve(REPO_ROOT, "vercel.json");
 const SITEMAP = resolve(PUBLIC_ROOT, "sitemap.xml");
+
+/**
+ * ★★ ONE DEFINITION OF "AN EXECUTABLE SCRIPT", USED AT EVERY CALL SITE.
+ *
+ * ⚠ THERE WERE BRIEFLY TWO, AND CODEQL CAUGHT THE WEAKER ONE. ENGINE-0 had this
+ * form; ENGINE-1 then wrote a second one over a bare script-tag match, which is CASE
+ * SENSITIVE — `<SCRIPT>` never matched, so its loop body never ran and the
+ * assertion passed unconditionally. CodeQL flagged it HIGH as
+ * "Bad HTML filtering regexp: does not match upper case <SCRIPT> tags".
+ *
+ * The duplicate is deleted rather than repaired. Repairing a copy leaves two
+ * definitions where one will drift — which is the defect this whole PR exists to
+ * close, and the same reasoning that made the hub delegate its JSON-LD escaping
+ * instead of keeping its own.
+ *
+ * `/i` is load-bearing: HTML tag names are case-insensitive, so a filter that is
+ * not is bypassable by typing `<ScRiPt>`.
+ */
+const EXECUTABLE_SCRIPT = /<script(?![^>]*type="application\/ld\+json")/i;
 
 const PAGE = PAGES[0];
 const PAGE_FILE = resolve(PUBLIC_ROOT, `.${PAGE.urlPath}index.html`);
@@ -728,7 +748,7 @@ describe("ENGINE-0 · §3.6 the sitemap entry resolves through the new rewrite",
     // ★ NO CLIENT-SIDE RENDERING. A page whose content arrives via JS is exactly
     // the defect this lane exists to fix, and it would still pass every check
     // above if the text were also inlined in a script.
-    expect(html).not.toMatch(/<script(?![^>]*type="application\/ld\+json")/i);
+    expect(html).not.toMatch(EXECUTABLE_SCRIPT);
     expect(html).not.toContain("<div id=\"root\">");
   });
 
@@ -1202,17 +1222,65 @@ describe("ENGINE-1 · every emitted page, not just the first", () => {
     }
   });
 
+
+  it("★★ THE JSON-LD CLOSING-TAG ESCAPE IS REAL — the no-op CodeQL found cannot return", () => {
+    // ⚠ NOTHING ASSERTED THIS BEFORE, WHICH IS EXACTLY WHY IT ROTTED. The hub kept a
+    //    second copy of this escape written with a single backslash, so it replaced
+    //    `</` with itself. 2,004 tests, both matrices and the build all passed over
+    //    it; only CodeQL saw it. An assertion is what stops the next copy.
+    const BACKSLASH = String.fromCharCode(92);
+    const danger = { name: "closes early </script> here" };
+
+    const out = jsonLdBlock(danger);
+    // The raw sequence must NOT survive...
+    expect(out, "a raw </ survived into a JSON-LD block").not.toContain("</");
+    // ...and must appear in its escaped form, which is what makes it inert.
+    expect(out).toContain(BACKSLASH + "/script>");
+    // It is still valid JSON once parsed (the escape is JSON-legal).
+    expect(JSON.parse(out).name).toBe(danger.name);
+
+    // ★ CONTROL — a no-op replacement would leave the raw sequence intact. This is
+    //   the exact defect, reconstructed, so the assertion above is shown to
+    //   discriminate rather than to pass for want of a subject.
+    const noop = JSON.stringify(danger, null, 2).split("</").join("</");
+    expect(noop).toContain("</");
+    expect(noop).not.toContain(BACKSLASH + "/script>");
+  });
+
   it("★ NO PAGE LEAKS A FIGURE ASSET, RAW LaTeX, OR AN EXECUTABLE SCRIPT", () => {
+    // ⚠ THE LaTeX CHECK IS A LITERAL-STRING SEARCH BUILT FROM A CHAR CODE, NOT A
+    //    REGEX LITERAL, AND THAT IS THE WHOLE POINT.
+    //
+    //    This assertion previously read `/\dfrac|\text\{/`. A doubled backslash
+    //    collapsed to a single one on the way into the file, so the regex meant
+    //    `\d` = ANY DIGIT and `\t` = TAB. Measured: it matched "7frac" and did NOT
+    //    match a real `\dfrac`. It was a FALSE GREEN — an assertion that read as
+    //    coverage and tested nothing — and unlike its two neighbours NO TOOL EVER
+    //    FLAGGED IT. It surfaced only because CodeQL's two alerts prompted a sweep.
+    //
+    //    A literal-string search built from `String.fromCharCode(92)` cannot be
+    //    corrupted that way: there is no escape for a write path to collapse. The
+    //    control at the foot of this test proves it fires.
+    const BACKSLASH = String.fromCharCode(92);
     for (const p of PAGES) {
       const html = readPage(p.urlPath);
       expect(html, `${p.topicKey} references notes/assets`).not.toContain("notes/assets");
-      expect(html, `${p.topicKey} has raw LaTeX`).not.toMatch(/\dfrac|\text\{/);
-      // A crawler that runs NO JavaScript must see everything, so the only scripts
-      // on the page may be JSON-LD data blocks.
-      for (const m of html.matchAll(/<script([^>]*)>/g)) {
-        expect(m[1], `${p.topicKey} has an executable script`).toContain("application/ld+json");
-      }
+      expect(html, `${p.topicKey} ships raw LaTeX: dfrac`).not.toContain(BACKSLASH + "dfrac");
+      expect(html, `${p.topicKey} ships raw LaTeX: text{`).not.toContain(BACKSLASH + "text{");
+      // ★ ONE definition of "an executable script" — see EXECUTABLE_SCRIPT. A
+      //   crawler that runs NO JavaScript must see everything, so the only script
+      //   blocks allowed are JSON-LD data.
+      expect(html, `${p.topicKey} has an executable script`).not.toMatch(EXECUTABLE_SCRIPT);
     }
+
+    // ★★ CONTROLS — both directions, so the check cannot pass for want of a subject.
+    const planted = `the formula is $${BACKSLASH}dfrac{1}{2}$ here`;
+    expect(planted).toContain(BACKSLASH + "dfrac");
+    expect("a clean sentence with no maths in it").not.toContain(BACKSLASH + "dfrac");
+    // ...and the executable-script pattern really rejects an upper-case tag, which
+    // is exactly what the deleted duplicate could not do.
+    expect("<SCRIPT>alert(1)</SCRIPT>").toMatch(EXECUTABLE_SCRIPT);
+    expect('<script type="application/ld+json">{}</script>').not.toMatch(EXECUTABLE_SCRIPT);
   });
 });
 

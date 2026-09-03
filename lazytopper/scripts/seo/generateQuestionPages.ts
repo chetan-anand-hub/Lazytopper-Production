@@ -36,6 +36,8 @@ import {
   renderPage,
   selectQuestions,
   type NoteSpec,
+  escapeHtml,
+  jsonLdBlock,
 } from "./questionPageModel";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -327,9 +329,10 @@ function renderHub(input: {
   crossLinks: ReadonlyArray<{ urlPath: string; title: string }>;
 }): string {
   const canonical = `${ORIGIN}${input.urlPath}`;
-  const esc = (s: string) => s
-    .replace(/&(?!(?:#\d+|#[xX][0-9a-fA-F]+|[A-Za-z][A-Za-z0-9]*);)/g, "&amp;")
-    .replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  // ★ DELEGATED, NOT DUPLICATED. The hub had its own four-replacement copy of
+  //   `escapeHtml`; a second copy of the JSON-LD escape right beside it had already
+  //   drifted into a no-op (CodeQL MEDIUM). One definition, imported.
+  const esc = escapeHtml;
 
   const rows = input.children
     .map(
@@ -358,7 +361,7 @@ function renderHub(input: {
       url: `${ORIGIN}${c.urlPath}`,
     })),
   };
-  const jsonLd = JSON.stringify(itemList, null, 2).replace(/<\//g, "<\/");
+  const jsonLd = jsonLdBlock(itemList);
 
   return `<!doctype html>
 <html lang="en">

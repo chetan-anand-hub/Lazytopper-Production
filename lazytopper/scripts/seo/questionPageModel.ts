@@ -421,6 +421,23 @@ export interface PageInput {
  * `questions.length`. Nothing here is typed in by hand, so a test can check any
  * of them against its source rather than against a copy of itself.
  */
+/**
+ * ★★ THE ONE JSON-LD SERIALISER. Exported so the hub renderer in
+ * `generateQuestionPages.ts` CALLS it instead of keeping a second copy.
+ *
+ * ⚠ THERE WAS A SECOND COPY, AND IT WAS BROKEN. The hub's own version wrote the
+ * closing-tag escape with a single backslash, which JavaScript collapses, so it
+ * replaced `</` WITH ITSELF — a no-op. CodeQL flagged it MEDIUM as "Replacement
+ * of a substring with itself". Nothing else caught it: not 2,004 tests, not the
+ * matrices, not the build.
+ *
+ * A `</script>` inside a JSON string value would otherwise close the block early,
+ * which is why this exists at all. One definition, one call path, no drift.
+ */
+export function jsonLdBlock(o: unknown): string {
+  return JSON.stringify(o, null, 2).replace(/<\//g, "<\\/");
+}
+
 export function renderPage(input: PageInput): string {
   const { note, questions, aiGeneratedIds, urlPath, origin } = input;
   const meta = note.meta;
@@ -613,7 +630,6 @@ export function renderPage(input: PageInput): string {
 
   // ★ `</script>` inside JSON would close the block early. There is none today,
   // but the escape is one line and its absence is a silent XSS-shaped bug.
-  const jsonLd = (o: unknown) => JSON.stringify(o, null, 2).replace(/<\//g, "<\\/");
 
   const description =
     `${questions.length} step-marked CBSE Class 10 ${subject} questions on ` +
@@ -670,10 +686,10 @@ dl dd{margin:2px 0 0 0;color:#3b4a5e}
 footer.site{border-top:1px solid var(--line);margin-top:40px;padding-top:14px;color:#5b6b80;font-size:.85rem}
 </style>
 <script type="application/ld+json">
-${jsonLd(learningResource)}
+${jsonLdBlock(learningResource)}
 </script>
 <script type="application/ld+json">
-${jsonLd(quiz)}
+${jsonLdBlock(quiz)}
 </script>
 </head>
 <body>
