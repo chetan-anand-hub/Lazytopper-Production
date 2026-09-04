@@ -11,8 +11,11 @@ does not will re-litigate the trailing slash and rediscover the doorway line.
 
 ## 1 · ROUTING
 
-**R1 · Static pages live in `lazytopper/public/questions/**` and are exposed by ONE
-`vercel.json` rewrite.** Not `dist/public`. Vercel's Output Directory is a **dashboard
+**R1 · SUPERSEDED (RETIRE-1). Static pages LIVED in `lazytopper/public/questions/**` and
+were exposed by ONE `vercel.json` rewrite.** The pages, the rewrite and the sitemap entry
+have been removed: the notes get their own route on the product’s own URL instead, with
+a fourth CBQ tab carrying five competency-based questions per chapter. The reasoning
+below is retained because it still governs any future static surface. Not `dist/public`. Vercel's Output Directory is a **dashboard
 setting absent from git** — no gate can check it, so nothing load-bearing may depend on
 it. The chosen route reuses the mechanism already serving `robots.txt` and 105 pages at
 `/app/visuals/…`. *(ENGINE-0, #714)*
@@ -90,9 +93,11 @@ distributed at volume and not every scraper follows a redirect on an image fetch
 
 ## 4 · MEASUREMENT
 
-**M1 · Gate A — technical, 3–7 days after submission.** Does Google index a
-`/questions/` URL at all? **If Gate A passes, ENGINE-1 is safe to build.** No traffic
-data needed to know the plumbing works.
+**M1 · Gate A — SUPERSEDED (RETIRE-1), never measured.** It asked whether Google would
+index a `/questions/` URL at all, to decide whether ENGINE-1 was safe to build. The owner
+ruled a different design before the window elapsed and the static space was retired, so
+there is no `/questions/` URL left to index. The equivalent question now attaches to the
+notes route.
 
 **M2 · Gate B — commercial, 2–4 weeks.** Does an organic visitor start a trial? Decides
 investment in volume and quality, not whether to scale at all.
