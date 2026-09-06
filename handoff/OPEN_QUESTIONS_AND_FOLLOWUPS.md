@@ -18,6 +18,196 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ---
 
+## 2026-09-04 — WAVE CONTENT-1 — new follow-ups (trunk `a18fa645`, re-derived with `git ls-remote origin base/approved-thru-437`; `#725` merged; `#726` OPEN DRAFT on `lane/quarantine-1b`)
+
+**`2026-09-04`** · docs-only lane `DOCS-1`. **Every count and file reference below is inherited from
+the lane that measured it, at the SHA stated beside it.** `#726` is an **open draft at the time of
+writing, not merged** — every claim attributed to it is true **on its branch**, not on trunk. Where a
+claim below names a line number, LOCATE BY TEXT: this wave has had anchors wrong three times.
+
+### `[FU-FND-L-BD-07-MASKED-BY-MISSING-ID]` — **NEW. ⚠ MUST NOT BE CLOSED BY OBSERVING THE FAILURE "WENT AWAY".**
+
+**Raised by** QUARANTINE-1 Phase B (`#726`). **Owner of the exit:** the ENGINE-1 regeneration pass.
+
+`seoGenerator.guard.test.ts` was **already red on trunk** before QUARANTINE-1 touched anything.
+Demonstrated on the clean tree at `ae1cad75`, **before the first edit**:
+
+```
+Test Files  1 failed | 1 passed (2)
+     Tests  1 failed | 42 passed (43)
+
+FAIL §3.6 > THE ACCEPTANCE SHAPE
+AssertionError: question FND-L-BD-07's text is not present in the raw HTML —
+GPTBot, ClaudeBot and PerplexityBot would see nothing: expected false to be true
+```
+
+That is a Windows CRLF artefact that **reportedly** passes on the linux CI runner.
+
+⇒ **THE PROBLEM IS THAT IT IS NOW MASKED, NOT FIXED.** After the withholding, that same test still
+fails — but **with a different message**:
+
+```
+AssertionError: emitted question id PYQ-S-LIGHT-011 is not in the canonical bank
+    at seoGenerator.guard.test.ts:73
+```
+
+The bank lookup at `:73` throws **before** the CRLF comparison is ever reached, so the
+`FND-L-BD-07` assertion **no longer executes at all**. It is not fixed, not disproved, and no longer
+observable — it is hidden behind an earlier failure inside the same test.
+
+★★ **THIS IS THE SHAPE THAT CLOSES A REAL DEFECT BY ACCIDENT: A FAILURE THAT STOPS BEING *PRINTED*
+READS EXACTLY LIKE A FAILURE THAT STOPPED *HAPPENING*.**
+
+⛔ **EXIT CONDITION — THE ONLY WAY TO CLOSE THIS, AND IT MUST SURVIVE INTO WHATEVER BRIEF ACTS ON IT.**
+After ENGINE-1 regenerates `lazytopper/public/questions/**` and the `:73` lookup stops throwing,
+**re-run `seoGenerator.guard.test.ts` and record which of these two is true:**
+
+- **(A) `FND-L-BD-07` STILL FAILS** — the CRLF defect survived and was merely hidden. **Log it as a
+  live defect, on its own, with the platform it reproduces on.** Close this FU as *"confirmed still
+  present"* and open the CRLF issue separately.
+- **(B) `FND-L-BD-07` PASSES** — state **why**, and the reason must be a **mechanism, not a
+  coincidence**: regeneration rewrote that page's line endings. Close this FU as *"fixed by
+  regeneration"*, **naming the commit that regenerated the page**.
+
+⚠⚠ **NEITHER BRANCH IS CLOSABLE FROM A GREEN TICK.** Quote the invocation and the `Tests N passed (N)`
+line, and **confirm the `THE ACCEPTANCE SHAPE` test actually RAN** — a test that is green because an
+earlier throw was removed is not the same as a test that is green because the thing it asserts is true.
+
+**Scope note that makes the exit cheap.** The `:73` throw in this repo's tree comes from exactly
+**one tracked page**: `lazytopper/public/questions/class-10/science/light-reflection-and-refraction/index.html`,
+which contains the withheld ids `PYQ-S-LIGHT-011` and `PYQ-S-LIGHT-012`. **Regenerating that single
+page clears the mask.** The other five ids named in the Phase B brief (`PYQ-M-AP-007`,
+`PYQ-S-2024-CHEMRXN-006`, `-007`, `-014`, `-017`) sit in pages that exist only on ENGINE-1's `#723`
+branch and are **not tracked on trunk**, so they contribute no red here.
+
+### `[FU-HARNESS-BLOCKS-SUBAGENT-REPORT-WRITES]` — **NEW. SUPERSEDES the narrower `[FU-QUAR1-HEREDOC-TRUNCATION]`.**
+
+**Reported by a later lane: the subagent harness blocks report/summary `.md` writes OUTRIGHT** — a
+lane instructed to save its report to a file cannot do so, the write being refused rather than
+merely truncated.
+
+⚠⚠ **ATTRIBUTION AND SCOPE, BECAUSE THIS LANE COULD NOT REPRODUCE THE ABSOLUTE FORM.** `DOCS-1`
+**did** reproduce the heredoc truncation (a long `cat >` died with *"unexpected EOF while looking
+for matching quote"*), but it **also successfully wrote a `.md` into the very report directory**
+the block is said to cover — a `cp` of the 15,861-byte corrected spec into
+`…/Desktop/diff/SEO Fix/Report/` returned 0 and the copy verified by hash. ⇒ **The constraint is
+therefore narrower or more conditional than "outright", and its MECHANISM IS NOT YET ESTABLISHED.**
+Do not cite the absolute form as settled — cite it as *reported, with one contrary observation on
+record*. **The follow-up owed is the mechanism: which tool, which path, which size.**
+
+⚠ **ON THE ID THIS SUPERSEDES.** A sibling lane found that a long `cat >` heredoc **truncates**, and
+named that narrower finding `[FU-QUAR1-HEREDOC-TRUNCATION]`. **That id was never landed on this
+board** — verified at `a18fa645`: `grep -rn 'QUAR1-HEREDOC' --include=*.md .` returns **ZERO** across
+the whole repo. It is named here **only so the earlier diagnosis is not lost**, and **this entry is
+its body**, so Standing Rule 1 is satisfied rather than breached: there is no dangling reference to a
+definition living somewhere else, because there is no somewhere else. The narrower reading was
+**wrong about the mechanism** — the heredoc was not the constraint; report writes are blocked
+whatever mechanism attempts them. *(The truncation is real and reproduced again by this lane; it is
+a second, independent constraint, not the same one.)*
+
+⇒ ★★ **THE CONSEQUENCE THAT MUST BE CARRIED INTO EVERY FUTURE BRIEF: BRIEFS MUST EXPECT THE REPORT AS
+TEXT, TRANSCRIBED BY THE CONTROLLER.** A brief that says *"save your report to
+`…/Desktop/diff/report-X.md`"* commissions an impossible step, and the lane then either fights the
+harness or drops the report.
+
+⚠⚠ **AND THE REAL HAZARD IS DATA LOSS, NOT INCONVENIENCE: A LANE'S RETURN MESSAGE IS THEN THE ONLY
+COPY OF ITS REPORT UNTIL IT IS TRANSCRIBED.** It is not on disk, it is not in git, and it does not
+survive the session. **Transcription is therefore a required controller step, not a tidying-up step**
+— and it must happen before the next lane is dispatched, not at wave close.
+
+### `[FU-FOOTER-LINK-RESTORE-ON-NOTES-ROUTE]` — **NEW. OWNER-RULED. THE WHOLE POINT OF LINK-1, RECORDED SO IT IS NOT FORGOTTEN.**
+
+⚠ **Not to be confused with `[FU-LEGAL-FOOTER-LINK]`** (closed by `#608`/`#609`), which concerned the
+`/legal/:slug` pages. **This is a different link and a different space.**
+
+**RETIRE-1 removes the footer link to the static `/questions` space** (P10, Option B — owner-ruled).
+`#725` had just given those pages their first inbound link; RETIRE-1 takes it back out.
+
+⛔ **EXIT CONDITION — THE LINK RETURNS WHEN `/app/notes` EXISTS AND IS PRERENDERED.** Both halves are
+required: **the route existing is not sufficient**, because an inbound link to a route that renders
+only the SPA shell to a crawler restores the *appearance* of the fix without the fix. *(META-3
+doctrine, already on this board: a `200` is not evidence a route exists — `/app/:path*` serves the
+SPA shell to anything that asks.)*
+
+★ **THIS ENTRY EXISTS BECAUSE THE RESTORE IS THE ENTIRE PURPOSE OF LINK-1, AND A REMOVAL WITH NO
+RECORDED RESTORE CONDITION IS INDISTINGUISHABLE FROM AN ABANDONMENT.** The removal will look
+deliberate and finished in the diff; nothing in the product will remember that it is a **temporary**
+state pending `/app/notes`.
+
+### `[FU-PIN-ERODES-TO-VACUITY]` — **NEW. A FAILURE SHAPE WORTH THE RECORD IN ITS OWN RIGHT.**
+
+**This is not a silent no-op.** The assertion is **live**, it **runs**, and it **fails when mutated**.
+The defect is that **its EVIDENCE decays every time it is honestly updated.**
+
+**The instance.** `publishability.guard.test.ts` carries a control pinning *"the four 2023 'draw a ray
+diagram' rows"* — `toHaveLength(4)` plus the four ids `PYQ-S-LIGHT-006 / -011 / -013 / -015`. That
+control exists because **a naive filter banning `"diagram"` once deleted every genuine 2023 board
+question while all gates stayed green.**
+
+Two of its four rows leave the *filtered* bank under QUARANTINE-1 for a reason that has **nothing to
+do with the figure rule** — glyph damage. **The naive fix is to renumber `toHaveLength(4)` → `(2)` and
+drop two ids. That halves the evidence the control carries while keeping it green** — and repeated
+across withholding batches it arrives at `toHaveLength(0)`: **a control that asserts nothing, still
+passing, still looking like coverage.**
+
+⇒ ★★★ **THE GENERAL RULE, WHICH IS WHY THIS IS A BOARD ENTRY AND NOT A CODE COMMENT: A CONTROL THAT
+PROVES A RULE IS NOT OVER-BROAD MUST BE ASSERTED AGAINST THE UNFILTERED POPULATION.** Coupling it to a
+publication filter lets an **unrelated** decision silently drain its evidence while it reports green.
+
+**The cure, applied on `#726` — ⚠ an OPEN DRAFT at the time of writing, so this is true on
+`lane/quarantine-1b`, NOT on trunk.** Re-express the control against `RAW_CANONICAL_QUESTION_BANK` —
+the raw concatenation, **before** `WITHHELD_QUESTION_IDS` is applied. All four rows still **exist**;
+only their eligibility to be *published* changed. The count stays **4** and the id list stays intact,
+**immune to both quarantine and RECOVER-1**.
+
+⚠ `RAW_CANONICAL_QUESTION_BANK` is exported from `canonicalQuestionBank.ts` **for guards and tooling
+ONLY** — **product code must keep importing `canonicalQuestionBank`, or withheld rows stop being
+withheld.**
+
+**Mutation-proven on `#726`:** pointing the control back at the filtered bank fails with
+*"expected [ …(2) ] to have a length of 4 but got 2"*, with the mutation shown applied
+(`0af2e4c7` → `5eb0d82f`) and the restore hash-verified. **The re-expression is load-bearing, not
+cosmetic.**
+
+### `[FU-QUARANTINE-1-SPEC-HAS-NO-TRACKED-HOME]` — **NEW. ⚠ RAISED BY THIS LANE, NOT IN ITS BRIEF. A DELIVERABLE THIS LANE COULD NOT LAND. OWNER RULES.**
+
+**This lane was briefed to carry TWO files: `ops/.specs/QUARANTINE-1.md` (v1.1 → v1.2) and this
+board. IT COULD LAND ONLY THIS BOARD.**
+
+⛔ **`ops/.specs/` IS GITIGNORED, DELIBERATELY.** Verified at `a18fa645`:
+`git check-ignore -v ops/.specs/QUARANTINE-1.md` → `.gitignore:107`, whose own comment reads
+***"Agent instruction files saved by lanes for the premise gate. Never committed."*** The rule was
+landed by **merged `#648`**, and the reason is recorded as **OPS-1 decision D1**: *"Instruction files
+placed in gitignored `ops/.specs/`, not `ops/` proper, so an untracked spec cannot be swept into
+OPS-A's preservation commit."* `git ls-files ops/` returns **10 tracked files, none under `.specs/`**.
+
+⇒ **The spec could only be committed with `git add -f`, knowingly overriding a merged,
+twice-documented doctrine line. This lane did not do that.** Choosing a *different*, tracked home for
+the spec is a scope decision this lane was not granted either.
+
+**STATE OF THE CORRECTIONS.** The v1.2 corrections themselves are **written and verified** — four
+substantive corrections to v1.1 (**FOUR pinned counts move, not two** · the `garbled` reason tag is at
+**`:1705`, not `:1708`** · the **trailing-whitespace trim** is load-bearing for exactly one row,
+`SCQ-S-METAL-044` · **esbuild's win32 binary is stripped by the same `supportedArchitectures` pin in
+`pnpm-workspace.yaml` that strips rollup's**, so §2's recipe is not runnable on Windows as written),
+plus the re-expression rule now recorded above as `[FU-PIN-ERODES-TO-VACUITY]` and the lesson that
+**a number quoted in conversation carries no SHA, and the same quantity at two SHAs is two
+quantities** (the set was 31 at `abfb1e81` and 35 at `ae1cad75`; **neither reading was wrong**).
+
+⚠⚠ **THEY ARE NOT IN GIT.** They live in an untracked working copy and in this lane's return message.
+**This is precisely the failure mode the corrections document was written to prevent**, and it
+compounds with `[FU-HARNESS-BLOCKS-SUBAGENT-REPORT-WRITES]` above.
+
+⇒ ⛔ **OWED. THE OWNER RULES WHERE A LANE SPEC LIVES WHEN ITS CORRECTIONS MUST OUTLIVE THE LANE.**
+Three options, stated so the ruling is a choice and not an invention: **(i)** a tracked path under
+`ops/` proper — the D1 rationale argues against `ops/.specs/` specifically, not against `ops/`;
+**(ii)** a `handoff/` document, which is tracked and which lanes already read; **(iii)** accept that
+specs are ephemeral and require corrections to be transcribed onto **this board** instead — in which
+case the paragraph above is the durable record, and `ops/.specs/QUARANTINE-1.md` should be left at
+v1.1 to die with the lane.
+
+---
+
 ## 2026-08-27 — WAVE MI-INTEGRITY-10 — new, re-stated and closed follow-ups (trunk `02fa7c0a`; `#703` · `#704` · `#706` · `#707` all merged; `#708` OPEN)
 
 **`2026-08-27`** · docs-only lane `HANDOFF-MI10`. **Every `file:line` below is inherited from a lane,

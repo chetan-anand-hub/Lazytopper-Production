@@ -580,10 +580,17 @@ function resolveAgainstRouteTable(urlPath: string): RouteVerdict {
  *
  * That reasoning is about the SHELL. It does not reach a URL that resolves to a
  * REAL STATIC FILE, because there is no shell in the picture: the bytes on the
- * wire ARE the page. ENGINE-0 ships exactly that — pre-rendered question pages
- * under `public/questions/**`, reached at the root through the
- * `/questions/:path* -> /app/questions/:path*` rewrite, whose entire purpose is
- * to be readable by a crawler that runs no JavaScript. Such a URL has no
+ * wire ARE the page. ENGINE-0 shipped exactly that — pre-rendered question pages
+ * under `public/questions/**`, reached at the root through a dedicated rewrite,
+ * whose entire purpose was to be readable by a crawler that runs no JavaScript.
+ *
+ * ★★ THAT ARC WAS RETIRED (RETIRE-1). The pages, the rewrite and the sitemap
+ * entry are all gone, so nothing is classified as a static page today and the
+ * loop below iterates an EMPTY list — honestly, not vacuously: no assertion here
+ * ever required it to be non-empty. The escape is KEPT because it is generic,
+ * keying on "a real file that is not the SPA shell" rather than on any URL
+ * prefix, and the notes route that supersedes the arc is expected to be
+ * pre-rendered in the same way. Such a URL has no
  * `<Route>` and must never have one; demanding it prove otherwise would be this
  * check firing outside the defect it was built for.
  *
@@ -734,7 +741,9 @@ describe("crawler reachability — every URL the app advertises resolves to some
     // Measured live 2026-08-31 on www.lazytopper.com: /app/pricing/ and
     // /app/exam-trends/ — two of this domain's three indexable URLs — both 404,
     // while their slashless twins returned 200. The cure is the SAME construction
-    // already proven live by rewrite [7], `/questions/:path(.*)`, shipped in #714.
+    // first proven live by the `/questions/:path(.*)` rewrite shipped in #714. That
+    // rewrite has since been removed with the static arc (RETIRE-1), but the `(.*)`
+    // form it validated is exactly what the `/app/` catch-all below still relies on.
     //
     // ★ The destination could not have been at fault: `/app/index.html` is a
     // LITERAL, always-present file that cannot fail to resolve. If the destination
