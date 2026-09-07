@@ -18,6 +18,193 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ---
 
+## 2026-09-07 — WAVE CONTENT-1 (continued) — new, RESOLVED and CORRECTED follow-ups (trunk `d3abdccc102728b84a30803721557f1f2e2c1b71`, re-derived with `git ls-remote origin base/approved-thru-437`; `#728` RETIRE-1 and `#726` QUARANTINE-1 both MERGED since the 2026-09-04 section below was written)
+
+**`2026-09-07`** · docs-only lane `DOCS-2`, recorded on `#729`. **Trunk moved twice while this lane
+was open** — `2a74bec3` → `4c4e1129` (`#728`) → `d3abdccc` (`#726`) — and every claim below was
+re-verified against `d3abdccc` in a worktree, not inherited from the brief that commissioned it.
+
+⚠ **TWO ENTRIES BELOW CORRECT ENTRIES IN THE 2026-09-04 SECTION AND DO NOT REWRITE THEM.**
+**Standing Rule 3** forbids rewriting a dated entry to match today's facts — *"record the correction
+in the current section and leave the old entry as written."* The originals are therefore intact
+below, exit conditions and all; these are their superseding bodies. **The instruction this lane was
+given said "update" and "rewrite"; the board's own standing rule says otherwise, and the standing
+rule wins.** A reader who lands on the older entry first must reach this section, so each original
+also carries a one-line forward pointer — **additive only, nothing deleted or reworded.**
+
+### `[FU-SEO-DECISIONS-M1-GATE-A-UNMEASURABLE]` — **NEW. OWNER-RULED. A GATE THAT WAS NEVER MEASURED AND CAN NEVER NOW BE MEASURED.**
+
+**Owner's framing, recorded in his words:** *"A gate nobody ran and nobody can run is worth more on
+the board than in a report."* **That is why this is an FU and not a line in a lane report.**
+
+`docs/SEO_DECISIONS.md`'s **M1 Gate A was never measured, and is now unmeasurable** — the surface it
+gated has been **deleted by `#728` (RETIRE-1)**. There is no tree at which it could be run: the
+static `/questions` arc it asked a question about does not exist on trunk any more.
+
+**Verified at `d3abdccc`:** `docs/SEO_DECISIONS.md:96` now reads *"M1 · Gate A — SUPERSEDED
+(RETIRE-1), never measured."* — so the document already carries the fact. **This entry exists
+because a superseded line inside a decisions doc is not a follow-up**; it records no owed action and
+scrolls away. The board is where an unmeasured gate stays visible.
+
+**Also recorded:** **R1 and M1 were live claims about a now-deleted surface, and were rewritten to
+past tense.** That rewrite is correct and is not in question. What must not be lost is *that it
+happened* — a doc whose tense was quietly migrated reads, later, as though it had always described
+history, and the fact that these were once **live commitments** disappears with the tense.
+
+⛔ **THIS FU DOES NOT HAVE A "RE-RUN IT" EXIT.** Do not open it expecting to close it by measuring
+something. It closes only if `/app/notes` is prerendered and someone **frames a NEW gate** for that
+surface — in which case close this and cite the new gate's id. **Closing it by asserting the old gate
+passed is the one forbidden outcome**, since nothing was ever measured.
+
+### `[FU-FND-L-BD-07-MASKED-BY-MISSING-ID]` — **RESOLVED-BY-RETIREMENT. ⚠ A THIRD OUTCOME ITS OWN EXIT CONDITION DID NOT ANTICIPATE.**
+
+**This is the resolution of the entry of the same id in the 2026-09-04 section below.** That entry
+is left exactly as written, **including its exit condition, deliberately** — a reader must be able to
+see *why a third branch was needed*, and an exit condition edited after the fact to match the outcome
+teaches nothing.
+
+⇒ **THE EXIT CONDITION OFFERED ONLY TWO BRANCHES: (A) `FND-L-BD-07` STILL FAILS, or (B) IT PASSES.
+NEITHER HAPPENED.**
+
+★★★ **THE ASSERTION DID NOT PASS AND DID NOT FAIL — ITS SUBJECT WAS RETIRED.**
+`lazytopper/src/config/seoGenerator.guard.test.ts` was **DELETED by `#728`**, together with the
+generator and the emitted pages it guarded.
+
+**Verified at `d3abdccc`, four ways:**
+
+- `git ls-files lazytopper/src/config/seoGenerator.guard.test.ts` → **0 rows**; absent from disk.
+- `git log --diff-filter=D` names the deleting commit: **`4c4e1129`** *(RETIRE-1, `#728`)*.
+- **No surviving test asserts `FND-L-BD-07`.** A repo-wide grep across `*.ts` / `*.tsx` / `*.mjs` /
+  `*.cjs` (excluding `node_modules`) returns **exactly two hits, both DATA**, in
+  `…/light-reflection-and-refraction.fnd.ts` — the row definition and an id list. **Zero test hits.**
+- **The bank row is untouched and was never one of the 35.** It does not appear in
+  `canonicalQuestionBank.ts`'s withheld set.
+
+⇒ ★★ **THE QUESTION IS NO LONGER ASKABLE — NOT BECAUSE IT WAS ANSWERED, BUT BECAUSE NOTHING RENDERS
+QUESTIONS TO RAW HTML ANY MORE.** The CRLF defect it described is neither confirmed nor disproved.
+**It was never fixed. It stopped having a surface.**
+
+⚠ **WHY THIS MATTERS BEYOND THIS ONE TEST — THE REASON THE ORIGINAL IS PRESERVED.** The original was
+written to stop a real defect being closed by accident, and its author was right to fear that. But
+its two branches assumed **the test would still exist**. **An exit condition that enumerates outcomes
+must include "the subject is gone", or a retirement will be recorded as a fix.** Note the near-miss
+precisely: had `#728` merged silently, the mask would have vanished from every run and the entry's
+own warning — *a failure that stops being printed reads exactly like a failure that stopped
+happening* — would have been realised by the very mechanism it warned about.
+
+★ **CARRY THIS SHAPE:** **RESOLVED-BY-RETIREMENT is a distinct outcome from FIXED and from STILL
+BROKEN, and it must be written down as such.** A defect whose surface is deleted leaves no green
+tick and no red one; it leaves silence, and silence is what both other branches were designed to
+distrust.
+
+### `[FU-LOGIN-NAMECAPTURE-FLAKY-AT-BASE]` — **NEW. A MASKED-FAILURE SHAPE: GREEN ON THE MERGE GATE, RED ON EVERY DEVELOPER'S MACHINE.**
+
+`lazytopper/src/pages/Login.nameCapture.test.tsx` is **red on Windows, FLAKY AT BASE, and green in
+CI.** It is **not** a regression introduced by any lane in this wave.
+
+**Proven by two independent lanes, which is what makes it evidence rather than a suspicion:**
+
+- **Lane 1** checked out **the base itself, in place**, and reproduced the **identical** failures. A
+  failure present on an untouched base cannot have been caused by a branch.
+- **Lane 2** ran the same five files against **effective trunk** and against the branch:
+  **trunk 32 failed vs branch 22**, with the branch's failures a **STRICT SUBSET BY NAME**. ⇒ **zero
+  regressions** — and the branch was, if anything, *better* than the tree it came from.
+
+**The signature that identifies it:** every failure is a **5000 ms timeout** with **ZERO assertion
+failures**, and the count varies — **12 / 22 / 32** across runs — **with load** on a ~7.8 GB box.
+**Nothing is asserting anything false; work is simply not finishing in time.**
+
+⚠⚠ **DO NOT "FIX" THIS BY EDITING ASSERTIONS.** There is no failing assertion to edit. A lane that
+treats a timeout as a wrong expectation will change correct test code until the timing happens to
+pass, and the masked shape gets worse.
+
+★★ **WHY IT IS ON THE BOARD AND NOT IN A LANE REPORT: THE MERGE GATE CANNOT SEE IT.** CI is green,
+so nothing blocks; every developer on Windows sees red, so every lane touching login must first
+spend time proving *"not me"*. **A failure that only the merge gate cannot see is the most expensive
+kind**, because the one place it is invisible is the only place with authority to stop a merge.
+
+⛔ **EXIT — and it is a MECHANISM, not a green run.** A passing run on a quiet box closes nothing:
+this test **already passes intermittently**, which is the whole finding. Close it only by naming
+**what makes the work exceed 5000 ms** (and either raising the timeout **with that reason recorded**,
+or removing the cost), then showing the count is **0 across repeated runs under load** — not one.
+
+### `[FU-HARNESS-BLOCKS-SUBAGENT-REPORT-WRITES]` — **CORRECTED: INVOCATION-SPECIFIC, NOT ABSOLUTE.**
+
+⚠ **This corrects the entry of the same id in the 2026-09-04 section below, which this same lane
+landed on the board at the controller's instruction. THE CORRECTION IS THE CONTROLLER'S, NOT THE
+LANE'S** — recorded here so the attribution is not quietly inherited by whoever reads it next. The
+original entry stands as written, per Standing Rule 3.
+
+**Owner's ruling, in his words:** *"an absolute that is false in two observed cases is worse than no
+entry."*
+
+⇒ **THE ABSOLUTE FORM — "the harness blocks report `.md` writes OUTRIGHT" — IS WITHDRAWN.** There are
+now **two counter-examples**, both observed, not argued:
+
+1. A lane **successfully `cp`'d a 15,861-byte `.md`** into the report directory the block was said to
+   cover; the copy verified by hash. *(Already recorded in the original entry — it was contrary
+   evidence at the time of writing and is now one of the two cases that settle it.)*
+2. A sibling lane **wrote an 877-line report with a shell heredoc, with no truncation.**
+
+★ **COUNTER-EXAMPLE 2 ALSO NARROWS THE OTHER HALF OF THE ORIGINAL.** The 2026-09-04 entry treated
+heredoc truncation as a **second, independent, reproducible constraint**. An 877-line heredoc that
+completed shows **that** is invocation-specific too. ⇒ **Keep the truncation as the ONE reproducible
+instance** — a long `cat >` that died with *"unexpected EOF while looking for matching quote"* — **and
+stop generalising from it.**
+
+⇒ **RESTATED, AND THIS IS THE FORM TO CITE:** **report writes fail under SOME invocations and succeed
+under others; the discriminating variable is NOT YET KNOWN.** The follow-up owed is unchanged and is
+now the entire content of this FU: **which tool, which path, which size, which invocation.**
+
+★ **WHAT SURVIVES THE CORRECTION INTACT — AND IT IS THE PART THAT MATTERS.** *Briefs should still
+expect the report as text.* The reasoning no longer needs the absolute: **if a write may fail
+depending on invocation, a brief that REQUIRES one has a failure mode either way**, and the data-loss
+hazard is unchanged — **a lane's return message is the only copy of its report until transcribed.**
+**Do not weaken the transcription rule on the strength of this correction.**
+
+### `[FU-DELTA-MEASURED-FROM-WRONG-BASE]` — **NEW. ★ THE NUMBER WAS RIGHT; THE QUESTION IT ANSWERED WAS A DIFFERENT ONE.**
+
+**A lane reported `#728`'s trunk-to-trunk delta as 13 files / 248 insertions, and the controller read
+it as this repo's documented squash-merge trap. IT WAS NOT.** It was a **wrong base**.
+
+**Measured three ways, which is what resolved it:**
+
+| measurement | files | insertions | deletions |
+|---|---|---|---|
+| `4c4e112^ → 4c4e112` *(the merge commit itself)* | 12 | 58 | 1991 |
+| `2a74bec3 → pr/728` *(pre-merge branch tip)* | **identical to the row above** | | |
+| `a18fa645 → 4c4e112` *(the reported figure)* | 13 | 248 | 1991 |
+
+⇒ **THE 13 / 248 IS `#727` PLUS `#728`.** It was measured from **`#726`'s own merge-base**, which
+**predates the docs PR** — so `handoff/OPEN_QUESTIONS_AND_FOLLOWUPS.md` and its **190 insertions**
+were counted as RETIRE-1's work. Two commits' worth of change, attributed to one.
+
+★★ **AND HERE IS THE PART THAT MADE IT CONVINCING: THE DELETIONS AGREED AT 1,991 IN ALL THREE
+MEASUREMENTS.** They agreed **precisely because `#727` deleted nothing** — a docs PR that only adds.
+**One component matching exactly is what made a base error look like a squash-merge artefact**, since
+a squash trap also shows a plausible-but-wrong file count against a correct-looking remainder.
+
+⇒ ★★★ **RECORD BOTH RULES, THEY ARE SEPARATE:**
+
+1. **A DELTA IS MEANINGLESS WITHOUT ITS BASE STATED.** "13 files / 248 insertions" is not a fact
+   about `#728`; it is a fact about a **pair of endpoints**. Quote deltas as `<base> → <head>`,
+   always, or they cannot be re-checked — the same failure as a count quoted without its SHA
+   *(`[FU-PIN-ERODES-TO-VACUITY]`'s neighbour lesson, and the QUARANTINE-1 v1.2 closing rule now
+   preserved in `ops/arcs/QUARANTINE-1_corrections.md`)*.
+2. **AGREEMENT ON ONE COMPONENT CAN DISGUISE A WRONG BASE.** A matching deletion count, or any single
+   matching component, is **not** corroboration. **Only re-measurement from a stated base is.**
+
+⚠ **SAME FAMILY AS THE TWO-DOT / THREE-DOT TRAP** (`a..b` vs `a...b`), already known on this board.
+**The shared shape: an endpoint chosen by habit rather than stated by intent, producing a number that
+is internally consistent, reproducible, and about the wrong thing.** Being reproducible is exactly
+why it survives review.
+
+★ **CHEAPEST DEFENCE, AND IT IS ONE LINE:** when a delta matters, **measure it a second way and say
+so**. The disagreement is the signal; here, `4c4e112^ → 4c4e112` against the reported figure exposed
+it immediately.
+
+---
+
 ## 2026-09-04 — WAVE CONTENT-1 — new follow-ups (trunk `a18fa645`, re-derived with `git ls-remote origin base/approved-thru-437`; `#725` merged; `#726` OPEN DRAFT on `lane/quarantine-1b`)
 
 **`2026-09-04`** · docs-only lane `DOCS-1`. **Every count and file reference below is inherited from
@@ -26,6 +213,8 @@ writing, not merged** — every claim attributed to it is true **on its branch**
 claim below names a line number, LOCATE BY TEXT: this wave has had anchors wrong three times.
 
 ### `[FU-FND-L-BD-07-MASKED-BY-MISSING-ID]` — **NEW. ⚠ MUST NOT BE CLOSED BY OBSERVING THE FAILURE "WENT AWAY".**
+
+> ⚠ **RESOLVED-BY-RETIREMENT — SEE THE 2026-09-07 SECTION ABOVE.** The exit condition below offered two branches; **a third occurred** — `seoGenerator.guard.test.ts` was DELETED by `#728`, so the assertion neither passed nor failed. **This entry is left exactly as written (Standing Rule 3), including the exit condition, so a reader can see why a third branch was needed.**
 
 **Raised by** QUARANTINE-1 Phase B (`#726`). **Owner of the exit:** the ENGINE-1 regeneration pass.
 
@@ -81,6 +270,8 @@ page clears the mask.** The other five ids named in the Phase B brief (`PYQ-M-AP
 branch and are **not tracked on trunk**, so they contribute no red here.
 
 ### `[FU-HARNESS-BLOCKS-SUBAGENT-REPORT-WRITES]` — **NEW. SUPERSEDES the narrower `[FU-QUAR1-HEREDOC-TRUNCATION]`.**
+
+> ⚠ **CORRECTED — SEE THE 2026-09-07 SECTION ABOVE.** The absolute form is **WITHDRAWN**: two observed counter-examples make the constraint **invocation-specific**. **This entry is left exactly as written (Standing Rule 3); cite the corrected form.**
 
 **Reported by a later lane: the subagent harness blocks report/summary `.md` writes OUTRIGHT** — a
 lane instructed to save its report to a file cannot do so, the write being refused rather than
