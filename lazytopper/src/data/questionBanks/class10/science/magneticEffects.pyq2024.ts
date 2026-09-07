@@ -34,9 +34,9 @@ export const magneticEffectsPYQ2024: CanonicalQuestion[] = [
     pyqYear: "2024", pyqSet: "2" },
   { id: "PYQ-S-2024-MAG-004", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Solenoid", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "(a) What happens when a bundle of wires of soft iron is placed inside the coil of a solenoid carrying a steady current ? Name the device obtained. Why is it called so ? (b) Draw the magnetic field lines inside a current carrying solenoid. What does this pattern of magnetic field lines indicate ?",
-    answer: "(b) (Any one diagram)  This pattern indicates that the magnetic field is uniform.",
-    solutionSteps: ["(a)  It gets magnetised  Electromagnet.  It behaves as a magnet only when current", "passes through the solenoid.", "(b) (Any one diagram)  This pattern indicates that the magnetic field is uniform."],
-    finalAnswer: "(b) (Any one diagram)  This pattern indicates that the magnetic field is uniform.",
+    answer: "(b) (Any one diagram) • This pattern indicates that the magnetic field is uniform.",
+    solutionSteps: ["(a) • It gets magnetised • Electromagnet. • It behaves as a magnet only when current", "passes through the solenoid.", "(b) (Any one diagram) • This pattern indicates that the magnetic field is uniform."],
+    finalAnswer: "(b) (Any one diagram) • This pattern indicates that the magnetic field is uniform.",
     ncertRef: "PYQ 31/5/1 Q32", isCompetencyBased: false,
     pyqYear: "2024", pyqSet: "1" },
 ];

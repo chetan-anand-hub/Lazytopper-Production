@@ -34,9 +34,9 @@ export const ourEnvironmentPYQ2024: CanonicalQuestion[] = [
     pyqYear: "2024", pyqSet: "3" },
   { id: "PYQ-S-2024-ENV-004", subject: "Science", topicKey: "our-environment", subtopic: "Food Chain", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Differentiate between food chain and food web. In a food chain consisting of deer, grass and tiger, if the population of deer decreases, what will happen to the population of organisms belonging to the first and third trophic levels ? 3 18 34",
-    answer: "level will increase.  Population of tiger/ third trophic level will decrease. 1+1",
-    solutionSteps: ["Food chain Food web It is a series of organisms feeding on one another at various levels It is a network of interconnected food chains", "series of branching lines which provides a number of feeding connections amongst different organisms.  Population of grass/ first trophic", "level will increase.  Population of tiger/ third trophic level will decrease. 1+1"],
-    finalAnswer: "level will increase.  Population of tiger/ third trophic level will decrease. 1+1",
+    answer: "level will increase. • Population of tiger/ third trophic level will decrease. 1+1",
+    solutionSteps: ["Food chain Food web It is a series of organisms feeding on one another at various levels It is a network of interconnected food chains", "series of branching lines which provides a number of feeding connections amongst different organisms. • Population of grass/ first trophic", "level will increase. • Population of tiger/ third trophic level will decrease. 1+1"],
+    finalAnswer: "level will increase. • Population of tiger/ third trophic level will decrease. 1+1",
     ncertRef: "PYQ 31/5/1 Q33", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "1" },
 ];
