@@ -396,7 +396,7 @@ describe("the publishable population", () => {
    * intended — a derived value pinned in prose outlives the facts it came from; a
    * derived value pinned in a test fails loudly when they change.
    */
-  it("2,851 rows are publishable today", () => {
+  it("2,816 rows are publishable today", () => {
     const publishable = canonicalQuestionBank.filter((q) => isPublishable(q, AI).ok);
     // 2,248 -> 2,333: +85. Of the 130 CFPQ rows wired by #721, 85 publish immediately,
     // 10 join the step-marking backlog and 35 are held by the figure rule. ~3.8% growth,
@@ -491,7 +491,7 @@ describe("the achievable ceiling — ruling 5", () => {
     );
   };
 
-  it("4,822 is the achievable publishable ceiling, and 5,244 is not", () => {
+  it("4,787 is the achievable publishable ceiling, and 5,209 is not", () => {
     const publishable = canonicalQuestionBank.filter((q) => isPublishable(q, AI).ok).length;
     const addressable = canonicalQuestionBank.filter((q) => {
       if (AI.has(q.id)) return false;
