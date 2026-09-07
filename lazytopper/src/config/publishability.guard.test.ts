@@ -457,7 +457,7 @@ describe("the publishable population", () => {
  *
  * ★ 4,787 IS THE AUTHORITATIVE ACHIEVABLE FIGURE. Owner ruling 6 (2026-09-03) CLOSED
  * [FU-STEPMARK-ZERO-MARK-STEPS] as REFUSED, so the cannot-sum rows are permanently
- * unrecoverable by annotation and 5,244 overstates what this track can reach.
+ * unrecoverable by annotation and 5,209 overstates what this track can reach.
  *
  * ⚠ THE TWO EXCLUDED SETS OVERLAP; THEY ARE NOT DISJOINT AND NEITHER IS NESTED.
  * 24 addressable rows are BOTH figure-held AND cannot-sum. Subtracting the two counts
