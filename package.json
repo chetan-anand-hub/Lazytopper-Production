@@ -17,11 +17,11 @@
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.2",
     "firebase": "^12.18.0",
-    "firebase-tools": "^15.28.2",
+    "firebase-tools": "^15.29.0",
     "prettier": "^3.9.6",
     "typescript": "~5.9.2"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.122.0"
+    "@anthropic-ai/sdk": "^0.123.0"
   }
 }
