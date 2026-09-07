@@ -447,22 +447,22 @@ describe("the publishable population", () => {
  * derived here from the assembled bank rather than quoted, because a number quoted
  * without its recipe cannot be re-checked.
  *
- *   5,244 = publishable + addressable - (addressable rows Rule 5 holds for a figure)
+ *   5,209 = publishable + addressable - (addressable rows Rule 5 holds for a figure)
  *           "every remaining addressable row can be annotated." It counts a row that
  *           can NEVER be annotated without asserting a step earns nothing.
  *
- *   4,822 = publishable + addressable - |figure-held UNION cannot-sum|
+ *   4,787 = publishable + addressable - |figure-held UNION cannot-sum|
  *           "every addressable row that can be annotated WITHOUT a [0 mark] step,
  *            and that Rule 5 does not hold, becomes publishable."
  *
- * ★ 4,822 IS THE AUTHORITATIVE ACHIEVABLE FIGURE. Owner ruling 6 (2026-09-03) CLOSED
+ * ★ 4,787 IS THE AUTHORITATIVE ACHIEVABLE FIGURE. Owner ruling 6 (2026-09-03) CLOSED
  * [FU-STEPMARK-ZERO-MARK-STEPS] as REFUSED, so the cannot-sum rows are permanently
- * unrecoverable by annotation and 5,244 overstates what this track can reach.
+ * unrecoverable by annotation and 5,209 overstates what this track can reach.
  *
  * ⚠ THE TWO EXCLUDED SETS OVERLAP; THEY ARE NOT DISJOINT AND NEITHER IS NESTED.
  * 24 addressable rows are BOTH figure-held AND cannot-sum. Subtracting the two counts
  * independently double-counts those 24 and yields 4,798, which is wrong. The gap
- * 5,244 - 4,822 = 422 is therefore NOT the cannot-sum count (that is 446) -- it is
+ * 5,209 - 4,787 = 422 is therefore NOT the cannot-sum count (that is 446) -- it is
  * the cannot-sum rows that are not ALREADY excluded as figure-held: 446 - 24 = 422.
  *
  * ★ BOTH FIGURES ARE INVARIANT UNDER THIS LANE'S OPERATION, which is why they still

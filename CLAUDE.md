@@ -142,11 +142,18 @@ node scripts/verify-production-build.mjs        # post-build bundle verifier
 pnpm run check:mojibake
 pnpm run scope:guard --mode product             # or --mode mixed; works post-#192
 
-# Root guard matrix — 6 suites (syllabus, deletion, reproduction, ops, practice-set, ai-tier-content-integrity); count GROWS over time — verify what the suite reports now, do NOT hardcode a number
+# Root guard matrix — the authoritative list is the "test:matrix:all" script in
+# scripts/package.json: syllabus, deletion, reproduction, ops, practice-set,
+# ai-tier-content-integrity, premise-ledger. That set GROWS (premise-ledger was missing
+# from this comment for several waves) — read the list there, and read the totals off
+# YOUR OWN run, never from this comment.
 cd ../scripts
 pnpm run test:matrix:all
 
-# lazytopper ops matrix (bank-health, weightage-mix, canonical-gen, trig-retire, llm-path, bsre)
+# lazytopper ops matrix — a long && chain in lazytopper/package.json "test:matrix:all",
+# far longer than the six names this comment used to list (bank-health, weightage-mix,
+# canonical-gen, trig-retire, llm-path, bsre were only the FIRST SIX of it). Read the
+# chain in package.json rather than trusting any list written here.
 cd ../lazytopper
 pnpm run test:matrix:all
 
@@ -156,11 +163,35 @@ git diff --check
 git diff --name-only origin/base/approved-thru-437
 ```
 
-NOTE — there are TWO `test:matrix:all` scripts: the root `scripts/` guard matrix
-(SIX suites / 190 checks as of 2026-07-28 — the count GROWS; read it from the run,
-never hardcode it, and note this very line said "5-suite" for several waves after it
-had stopped being true) and the `lazytopper/` ops-checks matrix. Run BOTH; they are
-different.
+NOTE — there are TWO `test:matrix:all` scripts: the root `scripts/` guard matrix and the
+`lazytopper/` ops-checks matrix. Run BOTH; they are different.
+
+**READ THE TOTALS OFF YOUR OWN RUN. Never quote a figure from this file as if it were the
+current value.** The matrix GROWS, so any number written here is a derived value with
+nothing re-checking it. This very paragraph has now gone stale TWICE in the same way: it
+said "5-suite" for several waves after that stopped being true, was corrected to "SIX
+suites / 190 checks as of 2026-07-28", and by 2026-09-07 that correction was itself wrong
+in three separate respects.
+
+A figure below is only ever a DATED READING, anchored to a SHA so a later reader can tell
+STALENESS from DISAGREEMENT:
+
+    root `scripts` test:matrix:all — measured 2026-09-07 at 86768e9d:
+      7 test FILES invoked · `# suites 30` · `# tests 206` · `# fail 0` · `# skipped 0`
+
+⚠ THE WORD "SUITES" IS THE TRAP THAT MADE THE OLD FIGURE WRONG, and it will catch you too.
+"SIX suites" was counting test FILES. `node --test` prints its own `# suites` line, which
+counts `describe()` BLOCKS — 30 of them. Those are two different questions with two
+different answers, and a reading that is right about one is wrong about the other. So say
+WHICH you measured and quote the counter line verbatim. By the same token, a project-memory
+note recording "202 checks" does not contradict 206: it is an older reading (2026-08-13) of
+the same growing number.
+
+`.github/workflows/quality-gate.yml` takes the stricter line against this exact failure
+mode — its root-matrix step deliberately records NO count at all, and the docs-lane
+acceptance suite asserts it stays that way (`[FU-CI-WORKFLOW-STALE-MATRIX-COUNT]`). Treat
+the reading above the way that comment intends: a count belongs in a RUN LOG, and the only
+thing that really belongs here is the instruction to go read one.
 
 NOTE — `tsc -p tsconfig.app.json --noEmit` above **EXCLUDES test files**. CI runs a
 SECOND, independent step, `pnpm --filter lazytopper run typecheck:test`
