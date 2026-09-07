@@ -4,6 +4,13 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- SERVER-RENDERED DEFAULT for the ROOT page. src/components/seo/RouteCanonical
+         overrides this and the og:url below, per route, from one computed string.
+         ⚠ DO NOT DELETE EITHER TAG. This is what a crawler that never runs the
+         script sees, and src/config/head.guard.test.ts reads this file from disk:
+         removing them fails that guard, and a page with no canonical at all is
+         worse than one with a wrong one. Convention: the root keeps its trailing
+         slash, every other path has none — matching public/sitemap.xml. -->
     <link rel="canonical" href="https://www.lazytopper.com/app/" />
     <meta name="application-name" content="LazyTopper" />
     <meta name="theme-color" content="#0f1b33" />
