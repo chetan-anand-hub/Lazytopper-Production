@@ -87,20 +87,26 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
  * questions test exactly it, and their ids are left unused:
  *
  *   Q4  (pdf page 5, folio 4) — id `CFPQ-M-REALNUM-004` UNUSED.
- *       Banned topic: "Euclid's Division Lemma". The stem asks which of
- *       "r CANNOT be (p - q)", "r CAN either be q or (p - q)" and "r is
- *       DEFINITELY less than q" are true for the remainder r when p is
- *       divided by q — the division lemma's remainder bound and nothing else.
- *       It is an MCQ, so it has no rubric row to name the topic for it; the
- *       exclusion is by CONTENT, on parity with Q11 below, whose rubric does
- *       name it.
- *       ★ OWNER RULING 2026-09-07: EXCLUDE — DO NOT RE-LITIGATE. This was the
- *       one judgement call of the four, and it was put to the owner as such.
- *       The ruling: the ABSENCE of a rubric naming the topic is a reason for
- *       MORE caution, not less — with no rubric there is nothing to disprove
- *       the reading that this is the division lemma's remainder bound. The id
- *       stays reserved and unused, so reinstating the row is a one-line change
- *       if a later syllabus check ever says otherwise.
+ *       Banned topic: "Euclid's Division Lemma".
+ *       THE SOURCE'S OWN WORDS FIRST. Q11's official rubric (pdf page 10,
+ *       folio 9) — seven questions later in this same chapter — reads:
+ *         "Euclid's Division Lemma states that the remainder is always
+ *          less than the divisor"
+ *       Q4's statement (iii) is "r is DEFINITELY less than q", i.e. that
+ *       property verbatim; its (i) "r CANNOT be (p - q)" and (ii) "r CAN
+ *       either be q or (p - q)" restate the same bound as distractors. So
+ *       CBSE, in its own words and inside this chapter, classifies this
+ *       content as Euclid's Division Lemma. The exclusion rests on that
+ *       citation, NOT on this lane's reading of the mathematics.
+ *       ★ OWNER RULING 2026-09-07: EXCLUDE — DO NOT RE-LITIGATE. Q4 was
+ *       first put to the owner as the one judgement call of the four,
+ *       because an MCQ carries no rubric row of its own to name its topic.
+ *       The ruling upgraded it: an MCQ inherits the classification the
+ *       booklet gives the same property elsewhere in the same chapter, and
+ *       Q11's rubric supplies it. That makes Q4 the BEST-documented of the
+ *       four exclusions, not the weakest. The id stays reserved and unused,
+ *       so reinstating the row is a one-line change if a later syllabus
+ *       check ever says otherwise.
  *
  *   Q6  (pdf page 6, folio 5) — id `CFPQ-M-REALNUM-006` UNUSED.
  *       Banned topic: "Euclid's Division Algorithm". The stem itself says
