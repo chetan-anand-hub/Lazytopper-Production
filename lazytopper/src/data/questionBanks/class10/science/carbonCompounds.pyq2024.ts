@@ -18,9 +18,9 @@ export const carbonCompoundsPYQ2024: CanonicalQuestion[] = [
     pyqYear: "2024", pyqSet: "1" },
   { id: "PYQ-S-2024-CARB-002", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Functional Groups", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Identify the functional group present in the following compounds and also name them : 2 H O | || (a) H C C OH | H O || (b) H C H",
-    answer: "Aldehyde  Methanal",
-    solutionSteps: ["(a) Carboxylic group  Ethanoic acid", "Aldehyde  Methanal"],
-    finalAnswer: "Aldehyde  Methanal",
+    answer: "Aldehyde • Methanal",
+    solutionSteps: ["(a) Carboxylic group • Ethanoic acid", "Aldehyde • Methanal"],
+    finalAnswer: "Aldehyde • Methanal",
     ncertRef: "PYQ 31/5/2 Q22", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "2" },
 ];
