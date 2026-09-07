@@ -85,7 +85,7 @@ describe("Welcome — the signed-out desktop landing reaches the policies", () =
  * leave it green. Mutation M2 (a link repointed at an unserved slug) turns this red
  * precisely because the hrefs come out of the rendered page.
  */
-function renderedLegalHrefs(): string[] {
+function renderedFooterHrefs(): string[] {
   const { unmount } = renderWelcome();
   const foot = screen.getByRole("contentinfo", { name: "Legal" });
   const hrefs = within(foot)
@@ -96,11 +96,22 @@ function renderedLegalHrefs(): string[] {
 }
 
 describe("every slug the landing's legal links point at renders real policy content", () => {
-  const hrefs = renderedLegalHrefs();
+  const allHrefs = renderedFooterHrefs();
+  // ★ THE FILTER IS RETAINED THOUGH THE FOOTER NOW RENDERS ONLY LEGAL LINKS. [LINK-1]
+  // added a plain anchor into the static /questions namespace here; RETIRE-1 removed it
+  // with its target. Keeping the filter means a future non-legal anchor cannot silently
+  // break the count below, and it does NOT weaken mutation M2: a link repointed at an
+  // unserved slug still starts with "/legal/", so it is still harvested and still red.
+  const hrefs = allHrefs.filter((h) => h.startsWith("/legal/"));
 
   it("harvested the landing's real hrefs (control: the harvest is not empty)", () => {
+    // Still exactly three: a legal link deleted or repointed off /legal/ turns this red,
+    // so the filter above cannot quietly swallow one.
     expect(hrefs.length).toBe(EXPECTED_LABELS.length);
     expect(hrefs.every((h) => h.startsWith("/legal/"))).toBe(true);
+    // ★ AND THE FILTER HID NOTHING: every rendered href survived it. This replaces the
+    // [LINK-1] questions assertion and keeps the filter from concealing a stray link.
+    expect(hrefs.length).toBe(allHrefs.length);
   });
 
   it.each(hrefs)("%s renders a policy, not the not-found card", (href) => {

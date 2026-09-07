@@ -112,11 +112,23 @@ function renderedFooterHrefs(): string[] {
 }
 
 describe("every slug a legal link points at renders real policy content", () => {
-  const hrefs = renderedFooterHrefs();
+  const allHrefs = renderedFooterHrefs();
+  // ★ THE FILTER IS RETAINED THOUGH THE FOOTER NOW RENDERS ONLY LEGAL LINKS. [LINK-1]
+  // added a plain anchor into the static /questions namespace here; RETIRE-1 removed it
+  // with its target. Keeping the filter means a future non-legal anchor cannot silently
+  // break the count below, and it does NOT weaken mutation M3 (slug "refund" ->
+  // "cookies"): the repointed href still starts with "/legal/", so it is still
+  // harvested and still turns this red.
+  const hrefs = allHrefs.filter((h) => h.startsWith("/legal/"));
 
   it("harvested the footer's real hrefs (control: the harvest is not empty)", () => {
+    // Still exactly three: a legal link DELETED or repointed off /legal/ turns this red,
+    // so the filter above cannot quietly swallow one.
     expect(hrefs.length).toBe(FOOTER_LINKS.length);
     expect(hrefs.every((h) => h.startsWith("/legal/"))).toBe(true);
+    // ★ AND THE FILTER HID NOTHING: every rendered href survived it. This replaces the
+    // [LINK-1] questions assertion and keeps the filter from concealing a stray link.
+    expect(hrefs.length).toBe(allHrefs.length);
   });
 
   it.each(hrefs)("%s renders a policy, not the not-found card", (href) => {

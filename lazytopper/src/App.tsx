@@ -15,6 +15,7 @@ import { normalizeTopicKey } from "./utils/topicResolver";
 import { RequireAuth, RequirePremium } from "./components/auth/RequireAuth";
 import { PracticeLimitGate } from "./components/auth/PracticeLimitGate";
 import { MockViewGate } from "./components/auth/MockViewGate";
+import RouteCanonical from "./components/seo/RouteCanonical";
 import { TrialBanner } from "./components/ux/TrialBanner";
 import { BreakReminder } from "./components/ux/BreakReminder";
 import { useAuth } from "./context/AuthContext";
@@ -708,6 +709,10 @@ export default function App() {
 
   return (
     <>
+      {/* Per-route canonical + og:url. Mounted ONCE here, not per route: it reads
+          useLocation() and resolves the URL itself, so it cannot be defeated by a
+          duplicate <Route path> whose second registration never renders. */}
+      <RouteCanonical />
       {/* Top navigation bar — dark premium header
           Desktop Phase 1: hidden on shell-eligible routes at desktop width
           (≥1024px). DesktopShell provides its own top utility/search bar. */}

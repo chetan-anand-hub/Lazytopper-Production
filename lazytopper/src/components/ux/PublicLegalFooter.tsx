@@ -31,6 +31,26 @@ const LEGAL_LINKS = [
   { label: "Refunds", slug: "refund" },
 ] as const;
 
+/**
+ * [LINK-1] RETIRED (RETIRE-1). This footer carried a plain <a> to the static
+ * `/questions/**` namespace — the single inbound link that gave that orphaned space
+ * a vote rather than only a sitemap suggestion.
+ *
+ * ★★ THE LINK WAS REMOVED WITH ITS TARGET, DELIBERATELY, AND THIS IS THE REASON.
+ * The static space is gone, and NO TEST HERE EVER ASSERTED THE TARGET EXISTED — they
+ * pinned the href string and the anchor’s click behaviour. So leaving the link would
+ * have shipped a permanent 404 on every public page that EVERY GATE PASSES OVER in
+ * silence. Removing the target and keeping the link is the one combination nothing in
+ * this repo can detect.
+ *
+ * ⚠ WHEN THE LINK COMES BACK it must be a plain <a>, never a react-router <Link>:
+ * App.tsx’s catch-all is `<Route path="*" element={<HomeRedirect />} />`, so a <Link>
+ * to a non-SPA URL is intercepted, matches nothing, and bounces the visitor home
+ * without the page ever being requested — and a <Link> renders an <a href> too, so an
+ * href assertion cannot see the difference. The click is the property, not the href.
+ * It also must carry no `rel="nofollow"` and no `target="_blank"`.
+ */
+
 const FOOTER_CSS = `
   .lt-public-legal {
     display: flex;
