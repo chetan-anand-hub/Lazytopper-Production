@@ -95,15 +95,13 @@ function renderedFooterHrefs(): string[] {
   return hrefs;
 }
 
-/** [LINK-1] The static questions link the footer also carries. Not a /legal/:slug route. */
-const QUESTIONS_HREF = "/questions/class-10/science/light-reflection-and-refraction/";
-
 describe("every slug the landing's legal links point at renders real policy content", () => {
   const allHrefs = renderedFooterHrefs();
-  // ★ The footer also carries the [LINK-1] questions anchor, a plain link into the STATIC
-  // namespace with no /legal/:slug route to render. Narrow to the legal links only. This
-  // does NOT weaken mutation M2: a link repointed at an unserved slug still starts with
-  // "/legal/", so it is still harvested and still turns this red.
+  // ★ THE FILTER IS RETAINED THOUGH THE FOOTER NOW RENDERS ONLY LEGAL LINKS. [LINK-1]
+  // added a plain anchor into the static /questions namespace here; RETIRE-1 removed it
+  // with its target. Keeping the filter means a future non-legal anchor cannot silently
+  // break the count below, and it does NOT weaken mutation M2: a link repointed at an
+  // unserved slug still starts with "/legal/", so it is still harvested and still red.
   const hrefs = allHrefs.filter((h) => h.startsWith("/legal/"));
 
   it("harvested the landing's real hrefs (control: the harvest is not empty)", () => {
@@ -111,9 +109,9 @@ describe("every slug the landing's legal links point at renders real policy cont
     // so the filter above cannot quietly swallow one.
     expect(hrefs.length).toBe(EXPECTED_LABELS.length);
     expect(hrefs.every((h) => h.startsWith("/legal/"))).toBe(true);
-    // ...and the filter must not hide the questions link, which the desktop landing
-    // must also carry — Welcome.tsx is one of the three host pages.
-    expect(allHrefs).toContain(QUESTIONS_HREF);
+    // ★ AND THE FILTER HID NOTHING: every rendered href survived it. This replaces the
+    // [LINK-1] questions assertion and keeps the filter from concealing a stray link.
+    expect(hrefs.length).toBe(allHrefs.length);
   });
 
   it.each(hrefs)("%s renders a policy, not the not-found card", (href) => {

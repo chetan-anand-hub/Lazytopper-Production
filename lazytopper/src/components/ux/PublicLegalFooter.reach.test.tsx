@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, cleanup, within, fireEvent } from "@testing-library/react";
-import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
+import { render, screen, cleanup, within } from "@testing-library/react";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 /**
  * [FU-LEGAL-FOOTER-LINK] — legal reachability on the SIGNED-OUT public surfaces.
@@ -48,9 +48,6 @@ const FOOTER_LINKS: [string, string][] = [
   ["Terms", "/legal/terms"],
   ["Refunds", "/legal/refund"],
 ];
-
-/** [LINK-1] The chapter page that actually exists. `/questions/class-10/` is still the SPA shell. */
-const QUESTIONS_HREF = "/questions/class-10/science/light-reflection-and-refraction/";
 
 describe("CONTROL — the link query used by this file can find a legal link that already exists", () => {
   it("finds the sign-in door's Terms/Privacy links (proves the query works)", () => {
@@ -116,10 +113,12 @@ function renderedFooterHrefs(): string[] {
 
 describe("every slug a legal link points at renders real policy content", () => {
   const allHrefs = renderedFooterHrefs();
-  // ★ The footer also carries the [LINK-1] questions anchor, which is a plain link into
-  // the STATIC namespace and has no /legal/:slug route to render. Narrow to the legal
-  // links only. This does NOT weaken mutation M3 (slug "refund" -> "cookies"): the
-  // repointed href still starts with "/legal/", so it is still harvested and still red.
+  // ★ THE FILTER IS RETAINED THOUGH THE FOOTER NOW RENDERS ONLY LEGAL LINKS. [LINK-1]
+  // added a plain anchor into the static /questions namespace here; RETIRE-1 removed it
+  // with its target. Keeping the filter means a future non-legal anchor cannot silently
+  // break the count below, and it does NOT weaken mutation M3 (slug "refund" ->
+  // "cookies"): the repointed href still starts with "/legal/", so it is still
+  // harvested and still turns this red.
   const hrefs = allHrefs.filter((h) => h.startsWith("/legal/"));
 
   it("harvested the footer's real hrefs (control: the harvest is not empty)", () => {
@@ -127,8 +126,9 @@ describe("every slug a legal link points at renders real policy content", () => 
     // so the filter above cannot quietly swallow one.
     expect(hrefs.length).toBe(FOOTER_LINKS.length);
     expect(hrefs.every((h) => h.startsWith("/legal/"))).toBe(true);
-    // ...and the filter must not be able to HIDE the questions link either.
-    expect(allHrefs).toContain(QUESTIONS_HREF);
+    // ★ AND THE FILTER HID NOTHING: every rendered href survived it. This replaces the
+    // [LINK-1] questions assertion and keeps the filter from concealing a stray link.
+    expect(hrefs.length).toBe(allHrefs.length);
   });
 
   it.each(hrefs)("%s renders a policy, not the not-found card", (href) => {
@@ -162,82 +162,5 @@ describe("every slug a legal link points at renders real policy content", () => 
       </MemoryRouter>,
     );
     expect(screen.getByText("Page not found")).toBeInTheDocument();
-  });
-});
-
-/* ===================================================================== *
- * [LINK-1] The questions namespace must have a real inbound link.
- * ===================================================================== */
-
-/** Reports the router's CURRENT location, so a click can be shown to navigate — or not. */
-function LocationProbe() {
-  const { pathname } = useLocation();
-  return <span data-testid="probe-location">{pathname}</span>;
-}
-
-function renderFooterWithProbe() {
-  render(
-    <MemoryRouter initialEntries={["/pricing"]}>
-      <PublicLegalFooter />
-      <LocationProbe />
-    </MemoryRouter>,
-  );
-  return {
-    footer: screen.getByRole("contentinfo", { name: "Legal" }),
-    location: () => screen.getByTestId("probe-location").textContent,
-  };
-}
-
-describe("[LINK-1] the public footer links into the static /questions namespace", () => {
-  it("renders a 'Practice questions' link with the exact href", () => {
-    const { footer } = renderFooterWithProbe();
-    expect(within(footer).getByRole("link", { name: "Practice questions" })).toHaveAttribute(
-      "href",
-      QUESTIONS_HREF,
-    );
-  });
-
-  it("carries no rel=nofollow and no target=_blank (a nofollow passes no signal)", () => {
-    const { footer } = renderFooterWithProbe();
-    const link = within(footer).getByRole("link", { name: "Practice questions" });
-    expect(link.getAttribute("rel") || "").not.toMatch(/nofollow/i);
-    expect(link.getAttribute("target")).toBeNull();
-  });
-
-  /**
-   * ★★ THE ASSERTION THIS LANE EXISTS FOR.
-   *
-   * A react-router <Link> ALSO renders an <a href>, so every assertion above passes
-   * just as happily on a <Link> — and a <Link> is broken here: App.tsx has no
-   * `/questions` route and its catch-all is <Route path="*" element={<HomeRedirect />} />,
-   * so the router would swallow the click and bounce the visitor HOME, never requesting
-   * the static page. The href is therefore NOT the property under test; the CLICK is.
-   *
-   * A plain <a> is not intercepted: the router does not navigate and the event is not
-   * defaultPrevented. The CONTROL below runs the identical probe against a known
-   * <Link> ("Privacy") and shows the opposite outcome — without it, a probe that
-   * silently failed to fire would report a <Link> as a plain anchor and pass.
-   */
-  it("★ the questions link is a PLAIN ANCHOR: clicking it does not navigate the router", () => {
-    const { footer, location } = renderFooterWithProbe();
-    expect(location()).toBe("/pricing");
-
-    const link = within(footer).getByRole("link", { name: "Practice questions" });
-    const notPrevented = fireEvent.click(link);
-
-    // A <Link> would preventDefault() and hand the click to the router instead.
-    expect(notPrevented).toBe(true);
-    expect(location()).toBe("/pricing");
-  });
-
-  it("CONTROL: the same probe on a real router <Link> DOES navigate (proves it can detect one)", () => {
-    const { footer, location } = renderFooterWithProbe();
-    expect(location()).toBe("/pricing");
-
-    const link = within(footer).getByRole("link", { name: "Privacy" });
-    const notPrevented = fireEvent.click(link);
-
-    expect(notPrevented).toBe(false);
-    expect(location()).toBe("/legal/privacy");
   });
 });
