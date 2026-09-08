@@ -125,7 +125,7 @@ describe("RULE 2 — both mark conventions are valid", () => {
     expect(stepMarks("Substitute into the lens equation")).toBeNull();
   });
 
-  it("the addressable step-marking backlog is 2,488 rows", () => {
+  it("the addressable step-marking backlog is 2,336 rows", () => {
     /**
      * ★ NOT 5,105. The raw unmarked count is 5,105, but 2,102 of those are AI-pack
      * rows that Rule 1 rejects permanently and that policy says to RETIRE, not
@@ -166,7 +166,19 @@ describe("RULE 2 — both mark conventions are valid", () => {
     // scattered accidents. No [0 mark] annotation was used to force them -- owner ruling 6
     // (2026-09-03) CLOSED [FU-STEPMARK-ZERO-MARK-STEPS] as REFUSED, so these rows are
     // permanently unrecoverable by annotation.
-    expect(addressable).toHaveLength(2488);
+    // 2,488 -> 2,336: -152. STEPMARK-1 batch 4 (acids-bases-and-salts) mark-annotated 152
+    // of that topic's 172 addressable rows. Same mechanism as batches 1-3: the backlog
+    // shrinks by EXACTLY the number annotated, because annotation is the only thing that
+    // clears "unmarked-step". The remaining 20 rows are SKIPPED, not fixed -- the same
+    // 0.5-granularity wall (ACID-NCERT-2-MCQ-002..004, fifteen ACID-EXMPLR-2-MCQ rows and
+    // APQ-S-ACID-002 carry 3-5 steps on a 1-mark MCQ; ACID-EXMPLR-2-SA-010 carries 7 steps
+    // on 3 marks). FOURTH topic in a row whose entire skip list is over-stepped 1-mark items:
+    // [FU-STEPMARK-EXEMPLAR-MCQ-OVERSTEPPED]. No [0 mark] annotation was used -- owner
+    // ruling 6 CLOSED [FU-STEPMARK-ZERO-MARK-STEPS] as REFUSED.
+    // ★ NO row flagged by RECOVER-1 (#735) was annotated: the 8 bracket rows and the 15
+    // U+F09F rows are knowingly incomplete text, and a mark scheme on a broken stem is the
+    // defect the quarantine exists to stop. ZERO of the 23 sit in this topic (measured).
+    expect(addressable).toHaveLength(2336);
   });
 });
 
@@ -396,7 +408,7 @@ describe("the publishable population", () => {
    * intended — a derived value pinned in prose outlives the facts it came from; a
    * derived value pinned in a test fails loudly when they change.
    */
-  it("2,816 rows are publishable today", () => {
+  it("2,965 rows are publishable today", () => {
     const publishable = canonicalQuestionBank.filter((q) => isPublishable(q, AI).ok);
     // 2,248 -> 2,333: +85. Of the 130 CFPQ rows wired by #721, 85 publish immediately,
     // 10 join the step-marking backlog and 35 are held by the figure rule. ~3.8% growth,
@@ -425,7 +437,14 @@ describe("the publishable population", () => {
     // whole proof of QUARANTINE-1. Every withheld row was publishable, so both counts move
     // together. A smaller delta here than on the bank would mean some withheld row was
     // already unpublishable for another reason -- STOP rather than adjusting this number.
-    expect(publishable).toHaveLength(2816);
+    // 2,816 -> 2,965: +149. STEPMARK-1 batch 4 (acids-bases-and-salts) annotated 152 rows;
+    // 149 become publishable and 3 do NOT, because those 3 are ALSO held by Rule 5 (figure):
+    // ACID-EXMPLR-2-LONG-001, ACID-EXMPLR-2-LONG-006 and PYQ-S-2026-ACID-014. Rule 2 runs
+    // before Rule 5, so a figure-dependent row reports "unmarked-step" and annotating it
+    // clears the backlog without moving this count. 152 annotated - 3 figure-held = 149,
+    // which is the batch's reconciliation and its only evidence. Bank length UNCHANGED
+    // at 8,638 -- this lane still authors no rows.
+    expect(publishable).toHaveLength(2965);
   });
 
   it("no publishable row is AI-generated — the property retirement depends on", () => {
