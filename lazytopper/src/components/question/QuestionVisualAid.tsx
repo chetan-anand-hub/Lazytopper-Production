@@ -1362,6 +1362,31 @@ export function QuestionVisualAid(props: QuestionVisualAidProps): React.ReactEle
     return <SourceFigures figures={boundFigures} />;
   }
 
+  // FIGURE-HONESTY-1 PR-1 — no bound figure means DRAW NOTHING. The rule is the
+  // repo's own, stated four lines above the honest binder at
+  // visualConceptRegistry.ts:500-501: "Exact, id-keyed, and never heuristic: a
+  // wrong figure is worse than none." It was written when that binder landed and
+  // never enforced — below this point the component picked a GENERIC synthetic
+  // template from the chapter name and stem words, so a question that never
+  // mentions a figure was shown a plain triangle carrying none of its labels.
+  //
+  // Everything below is that heuristic. It is DEAD AT RUNTIME and is left in
+  // place deliberately: deleting ~1,200 lines inside a behaviour fix would be
+  // unreviewable, so a separate hygiene PR removes it.
+  //
+  // The flag is annotated `boolean` rather than left to infer the literal type
+  // `true`, and that is load-bearing, not stylistic. With a literal type
+  // TypeScript proves the remainder of the function unreachable, and it does not
+  // run control-flow narrowing through unreachable code — the `if (!kind)` guard
+  // below would stop narrowing and `shouldPreferAiDiagram(qt, kind)` and
+  // `svgForKind(kind, ...)` would fail to compile with `VisualKind | null`.
+  // THIS IS NOT A FEATURE TOGGLE. Nothing sets it false; it is the scaffold that
+  // keeps the dead code compiling until the hygiene PR deletes it.
+  const HEURISTIC_FIGURES_DISABLED: boolean = true;
+  if (HEURISTIC_FIGURES_DISABLED) {
+    return null;
+  }
+
   const kind = inferVisualKind(props);
 
   const containerStyle: React.CSSProperties = {
