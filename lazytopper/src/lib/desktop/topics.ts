@@ -278,6 +278,21 @@ const TOPICS: DesktopTopicSummary[] = [
   },
 ];
 
+/**
+ * THE WHOLE TOPIC REGISTRY, ENUMERABLE.
+ *
+ * ★ WHY THIS EXISTS. `desktopTopicsBySubject` can only be asked about a subject
+ * a caller already knows the name of, so enumerating "every topic" through it
+ * means restating the `DesktopSubject` union at the call site — a SECOND source
+ * of truth that goes stale the day a third subject is added. `public/sitemap.xml`
+ * is generated from this list (`src/config/sitemapUrls.ts`), and a sitemap that
+ * quietly stops advertising a whole subject is exactly the silent-drop this
+ * export removes.
+ *
+ * A COPY, not the array itself: `TOPICS` stays private and immutable to callers.
+ */
+export const allDesktopTopics = (): DesktopTopicSummary[] => [...TOPICS];
+
 const normalize = (value: string) =>
   value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
