@@ -4,7 +4,7 @@
     "target": "ES2023",
     "lib": ["ES2023"],
     "module": "ESNext",
-    "types": ["node"],
+    "types": ["node", "vite/client"],
     "skipLibCheck": true,
 
     /* Bundler mode */
@@ -22,5 +22,18 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["vite.config.ts"]
+  // `scripts/generateSitemap.ts` is checked HERE, and it was previously checked
+  // NOWHERE. tsconfig.app.json includes only `src`, tsconfig.test.json extends it,
+  // and this project listed only `vite.config.ts` — so a build-time script under
+  // `lazytopper/scripts/` compiled in no project at all and shipped whatever type
+  // errors it had (it runs through `tsx`, which strips types without checking
+  // them). This is the right project for it: same Node target, same bundler
+  // resolution, and it is already wired into `tsc -b` through tsconfig.json.
+  //
+  // `vite/client` is in `types` FOR that script, and it is load-bearing, not
+  // cargo: the generator reaches `src/config/canonicalUrl.ts`, whose
+  // `appBasename()` reads `import.meta.env.BASE_URL`. Without those ambient types
+  // this project fails with TS2339 "Property 'env' does not exist on type
+  // 'ImportMeta'" — verified by removing it.
+  "include": ["vite.config.ts", "scripts/generateSitemap.ts"]
 }
