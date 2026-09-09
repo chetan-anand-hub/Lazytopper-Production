@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { LEGAL_SLUGS, type LegalSlug } from "./legalSlugs";
 
 /**
  * LegalPage (`/legal/:slug`) — Privacy, Terms and Refund policies.
@@ -253,7 +254,15 @@ type PageDef = {
   contact: ReactNode;
 };
 
-const PAGES: Record<string, PageDef> = {
+/**
+ * ⚠ KEYED ON `LegalSlug`, NOT ON `string`, AND THAT IS LOAD-BEARING. `sitemapUrls.ts`
+ * advertises one URL per slug in `LEGAL_SLUGS`; this annotation is what makes that
+ * safe. A slug listed there with no page here is a MISSING PROPERTY error, and a
+ * page here whose key is not listed there is an EXCESS PROPERTY error — so the
+ * sitemap cannot advertise a `/legal/<slug>` this component would render as a blank
+ * "not found". The two files fail to COMPILE rather than drifting into a soft 404.
+ */
+const PAGES: Record<LegalSlug, PageDef> = {
   privacy: {
     title: "Privacy Policy",
     updated: "Last updated: April 2026",
@@ -335,7 +344,17 @@ const PAGES: Record<string, PageDef> = {
   },
 };
 
-const TABS: { slug: string; label: string }[] = [
+/**
+ * RE-EXPORTED so a consumer that thinks of these slugs as "the legal page's own
+ * table" can import them from the page. `sitemapUrls.ts` deliberately imports the
+ * LEAF module (`./legalSlugs`) instead: this file is `.tsx`, and the sitemap
+ * generator runs on node under a config with no `jsx` set — see the header of
+ * `legalSlugs.ts` for the two ways that fails and why neither is caught by
+ * `tsc -p tsconfig.app.json`.
+ */
+export { LEGAL_SLUGS } from "./legalSlugs";
+
+const TABS: { slug: LegalSlug; label: string }[] = [
   { slug: "privacy", label: "Privacy Policy" },
   { slug: "terms", label: "Terms of Service" },
   { slug: "refund", label: "Refund Policy" },
@@ -356,7 +375,14 @@ const BackBar = ({ onBack }: { onBack: () => void }) => (
 const LegalPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const page = PAGES[slug || ""];
+  // ⚠ `:slug` IS ARBITRARY USER INPUT, so it is narrowed against the ruled list
+  // before indexing rather than cast. `PAGES` is keyed on `LegalSlug`; a bare
+  // `PAGES[slug]` would need an assertion that lies about the runtime, and an
+  // unknown slug must reach the honest not-found body below, not `undefined`
+  // dereferenced later.
+  const page = LEGAL_SLUGS.includes(slug as LegalSlug)
+    ? PAGES[slug as LegalSlug]
+    : undefined;
 
   // Land at the top of whichever policy was opened (never mid-document), and
   // reset when switching tabs.

@@ -4,6 +4,8 @@ import { render, cleanup } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import RouteCanonical from "../components/seo/RouteCanonical";
 import {
+  CANONICAL_ALIAS,
+  SELF_CANONICAL_EXACT,
   SITE_ORIGIN,
   appBasename,
   canonicalFor,
@@ -70,7 +72,6 @@ describe("canonicalFor — the production URL shape, with the basename", () => {
     expect(canonicalFor("/", PROD_BASENAME)).toBe("https://www.lazytopper.com/app/");
     expect(canonicalFor("/pricing", PROD_BASENAME)).toBe("https://www.lazytopper.com/app/pricing");
     expect(canonicalFor("/exam-trends", PROD_BASENAME)).toBe("https://www.lazytopper.com/app/exam-trends");
-    expect(canonicalFor("/topic-hub", PROD_BASENAME)).toBe("https://www.lazytopper.com/app/topic-hub");
     expect(canonicalFor("/topic-hub/light", PROD_BASENAME)).toBe("https://www.lazytopper.com/app/topic-hub/light");
     expect(canonicalFor("/legal/privacy", PROD_BASENAME)).toBe("https://www.lazytopper.com/app/legal/privacy");
     expect(canonicalFor("/practice-hub", PROD_BASENAME)).toBe("https://www.lazytopper.com/app/practice-hub");
@@ -105,14 +106,65 @@ describe("canonicalFor — the production URL shape, with the basename", () => {
 });
 
 describe("canonicalPathFor — the ruled set, and everything outside it", () => {
-  it("returns the route's own path for all SEVEN self-canonical routes", () => {
+  it("returns the route's own path for every self-canonical route", () => {
     expect(canonicalPathFor("/")).toBe("/");
     expect(canonicalPathFor("/pricing")).toBe("/pricing");
     expect(canonicalPathFor("/exam-trends")).toBe("/exam-trends");
-    expect(canonicalPathFor("/topic-hub")).toBe("/topic-hub");
     expect(canonicalPathFor("/topic-hub/light")).toBe("/topic-hub/light");
     expect(canonicalPathFor("/legal/privacy")).toBe("/legal/privacy");
     expect(canonicalPathFor("/practice-hub")).toBe("/practice-hub");
+  });
+
+  /**
+   * ★ OWNER RULING, 2026-09-09 (FOLLOWON-1) — THE BARE `/topic-hub` IS A SIGNPOST.
+   * *"With no `:topicName` it is a signpost, not a destination, and a sitemap
+   * should advertise pages rather than redirects."* It renders
+   * `<Navigate to="/exam-trends" replace>`, so it is now ALIASED: its canonical
+   * names the destination it redirects to.
+   *
+   * ⚠ THE TWO HALVES ARE ASSERTED SEPARATELY, AND BOTH MATTER. Falling through to
+   * "/" would ALSO have removed it from the self-canonical set while looking like
+   * a fix — and would have named the HOME PAGE as the authoritative copy of a
+   * page that points at Exam Trends. The `not.toBe("/")` arm is what separates
+   * "aliased to its destination" from "swept into the root bucket".
+   */
+  it("★ ALIASES the bare /topic-hub to /exam-trends — a signpost names its destination", () => {
+    expect(canonicalPathFor("/topic-hub")).toBe("/exam-trends");
+    expect(canonicalPathFor("/topic-hub")).not.toBe("/");
+    expect(canonicalPathFor("/topic-hub")).not.toBe("/topic-hub");
+    expect(canonicalFor("/topic-hub", PROD_BASENAME)).toBe(
+      "https://www.lazytopper.com/app/exam-trends",
+    );
+    // Query and hash are normalised away before the alias lookup, so a shared
+    // link with tracking params canonicalises to the destination too.
+    expect(canonicalPathFor("/topic-hub/?utm_source=x")).toBe("/exam-trends");
+  });
+
+  /**
+   * ⚠ THE TWO TABLES MUST BE DISJOINT, AND THE ALIAS TARGET MUST BE A FIXED POINT.
+   * An entry in both tables would make the answer depend on which lookup ran
+   * first. An alias pointing at a NON-self-canonical page would produce a
+   * canonical CHAIN — Google follows one hop and gives up — which is a worse
+   * failure than the bug this module was written to fix, and completely invisible
+   * to any assertion about a single route.
+   */
+  it("★★ no alias is also self-canonical, and every alias target is a fixed point", () => {
+    const aliases = Object.entries(CANONICAL_ALIAS);
+    // Non-vacuous: an empty table would make both loops below assert nothing.
+    expect(aliases.length, "CANONICAL_ALIAS is empty — this check is vacuous")
+      .toBeGreaterThan(0);
+
+    for (const [from, to] of aliases) {
+      expect(
+        SELF_CANONICAL_EXACT.includes(from),
+        `${from} is BOTH aliased and self-canonical — the tables must be disjoint`,
+      ).toBe(false);
+      expect(
+        canonicalPathFor(to),
+        `alias ${from} -> ${to}, but ${to} canonicalises to ${canonicalPathFor(to)} — ` +
+          `a canonical chain, which Google does not follow`,
+      ).toBe(to);
+    }
   });
 
   it("⚠ NEVER self-canonicalises the share-token route", () => {
