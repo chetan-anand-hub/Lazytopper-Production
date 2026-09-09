@@ -21,7 +21,17 @@
  *                       in `./canonicalUrl` — the owner's ruled set, the very
  *                       arrays that decide whether a page is self-canonical.
  *   - WHICH MEMBERS   → `allDesktopTopics()` in `../lib/desktop/topics` — the
- *                       registry `DesktopTopicHubPage` itself resolves against.
+ *                       registry `DesktopTopicHubPage` itself resolves against —
+ *                       and `LEGAL_SLUGS` in `../pages/legalSlugs`, the list
+ *                       `LegalPage`'s own content table is COMPILER-KEYED on.
+ *
+ * ⚠ THE LEGAL SLUGS COME FROM THE LEAF DATA MODULE, NOT FROM `LegalPage.tsx`, AND
+ * THE REASON IS NOT STYLE. This module is imported by `scripts/generateSitemap.ts`,
+ * which runs on node; a `.tsx` import in that graph breaks TWICE — at runtime under
+ * `tsx` (`ReferenceError: React is not defined`) and at build under `tsc -b`
+ * (`TS6142: '--jsx' is not set`, from the `tsconfig.node.json` project). Both were
+ * hit and both are GREEN under `tsc -p tsconfig.app.json --noEmit`, which is the
+ * config that does set `jsx`. `legalSlugs.ts` carries the full account.
  *
  * ★ THE INVARIANT THAT TIES THEM: every URL this module emits must be
  * SELF-CANONICAL, i.e. `canonicalFor(path) === url`. Advertising a page that
@@ -43,6 +53,7 @@ import {
   canonicalFor,
 } from "./canonicalUrl";
 import { allDesktopTopics } from "../lib/desktop/topics";
+import { LEGAL_SLUGS } from "../pages/legalSlugs";
 
 /**
  * The concrete members of each PARAMETERISED self-canonical family.
@@ -51,15 +62,24 @@ import { allDesktopTopics } from "../lib/desktop/topics";
  * is self-canonical, but Google cannot crawl a colon — the family has to be
  * expanded against the registry that decides which members actually resolve.
  *
- * ⚠ `/legal` IS DELIBERATELY EMPTY, AND THE EMPTINESS IS A KNOWN GAP, NOT AN
- * OVERSIGHT. `/legal/:slug` has three real members (privacy, terms, refund),
- * they render for a signed-out visitor, and #736 made them self-canonical — but
- * the owner's ruling for THIS change named practice-hub, topic-hub and the topic
- * pages only. Advertising legal pages as well would be this lane's opinion, not
- * the ruling, so the gap is recorded here and reported rather than closed
- * unilaterally. Their slugs also live in a private `TABS`/`PAGES` table inside
- * `pages/LegalPage.tsx`; closing the gap means exporting that registry first, on
- * the same no-hand-listing rule this file exists to enforce.
+ * ★ `/legal` WAS RULED IN ON 2026-09-09 (FOLLOWON-1), CLOSING THE GAP THIS
+ * COMMENT USED TO RECORD. It read: *"`/legal` IS DELIBERATELY EMPTY … the
+ * owner's ruling for THIS change named practice-hub, topic-hub and the topic
+ * pages only."* #736 had already made `/legal/:slug` self-canonical and the pages
+ * render in full for a signed-out visitor, so the members were crawlable and
+ * simply never advertised. The owner has now named them in.
+ *
+ * ⚠ THE SLUGS COME FROM `LEGAL_SLUGS`, NOT FROM THIS FILE — and that precondition
+ * is why the gap stayed open instead of being closed with three strings. They were
+ * private to a `PAGES` table inside `pages/LegalPage.tsx`; that table is now keyed
+ * on `LegalSlug`, so a slug advertised here with no page there, or a page there not
+ * listed here, FAILS TO COMPILE. The sitemap and the route are one fact.
+ *
+ * ⚠ THE THIRD SLUG IS `refund`, SINGULAR, WHILE EVERY LABEL IN THE PRODUCT READS
+ * "Refunds", PLURAL — `DesktopShell`, `MobileAccountMenu`, `PublicLegalFooter` and
+ * `Welcome` all render the plural label against the singular slug. A sitemap built
+ * by copying the visible footer would have shipped `/legal/refunds`: a soft 404
+ * returning HTTP 200 forever, which no status check can find.
  *
  * ★ THE TABLE IS TOTAL, AND THE GUARD PROVES IT. Every prefix in
  * `SELF_CANONICAL_ONE_SEGMENT` must appear as a key here. A NEW parameterised
@@ -72,7 +92,8 @@ function membersOfParameterisedFamily(prefix: string): readonly string[] {
       // The registry `DesktopTopicHubPage` resolves `:topicName` against.
       return allDesktopTopics().map((topic) => topic.slug);
     case "/legal":
-      return [];
+      // The list `LegalPage`'s content table is compiler-keyed on.
+      return LEGAL_SLUGS;
     default:
       // Unreachable while the guard's totality check is green. Throwing beats
       // returning [] : a silent empty is how a whole family disappears.

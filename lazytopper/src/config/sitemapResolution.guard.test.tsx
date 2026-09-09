@@ -5,6 +5,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 import DesktopTopicHubPage from "../pages/desktop/DesktopTopicHubPage";
 import { sitemapPaths } from "./sitemapUrls";
+import { canonicalPathFor } from "./canonicalUrl";
 import { allDesktopTopics } from "../lib/desktop/topics";
 
 /**
@@ -119,21 +120,43 @@ describe("every topic URL in sitemap.xml resolves to a real page", () => {
     expect(alive.length, "no advertised topic URL was proven alive").toBe(advertised.length);
   });
 
-  it("⚠ FINDING — the bare /topic-hub entry REDIRECTS; it is advertised anyway, by ruling", () => {
-    // `/topic-hub` with no topic named renders <Navigate to="/exam-trends" replace/>.
-    // It is a real, ruled self-canonical route (SELF_CANONICAL_EXACT) and the owner
-    // named it for this change, so it IS advertised — but Google will classify it
-    // "Page with redirect" and index /app/exam-trends instead, not this URL.
-    // Pinned here so the behaviour is a KNOWN, asserted property rather than a
-    // surprise in Search Console: [FU-SITEMAP-TOPIC-HUB-BARE-REDIRECTS].
-    expect(sitemapPaths(), "the ruling puts /topic-hub in the sitemap").toContain("/topic-hub");
+  /**
+   * ★★ OWNER RULING, 2026-09-09 (FOLLOWON-1) — CLOSES
+   * `[FU-SITEMAP-TOPIC-HUB-BARE-REDIRECTS]`. This test previously read
+   * *"the bare /topic-hub entry REDIRECTS; it is advertised anyway, by ruling"*
+   * and pinned the URL INTO the sitemap. The owner reversed it: *"With no
+   * `:topicName` it is a signpost, not a destination, and a sitemap should
+   * advertise pages rather than redirects."*
+   *
+   * ★ THE REDIRECT ASSERTION IS KEPT, NOT DELETED, AND THAT IS THE WHOLE VALUE OF
+   * THIS TEST. "Not in the sitemap" alone would stay green if `/topic-hub` grew
+   * real content tomorrow — the omission would silently become wrong. Asserting
+   * WHY it is omitted means the day the route stops redirecting, this goes red and
+   * someone re-rules, instead of a real page staying unadvertised forever.
+   */
+  it("★★ the bare /topic-hub REDIRECTS, and is therefore NOT advertised — by ruling", () => {
+    // WHY it is excluded: with no topic named it renders <Navigate to="/exam-trends" replace/>.
     renderAt("/topic-hub");
     expect(
       screen.queryByTestId("exam-trends"),
-      "/topic-hub no longer redirects to /exam-trends — re-rule whether it should " +
-        "still be advertised, and update this guard",
+      "/topic-hub no longer redirects to /exam-trends — it may now be a real " +
+        "destination. Re-rule whether it should be advertised, and update this guard.",
     ).not.toBeNull();
-    // It is a redirect, NOT a soft 404 — that distinction is why it is still listed.
+    // It is a redirect, NOT a soft 404. The distinction is why its canonical names
+    // /exam-trends rather than falling to the root.
     expect(notFoundHeading()).toBeNull();
+
+    // THAT it is excluded — from the sitemap AND from the self-canonical set.
+    expect(
+      sitemapPaths(),
+      "the ruling keeps the redirecting /topic-hub OUT of the sitemap",
+    ).not.toContain("/topic-hub");
+    expect(canonicalPathFor("/topic-hub")).toBe("/exam-trends");
+
+    // CONTROL — the exclusion is SURGICAL. The 26 topic pages live under the same
+    // prefix and are unaffected; an over-broad fix that dropped the whole family
+    // would pass the assertion above while emptying the sitemap of its content.
+    const topicPages = sitemapPaths().filter((p) => p.startsWith("/topic-hub/"));
+    expect(topicPages.length, "the 26 topic pages were swept out with the parent").toBe(26);
   });
 });
