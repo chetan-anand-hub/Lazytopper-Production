@@ -12,6 +12,7 @@ import {
   canonicalPathFor,
 } from "./canonicalUrl";
 import { allDesktopTopics } from "../lib/desktop/topics";
+import { LEGAL_SLUGS } from "../pages/legalSlugs";
 
 /**
  * GUARD — `public/sitemap.xml` IS DERIVED FROM THE ROUTE REGISTRY, AND STAYS DERIVED.
@@ -169,14 +170,66 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
     // against so "a new family appeared" is a failure someone must look at.
     expect([...SELF_CANONICAL_ONE_SEGMENT].sort()).toEqual(["/legal", "/topic-hub"]);
 
-    // ⚠ THE KNOWN GAP, PINNED SO IT STAYS VISIBLE. `/legal/:slug` is
-    // self-canonical and has three real members (privacy, terms, refund), and
-    // NONE of them are advertised: the owner's ruling for this change named
-    // practice-hub, topic-hub and the topic pages only. This is a RECORDED
-    // FINDING, not an accident — [FU-SITEMAP-LEGAL-PAGES-UNADVERTISED]. When the
-    // owner rules on it, export the slug table from `pages/LegalPage.tsx` and
-    // expand the family through it; do not hand-list three strings here.
-    expect(paths.filter((p) => p.startsWith("/legal/"))).toEqual([]);
+    // ★★ THE GAP IS CLOSED — OWNER RULING, 2026-09-09 (FOLLOWON-1), which retires
+    // [FU-SITEMAP-LEGAL-PAGES-UNADVERTISED]. This assertion previously read
+    // `.toEqual([])` and pinned the EMPTINESS: `/legal/:slug` had been
+    // self-canonical since #736 with none of its members advertised, because the
+    // ruling for THAT change named practice-hub, topic-hub and the topic pages
+    // only. The owner has now ruled the legal pages IN.
+    //
+    // ⚠ AND IT IS STILL DERIVED, WHICH IS THE ONLY REASON THIS IS SAFE. The
+    // expectation is built from `LEGAL_SLUGS` — `Object.keys(PAGES)` in
+    // `pages/LegalPage.tsx`, the very table the route renders from — so it cannot
+    // pass while the sitemap advertises a slug the page cannot resolve.
+    // Hand-listing "privacy", "terms", "refund" here would recreate the exact
+    // second-source-of-truth defect this module exists to prevent, and the trap is
+    // not hypothetical: every label in the product reads "Refunds", PLURAL,
+    // against a slug of `refund`, SINGULAR.
+    expect(
+      paths.filter((p) => p.startsWith("/legal/")),
+      "the /legal family is not expanded from LegalPage's own slug table",
+    ).toEqual(LEGAL_SLUGS.map((slug) => `/legal/${slug}`));
+
+    // Non-vacuous: an empty `LEGAL_SLUGS` would reduce the equality above to
+    // `[] === []` — precisely the green this assertion used to pin as a FINDING.
+    // A floor rather than an exact count means a fourth policy page does not need
+    // an edit here, while still refusing to pass on nothing.
+    expect(
+      LEGAL_SLUGS.length,
+      "LEGAL_SLUGS is empty — the /legal expansion would be vacuously correct",
+    ).toBeGreaterThan(2);
+  });
+
+  /**
+   * ★ THE BARE `/topic-hub` IS OUT — OWNER RULING, 2026-09-09 (FOLLOWON-1).
+   * *"With no `:topicName` it is a signpost, not a destination, and a sitemap
+   * should advertise pages rather than redirects."*
+   *
+   * ⚠ IT IS NOT A "CONSOLIDATE TO THE ROOT" CASE, WHICH IS WHY IT IS NOT IN THE
+   * CONTROL LOOP ABOVE. Those paths canonicalise to "/". This one names its
+   * redirect DESTINATION, `/exam-trends`. Asserting both halves in one test keeps
+   * "not advertised" and "canonicalises to the destination" as ONE ruling rather
+   * than two facts in two files that can drift apart.
+   */
+  it("★ the bare /topic-hub is NOT advertised, and its canonical names /exam-trends", () => {
+    const paths = sitemapPaths();
+
+    expect(paths, "the redirecting /topic-hub is advertised and must not be")
+      .not.toContain("/topic-hub");
+    expect(SELF_CANONICAL_EXACT, "/topic-hub is still in the self-canonical set")
+      .not.toContain("/topic-hub");
+    expect(canonicalPathFor("/topic-hub")).toBe("/exam-trends");
+    expect(canonicalFor("/topic-hub", PROD_BASENAME)).toBe(
+      "https://www.lazytopper.com/app/exam-trends",
+    );
+
+    // CONTROL — SURGICAL, not a prefix sweep. The 26 topic pages live under the
+    // same prefix; a fix that dropped the whole family would satisfy every
+    // assertion above while emptying the sitemap of the pages it exists to serve.
+    expect(
+      paths.filter((p) => p.startsWith("/topic-hub/")).length,
+      "the 26 topic pages were removed along with their parent",
+    ).toBe(allDesktopTopics().length);
   });
 
   it("★ the topic pages come from the registry — membership and count, not a typed list", () => {

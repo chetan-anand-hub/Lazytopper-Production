@@ -3,6 +3,25 @@
  *
  *   pnpm --filter lazytopper run gen:sitemap
  *
+ * ⛔ THIS SCRIPT'S IMPORT GRAPH MUST STAY FREE OF `.tsx`, AND THE RULE WAS LEARNED
+ * THE EXPENSIVE WAY IN FOLLOWON-1. The `/legal` family is expanded from
+ * `LEGAL_SLUGS`; the first attempt exported that list from `pages/LegalPage.tsx`,
+ * pulling a React component into this node script. It broke TWICE:
+ *
+ *   1. HERE, AT RUNTIME — the repo's ROOT `tsconfig.json` is a references-only stub
+ *      with no `compilerOptions`, so `tsx` finds no `jsx` setting, falls back to the
+ *      CLASSIC runtime and emits `React.createElement` into a module that never
+ *      imports React: `ReferenceError: React is not defined`.
+ *   2. IN `pnpm run build` — `tsc -b` builds `tsconfig.node.json` too, and that
+ *      project has no `jsx` either: `TS6142: ... '--jsx' is not set`.
+ *
+ * ⚠ AND BOTH WERE GREEN UNDER `tsc -p tsconfig.app.json --noEmit`, the standing
+ * gate, because the APP config does set `jsx`. Neither tsc config in the documented
+ * two-config gate covers the NODE project — only the build does. The fix is a
+ * JSX-free leaf (`src/pages/legalSlugs.ts`), NOT a `--tsconfig` flag: a flag would
+ * have made this script compile a React tree to produce three strings, and would
+ * have left the `tsc -b` failure in place.
+ *
  * ★ WHY A GENERATOR AND A GUARD, NOT ONE OR THE OTHER. The generator is what
  * makes the file DERIVED rather than typed out by hand. The guard
  * (`src/config/sitemapUrls.guard.test.tsx`) is what makes it STAY derived — it
