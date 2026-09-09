@@ -21,6 +21,7 @@ import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import { useAuth } from "../context/AuthContext";
 import { trackUxEvent } from "../services/uxTelemetry";
 import { MathText } from "../components/question/MathText";
+import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
 import type { WorksheetGradeResponse } from "../ai/aiClient";
 import {
   getSessionRecordsFromCloud,
@@ -619,6 +620,18 @@ export default function ChapterTestPage() {
               <div className="lt-ct__qtext">
                 <MathText text={currentQuestion.questionText} />
               </div>
+
+              {/* FIGURE-HONESTY-1 PR-2 — a question whose figure is BOUND renders it
+                  here, exactly as Practice does (PracticeQuestionCard.tsx:549). With no
+                  binding the component returns null (PR-1), so an unbound question
+                  renders no extra node and this surface is unchanged from today. */}
+              <QuestionVisualAid
+                subject={currentQuestion.subject}
+                topicKey={currentQuestion.topicKey}
+                questionText={currentQuestion.questionText}
+                marks={currentQuestion.marks}
+                questionId={String(currentQuestion.id)}
+              />
 
               {currentIsObjective && currentQuestion.options ? (
                 <div>
