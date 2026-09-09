@@ -22,6 +22,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { trackUxEvent } from "../services/uxTelemetry";
 import { MathText } from "../components/question/MathText";
+import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
 import type { WorksheetGradeResponse } from "../ai/aiClient";
 import type { PersistedWorksheet } from "../services/worksheetSessionStore";
 import {
@@ -1026,6 +1027,16 @@ export default function FullMockPage() {
               <div className="lt-ct__qtext">
                 <MathText text={currentQuestion.questionText} />
               </div>
+
+              {/* FIGURE-HONESTY-1 PR-2 — see ChapterTestPage. Bound figure renders here;
+                  unbound renders nothing, so this surface is unchanged from today. */}
+              <QuestionVisualAid
+                subject={currentQuestion.subject}
+                topicKey={currentQuestion.topicKey}
+                questionText={currentQuestion.questionText}
+                marks={currentQuestion.marks}
+                questionId={String(currentQuestion.id)}
+              />
 
               {currentIsObjective && currentQuestion.options ? (
                 <div>
