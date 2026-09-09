@@ -79,7 +79,7 @@ export const howOrganismsReproducePYQ2025: CanonicalQuestion[] = [
   { id: "PYQ-S-2025-REPR-010", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "General", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: ", , , 4 ‍ 1∙5 V , XY : 1 – XY R1 2 – XY R2 3 – XY R1 R2 4 – XY R1 R2 ** 23 # [ P.T.O. ] (ii) Name the yellowish coloured structures produced by the part labelled as 'Y'. (iii) Write the name of the process by which these are transferred to the part labelled as 'X'. (iv) Explain the process of seed formation in a flowering plant. 5 OR (b) (i) Name the type of asexual mode of reproduction shown in the given figure. (a) (b) (c) (d) (e) (f) (ii) Identify the unicellular organism in the diagram. (iii) List any two advantages of asexual reproduction over sexual reproduction. (iv) Name and explain any one mode of asexual reproduction observed in Hydra.",
     answer: "resistors are connected in series.",
-    solutionSteps: ["a) Graph A (b) Graph D", "(i) R = 𝑅1𝑅2 𝑅1 +𝑅2 + 𝑅3 R =        10 10 +10 10 +10 = 5  + 10  = 15  OR", "(ii) • I = V R= 6 V (0⋅1 + 0⋅2 + 0⋅3 + 0⋅4 +0.5) Ω= 6 V 1.5 Ω= 4·0A •same current flows when", "resistors are connected in series."],
+    solutionSteps: ["a) Graph A (b) Graph D", "(i) R = 𝑅1𝑅2 𝑅1 +𝑅2 + 𝑅3 R = × Ω  10 10 +10 10 +10 = 5 Ω + 10 Ω = 15 Ω OR", "(ii) • I = V R= 6 V (0⋅1 + 0⋅2 + 0⋅3 + 0⋅4 +0.5) Ω= 6 V 1.5 Ω= 4·0A •same current flows when", "resistors are connected in series."],
     finalAnswer: "resistors are connected in series.",
     ncertRef: "PYQ 31/3/3 Q37", isCompetencyBased: true,
     pyqYear: "2025", pyqSet: "3" },

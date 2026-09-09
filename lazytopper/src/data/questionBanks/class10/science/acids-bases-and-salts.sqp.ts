@@ -27,7 +27,7 @@ export const ACIDS_BASES_SALTS_SQP: CanonicalQuestion[] = [
     ],
     "answer": "(D) NaHCO₃",
     "solutionSteps": [
-      "Ca(OH)₂ and NaOH are strong corrosive bases; NaCl is a neutral salt; NaHCO₃ (sodium bicarbonate / baking soda) is a mild non-corrosive basic salt. Answer: (D)."
+      "[1 mark] Ca(OH)₂ and NaOH are strong corrosive bases; NaCl is a neutral salt; NaHCO₃ (sodium bicarbonate / baking soda) is a mild non-corrosive basic salt. Answer: (D)."
     ],
     "finalAnswer": "(D) NaHCO₃",
     "isCompetencyBased": false

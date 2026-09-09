@@ -11,9 +11,9 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
 export const metalsNonMetalsPYQ2024: CanonicalQuestion[] = [
   { id: "PYQ-S-2024-METAL-001", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "General", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Calculate the resistance of a copper wire of length 1000 m and area of cross-section 2 mm2. Resistivity of copper is 1·6 10 8 m.",
-    answer: "– 1000 m 2 × (10 m) = 80 ",
-    solutionSteps: ["[1 mark] R = A l  = 16  10−8  m A = 2  (10−3m)2 l = 1000 m  R = (16 10−8  m)  3 2", "[1 mark] – 1000 m 2 × (10 m) = 80 "],
-    finalAnswer: "– 1000 m 2 × (10 m) = 80 ",
+    answer: "– 1000 m 2 × (10 m) = 8⋅0 Ω",
+    solutionSteps: ["[1 mark] R = ρA l ρ = 1⋅6 × 10−8 Ω m A = 2 × (10−3m)2 l = 1000 m ∴ R = (1⋅6 ×10−8 Ω m) × 3 2", "[1 mark] – 1000 m 2 × (10 m) = 8⋅0 Ω"],
+    finalAnswer: "– 1000 m 2 × (10 m) = 8⋅0 Ω",
     ncertRef: "PYQ 31/4/3 Q26", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "3" },
   { id: "PYQ-S-2024-METAL-002", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "General", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",

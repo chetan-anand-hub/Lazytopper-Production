@@ -1337,10 +1337,10 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
     "answer": "",
     "explanation": "",
     "solutionSteps": [
-      "Recall the universal indicator colour scale for strong acids, weak acids, neutral solutions, weak bases, and strong bases.",
-      "Red colour indicates a strongly acidic solution.",
-      "Strong acids typically have pH values between 1 and 3.",
-      "Therefore, solution X is a strong acid with approximate pH between 1 and 3."
+      "[0.5 mark] Recall the universal indicator colour scale for strong acids, weak acids, neutral solutions, weak bases, and strong bases.",
+      "[0.5 mark] Red colour indicates a strongly acidic solution.",
+      "[0.5 mark] Strong acids typically have pH values between 1 and 3.",
+      "[0.5 mark] Therefore, solution X is a strong acid with approximate pH between 1 and 3."
     ],
     "finalAnswer": "",
     "strategyHint": "",
