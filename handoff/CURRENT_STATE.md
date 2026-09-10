@@ -1,6 +1,123 @@
 # LazyTopper — Current State
 
-## [CURRENT] Wave MI-INTEGRITY-10 — **THE STUDENT'S ANSWER NOW REACHES THE THING THAT MARKS IT, AND A HANDOFF CORRECTED THE DISPATCH THAT COMMISSIONED IT BEFORE WRITING A LINE.** `#703` · `#704` · `#706` · `#707` are ALL ON TRUNK — trunk `02fa7c0a`
+## [CURRENT] CFPQ-FIGURES-1 + BANK-1 — **53 QUESTIONS STOPPED SHOWING A STOCK PHOTOGRAPH IN PLACE OF THE DIAGRAM THEY REQUIRE, AND 24 CFPQ MATHS QUESTIONS BECAME REACHABLE AT ALL** — `#744` · `#746` · `#747` · `#750`
+
+★ **PROVENANCE.** Every code-level number below was **re-derived by this lane** at the stated trunk
+by runtime import of the assembled bank or by opening the artefact, never copied from a document.
+Marked **LANE-VERIFIED** where so. The audit table behind the figure numbers is committed at
+`ops/arcs/CFPQ_FIGURES_1_BINDING_AUDIT.md` — **tracked**, unlike `ops/.specs/`.
+
+**`#750` IS ON TRUNK** as `dd8e5d99`, verified with `git ls-remote` and by counting the bindings in
+`mathsFigureVisuals.ts` at that commit: **70**, down from 123. The figure numbers below are the
+**live** state, not an intended one.
+
+### 1 — ★★ 53 DECORATIVE PHOTOGRAPHS WERE BOUND AS QUESTION FIGURES, AND ARE NOW UNBOUND (`#750`)
+
+**What a student saw.** Opening a Pair of Linear Equations question, they were shown a **stock
+photograph of a man mowing a lawn** and asked to solve the pair. **OWNER-VERIFIED in production**
+at `/app/visuals/maths/linear-equations/z3-ple-001.webp`. A lighthouse at night sat on a
+trigonometry question; a jar of coins on an arithmetic progression; a hydrofoil on a probability
+question.
+
+**Why it was a defect and not decoration.** Every `Z3-*` row sets `requiresDiagram: true` — it
+**declares the figure essential**. The bound image carried none of the question's data: no angle,
+no dimension, no table. The question could not be answered from what was shown.
+
+**Why nobody caught it.** The bindings are **`questionId`-keyed**. An exact id match *looks
+deliberate*, so every reviewer assumed someone had checked. Across 171 bindings, **149 had never
+been opened by anyone**. No gate can catch this: `tsc` cannot see that a lawnmower is not a
+linear-pair diagram, and the binding compiles, ships and renders perfectly.
+
+**What `#750` does — bindings only.** 53 entries removed, 123 → 70 in `MATHS_FIGURE_VISUALS`,
+across 52 distinct questions. **Assets NOT deleted. `requiresDiagram` NOT touched. No question row
+touched.** These rows were already unpublishable; unbinding turns a **hidden wrong figure into a
+KNOWN gap**. Re-binding is one line per row once a real diagram exists.
+
+⚠ **THE 52 REAL DIAGRAMS ARE A KNOWN GAP, NOT A SILENT ONE — AND NOT NECESSARILY CROPPABLE.** See
+`[FU-Z3-DECORATIVE-PHOTOS-BOUND-AS-FIGURES]`. **51 of the 52 carry no `diagramDescription` at all**,
+so nobody ever recorded what the diagram should show, and most are word problems where one would
+have to be authored rather than extracted.
+
+### 2 — THE AUDIT: 171 BINDINGS OPENED, ONE BY ONE. **LANE-VERIFIED**
+
+| state | bindings |
+|---|---|
+| CORRECT | **114** |
+| WRONG (the 53 above) | **53** |
+| UNCERTAIN — left bound on purpose | **4** |
+| SHARED — one image, several rows, verified legitimate | 7 bindings / 2 images |
+
+Each was opened **as an image and read against its own stem and answer**. 31 rows carried an
+arithmetic or geometric identity linking figure to answer; all 31 passed.
+
+★ **THE STATISTICS CONTROL IS WHY THIS IS A DIAGNOSIS AND NOT AN OPINION.** All four Statistics
+questions carry a **real frequency table**, and its five decorative images sit **beside** them —
+same lane, same period. So decoration was **never meant to be the figure**; on the 53 rows the
+working diagram is simply **missing**. Omission, not house style.
+
+★ **AND THE 114 CORRECT ONES WERE BOUND BY EYE**, which two swap-traps prove: `FND-L-QB-030`/`-043`
+are near-identical "Box" figures differing only in converging vs diverging output, each matching its
+own answer; `FND-L-QB-150`/`-160`/`-171` are three near-identical prisms with three **different**
+answers, each matching its own. A rule-based binder would have mixed both.
+
+⚠ **Only TWO images in all 171 are bound to more than one question**, both verified legitimate. So
+"the same diagram on several questions" was never caused by the binder.
+
+⚠ **NO KEYWORD-MATCHED FIGURE IS REACHABLE BY A STUDENT ANYWHERE. LANE-VERIFIED.** `DiagramBlock`
+has zero importers and is tree-shaken out of the bundle (proved with a validated string-literal
+probe plus positive and negative controls); `ConceptSpine` renders a **text badge**, never an image;
+`questionVisualMap` has zero consumers; `VisualAuditPage` is dead behind `VITE_SHOW_DEV_TOOLS`,
+which is set nowhere. The only component rendering figures to students is `QuestionVisualAid`, which
+uses the exact id-keyed `getFiguresForQuestion`.
+
+### 3 — 24 CFPQ MATHS QUESTIONS BECAME REACHABLE (`#746`), AND THE REGISTRY SPLIT THAT ENABLED IT (`#744`)
+
+`canonicalQuestionBank.ts` imported **eleven** CFPQ packs, every one Science, and **zero** maths
+`*.cfpq.ts`. The 24 rows from chapters 1 and 2 sat on trunk reaching **no student and no gate** —
+proved by runtime import returning 0 rows for both id prefixes, and by a bundle grep finding their
+ids absent pre-wiring and present after, with a positive control in the same build.
+
+**Bank counts after wiring. LANE-VERIFIED by runtime import:**
+
+| quantity | value |
+|---|---|
+| `canonicalQuestionBank.length` | **8,662** |
+| publishable | **2,982** |
+| addressable (step-marking backlog) | **2,336** |
+| `requires-absent-figure` (figure-held) | **392** |
+| `AI_GENERATED_QUESTION_IDS.size` | 2,952 |
+
+⚠ **The row delta was +24 and the publishable delta +17** — they are different questions. The seven
+others are held by the figure rule, not by step-marking, which is why `addressable` did not move.
+
+`#744` split `MATHS_FIGURE_VISUALS` and `SCIENCE_FIGURE_VISUALS` into their own files so the two
+figure lanes stop queueing on one path. Behaviour-neutral, proved by a **byte-identical dump** of
+`getFiguresForQuestion` across all 128 bound ids, mutation-tested so the identity is not vacuous.
+
+### 4 — WHAT IS OPEN
+
+| PR | state | what |
+|---|---|---|
+| `#752` | **DRAFT** | CFPQ-FIGURES-1 PR-2 chapter 1 — 12 Electricity bindings, eye-confirmed, two self-checked arithmetically |
+| PR-2 remainder | **not started** | **24 Science rows across nine chapters** — see the follow-ups board |
+| PR-3 (the figure escape) | **not started** | **the largest single publishable unlock on the board** — see the follow-ups board |
+
+★ **Light needs no cropping, and this time that is a VERIFIED statement rather than an inherited
+assumption** — all 36 of its bindings were opened (34 correct, 2 uncertain). The difference between
+those two sentences is exactly why 53 wrong figures were live.
+
+### 5 — ★ THE LESSON THIS ARC LEAVES BEHIND
+
+**"ALREADY DONE BY AN EARLIER LANE" IS NOT EVIDENCE.** The arc's own spec required
+eye-confirmation of **new** bindings and treated existing ones as settled. That single assumption
+kept 53 wrong figures in the live product until the owner opened the app and looked.
+
+⇒ **Any lane inheriting prior work must state whether that work was ever verified. If nobody knows,
+verifying it is part of the lane.** A count of existing artefacts is not a count of *checked* ones.
+
+
+
+## [PREVIOUS] Wave MI-INTEGRITY-10 — **THE STUDENT'S ANSWER NOW REACHES THE THING THAT MARKS IT, AND A HANDOFF CORRECTED THE DISPATCH THAT COMMISSIONED IT BEFORE WRITING A LINE.** `#703` · `#704` · `#706` · `#707` are ALL ON TRUNK — trunk `02fa7c0a`
 
 ★ **PROVENANCE.** Code-level statements below are labelled **OWNER-VERIFIED**, **LANE-REPORTED**,
 **SCOUT-REPORTED** or **CONTROLLER-RECORDED**. Where the `HANDOFF-MI10` lane re-derived a claim
