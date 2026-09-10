@@ -42,7 +42,18 @@ const read = (rel, base = repoRoot) => fs.readFileSync(path.join(base, rel), "ut
 
 const CATALOGUE = "lazytopper/src/pages/tutor/conceptVisualCatalogue.data.ts";
 const HUB = "lazytopper/src/lib/desktop/topicHubContent.ts";
-const REGISTRY = "lazytopper/src/data/visualConceptRegistry.ts";
+// ⚠ THIS GATE READS SOURCE TEXT, IT DOES NOT IMPORT. BANK-1 PR-1 split the two
+// figure arrays out of visualConceptRegistry.ts into their own files so the Maths
+// and Science figure lanes stop sharing one path. The registry imports and
+// re-exports them, which keeps every MODULE importer whole — but a re-export is
+// invisible to a consumer that never imports, so this gate must name the array
+// files directly or it silently parses zero figures and reports every bank-figure
+// row missing. See [FU-NON-IMPORTING-CONSUMERS]. Keep this list in step with
+// src/data/figures/.
+const FIGURE_SOURCES = [
+  "lazytopper/src/data/figures/mathsFigureVisuals.ts",
+  "lazytopper/src/data/figures/scienceFigureVisuals.ts",
+];
 const NOTES_ASSETS = "notes/assets"; // repo-root
 const PUBLIC = "lazytopper/public"; // bank figures + interactives are public-served
 
@@ -103,10 +114,21 @@ for (const r of rows.filter((x) => x.bestKind === "notes-figure")) {
 }
 
 // ── 2b. bank-figure refs (questionId) map to a real filePath asset ──
-const regText = read(REGISTRY);
+const regText = FIGURE_SOURCES.map((f) => read(f)).join("\n");
 const qidToFilePath = new Map();
 for (const m of regText.matchAll(/filePath:\s*"([^"]+)"[^}]*questionId:\s*"([^"]+)"/g)) {
   if (!qidToFilePath.has(m[2])) qidToFilePath.set(m[2], m[1]);
+}
+
+// Sanity: the figure sources must yield SOMETHING. Parsing zero is not a clean bank
+// with no figures — it is this gate having been decoupled from the data, which is
+// exactly what moving the arrays out of visualConceptRegistry.ts would have done
+// silently had the move not carried FIGURE_SOURCES with it. Without this check the
+// failure mode is 128 entries -> 0 with no signal beyond the downstream rows.
+if (qidToFilePath.size === 0) {
+  fail(
+    `parsed ZERO figure entries from ${FIGURE_SOURCES.join(", ")} — the arrays moved, were renamed, or changed shape. Fix FIGURE_SOURCES (or the regex) before trusting this guard; do NOT read a green run below as "no bank figures".`,
+  );
 }
 for (const r of rows.filter((x) => x.bestKind === "bank-figure")) {
   const fp = qidToFilePath.get(r.bestRef);
