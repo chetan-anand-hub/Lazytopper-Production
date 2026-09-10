@@ -1,5 +1,13 @@
 // PracticePage — QP SCORECARD DENOMINATOR regression ([FU-QP-SCORECARD-ATTEMPTS-WIPED]).
 //
+// ⚠ PER-TEST TIMEOUTS RAISED TO 90 s BY PERF-1 — ATTRIBUTION, NOT SLOWNESS. predictionCore
+// used to build the unified question bank at module scope, so its ~20-25 s cost was paid in
+// vitest's COLLECT phase, which has no timeout. PERF-1 made that build lazy (browser
+// main-thread freeze: 10,617 ms to 145 ms), so the same work is now billed to the first test
+// that renders this page. These suites failed on "Test timed out" with ZERO assertion
+// failures, and the built bank is byte-identical before and after. The real debt is the
+// 20-second build itself: [FU-PREDICTIONCORE-BUILD-COST].
+//
 // THE OWNER'S BUG (verified against a screenshot): a full-page 5-MCQ Quick Practice showed
 // "5 of 75 attempted · 1/5 MCQs correct". The attempts were counted CORRECTLY (5 of 5) — the
 // DENOMINATOR was wrong: it read `questions.length`, the OVER-FETCHED engine pool (75 here),
@@ -132,7 +140,7 @@ describe("QP scorecard denominator — full-page path", () => {
     expect(mcqLine).toMatch(/^1\/5 MCQs correct/);
     // THE FIX: denominator is the DISPLAYED 5, not the pool 75. Trunk: "5 of 75" → FAIL.
     expect(hero).toBe("5 of 5");
-  }, 20000);
+  }, 90000);
 
   it("denominator is displayed-independent of attempt count: a no-attempt-signal set reads 'of 5', not 'of 75'", async () => {
     // NOTE: this is a CONSTRUCTED case, NOT the owner's bug. Optionless (written) items have no
@@ -149,5 +157,5 @@ describe("QP scorecard denominator — full-page path", () => {
 
     // Denominator is the DISPLAYED 5, not the over-fetched 75, even at 0 attempted. Trunk: "0 of 75".
     expect(hero).toBe("0 of 5");
-  }, 20000);
+  }, 90000);
 });
