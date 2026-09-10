@@ -1,6 +1,14 @@
 // PracticePage — the toolbar's "Refresh set" must actually REFRESH
 // ([FU-PRACTICE-CONTROLS-REFRESH-STALE]).
 //
+// ⚠ PER-TEST TIMEOUTS RAISED TO 90 s BY PERF-1 — ATTRIBUTION, NOT SLOWNESS. predictionCore
+// used to build the unified question bank at module scope, so its ~20-25 s cost was paid in
+// vitest's COLLECT phase, which has no timeout. PERF-1 made that build lazy (browser
+// main-thread freeze: 10,617 ms to 145 ms), so the same work is now billed to the first test
+// that renders this page. These suites failed on "Test timed out" with ZERO assertion
+// failures, and the built bank is byte-identical before and after. The real debt is the
+// 20-second build itself: [FU-PREDICTIONCORE-BUILD-COST].
+//
 // THE DEFECT: `PracticeControls.tsx`'s "Refresh set" button called the page's BARE
 // `regenerateQuestions()`. That re-runs the fetch with BOTH selection inputs unmoved:
 //
@@ -197,7 +205,7 @@ describe('QP toolbar "Refresh set" — the refreshed set must not be the set on 
     expect(second.join(",")).not.toBe(first.join(","));
     // With 25 in the pool and 5 refreshed away, the new set is fully NEW — no overlap.
     expect(second.filter((n) => first.includes(n))).toEqual([]);
-  }, 30000);
+  }, 90000);
 
   it("SCARCITY: when the pool is exhausted Refresh RECOMBINES (rotated), never an identical repeat", async () => {
     // Exactly as many questions as the set needs — the honest thin-bank case. There is
@@ -225,7 +233,7 @@ describe('QP toolbar "Refresh set" — the refreshed set must not be the set on 
     // The effective rotation advanced by EXACTLY ONE — n and n+1 differ modulo every
     // pool size >= 2, so the exhausted case can never repeat identically.
     expect(second).toEqual([...first.slice(1), first[0]]);
-  }, 30000);
+  }, 90000);
 
   it("NO-REGRESSION: the NORMAL build paths still call the bare regenerate (nothing marked seen)", async () => {
     // `onBuildSet` (Edit filters → Build new set) and `applyPreset` commit the pending
@@ -266,5 +274,5 @@ describe('QP toolbar "Refresh set" — the refreshed set must not be the set on 
     expect(seedAfter).toBe(seedBefore);
     // …and the rebuild therefore reproduces the SAME set, byte-for-byte, as before.
     expect(second.join(",")).toBe(first.join(","));
-  }, 30000);
+  }, 90000);
 });

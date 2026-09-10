@@ -48,5 +48,27 @@ export default defineConfig({
     // in a heap bump. [FU-VITEST-CI-HEAP-CEILING]
     maxWorkers: 2,
     minWorkers: 1,
+    // TIMEOUT — raised from vitest's 5000 ms default by PERF-1. This is an ATTRIBUTION
+    // change, not a slower suite.
+    //
+    // `predictionCore` used to build the unified question bank at MODULE SCOPE, so its
+    // ~15-25 s cost was paid during vitest's COLLECT phase, which has no per-test
+    // timeout (baseline collect: 950 s). PERF-1 made that build lazy — the browser win is
+    // a main-thread freeze falling from 10,617 ms to 145 ms — which moves the same work
+    // into whichever test first asks for a prediction, where the 5 s budget applies.
+    //
+    // Six suites then failed, ALL of them "Test timed out", ZERO assertion failures, and
+    // the built bank is byte-identical before and after (SHA-256 over every row, in
+    // order, plus cmp). Nothing became slower or wrong: a 15-second operation that was
+    // always there is now billed to the test that triggers it instead of hidden in
+    // collect. Measured at --testTimeout=60000, the first test in such a file takes
+    // 19-25 s and every later test in it runs in milliseconds, because the memo is warm.
+    //
+    // ⚠ THE REAL DEBT IS THE 15 SECONDS ITSELF, NOT THIS NUMBER. Building 8,903 rows
+    // should not cost that. Making it cheap is its own lane: it needs the scoring path
+    // measured and changed, which would alter output, and so cannot ride along with a
+    // change whose entire claim is that the output is byte-identical.
+    // [FU-PREDICTIONCORE-BUILD-COST]
+    testTimeout: 60000,
   },
 });
