@@ -503,6 +503,13 @@ import { REPR_CFPQ, REPR_CFPQ_AUTHORED_SOLUTION_IDS } from './questionBanks/clas
 import { EYE_CFPQ, EYE_CFPQ_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/human-eye-and-colourful-world.cfpq';
 import { ELEC_CFPQ, ELEC_CFPQ_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/electricity.cfpq';
 import { ENV_CFPQ, ENV_CFPQ_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/our-environment.cfpq';
+// CBSE Competency Focused Practice Questions — MATHS. The eleven imports above are
+// all SCIENCE; until BANK-1 PR-2 this file imported ZERO maths *.cfpq.ts, so both
+// chapters below sat on trunk invisible to every student and every gate. Measured,
+// not assumed: a runtime import of the assembled bank returned 0 rows for both id
+// prefixes before these two lines existed.
+import { REAL_NUMBERS_CFPQ, REALNUM_CFPQ_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/maths/real-numbers.cfpq';
+import { POLYNOMIALS_CFPQ, POLY_CFPQ_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/maths/polynomials.cfpq';
 // gdrive high-marks extraction (2026-07-04): essay/numericals/guide/worksheet sources, 2-5 mark only
 import { LGHT_GDR, LGHT_GDR_BEYOND_BOARD, LGHT_GDR_AUTHORED_SOLUTION_IDS } from './questionBanks/class10/science/light-reflection-and-refraction.gdr';
 
@@ -975,6 +982,10 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
   ...EYE_CFPQ,
   ...ELEC_CFPQ,
   ...ENV_CFPQ,
+  // CFPQ MATHS — chapters 1 and 2, wired by BANK-1 PR-2. Same booklet programme as
+  // the science packs above, same official key/rubric provenance.
+  ...REAL_NUMBERS_CFPQ,
+  ...POLYNOMIALS_CFPQ,
   // gdrive high-marks extraction 2026-07-04 — 2-5 mark items only (see LGHT_GDR_AUTHORED_SOLUTION_IDS)
   ...LGHT_GDR,
   ...LGHT_GDR_BEYOND_BOARD,
@@ -2041,6 +2052,12 @@ export const AI_GENERATED_SOLUTION_IDS: ReadonlySet<string> = new Set([
   ...EYE_CFPQ_AUTHORED_SOLUTION_IDS,
   ...ELEC_CFPQ_AUTHORED_SOLUTION_IDS,
   ...ENV_CFPQ_AUTHORED_SOLUTION_IDS,
+  // CFPQ MATHS (BANK-1 PR-2). Chapter 2 declared its array when it landed; Chapter 1
+  // did NOT, because the convention only arrived with Chapter 2 — so REALNUM's array
+  // was authored in this PR from the chapters' own `Key:`/`Rubric:` row annotations.
+  // Left undeclared, Chapter 1 would read as entirely rubric-derived, which is false.
+  ...REALNUM_CFPQ_AUTHORED_SOLUTION_IDS,
+  ...POLY_CFPQ_AUTHORED_SOLUTION_IDS,
   // gdrive high-marks batch (2026-07-04): sources carry no printed solutions for these rows
   ...LGHT_GDR_AUTHORED_SOLUTION_IDS,
   // Class-(b) step-marking pass (2026-07-21, [FU-BANK-SCARCE-BAND-MISBANDING] Class b):

@@ -160,8 +160,10 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
  *   saved and mapped but unbound renders nothing and breaks nothing.
  *
  * De-duped against the whole bank: all 10 stems checked, 0 collisions.
- * NOT WIRED — `canonicalQuestionBank.ts` is out of scope for this lane and is
- *   held by another lane; wiring is a separate PR after this one merges.
+ * WIRED — BANK-1 PR-2 added the import and the spread in `canonicalQuestionBank.ts`,
+ *   together with `REALNUM_CFPQ_AUTHORED_SOLUTION_IDS` below. Until then these rows
+ *   sat on trunk reaching no student and no gate: a runtime import of the assembled
+ *   bank returned ZERO rows with this id prefix. Committed is not live.
  */
 
 const REAL_NUMBERS_CFPQ_REF =
@@ -405,4 +407,39 @@ export const REAL_NUMBERS_CFPQ: CanonicalQuestion[] = [
     isCompetencyBased: true,
     ncertRef: REAL_NUMBERS_CFPQ_REF,
   },
+];
+
+/**
+ * THE DECOUPLE — provenance of every `solutionSteps` array above.
+ *
+ * ⚠ THIS ARRAY WAS MISSING UNTIL THE WIRING PR, AND ITS ABSENCE WAS A CLAIM.
+ * The convention arrived with Chapter 2 (`polynomials.cfpq.ts`), so this chapter
+ * shipped declaring nothing — which reads as "every step here is rubric-derived",
+ * and that is false. Three rows carry reasoning this repo wrote.
+ *
+ * WHICH THREE, AND HOW THEY WERE IDENTIFIED — from PROVENANCE, not from format.
+ * Every row above carries a source annotation, and the annotation is the
+ * discriminator: a row citing `Key:` has only the official answer key, which on
+ * folio 7 gives an option index and nothing else, so its reasoning had to be
+ * authored. A row citing `Rubric:` is CBSE's own step-marking, transcribed.
+ * Exactly three rows cite `Key:` — Q1, Q2 and Q3, the chapter's surviving MCQs.
+ * (Q4, the fourth MCQ, is excluded on syllabus grounds; see the exclusions block.)
+ *
+ * ★ THE METHOD WAS VALIDATED BEFORE IT WAS TRUSTED. Chapter 2 carries the same
+ * annotation AND declares its array explicitly. Applying this same `Key:` test to
+ * Chapter 2 selects Q1 and Q2 — exactly the two rows its own DECOUPLE block names
+ * as authored. A rule that predicts the declared answer where one exists is what
+ * makes it usable here, where one did not.
+ *
+ * Chapter 1 needs three ids and not four. `POLY_CFPQ_AUTHORED_SOLUTION_IDS` holds
+ * four because it covers TWO causes — its two MCQs, plus Q13 and Q14 whose rubric
+ * route used polynomial long division and was replaced with an in-syllabus route.
+ * This chapter has no authored-route rows: its Euclid questions were excluded
+ * outright rather than re-routed, so `-004`, `-006`, `-011` and `-012` stay
+ * reserved and unused.
+ */
+export const REALNUM_CFPQ_AUTHORED_SOLUTION_IDS: ReadonlyArray<string> = [
+  "CFPQ-M-REALNUM-001",
+  "CFPQ-M-REALNUM-002",
+  "CFPQ-M-REALNUM-003",
 ];

@@ -159,8 +159,10 @@ import type { CanonicalQuestion } from "../../../predictionTypes";
  *   crop saved and mapped but unbound renders nothing and breaks nothing.
  *
  * De-duped against the whole bank: all 14 stems checked, 0 collisions.
- * NOT WIRED — `canonicalQuestionBank.ts` is out of scope for this lane; wiring
- *   is a separate PR.
+ * WIRED — BANK-1 PR-2 added the import, the spread and the aggregation of
+ *   `POLY_CFPQ_AUTHORED_SOLUTION_IDS` in `canonicalQuestionBank.ts`. Until then
+ *   these rows sat on trunk reaching no student and no gate: a runtime import of
+ *   the assembled bank returned ZERO rows with this id prefix. Committed is not live.
  */
 
 const POLY_CFPQ_REF =
