@@ -18,6 +18,163 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ---
 
+## 2026-09-10 — CFPQ-FIGURES-1 + BANK-1 — new follow-ups (trunk `dd8e5d99`, re-derived with `git ls-remote origin base/approved-thru-437`; `#744` `#746` `#747` merged; `#750` **MERGED** as `dd8e5d99` — maths bindings 123 → 70 on trunk, counted at that commit; `#752` OPEN DRAFT)
+
+⚠ **Read `ops/arcs/CFPQ_FIGURES_1_BINDING_AUDIT.md` before touching any figure binding.** It is the
+only record of which of the 171 bindings were verified and which were not, and it is committed to a
+**tracked** directory precisely because `ops/.specs/` is gitignored.
+
+---
+
+### `[FU-Z3-DECORATIVE-PHOTOS-BOUND-AS-FIGURES]` — **HIGH. Unbound by `#750`; the 52 real diagrams are still owed.**
+
+**53 figure bindings pointed at decorative stock photographs carrying none of their question's
+data**, on rows that set `requiresDiagram: true` — i.e. rows that **declare the figure essential**.
+A student opening a Pair of Linear Equations question was shown a **photograph of a man mowing a
+lawn** and asked to solve the pair. **OWNER-VERIFIED in production** at
+`/app/visuals/maths/linear-equations/z3-ple-001.webp`.
+
+All 53 are `Z3-*` maths rows. Worst affected: **Pair of Linear Equations, 11 of 11 — the entire
+chapter**; Arithmetic Progression 9/10; Quadratic Equations 7/10; Trigonometry 7/20; Triangles 6/10.
+
+★ **THE EVIDENCE THAT A REAL DIAGRAM IS MISSING RATHER THAN NEVER INTENDED — THE STATISTICS
+CONTROL.** All four Statistics questions carry a **real frequency table**, and its five decorative
+images sit **beside** those tables. Same authoring lane, same period, both patterns present in one
+file. ⇒ Decorative imagery was **never meant to be the figure**. On the 53 rows the working diagram
+is simply **absent**. That control is what makes this a diagnosis rather than an opinion, and it is
+the reason `#750` unbinds rather than accepting the photos as intended decoration.
+
+**What `#750` did:** removed the 53 bindings **only**. Assets kept, `requiresDiagram` untouched, no
+question row touched. The rows were already unpublishable; unbinding converts a **hidden wrong
+figure into a known gap**.
+
+⚠ **WHAT IS STILL OWED, AND A WARNING FOR WHOEVER TAKES IT.** 52 questions now have no figure.
+**Do not assume they can be cropped from a source.** Measured in `competency.z3.ts`:
+
+| Z3 rows | carry a prose `diagramDescription` | do not |
+|---|---|---|
+| kept (a real figure was bound) | 27 | 23 |
+| **the 52 unbound** | **1** | **51** |
+
+**51 of the 52 have no recorded description of what their diagram should show** — nobody ever wrote
+it down. Most are word problems (cost and revenue, mixtures, salary progressions, probability from
+given percentages) where a diagram would have to be **authored from scratch, not extracted**.
+
+⇒ **The successor lane's first question is not "where do we crop these from" but "is
+`requiresDiagram: true` correct on these rows at all?"** For a linear-pair cost problem it very
+likely is not, and the flag may be the defect rather than the missing figure. **That content ruling
+is deliberately left open here — it is the owner's, not a lane's.**
+
+★ **AND THE REASON THIS SURVIVED: the bindings are `questionId`-keyed.** An exact id match *looks
+deliberate*, so every reviewer assumed someone had checked. This is **worse than the generic-diagram
+defect FIGURE-HONESTY fixed**, for exactly that reason. No gate can catch it — `tsc` cannot see that
+a lawnmower is not a linear-pair diagram.
+
+---
+
+### `[FU-Z3-PR-002-TABLE-DOES-NOT-SUM]` — **a WRONG QUESTION, not a wrong figure. SEPARATE CLASS, SEPARATE LANE.**
+
+`Z3-PR-002`'s bound table is the **correct** table for its question, and its arithmetic is wrong:
+
+- Women column 17+22+8+6 = **53** ✓ and Men 20+17+7+3 = **47** ✓, consistent with the stem's 100 voters.
+- But the **Green Party row total reads 5**, where 6+3 = **9**.
+- The totals column then gives 37+39+15+5 = **96**, not the stated 100. With **9** it reconciles exactly.
+
+⚠ **This is NOT fixed by unbinding and must not be swept in with the 53.** The binding is correct;
+the **content** is wrong. A student doing this question meets a table that does not add up. It needs
+someone to open the Z3 source and decide whether the source says 9 or the glyph rendered as 5.
+
+---
+
+### `[FU-Z3-DIAGRAM-EXISTENCE-UNKNOWN]` — **scoping input for the successor lane, recorded so it is not rediscovered**
+
+Nobody on this arc opened the **Z3 source document**; only the in-repo `competency.z3.ts` was read.
+So the question *"do real diagrams exist for the 52?"* is **genuinely unanswered**, and the
+measurement above (51 of 52 with no `diagramDescription`) is the only evidence either way.
+
+**Recorded because a successor will otherwise assume cropping is possible and plan a lane around
+it.** Establishing whether the source has diagrams at all is the **first** task of that lane, before
+any cropping is scheduled.
+
+---
+
+### `[FU-FIGURE-ESCAPE-UNBUILT]` — **RE-STATED WITH A MEASURED PRIZE. The largest single publishable unlock on the board.**
+
+`isPublishable` has **no way of knowing a figure exists**: `publishability.ts` contains no reference
+to `getFiguresForQuestion`, the figure arrays, or `visualConceptRegistry`. Rule 5 rejects on
+`q.requiresDiagram || demandsSuppliedFigure(text)` alone. **So binding a figure cannot make a row
+publishable, and never has.**
+
+★ **THE PRIZE, MEASURED BY RUNTIME IMPORT — AND IT IS FAR LARGER THAN THE ARC ASSUMED. LANE-VERIFIED.**
+
+| | rows |
+|---|---|
+| rows rejected `requires-absent-figure` | **392** |
+| of those, rows that **ALREADY HAVE A BOUND FIGURE** and are rejected anyway | **125** |
+| after both binding PRs land | **~175** |
+
+**125 rows are already bound, already correct, and rejected purely because the contract cannot see
+the binder.** Controls confirm the probe reads the real binder (a known-bound id returns 1, a bogus
+id returns 0). The arc was scoped believing the figure was worth ~50 rows; **the escape alone
+releases 125 on the day it lands.**
+
+⚠ **How to wire it is a real design question and PR-3 is scoped to STOP BEFORE WRITING CODE.**
+`publishability.ts` has exactly **one** importer today (`src/config/publishability.guard.test.ts`)
+and is also read by Node tooling; importing `visualConceptRegistry` into it drags a large module
+into a build-time path. The `aiIds` parameter is a **worked precedent for injecting a set rather
+than importing one**. ⛔ **Do not widen `demandsSuppliedFigure`** — it was narrowed after measuring
+51 false rejections across 203 disagreeing rows.
+
+---
+
+### `[FU-NON-IMPORTING-CONSUMERS]` — **still owed from BANK-1; third instance of the shape**
+
+**A re-export is invisible to anything that does not import.** `#744` moved the two figure arrays
+into their own files; `scripts/ops/tutor_visual_catalogue_acceptance.mjs` does **not import** them —
+it `readFileSync`s the source and regex-parses `filePath`/`questionId` pairs out of the **text**. The
+move alone would have taken it from 128 parsed entries to **0** and failed both bank-figure rows,
+red in CI. Proven, not predicted: reverting the path list exits 1 with `bank figure entries: 0` and
+fails exactly `Z3-TG-101` and `Z3-CG-009`.
+
+**Third instance of this shape**, after the sitemap guard parsing `sitemap.xml` and
+`crawlerReachability` parsing at runtime.
+
+★ **AND THE CHECK THAT MATTERS IS THE ENTRY COUNT, NOT THE GREEN.** A reformatted entry that still
+*compiles* leaves the count unchanged and the gate passes anyway, blind to every new binding. Cite
+the parsed-entry delta (`128 → 138` when 12 were added; `128 → 86` when 53 were removed), never the
+exit code alone.
+
+---
+
+### `[FU-GENERATEVISUALS-DEAD-REGISTRY-PATH]` — **small, still owed from BANK-1**
+
+`lazytopper/scripts/generateVisuals.mjs` defines `REGISTRY_PATH` at `:10` and **never passes it to a
+read** — its `readFileSync` calls all use other paths. A dead constant that **looks load-bearing**,
+recorded so the next reader does not assume the script consumes the registry.
+
+---
+
+### `[FU-DIAGRAM-DESC-CONTRADICTS-FIGURE]` — **one instance, NOT a class on evidence so far**
+
+`TWO_POLY_DESC` (polynomials chapter file) says the left intersection of the two curves lies
+**"above the x-axis"**; the bound crop shows it just **below**. **That prose is what a screen reader
+gets**, so a blind student is told the opposite of what the figure shows.
+
+⚠ **Checked for a class and did not find one.** All twelve `diagramDescription` strings in the
+Electricity chapter were read against their new crops while both were open: **all twelve agree** on
+labels, topology and values. So this remains a single instance. **Re-run the same check per chapter
+while cropping** — it is nearly free with both open, and impossible to do cheaply later.
+
+---
+
+### `[FU-DECORATIVE-IMAGES-CARRY-THIRD-PARTY-CONTENT]` — **low, but it should not sit unremarked**
+
+Two of the decorative images carried third-party content: `Z3-CG-008` used a recognisable still from
+a well-known television programme, and `Z3-ST-004` a visible hospital logo. **Both are among the 53
+unbound by `#750`**, so they leave the product incidentally. Recorded in case the **assets** (which
+were deliberately not deleted) are reused.
+
+
 ## 2026-09-07 — WAVE CONTENT-1 (continued) — new, RESOLVED and CORRECTED follow-ups (trunk `d3abdccc102728b84a30803721557f1f2e2c1b71`, re-derived with `git ls-remote origin base/approved-thru-437`; `#728` RETIRE-1 and `#726` QUARANTINE-1 both MERGED since the 2026-09-04 section below was written)
 
 **`2026-09-07`** · docs-only lane `DOCS-2`, recorded on `#729`. **Trunk moved twice while this lane
