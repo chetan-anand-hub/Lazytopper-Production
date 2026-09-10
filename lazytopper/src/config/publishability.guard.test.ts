@@ -90,7 +90,15 @@ describe("RULE 1 — provenance is an id-set, not a `sources` field", () => {
     // matched by the publishable count below; if these two ever move by DIFFERENT amounts,
     // a withheld row was not publishable and the withheld list is measuring something
     // other than what it claims.
-    expect(canonicalQuestionBank).toHaveLength(8638);
+    // 8,638 -> 8,662: +24. BANK-1 PR-2 wired the two MATHS CFPQ chapters — real-numbers
+    // (10 rows) and polynomials (14) — into the assembly array. Exactly the #721 story
+    // repeating on the maths side: the files landed in #733 and #740 and this file
+    // imported ZERO maths *.cfpq.ts, so 24 rows sat on trunk reaching no student and no
+    // gate. Measured by runtime import before the change, not assumed: both id prefixes
+    // returned 0 rows. Committed is not live.
+    // ★ The PUBLISHABLE count below moves by +17, NOT +24, and the two numbers are
+    // SUPPOSED to differ here — see its comment. A row delta is not a publishable delta.
+    expect(canonicalQuestionBank).toHaveLength(8662);
   });
 
   /**
@@ -408,7 +416,7 @@ describe("the publishable population", () => {
    * intended — a derived value pinned in prose outlives the facts it came from; a
    * derived value pinned in a test fails loudly when they change.
    */
-  it("2,965 rows are publishable today", () => {
+  it("2,982 rows are publishable today", () => {
     const publishable = canonicalQuestionBank.filter((q) => isPublishable(q, AI).ok);
     // 2,248 -> 2,333: +85. Of the 130 CFPQ rows wired by #721, 85 publish immediately,
     // 10 join the step-marking backlog and 35 are held by the figure rule. ~3.8% growth,
@@ -444,7 +452,23 @@ describe("the publishable population", () => {
     // clears the backlog without moving this count. 152 annotated - 3 figure-held = 149,
     // which is the batch's reconciliation and its only evidence. Bank length UNCHANGED
     // at 8,638 -- this lane still authors no rows.
-    expect(publishable).toHaveLength(2965);
+    // 2,965 -> 2,982: +17 while the BANK LENGTH ABOVE MOVED +24. BANK-1 PR-2 wired the
+    // two maths CFPQ chapters; 17 of the 24 rows are publishable and 7 are NOT, every one
+    // of the 7 held by Rule 5 as "requires-absent-figure":
+    //   CFPQ-M-REALNUM-005, CFPQ-M-POLY-001, -002, -003, -005, -009, -015.
+    // ★ THIS IS WHY `addressable` BELOW DOES NOT MOVE. The 7 are not step-marking
+    // failures — every one carries fully mark-annotated rubric steps, so none reports
+    // "unmarked-step" and none enters the backlog. They fail the FIGURE rule instead.
+    // A wiring PR that moved `addressable` would mean the rows arrived unannotated,
+    // which these did not.
+    // ★ AND THE 7 ARE RECOVERABLE, NOT REJECTED. Both chapters' headers record that their
+    // figure crops are saved and mapped but DELIBERATELY NOT BOUND, binding being a
+    // separate lane (CFPQ-FIGURES-1). Corroboration that Rule 5 is reading these rows
+    // correctly rather than over-firing: chapter 1 documents CFPQ-M-REALNUM-001 as
+    // REFERENCE ONLY, answerable without its image and NOT setting requiresDiagram, and
+    // that row is publishable here, while -005, whose answer names "Representation 1"
+    // and "Representation 2", is held. The rule agrees with the source's own reading.
+    expect(publishable).toHaveLength(2982);
   });
 
   it("no publishable row is AI-generated — the property retirement depends on", () => {
@@ -466,23 +490,30 @@ describe("the publishable population", () => {
  * derived here from the assembled bank rather than quoted, because a number quoted
  * without its recipe cannot be re-checked.
  *
- *   5,209 = publishable + addressable - (addressable rows Rule 5 holds for a figure)
+ *   5,226 = publishable + addressable - (addressable rows Rule 5 holds for a figure)
  *           "every remaining addressable row can be annotated." It counts a row that
  *           can NEVER be annotated without asserting a step earns nothing.
  *
- *   4,787 = publishable + addressable - |figure-held UNION cannot-sum|
+ *   4,804 = publishable + addressable - |figure-held UNION cannot-sum|
  *           "every addressable row that can be annotated WITHOUT a [0 mark] step,
  *            and that Rule 5 does not hold, becomes publishable."
  *
- * ★ 4,787 IS THE AUTHORITATIVE ACHIEVABLE FIGURE. Owner ruling 6 (2026-09-03) CLOSED
+ * (These read 5,209 and 4,787 until BANK-1 PR-2 wired 24 maths CFPQ rows, 17 of them
+ *  publishable: both figures move by that +17 and their gap is unchanged. The DEFINITIONS
+ *  are what is authoritative here, not the two numerals — they are recomputed from the
+ *  assembled bank on every run, which is the whole point of stating them in words.)
+ *
+ * ★ 4,804 IS THE AUTHORITATIVE ACHIEVABLE FIGURE. Owner ruling 6 (2026-09-03) CLOSED
  * [FU-STEPMARK-ZERO-MARK-STEPS] as REFUSED, so the cannot-sum rows are permanently
- * unrecoverable by annotation and 5,209 overstates what this track can reach.
+ * unrecoverable by annotation and 5,226 overstates what this track can reach.
  *
  * ⚠ THE TWO EXCLUDED SETS OVERLAP; THEY ARE NOT DISJOINT AND NEITHER IS NESTED.
  * 24 addressable rows are BOTH figure-held AND cannot-sum. Subtracting the two counts
- * independently double-counts those 24 and yields 4,798, which is wrong. The gap
- * 5,209 - 4,787 = 422 is therefore NOT the cannot-sum count (that is 446) -- it is
- * the cannot-sum rows that are not ALREADY excluded as figure-held: 446 - 24 = 422.
+ * independently double-counts those 24 and yields a number 24 too high, which is wrong.
+ * The gap 5,226 - 4,804 = 422 is therefore NOT the cannot-sum count (that is 446) -- it
+ * is the cannot-sum rows that are not ALREADY excluded as figure-held: 446 - 24 = 422.
+ * ⚠ The "24" in this paragraph is the figure-held/cannot-sum OVERLAP and has nothing to
+ * do with the 24 rows BANK-1 PR-2 wired. Two unrelated 24s, adjacent in this file.
  *
  * ★ BOTH FIGURES ARE INVARIANT UNDER THIS LANE'S OPERATION, which is why they still
  * measure the same after three batches. Annotating a non-figure row moves one row from
@@ -510,7 +541,7 @@ describe("the achievable ceiling — ruling 5", () => {
     );
   };
 
-  it("4,787 is the achievable publishable ceiling, and 5,209 is not", () => {
+  it("4,804 is the achievable publishable ceiling, and 5,226 is not", () => {
     const publishable = canonicalQuestionBank.filter((q) => isPublishable(q, AI).ok).length;
     const addressable = canonicalQuestionBank.filter((q) => {
       if (AI.has(q.id)) return false;
@@ -537,9 +568,17 @@ describe("the achievable ceiling — ruling 5", () => {
     // done something other than annotate. That is exactly right: withholding REMOVES
     // rows from the bank, it does not move them between sets, so the invariant that
     // holds for STEPMARK-1 correctly does not hold here.
-    expect(publishable + addressable.length - held).toBe(5209);
+    // 5,209 -> 5,226 and 4,787 -> 4,804: both +17, and for ONE reason. BANK-1 PR-2 wired
+    // 24 maths CFPQ rows; 17 landed in `publishable` and 7 are figure-held by Rule 5.
+    // Neither ceiling counts the 7: they never enter `addressable` (which requires
+    // !ok with a step-marking reason), so `addressable`, `held`, `cannotSum` and
+    // `excluded` are ALL unchanged -- as the two assertions above still prove. Both
+    // ceilings therefore move by exactly the publishable delta, +17, and their GAP stays
+    // 422. The invariant in this block's header is about ANNOTATION, and holds: adding
+    // rows to the bank is a different operation, and it moves both ceilings together.
+    expect(publishable + addressable.length - held).toBe(5226);
 
     // ★ THE AUTHORITATIVE ACHIEVABLE FIGURE.
-    expect(publishable + addressable.length - excluded).toBe(4787);
+    expect(publishable + addressable.length - excluded).toBe(4804);
   });
 });
