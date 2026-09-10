@@ -11,3 +11,12 @@
 *.ts   text eol=lf
 *.tsx  text eol=lf
 *.json text eol=lf
+# HTML joins the list because `* text=auto` above normalises it to LF in the INDEX but
+# still checks it out as CRLF on Windows: `git ls-files --eol` reports every one of the
+# 106 tracked .html files as `i/lf w/crlf attr/text=auto`. Adding this rule therefore
+# changes the CHECKOUT only and stages no renormalisation — the committed bytes are
+# already LF. It matters before generated HTML is committed again: a generator writing
+# the working-tree file back would otherwise hand CRLF to a guard that reads committed
+# bytes, which passes on Windows and fails on the linux runner. `generateSitemap.ts:102`
+# carries a hand-rolled LF workaround for exactly this shape.
+*.html text eol=lf
