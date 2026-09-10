@@ -162,4 +162,15 @@ export const MATHS_FIGURE_VISUALS: VisualConcept[] = [
   { id: "maths-polynomials-fig-cfpq-m-poly-005", title: "Source figure", chapter: "Polynomials", subject: "maths", filePath: "/figures/cfpq-maths/polynomials/CFPQ-M-POLY-005.webp", keywords: [], isInteractive: false, questionId: "CFPQ-M-POLY-005" },
   { id: "maths-polynomials-fig-cfpq-m-poly-009", title: "Source figure", chapter: "Polynomials", subject: "maths", filePath: "/figures/cfpq-maths/polynomials/CFPQ-M-POLY-009.webp", keywords: [], isInteractive: false, questionId: "CFPQ-M-POLY-009" },
   { id: "maths-polynomials-fig-cfpq-m-poly-015", title: "Source figure", chapter: "Polynomials", subject: "maths", filePath: "/figures/cfpq-maths/polynomials/CFPQ-M-POLY-015.webp", keywords: [], isInteractive: false, questionId: "CFPQ-M-POLY-015" },
+  // CBSE CFPQ MATHS — REFERENCE-ONLY figures (CFPQ-FIGURES-1 PR-1, second commit).
+  // ⚠ THESE THREE ROWS ARE A DIFFERENT CASE FROM THE SEVEN ABOVE and are kept apart
+  // deliberately. Their content is transcribed inline in the stem, they do NOT set
+  // `requiresDiagram`, and they are ALREADY PUBLISHABLE — so nothing about their
+  // status can change, and none of them was ever in the figure-held set. Binding
+  // them shows a student the printed figure beside the transcribed text, which is
+  // strictly better than text alone, and that is the whole of the benefit.
+  // Same eye-confirmation standard as the seven: a wrong binding is worse than none.
+  { id: "maths-real-numbers-fig-cfpq-m-realnum-001", title: "Source figure", chapter: "Real Numbers", subject: "maths", filePath: "/figures/cfpq-maths/real-numbers/CFPQ-M-REALNUM-001.webp", keywords: [], isInteractive: false, questionId: "CFPQ-M-REALNUM-001" },
+  { id: "maths-polynomials-fig-cfpq-m-poly-004", title: "Source figure", chapter: "Polynomials", subject: "maths", filePath: "/figures/cfpq-maths/polynomials/CFPQ-M-POLY-004.webp", keywords: [], isInteractive: false, questionId: "CFPQ-M-POLY-004" },
+  { id: "maths-polynomials-fig-cfpq-m-poly-010", title: "Source figure", chapter: "Polynomials", subject: "maths", filePath: "/figures/cfpq-maths/polynomials/CFPQ-M-POLY-010.webp", keywords: [], isInteractive: false, questionId: "CFPQ-M-POLY-010" },
 ];
