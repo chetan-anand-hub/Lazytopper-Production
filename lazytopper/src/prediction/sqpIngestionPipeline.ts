@@ -27,8 +27,19 @@ export interface SQPIngestionResult {
   activeSQPYear: number;
 }
 
+// PERF-2 — MEMOISED. Pure `string -> string`: reads only `raw`, no closure state, nothing
+// outside its argument, so a memo cannot change the answer. `fuzzyMatch` below normalises
+// BOTH sides on every comparison, which is how a few hundred labels get normalised millions
+// of times while building the prediction bank.
+// ⚠ BOUNDED BY CONSTRUCTION: topic and subtopic labels only, ~2,000 distinct. Not a
+// general-purpose cache; never point it at user input.
+const normCache = new Map<string, string>();
 function norm(raw: string): string {
-  return raw.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
+  const hit = normCache.get(raw);
+  if (hit !== undefined) return hit;
+  const value = raw.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
+  normCache.set(raw, value);
+  return value;
 }
 
 function fuzzyMatch(a: string, b: string): boolean {
