@@ -59,8 +59,24 @@ export interface AppearanceMatchStrategy {
  * Label normaliser shared by the fuzzy matcher and the NEP / difficulty signals.
  * Moved here verbatim from `cbse5SignalScoring.ts` so there is ONE definition.
  */
+// PERF-2 — MEMOISED, AND THE SAFETY ARGUMENT IS THE PURITY, NOT A PASSING TEST.
+// The body reads only `raw`, holds no closure state and touches nothing outside its
+// argument, so a memo CANNOT change the answer.
+//
+// ★ THIS ONE COVERS TWO CALLERS. `cbse5SignalScoring.ts` aliases it (`const norm =
+// normalizeLabel`), so memoising here also serves the scorer's own normalisation — which is
+// why it is the single highest-value entry in the CPU profile after the rotation tracker.
+//
+// ⚠ BOUNDED BY CONSTRUCTION: the inputs are topic and subtopic labels from the question
+// bank and the historical dataset — about 2,000 distinct in total. This is not a
+// general-purpose cache and must never be pointed at user input.
+const normalizeLabelCache = new Map<string, string>();
 export function normalizeLabel(raw: string): string {
-  return raw.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
+  const hit = normalizeLabelCache.get(raw);
+  if (hit !== undefined) return hit;
+  const value = raw.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
+  normalizeLabelCache.set(raw, value);
+  return value;
 }
 
 /**
