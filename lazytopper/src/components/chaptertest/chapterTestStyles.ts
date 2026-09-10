@@ -135,7 +135,16 @@ export const CT_CSS = `
 .lt-ct__flag--on { background: var(--ct-amber-t); color: var(--ct-amber); border-color: transparent; }
 .lt-ct__qtag { font-size: 11px; font-weight: 600; padding: 4px 9px; border-radius: 7px; background: var(--ct-blue-t); color: var(--ct-blue); display: inline-block; }
 .lt-ct__qtag--sa { background: var(--ct-amber-t); color: var(--ct-amber); }
-.lt-ct__qtext { font-size: 15.5px; line-height: 1.55; margin: 10px 0 16px; }
+/* white-space: pre-wrap matches PracticeQuestionCard.tsx:518, the Quick Practice
+   treatment: a stem's display line has to render on its own line. It belongs on the
+   CLASS rather than on the two pages because ChapterTestPage AND FullMockPage both
+   inject this sheet (CT_CSS) and both render the stem through this one class - so one
+   rule fixes both surfaces and cannot drift between them. MathText passes newlines
+   through untouched, so CSS is the only thing deciding whether they paint.
+   Pinned by stemWhitespace.guard.test.tsx, proved RED against the rule without it.
+   NOTE - no backticks in this comment: CT_CSS is a template literal, so one would
+   terminate the string. That is a build break, not a style nit. */
+.lt-ct__qtext { font-size: 15.5px; line-height: 1.55; margin: 10px 0 16px; white-space: pre-wrap; }
 .lt-ct__opt { display: flex; align-items: center; gap: 11px; padding: 13px 15px; border: 1.5px solid var(--ct-line); border-radius: 12px; margin-bottom: 9px; cursor: pointer; font-size: 14.5px; background: #fff; width: 100%; text-align: left; font-family: var(--ct-fb); }
 .lt-ct__opt:hover { border-color: var(--ct-green); }
 .lt-ct__opt--sel { border-color: var(--ct-green); background: var(--ct-green-t); }
