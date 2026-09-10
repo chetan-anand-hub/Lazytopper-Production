@@ -18,6 +18,77 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ---
 
+## 2026-09-10 — SEO / PERF ARC (`#745` · `#748` · `#749` · `#751`)
+
+### ★★ `[FU-SOFT404-CAUSE-UNKNOWN]` — OPEN, and the four dead hypotheses are the finding
+Googlebot renders the app's **error boundary** on `/app/topic-hub/*` — Google's own rendered
+DOM shows *"Failed to fetch dynamically imported module: DesktopTopicHubPage-<hash>.js"*. An
+error page with no content is a Soft 404 by definition.
+⛔ **FOUR HYPOTHESES ARE DEAD, EACH BY MEASUREMENT. DO NOT RE-CHASE THEM.** Firebase · the
+15-second freeze · cache revalidation · the 6.29 MB bank chunk. **The cause is UNKNOWN.**
+See `CURRENT_STATE.md` §2-§3 for how each died and for the production measurement.
+
+### `[FU-TOPICHUB-MODULE-GRAPH]` — OPEN, a PRODUCT lane
+`/app/topic-hub/trigonometry` fetches **18 JS chunks / 11,153,797 B (10.64 MiB)** to show a
+notes page, including `canonicalQuestionBank-<hash>.js` at **6,288,774 B** and
+`ourEnvironment.pack2-<hash>.js` at **2,316,329 B**.
+⚠ **Scope on product merits ONLY — it may not touch the Soft 404.** `/app/practice-hub`
+fetches 9.64 MiB including the same bank chunk and **indexes fine**.
+★ Removing only the bank would still leave 2.3 MB of question data on a notes page.
+
+### `[FU-PREDICTIONCORE-BUILD-COST]` — OPEN
+`#751` took the prediction build from ~7.2 s to ~2.25 s. The remainder is real scoring work.
+⛔ **Do NOT re-optimise the clones** — measured at 0.04%. ⛔ **Do NOT swap the score field for
+a `Map`** — it breaks `unlimitedPaperEngine.ts:199`, which reads `_adjustedScore` as a field.
+
+### `[FU-PREVIEW-DEPLOYMENT-IS-A-GATE]` — DOCTRINE, and it changes how lanes work
+"No gate in this repo can see a cache header" is true of the **battery** and false of the
+**lane**: Vercel builds a preview per PR and **a preview can be curled**. `#749` closed two of
+three acceptance steps **before merge**, on a real deployment of its exact commit.
+⇒ **Headers, redirects, rewrites, caching — anything the platform does that a repo gate cannot
+see — is verifiable pre-merge.** Several already-shipped lanes went out on assurance instead.
+
+### `[FU-GUARD-PINNED-THE-DEFECT]` — DOCTRINE
+`verify-production-build.mjs` required the question bank to be in the MAIN chunk — true only
+because the bank was wrongly there. **Fixing the bug turned the guard RED on a CORRECT build.**
+A guard that can only pass while the bug is present votes for the bug. Repair: keep the INTENT,
+drop the incidental assumption. Gate-level sibling of `#490`, where a *test* asserted the
+defect's structure.
+
+### `[FU-MEASUREMENT-ORDER-WITH-SHARED-CACHE]` — DOCTRINE
+A staged replica ran **74x FASTER than the real build while producing byte-identical output** —
+a broken measurement, not a discovery. `get5SignalResult` memoises module-level, so whichever
+run goes first pays and later runs report fiction. It would have named the filter as 65% of the
+cost. ★ **Two controls testing different properties, and only ONE fired** — output-identity
+passed in *both* runs.
+
+### `[FU-TSCONFIG-HOLES]` — OPEN
+Only 3 of 5 `.ts` files under `lazytopper/scripts/` are typechecked, one of them **only by
+accident** because a guard test imports it. `tsconfig.node.json` names files individually
+rather than covering the directory — but it sets no `jsx` and is wired into `tsc -b`, so
+widening it to reach a `.tsx` turns `pnpm run build` red.
+
+### `[FU-UNWIRED-HPQ-ENTRY-SCRIPTS]` — OPEN, and it hides a real defect
+`test:hpq:phase2`, `test:hpq:drift` and `test:prediction:deleted-zeroing` exist as npm
+scripts but **no chain invokes them**. That is how this survived:
+`hpq_phase2_acceptance.entry.ts:8` imports `scoreArchetypeWithBayesianSmoothing`, which does
+not exist, and **calls it at line 101**. ⚠ Wiring them turns the matrix red until the defect is
+fixed, so the two belong in one lane.
+
+### `[FU-SEO-LINKS-1]` — OPEN, unspecced
+The Learn control is a `<button onClick>` **no crawler can follow**, which is why Search
+Console reports **"Referring page: None detected" on all 26 chapter pages** — they are in the
+sitemap but nothing links to them traversably. ⚠ A router `<Link>` renders an `<a href>` too,
+so an href assertion is **blind**; discriminate by clicking and asserting the router did not
+navigate.
+
+### `[FU-STEM-WHITESPACE-NINE-SURFACES]` — OPEN, six of nine remain
+`DesktopPracticePage.tsx:2642` · `ExamSimulationPage.tsx:573,602,836,854` ·
+`WorksheetPrintDoc.tsx:185` · `WorksheetGradedPrintDoc.tsx:232,257` ·
+`CheckImproveGradedPrintDoc.tsx:266,283` · `WorksheetGradePanel.tsx:178`.
+★ Two print docs already set `pre-wrap` on the student's *working* while the stem beside it
+does not. ⛔ `MockPaper.tsx` is unreachable and correctly excluded.
+
 ## 2026-09-10 — CFPQ-FIGURES-1 + BANK-1 — new follow-ups (trunk `dd8e5d99`, re-derived with `git ls-remote origin base/approved-thru-437`; `#744` `#746` `#747` merged; `#750` **MERGED** as `dd8e5d99` — maths bindings 123 → 70 on trunk, counted at that commit; `#752` OPEN DRAFT)
 
 ⚠ **Read `ops/arcs/CFPQ_FIGURES_1_BINDING_AUDIT.md` before touching any figure binding.** It is the

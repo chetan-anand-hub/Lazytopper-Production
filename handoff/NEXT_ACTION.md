@@ -1,5 +1,31 @@
 # LazyTopper — Next Action
 
+
+```
+⛔⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW IT. THE SEO / PERF ARC IS CLOSED.
+
+TRUNK IS `001538964ffd7422a0221116abdb089a07c97e98` (#753), MEASURED 2026-09-10
+with `git ls-remote origin base/approved-thru-437`.
+
+★★ THE SOFT 404 CAUSE IS **UNKNOWN**. FOUR HYPOTHESES ARE DEAD, EACH BY MEASUREMENT:
+   Firebase · the 15-second freeze · cache revalidation · the 6.29 MB question-bank chunk.
+   DO NOT RE-CHASE ANY OF THEM. An honest unknown beats a fifth theory to disprove.
+
+⚠ #748 (PERF-1) AND #749 (SEO-CACHE-1) ARE BOTH CORRECT AND NEITHER FIXED THE SOFT 404.
+   Do not read the live bug as a regression. Both stand on their own merits.
+
+NEXT LANE, UNSPECCED — SCOPE FIRST, NO PRODUCTION CODE:
+   get canonicalQuestionBank out of the topic hub's module graph.
+   ⚠ A PRODUCT LANE, NOT AN SEO ONE. 10.64 MiB of JS to read a notes page is
+   indefensible on Indian mobile data. IT MAY NOT TOUCH THE SOFT 404 AT ALL.
+
+THEN: SEO-LINKS-1 · the six remaining stem surfaces · the unwired entry scripts
+      · [FU-TSCONFIG-HOLES] · [FU-PREDICTIONCORE-BUILD-COST].
+
+PRERENDERING REMAINS UNDECIDED. It must not be the first move even if chosen —
+it would MASK a chunk-loading failure a student would still hit in-app.
+```
+
 ```
 ⛔⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW IT. Wave MI-INTEGRITY-10 IS CLOSED.
 
