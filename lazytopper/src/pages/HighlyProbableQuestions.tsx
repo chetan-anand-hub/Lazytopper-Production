@@ -1568,6 +1568,12 @@ const HighlyProbableQuestions: React.FC = () => {
                               marginBottom: 8,
                               lineHeight: 1.6,
                               fontWeight: 500,
+                              // SEO-SMALL-1 §2.4 — a stem's display line renders on its
+                              // own line, matching PracticeQuestionCard.tsx:518. This is a
+                              // SECOND edit on purpose: Chapter Test and Full Mock share
+                              // `.lt-ct__qtext`, but this surface styles its stem inline,
+                              // so the one CSS rule that fixes those two cannot reach here.
+                              whiteSpace: "pre-wrap",
                             }}
                           >
                             {/*
