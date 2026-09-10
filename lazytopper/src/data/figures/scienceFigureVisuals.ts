@@ -60,4 +60,29 @@ export const SCIENCE_FIGURE_VISUALS: VisualConcept[] = [
   { id: "science-light-reflection-and-refraction-fig-sqp-s-2025-lght-033", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/sqp-s-2025-lght-033.webp", keywords: [], isInteractive: false, questionId: "SQP-S-2025-LGHT-033" },
   { id: "science-light-reflection-and-refraction-fig-sqp-s-2025-lght-038", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/sqp-s-2025-lght-038.webp", keywords: [], isInteractive: false, questionId: "SQP-S-2025-LGHT-038" },
   { id: "science-light-reflection-and-refraction-fig-gdr-l-cbj-032", title: "Source figure", chapter: "Light - Reflection & Refraction", subject: "science", filePath: "/visuals/science/light-reflection-and-refraction/gdr-l-cbj-032.webp", keywords: [], isInteractive: false, questionId: "GDR-L-CBJ-032" },
+  // ---------------------------------------------------------------------------
+  // CBSE CFPQ SCIENCE — ELECTRICITY (CFPQ-FIGURES-1 PR-2, chapter 1 of the batch).
+  // Twelve rows, each `requiresDiagram: true` and unanswerable without its image.
+  // Cropped from CFPQ_Science10.pdf rendered at 200 dpi with pymupdf 1.27.2.3.
+  // No OCR. pdfplumber NOT used — it caused the glyph damage RECOVER-1 repaired.
+  // Every crop was opened and read against its own stem before it was bound, and
+  // each entry records the pdf page it came from.
+  //
+  // ⚠ Q1-Q5 SHARE ONE FIGURE, WHICH IS CORRECT AND NOT A COPY-PASTE SLIP. The
+  // booklet prints a single case-study stimulus on pdf page 100 ("Read the
+  // information given below and answer four out of five following questions")
+  // and all five questions refer to that one circuit diagram. Same precedent as
+  // CFPQ-S-LGHT-004/005, which likewise share one printed photo.
+  { id: "science-electricity-fig-cfpq-s-elec-001", title: "Source figure", chapter: "Electricity", subject: "science", filePath: "/figures/cfpq-science/electricity/CFPQ-S-ELEC-001.webp", keywords: [], isInteractive: false, questionId: "CFPQ-S-ELEC-001" },
+  { id: "science-electricity-fig-cfpq-s-elec-002", title: "Source figure", chapter: "Electricity", subject: "science", filePath: "/figures/cfpq-science/electricity/CFPQ-S-ELEC-001.webp", keywords: [], isInteractive: false, questionId: "CFPQ-S-ELEC-002" },
+  { id: "science-electricity-fig-cfpq-s-elec-003", title: "Source figure", chapter: "Electricity", subject: "science", filePath: "/figures/cfpq-science/electricity/CFPQ-S-ELEC-001.webp", keywords: [], isInteractive: false, questionId: "CFPQ-S-ELEC-003" },
+  { id: "science-electricity-fig-cfpq-s-elec-004", title: "Source figure", chapter: "Electricity", subject: "science", filePath: "/figures/cfpq-science/electricity/CFPQ-S-ELEC-001.webp", keywords: [], isInteractive: false, questionId: "CFPQ-S-ELEC-004" },
+  { id: "science-electricity-fig-cfpq-s-elec-005", title: "Source figure", chapter: "Electricity", subject: "science", filePath: "/figures/cfpq-science/electricity/CFPQ-S-ELEC-001.webp", keywords: [], isInteractive: false, questionId: "CFPQ-S-ELEC-005" },
+  { id: "science-electricity-fig-cfpq-s-elec-006", title: "Source figure", chapter: "Electricity", subject: "science", filePath: "/figures/cfpq-science/electricity/CFPQ-S-ELEC-006.webp", keywords: [], isInteractive: false, questionId: "CFPQ-S-ELEC-006" },
+  { id: "science-electricity-fig-cfpq-s-elec-007", title: "Source figure", chapter: "Electricity", subject: "science", filePath: "/figures/cfpq-science/electricity/CFPQ-S-ELEC-007.webp", keywords: [], isInteractive: false, questionId: "CFPQ-S-ELEC-007" },
+  { id: "science-electricity-fig-cfpq-s-elec-009", title: "Source figure", chapter: "Electricity", subject: "science", filePath: "/figures/cfpq-science/electricity/CFPQ-S-ELEC-009.webp", keywords: [], isInteractive: false, questionId: "CFPQ-S-ELEC-009" },
+  { id: "science-electricity-fig-cfpq-s-elec-011", title: "Source figure", chapter: "Electricity", subject: "science", filePath: "/figures/cfpq-science/electricity/CFPQ-S-ELEC-011.webp", keywords: [], isInteractive: false, questionId: "CFPQ-S-ELEC-011" },
+  { id: "science-electricity-fig-cfpq-s-elec-013", title: "Source figure", chapter: "Electricity", subject: "science", filePath: "/figures/cfpq-science/electricity/CFPQ-S-ELEC-013.webp", keywords: [], isInteractive: false, questionId: "CFPQ-S-ELEC-013" },
+  { id: "science-electricity-fig-cfpq-s-elec-014", title: "Source figure", chapter: "Electricity", subject: "science", filePath: "/figures/cfpq-science/electricity/CFPQ-S-ELEC-014.webp", keywords: [], isInteractive: false, questionId: "CFPQ-S-ELEC-014" },
+  { id: "science-electricity-fig-cfpq-s-elec-015", title: "Source figure", chapter: "Electricity", subject: "science", filePath: "/figures/cfpq-science/electricity/CFPQ-S-ELEC-015.webp", keywords: [], isInteractive: false, questionId: "CFPQ-S-ELEC-015" },
 ];
