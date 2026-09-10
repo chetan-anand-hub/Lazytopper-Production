@@ -141,4 +141,25 @@ export const MATHS_FIGURE_VISUALS: VisualConcept[] = [
   { id: "maths-probability-fig-z3-pr-009", title: "Source figure", chapter: "Probability", subject: "maths", filePath: "/visuals/maths/probability/z3-pr-009.webp", keywords: [], isInteractive: false, questionId: "Z3-PR-009" },
   { id: "maths-probability-fig-z3-pr-010", title: "Source figure 1", chapter: "Probability", subject: "maths", filePath: "/visuals/maths/probability/z3-pr-010.webp", keywords: [], isInteractive: false, questionId: "Z3-PR-010" },
   { id: "maths-probability-fig-z3-pr-010-2", title: "Source figure 2", chapter: "Probability", subject: "maths", filePath: "/visuals/maths/probability/z3-pr-010-2.webp", keywords: [], isInteractive: false, questionId: "Z3-PR-010" },
+  // ---------------------------------------------------------------------------
+  // CBSE CFPQ MATHS — figures where THE FIGURE IS THE QUESTION (CFPQ-FIGURES-1 PR-1).
+  // Each row sets `requiresDiagram: true` and cannot be answered without its image;
+  // until now the product showed the question and no figure. The crops were made and
+  // eye-confirmed by CFPQ-MATHS-1 at 200 dpi during transcription and left unbound
+  // because binding meant editing a file outside that lane's grant.
+  //
+  // ⚠ filePath points at `/figures/cfpq-maths/...`, NOT `/visuals/...`. The assets
+  // already sit under lazytopper/public, which is the root both Vite and
+  // tutor_visual_catalogue_acceptance.mjs resolve against, so nothing was copied.
+  //
+  // Every binding below was eye-confirmed against its question before it was written:
+  // the image opened, the stem read, and every label the question names checked legible.
+  // pdf pages are of CFPQ_Maths10.pdf. A wrong binding is worse than none.
+  { id: "maths-real-numbers-fig-cfpq-m-realnum-005", title: "Source figure", chapter: "Real Numbers", subject: "maths", filePath: "/figures/cfpq-maths/real-numbers/CFPQ-M-REALNUM-005.webp", keywords: [], isInteractive: false, questionId: "CFPQ-M-REALNUM-005" },
+  { id: "maths-polynomials-fig-cfpq-m-poly-001", title: "Source figure", chapter: "Polynomials", subject: "maths", filePath: "/figures/cfpq-maths/polynomials/CFPQ-M-POLY-001.webp", keywords: [], isInteractive: false, questionId: "CFPQ-M-POLY-001" },
+  { id: "maths-polynomials-fig-cfpq-m-poly-002", title: "Source figure", chapter: "Polynomials", subject: "maths", filePath: "/figures/cfpq-maths/polynomials/CFPQ-M-POLY-002.webp", keywords: [], isInteractive: false, questionId: "CFPQ-M-POLY-002" },
+  { id: "maths-polynomials-fig-cfpq-m-poly-003", title: "Source figure", chapter: "Polynomials", subject: "maths", filePath: "/figures/cfpq-maths/polynomials/CFPQ-M-POLY-003.webp", keywords: [], isInteractive: false, questionId: "CFPQ-M-POLY-003" },
+  { id: "maths-polynomials-fig-cfpq-m-poly-005", title: "Source figure", chapter: "Polynomials", subject: "maths", filePath: "/figures/cfpq-maths/polynomials/CFPQ-M-POLY-005.webp", keywords: [], isInteractive: false, questionId: "CFPQ-M-POLY-005" },
+  { id: "maths-polynomials-fig-cfpq-m-poly-009", title: "Source figure", chapter: "Polynomials", subject: "maths", filePath: "/figures/cfpq-maths/polynomials/CFPQ-M-POLY-009.webp", keywords: [], isInteractive: false, questionId: "CFPQ-M-POLY-009" },
+  { id: "maths-polynomials-fig-cfpq-m-poly-015", title: "Source figure", chapter: "Polynomials", subject: "maths", filePath: "/figures/cfpq-maths/polynomials/CFPQ-M-POLY-015.webp", keywords: [], isInteractive: false, questionId: "CFPQ-M-POLY-015" },
 ];
