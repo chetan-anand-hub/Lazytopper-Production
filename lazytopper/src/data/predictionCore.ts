@@ -204,8 +204,42 @@ function buildUnifiedQuestionBank(): CanonicalQuestionWithScore[] {
   });
 }
 
-const unifiedQuestionBank: CanonicalQuestionWithScore[] = buildUnifiedQuestionBank();
-const historicalItems = getCanonicalHistoricalDataset().items;
+// ★ BUILT ON FIRST USE, NOT AT IMPORT — PERF-1.
+//
+// These two were module-scope `const`s, so merely importing this file built the whole
+// unified bank: two full object-spread clones of every row, a dedupe, a filter, and a
+// prediction score each. Measured in real Chromium on an unthrottled desktop, that
+// froze the main thread for ~10.6 s in ONE task on every page that reaches this module
+// — the page painted at 460 ms and was then unresponsive. It is a product defect first
+// and an SEO one second: a student on a mid-range phone waits several times longer.
+//
+// ⚠ THE COST IS DEFERRED, NOT REMOVED. The first caller still pays it. What changes is
+// WHO pays: a visitor reading a chapter page never asks for a prediction, so they now
+// pay nothing. That is the whole win, and it is why this is not a rewrite of the
+// scoring — the scoring is byte-identical, proven by dumping the built bank before and
+// after and comparing the SHA-256 of every row in order.
+//
+// ⚠ SAFE ONLY BECAUSE NOTHING READS THESE AT MODULE SCOPE. Every reader is inside a
+// function: the three `PredictionCore` methods below and `getBayesianMultiplier`. All
+// six external call sites are inside exported functions too. A module-scope read in
+// another file would have had to change with this, which is what turns a small fix
+// into a large one — there is none.
+let unifiedQuestionBankMemo: CanonicalQuestionWithScore[] | null = null;
+function getUnifiedQuestionBank(): CanonicalQuestionWithScore[] {
+  if (unifiedQuestionBankMemo === null) {
+    unifiedQuestionBankMemo = buildUnifiedQuestionBank();
+  }
+  return unifiedQuestionBankMemo;
+}
+
+let historicalItemsMemo: ReturnType<typeof getCanonicalHistoricalDataset>["items"] | null = null;
+function getHistoricalItems(): ReturnType<typeof getCanonicalHistoricalDataset>["items"] {
+  if (historicalItemsMemo === null) {
+    historicalItemsMemo = getCanonicalHistoricalDataset().items;
+  }
+  return historicalItemsMemo;
+}
+
 const bayesianScoreCache = new Map<string, number>();
 
 function predictionTargetYear(): number {
@@ -243,7 +277,7 @@ function getBayesianMultiplier(q: CanonicalQuestionWithScore): number {
       policyRegime: policyRegimeForYear(targetYear),
       topicTrendWeight: q.subject === "Science" ? 1.08 : 1.02,
     },
-    historicalItems,
+    historicalItems: getHistoricalItems(),
   });
 
   const multiplier = 0.85 + scored.posterior * 1.15 + scored.confidence * 0.6;
@@ -323,14 +357,14 @@ export const PredictionCore = {
    * Return all canonical questions (Maths + Science).
    */
   getAllQuestions(): CanonicalQuestion[] {
-    return unifiedQuestionBank;
+    return getUnifiedQuestionBank();
   },
 
   /**
    * Lookup a question by ID.
    */
   getQuestionById(id: string): CanonicalQuestion | undefined {
-    return unifiedQuestionBank.find((q) => q.id === id);
+    return getUnifiedQuestionBank().find((q) => q.id === id);
   },
 
   /**
@@ -342,7 +376,7 @@ export const PredictionCore = {
     topicKey: string,
     conceptKey?: string
   ): CanonicalQuestion[] {
-    return unifiedQuestionBank
+    return getUnifiedQuestionBank()
       .filter((q) => topicMatches(q.topicKey, topicKey))
       .filter((q) => (conceptKey ? topicMatches(q.subtopic, conceptKey) : true))
       .sort((a, b) => getAdjustedScore(b) - getAdjustedScore(a));

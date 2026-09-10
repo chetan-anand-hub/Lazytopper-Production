@@ -57,11 +57,29 @@ if (fs.existsSync(DIST_ASSETS)) {
       ageMs >= STALE_THRESHOLD_MS ? "— run `npm run build` to refresh" : ""
     );
 
-    // 4. Bundle contains solutionSteps (key indicator that question bank data is bundled)
-    const content = fs.readFileSync(bundlePath, "utf8");
+    // 4. The question bank made it into the BUILD — searched across every emitted
+    //    chunk, not just the main one.
+    //
+    // ⚠ THIS USED TO READ ONLY `index-*.js`, AND THAT ASSUMPTION WAS THE DEFECT IT
+    // OUTLIVED. Until PERF-1 the whole 7.87 MiB bank sat in the main chunk, because
+    // `main.tsx` invoked a dev-only duplicate-id check at module scope; every real
+    // consumer was already code-split behind lazy(). Making the bank lazy moved it into
+    // the chunks that actually use it — the intended outcome — and this check went red
+    // while the build was CORRECT. A guard that can only pass while the bug is present
+    // is a guard that votes for the bug.
+    //
+    // The INTENT is unchanged and still worth guarding: catch a build that shipped an
+    // empty or broken question bank. That question is "is the bank in the output", not
+    // "is the bank in one particular file", so the search now spans every chunk and is
+    // indifferent to how rollup happens to split them.
+    const jsChunks = entries.filter((f) => f.endsWith(".js"));
+    const chunksWithBank = jsChunks.filter((f) =>
+      fs.readFileSync(path.join(DIST_ASSETS, f), "utf8").includes("solutionSteps")
+    );
     check(
-      "bundle contains solutionSteps (question bank filled)",
-      content.includes("solutionSteps")
+      `question bank is bundled (solutionSteps in ${chunksWithBank.length} of ${jsChunks.length} chunks)`,
+      chunksWithBank.length > 0,
+      chunksWithBank.length === 0 ? "— no emitted chunk carries question data" : ""
     );
   }
 }

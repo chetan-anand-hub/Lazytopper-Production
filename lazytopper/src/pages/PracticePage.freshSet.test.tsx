@@ -1,5 +1,13 @@
 // PracticePage — "Build a fresh set" must actually be FRESH ([FU-PRACTICE-FRESH-SET-NOT-FRESH]).
 //
+// ⚠ PER-TEST TIMEOUTS RAISED TO 90 s BY PERF-1 — ATTRIBUTION, NOT SLOWNESS. predictionCore
+// used to build the unified question bank at module scope, so its ~20-25 s cost was paid in
+// vitest's COLLECT phase, which has no timeout. PERF-1 made that build lazy (browser
+// main-thread freeze: 10,617 ms to 145 ms), so the same work is now billed to the first test
+// that renders this page. These suites failed on "Test timed out" with ZERO assertion
+// failures, and the built bank is byte-identical before and after. The real debt is the
+// 20-second build itself: [FU-PREDICTIONCORE-BUILD-COST].
+//
 // THE OWNER'S BUG: finish a Quick Practice set, tap the scorecard's "Build a fresh set",
 // and the SAME questions come back. The machinery (rotation offset + unseen-first draw)
 // exists and is wired — the TRIGGER never moved either input:
@@ -202,7 +210,7 @@ describe('QP "Build a fresh set" — the second set must not be the first set', 
     expect(second.join(",")).not.toBe(first.join(","));
     // With 25 in the pool and 5 seen, the fresh set is fully NEW — no overlap at all.
     expect(second.filter((n) => first.includes(n))).toEqual([]);
-  }, 30000);
+  }, 90000);
 
   it("SCARCITY: when the pool is exhausted the set RECOMBINES (rotated), never an identical repeat", async () => {
     // Exactly as many questions as the set needs — the honest thin-bank case. There is
@@ -255,5 +263,5 @@ describe('QP "Build a fresh set" — the second set must not be the first set', 
     // exhausted case safe for ANY pool size (n and n+1 differ modulo every N ≥ 2), so it
     // is pinned exactly rather than as "some difference".
     expect(second).toEqual([...first.slice(1), first[0]]);
-  }, 30000);
+  }, 90000);
 });
