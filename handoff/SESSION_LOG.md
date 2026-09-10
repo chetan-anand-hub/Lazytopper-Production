@@ -1,5 +1,36 @@
 ---
 
+## 2026-09-10 — SEO / PERF ARC CLOSED — **`#745` · `#748` · `#749` · `#751` ON TRUNK, AND THE SOFT 404 CAUSE IS UNKNOWN** — trunk `00153896`
+
+★ **PROVENANCE.** Every claim below is **LANE-VERIFIED** with the command named, by the seat
+that wrote it. One claim from the owner's own dispatch was re-measured and **CONTRADICTED**;
+that correction is §3 of `CURRENT_STATE.md` and is the record.
+
+**FOUR HYPOTHESES FOR THE SOFT 404 ARE DEAD, EACH KILLED BY MEASUREMENT** — Firebase (a build
+with no config froze anyway), the 15-second freeze (`#748` shipped, verified live at
+1,084,938 bytes, the Soft 404 survived), cache revalidation (`#749` shipped, `immutable`
+verified live, the Soft 404 survived), and the 6.29 MB question-bank chunk
+(**`/app/practice-hub` fetches the IDENTICAL chunk and Google indexes it**).
+⇒ **THE CAUSE IS UNKNOWN AND IS RECORDED AS UNKNOWN.**
+
+⚠ **`#748` AND `#749` ARE BOTH CORRECT AND NEITHER FIXED THE BUG.** `#748` removed a
+10,617 ms → 55 ms freeze from every page and took the main bundle 9,988 kB → 1,085 kB;
+`#749` removed ~18 revalidation round-trips per page load. **Do not read the live bug as a
+regression.**
+
+`#751` (PERF-2) took `/app/practice/10/Maths` from **7,172 ms → 2,253 ms** with
+**byte-identical output**, by memoising four pure string normalisers — after a profile showed
+**99.4% of the build in one stage, ~80% of that in string normalisation and 0.9% in the actual
+scoring**. Both object-spread clones, the obvious suspect, are ~10 ms of ~10,000.
+★ **CI is ~4.5 minutes faster per PR from here:** the vitest suite runs **216.55 s** in the
+merged CI run, from 590 s locally before the arc.
+
+**FOUR DOCTRINE FINDINGS**, each with its specimen, in `CURRENT_STATE.md` §7:
+`[FU-GUARD-PINNED-THE-DEFECT]` · the control-that-cannot-fail rule ·
+`[FU-MEASUREMENT-ORDER-WITH-SHARED-CACHE]` · `[FU-PREVIEW-DEPLOYMENT-IS-A-GATE]`.
+
+---
+
 ## 2026-08-27 — Wave MI-INTEGRITY-10 CLOSED — **FOUR PRs REACH THE RECORD: `#703` · `#704` · `#706` · `#707`** — trunk `02fa7c0a`, and the student's answer finally reaches the thing that marks it
 
 ★ **PROVENANCE.** Code claims carry their source: **OWNER-VERIFIED** / **LANE-REPORTED** /

@@ -1,6 +1,232 @@
 # LazyTopper — Current State
 
-## [CURRENT] CFPQ-FIGURES-1 + BANK-1 — **53 QUESTIONS STOPPED SHOWING A STOCK PHOTOGRAPH IN PLACE OF THE DIAGRAM THEY REQUIRE, AND 24 CFPQ MATHS QUESTIONS BECAME REACHABLE AT ALL** — `#744` · `#746` · `#747` · `#750`
+## [CURRENT · SEO / PERF ARC] — **FOUR HYPOTHESES FOR THE SOFT 404 ARE DEAD, EACH BY MEASUREMENT. THE CAUSE IS UNKNOWN.** `#745` · `#748` · `#749` · `#751` are ALL ON TRUNK (arc merged through `a1fecdb3`) — trunk at this handoff `00153896`
+
+★ **PROVENANCE.** Every code- and production-level claim below was **LANE-VERIFIED** by the
+seat that wrote it, with the command named. Where a claim came from the owner and this seat
+re-measured it, that is stated — **including one the re-measurement CONTRADICTED.**
+
+**Trunk `001538964ffd7422a0221116abdb089a07c97e98`** (the arc's own last PR `#751` merged as `a1fecdb3`; `#752`/`#753` landed after) — from
+`git ls-remote origin base/approved-thru-437`, not taken from any document.
+
+### 1 · ⚠⚠ TWO MERGED PRs ARE FRAMED AS FIXES AND NEITHER FIXED THE SOFT 404. BOTH ARE STILL CORRECT.
+
+**A successor reading `#748` and `#749` with the bug still live will assume something
+regressed. Nothing did.** Both stand on their own merits and neither was the cause:
+
+- **`#748` PERF-1** removed a **10,617 ms → 55 ms** main-thread freeze from every page that
+  does not need a prediction, and took the main bundle from **9,988 kB → 1,085 kB**.
+- **`#749` SEO-CACHE-1** gave `/app/assets/*` a long `immutable` cache — **~18 fewer
+  revalidation round-trips per page load** for every student on mobile data.
+
+**Both shipped. The Soft 404 survived both.**
+
+### 2 · ★★ THE SOFT 404 — WHAT IT IS, AND THE FOUR DEAD HYPOTHESES
+
+**Googlebot is rendering the app's ERROR BOUNDARY.** Search Console → URL Inspection → Live
+Test → **View Tested Page → HTML** on `/app/topic-hub/trigonometry` returns Google's own
+rendered DOM containing:
+
+```
+😵  Something went wrong
+    Failed to fetch dynamically imported module:
+    https://www.lazytopper.com/app/assets/DesktopTopicHubPage-<hash>.js
+```
+
+**An error page with no content is exactly what Google calls a Soft 404.** Google is judging
+an error page, not a slow one.
+
+⛔ **FOUR HYPOTHESES ARE DEAD, EACH KILLED BY MEASUREMENT. NO SUCCESSOR SHOULD RE-CHASE ANY
+OF THEM.**
+
+| # | Hypothesis | How it died |
+|---|---|---|
+| 1 | **Firebase Auth** | A build with **no Firebase configuration** (project id absent from the bundle; SDK code present as the control) froze the main thread for 15 s **anyway**. A cause cannot be absent while its symptom persists. |
+| 2 | **The 15-second freeze** | `#748` shipped and was verified live — deployed main bundle **1,084,938 bytes**, exactly its post-fix number. **The Soft 404 survived it.** |
+| 3 | **Revalidation round-trips** | `#749` shipped. Verified live: `immutable` applied to hashed assets, shell still `max-age=0`, every chunk returns 200. **The Soft 404 survived it.** |
+| 4 | **The 6.29 MB question-bank chunk** | **`/app/practice-hub` fetches the IDENTICAL bank chunk and Google INDEXES it.** See §3 — measured on production, both routes. |
+
+★★ **THE CAUSE IS THEREFORE UNKNOWN. Write that down rather than reaching for a fifth theory.**
+An honest unknown is worth more to a successor than another hypothesis to disprove. What IS
+established is the SYMPTOM — Google renders the error boundary because a dynamic import
+failed — and that four plausible reasons for that import failing have each been ruled out by
+measurement.
+
+### 3 · ⚠ THE MEASUREMENT THAT KILLED THE FOURTH HYPOTHESIS — AND CORRECTED AN EARLIER HANDOFF
+
+**LANE-VERIFIED on PRODUCTION**, signed out, in real Chromium, decoded response bodies
+(`content-length` is absent on compressed responses, so header-based totals read zero):
+
+| Route | Verdict | JS chunks fetched | Total JS | Bank chunk fetched? |
+|---|---|---|---|---|
+| `/app/topic-hub/trigonometry` | **Soft 404** | **18** | **11,153,797 B (10.64 MiB)** | **YES** — `canonicalQuestionBank-<hash>.js`, **6,288,774 B** |
+| `/app/practice-hub` | **indexed, passes** | **9** | **10,111,146 B (9.64 MiB)** | **YES — the same chunk** |
+
+⚠⚠ **THE DISPATCH SAID `/app/practice-hub` "does NOT pull the bank". IT DOES.** This seat
+measured both routes on production and the passing page fetches the identical 6.29 MB bank
+chunk. **The asymmetry is NOT bank-versus-no-bank.** It is:
+
+- **18 chunks versus 9** — more round-trips, more chances for one to fail, and
+- **~1 MiB more JS** — 10.64 MiB versus 9.64 MiB.
+
+⇒ **A page fetching 9.64 MiB of JS INDEXES FINE.** So "the bank is why the topic hub fails"
+is **NOT ESTABLISHED, AND AN EARLIER HANDOFF RECORDED IT AS THE SURVIVING EXPLANATION.** This
+section is the correction of record. 18 chunks against 9, and ~1 MiB, is not a category
+difference.
+
+★ **A REFERENCE IS NOT A FETCH.** Both page chunks *reference* `canonicalQuestionBank-<hash>.js`
+in their import edges, so a grep would have "confirmed" either answer you wanted. Only loading
+both pages and watching the network settled it. Same discipline as **MOUNT ≠ LIVE**.
+
+⚠ **AND THE OBVIOUS TOTAL READS ZERO.** `content-length` is absent on compressed responses, so
+a header-based byte total reports **0 bytes for every chunk** — which looks like a clean
+answer rather than a broken instrument. Measure the decoded body.
+
+★ Also fetched by **both** routes: `ourEnvironment.pack2-<hash>.js` at **2,316,329 B**. The
+bank is not the only large data chunk on a page that shows notes.
+
+### 4 · ★ THE NEXT LANE, UNSPECCED — SCOPE FIRST, NO PRODUCTION CODE
+
+**Get `canonicalQuestionBank` out of the topic hub's module graph.**
+
+This is the same class as PERF-1 one layer down. PERF-1's scout established the shape:
+*"exactly one eager import drags the bank in; all eight real consumers are already
+code-split correctly."* `#748` removed the `main.tsx` one. **The remaining edge is
+`predictionCore` importing the bank at module level, and the topic hub importing
+`predictionCore`.** Verified: `DesktopTopicHubPage-<hash>.js` (67,458 B — the exact chunk in
+Google's error message) contains an import edge to `canonicalQuestionBank-<hash>.js`.
+
+⚠⚠ **SCOPE IT ON PRODUCT MERITS ONLY. IT MAY NOT TOUCH THE SOFT 404 AT ALL.** §3 shows a
+9.64 MiB page — pulling the same bank chunk — indexing fine. **The bank is a dead hypothesis
+for the Soft 404.** What justifies this lane is the student: **10.64 MiB of JavaScript to read
+a notes page is indefensible** on Indian mobile data. That is reason enough on its own, and it
+is the only reason to claim.
+
+★ **And the bank is not even the only oversized chunk.** `ourEnvironment.pack2-<hash>.js` at
+**2,316,329 B** is fetched by **both** routes. A lane that removed only the bank would leave
+2.3 MB of question data on a notes page.
+
+### 5 · ⚠ PRERENDERING REMAINS UNDECIDED
+
+**Nobody has established whether prerendering is needed.** Do not assume either way.
+
+⛔ **And it must not be the first move even if chosen: prerendering would MASK a
+chunk-loading failure rather than fix it.** A student navigating in-app would still hit the
+error boundary. Google would see a good page; the student would not.
+
+★ **Independent signal available:** Bing Webmaster Tools reports exactly **one** failing URL —
+`https://www.lazytopper.com/app/` — the one page Google does index. ⚠ With the cause now
+UNKNOWN it is no longer corroboration for a specific theory, but it is a **second crawler
+reporting a failure on the same property**, and whatever the real cause turns out to be should
+explain Bing's one URL as well as Google's twenty-six.
+
+### 6 · PERF-2's PROFILE SPLIT — SO NOBODY RE-OPTIMISES THE CLONES
+
+`#751` took `/app/practice/10/Maths` from **7,172 ms → 2,253 ms** with **byte-identical
+output** (same 8,903 rows, same SHA-256, `cmp` exit 0, control catches one mutated byte).
+
+Measured **cold** — ⚠ warm inverts this answer, see §7:
+
+| Stage of `buildUnifiedQuestionBank` | Cost | Share |
+|---|---|---|
+| clone #1 + stamp `_source` | 4.1 ms | 0.04% |
+| predicted converters | 0.6 ms | 0.01% |
+| `dedupeById` | 2.2 ms | 0.02% |
+| filter | 48.1 ms | 0.5% |
+| **clone #2 + score** | **9,898.4 ms** | **99.4%** |
+
+Inside stage 5: **~80% string normalisation and fuzzy matching, 0.9% `compute5SignalScore`
+itself.**
+
+⛔ **Do NOT "do one pass instead of two"** — measured at 0.04%.
+⛔ **Do NOT replace the score field with a `Map`** — saves ~6 ms and **breaks
+`unlimitedPaperEngine.ts:199`**, the one external reader, which reads `_adjustedScore` as a
+**field** with its own local type.
+
+Remaining ~2 s is `[FU-PREDICTIONCORE-BUILD-COST]`, its own lane. ⚠ The lane predicted
+1.5-2 s and landed at 2.25 s — **outside its own range, reported as outside.**
+
+★ **CI IS ~4.5 MINUTES FASTER PER PR FROM HERE, FOR EVERY LANE.** The full vitest suite went
+**590 s → 319 s locally**, and the merged CI run reports **216.55 s**, because files importing
+`predictionCore` no longer build the bank merely by importing it.
+
+### 7 · THE FOUR DOCTRINE FINDINGS, EACH WITH ITS SPECIMEN
+
+**`[FU-GUARD-PINNED-THE-DEFECT]` — a gate that passes ONLY while the bug is present.**
+`verify-production-build.mjs` read only `index-*.js` and required the question bank to be in
+it — true only because the bank was wrongly in the main chunk. **Fixing that turned the guard
+RED on a CORRECT build.** Repair: keep the INTENT, drop the incidental assumption. Gate-level
+sibling of `#490`, where a *test* asserted the defect's structure.
+
+**THE CONTROL RULE — a control that cannot fail is not a control.** *Before quoting any
+control, ask what value it takes when the thing is BROKEN. If that is the same value, it is
+decoration rather than evidence.* Specimen, and it was the lane's own: grepping a bundle for
+`webdriver` to prove a build flag absent — **that string is there either way.** The chunk
+HASH discriminated. Applied successfully three more times afterwards.
+
+**`[FU-MEASUREMENT-ORDER-WITH-SHARED-CACHE]` — where a shared cache exists, measurement order
+is load-bearing.** A staged replica ran **74x FASTER than the real build while producing
+byte-identical output** — a broken measurement, not a discovery. `get5SignalResult` memoises
+module-level; whichever run goes first pays and later runs report fiction. **It would have
+named the filter as 65% of the cost.** ★ Sharper half: **two controls testing different
+properties, and only ONE fired** — output-identity passed in *both* runs.
+
+**`[FU-PREVIEW-DEPLOYMENT-IS-A-GATE]` — this one changes how future lanes work.** "No gate in
+this repo can see a cache header" is true of the **battery** and false of the **lane**: Vercel
+builds a preview per PR and a preview can be curled. `#749` closed two of its three acceptance
+steps **before merge**, on a real deployment of the exact commit. ⇒ **Headers, redirects,
+rewrites, caching — anything the platform does that a repo gate cannot see — is verifiable
+pre-merge.** Several already-shipped lanes went out on assurance instead.
+
+### 8 · OTHER OPEN WORK
+
+- **SEO-LINKS-1, unspecced.** The Learn control is a `<button onClick>` **no crawler can
+  follow**, which is why Search Console reports **"Referring page: None detected" on all 26
+  chapter pages** — they are in the sitemap but nothing links to them traversably. ⚠ A router
+  `<Link>` renders an `<a href>` too, so an href assertion is **blind**; discriminate by
+  clicking and asserting the router did not navigate.
+- **Six stem surfaces remain** — `[FU-STEM-WHITESPACE-NINE-SURFACES]`. Nine live surfaces
+  render a stem without preserving newlines; `#745` fixed three.
+  `DesktopPracticePage.tsx:2642` · `ExamSimulationPage.tsx:573,602,836,854` ·
+  `WorksheetPrintDoc.tsx:185` · `WorksheetGradedPrintDoc.tsx:232,257` ·
+  `CheckImproveGradedPrintDoc.tsx:266,283` · `WorksheetGradePanel.tsx:178`.
+  ★ Two print docs already set `pre-wrap` on the student's *working* while the stem beside it
+  does not. ⛔ `MockPaper.tsx` is unreachable and correctly excluded.
+- **`[FU-UNWIRED-HPQ-ENTRY-SCRIPTS]`.** `test:hpq:phase2`, `test:hpq:drift` and
+  `test:prediction:deleted-zeroing` exist as npm scripts but **no chain invokes them** — which
+  is how a real defect survived: `hpq_phase2_acceptance.entry.ts:8` imports
+  `scoreArchetypeWithBayesianSmoothing`, which does not exist, and **calls it at line 101**.
+  ⚠ Wiring them turns the matrix red until that is fixed, so the two belong in one lane.
+- **`[FU-TSCONFIG-HOLES]`.** Only 3 of 5 `.ts` files under `lazytopper/scripts/` are
+  typechecked, one of them **only by accident** because a guard test imports it.
+  `tsconfig.node.json` names files individually rather than covering the directory — but it
+  sets no `jsx` and is wired into `tsc -b`, so widening it to reach a `.tsx` turns
+  `pnpm run build` red.
+- **`[FU-PREDICTIONCORE-BUILD-COST]`.** The remaining ~2 s of the prediction build.
+
+### 9 · METHOD NOTES THAT COST THIS SEAT TIME
+
+- **Exit-code lies: EIGHT this wave, three in `#748` alone.** A background notification
+  reported "completed (exit code 0)" while the captured `VITEST_EXIT` was **1** — the trailing
+  unpiped `echo`/`tail` supplies the code. Also inside a command: `grep -c … | head` reports
+  HEAD's status. **Capture `$?` on the line after the redirect and quote that number.**
+- **The premise checker is wrong in both directions and its exit code is never a verdict.** It
+  passed two off-by-one anchors, and it fails compliant specs on a heading-name mismatch. Its
+  `path:line` complaints, however, have been correct every time.
+- **An auth-gated surface produces a fake performance number** — you time the login redirect.
+  Prove render on three axes: final pathname, page-specific DOM text, and the profile's
+  attribution signature.
+- **`import.meta.env.DEV` is TRUE under vitest**, so a DEV-guarded throw is live in CI.
+- **Git Bash converts a leading-slash argument into a Windows path.** It silently turned
+  `/app/topic-hub/trigonometry` into `C:/Program Files/Git/app/...` twice, producing a
+  measurement of zero. Pass routes without the leading slash and re-add it in the script.
+- **Windows:** vitest and vite need the stripped rollup binary dropped into
+  `node_modules/.pnpm/rollup@<ver>/node_modules/@rollup/`.
+- **Counts to read from the run, never hardcode:** root matrix **206 tests / 30 suites**;
+  lazytopper ops matrix **527**; vitest **155 files / 2015 tests**. CLAUDE.md §6 still says
+  "SIX suites / 190 checks" and remains stale.
+
+## [CURRENT · BANK / FIGURES ARC] CFPQ-FIGURES-1 + BANK-1 — **53 QUESTIONS STOPPED SHOWING A STOCK PHOTOGRAPH IN PLACE OF THE DIAGRAM THEY REQUIRE, AND 24 CFPQ MATHS QUESTIONS BECAME REACHABLE AT ALL** — `#744` · `#746` · `#747` · `#750`
 
 ★ **PROVENANCE.** Every code-level number below was **re-derived by this lane** at the stated trunk
 by runtime import of the assembled bank or by opening the artefact, never copied from a document.

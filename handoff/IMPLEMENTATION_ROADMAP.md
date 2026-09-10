@@ -1,5 +1,21 @@
 # LazyTopper Implementation Roadmap
 
+
+## 2026-09-10 — SEO / PERF ARC: **PERFORMANCE SHIPPED, CRAWLABILITY DID NOT** — `#745` · `#748` · `#749` · `#751` ALL MERGED — trunk `00153896`
+
+**`2026-09-10`**
+
+- ✅ **`#745` SEO-SMALL-1** — HTML checks out as LF; stem line breaks survive on Chapter Test,
+  Full Mock and Predicted (HPQs). **Six stem surfaces remain.**
+- ✅ **`#748` PERF-1** — the prediction bank builds on first use, not on import.
+  **10,617 ms → 55 ms** main-thread freeze; main bundle **9,988 kB → 1,085 kB**.
+- ✅ **`#749` SEO-CACHE-1** — `/app/assets/*` cached `immutable`; the shell stays `max-age=0`.
+  **~18 fewer round-trips per page load.**
+- ✅ **`#751` PERF-2** — four pure string normalisers memoised.
+  `/app/practice/10/Maths` **7,172 ms → 2,253 ms**, byte-identical output.
+- ⛔ **NOT DONE: the Soft 404.** The 26 chapter pages are still not indexable. **Four hypotheses
+  dead by measurement; the cause is UNKNOWN.** Prerendering remains **undecided**.
+
 ## 2026-08-27 — WAVE MI-INTEGRITY-10: **THE OBJECTIVE-MARK ARC REACHES THE PRODUCT AND THE RECORD TOGETHER — `#703` · `#704` · `#706` · `#707` ALL MERGED** — trunk `f07f33ce` (`#708` merged mid-lane; `#707` is `02fa7c0a`)
 
 **`2026-08-27`**
