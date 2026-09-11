@@ -20,6 +20,41 @@
  * that a bank change is LOUD. #721 moved three of them and the cause was known
  * and intended. A count updated without a stated cause is drift being laundered
  * into a green suite - which is the exact failure this file exists to prevent.
+ *
+ * ★★ PIN PHILOSOPHY (PR-3): FLOORS, CEILINGS AND IDENTITIES — NOT EQUALITIES.
+ *
+ * Every population this file measures has a DOCTRINE DIRECTION, and the pin on it
+ * is the bound in that direction:
+ *
+ *   FLOOR   (toBeGreaterThanOrEqual)  for what must only GROW:
+ *           human rows, publishable rows, the two achievable ceilings, the rows the
+ *           figure escape frees.
+ *   CEILING (toBeLessThanOrEqual)     for what must only SHRINK:
+ *           AI-generated rows (owner ruling: they are RETIRED, never repaired), the
+ *           fabricated board attributions inside them, AI rows with unmarked steps,
+ *           the addressable backlog, the cannot-sum rows, the held/cannot-sum overlap.
+ *   IDENTITY (toBe, computed on both sides, NO literal) for every PARTITION:
+ *           ok + each rejection reason = bank; AI-rejected + human = bank; the
+ *           escape delta = the escaped set; the ceiling gap = the excluded-set gap.
+ *
+ * WHY. With exact literals, EVERY content PR — a STEPMARK batch, a figure binding,
+ * a chapter wiring — had to re-pin this one file, so every lane in the arc was
+ * serialised through it. A content PR that moves a count in the doctrine direction
+ * now needs NO edit here: annotate 150 rows and `publishable` rises past its floor
+ * while `addressable` falls under its ceiling, and both stay green. A move AGAINST
+ * the direction — publishable falling, AI rows growing, the backlog growing — is
+ * the red this file exists for, and the PR that causes it must state why and
+ * re-pin with a reconciliation, exactly as the histories below do.
+ *
+ * ⚠ A FLOOR CAN GO STALE UPWARD without going red: if publishable reaches 4,000 the
+ * floor of 3,144 still passes and protects less. Raising a floor is cheap and
+ * should ride along with any PR that moves the number — it is not required, which
+ * is the point, but a floor far below the live count is a weaker guard. The
+ * IDENTITIES are what never weaken: a partition that stops summing to the bank is
+ * red at any size.
+ *
+ * ⚠ THE LITERAL IN EACH BOUND IS THE LIVE VALUE AT THE PIN, stated with its date
+ * and cause, so the next reader can see how far the population has moved since.
  */
 
 import { describe, it, expect } from "vitest";
@@ -27,6 +62,7 @@ import { describe, it, expect } from "vitest";
 import {
   isPublishable,
   demandsSuppliedFigure,
+  defaultHasBoundFigure,
   stepMarks,
   DEMANDS_SUPPLIED_FIGURE,
 } from "../../scripts/seo/publishability";
@@ -70,15 +106,31 @@ describe("RULE 1 — provenance is an id-set, not a `sources` field", () => {
    *
    * If this number changes, the bank's AI population changed. Do not "fix" the test
    * by editing the number — find out which pack moved and why.
+   *
+   * ★ PR-3 — MONOTONE PINS. The AI population is SHRINK-ONLY by owner ruling (AI rows
+   * are retired, never repaired), so it carries a CEILING of 2,952, the live value at
+   * the pin. The identity `rejected.length === AI.size` is EXACT and literal-free: it
+   * proves every AI id names a row in the bank AND that Rule 1 rejects every one of
+   * them — the assertion that would have caught v1, kept in a form no content PR has
+   * to touch. Human rows (bank minus AI) are GROW-ONLY and carry a FLOOR of 5,710,
+   * the live value at the pin (8,662 - 2,952). The two together partition the bank,
+   * asserted as an identity below.
    */
-  it("rejects exactly the 2,952 AI-generated rows", () => {
+  it("rejects every AI-generated row; the AI population only shrinks, human rows only grow", () => {
     const rejected = canonicalQuestionBank.filter((q) => {
       const v = isPublishable(q, AI);
       return !v.ok && v.reason === "ai-generated-source";
     });
+    const human = canonicalQuestionBank.filter((q) => !AI.has(q.id));
 
-    expect(rejected).toHaveLength(2952);
-    expect(AI.size).toBe(2952);
+    // IDENTITY — every AI id is in the bank and Rule 1 rejects each one.
+    expect(rejected).toHaveLength(AI.size);
+    // CEILING — AI rows are retired, never added. 2,952 at PR-3 (2026-09-11).
+    expect(AI.size).toBeLessThanOrEqual(2952);
+    // FLOOR — human rows are authored and wired, never lost. 5,710 at PR-3.
+    expect(human.length).toBeGreaterThanOrEqual(5710);
+    // IDENTITY — AI-rejected and human rows partition the bank.
+    expect(rejected.length + human.length).toBe(canonicalQuestionBank.length);
     // 8,543 -> 8,673: #721 wired the ten .cfpq.ts files into the assembly array.
     // The files landed in #720 but nothing imported them, so the bank did not grow
     // until #721. Committed-but-unwired is MOUNT != LIVE: the rows existed and could
@@ -98,7 +150,9 @@ describe("RULE 1 — provenance is an id-set, not a `sources` field", () => {
     // returned 0 rows. Committed is not live.
     // ★ The PUBLISHABLE count below moves by +17, NOT +24, and the two numbers are
     // SUPPOSED to differ here — see its comment. A row delta is not a publishable delta.
-    expect(canonicalQuestionBank).toHaveLength(8662);
+    // 8,662 at PR-3 — no longer pinned exactly. The bank length is AI (ceiling) + human
+    // (floor), both asserted above, and the partition identity ties them to it. A wiring
+    // PR that grows the bank now needs no edit here; a PR that LOSES human rows goes red.
   });
 
   /**
@@ -107,9 +161,11 @@ describe("RULE 1 — provenance is an id-set, not a `sources` field", () => {
    * board attribution is inside the set Rule 1 rejects, so nothing escaped when the
    * separate check was deleted.
    */
-  it("subsumes the old Rule 4 — all 364 fabricated attributions are inside the set", () => {
+  it("subsumes the old Rule 4 — every fabricated attribution is inside the set (at most 364)", () => {
     const fabricated = canonicalQuestionBank.filter((q) => q.pyqYear && AI.has(q.id));
-    expect(fabricated).toHaveLength(364);
+    // CEILING — fabricated attributions live only inside the AI set, which is retired
+    // and never grows. 364 at PR-3 (2026-09-11). The loop below is the actual property.
+    expect(fabricated.length).toBeLessThanOrEqual(364);
 
     for (const q of fabricated) {
       const v = isPublishable(q, AI);
@@ -133,7 +189,7 @@ describe("RULE 2 — both mark conventions are valid", () => {
     expect(stepMarks("Substitute into the lens equation")).toBeNull();
   });
 
-  it("the addressable step-marking backlog is 2,336 rows", () => {
+  it("the addressable step-marking backlog only shrinks (at most 2,336 rows)", () => {
     /**
      * ★ NOT 5,105. The raw unmarked count is 5,105, but 2,102 of those are AI-pack
      * rows that Rule 1 rejects permanently and that policy says to RETIRE, not
@@ -186,7 +242,11 @@ describe("RULE 2 — both mark conventions are valid", () => {
     // ★ NO row flagged by RECOVER-1 (#735) was annotated: the 8 bracket rows and the 15
     // U+F09F rows are knowingly incomplete text, and a mark scheme on a broken stem is the
     // defect the quarantine exists to stop. ZERO of the 23 sit in this topic (measured).
-    expect(addressable).toHaveLength(2336);
+    // CEILING (PR-3) — the backlog is worked DOWN by STEPMARK batches and must never be
+    // worked up: a wiring PR that lands rows unannotated grows it and goes red here,
+    // which is the right red — annotate before wiring. 2,336 at PR-3 (2026-09-11); the
+    // 21 bound-but-unmarked rows PR-3 exposed are inside this number, not added to it.
+    expect(addressable.length).toBeLessThanOrEqual(2336);
   });
 });
 
@@ -260,6 +320,53 @@ describe("RULE 5 — C4, both directions", () => {
    */
   it("rejects rows that genuinely need a supplied artefact", () => {
     expect(demandsSuppliedFigure(figureScan("TRI-N-NCERT-6-SA-004"))).toBe(true);
+  });
+
+  /**
+   * DIRECTION 2, RESOLVED — THE FIGURE SHIPS (PR-3).
+   * `TRI-N-NCERT-6-SA-004` is the row above: it DOES demand a figure, and the binder
+   * DOES hold one for its id. Before PR-3, Rule 5 read only the text and rejected it
+   * as `requires-absent-figure` — a reason that was false for this row. Now the
+   * demand stands (the text test is unchanged) and the escape lets the bound row
+   * through. Pinned on a single named row so the escape has a face, not just a count.
+   *
+   * ⚠ The real row is still `unmarked-step` today (it is one of 21 bound rows in the
+   * step-marking backlog), so it is given one fully-marked step here — exactly as the
+   * "ignores solution steps" control does — to reach Rule 5 at all.
+   */
+  it("publishes a figure-demanding row whose figure is BOUND, and rejects it when unbound", () => {
+    const q = row("TRI-N-NCERT-6-SA-004");
+    expect(defaultHasBoundFigure(q.id)).toBe(true);
+    const marked = { ...q, solutionSteps: [`[${q.marks} marks] Use the similarity to find the angle.`] };
+
+    expect(isPublishable(marked, AI).ok).toBe(true);
+
+    const unbound = isPublishable(marked, AI, { hasBoundFigure: () => false });
+    expect(unbound.ok).toBe(false);
+    expect((unbound as { reason: string }).reason).toBe("requires-absent-figure");
+  });
+
+  /**
+   * THE NEGATIVE CONTROL — A RESOLVER THAT LIES "TRUE" MUST GO RED HERE (PR-3).
+   * `SCQ-S-EYE-036` demands a figure ("study the diagram"), its steps pass Rule 2, and
+   * the binder holds NOTHING for its id — so it is one of the 230 rows genuinely held
+   * as `requires-absent-figure` today, with the DEFAULT resolver, no synthetic step.
+   * Without this test every assertion on `defaultHasBoundFigure` reads `true`, and a
+   * registry that answered `true` for every id (or a resolver wired to a constant)
+   * would pass the whole file: the publishable floor rises, the partition still
+   * tiles, the escaped set still "demands and is bound". A control that cannot fail
+   * is not a control; this one fails exactly when "bound" stops meaning bound.
+   */
+  it("holds a figure-demanding row whose figure is NOT bound, and publishes it only if a resolver says it is", () => {
+    const q = row("SCQ-S-EYE-036");
+    expect(defaultHasBoundFigure(q.id)).toBe(false);
+
+    const held = isPublishable(q, AI);
+    expect(held.ok).toBe(false);
+    expect((held as { reason: string }).reason).toBe("requires-absent-figure");
+
+    // The same row passes every other rule: only the binder stands between it and a page.
+    expect(isPublishable(q, AI, { hasBoundFigure: () => true }).ok).toBe(true);
   });
 
   /**
@@ -389,7 +496,9 @@ describe("rule ORDER is load-bearing", () => {
     const aiWithBadSteps = canonicalQuestionBank.filter(
       (q) => AI.has(q.id) && (q.solutionSteps ?? []).some((s) => stepMarks(s) === null),
     );
-    expect(aiWithBadSteps).toHaveLength(2102);
+    // CEILING (PR-3) — a subset of the retired AI set; it shrinks as packs are retired
+    // and must never grow. 2,102 at PR-3 (2026-09-11).
+    expect(aiWithBadSteps.length).toBeLessThanOrEqual(2102);
 
     for (const q of aiWithBadSteps.slice(0, 50)) {
       const v = isPublishable(q, AI);
@@ -416,7 +525,7 @@ describe("the publishable population", () => {
    * intended — a derived value pinned in prose outlives the facts it came from; a
    * derived value pinned in a test fails loudly when they change.
    */
-  it("2,982 rows are publishable today", () => {
+  it("at least 3,144 rows are publishable — the number only grows", () => {
     const publishable = canonicalQuestionBank.filter((q) => isPublishable(q, AI).ok);
     // 2,248 -> 2,333: +85. Of the 130 CFPQ rows wired by #721, 85 publish immediately,
     // 10 join the step-marking backlog and 35 are held by the figure rule. ~3.8% growth,
@@ -468,7 +577,68 @@ describe("the publishable population", () => {
     // REFERENCE ONLY, answerable without its image and NOT setting requiresDiagram, and
     // that row is publishable here, while -005, whose answer names "Representation 1"
     // and "Representation 2", is held. The rule agrees with the source's own reading.
-    expect(publishable).toHaveLength(2982);
+    // 2,982 -> 3,144: +162. PR-3: rows whose figure is BOUND (Rule 5 now consults the binder).
+    // ★ NOT +183. The binder holds a figure for 183 figure-demanding rows, but 21 of those
+    // fail Rule 2 first ("unmarked-step") and never reach Rule 5 — Rule 2 runs before
+    // Rule 5, exactly the ordering the STEPMARK batches above reconcile against. So the
+    // escape moves 162 rows from `requires-absent-figure` (392 -> 230) to publishable, and
+    // the 21 stay in `addressable` (UNCHANGED at 2,336) until a STEPMARK lane annotates
+    // them, at which point they publish directly. Bank length UNCHANGED at 8,662 — this
+    // change authors no rows and binds no figures; it stops the predicate from ignoring
+    // figures that were already bound. The control below proves the +162 is the escape
+    // and nothing else: with the binder switched off the count is the old 2,982 exactly.
+    // FLOOR (PR-3) — the headline the SEO track builds from is GROW-ONLY: annotation,
+    // binding and wiring all raise it. A PR that LOWERS it (a withheld row, a loosened
+    // predicate tightened, a lost import) goes red here and must say why. 3,144 at PR-3
+    // (2026-09-11). Raise the floor when a PR moves the number, so it keeps protecting.
+    expect(publishable.length).toBeGreaterThanOrEqual(3144);
+  });
+
+  /**
+   * ★ THE MUTATION CONTROL, MADE PERMANENT (PR-3). The escape is load-bearing only if
+   * switching the binder off recovers the pre-PR-3 count EXACTLY — not "a smaller
+   * number" but 2,982, the value pinned on trunk before this change. If the default
+   * resolver ever stops reaching the binder (a wrong import, a renamed export, a
+   * registry that returns [] for every id), the two counts collapse to one and this
+   * test is the only thing that says so.
+   *
+   * PINNED AS BOUNDS, NOT EQUALITIES (PR-3 monotone pins): the binder-off count is the
+   * publishable population WITHOUT the escape and is grow-only like the headline, so
+   * it carries a FLOOR of 2,982, the pre-PR-3 value. The escaped set is grow-only too
+   * — every newly bound figure and every annotated bound row adds to it — so it
+   * carries a FLOOR of 162. If the escape ever stops reaching the binder, the escaped
+   * set is EMPTY, 0 < 162, and this is red: the floor is the load-bearing proof.
+   * The delta and the set are tied by an exact, literal-free identity.
+   */
+  it("★ the escape is load-bearing: binder off recovers at least the pre-PR-3 population", () => {
+    const withBinder = canonicalQuestionBank.filter((q) => isPublishable(q, AI).ok);
+    const binderOff = canonicalQuestionBank.filter(
+      (q) => isPublishable(q, AI, { hasBoundFigure: () => false }).ok,
+    );
+
+    // FLOOR — the binder-blind population, 2,982 at PR-3 (its last exact value).
+    expect(binderOff.length).toBeGreaterThanOrEqual(2982);
+    // The escape can only ADD rows: everything publishable without it is publishable with it.
+    const withIds = new Set(withBinder.map((q) => q.id));
+    for (const q of binderOff) {
+      expect(withIds.has(q.id), `${q.id} publishable binder-off but not binder-on`).toBe(true);
+    }
+
+    // Every escaped row is exactly one that (a) demands a figure and (b) has one bound.
+    // Nothing else may ride through the escape.
+    const offIds = new Set(binderOff.map((q) => q.id));
+    const escaped = withBinder.filter((q) => !offIds.has(q.id));
+    // IDENTITY — the count delta IS the escaped set (binderOff ⊆ withBinder was just proven).
+    expect(escaped.length).toBe(withBinder.length - binderOff.length);
+    // FLOOR — 162 rows escaped at PR-3 (2026-09-11); 0 here means the escape is dead.
+    expect(escaped.length).toBeGreaterThanOrEqual(162);
+    for (const q of escaped) {
+      const demands =
+        Boolean((q as { requiresDiagram?: boolean }).requiresDiagram) ||
+        demandsSuppliedFigure(`${q.questionText}\n${q.answer ?? ""}`);
+      expect(demands, `${q.id} escaped without demanding a figure`).toBe(true);
+      expect(defaultHasBoundFigure(q.id), `${q.id} escaped without a bound figure`).toBe(true);
+    }
   });
 
   it("no publishable row is AI-generated — the property retirement depends on", () => {
@@ -520,11 +690,23 @@ describe("the publishable population", () => {
  * `addressable` to `publishable`; annotating a figure-held row removes it from
  * `addressable` and from the figure-held set at once. Either way the expression is
  * conserved. A batch that MOVES these numbers has done something other than annotate.
+ *
+ * ★ PR-3: "FIGURE-HELD" MEANS WHAT RULE 5 HOLDS, AND RULE 5 NOW CONSULTS THE BINDER.
+ * `figureHeld` below is binder-aware for the same reason the predicate is: an
+ * addressable row whose figure is BOUND will publish the moment it is annotated, so
+ * counting it as unreachable understates the ceiling by exactly the rows PR-3 freed.
+ * Measured at PR-3: 21 addressable rows are bound, so `held` 92 -> 71, `excluded`
+ * 514 -> 495, the overlap 24 -> 22 (two of the 21 were also cannot-sum), and both
+ * ceilings move +183 = 162 (publishable) + 21 (no longer held): 5,226 -> 5,409 and
+ * 4,804 -> 4,985. The gap is now 424 = 446 - 22. Had `figureHeld` stayed binder-blind
+ * the sums would read 5,388 / 4,966 — a ceiling that counts 21 reachable rows as
+ * unreachable, which is the definition error this paragraph exists to refuse.
  */
 describe("the achievable ceiling — ruling 5", () => {
   const figureHeld = (q: (typeof canonicalQuestionBank)[number]) =>
-    Boolean((q as { requiresDiagram?: boolean }).requiresDiagram) ||
-    demandsSuppliedFigure(`${q.questionText}\n${q.answer ?? ""}`);
+    (Boolean((q as { requiresDiagram?: boolean }).requiresDiagram) ||
+      demandsSuppliedFigure(`${q.questionText}\n${q.answer ?? ""}`)) &&
+    !defaultHasBoundFigure(q.id);
 
   /** A row can be annotated iff its unmarked steps can each take at least 0.5 and
    *  the remainder lands on the 0.5 grid. `[0 mark]` is refused (ruling 6). */
@@ -541,7 +723,7 @@ describe("the achievable ceiling — ruling 5", () => {
     );
   };
 
-  it("4,804 is the achievable publishable ceiling, and 5,226 is not", () => {
+  it("the achievable ceiling is publishable + addressable - excluded (>= 4,985), and the naive one is not", () => {
     const publishable = canonicalQuestionBank.filter((q) => isPublishable(q, AI).ok).length;
     const addressable = canonicalQuestionBank.filter((q) => {
       if (AI.has(q.id)) return false;
@@ -553,11 +735,27 @@ describe("the achievable ceiling — ruling 5", () => {
     const cannotSum = addressable.filter((q) => !canBeAnnotated(q)).length;
     const excluded = addressable.filter((q) => figureHeld(q) || !canBeAnnotated(q)).length;
 
-    // the two excluded sets OVERLAP by 24 — this is the assertion the controller's
+    // the two excluded sets OVERLAP by 22 — this is the assertion the controller's
     // arithmetic would have got wrong, and it is why 4,822 is not 5,244 minus 446.
-    expect(held + cannotSum - excluded).toBe(24);
-    expect(cannotSum).toBe(446);
-    expect(cannotSum - 24).toBe(422);
+    // 24 -> 22: PR-3, two of the 21 bound-but-unmarked rows were also cannot-sum, and a
+    // bound row is no longer figure-held, so they leave the overlap. `cannotSum` itself
+    // is UNCHANGED at 446: binding a figure does not change whether steps can sum.
+    //
+    // PR-3 MONOTONE PINS. The overlap and `cannotSum` are subsets of the addressable
+    // backlog and shrink with it (binding frees held rows; fixing steps frees cannot-sum
+    // rows; a wiring PR that lands rows in either state grows them and goes red, which
+    // is the right red). Both carry CEILINGS at their PR-3 values (2026-09-11).
+    const overlap = held + cannotSum - excluded;
+    expect(overlap).toBeLessThanOrEqual(22);
+    expect(cannotSum).toBeLessThanOrEqual(446);
+    // Set algebra the two predicates must obey, literal-free: the union is at least
+    // each part and at most their sum, so the overlap lies in [0, min(held, cannotSum)].
+    expect(excluded).toBeGreaterThanOrEqual(Math.max(held, cannotSum));
+    expect(excluded).toBeLessThanOrEqual(held + cannotSum);
+    // ⚠ The GAP `cannotSum - overlap` (422 -> 424 at PR-3) is deliberately NOT bounded:
+    // binding figures shrinks `held` and so GROWS it, while fixing steps shrinks it — it
+    // has no doctrine direction. It is asserted below as an identity between the two
+    // ceilings instead, which is what it actually is.
 
     // ✗ NOT the achievable figure: ignores that 422 rows can never be annotated.
     // 5,244 -> 5,209 and 4,822 -> 4,787: both -35, and for ONE reason. All 35 rows
@@ -576,9 +774,99 @@ describe("the achievable ceiling — ruling 5", () => {
     // ceilings therefore move by exactly the publishable delta, +17, and their GAP stays
     // 422. The invariant in this block's header is about ANNOTATION, and holds: adding
     // rows to the bank is a different operation, and it moves both ceilings together.
-    expect(publishable + addressable.length - held).toBe(5226);
+    // 5,226 -> 5,409 and 4,804 -> 4,985: both +183, and for ONE reason. PR-3: +183 = rows
+    // whose figure is bound (Rule 5 now consults the binder) — 162 of them move straight
+    // into `publishable`, and 21 stay `addressable` but stop being `held`/`excluded`
+    // because a bound figure is no longer a reason to hold. `addressable` is UNCHANGED at
+    // 2,336 and `cannotSum` at 446; the gap moves 422 -> 424 because 2 of the 21 leave
+    // the overlap. A third operation, then: ANNOTATION conserves these, ADDING ROWS moves
+    // both by the publishable delta, and BINDING (or, here, first honouring what was
+    // already bound) moves both by the freed count. Bank length UNCHANGED at 8,662.
+    //
+    // PR-3 MONOTONE PINS. Both ceilings are GROW-ONLY: annotation conserves them, wiring
+    // and binding raise them, and only a lost row or a lost figure lowers them. FLOORS at
+    // the PR-3 values (2026-09-11). What these two lines encode is NOT a partition of the
+    // bank — it is "how many rows would publish if every annotatable row were annotated",
+    // under two readings of "annotatable". The partition of the bank is its own block below.
+    const naiveCeiling = publishable + addressable.length - held;
+    const achievableCeiling = publishable + addressable.length - excluded;
+    expect(naiveCeiling).toBeGreaterThanOrEqual(5409);
 
     // ★ THE AUTHORITATIVE ACHIEVABLE FIGURE.
-    expect(publishable + addressable.length - excluded).toBe(4804);
+    expect(achievableCeiling).toBeGreaterThanOrEqual(4985);
+
+    // IDENTITIES, literal-free. The achievable ceiling never exceeds the naive one, is
+    // never below what already publishes, and the two differ by exactly the cannot-sum
+    // rows that are not also figure-held — the gap that has no doctrine direction.
+    expect(achievableCeiling).toBeLessThanOrEqual(naiveCeiling);
+    expect(achievableCeiling).toBeGreaterThanOrEqual(publishable);
+    expect(naiveCeiling).toBeLessThanOrEqual(publishable + addressable.length);
+    expect(naiveCeiling - achievableCeiling).toBe(cannotSum - overlap);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// THE PARTITION — EXACT, LITERAL-FREE
+// ---------------------------------------------------------------------------
+
+/**
+ * ★ THE ONE IDENTITY THAT NEVER WEAKENS (PR-3). Every floor and ceiling above can go
+ * stale in the safe direction; this cannot. `isPublishable` returns exactly one verdict
+ * per row, so the ok count plus every rejection reason must sum to the bank, and the
+ * named populations the other blocks measure — AI, publishable, addressable, cannot-sum,
+ * figure-held — must tile it with nothing left over and nothing counted twice. A new
+ * reason string added to the contract without a home here, a row that somehow gets two
+ * verdicts, a filter in this file that drifts from the predicate: all red, at any size.
+ */
+describe("the partition — verdicts tile the bank exactly", () => {
+  const KNOWN_REASONS = [
+    "ai-generated-source",
+    "no-solution-steps",
+    "unmarked-step",
+    "marks-do-not-sum",
+    "requires-absent-figure",
+  ] as const;
+
+  it("ok + every rejection reason === bank, and no reason is unknown", () => {
+    let ok = 0;
+    const byReason = new Map<string, number>();
+    for (const q of canonicalQuestionBank) {
+      const v = isPublishable(q, AI);
+      if (v.ok) ok += 1;
+      else byReason.set(v.reason, (byReason.get(v.reason) ?? 0) + 1);
+    }
+    for (const reason of byReason.keys()) {
+      expect(KNOWN_REASONS as readonly string[], `unknown reason ${reason}`).toContain(reason);
+    }
+    const rejected = [...byReason.values()].reduce((a, b) => a + b, 0);
+    expect(ok + rejected).toBe(canonicalQuestionBank.length);
+  });
+
+  it("AI + publishable + addressable + cannot-sum + figure-held === bank", () => {
+    const ai = canonicalQuestionBank.filter((q) => AI.has(q.id)).length;
+    const publishable = canonicalQuestionBank.filter((q) => isPublishable(q, AI).ok).length;
+    const reason = (q: (typeof canonicalQuestionBank)[number]) => {
+      const v = isPublishable(q, AI);
+      return v.ok ? null : v.reason;
+    };
+    // The same predicate the RULE 2 block pins, so the two blocks cannot drift apart.
+    const addressable = canonicalQuestionBank.filter((q) => {
+      if (AI.has(q.id)) return false;
+      const r = reason(q);
+      return r === "unmarked-step" || r === "no-solution-steps";
+    }).length;
+    const marksDoNotSum = canonicalQuestionBank.filter(
+      (q) => !AI.has(q.id) && reason(q) === "marks-do-not-sum",
+    ).length;
+    const figureHeld = canonicalQuestionBank.filter(
+      (q) => !AI.has(q.id) && reason(q) === "requires-absent-figure",
+    ).length;
+
+    expect(ai + publishable + addressable + marksDoNotSum + figureHeld).toBe(
+      canonicalQuestionBank.length,
+    );
+    // Rule 1 runs first, so every AI row is rejected as AI and none reaches a content
+    // reason — the `!AI.has` guards above therefore exclude nothing, and this proves it.
+    expect(canonicalQuestionBank.filter((q) => AI.has(q.id) && reason(q) !== "ai-generated-source")).toEqual([]);
   });
 });
