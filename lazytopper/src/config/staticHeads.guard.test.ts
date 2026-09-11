@@ -35,15 +35,59 @@ import { allDesktopTopics } from "../lib/desktop/topics";
  * output. A test that can only run after `vite build` does not run in CI's unit
  * step at all, and a test that reads a real artifact cannot be shown to FAIL on
  * a broken one. The fixture below is the head shape `index.html` actually ships,
- * including its three-line description tag.
+ * including its FOUR-LINE description and social tags.
  */
 
 /**
- * A stand-in for the built shell, carrying the four tags the script rewrites in
- * the shapes they really appear in — the description across THREE lines, which
- * is the form that broke naive single-line patterns in `head.guard.test.ts`'s
- * own history.
+ * A stand-in for the built shell, carrying the eight tags the script rewrites in
+ * the shapes they really appear in — the description and all four social tags
+ * each across FOUR lines (open, attribute, content, close), which is the form
+ * that broke naive single-line patterns in `head.guard.test.ts`'s own history.
+ *
+ * ⚠ WRITING THESE ON ONE LINE HERE WOULD MAKE THE FIXTURE LIE. A single-line
+ * pattern would pass against a one-line fixture and then match zero tags on the
+ * real build, which is the silent no-op this whole file exists to prevent.
  */
+
+/** One four-line meta tag, the shape `index.html` ships. */
+function fourLineTag(attr: "property" | "name", tag: string, content: string): string {
+  return ["    <meta", `      ${attr}="${tag}"`, `      content="${content}"`, "    />"].join(
+    "\n",
+  );
+}
+
+/**
+ * The shell's OWN social copy. Correct for the home page, and the exact strings
+ * all 32 other pages carried before this lane — so asserting a page no longer
+ * equals these is asserting the defect is gone, not merely that a value exists.
+ */
+const SHELL_OG_TITLE = "The CBSE Class 10 tutor that already knows your mistakes";
+const SHELL_OG_DESCRIPTION = "Check any answer and see exactly where the marks went.";
+const SHELL_TWITTER_TITLE = "LazyTopper — CBSE Class 10 Prep";
+const SHELL_TWITTER_DESCRIPTION = "See exactly where your marks went. Start free.";
+
+const OG_TITLE_BLOCK = fourLineTag("property", "og:title", SHELL_OG_TITLE);
+const OG_DESCRIPTION_BLOCK = fourLineTag("property", "og:description", SHELL_OG_DESCRIPTION);
+const TWITTER_TITLE_BLOCK = fourLineTag("name", "twitter:title", SHELL_TWITTER_TITLE);
+const TWITTER_DESCRIPTION_BLOCK = fourLineTag(
+  "name",
+  "twitter:description",
+  SHELL_TWITTER_DESCRIPTION,
+);
+
+/**
+ * The site-wide tags — the same card and the same image on every page, and
+ * correctly so. These are the CONTROLS: they must come through byte-identical,
+ * which is what proves the assertions above flag a WRONG value rather than
+ * flagging every tag they are pointed at.
+ */
+const SHARED_TAGS = [
+  '    <meta property="og:image" content="https://lazytopper.com/app/og-image.png" />',
+  '    <meta property="og:image:width" content="1200" />',
+  '    <meta property="og:image:height" content="630" />',
+  '    <meta name="twitter:card" content="summary_large_image" />',
+];
+
 const SHELL = [
   "<!doctype html>",
   '<html lang="en-IN">',
@@ -54,7 +98,11 @@ const SHELL = [
   '      content="Free CBSE Class 10 Maths &amp; Science prep."',
   "    />",
   '    <meta property="og:url" content="https://www.lazytopper.com/app/" />',
-  '    <meta property="og:image" content="https://lazytopper.com/app/og-image.png" />',
+  OG_TITLE_BLOCK,
+  OG_DESCRIPTION_BLOCK,
+  ...SHARED_TAGS,
+  TWITTER_TITLE_BLOCK,
+  TWITTER_DESCRIPTION_BLOCK,
   "    <title>LazyTopper — CBSE Class 10 Prep That Finds Lost Marks</title>",
   "  </head>",
   "  <body><div id=\"root\"></div></body>",
@@ -73,6 +121,18 @@ function titleOf(html: string): string | null {
 }
 function descriptionOf(html: string): string | null {
   return html.match(/<meta\s+name="description"\s+content="([^"]*)"/i)?.[1] ?? null;
+}
+function ogTitleOf(html: string): string | null {
+  return html.match(/<meta\s+property="og:title"\s+content="([^"]*)"/i)?.[1] ?? null;
+}
+function ogDescriptionOf(html: string): string | null {
+  return html.match(/<meta\s+property="og:description"\s+content="([^"]*)"/i)?.[1] ?? null;
+}
+function twitterTitleOf(html: string): string | null {
+  return html.match(/<meta\s+name="twitter:title"\s+content="([^"]*)"/i)?.[1] ?? null;
+}
+function twitterDescriptionOf(html: string): string | null {
+  return html.match(/<meta\s+name="twitter:description"\s+content="([^"]*)"/i)?.[1] ?? null;
 }
 
 /**
@@ -171,6 +231,41 @@ describe("static heads — every advertised URL is stamped with its OWN address"
         renderedLength(descriptionOf(html) as string),
         `${path} description exceeds 155 rendered characters`,
       ).toBeLessThanOrEqual(155);
+
+      // ★ THE LINK PREVIEW READS THESE FOUR, AND A SCRAPER RUNS NO JAVASCRIPT.
+      // Whatever is stamped here is what WhatsApp shows. Before this lane all 32
+      // pages carried the shell's own marketing copy on all four, which is why a
+      // shared chapter link previewed as the home page.
+      expect(ogTitleOf(html), `${path} kept the shell og:title`).not.toBe(SHELL_OG_TITLE);
+      expect(ogDescriptionOf(html), `${path} kept the shell og:description`).not.toBe(
+        SHELL_OG_DESCRIPTION,
+      );
+      expect(twitterTitleOf(html), `${path} kept the shell twitter:title`).not.toBe(
+        SHELL_TWITTER_TITLE,
+      );
+      expect(twitterDescriptionOf(html), `${path} kept the shell twitter:description`).not.toBe(
+        SHELL_TWITTER_DESCRIPTION,
+      );
+
+      // ★ AND THE VALUE IS THIS PAGE'S OWN, read back out of the output.
+      //
+      // ⚠ COMPARED AGAINST ITS OWN CORRECT ESCAPING, NOT AGAINST `<title>`. The
+      // escaper differs by position: `<title>` is element text and every social
+      // tag is an attribute, so a title containing a double quote encodes
+      // differently in each. Asserting og:title === titleOf(html) would pass
+      // today and become wrong the first time a chapter title contains a quote.
+      expect(ogTitleOf(html), `${path}: og:title is not this page's own title`).toBe(
+        escapeAttr(head.title),
+      );
+      expect(twitterTitleOf(html), `${path}: twitter:title is not this page's own title`).toBe(
+        escapeAttr(head.title),
+      );
+      expect(ogDescriptionOf(html), `${path}: og:description is not this page's own`).toBe(
+        escapeAttr(head.description),
+      );
+      expect(twitterDescriptionOf(html), `${path}: twitter:description is not this page's own`).toBe(
+        escapeAttr(head.description),
+      );
     }
 
     // ⚠ REPORTED, NOT SILENTLY TOLERATED. A page with no honest copy keeps the
@@ -233,6 +328,29 @@ describe("static heads — the writer refuses to no-op silently", () => {
 
     const noDescription = SHELL.replace(/<meta\s+name="description"[\s\S]*?\/>/i, "");
     expect(() => applyHead(noDescription, page)).toThrow(/exactly ONE <meta name=description>/);
+
+    // The four social tags, added by SEO-SOCIAL-HEADS-1. Each block is removed
+    // by its own constant rather than by a regex, so the removal cannot silently
+    // fail to match and leave this case asserting nothing.
+    const noOgTitle = SHELL.replace(OG_TITLE_BLOCK, "");
+    expect(noOgTitle, "the og:title block was not actually removed").not.toBe(SHELL);
+    expect(() => applyHead(noOgTitle, page)).toThrow(/exactly ONE <meta property=og:title>/);
+
+    const noOgDescription = SHELL.replace(OG_DESCRIPTION_BLOCK, "");
+    expect(noOgDescription, "the og:description block was not actually removed").not.toBe(SHELL);
+    expect(() => applyHead(noOgDescription, page)).toThrow(
+      /exactly ONE <meta property=og:description>/,
+    );
+
+    const noTwitterTitle = SHELL.replace(TWITTER_TITLE_BLOCK, "");
+    expect(noTwitterTitle, "the twitter:title block was not actually removed").not.toBe(SHELL);
+    expect(() => applyHead(noTwitterTitle, page)).toThrow(/exactly ONE <meta name=twitter:title>/);
+
+    const noTwitterDescription = SHELL.replace(TWITTER_DESCRIPTION_BLOCK, "");
+    expect(noTwitterDescription, "the twitter:description block was not removed").not.toBe(SHELL);
+    expect(() => applyHead(noTwitterDescription, page)).toThrow(
+      /exactly ONE <meta name=twitter:description>/,
+    );
   });
 
   it("THROWS on a DUPLICATE tag, where replacing all would be as wrong as replacing none", () => {
@@ -242,22 +360,46 @@ describe("static heads — the writer refuses to no-op silently", () => {
         '    <link rel="canonical" href="https://www.lazytopper.com/app/pricing" />',
     );
     expect(() => applyHead(twoCanonicals, page)).toThrow(/found 2/);
+
+    const twoOgTitles = SHELL.replace(OG_TITLE_BLOCK, `${OG_TITLE_BLOCK}\n${OG_TITLE_BLOCK}`);
+    expect(twoOgTitles, "the og:title block was not actually duplicated").not.toBe(SHELL);
+    expect(() => applyHead(twoOgTitles, page)).toThrow(/found 2/);
   });
 
-  it("rewrites the MULTI-LINE description tag, the form index.html actually ships", () => {
-    // A single-line-only pattern returns the shell's description here and the
-    // guard above would report the page "kept the shell description" — but only
-    // if this shape is in the fixture. It is, and this pins that it stays.
+  it("rewrites all five MULTI-LINE tags, the form index.html actually ships", () => {
+    // A single-line-only pattern returns the shell's value here and the guard
+    // above would report the page "kept the shell description" — but only if
+    // this shape is in the fixture. It is, and this pins that it stays. The
+    // four social tags ship in the same four-line shape, so each is pinned too.
     expect(SHELL).toMatch(/<meta\s*\n\s*name="description"/);
-    const html = applyHead(SHELL, { ...page, description: "Per-page copy." });
+    expect(SHELL).toMatch(/<meta\s*\n\s*property="og:title"/);
+    expect(SHELL).toMatch(/<meta\s*\n\s*property="og:description"/);
+    expect(SHELL).toMatch(/<meta\s*\n\s*name="twitter:title"/);
+    expect(SHELL).toMatch(/<meta\s*\n\s*name="twitter:description"/);
+
+    const html = applyHead(SHELL, {
+      ...page,
+      title: "Per-page title.",
+      description: "Per-page copy.",
+    });
     expect(descriptionOf(html)).toBe("Per-page copy.");
+    expect(ogTitleOf(html)).toBe("Per-page title.");
+    expect(ogDescriptionOf(html)).toBe("Per-page copy.");
+    expect(twitterTitleOf(html)).toBe("Per-page title.");
+    expect(twitterDescriptionOf(html)).toBe("Per-page copy.");
   });
 
-  it("does not touch og:image, the bundle, or anything outside the four tags", () => {
+  it("does not touch the site-wide social tags, the bundle, or anything else", () => {
     const html = applyHead(SHELL, page);
-    // og:image stays on the apex host per #612 — this script has no business
-    // moving it, and a greedy `og:` pattern would.
-    expect(html).toContain('<meta property="og:image" content="https://lazytopper.com/app/og-image.png" />');
+    // ★ THE CONTROLS. og:image stays on the apex host per #612, and the image,
+    // its dimensions and the card type are correctly identical on every page. A
+    // greedy `og:` or `twitter:` pattern would rewrite these while every
+    // assertion above still passed — so this is what tells a correct rewrite
+    // from one that simply flags every tag it is pointed at.
+    for (const shared of SHARED_TAGS) {
+      const tag = shared.trim();
+      expect(html, `a site-wide tag was rewritten: ${tag}`).toContain(tag);
+    }
     expect(html).toContain('<html lang="en-IN">');
     expect(html).toContain('<div id="root"></div>');
   });
