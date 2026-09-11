@@ -185,15 +185,26 @@ export function headForPath(path: string): PageHead | null {
  * the real built file cannot be distinguished from one that never ran.
  *
  * ⚠ `\s+` MATCHES NEWLINES, and that is load-bearing. `index.html` writes the
- * description as a THREE-LINE tag and Vite may re-emit any of these on one line
- * or several. A pattern anchored to spaces would match the source and miss the
- * build output, or the reverse.
+ * description and all four social tags as FOUR-LINE tags (open, attribute,
+ * content, close) and Vite may re-emit any of these on one line or several. A
+ * pattern anchored to spaces would match the source and miss the build output,
+ * or the reverse.
  * ------------------------------------------------------------------------- */
 
 const CANONICAL_TAG = /<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/gi;
 const OG_URL_TAG = /<meta\s+property="og:url"\s+content="[^"]*"\s*\/?>/gi;
 const TITLE_TAG = /<title>[\s\S]*?<\/title>/gi;
 const DESCRIPTION_TAG = /<meta\s+name="description"\s+content="[^"]*"\s*\/?>/gi;
+
+/* ⚠ `og:*` USES `property=`, `twitter:*` USES `name=`. They are not
+ * interchangeable, and each is spelled out rather than loosened to `[^>]*`:
+ * a permissive pattern would swallow the neighbouring tag and match twice,
+ * and an attribute guess matches zero. Both throw by `replaceExactlyOnce`,
+ * which is the designed outcome, but the tight pattern is the correct one. */
+const OG_TITLE_TAG = /<meta\s+property="og:title"\s+content="[^"]*"\s*\/?>/gi;
+const OG_DESCRIPTION_TAG = /<meta\s+property="og:description"\s+content="[^"]*"\s*\/?>/gi;
+const TWITTER_TITLE_TAG = /<meta\s+name="twitter:title"\s+content="[^"]*"\s*\/?>/gi;
+const TWITTER_DESCRIPTION_TAG = /<meta\s+name="twitter:description"\s+content="[^"]*"\s*\/?>/gi;
 
 /** Replace exactly one match of `pattern`, or throw naming what was not found. */
 function replaceExactlyOnce(
@@ -220,11 +231,18 @@ function replaceExactlyOnce(
 }
 
 /**
- * Stamp one page's four head tags into a copy of the built shell.
+ * Stamp one page's eight head tags into a copy of the built shell.
  *
  * ★ ONE `url`, TWO WRITES. The canonical and `og:url` are the same variable, so
  * `head.guard.test.ts`'s byte-identity assertion cannot be broken by editing one
  * of them alone — there is nothing to edit alone.
+ *
+ * ★ THE SAME INVARIANT CARRIES THE SOCIAL TAGS. `page.title` feeds `<title>`,
+ * `og:title` and `twitter:title`; `page.description` feeds the description,
+ * `og:description` and `twitter:description`. Six writes, two variables, so a
+ * page cannot advertise one thing to a search engine and another to a link
+ * preview. Before this, every emitted page kept the shell's own social copy and
+ * a shared chapter link previewed as the home page.
  */
 export function applyHead(
   html: string,
@@ -257,6 +275,34 @@ export function applyHead(
     DESCRIPTION_TAG,
     `<meta name="description" content="${escapeAttr(page.description)}" />`,
     "<meta name=description>",
+    page.path,
+  );
+  out = replaceExactlyOnce(
+    out,
+    OG_TITLE_TAG,
+    `<meta property="og:title" content="${escapeAttr(page.title)}" />`,
+    "<meta property=og:title>",
+    page.path,
+  );
+  out = replaceExactlyOnce(
+    out,
+    OG_DESCRIPTION_TAG,
+    `<meta property="og:description" content="${escapeAttr(page.description)}" />`,
+    "<meta property=og:description>",
+    page.path,
+  );
+  out = replaceExactlyOnce(
+    out,
+    TWITTER_TITLE_TAG,
+    `<meta name="twitter:title" content="${escapeAttr(page.title)}" />`,
+    "<meta name=twitter:title>",
+    page.path,
+  );
+  out = replaceExactlyOnce(
+    out,
+    TWITTER_DESCRIPTION_TAG,
+    `<meta name="twitter:description" content="${escapeAttr(page.description)}" />`,
+    "<meta name=twitter:description>",
     page.path,
   );
   return out;
