@@ -90,17 +90,17 @@ export const CG_CBE: CanonicalQuestion[] = [
     "format": "Short",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "Ajay, Bhigu, and Colin always want to sit in a row in the classroom. Bhigu considers the centre of the class as the origin and marks their seating positions on a coordinate grid, with point A at (2, 2). What is the distance of point A from the origin?",
+    "questionText": "Ajay, Bhigu, and Colin always want to sit in a row in the classroom. Bhigu considers the centre of the class as the origin and marks their seating positions on a coordinate grid, with point A at (−2, 2). What is the distance of point A from the origin?",
     "options": [],
     "answer": "2√2 units",
     "solutionSteps": [
-      "[1 mark] Apply the distance formula from the origin O(0, 0) to A(2, 2): OA = √[(2 − 0)² + (2 − 0)²].",
-      "[1 mark] OA = √(2² + 2²) = √(4 + 4) = √8 = 2√2 units."
+      "[1 mark] Apply the distance formula from the origin O(0, 0) to A(−2, 2): OA = √[(−2 − 0)² + (2 − 0)²].",
+      "[1 mark] OA = √((−2)² + 2²) = √(4 + 4) = √8 = 2√2 units."
     ],
     "finalAnswer": "2√2 units",
     "isCompetencyBased": true,
     "requiresDiagram": true,
-    "diagramDescription": "Coordinate grid with origin at the centre of the classroom showing seating positions, with point A plotted at (2, 2)."
+    "diagramDescription": "Coordinate grid with origin at the centre of the classroom showing seating positions, with point A plotted at (−2, 2)."
   },
   {
     "id": "CBE-M-CG-A-001",
@@ -112,15 +112,15 @@ export const CG_CBE: CanonicalQuestion[] = [
     "format": "VSA",
     "difficulty": "Easy",
     "bloomSkill": "Applying",
-    "questionText": "On Bhigu's classroom seating grid, point B is at (3, 0) and point C is at (−1, −2). What is the distance between B and C?",
+    "questionText": "On Bhigu's classroom seating grid, point B is at (−1, −2) and point C is at (3, 0). What is the distance between B and C?",
     "options": [],
     "answer": "2√5 units",
     "solutionSteps": [
-      "[1 mark] BC = √[(−1 − 3)² + (−2 − 0)²] = √[(−4)² + (−2)²] = √(16 + 4) = √20 = 2√5 units."
+      "[1 mark] BC = √[(3 − (−1))² + (0 − (−2))²] = √[4² + 2²] = √(16 + 4) = √20 = 2√5 units."
     ],
     "finalAnswer": "2√5 units",
     "isCompetencyBased": true,
     "requiresDiagram": true,
-    "diagramDescription": "Coordinate grid with origin at the centre of the classroom showing seating positions, with point B at (3, 0) and point C at (−1, −2)."
+    "diagramDescription": "Coordinate grid with origin at the centre of the classroom showing seating positions, with point B at (−1, −2) and point C at (3, 0)."
   }
 ];
