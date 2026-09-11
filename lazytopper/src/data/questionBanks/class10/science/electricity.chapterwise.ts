@@ -19,17 +19,17 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjescco12 Q2
   { id: "SCO-S-ELEC-002", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "You are given n identical wires, each of resistance R. When these are connected in parallel, the equivalent resistance is X. When these will be connected in series, then the equivalent resistance will be",
-    options: ["/ X n2", "n X 2", "/ X n", "nX"],
-    answer: "n X 2",
-    solutionSteps: ["[1 mark] Correct option is (b) n X 2."],
-    finalAnswer: "(b) n X 2",
+    options: ["X/n²", "n²X", "X/n", "nX"],
+    answer: "n²X",
+    solutionSteps: ["[1 mark] In parallel the n wires give X = R/n, so R = nX; in series the equivalent resistance is nR = n × nX = n²X. Correct option (b) n²X."],
+    finalAnswer: "(b) n²X",
     ncertRef: "cbjescco12 Q2", isCompetencyBased: true },
   // cbjescco12 Q3
   { id: "SCO-S-ELEC-003", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
-    questionText: "A piece of wire of resistance R is cut into five equal parts. These parts are then connected in parallel. If the equivalent resistance of this combination isRl, then the ratio / R Rl is",
+    questionText: "A piece of wire of resistance R is cut into five equal parts. These parts are then connected in parallel. If the equivalent resistance of this combination is R′, then the ratio R/R′ is",
     options: ["1/25", "1/5", "5", "25"],
     answer: "25",
-    solutionSteps: ["[1 mark] Correct option is (d) 25."],
+    solutionSteps: ["[1 mark] Each part has resistance R/5; five such parts in parallel give R′ = (R/5)/5 = R/25, so R/R′ = 25. Correct option (d) 25."],
     finalAnswer: "(d) 25",
     ncertRef: "cbjescco12 Q3", isCompetencyBased: true },
   // cbjescco12 Q4
@@ -43,10 +43,10 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjescco12 Q6
   { id: "SCO-S-ELEC-005", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "2 ampere current is flowing through a conductor from a 10 volt emf source then resistance of conductor is",
-    options: ["20 W", "5 W", "12 W", "8 W"],
-    answer: "5 W",
-    solutionSteps: ["[1 mark] Correct option is (b) 5 W."],
-    finalAnswer: "(b) 5 W",
+    options: ["20 Ω", "5 Ω", "12 Ω", "8 Ω"],
+    answer: "5 Ω",
+    solutionSteps: ["[1 mark] By Ohm's law R = V/I = 10 V / 2 A = 5 Ω. Correct option (b) 5 Ω."],
+    finalAnswer: "(b) 5 Ω",
     ncertRef: "cbjescco12 Q6", isCompetencyBased: true },
   // cbjescco12 Q7
   { id: "SCO-S-ELEC-006", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
@@ -59,10 +59,10 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjescco12 Q8
   { id: "SCO-S-ELEC-007", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "A cylindrical rod is reformed to twice its length with no change in its volume. If the resistance of the rod was R, the new resistance will be",
-    options: ["R", "R 2", "R 4", "R 8"],
-    answer: "R 4",
-    solutionSteps: ["Correct option is (c) R 4.", "4 Disclaimer : is not affiliated to Central Board of Secondary Education, New Delhi in any manner. is a private organization which provide free study material pdfs to students. At CBSE stands for Canny Books For School Education"],
-    finalAnswer: "(c) R 4",
+    options: ["R", "2R", "4R", "8R"],
+    answer: "4R",
+    solutionSteps: ["[1 mark] The volume is unchanged, so doubling the length halves the area of cross-section: R′ = ρ(2l)/(A/2) = 4 × ρl/A = 4R. Correct option (c) 4R."],
+    finalAnswer: "(c) 4R",
     ncertRef: "cbjescco12 Q8", isCompetencyBased: true },
   // cbjescco12 Q10
   { id: "SCO-S-ELEC-008", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
@@ -75,17 +75,17 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjescco12 Q13
   { id: "SCO-S-ELEC-009", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "If a wire of resistance R is melted and recast to half of its length, the new resistance of the wire will be",
-    options: ["R 4", "R 2", "R", "R 2"],
-    answer: "R 4",
-    solutionSteps: ["[1 mark] Correct option is (a) R 4."],
-    finalAnswer: "(a) R 4",
+    options: ["R/4", "R/2", "R", "2R"],
+    answer: "R/4",
+    solutionSteps: ["[1 mark] The volume is unchanged, so halving the length doubles the area of cross-section: R′ = ρ(l/2)/(2A) = R/4. Correct option (a) R/4."],
+    finalAnswer: "(a) R/4",
     ncertRef: "cbjescco12 Q13", isCompetencyBased: true },
   // cbjescco12 Q14
   { id: "SCO-S-ELEC-010", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
-    questionText: "100 J of heat is produced each second in a 4 W resistance. The potential difference across the resistor is",
+    questionText: "100 J of heat is produced each second in a 4 Ω resistance. The potential difference across the resistor is",
     options: ["20 V", "10 V", "5 V", "15 V"],
     answer: "20 V",
-    solutionSteps: ["[1 mark] Correct option is (a) 20 V."],
+    solutionSteps: ["[1 mark] H = I²Rt ⇒ I = √(H/Rt) = √(100/(4 × 1)) = 5 A; V = IR = 5 × 4 = 20 V. Correct option (a) 20 V."],
     finalAnswer: "(a) 20 V",
     ncertRef: "cbjescco12 Q14", isCompetencyBased: true },
   // cbjescco12 Q16
@@ -132,9 +132,9 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCO-S-ELEC-016", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "The length of a wire is doubled. By what factor does the resistance change",
     options: ["4 time as large", "twice as large", "unchanged", "half as large"],
-    answer: "half as large",
-    solutionSteps: ["[1 mark] Correct option is (d) half as large."],
-    finalAnswer: "(d) half as large",
+    answer: "twice as large",
+    solutionSteps: ["[1 mark] R = ρl/A, so R ∝ l: doubling the length of the wire doubles its resistance. Correct option (b) twice as large."],
+    finalAnswer: "(b) twice as large",
     ncertRef: "cbjescco12 Q24", isCompetencyBased: true },
   // cbjescco12 Q26
   { id: "SCO-S-ELEC-017", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
@@ -147,8 +147,8 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq12 Q2 (Section A, 1mk)
   { id: "SCQ-S-ELEC-018", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "List any two factors on which resistance of a conductor depends.",
-    answer: "Resistance of a conductor: a. is directly proportional to its length R ? r ...(1) b. is inversely proportional to its area of cross section. R A 1 ? ...(2) Combining (1) and (2), we get R A ? r",
-    solutionSteps: ["[2 marks] Resistance of a conductor: a. is directly proportional to its length R ? r ...(1) b. is inversely proportional to its area of cross section. R A 1 ? ...(2) Combining (1) and (2), we get R A ? r"],
+    answer: "Resistance of a conductor (a) is directly proportional to its length, R ∝ l …(1), and (b) is inversely proportional to its area of cross-section, R ∝ 1/A …(2). Combining (1) and (2): R ∝ l/A, i.e. R = ρl/A.",
+    solutionSteps: ["[1 mark] (a) Resistance of a conductor is directly proportional to its length: R ∝ l …(1).", "[1 mark] (b) Resistance is inversely proportional to its area of cross-section: R ∝ 1/A …(2). Combining (1) and (2), R ∝ l/A, i.e. R = ρl/A (ρ = resistivity of the material)."],
     ncertRef: "cbjesccq12 Q2", isCompetencyBased: false },
   // cbjesccq12 Q3 (Section A, 1mk)
   { id: "SCQ-S-ELEC-019", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -165,14 +165,14 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq12 Q6 (Section A, 1mk)
   { id: "SCQ-S-ELEC-021", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Mention one reason why tungsten is used for making filament of electric lamp.",
-    answer: "Tungsten is used for making filament because of its high melting point and low resistivity.",
-    solutionSteps: ["[2 marks] Tungsten is used for making filament because of its high melting point and low resistivity."],
+    answer: "Tungsten is used for making the filament because of its very high melting point (about 3380 °C), so the filament can glow white-hot without melting.",
+    solutionSteps: ["[2 marks] Tungsten is used for making the filament because of its very high melting point (about 3380 °C): the filament stays intact even at the very high temperature at which it glows."],
     ncertRef: "cbjesccq12 Q6", isCompetencyBased: true },
   // cbjesccq12 Q7 (Section A, 1mk)
   { id: "SCQ-S-ELEC-022", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "(a) Name the instrument/device used to measure electric current in a circuit. (b) How is an ammeter connected in a circuit to measure current flowing through it?",
-    answer: "a. Ammeter is used to measure electric current. b. Ammeter is connected in series in an electric circuit. Disclaimer : is not affiliated to Central Board of Secondary Education, New Delhi in any manner. is a private organization which provide free study material pdfs to students.",
-    solutionSteps: ["[2 marks] a. Ammeter is used to measure electric current. b. Ammeter is connected in series in an electric circuit. Disclaimer : is not affiliated to Central Board of Secondary Education, New Delhi in any manner. is a private organization which provide free study material pdfs to students. At CBSE stands for Canny Books For School Education"],
+    answer: "(a) An ammeter is used to measure electric current. (b) An ammeter is connected in series in the electric circuit so that the whole current to be measured passes through it.",
+    solutionSteps: ["[1 mark] (a) An ammeter is used to measure electric current in a circuit.", "[1 mark] (b) An ammeter is connected in series in the circuit so that the whole current to be measured passes through it."],
     ncertRef: "cbjesccq12 Q7", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references circuit" },
   // cbjesccq12 Q8 (Section A, 1mk)
   { id: "SCQ-S-ELEC-023", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -183,14 +183,14 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq12 Q29 (Section B, 2mk)
   { id: "SCQ-S-ELEC-024", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "The amount of charge passing through a cell in four second is 12 C. Find the current supplied by cell.",
-    answer: "Given: t s 4 = Q C 12 = I t Q = A 4 12 = A 3 =",
-    solutionSteps: ["[2 marks] Given: t s 4 = Q C 12 = I t Q = A 4 12 = A 3 ="],
+    answer: "Given t = 4 s, Q = 12 C. I = Q/t = 12/4 = 3 A.",
+    solutionSteps: ["[1 mark] Given: t = 4 s, Q = 12 C. Current I = Q/t.", "[1 mark] I = 12 C / 4 s = 3 A."],
     ncertRef: "cbjesccq12 Q29", isCompetencyBased: true },
   // cbjesccq12 Q30 (Section B, 2mk)
   { id: "SCQ-S-ELEC-025", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Calculate the number of electrons that would flow per second through the cross- section of a wire when 1 A current flows in it.",
-    answer: "Given: I A 1 = , s t 1 = I t Q = Q I t & # = Q A s 1 1 # = (Q 1 = coulomb) But Q ne = n e Q = . C 1 6 10 1 19 # = - .6 25 1018 # = electrons",
-    solutionSteps: ["[2 marks] Given: I A 1 = , s t 1 = I t Q = Q I t & # = Q A s 1 1 # = (Q 1 = coulomb) But Q ne = n e Q = . C 1 6 10 1 19 # = - .6 25 1018 # = electrons"],
+    answer: "Q = It = 1 A × 1 s = 1 C; n = Q/e = 1/(1.6 × 10⁻¹⁹) = 6.25 × 10¹⁸ electrons.",
+    solutionSteps: ["[1 mark] Given I = 1 A, t = 1 s. Charge Q = It = 1 A × 1 s = 1 C.", "[1 mark] Q = ne ⇒ n = Q/e = 1 C / (1.6 × 10⁻¹⁹ C) = 6.25 × 10¹⁸ electrons."],
     ncertRef: "cbjesccq12 Q30", isCompetencyBased: true },
   // cbjesccq12 Q31 (Section B, 2mk)
   { id: "SCQ-S-ELEC-026", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -200,9 +200,9 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
     ncertRef: "cbjesccq12 Q31", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references circuit" },
   // cbjesccq12 Q32 (Section B, 2mk)
   { id: "SCQ-S-ELEC-027", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
-    questionText: "How much current will an electric bulb of resistance 1100 W draw from a 220 V source? If a heater of resistance 100 W is connected to the same source instead of the bulb, calculate the current drawn by the heater.",
-    answer: "[All India 2016] Resistance of bulb, R 1100 W = V 220 = volt V IR = or I R V = I 1100 220 = A 5 1 = When heater is connected with the same source then I R V = 100 220 = . A 2 2 =",
-    solutionSteps: ["[2 marks] [All India 2016] Resistance of bulb, R 1100 W = V 220 = volt V IR = or I R V = I 1100 220 = A 5 1 = When heater is connected with the same source then I R V = 100 220 = . A 2 2 ="],
+    questionText: "How much current will an electric bulb of resistance 1100 Ω draw from a 220 V source? If a heater of resistance 100 Ω is connected to the same source instead of the bulb, calculate the current drawn by the heater.",
+    answer: "Bulb: I = V/R = 220/1100 = 1/5 A = 0.2 A. Heater: I = 220/100 = 2.2 A.",
+    solutionSteps: ["[1 mark] Bulb: R = 1100 Ω, V = 220 V. By Ohm's law V = IR, so I = V/R = 220/1100 = 1/5 A = 0.2 A.", "[1 mark] Heater connected to the same source: I = V/R = 220/100 = 2.2 A."],
     ncertRef: "cbjesccq12 Q32", isCompetencyBased: true },
   // cbjesccq12 Q33 (Section B, 2mk)
   { id: "SCQ-S-ELEC-028", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -218,15 +218,15 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
     ncertRef: "cbjesccq12 Q34", isCompetencyBased: true },
   // cbjesccq12 Q63 (Section C, 3mk)
   { id: "SCQ-S-ELEC-030", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
-    questionText: "Show how would you join three resistors, each of resistance 9 W so that the equivalent resistance of the combination is (i) 13.5 W (ii) 6 W ?",
-    answer: "or (a) Write Joule's law of heating. (b) Two bulbs, one rated 100 W; 220 V, and the other 60 W; 220 V are connected in parallel to electric mains supply. Find the current drawn by two bulbs from the line if the supply voltage is 220 V. Ans : [CBSE 2017] i. Resistor R2 and R3 are ",
-    solutionSteps: ["or (a) Write Joule's law of heating. (b) Two bulbs, one rated 100 W; 220 V, and the other 60 W; 220 V are connected in parallel to electric mains supply. Find the current drawn by two bulbs from the line if the supply voltage is 220 V. Ans : [CBSE 2017] i. Resistor R2 and R3 are in parallel combination. ` R 1 p 9 1 9 1 = + 9 2 W = or Rp 2 9 W = Now R1 and Rp are in series. ` Req R Rp 1 = + 9 2 9 = + 2 27 W = Req . 13 5 W = ii. To get 6 W resistance R1 and R2 are in Series ` Rs 9 9 18 W = + = Chap 12 : Electricity Rs and R3 are in parallel so, R 1 . eq R R 1 1 s 3 = + R 1 . eq 18 1 9 1 = + 18 1"],
+    questionText: "Show how would you join three resistors, each of resistance 9 Ω so that the equivalent resistance of the combination is (i) 13.5 Ω (ii) 6 Ω ?",
+    answer: "(i) Two resistors in parallel (9/2 = 4.5 Ω) in series with the third: 9 + 4.5 = 13.5 Ω. (ii) Two resistors in series (18 Ω) in parallel with the third: (18 × 9)/(18 + 9) = 6 Ω.",
+    solutionSteps: ["[0.5 mark] (i) Connect R₂ and R₃ in parallel: 1/Rₚ = 1/9 + 1/9 = 2/9, so Rₚ = 9/2 = 4.5 Ω.", "[1 mark] Connect R₁ in series with this pair: R_eq = R₁ + Rₚ = 9 + 4.5 = 27/2 = 13.5 Ω.", "[0.5 mark] (ii) Connect R₁ and R₂ in series: Rₛ = 9 + 9 = 18 Ω.", "[1 mark] Connect R₃ in parallel with this pair: 1/R_eq = 1/18 + 1/9 = 3/18, so R_eq = 6 Ω."],
     ncertRef: "cbjesccq12 Q63", isCompetencyBased: true },
   // cbjesccq12 Q64 (Section C, 3mk)
   { id: "SCQ-S-ELEC-031", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "(a) List the factors on which the resistance of a conductor in the shape of a wire depends. (b) Why are metals good conductors of electricity whereas glass is a bad conductor of electricity? Give reason. (c) Why are alloys commonly used in electrical heating devices? Give reason.",
-    answer: "a. Factors on which resistance of a wire depends: i. Resistance is directly proportional to length. ii. Resistance is inversely proportional to area of cross-section. R l ? , R A 1 ? R A l ? or R A l r = b. Metal are good conductor due to having large number of free electrons and",
-    solutionSteps: ["[3 marks] a. Factors on which resistance of a wire depends: i. Resistance is directly proportional to length. ii. Resistance is inversely proportional to area of cross-section. R l ? , R A 1 ? R A l ? or R A l r = b. Metal are good conductor due to having large number of free electrons and their low resistivity. Glass is a bad conductor because it has no free electrons and its resistivity is higher. c. Alloys are commonly used in electrical heating devices due to their high resistivity and high melting point which produces more heat."],
+    answer: "(a) Resistance of a wire depends on its length (R ∝ l), its area of cross-section (R ∝ 1/A) and the nature of its material (R = ρl/A); it also changes with temperature. (b) Metals have a large number of free electrons and low resistivity, so they conduct; glass has no free electrons and very high resistivity, so it is a bad conductor. (c) Alloys have high resistivity and a high melting point, so they produce more heat without melting.",
+    solutionSteps: ["[1 mark] (a) Resistance of a wire depends on: (i) its length — R ∝ l; (ii) its area of cross-section — R ∝ 1/A; (iii) the nature of its material (resistivity ρ), giving R = ρl/A; it also changes with temperature.", "[1 mark] (b) Metals are good conductors because they have a large number of free electrons and low resistivity; glass is a bad conductor because it has no free electrons and its resistivity is very high.", "[1 mark] (c) Alloys are used in electrical heating devices because they have high resistivity (they produce more heat for the same current) and a high melting point (they do not melt or oxidise readily at high temperatures)."],
     ncertRef: "cbjesccq12 Q64", isCompetencyBased: true },
   // cbjesccq12 Q65 (Section C, 3mk)
   { id: "SCQ-S-ELEC-032", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",

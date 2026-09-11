@@ -1451,16 +1451,16 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A current of 0.5 A flows through a conductor when a potential difference of 10 V is applied across it. Calculate the resistance. If the potential difference is doubled, what will be the new current (assuming resistance remains constant)?",
     "options": [],
-    "answer": "",
+    "answer": "20 Ω, 1 A",
     "explanation": "",
     "solutionSteps": [
-      "Recall Ohm’s law: V = IR, where V is potential difference, I is current, and R is resistance.",
-      "Given V = 10 V and I = 0.5 A, use R = V / I to get R = 10 / 0.5 = 20 Ω.",
-      "If the potential difference is doubled, new V = 2 × 10 = 20 V with the same resistance R = 20 Ω.",
-      "Use I = V / R to find the new current: I = 20 / 20 = 1 A.",
-      "Thus, the resistance of the conductor is 20 Ω and the new current is 1 A."
+      "[0.5 mark] Recall Ohm’s law: V = IR, where V is potential difference, I is current, and R is resistance.",
+      "[1 mark] Given V = 10 V and I = 0.5 A, use R = V / I to get R = 10 / 0.5 = 20 Ω.",
+      "[0.5 mark] If the potential difference is doubled, new V = 2 × 10 = 20 V with the same resistance R = 20 Ω.",
+      "[0.5 mark] Use I = V / R to find the new current: I = 20 / 20 = 1 A.",
+      "[0.5 mark] Thus, the resistance of the conductor is 20 Ω and the new current is 1 A."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "20 Ω, 1 A",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": true
@@ -1727,7 +1727,10 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
 // answer-mismatch = questionText contradicts its own answer;
 // garbled-options = the OPTION SET is destroyed (duplicated/single-token remnants)
 // so no answer key can resolve to exactly one option; figure = unanswerable without
-// a figure the data does not carry; out-of-syllabus = fails the CBSE 2026-27 gate.
+// a figure the data does not carry; out-of-syllabus = fails the CBSE 2026-27 gate;
+// placeholder-solution = the stored "solution" is a see-marking-scheme stub or
+// examiner/marking-scheme boilerplate, not working; spliced-solution = the stored
+// solution text belongs to a different question.
 export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   // ---- Science: bilingual column bleed / wrong-question pasted in (re-extract) ----
   "PYQ-S-2025-ACID-008",     // bilingual
@@ -1840,6 +1843,21 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-S-2026-METAL-010",        // garbled: pua+trailing-op
   "PYQ-S-2026-METAL-011",        // garbled: pua
   "SCQ-S-METAL-044",             // garbled: trailing-op
+  // ---- electricity: skeptic 2026-09-11 (ELEC-FIX-1) ----
+  "PYQ-S-ELEC-007",              // placeholder-solution: ~60 lines of MS confidential preamble (RECOVER-1 row, untouched)
+  "CBE-S-ELEC-A-003",            // answer-mismatch: bound graph (I on y, R3 least steep) fits no option
+  "PYQ-S-2026-ELEC-013",         // out-of-syllabus: (A)(ii) key names Electric Motor / Electric Generator
+  "SCQ-S-ELEC-036",              // answer-mismatch: answer is another question's text
+  "APQ-S-ELEC-001",              // garbled: ambiguous stem — topology of R1, R2, R3 never stated
+  "PYQ-S-2025-ELEC-008",         // garbled: answer 'm', steps three fragments
+  "PYQ-S-2025-ELEC-009",         // garbled: Hindi remnant, graphs A-D unbound (RECOVER-1 row, untouched)
+  "PYQ-S-ELEC-004",              // garbled: part (a) empty
+  "SCQ-S-ELEC-028",              // garbled: mA / μA symbols lost in stem
+  "SCQ-S-ELEC-034",              // garbled: numerics in stem and answer
+  "SCQ-S-ELEC-038",              // garbled: (b) circuit symbols missing from stem
+  "SCO-S-ELEC-011",              // garbled-options: circuits unbound, option set destroyed
+  "PYQ-S-ELEC-002",              // garbled: scheme tallies in answer (re-topicked to magnetic effects)
+  "PYQ-S-2026-ELEC-008",         // garbled: Hindi remnant, (iv) figure unbound (re-topicked to magnetic effects)
 ]);
 
 /**

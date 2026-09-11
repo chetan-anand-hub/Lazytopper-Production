@@ -128,7 +128,8 @@ describe("RULE 1 — provenance is an id-set, not a `sources` field", () => {
     // CEILING — AI rows are retired, never added. 2,952 at PR-3 (2026-09-11).
     expect(AI.size).toBeLessThanOrEqual(2952);
     // FLOOR — human rows are authored and wired, never lost. 5,710 at PR-3.
-    expect(human.length).toBeGreaterThanOrEqual(5710);
+    // 5710 -> 5696 at ELEC-FIX-1 (2026-09-11): 14 electricity rows withheld (skeptic 2026-09-11).
+    expect(human.length).toBeGreaterThanOrEqual(5696);
     // IDENTITY — AI-rejected and human rows partition the bank.
     expect(rejected.length + human.length).toBe(canonicalQuestionBank.length);
     // 8,543 -> 8,673: #721 wired the ten .cfpq.ts files into the assembly array.

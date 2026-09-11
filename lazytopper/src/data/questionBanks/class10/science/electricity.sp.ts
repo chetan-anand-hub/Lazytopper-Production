@@ -50,12 +50,12 @@ export const ELEC_SP: CanonicalQuestion[] = [
     ],
     "answer": "(a) 4 Ω",
     "solutionSteps": [
-      "[1 mark] Correct option (a) 4 Ω: as per the official marking scheme, the effective resistance between A and B for the given arrangement of the 4 Ω and 6 Ω resistors is 4 Ω."
+      "[1 mark] From the figure, the 6 Ω resistor is short-circuited by the plain connecting wire joined across it: a zero-resistance path in parallel with 6 Ω gives 0 Ω, so the current bypasses the 6 Ω resistor and the effective resistance between A and B is just the 4 Ω in the main line. Correct option (a) 4 Ω."
     ],
     "finalAnswer": "(a) 4 Ω",
     "isCompetencyBased": false,
     "requiresDiagram": true,
-    "diagramDescription": "A resistor network between terminals A and B containing a 4 Ω resistor and a 6 Ω resistor; the exact series/parallel arrangement is shown in the figure and, per the marking scheme, gives an effective resistance of 4 Ω."
+    "diagramDescription": "A network between terminals A and B: from A a 4 Ω resistor leads to a junction; from that junction a 6 Ω resistor and a plain connecting wire run in parallel to a second junction, which connects to B — the wire short-circuits the 6 Ω resistor."
   },
   {
     "id": "SQP-S-2023-ELEC-C-001",
@@ -175,7 +175,7 @@ export const ELEC_SP: CanonicalQuestion[] = [
     "format": "Case-Based",
     "difficulty": "Hard",
     "bloomSkill": "Applying",
-    "questionText": "(a) How will you infer with the help of an experiment that the same current flows through every part of the circuit containing three resistors R1, R2 and R3 connected in series to a battery of V volts? (b) Study the following circuit and find out: (i) current in 12 ohm resistor; (ii) difference in the readings of ammeters A1 and A2, if any.",
+    "questionText": "(a) How will you infer with the help of an experiment that the same current flows through every part of the circuit containing three resistors R1, R2 and R3 connected in series to a battery of V volts? (b) Study the following circuit (a 6 V battery; two 24 ohm resistors in parallel, then ammeter A1, a 12 ohm resistor and ammeter A2, all in series with the battery and a plug key) and find out: (i) current in the 12 ohm resistor; (ii) difference in the readings of ammeters A1 and A2, if any.",
     "options": [],
     "answer": "(a) Connect R1, R2, R3 in series with an ammeter and measure current at different points; the ammeter reading is the same everywhere, showing the same current flows throughout. (b)(i) Current through the 12 ohm resistor = 0.25 A; (ii) difference in readings of A1 and A2 = 0 (they are in series).",
     "solutionSteps": [
