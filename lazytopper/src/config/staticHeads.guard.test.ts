@@ -75,13 +75,22 @@ function descriptionOf(html: string): string | null {
   return html.match(/<meta\s+name="description"\s+content="([^"]*)"/i)?.[1] ?? null;
 }
 
-/** `&amp;` is five source characters and ONE rendered one. Count what renders. */
+/**
+ * `&amp;` is five source characters and ONE rendered one. Count what renders.
+ *
+ * ⚠ THE AMPERSAND IS DECODED LAST, AND THAT IS THE EXACT MIRROR OF `escapeAttr`
+ * ENCODING IT FIRST. Decoding `&amp;` first turns `&amp;lt;` — the correct
+ * encoding of the literal text `&lt;` — into `&lt;`, which the very next
+ * replacement then decodes again into `<`. One source entity, decoded twice, and
+ * the count comes out short. CodeQL flags this shape as `js/double-escaping`;
+ * it flagged this function, in this order, and it was right.
+ */
 function renderedLength(value: string): number {
   return value
-    .replace(/&amp;/g, "&")
     .replace(/&quot;/g, '"')
     .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">").length;
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&").length;
 }
 
 const BASENAME = "/app";
@@ -265,6 +274,20 @@ describe("static heads — the writer refuses to no-op silently", () => {
     // The failure this ordering prevents: a quote escaped first would leave
     // `&amp;quot;` after the ampersand pass.
     expect(escapeAttr('"')).toBe("&quot;");
+  });
+
+  it("renderedLength decodes each entity EXACTLY ONCE", () => {
+    // ★ THIS CASE DISCRIMINATES, which is the only reason it is worth writing.
+    // The literal text `&lt;` encodes to `&amp;lt;`. Decoding the ampersand
+    // FIRST — the order this helper originally used — collapses that to `&lt;`
+    // and then to `<`, giving 1 instead of 4 and under-counting a description
+    // by three characters per occurrence. Both orders agree on every input
+    // WITHOUT a nested entity, so a test using only `a &amp; b` would pass on
+    // the broken version.
+    expect(renderedLength("&amp;lt;")).toBe(4);
+    expect(renderedLength("a &amp; b")).toBe(5);
+    expect(renderedLength("&quot;x&quot;")).toBe(3);
+    expect(renderedLength("plain")).toBe(5);
   });
 
   it("headForPath returns null for a path it has no honest copy for", () => {
