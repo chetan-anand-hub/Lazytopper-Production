@@ -1865,6 +1865,45 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "SCQ-S-LIGHT-037",             // garbled: stem speed printed ". ms 1 5 108 1 # -"; solution formula soup
   "FND-L-SPM-044",               // garbled: stem dropped the teacher's "focus a distant object" sentence; options refer to a "newly selected object" the stem never names
   "GDR-L-NUM-022",               // garbled: stem asks for the image height but gives no object height
+  // ---- light beyond-board tier: outside official 2026-27 Unit III (LIGHT-FIX-1 stage 2, owner ruling) ----
+  // Each id below needs a concept ABSENT from the official CBSE 2026-27 Class X Science Unit III
+  // text (cbseacademic.nic.in), checked stem by stem; the 17 LGHT_*_BEYOND_BOARD rows solvable with
+  // that text alone stay served. The arrays and their spreads are untouched.
+  "FND-L-QB-078",                // out-of-syllabus: displacement (conjugate-foci) method, O = sqrt(h1*h2)
+  "FND-L-QB-117",                // out-of-syllabus: critical angle
+  "FND-L-QB-136",                // out-of-syllabus: radiation pressure (F = 2P/c)
+  "FND-L-QB-175",                // out-of-syllabus: refraction at a single spherical surface (n2/v - n1/u = (n2 - n1)/R)
+  "FND-L-SPX-001",               // out-of-syllabus: velocity of the image in a plane mirror
+  "FND-L-SPX-003",               // out-of-syllabus: number of images between inclined plane mirrors
+  "FND-L-SPX-004",               // out-of-syllabus: number of images between inclined plane mirrors
+  "FND-L-SPX-005",               // out-of-syllabus: number of images between inclined plane mirrors
+  "FND-L-SPX-007",               // out-of-syllabus: combination of two coaxial lenses (image of one as object of the next)
+  "FND-L-SPX-016",               // out-of-syllabus: critical angle / total internal reflection
+  "FND-L-SPX-017",               // out-of-syllabus: real and apparent depth
+  "FND-L-SPX-024",               // out-of-syllabus: lens-maker's formula (focal length in a liquid)
+  "FND-L-SPX-037",               // out-of-syllabus: derivation of the lateral-displacement expression d = t sin(i - r)/cos r
+  "FND-L-SPX-038",               // out-of-syllabus: minimum plane-mirror height h/2 (derivation)
+  "FND-L-SPX-042",               // out-of-syllabus: two facing mirrors, coincident images (d = 2f or 4f)
+  "FND-L-SPX-043",               // out-of-syllabus: two-mirror system with a virtual object
+  "FND-L-SPM-003",               // out-of-syllabus: rotation of a plane mirror (reflected ray turns through 2x)
+  "FND-L-SPM-004",               // out-of-syllabus: number of images between inclined plane mirrors
+  "FND-L-SPM-006",               // out-of-syllabus: deviation by two perpendicular plane mirrors
+  "FND-L-SPM-014",               // out-of-syllabus: minimum plane-mirror length h/2
+  "FND-L-SPM-021",               // out-of-syllabus: refraction through a glass sphere
+  "FND-L-SPM-022",               // out-of-syllabus: virtual object (convergent beam on a diverging lens)
+  "FND-L-SPM-031",               // out-of-syllabus: normal shift of a convergence point by a glass slab
+  "FND-L-SPM-032",               // out-of-syllabus: critical angle
+  "FND-L-SPM-033",               // out-of-syllabus: prism at minimum deviation (r = A/2)
+  "FND-L-SPM-034",               // out-of-syllabus: total internal reflection in a right-isosceles prism
+  "FND-L-SPM-035",               // out-of-syllabus: prism formula D = i + e - A
+  "FND-L-SPM-036",               // out-of-syllabus: lens-maker's reasoning (lens in a liquid of the same index)
+  "FND-L-WS4-101",               // out-of-syllabus: number of images between three perpendicular mirrors
+  "FND-L-WS4-102",               // out-of-syllabus: number of images between inclined plane mirrors
+  "FND-L-WS4-202",               // out-of-syllabus: minimum object-to-real-image separation 4f
+  "FND-L-WS4-204",               // out-of-syllabus: apparent depth varying with colour (dispersion + apparent depth)
+  "FND-L-WS4-207",               // out-of-syllabus: apparent height seen from water (stem also omits n)
+  "FND-L-WSF-17",                // out-of-syllabus: apparent height seen from water
+  "FND-L-WSF-18",                // out-of-syllabus: apparent depth through a glass slab
 ]);
 
 /**

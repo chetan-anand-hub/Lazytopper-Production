@@ -130,7 +130,9 @@ describe("RULE 1 — provenance is an id-set, not a `sources` field", () => {
     // FLOOR — human rows are authored and wired, never lost. 5,710 at PR-3.
     // 5,710 -> 5,689: -21. LIGHT-FIX-1 (2026-09-11) withheld 21 light rows the skeptic disproved
     // (14 placeholder/spliced solutions, 6 garbled stems/solutions, LIGHT-EXMPLR-9-MCQ-004 answer-mismatch).
-    expect(human.length).toBeGreaterThanOrEqual(5689);
+    // 5,689 -> 5,654: -35. LIGHT-FIX-1 stage 2 (2026-09-11, owner ruling) withheld the 35 light
+    // beyond-board rows whose stems need a concept outside the official 2026-27 Unit III text.
+    expect(human.length).toBeGreaterThanOrEqual(5654);
     // IDENTITY — AI-rejected and human rows partition the bank.
     expect(rejected.length + human.length).toBe(canonicalQuestionBank.length);
     // 8,543 -> 8,673: #721 wired the ten .cfpq.ts files into the assembly array.
