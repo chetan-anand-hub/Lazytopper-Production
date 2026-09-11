@@ -128,7 +128,9 @@ describe("RULE 1 — provenance is an id-set, not a `sources` field", () => {
     // CEILING — AI rows are retired, never added. 2,952 at PR-3 (2026-09-11).
     expect(AI.size).toBeLessThanOrEqual(2952);
     // FLOOR — human rows are authored and wired, never lost. 5,710 at PR-3.
-    expect(human.length).toBeGreaterThanOrEqual(5710);
+    // 5,710 -> 5,689: -21. LIGHT-FIX-1 (2026-09-11) withheld 21 light rows the skeptic disproved
+    // (14 placeholder/spliced solutions, 6 garbled stems/solutions, LIGHT-EXMPLR-9-MCQ-004 answer-mismatch).
+    expect(human.length).toBeGreaterThanOrEqual(5689);
     // IDENTITY — AI-rejected and human rows partition the bank.
     expect(rejected.length + human.length).toBe(canonicalQuestionBank.length);
     // 8,543 -> 8,673: #721 wired the ten .cfpq.ts files into the assembly array.
@@ -391,15 +393,20 @@ describe("RULE 5 — C4, both directions", () => {
   /**
    * ⚠ EVERY ASSERTION HERE CALLS `demandsSuppliedFigure` DIRECTLY, NEVER
    * `isPublishable`. Rule 5 runs LAST, so a row failing Rule 2 never reaches it.
-   * `LIGHT-EXMPLR-9-MCQ-005` genuinely demands Figure 10.2 — but routed through
-   * `isPublishable` it returns `unmarked-step`, and a control written that way would
+   * `LIGHT-EXMPLR-9-MCQ-016` genuinely demands its numbered Exemplar figure — but routed
+   * through `isPublishable` it returns `unmarked-step`, and a control written that way would
    * pass while testing a completely different rule.
+   * ⚠ The specimen must be a row that is BOTH figure-demanding AND unmarked. It was
+   * LIGHT-EXMPLR-9-MCQ-005 until LIGHT-FIX-1 (2026-09-11) re-keyed and mark-annotated that row;
+   * when a STEPMARK lane annotates MCQ-016, swap the specimen here (and in "the figure rule
+   * runs last" below) for another unmarked figure-demanding row — never leave a row unmarked
+   * to keep this control alive.
    */
   it("★ demonstrates the trap this suite avoids", () => {
-    const v = isPublishable(row("LIGHT-EXMPLR-9-MCQ-005"), AI);
+    const v = isPublishable(row("LIGHT-EXMPLR-9-MCQ-016"), AI);
     expect(v.ok).toBe(false);
     expect((v as { reason: string }).reason).toBe("unmarked-step"); // NOT requires-absent-figure
-    expect(demandsSuppliedFigure(figureScan("LIGHT-EXMPLR-9-MCQ-005"))).toBe(true);
+    expect(demandsSuppliedFigure(figureScan("LIGHT-EXMPLR-9-MCQ-016"))).toBe(true);
   });
 
   /**
@@ -645,7 +652,8 @@ describe("rule ORDER is load-bearing", () => {
   /** The figure rule runs last, so a figure-dependent row with unmarked steps
    *  reports the step failure. Pinned so the trap above stays visible. */
   it("the figure rule runs last", () => {
-    const v = isPublishable(row("LIGHT-EXMPLR-9-MCQ-005"), AI);
+    // specimen MCQ-005 -> MCQ-016 at LIGHT-FIX-1 (2026-09-11): MCQ-005 is now mark-annotated (see RULE 5 note)
+    const v = isPublishable(row("LIGHT-EXMPLR-9-MCQ-016"), AI);
     expect((v as { reason: string }).reason).toBe("unmarked-step");
   });
 });

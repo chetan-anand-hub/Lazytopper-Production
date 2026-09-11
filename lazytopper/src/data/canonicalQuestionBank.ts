@@ -1840,6 +1840,31 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-S-2026-METAL-010",        // garbled: pua+trailing-op
   "PYQ-S-2026-METAL-011",        // garbled: pua
   "SCQ-S-METAL-044",             // garbled: trailing-op
+  // ---- light-reflection-and-refraction: skeptic 2026-09-11 (LIGHT-FIX-1 stage 1) ----
+  // New tags (defined here): placeholder-solution = the stored steps carry no solution at all
+  // (a "See marking scheme" stub, CBSE evaluator boilerplate, or diagram captions only);
+  // spliced-solution = the steps splice in the marking scheme of a DIFFERENT question.
+  "LIGHT-EXMPLR-9-MCQ-004",      // answer-mismatch: Fig 10.1 gives sin 60°/sin 45° = 1.22 and no option matches (the official key 3/2 is the sin² ratio); owner ruling pending
+  "PYQ-S-LIGHT-010",             // placeholder-solution: "See marking scheme."
+  "PYQ-S-LIGHT-014",             // placeholder-solution: ~48 steps of CBSE evaluator instructions after the first
+  "PYQ-S-LIGHT-015",             // placeholder-solution: evaluator boilerplate; stem also lost the minus signs on the powers
+  "PYQ-S-2024-LIGHT-002",        // placeholder-solution: the only step is evaluator boilerplate
+  "PYQ-S-2024-LIGHT-003",        // placeholder-solution: the only step is evaluator boilerplate
+  "PYQ-S-2025-LIGHT-007",        // placeholder-solution: "See marking scheme."; options also lost the ×10^8 and fraction bars
+  "PYQ-S-2025-LIGHT-009",        // placeholder-solution: "See marking scheme."
+  "PYQ-S-2025-LIGHT-012",        // spliced-solution: electricity kettle/fuse marking scheme pasted in
+  "PYQ-S-2025-LIGHT-013",        // spliced-solution: electricity heating-element marking scheme pasted in
+  "PYQ-S-2025-LIGHT-014",        // placeholder-solution: diagram captions only ("IMAGE OBJECT")
+  "PYQ-S-2025-LIGHT-018",        // placeholder-solution: "See marking scheme."
+  "PYQ-S-2026-LIGHT-008",        // placeholder-solution: formula fragment + "Refer to CBSE official marking scheme"
+  "PYQ-S-2026-LIGHT-014",        // placeholder-solution: "Refer to CBSE official marking scheme"
+  "SCO-S-LIGHT-018",             // garbled: stem lost the radius of curvature (R = 5 cm in its source item FND-L-QB-175); underivable as printed
+  "SCQ-S-LIGHT-022",             // garbled: stem says seven one-mark parts (7 marks) but the row carries 2; answer truncated mid-word
+  "SCQ-S-LIGHT-034",             // garbled: solution is formula soup ("3 108 # =", "v . / m s 1 24 108 # ="); part (a) reasoning inverted
+  "SCQ-S-LIGHT-036",             // garbled: chapter header spliced into the stem mid-sentence; solution formula soup + publisher disclaimer
+  "SCQ-S-LIGHT-037",             // garbled: stem speed printed ". ms 1 5 108 1 # -"; solution formula soup
+  "FND-L-SPM-044",               // garbled: stem dropped the teacher's "focus a distant object" sentence; options refer to a "newly selected object" the stem never names
+  "GDR-L-NUM-022",               // garbled: stem asks for the image height but gives no object height
 ]);
 
 /**
