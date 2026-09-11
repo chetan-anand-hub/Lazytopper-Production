@@ -61,7 +61,7 @@ type SubjectKey = "Maths" | "Science";
 
 const SECTION_HEAD: Record<string, string> = {
   A: "Section A · Objective · 1 mark each",
-  B: "Section B · Very short answer · 2 marks",
+  B: "Section B · Very short answer · 1–2 marks",
   C: "Section C · Short answer · 3 marks",
   D: "Section D · Long / case",
 };
