@@ -100,7 +100,7 @@ export const CARB_CBE: CanonicalQuestion[] = [
     ],
     "finalAnswer": "H3C–CH3 (ethane, single C–C bond, six C–H bonds)",
     "isCompetencyBased": false,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "Student must draw the displayed structural formula of ethane: two carbon atoms connected by a single bond, each carbon showing three C–H single bonds (total 6 hydrogen atoms). Mark scheme: do not allow double carbon bonds."
   },
   {
@@ -140,7 +140,7 @@ export const CARB_CBE: CanonicalQuestion[] = [
     ],
     "finalAnswer": "H2C=CH2 (ethene, C=C double bond, four C–H bonds)",
     "isCompetencyBased": false,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "Student must draw the displayed structural formula of ethene: two carbon atoms connected by a double bond (C=C), each carbon showing two C–H single bonds (total 4 hydrogen atoms)."
   },
   {

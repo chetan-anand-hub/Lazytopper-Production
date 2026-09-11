@@ -314,7 +314,7 @@ export const CHEM_CBE: CanonicalQuestion[] = [
     ],
     "finalAnswer": "To remove the oxide/carbonate layer that prevents burning, so the magnesium can burn.",
     "isCompetencyBased": true,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "Fig. 1 shows a plain piece (strip) of magnesium ribbon; no measurements or labels are essential to answering — the figure simply depicts the ribbon referred to in the question."
   },
   {

@@ -51,7 +51,7 @@ export const CIRC_PREBOARD: CanonicalQuestion[] = [
     ],
     "finalAnswer": "AX = ½ × (perimeter of △ABC) (proved)",
     "isCompetencyBased": false,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "Triangle ABC with a circle (excircle opposite A) lying outside the triangle beyond side BC. The circle touches side AB at X, touches side AC produced beyond C at Y, and touches side BC at Z. Tangent segments AX and AY from A, BX and BZ from B, CY and CZ from C are equal in pairs."
   },
   {

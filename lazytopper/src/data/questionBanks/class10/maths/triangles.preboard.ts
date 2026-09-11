@@ -51,7 +51,7 @@ export const TRI_PREBOARD: CanonicalQuestion[] = [
     ],
     "finalAnswer": "ar(△COD) : ar(△AOB) = 1 : 9",
     "isCompetencyBased": false,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "Trapezium ABCD with AB ∥ DC (AB the longer parallel side at the bottom, DC the shorter at top). Diagonals AC and BD drawn, crossing at point O in the interior, forming the two triangles COD (upper) and AOB (lower)."
   },
   {
@@ -121,7 +121,7 @@ export const TRI_PREBOARD: CanonicalQuestion[] = [
     ],
     "finalAnswer": "∠BAC = 90°; ∆ABC is right angled at A.",
     "isCompetencyBased": false,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "Triangle ABC with vertex A at top, base BC horizontal. AD is the perpendicular drawn from A to BC, meeting BC at D between B and C, with the right-angle mark at D."
   },
   {
@@ -166,7 +166,7 @@ export const TRI_PREBOARD: CanonicalQuestion[] = [
     ],
     "finalAnswer": "1/p² = 1/a² + 1/b² (proved).",
     "isCompetencyBased": false,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "Right triangle ABC with the right angle at C. Hypotenuse AB is horizontal; sides a = BC and b = AC are the legs. CD = p is the perpendicular dropped from C onto AB, meeting AB at D with a right-angle mark."
   }
 ];

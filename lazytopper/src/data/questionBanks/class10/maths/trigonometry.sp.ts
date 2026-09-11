@@ -159,7 +159,7 @@ export const TRIG_SP: CanonicalQuestion[] = [
     ],
     "finalAnswer": "(a) Angle of depression; (b) 14√3 m; (c) 20√3 m [OR 45°]",
     "isCompetencyBased": true,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "India Gate represented as a vertical line segment AC of height 42 m standing on horizontal ground. An observer stands at point B on the ground at horizontal distance d from the base; the line of sight from B to the top A makes an angle of 60° with the horizontal."
   }
 ];

@@ -323,7 +323,7 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
     finalAnswer: "(i) slightly higher than actual; (ii) slightly lower than actual.",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.2 — CFPQ_Science10.pdf, questions pdf pp.12–15 (printed folios 11–14)",
-    requiresDiagram: true,
+    requiresDiagram: false,
     diagramDescription:
       "A labelled photograph of a benchtop pH meter. The indicating unit is a handheld meter with an LCD showing a pH reading of 7.30 and a second value 2.28; a cable runs from it to a cylindrical glass electrode dipped into a beaker of solution. Callout labels read 'pH reading', 'Indicating unit', 'Glass electrode' and 'Solution', with the caption 'pH meter'. A separate enlarged view of the glass electrode is shown alongside.",
   },

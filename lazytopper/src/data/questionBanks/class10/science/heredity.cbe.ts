@@ -145,7 +145,7 @@ export const HERD_CBE: CanonicalQuestion[] = [
     ],
     "finalAnswer": "50% pure breeding (PA PA) offspring.",
     "isCompetencyBased": true,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "A genetic (Punnett) cross grid: column headings PA and PA (from the PA PA parent), row headings PA and PN (from the PA PN parent). The four cells give PA PA, PA PA, PN PA, PN PA — showing two of four (50%) are pure-breeding PA PA."
   },
   {
@@ -168,7 +168,7 @@ export const HERD_CBE: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Offspring: Tt, Tt, tt, tt; tall : dwarf = 1 : 1.",
     "isCompetencyBased": true,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "Punnett-square / genetic diagram for Tt × tt giving offspring Tt, Tt, tt, tt."
   },
   {
