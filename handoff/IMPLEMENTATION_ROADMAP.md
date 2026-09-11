@@ -1,6 +1,46 @@
 # LazyTopper Implementation Roadmap
 
 
+## 2026-09-11 — RULINGS 1–4 + STEPMARK 6 + SEO-CANONICAL-1 + HALF-1 + FIG-SCI-2: **73 FIGURE-DEMAND FLAGS CORRECTED, TWO COORDINATE-GEOMETRY STEMS FIXED AND BOUND, ELECTRICITY'S FIRST STEP-MARK BATCH, EVERY URL NAMES ITSELF CANONICAL, `[½ mark]` PARSES, AND 48 MORE SCIENCE ROWS GET THEIR FIGURE** — `#764` + `#765` + `#768` + `#769` + `#770` MERGED — trunk `c355e6a3`
+
+**`2026-09-11`** *(later the same day as WS-1 + FIG-SCI-1 + PR-3; merge facts HANDOFF-VERIFIED, row counts /
+skeptic results / rulings CONTROLLER-RECORDED — see `CURRENT_STATE.md` §0 provenance)*
+
+- ✅ **`#764` rulings 1–4** (`f0745565`, merged **14:04:31+05:30**) — 73 `requiresDiagram` flips (53 Z3 +
+  `SP-M-2022-TRIG-E-001` + 9 maths + 10 science) + `CBE-M-CG-A-001`/`CG-B-002` stems corrected to the
+  printed figure and BOUND (maths pin 88 → 90). Guard 38/38. Figure cell moves — see `SURFACE_TRACKER.md`.
+- ✅ **`#765` STEPMARK 6 electricity** (`f260ed3c`, merged **14:11:33+05:30**) — 128 rows get `[N mark]`
+  CBSE step prefixes, 44 skipped and named. **Merged before its skeptic** — the skeptic then returned
+  **156/223 OK, 67 defective**; findings queued as `ELEC-FIX-1`. `[FU-ELEC-FIX-1-SKEPTIC-FINDINGS]`.
+- ✅ **`#768` SEO-CANONICAL-1** (`0906777b`, merged **14:32:12+05:30**) — the cofounder session's PR: every
+  advertised URL serves a static copy of the shell naming itself canonical, fixing a crawler-dedup problem
+  on 32 of 33 sitemap URLs. Not reviewed by this lane; recorded for completeness.
+- ✅ **`#769` HALF-1** (`2276686b`, merged **14:59:53+05:30**) — the step-mark parser now accepts the
+  Unicode `[½ mark]` prefix; publishable **+15**. The `SCQ-S-EYE-036` guard fixture is re-pointed to
+  `SCQ-S-CTRL-042` (FIG-SCI-2 will bind `EYE-036`). Guard +4 blocks, mutation-proven; root matrix 206/206.
+- ✅ **`#770` FIG-SCI-2** (`c355e6a3`, merged **15:08:01+05:30**) — 49 figure entries bound to 48 human
+  Science rows (Foundation 3, chapterwise 12, board papers 16, sample/pre-board 13, SQP 2, APQ 2); 54
+  `requiresDiagram` flips. Science binder 157 → 206; bound rows 295 → 343; publishable +80 on its own base.
+  Content defect found, not fixed: `PYQ-S-2026-MAG-002`'s stem is truncated —
+  `[FU-PYQ-S-2026-MAG-002-STEM-TRUNCATED]`. Figure cell moves — see `SURFACE_TRACKER.md`.
+- ⛔ **NOT DONE — `#766` STEPMARK 5 light stays on HOLD** for its skeptic (523/660 OK); findings fold into
+  `LIGHT-FIX-1` before push. `[FU-LIGHT-FIX-1-SKEPTIC-FINDINGS]`.
+- **Owner rulings this afternoon (CONTROLLER-RECORDED):** the skeptic verifies EXISTING rows, not only new
+  ones; the 878 authored-but-unflagged rows (Batches 7–11) must skeptic-verify before counting toward
+  10,000 (`[FU-BATCH-7-11-AUTHORED-PACKS-UNFLAGGED]`); all questions on all four surfaces is the explicit
+  target; the controller may squash-merge after CI green + heavy gates + skeptic fold-in; the syllabus is
+  now verified against official CBSE PDFs (`[FU-SYLLABUS-1-OFFICIAL-GAPS]`); SQP 2026-27 is not published.
+- **The bank, evening totals (CONTROLLER-RECORDED):** publishable 2,982 → **~3,381** (brief's 3,301 after
+  `#769` +80 from `#770`, not independently re-measured on `c355e6a3`); figure-demanding unbound 310 → 99;
+  human rows 5,710 strict, **4,832** excluding the 878 unverified authored rows.
+- **Stage order from here (the controller's queue, brief Part D):** `ELEC-FIX-1` + `LIGHT-FIX-1` (fold
+  skeptic findings) → `SURFACE-1` (closes the 146-row VSA gap) → `SYLLABUS-1` → `TRI-FIX-1` → `CLEAN-1`
+  (366-row placeholder audit) → `PROV-1` (tag skeptic survivors) → STEPMARK batches 7–13 →
+  `MS-RETRANSCRIBE` → transcription wave 1 (circles, human-eye, magnetic-effects, ARC+SAV) → authoring D/E
+  → HPQ-2027 refresh → guards. ⚠ The 5-hour session limit killed subagents three times today —
+  `[FU-SESSION-LIMIT-KILLS-SUBAGENTS]`.
+
+
 ## 2026-09-11 — WS-1 + FIG-SCI-1 + PR-3: **WORKSHEETS OFFER EVERY BOARD-ASSESSED SCIENCE CHAPTER, 109 SCIENCE QUESTIONS GET THE FIGURE THEY ASK ABOUT, AND A BOUND FIGURE NOW COUNTS AS PUBLISHABLE** — `#760` + `#761` + `#763` MERGED — trunk `fa3662db`
 
 **`2026-09-11`** *(later the same day as TIERMAP-1; merge facts HANDOFF-VERIFIED, gates LANE-REPORTED /

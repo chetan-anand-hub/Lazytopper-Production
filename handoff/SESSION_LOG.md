@@ -1,5 +1,83 @@
 ---
 
+## 2026-09-11 — RULINGS 1–4 + STEPMARK 6 + SEO-CANONICAL-1 + HALF-1 + FIG-SCI-2 MERGED — **`#764` + `#765` + `#768` + `#769` + `#770` ON TRUNK: 73 FIGURE-DEMAND FLAGS CORRECTED AND TWO COORDINATE-GEOMETRY STEMS FIXED AND BOUND, ELECTRICITY GETS ITS FIRST STEP-MARK BATCH (MERGED BEFORE ITS SKEPTIC), EVERY ADVERTISED URL NAMES ITSELF CANONICAL, `[½ mark]` NOW PARSES, AND 48 MORE SCIENCE ROWS GET THEIR FIGURE** — trunk `c355e6a3`
+
+★ **PROVENANCE.** Merge facts are **HANDOFF-VERIFIED** by this docs lane in its own worktree (`git log
+--format='%h %cI %an %s' fa3662db..c355e6a3` → six commits, all merged by the owner except `#767` which
+self-merged as docs-only; `git show --stat` on each). Row counts, skeptic pass rates, owner rulings and the
+lane queue are **CONTROLLER-RECORDED** (`BANK-2027_STATE_AND_NEXT-WINDOW_BRIEF_2026-09-11_v2.md` Parts B–E,
+`CONTROLLER_STATE_BANK-2027_2026-09-11.md` "How to verify" + its afternoon rulings section). This lane
+re-ran nothing.
+
+**What `#764` did.** Owner rulings 2026-09-11 (brief Part E 1–4) plus the FIG-SCI-1 croppers' findings,
+annotation-only: 73 `requiresDiagram` flips to `false` (53 unbound `competency.z3.ts` Z3 rows whose DOCX
+holds no diagram + `SP-M-2022-TRIG-E-001` + 9 maths + 10 science), and `CBE-M-CG-A-001` / `CBE-M-CG-B-002`
+corrected to the printed Item Bank figure A(−2,2) B(−1,−2) C(3,0) (answers unchanged) with the p230 crop
+BOUND for both — **owner ruling this afternoon: ship corrected stems + bound figure**, superseding an
+earlier "flag off, don't bind" reading. Maths pin 88 → 90. Guard 38/38. A figure cell moves — see
+`SURFACE_TRACKER.md`.
+
+**What `#765` did, and why it is recorded with an asterisk.** 128 electricity rows get CBSE `[N mark]` step
+prefixes (133 annotated, 5 reverted as placeholder solutions), 44 skipped and named. **The owner merged this
+PR before its fresh skeptic finished** — the skeptic then returned **156/223 OK, 67 defective**: 8 wrong
+keys, 3 withhold candidates, 27/40 chapterwise rows defective, 3 rows mis-topicked to magnetic, one
+contestable key (`AR-EL-009`). Findings queued as follow-up PR `ELEC-FIX-1`, not yet built —
+`[FU-ELEC-FIX-1-SKEPTIC-FINDINGS]`.
+
+**What `#768` did.** The cofounder session's SEO-CANONICAL-1: every advertised URL now serves a static copy
+of the built shell naming itself canonical (a post-build script, `writeStaticHeads.ts`), fixing a
+crawler-dedup problem that saw 32 of 33 sitemap URLs as copies of `/app/`. Not this controller's arc; not
+reviewed by this lane.
+
+**What `#769` did.** The step-mark parser accepted only ASCII numerals, so 15 human rows whose steps carry
+the Unicode `[½ mark]` prefix (light 7, control-and-coordination 4, carbon 2, real-numbers 1, electricity 1)
+were misread `unmarked-step`; publishable **+15**. The `SCQ-S-EYE-036` guard fixture is re-pointed to
+`SCQ-S-CTRL-042` because FIG-SCI-2 (queued) will bind `EYE-036`. Guard +4 blocks, mutation-proven; root
+matrix 206/206 (30 suites).
+
+**What `#770` did.** 49 figure entries bound to 48 human Science rows (Foundation 3, chapterwise 12, board
+papers 16, sample/pre-board 13, SQP 2, APQ 2), four printed tables among them; 54 `requiresDiagram` flips to
+`false` on rows whose source prints no question figure (an answer figure never binds as a question figure).
+Science binder **157 → 206**, bound rows **295 → 343**, figure-demanding **bound 340 / unbound 99** of 439;
+publishable **+80** on the lane's own base (3,212 → 3,292). Content defect found, not fixed:
+`PYQ-S-2026-MAG-002`'s `questionText` is truncated mid-word with stripped-Hindi residue —
+`[FU-PYQ-S-2026-MAG-002-STEM-TRUNCATED]`. Both matrices, build, `verify-production-build` and the
+asset-ships proof PASS. A figure cell moves for 48 science rows — see `SURFACE_TRACKER.md`.
+
+**The bank, evening totals (CONTROLLER-RECORDED, brief Part B + the `#770` commit message).** Publishable
+**2,982 morning → ~3,381 evening** (brief's 3,301 after `#769`, +80 from `#770` — not independently
+re-measured on `c355e6a3` by this lane); figure-demanding unbound 310 → 99; human rows 5,710 strict, **4,832**
+excluding the 878 unverified authored rows; topics below 350 human and the 4-mark-cell-< 75 shape
+unchanged — no supply lane has started yet.
+
+**Owner rulings of the afternoon (CONTROLLER-RECORDED).** Verification is a fresh skeptic re-solving EVERY
+row, existing rows included. The 878 July "expand" rows (28 files, Batches 7–11) are authored but never
+flagged `questionProvenance` — skeptic-verify all, survivors tagged `authored` + `shapedFrom`, failures
+retired, only survivors count toward 10,000 (`[FU-BATCH-7-11-AUTHORED-PACKS-UNFLAGGED]`). All questions on
+all four surfaces (Practice / Chapter Test / Full Mock / Worksheets) is the explicit target. The controller
+may squash-merge its own PRs after CI green + heavy gates + skeptic fold-in, never on HOLD. The syllabus is
+now verified against the official CBSE PDFs — headline gaps the live guard misses: Pythagoras / converse
+(121 rows), areas of similar triangles (51), bare "Complementary Angles" (8), "Completing the Square" (7),
+"Combinations of Plane Figures" (4); motor/EMI/generator (33) is already correctly banned as bank-rule
+strings. SQP 2026-27 is not yet published. `[FU-SYLLABUS-1-OFFICIAL-GAPS]`.
+
+**Skeptic results and bank-wide audits.** Electricity 156/223, Light 523/660 (41 `LGHT_FND_BEYOND_BOARD`
+Class-12 rows found served LIVE on trunk — `[FU-LGHT-FND-BEYOND-BOARD-SERVED-LIVE]`), PLE authored 155/163,
+Triangles authored 126/147 (89 of the 147 need the pending syllabus ruling —
+`[FU-TRIANGLES-SKEPTIC-FINDINGS]`). Placeholder audit: 366 rows of non-solution text, 103 currently
+publishable (`[FU-STEPMARK-PLACEHOLDER-SOLUTIONS-PUBLISHABLE]`). Surface gap: 146 human 1-mark VSA rows
+reach neither Chapter Test nor Full Mock (`[FU-SURFACE-1-146-VSA-ROWS]`); 15 MCQs are mis-keyed and score a
+correct pick 0 (`[FU-15-MISKEYED-MCQS]`).
+
+**Not yet done.** `#766` STEPMARK 5 light stays on HOLD for its skeptic findings, folding into
+`LIGHT-FIX-1`.
+
+**The day's cost.** The 5-hour session limit at Max 20x killed every running subagent three times today;
+worktrees held partial edits each time and lanes resumed without redo. The owner was given usage-credits /
+API-key options to raise the ceiling. `[FU-SESSION-LIMIT-KILLS-SUBAGENTS]`.
+
+---
+
 ## 2026-09-11 — WS-1 + FIG-SCI-1 + PR-3 MERGED — **`#760` + `#761` + `#763` ON TRUNK: WORKSHEETS CAN OFFER EVERY BOARD-ASSESSED SCIENCE CHAPTER, 109 SCIENCE QUESTIONS SHOW THE FIGURE THEY ASK ABOUT, AND A BOUND FIGURE NOW COUNTS AS PUBLISHABLE** — trunk `fa3662db`
 
 ★ **PROVENANCE.** Merge facts are **HANDOFF-VERIFIED** by this docs lane in its own worktree

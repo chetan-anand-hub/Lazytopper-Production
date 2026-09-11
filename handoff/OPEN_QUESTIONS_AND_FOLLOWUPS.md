@@ -18,6 +18,147 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ---
 
+## 2026-09-11 — RULINGS 1–4 + STEPMARK 6 + SEO-CANONICAL-1 + HALF-1 + FIG-SCI-2 (`#764` MERGED as `f0745565`, `#765` as `f260ed3c`, `#768` as `0906777b`, `#769` as `2276686b`, `#770` as `c355e6a3`, all by the owner except `#767` (self-merged docs); open PRs at the time of writing: none of this arc's — `#766` on HOLD) — eighteen new follow-ups, none closed
+
+★ **PROVENANCE.** Merge facts HANDOFF-VERIFIED (`git log fa3662db..c355e6a3`, `git show --stat` on each).
+Skeptic results, placeholder/surface audits, owner rulings and the lane queue are **CONTROLLER-RECORDED**
+(`BANK-2027_STATE_AND_NEXT-WINDOW_BRIEF_2026-09-11_v2.md` Parts B–E, `CONTROLLER_STATE_BANK-2027_2026-09-11.md`
+afternoon rulings section); `#770`'s own row-level facts are **HANDOFF-VERIFIED** from its commit message.
+**This docs lane re-ran nothing.** Every FU below has its own heading (board rule 1).
+
+### `[FU-ELEC-FIX-1-SKEPTIC-FINDINGS]` — OPEN; `#765` merged before its skeptic, and the skeptic found 67 defects
+The electricity skeptic (223 rows) returned **156 OK / 67 defective**: 8 wrong-key rows (`CBE-S-ELEC-C-006`,
+`C-005`, `SCO-S-ELEC-016`, `ELEC-EXMPLR-11-MCQ-008`, two `CASE-SCI-EL-*` rows with a leaked "Wait — let me
+recalculate", `SCQ-021`, `SCQ-036`); withhold `PYQ-S-ELEC-007` (MS confidential preamble),
+`CBE-S-ELEC-A-003` (no correct option vs its bound graph), `PYQ-S-2026-ELEC-013` (banned strings); chapterwise
+`SCO`/`SCQ` 27/40 defective (Ω→W symbol-font damage, figure-dependent rows missing their figure,
+disclaimers); `pyq2026` -008/-009/-010 are magnetic-effects content mis-topicked to electricity;
+`AR-EL-009`'s key is contestable (own FU below). **`CBE-S-ELEC-C-003`'s bound figure IS correct** — the
+controller eye-checked the R1..R5 network; the skeptic's claim it was bound to `B-002`'s circuit is
+UNCONFIRMED, do not re-bind. Findings queued for `ELEC-FIX-1`, not yet built.
+
+### `[FU-LIGHT-FIX-1-SKEPTIC-FINDINGS]` — OPEN; `#766` is on HOLD for these findings
+The Light skeptic (660 rows) returned **523 OK / 137 defective**: class A 10 (sign flips, wrong NCERT data,
+a key mismatched to its bound figure); class B 16 (leaked evaluator instructions, splices, unit-variant
+duplicates); class C 58 (17 MCQs whose only step is "Correct option is (x)"); class D 72 (41
+`LGHT_FND_BEYOND_BOARD` rows — own FU below — + 13 unbound-figure references + others); class E 6; class F
+1. PYQ files 7/58 OK, chapterwise 13/44 OK. `#766` (STEPMARK 5 light) stays on HOLD until these fold into
+`LIGHT-FIX-1` on the `stepmark-5` branch, before push.
+
+### `[FU-LGHT-FND-BEYOND-BOARD-SERVED-LIVE]` — OPEN, OWNER RULING WANTED; 41 Class-12 rows are live on trunk
+Found by the Light skeptic pass, not by any guard: 41 `LGHT_FND_BEYOND_BOARD` rows are **Class-12 content**,
+spread LIVE at `canonicalQuestionBank.ts:972` / `:991`. No gate checks class level against the served bank.
+**Owner ruling pending** — were these ever meant to be live? The controller's default, absent a ruling, is
+to retire them as out of syllabus for Class 10 2026-27.
+
+### `[FU-SYLLABUS-1-OFFICIAL-GAPS]` — OPEN; official CBSE PDFs name gaps the live guard does not ban
+`OFFICIAL_SYLLABUS_2026-27_verification.md` compared the official `cbseacademic.nic.in` Maths/Science PDFs
+against `scripts/src/syllabusGuard.ts` and found: **Pythagoras theorem / its converse (121 human rows)**,
+**areas of similar triangles (51)**, bare **"Complementary Angles" (8)**, **"Completing the Square" (7)**,
+**"Combinations of Plane Figures" (4)** — none of these five strings exist in the guard today. **Motor / EMI
+/ generator (33 rows)** is already correctly banned as bank-rule strings (surface-banned, not a chapter
+deletion — `CLAUDE.md` §5's ⚠ on sub-topics vs chapters). **SQP 2026-27 has not been published** (latest is
+2025-26), so no SQP cross-check is possible yet. `SYLLABUS-1` (adds the five strings + guard tests + human
+withholds) has not started — its worktree was killed before creation. Triangles' 89/147 skeptic-flagged rows
+(`[FU-TRIANGLES-SKEPTIC-FINDINGS]`) wait on this ruling.
+
+### `[FU-TRIANGLES-SKEPTIC-FINDINGS]` — OPEN; 21 defective, and 89 more pending the syllabus ruling above
+The Triangles authored-pack skeptic (147 rows) returned **126 clean / 21 defective**: `AR-TRI-006` both
+assertion and reason false plus hedging text; `TRI-PRF-D-002` duplicates AI-pack row `TRI2-H04` (retire);
+`TRI-PRF-D-002/003/004` and `BX-TRI-PF-001` prove theorems the syllabus states "without proof"; `BX-TRI-PF-020`
+is a Class-9 result; `BX-TRI-E-035`/`044` circular sub-parts; `AR-TRI-005`/`008` contestable keys; 8 `longD`
+rows padded to five artificial 1-mark steps. **★ 89 of the 147 require Pythagoras / its converse / areas of
+similar triangles** — pending `[FU-SYLLABUS-1-OFFICIAL-GAPS]`; if confirmed out of syllabus this is a
+bank-wide retirement, not just these 89. `TRI-FIX-1` queued, runs after `SYLLABUS-1`.
+
+### `[FU-TRI-PRF-C-002-WRONG-FIGURE-BOUND]` — OPEN; a FIG-MATHS-1 binding error caught by the skeptic, not the reachability test
+`TRI-PRF-C-002` is bound to NCERT Fig 6.38, but its stem is Exercise 6.3 Q6, printed against **Fig 6.37**.
+The reachability test proves the bound id is served and on disk, not that it is the RIGHT figure — it passed
+throughout. Needs a re-crop of Fig 6.37 and a rebind, in `TRI-FIX-1`.
+
+### `[FU-BATCH-7-11-AUTHORED-PACKS-UNFLAGGED]` — OPEN; 878 rows read as human today and are not verified
+878 rows across 28 files (`*.expand.{caseE,longD,proof}`, `*.proof`, `*.caseBased`, `*.assertionReasoning`,
+`*.expand.reducible` — CHEM 100, ABS 96, AP 94, PLE 121, QE 91, TRI 131, MNM 76, CG 60, POLY 49) are
+**authored content never flagged** in `AI_GENERATED_PACK_SOURCES` or given `questionProvenance`. **Owner
+ruling this afternoon:** skeptic-verify every one; survivors get `questionProvenance:"authored"` +
+`shapedFrom`; failures retired; **only survivors count toward 10,000**. Strict human excluding all 878
+pending verification: **4,832**, not 5,710. `PROV-1` (tagging) runs after each pack's skeptic; PLE
+(155/163) and Triangles (126/147) done; QE, AP, CHEM, ABS, MNM, CG, POLY remain.
+
+### `[FU-STEPMARK-PLACEHOLDER-SOLUTIONS-PUBLISHABLE]` — OPEN; batches 1–4 pre-date today's "real solution only" policy
+STEPMARK batches 1–4 put a `[N mark]` prefix on placeholder, boilerplate, disclaimer-tail, spliced or
+garbled step text and let it publish. The bank-wide scout found **366 rows with non-solution text, 103
+currently `isPublishable`** across seven classes (a1 pure placeholders 33/11 published, a3 fragments 7/3, b
+a lone `[0 marks]` step 1/1, c cbse.online disclaimer tails 19/3, f half-glyph rows 21 incl. 6 with a
+**double** `[0.5 mark] [½ mark]` prefix, h examiner/MS boilerplate 45/11, e3 MS-damage residue 275/78).
+`CLEAN-1` (strips non-solution prefixes, merges the lone `[0 marks]` step, deletes double-prefix residue and
+disclaimer tails, lowers the pins with a reconciliation) is queued, excluding light/electricity files owned
+by `LIGHT-FIX-1` / `ELEC-FIX-1`. The 33 a1 rows: see `[FU-MS-RETRANSCRIBE-PLACEHOLDER-PYQS]`.
+
+### `[FU-SURFACE-1-146-VSA-ROWS]` — OPEN; the gap behind the owner's "all four surfaces" ruling
+The surface-reachability scout found **146 human 1-mark VSA rows reachable from Practice and Worksheets but
+drawable on neither Chapter Test nor Full Mock** — legitimate CBSE shapes (Item Bank / CFPQ / preboards),
+excluded because both timed surfaces drop every non-MCQ 1-marker. `SURFACE-1` (in flight, 7 files partially
+edited) admits Chapter Test Section B to marks 1–2 with a key-resolves bar on Section A, and Full Mock
+Section B to marks 1–2 (controller ruling ii-A); a new `surfaceReachability.guard.test.ts` will assert
+Practice ∧ Worksheets ∧ (Chapter Test ∨ Full Mock) per row. Live-verify owed: a 1-mark VSA renders in
+Chapter Test Section B.
+
+### `[FU-15-MISKEYED-MCQS]` — OPEN; 15 MCQs score a correct pick 0
+Found by the surface scout, not by any existing guard (no test checks `answer ∈ options`): 11 rows have the
+marking-scheme's mark digit (`" 1"`) appended to the key text, 2 have a stray letter-prefix, 4 are
+glyph-damaged beyond mechanical repair. `CLEAN-1` fixes the 13 mechanically repairable rows and withholds
+the 4 glyph-damaged ones.
+
+### `[FU-FM-DUP-TEXT-VICTIMS]` — OPEN; 55 exact-text duplicates on Full Mock
+Found alongside the 146-row VSA gap and the 15 mis-keyed MCQs: 55 rows on Full Mock are byte-identical in
+stem text to another served row. Not yet assigned to a lane; needs a dedup pass (which copy to keep, which
+to withhold) before Full Mock's draw is safe from serving the same question twice in one paper.
+
+### `[FU-MS-RETRANSCRIBE-PLACEHOLDER-PYQS]` — OPEN; the fix is transcription, not withholding
+The 33 `a1` pure-placeholder rows (`[FU-STEPMARK-PLACEHOLDER-SOLUTIONS-PUBLISHABLE]`) are PYQs whose
+official CBSE marking-scheme PDF is on disk (`2022-23 X_086_31_x_MS`, `2024-25 X_086_31-N-1..3 Science_MS`,
+`2025-26 X_086 Set-N`, Maths `MS 041_30-x-x`). `MS-RETRANSCRIBE` transcribes the real marking-scheme
+solution from the PDF rather than withholding the row. Queued after `CLEAN-1`.
+
+### `[FU-AR-EL-009-KEY-CONTESTABLE]` — OPEN, OWNER RULING WANTED
+`AR-EL-009`'s stored key states a fuse wire has "very high resistance"; the skeptic's independent solve
+argues the CBSE-correct property is high **resistivity** with a **low melting point**, not high resistance
+per se. Owner ruling owed on which key ships.
+
+### `[FU-APQ-M-POLY-004-SOLUTION-CONTRADICTS-MS]` — OPEN, OWNER RULING WANTED
+`APQ-M-POLY-004`'s stored `solutionSteps` contradict its own official marking scheme, found by the skeptic.
+Owner ruling owed on which is authoritative before either is edited.
+
+### `[FU-OFFICIAL-NOTE-HEREDITY-MAGNETIC-AMBIGUITY]` — OPEN, OWNER RULING WANTED
+The official CBSE Science syllabus PDF's "Note for Teachers" names "Heredity and Evolution" and "Electric
+Effects of Electric Current" among sub-topics not assessed. Read literally this would ban `Heredity` /
+`Mendel's contribution` / `Laws of Inheritance` / `Sex Determination` — but `CLAUDE.md` §5 already carries an
+explicit ⚠ that these are **retained and board-assessed for 2026-27**, and the document's own structure plus
+the live 2025-26 SQP contradict a literal reading. `syllabusGuard.ts` keeps Heredity IN. Flagged to the
+owner; no guard change made pending a ruling.
+
+### `[FU-SESSION-LIMIT-KILLS-SUBAGENTS]` — OPEN, OWNER DECISION PENDING; three outages today
+The 5-hour session limit at the Max 20x plan killed every running subagent at once **three times today**
+(≈11:00–12:20 IST — 6 subagents; ≈14:30 IST — STEPMARK 5/6 and the supply planner, before they had edited
+anything; and a third instance). Worktrees kept partial edits each time and lanes resumed from on-disk `git
+diff` without redo, but the wall-clock cost is real. The owner was given usage-credits / API-key options to
+raise the ceiling; decision pending.
+
+### `[FU-FIG-SCI-2-LIVE-VERIFY-OWED]` — OPEN, OWNER; static gates prove reachability and disk presence, not the rendered `<img>`
+`#770` is on trunk; the reachability test proves every id is served and every asset is on disk (batch-2
+pinned at 49, union 158 with FIG-SCI-1), and both matrices + build + `verify-production-build` + the
+asset-ships proof all PASS — none of that is a rendered figure. **Owed:** one Foundation/Light and one
+board-paper Electricity question from the batch render their figure on **Practice, Chapter Test and Full
+Mock**. Close on the render.
+
+### `[FU-PYQ-S-2026-MAG-002-STEM-TRUNCATED]` — OPEN; content defect found by `#770`, not fixed
+`PYQ-S-2026-MAG-002`'s `questionText` (`magneticEffects.pyq2026.ts:19`) is truncated mid-word and carries
+stripped-Hindi residue — found while binding figures for `#770`, out of scope for that PR's
+annotation-only discipline. Content-fix queue.
+
+---
+
 ## 2026-09-11 — WS-1 + FIG-SCI-1 + PR-3 (`#760` MERGED as `2f623e01`, `#761` as `0aebd47d`, `#763` as `fa3662db`, all by the owner 2026-09-11T12:43:10 / 12:51:40 / 13:43:16+05:30; open PRs at the time of writing: `#764` draft, head `d5f85b2c`) — four new follow-ups, three updated in place, one coordination note, none closed
 
 ★ **PROVENANCE.** Merge facts HANDOFF-VERIFIED (`git log e0d17da1..fa3662db`, `git show --stat` on all three).
