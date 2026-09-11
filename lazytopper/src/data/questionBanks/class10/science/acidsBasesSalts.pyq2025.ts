@@ -50,7 +50,7 @@ export const acidsBasesSaltsPYQ2025: CanonicalQuestion[] = [
   { id: "PYQ-S-2025-ACID-006", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Baking Soda", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Giving reason, state the advantage of using baking powder over baking soda for the preparation of bread or cakes.",
     answer: "Refer to CBSE official marking scheme for the full step-by-step solution.",
-    solutionSteps: ["[1 mark] See marking scheme.", "[1 mark] Refer to CBSE official marking scheme for the full step-by-step solution."],
+    solutionSteps: ["See marking scheme.", "Refer to CBSE official marking scheme for the full step-by-step solution."],
     finalAnswer: "Refer to CBSE official marking scheme for the full step-by-step solution.",
     ncertRef: "PYQ 31/3/2 Q22", isCompetencyBased: false,
     pyqYear: "2025", pyqSet: "2" },

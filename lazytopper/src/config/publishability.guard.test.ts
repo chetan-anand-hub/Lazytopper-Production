@@ -128,7 +128,11 @@ describe("RULE 1 — provenance is an id-set, not a `sources` field", () => {
     // CEILING — AI rows are retired, never added. 2,952 at PR-3 (2026-09-11).
     expect(AI.size).toBeLessThanOrEqual(2952);
     // FLOOR — human rows are authored and wired, never lost. 5,710 at PR-3.
-    expect(human.length).toBeGreaterThanOrEqual(5710);
+    // 5,710 -> 5,669 at CLEAN-1 (2026-09-11): 41 rows WITHHELD (26 placeholder-solution,
+    // 2 spliced-solution, 1 blank, 4 garbled, 2 bilingual, 5 garbled-options,
+    // 1 answer-mismatch) — see the "CLEAN-1" block of WITHHELD_QUESTION_IDS. The
+    // authored/wired population is unchanged; an honest omission is not a loss.
+    expect(human.length).toBeGreaterThanOrEqual(5669);
     // IDENTITY — AI-rejected and human rows partition the bank.
     expect(rejected.length + human.length).toBe(canonicalQuestionBank.length);
     // 8,543 -> 8,673: #721 wired the ten .cfpq.ts files into the assembly array.

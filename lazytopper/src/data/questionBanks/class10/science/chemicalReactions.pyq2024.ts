@@ -79,7 +79,7 @@ export const chemicalReactionsPYQ2024: CanonicalQuestion[] = [
   { id: "PYQ-S-2024-CHEMRXN-010", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "General", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Write chemical equations for the following reactions, giving the conditions for the reaction in each case : (a) Reaction of ethanol with ethanoic acid (b) Reaction of an ester with a base (NaOH) (c) Formation of ethene from ethanol",
     answer: "Refer to the official CBSE marking scheme for the remaining solution step (2).",
-    solutionSteps: ["[1 mark] (a) (b) (c)", "[1 mark] Refer to the official CBSE marking scheme for the remaining solution step (1).", "[1 mark] Refer to the official CBSE marking scheme for the remaining solution step (2)."],
+    solutionSteps: ["(a) (b) (c)", "Refer to the official CBSE marking scheme for the remaining solution step (1).", "Refer to the official CBSE marking scheme for the remaining solution step (2)."],
     finalAnswer: "Refer to the official CBSE marking scheme for the remaining solution step (2).",
     ncertRef: "PYQ 31/4/3 Q28", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "3" },
