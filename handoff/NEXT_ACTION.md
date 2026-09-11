@@ -2,6 +2,96 @@
 
 
 ```
+⛔⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW IT. WS-1 (#760), FIG-SCI-1 (#761) AND PR-3 (#763) ARE ON TRUNK.
+
+TRUNK IS `fa3662dbf57b5d40a29b800449a545570e19a8d0` (#763 PR-3, merged by the owner 2026-09-11T13:43:16+05:30),
+HANDOFF-VERIFIED 2026-09-11 with `git log e0d17da1..fa3662db` (exactly four commits, all merged by the owner:
+2f623e01 = #760 WS-1 12:43:10 · 0aebd47d = #761 FIG-SCI-1 12:51:40 · 674121e7 = #762 docs 13:31:49 ·
+fa3662db = #763 PR-3 13:43:16, all +05:30).
+RE-DERIVE IT BEFORE ACTING:  git ls-remote origin base/approved-thru-437
+OPEN PRs AT THE TIME OF WRITING: #764 DRAFT — rulings 1–4 content PR (lane/content-rulings-1-4, head d5f85b2c,
+   rebased on fa3662db) — verified with `gh pr list --state open` at writing; a status claim — re-check, and
+   check EVERY open PR's file list (lane_overlap compares exact paths against ALL open PRs, bot PRs included).
+
+WHAT #760 DID (WS-1): Worksheets can offer every board-assessed Science chapter — `heredity`,
+   `magnetic-effects-of-electric-current`, `human-eye-and-colourful-world` restored to worksheetModel.ts
+   SCIENCE_TOPICS_RAW (13 chapters, was 10); DELETED_TOPIC_KEYS emptied; a SECOND defect fixed in the same
+   file: SCIENCE_KEY_TO_TREND_KEY lacked the three keys ⇒ a restored chapter would have drawn weight 1 in
+   board-weightage mode. 682 rows (243/222/217) were unreachable from Worksheets. Two existing suites now
+   assert the OPPOSITE; NEW topicReachability test (14) derives the expected set from topics.ts + the bank;
+   mutation-proven. Gates all PASS (worksheet vitest 98/98; both matrices; CI green). Pin file untouched.
+   ⚠ LIVE-VERIFY OWED: /practice/worksheets lists 13 Science chapters — [FU-WS-1-LIVE-VERIFY-OWED].
+
+WHAT #761 DID (FIG-SCI-1): 109 science figures bound (Item Bank 44 incl. 11 printed tables · Exemplar 34 ·
+   NCERT textbook 7 · CFPQ 24), every webp sha256-matched to its manifest; SCIENCE_FIGURE_VISUALS 48 → 157;
+   rows with ≥1 bound figure 186 → 295; figure-demanding bound 183 → 292 / unbound 310 → 201; publishable
+   unchanged at 2,982 AT THAT POINT (pre-#763). NEW scienceFigureVisuals.reachability.test.ts pinned at 109,
+   mutation-proven. NOT bound, by design: 9 draw-it rows (source prints no figure; CBE-S-MNM-B-004's image is
+   missing from the PDF itself), 3 decorative photographs (CBE-S-CHEM-B-003, CFPQ-S-ABS-013, CFPQ-S-EYE-010),
+   METAL-NCERT-3-VSA-006 (stem names a different table). Crops carry fragments of the SOURCE's own watermark;
+   only neighbouring questions' text was whitened. Gates: both matrices PASS, build + verify-production-build
+   PASS, 4 probed assets ship in artifacts/lazytopper-app/dist/public/app/figures/..., decorative control
+   absent; CI green. ⚠ LIVE-VERIFY OWED: one Electricity + one Light question renders its figure on
+   Practice / Chapter Test / Full Mock — [FU-FIG-SCI-1-LIVE-VERIFY-OWED]. HPQ / Mock Paper do NOT read the bank.
+
+WHAT #763 DID (PR-3): Rule 5 of isPublishable now consults the figure binder (defaultHasBoundFigure via
+   visualConceptRegistry); the guard test's 12 exact literals became floors / ceilings / partition identities
+   + a negative control; discrimination proven three ways; both matrices PASS; the ONLY importer of
+   publishability.ts is the guard test ⇒ nothing rendered changes, no live-verify.
+   ★ LIVE, MEASURED at fa3662db (CONTROLLER-RECORDED, independent seat, relayed by the owner): publishable
+   2,982 → 3,212; reasons {ai-generated-source 2952, unmarked-step 2336, requires-absent-figure 162}; rows
+   with a bound figure 295 (maths 158, science 157); bogus id → 0. Partition 2952+2336+162+3212 = 8662.
+   NOT the lane's 3,144: that was measured at a157c741, BEFORE #761's 109 bindings — on trunk the escape
+   frees 230 (392 → 162). Both correct on their base. THE PIN-FILE SERIALISATION IS OVER: #764's guard test
+   passed 38/38 after rebasing with NO pin edit. [FU-PR3-L560-GAP-HAS-NO-DIRECTION] stays OPEN (ruling on a
+   literal bound for the L560 gap still pending; the identity is what is live).
+
+★ NEXT, IN ORDER (the controller's sequence, ruling 10):
+   1. OWNER MERGES #764 (draft): 73 requiresDiagram flips = 53 Z3 unbound + SP-M-2022-TRIG-E-001 + 9 maths
+      + 10 science; CG pair CBE-M-CG-A-001 / CG-B-002 → stems corrected to the printed figure A(−2,2)
+      B(−1,−2) C(3,0), the Item Bank p230 crop BOUND, flags stay true, maths pin 88 → 90 — per the OWNER
+      RULING this afternoon (corrected stems + bound figure), which SUPERSEDES a relayed "flag off, don't
+      bind" reading; 6 regex-only rows listed for review, not edited; guard test 38/38, pin file untouched.
+   2. CONTROLLER PUSHES STEPMARK batches 5 and 6 (rank-1 / rank-2 topics by addressable count, scheme-based
+      allocation, RECOVER-1 skip honoured) — no longer gated on the pin file.
+   3. FIG-SCI-2 — 108 rows: worksheets / Foundation / chapterwise / PYQ / SQP science (CONTROLLER-RECORDED
+      split gdr 35 · fnd 17 · chapterwise 15 · pyq 19 · preboard 18 · sqp 2 · other 2). Same method as
+      FIG-SCI-1; post-#763 each binding of a step-marked row MOVES the publishable floor — state the
+      measured delta in the lane's §0, derived through rule order on the base you land on.
+   4. WAVE 4 transcription per the SUPPLY PLAN (per-chapter gap table + on-disk source plan, in build):
+      STEPMARK per chapter (1,890 annotatable) · transcription per chapter from the PDFs · AI-pack
+      retirement per topic once its human supply lands · fresh skeptic per PR.
+   THEN wave 5 authoring → HPQ-2027 refresh → guards (unchanged from the TIERMAP-1 banner).
+
+⚠ COORDINATION — a COFOUNDER SESSION runs the SEO lanes (SEO-CANONICAL-1 dispatched: a post-build script
+   under lazytopper/scripts/seo/, package.json, possibly vercel.json and src/config/sitemapUrls.ts). Tell it
+   BEFORE any push touching index.html, vercel.json, lazytopper/package.json, src/config/sitemapUrls.ts,
+   src/config/canonicalUrl.ts, src/config/head.guard.test.ts, or adding / moving files in
+   lazytopper/scripts/seo/. Stale remote branch lane/engine-1-ten-pages (retired /questions arc) is flagged
+   for closure — branch deletion is an OWNER action, never an agent's. Full note: OPEN_QUESTIONS, 2026-09-11
+   WS-1 + FIG-SCI-1 + PR-3 section, `### COORDINATION`.
+
+★ LESSONS OF WAVE 1 (CONTROLLER-RECORDED — carry them into every brief):
+   · a predicted delta must be re-derived THROUGH rule order (+162 not +183) — run the predicate, never
+     subtract — and ON THE BASE YOU LAND ON (+230 at fa3662db, not +162 at a157c741);
+   · `scope:guard --mode product` fails-by-classification on lazytopper/scripts diffs → `--mode mixed`;
+   · the main checkout's node_modules is dangling → each lane installs its own;
+   · a 429 session limit kills every subagent at once; worktrees keep partial edits; a RESUME brief that
+     reconciles `git diff` against the spec recovers without redo — commit locally as soon as verified;
+   · deterministic topic ranking (count DESC, key ASC) prevents sibling builders colliding.
+
+NEW FUs (each with its own heading on the follow-ups board, 2026-09-11 WS-1 + FIG-SCI-1 + PR-3 section):
+   [FU-WS-1-LIVE-VERIFY-OWED] · [FU-FIG-SCI-1-LIVE-VERIFY-OWED] · [FU-PR3-L560-GAP-HAS-NO-DIRECTION] ·
+   [FU-21-BOUND-ROWS-STILL-UNMARKED]. UPDATED IN PLACE: [FU-WORKSHEETS-RETIRED-TWINS-OLD-KEYS] (WS-1 merged;
+   the twins' dead keys remain), [FU-METAL-NCERT-3-VSA-006-STEM-NAMES-WRONG-TABLE] and
+   [FU-CFPQ-S-ENV-005-DIAGRAMDESCRIPTION-MISMATCH] (FIG-SCI-1 merged; both still open).
+
+The TIERMAP-1 banner below is superseded ONLY in its trunk SHA, its open-PR line and its NEXT list
+(steps 1, 2 and 4 of that list are DONE — #760, #763, #761; step 3 is draft #764). Its substance stands.
+```
+
+
+```
 ⛔⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW IT. TIERMAP-1 (#759) IS ON TRUNK.
 
 TRUNK IS `e0d17da19d6624dfd2ec014e9909f512e0573e2b` (#759, merged by the owner 2026-09-11T12:23:45+05:30),

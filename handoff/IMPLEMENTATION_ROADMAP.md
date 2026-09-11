@@ -1,6 +1,46 @@
 # LazyTopper Implementation Roadmap
 
 
+## 2026-09-11 — WS-1 + FIG-SCI-1 + PR-3: **WORKSHEETS OFFER EVERY BOARD-ASSESSED SCIENCE CHAPTER, 109 SCIENCE QUESTIONS GET THE FIGURE THEY ASK ABOUT, AND A BOUND FIGURE NOW COUNTS AS PUBLISHABLE** — `#760` + `#761` + `#763` MERGED — trunk `fa3662db`
+
+**`2026-09-11`** *(later the same day as TIERMAP-1; merge facts HANDOFF-VERIFIED, gates LANE-REPORTED /
+CONTROLLER-RECORDED — see `CURRENT_STATE.md` §0 provenance)*
+
+- ✅ **`#760` WS-1** (`2f623e01`, merged by the owner 2026-09-11T12:43:10+05:30) — `worksheetModel.ts`:
+  `heredity` · `magnetic-effects-of-electric-current` · `human-eye-and-colourful-world` restored to
+  `SCIENCE_TOPICS_RAW` (**13 chapters, was 10**); `DELETED_TOPIC_KEYS` emptied; `SCIENCE_KEY_TO_TREND_KEY`
+  gained the three keys (without them a restored chapter drew weight 1 in board-weightage mode — a second
+  defect, fixed in the same file). **682 rows** newly reachable from Worksheets. Two suites now assert the
+  opposite; NEW mutation-proven `worksheetModel.topicReachability.test.ts` (14). Gates all PASS
+  (worksheet vitest 98/98, both matrices, CI green). ⚠ **Owner live-verify owed** on `/practice/worksheets`.
+- ✅ **`#761` FIG-SCI-1** (`0aebd47d`, merged by the owner 2026-09-11T12:51:40+05:30) — **109 science
+  figures** bound (Item Bank 44 incl. 11 printed tables · Exemplar 34 · NCERT 7 · CFPQ 24), every webp
+  sha256-matched to its manifest; `SCIENCE_FIGURE_VISUALS` **48 → 157**; figure-demanding **bound 183 → 292,
+  unbound 310 → 201**; rows with ≥1 figure 186 → 295. NEW mutation-proven
+  `scienceFigureVisuals.reachability.test.ts` pinned at 109. 13 rows deliberately NOT bound (9 draw-it ·
+  3 decorative · 1 wrong-table stem), each with its reason. Build + `verify-production-build` PASS; 4 probed
+  assets ship. ⚠ **Owner live-verify owed** — one Electricity + one Light figure on Practice / Chapter Test /
+  Full Mock.
+- ✅ **`#763` PR-3** (`fa3662db`, merged by the owner 2026-09-11T13:43:16+05:30) — **a bound figure now counts
+  as publishable**: Rule 5 consults the binder; **publishable 2,982 → 3,212 on trunk** (live measurement,
+  CONTROLLER-RECORDED; `requires-absent-figure` 392 → 162; the lane's 3,144 was measured before `#761`'s
+  bindings — both correct on their base). The pin file's 12 exact literals are now **floors / ceilings /
+  partition identities** — **content PRs no longer edit the pin file** (`#764` green 38/38 with no pin edit).
+  Only importer of `publishability.ts` is the guard test ⇒ no surface moved, no live-verify.
+  `[FU-PR3-L560-GAP-HAS-NO-DIRECTION]` stays OPEN (ruling on a literal bound pending).
+- ⛔ **NOT DONE — `#764` rulings 1–4 content PR is a DRAFT awaiting the owner** (head `d5f85b2c`, rebased on
+  `fa3662db`): 73 flag flips; CG pair → corrected stems A(−2,2) B(−1,−2) C(3,0) + the Item Bank p230 crop
+  bound, flags stay true, maths pin 88 → 90 — **owner ruling this afternoon (corrected stems + bound figure)
+  supersedes a relayed "flag off, don't bind" reading**; 6 regex-only rows listed for review.
+  `[FU-21-BOUND-ROWS-STILL-UNMARKED]` publishes on STEPMARK, not on any binder change.
+- ⛔ **NOT DONE — 201 figure-demanding rows remain unbound:** FIG-SCI-2 (108: worksheets / Foundation /
+  chapterwise / PYQ / SQP science) is next after `#764` and the STEPMARK 5 / 6 pushes; ≈70 of the 201 are a
+  flag defect, not a figure gap, cleared by `#764`'s flips.
+- **Stage order from here (the controller's, ruling 10):** owner merges `#764` → STEPMARK 5 / 6 pushed →
+  FIG-SCI-2 → wave 4 transcription per the supply plan → wave 5 authoring → HPQ-2027 refresh → guards.
+  ⚠ A cofounder session runs the SEO lanes in parallel — see `### COORDINATION` on the follow-ups board.
+
+
 ## 2026-09-11 — TIERMAP-1: **THE BANK CAN TELL AN AUTHORED QUESTION FROM A TRANSCRIBED ONE, AND HOLDS THE AUTHORED ONE TO ITS TEMPLATE AND ITS MARKS** — `#759` MERGED — trunk `e0d17da1`
 
 **`2026-09-11`** *(later the same day as FIG-MATHS-1; merge facts HANDOFF-VERIFIED, gates LANE-REPORTED,

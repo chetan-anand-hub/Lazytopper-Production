@@ -1,5 +1,30 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-11 — WS-1 (`#760`) + FIG-SCI-1 (`#761`) + PR-3 (`#763`), trunk `fa3662db`; all three merged by the owner, 12:43:10 · 12:51:40 · 13:43:16 +05:30.**
+> **TWO KINDS OF CELL MOVE, AND ONE PR THAT MOVES NONE.** (1) **WORKSHEETS topic coverage: 10 → 13 Science
+> chapters** — `heredity`, `magnetic-effects-of-electric-current`, `human-eye-and-colourful-world` are offered
+> again with their board weightage (`SCIENCE_KEY_TO_TREND_KEY` fixed in the same PR; without it a restored
+> chapter drew weight 1); **682 rows** are reachable from Worksheets that were not (LANE-REPORTED at the WS-1
+> head; the mechanism HANDOFF-VERIFIED from the `#760` diff). This cell moved ON TRUNK; it flips to VERIFIED on
+> the owner's live-verify of `/practice/worksheets` — `[FU-WS-1-LIVE-VERIFY-OWED]` — the rule the TIERMAP-1
+> note below set. `[FU-WORKSHEETS-RETIRED-TWINS-OLD-KEYS]` stays open for the un-routed twins' dead keys.
+> (2) **FIGURE CELLS MOVE FOR 109 SCIENCE ROWS ON PRACTICE (`PracticeQuestionCard`) · CHAPTER TEST · FULL
+> MOCK** — the three bank-reading surfaces that mount `QuestionVisualAid`. Figure-demanding rows bound
+> **183 → 292** of 493; `SCIENCE_FIGURE_VISUALS` **48 → 157** (LANE-REPORTED at the FIG-SCI-1 head; build
+> control CONTROLLER-RECORDED: 4 probed assets present in `dist/public/app/figures/...`, the decorative
+> control absent). **HPQ and MOCK PAPER do NOT move: they mount the renderer but do not read the bank**, so
+> no bank row's binding can reach them. ⚠ Correction of record, made here rather than by rewriting the dated
+> note: the FIG-MATHS-1 note below counted HPQ and Mock Paper among its five moved cells; on the TIERMAP-1
+> census (same day) neither reads the bank. Owner live-verify owed — one Electricity + one Light figure on
+> Practice / Chapter Test / Full Mock — `[FU-FIG-SCI-1-LIVE-VERIFY-OWED]`.
+> (3) **`#763` PR-3 MOVES NO SURFACE CELL** — `publishability.ts` has exactly one importer, its guard test;
+> nothing rendered reads `isPublishable` yet. What moved is the CONTRACT: **publishable 2,982 → 3,212 on trunk**
+> (CONTROLLER-RECORDED, live at `fa3662db`; `requires-absent-figure` 392 → 162), and content PRs no longer edit
+> the pin file (`#764` green 38/38 with no pin edit). Stated so the number is not read as a surface change.
+> **Scope: UNCHANGED on every surface — no scope was discovered by any of the three lanes; nothing goes to §2a
+> or `DECISION_LOG.md`.** 201 figure-demanding rows remain unbound and still serve on every surface with no
+> note (ruling 5's UI lane is still owed); `#764` (draft) clears ≈70 of them as a flag defect, not a figure gap.
+
 > **2026-09-11 — TIERMAP-1 (`#759`), trunk `e0d17da1`, merged by the owner 2026-09-11T12:23:45+05:30.**
 > **NO SURFACE CELL MOVES.** `#759` is a type field (`questionProvenance` / `shapedFrom` on
 > `CanonicalQuestion`, `predictionTypes.ts` +18) and a guard (`questionProvenance.guard.test.ts`); no
