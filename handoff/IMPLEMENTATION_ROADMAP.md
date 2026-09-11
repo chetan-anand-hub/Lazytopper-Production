@@ -1,6 +1,40 @@
 # LazyTopper Implementation Roadmap
 
 
+## 2026-09-11 — TIERMAP-1: **THE BANK CAN TELL AN AUTHORED QUESTION FROM A TRANSCRIBED ONE, AND HOLDS THE AUTHORED ONE TO ITS TEMPLATE AND ITS MARKS** — `#759` MERGED — trunk `e0d17da1`
+
+**`2026-09-11`** *(later the same day as FIG-MATHS-1; merge facts HANDOFF-VERIFIED, gates LANE-REPORTED,
+counts CONTROLLER-RECORDED — see `CURRENT_STATE.md` §0 provenance)*
+
+- ✅ **`#759` TIERMAP-1** (`e0d17da1`, merged by the owner 2026-09-11T12:23:45+05:30) —
+  `predictionTypes.ts` **+18 lines**: `questionProvenance?: "transcribed" | "authored"` and
+  `shapedFrom?: string` on `CanonicalQuestion`, nothing else (ruling 7 honoured exactly); **absence =
+  legacy, never authored.** NEW mutation-proven `questionProvenance.guard.test.ts` (13 tests, 8 positive
+  controls): an authored row names `shapedFrom`, carries a leading `[N mark]` on every step summing to
+  `marks`, has ≥ 1 step, is not an AI-pack id. **0 authored rows today, pinned ≥ 0.** Gates tsc ·
+  `typecheck:test` · mojibake · `scope:guard inspected=2` · vitest 13/13 · lazytopper matrix 527/527 ·
+  root matrix 206/206 (30 suites) · CI green. Pin file untouched.
+- ✅ **Authoring (wave 5) is UNBLOCKED** — the first authored row will be guarded the day it lands.
+- ✅ **The bank's shape is now MEASURED, not assumed** (controller's scouts at `a157c741`): human rows
+  **5,710**, 19/26 topics < 250; **4-mark cell < 75 in 26/26 topics, 5-mark < 75 in 25/26**;
+  **1,890 annotatable** (2,336 addressable − 446 that cannot distribute at 0.5-mark granularity);
+  format-vs-marks 439; all 413 pack files wired. ★ **The July corpus is an INDEX, not rows** — the
+  "2,070 ready" premise is disproved; transcription comes from the PDFs.
+- ⛔ **NOT DONE:** WS-1 (Worksheets cannot offer three topics — 682 rows) is a **DRAFT PR** awaiting
+  gates / owner merge. PR-3 (figure escape + monotone pins), the rulings 1–4 content PR (53 Z3 + CG stems
+  and crops + TRIG + 9 maths + 12 science flag flips) and the FIG-SCI-1 binder (109 figures) are **in
+  build, not pushed**. Until PR-3 lands the pin file's 12 exact literals serialise every content PR.
+- ⛔ **HPQ is a separate, un-refreshed class** — 140 hand-authored rows, no scoring, no year filter,
+  frozen at 2026 by `hpqPin`, provenance unrecorded, **two ops gates already red on trunk**;
+  `[FU-HPQ-2027-REFRESH]` · `[FU-HPQ-OPS-GATES-ALREADY-RED]`.
+- **Stage order from here (the controller's, ruling 10):** merge WS-1 → PR-3 → rulings 1–4 content PR →
+  FIG-SCI-1 PR → wave 4 (STEPMARK per chapter · transcription from PDFs · AI-pack retirement per topic)
+  → wave 5 authoring → HPQ-2027 refresh → guards.
+- ⚠ **Environment, recorded so no lane rediscovers it:** the main checkout's `node_modules/.pnpm` links
+  into a deleted worktree; every lane installs in its own worktree —
+  `[FU-MAIN-CHECKOUT-NODE-MODULES-DANGLING]`.
+
+
 ## 2026-09-11 — FIG-MATHS-1: **88 MATHS QUESTIONS GET THE FIGURE THEY ASK ABOUT, FROM THE SOURCE THAT SET THEM** — `#757` MERGED — trunk `a157c741`
 
 **`2026-09-11`**
