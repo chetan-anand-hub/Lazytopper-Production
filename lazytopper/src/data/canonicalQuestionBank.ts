@@ -1394,19 +1394,14 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "Which of the following equations is correctly balanced?\n(A) 2H₂ + O₂ → H₂O\n(B) 2H₂ + O₂ → 2H₂O\n(C) H₂ + O₂ → 2H₂O\n(D) 4H₂ + O₂ → 4H₂O",
-    "options": [],
-    "answer": "",
+    "questionText": "Which of the following equations is correctly balanced?",
+    "options": ["2H₂ + O₂ → H₂O", "2H₂ + O₂ → 2H₂O", "H₂ + O₂ → 2H₂O", "4H₂ + O₂ → 4H₂O"],
+    "answer": "2H₂ + O₂ → 2H₂O",
     "explanation": "",
     "solutionSteps": [
-      "For each option, check whether the number of atoms of each element is the same on both sides of the equation.",
-      "Option (A): Fe + O₂ → Fe₂O₃ is not balanced (Fe and O atoms differ on both sides).",
-      "Option (B): 2Fe + 3O₂ → 2Fe₂O₃ has Fe atoms not balanced.",
-      "Option (C): 4Fe + 3O₂ → 2Fe₂O₃ has Fe = 4 and O = 6 on both sides, so it is balanced.",
-      "Option (D) represents a different compound Fe₃O₄, so it is not the intended answer here.",
-      "Therefore, the correctly balanced equation for Fe₂O₃ formation is option (C)."
+      "[1 mark] Correct option: (B) 2H₂ + O₂ → 2H₂O — hydrogen: 4 atoms on each side; oxygen: 2 atoms on each side. In (A) oxygen is 2 → 1, in (C) hydrogen is 2 → 4 and in (D) oxygen is 2 → 4, so those are not balanced."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "(B) 2H₂ + O₂ → 2H₂O",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -1636,16 +1631,16 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Which of the following metals is the softest and can be cut with a knife? (A) Iron  (B) Zinc  (C) Sodium  (D) Aluminium",
-    "options": [],
-    "answer": "",
+    "questionText": "Which of the following metals is the softest and can be cut with a knife?",
+    "options": ["Iron", "Zinc", "Sodium", "Aluminium"],
+    "answer": "Sodium",
     "explanation": "",
     "solutionSteps": [
       "Recall that some alkali metals like sodium and potassium are very soft.",
       "Among the given options, sodium is the metal that can be easily cut with a knife.",
       "Therefore, the correct option is (C) Sodium."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "(C) Sodium",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -1925,6 +1920,65 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-S-ELEC-002",              // garbled: scheme tallies in answer (re-topicked to magnetic effects)
   "PYQ-S-2026-ELEC-008",         // garbled: Hindi remnant, (iv) figure unbound (re-topicked to magnetic effects)
   "PYQ-S-2026-ELEC-009",         // garbled: Hindi remnant in stem, tallies in last step (re-topicked to magnetic effects)
+  // ---- bank-wide: placeholder / garbled solutions, scout 2026-09-11 (CLEAN-1) ----
+  // Tags placeholder-solution / spliced-solution as defined in the LIGHT-FIX-1 block above;
+  //   here placeholder-solution also covers an examiner note or MS residue standing where
+  //   the solution should be (the cited MS PDF holds the real one — re-transcribe, then
+  //   delete the id here).
+  // Prefixes were stripped from the placeholder steps (a [N mark] prefix goes only on a
+  // real step — owner ruling 1, 2026-09-11); the row text is otherwise kept intact.
+  // Remove an id only when its row is repaired from the source paper — NEVER when a
+  // gate merely goes green.
+  // -- placeholder-solution (CBSE 2022-23 / 2024-25 / 2025-26 PYQ packs) --
+  "PYQ-S-LIFE-012",              // placeholder-solution
+  "PYQ-S-LIFE-014",              // placeholder-solution
+  "PYQ-S-CTRL-003",              // placeholder-solution
+  "PYQ-S-EYE-002",               // placeholder-solution
+  "PYQ-S-ENV-003",               // placeholder-solution
+  "PYQ-S-ENV-004",               // placeholder-solution
+  "PYQ-M-CIRC-011",              // placeholder-solution
+  "PYQ-M-STAT-007",              // placeholder-solution
+  "PYQ-S-2026-LIFEP-007",        // placeholder-solution
+  "PYQ-S-2025-CHEMRXN-008",      // placeholder-solution
+  "PYQ-S-2025-CHEMRXN-014",      // placeholder-solution
+  "PYQ-S-2025-CHEMRXN-015",      // placeholder-solution
+  "PYQ-S-2025-ACID-006",         // placeholder-solution
+  "PYQ-S-2025-CTRL-008",         // placeholder-solution
+  "PYQ-S-2025-HERED-004",        // placeholder-solution
+  "PYQ-S-2025-EYE-002",          // placeholder-solution
+  "PYQ-S-2025-ENV-003",          // placeholder-solution
+  "PYQ-S-2026-METAL-004",        // placeholder-solution — (i)(ii) are electron-dot diagrams, not carried
+  "PYQ-S-2025-LIFEP-006",        // placeholder-solution — only part (a) survives of 3 marks
+  "PYQ-S-2026-HERED-006",        // placeholder-solution — cross diagram not carried
+  "PYQ-S-2026-HERED-007",        // placeholder-solution — parts (b)(c) missing
+  "PYQ-S-2025-REPR-006",         // placeholder-solution — "diagram labelling" only
+  "PYQ-S-2025-HERED-008",        // placeholder-solution — cross not carried
+  "PYQ-S-2024-CHEMRXN-010",      // placeholder-solution — "(a) (b) (c)" then two MS pointers
+  "PYQ-S-2026-LIFEP-012",        // placeholder-solution — step (a) is the examiner note "(Award ½ mark for each labelling)"
+  "PYQ-S-EYE-005",               // placeholder-solution — step is MS tallies + page stamp + "(1 mark for diagram…)"
+  // -- spliced-solution --
+  "PYQ-M-2026-CIRC-003",         // spliced-solution — a probability solution ("m + 6 / 36") under a circles stem
+  "PYQ-S-2026-EYE-003",          // spliced-solution — stem is bilingual residue; steps solve a 4 Ω + 1 Ω series circuit
+  // -- blank / garbled / bilingual (fragments; re-transcribe from the cited MS) --
+  "PYQ-S-MAG-008",               // blank — part (c) field-line diagram not carried; step is "(c)"
+  "PYQ-S-2026-HERED-011",        // garbled — 9:3:3:1 split across fragment steps, cross not carried
+  "PYQ-S-ACID-011",              // garbled — stem lost sub-part (b) entirely ("(b) (c) Why do…")
+  "PYQ-S-2026-CHEMRXN-022",      // garbled — (c) esterification equation missing; OR(c) carries the (b) equation
+  "SCQ-S-METAL-034",             // garbled — step truncated mid-word ("froth floatio"); part (b) incomplete
+  "PYQ-S-2026-METAL-009",        // bilingual — Hindi column residue in the stem ("A, B C A, B C , ? 5 () (i) (I) B, K, R XY ?")
+  "PYQ-S-2026-LIFEP-011",        // bilingual — Hindi column residue in the stem ("of (a) (b) ( 180 L ) , ? (c) / ?")
+  // -- garbled-options / answer-mismatch --
+  "PYQ-M-PLE-003",               // garbled-options — option (d) "ab =" truncated; key "ab = 6"
+  "PYQ-M-QE-001",                // garbled-options — operator signs stripped ("2x2 4x + 8 =")
+  "PYQ-M-CIRC-004",              // garbled-options — √ lost ("2 3 cm", "2 2 cm"); key "2√3 cm 1"
+  "PYQ-M-STAT-004",              // garbled-options — two options both "decreases by"
+  "SCO-S-ACID-014",              // garbled-options — "the formation of salt H O 2 +" (flattened H2O)
+  "SCQ-S-ACID-034",              // answer-mismatch — stem says pH 14; its own answer says "No salt has pH = 14"
+  // -- stage 4: skeptic pass 2026-09-11 (report-skeptic-rekey-clean-2026-09-11.md) --
+  "PYQ-S-METAL-003",             // garbled — part (i) MgCl₂ electron-transfer diagram lost; step 1 begins "i) (ii)"
+  "PYQ-M-2025-STAT-004",         // garbled — stem drops the last class frequency; unsolvable from the stem
+  "PYQ-M-2025-STAT-005",         // garbled — stem drops the last class frequency; unsolvable from the stem
+  "SCO-S-HERED-005",             // out-of-syllabus — origin of life / earliest organisms = Evolution (formative-only, 2026-27)
 ]);
 
 /**

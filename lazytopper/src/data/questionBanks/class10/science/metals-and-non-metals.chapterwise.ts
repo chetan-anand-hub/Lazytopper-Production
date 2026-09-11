@@ -93,7 +93,7 @@ export const METALS_NON_METALS_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "Galvanisation is a method of protecting iron from rusting by coating it with a thin layer of",
     options: ["gallium", "aluminium", "zinc", "silver"],
     answer: "zinc",
-    solutionSteps: ["[0.5 mark] Correct option is (c) zinc.", "[0.5 mark] Galvanisation is a method of protecting iron from rusting by coating it with a thin layer of zinc (Zn) metal. Disclaimer : is not affiliated to Central Board of Secondary Education, New Delhi in any manner. is a private organization which provide free study material pdfs to students. At CBSE stands for Canny Books For School Education"],
+    solutionSteps: ["[0.5 mark] Correct option is (c) zinc.", "[0.5 mark] Galvanisation is a method of protecting iron from rusting by coating it with a thin layer of zinc (Zn) metal."],
     finalAnswer: "(c) zinc",
     ncertRef: "cbjescco03 Q16", isCompetencyBased: true },
   // cbjescco03 Q17
@@ -106,18 +106,18 @@ export const METALS_NON_METALS_CHAPTERWISE: CanonicalQuestion[] = [
     ncertRef: "cbjescco03 Q17", isCompetencyBased: true },
   // cbjescco03 Q18
   { id: "SCO-S-METAL-013", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
-    questionText: "In each test tubes , , A B C and D, 2mL of solution of ( ) Al SO 2 4 3 in water was filled. Clean pieces of zinc was placed in test tube A, clean iron nail was put in test tube B, silver (Ag) was placed in test tube C and a clean copper wire was placed in test tube D. Which of the following option (s) is/are correct about above experiment?",
-    options: ["Zinc is more reactive than aluminium", "Copper is more reactive than aluminium", "Zinc is more reactive than copper Chap 3 : Metals and Non Metals", "Zinc, iron, silver and copper are less reactive than aluminium"],
+    questionText: "In each of the test tubes A, B, C and D, 2 mL of a solution of Al2(SO4)3 in water was filled. Clean pieces of zinc was placed in test tube A, clean iron nail was put in test tube B, silver (Ag) was placed in test tube C and a clean copper wire was placed in test tube D. Which of the following option (s) is/are correct about above experiment?",
+    options: ["Zinc is more reactive than aluminium", "Copper is more reactive than aluminium", "Zinc is more reactive than copper", "Zinc, iron, silver and copper are less reactive than aluminium"],
     answer: "Zinc, iron, silver and copper are less reactive than aluminium",
-    solutionSteps: ["[0.5 mark] Correct option is (d) Zinc, iron, silver and copper are less reactive than aluminium.", "[0.5 mark] than aluminium Zn, Fe, Ag and Cu are less reactive than aluminium. Aluminium resides at the top of the activity series. While Zn, Fe, Ag and Cu lies below aluminium in the activity series. Thus, being less reactive than aluminium, they cannot displace Al from its salt solution i.e. ( ) Al SO 2 4 3 solution."],
+    solutionSteps: ["[0.5 mark] Correct option is (d) Zinc, iron, silver and copper are less reactive than aluminium.", "[0.5 mark] Zn, Fe, Ag and Cu are less reactive than aluminium. Aluminium resides at the top of the activity series. While Zn, Fe, Ag and Cu lies below aluminium in the activity series. Thus, being less reactive than aluminium, they cannot displace Al from its salt solution i.e. Al2(SO4)3 solution."],
     finalAnswer: "(d) Zinc, iron, silver and copper are less reactive than aluminium",
     ncertRef: "cbjescco03 Q18", isCompetencyBased: true },
   // cbjescco03 Q20
   { id: "SCO-S-METAL-014", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
-    questionText: "A metal M has electronic configuration 2, 8, 3 and occurs in earth's crust and its oxide M O 2 3. It is more reactive than zinc. Which of the following options (s) is/are correct?",
+    questionText: "A metal M has electronic configuration 2, 8, 3 and occurs in earth's crust and its oxide is M2O3. It is more reactive than zinc. Which of the following options (s) is/are correct?",
     options: ["The metal M is iron", "The metal M is lead", "The ore form which metal M is extracted in haematite.", "The ore form which metal M is extracted is bauxite."],
     answer: "The ore form which metal M is extracted is bauxite.",
-    solutionSteps: ["[0.5 mark] Correct option is (d) The ore form which metal M is extracted is bauxite..", "[0.5 mark] is bauxite. Electronic configuration of , , M 2 8 3 = Hence, the outer orbital consist of 3 electrons. It is more reactive than zinc. So, it should be aluminium (atomic number 13 = ). The ore from which metal M is extracted is bauxite."],
+    solutionSteps: ["[0.5 mark] Correct option is (d) The ore form which metal M is extracted is bauxite.", "[0.5 mark] Electronic configuration of M = 2, 8, 3. Hence, the outer orbital consist of 3 electrons. It is more reactive than zinc. So, it should be aluminium (atomic number = 13). The ore from which metal M is extracted is bauxite."],
     finalAnswer: "(d) The ore form which metal M is extracted is bauxite.",
     ncertRef: "cbjescco03 Q20", isCompetencyBased: true },
   // cbjescco03 Q21
@@ -149,7 +149,7 @@ export const METALS_NON_METALS_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "A student puts one big iron nail each in four test tubes containig solutions of zinc sulphate, aluminium sulphate, copper sulphate and iron sulphate. A reddish brown coating was observed only on the surface of iron nail which was put in the solution of",
     options: ["zinc sulphate", "iron sulphate", "copper sulphate", "aluminium sulphate"],
     answer: "copper sulphate",
-    solutionSteps: ["[0.5 mark] Correct option is (c) copper sulphate.", "[0.5 mark] Fe displaces copper from copper sulphate ( ) CuSO4 solution. CuSO Fe FeSO Cu Reddish brown 4 4 $ + +"],
+    solutionSteps: ["[0.5 mark] Correct option is (c) copper sulphate.", "[0.5 mark] Fe displaces copper from copper sulphate (CuSO4) solution: CuSO4 + Fe → FeSO4 + Cu (reddish brown)."],
     finalAnswer: "(c) copper sulphate",
     ncertRef: "cbjescco03 Q24", isCompetencyBased: true },
   // cbjescco03 Q25
@@ -183,8 +183,8 @@ export const METALS_NON_METALS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq03 Q3 (Section A, 1mk)
   { id: "SCQ-S-METAL-023", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "What happens when carbon dioxide is compressed in water at high pressure?",
-    answer: "CO2 + H2O $ H2CO3 Carbonic acid is formed.",
-    solutionSteps: ["[2 marks] CO2 + H2O $ H2CO3 Carbonic acid is formed."],
+    answer: "CO2 + H2O → H2CO3 Carbonic acid is formed.",
+    solutionSteps: ["[2 marks] CO2 + H2O → H2CO3 Carbonic acid is formed."],
     ncertRef: "cbjesccq03 Q3", isCompetencyBased: true },
   // cbjesccq03 Q4 (Section A, 1mk)
   { id: "SCQ-S-METAL-024", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -213,14 +213,14 @@ export const METALS_NON_METALS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq03 Q45 (Section B, 2mk)
   { id: "SCQ-S-METAL-028", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Which of the following listed metals can displace zinc from its salt solution? Give reason for your answer with a chemical equation: Copper, Lead, Magnesium, Silver",
-    answer: "Magnesium can displace zinc from zinc salt solution because Mg is more reactive than zinc: Mg(s) + ZnSO4(aq) $ MgSO4(aq) + Zn(s)",
-    solutionSteps: ["[2 marks] Magnesium can displace zinc from zinc salt solution because Mg is more reactive than zinc: Mg(s) + ZnSO4(aq) $ MgSO4(aq) + Zn(s)"],
+    answer: "Magnesium can displace zinc from zinc salt solution because Mg is more reactive than zinc: Mg(s) + ZnSO4(aq) → MgSO4(aq) + Zn(s)",
+    solutionSteps: ["[2 marks] Magnesium can displace zinc from zinc salt solution because Mg is more reactive than zinc: Mg(s) + ZnSO4(aq) → MgSO4(aq) + Zn(s)"],
     ncertRef: "cbjesccq03 Q45", isCompetencyBased: true },
   // cbjesccq03 Q46 (Section B, 2mk)
   { id: "SCQ-S-METAL-029", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "The reaction of metal X with Fe2O3 is highly exothermic and is used to join railway tracks. Identify metal X. Write the chemical equation for the reaction.",
-    answer: "X is Al. 2Al + Fe2O3 $ Al2O3 + 2Fe",
-    solutionSteps: ["[2 marks] X is Al. 2Al + Fe2O3 $ Al2O3 + 2Fe"],
+    answer: "X is Al. 2Al + Fe2O3 → Al2O3 + 2Fe",
+    solutionSteps: ["[2 marks] X is Al. 2Al + Fe2O3 → Al2O3 + 2Fe"],
     ncertRef: "cbjesccq03 Q46", isCompetencyBased: false },
   // cbjesccq03 Q47 (Section B, 2mk)
   { id: "SCQ-S-METAL-030", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -244,7 +244,7 @@ export const METALS_NON_METALS_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-METAL-033", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "(a) What is reactivity series? How does the reactivity series of metals help in predicting the relative activity of various metals? (b) Suggest different chemical processes used for obtaining a metal from its oxides of metals in the middle of the reactivity series and metals at the top of the reactivity series. Support your answer with one example each.",
     answer: "(a) The series in which metals are arranged in decreasing order of reactivity is called activity series of metals. The metal at the top is most reactive, followed by less reactive metal and so on. The metal at the bottom of activity series is least reactive. (b) Metals at the top",
-    solutionSteps: ["[3 marks] (a) The series in which metals are arranged in decreasing order of reactivity is called activity series of metals. The metal at the top is most reactive, followed by less reactive metal and so on. The metal at the bottom of activity series is least reactive. (b) Metals at the top of activity series are obtained by electrolytic reduction e.g., NaCl ( ) Molten Na Cl $ + + - At cathode : Na e + + - Na $ At anode: Cl e - - Cl $ Cl Cl + Cl2 $ Metals in the middle of the reactivity series are obtained by reduction with A1 e.g., Cr2O3 + 2Al $ Al2O3 + 2Cr"],
+    solutionSteps: ["[3 marks] (a) The series in which metals are arranged in decreasing order of reactivity is called activity series of metals. The metal at the top is most reactive, followed by less reactive metal and so on. The metal at the bottom of activity series is least reactive. (b) Metals at the top of activity series are obtained by electrolytic reduction e.g., NaCl (molten) → Na⁺ + Cl⁻; At cathode: Na⁺ + e⁻ → Na; At anode: Cl⁻ − e⁻ → Cl, Cl + Cl → Cl2. Metals in the middle of the reactivity series are obtained by reduction with A1 e.g., Cr2O3 + 2Al → Al2O3 + 2Cr"],
     ncertRef: "cbjesccq03 Q93", isCompetencyBased: true },
   // cbjesccq03 Q94 (Section C, 3mk)
   { id: "SCQ-S-METAL-034", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
@@ -267,8 +267,8 @@ export const METALS_NON_METALS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq03 Q97 (Section C, 3mk)
   { id: "SCQ-S-METAL-037", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Aluminium oxide and zinc oxide react with both acids and bases to produce salt and water. What are these oxides called? Write chemical equations in each case.",
-    answer: "These are called amphoteric oxides: Al2O3 + 2NaOH $ 2NaAlO2 + H2O ZnO + 2NaOH $ Na2ZnO2 + H2O ZnO + 2HCl $ ZnCl2 + H2O Al2O3 + 6HCl $ 2AlCl3 + 3H2O",
-    solutionSteps: ["[3 marks] These are called amphoteric oxides: Al2O3 + 2NaOH $ 2NaAlO2 + H2O ZnO + 2NaOH $ Na2ZnO2 + H2O ZnO + 2HCl $ ZnCl2 + H2O Al2O3 + 6HCl $ 2AlCl3 + 3H2O"],
+    answer: "These are called amphoteric oxides: Al2O3 + 2NaOH → 2NaAlO2 + H2O ZnO + 2NaOH → Na2ZnO2 + H2O ZnO + 2HCl → ZnCl2 + H2O Al2O3 + 6HCl → 2AlCl3 + 3H2O",
+    solutionSteps: ["[3 marks] These are called amphoteric oxides: Al2O3 + 2NaOH → 2NaAlO2 + H2O ZnO + 2NaOH → Na2ZnO2 + H2O ZnO + 2HCl → ZnCl2 + H2O Al2O3 + 6HCl → 2AlCl3 + 3H2O"],
     ncertRef: "cbjesccq03 Q97", isCompetencyBased: false },
   // cbjesccq03 Q98 (Section C, 3mk)
   { id: "SCQ-S-METAL-038", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
@@ -300,7 +300,7 @@ export const METALS_NON_METALS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq03 Q133 (Section D, 5mk)
   { id: "SCQ-S-METAL-042", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Chapter Practice — Metals and Non-metals", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "a. An ore on treatment with dilute hydrochloric acid produces brisk effervescence. What kind of ore is this? What steps will be required to obtain metal from the enriched ore? b. Copper coin is kept immersed in silver nitrate solution for sometime. What change .will take place in the coin and in the colour of the solution? Write a balanced chemical equation for the reaction.",
-    answer: "a. It is a carbonate ore. (i) Hydraulic washing, (ii) Calcination, (iii) Reduction, (iv) Refining. b. The solution will become blue in colour, blackish silver metal will get deposited: Cu s AgNO aq Cu NO aq Ag s 2 2 3 3 2 $ + + ^ ^ ^ ^ ^ h h h h h",
+    answer: "a. It is a carbonate ore. (i) Hydraulic washing, (ii) Calcination, (iii) Reduction, (iv) Refining. b. The solution will become blue in colour, blackish silver metal will get deposited: Cu(s) + 2AgNO3(aq) → Cu(NO3)2(aq) + 2Ag(s)",
     solutionSteps: ["[1 mark] a. Brisk effervescence with dilute hydrochloric acid (CO2 gas evolved) shows that it is a carbonate ore.", "[1 mark] Steps to obtain the metal from the enriched ore: (i) Hydraulic washing (concentration), (ii) Calcination to the oxide, (iii) Reduction to the metal, (iv) Refining.", "[1 mark] b. Observation: the solution gradually turns blue in colour and blackish silver metal gets deposited on the copper coin.", "[1 mark] Reason: copper is more reactive than silver, so it displaces silver from silver nitrate solution (displacement reaction).", "[1 mark] Balanced chemical equation: Cu(s) + 2AgNO3(aq) → Cu(NO3)2(aq) + 2Ag(s)."],
     finalAnswer: "It is a carbonate ore (washing → calcination → reduction → refining); the copper coin displaces silver — solution turns blue, silver deposits: Cu(s) + 2AgNO3(aq) → Cu(NO3)2(aq) + 2Ag(s).",
     ncertRef: "cbjesccq03 Q133", isCompetencyBased: false },

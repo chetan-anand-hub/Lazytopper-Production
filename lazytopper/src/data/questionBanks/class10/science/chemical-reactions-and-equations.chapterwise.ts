@@ -109,7 +109,7 @@ export const CHEMICAL_REACTIONS_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "Which one of the following involve a chemical reaction?",
     options: ["Evaporation of water", "Storing on nitrogen gas under pressure", "Keeping petrol in a China dish in open", "Heating magnesium wire in the presence of air at high temperature"],
     answer: "Heating magnesium wire in the presence of air at high temperature",
-    solutionSteps: ["[0.5 mark] Correct option is (d) Heating magnesium wire in the presence of air at high temperature.", "[0.5 mark] air at high temperature Only statement (d) follows a chemical reaction. Evaporation of water, storing of nitrogen gas under pressure and keeping petrol in a China dish in open does not involve a chemical reaction. Heating magnesium wire in the presence of air at high temperature involves a chemical reaction. ( ) ( ) ( ) Mg s O g MgO s 2 2 $ +"],
+    solutionSteps: ["[0.5 mark] Correct option is (d) Heating magnesium wire in the presence of air at high temperature.", "[0.5 mark] Only statement (d) involves a chemical reaction. Evaporation of water, storing of nitrogen gas under pressure and keeping petrol in a China dish in open do not involve a chemical reaction. Heating magnesium wire in the presence of air at high temperature involves a chemical reaction: 2Mg(s) + O2(g) → 2MgO(s)."],
     finalAnswer: "(d) Heating magnesium wire in the presence of air at high temperature",
     ncertRef: "cbjescco01 Q25", isCompetencyBased: true },
   // cbjescco01 Q26
@@ -133,7 +133,7 @@ export const CHEMICAL_REACTIONS_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "When dilute sulphuric acid is added to pieces of iron sulphide, hydrogen sulphide gas is produced and soluble ferrous sulphate is formed. The type of chemical reaction involved is",
     options: ["decomposition reaction", "combination reaction", "displacement reaction", "double displacement reaction"],
     answer: "double displacement reaction",
-    solutionSteps: ["[0.5 mark] Correct option is (d) double displacement reaction.", "[0.5 mark] The reactions in which two ionic compounds in the solution react by exchange of their ions to form new compounds are called double displacement reactions. ( ) . ( ) ( ) ( ) FeS s dil H SO aq FeSO aq H S g Iron sulphate Sulphate acid Ferrous sulphate Hydrogen sulphide 2 4 4 2 $ + +"],
+    solutionSteps: ["[0.5 mark] Correct option is (d) double displacement reaction.", "[0.5 mark] The reactions in which two ionic compounds in the solution react by exchange of their ions to form new compounds are called double displacement reactions. FeS(s) + dil. H2SO4(aq) → FeSO4(aq) + H2S(g)"],
     finalAnswer: "(d) double displacement reaction",
     ncertRef: "cbjescco01 Q29", isCompetencyBased: true },
   // cbjesccq01 Q1 (Section A, 1mk)
@@ -145,8 +145,8 @@ export const CHEMICAL_REACTIONS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq01 Q2 (Section A, 1mk)
   { id: "SCQ-S-CHEM-018", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "What can be seen when a strip of copper metal is placed in a solution of silver nitrate?",
-    answer: "The solution will become blue, shiny silver metal will get deposited. Cu(s) + 2AgNO3(aq) $ Cu(NO3)2 (aq) + 2Ag(s)",
-    solutionSteps: ["[2 marks] The solution will become blue, shiny silver metal will get deposited. Cu(s) + 2AgNO3(aq) $ Cu(NO3)2 (aq) + 2Ag(s)"],
+    answer: "The solution will become blue, shiny silver metal will get deposited. Cu(s) + 2AgNO3(aq) → Cu(NO3)2 (aq) + 2Ag(s)",
+    solutionSteps: ["[2 marks] The solution will become blue, shiny silver metal will get deposited. Cu(s) + 2AgNO3(aq) → Cu(NO3)2 (aq) + 2Ag(s)"],
     ncertRef: "cbjesccq01 Q2", isCompetencyBased: false },
   // cbjesccq01 Q3 (Section A, 1mk)
   { id: "SCQ-S-CHEM-019", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -181,14 +181,14 @@ export const CHEMICAL_REACTIONS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq01 Q37 (Section B, 2mk)
   { id: "SCQ-S-CHEM-024", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "(a) Complete the following equation for the chemical reaction: FeSO4(s) Heat Fe2O3 + ___ +___ (b) What happens when water is added to quicklime (CaO)? Write the chemical equation.",
-    answer: "(a) 2FeSO4(s) Heat Fe2O3(s) + SO2(g) + SO3(g) (b) Slaked lime Ca(OH)2 is formed. Hissing sound and lot of heat is also produced: CaO(s) + H2O(l) $ Ca(OH)2(aq)",
-    solutionSteps: ["[2 marks] (a) 2FeSO4(s) Heat Fe2O3(s) + SO2(g) + SO3(g) (b) Slaked lime Ca(OH)2 is formed. Hissing sound and lot of heat is also produced: CaO(s) + H2O(l) $ Ca(OH)2(aq)"],
+    answer: "(a) 2FeSO4(s) —Heat→ Fe2O3(s) + SO2(g) + SO3(g) (b) Slaked lime Ca(OH)2 is formed. Hissing sound and lot of heat is also produced: CaO(s) + H2O(l) → Ca(OH)2(aq)",
+    solutionSteps: ["[2 marks] (a) 2FeSO4(s) —Heat→ Fe2O3(s) + SO2(g) + SO3(g) (b) Slaked lime Ca(OH)2 is formed. Hissing sound and lot of heat is also produced: CaO(s) + H2O(l) → Ca(OH)2(aq)"],
     ncertRef: "cbjesccq01 Q37", isCompetencyBased: true },
   // cbjesccq01 Q38 (Section B, 2mk)
   { id: "SCQ-S-CHEM-025", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Write balanced chemical equation for the following reactions: a. Hydrogen sulphide burns in air to give water and sulphur dioxide. b. Barium chloride reacts in aqueous solution with zinc sulphate to give zinc chloride and barium sulphate.",
-    answer: "a. 2H2S(g) + 3O2(g) $ 2H2O(l) + 2SO2(g) b. BaCl(aq) + ZnSO(aq) $ BaSO4 (s) + ZnCl2(aq)",
-    solutionSteps: ["[2 marks] a. 2H2S(g) + 3O2(g) $ 2H2O(l) + 2SO2(g) b. BaCl(aq) + ZnSO(aq) $ BaSO4 (s) + ZnCl2(aq)"],
+    answer: "a. 2H2S(g) + 3O2(g) → 2H2O(l) + 2SO2(g) b. BaCl2(aq) + ZnSO4(aq) → BaSO4(s) + ZnCl2(aq)",
+    solutionSteps: ["[2 marks] a. 2H2S(g) + 3O2(g) → 2H2O(l) + 2SO2(g) b. BaCl2(aq) + ZnSO4(aq) → BaSO4(s) + ZnCl2(aq)"],
     ncertRef: "cbjesccq01 Q38", isCompetencyBased: false },
   // cbjesccq01 Q39 (Section B, 2mk)
   { id: "SCQ-S-CHEM-026", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -235,8 +235,8 @@ export const CHEMICAL_REACTIONS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq01 Q89 (Section C, 3mk)
   { id: "SCQ-S-CHEM-033", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "State one example each characterised by following along with suitable chemical equation. a. Change in state, b. Evolution of gas, c. Change in temperature.",
-    answer: "a. Change in state: AgNO3(aq) + HCl(aq) $ AgCl(s) + HNO3(aq) b. Evolution of gas: CaCO s HCl dil CaCl aq H O CO g 3 2 2 2 2 $ + + + l ^ ^ ^ ^ ^ h h h h h c. Change in temperature: d. CH4(g) + 2O2(g) $ CO2(g) + 2H2O(l) + Heat",
-    solutionSteps: ["[3 marks] a. Change in state: AgNO3(aq) + HCl(aq) $ AgCl(s) + HNO3(aq) b. Evolution of gas: CaCO s HCl dil CaCl aq H O CO g 3 2 2 2 2 $ + + + l ^ ^ ^ ^ ^ h h h h h c. Change in temperature: d. CH4(g) + 2O2(g) $ CO2(g) + 2H2O(l) + Heat"],
+    answer: "a. Change in state: AgNO3(aq) + HCl(aq) → AgCl(s) + HNO3(aq) b. Evolution of gas: CaCO3(s) + 2HCl(dil) → CaCl2(aq) + H2O(l) + CO2(g) c. Change in temperature: CH4(g) + 2O2(g) → CO2(g) + 2H2O(l) + Heat",
+    solutionSteps: ["[3 marks] a. Change in state: AgNO3(aq) + HCl(aq) → AgCl(s) + HNO3(aq) b. Evolution of gas: CaCO3(s) + 2HCl(dil) → CaCl2(aq) + H2O(l) + CO2(g) c. Change in temperature: CH4(g) + 2O2(g) → CO2(g) + 2H2O(l) + Heat"],
     ncertRef: "cbjesccq01 Q89", isCompetencyBased: false },
   // cbjesccq01 Q90 (Section C, 3mk)
   { id: "SCQ-S-CHEM-034", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
@@ -247,7 +247,7 @@ export const CHEMICAL_REACTIONS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq01 Q105 (Section D, 5mk)
   { id: "SCQ-S-CHEM-035", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Write balanced chemical equation for the following statements: a. NaOH solution is heated with zinc granules. b. Excess of carbon dioxide is passed through lime water. c. Dilute sulphuric acid is added to sodium carbonate. d. Egg shell is dropped in hydrochloric acid, e. Copper (II) oxide reacts with dilute hydrochloric acid.",
-    answer: "a. Zn(s) + 2NaOH $ Na2ZnO2 + H2 b. Ca(OH)2 + 2CO2 $ Ca(HCO3)2 c. Na2CO3 + H2SO4 $ Na2SO4 + H2O + CO2 d. CaCO3(s) + 2HCl(dil) $ CaCl2 + H2O + CO2 e. CuO(s) + 2HC1 $ CuCl2 + H2O",
+    answer: "a. Zn(s) + 2NaOH → Na2ZnO2 + H2 b. Ca(OH)2 + 2CO2 → Ca(HCO3)2 c. Na2CO3 + H2SO4 → Na2SO4 + H2O + CO2 d. CaCO3(s) + 2HCl(dil) → CaCl2 + H2O + CO2 e. CuO(s) + 2HCl → CuCl2 + H2O",
     solutionSteps: [
       "[1 mark] a. Zn(s) + 2NaOH(aq) → Na2ZnO2(aq) + H2(g) — hot NaOH solution reacts with zinc granules to form sodium zincate and hydrogen gas.",
       "[1 mark] b. Ca(OH)2(aq) + 2CO2(g) → Ca(HCO3)2(aq) — with excess carbon dioxide, soluble calcium hydrogencarbonate is formed and the milkiness disappears.",
@@ -273,7 +273,7 @@ export const CHEMICAL_REACTIONS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq01 Q107 (Section D, 5mk)
   { id: "SCQ-S-CHEM-037", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Define chemical reaction. State four observations which helps to determine whether a chemical reaction has taken place or not. Write one example of each observation with a balanced chemical equation.",
-    answer: "Chemical reaction is a reaction which represents a chemical change. a. Change in colour: ( ) ( ) ( )( ) ( ) Cu s AgNO aq Cu NO aq Ag s 2 2 ( ) ( ) Colourless Blue 3 3 $ + + b. Evolution of gas: ( ) ( ) ( ) CaCO s CaO s CO g ( ) Heat Carbon dioxide gas 3 2 + c. Formation of precip",
+    answer: "A chemical reaction is a process in which reactants change into new substances. Observations: a. change in colour — Cu(s) + 2AgNO3(aq) → Cu(NO3)2(aq) + 2Ag(s); b. evolution of gas — CaCO3(s) → CaO(s) + CO2(g) on heating; c. formation of precipitate — Pb(NO3)2(aq) + 2KI(aq) → PbI2(s) + 2KNO3(aq); d. change in temperature — CaO(s) + H2O(l) → Ca(OH)2(aq) + heat.",
     solutionSteps: [
       "[1 mark] A chemical reaction is a process involving a chemical change, in which the reactants are converted into new substances (products) with different properties.",
       "[1 mark] a. Change in colour: Cu(s) + 2AgNO3(aq) (colourless) → Cu(NO3)2(aq) (blue) + 2Ag(s).",
@@ -286,7 +286,7 @@ export const CHEMICAL_REACTIONS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq01 Q108 (Section D, 5mk)
   { id: "SCQ-S-CHEM-038", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "a. Define a balanced chemical equation. Why should an equation be balanced? b. Write a balanced chemical equation for the following reactions: (i) Phosphorus burns in the presence of chlorine to form phosphorus pentachloride. (ii) Burning of natural gas. (iii) The process of respiration.",
-    answer: "a. Balanced chemical equation is a equation in which number of atoms of various elements are equal on both sides of the equation. The equation should be balanced due to law of conservation of mass. b. (i) 2P(s) + 5Cl2(g) $ 2PCl5(S) (ii) CH4(g) + O2(g) $ CO2(g) + 2H2O(l) (iii) C6H",
+    answer: "a. A balanced chemical equation has equal numbers of atoms of each element on both sides; it must be balanced to satisfy the law of conservation of mass. b. (i) 2P(s) + 5Cl2(g) → 2PCl5(s) (ii) CH4(g) + 2O2(g) → CO2(g) + 2H2O(l) (iii) C6H12O6(s) + 6O2(g) → 6CO2(g) + 6H2O(l) + energy",
     solutionSteps: [
       "[1 mark] a. A balanced chemical equation is an equation in which the number of atoms of each element is equal on both sides of the equation.",
       "[1 mark] An equation must be balanced to satisfy the law of conservation of mass — mass can neither be created nor destroyed in a chemical reaction.",
@@ -312,7 +312,7 @@ export const CHEMICAL_REACTIONS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq01 Q110 (Section D, 5mk)
   { id: "SCQ-S-CHEM-040", subject: "Science", topicKey: "chemical-reactions-and-equations", subtopic: "Chapter Practice — Chemical Reactions and Equations", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Identify the type of reactions taking place in each of the following: a. Barium chloride solution is mixed with copper sulphate solution and white precipitate is formed. b. On heating copper powder in china dish, the surface of copper powder turns black. c. On heating green coloured ferrous sulphate crystals, raddish brown solid is left and smell of a gas having odour of burning sulphur is experienced. d. Iron nails when left dipped in blue copper sulphate solution become reddish brown in colour and the blue colour of copper sulphate fades away. e. Quick lime reacts vigorously with water releasing a large amount of heat.",
-    answer: "a. Double displacement reaction, b. Oxidation, c. Decomposition reaction, d. Displacement reaction, e. Combination reaction. WWW.CBSE.ONLINE Disclaimer : is not affiliated to Central Board of Secondary Education, New Delhi in any manner. is a private organization which provide fr",
+    answer: "a. Double displacement reaction, b. Oxidation, c. Decomposition reaction, d. Displacement reaction, e. Combination reaction.",
     solutionSteps: [
       "[1 mark] a. Double displacement (precipitation) reaction — a white precipitate of barium sulphate (BaSO4) is formed: BaCl2 + CuSO4 → BaSO4 + CuCl2.",
       "[1 mark] b. Oxidation — on heating, copper combines with oxygen to form black copper(II) oxide: 2Cu + O2 → 2CuO.",

@@ -45,7 +45,7 @@ export const ACIDS_BASES_SALTS_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "A solution reacts with crushed egg-shells to give a gas that turns lime-water milky. The solution contains",
     options: ["NaCl", "HCl", "LiCl", "KCl"],
     answer: "HCl",
-    solutionSteps: ["[0.5 mark] Correct option is (b) HCl.", "[0.5 mark] The egg-shells are made up of calcium carbonate. When it reacts with HCl it liberates CO2 gas which turns lime water milky CaCO HCl 2 3 + CaCl H O CO 2 2 2 $ + +"],
+    solutionSteps: ["[0.5 mark] Correct option is (b) HCl.", "[0.5 mark] The egg-shells are made up of calcium carbonate. When it reacts with HCl it liberates CO2 gas which turns lime water milky CaCO3 + 2HCl → CaCl2 + H2O + CO2"],
     finalAnswer: "(b) HCl",
     ncertRef: "cbjescco02 Q12", isCompetencyBased: true },
   // cbjescco02 Q14
@@ -149,7 +149,7 @@ export const ACIDS_BASES_SALTS_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "The reagent used to distinguish iron (II) chloride and iron (III) chloride is",
     options: ["distilled water", "NaOH", "dil. HCl", "Warm water"],
     answer: "NaOH",
-    solutionSteps: ["[0.5 mark] Correct option is (b) NaOH.", "[0.5 mark] Iron (II) chloride is dissolved in water and then sodium hydroxide is added. A dirty green precipitate is obtained which confirms the presence of iron (II) chloride. FeCl NaOH 2 2 + ( ) Fe OH NaCl 2 2 $ + Iron (III) chloride is also dissolved in water and then sodium hydroxide solution is added. A reddish brown precipitate is obtained, which confirms the presence of iron (III) chloride."],
+    solutionSteps: ["[0.5 mark] Correct option is (b) NaOH.", "[0.5 mark] Iron (II) chloride is dissolved in water and then sodium hydroxide is added. A dirty green precipitate is obtained which confirms the presence of iron (II) chloride. FeCl2 + 2NaOH → Fe(OH)2 + 2NaCl Iron (III) chloride is also dissolved in water and then sodium hydroxide solution is added. A reddish brown precipitate is obtained, which confirms the presence of iron (III) chloride."],
     finalAnswer: "(b) NaOH",
     ncertRef: "cbjescco02 Q30", isCompetencyBased: true },
   // cbjescco02 Q31
@@ -207,8 +207,8 @@ export const ACIDS_BASES_SALTS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq02 Q49 (Section B, 2mk)
   { id: "SCQ-S-ACID-027", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Chapter Practice — Acids, Bases and Salts", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A white chemical compound becomes hard on mixing proper quantity of water. It is also used to maintain joints in fixed position. Name the chemical compound and write its chemical formula. Write the chemical equation to show what happens when water is added to this compound in proper quantity.",
-    answer: "CaSO4. 2 1 H2O is the formula of the compound. The name of compound is 'Plaster of Paris' (Calcium sulphate hemihydrate). CaSO H O H O CaSO H O 2 4 2 1 2 2 3 2 4 2 $ $ $ + ( ) Gypsum ( ) Plaster of Paris",
-    solutionSteps: ["[2 marks] CaSO4. 2 1 H2O is the formula of the compound. The name of compound is 'Plaster of Paris' (Calcium sulphate hemihydrate). CaSO H O H O CaSO H O 2 4 2 1 2 2 3 2 4 2 $ $ $ + ( ) Gypsum ( ) Plaster of Paris"],
+    answer: "CaSO4·½H2O is the formula of the compound. The name of compound is 'Plaster of Paris' (Calcium sulphate hemihydrate). CaSO4·½H2O (Plaster of Paris) + 1½H2O → CaSO4·2H2O (Gypsum)",
+    solutionSteps: ["[2 marks] CaSO4·½H2O is the formula of the compound. The name of compound is 'Plaster of Paris' (Calcium sulphate hemihydrate). CaSO4·½H2O (Plaster of Paris) + 1½H2O → CaSO4·2H2O (Gypsum)"],
     ncertRef: "cbjesccq02 Q49", isCompetencyBased: true },
   // cbjesccq02 Q50 (Section B, 2mk)
   { id: "SCQ-S-ACID-028", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Chapter Practice — Acids, Bases and Salts", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
@@ -225,26 +225,26 @@ export const ACIDS_BASES_SALTS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq02 Q52 (Section B, 2mk)
   { id: "SCQ-S-ACID-030", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Chapter Practice — Acids, Bases and Salts", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Write the chemical equation to describe how baking soda is produced on a large scale. Also write the chemical name of the products formed in the reaction.",
-    answer: "NH H O CO NaCl NaHCO NH Cl ( ) ( ) Sodium hydrogen carbonate Ammonium chloride 3 2 2 3 4 $ + + + +",
-    solutionSteps: ["[2 marks] NH H O CO NaCl NaHCO NH Cl ( ) ( ) Sodium hydrogen carbonate Ammonium chloride 3 2 2 3 4 $ + + + +"],
+    answer: "NH3 + H2O + CO2 + NaCl → NaHCO3 (sodium hydrogen carbonate) + NH4Cl (ammonium chloride)",
+    solutionSteps: ["[2 marks] NH3 + H2O + CO2 + NaCl → NaHCO3 (sodium hydrogen carbonate) + NH4Cl (ammonium chloride)"],
     ncertRef: "cbjesccq02 Q52", isCompetencyBased: true },
   // cbjesccq02 Q53 (Section B, 2mk)
   { id: "SCQ-S-ACID-031", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Chapter Practice — Acids, Bases and Salts", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "What is chlor-alkali process? Write a balanced chemical equation for the reaction involved in this Chap 2 : Acid Bases and Salts process, to justify your answer.",
-    answer: "When brine solution is electrolysed we get alkali (NaOH) and chlorine (Cl2) gas, this process is called chlor-alkali process. ( ) ( ) ( ) ( ) ( ) NaCl aq H O l NaOH aq H g Cl g 2 2 2 2 2 2 $ + + +",
-    solutionSteps: ["[2 marks] When brine solution is electrolysed we get alkali (NaOH) and chlorine (Cl2) gas, this process is called chlor-alkali process. ( ) ( ) ( ) ( ) ( ) NaCl aq H O l NaOH aq H g Cl g 2 2 2 2 2 2 $ + + +"],
+    answer: "When brine solution is electrolysed we get alkali (NaOH) and chlorine (Cl2) gas, this process is called chlor-alkali process. 2NaCl(aq) + 2H2O(l) → 2NaOH(aq) + H2(g) + Cl2(g)",
+    solutionSteps: ["[2 marks] When brine solution is electrolysed we get alkali (NaOH) and chlorine (Cl2) gas, this process is called chlor-alkali process. 2NaCl(aq) + 2H2O(l) → 2NaOH(aq) + H2(g) + Cl2(g)"],
     ncertRef: "cbjesccq02 Q53", isCompetencyBased: true },
   // cbjesccq02 Q54 (Section B, 2mk)
   { id: "SCQ-S-ACID-032", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Chapter Practice — Acids, Bases and Salts", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "What is meant by the term water of crystallisation? How would you show that copper sulphate crystals contains water of crystallisation?",
-    answer: "The molecules of water associated with a crystalline substance are called water of crystallisation. When hydrated copper sulphate is heated its colour changes from blue to dirty white and water droplets are formed. CuSO4.5H2O Heat CuSO4 + 5H2O If we add little water to anhydrous ",
-    solutionSteps: ["[2 marks] The molecules of water associated with a crystalline substance are called water of crystallisation. When hydrated copper sulphate is heated its colour changes from blue to dirty white and water droplets are formed. CuSO4.5H2O Heat CuSO4 + 5H2O If we add little water to anhydrous CuSO4, we get blue colour again. It is the presence of molecules of water of crystallisation which was lost on heating. CuSO4 + 5H2O $ CuSO4.5H2O (Anhydrous)"],
+    answer: "The molecules of water associated with a crystalline substance are called water of crystallisation. When hydrated copper sulphate is heated its colour changes from blue to dirty white and water droplets are formed. CuSO4.5H2O —Heat→ CuSO4 + 5H2O If we add little water to anhydrous ",
+    solutionSteps: ["[2 marks] The molecules of water associated with a crystalline substance are called water of crystallisation. When hydrated copper sulphate is heated its colour changes from blue to dirty white and water droplets are formed. CuSO4.5H2O —Heat→ CuSO4 + 5H2O If we add little water to anhydrous CuSO4, we get blue colour again. It is the presence of molecules of water of crystallisation which was lost on heating. CuSO4 + 5H2O → CuSO4.5H2O (Anhydrous)"],
     ncertRef: "cbjesccq02 Q54", isCompetencyBased: true },
   // cbjesccq02 Q90 (Section C, 3mk)
   { id: "SCQ-S-ACID-033", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Chapter Practice — Acids, Bases and Salts", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "2 mL of sodium hydroxide solution is added to a few pieces of granulated zinc metal taken in a test tube. When the contents are warmed, a gas evolves which is bubbled through a soap solution before testing. Write the equation for the chemical reaction involved and the test to detect the gas. Name the gas which will be evolved when the same metal reacts with dilute solution of a strong acid.",
-    answer: "( ) Zn s NaOH Na ZnO H 2 ( ) Worm Sodium zincate 2 2 2 + + Test: Bring a burning splinter near the gas. If it burns with 'pop' sound, the gas liberated is hydrogen. Zn + H2SO4(dil) $ ZnSO4(aq) + H2 Hydrogen gas will be evolved by reaction of the same metal with dilute H2SO4, stro",
-    solutionSteps: ["[3 marks] ( ) Zn s NaOH Na ZnO H 2 ( ) Worm Sodium zincate 2 2 2 + + Test: Bring a burning splinter near the gas. If it burns with 'pop' sound, the gas liberated is hydrogen. Zn + H2SO4(dil) $ ZnSO4(aq) + H2 Hydrogen gas will be evolved by reaction of the same metal with dilute H2SO4, strong acid."],
+    answer: "Zn(s) + 2NaOH —warm→ Na2ZnO2 (sodium zincate) + H2. Test: Bring a burning splinter near the gas. If it burns with 'pop' sound, the gas liberated is hydrogen. Zn + H2SO4(dil) → ZnSO4(aq) + H2 Hydrogen gas will be evolved by reaction of the same metal with dilute H2SO4, stro",
+    solutionSteps: ["[3 marks] Zn(s) + 2NaOH —warm→ Na2ZnO2 (sodium zincate) + H2. Test: Bring a burning splinter near the gas. If it burns with 'pop' sound, the gas liberated is hydrogen. Zn + H2SO4(dil) → ZnSO4(aq) + H2 Hydrogen gas will be evolved by reaction of the same metal with dilute H2SO4, strong acid."],
     ncertRef: "cbjesccq02 Q90", isCompetencyBased: false },
   // cbjesccq02 Q91 (Section C, 3mk)
   { id: "SCQ-S-ACID-034", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Chapter Practice — Acids, Bases and Salts", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
@@ -255,8 +255,8 @@ export const ACIDS_BASES_SALTS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq02 Q92 (Section C, 3mk)
   { id: "SCQ-S-ACID-035", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Chapter Practice — Acids, Bases and Salts", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "(a) Why does aqueous solution of an acid conduct electricity? (b) How does the concentration of H3O+ ions change when a solution of an acid is diluted? (c) Which one has a higher pH, a concentrated or a dilute solution of hydrochloric acid? (d) What would to be the gas evolved on adding dilute to hydrochloric acid to (i) Solid sodium carbonate placed in a test tube? (ii) Zinc metal in a test tube?",
-    answer: "a. It contains ions which carry current. b. H3O+ ions will decrease when it is 7 diluted. c. Dilute solution has higher pH than concentrated. d. (i) CO2 gas will be formed: Na2CO3 + 2HCl $ 2NaCl + H2O + CO2 (ii) Hydrogen gas will be formed: Zn + 2HCl $ ZnCl2 + H2",
-    solutionSteps: ["[3 marks] a. It contains ions which carry current. b. H3O+ ions will decrease when it is 7 diluted. c. Dilute solution has higher pH than concentrated. d. (i) CO2 gas will be formed: Na2CO3 + 2HCl $ 2NaCl + H2O + CO2 (ii) Hydrogen gas will be formed: Zn + 2HCl $ ZnCl2 + H2"],
+    answer: "a. It contains ions which carry current. b. H3O+ ions will decrease when it is diluted. c. Dilute solution has higher pH than concentrated. d. (i) CO2 gas will be formed: Na2CO3 + 2HCl → 2NaCl + H2O + CO2 (ii) Hydrogen gas will be formed: Zn + 2HCl → ZnCl2 + H2",
+    solutionSteps: ["[3 marks] a. It contains ions which carry current. b. H3O+ ions will decrease when it is diluted. c. Dilute solution has higher pH than concentrated. d. (i) CO2 gas will be formed: Na2CO3 + 2HCl → 2NaCl + H2O + CO2 (ii) Hydrogen gas will be formed: Zn + 2HCl → ZnCl2 + H2"],
     ncertRef: "cbjesccq02 Q92", isCompetencyBased: true },
   // cbjesccq02 Q93 (Section C, 3mk)
   { id: "SCQ-S-ACID-036", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Chapter Practice — Acids, Bases and Salts", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
@@ -279,7 +279,7 @@ export const ACIDS_BASES_SALTS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq02 Q110 (Section D, 5mk)
   { id: "SCQ-S-ACID-039", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Chapter Practice — Acids, Bases and Salts", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "a. Define indicator. Name two indicators obtained from plants. b. Write a balanced chemical equation for the reaction taking place when sodium oxide reacts with water. How will this solution behave towards phenolphthalein and red litmus paper? c. State what happens when sodium hydroxide solution reacts with hydrochloric acid.",
-    answer: "a. Indicator is a substance which give different colour or odour in acid and base e.g., litmus and turmeric are indicators obtained from plants. b. Na2O(s) + H2O(l) $ 2NaOH(aq) Solution will turn phenolphthalein pink and red litmus paper blue. c. Sodium chloride and water are for",
+    answer: "a. Indicator is a substance which give different colour or odour in acid and base e.g., litmus and turmeric are indicators obtained from plants. b. Na2O(s) + H2O(l) → 2NaOH(aq) Solution will turn phenolphthalein pink and red litmus paper blue. c. Sodium chloride and water are for",
     solutionSteps: ["[1 mark] a. An indicator is a substance which shows a different colour (or odour) in an acidic and a basic medium, thereby indicating the nature of the solution.", "[1 mark] Two indicators obtained from plants: litmus (from lichens) and turmeric.", "[1 mark] b. Balanced equation with state symbols: Na2O(s) + H2O(l) → 2NaOH(aq).", "[1 mark] The NaOH solution formed is basic — it turns phenolphthalein pink and turns red litmus paper blue.", "[1 mark] c. Neutralisation occurs; sodium chloride (salt) and water are formed: NaOH(aq) + HCl(aq) → NaCl(aq) + H2O(l)."],
     ncertRef: "cbjesccq02 Q110", isCompetencyBased: true },
   // cbjesccq02 Q111 (Section D, 5mk)
@@ -291,19 +291,19 @@ export const ACIDS_BASES_SALTS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq02 Q112 (Section D, 5mk)
   { id: "SCQ-S-ACID-041", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Chapter Practice — Acids, Bases and Salts", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "a. State the chemical properties on which the following uses of baking soda are based: (i) as an antacid, (ii) as a soda acid fire extinguisher, (iii) to make bread and cake soft and spongy. b. How is washing soda obtained from baking soda? Write the relevant balanced chemical equation.",
-    answer: "a. (i) It is basic in nature. (ii) It liberates CO2 with acid which extinguishes fire. (iii) It releases CO2 gas on heating which makes bread and cake soft and spongy. b. Washing soda is obtained by heating baking soda followed by crystallisation: 2NaHCO3(s) $ Na2CO3 + CO2 + H2O ",
+    answer: "a. (i) It is basic in nature. (ii) It liberates CO2 with acid which extinguishes fire. (iii) It releases CO2 gas on heating which makes bread and cake soft and spongy. b. Washing soda is obtained by heating baking soda followed by crystallisation: 2NaHCO3(s) → Na2CO3 + CO2 + H2O ",
     solutionSteps: ["[1 mark] a. (i) As an antacid: baking soda (NaHCO3) is mildly basic in nature, so it neutralises excess hydrochloric acid in the stomach.", "[1 mark] (ii) In a soda-acid fire extinguisher: it reacts with acid to liberate CO2 gas, which is non-combustible and cuts off the supply of air, extinguishing the fire.", "[1 mark] (iii) In bread and cake: on heating (or with a mild acid in baking powder) it releases CO2 gas, whose bubbles make the bread and cake rise and become soft and spongy.", "[1 mark] b. Washing soda is obtained by heating baking soda and then recrystallising the sodium carbonate formed: 2NaHCO3(s) →(heat) Na2CO3(s) + H2O(l) + CO2(g).", "[1 mark] Recrystallisation with water gives washing soda: Na2CO3 + 10H2O → Na2CO3·10H2O (washing soda)."],
     ncertRef: "cbjesccq02 Q112", isCompetencyBased: true },
   // cbjesccq02 Q113 (Section D, 5mk)
   { id: "SCQ-S-ACID-042", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Chapter Practice — Acids, Bases and Salts", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Understanding",
     questionText: "Write balanced chemical equations for the following: a. Bleaching powder is kept open in air. b. Blue crystals of copper sulphate are heated. c. Chlorine gas is passed through dry slaked lime. d. Carbon dioxide gas is passed through lime water. e. NaOH solution is heated with zinc granules.",
-    answer: "a. CaOCl2 + CO2 $ CaCO3 + Cl2 b. CuSO4.5H2O Heat CuSO4 + 5H2O c. Ca(OH)2 + Cl2 $ CaOCl2 + H2O d. Ca(OH)2 + CO2 $ CaCO3 + H2O e. Zn + 2NaOH $ Na2ZnO2 + H2",
+    answer: "a. CaOCl2 + CO2 → CaCO3 + Cl2 b. CuSO4.5H2O —Heat→ CuSO4 + 5H2O c. Ca(OH)2 + Cl2 → CaOCl2 + H2O d. Ca(OH)2 + CO2 → CaCO3 + H2O e. Zn + 2NaOH → Na2ZnO2 + H2",
     solutionSteps: ["[1 mark] a. Bleaching powder kept open in air (reacts with CO2 of air): CaOCl2 + CO2 → CaCO3 + Cl2.", "[1 mark] b. Blue crystals of copper sulphate on heating lose water of crystallisation: CuSO4·5H2O →(heat) CuSO4 + 5H2O.", "[1 mark] c. Chlorine passed through dry slaked lime gives bleaching powder: Ca(OH)2 + Cl2 → CaOCl2 + H2O.", "[1 mark] d. Carbon dioxide passed through lime water turns it milky: Ca(OH)2 + CO2 → CaCO3 + H2O.", "[1 mark] e. NaOH solution heated with zinc granules liberates hydrogen: Zn + 2NaOH → Na2ZnO2 (sodium zincate) + H2."],
     ncertRef: "cbjesccq02 Q113", isCompetencyBased: false },
   // cbjesccq02 Q114 (Section D, 5mk)
   { id: "SCQ-S-ACID-043", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Chapter Practice — Acids, Bases and Salts", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Equal length of magnesium ribbon are taken in two test tubes A and B. H2SO4 is added to test tube 'A' and H2CO3 is added in test tube 'B' in equal amounts: a. Identify the test tube showing vigorous reaction. b. Give reason to support your answer. c. Name the gas liberated in both the test tubes. How will you prove its liberation? d. Write chemical equations for both the reactions. e. Out of two acids taken above, which one will have lower pH value and lower H+ ion concentration respectively?",
-    answer: "a. 'A' will show vigorous reaction. b. H2SO4 is a strong acid, it reacts faster than H2CO3, a weak acid. c. H2 gas. If we bring a burning splinter near the gas, it will burn with 'pop' sound. d. Mg + H2SO4 $ MgSO4 + H2 Mg + H2CO3 $ MgCO3 + H2 e. H2SO4 will have lower pH. H2CO3 wi",
+    answer: "a. 'A' will show vigorous reaction. b. H2SO4 is a strong acid, it reacts faster than H2CO3, a weak acid. c. H2 gas. If we bring a burning splinter near the gas, it will burn with 'pop' sound. d. Mg + H2SO4 → MgSO4 + H2 Mg + H2CO3 → MgCO3 + H2 e. H2SO4 will have lower pH. H2CO3 wi",
     solutionSteps: ["[1 mark] a. Test tube 'A' (containing H2SO4) will show the vigorous reaction.", "[1 mark] b. H2SO4 is a strong acid (ionises completely, higher H+ ion concentration), so it reacts faster with magnesium than H2CO3, which is a weak acid.", "[1 mark] c. Hydrogen (H2) gas is liberated in both test tubes. Its liberation is proved by bringing a burning splinter near the mouth of the tube — the gas burns with a 'pop' sound.", "[1 mark] d. Balanced equations: Mg + H2SO4 → MgSO4 + H2 and Mg + H2CO3 → MgCO3 + H2.", "[1 mark] e. H2SO4 will have the lower pH (stronger acid, more H+ ions); H2CO3 will have the lower H+ ion concentration."],
     ncertRef: "cbjesccq02 Q114", isCompetencyBased: true },
   // cbjesccq02 Q115 (Section D, 5mk)

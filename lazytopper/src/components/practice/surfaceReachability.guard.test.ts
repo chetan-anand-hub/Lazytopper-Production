@@ -270,7 +270,8 @@ describe("surface reachability — every served human row can be drawn on a test
     // Pins at 2026-09-11 (P10): before 146, A-bar-only 161 (= 146 + 15), after 15.
     // FLOOR on the freed rows (a content lane may add 1-mark VSAs; the band must keep
     // taking them), CEILING on the residual (shrink-only, CLEAN-1).
-    expect(freed.length).toBeGreaterThanOrEqual(146);
+    // 146 -> 144 at CLEAN-1 (2026-09-11): sci-chem-chemreactions-1m-2023-01 and 2026-MNM-01 re-shaped into real MCQs, so they left the 1-mark-written set
+    expect(freed.length).toBeGreaterThanOrEqual(144);
     expect(gapABar.length).toBe(gapBefore.length + newlyLost.length);
     expect(gapAfter.length).toBeLessThanOrEqual(GAP_CEILING);
   });

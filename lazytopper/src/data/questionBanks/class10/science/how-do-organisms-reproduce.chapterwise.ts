@@ -53,7 +53,7 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "The development of offspring from any part of body is called",
     options: ["asexual reproduction", "sexual reproduction", "vegetative reproduction", "all the above"],
     answer: "asexual reproduction",
-    solutionSteps: ["Correct option is (a) asexual reproduction.", "Disclaimer : is not affiliated to Central Board of Secondary Education, New Delhi in any manner. is a private organization which provide free study material pdfs to students. At CBSE stands for Canny Books For School Education"],
+    solutionSteps: ["Correct option is (a) asexual reproduction."],
     finalAnswer: "(a) asexual reproduction",
     ncertRef: "cbjescco08 Q9", isCompetencyBased: true },
   // cbjescco08 Q10
@@ -231,8 +231,8 @@ export const HOW_DO_ORGANISMS_REPRODUCE_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq08 Q35 (Section B, 2mk)
   { id: "SCQ-S-REPR-031", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "\"Variations\" are seen in the organisms. State the two main causes of variation.",
-    answer: "Variations are caused by: a. Change in the genetic material, i.e., DNA at the time of DNA copying. b. Environmental factors viz., light, temperature, nutrition, wind and water supply, etc. c. Mutations. Disclaimer : is not affiliated to Central Board of Secondary Education, New D",
-    solutionSteps: ["Variations are caused by: a. Change in the genetic material, i.e., DNA at the time of DNA copying. b. Environmental factors viz., light, temperature, nutrition, wind and water supply, etc. c. Mutations. Disclaimer : is not affiliated to Central Board of Secondary Education, New Delhi in any manner. is a private organization which provide free study material pdfs to students. At CBSE stands for Canny Books For School Education"],
+    answer: "Variations are caused by: a. Change in the genetic material, i.e., DNA at the time of DNA copying. b. Environmental factors viz., light, temperature, nutrition, wind and water supply, etc. c. Mutations.",
+    solutionSteps: ["Variations are caused by: a. Change in the genetic material, i.e., DNA at the time of DNA copying. b. Environmental factors viz., light, temperature, nutrition, wind and water supply, etc. c. Mutations."],
     ncertRef: "cbjesccq08 Q35", isCompetencyBased: false },
   // cbjesccq08 Q36 (Section B, 2mk)
   { id: "SCQ-S-REPR-032", subject: "Science", topicKey: "how-do-organisms-reproduce", subtopic: "Chapter Practice — How do Organisms Reproduce", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",

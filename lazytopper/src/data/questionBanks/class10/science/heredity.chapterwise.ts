@@ -45,7 +45,7 @@ export const HEREDITY_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "The earliest living organisms were",
     options: ["multicellular", "eukaryotes", "prokaryotes", "photosynthesizes"],
     answer: "prokaryotes",
-    solutionSteps: ["Correct option is (c) prokaryotes.", "Disclaimer : is not affiliated to Central Board of Secondary Education, New Delhi in any manner. is a private organization which provide free study material pdfs to students. At CBSE stands for Canny Books For School Education"],
+    solutionSteps: ["Correct option is (c) prokaryotes."],
     finalAnswer: "(c) prokaryotes",
     ncertRef: "cbjescco09 Q8", isCompetencyBased: true },
   // cbjescco09 Q9

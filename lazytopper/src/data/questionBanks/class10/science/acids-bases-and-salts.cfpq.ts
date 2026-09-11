@@ -92,8 +92,8 @@ export const ABS_CFPQ: CanonicalQuestion[] = [
       "The following table lists the pH values of some substances.\n\nSolutions | pH\nhydrochloric acid | 1\nmilk | 6\npure water | 7\nbaking soda | 9\nsodium hydroxide | 14\n\nWhat would happen to the pH of an acid and a base when each is diluted (pure distilled water is added to it)?",
     answer: "The pH of an acid would increase and the pH of a base would decrease.",
     solutionSteps: [
-      "[0.5 mark] [½ mark] The pH of an acid would increase.",
-      "[0.5 mark] [½ mark] The pH of a base would decrease.",
+      "[0.5 mark] The pH of an acid would increase.",
+      "[0.5 mark] The pH of a base would decrease.",
     ],
     finalAnswer: "The pH of an acid would increase; the pH of a base would decrease.",
     isCompetencyBased: true,
