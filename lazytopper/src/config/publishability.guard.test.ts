@@ -189,6 +189,139 @@ describe("RULE 2 — both mark conventions are valid", () => {
     expect(stepMarks("Substitute into the lens equation")).toBeNull();
   });
 
+  /**
+   * ★ HALF-1 — THE GLYPH THE PARSER COULD NOT READ. CBSE schemes print a half mark as
+   * `½` (U+00BD) and the bank carries it verbatim. Before HALF-1 the mark token was
+   * digits-only, so `[½ mark]` read as NO annotation: 15 human rows whose steps DO sum
+   * to `marks` reported `unmarked-step` — a false reason string, and 15 rows sitting in
+   * the addressable backlog that no STEPMARK lane could clear, because they were
+   * already annotated. The unit cases pin the parse in isolation; the synthetic rows
+   * pin that a half mark SUMS like any other; the id list further down is the positive
+   * control against the assembled bank.
+   */
+  it("★ HALF-1: reads the ½ glyph as 0.5 and a mixed number as n + 0.5, in both conventions", () => {
+    expect(stepMarks("[½ mark] (i) Convex mirror is preferred as a rear view mirror.")).toBe(0.5);
+    expect(stepMarks("[½ marks] the plural is tolerated, as for digits")).toBe(0.5);
+    expect(stepMarks("[ ½ mark ] inner whitespace, as for digits")).toBe(0.5);
+    expect(stepMarks("Σf = 20 [½]")).toBe(0.5);
+    expect(stepMarks("[1½ marks] a mixed number, leading")).toBe(1.5);
+    expect(stepMarks("a mixed number, trailing [2½]")).toBe(2.5);
+    // The decimal spellings are untouched — they remain the bank's majority form.
+    expect(stepMarks("[0.5 mark] Write the formula")).toBe(0.5);
+    expect(stepMarks("[1.5 marks] Substitute")).toBe(1.5);
+    expect(stepMarks("[1 mark] State the law")).toBe(1);
+    // Only the glyph is a mark. `1/2` and `half` are prose and stay unparsed.
+    expect(stepMarks("[1/2 mark] not the glyph")).toBeNull();
+    expect(stepMarks("[half mark] not the glyph")).toBeNull();
+    // A ½ outside a bracket annotation is not read as one — the second string is a
+    // real AI-pack rubric note.
+    expect(stepMarks("½ of the class passed")).toBeNull();
+    expect(stepMarks("[Deduct ½ mark if direction of rays is not marked]")).toBeNull();
+  });
+
+  it("★ HALF-1: half marks SUM like any other — two halves publish a 1-mark row, three do not", () => {
+    const noAi = new Set<string>();
+    const unbound = { hasBoundFigure: () => false };
+    const synth = (marks: number, steps: string[]) => ({
+      id: `HALF-1-SYNTH-${marks}-${steps.length}`,
+      questionText: "Name the hydrocarbon that will not decolourise bromine water.",
+      marks,
+      solutionSteps: steps,
+    });
+    expect(
+      isPublishable(synth(1, ["[½ mark] hexane", "[½ mark] Only hexane will not decolourise bromine water."]), noAi, unbound),
+    ).toEqual({ ok: true });
+    expect(
+      isPublishable(synth(2, ["[1½ marks] working", "[½ mark] answer with unit"]), noAi, unbound),
+    ).toEqual({ ok: true });
+    // Three halves on a 1-mark item reach Rule 3 and fail it. On trunk's parser the
+    // same row was `unmarked-step` at step 1: reaching Rule 3 at all is the change.
+    expect(isPublishable(synth(1, ["[½ mark] a", "[½ mark] b", "[½ mark] c"]), noAi, unbound)).toEqual({
+      ok: false,
+      reason: "marks-do-not-sum",
+      detail: "1.5 vs 1",
+    });
+  });
+
+  /**
+   * The 15 rows, enumerated so the list IS the claim. Each is looked up by id and
+   * THROWS if absent. Rule 2 is the assertion — none may report `unmarked-step` — and
+   * because every one of their step lists sums to `marks`, none may report
+   * `marks-do-not-sum` either. Rule 5 is deliberately NOT asserted: 5 of the 15 demand
+   * a figure (CFPQ-S-LGHT-014, -018, SQP-S-2025-LGHT-033, CFPQ-S-CTRL-005,
+   * CFPQ-S-ELEC-008) and all 5 are bound as of 2026-09-11, but binding is the figure
+   * lane's property, not this parser's.
+   *
+   * Pinned as a SUBSET, not an equality: a content PR that lands a 16th `[½ mark]` row
+   * must not have to edit this file (PR-3 pin philosophy). The bank-wide invariant that
+   * follows covers that 16th row without naming it.
+   */
+  const HALF_MARK_ROWS = [
+    // light-reflection-and-refraction (7)
+    "FND-L-SPQ-010",
+    "FND-L-SPQ-016",
+    "CFPQ-S-LGHT-012",
+    "CFPQ-S-LGHT-013",
+    "CFPQ-S-LGHT-014",
+    "CFPQ-S-LGHT-018",
+    "SQP-S-2025-LGHT-033",
+    // control-and-coordination (4)
+    "SQP-S-2023-CTRL-B-001",
+    "CFPQ-S-CTRL-005",
+    "CFPQ-S-CTRL-008",
+    "CFPQ-S-CTRL-011",
+    // carbon-and-its-compounds (2)
+    "CFPQ-S-CARB-006",
+    "CFPQ-S-CARB-019",
+    // real-numbers (1)
+    "CBE-M-RN-B-004",
+    // electricity (1)
+    "CFPQ-S-ELEC-008",
+  ] as const;
+  const LEADING_HALF = /^\s*\[\s*\d*½\s*marks?\s*\]/i;
+
+  it("★ HALF-1 positive control: the 15 bank rows carrying [½ mark] pass Rule 2 and Rule 3", () => {
+    expect(HALF_MARK_ROWS).toHaveLength(15);
+    for (const id of HALF_MARK_ROWS) {
+      const q = row(id);
+      const steps = q.solutionSteps ?? [];
+      // The control must still have its subject: a leading ½ glyph on at least one step.
+      expect(steps.some((s) => LEADING_HALF.test(s)), `${id} no longer carries a leading [½ mark]`).toBe(true);
+      // Rule 2 in isolation — every step parses.
+      expect(steps.map(stepMarks).every((m) => m !== null), `${id} has a step the parser cannot read`).toBe(true);
+      // Through the predicate — neither step-marking reason may fire.
+      const v = isPublishable(q, AI);
+      const reason = v.ok ? "ok" : v.reason;
+      expect(reason, `${id}: ${reason}`).not.toBe("unmarked-step");
+      expect(reason, `${id}: ${reason}`).not.toBe("marks-do-not-sum");
+    }
+    // Every one of the 15 is a live human row with the glyph (subset, not equality).
+    const live = canonicalQuestionBank
+      .filter((q) => !AI.has(q.id) && (q.solutionSteps ?? []).some((s) => LEADING_HALF.test(s)))
+      .map((q) => q.id);
+    expect(live).toEqual(expect.arrayContaining([...HALF_MARK_ROWS]));
+  });
+
+  /**
+   * ★ THE INVARIANT BEHIND THE 15, LITERAL-FREE. A step whose annotation is spelled the
+   * way the bank spells them — a bracket holding digits, a decimal or the ½ glyph, in
+   * either convention — must parse. If any human row has every step spelled that way
+   * and still reports `unmarked-step`, the parser has a gap of exactly HALF-1's kind,
+   * whichever row and whichever spelling. This is the assertion that would have been
+   * red on trunk for the 15 without naming one of them.
+   */
+  it("★ HALF-1 invariant: no human row spelled entirely in the bank's annotation forms is `unmarked-step`", () => {
+    const SPELLED = /^\s*\[\s*[\d.½]+\s*marks?\s*\]|\[\s*[\d.½]+\s*\]\s*$/i;
+    const gaps = canonicalQuestionBank.filter((q) => {
+      if (AI.has(q.id)) return false;
+      const steps = q.solutionSteps ?? [];
+      if (steps.length === 0 || !steps.every((s) => SPELLED.test(s))) return false;
+      const v = isPublishable(q, AI);
+      return !v.ok && v.reason === "unmarked-step";
+    });
+    expect(gaps.map((q) => q.id)).toEqual([]);
+  });
+
   it("the addressable step-marking backlog only shrinks (at most 2,336 rows)", () => {
     /**
      * ★ NOT 5,105. The raw unmarked count is 5,105, but 2,102 of those are AI-pack
@@ -348,8 +481,10 @@ describe("RULE 5 — C4, both directions", () => {
 
   /**
    * THE NEGATIVE CONTROL — A RESOLVER THAT LIES "TRUE" MUST GO RED HERE (PR-3).
-   * `SCQ-S-EYE-036` demands a figure ("study the diagram"), its steps pass Rule 2, and
-   * the binder holds NOTHING for its id — so it is one of the 230 rows genuinely held
+   * `SCQ-S-CTRL-042` demands a figure (its answer text names the diagram), its steps pass Rule 2, and
+   * the binder holds NOTHING for its id — and by controller ruling it never will (the only
+   * figure its source prints is the model ANSWER, which must not bind as a question figure;
+   * FIG-SCI-2 re-pointed this control off `SCQ-S-CTRL-042`, which that lane binds) — so it is genuinely held
    * as `requires-absent-figure` today, with the DEFAULT resolver, no synthetic step.
    * Without this test every assertion on `defaultHasBoundFigure` reads `true`, and a
    * registry that answered `true` for every id (or a resolver wired to a constant)
@@ -358,7 +493,7 @@ describe("RULE 5 — C4, both directions", () => {
    * is not a control; this one fails exactly when "bound" stops meaning bound.
    */
   it("holds a figure-demanding row whose figure is NOT bound, and publishes it only if a resolver says it is", () => {
-    const q = row("SCQ-S-EYE-036");
+    const q = row("SCQ-S-CTRL-042");
     expect(defaultHasBoundFigure(q.id)).toBe(false);
 
     const held = isPublishable(q, AI);
@@ -395,7 +530,7 @@ describe("RULE 5 — C4, both directions", () => {
    * "Study the diagram" has no inline reading — a diagram is never prose.
    */
   it("rejects imperatives to consult an artefact", () => {
-    expect(demandsSuppliedFigure(figureScan("SCQ-S-EYE-036"))).toBe(true);
+    expect(demandsSuppliedFigure(figureScan("SCQ-S-CTRL-042"))).toBe(true);
     expect(demandsSuppliedFigure(figureScan("METAL-NCERT-3-VSA-006"))).toBe(true);
   });
 
