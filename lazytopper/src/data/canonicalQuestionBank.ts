@@ -1907,6 +1907,7 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   // chapterwise rows asking the same concepts, withheld for consistency (LIGHT-FIX-1 stage 3, controller ruling)
   "SCO-S-LIGHT-008",             // out-of-syllabus: half-height plane-mirror
   "SCO-S-LIGHT-011",             // out-of-syllabus: two-mirror image count
+  "SCO-S-LIGHT-017",             // out-of-syllabus: two-lens system (same ground as FND-L-SPX-007); step 2 garbled under a [0.5 mark] prefix (LIGHT-FIX-1 stage 5)
 ]);
 
 /**
