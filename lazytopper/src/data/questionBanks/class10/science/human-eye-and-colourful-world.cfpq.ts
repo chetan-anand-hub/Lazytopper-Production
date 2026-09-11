@@ -302,7 +302,7 @@ export const EYE_CFPQ: CanonicalQuestion[] = [
     finalAnswer: "Filter the dust out of the air - with nothing left to scatter the light, the beam becomes invisible.",
     isCompetencyBased: true,
     ncertRef: "CBSE CFPQ Science Class 10 Ch.11 — CFPQ_Science10.pdf, questions pdf pp.93–96 (printed folios 92–95)",
-    requiresDiagram: true,
+    requiresDiagram: false,
     diagramDescription:
       "A photograph of a dim room with two tall windows. Shafts of sunlight slant down from the left-hand window to the floor, their paths clearly visible as bright beams through the dusty air. A radiator sits below each window and debris lies on the floor.",
   },
