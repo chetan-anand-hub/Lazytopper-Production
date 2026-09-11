@@ -141,7 +141,7 @@ export const ELEC_SP: CanonicalQuestion[] = [
     ],
     "finalAnswer": "(a) V = IR (Ohm's law) with ammeter in series and voltmeter in parallel; (b) Q = I^2 R t (Joule's law of heating).",
     "isCompetencyBased": false,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "Schematic circuit for studying Ohm's law: a battery connected through a plug key and a rheostat to a resistor (nichrome wire). An ammeter (A) is connected in series with the resistor, and a voltmeter (V) is connected in parallel across the resistor."
   },
   {

@@ -154,7 +154,7 @@ export const LGHT_SP: CanonicalQuestion[] = [
     ],
     "finalAnswer": "(a) Convex lens; (b) f = 1 m, lens placed 2 m from the flame; (c) image is real, inverted and equal-sized at 2F.",
     "isCompetencyBased": false,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "Ray diagram for a convex lens with the object (candle, A'B') placed at 2F1 on the principal axis. Mark optical centre O, foci F1 and F2, and points 2F1 and 2F2. Two rays from the top of the object - one parallel to the axis refracting through F2, and one through the optical centre going undeviated - meet at 2F2 to form a real, inverted image equal in size to the object."
   },
   {
@@ -179,7 +179,7 @@ export const LGHT_SP: CanonicalQuestion[] = [
     ],
     "finalAnswer": "(a) Lens = transparent refracting medium; convex converging/real focus vs concave diverging/virtual focus; (c) f = 0.2 m = 20 cm.",
     "isCompetencyBased": false,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "Ray diagram of refraction of light through a rectangular glass slab (PQRS). An incident ray strikes the first (air-to-glass) face at angle of incidence i1, bends towards the normal (angle of refraction r1) inside the glass, travels to the opposite face and emerges into air bending away from the normal as the emergent ray (angle e), which is parallel to the original incident ray but laterally displaced by distance d. Label normals (dashed), incident ray, refracted ray, emergent ray and the lateral displacement."
   }
 ];

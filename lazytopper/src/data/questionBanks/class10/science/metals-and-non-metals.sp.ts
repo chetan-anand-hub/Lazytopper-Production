@@ -70,7 +70,7 @@ export const MNM_SP: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Nails rust only in tube A (air + water present); both air and water are required for rusting of iron.",
     "isCompetencyBased": true,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "Three corked test tubes labelled A, B, C: A contains nails in water exposed to air (nails rust); B contains nails in boiled distilled water with a layer of oil on top (no air, nails unrusted); C contains nails with anhydrous CaCl2 providing dry air (nails unrusted)."
   },
   {
