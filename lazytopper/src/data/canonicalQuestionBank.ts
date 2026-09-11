@@ -1394,19 +1394,14 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "Which of the following equations is correctly balanced?\n(A) 2H₂ + O₂ → H₂O\n(B) 2H₂ + O₂ → 2H₂O\n(C) H₂ + O₂ → 2H₂O\n(D) 4H₂ + O₂ → 4H₂O",
-    "options": [],
-    "answer": "",
+    "questionText": "Which of the following equations is correctly balanced?",
+    "options": ["2H₂ + O₂ → H₂O", "2H₂ + O₂ → 2H₂O", "H₂ + O₂ → 2H₂O", "4H₂ + O₂ → 4H₂O"],
+    "answer": "2H₂ + O₂ → 2H₂O",
     "explanation": "",
     "solutionSteps": [
-      "For each option, check whether the number of atoms of each element is the same on both sides of the equation.",
-      "Option (A): Fe + O₂ → Fe₂O₃ is not balanced (Fe and O atoms differ on both sides).",
-      "Option (B): 2Fe + 3O₂ → 2Fe₂O₃ has Fe atoms not balanced.",
-      "Option (C): 4Fe + 3O₂ → 2Fe₂O₃ has Fe = 4 and O = 6 on both sides, so it is balanced.",
-      "Option (D) represents a different compound Fe₃O₄, so it is not the intended answer here.",
-      "Therefore, the correctly balanced equation for Fe₂O₃ formation is option (C)."
+      "[1 mark] Correct option: (B) 2H₂ + O₂ → 2H₂O — hydrogen: 4 atoms on each side; oxygen: 2 atoms on each side. In (A) oxygen is 2 → 1, in (C) hydrogen is 2 → 4 and in (D) oxygen is 2 → 4, so those are not balanced."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "(B) 2H₂ + O₂ → 2H₂O",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -1636,16 +1631,16 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Which of the following metals is the softest and can be cut with a knife? (A) Iron  (B) Zinc  (C) Sodium  (D) Aluminium",
-    "options": [],
-    "answer": "",
+    "questionText": "Which of the following metals is the softest and can be cut with a knife?",
+    "options": ["Iron", "Zinc", "Sodium", "Aluminium"],
+    "answer": "Sodium",
     "explanation": "",
     "solutionSteps": [
       "Recall that some alkali metals like sodium and potassium are very soft.",
       "Among the given options, sodium is the metal that can be easily cut with a knife.",
       "Therefore, the correct option is (C) Sodium."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "(C) Sodium",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false

@@ -22,7 +22,7 @@ export const MAGN_CBE: CanonicalQuestion[] = [
       "B. (alternative field pattern shown)",
       "C. (alternative field pattern shown)"
     ],
-    "answer": "A",
+    "answer": "A. Concentric circles around the straight wire",
     "solutionSteps": [
       "[1 mark] The magnetic field around a straight current-carrying conductor consists of concentric circles centred on the wire - diagram A."
     ],

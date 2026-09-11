@@ -53,7 +53,7 @@ export const HUMAN_EYE_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "The least distance of distinct vision for a young adult with normal vision is about",
     options: ["25 m", "2.5 cm", "25 cm", "2.5 m"],
     answer: "25 cm",
-    solutionSteps: ["Correct option is (c) 25 cm.", "Disclaimer : is not affiliated to Central Board of Secondary Education, New Delhi in any manner. is a private organization which provide free study material pdfs to students. At CBSE stands for Canny Books For School Education"],
+    solutionSteps: ["Correct option is (c) 25 cm."],
     finalAnswer: "(c) 25 cm",
     ncertRef: "cbjescco11 Q7", isCompetencyBased: true },
   // cbjescco11 Q9

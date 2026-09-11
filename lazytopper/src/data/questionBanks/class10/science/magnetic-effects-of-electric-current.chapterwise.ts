@@ -29,7 +29,7 @@ export const MAGNETIC_EFFECTS_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "Choose the correct option (s). The magnetic field inside a long straight solenoid- carrying current",
     options: ["is zero", "decreases as we move towards its end.", "increases as we move towards its end.", "is the same at all points."],
     answer: "is the same at all points.",
-    solutionSteps: ["Correct option is (d) is the same at all points..", "Disclaimer : is not affiliated to Central Board of Secondary Education, New Delhi in any manner. is a private organization which provide quality free study material pdfs to students. At CBSE stands for Canny Books For School Education."],
+    solutionSteps: ["Correct option is (d) is the same at all points.."],
     finalAnswer: "(d) is the same at all points.",
     ncertRef: "cbjescco13 Q3", isCompetencyBased: true },
   // cbjescco13 Q4
@@ -201,8 +201,8 @@ export const MAGNETIC_EFFECTS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq13 Q6 (Section A, 1mk)
   { id: "SCQ-S-MAG-026", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Chapter Practice — Magnetic Effects of Electric Current", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "If field lines of a magnetic field are crossed at a point, what does it indicate?",
-    answer: "If the magnetic field lines would cross each other then at the same point there would be two directions of magnetic field which is not possible. Disclaimer : is not affiliated to Central Board of Secondary Education, New Delhi in any manner. is a private organization which provid",
-    solutionSteps: ["If the magnetic field lines would cross each other then at the same point there would be two directions of magnetic field which is not possible. Disclaimer : is not affiliated to Central Board of Secondary Education, New Delhi in any manner. is a private organization which provide free study material pdfs to students. At CBSE stands for Canny Books For School Education"],
+    answer: "If the magnetic field lines would cross each other then at the same point there would be two directions of magnetic field which is not possible.",
+    solutionSteps: ["If the magnetic field lines would cross each other then at the same point there would be two directions of magnetic field which is not possible."],
     ncertRef: "cbjesccq13 Q6", isCompetencyBased: false },
   // cbjesccq13 Q31 (Section B, 2mk)
   { id: "SCQ-S-MAG-027", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Chapter Practice — Magnetic Effects of Electric Current", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -225,8 +225,8 @@ export const MAGNETIC_EFFECTS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq13 Q34 (Section B, 2mk)
   { id: "SCQ-S-MAG-030", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Chapter Practice — Magnetic Effects of Electric Current", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "An alternating electric current has a frequency of 50 Hz. How many times does it change its direction in one second? Give reason for your answer.",
-    answer: "100 times in one second because one complete cycle involves two times change of direction. Disclaimer : is not affiliated to Central Board of Secondary Education, New Delhi in any manner. is a private organization which provide free study material pdfs to students. At CBSE stands",
-    solutionSteps: ["100 times in one second because one complete cycle involves two times change of direction. Disclaimer : is not affiliated to Central Board of Secondary Education, New Delhi in any manner. is a private organization which provide free study material pdfs to students. At CBSE stands for Canny Books For School Education"],
+    answer: "100 times in one second because one complete cycle involves two times change of direction.",
+    solutionSteps: ["100 times in one second because one complete cycle involves two times change of direction."],
     ncertRef: "cbjesccq13 Q34", isCompetencyBased: true },
   // cbjesccq13 Q35 (Section B, 2mk)
   { id: "SCQ-S-MAG-031", subject: "Science", topicKey: "magnetic-effects-of-electric-current", subtopic: "Chapter Practice — Magnetic Effects of Electric Current", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
