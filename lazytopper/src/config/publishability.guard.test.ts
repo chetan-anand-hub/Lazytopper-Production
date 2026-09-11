@@ -481,8 +481,10 @@ describe("RULE 5 — C4, both directions", () => {
 
   /**
    * THE NEGATIVE CONTROL — A RESOLVER THAT LIES "TRUE" MUST GO RED HERE (PR-3).
-   * `SCQ-S-EYE-036` demands a figure ("study the diagram"), its steps pass Rule 2, and
-   * the binder holds NOTHING for its id — so it is one of the 230 rows genuinely held
+   * `SCQ-S-CTRL-042` demands a figure (its answer text names the diagram), its steps pass Rule 2, and
+   * the binder holds NOTHING for its id — and by controller ruling it never will (the only
+   * figure its source prints is the model ANSWER, which must not bind as a question figure;
+   * FIG-SCI-2 re-pointed this control off `SCQ-S-CTRL-042`, which that lane binds) — so it is genuinely held
    * as `requires-absent-figure` today, with the DEFAULT resolver, no synthetic step.
    * Without this test every assertion on `defaultHasBoundFigure` reads `true`, and a
    * registry that answered `true` for every id (or a resolver wired to a constant)
@@ -491,7 +493,7 @@ describe("RULE 5 — C4, both directions", () => {
    * is not a control; this one fails exactly when "bound" stops meaning bound.
    */
   it("holds a figure-demanding row whose figure is NOT bound, and publishes it only if a resolver says it is", () => {
-    const q = row("SCQ-S-EYE-036");
+    const q = row("SCQ-S-CTRL-042");
     expect(defaultHasBoundFigure(q.id)).toBe(false);
 
     const held = isPublishable(q, AI);
@@ -528,7 +530,7 @@ describe("RULE 5 — C4, both directions", () => {
    * "Study the diagram" has no inline reading — a diagram is never prose.
    */
   it("rejects imperatives to consult an artefact", () => {
-    expect(demandsSuppliedFigure(figureScan("SCQ-S-EYE-036"))).toBe(true);
+    expect(demandsSuppliedFigure(figureScan("SCQ-S-CTRL-042"))).toBe(true);
     expect(demandsSuppliedFigure(figureScan("METAL-NCERT-3-VSA-006"))).toBe(true);
   });
 
