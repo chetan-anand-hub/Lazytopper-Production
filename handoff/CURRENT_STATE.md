@@ -1,6 +1,194 @@
 # LazyTopper — Current State
 
-## [CURRENT · BANK-2027 ARC] RULINGS 1–4 + STEPMARK 6 + SEO-CANONICAL-1 + HALF-1 + FIG-SCI-2 — **73 FIGURE-DEMAND FLAGS CORRECTED AND TWO COORDINATE-GEOMETRY STEMS FIXED AND BOUND, ELECTRICITY GETS ITS FIRST STEP-MARK BATCH (MERGED BEFORE ITS SKEPTIC), EVERY ADVERTISED URL NAMES ITSELF CANONICAL, `[½ mark]` NOW PARSES, AND 48 MORE SCIENCE ROWS GET THEIR FIGURE** — `#764` + `#765` + `#768` + `#769` + `#770` MERGED — trunk `c355e6a3`
+## [CURRENT · SEO ARC] SEO-SOCIAL-HEADS-1 — **A SHARED CHAPTER LINK STOPS PREVIEWING AS THE HOME PAGE — AND THE SOFT 404 THAT FRAMED THIS WHOLE ARC WAS NEVER A SOFT 404** — `#775` MERGED — trunk `7eddabee`
+
+★ **PROVENANCE, AND IT MATTERS MORE THAN USUAL IN THIS SECTION.**
+
+- **HANDOFF-VERIFIED by this lane, in its own worktree:** every git fact below (`git log --format='%h %cI %an %s' c355e6a3..7eddabee`, `git show --stat f52cb703`, blob-hash comparisons), every gate result, and every `curl` output quoted. This lane built, gated and self-merged `#775` and re-ran nothing on trust.
+- **OWNER-REPORTED, NOT VERIFIABLE BY ANY LANE:** the Search Console observations in §3. Search Console is not scriptable from a worktree. A successor must treat them as the owner's direct reading of the console, and must not "confirm" them with a curl — **no HTTP response can tell you whether Google crawled a URL.**
+- **LANE-REPORTED (`#776`, on HOLD):** the katex preload evidence in §4.
+
+**Trunk `7eddabee1a9273fbfdd22322d0e8ec985b22178f`.** Since `c355e6a3` the tip moved five times:
+`b5f49368` (`#771` docs handoff, 15:25:54+05:30) → `250f37d7` (`#772` SURFACE-1, 20:18:24) →
+`84d8c115` (`#774` STEPMARK 5 + LIGHT-FIX-1, 21:10:26) → `f52cb703` (`#775` SEO-SOCIAL-HEADS-1,
+21:34:33) → `7eddabee` (`#773` ELEC-FIX-1, 21:36:55).
+
+⚠ **`#772`, `#773` and `#774` are other lanes' work. This lane did not review them and records only
+that they are on trunk.** Their content belongs to whoever ran them.
+
+### 1 — WHAT LANDED IN `#775` (SEO-SOCIAL-HEADS-1, 2 files, +207 / −19)
+
+**The defect.** `applyHead` in `writeStaticHeads.ts` rewrote four head tags per page — canonical,
+`og:url`, `<title>`, description — and left `og:title`, `og:description`, `twitter:title` and
+`twitter:description` carrying `index.html`'s home-page marketing copy. All 32 emitted pages
+therefore advertised the home page to every link-preview scraper. **Preview scrapers run no
+JavaScript, so the static file was the only place this could be fixed** — a prerender lane would
+not have reached it.
+
+**The change.** Four writes become eight, fed from the `page.title` and `page.description` already
+in the signature. Six writes from two variables, so a page cannot advertise one thing to a search
+engine and another to a link preview, and there is no second copy to drift. The four new patterns
+are built on `\s+` like the existing four, because the tags are FOUR-LINE in source and Vite may
+re-emit them on one line. `og:*` uses `property=` and `twitter:*` uses `name=`; each is spelled out
+rather than loosened to `[^>]*`, which would swallow the neighbouring tag and match twice.
+
+`index.html` is untouched — the home page is served by the shell and its copy is correct there.
+The site-wide tags (`og:image` + dimensions, `twitter:card`, `og:type`, `og:site_name`,
+`twitter:image`) are correctly shared and were left alone.
+
+**Gates, all HANDOFF-VERIFIED.** `tsc` on BOTH configs (app and test) · the two guard suites
+**23 passed / 23, 0 skipped** · `scope:guard --mode mixed` OK at **`inspected=2`** · build ·
+`check:mojibake` · lazytopper ops matrix · root guard matrix **206/206, 30 suites, 0 skipped** ·
+`git diff --check`. All seven CI checks green on the merged head, `quality-gate` 6m20s.
+
+★ **THE BUILD IS ITSELF A GATE HERE.** A pattern matching zero tags throws by `replaceExactlyOnce`,
+so a green build proves all eight substitutions found their tag in the real emitted shell on all 32
+pages. Static gates alone could not have established that.
+
+**Mutation proof.** `OG_TITLE_TAG` pointed at `name="og:title"` → **8 failed / 5 passed of 13**.
+Restored → **13 passed of 13**, restore proven byte-identical by `cmp` exit 0 AND sha256, and the
+mutation proven APPLIED (sha differs) before its red was treated as evidence.
+
+**Asset hashes (the lane's open premise P11).** Base-SHA build and branch build emit the same **208**
+asset filenames, `diff` exit 0. Control: one filename mutated in a copy → exit 1. Two further
+measurements taken BEFORE the change existed: two builds at the same SHA produced identical lists
+(so the build is reproducible run to run, without which the comparison would report noise), and all
+208 asset CONTENT hashes were unchanged by running `writeStaticHeads.ts` alone — it has one
+`writeFileSync`, targets only `.html`, and runs after Vite has already hashed every asset.
+
+### 2 — ★★ THE ACCEPTANCE, AND THE CONTROL THAT HAS SINCE EXPIRED
+
+The pre-merge acceptance ran against the Vercel preview of **the exact commit merged** (`be827fdc`),
+addressed by that deployment's own immutable URL taken from the GitHub deployment record for the
+SHA — **not the branch alias**, which points at whatever deployed last and cannot prove which commit
+answered. All four tags named Trigonometry. Production, run as the control by the same command,
+named the home page on all four.
+
+★ **THE WHITESPACE WAS ITSELF EVIDENCE.** Production's tags came back MULTI-LINE (the untouched
+shell shape) and the preview's SINGLE-LINE (the rewritten shape). The shape difference is
+independent proof that the writer ran, on top of the value difference.
+
+> ### ⚠⚠ THAT CONTROL HAS EXPIRED. DO NOT RE-RUN IT AS WRITTEN AND CONCLUDE THE CHECK WAS VACUOUS.
+>
+> Production has since deployed the fix (**owner-reported, and confirmed by this lane with a live
+> `curl`**): `og:title` on `/app/topic-hub/trigonometry` now reads
+> `Trigonometry — CBSE Class 10 Maths | LazyTopper`.
+>
+> **Re-running the original two-sided command today returns the SAME four values on both sides.** A
+> successor reading the acceptance cold, re-running it, and seeing two matching outputs would
+> reasonably conclude the check never discriminated. **It did discriminate, on 2026-09-11, and the
+> recorded outputs are what it returned.**
+>
+> **THE REPLACEMENT CONTROL IS A URL THE WRITER DOES NOT REWRITE: THE HOME PAGE.**
+> `writeStaticHeads.ts` skips the root path by design, so `/app/` must still carry the marketing
+> copy in its original multi-line shape:
+>
+> ```
+> $ curl -s https://www.lazytopper.com/app/ | tr '\n' ' ' | grep -o '<meta [^>]*og:title[^>]*>'
+> <meta       property="og:title"       content="The CBSE Class 10 tutor that already knows your mistakes"     />
+>
+> $ curl -s https://www.lazytopper.com/app/topic-hub/trigonometry | tr '\n' ' ' | grep -o '<meta [^>]*og:title[^>]*>'
+> <meta property="og:title" content="Trigonometry — CBSE Class 10 Maths | LazyTopper" />
+> ```
+>
+> **Both lines above were run by this lane after the production deploy and are HANDOFF-VERIFIED.**
+> Two different values from one command, so the check discriminates again — and **this pair does not
+> expire**, because the home page is never rewritten by design. Full detail:
+> `Desktop/diff/report-seo-social-heads-1-2026-09-11.md` §9.
+
+⚠ **A single-line `grep` reads ZERO on the untouched shell tags**, because they are four-line in the
+source. Any successor grepping for a social tag must flatten newlines first (`tr '\n' ' '`) and must
+prove the matcher can fire before believing a zero.
+
+### 3 — ⛔⛔ CORRECTION OF RECORD: THE CHAPTER PAGES WERE NEVER SOFT 404, AND "0 OF 26" HAS NO SOURCE
+
+**This supersedes the Soft 404 framing in the `[PREVIOUS · 2026-09-10 · SEO / PERF ARC]` section
+below, in `IMPLEMENTATION_ROADMAP.md`, and in the `NEXT_ACTION.md` banners.** Those sections are
+left in place as the dated record of what was believed; this is the correction that governs.
+
+**OWNER-REPORTED, from Search Console directly:**
+
+| Observation | What it means |
+|---|---|
+| **Last crawl: N/A** | Google has not crawled the URL. |
+| **URL is unknown to Google** | The URL was never discovered or indexed. |
+| **The Pages report has NO Soft 404 bucket at all** | No page in this property is classified Soft 404 — the category is absent, not merely empty for these URLs. |
+
+⇒ **THE CHAPTER PAGES WERE NEVER CLASSIFIED SOFT 404 BY GOOGLE. There was no such classification to
+explain.** The problem is DISCOVERY — pages unknown to the crawler — not QUALITY judgement of a page
+Google rendered and disliked. Those are different problems with different fixes, and the arc spent
+three PRs on the second one.
+
+★★ **AND THE INHERITED "0 OF 26 · SOFT 404 · CAUSE UNKNOWN" LINE HAS NO IDENTIFIED SOURCE.
+NOTHING MAY LEAN ON IT.** It propagated through `IMPLEMENTATION_ROADMAP.md:158`,
+`NEXT_ACTION.md`, and the SEO/PERF arc section of this file, each citing the one before. **No
+originating measurement has been found for either half** — not for "0 of 26 indexed", and not for
+"Soft 404". Treat both as withdrawn. A successor who needs an index count must read Search Console
+and cite the reading with its date.
+
+★ **WHAT SURVIVES THE CORRECTION, AND WHAT DOES NOT.**
+
+- **SURVIVES:** the render crash is REAL and reproduced — see §4. Google's Live Test genuinely
+  returned the app's error boundary.
+- **SURVIVES:** the four dead hypotheses stay dead. Firebase, the 15-second freeze, cache
+  revalidation and the 6.29 MB bank chunk were each killed by measurement, and those measurements
+  are still good. **Do not re-chase any of them.**
+- **SURVIVES:** `#748`, `#749` and `#751` remain correct on their own merits. `#748` removed a
+  10,617 ms → 55 ms main-thread freeze; that is worth having whatever Google thinks.
+- **DOES NOT SURVIVE:** the framing that a Soft 404 CLASSIFICATION existed and needed a cause. It
+  did not exist.
+- **DOES NOT SURVIVE:** "the 26 chapter pages are still not indexable." Unknown to Google is not the
+  same as judged unindexable.
+
+⚠ **A LIVE TEST IS NOT A CRAWL.** Search Console's URL Inspection → Live Test renders the page
+on demand and reports nothing about index status. The arc read a Live Test render failure as
+though it were a crawl verdict. **The render failure was real; the verdict was never issued.**
+
+### 4 — ★ THE KATEX PRELOAD CRASH — REAL, REPRODUCED, AND CURRENTLY ON HOLD IN `#776`
+
+**LANE-REPORTED from `#776` (`lane/seo-preload-crash-1`), which is OPEN, DRAFT and marked HOLD by
+its own author.** Every chapter page rendered the app's error boundary in Google's Live Test
+carrying:
+
+```
+Unable to preload CSS for /app/assets/katex-<hash>.css
+```
+
+**Reproduced on two chapters against two different deployed bundles**, so it is not a one-off. One
+static import edge caused it:
+
+```
+DesktopTopicHubPage -> ConceptSpine -> NoteModal -> Note -> NoteRichText -> katex CSS
+```
+
+⚠⚠ **`#776` DOES NOT FIX IT, AND SAYS SO IN ITS OWN DESCRIPTION.** Moving `NoteModal` behind
+`React.lazy` + `<Suspense>` measurably emptied the route's CSS preload array (route chunk
+67,458 → 22,765 bytes; katex static edges 1 → 0; CSS entries in the preload dep array 1 → 0) — **and
+the crash remains**, because `React.lazy` starts its import when the lazy ELEMENT RENDERS, not when
+the modal opens. `<Suspense><NoteModal open={false}/></Suspense>` still renders the lazy component,
+so the chunk is still fetched during initial render through the same Vite preload helper with the
+same rejectable CSS dependency. **katex moved from the route's dep array into the route chunk's own
+dep table.** The PR carries a CDP initiator stack proving the fetch still happens on load.
+
+★★ **THIS IS A MEASURED-THE-RIGHT-THING-AND-STILL-MISSED SPECIMEN, AND THE AUTHOR CAUGHT IT.** Three
+instruments all moved in the intended direction and the defect survived all three. **A metric moving
+is not the defect going away.** The honest HOLD is the most valuable thing in that PR.
+
+⚠ **Note the two error strings are DIFFERENT.** The 2026-09-10 arc recorded
+`Failed to fetch dynamically imported module: .../DesktopTopicHubPage-<hash>.js`; `#776` records
+`Unable to preload CSS for .../katex-<hash>.css`. **Whether these are the same failure seen at two
+layers, or two distinct failures, is NOT ESTABLISHED.** Do not assume one caused the other.
+
+### 5 — WHAT A SUCCESSOR SHOULD DO NEXT
+
+1. **Do not open a Soft 404 lane.** There is no Soft 404. See §3.
+2. **The open question is DISCOVERY**, not page quality: the URLs are unknown to Google. Sitemap
+   submission, internal linking and crawl budget are the relevant surface — `[FU-CHAPTER-URLS-UNKNOWN-TO-GOOGLE]`.
+3. **`#776` needs a different mechanism**, not a refinement of the same one. Gating on an actual
+   open state rather than rendering the lazy element is the shape to consider.
+4. **Prerendering remains UNDECIDED** — that was true before this correction and is still true.
+
+## [PREVIOUS · 2026-09-11 · BANK-2027 ARC] RULINGS 1–4 + STEPMARK 6 + SEO-CANONICAL-1 + HALF-1 + FIG-SCI-2 — **73 FIGURE-DEMAND FLAGS CORRECTED AND TWO COORDINATE-GEOMETRY STEMS FIXED AND BOUND, ELECTRICITY GETS ITS FIRST STEP-MARK BATCH (MERGED BEFORE ITS SKEPTIC), EVERY ADVERTISED URL NAMES ITSELF CANONICAL, `[½ mark]` NOW PARSES, AND 48 MORE SCIENCE ROWS GET THEIR FIGURE** — `#764` + `#765` + `#768` + `#769` + `#770` MERGED — trunk `c355e6a3`
 
 ★ **PROVENANCE.** Merge facts below are **HANDOFF-VERIFIED** by this docs lane in its own worktree
 (`git log --format='%h %cI %an %s' fa3662db..c355e6a3` → six commits, all merged by the owner except `#767`

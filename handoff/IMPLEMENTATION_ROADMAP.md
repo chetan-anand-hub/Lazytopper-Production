@@ -1,6 +1,46 @@
 # LazyTopper Implementation Roadmap
 
 
+## 2026-09-11 — SEO-SOCIAL-HEADS-1: **A SHARED CHAPTER LINK STOPS PREVIEWING AS THE HOME PAGE — AND THE SOFT 404 THAT FRAMED THE SEO ARC IS WITHDRAWN AS UNSOURCED** — `#775` MERGED — trunk `7eddabee`
+
+**`2026-09-11`** *(later the same day as rulings 1–4 + STEPMARK 6 + HALF-1 + FIG-SCI-2; merge facts,
+gates and curl outputs HANDOFF-VERIFIED by this lane, Search Console observations OWNER-REPORTED,
+katex evidence LANE-REPORTED from `#776` — see `CURRENT_STATE.md` §0 provenance)*
+
+- ✅ **`#775` SEO-SOCIAL-HEADS-1** (`f52cb703`, merged **21:34:33+05:30**, self-merged by the lane
+  under standing authorization for SEO lanes) — `applyHead` goes from four head writes to eight.
+  `og:title` / `og:description` / `twitter:title` / `twitter:description` now follow the page
+  instead of carrying `index.html`'s home-page copy on all 32 emitted pages. Fed from the
+  `page.title` and `page.description` already in scope: two variables, six writes, nothing to edit
+  alone. 2 files, +207 / −19. Gates: both `tsc` configs · guards 23/23, 0 skipped ·
+  `scope:guard` at `inspected=2` · build · mojibake · both matrices (root 206/206, 30 suites) ·
+  all seven CI checks green. Mutation-proven (8 failed of 13 mutated, 13 of 13 restored
+  byte-identical). Asset hashes unmoved, 208 filenames identical, control exit 1.
+  **Acceptance ran against the preview of the exact commit merged, with production as a control
+  that has since expired** — see `CURRENT_STATE.md` §2 for the non-expiring replacement.
+  **No surface cell moves** — see `SURFACE_TRACKER.md`.
+
+- ⛔⛔ **CORRECTION OF RECORD — "NOT DONE: the Soft 404" (the 2026-09-10 entry above) RESTS ON A
+  WITHDRAWN CLAIM.** Per board rule 3 that entry is **left exactly as written**; this is the
+  correction that governs. **OWNER-REPORTED from Search Console: Last crawl N/A · URL is unknown to
+  Google · the Pages report has NO Soft 404 bucket at all.** The chapter pages were never classified
+  Soft 404. **The inherited "0 of 26 · Soft 404 · cause UNKNOWN" line has no identified source** —
+  it propagated through this file, `NEXT_ACTION.md` and `CURRENT_STATE.md`, each citing the one
+  before, and no originating measurement has been found for either half. **Both halves are
+  withdrawn.** The real open question is **DISCOVERY** — the URLs are unknown to the crawler —
+  `[FU-CHAPTER-URLS-UNKNOWN-TO-GOOGLE]`. **Do not open a Soft 404 lane.**
+  ★ What survives: the render crash is real and reproduced; the four dead hypotheses stay dead; and
+  `#748` / `#749` / `#751` remain correct on their own merits. Prerendering remains **undecided**.
+
+- ⏸ **`#776` SEO-PRELOAD-CRASH-1 — OPEN · DRAFT · HOLD, and it does NOT fix the crash.** Every
+  chapter page rendered the error boundary in Google's Live Test carrying
+  `Unable to preload CSS for /app/assets/katex-<hash>.css`, reproduced on two chapters across two
+  deployed bundles. `React.lazy` + `<Suspense>` emptied the route's CSS preload array (route chunk
+  67,458 → 22,765 bytes; katex static edges 1 → 0; preload CSS entries 1 → 0) **and the crash
+  remains**, because `React.lazy` imports when the lazy element RENDERS, not when the modal opens.
+  Three instruments moved in the intended direction and the defect survived all three.
+  `[FU-KATEX-PRELOAD-CRASH-UNFIXED]`.
+
 ## 2026-09-11 — RULINGS 1–4 + STEPMARK 6 + SEO-CANONICAL-1 + HALF-1 + FIG-SCI-2: **73 FIGURE-DEMAND FLAGS CORRECTED, TWO COORDINATE-GEOMETRY STEMS FIXED AND BOUND, ELECTRICITY'S FIRST STEP-MARK BATCH, EVERY URL NAMES ITSELF CANONICAL, `[½ mark]` PARSES, AND 48 MORE SCIENCE ROWS GET THEIR FIGURE** — `#764` + `#765` + `#768` + `#769` + `#770` MERGED — trunk `c355e6a3`
 
 **`2026-09-11`** *(later the same day as WS-1 + FIG-SCI-1 + PR-3; merge facts HANDOFF-VERIFIED, row counts /
