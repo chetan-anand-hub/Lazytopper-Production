@@ -222,7 +222,7 @@ function isMcqShaped(q: FMPoolQuestion): boolean {
 
 /** The per-section eligibility bands — EXACT numeric marks (§7: never the coarse
  *  fused buckets). B–E are written sections, so MCQ-shaped items stay out. */
-function sectionPool(pool: FMPoolQuestion[], section: FMSection): FMPoolQuestion[] {
+export function sectionPool(pool: FMPoolQuestion[], section: FMSection): FMPoolQuestion[] {
   switch (section) {
     case "A":
       return pool.filter((q) => q.marks === 1 && isAutoGradeableObjective(q));
