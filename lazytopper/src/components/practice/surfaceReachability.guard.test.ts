@@ -185,9 +185,7 @@ const unexpected = (rows: CanonicalQuestion[]) =>
 // ---------------------------------------------------------------------------
 
 describe("surface reachability — every served human row can be drawn on a test", () => {
-  it("the population is real: human rows carry a FLOOR of 5,710 (never vacuous)", T, () => {
-    // 5,710 at the pin (8,662 served − 2,952 AI). A bank that lost human rows, or a
-    // predicate file that failed to import, cannot turn this file green by accident.
+  it("the population is real: human rows carry a VACUITY floor of 5,000 (never vacuous)", T, () => {
     // VACUITY floor only. The human floor of record lives in publishability.guard.test.ts (it moves with every withhold, with a reconciliation line); this asserts the population is real, so a content lane never lowers two floors in two files.
     expect(HUMAN.length).toBeGreaterThanOrEqual(5000);
   });
@@ -272,7 +270,8 @@ describe("surface reachability — every served human row can be drawn on a test
     // Pins at 2026-09-11 (P10): before 146, A-bar-only 161 (= 146 + 15), after 15.
     // FLOOR on the freed rows (a content lane may add 1-mark VSAs; the band must keep
     // taking them), CEILING on the residual (shrink-only, CLEAN-1).
-    expect(freed.length).toBeGreaterThanOrEqual(146);
+    // 146 -> 144 at CLEAN-1 (2026-09-11): sci-chem-chemreactions-1m-2023-01 and 2026-MNM-01 re-shaped into real MCQs, so they left the 1-mark-written set
+    expect(freed.length).toBeGreaterThanOrEqual(144);
     expect(gapABar.length).toBe(gapBefore.length + newlyLost.length);
     expect(gapAfter.length).toBeLessThanOrEqual(GAP_CEILING);
   });

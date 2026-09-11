@@ -135,10 +135,12 @@ describe("RULE 1 — provenance is an id-set, not a `sources` field", () => {
     // 5,654 -> 5,652: -2. LIGHT-FIX-1 stage 3 (2026-09-11, controller ruling) withheld SCO-S-LIGHT-008
     // and SCO-S-LIGHT-011 for consistency with that ruling (same concepts as the withheld tier rows).
     // 5,652 -> 5,651: -1. LIGHT-FIX-1 stage 5 (2026-09-11) withheld SCO-S-LIGHT-017 (two-lens system; garbled step under a prefix).
-    // 5,651 -> 5,610: -41. CLEAN-1 (2026-09-11) withheld 41 bank-wide rows outside light/electricity
+    // 5,651 -> 5,638: -13. MERGE-ELEC (2026-09-11): the 13 ELEC-FIX-1 electricity withholds (skeptic 2026-09-11;
+    // pinned 5,710 -> 5,697 on lane/elec-fix-1 before #774 landed) brought forward on top of #774's light chain above.
+    // 5,638 -> 5,597: -41. CLEAN-1 (2026-09-11) withheld 41 bank-wide rows outside light/electricity
     // (26 placeholder-solution, 2 spliced-solution, 1 blank, 4 garbled, 2 bilingual, 5 garbled-options,
     // 1 answer-mismatch) — see the "CLEAN-1" block of WITHHELD_QUESTION_IDS.
-    expect(human.length).toBeGreaterThanOrEqual(5610);
+    expect(human.length).toBeGreaterThanOrEqual(5597);
     // IDENTITY — AI-rejected and human rows partition the bank.
     expect(rejected.length + human.length).toBe(canonicalQuestionBank.length);
     // 8,543 -> 8,673: #721 wired the ten .cfpq.ts files into the assembly array.

@@ -297,7 +297,7 @@ export const SCIENCE_AR_QUESTIONS: CanonicalQuestion[] = [
     "format": "Assertion-Reasoning",
     "difficulty": "Hard",
     "bloomSkill": "Evaluating",
-    "questionText": "Assertion (A): An electric fuse is connected in series in a circuit.\nReason (R): A fuse wire has very high resistance so that it gets hot quickly and melts to break the circuit.",
+    "questionText": "Assertion (A): An electric fuse is connected in series in a circuit.\nReason (R): A fuse wire has a very high melting point so that it does not melt even when an excessive current flows through it.",
     "options": [
       "(A) Both Assertion and Reason are true and Reason is the correct explanation of Assertion.",
       "(B) Both Assertion and Reason are true but Reason is NOT the correct explanation of Assertion.",
@@ -306,13 +306,13 @@ export const SCIENCE_AR_QUESTIONS: CanonicalQuestion[] = [
     ],
     "answer": "(C) Assertion is true but Reason is false.",
     "solutionSteps": [
-      "Assertion: A fuse is always connected in series so the full circuit current passes through it. TRUE.",
-      "Reason: A fuse wire does NOT have high resistance. It has LOW resistance (so it doesn't waste energy normally) but a LOW MELTING POINT so it melts quickly when excess current flows. The reason incorrectly states 'high resistance'. FALSE.",
-      "A is true (series connection). R is false (fuse has LOW resistance, LOW melting point — not high resistance).",
+      "Assertion: A fuse is always connected in series (in the live wire) so that the full circuit current passes through it. TRUE.",
+      "Reason: A fuse wire is made of an alloy with a LOW melting point precisely so that it melts and breaks the circuit when an excessive current flows. The statement that it has a very high melting point and does not melt is FALSE.",
+      "A is true, R is false.",
       "Answer: (C)"
     ],
     "finalAnswer": "(C)",
-    "explanation": "A is true — fuse is in series. R is false — fuse wire has LOW resistance and LOW melting point, not high resistance. The fuse melts due to excessive current heating it beyond its melting point.",
+    "explanation": "A is true — a fuse is in series so the whole current passes through it. R is false — a fuse wire has a LOW melting point (an alloy of lead and tin) so that it melts and breaks the circuit when the current exceeds its rating.",
     "isCompetencyBased": true,
     "pyqYear": "2024",
     "pyqSet": "30/2/1",
