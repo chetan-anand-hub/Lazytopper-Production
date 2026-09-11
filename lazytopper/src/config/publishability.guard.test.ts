@@ -128,8 +128,16 @@ describe("RULE 1 — provenance is an id-set, not a `sources` field", () => {
     // CEILING — AI rows are retired, never added. 2,952 at PR-3 (2026-09-11).
     expect(AI.size).toBeLessThanOrEqual(2952);
     // FLOOR — human rows are authored and wired, never lost. 5,710 at PR-3.
-    // 5710 -> 5697 at ELEC-FIX-1 (2026-09-11): 13 electricity rows withheld (skeptic 2026-09-11).
-    expect(human.length).toBeGreaterThanOrEqual(5697);
+    // 5,710 -> 5,689: -21. LIGHT-FIX-1 (2026-09-11) withheld 21 light rows the skeptic disproved
+    // (14 placeholder/spliced solutions, 6 garbled stems/solutions, LIGHT-EXMPLR-9-MCQ-004 answer-mismatch).
+    // 5,689 -> 5,654: -35. LIGHT-FIX-1 stage 2 (2026-09-11, owner ruling) withheld the 35 light
+    // beyond-board rows whose stems need a concept outside the official 2026-27 Unit III text.
+    // 5,654 -> 5,652: -2. LIGHT-FIX-1 stage 3 (2026-09-11, controller ruling) withheld SCO-S-LIGHT-008
+    // and SCO-S-LIGHT-011 for consistency with that ruling (same concepts as the withheld tier rows).
+    // 5,652 -> 5,651: -1. LIGHT-FIX-1 stage 5 (2026-09-11) withheld SCO-S-LIGHT-017 (two-lens system; garbled step under a prefix).
+    // 5,651 -> 5,638: -13. MERGE-ELEC (2026-09-11): the 13 ELEC-FIX-1 electricity withholds (skeptic 2026-09-11;
+    // pinned 5,710 -> 5,697 on lane/elec-fix-1 before #774 landed) brought forward on top of #774's light chain above.
+    expect(human.length).toBeGreaterThanOrEqual(5638);
     // IDENTITY — AI-rejected and human rows partition the bank.
     expect(rejected.length + human.length).toBe(canonicalQuestionBank.length);
     // 8,543 -> 8,673: #721 wired the ten .cfpq.ts files into the assembly array.
@@ -392,15 +400,20 @@ describe("RULE 5 — C4, both directions", () => {
   /**
    * ⚠ EVERY ASSERTION HERE CALLS `demandsSuppliedFigure` DIRECTLY, NEVER
    * `isPublishable`. Rule 5 runs LAST, so a row failing Rule 2 never reaches it.
-   * `LIGHT-EXMPLR-9-MCQ-005` genuinely demands Figure 10.2 — but routed through
-   * `isPublishable` it returns `unmarked-step`, and a control written that way would
+   * `LIGHT-EXMPLR-9-MCQ-016` genuinely demands its numbered Exemplar figure — but routed
+   * through `isPublishable` it returns `unmarked-step`, and a control written that way would
    * pass while testing a completely different rule.
+   * ⚠ The specimen must be a row that is BOTH figure-demanding AND unmarked. It was
+   * LIGHT-EXMPLR-9-MCQ-005 until LIGHT-FIX-1 (2026-09-11) re-keyed and mark-annotated that row;
+   * when a STEPMARK lane annotates MCQ-016, swap the specimen here (and in "the figure rule
+   * runs last" below) for another unmarked figure-demanding row — never leave a row unmarked
+   * to keep this control alive.
    */
   it("★ demonstrates the trap this suite avoids", () => {
-    const v = isPublishable(row("LIGHT-EXMPLR-9-MCQ-005"), AI);
+    const v = isPublishable(row("LIGHT-EXMPLR-9-MCQ-016"), AI);
     expect(v.ok).toBe(false);
     expect((v as { reason: string }).reason).toBe("unmarked-step"); // NOT requires-absent-figure
-    expect(demandsSuppliedFigure(figureScan("LIGHT-EXMPLR-9-MCQ-005"))).toBe(true);
+    expect(demandsSuppliedFigure(figureScan("LIGHT-EXMPLR-9-MCQ-016"))).toBe(true);
   });
 
   /**
@@ -646,7 +659,8 @@ describe("rule ORDER is load-bearing", () => {
   /** The figure rule runs last, so a figure-dependent row with unmarked steps
    *  reports the step failure. Pinned so the trap above stays visible. */
   it("the figure rule runs last", () => {
-    const v = isPublishable(row("LIGHT-EXMPLR-9-MCQ-005"), AI);
+    // specimen MCQ-005 -> MCQ-016 at LIGHT-FIX-1 (2026-09-11): MCQ-005 is now mark-annotated (see RULE 5 note)
+    const v = isPublishable(row("LIGHT-EXMPLR-9-MCQ-016"), AI);
     expect((v as { reason: string }).reason).toBe("unmarked-step");
   });
 });

@@ -75,12 +75,17 @@ const batch2 = batch.filter((f) => FIG_SCI_2_PREFIXES.some((p) => f.filePath.sta
 describe("FIG-SCI-1 + FIG-SCI-2 bindings are served and reachable", () => {
   it("the batch is present and is the size the two lanes shipped", () => {
     // 109 = 44 Item Bank Science + 34 NCERT Exemplar + 7 NCERT textbook + 24 CFPQ Science (FIG-SCI-1)
+    // 109 -> 108 at LIGHT-FIX-1 (2026-09-11): LIGHT-EXMPLR-9-MCQ-004 withheld (answer-mismatch), its binding removed
     // 109 -> 108 at ELEC-FIX-1 (2026-09-11): CBE-S-ELEC-A-003 unbound (row withheld, crop kept on disk).
-    expect(batch1).toHaveLength(108);
+    // 108 -> 107 at MERGE-ELEC (2026-09-11): both removals land together (LIGHT-FIX-1 via #774 + ELEC-FIX-1) = 43 Item Bank + 33 Exemplar + 7 NCERT + 24 CFPQ.
+    expect(batch1).toHaveLength(107);
     // 49 = 3 Foundation + 12 chapter-wise + 17 board-paper (16 rows, ELEC-011 twice) + 13 preboard + 2 SQP + 2 APQ (FIG-SCI-2)
+    // 49 -> 46 at LIGHT-FIX-1 stage 2 (2026-09-11): the 3 Foundation rows (FND-L-SPX-003/-004/-043) are
+    // withheld as out-of-syllabus (beyond-board tier) and their bindings removed
     // 49 -> 47 at ELEC-FIX-1 (2026-09-11): PYQ-S-2025-ELEC-009 and PYQ-S-ELEC-004 unbound (rows withheld, crops kept on disk).
-    expect(batch2).toHaveLength(47);
-    expect(batch).toHaveLength(108 + 47);
+    // 46 -> 44 at MERGE-ELEC (2026-09-11): both removals land together (LIGHT-FIX-1 via #774 + ELEC-FIX-1) = 0 Foundation + 12 chapter-wise + 15 board-paper + 13 preboard + 2 SQP + 2 APQ.
+    expect(batch2).toHaveLength(44);
+    expect(batch).toHaveLength(107 + 44);
     // and the earlier lane's 12 cfpq entries are all still present under the shared prefix
     const earlier = SCIENCE_FIGURE_VISUALS.filter((f) => CFPQ_FIGURES_1_IDS.has(f.questionId ?? ""));
     expect(earlier).toHaveLength(12);
@@ -134,9 +139,9 @@ describe("FIG-SCI-1 + FIG-SCI-2 bindings are served and reachable", () => {
       "/figures/cfpq-science/electricity/CFPQ-S-ELEC-008.webp",
     ]);
     // FIG-SCI-2: one id per source family resolves to exactly its one figure
-    expect(getFiguresForQuestion("FND-L-SPX-003").map((f) => f.filePath)).toEqual([
-      "/figures/foundation-science/light-reflection-and-refraction/FND-L-SPX-003.webp",
-    ]);
+    // (foundation-science: FND-L-SPX-003 was the control until LIGHT-FIX-1 stage 2 withheld it and
+    // removed its binding — the family now has no entries, so the control is that the id resolves to NOTHING)
+    expect(getFiguresForQuestion("FND-L-SPX-003")).toEqual([]);
     expect(getFiguresForQuestion("SCO-S-ELEC-012").map((f) => f.filePath)).toEqual([
       "/figures/chapterwise-science/electricity/SCO-S-ELEC-012.webp",
     ]);
