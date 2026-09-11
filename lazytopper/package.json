@@ -12,7 +12,7 @@
     "scope:guard:tutor": "node scripts/scopeGuard.mjs --mode tutor",
     "scope:guard": "node scripts/scopeGuard.mjs",
     "predev": "node scripts/prebuild.cjs",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && tsx scripts/seo/writeStaticHeads.ts",
     "tutor:mvp": "npm run build && npm run tutor:eval",
     "deploy:smoke": "node scripts/deploySmoke.mjs",
     "lint:ci": "node scripts/lintCi.mjs",
