@@ -1,5 +1,25 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-11 — RULINGS 1–4 + STEPMARK 6 + SEO-CANONICAL-1 + HALF-1 + FIG-SCI-2 (`#764`+`#765`+`#768`+`#769`+`#770`), trunk `c355e6a3`.**
+> **TWO FIGURE CELLS MOVE; TWO PRs MOVE NONE.** (1) **2 MATHS ROWS ON PRACTICE (`PracticeQuestionCard`) ·
+> CHAPTER TEST · FULL MOCK · HPQ (`HighlyProbableQuestions`) · MOCK PAPER** — `#764` bound
+> `CBE-M-CG-A-001` / `CBE-M-CG-B-002` to the Item Bank p230 crop after correcting both stems to the printed
+> figure; `mathsFigureVisuals.ts` **88 → 90**. The other 71 flips in `#764` (53 Z3 + `SP-M-2022-TRIG-E-001`
+> + 9 maths + 10 science) turn `requiresDiagram` to `false` on rows whose source prints no figure — they
+> REMOVE a figure demand, not bind one; no cell for that beyond the reduced figure-demanding count in
+> `CURRENT_STATE.md`.
+> (2) **48 SCIENCE ROWS (49 entries) ON PRACTICE · CHAPTER TEST · FULL MOCK** (HPQ / Mock Paper do NOT
+> move — they do not read the bank for science rows, per the TIERMAP-1 note below) — `#770` binds
+> Foundation 3 · chapterwise 12 · board papers 16 · sample/pre-board 13 · SQP 2 · APQ 2; science binder
+> **157 → 206**, bound rows **295 → 343**, figure-demanding **bound 340 / unbound 99** of 439 (HANDOFF-VERIFIED
+> from the `#770` commit message). 54 further flips in the same PR remove a figure demand rather than bind
+> one, same shape as `#764`'s non-CG flips. Owner live-verify owed — one Foundation/Light and one
+> board-paper Electricity figure on Practice / Chapter Test / Full Mock — `[FU-FIG-SCI-2-LIVE-VERIFY-OWED]`.
+> **`#765` (STEPMARK 6 electricity) and `#769` (HALF-1) MOVE NO SURFACE CELL** — both are annotation-only
+> (`[N mark]` step prefixes; Unicode `[½ mark]` parsing), changing the publishable CONTRACT, not any
+> rendered surface. **`#768` (cofounder SEO-CANONICAL-1) is not a tracked surface on this board.**
+> **Scope: UNCHANGED on every surface — no scope was discovered; nothing goes to §2a or `DECISION_LOG.md`.**
+
 > **2026-09-11 — WS-1 (`#760`) + FIG-SCI-1 (`#761`) + PR-3 (`#763`), trunk `fa3662db`; all three merged by the owner, 12:43:10 · 12:51:40 · 13:43:16 +05:30.**
 > **TWO KINDS OF CELL MOVE, AND ONE PR THAT MOVES NONE.** (1) **WORKSHEETS topic coverage: 10 → 13 Science
 > chapters** — `heredity`, `magnetic-effects-of-electric-current`, `human-eye-and-colourful-world` are offered

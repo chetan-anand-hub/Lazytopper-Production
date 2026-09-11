@@ -73,7 +73,7 @@ export const REPR_SP: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Rhizopus reproduces asexually: sporangia at tips of erect hyphae produce many spores by repeated nuclear division; the sporangium bursts, releasing spores that germinate into new individuals under favourable conditions.",
     "isCompetencyBased": false,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "A labelled diagram of Rhizopus showing the thread-like hyphae, the erect hyphae bearing rounded bulb-like sporangia at their tips, and the spores contained within/released from the sporangia."
   },
   {

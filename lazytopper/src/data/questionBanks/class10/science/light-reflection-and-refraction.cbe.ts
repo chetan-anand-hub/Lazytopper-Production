@@ -37,7 +37,7 @@ export const LGHT_CBE: CanonicalQuestion[] = [
     "format": "VSA",
     "difficulty": "Medium",
     "bloomSkill": "Understanding",
-    "questionText": "Explain why the image of the coin is a virtual image.",
+    "questionText": "Light rays from a coin lying in water change direction at the surface of the water before entering the eye, and the eye sees an image of the coin. Explain why the image of the coin is a virtual image.",
     "options": [],
     "answer": "The rays do not actually meet (they only appear to come from the image point).",
     "solutionSteps": [
@@ -243,12 +243,12 @@ export const LGHT_CBE: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "Using the lens equation and your value of f (= 15 cm) calculate the image distance for observation 6 (object distance u = −90 cm).",
     "options": [],
-    "answer": "v = 12.9 cm",
+    "answer": "v = +18 cm",
     "solutionSteps": [
-      "[1 mark] Substitution: 1/15 = 1/(−90) + 1/v.",
-      "[1 mark] Rearrange and calculate: 90/7 = 12.9 cm. (If answer = 12.9 cm, award full 2 marks.)"
+      "[1 mark] Substitution into the lens equation 1/f = 1/v − 1/u: 1/15 = 1/v − 1/(−90) ⇒ 1/v = 1/15 − 1/90.",
+      "[1 mark] Rearrange and calculate: 1/v = (6 − 1)/90 = 5/90 = 1/18 ⇒ v = +18 cm (a real image 18 cm from the lens, consistent with the table: v falls towards f as u grows)."
     ],
-    "finalAnswer": "v = 12.9 cm",
+    "finalAnswer": "v = +18 cm",
     "isCompetencyBased": true
   },
   {

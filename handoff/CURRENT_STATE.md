@@ -1,6 +1,136 @@
 # LazyTopper — Current State
 
-## [CURRENT · BANK-2027 ARC] WS-1 + FIG-SCI-1 + PR-3 — **WORKSHEETS CAN OFFER EVERY BOARD-ASSESSED SCIENCE CHAPTER, 109 SCIENCE QUESTIONS SHOW THE FIGURE THEY ASK ABOUT, AND A BOUND FIGURE NOW COUNTS AS PUBLISHABLE** — `#760` + `#761` + `#763` MERGED — trunk `fa3662db`
+## [CURRENT · BANK-2027 ARC] RULINGS 1–4 + STEPMARK 6 + SEO-CANONICAL-1 + HALF-1 + FIG-SCI-2 — **73 FIGURE-DEMAND FLAGS CORRECTED AND TWO COORDINATE-GEOMETRY STEMS FIXED AND BOUND, ELECTRICITY GETS ITS FIRST STEP-MARK BATCH (MERGED BEFORE ITS SKEPTIC), EVERY ADVERTISED URL NAMES ITSELF CANONICAL, `[½ mark]` NOW PARSES, AND 48 MORE SCIENCE ROWS GET THEIR FIGURE** — `#764` + `#765` + `#768` + `#769` + `#770` MERGED — trunk `c355e6a3`
+
+★ **PROVENANCE.** Merge facts below are **HANDOFF-VERIFIED** by this docs lane in its own worktree
+(`git log --format='%h %cI %an %s' fa3662db..c355e6a3` → six commits, all merged by the owner except `#767`
+which self-merged as a docs-only PR; `git show --stat` on `f0745565`, `f260ed3c`, `ae50e3ef`, `0906777b`,
+`2276686b`, `c355e6a3`). Row-level counts, skeptic pass rates, owner rulings and the lane queue are
+**CONTROLLER-RECORDED** (`Desktop/diff/content session/Report/BANK-2027_STATE_AND_NEXT-WINDOW_BRIEF_2026-09-11_v2.md`
+Parts B–E, `CONTROLLER_STATE_BANK-2027_2026-09-11.md` "How to verify" + its afternoon rulings section) —
+**this docs lane re-ran nothing.**
+
+**Trunk `c355e6a3936f73afdea808959df52a5e8c4776ff`** = the squash of `#770` FIG-SCI-2, **merged by the owner
+2026-09-11T15:08:01+05:30**. Since `fa3662db` (`#763`) the tip moved six times, all by the owner except the
+self-merged docs PR: `f0745565` (`#764` rulings 1–4, **14:04:31+05:30**) → `f260ed3c` (`#765` STEPMARK 6
+electricity, **14:11:33**) → `ae50e3ef` (`#767`, the docs handoff for `#760`/`#761`/`#763`, self-merged
+**14:23:47**) → `0906777b` (`#768` SEO-CANONICAL-1, the cofounder session's PR, **14:32:12**) → `2276686b`
+(`#769` HALF-1, **14:59:53**) → `c355e6a3` (`#770` FIG-SCI-2, **15:08:01**).
+
+### 1 — WHAT LANDED IN `#764` (rulings 1–4, 19 files, +83 / −81)
+
+Owner rulings 2026-09-11 (brief Part E items 1–4) plus the FIG-SCI-1 croppers' findings. Annotation-only:
+**53 unbound `competency.z3.ts` rows flip `requiresDiagram` to `false`** (their DOCX holds no diagram — the
+41 Z3 rows with a bound figure keep `true`) + `SP-M-2022-TRIG-E-001` + 9 maths + 10 science rows — **73 flips
+total**. `CBE-M-CG-A-001` / `CBE-M-CG-B-002`: stems corrected to the printed Item Bank figure A(−2,2)
+B(−1,−2) C(3,0) (answers 2√2 / 2√5 unchanged), the figure cropped from Item Bank Maths p230 and **bound for
+both rows** (`mathsFigureVisuals.ts` +2, maths pin **88 → 90**), flags stay `true` — **owner ruling this
+afternoon: ship corrected stems + bound figure**, superseding a relayed "flag off, don't bind" reading of
+ruling 2 in circulation earlier. 6 regex-only rows listed for review, not edited. Guard test **38/38**.
+⚠ **This is a figure-cell move** — see `SURFACE_TRACKER.md`.
+
+### 2 — WHAT LANDED IN `#765` (STEPMARK 6 electricity, 9 files, +137 / −137) — MERGED BEFORE ITS SKEPTIC
+
+Annotation only: a `[N mark]` prefix on each existing solution step, summing exactly to the row's marks;
+strip-control byte-identical to trunk. **133 annotated → 128** after reverting 5 placeholder-solution rows;
+44 skipped and named (3 RECOVER-1, 34 over-stepped 1-mark rows, 1 Unicode `[½ mark]` row `CFPQ-S-ELEC-008`,
+1 inlined). ⚠ **The owner merged this PR before its fresh skeptic finished** — the afternoon's new policy
+(skeptic before push) postdates this push. The skeptic then returned **156/223 OK, 67 defective**: 8
+wrong-key rows, 3 withholds, 27/40 chapterwise rows defective, 3 mis-topicked to magnetic, `AR-EL-009`'s key
+contestable. **Findings become follow-up PR `ELEC-FIX-1`** (queued, not built) —
+`[FU-ELEC-FIX-1-SKEPTIC-FINDINGS]`.
+
+### 3 — WHAT LANDED IN `#768` (SEO-CANONICAL-1, cofounder session — one line)
+
+The cofounder's arc, not this controller's: every advertised URL now serves a static copy of the built shell
+with its own canonical / `og:url` / title / description tags, so a non-JS crawler stops seeing 32 of 33
+sitemap URLs as duplicates of `/app/`. 3 files, +694 / −1 (`writeStaticHeads.ts`, `staticHeads.guard.test.ts`,
+`package.json`). Recorded here for completeness; this lane did not review its content.
+
+### 4 — WHAT LANDED IN `#769` (HALF-1, 2 files, +172 / −7)
+
+The step-mark parser accepted only ASCII numerals, so **15 human rows whose steps carry the Unicode
+`[½ mark]` prefix** (light 7, control-and-coordination 4, carbon 2, real-numbers 1, electricity 1), each
+summing exactly to its marks, were misread `unmarked-step`. `LEADING_MARK` / `TRAILING_MARK` now accept `½`
+and `N½`; `[1/2 mark]`, `[half mark]` and rubric text stay unparsed on purpose. **Publishable +15,
+addressable −15**; all 5 that also demand a figure are bound. Guard +4 blocks, mutation-proven. The
+`SCQ-S-EYE-036` guard fixture is **re-pointed to `SCQ-S-CTRL-042`** — `#770` (§5) binds `EYE-036`, and the
+old fixture would have gone stale under it. Gates all PASS (tsc / `typecheck:test` / mojibake / `scope:guard
+--mode mixed inspected=2` / guard vitest 30/30 / figures vitest 12/12 / root matrix 206/206).
+
+### 5 — WHAT LANDED IN `#770` (FIG-SCI-2, 57 files, +176 / −64)
+
+**49 figure entries bound to 48 human Science rows** (`PYQ-S-2026-ELEC-011` prints two figures and gets
+both): Foundation pack 3 · chapterwise guide 12 · CBSE board papers 2023–2026 16 · sample/pre-board papers
+13 · SQP 2023-24 2 · CBSE Additional Practice Questions 2 — four printed TABLES the stems reference. Every
+webp sha256-matched to its crop manifest; each entry carries the source PDF and page. **54 `requiresDiagram`
+flips** to `false` (17 worksheet + 18 guide-answer + 14 Foundation + 5 paper rows whose source prints no
+question figure — the cbse.online guide's ANSWER figure never binds as a question figure, so 18 worksheet +
+2 chapterwise rows stay honestly unbound). Reachability test extended: batch-2 pinned at 49, union 158 with
+FIG-SCI-1, mutation-proven. **Runtime (HANDOFF-VERIFIED from the commit message):** science binder
+**157 → 206**; rows with a bound figure **295 → 343**; figure-demanding **493 → 439** (bound **340**,
+unbound **99**); publishable **3,212 → 3,292** on the lane's own base (+80 = 54 flips + 26 newly bound rows
+passing Rule 2; 22 bound rows remain `unmarked-step` until STEPMARK reaches them). **Content defect found,
+not fixed:** `PYQ-S-2026-MAG-002`'s `questionText` is truncated mid-word with stripped-Hindi residue
+(`magneticEffects.pyq2026.ts:19`) — `[FU-PYQ-S-2026-MAG-002-STEM-TRUNCATED]`. Gates all PASS (tsc /
+`typecheck:test` / mojibake / `scope:guard inspected=57` / figures vitest 12/12 / catalogue / both matrices
++ build + `verify-production-build` + asset-ships proof, CONTROLLER-RECORDED). ⚠ **LIVE-VERIFY OWED
+(owner):** one Foundation/Light and one board-paper Electricity figure renders on Practice / Chapter Test /
+Full Mock — `[FU-FIG-SCI-2-LIVE-VERIFY-OWED]`. Figure-cell move — see `SURFACE_TRACKER.md`.
+
+### 6 — THE BANK, EVENING TOTALS (CONTROLLER-RECORDED, brief Part B + the `#770` commit message; recipes in the reports)
+
+| measure | morning (`a157c741`) | evening (trunk `c355e6a3`) |
+|---|--:|--:|
+| rows served | 8,662 | 8,662 (no withhold merged yet) |
+| human rows | 5,710 | 5,710 strict (excl. 878 unverified authored: **4,832**) |
+| publishable | 2,982 | brief projected **3,301** after `#769`, **+80** from `#770`'s own measurement — **~3,381, NOT independently re-measured on `c355e6a3` by this lane** (the arc's own lesson: re-run the predicate on the base you land on, never just add deltas) |
+| figure-demanding unbound | 310 | **99** (`#770`'s own runtime measurement: bound 340 / unbound 99 of 439) |
+| addressable unmarked | 2,336 | 2,193 pre-`#770` (1,890 annotatable of the original); `#770` adds 22 more bound-but-unmarked rows |
+| topics below 350 human | 23/26 | unchanged — supply lanes not started |
+| 4-mark cell < 75 | 26/26 | unchanged |
+
+### 7 — OWNER RULINGS OF THE AFTERNOON (CONTROLLER-RECORDED)
+
+Verification method: a **fresh skeptic re-solves every row, including EXISTING ones**, not only new authored
+rows. The **878 July "expand" rows** (28 files — CHEM/ABS/AP/PLE/QE/TRI/MNM/CG/POLY) are authored but never
+flagged `questionProvenance`: **skeptic-verify all; survivors get `questionProvenance:"authored"` +
+`shapedFrom`; failures are retired; they count toward 10,000 only if they pass** —
+`[FU-BATCH-7-11-AUTHORED-PACKS-UNFLAGGED]`. **All questions on all four surfaces** (Practice / Chapter Test /
+Full Mock / Worksheets) is the explicit target — the 146-row gap in §8 is the discrepancy. **The controller
+may squash-merge PRs itself** after CI green + heavy gates + skeptic fold-in, never on HOLD. **Syllabus
+verified from official CBSE resources — DONE**; headline gaps against the live guard: Pythagoras / converse
+(121 rows), areas of similar triangles (51), bare "Complementary Angles" (8), "Completing the Square" (7),
+"Combinations of Plane Figures" (4); motor / EMI / generator (33) already correctly surface-banned (not a
+chapter deletion, `CLAUDE.md` §5). **SQP 2026-27 is not published.** `[FU-SYLLABUS-1-OFFICIAL-GAPS]`.
+
+### 8 — SKEPTIC RESULTS AND BANK-WIDE AUDITS (CONTROLLER-RECORDED)
+
+Electricity **156/223** (67 defective, §2) · Light **523/660** (137 defective — 41 `LGHT_FND_BEYOND_BOARD`
+Class-12 rows found served LIVE, `[FU-LGHT-FND-BEYOND-BOARD-SERVED-LIVE]`) · PLE authored **155/163** (8
+class-E re-split-marks) · Triangles authored **126/147** (21 defective + **89/147 need the pending syllabus
+ruling**, `[FU-TRIANGLES-SKEPTIC-FINDINGS]`, `[FU-TRI-PRF-C-002-WRONG-FIGURE-BOUND]`). Placeholder audit:
+**366 rows carry non-solution text, 103 publishable** (`[FU-STEPMARK-PLACEHOLDER-SOLUTIONS-PUBLISHABLE]`).
+Surface gap: **146 human 1-mark VSA rows** reach Practice + Worksheets but neither Chapter Test nor Full Mock
+(`[FU-SURFACE-1-146-VSA-ROWS]`); **15 mis-keyed MCQs score a correct pick 0** (`[FU-15-MISKEYED-MCQS]`).
+
+### 9 — SUPPLY PLAN HEADLINE (CONTROLLER-RECORDED)
+
+Section E (4-mark) authentic supply ≈65 net-new case units bank-wide ⇒ E is an authoring band for **all 26
+topics**; Section D is reachable from authentic sources only for SAV, statistics, trigonometry, triangles,
+electricity, light. Estimated: authentic transcription 1,600–2,600 rows, authored D ≈900–1,000, E ≈1,650.
+First transcription wave: circles (+FIG crops), human-eye, magnetic-effects, ARC + SAV.
+
+### 10 — NOT YET DONE, AND THE DAY'S COST
+
+**`#766` STEPMARK 5 light is on HOLD** for its skeptic (523/660 above); findings fold into `LIGHT-FIX-1`
+before push (`[FU-LIGHT-FIX-1-SKEPTIC-FINDINGS]`). **The 5-hour session limit at Max 20x killed every
+running subagent three times today** (≈11:00–12:20 IST, 6 subagents; ≈14:30 IST, STEPMARK 5/6 + the supply
+planner; and a third instance) — worktrees kept partial edits and lanes resumed without redo. The owner was
+given usage-credits / API-key options to raise the ceiling — `[FU-SESSION-LIMIT-KILLS-SUBAGENTS]`, decision
+pending.
+
+## [PREVIOUS · 2026-09-11 · WS-1 + FIG-SCI-1 + PR-3] — **WORKSHEETS CAN OFFER EVERY BOARD-ASSESSED SCIENCE CHAPTER, 109 SCIENCE QUESTIONS SHOW THE FIGURE THEY ASK ABOUT, AND A BOUND FIGURE NOW COUNTS AS PUBLISHABLE** — `#760` + `#761` + `#763` MERGED — trunk `fa3662db`
 
 ★ **PROVENANCE.** Merge facts below are **HANDOFF-VERIFIED** by this docs lane in its own worktree
 (`git log --format='%h %cI %an' e0d17da1..fa3662db` → exactly four commits; `git show --stat` on `2f623e01`,

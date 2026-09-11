@@ -9,12 +9,14 @@
 // below-minimum topic.
 
 import { describe, it, expect } from "vitest";
+import type { CanonicalQuestion } from "../../data/predictionTypes";
 import {
   CT_BLUEPRINT,
   drawChapterTest,
   drawCTSection,
   objectiveQuestions,
   subjectiveQuestions,
+  chapterTestSectionFor,
 } from "./chapterTestBlueprint";
 
 const draw = (seed: number) =>
@@ -45,9 +47,10 @@ describe("drawChapterTest — balanced sourcing", () => {
     expect(sections).toMatch(/^A*B*C*D*$/);
     d.paper.questions.forEach((q, i) => expect(q.qNumber).toBe(i + 1));
     // Exact numeric band per section (§7 — never the fused buckets). Section A is
-    // the MCQ pool (keyed below), B/C/D are exact-marks bands.
+    // the MCQ pool (keyed below), B/C/D are exact-marks bands. B is 1–2 since
+    // SURFACE-1 (was exactly 2): 1-mark written rows are drawn as very-short answers.
     for (const q of d.paper.questions) {
-      if (q.section === "B") expect(q.marks).toBe(2);
+      if (q.section === "B") expect([1, 2]).toContain(q.marks);
       if (q.section === "C") expect(q.marks).toBe(3);
       if (q.section === "D") expect(q.marks).toBeGreaterThanOrEqual(4);
     }
@@ -64,14 +67,16 @@ describe("drawChapterTest — balanced sourcing", () => {
     }
     expect(d.totalMarks).toBe(d.paper.questions.reduce((s, q) => s + q.marks, 0));
     // Section A sourcing contract: every drawn objective question carries options
-    // and a non-empty answer key (the blueprint's unkeyed-MCQ exclusion). Whether
-    // each key also STRING-RESOLVES to one of its options is bank hygiene, not
-    // sourcing — the bank holds pre-existing unresolvable keys (extraction
-    // artifacts), tracked as a bank-lane follow-up, and asserting it here would
-    // turn this sourcing suite red on whichever question the seed happens to draw.
+    // and its answer key RESOLVES to one of them (the #352 bar, applied to Chapter
+    // Test by SURFACE-1 — before it, a mis-keyed MCQ was drawn here and a correct
+    // pick scored 0). The bank still holds unresolvable keys (extraction artifacts,
+    // the CLEAN-1 lane); the blueprint now EXCLUDES them, so this cannot go red on
+    // whichever question the seed draws.
     for (const q of objectiveQuestions(d.paper)) {
       expect((q.options ?? []).length).toBeGreaterThanOrEqual(2);
-      expect(String(q.answer || "").trim().length).toBeGreaterThan(0);
+      const key = String(q.answer || "").trim().toLowerCase();
+      expect(key.length).toBeGreaterThan(0);
+      expect((q.options ?? []).some((o) => o.trim().toLowerCase() === key)).toBe(true);
     }
     // Objective/subjective split is by section.
     expect(objectiveQuestions(d.paper).length + subjectiveQuestions(d.paper).length).toBe(
@@ -132,5 +137,58 @@ describe("drawCTSection — honest PYQ/fresh fallback on a synthetic pool", () =
     expect(r.drawn.length).toBe(12);
     expect(r.pyqDrawn).toBe(6);
     expect(r.freshDrawn).toBe(6);
+  });
+});
+
+describe("chapterTestSectionFor — the SURFACE-1 band + bar (1-mark VSA in, mis-keyed MCQ out)", () => {
+  const written: CanonicalQuestion = {
+    id: "SYN-VSA",
+    subject: "Maths",
+    topicKey: "real-numbers",
+    subtopic: "Fundamental Theorem of Arithmetic",
+    section: "A",
+    marks: 1,
+    format: "Short",
+    difficulty: "Easy",
+    bloomSkill: "Remembering",
+    questionText: "Express 255 as a product of prime factors.",
+    answer: "255 = 3 × 5 × 17",
+  };
+
+  it("a 1-mark written VSA is admitted to Section B (was: no section — the 146-row gap)", () => {
+    expect(chapterTestSectionFor(written)).toBe("B");
+    expect(chapterTestSectionFor({ ...written, options: [] })).toBe("B");
+    expect(chapterTestSectionFor({ ...written, marks: 2 })).toBe("B");
+    expect(chapterTestSectionFor({ ...written, marks: 3 })).toBe("C");
+  });
+
+  it("a drawn real-numbers paper DOES place a 1-mark row in Section B for some seed", () => {
+    // real-numbers carries 9 human 1-mark written rows (P10); across a run of seeds
+    // at least one paper must draw one into B, and every B row stays inside 1–2.
+    let seenOneMark = false;
+    for (let seed = 1; seed <= 40 && !seenOneMark; seed += 1) {
+      const d = draw(seed);
+      const b = d.paper.questions.filter((q) => q.section === "B");
+      for (const q of b) expect([1, 2]).toContain(q.marks);
+      if (b.some((q) => q.marks === 1)) seenOneMark = true;
+    }
+    expect(seenOneMark).toBe(true);
+  });
+
+  it('a mis-keyed MCQ (key "A" against options "A. …") is NOT admitted to Section A; its keyed twin is', () => {
+    const keyed: CanonicalQuestion = {
+      ...written,
+      id: "SYN-MCQ-OK",
+      format: "MCQ",
+      options: ["A. 3 × 5 × 17", "B. 5 × 51", "C. 3 × 85", "D. 15 × 17"],
+      answer: "A. 3 × 5 × 17",
+    };
+    const miskeyed: CanonicalQuestion = { ...keyed, id: "SYN-MCQ-BAD", answer: "A" };
+    expect(chapterTestSectionFor(keyed)).toBe("A");
+    expect(chapterTestSectionFor(miskeyed)).toBeNull();
+    // A marking-scheme digit appended to the key (the bank's commonest defect) too.
+    expect(chapterTestSectionFor({ ...keyed, id: "SYN-MCQ-BAD-2", answer: "A. 3 × 5 × 17 1" })).toBeNull();
+    // An MCQ with an EMPTY key is likewise excluded, never guessed at.
+    expect(chapterTestSectionFor({ ...keyed, id: "SYN-MCQ-NOKEY", answer: "" })).toBeNull();
   });
 });

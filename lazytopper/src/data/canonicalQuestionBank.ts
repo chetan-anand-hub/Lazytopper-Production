@@ -1840,6 +1840,74 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-S-2026-METAL-010",        // garbled: pua+trailing-op
   "PYQ-S-2026-METAL-011",        // garbled: pua
   "SCQ-S-METAL-044",             // garbled: trailing-op
+  // ---- light-reflection-and-refraction: skeptic 2026-09-11 (LIGHT-FIX-1 stage 1) ----
+  // New tags (defined here): placeholder-solution = the stored steps carry no solution at all
+  // (a "See marking scheme" stub, CBSE evaluator boilerplate, or diagram captions only);
+  // spliced-solution = the steps splice in the marking scheme of a DIFFERENT question.
+  "LIGHT-EXMPLR-9-MCQ-004",      // answer-mismatch: Fig 10.1 gives sin 60°/sin 45° = 1.22 and no option matches (the official key 3/2 is the sin² ratio); owner ruling pending
+  "PYQ-S-LIGHT-010",             // placeholder-solution: "See marking scheme."
+  "PYQ-S-LIGHT-014",             // placeholder-solution: ~48 steps of CBSE evaluator instructions after the first
+  "PYQ-S-LIGHT-015",             // placeholder-solution: evaluator boilerplate; stem also lost the minus signs on the powers
+  "PYQ-S-2024-LIGHT-002",        // placeholder-solution: the only step is evaluator boilerplate
+  "PYQ-S-2024-LIGHT-003",        // placeholder-solution: the only step is evaluator boilerplate
+  "PYQ-S-2025-LIGHT-007",        // placeholder-solution: "See marking scheme."; options also lost the ×10^8 and fraction bars
+  "PYQ-S-2025-LIGHT-009",        // placeholder-solution: "See marking scheme."
+  "PYQ-S-2025-LIGHT-012",        // spliced-solution: electricity kettle/fuse marking scheme pasted in
+  "PYQ-S-2025-LIGHT-013",        // spliced-solution: electricity heating-element marking scheme pasted in
+  "PYQ-S-2025-LIGHT-014",        // placeholder-solution: diagram captions only ("IMAGE OBJECT")
+  "PYQ-S-2025-LIGHT-018",        // placeholder-solution: "See marking scheme."
+  "PYQ-S-2026-LIGHT-008",        // placeholder-solution: formula fragment + "Refer to CBSE official marking scheme"
+  "PYQ-S-2026-LIGHT-014",        // placeholder-solution: "Refer to CBSE official marking scheme"
+  "SCO-S-LIGHT-018",             // garbled: stem lost the radius of curvature (R = 5 cm in its source item FND-L-QB-175); underivable as printed
+  "SCQ-S-LIGHT-022",             // garbled: stem says seven one-mark parts (7 marks) but the row carries 2; answer truncated mid-word
+  "SCQ-S-LIGHT-034",             // garbled: solution is formula soup ("3 108 # =", "v . / m s 1 24 108 # ="); part (a) reasoning inverted
+  "SCQ-S-LIGHT-036",             // garbled: chapter header spliced into the stem mid-sentence; solution formula soup + publisher disclaimer
+  "SCQ-S-LIGHT-037",             // garbled: stem speed printed ". ms 1 5 108 1 # -"; solution formula soup
+  "FND-L-SPM-044",               // garbled: stem dropped the teacher's "focus a distant object" sentence; options refer to a "newly selected object" the stem never names
+  "GDR-L-NUM-022",               // garbled: stem asks for the image height but gives no object height
+  // ---- light beyond-board tier: outside official 2026-27 Unit III (LIGHT-FIX-1 stage 2, owner ruling) ----
+  // Each id below needs a concept ABSENT from the official CBSE 2026-27 Class X Science Unit III
+  // text (cbseacademic.nic.in), checked stem by stem; the 17 LGHT_*_BEYOND_BOARD rows solvable with
+  // that text alone stay served. The arrays and their spreads are untouched.
+  "FND-L-QB-078",                // out-of-syllabus: displacement (conjugate-foci) method, O = sqrt(h1*h2)
+  "FND-L-QB-117",                // out-of-syllabus: critical angle
+  "FND-L-QB-136",                // out-of-syllabus: radiation pressure (F = 2P/c)
+  "FND-L-QB-175",                // out-of-syllabus: refraction at a single spherical surface (n2/v - n1/u = (n2 - n1)/R)
+  "FND-L-SPX-001",               // out-of-syllabus: velocity of the image in a plane mirror
+  "FND-L-SPX-003",               // out-of-syllabus: number of images between inclined plane mirrors
+  "FND-L-SPX-004",               // out-of-syllabus: number of images between inclined plane mirrors
+  "FND-L-SPX-005",               // out-of-syllabus: number of images between inclined plane mirrors
+  "FND-L-SPX-007",               // out-of-syllabus: combination of two coaxial lenses (image of one as object of the next)
+  "FND-L-SPX-016",               // out-of-syllabus: critical angle / total internal reflection
+  "FND-L-SPX-017",               // out-of-syllabus: real and apparent depth
+  "FND-L-SPX-024",               // out-of-syllabus: lens-maker's formula (focal length in a liquid)
+  "FND-L-SPX-037",               // out-of-syllabus: derivation of the lateral-displacement expression d = t sin(i - r)/cos r
+  "FND-L-SPX-038",               // out-of-syllabus: minimum plane-mirror height h/2 (derivation)
+  "FND-L-SPX-042",               // out-of-syllabus: two facing mirrors, coincident images (d = 2f or 4f)
+  "FND-L-SPX-043",               // out-of-syllabus: two-mirror system with a virtual object
+  "FND-L-SPM-003",               // out-of-syllabus: rotation of a plane mirror (reflected ray turns through 2x)
+  "FND-L-SPM-004",               // out-of-syllabus: number of images between inclined plane mirrors
+  "FND-L-SPM-006",               // out-of-syllabus: deviation by two perpendicular plane mirrors
+  "FND-L-SPM-014",               // out-of-syllabus: minimum plane-mirror length h/2
+  "FND-L-SPM-021",               // out-of-syllabus: refraction through a glass sphere
+  "FND-L-SPM-022",               // out-of-syllabus: virtual object (convergent beam on a diverging lens)
+  "FND-L-SPM-031",               // out-of-syllabus: normal shift of a convergence point by a glass slab
+  "FND-L-SPM-032",               // out-of-syllabus: critical angle
+  "FND-L-SPM-033",               // out-of-syllabus: prism at minimum deviation (r = A/2)
+  "FND-L-SPM-034",               // out-of-syllabus: total internal reflection in a right-isosceles prism
+  "FND-L-SPM-035",               // out-of-syllabus: prism formula D = i + e - A
+  "FND-L-SPM-036",               // out-of-syllabus: lens-maker's reasoning (lens in a liquid of the same index)
+  "FND-L-WS4-101",               // out-of-syllabus: number of images between three perpendicular mirrors
+  "FND-L-WS4-102",               // out-of-syllabus: number of images between inclined plane mirrors
+  "FND-L-WS4-202",               // out-of-syllabus: minimum object-to-real-image separation 4f
+  "FND-L-WS4-204",               // out-of-syllabus: apparent depth varying with colour (dispersion + apparent depth)
+  "FND-L-WS4-207",               // out-of-syllabus: apparent height seen from water (stem also omits n)
+  "FND-L-WSF-17",                // out-of-syllabus: apparent height seen from water
+  "FND-L-WSF-18",                // out-of-syllabus: apparent depth through a glass slab
+  // chapterwise rows asking the same concepts, withheld for consistency (LIGHT-FIX-1 stage 3, controller ruling)
+  "SCO-S-LIGHT-008",             // out-of-syllabus: half-height plane-mirror
+  "SCO-S-LIGHT-011",             // out-of-syllabus: two-mirror image count
+  "SCO-S-LIGHT-017",             // out-of-syllabus: two-lens system (same ground as FND-L-SPX-007); step 2 garbled under a [0.5 mark] prefix (LIGHT-FIX-1 stage 5)
 ]);
 
 /**

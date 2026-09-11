@@ -1,7 +1,8 @@
 /**
  * scienceFigureVisuals.reachability.test.ts — a bound figure is only useful if the row it is bound
  * to is actually SERVED and actually REACHABLE from the surfaces that render figures.
- * Mirror of mathsFigureVisuals.reachability.test.ts for the FIG-SCI-1 batch.
+ * Mirror of mathsFigureVisuals.reachability.test.ts for the FIG-SCI-1 batch, extended by FIG-SCI-2
+ * (Foundation pack, chapter-wise booklets, board papers, sample papers, additional practice papers).
  *
  * ★ WHY THIS FILE EXISTS. The binder is id-keyed and exact: a typo in `questionId` binds nothing
  * and fails silently — the product shows the stem with no figure, exactly as before, and every
@@ -27,6 +28,11 @@
  *
  * The batch is pinned by COUNT so a silent drop is loud. When the count moves, find out why before
  * editing it — a binding removed for a stated cause is fine, a typo is not.
+ *
+ * FIG-SCI-2 adds six NEW prefixes (`/figures/{foundation,chapterwise,pyq,preboard,sqp,other}-science/`)
+ * that nothing shipped under before, so its sub-batch is pinned separately (49 entries = 48 rows;
+ * PYQ-S-2026-ELEC-011 prints TWO figures and is the one id allowed to resolve to two). Every other
+ * assertion runs over the union, so a typo in either lane's entries is caught by the same checks.
  */
 import { describe, it, expect } from "vitest";
 import fs from "node:fs";
@@ -47,6 +53,13 @@ const SCIENCE_SLUGS = new Set([
 const FIG_SCI_1_PREFIXES = [
   "/figures/itembank-science/", "/figures/exemplar-science/", "/figures/ncert-science/", "/figures/cfpq-science/",
 ];
+const FIG_SCI_2_PREFIXES = [
+  "/figures/foundation-science/", "/figures/chapterwise-science/", "/figures/pyq-science/",
+  "/figures/preboard-science/", "/figures/sqp-science/", "/figures/other-science/",
+];
+const PREFIXES = [...FIG_SCI_1_PREFIXES, ...FIG_SCI_2_PREFIXES];
+// The one FIG-SCI-2 row whose source prints two figures (V-I graph + circuit): two entries, in order.
+const TWO_FIGURE_IDS = new Map<string, number>([["PYQ-S-2026-ELEC-011", 2]]);
 // Bound by CFPQ-FIGURES-1 before this lane, under the same /figures/cfpq-science/ prefix.
 const CFPQ_FIGURES_1_IDS = new Set([
   "CFPQ-S-ELEC-001", "CFPQ-S-ELEC-002", "CFPQ-S-ELEC-003", "CFPQ-S-ELEC-004", "CFPQ-S-ELEC-005",
@@ -54,13 +67,21 @@ const CFPQ_FIGURES_1_IDS = new Set([
   "CFPQ-S-ELEC-014", "CFPQ-S-ELEC-015",
 ]);
 const batch = SCIENCE_FIGURE_VISUALS.filter(
-  (f) => FIG_SCI_1_PREFIXES.some((p) => f.filePath.startsWith(p)) && !CFPQ_FIGURES_1_IDS.has(f.questionId ?? ""),
+  (f) => PREFIXES.some((p) => f.filePath.startsWith(p)) && !CFPQ_FIGURES_1_IDS.has(f.questionId ?? ""),
 );
+const batch1 = batch.filter((f) => FIG_SCI_1_PREFIXES.some((p) => f.filePath.startsWith(p)));
+const batch2 = batch.filter((f) => FIG_SCI_2_PREFIXES.some((p) => f.filePath.startsWith(p)));
 
-describe("FIG-SCI-1 bindings are served and reachable", () => {
-  it("the batch is present and is the size this lane shipped", () => {
-    // 109 = 44 Item Bank Science + 34 NCERT Exemplar + 7 NCERT textbook + 24 CFPQ Science
-    expect(batch).toHaveLength(109);
+describe("FIG-SCI-1 + FIG-SCI-2 bindings are served and reachable", () => {
+  it("the batch is present and is the size the two lanes shipped", () => {
+    // 109 = 44 Item Bank Science + 34 NCERT Exemplar + 7 NCERT textbook + 24 CFPQ Science (FIG-SCI-1)
+    // 109 -> 108 at LIGHT-FIX-1 (2026-09-11): LIGHT-EXMPLR-9-MCQ-004 withheld (answer-mismatch), its binding removed
+    expect(batch1).toHaveLength(108);
+    // 49 = 3 Foundation + 12 chapter-wise + 17 board-paper (16 rows, ELEC-011 twice) + 13 preboard + 2 SQP + 2 APQ (FIG-SCI-2)
+    // 49 -> 46 at LIGHT-FIX-1 stage 2 (2026-09-11): the 3 Foundation rows (FND-L-SPX-003/-004/-043) are
+    // withheld as out-of-syllabus (beyond-board tier) and their bindings removed
+    expect(batch2).toHaveLength(46);
+    expect(batch).toHaveLength(108 + 46);
     // and the earlier lane's 12 cfpq entries are all still present under the shared prefix
     const earlier = SCIENCE_FIGURE_VISUALS.filter((f) => CFPQ_FIGURES_1_IDS.has(f.questionId ?? ""));
     expect(earlier).toHaveLength(12);
@@ -90,9 +111,11 @@ describe("FIG-SCI-1 bindings are served and reachable", () => {
     expect(absent.map((f) => f.filePath)).toEqual([]);
   });
 
-  it("no FIG-SCI-1 asset lives under the legacy /visuals/ path", () => {
+  it("no FIG-SCI-1 / FIG-SCI-2 asset lives under the legacy /visuals/ path", () => {
     const legacy = SCIENCE_FIGURE_VISUALS.filter(
-      (f) => f.filePath.startsWith("/visuals/") && /(itembank|exemplar|ncert|cfpq)-science/.test(f.filePath),
+      (f) =>
+        f.filePath.startsWith("/visuals/") &&
+        /(itembank|exemplar|ncert|cfpq|foundation|chapterwise|pyq|preboard|sqp|other)-science/.test(f.filePath),
     );
     expect(legacy).toEqual([]);
   });
@@ -111,8 +134,32 @@ describe("FIG-SCI-1 bindings are served and reachable", () => {
     expect(getFiguresForQuestion("CFPQ-S-ELEC-008").map((f) => f.filePath)).toEqual([
       "/figures/cfpq-science/electricity/CFPQ-S-ELEC-008.webp",
     ]);
-    // a bound row must resolve to ONE figure — a duplicate entry would draw the same figure twice
-    const dup = batch.filter((f) => getFiguresForQuestion(f.questionId).length !== 1);
+    // FIG-SCI-2: one id per source family resolves to exactly its one figure
+    // (foundation-science: FND-L-SPX-003 was the control until LIGHT-FIX-1 stage 2 withheld it and
+    // removed its binding — the family now has no entries, so the control is that the id resolves to NOTHING)
+    expect(getFiguresForQuestion("FND-L-SPX-003")).toEqual([]);
+    expect(getFiguresForQuestion("SCO-S-ELEC-012").map((f) => f.filePath)).toEqual([
+      "/figures/chapterwise-science/electricity/SCO-S-ELEC-012.webp",
+    ]);
+    expect(getFiguresForQuestion("PYQ-S-2025-ELEC-009").map((f) => f.filePath)).toEqual([
+      "/figures/pyq-science/electricity/PYQ-S-2025-ELEC-009.webp",
+    ]);
+    expect(getFiguresForQuestion("SQP-S-2023-ELEC-A-002").map((f) => f.filePath)).toEqual([
+      "/figures/preboard-science/electricity/SQP-S-2023-ELEC-A-002.webp",
+    ]);
+    expect(getFiguresForQuestion("APQ-S-EYE-003").map((f) => f.filePath)).toEqual([
+      "/figures/other-science/human-eye-and-colourful-world/APQ-S-EYE-003.webp",
+    ]);
+    // the two-figure row resolves to BOTH its figures, in source order (graph first, circuit second)
+    expect(getFiguresForQuestion("PYQ-S-2026-ELEC-011").map((f) => f.filePath)).toEqual([
+      "/figures/pyq-science/electricity/PYQ-S-2026-ELEC-011.webp",
+      "/figures/pyq-science/electricity/PYQ-S-2026-ELEC-011-2.webp",
+    ]);
+    // a bound row must resolve to exactly the figures its source prints (one, or the declared two) —
+    // a duplicate entry would draw the same figure twice, a typo'd id would resolve to nothing
+    const dup = batch.filter(
+      (f) => getFiguresForQuestion(f.questionId).length !== (TWO_FIGURE_IDS.get(f.questionId ?? "") ?? 1),
+    );
     expect(dup.map((f) => f.questionId)).toEqual([]);
   });
 });
