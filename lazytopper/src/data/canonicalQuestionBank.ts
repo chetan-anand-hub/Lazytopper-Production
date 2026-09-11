@@ -1904,6 +1904,9 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "FND-L-WS4-207",               // out-of-syllabus: apparent height seen from water (stem also omits n)
   "FND-L-WSF-17",                // out-of-syllabus: apparent height seen from water
   "FND-L-WSF-18",                // out-of-syllabus: apparent depth through a glass slab
+  // chapterwise rows asking the same concepts, withheld for consistency (LIGHT-FIX-1 stage 3, controller ruling)
+  "SCO-S-LIGHT-008",             // out-of-syllabus: half-height plane-mirror
+  "SCO-S-LIGHT-011",             // out-of-syllabus: two-mirror image count
 ]);
 
 /**

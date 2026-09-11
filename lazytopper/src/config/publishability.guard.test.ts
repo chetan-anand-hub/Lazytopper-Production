@@ -132,7 +132,9 @@ describe("RULE 1 — provenance is an id-set, not a `sources` field", () => {
     // (14 placeholder/spliced solutions, 6 garbled stems/solutions, LIGHT-EXMPLR-9-MCQ-004 answer-mismatch).
     // 5,689 -> 5,654: -35. LIGHT-FIX-1 stage 2 (2026-09-11, owner ruling) withheld the 35 light
     // beyond-board rows whose stems need a concept outside the official 2026-27 Unit III text.
-    expect(human.length).toBeGreaterThanOrEqual(5654);
+    // 5,654 -> 5,652: -2. LIGHT-FIX-1 stage 3 (2026-09-11, controller ruling) withheld SCO-S-LIGHT-008
+    // and SCO-S-LIGHT-011 for consistency with that ruling (same concepts as the withheld tier rows).
+    expect(human.length).toBeGreaterThanOrEqual(5652);
     // IDENTITY — AI-rejected and human rows partition the bank.
     expect(rejected.length + human.length).toBe(canonicalQuestionBank.length);
     // 8,543 -> 8,673: #721 wired the ten .cfpq.ts files into the assembly array.
