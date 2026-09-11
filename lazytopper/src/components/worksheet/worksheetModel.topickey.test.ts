@@ -36,14 +36,16 @@ describe("getTopics — emits canonical topics.ts slugs, menu preserved", () => 
     }
   });
 
-  it("keeps the board-excluded topics OFF the menu (2A — no silent surface expansion)", () => {
+  // WS-1 (2026-09-11) supersedes 2A: the chapters are board-assessed (only
+  // sub-topics are excluded, at the bank), so they are offered by canonical key.
+  it("offers the retained chapters by canonical key; the dead keys never appear", () => {
     const keys = new Set(getTopics("Science").map((t) => t.key));
-    expect(keys.has("heredity")).toBe(false);
+    expect(keys.has("heredity")).toBe(true);
     expect(keys.has("heredity-and-evolution")).toBe(false);
-    expect(keys.has("magnetic-effects-of-electric-current")).toBe(false);
+    expect(keys.has("magnetic-effects-of-electric-current")).toBe(true);
     expect(keys.has("magnetic-effects")).toBe(false);
-    // The live Science menu is exactly the 10 board-assessed chapters.
-    expect(getTopics("Science").length).toBe(10);
+    // The live Science menu is exactly the 13 board-assessed chapters.
+    expect(getTopics("Science").length).toBe(13);
   });
 });
 
