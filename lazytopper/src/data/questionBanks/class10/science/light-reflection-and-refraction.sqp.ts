@@ -27,7 +27,7 @@ export const LIGHT_REFLECTION_SQP: CanonicalQuestion[] = [
     ],
     "answer": "(D) behind the mirror and its position varies according to the object distance.",
     "solutionSteps": [
-      "Convex mirrors always form virtual, erect and diminished images behind the mirror, regardless of the object's distance. The image position (between pole and focus) shifts as the object moves. Answer: (D)."
+      "[1 mark] Convex mirrors always form virtual, erect and diminished images behind the mirror, regardless of the object's distance. The image position (between pole and focus) shifts as the object moves. Answer: (D)."
     ],
     "finalAnswer": "(D) behind the mirror; position varies with object distance.",
     "isCompetencyBased": false
@@ -46,8 +46,8 @@ export const LIGHT_REFLECTION_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "(a) Ray bends towards normal when going A → B (n_B > n_A). (b) Speed of light increases when going B → C (n_C < n_B).",
     "solutionSteps": [
-      "(a) When light travels from an optically rarer medium to an optically denser medium it bends towards the normal. Here n_B (1.8) > n_A (1.6), so the ray going from A to B bends towards the normal.",
-      "(b) The speed of light v = c/n, so v is larger in a medium with smaller n. n_C (1.5) < n_B (1.8), so the speed of light increases when the ray travels from B to C."
+      "[1 mark] (a) When light travels from an optically rarer medium to an optically denser medium it bends towards the normal. Here n_B (1.8) > n_A (1.6), so the ray going from A to B bends towards the normal.",
+      "[1 mark] (b) The speed of light v = c/n, so v is larger in a medium with smaller n. n_C (1.5) < n_B (1.8), so the speed of light increases when the ray travels from B to C."
     ],
     "finalAnswer": "(a) A → B (towards normal); (b) B → C (speed increases).",
     "isCompetencyBased": true
@@ -66,9 +66,9 @@ export const LIGHT_REFLECTION_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "(i) Speed of light in any material < speed in air, so n = c/v > 1. (ii) Ray enters along the radius (normal incidence) at the curved face → no deviation. (iii) Ray bends away from the normal at the flat exit face (going to a rarer medium).",
     "solutionSteps": [
-      "(i) Refractive index of a medium with respect to air = (speed of light in air) / (speed of light in the medium). Since the speed of light in any material medium is always less than the speed of light in air, this ratio is always greater than 1.",
-      "(ii) At the curved (semi-circular) face, the incident light ray is directed along a radius of the semicircle — it strikes the surface along the normal at that point. For normal incidence, the angle of incidence is 0°, so the refracted ray continues without deviation.",
-      "(iii) When the ray reaches the flat top face and exits from the denser plastic back into rarer air, it bends AWAY from the normal (Snell's law: n_plastic·sin θ₁ = n_air·sin θ₂; since n_plastic > n_air, θ₂ > θ₁). The ray diagram shows the incident ray entering along the radius, going straight through, then bending away from the normal at the flat exit face."
+      "[1 mark] (i) Refractive index of a medium with respect to air = (speed of light in air) / (speed of light in the medium). Since the speed of light in any material medium is always less than the speed of light in air, this ratio is always greater than 1.",
+      "[1 mark] (ii) At the curved (semi-circular) face, the incident light ray is directed along a radius of the semicircle — it strikes the surface along the normal at that point. For normal incidence, the angle of incidence is 0°, so the refracted ray continues without deviation.",
+      "[1 mark] (iii) When the ray reaches the flat top face and exits from the denser plastic back into rarer air, it bends AWAY from the normal (Snell's law: n_plastic·sin θ₁ = n_air·sin θ₂; since n_plastic > n_air, θ₂ > θ₁). The ray diagram shows the incident ray entering along the radius, going straight through, then bending away from the normal at the flat exit face."
     ],
     "finalAnswer": "(i) n > 1 because v_medium < c. (ii) Normal incidence at curved face → no deviation. (iii) Bends away from normal at flat exit face.",
     "isCompetencyBased": false
@@ -87,11 +87,11 @@ export const LIGHT_REFLECTION_SQP: CanonicalQuestion[] = [
     "options": [],
     "answer": "Main: (i) Convex lens. (ii) Object at u = −17.5 m (17.5 m on the left). (iii) Diagram with object beyond 2F. OR Alt: (i) Image at v = +6.67 cm behind mirror (virtual). (ii) Image size = (4/3)·10 ≈ 13.33 cm. (iii) Ray diagram with object between pole and focus.",
     "solutionSteps": [
-      "Main (i): A real inverted image is produced only by a converging lens — hence the lens is a Convex lens.",
-      "Main (ii): Lens formula: 1/f = 1/v − 1/u, with f = +5 m and v = +7 m (real image on opposite side). 1/u = 1/v − 1/f = 1/7 − 1/5 = (5 − 7)/35 = −2/35. So u = −35/2 = −17.5 m. Object is placed 17.5 m on the left of the convex lens.",
-      "Main (iii): Ray diagram (two rays from object): one ray parallel to principal axis refracts through F on the other side; second ray through optical centre passes undeviated. Both meet to form a real, inverted, diminished image at v = +7 m. Object placed beyond 2F (since |u| = 17.5 > 2f = 10).",
-      "OR (alternative i): Mirror formula 1/f = 1/v + 1/u with f = −20 cm (concave, half of R = 40 cm) and u = −5 cm. 1/v = 1/f − 1/u = −1/20 + 1/5 = (−1 + 4)/20 = 3/20. v = 20/3 ≈ +6.67 cm. Positive v → image is behind the mirror, so virtual and erect.",
-      "OR (ii–iii): Magnification m = −v/u = −(20/3)/(−5) = 4/3. h₂ = m·h₁ = (4/3)·10 = 13.33 cm — image is enlarged (and erect). Ray diagram: object between pole P and focus F; two rays — one parallel (reflects through F), one through C (reflects back); diverging reflected rays appear to meet behind the mirror, giving virtual, erect, enlarged image."
+      "[1 mark] Main (i): A real inverted image is produced only by a converging lens — hence the lens is a Convex lens.",
+      "[1 mark] Main (ii): Lens formula: 1/f = 1/v − 1/u, with f = +5 m and v = +7 m (real image on opposite side). 1/u = 1/v − 1/f = 1/7 − 1/5 = (5 − 7)/35 = −2/35. So u = −35/2 = −17.5 m. Object is placed 17.5 m on the left of the convex lens.",
+      "[1 mark] Main (iii): Ray diagram (two rays from object): one ray parallel to principal axis refracts through F on the other side; second ray through optical centre passes undeviated. Both meet to form a real, inverted, diminished image at v = +7 m. Object placed beyond 2F (since |u| = 17.5 > 2f = 10).",
+      "[1 mark] OR (alternative i): Mirror formula 1/f = 1/v + 1/u with f = −20 cm (concave, half of R = 40 cm) and u = −5 cm. 1/v = 1/f − 1/u = −1/20 + 1/5 = (−1 + 4)/20 = 3/20. v = 20/3 ≈ +6.67 cm. Positive v → image is behind the mirror, so virtual and erect.",
+      "[1 mark] OR (ii–iii): Magnification m = −v/u = −(20/3)/(−5) = 4/3. h₂ = m·h₁ = (4/3)·10 = 13.33 cm — image is enlarged (and erect). Ray diagram: object between pole P and focus F; two rays — one parallel (reflects through F), one through C (reflects back); diverging reflected rays appear to meet behind the mirror, giving virtual, erect, enlarged image."
     ],
     "finalAnswer": "Main: (i) Convex lens; (ii) u = −17.5 m; (iii) diagram. OR Alt: (i) v = +6.67 cm; (ii) image size ≈ 13.33 cm; (iii) ray diagram.",
     "isCompetencyBased": true
