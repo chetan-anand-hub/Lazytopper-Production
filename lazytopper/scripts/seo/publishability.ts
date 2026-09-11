@@ -17,7 +17,23 @@
  * ⚠ CHANGING A RULE HERE CHANGES WHAT BOTH TRACKS MEAN BY "DONE".
  * Do not relax a rule to make a page appear. If a rule is wrong, say so and get a
  * ruling — a page that ships because the gate was loosened is worse than no page.
+ *
+ * ★ RULE 5 CONSULTS THE FIGURE BINDER (PR-3). A row that demands a supplied figure
+ * is rejected ONLY when no figure is bound to its id. The binder is
+ * `getFiguresForQuestion` in `src/data/visualConceptRegistry.ts` — id-keyed, exact,
+ * never heuristic — so a page CAN render the figure for every row it returns. Before
+ * PR-3 this rule read only the text and `requiresDiagram`, and 162 rows that already
+ * shipped a real bound figure were rejected as `requires-absent-figure`, i.e. the
+ * reason string was FALSE for them. The reason string is unchanged for the rows
+ * that remain unbound: for those it is still true.
+ *
+ * The registry is NOT the bank — it imports no question row — so the "no bank
+ * imports" rule below still holds. The resolver is injectable
+ * (`opts.hasBoundFigure`) so a test can prove the escape is load-bearing by
+ * switching it off and recovering the pre-PR-3 count exactly.
  */
+
+import { getFiguresForQuestion } from "../../src/data/visualConceptRegistry";
 
 export type PublishVerdict =
   | { ok: true }
@@ -28,7 +44,24 @@ export type PublishRejection =
   | "no-solution-steps"
   | "unmarked-step"            // a step carries no mark annotation
   | "marks-do-not-sum"
-  | "requires-absent-figure";  // the text demands a figure the page cannot render
+  | "requires-absent-figure";  // the text demands a figure AND none is bound to the id
+
+/**
+ * Optional resolvers a caller may inject. Production callers pass nothing and get
+ * the real binder; the guard test passes `() => false` to switch the figure escape
+ * off and prove the pre-PR-3 count comes back exactly.
+ */
+export interface PublishOptions {
+  /** True when the figure binder holds ≥1 figure for this question id. */
+  hasBoundFigure?: (id: string) => boolean;
+}
+
+/** The production resolver: Rule 5 asks the id-keyed binder, never a heuristic.
+ *  EXPORTED so the guard test can use the same definition of "bound" that the
+ *  predicate uses, rather than a copy that could drift. */
+export function defaultHasBoundFigure(id: string): boolean {
+  return getFiguresForQuestion(id).length > 0;
+}
 
 /** Minimal shape this contract needs. Deliberately structural, not an import of
  *  the bank's own type — this file must not drag the bank into the generator. */
@@ -42,7 +75,8 @@ export interface PublishableQuestion {
   pyqYear?: string;
   /** Answer text, when present. Scanned by the figure rule alongside the stem. */
   answer?: string;
-  /** True when the row references a figure the bank does not ship. */
+  /** True when the row references a figure. Since PR-3 this alone does not reject:
+   *  Rule 5 also asks the binder, and a bound figure satisfies the reference. */
   requiresDiagram?: boolean;
 }
 
@@ -74,6 +108,10 @@ export function stepMarks(step: string): number | null {
  *   - "in the figure shown"       -> the PAGE must supply it. NOT publishable
  *                                    unless the figure ships.
  * Both directions must be pinned by a control in any test of this function.
+ *
+ * ★ "UNLESS THE FIGURE SHIPS" IS NOW READ LITERALLY (PR-3). `demandsSuppliedFigure`
+ * decides whether the text DEMANDS a figure; `isPublishable` then asks the binder
+ * whether one SHIPS. This function's own behaviour is unchanged.
  */
 const ARTEFACT = "(figure|fig\\.?|diagram|graph|circuit|table)";
 
@@ -205,7 +243,10 @@ export function demandsSuppliedFigure(text: string): boolean {
 export function isPublishable(
   q: PublishableQuestion,
   aiIds: ReadonlySet<string>,
+  opts: PublishOptions = {},
 ): PublishVerdict {
+  const hasBoundFigure = opts.hasBoundFigure ?? defaultHasBoundFigure;
+
   // RULE 1 — PROVENANCE. Non-negotiable, and it SUBSUMES the old Rule 4.
   // An AI-generated question published as board-prep content is a correctness
   // error that is cached, screenshot-able and permanent. 364 AI-pack rows also
@@ -233,8 +274,11 @@ export function isPublishable(
   }
 
   // RULE 5 — THE FIGURE RULE. See the note above before editing.
+  // A demanded figure is ABSENT only when the binder has nothing for this id.
+  // The binder is asked AFTER the text test, so a row that demands nothing never
+  // pays for a lookup and an unbound row's path is unchanged from before PR-3.
   const figureScan = `${q.questionText}\n${q.answer ?? ""}`;
-  if (q.requiresDiagram || demandsSuppliedFigure(figureScan)) {
+  if ((q.requiresDiagram || demandsSuppliedFigure(figureScan)) && !hasBoundFigure(q.id)) {
     return { ok: false, reason: "requires-absent-figure", detail: q.id };
   }
 

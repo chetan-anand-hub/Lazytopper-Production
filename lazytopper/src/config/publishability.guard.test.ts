@@ -27,6 +27,7 @@ import { describe, it, expect } from "vitest";
 import {
   isPublishable,
   demandsSuppliedFigure,
+  defaultHasBoundFigure,
   stepMarks,
   DEMANDS_SUPPLIED_FIGURE,
 } from "../../scripts/seo/publishability";
@@ -263,6 +264,30 @@ describe("RULE 5 — C4, both directions", () => {
   });
 
   /**
+   * DIRECTION 2, RESOLVED — THE FIGURE SHIPS (PR-3).
+   * `TRI-N-NCERT-6-SA-004` is the row above: it DOES demand a figure, and the binder
+   * DOES hold one for its id. Before PR-3, Rule 5 read only the text and rejected it
+   * as `requires-absent-figure` — a reason that was false for this row. Now the
+   * demand stands (the text test is unchanged) and the escape lets the bound row
+   * through. Pinned on a single named row so the escape has a face, not just a count.
+   *
+   * ⚠ The real row is still `unmarked-step` today (it is one of 21 bound rows in the
+   * step-marking backlog), so it is given one fully-marked step here — exactly as the
+   * "ignores solution steps" control does — to reach Rule 5 at all.
+   */
+  it("publishes a figure-demanding row whose figure is BOUND, and rejects it when unbound", () => {
+    const q = row("TRI-N-NCERT-6-SA-004");
+    expect(defaultHasBoundFigure(q.id)).toBe(true);
+    const marked = { ...q, solutionSteps: [`[${q.marks} marks] Use the similarity to find the angle.`] };
+
+    expect(isPublishable(marked, AI).ok).toBe(true);
+
+    const unbound = isPublishable(marked, AI, { hasBoundFigure: () => false });
+    expect(unbound.ok).toBe(false);
+    expect((unbound as { reason: string }).reason).toBe("requires-absent-figure");
+  });
+
+  /**
    * INLINE DATA IS NOT A SUPPLIED ARTEFACT — the second costume of C4.
    * `BX-POLY-E-019` prints `t = 0, 1, 2, 3, 4 -> h = 0, 3, 4, 3, 0` in its own stem
    * and then says "From the table". A nominal rule rejected it and eight like it.
@@ -416,7 +441,7 @@ describe("the publishable population", () => {
    * intended — a derived value pinned in prose outlives the facts it came from; a
    * derived value pinned in a test fails loudly when they change.
    */
-  it("2,982 rows are publishable today", () => {
+  it("3,144 rows are publishable today", () => {
     const publishable = canonicalQuestionBank.filter((q) => isPublishable(q, AI).ok);
     // 2,248 -> 2,333: +85. Of the 130 CFPQ rows wired by #721, 85 publish immediately,
     // 10 join the step-marking backlog and 35 are held by the figure rule. ~3.8% growth,
@@ -468,7 +493,52 @@ describe("the publishable population", () => {
     // REFERENCE ONLY, answerable without its image and NOT setting requiresDiagram, and
     // that row is publishable here, while -005, whose answer names "Representation 1"
     // and "Representation 2", is held. The rule agrees with the source's own reading.
-    expect(publishable).toHaveLength(2982);
+    // 2,982 -> 3,144: +162. PR-3: rows whose figure is BOUND (Rule 5 now consults the binder).
+    // ★ NOT +183. The binder holds a figure for 183 figure-demanding rows, but 21 of those
+    // fail Rule 2 first ("unmarked-step") and never reach Rule 5 — Rule 2 runs before
+    // Rule 5, exactly the ordering the STEPMARK batches above reconcile against. So the
+    // escape moves 162 rows from `requires-absent-figure` (392 -> 230) to publishable, and
+    // the 21 stay in `addressable` (UNCHANGED at 2,336) until a STEPMARK lane annotates
+    // them, at which point they publish directly. Bank length UNCHANGED at 8,662 — this
+    // change authors no rows and binds no figures; it stops the predicate from ignoring
+    // figures that were already bound. The control below proves the +162 is the escape
+    // and nothing else: with the binder switched off the count is the old 2,982 exactly.
+    expect(publishable).toHaveLength(3144);
+  });
+
+  /**
+   * ★ THE MUTATION CONTROL, MADE PERMANENT (PR-3). The escape is load-bearing only if
+   * switching the binder off recovers the pre-PR-3 count EXACTLY — not "a smaller
+   * number" but 2,982, the value pinned on trunk before this change. If the default
+   * resolver ever stops reaching the binder (a wrong import, a renamed export, a
+   * registry that returns [] for every id), the two counts collapse to one and this
+   * test is the only thing that says so.
+   *
+   * The 2,982 here is the LAST binder-blind count and is pinned exactly ON PURPOSE:
+   * it must move only when a row enters or leaves the binder-blind population, which
+   * a STEPMARK or content PR does and which its reconciliation must then state.
+   */
+  it("★ the escape is load-bearing: binder off recovers the pre-PR-3 count exactly", () => {
+    const withBinder = canonicalQuestionBank.filter((q) => isPublishable(q, AI).ok);
+    const binderOff = canonicalQuestionBank.filter(
+      (q) => isPublishable(q, AI, { hasBoundFigure: () => false }).ok,
+    );
+
+    expect(binderOff).toHaveLength(2982);
+    expect(withBinder.length - binderOff.length).toBe(162);
+
+    // Every escaped row is exactly one that (a) demands a figure and (b) has one bound.
+    // Nothing else may ride through the escape.
+    const offIds = new Set(binderOff.map((q) => q.id));
+    const escaped = withBinder.filter((q) => !offIds.has(q.id));
+    expect(escaped).toHaveLength(162);
+    for (const q of escaped) {
+      const demands =
+        Boolean((q as { requiresDiagram?: boolean }).requiresDiagram) ||
+        demandsSuppliedFigure(`${q.questionText}\n${q.answer ?? ""}`);
+      expect(demands, `${q.id} escaped without demanding a figure`).toBe(true);
+      expect(defaultHasBoundFigure(q.id), `${q.id} escaped without a bound figure`).toBe(true);
+    }
   });
 
   it("no publishable row is AI-generated — the property retirement depends on", () => {
@@ -520,11 +590,23 @@ describe("the publishable population", () => {
  * `addressable` to `publishable`; annotating a figure-held row removes it from
  * `addressable` and from the figure-held set at once. Either way the expression is
  * conserved. A batch that MOVES these numbers has done something other than annotate.
+ *
+ * ★ PR-3: "FIGURE-HELD" MEANS WHAT RULE 5 HOLDS, AND RULE 5 NOW CONSULTS THE BINDER.
+ * `figureHeld` below is binder-aware for the same reason the predicate is: an
+ * addressable row whose figure is BOUND will publish the moment it is annotated, so
+ * counting it as unreachable understates the ceiling by exactly the rows PR-3 freed.
+ * Measured at PR-3: 21 addressable rows are bound, so `held` 92 -> 71, `excluded`
+ * 514 -> 495, the overlap 24 -> 22 (two of the 21 were also cannot-sum), and both
+ * ceilings move +183 = 162 (publishable) + 21 (no longer held): 5,226 -> 5,409 and
+ * 4,804 -> 4,985. The gap is now 424 = 446 - 22. Had `figureHeld` stayed binder-blind
+ * the sums would read 5,388 / 4,966 — a ceiling that counts 21 reachable rows as
+ * unreachable, which is the definition error this paragraph exists to refuse.
  */
 describe("the achievable ceiling — ruling 5", () => {
   const figureHeld = (q: (typeof canonicalQuestionBank)[number]) =>
-    Boolean((q as { requiresDiagram?: boolean }).requiresDiagram) ||
-    demandsSuppliedFigure(`${q.questionText}\n${q.answer ?? ""}`);
+    (Boolean((q as { requiresDiagram?: boolean }).requiresDiagram) ||
+      demandsSuppliedFigure(`${q.questionText}\n${q.answer ?? ""}`)) &&
+    !defaultHasBoundFigure(q.id);
 
   /** A row can be annotated iff its unmarked steps can each take at least 0.5 and
    *  the remainder lands on the 0.5 grid. `[0 mark]` is refused (ruling 6). */
@@ -553,11 +635,14 @@ describe("the achievable ceiling — ruling 5", () => {
     const cannotSum = addressable.filter((q) => !canBeAnnotated(q)).length;
     const excluded = addressable.filter((q) => figureHeld(q) || !canBeAnnotated(q)).length;
 
-    // the two excluded sets OVERLAP by 24 — this is the assertion the controller's
+    // the two excluded sets OVERLAP by 22 — this is the assertion the controller's
     // arithmetic would have got wrong, and it is why 4,822 is not 5,244 minus 446.
-    expect(held + cannotSum - excluded).toBe(24);
+    // 24 -> 22: PR-3, two of the 21 bound-but-unmarked rows were also cannot-sum, and a
+    // bound row is no longer figure-held, so they leave the overlap. `cannotSum` itself
+    // is UNCHANGED at 446: binding a figure does not change whether steps can sum.
+    expect(held + cannotSum - excluded).toBe(22);
     expect(cannotSum).toBe(446);
-    expect(cannotSum - 24).toBe(422);
+    expect(cannotSum - 22).toBe(424);
 
     // ✗ NOT the achievable figure: ignores that 422 rows can never be annotated.
     // 5,244 -> 5,209 and 4,822 -> 4,787: both -35, and for ONE reason. All 35 rows
@@ -576,9 +661,17 @@ describe("the achievable ceiling — ruling 5", () => {
     // ceilings therefore move by exactly the publishable delta, +17, and their GAP stays
     // 422. The invariant in this block's header is about ANNOTATION, and holds: adding
     // rows to the bank is a different operation, and it moves both ceilings together.
-    expect(publishable + addressable.length - held).toBe(5226);
+    // 5,226 -> 5,409 and 4,804 -> 4,985: both +183, and for ONE reason. PR-3: +183 = rows
+    // whose figure is bound (Rule 5 now consults the binder) — 162 of them move straight
+    // into `publishable`, and 21 stay `addressable` but stop being `held`/`excluded`
+    // because a bound figure is no longer a reason to hold. `addressable` is UNCHANGED at
+    // 2,336 and `cannotSum` at 446; the gap moves 422 -> 424 because 2 of the 21 leave
+    // the overlap. A third operation, then: ANNOTATION conserves these, ADDING ROWS moves
+    // both by the publishable delta, and BINDING (or, here, first honouring what was
+    // already bound) moves both by the freed count. Bank length UNCHANGED at 8,662.
+    expect(publishable + addressable.length - held).toBe(5409);
 
     // ★ THE AUTHORITATIVE ACHIEVABLE FIGURE.
-    expect(publishable + addressable.length - excluded).toBe(4804);
+    expect(publishable + addressable.length - excluded).toBe(4985);
   });
 });
