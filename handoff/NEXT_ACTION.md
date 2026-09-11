@@ -2,6 +2,61 @@
 
 
 ```
+⛔⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW IT. FIG-MATHS-1 (#757) IS ON TRUNK.
+
+TRUNK IS `a157c741a494b97bdf760db95888fa7ccbea8aad` (#757, merged 2026-09-11T02:06Z),
+HANDOFF-VERIFIED 2026-09-11 with `git log 00153896..a157c741` (two commits: #754 docs, #757).
+RE-DERIVE IT BEFORE ACTING:  git ls-remote origin base/approved-thru-437
+OPEN PRs AT THE TIME OF WRITING: NONE — a status claim, re-check with `gh pr list --state open`.
+
+WHAT #757 DID: 88 maths questions render the figure their source printed, cropped from the
+   authentic PDF (Item Bank 49 · APQ 13 · PYQ 11 · SQP 7 · preboard 4 · NCERT 3 · Exemplar 1).
+   mathsFigureVisuals.ts 70 → 158 entries; figure-demanding rows BOUND 95 → 183, UNBOUND 310;
+   publishable UNCHANGED at 2,982 (Rule 5 cannot see the binder — that is PR-3, now the controller's lane per ruling 10,
+   which MAY PUSH NOW). Pin file untouched, as expected pre-PR-3.
+
+★ NEXT ACTION IS **FIG-SCI-1** — Item Bank Science + NCERT Exemplar/textbook science (~140 rows).
+   Spec: BANK-2027 brief §D1 (Desktop/diff/content session/Report/
+   BANK-2027_STATE_AND_NEXT-WINDOW_BRIEF_2026-09-11.md). Branch `lane/fig-sci-authentic-1`, fresh
+   worktree. ALLOWED: `lazytopper/src/data/figures/scienceFigureVisuals.ts` (free — #752 is on
+   trunk as 7eea064c) · NEW assets under `lazytopper/public/figures/{itembank,exemplar,ncert}-science/`
+   · NEW `scienceFigureVisuals.reachability.test.ts` · the pin file ONLY if post-PR-3 and a pin
+   moves by the stated amount. FORBIDDEN: any question row, predictionTypes.ts,
+   canonicalQuestionBank.ts, mathsFigureVisuals.ts, publishability.ts, components, handoff/.
+   Same method as FIG-MATHS-1: scout targets → crop per family → EYE-CONFIRM EVERY CROP against
+   its stem → bind in the one-line shape → mutation-prove the reachability test → counts
+   before/after by runtime import (brief §D2). Rows whose source prints no figure are LISTED,
+   never guessed. The 26 still-unbound CFPQ science rows are the controller's too (ruling 10) and follow in their own batch.
+   ⚠ State in its §0 which side of PR-3 it sits on. ⚠ NEVER open it beside a STEPMARK batch.
+
+THEN — THE SEQUENCE IS THE CONTROLLER'S (ruling 10, later the same day: NO cofounder session in this
+   arc; the Fable controller owns PR-3, STEPMARK batches, the pin file, canonicalQuestionBank.ts,
+   QuestionVisualAid.tsx; the COORD_BANK-2027_* signals and "announce before touching X" are moot),
+   DRIVEN BY THE ~10,000-QUESTION TARGET (ruling 8: all correct, all [N mark] step-marked to CBSE 2026-27,
+   roughly equal per topic FLOOR-ONLY, all reachable from PracticeHub / ChapterTest / Full-length /
+   Worksheets, fast). AI rows (2,952) are EXCLUDED and RETIRED per topic as verified supply lands;
+   verification is SKEPTIC-ONLY (ruling 9). WAVES:
+   1. FIG-SCI-1 + enabling PRs (PR-3 figure escape · content PR for rulings 1–4 · TIERMAP-1, ruling 7 ·
+      the ruling-5 UI lane on QuestionVisualAid.tsx)
+   2. bulk step-mark / transcription per chapter, retiring that topic's AI rows as its supply lands
+   3. authoring (named authentic template, skeptic re-solve, owner merges)
+   4. HPQ-2027 refresh (ruling 11: predicted set re-derived for 2027, every prediction step-marked)
+   5. surface reachability / guards.
+
+ALL ELEVEN OWNER RULINGS (brief Part E + four later the same day) ARE RECORDED VERBATIM in
+   OPEN_QUESTIONS_AND_FOLLOWUPS.md, 2026-09-11 section. New FUs: [FU-Z3-REQUIRESDIAGRAM-FLAG] ·
+   [FU-CBE-CG-COORDINATES] · [FU-SP-TRIG-E-001-DECORATIVE] · [FU-18-NO-FIGURE-ROWS-HELD-BY-RULE5] ·
+   [FU-QUESTIONVISUALAID-NOT-ON-SOLUTIONCHECKER-WEAKAREA]. CLOSED: [FU-Z3-DIAGRAM-EXISTENCE-UNKNOWN]
+   — the 53 Z3 rows have NO source diagram (51 carry only the photograph #750 removed, PLE-008 two
+   photographs, ST-001 none).
+
+The SEO / PERF banner below is superseded ONLY in its trunk SHA and its NEXT line. Its substance
+stands: the Soft 404 cause is UNKNOWN, the four dead hypotheses stay dead, the topic-hub
+module-graph lane remains unspecced product work, prerendering remains undecided.
+```
+
+
+```
 ⛔⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW IT. THE SEO / PERF ARC IS CLOSED.
 
 TRUNK IS `001538964ffd7422a0221116abdb089a07c97e98` (#753), MEASURED 2026-09-10

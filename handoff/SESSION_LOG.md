@@ -1,5 +1,69 @@
 ---
 
+## 2026-09-11 — FIG-MATHS-1 MERGED — **`#757` ON TRUNK: 88 MATHS QUESTIONS SHOW THE FIGURE THEY ASK ABOUT, CROPPED FROM THE SOURCE THAT SET THEM** — trunk `a157c741`
+
+★ **PROVENANCE.** Merge facts are **HANDOFF-VERIFIED** by this docs lane in its own worktree
+(`git log --oneline 00153896..a157c741` → `92a98942` `#754` handoff-only, then `a157c741` `#757`;
+merged **2026-09-11T02:06Z**; open PRs at the time of writing: **none**). Bank counts are
+**LANE-REPORTED** by the FIG-MATHS-1 lane at `a157c741`, by runtime import of the assembled bank
+(recipe: BANK-2027 brief §D2) — this lane did not re-run them. The seven rulings are
+**OWNER-RULED** 2026-09-11 on the BANK-2027 brief Part E.
+
+**What a student gets.** 88 maths questions that demanded a figure now render the figure their
+source printed — cropped losslessly from the authentic PDF (Item Bank 49 · APQ 13 · PYQ 11 · SQP 7 ·
+preboard 4 · NCERT 3 · Exemplar 1; triangles 26 · trigonometry 16 · circles 12 · areas-related 10 ·
+surface-areas-and-volumes 8 · statistics 7 · linear-equations 3 · coordinate-geometry 3 ·
+polynomials 2 · probability 1), **every crop eye-confirmed against its stem**, nothing authored,
+nothing guessed. `QuestionVisualAid` is mounted on Practice, Chapter Test, Full Mock, HPQ and Mock
+Paper, so one binding reaches all five.
+
+**What landed.** `mathsFigureVisuals.ts` **70 → 158** entries (+88, one-line shape, provenance
+comment per entry); NEW `mathsFigureVisuals.reachability.test.ts` (6 tests, mutation-proven: a
+one-character `questionId` typo → 2 red); 88 × `public/figures/{itembank,apq,preboard,sqp,pyq,ncert,exemplar}-maths/**.webp`.
+**The pin file is not in the diff** — pre-PR-3, zero pin movement was expected and observed.
+
+**Counts at `a157c741`.** bank 8,662 · AI 2,952 · **publishable 2,982 (unchanged — Rule 5 cannot see
+the binder)** · figure-demanding 493 · **bound 183 (was 95)** · unbound 310 · rows with ≥1 figure
+186 · MATHS 158 / SCIENCE 48 · controls bogus 0 / `Z3-TG-110` 1.
+
+**What was NOT bound, and why — the lane's real finding.** ★★ **The 53 Z3 rows `#750` unbound have
+NO source diagram**: the DOCX extraction record shows 51 rows carry exactly the decorative
+photograph `#750` removed, `Z3-PLE-008` two photographs, `Z3-ST-001` none. `requiresDiagram:true`
+is the defect, not a missing figure. ⇒ `[FU-Z3-DIAGRAM-EXISTENCE-UNKNOWN]` **CLOSED** — existence
+is KNOWN: none. Also unbound with reasons: `CBE-M-CG-A-001`/`CG-B-002` (transcribed coordinates
+contradict the printed figure; crops ready), `SP-M-2022-TRIG-E-001` (photo-only source) and 18
+text-only rows whose source prints no figure.
+
+**Seven owner rulings (2026-09-11), verbatim in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`:** (1) Z3 flag →
+false, 2 `diagramDescription` rows checked individually, one small `competency.z3.ts` PR;
+(2) CG stems → the printed figure, answers 2√2 / 2√5 unchanged, bind the crops; (3) TRIG-E-001 →
+false; (4) the 18 → false where set, Rule-5-regex rows to PR-3's review, regex untouched;
+(5) practice surfaces do NOT hide questions — honest one-line note + excluded from timed draws
+until bound, small UI lane after FIG-SCI-1; (6) ≈843 format×marks: `marks` authoritative,
+re-FORMAT, Item Bank rows excepted, data-only PR + shrink-only guard; (7) `predictionTypes.ts`
+scope GRANTED narrowly for TIERMAP-1 (`questionProvenance` + `shapedFrom` + guard, nothing else).
+
+**Follow-ups.** ADDED `[FU-Z3-REQUIRESDIAGRAM-FLAG]` · `[FU-CBE-CG-COORDINATES]` ·
+`[FU-SP-TRIG-E-001-DECORATIVE]` · `[FU-18-NO-FIGURE-ROWS-HELD-BY-RULE5]` ·
+`[FU-QUESTIONVISUALAID-NOT-ON-SOLUTIONCHECKER-WEAKAREA]`. CLOSED `[FU-Z3-DIAGRAM-EXISTENCE-UNKNOWN]`.
+
+⚠ **Two corrections of record, made here rather than by rewriting dated entries.** (a) `CURRENT_STATE.md`
+listed `#752` as a DRAFT; it is on trunk as `7eea064c`, inside `00153896`. (b) The
+CFPQ-FIGURES-1 + BANK-1 arc (`#744` `#746` `#747` `#750`, 2026-09-10) has no entry in
+`IMPLEMENTATION_ROADMAP.md` and none in `SURFACE_TRACKER.md` — recorded in `CURRENT_STATE.md` and
+the follow-ups board only. Not backfilled by this lane; noted so the gap is visible.
+
+**Next.** FIG-SCI-1 (brief §D1) → FIG-SCI-2 → one small content PR for rulings 1–4 → BANK-12 →
+TIERMAP-1 → authoring. PR-3 (figure escape) is now the controller's own lane (ruling 10); the FIG pin rule inverts
+once it lands.
+
+**Later the same day.** Four more owner rulings (8–11, verbatim on the follow-ups board): a **~10,000-question
+target** (all correct, all step-marked, floor-equal per topic, reachable everywhere); **AI rows excluded and retired**
+per topic, skeptic-only verification; **no cofounder session — the controller owns every lane**; **HPQ is a separate class, in scope for a full 2027 refresh**.
+
+
+---
+
 ## 2026-09-10 — SEO / PERF ARC CLOSED — **`#745` · `#748` · `#749` · `#751` ON TRUNK, AND THE SOFT 404 CAUSE IS UNKNOWN** — trunk `00153896`
 
 ★ **PROVENANCE.** Every claim below is **LANE-VERIFIED** with the command named, by the seat

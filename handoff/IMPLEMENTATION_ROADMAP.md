@@ -1,6 +1,34 @@
 # LazyTopper Implementation Roadmap
 
 
+## 2026-09-11 — FIG-MATHS-1: **88 MATHS QUESTIONS GET THE FIGURE THEY ASK ABOUT, FROM THE SOURCE THAT SET THEM** — `#757` MERGED — trunk `a157c741`
+
+**`2026-09-11`**
+
+- ✅ **`#757` FIG-MATHS-1** (`a157c741`, merged 2026-09-11T02:06Z) — `mathsFigureVisuals.ts`
+  **70 → 158** entries; 88 lossless crops under `public/figures/*-maths/`, every one eye-confirmed
+  against its stem; NEW mutation-proven `mathsFigureVisuals.reachability.test.ts`. Figure-demanding
+  rows **bound 95 → 183**, unbound 310 of 493. **Publishable unchanged at 2,982** — Rule 5 cannot
+  see the binder; that unlock is PR-3 (the figure escape), now the controller's own lane (ruling 10).
+- ✅ **The Z3 question is answered, not deferred.** The 53 Z3 rows `#750` unbound have **no source
+  diagram at all** — `requiresDiagram:true` is the defect. `[FU-Z3-DIAGRAM-EXISTENCE-UNKNOWN]`
+  closed; **owner RULED 2026-09-11**: flip the flag (2 `diagramDescription` rows checked
+  individually) in one small content PR.
+- ✅ **Seven owner rulings landed on the BANK-2027 brief's Part E** — Z3 flag · CG coordinates ·
+  TRIG-E-001 · the 18 text-only rows · practice surfaces (honest note + no timed draws, never hide)
+  · ≈843 format×marks (`marks` authoritative, Item Bank excepted) · `predictionTypes.ts` scope
+  GRANTED narrowly for TIERMAP-1. Verbatim in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+- ⛔ **NOT DONE:** 310 figure-demanding rows remain unbound (≈140 Item Bank/NCERT science =
+  **FIG-SCI-1, next**; ≈50 worksheet/Foundation/chapterwise science = FIG-SCI-2; 38 CFPQ science =
+  cofounder; ≈70 are a flag defect, not a figure gap). The publishability contract still cannot see
+  a bound figure (PR-3).
+- **Stage order from here:** FIG-SCI-1 → FIG-SCI-2 → content PR for rulings 1–4 → BANK-12 →
+  TIERMAP-1 → authoring.
+- ⚠ **Record gap, noted not backfilled:** the 2026-09-10 CFPQ-FIGURES-1 + BANK-1 arc (`#744` ·
+  `#746` · `#747` · `#750`, and `#752` which is on trunk as `7eea064c`) has no entry in this
+  roadmap; it is recorded in `CURRENT_STATE.md` and the follow-ups board.
+
+
 ## 2026-09-10 — SEO / PERF ARC: **PERFORMANCE SHIPPED, CRAWLABILITY DID NOT** — `#745` · `#748` · `#749` · `#751` ALL MERGED — trunk `00153896`
 
 **`2026-09-10`**
