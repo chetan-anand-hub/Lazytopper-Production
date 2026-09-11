@@ -1,6 +1,114 @@
 # LazyTopper — Current State
 
-## [CURRENT · SEO / PERF ARC] — **FOUR HYPOTHESES FOR THE SOFT 404 ARE DEAD, EACH BY MEASUREMENT. THE CAUSE IS UNKNOWN.** `#745` · `#748` · `#749` · `#751` are ALL ON TRUNK (arc merged through `a1fecdb3`) — trunk at this handoff `00153896`
+## [CURRENT · BANK / FIGURES ARC] FIG-MATHS-1 — **88 MATHS QUESTIONS NOW SHOW THE FIGURE THEY ASK ABOUT, CROPPED FROM THE SOURCE THAT SET THEM** — `#757` MERGED — trunk `a157c741`
+
+★ **PROVENANCE.** Merge facts below are **HANDOFF-VERIFIED** by this docs lane
+(`git log --oneline 00153896..a157c741` in its own worktree). Every bank count is
+**LANE-REPORTED** by the FIG-MATHS-1 lane at `a157c741`, by runtime import of the assembled bank
+(recipe: `Desktop/diff/content session/Report/BANK-2027_STATE_AND_NEXT-WINDOW_BRIEF_2026-09-11.md`
+§D2) — **this docs lane did not re-run the recipe.** The seven rulings in §4 are **OWNER-RULED**,
+2026-09-11, on that brief's Part E.
+
+**Trunk `a157c741a494b97bdf760db95888fa7ccbea8aad`** = the squash of `#757`, merged
+**2026-09-11T02:06Z**. Since the previous handoff's `00153896` the tip moved twice:
+`92a98942` (`#754`, `handoff/` only) → `a157c741` (`#757`). **Open PRs at the time of writing: none**
+— a status claim; re-check with `gh pr list --state open` before acting.
+
+### 1 — WHAT LANDED IN `#757`
+
+- `lazytopper/src/data/figures/mathsFigureVisuals.ts` — **+88 entries, 70 → 158**, appended in the
+  existing one-line shape (`filePath` before `questionId`, so `tutor_visual_catalogue_acceptance.mjs`
+  still parses it), grouped by source, each with a trailing `// <pdf> p<page>` provenance comment.
+  No existing entry touched.
+- **NEW** `lazytopper/src/data/figures/mathsFigureVisuals.reachability.test.ts` — 6 tests: every
+  binding names a SERVED row (in `canonicalQuestionBank`, not withheld), resolves to a canonical
+  maths slug, has its asset on disk, uses no legacy path, resolves to exactly one figure; bogus-id
+  control. **Mutation-proven**: a one-character `questionId` typo turned 2 assertions red.
+- **88 × `lazytopper/public/figures/{itembank,apq,preboard,sqp,pyq,ncert,exemplar}-maths/<topicKey>/<ID>.webp`**
+  — lossless crops (pymupdf, 200 dpi, composited on white; no OCR, no authored SVG), **every one
+  eye-confirmed against its stem** on contact sheets. Path is `/figures/`, never `/visuals/`.
+- **The pin file (`publishability.guard.test.ts`) is NOT in the diff.** Pre-PR-3, zero pin movement
+  was expected and observed: Rule 5 cannot see the binder, so publishable stays **2,982**.
+- By source: itembank 49 · apq 13 · pyq 11 · sqp 7 · preboard 4 · ncert 3 · exemplar 1.
+  By chapter: triangles 26 · trigonometry 16 · circles 12 · areas-related-to-circles 10 ·
+  surface-areas-and-volumes 8 · statistics 7 · pair-of-linear-equations 3 · coordinate-geometry 3 ·
+  polynomials 2 · probability 1.
+- Reachability: `QuestionVisualAid` (the binder's only renderer) is mounted on `PracticeQuestionCard`,
+  `ChapterTestPage`, `FullMockPage`, `HighlyProbableQuestions` and `MockPaper` — one binding reaches
+  all five. Bundle control: a bound id appears in `visualConceptRegistry-*.js` and
+  `canonicalQuestionBank-*.js`; a bogus id in 0 chunks.
+
+### 2 — THE BANK AT `a157c741` (runtime import, LANE-REPORTED)
+
+| measure | value |
+|---|--:|
+| rows served (`canonicalQuestionBank`) | 8,662 |
+| `AI_GENERATED_QUESTION_IDS` | 2,952 |
+| publishable (`isPublishable`) | **2,982** — unchanged, by design (see PR-3 below) |
+| rows demanding a figure | 493 |
+| …of those BOUND | **183** (was 95 before `#757`) |
+| …of those UNBOUND | 310 |
+| rows with ≥1 bound figure | 186 |
+| `MATHS_FIGURE_VISUALS` / `SCIENCE_FIGURE_VISUALS` | 158 / 48 |
+| controls | bogus id → 0 · `Z3-TG-110` → 1 |
+
+### 3 — WHAT WAS EXAMINED AND DELIBERATELY NOT BOUND (reported, not guessed)
+
+- **The 53 Z3 rows `#750` unbound: NO SOURCE DIAGRAM EXISTS.** Verified from the Z3 DOCX extraction
+  record: 51 rows carry exactly ONE extracted image — the decorative photograph `#750` removed —
+  `Z3-PLE-008` carries two (both photographs), `Z3-ST-001` none; only 2 carry a `diagramDescription`.
+  There is nothing to crop. ⇒ `[FU-Z3-DIAGRAM-EXISTENCE-UNKNOWN]` **CLOSED** (existence now KNOWN:
+  none); `[FU-Z3-REQUIRESDIAGRAM-FLAG]` opened and **RULED** (§4, ruling 1).
+- **`CBE-M-CG-A-001` / `CBE-M-CG-B-002`** — the transcribed coordinates contradict the printed Item
+  Bank figure (A(−2,2), B(−1,−2), C(3,0)); crops are ready in the review folder.
+  `[FU-CBE-CG-COORDINATES]`, **RULED** (ruling 2).
+- **`SP-M-2022-TRIG-E-001`** — the 2022 sample paper prints only a decorative photograph of India
+  Gate; binding a photo as the figure is the `#750` defect. `[FU-SP-TRIG-E-001-DECORATIVE]`,
+  **RULED** (ruling 3).
+- **18 text-only rows (11 listed in the lane report §4 + 7 preboard)** whose source prints no
+  figure — prove-type, "draw the graph", heights-and-distances word problems, or an inline table.
+  `[FU-18-NO-FIGURE-ROWS-HELD-BY-RULE5]`, **RULED** (ruling 4).
+- `QuestionVisualAid` is deliberately NOT mounted on `SolutionChecker` (C&I) or
+  `WeakAreaPracticePage` (FIGURE-HONESTY-1) —
+  `[FU-QUESTIONVISUALAID-NOT-ON-SOLUTIONCHECKER-WEAKAREA]`.
+
+⚠ **CORRECTION OF RECORD.** The block below (§4 of the CFPQ-FIGURES-1 + BANK-1 entry) lists `#752`
+as a **DRAFT**. That was true on its date; **`#752` is on trunk as `7eea064c`**, inside `00153896`
+(HANDOFF-VERIFIED: `git log --oneline -6 00153896`). `scienceFigureVisuals.ts` is therefore free
+for FIG-SCI-1. The old row is left as written, per the follow-ups board's rule 3.
+
+### 4 — SEVEN OWNER RULINGS, 2026-09-11 — recorded verbatim in `OPEN_QUESTIONS_AND_FOLLOWUPS.md` (2026-09-11 section)
+
+1. Z3 `requiresDiagram` (53 rows) → flip false, except the 2 rows with a `diagramDescription`,
+   checked individually; one small content PR (`competency.z3.ts` only), owner-merged.
+2. `CBE-M-CG-A-001` / `CG-B-002` → correct the stems to the printed figure; answers 2√2 and 2√5
+   unchanged; bind the two ready crops.
+3. `SP-M-2022-TRIG-E-001` → `requiresDiagram` false.
+4. The 18 text-only rows → flip `requiresDiagram` false where set; rows held only by the Rule-5
+   regex go to PR-3's review; the regex is untouched.
+5. Practice surfaces do NOT hide questions; a figure-demanding row with no bound figure shows an
+   honest one-line note and is excluded from timed exam-simulation draws (Full Mock, Chapter Test)
+   until bound. Small UI lane after FIG-SCI-1; `QuestionVisualAid.tsx` claim announced first.
+6. The ≈843 format×marks contradictions: `marks` is authoritative, re-FORMAT to match — except Item
+   Bank rows, where both are authentic and kept with `section` no longer derived from `marks`.
+   Data-only PR with a shrink-only guard.
+7. `predictionTypes.ts` scope GRANTED narrowly for TIERMAP-1: one PR adding
+   `questionProvenance?: "transcribed" | "authored"` and `shapedFrom?: string` plus a guard that
+   authored rows carry `shapedFrom` and fully marked steps; nothing else in that file.
+
+### 5 — NEXT, IN ORDER
+
+**The sequence is now the controller's** (ruling 10, later on 2026-09-11: there is NO cofounder session;
+the Fable controller owns every lane — PR-3, STEPMARK batches, the pin file, `canonicalQuestionBank.ts`,
+`QuestionVisualAid.tsx`), driven by the **~10,000-question target** (ruling 8) with AI rows excluded and
+retired per topic (ruling 9). Waves: **FIG-SCI-1 + enabling PRs** (PR-3 figure escape, the content PR for
+rulings 1–4, TIERMAP-1) → **bulk step-mark / transcription per chapter, retiring that topic's AI rows as its
+verified supply lands** → **authoring** (skeptic-only verification) → **HPQ-2027 refresh** (ruling 11) →
+**surface reachability / guards**. Rulings 8–11 verbatim in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`. Never open
+a FIG lane beside a STEPMARK batch (they share the pin file).
+
+
+## [PREVIOUS · 2026-09-10 · SEO / PERF ARC] — **FOUR HYPOTHESES FOR THE SOFT 404 ARE DEAD, EACH BY MEASUREMENT. THE CAUSE IS UNKNOWN.** `#745` · `#748` · `#749` · `#751` are ALL ON TRUNK (arc merged through `a1fecdb3`) — trunk at this handoff `00153896`
 
 ★ **PROVENANCE.** Every code- and production-level claim below was **LANE-VERIFIED** by the
 seat that wrote it, with the command named. Where a claim came from the owner and this seat
@@ -226,7 +334,7 @@ pre-merge.** Several already-shipped lanes went out on assurance instead.
   lazytopper ops matrix **527**; vitest **155 files / 2015 tests**. CLAUDE.md §6 still says
   "SIX suites / 190 checks" and remains stale.
 
-## [CURRENT · BANK / FIGURES ARC] CFPQ-FIGURES-1 + BANK-1 — **53 QUESTIONS STOPPED SHOWING A STOCK PHOTOGRAPH IN PLACE OF THE DIAGRAM THEY REQUIRE, AND 24 CFPQ MATHS QUESTIONS BECAME REACHABLE AT ALL** — `#744` · `#746` · `#747` · `#750`
+## [PREVIOUS · 2026-09-10 · BANK / FIGURES ARC] CFPQ-FIGURES-1 + BANK-1 — **53 QUESTIONS STOPPED SHOWING A STOCK PHOTOGRAPH IN PLACE OF THE DIAGRAM THEY REQUIRE, AND 24 CFPQ MATHS QUESTIONS BECAME REACHABLE AT ALL** — `#744` · `#746` · `#747` · `#750`
 
 ★ **PROVENANCE.** Every code-level number below was **re-derived by this lane** at the stated trunk
 by runtime import of the assembled bank or by opening the artefact, never copied from a document.

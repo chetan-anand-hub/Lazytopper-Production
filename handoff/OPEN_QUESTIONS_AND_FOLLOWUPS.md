@@ -18,6 +18,112 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ---
 
+## 2026-09-11 — FIG-MATHS-1 (`#757` MERGED as `a157c741`, 2026-09-11T02:06Z; open PRs at the time of writing: none) — five new follow-ups, one closure, and SEVEN OWNER RULINGS on the BANK-2027 brief Part E
+
+★ **PROVENANCE.** Merge facts HANDOFF-VERIFIED (`git log 00153896..a157c741`). Row-level facts are
+LANE-REPORTED from `Desktop/diff/content session/Report/report-fig-maths-1-2026-09-11.md` §4 and §8.
+Rulings are OWNER-RULED 2026-09-11 and recorded verbatim below.
+
+- **`[FU-Z3-DIAGRAM-EXISTENCE-UNKNOWN]` → CLOSED by the FIG-MATHS-1 investigation (`#757`).**
+  Existence is now **KNOWN: none.** The Z3 DOCX extraction record (`Desktop/Content/extraction`)
+  carries 136 media: 113 were bound by the original lane, 17 are EMF vectors (the 8 Real-Numbers
+  rows), the rest are DOCX chrome / dropped-question figures. For the 53 unbound rows: **51 carry
+  exactly ONE extracted image — the decorative photograph `#750` removed; `Z3-PLE-008` carries two
+  (both photographs); `Z3-ST-001` carries none.** Only 2 carry a `diagramDescription`. There is
+  nothing to crop. The successor question the entry was written to guard against is answered: **no
+  cropping lane exists for Z3; the defect is the flag** — see `[FU-Z3-REQUIRESDIAGRAM-FLAG]`.
+
+### `[FU-Z3-REQUIRESDIAGRAM-FLAG]` — **OWNER-RULED 2026-09-11. One small content PR owed.**
+53 Z3 word-problem rows in `competency.z3.ts` set `requiresDiagram: true` with no source diagram
+(see the closure above). Every one of them is therefore held by Rule 5 as
+`requires-absent-figure` for a figure that never existed.
+**RULING (1):** flip to `false`, **except the 2 rows carrying a `diagramDescription`, which are
+checked individually**; one small content PR (`competency.z3.ts` only), **owner-merged.**
+Sequenced after FIG-SCI-1 / FIG-SCI-2 (see `NEXT_ACTION.md`).
+
+### `[FU-CBE-CG-COORDINATES]` — **OWNER-RULED 2026-09-11. A transcription defect, not a figure gap.**
+`CBE-M-CG-A-001` and `CBE-M-CG-B-002` share one Item Bank seating-grid figure whose printed labels
+are **A(−2,2), B(−1,−2), C(3,0)**; the transcribed stems read A(2,2), B(3,0), C(−1,−2). The lane
+left both unbound rather than show a figure that contradicts the stem. Crops are ready in
+`Desktop/diff/fig-maths-1-review/`.
+**RULING (2):** correct the stems to the printed figure — A(−2,2), B(−1,−2), C(3,0); **answers
+2√2 and 2√5 unchanged**; bind the two ready crops. Goes in the same small content PR as ruling 1.
+
+### `[FU-SP-TRIG-E-001-DECORATIVE]` — **OWNER-RULED 2026-09-11.**
+`SP-M-2022-TRIG-E-001`: the 2022 sample paper prints only a decorative photograph of India Gate
+(no data); binding a photo as the figure is exactly the `#750` defect, so the lane did not.
+`requiresDiagram: true` is wrong on that row.
+**RULING (3):** `requiresDiagram` → `false`. Same content PR.
+
+### `[FU-18-NO-FIGURE-ROWS-HELD-BY-RULE5]` — **OWNER-RULED 2026-09-11.**
+18 rows whose source prints no figure are still held as figure-demanding: the 11 named in the lane
+report §4 (`CBE-M-PLE-C-001` "draw the graph" · `CBE-M-STAT-C-004` inline table ·
+`SP-M-2022-CIRC-C-002` · `TRI-PRF-D-007` (cites the deleted NCERT Ex 6.5) · `PYQ-M-TRI-005` ·
+`PYQ-M-TRIG-009` · `PYQ-M-CIRC-012` · `PYQ-M-2026-TRIG-002` and the CG / TRIG-E rows above) plus 7
+preboard rows (`PB-M-1-TRI-C-001` · `PB-M-2-TRI-B-001` · `PB-M-2-TRI-C-001` · `PB-M-1-TRIG-C-002`
+· `PB-M-2-TRIG-C-001` · `PB-M-2-TRIG-C-002` · `PB-M-1-CIRC-C-001`) — word problems / prove-type,
+flagged by `requiresDiagram` or by the Rule-5 regex, not by a missing figure. Rule-5 false
+positives also seen on `CBE-M-STAT-A/B/C-001` ("table below", table inline — bound anyway as
+reference-only, strictly better).
+**RULING (4):** flip `requiresDiagram` → `false` where it is set; **rows held only by the Rule-5
+regex go to PR-3's review; the regex is untouched** (it was narrowed after measurement — do not
+widen or re-narrow it here).
+
+### `[FU-QUESTIONVISUALAID-NOT-ON-SOLUTIONCHECKER-WEAKAREA]` — OPEN, by design; revisit when coverage is high
+`QuestionVisualAid`, the binder's only renderer, is mounted on `PracticeQuestionCard`,
+`ChapterTestPage`, `FullMockPage`, `HighlyProbableQuestions` and `MockPaper`. It is **deliberately
+NOT** mounted on `SolutionChecker` (C&I) or `WeakAreaPracticePage` (FIGURE-HONESTY-1), so a bound
+figure is absent there. Not a defect today; becomes one once binding coverage is high enough that a
+student notices. Owner ruling 5 already commissions a small UI lane on `QuestionVisualAid.tsx`
+after FIG-SCI-1 — decide there whether these two surfaces join.
+
+### `[FU-DAILYMIX-WEEKLYWRAP-FILES-STILL-ON-DISK]` — OPEN, Phase-2 deletion
+Daily Mix / Weekly Wrapped are **verified NOT part of the product** (owner-recorded 2026-09-11): un-routed by
+the sever PR of 2026-06-08, the pages are LEGACY-RETIRED, the command-palette entries are removed, and
+`ExploreMorePanel` is imported only by the un-routed `Dashboard.tsx`. The files are still on disk. Delete
+them in the Phase-2 deletion lane; until then they are dead code, not a surface.
+
+### OWNER RULINGS 2026-09-11 — the BANK-2027 brief Part E, all seven RULED (verbatim); rulings 8–11 given later the same day
+1. **Z3 `requiresDiagram` (53 rows)** → flip false, except the 2 rows carrying a `diagramDescription`
+   which are checked individually; one small content PR (`competency.z3.ts` only), owner-merged.
+   *(`[FU-Z3-REQUIRESDIAGRAM-FLAG]`)*
+2. **`CBE-M-CG-A-001` / `CG-B-002`** → correct stems to the printed figure A(−2,2), B(−1,−2), C(3,0);
+   answers 2√2 and 2√5 unchanged; bind the two ready crops. *(`[FU-CBE-CG-COORDINATES]`)*
+3. **`SP-M-2022-TRIG-E-001`** → `requiresDiagram` false. *(`[FU-SP-TRIG-E-001-DECORATIVE]`)*
+4. **The 18 text-only rows** → flip `requiresDiagram` false where set; rows held only by the Rule-5
+   regex go to PR-3's review, regex untouched. *(`[FU-18-NO-FIGURE-ROWS-HELD-BY-RULE5]`)*
+5. **Practice surfaces:** do NOT hide questions; a figure-demanding row with no bound figure shows an
+   honest one-line note, and is excluded from timed exam-simulation draws (Full Mock, Chapter Test)
+   until bound; small UI lane after FIG-SCI-1; `QuestionVisualAid.tsx` claim announced first.
+6. **≈843 format×marks contradictions:** `marks` is authoritative, re-FORMAT to match, except Item
+   Bank rows where both are authentic and kept with `section` no longer derived from `marks`;
+   data-only PR with a shrink-only guard. *(The brief cites `[FU-BANK-SCARCE-BAND-MISBANDING]`, which this
+   board records as FULLY RESOLVED by `#504`/`#511`; the ≈843 are the RESIDUAL that ruling governs — ⚠ CENSUS 2026-09-11 (controller's scout, runtime import at `a157c741`): the ≈843 was NOT reproduced; the wide rule (MCQ/AR→1, VSA→2, Short→{2,3}, Case→4, Long→5) measures **439** (151 human), the narrow rule 288, and section-vs-marks (A1 B2 C3 D5 E4) **0**; recipe in `Desktop/diff/content session/Report/scout-bank-census-2026-09-11.md` §B3. The same census found **0** human rows whose MARKED steps fail to sum (§B4); the 446 is a different predicate — the guard's own pin (`publishability.guard.test.ts` L559) of UNMARKED rows whose step count cannot be distributed at 0.5-mark granularity without a `[0 mark]` step, a subset of the 2,336 addressable — so the truly annotatable backlog is 2,336 − 446 = 1,890. The ruling governs the measured residual, whatever rule is adopted — the
+   data-only PR names its own FU when it opens.)*
+7. **`predictionTypes.ts` scope GRANTED narrowly for TIERMAP-1:** one PR adding
+   `questionProvenance?: "transcribed" | "authored"` and `shapedFrom?: string` plus a guard that
+   authored rows carry `shapedFrom` and fully marked steps; nothing else in that file.
+8. **TARGET:** the bank must reach **~10,000 questions**, ALL correct, ALL with `[N mark]` step-marked
+   solutions to the CBSE 2026-27 scheme, roughly EQUAL per topic, ALL reachable from PracticeHub /
+   ChapterTest / Full-length tests / Worksheets; to be done fast.
+9. **AI rows** (the 2,952 `.pack1/2/3` rows in `AI_GENERATED_QUESTION_IDS`) are **EXCLUDED ENTIRELY** from
+   that count and are to be **retired from all surfaces** (controller sequencing: retired per topic as that
+   topic's verified supply lands). Per-topic equalisation is **FLOOR-ONLY** (heavy topics keep their
+   authentic surplus). Verification bar for transcribed/authored rows is **SKEPTIC-ONLY** (a fresh
+   subagent re-solves every row; no owner sampling; owner still merges).
+10. **There is NO cofounder session in this arc**; the Fable controller owns every lane including PR-3
+   (publishability figure escape), STEPMARK batches, the pin file, `canonicalQuestionBank.ts`,
+   `QuestionVisualAid.tsx`. Sequencing is the controller's call. The `COORD_BANK-2027_*` signal files and
+   "announce before touching X" are moot.
+11. **HPQ (High-Probability Questions) is a SEPARATE class** — predicted, most-likely 2027 board questions,
+   NOT from authentic sources by design (`predictedQuestions.ts`, `predictedQuestionsScience.ts`,
+   `predictedScienceQuestions.ts`, `hpqCompetencyAdditions.ts`; not in `canonicalQuestionBank`). It is
+   outside the 10,000 count and outside the AI-row retirement. **Ruling: HPQ is IN SCOPE for a FULL 2027
+   REFRESH** (predicted set re-derived for 2027, every prediction with a CBSE step-marked solution).
+
+---
+
+
 ## 2026-09-10 — SEO / PERF ARC (`#745` · `#748` · `#749` · `#751`)
 
 ### ★★ `[FU-SOFT404-CAUSE-UNKNOWN]` — OPEN, and the four dead hypotheses are the finding

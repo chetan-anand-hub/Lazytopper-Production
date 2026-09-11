@@ -1,5 +1,23 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-11 — FIG-MATHS-1 (`#757`), trunk `a157c741`, merged 2026-09-11T02:06Z.**
+> **FIVE FIGURE CELLS MOVE FOR 88 MATHS ROWS: PRACTICE (`PracticeQuestionCard`) · CHAPTER TEST ·
+> FULL MOCK · HPQ (`HighlyProbableQuestions`) · MOCK PAPER.** `QuestionVisualAid`, the binder's only
+> renderer, is mounted on all five, so one binding reaches each; 88 rows that demanded a figure now
+> render the one their source printed (LANE-REPORTED at `a157c741`; bundle control: a bound id
+> appears in `visualConceptRegistry-*.js` and `canonicalQuestionBank-*.js`, a bogus id in 0 chunks).
+> Figure-demanding rows bound **95 → 183** of 493; `mathsFigureVisuals.ts` **70 → 158**.
+> **Scope: UNCHANGED on every surface — no scope was discovered this lane, so nothing goes to §2a or
+> `DECISION_LOG.md`.** Not moved, by design: SOLUTION CHECKER (C&I) and WEAK AREA PRACTICE do not
+> mount `QuestionVisualAid` (FIGURE-HONESTY-1) — `[FU-QUESTIONVISUALAID-NOT-ON-SOLUTIONCHECKER-WEAKAREA]`.
+> ⚠ A figure-demanding row with NO bound figure (310 remain) still serves on all five surfaces with no
+> note; **owner ruling 5 (2026-09-11)** commissions the honest one-line note + exclusion from timed
+> draws (Full Mock, Chapter Test) as a small UI lane after FIG-SCI-1. Publishable is unchanged at
+> **2,982** — Rule 5 cannot see the binder until PR-3 (figure escape, now the controller's lane per ruling 10) lands.
+> ⚠ **Record gap:** the 2026-09-10 CFPQ-FIGURES-1 + BANK-1 arc (`#750` unbound 53 decorative photos;
+> `#752` bound 12 Electricity circuits, on trunk as `7eea064c`) left no entry in this tracker. Noted,
+> not backfilled.
+
 > **2026-09-10 — SEO / PERF arc (`#745` · `#748` · `#749` · `#751`), trunk `00153896`.**
 > **No surface changed state.** This arc was performance and crawlability, not surface delivery.
 > What moved is measured behaviour: the topic hub, notes, landing and pricing pages went from a
