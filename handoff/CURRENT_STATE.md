@@ -1,6 +1,111 @@
 # LazyTopper — Current State
 
-## [CURRENT · BANK / FIGURES ARC] FIG-MATHS-1 — **88 MATHS QUESTIONS NOW SHOW THE FIGURE THEY ASK ABOUT, CROPPED FROM THE SOURCE THAT SET THEM** — `#757` MERGED — trunk `a157c741`
+## [CURRENT · BANK-2027 ARC] TIERMAP-1 — **A QUESTION CAN NOW SAY WHERE IT CAME FROM: TWO OPTIONAL PROVENANCE FIELDS, AND A GUARD THAT AN AUTHORED ROW NAMES ITS TEMPLATE AND MARKS EVERY STEP** — `#759` MERGED — trunk `e0d17da1`
+
+★ **PROVENANCE.** Merge facts below are **HANDOFF-VERIFIED** by this docs lane in its own worktree
+(`git log --oneline ee610799..e0d17da1` → exactly one commit; `git show --stat e0d17da1`;
+`git log -1 --format=%cI e0d17da1`). Gate results and the guard's behaviour are **LANE-REPORTED**
+(`Desktop/diff/content session/Report/report-tiermap-1-2026-09-11.md`). Every bank number in §2–§3 is
+**CONTROLLER-RECORDED** from the controller's scouts — runtime import at `a157c741`, recipes in
+`Desktop/diff/content session/Report/scout-bank-census-2026-09-11.md` — **this docs lane did not re-run
+any recipe.** The open-PR and in-build rows in §4 are a status claim from the controller's running state
+(`CONTROLLER_STATE_BANK-2027_2026-09-11.md`); re-check with `gh pr list --state open` before acting.
+
+**Trunk `e0d17da19d6624dfd2ec014e9909f512e0573e2b`** = the squash of `#759`, **merged by the owner
+2026-09-11T12:23:45+05:30**. Before it: `ee610799` (`#758`, the FIG-MATHS-1 handoff, `handoff/` only).
+The tip moved exactly once since that handoff.
+
+### 1 — WHAT LANDED IN `#759` (two files, +267 lines, nothing else)
+
+- `lazytopper/src/data/predictionTypes.ts` — **+18 lines**, two optional fields on `CanonicalQuestion`
+  with their doc comments; nothing else in that file (ruling 7's narrow grant, honoured exactly):
+  `questionProvenance?: "transcribed" | "authored"` and `shapedFrom?: string`.
+  **ABSENCE means legacy / unclassified — it NEVER means "authored".** Every one of the 413 pack files
+  references `CanonicalQuestion`, so the fields are available on every row (lane check (a)).
+- **NEW** `lazytopper/src/data/questionProvenance.guard.test.ts` (249 lines at merge) — exports a pure
+  predicate `checkProvenance(q, aiIds, bankIds)`. An **authored** row must (i) name `shapedFrom` — a live
+  bank id or a citation string ≥ 12 chars; (ii) carry a **leading** `[N mark]` on EVERY `solutionSteps`
+  entry, values summing to `marks` (the mark parser is `stepMarks` IMPORTED from
+  `scripts/seo/publishability` — the same parser the pin file uses, never a copied regex; the
+  leading-position check is layered on top because the shared parser also accepts the trailing `[N]`
+  convention); (iii) have at least one step; (iv) not be an `AI_GENERATED_QUESTION_IDS` member (the
+  test THROWS if that set is empty — never a silent skip). **8 positive controls** on synthetic rows +
+  a legacy-row control (unmarked step, no provenance → `ok`), then a sweep of the assembled
+  `canonicalQuestionBank`: every present `questionProvenance` is one of the two literals; every authored
+  row and every row carrying `shapedFrom` passes with the live id set. **Authored rows today: 0**, pinned
+  `≥ 0` ("expected to grow, never pinned"). **Mutation-proven**: `if (Math.abs(total - q.marks) > 1e-9)`
+  → `if (false && …)` turned exactly the sum test red (12 green), restored byte-identical (`cmp` exit 0).
+- **Nothing rejects the new keys:** `scripts/src/validateQuestionBanks.ts` checks PRESENCE of
+  `id`/`section`/`marks` only (no key allowlist); the AI-tier integrity guard and the publishability
+  structural type both tolerate extra keys (lane, read-only finding — nothing edited).
+- **CI enforcement:** `quality-gate.yml` runs the whole lazytopper vitest suite (the new file matches
+  `src/**/*.test.{ts,tsx}`) and `typecheck:test` — MOUNT ≠ LIVE closed for this guard.
+- **Gates (LANE-REPORTED, then CI):** app tsc PASS · `typecheck:test` PASS · `check:mojibake` PASS ·
+  `scope:guard --mode product` `inspected=2` · focused vitest **13/13** · lazytopper ops matrix
+  **527/527** · root guard matrix **206/206 (30 suites)** · `git diff --check` PASS · **CI green** on
+  the PR. **The pin file is not in the diff** (no row changed).
+- **What it unblocks:** authoring (wave 5 of the controller's sequence, §5) — an authored row can now be
+  told apart from a transcribed one and from legacy, and the guard is already live for the first one.
+
+### 2 — THE BANK AT `a157c741`, MEASURED (CONTROLLER-RECORDED; `#759` changed no row, so these hold at `e0d17da1`)
+
+| measure | value |
+|---|--:|
+| rows served (`canonicalQuestionBank`) | 8,662 |
+| `AI_GENERATED_QUESTION_IDS` | 2,952 |
+| **human rows** | **5,710** — min `surface-areas-and-volumes` 106, max `light` 660; **19 of 26 topics < 250** |
+| publishable (`isPublishable`) | 2,982 |
+| **4-mark cell < 75** | **26 of 26 topics** |
+| **5-mark cell < 75** | **25 of 26 topics** |
+| addressable unmarked | **2,336** — of which **446** cannot distribute at 0.5-mark granularity ⇒ **1,890 annotatable** |
+| format-vs-marks contradictions | **439** (wide rule; the brief's ≈843 NOT reproduced — see ruling 6's census note) |
+| `marks ∉ {1..5}` | 0 |
+| withheld | 86 |
+| figure-demanding | 493 — bound 183, unbound 310 |
+| pack files wired | **413 of 413** (unwired supply = 0; last expansion Batch 11, `#419`, 13 Jul) |
+
+- ★ **The July corpus `Desktop/diff/exemplar-extraction/` is a FINGERPRINT INDEX, not rows** — no
+  solution text, no page numbers, stems capped at 200 chars, marks unknown on 69%. It is a **target list
+  for transcription**. **The brief's "2,070 ready" premise is DISPROVED.** `[FU-JULY-CORPUS-IS-AN-INDEX-NOT-ROWS]`.
+- **The pin file (`publishability.guard.test.ts`) holds 12 EXACT literals** ⇒ every content PR must
+  re-pin it, which serialises the whole arc. **PR-3 (in build) converts them to monotone floors /
+  ceilings plus a partition identity.** Until it lands: one content PR at a time.
+
+### 3 — WHO READS THE BANK, AND WHAT EACH ONE FILTERS (CONTROLLER-RECORDED surface trace)
+
+- **Practice is the universal door — no structural filter.**
+- **Chapter Test** excludes non-MCQ 1-markers. **Full Mock** excludes non-MCQ 1-markers, MCQ-shaped rows
+  with `marks` 2–5, and unkeyed MCQs.
+- **Worksheets** could not offer `heredity` / `magnetic-effects-of-electric-current` /
+  `human-eye-and-colourful-world` — **682 rows unreachable there** — WS-1 (draft, §4) restores them and
+  fixes the weightage map. `[FU-WORKSHEETS-RETIRED-TWINS-OLD-KEYS]`.
+- **No surface filters AI rows or `requiresDiagram`.**
+- **HPQ, Mock Paper, Weak Area and Check & Improve do NOT read the bank.**
+- ⚠ **HPQ is its own class and its own problem** — the page renders 140 hand-authored rows with no
+  scoring and no year filter; the engine pool, the pin and two already-red ops gates are recorded under
+  `[FU-HPQ-2027-REFRESH]` and `[FU-HPQ-OPS-GATES-ALREADY-RED]`.
+
+### 4 — OPEN PRs AND WHAT IS IN BUILD (status claim at the time of writing)
+
+| lane | state |
+|---|---|
+| **WS-1** `lane/ws-1-worksheet-topic-reachability`, head `d131b4b9` | **DRAFT PR OPEN** — Worksheets topic reachability + weightage map; awaiting gates / owner merge; live-verify on `/practice/worksheets` owed |
+| **PR-3** publishability figure escape + monotone pins | in build, not pushed |
+| **rulings 1–4 content PR** — 53 Z3 + the two CG stems (crops bound) + TRIG-E-001 + the 9 maths + 12 science `requiresDiagram` flips | in build, not pushed; sequenced AFTER PR-3 (shares the pin file) |
+| **FIG-SCI-1 binder** — 109 science figures (itembank 44 · exemplar 34 · ncert 7 · cfpq 24) | in build, not pushed |
+
+### 5 — NEXT, IN ORDER (the controller's sequence, ruling 10)
+
+**Merge WS-1 when green → PR-3 → rulings 1–4 content PR → FIG-SCI-1 PR → wave 4** (STEPMARK per chapter
+on the 1,890 annotatable + transcription per chapter from the PDFs, the July index as target list + AI-pack
+retirement per topic as its human supply lands; fresh skeptic per PR) **→ wave 5 authoring** (per chapter,
+D/E first, with `questionProvenance: "authored"` + `shapedFrom`, to floor ~350 and total ~10,000)
+**→ HPQ-2027 refresh → guards.** Rulings 8–11 verbatim in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`. Never open a
+FIG lane beside a STEPMARK batch (they share the pin file). ⚠ Every lane must `pnpm install` in its own
+worktree — `[FU-MAIN-CHECKOUT-NODE-MODULES-DANGLING]`.
+
+
+## [PREVIOUS · 2026-09-11 · BANK / FIGURES ARC] FIG-MATHS-1 — **88 MATHS QUESTIONS NOW SHOW THE FIGURE THEY ASK ABOUT, CROPPED FROM THE SOURCE THAT SET THEM** — `#757` MERGED — trunk `a157c741`
 
 ★ **PROVENANCE.** Merge facts below are **HANDOFF-VERIFIED** by this docs lane
 (`git log --oneline 00153896..a157c741` in its own worktree). Every bank count is

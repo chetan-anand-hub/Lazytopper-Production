@@ -1,5 +1,70 @@
 ---
 
+## 2026-09-11 — TIERMAP-1 MERGED — **`#759` ON TRUNK: A QUESTION CAN NOW SAY WHERE IT CAME FROM, AND AN AUTHORED ROW MUST NAME ITS TEMPLATE AND MARK EVERY STEP** — trunk `e0d17da1`
+
+★ **PROVENANCE.** Merge facts are **HANDOFF-VERIFIED** by this docs lane in its own worktree
+(`git log --oneline ee610799..e0d17da1` → exactly one commit, `e0d17da1` `#759`, **merged by the owner
+2026-09-11T12:23:45+05:30**; `git show --stat e0d17da1` → `predictionTypes.ts | 18 ++`,
+`questionProvenance.guard.test.ts | 249 +` NEW, nothing else). Gate results and the guard's behaviour
+are **LANE-REPORTED** (`Desktop/diff/content session/Report/report-tiermap-1-2026-09-11.md`). Bank
+census, surface trace and HPQ architecture are **CONTROLLER-RECORDED** from the controller's scouts
+(runtime import at `a157c741`; recipes in `scout-bank-census-2026-09-11.md`) — this lane re-ran nothing.
+Open PRs at the time of writing: **WS-1 draft** (`lane/ws-1-worksheet-topic-reachability`, head `d131b4b9`).
+
+**What it is.** `CanonicalQuestion` gains `questionProvenance?: "transcribed" | "authored"` and
+`shapedFrom?: string` — ruling 7's narrow grant on `predictionTypes.ts`, honoured exactly (+18 lines,
+two fields with their doc comments, nothing else). **Absence means legacy — it never means authored.**
+A NEW guard exports a pure `checkProvenance`: an **authored** row must name `shapedFrom` (a live bank id
+or a ≥ 12-char citation), carry a **leading** `[N mark]` on every step summing to `marks` (the parser is
+`stepMarks` imported from `scripts/seo/publishability`, the pin file's own — no copied regex), have at
+least one step, and not be an AI-pack id (the test throws if `AI_GENERATED_QUESTION_IDS` is empty).
+**0 authored rows today, pinned `≥ 0`; 8 positive controls + a legacy control; mutation-proven** (the
+sum check disabled → exactly one test red, restored `cmp` exit 0). Nothing in the repo rejects the two
+new keys (`validateQuestionBanks.ts` is a presence check on `id`/`section`/`marks`). Gates: tsc ·
+`typecheck:test` · mojibake · `scope:guard inspected=2` · vitest **13/13** · lazytopper matrix
+**527/527** · root matrix **206/206 (30 suites)** · **CI green**. Pin file untouched. **It unblocks
+authoring** (wave 5 of the controller's sequence).
+
+**What the controller's scouts measured, now on the record.** Human rows **5,710** (min
+`surface-areas-and-volumes` 106, max `light` 660; **19 of 26 topics < 250**); the **4-mark cell is < 75 in
+26/26 topics and the 5-mark cell < 75 in 25/26**; addressable unmarked **2,336**, of which **446** cannot
+distribute at 0.5-mark granularity ⇒ **1,890 annotatable**; format-vs-marks **439** (wide rule; the ≈843
+not reproduced); **all 413 pack files wired**. ★ **The July corpus is a FINGERPRINT INDEX, not rows** — no
+solution text, no page numbers, stems capped at 200 chars, marks unknown on 69% — **the brief's "2,070
+ready" premise is disproved**; it is a target list for transcription. The pin file's **12 exact
+literals serialise every content PR** until PR-3 converts them to monotone bounds. Surface trace:
+Practice is the universal door with no structural filter; Chapter Test and Full Mock exclude non-MCQ
+1-markers (Full Mock also MCQ-shaped rows with marks 2–5 and unkeyed MCQs); **no surface filters AI or
+`requiresDiagram`**; HPQ / Mock Paper / Weak Area / Check & Improve do not read the bank.
+
+**HPQ, scouted.** The page renders **140 hand-authored rows** (`highlyProbableQuestions.ts` 91 +
+`hpqCompetencyAdditions.ts` 49) with **no scoring and no year filter**; `predictedQuestions*.ts`
+(143 + 98 + 10) feed the engine pool only; step marks there use a bare `[N]` suffix, never `[N mark]`;
+`cbse5SignalScoring.hpqPin.test.ts` freezes all 140 at `TARGET_YEAR` 2026; **two ops gates are ALREADY
+RED on trunk** (`hpq_practice_predictive_standards_acceptance.mjs` reads a non-existent
+`predictedQuestionsAdditions.ts`; `hpq_phase2_acceptance` calls the vanished
+`scoreArchetypeWithBayesianSmoothing`); the 2026 set's provenance is unrecorded; every content / engine
+file sits under `src/data` ⇒ an owner allowlist is needed before the 2027 refresh (ruling 11).
+
+**Follow-ups ADDED, each with its own heading:** `[FU-HPQ-2027-REFRESH]` · `[FU-HPQ-OPS-GATES-ALREADY-RED]` ·
+`[FU-JULY-CORPUS-IS-AN-INDEX-NOT-ROWS]` · `[FU-METAL-NCERT-3-VSA-006-STEM-NAMES-WRONG-TABLE]` ·
+`[FU-CFPQ-S-ENV-005-DIAGRAMDESCRIPTION-MISMATCH]` · `[FU-Z3-DANGLING-VISUALEXPLAINERID]` (52 unbound Z3
+rows keep a `visualExplainerId` that `#750` unregistered; `validate_visual_ids.mjs` is not in the matrix)
+· `[FU-MAIN-CHECKOUT-NODE-MODULES-DANGLING]` (main's `node_modules/.pnpm` links into a deleted worktree —
+lanes `pnpm install` in their own worktree) · `[FU-WORKSHEETS-RETIRED-TWINS-OLD-KEYS]` (682 rows
+unreachable on Worksheets; WS-1 is the fix). None closed.
+
+**Surface tracker.** No surface cell moved — `#759` is a type field and a guard; stated in the tracker.
+
+**Next.** Merge WS-1 when green → PR-3 → rulings 1–4 content PR → FIG-SCI-1 PR → wave 4 (STEPMARK per
+chapter + transcription from the PDFs + AI-pack retirement per topic) → wave 5 authoring → HPQ-2027
+refresh → guards. The controller's sequence (ruling 10). In build, not pushed: PR-3, the rulings 1–4
+content PR (53 Z3 + CG stems/crops + TRIG + 9 maths + 12 science flag flips), the FIG-SCI-1 binder
+(109 figures: itembank 44 · exemplar 34 · ncert 7 · cfpq 24).
+
+
+---
+
 ## 2026-09-11 — FIG-MATHS-1 MERGED — **`#757` ON TRUNK: 88 MATHS QUESTIONS SHOW THE FIGURE THEY ASK ABOUT, CROPPED FROM THE SOURCE THAT SET THEM** — trunk `a157c741`
 
 ★ **PROVENANCE.** Merge facts are **HANDOFF-VERIFIED** by this docs lane in its own worktree

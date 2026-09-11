@@ -18,6 +18,96 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ---
 
+## 2026-09-11 — TIERMAP-1 (`#759` MERGED as `e0d17da1`, by the owner 2026-09-11T12:23:45+05:30; open PRs at the time of writing: WS-1 draft, head `d131b4b9`) — eight new follow-ups, none closed
+
+★ **PROVENANCE.** Merge facts HANDOFF-VERIFIED (`git log ee610799..e0d17da1`, `git show --stat e0d17da1`).
+Row-level, HPQ and environment facts are CONTROLLER-RECORDED from the controller's scouts and running
+state (`Desktop/diff/content session/Report/CONTROLLER_STATE_BANK-2027_2026-09-11.md`; census recipes in
+`scout-bank-census-2026-09-11.md`, runtime import at `a157c741`) and LANE-REPORTED from
+`report-tiermap-1-2026-09-11.md`. **This docs lane re-ran nothing.** Every FU below has its own heading
+(board rule 1); none is a closure.
+
+### `[FU-HPQ-2027-REFRESH]` — OPEN, OWNER-RULED IN SCOPE (ruling 11); needs an owner `src/data` allowlist before any lane opens
+**The architecture, scouted (CONTROLLER-RECORDED):** the HPQ page renders **140 hand-authored rows** —
+`highlyProbableQuestions.ts` (91) + `hpqCompetencyAdditions.ts` (49) — with **no scoring and no year
+filter**; what a student sees is that literal list. `predictedQuestions*.ts` (143 + 98 + 10) feed the
+prediction ENGINE pool only, not the page. Step marks in those files use a bare `[N]` suffix, **never
+`[N mark]`** — so ruling 8's step-mark bar does not hold there today. `cbse5SignalScoring.hpqPin.test.ts`
+freezes all 140 rows at `TARGET_YEAR` 2026 (the pin needs an owner re-baseline ruling before a 2027 set
+can land). **The 2026 set's provenance is unrecorded** — nothing says which paper, trend or judgement
+produced each row. Every content and engine file sits under `src/data`, globally forbidden by
+`CLAUDE.md` §4 ⇒ **an explicit owner allowlist is the first artefact of this lane, not code.** Sequenced
+after wave 5 authoring (`NEXT_ACTION.md`). Do not open beside a STEPMARK batch.
+
+### `[FU-HPQ-OPS-GATES-ALREADY-RED]` — OPEN; a defect that pre-dates this arc and is NOT a regression
+Two HPQ ops gates are **ALREADY RED on trunk**: `hpq_practice_predictive_standards_acceptance.mjs` reads
+a **non-existent `predictedQuestionsAdditions.ts`**, and `hpq_phase2_acceptance` calls
+`scoreArchetypeWithBayesianSmoothing`, which is gone. Neither is in a `test:matrix:all` chain, which is
+why CI is green — this is the same fact `[FU-UNWIRED-HPQ-ENTRY-SCRIPTS]` (2026-09-10 section) recorded
+for the phase-2 entry, now with the second script named. ⚠ **Wiring either turns the matrix red until
+the defect is fixed** ⇒ fix and wire in ONE lane, inside `[FU-HPQ-2027-REFRESH]`'s allowlist. A future
+lane that sees these red must not read them as its own breakage.
+
+### `[FU-JULY-CORPUS-IS-AN-INDEX-NOT-ROWS]` — OPEN; a disproved premise, recorded so it is not re-assumed
+`Desktop/diff/exemplar-extraction/` (the July corpus) is a **FINGERPRINT INDEX**: no solution text, no
+page numbers, stems capped at 200 characters, **marks unknown on 69%** of entries; its DUP split was
+judged against a 7,084-row bank and is stale. **The BANK-2027 brief's "2,070 ready" premise is
+DISPROVED** — nothing in that folder can be wired as a row. Its correct use is a **target list** telling
+the transcription lanes (wave 4) which stems to find in which PDF. Any brief that quotes a "ready" count
+from it must cite a recipe that produced solution text and marks, or say UNVERIFIED.
+
+### `[FU-METAL-NCERT-3-VSA-006-STEM-NAMES-WRONG-TABLE]` — OPEN, content-fix queue; NOT bound by FIG-SCI-1
+`METAL-NCERT-3-VSA-006`: the stem says "metal-with-salt-solutions", but the table printed with that
+question in the NCERT source is **metal OXIDES × Zn/Mg/Cu**; the salt-solutions table on p10 belongs to a
+**different** question. FIG-SCI-1 marked it NEEDS-REVIEW and did not bind either table — binding the
+oxide table would show a figure that contradicts the stem (the `#750` shape), binding the p10 table would
+bind another question's figure. Resolve in a content PR: either correct the stem to the oxide table
+(answer re-derived by a skeptic) or re-key the row to the p10 question; then bind. Same class as
+`[FU-CBE-CG-COORDINATES]` — a transcription defect, not a figure gap.
+
+### `[FU-CFPQ-S-ENV-005-DIAGRAMDESCRIPTION-MISMATCH]` — OPEN, content-fix queue; the figure IS bound
+`CFPQ-S-ENV-005`: the food web printed with Q5 in the CFPQ booklet is bound by controller ruling
+(NEEDS-REVIEW → bind), but the row's `diagramDescription` **describes the p133 fans, not its own food
+web** — the description was transcribed from a neighbouring page. Fix the text in the rulings 1–4 /
+next content PR. Second instance of `[FU-DIAGRAM-DESC-CONTRADICTS-FIGURE]` (2026-09-10 section), which
+was recorded as "one instance, not a class on evidence so far" — **it is now two.**
+
+### `[FU-Z3-DANGLING-VISUALEXPLAINERID]` — OPEN; a dangling reference no gate in the matrix can see
+**52 unbound Z3 rows still carry a `visualExplainerId`** pointing at registry entries that `#750`
+unregistered when it unbound the decorative photographs. The reference dangles: the id resolves to
+nothing, so today it renders nothing — but it is a lie in the data and an armed failure for any consumer
+that trusts the field. **`lazytopper/scripts/ops/validate_visual_ids.mjs` — the script that would catch
+exactly this — is not in either `test:matrix:all` chain** (`[FU-OPS-VALIDATE-VISUAL-IDS-UNINVOKED]`, still
+true). Clear the 52 fields in the rulings 1–4 content PR (which already edits `competency.z3.ts` for the
+`requiresDiagram` flips), and wire the validator, `existsSync`-guarded, in the same lane so the class
+cannot recur silently.
+
+### `[FU-MAIN-CHECKOUT-NODE-MODULES-DANGLING]` — OPEN, ENVIRONMENT; affects every lane on this box until fixed
+The main checkout's `node_modules/.pnpm` internal links are **absolute paths into the deleted worktree
+`C:/Projects/LT-worktrees/pr1-signup-redirect`** (`typescript`, `vitest`, `chai` all dangling; dated
+24 Jul). Any worktree whose `node_modules` is a JUNCTION to main inherits the dead store: `tsc` and
+`vitest` fail before running a single check. **Per-lane fix, proven by TIERMAP-1 and FIG-SCI-1:** remove
+the two junction LINKS only (root + `lazytopper`; never `rm -rf` — the target is main's), run
+`corepack pnpm install --frozen-lockfile` in the OWN worktree (pnpm 10.32.1, ~2 min, lockfile unchanged),
+then drop `@rollup/rollup-win32-x64-msvc` into `node_modules/.pnpm/rollup@<ver>/node_modules/@rollup/`
+(`CLAUDE.md` §6). **The main checkout `C:\Projects\Lazytopper-Production` is not to be touched by a
+lane** — its reinstall is the owner's. Until then, every brief must say: install in your own worktree.
+
+### `[FU-WORKSHEETS-RETIRED-TWINS-OLD-KEYS]` — OPEN, fix in flight as WS-1 (draft PR, head `d131b4b9`)
+The Worksheets surface **could not offer `heredity`, `magnetic-effects-of-electric-current` or
+`human-eye-and-colourful-world`** — **682 rows unreachable there** while served on every other bank
+surface — and its weightage map was wrong for them. Mechanism (WS-1 lane report, HANDOFF-VERIFIED from the diff): `worksheetModel.ts`
+`SCIENCE_TOPICS_RAW` carried two DEAD keys (`heredity-and-evolution`, `magnetic-effects`) that `DELETED_TOPIC_KEYS`
+stripped, and had no `human-eye-and-colourful-world` entry at all; `SCIENCE_KEY_TO_TREND_KEY` lacked all three, so a
+restored chapter would have drawn weight 1 in board-weightage mode. Separately, the un-routed twins
+`pages/app/Worksheets.tsx` and `pages/desktop/DesktopWorksheetsPage.tsx` still carry the old keys (dead code; the
+follow-up this FU's name refers to). WS-1 (`lane/ws-1-worksheet-topic-reachability`, 4 files, vitest 98/98) restores the three
+topics and fixes the map; **owner merges after green; live-verify on `/practice/worksheets` owed** (a
+routing/filtering change — `CLAUDE.md` §6 live-verify rule). Close this FU on the live-verify, not on
+the merge.
+
+---
+
 ## 2026-09-11 — FIG-MATHS-1 (`#757` MERGED as `a157c741`, 2026-09-11T02:06Z; open PRs at the time of writing: none) — five new follow-ups, one closure, and SEVEN OWNER RULINGS on the BANK-2027 brief Part E
 
 ★ **PROVENANCE.** Merge facts HANDOFF-VERIFIED (`git log 00153896..a157c741`). Row-level facts are
