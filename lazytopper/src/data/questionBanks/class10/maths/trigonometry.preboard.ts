@@ -74,7 +74,7 @@ export const TRIG_PREBOARD: CanonicalQuestion[] = [
     ],
     "finalAnswer": "(b) Distance = 30 m; (c) Height of tower ≈ 46.5 m",
     "isCompetencyBased": true,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "A building (height 9.2 m) on the left with Hari (1.6 m tall) standing on its top, so his eye is 10.8 m above the ground. A taller tower stands to the right at horizontal distance d. From Hari's eye, a horizontal line; a line of elevation 50° up to the top of the tower and a line of depression 20° down to the foot of the tower. The horizontal distance between building and tower is the base of both right triangles."
   },
   {
@@ -97,7 +97,7 @@ export const TRIG_PREBOARD: CanonicalQuestion[] = [
     ],
     "finalAnswer": "(a) ≈ 173.2 m, (b) ≈ 692.8 m, (c) ≈ 473.2 m",
     "isCompetencyBased": true,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "A horizontal line of 300 m from the observation post (left, on a raised platform) to the tree (right). From the post's sight line: a downward 30° line to the tree base (ground), an upward 45° line to the baboons on the trunk, and an upward 60° line to the tree top. The tree is vertical on the right."
   },
   {
@@ -120,7 +120,7 @@ export const TRIG_PREBOARD: CanonicalQuestion[] = [
     ],
     "finalAnswer": "River width ≈ 7 m; tree height ≈ 11.4 m.",
     "isCompetencyBased": true,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "A vertical tree on the far river bank. The boy (1.4 m tall) stands at the near bank edge; his line of sight to the tree top makes 55° with the horizontal at eye level. He steps back 3 m and the line of sight makes 45°. The horizontal eye-level distance from the first position to the tree base is the river width d; h is the tree height above eye level."
   }
 ];

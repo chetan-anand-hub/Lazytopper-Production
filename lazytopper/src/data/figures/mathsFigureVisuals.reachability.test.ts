@@ -42,7 +42,7 @@ const batch = MATHS_FIGURE_VISUALS.filter((f) => FIG_MATHS_1_PREFIXES.some((p) =
 describe("FIG-MATHS-1 bindings are served and reachable", () => {
   it("the batch is present and is the size this lane shipped", () => {
     // 88 = 49 Item Bank + 13 Additional Practice + 4 preboard + 7 sample paper + 11 board papers + 3 NCERT + 1 Exemplar
-    expect(batch).toHaveLength(88);
+    expect(batch).toHaveLength(90); // +2: CBE-M-CG-A-001 / CBE-M-CG-B-002 (Item Bank p230, rulings 1-4 PR)
   });
 
   it("every binding names a SERVED question — in canonicalQuestionBank and not withheld", () => {

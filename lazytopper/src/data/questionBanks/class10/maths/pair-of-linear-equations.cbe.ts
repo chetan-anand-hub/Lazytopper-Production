@@ -145,7 +145,7 @@ export const PLE_CBE: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Lines intersect at (2, 2).",
     "isCompetencyBased": false,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "Two straight lines on the same graph paper: 2x + y = 6 (through (0,6) and (3,0)) and 2x − y = 2 (through (1,0) and (0,−2)), intersecting at (2, 2)."
   },
   {

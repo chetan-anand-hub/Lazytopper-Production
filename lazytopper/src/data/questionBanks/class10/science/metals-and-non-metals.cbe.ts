@@ -166,7 +166,7 @@ export const MNM_CBE: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Anode: 2O2− → O2 + 4e− ; Cathode: Al3+ + 3e− → Al",
     "isCompetencyBased": false,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "Fig. 1: electrolysis cell for extracting aluminium from molten alumina, showing anode and cathode."
   },
   {
@@ -252,7 +252,7 @@ export const MNM_CBE: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Dot-cross diagram: 2 Al lose 3e− each → 2Al3+; 3 O gain 2e− each → 3O2−.",
     "isCompetencyBased": false,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "Dot-cross diagram for Al2O3 showing electron transfer from two aluminium atoms to three oxygen atoms, forming Al3+ and O2− ions."
   }
 ];

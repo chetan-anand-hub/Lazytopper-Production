@@ -111,7 +111,7 @@ export const HEYE_CBE: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Sunlight is refracted and dispersed entering a raindrop, internally reflected at the back, then dispersed again on exit — producing a rainbow with red at the top and violet at the bottom.",
     "isCompetencyBased": true,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "Labelled diagram of a raindrop: white light incident, refraction and dispersion on entry, internal reflection at the back, and dispersion/refraction on exit, with red at top and violet at bottom."
   },
   {

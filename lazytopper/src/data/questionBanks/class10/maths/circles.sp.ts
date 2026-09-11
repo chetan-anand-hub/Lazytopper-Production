@@ -70,7 +70,7 @@ export const CIRC_SP: CanonicalQuestion[] = [
     ],
     "finalAnswer": "Parallelogram circumscribing a circle is a rhombus (proved)",
     "isCompetencyBased": false,
-    "requiresDiagram": true,
+    "requiresDiagram": false,
     "diagramDescription": "Parallelogram ABCD circumscribing a circle with centre O. The circle touches sides AB, BC, CD, DA at points P, Q, R, S respectively."
   }
 ];
