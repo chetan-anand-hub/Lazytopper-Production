@@ -322,13 +322,13 @@ export const ELEC_CBE: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "In an investigation the current and potential difference across a resistor were measured. At I = 4 A the potential difference is V = 13.2 V. Calculate the resistance of the resistor at 13.2 V.",
     "options": [],
-    "answer": "3.6 Ω",
+    "answer": "3.3 Ω",
     "solutionSteps": [
       "[1 mark] Recall Ohm's law: V = IR, i.e. 13.2 = 4 × R.",
       "[1 mark] Rearrange: R = 13.2/4.",
-      "[1 mark] Calculate with unit: R = 3.6 Ω."
+      "[1 mark] Calculate with unit: R = 13.2/4 = 3.3 Ω."
     ],
-    "finalAnswer": "R = 3.6 Ω",
+    "finalAnswer": "R = 3.3 Ω",
     "isCompetencyBased": false
   },
   {
@@ -343,13 +343,13 @@ export const ELEC_CBE: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "An electrical appliance has a resistance of 11 Ω and is connected to a supply voltage of 220 V. Calculate the current in the appliance. State the unit.",
     "options": [],
-    "answer": "11 A",
+    "answer": "20 A",
     "solutionSteps": [
       "[1 mark] Recall Ohm's law: V = IR.",
       "[1 mark] Rearrange and substitute: I = 220/11.",
-      "[1 mark] Calculate with unit: I = 11 A."
+      "[1 mark] Calculate with unit: I = 220/11 = 20 A."
     ],
-    "finalAnswer": "I = 11 A",
+    "finalAnswer": "I = 20 A",
     "isCompetencyBased": false
   },
   {
