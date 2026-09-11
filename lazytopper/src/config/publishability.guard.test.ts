@@ -140,7 +140,9 @@ describe("RULE 1 — provenance is an id-set, not a `sources` field", () => {
     // 5,638 -> 5,597: -41. CLEAN-1 (2026-09-11) withheld 41 bank-wide rows outside light/electricity
     // (26 placeholder-solution, 2 spliced-solution, 1 blank, 4 garbled, 2 bilingual, 5 garbled-options,
     // 1 answer-mismatch) — see the "CLEAN-1" block of WITHHELD_QUESTION_IDS.
-    expect(human.length).toBeGreaterThanOrEqual(5597);
+    // 5,597 -> 5,593: -4. CLEAN-1 stage 4 (2026-09-11, skeptic pass): PYQ-S-METAL-003, PYQ-M-2025-STAT-004,
+    // PYQ-M-2025-STAT-005 (garbled) and SCO-S-HERED-005 (out-of-syllabus) withheld.
+    expect(human.length).toBeGreaterThanOrEqual(5593);
     // IDENTITY — AI-rejected and human rows partition the bank.
     expect(rejected.length + human.length).toBe(canonicalQuestionBank.length);
     // 8,543 -> 8,673: #721 wired the ten .cfpq.ts files into the assembly array.

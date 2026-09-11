@@ -1974,6 +1974,11 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-M-STAT-004",              // garbled-options — two options both "decreases by"
   "SCO-S-ACID-014",              // garbled-options — "the formation of salt H O 2 +" (flattened H2O)
   "SCQ-S-ACID-034",              // answer-mismatch — stem says pH 14; its own answer says "No salt has pH = 14"
+  // -- stage 4: skeptic pass 2026-09-11 (report-skeptic-rekey-clean-2026-09-11.md) --
+  "PYQ-S-METAL-003",             // garbled — part (i) MgCl₂ electron-transfer diagram lost; step 1 begins "i) (ii)"
+  "PYQ-M-2025-STAT-004",         // garbled — stem drops the last class frequency; unsolvable from the stem
+  "PYQ-M-2025-STAT-005",         // garbled — stem drops the last class frequency; unsolvable from the stem
+  "SCO-S-HERED-005",             // out-of-syllabus — origin of life / earliest organisms = Evolution (formative-only, 2026-27)
 ]);
 
 /**

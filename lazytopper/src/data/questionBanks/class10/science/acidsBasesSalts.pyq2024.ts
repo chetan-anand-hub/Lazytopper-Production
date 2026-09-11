@@ -30,7 +30,7 @@ export const acidsBasesSaltsPYQ2024: CanonicalQuestion[] = [
     options: ["6", "8", "7", "3"],
     answer: "7",
     solutionSteps: ["[1 mark] Correct option: 7 — sodium chloride is the salt of a strong acid (HCl) and a strong base (NaOH), so its solution in distilled water is neutral, pH = 7."],
-    finalAnswer: "The Marking scheme carries only suggested value points for the answers These are in the nature of Guidelines only and do not constitute the complete answer. The students can have their own expression and if the expression is correct, the due marks should be awarded accordingly.",
+    finalAnswer: "7 — the NaCl solution is neutral (salt of a strong acid and a strong base)",
     ncertRef: "PYQ 31/5/1 Q4", isCompetencyBased: true,
     pyqYear: "2024", pyqSet: "1" },
   { id: "PYQ-S-2024-ACID-004", subject: "Science", topicKey: "acids-bases-and-salts", subtopic: "Indicators", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
