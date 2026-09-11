@@ -185,10 +185,9 @@ const unexpected = (rows: CanonicalQuestion[]) =>
 // ---------------------------------------------------------------------------
 
 describe("surface reachability — every served human row can be drawn on a test", () => {
-  it("the population is real: human rows carry a FLOOR of 5,710 (never vacuous)", T, () => {
-    // 5,710 at the pin (8,662 served − 2,952 AI). A bank that lost human rows, or a
-    // predicate file that failed to import, cannot turn this file green by accident.
-    expect(HUMAN.length).toBeGreaterThanOrEqual(5710);
+  it("the population is real: human rows carry a VACUITY floor of 5,000 (never vacuous)", T, () => {
+    // VACUITY floor only. The human floor of record lives in publishability.guard.test.ts (it moves with every withhold, with a reconciliation line); this asserts the population is real, so a content lane never lowers two floors in two files.
+    expect(HUMAN.length).toBeGreaterThanOrEqual(5000);
   });
 
   it("every human row is Practice-eligible AND Worksheets-eligible (section A–E, marks 1..5, topic offered)", T, () => {

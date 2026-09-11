@@ -1852,12 +1852,11 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-S-2025-ELEC-008",         // garbled: answer 'm', steps three fragments
   "PYQ-S-2025-ELEC-009",         // garbled: Hindi remnant, graphs A-D unbound (RECOVER-1 row, untouched)
   "PYQ-S-ELEC-004",              // garbled: part (a) empty
-  "SCQ-S-ELEC-028",              // garbled: mA / μA symbols lost in stem
   "SCQ-S-ELEC-034",              // garbled: numerics in stem and answer
   "SCQ-S-ELEC-038",              // garbled: (b) circuit symbols missing from stem
-  "SCO-S-ELEC-011",              // garbled-options: circuits unbound, option set destroyed
   "PYQ-S-ELEC-002",              // garbled: scheme tallies in answer (re-topicked to magnetic effects)
   "PYQ-S-2026-ELEC-008",         // garbled: Hindi remnant, (iv) figure unbound (re-topicked to magnetic effects)
+  "PYQ-S-2026-ELEC-009",         // garbled: Hindi remnant in stem, tallies in last step (re-topicked to magnetic effects)
 ]);
 
 /**

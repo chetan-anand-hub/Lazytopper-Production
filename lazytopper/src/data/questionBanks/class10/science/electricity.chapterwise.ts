@@ -90,11 +90,11 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
     ncertRef: "cbjescco12 Q14", isCompetencyBased: true },
   // cbjescco12 Q16
   { id: "SCO-S-ELEC-011", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
-    questionText: "Three different circuits (I, II and III) are constructed using identical batteries and resistors of R and R 2 ohm. What can be said about current I in arm AB of each circuit?",
-    options: ["l l l > > I II III", "l l l < < I II III", "l l l < < II I III", "l l l I II III = ="],
-    answer: "l l l I II III = =",
-    solutionSteps: ["Correct option is (d) l l l I II III = =.", "l l I II III = = In all the three circuits (I, II and III), the current in the arm AB is given by I R E 2 = [By Ohm's law] Chap 12 : Electricity Since in mixed network of resistors, current in each arm of parallel connection of resistors is different."],
-    finalAnswer: "(d) l l l I II III = =",
+    questionText: "Three different circuits (I, II and III) are constructed using identical batteries and resistors of R and 2R ohm. What can be said about current I in arm AB of each circuit?",
+    options: ["I_I > I_II > I_III", "I_I < I_II < I_III", "I_II < I_I < I_III", "I_I = I_II = I_III"],
+    answer: "I_I = I_II = I_III",
+    solutionSteps: ["[1 mark] In each circuit the arm AB (the 2R resistor) is connected directly across the battery E, so by Ohm's law the current in AB is I = E/2R whatever the rest of the ladder does (in a parallel arrangement each branch sees the full battery voltage). Hence I_I = I_II = I_III. Correct option (d)."],
+    finalAnswer: "(d) I_I = I_II = I_III",
     ncertRef: "cbjescco12 Q16", isCompetencyBased: true, strategyHint: "REQUIRES-FIGURE: question references circuit" },
   // cbjescco12 Q17
   { id: "SCO-S-ELEC-012", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "A", marks: 1, format: "MCQ", difficulty: "Medium", bloomSkill: "Understanding",
@@ -206,9 +206,9 @@ export const ELECTRICITY_CHAPTERWISE: CanonicalQuestion[] = [
     ncertRef: "cbjesccq12 Q32", isCompetencyBased: true },
   // cbjesccq12 Q33 (Section B, 2mk)
   { id: "SCQ-S-ELEC-028", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
-    questionText: "(a) What are the values of mA and A m ? (b) Draw the symbols of battery and rheostat.",
-    answer: "[All India 2015] Chap 12 : Electricity 1 mA 1 = milli ampere A 10 3 = - A 1 1 m = micro ampere 10 6 = - A",
-    solutionSteps: ["[2 marks] [All India 2015] Chap 12 : Electricity 1 mA 1 = milli ampere A 10 3 = - A 1 1 m = micro ampere 10 6 = - A"],
+    questionText: "(a) What are the values of mA and μA? (b) Draw the symbols of battery and rheostat.",
+    answer: "(a) 1 mA (milliampere) = 10⁻³ A; 1 μA (microampere) = 10⁻⁶ A. (b) Battery: a group of cells in series, drawn as alternating long (+) and short (−) parallel lines; rheostat: a resistor (zigzag) with an arrow across it.",
+    solutionSteps: ["[1 mark] (a) 1 mA = 1 milliampere = 10⁻³ A; 1 μA = 1 microampere = 10⁻⁶ A.", "[1 mark] (b) Diagram: battery — two or more cells in series, each a long line (+ terminal) beside a short line (− terminal); rheostat (variable resistance) — a zigzag resistor with an arrow drawn diagonally across it."],
     ncertRef: "cbjesccq12 Q33", isCompetencyBased: false },
   // cbjesccq12 Q34 (Section B, 2mk)
   { id: "SCQ-S-ELEC-029", subject: "Science", topicKey: "electricity", subtopic: "Chapter Practice — Electricity", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
