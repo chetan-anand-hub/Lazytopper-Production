@@ -87,6 +87,24 @@ export interface CanonicalQuestion {
    */
   requiresDiagram?: boolean;
   diagramDescription?: string;
+  /**
+   * Question provenance (TIERMAP-1, 2026-09-11). Optional, additive.
+   *   "transcribed" — the row is a verbatim transcription of a citable source
+   *                   (board paper, NCERT, SQP, exemplar ...).
+   *   "authored"    — a NEW question shaped on a named authentic template row;
+   *                   `shapedFrom` MUST then name that template (bank id or citation)
+   *                   and every `solutionSteps` entry MUST carry a leading
+   *                   `[N mark]` prefix whose values sum to `marks`
+   *                   (enforced by `questionProvenance.guard.test.ts`).
+   * ABSENT means legacy / unclassified — it does NOT mean "authored".
+   */
+  questionProvenance?: "transcribed" | "authored";
+  /**
+   * For an "authored" row: the bank id of the authentic template row it was
+   * shaped on, or a citation string (>= 12 chars) when the template is not in
+   * the bank. Optional on other rows; when present it is held to the same shape.
+   */
+  shapedFrom?: string;
 }
 
 // -----------------------------------------------------------------------------
