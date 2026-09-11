@@ -18,6 +18,70 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ---
 
+## 2026-09-11 — WS-1 + FIG-SCI-1 + PR-3 (`#760` MERGED as `2f623e01`, `#761` as `0aebd47d`, `#763` as `fa3662db`, all by the owner 2026-09-11T12:43:10 / 12:51:40 / 13:43:16+05:30; open PRs at the time of writing: `#764` draft, head `d5f85b2c`) — four new follow-ups, three updated in place, one coordination note, none closed
+
+★ **PROVENANCE.** Merge facts HANDOFF-VERIFIED (`git log e0d17da1..fa3662db`, `git show --stat` on all three).
+Row-level facts are LANE-REPORTED from `report-ws-1-2026-09-11.md`, `report-fig-sci-1-binder-2026-09-11.md`,
+`report-pr3-figure-escape-2026-09-11.md` and `report-content-rulings-1-4-2026-09-11.md`; build / matrix results
+for `#760` / `#761`, the live post-merge measurement of `#763` and the coordination note are CONTROLLER-RECORDED
+(`CONTROLLER_STATE_BANK-2027_2026-09-11.md`, the controller's running state). **This docs lane re-ran nothing.**
+Every FU below has its own heading (board rule 1). The three in-place updates are a dated status line
+APPENDED to the existing entry in the TIERMAP-1 section, with the heading's status suffix advanced — the
+original bodies stand as written (board rule 3).
+
+### `[FU-WS-1-LIVE-VERIFY-OWED]` — OPEN, OWNER; the one execution that closes WS-1
+`#760` is on trunk and every static gate is green, but it is a routing / filtering change on a live surface
+(`CLAUDE.md` §6: static gates are necessary, not sufficient). **Owed:** open `/practice/worksheets` → Science →
+confirm **13 chapters**; the Physics stream shows Human Eye and Magnetic Effects, Biology shows Heredity; a
+full-subject board-weightage preview allocates a non-zero share to each of the three (the weightage-map half of
+the fix — without it they drew weight 1). Record the result here and in `SURFACE_TRACKER.md`; then close this
+FU and flip the Worksheets cell to VERIFIED. `[FU-WORKSHEETS-RETIRED-TWINS-OLD-KEYS]` stays open regardless
+(the twins are dead code).
+
+### `[FU-FIG-SCI-1-LIVE-VERIFY-OWED]` — OPEN, OWNER; static gates prove reachability and disk presence, not the rendered `<img>`
+`#761` is on trunk; the reachability test proves every id is served and every asset is on disk, the build
+verifier proves 4 probed assets ship under `dist/public/app/figures/`, and the decorative control is absent —
+none of that is a rendered figure. **Owed:** one Electricity and one Light question from the batch (e.g.
+`CBE-S-ELEC-A-001`, `LIGHT-EXMPLR-9-MCQ-016` — two of the reachability test's own named controls) render their
+figure on **Practice, Chapter Test and Full Mock**. HPQ and Mock Paper are NOT part of this verify — they do
+not read the bank. Record the result here; close on the render.
+
+### `[FU-PR3-L560-GAP-HAS-NO-DIRECTION]` — OPEN, OWNER RULING WANTED; `#763` is MERGED, the identity is live, a literal bound is still undecided
+In the pin file's old shape, L560 asserted `cannotSum − overlap === 422` exactly. `#763` (merged `fa3662db`)
+could not turn it into a floor or a ceiling: **the gap has no doctrine direction** — that PR moved it UP
+(422 → 424: binding frees held rows out of the overlap) while step-mark fixes move it DOWN. What is live on
+trunk is the literal-free identity `naive − achievable === cannotSum − overlap` plus set-algebra bounds, and
+the diff says so. **Kept OPEN by controller ruling:** if the owner wants a literal bound anyway, **say which
+direction**; until then the identity stands. Companion facts from the same lane, recorded so no brief
+re-assumes them: `scope:guard --mode product` fails-by-classification on `lazytopper/scripts/**` — use
+`--mode mixed`; and **the sitemap / SEO generator does NOT import `publishability.ts`** — the guard test is
+its only importer, so "run each importer's own invocation" is one test.
+
+### `[FU-21-BOUND-ROWS-STILL-UNMARKED]` — OPEN; they publish once STEPMARK reaches them, not before
+At `a157c741` the figure escape lifted publishable **2,982 → 3,144 = +162, not +183**, because **21 of the 183
+figure-demanding bound rows were still `unmarked-step`** and `isPublishable` short-circuits on Rule 2 before
+Rule 5 is consulted (`boundByVerdict {"ok":162,"unmarked-step":21}`; the 21 stay in `addressable`, unchanged at
+2,336; 2 of them are also cannot-sum). **On trunk `fa3662db`, with `#761`'s 109 bindings, the live measurement
+is 3,212** (`requires-absent-figure` 392 → 162, `unmarked-step` still 2,336) — the count of bound-but-unmarked
+rows at `fa3662db` is **UNVERIFIED** (some of the 109 new bindings may also be unmarked; nobody has run that
+split on trunk). Nothing to fix in the binder — **they publish the day a STEPMARK batch annotates them**, and
+the monotone floors absorb that move without a pin edit. Any brief that predicts a publishable delta from a
+binding count must run the predicate through rule order, on the base it lands on, never subtract.
+
+### COORDINATION — a cofounder session runs the SEO lanes beside this arc (CONTROLLER-RECORDED, 2026-09-11)
+A **cofounder session** is running SEO lanes in parallel with the BANK-2027 controller. **SEO-CANONICAL-1 is
+dispatched**: a post-build script under `lazytopper/scripts/seo/`, `package.json`, possibly `vercel.json` and
+`src/config/sitemapUrls.ts`. **Before ANY push that touches** `index.html`, `vercel.json`,
+`lazytopper/package.json`, `src/config/sitemapUrls.ts`, `src/config/canonicalUrl.ts`,
+`src/config/head.guard.test.ts`, **or adds / moves files in `lazytopper/scripts/seo/`**, that session must be
+told — `lane_overlap` compares exact paths against every open PR, and a silent collision on one shared path
+blocks both (the `#738` / `#730` precedent). `publishability.ts` lives under `lazytopper/scripts/seo/` — `#763`
+touched it; a later PR-3-shaped change is exactly the kind that needs the heads-up. Separately, the **stale
+remote branch `lane/engine-1-ten-pages`** (the retired `/questions` arc) was flagged for closure — **branch
+deletion is an owner action**, never auto-approved for an agent (`CLAUDE.md` §3).
+
+---
+
 ## 2026-09-11 — TIERMAP-1 (`#759` MERGED as `e0d17da1`, by the owner 2026-09-11T12:23:45+05:30; open PRs at the time of writing: WS-1 draft, head `d131b4b9`) — eight new follow-ups, none closed
 
 ★ **PROVENANCE.** Merge facts HANDOFF-VERIFIED (`git log ee610799..e0d17da1`, `git show --stat e0d17da1`).
@@ -56,7 +120,7 @@ DISPROVED** — nothing in that folder can be wired as a row. Its correct use is
 the transcription lanes (wave 4) which stems to find in which PDF. Any brief that quotes a "ready" count
 from it must cite a recipe that produced solution text and marks, or say UNVERIFIED.
 
-### `[FU-METAL-NCERT-3-VSA-006-STEM-NAMES-WRONG-TABLE]` — OPEN, content-fix queue; NOT bound by FIG-SCI-1
+### `[FU-METAL-NCERT-3-VSA-006-STEM-NAMES-WRONG-TABLE]` — OPEN, content-fix queue; NOT bound by FIG-SCI-1 (`#761` MERGED 2026-09-11 — still open)
 `METAL-NCERT-3-VSA-006`: the stem says "metal-with-salt-solutions", but the table printed with that
 question in the NCERT source is **metal OXIDES × Zn/Mg/Cu**; the salt-solutions table on p10 belongs to a
 **different** question. FIG-SCI-1 marked it NEEDS-REVIEW and did not bind either table — binding the
@@ -64,13 +128,19 @@ oxide table would show a figure that contradicts the stem (the `#750` shape), bi
 bind another question's figure. Resolve in a content PR: either correct the stem to the oxide table
 (answer re-derived by a skeptic) or re-key the row to the p10 question; then bind. Same class as
 `[FU-CBE-CG-COORDINATES]` — a transcription defect, not a figure gap.
+**UPDATE 2026-09-11 (post-`#761`):** FIG-SCI-1 is on trunk as `0aebd47d` with this row unbound, exactly as
+recorded above. Still open; it resolves in a content PR (stem corrected or row re-keyed), then binds.
 
-### `[FU-CFPQ-S-ENV-005-DIAGRAMDESCRIPTION-MISMATCH]` — OPEN, content-fix queue; the figure IS bound
+### `[FU-CFPQ-S-ENV-005-DIAGRAMDESCRIPTION-MISMATCH]` — OPEN, content-fix queue; the figure IS bound (`#761` MERGED 2026-09-11 — still open)
 `CFPQ-S-ENV-005`: the food web printed with Q5 in the CFPQ booklet is bound by controller ruling
 (NEEDS-REVIEW → bind), but the row's `diagramDescription` **describes the p133 fans, not its own food
 web** — the description was transcribed from a neighbouring page. Fix the text in the rulings 1–4 /
 next content PR. Second instance of `[FU-DIAGRAM-DESC-CONTRADICTS-FIGURE]` (2026-09-10 section), which
 was recorded as "one instance, not a class on evidence so far" — **it is now two.**
+**UPDATE 2026-09-11 (post-`#761`):** the food-web figure is on trunk in `0aebd47d`. The `diagramDescription`
+text is NOT fixed by `#764` (the rulings 1–4 content PR, head `d5f85b2c`) — its lane report lists no
+`our-environment` file in the diff (flag flips only, §3E) — so this stays open for the next content PR that
+touches the `our-environment` CFPQ rows.
 
 ### `[FU-Z3-DANGLING-VISUALEXPLAINERID]` — OPEN; a dangling reference no gate in the matrix can see
 **52 unbound Z3 rows still carry a `visualExplainerId`** pointing at registry entries that `#750`
@@ -93,7 +163,7 @@ then drop `@rollup/rollup-win32-x64-msvc` into `node_modules/.pnpm/rollup@<ver>/
 (`CLAUDE.md` §6). **The main checkout `C:\Projects\Lazytopper-Production` is not to be touched by a
 lane** — its reinstall is the owner's. Until then, every brief must say: install in your own worktree.
 
-### `[FU-WORKSHEETS-RETIRED-TWINS-OLD-KEYS]` — OPEN, fix in flight as WS-1 (draft PR, head `d131b4b9`)
+### `[FU-WORKSHEETS-RETIRED-TWINS-OLD-KEYS]` — OPEN; WS-1 MERGED as `#760` (`2f623e01`, 2026-09-11) — closes on the live-verify
 The Worksheets surface **could not offer `heredity`, `magnetic-effects-of-electric-current` or
 `human-eye-and-colourful-world`** — **682 rows unreachable there** while served on every other bank
 surface — and its weightage map was wrong for them. Mechanism (WS-1 lane report, HANDOFF-VERIFIED from the diff): `worksheetModel.ts`
@@ -105,6 +175,11 @@ follow-up this FU's name refers to). WS-1 (`lane/ws-1-worksheet-topic-reachabili
 topics and fixes the map; **owner merges after green; live-verify on `/practice/worksheets` owed** (a
 routing/filtering change — `CLAUDE.md` §6 live-verify rule). Close this FU on the live-verify, not on
 the merge.
+**UPDATE 2026-09-11 (post-`#760`):** WS-1 MERGED by the owner 2026-09-11T12:43:10+05:30 as `2f623e01`
+(4 files, +217 / −40, HANDOFF-VERIFIED). The reachability defect and the weightage map are fixed ON TRUNK;
+the owed live-verify is now its own entry, `[FU-WS-1-LIVE-VERIFY-OWED]` (2026-09-11 WS-1 + FIG-SCI-1 section).
+The twins' dead keys (`pages/app/Worksheets.tsx:39,42`, `pages/desktop/DesktopWorksheetsPage.tsx:128,131`)
+are untouched and remain the residual subject of this FU.
 
 ---
 
