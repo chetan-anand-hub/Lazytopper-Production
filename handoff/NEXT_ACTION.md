@@ -2,6 +2,108 @@
 
 
 ```
+⛔⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW IT. RULINGS 1–4 (#764), STEPMARK 6 (#765), SEO-CANONICAL-1
+(#768), HALF-1 (#769) AND FIG-SCI-2 (#770) ARE ON TRUNK.
+
+TRUNK IS `c355e6a3936f73afdea808959df52a5e8c4776ff` (#770 FIG-SCI-2, merged by the owner 2026-09-11T15:08:01+05:30),
+HANDOFF-VERIFIED 2026-09-11 with `git log fa3662db..c355e6a3` (six commits: f0745565 = #764 rulings 1–4
+14:04:31 · f260ed3c = #765 STEPMARK 6 electricity 14:11:33 · ae50e3ef = #767 docs (self-merged) 14:23:47 ·
+0906777b = #768 SEO-CANONICAL-1 (cofounder) 14:32:12 · 2276686b = #769 HALF-1 14:59:53 · c355e6a3 = #770
+FIG-SCI-2 15:08:01, all +05:30).
+RE-DERIVE IT BEFORE ACTING:  git ls-remote origin base/approved-thru-437
+OPEN PRs AT THE TIME OF WRITING: none of THIS arc's PRs — #766 STEPMARK 5 light exists as a branch but is on
+   HOLD, not yet opened as a draft, pending its skeptic fold-in. Check EVERY open PR's file list before
+   pushing (lane_overlap compares exact paths against ALL open PRs, bot PRs included).
+
+WHAT #764 DID (rulings 1–4): 73 `requiresDiagram` flips (53 Z3 unbound rows + SP-M-2022-TRIG-E-001 + 9 maths
+   + 10 science, their source prints no figure) + CBE-M-CG-A-001/CG-B-002 stems corrected to the printed
+   figure A(−2,2) B(−1,−2) C(3,0) and BOUND (Item Bank p230 crop, maths pin 88 → 90) — owner ruling: ship
+   corrected stems + bound figure. Guard 38/38. Figure cell moves for the 2 CG rows — SURFACE_TRACKER.md.
+
+WHAT #765 DID (STEPMARK 6 electricity) — MERGED BEFORE ITS SKEPTIC: 128 rows get CBSE `[N mark]` step
+   prefixes (133 annotated, 5 reverted as placeholder solutions), 44 skipped and named. The fresh skeptic
+   that ran AFTER the merge returned 156/223 OK, 67 defective (8 wrong keys, 3 withholds, 27/40 chapterwise
+   rows defective, 3 mis-topicked, one contestable key). Findings queued as follow-up PR ELEC-FIX-1, not yet
+   built — [FU-ELEC-FIX-1-SKEPTIC-FINDINGS].
+
+WHAT #768 DID (SEO-CANONICAL-1, cofounder session, one line): every advertised URL serves a static copy of
+   the built shell naming itself canonical, fixing a crawler-dedup problem on 32 of 33 sitemap URLs. Not this
+   controller's arc.
+
+WHAT #769 DID (HALF-1): the step-mark parser now accepts the Unicode `[½ mark]` prefix — 15 rows that summed
+   correctly but used the glyph instead of "0.5" stop reading unmarked-step. Publishable +15. The
+   `SCQ-S-EYE-036` guard fixture is re-pointed to `SCQ-S-CTRL-042` (#770 binds EYE-036). Guard +4 blocks,
+   mutation-proven. Root matrix 206/206 (30 suites).
+
+WHAT #770 DID (FIG-SCI-2): 49 figure entries bound to 48 human Science rows (Foundation 3, chapterwise 12,
+   board papers 16, sample/pre-board 13, SQP 2, APQ 2); 54 requiresDiagram flips to false. Science binder
+   157 → 206, boundRows 295 → 343, figure-demanding bound 340 / unbound 99 of 439; publishable +80 on the
+   lane's own base (3,212 → 3,292). Content defect found, not fixed: PYQ-S-2026-MAG-002's questionText is
+   truncated mid-word — [FU-PYQ-S-2026-MAG-002-STEM-TRUNCATED]. Both matrices, build, verify-production-build
+   and the asset-ships proof PASS. ⚠ LIVE-VERIFY OWED: one Foundation/Light and one board-paper Electricity
+   figure renders — [FU-FIG-SCI-2-LIVE-VERIFY-OWED]. Figure cell moves for 48 science rows — SURFACE_TRACKER.md.
+
+★ THE BANK, EVENING TOTALS (CONTROLLER-RECORDED, brief Part B + the #770 commit's own measurement):
+   publishable 2,982 morning → ~3,381 evening (brief's 3,301 after #769, +80 from #770 — NOT independently
+   re-measured on c355e6a3 by this lane); figure-demanding unbound 310 → 99; human rows 5,710 strict, 4,832
+   excluding the 878 unverified authored rows (Batches 7–11). Full table in CURRENT_STATE.md §6.
+
+★ OWNER RULINGS THIS AFTERNOON (CONTROLLER-RECORDED — carry every one into the next brief):
+   1. Verification is a FRESH SKEPTIC re-solving EVERY row, existing rows included, not only new authored ones.
+   2. The 878 July "expand" rows (28 files, Batches 7–11) are authored but never flagged `questionProvenance`
+      — skeptic-verify all; survivors get `questionProvenance:"authored"` + `shapedFrom`; failures retired;
+      only survivors count toward 10,000 — [FU-BATCH-7-11-AUTHORED-PACKS-UNFLAGGED].
+   3. ALL QUESTIONS ON ALL FOUR SURFACES (Practice / Chapter Test / Full Mock / Worksheets) is the explicit
+      target — the 146-row VSA gap is the current discrepancy — [FU-SURFACE-1-146-VSA-ROWS].
+   4. The controller MAY SQUASH-MERGE PRs itself after CI green + heavy gates + skeptic fold-in — never on HOLD.
+   5. The syllabus is now VERIFIED FROM OFFICIAL CBSE RESOURCES — headline gaps the live guard misses:
+      Pythagoras/converse (121 rows), areas of similar triangles (51), bare "Complementary Angles" (8),
+      "Completing the Square" (7), "Combinations of Plane Figures" (4); motor/EMI/generator (33) already
+      correctly banned. SQP 2026-27 is not yet published — [FU-SYLLABUS-1-OFFICIAL-GAPS].
+
+★ NEXT, IN ORDER (the controller's lane queue, brief Part D):
+   1. ELEC-FIX-1 (electricity skeptic findings) and LIGHT-FIX-1 (fold into #766, still on HOLD) — both
+      builders installed, no edits yet.
+   2. CLEAN-1 — bank-wide non-solution-text audit (366 rows, 103 publishable) + 15 mis-keyed MCQs.
+   3. SURFACE-1 — Chapter Test / Full Mock admit marks 1–2 in Section B, closing the 146-row VSA gap; a new
+      surfaceReachability.guard.test.ts (installed, 7 files partially edited — read git diff first).
+   4. SYLLABUS-1 — add the five official-gap strings to syllabusGuard.ts with quotes + withhold matches
+      (worktree not yet created).
+   5. TRI-FIX-1 (after SYLLABUS-1) — 21 defective triangles rows + the TRI-PRF-C-002 wrong-figure rebind.
+   6. PROV-1 — tag skeptic survivors (PLE, triangles done; QE/AP/CHEM/ABS/MNM/CG/POLY remain).
+   7. STEPMARK batches 7–13, fresh skeptic per topic BEFORE push (rank by addressable count).
+   8. MS-RETRANSCRIBE — 22+ placeholder PYQ rows, official MS PDFs are on disk.
+   9. Transcription wave 1 (circles+FIG, human-eye, magnetic-effects, ARC+SAV), one self-wiring PR per topic.
+   10. Authoring D/E per chapter → HPQ-2027 refresh (owner allowlist needed) → guards.
+   11. Docs handoff PRs after every merge batch — this one, then one after ELEC-FIX-1/LIGHT-FIX-1.
+
+⚠ THE DAY'S COST: the 5-hour session limit at Max 20x killed every running subagent THREE TIMES today
+   (≈11:00–12:20 IST 6 subagents; ≈14:30 IST STEPMARK 5/6 + the supply planner; and a third instance).
+   Worktrees kept partial edits each time; lanes resumed from on-disk state without redo. The owner was given
+   usage-credits / API-key options to raise the ceiling — [FU-SESSION-LIMIT-KILLS-SUBAGENTS], pending.
+
+⚠ COORDINATION — unchanged from the previous banner: a COFOUNDER SESSION runs the SEO lanes (SEO-CANONICAL-1
+   now MERGED as #768). Tell it BEFORE any push touching index.html, vercel.json, lazytopper/package.json,
+   src/config/sitemapUrls.ts, src/config/canonicalUrl.ts, src/config/head.guard.test.ts, or adding / moving
+   files in lazytopper/scripts/seo/.
+
+NEW FUs (each with its own heading on the follow-ups board, 2026-09-11 rulings-1-4/STEPMARK-6/SEO/HALF-1/
+   FIG-SCI-2 section): [FU-ELEC-FIX-1-SKEPTIC-FINDINGS] · [FU-LIGHT-FIX-1-SKEPTIC-FINDINGS] ·
+   [FU-LGHT-FND-BEYOND-BOARD-SERVED-LIVE] · [FU-SYLLABUS-1-OFFICIAL-GAPS] · [FU-TRIANGLES-SKEPTIC-FINDINGS] ·
+   [FU-TRI-PRF-C-002-WRONG-FIGURE-BOUND] · [FU-BATCH-7-11-AUTHORED-PACKS-UNFLAGGED] ·
+   [FU-STEPMARK-PLACEHOLDER-SOLUTIONS-PUBLISHABLE] · [FU-SURFACE-1-146-VSA-ROWS] · [FU-15-MISKEYED-MCQS] ·
+   [FU-FM-DUP-TEXT-VICTIMS] · [FU-MS-RETRANSCRIBE-PLACEHOLDER-PYQS] · [FU-AR-EL-009-KEY-CONTESTABLE] ·
+   [FU-APQ-M-POLY-004-SOLUTION-CONTRADICTS-MS] · [FU-OFFICIAL-NOTE-HEREDITY-MAGNETIC-AMBIGUITY] ·
+   [FU-SESSION-LIMIT-KILLS-SUBAGENTS] · [FU-FIG-SCI-2-LIVE-VERIFY-OWED] ·
+   [FU-PYQ-S-2026-MAG-002-STEM-TRUNCATED].
+
+The WS-1 + FIG-SCI-1 + PR-3 banner below is superseded ONLY in its trunk SHA, its open-PR line and its NEXT
+list (all four of its steps are DONE — #764, #765, #768, #769, #770 merged; #766 carries forward as item 1
+above). Its substance stands.
+```
+
+
+```
 ⛔⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW IT. WS-1 (#760), FIG-SCI-1 (#761) AND PR-3 (#763) ARE ON TRUNK.
 
 TRUNK IS `fa3662dbf57b5d40a29b800449a545570e19a8d0` (#763 PR-3, merged by the owner 2026-09-11T13:43:16+05:30),
