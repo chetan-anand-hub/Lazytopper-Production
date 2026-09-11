@@ -147,12 +147,16 @@ describe("allocateMiCounts — proportional enrichment with floor + cap (FIX-3)"
 });
 
 describe("content correctness — deleted topics never offered", () => {
-  it("strips heredity-and-evolution and magnetic-effects from Science", () => {
+  // WS-1 (2026-09-11): no whole chapter is deleted for 2026-27; the dead keys
+  // are gone from the list and the retained chapters are offered canonically.
+  it("no dead keys on the menu; the filter is empty; retained chapters are offered", () => {
     const keys = getTopics("Science").map((t) => t.key);
     expect(keys).not.toContain("heredity-and-evolution");
     expect(keys).not.toContain("magnetic-effects");
-    expect(DELETED_TOPIC_KEYS.has("heredity-and-evolution")).toBe(true);
-    expect(DELETED_TOPIC_KEYS.has("magnetic-effects")).toBe(true);
+    expect(DELETED_TOPIC_KEYS.size).toBe(0);
+    expect(keys).toContain("heredity");
+    expect(keys).toContain("magnetic-effects-of-electric-current");
+    expect(keys).toContain("human-eye-and-colourful-world");
   });
 
   it("Maths topics are all retained (no deleted whole-chapters)", () => {

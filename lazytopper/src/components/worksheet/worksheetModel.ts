@@ -5,16 +5,19 @@
 //
 //   1. The canonical Class 10 worksheet topic lists (Maths + Science) — the SAME
 //      slugs the production generator (predictionDataService) keys on.
-//   2. CONTENT CORRECTNESS — the deleted-topics filter. Two topic entries that
-//      ship today (`heredity-and-evolution`, `magnetic-effects`) are OUT of the
-//      board-assessed CBSE 2026-27 scope and must never be OFFERED on the
-//      worksheet surface. The exact reasons trace to scripts/src/syllabusGuard.ts
-//      (re-read 2026-06-21): the Evolution section (Ch 9) and the Motor / EMI /
-//      Generator content of Magnetic Effects (Ch 13) are formative-only /
-//      board-excluded. A teacher seeing a deleted chapter offered = instant trust
-//      loss (spec §5). NOTE: the guard is a build-time node script, not a runtime
-//      import — so this DELETED_TOPIC_KEYS set is the runtime mirror of its
-//      board-excluded list for the topics the worksheet surface exposes.
+//   2. CONTENT CORRECTNESS — the deleted-topics filter (DELETED_TOPIC_KEYS), now
+//      EMPTY. WS-1 (owner ruling 2026-09-11): every bank question must be reachable
+//      from Worksheets, so the Science list offers all 13 board-assessed chapters
+//      by their canonical bank keys. CBSE 2026-27 exclusions are SUB-topic level
+//      (Evolution section of Ch 9; Motor / EMI / Generator of Ch 13) and are
+//      enforced on the bank rows themselves by scripts/src/syllabusGuard.ts
+//      (build-time guard matrix) — the CHAPTERS Heredity and Magnetic Effects are
+//      retained and board-assessed (CLAUDE.md §5). The June 2026 spec removed the
+//      two CHAPTER entries because they conflated retained and excluded sub-topics;
+//      that (plus the missing Human Eye entry) hid 682 guard-clean served rows
+//      (heredity 243 / human-eye 222 / magnetic-effects 217, runtime count of
+//      canonicalQuestionBank at a157c741). The filter stays wired so a future
+//      whole-chapter deletion has a single place to land.
 //   3. DISTRIBUTION — the explicit allocation that replaces the old accidentally
 //      random "pool per topic up to full count, dedupe, shuffle, truncate":
 //        • multi-topic   → EVEN split (count ÷ N), largest-remainder.
@@ -65,16 +68,17 @@ export const MATHS_TOPICS: WorksheetTopic[] = [
   { key: "probability", label: "Probability" },
 ];
 
-// Science includes the two board-excluded entries here ONLY so the deleted-topics
-// filter has something to strip; getTopics() never returns them. Keeping them in
-// the raw list documents exactly what is being removed and why.
+// Science: ALL 13 board-assessed chapters, i.e. exactly the Science subset of
+// `lib/desktop/topics.ts` — the same set the bank's `topicKey` values span.
 // Keys are the canonical `lib/desktop/topics.ts` slugs (P0 [FU-TOPICKEY-UNIVERSAL]).
 // They previously used a THIRD vocabulary (`chemical-reactions-equations`,
 // `reproduction`, `light`, …) that `topicMatches` could not bridge to the bank's
 // `chemical-reactions-and-equations` / `how-do-organisms-reproduce` /
-// `light-reflection-and-refraction` — so those four chapters returned ZERO. The
-// two board-excluded entries keep their deleted keys ONLY so DELETED_TOPIC_KEYS
-// still strips them; getTopics() never returns them (menu preserved).
+// `light-reflection-and-refraction` — so those four chapters returned ZERO.
+// WS-1: `heredity-and-evolution` / `magnetic-effects` (dead keys, stripped by the
+// filter) are replaced by the canonical `heredity` / `magnetic-effects-of-electric-
+// current`, and the missing `human-eye-and-colourful-world` is added — see the
+// DELETED_TOPIC_KEYS doc for why the chapters are in scope.
 const SCIENCE_TOPICS_RAW: WorksheetTopic[] = [
   { key: "chemical-reactions-and-equations", label: "Chemical Reactions", stream: "Chemistry" },
   { key: "acids-bases-and-salts", label: "Acids, Bases & Salts", stream: "Chemistry" },
@@ -83,29 +87,33 @@ const SCIENCE_TOPICS_RAW: WorksheetTopic[] = [
   { key: "life-processes", label: "Life Processes", stream: "Biology" },
   { key: "control-and-coordination", label: "Control & Coordination", stream: "Biology" },
   { key: "how-do-organisms-reproduce", label: "Reproduction", stream: "Biology" },
-  { key: "heredity-and-evolution", label: "Heredity & Evolution", stream: "Biology" }, // DELETED — see DELETED_TOPIC_KEYS
+  { key: "heredity", label: "Heredity", stream: "Biology" },
   { key: "light-reflection-and-refraction", label: "Light – Reflection & Refraction", stream: "Physics" },
+  { key: "human-eye-and-colourful-world", label: "Human Eye & Colourful World", stream: "Physics" },
   { key: "electricity", label: "Electricity", stream: "Physics" },
-  { key: "magnetic-effects", label: "Magnetic Effects of Current", stream: "Physics" }, // DELETED — see DELETED_TOPIC_KEYS
+  { key: "magnetic-effects-of-electric-current", label: "Magnetic Effects of Current", stream: "Physics" },
   { key: "our-environment", label: "Our Environment", stream: "Biology" },
 ];
 
 /**
- * Topic slugs OUT of the board-assessed CBSE 2026-27 scope — never offered on the
- * worksheet surface. Mirrors scripts/src/syllabusGuard.ts (Science RULES +
- * SURFACE_BANNED_PHRASES), re-read 2026-06-21:
- *   - "heredity-and-evolution": the Evolution section (Ch 9) is formative-only /
- *     board-excluded ("Natural Selection", "Speciation", "Human Evolution",
- *     "Homologous Organs" …). Heredity/Mendel are retained but the bundled topic
- *     entry conflates them, so the owner-locked spec removes the entry whole.
- *   - "magnetic-effects": Motor / Electromagnetic Induction / Electric Generator
- *     are formative-only board exclusions (SURFACE_BANNED_PHRASES), so the
- *     Magnetic Effects chapter entry is removed from board-prep worksheets.
+ * Whole CHAPTERS out of the board-assessed CBSE 2026-27 scope — never offered on
+ * the worksheet surface. EMPTY as of WS-1 (2026-09-11), deliberately:
+ *   - No Class 10 Science or Maths CHAPTER is deleted for 2026-27. The exclusions
+ *     in scripts/src/syllabusGuard.ts are SUB-topics: the Evolution section of
+ *     Ch 9 ("Human Evolution", "Evidence of Evolution", …) and the Motor / EMI /
+ *     Generator content of Ch 13 ("Electric Motor", "Electromagnetic Induction",
+ *     "Electric Generator"). Heredity, Mendel's contribution, Laws of Inheritance
+ *     and Sex Determination are RETAINED and board-assessed (CLAUDE.md §5).
+ *   - Those sub-topic exclusions are enforced on the bank ROWS by the syllabus
+ *     guard (root guard matrix, exact `subtopic` match), so every row the bank
+ *     serves for `heredity` / `magnetic-effects-of-electric-current` is already
+ *     guard-clean; suppressing the chapter here only hid in-syllabus rows.
+ *   - Owner ruling 2026-09-11: every bank question must be reachable from
+ *     PracticeHub / ChapterTest / Full-length tests / Worksheets.
+ * The set (and its filter in getTopics) is kept so a genuine future whole-chapter
+ * deletion has one place to land; it must never carry a sub-topic exclusion.
  */
-export const DELETED_TOPIC_KEYS: ReadonlySet<string> = new Set([
-  "heredity-and-evolution",
-  "magnetic-effects",
-]);
+export const DELETED_TOPIC_KEYS: ReadonlySet<string> = new Set<string>([]);
 
 /** Visible topics for a subject (+ Science stream), with deleted topics removed. */
 export function getTopics(
@@ -139,6 +147,9 @@ const MATHS_KEY_TO_WEIGHT_NAME: Record<string, string> = {
 };
 
 // Science worksheet slugs → Class10ScienceTopicKey in class10ScienceTopicTrends.
+// WS-1: the three restored chapters are mapped too — an unmapped key makes
+// weightFor() return null and planWorksheet() fall back to weight 1 (vs 5–12.5
+// for mapped chapters), starving the chapter in the full-subject board split.
 const SCIENCE_KEY_TO_TREND_KEY: Record<string, string> = {
   "chemical-reactions-and-equations": "ChemicalReactions",
   "acids-bases-and-salts": "AcidsBasesSalts",
@@ -147,8 +158,11 @@ const SCIENCE_KEY_TO_TREND_KEY: Record<string, string> = {
   "life-processes": "LifeProcesses",
   "control-and-coordination": "ControlAndCoordination",
   "how-do-organisms-reproduce": "Reproduction",
+  heredity: "HeredityEvolution",
   "light-reflection-and-refraction": "Light",
+  "human-eye-and-colourful-world": "HumanEyeAndColourfulWorld",
   electricity: "Electricity",
+  "magnetic-effects-of-electric-current": "MagneticEffects",
   "our-environment": "OurEnvironment",
 };
 
