@@ -138,7 +138,7 @@ describe("ConceptSpine — Notes (single unified toggle, not split tabs)", () =>
   // modal, an unseeded one must still show the honest placeholder (never a fabricated
   // note). Every Class-10 topic in notes/specs/ is now seeded, so the placeholder branch
   // is exercised through the synthetic preview fixture (slug absent from notes/specs/).
-  it("opens the SEEDED chapter note as a modal on a topic that has a note spec", () => {
+  it("opens the SEEDED chapter note as a modal on a topic that has a note spec", async () => {
     // Guard: if the trigonometry seed is ever pulled this test must fail loudly rather
     // than silently start asserting the placeholder branch.
     expect(getNoteSpecForTopic(trig.slug)).not.toBeNull();
@@ -151,7 +151,9 @@ describe("ConceptSpine — Notes (single unified toggle, not split tabs)", () =>
     fireEvent.click(toggle);
 
     expect(toggle).toHaveAttribute("aria-expanded", "true");
-    const dialog = screen.getByRole("dialog");
+    // NoteModal is loaded lazily so katex stays off this route's static import graph,
+    // so the dialog arrives a microtask after the click rather than synchronously.
+    const dialog = await screen.findByRole("dialog");
     expect(dialog).toHaveAttribute("aria-label", `${trig.name} — notes`);
     // It is the real <Note> document, not the placeholder.
     expect(dialog.querySelector(".lt-note")).not.toBeNull();
