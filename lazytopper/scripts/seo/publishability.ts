@@ -85,13 +85,43 @@ export interface PublishableQuestion {
  * valid. Counting only the first silently discards roughly 600 questions.
  *   leading:  "[2 marks] Substitute into the lens equation..."
  *   trailing: "Substitute into the lens equation... [2]"
+ *
+ * ★ THE HALF-MARK GLYPH IS A THIRD SPELLING OF THE SAME VALUE (HALF-1). CBSE marking
+ * schemes print a half mark as the single glyph `½` (U+00BD), and the bank carries it
+ * verbatim: `[½ mark]` leads a step on 15 human rows (light 7, control-and-coordination
+ * 4, carbon 2, real-numbers 1, electricity 1) and a trailing `[½]` closes 378 AI-pack
+ * steps. Before HALF-1 the mark token was `\d+(?:\.\d+)?` — digits only — so `[½ mark]`
+ * read as NO annotation and every one of those 15 rows, whose steps DO sum to `marks`,
+ * reported `unmarked-step`: a reason string that was false for them, and 15 rows in the
+ * addressable backlog that no STEPMARK lane could clear, because they were already
+ * annotated. The token now also accepts the glyph alone (`½` = 0.5) and as a mixed
+ * number (`1½` = 1.5), in BOTH conventions. Measured 2026-09-11: no row under `src/data`
+ * writes `1½`/`2½` today; the mixed form is accepted so the parser reads a mark the way
+ * a scheme writes it, not because a row needs it. The decimal spellings (`[0.5 mark]`,
+ * `[1.5 marks]`) are unchanged and remain the majority form.
+ *
+ * ⚠ ONLY THE GLYPH IS A MARK. `1/2`, `half` and a `½` outside a bracket annotation
+ * (`"[Deduct ½ mark if …]"`, a rubric note on AI-pack rows) are prose and stay unparsed.
+ * The alternation lists the decimal token first; a mixed number such as `1½` is reached
+ * by backtracking, so `[1 mark]` and `[1½ marks]` cannot be confused.
  */
-const LEADING_MARK = /^\s*\[\s*(\d+(?:\.\d+)?)\s*marks?\s*\]/i;
-const TRAILING_MARK = /\[\s*(\d+(?:\.\d+)?)\s*\]\s*$/;
+const LEADING_MARK = /^\s*\[\s*(\d+(?:\.\d+)?|\d*½)\s*marks?\s*\]/i;
+const TRAILING_MARK = /\[\s*(\d+(?:\.\d+)?|\d*½)\s*\]\s*$/;
+
+/** The captured token as a number. Digit tokens go through `Number` exactly as before
+ *  HALF-1 (`"2"` → 2, `"0.5"` → 0.5); a glyph token adds its half (`"½"` → 0.5,
+ *  `"1½"` → 1.5). */
+function markValue(token: string): number {
+  if (token.endsWith("½")) {
+    const whole = token.slice(0, -1);
+    return (whole === "" ? 0 : Number(whole)) + 0.5;
+  }
+  return Number(token);
+}
 
 export function stepMarks(step: string): number | null {
   const m = LEADING_MARK.exec(step) ?? TRAILING_MARK.exec(step);
-  return m ? Number(m[1]) : null;
+  return m ? markValue(m[1]) : null;
 }
 
 /**
