@@ -1,5 +1,19 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-11 — TIERMAP-1 (`#759`), trunk `e0d17da1`, merged by the owner 2026-09-11T12:23:45+05:30.**
+> **NO SURFACE CELL MOVES.** `#759` is a type field (`questionProvenance` / `shapedFrom` on
+> `CanonicalQuestion`, `predictionTypes.ts` +18) and a guard (`questionProvenance.guard.test.ts`); no
+> row changed, no renderer changed, the pin file is not in the diff. Stated plainly, per `CLAUDE.md` §10.
+> **Scope: UNCHANGED on every surface — nothing goes to §2a or `DECISION_LOG.md`.**
+> ⚠ Two facts a reader of this matrix should carry (CONTROLLER-RECORDED, scouts at `a157c741`):
+> **no bank surface filters AI rows or `requiresDiagram`** — Practice is the universal door with no
+> structural filter; Chapter Test and Full Mock exclude non-MCQ 1-markers (Full Mock also MCQ-shaped rows
+> with marks 2–5 and unkeyed MCQs); **HPQ / Mock Paper / Weak Area / Check & Improve do not read the bank
+> at all.** And **WORKSHEETS cannot offer `heredity` / `magnetic-effects-of-electric-current` /
+> `human-eye-and-colourful-world` (682 rows)** — a reachability defect on a live surface, fix in flight as
+> WS-1 (draft PR, head `d131b4b9`; owner merges after green; live-verify owed) —
+> `[FU-WORKSHEETS-RETIRED-TWINS-OLD-KEYS]`. That cell flips when WS-1 is live-verified, not before.
+
 > **2026-09-11 — FIG-MATHS-1 (`#757`), trunk `a157c741`, merged 2026-09-11T02:06Z.**
 > **FIVE FIGURE CELLS MOVE FOR 88 MATHS ROWS: PRACTICE (`PracticeQuestionCard`) · CHAPTER TEST ·
 > FULL MOCK · HPQ (`HighlyProbableQuestions`) · MOCK PAPER.** `QuestionVisualAid`, the binder's only

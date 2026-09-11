@@ -2,6 +2,66 @@
 
 
 ```
+⛔⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW IT. TIERMAP-1 (#759) IS ON TRUNK.
+
+TRUNK IS `e0d17da19d6624dfd2ec014e9909f512e0573e2b` (#759, merged by the owner 2026-09-11T12:23:45+05:30),
+HANDOFF-VERIFIED 2026-09-11 with `git log ee610799..e0d17da1` (exactly one commit; before it ee610799 = #758 docs).
+RE-DERIVE IT BEFORE ACTING:  git ls-remote origin base/approved-thru-437
+OPEN PRs AT THE TIME OF WRITING: WS-1 DRAFT (lane/ws-1-worksheet-topic-reachability, head d131b4b9)
+   — a status claim, re-check with `gh pr list --state open` and check EVERY open PR's file list
+   (lane_overlap compares exact paths against ALL open PRs, bot PRs included).
+
+WHAT #759 DID: `CanonicalQuestion` gained `questionProvenance?: "transcribed" | "authored"` and
+   `shapedFrom?: string` (predictionTypes.ts, +18 lines, NOTHING else — ruling 7 honoured exactly).
+   ABSENCE = legacy, NEVER authored. NEW questionProvenance.guard.test.ts: an authored row must name
+   shapedFrom (bank id or ≥12-char citation), carry a LEADING `[N mark]` on EVERY step summing to marks
+   (parser = stepMarks imported from scripts/seo/publishability, the pin file's own), have ≥1 step, and
+   not be an AI-pack id. 0 authored rows today, pinned ≥ 0; 8 positive controls; mutation-proven.
+   Gates: tsc · typecheck:test · mojibake · scope:guard inspected=2 · vitest 13/13 · lazytopper matrix
+   527/527 · root matrix 206/206 (30 suites) · CI green. Pin file NOT in the diff. It UNBLOCKS authoring.
+
+★ NEXT, IN ORDER (the controller's sequence, ruling 10 — NO cofounder session in this arc):
+   1. MERGE WS-1 when green (owner merges; live-verify /practice/worksheets — heredity,
+      magnetic-effects-of-electric-current, human-eye-and-colourful-world must be offered; 682 rows).
+   2. PR-3 — publishability figure escape + the pin file's 12 exact literals → monotone bounds
+      (in build). Until it lands every content PR re-pins the file ⇒ ONE content PR at a time.
+   3. Rulings 1–4 content PR — 53 Z3 flag flips (2 diagramDescription rows checked individually) +
+      CG-A-001/CG-B-002 stems to the printed figure with the two crops bound + TRIG-E-001 + 9 maths +
+      12 science requiresDiagram→false (in build; AFTER PR-3 — shares the pin file).
+   4. FIG-SCI-1 PR — 109 science figures (itembank 44 · exemplar 34 · ncert 7 · cfpq 24), every crop
+      eye-confirmed, scienceFigureVisuals.ts + reachability test (in build).
+   5. WAVE 4 — parallel by chapter, file-disjoint: STEPMARK (1,890 annotatable of 2,336 addressable;
+      the 446 that cannot distribute at 0.5-mark granularity → re-extract marks or retire) ·
+      TRANSCRIPTION per chapter from the PDFs (Item Bank, CFPQ, PYQ 2026, Exemplar, NCERT, Foundation;
+      the July corpus is a TARGET LIST, not rows — [FU-JULY-CORPUS-IS-AN-INDEX-NOT-ROWS]) ·
+      AI-PACK RETIREMENT per topic once its human supply lands · fresh skeptic per PR.
+   THEN wave 5 authoring (per chapter, D/E first, questionProvenance:"authored" + shapedFrom, floor ~350,
+   total ~10,000) → HPQ-2027 refresh ([FU-HPQ-2027-REFRESH]; needs an owner src/data allowlist first;
+   two HPQ ops gates are ALREADY RED on trunk — [FU-HPQ-OPS-GATES-ALREADY-RED]) → guards.
+
+MEASURED, NOT ASSUMED (controller's scouts at a157c741; #759 changed no row): human rows 5,710
+   (min surface-areas-and-volumes 106, max light 660; 19/26 topics < 250); 4-mark cell < 75 in 26/26
+   topics, 5-mark < 75 in 25/26; format-vs-marks 439 (wide rule; the ≈843 NOT reproduced); all 413
+   pack files wired. Surfaces: Practice = universal door, no structural filter; ChapterTest / Full Mock
+   exclude non-MCQ 1-markers (Full Mock also MCQ-shaped rows with marks 2–5 and unkeyed MCQs); NO surface
+   filters AI or requiresDiagram; HPQ / MockPaper / WeakArea / Check&Improve do NOT read the bank.
+
+⚠ ENVIRONMENT: the main checkout's node_modules/.pnpm links into a DELETED worktree — every lane
+   removes its two junction LINKS and runs `corepack pnpm install --frozen-lockfile` in its OWN
+   worktree ([FU-MAIN-CHECKOUT-NODE-MODULES-DANGLING]). Never touch the main checkout.
+
+NEW FUs (each with its own heading on the follow-ups board, 2026-09-11 TIERMAP-1 section):
+   [FU-HPQ-2027-REFRESH] · [FU-HPQ-OPS-GATES-ALREADY-RED] · [FU-JULY-CORPUS-IS-AN-INDEX-NOT-ROWS] ·
+   [FU-METAL-NCERT-3-VSA-006-STEM-NAMES-WRONG-TABLE] · [FU-CFPQ-S-ENV-005-DIAGRAMDESCRIPTION-MISMATCH] ·
+   [FU-Z3-DANGLING-VISUALEXPLAINERID] · [FU-MAIN-CHECKOUT-NODE-MODULES-DANGLING] ·
+   [FU-WORKSHEETS-RETIRED-TWINS-OLD-KEYS].
+
+The FIG-MATHS-1 banner below is superseded ONLY in its trunk SHA, its open-PR line and its NEXT line
+(FIG-SCI-1 is now step 4, behind WS-1 / PR-3 / the rulings 1–4 content PR). Its substance stands.
+```
+
+
+```
 ⛔⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW IT. FIG-MATHS-1 (#757) IS ON TRUNK.
 
 TRUNK IS `a157c741a494b97bdf760db95888fa7ccbea8aad` (#757, merged 2026-09-11T02:06Z),
