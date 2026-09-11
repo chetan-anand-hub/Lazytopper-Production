@@ -1,5 +1,26 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-11 — SEO-SOCIAL-HEADS-1 (`#775`, self-merged as `f52cb703` under standing authorization), trunk `7eddabee` after `#773`.**
+> **NO SURFACE CELL MOVES, AND THAT IS THE CORRECT ANSWER RATHER THAN AN UNCHECKED ONE.** `#775`
+> changes `<head>` metadata in the 32 static files emitted after `vite build` — `og:title`,
+> `og:description`, `twitter:title`, `twitter:description` now carry each page's own copy instead of
+> the home page's. **Nothing a student sees in the app changes**; the affected surface is the link
+> preview a scraper renders off-site, which is not a tracked surface on this board. Same category as
+> `#768` SEO-CANONICAL-1, recorded the same way in the note above.
+> ⚠ **The one in-product surface this touches is `index.html`, and it is UNCHANGED by design** —
+> `writeStaticHeads.ts` skips the root path, so the home page keeps its marketing copy. Verified by
+> `curl` against production after the deploy: `/app/` still returns the marketing `og:title` in its
+> original multi-line shape while `/app/topic-hub/trigonometry` returns
+> `Trigonometry — CBSE Class 10 Maths | LazyTopper`. That pair is also the lane's **non-expiring
+> control** — see `CURRENT_STATE.md` §2.
+> **Owner live-verify owed** — three WhatsApp pastes (a chapter URL, the home page, one non-chapter
+> advertised page) — `[FU-SEO-SOCIAL-HEADS-1-LIVE-VERIFY-OWED]`.
+> **Scope: UNCHANGED on every surface — no scope was discovered; nothing goes to §2a or `DECISION_LOG.md`.**
+> ⚠ **`#772` SURFACE-1, `#773` ELEC-FIX-1 and `#774` STEPMARK 5 + LIGHT-FIX-1 also landed today and
+> are OTHER LANES' WORK.** `#772`'s subject (which questions are drawable on Chapter Test and Full
+> Mock) is squarely a surface-tracker matter and **this lane did not review it, so no cell is flipped
+> for it here.** Whoever ran that lane owes this board its cells.
+
 > **2026-09-11 — RULINGS 1–4 + STEPMARK 6 + SEO-CANONICAL-1 + HALF-1 + FIG-SCI-2 (`#764`+`#765`+`#768`+`#769`+`#770`), trunk `c355e6a3`.**
 > **TWO FIGURE CELLS MOVE; TWO PRs MOVE NONE.** (1) **2 MATHS ROWS ON PRACTICE (`PracticeQuestionCard`) ·
 > CHAPTER TEST · FULL MOCK · HPQ (`HighlyProbableQuestions`) · MOCK PAPER** — `#764` bound
