@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, cleanup, within } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import type { ReactElement } from "react";
+import { render, screen, cleanup, within, fireEvent } from "@testing-library/react";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
 /**
  * [FU-LEGAL-FOOTER-LINK] — legal reachability on the SIGNED-OUT public surfaces.
@@ -111,6 +112,50 @@ function renderedFooterHrefs(): string[] {
   return hrefs;
 }
 
+/**
+ * SEO-NOTES-AND-LINKS-1 — the footer is the only crawl path on this site Google has
+ * demonstrably followed (Live Test, 2026-09-13), so it carries a "Chapters" link to
+ * Exam Trends, the page that lists every chapter. Asserted by role + href on every
+ * surface that renders the footer, and the legal links must stay first-class and in
+ * their original order AFTER it.
+ */
+describe("the footer links to Exam Trends (the chapter index) on every public surface", () => {
+  const surfaces: [string, () => ReactElement][] = [
+    ["MobileWelcome", () => <MemoryRouter><MobileWelcome /></MemoryRouter>],
+    ["PricingPage", () => <MemoryRouter initialEntries={["/pricing"]}><PricingPage /></MemoryRouter>],
+    ["PublicLegalFooter", () => <MemoryRouter><PublicLegalFooter /></MemoryRouter>],
+  ];
+
+  it.each(surfaces)("%s: Chapters → /exam-trends, then Privacy, Terms, Refunds unchanged", (_name, ui) => {
+    render(ui());
+    const foot = screen.getByRole("contentinfo", { name: "Legal" });
+    expect(within(foot).getByRole("link", { name: "Chapters" })).toHaveAttribute(
+      "href",
+      "/exam-trends",
+    );
+    expect(within(foot).getAllByRole("link").map((a) => a.textContent)).toEqual([
+      "Chapters",
+      ...FOOTER_LINKS.map(([label]) => label),
+    ]);
+  });
+
+  it("a click on Chapters routes client-side to Exam Trends", () => {
+    function Probe() {
+      return <output data-testid="loc">{useLocation().pathname}</output>;
+    }
+    render(
+      <MemoryRouter initialEntries={["/welcome"]}>
+        <Routes>
+          <Route path="/welcome" element={<PublicLegalFooter />} />
+          <Route path="/exam-trends" element={<Probe />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByRole("link", { name: "Chapters" }));
+    expect(screen.getByTestId("loc")).toHaveTextContent("/exam-trends");
+  });
+});
+
 describe("every slug a legal link points at renders real policy content", () => {
   const allHrefs = renderedFooterHrefs();
   // ★ THE FILTER IS RETAINED THOUGH THE FOOTER NOW RENDERS ONLY LEGAL LINKS. [LINK-1]
@@ -128,7 +173,9 @@ describe("every slug a legal link points at renders real policy content", () => 
     expect(hrefs.every((h) => h.startsWith("/legal/"))).toBe(true);
     // ★ AND THE FILTER HID NOTHING: every rendered href survived it. This replaces the
     // [LINK-1] questions assertion and keeps the filter from concealing a stray link.
-    expect(hrefs.length).toBe(allHrefs.length);
+    // SEO-NOTES-AND-LINKS-1 adds exactly ONE non-legal link — Chapters → /exam-trends —
+    // so the rendered set is the legal hrefs plus that one, and nothing else.
+    expect(allHrefs).toEqual(["/exam-trends", ...hrefs]);
   });
 
   it.each(hrefs)("%s renders a policy, not the not-found card", (href) => {

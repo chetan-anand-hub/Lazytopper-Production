@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useHref, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 
@@ -142,6 +142,7 @@ export default function Welcome() {
               display: inline-flex;
               align-items: center;
               justify-content: center;
+              text-decoration: none;
               color: #fff;
               background: linear-gradient(180deg, ${NAVY_2}, ${NAVY});
               box-shadow: 0 16px 34px rgba(7, 26, 61, 0.25), inset 0 0 0 1px rgba(255,255,255,0.14);
@@ -1753,11 +1754,11 @@ export default function Welcome() {
             </div>
 
             <div className="lt-post-card-cta">
-              <button type="button" className="lt-explore" onClick={onExplore}>
+              <a href={useHref(user ? "/" : "/browse")} className="lt-explore" onClick={(e) => { if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return; e.preventDefault(); onExplore(); }}>
                 <SparkleIcon size={30} />
                 <span>Explore</span>
                 <ArrowIcon size={28} />
-              </button>
+              </a>
             </div>
 
             <MistakeIntelligenceLayer />

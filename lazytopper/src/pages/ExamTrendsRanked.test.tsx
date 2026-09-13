@@ -21,7 +21,7 @@ import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent, act, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { setMatchMediaMatches } from "../test/setup";
-import { desktopTopicBySlug } from "../lib/desktop/topics";
+import { allDesktopTopics, desktopTopicBySlug, desktopTopicsBySubject } from "../lib/desktop/topics";
 
 import ExamTrendsRanked from "./ExamTrendsRanked";
 
@@ -217,7 +217,7 @@ describe("ExamTrendsRanked — CTAs", () => {
     await renderPage();
 
     const card = document.querySelector<HTMLElement>('[data-topic-slug="trigonometry"]')!;
-    const learn = within(card).getByRole("button", { name: /Learn/ });
+    const learn = within(card).getByRole("link", { name: /Learn/ });
     expect(learn).toHaveTextContent("Learn");
     // The retired label must be gone.
     expect(within(card).queryByRole("button", { name: /^Open$/ })).toBeNull();
@@ -228,6 +228,78 @@ describe("ExamTrendsRanked — CTAs", () => {
 
     expect(screen.getByTestId("probe").getAttribute("data-url")).toBe(
       "/topic-hub/trigonometry?source=trends&returnTo=%2Fexam-trends",
+    );
+  });
+});
+
+/**
+ * SEO-NOTES-AND-LINKS-1 — Exam Trends is the chapter index a crawler reaches from the
+ * public footer. ★ An href cannot distinguish an <a onClick> from a router <Link>, so
+ * the Learn anchor is asserted by its CLICK: prevented, and routed with source/returnTo
+ * (a bare <Link> would land on the clean href instead); a modified click is not prevented.
+ */
+describe("ExamTrendsRanked — crawlable chapter links (SEO-NOTES-AND-LINKS-1)", () => {
+  const topicHubHrefs = (root: ParentNode) =>
+    Array.from(root.querySelectorAll<HTMLAnchorElement>('a[href^="/topic-hub/"]')).map(
+      (a) => a.getAttribute("href") as string,
+    );
+
+  it("a cold load exposes all 26 chapters as topic-hub links, via the All chapters list", async () => {
+    await renderPage();
+    const all = topicHubHrefs(document);
+    const registry = allDesktopTopics().map((t) => `/topic-hub/${t.slug}`);
+    expect(new Set(all).size).toBeGreaterThanOrEqual(26);
+    for (const href of registry) expect(all).toContain(href);
+
+    const list = screen.getByRole("navigation", { name: "All chapters" });
+    expect(topicHubHrefs(list)).toEqual([
+      ...desktopTopicsBySubject("Maths"),
+      ...desktopTopicsBySubject("Science"),
+    ].map((t) => `/topic-hub/${t.slug}`));
+
+    // CONTROL — without the list, the ranked rows alone reach FAR fewer than 26 on a
+    // cold load (one subject, collapsed bands unmounted). So the ≥26 above measures
+    // the list, not the rows.
+    const outside = Array.from(document.querySelectorAll<HTMLAnchorElement>('a[href^="/topic-hub/"]'))
+      .filter((a) => !list.contains(a))
+      .map((a) => a.getAttribute("href") as string);
+    expect(new Set(outside).size).toBeLessThan(26);
+    expect(outside.length).toBeGreaterThan(0);
+  });
+
+  it("a plain Learn click is prevented and routes with source/returnTo", async () => {
+    await renderPage();
+    const card = document.querySelector<HTMLElement>('[data-topic-slug="trigonometry"]')!;
+    const learn = within(card).getByRole("link", { name: /Learn/ });
+    expect(learn).toHaveAttribute("href", "/topic-hub/trigonometry");
+    let notPrevented = true;
+    await act(async () => {
+      notPrevented = fireEvent.click(learn, { button: 0 });
+    });
+    expect(notPrevented).toBe(false);
+    expect(screen.getByTestId("probe").getAttribute("data-url")).toBe(
+      "/topic-hub/trigonometry?source=trends&returnTo=%2Fexam-trends",
+    );
+  });
+
+  it("CONTROL: a modified Learn click is NOT prevented and does not route in-app", async () => {
+    await renderPage();
+    const card = document.querySelector<HTMLElement>('[data-topic-slug="trigonometry"]')!;
+    const learn = within(card).getByRole("link", { name: /Learn/ });
+    for (const mod of [{ metaKey: true }, { ctrlKey: true }, { shiftKey: true }]) {
+      expect(fireEvent.click(learn, { button: 0, ...mod })).toBe(true);
+    }
+    expect(screen.queryByTestId("probe")).toBeNull();
+  });
+
+  it("the All chapters list routes client-side on click", async () => {
+    await renderPage();
+    const list = screen.getByRole("navigation", { name: "All chapters" });
+    await act(async () => {
+      fireEvent.click(within(list).getByRole("link", { name: "Light - Reflection & Refraction" }));
+    });
+    expect(screen.getByTestId("probe").getAttribute("data-url")).toBe(
+      "/topic-hub/light-reflection-and-refraction",
     );
   });
 });

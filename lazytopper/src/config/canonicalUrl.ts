@@ -114,6 +114,9 @@ export const CANONICAL_ALIAS: Readonly<Record<string, string>> = {
 export const SELF_CANONICAL_ONE_SEGMENT: readonly string[] = [
   "/legal",
   "/topic-hub",
+  // SEO-NOTES-AND-LINKS-1 — `/notes/:topicSlug`, the chapter note on its own URL.
+  // Renders for a signed-out visitor, exactly as the topic pages do.
+  "/notes",
 ];
 
 /** Drop any query string or hash, and any trailing slash except the root's. */

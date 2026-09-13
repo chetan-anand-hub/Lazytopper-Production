@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, cleanup, within } from "@testing-library/react";
-import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { render, screen, cleanup, within, fireEvent } from "@testing-library/react";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
 /**
  * [FU-LEGAL-FOOTER-LINK] — the SIGNED-OUT DESKTOP FRONT DOOR reaches the policies.
@@ -80,6 +80,48 @@ describe("Welcome — the signed-out desktop landing reaches the policies", () =
 });
 
 /**
+ * SEO-NOTES-AND-LINKS-1 — Explore is a crawlable anchor that still navigates in-app.
+ * ★ An href alone cannot tell an <a onClick> from a router <Link>; the click can. A
+ * plain click must be defaultPrevented AND route (signed out → /browse); a modifier
+ * click must be left to the browser.
+ */
+describe("Welcome — the Explore control is a real link", () => {
+  function Probe() {
+    return <output data-testid="loc">{useLocation().pathname}</output>;
+  }
+  function renderRouted() {
+    return render(
+      <MemoryRouter initialEntries={["/welcome"]}>
+        <Routes>
+          <Route path="/welcome" element={<Welcome />} />
+          <Route path="/browse" element={<Probe />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+  }
+
+  it("exposes href=/browse for a signed-out visitor — onExplore's own destination", () => {
+    renderRouted();
+    expect(screen.getByRole("link", { name: /Explore/ })).toHaveAttribute("href", "/browse");
+  });
+
+  it("a plain click is prevented and routes client-side to /browse", () => {
+    renderRouted();
+    const explore = screen.getByRole("link", { name: /Explore/ });
+    expect(fireEvent.click(explore, { button: 0 })).toBe(false);
+    expect(screen.getByTestId("loc")).toHaveTextContent("/browse");
+  });
+
+  it("CONTROL: a modifier click is NOT prevented and does not route in-app", () => {
+    renderRouted();
+    const explore = screen.getByRole("link", { name: /Explore/ });
+    expect(fireEvent.click(explore, { button: 0, metaKey: true })).toBe(true);
+    expect(fireEvent.click(explore, { button: 0, ctrlKey: true })).toBe(true);
+    expect(screen.queryByTestId("loc")).toBeNull();
+  });
+});
+
+/**
  * ★ Harvested from the RENDERED footer, never re-stated. Asserting against a hardcoded
  * slug list would make this a tautology: repointing a real link at an empty slug would
  * leave it green. Mutation M2 (a link repointed at an unserved slug) turns this red
@@ -111,7 +153,8 @@ describe("every slug the landing's legal links point at renders real policy cont
     expect(hrefs.every((h) => h.startsWith("/legal/"))).toBe(true);
     // ★ AND THE FILTER HID NOTHING: every rendered href survived it. This replaces the
     // [LINK-1] questions assertion and keeps the filter from concealing a stray link.
-    expect(hrefs.length).toBe(allHrefs.length);
+    // SEO-NOTES-AND-LINKS-1 adds exactly ONE non-legal link, Chapters → /exam-trends.
+    expect(allHrefs).toEqual(["/exam-trends", ...hrefs]);
   });
 
   it.each(hrefs)("%s renders a policy, not the not-found card", (href) => {

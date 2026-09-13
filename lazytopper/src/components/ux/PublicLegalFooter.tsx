@@ -97,6 +97,11 @@ export default function PublicLegalFooter({ className }: { className?: string })
     >
       <style>{FOOTER_CSS}</style>
       <span>&copy; 2026 LazyTopper</span>
+      {/* SEO-NOTES-AND-LINKS-1 — the one crawl path Google has demonstrably followed
+          on this site is this footer. Exam Trends lists every chapter, so this single
+          link opens all 26 topic hubs to a signed-out crawler. An in-app route, so a
+          router <Link> is correct here (unlike the retired static /questions link). */}
+      <Link to="/exam-trends">Chapters</Link>
       {LEGAL_LINKS.map(({ label, slug }) => (
         <Link key={slug} to={`/legal/${slug}`}>
           {label}
