@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Card } from "../grammar/Card";
-import NoteModal from "../notes/NoteModal";
 import { getNoteSpecForTopic } from "../notes/noteSpecRegistry";
 import { findVisualForConcept } from "../../data/visualConceptRegistry";
 import type { DesktopTopicSummary } from "../../lib/desktop/topics";
@@ -9,6 +8,12 @@ import type {
   ActionableTopicHubContent,
   BoardConcept,
 } from "../../lib/desktop/topicHubContent";
+
+/* Loaded on demand: NoteModal's subtree statically imports katex and its stylesheet, and a
+   CSS dependency is the one kind Vite's preload helper can reject — which crashed this
+   route in Googlebot's renderer. React.lazy starts its import when the lazy ELEMENT renders,
+   not when the modal opens, so the mount below is gated on `notesRequested` too. */
+const NoteModal = lazy(() => import("../notes/NoteModal"));
 
 /**
  * ConceptSpine — the Topic Hub main view, final-IA LAYOUT (Learn-Flow PR-D).
@@ -467,6 +472,10 @@ export function ConceptSpine({
 }: ConceptSpineProps) {
   const [tipsOpen, setTipsOpen] = useState(false);
   const [notesOpen, setNotesOpen] = useState(false);
+  // Latches true on the first Notes click and never resets: the lazy NoteModal element
+  // (and with it katex's chunk and stylesheet) must not exist before then, and once it
+  // does it stays mounted, so closing and reopening never unmounts or re-suspends it.
+  const [notesRequested, setNotesRequested] = useState(false);
   const arrivalRowRef = useRef<HTMLDivElement | null>(null);
 
   // PR-F — the pre-authored note-spec for this topic (notes/specs/<slug>.json),
@@ -574,7 +583,10 @@ export function ConceptSpine({
             className="lt-spine__notes-btn"
             aria-expanded={notesOpen}
             aria-haspopup={noteSpec ? "dialog" : undefined}
-            onClick={() => setNotesOpen((v) => !v)}
+            onClick={() => {
+              setNotesRequested(true);
+              setNotesOpen((v) => !v);
+            }}
           >
             <span aria-hidden="true">▤</span>
             <span>Notes</span>
@@ -582,12 +594,16 @@ export function ConceptSpine({
           <span className="lt-spine__notes-hint">formulae · proofs · mind-map — one view</span>
         </div>
         {noteSpec ? (
-          <NoteModal
-            open={notesOpen}
-            onClose={() => setNotesOpen(false)}
-            spec={noteSpec}
-            title={topic.name}
-          />
+          notesRequested && (
+            <Suspense fallback={null}>
+              <NoteModal
+                open={notesOpen}
+                onClose={() => setNotesOpen(false)}
+                spec={noteSpec}
+                title={topic.name}
+              />
+            </Suspense>
+          )
         ) : (
           notesOpen && (
             <div className="lt-spine__notes-panel">
