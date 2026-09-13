@@ -68,6 +68,26 @@
         ]
       }
     </script>
+    <!-- PRELOAD NET. A lazy route's stylesheet that fails to load must not send the
+         whole page to the error boundary. Vite's preload helper dispatches a cancelable
+         `vite:preloadError` and rethrows only if nobody cancelled it; cancelling a CSS
+         failure lets the route's module import go ahead, so the page renders with that
+         one stylesheet missing. Deliberately narrow: a failed JS chunk import reaches the
+         same event, and cancelling THAT would hand React.lazy an undefined module, so it
+         is left to throw. No global error or unhandledrejection handler.
+         ⚠ Keep this an inline script ABOVE the module script (at build, Vite moves that
+         script to the end of this head, still after this one). It must be registered
+         before the app starts loading chunks; a listener added from module code is
+         registered too late to matter. src/config/preloadNet.guard.test.ts pins it. -->
+    <script>
+      window.addEventListener("vite:preloadError", function (event) {
+        var reason = event.payload;
+        var message = reason && reason.message ? String(reason.message) : "";
+        if (message.indexOf("Unable to preload CSS for ") !== 0) return;
+        event.preventDefault();
+        console.warn("[preload-net] rendering without a stylesheet. " + message);
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>
