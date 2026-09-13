@@ -1,4 +1,34 @@
 ```
+⛔ THIS BANNER SUPERSEDES THE BANNERS BELOW IT ON TRUNK, THE SITEMAP COUNT AND DISCOVERY.
+
+TRUNK IS `8922195cdfbef4e4ad46cd121267347df08c73cd` (#782), MEASURED 2026-09-13.
+
+✅ #782 SEO-NOTES-AND-LINKS-1 IS MERGED.
+   Sitemap 33 → 59 (+26 /notes/<slug>). Google: 59 discovered, 2026-09-13 (OWNER-REPORTED).
+   Crawl paths:  /app/ footer "Chapters" → /app/exam-trends
+                 /app/exam-trends "All chapters" + Learn → 26 topic hubs
+                 /app/topic-hub/<slug> Notes anchor → /app/notes/<slug>
+   Explore → /app/browse (NOT in sitemap), which has 1 <a href> to /app/exam-trends.
+
+★★ EXAM TRENDS IS ExamTrendsRanked.tsx. pages/app/TopicHub.tsx has NO importer.
+★★ ExamTrendsRanked.tsx:1246 UNMOUNTS collapsed bands ({open && …}); a cold load shows
+   5 of 26 chapters. The "All chapters" list is load-bearing — do not remove it, do not
+   hide it (a hidden link list is cloaking-adjacent), and do not change band defaults.
+★★★ premise_ledger_check ACCEPTS AN ANCHOR THAT MATCHES TWO LINES without warning.
+   Until fixed: grep each anchor's match COUNT yourself. [FU-PREMISE-ANCHOR-MULTI-MATCH-SILENT]
+⛔ SEO-ROOT-REDIRECT-1 IS CANCELLED. Do not touch RootEntry for SEO.
+
+NEXT:
+   1. Owner §6 live-verify: curl sitemap → 59; private-window /app/notes/trigonometry;
+      resubmit sitemap + Request Indexing on the best 10 notes URLs.
+      [FU-SEO-NOTES-AND-LINKS-1-LIVE-VERIFY-OWED]
+   2. Owner ruling: is /browse deliberately unadvertised? [FU-BROWSE-SITEMAP-RULING-OWED]
+   3. Method fix to the premise checker: warn on multi-match anchors.
+   4. Watch Search Console: discovered → crawled → indexed for /notes and /topic-hub.
+      [FU-CHAPTER-URLS-UNKNOWN-TO-GOOGLE] stays OPEN until pages are crawled.
+```
+
+```
 ⛔ THIS BANNER SUPERSEDES THE SEO BANNER BELOW IT ON #776 AND ON THE PRELOAD CRASH.
    Everything else in that banner (no Soft 404, the withdrawn "0 of 26" line, Live Test
    is not a crawl, DISCOVERY is the open question) STANDS.

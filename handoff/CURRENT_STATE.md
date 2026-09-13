@@ -1,6 +1,86 @@
 # LazyTopper — Current State
 
-## [CURRENT · RELIABILITY] SEO-PRELOAD-CRASH-1 + SEO-PRELOAD-NET-1 — **A LAZY STYLESHEET THAT FAILS TO LOAD NO LONGER SENDS A STUDENT TO "SOMETHING WENT WRONG" — AND THIS WORK CARRIES NO SEO VALUE** — `#776` + `#779` MERGED — trunk `72aef5dd`
+## [CURRENT · SEO ARC] SEO-NOTES-AND-LINKS-1 — **THE NOTES GET A URL AND THE CHAPTERS GET LINKS: THREE CRAWL PATHS FROM THE PAGE GOOGLE ALREADY RENDERS, AND A 59-URL SITEMAP** — `#782` MERGED — trunk `8922195c`
+
+★ **PROVENANCE.**
+- **HANDOFF-VERIFIED** by the lane that built `#782`, in its own worktrees: git facts, gates, mutation proofs, both preview acceptance runs, the `/browse` anchor count, and the curl of served heads.
+- **OWNER-REPORTED:** Google Search Console shows **59 URLs discovered** from the sitemap on 2026-09-13. Discovered is not indexed.
+- **OWNER-RULED (2026-09-13):**
+  - `PublicLegalFooter.tsx` authorised; `/chapters` cancelled; Exam Trends is the chapter index.
+  - The "All chapters" list is required, and visible.
+  - `Welcome.tsx` authorised for Explore only.
+  - `App.tsx` authorised for the `/notes` route plus two matchers; `writeStaticHeads.ts` authorised for notes heads.
+  - SEO-ROOT-REDIRECT-1 is cancelled.
+  - Meta vs Ctrl is not worth chasing on Windows.
+
+**Trunk `8922195cdfbef4e4ad46cd121267347df08c73cd`** (`#782` squash), re-derived with `git ls-remote` before writing. Before it: `72aef5dd` (`#779`), then a handoff docs commit, then `8922195c`.
+
+### 1 — WHAT LANDED
+- **`/notes/:topicSlug`** (`DesktopNotesPage`) renders the existing `<Note>` standalone (P8: `Note` takes only `{ spec }` and needs no dialog context). It uses the topic hub's chrome: `DesktopShell` via `isDesktopShellRoute`, and `MobileSelfChrome`. An unknown slug shows an honest "Notes not found" card.
+- **Heads.** Each notes URL is emitted with `<Topic> — Class 10 Notes | LazyTopper`, the topic blurb as description, and a self canonical (`writeStaticHeads.ts`). Curl without JS: `/app/notes/trigonometry` serves its own title and canonical.
+- **Links:** see §2.
+
+**Sitemap: 33 → 59 URLs** = 4 exact + 3 legal + 26 `/topic-hub/<slug>` + **26 `/notes/<slug>`** (new self-canonical one-segment family, registry `allDesktopTopics()`, every member guarded to have an authored note spec). **Google reports 59 discovered on 2026-09-13 (OWNER-REPORTED)**, which is discovery, not indexing.
+
+### 2 — CRAWL PATHS
+**The three new crawl paths, and where each starts:**
+
+| # | Starts on | Link | Leads to |
+|---|---|---|---|
+| 1 | **`/app/`**: desktop signed-out renders `Welcome`; mobile client-replaces to `/app/welcome` (`MobileWelcome`). Also `/app/pricing`. | `PublicLegalFooter` → **Chapters** (`<Link>`, placed before the unchanged Privacy/Terms/Refunds) | `/app/exam-trends` |
+| 2 | **`/app/exam-trends`** (already in the sitemap) | **All chapters** list (26 `<Link>`s) + each row's **Learn** `<a href onClick>` | `/app/topic-hub/<slug>` ×26 |
+| 3 | **`/app/topic-hub/<slug>`** | **Notes** `<a href="/app/notes/<slug>">`; a plain click still opens the popup | `/app/notes/<slug>` ×26 (NEW route) |
+
+Also: **Explore** on the desktop landing is now `<a href="/app/browse">` (signed out; `/` when signed in), with the same click behaviour. `/app/browse` is **not** in the sitemap: see `[FU-BROWSE-SITEMAP-RULING-OWED]`.
+
+### 3 — `/browse`
+**Measured on the preview of the merged code, no session, cold load.** `/app/browse` link count, with Exam Trends as the control (same counting code):
+
+| Route | Width | anchors | to topic-hub | to notes | to exam-trends |
+|---|---|---|---|---|---|
+| `/app/exam-trends` (control) | 1440 | 38 | **26** | 0 | 1 |
+| `/app/exam-trends` (control) | 390 | 31 | **26** | 0 | 0 |
+| `/app/browse` | 1440 | 16 | **0** | **0** | **1** |
+| `/app/browse` | 390 | 10 | **0** | **0** | **1** |
+
+**So Explore is not a room with no exits:** `/browse` has one real `<a href>` to `/app/exam-trends` at both widths, and path 2 continues from there. It has **zero** direct chapter or notes links. The link's source component was not traced.
+
+### 4 — FINDINGS
+**Findings this handoff must carry (owner instruction):**
+- ★★ **Spec correction: Exam Trends is `ExamTrendsRanked.tsx`, NOT `pages/app/TopicHub.tsx`.** The owner's re-scope named `TopicHub.tsx:390`. That file has **no importer anywhere** (grep: only a comment at `App.tsx:47`), while `/exam-trends` renders `ExamTrendsRanked` (`App.tsx:85`). Converting the dead file would have shipped links on a page nobody can reach. The lane stopped and asked before building.
+- ★★ **Why the flat list was necessary.** `ExamTrendsRanked.tsx:1246` renders band rows as `{open && …}`, so a collapsed band is **unmounted**, not hidden. `:1279` defaults the subject to Maths, and only `must-crack` is `defaultOpen` (`:224`; `high-roi` `:229` and `good-to-do` `:234` are false). So a cold load put **5 of 26** chapters in the DOM. Converting row buttons alone would have given a crawler five doors, and the acceptance check would have passed with the lane having failed. Band and subject defaults were deliberately NOT changed (owner). **Measured:** without the list, 5 unique topic-hub links (vitest mutation M3: `expected 5 to be >= 26`); with it, 26, and the list is visible (212px).
+- ★★★ **Gate limitation: a premise anchor that matches TWO lines passes silently.** The spec's P6 anchor `<Navigate to="/welcome" replace />` matches `App.tsx:146` (`HomeRedirect`) **and** `:160` (`RootEntry`, the claimed one). `premise_ledger_check.mjs --strict-anchor` resolved it and warned nothing. A cited premise could therefore rot onto the wrong occurrence and still pass. **Proposal:** the checker should warn, or fail under `--strict-anchor`, whenever an anchor matches more than once in the cited file, and report every matching line. `[FU-PREMISE-ANCHOR-MULTI-MATCH-SILENT]`
+
+### 5 — EVIDENCE
+**`#782` evidence (HANDOFF-VERIFIED).**
+- **Gates:**
+  - both `tsc` configs (the test config caught a real `JSX` namespace error pre-commit)
+  - `scope:guard --mode mixed`: `inspected=17`
+  - full vitest **164 files / 2123 tests**
+  - build: `STATIC_HEADS advertised=59 pages=58 files=116 no_honest_description=0`
+  - bundle verifier: pass
+  - mojibake: 0
+  - root matrix 206/206 (30 suites, 0 skipped)
+  - ops matrix: 0 `not ok`
+  - CI 7/7, on both heads
+- **Mutations: 7 of 7 went RED.** Dropping the `/notes` family, `preventDefault` on each of Notes/Learn/Explore, the All chapters list, the footer link, and the notes head branch each failed the suite. Each file was restored and checked with `cmp`.
+- **§4 acceptance: 6/6, run twice.** Once on the preview of `815bbbc1`, and again on `1e896915` (after `update-branch`, which adds a handoff-only diff), because branch protection refused the first merge as out of date.
+  - The notes route renders cold with its own served title and canonical. **Control:** a nonsense slug shows no note.
+  - A plain Notes click opens the dialog and keeps the URL. **Control:** Ctrl- and Shift-click open `/app/notes/trigonometry`.
+  - Exam Trends: 26 unique topic-hub links; two picked at random both render.
+  - The footer Chapters link is present at 1440 and 390.
+  - The sitemap has 59 URLs. **Control:** `/app/notes/does-not-exist` is absent.
+  - The topic hub shows 0 `console.error`.
+- **Limitation, recorded and not chased (owner):** a literal **Meta**-key click was not exercised. The runner is Windows, where the new-tab modifier is Ctrl; Ctrl and Shift were tested.
+
+### 6 — SCOPE NOTES
+- **`App.tsx`:** four hunks: one lazy import, two `/notes/` matchers beside the `/topic-hub` ones, one route. `RootEntry` untouched.
+- **`Welcome.tsx`:** the Explore element, plus `useHref` in the router import and `text-decoration: none` on `.lt-explore`.
+- **Tests changed:** `Welcome.legalFooter.test.tsx` updated; it pinned "footer = legal links only". `public/sitemap.xml` regenerated.
+- **SEO-ROOT-REDIRECT-1 is CANCELLED (owner).** `/` → `/welcome` is a client-side history replace. Google's Live Test rendered `/app/`, kept it canonical, and reports "can be indexed". **Do not touch `RootEntry` for SEO.**
+- **Report:** `Desktop/diff/report-seo-notes-and-links-1.md`.
+
+## [PREVIOUS · 2026-09-13 · RELIABILITY] SEO-PRELOAD-CRASH-1 + SEO-PRELOAD-NET-1 — **A LAZY STYLESHEET THAT FAILS TO LOAD NO LONGER SENDS A STUDENT TO "SOMETHING WENT WRONG" — AND THIS WORK CARRIES NO SEO VALUE** — `#776` + `#779` MERGED — trunk `72aef5dd`
 
 ★ **PROVENANCE.**
 

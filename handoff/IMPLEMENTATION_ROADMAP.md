@@ -1,6 +1,24 @@
 # LazyTopper Implementation Roadmap
 
 
+## 2026-09-13 — SEO-NOTES-AND-LINKS-1: **NOTES ON THEIR OWN URL, CRAWLABLE LINKS TO EVERY CHAPTER, SITEMAP 59** — `#782` MERGED — trunk `8922195c`
+
+**`2026-09-13`** *(merge facts, gates and acceptance HANDOFF-VERIFIED; Google's 59-discovered OWNER-REPORTED; scope OWNER-RULED — see `CURRENT_STATE.md` provenance)*
+
+- ✅ **`#782` SEO-NOTES-AND-LINKS-1** (`8922195c`, squash, self-merged under the lane's authorization on 100% of §4 with every control, no `--admin`). 17 files.
+  - `/notes/:topicSlug` route with per-URL heads.
+  - Notes, Learn and Explore controls are real anchors with a preserved click.
+  - Visible Exam Trends "All chapters" list; footer "Chapters" link.
+  - **Sitemap 33 → 59.**
+- 📋 **Crawl paths:** `/app/` footer → `/app/exam-trends` → 26 topic hubs → 26 notes. The full table is in `CURRENT_STATE.md` §2.
+- ⛔ **CANCELLED: SEO-ROOT-REDIRECT-1** (owner, measured: `/`→`/welcome` is a client-side replace, and Google indexes `/app/`).
+- ⚠ **NOT DONE.**
+  - Owner live-verify (`[FU-SEO-NOTES-AND-LINKS-1-LIVE-VERIFY-OWED]`).
+  - `/browse` sitemap ruling (`[FU-BROWSE-SITEMAP-RULING-OWED]`).
+  - Premise-checker multi-match warning (`[FU-PREMISE-ANCHOR-MULTI-MATCH-SILENT]`).
+  - Indexing itself (`[FU-CHAPTER-URLS-UNKNOWN-TO-GOOGLE]`).
+
+
 ## 2026-09-13 — SEO-PRELOAD-CRASH-1 + SEO-PRELOAD-NET-1: **A LAZY STYLESHEET THAT FAILS TO LOAD NO LONGER CRASHES THE PAGE — A RELIABILITY FIX WITH NO SEO VALUE** — `#776` + `#779` MERGED — trunk `72aef5dd`
 
 **`2026-09-13`** *(merge facts, `#779` gates and acceptance HANDOFF-VERIFIED; `#776` figures LANE-REPORTED; acceptance basis OWNER-RULED — see `CURRENT_STATE.md` provenance)*

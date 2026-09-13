@@ -20,6 +20,55 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ---
 
+## 2026-09-13 — SEO-NOTES-AND-LINKS-1 (`#782` MERGED as `8922195c`, squash, self-merged by the lane; open PRs at the time of writing: none) — three new follow-ups, one status line
+
+★ **PROVENANCE.**
+- **HANDOFF-VERIFIED** by the lane that built `#782`, in its own worktrees: git facts, gates, mutation proofs, both preview acceptance runs, the `/browse` anchor count, and the curl of served heads.
+- **OWNER-REPORTED:** Google Search Console shows **59 URLs discovered** from the sitemap on 2026-09-13. Discovered is not indexed.
+- **OWNER-RULED (2026-09-13):**
+  - `PublicLegalFooter.tsx` authorised; `/chapters` cancelled; Exam Trends is the chapter index.
+  - The "All chapters" list is required, and visible.
+  - `Welcome.tsx` authorised for Explore only.
+  - `App.tsx` authorised for the `/notes` route plus two matchers; `writeStaticHeads.ts` authorised for notes heads.
+  - SEO-ROOT-REDIRECT-1 is cancelled.
+  - Meta vs Ctrl is not worth chasing on Windows.
+
+Every FU below has its own heading (board rule 1). The status line on `[FU-CHAPTER-URLS-UNKNOWN-TO-GOOGLE]` is a dated addition **in this section**; its original body stands (board rule 3).
+
+### `[FU-PREMISE-ANCHOR-MULTI-MATCH-SILENT]` — OPEN (method improvement): the premise checker accepts an anchor that matches more than one line
+**What happened.** SEO-NOTES-AND-LINKS-1's P6 cited `App.tsx:155-160` with anchor `<Navigate to="/welcome" replace />`. That exact text occurs at **`App.tsx:146`** (`HomeRedirect`) **and `:160`** (`RootEntry`). `node scripts/premise_ledger_check.mjs … --strict-anchor` exited 0 with `6/6 claim rows had their anchor RESOLVED` and no warning. The lane found the duplicate only by grepping the anchor itself.
+
+**Why it matters.** An anchor that resolves to *some* occurrence tells you nothing about whether it is the *cited* one. If the cited block is deleted or rewritten and a second occurrence survives elsewhere, the premise still "resolves" and passes, with the claim now pointing at the wrong code. This is the same family as `[FU-ANCHOR-TOLERANCE-HIDES-OFF-BY-ONE]`: a green result on the checker read as a verified claim.
+
+**Proposal.** When an anchor matches more than once in the cited file, the checker should:
+- print **every** matching line number;
+- **warn** in default mode and **fail under `--strict-anchor`**, unless the cited line range disambiguates it to exactly one occurrence;
+- ship with a synthetic positive control: a fixture spec whose anchor matches twice must go red.
+
+**Until then:** a spec author (or lane) confirms each anchor's match **count**, not just its presence.
+
+### `[FU-BROWSE-SITEMAP-RULING-OWED]` — OPEN (owner decision to record)
+**`/app/browse` is not advertised in the sitemap and is not self-canonical.**
+- **Why this now matters.** `#782` made the landing's **Explore** control a real `<a href="/app/browse">` (for signed-out visitors), so a crawler following it now reaches a URL the sitemap does not mention.
+- **Why it may be correct.** `/browse` is the signed-out variant of the home cockpit (`DesktopHome` at desktop, `MobileHome` at mobile, `App.tsx:859-868`).
+- **What is owed.** It should be a **recorded ruling**, not an oversight.
+- **Measured, no session, cold load:** `/app/browse` has 16 anchors at 1440 and 10 at 390. **0** go to `/app/topic-hub/*` or `/app/notes/*`, and **1** goes to `/app/exam-trends` at each width. So it is not a dead end, but it is not a chapter index either.
+- **Not traced:** which component renders that Exam Trends link.
+
+### `[FU-SEO-NOTES-AND-LINKS-1-LIVE-VERIFY-OWED]` — OPEN (owner §6)
+- [ ] `curl -s https://www.lazytopper.com/sitemap.xml | grep -c "<loc>"` → **59**. Google already reports 59 discovered (OWNER-REPORTED, 2026-09-13).
+- [ ] Open `/app/notes/trigonometry` in a private window: note content, in the product's chrome.
+- [ ] Search Console: resubmit the sitemap, then Request Indexing on the best 10 notes URLs.
+
+**Recorded limitation, not to be chased (owner):** a literal Meta-key modifier click was not exercised; the Windows runner tested Ctrl and Shift.
+
+### `[FU-CHAPTER-URLS-UNKNOWN-TO-GOOGLE]` — status line 2026-09-13: **STILL OPEN; discovery has moved, crawling and indexing are unmeasured**
+- **`#782` gives the chapters in-product referrers.** Three crawl paths, all starting from `/app/`, the page Google already renders: footer → Exam Trends → All chapters → topic hub → Notes. It also adds 26 notes URLs.
+- **Discovered.** Google shows 59 discovered (OWNER-REPORTED).
+- **What closes this FU.** Search Console showing these URLs **crawled**, with a non-empty "Referring page". Discovery alone does not.
+
+---
+
 ## 2026-09-13 — SEO-PRELOAD-CRASH-1 + SEO-PRELOAD-NET-1 (`#776` MERGED as `62782e6f`, `#779` as `72aef5dd`, both merged through the owner's GitHub account; `#779` squash-merged by its lane under the owner's explicit approval; open PRs at the time of writing: none) — eight new follow-ups (one recorded as closed doctrine), two status lines (one closes `[FU-KATEX-PRELOAD-CRASH-UNFIXED]`)
 
 ★ **PROVENANCE.**
