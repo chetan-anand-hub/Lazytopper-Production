@@ -35,7 +35,7 @@ export const metalsNonMetalsPYQ2026: CanonicalQuestion[] = [
   { id: "PYQ-S-2026-METAL-004", subject: "Science", topicKey: "metals-and-non-metals", subtopic: "Ionic Compounds", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Show the formation of the following ionic compounds by transfer of electrons between the combining atoms : (i) Sodium oxide (Na2O) (ii) Magnesium chloride (MgCl2) (Given : Atomic number : Na = 11, Mg = 12, O = 8, Cl = 17)",
     answer: "Refer to CBSE official marking scheme for the full step-by-step solution.",
-    solutionSteps: ["[1 mark] (i) (ii)", "[1 mark] Refer to CBSE official marking scheme for the full step-by-step solution."],
+    solutionSteps: ["(i) (ii)", "Refer to CBSE official marking scheme for the full step-by-step solution."],
     finalAnswer: "Refer to CBSE official marking scheme for the full step-by-step solution.",
     ncertRef: "PYQ 31/3/1 Q25", isCompetencyBased: true,
     pyqYear: "2026", pyqSet: "1" },

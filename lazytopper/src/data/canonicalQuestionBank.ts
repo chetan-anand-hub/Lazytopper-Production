@@ -1394,19 +1394,14 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Understanding",
-    "questionText": "Which of the following equations is correctly balanced?\n(A) 2H₂ + O₂ → H₂O\n(B) 2H₂ + O₂ → 2H₂O\n(C) H₂ + O₂ → 2H₂O\n(D) 4H₂ + O₂ → 4H₂O",
-    "options": [],
-    "answer": "",
+    "questionText": "Which of the following equations is correctly balanced?",
+    "options": ["2H₂ + O₂ → H₂O", "2H₂ + O₂ → 2H₂O", "H₂ + O₂ → 2H₂O", "4H₂ + O₂ → 4H₂O"],
+    "answer": "2H₂ + O₂ → 2H₂O",
     "explanation": "",
     "solutionSteps": [
-      "For each option, check whether the number of atoms of each element is the same on both sides of the equation.",
-      "Option (A): Fe + O₂ → Fe₂O₃ is not balanced (Fe and O atoms differ on both sides).",
-      "Option (B): 2Fe + 3O₂ → 2Fe₂O₃ has Fe atoms not balanced.",
-      "Option (C): 4Fe + 3O₂ → 2Fe₂O₃ has Fe = 4 and O = 6 on both sides, so it is balanced.",
-      "Option (D) represents a different compound Fe₃O₄, so it is not the intended answer here.",
-      "Therefore, the correctly balanced equation for Fe₂O₃ formation is option (C)."
+      "[1 mark] Correct option: (B) 2H₂ + O₂ → 2H₂O — hydrogen: 4 atoms on each side; oxygen: 2 atoms on each side. In (A) oxygen is 2 → 1, in (C) hydrogen is 2 → 4 and in (D) oxygen is 2 → 4, so those are not balanced."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "(B) 2H₂ + O₂ → 2H₂O",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -1451,16 +1446,16 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
     "bloomSkill": "Applying",
     "questionText": "A current of 0.5 A flows through a conductor when a potential difference of 10 V is applied across it. Calculate the resistance. If the potential difference is doubled, what will be the new current (assuming resistance remains constant)?",
     "options": [],
-    "answer": "",
+    "answer": "20 Ω, 1 A",
     "explanation": "",
     "solutionSteps": [
-      "Recall Ohm’s law: V = IR, where V is potential difference, I is current, and R is resistance.",
-      "Given V = 10 V and I = 0.5 A, use R = V / I to get R = 10 / 0.5 = 20 Ω.",
-      "If the potential difference is doubled, new V = 2 × 10 = 20 V with the same resistance R = 20 Ω.",
-      "Use I = V / R to find the new current: I = 20 / 20 = 1 A.",
-      "Thus, the resistance of the conductor is 20 Ω and the new current is 1 A."
+      "[0.5 mark] Recall Ohm’s law: V = IR, where V is potential difference, I is current, and R is resistance.",
+      "[1 mark] Given V = 10 V and I = 0.5 A, use R = V / I to get R = 10 / 0.5 = 20 Ω.",
+      "[0.5 mark] If the potential difference is doubled, new V = 2 × 10 = 20 V with the same resistance R = 20 Ω.",
+      "[0.5 mark] Use I = V / R to find the new current: I = 20 / 20 = 1 A.",
+      "[0.5 mark] Thus, the resistance of the conductor is 20 Ω and the new current is 1 A."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "20 Ω, 1 A",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": true
@@ -1636,16 +1631,16 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
     "format": "MCQ",
     "difficulty": "Easy",
     "bloomSkill": "Remembering",
-    "questionText": "Which of the following metals is the softest and can be cut with a knife? (A) Iron  (B) Zinc  (C) Sodium  (D) Aluminium",
-    "options": [],
-    "answer": "",
+    "questionText": "Which of the following metals is the softest and can be cut with a knife?",
+    "options": ["Iron", "Zinc", "Sodium", "Aluminium"],
+    "answer": "Sodium",
     "explanation": "",
     "solutionSteps": [
       "Recall that some alkali metals like sodium and potassium are very soft.",
       "Among the given options, sodium is the metal that can be easily cut with a knife.",
       "Therefore, the correct option is (C) Sodium."
     ],
-    "finalAnswer": "",
+    "finalAnswer": "(C) Sodium",
     "strategyHint": "",
     "predictionScore": 0,
     "isCompetencyBased": false
@@ -1727,7 +1722,10 @@ export const RAW_CANONICAL_QUESTION_BANK: CanonicalQuestion[] = [
 // answer-mismatch = questionText contradicts its own answer;
 // garbled-options = the OPTION SET is destroyed (duplicated/single-token remnants)
 // so no answer key can resolve to exactly one option; figure = unanswerable without
-// a figure the data does not carry; out-of-syllabus = fails the CBSE 2026-27 gate.
+// a figure the data does not carry; out-of-syllabus = fails the CBSE 2026-27 gate;
+// placeholder-solution = the stored "solution" is a see-marking-scheme stub or
+// examiner/marking-scheme boilerplate, not working; spliced-solution = the stored
+// solution text belongs to a different question.
 export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   // ---- Science: bilingual column bleed / wrong-question pasted in (re-extract) ----
   "PYQ-S-2025-ACID-008",     // bilingual
@@ -1840,6 +1838,147 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-S-2026-METAL-010",        // garbled: pua+trailing-op
   "PYQ-S-2026-METAL-011",        // garbled: pua
   "SCQ-S-METAL-044",             // garbled: trailing-op
+  // ---- light-reflection-and-refraction: skeptic 2026-09-11 (LIGHT-FIX-1 stage 1) ----
+  // New tags (defined here): placeholder-solution = the stored steps carry no solution at all
+  // (a "See marking scheme" stub, CBSE evaluator boilerplate, or diagram captions only);
+  // spliced-solution = the steps splice in the marking scheme of a DIFFERENT question.
+  "LIGHT-EXMPLR-9-MCQ-004",      // answer-mismatch: Fig 10.1 gives sin 60°/sin 45° = 1.22 and no option matches (the official key 3/2 is the sin² ratio); owner ruling pending
+  "PYQ-S-LIGHT-010",             // placeholder-solution: "See marking scheme."
+  "PYQ-S-LIGHT-014",             // placeholder-solution: ~48 steps of CBSE evaluator instructions after the first
+  "PYQ-S-LIGHT-015",             // placeholder-solution: evaluator boilerplate; stem also lost the minus signs on the powers
+  "PYQ-S-2024-LIGHT-002",        // placeholder-solution: the only step is evaluator boilerplate
+  "PYQ-S-2024-LIGHT-003",        // placeholder-solution: the only step is evaluator boilerplate
+  "PYQ-S-2025-LIGHT-007",        // placeholder-solution: "See marking scheme."; options also lost the ×10^8 and fraction bars
+  "PYQ-S-2025-LIGHT-009",        // placeholder-solution: "See marking scheme."
+  "PYQ-S-2025-LIGHT-012",        // spliced-solution: electricity kettle/fuse marking scheme pasted in
+  "PYQ-S-2025-LIGHT-013",        // spliced-solution: electricity heating-element marking scheme pasted in
+  "PYQ-S-2025-LIGHT-014",        // placeholder-solution: diagram captions only ("IMAGE OBJECT")
+  "PYQ-S-2025-LIGHT-018",        // placeholder-solution: "See marking scheme."
+  "PYQ-S-2026-LIGHT-008",        // placeholder-solution: formula fragment + "Refer to CBSE official marking scheme"
+  "PYQ-S-2026-LIGHT-014",        // placeholder-solution: "Refer to CBSE official marking scheme"
+  "SCO-S-LIGHT-018",             // garbled: stem lost the radius of curvature (R = 5 cm in its source item FND-L-QB-175); underivable as printed
+  "SCQ-S-LIGHT-022",             // garbled: stem says seven one-mark parts (7 marks) but the row carries 2; answer truncated mid-word
+  "SCQ-S-LIGHT-034",             // garbled: solution is formula soup ("3 108 # =", "v . / m s 1 24 108 # ="); part (a) reasoning inverted
+  "SCQ-S-LIGHT-036",             // garbled: chapter header spliced into the stem mid-sentence; solution formula soup + publisher disclaimer
+  "SCQ-S-LIGHT-037",             // garbled: stem speed printed ". ms 1 5 108 1 # -"; solution formula soup
+  "FND-L-SPM-044",               // garbled: stem dropped the teacher's "focus a distant object" sentence; options refer to a "newly selected object" the stem never names
+  "GDR-L-NUM-022",               // garbled: stem asks for the image height but gives no object height
+  // ---- light beyond-board tier: outside official 2026-27 Unit III (LIGHT-FIX-1 stage 2, owner ruling) ----
+  // Each id below needs a concept ABSENT from the official CBSE 2026-27 Class X Science Unit III
+  // text (cbseacademic.nic.in), checked stem by stem; the 17 LGHT_*_BEYOND_BOARD rows solvable with
+  // that text alone stay served. The arrays and their spreads are untouched.
+  "FND-L-QB-078",                // out-of-syllabus: displacement (conjugate-foci) method, O = sqrt(h1*h2)
+  "FND-L-QB-117",                // out-of-syllabus: critical angle
+  "FND-L-QB-136",                // out-of-syllabus: radiation pressure (F = 2P/c)
+  "FND-L-QB-175",                // out-of-syllabus: refraction at a single spherical surface (n2/v - n1/u = (n2 - n1)/R)
+  "FND-L-SPX-001",               // out-of-syllabus: velocity of the image in a plane mirror
+  "FND-L-SPX-003",               // out-of-syllabus: number of images between inclined plane mirrors
+  "FND-L-SPX-004",               // out-of-syllabus: number of images between inclined plane mirrors
+  "FND-L-SPX-005",               // out-of-syllabus: number of images between inclined plane mirrors
+  "FND-L-SPX-007",               // out-of-syllabus: combination of two coaxial lenses (image of one as object of the next)
+  "FND-L-SPX-016",               // out-of-syllabus: critical angle / total internal reflection
+  "FND-L-SPX-017",               // out-of-syllabus: real and apparent depth
+  "FND-L-SPX-024",               // out-of-syllabus: lens-maker's formula (focal length in a liquid)
+  "FND-L-SPX-037",               // out-of-syllabus: derivation of the lateral-displacement expression d = t sin(i - r)/cos r
+  "FND-L-SPX-038",               // out-of-syllabus: minimum plane-mirror height h/2 (derivation)
+  "FND-L-SPX-042",               // out-of-syllabus: two facing mirrors, coincident images (d = 2f or 4f)
+  "FND-L-SPX-043",               // out-of-syllabus: two-mirror system with a virtual object
+  "FND-L-SPM-003",               // out-of-syllabus: rotation of a plane mirror (reflected ray turns through 2x)
+  "FND-L-SPM-004",               // out-of-syllabus: number of images between inclined plane mirrors
+  "FND-L-SPM-006",               // out-of-syllabus: deviation by two perpendicular plane mirrors
+  "FND-L-SPM-014",               // out-of-syllabus: minimum plane-mirror length h/2
+  "FND-L-SPM-021",               // out-of-syllabus: refraction through a glass sphere
+  "FND-L-SPM-022",               // out-of-syllabus: virtual object (convergent beam on a diverging lens)
+  "FND-L-SPM-031",               // out-of-syllabus: normal shift of a convergence point by a glass slab
+  "FND-L-SPM-032",               // out-of-syllabus: critical angle
+  "FND-L-SPM-033",               // out-of-syllabus: prism at minimum deviation (r = A/2)
+  "FND-L-SPM-034",               // out-of-syllabus: total internal reflection in a right-isosceles prism
+  "FND-L-SPM-035",               // out-of-syllabus: prism formula D = i + e - A
+  "FND-L-SPM-036",               // out-of-syllabus: lens-maker's reasoning (lens in a liquid of the same index)
+  "FND-L-WS4-101",               // out-of-syllabus: number of images between three perpendicular mirrors
+  "FND-L-WS4-102",               // out-of-syllabus: number of images between inclined plane mirrors
+  "FND-L-WS4-202",               // out-of-syllabus: minimum object-to-real-image separation 4f
+  "FND-L-WS4-204",               // out-of-syllabus: apparent depth varying with colour (dispersion + apparent depth)
+  "FND-L-WS4-207",               // out-of-syllabus: apparent height seen from water (stem also omits n)
+  "FND-L-WSF-17",                // out-of-syllabus: apparent height seen from water
+  "FND-L-WSF-18",                // out-of-syllabus: apparent depth through a glass slab
+  // chapterwise rows asking the same concepts, withheld for consistency (LIGHT-FIX-1 stage 3, controller ruling)
+  "SCO-S-LIGHT-008",             // out-of-syllabus: half-height plane-mirror
+  "SCO-S-LIGHT-011",             // out-of-syllabus: two-mirror image count
+  "SCO-S-LIGHT-017",             // out-of-syllabus: two-lens system (same ground as FND-L-SPX-007); step 2 garbled under a [0.5 mark] prefix (LIGHT-FIX-1 stage 5)
+  // ---- electricity: skeptic 2026-09-11 (ELEC-FIX-1) ----
+  "PYQ-S-ELEC-007",              // placeholder-solution: ~60 lines of MS confidential preamble (RECOVER-1 row, untouched)
+  "CBE-S-ELEC-A-003",            // answer-mismatch: bound graph (I on y, R3 least steep) fits no option
+  "PYQ-S-2026-ELEC-013",         // out-of-syllabus: (A)(ii) key names Electric Motor / Electric Generator
+  "SCQ-S-ELEC-036",              // answer-mismatch: answer is another question's text
+  "APQ-S-ELEC-001",              // garbled: ambiguous stem — topology of R1, R2, R3 never stated
+  "PYQ-S-2025-ELEC-008",         // garbled: answer 'm', steps three fragments
+  "PYQ-S-2025-ELEC-009",         // garbled: Hindi remnant, graphs A-D unbound (RECOVER-1 row, untouched)
+  "PYQ-S-ELEC-004",              // garbled: part (a) empty
+  "SCQ-S-ELEC-034",              // garbled: numerics in stem and answer
+  "SCQ-S-ELEC-038",              // garbled: (b) circuit symbols missing from stem
+  "PYQ-S-ELEC-002",              // garbled: scheme tallies in answer (re-topicked to magnetic effects)
+  "PYQ-S-2026-ELEC-008",         // garbled: Hindi remnant, (iv) figure unbound (re-topicked to magnetic effects)
+  "PYQ-S-2026-ELEC-009",         // garbled: Hindi remnant in stem, tallies in last step (re-topicked to magnetic effects)
+  // ---- bank-wide: placeholder / garbled solutions, scout 2026-09-11 (CLEAN-1) ----
+  // Tags placeholder-solution / spliced-solution as defined in the LIGHT-FIX-1 block above;
+  //   here placeholder-solution also covers an examiner note or MS residue standing where
+  //   the solution should be (the cited MS PDF holds the real one — re-transcribe, then
+  //   delete the id here).
+  // Prefixes were stripped from the placeholder steps (a [N mark] prefix goes only on a
+  // real step — owner ruling 1, 2026-09-11); the row text is otherwise kept intact.
+  // Remove an id only when its row is repaired from the source paper — NEVER when a
+  // gate merely goes green.
+  // -- placeholder-solution (CBSE 2022-23 / 2024-25 / 2025-26 PYQ packs) --
+  "PYQ-S-LIFE-012",              // placeholder-solution
+  "PYQ-S-LIFE-014",              // placeholder-solution
+  "PYQ-S-CTRL-003",              // placeholder-solution
+  "PYQ-S-EYE-002",               // placeholder-solution
+  "PYQ-S-ENV-003",               // placeholder-solution
+  "PYQ-S-ENV-004",               // placeholder-solution
+  "PYQ-M-CIRC-011",              // placeholder-solution
+  "PYQ-M-STAT-007",              // placeholder-solution
+  "PYQ-S-2026-LIFEP-007",        // placeholder-solution
+  "PYQ-S-2025-CHEMRXN-008",      // placeholder-solution
+  "PYQ-S-2025-CHEMRXN-014",      // placeholder-solution
+  "PYQ-S-2025-CHEMRXN-015",      // placeholder-solution
+  "PYQ-S-2025-ACID-006",         // placeholder-solution
+  "PYQ-S-2025-CTRL-008",         // placeholder-solution
+  "PYQ-S-2025-HERED-004",        // placeholder-solution
+  "PYQ-S-2025-EYE-002",          // placeholder-solution
+  "PYQ-S-2025-ENV-003",          // placeholder-solution
+  "PYQ-S-2026-METAL-004",        // placeholder-solution — (i)(ii) are electron-dot diagrams, not carried
+  "PYQ-S-2025-LIFEP-006",        // placeholder-solution — only part (a) survives of 3 marks
+  "PYQ-S-2026-HERED-006",        // placeholder-solution — cross diagram not carried
+  "PYQ-S-2026-HERED-007",        // placeholder-solution — parts (b)(c) missing
+  "PYQ-S-2025-REPR-006",         // placeholder-solution — "diagram labelling" only
+  "PYQ-S-2025-HERED-008",        // placeholder-solution — cross not carried
+  "PYQ-S-2024-CHEMRXN-010",      // placeholder-solution — "(a) (b) (c)" then two MS pointers
+  "PYQ-S-2026-LIFEP-012",        // placeholder-solution — step (a) is the examiner note "(Award ½ mark for each labelling)"
+  "PYQ-S-EYE-005",               // placeholder-solution — step is MS tallies + page stamp + "(1 mark for diagram…)"
+  // -- spliced-solution --
+  "PYQ-M-2026-CIRC-003",         // spliced-solution — a probability solution ("m + 6 / 36") under a circles stem
+  "PYQ-S-2026-EYE-003",          // spliced-solution — stem is bilingual residue; steps solve a 4 Ω + 1 Ω series circuit
+  // -- blank / garbled / bilingual (fragments; re-transcribe from the cited MS) --
+  "PYQ-S-MAG-008",               // blank — part (c) field-line diagram not carried; step is "(c)"
+  "PYQ-S-2026-HERED-011",        // garbled — 9:3:3:1 split across fragment steps, cross not carried
+  "PYQ-S-ACID-011",              // garbled — stem lost sub-part (b) entirely ("(b) (c) Why do…")
+  "PYQ-S-2026-CHEMRXN-022",      // garbled — (c) esterification equation missing; OR(c) carries the (b) equation
+  "SCQ-S-METAL-034",             // garbled — step truncated mid-word ("froth floatio"); part (b) incomplete
+  "PYQ-S-2026-METAL-009",        // bilingual — Hindi column residue in the stem ("A, B C A, B C , ? 5 () (i) (I) B, K, R XY ?")
+  "PYQ-S-2026-LIFEP-011",        // bilingual — Hindi column residue in the stem ("of (a) (b) ( 180 L ) , ? (c) / ?")
+  // -- garbled-options / answer-mismatch --
+  "PYQ-M-PLE-003",               // garbled-options — option (d) "ab =" truncated; key "ab = 6"
+  "PYQ-M-QE-001",                // garbled-options — operator signs stripped ("2x2 4x + 8 =")
+  "PYQ-M-CIRC-004",              // garbled-options — √ lost ("2 3 cm", "2 2 cm"); key "2√3 cm 1"
+  "PYQ-M-STAT-004",              // garbled-options — two options both "decreases by"
+  "SCO-S-ACID-014",              // garbled-options — "the formation of salt H O 2 +" (flattened H2O)
+  "SCQ-S-ACID-034",              // answer-mismatch — stem says pH 14; its own answer says "No salt has pH = 14"
+  // -- stage 4: skeptic pass 2026-09-11 (report-skeptic-rekey-clean-2026-09-11.md) --
+  "PYQ-S-METAL-003",             // garbled — part (i) MgCl₂ electron-transfer diagram lost; step 1 begins "i) (ii)"
+  "PYQ-M-2025-STAT-004",         // garbled — stem drops the last class frequency; unsolvable from the stem
+  "PYQ-M-2025-STAT-005",         // garbled — stem drops the last class frequency; unsolvable from the stem
+  "SCO-S-HERED-005",             // out-of-syllabus — origin of life / earliest organisms = Evolution (formative-only, 2026-27)
 ]);
 
 /**

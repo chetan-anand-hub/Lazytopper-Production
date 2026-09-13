@@ -16,7 +16,7 @@ export const LIGHT_REFLECTION_APQ: CanonicalQuestion[] = [
       "exactly at the principal focus"
     ],
     answer: "anywhere between the pole and principal focus",
-    solutionSteps: ["For a concave mirror, virtual and enlarged image is formed only when the object is between the pole (P) and the principal focus (F)."],
+    solutionSteps: ["[1 mark] For a concave mirror, virtual and enlarged image is formed only when the object is between the pole (P) and the principal focus (F)."],
     finalAnswer: "(b) anywhere between the pole and principal focus",
     ncertRef: "APQ Science-PQ Q13", isCompetencyBased: false },
 
@@ -24,7 +24,7 @@ export const LIGHT_REFLECTION_APQ: CanonicalQuestion[] = [
   { id: "APQ-S-LIGHT-002", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Convex Mirror — Search Mirror Application", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Understanding",
     questionText: "Search mirrors are mirrors that are used to look for hidden objects underneath the cars. The hidden objects can be easily spotted as the mirror provides a wider field of view. (a) What type of mirrors are generally used to make search mirrors? (b) With the help of a ray diagram describe the nature of image formed by the type of mirror identified in (a).",
     answer: "(a) Convex mirrors. (b) Virtual, erect, diminished image.",
-    solutionSteps: ["(a) Convex mirrors — they diverge light and provide a wider field of view than plane or concave mirrors.", "(b) Image formed by a convex mirror is always virtual, erect, and diminished. Ray diagram: object in front; one ray parallel to axis appears to diverge from focus behind mirror; another ray towards centre of curvature reflects back along itself. Image forms behind mirror, between pole and focus."],
+    solutionSteps: ["[1 mark] (a) Convex mirrors — they diverge light and provide a wider field of view than plane or concave mirrors.", "[1 mark] (b) Image formed by a convex mirror is always virtual, erect, and diminished. Ray diagram: object in front; one ray parallel to axis appears to diverge from focus behind mirror; another ray towards centre of curvature reflects back along itself. Image forms behind mirror, between pole and focus."],
     finalAnswer: "(a) Convex mirror; (b) virtual, erect, diminished.",
     ncertRef: "APQ Science-PQ Q24", isCompetencyBased: true,
     strategyHint: "REQUIRES-FIGURE: ray diagram for convex mirror." },
@@ -33,7 +33,7 @@ export const LIGHT_REFLECTION_APQ: CanonicalQuestion[] = [
   { id: "APQ-S-LIGHT-003", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Refractive Index — Speed of Light", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "Absolute refractive indices of two media P and Q are 1.33 (nP) and 2.52 (nQ) respectively. The speed of light in medium P is 2 × 10^8 m/s. (a) What would be the speed of light in medium Q (vQ)? (b) If the angle of incidence for a ray of light travelling from medium P to Q is 0°, then what will be the path of light in medium Q?",
     answer: "(a) vQ ≈ 1.056 × 10^8 m/s. (b) Travels undeviated.",
-    solutionSteps: ["nP = c/vP; nQ = c/vQ. Ratio: nP/nQ = vQ/vP ⟹ 1.33/2.52 = vQ / (2 × 10^8).", "vQ = (1.33 × 2 × 10^8) / 2.52 = 2.66 / 2.52 × 10^8 ≈ 1.056 × 10^8 m/s.", "(b) At normal incidence (angle of incidence = 0°), light enters perpendicular to the interface and travels undeviated (no refraction)."],
+    solutionSteps: ["[1 mark] nP = c/vP; nQ = c/vQ. Ratio: nP/nQ = vQ/vP ⟹ 1.33/2.52 = vQ / (2 × 10^8).", "[1 mark] vQ = (1.33 × 2 × 10^8) / 2.52 = 2.66 / 2.52 × 10^8 ≈ 1.056 × 10^8 m/s.", "[1 mark] (b) At normal incidence (angle of incidence = 0°), light enters perpendicular to the interface and travels undeviated (no refraction)."],
     finalAnswer: "(a) ~1.056 × 10^8 m/s; (b) undeviated.",
     ncertRef: "APQ Science-PQ Q31", isCompetencyBased: true },
 
@@ -44,7 +44,7 @@ export const LIGHT_REFLECTION_APQ: CanonicalQuestion[] = [
     questionText: "The light enters from air to glass having refractive index 1.5. The speed of light in glass is:",
     options: ["3 × 10^8 m/s", "2 × 10^8 m/s", "1.5 × 10^8 m/s", "2.25 × 10^8 m/s"],
     answer: "2 × 10^8 m/s",
-    solutionSteps: ["Refractive index n = c / v ⟹ v = c / n.", "v = (3 × 10^8 m/s) / 1.5 = 2 × 10^8 m/s."],
+    solutionSteps: ["[0.5 mark] Refractive index n = c / v ⟹ v = c / n.", "[0.5 mark] v = (3 × 10^8 m/s) / 1.5 = 2 × 10^8 m/s."],
     finalAnswer: "(b) 2 × 10^8 m/s",
     ncertRef: "APQ Science-PQ2 Q13", isCompetencyBased: false },
 
@@ -66,7 +66,7 @@ export const LIGHT_REFLECTION_APQ: CanonicalQuestion[] = [
   { id: "APQ-S-LIGHT-006", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Convex Lens — Image Position and Magnification", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A 4 cm tall object is placed perpendicular to the principal axis of a convex lens of focal length 20 cm. The distance of the object from the lens is 15 cm. Find the nature, position and size of the image formed.",
     answer: "v = -60 cm; hi = +16 cm; image virtual, erect, magnified.",
-    solutionSteps: ["Given: ho = 4 cm, u = -15 cm, f = +20 cm. Using lens formula 1/v - 1/u = 1/f.", "1/v = 1/f + 1/u = 1/20 + 1/(-15) = 3/60 - 4/60 = -1/60 ⟹ v = -60 cm.", "Magnification m = v/u = -60 / -15 = +4. So hi = m × ho = 4 × 4 = +16 cm.", "Nature: image is VIRTUAL, ERECT and MAGNIFIED (formed on the same side as the object, 60 cm from the lens)."],
+    solutionSteps: ["[0.5 mark] Given: ho = 4 cm, u = -15 cm, f = +20 cm. Using lens formula 1/v - 1/u = 1/f.", "[1 mark] 1/v = 1/f + 1/u = 1/20 + 1/(-15) = 3/60 - 4/60 = -1/60 ⟹ v = -60 cm.", "[1 mark] Magnification m = v/u = -60 / -15 = +4. So hi = m × ho = 4 × 4 = +16 cm.", "[0.5 mark] Nature: image is VIRTUAL, ERECT and MAGNIFIED (formed on the same side as the object, 60 cm from the lens)."],
     finalAnswer: "v = -60 cm, hi = +16 cm; virtual, erect, magnified image.",
     ncertRef: "APQ Science-PQ2 Q31 (first variant)", isCompetencyBased: true },
 
@@ -74,7 +74,7 @@ export const LIGHT_REFLECTION_APQ: CanonicalQuestion[] = [
   { id: "APQ-S-LIGHT-007", subject: "Science", topicKey: "light-reflection-and-refraction", subtopic: "Concave Lens — Image Distance and Ray Diagram", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "An object is placed at a distance of 60 cm from a concave lens of focal length 30 cm. (a) Use the lens formula to find the distance of image from the lens. (b) Draw a ray diagram to justify your answer in part (a).",
     answer: "(a) v = -20 cm (image on same side as object). (b) Ray diagram of concave lens.",
-    solutionSteps: ["Given: u = -60 cm, f = -30 cm (concave lens, negative focal length). Lens formula: 1/v - 1/u = 1/f.", "1/v = 1/f + 1/u = -1/30 + (-1/60) = -2/60 - 1/60 = -3/60 = -1/20 ⟹ v = -20 cm.", "(a) Image distance is 20 cm on the SAME side as the object — a diminished, virtual, erect image.", "(b) Ray diagram: one ray parallel to principal axis diverges after passing through lens, appearing to come from focus on object side; another ray through optical centre passes undeviated. Their backward extensions meet on the object side, between optical centre and focus, giving a diminished virtual image."],
+    solutionSteps: ["[0.5 mark] Given: u = -60 cm, f = -30 cm (concave lens, negative focal length). Lens formula: 1/v - 1/u = 1/f.", "[1 mark] 1/v = 1/f + 1/u = -1/30 + (-1/60) = -2/60 - 1/60 = -3/60 = -1/20 ⟹ v = -20 cm.", "[0.5 mark] (a) Image distance is 20 cm on the SAME side as the object — a diminished, virtual, erect image.", "[1 mark] (b) Ray diagram: one ray parallel to principal axis diverges after passing through lens, appearing to come from focus on object side; another ray through optical centre passes undeviated. Their backward extensions meet on the object side, between optical centre and focus, giving a diminished virtual image."],
     finalAnswer: "(a) v = -20 cm; (b) ray diagram showing virtual, erect, diminished image on object side.",
     ncertRef: "APQ Science-PQ2 Q31 (OR variant)", isCompetencyBased: true,
     strategyHint: "REQUIRES-FIGURE: ray diagram for concave lens with object at 60 cm and focal length 30 cm." },

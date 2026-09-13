@@ -201,7 +201,7 @@ export const PROB_CBE: CanonicalQuestion[] = [
       "C. 1/13",
       "D. 2/13"
     ],
-    "answer": "7/13",
+    "answer": "B. 7/13",
     "solutionSteps": [
       "[1 mark] Black cards = 26, plus the two red tens = 28 favourable cards. P = 28/52 = 7/13."
     ],

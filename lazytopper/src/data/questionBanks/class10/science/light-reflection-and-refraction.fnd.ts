@@ -2357,7 +2357,7 @@ export const LGHT_FND_BEYOND_BOARD: CanonicalQuestion[] = [
     solutionSteps: ["[1 mark] For a real image formed by a convex lens, the minimum separation between object and image is 4f = 4 × 10 = 40 cm (obtained when the object is at 2F, image at 2F)."],
     finalAnswer: "40 cm",
     isCompetencyBased: false, requiresDiagram: false },
-  { id: "FND-L-WS4-203", subject: "Science", topicKey: "light-reflection-and-refraction",
+  { id: "FND-L-WS4-203", subject: "Science", topicKey: "human-eye-and-colourful-world",
     subtopic: "Refractive Index", section: "A", marks: 1, format: "MCQ", difficulty: "Medium",
     bloomSkill: "Understanding",
     questionText: "The refractive index of a piece of transparent glass is minimum for light of which colour?",

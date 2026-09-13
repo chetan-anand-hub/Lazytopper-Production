@@ -37,7 +37,7 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "Oils on treating with hydrogen in the presence of palladium or nickel catalyst form fats. This is an example of",
     options: ["addition reaction", "substitution reaction", "displacement reaction", "oxidation reaction"],
     answer: "addition reaction",
-    solutionSteps: ["Correct option is (a) addition reaction.", "Disclaimer : is not affiliated to Central Board of Secondary Education, New Delhi in any manner. is a private organization which provide free study material pdfs to students. At CBSE stands for Canny Books For School Education"],
+    solutionSteps: ["Correct option is (a) addition reaction."],
     finalAnswer: "(a) addition reaction",
     ncertRef: "cbjescco04 Q8", isCompetencyBased: true },
   // cbjescco04 Q9
@@ -319,7 +319,7 @@ export const CARBON_COMPOUNDS_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq04 Q159 (Section D, 5mk)
   { id: "SCQ-S-CARB-042", subject: "Science", topicKey: "carbon-and-its-compounds", subtopic: "Chapter Practice — Carbon and its Compounds", section: "D", marks: 5, format: "Long", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "a. Give a chemical test to distinguish between saturated and unsaturated hydrocarbons. b. Name the products formed when ethane burns in air. Write the balanced chemical equation for the reactions showing two types of energies liberated. c. Why is reaction between methane and chlorine in presence of sunlight is considered a substitution reaction.",
-    answer: "a. Saturated hydrocarbons will not react with bromine water whereas unsaturated hydrocarbons will decolourise it. b. Carbon dioxide and water will be formed. 2C2H6 + 7O2 $ 4CO2(g) + 6H2O(l) + Heat + Light c. It is because hydrogen atom is substituted by halogen atom, that is why ",
+    answer: "a. Saturated hydrocarbons will not react with bromine water whereas unsaturated hydrocarbons will decolourise it. b. Carbon dioxide and water will be formed. 2C2H6 + 7O2 → 4CO2(g) + 6H2O(l) + Heat + Light c. It is because hydrogen atom is substituted by halogen atom, that is why ",
     solutionSteps: [
       "[1 mark] a. Chemical test — add bromine water: unsaturated hydrocarbons decolourise the reddish-brown bromine water (addition), while saturated hydrocarbons do not decolourise it.",
       "[1 mark] b. When ethane burns in air, the products formed are carbon dioxide and water.",

@@ -18,6 +18,124 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ---
 
+---
+
+## 2026-09-11 — SEO-SOCIAL-HEADS-1 (`#775` MERGED as `f52cb703`, self-merged by the lane under standing authorization; trunk then `7eddabee` after `#773`) — seven new follow-ups, none closed
+
+★ **PROVENANCE.** Merge facts, gate results and every `curl` output are **HANDOFF-VERIFIED** by this
+lane in its own worktree. The Search Console observations are **OWNER-REPORTED** and are not
+verifiable by any lane — Search Console is not scriptable, and **no HTTP response can tell you
+whether Google crawled a URL**; a successor must not "confirm" them with a curl. The katex evidence
+is **LANE-REPORTED** from `#776`, which is open, draft and on HOLD. Every FU below has its own
+heading (board rule 1). Per board rule 3, **no dated entry below has been rewritten** — the Soft 404
+sections in `IMPLEMENTATION_ROADMAP.md`, `NEXT_ACTION.md` and `CURRENT_STATE.md` stand as written and
+the correction lives here and in the current sections.
+
+### `[FU-SOFT-404-CLAIM-WITHDRAWN-NO-SOURCE]` — OPEN; the claim that framed three PRs has no identified origin
+**OWNER-REPORTED from Search Console: Last crawl N/A · URL is unknown to Google · the Pages report
+has NO Soft 404 bucket at all** — the category is absent from the property, not merely empty for
+these URLs. **The chapter pages were never classified Soft 404 by Google.**
+
+The inherited line **"0 of 26 · Soft 404 · cause UNKNOWN"** propagated through
+`IMPLEMENTATION_ROADMAP.md:158`, `NEXT_ACTION.md` and the SEO/PERF section of `CURRENT_STATE.md`,
+each citing the one before. **No originating measurement has been found for either half** — not for
+"0 of 26 indexed", not for "Soft 404". **Both halves are WITHDRAWN. Nothing may lean on them.**
+
+⚠ **This is a citation-chain failure, not a measurement failure.** Three documents agreed because
+they shared one unsourced ancestor, and the agreement read as corroboration. **A claim repeated in
+three places is still one claim.** Anyone needing an index count must read Search Console directly
+and cite the reading with its date.
+
+**What survives:** the render crash is real and reproduced; the four dead hypotheses stay dead
+(Firebase · the 15-second freeze · cache revalidation · the 6.29 MB bank chunk), each killed by
+measurement that is still good; `#748`/`#749`/`#751` remain correct on their own merits.
+**What does not:** that a Soft 404 classification existed and needed a cause, and that the 26 pages
+are "not indexable".
+
+### `[FU-LIVE-TEST-IS-NOT-A-CRAWL]` — OPEN (doctrine); the instrument was read as something it is not
+Search Console's **URL Inspection → Live Test renders the page on demand and reports NOTHING about
+index status.** The arc read a Live Test render failure as though Google had issued a crawl verdict.
+**The render failure was real; the verdict was never issued.**
+
+★ Generalises past Search Console: **an on-demand probe and a scheduled judgement are different
+instruments.** Before treating a tool's output as a verdict, establish that the tool issues verdicts
+at all. Same family as `MOUNT ≠ LIVE` and *a 200 is not a liveness test*.
+
+### `[FU-CHAPTER-URLS-UNKNOWN-TO-GOOGLE]` — OPEN; the real open question, and it is DISCOVERY
+The URLs are **unknown to the crawler**, which is a discovery problem: sitemap submission, internal
+linking, crawl budget. **Not** a quality judgement on a page Google rendered and disliked. Those are
+different problems with different fixes, and the arc spent three PRs on the second one.
+
+⚠ **Scope this before building anything.** `#768` SEO-CANONICAL-1 (every advertised URL serves a
+static copy of the shell naming itself canonical) and `#775` (social tags follow the page) both
+landed today and both change what a crawler sees. **Whether either moves discovery is unmeasured**
+and should be read from Search Console over time rather than assumed.
+
+### `[FU-KATEX-PRELOAD-CRASH-UNFIXED]` — OPEN; `#776` measured three instruments, moved all three, and did not fix it
+Every chapter page rendered the app's error boundary in Google's Live Test carrying
+`Unable to preload CSS for /app/assets/katex-<hash>.css`, **reproduced on two chapters against two
+different deployed bundles**. One static edge causes it:
+`DesktopTopicHubPage -> ConceptSpine -> NoteModal -> Note -> NoteRichText -> katex CSS`.
+
+`#776` moved `NoteModal` behind `React.lazy` + `<Suspense fallback={null}>`. Measured on the emitted
+bundle: route chunk **67,458 → 22,765 bytes**, katex among static edges **1 → 0**, CSS entries in
+the route's preload dep array **1 → 0**. **All three real. The crash remains.** `React.lazy` starts
+its import when the lazy **element renders**, not when the modal opens, so
+`<Suspense><NoteModal open={false}/></Suspense>` still renders the lazy component and the chunk is
+still fetched during initial render through the same Vite preload helper with the same rejectable
+CSS dependency. **katex merely moved from the route's dep array into the route chunk's own dep
+table.** The PR carries a CDP initiator stack proving the fetch still happens on load.
+
+★★ **THE SPECIMEN: THREE INSTRUMENTS MOVED IN THE INTENDED DIRECTION AND THE DEFECT SURVIVED ALL
+THREE.** A metric moving is not the defect going away. The PR's author caught this and put the PR on
+HOLD against their own earlier claim — **that HOLD is the most valuable output of the lane.**
+
+**Next step is a DIFFERENT MECHANISM, not a refinement of the same one:** gate on an actual open
+state so the lazy element is not rendered at all until the modal opens.
+
+### `[FU-TWO-ERROR-STRINGS-RELATIONSHIP-UNKNOWN]` — OPEN; do not assume one caused the other
+The 2026-09-10 arc recorded the error boundary carrying
+`Failed to fetch dynamically imported module: .../DesktopTopicHubPage-<hash>.js`. `#776` records
+`Unable to preload CSS for .../katex-<hash>.css`. **Whether these are the same failure observed at
+two layers, or two distinct failures, is NOT ESTABLISHED.** Both were real observations; the link
+between them is an assumption nobody has tested. Establish it before writing a fix that presumes
+one mechanism.
+
+### `[FU-SEO-SOCIAL-HEADS-1-LIVE-VERIFY-OWED]` — OPEN; the owner's §5 checks
+A `curl` proves the bytes a scraper receives. It does not prove what WhatsApp renders from them, or
+when its preview cache refreshes. Owed: (1) paste a chapter URL into a WhatsApp chat — the preview
+names the chapter; (2) paste the home page URL — its preview is UNCHANGED, the marketing copy is
+correct there; (3) one non-chapter advertised page (e.g. `/app/pricing`) previews with its own
+title. Preview-side evidence for all three is recorded in
+`Desktop/diff/report-seo-social-heads-1-2026-09-11.md` §9.
+
+### `[FU-ACCEPTANCE-CONTROL-EXPIRES-WHEN-PRODUCTION-CATCHES-UP]` — OPEN (doctrine); a recorded control can rot into a false vacuity
+`#775`'s acceptance compared the preview against production, and the two sides differed on all four
+tags — a control that plainly discriminated. **Production has since deployed the fix, so re-running
+that exact command returns the SAME values on both sides.** A successor reading the acceptance cold
+and re-running it would see two matching outputs and reasonably conclude the check had always been
+vacuous.
+
+★★ **AN ACCEPTANCE WHOSE CONTROL IS "THE UNFIXED ENVIRONMENT" HAS A SHELF LIFE, AND THE REPORT MUST
+SAY SO IN THE REPORT.** The fix that is the point of the lane is also what destroys the control.
+**Prefer a control that cannot expire**: here, a URL the writer never rewrites. `writeStaticHeads.ts`
+skips the root path by design, so `/app/` must always carry the marketing copy while a chapter page
+carries its own — one command, two different values, permanently. Recorded in `CURRENT_STATE.md` §2
+and in the lane report's §9 standing note.
+
+### `[FU-THREE-LINE-COMMENT-MISLED-A-SPEC-AUTHOR]` — OPEN (doctrine); a wrong comment propagated into a spec's premise ledger
+Three comments in the repo described `index.html`'s description tag as a **three-line** tag. It is
+**four** lines (open, attribute, content, close). The spec for this lane copied that count into a
+VERIFIED premise row (P7) rather than counting the lines, and the premise gate passed — **the gate
+validates that an anchor RESOLVES, not that the claim is TRUE.** The lane caught it at pre-flight by
+opening the block and counting; the owner confirmed the defect was the spec's and directed the
+comments be corrected. All three were fixed in `#775`.
+
+★★ **A COMMENT IS AN UNTESTED ASSERTION ABOUT THE CODE BESIDE IT, AND IT IS EXACTLY THE KIND OF
+CLAIM A SPEC AUTHOR TRUSTS.** No gate in this repo checks a comment against the file it describes.
+When a premise cites a count, **derive the count from the file**, never from prose near it — and
+that includes prose written by this project.
+
 ## 2026-09-11 — RULINGS 1–4 + STEPMARK 6 + SEO-CANONICAL-1 + HALF-1 + FIG-SCI-2 (`#764` MERGED as `f0745565`, `#765` as `f260ed3c`, `#768` as `0906777b`, `#769` as `2276686b`, `#770` as `c355e6a3`, all by the owner except `#767` (self-merged docs); open PRs at the time of writing: none of this arc's — `#766` on HOLD) — eighteen new follow-ups, none closed
 
 ★ **PROVENANCE.** Merge facts HANDOFF-VERIFIED (`git log fa3662db..c355e6a3`, `git show --stat` on each).

@@ -49,7 +49,7 @@ export const lifeProcessesPYQ2025: CanonicalQuestion[] = [
   { id: "PYQ-S-2025-LIFEP-006", subject: "Science", topicKey: "life-processes", subtopic: "Excretion", section: "C", marks: 3, format: "Short", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "(a) Enlist any two nitrogenous waste products removed from the blood of human kidney. (b) Name the capillary cluster formed by the branch of renal artery in the Bowman's capsule. (c) Depict in the form of a flow chart the path of the urine formed in each kidney until it is finally passed out through the urethra.",
     answer: "solution.",
-    solutionSteps: ["[1 mark] a) Urea, Uric acid", "[1 mark] Refer to CBSE official marking scheme for the full step-by-step", "[1 mark] solution."],
+    solutionSteps: ["[1 mark] a) Urea, Uric acid", "Refer to CBSE official marking scheme for the full step-by-step", "solution."],
     finalAnswer: "solution.",
     ncertRef: "PYQ 31/3/2 Q29", isCompetencyBased: false,
     pyqYear: "2025", pyqSet: "2" },

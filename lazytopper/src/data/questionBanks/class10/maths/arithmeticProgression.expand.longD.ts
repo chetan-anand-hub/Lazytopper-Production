@@ -314,7 +314,7 @@ export const AP_EXPAND_LONG_D: CanonicalQuestion[] = [
       "[1 mark] Reading from the last term, the effective common difference becomes −5.",
       "[1 mark] nth term from the end = l − (n − 1)d, with l = 253.",
       "[1 mark] 20th term from the end = 253 − (20 − 1)(5) = 253 − 95.",
-      "[1 mark] = 158."
+      "[1 mark] Hence the 20th term from the end is 158."
     ],
     "finalAnswer": "The 20th term from the last is 158.",
     "isCompetencyBased": false
@@ -629,7 +629,7 @@ export const AP_EXPAND_LONG_D: CanonicalQuestion[] = [
       "[1 mark] Number of terms: 99 = 12 + (n − 1)(3) ⇒ 87 = 3(n − 1) ⇒ n − 1 = 29 ⇒ n = 30.",
       "[1 mark] Sₙ = n/2 (a + l) = 30/2 (12 + 99).",
       "[1 mark] = 15 × 111.",
-      "[1 mark] = 1665."
+      "[1 mark] Hence the required sum is 1665."
     ],
     "finalAnswer": "1665.",
     "isCompetencyBased": false
@@ -650,7 +650,7 @@ export const AP_EXPAND_LONG_D: CanonicalQuestion[] = [
       "[1 mark] 96 = 11 + (n − 1)(5) ⇒ 85 = 5(n − 1) ⇒ n − 1 = 17 ⇒ n = 18.",
       "[1 mark] Sₙ = 18/2 (11 + 96).",
       "[1 mark] = 9 × 107.",
-      "[1 mark] = 963."
+      "[1 mark] Hence the required sum is 963."
     ],
     "finalAnswer": "963.",
     "isCompetencyBased": false
@@ -671,7 +671,7 @@ export const AP_EXPAND_LONG_D: CanonicalQuestion[] = [
       "[1 mark] 96 = 12 + (n − 1)(4) ⇒ 84 = 4(n − 1) ⇒ n − 1 = 21 ⇒ n = 22 such numbers.",
       "[1 mark] Sₙ = 22/2 (12 + 96).",
       "[1 mark] = 11 × 108.",
-      "[1 mark] = 1188."
+      "[1 mark] Hence there are 22 such numbers and their sum is 1188."
     ],
     "finalAnswer": "22 numbers; sum = 1188.",
     "isCompetencyBased": false
@@ -692,7 +692,7 @@ export const AP_EXPAND_LONG_D: CanonicalQuestion[] = [
       "[1 mark] 896 = 504 + (n − 1)(7) ⇒ 392 = 7(n − 1) ⇒ n − 1 = 56 ⇒ n = 57.",
       "[1 mark] Sₙ = 57/2 (504 + 896).",
       "[1 mark] = 57/2 × 1400 = 57 × 700.",
-      "[1 mark] = 39,900."
+      "[1 mark] Hence the required sum is 39,900."
     ],
     "finalAnswer": "39,900.",
     "isCompetencyBased": false
@@ -713,7 +713,7 @@ export const AP_EXPAND_LONG_D: CanonicalQuestion[] = [
       "[1 mark] 198 = 108 + (n − 1)(9) ⇒ 90 = 9(n − 1) ⇒ n − 1 = 10 ⇒ n = 11.",
       "[1 mark] Sₙ = 11/2 (108 + 198).",
       "[1 mark] = 11/2 × 306 = 11 × 153.",
-      "[1 mark] = 1683."
+      "[1 mark] Hence the required sum is 1683."
     ],
     "finalAnswer": "1683.",
     "isCompetencyBased": false
@@ -734,7 +734,7 @@ export const AP_EXPAND_LONG_D: CanonicalQuestion[] = [
       "[1 mark] Multiples of 6 up to 200: 6, 12, …, 198 — an AP with a = 6, d = 6, l = 198.",
       "[1 mark] 198 = 6 + (n − 1)(6) ⇒ n = 33; their sum = 33/2 (6 + 198) = 33 × 102 = 3366.",
       "[1 mark] Required sum = (sum of all) − (sum of multiples of 6) = 20,100 − 3366.",
-      "[1 mark] = 16,734."
+      "[1 mark] Hence the required sum is 16,734."
     ],
     "finalAnswer": "16,734.",
     "isCompetencyBased": true
@@ -881,7 +881,7 @@ export const AP_EXPAND_LONG_D: CanonicalQuestion[] = [
       "[1 mark] Number of terms: 100 = 2 + (n − 1)(2) ⇒ 98 = 2(n − 1) ⇒ n − 1 = 49 ⇒ n = 50.",
       "[1 mark] Sₙ = 50/2 (2 + 100).",
       "[1 mark] = 25 × 102.",
-      "[1 mark] = 2550."
+      "[1 mark] Hence the sum of all the house numbers is 2550."
     ],
     "finalAnswer": "2550.",
     "isCompetencyBased": false
@@ -965,7 +965,7 @@ export const AP_EXPAND_LONG_D: CanonicalQuestion[] = [
       "[1 mark] 350 = 17 + (n − 1)(9) ⇒ 333 = 9(n − 1).",
       "[1 mark] n − 1 = 37 ⇒ n = 38 terms.",
       "[1 mark] Sₙ = 38/2 (17 + 350) = 19 × 367.",
-      "[1 mark] = 6973."
+      "[1 mark] Hence the AP has 38 terms and their sum is 6973."
     ],
     "finalAnswer": "38 terms; sum = 6973.",
     "isCompetencyBased": false

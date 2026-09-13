@@ -62,10 +62,10 @@ export const ELECTRICITY_APQ: CanonicalQuestion[] = [
     strategyHint: "REQUIRES-FIGURE: parallel-resistor circuit with two ammeters A1 (in A's branch) and A2 (in B's branch) + 12 V battery." },
 
   // Science-PQ2 Q39 OR variant (Section E, Case-Based, 4 marks)
-  { id: "APQ-S-ELEC-007", subject: "Science", topicKey: "electricity", subtopic: "Resistivity — Definition and Affecting Factors", section: "E", marks: 4, format: "Case-Based", difficulty: "Easy", bloomSkill: "Remembering",
+  { id: "APQ-S-ELEC-007", subject: "Science", topicKey: "electricity", subtopic: "Resistivity — Definition and Affecting Factors", section: "B", marks: 2, format: "Short", difficulty: "Easy", bloomSkill: "Remembering",
     questionText: "(c) Define resistivity. What are the factors affecting the resistivity of a conductor?",
     answer: "Resistivity = R × A / L; a material property — depends on nature of material and temperature.",
-    solutionSteps: ["[1 mark] Resistivity (ρ) is defined as the electrical resistance of a conductor of UNIT cross-sectional area and UNIT length. Mathematically ρ = R × A / L; SI unit ohm-metre (Ω·m).", "[1 mark] Resistivity is a CHARACTERISTIC PROPERTY of the material — it depends on the NATURE of the material (atomic structure, free electron density).", "[1 mark] It also depends on TEMPERATURE: for metals, resistivity INCREASES with temperature; for semiconductors/insulators, resistivity DECREASES with temperature.", "[1 mark] Resistivity does NOT depend on the dimensions (length or cross-sectional area) of the conductor."],
+    solutionSteps: ["[1 mark] Resistivity (ρ) of a material is the resistance of a conductor of that material having unit length and unit area of cross-section: ρ = RA/l; SI unit ohm-metre (Ω m).", "[0.5 mark] Resistivity depends on the nature of the material (a characteristic property — atomic structure and free-electron density).", "[0.5 mark] It also depends on temperature (for metals it increases with temperature); it does NOT depend on the length or area of cross-section of the conductor."],
     finalAnswer: "ρ = R·A/L (Ω·m); depends on material nature and temperature.",
     ncertRef: "APQ Science-PQ2 Q39 (OR variant)", isCompetencyBased: false },
 ];

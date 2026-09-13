@@ -1,3 +1,59 @@
+```
+⛔⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW IT ON THE SEO QUESTION.
+
+TRUNK IS `7eddabee1a9273fbfdd22322d0e8ec985b22178f`, MEASURED 2026-09-11 with
+`git ls-remote origin base/approved-thru-437`.
+
+★★★ THERE IS NO SOFT 404. THE CHAPTER PAGES WERE NEVER CLASSIFIED SOFT 404 BY GOOGLE.
+   OWNER-REPORTED from Search Console: Last crawl N/A · URL is unknown to Google ·
+   the Pages report has NO Soft 404 bucket at all (the category is ABSENT from the
+   property, not merely empty). The problem is DISCOVERY — URLs unknown to the crawler —
+   NOT a quality judgement on a page Google rendered and disliked. Different problems,
+   different fixes. The arc spent three PRs on the second one.
+
+★★★ THE INHERITED "0 OF 26 · SOFT 404 · CAUSE UNKNOWN" LINE HAS NO IDENTIFIED SOURCE.
+   It propagated through IMPLEMENTATION_ROADMAP.md, this file and CURRENT_STATE.md, each
+   citing the one before. NO originating measurement has been found for EITHER half —
+   not "0 of 26 indexed", not "Soft 404". BOTH ARE WITHDRAWN. NOTHING MAY LEAN ON THEM.
+   A successor needing an index count must read Search Console and cite the reading with
+   its date. DO NOT OPEN A SOFT 404 LANE.
+
+★★ WHAT SURVIVES THE CORRECTION:
+   · The render crash is REAL and reproduced — see #776 below.
+   · The four dead hypotheses STAY DEAD (Firebase · the 15-second freeze · cache
+     revalidation · the 6.29 MB bank chunk). Each was killed by measurement and those
+     measurements are still good. DO NOT RE-CHASE ANY OF THEM.
+   · #748 / #749 / #751 remain correct on their own merits.
+   · Prerendering remains UNDECIDED.
+
+⚠ A LIVE TEST IS NOT A CRAWL. URL Inspection → Live Test renders on demand and reports
+   NOTHING about index status. The arc read a Live Test render failure as a crawl
+   verdict. The render failure was real; the verdict was never issued.
+
+✅ SEO-SOCIAL-HEADS-1 (#775) IS ON TRUNK AND LIVE IN PRODUCTION. A shared chapter link
+   now previews as the chapter. og:title / og:description / twitter:title /
+   twitter:description follow the page instead of carrying the home page's copy on all
+   32 emitted pages.
+
+⚠ THE ACCEPTANCE CONTROL FOR #775 HAS EXPIRED. Production now carries the fix, so
+   re-running the recorded two-sided command returns the SAME values on both sides and
+   looks vacuous. IT WAS NOT. The replacement control is the HOME PAGE, which
+   writeStaticHeads.ts skips by design and which must still carry the marketing copy.
+   That pair does not expire. See CURRENT_STATE.md §2.
+
+NEXT:
+   1. DISCOVERY, not page quality — [FU-CHAPTER-URLS-UNKNOWN-TO-GOOGLE]. Sitemap
+      submission, internal linking, crawl budget. Scope it before building.
+   2. #776 SEO-PRELOAD-CRASH-1 is OPEN · DRAFT · HOLD, held by its own author, and DOES
+      NOT FIX THE CRASH. It needs a DIFFERENT MECHANISM, not a refinement of the same
+      one: React.lazy imports when the lazy ELEMENT RENDERS, not when the modal opens.
+      Gate on an actual open state.
+   3. The owner's live-verify for #775 is still owed —
+      [FU-SEO-SOCIAL-HEADS-1-LIVE-VERIFY-OWED].
+
+The BANK-2027 banner below stands on its own subject and is NOT superseded by this one.
+```
+
 # LazyTopper — Next Action
 
 

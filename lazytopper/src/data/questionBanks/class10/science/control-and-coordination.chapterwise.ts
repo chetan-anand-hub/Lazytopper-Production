@@ -61,7 +61,7 @@ export const CONTROL_COORDINATION_CHAPTERWISE: CanonicalQuestion[] = [
     questionText: "Which part of the human brain is most well-developed?",
     options: ["Forebrain", "Hindbrain", "Diencephalon", "None of these"],
     answer: "Forebrain",
-    solutionSteps: ["Correct option is (a) Forebrain.", "Forebrain or cerebrum is the most well-developed part of the human brain. Disclaimer : is not affiliated to Central Board of Secondary Education, New Delhi in any manner. is a private organization which provide free study material pdfs to students. At CBSE stands for Canny Books For School Education"],
+    solutionSteps: ["Correct option is (a) Forebrain.", "Forebrain or cerebrum is the most well-developed part of the human brain."],
     finalAnswer: "(a) Forebrain",
     ncertRef: "cbjescco07 Q9", isCompetencyBased: true },
   // cbjescco07 Q10
@@ -213,8 +213,8 @@ export const CONTROL_COORDINATION_CHAPTERWISE: CanonicalQuestion[] = [
   // cbjesccq07 Q27 (Section B, 2mk)
   { id: "SCQ-S-CTRL-028", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
     questionText: "Define neuron. Name the parts of the neuron where: a. information is acquired. b. impulse must be converted into a chemical signal for onward transmission?",
-    answer: "Neuron is a functional and structural unit of nervous system. These cells are specialised for conducting information via electrical impulses from one part of the body to another. (a) dendrites (b) end of axon. Disclaimer : is not affiliated to Central Board of Secondary Education",
-    solutionSteps: ["Neuron is a functional and structural unit of nervous system. These cells are specialised for conducting information via electrical impulses from one part of the body to another. (a) dendrites (b) end of axon. Disclaimer : is not affiliated to Central Board of Secondary Education, New Delhi in any manner. is a private organization which provide free study material pdfs to students. At CBSE stands for Canny Books For School Education"],
+    answer: "Neuron is a functional and structural unit of nervous system. These cells are specialised for conducting information via electrical impulses from one part of the body to another. (a) dendrites (b) end of axon.",
+    solutionSteps: ["Neuron is a functional and structural unit of nervous system. These cells are specialised for conducting information via electrical impulses from one part of the body to another. (a) dendrites (b) end of axon."],
     ncertRef: "cbjesccq07 Q27", isCompetencyBased: false },
   // cbjesccq07 Q28 (Section B, 2mk)
   { id: "SCQ-S-CTRL-029", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "B", marks: 2, format: "Short", difficulty: "Medium", bloomSkill: "Understanding",
@@ -262,7 +262,7 @@ export const CONTROL_COORDINATION_CHAPTERWISE: CanonicalQuestion[] = [
   { id: "SCQ-S-CTRL-036", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "How does chemical coordination occur in plants? Explain with the help of three examples.",
     answer: "In plants, chemical coordination occurs through various phytohormones. a. Auxins secreted by growing tissues. They provide growth of plants. b. Gibberelins cause stem elongation, seed germination and flowering. c. Cytokinins present in areas of actively dividing cells like fruits",
-    solutionSteps: ["In plants, chemical coordination occurs through various phytohormones. a. Auxins secreted by growing tissues. They provide growth of plants. b. Gibberelins cause stem elongation, seed germination and flowering. c. Cytokinins present in areas of actively dividing cells like fruits, seeds. Promote cell division. d. Abscisic acid inhibits growth and respond to environmental stress. Disclaimer : is not affiliated to Central Board of Secondary Education, New Delhi in any manner. is a private organization which provide free study material pdfs to students. At CBSE stands for Canny Books For School E"],
+    solutionSteps: ["In plants, chemical coordination occurs through various phytohormones. a. Auxins secreted by growing tissues. They provide growth of plants. b. Gibberelins cause stem elongation, seed germination and flowering. c. Cytokinins present in areas of actively dividing cells like fruits, seeds. Promote cell division. d. Abscisic acid inhibits growth and respond to environmental stress."],
     ncertRef: "cbjesccq07 Q37", isCompetencyBased: true },
   // cbjesccq07 Q38 (Section C, 3mk)
   { id: "SCQ-S-CTRL-037", subject: "Science", topicKey: "control-and-coordination", subtopic: "Chapter Practice — Control and Coordination", section: "C", marks: 3, format: "Short", difficulty: "Hard", bloomSkill: "Applying",

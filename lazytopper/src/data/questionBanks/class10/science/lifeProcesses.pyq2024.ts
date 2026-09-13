@@ -64,9 +64,9 @@ export const lifeProcessesPYQ2024: CanonicalQuestion[] = [
     pyqYear: "2024", pyqSet: "1" },
   { id: "PYQ-S-2024-LIFEP-008", subject: "Science", topicKey: "life-processes", subtopic: "Excretion", section: "E", marks: 4, format: "Case-Based", difficulty: "Hard", bloomSkill: "Applying",
     questionText: "Kidneys are vital organs for survival. Several factors like infections, injury or restricted blood flow to kidneys reduce the activity of kidneys. This leads to accumulation of poisonous wastes in the body, which can even lead to death. In case of kidney failure, an artificial kidney can be used. An artificial kidney is a device to remove waste products from the blood through dialysis. (a) (i) Name the artery that brings oxygenated blood to the kidney. (ii) Name the cluster the thin-walled blood capillaries present in (b) In human excretory system name the organ which stores urine. Is this organ under hormonal control or nervous control ? (c) (i) List two major steps involved in the formation of urine and state in brief their functions. 2 OR (c) (ii) In which part of the nephron does selective reabsorption take place ? List the factors which the amount of water reabsorbed depends on.",
-    answer: "reabsorbed OR ½ ½ ½ ½ ½+½ ½+½",
-    solutionSteps: ["[1 mark] (a) (i) Renal Artery (ii) Glomerulus (b) • Urinary bladder • Nervous control (c) (i) Filtration", "[1 mark] Nitrogenous wastes such as urea or uric acid are removed Reabsorption", "[1 mark] Glucose, amino acids, salts/some useful materials and major amounts of water", "[1 mark] reabsorbed OR ½ ½ ½ ½ ½+½ ½+½"],
-    finalAnswer: "reabsorbed OR ½ ½ ½ ½ ½+½ ½+½",
+    answer: "(a) (i) Renal artery (ii) Glomerulus (b) Urinary bladder; nervous control (c) (i) Filtration and reabsorption",
+    solutionSteps: ["[1 mark] (a) (i) Renal artery (ii) Glomerulus", "[1 mark] (b) • Urinary bladder • It is under nervous control.", "[1 mark] (c) (i) Filtration – nitrogenous wastes such as urea or uric acid are removed from the blood.", "[1 mark] Reabsorption – glucose, amino acids, salts / some useful materials and a major amount of water are reabsorbed."],
+    finalAnswer: "(a) (i) Renal artery (ii) Glomerulus (b) Urinary bladder; nervous control (c) (i) Filtration and reabsorption",
     ncertRef: "PYQ 31/4/1 Q38", isCompetencyBased: false,
     pyqYear: "2024", pyqSet: "1" },
 ];

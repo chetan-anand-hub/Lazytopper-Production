@@ -141,7 +141,7 @@ export const SAV_EXEMPLAR2: CanonicalQuestion[] = [
 
   { id: "SAV-N-EXEM2-12-LA-010", subject: "Maths", topicKey: "surface-areas-and-volumes", subtopic: "Hemispherical Bowl to Bottles", section: "D", marks: 5, format: "Long", difficulty: "Medium", bloomSkill: "Applying",
     questionText: "A hemispherical bowl of internal radius 9 cm is full of liquid. The liquid is to be filled into cylindrical shaped bottles each of radius 1.5 cm and height 4 cm. How many bottles are needed to empty the bowl?",
-    solutionSteps: ["[1 mark] Volume of liquid = (2/3)π(9)³ = (2/3)π(729) = 486π cm³.", "[1 mark] Volume of one bottle = π(1.5)²(4) = 9π cm³.", "[1 mark] Number of bottles = 486π / 9π.", "[1 mark] = 54.", "[1 mark] So 54 bottles are needed to empty the bowl."],
+    solutionSteps: ["[1 mark] Volume of liquid = (2/3)π(9)³ = (2/3)π(729) = 486π cm³.", "[1 mark] Volume of one bottle = π(1.5)²(4) = 9π cm³.", "[1 mark] Number of bottles = 486π / 9π.", "[1 mark] = 486/9 = 54.", "[1 mark] So 54 bottles are needed to empty the bowl."],
     finalAnswer: "54 bottles.",
     ncertRef: "Exemplar Ex 12.4 Q16", isCompetencyBased: true },
 

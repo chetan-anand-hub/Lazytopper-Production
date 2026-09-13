@@ -18,7 +18,9 @@
 // (gradeWorksheet). Its code/name carry the CHAPTER-TEST identity (CT-…), never WS-.
 
 import type { CanonicalQuestion } from "../../data/predictionTypes";
-import { selectBankQuestions } from "../../data/bankQuery";
+import { selectBankQuestions, resolveCanonicalSlug } from "../../data/bankQuery";
+import { desktopTopicBySlug } from "../../lib/desktop/topics";
+import { isAutoGradeableObjective, isMcqShaped } from "../practice/autoGradeableObjective";
 import { drawBalancedSet, type BalancedDrawResult } from "../../utils/balancedMockDraw";
 import type {
   PersistedWorksheet,
@@ -41,7 +43,9 @@ export interface CTSectionSpec {
 }
 
 // The CBSE board blueprint the mockup shows (topic-scoped chapter test):
-//   A objective (MCQ/AR) 6×1 · B VSA 4×2 · C SA 3×3 · D LA/case 2×(≥4).
+//   A objective (MCQ/AR) 6×1 · B VSA 4×(1–2) · C SA 3×3 · D LA/case 2×(≥4).
+// `marksEach` is the NOMINAL board figure (display only); B and D admit a band, so
+// a section's real marks are the sum of its drawn rows' own marks (`actualMarks`).
 export const CT_BLUEPRINT: readonly CTSectionSpec[] = [
   { section: "A", label: "Objective (MCQ / AR)", targetCount: 6, marksEach: 1, autoGraded: true },
   { section: "B", label: "Very short answer", targetCount: 4, marksEach: 2, autoGraded: false },
@@ -53,8 +57,49 @@ export const CT_BLUEPRINT: readonly CTSectionSpec[] = [
  *  ties to [FU-CT-BANK-DEPTH] — true cross-test uniqueness is a bank-depth lever). */
 const MIN_TEST_QUESTIONS = 6;
 
-function isMcq(q: CanonicalQuestion): boolean {
-  return Array.isArray(q.options) && q.options.length >= 2;
+/**
+ * THE per-row eligibility predicate — which board section a bank row can be drawn
+ * into, or null when no section admits it. `drawChapterTest` builds its pools from
+ * THIS function, so the guard (`surfaceReachability.guard.test.ts`) tests the real
+ * sourcing rule, never a mirror of it.
+ *
+ *   A — MCQ-shaped AND the key RESOLVES to one of its options (the #352 bar the
+ *       Full Mock already applied; SURFACE-1 brings Chapter Test to the same bar —
+ *       a mis-keyed MCQ used to be drawn here and score a correct pick 0).
+ *   B — written, 1–2 marks. SURFACE-1 widened this from exactly 2: the bank holds
+ *       146 authentic 1-mark VSA / fill-in rows (Item Bank 2021, pre-boards, NCERT
+ *       in-text) that no section admitted, so they reached Practice and Worksheets
+ *       but never a test. By owner instruction every served question must be
+ *       drawable; B is "Very short answer", the row keeps its OWN marks through
+ *       totals and the grader, and the section's real marks are shown honestly.
+ *   C — written, exactly 3.   D — written, 4–99 (5-mark LA + 4-mark case).
+ *   null — an MCQ whose key does not resolve (excluded rather than guessed at),
+ *       or a written row outside 1..99 marks.
+ */
+export function chapterTestSectionFor(q: CanonicalQuestion): BoardSection | null {
+  if (isMcqShaped(q)) return isAutoGradeableObjective(q) ? "A" : null;
+  const m = Number(q.marks);
+  if (m >= 1 && m <= 2) return "B";
+  if (m === 3) return "C";
+  if (m >= 4 && m <= 99) return "D";
+  return null;
+}
+
+/** MCQ-shaped (two or more options) — the shared predicate, exported under the
+ *  name this blueprint always used so the guard can restate the PRE-SURFACE-1
+ *  Section A rule (`isMcq && non-empty key`) from the real shape test. */
+export const isMcq = isMcqShaped;
+
+/**
+ * Can this bank row be drawn on SOME Chapter Test? True when a section admits it
+ * AND its topic resolves to a desktop topic of its own subject — the page is reached
+ * from a Topic Hub route, and `selectBankQuestions` matches rows by resolved slug,
+ * so a row whose topic resolves nowhere is unreachable however it is shaped.
+ */
+export function isEligibleForChapterTest(q: CanonicalQuestion): boolean {
+  if (chapterTestSectionFor(q) === null) return false;
+  const meta = desktopTopicBySlug(resolveCanonicalSlug(q.topicKey));
+  return !!meta && meta.subject.toLowerCase() === String(q.subject).toLowerCase();
 }
 
 /** djb2 — a tiny stable string hash to derive a distinct sub-seed per section from
@@ -106,10 +151,11 @@ export interface DrawnChapterTest {
 /**
  * Draw one fresh chapter test for a topic from the canonical bank. Each section is
  * filled from the REAL pool by exact numeric marks (never the coarse fused
- * buckets — §7): A = MCQ objective, B = 2-mark, C = 3-mark, D = ≥4-mark (5-mark
- * long answer + 4-mark case-based). Within each section the pick routes through
- * the shared `drawBalancedSet` for a deliberate PYQ + fresh mix (the Full Mock
- * pattern; the helper's honest fallback covers thin/zero-PYQ topics). Questions
+ * buckets — §7): A = keyed MCQ objective, B = 1–2-mark, C = 3-mark, D = ≥4-mark
+ * (5-mark long answer + 4-mark case-based) — see `chapterTestSectionFor`. Within
+ * each section the pick routes through the shared `drawBalancedSet` for a
+ * deliberate PYQ + fresh mix (the Full Mock pattern; the helper's honest fallback
+ * covers thin/zero-PYQ topics). Questions
  * are numbered in board order A→B→C→D. Deterministic for a given seed; when no
  * seed is supplied one is minted fresh per call — the spec-required fresh draw.
  * The caller supplies the stable ids/code so the same draw survives a re-render.
@@ -131,22 +177,20 @@ export function drawChapterTest(args: {
   const { subject, topicKey, topicLabel } = args;
   const seed = args.seed ?? (Math.random() * 0xffffffff) >>> 0;
   const all = selectBankQuestions({ subject, topicKeys: [topicKey] });
-  // Section A must be auto-gradeable 0-or-full, so an objective question needs a real
-  // answer key (the correct option text). An unkeyed MCQ can't be scored honestly, so
-  // it is excluded rather than guessed at.
-  const mcqPool = all.filter((q) => isMcq(q) && !!(q.answer && q.answer.trim()));
-  const subjectivePool = all.filter((q) => !isMcq(q));
-  const byMarks = (min: number, max: number) =>
-    subjectivePool.filter((q) => q.marks >= min && q.marks <= max);
+  // Every pool comes from the ONE exported predicate above (Section A must be
+  // auto-gradeable 0-or-full — key resolves to an option; B/C/D are exact numeric
+  // bands, never the coarse fused buckets).
+  const bySection = (section: BoardSection) =>
+    all.filter((q) => chapterTestSectionFor(q) === section);
 
   const used = new Set<string>();
   const chosen: Array<{ q: CanonicalQuestion; section: BoardSection }> = [];
 
   const pools: Record<BoardSection, CanonicalQuestion[]> = {
-    A: mcqPool,
-    B: byMarks(2, 2),
-    C: byMarks(3, 3),
-    D: byMarks(4, 99),
+    A: bySection("A"),
+    B: bySection("B"),
+    C: bySection("C"),
+    D: bySection("D"),
   };
   // Balanced per-section draw (the Full Mock pass-1 pattern): each section pulls
   // from its not-yet-used candidates through the shared helper, seeded per

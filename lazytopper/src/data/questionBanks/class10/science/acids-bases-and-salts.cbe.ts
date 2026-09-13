@@ -87,8 +87,8 @@ export const ACID_CBE: CanonicalQuestion[] = [
     "options": [],
     "answer": "Hydrated copper sulfate; CuSO4·5H2O",
     "solutionSteps": [
-      "[0.5 mark] [½ mark] Name: (hydrated) copper sulfate.",
-      "[0.5 mark] [½ mark] Formula: CuSO4·5H2O."
+      "[0.5 mark] Name: (hydrated) copper sulfate.",
+      "[0.5 mark] Formula: CuSO4·5H2O."
     ],
     "finalAnswer": "Copper sulfate, CuSO4·5H2O",
     "isCompetencyBased": false
