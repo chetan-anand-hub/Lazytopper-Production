@@ -70,4 +70,12 @@ describe("ConceptSpine — NoteModal stays off the static import graph", () => {
     expect(source).toContain("<Suspense");
     expect(source).toContain("</Suspense>");
   });
+
+  it("gates the lazy mount behind a latch, so the import does not start at page load", () => {
+    // A dynamic import() alone was NOT the fix: React.lazy begins its import when the lazy
+    // ELEMENT renders, so an unconditional <Suspense><NoteModal/></Suspense> still fetched
+    // katex's stylesheet on first paint. The mount must sit behind `notesRequested &&`.
+    // (ConceptSpine.test.tsx proves the same thing behaviourally, by mount count.)
+    expect(source).toMatch(/\bnotesRequested\s*&&\s*\(\s*<Suspense\b/);
+  });
 });

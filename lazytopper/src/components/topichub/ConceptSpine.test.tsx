@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
-import { render, screen, cleanup, within, fireEvent } from "@testing-library/react";
+import { render, screen, cleanup, within, fireEvent, act } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { setMatchMediaMatches } from "../../test/setup";
 import { ConceptSpine } from "./ConceptSpine";
@@ -15,6 +15,46 @@ import { getNoteSpecForTopic } from "../notes/noteSpecRegistry";
 // now a plain <Link> to /tutor, which needs no mock. See the retirement guard below.
 
 afterEach(cleanup);
+
+// The REAL NoteModal, wrapped so a test can see whether (and how often) ConceptSpine
+// mounted it. It delegates every prop, so the seeded-note test below still asserts the
+// real <Note> document. A module-load counter would not do: once any earlier test has
+// loaded the chunk it stays loaded, so only a MOUNT count is order-independent.
+const noteModalProbe = vi.hoisted(() => ({ renders: 0, mounts: 0 }));
+vi.mock("../notes/NoteModal", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../notes/NoteModal")>();
+  const { useEffect, createElement } = await import("react");
+  const Real = actual.default;
+  function ProbedNoteModal(props: Parameters<typeof Real>[0]) {
+    noteModalProbe.renders += 1;
+    useEffect(() => {
+      noteModalProbe.mounts += 1;
+    }, []);
+    return createElement(Real, props);
+  }
+  return { ...actual, default: ProbedNoteModal };
+});
+beforeEach(() => {
+  noteModalProbe.renders = 0;
+  noteModalProbe.mounts = 0;
+});
+
+/**
+ * The dialog arrives only after the lazy NoteModal chunk loads — which now happens on the
+ * FIRST Notes click, not at page render. Transforming katex's subtree under vitest can take
+ * longer than findBy's 1 s default, so the wait is explicit.
+ */
+function findDialog() {
+  return screen.findByRole("dialog", {}, { timeout: 15_000 });
+}
+
+/** Let the lazy import settle, so a mount that WOULD happen has happened. */
+async function settleLazy() {
+  await act(async () => {
+    await import("../notes/NoteModal");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+}
 
 /**
  * Render test for the final-IA Topic Hub concept-spine LAYOUT (Learn-Flow PR-D).
@@ -151,13 +191,45 @@ describe("ConceptSpine — Notes (single unified toggle, not split tabs)", () =>
     fireEvent.click(toggle);
 
     expect(toggle).toHaveAttribute("aria-expanded", "true");
-    // NoteModal is loaded lazily so katex stays off this route's static import graph,
-    // so the dialog arrives a microtask after the click rather than synchronously.
-    const dialog = await screen.findByRole("dialog");
+    // NoteModal is loaded lazily, and only once Notes is first clicked, so katex stays off
+    // this route at page load; the dialog therefore arrives after the click, not synchronously.
+    const dialog = await findDialog();
     expect(dialog).toHaveAttribute("aria-label", `${trig.name} — notes`);
     // It is the real <Note> document, not the placeholder.
     expect(dialog.querySelector(".lt-note")).not.toBeNull();
     expect(within(dialog).queryByText(/Notes coming soon/)).toBeNull();
+  });
+
+  // SEO-PRELOAD-CRASH-1. React.lazy starts its import when the lazy ELEMENT renders, not
+  // when the modal opens, so an unconditional mount fetched katex's chunk and stylesheet at
+  // page load — and a blocked stylesheet took the route down in Googlebot's renderer.
+  it("does NOT mount NoteModal (so never loads katex) until Notes is first clicked", async () => {
+    expect(getNoteSpecForTopic(trig.slug)).not.toBeNull();
+    renderSpine();
+    await settleLazy();
+    // The load-bearing assertion: an unconditional mount renders the lazy element here.
+    expect(noteModalProbe.renders).toBe(0);
+    expect(noteModalProbe.mounts).toBe(0);
+
+    fireEvent.click(screen.getByRole("button", { name: /Notes/ }));
+    await findDialog();
+    // CONTROL: the probe does see a mount, so the zero above is not a blind probe.
+    expect(noteModalProbe.mounts).toBe(1);
+  });
+
+  it("keeps NoteModal mounted across close and reopen (latched, never re-mounted)", async () => {
+    renderSpine();
+    const toggle = screen.getByRole("button", { name: /Notes/ });
+
+    fireEvent.click(toggle);
+    await findDialog();
+    fireEvent.click(toggle);
+    await settleLazy();
+    expect(screen.queryByRole("dialog")).toBeNull();
+    fireEvent.click(toggle);
+    await findDialog();
+
+    expect(noteModalProbe.mounts).toBe(1);
   });
 
   it("falls back to the honest 'coming soon' panel on a topic with NO note spec", () => {
