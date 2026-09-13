@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useHref, useLocation, useNavigate } from "react-router-dom";
 
 import { EVIDENCE_BASE_YEARS_WORD } from "../config/evidenceBase";
 import {
@@ -760,6 +760,7 @@ const STYLES = `
   white-space: nowrap;
   cursor: pointer;
   border: 1px solid transparent;
+  text-decoration: none;
   transition: filter 150ms ease, border-color 150ms ease, color 150ms ease, background 150ms ease;
 }
 .lt-et-btn--primary {
@@ -856,6 +857,43 @@ const STYLES = `
   color: var(--muted);
   font-size: 14px;
 }
+/* ── All chapters — a compact, VISIBLE directory of every chapter ─────── */
+.lt-et-all {
+  margin-top: 22px;
+  padding: 14px 16px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card);
+}
+.lt-et-all-title {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.lt-et-all-group { margin: 8px 0 0; }
+.lt-et-all-subject {
+  margin: 0 0 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tert);
+}
+.lt-et-all-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+.lt-et-all-list a { color: hsl(152,60%,34%); text-decoration: none; }
+.lt-et-all-list a:hover,
+.lt-et-all-list a:focus-visible { text-decoration: underline; }
+
 .lt-et-foot {
   margin-top: 18px;
   font-size: 11.5px;
@@ -1054,6 +1092,8 @@ function TopicCard({
   onToggleSelect: () => void;
 }) {
   const barPct = Math.min(100, (topic.weight / maxWeight) * 100);
+  // SEO-NOTES-AND-LINKS-1 — Learn is a real anchor; see the onClick below.
+  const learnHref = useHref(`/topic-hub/${topic.slug}`);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [flipUp, setFlipUp] = useState(false);
 
@@ -1138,10 +1178,21 @@ function TopicCard({
           >
             {selected ? <IconCheck /> : <IconPlus />}
           </button>
-          <button type="button" className="lt-et-btn lt-et-btn--primary" onClick={onOpen}>
+          {/* SEO-NOTES-AND-LINKS-1 — a crawlable <a href> to the chapter. A plain click
+              still runs onOpen (which carries source/returnTo); a modified or
+              non-primary click is left to the browser, so a new tab gets the page. */}
+          <a
+            href={learnHref}
+            className="lt-et-btn lt-et-btn--primary"
+            onClick={(e) => {
+              if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+              e.preventDefault();
+              onOpen();
+            }}
+          >
             <IconBook />
             Learn
-          </button>
+          </a>
           {/* position:relative wrapper — without it the absolute menu falls back
               to its static position, i.e. below the whole card (§5 cause 2). */}
           <span className="lt-et-mwrap" data-lt-et-menu-wrap="">
@@ -1265,6 +1316,37 @@ function PriorityBand({
         </div>
       )}
     </section>
+  );
+}
+
+// ─── All chapters ────────────────────────────────────────────────────────────
+/**
+ * SEO-NOTES-AND-LINKS-1 — every chapter as a link, whatever the subject toggle and
+ * band state. The ranked list above UNMOUNTS collapsed bands and shows one subject,
+ * so on load it reaches 5 of 26 chapters; this directory reaches all of them, for a
+ * student who wants the full list and for a crawler alike. It is deliberately
+ * VISIBLE — a link list hidden from students would be cloaking, not a directory.
+ */
+function AllChapters() {
+  const subjects: DesktopSubject[] = ["Maths", "Science"];
+  return (
+    <nav className="lt-et-all" aria-labelledby="lt-et-all-title">
+      <h2 className="lt-et-all-title" id="lt-et-all-title">
+        All chapters
+      </h2>
+      {subjects.map((s) => (
+        <div className="lt-et-all-group" key={s}>
+          <h3 className="lt-et-all-subject">{s}</h3>
+          <ul className="lt-et-all-list">
+            {desktopTopicsBySubject(s).map((t) => (
+              <li key={t.slug}>
+                <Link to={`/topic-hub/${t.slug}`}>{t.name}</Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </nav>
   );
 }
 
@@ -1499,6 +1581,8 @@ export default function ExamTrendsRanked() {
           />
         ))
       )}
+
+      <AllChapters />
 
       <p className="lt-et-foot">
         Trend strength shows High / Medium / Low — never an invented percentage.

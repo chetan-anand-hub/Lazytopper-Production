@@ -13,6 +13,7 @@ import {
 } from "./canonicalUrl";
 import { allDesktopTopics } from "../lib/desktop/topics";
 import { LEGAL_SLUGS } from "../pages/legalSlugs";
+import { getNoteSpecForTopic } from "../components/notes/noteSpecRegistry";
 
 /**
  * GUARD — `public/sitemap.xml` IS DERIVED FROM THE ROUTE REGISTRY, AND STAYS DERIVED.
@@ -168,7 +169,7 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
     // it has no member registry for, so a new family added to the ruling turns
     // this red instead of vanishing from the sitemap. Pin the set it was written
     // against so "a new family appeared" is a failure someone must look at.
-    expect([...SELF_CANONICAL_ONE_SEGMENT].sort()).toEqual(["/legal", "/topic-hub"]);
+    expect([...SELF_CANONICAL_ONE_SEGMENT].sort()).toEqual(["/legal", "/notes", "/topic-hub"]);
 
     // ★★ THE GAP IS CLOSED — OWNER RULING, 2026-09-09 (FOLLOWON-1), which retires
     // [FU-SITEMAP-LEGAL-PAGES-UNADVERTISED]. This assertion previously read
@@ -244,6 +245,34 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
     // No duplicates anywhere in the file.
     const locs = locsOnDisk();
     expect(new Set(locs).size, "sitemap.xml contains a duplicate <loc>").toBe(locs.length);
+  });
+
+  /**
+   * ★ SEO-NOTES-AND-LINKS-1 — THE NOTES ARE ADVERTISED, ONE PER CHAPTER, FROM THE REGISTRY.
+   * The notes popup had no URL; `/notes/:topicSlug` gives each chapter note one.
+   * Membership is asserted against `allDesktopTopics()`, never a typed list, and
+   * every member must have an AUTHORED spec — advertising a note URL that renders
+   * "Notes not found" would be a soft 404 at HTTP 200.
+   */
+  it("★ advertises 59 URLs: the 33 before plus one notes page per chapter", () => {
+    const paths = sitemapPaths();
+    const registry = allDesktopTopics();
+    const notes = paths.filter((p) => p.startsWith("/notes/"));
+
+    expect(notes).toEqual(registry.map((t) => `/notes/${t.slug}`));
+    expect(paths.length).toBe(
+      SELF_CANONICAL_EXACT.length + LEGAL_SLUGS.length + 2 * registry.length,
+    );
+    expect(paths.length, "the owner-ruled advertised count").toBe(59);
+
+    for (const path of notes) {
+      const slug = path.slice("/notes/".length);
+      expect(getNoteSpecForTopic(slug), `${path} is advertised but has no note spec`).not.toBeNull();
+    }
+
+    // CONTROL — a slug with no chapter is not advertised, and has no spec to render.
+    expect(paths).not.toContain("/notes/does-not-exist");
+    expect(getNoteSpecForTopic("does-not-exist")).toBeNull();
   });
 
   it("★ every advertised slug is URL-safe — a registry slug is not required to be", () => {

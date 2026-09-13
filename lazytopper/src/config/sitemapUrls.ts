@@ -91,6 +91,10 @@ function membersOfParameterisedFamily(prefix: string): readonly string[] {
     case "/topic-hub":
       // The registry `DesktopTopicHubPage` resolves `:topicName` against.
       return allDesktopTopics().map((topic) => topic.slug);
+    case "/notes":
+      // The same registry `DesktopNotesPage` resolves `:topicSlug` against; every
+      // member has an authored note spec (guarded in sitemapUrls.guard.test.ts).
+      return allDesktopTopics().map((topic) => topic.slug);
     case "/legal":
       // The list `LegalPage`'s content table is compiler-keyed on.
       return LEGAL_SLUGS;

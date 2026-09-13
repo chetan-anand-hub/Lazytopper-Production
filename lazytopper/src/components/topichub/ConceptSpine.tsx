@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHref } from "react-router-dom";
 import { Card } from "../grammar/Card";
 import { getNoteSpecForTopic } from "../notes/noteSpecRegistry";
 import { findVisualForConcept } from "../../data/visualConceptRegistry";
@@ -198,6 +198,7 @@ const SPINE_CSS = `
   background: #ffffff;
   border: 1px solid hsl(220, 18%, 88%);
   color: hsl(220, 25%, 12%);
+  text-decoration: none;
 }
 .lt-spine__notes-btn:hover { border-color: hsl(152, 40%, 70%); }
 .lt-spine__notes-hint {
@@ -482,6 +483,9 @@ export function ConceptSpine({
   // or null → the honest "coming soon" empty state below. Content arrives only
   // via validated specs; nothing is generated or invented here.
   const noteSpec = getNoteSpecForTopic(topic.slug);
+  // SEO-NOTES-AND-LINKS-1 — the note's own page. Resolved through the router so the
+  // basename is applied here, never hardcoded. Only meaningful when a spec exists.
+  const notesHref = useHref(`/notes/${topic.slug}`);
 
   const concepts = actionable.boardEssentials;
   const trendTier = topic.trendTier;
@@ -578,19 +582,41 @@ export function ConceptSpine({
         {/* Notes — ONE unified toggle. When a note exists it opens as a POPUP over
             the hub (NoteModal); otherwise an inline honest "coming soon". */}
         <div className="lt-spine__notes-row">
-          <button
-            type="button"
-            className="lt-spine__notes-btn"
-            aria-expanded={notesOpen}
-            aria-haspopup={noteSpec ? "dialog" : undefined}
-            onClick={() => {
-              setNotesRequested(true);
-              setNotesOpen((v) => !v);
-            }}
-          >
-            <span aria-hidden="true">▤</span>
-            <span>Notes</span>
-          </button>
+          {noteSpec ? (
+            /* SEO-NOTES-AND-LINKS-1 — a REAL anchor so crawlers can follow it to
+               /notes/:topicSlug, while a plain click still opens the popup exactly as
+               before. A modified or non-primary click is left to the browser, so
+               "open in new tab" gets the page. NOT a router <Link>: a <Link> would
+               navigate on click, and its <a href> looks identical to this one. */
+            <a
+              href={notesHref}
+              className="lt-spine__notes-btn"
+              aria-expanded={notesOpen}
+              aria-haspopup="dialog"
+              onClick={(e) => {
+                if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+                e.preventDefault();
+                setNotesRequested(true);
+                setNotesOpen((v) => !v);
+              }}
+            >
+              <span aria-hidden="true">▤</span>
+              <span>Notes</span>
+            </a>
+          ) : (
+            <button
+              type="button"
+              className="lt-spine__notes-btn"
+              aria-expanded={notesOpen}
+              onClick={() => {
+                setNotesRequested(true);
+                setNotesOpen((v) => !v);
+              }}
+            >
+              <span aria-hidden="true">▤</span>
+              <span>Notes</span>
+            </button>
+          )}
           <span className="lt-spine__notes-hint">formulae · proofs · mind-map — one view</span>
         </div>
         {noteSpec ? (

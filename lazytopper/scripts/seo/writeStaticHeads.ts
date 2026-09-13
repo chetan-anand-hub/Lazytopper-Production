@@ -174,6 +174,19 @@ export function headForPath(path: string): PageHead | null {
     };
   }
 
+  // SEO-NOTES-AND-LINKS-1 — `/notes/:topicSlug` DOES render the chapter note, so
+  // "Notes" is the honest title here (and only here; see the topic-hub branch above).
+  const notesPrefix = "/notes/";
+  if (path.startsWith(notesPrefix)) {
+    const slug = path.slice(notesPrefix.length);
+    const topic = allDesktopTopics().find((candidate) => candidate.slug === slug);
+    if (!topic || topic.blurb.trim().length === 0) return null;
+    return {
+      title: `${topic.name} — Class 10 Notes | LazyTopper`,
+      description: topic.blurb,
+    };
+  }
+
   return null;
 }
 

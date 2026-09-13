@@ -441,6 +441,32 @@ describe("static heads — the writer refuses to no-op silently", () => {
     expect(headForPath("/pricing")?.title).toContain("Pricing");
   });
 
+  it("SEO-NOTES-AND-LINKS-1 — every notes page is titled as NOTES, distinct from its topic hub", () => {
+    const notes = sitemapPaths().filter((p) => p.startsWith("/notes/"));
+    expect(notes.length, "no notes pages are advertised").toBe(allDesktopTopics().length);
+    for (const path of notes) {
+      const slug = path.slice("/notes/".length);
+      const topic = allDesktopTopics().find((t) => t.slug === slug);
+      const head = headForPath(path);
+      expect(head, `${path} has no head`).not.toBeNull();
+      expect(head?.title).toBe(`${topic?.name} — Class 10 Notes | LazyTopper`);
+      expect(head?.description).toBe(topic?.blurb);
+      expect(head?.title, `${path} shares its topic hub's title`).not.toBe(
+        headForPath(`/topic-hub/${slug}`)?.title,
+      );
+      const html = applyHead(SHELL, {
+        path,
+        url: canonicalFor(path, BASENAME),
+        ...(head as { title: string; description: string }),
+      });
+      expect(html).toContain(
+        `<link rel="canonical" href="https://www.lazytopper.com/app/notes/${slug}" />`,
+      );
+    }
+    // CONTROL — an unknown chapter gets no invented head.
+    expect(headForPath("/notes/does-not-exist")).toBeNull();
+  });
+
   it("templateTitle / templateDescription read the shell's own values back", () => {
     expect(templateTitle(SHELL)).toBe("LazyTopper — CBSE Class 10 Prep That Finds Lost Marks");
     expect(templateDescription(SHELL)).toBe("Free CBSE Class 10 Maths &amp; Science prep.");

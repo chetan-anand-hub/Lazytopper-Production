@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, screen, cleanup, within, fireEvent, act } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { setMatchMediaMatches } from "../../test/setup";
 import { ConceptSpine } from "./ConceptSpine";
 import { desktopTopicBySlug, type DesktopTopicSummary } from "../../lib/desktop/topics";
@@ -169,8 +169,8 @@ describe("ConceptSpine — Notes (single unified toggle, not split tabs)", () =>
     expect(screen.queryByRole("button", { name: "Formula sheet" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Proofs" })).toBeNull();
     expect(screen.queryByRole("link", { name: "Practice all" })).toBeNull();
-    // One unified Notes toggle is present.
-    expect(screen.getByRole("button", { name: /Notes/ })).toBeInTheDocument();
+    // One unified Notes toggle is present — an anchor, because trigonometry has a note.
+    expect(screen.getByRole("link", { name: /Notes/ })).toBeInTheDocument();
   });
 
   // Notes has TWO honest branches (ConceptSpine: `noteSpec ? <NoteModal/> : coming-soon`).
@@ -184,7 +184,7 @@ describe("ConceptSpine — Notes (single unified toggle, not split tabs)", () =>
     expect(getNoteSpecForTopic(trig.slug)).not.toBeNull();
     renderSpine();
 
-    const toggle = screen.getByRole("button", { name: /Notes/ });
+    const toggle = screen.getByRole("link", { name: /Notes/ });
     expect(toggle).toHaveAttribute("aria-expanded", "false");
     expect(screen.queryByRole("dialog")).toBeNull();
 
@@ -211,7 +211,7 @@ describe("ConceptSpine — Notes (single unified toggle, not split tabs)", () =>
     expect(noteModalProbe.renders).toBe(0);
     expect(noteModalProbe.mounts).toBe(0);
 
-    fireEvent.click(screen.getByRole("button", { name: /Notes/ }));
+    fireEvent.click(screen.getByRole("link", { name: /Notes/ }));
     await findDialog();
     // CONTROL: the probe does see a mount, so the zero above is not a blind probe.
     expect(noteModalProbe.mounts).toBe(1);
@@ -219,7 +219,7 @@ describe("ConceptSpine — Notes (single unified toggle, not split tabs)", () =>
 
   it("keeps NoteModal mounted across close and reopen (latched, never re-mounted)", async () => {
     renderSpine();
-    const toggle = screen.getByRole("button", { name: /Notes/ });
+    const toggle = screen.getByRole("link", { name: /Notes/ });
 
     fireEvent.click(toggle);
     await findDialog();
@@ -241,6 +241,78 @@ describe("ConceptSpine — Notes (single unified toggle, not split tabs)", () =>
     // Honest placeholder — and no modal, because there is no note to show.
     expect(screen.getByText(/Notes coming soon/)).toBeInTheDocument();
     expect(screen.queryByRole("dialog")).toBeNull();
+  });
+});
+
+// SEO-NOTES-AND-LINKS-1 — the Notes control is a crawlable anchor that still opens the
+// popup. ★ An href assertion alone proves NOTHING: a router <Link> renders the same
+// <a href>. The discriminating property is the CLICK — a plain click must NOT move the
+// router (a <Link> would) and MUST open the dialog; a modified click must be left to the
+// browser (not defaultPrevented) so "open in new tab" reaches /notes/:topicSlug.
+describe("ConceptSpine — Notes anchor (crawlable href, click still opens the popup)", () => {
+  function LocationProbe() {
+    const location = useLocation();
+    return <output data-testid="loc">{location.pathname}</output>;
+  }
+  function renderRouted() {
+    return render(
+      <MemoryRouter initialEntries={["/topic-hub/trigonometry"]}>
+        <Routes>
+          <Route
+            path="/topic-hub/:topicName"
+            element={
+              <>
+                <LocationProbe />
+                <ConceptSpine
+                  topic={trig}
+                  actionable={trigContent}
+                  backHref="/exam-trends"
+                  backLabel="Back to Exam Trends"
+                  practiceAllHref="/practice-hub?scope=topic"
+                  chapterTestHref="/chapter-test/10/Maths/trigonometry"
+                  practiceHrefForConcept={() => "/practice/10/Maths"}
+                  askTutorHref="/tutor"
+                  tutorHrefForConcept={() => "/tutor"}
+                />
+              </>
+            }
+          />
+          <Route path="/notes/:topicSlug" element={<LocationProbe />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+  }
+
+  it("exposes href=/notes/<slug> for a topic with a note", () => {
+    renderRouted();
+    const notes = screen.getByRole("link", { name: /Notes/ });
+    expect(notes).toHaveAttribute("href", "/notes/trigonometry");
+    expect(notes).toHaveAttribute("aria-haspopup", "dialog");
+  });
+
+  it("a plain click prevents default, does NOT navigate, and opens the dialog", async () => {
+    renderRouted();
+    const notes = screen.getByRole("link", { name: /Notes/ });
+    const notPrevented = fireEvent.click(notes, { button: 0 });
+    expect(notPrevented).toBe(false);
+    expect(screen.getByTestId("loc")).toHaveTextContent("/topic-hub/trigonometry");
+    await findDialog();
+  });
+
+  it("CONTROL: a modifier click (Meta / Ctrl / Shift) is NOT prevented and opens no dialog", async () => {
+    renderRouted();
+    const notes = screen.getByRole("link", { name: /Notes/ });
+    for (const mod of [{ metaKey: true }, { ctrlKey: true }, { shiftKey: true }]) {
+      expect(fireEvent.click(notes, { button: 0, ...mod })).toBe(true);
+    }
+    await settleLazy();
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("a topic with NO note keeps a plain button (no href to a page that does not exist)", () => {
+    renderSpine(previewTopic, previewContent);
+    expect(screen.queryByRole("link", { name: /Notes/ })).toBeNull();
+    expect(screen.getByRole("button", { name: /Notes/ })).not.toHaveAttribute("href");
   });
 });
 

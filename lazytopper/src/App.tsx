@@ -84,6 +84,7 @@ const MobileWelcome     = lazy(() => import("./pages/MobileWelcome"));
 // and reflows fluidly to mobile — no breakpoint file swap for this route.
 const ExamTrendsRanked = lazy(() => import("./pages/ExamTrendsRanked"));
 const DesktopTopicHubPage = lazy(() => import("./pages/desktop/DesktopTopicHubPage"));
+const DesktopNotesPage = lazy(() => import("./pages/desktop/DesktopNotesPage"));
 const DesktopCheckImprovePage = lazy(() => import("./pages/desktop/DesktopCheckImprovePage"));
 // QR answer handoff — the phone half. Public + bare full-screen ("/u" is in
 // BARE_FULLSCREEN_PREFIXES): the student scans a QR shown on their laptop, sends
@@ -225,6 +226,7 @@ export function isMobileSelfChromedRoute(pathname: string, isDesktop: boolean): 
   // Final mobile-parity sweep — matchers mirror isDesktopShellRoute exactly.
   if (pathname === "/practice/worksheets") return true;
   if (pathname === "/topic-hub" || pathname.startsWith("/topic-hub/")) return true;
+  if (pathname.startsWith("/notes/")) return true;
   if (pathname === "/highly-probable" || pathname.startsWith("/highly-probable/")) return true;
   if (/^\/practice\/(?!worksheets\/)[^\/]+\/[^\/]+$/.test(pathname)) return true;
   return false;
@@ -532,6 +534,7 @@ function isDesktopShellRoute(pathname: string, hasSession: boolean = true): bool
   // "/topic-hub/:topicName", "/topic-hub/:grade/:subject", and
   // "/topic-hub/:grade/:subject/:topicKey".
   if (pathname === "/topic-hub" || pathname.startsWith("/topic-hub/")) return true;
+  if (pathname.startsWith("/notes/")) return true;
   // Desktop Phase 5 — exact "/check-improve" only.
   if (pathname === "/check-improve") return true;
   // Desktop Phase 6 — exact "/me" only. Mobile width renders the SAME
@@ -1145,6 +1148,14 @@ export default function App() {
             element={
               <MobileSelfChrome title="Topic Hub">
                 {withRouteSuspense(<DesktopTopicHubPage />)}
+              </MobileSelfChrome>
+            }
+          />
+          <Route
+            path="/notes/:topicSlug"
+            element={
+              <MobileSelfChrome title="Notes">
+                {withRouteSuspense(<DesktopNotesPage />)}
               </MobileSelfChrome>
             }
           />
