@@ -1,4 +1,54 @@
 ```
+⛔ THIS BANNER SUPERSEDES THE SEO BANNER BELOW IT ON #776 AND ON THE PRELOAD CRASH.
+   Everything else in that banner (no Soft 404, the withdrawn "0 of 26" line, Live Test
+   is not a crawl, DISCOVERY is the open question) STANDS.
+
+TRUNK IS `72aef5ddfe90b9e425cc7929f7945ff65e34a203`, MEASURED 2026-09-13 with
+`git ls-remote origin base/approved-thru-437`.
+
+✅ #776 SEO-PRELOAD-CRASH-1 IS MERGED (62782e6f). The notes modal mounts only after the
+   first Notes click, so katex's stylesheet is not fetched at chapter-page load.
+   The "#776 is OPEN · DRAFT · HOLD" line below is OUT OF DATE.
+
+✅ #779 SEO-PRELOAD-NET-1 IS MERGED (72aef5dd). An inline head script cancels Vite's
+   vite:preloadError FOR CSS FAILURES ONLY, so a stylesheet that fails to load no longer
+   sends a student to "Something went wrong — Reload App". A failed JS chunk is left to
+   throw on purpose (cancelling it hands React.lazy an undefined module).
+
+★★★ THIS WORK HAS NO SEO VALUE. DO NOT SEQUENCE SEO WORK BEHIND IT.
+   None of the 33 sitemap URLs reaches a stylesheet at load; #776 closed the last
+   crawlable stylesheet crash. #779 is a reliability fix for students.
+
+★★ STYLESHEET INVENTORY (graph walk, not grep): katex + FOUR others can fail to preload
+   (equation, celebrations, tutorOverlay, print). FIVE counting styles.css, which is the
+   entry <link> and CANNOT throw. Not "katex + six".
+
+★★★ A ROUTE-TABLE READ IS NOT A GATE AUDIT. RequirePremium lives INSIDE page components
+   (DesktopCheckImprovePage.tsx:3291, WorksheetGenerator.tsx:1503) where App.tsx shows no
+   wrapper. Before calling a surface gated or ungated: open the PAGE MODULE, and load the
+   route in a fresh context and record the final path. [FU-GATE-LIVES-IN-THE-COMPONENT]
+
+⚠ /full-mock, /chapter-test and /mock-paper are NOT ungated: MockViewGate allows ONE
+   free view per week, counted in localStorage ONLY. A fresh browser context passes; a
+   used browser sees the wall. No server-side counter exists.
+   [FU-MOCKVIEWGATE-LOCALSTORAGE-ONLY]
+   ⚠ Its getISOWeek() is not an ISO-8601 week — do not write premises from the name.
+   [FU-HELPER-NAME-OVERPROMISES-ISO-WEEK]
+
+NEXT:
+   1. DISCOVERY is still the SEO question — [FU-CHAPTER-URLS-UNKNOWN-TO-GOOGLE].
+   2. Owner live-verify of #779: use the app for a day; the "Reload App" screen should
+      stop. A sighting with "[preload-net]" absent and "Failed to fetch dynamically
+      imported module" present is a JS chunk failure, NOT a #779 regression.
+      [FU-SEO-PRELOAD-NET-1-LIVE-VERIFY-OWED]
+   3. #777's handoff is owed by its own lane — [FU-PR777-HANDOFF-OWED].
+   4. Cheapest next closure for the net: probe /mock-paper/:slug (print.css) in a fresh
+      context — no session needed. [FU-PRELOAD-NET-UNBLOCKED-STYLESHEETS]
+
+The BANK-2027 banner below stands on its own subject and is NOT superseded by this one.
+```
+
+```
 ⛔⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW IT ON THE SEO QUESTION.
 
 TRUNK IS `7eddabee1a9273fbfdd22322d0e8ec985b22178f`, MEASURED 2026-09-11 with

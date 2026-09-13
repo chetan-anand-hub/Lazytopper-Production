@@ -20,6 +20,107 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ---
 
+## 2026-09-13 — SEO-PRELOAD-CRASH-1 + SEO-PRELOAD-NET-1 (`#776` MERGED as `62782e6f`, `#779` as `72aef5dd`, both merged through the owner's GitHub account; `#779` squash-merged by its lane under the owner's explicit approval; open PRs at the time of writing: none) — eight new follow-ups (one recorded as closed doctrine), two status lines (one closes `[FU-KATEX-PRELOAD-CRASH-UNFIXED]`)
+
+★ **PROVENANCE.**
+- **HANDOFF-VERIFIED:** `#779`'s facts and measurements, by the lane that built it.
+- **LANE-REPORTED:** `#776`'s own figures, from its final report.
+- **OWNER-REPORTED:** the 2026-08-03 server-counter recommendation (see `[FU-MOCKVIEWGATE-LOCALSTORAGE-ONLY]`).
+
+Every FU below has its own heading (board rule 1). The two status lines on 2026-09-11 FUs are dated additions **in this section**; the original bodies stand as written (board rule 3).
+
+### `[FU-KATEX-PRELOAD-CRASH-UNFIXED]` — status line 2026-09-13: **CLOSED** (load crash by `#776`, click residual by `#779`)
+The 2026-09-11 body below stands as written; it was true on its date.
+
+- **`#776` (`62782e6f`) used the different mechanism that body asked for.** The lazy `NoteModal` element is not rendered until a `notesRequested` latch goes true on the first Notes click, so katex's stylesheet is not fetched at page load. LANE-REPORTED: preview 24/24, old preview 16/24 as the self-test.
+- **The residual it deliberately left, clicking Notes with katex blocked → boundary at 161 chars, is closed by `#779`.** HANDOFF-VERIFIED on the `#779` preview: dialog open, 10,704 chars, no boundary. Production at the time: boundary, 161 chars.
+
+### `[FU-TWO-ERROR-STRINGS-RELATIONSHIP-UNKNOWN]` — status line 2026-09-13: **STILL OPEN, and `#779` deliberately does not cover one of the two strings**
+`#779` cancels `vite:preloadError` **only** for Vite's `Unable to preload CSS for …` message.
+- A failed JS chunk import (`Failed to fetch dynamically imported module …`, the 2026-09-10 string) reaches the same event, through the helper's `return e().catch(o)`, and is **left to throw by design**. Cancelling it would hand `React.lazy` an undefined module.
+- So if the 2026-09-10 observation was a JS-fetch failure in its own right, **it can still produce the boundary after `#779`**.
+- Whether the two strings are one failure or two is still not established.
+
+### `[FU-GATE-LIVES-IN-THE-COMPONENT]` — OPEN (doctrine); a route-table read is not a gate audit
+**What happened.** On 2026-09-13 the owner ruled that `/check-improve` was an ungated acceptance route, because `App.tsx:1112-1113` wraps it in nothing. In fact `DesktopCheckImprovePage.tsx:3291` wraps the whole page in `<RequirePremium>`, and so does `WorksheetGenerator.tsx:1503`. A signed-out visitor is sent to `/login` by `RequireAuth.tsx:47`. The lane measured the redirect and held the merge; the owner withdrew the ruling.
+
+**The owner records this as the third time the project has hit this class: a gate that lives in the component, not the route.**
+
+**Measured gating also contradicts the route table in the other direction:**
+- `PracticePage`'s route-level `PracticeLimitGate` admits signed-out visitors (`if (!user || isPremium) return true`), yet the route redirects to login **before** its chunk loads.
+- `/full-mock` and `/chapter-test` sit behind `MockViewGate` and **render** for a first-time visitor.
+
+★★★ **To claim a surface is gated or ungated:**
+1. Open the page module, not only `App.tsx`.
+2. Load the route in a fresh context and record the final path.
+
+Neither alone is an audit.
+
+### `[FU-MOCKVIEWGATE-LOCALSTORAGE-ONLY]` — OPEN; the free weekly mock view is enforced only in the browser
+**HANDOFF-VERIFIED at `72aef5dd`.** `MockViewGate.tsx` stores its count only in `localStorage` (`lazytopper.weeklyMockViews`, `FREE_WEEKLY_MOCK_LIMIT = 1` at `:9`).
+- `git grep -iE 'weeklyMockViews|mockView'` over `lazytopper/src`, `artifacts/api-server/src` and `firestore.rules` finds only client code (the gate, `App.tsx`'s route mounts, three comments).
+- **No server-side counter exists.** Clearing site data or a private window restores the free view.
+
+**OWNER-REPORTED, not located by this lane:** a server-side counter was recommended on **2026-08-03** and never shipped.
+- A search of `handoff/`, `docs/` and the 2026-08-02 … 08-04 documents in `Desktop/diff/` did not find that recommendation's text.
+- The nearest records are `[FU-SEC1-DAILY-QUOTA-LOCALSTORAGE]` (this board, OPEN) and `LazyTopper_COFOUNDER_HANDOVER_2026-08-02.md` §6: "Free-tier counters live in localStorage."
+
+**Do not duplicate:** `[FU-SEC1-DAILY-QUOTA-LOCALSTORAGE]` covers the daily practice quota. This FU covers the weekly mock view. They are the same class, and one server-side design likely serves both.
+
+⚠ **Testing consequence.** Any browser acceptance on `/full-mock`, `/chapter-test` or `/mock-paper` depends on the context's localStorage. A fresh context always passes; a used browser sees the wall.
+
+### `[FU-HELPER-NAME-OVERPROMISES-ISO-WEEK]` — OPEN (low, doctrine); owner ruling: code stays, the record is the resolution
+**The finding.** `MockViewGate.tsx`'s `getISOWeek()` computes `Math.ceil(((now - Jan 1) / 86400000 + Jan1.getDay() + 1) / 7)` against the calendar year. **That is not an ISO-8601 week**: no Monday start, no week-1-contains-Thursday rule, and no ISO week-year at year boundaries.
+
+**Why it matters.** A helper whose name promises more precision than its maths delivers is a premise generator for whoever reads it next ("the free view resets on Monday"). **Do not rename or fix it without an owner ruling.** Cite this FU when writing a premise about when the free view resets.
+
+### `[FU-PRELOAD-NET-NON-EXPIRING-CONTROL]` — OPEN; `#779`'s production control expires on deploy
+`#779`'s acceptance compared the preview against production, and production showed the boundary on every blocked arm. **Once production deploys `#779`, that arm will render and the recorded comparison will look vacuous.** This is the second specimen of `[FU-ACCEPTANCE-CONTROL-EXPIRES-WHEN-PRODUCTION-CATCHES-UP]`.
+
+**Recorded replacement, UNMEASURED:**
+1. Intercept the HTML document with Playwright's `page.route` and strip the listener script.
+2. Block `katex-*.css`.
+3. Load `/app/full-mock/10/Maths` in a fresh context.
+4. Expect the boundary. The same run unstripped must render.
+
+That pair does not depend on what production is running. Measure it before relying on it.
+
+### `[FU-PRELOAD-NET-UNBLOCKED-STYLESHEETS]` — OPEN; three stylesheets and five routes were never blocked in a browser
+**Covered in a browser:** katex (full-mock, chapter-test, the Notes click; supporting on check-improve and worksheets) and `EquationInput-*.css` (supporting, via the check-improve redirect only).
+
+**Never blocked:**
+- `celebrations-*.css`, `tutorOverlay` (inside `TutorPage-*.css`), `print` (inside `MockPaper-*.css`).
+- The Tutor, HighlyProbableQuestions, ExamSimulation, PracticePage and MockPaper routes.
+
+**Why:** owner ruling that no test session is used, because an acceptance that depends on an expiring credential cannot be reproduced by the next seat.
+
+**What the claim rests on:** the mechanism. One listener, registered before any module code, keyed on Vite's CSS message, route-independent by construction.
+
+**Which of them a signed-out probe could reach:**
+- **Tutor, HighlyProbableQuestions, ExamSimulation:** `RequirePremium` at the route, so they render only signed in.
+- **PracticePage:** measured redirecting to login before its chunk loads.
+- ⚠ **MockPaper (`/mock-paper/:slug`, which carries `print.css`) is the exception:** it sits behind `MockViewGate`, like full-mock and chapter-test, so a first-time visitor in a fresh context can **probably** reach it. **It was simply not probed**; it needs a valid slug. That is the cheapest next closure: one more stylesheet, no session.
+- **The rest** (`celebrations`, `tutorOverlay`) needs a durable, non-expiring test identity.
+
+### `[FU-SEO-PRELOAD-NET-1-LIVE-VERIFY-OWED]` — OPEN; owner only
+Use the app normally for a day. The 😵 "Something went wrong — Reload App" screen should stop appearing on practice and other surfaces.
+- **Its absence is the outcome.** Report any sighting with the route and what you were doing.
+- ⚠ **A sighting is not automatically a `#779` failure.** A failed **JS** chunk still produces the boundary by design (`[FU-TWO-ERROR-STRINGS-RELATIONSHIP-UNKNOWN]`). The console tells the two apart:
+  - `[preload-net] rendering without a stylesheet …` means a stylesheet was survived.
+  - `Failed to fetch dynamically imported module` means a JS chunk failed.
+
+### `[FU-STYLESHEET-COUNT-FROM-IMPORT-LINES]` — CLOSED (doctrine, recorded); the spec's count came from import lines, not stylesheets
+**The error.** The `#779` spec said "katex + six other stylesheets". The real inventory is **four besides katex, five counting `styles.css`**, and `styles.css` is the entry `<link>` and cannot throw `vite:preloadError`. The spec had counted import sites (13 in 10 files).
+
+**How it was caught.** At pre-flight, by a real graph walk (esbuild metafile, static edges from every dynamic-import target). Its control: the walk finds katex from `PracticePage`, does not find it from `DesktopTopicHubPage`, and does find it again on the pre-`#776` `ConceptSpine` blob.
+
+★ **When a premise counts things, say what the unit is: sites, files, distinct targets, or targets that can fail.** Closed because the owner acknowledged it and the correct inventory is in `CURRENT_STATE.md` §3.
+
+### `[FU-PR777-HANDOFF-OWED]` — OPEN; `#777` is on trunk and no handoff records its content
+`#777` (`d4fcc65e`, merged 2026-09-11 22:17:41+05:30), per its commit subject: strip non-solution text, repair 10 mis-keyed MCQ keys, withhold 45 placeholder/garbled rows, de-flatten 15 chemical equations.
+
+The 2026-09-13 docs lane did not run or review it and records **only that it is on trunk**. Its content, gates and any surface-tracker cells are owed by whoever ran it. **Do not duplicate:** if that lane has already written its handoff in a PR opened after this one, this FU closes on its merge.
+
 ## 2026-09-11 — SEO-SOCIAL-HEADS-1 (`#775` MERGED as `f52cb703`, self-merged by the lane under standing authorization; trunk then `7eddabee` after `#773`) — seven new follow-ups, none closed
 
 ★ **PROVENANCE.** Merge facts, gate results and every `curl` output are **HANDOFF-VERIFIED** by this

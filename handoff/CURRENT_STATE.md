@@ -1,6 +1,207 @@
 # LazyTopper — Current State
 
-## [CURRENT · SEO ARC] SEO-SOCIAL-HEADS-1 — **A SHARED CHAPTER LINK STOPS PREVIEWING AS THE HOME PAGE — AND THE SOFT 404 THAT FRAMED THIS WHOLE ARC WAS NEVER A SOFT 404** — `#775` MERGED — trunk `7eddabee`
+## [CURRENT · RELIABILITY] SEO-PRELOAD-CRASH-1 + SEO-PRELOAD-NET-1 — **A LAZY STYLESHEET THAT FAILS TO LOAD NO LONGER SENDS A STUDENT TO "SOMETHING WENT WRONG" — AND THIS WORK CARRIES NO SEO VALUE** — `#776` + `#779` MERGED — trunk `72aef5dd`
+
+★ **PROVENANCE.**
+
+- **HANDOFF-VERIFIED by the lane that built `#779`, in its own worktree:**
+  - Every git fact below (`git log --format='%h %cI %s' 7eddabee..72aef5dd`, `gh pr view` merge records, blob-hash comparisons).
+  - Every `#779` gate result and browser measurement.
+  - The P7 stylesheet walk.
+  - The sitemap reading.
+- **LANE-REPORTED:** `#776`'s own gates and acceptance figures, from `Desktop/diff/report-seo-preload-crash-1-final.md`. This lane read that report. It did not re-run `#776`'s probe, but its own probe re-measured `#776`'s click-residual case (§2).
+- **OWNER-RULED (2026-09-13):** the `#779` acceptance basis (§2), the four records this handoff was asked to carry (§3 inventory · §4 no SEO value · §5 gate location · §6 MockViewGate), and the `getISOWeek()` note (§7).
+
+**Trunk `72aef5ddfe90b9e425cc7929f7945ff65e34a203`,** re-derived with `git ls-remote` before writing. Since `7eddabee` the tip moved four times:
+`f14ea828` (`#778` docs handoff, 2026-09-11 21:56:30+05:30) → `d4fcc65e` (`#777` content(bank), 22:17:41) → `62782e6f` (`#776` SEO-PRELOAD-CRASH-1, 2026-09-13 06:25:56) → `72aef5dd` (`#779` SEO-PRELOAD-NET-1, 17:05:14).
+
+⚠ **`#777` is another lane's work**: strip non-solution text, repair 10 mis-keyed MCQ keys, withhold 45 placeholder/garbled rows, de-flatten 15 chemical equations, per its commit subject. **This lane did not review it and records only that it is on trunk.** Its handoff is owed by whoever ran it: `[FU-PR777-HANDOFF-OWED]`.
+
+### 1 — WHAT LANDED
+
+**`#776` SEO-PRELOAD-CRASH-1** (`62782e6f`; 3 files, +183 / −12).
+- **What it changed.** `ConceptSpine` now mounts the lazy `NoteModal` only behind a `notesRequested` latch, which goes true on the first Notes click and never resets.
+  - The 2026-09-11 record (`[FU-KATEX-PRELOAD-CRASH-UNFIXED]`) describes the earlier `React.lazy` + `<Suspense>` attempt, which did not fix the crash, because `React.lazy` imports when the lazy element **renders**.
+  - The latch is the different mechanism that record called for: the element is not rendered at all until asked for.
+- **Effect.** katex's stylesheet is no longer fetched when a chapter page loads, so a blocked or failed katex stylesheet no longer crashes the chapter page on load.
+- **Evidence (LANE-REPORTED).**
+  - Preview acceptance 24/24 on the merged head.
+  - Old broken preview 16/24 as the probe self-test, including 161 chars and the boundary.
+  - CI 162 files / 2097 tests.
+- **Residual, which `#776` deliberately left:** with katex blocked, **clicking Notes** still produced the boundary (161 chars).
+
+**`#779` SEO-PRELOAD-NET-1** (`72aef5dd`; 2 files, +121 / −0: `lazytopper/index.html`, `lazytopper/src/config/preloadNet.guard.test.ts`).
+- **What it adds.** An inline classic script in `index.html`'s `<head>` registers a `vite:preloadError` listener. It calls `preventDefault()` **only when the payload message starts with `Unable to preload CSS for `**, and `console.warn`s that message, which names the URL.
+- **Why the event can be cancelled.** Vite's helper, confirmed in the built bundle, settles every dependency in an allSettled-style pattern. It dispatches a cancelable `vite:preloadError` and rethrows only if nobody cancelled it, and a cancelled rejection continues to the real module import. So the page renders with that one stylesheet missing.
+- **Why it is scoped to CSS.** The same helper ends in `return e().catch(o)`, so a failed **JS** chunk import reaches the same event. Cancelling that would hand `React.lazy` an undefined module and trade "Reload App" for a worse, confusing crash. A dropped stylesheet is worth surviving; a dropped JS chunk has no module to render, and the boundary is the correct recovery.
+- **What it does not add:** a global `error` or `unhandledrejection` handler.
+- **Why inline, and why in `index.html`.**
+  - It must be registered before the app starts loading chunks. A listener added from module code, e.g. `main.tsx` (forbidden anyway), is too late to matter.
+  - `writeStaticHeads.ts` builds every emitted page from one copy of the built shell, so the listener lands in all of them with no per-page work. Measured after build: **65 of 65 app shells** carry it inside `<head>`, before the module script, with `preventDefault()`. The 105 standalone `public/visuals/**` pages have no `#root` and correctly carry none.
+  - ⚠ **In the built shell Vite moves `<script type="module">` from `<body>` to the end of `<head>`**, still after the listener. The index.html comment says so, so nobody "fixes" the order.
+
+**`#779` gates, all HANDOFF-VERIFIED on the final blob `8c63189c`.**
+- Both `tsc` configs.
+- `vitest run src/config`: **12 files / 126 tests passed**, 0 skipped.
+- `scope:guard --mode mixed`: `inspected=2`.
+- Build: `STATIC_HEADS … pages=32 files=64`.
+- `verify-production-build.mjs`: 8 passed, 0 failed.
+- `check:mojibake`: 0 enforced hits.
+- Ops matrix: 527/527, 16 blocks, 0 skipped.
+- Root matrix: **206/206**, 0 skipped.
+- `git diff --check`: clean. Name diff: exactly the two files.
+- CI on `db9ea61d`: **163 files / 2103 tests**, all 7 checks green.
+
+**Mutation proof** (a failure is shown as "N failed of 6"):
+
+| Mutation | Result |
+|---|---|
+| Move the script after the module script | 1 failed of 6 |
+| Remove `preventDefault` | 1 failed of 6 |
+| Delete the script | 4 failed of 6 |
+| Restore (`cmp` 0, same blob) | 6 of 6 passed |
+
+The move mutation keeps the script present and still fails, which is the case a presence-only guard would have missed.
+
+**Must-stay-identical files, confirmed unchanged:** `writeStaticHeads.ts`, `head.guard.test.ts`, `canonicalUrl.ts`.
+
+### 2 — ★★ THE ACCEPTANCE, AS RULED, AND ITS SHELF LIFE
+
+Browser-driven (Playwright chromium), no user session, a fresh context per arm. Measured on the preview of `db9ea61d`, with production re-run immediately after as the control. **Two different outcomes on every blocked arm.**
+
+**PRIMARY PROOF of §4.1: real page bodies with katex blocked.**
+
+| Route | Preview (`#779`) | Production (control) |
+|---|---|---|
+| `/app/full-mock/10/Maths` | renders **"Maths · Mock #1"**, 1,214 chars; 1 `[preload-net]` warn naming `katex-*.css` | **error boundary**, 154 chars |
+| `/app/chapter-test/10/maths/trigonometry` | renders, 948 chars; 1 warn | **error boundary**, 154 chars |
+
+**`#776`'s residual is closed.**
+
+| Scenario | Preview (`#779`) | Production (control) |
+|---|---|---|
+| `/app/topic-hub/trigonometry`, katex blocked, **click Notes** | h1 "Trigonometry" · **dialog open** · 10,704 chars | **boundary, 161 chars**, reproducing `#776`'s residual exactly |
+
+**SUPPORTING EVIDENCE ONLY, labelled REDIRECT, NOT BODY.**
+
+| Route | Preview (`#779`) | Production (control) |
+|---|---|---|
+| `/app/check-improve`, katex blocked and then EquationInput blocked | reaches `/app/login` (1,143 chars), because `RequirePremium` inside the page module redirects a signed-out visitor, which proves the module executed | stays on the route, boundary at 161 / 169 chars |
+| `/app/practice/worksheets`, katex blocked | reaches `/app/login` (1,143 chars), same mechanism | boundary, 161 chars |
+
+This is the only browser evidence for `equation.css`, and it is not a page body.
+
+**Nothing regressed.** Every unblocked arm on the preview has no boundary, **0 `console.error`**, 0 pageerror, and path and character counts identical to production. The warn is **absent** on every unblocked arm and present exactly once on every blocked arm.
+- Each blocked preview arm logs exactly one `console.error`, `Failed to load resource: net::ERR_FAILED`, which is the browser's own report of the aborted request.
+- Production's blocked arms log three: that one plus the app's `Unable to preload CSS` and `[ErrorBoundary]` errors.
+
+⚠ **THE PREVIEW WAS ADDRESSED BY ITS BRANCH ALIAS, NOT AN IMMUTABLE DEPLOYMENT URL.** `#775`'s handoff warns that an alias cannot prove which commit answered. Here it can:
+- The branch only ever held one commit (`git rev-list --count 62782e6f..origin/lane/seo-preload-net-1` = 1, head `db9ea61d`).
+- The served shell contained the listener (`net_in_shell=true`), while production's did not.
+
+A future lane should still prefer the immutable URL. The six GitHub deployment records for the SHA carried no statuses, so the URL was not available from them.
+
+⚠⚠ **THIS ACCEPTANCE'S CONTROL EXPIRES** (`[FU-ACCEPTANCE-CONTROL-EXPIRES-WHEN-PRODUCTION-CATCHES-UP]`, second specimen).
+- Production deploys `#779`, so the "production shows the boundary" arm will stop showing it. A successor re-running the probe will see the same result on both sides.
+- **A replacement control that does not expire is recorded but UNMEASURED:** serve the app shell with the listener script stripped (e.g. Playwright `page.route` on the HTML document), block `katex-*.css`, and expect the boundary. `[FU-PRELOAD-NET-NON-EXPIRING-CONTROL]`.
+
+⚠ **THE MOCK ROUTES ARE NOT UNGATED.** `/full-mock` and `/chapter-test` render for a visitor **with no prior mock view this week**:
+- `MockViewGate.tsx:9` sets `FREE_WEEKLY_MOCK_LIMIT = 1`, counted in localStorage under `lazytopper.weeklyMockViews`.
+- A fresh Playwright context always qualifies. A browser that has already spent its view sees the wall, so **a successor's own browser may contradict §2, and that is expected.**
+- The acceptance is unaffected: a crawler carries no localStorage, so it is always a first-time visitor.
+
+### 3 — THE CORRECTED STYLESHEET INVENTORY (owner record (a))
+
+Measured by a **graph walk, not a grep**:
+- **Method.** esbuild bundles `src/main.tsx` with a metafile using the real resolver, and the walk follows only static `import-statement` edges.
+- **Starting points.** Every dynamic-import target is a preload boundary: 37 in all, 33 in `src/`.
+- **Graph size.** 1,016 modules.
+
+**Distinct stylesheets imported for side effects: 6.** **Stylesheets that can be lazily preloaded, and so can throw `vite:preloadError`: katex + 4 others = 5.**
+
+| Stylesheet | Imported by | Built as | Lazy targets that reach it statically |
+|---|---|---|---|
+| `katex/dist/katex.min.css` | `MathText`, `NoteRichText` | `katex-*.css` | NoteModal (Notes click), WorksheetGenerator, ChapterTestPage, FullMockPage, HighlyProbableQuestions, DesktopCheckImprovePage, PracticePage, TutorPage |
+| `equation.css` | `EquationInput` | `EquationInput-*.css` | HighlyProbableQuestions, DesktopCheckImprovePage, PracticePage, TutorPage |
+| `celebrations.css` | 6 celebration components | `celebrations-*.css` | PracticePage, ExamSimulationPage, TutorPage |
+| `tutorOverlay.css` | both tutor overlays | inside `TutorPage-*.css` | TutorPage |
+| `print.css` | `MockPaper` | inside `MockPaper-*.css` | MockPaper |
+| `styles.css` | `main.tsx` | `index-*.css` | **entry stylesheet, a `<link>` in the shell; it is NOT a preload dependency and CANNOT throw** |
+
+- **The spec's "katex + six others" was wrong.** It counted import LINES (13 sites in 10 files), not stylesheets. The correct figures are **four besides katex, or five counting `styles.css`** with the cannot-throw caveat.
+- **Walk controls.**
+  - From `PracticePage` it finds katex via `PracticeQuestionList → PracticeQuestionCard → MathText`.
+  - From `DesktopTopicHubPage` it does not.
+  - On the pre-`#776` `ConceptSpine.tsx` blob (`db62908a`) the same walk **does** find katex from `DesktopTopicHubPage` via `ConceptSpine → NoteModal → Note → NoteRichText`. It was then restored to `677e2f3b` with a clean tree. So the negative comes from `#776`'s change, not from a blind walk.
+
+### 4 — ★★ NO SITEMAP URL REACHES A STYLESHEET AT LOAD — THIS WORK CARRIES NO SEO VALUE (owner record (b))
+
+The sitemap has **33** URLs (`lazytopper/public/sitemap.xml` on trunk and the production `sitemap.xml` read 2026-09-13 both count 33):
+- `/app/`, `/app/pricing`, `/app/exam-trends`, `/app/practice-hub`
+- 3× `/app/legal/*`
+- 26× `/app/topic-hub/*`
+
+They resolve to RootEntry (Welcome / DesktopHome / MobileWelcome), PricingPage, ExamTrendsRanked, DesktopPracticePage, LegalPage and DesktopTopicHubPage. **None of those statically reaches a preloadable stylesheet.**
+
+The only dynamic importers of a stylesheet-reaching lazy target are App.tsx's route lazies, for routes not in the sitemap, and `ConceptSpine → NoteModal`, which `#776` gates behind a click. **A crawler does not click, so `#776` closed the last crawlable stylesheet crash.**
+
+⇒ **`#779` is a product-reliability fix for students. Nothing SEO-related is sequenced behind it, and nothing should be.** The SEO arc's open question remains DISCOVERY (`[FU-CHAPTER-URLS-UNKNOWN-TO-GOOGLE]`).
+
+⚠ **Wording correction (owner-acknowledged).** "The 23 stylesheet-free pages are the ungated routes" is wrong. The 23 lazy targets that reach no stylesheet are not the ungated set.
+- **Four pages load stylesheet chunks for a signed-out, first-time visitor:**
+  - `/check-improve` and `/practice/worksheets`, which then redirect to login.
+  - `/full-mock` and `/chapter-test`, which pass MockViewGate's weekly free view.
+- **The SEO conclusion holds for a different reason: none of those four is in the sitemap.**
+
+⚠ **What `#779` does NOT cover:** a failed **JS** chunk fetch (`Failed to fetch dynamically imported module`) still ends at the boundary, by design. The 2026-09-10 arc recorded exactly that string, and whether it and the katex string are one failure or two is still **not established**. See `[FU-TWO-ERROR-STRINGS-RELATIONSHIP-UNKNOWN]`, status line 2026-09-13.
+
+### 5 — ★★★ A ROUTE-TABLE READ IS NOT A GATE AUDIT (owner record (c))
+
+`RequirePremium` lives **inside page components**, not always in `App.tsx`'s route table:
+
+| Page module | Gate | Where |
+|---|---|---|
+| `DesktopCheckImprovePage.tsx:3291` | `<RequirePremium featureLabel="Check & Improve">` | wraps the whole page, **route has no wrapper** (`App.tsx:1112-1113`) |
+| `WorksheetGenerator.tsx:1503` | `<RequirePremium featureLabel="Worksheets">` | wraps the whole page, **route wrapped only in `MobileSelfChrome`** |
+
+A signed-out visitor hits `RequireAuth.tsx:47` `<Navigate to="/login">`.
+
+**The owner's 2026-09-13 ruling read the route table, found no wrapper, and concluded "ungated". The lane measured a login redirect and held the merge.** The owner records this as the same class of error the project has hit twice before: **a gate that lives in the component, not the route.** Measured gating is not always what the route table suggests, in either direction:
+- `PracticePage` redirects **before** its chunk loads, yet its route-level `PracticeLimitGate` lets signed-out visitors through (`if (!user || isPremium) return true`). The redirect comes from elsewhere.
+- `/full-mock` and `/chapter-test` sit behind `MockViewGate` and **render** for a first-time visitor.
+
+⇒ **To say a surface is gated or ungated, open the page module and load the route in a fresh context. Neither half alone is an audit.** `[FU-GATE-LIVES-IN-THE-COMPONENT]`.
+
+### 6 — MOCKVIEWGATE IS LOCALSTORAGE-ONLY; NO SERVER-SIDE COUNTER EXISTS (owner record (d))
+
+**HANDOFF-VERIFIED at trunk `72aef5dd`:**
+- `MockViewGate.tsx` reads and writes its weekly count only through `localStorage` (`MOCK_VIEW_KEY = "lazytopper.weeklyMockViews"`, `getWeeklyMockViews`, `incrementWeeklyMockViews`).
+- `git grep` for `weeklyMockViews|mockView` across `lazytopper/src`, `artifacts/api-server/src` and `firestore.rules` finds only client code: `MockViewGate.tsx`, `App.tsx`'s route mounts, and three comments (`DesktopHome.tsx:721`, `DesktopPracticePage.tsx:2030`, `featureGates.ts:55`). There is **nothing in the api-server and nothing in `firestore.rules`**.
+- So clearing site data, or a private window, resets the free view.
+
+**OWNER-REPORTED, not located by this lane:** a server-side counter was recommended on **2026-08-03** and never shipped.
+- The lane searched `handoff/`, `docs/` and the 2026-08-02 … 08-04 documents in `Desktop/diff/` and **did not find that recommendation's text**.
+- The nearest records are:
+  - `[FU-SEC1-DAILY-QUOTA-LOCALSTORAGE]` (OPEN, this board): "free daily quota is localStorage-only; no rule can gate it".
+  - `LazyTopper_COFOUNDER_HANDOVER_2026-08-02.md` §6: "entitlement is UI-only … Free-tier counters live in localStorage."
+
+The absence of a server counter is verified; the date and wording of the recommendation are the owner's. `[FU-MOCKVIEWGATE-LOCALSTORAGE-ONLY]`.
+
+### 7 — A HELPER WHOSE NAME PROMISES MORE THAN ITS MATHS (owner-endorsed, code left alone)
+
+`MockViewGate.tsx` keys the weekly count with a function named **`getISOWeek()`**. Its arithmetic, `Math.ceil(((now - Jan 1) / 86400000 + Jan1.getDay() + 1) / 7)` with the calendar year, is **not an ISO-8601 week**: no Monday week start, no week-1-contains-Thursday rule, and no ISO week-year at year boundaries.
+
+**The owner ruled the code stays as it is; the record is the resolution.** A reader who trusts the name will write premises such as "resets on Monday" or "week 1 per ISO" that the code does not honour. `[FU-HELPER-NAME-OVERPROMISES-ISO-WEEK]`.
+
+### 8 — OWED
+
+- **Owner live-verify of `#779`** (spec §6): use the app normally for a day. The 😵 "Something went wrong — Reload App" screen should stop appearing on practice and other surfaces; report any sighting with the route and what you were doing. `[FU-SEO-PRELOAD-NET-1-LIVE-VERIFY-OWED]`.
+- **Never blocked in a browser:** `celebrations.css`, `tutorOverlay.css`, `print.css`, and the Tutor, HPQ, ExamSimulation, PracticePage and MockPaper routes. No test session was used, by owner ruling: a credential that expires makes an acceptance unreproducible. The claim for them rests on the mechanism, one listener keyed on Vite's CSS message and registered before any module code. ⚠ MockPaper sits behind `MockViewGate`, not a sign-in gate, so it is probably reachable by a first-time visitor and **was simply not probed**. `[FU-PRELOAD-NET-UNBLOCKED-STYLESHEETS]`.
+- **Branch clean-up (owner-approved after this docs PR merges):** delete `lane/seo-preload-net-1`, `lane/seo-social-heads-1` and `lane/seo-preload-crash-1`. **`lane/engine-1-ten-pages` is left for the owner** as the retired arc.
+
+Reports: `Desktop/diff/report-seo-preload-net-1.md` (`#779`), `Desktop/diff/report-seo-preload-crash-1-final.md` (`#776`).
+
+## [PREVIOUS · 2026-09-11 · SEO ARC] SEO-SOCIAL-HEADS-1 — **A SHARED CHAPTER LINK STOPS PREVIEWING AS THE HOME PAGE — AND THE SOFT 404 THAT FRAMED THIS WHOLE ARC WAS NEVER A SOFT 404** — `#775` MERGED — trunk `7eddabee`
 
 ★ **PROVENANCE, AND IT MATTERS MORE THAN USUAL IN THIS SECTION.**
 
