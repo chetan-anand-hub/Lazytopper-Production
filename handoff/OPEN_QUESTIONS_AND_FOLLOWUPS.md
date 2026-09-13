@@ -64,6 +64,7 @@ Neither alone is an audit.
 **OWNER-REPORTED, not located by this lane:** a server-side counter was recommended on **2026-08-03** and never shipped.
 - A search of `handoff/`, `docs/` and the 2026-08-02 … 08-04 documents in `Desktop/diff/` did not find that recommendation's text.
 - The nearest records are `[FU-SEC1-DAILY-QUOTA-LOCALSTORAGE]` (this board, OPEN) and `LazyTopper_COFOUNDER_HANDOVER_2026-08-02.md` §6: "Free-tier counters live in localStorage."
+- ★★★ **Owner, 2026-09-13: the recommendation was made in a cofounder chat and never written to `handoff/` or `docs/`, so there is no document to cite.** That is the failure mode, and it matters more than the quota detail: **a recommendation made in conversation and never written to the repo is invisible to every future seat. This one went unshipped for six weeks as a result.** A recommendation is recorded only once it is in the repo.
 
 **Do not duplicate:** `[FU-SEC1-DAILY-QUOTA-LOCALSTORAGE]` covers the daily practice quota. This FU covers the weekly mock view. They are the same class, and one server-side design likely serves both.
 
