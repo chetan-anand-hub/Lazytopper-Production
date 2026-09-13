@@ -1,5 +1,54 @@
 ---
 
+## 2026-09-13 — SEO-PRELOAD-CRASH-1 + SEO-PRELOAD-NET-1 MERGED — **`#776` + `#779` ON TRUNK: A LAZY STYLESHEET THAT FAILS TO LOAD NO LONGER SENDS A STUDENT TO "SOMETHING WENT WRONG" — AND THE WORK CARRIES NO SEO VALUE** — trunk `72aef5dd`
+
+★ **PROVENANCE.**
+- **HANDOFF-VERIFIED:** git facts, `#779`'s gates, its browser acceptance and the stylesheet walk, by the lane that built `#779`.
+- **LANE-REPORTED:** `#776`'s figures, from `Desktop/diff/report-seo-preload-crash-1-final.md`.
+- **OWNER-RULED:** the acceptance basis and the four records below.
+
+**`#776` (`62782e6f`)** mounts the lazy `NoteModal` only after the first Notes click (`notesRequested` latch), so katex's stylesheet is no longer fetched at chapter-page load. That is the "different mechanism" the 2026-09-11 handoff asked for. It deliberately left one residual: with katex blocked, **clicking Notes** still produced the boundary.
+
+**`#779` (`72aef5dd`)** adds an inline script in `index.html`'s `<head>` that cancels Vite's `vite:preloadError` **only for CSS failures** and `console.warn`s the URL.
+- **Why cancelling works.** The shipped helper (read in our own bundle) rethrows only if the event was not cancelled, then continues to the real import, so the page renders with the stylesheet missing.
+- **Why only CSS.** The helper ends in `return e().catch(o)`: a failed JS chunk import reaches the same event, and cancelling it would hand `React.lazy` an undefined module.
+- **Why inline.** It must register before any chunk loads. `writeStaticHeads` copies the built shell, so it lands in **65/65** app shells.
+
+**Gates:** tsc ×2 · src/config 126/126 · scope:guard `inspected=2` · build · verifier 8/0 · mojibake 0 · ops 527/527 · root 206/206 · CI 163 files / 2103 tests, all 7 checks green.
+**Guard mutations:** move → 1 failed · no `preventDefault` → 1 failed · delete → 4 failed · restore `cmp` 0 → 6/6.
+
+**Acceptance on the preview, production as control, no session.**
+
+| Arm | Preview | Production |
+|---|---|---|
+| **Primary:** `/full-mock/10/Maths`, katex blocked | renders "Maths · Mock #1" | boundary |
+| **Primary:** `/chapter-test/10/maths/trigonometry`, katex blocked | renders | boundary |
+| **`#776`'s residual:** Notes click, katex blocked | dialog opens | boundary, 161 chars |
+| **Supporting, redirect not body:** `/check-improve` (katex, EquationInput) and `/practice/worksheets` (katex) | reach `/login` via `RequirePremium` inside the page module | boundary |
+
+- **Unblocked:** 0 `console.error` everywhere.
+- **The warn:** fires once per blocked arm, 0 unblocked.
+
+★★★ **THE HOLD THAT MATTERED.**
+- **The ruling.** The owner's first acceptance ruling named `/check-improve` as ungated, because its `App.tsx` route has no wrapper.
+- **What the lane found.** The lane loaded it with no session and landed on `/login`. `DesktopCheckImprovePage.tsx:3291` wraps the page in `RequirePremium` inside the module.
+- **The outcome.** The lane held the self-merge rather than count a redirect as "real content". The owner withdrew the ruling, named the mock routes as the primary proof, and recorded the class: **a gate that lives in the component, not the route — a route-table read is not a gate audit** (`[FU-GATE-LIVES-IN-THE-COMPONENT]`, the project's third instance).
+- **Also measured:** `PracticePage` is gated before its chunk despite a permissive route gate, and the mock routes render for a first-time-this-week visitor (`MockViewGate`, localStorage).
+
+**Records carried by this handoff, by owner instruction:**
+- **(a) Stylesheet inventory.** Four stylesheets besides katex can fail to preload, five counting `styles.css`, which cannot throw. The spec's "six others" counted import lines.
+- **(b) No SEO value.** None of the 33 sitemap URLs reaches a stylesheet at load. `#776` closed the last crawlable crash; nothing is sequenced behind `#779`.
+- **(c) Gate location** (above).
+- **(d) MockViewGate.** It is localStorage-only, and no server counter exists (verified). The 2026-08-03 recommendation is owner-reported; this lane could not locate its text.
+
+Also recorded:
+- **`getISOWeek()`.** It is not an ISO week; the code is left alone by owner ruling.
+- **The acceptance's production control expires on deploy.** A non-expiring replacement is recorded, unmeasured.
+
+**Trunk moved four times since `7eddabee`:** `f14ea828` (`#778` docs) → `d4fcc65e` (`#777` content(bank)) → `62782e6f` (`#776`) → `72aef5dd` (`#779`). ⚠ `#777` is another lane's work; recorded only as on trunk (`[FU-PR777-HANDOFF-OWED]`).
+
+---
+
 ## 2026-09-11 — SEO-SOCIAL-HEADS-1 MERGED — **`#775` ON TRUNK: A SHARED CHAPTER LINK STOPS PREVIEWING AS THE HOME PAGE — AND THE SOFT 404 THAT FRAMED THE WHOLE SEO ARC WAS NEVER A SOFT 404** — trunk `7eddabee`
 
 ★ **PROVENANCE.** Git facts, gate results and every `curl` output are **HANDOFF-VERIFIED** by this

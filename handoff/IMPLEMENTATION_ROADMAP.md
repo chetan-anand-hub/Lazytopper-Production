@@ -1,6 +1,32 @@
 # LazyTopper Implementation Roadmap
 
 
+## 2026-09-13 — SEO-PRELOAD-CRASH-1 + SEO-PRELOAD-NET-1: **A LAZY STYLESHEET THAT FAILS TO LOAD NO LONGER CRASHES THE PAGE — A RELIABILITY FIX WITH NO SEO VALUE** — `#776` + `#779` MERGED — trunk `72aef5dd`
+
+**`2026-09-13`** *(merge facts, `#779` gates and acceptance HANDOFF-VERIFIED; `#776` figures LANE-REPORTED; acceptance basis OWNER-RULED — see `CURRENT_STATE.md` provenance)*
+
+- ✅ **`#776` SEO-PRELOAD-CRASH-1** (`62782e6f`, merged 2026-09-13 06:25:56+05:30).
+  - **What it does.** The lazy `NoteModal` mounts only after the first Notes click, so katex's stylesheet is no longer fetched at chapter-page load.
+  - **Status change.** This supersedes the 2026-09-11 "⏸ OPEN · DRAFT · HOLD, does NOT fix the crash" entry above, which stands as written (board rule 3).
+  - **Size and CI.** 3 files, +183 / −12. CI 162/2097.
+  - **Left open.** The Notes-click residual, closed by `#779`.
+- ✅ **`#779` SEO-PRELOAD-NET-1** (`72aef5dd`, merged 17:05:14+05:30; squash-merged by its lane under the owner's explicit approval).
+  - **What it does.** An inline `<head>` script cancels `vite:preloadError` **for CSS failures only** and warns with the URL, so the page renders with that one stylesheet missing.
+  - **Where it lands.** All 65 emitted app shells.
+  - **Size.** 2 files, +121.
+  - **Gates.** tsc ×2 · src/config 126/126 · ops 527/527 · root 206/206 · CI 163/2103 · guard mutation-proven (1/1/4 failed, restore 6/6).
+  - **Acceptance.** Primary: `/full-mock` and `/chapter-test` render real bodies with katex blocked while production shows the boundary. The Notes-click residual is closed. Supporting (redirect, not body): `/check-improve`, `/practice/worksheets`.
+  - **Surface tracker.** No cell moves; see `SURFACE_TRACKER.md`.
+- ⛔ **SEQUENCING RECORD (owner): NOTHING SEO-RELATED IS BLOCKED ON, OR SEQUENCED BEHIND, THIS WORK.**
+  - None of the 33 sitemap URLs reaches a preloadable stylesheet at load. `#776` closed the last crawlable stylesheet crash, and `#779` protects signed-in and first-time students, not crawlers.
+  - The SEO arc's open item remains **DISCOVERY** (`[FU-CHAPTER-URLS-UNKNOWN-TO-GOOGLE]`).
+- 📋 **Corrected inventory.** katex + 4 other lazily preloadable stylesheets (`equation`, `celebrations`, `tutorOverlay`, `print`), 5 counting the entry `styles.css`, which cannot throw. Not "katex + six".
+- ⚠ **NOT DONE.**
+  - `celebrations`, `tutorOverlay` and `print` stylesheets never blocked in a browser (`[FU-PRELOAD-NET-UNBLOCKED-STYLESHEETS]`).
+  - A non-expiring acceptance control is recorded but unmeasured (`[FU-PRELOAD-NET-NON-EXPIRING-CONTROL]`).
+  - Owner live-verify owed (`[FU-SEO-PRELOAD-NET-1-LIVE-VERIFY-OWED]`).
+  - `MockViewGate` is still localStorage-only, and no server counter exists (`[FU-MOCKVIEWGATE-LOCALSTORAGE-ONLY]`).
+
 ## 2026-09-11 — SEO-SOCIAL-HEADS-1: **A SHARED CHAPTER LINK STOPS PREVIEWING AS THE HOME PAGE — AND THE SOFT 404 THAT FRAMED THE SEO ARC IS WITHDRAWN AS UNSOURCED** — `#775` MERGED — trunk `7eddabee`
 
 **`2026-09-11`** *(later the same day as rulings 1–4 + STEPMARK 6 + HALF-1 + FIG-SCI-2; merge facts,

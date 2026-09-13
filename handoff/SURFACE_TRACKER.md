@@ -1,5 +1,26 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-13 — SEO-PRELOAD-CRASH-1 (`#776`, `62782e6f`) + SEO-PRELOAD-NET-1 (`#779`, `72aef5dd`), trunk `72aef5dd`.**
+> **NO SURFACE CELL MOVES, and that is the correct answer rather than an unchecked one.**
+> `#776` and `#779` change how the app survives a stylesheet that fails to load: the page now
+> renders with that stylesheet missing instead of showing the error boundary. **That was not a
+> failure any cell on this board recorded** — every cell describes behaviour on a normal network,
+> and on a normal network nothing a student sees changes. Measured: every unblocked arm renders
+> identically to production with 0 `console.error`.
+> ⚠ **The surfaces it protects cut across the board** (Practice, Check & Improve, Worksheets, Full
+> Mock, Chapter Test, Tutor, HPQ, Exam Simulation, Mock Paper, and Notes on Topic Hub). Protection was
+> browser-verified only on Full Mock, Chapter Test and Notes, with Check & Improve and Worksheets as
+> redirect-only support (`[FU-PRELOAD-NET-UNBLOCKED-STYLESHEETS]`). **Not a reason to flip any cell.**
+> ⚠ **A board-reading lesson, for anyone setting a cell's "gated" status:** gating lives in page
+> components as well as in `App.tsx` — `DesktopCheckImprovePage.tsx:3291` and
+> `WorksheetGenerator.tsx:1503` wrap the whole page in `RequirePremium`
+> (`[FU-GATE-LIVES-IN-THE-COMPONENT]`); Full Mock / Chapter Test / Mock Paper are behind a
+> localStorage-only weekly free view (`[FU-MOCKVIEWGATE-LOCALSTORAGE-ONLY]`).
+> **Owner live-verify owed** — `[FU-SEO-PRELOAD-NET-1-LIVE-VERIFY-OWED]`.
+> **Scope: UNCHANGED on every surface — no scope was discovered; nothing goes to §2a or `DECISION_LOG.md`.**
+> ⚠ **`#777` (content(bank), `d4fcc65e`) also landed and is another lane's work.** This lane did not
+> review it and flips no cell for it; whoever ran it owes this board its cells (`[FU-PR777-HANDOFF-OWED]`).
+
 > **2026-09-11 — SEO-SOCIAL-HEADS-1 (`#775`, self-merged as `f52cb703` under standing authorization), trunk `7eddabee` after `#773`.**
 > **NO SURFACE CELL MOVES, AND THAT IS THE CORRECT ANSWER RATHER THAN AN UNCHECKED ONE.** `#775`
 > changes `<head>` metadata in the 32 static files emitted after `vite build` — `og:title`,
