@@ -1,5 +1,13 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-13 — SEO-NOTES-AND-LINKS-1 (`#782`, `8922195c`), trunk `8922195c`.**
+> **NO SURFACE CELL MOVES. Checked row by row against what a student sees.**
+> - **Topic Hub:** the Notes control is now an `<a href>`, but a plain click still opens the same popup. The same `<Note>` is now also reachable at `/app/notes/<slug>` (new tab, search arrival). That is a second **address** for an already-✅ Notes surface, not a new surface: same component, same content.
+> - **Exam Trends:** Learn is now an anchor with an identical plain click. A compact, visible **"All chapters"** directory was added at the page foot. It is an addition to a `Locked` surface, owner-ruled, so it is recorded here rather than silently absorbed. No completion cell changes.
+> - **Landing / Pricing:** the public footer gains a **"Chapters"** link before the unchanged legal links, and desktop Explore is an anchor to the same destination. `[FU-LEGAL-CONSOLIDATE-UNDER-ONE-ROOF]` is still pending; the relocation should carry the Chapters link with it.
+> - **Scope: UNCHANGED on every surface.** No scope was discovered, so nothing goes to §2a or `DECISION_LOG.md`.
+> - **Owner live-verify owed:** `[FU-SEO-NOTES-AND-LINKS-1-LIVE-VERIFY-OWED]`.
+
 > **2026-09-13 — SEO-PRELOAD-CRASH-1 (`#776`, `62782e6f`) + SEO-PRELOAD-NET-1 (`#779`, `72aef5dd`), trunk `72aef5dd`.**
 > **NO SURFACE CELL MOVES, and that is the correct answer rather than an unchecked one.**
 > `#776` and `#779` change how the app survives a stylesheet that fails to load: the page now
