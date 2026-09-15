@@ -1,6 +1,24 @@
 # LazyTopper Implementation Roadmap
 
 
+## 2026-09-15 — SECURITY: **ENTITLEMENT-NO-CREDENTIAL-1 — AN ANONYMOUS CALLER IS NOT SERVED A PAID ROUTE** — `#787` MERGED — trunk `355b1ccc`
+
+- ✅ **ENTITLEMENT-NO-CREDENTIAL-1 COMPLETE** (the precondition for AUTH-GATE-MOVE-1).
+  - The server denies, with 402 and outcome `anonymous`, a request carrying **no bearer token and no uid header**, counted by `entitlement.deny.anonymous` and never `fail_open`.
+  - Every other fail-open is unchanged.
+  - `fail_open.no_credential` is retired.
+- ✅ **AUTH-GATE-MOVE-1 is UNBLOCKED on this precondition**, with two carried constraints:
+  - ⚠ the paywall is **not** watertight against a forged uid header (`[FU-UID-HEADER-TRUSTED-UNVERIFIED]`)
+  - it must take over `[FU-SOLUTIONCHECKER-FAILOPEN-COMMENTS-STALE]`
+- ⏭ **NEXT, immediately:** the one-line product PR `entitlement.cjs:465` "64 tests" → 223 (`[FU-ENTITLEMENT-CHECKSOLUTION-COUNT-STALE]`).
+- ⚠ **Open:**
+  - `[FU-ENTITLEMENT-NO-CREDENTIAL-1-LIVE-VERIFY-OWED]` (owner)
+  - `[FU-WARMUP-UNAUTH-STEP-SOLUTION]` (retire in its own lane)
+  - `[FU-UID-HEADER-TRUSTED-UNVERIFIED]` (client `getIdToken()` retry, then delete the uid-header fail-open)
+  - `[FU-ALLCHAPTERS-SELECTOR-QUOTE-STALE-ON-RESTYLE-2]` (flag for RESTYLE-2)
+- ⚠ **`#786` (SEO-ALLCHAPTERS-RESTYLE-1, `85ecc1d1`) is on trunk with its handoff OWED by its own lane.** It is not recorded here.
+
+
 ## 2026-09-14 — SEO ARC: **DISCOVERY CLOSED — CHAPTER PAGES INDEXED THROUGH IN-PRODUCT LINKS** — docs only — trunk `fe3bb61e`
 
 - ✅ **`[FU-CHAPTER-URLS-UNKNOWN-TO-GOOGLE]` CLOSED.**

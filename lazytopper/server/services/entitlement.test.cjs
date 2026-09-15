@@ -31,9 +31,25 @@ const {
   FAIL_OPEN_EVENT,
   FAIL_OPEN_NO_ADMIN,
   FAIL_OPEN_NO_UID,
-  FAIL_OPEN_NO_CREDENTIAL,
   FAIL_OPEN_READ_ERROR,
+  DENY_ANONYMOUS,
 } = ENT;
+
+/**
+ * The counter a signed-out caller used to increment, before ENTITLEMENT-NO-CREDENTIAL-1
+ * made that path a denial. Retired from the module, so named here as a literal: the
+ * tests below assert nothing emits it, and a regression to the old fail-open would.
+ */
+const RETIRED_NO_CREDENTIAL = 'entitlement.fail_open.no_credential';
+
+/**
+ * The uid header the CLIENT actually sends, read from its source rather than restated,
+ * lower-cased the way node delivers it. A client rename turns §8 red instead of leaving
+ * the server reading a header nobody sends.
+ */
+const UID_HEADER = /export const UID_HEADER = "([^"]+)"/
+  .exec(fs.readFileSync(path.resolve(__dirname, '..', '..', 'src', 'ai', 'paidCallHeaders.ts'), 'utf8'))[1]
+  .toLowerCase();
 
 const INDEX_CJS = path.resolve(__dirname, '..', 'index.cjs');
 const NOW = Date.UTC(2026, 7, 3, 12, 0, 0);
@@ -53,7 +69,12 @@ function telemetryStub() {
 
 function loggerStub() {
   const warnings = [];
-  return { warn: (m) => warnings.push(String(m)), warnings, error() {}, log() {} };
+  const infos = [];
+  return {
+    warn: (m) => warnings.push(String(m)), warnings,
+    info: (m) => infos.push(String(m)), infos,
+    error() {}, log() {},
+  };
 }
 
 /** A Firestore Timestamp is duck-typed by toDate()/seconds — that IS the security boundary. */
@@ -253,14 +274,26 @@ test('A6c · a token that did not verify counts as no_uid, NOT as no_credential'
   const { gate, telemetry } = gateFor({ tier: 'free' });
   await gate.resolve('', reqStub(true));
   assert.equal(telemetry.get(FAIL_OPEN_NO_UID), 1, 'credentials-broken must be legible on its own');
-  assert.equal(telemetry.get(FAIL_OPEN_NO_CREDENTIAL), 0);
+  assert.equal(telemetry.get(RETIRED_NO_CREDENTIAL), 0);
 });
 
-test('A6d · a signed-out caller counts as no_credential, NOT as no_uid', async () => {
-  const { gate, telemetry } = gateFor({ tier: 'free' });
-  await gate.resolve('', reqStub(false));
-  assert.equal(telemetry.get(FAIL_OPEN_NO_CREDENTIAL), 1);
+test('A6d · a signed-out caller is DENIED as anonymous, NOT counted as any fail-open', async () => {
+  const { gate, telemetry, logger } = gateFor({ tier: 'free' });
+  const d = await gate.resolve('', reqStub(false));
+  assert.equal(d.entitled, false, 'no bearer token and no uid header is a positive fact: deny');
+  assert.equal(d.outcome, 'anonymous', "never 'absent' — no Firestore read happened");
+  assert.equal(telemetry.get(DENY_EVENT), 1);
+  assert.equal(telemetry.get(DENY_ANONYMOUS), 1);
+  assert.equal(telemetry.get(FAIL_OPEN_EVENT), 0, 'a correct denial must not inflate the leak counter');
+  assert.equal(telemetry.get(RETIRED_NO_CREDENTIAL), 0);
   assert.equal(telemetry.get(FAIL_OPEN_NO_UID), 0, 'routine traffic must not drown the real signal');
+  assert.equal(logger.warnings.length, 0, 'routine signed-out traffic must stay out of the warn channel');
+  assert.equal(logger.infos.length, 1);
+});
+
+test('A6e · the retired no_credential counter is no longer exported', () => {
+  assert.equal(ENT.FAIL_OPEN_NO_CREDENTIAL, undefined,
+    'nothing can emit it; an export would read as a live signal on the telemetry page');
 });
 
 /* ── the cache (§3E) ──────────────────────────────────────────────────────── */
@@ -692,3 +725,141 @@ test('A12 · the grader handlers are reachable ONLY through the index.cjs dispat
   assert.ok(!/gradeStructuredSet,/.test(routeSrc.split('module.exports')[1] || ''),
     'gradeStructuredSet must stay module-internal');
 });
+
+/* ══════════════════════════════════════════════════════════════════════════
+   §8 · ENTITLEMENT-NO-CREDENTIAL-1 — a request with NO caller identity is not served
+   Every check pairs two requests the gate must tell apart. If a pair agrees, the
+   change is wrong in one direction or the other.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const reqAnon = () => ({ method: 'POST', headers: {} });
+const reqUidHeaderOnly = () => ({ method: 'POST', headers: { [UID_HEADER]: 'student-1' } });
+
+for (const p of GATED) {
+  test(`NC1 · ★ ${p}: an anonymous POST gets 402 — CONTROL: a verified premium uid is served`, async () => {
+    const anon = gateFor({ tier: 'premium' });
+    const res = resStub();
+    const handled = await anon.gate.applyToRequest(reqAnon(), res, p, '');
+    assert.equal(handled, true, 'the boundary must have responded');
+    assert.equal(res.sent.length, 1);
+    assert.equal(res.last().status, 402, '402 Payment Required, never 403');
+    assert.equal(res.last().body.error, 'premium_required');
+    assert.equal(anon.store.calls.get, 0, 'refusing an anonymous caller must not spend a read');
+
+    const premium = gateFor({ tier: 'premium' });
+    const controlRes = resStub();
+    const controlHandled = await premium.gate.applyToRequest(reqAnon(), controlRes, p, 'u1');
+    assert.equal(controlHandled, false);
+    assert.equal(controlRes.sent.length, 0, 'an entitled caller must see nothing from the gate');
+    assert.notEqual(handled, controlHandled, 'the same call with and without a verified uid must differ');
+  });
+}
+
+test('NC2 · ★ THE PRESERVED CASE: an offered token that did not verify is SERVED — CONTROL: anonymous is denied', async () => {
+  const offered = gateFor({ tier: 'free' });
+  const served = await offered.gate.resolve('', reqStub(true));
+  assert.equal(served.entitled, true, 'an expired token must never lock out a paying student');
+  assert.equal(offered.telemetry.get(FAIL_OPEN_NO_UID), 1);
+  const res = resStub();
+  assert.equal(await offered.gate.applyToRequest(reqStub(true), res, '/api/check-solution', ''), false);
+  assert.equal(res.sent.length, 0);
+
+  const anon = gateFor({ tier: 'free' });
+  const denied = await anon.gate.resolve('', reqAnon());
+  assert.equal(denied.entitled, false);
+  assert.notEqual(served.entitled, denied.entitled, 'token-offered and anonymous must not agree');
+});
+
+test('NC2b · ★ a uid header WITHOUT a token is SERVED as no_uid — CONTROL: neither present is denied', async () => {
+  // paidCallHeaders.ts sends the uid header alone when getIdToken() rejects: a
+  // signed-in student whose token fetch failed, not an anonymous caller.
+  const headerOnly = gateFor({ tier: 'free' });
+  const served = await headerOnly.gate.resolve('', reqUidHeaderOnly());
+  assert.equal(served.entitled, true, 'a failed token fetch must never lock out a paying student');
+  assert.equal(served.outcome, 'fail-open');
+  assert.equal(headerOnly.telemetry.get(FAIL_OPEN_NO_UID), 1);
+  assert.equal(headerOnly.telemetry.get(DENY_ANONYMOUS), 0);
+  const res = resStub();
+  assert.equal(await headerOnly.gate.applyToRequest(reqUidHeaderOnly(), res, '/api/check-solution', ''), false);
+  assert.equal(res.sent.length, 0);
+
+  const neither = gateFor({ tier: 'free' });
+  const denied = await neither.gate.resolve('', reqAnon());
+  assert.equal(denied.entitled, false);
+  assert.equal(neither.telemetry.get(DENY_ANONYMOUS), 1);
+  assert.equal(neither.telemetry.get(FAIL_OPEN_NO_UID), 0);
+  assert.notEqual(served.entitled, denied.entitled, 'uid-header-only and no-identity must not agree');
+});
+
+test('NC3 · the other fail-opens are untouched: no firebase-admin, and a Firestore read that throws', async () => {
+  const noAdmin = gateFor(undefined, { admin: null });
+  const a = await noAdmin.gate.resolve('u1', reqStub());
+  assert.equal(a.entitled, true);
+  assert.equal(noAdmin.telemetry.get(FAIL_OPEN_NO_ADMIN), 1);
+  assert.equal(noAdmin.telemetry.get(FAIL_OPEN_EVENT), 1);
+
+  const threw = gateFor({ tier: 'free' }, { throwOn: 'get' });
+  const b = await threw.gate.resolve('u1', reqStub());
+  assert.equal(b.entitled, true);
+  assert.equal(threw.telemetry.get(FAIL_OPEN_READ_ERROR), 1);
+  assert.equal(threw.telemetry.get(FAIL_OPEN_EVENT), 1);
+});
+
+test('NC4 · ★ telemetry: an anonymous denial counts 0 fail-opens — CONTROL: an invalid token counts 1', async () => {
+  const anon = gateFor({ tier: 'free' });
+  await anon.gate.applyToRequest(reqAnon(), resStub(), '/api/check-solution', '');
+  assert.equal(anon.telemetry.get(FAIL_OPEN_EVENT), 0, 'a correct denial must not inflate the leak counter');
+  assert.equal(anon.telemetry.get(RETIRED_NO_CREDENTIAL), 0);
+  assert.equal(anon.telemetry.get(DENY_ANONYMOUS), 1);
+
+  const invalid = gateFor({ tier: 'free' });
+  await invalid.gate.applyToRequest(reqStub(true), resStub(), '/api/check-solution', '');
+  assert.equal(invalid.telemetry.get(FAIL_OPEN_EVENT), 1, 'the leak counter must still fire when it should');
+  assert.equal(invalid.telemetry.get(DENY_ANONYMOUS), 0);
+});
+
+test('NC5 · ★ /api/step-solution still serves STORED steps to an anonymous caller — CONTROL: generation is denied', async () => {
+  const { route, gate, geminiCalls } = stepHarness({ tier: 'premium' });
+  const req = {
+    method: 'POST', headers: {},
+    body: { question: 'Solve 2+2', marks: 1, solutionSteps: ['Add them', 'Answer 4'], finalAnswer: '4' },
+  };
+  const boundaryRes = resStub();
+  assert.equal(await gate.applyToRequest(req, boundaryRes, '/api/step-solution', ''), false,
+    '/api/step-solution must stay ungated at the boundary');
+  assert.equal(boundaryRes.sent.length, 0, 'no 402 at the boundary');
+  assert.equal(typeof req.lazytopperEntitlement.requireForGeneration, 'function');
+  const res = resStub();
+  await route.handleStepSolution(req, res);
+  assert.equal(res.last().status, 200, 'the bank-backed solutions are free for everyone');
+  assert.equal(geminiCalls.length, 0);
+
+  const denial = await req.lazytopperEntitlement.requireForGeneration();
+  assert.ok(denial, 'requireForGeneration must deny the same anonymous request');
+  assert.equal(denial.error, 'premium_required');
+  assert.equal(denial.feature, 'step-solution-generation');
+
+  const genReq = { method: 'POST', headers: {}, body: { question: 'An unbanked question', marks: 3 } };
+  await gate.applyToRequest(genReq, resStub(), '/api/step-solution', '');
+  const genRes = resStub();
+  await route.handleStepSolution(genReq, genRes);
+  assert.equal(genRes.last().status, 402);
+  assert.equal(geminiCalls.length, 0, 'an anonymous caller must not spend money at Gemini');
+});
+
+test('CONTROL 3 · ★ over REAL HTTP: no identity gets a 402; a uid header alone is SERVED',
+  { timeout: 90000 }, async (t) => {
+    const port = await freePort();
+    const srv = bootServer({ port, stubAdmin: false });
+    t.after(() => srv.child.kill());
+    await srv.ready;
+
+    const anon = await post(port, '/api/check-solution', { question: 'Q', marks: 3, textAnswer: 'a' });
+    assert.equal(anon.status, 402, `an anonymous POST must be refused over HTTP, got ${anon.status}: ${anon.text}`);
+    assert.equal(anon.json.error, 'premium_required');
+
+    const withUid = await post(port, '/api/check-solution',
+      { question: 'Q', marks: 3, textAnswer: 'a' }, { [UID_HEADER]: 'student-1' });
+    assert.notEqual(withUid.status, 402,
+      'the uid header must reach the gate under the name the client sends it');
+  });

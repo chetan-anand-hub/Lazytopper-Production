@@ -1,5 +1,13 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-15 — ENTITLEMENT-NO-CREDENTIAL-1 (`#787`, `355b1ccc`), trunk `355b1ccc`.**
+> **NO SURFACE CELL MOVES.** The change is server-only.
+> - **Why nothing a student sees changed:** today a signed-out student is sent to login before any paid CTA, so no student path sends an identity-less paid request. Signed-in students send a token and/or uid header and are unaffected. Stored solutions still render signed out.
+> - ⚠ **For Check & Improve, Worksheets and the Tutor:** from `355b1ccc` a **signed-out** click that reaches a paid route gets **402**, where it was previously served. That becomes student-visible only when AUTH-GATE-MOVE-1 removes the client login redirects. `SolutionChecker`'s signed-out "unlocked" rule and its comments (`:139-152`, `:420-423`) are stale and handed to that lane (`OPEN_QUESTIONS_AND_FOLLOWUPS.md` 2026-09-15).
+> - ⚠ The paywall is **not** watertight: a forged uid header is still served (`[FU-UID-HEADER-TRUSTED-UNVERIFIED]`).
+> - `#786` (`85ecc1d1`) is on trunk with its handoff owed by its own lane. **This note does not assess its cells.**
+> **Scope: UNCHANGED on every surface; nothing goes to §2a or `DECISION_LOG.md`.**
+
 > **2026-09-14 — first indexing evidence after `#782` (docs only), trunk `fe3bb61e`.**
 > **NO SURFACE CELL MOVES.** Nothing a student sees changed.
 > ⚠ **For anyone redesigning Exam Trends (a `Locked` surface):** its "All chapters" directory is now **evidenced as load-bearing for search**. It is the only cold-load path to any Science chapter, and a Science chapter (`life-processes`) was indexed via it. Removing, hiding or lazy-mounting it is a regression even if every visual cell stays ✅. See `OPEN_QUESTIONS_AND_FOLLOWUPS.md` 2026-09-14.
