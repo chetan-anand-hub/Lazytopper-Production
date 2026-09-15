@@ -858,39 +858,46 @@ const STYLES = `
   font-size: 14px;
 }
 /* ── All chapters — a compact, VISIBLE directory of every chapter ─────── */
+/* SEO-ALLCHAPTERS-RESTYLE-1 — styled as a page footer, not a fourth card: a hairline
+   rule and space above, quiet type below the bands. Every link stays VISIBLE and
+   AA-contrast — receding is allowed, hiding is not. */
 .lt-et-all {
-  margin-top: 22px;
-  padding: 14px 16px 16px;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: var(--card);
+  margin-top: 40px;
+  padding: 16px 2px 0;
+  border-top: 1px solid var(--border);
 }
 .lt-et-all-title {
-  margin: 0 0 8px;
-  font-size: 13px;
-  font-weight: 700;
+  margin: 0 0 6px;
+  font-size: 11.5px;
+  font-weight: 600;
   color: var(--muted);
 }
-.lt-et-all-group { margin: 8px 0 0; }
+.lt-et-all-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+  margin: 6px 0 0;
+}
 .lt-et-all-subject {
-  margin: 0 0 4px;
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  margin: 0;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--tert);
+  color: var(--muted);
 }
 .lt-et-all-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 14px;
+  gap: 2px 12px;
   margin: 0;
   padding: 0;
   list-style: none;
-  font-size: 12.5px;
+  font-size: 12px;
   line-height: 1.6;
 }
-.lt-et-all-list a { color: hsl(152,60%,34%); text-decoration: none; }
+.lt-et-all-list a { color: hsl(152,60%,30%); text-decoration: none; }
 .lt-et-all-list a:hover,
 .lt-et-all-list a:focus-visible { text-decoration: underline; }
 
