@@ -60,6 +60,11 @@
 // which degrades to the header rather than to the anonymous bucket: a student who
 // paid must never be locked out by an infrastructure blip.
 //
+// ONE OTHER POSITIVE FACT DENIES: a request that carried NO caller identity at all
+// — no bearer token AND no uid header (ENTITLEMENT-NO-CREDENTIAL-1). That is
+// something observed about the request, not a failure to conclude something, so
+// nothing about a broken deploy or an expired token can produce it.
+//
 // ★ AND THE PART THAT MAKES IT MORE THAN A COMMENT. If firebase-admin credentials
 // are absent on Railway, EVERY read fails, EVERY request is served, and this
 // module reports as installed while enforcing nothing — green tests, green CI,
@@ -73,6 +78,10 @@
 // the module that verifies it and the module that reports why verification produced
 // nothing. Same header, one definition.
 const { extractBearerToken } = require('./verifiedCaller.cjs');
+// Reused for the same reason: whether a request carries a uid header is already
+// decided by the rate limiter's trust order (verified uid -> X-Lazytopper-Uid ->
+// anonymous IP bucket). Reading the header here would be a second definition.
+const { resolveCaller } = require('./rateLimiter.cjs');
 
 /** Mirror of subscriptionService.TRIAL_DAYS. A constant in code, never a stored field. */
 const TRIAL_DAYS = 7;
@@ -99,18 +108,25 @@ const FAIL_OPEN_EVENT = 'entitlement.fail_open';
 const FAIL_OPEN_NO_ADMIN = 'entitlement.fail_open.no_admin';
 const FAIL_OPEN_READ_ERROR = 'entitlement.fail_open.read_error';
 /**
- * A token WAS offered and did not yield a uid. THIS IS THE CREDENTIALS-BROKEN
- * SIGNAL — clients are sending credentials and this deploy cannot verify them.
+ * A caller identified itself but produced no verified uid: a token WAS offered and
+ * did not verify, or a uid header arrived WITHOUT a token (`paidCallHeaders.ts`
+ * drops `Authorization` when `getIdToken()` rejects but keeps the uid header).
+ * THIS IS THE CREDENTIALS-BROKEN SIGNAL — a signed-in student this deploy or this
+ * client could not verify.
  */
 const FAIL_OPEN_NO_UID = 'entitlement.fail_open.no_uid';
 /**
- * No token was offered at all — an ordinary signed-out caller.
+ * No caller identity at all — no bearer token and no uid header. A DENIAL, not a
+ * fail-open, so it must never count toward `entitlement.fail_open`.
  *
  * ★ SPLIT FROM no_uid DELIBERATELY. Collapsing the two would bury the one signal
  * that matters (verification is failing, so the paywall is open) inside routine
  * signed-out traffic, and a witness you cannot read is not a witness.
+ *
+ * Replaces `entitlement.fail_open.no_credential`, retired because nothing can emit
+ * it any more: signed-out callers now land here, identified ones on no_uid.
  */
-const FAIL_OPEN_NO_CREDENTIAL = 'entitlement.fail_open.no_credential';
+const DENY_ANONYMOUS = 'entitlement.deny.anonymous';
 
 /**
  * ★ COPY REGISTER — owner constraint. A locked feature is NOT a mistake the
@@ -329,24 +345,47 @@ function createEntitlementGate(deps = {}) {
   }
 
   /**
+   * Refuse a request that carried no caller identity. Logged at INFO, never WARN:
+   * signed-out traffic is routine, and routine lines in the warn channel would hide
+   * the FAIL-OPEN warning that says the paywall is leaking.
+   */
+  function denyAnonymous() {
+    emit(DENY_EVENT);
+    emit(DENY_ANONYMOUS);
+    try {
+      if (typeof logger.info === 'function') {
+        logger.info('[entitlement] DENY (no bearer token and no uid header on the request)');
+      }
+    } catch {
+      /* logging must never fail a request */
+    }
+    return { entitled: false, tier: null, trialEndsAtMs: null, outcome: 'anonymous' };
+  }
+
+  /**
    * Resolve entitlement for a verified uid. NEVER throws.
    *
    * Outcomes: 'cache' | 'read' (document found) | 'absent' (read succeeded, no
-   * document -> free) | 'fail-open'.
+   * document -> free) | 'anonymous' (no caller identity on the request) | 'fail-open'.
    */
   async function resolve(uid, req) {
     const id = typeof uid === 'string' ? uid.trim() : '';
 
-    // No verified uid. This is NOT a positive read of a non-entitled tier — it is
-    // an expired token, a clock skew, or firebase-admin being unable to verify —
-    // so it fails OPEN, exactly as verifiedCaller.cjs refuses to conclude
-    // "anonymous" from a verification failure. The two reasons are reported
-    // separately so the credentials-broken case stays legible.
+    // No verified uid. If the caller identified itself — a bearer token, or a uid
+    // header without one — this is NOT a positive read of a non-entitled tier: it is
+    // an expired token, a clock skew, firebase-admin being unable to verify, or a
+    // client whose getIdToken() failed. So it fails OPEN, exactly as
+    // verifiedCaller.cjs refuses to conclude "anonymous" from a verification failure.
+    // Only a request carrying NEITHER is denied: that is observed, not inferred.
     if (!id) {
-      const offered = req ? extractBearerToken(req) : '';
-      return offered
-        ? failOpen(FAIL_OPEN_NO_UID, 'a bearer token was offered and did not verify')
-        : failOpen(FAIL_OPEN_NO_CREDENTIAL, 'no bearer token on the request');
+      if (!req) return failOpen(FAIL_OPEN_NO_UID, 'no request to read a credential from');
+      if (extractBearerToken(req)) {
+        return failOpen(FAIL_OPEN_NO_UID, 'a bearer token was offered and did not verify');
+      }
+      if (!resolveCaller(req).anonymous) {
+        return failOpen(FAIL_OPEN_NO_UID, 'a uid header arrived without a bearer token');
+      }
+      return denyAnonymous();
     }
 
     // Credentials absent. THE case §3C exists for.
@@ -488,6 +527,6 @@ module.exports = {
   FAIL_OPEN_EVENT,
   FAIL_OPEN_NO_ADMIN,
   FAIL_OPEN_NO_UID,
-  FAIL_OPEN_NO_CREDENTIAL,
   FAIL_OPEN_READ_ERROR,
+  DENY_ANONYMOUS,
 };
