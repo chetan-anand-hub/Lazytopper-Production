@@ -1,6 +1,75 @@
 # LazyTopper — Current State
 
-## [CURRENT · SEO ARC] SEO-NOTES-AND-LINKS-1 — **THE NOTES GET A URL AND THE CHAPTERS GET LINKS: THREE CRAWL PATHS FROM THE PAGE GOOGLE ALREADY RENDERS, AND A 59-URL SITEMAP** — `#782` MERGED — trunk `8922195c`
+## [CURRENT · SECURITY] ENTITLEMENT-NO-CREDENTIAL-1 — **A REQUEST WITH NO CALLER IDENTITY IS NO LONGER SERVED A PAID ROUTE — BUT THE PAYWALL IS CLOSED AGAINST ACCIDENTAL ANONYMITY, NOT AGAINST DELIBERATE BYPASS** — `#787` MERGED — trunk `355b1ccc`
+
+★ **PROVENANCE.**
+- **HANDOFF-VERIFIED** by the lane that built `#787`, in its own worktrees: premise gate, gates, both mutation proofs, the CI job logs (counts read, not ticks), merge facts, and every file:line below, re-read at trunk `355b1ccc`.
+- **OWNER-RULED (2026-09-15):**
+  - §2 revised after pre-flight: deny only when there is no bearer token AND no uid header.
+  - The warmup job is retired, not allowed.
+  - `SolutionChecker` is handed over to AUTH-GATE-MOVE-1.
+  - The stale-comment fix ships as its own one-line product PR (no §8 exception).
+  - `[FU-UID-HEADER-TRUSTED-UNVERIFIED]` is raised.
+- **NOT YET VERIFIED:** the owner live-verify (spec §6), `[FU-ENTITLEMENT-NO-CREDENTIAL-1-LIVE-VERIFY-OWED]`.
+
+**Trunk `355b1ccc794dffbcefb23184a2f059d94f6e41fa`** (`#787` squash), re-derived with `git ls-remote` before writing. Before it: `85ecc1d1` = **`#786` SEO-ALLCHAPTERS-RESTYLE-1**. **`#786`'s handoff is owed by its own lane and is NOT written here.** A SEO-ALLCHAPTERS-RESTYLE-2 lane is in flight against the same file and may write it. Nothing in this section covers `#786`.
+
+**Why this lane existed.** It is the precondition for **AUTH-GATE-MOVE-1**. Before `#787`, `entitlement.cjs::resolve()` **served** a request with no bearer token. That was harmless only because the client sends signed-out students to login before any paid CTA (`[FU-GATE3-SIGNED-OUT-GRADING-FAILS-OPEN]`, "latent, curl-only"). AUTH-GATE-MOVE-1 removes those redirects on purpose, and the moment it shipped an anonymous `POST /api/check-solution` would have been served and billed.
+
+### 1 — WHAT LANDED (`lazytopper/server/services/entitlement.cjs` + its test; nothing else)
+
+| Request reaching a paid route | Decision | Telemetry |
+|---|---|---|
+| no verified uid, **no bearer token AND no `X-Lazytopper-Uid`** | **DENIED → 402 `premium_required`** · outcome **`anonymous`** (never `absent`; no Firestore read) | `entitlement.deny` + **`entitlement.deny.anonymous`** (`DENY_ANONYMOUS`, `entitlement.cjs:129`) · **no** `entitlement.fail_open` · logged at **info**, never warn |
+| uid header, no token | **served** — fail-open | `entitlement.fail_open` + `entitlement.fail_open.no_uid` |
+| token offered, did not verify | **served** — fail-open (unchanged) | `fail_open` + `fail_open.no_uid` |
+| firebase-admin missing / Firestore read threw | **served** — fail-open (unchanged) | `fail_open` + `no_admin` / `read_error` |
+| read OK, no document | denied, outcome `absent` (unchanged) | `entitlement.deny` |
+
+- **`entitlement.fail_open.no_credential` is RETIRED.** Under the revised rule no branch can emit it, so the constant and its export were removed. Test A6e pins the removal. On the telemetry page, **`fail_open` now counts only genuine leaks**; signed-out traffic is in `deny.anonymous`.
+- **`/api/step-solution` is unchanged at the boundary.** Bank-backed (stored) steps still serve an anonymous caller; only the **generation** branch (`requireForGeneration()`) denies. That keeps the SEO asset free. Test NC5 covers it.
+- **The uid header is read through `rateLimiter.cjs`'s exported `resolveCaller()`** (`:307`), not re-declared. The test reads `UID_HEADER` from the client source (`paidCallHeaders.ts:45`), so a client rename turns it red.
+
+### 2 — ★★ THE UID-HEADER CARVE-OUT, AND WHY
+**The spec's founding premise "no bearer token = anonymous" was FALSE, and pre-flight caught it.** `paidCallHeaders.ts:81` runs `current.getIdToken().catch(() => null)`: when the token fetch rejects, it drops `Authorization` but **still sends `X-Lazytopper-Uid`**. That request comes from a signed-in, possibly paying student whose token fetch failed. Denying it is the lockout this module exists to prevent, so it fails open under `no_uid`. A denial needs **no identity of any kind**, which is observed, not inferred.
+
+### 3 — ⚠⚠ WHAT THIS DOES NOT CLOSE — `[FU-UID-HEADER-TRUSTED-UNVERIFIED]`
+**A forged uid header, or any garbage `Authorization: Bearer x`, is still SERVED under `no_uid`.** That follows directly from §2's ruling, and it is the right trade while the client can drop its token. It means the paywall is closed against **accidental anonymity**, not against **deliberate bypass**. **AUTH-GATE-MOVE-1 must not assume the paywall is watertight.**
+
+**The real fix:** make the client retry `getIdToken()` instead of falling back to a bare uid header. Then the uid-header fail-open can be deleted and the gate becomes genuinely closed. Body in `OPEN_QUESTIONS_AND_FOLLOWUPS.md` 2026-09-15.
+
+### 4 — FOLLOW-UPS AND HANDOVERS (bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md` 2026-09-15)
+- **`[FU-WARMUP-UNAUTH-STEP-SOLUTION]`:** a server-launched job POSTs `/api/step-solution` with no identity. Its generation calls now get 402. Owner ruling: **retire it, no allowance**, in its own lane.
+- **`[FU-ENTITLEMENT-CHECKSOLUTION-COUNT-STALE]`:** `entitlement.cjs:465` says `checkSolution.test.cjs` has "64 tests"; it has **223**. It is fixed by the one-line product PR that follows this docs PR.
+- **`[FU-SOLUTIONCHECKER-FAILOPEN-COMMENTS-STALE]`, handover to AUTH-GATE-MOVE-1:** `SolutionChecker.tsx:139-152` and `:420-423` document the old server fail-open and are **stale from `355b1ccc`**.
+- **`[FU-ALLCHAPTERS-SELECTOR-QUOTE-STALE-ON-RESTYLE-2]`:** a flag only. Three handoff lines quote `nav[aria-labelledby="lt-et-all-title"]`, which RESTYLE-2 is replacing.
+- **`[FU-ENTITLEMENT-NO-CREDENTIAL-1-LIVE-VERIFY-OWED]`:** the owner's spec §6 checks.
+- **`[FU-GATE3-SIGNED-OUT-GRADING-FAILS-OPEN]`** gets a dated status line: the server half is closed.
+
+### 5 — EVIDENCE (HANDOFF-VERIFIED)
+- **Premise gate:** `node scripts/premise_ledger_check.mjs ops/.specs/ENTITLEMENT-NO-CREDENTIAL-1.md --worktree=. --strict-anchor` → `PASS (9 premises)`, `7/7 claim rows had their anchor RESOLVED · 0 UNCHECKED · 2 UNVERIFIED (open by design)`, exit 0.
+- **§3 spec correction (owner, not re-gated):** the handler suite is `lazytopper/server/routes/checkSolution.test.cjs`, not `server/services/`.
+- **Local gates:**
+  - `test:server:entitlement` **53/53, skipped 0** (10 new tests, including CONTROL 3: a real HTTP POST through `index.cjs`)
+  - `routes/checkSolution.test.cjs` **223/223, skipped 0**
+  - `verifiedCaller` 20/20
+  - `rateLimiter` 27/27
+  - both `tsc` configs
+  - build + `verify-production-build.mjs`
+  - `scope:guard --mode mixed` `inspected=2`
+  - mojibake
+  - root matrix **206 tests / 30 suites**
+  - lazytopper matrix 0 fail / 0 skipped
+- **CI job logs (quality-gate):** entitlement **53/53** and checkSolution **223/223**, 0 `not ok`, on head `7146ae79`. After `update-branch`, on head `83d91c86`: entitlement 53/53 again, 0 `not ok`.
+- **Mutation A** (anonymous path put back to fail-open): **44 pass / 9 fail**, including NC1 ×3, NC4 and CONTROL 3. Restored to the committed blob → 53/53.
+- **Mutation B** (uid-header branch removed): **51 pass / 2 fail** (NC2b, CONTROL 3). Restored → 53/53.
+- **Merge:** first `gh pr merge --squash` **refused** ("head branch is not up to date"). **No `--admin`.** `gh pr update-branch`, CI green again, then squash. Trunk blobs for both files equal the lane commit `7146ae79`.
+- **Byte-identical vs base:** `verifiedCaller.cjs`, `index.cjs`, `rateLimiter.cjs`, `server/routes/**`, `lazytopper/src/**`.
+- **Branch `lane/entitlement-no-credential-1` + its worktree:** deletion **owner-approved, to run after this docs PR AND the comment PR merge.** Not yet done at the time of writing.
+- Full report: `C:\Users\Chetan\OneDrive\Desktop\diff\report-entitlement-no-credential-1.md`.
+
+
+## [PREVIOUS · 2026-09-13 · SEO ARC] SEO-NOTES-AND-LINKS-1 — **THE NOTES GET A URL AND THE CHAPTERS GET LINKS: THREE CRAWL PATHS FROM THE PAGE GOOGLE ALREADY RENDERS, AND A 59-URL SITEMAP** — `#782` MERGED — trunk `8922195c`
 
 ### 0 — UPDATE 2026-09-14: THE CHAPTERS ARE INDEXED, AND THE LINKS DID IT — `[FU-CHAPTER-URLS-UNKNOWN-TO-GOOGLE]` CLOSED
 

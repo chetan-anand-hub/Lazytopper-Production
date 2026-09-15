@@ -1,5 +1,45 @@
 ---
 
+## 2026-09-15 — ENTITLEMENT-NO-CREDENTIAL-1 MERGED — **`#787`: AN ANONYMOUS CALLER IS NOT SERVED A PAID ROUTE; A FORGED UID HEADER STILL IS** — trunk `355b1ccc`
+
+★ **PROVENANCE.**
+- **HANDOFF-VERIFIED** by the `#787` lane: gates, mutation proofs, CI job-log counts, merge facts, file:lines at `355b1ccc`.
+- **OWNER-RULED 2026-09-15:** the rule revision, retire the warmup call, a separate comment PR, the SolutionChecker handover, `[FU-UID-HEADER-TRUSTED-UNVERIFIED]`.
+- **Not covered:** trunk also carries `#786` (SEO-ALLCHAPTERS-RESTYLE-1, `85ecc1d1`). **Its handoff is owed by its own lane; nothing here is written for it.** SEO-ALLCHAPTERS-RESTYLE-2 is in flight against the same file.
+
+**What landed.** `entitlement.cjs::resolve()` now **denies** (402 `premium_required`, outcome `anonymous`) a request with **no bearer token AND no `X-Lazytopper-Uid`**.
+- **Telemetry:** `entitlement.deny` + new **`entitlement.deny.anonymous`**, logged at info. **Never** `entitlement.fail_open`, so that counter again means "the paywall leaked".
+- **Unchanged:** an offered token that doesn't verify, firebase-admin missing, and a Firestore error all still fail open. `/api/step-solution` still serves stored steps to anyone; only generation denies.
+- **Retired:** `entitlement.fail_open.no_credential`, which became unreachable.
+- **Files:** exactly `entitlement.cjs` + `entitlement.test.cjs`. `src/`, `routes/`, `index.cjs`, `verifiedCaller.cjs` and `rateLimiter.cjs` are byte-identical.
+
+★★ **The session's finding: the spec's premise "no bearer token = anonymous" was false.** Pre-flight read the client helper, not just the server. `paidCallHeaders.ts:81` `getIdToken().catch(() => null)` **drops `Authorization` but keeps the uid header**, so a signed-in paying student whose token fetch failed sends exactly "no bearer token". Denying on that alone would have locked them out. **Owner revised the rule:** deny only when both are absent; uid-header-only fails open under `no_uid`.
+**Lesson:** a rule keyed on a header being ABSENT is only a positive fact if no client path silently omits that header. Read the failure branch of every helper that sets it.
+
+⚠⚠ **The price of that ruling, recorded so it is not lost:** a **forged** uid header is still served. The paywall is closed against accidental anonymity, not deliberate bypass. **AUTH-GATE-MOVE-1 must not assume it is watertight.** The real fix is a client `getIdToken()` retry, then deleting the uid-header branch. See `[FU-UID-HEADER-TRUSTED-UNVERIFIED]`.
+
+**Also found in pre-flight:**
+- An unauthenticated **server-launched** caller: the api-server's warmup job. See `[FU-WARMUP-UNAUTH-STEP-SOLUTION]`; retire it, no allowance.
+- The spec's §3 test path was wrong (`server/services/` → `server/routes/checkSolution.test.cjs`).
+- Its count, and the `entitlement.cjs:465` comment, say 64 where the real count is 223. See `[FU-ENTITLEMENT-CHECKSOLUTION-COUNT-STALE]`, fixed by a one-line product PR right after this docs PR, not bundled (`CLAUDE.md` §8).
+
+**Evidence:**
+- entitlement **53/53** (10 new, including a real HTTP 402 through `index.cjs`), checkSolution **223/223**, verifiedCaller 20/20, rateLimiter 27/27
+- both tsc, build + verifier, scope:guard `inspected=2`, mojibake, root matrix 206/30, lazytopper matrix 0 fail
+- CI job logs: entitlement 53/53 and checkSolution 223/223, 0 `not ok`
+- Mutation A (anonymous → fail-open): 44/9 red; Mutation B (drop the uid-header branch): 51/2 red. Both restored to the committed blob and green.
+
+**Merge:** the first `--squash` was refused (branch behind). **No `--admin`**: `update-branch`, CI green again, then squash.
+
+**Handovers:**
+- `SolutionChecker.tsx:139-152`/`:420-423` are stale from `355b1ccc` → AUTH-GATE-MOVE-1 (`[FU-SOLUTIONCHECKER-FAILOPEN-COMMENTS-STALE]`).
+- Three handoff lines quoting `nav[aria-labelledby="lt-et-all-title"]` are flagged for RESTYLE-2, not rewritten (`[FU-ALLCHAPTERS-SELECTOR-QUOTE-STALE-ON-RESTYLE-2]`).
+
+**Owed:** owner live-verify (`[FU-ENTITLEMENT-NO-CREDENTIAL-1-LIVE-VERIFY-OWED]`).
+**Housekeeping:** deleting `lane/entitlement-no-credential-1` and its worktree is owner-approved, to run **after** this docs PR and the comment PR merge. No repo-wide `git worktree prune`.
+
+---
+
 ## 2026-09-14 — FIRST INDEXING EVIDENCE: **A SCIENCE CHAPTER IS INDEXED VIA EXAM TRENDS' "ALL CHAPTERS" LIST — `[FU-CHAPTER-URLS-UNKNOWN-TO-GOOGLE]` CLOSED, `/browse` RULED OUT OF THE SITEMAP** — trunk `fe3bb61e`
 
 ★ **PROVENANCE.**
