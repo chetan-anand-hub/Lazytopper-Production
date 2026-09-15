@@ -461,10 +461,10 @@ function createEntitlementGate(deps = {}) {
   /**
    * The ROUTE-BOUNDARY gate. Call once per POST, before dispatch.
    *
-   * ★ WHY THE BOUNDARY AND NOT THE HANDLERS. `checkSolution.test.cjs` is 997 lines
-   * and 64 tests with 29 direct invocations of handleCheckSolution /
-   * gradeStructuredSet, none of which stubs a subscription document — an absent
-   * document is `free`, so a check INSIDE the handlers would turn all 64 red. The
+   * ★ WHY THE BOUNDARY AND NOT THE HANDLERS. `routes/checkSolution.test.cjs` is 223
+   * tests (2026-09-15, and growing), many invoking handleCheckSolution /
+   * handleGradeWorksheet directly, none of which stubs a subscription document — an absent
+   * document is `free`, so a check INSIDE the handlers would turn those tests red. The
    * handlers are reachable ONLY through the single dispatch in index.cjs
    * (verified: every other reference is the factory, a comment, or a test that
    * calls the handler directly and never traverses a route), so gating the
