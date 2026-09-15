@@ -1,5 +1,10 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-14 — first indexing evidence after `#782` (docs only), trunk `fe3bb61e`.**
+> **NO SURFACE CELL MOVES.** Nothing a student sees changed.
+> ⚠ **For anyone redesigning Exam Trends (a `Locked` surface):** its "All chapters" directory is now **evidenced as load-bearing for search**. It is the only cold-load path to any Science chapter, and a Science chapter (`life-processes`) was indexed via it. Removing, hiding or lazy-mounting it is a regression even if every visual cell stays ✅. See `OPEN_QUESTIONS_AND_FOLLOWUPS.md` 2026-09-14.
+> **Scope: UNCHANGED on every surface; nothing goes to §2a or `DECISION_LOG.md`.**
+
 > **2026-09-13 — SEO-NOTES-AND-LINKS-1 (`#782`, `8922195c`), trunk `8922195c`.**
 > **NO SURFACE CELL MOVES. Checked row by row against what a student sees.**
 > - **Topic Hub:** the Notes control is now an `<a href>`, but a plain click still opens the same popup. The same `<Note>` is now also reachable at `/app/notes/<slug>` (new tab, search arrival). That is a second **address** for an already-✅ Notes surface, not a new surface: same component, same content.

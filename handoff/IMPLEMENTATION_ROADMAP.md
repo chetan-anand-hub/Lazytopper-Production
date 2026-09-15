@@ -1,6 +1,19 @@
 # LazyTopper Implementation Roadmap
 
 
+## 2026-09-14 — SEO ARC: **DISCOVERY CLOSED — CHAPTER PAGES INDEXED THROUGH IN-PRODUCT LINKS** — docs only — trunk `fe3bb61e`
+
+- ✅ **`[FU-CHAPTER-URLS-UNKNOWN-TO-GOOGLE]` CLOSED.**
+  - `/app/topic-hub/life-processes` is indexed with referring page `/app/exam-trends` and no referring sitemap (Search Console, 2026-09-14, OWNER-REPORTED).
+  - `trigonometry`, `polynomials` and `light-reflection-and-refraction` are also indexed.
+- ★★★ **Load-bearing, now evidenced:** Exam Trends' "All chapters" list is the only cold-load path to any Science chapter. The ranked rows show 5 Maths chapters only (`ExamTrendsRanked.tsx:1279` default subject, `:1246` unmount). The reasoning is in `OPEN_QUESTIONS_AND_FOLLOWUPS.md` 2026-09-14.
+- ✅ **`[FU-BROWSE-SITEMAP-RULING-OWED]` RULED:** `/browse` stays out.
+- 🧹 **Branches deleted:** `lane/seo-notes-and-links-1`, `docs/post-pr-782-seo-notes-and-links`, `lane/engine-1-ten-pages`.
+- ⚠ **Still open:**
+  - `[FU-SEO-NOTES-AND-LINKS-1-LIVE-VERIFY-OWED]` (notes indexing is not yet evidenced)
+  - `[FU-PREMISE-ANCHOR-MULTI-MATCH-SILENT]`
+
+
 ## 2026-09-13 — SEO-NOTES-AND-LINKS-1: **NOTES ON THEIR OWN URL, CRAWLABLE LINKS TO EVERY CHAPTER, SITEMAP 59** — `#782` MERGED — trunk `8922195c`
 
 **`2026-09-13`** *(merge facts, gates and acceptance HANDOFF-VERIFIED; Google's 59-discovered OWNER-REPORTED; scope OWNER-RULED — see `CURRENT_STATE.md` provenance)*
