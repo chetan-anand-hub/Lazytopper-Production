@@ -2,6 +2,28 @@
 
 ## [CURRENT · SEO ARC] SEO-NOTES-AND-LINKS-1 — **THE NOTES GET A URL AND THE CHAPTERS GET LINKS: THREE CRAWL PATHS FROM THE PAGE GOOGLE ALREADY RENDERS, AND A 59-URL SITEMAP** — `#782` MERGED — trunk `8922195c`
 
+### 0 — UPDATE 2026-09-14: THE CHAPTERS ARE INDEXED, AND THE LINKS DID IT — `[FU-CHAPTER-URLS-UNKNOWN-TO-GOOGLE]` CLOSED
+
+★ **PROVENANCE.**
+- **OWNER-REPORTED (Search Console, 2026-09-14):** `/app/topic-hub/life-processes` "Page is indexed", Referring page `https://www.lazytopper.com/app/exam-trends`, "Sitemaps: No referring sitemaps detected", crawled as Googlebot smartphone. `trigonometry`, `polynomials` and `light-reflection-and-refraction` are also indexed.
+- **HANDOFF-VERIFIED (2026-09-15):**
+  - The chapter registry on trunk `fe3bb61e`: 26 chapters = **13 Maths + 13 Science**.
+  - A Playwright cold load of **production** `https://www.lazytopper.com/app/exam-trends`, no session, at 1440 and 390.
+- **OWNER-RULED (2026-09-14):** `[FU-BROWSE-SITEMAP-RULING-OWED]`; branch deletions.
+
+★★★ **THE "ALL CHAPTERS" LIST IS PROVABLY WHAT GOT A SCIENCE CHAPTER INDEXED. The reasoning, not just the mutation count:**
+1. **Google's referring page for `/app/topic-hub/life-processes` is `/app/exam-trends`,** with no referring sitemap and a smartphone crawl (OWNER-REPORTED). The link was followed from that page.
+2. **Life Processes is a Science chapter.** Exam Trends defaults the subject to **Maths** (`ExamTrendsRanked.tsx:1279`), and bands render as `{open && …}` (`:1246`), so collapsed bands are **unmounted** and only `must-crack` starts open. On a cold load the ranked rows contain **no Science chapter at all**.
+3. **Measured on production, cold, no session, both widths (HANDOFF-VERIFIED):** the only topic-hub links outside the list are **5 Maths chapters** (`trigonometry`, `triangles`, `surface-areas-and-volumes`, `polynomials`, `circles`). The string `life-processes` occurs **exactly once** in the rendered page HTML, inside `nav[aria-labelledby="lt-et-all-title"]`.
+4. **So the only place a crawler could have found that URL on `/app/exam-trends` is the flat list.** The same holds for `light-reflection-and-refraction`, also Science and also indexed. (`trigonometry` and `polynomials` are among the 5 Maths band rows, so their indexing cannot be attributed to the list alone.)
+5. **Consequence:** removing or hiding the list, or letting it drift out of the cold-load DOM, cuts the in-product crawl path to **all 13 Science chapters** and 8 of 13 Maths chapters. The mutation count (5 without the list vs 26 with it) is the unit-test shadow of this; the indexing is the real evidence.
+
+(Correction to the owner's phrasing on the same day: **13** Science chapters, not 12. Registry count on trunk.)
+
+**Also ruled:** `/app/browse` stays out of the sitemap (`[FU-BROWSE-SITEMAP-RULING-OWED]` RULED).
+**Branches deleted:** `lane/seo-notes-and-links-1`, `docs/post-pr-782-seo-notes-and-links`, `lane/engine-1-ten-pages` (`4a963a10`).
+
+
 ★ **PROVENANCE.**
 - **HANDOFF-VERIFIED** by the lane that built `#782`, in its own worktrees: git facts, gates, mutation proofs, both preview acceptance runs, the `/browse` anchor count, and the curl of served heads.
 - **OWNER-REPORTED:** Google Search Console shows **59 URLs discovered** from the sitemap on 2026-09-13. Discovered is not indexed.
