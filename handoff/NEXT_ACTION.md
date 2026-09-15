@@ -1,4 +1,22 @@
 ```
+⛔ THIS BANNER SUPERSEDES THE ONES BELOW IT ON TRUNK AND ON THE EXAM TRENDS DIRECTORY.
+   IT DOES NOT SUPERSEDE THE #787 BANNER ON THE PAID-ROUTE GATE — ITS NEXT LIST STILL STANDS.
+
+TRUNK IS `60c1ed210da24f0984f62f583ddcbd40327227a9`, MEASURED 2026-09-15.
+   60c1ed21 = #789 SEO-ALLCHAPTERS-RESTYLE-2.   85ecc1d1 = #786 RESTYLE-1 (handoff now written).
+
+✅ /app/exam-trends "All chapters": muted-grey links (green on hover/focus), 11px, no visible
+   title. 26 links, all visible, links+labels 5.53:1 (1440) / 5.31:1 (390).
+★★ QUERY IT AS nav[aria-label="All chapters"]. nav[aria-labelledby="lt-et-all-title"] IS GONE.
+★★ 11px IS A FLOOR. RECEDING IS ALLOWED; HIDING IS NOT — this block is the only cold-load path
+   to any Science chapter, and a Science chapter was indexed through it.
+
+NEXT (in addition to the #787 banner's list, whose item 5 is now DONE):
+   1. Owner live-verify: directory reads as a quiet footer; hover turns a chapter green +
+      underlined; all 26 legible. [FU-SEO-ALLCHAPTERS-RESTYLE-2-LIVE-VERIFY-OWED]
+```
+
+```
 ⛔ THIS BANNER SUPERSEDES THE ONES BELOW IT ON TRUNK AND ON THE PAID-ROUTE GATE.
    IT DOES NOT SUPERSEDE THEM ON THE SEO ARC.
 

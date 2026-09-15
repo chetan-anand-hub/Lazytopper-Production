@@ -20,6 +20,20 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ---
 
+
+## 2026-09-15 — SEO-ALLCHAPTERS-RESTYLE-1 + -2 (`#786` + `#789`, trunk `60c1ed21`)
+
+### `[FU-ALLCHAPTERS-SELECTOR-QUOTE-STALE-ON-RESTYLE-2]` — **CLOSED 2026-09-15** by the RESTYLE-2 handoff
+- `#789` replaced `aria-labelledby="lt-et-all-title"` with `aria-label="All chapters"`; the `<h2>` and `id` no longer exist.
+- The three dated lines (`CURRENT_STATE.md`, `OPEN_QUESTIONS_AND_FOLLOWUPS.md`, `SESSION_LOG.md`, found with `grep -nE '^3[.] [*][*]Measured on production' handoff/*.md`) keep their original text under board rule 3. Each now ends with an inline pointer to the correction, as the owner ruled.
+- Their `ExamTrendsRanked.tsx:1279` / `:1246` citations were already stale at `85ecc1d1`. At `60c1ed21`: `:1362` default subject, `:1301` band unmount.
+- The original flag entry below is left as written (rule 3).
+
+### `[FU-SEO-ALLCHAPTERS-RESTYLE-2-LIVE-VERIFY-OWED]` — OPEN, owner only (spec §6)
+1. Open `/app/exam-trends`: the directory reads as a quiet footer, and the three ranked bands are what the page is about.
+2. Hover a chapter name: it turns green and underlines.
+3. All 26 chapters are present and legible without squinting. If not, another pass is cheap.
+
 ## 2026-09-15 — ENTITLEMENT-NO-CREDENTIAL-1 (`#787` MERGED as `355b1ccc`, squash, self-merged by the lane; docs-only; open PRs at the time of writing: `#784` dependabot only) — six new follow-ups, one status line
 
 ★ **PROVENANCE.**
@@ -124,7 +138,7 @@ The close condition set on 2026-09-13 was "Search Console showing these URLs **c
 ★★★ **THE "ALL CHAPTERS" LIST IS PROVABLY WHAT GOT A SCIENCE CHAPTER INDEXED. The reasoning, not just the mutation count:**
 1. **Google's referring page for `/app/topic-hub/life-processes` is `/app/exam-trends`,** with no referring sitemap and a smartphone crawl (OWNER-REPORTED). The link was followed from that page.
 2. **Life Processes is a Science chapter.** Exam Trends defaults the subject to **Maths** (`ExamTrendsRanked.tsx:1279`), and bands render as `{open && …}` (`:1246`), so collapsed bands are **unmounted** and only `must-crack` starts open. On a cold load the ranked rows contain **no Science chapter at all**.
-3. **Measured on production, cold, no session, both widths (HANDOFF-VERIFIED):** the only topic-hub links outside the list are **5 Maths chapters** (`trigonometry`, `triangles`, `surface-areas-and-volumes`, `polynomials`, `circles`). The string `life-processes` occurs **exactly once** in the rendered page HTML, inside `nav[aria-labelledby="lt-et-all-title"]`.
+3. **Measured on production, cold, no session, both widths (HANDOFF-VERIFIED):** the only topic-hub links outside the list are **5 Maths chapters** (`trigonometry`, `triangles`, `surface-areas-and-volumes`, `polynomials`, `circles`). The string `life-processes` occurs **exactly once** in the rendered page HTML, inside `nav[aria-labelledby="lt-et-all-title"]`. _(⚠ Selector superseded 2026-09-15 by `#789`: now `nav[aria-label="All chapters"]` — see the 2026-09-15 SEO-ALLCHAPTERS-RESTYLE section.)_
 4. **So the only place a crawler could have found that URL on `/app/exam-trends` is the flat list.** The same holds for `light-reflection-and-refraction`, also Science and also indexed. (`trigonometry` and `polynomials` are among the 5 Maths band rows, so their indexing cannot be attributed to the list alone.)
 5. **Consequence:** removing or hiding the list, or letting it drift out of the cold-load DOM, cuts the in-product crawl path to **all 13 Science chapters** and 8 of 13 Maths chapters. The mutation count (5 without the list vs 26 with it) is the unit-test shadow of this; the indexing is the real evidence.
 
