@@ -1,5 +1,11 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-15 — SEO: **SEO-ALLCHAPTERS-RESTYLE-1 + -2 — the Exam Trends chapter directory recedes, stays visible** — `#786` + `#789` MERGED — trunk `60c1ed21`
+
+- ✅ **RESTYLE-1 (`#786`)**: card → footer; AA fixes links 4.28 → 5.07, labels 3.62 → 5.53.
+- ✅ **RESTYLE-2 (`#789`)**: grey links / green on hover, 11px floor, `aria-label` replaces the visible title. All 26 links visible, 5.53:1 / 5.31:1.
+- ⏳ Owner live-verify owed (`[FU-SEO-ALLCHAPTERS-RESTYLE-2-LIVE-VERIFY-OWED]`).
+
 
 ## 2026-09-15 — SECURITY: **ENTITLEMENT-NO-CREDENTIAL-1 — AN ANONYMOUS CALLER IS NOT SERVED A PAID ROUTE** — `#787` MERGED — trunk `355b1ccc`
 

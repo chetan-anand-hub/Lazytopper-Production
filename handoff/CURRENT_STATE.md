@@ -1,6 +1,48 @@
 # LazyTopper — Current State
 
-## [CURRENT · SECURITY] ENTITLEMENT-NO-CREDENTIAL-1 — **A REQUEST WITH NO CALLER IDENTITY IS NO LONGER SERVED A PAID ROUTE — BUT THE PAYWALL IS CLOSED AGAINST ACCIDENTAL ANONYMITY, NOT AGAINST DELIBERATE BYPASS** — `#787` MERGED — trunk `355b1ccc`
+## [CURRENT · SEO] SEO-ALLCHAPTERS-RESTYLE-1 + -2 — **THE CHAPTER DIRECTORY RECEDES (GREY, 11px FLOOR, NO VISIBLE TITLE) BUT STAYS VISIBLE, AA, AND NAMED** — `#786` + `#789` MERGED — trunk `60c1ed21`
+
+★ **PROVENANCE.**
+- **HANDOFF-VERIFIED** by the SEO-ALLCHAPTERS-RESTYLE-2 lane, which built `#789` and is the only seat that verified `#786`:
+  - `#789`: premise gate exit 0, tsc (app + test), `vitest run src/pages` **37 files / 501 tests passed**, build + `verify-production-build`, mojibake, `scope:guard --mode mixed`, CI all green on head `3edd5f39`. §4 acceptance run in a fresh Playwright context against the Vercel preview of `3edd5f39` **and** production, 1440 + 390, every control shown.
+  - `#786`: its diff read at `85ecc1d1`; its before/after contrast **re-derived from source** (parent `85ecc1d1^` vs `85ecc1d1`) and its after-values **measured on production** by this lane's control run.
+- **OWNER-RULED (2026-09-15):** grey links / green on hover, 11px as a floor, `aria-label` replaces the visible title; this lane writes `#786`'s owed handoff; fix the three stale selector lines.
+- **NOT YET VERIFIED:** owner live-verify (spec §6), `[FU-SEO-ALLCHAPTERS-RESTYLE-2-LIVE-VERIFY-OWED]`.
+
+**Trunk `60c1ed210da24f0984f62f583ddcbd40327227a9`** (`#789` squash), re-derived with `git ls-remote`. Before it: `355b1ccc` = `#787`; `85ecc1d1` = **`#786`**. Each changed one file: `lazytopper/src/pages/ExamTrendsRanked.tsx`.
+
+### `#786` SEO-ALLCHAPTERS-RESTYLE-1 (`85ecc1d1`) — the directory stops being a fourth card
+- The "All chapters" block lost its card background and became a page footer: hairline `border-top`, 40px above.
+- ★ **Two AA contrast failures fixed** (the block sat on the white card before `#786`):
+  - **links** `hsl(152,60%,34%)` on `#ffffff` = **4.28:1 → `hsl(152,60%,30%)` = 5.07:1** on the page ground `rgb(248,250,252)`
+  - **subject labels** `--tert` `hsl(220,14%,55%)` on `#ffffff` = **3.62:1 → `--muted` = 5.53:1**
+  - The "before" ratios are **re-derived from the parent source**, not measured on a pre-`#786` production page. The "after" ratios were **measured on production** at 1440 by this lane (at 390 the ground is `rgb(245,245,247)`: links 4.87, labels 5.31, both still ≥ 4.5).
+- Type: title 13 → 11.5px, labels 11.5 → 10.5px, links 12.5 → 12px.
+
+### `#789` SEO-ALLCHAPTERS-RESTYLE-2 (`60c1ed21`) — quieter still, no visible title
+- **Links rest in `var(--muted)`**; brand green `hsl(152,60%,30%)` + underline only on `:hover` / `:focus-visible`.
+- **Links 12 → 11px, subject labels 10.5 → 11px. 11px is a FLOOR** (smallest legible at AA, not smallest possible). A dense tiny-type link block is a spam pattern, and this block is what got Science chapters indexed.
+- **Visible `<h2>All chapters</h2>` removed. The `<nav>` is now named by `aria-label="All chapters"`** (`ExamTrendsRanked.tsx:1337`). `.lt-et-all-title` and the `id` are gone.
+  - ⚠ Two tests find the block by that name, not one: `ExamTrendsRanked.test.tsx:254` and `:297`. Removing the `aria-label` turns **both** red (control run, restored byte-identical, 16/16 green).
+- **Measured on the preview of `3edd5f39`, 1440 / 390:**
+  - 26 unique `/app/topic-hub/` anchors at both widths (production: 26 / 26).
+  - All 26 rendered: non-zero box, not `display:none`/`hidden`, opacity > 0, `font-size` 11px. **Control:** injecting `.lt-et-all{display:none}` → **0 of 26**; removed → 26 of 26, nav `outerHTML` identical.
+  - Contrast at rest: links and labels `rgb(91,102,123)` → **5.53:1** (1440) / **5.31:1** (390).
+  - Accessible name: `getByRole("navigation",{name:"All chapters"})` = 1; aria-label removed → 0; restored → 1.
+  - Hover: `rgb(91,102,123)` → `rgb(31,122,80)`. **Control:** on production the link is green at rest and on hover, and the same check FAILS there.
+  - Band headings, open/closed state (Must-crack open), subject toggle (Maths selected): identical to production.
+  - Four full-page screenshots, four distinct SHA-256s, directory inside each image. ⚠ At 1440 the page scrolls inside `<main>`, so a plain `fullPage` capture starts mid-band. The lane grew the viewport by `<main>`'s overflow to capture the whole page.
+
+### Correction — the selector the older records quote (`[FU-ALLCHAPTERS-SELECTOR-QUOTE-STALE-ON-RESTYLE-2]` CLOSED)
+- From `60c1ed21` **`nav[aria-labelledby="lt-et-all-title"]` matches nothing.** Query the block as **`nav[aria-label="All chapters"]`**, or `getByRole("navigation", { name: "All chapters" })`.
+- The three dated lines (`grep -nE '^3[.] [*][*]Measured on production' handoff/*.md`) are kept as written, since they were true on their date (board rule 3). Each now ends with an inline pointer to this correction, so a seat copying the selector sees it first.
+- ⚠ The same entries cite `ExamTrendsRanked.tsx:1279` (default subject) and `:1246` (band unmount). Those numbers were already stale at `85ecc1d1`. At `60c1ed21` the facts live at **`:1362`** (`useState<DesktopSubject>("Maths")`) and **`:1301`** (`{open && (`).
+
+### Follow-ups
+- **`[FU-ALLCHAPTERS-SELECTOR-QUOTE-STALE-ON-RESTYLE-2]`: CLOSED** (above).
+- **`[FU-SEO-ALLCHAPTERS-RESTYLE-2-LIVE-VERIFY-OWED]`: OPEN**, owner only.
+
+## [PREVIOUS · SECURITY] ENTITLEMENT-NO-CREDENTIAL-1 — **A REQUEST WITH NO CALLER IDENTITY IS NO LONGER SERVED A PAID ROUTE — BUT THE PAYWALL IS CLOSED AGAINST ACCIDENTAL ANONYMITY, NOT AGAINST DELIBERATE BYPASS** — `#787` MERGED — trunk `355b1ccc`
 
 ★ **PROVENANCE.**
 - **HANDOFF-VERIFIED** by the lane that built `#787`, in its own worktrees: premise gate, gates, both mutation proofs, the CI job logs (counts read, not ticks), merge facts, and every file:line below, re-read at trunk `355b1ccc`.
@@ -83,7 +125,7 @@
 ★★★ **THE "ALL CHAPTERS" LIST IS PROVABLY WHAT GOT A SCIENCE CHAPTER INDEXED. The reasoning, not just the mutation count:**
 1. **Google's referring page for `/app/topic-hub/life-processes` is `/app/exam-trends`,** with no referring sitemap and a smartphone crawl (OWNER-REPORTED). The link was followed from that page.
 2. **Life Processes is a Science chapter.** Exam Trends defaults the subject to **Maths** (`ExamTrendsRanked.tsx:1279`), and bands render as `{open && …}` (`:1246`), so collapsed bands are **unmounted** and only `must-crack` starts open. On a cold load the ranked rows contain **no Science chapter at all**.
-3. **Measured on production, cold, no session, both widths (HANDOFF-VERIFIED):** the only topic-hub links outside the list are **5 Maths chapters** (`trigonometry`, `triangles`, `surface-areas-and-volumes`, `polynomials`, `circles`). The string `life-processes` occurs **exactly once** in the rendered page HTML, inside `nav[aria-labelledby="lt-et-all-title"]`.
+3. **Measured on production, cold, no session, both widths (HANDOFF-VERIFIED):** the only topic-hub links outside the list are **5 Maths chapters** (`trigonometry`, `triangles`, `surface-areas-and-volumes`, `polynomials`, `circles`). The string `life-processes` occurs **exactly once** in the rendered page HTML, inside `nav[aria-labelledby="lt-et-all-title"]`. _(⚠ Selector superseded 2026-09-15 by `#789`: now `nav[aria-label="All chapters"]` — see the 2026-09-15 SEO-ALLCHAPTERS-RESTYLE section.)_
 4. **So the only place a crawler could have found that URL on `/app/exam-trends` is the flat list.** The same holds for `light-reflection-and-refraction`, also Science and also indexed. (`trigonometry` and `polynomials` are among the 5 Maths band rows, so their indexing cannot be attributed to the list alone.)
 5. **Consequence:** removing or hiding the list, or letting it drift out of the cold-load DOM, cuts the in-product crawl path to **all 13 Science chapters** and 8 of 13 Maths chapters. The mutation count (5 without the list vs 26 with it) is the unit-test shadow of this; the indexing is the real evidence.
 
