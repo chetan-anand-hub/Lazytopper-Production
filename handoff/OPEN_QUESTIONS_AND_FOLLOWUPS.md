@@ -20,6 +20,52 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ---
 
+## 2026-09-14 — FIRST INDEXING EVIDENCE after `#782` (docs-only; trunk `fe3bb61e`; open PRs at the time of writing: `#784` dependabot only) — one FU CLOSED, one FU RULED, no new follow-ups
+
+★ **PROVENANCE.**
+- **OWNER-REPORTED (Search Console, 2026-09-14):** `/app/topic-hub/life-processes` "Page is indexed", Referring page `https://www.lazytopper.com/app/exam-trends`, "Sitemaps: No referring sitemaps detected", crawled as Googlebot smartphone. `trigonometry`, `polynomials` and `light-reflection-and-refraction` are also indexed.
+- **HANDOFF-VERIFIED (2026-09-15):**
+  - The chapter registry on trunk `fe3bb61e`: 26 chapters = **13 Maths + 13 Science**.
+  - A Playwright cold load of **production** `https://www.lazytopper.com/app/exam-trends`, no session, at 1440 and 390.
+- **OWNER-RULED (2026-09-14):** `[FU-BROWSE-SITEMAP-RULING-OWED]`; branch deletions.
+
+The two status lines below are dated additions **in this section**; the original bodies (2026-09-13 and earlier) stand as written (board rule 3).
+
+### `[FU-CHAPTER-URLS-UNKNOWN-TO-GOOGLE]` — status line 2026-09-14: **CLOSED — the links did this, not the sitemap**
+The close condition set on 2026-09-13 was "Search Console showing these URLs **crawled**, with a non-empty Referring page". Met, and exceeded:
+- **`/app/topic-hub/life-processes`: Page is indexed.** Referring page `/app/exam-trends`; "No referring sitemaps detected"; Googlebot smartphone.
+- `trigonometry`, `polynomials` and `light-reflection-and-refraction` are also indexed.
+- **Attribution: in-product links, not the sitemap.** Search Console names a referring page and no referring sitemap.
+
+★★★ **THE "ALL CHAPTERS" LIST IS PROVABLY WHAT GOT A SCIENCE CHAPTER INDEXED. The reasoning, not just the mutation count:**
+1. **Google's referring page for `/app/topic-hub/life-processes` is `/app/exam-trends`,** with no referring sitemap and a smartphone crawl (OWNER-REPORTED). The link was followed from that page.
+2. **Life Processes is a Science chapter.** Exam Trends defaults the subject to **Maths** (`ExamTrendsRanked.tsx:1279`), and bands render as `{open && …}` (`:1246`), so collapsed bands are **unmounted** and only `must-crack` starts open. On a cold load the ranked rows contain **no Science chapter at all**.
+3. **Measured on production, cold, no session, both widths (HANDOFF-VERIFIED):** the only topic-hub links outside the list are **5 Maths chapters** (`trigonometry`, `triangles`, `surface-areas-and-volumes`, `polynomials`, `circles`). The string `life-processes` occurs **exactly once** in the rendered page HTML, inside `nav[aria-labelledby="lt-et-all-title"]`.
+4. **So the only place a crawler could have found that URL on `/app/exam-trends` is the flat list.** The same holds for `light-reflection-and-refraction`, also Science and also indexed. (`trigonometry` and `polynomials` are among the 5 Maths band rows, so their indexing cannot be attributed to the list alone.)
+5. **Consequence:** removing or hiding the list, or letting it drift out of the cold-load DOM, cuts the in-product crawl path to **all 13 Science chapters** and 8 of 13 Maths chapters. The mutation count (5 without the list vs 26 with it) is the unit-test shadow of this; the indexing is the real evidence.
+
+(Correction to the owner's phrasing on the same day: **13** Science chapters, not 12. Registry count on trunk.)
+
+### `[FU-BROWSE-SITEMAP-RULING-OWED]` — status line 2026-09-14: **RULED — `/app/browse` stays OUT of the sitemap**
+**Owner ruling.** `/browse` is a signed-out variant of the home page with no unique content. Advertising it would compete with `/app/` for the same canonical.
+
+**The record:**
+- Its absence from `SELF_CANONICAL_EXACT` is **deliberate**. Do not add it.
+- **No follow-up on Explore.** The 2026-09-13 measurement settles it: `/app/browse` has one real `<a href>` to `/app/exam-trends` at both widths, so a crawler following Explore reaches the 26 chapters in two hops.
+- Not tracing which component renders that link is the agreed stopping point.
+
+### Branch housekeeping — 2026-09-14/15 (owner-approved)
+**Deleted, local and remote:**
+- `lane/seo-notes-and-links-1` (was `815bbbc1`, merged as `#782`)
+- `docs/post-pr-782-seo-notes-and-links` (was `1be3c507`, merged as `#783`)
+- **`lane/engine-1-ten-pages`** (was **`4a963a10`**, PR `#723` CLOSED unmerged)
+
+**Why engine-1 went.** It was the retired `/questions/**` arc: those URLs now 404, and it had been carried as "should be closed" across four handoffs. It is recoverable by SHA while GitHub retains it.
+
+**Worktrees** `seo-notes-and-links-1`, `docs-post-782` and `engine-1` were de-registered.
+
+---
+
 ## 2026-09-13 — SEO-NOTES-AND-LINKS-1 (`#782` MERGED as `8922195c`, squash, self-merged by the lane; open PRs at the time of writing: none) — three new follow-ups, one status line
 
 ★ **PROVENANCE.**

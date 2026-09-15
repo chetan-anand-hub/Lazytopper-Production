@@ -1,4 +1,32 @@
 ```
+⛔ THIS BANNER SUPERSEDES THE ONE BELOW IT ON DISCOVERY AND ON /browse.
+
+TRUNK IS `fe3bb61e46dc7a07ca8010d861005675edfa9404`, MEASURED 2026-09-15.
+
+✅ [FU-CHAPTER-URLS-UNKNOWN-TO-GOOGLE] IS CLOSED (Search Console, 2026-09-14, OWNER-REPORTED).
+   /app/topic-hub/life-processes: INDEXED · Referring page /app/exam-trends ·
+   NO referring sitemap · Googlebot smartphone. Also indexed: trigonometry, polynomials,
+   light-reflection-and-refraction. THE LINKS DID THIS, NOT THE SITEMAP.
+
+★★★ THE "ALL CHAPTERS" LIST ON EXAM TRENDS IS PROVABLY LOAD-BEARING.
+   Life Processes is SCIENCE. A cold load defaults to Maths and UNMOUNTS collapsed bands
+   (ExamTrendsRanked.tsx:1279, :1246). Measured on production: the only topic-hub links
+   outside the list are 5 MATHS chapters, and "life-processes" appears ONCE in the page —
+   inside the list. So the list is what got a Science chapter indexed.
+   Remove, hide, or lazy-mount it and all 13 SCIENCE chapters lose their crawl path.
+
+✅ /browse STAYS OUT OF THE SITEMAP (owner ruling) — no unique content; it would compete
+   with /app/ for the same canonical. No follow-up on Explore.
+
+NEXT:
+   1. Owner §6 live-verify remainder for #782 (sitemap resubmit + Request Indexing on the
+      best notes URLs). [FU-SEO-NOTES-AND-LINKS-1-LIVE-VERIFY-OWED]
+   2. Method fix to the premise checker — warn/fail on an anchor matching >1 line, with a
+      failing fixture spec. [FU-PREMISE-ANCHOR-MULTI-MATCH-SILENT]
+   3. Watch /app/notes/* in Search Console: discovered → indexed, with its referring page.
+```
+
+```
 ⛔ THIS BANNER SUPERSEDES THE BANNERS BELOW IT ON TRUNK, THE SITEMAP COUNT AND DISCOVERY.
 
 TRUNK IS `8922195cdfbef4e4ad46cd121267347df08c73cd` (#782), MEASURED 2026-09-13.
