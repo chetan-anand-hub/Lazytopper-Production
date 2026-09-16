@@ -1,5 +1,42 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-16 — AUTH-GATE-MOVE-1 (`#793`, `5c5fc57b`), trunk `5c5fc57b`.**
+> ★★ **FOUR CELLS MOVE, AND THEY MOVE ON AN AXIS THIS BOARD HAS NEVER TRACKED: REACHABILITY WHILE SIGNED OUT.**
+> The 2026-09-16 `#787` note below predicted exactly this and asked for it: *"removing that redirect makes Practice a signed-out-reachable surface for the first time. Its cells were only ever assessed signed in."* That is now true of four surfaces, not one.
+> **OWNER-VERIFIED LIVE on production 2026-09-16** (both tiers). Cells move on live evidence, not code evidence.
+
+### ✅ CELL 1 — QUICK PRACTICE — **SIGNED-IN-ONLY → REACHABLE SIGNED OUT**
+- `PracticeLimitGate` no longer redirects a visitor with no user to `/login`. A signed-out student reaches the set-picker, builds a set, answers questions, and reveals stored step-marked solutions.
+- ★ **The 10/day limit that gate appeared to enforce was DEAD CODE** — `recordQuestionAnswered` has zero call sites. Nothing was being limited before, so nothing was lost.
+- **Grading is the boundary:** a signed-out student meets "Sign in to check your answer", and at session end "Sign in to check your answers", with **no paid call made**.
+
+### ✅ CELL 2 — PREDICTED QUESTIONS (`/highly-probable`) — **PREMIUM-ONLY → OPEN TO EVERYONE**
+- Both routes lost `RequirePremium`. Questions and stored solutions render for anyone, signed in or not. **Confirmed on production post-merge** (5048 chars, no premium block, where it previously redirected to `/login`).
+- Grading stays gated inside `SolutionChecker`, which this page mounts — so the content opened without the spend opening.
+
+### ✅ CELL 3 — WORKSHEET BUILDER — **PREMIUM-ONLY PAGE → FREE TO BUILD AND FREE TO DOWNLOAD**
+- The gate moved off the whole component and onto `WorksheetGradePanel`, the only control that reaches `/api/grade-worksheet`.
+- ★ **Both PDF downloads are free and structurally cannot be re-gated by accident** — they sit above the wrapper, and a guard test asserts that ordering.
+- ⚠ The premise that justified the old wall — "worksheet generation reaches `/api/grade-worksheet`" — was **false**; the file imports no AI client.
+
+### ✅ CELL 4 — CHAPTER TEST / FULL MOCK (view) — **1 PER WEEK → 1/DAY ANONYMOUS, 3/DAY SIGNED-IN FREE**
+- **OWNER-VERIFIED LIVE, both tiers, 2026-09-16.** Anonymous: paper 1 opens, paper 2 walls. Signed-in free: papers 1–3 open, the 4th walls with "Free accounts open 3 papers a day".
+- The route comment claimed 1/day while the constant enforced 1/**week**; code and comment now agree.
+- ★ **Crawler safety is pinned both ways** and is why the chapter pages are indexed: a fresh context (no `localStorage`, i.e. Googlebot) **always** renders, AND the limit **does** fire once the allowance is spent in that same context.
+- ★ A **trial-expired** student is now counted as signed-in free (3/day) rather than walled at zero — owner-ratified; see `OPEN_QUESTIONS_AND_FOLLOWUPS.md` 2026-09-16.
+
+### ⬜ NO OTHER CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- **Tutor, Check & Improve, Weak Area Practice, Exam Simulation, Chapter Hub:** unchanged. Their `RequirePremium` wrappers are untouched — verified twice, in source (6 wrappers, 6 closers) and in the **shipped bundle** (`featureLabel` census across every emitted chunk).
+- **The grader, Mistake Intelligence, the graded answer sheet, `/me`:** untouched.
+- **Nothing became newly premium-only.** No surface lost anything.
+
+### ⚠ §2a — SCOPE DISCOVERED THIS LANE *(logged in `DECISION_LOG.md`, per `CLAUDE.md` §10)*
+1. ★★ **THIS BOARD HAS NO SIGNED-OUT AXIS.** Every cell was assessed signed in, because until `5c5fc57b` that was the only way to reach any of these surfaces. Four surfaces now have **two** states worth tracking — signed-out and signed-in — and they can differ. **Scope: Settling** on Quick Practice, Predicted Questions, Worksheet builder, and Chapter Test / Full Mock until the board decides whether to split the axis or annotate per cell.
+2. ⚠ **SEO CONSEQUENCE, UNMEASURED.** Three surfaces that returned a login redirect to a crawler now return real content. That is the outcome the lane wanted, but **no indexing measurement has been taken** — `#782`'s indexing evidence predates this change entirely. Nobody should claim an SEO result from this lane yet.
+3. ⚠ **`PracticeLimitGate` is now a provider with no limit.** Its counter is dead, its redirect is gone, and it exists to satisfy `App.tsx:1020` and the routing contract test. Whoever revisits practice limits should decide whether to wire the counter or delete the gate — not assume it is doing something.
+> **Scope: SETTLING on the four surfaces above; UNCHANGED everywhere else.**
+
+
 > **2026-09-16 — `#787` §6 live-verify result (docs only), trunk `b145c2e0`.**
 > **NO SURFACE CELL MOVES.** Nothing a student sees changed; the two checks that ran confirm existing behaviour (premium grades, free gets the 402 upgrade path).
 > - ⚠ **Check 3 could not run:** a signed-out visitor cannot reach a practice question at all (`PracticeLimitGate.tsx:65-67`, `App.tsx:1020`), so "reveal a stored solution while signed out" has no reachable UI path today. It is **transferred to AUTH-GATE-MOVE-1's live-verify**, not dropped.

@@ -1,4 +1,53 @@
 ```
+⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW ON AUTH-GATE-MOVE-1 AND ON THE #787
+   TRANSFERRED CHECK. IT DOES NOT SUPERSEDE ANY BANNER ON THE EXAM TRENDS DIRECTORY.
+
+TRUNK IS `5c5fc57b6170d6700449b4e007d5fb5781995175`, MEASURED 2026-09-16.
+   5c5fc57b = #793 (AUTH-GATE-MOVE-1).
+
+AUTH-GATE-MOVE-1 IS MERGED AND FULLY LIVE-VERIFIED.
+   #793 `5c5fc57b`. Owner live-verified BOTH tiers on production 2026-09-16:
+     anonymous  - paper 1 opens, paper 2 walls with the 3-a-day offer, stored
+                  solutions reveal signed-out, grade control offers sign-in, no paid call
+     signed-in  - papers 1-3 open, the 4th walls with
+                  "Free accounts open 3 papers a day"
+   The #787 transferred check 3 (signed out, reveal a stored solution) RAN AND PASSED.
+
+   THE LOGIN WALL NOW SITS ONLY ON AI GRADING. Practice, predicted questions, the
+   worksheet builder and both its PDF downloads, and 1 paper/day are reachable
+   SIGNED OUT for the first time. Plan every future lane against that, not against
+   the old "everything is behind login" shape.
+
+STILL OPEN OUT OF THIS LANE - read before touching SolutionChecker:
+   1. [FU-SOLUTIONCHECKER-FAILOPEN-COMMENTS-STALE] - NOT fully closed. The lane was
+      required to rewrite BOTH SolutionChecker.tsx:139-152 and :420-423. It did the
+      second and MISSED the first. :139-153 still says an anonymous caller is served
+      (`entitled: true`) and that locking their CTA "would be a FALSE LOCK" - which now
+      contradicts the server AND the shipped code in the same file. Two comment blocks
+      in one file currently disagree with each other. COMMENT-ONLY FIX.
+      ⚠ Do not "fix" :465-480 - that block QUOTES the old wording inside its own
+      correction, so a grep for the stale phrasing hits it as a false positive.
+   2. [FU-PREVIEW-AUTH-DOMAINS-BLOCK-SIGNED-IN-VERIFY] - Firebase authorized domains
+      exclude hashed Vercel preview URLs, so NO lane can live-verify signed-in
+      behaviour before merge. One console change (authorize the branch-alias pattern)
+      raises what every future lane can prove. HIGH LEVERAGE, TINY.
+   3. [FU-SPEC-AUTOTRIAL-CLAIM-FALSE] - specs and handoffs repeat "a new account gets a
+      7-day trial". A fresh signup is SIGNED-IN FREE; the trial is opt-in. Never write
+      copy saying a trial "starts".
+   4. [FU-UID-HEADER-TRUSTED-UNVERIFIED] - unchanged, still open. A forged uid header is
+      still served. Do not assume the paywall is watertight.
+   5. [FU-WARMUP-UNAUTH-STEP-SOLUTION] - unchanged, still open, still its own lane.
+
+NEXT:
+   1. The SolutionChecker :139-153 comment fix - comment-only, in a file no other lane
+      holds. Smallest honest unit of work on the board.
+   2. Authorize the Vercel branch-alias pattern in Firebase (item 2 above). It is a
+      console change, not code, and it changes the evidence ceiling for every lane.
+   3. Then the next product lane, on a base re-derived from `git ls-remote` - NOT from
+      this banner, which will be stale the moment anything merges.
+```
+
+```
 ⛔ THIS BANNER SUPERSEDES THE #787 BANNER BELOW ON THE LIVE-VERIFY AND THE COMMENT FIX.
    IT DOES NOT SUPERSEDE ANY BANNER ON THE EXAM TRENDS DIRECTORY.
 

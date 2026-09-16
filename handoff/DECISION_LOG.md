@@ -1,3 +1,43 @@
+## 2026-09-16 — AUTH-GATE-MOVE-1 (lane `auth-gate-move-1`) — trunk `5c5fc57b`, PR `#793`
+
+**`2026-09-16`**
+
+> ⚠ **NUMBERING.** `DECISION N` is SECTION-LOCAL and restarts at 1 in every section. This section starts at `DECISION 1`.
+> The seven handoff files updated this cycle: `CURRENT_STATE.md`, `NEXT_ACTION.md`, `SESSION_LOG.md`, `IMPLEMENTATION_ROADMAP.md`, `OPEN_QUESTIONS_AND_FOLLOWUPS.md`, `SURFACE_TRACKER.md`, `DECISION_LOG.md` — enumerated, not counted.
+
+### DECISION 1 — **GATE THE COST, NOT THE CONTENT — and the corollary: a dead limit is not a limit.**
+
+The lane's founding rule was the owner's: a login wall belongs only where LazyTopper spends money. Applying it turned up something the spec did not anticipate — **the 10/day practice limit the login wall appeared to protect did not exist.** `recordQuestionAnswered` has zero call sites; the counter never incremented. So the gate was a pure login wall dressed as a quota, and removing the redirect removed nothing.
+**Rule recorded:** before defending a limit, prove it fires. A limit with no call site is a story the code tells about itself.
+
+### DECISION 2 — **A COMMENT THAT STATES THE OPPOSITE OF THE TRUTH IS CORRECTED IN PLACE, NEVER DELETED.**
+
+Four false premises were found — two in `WorksheetGenerator.tsx`, one in `SolutionChecker.tsx`, and one **in the spec itself**. Each is rewritten to say what was believed, why it was false, and what changed, rather than quietly removed. A deleted wrong comment teaches nobody; the next reader re-derives the same error. ⚠ **Cost of this choice, recorded honestly:** the corrections *quote* the old wording, so a grep for stale phrasing now returns the correction as a false positive. Where the quoted text was executable-looking (a JSX tag in `App.tsx`) it was deliberately NOT spelled out, because a comment quoting live-looking code pollutes every census grep. Prose quotations were kept; code quotations were not.
+
+### DECISION 3 — **A TEST WHOSE NAME ASSERTS A DEAD PREMISE IS PINNING THE DEFECT, AND GETS INVERTED — BUT ITS REAL SUBJECT IS PRESERVED.**
+
+Three tests required the product to show a signed-out student a live "Check my answer" control whose only possible outcome was a 402. Green runs on them were evidence **of** the defect. Each was inverted. ★ The discipline that matters: when inverting such a test, ask what principle it was *actually* protecting and keep that on a still-valid vehicle. `quickPracticeSessionService.wire.test.ts`'s real subject was "MI's front door is the ONE door" — preserved, moved onto a signed-in caller.
+
+### DECISION 4 — **THE LANE FIXES THE DEFECT IT CREATES, RATHER THAN FILING IT.**
+
+Opening Quick Practice made a state reachable that could not exist before: a signed-out student pressing "Grade my N answers" and buying a 402. It was first filed as `[FU-QP-BATCH-GRADE-SIGNED-OUT]`. **Owner ruling: that is not a follow-up, it is the lane being incomplete** — shipping it would mean the lane's headline change hands a student an error at the moment of highest intent. §2's allowed files were extended for that defect only, and it was closed in-lane.
+
+### DECISION 5 — **ASSERT PRECONDITIONS ON SUBJECT *AND* CONTROL. Adopted as the default shape for every browser check.**
+
+Two checks went green while proving nothing, and **neither was caught by the assertion that failed** — each was caught by evidence disagreeing with a green result. A regex containing `marks?\b` matched a word in every question header; a `paidCalls=0` PASS was recorded on a run where the flow never reached the control. **A negative assertion is vacuously true on a run that never reached the thing being tested.** Every browser check now reports the facts that make its negative meaningful, on the control too — which is also what proves the control was *exercised* rather than merely visited.
+
+### DECISION 6 — **WHERE PRODUCTION CANNOT BE THE CONTROL, USE THE PRE-FIX PER-COMMIT PREVIEW.**
+
+The spec asked for production as the control for the Quick-Practice fix. Production **redirects a signed-out visitor off `/practice` before the code under test**, so the defect path is unreachable there and the comparison would have been two different walls. The pre-fix per-commit Vercel preview of the lane's own earlier commit isolates exactly one variable: `PRE-FIX offer=false paid=1` vs `FIXED offer=true paid=0`. **The defect was observed being bought.**
+
+### DECISION 7 — **MERGE WITH A GAP NAMED AS A GAP, NEVER AS A PASS.**
+
+§4.6's signed-in tier could not be verified pre-merge — **Firebase authorized domains exclude preview URLs, so sign-in fails on a preview by configuration, not by defect**. It was merged on owner instruction and recorded as **NOT VERIFIED in five places, including the squash commit message**, with its standing evidence explicitly labelled unit-level. The owner verified it live on production the same day and it passed. ★ **The distinction held throughout: a unit test proves a component *can* behave a way; only a running build proves the shipped app *does*.** The merge-time gap is left on the record rather than rewritten.
+
+### DECISION 8 — **VERIFY A SQUASH MERGE BY CONTENT ON TRUNK, NOT BY ANCESTRY.**
+
+This repo squash-merges, so `merge-base --is-ancestor` on a PR head is the wrong test. All 13 files were blob-compared against trunk after merge and found byte-identical. The same technique settled the base-staleness question at pre-flight (trunk had advanced; a blob comparison proved it had touched none of the lane's files) and the branch-update question at merge (updating the branch changed none of the 13). ⚠ **Recorded:** the lane branch was deleted by the repo's **auto-delete-on-merge** setting, not by the agent — `--delete-branch` was never passed, because branch deletion is never auto-approved.
+
 ## 2026-08-27 — WAVE MI-INTEGRITY-10 CLOSE-OUT (lane `HANDOFF-MI10`, docs-only) — trunk `02fa7c0a`, PRs `#703` `#704` `#706` `#707`
 
 **`2026-08-27`**

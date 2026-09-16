@@ -10,6 +10,77 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
+## 2026-09-16 — AUTH-GATE-MOVE-1 (`#793` MERGED as `5c5fc57b`, squash, no `--admin`; open PRs at the time of writing: `#784` dependabot only) — one FU stays OPEN with reduced scope, three new follow-ups, one owner-ratified deviation
+
+★ **PROVENANCE.** HANDOFF-VERIFIED by the AUTH-GATE-MOVE-1 lane against trunk `5c5fc57b`; the two live results are OWNER-REPORTED from production on 2026-09-16.
+
+### `[FU-SOLUTIONCHECKER-FAILOPEN-COMMENTS-STALE]` — ⚠ **STILL OPEN. HALF DONE, AND THE MISSED HALF NOW CONTRADICTS THE SHIPPED CODE.**
+
+**What was required.** `NEXT_ACTION.md` (2026-09-16 banner) required rewriting **both** stale blocks in `SolutionChecker.tsx`: `:139-152` and `:420-423`, plus running `#787`'s transferred check 3.
+
+**What was delivered.**
+- ✅ `:420-423` rewritten. It now states that since `#787` an anonymous caller is DENIED (`outcome: 'anonymous'`, 402), and explains that the old wording was generating the wrong design.
+- ✅ **Check 3 RAN AND PASSED.** Signed out, a stored step-marked solution reveals with real half-mark step text and `paidCalls=0` — verified on the preview and again live by the owner.
+- ⛔ **`:139-152` WAS MISSED.**
+
+**What is still wrong, precisely.** On trunk `5c5fc57b`, `SolutionChecker.tsx:139-153` still says:
+- "`resolve()` with no verifiable uid returns `failOpen(FAIL_OPEN_NO_CREDENTIAL, …)` → `{ entitled: true }`. The request is SERVED."
+- "So a signed-out student CAN grade today. Locking the CTA for them would be a FALSE LOCK."
+
+Both were false from `#787` onward. They are now **worse than stale**: the code immediately below them deliberately shows a signed-out student a sign-in CTA, so **two comment blocks in one file contradict each other**, and the older one tells the reader the newer behaviour is a bug. This is precisely the defect class the lane existed to remove, left in place.
+
+**Scope of the remaining work:** comment-only, one block, one file no other lane holds.
+
+⚠ **DO NOT "FIX" `:465-480`.** That block quotes the old wording *inside its own correction* ("It read: …"), so a grep for the stale phrasing returns it as a **false positive**. Read the surrounding sentence before editing. (The lane hit the mirror of this in `App.tsx` and neutralised it there by not spelling out the removed JSX tag; the prose quotation here was kept deliberately, because the correction is unintelligible without the thing it corrects.)
+
+### `[FU-PREVIEW-AUTH-DOMAINS-BLOCK-SIGNED-IN-VERIFY]` — ★★ NEW, OPEN. **NO LANE CAN LIVE-VERIFY SIGNED-IN BEHAVIOUR BEFORE MERGE.**
+
+**The finding.** Firebase **authorized domains** do not include the hashed Vercel preview URLs (`lazytopper-production-desktop-<hash>.vercel.app`, and the branch alias). Sign-in therefore **fails on every preview, by configuration rather than by defect**. A lane cannot produce a signed-in session on a preview at all, so **any acceptance check that depends on being signed in is unverifiable before merge.**
+
+**What it cost this lane.** §4.6's signed-in tier (papers 2 and 3 open, the 4th walled) had to be **merged unverified** and confirmed on production afterwards. The lane recorded it as NOT VERIFIED in five places rather than claiming it, which is the correct handling — but the correct handling of a gap is not a substitute for closing the gap.
+
+**The fix is one console change:** authorize the Vercel **branch-alias pattern** in Firebase Auth → Settings → Authorized domains. It is not code and touches no lane's files.
+
+★ **Why it is worth doing before the next auth-adjacent lane:** it raises what every future lane can *prove* pre-merge. Today, any tier-dependent or entitlement-dependent acceptance check silently degrades to unit-level evidence — and unit-level evidence proves a component *can* behave a way, never that the shipped app *does*.
+
+### `[FU-SPEC-AUTOTRIAL-CLAIM-FALSE]` — ★ NEW, OPEN. **THE "NEW ACCOUNT GETS A 7-DAY TRIAL" CLAIM IS FALSE, AND IT IS IN THE SPECS.**
+
+**The claim.** AUTH-GATE-MOVE-1 v1.1's paragraph above §0, and §2 beside the sign-in prompt, state that "a new account gets a 7-day trial with every Premium feature active". It was relayed to the owner twice as settled fact and inherited by four pieces of new product copy.
+
+**The code.** `defaultStatus()` returns `{ tier: "free", trialStartDate: null }`. `isPremiumAccess` requires tier `premium` or `trial`. The **only** caller of `startTrial()` is the button at `RequireAuth.tsx:74`. `AuthContext` deliberately removed the unconditional `activateTrial(uid)` that "silently started every student's 7-day trial on login" — `[FU-SUBSCRIPTION-AUTOTRIAL-ONMOUNT]`, closed by `#535`. ⚠ **That ID has no `###` entry of its own on this board**; its closure is recorded inline in the 2026-06 section (search `FU-SUBSCRIPTION-AUTOTRIAL-ONMOUNT`, one hit). Named here so a reader applying standing rule 1 does not go looking for a definition that was never written, and so the dated entry is not rewritten to create one.
+
+**⇒ A fresh signup is SIGNED-IN FREE, not trial.** The sign-in offer remains honest, but what it offers is **an account from which a 7-day trial can be started** — not a trial. Promising a trial that has not started is the fake-trial-activation this product forbids, told the other way round.
+
+**Done in `#793`:** all four copy sites now say the trial *can* be started, and the derivation is recorded in-code beside `signedOut`.
+**Still open:** any future spec or handoff that repeats the original claim is repeating this error. The in-repo spec copy lives under a gitignored path, so this cannot be fixed by a repo edit alone — it has to be caught at spec-writing time.
+
+### `[FU-QP-BATCH-GRADE-SIGNED-OUT]` — ✅ **RAISED AND CLOSED INSIDE THE SAME LANE. Recorded because a lane that creates a defect owns it.**
+
+**Raised** during AUTH-GATE-MOVE-1's §4 run, as a follow-up. **Owner ruling: not a follow-up — the lane being incomplete.** Before this lane, `PracticeLimitGate` redirected every signed-out visitor to `/login`, so nobody could reach Quick Practice without an account and this state **could not occur**. Removing that wall — the lane's headline change — made it reachable for the first time: a signed-out student can batch answers and press **"Grade my N answers"**, and since `#787` the server denies an anonymous caller a **402**. Shipping it would have meant the lane's own change handing a student a red error at the moment of highest intent.
+
+**Fixed in `#793`.** `quickPracticeSessionService` gained `skipped-signin-required`, refused **before the network** (`calls: 0`), placed *after* the nothing-to-batch return so nobody meets a wall in front of an empty action. Free local MCQ marks survive it. It is deliberately **not** `skipped-premium-required` — that student needs the **door**, not an upgrade, and may be fully entitled once inside. `PracticePage` renders the offer as a **sibling** of `premiumBlock`, never the same state, carrying `pathname+search` as `from`.
+
+⚠ **A correction worth carrying:** the defect was first described as "press Finish → `/api/grade-worksheet`". **`PracticePage.tsx:2167` documents that the one paid call fires on the "Grade my N answers" tap and explicitly NOT on Finish.** Anyone reasoning about Quick Practice spend should gate that control, not Finish.
+
+**§2's allowed files were extended by the owner for this defect only** (`PracticePage.tsx`, `quickPracticeSessionService.ts`, plus their guard tests). Removing the pre-network refusal turns **6** tests red across two suites.
+
+### `[FU-AUTH-GATE-MOVE-1-SIGNED-IN-TIER-LIVE-VERIFY-OWED]` — ✅ **RAISED AND CLOSED THE SAME DAY. Kept because the sequence matters.**
+
+Raised at merge because §4.6's signed-in half could not be verified (see the preview-domains FU above). **CLOSED 2026-09-16, OWNER-REPORTED from production:** signed in as a non-premium account, papers 1–3 opened and the 4th **walled** with "Free accounts open 3 papers a day" at `/app/chapter-test/10/Maths/triangles`.
+
+★ **Recorded rather than deleted, because the order of events is the useful part:** the change shipped on unit-level evidence, was labelled as such rather than as a pass, and was confirmed on a running build afterwards. The wall shown names the signed-in-free allowance rather than the trial-ended panel, so that account's `trialStartDate` is unset — i.e. the **plain** signed-in free path. The **trial-expired** variant is covered at unit level and remains unobserved live; it is not claimed.
+
+### ★ OWNER-RATIFIED DEVIATION — a trial-expired student is COUNTED, not walled
+
+Not a follow-up; recorded so a future seat does not "restore" the old early return believing it a regression. `isTrialExpired = !!trialStartDate && tier === "free"`, and a trial makes an account premium until it lapses — therefore **trial-expired is HOW a student becomes signed-in free**. The old code returned early for that state with **zero** papers a day, which left the owner's published "signed-in free 3/day" tier unreachable in the product and untestable in §4.6. Counting them is what makes the published tier real. The trial-ended panel is preserved and now renders once the 3 are spent.
+
+### Unchanged by this lane
+
+- `[FU-UID-HEADER-TRUSTED-UNVERIFIED]` — **still OPEN**. A forged uid header is still served under `FAIL_OPEN_NO_UID` by design. This lane deliberately did not widen into it, and nothing here is evidence the paywall is watertight.
+- `[FU-WARMUP-UNAUTH-STEP-SOLUTION]` — still OPEN, still its own lane.
+
+---
+
 ---
 
 

@@ -1,5 +1,41 @@
 # LazyTopper — Current State
 
+## [CURRENT · AUTH] AUTH-GATE-MOVE-1 — **THE LOGIN WALL NOW SITS ONLY WHERE MONEY IS SPENT** — `#793` MERGED — trunk `5c5fc57b`
+
+★ **PROVENANCE.**
+- **HANDOFF-VERIFIED** by the AUTH-GATE-MOVE-1 lane: premise gate exit 0; tsc app + test 0; `vitest run src` **166 files / 2156 tests, 0 failed, 0 skipped**; build + verifier; mojibake; `scope:guard --mode mixed`; root matrix **206/206, 30 suites**; ops matrix PASSED; CI green on `8cf41609` read from the log. Merge verified **by content on trunk** (all 13 files byte-identical at `5c5fc57b`), because this repo squash-merges.
+- **OWNER-VERIFIED LIVE (production, 2026-09-16):** anonymous tier AND signed-in tier. §4 is fully verified.
+- **STILL OPEN:** `[FU-SOLUTIONCHECKER-FAILOPEN-COMMENTS-STALE]` (one required comment block was missed), `[FU-PREVIEW-AUTH-DOMAINS-BLOCK-SIGNED-IN-VERIFY]`, `[FU-SPEC-AUTOTRIAL-CLAIM-FALSE]`, `[FU-UID-HEADER-TRUSTED-UNVERIFIED]`.
+
+**Trunk `5c5fc57b6170d6700449b4e007d5fb5781995175`** (`#793` squash). Before it: `eadf14fa` = `#792`.
+
+### The tiers, as they now behave in production
+
+| | Anonymous | Signed-in free | Premium |
+|---|---|---|---|
+| Practice questions, stored solutions | unlimited | unlimited | unlimited |
+| Predicted questions | unlimited | unlimited | unlimited |
+| Chapter test / full mock — **view** | **1/day** | **3/day** | unlimited |
+| Worksheet — generate **and both PDF downloads** | free | free | free |
+| **AI grading** | **sign-in offer** | **existing upgrade path, unchanged** | server caps |
+
+★ **Grading is Premium-only at every non-premium tier.** No free grading quota was granted; `PricingPage.tsx:47` already published "Solution Checker / Check & Improve" as excluded from Basic. The **3/day** figure is a **paper-view** allowance only — it is not a grading allowance, and a guard test pins the distinction.
+
+### What a signed-out visitor can now reach, that they could not before
+
+`/practice/:grade/:subject` · `/highly-probable` and `/highly-probable/:grade/:subject` · the worksheet builder and both its PDF downloads · one chapter test or full mock per day. **All four were previously behind a login redirect.** This is the first time these surfaces are reachable signed-out, and `SURFACE_TRACKER.md` records the cell moves.
+
+### Where the wall is now
+
+- **`SolutionChecker`** — signed-out gets "Sign in to check your answer", linking to `/login` with `pathname+search` as `state.from`. Signed-in free gets the **existing** premium upgrade path, unchanged.
+- **`WorksheetGradePanel`** — gated; the generator and downloads above it are not.
+- **Quick Practice batch grading** — an unverifiable caller is refused **before the network** (`calls: 0`) and offered sign-in, rather than buying a 402.
+
+⚠ **The paywall is NOT watertight.** A forged uid header is still served under `FAIL_OPEN_NO_UID` by design (`[FU-UID-HEADER-TRUSTED-UNVERIFIED]`). Nothing in this lane should be read as proof otherwise.
+
+⚠ **A new account is SIGNED-IN FREE, not on a trial.** The trial is opt-in — the only caller of `startTrial()` is the button at `RequireAuth.tsx:74`. Copy must say a trial *can* be started, never that it starts.
+
+
 ## [CURRENT · SEO] SEO-ALLCHAPTERS-RESTYLE-1 + -2 — **THE CHAPTER DIRECTORY RECEDES (GREY, 11px FLOOR, NO VISIBLE TITLE) BUT STAYS VISIBLE, AA, AND NAMED** — `#786` + `#789` MERGED — trunk `60c1ed21`
 
 ★ **PROVENANCE.**
