@@ -1,5 +1,106 @@
 ---
 
+## 2026-09-16 — `#787` LIVE-VERIFIED, TWO OF THREE: **A PREMIUM STUDENT STILL GRADES AND A FREE STUDENT STILL GETS THE 402 — THE SIGNED-OUT CHECK CANNOT RUN UNTIL AUTH-GATE-MOVE-1 SHIPS** — trunk `b145c2e0`
+
+★ **PROVENANCE.**
+- **OWNER-REPORTED (live product, 2026-09-15/16):** checks 1 and 2 passed; check 3 was not executable.
+- **HANDOFF-VERIFIED (2026-09-16):** `PracticeLimitGate.tsx:65-67` and `App.tsx:1020` on trunk `b145c2e0`.
+- **OWNER-RULED (2026-09-16):** close the FU honestly, transfer check 3 to AUTH-GATE-MOVE-1.
+
+**Result.** ✅ **A premium student checks an answer and it still grades** — the regression that would have cost real money to discover late. ✅ **A free student gets the 402 upgrade path as before.** ⛔ **Signed out, reveal a stored solution: not runnable**, because `/practice/:grade/:subject` sits behind `<PracticeLimitGate>` (`App.tsx:1020`), which redirects a visitor with no user to `/login` **before any question renders** (`PracticeLimitGate.tsx:65-67`).
+
+★ **The checklist assumed both lanes had shipped; only `#787` has.** That is a property of the checklist, not a defect in the merge, and the FU closes on that basis rather than as a failed check.
+
+**The server half of check 3 is pinned by tests, not left on trust:** NC5 (anonymous → boundary does not gate, handler serves bank-backed steps 200, zero Gemini; control: `requireForGeneration()` denies and an anonymous generation request gets 402) and CONTROL 3 (real HTTP: anonymous gated POST → 402, uid-header-only → served). What is unverified is the signed-out **UI** path, which does not exist yet.
+
+**Transferred:** check 3 joins AUTH-GATE-MOVE-1's live-verify, carried under `[FU-SOLUTIONCHECKER-FAILOPEN-COMMENTS-STALE]`. `[FU-ENTITLEMENT-NO-CREDENTIAL-1-LIVE-VERIFY-OWED]` is **CLOSED**.
+⚠ Unchanged by this result: a forged uid header is still served (`[FU-UID-HEADER-TRUSTED-UNVERIFIED]`).
+
+**Lane closed.** `#787` (`355b1ccc`) · docs `#788` (`6803c8ca`) · comment fix `#790` (`b145c2e0` — the `entitlement.cjs` suite count 64 → 223, dropping the line and invocation counts rather than restating numbers that cannot be kept accurate, and naming `handleGradeWorksheet` where the comment wrongly said the tests call `gradeStructuredSet` directly).
+★ **Method note from the docs pass:** a locator written into a handoff file can match its own line — the first `grep` in the RESTYLE-2 selector flag found the flag itself. Anchoring it (`^3[.] …`) and re-running it returned the true three hits. **A search that includes the file you are writing will find your own text.**
+
+---
+
+## 2026-09-15 — SEO-ALLCHAPTERS-RESTYLE-1 + -2 — **THE CHAPTER DIRECTORY RECEDES (GREY, 11px FLOOR, NO VISIBLE TITLE) BUT STAYS VISIBLE, AA, AND NAMED** — `#786` + `#789` MERGED — trunk `60c1ed21`
+
+★ **PROVENANCE.**
+- **HANDOFF-VERIFIED** by the SEO-ALLCHAPTERS-RESTYLE-2 lane, which built `#789` and is the only seat that verified `#786`:
+  - `#789`: premise gate exit 0, tsc (app + test), `vitest run src/pages` **37 files / 501 tests passed**, build + `verify-production-build`, mojibake, `scope:guard --mode mixed`, CI all green on head `3edd5f39`. §4 acceptance run in a fresh Playwright context against the Vercel preview of `3edd5f39` **and** production, 1440 + 390, every control shown.
+  - `#786`: its diff read at `85ecc1d1`; its before/after contrast **re-derived from source** (parent `85ecc1d1^` vs `85ecc1d1`) and its after-values **measured on production** by this lane's control run.
+- **OWNER-RULED (2026-09-15):** grey links / green on hover, 11px as a floor, `aria-label` replaces the visible title; this lane writes `#786`'s owed handoff; fix the three stale selector lines.
+- **NOT YET VERIFIED:** owner live-verify (spec §6), `[FU-SEO-ALLCHAPTERS-RESTYLE-2-LIVE-VERIFY-OWED]`.
+
+**Trunk `60c1ed210da24f0984f62f583ddcbd40327227a9`** (`#789` squash), re-derived with `git ls-remote`. Before it: `355b1ccc` = `#787`; `85ecc1d1` = **`#786`**. Each changed one file: `lazytopper/src/pages/ExamTrendsRanked.tsx`.
+
+### `#786` SEO-ALLCHAPTERS-RESTYLE-1 (`85ecc1d1`) — the directory stops being a fourth card
+- The "All chapters" block lost its card background and became a page footer: hairline `border-top`, 40px above.
+- ★ **Two AA contrast failures fixed** (the block sat on the white card before `#786`):
+  - **links** `hsl(152,60%,34%)` on `#ffffff` = **4.28:1 → `hsl(152,60%,30%)` = 5.07:1** on the page ground `rgb(248,250,252)`
+  - **subject labels** `--tert` `hsl(220,14%,55%)` on `#ffffff` = **3.62:1 → `--muted` = 5.53:1**
+  - The "before" ratios are **re-derived from the parent source**, not measured on a pre-`#786` production page. The "after" ratios were **measured on production** at 1440 by this lane (at 390 the ground is `rgb(245,245,247)`: links 4.87, labels 5.31, both still ≥ 4.5).
+- Type: title 13 → 11.5px, labels 11.5 → 10.5px, links 12.5 → 12px.
+
+### `#789` SEO-ALLCHAPTERS-RESTYLE-2 (`60c1ed21`) — quieter still, no visible title
+- **Links rest in `var(--muted)`**; brand green `hsl(152,60%,30%)` + underline only on `:hover` / `:focus-visible`.
+- **Links 12 → 11px, subject labels 10.5 → 11px. 11px is a FLOOR** (smallest legible at AA, not smallest possible). A dense tiny-type link block is a spam pattern, and this block is what got Science chapters indexed.
+- **Visible `<h2>All chapters</h2>` removed. The `<nav>` is now named by `aria-label="All chapters"`** (`ExamTrendsRanked.tsx:1337`). `.lt-et-all-title` and the `id` are gone.
+  - ⚠ Two tests find the block by that name, not one: `ExamTrendsRanked.test.tsx:254` and `:297`. Removing the `aria-label` turns **both** red (control run, restored byte-identical, 16/16 green).
+- **Measured on the preview of `3edd5f39`, 1440 / 390:**
+  - 26 unique `/app/topic-hub/` anchors at both widths (production: 26 / 26).
+  - All 26 rendered: non-zero box, not `display:none`/`hidden`, opacity > 0, `font-size` 11px. **Control:** injecting `.lt-et-all{display:none}` → **0 of 26**; removed → 26 of 26, nav `outerHTML` identical.
+  - Contrast at rest: links and labels `rgb(91,102,123)` → **5.53:1** (1440) / **5.31:1** (390).
+  - Accessible name: `getByRole("navigation",{name:"All chapters"})` = 1; aria-label removed → 0; restored → 1.
+  - Hover: `rgb(91,102,123)` → `rgb(31,122,80)`. **Control:** on production the link is green at rest and on hover, and the same check FAILS there.
+  - Band headings, open/closed state (Must-crack open), subject toggle (Maths selected): identical to production.
+  - Four full-page screenshots, four distinct SHA-256s, directory inside each image. ⚠ At 1440 the page scrolls inside `<main>`, so a plain `fullPage` capture starts mid-band. The lane grew the viewport by `<main>`'s overflow to capture the whole page.
+
+### Correction — the selector the older records quote (`[FU-ALLCHAPTERS-SELECTOR-QUOTE-STALE-ON-RESTYLE-2]` CLOSED)
+- From `60c1ed21` **`nav[aria-labelledby="lt-et-all-title"]` matches nothing.** Query the block as **`nav[aria-label="All chapters"]`**, or `getByRole("navigation", { name: "All chapters" })`.
+- The three dated lines (`grep -nE '^3[.] [*][*]Measured on production' handoff/*.md`) are kept as written, since they were true on their date (board rule 3). Each now ends with an inline pointer to this correction, so a seat copying the selector sees it first.
+- ⚠ The same entries cite `ExamTrendsRanked.tsx:1279` (default subject) and `:1246` (band unmount). Those numbers were already stale at `85ecc1d1`. At `60c1ed21` the facts live at **`:1362`** (`useState<DesktopSubject>("Maths")`) and **`:1301`** (`{open && (`).
+
+---
+
+## 2026-09-15 — ENTITLEMENT-NO-CREDENTIAL-1 MERGED — **`#787`: AN ANONYMOUS CALLER IS NOT SERVED A PAID ROUTE; A FORGED UID HEADER STILL IS** — trunk `355b1ccc`
+
+★ **PROVENANCE.**
+- **HANDOFF-VERIFIED** by the `#787` lane: gates, mutation proofs, CI job-log counts, merge facts, file:lines at `355b1ccc`.
+- **OWNER-RULED 2026-09-15:** the rule revision, retire the warmup call, a separate comment PR, the SolutionChecker handover, `[FU-UID-HEADER-TRUSTED-UNVERIFIED]`.
+- **Not covered:** trunk also carries `#786` (SEO-ALLCHAPTERS-RESTYLE-1, `85ecc1d1`). **Its handoff is owed by its own lane; nothing here is written for it.** SEO-ALLCHAPTERS-RESTYLE-2 is in flight against the same file.
+
+**What landed.** `entitlement.cjs::resolve()` now **denies** (402 `premium_required`, outcome `anonymous`) a request with **no bearer token AND no `X-Lazytopper-Uid`**.
+- **Telemetry:** `entitlement.deny` + new **`entitlement.deny.anonymous`**, logged at info. **Never** `entitlement.fail_open`, so that counter again means "the paywall leaked".
+- **Unchanged:** an offered token that doesn't verify, firebase-admin missing, and a Firestore error all still fail open. `/api/step-solution` still serves stored steps to anyone; only generation denies.
+- **Retired:** `entitlement.fail_open.no_credential`, which became unreachable.
+- **Files:** exactly `entitlement.cjs` + `entitlement.test.cjs`. `src/`, `routes/`, `index.cjs`, `verifiedCaller.cjs` and `rateLimiter.cjs` are byte-identical.
+
+★★ **The session's finding: the spec's premise "no bearer token = anonymous" was false.** Pre-flight read the client helper, not just the server. `paidCallHeaders.ts:81` `getIdToken().catch(() => null)` **drops `Authorization` but keeps the uid header**, so a signed-in paying student whose token fetch failed sends exactly "no bearer token". Denying on that alone would have locked them out. **Owner revised the rule:** deny only when both are absent; uid-header-only fails open under `no_uid`.
+**Lesson:** a rule keyed on a header being ABSENT is only a positive fact if no client path silently omits that header. Read the failure branch of every helper that sets it.
+
+⚠⚠ **The price of that ruling, recorded so it is not lost:** a **forged** uid header is still served. The paywall is closed against accidental anonymity, not deliberate bypass. **AUTH-GATE-MOVE-1 must not assume it is watertight.** The real fix is a client `getIdToken()` retry, then deleting the uid-header branch. See `[FU-UID-HEADER-TRUSTED-UNVERIFIED]`.
+
+**Also found in pre-flight:**
+- An unauthenticated **server-launched** caller: the api-server's warmup job. See `[FU-WARMUP-UNAUTH-STEP-SOLUTION]`; retire it, no allowance.
+- The spec's §3 test path was wrong (`server/services/` → `server/routes/checkSolution.test.cjs`).
+- Its count, and the `entitlement.cjs:465` comment, say 64 where the real count is 223. See `[FU-ENTITLEMENT-CHECKSOLUTION-COUNT-STALE]`, fixed by a one-line product PR right after this docs PR, not bundled (`CLAUDE.md` §8).
+
+**Evidence:**
+- entitlement **53/53** (10 new, including a real HTTP 402 through `index.cjs`), checkSolution **223/223**, verifiedCaller 20/20, rateLimiter 27/27
+- both tsc, build + verifier, scope:guard `inspected=2`, mojibake, root matrix 206/30, lazytopper matrix 0 fail
+- CI job logs: entitlement 53/53 and checkSolution 223/223, 0 `not ok`
+- Mutation A (anonymous → fail-open): 44/9 red; Mutation B (drop the uid-header branch): 51/2 red. Both restored to the committed blob and green.
+
+**Merge:** the first `--squash` was refused (branch behind). **No `--admin`**: `update-branch`, CI green again, then squash.
+
+**Handovers:**
+- `SolutionChecker.tsx:139-152`/`:420-423` are stale from `355b1ccc` → AUTH-GATE-MOVE-1 (`[FU-SOLUTIONCHECKER-FAILOPEN-COMMENTS-STALE]`).
+- Three handoff lines quoting `nav[aria-labelledby="lt-et-all-title"]` are flagged for RESTYLE-2, not rewritten (`[FU-ALLCHAPTERS-SELECTOR-QUOTE-STALE-ON-RESTYLE-2]`).
+
+**Owed:** owner live-verify (`[FU-ENTITLEMENT-NO-CREDENTIAL-1-LIVE-VERIFY-OWED]`).
+**Housekeeping:** deleting `lane/entitlement-no-credential-1` and its worktree is owner-approved, to run **after** this docs PR and the comment PR merge. No repo-wide `git worktree prune`.
+
+---
+
 ## 2026-09-14 — FIRST INDEXING EVIDENCE: **A SCIENCE CHAPTER IS INDEXED VIA EXAM TRENDS' "ALL CHAPTERS" LIST — `[FU-CHAPTER-URLS-UNKNOWN-TO-GOOGLE]` CLOSED, `/browse` RULED OUT OF THE SITEMAP** — trunk `fe3bb61e`
 
 ★ **PROVENANCE.**
@@ -12,7 +113,7 @@
 ★★★ **THE "ALL CHAPTERS" LIST IS PROVABLY WHAT GOT A SCIENCE CHAPTER INDEXED. The reasoning, not just the mutation count:**
 1. **Google's referring page for `/app/topic-hub/life-processes` is `/app/exam-trends`,** with no referring sitemap and a smartphone crawl (OWNER-REPORTED). The link was followed from that page.
 2. **Life Processes is a Science chapter.** Exam Trends defaults the subject to **Maths** (`ExamTrendsRanked.tsx:1279`), and bands render as `{open && …}` (`:1246`), so collapsed bands are **unmounted** and only `must-crack` starts open. On a cold load the ranked rows contain **no Science chapter at all**.
-3. **Measured on production, cold, no session, both widths (HANDOFF-VERIFIED):** the only topic-hub links outside the list are **5 Maths chapters** (`trigonometry`, `triangles`, `surface-areas-and-volumes`, `polynomials`, `circles`). The string `life-processes` occurs **exactly once** in the rendered page HTML, inside `nav[aria-labelledby="lt-et-all-title"]`.
+3. **Measured on production, cold, no session, both widths (HANDOFF-VERIFIED):** the only topic-hub links outside the list are **5 Maths chapters** (`trigonometry`, `triangles`, `surface-areas-and-volumes`, `polynomials`, `circles`). The string `life-processes` occurs **exactly once** in the rendered page HTML, inside `nav[aria-labelledby="lt-et-all-title"]`. _(⚠ Selector superseded 2026-09-15 by `#789`: now `nav[aria-label="All chapters"]` — see the 2026-09-15 SEO-ALLCHAPTERS-RESTYLE section.)_
 4. **So the only place a crawler could have found that URL on `/app/exam-trends` is the flat list.** The same holds for `light-reflection-and-refraction`, also Science and also indexed. (`trigonometry` and `polynomials` are among the 5 Maths band rows, so their indexing cannot be attributed to the list alone.)
 5. **Consequence:** removing or hiding the list, or letting it drift out of the cold-load DOM, cuts the in-product crawl path to **all 13 Science chapters** and 8 of 13 Maths chapters. The mutation count (5 without the list vs 26 with it) is the unit-test shadow of this; the indexing is the real evidence.
 

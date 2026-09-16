@@ -1,5 +1,25 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-16 — `#787` §6 live-verify result (docs only), trunk `b145c2e0`.**
+> **NO SURFACE CELL MOVES.** Nothing a student sees changed; the two checks that ran confirm existing behaviour (premium grades, free gets the 402 upgrade path).
+> - ⚠ **Check 3 could not run:** a signed-out visitor cannot reach a practice question at all (`PracticeLimitGate.tsx:65-67`, `App.tsx:1020`), so "reveal a stored solution while signed out" has no reachable UI path today. It is **transferred to AUTH-GATE-MOVE-1's live-verify**, not dropped.
+> - **For whoever builds AUTH-GATE-MOVE-1:** removing that redirect makes Practice a **signed-out-reachable** surface for the first time. Its cells were only ever assessed signed in.
+> **Scope: UNCHANGED on every surface; nothing goes to §2a or `DECISION_LOG.md`.**
+
+> **2026-09-15 — SEO-ALLCHAPTERS-RESTYLE-1 (`#786`, `85ecc1d1`) + -2 (`#789`, `60c1ed21`), trunk `60c1ed21`.**
+> **NO SURFACE CELL MOVES.** Both change the appearance of one block on Exam Trends (a `Locked` surface): the "All chapters" directory is now a footer with muted-grey 11px links, green on hover, and no visible title.
+> - The directory's content, its 26 links, its cold-load mount, the ranked bands, the subject toggle and the band defaults are unchanged (measured against production).
+> - ⚠ **For anyone redesigning Exam Trends:** the block's accessible name is now `aria-label="All chapters"` on the `<nav>`. Receding is allowed; hiding is not (see the 2026-09-14 note below).
+> **Scope: UNCHANGED on every surface; nothing goes to §2a or `DECISION_LOG.md`.** This is owner-ruled appearance on an already-recorded addition.
+
+> **2026-09-15 — ENTITLEMENT-NO-CREDENTIAL-1 (`#787`, `355b1ccc`), trunk `355b1ccc`.**
+> **NO SURFACE CELL MOVES.** The change is server-only.
+> - **Why nothing a student sees changed:** today a signed-out student is sent to login before any paid CTA, so no student path sends an identity-less paid request. Signed-in students send a token and/or uid header and are unaffected. Stored solutions still render signed out.
+> - ⚠ **For Check & Improve, Worksheets and the Tutor:** from `355b1ccc` a **signed-out** click that reaches a paid route gets **402**, where it was previously served. That becomes student-visible only when AUTH-GATE-MOVE-1 removes the client login redirects. `SolutionChecker`'s signed-out "unlocked" rule and its comments (`:139-152`, `:420-423`) are stale and handed to that lane (`OPEN_QUESTIONS_AND_FOLLOWUPS.md` 2026-09-15).
+> - ⚠ The paywall is **not** watertight: a forged uid header is still served (`[FU-UID-HEADER-TRUSTED-UNVERIFIED]`).
+> - `#786` (`85ecc1d1`) is on trunk with its handoff owed by its own lane. **This note does not assess its cells.**
+> **Scope: UNCHANGED on every surface; nothing goes to §2a or `DECISION_LOG.md`.**
+
 > **2026-09-14 — first indexing evidence after `#782` (docs only), trunk `fe3bb61e`.**
 > **NO SURFACE CELL MOVES.** Nothing a student sees changed.
 > ⚠ **For anyone redesigning Exam Trends (a `Locked` surface):** its "All chapters" directory is now **evidenced as load-bearing for search**. It is the only cold-load path to any Science chapter, and a Science chapter (`life-processes`) was indexed via it. Removing, hiding or lazy-mounting it is a regression even if every visual cell stays ✅. See `OPEN_QUESTIONS_AND_FOLLOWUPS.md` 2026-09-14.

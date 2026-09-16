@@ -1,4 +1,94 @@
 ```
+⛔ THIS BANNER SUPERSEDES THE #787 BANNER BELOW ON THE LIVE-VERIFY AND THE COMMENT FIX.
+   IT DOES NOT SUPERSEDE ANY BANNER ON THE EXAM TRENDS DIRECTORY.
+
+TRUNK IS `b145c2e0b4f92a53692d75d97af99cdffe35355d`, MEASURED 2026-09-16.
+   b145c2e0 = #790 (entitlement.cjs comment: the handler suite is 223 tests, not 64).
+
+✅ ENTITLEMENT-NO-CREDENTIAL-1 IS CLOSED. #787 355b1ccc · docs #788 6803c8ca · #790 b145c2e0.
+   Owner live-verify: PREMIUM GRADES ✅ · FREE GETS THE 402 UPGRADE PATH ✅.
+   [FU-ENTITLEMENT-NO-CREDENTIAL-1-LIVE-VERIFY-OWED] and
+   [FU-ENTITLEMENT-CHECKSOLUTION-COUNT-STALE] are both CLOSED.
+
+⛔ THE THIRD §6 CHECK COULD NOT RUN AND IS TRANSFERRED, NOT SKIPPED.
+   "Signed out, reveal a stored solution" has no reachable UI path: PracticeLimitGate
+   redirects a visitor with no user to /login before a question renders
+   (PracticeLimitGate.tsx:65-67, App.tsx:1020). The checklist assumed AUTH-GATE-MOVE-1 had
+   shipped too. The SERVER half is pinned by NC5 + CONTROL 3 in entitlement.test.cjs.
+   → AUTH-GATE-MOVE-1 runs it, under [FU-SOLUTIONCHECKER-FAILOPEN-COMMENTS-STALE].
+
+NEXT:
+   1. AUTH-GATE-MOVE-1 — unblocked. It MUST: rewrite SolutionChecker.tsx:139-152 and
+      :420-423 (stale since 355b1ccc), run the transferred check 3, and NOT assume the
+      paywall is watertight — a forged uid header is still served.
+      [FU-UID-HEADER-TRUSTED-UNVERIFIED]
+   2. Own lane: retire the unauthenticated warmup call — artifacts/api-server/src/index.ts:110,
+      lazytopper/scripts/warmup-solution-cache.mjs:97-102, pregen-step-solutions.mjs:67.
+      No allowance. [FU-WARMUP-UNAUTH-STEP-SOLUTION]
+   3. Real fix for the uid header: client retries getIdToken() instead of falling back to a
+      bare uid header, then delete the uid-header fail-open (entitlement.cjs:385-387) once
+      entitlement.fail_open.no_uid stays near zero.
+```
+
+```
+⛔ THIS BANNER SUPERSEDES THE ONES BELOW IT ON TRUNK AND ON THE EXAM TRENDS DIRECTORY.
+   IT DOES NOT SUPERSEDE THE #787 BANNER ON THE PAID-ROUTE GATE — ITS NEXT LIST STILL STANDS.
+
+TRUNK IS `60c1ed210da24f0984f62f583ddcbd40327227a9`, MEASURED 2026-09-15.
+   60c1ed21 = #789 SEO-ALLCHAPTERS-RESTYLE-2.   85ecc1d1 = #786 RESTYLE-1 (handoff now written).
+
+✅ /app/exam-trends "All chapters": muted-grey links (green on hover/focus), 11px, no visible
+   title. 26 links, all visible, links+labels 5.53:1 (1440) / 5.31:1 (390).
+★★ QUERY IT AS nav[aria-label="All chapters"]. nav[aria-labelledby="lt-et-all-title"] IS GONE.
+★★ 11px IS A FLOOR. RECEDING IS ALLOWED; HIDING IS NOT — this block is the only cold-load path
+   to any Science chapter, and a Science chapter was indexed through it.
+
+NEXT (in addition to the #787 banner's list, whose item 5 is now DONE):
+   1. Owner live-verify: directory reads as a quiet footer; hover turns a chapter green +
+      underlined; all 26 legible. [FU-SEO-ALLCHAPTERS-RESTYLE-2-LIVE-VERIFY-OWED]
+```
+
+```
+⛔ THIS BANNER SUPERSEDES THE ONES BELOW IT ON TRUNK AND ON THE PAID-ROUTE GATE.
+   IT DOES NOT SUPERSEDE THEM ON THE SEO ARC.
+
+TRUNK IS `355b1ccc794dffbcefb23184a2f059d94f6e41fa`, MEASURED 2026-09-15.
+   355b1ccc = #787 ENTITLEMENT-NO-CREDENTIAL-1 (this handoff).
+   85ecc1d1 = #786 SEO-ALLCHAPTERS-RESTYLE-1 — ITS HANDOFF IS OWED BY ITS OWN LANE AND IS NOT
+              WRITTEN HERE. SEO-ALLCHAPTERS-RESTYLE-2 is in flight against the same file.
+
+✅ #787: A REQUEST WITH NO BEARER TOKEN AND NO X-Lazytopper-Uid NOW GETS 402 (outcome
+   'anonymous', counters entitlement.deny + entitlement.deny.anonymous, NEVER fail_open).
+   Offered-but-invalid token, firebase-admin missing, Firestore error: still FAIL OPEN.
+   Stored steps on /api/step-solution still free to anyone; only generation is denied.
+
+★★ A UID HEADER WITHOUT A TOKEN IS SERVED (no_uid) — ON PURPOSE. paidCallHeaders.ts:81 drops
+   Authorization when getIdToken() rejects but keeps the uid header: that is a signed-in
+   student, not an anonymous one.
+
+⚠⚠ SO THE PAYWALL IS CLOSED AGAINST ACCIDENTAL ANONYMITY, NOT AGAINST DELIBERATE BYPASS.
+   A forged uid header (or garbage Bearer) is still served. AUTH-GATE-MOVE-1 MUST NOT ASSUME
+   THE PAYWALL IS WATERTIGHT. Real fix: client retries getIdToken() instead of falling back to
+   a bare uid header → then delete the uid-header fail-open. [FU-UID-HEADER-TRUSTED-UNVERIFIED]
+
+NEXT:
+   1. NOW — one-line product PR: entitlement.cjs:465 "64 tests" → 223 (checkSolution.test.cjs
+      is 223). Separate PR, full CI — NOT bundled into docs (CLAUDE.md §8).
+      [FU-ENTITLEMENT-CHECKSOLUTION-COUNT-STALE]
+   2. Owner live-verify #787: premium grades · free sees 402 upgrade · signed-out still sees a
+      stored solution. [FU-ENTITLEMENT-NO-CREDENTIAL-1-LIVE-VERIFY-OWED]
+   3. AUTH-GATE-MOVE-1 is unblocked. It MUST rewrite SolutionChecker.tsx:139-152 and :420-423
+      (stale from 355b1ccc) when it replaces the open button with a sign-in prompt.
+      [FU-SOLUTIONCHECKER-FAILOPEN-COMMENTS-STALE]
+   4. Own lane: retire the unauthenticated warmup call — artifacts/api-server/src/index.ts:110,
+      lazytopper/scripts/warmup-solution-cache.mjs:97-102, pregen-step-solutions.mjs:67.
+      No allowance. [FU-WARMUP-UNAUTH-STEP-SOLUTION]
+   5. RESTYLE-2, on merge: correct the three handoff lines quoting
+      nav[aria-labelledby="lt-et-all-title"] in a NEW dated section.
+      [FU-ALLCHAPTERS-SELECTOR-QUOTE-STALE-ON-RESTYLE-2]
+```
+
+```
 ⛔ THIS BANNER SUPERSEDES THE ONE BELOW IT ON DISCOVERY AND ON /browse.
 
 TRUNK IS `fe3bb61e46dc7a07ca8010d861005675edfa9404`, MEASURED 2026-09-15.

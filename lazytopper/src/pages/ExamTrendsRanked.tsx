@@ -860,17 +860,14 @@ const STYLES = `
 /* ── All chapters — a compact, VISIBLE directory of every chapter ─────── */
 /* SEO-ALLCHAPTERS-RESTYLE-1 — styled as a page footer, not a fourth card: a hairline
    rule and space above, quiet type below the bands. Every link stays VISIBLE and
-   AA-contrast — receding is allowed, hiding is not. */
+   AA-contrast — receding is allowed, hiding is not.
+   SEO-ALLCHAPTERS-RESTYLE-2 — links rest in muted grey (green only on hover/focus),
+   11px is the FLOOR for legibility, and the visible title is gone: the <nav> is
+   named by aria-label, and MATHS / SCIENCE carry the visible labelling. */
 .lt-et-all {
   margin-top: 40px;
   padding: 16px 2px 0;
   border-top: 1px solid var(--border);
-}
-.lt-et-all-title {
-  margin: 0 0 6px;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--muted);
 }
 .lt-et-all-group {
   display: flex;
@@ -881,7 +878,7 @@ const STYLES = `
 }
 .lt-et-all-subject {
   margin: 0;
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -894,12 +891,12 @@ const STYLES = `
   margin: 0;
   padding: 0;
   list-style: none;
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1.6;
 }
-.lt-et-all-list a { color: hsl(152,60%,30%); text-decoration: none; }
+.lt-et-all-list a { color: var(--muted); text-decoration: none; }
 .lt-et-all-list a:hover,
-.lt-et-all-list a:focus-visible { text-decoration: underline; }
+.lt-et-all-list a:focus-visible { color: hsl(152,60%,30%); text-decoration: underline; }
 
 .lt-et-foot {
   margin-top: 18px;
@@ -1337,10 +1334,7 @@ function PriorityBand({
 function AllChapters() {
   const subjects: DesktopSubject[] = ["Maths", "Science"];
   return (
-    <nav className="lt-et-all" aria-labelledby="lt-et-all-title">
-      <h2 className="lt-et-all-title" id="lt-et-all-title">
-        All chapters
-      </h2>
+    <nav className="lt-et-all" aria-label="All chapters">
       {subjects.map((s) => (
         <div className="lt-et-all-group" key={s}>
           <h3 className="lt-et-all-subject">{s}</h3>

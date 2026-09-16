@@ -20,6 +20,132 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 ---
 
+
+## 2026-09-16 — `#787` §6 LIVE-VERIFY RESULT (docs-only; trunk `b145c2e0`; open PRs at the time of writing: `#784` dependabot only) — one FU CLOSED, one check TRANSFERRED, no new follow-ups
+
+★ **PROVENANCE.**
+- **OWNER-REPORTED (2026-09-15/16, live product):** checks 1 and 2 executed and passed; check 3 could not be executed.
+- **HANDOFF-VERIFIED (2026-09-16):** the reason check 3 cannot run, read on trunk `b145c2e0` — `PracticeLimitGate.tsx:65-67` and `App.tsx:1020`.
+- **OWNER-RULED (2026-09-16):** record it so the FU closes honestly rather than looking like a failure; the signed-out path is AUTH-GATE-MOVE-1's job.
+
+### `[FU-ENTITLEMENT-NO-CREDENTIAL-1-LIVE-VERIFY-OWED]` — status line 2026-09-16: **CLOSED. Two checks PASSED live; the third was NOT RUNNABLE YET and is TRANSFERRED, not skipped**
+
+| # | Check (spec §6) | Result |
+|---|---|---|
+| 1 | Premium student checks an answer → must still grade | ✅ **PASSED live** (OWNER-REPORTED). This was the regression that would have cost real money to find late. |
+| 2 | Free student checks an answer → the 402 upgrade path appears as before | ✅ **PASSED live** (OWNER-REPORTED). |
+| 3 | Signed out, open a practice question and reveal a stored solution → it must still show | ⛔ **NOT RUNNABLE on trunk today**, and **not a failure of `#787`.** |
+
+**Why check 3 could not run, verified in code.** A signed-out visitor never reaches a practice question: `/practice/:grade/:subject` is wrapped in `<PracticeLimitGate>` (`App.tsx:1020`), and that gate returns `<Navigate to="/login" replace state={{ from }} />` when there is no user (`PracticeLimitGate.tsx:65-67`), **before any question renders**. So "reveal a stored solution while signed out" has no reachable UI path on trunk. ★ **The checklist was written as if ENTITLEMENT-NO-CREDENTIAL-1 and AUTH-GATE-MOVE-1 had both shipped** (owner, 2026-09-16); only the first has.
+
+**What IS established about that behaviour, without the browser.** The server half — the half `#787` could change — is pinned by tests that run in CI:
+- **NC5:** an anonymous request to `/api/step-solution` is **not** gated at the boundary (`applyToRequest` returns `false`, nothing sent), the lazy resolver is attached, and the real handler serves bank-backed steps **200** with **zero** Gemini calls. Its control: `requireForGeneration()` on that same anonymous request returns the `step-solution-generation` denial, and an anonymous generation request through the handler gets **402** with zero Gemini calls.
+- **CONTROL 3:** over real HTTP through `index.cjs`, an anonymous POST to a gated route gets **402**, while a uid-header-only POST is served.
+⇒ **Stored steps remain free to an identity-less caller at the server.** What is unverified is only the signed-out *UI* path, which does not exist yet.
+
+**TRANSFERRED, not dropped.** Check 3 becomes part of **AUTH-GATE-MOVE-1's** live-verify: once that lane removes the client redirects, a signed-out visitor must be able to open a practice question and reveal a stored solution, and must get the 402 upgrade path — not a blank failure — on a paid action. It is carried under `[FU-SOLUTIONCHECKER-FAILOPEN-COMMENTS-STALE]`, which is already that lane's entry and already covers the signed-out surface. **Do not re-open this FU for it.**
+
+⚠ **This does not weaken `[FU-UID-HEADER-TRUSTED-UNVERIFIED]`.** A forged uid header is still served, and checks 1 and 2 passing says nothing about that.
+
+---
+
+## 2026-09-15 — SEO-ALLCHAPTERS-RESTYLE-1 + -2 (`#786` + `#789`, trunk `60c1ed21`)
+
+### `[FU-ALLCHAPTERS-SELECTOR-QUOTE-STALE-ON-RESTYLE-2]` — **CLOSED 2026-09-15** by the RESTYLE-2 handoff
+- `#789` replaced `aria-labelledby="lt-et-all-title"` with `aria-label="All chapters"`; the `<h2>` and `id` no longer exist.
+- The three dated lines (`CURRENT_STATE.md`, `OPEN_QUESTIONS_AND_FOLLOWUPS.md`, `SESSION_LOG.md`, found with `grep -nE '^3[.] [*][*]Measured on production' handoff/*.md`) keep their original text under board rule 3. Each now ends with an inline pointer to the correction, as the owner ruled.
+- Their `ExamTrendsRanked.tsx:1279` / `:1246` citations were already stale at `85ecc1d1`. At `60c1ed21`: `:1362` default subject, `:1301` band unmount.
+- The original flag entry below is left as written (rule 3).
+
+### `[FU-SEO-ALLCHAPTERS-RESTYLE-2-LIVE-VERIFY-OWED]` — OPEN, owner only (spec §6)
+1. Open `/app/exam-trends`: the directory reads as a quiet footer, and the three ranked bands are what the page is about.
+2. Hover a chapter name: it turns green and underlines.
+3. All 26 chapters are present and legible without squinting. If not, another pass is cheap.
+
+## 2026-09-15 — ENTITLEMENT-NO-CREDENTIAL-1 (`#787` MERGED as `355b1ccc`, squash, self-merged by the lane; docs-only; open PRs at the time of writing: `#784` dependabot only) — six new follow-ups, one status line
+
+★ **PROVENANCE.**
+- **HANDOFF-VERIFIED** by the `#787` lane: every file:line below re-read at trunk `355b1ccc`.
+- **OWNER-RULED (2026-09-15):**
+  - The uid-header carve-out.
+  - Retire the warmup call, no allowance.
+  - The comment fix as a separate one-line product PR.
+  - The SolutionChecker handover.
+  - Raise `[FU-UID-HEADER-TRUSTED-UNVERIFIED]`.
+  - Flag, don't rewrite, the RESTYLE-2 selector lines.
+- **Not covered here:** trunk also carries `#786` (SEO-ALLCHAPTERS-RESTYLE-1, `85ecc1d1`). **Its handoff is owed by its own lane and is not written in this section.**
+
+What changed on the server is in `CURRENT_STATE.md` `[CURRENT · SECURITY]`. In one line: a request with **no bearer token AND no `X-Lazytopper-Uid`** now gets 402 as outcome `anonymous`, counted by `entitlement.deny` + `entitlement.deny.anonymous`, never `fail_open`. Every other fail-open is unchanged, and `entitlement.fail_open.no_credential` is retired.
+
+### `[FU-UID-HEADER-TRUSTED-UNVERIFIED]` — ★★ OPEN. THE PAYWALL IS CLOSED AGAINST ACCIDENTAL ANONYMITY, NOT AGAINST DELIBERATE BYPASS
+**A forged `X-Lazytopper-Uid` header is SERVED by the entitlement gate.** So is any unverifiable `Authorization: Bearer <garbage>`. Both land in `entitlement.cjs::resolve()`'s no-uid branch and **fail open under `entitlement.fail_open.no_uid`**.
+- The token case is `entitlement.cjs:382-384`, deliberate and pre-existing.
+- The uid-header case is `:385-387` (`if (!resolveCaller(req).anonymous)`), added by `#787`.
+- Anyone who can run curl can add one header and be graded, tutored or given a generated solution without paying.
+
+**Why it is this way (owner ruling, 2026-09-15), and why that is right for now.** `paidCallHeaders.ts:81` does `current.getIdToken().catch(() => null)`: on a failed token fetch the client **drops `Authorization` and still sends the uid header**. A request carrying only a uid header is therefore, today, indistinguishable from a signed-in, possibly paying student whose token refresh hiccupped. Denying it would lock that student out, which is the worse failure.
+
+**The real fix, named.**
+1. **Client:** `paidCallHeaders()` retries `getIdToken()` (with a forced refresh on the retry) instead of falling back to a bare uid header. If no token can be obtained, it sends no identity at all rather than a uid alone.
+2. **Server, once (1) has shipped and been live long enough to rule out stale clients:** delete the uid-header fail-open branch (`entitlement.cjs:385-387`). A request with a uid header but no verifiable token then falls to `anonymous` and is denied. **The gate becomes genuinely closed.**
+3. **Evidence to watch before step 2:** `entitlement.fail_open.no_uid` on `/api/admin/token-telemetry`. If it stays near zero after (1), deleting the branch locks nobody out.
+
+⚠ **AUTH-GATE-MOVE-1 must NOT assume the paywall is watertight.** A client redirect removed on the assumption "the server enforces it now" is safe against a signed-out student clicking, and unsafe against a deliberate caller.
+
+**Related, do not duplicate:**
+- `[FU-DPDP-GATEWAY-SPOOFABLE-UID-HEADER]`: the same header, from the DPDP/data-route angle; the spoof there reaches data, not the paywall.
+- `[FU-VERIFY-UID-ON-AI-ENDPOINTS]`: the rate limiter's trust in the header.
+
+This entry is the **paywall** consequence, and its fix is the client retry above.
+
+### `[FU-WARMUP-UNAUTH-STEP-SOLUTION]` — OPEN. Owner ruling: **RETIRE THE CALL, NO ALLOWANCE**
+**An unauthenticated server-launched job POSTs a paid route.** The three references:
+1. **`artifacts/api-server/src/index.ts:110`**: `runWarmup` resolves and spawns `lazytopper/scripts/warmup-solution-cache.mjs`. It is scheduled 45 s after boot and every 6 h, and runs **only when `DATABASE_URL` is set**.
+2. **`lazytopper/scripts/warmup-solution-cache.mjs:97-102`**: `fetch(\`${GATEWAY_URL}/api/step-solution\`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, … })`. There is **no `Authorization` and no uid header.**
+3. **`lazytopper/scripts/pregen-step-solutions.mjs:67`**: the same pattern, run by hand.
+
+**Effect from `355b1ccc` on:** these calls carry no identity, so on the **generation** branch `requireForGeneration()` now returns 402 and the script counts the question as failed. Pre-written-steps calls still return 200.
+
+**It was already capped before `#787`:** with no verified uid and no uid header, `rateLimiter.cjs:312` puts the loopback call in the anonymous IP bucket, hard cap **3/day** (`:248`). The job could not have been warming the bank at any volume.
+
+**Why retire, not allow (owner):** an unauthenticated bypass on a paid route is exactly the hole `#787` closed, and an allowance would have to be re-closed later. **Retire it in its own lane before anyone relies on the warmup working.** That lane touches `artifacts/api-server` and `lazytopper/scripts`, which is out of scope for the entitlement lane. Unverified: whether `DATABASE_URL` is set on any live deploy, which decides whether the job runs at all.
+
+### `[FU-ENTITLEMENT-CHECKSOLUTION-COUNT-STALE]` — OPEN, **fix already sequenced: the one-line product PR immediately after this docs PR**
+**`lazytopper/server/services/entitlement.cjs:465` says `checkSolution.test.cjs` is "64 tests with 29 direct invocations". It is 223 tests** (`node --test server/routes/checkSolution.test.cjs` → `# tests 223 · # pass 223 · # skipped 0`, locally and in the `#787` CI log). The ENTITLEMENT-NO-CREDENTIAL-1 spec repeated the stale count, and its §3 also had the wrong directory (`server/services/`; the suite is under `server/routes/`).
+★ **Why it matters (owner):** a comment that undercounts a suite by 159 tells the next reader that the suite is small enough to skip. That comment is the justification for gating at the route boundary instead of inside the handlers. The real number makes that argument stronger, not weaker.
+**Ships as a separate one-line product PR** (64 → 223, full CI, normal product-PR rules), **not bundled into this docs PR**. `CLAUDE.md` §8 says docs-only PRs carry zero product files, and the owner declined an exception for a comment. **Close this FU when that PR merges.** The "29 direct invocations" figure was not re-counted by the lane; the comment PR should re-derive it or drop it rather than carry another unverified number.
+
+### `[FU-SOLUTIONCHECKER-FAILOPEN-COMMENTS-STALE]` — OPEN, ★ **HANDOVER INTO AUTH-GATE-MOVE-1**
+**Two comments in `lazytopper/src/components/question/SolutionChecker.tsx` describe server behaviour that stopped being true at `355b1ccc`:**
+- **`:139-152`** says `resolve()` with no verifiable uid returns `failOpen(FAIL_OPEN_NO_CREDENTIAL, …)` → entitled, so "a signed-out student CAN grade today", and that locking the CTA for them would be a false lock.
+- **`:420-423`** says `entitlement.cjs` fails OPEN without a real Firebase user, "so signed-out students and local sessions are served and must NOT be shown a lock". It sits beside `const verifiableCaller = !!user?.uid && !user.isLocalSession;` (`:423`).
+- Also quoting the retired call in a comment: `SolutionChecker.entitlement.test.tsx:200-201`.
+
+**After `#787`:** a signed-out click on an unlocked CTA reaches a server **402**, and `FAIL_OPEN_NO_CREDENTIAL` no longer exists. `src/` was frozen for the entitlement lane, so these were not touched.
+**AUTH-GATE-MOVE-1 owns this.** It replaces the open button with a sign-in prompt and must rewrite both comments in the same PR. ⚠ A stale comment that documents the old server behaviour is how the next seat gets misled: it states as fact, with reasoning, a rule the server no longer follows.
+
+### `[FU-ALLCHAPTERS-SELECTOR-QUOTE-STALE-ON-RESTYLE-2]` — FLAG ONLY, **owned by SEO-ALLCHAPTERS-RESTYLE-2**
+Three handoff lines quote the selector **`nav[aria-labelledby="lt-et-all-title"]`** as where `life-processes` occurs on Exam Trends. **Where they are:**
+- At trunk `355b1ccc`, before this docs PR: `CURRENT_STATE.md:17`, `OPEN_QUESTIONS_AND_FOLLOWUPS.md:43`, `SESSION_LOG.md:15`.
+- After this docs PR's prepends: `CURRENT_STATE.md:86`, `OPEN_QUESTIONS_AND_FOLLOWUPS.md:127`, `SESSION_LOG.md:55`.
+- ⚠ **A bare `grep lt-et-all-title` now also matches this flag and its mentions in `CURRENT_STATE`, `NEXT_ACTION` and `SESSION_LOG`.** The three lines to correct are the only ones that **start** with the item number 3 followed by the bold "Measured on production". Find them with the line-anchored `grep -nE '^3[.] [*][*]Measured on production' handoff/*.md`, which returns exactly those three. This flag line does not start with it, so it does not match itself. **The in-flight SEO-ALLCHAPTERS-RESTYLE-2 lane is replacing that attribute with `aria-label="All chapters"`**, so those lines go stale when it merges.
+**Deliberately NOT rewritten here:** that lane has not merged, and the lines are true of trunk today. Under board rule 3 they are dated entries anyway; the correction belongs in a new dated section written when RESTYLE-2 merges. **Rule 2: this lane wrote first. RESTYLE-2's handoff should add the correction and close this flag, not open a duplicate.**
+
+### `[FU-ENTITLEMENT-NO-CREDENTIAL-1-LIVE-VERIFY-OWED]` — OPEN, owner only (spec §6)
+Static gates pass whether or not the live path works. `#787` changes a live paid round-trip, so **one real owner execution is owed**:
+1. **Signed in as a premium student, check an answer: it must still grade.** This is the regression that would cost real money to discover late.
+2. **Signed in as a free student, check an answer: the 402 upgrade path appears as before.**
+3. **Signed out, open a practice question and reveal a stored solution: it must still show.**
+⚠ A deploy caution carried from Wave 5A (`MERGED` is not `DEPLOYED`): the server runs on Railway. Confirm the running gateway carries `355b1ccc` before reading results.
+
+### `[FU-GATE3-SIGNED-OUT-GRADING-FAILS-OPEN]` — status line 2026-09-15: **SERVER HALF CLOSED by `#787`**
+The dated body above stands as written (board rule 3). It said an anonymous `POST /api/check-solution` "returns 400 from the handler, not 402", meaning the boundary served it and the handler rejected the input.
+- **From `355b1ccc`, a request with no bearer token and no uid header gets 402 `premium_required` at the boundary**, proven over real HTTP through `index.cjs` (CONTROL 3 in `entitlement.test.cjs`).
+- **Not closed:** a request carrying a forged uid header is still served. See `[FU-UID-HEADER-TRUSTED-UNVERIFIED]`.
+- The client half, the GATE-3 signed-out carve-out in `SolutionChecker`, is now handed to AUTH-GATE-MOVE-1 via `[FU-SOLUTIONCHECKER-FAILOPEN-COMMENTS-STALE]`.
+
+---
+
 ## 2026-09-14 — FIRST INDEXING EVIDENCE after `#782` (docs-only; trunk `fe3bb61e`; open PRs at the time of writing: `#784` dependabot only) — one FU CLOSED, one FU RULED, no new follow-ups
 
 ★ **PROVENANCE.**
@@ -40,7 +166,7 @@ The close condition set on 2026-09-13 was "Search Console showing these URLs **c
 ★★★ **THE "ALL CHAPTERS" LIST IS PROVABLY WHAT GOT A SCIENCE CHAPTER INDEXED. The reasoning, not just the mutation count:**
 1. **Google's referring page for `/app/topic-hub/life-processes` is `/app/exam-trends`,** with no referring sitemap and a smartphone crawl (OWNER-REPORTED). The link was followed from that page.
 2. **Life Processes is a Science chapter.** Exam Trends defaults the subject to **Maths** (`ExamTrendsRanked.tsx:1279`), and bands render as `{open && …}` (`:1246`), so collapsed bands are **unmounted** and only `must-crack` starts open. On a cold load the ranked rows contain **no Science chapter at all**.
-3. **Measured on production, cold, no session, both widths (HANDOFF-VERIFIED):** the only topic-hub links outside the list are **5 Maths chapters** (`trigonometry`, `triangles`, `surface-areas-and-volumes`, `polynomials`, `circles`). The string `life-processes` occurs **exactly once** in the rendered page HTML, inside `nav[aria-labelledby="lt-et-all-title"]`.
+3. **Measured on production, cold, no session, both widths (HANDOFF-VERIFIED):** the only topic-hub links outside the list are **5 Maths chapters** (`trigonometry`, `triangles`, `surface-areas-and-volumes`, `polynomials`, `circles`). The string `life-processes` occurs **exactly once** in the rendered page HTML, inside `nav[aria-labelledby="lt-et-all-title"]`. _(⚠ Selector superseded 2026-09-15 by `#789`: now `nav[aria-label="All chapters"]` — see the 2026-09-15 SEO-ALLCHAPTERS-RESTYLE section.)_
 4. **So the only place a crawler could have found that URL on `/app/exam-trends` is the flat list.** The same holds for `light-reflection-and-refraction`, also Science and also indexed. (`trigonometry` and `polynomials` are among the 5 Maths band rows, so their indexing cannot be attributed to the list alone.)
 5. **Consequence:** removing or hiding the list, or letting it drift out of the cold-load DOM, cuts the in-product crawl path to **all 13 Science chapters** and 8 of 13 Maths chapters. The mutation count (5 without the list vs 26 with it) is the unit-test shadow of this; the indexing is the real evidence.
 
