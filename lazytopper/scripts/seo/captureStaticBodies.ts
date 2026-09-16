@@ -51,7 +51,7 @@
 
 import { readFileSync, writeFileSync, existsSync, statSync } from "node:fs";
 import { createServer, type Server } from "node:http";
-import { join, resolve, extname, dirname } from "node:path";
+import { join, resolve, extname, dirname, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import type { AddressInfo } from "node:net";
 import { chromium, type Browser, type Page } from "@playwright/test";
@@ -207,11 +207,13 @@ function serveBuiltOutput(outDir: string, basename: string): Promise<Server> {
     else if (pathname === basename) pathname = "/";
 
     const file = [
-      join(outDir, pathname),
-      join(outDir, `${pathname.replace(/\/$/, "")}.html`),
-      join(outDir, pathname, "index.html"),
-      join(outDir, "index.html"), // SPA fallback, exactly as the host serves it
-    ].find(isReadableFile);
+      pathname,
+      `${pathname.replace(/\/$/, "")}.html`,
+      join(pathname, "index.html"),
+      "index.html", // SPA fallback, exactly as the host serves it
+    ]
+      .map((candidate) => confineToOutDir(outDir, candidate))
+      .find(isReadableFile);
 
     if (!file) {
       res.writeHead(404).end("not found");
@@ -226,7 +228,25 @@ function serveBuiltOutput(outDir: string, basename: string): Promise<Server> {
   });
 }
 
-function isReadableFile(candidate: string): boolean {
+/**
+ * Resolve a request path INSIDE `outDir`, or return null.
+ *
+ * ⚠ THE REQUEST PATH IS UNTRUSTED INPUT EVEN HERE. This server is loopback-only, on
+ * an ephemeral port, alive for the ~30 seconds of one build step — but `..` segments
+ * in a URL would still resolve outside the build output and hand back any file the
+ * build user can read, and CodeQL flagged exactly that (`js/path-injection`, HIGH,
+ * twice, on the first version of this function). "It is only a build script" is how a
+ * path traversal ends up in something that later runs somewhere else. Resolving and
+ * then asserting containment is two lines and removes the question entirely.
+ */
+export function confineToOutDir(outDir: string, candidate: string): string | null {
+  const root = resolve(outDir);
+  const target = resolve(root, `.${candidate.startsWith("/") ? "" : "/"}${candidate}`);
+  return target === root || target.startsWith(root + sep) ? target : null;
+}
+
+function isReadableFile(candidate: string | null): candidate is string {
+  if (!candidate) return false;
   try {
     return statSync(candidate).isFile();
   } catch {

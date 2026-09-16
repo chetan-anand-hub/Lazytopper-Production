@@ -6,6 +6,7 @@ import {
   MIN_BODY_BYTES,
   SUBSTRING_TRAP_WITNESSES,
   capturablePaths,
+  confineToOutDir,
   stripAuthChrome,
   validateCaptures,
   validateCoverage,
@@ -321,5 +322,43 @@ describe("validateCoverage catches a page that was never captured at all", () =>
       .map((path) => capture(path, path));
 
     expect(validateCoverage(short).join(" ")).toContain("substring-trap witness is missing");
+  });
+});
+
+describe("confineToOutDir keeps the build server inside the build output", () => {
+  const OUT = process.platform === "win32" ? "C:\build\app" : "/build/app";
+
+  it("resolves an ordinary path inside the output", () => {
+    expect(confineToOutDir(OUT, "/topic-hub/trigonometry.html")).not.toBeNull();
+  });
+
+  /**
+   * ★ THE CONTROL FOR THE FIX. CodeQL flagged `js/path-injection` (HIGH) twice on the
+   * first version of the build server: a `..` in the request path resolved outside the
+   * build output and would have served any file the build user can read. These are the
+   * attacks, and they must come back null — a fix without a failing case is a refactor.
+   */
+  it.each([
+    "/../../../../etc/passwd",
+    "/topic-hub/../../../../../../Windows/win.ini",
+    "/./../../outside.html",
+    "/../package.json",
+  ])("REFUSES to escape the output directory (%s)", (attack) => {
+    expect(confineToOutDir(OUT, attack)).toBeNull();
+  });
+
+  /**
+   * ⚠ THE SERVER DECODES BEFORE IT CONFINES, so a percent-encoded traversal reaches
+   * this function already decoded. Modelling that here rather than feeding raw
+   * `%2f` — which this function would correctly treat as one literal filename — keeps
+   * the test honest about WHERE the decoding happens. The live server is checked
+   * end-to-end separately.
+   */
+  it("REFUSES a percent-encoded traversal once decoded, as the server decodes it", () => {
+    expect(confineToOutDir(OUT, decodeURIComponent("/..%2f..%2fsecret"))).toBeNull();
+  });
+
+  it("allows the output directory itself", () => {
+    expect(confineToOutDir(OUT, "/")).not.toBeNull();
   });
 });
