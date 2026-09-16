@@ -578,26 +578,36 @@ async function main(): Promise<void> {
 
   const server = await serveBuiltOutput(outDir, basename);
   const origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
-  const browser = await chromium.launch();
 
   const captures: Capture[] = [];
+  // ⚠ THE SERVER IS CLOSED ON EVERY PATH OUT OF HERE, INCLUDING A FAILED BROWSER
+  // LAUNCH, AND THAT OUTER `try` IS NOT TIDINESS. `chromium.launch()` used to sit
+  // OUTSIDE it: on a machine with no browser downloaded the launch threw in ONE
+  // SECOND, printed the right error — and then the build HUNG, because the still
+  // listening server kept the event loop alive so the process never exited on its
+  // `exitCode = 1`. CI sat on that step for fifty minutes with the diagnosis already
+  // in the log. A loud failure that never terminates is not a loud failure.
   try {
-    const CONCURRENCY = 4;
-    for (let index = 0; index < advertised.length; index += CONCURRENCY) {
-      const batch = advertised.slice(index, index + CONCURRENCY);
-      const settled = await Promise.all(
-        batch.map(async (path) => {
-          try {
-            return await capturePath(browser, origin, basename, path);
-          } catch (error: unknown) {
-            throw new Error(`captureStaticBodies: ${path} failed to render — ${String(error)}`);
-          }
-        }),
-      );
-      captures.push(...settled);
+    const browser = await chromium.launch();
+    try {
+      const CONCURRENCY = 4;
+      for (let index = 0; index < advertised.length; index += CONCURRENCY) {
+        const batch = advertised.slice(index, index + CONCURRENCY);
+        const settled = await Promise.all(
+          batch.map(async (path) => {
+            try {
+              return await capturePath(browser, origin, basename, path);
+            } catch (error: unknown) {
+              throw new Error(`captureStaticBodies: ${path} failed to render — ${String(error)}`);
+            }
+          }),
+        );
+        captures.push(...settled);
+      }
+    } finally {
+      await browser.close();
     }
   } finally {
-    await browser.close();
     await new Promise<void>((done) => server.close(() => done()));
   }
 
