@@ -1,5 +1,20 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-16 — AUTH: **AUTH-GATE-MOVE-1 — THE LOGIN WALL MOVES OFF THE CONTENT AND ONTO AI GRADING** — `#793` MERGED — trunk `5c5fc57b`
+
+- ✅ **Practice, predicted questions, the worksheet builder and both its PDF downloads are now reachable SIGNED OUT.** One chapter test or full mock a day is too. All four were behind a login redirect before.
+- ✅ **Per-DAY, two-tier paper views:** anonymous 1/day, signed-in free 3/day, premium unlimited. The route comment claimed 1/day while the constant enforced 1/**week**; they now agree.
+- ✅ **Grading is where the wall is**, and it stays Premium-only at every non-premium tier. Signed-out gets an offer; signed-in free gets the existing upgrade path, unchanged.
+- ✅ **`[FU-SOLUTIONCHECKER-FAILOPEN-COMMENTS-STALE]`'s transferred check 3 RAN AND PASSED** — signed out, a stored step-marked solution reveals with real half-mark text and zero paid calls.
+- ✅ **A follow-up created by this lane was closed inside it:** a signed-out student pressing "Grade my N answers" would have bought a 402; the batch service now refuses before the network (`calls: 0`) and offers sign-in.
+- ✅ **OWNER LIVE-VERIFIED BOTH TIERS on production (2026-09-16).** §4 fully verified.
+- ⚠ **`[FU-SOLUTIONCHECKER-FAILOPEN-COMMENTS-STALE]` STAYS OPEN** — `SolutionChecker.tsx:139-153` was required and **missed**; it still contradicts the server and the shipped code in the same file. Comment-only fix.
+- ⚠ **New: `[FU-PREVIEW-AUTH-DOMAINS-BLOCK-SIGNED-IN-VERIFY]`** — Firebase authorized domains exclude hashed preview URLs, so no lane can live-verify signed-in behaviour pre-merge. One console change lifts the evidence ceiling for every future lane.
+- ⚠ **New: `[FU-SPEC-AUTOTRIAL-CLAIM-FALSE]`** — the spec's claim that a new account auto-starts a 7-day trial is false; a fresh signup is signed-in free.
+- ⚠ **Still open:** `[FU-UID-HEADER-TRUSTED-UNVERIFIED]`, `[FU-WARMUP-UNAUTH-STEP-SOLUTION]`.
+- 🧹 **Branch `lane/auth-gate-move-1` was deleted by the repo's auto-delete-on-merge setting**, not by the lane. No repo-wide prune.
+
+
 ## 2026-09-16 — SECURITY: **ENTITLEMENT-NO-CREDENTIAL-1 LIVE-VERIFIED (2 of 3) AND CLOSED** — docs only — trunk `b145c2e0`
 
 - ✅ **`[FU-ENTITLEMENT-NO-CREDENTIAL-1-LIVE-VERIFY-OWED]` CLOSED.** Premium grades; free gets the 402 upgrade path (both OWNER-REPORTED, live).
