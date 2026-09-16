@@ -49,9 +49,9 @@
  * a state that is false for them.
  */
 
-import { readFileSync, writeFileSync, existsSync, statSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, readdirSync } from "node:fs";
 import { createServer, type Server } from "node:http";
-import { join, resolve, extname, dirname, sep } from "node:path";
+import { join, resolve, extname, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import type { AddressInfo } from "node:net";
 import { chromium, type Browser, type Page } from "@playwright/test";
@@ -197,28 +197,59 @@ async function resolveBasename(): Promise<string> {
 }
 
 /**
+ * Index every file the build actually emitted: servable URL path -> absolute path.
+ *
+ * ★ THIS IS WHAT MAKES THE SERVER SAFE, AND IT IS A STRUCTURE, NOT A CHECK. The
+ * first version joined the decoded request path onto `outDir` and asked whether the
+ * result was still inside it. That is answerable, but it keeps untrusted input
+ * flowing into a filesystem API and asks a guard to catch it — CodeQL flagged
+ * `js/path-injection` at HIGH on it twice, and kept flagging it after a
+ * resolve-and-confine fix, because `startsWith` is not a sanitizer it recognises.
+ * Arguing with the analyser would have been the wrong move anyway: the real
+ * improvement is that a request path is now only ever a KEY LOOKUP in a map built by
+ * walking the output directory. Nothing from the request ever reaches `readFileSync`;
+ * the values come from the walk. The server can serve exactly the files the build
+ * emitted and, by construction, nothing else.
+ */
+function indexBuiltOutput(outDir: string): Map<string, string> {
+  const index = new Map<string, string>();
+  const walk = (dir: string, prefix: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const absolute = join(dir, entry.name);
+      const key = `${prefix}/${entry.name}`;
+      if (entry.isDirectory()) walk(absolute, key);
+      else index.set(key, absolute);
+    }
+  };
+  walk(outDir, "");
+  return index;
+}
+
+/**
  * Serve the built output the way the host does: real files win, everything else
  * falls back to the SPA shell. Bound to loopback on an ephemeral port.
  */
 function serveBuiltOutput(outDir: string, basename: string): Promise<Server> {
+  const index = indexBuiltOutput(outDir);
+  const fallback = index.get("/index.html");
+  if (!fallback) {
+    throw new Error(`captureStaticBodies: no index.html under ${outDir} to serve as the shell`);
+  }
+
   const server = createServer((req, res) => {
     let pathname = decodeURIComponent((req.url ?? "/").split("?")[0]);
     if (pathname.startsWith(`${basename}/`)) pathname = pathname.slice(basename.length);
     else if (pathname === basename) pathname = "/";
+    const bare = pathname.replace(/\/$/, "");
 
-    const file = [
-      pathname,
-      `${pathname.replace(/\/$/, "")}.html`,
-      join(pathname, "index.html"),
-      "index.html", // SPA fallback, exactly as the host serves it
-    ]
-      .map((candidate) => confineToOutDir(outDir, candidate))
-      .find(isReadableFile);
+    // Lookups only — the request never becomes a path. Order mirrors the host:
+    // an exact file, then `<path>.html`, then `<path>/index.html`, then the shell.
+    const file =
+      index.get(pathname) ??
+      index.get(`${bare}.html`) ??
+      index.get(`${bare}/index.html`) ??
+      fallback;
 
-    if (!file) {
-      res.writeHead(404).end("not found");
-      return;
-    }
     res.writeHead(200, { "Content-Type": MIME[extname(file)] ?? "application/octet-stream" });
     res.end(readFileSync(file));
   });
@@ -229,29 +260,21 @@ function serveBuiltOutput(outDir: string, basename: string): Promise<Server> {
 }
 
 /**
- * Resolve a request path INSIDE `outDir`, or return null.
+ * Whether a request path can address a file in the built output at all.
  *
- * ⚠ THE REQUEST PATH IS UNTRUSTED INPUT EVEN HERE. This server is loopback-only, on
- * an ephemeral port, alive for the ~30 seconds of one build step — but `..` segments
- * in a URL would still resolve outside the build output and hand back any file the
- * build user can read, and CodeQL flagged exactly that (`js/path-injection`, HIGH,
- * twice, on the first version of this function). "It is only a build script" is how a
- * path traversal ends up in something that later runs somewhere else. Resolving and
- * then asserting containment is two lines and removes the question entirely.
+ * Kept as a named, tested predicate because the property it encodes — a request can
+ * only ever name something the build emitted — is the whole security argument for
+ * the server above, and a property with no test is a comment.
  */
-export function confineToOutDir(outDir: string, candidate: string): string | null {
-  const root = resolve(outDir);
-  const target = resolve(root, `.${candidate.startsWith("/") ? "" : "/"}${candidate}`);
-  return target === root || target.startsWith(root + sep) ? target : null;
-}
-
-function isReadableFile(candidate: string | null): candidate is string {
-  if (!candidate) return false;
-  try {
-    return statSync(candidate).isFile();
-  } catch {
-    return false;
+export function servableKey(
+  index: ReadonlyMap<string, string>,
+  pathname: string,
+): string | null {
+  const bare = pathname.replace(/\/$/, "");
+  for (const key of [pathname, `${bare}.html`, `${bare}/index.html`]) {
+    if (index.has(key)) return key;
   }
+  return null;
 }
 
 interface Capture {

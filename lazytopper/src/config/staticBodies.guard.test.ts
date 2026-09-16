@@ -6,7 +6,7 @@ import {
   MIN_BODY_BYTES,
   SUBSTRING_TRAP_WITNESSES,
   capturablePaths,
-  confineToOutDir,
+  servableKey,
   stripAuthChrome,
   validateCaptures,
   validateCoverage,
@@ -325,40 +325,38 @@ describe("validateCoverage catches a page that was never captured at all", () =>
   });
 });
 
-describe("confineToOutDir keeps the build server inside the build output", () => {
-  const OUT = process.platform === "win32" ? "C:\build\app" : "/build/app";
+describe("servableKey — the build server can only ever name a file the build emitted", () => {
+  /** Stands in for the walk of the real output directory. */
+  const index = new Map([
+    ["/index.html", "ABS/index.html"],
+    ["/topic-hub/trigonometry.html", "ABS/topic-hub/trigonometry.html"],
+    ["/topic-hub/trigonometry/index.html", "ABS/topic-hub/trigonometry/index.html"],
+    ["/assets/index-abc.js", "ABS/assets/index-abc.js"],
+  ]);
 
-  it("resolves an ordinary path inside the output", () => {
-    expect(confineToOutDir(OUT, "/topic-hub/trigonometry.html")).not.toBeNull();
+  it.each([
+    ["/topic-hub/trigonometry.html", "/topic-hub/trigonometry.html"],
+    ["/topic-hub/trigonometry", "/topic-hub/trigonometry.html"],
+    ["/topic-hub/trigonometry/", "/topic-hub/trigonometry.html"],
+    ["/assets/index-abc.js", "/assets/index-abc.js"],
+  ])("serves %s from the index", (request, expected) => {
+    expect(servableKey(index, request)).toBe(expected);
   });
 
   /**
-   * ★ THE CONTROL FOR THE FIX. CodeQL flagged `js/path-injection` (HIGH) twice on the
-   * first version of the build server: a `..` in the request path resolved outside the
-   * build output and would have served any file the build user can read. These are the
-   * attacks, and they must come back null — a fix without a failing case is a refactor.
+   * ★ THE CONTROL FOR THE SECURITY FIX. CodeQL flagged `js/path-injection` at HIGH,
+   * twice, on the first version of the server, which joined the decoded request path
+   * onto `outDir`. A traversal now cannot even be expressed: there is no path
+   * arithmetic left, only a lookup, so a request that names nothing the build emitted
+   * gets the SPA shell — never a file from elsewhere on the disk.
    */
   it.each([
     "/../../../../etc/passwd",
-    "/topic-hub/../../../../../../Windows/win.ini",
-    "/./../../outside.html",
     "/../package.json",
-  ])("REFUSES to escape the output directory (%s)", (attack) => {
-    expect(confineToOutDir(OUT, attack)).toBeNull();
-  });
-
-  /**
-   * ⚠ THE SERVER DECODES BEFORE IT CONFINES, so a percent-encoded traversal reaches
-   * this function already decoded. Modelling that here rather than feeding raw
-   * `%2f` — which this function would correctly treat as one literal filename — keeps
-   * the test honest about WHERE the decoding happens. The live server is checked
-   * end-to-end separately.
-   */
-  it("REFUSES a percent-encoded traversal once decoded, as the server decodes it", () => {
-    expect(confineToOutDir(OUT, decodeURIComponent("/..%2f..%2fsecret"))).toBeNull();
-  });
-
-  it("allows the output directory itself", () => {
-    expect(confineToOutDir(OUT, "/")).not.toBeNull();
+    "/topic-hub/../../../../Windows/win.ini",
+    decodeURIComponent("/..%2f..%2fsecret"),
+    "/does-not-exist.html",
+  ])("cannot address anything outside the built output (%s)", (attack) => {
+    expect(servableKey(index, attack)).toBeNull();
   });
 });
