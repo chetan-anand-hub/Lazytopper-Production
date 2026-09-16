@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import {
   checkSolutionImage,
   type CheckSolutionResponse,
@@ -228,6 +229,14 @@ const LOCKED_CTA_CSS = `
     background: rgba(22, 185, 106, 0.12);
     border: 1px solid rgba(22, 185, 106, 0.26);
   }
+  /* The signed-out CTA is a LINK, not a button — it navigates. Same shell as the locked
+     CTA so the two boundaries read as one grammar, but live-green rather than grey: this
+     one is an open door, and a student can act on it right now. */
+  .lt-sc-lock__cta--signin {
+    text-decoration: none;
+    border-color: rgba(22, 185, 106, 0.35);
+    background: rgba(22, 185, 106, 0.08);
+  }
   /* ★ Names what Basic KEEPS. A student's real fear at a boundary is losing their own
      work, so the sentence that answers it comes before the offer, not after. */
   .lt-sc-lock__note {
@@ -397,6 +406,43 @@ function MistakeSummaryLine({ summary }: { summary: CheckSolutionResponse["mista
   );
 }
 
+/**
+ * The signed-out "check my answer" CTA.
+ *
+ * ★ A SEPARATE COMPONENT SO THE ROUTER HOOK IS CONDITIONAL. `SolutionChecker` is rendered
+ * by suites that mount no router, and it deliberately keeps every router-hook caller
+ * behind a conditional mount (see the `UpgradeSheet` note). Calling `useLocation` in the
+ * parent would throw for all of them.
+ *
+ * `state.from` carries `pathname + search` — the same shape `PracticeLimitGate` used
+ * before this lane removed its redirect — so the student lands back on the exact question
+ * they were working on, with any query state intact. `Login` resolves it through
+ * `isSafeInternalPath`, so an external target can never ride in on it.
+ */
+function SignInToCheckCta() {
+  const location = useLocation();
+  return (
+    <div className="lt-sc-lock">
+      <style>{LOCKED_CTA_CSS}</style>
+      <Link
+        className="lt-sc-lock__cta lt-sc-lock__cta--signin"
+        data-testid="sc-signin-cta"
+        to="/login"
+        state={{ from: `${location.pathname}${location.search}` }}
+      >
+        <span className="lt-sc-lock__icon" aria-hidden="true">🔑</span>
+        <span>Sign in to check your answer</span>
+        <span className="lt-sc-lock__badge">7-day trial</span>
+      </Link>
+      <p className="lt-sc-lock__note">
+        Reading the question, the steps and the stored solution stays free and needs no
+        account. Marking your working is done by AI, so it needs one — and a new account
+        can start a free 7-day trial with every Premium feature on.
+      </p>
+    </div>
+  );
+}
+
 export function SolutionChecker({
   question, marks, subject, topic, questionId, solutionSteps, finalAnswer, section, format, options, answer, onRequestStepSolution, onResult,
   collectMode = false, savedAnswer = null, onSaveAnswer, onRemoveAnswer,
@@ -417,11 +463,40 @@ export function SolutionChecker({
   const { isPremium } = useSubscription();
   /**
    * A caller the SERVER can verify. `paidCallHeaders()` sends a bearer token only for a
-   * real Firebase user, and `entitlement.cjs` fails OPEN without one — so signed-out
-   * students and local sessions are served and must NOT be shown a lock.
+   * real Firebase user.
+   *
+   * ⚠ THIS COMMENT USED TO SAY THE OPPOSITE OF THE TRUTH, and it is corrected rather than
+   * deleted because it was actively generating the wrong design. It read: "`entitlement.cjs`
+   * fails OPEN without one — so signed-out students and local sessions are served and must
+   * NOT be shown a lock." SINCE `#787` THAT IS FALSE. A caller with no bearer token and no
+   * uid header is DENIED: `entitlement.cjs` returns `outcome: 'anonymous'` and the request
+   * gets a 402. So a signed-out student pressing "Check my answer" was not being served —
+   * they were being sent to spend a round-trip on a refusal, and the comment told every
+   * reader that was fine.
+   *
+   * (`#787` closed the plain-anonymous hole only. A FORGED uid header is still served
+   * under FAIL_OPEN_NO_UID, by design, so a signed-in student whose token fetch fails is
+   * not locked out — `[FU-UID-HEADER-TRUSTED-UNVERIFIED]`. Out of scope here; do not
+   * assume this paywall is watertight.)
+   *
+   * The two non-premium states are therefore DIFFERENT and get different CTAs:
+   *   · signed out      → an OFFER. Sign in, then a free 7-day Premium trial is one click
+   *     away. ⚠ IT IS NOT AUTOMATIC, and the copy must not say it is. `defaultStatus()`
+   *     gives a new account `tier: "free", trialStartDate: null`, so a fresh signup is
+   *     SIGNED-IN FREE, not trial. The only caller of `startTrial()` is the button inside
+   *     `RequirePremium` — `AuthContext` deliberately removed the auto-activation that
+   *     silently burned every student's trial on login ([FU-SUBSCRIPTION-AUTOTRIAL-ONMOUNT]).
+   *     Promising a trial that has not started would be exactly the fake-trial-activation
+   *     this product forbids, told the other way round.
+   *   · signed in, free → the EXISTING premium upgrade path, deliberately unchanged.
+   *     Grading is Premium-only at every non-premium tier — `PricingPage.tsx` publishes
+   *     "Solution Checker / Check & Improve" as excluded from Basic, and no free grading
+   *     quota is granted here.
    */
   const verifiableCaller = !!user?.uid && !user.isLocalSession;
   const locked = verifiableCaller && !isPremium;
+  /** No verifiable identity: the server would refuse, so offer the door instead. */
+  const signedOut = !verifiableCaller;
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [imageMimeType, setImageMimeType] = useState<string>("image/jpeg");
@@ -932,6 +1007,21 @@ export function SolutionChecker({
 
           NOT `display:none`, NOT removed from the tab order, NOT inert — see
           LOCKED_CTA_CSS. */}
+      {/* ── The signed-out CTA (AUTH-GATE-MOVE-1) ──────────────────
+          Grading is where LazyTopper spends money, so this is the product's main
+          conversion hook and the ONE wall this lane keeps. It is an offer, not a
+          refusal: signing in puts a free 7-day Premium trial one click away, so the
+          student who takes it can actually get the answer marked. (One CLICK away, not
+          automatic — see the derivation above `signedOut`.)
+
+          ★ CONDITIONALLY MOUNTED, exactly like the `UpgradeSheet` below and for the
+          same reason. `SignInToCheckCta` calls `useLocation`, and this component is
+          rendered by suites that mount NO router (SolutionChecker.contract.test.tsx).
+          Those suites mock a PREMIUM student, so `signedOut` is false and the child
+          never mounts. Mounting it unconditionally would throw in every one of them.
+          That is a contract, not an optimisation — do not hoist the hook. */}
+      {signedOut && !collectMode && inputPhaseOpen && <SignInToCheckCta />}
+
       {locked && !collectMode && inputPhaseOpen && (
         <div className="lt-sc-lock">
           <style>{LOCKED_CTA_CSS}</style>
@@ -954,7 +1044,7 @@ export function SolutionChecker({
       )}
 
       {/* ── Check button ────────────────── */}
-      {canCheck && !collectMode && inputPhaseOpen && !locked && (
+      {canCheck && !collectMode && inputPhaseOpen && !locked && !signedOut && (
         <button
           type="button"
           onClick={handleCheck}

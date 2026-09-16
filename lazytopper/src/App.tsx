@@ -946,7 +946,19 @@ export default function App() {
               JourneyStrip-only references in live PracticeQuestionList / mobile
               TopicHub re-pointed to /exam-trends. Marked LEGACY-RETIRED. */}
 
-          {/* Auto-mock paper view (legacy + predictive) — free users get 1/day */}
+          {/* MockViewGate — a per-DAY view limit: anonymous 1/day, signed-in free 3/day,
+              premium unlimited (AUTH-GATE-MOVE-1). Viewing and downloading a paper costs
+              nothing to serve, so the limit is a fair-use cap, not a paywall; only AI
+              grading is gated on tier.
+
+              ⚠ This comment previously read "free users get 1/day" while the gate
+              enforced 1 per WEEK — the code and its own comment disagreed. The limit is
+              now genuinely per-day, so the sentence and the constant finally match.
+
+              ⚠ The route on the NEXT line is DEAD: /mock-paper/:slug lost its only
+              inbound when /predictive-papers was severed (see the note further down this
+              file), so MockPaper is unreachable in the live product. The gate's real
+              users are the chapter-test and full-mock routes below. */}
           <Route path="/mock-paper/:slug" element={<MockViewGate><SectionErrorBoundary>{withRouteSuspense(<MockPaper />)}</SectionErrorBoundary></MockViewGate>} />
 
           {/* Topic Mock → redirect to Chapter Test */}
@@ -974,12 +986,24 @@ export default function App() {
           <Route path="/mock-builder/:grade/:subject" element={<Navigate to="/practice-hub" replace />} />
           <Route path="/mock-builder" element={<Navigate to="/practice-hub" replace />} />
 
-          {/* Predicted Questions with mandatory grade & subject */}
+          {/* Predicted Questions with mandatory grade & subject.
+
+              ★ NOT premium-gated (AUTH-GATE-MOVE-1). Both routes below used to be wrapped
+              in a premium guard labelled "Predicted Questions", which hid the product's
+              most compelling content from signed-out students and from search engines.
+              (The guard's tag name is deliberately NOT spelled out here: a comment that
+              quotes the exact JSX it removed shows up in every census grep and premise
+              anchor for that tag, and reads as a live call site that is not there.)
+
+              The questions are static bank data and cost nothing to serve. The money is
+              spent on grading, and that stays gated inside SolutionChecker — which this
+              page mounts — so removing these two wrappers opens the content without
+              opening the spend. */}
           <Route
             path="/highly-probable/:grade/:subject"
             element={
               <MobileSelfChrome title="Predicted Questions">
-                <RequirePremium featureLabel="Predicted Questions">{withRouteSuspense(<HighlyProbableQuestions />)}</RequirePremium>
+                {withRouteSuspense(<HighlyProbableQuestions />)}
               </MobileSelfChrome>
             }
           />
@@ -988,7 +1012,7 @@ export default function App() {
             path="/highly-probable"
             element={
               <MobileSelfChrome title="Predicted Questions">
-                <RequirePremium featureLabel="Predicted Questions">{withRouteSuspense(<HighlyProbableQuestions />)}</RequirePremium>
+                {withRouteSuspense(<HighlyProbableQuestions />)}
               </MobileSelfChrome>
             }
           />

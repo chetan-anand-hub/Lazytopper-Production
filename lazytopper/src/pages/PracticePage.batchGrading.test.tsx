@@ -22,12 +22,17 @@ import { render, screen, cleanup, fireEvent, waitFor, within, act } from "@testi
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { setMatchMediaMatches } from "../test/setup";
 
-const { TEST_USER } = vi.hoisted(() => ({
+const { TEST_USER, authState } = vi.hoisted(() => ({
   TEST_USER: { uid: "student-1", isLocalSession: false, email: "s@x.com" },
+  /** ★ AUTH-GATE-MOVE-1 — mutable, so the SIGNED-OUT student is expressible here at all.
+   *  Before this lane Quick Practice sat behind a login wall and that state could not
+   *  occur, so this suite hard-coded a signed-in user. It can occur now; §8 below is it.
+   *  `afterEach` restores the signed-in student, so every other test is unchanged. */
+  authState: { user: { uid: "student-1", isLocalSession: false, email: "s@x.com" } as null | { uid: string; isLocalSession: boolean; email?: string } },
 }));
 
 vi.mock("../context/AuthContext", () => ({
-  useAuth: () => ({ user: TEST_USER, loading: false, getToken: async () => "tok" }),
+  useAuth: () => ({ user: authState.user, loading: false, getToken: async () => "tok" }),
 }));
 vi.mock("../hooks/useSubscription", () => ({
   useSubscription: () => ({ isPremium: true, status: { tier: "premium" }, loading: false }),
@@ -173,6 +178,10 @@ const okBatch = (results: ReturnType<typeof okGrade>[]) => ({
 });
 
 afterEach(() => {
+  // ★ Restore the signed-in student. Without this a single §8 test would silently sign
+  // out every test that ran after it, and the "grader was not called" assertions
+  // scattered through this file would start passing for the WRONG reason.
+  authState.user = TEST_USER;
   cleanup();
   mockBuild.mockReset();
   gradeWorksheet.mockReset();
@@ -856,5 +865,75 @@ describe("13 · 7a — the step block, and its honest empty state", () => {
     expect(screen.queryByText("Your working, step by step")).toBeNull();
     expect(document.querySelector(".lt-sc__gsteps")).toBeNull();
     expect(screen.queryByText(/Where the mark went/)).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 8 · ★★ AUTH-GATE-MOVE-1 — THE SIGNED-OUT STUDENT MEETS AN OFFER, NOT A 402
+// ---------------------------------------------------------------------------
+
+/**
+ * ★★ THIS LANE CREATED THIS STATE, SO THIS LANE OWNS IT.
+ *
+ * Before AUTH-GATE-MOVE-1, `PracticeLimitGate` redirected every signed-out visitor to
+ * /login, so nobody could reach Quick Practice without an account and this case was
+ * unreachable. Removing that wall — the lane's headline change, because serving questions
+ * costs nothing — made it reachable for the first time. Since `#787` the server denies an
+ * anonymous caller a 402, so without this fix the lane's own change would hand a student a
+ * red error at the moment of highest intent: they batched real answers and asked to be
+ * marked. The offer they get instead is the SAME one SolutionChecker gives, pluralised for
+ * a whole session, so one consistent offer greets them on every surface.
+ */
+describe("8 · signed out at the grade boundary", () => {
+  it("★ pressing Grade shows the sign-in offer and makes NO grading call", async () => {
+    authState.user = null;
+    await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, false)]);
+    await saveAPhotoFor(1);
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+
+    const cta = await screen.findByTestId("qp-signin-to-grade");
+    expect(cta).toBeInTheDocument();
+    expect(cta.textContent).toContain("Sign in to check your answers");
+    // ★★ THE CONTROL THAT MATTERS: the money is never spent.
+    expect(gradeWorksheet).not.toHaveBeenCalled();
+    expect(checkSolutionImage).not.toHaveBeenCalled();
+  });
+
+  it("★ the offer is a link to /login carrying a `from` back to this session", async () => {
+    authState.user = null;
+    await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, false)]);
+    await saveAPhotoFor(1);
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+
+    const cta = await screen.findByTestId("qp-signin-to-grade");
+    expect(cta.tagName).toBe("A");
+    expect(cta.getAttribute("href")).toContain("/login");
+  });
+
+  it("★ it is the OFFER, not the upgrade sheet — the two boundaries never collapse", async () => {
+    // A signed-out student needs the DOOR. Showing them an upgrade would be telling them
+    // to buy something they may already be entitled to once inside.
+    authState.user = null;
+    await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, false)]);
+    await saveAPhotoFor(1);
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    await screen.findByTestId("qp-signin-to-grade");
+    expect(screen.queryByTestId("upgrade-sheet")).toBeNull();
+  });
+
+  it("★ CONTROL: the SAME flow SIGNED IN does call the grader, and shows no offer", async () => {
+    // Without this, every assertion above would pass against a page that had stopped
+    // grading for everyone.
+    authState.user = TEST_USER;
+    gradeWorksheet.mockResolvedValue(okBatch([okGrade(1)]));
+    await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, false)]);
+    await saveAPhotoFor(1);
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(1));
+    expect(screen.queryByTestId("qp-signin-to-grade")).toBeNull();
   });
 });

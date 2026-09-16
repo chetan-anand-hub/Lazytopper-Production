@@ -42,15 +42,67 @@ describe("entitlement gating is wired at the component, not the route", () => {
     expect(ci).toMatch(/<DesktopCheckImprovePageInner overlay=\{overlay\} \/>/);
   });
 
-  // MUTATION: delete the <RequirePremium> wrapper from WorksheetGenerator ⇒ RED.
-  it("WorksheetGenerator's default export is wrapped in RequirePremium", () => {
-    expect(ws).toMatch(/<RequirePremium featureLabel="Worksheets">/);
-    expect(ws).toMatch(/<WorksheetGeneratorInner \/>/);
-    expect(ws).toMatch(/export default function WorksheetGenerator\(\)/);
+  /**
+   * ★★ THIS TEST WAS INVERTED BY AUTH-GATE-MOVE-1, AND IT WAS PINNING THE DEFECT.
+   *
+   * It used to require `<RequirePremium featureLabel="Worksheets">` around the WHOLE
+   * component. That wrapper was built on a premise this repo can now disprove: the
+   * comment beside it claimed "worksheet generation reaches `/api/grade-worksheet`".
+   * IT DOES NOT — `WorksheetGenerator.tsx` imports no AI client at all. So the gate was
+   * charging Premium for the free half of the page (choosing a scope, generating the
+   * paper, and BOTH PDF downloads, which are html2canvas + jsPDF and never touch the
+   * network) and hiding the whole surface from signed-out students.
+   *
+   * The gate did not weaken — it MOVED ONTO THE SPEND. `WorksheetGradePanel` is the only
+   * control on the page that reaches `/api/grade-worksheet`, and that is what is wrapped
+   * now. This test follows it, and gains the assertion the old one could not make:
+   * that the downloads sit OUTSIDE the wrapper.
+   *
+   * MUTATION: move the wrapper back around <WorksheetGeneratorInner /> ⇒ RED (the
+   * download-position assertion below fails, because the buttons land inside it).
+   */
+  it("the worksheet gate wraps the GRADING panel — the one control that spends", () => {
+    expect(ws).toMatch(/<RequirePremium featureLabel="Worksheet marking">[\s\S]{0,40}?<WorksheetGradePanel ws=\{generated\} \/>/);
+    expect(ws).toMatch(/import \{ RequirePremium \} from "\.\.\/auth\/RequireAuth"/);
   });
 
-  // App.tsx is frozen by two ops gates asserting zero diff vs the PR base. This
-  // catches a route-level "fix" locally, before CI has to.
+  it("the default export is NO LONGER wrapped — building a worksheet is free", () => {
+    expect(ws).toMatch(/export default function WorksheetGenerator\(\) \{[\s\S]{0,20}?return <WorksheetGeneratorInner \/>;/);
+  });
+
+  it("★ PDF DOWNLOAD IS UNGATED, and structurally cannot be swept into the gate", () => {
+    // Downloading the paper you just built costs nothing — no network call, no AI. The
+    // anonymous tier's one paper a day INCLUDES downloading it; that is the value
+    // delivered before any wall. Both download buttons must appear BEFORE the gate
+    // opens, so no future edit can enclose them without this going red.
+    const qDownload = ws.indexOf('runDownload("questions")');
+    const aDownload = ws.indexOf('runDownload("answers")');
+    const gateOpen = ws.indexOf('<RequirePremium featureLabel="Worksheet marking">');
+    expect(qDownload).toBeGreaterThan(-1);
+    expect(aDownload).toBeGreaterThan(-1);
+    expect(gateOpen).toBeGreaterThan(-1);
+    expect(qDownload).toBeLessThan(gateOpen);
+    expect(aDownload).toBeLessThan(gateOpen);
+    // ★ CONTROL: the gate is genuinely present and genuinely closes. Without this, the
+    // ordering assertions above would pass just as well on a file with no gate at all.
+    expect(ws.indexOf("</RequirePremium>")).toBeGreaterThan(gateOpen);
+  });
+
+  it("a SIGNED-OUT visitor gets an inline offer, never RequirePremium's redirect", () => {
+    // `RequirePremium` answers `!user` with <Navigate to="/login">. Mounted inline on a
+    // page a signed-out student is now allowed to use, that would throw them off the
+    // worksheet the moment it generated — the same wall this lane removed, one level
+    // down. The gate must therefore be reached only when there IS a user.
+    expect(ws).toMatch(/\{user \? \(/);
+    expect(ws).toMatch(/className="lt-ws__signin"/);
+  });
+
+  // ⚠ This comment used to say "App.tsx is frozen by two ops gates asserting zero diff
+  // vs the PR base". NOT TRUE SINCE 2026-08-04: both overlay gates lifted the App.tsx ban
+  // in FORBID-4 and now assert the OPPOSITE — that App.tsx is ABSENT from their guarded
+  // set. The protection was re-formed as GUARD 3 plus App.routing.contract.test.tsx, not
+  // removed. The assertion below is still worth keeping on its own merits: C&I's gate is
+  // in-component by design, and this catches a route-level "fix" locally.
   // MUTATION: wrap the /check-improve route element in App.tsx ⇒ RED.
   it("the /check-improve route element stays a BARE element (App.tsx untouched)", () => {
     expect(app).toMatch(

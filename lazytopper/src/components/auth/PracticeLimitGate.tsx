@@ -3,7 +3,6 @@ import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { getDailyPracticeCount, incrementDailyPracticeCount } from "../../services/featureGates";
 import { UpgradeModal } from "../UpgradeModal";
-import { Navigate, useLocation } from "react-router-dom";
 import { MONTHLY_INLINE } from "../../config/pricing";
 
 const FREE_DAILY_LIMIT = 10;
@@ -27,7 +26,6 @@ export function usePracticeLimit() {
 export function PracticeLimitGate({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const { isPremium } = useSubscription();
-  const location = useLocation();
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [questionsUsed, setQuestionsUsed] = useState(0);
   const [limitReached, setLimitReached] = useState(false);
@@ -62,10 +60,21 @@ export function PracticeLimitGate({ children }: { children: ReactNode }) {
     );
   }
 
-  if (!user) {
-    const from = `${location.pathname}${location.search}`;
-    return <Navigate to="/login" replace state={{ from }} />;
-  }
+  /**
+   * ★ THERE IS DELIBERATELY NO SIGNED-OUT REDIRECT HERE (AUTH-GATE-MOVE-1).
+   *
+   * This gate used to `<Navigate to="/login">` every signed-out visitor before a single
+   * question rendered. That put a login wall in front of content that costs nothing to
+   * serve — the questions are static bank data already in the bundle — and it hid the
+   * product's best pages from students who have not signed up and from every crawler.
+   * The wall now sits where LazyTopper actually spends money: AI grading, gated inside
+   * `SolutionChecker`. Serving a question is free; marking one is not.
+   *
+   * A signed-out visitor therefore falls through to the provider at the bottom of this
+   * component with `questionsUsed: 0` and `canAskMore: true`. The effect above already
+   * returns early when there is no `user`, and `recordQuestionAnswered` already returns
+   * `true` for one, so no counter reads or writes a uid that does not exist.
+   */
 
   if (isPremium) {
     return (
