@@ -1,5 +1,11 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-16 — `#787` §6 live-verify result (docs only), trunk `b145c2e0`.**
+> **NO SURFACE CELL MOVES.** Nothing a student sees changed; the two checks that ran confirm existing behaviour (premium grades, free gets the 402 upgrade path).
+> - ⚠ **Check 3 could not run:** a signed-out visitor cannot reach a practice question at all (`PracticeLimitGate.tsx:65-67`, `App.tsx:1020`), so "reveal a stored solution while signed out" has no reachable UI path today. It is **transferred to AUTH-GATE-MOVE-1's live-verify**, not dropped.
+> - **For whoever builds AUTH-GATE-MOVE-1:** removing that redirect makes Practice a **signed-out-reachable** surface for the first time. Its cells were only ever assessed signed in.
+> **Scope: UNCHANGED on every surface; nothing goes to §2a or `DECISION_LOG.md`.**
+
 > **2026-09-15 — SEO-ALLCHAPTERS-RESTYLE-1 (`#786`, `85ecc1d1`) + -2 (`#789`, `60c1ed21`), trunk `60c1ed21`.**
 > **NO SURFACE CELL MOVES.** Both change the appearance of one block on Exam Trends (a `Locked` surface): the "All chapters" directory is now a footer with muted-grey 11px links, green on hover, and no visible title.
 > - The directory's content, its 26 links, its cold-load mount, the ranked bands, the subject toggle and the band defaults are unchanged (measured against production).

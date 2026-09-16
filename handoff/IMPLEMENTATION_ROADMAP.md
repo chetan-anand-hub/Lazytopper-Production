@@ -1,5 +1,17 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-16 — SECURITY: **ENTITLEMENT-NO-CREDENTIAL-1 LIVE-VERIFIED (2 of 3) AND CLOSED** — docs only — trunk `b145c2e0`
+
+- ✅ **`[FU-ENTITLEMENT-NO-CREDENTIAL-1-LIVE-VERIFY-OWED]` CLOSED.** Premium grades; free gets the 402 upgrade path (both OWNER-REPORTED, live).
+- ⛔ **Check 3 (signed out, reveal a stored solution) was NOT RUNNABLE** — `<PracticeLimitGate>` redirects a signed-out visitor to `/login` before a question renders (`PracticeLimitGate.tsx:65-67`, `App.tsx:1020`). The §6 checklist assumed AUTH-GATE-MOVE-1 had also shipped. **Transferred to that lane's live-verify**, carried under `[FU-SOLUTIONCHECKER-FAILOPEN-COMMENTS-STALE]`. Its server half is already pinned by NC5 and CONTROL 3.
+- ✅ **`[FU-ENTITLEMENT-CHECKSOLUTION-COUNT-STALE]` CLOSED** by `#790` (`b145c2e0`).
+- 🧹 **Branches deleted:** `lane/entitlement-no-credential-1`, `lane/entitlement-checksolution-count-comment`, `docs/post-pr-787-entitlement-no-credential`; the lane worktree was de-registered. No repo-wide prune.
+- ⚠ **Still open:**
+  - `[FU-UID-HEADER-TRUSTED-UNVERIFIED]` — a forged uid header is still served; AUTH-GATE-MOVE-1 must not assume the paywall is watertight
+  - `[FU-WARMUP-UNAUTH-STEP-SOLUTION]` — retire the unauthenticated warmup call, in its own lane
+- ⏭ **AUTH-GATE-MOVE-1 is unblocked**, and now carries: the SolutionChecker rewrite, check 3, and the uid-header caveat.
+
+
 ## 2026-09-15 — SEO: **SEO-ALLCHAPTERS-RESTYLE-1 + -2 — the Exam Trends chapter directory recedes, stays visible** — `#786` + `#789` MERGED — trunk `60c1ed21`
 
 - ✅ **RESTYLE-1 (`#786`)**: card → footer; AA fixes links 4.28 → 5.07, labels 3.62 → 5.53.

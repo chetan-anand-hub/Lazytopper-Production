@@ -1,4 +1,36 @@
 ```
+⛔ THIS BANNER SUPERSEDES THE #787 BANNER BELOW ON THE LIVE-VERIFY AND THE COMMENT FIX.
+   IT DOES NOT SUPERSEDE ANY BANNER ON THE EXAM TRENDS DIRECTORY.
+
+TRUNK IS `b145c2e0b4f92a53692d75d97af99cdffe35355d`, MEASURED 2026-09-16.
+   b145c2e0 = #790 (entitlement.cjs comment: the handler suite is 223 tests, not 64).
+
+✅ ENTITLEMENT-NO-CREDENTIAL-1 IS CLOSED. #787 355b1ccc · docs #788 6803c8ca · #790 b145c2e0.
+   Owner live-verify: PREMIUM GRADES ✅ · FREE GETS THE 402 UPGRADE PATH ✅.
+   [FU-ENTITLEMENT-NO-CREDENTIAL-1-LIVE-VERIFY-OWED] and
+   [FU-ENTITLEMENT-CHECKSOLUTION-COUNT-STALE] are both CLOSED.
+
+⛔ THE THIRD §6 CHECK COULD NOT RUN AND IS TRANSFERRED, NOT SKIPPED.
+   "Signed out, reveal a stored solution" has no reachable UI path: PracticeLimitGate
+   redirects a visitor with no user to /login before a question renders
+   (PracticeLimitGate.tsx:65-67, App.tsx:1020). The checklist assumed AUTH-GATE-MOVE-1 had
+   shipped too. The SERVER half is pinned by NC5 + CONTROL 3 in entitlement.test.cjs.
+   → AUTH-GATE-MOVE-1 runs it, under [FU-SOLUTIONCHECKER-FAILOPEN-COMMENTS-STALE].
+
+NEXT:
+   1. AUTH-GATE-MOVE-1 — unblocked. It MUST: rewrite SolutionChecker.tsx:139-152 and
+      :420-423 (stale since 355b1ccc), run the transferred check 3, and NOT assume the
+      paywall is watertight — a forged uid header is still served.
+      [FU-UID-HEADER-TRUSTED-UNVERIFIED]
+   2. Own lane: retire the unauthenticated warmup call — artifacts/api-server/src/index.ts:110,
+      lazytopper/scripts/warmup-solution-cache.mjs:97-102, pregen-step-solutions.mjs:67.
+      No allowance. [FU-WARMUP-UNAUTH-STEP-SOLUTION]
+   3. Real fix for the uid header: client retries getIdToken() instead of falling back to a
+      bare uid header, then delete the uid-header fail-open (entitlement.cjs:385-387) once
+      entitlement.fail_open.no_uid stays near zero.
+```
+
+```
 ⛔ THIS BANNER SUPERSEDES THE ONES BELOW IT ON TRUNK AND ON THE EXAM TRENDS DIRECTORY.
    IT DOES NOT SUPERSEDE THE #787 BANNER ON THE PAID-ROUTE GATE — ITS NEXT LIST STILL STANDS.
 

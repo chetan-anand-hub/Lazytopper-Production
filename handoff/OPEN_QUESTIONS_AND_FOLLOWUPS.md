@@ -21,6 +21,34 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 ---
 
 
+## 2026-09-16 — `#787` §6 LIVE-VERIFY RESULT (docs-only; trunk `b145c2e0`; open PRs at the time of writing: `#784` dependabot only) — one FU CLOSED, one check TRANSFERRED, no new follow-ups
+
+★ **PROVENANCE.**
+- **OWNER-REPORTED (2026-09-15/16, live product):** checks 1 and 2 executed and passed; check 3 could not be executed.
+- **HANDOFF-VERIFIED (2026-09-16):** the reason check 3 cannot run, read on trunk `b145c2e0` — `PracticeLimitGate.tsx:65-67` and `App.tsx:1020`.
+- **OWNER-RULED (2026-09-16):** record it so the FU closes honestly rather than looking like a failure; the signed-out path is AUTH-GATE-MOVE-1's job.
+
+### `[FU-ENTITLEMENT-NO-CREDENTIAL-1-LIVE-VERIFY-OWED]` — status line 2026-09-16: **CLOSED. Two checks PASSED live; the third was NOT RUNNABLE YET and is TRANSFERRED, not skipped**
+
+| # | Check (spec §6) | Result |
+|---|---|---|
+| 1 | Premium student checks an answer → must still grade | ✅ **PASSED live** (OWNER-REPORTED). This was the regression that would have cost real money to find late. |
+| 2 | Free student checks an answer → the 402 upgrade path appears as before | ✅ **PASSED live** (OWNER-REPORTED). |
+| 3 | Signed out, open a practice question and reveal a stored solution → it must still show | ⛔ **NOT RUNNABLE on trunk today**, and **not a failure of `#787`.** |
+
+**Why check 3 could not run, verified in code.** A signed-out visitor never reaches a practice question: `/practice/:grade/:subject` is wrapped in `<PracticeLimitGate>` (`App.tsx:1020`), and that gate returns `<Navigate to="/login" replace state={{ from }} />` when there is no user (`PracticeLimitGate.tsx:65-67`), **before any question renders**. So "reveal a stored solution while signed out" has no reachable UI path on trunk. ★ **The checklist was written as if ENTITLEMENT-NO-CREDENTIAL-1 and AUTH-GATE-MOVE-1 had both shipped** (owner, 2026-09-16); only the first has.
+
+**What IS established about that behaviour, without the browser.** The server half — the half `#787` could change — is pinned by tests that run in CI:
+- **NC5:** an anonymous request to `/api/step-solution` is **not** gated at the boundary (`applyToRequest` returns `false`, nothing sent), the lazy resolver is attached, and the real handler serves bank-backed steps **200** with **zero** Gemini calls. Its control: `requireForGeneration()` on that same anonymous request returns the `step-solution-generation` denial, and an anonymous generation request through the handler gets **402** with zero Gemini calls.
+- **CONTROL 3:** over real HTTP through `index.cjs`, an anonymous POST to a gated route gets **402**, while a uid-header-only POST is served.
+⇒ **Stored steps remain free to an identity-less caller at the server.** What is unverified is only the signed-out *UI* path, which does not exist yet.
+
+**TRANSFERRED, not dropped.** Check 3 becomes part of **AUTH-GATE-MOVE-1's** live-verify: once that lane removes the client redirects, a signed-out visitor must be able to open a practice question and reveal a stored solution, and must get the 402 upgrade path — not a blank failure — on a paid action. It is carried under `[FU-SOLUTIONCHECKER-FAILOPEN-COMMENTS-STALE]`, which is already that lane's entry and already covers the signed-out surface. **Do not re-open this FU for it.**
+
+⚠ **This does not weaken `[FU-UID-HEADER-TRUSTED-UNVERIFIED]`.** A forged uid header is still served, and checks 1 and 2 passing says nothing about that.
+
+---
+
 ## 2026-09-15 — SEO-ALLCHAPTERS-RESTYLE-1 + -2 (`#786` + `#789`, trunk `60c1ed21`)
 
 ### `[FU-ALLCHAPTERS-SELECTOR-QUOTE-STALE-ON-RESTYLE-2]` — **CLOSED 2026-09-15** by the RESTYLE-2 handoff
