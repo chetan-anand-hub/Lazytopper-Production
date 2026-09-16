@@ -195,30 +195,89 @@ describe("GATE-3 - what a student sees depends on their tier", () => {
   });
 
   /**
-   * ★★ THE FALSE-LOCK CARVE-OUTS. These are not politeness - they mirror the SERVER.
+   * ★★ THESE TWO TESTS WERE INVERTED BY AUTH-GATE-MOVE-1, AND THE REASON MATTERS.
    *
-   * `server/services/entitlement.cjs::resolve()` returns
-   * `failOpen(FAIL_OPEN_NO_CREDENTIAL, 'no bearer token on the request')` -> ENTITLED
-   * whenever no verifiable uid is present, and `paidCallHeaders()` attaches a bearer
-   * token only when `authClient.currentUser` exists. So a signed-out visitor and a local
-   * (non-Firebase) session are BOTH served today. Locking their CTA would tell a student
-   * a feature is unavailable when the server would have served it - a fabrication, and a
-   * regression against shipped behaviour.
+   * They used to be the "false-lock carve-outs", and they asserted that a signed-out
+   * visitor gets the LIVE CTA. Their justification read: `entitlement.cjs::resolve()`
+   * returns `failOpen(FAIL_OPEN_NO_CREDENTIAL, 'no bearer token on the request')` ->
+   * ENTITLED whenever no verifiable uid is present, so an anonymous caller is SERVED, and
+   * locking the CTA would be a fabrication.
+   *
+   * ★ THAT PREMISE DIED WITH `#787`. `entitlement.cjs` now DENIES a caller that has
+   * neither a bearer token nor a uid header: `denyAnonymous()` returns
+   * `outcome: 'anonymous'` and the request gets a 402. The old assertion did not merely
+   * go stale - it had become a guard PINNING A BROKEN FLOW: it required the product to
+   * show a signed-out student a live "Check my answer" button whose only possible outcome
+   * was a refusal. A green run on it was evidence of the defect, not against it.
+   *
+   * So the carve-out stands, but it carves the other way: no verifiable identity means an
+   * OFFER, not a live control and not a premium lock. A local (non-Firebase) session is
+   * the same case for the same reason - it sends no token either.
+   *
+   * ⚠ `#787` closed plain-anonymous only; a FORGED uid header is still served under
+   * FAIL_OPEN_NO_UID by design ([FU-UID-HEADER-TRUSTED-UNVERIFIED]). Nothing here should
+   * be read as proof the paywall is watertight.
    */
-  it("SIGNED OUT: no lock - the server fails OPEN without a bearer token, so grading works", () => {
+  it("SIGNED OUT: the sign-in OFFER - not a live control, and not a premium lock", () => {
     setStudent("free", null);
     renderChecker();
+    expect(screen.getByTestId("sc-signin-cta")).toBeInTheDocument();
+    // Not the premium lock: a signed-out student is being invited in, not turned away.
     expect(lockedCta()).toBeNull();
+    // ★ And the live control is gone even once there IS something to send.
+    typeAnAnswer();
+    expect(enabledCta()).toBeNull();
+  });
+
+  it("SIGNED OUT: the offer says what it is and where it goes", () => {
+    setStudent("free", null);
+    renderChecker();
+    const cta = screen.getByTestId("sc-signin-cta");
+    expect(cta.textContent).toContain("Sign in to check your answer");
+    // A LINK to the login door, not a dead button.
+    expect(cta.tagName).toBe("A");
+    expect(cta.getAttribute("href")).toContain("/login");
+  });
+
+  it("★ CONTROL: the signed-out flow spends NOTHING - no grading call is ever made", () => {
+    // The §4.3 control. The whole lane rests on the claim that the wall now sits in front
+    // of the SPEND. If a signed-out student could still reach the grader, this suite could
+    // be green while the money leaked.
+    setStudent("free", null);
+    renderChecker();
+    typeAnAnswer();
+    fireEvent.click(screen.getByTestId("sc-signin-cta"));
+    expect(checkSolutionImage).not.toHaveBeenCalled();
+  });
+
+  it("LOCAL SESSION: the same offer - it sends no Firebase token either", () => {
+    setStudent("free", { uid: "local-uid", isLocalSession: true });
+    renderChecker();
+    expect(screen.getByTestId("sc-signin-cta")).toBeInTheDocument();
+    expect(lockedCta()).toBeNull();
+    typeAnAnswer();
+    expect(enabledCta()).toBeNull();
+    expect(checkSolutionImage).not.toHaveBeenCalled();
+  });
+
+  it("★ CONTROL: a PREMIUM student on the same render gets NO sign-in offer", () => {
+    // Without this, every assertion above would pass on a component that showed the
+    // sign-in CTA to everyone unconditionally.
+    setStudent("premium");
+    renderChecker();
+    expect(screen.queryByTestId("sc-signin-cta")).toBeNull();
     typeAnAnswer();
     expect(enabledCta()).toBeInTheDocument();
   });
 
-  it("LOCAL SESSION: no lock - it sends no Firebase token either, so the server serves it", () => {
-    setStudent("free", { uid: "local-uid", isLocalSession: true });
+  it("★ CONTROL: a signed-in FREE student gets the premium lock, NOT the sign-in offer", () => {
+    // The owner's ruling, pinned: grading is Premium-only at every non-premium tier, and
+    // a signed-in free student keeps the EXISTING upgrade path. If these two boundaries
+    // ever collapsed into one, this is what would catch it.
+    setStudent("free");
     renderChecker();
-    expect(lockedCta()).toBeNull();
-    typeAnAnswer();
-    expect(enabledCta()).toBeInTheDocument();
+    expect(screen.queryByTestId("sc-signin-cta")).toBeNull();
+    expect(lockedCta()).toBeInTheDocument();
   });
 });
 
@@ -472,6 +531,16 @@ describe("GATE-3 - every render site of SolutionChecker is gated, by constructio
     // ★ NOT a prop. If the gate ever moves to one, this goes red and the reviewer is
     // forced to re-derive whether every render site passes it.
     expect(sc).not.toMatch(/\bentitled\?:\s*boolean/);
+
+    // ★ AUTH-GATE-MOVE-1 - the SECOND boundary is inside the component too.
+    // There are now two non-premium outcomes, and a render site added tomorrow must
+    // inherit BOTH by construction: the premium lock AND the signed-out offer. Deriving
+    // `signedOut` here, from the same `useAuth()` the lock uses, is what makes that true
+    // without every future call site's author knowing this lane existed.
+    expect(sc).toMatch(/const signedOut = !verifiableCaller/);
+    // And the live control must be conditioned on it, or the offer would render beside a
+    // working button and gate nothing at all.
+    expect(sc).toMatch(/!locked && !signedOut/);
   });
 
   it("ANTI-DRIFT: the tier rule this file mocks is the one subscriptionService defines", () => {

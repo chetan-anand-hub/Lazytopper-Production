@@ -1210,9 +1210,50 @@ function WorksheetGeneratorInner() {
             {downloadError && <div className="lt-ws__note lt-ws__note--err" role="alert">{downloadError}</div>}
           </section>
 
+          {/* ── The entitlement boundary (AUTH-GATE-MOVE-1) ──────────────────
+              ★ THIS is where LazyTopper spends money, and so this is where the gate sits.
+              `WorksheetGradePanel` is the only control on this page that reaches
+              `/api/grade-worksheet` — a Gemini VISION call, one of the three most
+              expensive endpoints the product has. Everything above it (choosing a scope,
+              generating the paper, and BOTH PDF downloads) is client-side work on static
+              bank data and stays free for everyone, signed in or not.
+
+              The gate used to wrap this entire component, which charged premium for the
+              free part and hid the worksheet itself. Moving it here — rather than to the
+              route — keeps `exportWorksheetPdf` outside the wrapper by construction: the
+              download buttons are siblings above, so no future edit can gate a download
+              by accident without moving this element. */}
           {generated && (
             <section className="lt-ws__card">
-              <WorksheetGradePanel ws={generated} />
+              {user ? (
+                /* Signed in: the EXISTING premium path, unchanged. A free student gets
+                   the trial/plans block `RequirePremium` already renders. */
+                <RequirePremium featureLabel="Worksheet marking">
+                  <WorksheetGradePanel ws={generated} />
+                </RequirePremium>
+              ) : (
+                /* ★ SIGNED OUT: AN INLINE OFFER, NEVER `RequirePremium`.
+                   `RequirePremium` answers `!user` with `<Navigate to="/login">` — a
+                   whole-page redirect. Mounted inline here that would throw a signed-out
+                   student off the worksheet the instant it generated, which is exactly
+                   the wall this lane removed, reintroduced one level down. The student
+                   keeps the paper and both downloads; only marking asks them to sign in. */
+                <div className="lt-ws__signin">
+                  <h3 className="lt-ws__signint">Sign in to get this marked</h3>
+                  <p className="lt-ws__note">
+                    Your worksheet and both PDF downloads are yours already — no account
+                    needed. Marking it is done by AI, so it needs an account: a new one
+                    starts a 7-day trial with everything unlocked.
+                  </p>
+                  <Link
+                    className="lt-ws__signinbtn"
+                    to="/login"
+                    state={{ from: `${location.pathname}${location.search}` }}
+                  >
+                    Sign in to get this marked
+                  </Link>
+                </div>
+              )}
             </section>
           )}
 
@@ -1235,6 +1276,15 @@ function WorksheetGeneratorInner() {
 }
 
 const WS_CSS = `
+/* ── Signed-out marking offer (AUTH-GATE-MOVE-1) ─────────────────────────── */
+.lt-ws__signin { text-align: center; padding: 4px 0 2px; }
+.lt-ws__signint { margin: 0 0 6px; font-size: 1rem; font-weight: 800; color: var(--text); }
+.lt-ws__signinbtn {
+  display: inline-block; margin-top: 12px; padding: 12px 24px;
+  border-radius: 12px; background: var(--primary); color: #fff;
+  font-size: 0.9rem; font-weight: 700; text-decoration: none;
+}
+.lt-ws__signinbtn:focus-visible { outline: 2px solid #16b96a; outline-offset: 2px; }
 .lt-ws {
   --ws-green: hsl(152, 55%, 45%);
   --ws-green-soft: hsl(152, 55%, 96%);
@@ -1484,24 +1534,32 @@ const WS_CSS = `
 `;
 
 /**
- * Entitlement gate — IN-COMPONENT, mirroring DesktopCheckImprovePage.
+ * ★ NO ENTITLEMENT WRAPPER HERE (AUTH-GATE-MOVE-1). The gate moved INWARDS, onto
+ * `WorksheetGradePanel` — the one control that reaches `/api/grade-worksheet`. Building a
+ * worksheet and downloading it are free; marking it is Premium.
  *
- * Worksheet generation reaches `/api/grade-worksheet`, a Gemini VISION call and one
- * of the three most expensive endpoints the product has. The pricing page lists
- * "Limited worksheet generation" as a FREE feature (PricingPage:37) — that limit is
- * the client quota, not free access to AI grading, and nothing enforced the
- * difference.
+ * TWO CLAIMS THAT STOOD IN THIS COMMENT WERE FALSE, and both were generating wrong
+ * decisions, so they are corrected rather than deleted:
  *
- * Route-level gating is unavailable: `App.tsx` is frozen by two ops gates that
- * assert zero diff against the PR base. In-component gating reaches the identical
- * outcome with no `App.tsx` change.
+ *   1. "Worksheet generation reaches `/api/grade-worksheet`." IT DOES NOT. This file
+ *      imports no AI client at all — generation is pure client-side assembly over static
+ *      bank data. The grading call is made by `WorksheetGradePanel` →
+ *      `gradeWorksheetAndRecord` → `worksheetGradeService` → `aiClient.gradeWorksheet`.
+ *      That false premise is what put a premium wall in front of the free half of the
+ *      page and hid the generator from every signed-out student.
  *
- * Takes no props, so unlike the C&I wrapper there is nothing to forward.
+ *   2. "Route-level gating is unavailable: `App.tsx` is frozen by two ops gates that
+ *      assert zero diff against the PR base." NOT TRUE SINCE 2026-08-04. Both gates
+ *      (`check_improve_overlay_additive_acceptance.mjs`,
+ *      `quick_practice_overlay_additive_acceptance.mjs`) lifted the App.tsx ban in
+ *      FORBID-4 and now assert the OPPOSITE — that App.tsx is absent from the guarded
+ *      set. The protection was re-formed as GUARD 3 plus `App.routing.contract.test.tsx`,
+ *      not removed.
+ *
+ * In-component gating is still the right call here, but now on its merits and not on a
+ * constraint that no longer exists: the panel is one element inside this file, so the
+ * gate sits on the exact control that spends, and the free half cannot be swept in.
  */
 export default function WorksheetGenerator() {
-  return (
-    <RequirePremium featureLabel="Worksheets">
-      <WorksheetGeneratorInner />
-    </RequirePremium>
-  );
+  return <WorksheetGeneratorInner />;
 }
