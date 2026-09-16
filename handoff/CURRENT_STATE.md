@@ -44,6 +44,15 @@
 
 ## [PREVIOUS · SECURITY] ENTITLEMENT-NO-CREDENTIAL-1 — **A REQUEST WITH NO CALLER IDENTITY IS NO LONGER SERVED A PAID ROUTE — BUT THE PAYWALL IS CLOSED AGAINST ACCIDENTAL ANONYMITY, NOT AGAINST DELIBERATE BYPASS** — `#787` MERGED — trunk `355b1ccc`
 
+### 0 — UPDATE 2026-09-16: §6 LIVE-VERIFY RESULT — **2 of 3 PASSED LIVE, the third NOT RUNNABLE YET; `[FU-ENTITLEMENT-NO-CREDENTIAL-1-LIVE-VERIFY-OWED]` CLOSED. LANE CLOSED.**
+*(Added 2026-09-16 at trunk `b145c2e0`; the section below stands as written on 2026-09-15, board rule 3. The "NOT YET VERIFIED" line in its provenance is superseded by this block.)*
+- ✅ **Premium student grades** (OWNER-REPORTED, live). ✅ **Free student gets the 402 upgrade path** (OWNER-REPORTED, live).
+- ⛔ **Signed out, reveal a stored solution — not runnable on trunk, and NOT a failure of `#787`.** `<PracticeLimitGate>` wraps `/practice/:grade/:subject` (`App.tsx:1020`) and redirects a visitor with no user to `/login` before any question renders (`PracticeLimitGate.tsx:65-67`, HANDOFF-VERIFIED). The §6 checklist was written as if AUTH-GATE-MOVE-1 had also shipped (owner, 2026-09-16).
+- **The server half is pinned by CI tests** — NC5 and CONTROL 3 — so what is unverified is only the signed-out UI path, which does not exist yet. **Check 3 is TRANSFERRED to AUTH-GATE-MOVE-1's live-verify**, carried under `[FU-SOLUTIONCHECKER-FAILOPEN-COMMENTS-STALE]`.
+- **Also closed since:** `[FU-ENTITLEMENT-CHECKSOLUTION-COUNT-STALE]` by `#790` (`b145c2e0`).
+- ⚠ **Still open and untouched by this result:** `[FU-UID-HEADER-TRUSTED-UNVERIFIED]` and `[FU-WARMUP-UNAUTH-STEP-SOLUTION]`.
+- **Branches deleted, local and remote (owner-approved):** `lane/entitlement-no-credential-1`, `lane/entitlement-checksolution-count-comment`, `docs/post-pr-787-entitlement-no-credential`; the `entitlement-no-credential-1` worktree was de-registered with them. The `docs-post-pr-787` worktree holds the branch this update is written on and is removed once this PR merges. **No repo-wide `git worktree prune`.**
+
 ★ **PROVENANCE.**
 - **HANDOFF-VERIFIED** by the lane that built `#787`, in its own worktrees: premise gate, gates, both mutation proofs, the CI job logs (counts read, not ticks), merge facts, and every file:line below, re-read at trunk `355b1ccc`.
 - **OWNER-RULED (2026-09-15):**

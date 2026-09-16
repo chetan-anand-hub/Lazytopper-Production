@@ -1,5 +1,26 @@
 ---
 
+## 2026-09-16 — `#787` LIVE-VERIFIED, TWO OF THREE: **A PREMIUM STUDENT STILL GRADES AND A FREE STUDENT STILL GETS THE 402 — THE SIGNED-OUT CHECK CANNOT RUN UNTIL AUTH-GATE-MOVE-1 SHIPS** — trunk `b145c2e0`
+
+★ **PROVENANCE.**
+- **OWNER-REPORTED (live product, 2026-09-15/16):** checks 1 and 2 passed; check 3 was not executable.
+- **HANDOFF-VERIFIED (2026-09-16):** `PracticeLimitGate.tsx:65-67` and `App.tsx:1020` on trunk `b145c2e0`.
+- **OWNER-RULED (2026-09-16):** close the FU honestly, transfer check 3 to AUTH-GATE-MOVE-1.
+
+**Result.** ✅ **A premium student checks an answer and it still grades** — the regression that would have cost real money to discover late. ✅ **A free student gets the 402 upgrade path as before.** ⛔ **Signed out, reveal a stored solution: not runnable**, because `/practice/:grade/:subject` sits behind `<PracticeLimitGate>` (`App.tsx:1020`), which redirects a visitor with no user to `/login` **before any question renders** (`PracticeLimitGate.tsx:65-67`).
+
+★ **The checklist assumed both lanes had shipped; only `#787` has.** That is a property of the checklist, not a defect in the merge, and the FU closes on that basis rather than as a failed check.
+
+**The server half of check 3 is pinned by tests, not left on trust:** NC5 (anonymous → boundary does not gate, handler serves bank-backed steps 200, zero Gemini; control: `requireForGeneration()` denies and an anonymous generation request gets 402) and CONTROL 3 (real HTTP: anonymous gated POST → 402, uid-header-only → served). What is unverified is the signed-out **UI** path, which does not exist yet.
+
+**Transferred:** check 3 joins AUTH-GATE-MOVE-1's live-verify, carried under `[FU-SOLUTIONCHECKER-FAILOPEN-COMMENTS-STALE]`. `[FU-ENTITLEMENT-NO-CREDENTIAL-1-LIVE-VERIFY-OWED]` is **CLOSED**.
+⚠ Unchanged by this result: a forged uid header is still served (`[FU-UID-HEADER-TRUSTED-UNVERIFIED]`).
+
+**Lane closed.** `#787` (`355b1ccc`) · docs `#788` (`6803c8ca`) · comment fix `#790` (`b145c2e0` — the `entitlement.cjs` suite count 64 → 223, dropping the line and invocation counts rather than restating numbers that cannot be kept accurate, and naming `handleGradeWorksheet` where the comment wrongly said the tests call `gradeStructuredSet` directly).
+★ **Method note from the docs pass:** a locator written into a handoff file can match its own line — the first `grep` in the RESTYLE-2 selector flag found the flag itself. Anchoring it (`^3[.] …`) and re-running it returned the true three hits. **A search that includes the file you are writing will find your own text.**
+
+---
+
 ## 2026-09-15 — SEO-ALLCHAPTERS-RESTYLE-1 + -2 — **THE CHAPTER DIRECTORY RECEDES (GREY, 11px FLOOR, NO VISIBLE TITLE) BUT STAYS VISIBLE, AA, AND NAMED** — `#786` + `#789` MERGED — trunk `60c1ed21`
 
 ★ **PROVENANCE.**
