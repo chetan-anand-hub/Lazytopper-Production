@@ -159,9 +159,22 @@ describe("8 · MI is fed BY THE BATCHED PATH", () => {
     expect(out.entries[1].graded).toBeUndefined();
   });
 
-  it("★ a signed-out session issues the call but writes no MI (the front door's own policy)", async () => {
+  /**
+   * ★★ INVERTED BY AUTH-GATE-MOVE-1, AND THE OLD ASSERTION HAD BECOME A LIABILITY.
+   *
+   * This test used to read "a signed-out session ISSUES the call but writes no MI" and
+   * asserted `out.calls === 1`. That was true and harmless while Quick Practice sat
+   * behind a login wall: no signed-out student could ever reach the batch, so the case
+   * was theoretical. This lane removed that wall, which made it real — and since `#787`
+   * the server DENIES an anonymous caller a 402. So the old assertion required the
+   * product to spend a round-trip in order to be refused, and to hand the student an
+   * error at the moment of highest intent. It pinned the defect.
+   *
+   * The signed-out session is now refused BEFORE the network. Its MI half is moot,
+   * because there is no grade to feed MI.
+   */
+  it("★ a signed-out session is refused BEFORE the network — no call, no MI", async () => {
     const grader = vi.fn<Grader>(async () => okResponse([grade(2)]));
-    recordMistake.mockResolvedValueOnce({ outcome: "skipped-no-user", bridged: false });
     const out = await gradeQuickPracticeBatch({
       worksheetId: "qp-4",
       subject: "maths",
@@ -169,11 +182,36 @@ describe("8 · MI is fed BY THE BATCHED PATH", () => {
       grade: grader,
       answers: [q(2, { imageBase64: IMG })],
     });
+    expect(out.outcome).toBe("skipped-signin-required");
+    expect(out.calls).toBe(0);
+    expect(grader).not.toHaveBeenCalled();
+    // Nothing was graded, so nothing reaches MI — not because this module re-implements
+    // MI's rule, but because there is no outcome to feed it.
+    expect(recordMistake).not.toHaveBeenCalled();
+    expect(out.miOutcomes).toEqual([]);
+  });
+
+  /**
+   * ★ THE PRINCIPLE THE OLD TEST WAS ACTUALLY PROTECTING, PRESERVED.
+   *
+   * Its real subject was never the signed-out case — it was that MI's front door is the
+   * ONE door: this module CALLS it and carries out whatever it returns, rather than
+   * re-implementing MI's policy inline and drifting from it. That invariant is unchanged
+   * and still worth pinning; it just needs a caller who actually reaches the grader.
+   */
+  it("★ whatever MI's front door returns is CARRIED OUT, never second-guessed here", async () => {
+    const grader = vi.fn<Grader>(async () => okResponse([grade(2)]));
+    recordMistake.mockResolvedValueOnce({ outcome: "skipped-no-user", bridged: false });
+    const out = await gradeQuickPracticeBatch({
+      worksheetId: "qp-4b",
+      subject: "maths",
+      user: USER,
+      grade: grader,
+      answers: [q(2, { imageBase64: IMG })],
+    });
     expect(out.calls).toBe(1);
-    // The door is still the ONE door — it is called and IT refuses, rather than this
-    // module re-implementing the signed-out rule and drifting from it.
     expect(recordMistake).toHaveBeenCalledTimes(1);
-    expect(recordMistake.mock.calls[0][0]).toBeNull();
+    // The door's refusal is REPORTED, not swallowed and not overridden.
     expect(out.miOutcomes[0].mistakeOutcome).toBe("skipped-no-user");
   });
 });

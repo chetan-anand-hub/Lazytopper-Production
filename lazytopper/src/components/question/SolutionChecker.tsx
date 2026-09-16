@@ -437,7 +437,7 @@ function SignInToCheckCta() {
       <p className="lt-sc-lock__note">
         Reading the question, the steps and the stored solution stays free and needs no
         account. Marking your working is done by AI, so it needs one — and a new account
-        starts a 7-day trial with every Premium feature on.
+        can start a free 7-day trial with every Premium feature on.
       </p>
     </div>
   );
@@ -480,7 +480,14 @@ export function SolutionChecker({
    * assume this paywall is watertight.)
    *
    * The two non-premium states are therefore DIFFERENT and get different CTAs:
-   *   · signed out      → an OFFER. Sign in; a new account starts a 7-day Premium trial.
+   *   · signed out      → an OFFER. Sign in, then a free 7-day Premium trial is one click
+   *     away. ⚠ IT IS NOT AUTOMATIC, and the copy must not say it is. `defaultStatus()`
+   *     gives a new account `tier: "free", trialStartDate: null`, so a fresh signup is
+   *     SIGNED-IN FREE, not trial. The only caller of `startTrial()` is the button inside
+   *     `RequirePremium` — `AuthContext` deliberately removed the auto-activation that
+   *     silently burned every student's trial on login ([FU-SUBSCRIPTION-AUTOTRIAL-ONMOUNT]).
+   *     Promising a trial that has not started would be exactly the fake-trial-activation
+   *     this product forbids, told the other way round.
    *   · signed in, free → the EXISTING premium upgrade path, deliberately unchanged.
    *     Grading is Premium-only at every non-premium tier — `PricingPage.tsx` publishes
    *     "Solution Checker / Check & Improve" as excluded from Basic, and no free grading
@@ -1003,8 +1010,9 @@ export function SolutionChecker({
       {/* ── The signed-out CTA (AUTH-GATE-MOVE-1) ──────────────────
           Grading is where LazyTopper spends money, so this is the product's main
           conversion hook and the ONE wall this lane keeps. It is an offer, not a
-          refusal: a new account starts a 7-day Premium trial, so the student who
-          signs in here can actually get the answer marked.
+          refusal: signing in puts a free 7-day Premium trial one click away, so the
+          student who takes it can actually get the answer marked. (One CLICK away, not
+          automatic — see the derivation above `signedOut`.)
 
           ★ CONDITIONALLY MOUNTED, exactly like the `UpgradeSheet` below and for the
           same reason. `SignInToCheckCta` calls `useLocation`, and this component is

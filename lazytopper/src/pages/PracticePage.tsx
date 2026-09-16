@@ -1,7 +1,7 @@
 // src/pages/PracticePage.tsx
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { type PracticeQuestion } from "../data/predictionDataService";
 import {
@@ -1169,6 +1169,10 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   /** ★★ §4b — the 402, reaching the student. GATE-2's sheet, never a red error box: a
    *  locked feature is not a fault they committed. */
   const [premiumBlock, setPremiumBlock] = useState<{ feature: string; trialEndedAt: string | null } | null>(null);
+  /** ★ AUTH-GATE-MOVE-1 · the signed-out student at the grade boundary. A SIBLING of
+   *  `premiumBlock`, never the same state: one needs an upgrade, the other needs the door
+   *  and may be fully entitled once through it. */
+  const [signInToGrade, setSignInToGrade] = useState(false);
   // Which session identity has already been written. A one-shot latch: the scorecard
   // re-renders, and `allDone` can raise it without any click, so without this the
   // write would fire on every render.
@@ -2181,6 +2185,13 @@ const packTopicKey = useMemo(() => {
       user: authUserForJourney,
     });
     setBatchGrading(false);
+    if (result.outcome === "skipped-signin-required") {
+      // ★★ NO CALL WAS MADE — the service refused before the network (`calls: 0`). The
+      // student meets an OFFER, not the 402 they would otherwise have earned. Their MCQ
+      // marks stay on screen behind it, exactly as on the premium path.
+      setSignInToGrade(true);
+      return;
+    }
     if (result.outcome === "skipped-premium-required") {
       // \u2605\u2605 \u00a74b \u2014 GATE-2's sheet, NOT the error box. The student learns the boundary and
       // keeps everything they scored for free; nothing red, nothing about a fault.
@@ -2687,6 +2698,7 @@ const packTopicKey = useMemo(() => {
   const closeScorecard = () => {
     setScorecardDismissed(true);
     setSessionFinished(false);
+    setSignInToGrade(false);
   };
 
   /* \u2550\u2550 1 \u00b7 THE GRADED ANSWER SHEET (RESULTS-1's surface, now reachable) \u2550\u2550\u2550\u2550\u2550\u2550\u2550 */
@@ -2935,10 +2947,61 @@ const packTopicKey = useMemo(() => {
   />
 )}
 
+{/* ★★ AUTH-GATE-MOVE-1 · THE SIGNED-OUT STUDENT AT THE GRADE BOUNDARY.
+    This lane opened Quick Practice to signed-out students, which created a state that
+    could not exist before it: a student who batches answers and presses Grade with no
+    account. Since #787 the server denies that caller a 402, so without this they would
+    meet a red error at the moment of highest intent — the lane's headline change handing
+    a student a failure. The wording is SolutionChecker's, pluralised for a whole session,
+    so the same offer greets them on every surface. */}
+{signInToGrade && (
+  <div className="lt-qp-signin">
+    <style>{QP_SIGNIN_CSS}</style>
+    <h3 className="lt-qp-signin__t">Sign in to check your answers</h3>
+    <p className="lt-qp-signin__p">
+      Everything you scored on the multiple-choice questions is yours already and stays on
+      screen. Marking your written working is done by AI, so it needs an account — and a
+      new one can start a free 7-day trial with every Premium feature on.
+    </p>
+    <Link
+      className="lt-qp-signin__cta"
+      data-testid="qp-signin-to-grade"
+      to="/login"
+      state={{ from: `${location.pathname}${location.search}` }}
+    >
+      Sign in to check your answers
+    </Link>
+    <button type="button" className="lt-qp-signin__dismiss" onClick={() => setSignInToGrade(false)}>
+      Not now
+    </button>
+  </div>
+)}
+
 
       </div>
     </div>
   );
 };
+
+const QP_SIGNIN_CSS = `
+  .lt-qp-signin {
+    margin-top: 16px; padding: 18px 16px; text-align: center;
+    border-radius: 14px; border: 1px solid rgba(22, 185, 106, 0.26);
+    background: rgba(22, 185, 106, 0.06);
+  }
+  .lt-qp-signin__t { margin: 0 0 6px; font-size: 1rem; font-weight: 800; color: #0f2743; }
+  .lt-qp-signin__p { margin: 0; font-size: 0.78rem; line-height: 1.55; color: #49627f; }
+  .lt-qp-signin__cta {
+    display: inline-block; margin-top: 14px; padding: 12px 24px;
+    border-radius: 12px; background: hsl(152, 45%, 32%); color: #fff;
+    font-size: 0.88rem; font-weight: 700; text-decoration: none;
+  }
+  .lt-qp-signin__cta:focus-visible { outline: 2px solid #16b96a; outline-offset: 2px; }
+  .lt-qp-signin__dismiss {
+    display: block; margin: 10px auto 0; background: none; border: none;
+    font: inherit; font-size: 0.76rem; font-weight: 600; color: #49627f;
+    text-decoration: underline; cursor: pointer;
+  }
+`;
 
 export default PracticePage;

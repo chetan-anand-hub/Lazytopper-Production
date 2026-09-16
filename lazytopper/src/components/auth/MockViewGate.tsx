@@ -207,7 +207,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
         </h2>
         <p style={{ color: "var(--text-muted)", fontSize: "0.92rem", marginBottom: 20, lineHeight: 1.5 }}>
           You&rsquo;ve opened your free paper for today. Sign in for {SIGNED_IN_DAILY_MOCK_LIMIT} a
-          day — a new account starts a 7-day trial with everything unlocked.
+          day — and a new account can start a free 7-day trial with everything unlocked.
         </p>
         <Link
           to={`/login?reason=login&redirect=${encodeURIComponent(`${location.pathname}${location.search}`)}`}

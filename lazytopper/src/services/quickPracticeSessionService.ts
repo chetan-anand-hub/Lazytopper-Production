@@ -595,6 +595,16 @@ export type QuickPracticeBatchOutcome =
    *  It is its own outcome so the caller can open GATE-2's upgrade sheet instead of a
    *  red error box: a locked feature is not a fault the student committed (§4b). */
   | "skipped-premium-required"
+  /** ★★ AUTH-GATE-MOVE-1 · NO VERIFIABLE CALLER — refused BEFORE the network, so it costs
+   *  nothing. Quick Practice used to be behind a login wall, so this state could not
+   *  exist: every student who reached Finish was signed in. That lane removed the wall
+   *  (serving questions is free), which created a signed-out student who can batch
+   *  answers and press Grade. Since `#787` the server DENIES an anonymous caller with a
+   *  402, so letting the call go would spend a round-trip to be refused and hand the
+   *  student an error at the exact moment of highest intent. It is its own outcome, not
+   *  `skipped-premium-required`, because the two need different answers: this student
+   *  needs the DOOR, not an upgrade — they may well be entitled once inside. */
+  | "skipped-signin-required"
   | "skipped-nothing-to-batch"
   | "skipped-error";
 
@@ -681,6 +691,34 @@ export async function gradeQuickPracticeBatch(args: {
   if (selection.batch.length === 0) {
     return {
       outcome: "skipped-nothing-to-batch",
+      entries: baseEntries,
+      calls: 0,
+      sentQNumbers: [],
+      unsolicitedQNumbers: [],
+      overCapQNumbers,
+      miOutcomes: [],
+    };
+  }
+
+  /**
+   * ★★ THE SIGN-IN BOUNDARY, CHECKED BEFORE THE CALL — `calls: 0`.
+   *
+   * The same rule `SolutionChecker` applies to its own CTA: a caller the server cannot
+   * verify is one the server will refuse, so ask for the door instead of spending the
+   * trip. `paidCallHeaders()` attaches a bearer token only for a real Firebase user, and
+   * a local (non-Firebase) session sends none either — hence the identical test to the
+   * one `persistQuickPracticeSession` already uses above.
+   *
+   * ⚠ Deliberately AFTER the nothing-to-batch return: a signed-out student who batched
+   * nothing has nothing to be offered a sign-in FOR, and showing the offer there would be
+   * a wall in front of an empty action.
+   *
+   * The local half is still returned, so MCQ marks the student earned for free survive
+   * this exactly as they survive a grader outage.
+   */
+  if (!user?.uid || user.isLocalSession) {
+    return {
+      outcome: "skipped-signin-required",
       entries: baseEntries,
       calls: 0,
       sentQNumbers: [],

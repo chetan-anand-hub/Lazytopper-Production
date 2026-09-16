@@ -107,8 +107,24 @@ const okResponse = (results: WorksheetQuestionGrade[]): WorksheetGradeResponse =
 /** ONE spy, shared by the "must not call" and "must call" halves of every control
  *  pair — the same object proving both directions. */
 let grader: ReturnType<typeof vi.fn<Grader>>;
+
+/**
+ * ★ AUTH-GATE-MOVE-1 — `user` is now REQUIRED for this file to be testing anything.
+ *
+ * Every test here is about BATCH MECHANICS: what goes in the batch, how many calls it
+ * costs, what the payload carries. All of that is downstream of a caller the server can
+ * verify — `gradeQuickPracticeBatch` refuses an unverifiable one BEFORE the network
+ * (`skipped-signin-required`, `calls: 0`), because since `#787` the server denies it a
+ * 402 anyway. This helper used to pass no user at all, which was harmless only while
+ * Quick Practice sat behind a login wall and no signed-out student could reach it.
+ *
+ * Without this the whole file would go green while the grader was never invoked — every
+ * "the grader is NOT called" assertion trivially true, and every "IS called" one failing
+ * loudly. The signed-out path has its own tests below, where it is the SUBJECT.
+ */
+const SIGNED_IN = { uid: "u-batch", isLocalSession: false } as never;
 const run = (answers: SavedAnswer[]) =>
-  gradeQuickPracticeBatch({ worksheetId: "qp-1", subject: "Maths", answers, grade: grader });
+  gradeQuickPracticeBatch({ worksheetId: "qp-1", subject: "Maths", answers, grade: grader, user: SIGNED_IN });
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -723,5 +739,67 @@ describe("9d · the carve-out: an objective question with NO stored answer key i
     })]);
     expect(res.entries[0].graded?.marksAwarded).toBe(1);
     expect(res.entries[0].graded?.totalMarks).toBe(1);
+  });
+});
+
+/* ───────────────────────────────────────────────────────────────────────────
+   10 · AUTH-GATE-MOVE-1 — THE SIGNED-OUT CALLER IS REFUSED BEFORE THE NETWORK
+   ─────────────────────────────────────────────────────────────────────────── */
+
+describe("10 · a caller the server cannot verify never reaches the grader", () => {
+  const answers = (): SavedAnswer[] => [q(1, { imageBase64: IMG })];
+
+  it("★ SIGNED OUT: outcome is skipped-signin-required and it costs ZERO calls", async () => {
+    const r = await gradeQuickPracticeBatch({
+      worksheetId: "qp-1", subject: "Maths", answers: answers(), grade: grader, user: null,
+    });
+    expect(r.outcome).toBe("skipped-signin-required");
+    expect(r.calls).toBe(0);
+    // ★★ THE POINT: the money is never spent. Since #787 this call would have earned a
+    // 402, so letting it go would buy the student an error.
+    expect(grader).not.toHaveBeenCalled();
+    expect(r.sentQNumbers).toEqual([]);
+  });
+
+  it("★ LOCAL SESSION: the same — it sends no Firebase token either", async () => {
+    const r = await gradeQuickPracticeBatch({
+      worksheetId: "qp-1", subject: "Maths", answers: answers(), grade: grader,
+      user: { uid: "local-1", isLocalSession: true } as never,
+    });
+    expect(r.outcome).toBe("skipped-signin-required");
+    expect(r.calls).toBe(0);
+    expect(grader).not.toHaveBeenCalled();
+  });
+
+  it("★ CONTROL: the SAME answers and the SAME spy DO reach the grader when signed in", async () => {
+    // Without this, the two assertions above would pass just as well against a service
+    // that had stopped grading altogether.
+    const r = await gradeQuickPracticeBatch({
+      worksheetId: "qp-1", subject: "Maths", answers: answers(), grade: grader, user: SIGNED_IN,
+    });
+    expect(r.outcome).not.toBe("skipped-signin-required");
+    expect(grader).toHaveBeenCalledTimes(1);
+  });
+
+  it("the free local marks SURVIVE the refusal — nothing the student earned is lost", async () => {
+    const mixed: SavedAnswer[] = [
+      mcq(1, { pickedOption: "(b)", pickedCorrect: true }),
+      q(2, { imageBase64: IMG }),
+    ];
+    const r = await gradeQuickPracticeBatch({
+      worksheetId: "qp-1", subject: "Maths", answers: mixed, grade: grader, user: null,
+    });
+    expect(r.outcome).toBe("skipped-signin-required");
+    expect(r.entries.find((e) => e.questionId === "bank-1")?.mcq).toBe("correct");
+  });
+
+  it("nothing to batch OUTRANKS the sign-in offer — no wall in front of an empty action", async () => {
+    // A signed-out student who batched nothing has nothing to be offered a sign-in FOR.
+    const mcqOnly: SavedAnswer[] = [mcq(1, { pickedOption: "(b)", pickedCorrect: true })];
+    const r = await gradeQuickPracticeBatch({
+      worksheetId: "qp-1", subject: "Maths", answers: mcqOnly, grade: grader, user: null,
+    });
+    expect(r.outcome).toBe("skipped-nothing-to-batch");
+    expect(grader).not.toHaveBeenCalled();
   });
 });
