@@ -1,0 +1,561 @@
+<div style="display: flex; height: 100vh; width: 100%; background: rgb(248, 250, 252); color: rgb(20, 30, 52); overflow: hidden;"><aside style="width: 260px; flex-shrink: 0; background: rgb(15, 26, 51); color: rgba(255, 255, 255, 0.85); display: flex; flex-direction: column; border-right: 1px solid rgb(31, 46, 81);"><a href="/app/browse" data-discover="true" style="padding: 24px; display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit;"><div aria-hidden="true" style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, rgb(52, 178, 119), rgb(39, 155, 101)); display: grid; place-items: center; box-shadow: rgba(52, 178, 119, 0.25) 0px 0px 32px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg></div><div><div style="font-family: Fraunces, Georgia, serif; font-size: 18px; font-weight: 600; color: rgb(255, 255, 255); line-height: 1;">LazyTopper</div><div style="font-size: 11px; color: rgba(255, 255, 255, 0.55); margin-top: 4px;">CBSE · Class 10</div></div></a><nav style="padding: 0px 12px; margin-top: 8px; display: flex; flex-direction: column; gap: 4px;"><a class="" href="/app/browse" data-discover="true" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; font-size: 14px; font-weight: 500; color: rgba(255, 255, 255, 0.75); background: transparent; text-decoration: none; transition: background 0.15s, color 0.15s;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></svg><span>Home</span></a><button type="button" aria-haspopup="dialog" aria-expanded="false" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; font-size: 14px; font-weight: 500; color: rgba(255, 255, 255, 0.75); background: transparent; text-decoration: none; transition: background 0.15s, color 0.15s; width: 100%; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; font-family: inherit; text-align: left; cursor: pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><path d="M12 17h.01"></path></svg><span>Tutor</span></button><a aria-current="page" class="active" href="/app/exam-trends" data-discover="true" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; font-size: 14px; font-weight: 600; color: rgb(255, 255, 255); background: rgb(26, 41, 77); text-decoration: none; transition: background 0.15s, color 0.15s;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg><span>Exam Trends</span></a><a class="" href="/app/practice-hub" data-discover="true" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; font-size: 14px; font-weight: 500; color: rgba(255, 255, 255, 0.75); background: transparent; text-decoration: none; transition: background 0.15s, color 0.15s;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.4 14.4 9.6 9.6"></path><path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z"></path><path d="m21.5 21.5-1.4-1.4"></path><path d="M3.9 3.9 2.5 2.5"></path><path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z"></path></svg><span>Practice</span></a><a class="" href="/app/check-improve" data-discover="true" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; font-size: 14px; font-weight: 500; color: rgba(255, 255, 255, 0.75); background: transparent; text-decoration: none; transition: background 0.15s, color 0.15s;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path><path d="M7 12h10"></path></svg><span>Check &amp; Improve</span></a><a class="" href="/app/me" data-discover="true" style="display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; font-size: 14px; font-weight: 500; color: rgba(255, 255, 255, 0.75); background: transparent; text-decoration: none; transition: background 0.15s, color 0.15s;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><span>Me / Progress</span></a></nav><div style="margin-top: auto; padding: 16px;"><div style="border-radius: 12px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); padding: 16px;"><div style="display: flex; align-items: center; gap: 6px; color: rgb(34, 197, 94);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M5.6 18.4l2.8-2.8M15.6 8.4l2.8-2.8"></path></svg><span style="font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;">Mistake Intel</span></div></div></div></aside><div style="flex: 1 1 0%; display: flex; flex-direction: column; min-width: 0px;"><header style="height: 64px; flex-shrink: 0; position: relative; z-index: 35; border-bottom: 1px solid rgb(223, 228, 236); background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); display: flex; align-items: center; padding: 0px 32px; gap: 16px; color: rgb(20, 30, 52);"><div style="flex: 1 1 0%; min-width: 0px;"></div><div style="display: flex; align-items: center; gap: 12px;"><button type="button" title="Notifications" style="width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; background: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; color: rgb(98, 109, 132); cursor: pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path></svg></button></div></header><main style="flex: 1 1 0%; overflow-y: auto; background: rgb(248, 250, 252); color: rgb(20, 30, 52);"><div class="lt-et"><style>
+.lt-et {
+  --fg: hsl(220, 25%, 12%);
+  --muted: hsl(220, 15%, 42%);
+  --tert: hsl(220, 14%, 55%);
+  --border: hsl(220, 18%, 90%);
+  --card: #ffffff;
+  --caution-fg: hsl(35, 75%, 32%);
+  --caution-bg: hsl(43, 90%, 95%);
+  --caution-line: hsl(40, 60%, 84%);
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+  box-sizing: border-box;
+  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--fg);
+  min-width: 0;
+}
+.lt-et *, .lt-et *::before, .lt-et *::after { box-sizing: border-box; }
+
+/* ── Hero — green→blue→violet wash previewing the three bands ─────────── */
+.lt-et-hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(118deg, hsl(152,50%,96%), hsl(205,70%,96%) 52%, hsl(255,60%,96.5%));
+  border: 1px solid hsl(152,42%,85%);
+  border-radius: 18px;
+  padding: 20px 22px;
+  margin-bottom: 16px;
+  box-shadow: 0 3px 14px -8px hsla(200,40%,35%,.3);
+}
+.lt-et-cred {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--card);
+  border: 1px solid hsl(152,42%,85%);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 750;
+  color: hsl(152,60%,34%);
+  margin-bottom: 10px;
+}
+.lt-et-hero h1 {
+  font-family: "Fraunces", "Source Serif Pro", Georgia, "Times New Roman", serif;
+  font-size: 25px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 0 0 5px;
+  line-height: 1.2;
+}
+.lt-et-hero p {
+  margin: 0;
+  max-width: 60ch;
+  font-size: 13px;
+  line-height: 1.6;
+  color: hsl(220,20%,32%);
+}
+
+/* ── Filters ──────────────────────────────────────────────────────────── */
+.lt-et-filters {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 15px;
+}
+.lt-et-seg {
+  display: inline-flex;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  padding: 3px;
+  gap: 2px;
+  box-shadow: 0 2px 8px -5px hsla(220,30%,40%,.3);
+}
+.lt-et-seg button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  border-radius: 10px;
+  padding: 9px 18px;
+  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+}
+.lt-et-seg button[aria-pressed="true"] {
+  background: linear-gradient(140deg, hsl(152, 55%, 45%), hsl(152,60%,34%));
+  color: #fff;
+  box-shadow: 0 4px 12px -4px hsla(152,55%,30%,.6);
+}
+.lt-et-chip {
+  appearance: none;
+  border: 1px solid hsl(205,60%,84%);
+  background: var(--card);
+  border-radius: 999px;
+  padding: 7px 13px;
+  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 12px;
+  font-weight: 650;
+  color: hsl(205,72%,36%);
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+.lt-et-chip[aria-pressed="true"] { background: hsl(205,70%,96%); }
+.lt-et-chip:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ── Band — the accent is a border-left, NOT a clipped spine element. That
+      is precisely what lets us drop overflow:hidden, which would clip the
+      ⋯ popover (§5 cause 1). ─────────────────────────────────────────── */
+.lt-et-band {
+  position: relative;
+  border-radius: 18px;
+  border: 1px solid var(--a-line);
+  border-left: 5px solid var(--a);
+  background: linear-gradient(175deg, var(--a-tint), var(--card) 34%);
+  margin-bottom: 14px;
+  box-shadow: 0 3px 12px -7px hsla(220,30%,40%,.22);
+}
+.lt-et-band--must-crack {
+  --a: hsl(152, 55%, 45%);
+  --a-tint: hsl(152,50%,96%);
+  --a-line: hsl(152,42%,85%);
+  --a-deep: hsl(152,60%,34%);
+  --a-card-line: hsl(152,35%,90%);
+  --a-shadow: hsla(152,55%,30%,.55);
+  --a-bar: hsl(152,60%,58%);
+}
+.lt-et-band--high-roi {
+  --a: hsl(205,70%,52%);
+  --a-tint: hsl(205,70%,96%);
+  --a-line: hsl(205,60%,84%);
+  --a-deep: hsl(205,72%,36%);
+  --a-card-line: hsl(205,45%,91%);
+  --a-shadow: hsla(205,70%,32%,.5);
+  --a-bar: hsl(205,72%,64%);
+}
+.lt-et-band--good-to-do {
+  --a: hsl(255,50%,58%);
+  --a-tint: hsl(255,60%,96.5%);
+  --a-line: hsl(255,50%,87%);
+  --a-deep: hsl(255,45%,45%);
+  --a-card-line: hsl(255,35%,92%);
+  --a-shadow: hsla(255,45%,40%,.5);
+  --a-bar: hsl(255,58%,70%);
+}
+.lt-et-bandhead {
+  appearance: none;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 16px 18px;
+  cursor: pointer;
+  min-width: 0;
+  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  border-radius: 13px;
+}
+.lt-et-bandnum {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  color: #fff;
+  font-family: "Fraunces", "Source Serif Pro", Georgia, "Times New Roman", serif;
+  font-weight: 800;
+  font-size: 15px;
+  background: linear-gradient(140deg, var(--a), var(--a-deep));
+  box-shadow: 0 4px 11px -4px var(--a-shadow);
+}
+.lt-et-bandtxt { flex: 1; min-width: 0; }
+.lt-et-bandtitle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+  font-family: "Fraunces", "Source Serif Pro", Georgia, "Times New Roman", serif;
+  font-weight: 700;
+  font-size: 16.5px;
+  letter-spacing: -0.015em;
+  color: var(--fg);
+  min-width: 0;
+}
+.lt-et-bandcount {
+  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 10.5px;
+  font-weight: 750;
+  border-radius: 999px;
+  padding: 3px 10px;
+  white-space: nowrap;
+  background: var(--card);
+  color: var(--a-deep);
+  border: 1px solid var(--a-line);
+}
+.lt-et-banddef {
+  display: block;
+  margin-top: 3px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--muted);
+  min-width: 0;
+}
+.lt-et-bandchev { flex: none; display: inline-flex; color: var(--a-deep); }
+.lt-et-rows { display: grid; gap: 10px; padding: 0 12px 12px; min-width: 0; }
+
+/* ── Topic card ───────────────────────────────────────────────────────── */
+.lt-et-card {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--a-card-line);
+  border-radius: 15px;
+  padding: 14px 15px;
+  min-width: 0;
+  box-shadow: 0 2px 8px -5px hsla(220,30%,40%,.18);
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+.lt-et-card:hover {
+  border-color: var(--a);
+  box-shadow: 0 11px 24px -13px var(--a-shadow);
+  transform: translateY(-2px);
+}
+.lt-et-card.is-selected { background: var(--a-tint); border-color: var(--a); }
+/* The card with an open menu must out-stack its siblings, or the popover
+   slides underneath the next card. */
+.lt-et-card.is-menuopen { z-index: 40; }
+.lt-et-cardtop { display: flex; align-items: flex-start; gap: 12px; min-width: 0; }
+.lt-et-cardmain { flex: 1; min-width: 0; }
+.lt-et-name {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+.lt-et-title {
+  font-family: "Fraunces", "Source Serif Pro", Georgia, "Times New Roman", serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--fg);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lt-et-tier {
+  flex: none;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: .05em;
+  border-radius: 999px;
+  padding: 3px 9px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+/* Semantic mapping unchanged — only "low" moves off grey onto the band violet. */
+.lt-et-tier--high { background: hsl(152,55%,94%); color: hsl(152,60%,30%); border-color: hsl(152,45%,86%); }
+.lt-et-tier--medium { background: hsl(43,90%,93%); color: hsl(35, 75%, 32%); border-color: hsl(40,60%,84%); }
+.lt-et-tier--low { background: hsl(255,55%,96%); color: hsl(255,45%,45%); border-color: hsl(255,50%,87%); }
+.lt-et-hpq {
+  flex: none;
+  font-size: 9.5px;
+  font-weight: 750;
+  border-radius: 999px;
+  padding: 3px 9px;
+  white-space: nowrap;
+  background: var(--card);
+  color: var(--a-deep);
+  border: 1px solid var(--a-line);
+}
+/* The chapter blurb — real catalogue content. Restyled, never removed: silence
+   in a spec is not authorisation to delete rendered content. Single-line
+   ellipsis exactly as trunk rendered it. */
+.lt-et-blurb {
+  margin-top: 4px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--tert);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lt-et-weight { margin-top: 10px; display: flex; align-items: center; gap: 10px; min-width: 0; }
+.lt-et-bar {
+  flex: 1;
+  min-width: 0;
+  max-width: 220px;
+  height: 8px;
+  border-radius: 999px;
+  background: hsl(220,16%,94%);
+  overflow: hidden;
+}
+.lt-et-barfill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--a-bar), var(--a-deep));
+}
+.lt-et-marks {
+  flex: none;
+  font-size: 11px;
+  font-weight: 750;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.lt-et-expect {
+  margin-top: 11px;
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  border-radius: 12px;
+  padding: 10px 12px;
+  min-width: 0;
+  background: var(--a-tint);
+  border: 1px solid var(--a-line);
+}
+.lt-et-expect-lb {
+  flex: none;
+  margin-top: 2px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--a-deep);
+}
+.lt-et-expect-tx { min-width: 0; font-size: 12px; line-height: 1.5; color: hsl(220,22%,26%); }
+.lt-et-caution {
+  margin-top: 9px;
+  display: flex;
+  gap: 7px;
+  align-items: flex-start;
+  background: var(--caution-bg);
+  border: 1px solid var(--caution-line);
+  border-radius: 11px;
+  padding: 8px 11px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--caution-fg);
+  min-width: 0;
+}
+.lt-et-caution svg { flex: none; margin-top: 1px; }
+
+/* ── Actions ──────────────────────────────────────────────────────────── */
+.lt-et-actions { display: flex; align-items: center; gap: 7px; flex: none; }
+.lt-et-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 11px;
+  padding: 9px 16px;
+  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  border: 1px solid transparent;
+  text-decoration: none;
+  transition: filter 150ms ease, border-color 150ms ease, color 150ms ease, background 150ms ease;
+}
+.lt-et-btn--primary {
+  background: linear-gradient(140deg, var(--a), var(--a-deep));
+  color: #fff;
+  box-shadow: 0 4px 12px -4px var(--a-shadow);
+}
+.lt-et-btn--primary:hover { filter: brightness(1.08); }
+.lt-et-btn--ghost {
+  background: var(--card);
+  border-color: var(--border);
+  color: var(--muted);
+  padding: 9px 12px;
+}
+.lt-et-btn--ghost:hover { border-color: var(--a); color: var(--a-deep); }
+.lt-et-btn--ghost[aria-pressed="true"] {
+  border-color: var(--a);
+  color: var(--a-deep);
+  background: var(--a-tint);
+}
+
+/* ── The ⋯ popover — anchored to ITS OWN button (§5 cause 2) ──────────── */
+.lt-et-mwrap { position: relative; flex: none; display: inline-flex; }
+.lt-et-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 210px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 18px 42px -14px hsla(220,40%,20%,.45);
+  padding: 6px;
+  z-index: 60;
+}
+.lt-et-menu.is-up { top: auto; bottom: calc(100% + 6px); }
+.lt-et-menu button {
+  appearance: none;
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--fg);
+  text-align: left;
+  cursor: pointer;
+}
+.lt-et-menu button:hover { background: var(--a-tint); color: var(--a-deep); }
+
+/* ── Selected tray ────────────────────────────────────────────────────── */
+.lt-et-tray {
+  --a: hsl(152, 55%, 45%);
+  --a-deep: hsl(152, 60%, 38%);
+  --a-tint: hsl(152,50%,96%);
+  --a-shadow: hsla(152,55%,30%,.6);
+  background: linear-gradient(160deg, var(--card), hsl(152,50%,96%));
+  border: 1px solid hsl(152,42%,85%);
+  border-radius: 18px;
+  padding: 15px 17px;
+  margin-bottom: 16px;
+  box-shadow: 0 6px 20px -14px hsla(220,40%,25%,.4);
+  min-width: 0;
+}
+.lt-et-tray-h {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: hsl(152,60%,34%);
+  margin-bottom: 5px;
+}
+.lt-et-tray-n {
+  font-family: "Fraunces", "Source Serif Pro", Georgia, "Times New Roman", serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 12px;
+  color: var(--fg);
+}
+.lt-et-tray-a { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.lt-et-empty {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 28px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+/* ── All chapters — a compact, VISIBLE directory of every chapter ─────── */
+/* SEO-ALLCHAPTERS-RESTYLE-1 — styled as a page footer, not a fourth card: a hairline
+   rule and space above, quiet type below the bands. Every link stays VISIBLE and
+   AA-contrast — receding is allowed, hiding is not.
+   SEO-ALLCHAPTERS-RESTYLE-2 — links rest in muted grey (green only on hover/focus),
+   11px is the FLOOR for legibility, and the visible title is gone: the <nav> is
+   named by aria-label, and MATHS / SCIENCE carry the visible labelling. */
+.lt-et-all {
+  margin-top: 40px;
+  padding: 16px 2px 0;
+  border-top: 1px solid var(--border);
+}
+.lt-et-all-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 10px;
+  margin: 6px 0 0;
+}
+.lt-et-all-subject {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.lt-et-all-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.lt-et-all-list a { color: var(--muted); text-decoration: none; }
+.lt-et-all-list a:hover,
+.lt-et-all-list a:focus-visible { color: hsl(152,60%,30%); text-decoration: underline; }
+
+.lt-et-foot {
+  margin-top: 18px;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--tert);
+  text-align: center;
+  padding: 0 10px;
+}
+
+/* ── Responsive — ONE component at every width, no breakpoint file-swap ─ */
+@media (max-width: 640px) {
+  .lt-et { padding: 16px 13px 56px; }
+  .lt-et-hero { padding: 15px 14px; margin-bottom: 13px; }
+  .lt-et-hero h1 { font-size: 20px; }
+  .lt-et-hero p { font-size: 12.5px; }
+  .lt-et-band { margin-bottom: 11px; }
+  .lt-et-bandhead { padding: 12px 13px; gap: 10px; }
+  .lt-et-bandnum { width: 30px; height: 30px; font-size: 13.5px; border-radius: 10px; }
+  .lt-et-rows { padding: 0 9px 9px; gap: 8px; }
+}
+@media (max-width: 540px) {
+  /* The action row wraps beneath the content; Learn stretches so the primary
+     action stays thumb-sized. Never shrink it. */
+  .lt-et-cardtop { flex-wrap: wrap; }
+  .lt-et-actions { width: 100%; margin-top: 10px; }
+  .lt-et-actions .lt-et-btn--primary { flex: 1; }
+  .lt-et-menu { min-width: 186px; }
+}
+@media (max-width: 520px) {
+  .lt-et-card { padding: 11px 12px; border-radius: 13px; }
+  .lt-et-title { font-size: 13.5px; }
+  .lt-et-bandtitle { font-size: 14.5px; gap: 7px; }
+  .lt-et-banddef { font-size: 11px; margin-top: 2px; }
+  .lt-et-name { gap: 6px; }
+  .lt-et-blurb { font-size: 11px; margin-top: 3px; }
+  .lt-et-tier, .lt-et-hpq { font-size: 9px; padding: 2px 7px; }
+  .lt-et-weight { margin-top: 8px; gap: 8px; }
+  .lt-et-bar { height: 5px; }
+  .lt-et-marks { font-size: 10px; }
+  .lt-et-expect { margin-top: 9px; padding: 8px 10px; gap: 7px; border-radius: 10px; }
+  .lt-et-expect-tx {
+    font-size: 11px;
+    line-height: 1.45;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .lt-et-caution { font-size: 10.5px; padding: 7px 9px; margin-top: 8px; border-radius: 9px; }
+  .lt-et-btn { padding: 9px 14px; font-size: 12px; }
+  .lt-et-tray-a { flex-direction: column; }
+  .lt-et-tray-a .lt-et-btn { width: 100%; }
+}
+</style><header class="lt-et-hero"><span class="lt-et-cred"><svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentcolor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><circle cx="12" cy="8" r="6"></circle><path d="M15.5 13.5L17 22l-5-3-5 3 1.5-8.5"></path></svg>Ten years of real CBSE papers</span><h1>Exam Trends</h1><p>Every chapter ranked into three priority bands. Start at the top — the band is the verdict, so you never have to weigh marks against frequency yourself.</p><div class="lt-et-filters"><span class="lt-et-seg"><button type="button" aria-pressed="true">Maths</button><button type="button" aria-pressed="false">Science</button></span><button type="button" class="lt-et-chip" aria-pressed="false" disabled="">All</button><button type="button" class="lt-et-chip" aria-pressed="false" disabled="">Physics</button><button type="button" class="lt-et-chip" aria-pressed="false" disabled="">Chemistry</button><button type="button" class="lt-et-chip" aria-pressed="false" disabled="">Biology</button></div></header><section class="lt-et-band lt-et-band--must-crack" data-band="must-crack"><button type="button" class="lt-et-bandhead" aria-expanded="true"><span class="lt-et-bandnum" aria-hidden="true">1</span><span class="lt-et-bandtxt"><span class="lt-et-bandtitle">Must-crack<span class="lt-et-bandcount">5 chapters</span></span><span class="lt-et-banddef">The non-negotiables — big marks, every year. Prepare deep.</span></span><span class="lt-et-bandchev"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentcolor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transform: rotate(90deg); transition: transform 180ms;"><polyline points="9 6 15 12 9 18"></polyline></svg></span></button><div class="lt-et-rows"><article class="lt-et-card" data-topic-slug="trigonometry"><div class="lt-et-cardtop"><div class="lt-et-cardmain"><div class="lt-et-name"><span class="lt-et-title">Trigonometry</span><span class="lt-et-tier lt-et-tier--high">High</span><span class="lt-et-hpq">8 predicted Qs</span></div><div class="lt-et-blurb">Trigonometric ratios and identities together with heights and distances applications.</div><div class="lt-et-weight"><span class="lt-et-bar"><span class="lt-et-barfill" style="width: 100%;"></span></span><span class="lt-et-marks">~12 marks</span></div><div class="lt-et-expect"><span class="lt-et-expect-lb">Expect</span><span class="lt-et-expect-tx">5-mk Heights &amp; Distances LA + standard-angle evaluation</span></div><div class="lt-et-caution"><svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentcolor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg><span>Highest-weight but most volatile — prepare deep, don't bank a fixed mark-total.</span></div></div><div class="lt-et-actions"><button type="button" class="lt-et-btn lt-et-btn--ghost" aria-pressed="false" aria-label="Add Trigonometry to selection"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentcolor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button><a href="/app/topic-hub/trigonometry" class="lt-et-btn lt-et-btn--primary"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentcolor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>Learn</a><span class="lt-et-mwrap" data-lt-et-menu-wrap=""><button type="button" class="lt-et-btn lt-et-btn--ghost" aria-label="More actions for Trigonometry" aria-haspopup="menu" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentcolor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg></button></span></div></div></article><article class="lt-et-card" data-topic-slug="triangles"><div class="lt-et-cardtop"><div class="lt-et-cardmain"><div class="lt-et-name"><span class="lt-et-title">Triangles</span><span class="lt-et-tier lt-et-tier--high">High</span><span class="lt-et-hpq">8 predicted Qs</span></div><div class="lt-et-blurb">Similarity criteria, basic proportionality theorem, and proofs based on similar triangles.</div><div class="lt-et-weight"><span class="lt-et-bar"><span class="lt-et-barfill" style="width: 58.3333%;"></span></span><span class="lt-et-marks">~7 marks</span></div><div class="lt-et-expect"><span class="lt-et-expect-lb">Expect</span><span class="lt-et-expect-tx">similarity / BPT proof + 1-mk MCQ</span></div></div><div class="lt-et-actions"><button type="button" class="lt-et-btn lt-et-btn--ghost" aria-pressed="false" aria-label="Add Triangles to selection"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentcolor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button><a href="/app/topic-hub/triangles" class="lt-et-btn lt-et-btn--primary"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentcolor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>Learn</a><span class="lt-et-mwrap" data-lt-et-menu-wrap=""><button type="button" class="lt-et-btn lt-et-btn--ghost" aria-label="More actions for Triangles" aria-haspopup="menu" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentcolor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg></button></span></div></div></article><article class="lt-et-card" data-topic-slug="surface-areas-and-volumes"><div class="lt-et-cardtop"><div class="lt-et-cardmain"><div class="lt-et-name"><span class="lt-et-title">Surface Areas and Volumes</span><span class="lt-et-tier lt-et-tier--high">High</span><span class="lt-et-hpq">3 predicted Qs</span></div><div class="lt-et-blurb">Surface area and volume of combinations of solids.</div><div class="lt-et-weight"><span class="lt-et-bar"><span class="lt-et-barfill" style="width: 58.3333%;"></span></span><span class="lt-et-marks">~7 marks</span></div><div class="lt-et-expect"><span class="lt-et-expect-lb">Expect</span><span class="lt-et-expect-tx">5-mk combination-of-solids LA + 4-mk case study</span></div></div><div class="lt-et-actions"><button type="button" class="lt-et-btn lt-et-btn--ghost" aria-pressed="false" aria-label="Add Surface Areas and Volumes to selection"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentcolor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button><a href="/app/topic-hub/surface-areas-and-volumes" class="lt-et-btn lt-et-btn--primary"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentcolor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>Learn</a><span class="lt-et-mwrap" data-lt-et-menu-wrap=""><button type="button" class="lt-et-btn lt-et-btn--ghost" aria-label="More actions for Surface Areas and Volumes" aria-haspopup="menu" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentcolor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg></button></span></div></div></article><article class="lt-et-card" data-topic-slug="polynomials"><div class="lt-et-cardtop"><div class="lt-et-cardmain"><div class="lt-et-name"><span class="lt-et-title">Polynomials</span><span class="lt-et-tier lt-et-tier--medium">Medium</span><span class="lt-et-hpq">4 predicted Qs</span></div><div class="lt-et-blurb">Zeroes of a quadratic polynomial and the relationship between its zeroes and coefficients.</div><div class="lt-et-weight"><span class="lt-et-bar"><span class="lt-et-barfill" style="width: 50%;"></span></span><span class="lt-et-marks">~6 marks</span></div><div class="lt-et-expect"><span class="lt-et-expect-lb">Expect</span><span class="lt-et-expect-tx">2-mk zeroes-of-polynomial</span></div></div><div class="lt-et-actions"><button type="button" class="lt-et-btn lt-et-btn--ghost" aria-pressed="false" aria-label="Add Polynomials to selection"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentcolor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button><a href="/app/topic-hub/polynomials" class="lt-et-btn lt-et-btn--primary"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentcolor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>Learn</a><span class="lt-et-mwrap" data-lt-et-menu-wrap=""><button type="button" class="lt-et-btn lt-et-btn--ghost" aria-label="More actions for Polynomials" aria-haspopup="menu" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentcolor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg></button></span></div></div></article><article class="lt-et-card" data-topic-slug="circles"><div class="lt-et-cardtop"><div class="lt-et-cardmain"><div class="lt-et-name"><span class="lt-et-title">Circles</span><span class="lt-et-tier lt-et-tier--high">High</span><span class="lt-et-hpq">2 predicted Qs</span></div><div class="lt-et-blurb">Tangents to a circle, length of tangents from an external point, and related proofs.</div><div class="lt-et-weight"><span class="lt-et-bar"><span class="lt-et-barfill" style="width: 50%;"></span></span><span class="lt-et-marks">~6 marks</span></div><div class="lt-et-expect"><span class="lt-et-expect-lb">Expect</span><span class="lt-et-expect-tx">1-mk tangent MCQ + chord/tangent proof</span></div></div><div class="lt-et-actions"><button type="button" class="lt-et-btn lt-et-btn--ghost" aria-pressed="false" aria-label="Add Circles to selection"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentcolor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button><a href="/app/topic-hub/circles" class="lt-et-btn lt-et-btn--primary"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentcolor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>Learn</a><span class="lt-et-mwrap" data-lt-et-menu-wrap=""><button type="button" class="lt-et-btn lt-et-btn--ghost" aria-label="More actions for Circles" aria-haspopup="menu" aria-expanded="false"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentcolor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;"><circle cx="5" cy="12" r="1"></circle><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle></svg></button></span></div></div></article></div></section><section class="lt-et-band lt-et-band--high-roi" data-band="high-roi"><button type="button" class="lt-et-bandhead" aria-expanded="false"><span class="lt-et-bandnum" aria-hidden="true">2</span><span class="lt-et-bandtxt"><span class="lt-et-bandtitle">High-ROI<span class="lt-et-bandcount">5 chapters</span></span><span class="lt-et-banddef">Best marks-per-hour — scoreable, consistent, formula-driven.</span></span><span class="lt-et-bandchev"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentcolor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transform: rotate(0deg); transition: transform 180ms;"><polyline points="9 6 15 12 9 18"></polyline></svg></span></button></section><section class="lt-et-band lt-et-band--good-to-do" data-band="good-to-do"><button type="button" class="lt-et-bandhead" aria-expanded="false"><span class="lt-et-bandnum" aria-hidden="true">3</span><span class="lt-et-bandtxt"><span class="lt-et-bandtitle">Good-to-do<span class="lt-et-bandcount">3 chapters</span></span><span class="lt-et-banddef">Lower weight or more volatile — do these if time permits.</span></span><span class="lt-et-bandchev"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" style="fill: none; stroke: currentcolor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transform: rotate(0deg); transition: transform 180ms;"><polyline points="9 6 15 12 9 18"></polyline></svg></span></button></section><nav class="lt-et-all" aria-label="All chapters"><div class="lt-et-all-group"><h3 class="lt-et-all-subject">Maths</h3><ul class="lt-et-all-list"><li><a href="/app/topic-hub/real-numbers" data-discover="true">Real Numbers</a></li><li><a href="/app/topic-hub/polynomials" data-discover="true">Polynomials</a></li><li><a href="/app/topic-hub/pair-of-linear-equations" data-discover="true">Pair of Linear Equations</a></li><li><a href="/app/topic-hub/quadratic-equations" data-discover="true">Quadratic Equations</a></li><li><a href="/app/topic-hub/arithmetic-progression" data-discover="true">Arithmetic Progression</a></li><li><a href="/app/topic-hub/triangles" data-discover="true">Triangles</a></li><li><a href="/app/topic-hub/coordinate-geometry" data-discover="true">Coordinate Geometry</a></li><li><a href="/app/topic-hub/trigonometry" data-discover="true">Trigonometry</a></li><li><a href="/app/topic-hub/circles" data-discover="true">Circles</a></li><li><a href="/app/topic-hub/areas-related-to-circles" data-discover="true">Areas Related to Circles</a></li><li><a href="/app/topic-hub/surface-areas-and-volumes" data-discover="true">Surface Areas and Volumes</a></li><li><a href="/app/topic-hub/statistics" data-discover="true">Statistics</a></li><li><a href="/app/topic-hub/probability" data-discover="true">Probability</a></li></ul></div><div class="lt-et-all-group"><h3 class="lt-et-all-subject">Science</h3><ul class="lt-et-all-list"><li><a href="/app/topic-hub/chemical-reactions-and-equations" data-discover="true">Chemical Reactions &amp; Equations</a></li><li><a href="/app/topic-hub/acids-bases-and-salts" data-discover="true">Acids Bases &amp; Salts</a></li><li><a href="/app/topic-hub/metals-and-non-metals" data-discover="true">Metals &amp; Non-metals</a></li><li><a href="/app/topic-hub/carbon-and-its-compounds" data-discover="true">Carbon &amp; its Compounds</a></li><li><a href="/app/topic-hub/light-reflection-and-refraction" data-discover="true">Light - Reflection &amp; Refraction</a></li><li><a href="/app/topic-hub/human-eye-and-colourful-world" data-discover="true">Human Eye &amp; Colourful World</a></li><li><a href="/app/topic-hub/electricity" data-discover="true">Electricity</a></li><li><a href="/app/topic-hub/magnetic-effects-of-electric-current" data-discover="true">Magnetic Effects of Electric Current</a></li><li><a href="/app/topic-hub/life-processes" data-discover="true">Life Processes</a></li><li><a href="/app/topic-hub/control-and-coordination" data-discover="true">Control &amp; Coordination</a></li><li><a href="/app/topic-hub/how-do-organisms-reproduce" data-discover="true">How do Organisms Reproduce</a></li><li><a href="/app/topic-hub/heredity" data-discover="true">Heredity</a></li><li><a href="/app/topic-hub/our-environment" data-discover="true">Our Environment</a></li></ul></div></nav><p class="lt-et-foot">Trend strength shows High / Medium / Low — never an invented percentage.</p></div></main></div></div>
