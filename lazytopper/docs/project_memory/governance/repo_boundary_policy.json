@@ -6,6 +6,7 @@
       "src/",
       "server/",
       "public/",
+      "prerendered/",
       "tests/",
       "index.html",
       "package.json",
