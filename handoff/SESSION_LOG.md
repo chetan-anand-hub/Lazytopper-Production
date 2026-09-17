@@ -1,5 +1,47 @@
 ---
 
+## 2026-09-16 — AUTH-GATE-MOVE-1 — **THE LOGIN WALL MOVES OFF THE CONTENT AND ONTO AI GRADING** — `#793` MERGED — trunk `5c5fc57b`
+
+★ **PROVENANCE.**
+- **HANDOFF-VERIFIED** by the AUTH-GATE-MOVE-1 lane, which built `#793`: premise gate exit 0; tsc (app + test) 0; `vitest run src` **166 files / 2156 tests, 0 failed, 0 skipped**; build + `verify-production-build`; mojibake; `scope:guard --mode mixed`; root guard matrix **206/206 across 30 suites**; lazytopper ops matrix all PASSED; `git diff --check` clean. CI green on head `8cf41609`, read from the run log rather than the tick.
+- **OWNER-REPORTED (live production, 2026-09-16), anonymous half:** paper 1 opens, paper 2 walls with the 3-a-day offer, stored solutions reveal signed-out, the grade control offers sign-in with no paid call.
+- **OWNER-REPORTED (live production, 2026-09-16), signed-in half:** papers 1–3 opened; the 4th **walled** with "Free accounts open 3 papers a day" at `/app/chapter-test/10/Maths/triangles`. **§4 is now fully verified.**
+- **HANDOFF-VERIFIED post-merge on production:** quick practice and predicted questions open signed-out where they redirected before; the daily bucket is live (`{"day":"2026-09-16","count":1}`).
+
+**The rule, in one line: a login wall belongs only where LazyTopper spends money.** Serving a question, a stored step-marked solution, a mock paper or a worksheet costs nothing — static bank data already in the bundle. AI grading costs real money.
+
+**What opened.** `PracticeLimitGate`'s signed-out redirect is gone (the component and provider stay, so `App.tsx:1020` and the routing contract test do not move). Both predicted-question routes lost their `RequirePremium` wrapper. The worksheet gate moved off the generator onto `WorksheetGradePanel` — the one control reaching `/api/grade-worksheet` — leaving generation and **both PDF downloads** free. Chapter test / full mock became a per-DAY two-tier limit: **anonymous 1/day, signed-in free 3/day, premium unlimited**.
+
+★ **THE 10/DAY PRACTICE COUNTER WAS DEAD CODE.** `recordQuestionAnswered` has **zero call sites**; `usePracticeLimit` has exactly one occurrence (its own definition); `incrementDailyPracticeCount` is never reached. Nothing was being limited — the gate was a pure login wall, so removing the redirect removed no working limit. Three handoff documents already said this; the lane re-derived it rather than carrying it.
+
+★★ **FOUR FALSE PREMISES, CORRECTED IN PLACE RATHER THAN DELETED.**
+1. `WorksheetGenerator.tsx` claimed "worksheet generation reaches `/api/grade-worksheet`". **It imports no AI client at all.** That premise is what put a premium wall in front of the free half of the page.
+2. That file and `entitlementGating.test.ts` both claimed "`App.tsx` is frozen by two ops gates asserting zero diff". **Untrue since 2026-08-04** — both gates lifted the ban in FORBID-4 and now assert the opposite; they print `ban LIFTED, protection re-formed`.
+3. `SolutionChecker`'s `:420` block said `entitlement.cjs` fails OPEN for an anonymous caller. **Three tests asserted that dead premise and were PINNING A BROKEN FLOW** — they required the product to show a signed-out student a live CTA whose only possible outcome was a 402. A green run on them was evidence OF the defect.
+4. ★ **THE SPEC ITSELF IS WRONG ABOUT THE TRIAL.** v1.1's paragraph above §0 says a new account "gets a 7-day trial with every Premium feature active". `defaultStatus()` gives `tier:"free", trialStartDate:null`, and `startTrial()`'s only caller is the button at `RequireAuth.tsx:74`; `AuthContext` deliberately removed auto-activation (`[FU-SUBSCRIPTION-AUTOTRIAL-ONMOUNT]`). **A fresh signup is SIGNED-IN FREE, not trial.** The offer stays honest, but what it offers is *an account from which a trial can be started*. Four copy sites corrected; the derivation recorded in-code. See `[FU-SPEC-AUTOTRIAL-CLAIM-FALSE]`.
+
+★ **A FOLLOW-UP THIS LANE CREATED AND CLOSED IN THE SAME LANE.** Opening Quick Practice made a state reachable that could not exist before it: a signed-out student who batches answers and presses "Grade my N answers". Since `#787` that earns a 402, so the lane's own headline change would have handed a student an error at the moment of highest intent. `quickPracticeSessionService` now refuses an unverifiable caller **before the network** (`calls: 0`) and the page offers sign-in. The owner extended §2's allowed files for that defect only. ⚠ **For the record:** the paid call fires on the **"Grade my N answers"** tap, **not** on Finish (`PracticePage.tsx:2167`) — the lane's first description of the defect was wrong on that and was corrected.
+
+★★ **METHOD ADOPTED THIS LANE — assert preconditions on SUBJECT *and* CONTROL.** Two browser checks went green while proving nothing, and **neither was caught by the assertion that failed**; each was caught by evidence disagreeing with a green result. Check 4 matched a regex containing `marks?\b`, a word in **every question header**, while its own evidence extractor printed `(no Step 1 found)`. Check 8 reported `paidCalls=0` as a **PASS** on a run where `gradeCtaFound=false` on both builds — the flow never reached the control, so "no paid call" was true of a run in which nothing happened. **A negative assertion is vacuously true on a run that never reached the thing being tested.** Every browser check now carries and reports the facts that make its negative meaningful, on the control too.
+
+★★ **A CONTROL PRODUCTION COULD NOT BE.** Check 8 needed "same flow, one variable". Production redirects a signed-out visitor off `/practice` *before* the code under test — that redirect being the wall this lane removes — so the defect path is unreachable there. The control used was the **pre-fix per-commit Vercel preview of `970b3221`**: `FIXED offer=true paid=0` vs `PRE-FIX offer=false paid=1`. The defect was **observed being bought**, not argued.
+
+⚠ **`RequirePremium` answers `!user` with `<Navigate to="/login">`.** Mounting it inline at `WorksheetGenerator.tsx:1215` would have thrown a signed-out student off the worksheet the instant it generated — the same wall, one level down. Signed-out now gets an inline offer; the gate is reached only once a user exists.
+
+★ **AN OWNER-RATIFIED DEVIATION, recorded so it is not "restored" as a regression.** A trial-expired student is **counted, not walled**. `isTrialExpired = trialStartDate && tier === "free"`, and a trial makes an account premium until it lapses — so **trial-expired is HOW a student becomes signed-in free**. The old early return gave them zero papers a day, leaving the published 3/day tier unreachable and untestable.
+
+⛔ **§4.6 WAS MERGED UNVERIFIED, AND THAT IS LEFT ON THE RECORD.** At merge the signed-in half stood as **NOT VERIFIED** in five places including the squash commit message. The reason was structural, not neglect: **Firebase authorized domains exclude Vercel preview URLs, so sign-in fails on any preview by CONFIGURATION, not by defect.** The owner verified it on production the same day and it **PASSED**. See `[FU-PREVIEW-AUTH-DOMAINS-BLOCK-SIGNED-IN-VERIFY]` — one console change raises what every future lane can prove before merge.
+
+⛔ **ONE REQUIREMENT OF THE LANE WAS MISSED.** `NEXT_ACTION.md` required rewriting **both** `SolutionChecker.tsx:139-152` and `:420-423`. The lane did the second and **missed the first**. On trunk, `:139-153` still says an anonymous caller is served (`entitled: true`) and that locking their CTA "would be a FALSE LOCK" — which now contradicts both the server **and the shipped code in the same file**. `[FU-SOLUTIONCHECKER-FAILOPEN-COMMENTS-STALE]` stays **OPEN**.
+
+**Transferred check 3 — RUN AND PASSED.** "Signed out, reveal a stored solution", handed over by `#787`'s §6, was executed: a stored step-marked solution reveals with no session, real half-mark step text, `paidCalls=0`, on the preview and again live by the owner.
+
+**Merge mechanics.** The repo required the head branch up to date; the branch was updated by merging base into it (no rebase, no force), all 13 files blob-compared before and after (**identical**), CI re-ran green, then `--squash`, never `--admin`. Verified **by content on trunk** — all 13 byte-identical at `5c5fc57b` — because this repo squash-merges and an ancestry test on the PR head is the wrong check. ⚠ The lane branch was deleted by the repo's **auto-delete-on-merge** setting, not by the agent.
+
+**Bundle census (MOUNT ≠ LIVE).** `featureLabel:"Predicted Questions"` and `"Worksheets"` are **absent from every emitted chunk**; `"Worksheet marking"` and `"Sign in to check your answer"` ship. Six mutation probes all go red.
+
+---
+
 ## 2026-09-16 — `#787` LIVE-VERIFIED, TWO OF THREE: **A PREMIUM STUDENT STILL GRADES AND A FREE STUDENT STILL GETS THE 402 — THE SIGNED-OUT CHECK CANNOT RUN UNTIL AUTH-GATE-MOVE-1 SHIPS** — trunk `b145c2e0`
 
 ★ **PROVENANCE.**
