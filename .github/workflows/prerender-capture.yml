@@ -1,0 +1,154 @@
+# Prerender capture — renders every advertised page and keeps the committed artifact current.
+#
+# ★ WHY THIS RUNS IN CI AND NOT IN `pnpm run build`. No major AI crawler executes
+# JavaScript, so every advertised URL served a body of `<div id="root"></div>` and
+# ChatGPT, Claude and Perplexity saw an empty shell. The fix is to render each page once
+# and put the DOM in the file — but a headless browser cannot run where this site is
+# built. Measured, not assumed:
+#
+#   GitHub Actions (ubuntu-latest)   captures 58 pages in ~50s              OK
+#   Vercel build (Amazon Linux)      libnspr4.so: cannot open shared object FAILS
+#   Railway backend image (slim)     libglib-2.0.so.0: same class           FAILS
+#
+# `playwright install` downloads the binary in all three; the SYSTEM LIBRARIES are
+# absent, and `--with-deps` shells out to apt-get, which Amazon Linux does not have. So
+# the capture happens HERE, its output is committed, and every build just applies it.
+#
+# ★ WHY PER-PR AND NOT ON MERGE TO TRUNK. Trunk is protected by the `trunk-protection`
+# ruleset, whose `pull_request` rule refuses direct pushes — a job cannot commit to trunk
+# at all, and weakening that so a bot can push is not on the table. Per-PR is not a
+# workaround, it is the shape the protection supports: the same ruleset sets
+# `strict: true` on required checks, so a branch must be up to date with trunk before it
+# can merge. A stale artifact therefore cannot land — GitHub forces the branch forward,
+# that re-runs this job, and the capture regenerates against the merged base.
+#
+# ⚠⚠ WHY THIS JOB DOES NOT PUSH BY DEFAULT, AND THE MEASUREMENT BEHIND IT.
+# A push made with the built-in `GITHUB_TOKEN` does NOT trigger workflow runs. Verified
+# in this repo: a probe branch received two commits — one pushed by a person, one pushed
+# by a job using `GITHUB_TOKEN` — and exactly ONE workflow run exists, for the human
+# push. The bot's commit created no run at all.
+#
+# That matters more than it first looks. If this job pushed the refreshed artifact, the
+# PR's head SHA would move and NO checks would run against the new head — and
+# `quality-gate` and `lane-overlap` are REQUIRED, so a required check with no result
+# leaves the PR permanently unmergeable. An auto-pushing job would strand every PR it
+# helped.
+#
+# So the default is VERIFY-AND-SUPPLY: the job captures, and if the committed artifact is
+# stale it FAILS and uploads the freshly captured artifact for download — no local
+# browser needed to fix it. If the owner ever provisions `PRERENDER_TOKEN` (a PAT or App
+# token, whose pushes DO trigger workflows), the job pushes instead and the refresh
+# becomes automatic. Both paths end with the artifact current and every required check
+# having actually run.
+name: prerender-capture
+
+on:
+  pull_request:
+    branches: [base/approved-thru-437]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: prerender-capture-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  capture:
+    # ⚠ A fork's branch cannot be pushed to, and Dependabot's token is read-only. Dependency
+    # bumps change no rendered content, so there is nothing to refresh.
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    # ⚠ `secrets` is NOT available in a step-level `if`. Resolving it once here, where the
+    # context IS allowed, is what makes the two branches below actually evaluate — a
+    # step-level `secrets.X != ''` would read as empty and silently pick one path forever.
+    env:
+      HAS_PUSH_TOKEN: ${{ secrets.PRERENDER_TOKEN != '' }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ secrets.PRERENDER_TOKEN || github.token }}
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install workspace (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      # ⚠ `pnpm install` does NOT bring a browser. `pnpm-workspace.yaml` restricts
+      # postinstall scripts to an approved list and Playwright is not on it, so the
+      # package arrives without the binary. This was found the hard way: it worked on a
+      # dev box only because that machine had a global ms-playwright cache from other
+      # work — the kind of accident that passes at a desk and fails everywhere else.
+      - name: Install the headless shell
+        run: pnpm --filter lazytopper exec playwright install --only-shell --no-progress chromium
+
+      - name: Build (no browser in this chain)
+        run: pnpm --filter lazytopper run build
+
+      # Renders every advertised path twice — once with the app's APIs unreachable (that
+      # run becomes the artifact, so it provably cannot contain runtime data) and once
+      # with them reachable (the control). A page whose DOM differs between the two has
+      # become data-dependent and FAILS here rather than silently freezing one response.
+      - name: Capture
+        run: pnpm --filter lazytopper run seo:capture
+
+      - name: Is the committed artifact current?
+        id: check
+        run: |
+          if git diff --quiet -- lazytopper/prerendered; then
+            echo "stale=false" >> "$GITHUB_OUTPUT"
+            echo "PRERENDER: committed artifact matches a fresh capture."
+          else
+            echo "stale=true" >> "$GITHUB_OUTPUT"
+            echo "PRERENDER: the committed artifact is STALE. Changed files:"
+            git diff --stat -- lazytopper/prerendered
+          fi
+
+      # Available whether or not the push path is enabled, so the artifact can always be
+      # refreshed without a browser on anyone's machine.
+      - name: Upload the freshly captured artifact
+        if: steps.check.outputs.stale == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: prerendered-${{ github.event.pull_request.number }}
+          path: lazytopper/prerendered
+          retention-days: 7
+
+      - name: Push the refresh (only with a token whose pushes trigger checks)
+        if: steps.check.outputs.stale == 'true' && env.HAS_PUSH_TOKEN == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lazytopper/prerendered
+          # ⚠ SCOPED ON PURPOSE. This job may only ever touch the generated artifact. If
+          # anything else is staged, something has gone wrong, and pushing it would be a
+          # bot committing product code.
+          staged="$(git diff --cached --name-only | grep -v '^lazytopper/prerendered/' || true)"
+          if [ -n "$staged" ]; then
+            echo "::error::capture staged files outside the artifact:"; echo "$staged"; exit 1
+          fi
+          git commit -m "chore(seo): refresh the prerendered artifact"
+          git push origin HEAD:"${{ github.event.pull_request.head.ref }}"
+          echo "PRERENDER: artifact refreshed and pushed; checks will re-run on the new head."
+
+      - name: Fail when stale and no push token is configured
+        if: steps.check.outputs.stale == 'true' && env.HAS_PUSH_TOKEN != 'true'
+        run: |
+          echo "::error::The committed prerendered artifact does not match this source."
+          echo "The page content this PR ships would be stale."
+          echo ""
+          echo "To fix without a local browser: download the 'prerendered-${{ github.event.pull_request.number }}'"
+          echo "artifact from this run, replace lazytopper/prerendered/ with it, and commit."
+          echo "Locally, if you have a browser: pnpm --filter lazytopper run seo:capture"
+          exit 1

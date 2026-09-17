@@ -17,7 +17,8 @@
     "test:practice-set-generator": "node --import tsx/esm --test src/practiceSetGeneratorGuard.test.ts",
     "test:ai-tier-integrity": "node --import tsx/esm --test src/aiTierContentIntegrityGuard.test.ts",
     "test:premise-ledger": "node --import tsx/esm --test src/premiseLedgerGuard.test.ts",
-    "test:matrix:all": "node --import tsx/esm --test src/syllabusGuard.test.ts src/deletionGuard.test.ts src/reproductionBankGuard.test.ts src/opsAcceptanceGuard.test.ts src/practiceSetGeneratorGuard.test.ts src/aiTierContentIntegrityGuard.test.ts src/premiseLedgerGuard.test.ts"
+    "test:lane-overlap": "node --import tsx/esm --test src/laneOverlapGuard.test.ts",
+    "test:matrix:all": "node --import tsx/esm --test src/syllabusGuard.test.ts src/deletionGuard.test.ts src/reproductionBankGuard.test.ts src/opsAcceptanceGuard.test.ts src/practiceSetGeneratorGuard.test.ts src/aiTierContentIntegrityGuard.test.ts src/premiseLedgerGuard.test.ts src/laneOverlapGuard.test.ts"
   },
   "devDependencies": {
     "@types/node": "catalog:",
