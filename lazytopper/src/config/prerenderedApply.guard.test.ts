@@ -2,7 +2,8 @@
 import { describe, it, expect } from "vitest";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, dirname } from "node:path";
+import { join, dirname, resolve } from "node:path";
+import { readFileSync } from "node:fs";
 
 import {
   applicablePaths,
@@ -153,5 +154,52 @@ describe("the fragment layout round-trips", () => {
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
+  });
+});
+
+describe("the build actually WIRES the apply step", () => {
+  /**
+   * ★★ THE HOLE THIS CLOSES, AND IT WAS ALMOST WALKED INTO.
+   * Everything else in this file tests what the apply step DOES. Nothing tested that
+   * `build` still CALLS it — and a PR that drops it from the build line would stop
+   * prerendering entirely while every gate stayed green: tsc passes, every test passes,
+   * the build succeeds, and 58 pages quietly go back to serving an empty body. There is
+   * no error to notice, which is the whole problem.
+   *
+   * ⚠ NOT HYPOTHETICAL. Dependabot PR #784 branched before the apply step landed, so its
+   * `package.json` carried the OLD build line with `applyPrerendered` ABSENT. Had it
+   * merged without a rebase, prerendering would have silently stopped applying. It was
+   * closed instead — but the next dependency bump that touches `package.json` recreates
+   * exactly the same shape, and a person spotting it is not a control.
+   *
+   * ORDER IS ASSERTED TOO: the apply step must run AFTER `writeStaticHeads`, which stamps
+   * all 116 files from one template string and would overwrite anything written first.
+   */
+  const pkg = JSON.parse(
+    readFileSync(resolve(__dirname, "../../package.json"), "utf8"),
+  ) as { scripts: Record<string, string> };
+
+  it("runs applyPrerendered in the build", () => {
+    expect(pkg.scripts.build).toContain("scripts/seo/applyPrerendered.ts");
+  });
+
+  it("runs it AFTER writeStaticHeads, which would otherwise overwrite the filled pages", () => {
+    const build = pkg.scripts.build;
+    const heads = build.indexOf("scripts/seo/writeStaticHeads.ts");
+    const apply = build.indexOf("scripts/seo/applyPrerendered.ts");
+
+    expect(heads).toBeGreaterThanOrEqual(0);
+    expect(apply).toBeGreaterThan(heads);
+  });
+
+  /**
+   * ★ AND THE CAPTURE MUST NOT BE IN THE BUILD. It needs a headless browser, which cannot
+   * run on Vercel (`libnspr4.so`) or in the Railway container (`libglib-2.0.so.0`).
+   * Putting it back into `build` breaks both deploy paths — that is what #795 proved, and
+   * it is why the capture lives behind `seo:capture`, called only by CI.
+   */
+  it("does NOT run the browser-dependent capture in the build", () => {
+    expect(pkg.scripts.build).not.toContain("captureStaticBodies");
+    expect(pkg.scripts["seo:capture"]).toContain("scripts/seo/captureStaticBodies.ts");
   });
 });

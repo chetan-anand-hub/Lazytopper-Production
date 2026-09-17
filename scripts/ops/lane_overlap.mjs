@@ -23,6 +23,7 @@
 
 import { execFileSync } from 'node:child_process';
 import { appendFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 
 const PR_NUMBER = process.env.PR_NUMBER;
 const REPO = process.env.GITHUB_REPOSITORY;
@@ -44,6 +45,30 @@ const GATED_FILES = new Set([
   'firebase.json',
   'firestore.rules',
 ]);
+
+// --- Generated artifacts: shared paths here are NOT a lane collision. ---
+//
+// ★ WHY THIS EXCLUSION EXISTS, AND WHY IT IS EXACTLY ONE ENTRY.
+// This check exists to stop two lanes editing the same AUTHORED file in parallel, where
+// a shared path means two humans disagreeing about one source of truth and a conflict
+// that a person must resolve. A GENERATED artifact has no such conflict: whichever lane
+// merges second regenerates it from its own source, and the "disagreement" resolves
+// itself. Without this, every content lane would collide with every other content lane
+// on `lazytopper/prerendered/**` and the whole set would have to be sequenced -- a real
+// cost protecting nothing.
+//
+// ⚠ DO NOT ADD TO THIS LIST TO SILENCE AN INCONVENIENT COLLISION. The temptation will
+// be concrete: `lazytopper/package.json` collisions are common and annoying, and adding
+// it here would make them disappear. It would also be exactly wrong -- package.json is
+// authored, two lanes editing it really can conflict, and hiding that is how a bad merge
+// reaches trunk. The only thing that belongs here is output that a tool regenerates in
+// full from source. `lane_overlap.guard.test.ts` asserts this list is EXACTLY the one
+// path below, so widening it fails the root guard matrix rather than passing quietly.
+export const GENERATED_PREFIXES = ['lazytopper/prerendered/'];
+
+export function isGenerated(path) {
+  return GENERATED_PREFIXES.some((prefix) => path.startsWith(prefix));
+}
 
 function annErr(msg) { console.error(`::error::${msg}`); }
 function annWarn(msg) { console.error(`::warning::${msg}`); }
@@ -109,7 +134,8 @@ function main() {
       annWarn(`lane-overlap: could not read files for PR #${pr.number} (skipping): ${e.message}`);
       continue;
     }
-    const shared = files.filter((f) => mineSet.has(f));
+    // Generated output is excluded: whichever lane merges second regenerates it.
+    const shared = files.filter((f) => mineSet.has(f) && !isGenerated(f));
     if (shared.length) overlaps.push({ pr, shared });
   }
 
@@ -146,4 +172,8 @@ function main() {
   process.exit(1);
 }
 
-main();
+// Run only when invoked directly, so the guard test can import the pure predicates above
+// without the script reaching for a PR number and exiting.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}
