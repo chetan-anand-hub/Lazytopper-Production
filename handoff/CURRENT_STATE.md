@@ -1,5 +1,53 @@
 # LazyTopper — Current State
 
+## [CURRENT · SEO/CONTENT] CBQ-TAB-1 — **THE QUESTION BANK IS NOW VISIBLE TO A SEARCH ENGINE FOR THE FIRST TIME** — `#799` MERGED — trunk `ce22b54a`
+
+★ **PROVENANCE.**
+- **HANDOFF-VERIFIED** by the CBQ-TAB-1 lane: premise gate exit 0; tsc app + test 0; `vitest run src` **170 files / 2240 tests, 0 failed, 0 skipped**; build + verifier; mojibake `enforced_hits=0`; `scope:guard --mode mixed`; **root matrix 211 tests / 31 suites**; **lazytopper ops matrix exit 0**; CI green on `6a2418ec` read from the log. Merge verified **by content on trunk**, because this repo squash-merges.
+- **§4 (all seven) run against the Vercel preview of the exact commit**, production as the control, every control shown.
+- **OWNER-VERIFIED LIVE (production, 2026-09-18):** `191,894` bytes and **45 `mark` occurrences** in the raw HTML, up from `186,231` and **zero**.
+
+**Trunk `ce22b54a55053f4bf63711cd48cde0c211d53396`** (`#799` squash). Before it: `5c5fc57b` = `#793`, plus the intervening merges.
+
+### What a crawler gets now, that it never got before
+
+| | before | after |
+|---|---|---|
+| Questions on a notes page | **0** | **3 per topic, all 26 topics** |
+| Step-marked solutions in the raw HTML | **0** | every step of all 78 questions |
+| Reachable without JavaScript | n/a | **yes** — verified by `curl`, production as control |
+
+`PREVIEW trigonometry bytes=191295 solutionLabels=3 questionsFound=3/3 stepsFound=9/9`
+`PRODUCTION trigonometry bytes=186231 solutionLabels=0 questionsFound=0/3 stepsFound=0/9`
+
+78 questions · **0 without solution steps** · thinnest pool `circles` = 4 · panel words **159–608, median 408**.
+
+### The shape of it — read this before touching the notes surface
+
+- **`<Note>` has FOUR tabs.** The new one is labelled **"Board Questions"**. It renders into the DOM unconditionally and hides via the existing `.lt-note__panel` class, exactly as the other three do. ⚠ **Do not convert it to `tab === "questions" && (...)`** — a panel that unmounts is invisible to a crawler, and invisible is the state this lane exists to end.
+- **There is no "show solution" control, deliberately.** A test asserts **zero buttons** inside the panel. A toggle would defeat the lane while every other test stayed green.
+- **The content comes from a GENERATED, COMMITTED artifact** (`src/lib/boardQuestions/boardQuestions.generated.json`, 73 kB), **never the live bank**. ⚠ Importing `canonicalQuestionBank` into the note would pull `src/data/questionBanks/` — **11 MB across 413 files** — into the notes chunk on all 26 prerendered pages. That is PERF-1, on the exact surface this lane exists to make fast. **Verified in the built output:** the Note chunk imports `NcertPageModal, index, katex, noteSpecRegistry` and **not** the bank, which stays in its own 6,293 kB chunk.
+- **The artifact is `.json`, not `.ts`, and that is load-bearing.** `pricing.guard.test.ts` walks every `.ts`/`.tsx` under `src/` and fails on a rupee literal; CBSE word problems legitimately carry them (`₹73,500` in an AP loan question). JSON keeps the questions verbatim **and** the guard at full strength. **OWNER-RULED: leave it as `.json` where it is.**
+- **Regenerate with** (from `lazytopper/`): `node --import tsx scripts/generateBoardQuestions.ts`, then run `boardQuestions.guard.test.ts`.
+- **The guard is where "fail loudly" lives.** A runtime throw on a prerendered page paints the **error boundary** — the soft-404 mechanism — rather than failing a build. The guard re-runs the rule against the live bank and asserts an exact serialised match; **it fails, it does not warn.**
+- **Ordering is codepoint, never `localeCompare`.** 41 bank ids are lowercase and ICU disagrees at index 1762 under every locale tested, so the comparator changes *which questions publish*. Commented at the comparator and pinned by a test.
+
+### The practice CTA — two traps that would have looked correct in the URL bar
+
+`/practice/10/<subject>?topic=&marks=4&style=case&count=5&returnTo=&backLabel=`
+
+- ⚠ **Never add `source=practice`.** `deriveArrivedTargeted` (`PracticePage.tsx:318`) checks it **before** the topic check at `:319` and returns false, landing the student on the preset **picker** with a valid `topic=` in hand. **`source` is consulted for the back link ONLY as the literal `"trends"`** (`practiceBackTo`, `:663-668`), so omitting it costs nothing; `returnTo` wins over everything. ⚠ `resolveBack` does **not** exist at `:1063` — that line is inside a style object.
+- ⚠ **The CTA subject is BANK-derived, never `meta.subject`.** `NoteMeta.subject` is `physics | chemistry | biology | maths` — four values — and `normaliseSubject` silently defaults anything that is not `"science"`/`"sci"` to **Maths**. Deriving from the note spec would route every physics, chemistry and biology note to maths questions with no error. The guard asserts **26 topics → 26 subjects, zero unmapped**.
+- Verified live end to end: the CTA lands on a **built** set — *"Practice - Trigonometry · 5 questions in this set · Case-based (4)"* — not the picker.
+
+### Two process facts this lane established
+
+- ★★★ **A spec's §3 gate list is a convenience, NEVER a substitute for `CLAUDE.md` §6.** This lane ran §3's list, which omitted both `test:matrix:all` suites, and CI caught a real `topickey` Guard B violation. **Owner-ruled: §6 is the standing set; a spec's list is additive only.**
+- ★★★ **`prerender-capture` is verify-and-supply, and a DOM-changing PR MUST fail it.** The committed capture is what a crawler reads; without refreshing it this lane would have shipped nothing while every gate stayed green. The job failed, uploaded `prerendered-799`, and that artifact was committed **unmodified after being verified** (26/26 pages, zero missing). First real content PR to exercise it; it behaved as designed.
+
+⚠ **Open out of this lane:** `[FU-SRCDATA-BAN-VS-PRICING-GUARD-EXEMPTION]`, `[FU-PRERENDER-REFRESH-FRICTION-LOG]`, `[FU-CBQ-PYQYEAR-COVERAGE-THIN]`, `[FU-SPEC-GATE-LIST-SUBSET-OF-CLAUDEMD]`.
+
+
 ## [CURRENT · AUTH] AUTH-GATE-MOVE-1 — **THE LOGIN WALL NOW SITS ONLY WHERE MONEY IS SPENT** — `#793` MERGED — trunk `5c5fc57b`
 
 ★ **PROVENANCE.**

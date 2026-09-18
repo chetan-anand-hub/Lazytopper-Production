@@ -1,5 +1,24 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-18 — SEO/CONTENT: **CBQ-TAB-1 — THE QUESTION BANK BECOMES VISIBLE TO SEARCH ENGINES** — `#799` MERGED — trunk `ce22b54a`
+
+- ✅ **A fourth "Board Questions" tab on all 26 notes pages**, publishing 3 competency questions each with their **full step-marked solutions**. 78 questions, **0 without solution steps**, thinnest pool `circles` = 4.
+- ✅ **The founding condition is now measurably false.** Notes pages served **0** questions to a crawler; they serve **3 each** with no JavaScript, production as the control. OWNER-VERIFIED live: `191,894` bytes / **45 `mark` occurrences**, up from `186,231` / **zero**.
+- ✅ **Crawl-readable by construction, not by luck** — the panel renders into the DOM and hides via the existing `.lt-note__panel` class, with the assertion run while the tab is **INACTIVE**. No "show solution" control exists, and a test asserts **zero buttons** in the panel so one cannot be added quietly.
+- ✅ **PERF-1 avoided on the exact surface it would have hurt most**, proven at the bundle rather than in a test: the Note chunk imports `NcertPageModal, index, katex, noteSpecRegistry` and **not** `canonicalQuestionBank` (6,293 kB, separate chunk). The 11 MB / 413-file bank graph never enters the notes route; the committed artifact is 73 kB.
+- ✅ **A practice CTA that lands on a BUILT competency set**, verified live end to end — *"Practice - Trigonometry · 5 questions in this set · Case-based (4)"* — not the preset picker.
+- ✅ **All seven §4 acceptance checks passed with every control**, against the Vercel preview of the exact commit. Self-merged under the lane's authorization, squash, no `--admin`.
+- ★★★ **PROCESS: a spec's §3 gate list is a convenience, NEVER a substitute for `CLAUDE.md` §6.** The spec omitted both `test:matrix:all` suites; CI caught a real `topickey` Guard B violation the lane's local run could not. Owner-ruled the lane's error; §6 is the standing set and a spec's list is additive only. See `[FU-SPEC-GATE-LIST-SUBSET-OF-CLAUDEMD]`.
+- ★★★ **PROCESS: `prerender-capture` is verify-and-supply, and a DOM-changing PR MUST fail it.** The committed capture is what a crawler reads; without refreshing it this lane would have merged green and published nothing. First real content PR to exercise it — **1 refresh, genuine content drift, 0 spurious**. See `[FU-PRERENDER-REFRESH-FRICTION-LOG]`.
+- ★★ **§2.5's "fail loudly" moved from runtime to a build-time guard** — a throw on a prerendered page paints the error boundary (the soft-404 mechanism), which does not fail a build. The guard fails, it does not warn; demonstrated on the real artifact twice.
+- ★★ **Two silent CTA traps closed:** `source=practice` would have sent every student to the picker with a valid `topic=` (`deriveArrivedTargeted:318` precedes the topic check at `:319`); and `NoteMeta.subject` is four-valued, so deriving the CTA subject from the note spec would have routed every physics/chemistry/biology note to **maths** questions via `normaliseSubject`'s silent default.
+- ⚠ **New: `[FU-SRCDATA-BAN-VS-PRICING-GUARD-EXEMPTION]`** — `CLAUDE.md` §4 forbids `src/data/` while the pricing guard exempts it *because* question content lives there. Resolved for this lane by emitting `.json` (the guard scans only `.ts`/`.tsx`); the rule-level tension is the owner's call.
+- ⚠ **New: `[FU-CBQ-PYQYEAR-COVERAGE-THIN]`** — 75 of 78 rows carry no `pyqYear`, so the year chip shows on 3 cards. Compliant with §2.2. ⚠ **Do not backfill years to improve the panel.**
+- ⚠ **Still open (unrelated, carried):** `[FU-SOLUTIONCHECKER-FAILOPEN-COMMENTS-STALE]`, `[FU-UID-HEADER-TRUSTED-UNVERIFIED]`, `[FU-WARMUP-UNAUTH-STEP-SOLUTION]`, `[FU-PREVIEW-AUTH-DOMAINS-BLOCK-SIGNED-IN-VERIFY]`.
+- 🧹 **Branches deleted on merge:** `lane/cbq-tab-1`, `docs/post-pr-799-cbq-tab-1-handoff` (owner-approved 2026-09-18). No repo-wide prune.
+- 📋 **Root guard matrix is now 211 tests / 31 suites** (was 202/30). `CLAUDE.md` §6 still says "190 checks" and §6a "202/30" — both stale. Read it from the run, never hardcode.
+
+
 ## 2026-09-16 — AUTH: **AUTH-GATE-MOVE-1 — THE LOGIN WALL MOVES OFF THE CONTENT AND ONTO AI GRADING** — `#793` MERGED — trunk `5c5fc57b`
 
 - ✅ **Practice, predicted questions, the worksheet builder and both its PDF downloads are now reachable SIGNED OUT.** One chapter test or full mock a day is too. All four were behind a login redirect before.

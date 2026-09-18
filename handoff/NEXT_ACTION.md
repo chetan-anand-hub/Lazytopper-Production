@@ -1,4 +1,99 @@
 ```
+⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW ON TRUNK SHA AND ON THE GATE SET.
+   IT DOES NOT SUPERSEDE ANY BANNER BELOW ON AUTH-GATE-MOVE-1'S OPEN FOLLOW-UPS,
+   WHICH ALL REMAIN OPEN AND UNCHANGED.
+
+TRUNK IS `ce22b54a55053f4bf63711cd48cde0c211d53396`, MEASURED 2026-09-18.
+   ce22b54a = #799 (CBQ-TAB-1).
+
+★★★ READ THIS BEFORE YOU RUN A SINGLE GATE — IT COST #799 A RED CI RUN.
+
+   A SPEC'S §3 GATE LIST IS A CONVENIENCE. IT IS NEVER A SUBSTITUTE FOR CLAUDE.md §6.
+
+   CBQ-TAB-1's spec §3 omitted BOTH `test:matrix:all` suites. The lane ran §3's
+   list, every named gate passed, it reported PASS and pushed - and CI went red on
+   a real `topickey` Guard B violation. Owner-ruled the LANE's error, not the
+   spec's to absorb.
+
+   RUN CLAUDE.md §6 IN FULL, THEN ANYTHING §3 ADDS ON TOP. In particular there are
+   TWO matrices and they are different:
+       cd scripts     && pnpm run test:matrix:all     # root guard matrix
+       cd lazytopper  && pnpm run test:matrix:all     # ops matrix  <- the one #799 missed
+   Root matrix is 211 tests / 31 suites as of 2026-09-18. CLAUDE.md §6 still says
+   "190 checks" and §6a says "202/30". BOTH ARE STALE. Read the count from the run.
+   See [FU-SPEC-GATE-LIST-SUBSET-OF-CLAUDEMD].
+
+★★★ IF YOUR PR CHANGES WHAT A PAGE RENDERS, `prerender-capture` WILL FAIL. THAT IS
+   THE DESIGN, NOT A BREAKAGE.
+
+   lazytopper/prerendered/ is a COMMITTED capture and it is what a crawler actually
+   reads - no major AI crawler executes JavaScript. A headless browser cannot run on
+   Vercel or Railway, and a GITHUB_TOKEN push triggers no workflow run (it would
+   strand the PR with required checks that never ran). So the job VERIFIES AND
+   SUPPLIES:
+
+       gh run download <run-id> -n prerendered-<PR#> -D <tmp>
+       # VERIFY THE CONTENT FIRST, then replace lazytopper/prerendered/ and commit
+
+   This is NOT hand-editing - it is the supply half. #799 verified all 26 pages
+   before committing rather than trusting the artifact. Append your refresh to
+   [FU-PRERENDER-REFRESH-FRICTION-LOG]; the owner is measuring the ratio.
+
+CBQ-TAB-1 IS MERGED AND OWNER LIVE-VERIFIED ON PRODUCTION.
+   #799 `ce22b54a`. 191,894 bytes and 45 `mark` occurrences in the raw HTML, up
+   from 186,231 and ZERO. All 26 notes pages publish 3 competency questions with
+   full step-marked solutions, readable with JavaScript disabled.
+
+IF YOU TOUCH THE NOTES SURFACE, THESE FOUR THINGS WILL BITE YOU:
+   1. The Board Questions panel MUST render into the DOM and hide by CSS class.
+      Do NOT convert it to `tab === "questions" && (...)`. A panel that unmounts is
+      invisible to a crawler, and there is no "show solution" control by design -
+      a test asserts ZERO buttons inside the panel.
+   2. Content comes from a GENERATED, COMMITTED artifact
+      (src/lib/boardQuestions/boardQuestions.generated.json, 73 kB). Do NOT import
+      canonicalQuestionBank into the note - it drags 11 MB across 413 files into the
+      notes chunk on 26 prerendered pages (PERF-1). Regenerate with:
+          cd lazytopper && node --import tsx scripts/generateBoardQuestions.ts
+      then run boardQuestions.guard.test.ts. The guard FAILS, it does not warn.
+   3. The artifact is .json ON PURPOSE. pricing.guard.test.ts scans every .ts/.tsx
+      under src/ and fails on a rupee literal; CBSE word problems legitimately carry
+      them. Do NOT convert it to .ts and do NOT add a guard exemption.
+      OWNER-RULED: leave it as .json where it is.
+   4. Ordering is CODEPOINT, never localeCompare. 41 bank ids are lowercase and ICU
+      disagrees at index 1762 - the comparator changes WHICH questions publish.
+
+IF YOU TOUCH THE PRACTICE CTA OR PracticePage, TWO SILENT TRAPS:
+   - NEVER add `source=practice` to a targeted URL. deriveArrivedTargeted checks it
+     at :318 BEFORE the topic check at :319 and returns false, landing the student on
+     the preset PICKER while the URL still looks correct. For the BACK link, `source`
+     is consulted ONLY as the literal "trends" (practiceBackTo :663-668), so omitting
+     it costs nothing; `returnTo` wins over everything. Pass `backLabel` explicitly or
+     it falls through to a generic "Back".
+     ⚠ `resolveBack` does NOT exist at :1063 - that line is inside a style object.
+   - NoteMeta.subject is FOUR-valued (physics|chemistry|biology|maths) and
+     normaliseSubject silently defaults anything not "science"/"sci" to MATHS.
+     Deriving a practice subject from a note spec routes every physics, chemistry and
+     biology note to maths questions WITH NO ERROR. Derive it from the BANK.
+
+OPEN OUT OF THIS LANE (none block the next lane):
+   [FU-SPEC-GATE-LIST-SUBSET-OF-CLAUDEMD]     standing instruction, above
+   [FU-SRCDATA-BAN-VS-PRICING-GUARD-EXEMPTION] owner decision; CLAUDE.md §4 vs the
+                                               pricing guard's src/data exemption
+   [FU-PRERENDER-REFRESH-FRICTION-LOG]        running log, append your data point
+   [FU-CBQ-PYQYEAR-COVERAGE-THIN]             75/78 rows carry no pyqYear.
+                                               ⚠ DO NOT BACKFILL YEARS.
+
+NOT DONE, AND DELIBERATELY SO:
+   No factual-correctness review of the 78 published questions. Owner ruling (c),
+   recorded as an ACCEPTED OWNER-LEVEL RISK. If that ever needs revisiting it is a
+   content lane, not an SEO one.
+
+THE OUTCOME THIS LANE EXISTS FOR CANNOT BE CHECKED FROM THE REPO:
+   a week out, ask ChatGPT or Perplexity for questions on a chapter and see whether
+   they cite lazytopper.com. That is the measurement that matters.
+```
+
+```
 ⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW ON AUTH-GATE-MOVE-1 AND ON THE #787
    TRANSFERRED CHECK. IT DOES NOT SUPERSEDE ANY BANNER ON THE EXAM TRENDS DIRECTORY.
 
