@@ -1,0 +1,1062 @@
+{
+  "_README": "GENERATED FILE - DO NOT EDIT BY HAND. Hand edits are destroyed on the next regeneration, and boardQuestions.guard.test.ts fails the build the moment this file disagrees with the live bank. Regenerate from lazytopper/ with: node --import tsx scripts/generateBoardQuestions.ts",
+  "_rule": "src/lib/boardQuestions/selectionRule.ts - competency + publishable + not AI-question + not withheld, sorted by id in CODEPOINT order (never localeCompare), first 3 per topic.",
+  "_counts": {
+    "topics": 26,
+    "questions": 78
+  },
+  "topics": {
+    "acids-bases-and-salts": {
+      "subject": "science",
+      "questions": [
+        {
+          "id": "ACID-EXMPLR-2-LONG-001",
+          "questionText": "In the following schematic diagram for the preparation of hydrogen gas (Figure 2.3), what would happen if following changes are made?\n(a) In place of zinc granules, same amount of zinc dust is taken in the test tube\n(b) Instead of dilute sulphuric acid, dilute hydrochloric acid is taken\n(c) In place of zinc, copper turnings are taken\n(d) Sodium hydroxide is taken in place of dilute sulphuric acid and the tube is heated.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] (a) Smaller particle size = larger surface area → faster reaction. H₂ evolves more rapidly.",
+            "[1 mark] (b) Dilute HCl is a strong acid, Zn above H → Zn + 2HCl → ZnCl₂ + H₂. Same effect — H₂ evolved.",
+            "[1 mark] (c) Cu is BELOW H in the reactivity series → Cu cannot displace H from dilute acids. No H₂ evolved, no reaction.",
+            "[1 mark] (d) Zinc is amphoteric (reacts with both acid and strong base). With hot NaOH: Zn(s) + 2NaOH(aq) → Na₂ZnO₂(aq) + H₂(g)↑. H₂ is evolved.",
+            "[1 mark] Summary: (a) faster; (b) yes H₂; (c) no reaction; (d) yes H₂ (different reaction with sodium zincate formation)."
+          ]
+        },
+        {
+          "id": "ACID-EXMPLR-2-LONG-002",
+          "questionText": "For making cake, baking powder is taken. If at home your mother uses baking soda instead of baking powder in cake,\n(a) how will it affect the taste of the cake and why?\n(b) how can baking soda be converted into baking powder?\n(c) what is the role of tartaric acid added to baking soda?",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] (a) Baking soda alone in cake: heating → 2NaHCO₃ → Na₂CO₃ + H₂O + CO₂. The leftover Na₂CO₃ is basic and tastes bitter. So cake becomes bitter.",
+            "[1 mark] (b) Baking powder = baking soda (NaHCO₃) + a mild edible acid (tartaric acid).",
+            "[1 mark] (c) Tartaric acid neutralises Na₂CO₃ formed on heating: Na₂CO₃ + tartaric acid → sodium tartarate (tasteless salt) + H₂O + CO₂.",
+            "[1 mark] (c) This prevents bitterness AND releases additional CO₂ → cake rises and becomes spongy.",
+            "[1 mark] (c) Overall, tartaric acid plays a dual role: taste correction + extra leavening."
+          ]
+        },
+        {
+          "id": "ACID-EXMPLR-2-LONG-003",
+          "questionText": "A metal carbonate X on reacting with an acid gives a gas which when passed through a solution Y gives the carbonate back. On the other hand, a gas G that is obtained at anode during electrolysis of brine is passed on dry Y, it gives a compound Z, used for disinfecting drinking water. Identify X, Y, G and Z.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] Gas from metal carbonate + acid = CO₂.",
+            "[1 mark] CO₂ + Y gives carbonate back → Y is Ca(OH)₂ (lime water): CO₂ + Ca(OH)₂ → CaCO₃ + H₂O. The carbonate formed is CaCO₃ → so X = CaCO₃.",
+            "[0.5 mark] Electrolysis of brine: anode gives Cl₂, cathode gives H₂. So G = Cl₂.",
+            "[0.5 mark] Cl₂ + dry slaked lime: Ca(OH)₂ + Cl₂ → CaOCl₂ + H₂O. Z = CaOCl₂.",
+            "[1 mark] CaOCl₂ is bleaching powder, used as a disinfectant for drinking water.",
+            "[1 mark] Summary: X = CaCO₃, Y = Ca(OH)₂, G = Cl₂, Z = CaOCl₂."
+          ]
+        }
+      ]
+    },
+    "areas-related-to-circles": {
+      "subject": "maths",
+      "questions": [
+        {
+          "id": "ARC-N-EXEM-11-LA-001",
+          "questionText": "A chord of a circle of radius 10 cm subtends an angle of 90° at the centre. Find the area of the corresponding major segment. (Use π = 3.14.)",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] Setup: chord AB subtends 90° at centre O, radius r = 10 cm, so the major sector angle = 360° − 90° = 270°.",
+            "[1 mark] Area of major sector = (270/360) × πr² = (3/4) × π × 100.",
+            "[1 mark] = (3/4) × 3.14 × 100 = 235.5 cm².",
+            "[1 mark] Triangle OAB (right-angled at O): area = (1/2) × 10 × 10 = 50 cm².",
+            "[1 mark] Area of major segment = area of major sector + area of triangle = 235.5 + 50 = 285.5 cm²."
+          ]
+        },
+        {
+          "id": "ARC-N-EXEM-11-LA-002",
+          "questionText": "With vertices A, B and C of a right triangle ABC (right-angled at B) as centres, arcs of radius 5 cm each are drawn. If AB = 14 cm, BC = 48 cm and CA = 50 cm, find the area of the shaded region inside the triangle but outside the three sectors.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] Verification: 14² + 48² = 196 + 2304 = 2500 = 50², so ΔABC is right-angled at B.",
+            "[1 mark] Area of ΔABC = (1/2) × AB × BC = (1/2) × 14 × 48 = 336 cm².",
+            "[1 mark] Each sector contributes (∠/360) × π × 5², and the total angle = ∠A + ∠B + ∠C = 180° (angle sum of a triangle).",
+            "[1 mark] Total sector area = (180/360) × π × 25 = (1/2) × π × 25 = 12.5 × 3.14 = 39.25 cm².",
+            "[1 mark] Shaded area = area of triangle − total sector area = 336 − 39.25 = 296.75 cm²."
+          ]
+        },
+        {
+          "id": "ARC-N-EXEM2-11-LA-001",
+          "questionText": "Sides of a triangular field are 15 m, 16 m and 17 m. With the three corners of the field a cow, a buffalo and a horse are tied separately with ropes of length 7 m each to graze in the field. Find the area of the field which cannot be grazed by the three animals.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] Semi-perimeter s = (15 + 16 + 17)/2 = 24 m.",
+            "[1 mark] By Heron's formula, area of the field = √(24 × 9 × 8 × 7) = √12096 = 24√21 m².",
+            "[1 mark] The three grazed sectors have radius 7 m and their angles are the three interior angles, summing to 180°.",
+            "[1 mark] Total grazed area = (180/360) × (22/7) × 7² = (1/2) × 154 = 77 m².",
+            "[1 mark] Area that cannot be grazed = (24√21 − 77) m² ≈ 32.0 m²."
+          ]
+        }
+      ]
+    },
+    "arithmetic-progression": {
+      "subject": "maths",
+      "questions": [
+        {
+          "id": "AP-N-EXEM-5-LA-002",
+          "questionText": "Jaspal Singh repays a total loan of ₹1,18,000 by paying every month, starting with the first instalment of ₹1000, increasing by ₹100 every month. What amount will he pay in the 30th instalment? After paying the 30th instalment, how much loan does he still have to pay?",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] The monthly instalments form an AP with first term a = 1000 and common difference d = 100.",
+            "[1 mark] 30th instalment a₃₀ = a + 29d = 1000 + 29 × 100 = 1000 + 2900 = ₹3900.",
+            "[1 mark] Total repaid in 30 instalments S₃₀ = (30/2)[2a + 29d] = 15[2 × 1000 + 29 × 100].",
+            "[1 mark] S₃₀ = 15 × (2000 + 2900) = 15 × 4900 = ₹73,500.",
+            "[1 mark] Loan still to be paid = 1,18,000 − 73,500 = ₹44,500."
+          ]
+        },
+        {
+          "id": "AP-N-EXEM2-5-LA-001",
+          "questionText": "The sum of the first five terms of an AP and the sum of the first seven terms of the same AP is 167. If the sum of the first ten terms of this AP is 235, find the sum of its first twenty terms.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] S₅ = (5/2)(2a + 4d) = 5(a + 2d) and S₇ = (7/2)(2a + 6d) = 7(a + 3d).",
+            "[1 mark] S₅ + S₇ = (5a + 10d) + (7a + 21d) = 12a + 31d = 167.",
+            "[1 mark] S₁₀ = (10/2)(2a + 9d) = 10a + 45d = 235, i.e. 2a + 9d = 47.",
+            "[1 mark] Solve 12a + 31d = 167 with 2a + 9d = 47 (×6 ⇒ 12a + 54d = 282): subtract to get 23d = 115 ⇒ d = 5, then a = 1.",
+            "[1 mark] S₂₀ = (20/2)(2a + 19d) = 10(2 + 95) = 970."
+          ]
+        },
+        {
+          "id": "AP-N-EXEM2-5-LA-002",
+          "questionText": "An AP consists of 37 terms. The sum of the three middle most terms is 225 and the sum of the last three is 429. Find the AP.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] With 37 terms the middle term is the 19th; the three middle terms are a₁₈, a₁₉, a₂₀ with sum 3a₁₉ = 225, so a₁₉ = 75, i.e. a + 18d = 75.",
+            "[1 mark] The last three terms a₃₅, a₃₆, a₃₇ have sum 3a₃₆ = 429, so a₃₆ = 143, i.e. a + 35d = 143.",
+            "[1 mark] Subtract the two equations: 17d = 68.",
+            "[1 mark] d = 4, and a = 75 − 18 × 4 = 3.",
+            "[1 mark] The AP is 3, 7, 11, 15, ..."
+          ]
+        }
+      ]
+    },
+    "carbon-and-its-compounds": {
+      "subject": "science",
+      "questions": [
+        {
+          "id": "APQ-S-CARB-001",
+          "questionText": "A carbon compound P has six carbon atoms and twelve hydrogen atoms. (a) Is P a saturated or unsaturated carbon compound? Justify by drawing the structural formula. (b) Describe a test that can be used to determine if compound P is saturated or unsaturated. (c) Name the products formed on burning compound P in excess of air.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] (a) C6H12 fits the general formula CnH2n, which is satisfied both by unsaturated alkenes (one C=C double bond) and by saturated cycloalkanes (a ring). So P may be saturated or unsaturated.",
+            "[1 mark] (a) Structures: unsaturated hexene CH3-CH=CH-CH2-CH2-CH3 (C4=C bond) and saturated cyclohexane (a six-membered ring of six CH2 groups).",
+            "[1 mark] (b) Burning test: an unsaturated compound burns with a sooty yellow flame (high C/H ratio), while a saturated compound burns with a clean blue flame.",
+            "[1 mark] (b) Bromine-water test: an unsaturated compound decolourises brown bromine water; a saturated compound does not.",
+            "[1 mark] (c) On complete combustion in excess air, any hydrocarbon gives carbon dioxide (CO2) and water (H2O)."
+          ]
+        },
+        {
+          "id": "APQ-S-CARB-003",
+          "questionText": "Given a 4-carbon skeleton of a hydrocarbon compound. (a) Fill in the hydrogen atoms/bonds to form: (i) a saturated hydrocarbon (ii) an unsaturated hydrocarbon. (b) If the four-carbon skeleton is of a straight chained alkene, draw the structures of all the possible compounds.",
+          "marks": 4,
+          "section": "E",
+          "solutionSteps": [
+            "[1 mark] (a)(i) Saturated hydrocarbon with 4 carbons: butane, CH3-CH2-CH2-CH3 (C4H10), with all single bonds.",
+            "[1 mark] (a)(ii) Unsaturated hydrocarbon: butene CH2=CH-CH2-CH3 (C4H8) with a C=C double bond (or butyne CH≡C-CH2-CH3, C4H6).",
+            "[1 mark] (b) First straight-chain alkene: But-1-ene, CH2=CH-CH2-CH3, with the double bond at position 1.",
+            "[1 mark] (b) Second straight-chain alkene: But-2-ene, CH3-CH=CH-CH3, with the double bond at position 2."
+          ]
+        },
+        {
+          "id": "APQ-S-CARB-004",
+          "questionText": "If the four-carbon skeleton is of a straight chained alkyne: (i) How many carbon atoms may NOT be bonded to any hydrogen atoms? (ii) How many hydrogen atoms will there be in the compound?",
+          "marks": 4,
+          "section": "E",
+          "solutionSteps": [
+            "[1 mark] The straight-chain alkynes with 4 carbons are but-1-yne (HC≡C-CH2-CH3) and but-2-yne (CH3-C≡C-CH3), both C4H6.",
+            "[1 mark] (i) In but-1-yne, HC≡C-CH2-CH3: C1 has 1 H, C2 has 0 H, C3 has 2 H, C4 has 3 H → one carbon (C2) is bonded to no hydrogen.",
+            "[1 mark] (i) In but-2-yne, CH3-C≡C-CH3: C1 has 3 H, C2 has 0 H, C3 has 0 H, C4 has 3 H → two carbons (C2 and C3) are bonded to no hydrogen. So one or two carbons may not be bonded to any H.",
+            "[1 mark] (ii) The molecular formula is C4H6, so the compound contains six hydrogen atoms."
+          ]
+        }
+      ]
+    },
+    "chemical-reactions-and-equations": {
+      "subject": "science",
+      "questions": [
+        {
+          "id": "APQ-S-CHEM-001",
+          "questionText": "A single displacement reaction is represented below: PQ + R → PR + Q. Which of the following is true about the reactants and products? Option A: R = cation in product, PR more stable than PQ. Option B: R = cation in product, PR less stable. Option C: R = anion in product, PR more stable. Option D: R = anion in product, PR less stable.",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[0.5 mark] Single displacement: R displaces Q from PQ ⟹ R bonds with P. For R to displace Q, R must form a more stable compound (PR) than PQ.",
+            "[0.5 mark] R in original was free element; after reaction in PR, P is the cation (metal) and R becomes the anion (gained electrons from displacement). So R = anion, PR more stable."
+          ]
+        },
+        {
+          "id": "APQ-S-CHEM-003",
+          "questionText": "Which of the following observations is correct for the experimental diagram in which copper metal is heated strongly in air?",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[0.5 mark] When copper is heated strongly in air, it combines with atmospheric oxygen — this is an oxidation reaction: 2 Cu + O2 → 2 CuO.",
+            "[0.5 mark] The product CuO (copper(II) oxide) is BLACK in colour. Reddish-brown copper is converted to black CuO; the metal undergoes oxidation (gain of oxygen)."
+          ]
+        },
+        {
+          "id": "BX-CHEM-D-009",
+          "questionText": "An iron nail is placed in each of three test tubes: (A) tap water, (B) boiled distilled water covered with a layer of oil, (C) anhydrous calcium chloride with dry air. After a week only the nail in tube A has rusted.\n(i) What is rusting, chemically?\n(ii) Explain the result in tube B.\n(iii) Explain the result in tube C.\n(iv) What TWO conditions does this experiment prove are necessary for rusting?\n(v) Suggest one method to protect the nail.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] Rusting is the slow oxidation of iron in moist air to form hydrated iron(III) oxide (rust), 4Fe + 3O2 + xH2O -> 2Fe2O3.xH2O.",
+            "[1 mark] Tube B: boiling removes dissolved air (oxygen) and the oil layer keeps fresh air out, so no oxygen is available and the nail does not rust.",
+            "[1 mark] Tube C: anhydrous calcium chloride absorbs moisture, so the air is dry; with no water the nail does not rust.",
+            "[1 mark] The experiment proves that BOTH air (oxygen) and moisture (water) are necessary for rusting; only tube A had both.",
+            "[1 mark] Protection: coat the nail — e.g. galvanising (zinc coat), painting, oiling or greasing — to keep out air and moisture."
+          ]
+        }
+      ]
+    },
+    "circles": {
+      "subject": "maths",
+      "questions": [
+        {
+          "id": "CBE-M-CIRC-D-001",
+          "questionText": "In an amusement park, a triangular path ABC circumscribing a circular pond centred at O with radius 8 m is to be constructed, as shown in the figure. The tangent lengths from B are 12 m and from C are 16 m. Find the cost of fencing the triangular path at the rate of Rs 55 per metre.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] Apply the circle theorems: tangent lengths from an external point are equal, so PB = QB = 12 m, RC = QC = 16 m and AP = AR = x (say); also the radius (8 m) is perpendicular to each tangent at the point of contact.",
+            "[1 mark] Find ar(△ABC) as the sum of areas of △AOB, △BOC and △AOC: ar(△ABC) = ½ × 8 × (perimeter) = ½ × 8 × 2(28 + x) = 8(28 + x) sq m. … (1)",
+            "[1 mark] Using Heron's formula with semi-perimeter s = (28 + x): ar(△ABC) = √[s(s−a)(s−b)(s−c)] = √[(28 + x) · x · 12 · 16] = 4√[(28 + x) · x · 12] sq m. … (2)",
+            "[1 mark] Equate (1) and (2): 8(28 + x) = 4√[(28 + x) · x · 12]; squaring gives 4(28 + x)² = 12x(28 + x) → (28 + x)(28 + x − 3x) = 0 → x = 14 (reject x = −28). So perimeter = 2(28 + x) = 84 m.",
+            "[1 mark] Cost of fencing = Rs 55 × 84 = Rs 4620."
+          ]
+        },
+        {
+          "id": "CIRC-N-EXEM-10-LA-001",
+          "questionText": "From an external point P, two tangents PA and PB are drawn to a circle with centre O. At a point E on the circle, the tangent intersects PA at C and PB at D. If PA = 10 cm, find the perimeter of triangle PCD.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] Tangents drawn from an external point are equal, so PA = PB = 10 cm.",
+            "[1 mark] From C the two tangents give CA = CE; from D they give DB = DE (equal tangents from an external point).",
+            "[1 mark] Perimeter(△PCD) = PC + CD + DP = PC + (CE + ED) + DP.",
+            "[1 mark] Substitute CE = CA and ED = DB: = (PC + CA) + (DP + DB) = PA + PB.",
+            "[1 mark] Perimeter = 10 + 10 = 20 cm. Hence the perimeter of △PCD is 20 cm."
+          ]
+        },
+        {
+          "id": "PYQ-M-2026-CIRC-006",
+          "questionText": "PQ and PR are two tangents to a circle with centre O and radius 5 cm. AB is another tangent to the circle at C which lies on OP. If OP = 13 cm, then find the length AB and PA.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] Given: circle with centre O and radius OQ = 5 cm, external point P with OP = 13 cm; PQ and PR are tangents from P, so PQ = PR and OQ ⊥ PQ.",
+            "[1 mark] Tangent length from P: PQ = √(OP² − OQ²) = √(169 − 25) = √144 = 12 cm.",
+            "[1 mark] C lies on OP and AB is the tangent at C, so OC = radius = 5 cm ⇒ PC = OP − OC = 13 − 5 = 8 cm, and AB ⊥ OP at C.",
+            "[1 mark] Let AC = AQ = x (equal tangents from A). Then PA = PQ − AQ = 12 − x. In right △PCA (right angle at C): PA² = PC² + AC² ⇒ (12 − x)² = 8² + x² ⇒ 144 − 24x = 64 ⇒ x = 10/3.",
+            "[1 mark] Hence AC = 10/3 cm, so AB = 2·AC = 20/3 cm ≈ 6.67 cm and PA = 12 − 10/3 = 26/3 cm ≈ 8.67 cm."
+          ],
+          "pyqYear": "2026"
+        }
+      ]
+    },
+    "control-and-coordination": {
+      "subject": "science",
+      "questions": [
+        {
+          "id": "APQ-S-CTRL-005",
+          "questionText": "(a) How does blood sugar level get regulated in the human body? (b) (i) Which hormone is secreted into the blood when you are under stress? Name the gland that secretes this hormone. (ii) How does it help the body to cope up in an emergency situation?",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] (a) Regulation of blood sugar: When the blood sugar level rises, the beta-cells of the pancreas detect it and secrete more of the hormone INSULIN.",
+            "[1 mark] (a) Insulin lowers the blood sugar level by promoting the uptake of glucose and its conversion into glycogen; when the level falls, less insulin is secreted — this is controlled by a FEEDBACK MECHANISM.",
+            "[1 mark] (b)(i) Under stress the hormone ADRENALINE is secreted into the blood; it is secreted by the ADRENAL GLAND, situated above the kidneys.",
+            "[1 mark] (b)(ii) Adrenaline acts on the heart, making it beat faster so that more oxygenated blood is supplied to the skeletal muscles.",
+            "[1 mark] (b)(ii) It also increases the breathing rate through contraction of the diaphragm and rib muscles and diverts blood to the muscles — preparing the body for a 'fight or flight' response."
+          ]
+        },
+        {
+          "id": "CBE-S-CTRL-E-001",
+          "questionText": "With reference to Fig. 1.1, explain how the plant hormone controls the growth response of the shoot.",
+          "marks": 4,
+          "section": "E",
+          "solutionSteps": [
+            "[1 mark] The hormone (auxin) is produced/made at the shoot tip.",
+            "[1 mark] The hormone moves / diffuses / passes / spreads down the shoot.",
+            "[1 mark] It collects on the side away from the light (the shaded side).",
+            "[1 mark] The hormone causes cell elongation on the shaded side (e.g. by stretching of cell walls / osmosis of water), so the shoot bends towards the light."
+          ]
+        },
+        {
+          "id": "CFPQ-S-CTRL-001",
+          "questionText": "Sapna suffers from a condition due to which her average blood sugar level is 174 mg/dL. The average blood sugar level in a healthy adult is <140 mg/dL.\n\nWhich of the following could be the cause of Sapna's condition?",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] Correct option: (2) insufficient production of insulin in her body. Insulin lowers blood glucose; too little of it leaves the blood sugar persistently high, which is what her reading shows. Excess insulin would lower it, and thyroxine regulates metabolism rather than blood glucose directly."
+          ]
+        }
+      ]
+    },
+    "coordinate-geometry": {
+      "subject": "maths",
+      "questions": [
+        {
+          "id": "BX-COORD-D-001",
+          "questionText": "Three consecutive vertices of a parallelogram ABCD taken in order are A(1, 2), B(4, 3) and C(6, 6). Using the property that the diagonals of a parallelogram bisect each other, find the coordinates of the fourth vertex D.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] Property: diagonals of a parallelogram bisect each other ⇒ midpoint of diagonal AC = midpoint of diagonal BD.",
+            "[1 mark] Midpoint of AC = ((1+6)/2, (2+6)/2) = (7/2, 4).",
+            "[1 mark] Let D = (x, y). Midpoint of BD = ((4+x)/2, (3+y)/2).",
+            "[1 mark] Equate x: (4+x)/2 = 7/2 ⇒ x = 3. Equate y: (3+y)/2 = 4 ⇒ y = 5.",
+            "[1 mark] D = (3, 5). Verify: B−A = (3, 1) and C−D = (3, 1) so AB ∥ = DC. Hence ABCD is a parallelogram."
+          ]
+        },
+        {
+          "id": "BX-COORD-D-002",
+          "questionText": "Verify that the points A(−2, −1), B(1, 0), C(4, 3) and D(1, 2), taken in order, form a parallelogram. Using the lengths of the diagonals, decide further whether it is a rectangle.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] AB = √[(1+2)²+(0+1)²] = √10 and CD = √[(1−4)²+(2−3)²] = √10.",
+            "[1 mark] BC = √[(4−1)²+(3−0)²] = √18 and DA = √[(−2−1)²+(−1−2)²] = √18.",
+            "[1 mark] AB = CD and BC = DA ⇒ both pairs of opposite sides equal ⇒ ABCD is a parallelogram.",
+            "[1 mark] Diagonal AC = √[(4+2)²+(3+1)²] = √52; diagonal BD = √[(1−1)²+(2−0)²] = 2.",
+            "[1 mark] AC ≠ BD, so the diagonals are unequal ⇒ ABCD is a parallelogram but NOT a rectangle."
+          ]
+        },
+        {
+          "id": "BX-COORD-D-003",
+          "questionText": "The corners of a rhombus-shaped tile are marked A(3, 0), B(4, 5), C(−1, 4) and D(−2, −1). Show that all four sides are equal, and by comparing the diagonals prove that the tile is a rhombus but not a square.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] AB = √[(4−3)²+(5−0)²] = √26 and BC = √[(−1−4)²+(4−5)²] = √26.",
+            "[1 mark] CD = √[(−2+1)²+(−1−4)²] = √26 and DA = √[(3+2)²+(0+1)²] = √26.",
+            "[1 mark] AB = BC = CD = DA = √26 ⇒ all four sides equal ⇒ ABCD is a rhombus.",
+            "[1 mark] Diagonal AC = √[(−1−3)²+(4−0)²] = √32; diagonal BD = √[(−2−4)²+(−1−5)²] = √72.",
+            "[1 mark] AC ≠ BD ⇒ the diagonals are unequal, so it is a rhombus but NOT a square."
+          ]
+        }
+      ]
+    },
+    "electricity": {
+      "subject": "science",
+      "questions": [
+        {
+          "id": "APQ-S-ELEC-002",
+          "questionText": "Kaveri connected a bulb A (100 Ω) to a 240 V supply. (a) How much energy will be consumed if it is kept ON for 4 hours each day for a week? Express in kJ. (b) She then connects another similar bulb B in series with A across 240 V. Will the brightness of A change? Explain mathematically.",
+          "marks": 3,
+          "section": "C",
+          "solutionSteps": [
+            "[1.5 marks] (a) Power P = V^2/R = 240^2/100 = 576 W. Energy = P × t = 576 W × (4 h × 7 days × 3600 s) = 576 × 100800 = 58,060,800 J = 58,060.8 kJ.",
+            "[1 mark] (b) Series: Rnet = 100 + 100 = 200 Ω. Total power Ptot = V^2/Rnet = 240^2/200 = 288 W. Each bulb gets half: PA' = 144 W (since identical bulbs share equally).",
+            "[0.5 mark] Compare: PA' = 144 W < PA = 576 W ⟹ bulb A glows DIMMER in series."
+          ]
+        },
+        {
+          "id": "APQ-S-ELEC-003",
+          "questionText": "(a) Vijaya connects three bulbs P, Q, R in series with a battery in two ways. In case I all three glow; in case II only P and R glow. What could be the reason for Q not glowing in case II? (b) Two resistances when connected in parallel give 10/3 Ω. When connected in series, they give 15 Ω. Calculate the individual resistances.",
+          "marks": 3,
+          "section": "C",
+          "solutionSteps": [
+            "[1 mark] (a) In case II, the connecting wire between points across Q offers a much lower resistance path than bulb Q itself. Current bypasses Q through this short circuit ⟹ Q doesn't glow.",
+            "[1 mark] (b) Let resistances be R1, R2. Series: R1 + R2 = 15. Parallel: (R1·R2)/(R1+R2) = 10/3 ⟹ R1·R2 = 50.",
+            "[1 mark] From these: R1 and R2 are roots of x^2 − 15x + 50 = 0 ⟹ (x − 5)(x − 10) = 0 ⟹ R1 = 5 Ω, R2 = 10 Ω."
+          ]
+        },
+        {
+          "id": "APQ-S-ELEC-004",
+          "questionText": "Four resistors (R1=15Ω, R2=30Ω, R3=15Ω, R4=15Ω), a voltmeter across R4, and a 20 V battery in a circuit. R2 and R3 in parallel; R1 and R4 in series with the parallel block. (a) Net resistance? (b) Voltmeter reading across R4? OR (b) Power dissipated by R1? (c) If R3 is removed, will net current increase, decrease, or remain same? Justify.",
+          "marks": 4,
+          "section": "E",
+          "solutionSteps": [
+            "[1 mark] (a) R2 || R3 = (30 × 15)/(30 + 15) = 450/45 = 10 Ω. Net R = R1 + 10 + R4 = 15 + 10 + 15 = 40 Ω.",
+            "[1 mark] (b) Total I = V/R = 20/40 = 0.5 A. Voltmeter across R4: V4 = I × R4 = 0.5 × 15 = 7.5 V.",
+            "[1 mark] [OR] Power dissipated by R1 = I^2 × R1 = (0.5)^2 × 15 = 0.25 × 15 = 3.75 W.",
+            "[1 mark] (c) Removing R3: the parallel block becomes just R2 = 30 Ω (instead of 10 Ω). Net R goes UP (15 + 30 + 15 = 60 Ω). Since I = V/R and R increased, net current DECREASES."
+          ]
+        }
+      ]
+    },
+    "heredity": {
+      "subject": "science",
+      "questions": [
+        {
+          "id": "APQ-S-HERED-004",
+          "questionText": "Ram and Asha were a married couple with four children — one had sickle cell anaemia; others showed no symptoms. Ram and Asha showed no symptoms. The trait is not sex-linked. (a) Is the disease caused by a dominant or recessive trait? Why? (b) If the affected child married a person without a mutation in the sickle cell gene, what percentage of their children would have sickle cell anaemia? Show the cross. OR (b) Identify the genetic composition of the sickle cell trait in Asha and Ram and use that to predict the genetic composition in the other four children who did not show symptoms.",
+          "marks": 4,
+          "section": "E",
+          "solutionSteps": [
+            "[1 mark] (a) The disease is caused by a recessive trait — both parents are unaffected yet a child is affected, so the trait appears only when both recessive alleles come together.",
+            "[1 mark] (a) Therefore both Ram and Asha must be heterozygous carriers (Ss); the trait skips generations, which is characteristic of recessive inheritance.",
+            "[1 mark] (b) Affected child (ss) × person with no mutation (SS): the cross ss × SS gives all offspring Ss ⟹ 0% affected, 100% carriers.",
+            "[1 mark] (b OR) Ram (Ss) × Asha (Ss) → 1 SS : 2 Ss : 1 ss; the three unaffected children are either SS or Ss, while the affected child is ss."
+          ]
+        },
+        {
+          "id": "CBE-S-HERD-B-003",
+          "questionText": "A species of mammal has two phenotypes, white fur and brown fur. Table 1 shows the parent genotypes: WW = white fur, Wb = white fur, bb = brown fur. Draw a Punnett square to show how an individual with white fur and an individual with brown fur produce a generation, F1, all with white fur.",
+          "marks": 2,
+          "section": "B",
+          "solutionSteps": [
+            "[1 mark] Select the parents bb (brown) and WW (white) so that all F1 are white.",
+            "[1 mark] The Punnett square gives four Wb crosses — all offspring are Wb (white fur)."
+          ]
+        },
+        {
+          "id": "CBE-S-HERD-C-002",
+          "questionText": "A plant breeder crosses a PA PN plant with a PA PA plant. Predict, using a genetic diagram, the proportion of pure breeding plants in the offspring.",
+          "marks": 3,
+          "section": "C",
+          "solutionSteps": [
+            "[1 mark] Set up the genetic diagram with the gametes separated into column and row headings: parent 1 gametes PA and PN; parent 2 gametes PA and PA.",
+            "[1 mark] Complete the four genotype crosses in the grid: PA PA, PA PA, PN PA, PN PA.",
+            "[1 mark] Conclude that 50% of the offspring are PA PA, i.e. half are pure breeding."
+          ]
+        }
+      ]
+    },
+    "how-do-organisms-reproduce": {
+      "subject": "science",
+      "questions": [
+        {
+          "id": "APQ-S-REPR-003",
+          "questionText": "(a) Certain specialised cells in animals called stem cells have the ability to divide and differentiate into different cell types. This helps in the replacement of a damaged organ. Name and explain two methods of asexual reproduction that are similar to stem cells and occur mostly in multicellular organisms. (b) Identify TWO pairs of reproductive organs in males and females that are functionally similar to each other. Justify.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] (a) Regeneration: in some multicellular organisms (e.g. Planaria, Hydra) the cells of a body fragment divide and differentiate to rebuild all the missing body parts — similar to the way stem cells act.",
+            "[1 mark] (a) Budding: a small outgrowth (bud) develops on the parent body (e.g. Hydra); its cells divide and differentiate into all the required tissues, and the bud then detaches as a new individual — also stem-cell-like.",
+            "[1 mark] (b) Testes (male) and Ovaries (female) are a functionally similar pair — both produce gametes and secrete reproductive hormones (testosterone / oestrogen).",
+            "[1 mark] (b) Vas deferens (male) and Fallopian tube / oviduct (female) are a functionally similar pair — both are ducts that transport the gametes towards the site of fertilisation.",
+            "[1 mark] Justification: in each pair the two organs perform the same reproductive function in the two sexes, which is why they are described as functionally analogous."
+          ]
+        },
+        {
+          "id": "CBE-S-REPR-C-001",
+          "questionText": "Nivedita has dark brown eyes like her mother but the same shaped nose as her father. Explain why Nivedita has features from both of her parents.",
+          "marks": 3,
+          "section": "C",
+          "solutionSteps": [
+            "[1 mark] Features are passed on by inheritance.",
+            "[1 mark] She was produced by sexual reproduction, involving both parents.",
+            "[1 mark] Genes are transferred from each parent to the offspring, so she shows features of both."
+          ]
+        },
+        {
+          "id": "CFPQ-S-REPR-001",
+          "questionText": "Two statements are given - one labelled Assertion (A) and the other labelled Reason (R). Read the statements carefully and choose the option that correctly describes statements A and R.\n\nAssertion (A): Oral contraceptive pills and copper-T do not prevent sexually transmitted diseases.\nReason (R): Sexually transmitted disease are transmitted by contact with mucous membranes of infected organs.",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] Correct option: (1) Both A and R are true and R is the correct explanation of A. Neither pills nor copper-T forms a barrier at the mucous membranes, and it is exactly that contact route named in R which explains why these methods cannot prevent transmission."
+          ]
+        }
+      ]
+    },
+    "human-eye-and-colourful-world": {
+      "subject": "science",
+      "questions": [
+        {
+          "id": "APQ-S-EYE-002",
+          "questionText": "Savera passed a beam of white light through a series of equilateral prisms (Prism 1, 2, 3). (a) What colour(s) will be seen on the screen? (b) Copy the diagram and draw the beam entering Prism 1 and emerging from Prism 3 and falling on the screen. (c) Name all the processes that take place when the beam of light enters Prism 1 and emerges from Prism 3.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] (a) Prism 1 disperses the white light into its seven constituent colours VIBGYOR (violet, indigo, blue, green, yellow, orange, red).",
+            "[1 mark] (a) Prisms 2 and 3 (suitably inverted) recombine these colours, so the beam finally falling on the screen appears WHITE again (Newton's recombination experiment).",
+            "[1 mark] (b) Diagram: the white beam enters Prism 1 and splits into the VIBGYOR spectrum.",
+            "[1 mark] (b) Diagram: the spectrum passes through Prisms 2 and 3 and recombines into a single white beam falling on the screen.",
+            "[1 mark] (c) Processes taking place: dispersion (splitting of white light), refraction (bending at each prism surface) and recombination of the colours."
+          ]
+        },
+        {
+          "id": "APQ-S-EYE-003",
+          "questionText": "(a) Rupal suffers from myopia. Where would the image form in her eye? (b) Name the type of lens that is generally used to correct myopia. (c) Rupal underwent cataract surgery and her eye lens was replaced with an artificial lens with a fixed focal length, made of a plastic material, silicone. State one likely visual disadvantage that Rupal is likely to experience as compared to a person who has normal eyesight. (d) Identify the parts of the eye labeled (i)-(iv) in the diagram: (i) changes focal length of lens; (ii) causes most refraction; (iii) controls amount of light entering; (iv) acts as screen.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] (a) In myopia (short-sightedness), the image of a distant object forms in FRONT of the retina (eye lens too convergent / eyeball too long).",
+            "[1 mark] (b) A concave (diverging) lens of suitable negative power is used to correct myopia, shifting the image back onto the retina.",
+            "[1 mark] (c) With a fixed-focal-length artificial lens she loses the power of accommodation — the lens cannot change shape to focus on both near and distant objects (unlike the natural lens controlled by ciliary muscles).",
+            "[1 mark] (d) (i) ciliary muscle — changes the focal length of the eye lens; (ii) cornea — causes most (~80%) of the refraction.",
+            "[1 mark] (d) (iii) iris/pupil — controls the amount of light entering the eye; (iv) retina — acts as the light-sensitive screen."
+          ]
+        },
+        {
+          "id": "APQ-S-EYE-005",
+          "questionText": "A person is unable to see objects distinctly placed within 75 cm from his eyes. (a) Name the defect of vision the person is suffering from. (b) List its two possible causes. (c) Calculate the power of the lens needed to correct this defect. Assume that the near point for the normal eye is 25 cm.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] (a) The defect is HYPERMETROPIA (long-sightedness) — the near point has moved away from the normal 25 cm.",
+            "[1 mark] (b) Cause 1: the curvature of the eye lens decreases (eye lens becomes less convergent, focal length too long).",
+            "[1 mark] (b) Cause 2: the eyeball becomes too short, so the image of a near object forms behind the retina.",
+            "[1 mark] (c) To correct, an object at 25 cm must give a virtual image at the near point 75 cm: u = −25 cm, v = −75 cm. Lens formula 1/f = 1/v − 1/u = 1/(−75) − 1/(−25) = −1/75 + 3/75 = 2/75 ⟹ f = 37.5 cm = 0.375 m.",
+            "[1 mark] (c) Power P = 1/f(in m) = 1/0.375 ≈ +2.67 D (positive ⟹ convex lens)."
+          ]
+        }
+      ]
+    },
+    "life-processes": {
+      "subject": "science",
+      "questions": [
+        {
+          "id": "APQ-S-LIFE-002",
+          "questionText": "Oxygen saturation levels refer to the extent haemoglobin is bound to oxygen. As altitude increases, the atmospheric pressure decreases. Which of the following graphs correctly represents the oxygen saturation levels as altitude increases?",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] At higher altitude, atmospheric pressure (and pO2) is lower ⟹ less O2 binds to haemoglobin ⟹ O2 saturation decreases as altitude increases. Graph Q shows a decreasing trend matching this physiology."
+          ]
+        },
+        {
+          "id": "APQ-S-LIFE-003",
+          "questionText": "Patient X was suffering from a pancreatic condition due to which the pancreas was not functioning adequately. Which of the following is a doctor likely to suggest to such an individual?",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] Pancreas secretes lipase (digests fats) along with amylase, trypsin. If pancreas malfunctions, fat digestion is impaired ⟹ low-fat diet recommended."
+          ]
+        },
+        {
+          "id": "APQ-S-LIFE-004",
+          "questionText": "A plant X was enclosed in a glass jar with some lizards. A similar plant Y was enclosed in another glass jar but without lizards. Both jars are kept under the same light conditions for a few hours. Which plant is likely to photosynthesize more and why?",
+          "marks": 2,
+          "section": "B",
+          "solutionSteps": [
+            "[1 mark] Lizards respire and release CO2 inside the jar, increasing CO2 concentration around plant X.",
+            "[1 mark] Higher CO2 availability + adequate light ⟹ higher rate of photosynthesis in X compared to Y (which has limited CO2 in the closed jar)."
+          ]
+        }
+      ]
+    },
+    "light-reflection-and-refraction": {
+      "subject": "science",
+      "questions": [
+        {
+          "id": "APQ-S-LIGHT-002",
+          "questionText": "Search mirrors are mirrors that are used to look for hidden objects underneath the cars. The hidden objects can be easily spotted as the mirror provides a wider field of view. (a) What type of mirrors are generally used to make search mirrors? (b) With the help of a ray diagram describe the nature of image formed by the type of mirror identified in (a).",
+          "marks": 2,
+          "section": "B",
+          "solutionSteps": [
+            "[1 mark] (a) Convex mirrors — they diverge light and provide a wider field of view than plane or concave mirrors.",
+            "[1 mark] (b) Image formed by a convex mirror is always virtual, erect, and diminished. Ray diagram: object in front; one ray parallel to axis appears to diverge from focus behind mirror; another ray towards centre of curvature reflects back along itself. Image forms behind mirror, between pole and focus."
+          ]
+        },
+        {
+          "id": "APQ-S-LIGHT-003",
+          "questionText": "Absolute refractive indices of two media P and Q are 1.33 (nP) and 2.52 (nQ) respectively. The speed of light in medium P is 2 × 10^8 m/s. (a) What would be the speed of light in medium Q (vQ)? (b) If the angle of incidence for a ray of light travelling from medium P to Q is 0°, then what will be the path of light in medium Q?",
+          "marks": 3,
+          "section": "C",
+          "solutionSteps": [
+            "[1 mark] nP = c/vP; nQ = c/vQ. Ratio: nP/nQ = vQ/vP ⟹ 1.33/2.52 = vQ / (2 × 10^8).",
+            "[1 mark] vQ = (1.33 × 2 × 10^8) / 2.52 = 2.66 / 2.52 × 10^8 ≈ 1.056 × 10^8 m/s.",
+            "[1 mark] (b) At normal incidence (angle of incidence = 0°), light enters perpendicular to the interface and travels undeviated (no refraction)."
+          ]
+        },
+        {
+          "id": "APQ-S-LIGHT-006",
+          "questionText": "A 4 cm tall object is placed perpendicular to the principal axis of a convex lens of focal length 20 cm. The distance of the object from the lens is 15 cm. Find the nature, position and size of the image formed.",
+          "marks": 3,
+          "section": "C",
+          "solutionSteps": [
+            "[0.5 mark] Given: ho = 4 cm, u = -15 cm, f = +20 cm. Using lens formula 1/v - 1/u = 1/f.",
+            "[1 mark] 1/v = 1/f + 1/u = 1/20 + 1/(-15) = 3/60 - 4/60 = -1/60 ⟹ v = -60 cm.",
+            "[1 mark] Magnification m = v/u = -60 / -15 = +4. So hi = m × ho = 4 × 4 = +16 cm.",
+            "[0.5 mark] Nature: image is VIRTUAL, ERECT and MAGNIFIED (formed on the same side as the object, 60 cm from the lens)."
+          ]
+        }
+      ]
+    },
+    "magnetic-effects-of-electric-current": {
+      "subject": "science",
+      "questions": [
+        {
+          "id": "CBE-S-MAGN-E-001",
+          "questionText": "Two solenoids are coiled around the same non-conducting rod, one connected to a battery through a switch and the other to a voltmeter. The switch is closed. Explain why the reading on the voltmeter first increases and then returns to zero.",
+          "marks": 4,
+          "section": "E",
+          "solutionSteps": [
+            "[1 mark] Closing the switch starts a current in the primary solenoid, which produces a magnetic field through both coils.",
+            "[1 mark] While the current is rising the magnetic field is changing (increasing).",
+            "[1 mark] A changing magnetic field through the second coil induces an emf/voltage, so the voltmeter reading increases.",
+            "[1 mark] When the current and magnetic field become steady (stop changing), no emf is induced, so the voltmeter reading returns to zero."
+          ]
+        },
+        {
+          "id": "PYQ-S-2024-METAL-002",
+          "questionText": "A student fixes a sheet of white paper on a drawing board. He places a bar magnet in the centre of it. He sprinkles some iron filings uniformly around the bar magnet. Then he taps the drawing board gently and observes that the iron filings arrange themselves in a particular pattern. (a) Why do iron filings arrange in a particular pattern ? (b) What does the crowding of iron filings at the ends of the magnet indicate ? (c) What do the lines, along which the iron filings align, represent ? (d) If the student places a cardboard horizontally in a current carrying solenoid and repeats the above activity, in what pattern would the iron filings arrange ? State the conclusion drawn about the magnetic field based on the observed pattern of the lines.",
+          "marks": 3,
+          "section": "C",
+          "solutionSteps": [
+            "[1 mark] (a) Because a magnetic field exists around the bar magnet",
+            "[1 mark] (b) Strength of the magnetic field is maximum near the poles of the magnet",
+            "[1 mark] (c) The lines represent the magnetic field lines. (d) Equidistant parallel lines; the magnetic field inside the solenoid is uniform."
+          ],
+          "pyqYear": "2024"
+        },
+        {
+          "id": "PYQ-S-2026-ACID-018",
+          "questionText": "(A) (i) List any two features of the electric current used in the houses of India. (ii) Write any two differences between direct current and an alternating current. (iii) How will you identify live wire and neutral wire in a domestic electric circuit ? OR (B) (i) Why is fuse an important component in our electric circuits ? (ii) Distinguish between overloading and short-circuiting of a circuit. (iii) Giving reason explain what type of materials are used in fuse wires.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] (A) (i) Features • Direction of current changes periodically/ alternating current. • Frequency of current supplied in our houses is 50 Hz.",
+            "[1 mark] (ii) Direct current Alternating current (I) Flows in one direction (II) Sources : Cell / battery (I) Reverses its direction periodically.",
+            "[0.5 mark] (II) Source : Power plant (any other suitable difference)",
+            "[0.5 mark] OR (B) (i) Because it is a safety device, which prevents the damage to electric appliances and circuit caused due to overloading.",
+            "[0.5 mark] (ii) Over loading Short circuiting It is caused when too many appliances are connected to a single socket./ Due to accidental hike in the supply voltage.",
+            "[0.5 mark] It is caused due to direct contact of live wire with the neutral wire.",
+            "[1 mark] (iii) • A piece of wire made of a metal or an alloy. • appropriate (low) melting point."
+          ],
+          "pyqYear": "2026"
+        }
+      ]
+    },
+    "metals-and-non-metals": {
+      "subject": "science",
+      "questions": [
+        {
+          "id": "APQ-S-METAL-001",
+          "questionText": "Galvanisation is a process of coating iron articles with a layer of zinc to prevent the iron from rusting. The iron is protected even if the zinc coating is scratched and iron is exposed. Which of the following is true about how zinc prevents the rusting of iron? P) A galvanised iron article does not undergo oxidation. Q) The zinc coating prevents contact of iron with air. R) Zinc undergoes corrosion more easily than iron.",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[0.5 mark] Q correct: zinc coating blocks air/moisture from iron surface.",
+            "[0.5 mark] R correct: zinc is more reactive than iron (sacrificial anode), so it corrodes preferentially. P false: oxidation still occurs but on zinc, not iron."
+          ]
+        },
+        {
+          "id": "APQ-S-METAL-003",
+          "questionText": "Metals are lustrous and shine especially when their freshly cut surfaces are exposed. Salma cut pieces and compared the lustre of the freshly cut surfaces of: aluminium, sodium, copper, iron. The freshly cut surface of which of these metals is likely to lose its lustre first on exposure to air?",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] Sodium is the most reactive among the four (highest in reactivity series). It rapidly reacts with O2 and moisture in air, forming a dull oxide layer fastest. (Sodium is stored under kerosene to prevent this.)"
+          ]
+        },
+        {
+          "id": "APQ-S-METAL-004",
+          "questionText": "Assertion (A): Zinc oxide can be reduced to zinc metal on heating with carbon. Reason (R): Carbon is less reactive than zinc.",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[0.5 mark] A is true: ZnO + C → Zn + CO (carbon reduces ZnO to Zn at high temperature).",
+            "[0.5 mark] R is false: carbon is MORE reactive than zinc in the reactivity context — that's why it can reduce ZnO."
+          ]
+        }
+      ]
+    },
+    "our-environment": {
+      "subject": "science",
+      "questions": [
+        {
+          "id": "CBE-S-ENVI-A-004",
+          "questionText": "A food web is shown. Using the information in the food web, draw a food chain that has the most efficient transfer of energy to the human.",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] Draw the shortest food chain with the arrow direction correct: Spinach → Human (fewest trophic levels means least energy lost, so most efficient transfer to the human)."
+          ]
+        },
+        {
+          "id": "CBE-S-ENVI-E-001",
+          "questionText": "In periods of high rainfall, fertiliser can flow into lake ecosystems. Explain what is meant by the term ecosystem.",
+          "marks": 4,
+          "section": "E",
+          "solutionSteps": [
+            "[1 mark] An ecosystem includes the living organisms - the plants and animals.",
+            "[1 mark] These organisms live together in a habitat / community.",
+            "[1 mark] The organisms interact with each other (biotic interactions).",
+            "[1 mark] The organisms also interact with their non-living surroundings (abiotic factors, e.g. climate, water, light)."
+          ]
+        },
+        {
+          "id": "CBE-S-ENVI-E-002",
+          "questionText": "Discuss the impact of pesticides on the desert food web shown in Fig. 1.",
+          "marks": 4,
+          "section": "E",
+          "solutionSteps": [
+            "[1 mark] Pesticides kill the insects (primary consumers), reducing their numbers in the web.",
+            "[1 mark] With fewer insects there is less food for the scorpion / large lizard, so these secondary consumers decline, giving less food for the fox / falcon.",
+            "[1 mark] The pesticide passes along the chain and bioaccumulates in the top predators (falcon / fox), reaching toxic levels that can damage them and their offspring.",
+            "[1 mark] Removing insects also means less damage to the cacti and more plant food for small lizards / rats, so populations of consumers across the web change."
+          ]
+        }
+      ]
+    },
+    "pair-of-linear-equations": {
+      "subject": "maths",
+      "questions": [
+        {
+          "id": "BX-PLE-D-001",
+          "questionText": "The present age of a father is three times the present age of his son. Twelve years from now, the father's age will be twice the son's age. Find their present ages.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] Let the father's present age be x years and the son's present age be y years. 'Father is three times the son': x = 3y …(1).",
+            "[1 mark] Twelve years hence, father = x + 12 and son = y + 12, with father twice the son: x + 12 = 2(y + 12) → x − 2y = 12 …(2).",
+            "[1 mark] Substitute (1) into (2): 3y − 2y = 12 → y = 12.",
+            "[1 mark] From (1): x = 3(12) = 36.",
+            "[1 mark] Hence father is 36 years and son is 12 years. (Check: in 12 years, 48 = 2 × 24 ✓.)"
+          ]
+        },
+        {
+          "id": "BX-PLE-D-002",
+          "questionText": "The sum of the present ages of a mother and her daughter is 60 years. Six years ago, the mother's age was five times the age of the daughter at that time. Find their present ages.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] Let mother's present age be x years and daughter's be y years. Sum condition: x + y = 60 …(1).",
+            "[1 mark] Six years ago: mother = x − 6, daughter = y − 6, with x − 6 = 5(y − 6) → x − 5y = −24 …(2).",
+            "[1 mark] Subtract (2) from (1): (x + y) − (x − 5y) = 60 − (−24) → 6y = 84 → y = 14.",
+            "[1 mark] From (1): x = 60 − 14 = 46.",
+            "[1 mark] Hence mother is 46 years and daughter is 14 years. (Check: 6 years ago, 40 = 5 × 8 ✓.)"
+          ]
+        },
+        {
+          "id": "BX-PLE-D-003",
+          "questionText": "Ten years ago, a man was thrice as old as his son. Ten years from now, the sum of their ages will be 76 years. Find their present ages.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] Let man's present age be x years and son's be y years. Ten years ago: x − 10 = 3(y − 10) → x − 3y = −20 …(1).",
+            "[1 mark] Ten years hence: (x + 10) + (y + 10) = 76 → x + y = 56 …(2).",
+            "[1 mark] Subtract (1) from (2): (x + y) − (x − 3y) = 56 − (−20) → 4y = 76 → y = 19.",
+            "[1 mark] From (2): x = 56 − 19 = 37.",
+            "[1 mark] Hence the man is 37 years and the son is 19 years. (Check: 10 years ago, 27 = 3 × 9 ✓.)"
+          ]
+        }
+      ]
+    },
+    "polynomials": {
+      "subject": "maths",
+      "questions": [
+        {
+          "id": "BX-POLY-D-001",
+          "questionText": "One condition on the zeroes α and β of p(x) = x² − 6x + k is that the sum of their squares (α² + β²) equals 20. Determine the value of k, then obtain the two zeroes.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] For x² − 6x + k: sum of zeroes α + β = −(−6)/1 = 6 and product αβ = k/1 = k.",
+            "[1 mark] Use the identity α² + β² = (α + β)² − 2αβ = 36 − 2k.",
+            "[1 mark] Apply the given condition: 36 − 2k = 20.",
+            "[1 mark] Solve: 2k = 16 ⇒ k = 8.",
+            "[1 mark] Then p(x) = x² − 6x + 8 = (x − 2)(x − 4), zeroes 2 and 4; check 2² + 4² = 4 + 16 = 20. ✓"
+          ]
+        },
+        {
+          "id": "BX-POLY-D-002",
+          "questionText": "For p(x) = x² − 8x + k with zeroes α and β, the sum of the reciprocals of the zeroes, 1/α + 1/β, comes to 2/3. Work out k and list both zeroes.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] For x² − 8x + k: α + β = 8 and αβ = k.",
+            "[1 mark] Express the condition: 1/α + 1/β = (α + β)/(αβ) = 8/k.",
+            "[1 mark] So 8/k = 2/3.",
+            "[1 mark] Cross-multiply: 2k = 24 ⇒ k = 12.",
+            "[1 mark] Then p(x) = x² − 8x + 12 = (x − 2)(x − 6), zeroes 2 and 6; check 1/2 + 1/6 = 2/3. ✓"
+          ]
+        },
+        {
+          "id": "BX-POLY-D-003",
+          "questionText": "The zeroes α, β of p(x) = x² − 5x + k satisfy 1/α² + 1/β² = 13/36 — the sum of the reciprocals of their squares. Calculate k and identify the zeroes.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] For x² − 5x + k: α + β = 5 and αβ = k; and 1/α² + 1/β² = (α² + β²)/(αβ)².",
+            "[1 mark] α² + β² = (α + β)² − 2αβ = 25 − 2k, so the expression = (25 − 2k)/k².",
+            "[1 mark] Set (25 − 2k)/k² = 13/36 ⇒ 36(25 − 2k) = 13k².",
+            "[1 mark] 13k² + 72k − 900 = 0 ⇒ (k − 6)(13k + 150) = 0 ⇒ k = 6 (the value giving real rational zeroes).",
+            "[1 mark] Then p(x) = x² − 5x + 6 = (x − 2)(x − 3), zeroes 2 and 3; check 1/4 + 1/9 = 13/36. ✓"
+          ]
+        }
+      ]
+    },
+    "probability": {
+      "subject": "maths",
+      "questions": [
+        {
+          "id": "CBE-M-PROB-B-002",
+          "questionText": "Diwali Fest is an annual South Asian arts & culture festival produced by the Diwali Celebration Society. In the Diwali fest, a game is played with a fair spinner (shown). The numbers on the spinner are 2, 5, 7, 9, 12, 16. Sometimes the owner will invite a player who does not win with the spinner to throw the dice as a free bonus. What is the probability that a player will get a special prize because the spinner stops on a perfect square? Show your working.",
+          "marks": 2,
+          "section": "B",
+          "solutionSteps": [
+            "[1 mark] Identify perfect squares among 2, 5, 7, 9, 12, 16: these are 9 and 16 → 2 favourable out of 6.",
+            "[1 mark] P(perfect square) = 2/6 = 1/3 (or 0.33)."
+          ]
+        },
+        {
+          "id": "CBE-M-PROB-B-003",
+          "questionText": "In the Diwali fest game, if the player gets a chance to throw a dice (as a free bonus after not winning with the fair spinner), what is the probability of getting a multiple of 2 on the dice? Show your working.",
+          "marks": 2,
+          "section": "B",
+          "solutionSteps": [
+            "[1 mark] Identify outcomes that are multiples of 2 on a die: 2, 4 and 6 → 3 favourable out of 6.",
+            "[1 mark] P(multiple of 2) = 3/6 = 1/2 (or 0.5)."
+          ]
+        },
+        {
+          "id": "PROB-N-EXEM-14-LA-001",
+          "questionText": "In a game the entry fee is ₹5. The game consists of tossing a coin 3 times. If one or two heads show, Sweta gets her entry fee back; if she throws 3 heads she gets double the entry fee; otherwise she loses. For tossing a coin three times, find the probability that she (i) loses the entry fee, (ii) gets double the entry fee, (iii) just gets her entry fee back.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] The coin is tossed 3 times, so the sample space has 2³ = 8 equally likely outcomes: HHH, HHT, HTH, THH, HTT, THT, TTH, TTT.",
+            "[1 mark] (i) She loses only when no head shows (0 heads) — outcome TTT, i.e. 1 favourable outcome.",
+            "[1 mark] (i) P(loses the entry fee) = 1/8.",
+            "[1 mark] (ii) She gets double the fee only on 3 heads (HHH) — 1 outcome, so P(gets double) = 1/8.",
+            "[1 mark] (iii) She gets her fee back on exactly 1 or 2 heads = 8 − 1(HHH) − 1(TTT) = 6 outcomes, so P = 6/8 = 3/4."
+          ]
+        }
+      ]
+    },
+    "quadratic-equations": {
+      "subject": "maths",
+      "questions": [
+        {
+          "id": "BX-QUAD-D-001",
+          "questionText": "The product of two consecutive positive odd integers is 483. Find the two integers.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] Let the smaller odd integer be x; the next consecutive odd integer is x + 2. Given product: x(x + 2) = 483.",
+            "[1 mark] Write in standard form: x² + 2x − 483 = 0.",
+            "[1 mark] Split the middle term: x² + 23x − 21x − 483 = 0 ⇒ (x + 23)(x − 21) = 0.",
+            "[1 mark] Roots x = 21 or x = −23. Reject x = −23 because the integers must be positive.",
+            "[1 mark] So x = 21 and the integers are 21 and 23 (21 × 23 = 483 ✓)."
+          ]
+        },
+        {
+          "id": "BX-QUAD-D-002",
+          "questionText": "One positive number is 3 more than twice another positive number. If their product is 90, find the two numbers.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] Let the smaller number be x; the larger number is (2x + 3). Given product: x(2x + 3) = 90.",
+            "[1 mark] Standard form: 2x² + 3x − 90 = 0.",
+            "[1 mark] Apply the quadratic formula: x = (−3 ± √(9 + 720)) / 4 = (−3 ± 27) / 4.",
+            "[1 mark] Roots x = 6 or x = −7.5. Reject x = −7.5 because the numbers are stated to be positive.",
+            "[1 mark] So x = 6 and the larger number is 2(6) + 3 = 15."
+          ]
+        },
+        {
+          "id": "BX-QUAD-D-003",
+          "questionText": "The difference of two natural numbers is 3 and the difference of their reciprocals is 3/28. Find the two numbers.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] Let the larger number be x; the smaller is (x − 3). Given 1/(x − 3) − 1/x = 3/28.",
+            "[1 mark] Combine the left side: [x − (x − 3)] / [x(x − 3)] = 3/28 ⇒ 3/(x² − 3x) = 3/28, so x² − 3x = 28. Standard form: x² − 3x − 28 = 0.",
+            "[1 mark] Factorise: (x − 7)(x + 4) = 0.",
+            "[1 mark] Roots x = 7 or x = −4. Reject x = −4 because the numbers are natural (positive).",
+            "[1 mark] So x = 7 and the smaller number is 7 − 3 = 4."
+          ]
+        }
+      ]
+    },
+    "real-numbers": {
+      "subject": "maths",
+      "questions": [
+        {
+          "id": "CBE-M-RN-A-002",
+          "questionText": "Three cubical warehouses of volume 165 m³, 195 m³ and 285 m³ are to be used for storage. What is the volume of the greatest cubical box that can be kept in the warehouse so that no space is left vacant?",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] Required volume = HCF(165, 195, 285) = 15 m³. Answer: B."
+          ]
+        },
+        {
+          "id": "CBE-M-RN-A-003",
+          "questionText": "Shilpi wants to organize a party. She has 36 kiwis and 60 oranges at home and decided to distribute them equally among all. She decides to add 42 apples also. In this case, how many maximum guests can she invite?",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] Maximum guests = HCF(36, 60, 42) = 6. Answer: A."
+          ]
+        },
+        {
+          "id": "CBE-M-RN-A-004",
+          "questionText": "Shweta wants to organize a party. She has 336 guavas and 54 oranges at home and decided to distribute them equally among all. How many maximum guests can she invite?",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] 336 = 56 × 6 and 54 = 9 × 6, so HCF(336, 54) = 6 = maximum guests. Answer: A."
+          ]
+        }
+      ]
+    },
+    "statistics": {
+      "subject": "maths",
+      "questions": [
+        {
+          "id": "APQ-M-STAT-004",
+          "questionText": "A car assembly unit assembles a limited number of cars daily, depending on the prevailing demand. The table presents an analysis: cars assembled per day (0-4: 33 days, 4-8: 18 days, 8-12: 21 days, 12-16: 11 days, 16-20: 7 days). (i) If the demand of the cars is doubled, estimate how many cars on an average should be assembled per day to meet the increased demand? (ii) At least on how many days, less than average number of cars were assembled?",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] Class marks xᵢ: 2, 6, 10, 14, 18; frequencies fᵢ: 33, 18, 21, 11, 7; Σfᵢ = 90.",
+            "[1 mark] Σfᵢ·xᵢ = 33·2 + 18·6 + 21·10 + 11·14 + 7·18 = 66 + 108 + 210 + 154 + 126 = 664.",
+            "[1 mark] Mean = Σfᵢxᵢ/Σfᵢ = 664/90 ≈ 7.38 cars per day.",
+            "[1 mark] (i) For doubled demand, average required = 2 × 7.38 ≈ 14.76 ≈ 15 cars per day.",
+            "[1 mark] (ii) The mean 7.38 lies in class 4-8; all 33 days in class 0-4 had fewer than 7.38 cars assembled, so on at least 33 days production was below average."
+          ]
+        },
+        {
+          "id": "APQ-M-STAT-008",
+          "questionText": "The pyramid graph shows the ages of 548 Members of Parliament (MPs) in the 17th Lok Sabha. On an average, how much younger is a female MP than a male MP? Round your answer to the nearest whole number.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] From the pyramid graph, construct grouped frequency distribution tables (class marks × frequencies) of ages for male and female MPs separately.",
+            "[1 mark] Female MPs: Σfᵢ = 80, Σfᵢxᵢ = 4280 ⇒ mean age = 4280/80 = 53.5 years.",
+            "[1 mark] Male MPs: Σfᵢ = 468, Σfᵢxᵢ = 27980 ⇒ mean age = 27980/468 ≈ 59.8 years.",
+            "[1 mark] Difference of mean ages = 59.8 − 53.5 = 6.3 years.",
+            "[1 mark] Rounded to the nearest whole number, a female MP is on average ≈ 6 years younger than a male MP."
+          ]
+        },
+        {
+          "id": "CBE-M-STAT-A-001",
+          "questionText": "The Indian Council of Medical Research wants to analyse the age group of people affected by a certain disease. The table below shows the age distribution of patients with a certain disease admitted to a hospital.\nAge (in years) : Number of cases\n5–14 : 6\n15–24 : 11\n25–34 : 21\n35–44 : 23\n45–54 : 14\n55–64 : 5\nThe most highly affected age group is:",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] The most highly affected age group is the class with the highest frequency. The class 35–44 has the highest frequency (23), so the answer is (iii) 35–44."
+          ]
+        }
+      ]
+    },
+    "surface-areas-and-volumes": {
+      "subject": "maths",
+      "questions": [
+        {
+          "id": "APQ-M-SAV-006",
+          "questionText": "Two rectangular sheets of dimensions 45 cm × 155 cm are folded to make hollow right circular cylindrical pipes with exactly 1 cm overlap when sticking the ends. Sheet 1 is folded along its length, Sheet 2 along its width. Both pipes are closed on both ends. (i) Find the difference in curved surface areas of the two cylinders. (ii) Find the ratio of the volumes of the two cylinders formed. (Use π = 22/7.) OR (i) How many cylindrical cans (with the geometry shown) can be packed in a cubical container with no more cans fitting? (ii) If one can capacity = 539 ml, find the internal volume of the cubical container.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] Variant 1 (i): Sheet 1 makes a pipe of height 155 cm; the 1 cm overlap wastes 155 × 1 = 155 cm². Sheet 2 makes a pipe of height 45 cm; overlap wastes 45 × 1 = 45 cm².",
+            "[1 mark] Difference in curved surface area = 155 − 45 = 110 cm².",
+            "[1 mark] (ii) Sheet 1 circumference = 45 − 1 = 44 cm ⟹ r₁ = 7 cm; Sheet 2 circumference = 155 − 1 = 154 cm ⟹ r₂ = 49/2 cm.",
+            "[1 mark] (ii) Ratio of volumes V₁ : V₂ = (r₁²·h₁)/(r₂²·h₂) = (7²·155)/((49/2)²·45) = 124 : 441.",
+            "[1 mark] OR variant: container side = 2p with 4 cans per direction ⟹ 4 × 4 × 2 = 32 cans; with can capacity 539 ml, p = 14 cm, cube side = 28 cm, internal volume = 28³ = 21952 cm³."
+          ]
+        },
+        {
+          "id": "APQ-M-SAV-009",
+          "questionText": "A right-circular cylindrical water tanker (r = 1 m, h = 70 m) supplies water. Each colony has a cuboidal tank (7 × 2 × 3 m). Villages: 400 people fill spherical matkas (r = 21 cm). (i) How many colonies can one full tanker supply? (ii) If a tanker supplies 3 colonies then 400 matkas at a village, how much water (in m^3) does it supply? (Use π = 22/7.)",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] Tanker volume = π·r²·h = (22/7)·1²·70 = 220 m³; cuboidal tank volume = 7·2·3 = 42 m³.",
+            "[1 mark] (i) Number of colonies = 220 ÷ 42 = 5.23, so 5 colonies can be supplied completely.",
+            "[1 mark] Matka (sphere) volume = (4/3)·π·r³ = (4/3)·(22/7)·(21)³ = 38,808 cm³ ≈ 0.0388 m³.",
+            "[1 mark] (ii) Water for 3 colonies = 3 × 42 = 126 m³; water for 400 matkas = 400 × 0.0388 ≈ 16 m³.",
+            "[1 mark] (ii) Total water supplied = 126 + 16 = 142 m³ (approx)."
+          ]
+        },
+        {
+          "id": "CBE-M-SAV-A-001",
+          "questionText": "Kanupriya runs a bakery shop. After a biscuit is cooked it becomes a cylinder of radius 3 cm and height 0.7 cm. Find the volume of one biscuit after it is cooked.",
+          "marks": 1,
+          "section": "A",
+          "solutionSteps": [
+            "[1 mark] Volume of cylinder = πr²h = (22/7) × 3 × 3 × 0.7 = 19.8 cm³. Answer: C."
+          ]
+        }
+      ]
+    },
+    "triangles": {
+      "subject": "maths",
+      "questions": [
+        {
+          "id": "APQ-M-TRI-007",
+          "questionText": "State and prove Basic proportionality theorem. In ΔABC, if DE ∥ BC, AD = x, DB = x − 2, AE = x + 2 and EC = x − 1, then using the above result, find the value of x.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] Statement: If a line is drawn parallel to one side of a triangle to intersect the other two sides in distinct points, then the other two sides are divided in the same ratio.",
+            "[1 mark] Given and construction: In ΔABC, DE ∥ BC meets AB at D and AC at E. Join BE and CD; draw EM ⊥ AB and DN ⊥ AC.",
+            "[1 mark] Proof (areas): ar(ΔADE)/ar(ΔBDE) = AD/DB (triangles on bases AD and DB with the same height EM); similarly ar(ΔADE)/ar(ΔCDE) = AE/EC.",
+            "[1 mark] Since ΔBDE and ΔCDE are on the same base DE and between the same parallels DE and BC, ar(ΔBDE) = ar(ΔCDE). Therefore AD/DB = AE/EC.",
+            "[1 mark] Application: x/(x − 2) = (x + 2)/(x − 1) ⟹ x(x − 1) = (x + 2)(x − 2) ⟹ x² − x = x² − 4 ⟹ x = 4."
+          ]
+        },
+        {
+          "id": "APQ-M-TRI-008",
+          "questionText": "In the figure, ΔABC is a right-angled triangle, such that: AC = 25 cm, PT ∥ AB and SR ∥ BC. Find the area of ΔPQR.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] From the figure: RC = 50/5 = 10 cm and PC = 50/3 cm, so PR = PC − RC = 50/3 − 10 = 20/3 cm.",
+            "[1 mark] Since QR ∥ BC (as SR ∥ BC), ΔPQR ~ ΔPTC by the Basic Proportionality Theorem, giving PR/CR = PQ/QT.",
+            "[1 mark] Substitute: (20/3)/10 = PQ/8 ⟹ PQ = (20/3) × 8 / 10 = 16/3 cm.",
+            "[1 mark] In right ΔPQR, by Pythagoras QR² = PR² − PQ² = (20/3)² − (16/3)² = (400 − 256)/9 = 144/9 ⟹ QR = 4 cm.",
+            "[1 mark] Area of ΔPQR = ½ × QR × PQ = ½ × 4 × 16/3 = 32/3 cm²."
+          ]
+        },
+        {
+          "id": "BX-TRI-D-001",
+          "questionText": "In △ABC, D and E lie on sides AB and AC respectively such that DE ∥ BC. It is given that AD = (x + 1) cm, DB = (x − 1) cm, AE = (x + 3) cm and EC = x cm. Find the value of x, and hence write the lengths of AD and AE.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] Since DE ∥ BC, by the Basic Proportionality Theorem AD/DB = AE/EC.",
+            "[1 mark] Substitute: (x + 1)/(x − 1) = (x + 3)/x.",
+            "[1 mark] Cross-multiply: x(x + 1) = (x − 1)(x + 3) ⇒ x² + x = x² + 2x − 3.",
+            "[1 mark] The x² terms cancel: x = 2x − 3 ⇒ x = 3.",
+            "[1 mark] Hence AD = x + 1 = 4 cm and AE = x + 3 = 6 cm (with DB = 2 cm, EC = 3 cm; ratios 4/2 = 6/3 ✓)."
+          ]
+        }
+      ]
+    },
+    "trigonometry": {
+      "subject": "maths",
+      "questions": [
+        {
+          "id": "APQ-M-TRIG-009",
+          "questionText": "A man on the top of a vertical tower observes a car moving at a uniform speed coming directly towards it. If it takes 12 minutes for the angle of depression to change from 30° to 45°, how soon after this will the car reach the tower? Give your answer to nearest minutes. (Use √3 = 1.73). OR If the angle of elevation of a cloud from a point 10 metres above a lake is 30° and the angle of depression of its reflection in the lake is 60°, find the height of the cloud from the surface of the lake.",
+          "marks": 5,
+          "section": "D",
+          "solutionSteps": [
+            "[1 mark] Let AB be the tower of height h and let the car move from D (angle of depression 30°) to C (angle of depression 45°) in 12 minutes; let the uniform speed give distance DC covered in 12 minutes.",
+            "[1 mark] In ΔABC (depression 45°): tan 45° = AB/BC ⟹ BC = AB.",
+            "[1 mark] In ΔABD (depression 30°): tan 30° = AB/BD ⟹ BD = √3·AB.",
+            "[1 mark] DC = BD − BC = (√3 − 1)·AB, and this is covered in 12 minutes; time to cover BC = AB at the same speed = 12 × BC/DC = 12/(√3 − 1).",
+            "[1 mark] Time = 12/(√3 − 1) = 6(√3 + 1) = 6(2.73) ≈ 16 minutes. [OR variant — cloud over a lake: observer 10 m above lake, horizontal distance x. tan 30° = (h − 10)/x and tan 60° = (h + 10)/x; dividing, 3 = (h + 10)/(h − 10) ⟹ 3h − 30 = h + 10 ⟹ h = 20 m.]"
+          ]
+        },
+        {
+          "id": "CBE-M-TRIG-B-005",
+          "questionText": "A flagpole casts its shadow that is 25 m long on the ground. The angle made by the tip of the flagpole and the tip of its shadow on the ground is 45°. Find the height of the flagpole.",
+          "marks": 2,
+          "section": "B",
+          "solutionSteps": [
+            "[1 mark] tan 45° = opposite/adjacent = (height of flagpole)/25.",
+            "[1 mark] 1 = (height of flagpole)/25 → height of flagpole = 25 m."
+          ]
+        },
+        {
+          "id": "CBE-M-TRIG-B-008",
+          "questionText": "Ravi got a clinometer from his school's maths lab and started measuring angles of elevation. He saw a corporate building with the company logo painted on a wall. From a point P on the ground, 24 metres from the base of the building, the angle of elevation of the roof is 45°. The angle of elevation of C, the centre of the logo, is 30°. What is the height of the centre of the logo from the ground?",
+          "marks": 2,
+          "section": "B",
+          "solutionSteps": [
+            "[1 mark] tan 30° = h/x → h/24 = 1/√3.",
+            "[1 mark] h = 24/√3 = 8√3 = 8 × 1.73 = 13.84 m."
+          ]
+        }
+      ]
+    }
+  }
+}
