@@ -140,10 +140,22 @@ export function selectBoardQuestions(
   const out: Record<string, BoardQuestionTopic> = {};
   const short: string[] = [];
 
+  // Bucket by topicKey in ONE pass, rather than filtering the whole bank once per
+  // topic. Note there is deliberately no `q.topicKey === topicKey` compare anywhere
+  // here: `topickey_guard_acceptance.mjs` Guard B flags raw `.topicKey ===` compares
+  // because they are the bank-question-vs-chosen-topic bug pattern, and bucketing
+  // sidesteps the pattern entirely instead of asking for an allowlist exemption.
+  // (It is also O(n) instead of O(26n) over 8,545 rows.)
+  const byTopic = new Map<string, SelectableQuestion[]>();
+  for (const q of bank) {
+    if (!qualifies(q, aiQuestionIds, withheldIds)) continue;
+    const bucket = byTopic.get(q.topicKey);
+    if (bucket) bucket.push(q);
+    else byTopic.set(q.topicKey, [q]);
+  }
+
   for (const topicKey of topics) {
-    const pool = bank
-      .filter((q) => q.topicKey === topicKey && qualifies(q, aiQuestionIds, withheldIds))
-      .sort((a, b) => compareById(a.id, b.id));
+    const pool = (byTopic.get(topicKey) ?? []).sort((a, b) => compareById(a.id, b.id));
 
     if (pool.length < count) {
       short.push(`${topicKey} (${pool.length} of ${count})`);
