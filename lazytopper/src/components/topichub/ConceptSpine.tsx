@@ -345,7 +345,12 @@ const SPINE_CSS = `
    conditional on askTutorHref and a link placed with it would inherit the
    condition and vanish on every topic without a tutor href. */
 .lt-spine__cbse {
-  display: inline-block;
+  /* BLOCK, not inline-block. The .lt-spine__ask button below is inline-flex, so an
+     inline-level link here sits on the SAME line as the tutor CTA and its trailing
+     arrow butts against it — it reads as an arrow pointing at the button.
+     Own line, own meaning. */
+  display: block;
+  width: fit-content;
   margin-top: 10px;
   font-family: var(--font-body, "Inter", system-ui, sans-serif);
   font-size: 12.5px;
