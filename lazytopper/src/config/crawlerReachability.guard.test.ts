@@ -1085,6 +1085,214 @@ describe("crawl control — the sitemap's freshness signal and the IndexNow key 
     ).toBe(false);
   });
 });
+describe("asset 404 — a missing chunk must fail as a missing chunk, not impersonate a page", () => {
+  /**
+   * ★★★ WHY THIS GUARD EXISTS.
+   * Until ASSET-404-1 the ONLY rewrite matching `/app/assets/...` was the SPA
+   * catch-all, so a request for a hashed chunk that no longer shipped was answered
+   * with `/app/index.html` — HTTP 200, `content-type: text/html`, where JavaScript
+   * was expected. Measured live on www.lazytopper.com 2026-09-17 AND re-measured
+   * 2026-09-18: `/app/assets/DoesNotExist-XXXX.js` -> `200 text/html; charset=utf-8`.
+   * The browser's module loader rejects that on the MIME check and throws
+   * `Failed to fetch dynamically imported module`, which Googlebot rendered as the
+   * error boundary and Search Console filed as a Soft 404. It cost this project a
+   * day of diagnosis pointing at the wrong cause.
+   *
+   * ⚠ WHAT THIS DOES NOT BUY, AND MUST NEVER BE CLAIMED TO BUY. It does not stop
+   * chunks from going missing. That is DEPLOY SKEW — a client holding an old
+   * index.html requests chunks a newer deployment no longer has. Its actual fix is
+   * Vercel Skew Protection, a PAID feature unavailable on the current plan. This
+   * rule changes only how the failure is REPORTED: honestly, as a 404.
+   *
+   * ★★ THE RULE IS PATH-SCOPED, NOT EXTENSION-SCOPED, AND THAT IS LOAD-BEARING.
+   * `/app/assets/` holds more than JS and CSS. `notes/assets/**` figure images are
+   * globbed as URLs by `noteSpecRegistry.ts` and emitted there with hashed names
+   * too. A rule written as an extension match on `.js` would have left every
+   * missing FIGURE still returning an HTML document — silently, on exactly the
+   * notes and chapter pages the SEO arc just spent a week making crawlable.
+   * Scoping to the path prefix covers chunks, stylesheets and images with one rule.
+   *
+   * ★★★ THE OBVIOUS CONSTRUCTION IS A SILENT NO-OP, AND IT WAS MEASURED, NOT
+   * REASONED. The first attempt at this fix was a SELF-rewrite,
+   * `/app/assets/:path(.*)` -> `/app/assets/:path`, on the premise that a rewrite
+   * to a destination with no file yields a 404. It deployed green, every static
+   * guard passed — and the Vercel preview for that exact commit still returned
+   * `200 text/html` for a missing asset. The premise was wrong.
+   *
+   * Vercel does NOT stop at the first matching rewrite when the destination has no
+   * file. It rewrites the path and CONTINUES through the remaining rules, so the
+   * self-rewrite handed `/app/assets/X.js` straight back to the SPA catch-all
+   * below it. Both halves of the real mechanism were then measured on live
+   * deployments:
+   *   - continue-on-miss: proven by that no-op preview itself;
+   *   - no rule matches => genuine 404: `/definitely-not-a-real-path` returns
+   *     `404 text/plain` on production AND preview.
+   *
+   * So the destination must be a path that matches NO rewrite and is NOT a served
+   * file. `/__asset-not-found__` is exactly that, and the test below asserts BOTH
+   * of those properties rather than asserting the literal string — a future rule
+   * that accidentally claimed the sentinel would otherwise re-break this silently.
+   *
+   * ⚠ A NOTE ON WHAT WAS DELIBERATELY NOT DONE. The alternative fix is a negative
+   * lookahead narrowing the catch-all to `/app/:path((?!assets/).*)`. It was
+   * rejected: the catch-all is the single most load-bearing rule in this config and
+   * has already broken every deep link once (SLASH-1). A malformed lookahead there
+   * 404s the entire app, where this rule's blast radius stops at `/app/assets/`.
+   *
+   * ⚠ WHAT THIS FILE CANNOT PROVE, AND WHERE IT IS PROVEN INSTEAD. `servedFiles()`
+   * reads `index.html` and `public/` only — it has NO knowledge of Vite's hashed
+   * build output. So this guard can prove the CONFIG's shape and ORDER, and it
+   * cannot prove that a real chunk still serves. That half is proven on the Vercel
+   * preview by fetching a real hashed chunk and the missing one IN THE SAME RUN
+   * (§5.1/§5.2) — which is also what rules out a rewrite loop, since a loop would
+   * take the real chunk down with it.
+   */
+
+  const ASSETS_RULE_SOURCE = "/app/assets/:path(.*)";
+
+  it("★★★ the assets rule's destination DEAD-ENDS — matched by no rule, served by no file", () => {
+    const { rewrites } = readVercelConfig();
+    const rule = rewrites.find((w) => w.source === ASSETS_RULE_SOURCE);
+    expect(
+      rule,
+      `the /app/assets/ rewrite is gone — a missing chunk is falling through to ` +
+        `the SPA shell again and will return 200 text/html`,
+    ).toBeDefined();
+
+    const dest = (rule as Rule).destination;
+
+    // ★ THE MECHANISM, ASSERTED — NOT THE STRING. Vercel continues through the
+    // rule list when a rewrite destination has no file, so the ONLY thing that
+    // produces a 404 is a destination that (a) is not a served file and (b) is
+    // claimed by no other rewrite. Assert both. A self-rewrite satisfies neither
+    // and silently hands the path back to the catch-all — which is exactly how the
+    // first attempt at this fix shipped green and changed nothing.
+    expect(
+      servedFiles().has(dest),
+      `the assets rule's destination "${dest}" IS a served file, so a missing ` +
+        `asset would resolve to it with 200 instead of 404`,
+    ).toBe(false);
+
+    const claimedBy = rewrites.filter((w) => matchSource(w.source, dest) !== null);
+    expect(
+      claimedBy.map((w) => `${w.source} -> ${w.destination}`),
+      `the assets rule's destination "${dest}" is claimed by another rewrite, so ` +
+        `Vercel will follow it onward instead of 404ing. The dead-end is gone.`,
+    ).toEqual([]);
+
+    // ★ And most dangerously of all: never the SPA shell.
+    expect(
+      dest,
+      `the assets rule points at the SPA shell — this IS the original defect`,
+    ).not.toBe("/app/index.html");
+
+    // SLASH-1's lesson, reused: `:path*` compiles to SEGMENTS and does not match a
+    // trailing slash, so the `(.*)` form is required for full coverage.
+    expect((rule as Rule).source).toBe(ASSETS_RULE_SOURCE);
+  });
+
+  it("★★ the assets rule is ordered BEFORE the SPA catch-all", () => {
+    // Vercel processes rewrites in array order, first match wins. Placed AFTER the
+    // catch-all this rule would be dead code that still reads as a fix.
+    const { rewrites } = readVercelConfig();
+    const assetsIdx = rewrites.findIndex((w) => w.source === ASSETS_RULE_SOURCE);
+    const catchAllIdx = rewrites.findIndex((w) => w.destination === "/app/index.html");
+
+    expect(assetsIdx, "the assets rule is missing").toBeGreaterThanOrEqual(0);
+    expect(catchAllIdx, "the SPA catch-all is missing").toBeGreaterThanOrEqual(0);
+    expect(
+      assetsIdx,
+      `the assets rule sits at index ${assetsIdx}, at or after the catch-all at ` +
+        `${catchAllIdx}. The catch-all would claim every asset path first and this ` +
+        `rule would never fire.`,
+    ).toBeLessThan(catchAllIdx);
+  });
+
+  it("★★★ an asset path is claimed by the assets rule — and the CONTROL, a page path, is still claimed by the catch-all", () => {
+    // ★ THIS IS THE LOAD-BEARING ASSERTION. The two halves must BOTH hold: without
+    // the control, a rule that matched EVERYTHING would satisfy the first loop and
+    // look like a fix while having broken every SPA deep link.
+    const { rewrites } = readVercelConfig();
+    const firstMatch = (probe: string) =>
+      rewrites.find((w) => matchSource(w.source, probe) !== null);
+
+    for (const probe of [
+      "/app/assets/DoesNotExist-XXXX.js",
+      "/app/assets/index-Bsujrqdi.js",
+      "/app/assets/some-figure-a1b2c3d4.webp",
+      "/app/assets/index-CpxjRxM6.css",
+    ]) {
+      const m = firstMatch(probe);
+      expect(m, `no rewrite matches ${probe}`).toBeDefined();
+      expect(
+        (m as Rule).source,
+        `${probe} is claimed by "${(m as Rule).source}" -> ` +
+          `"${(m as Rule).destination}" instead of the assets rule. If that is the ` +
+          `SPA catch-all, a missing asset is serving HTML again.`,
+      ).toBe(ASSETS_RULE_SOURCE);
+    }
+
+    // ★ CONTROL — ordinary SPA routes, including the trailing-slash forms SLASH-1
+    // fixed, must STILL reach the catch-all and render the shell.
+    for (const probe of [
+      "/app/pricing",
+      "/app/pricing/",
+      "/app/notes/trigonometry",
+      "/app/topic-hub/trigonometry",
+    ]) {
+      const m = firstMatch(probe);
+      expect(m, `no rewrite matches CONTROL ${probe}`).toBeDefined();
+      expect(
+        (m as Rule).destination,
+        `CONTROL ${probe} is no longer claimed by the SPA catch-all — the assets ` +
+          `rule has widened and is swallowing page routes`,
+      ).toBe("/app/index.html");
+      const r = resolvePath(probe);
+      expect(r.kind === "file" && r.path, `CONTROL ${probe} no longer serves the shell`).toBe(
+        "/app/index.html",
+      );
+    }
+  });
+
+  it("★★ the assets rule shadows NONE of the protected rewrites", () => {
+    // The API proxies, and the four crawler files plus the IndexNow key, are all
+    // claimed by rules ABOVE this one. The IndexNow key in particular is live and
+    // verified: breaking it silently disables Bing submission, with no error
+    // anywhere to notice.
+    const { rewrites } = readVercelConfig();
+    const protectedProbes: Array<[string, string]> = [
+      // NB: `destination` is the RAW pattern, not the substituted URL.
+      ["/api/health", "https://lazytopper-production-production.up.railway.app/api/:path*"],
+      ["/robots.txt", "/app/robots.txt"],
+      ["/sitemap.xml", "/app/sitemap.xml"],
+      ["/llms.txt", "/app/llms.txt"],
+      ["/favicon.svg", "/app/favicon.svg"],
+      [
+        "/a6c1861da61f4d36898e5e27a71c36d6.txt",
+        "/app/a6c1861da61f4d36898e5e27a71c36d6.txt",
+      ],
+    ];
+
+    for (const [probe, expectedDestination] of protectedProbes) {
+      const m = rewrites.find((w) => matchSource(w.source, probe) !== null);
+      expect(m, `no rewrite matches ${probe}`).toBeDefined();
+      expect(
+        (m as Rule).destination,
+        `${probe} is now claimed by "${(m as Rule).source}". A rule was reordered ` +
+          `above it.`,
+      ).toBe(expectedDestination);
+    }
+
+    // ★ CONTROL — the assets pattern genuinely does NOT match any of them, which is
+    // why ordering alone is not what saves them.
+    for (const [probe] of protectedProbes) {
+      expect(
+        matchSource(ASSETS_RULE_SOURCE, probe),
+        `the assets pattern matches ${probe} — it is far too broad`,
+      ).toBeNull();
+    }
+  });
+});
 
 /* ------------------------------------------------------------------------- *
  * ★ LIMITS — WHAT THIS GUARD CANNOT CATCH

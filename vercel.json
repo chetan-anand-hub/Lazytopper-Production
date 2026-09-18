@@ -36,6 +36,10 @@
       "destination": "/app/a6c1861da61f4d36898e5e27a71c36d6.txt"
     },
     {
+      "source": "/app/assets/:path(.*)",
+      "destination": "/__asset-not-found__"
+    },
+    {
       "source": "/app/:path(.*)",
       "destination": "/app/index.html"
     }
