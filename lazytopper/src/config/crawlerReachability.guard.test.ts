@@ -1112,6 +1112,33 @@ describe("asset 404 — a missing chunk must fail as a missing chunk, not impers
    * notes and chapter pages the SEO arc just spent a week making crawlable.
    * Scoping to the path prefix covers chunks, stylesheets and images with one rule.
    *
+   * ★★★ THE OBVIOUS CONSTRUCTION IS A SILENT NO-OP, AND IT WAS MEASURED, NOT
+   * REASONED. The first attempt at this fix was a SELF-rewrite,
+   * `/app/assets/:path(.*)` -> `/app/assets/:path`, on the premise that a rewrite
+   * to a destination with no file yields a 404. It deployed green, every static
+   * guard passed — and the Vercel preview for that exact commit still returned
+   * `200 text/html` for a missing asset. The premise was wrong.
+   *
+   * Vercel does NOT stop at the first matching rewrite when the destination has no
+   * file. It rewrites the path and CONTINUES through the remaining rules, so the
+   * self-rewrite handed `/app/assets/X.js` straight back to the SPA catch-all
+   * below it. Both halves of the real mechanism were then measured on live
+   * deployments:
+   *   - continue-on-miss: proven by that no-op preview itself;
+   *   - no rule matches => genuine 404: `/definitely-not-a-real-path` returns
+   *     `404 text/plain` on production AND preview.
+   *
+   * So the destination must be a path that matches NO rewrite and is NOT a served
+   * file. `/__asset-not-found__` is exactly that, and the test below asserts BOTH
+   * of those properties rather than asserting the literal string — a future rule
+   * that accidentally claimed the sentinel would otherwise re-break this silently.
+   *
+   * ⚠ A NOTE ON WHAT WAS DELIBERATELY NOT DONE. The alternative fix is a negative
+   * lookahead narrowing the catch-all to `/app/:path((?!assets/).*)`. It was
+   * rejected: the catch-all is the single most load-bearing rule in this config and
+   * has already broken every deep link once (SLASH-1). A malformed lookahead there
+   * 404s the entire app, where this rule's blast radius stops at `/app/assets/`.
+   *
    * ⚠ WHAT THIS FILE CANNOT PROVE, AND WHERE IT IS PROVEN INSTEAD. `servedFiles()`
    * reads `index.html` and `public/` only — it has NO knowledge of Vite's hashed
    * build output. So this guard can prove the CONFIG's shape and ORDER, and it
@@ -1123,7 +1150,7 @@ describe("asset 404 — a missing chunk must fail as a missing chunk, not impers
 
   const ASSETS_RULE_SOURCE = "/app/assets/:path(.*)";
 
-  it("★★ the assets rule exists, is a SELF-rewrite, and uses the (.*) form", () => {
+  it("★★★ the assets rule's destination DEAD-ENDS — matched by no rule, served by no file", () => {
     const { rewrites } = readVercelConfig();
     const rule = rewrites.find((w) => w.source === ASSETS_RULE_SOURCE);
     expect(
@@ -1132,16 +1159,32 @@ describe("asset 404 — a missing chunk must fail as a missing chunk, not impers
         `the SPA shell again and will return 200 text/html`,
     ).toBeDefined();
 
-    // A SELF-rewrite: the destination is the same path. A real file never reaches
-    // the rewrite phase at all (filesystem precedes rewrites), so this fires ONLY
-    // for a path with no file — and its destination has no file either, so Vercel
-    // 404s. Pointing it anywhere else (most dangerously at index.html) would
-    // reinstate the exact defect this guard exists to prevent.
+    const dest = (rule as Rule).destination;
+
+    // ★ THE MECHANISM, ASSERTED — NOT THE STRING. Vercel continues through the
+    // rule list when a rewrite destination has no file, so the ONLY thing that
+    // produces a 404 is a destination that (a) is not a served file and (b) is
+    // claimed by no other rewrite. Assert both. A self-rewrite satisfies neither
+    // and silently hands the path back to the catch-all — which is exactly how the
+    // first attempt at this fix shipped green and changed nothing.
     expect(
-      (rule as Rule).destination,
-      `the assets rule must rewrite to ITSELF. A destination of index.html would ` +
-        `restore the 200-text/html defect wholesale.`,
-    ).toBe("/app/assets/:path");
+      servedFiles().has(dest),
+      `the assets rule's destination "${dest}" IS a served file, so a missing ` +
+        `asset would resolve to it with 200 instead of 404`,
+    ).toBe(false);
+
+    const claimedBy = rewrites.filter((w) => matchSource(w.source, dest) !== null);
+    expect(
+      claimedBy.map((w) => `${w.source} -> ${w.destination}`),
+      `the assets rule's destination "${dest}" is claimed by another rewrite, so ` +
+        `Vercel will follow it onward instead of 404ing. The dead-end is gone.`,
+    ).toEqual([]);
+
+    // ★ And most dangerously of all: never the SPA shell.
+    expect(
+      dest,
+      `the assets rule points at the SPA shell — this IS the original defect`,
+    ).not.toBe("/app/index.html");
 
     // SLASH-1's lesson, reused: `:path*` compiles to SEGMENTS and does not match a
     // trailing slash, so the `(.*)` form is required for full coverage.
