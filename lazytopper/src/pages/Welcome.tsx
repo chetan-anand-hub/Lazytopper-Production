@@ -1,4 +1,4 @@
-import { useHref, useNavigate } from "react-router-dom";
+import { useHref, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 
@@ -1757,7 +1757,10 @@ export default function Welcome() {
               </span>
             </div>
             <a
-              href={useHref("/cbse/class-10?returnTo=%2F&backLabel=Back+to+LazyTopper")}
+              href={useHref(
+                `/cbse/class-10?returnTo=${encodeURIComponent(useLocation().pathname)}`
+                  + `&backLabel=Back+to+LazyTopper`,
+              )}
               className="lt-hero-cbse"
             >
               Free official CBSE papers and the 2027 exam rules →

@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 
@@ -290,6 +290,9 @@ const CSS = `
 
 export default function MobileWelcome() {
   const navigate = useNavigate();
+  // CBSE-PAGE-1 — this landing serves BOTH "/" and "/welcome", so the return ticket
+  // carries the path actually visited rather than a hardcoded one.
+  const { pathname } = useLocation();
   const { user } = useAuth();
   const railRef = useRef<HTMLDivElement | null>(null);
   const [active, setActive] = useState(0);
@@ -384,7 +387,8 @@ export default function MobileWelcome() {
       </div>
 
       <Link
-        to="/cbse/class-10?returnTo=%2F&backLabel=Back+to+LazyTopper"
+        to={`/cbse/class-10?returnTo=${encodeURIComponent(pathname)}`
+          + `&backLabel=Back+to+LazyTopper`}
         className="lt-welcome-cbse"
       >
         Free official CBSE papers and the 2027 exam rules →
