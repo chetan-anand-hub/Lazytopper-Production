@@ -13,7 +13,12 @@ import {
 } from "./cbse2027Sources";
 
 /**
- * Cbse2027Page — the public CBSE 2027 page at `/cbse-2027` (CBSE-PAGE-1, Lane A).
+ * Cbse2027Page — the public CBSE boards page at `/cbse/class-10` (CBSE-PAGE-1, Lane A).
+ *
+ * ★ THE YEAR IS IN THE CONTENT, NOT THE URL. Owner ruling, 2026-09-18: `/cbse-2027`
+ * would force an annual migration and a fresh indexing cycle on a page whose entire
+ * value is accumulated authority, and it makes Classes 11-12 a second page built from
+ * scratch rather than a data addition. `/cbse/class-10` is stable across sessions.
  *
  * ★ ONE COMPONENT AT EVERY SCREEN SIZE, AND NO WIDTH HOOK. Owner ruling (a):
  * this page is responsive by CSS alone. There is no `useIsDesktop()` here and

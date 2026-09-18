@@ -562,7 +562,7 @@ export function ConceptSpine({
           )}
         </div>
 
-        <Link to="/cbse-2027" className="lt-spine__cbse">
+        <Link to="/cbse/class-10" className="lt-spine__cbse">
           Official CBSE papers and the 2027 exam rules →
         </Link>
 

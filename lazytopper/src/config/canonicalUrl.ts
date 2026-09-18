@@ -78,7 +78,7 @@ export const SELF_CANONICAL_EXACT: readonly string[] = [
   "/pricing",
   "/exam-trends",
   "/practice-hub",
-  "/cbse-2027",
+  "/cbse/class-10",
 ];
 
 /**

@@ -383,7 +383,7 @@ export default function MobileWelcome() {
         </p>
       </div>
 
-      <Link to="/cbse-2027" className="lt-welcome-cbse">
+      <Link to="/cbse/class-10" className="lt-welcome-cbse">
         Free official CBSE papers and the 2027 exam rules →
       </Link>
 

@@ -104,7 +104,7 @@ export default function PublicLegalFooter({ className }: { className?: string })
       <Link to="/exam-trends">Chapters</Link>
       {/* CBSE-PAGE-1 — beside Chapters for the same reason Chapters is here: this
           footer is the one crawl path Google has actually followed on this site. */}
-      <Link to="/cbse-2027">CBSE 2027</Link>
+      <Link to="/cbse/class-10">CBSE 2027</Link>
       {LEGAL_LINKS.map(({ label, slug }) => (
         <Link key={slug} to={`/legal/${slug}`}>
           {label}

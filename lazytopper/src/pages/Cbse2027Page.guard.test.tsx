@@ -19,7 +19,7 @@ import { sitemapPaths } from "../config/sitemapUrls";
 import { STATIC_PAGE_HEADS } from "../../scripts/seo/writeStaticHeads";
 
 /**
- * GUARD — the CBSE 2027 page (`/cbse-2027`), CBSE-PAGE-1.
+ * GUARD — the CBSE Class 10 page (`/cbse/class-10`), CBSE-PAGE-1.
  *
  * ★ WHAT THIS FILE EXISTS TO CATCH. Three of this page's properties are
  * invisible to every other gate in the repo, and each has a specific way of
@@ -73,9 +73,9 @@ function visibleText(root: HTMLElement): string {
 
 function renderPage() {
   return render(
-    <MemoryRouter initialEntries={["/cbse-2027"]}>
+    <MemoryRouter initialEntries={["/cbse/class-10"]}>
       <Routes>
-        <Route path="/cbse-2027" element={<Cbse2027Page />} />
+        <Route path="/cbse/class-10" element={<Cbse2027Page />} />
       </Routes>
     </MemoryRouter>,
   );
@@ -338,10 +338,10 @@ describe("the circular feed — committed data, and no automation claim", () => 
 
 describe("the page is advertised", () => {
   it("is self-canonical, in the sitemap, and has its own head entry", () => {
-    expect(SELF_CANONICAL_EXACT).toContain("/cbse-2027");
-    expect(sitemapPaths()).toContain("/cbse-2027");
+    expect(SELF_CANONICAL_EXACT).toContain("/cbse/class-10");
+    expect(sitemapPaths()).toContain("/cbse/class-10");
 
-    const head = STATIC_PAGE_HEADS["/cbse-2027"];
+    const head = STATIC_PAGE_HEADS["/cbse/class-10"];
     expect(head).toBeTruthy();
     expect(head.title).toContain("2027");
     expect(head.description.length).toBeGreaterThan(50);

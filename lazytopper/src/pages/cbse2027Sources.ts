@@ -1,5 +1,5 @@
 /**
- * cbse2027Sources — the committed data behind `/cbse-2027` (CBSE-PAGE-1, Lane A).
+ * cbse2027Sources — the committed data behind `/cbse/class-10` (CBSE-PAGE-1, Lane A).
  *
  * ★ EVERY URL IN THIS FILE WAS HEADed LIVE ON 18 SEPTEMBER 2026 and returned 200
  * with a PDF or ZIP content-type. That is the lane's shipping rule: a link that

@@ -104,7 +104,7 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
       "Every CBSE Class 10 chapter ranked by exam weightage — the non-negotiables, " +
       "the best marks-per-hour, and the ones to do if time permits.",
   },
-  "/cbse-2027": {
+  "/cbse/class-10": {
     title: "CBSE Class 10 Boards 2027 — Papers, Dates and Rules | LazyTopper",
     description:
       "Every official CBSE paper for Class 10 Maths and Science, free, plus " +

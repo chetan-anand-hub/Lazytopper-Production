@@ -942,7 +942,7 @@ export default function FullMockPage() {
                         .lt-ct__startrow (that rule gives buttons inside it flex:1,
                         so an extra child would have resized the existing two). */}
                     <Link
-                      to="/cbse-2027"
+                      to="/cbse/class-10"
                       className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
                     >
                       Official CBSE papers for 2027 →

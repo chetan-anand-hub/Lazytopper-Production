@@ -878,7 +878,7 @@ export default function App() {
               not the MeProgressPage one. Deliberately not shell-wrapped and not
               auth-gated: it exists to be crawled and to be read by someone who has
               never signed in. */}
-          <Route path="/cbse-2027" element={withRouteSuspense(<Cbse2027Page />)} />
+          <Route path="/cbse/class-10" element={withRouteSuspense(<Cbse2027Page />)} />
           <Route path="/admin/funnel" element={<RequireAuth>{withRouteSuspense(<FunnelPage />)}</RequireAuth>} />
           <Route path="/admin/diagram-compare" element={withRouteSuspense(<DiagramComparePage />)} />
           <Route path="/admin/diagram-quality" element={withRouteSuspense(<DiagramQualityPage />)} />
