@@ -391,7 +391,7 @@ export default function MobileWelcome() {
           + `&backLabel=Back+to+LazyTopper`}
         className="lt-welcome-cbse"
       >
-        Free official CBSE papers and the 2027 exam rules →
+        CBSE 2027 — dates, rules and official papers →
       </Link>
 
       {/* [FU-LEGAL-FOOTER-LINK] — the mobile public landing carries no app chrome

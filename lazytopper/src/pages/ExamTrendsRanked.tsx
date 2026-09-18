@@ -981,7 +981,7 @@ function PageHero({ children }: { children: React.ReactNode }) {
         className="lt-et-cbse"
         to="/cbse/class-10?returnTo=%2Fexam-trends&backLabel=Back+to+Exam+Trends"
       >
-        Official CBSE papers and the 2027 two-exam rule →
+        CBSE 2027 — dates, rules and official papers →
       </Link>
       {children}
     </header>

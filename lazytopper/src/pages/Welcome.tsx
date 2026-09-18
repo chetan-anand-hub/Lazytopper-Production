@@ -1763,7 +1763,7 @@ export default function Welcome() {
               )}
               className="lt-hero-cbse"
             >
-              Free official CBSE papers and the 2027 exam rules →
+              CBSE 2027 — dates, rules and official papers →
             </a>
           </section>
 

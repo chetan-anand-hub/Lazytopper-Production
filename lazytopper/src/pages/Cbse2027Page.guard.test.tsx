@@ -234,7 +234,9 @@ describe("the subject switcher", () => {
 describe("★ the trap cards are crawlable", () => {
   it("renders six <details>, and every answer is in the DOM while CLOSED", () => {
     const { container } = renderPage();
-    const details = Array.from(container.querySelectorAll("details"));
+    // ⚠ SCOPED TO THE PAGE. The route is now shell-wrapped at desktop width and the
+    // shell carries a <details> of its own, so an unscoped query would count 7.
+    const details = Array.from(container.querySelectorAll("main.lt-cbse details"));
 
     expect(details).toHaveLength(6);
 

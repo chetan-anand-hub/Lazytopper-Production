@@ -107,7 +107,7 @@ export default function DesktopNotesPage() {
           + `&backLabel=${encodeURIComponent(`Back to ${topic.name} notes`)}`}
         className="lt-notes-page__cbse"
       >
-        Official CBSE papers and the 2027 exam rules →
+        CBSE 2027 — dates, rules and official papers →
       </Link>
       <Note spec={spec} />
     </div>

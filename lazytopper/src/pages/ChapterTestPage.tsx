@@ -549,7 +549,7 @@ export default function ChapterTestPage() {
                         + `&backLabel=${encodeURIComponent(`Back to the ${topicName} chapter test`)}`}
                       className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
                     >
-                      Official CBSE papers for 2027 →
+                      CBSE 2027 — dates, rules and official papers →
                     </Link>
 
                     <div className="lt-ct__honest">

@@ -567,7 +567,7 @@ export function ConceptSpine({
             + `&backLabel=${encodeURIComponent(`Back to ${topic.name}`)}`}
           className="lt-spine__cbse"
         >
-          Official CBSE papers and the 2027 exam rules →
+          CBSE 2027 — dates, rules and official papers →
         </Link>
 
         {/* Topic-level tutor entry (Stage 1) — the fresh /tutor route. Renders only
