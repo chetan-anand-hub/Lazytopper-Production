@@ -10,6 +10,7 @@ import {
   CBSE_THEORY_MARKS,
   CBSE_TIMELINE,
   CBSE_TRAPS,
+  CBSE_2027_ASSUMED_MAIN_EXAM,
   daysUntilMainExam,
   type CbseSubjectKey,
 } from "./cbse2027Sources";
@@ -51,12 +52,24 @@ import {
  * the ruling governs. Lane B makes these real downloads through a Firebase
  * mirror, and the labels change when the behaviour does.
  *
- * ★ EVERY ENTRY POINT MUST HAVE AN EXIT. This page renders no app chrome — that is
- * deliberate, because it is a public landing-style route reachable signed-out and
- * wrapping it in the shell would change what a crawler sees on a page this lane just
- * got prerendered. Chrome is NOT the fix; a back link is. Without one, all eight
- * inbound links are dead ends, which the owner hit from both the chapter test and the
- * full mock.
+ * ★ IT IS IN THE SAME ROUTE CLASS AS /exam-trends, NOT A THIRD TREATMENT.
+ * Owner ruling, 2026-09-19, correcting an earlier "no app chrome" instruction: the
+ * route is listed in `isDesktopShellRoute` AND in `isMobileSelfChromedRoute` exactly
+ * where `/exam-trends` is listed. A signed-in student arriving from a chapter test
+ * was losing the sidebar and their own context, so the page read as a different
+ * product.
+ *
+ * ⚠ AND THE SHELL *IS* IN THE PRERENDERED BODY — the capture runs signed-OUT but at
+ * 1280x900, and `isDesktopShellRoute` gates on `hasSession` only for "/". So this
+ * page's committed fragment now opens with the same sidebar `prerendered/
+ * exam-trends.html` already opens with. Every content invariant survives; see the
+ * lane report. Do not "fix" this by special-casing the route — that is the third
+ * treatment the ruling forbids.
+ *
+ * ★ EVERY ENTRY POINT MUST HAVE AN EXIT. The shell is chrome for signed-in desktop
+ * users; it is NOT the exit. At mobile width, signed out, and for a crawler there is
+ * no sidebar, so without a back link all eight inbound links are dead ends — which
+ * the owner hit from both the chapter test and the full mock.
  *
  * ★ IT USES THE APP'S EXISTING RETURN-TICKET CONVENTION, NOT A NEW ONE.
  * `?returnTo=<internal path>` + optional `?backLabel=<text>`, read through
@@ -290,12 +303,17 @@ export default function Cbse2027Page() {
   const backHref = ticket?.path ?? "/";
   const backLabel = ticket?.label ?? "Home";
 
-  // Read the clock once per mount. A value that changed between renders would
-  // make the countdown flicker and would defeat memoisation for no benefit.
+  // ⚠ THIS CLOCK READ IS BAKED INTO THE PRERENDERED BODY, AND THAT IS AN OPEN DEFECT.
+  // `seo:capture` renders this page in a REAL headless browser, so whatever the
+  // countdown says at capture time is committed into the artifact — and it is what a
+  // crawler and any no-JS reader see until the next capture. It also makes CI red on
+  // nothing: this lane's local capture baked 151 and CI's baked 152, one line, one
+  // file, purely from the wall clock. Moving the read into a useEffect does NOT help
+  // (the effect runs before the snapshot); the fix is either to drop the number or to
+  // teach the capture to strip it, and both are owner calls. See the lane report.
   const [now] = useState(() => new Date());
   const daysLeft = daysUntilMainExam(now);
-  const examDate = new Date(2027, 1, 17);
-  const progress = sessionProgressPct(now, examDate);
+  const progress = sessionProgressPct(now, CBSE_2027_ASSUMED_MAIN_EXAM);
 
   const onTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
