@@ -1,4 +1,5 @@
 import { Fragment, useState } from "react";
+import { useHref } from "react-router-dom";
 import type {
   NoteConcept,
   NoteExample,
@@ -15,6 +16,7 @@ import { NoteRichText } from "./NoteRichText";
 import { NoteMindmapTree } from "./NoteMindmapTree";
 import { NoteGeneratedFigure, hasGeneratedRenderer } from "./NoteGeneratedFigure";
 import NcertPageModal, { type NcertPageRef } from "./NcertPageModal";
+import { BOARD_QUESTIONS } from "../../lib/boardQuestions/boardQuestions";
 
 /**
  * <Note spec={…}/> — renders one note-spec (schema v1.1) inside the app.
@@ -429,6 +431,38 @@ const NOTE_CSS = `
 /* tab panels — all rendered; only the active shows on screen (print shows all) */
 .lt-note__panel { display: none; }
 .lt-note__panel--active { display: block; }
+
+/* board questions (CBQ-TAB-1) — published so a crawler can read the question AND
+   its step-marked solution. No control here hides the solution: see the panel. */
+.lt-note__bq-intro { font-size: 0.84rem; color: var(--lt-note-ink-soft); margin: 0 0 14px; }
+.lt-note__bq-item {
+  border: 1px solid var(--lt-note-line); border-radius: 12px;
+  padding: 14px 16px; margin: 0 0 14px; background: #fff;
+}
+.lt-note__bq-head {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 8px;
+}
+.lt-note__bq-chip {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.02em;
+  padding: 3px 8px; border-radius: 999px;
+  background: var(--lt-note-green-tint); color: var(--lt-note-green-deep);
+}
+.lt-note__bq-q { font-size: 0.95rem; line-height: 1.55; margin: 0 0 10px; white-space: pre-wrap; }
+.lt-note__bq-sol-label {
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.04em; color: var(--lt-note-green-deep); margin-bottom: 6px;
+}
+.lt-note__bq-steps { margin: 0; padding-left: 20px; }
+.lt-note__bq-steps li {
+  font-size: 0.88rem; line-height: 1.55; margin-bottom: 6px; white-space: pre-wrap;
+}
+.lt-note__bq-cta {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 4px;
+  font-size: 0.85rem; font-weight: 700; text-decoration: none;
+  padding: 9px 15px; border-radius: 10px;
+  background: var(--lt-note-green-deep); color: #fff;
+}
+.lt-note__bq-cta:hover { filter: brightness(1.08); }
 
 /* ── mindmap: responsive, collapsible tree that READS as a tree (v1.3) ── */
 .lt-note__mm-scroll {
@@ -1008,7 +1042,93 @@ function ThirdTabPanel({
 
 /* ── the component ─────────────────────────────────────────────────── */
 
-type NoteTab = "note" | "mind" | "third";
+/**
+ * BoardQuestionsPanel — the published board questions for this topic (CBQ-TAB-1).
+ *
+ * ★★ THE SOLUTION IS NEVER BEHIND A CLICK. Every step renders into the DOM on load,
+ * with the tab INACTIVE, hidden only by the `.lt-note__panel` CSS the other three
+ * panels use. There is deliberately no "show solution" toggle: a control that
+ * unmounts the solution would make this whole lane pointless, because the one asset
+ * worth publishing — the step-marked working — would never reach a crawler.
+ *
+ * Content comes from the GENERATED artifact, never the live bank. See
+ * `lib/boardQuestions/selectionRule.ts` for why (PERF-1: 11 MB of question banks).
+ */
+function BoardQuestionsPanel({ topicKey, title }: { topicKey: string; title: string }) {
+  const entry = BOARD_QUESTIONS[topicKey];
+
+  // The competency preset, expressed in the URL: `marks=4&style=case&count=5` is the
+  // shipped "Competency" preset's own filter block (QuickPracticePresets.tsx:106), read
+  // by PracticePage at :710 (marks), :711 (style) and :701 (count). `topic=` alone makes
+  // the arrival TARGETED (:597 -> deriveArrivedTargeted :319), so the student lands in a
+  // built competency set rather than the preset picker.
+  //
+  // WARNING — DO NOT ADD `source=practice`. deriveArrivedTargeted checks it at :318,
+  // BEFORE the topic check at :319, and returns false, which would send every student to
+  // the picker with a perfectly valid `topic=` in hand, and the CTA would still look
+  // right in the URL bar. `returnTo` alone carries the student home: practiceBackTo
+  // (:663-668) prefers it over everything and consults `source` only for "trends".
+  //
+  // WARNING — `subject` comes from the artifact (bank-derived), NOT from meta.subject.
+  // NoteMeta.subject is physics|chemistry|biology|maths, and normaliseSubject silently
+  // defaults anything that is not "science"/"sci" to Maths, which would serve maths
+  // questions on a physics note with no error at all.
+  const practicePath = entry
+    ? `/practice/10/${entry.subject}?topic=${encodeURIComponent(topicKey)}` +
+      `&marks=4&style=case&count=5` +
+      `&returnTo=${encodeURIComponent(`/notes/${topicKey}`)}` +
+      `&backLabel=${encodeURIComponent(`Back to ${title} notes`)}`
+    : "/practice-hub";
+  // Resolved through the router so the basename is applied here, never hardcoded.
+  const practiceHref = useHref(practicePath);
+
+  // Honest empty state. <Note> is shared, and a note spec can exist for a topic the
+  // artifact does not cover. Never invent a question to fill the panel.
+  if (!entry || entry.questions.length === 0) {
+    return (
+      <p className="lt-note__hint">
+        Board questions for this chapter are not published yet.
+      </p>
+    );
+  }
+
+  return (
+    <section>
+      <p className="lt-note__bq-intro">
+        {entry.questions.length} competency questions from the CBSE board pattern, with the
+        full step-marked solution for each — the marks are shown per step, as the official
+        scheme awards them.
+      </p>
+
+      {entry.questions.map((q) => (
+        <article className="lt-note__bq-item" key={q.id}>
+          <div className="lt-note__bq-head">
+            <span className="lt-note__bq-chip">
+              {q.marks} {q.marks === 1 ? "mark" : "marks"}
+            </span>
+            <span className="lt-note__bq-chip">Section {q.section}</span>
+            {q.pyqYear ? <span className="lt-note__bq-chip">CBSE {q.pyqYear}</span> : null}
+          </div>
+
+          <p className="lt-note__bq-q">{q.questionText}</p>
+
+          <div className="lt-note__bq-sol-label">Step-marked solution</div>
+          <ol className="lt-note__bq-steps">
+            {q.solutionSteps.map((step, i) => (
+              <li key={i}>{step}</li>
+            ))}
+          </ol>
+        </article>
+      ))}
+
+      <a className="lt-note__bq-cta" href={practiceHref}>
+        Practise {title} competency questions
+      </a>
+    </section>
+  );
+}
+
+type NoteTab = "note" | "mind" | "third" | "questions";
 
 export interface NoteProps {
   spec: NoteSpec;
@@ -1085,6 +1205,16 @@ export function Note({ spec }: NoteProps) {
           onClick={() => setTab("third")}
         >
           <NoteRichText text={meta.third_tab.label} />
+        </button>
+        {/* CBQ-TAB-1 — labelled for what a student searches for, not an internal term. */}
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === "questions"}
+          className={`lt-note__tab${tab === "questions" ? " lt-note__tab--active" : ""}`}
+          onClick={() => setTab("questions")}
+        >
+          Board Questions
         </button>
         </div>
         <button
@@ -1290,6 +1420,15 @@ export function Note({ spec }: NoteProps) {
       {/* ── Third tab (kind-switched) ── */}
       <div className={"lt-note__panel" + (tab === "third" ? " lt-note__panel--active" : "")}>
         <ThirdTabPanel content={spec.third_tab_content} figures={figures} />
+      </div>
+
+      {/* ── Board Questions tab (CBQ-TAB-1) ──
+          ★ Renders into the DOM unconditionally and hides via .lt-note__panel, exactly
+          as the three panels above do. That is the whole point of this lane: a panel that
+          unmounts when inactive is invisible to a crawler, and invisible is the state this
+          lane exists to end. Do NOT convert this to `tab === "questions" && (...)`. */}
+      <div className={"lt-note__panel" + (tab === "questions" ? " lt-note__panel--active" : "")}>
+        <BoardQuestionsPanel topicKey={meta.topic_key} title={meta.title} />
       </div>
 
       {/* ── Source ledger — provenance, visible under every tab ── */}
