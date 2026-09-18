@@ -10,6 +10,122 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
+
+## 2026-09-18 — SEO-MAINTENANCE (`#801` MERGED as `2670c87d`, `#802` MERGED as `290d2fe6`, both squash, no `--admin`; open PRs at the time of writing: **none**) — three new follow-ups, three owner rulings recorded, one spec instruction corrected
+
+★ **PROVENANCE.** HANDOFF-VERIFIED by the SEO-MAINTENANCE controller against trunk `290d2fe6`; the live confirmations are OWNER-REPORTED from production on 2026-09-18.
+
+### `[FU-VERCEL-REWRITE-CONTINUES-ON-MISS]` — ★★★ **A VERCEL SELF-REWRITE IS A SILENT NO-OP, AND EVERY GATE INCLUDING CI PASSED IT**
+
+**What happened.** ASSET-404-1's first commit (`f73d3b55`) added
+`{ "source": "/app/assets/:path(.*)", "destination": "/app/assets/:path" }` before the SPA
+catch-all, on the premise — written into the spec and endorsed by the controller — that *a rewrite
+to a destination with no file yields a 404*. tsc (app and test), `vitest run src`, the build,
+`verify-production-build`, `check:mojibake`, `scope:guard`, **both** `test:matrix:all` suites and
+**every CI check** passed. The Vercel preview for that exact commit returned:
+
+```
+/app/assets/DoesNotExist-XXXX.js  ->  200 text/html; charset=utf-8
+```
+
+Unchanged. The fix did nothing at all.
+
+**The real mechanism, measured rather than reasoned.** Vercel does **not** stop at the first
+matching rewrite when the destination has no file. It rewrites the path and **continues** through
+the remaining rules — so the self-rewrite handed `/app/assets/X.js` straight back to the catch-all
+directly below it. Both halves were established on live deployments:
+
+| half | probe | result |
+|---|---|---|
+| rewrite continues on a miss | the no-op preview itself | `200 text/html` |
+| **no rule matches ⇒ genuine 404** | `/definitely-not-a-real-path` | `404 text/plain`, production **and** preview |
+| the chosen sentinel dead-ends | `/__asset-not-found__` on production | `404 text/plain` |
+
+**The cure.** The destination must **dead-end**: matched by no rewrite, served by no file. Shipped
+as `/__asset-not-found__`.
+
+⚠ **The guard asserts the MECHANISM, not the string** — `servedFiles().has(dest) === false` **and**
+no other rewrite matches `dest`. A self-rewrite fails both. Guarding the literal destination would
+have been satisfied by the broken version.
+
+⚠ **Extend `crawlerReachability.guard.test.ts`; never add a second model of Vercel's matcher.** Its
+`matchSource` deliberately throws on unsupported constructs rather than mis-matching silently, and
+its `:name([^()]*)` pattern means a negative lookahead will **not** parse without extending it.
+
+**Status: CLOSED for `/app/assets/`**, open as standing knowledge. **OWNER-RULED: the premise was
+the owner's and it was wrong; the way it was caught — measuring both halves rather than reasoning a
+second time — is the transferable part.**
+
+★★★ **THE GENERAL RULE THIS ESTABLISHES.** For any change whose effect is a **platform** behaviour
+— headers, rewrites, redirects, caching, MIME — **the preview is the gate.** The local set and CI
+are necessary and structurally cannot be sufficient, because neither runs the platform. Run the
+acceptance probe against the preview of the exact commit, with production as the control, before
+reporting done.
+
+### `[FU-WELCOME-DESKTOP-ONLY-BELOW-1024]` — ★★★ **`Welcome.tsx` DOES NOT RENDER BELOW 1024px; A SPEC INSTRUCTION COULD NOT BE CARRIED OUT**
+
+**What happened.** WELCOME-FIGURES-1's §5.6 required full-page screenshots at **1440 and 390**,
+and the owner added that *"`Sample` being legible at 390px is part of what he's judging"*.
+`App.tsx:850` is `element={isDesktop ? <Welcome /> : withRouteSuspense(<MobileWelcome />)}`, and
+`useIsDesktop()` is `(min-width: 1024px)`. **At 390px the app serves `MobileWelcome.tsx`** — a
+different component. Measured on both sides: **0 story cards, 0 `Sample` tags at 390px.**
+
+**What was done instead.** The 390px pair was captured anyway and is **byte-identical**
+(`b907f907a857acc2`, 71,496 bytes both), which is the proof mobile is untouched — and is
+trustworthy *because* the 1440 and 1024 pairs differ under the identical harness, so an identical
+hash is a finding and not a broken instrument. **1024px** was added as the narrowest width at which
+this page actually renders.
+
+**Two consequences for future lanes.**
+1. Any instruction to check "the landing page on mobile" is checking `MobileWelcome.tsx`.
+2. `Welcome.tsx`'s own `@media (max-width: 860px)` single-column block is **effectively dead code**,
+   because the component only mounts at ≥1024px. A placement argument that rested on it would be
+   reasoning about an unreachable layout.
+
+✅ **The question that should have been asked, answered:** `MobileWelcome.tsx` carries **no**
+fabricated figures — its copy is qualitative. Nothing is left undone outside the lane's scope.
+
+**Status: OPEN as standing knowledge. OWNER-RULED: the finding corrects the instruction, not the
+work.**
+
+### `[FU-SKEW-PROTECTION-UNAVAILABLE-ON-FREE-PLAN]` — ⚠ **THE ACTUAL CAUSE OF MISSING CHUNKS REMAINS UNFIXED**
+
+ASSET-404-1 changes only how a missing chunk **is reported**. The cause is **deploy skew** — a
+client holding an old `index.html` requesting chunks a newer deployment no longer has. The
+platform-level fix is **Vercel Skew Protection, a paid feature, and the owner is on the free plan.**
+
+⚠ **This must never be described as fixed.** A student who hits skew still loses that chunk and
+still sees the error boundary; the difference is that the failure now names itself as a 404 instead
+of arriving as an HTML document pretending to be a JavaScript module.
+
+**Status: OPEN, blocked on plan.**
+
+### `[FU-GREENDARK-ON-WHITE-FAILS-AA]` — ⚠ **BRAND `GREEN_DARK` ON WHITE IS 4.15:1**
+
+Measured while choosing the `Sample` pill's colours: `GREEN_DARK #0b8f50` on `#ffffff` is
+**4.15:1**, below the 4.5:1 AA floor for body text. `#0b8f50` on a tinted `#e8f5ee` is worse at
+**3.70:1**. The pill therefore uses `#2f4f73` on `#e9f0f9` = **7.36:1**.
+
+⚠ **Not investigated beyond the measurement** — `GREEN_DARK` is used elsewhere in the product and
+whether any of those uses is body text at AA-relevant size was **not** audited. Recorded so the
+number exists; the audit is a separate lane.
+
+**Status: OPEN, unaudited.**
+
+### `[FU-LANDING-ROOT-NOT-PRERENDERED]` — ⚠ **THE ROOT PAGE IS EXCLUDED FROM THE PRERENDER CAPTURE**
+
+`STATIC_BODIES_APPLY: advertised=59 applied=58 (root excluded)`, from this branch's own build. That
+is why `prerender-capture` passes on a PR that changes the landing DOM, and it is exactly the window
+WELCOME-FIGURES-1 closed: had the 17 invented figures still been present when the prerender lane
+reaches the root, they would have become **static text a search engine indexes as claims about this
+product's results**.
+
+⚠ **For the prerender lane:** the landing figures are now em dashes with a visible `Sample` label,
+so this decision is off that lane's path. Do not reintroduce a figure to the root page without a
+real data source behind it.
+
+**Status: OPEN, informational.**
+
 ## 2026-09-18 — CBQ-TAB-1 (`#799` MERGED as `ce22b54a`, squash, no `--admin`; open PRs at the time of writing: **none**) — four new follow-ups, three owner rulings recorded, one bank observation closed without action
 
 ★ **PROVENANCE.** HANDOFF-VERIFIED by the CBQ-TAB-1 lane against trunk `ce22b54a`; the live byte/occurrence counts are OWNER-REPORTED from production on 2026-09-18.

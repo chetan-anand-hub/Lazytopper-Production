@@ -1,5 +1,29 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-18 — SEO-MAINTENANCE (`#801` `2670c87d`, `#802` `290d2fe6`), trunk `290d2fe6`.**
+> ★★ **ONE CELL MOVES, ON THE HONESTY AXIS: WHAT THE FRONT DOOR CLAIMS.** The landing page is the first thing a signed-out visitor and every crawler sees, and it stated 17 measurements this product has never measured. It no longer states any of them.
+> **OWNER-VERIFIED LIVE on production 2026-09-18:** 4 cards, **3 `Sample` tags**, **zero fabricated figures**, bar widths intact at 92/88/75/68. Cells move on live evidence, not code evidence.
+
+### ✅ CELL — PUBLIC LANDING PAGE (`/app/`, desktop ≥1024px) — **FABRICATED RESULTS → HONEST ILLUSTRATIVE PREVIEW**
+- **17 invented measurements removed** — four top-scoring percentages, a 76% progress ring reading "Strong!", `Mocks 12`, `Accuracy 78%`, `Rank Top 12%`, `+18% this month`, four subject-strength percentages, and a practice session frozen at `08:34` with `12 / 20` answered.
+- **A `Sample` label on stages 1, 2 and 4.** Measured in a real browser: **12px** (floor 11px), `#2f4f73` on `#e9f0f9`, **7.36:1** (floor 4.5:1), 65×19px, visible, identical at 1440 and 1024.
+- ★ **The layout did not move.** Every card's outer box is pixel-identical (333×261), as are the story section, rail, Explore CTA, MI area, benefits and legal footer. ⚠ **One exception, ruled and recorded:** inside ProgressCard the navy panel is **14px shorter** because production's `Rank / Top 12%` wrapped to two lines and `—` does not. Nothing outside card 4 moves.
+- ⚠ **Scope discipline for anyone who touches this next:** the bar widths and the ring's `conic-gradient` arc are **geometry and deliberately survive** — `ExamTrendsCard` stores each percentage twice, once as the label and once as the width. A guard asserts the widths are still `["92%","88%","75%","68%"]`, so flattening the bars turns CI red.
+- ⚠ **`CheckImproveCard` and `PracticeCard`'s sample question are untouched by ruling** — a worked example is illustrative content, not a claim about outcomes. The distinction is *sample questions* (fine) vs *numbers presenting as results* (not fine).
+
+### ✅ CELL — ASSET DELIVERY (`/app/assets/**`) — **A MISSING FILE IMPERSONATED A PAGE → IT 404s**
+- Live on production: `404 text/plain` where it was `200 text/html`. Real assets unaffected — js, css, **webp figures** and **fonts** all 200, fetched in the same run as the 404, which is what rules out a rewrite loop.
+- ⚠ **This is a reporting change, not a cure.** Chunks still go missing; that is deploy skew and its fix is paid. See `[FU-SKEW-PROTECTION-UNAVAILABLE-ON-FREE-PLAN]`.
+
+### ⬜ NO OTHER CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- **Mobile landing (`MobileWelcome`, <1024px):** unchanged and **byte-identical** between preview and production (`b907f907a857acc2`, 71,496 bytes). ✅ It carries **no** fabricated figures and never did.
+- **Notes, Topic Hub, Practice, Exam Trends, Highly Probable:** untouched. `robots.txt`, `sitemap.xml`, `llms.txt`, `favicon.svg` and the **IndexNow key** all verified intact — the key's **body** compared to production, not merely its status.
+- **The grader, Mistake Intelligence, Check & Improve, the tutor, `/me`, auth and entitlement:** untouched. No gate, wrapper or tier moved.
+
+### 📋 Scope discovered? — **YES, ONE — logged in `DECISION_LOG` and §2a below**
+**The public landing page is TWO surfaces, not one.** `App.tsx:850` renders `Welcome.tsx` at ≥1024px and `MobileWelcome.tsx` below it. This board has tracked "the landing page" as a single cell; it is two components with separate copy, and a change to one is invisible on the other. **Scope for the landing surface is set to Settling** until the two are assessed as a pair. See `[FU-WELCOME-DESKTOP-ONLY-BELOW-1024]`.
+
+
 > **2026-09-18 — CBQ-TAB-1 (`#799`, `ce22b54a`), trunk `ce22b54a`.**
 > ★★ **ONE CELL MOVES, ON THE AXIS THIS BOARD ADDED IN SEPTEMBER: WHAT A CRAWLER CAN ACTUALLY READ.**
 > The notes pages have been prerendered, sitemapped and indexed since `#782`. What they carried was explanation. They now carry **questions with step-marked solutions** — the asset no competitor has at scale, and the one that had never once been visible outside the app.

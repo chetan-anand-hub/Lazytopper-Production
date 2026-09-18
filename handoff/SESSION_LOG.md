@@ -1,5 +1,108 @@
 ---
 
+## 2026-09-18 — SEO-MAINTENANCE — **A GREEN GATE SET, INCLUDING ALL OF CI, PASSED A FIX THAT CHANGED NOTHING** — `#801` + `#802` MERGED — trunk `290d2fe6`
+
+★ **PROVENANCE.**
+- **HANDOFF-VERIFIED** by the SEO-MAINTENANCE controller, which built both lanes: premise gate exit 0 (7 premises, 5/5 anchors resolved on executable code, 2 UNVERIFIED by design); tsc app + `typecheck:test` 0 on both lanes; `vitest run src` **170 files / 2244 (Lane A) and 2248 (Lane B) tests, 0 failed, 0 skipped**; build + `verify-production-build`; mojibake `enforced_hits=0`; `scope:guard --mode mixed` reporting **`inspected=2`** on each; **root guard matrix 211 tests / 31 suites, fail 0, skipped 0**; **lazytopper ops matrix 35 links, 537 TAP pass + 22 acceptance checks, 0 `not ok`**; `git diff --check` clean. CI confirmed green **by `head_sha`** on `5ab18ba6` and `a207344d`, not by the tick.
+- **§5 acceptance run against the Vercel preview of each exact commit** (URL resolved from that commit's deployment status, not the branch alias), production as the control.
+- **OWNER-VERIFIED LIVE (production, 2026-09-18):** Lane A — `404 text/plain` on a missing asset, `index-VixWdU7G.js` still `200 application/javascript`, robots/sitemap/llms 200. Lane B — 4 cards, 3 `Sample` tags at 12px, **zero fabricated figures**, bar widths intact.
+
+**Trunk `290d2fe6f49945810fe65598ca22628c0951c19f`** (`#802` squash); `2670c87d` = `#801`.
+
+**What shipped.** Two small maintenance lanes, sequential, one PR each. **Lane A** — a missing
+asset now returns a genuine 404 instead of the SPA shell. **Lane B** — the landing page's 17
+invented measurements are em dashes with a `Sample` label.
+
+★★★ **THE FINDING OF THIS WAVE: A GREEN GATE SET PROVED NOTHING, AND CI AGREED WITH IT.** Lane A's
+first commit (`f73d3b55`) used a **self-rewrite**, `/app/assets/:path(.*)` → `/app/assets/:path`,
+on the premise — stated in the spec and endorsed by the controller — that a rewrite to a
+destination with no file yields a 404. It passed **tsc, both matrices, the build, the verifier and
+every CI check**, and the Vercel preview for that exact commit **still returned `200 text/html`**.
+The premise was false and no gate in this repo could have said so. **Vercel does not stop at the
+first matching rewrite when the destination has no file — it rewrites and CONTINUES**, handing the
+path straight back to the SPA catch-all below it. Rather than reason a second time, both halves of
+the mechanism were **measured on live deployments**: continue-on-miss from the dead preview itself,
+and `no rule matches ⇒ 404 text/plain` from `/definitely-not-a-real-path` on production *and*
+preview. The shipped rule uses a **dead-end destination** (`/__asset-not-found__`), and **the guard
+asserts that mechanism rather than the string** — destination is not a served file, and is claimed
+by no other rewrite — so a self-rewrite fails the guard it would otherwise have satisfied.
+**OWNER-RULED: the premise was the owner's and it was wrong; guarding the mechanism is better than
+guarding the string.** See `[FU-VERCEL-REWRITE-CONTINUES-ON-MISS]`.
+
+★★ **THE NEGATIVE-LOOKAHEAD ALTERNATIVE WAS REJECTED ON BLAST RADIUS, NOT TIDINESS.** Narrowing the
+catch-all to `/app/:path((?!assets/).*)` is the cleaner-looking rule. It edits the single most
+load-bearing line in `vercel.json` — the one that has **already 404'd every deep link once**
+(SLASH-1). A malformed lookahead there takes the whole app down; the shipped rule's blast radius
+stops at `/app/assets/`. It would also have required extending `matchSource()` in
+`crawlerReachability.guard.test.ts`, whose `[^()]*` pattern **throws on nested parens by design**
+rather than mis-modelling silently. **OWNER-RULED: not reopening SLASH-1 is worth more than a
+tidier rule.**
+
+★★ **PATH-SCOPED, NEVER EXTENSION-SCOPED — SETTLED WITH THE REAL BUILD OUTPUT.** `/app/assets/`
+holds **213 files and only 82 are `.js`** — 65 webp `notes/assets/**` figures, 59 fonts, 6
+stylesheets, 1 svg. A `.js`-scoped rule would have left **131 of 213** still returning an HTML
+document, silently, on exactly the notes and chapter pages this arc spent a week making crawlable.
+
+★★★ **`Welcome.tsx` DOES NOT RENDER BELOW 1024px — A SPEC INSTRUCTION COULD NOT BE CARRIED OUT.**
+§5.6 asked for screenshots at 1440 and 390. `App.tsx:850` is
+`isDesktop ? <Welcome /> : <MobileWelcome />` and `useIsDesktop()` is `(min-width: 1024px)`, so at
+390px **the app serves a different component** — measured, 0 story cards on both preview and
+production. `Sample` cannot be judged at 390px because nothing of the change is on screen. The
+390px pair was captured anyway and is **byte-identical** (`b907f907a857acc2`, 71,496 bytes), which
+is the proof mobile is untouched — and it is trustworthy *because* the 1440 and 1024 pairs
+**differ** under the identical harness, so an identical hash is a finding rather than a broken
+instrument. **1024px was added as the real narrow case.** ✅ `MobileWelcome.tsx` carries **no**
+fabricated figures. **OWNER-RULED: the finding corrects the instruction, not the work.**
+
+★★ **A 17th FIGURE, FOUND IN THE CSS RATHER THAN THE JSX.** The pre-flight enumerated 16 by
+component; `.lt-ring` hardcodes `conic-gradient(GREEN 0 76%, …)` — the ring's arc **is** the 76%.
+Handled under the same ruling as the bar widths: **geometry stays, text dashes.**
+
+★★ **THE DUPLICATE-PERCENTAGE TRICK IS WHY THE LAYOUT DID NOT MOVE.** `ExamTrendsCard` stored each
+percentage **twice** — once as the displayed label, once as the bar's CSS width. Only the label
+claimed anything. Blanking the label while keeping the width let the figures go honest with the
+layout unmoved, and **a guard asserts the widths are still `["92%","88%","75%","68%"]`** so a later
+change that flattened the bars into a redesign turns red.
+
+⚠ **THE ONE MOVEMENT, DISCLOSED RATHER THAN HIDDEN.** Inside ProgressCard the navy panel is **14px
+shorter** — production's `Rank / Top 12%` wrapped to two lines and `—` does not. Every card's outer
+box is pixel-identical and nothing outside card 4 moves. **OWNER-RULED: leave it.** *"Manufacturing
+height to hide it would be inventing layout to conceal a change we made deliberately."*
+
+★★ **AN INSTRUMENT BUG CAUGHT BY THE LANE'S OWN CONTROL, ON ITS FIRST RUN.** The "no fabricated
+figures" test read `container.textContent`, which **includes the inline `<style>` block** — this
+page embeds its stylesheet as a text node containing `conic-gradient(… 0 76% …)`. The test failed
+**against the stylesheet, not the page**. Written slightly differently it would instead have
+"confirmed" a defect that was not there. Fixed by stripping `<style>` before reading; style
+*attributes* (`style="width:92%"`) are already excluded by `textContent`.
+
+★ **THE CONTROL COMES FIRST, BECAUSE EVERY FIGURE ASSERTION IS A NEGATIVE ONE.** A negative
+assertion is vacuously true against a page that failed to render — had `Welcome` thrown, all of
+them would have passed while proving nothing. The cards and the `Accuracy` / `Rank` / `Mocks`
+labels are pinned as **present** before anything is asserted absent. Stated plainly: of the 4 new
+Lane B tests, **2 fail with `Welcome.tsx` reverted and 2 are invariants that pass in both states by
+design** — not dressed up as controls they are not. Lane A's split is **3 of 4**.
+
+⚠ **TWO GATE-INSTRUMENT NOTES WORTH KEEPING.** (1) `scope:guard` inspects the **working tree**, so
+it was run pre-commit and reported `inspected=2`; post-commit it would false-PASS with "no
+changes", and the post-commit scope proof is `git diff --name-only <base>`. (2) The ops matrix is a
+**35-link `&&` chain**; grepping `^#` catches only the final link's TAP block — a first read
+reported "8 tests" for what is really **537 TAP pass + 22 acceptance checks**. Sum the links.
+
+⚠ **`prerender-capture` PASSED ON A LANDING-DOM CHANGE, AND THAT IS CORRECT.** This branch's own
+build log reads `STATIC_BODIES_APPLY: advertised=59 applied=58 (root excluded)` — **the root page
+is not prerendered today.** That is precisely the window Lane B closed *before* the prerender lane
+opens it.
+
+⚠ **WHAT LANE A DOES NOT BUY.** It does not stop chunks going missing. That is **deploy skew**,
+whose fix is **Vercel Skew Protection — a paid feature unavailable on the current plan.** Lane A
+changes only how the failure is reported.
+
+🧹 **Branches NOT deleted** (`--delete-branch=false` on both merges); deletion is never
+auto-approved. `lane/asset-404-1`, `lane/welcome-figures-1` remain.
+
+---
+
 ## 2026-09-18 — CBQ-TAB-1 — **5,710+ STEP-MARKED SOLUTIONS WERE INVISIBLE TO EVERY SEARCH ENGINE; 26 NOTES PAGES NOW PUBLISH 3 EACH** — `#799` MERGED — trunk `ce22b54a`
 
 ★ **PROVENANCE.**
