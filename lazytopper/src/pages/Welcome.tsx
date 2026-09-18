@@ -300,6 +300,28 @@ export default function Welcome() {
               line-height: 1.05;
             }
 
+            /* ★ HONESTY LABEL. The figures in these cards are illustrative, and
+               this says so next to the stage they belong to. It carries its OWN
+               background on purpose: the landing background is a vertical gradient
+               running from #fbfdff to #051733, so a transparent label's contrast
+               would depend on where the card happened to sit — and at <=860px the
+               rail collapses to one column, which drops the later stages into the
+               dark end of that gradient. An explicit pill makes the ratio a
+               property of these two colours alone: #2f4f73 on #e9f0f9 = 7.36:1,
+               well above the 4.5:1 floor, at 12px (floor is 11px). */
+            .lt-sample-tag {
+              flex: 0 0 auto;
+              font-size: 12px;
+              font-weight: 800;
+              letter-spacing: 0.04em;
+              line-height: 1.4;
+              color: #2f4f73;
+              background: #e9f0f9;
+              border-radius: 999px;
+              padding: 1px 9px;
+              white-space: nowrap;
+            }
+
             .lt-flow-arrow {
               width: 42px;
               height: 42px;
@@ -1731,12 +1753,14 @@ export default function Welcome() {
               <StoryStage
                 number="1"
                 title="Exam Trends"
+                sample
                 card={<ExamTrendsCard />}
               />
               <FlowArrow />
               <StoryStage
                 number="2"
                 title="Practice"
+                sample
                 card={<PracticeCard />}
               />
               <FlowArrow />
@@ -1749,6 +1773,7 @@ export default function Welcome() {
               <StoryStage
                 number="4"
                 title="Me / Progress"
+                sample
                 card={<ProgressCard />}
               />
             </div>
@@ -1790,10 +1815,21 @@ function StoryStage({
   number,
   title,
   card,
+  sample = false,
 }: {
   number: string;
   title: string;
   card: React.ReactNode;
+  /**
+   * ★ Marks a stage whose card shows illustrative figures rather than measured
+   * ones. It lives on the STAGE HEADING, not inside the card, for two reasons:
+   * the heading sits directly above its own card at every breakpoint including
+   * the stacked <=860px layout, so one label plainly governs one card; and the
+   * cards are fixed-height with `overflow: hidden` at several breakpoints, where
+   * an overlaid corner badge would sit on top of real content (it would also
+   * collide with PracticeCard's bookmark icon).
+   */
+  sample?: boolean;
 }) {
   return (
     <article className="lt-stage">
@@ -1802,6 +1838,7 @@ function StoryStage({
         <div>
           <div className="lt-stage-title">{title}</div>
         </div>
+        {sample ? <span className="lt-sample-tag">Sample</span> : null}
       </div>
       {card}
     </article>
@@ -1872,11 +1909,15 @@ function StoryLines() {
 }
 
 function ExamTrendsCard() {
+  // ★ The 3rd element is the DISPLAYED value; the 5th is the bar WIDTH. They were
+  // the same number, which is what let the displayed figure go honest while the
+  // layout stayed put — the bars keep their proportions, they just stop claiming
+  // a measurement. See the "Sample" tag on this stage's heading.
   const topics = [
-    ["M", "Real Numbers", "92%", "#3b82f6", "92%"],
-    ["S", "Life Processes", "88%", "#16b96a", "88%"],
-    ["E", "First Flight", "75%", "#f59e0b", "75%"],
-    ["M", "Quadratic Eq.", "68%", "#fb923c", "68%"],
+    ["M", "Real Numbers", "—", "#3b82f6", "92%"],
+    ["S", "Life Processes", "—", "#16b96a", "88%"],
+    ["E", "First Flight", "—", "#f59e0b", "75%"],
+    ["M", "Quadratic Eq.", "—", "#fb923c", "68%"],
   ];
   const years = ["2024", "2023", "2022", "2021", "2020"];
 
@@ -1953,9 +1994,9 @@ function PracticeCard() {
       ))}
       <div className="lt-practice-footer">
         <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
-          <TimerIcon size={17} /> 08:34
+          <TimerIcon size={17} /> --:--
         </span>
-        <span>12 / 20</span>
+        <span>— / —</span>
       </div>
     </div>
   );
@@ -2000,10 +2041,10 @@ function CheckImproveCard() {
 
 function ProgressCard() {
   const strengths = [
-    ["Maths", "82%", "#dcfce7", GREEN_DARK],
-    ["Science", "75%", "#dbeafe", "#2563eb"],
-    ["English", "70%", "#ede9fe", "#6d28d9"],
-    ["SST", "68%", "#ffedd5", "#c2410c"],
+    ["Maths", "—", "#dcfce7", GREEN_DARK],
+    ["Science", "—", "#dbeafe", "#2563eb"],
+    ["English", "—", "#ede9fe", "#6d28d9"],
+    ["SST", "—", "#ffedd5", "#c2410c"],
   ] as const;
 
   return (
@@ -2011,23 +2052,23 @@ function ProgressCard() {
       <div className="lt-progress-card">
         <div className="lt-ring">
           <div>
-            <div style={{ fontSize: 23, fontWeight: 800 }}>76%</div>
-            <div style={{ color: "#40f398", fontSize: 11, fontWeight: 800 }}>Strong!</div>
+            <div style={{ fontSize: 23, fontWeight: 800 }}>—</div>
+            <div style={{ color: "#40f398", fontSize: 11, fontWeight: 800 }}>—</div>
           </div>
         </div>
         <div style={{ alignSelf: "center" }}>
           <div style={{ fontWeight: 800, marginBottom: 10 }}>Overall Progress</div>
           <div className="lt-stat-row">
             <span>Mocks</span>
-            <span>12</span>
+            <span>—</span>
           </div>
           <div className="lt-stat-row">
             <span>Accuracy</span>
-            <span>78%</span>
+            <span>—</span>
           </div>
           <div className="lt-stat-row">
             <span>Rank</span>
-            <span>Top 12%</span>
+            <span>—</span>
           </div>
         </div>
       </div>
@@ -2048,7 +2089,7 @@ function ProgressCard() {
           <circle cx="262" cy="22" r="4" fill="#fff" stroke={GREEN} strokeWidth="3" />
         </svg>
         <div style={{ position: "absolute", right: 15, top: 25, color: GREEN, fontWeight: 900, fontSize: 18 }}>
-          +18%
+          —
         </div>
         <div style={{ position: "absolute", right: 15, top: 48, color: MUTED, fontSize: 11 }}>
           This month
