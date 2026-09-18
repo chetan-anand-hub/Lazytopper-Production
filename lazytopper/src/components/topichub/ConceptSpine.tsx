@@ -562,7 +562,11 @@ export function ConceptSpine({
           )}
         </div>
 
-        <Link to="/cbse/class-10" className="lt-spine__cbse">
+        <Link
+          to={`/cbse/class-10?returnTo=${encodeURIComponent(`/topic-hub/${topic.slug}`)}`
+            + `&backLabel=${encodeURIComponent(`Back to ${topic.name}`)}`}
+          className="lt-spine__cbse"
+        >
           Official CBSE papers and the 2027 exam rules →
         </Link>
 

@@ -102,7 +102,11 @@ export default function DesktopNotesPage() {
         <span>{topic.name} Topic Hub</span>
       </Link>
       <h1 className="lt-notes-page__title">{topic.name} — Class 10 Notes</h1>
-      <Link to="/cbse/class-10" className="lt-notes-page__cbse">
+      <Link
+        to={`/cbse/class-10?returnTo=${encodeURIComponent(`/notes/${topic.slug}`)}`
+          + `&backLabel=${encodeURIComponent(`Back to ${topic.name} notes`)}`}
+        className="lt-notes-page__cbse"
+      >
         Official CBSE papers and the 2027 exam rules →
       </Link>
       <Note spec={spec} />

@@ -71,14 +71,19 @@ function visibleText(root: HTMLElement): string {
   return clone.textContent ?? "";
 }
 
-function renderPage() {
+function renderPage(search = "") {
   return render(
-    <MemoryRouter initialEntries={["/cbse/class-10"]}>
+    <MemoryRouter initialEntries={[`/cbse/class-10${search}`]}>
       <Routes>
         <Route path="/cbse/class-10" element={<Cbse2027Page />} />
       </Routes>
     </MemoryRouter>,
   );
+}
+
+/** The back affordance, or null. */
+function backLink(): HTMLAnchorElement | null {
+  return document.querySelector("a.lt-cbse__back");
 }
 
 afterEach(cleanup);
@@ -363,5 +368,66 @@ describe("the countdown", () => {
     renderPage();
     expect(screen.getByText(/if it starts mid-February like last year/)).toBeTruthy();
     expect(screen.getByText(/Date sheet/)).toBeTruthy();
+  });
+});
+
+/**
+ * ★ CHECK 33 — EVERY ENTRY POINT HAS AN EXIT.
+ *
+ * The page renders no app chrome (deliberately — it is a public, crawlable route and
+ * the shell would change what a crawler sees), so without a back link all eight
+ * inbound links are dead ends. The owner hit exactly that from the chapter test and
+ * the full mock.
+ *
+ * ⚠ THE DEFAULT IS THE HALF THAT IS EASY TO LOSE. A crawler, a shared link and a
+ * footer click all arrive with no ticket. A test that only ever exercises the happy
+ * path would stay green on a page that renders nothing for them, which is the defect.
+ */
+describe("check 33 — the back affordance", () => {
+  it("renders the returnTo destination, named by backLabel", () => {
+    renderPage("?returnTo=%2Fchapter-test%2F10%2FMaths%2Ftrigonometry&backLabel=Back+to+the+Trigonometry+chapter+test");
+    const back = backLink();
+    expect(back).not.toBeNull();
+    expect(back!.getAttribute("href")).toBe("/chapter-test/10/Maths/trigonometry");
+    expect(back!.textContent).toContain("Back to the Trigonometry chapter test");
+  });
+
+  it("★ CONTROL — with NO returnTo it renders the default, not nothing", () => {
+    renderPage();
+    const back = backLink();
+    expect(back, "no back affordance on a ticket-less visit — every entry is a dead end").not.toBeNull();
+    expect(back!.getAttribute("href")).toBe("/");
+    expect(back!.textContent).toContain("Home");
+  });
+
+  it("falls back to a bare Back when returnTo is safe but unlabelled", () => {
+    renderPage("?returnTo=%2Fpricing");
+    expect(backLink()!.getAttribute("href")).toBe("/pricing");
+    expect(backLink()!.textContent).toContain("Back");
+  });
+
+  it("★ refuses an off-site returnTo and falls back to the default", () => {
+    // PRECONDITION: the same shape WITH a safe path does render it, so a rejection
+    // below is the guard working rather than the reader being broken.
+    renderPage("?returnTo=%2Fexam-trends");
+    expect(backLink()!.getAttribute("href")).toBe("/exam-trends");
+    cleanup();
+
+    for (const hostile of [
+      "https%3A%2F%2Fevil.com",
+      "%2F%2Fevil.com",
+      "javascript%3Aalert(1)",
+      "http%3A%2F%2Fevil.com%2Fx",
+    ]) {
+      renderPage(`?returnTo=${hostile}`);
+      const href = backLink()?.getAttribute("href");
+      expect(href, `${hostile} was accepted as a return destination`).toBe("/");
+      cleanup();
+    }
+  });
+
+  it("is a real anchor, so the exit is crawlable too", () => {
+    renderPage("?returnTo=%2Fexam-trends");
+    expect(backLink()!.tagName).toBe("A");
   });
 });

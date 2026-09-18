@@ -1,6 +1,8 @@
 import React, { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
+import { useReturnTicket } from "../components/navigation/ReturnTicket";
+
 import {
   CBSE_CIRCULARS,
   CBSE_CIRCULARS_CHECKED_ON,
@@ -49,6 +51,28 @@ import {
  * the ruling governs. Lane B makes these real downloads through a Firebase
  * mirror, and the labels change when the behaviour does.
  *
+ * ★ EVERY ENTRY POINT MUST HAVE AN EXIT. This page renders no app chrome — that is
+ * deliberate, because it is a public landing-style route reachable signed-out and
+ * wrapping it in the shell would change what a crawler sees on a page this lane just
+ * got prerendered. Chrome is NOT the fix; a back link is. Without one, all eight
+ * inbound links are dead ends, which the owner hit from both the chapter test and the
+ * full mock.
+ *
+ * ★ IT USES THE APP'S EXISTING RETURN-TICKET CONVENTION, NOT A NEW ONE.
+ * `?returnTo=<internal path>` + optional `?backLabel=<text>`, read through
+ * `useReturnTicket()`, which delegates validation to the app's exported
+ * `safeInternalReturnTo` — so an attacker-supplied `returnTo` cannot send a student
+ * off-site (absolute URLs, protocol-relative `//evil.com` and any `scheme:` are all
+ * rejected, and the value is never decoded twice).
+ *
+ * ⚠ THE READER IS REUSED, THE STRIP IS NOT. `ReturnTicketStrip` renders NOTHING
+ * without a ticket ("no ticket, no change") — correct for the surfaces it was built
+ * for, wrong here: a crawler, a shared link and a footer click all arrive with no
+ * ticket, and an absent back link on a page with no chrome is the very defect being
+ * fixed. So the ticket is READ through the shared hook and rendered as this page's own
+ * `<Link>`, with "← Home" as the honest default. A `<Link>` rather than the strip's
+ * button also keeps the exit crawlable.
+ *
  * ★ THE SIX TRAP CARDS ARE `<details>`, NEVER A CONDITIONAL RENDER. Content stays
  * in the DOM when closed, so a crawler with no JavaScript reads all six answers.
  * That is this page's entire SEO purpose; a card that unmounts its answer looks
@@ -76,6 +100,13 @@ const CBSE_CSS = `
 .lt-cbse :focus-visible{outline:2px solid var(--g);outline-offset:2px;border-radius:4px}
 .lt-cbse h1,.lt-cbse h2,.lt-cbse h3{font-family:var(--serif);letter-spacing:-.015em;margin:0}
 .lt-cbse__w{padding:0 var(--pad) 72px}
+
+/* BACK LINK — the exit every entry point needs. Same shape as
+   .lt-notes-page__back: an arrow, then the destination named where we know it. */
+.lt-cbse__back{display:inline-flex;align-items:center;gap:6px;
+  margin:14px 0 4px;font-size:13px;font-weight:600;color:var(--ink2);
+  text-decoration:none;min-height:44px}
+.lt-cbse__back:hover{color:var(--ink)}
 
 /* HERO */
 .lt-cbse__hero{background:var(--navy);color:#eaf2fb;margin:0 calc(var(--pad)*-1) 22px;
@@ -252,6 +283,13 @@ export default function Cbse2027Page() {
   const [subjectKey, setSubjectKey] = useState<CbseSubjectKey>("science");
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
+  // The return ticket, if the entry point supplied a safe one. When it did not —
+  // a crawler, a shared link, a footer click from a page that passed nothing — fall
+  // back to Home rather than to nothing. `/` serves the landing at every width.
+  const ticket = useReturnTicket();
+  const backHref = ticket?.path ?? "/";
+  const backLabel = ticket?.label ?? "Home";
+
   // Read the clock once per mount. A value that changed between renders would
   // make the countdown flicker and would defeat memoisation for no benefit.
   const [now] = useState(() => new Date());
@@ -274,6 +312,11 @@ export default function Cbse2027Page() {
       <style>{CBSE_CSS}</style>
 
       <div className="lt-cbse__w">
+        <Link to={backHref} className="lt-cbse__back">
+          <span aria-hidden="true">←</span>
+          <span>{backLabel}</span>
+        </Link>
+
         <div className="lt-cbse__hero">
           <p className="lt-cbse__eyebrow">LazyTopper &middot; CBSE Class 10</p>
           <h1>Your 2027 boards, in one place</h1>

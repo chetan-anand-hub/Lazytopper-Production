@@ -977,7 +977,10 @@ function PageHero({ children }: { children: React.ReactNode }) {
         Every chapter ranked into three priority bands. Start at the top — the band
         is the verdict, so you never have to weigh marks against frequency yourself.
       </p>
-      <Link className="lt-et-cbse" to="/cbse/class-10">
+      <Link
+        className="lt-et-cbse"
+        to="/cbse/class-10?returnTo=%2Fexam-trends&backLabel=Back+to+Exam+Trends"
+      >
         Official CBSE papers and the 2027 two-exam rule →
       </Link>
       {children}

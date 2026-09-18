@@ -545,7 +545,8 @@ export default function ChapterTestPage() {
                         existing buttons. Out here it keeps its natural width and the
                         start row renders exactly as it does on production. */}
                     <Link
-                      to="/cbse/class-10"
+                      to={`/cbse/class-10?returnTo=${encodeURIComponent(location.pathname)}`
+                        + `&backLabel=${encodeURIComponent(`Back to the ${topicName} chapter test`)}`}
                       className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
                     >
                       Official CBSE papers for 2027 →

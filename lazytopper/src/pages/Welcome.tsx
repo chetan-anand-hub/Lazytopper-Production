@@ -1756,7 +1756,10 @@ export default function Welcome() {
                 <SparkleIcon size={33} />
               </span>
             </div>
-            <a href={useHref("/cbse/class-10")} className="lt-hero-cbse">
+            <a
+              href={useHref("/cbse/class-10?returnTo=%2F&backLabel=Back+to+LazyTopper")}
+              className="lt-hero-cbse"
+            >
               Free official CBSE papers and the 2027 exam rules →
             </a>
           </section>
