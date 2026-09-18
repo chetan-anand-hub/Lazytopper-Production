@@ -62,6 +62,7 @@ const LegalPage = lazy(() => import("./pages/LegalPage"));
 const TeacherDashboardPage = lazy(() => import("./pages/TeacherDashboardPage"));
 import { captureIncomingReferral } from "./services/referralService";
 const PricingPage = lazy(() => import("./pages/PricingPage"));
+const Cbse2027Page = lazy(() => import("./pages/Cbse2027Page"));
 const FunnelPage = lazy(() => import("./pages/FunnelPage"));
 const DiagramComparePage = lazy(() => import("./pages/DiagramComparePage"));
 const DiagramQualityPage = lazy(() => import("./pages/DiagramQualityPage"));
@@ -871,6 +872,13 @@ export default function App() {
           <Route path="/sign-up/*" element={<SignUpPage />} />
           <Route path="/legal/:slug" element={withRouteSuspense(<LegalPage />)} />
           <Route path="/pricing" element={withRouteSuspense(<PricingPage />)} />
+          {/* CBSE 2027 — a PUBLIC, signed-out page: official CBSE papers, unit marks,
+              the two-exam timeline and the trap cards. ONE component at every width,
+              responsive by CSS alone (no useIsDesktop) — the ConceptSpine pattern,
+              not the MeProgressPage one. Deliberately not shell-wrapped and not
+              auth-gated: it exists to be crawled and to be read by someone who has
+              never signed in. */}
+          <Route path="/cbse-2027" element={withRouteSuspense(<Cbse2027Page />)} />
           <Route path="/admin/funnel" element={<RequireAuth>{withRouteSuspense(<FunnelPage />)}</RequireAuth>} />
           <Route path="/admin/diagram-compare" element={withRouteSuspense(<DiagramComparePage />)} />
           <Route path="/admin/diagram-quality" element={withRouteSuspense(<DiagramQualityPage />)} />

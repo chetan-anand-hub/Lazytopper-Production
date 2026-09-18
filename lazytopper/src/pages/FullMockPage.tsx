@@ -18,7 +18,7 @@
 // ONE responsive component — pure-CSS reflow, 360px verified.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { trackUxEvent } from "../services/uxTelemetry";
 import { MathText } from "../components/question/MathText";
@@ -937,6 +937,16 @@ export default function FullMockPage() {
                         {downloading ? "Preparing…" : "⤓ Download this paper (PDF) — recommended for a 3-hour sitting"}
                       </button>
                     </div>
+
+                    {/* CBSE-PAGE-1 — a real <Link>, deliberately OUTSIDE
+                        .lt-ct__startrow (that rule gives buttons inside it flex:1,
+                        so an extra child would have resized the existing two). */}
+                    <Link
+                      to="/cbse-2027"
+                      className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
+                    >
+                      Official CBSE papers for 2027 →
+                    </Link>
 
                     <div className="lt-ct__honest">
                       <span>·</span>

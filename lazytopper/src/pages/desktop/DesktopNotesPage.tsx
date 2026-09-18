@@ -47,6 +47,16 @@ const NOTES_PAGE_CSS = `
   line-height: 1.25;
   color: hsl(220, 25%, 12%);
 }
+/* CBSE-PAGE-1 — contextual link out to the CBSE 2027 page, under the title. */
+.lt-notes-page__cbse {
+  display: inline-block;
+  margin: -6px 0 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: hsl(152, 60%, 28%);
+  text-decoration: none;
+}
+.lt-notes-page__cbse:hover { text-decoration: underline; }
 .lt-notes-page__nf-title {
   margin: 0 0 8px;
   font-size: 20px;
@@ -92,6 +102,9 @@ export default function DesktopNotesPage() {
         <span>{topic.name} Topic Hub</span>
       </Link>
       <h1 className="lt-notes-page__title">{topic.name} — Class 10 Notes</h1>
+      <Link to="/cbse-2027" className="lt-notes-page__cbse">
+        Official CBSE papers and the 2027 exam rules →
+      </Link>
       <Note spec={spec} />
     </div>
   );

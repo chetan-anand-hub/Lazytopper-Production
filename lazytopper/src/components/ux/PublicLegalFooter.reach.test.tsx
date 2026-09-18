@@ -126,15 +126,21 @@ describe("the footer links to Exam Trends (the chapter index) on every public su
     ["PublicLegalFooter", () => <MemoryRouter><PublicLegalFooter /></MemoryRouter>],
   ];
 
-  it.each(surfaces)("%s: Chapters → /exam-trends, then Privacy, Terms, Refunds unchanged", (_name, ui) => {
+  it.each(surfaces)("%s: Chapters → /exam-trends, CBSE 2027 → /cbse-2027, then Privacy, Terms, Refunds unchanged", (_name, ui) => {
     render(ui());
     const foot = screen.getByRole("contentinfo", { name: "Legal" });
     expect(within(foot).getByRole("link", { name: "Chapters" })).toHaveAttribute(
       "href",
       "/exam-trends",
     );
+    // CBSE-PAGE-1 — the second crawl-path link, added for the same reason as the first.
+    expect(within(foot).getByRole("link", { name: "CBSE 2027" })).toHaveAttribute(
+      "href",
+      "/cbse-2027",
+    );
     expect(within(foot).getAllByRole("link").map((a) => a.textContent)).toEqual([
       "Chapters",
+      "CBSE 2027",
       ...FOOTER_LINKS.map(([label]) => label),
     ]);
   });
@@ -173,9 +179,11 @@ describe("every slug a legal link points at renders real policy content", () => 
     expect(hrefs.every((h) => h.startsWith("/legal/"))).toBe(true);
     // ★ AND THE FILTER HID NOTHING: every rendered href survived it. This replaces the
     // [LINK-1] questions assertion and keeps the filter from concealing a stray link.
-    // SEO-NOTES-AND-LINKS-1 adds exactly ONE non-legal link — Chapters → /exam-trends —
-    // so the rendered set is the legal hrefs plus that one, and nothing else.
-    expect(allHrefs).toEqual(["/exam-trends", ...hrefs]);
+    // SEO-NOTES-AND-LINKS-1 added the first non-legal link (Chapters → /exam-trends);
+    // CBSE-PAGE-1 added the second (CBSE 2027 → /cbse-2027). The rendered set is the
+    // legal hrefs plus exactly those two, in that order, and nothing else — a THIRD
+    // one appearing turns this red, which is the property being defended.
+    expect(allHrefs).toEqual(["/exam-trends", "/cbse-2027", ...hrefs]);
   });
 
   it.each(hrefs)("%s renders a policy, not the not-found card", (href) => {

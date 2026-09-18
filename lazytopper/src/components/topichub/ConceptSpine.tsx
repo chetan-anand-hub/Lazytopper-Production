@@ -340,6 +340,21 @@ const SPINE_CSS = `
 }
 .lt-spine__ask:hover { background: hsl(152, 60%, 38%); }
 
+/* CBSE-PAGE-1 — contextual link out to the CBSE 2027 page. Deliberately quiet:
+   it sits below the stat strip, not beside the tutor CTA, because that CTA is
+   conditional on askTutorHref and a link placed with it would inherit the
+   condition and vanish on every topic without a tutor href. */
+.lt-spine__cbse {
+  display: inline-block;
+  margin-top: 10px;
+  font-family: var(--font-body, "Inter", system-ui, sans-serif);
+  font-size: 12.5px;
+  font-weight: 600;
+  color: hsl(152, 60%, 30%);
+  text-decoration: none;
+}
+.lt-spine__cbse:hover { text-decoration: underline; }
+
 /* ── Action band — receded / quiet (secondary to the concepts) ─────── */
 .lt-spine__band {
   margin-top: 18px;
@@ -541,6 +556,10 @@ export function ConceptSpine({
             <span className="lt-spine__chip lt-spine__chip--preview">Sample preview</span>
           )}
         </div>
+
+        <Link to="/cbse-2027" className="lt-spine__cbse">
+          Official CBSE papers and the 2027 exam rules →
+        </Link>
 
         {/* Topic-level tutor entry (Stage 1) — the fresh /tutor route. Renders only
             when the page supplies the href. Cold entry: opens on continuity + fork. */}

@@ -181,6 +181,17 @@ export default function Welcome() {
               margin: 2px auto 0;
             }
 
+            /* CBSE-PAGE-1 — the single link out to the CBSE 2027 page. */
+            .lt-hero-cbse {
+              display: inline-block;
+              margin-top: 10px;
+              font-size: 13.5px;
+              font-weight: 600;
+              color: hsl(152, 60%, 32%);
+              text-decoration: none;
+            }
+            .lt-hero-cbse:hover { text-decoration: underline; }
+
             .lt-title {
               margin: 0;
               color: ${NAVY};
@@ -1745,6 +1756,9 @@ export default function Welcome() {
                 <SparkleIcon size={33} />
               </span>
             </div>
+            <a href={useHref("/cbse-2027")} className="lt-hero-cbse">
+              Free official CBSE papers and the 2027 exam rules →
+            </a>
           </section>
 
           <section className="lt-story" aria-label="LazyTopper product loop preview">

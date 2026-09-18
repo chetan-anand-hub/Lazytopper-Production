@@ -153,8 +153,11 @@ describe("every slug the landing's legal links point at renders real policy cont
     expect(hrefs.every((h) => h.startsWith("/legal/"))).toBe(true);
     // ★ AND THE FILTER HID NOTHING: every rendered href survived it. This replaces the
     // [LINK-1] questions assertion and keeps the filter from concealing a stray link.
-    // SEO-NOTES-AND-LINKS-1 adds exactly ONE non-legal link, Chapters → /exam-trends.
-    expect(allHrefs).toEqual(["/exam-trends", ...hrefs]);
+    // SEO-NOTES-AND-LINKS-1 added the first non-legal link, Chapters → /exam-trends;
+    // CBSE-PAGE-1 added the second, CBSE 2027 → /cbse-2027. The harvest is scoped to
+    // the legal footer, so the landing's own hero link to the same page is correctly
+    // not counted here — this list is the FOOTER's links and nothing else.
+    expect(allHrefs).toEqual(["/exam-trends", "/cbse-2027", ...hrefs]);
   });
 
   it.each(hrefs)("%s renders a policy, not the not-found card", (href) => {

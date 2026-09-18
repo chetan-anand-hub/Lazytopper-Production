@@ -102,6 +102,9 @@ export default function PublicLegalFooter({ className }: { className?: string })
           link opens all 26 topic hubs to a signed-out crawler. An in-app route, so a
           router <Link> is correct here (unlike the retired static /questions link). */}
       <Link to="/exam-trends">Chapters</Link>
+      {/* CBSE-PAGE-1 — beside Chapters for the same reason Chapters is here: this
+          footer is the one crawl path Google has actually followed on this site. */}
+      <Link to="/cbse-2027">CBSE 2027</Link>
       {LEGAL_LINKS.map(({ label, slug }) => (
         <Link key={slug} to={`/legal/${slug}`}>
           {label}

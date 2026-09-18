@@ -451,6 +451,16 @@ const STYLES = `
   line-height: 1.6;
   color: hsl(220,20%,32%);
 }
+/* CBSE-PAGE-1 — the one contextual link out to the CBSE 2027 page. */
+.lt-et-cbse {
+  display: inline-block;
+  margin-top: 9px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: hsl(152, 60%, 28%);
+  text-decoration: none;
+}
+.lt-et-cbse:hover { text-decoration: underline; }
 
 /* ── Filters ──────────────────────────────────────────────────────────── */
 .lt-et-filters {
@@ -967,6 +977,9 @@ function PageHero({ children }: { children: React.ReactNode }) {
         Every chapter ranked into three priority bands. Start at the top — the band
         is the verdict, so you never have to weigh marks against frequency yourself.
       </p>
+      <Link className="lt-et-cbse" to="/cbse-2027">
+        Official CBSE papers and the 2027 two-exam rule →
+      </Link>
       {children}
     </header>
   );
