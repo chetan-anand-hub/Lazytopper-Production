@@ -1,5 +1,43 @@
 ```
 ⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW ON TRUNK SHA AND ON THE GATE SET.
+   IT DOES NOT SUPERSEDE ANY OPEN FOLLOW-UP RECORDED BELOW.
+
+TRUNK IS `290d2fe6f49945810fe65598ca22628c0951c19f`, MEASURED 2026-09-18.
+   290d2fe6 = #802 (WELCOME-FIGURES-1)
+   2670c87d = #801 (ASSET-404-1)
+   12cc1dd4 = #800 (CBQ-TAB-1 docs)
+
+★★★ A GREEN GATE SET PROVED NOTHING IN THIS WAVE. READ THIS FIRST.
+
+   ASSET-404-1's first commit passed tsc, BOTH matrices, the build, the verifier
+   and EVERY CI CHECK - and the Vercel preview for that exact commit still
+   returned 200 text/html. The fix changed nothing. Only the preview curl found it.
+
+   A VERCEL SELF-REWRITE IS A SILENT NO-OP. Vercel does NOT stop at the first
+   matching rewrite when the destination has no file - it rewrites the path and
+   CONTINUES through the remaining rules, handing the path back to the catch-all.
+   A rewrite meant to 404 needs a DEAD-END destination: matched by no rewrite,
+   served by no file. Guard the MECHANISM, never the string.
+
+   THE STANDING LESSON: for any change whose effect is a PLATFORM behaviour
+   (headers, rewrites, redirects, caching, MIME), the preview IS the gate. The
+   local set cannot see it. Run the acceptance curl against the preview of the
+   exact commit, with production as the control, BEFORE reporting done.
+
+   CLAUDE.md §6 IN FULL, THEN ANYTHING A SPEC ADDS ON TOP. Two matrices, different:
+       cd scripts     && pnpm run test:matrix:all     # root guard matrix
+       cd lazytopper  && pnpm run test:matrix:all     # ops matrix (35-link && chain)
+   Read the counts FROM THE RUN. Root is 211/31 today and it grows.
+   ⚠ The ops matrix is a 35-link chain - grepping `^#` catches only the LAST
+     link's TAP block. Sum them, or you will report "8 tests" for a 537-test run.
+
+⚠ BEFORE YOU SCREENSHOT THE LANDING PAGE AT MOBILE WIDTH: Welcome.tsx does NOT
+   render below 1024px. App.tsx:850 serves MobileWelcome instead. A 390px capture
+   of "the landing page" is a different component. Use 1024px as the narrow case.
+```
+
+```
+⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW ON TRUNK SHA AND ON THE GATE SET.
    IT DOES NOT SUPERSEDE ANY BANNER BELOW ON AUTH-GATE-MOVE-1'S OPEN FOLLOW-UPS,
    WHICH ALL REMAIN OPEN AND UNCHANGED.
 

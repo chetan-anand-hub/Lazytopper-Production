@@ -1,5 +1,24 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-18 — SEO/MAINTENANCE: **SEO-MAINTENANCE — THE ASSET 404 AND THE HONEST LANDING PAGE** — `#801` + `#802` MERGED — trunk `290d2fe6`
+
+- ✅ **A missing asset now returns a genuine 404**, not the SPA shell with `200 text/html`. Live on production: `404 text/plain`. The old behaviour handed the browser an HTML document where a JavaScript module was expected, which fails the MIME check, paints the error boundary and was filed by Search Console as a Soft 404 — and cost a day of diagnosis pointing at the wrong cause.
+- ✅ **The landing page states no figure it cannot measure.** 17 invented measurements are em dashes with a `Sample` label on stages 1, 2 and 4. Live-verified: 4 cards, 3 tags, **zero fabricated figures**, bar widths intact.
+- ✅ **All §5 acceptance checks passed with every control**, against the Vercel preview of each exact commit. Lane A self-merged under its authorization; Lane B held as a draft for the owner's wording approval and merged only after it was given. Squash, no `--admin`.
+- ★★★ **PROCESS — A GREEN GATE SET, INCLUDING ALL OF CI, PASSED A FIX THAT CHANGED NOTHING.** Lane A's first commit used a **self-rewrite** and was a **silent no-op**: Vercel does not stop at the first matching rewrite when the destination has no file, it rewrites and **continues** to the catch-all. Only the preview `curl` found it. The rule needs a **dead-end destination**, and **the guard asserts that mechanism rather than the string**. See `[FU-VERCEL-REWRITE-CONTINUES-ON-MISS]`.
+- ★★★ **PROCESS — for a PLATFORM behaviour, the preview IS the gate.** Headers, rewrites, redirects, caching and MIME are invisible to tsc, both matrices, the build and the verifier. The local set is necessary and cannot be sufficient.
+- ★★ **Path-scoped, never extension-scoped, settled with real numbers:** `/app/assets/` holds **213 files, only 82 `.js`** — 65 webp figures, 59 fonts. A `.js` rule would have left **131 of 213** serving HTML.
+- ★★ **The negative-lookahead alternative was rejected on blast radius** — editing the catch-all is how SLASH-1 404'd every deep link once.
+- ★★★ **`Welcome.tsx` does not render below 1024px** — `App.tsx:850` serves `MobileWelcome`. A 390px screenshot of "the landing page" is a different component; **1024px is the narrow case**. `MobileWelcome.tsx` carries no fabricated figures. See `[FU-WELCOME-DESKTOP-ONLY-BELOW-1024]`.
+- ★★ **A 17th figure found in the CSS** — `.lt-ring`'s `conic-gradient(GREEN 0 76%)` is the ring's arc. Geometry stays, text dashes, under the same ruling as the bar widths.
+- ⚠ **A 14px movement inside ProgressCard**, disclosed and ruled: `Rank / Top 12%` wrapped to two lines and `—` does not. Every card's outer box is pixel-identical; nothing outside card 4 moves. **Owner-ruled: leave it, do not pad with invented whitespace.**
+- ⚠ **New: `[FU-SKEW-PROTECTION-UNAVAILABLE-ON-FREE-PLAN]`** — the actual cause of missing chunks is deploy skew and remains unfixed; Skew Protection is paid.
+- ⚠ **New: `[FU-GREENDARK-ON-WHITE-FAILS-AA]`** — brand `GREEN_DARK #0b8f50` on white measures **4.15:1**, below the 4.5:1 floor. Not this lane's surface; measured in passing.
+- ⚠ **New: `[FU-LANDING-ROOT-NOT-PRERENDERED]`** — `applied=58 (root excluded)`; the root page is not prerendered today, which is why `capture` passes on a landing-DOM change.
+- 🧹 **Branches NOT deleted** — deletion is never auto-approved. `lane/asset-404-1`, `lane/welcome-figures-1` remain.
+- 📋 **Root guard matrix confirmed 211 tests / 31 suites**; ops matrix **35 links, 537 TAP pass + 22 acceptance checks**. Read from the run, never hardcoded.
+
+
 ## 2026-09-18 — SEO/CONTENT: **CBQ-TAB-1 — THE QUESTION BANK BECOMES VISIBLE TO SEARCH ENGINES** — `#799` MERGED — trunk `ce22b54a`
 
 - ✅ **A fourth "Board Questions" tab on all 26 notes pages**, publishing 3 competency questions each with their **full step-marked solutions**. 78 questions, **0 without solution steps**, thinnest pool `circles` = 4.

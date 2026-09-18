@@ -1,5 +1,145 @@
 # LazyTopper — Current State
 
+## [CURRENT · SEO/MAINTENANCE] SEO-MAINTENANCE — **A MISSING ASSET NOW 404s, AND THE LANDING PAGE STATES NO FIGURE IT CANNOT MEASURE** — `#801` + `#802` MERGED — trunk `290d2fe6`
+
+★ **PROVENANCE.**
+- **HANDOFF-VERIFIED** by the SEO-MAINTENANCE controller across both lanes: premise gate exit 0 (7 premises, 5/5 anchors resolved, 2 UNVERIFIED by design); tsc app + `typecheck:test` 0 on both; `vitest run src` **170 files / 2244 then 2248 tests, 0 failed, 0 skipped**; build + `verify-production-build`; mojibake `enforced_hits=0`; `scope:guard --mode mixed` **`inspected=2`** on each (a real inspection, not a false "no changes" pass); **root guard matrix 211 tests / 31 suites**; **lazytopper ops matrix 35 links, 537 TAP pass + 22 acceptance checks**; `git diff --check` clean. CI green read by `head_sha`, not by colour.
+- **§5 acceptance run against the Vercel preview of each exact commit**, production as the control, every control shown.
+- **OWNER-VERIFIED LIVE (production, 2026-09-18):** Lane A — `404 text/plain` on a missing asset, `index-VixWdU7G.js` still `200 application/javascript`, robots/sitemap/llms all 200. Lane B — 4 cards, **3 `Sample` tags**, **zero fabricated figures**, bar widths intact at 92/88/75/68.
+
+**Trunk `290d2fe6f49945810fe65598ca22628c0951c19f`** (`#802` squash). Before it: `2670c87d` = `#801`, `12cc1dd4` = `#800`.
+
+### ★★★ THE ONE THING TO READ BEFORE TOUCHING `vercel.json` AGAIN
+
+**A SELF-REWRITE IS A SILENT NO-OP.** Lane A's first commit was
+`/app/assets/:path(.*)` → `/app/assets/:path`, on the stated premise that a rewrite to a
+destination with no file yields a 404. **It passed tsc, both matrices, the build, the verifier
+and EVERY CI check — and the Vercel preview for that exact commit still returned `200
+text/html`.** Nothing in the repo could have caught it; only the preview `curl` did.
+
+**Vercel does not stop at the first matching rewrite when the destination has no file.** It
+rewrites the path and **CONTINUES** through the remaining rules, handing `/app/assets/X.js`
+straight back to the SPA catch-all below it. Both halves were then measured on live deployments
+rather than reasoned a second time:
+
+| half | probe | result |
+|---|---|---|
+| continue-on-miss | the dead preview itself | `200 text/html` — it did not stop |
+| no rule matches ⇒ 404 | `/definitely-not-a-real-path` | `404 text/plain`, prod **and** preview |
+
+**The shipped rule needs a DEAD-END destination** — matched by no rewrite, served by no file:
+`{ "source": "/app/assets/:path(.*)", "destination": "/__asset-not-found__" }`, at index 7,
+after the seven protected rules, before the catch-all.
+
+⚠ **The guard asserts the MECHANISM, not the string** — that the destination is not a served
+file **and** is claimed by no other rewrite. A self-rewrite fails both, so the no-op cannot
+return. It lives in `crawlerReachability.guard.test.ts`; **extend that file, never add a second
+model of Vercel's matcher.** Its `matchSource` uses `[^()]*` and throws on nested parens by
+design, so `/app/:path((?!assets/).*)` will not parse without extending it.
+
+⚠ **The negative-lookahead alternative was rejected deliberately.** Narrowing the catch-all is
+how SLASH-1 404'd every deep link once. A malformed lookahead there takes the whole app down;
+this rule's blast radius stops at `/app/assets/`.
+
+### ⚠ WHAT LANE A DOES NOT DO, AND MUST NEVER BE CLAIMED TO DO
+
+**It does not stop chunks from going missing.** That is **deploy skew** — a client holding an old
+`index.html` requesting chunks a newer deployment no longer has. Its actual fix is **Vercel Skew
+Protection, a PAID feature unavailable on the current plan.** Lane A changes only how the failure
+is *reported*: honestly, as a 404, instead of an HTML document impersonating a JavaScript module
+(which the module loader rejects on the MIME check, painting the error boundary — the soft-404
+mechanism, and the cause of a day of diagnosis pointing at the wrong thing). See
+`[FU-SKEW-PROTECTION-UNAVAILABLE-ON-FREE-PLAN]`.
+
+### ★★ PATH-SCOPED, NEVER EXTENSION-SCOPED — settled with real numbers
+
+The build emits **213 files** into `/app/assets/` and only **82** are `.js`:
+
+| ext | count |
+|---|---|
+| js | 82 |
+| webp | 65 |
+| woff / ttf / woff2 | 59 |
+| css | 6 |
+| svg | 1 |
+
+The webp files are `notes/assets/**` figures, globbed as URLs by `noteSpecRegistry.ts`. An
+extension match on `.js` would have left **131 of 213** still returning an HTML document —
+including every figure and every font — silently, on exactly the notes and chapter pages the SEO
+arc spent a week making crawlable.
+
+### ★★★ `Welcome.tsx` DOES NOT RENDER BELOW 1024px — this corrects an instruction, not a lane
+
+`App.tsx:850` is `element={isDesktop ? <Welcome /> : <MobileWelcome />}` and `useIsDesktop()` is
+`(min-width: 1024px)`. **Below 1024px the app serves a DIFFERENT COMPONENT.** Measured: **0 story
+cards at 390px on both preview and production.**
+
+Consequences for anyone who reads "check the landing page on mobile":
+- A 390px screenshot of this page shows `MobileWelcome`, not `Welcome.tsx`. Lane B captured it
+  anyway and it is **byte-identical** between preview and production (`b907f907a857acc2`, 71,496
+  bytes both) — which is the proof mobile is untouched, and is trustworthy precisely because the
+  1440px and 1024px pairs **differ** under the identical harness.
+- **1024px is the real narrow case** for this page, and where its two-column rail kicks in.
+- `Welcome.tsx`'s own `@media (max-width: 860px)` single-column block is **effectively dead code**.
+- ✅ **`MobileWelcome.tsx` carries NO fabricated figures** — its copy is qualitative. The mobile
+  landing never had this problem.
+
+See `[FU-WELCOME-DESKTOP-ONLY-BELOW-1024]`.
+
+### The landing page — what changed and what deliberately did not
+
+**17 figures**, not the 16 the pre-flight enumerated. The 17th is `.lt-ring`'s
+`conic-gradient(GREEN 0 76%, …)` — the ring's arc **is** the 76%, expressed in CSS.
+
+- **Displayed values → `—`.** All of them, including PracticeCard's `08:34` and `12 / 20`.
+  **OWNER-RULED:** the distinction is between *sample questions* (content — fine) and *numbers
+  presenting as results* (not fine). A frozen clock is the latter. The sample MCQ and the sample
+  question are **untouched**.
+- **Geometry survives, by ruling.** `ExamTrendsCard` stored each percentage **twice** — once as
+  the label, once as the bar's CSS width. Only the label claimed anything. Blanking the label
+  while keeping the width is what let the figures go honest with the layout unmoved. The ring's
+  arc stays under the same ruling. ⚠ **A guard asserts the widths are still
+  `["92%","88%","75%","68%"]`**, so a later change that flattened the bars into a redesign goes red.
+- **A `Sample` label on stage headings 1, 2 and 4.** Measured in a real browser, not read off the
+  CSS: **12px** (floor 11px), `#2f4f73` on `#e9f0f9`, **7.36:1** (floor 4.5:1), 65×19px, visible,
+  identical at 1440 and 1024.
+- ⚠ **The label carries its own background on purpose.** The landing background is a vertical
+  gradient `#fbfdff` → `#051733`, so a transparent label's contrast would depend on where the
+  card sat — unmeasurable as one number. An explicit pill makes the ratio a property of two
+  colours alone.
+- ⚠ **Placement is the stage HEADING, not a card corner.** The cards are fixed-height with
+  `overflow: hidden` at several breakpoints, so an overlaid badge would cover real content; it
+  would collide with PracticeCard's bookmark; and ProgressCard has no `.lt-card-top` at all.
+
+### ⚠ A 14px MOVEMENT INSIDE ProgressCard — recorded so the screenshots do not surprise
+
+Every card's outer box is **pixel-identical** (333×261, same x/y), as are the story section, rail,
+Explore CTA, MI area, benefits and legal footer. **Only inside card 4** the navy panel is **14px
+shorter**, moving the strength grid and chart up by 14px.
+
+**Cause:** production's `Rank / Top 12%` **wrapped to two lines**; `—` does not.
+
+**OWNER-RULED: leave it.** *"Do not pad with invented whitespace… that is the honest consequence
+of removing a fabricated figure, and manufacturing height to hide it would be inventing layout to
+conceal a change we made deliberately."*
+
+### ⚠ The root page is NOT prerendered today
+
+This branch's own build log reads `STATIC_BODIES_APPLY: advertised=59 applied=58 (root excluded)`.
+That is why `prerender-capture` passes on a PR that changes the landing DOM — and it is exactly
+the window Lane B closed **before** the prerender lane opens it. Had these figures still been
+present when the root is prerendered, they would have become static text a search engine indexes
+as claims about this product's results. See `[FU-LANDING-ROOT-NOT-PRERENDERED]`.
+
+⛔ **THE `[CURRENT]` BLOCK IMMEDIATELY BELOW IS SUPERSEDED ON TRUNK SHA AND ON GATE COUNTS.**
+It remains as written because it was true on its date (`CLAUDE.md` board rule 3: do not rewrite a
+dated entry to match today's facts). Its product content — the Board Questions tab, the committed
+artifact, the CTA traps — is unchanged and still current. Only the trunk SHA moved: `ce22b54a` →
+`290d2fe6`.
+
+---
+
+
 ## [CURRENT · SEO/CONTENT] CBQ-TAB-1 — **THE QUESTION BANK IS NOW VISIBLE TO A SEARCH ENGINE FOR THE FIRST TIME** — `#799` MERGED — trunk `ce22b54a`
 
 ★ **PROVENANCE.**
