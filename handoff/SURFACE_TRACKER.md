@@ -1,5 +1,26 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-18 — CBQ-TAB-1 (`#799`, `ce22b54a`), trunk `ce22b54a`.**
+> ★★ **ONE CELL MOVES, ON THE AXIS THIS BOARD ADDED IN SEPTEMBER: WHAT A CRAWLER CAN ACTUALLY READ.**
+> The notes pages have been prerendered, sitemapped and indexed since `#782`. What they carried was explanation. They now carry **questions with step-marked solutions** — the asset no competitor has at scale, and the one that had never once been visible outside the app.
+> **OWNER-VERIFIED LIVE on production 2026-09-18:** `191,894` bytes, **45 `mark` occurrences**, up from `186,231` and **zero**. Cells move on live evidence, not code evidence.
+
+### ✅ CELL — NOTES PAGES (`/notes/:topicSlug`) — **EXPLANATION ONLY → EXPLANATION + 3 BOARD QUESTIONS WITH FULL STEP-MARKED SOLUTIONS**
+- **All 26 topics**, 3 questions each, 78 total, **0 without solution steps**. Panel words **159–608, median 408**.
+- ★ **Readable with JavaScript disabled**, which is the only reading that counts here — no major AI crawler executes JS. `curl` on the preview returned `questionsFound=3/3 stepsFound=9/9` where production returned `0/3` and `0/9`.
+- ★ **The solution is not click-gated**, asserted with the tab **INACTIVE** on the served HTML: `aria-selected="false"`, bare `.lt-note__panel` class, step text present anyway. Zero buttons inside the panel, pinned by a test.
+- **The tab appears in BOTH mounts** — the notes page and the `NoteModal` popup a student opens from a chapter page — because `<Note>` is shared. Intended; verified in a real browser, 4 tabs, other three unchanged, 0 page errors.
+- **A CTA into a pre-built competency practice set**, verified live to land on the built set rather than the picker.
+- ⚠ **Scope discipline for anyone who touches this next:** the content is a **generated, committed JSON artifact**, not a live bank read. Do not import `canonicalQuestionBank` into the note — 11 MB across 413 files, on 26 prerendered pages. Regenerate with `node --import tsx scripts/generateBoardQuestions.ts`.
+
+### ⬜ NO OTHER CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- **Topic Hub, Practice, Exam Trends, Highly Probable:** unchanged. Verified by fetching each from the preview and from production and byte-comparing with asset hashes normalised — **identical**, and none contains board-questions content.
+- Corroborated structurally: the prerendered refresh touched exactly the **26 notes files** and **0** other pages.
+- **The grader, Mistake Intelligence, Check & Improve, the tutor, `/me`, auth and entitlement:** untouched. No gate, wrapper or tier moved in this lane.
+
+### 📋 Scope discovered? — **NO**
+No surface was found to have undocumented scope, so nothing is logged in `DECISION_LOG` or §2a and no Scope cell is set to Settling. The one thing this lane learned about a *neighbouring* surface — that the practice route auto-builds on a bare `topic=` and falls back to the picker on `source=practice` — is existing, documented behaviour (`deriveArrivedTargeted`, with its own exported invariant and in-code comment), not newly discovered scope.
+
 > **2026-09-16 — AUTH-GATE-MOVE-1 (`#793`, `5c5fc57b`), trunk `5c5fc57b`.**
 > ★★ **FOUR CELLS MOVE, AND THEY MOVE ON AN AXIS THIS BOARD HAS NEVER TRACKED: REACHABILITY WHILE SIGNED OUT.**
 > The 2026-09-16 `#787` note below predicted exactly this and asked for it: *"removing that redirect makes Practice a signed-out-reachable surface for the first time. Its cells were only ever assessed signed in."* That is now true of four surfaces, not one.

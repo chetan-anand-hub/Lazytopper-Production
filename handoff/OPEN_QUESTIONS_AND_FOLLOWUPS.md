@@ -10,6 +10,90 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
+## 2026-09-18 — CBQ-TAB-1 (`#799` MERGED as `ce22b54a`, squash, no `--admin`; open PRs at the time of writing: **none**) — four new follow-ups, three owner rulings recorded, one bank observation closed without action
+
+★ **PROVENANCE.** HANDOFF-VERIFIED by the CBQ-TAB-1 lane against trunk `ce22b54a`; the live byte/occurrence counts are OWNER-REPORTED from production on 2026-09-18.
+
+### `[FU-SPEC-GATE-LIST-SUBSET-OF-CLAUDEMD]` — ★★★ **A SPEC'S §3 GATE LIST IS A CONVENIENCE, NEVER A SUBSTITUTE FOR `CLAUDE.md` §6**
+
+**What happened.** CBQ-TAB-1's spec §3 listed `tsc`, install, `scope:guard`, `vitest run src`, `build`, `check:mojibake` and `git diff --check` — and **omitted both `test:matrix:all` suites**, which `CLAUDE.md` §6 requires and explicitly warns are two different things. The lane ran §3's list, reported green, pushed, and `quality-gate` went red on `topickey_guard_acceptance.mjs`:
+
+```
+Guard B FAIL — 1 raw .topicKey compare(s) outside the allowlist:
+  x lib/boardQuestions/selectionRule.ts:76
+```
+
+**Why it matters beyond this lane.** A spec's gate list reads as *the* list. It is written per-lane, by an author reasoning about that lane's files, and it will keep omitting repo-wide guards that no lane's author is thinking about. The failure mode is silent: every gate the spec named passed, the lane reported PASS, and only CI dissented.
+
+**OWNER-RULED (2026-09-18): the lane's error, not the spec's to absorb.** `CLAUDE.md` §6 is the standing set. A spec's §3 is **additive only** — run §6 in full, then anything §3 adds on top. Recorded here so the next spec author does not repeat the omission and the next lane does not inherit it.
+
+**Status: OPEN as a standing instruction.** Candidate close: a line in `CLAUDE.md` §6 (or in the agent-spec skill) stating that a spec gate list is additive, so this does not depend on a reader finding this board entry.
+
+---
+
+### `[FU-SRCDATA-BAN-VS-PRICING-GUARD-EXEMPTION]` — ⚠ **TWO RULES DISAGREE ABOUT WHERE QUESTION CONTENT BELONGS, AND BOTH ARE RIGHT ON THEIR OWN TERMS**
+
+**The collision.** `CLAUDE.md` §4 forbids **any** file under `lazytopper/src/data/` unless explicitly scoped. `src/config/pricing.guard.test.ts` exempts `src/data/**` from its rupee-literal scan, and its exemption comment gives the reason:
+
+> `src/data/**`: question banks. Word problems legitimately contain rupee amounts ("a shopkeeper sells 12 pens for ₹96"). These are exam content, not product prices, and the directory is forbidden to edit anyway.
+
+So one document says *never put anything there*; the other says *question content lives there, and that is why it is exempt*. A lane that generates question-derived content has nowhere that satisfies both by default.
+
+**How CBQ-TAB-1 resolved it without needing a ruling on the tension itself.** The guard walks only `.ts`/`.tsx`. Emitting the artifact as **`.json` under `src/lib/`** keeps the question text **verbatim**, keeps the guard at **full strength** (no new exemption entry), and touches no forbidden directory. Loaded via the `import.meta.glob` pattern `noteSpecRegistry.ts` already uses, which also avoids needing `resolveJsonModule` in `tsconfig.app.json`.
+
+**OWNER-RULED (2026-09-18): leave the artifact as `.json` where it is.** Moving it to `src/data/` to inherit an exemption it does not need would mean touching a forbidden directory to solve a problem that no longer exists. **The tension belongs on the board, not in that lane.**
+
+**The open question for the owner.** Should `CLAUDE.md` §4's ban carve out generated, guard-verified artifacts, or should the pricing guard's exemption be re-expressed as "question content wherever it lives" rather than "the `src/data/` path"? Either closes it; neither is urgent. **Status: OPEN, owner decision, no lane assigned.**
+
+---
+
+### `[FU-PRERENDER-REFRESH-FRICTION-LOG]` — 📊 **FRICTION DATA POINT 1 OF N: ONE REFRESH, CAUSED BY GENUINE CONTENT DRIFT**
+
+**Why this entry exists.** The owner asked for the manual-refresh trade to be *measured*, not argued about. `prerender-capture` deliberately does not auto-push (a `GITHUB_TOKEN` push triggers no workflow run and would strand the PR with required checks that never ran), so every PR that changes page DOM costs one download-and-commit cycle. The question is how often that actually bites.
+
+**Data point 1 — CBQ-TAB-1 (`#799`), 2026-09-18.**
+
+| | |
+|---|---|
+| Refreshes needed | **1** |
+| Cause | **genuine content drift** — 26 notes pages gained a tab with 78 questions |
+| False/spurious refreshes | **0** |
+| Blast radius | exactly **26** files; **0** other prerendered pages |
+| Cost | one `gh run download -n prerendered-799`, one commit |
+| Did the design work? | **Yes** — it failed the PR precisely when the committed body would have been stale |
+
+★ **This was the first real content PR to exercise verify-and-supply, and it caught the lane's own failure mode arriving through the pipeline rather than the code.** Without it, `#799` would have merged with every gate green and published nothing a crawler could read — the exact condition the lane existed to end. **OWNER-RULED: the strongest evidence yet that the manual-refresh design was the right trade.**
+
+⚠ **Read the ratio, not the count.** One refresh for one content PR is 1:1, which looks expensive in isolation; the number that matters is *spurious* refreshes (0 so far). Keep appending data points before drawing a conclusion.
+
+**Status: OPEN as a running log.** Every future lane that touches page DOM should append a row.
+
+---
+
+### `[FU-CBQ-PYQYEAR-COVERAGE-THIN]` — ⚠ **THE "CBSE `<year>`" CHIP RENDERS ON 3 OF 78 PUBLISHED CARDS**
+
+**Measured.** Of the 78 rows the rule selects, **75 carry no `pyqYear`**. §2.2 says to render the year "where the row carries one", so the shipped behaviour is **compliant** — the chip is conditional and no year is invented.
+
+**Why it is recorded anyway.** The lane's framing ("board questions") and the CTA's promise imply board provenance, but only 3 cards visibly assert a year. Nothing is dishonest; the pages simply read less board-attributed than the surface's own language suggests. A reader comparing the copy to the cards could reasonably ask where the years are.
+
+**Not a bug, and explicitly not a licence to backfill.** ⚠ **Do not populate `pyqYear` to improve the look of the panel.** A fabricated board attribution is exactly the failure `isPublishable`'s Rule 1 rejects AI-generated rows for, and it is cached, screenshot-able and permanent.
+
+**Options, for the owner:** (a) accept as-is; (b) prefer rows carrying a `pyqYear` as a tie-break in the selection rule, which would change the published set on some topics and must be regenerated and re-verified; (c) soften the surface copy. **Status: OPEN, owner decision, no lane assigned.**
+
+---
+
+### Owner rulings recorded (not follow-ups — closed decisions)
+
+- **Ruling 1 (2026-09-17):** generated committed artifact + build-time guard, over a runtime filter. Reason accepted and extended by the owner: a runtime throw on a prerendered page paints the error boundary rather than failing a build, so §2.5 "fail loudly" *cannot* live at runtime.
+- **Ruling 2 (2026-09-17, refined 2026-09-18):** the selection module lives under `src/lib/`, and the artifact stays **`.json`** there.
+- **Ruling (2026-09-18):** the three misleading magnetic-effects id prefixes (`PYQ-S-2024-METAL-002`, `PYQ-S-2026-ACID-018`) are **left as they are**. Content verified correct; the prefix is an extraction artifact. **No lane should "fix" these.**
+
+### A bank observation closed without action
+
+Three selected rows for `magnetic-effects-of-electric-current` carry id prefixes naming a different chapter. All three were read in full: `topicKey`, `subtopic` (Magnetic Field Lines / AC and DC) and question text are genuinely magnetic-effects content. Routing and rendering are correct. **Reported, not edited, per §1 — and the owner has ruled they stay.**
+
+---
+
 ## 2026-09-16 — AUTH-GATE-MOVE-1 (`#793` MERGED as `5c5fc57b`, squash, no `--admin`; open PRs at the time of writing: `#784` dependabot only) — one FU stays OPEN with reduced scope, three new follow-ups, one owner-ratified deviation
 
 ★ **PROVENANCE.** HANDOFF-VERIFIED by the AUTH-GATE-MOVE-1 lane against trunk `5c5fc57b`; the two live results are OWNER-REPORTED from production on 2026-09-16.
