@@ -1,5 +1,21 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-19 — CBSE-PAGE-1 (`#804` `f7bd1daf`), trunk `f7bd1daf`.**
+> ★★ **ONE NEW SURFACE, AND IT IS A FRONT DOOR.** `/app/cbse/class-10` is public, crawlable and reachable from eight existing surfaces. **OWNER-VERIFIED LIVE 2026-09-19** on a Maths chapter test and a Science full mock. Cells move on live evidence, not code evidence.
+
+### ✅ CELL — CBSE 2027 PAGE (`/app/cbse/class-10`) — **DID NOT EXIST → PUBLIC, CRAWLABLE, AND REACHABLE EIGHT WAYS**
+- **20 official CBSE links**, every one HEADed live; 19 serve PDF/ZIP, the 20th is CBSE's circulars index and is labelled as such. Four dead `*VIC*` variants CBSE still links are pinned absent.
+- **Unit marks from the official 2026-27 syllabus PDFs** — Maths Algebra 20, Science Chemical Substances 25, both totalling 80.
+- **Six `<details>` trap cards whose answers are in the DOM when closed** — the whole SEO point. A no-JS `curl` returns all six answers and "Essential Repeat"; the same `curl` against production returned nothing, which is the control.
+- **Sitemap 59 → 60**, self-canonical, own head entry, own prerendered fragment.
+- **One component at every width, no width hook** — three CSS breakpoints; the DOM skeletons at 390 and 1440 are identical.
+- ⚠ **Shell-classified like `/exam-trends`** (`isDesktopShellRoute` + `isMobileSelfChromedRoute`), which **does** change the prerendered body (+6.4 KB of sidebar). That is consistency with the most SEO-important page on the site, not leakage.
+- ⚠ **Scope discipline for whoever touches this next:** the route carries **no year by design**; the `Cbse2027*` filenames are knowingly out of step and are to be renamed when Classes 11-12 arrive. Dark mode is a **deliberate omission** — the app has zero `prefers-color-scheme` handling anywhere.
+
+### ✅ CELL — EIGHT EXISTING SURFACES — **GAINED A LINK, AND NOTHING ELSE MOVED**
+Footer (beside Chapters) · Exam Trends · notes · topic hub · both landings · chapter test · full mock. Notes, topic hub and Exam Trends were diffed against production: **identical apart from the added line**. The two auth-gated intros were cleared by owner live-verify.
+
+
 > **2026-09-18 — SEO-MAINTENANCE (`#801` `2670c87d`, `#802` `290d2fe6`), trunk `290d2fe6`.**
 > ★★ **ONE CELL MOVES, ON THE HONESTY AXIS: WHAT THE FRONT DOOR CLAIMS.** The landing page is the first thing a signed-out visitor and every crawler sees, and it stated 17 measurements this product has never measured. It no longer states any of them.
 > **OWNER-VERIFIED LIVE on production 2026-09-18:** 4 cards, **3 `Sample` tags**, **zero fabricated figures**, bar widths intact at 92/88/75/68. Cells move on live evidence, not code evidence.

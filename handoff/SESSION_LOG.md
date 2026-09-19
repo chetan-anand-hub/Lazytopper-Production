@@ -1,5 +1,50 @@
 ---
 
+## 2026-09-19 — CBSE-PAGE-1 — **FOUR CHECKS PASSED WHILE MEASURING NOTHING, AND EACH ONE LOOKED THOROUGH** — `#804` MERGED — trunk `f7bd1daf`
+
+★ **PROVENANCE.**
+- **HANDOFF-VERIFIED** in a fresh worktree at the merged SHA: premise gate exit 0 (11 premises, 9/9 anchors resolved, 2 UNVERIFIED by design); tsc app + `typecheck:test` both 0; `vitest run src` **171 files / 2279 tests, 0 failed, 0 skipped**; new guard **31 tests**; build + `seo:capture` + `verify-production-build`; mojibake 0; `scope:guard --mode mixed` **`SCOPE_GUARD_OK`**; **root guard matrix 211 tests / 31 suites, fail 0, skipped 0**; lazytopper ops matrix all suites; `git diff --check` clean. CI green read by `head_sha`.
+- **§4 and check 33 run against the Vercel preview of each exact commit**, production as the control, every control shown.
+- **OWNER-VERIFIED LIVE:** §4.6 / check-33 items **7 and 8** (chapter-test and full-mock intros) cleared by the owner signed in, deliberately on a **Maths** chapter test and a **Science** full mock so subject preselection was proven, not coincidental.
+
+**Trunk `f7bd1daf312f13d638f07f6a02d7a6b70f5036b7`** (`#804` squash); `290d2fe6` = `#802`.
+
+**What shipped.** A public, crawlable CBSE page at `/app/cbse/class-10` — 20 official CBSE source
+links (all HEADed live), unit marks read out of the official 2026-27 syllabus PDFs rather than the
+prototype, the two-exam timeline, six `<details>` trap cards whose answers are in the DOM when
+closed, the circular feed and the helpline — plus eight links in, a back link out, and
+`?subject=`/`#papers`/`#marks` deep links. Sitemap 59 → 60.
+
+**The lane's real subject was the instruments.** Four separate checks reported green while proving
+nothing, and each was caught by a different discipline:
+- a link count on a page that had already **redirected** (found by asserting the landed URL);
+- a source grep for `useIsDesktop` that matched **the comment banning it** (found by stripping
+  comments and asserting import *and* call site, with a control file that does use the hook);
+- a "markup identical" verdict from a strip script that had **crashed and written nothing** (found
+  by printing the stripped lengths as a control);
+- a deep-link scroll assertion on `window.scrollY`, which is **structurally 0** on a shell-wrapped
+  route (found by diffing the section's position against the same page without the hash).
+
+Recorded as **D42**, **D43** and the standing rule already on the board.
+
+**Two spec premises were disproved and corrected rather than worked around.** (1) "The capture runs
+signed-out so the shell will not appear" — it runs signed-out **at 1280×900**, and
+`isDesktopShellRoute` gates on session only for `"/"`, so the shell **is** captured; `exam-trends`
+has shipped it all along. (2) `App.tsx:103` records the one-component pattern via `useIsDesktop()`,
+which ruling (a) forbids on this page — the real precedent is `ConceptSpine`, CSS-only to 360px.
+
+**Two defects were found only on a deployed preview**, with every local gate and all of CI green: a
+link rendering `inline-block` beside an `inline-flex` CTA so its arrow butted into the button, and a
+back link returning to `/` from `/welcome` — the same page renders there, which is why it looked
+right until the round trip asserted the landed path.
+
+**A wrong fix was reverted rather than shipped.** Moving the countdown's clock read into `useEffect`
+made two consecutive local captures match; that was a coincidence of timing, not proof — the effect
+runs before the snapshot. Reverted because the comment it carried asserted a property the code did
+not deliver. The countdown was then removed outright under owner ruling (a).
+
+---
+
 ## 2026-09-18 — SEO-MAINTENANCE — **A GREEN GATE SET, INCLUDING ALL OF CI, PASSED A FIX THAT CHANGED NOTHING** — `#801` + `#802` MERGED — trunk `290d2fe6`
 
 ★ **PROVENANCE.**

@@ -1,5 +1,62 @@
 # LazyTopper — Current State
 
+## [CURRENT · SEO] CBSE-PAGE-1 — **A PUBLIC CBSE PAGE AT `/app/cbse/class-10`, AND FOUR CHECKS THAT PASSED WHILE MEASURING NOTHING** — `#804` MERGED — trunk `f7bd1daf`
+
+★ **PROVENANCE.**
+- **HANDOFF-VERIFIED** in a fresh worktree at the merged SHA: premise gate exit 0 (11 premises, 9/9 anchors resolved, 2 UNVERIFIED by design); tsc app + `typecheck:test` both 0; `vitest run src` **171 files / 2279 tests, 0 failed, 0 skipped**; new guard **31 tests**; build + `seo:capture` + `verify-production-build`; mojibake 0; `scope:guard --mode mixed` **`SCOPE_GUARD_OK`**; **root guard matrix 211 tests / 31 suites, fail 0, skipped 0**; lazytopper ops matrix all suites; `git diff --check` clean. CI green read by `head_sha`.
+- **§4 and check 33 run against the Vercel preview of each exact commit**, production as the control, every control shown.
+- **OWNER-VERIFIED LIVE:** §4.6 / check-33 items **7 and 8** (chapter-test and full-mock intros) cleared by the owner signed in, deliberately on a **Maths** chapter test and a **Science** full mock so subject preselection was proven, not coincidental.
+
+**Trunk `f7bd1daf312f13d638f07f6a02d7a6b70f5036b7`** (`#804` squash). Before it: `290d2fe6` = `#802`.
+
+### What shipped
+A public, crawlable page at **`/app/cbse/class-10`** — every official CBSE Class 10 paper for Maths
+and Science as outbound links (**20 URLs, all HEADed live, 19 serving PDF/ZIP + one labelled index
+row**), unit-wise marks **verified against the official 2026-27 syllabus PDFs** (Maths Algebra 20,
+Science Chemical Substances 25, both totalling 80), the two-exam timeline, six crawlable `<details>`
+trap cards, the circular list and the counselling helpline. Plus **eight links in**, a back link out,
+and `?subject=` / `#papers` / `#marks` deep links.
+
+Sitemap **59 → 60**, self-canonical, with its own `STATIC_PAGE_HEADS` entry.
+
+### ★★★ THE ONE THING TO READ BEFORE WRITING ANOTHER CHECK
+
+**FOUR CHECKS IN THIS LANE PASSED WHILE MEASURING NOTHING.** Every one looked thorough:
+
+| the check | why it could not fail |
+|---|---|
+| "the link is on the chapter-test intro" | the route had **redirected to `/welcome`**, which has its own CBSE links |
+| "`useIsDesktop` appears zero times" | it matched the **header comment explaining the ban** |
+| "the prerendered markup is identical" | the strip script **crashed and wrote nothing**; `cmp` on two empty files says identical |
+| "the deep link scrolled into view" | `window.scrollY` is **structurally 0** on a shell-wrapped route, and both sections are above the fold anyway |
+
+**The three rules that cover them are D42, D43 and the standing rule already on the board:**
+1. **Assert you are ON the page** before asserting anything about it.
+2. **Prove both sides of a comparison are non-empty** before reporting a match.
+3. **An assertion that cannot vary on the surface under test is not a check** — use a differential.
+
+### ★★ THE SHELL IS IN THE PRERENDERED BODY, AND THAT IS CORRECT
+`isDesktopShellRoute` gates on `hasSession` **only for `"/"`**, and the capture runs signed-out **at
+1280×900** — so a shell-classified route's committed fragment contains the sidebar. This page went
+27,799 → 34,216 bytes on classification, matching `prerendered/exam-trends.html`, which has shipped
+the identical `<aside style="width: 260px">` all along. ⚠ **Grepping fragments for `lt-shell` /
+`DesktopShell` / `sidebar` is a FALSE NEGATIVE — the shell is inline-styled.** Read the first bytes.
+
+### ★★ NOTHING CLOCK-DERIVED SHIPS ON THIS PAGE
+A live countdown baked **151** locally and **152** in CI — one line, one file, all 58 other fragments
+byte-identical. It also served a number that decrements daily to every crawler. Removed. The hero
+shows the literal **"February 2027"** instead. ⚠ `useEffect` does **not** fix this (the effect runs
+before the snapshot) and `Intl.DateTimeFormat` reintroduces it (ICU data differs per machine). See
+**D44**.
+
+### Route and naming, recorded so no one misreads it
+The route is **`/cbse/class-10`** — renamed from `/cbse-2027` **pre-merge**, deliberately carrying
+**no year**, to avoid an annual URL migration and to make `/cbse/class-12` a data addition. The
+files are still `Cbse2027*`: **knowingly out of step, left as churn**, to be renamed when Classes 11
+and 12 arrive. `[FU-CBSE-PAGE-FILENAMES-LAG-THE-ROUTE]`.
+
+---
+
 ## [CURRENT · SEO/MAINTENANCE] SEO-MAINTENANCE — **A MISSING ASSET NOW 404s, AND THE LANDING PAGE STATES NO FIGURE IT CANNOT MEASURE** — `#801` + `#802` MERGED — trunk `290d2fe6`
 
 ★ **PROVENANCE.**
