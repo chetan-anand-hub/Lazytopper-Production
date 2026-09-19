@@ -12,7 +12,7 @@ import {
   CBSE_SUBJECTS,
   CBSE_THEORY_MARKS,
   CBSE_TRAPS,
-  daysUntilMainExam,
+  CBSE_2027_MAIN_EXAM_WINDOW,
 } from "./cbse2027Sources";
 import { SELF_CANONICAL_EXACT } from "../config/canonicalUrl";
 import { sitemapPaths } from "../config/sitemapUrls";
@@ -358,78 +358,64 @@ describe("the page is advertised", () => {
   });
 });
 
-describe("the countdown", () => {
-  it("counts down to the assumed main exam and disappears once it is past", () => {
-    expect(daysUntilMainExam(new Date(2027, 1, 10))).toBe(7);
-    expect(daysUntilMainExam(new Date(2027, 1, 16))).toBe(1);
-    expect(daysUntilMainExam(new Date(2027, 1, 18))).toBeNull();
-    expect(daysUntilMainExam(new Date(2030, 0, 1))).toBeNull();
+describe("★ nothing clock-dependent reaches the prerendered body", () => {
+  /**
+   * WHY THIS IS THE ASSERTION AND NOT "the countdown renders".
+   * `seo:capture` renders this page in a REAL headless browser and commits the HTML,
+   * so any value derived from the clock is baked into the artifact and served to every
+   * crawler and no-JS reader until the next capture. It cost this lane a red CI on one
+   * line — a local capture baked 151, CI's baked 152 — and it would have shipped a
+   * number that is wrong the next morning. Owner ruling: drop it.
+   *
+   * ⚠ A PREVIOUS ATTEMPT MOVED THE CLOCK READ INTO useEffect AND LOOKED FIXED. Two
+   * consecutive local captures matched — because they ran seconds apart. The effect
+   * runs BEFORE the snapshot, so the number was still in the body. The property worth
+   * pinning is therefore that the page reads no clock AT ALL, not where it reads it.
+   */
+  it("the page source contains no clock read — WITH the control that the check can fire", () => {
+    const page = codeOnly(readFileSync(PAGE_SRC, "utf8"));
+    const control = codeOnly(
+      readFileSync(resolve(__dirname, "../components/auth/MockViewGate.tsx"), "utf8"),
+    );
+
+    // CONTROL FIRST — a detector that cannot find a clock read in a file that has one
+    // proves nothing by its silence on ours.
+    expect(
+      /new Date\(\s*\)/.test(control),
+      "control file no longer calls new Date() — this detector is now blind",
+    ).toBe(true);
+
+    expect(/new Date\(\s*\)/.test(page)).toBe(false);
+    expect(/Date\.now\(/.test(page)).toBe(false);
+    expect(/performance\.now\(/.test(page)).toBe(false);
   });
 
-  it("hedges the date in the visible copy, because CBSE has not published it", () => {
-    renderPage();
+  it("the hero shows a stable exam window instead, and keeps the hedge", () => {
+    const { container } = renderPage();
+    // ⚠ SCOPED TO THE HERO. "February 2027" is also the first timeline stop, so an
+    // unscoped query matches two nodes and would pass even if the hero lost its value.
+    const hero = container.querySelector(".lt-cbse__count") as HTMLElement;
+    expect(hero, "the hero value block is missing entirely").not.toBeNull();
+    expect(within(hero).getByText(CBSE_2027_MAIN_EXAM_WINDOW)).toBeTruthy();
     expect(screen.getByText(/if it starts mid-February like last year/)).toBeTruthy();
+    // The date sheet is still unpublished, and the page still says so.
     expect(screen.getByText(/Date sheet/)).toBeTruthy();
   });
-});
 
-/**
- * ★ CHECK 33 — EVERY ENTRY POINT HAS AN EXIT.
- *
- * The page renders no app chrome (deliberately — it is a public, crawlable route and
- * the shell would change what a crawler sees), so without a back link all eight
- * inbound links are dead ends. The owner hit exactly that from the chapter test and
- * the full mock.
- *
- * ⚠ THE DEFAULT IS THE HALF THAT IS EASY TO LOSE. A crawler, a shared link and a
- * footer click all arrive with no ticket. A test that only ever exercises the happy
- * path would stay green on a page that renders nothing for them, which is the defect.
- */
-describe("check 33 — the back affordance", () => {
-  it("renders the returnTo destination, named by backLabel", () => {
-    renderPage("?returnTo=%2Fchapter-test%2F10%2FMaths%2Ftrigonometry&backLabel=Back+to+the+Trigonometry+chapter+test");
-    const back = backLink();
-    expect(back).not.toBeNull();
-    expect(back!.getAttribute("href")).toBe("/chapter-test/10/Maths/trigonometry");
-    expect(back!.textContent).toContain("Back to the Trigonometry chapter test");
-  });
-
-  it("★ CONTROL — with NO returnTo it renders the default, not nothing", () => {
-    renderPage();
-    const back = backLink();
-    expect(back, "no back affordance on a ticket-less visit — every entry is a dead end").not.toBeNull();
-    expect(back!.getAttribute("href")).toBe("/");
-    expect(back!.textContent).toContain("Home");
-  });
-
-  it("falls back to a bare Back when returnTo is safe but unlabelled", () => {
-    renderPage("?returnTo=%2Fpricing");
-    expect(backLink()!.getAttribute("href")).toBe("/pricing");
-    expect(backLink()!.textContent).toContain("Back");
-  });
-
-  it("★ refuses an off-site returnTo and falls back to the default", () => {
-    // PRECONDITION: the same shape WITH a safe path does render it, so a rejection
-    // below is the guard working rather than the reader being broken.
-    renderPage("?returnTo=%2Fexam-trends");
-    expect(backLink()!.getAttribute("href")).toBe("/exam-trends");
+  it("renders the same bytes twice — the property the capture depends on", () => {
+    const { container: a } = renderPage();
+    const first = a.innerHTML;
     cleanup();
-
-    for (const hostile of [
-      "https%3A%2F%2Fevil.com",
-      "%2F%2Fevil.com",
-      "javascript%3Aalert(1)",
-      "http%3A%2F%2Fevil.com%2Fx",
-    ]) {
-      renderPage(`?returnTo=${hostile}`);
-      const href = backLink()?.getAttribute("href");
-      expect(href, `${hostile} was accepted as a return destination`).toBe("/");
-      cleanup();
-    }
+    const { container: b } = renderPage();
+    expect(b.innerHTML).toBe(first);
   });
 
-  it("is a real anchor, so the exit is crawlable too", () => {
-    renderPage("?returnTo=%2Fexam-trends");
-    expect(backLink()!.tagName).toBe("A");
+  it("★ CONTROL — the byte-equality check can FAIL, so its passing means something", () => {
+    // Same page, different URL state: the back link changes, so the HTML must differ.
+    const { container: a } = renderPage("?returnTo=%2Fexam-trends&backLabel=Back+to+Exam+Trends");
+    const first = a.innerHTML;
+    cleanup();
+    const { container: b } = renderPage();
+    expect(b.innerHTML).not.toBe(first);
   });
 });

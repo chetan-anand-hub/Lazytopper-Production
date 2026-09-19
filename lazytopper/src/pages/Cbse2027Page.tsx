@@ -10,8 +10,7 @@ import {
   CBSE_THEORY_MARKS,
   CBSE_TIMELINE,
   CBSE_TRAPS,
-  CBSE_2027_ASSUMED_MAIN_EXAM,
-  daysUntilMainExam,
+  CBSE_2027_MAIN_EXAM_WINDOW,
   type CbseSubjectKey,
 } from "./cbse2027Sources";
 
@@ -128,12 +127,10 @@ const CBSE_CSS = `
 .lt-cbse__hero h1{font-size:clamp(25px,7vw,40px);line-height:1.1;font-weight:700;color:#fff;
   margin-bottom:9px;max-width:16ch}
 .lt-cbse__hero-sub{color:#b9d0e8;font-size:14.5px;margin:0;max-width:52ch}
-.lt-cbse__count{display:flex;align-items:baseline;gap:11px;margin:18px 0 0}
-.lt-cbse__count b{font-family:var(--serif);font-size:clamp(38px,11vw,52px);font-weight:700;
-  color:#7ee2ab;line-height:.95;font-variant-numeric:tabular-nums}
+.lt-cbse__count{display:flex;align-items:baseline;gap:11px;margin:18px 0 0;flex-wrap:wrap}
+.lt-cbse__count b{font-family:var(--serif);font-size:clamp(26px,7vw,38px);font-weight:700;
+  color:#7ee2ab;line-height:1.05;white-space:nowrap}
 .lt-cbse__count span{font-size:13px;color:#a8c6e4;line-height:1.35}
-.lt-cbse__bar{height:5px;background:rgba(255,255,255,.14);border-radius:3px;overflow:hidden;margin-top:13px}
-.lt-cbse__bar i{display:block;height:100%;background:linear-gradient(90deg,#4fc98a,#7ee2ab);border-radius:3px}
 
 /* STATUS PILLS — scroll on phone, wrap on tablet+ */
 .lt-cbse__pills{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;
@@ -281,17 +278,6 @@ const CBSE_CSS = `
 }
 `;
 
-/** The session this page covers, used only for the hero's elapsed-time bar. */
-const SESSION_START = new Date(2026, 3, 1);
-
-/** How far through the session we are, 0-100 — derived, never a decorative constant. */
-function sessionProgressPct(now: Date, examDate: Date): number {
-  const total = examDate.getTime() - SESSION_START.getTime();
-  const done = now.getTime() - SESSION_START.getTime();
-  if (total <= 0) return 100;
-  return Math.max(0, Math.min(100, Math.round((done / total) * 100)));
-}
-
 export default function Cbse2027Page() {
   const [subjectKey, setSubjectKey] = useState<CbseSubjectKey>("science");
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -302,18 +288,6 @@ export default function Cbse2027Page() {
   const ticket = useReturnTicket();
   const backHref = ticket?.path ?? "/";
   const backLabel = ticket?.label ?? "Home";
-
-  // ⚠ THIS CLOCK READ IS BAKED INTO THE PRERENDERED BODY, AND THAT IS AN OPEN DEFECT.
-  // `seo:capture` renders this page in a REAL headless browser, so whatever the
-  // countdown says at capture time is committed into the artifact — and it is what a
-  // crawler and any no-JS reader see until the next capture. It also makes CI red on
-  // nothing: this lane's local capture baked 151 and CI's baked 152, one line, one
-  // file, purely from the wall clock. Moving the read into a useEffect does NOT help
-  // (the effect runs before the snapshot); the fix is either to drop the number or to
-  // teach the capture to strip it, and both are owner calls. See the lane report.
-  const [now] = useState(() => new Date());
-  const daysLeft = daysUntilMainExam(now);
-  const progress = sessionProgressPct(now, CBSE_2027_ASSUMED_MAIN_EXAM);
 
   const onTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
@@ -342,18 +316,13 @@ export default function Cbse2027Page() {
             Every official paper CBSE gives you free, and what the new two-exam rule actually
             means. Checked against cbse.gov.in on {CBSE_CIRCULARS_CHECKED_ON}.
           </p>
-          {daysLeft !== null && (
-            <div className="lt-cbse__count">
-              <b>{daysLeft}</b>
-              <span>
-                days until the main exam,
-                <br />
-                if it starts mid-February like last year
-              </span>
-            </div>
-          )}
-          <div className="lt-cbse__bar">
-            <i style={{ width: `${progress}%` }} />
+          <div className="lt-cbse__count">
+            <b>{CBSE_2027_MAIN_EXAM_WINDOW}</b>
+            <span>
+              is when the main exam is expected,
+              <br />
+              if it starts mid-February like last year
+            </span>
           </div>
         </div>
 

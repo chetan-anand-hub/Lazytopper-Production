@@ -369,21 +369,23 @@ export const CBSE_TRAPS: readonly CbseTrap[] = [
 ];
 
 /**
- * The assumed date of the main exam, used only for the countdown.
+ * The assumed month of the main exam, and the ONLY form of it the page renders.
  *
- * ⚠ THIS IS AN ASSUMPTION AND THE PAGE SAYS SO. CBSE has not published the
- * 2027 date sheet — the "Date sheet not out" pill on this very page is the same
- * fact. Mid-February matches the last sitting. The visible copy carries the
- * hedge, so the number is never presented as a published date.
+ * ★ A LITERAL, NOT A FORMATTED DATE, AND NOT A COUNTDOWN. This page is prerendered:
+ * `seo:capture` renders it in a real headless browser and commits the HTML, so
+ * anything derived from the clock is BAKED into the artifact and served to every
+ * crawler and no-JS reader until the next capture. The hero used to show a live
+ * day count; it made CI red on nothing (a local capture said 151 and CI's said 152,
+ * one line, one file, purely from the wall clock) and it would have shipped a number
+ * that is wrong the following morning. Owner ruling, 2026-09-19: drop the number.
  *
- * `src/config/cbseDates.ts` is the app's date home but holds the 2026 cycle and
- * is outside this lane's scope, so the assumption stays local to this page.
+ * ⚠ IT IS ALSO NOT `Intl.DateTimeFormat`. Formatting a date at render is
+ * deterministic in principle but depends on the ICU data of the machine doing the
+ * capture, and the Windows and linux captures must produce byte-identical HTML. A
+ * literal cannot drift.
+ *
+ * `CBSE_2027_ASSUMED_MAIN_EXAM` is kept as the machine-readable form of the same
+ * assumption for any later consumer; the two must be edited together.
  */
 export const CBSE_2027_ASSUMED_MAIN_EXAM = new Date(2027, 1, 17);
-
-/** Whole days from `from` until the assumed main exam; null once it is in the past. */
-export function daysUntilMainExam(from: Date): number | null {
-  const ms = CBSE_2027_ASSUMED_MAIN_EXAM.getTime() - from.getTime();
-  const days = Math.ceil(ms / 86_400_000);
-  return days > 0 ? days : null;
-}
+export const CBSE_2027_MAIN_EXAM_WINDOW = "February 2027";
