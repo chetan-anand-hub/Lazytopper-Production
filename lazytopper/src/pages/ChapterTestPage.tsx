@@ -15,7 +15,7 @@
 // CT-{S}-{TOPIC}-{NN}. ONE responsive component (pure-CSS reflow, no useIsDesktop twin).
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams, useLocation } from "react-router-dom";
 import { resolveTopicDisplayName, normalizeTopicKey } from "../utils/topicResolver";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import { useAuth } from "../context/AuthContext";
@@ -538,6 +538,20 @@ export default function ChapterTestPage() {
                         {downloading ? "Preparing…" : "↓ Download this test (PDF)"}
                       </button>
                     </div>
+
+                    {/* CBSE-PAGE-1 — a real <Link>, and deliberately OUTSIDE
+                        .lt-ct__startrow: that rule gives every .lt-ct__btn inside it
+                        flex:1, so placing it in the row would have resized the two
+                        existing buttons. Out here it keeps its natural width and the
+                        start row renders exactly as it does on production. */}
+                    <Link
+                      to={`/cbse/class-10?returnTo=${encodeURIComponent(location.pathname)}`
+                        + `&backLabel=${encodeURIComponent(`Back to the ${topicName} chapter test`)}`
+                        + `&subject=${subject.toLowerCase()}#papers`}
+                      className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
+                    >
+                      See CBSE’s official marking scheme →
+                    </Link>
 
                     <div className="lt-ct__honest">
                       <span>·</span>

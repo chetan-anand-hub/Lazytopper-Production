@@ -4,6 +4,7 @@
     "/api/cbse-exam-date"
   ],
   "paths": [
+    "/cbse/class-10",
     "/exam-trends",
     "/legal/privacy",
     "/legal/refund",

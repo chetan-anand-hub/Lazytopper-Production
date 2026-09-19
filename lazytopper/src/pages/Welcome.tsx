@@ -1,4 +1,4 @@
-import { useHref, useNavigate } from "react-router-dom";
+import { useHref, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 
@@ -180,6 +180,17 @@ export default function Welcome() {
               max-width: 100%;
               margin: 2px auto 0;
             }
+
+            /* CBSE-PAGE-1 — the single link out to the CBSE 2027 page. */
+            .lt-hero-cbse {
+              display: inline-block;
+              margin-top: 10px;
+              font-size: 13.5px;
+              font-weight: 600;
+              color: hsl(152, 60%, 32%);
+              text-decoration: none;
+            }
+            .lt-hero-cbse:hover { text-decoration: underline; }
 
             .lt-title {
               margin: 0;
@@ -1745,6 +1756,15 @@ export default function Welcome() {
                 <SparkleIcon size={33} />
               </span>
             </div>
+            <a
+              href={useHref(
+                `/cbse/class-10?returnTo=${encodeURIComponent(useLocation().pathname)}`
+                  + `&backLabel=Back+to+LazyTopper`,
+              )}
+              className="lt-hero-cbse"
+            >
+              CBSE 2027 — dates, rules and official papers →
+            </a>
           </section>
 
           <section className="lt-story" aria-label="LazyTopper product loop preview">

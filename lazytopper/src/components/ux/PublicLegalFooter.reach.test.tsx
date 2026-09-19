@@ -120,21 +120,33 @@ function renderedFooterHrefs(): string[] {
  * their original order AFTER it.
  */
 describe("the footer links to Exam Trends (the chapter index) on every public surface", () => {
-  const surfaces: [string, () => ReactElement][] = [
-    ["MobileWelcome", () => <MemoryRouter><MobileWelcome /></MemoryRouter>],
-    ["PricingPage", () => <MemoryRouter initialEntries={["/pricing"]}><PricingPage /></MemoryRouter>],
-    ["PublicLegalFooter", () => <MemoryRouter><PublicLegalFooter /></MemoryRouter>],
+  // The third element is the path each surface renders at — the footer reads it with
+  // useLocation() to build its return ticket, so the expectation is surface-specific
+  // rather than one hardcoded string that would hide a footer sending everyone home.
+  const surfaces: [string, () => ReactElement, string][] = [
+    ["MobileWelcome", () => <MemoryRouter><MobileWelcome /></MemoryRouter>, "/"],
+    ["PricingPage", () => <MemoryRouter initialEntries={["/pricing"]}><PricingPage /></MemoryRouter>, "/pricing"],
+    ["PublicLegalFooter", () => <MemoryRouter><PublicLegalFooter /></MemoryRouter>, "/"],
   ];
 
-  it.each(surfaces)("%s: Chapters → /exam-trends, then Privacy, Terms, Refunds unchanged", (_name, ui) => {
+  it.each(surfaces)("%s: Chapters → /exam-trends, CBSE 2027 → /cbse/class-10 carrying this surface's returnTo, then Privacy, Terms, Refunds unchanged", (_name, ui, origin) => {
     render(ui());
     const foot = screen.getByRole("contentinfo", { name: "Legal" });
     expect(within(foot).getByRole("link", { name: "Chapters" })).toHaveAttribute(
       "href",
       "/exam-trends",
     );
+    // CBSE-PAGE-1 — the second crawl-path link, added for the same reason as the first,
+    // and carrying a return ticket so the destination is not a dead end.
+    const cbse = within(foot).getByRole("link", { name: "CBSE 2027" });
+    const href = cbse.getAttribute("href") || "";
+    expect(href.split("?")[0]).toBe("/cbse/class-10");
+    // ★ THE TICKET NAMES THIS SURFACE, not a constant. A footer that hardcoded one
+    // origin would satisfy a bare "has a returnTo" assertion on every surface.
+    expect(new URLSearchParams(href.split("?")[1] || "").get("returnTo")).toBe(origin);
     expect(within(foot).getAllByRole("link").map((a) => a.textContent)).toEqual([
       "Chapters",
+      "CBSE 2027",
       ...FOOTER_LINKS.map(([label]) => label),
     ]);
   });
@@ -173,9 +185,20 @@ describe("every slug a legal link points at renders real policy content", () => 
     expect(hrefs.every((h) => h.startsWith("/legal/"))).toBe(true);
     // ★ AND THE FILTER HID NOTHING: every rendered href survived it. This replaces the
     // [LINK-1] questions assertion and keeps the filter from concealing a stray link.
-    // SEO-NOTES-AND-LINKS-1 adds exactly ONE non-legal link — Chapters → /exam-trends —
-    // so the rendered set is the legal hrefs plus that one, and nothing else.
-    expect(allHrefs).toEqual(["/exam-trends", ...hrefs]);
+    // SEO-NOTES-AND-LINKS-1 added the first non-legal link (Chapters → /exam-trends);
+    // CBSE-PAGE-1 added the second (CBSE 2027 → /cbse/class-10). The rendered set is the
+    // legal hrefs plus exactly those two, in that order, and nothing else — a THIRD
+    // one appearing turns this red, which is the property being defended.
+    // Query strings are stripped for this comparison — the CBSE link carries a return
+    // ticket (asserted above, per surface) and the property defended here is that NO
+    // THIRD non-legal link has appeared, which a query would otherwise obscure.
+    expect(allHrefs.map((h) => h.split("?")[0])).toEqual([
+      "/exam-trends",
+      "/cbse/class-10",
+      ...hrefs,
+    ]);
+    // ...and the ticket really is on it, so stripping the query cannot hide its loss.
+    expect(allHrefs.find((h) => h.startsWith("/cbse/class-10"))).toContain("returnTo=");
   });
 
   it.each(hrefs)("%s renders a policy, not the not-found card", (href) => {

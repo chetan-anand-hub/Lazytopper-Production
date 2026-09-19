@@ -62,6 +62,7 @@ const LegalPage = lazy(() => import("./pages/LegalPage"));
 const TeacherDashboardPage = lazy(() => import("./pages/TeacherDashboardPage"));
 import { captureIncomingReferral } from "./services/referralService";
 const PricingPage = lazy(() => import("./pages/PricingPage"));
+const Cbse2027Page = lazy(() => import("./pages/Cbse2027Page"));
 const FunnelPage = lazy(() => import("./pages/FunnelPage"));
 const DiagramComparePage = lazy(() => import("./pages/DiagramComparePage"));
 const DiagramQualityPage = lazy(() => import("./pages/DiagramQualityPage"));
@@ -219,7 +220,11 @@ export function isMobileSelfChromedRoute(pathname: string, isDesktop: boolean): 
     pathname === "/intent" ||
     pathname === "/practice/worksheets/ready" ||
     pathname === "/exam-trends" ||
-    pathname === "/practice-hub"
+    pathname === "/practice-hub" ||
+    // CBSE-PAGE-1 — mirrors isDesktopShellRoute, as this matcher is documented to.
+    // Without it the page would fall through to the OLD global brand bar at mobile
+    // width, which is exactly the straggler defect the sweep above closed.
+    pathname === "/cbse/class-10"
   ) {
     return true;
   }
@@ -523,6 +528,11 @@ function isDesktopShellRoute(pathname: string, hasSession: boolean = true): bool
   // (/topic-hub, /topic-hub/*), /check-improve, and /me are explicitly
   // NOT shell-wrapped in this phase.
   if (pathname === "/exam-trends") return true;
+  // CBSE-PAGE-1 — exact "/cbse/class-10", the SAME bucket as /exam-trends rather
+  // than a third treatment. A signed-in student clicking through from a chapter
+  // test kept the slim public header and lost the sidebar and their own context,
+  // so the page read as a different product.
+  if (pathname === "/cbse/class-10") return true;
   // PR-K2F repair — HPQ uses the desktop shell at desktop width while mobile
   // continues through the existing legacy route surface.
   if (pathname === "/highly-probable" || pathname.startsWith("/highly-probable/")) return true;
@@ -871,6 +881,13 @@ export default function App() {
           <Route path="/sign-up/*" element={<SignUpPage />} />
           <Route path="/legal/:slug" element={withRouteSuspense(<LegalPage />)} />
           <Route path="/pricing" element={withRouteSuspense(<PricingPage />)} />
+          {/* CBSE 2027 — a PUBLIC, signed-out page: official CBSE papers, unit marks,
+              the two-exam timeline and the trap cards. ONE component at every width,
+              responsive by CSS alone (no useIsDesktop) — the ConceptSpine pattern,
+              not the MeProgressPage one. Deliberately not shell-wrapped and not
+              auth-gated: it exists to be crawled and to be read by someone who has
+              never signed in. */}
+          <Route path="/cbse/class-10" element={withRouteSuspense(<Cbse2027Page />)} />
           <Route path="/admin/funnel" element={<RequireAuth>{withRouteSuspense(<FunnelPage />)}</RequireAuth>} />
           <Route path="/admin/diagram-compare" element={withRouteSuspense(<DiagramComparePage />)} />
           <Route path="/admin/diagram-quality" element={withRouteSuspense(<DiagramQualityPage />)} />

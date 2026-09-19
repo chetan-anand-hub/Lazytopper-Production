@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 
@@ -262,6 +262,18 @@ const CSS = `
   font-size: 12.5px;
   color: hsl(220, 15%, 42%);
 }
+/* CBSE-PAGE-1 — the mobile landing's own link out to the CBSE 2027 page. The
+   footer below carries one too, but a link only in the footer is a link most
+   phone users never scroll to. */
+.lt-welcome-cbse {
+  display: block;
+  margin: 14px 0 0;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: hsl(152, 60%, 30%);
+  text-decoration: none;
+}
 .lt-welcome-member button {
   appearance: none;
   -webkit-appearance: none;
@@ -278,6 +290,9 @@ const CSS = `
 
 export default function MobileWelcome() {
   const navigate = useNavigate();
+  // CBSE-PAGE-1 — this landing serves BOTH "/" and "/welcome", so the return ticket
+  // carries the path actually visited rather than a hardcoded one.
+  const { pathname } = useLocation();
   const { user } = useAuth();
   const railRef = useRef<HTMLDivElement | null>(null);
   const [active, setActive] = useState(0);
@@ -370,6 +385,14 @@ export default function MobileWelcome() {
           </button>
         </p>
       </div>
+
+      <Link
+        to={`/cbse/class-10?returnTo=${encodeURIComponent(pathname)}`
+          + `&backLabel=Back+to+LazyTopper`}
+        className="lt-welcome-cbse"
+      >
+        CBSE 2027 — dates, rules and official papers →
+      </Link>
 
       {/* [FU-LEGAL-FOOTER-LINK] — the mobile public landing carries no app chrome
           (isPublicLandingRoute suppresses the global navbar), so this row is the

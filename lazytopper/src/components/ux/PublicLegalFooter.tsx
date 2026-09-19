@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 /**
  * PublicLegalFooter — a slim, persistent legal row for the SIGNED-OUT public
@@ -90,6 +90,11 @@ const FOOTER_CSS = `
  *                  without this component owning per-page layout.
  */
 export default function PublicLegalFooter({ className }: { className?: string }) {
+  // CBSE-PAGE-1 — the return ticket for the CBSE link below. This footer renders on
+  // three different surfaces, so the origin is read, never assumed. No backLabel is
+  // passed: a site-wide row cannot honestly name where it was clicked from, and the
+  // shared reader falls back to "Back".
+  const { pathname } = useLocation();
   return (
     <footer
       className={className ? `lt-public-legal ${className}` : "lt-public-legal"}
@@ -102,6 +107,9 @@ export default function PublicLegalFooter({ className }: { className?: string })
           link opens all 26 topic hubs to a signed-out crawler. An in-app route, so a
           router <Link> is correct here (unlike the retired static /questions link). */}
       <Link to="/exam-trends">Chapters</Link>
+      {/* CBSE-PAGE-1 — beside Chapters for the same reason Chapters is here: this
+          footer is the one crawl path Google has actually followed on this site. */}
+      <Link to={`/cbse/class-10?returnTo=${encodeURIComponent(pathname)}`}>CBSE 2027</Link>
       {LEGAL_LINKS.map(({ label, slug }) => (
         <Link key={slug} to={`/legal/${slug}`}>
           {label}

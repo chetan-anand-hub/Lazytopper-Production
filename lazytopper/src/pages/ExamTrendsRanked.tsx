@@ -451,6 +451,16 @@ const STYLES = `
   line-height: 1.6;
   color: hsl(220,20%,32%);
 }
+/* CBSE-PAGE-1 — the one contextual link out to the CBSE 2027 page. */
+.lt-et-cbse {
+  display: inline-block;
+  margin-top: 9px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: hsl(152, 60%, 28%);
+  text-decoration: none;
+}
+.lt-et-cbse:hover { text-decoration: underline; }
 
 /* ── Filters ──────────────────────────────────────────────────────────── */
 .lt-et-filters {
@@ -954,7 +964,7 @@ const STYLES = `
 `;
 
 // ─── Hero ────────────────────────────────────────────────────────────────────
-function PageHero({ children }: { children: React.ReactNode }) {
+function PageHero({ children, subject }: { children: React.ReactNode; subject: DesktopSubject }) {
   return (
     <header className="lt-et-hero">
       <span className="lt-et-cred">
@@ -967,6 +977,15 @@ function PageHero({ children }: { children: React.ReactNode }) {
         Every chapter ranked into three priority bands. Start at the top — the band
         is the verdict, so you never have to weigh marks against frequency yourself.
       </p>
+      {/* CBSE-PAGE-1 — carries the subject the student is CURRENTLY looking at, and
+          lands on the marks chart rather than the top of the page. */}
+      <Link
+        className="lt-et-cbse"
+        to={"/cbse/class-10?returnTo=%2Fexam-trends&backLabel=Back+to+Exam+Trends"
+          + `&subject=${subject.toLowerCase()}#marks`}
+      >
+        CBSE’s official unit weightage →
+      </Link>
       {children}
     </header>
   );
@@ -1538,7 +1557,7 @@ export default function ExamTrendsRanked() {
     <div className="lt-et">
       <style>{STYLES}</style>
 
-      <PageHero>
+      <PageHero subject={subject}>
         <ControlsRow
           subject={subject}
           stream={stream}
