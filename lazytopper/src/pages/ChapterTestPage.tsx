@@ -546,10 +546,11 @@ export default function ChapterTestPage() {
                         start row renders exactly as it does on production. */}
                     <Link
                       to={`/cbse/class-10?returnTo=${encodeURIComponent(location.pathname)}`
-                        + `&backLabel=${encodeURIComponent(`Back to the ${topicName} chapter test`)}`}
+                        + `&backLabel=${encodeURIComponent(`Back to the ${topicName} chapter test`)}`
+                        + `&subject=${subject.toLowerCase()}#papers`}
                       className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
                     >
-                      CBSE 2027 — dates, rules and official papers →
+                      See CBSE’s official marking scheme →
                     </Link>
 
                     <div className="lt-ct__honest">

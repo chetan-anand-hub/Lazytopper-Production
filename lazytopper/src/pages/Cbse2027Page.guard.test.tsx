@@ -419,3 +419,98 @@ describe("★ nothing clock-dependent reaches the prerendered body", () => {
     expect(b.innerHTML).not.toBe(first);
   });
 });
+
+/**
+ * ★ DEEP LINKS — ?subject= preselects, #papers|#marks scrolls.
+ *
+ * ⚠ BOTH MUST BE INVISIBLE TO THE CAPTURE. `seo:capture` loads the bare path, so the
+ * frozen body must be the default view. The subject falls back to Science and the hash
+ * effect returns early on an empty hash; the only thing the feature adds to the
+ * captured HTML is the `id="marks"` attribute it needs as a target, measured in the
+ * lane report. A test that only exercised the deep-linked case could not tell you the
+ * param was doing anything, so every case below is paired with the default.
+ */
+describe("deep links", () => {
+  it("?subject=maths selects Maths", () => {
+    renderPage("?subject=maths");
+    expect(screen.getByRole("tab", { name: "Maths" }).getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByRole("tab", { name: "Science" }).getAttribute("aria-selected")).toBe("false");
+  });
+
+  it("?subject=science selects Science", () => {
+    renderPage("?subject=science");
+    expect(screen.getByRole("tab", { name: "Science" }).getAttribute("aria-selected")).toBe("true");
+  });
+
+  it("★ CONTROL — no param falls back to Science, so the param above did the work", () => {
+    renderPage();
+    expect(screen.getByRole("tab", { name: "Science" }).getAttribute("aria-selected")).toBe("true");
+    expect(screen.getByRole("tab", { name: "Maths" }).getAttribute("aria-selected")).toBe("false");
+  });
+
+  it("an unknown subject falls back rather than rendering an empty switcher", () => {
+    for (const bogus of ["?subject=physics", "?subject=", "?subject=../maths", "?subject=maths%00"]) {
+      renderPage(bogus);
+      const science = screen.getByRole("tab", { name: "Science" });
+      expect(science.getAttribute("aria-selected"), `${bogus} did not fall back`).toBe("true");
+      cleanup();
+    }
+  });
+
+  it("?subject is trimmed and case-insensitive — deliberately, so a hand-typed value works", () => {
+    for (const ok of ["?subject=MaThS", "?subject=MATHS%20", "?subject=%20maths"]) {
+      renderPage(ok);
+      expect(
+        screen.getByRole("tab", { name: "Maths" }).getAttribute("aria-selected"),
+        `${ok} should resolve to Maths`,
+      ).toBe("true");
+      cleanup();
+    }
+  });
+
+  it("★ scrolls to a hash it owns, and IGNORES one it does not", () => {
+    const calls: string[] = [];
+    const original = Element.prototype.scrollIntoView;
+    Element.prototype.scrollIntoView = function (this: Element) {
+      calls.push(this.id);
+    };
+    try {
+      renderPage("#papers");
+      expect(calls, "#papers did not scroll").toEqual(["papers"]);
+      cleanup();
+
+      calls.length = 0;
+      renderPage("#marks");
+      expect(calls, "#marks did not scroll").toEqual(["marks"]);
+      cleanup();
+
+      // CONTROL — a hash we do not own must leave the page at the top.
+      calls.length = 0;
+      renderPage("#nonexistent-section");
+      expect(calls, "an unowned hash scrolled somewhere").toEqual([]);
+      cleanup();
+
+      // CONTROL — and no hash at all, which is what the capture loads.
+      calls.length = 0;
+      renderPage();
+      expect(calls, "the capture's bare load scrolled").toEqual([]);
+    } finally {
+      Element.prototype.scrollIntoView = original;
+    }
+  });
+
+  it("the marks panel is a real anchor target", () => {
+    const { container } = renderPage();
+    expect(container.querySelector("#marks")).not.toBeNull();
+    expect(container.querySelector("#papers")).not.toBeNull();
+  });
+
+  it("★ the capture's view — bare path — is the DEFAULT view", () => {
+    const { container } = renderPage();
+    expect(screen.getByRole("tab", { name: "Science" }).getAttribute("aria-selected")).toBe("true");
+    // and the Maths panel is hidden, so the frozen body shows Science first
+    const panels = Array.from(container.querySelectorAll('[role="tabpanel"]'));
+    const maths = panels.find((n) => n.id === "lt-cbse-panel-maths");
+    expect(maths?.hasAttribute("hidden")).toBe(true);
+  });
+});

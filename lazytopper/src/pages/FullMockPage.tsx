@@ -943,10 +943,11 @@ export default function FullMockPage() {
                         so an extra child would have resized the existing two). */}
                     <Link
                       to={`/cbse/class-10?returnTo=${encodeURIComponent(`/full-mock/${grade}/${subject}`)}`
-                        + `&backLabel=${encodeURIComponent(`Back to the ${subject} full mock`)}`}
+                        + `&backLabel=${encodeURIComponent(`Back to the ${subject} full mock`)}`
+                        + `&subject=${subject.toLowerCase()}#papers`}
                       className="lt-ct__btn lt-ct__btn--ghost lt-ct__btn--sm"
                     >
-                      CBSE 2027 — dates, rules and official papers →
+                      See CBSE’s official marking scheme →
                     </Link>
 
                     <div className="lt-ct__honest">

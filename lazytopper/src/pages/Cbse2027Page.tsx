@@ -1,5 +1,5 @@
-import React, { useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 
 import { useReturnTicket } from "../components/navigation/ReturnTicket";
 
@@ -102,6 +102,7 @@ const CBSE_CSS = `
   --serif:Fraunces,Georgia,serif; --sans:Inter,system-ui,-apple-system,sans-serif;
   --sh:0 1px 2px rgba(15,32,56,.05),0 6px 18px rgba(15,32,56,.045);
   --pad:16px;
+  --anchor-offset:84px;
   background:var(--bg); color:var(--ink); font-family:var(--sans);
   font-size:15px; line-height:1.55; -webkit-font-smoothing:antialiased;
   display:block;
@@ -145,7 +146,11 @@ const CBSE_CSS = `
 .lt-cbse__pill b{color:var(--ink);font-weight:600}
 
 /* SECTION FURNITURE */
-.lt-cbse section{margin-bottom:42px;scroll-margin-top:12px}
+.lt-cbse section{margin-bottom:42px;scroll-margin-top:var(--anchor-offset)}
+/* ⚠ THE OFFSET IS NOT DECORATION. This route is shell-wrapped, and both the desktop
+   shell header and the mobile one-header are sticky — without it a deep link lands
+   with the section heading hidden behind the header. */
+.lt-cbse__marks{scroll-margin-top:var(--anchor-offset)}
 .lt-cbse__sh{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:5px}
 .lt-cbse h2{font-size:clamp(21px,5vw,26px);font-weight:600;line-height:1.2}
 .lt-cbse__sh em{font-style:normal;font-size:12px;color:var(--ink3);white-space:nowrap}
@@ -278,8 +283,39 @@ const CBSE_CSS = `
 }
 `;
 
+/**
+ * The section ids a hash may target. A hash outside this set is IGNORED and the page
+ * opens at the top — an unknown anchor must not scroll somewhere arbitrary.
+ */
+const DEEP_LINK_SECTIONS = new Set(["papers", "marks", "exams", "traps", "latest"]);
+
+/** `?subject=` if it names a real subject, else the page's default. */
+function subjectFromParam(raw: string | null): CbseSubjectKey {
+  const wanted = (raw || "").trim().toLowerCase();
+  const match = CBSE_SUBJECTS.find((s) => s.key === wanted);
+  return match ? match.key : "science";
+}
+
 export default function Cbse2027Page() {
-  const [subjectKey, setSubjectKey] = useState<CbseSubjectKey>("science");
+  // ★ DEEP LINKS: ?subject=maths|science preselects the switcher, #papers|#marks
+  // scrolls to that section. Both are READ-ONLY inputs with a safe fallback, and both
+  // are absent in the capture — which loads the bare path — so the prerendered body
+  // stays the default view. That is asserted, not assumed: see the lane report.
+  const [params] = useSearchParams();
+  const { hash } = useLocation();
+  const [subjectKey, setSubjectKey] = useState<CbseSubjectKey>(() =>
+    subjectFromParam(params.get("subject")),
+  );
+
+  useEffect(() => {
+    const id = hash.replace(/^#/, "");
+    // No hash, or one we do not own: leave the page at the top. Scrolling to an
+    // arbitrary id because it happened to exist would be worse than ignoring it.
+    if (!id || !DEEP_LINK_SECTIONS.has(id)) return;
+    // `auto`, never `smooth`: this page respects prefers-reduced-motion elsewhere and
+    // a deep link should land, not animate.
+    document.getElementById(id)?.scrollIntoView({ behavior: "auto", block: "start" });
+  }, [hash]);
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
   // The return ticket, if the entry point supplied a safe one. When it did not —
@@ -412,7 +448,7 @@ export default function Cbse2027Page() {
               ))}
             </div>
 
-            <div className="lt-cbse__marks" aria-live="polite">
+            <div className="lt-cbse__marks" id="marks" aria-live="polite">
               <b className="lt-cbse__marks-head">Where the {CBSE_THEORY_MARKS} marks sit</b>
               {CBSE_SUBJECTS.map((subject) => {
                 const top = Math.max(...subject.units.map((u) => u.marks));
