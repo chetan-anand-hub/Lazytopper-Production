@@ -11,6 +11,89 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-19 — CBSE-PAGE-1 (`#804` MERGED as `f7bd1daf`, squash, no `--admin`; open PRs at the time of writing: **none**) — four new follow-ups, six owner rulings recorded, two spec premises corrected
+
+**Trunk `f7bd1daf312f13d638f07f6a02d7a6b70f5036b7`.** The lane shipped `/app/cbse/class-10` and
+eight links into it. §4 checks 1-8 reached **30/32 by automated probe**; items 7 and 8 were
+**closed by OWNER LIVE-VERIFY, not by probe** — see `[FU-AUTH-GATED-SURFACES-NEED-A-CREDENTIAL]`.
+
+### `[FU-SITEMAP-NEW-COUNT-UNDERREPORTS]` — `generateSitemap.ts` prints "0 new" for a genuinely new URL
+`scripts/generateSitemap.ts` computes its "new" count as `added - published.size` — the size of
+the previously published set — rather than a **set difference**. When this lane renamed
+`/cbse-2027` to `/cbse/class-10`, the run printed `60 <loc> (0 new, …; 60 kept their published
+lastmod)` for a URL that had never been published under that path. The `lastmod` it actually
+wrote was correct (`published.get(url) ?? stamp` stamps an unseen URL with today), so this is
+**cosmetic today** — but it will under-report **every** future addition, and the failure mode is
+someone reading "0 new" as "nothing changed" and skipping a check. Fix: count
+`added.filter((u) => !published.has(u)).length`.
+**Not fixed here:** `generateSitemap.ts` was outside this lane's scope.
+
+### `[FU-CAPTURE-STRIP-CLOCK-DERIVED]` — the capture should strip clock-derived nodes, as it already strips the greeting
+Owner ruling 2026-09-19 took option (a) for this page — drop the live countdown — and recorded
+option (b) as the better long-term shape, **for Lane B, not here**.
+`scripts/seo/captureStaticBodies.ts` already removes `[data-testid="shell-greeting"]` because it
+is *"baked from the BUILD machine's clock"*. Any other clock-derived value has exactly the same
+problem and no such protection: it makes CI red on nothing when two captures straddle a day
+boundary, and it ships a stale figure to every crawler in between. Give such nodes a marker and
+strip them in the same pass. See **D44**.
+
+### `[FU-CBSE-PAGE-FILENAMES-LAG-THE-ROUTE]` — `Cbse2027*` filenames are knowingly out of step with `/cbse/class-10`
+The route deliberately carries **no year** (see the rename note below), but the files are still
+`Cbse2027Page.tsx`, `Cbse2027Page.guard.test.tsx` and `cbse2027Sources.ts`. **This is known and
+deliberate, not an oversight** — renaming them now is churn with no user-visible effect and a
+wide diff. **Rename when Classes 11 and 12 arrive**, at which point one component serves several
+classes and the year in the filename becomes actively misleading.
+
+### `[FU-AUTH-GATED-SURFACES-NEED-A-CREDENTIAL]` — two of the eight inbound links cannot be verified by probe
+`/app/chapter-test/:grade/:subject/:topicKey` and `/app/full-mock/:grade/:subject` sit behind
+`MockViewGate` and **redirect to `/app/welcome` when signed out**, so no signed-out automated
+probe can reach their intros. This lane has no credential (Firebase is Lane B and none exists).
+Both were closed by **owner live-verify on the preview**, deliberately on a **Maths** chapter test
+and a **Science** full mock so that subject preselection was proven rather than coincidental.
+⚠ **Any future lane asserting something about those two surfaces has the same problem.** The
+options are a test credential or owner live-verify; there is no third.
+⚠ **AND THE FIRST PROBE HERE REPORTED THEM AS PASSING.** It counted `a[href="/app/cbse/class-10"]`
+on the loaded page, found two, and went green — they were **Welcome's** own links, because the
+request had already been redirected there. See the standing rule below.
+
+### ★★★ STANDING METHOD ADDED THIS LANE (owner-elevated) — recorded in full as **D42** and **D43**
+1. **Assert you are ON the page before asserting anything about the page** (landed URL equals the
+   requested path), and assert on **that surface's own identifying text**. A redirect, an error
+   boundary and an auth gate all return a real, fully-rendered DOM.
+2. **A comparison must prove both sides are non-empty before reporting a match.** A crashed strip
+   script wrote nothing and `cmp` on two empty files said "identical".
+3. **An assertion whose value cannot vary on the surface under test is not a check** —
+   `window.scrollY` is structurally `0` on a shell-wrapped route. Use a differential.
+
+### Owner rulings recorded (do not re-litigate)
+- **`/cbse-2027` → `/cbse/class-10`, taken PRE-MERGE.** A year in the path forces an annual URL
+  migration and a fresh indexing cycle on a page whose whole value is accumulated authority, and
+  it would make `/cbse/class-12` a second page rather than a data addition. Free before indexing;
+  a redirect and a re-crawl after. **The page deliberately carries no year in its path.**
+  ✅ A two-segment path **is** expressible in `SELF_CANONICAL_EXACT`: `canonicalPathFor()` tests
+  `.includes(path)` **before** any segment counting, `sitemapPaths()` spreads with no shape
+  assumption, `writeStaticHeads` mkdirs recursively, and `/legal/privacy` is the live precedent.
+- **The page is in the same route class as `/exam-trends`** — listed in `isDesktopShellRoute` AND
+  `isMobileSelfChromedRoute`. ⚠ **The ruling's stated premise was WRONG and is corrected here:**
+  the capture runs signed-out **but at 1280×900**, and `isDesktopShellRoute` gates on `hasSession`
+  **only for `"/"`**, so the shell **is** captured (27,799 → 34,216 bytes). That is consistency
+  with `exam-trends.html`, which has shipped the identical `<aside style="width: 260px">` all
+  along — not leakage. Every content invariant survived.
+- **`isExamTrendsActive` was deliberately NOT touched** — lighting up the wrong bottom-nav item is
+  a navigation lie, and that is a different question from the shell.
+- **Links read "Open", never "Download", and carry no ↓** — CBSE serves
+  `Content-Disposition: inline` and the `download` attribute is ignored cross-origin.
+- **One CTA label on seven surfaces** — "CBSE 2027 — dates, rules and official papers →" — and the
+  legal footer keeps the short **"CBSE 2027"**. Ruled explicitly: the footer is a centred, wrapping
+  12px row of short labels dropping to 11.5px under 389px, where 45 characters would dominate it.
+  **"CBSE 2027 papers" was proposed and rejected.** Consistency where it is read, restraint where
+  it cannot fit.
+- **Dark mode was deliberately NOT ported** from the prototype. The app has **zero**
+  `prefers-color-scheme` handling anywhere in `lazytopper/src`, so one page going dark inside light
+  chrome would read as broken rather than considered. **Record as a deliberate omission, not
+  missed work.**
+
+
 ## 2026-09-18 — SEO-MAINTENANCE (`#801` MERGED as `2670c87d`, `#802` MERGED as `290d2fe6`, both squash, no `--admin`; open PRs at the time of writing: **none**) — three new follow-ups, three owner rulings recorded, one spec instruction corrected
 
 ★ **PROVENANCE.** HANDOFF-VERIFIED by the SEO-MAINTENANCE controller against trunk `290d2fe6`; the live confirmations are OWNER-REPORTED from production on 2026-09-18.

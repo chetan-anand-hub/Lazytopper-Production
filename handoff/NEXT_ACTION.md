@@ -2,6 +2,66 @@
 ⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW ON TRUNK SHA AND ON THE GATE SET.
    IT DOES NOT SUPERSEDE ANY OPEN FOLLOW-UP RECORDED BELOW.
 
+TRUNK IS `f7bd1daf312f13d638f07f6a02d7a6b70f5036b7`, MEASURED 2026-09-19.
+   f7bd1daf = #804 (CBSE-PAGE-1)
+   290d2fe6 = #802 (WELCOME-FIGURES-1)
+   2670c87d = #801 (ASSET-404-1)
+
+★★★ FOUR CHECKS IN THE LAST LANE PASSED WHILE MEASURING NOTHING. READ THIS FIRST.
+
+   Each one looked thorough, and each failed for a different reason:
+     - a link count on a page that had already REDIRECTED (it found the
+       redirect target's own links and went green);
+     - a source grep for `useIsDesktop` that matched THE COMMENT BANNING IT;
+     - a "markup identical" verdict from a strip script that had CRASHED and
+       written nothing - `cmp` on two empty files reports identical;
+     - a deep-link scroll assertion on `window.scrollY`, which is STRUCTURALLY 0
+       on a shell-wrapped route (the shell is height:100vh;overflow:hidden and
+       the real scroller is an inner MAIN), with both target sections above the
+       fold at 1440x900 anyway - two independent reasons it could not fail.
+
+   THE THREE RULES THAT COVER THEM (D42, D43, and the standing rule):
+     1. ASSERT YOU ARE ON THE PAGE before asserting anything about the page -
+        landed URL == requested path, and match the surface's OWN text. A
+        redirect, an error boundary and an auth gate all return a real DOM.
+     2. PROVE BOTH SIDES OF A COMPARISON ARE NON-EMPTY before reporting a match.
+        Print the lengths next to the verdict.
+     3. AN ASSERTION THAT CANNOT VARY ON THE SURFACE UNDER TEST IS NOT A CHECK.
+        Use a differential: the same page with and without the thing you changed.
+
+★★ NOTHING CLOCK-DERIVED MAY SHIP IN A PRERENDERED PAGE (D44).
+   `seo:capture` renders in a REAL headless browser, so a clock read is BAKED
+   into the committed artifact and served until the next capture. It made CI red
+   on nothing (local 151 vs CI 152, one line, one file). `useEffect` does NOT
+   help - the effect runs before the snapshot. `Intl.DateTimeFormat` is unsafe
+   for the same class of reason: it resolves against the capturing machine's ICU
+   data. Use a literal.
+
+★★ THE DESKTOP SHELL *IS* IN THE PRERENDERED BODY.
+   `isDesktopShellRoute` gates on hasSession ONLY for "/", and the capture runs
+   signed-out AT 1280x900 - so shell-classifying a route changes its committed
+   fragment. `exam-trends.html` has shipped the sidebar all along.
+   ⚠ Grepping fragments for `lt-shell` / `DesktopShell` / `sidebar` is a FALSE
+     NEGATIVE - the shell is INLINE-STYLED. Read the first bytes instead.
+
+   CLAUDE.md §6 IN FULL, THEN ANYTHING A SPEC ADDS ON TOP. Two matrices, different:
+       cd scripts     && pnpm run test:matrix:all     # root guard matrix
+       cd lazytopper  && pnpm run test:matrix:all     # ops matrix (35-link && chain)
+   Read the counts FROM THE RUN. Root is 211/31 today and it grows.
+
+⚠ AUTH-GATED SURFACES CANNOT BE PROBED SIGNED OUT. /chapter-test/* and
+   /full-mock/* redirect to /app/welcome. There is no third option besides a test
+   credential or owner live-verify. [FU-AUTH-GATED-SURFACES-NEED-A-CREDENTIAL]
+
+⚠ BEFORE YOU SCREENSHOT THE LANDING PAGE AT MOBILE WIDTH: Welcome.tsx does NOT
+   render below 1024px. App.tsx:850 serves MobileWelcome instead. A 390px capture
+   of "the landing page" is a different component. Use 1024px as the narrow case.
+```
+
+```
+⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW ON TRUNK SHA AND ON THE GATE SET.
+   IT DOES NOT SUPERSEDE ANY OPEN FOLLOW-UP RECORDED BELOW.
+
 TRUNK IS `290d2fe6f49945810fe65598ca22628c0951c19f`, MEASURED 2026-09-18.
    290d2fe6 = #802 (WELCOME-FIGURES-1)
    2670c87d = #801 (ASSET-404-1)

@@ -1,5 +1,21 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-19 — SEO: **CBSE-PAGE-1 — THE CBSE PAGE, EIGHT WAYS IN, AND FOUR CHECKS THAT MEASURED NOTHING** — `#804` MERGED — trunk `f7bd1daf`
+
+- ✅ **A public, crawlable page at `/app/cbse/class-10`** — 20 official CBSE source links (7 Science + 8 Maths papers + 5 circulars), unit-wise marks, the two-exam timeline, six `<details>` trap cards, the helpline. Sitemap **59 → 60**, self-canonical, own `STATIC_PAGE_HEADS` entry.
+- ✅ **Every shipped URL HEADed live** — 19 of 20 return `200` with a PDF/ZIP type; the 20th is CBSE's circulars **index**, kept under owner ruling and **labelled** so nobody expects a paper. The four `*VIC*` variants CBSE still links from its own index are **dead (404, 624-byte body)** and are pinned absent by the guard.
+- ✅ **Unit marks read out of the official 2026-27 syllabus PDFs**, not the prototype and not memory (CLAUDE.md §5): Maths Algebra 20, Science Chemical Substances 25, both totalling 80. The Science table extracts scrambled under `-layout`; re-extracted with `-raw` to pin the unit→marks pairing.
+- ✅ **Eight links in and one link out.** The back link reuses the app's existing **return-ticket** convention (`?returnTo=` + `?backLabel=`, validated by the exported `safeInternalReturnTo`) and defaults to "← Home" when there is no ticket — a crawler, a shared link and a footer click all arrive without one.
+- ✅ **Deep links**: `?subject=maths|science` preselects, `#papers`/`#marks` scroll. An unowned hash is ignored rather than scrolling somewhere arbitrary. The only capture delta is `id="marks"`, **+11 bytes**.
+- ✅ **Labels describe the destination.** "Open", never "Download" (CBSE serves `Content-Disposition: inline`). One CTA string on seven surfaces; the legal footer keeps the short form by ruling.
+- ★★★ **PROCESS — FOUR CHECKS PASSED WHILE MEASURING NOTHING**, each caught by a different discipline: a link count on a **redirected** page; a source grep matching **the comment banning the thing**; a "markup identical" verdict from a **crashed** strip script comparing two empty files; a scroll assertion on `window.scrollY`, **structurally 0** on a shell-wrapped route. See **D42**, **D43**.
+- ★★★ **PROCESS — a wrong fix was reverted, not shipped.** Moving the countdown's clock read into `useEffect` made two local captures match; that was timing, not proof. The standard set here: **a different machine with a different clock**, i.e. CI's `capture` job.
+- ★★ **Two spec premises disproved and corrected** — the capture does capture the shell (it runs signed-out **at 1280×900**; `isDesktopShellRoute` gates on session only for `"/"`), and `App.tsx:103`'s one-component exemplars both use the width hook this page is forbidden.
+- ★★ **Two defects found only on a deployed preview**, with every local gate and all of CI green: an `inline-block` link whose arrow butted into an adjacent `inline-flex` CTA, and a back link returning to `/` from `/welcome` — the same page renders there, so only a round trip on the landed path found it.
+- ⚠ **Nothing clock-derived ships on this page.** See **D44**; `Intl.DateTimeFormat` is unsafe in prerendered content for the same reason.
+- ⚠ **§4.6 items 7 and 8 were closed by OWNER LIVE-VERIFY, not by probe** — both routes are auth-gated and this lane has no credential. `[FU-AUTH-GATED-SURFACES-NEED-A-CREDENTIAL]`.
+
+
 ## 2026-09-18 — SEO/MAINTENANCE: **SEO-MAINTENANCE — THE ASSET 404 AND THE HONEST LANDING PAGE** — `#801` + `#802` MERGED — trunk `290d2fe6`
 
 - ✅ **A missing asset now returns a genuine 404**, not the SPA shell with `200 text/html`. Live on production: `404 text/plain`. The old behaviour handed the browser an HTML document where a JavaScript module was expected, which fails the MIME check, paints the error boundary and was filed by Search Console as a Soft 404 — and cost a day of diagnosis pointing at the wrong cause.

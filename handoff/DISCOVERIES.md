@@ -341,3 +341,86 @@ compared against a line number must come from `wc -l` or `(Get-Content).Count`.*
 ★ The lane's recommendation — **cite by quote or symbol, not by line** — survives its own error, but
 the reason inverts: not because line cites go stale, but because **verifying a line cite is itself
 easy to get wrong.** `[FU-PS-MEASURE-OBJECT-SKIPS-BLANKS]`.
+
+---
+
+## D42 — ★★★ A COMPARISON MUST PROVE BOTH SIDES ARE NON-EMPTY BEFORE IT REPORTS A MATCH
+*(CBSE-PAGE-1, 2026-09-19. Owner-elevated to standing method.)*
+
+To prove a feature had not changed the prerendered body, a helper stripped the inline
+`<style>` from both fragments and `cmp`'d what was left. It printed **"markup-only
+identical: YES"**. It was comparing **nothing**: the python helper had died on a
+`UnicodeEncodeError` writing `←` under Windows `cp1252`, wrote zero bytes to both
+output files, and `cmp` on two empty files reports them identical. The exit status of the
+crashed writer was never checked because its output *looked* like a result.
+
+**THE RULE.** Any comparison — file to file, DOM to DOM, list to list — must first assert
+that **both sides are non-empty**, and the assertion must be visible in the output. The fix
+here was to print the stripped lengths (`before=23350 after=23361`) alongside the verdict, so
+an empty comparison cannot masquerade as a passing one. Redone that way, the honest answer
+was `NO`, with exactly one differing tag.
+
+**THE FAMILY.** This is the same failure as counting `a[href=...]` on a page that had already
+redirected (the link was there — on a *different* page), and as a `paidCalls=0` that passed on
+a run which never reached its control. In all three a check passes **because it measured
+nothing**. Pair this with the standing rule it completes: **assert you are on the page before
+asserting anything about the page.** Together they cover most of how a green check can be
+worthless.
+
+---
+
+## D43 — ★★★ AN ASSERTION WHOSE VALUE CANNOT VARY ON THE SURFACE UNDER TEST IS NOT A CHECK
+*(CBSE-PAGE-1, 2026-09-19.)*
+
+A deep-link check asserted `window.scrollY > 0` and "the target section is within the
+viewport", and reported **7/7**. Both were structurally incapable of failing:
+
+1. **`window.scrollY` is always `0` on a shell-wrapped route.** `DesktopShell` is
+   `height:100vh; overflow:hidden`, so the document never scrolls — **the real scroller is an
+   inner `MAIN` element**. Whatever the page does, `window.scrollY` reads 0 and
+   `document.documentElement.scrollTop` reads 0.
+2. **At 1440×900 the `#papers` and `#marks` sections are above the fold anyway**, so "is it in
+   the viewport" was true whether or not anything had scrolled.
+
+Two independent reasons the check could never go red, in a check that looked thorough.
+
+**THE SHAPE THAT WORKS — A DIFFERENTIAL.** Measure the element's
+`getBoundingClientRect().top` on the page **with** the hash and on the same page **without**
+it. `#marks` lands at **148px** deep-linked versus **754px** bare; `#latest` at 148 versus
+2293. The two "must not scroll" controls sit at **573 == 573**. That check can fail, and its
+controls demonstrate it does.
+
+⚠ **Anchor targets on any shell-wrapped route need `scroll-margin-top`** or the heading lands
+under the sticky header. Observed landing position = 64px header + 84px `--anchor-offset` =
+148px.
+
+---
+
+## D44 — `Intl.DateTimeFormat` IS UNSAFE IN ANYTHING THE PRERENDER CAPTURE FREEZES
+*(CBSE-PAGE-1, 2026-09-19.)*
+
+`scripts/seo/captureStaticBodies.ts` renders each advertised page in a **real headless
+browser** and commits the resulting HTML. Anything that resolves against the *capturing
+machine* can therefore differ between a local run and the CI runner and make the committed
+artifact "stale" with no source change. `Intl.DateTimeFormat` resolves against that machine's
+**ICU data**, so two runners can legitimately disagree byte-for-byte on the same date.
+
+**Use a literal inside anything the capture freezes.** This page renders `"February 2027"` as
+a string constant and keeps `CBSE_2027_ASSUMED_MAIN_EXAM` beside it as the machine-readable
+form, documented as edit-together.
+
+**The same applies to the clock, and it bit first.** A live countdown in the hero baked
+whatever the number was at capture time: a local capture committed **151** and CI's fresh
+capture produced **152** — one line, one file, all 58 other fragments byte-identical across
+Windows and linux. It also *shipped* that number to every crawler and no-JS reader until the
+next capture, decrementing daily.
+
+⚠ **MOVING THE CLOCK READ INTO `useEffect` DOES NOT FIX IT.** The effect runs **before** the
+capture snapshot, so the value is still in the body. Two consecutive local captures matching
+is **not** proof — they ran seconds apart, and the broken version passed that test too. The
+proof is the CI `capture` job going green: a different machine with a different clock.
+
+The durable options are (a) do not render clock-derived values on a prerendered page, or
+(b) teach the capture to strip them, as `stripAuthChrome` already strips the time-of-day
+greeting for being "baked from the BUILD machine's clock" — its own words. This lane took (a);
+(b) is recorded as `[FU-CAPTURE-STRIP-CLOCK-DERIVED]`.
