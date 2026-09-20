@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, afterEach } from "vitest";
 import { render, screen, cleanup, within, fireEvent } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
@@ -13,21 +13,32 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
  * policy at all. LazyTopper collects data from 14-16 year olds and India's DPDP Act
  * treats under-18s as children; a policy a minor cannot reach is not a policy.
  *
- * ★ WHY A PLACEMENT TEST AND NOT ONLY A PRESENCE TEST. At >=1180px this landing is a
- * frozen, non-scrolling screen: html/body/#root and `.lt-frozen-landing` are all
- * `height:100vh; overflow:hidden`, and `.lt-landing-viewport` is a grid whose items are
- * the stage's own children (`.lt-landing-stage` is `display:contents`). Mounted INSIDE
- * the stage the footer fills the fifth, previously unused, grid row. Mounted one level
- * out — as a direct child of `<main>`, which is how the same component is mounted on
- * the two SCROLLING pages COPY-1 covered — it would be clipped away with no scrollbar
- * to reach it: present in the DOM, every presence assertion green, and invisible to
- * every student. That is a silent no-op, so the structure is pinned deliberately.
- * Verified in a real browser at 1024/1280/1440, signed out: the footer hit-tests as
- * the topmost element at its own centre point.
+ * ★★ WHY A PLACEMENT TEST AND NOT ONLY A PRESENCE TEST — AND WHY THE PLACEMENT IT
+ * PINS CHANGED IN LANDING-MERGE-1. This file used to assert the footer was mounted
+ * INSIDE `.lt-landing-stage`. That was correct and load-bearing for the page it was
+ * written against: at >=1180px the old landing was a frozen, non-scrolling screen
+ * (`height:100vh; overflow:hidden` on html/body/#root/.lt-frozen-landing, with
+ * `.lt-landing-viewport` a five-row grid), so a footer mounted one level out was
+ * clipped away with no scrollbar to reach it — present in the DOM, every presence
+ * assertion green, and invisible to every student.
  *
- * A landing-page visitor is signed out; useAuth is the page's only non-router dependency.
+ * ⚠ THE FROZEN LAYOUT IS GONE, DELIBERATELY (owner ruling, LANDING-MERGE-1 §2.2).
+ * The page scrolls at every width, so "last child of the scrolling flow" is now
+ * reachable and `.lt-landing-stage` no longer exists. THE OLD ASSERTION WAS THEREFORE
+ * REMOVED BY REASONING, NOT BECAUSE IT WENT RED — re-pointing it at whatever selector
+ * happened to replace the stage would have pinned a property that protects nothing.
+ *
+ * ★ WHAT REPLACES IT IS A REAL HAZARD, NOT A FORMALITY. `stripAuthChrome()`
+ * (scripts/seo/captureStaticBodies.ts) removes `a[href*="/login"]` TOGETHER WITH ITS
+ * ENCLOSING <section>. This page has a Log in link in its top bar. If the footer ever
+ * came to share a <section> ancestor with a login link, a future capture would
+ * silently delete the legal row from the static HTML — the one crawl path Google has
+ * actually followed on this site, removed with every gate green. So the structural
+ * property now pinned is: THE FOOTER IS INSIDE NO <section>.
+ *
+ * A landing-page visitor is signed out. The page no longer reads auth at all, so the
+ * useAuth mock this file used to need is gone with it.
  */
-vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: null }) }));
 
 import Welcome from "./Welcome";
 import LegalPage from "./LegalPage";
@@ -67,25 +78,44 @@ describe("Welcome — the signed-out desktop landing reaches the policies", () =
     expect(screen.queryByRole("contentinfo", { name: "Legal" })).toBeNull();
   });
 
-  it("mounts the footer INSIDE .lt-landing-stage, not as a sibling of it", () => {
-    // ★ The clipping property described in the file header. Moving the mount out of
-    // the stage keeps every presence assertion above green and makes the footer
-    // unreachable at >=1180px, so it gets its own assertion.
-    const { container } = renderWelcome();
-    const stage = container.querySelector(".lt-landing-stage");
+  it("mounts the footer inside NO <section>, so a future auth-chrome strip cannot take it", () => {
+    // ★ The strip hazard described in the file header. `stripAuthChrome` deletes the
+    // <section> ENCLOSING any /login anchor; the footer must never be in one.
+    renderWelcome();
     const foot = screen.getByRole("contentinfo", { name: "Legal" });
-    expect(stage).not.toBeNull();
-    expect(stage!.contains(foot)).toBe(true);
+    expect(foot.closest("section")).toBeNull();
+  });
+
+  it("★ CONTROL — this page really does contain the login link that makes that hazard real", () => {
+    // Without this, the assertion above passes just as happily on a page with no
+    // login link anywhere, where "the footer is not in a section with one" is true
+    // but proves nothing. The hazard has to exist for the defence to mean something.
+    const { container } = renderWelcome();
+    const login = container.querySelector('a[href*="/login"]');
+    expect(login).not.toBeNull();
+    // ...and it is genuinely inside a strippable ancestor chain that excludes the
+    // footer: the two must not share a <section>.
+    const foot = screen.getByRole("contentinfo", { name: "Legal" });
+    const loginSection = login!.closest("section");
+    expect(loginSection === null || !loginSection.contains(foot)).toBe(true);
   });
 });
 
 /**
- * SEO-NOTES-AND-LINKS-1 — Explore is a crawlable anchor that still navigates in-app.
- * ★ An href alone cannot tell an <a onClick> from a router <Link>; the click can. A
- * plain click must be defaultPrevented AND route (signed out → /browse); a modifier
- * click must be left to the browser.
+ * SEO-NOTES-AND-LINKS-1 — the hero's outbound link is a crawlable anchor that still
+ * navigates in-app. ★ An href alone cannot tell an <a onClick> from a router <Link>;
+ * the click can. A plain click must be defaultPrevented AND route; a modifier click
+ * must be left to the browser.
+ *
+ * ⚠ THE SUBJECT CHANGED IN LANDING-MERGE-1, THE PROPERTY DID NOT. This block used to
+ * test the "Explore" control, which pointed at /browse. The owner replaced that line
+ * with a link to a real board question — a prerendered, indexed notes page — because
+ * the page argues that marks are lost step by step and the notes pages SHOW that
+ * rather than restating it. "Explore the product" pointed at /app/, which is not
+ * prerendered and so was never a crawl path at all. The link is a different link; the
+ * thing worth defending about it is identical, so the assertions moved rather than died.
  */
-describe("Welcome — the Explore control is a real link", () => {
+describe("Welcome — the hero's board-question link is a real link", () => {
   function Probe() {
     return <output data-testid="loc">{useLocation().pathname}</output>;
   }
@@ -94,30 +124,70 @@ describe("Welcome — the Explore control is a real link", () => {
       <MemoryRouter initialEntries={["/welcome"]}>
         <Routes>
           <Route path="/welcome" element={<Welcome />} />
-          <Route path="/browse" element={<Probe />} />
+          <Route path="/notes/:topicSlug" element={<Probe />} />
         </Routes>
       </MemoryRouter>,
     );
   }
 
-  it("exposes href=/browse for a signed-out visitor — onExplore's own destination", () => {
+  it("exposes a crawlable href at the prerendered notes page", () => {
     renderRouted();
-    expect(screen.getByRole("link", { name: /Explore/ })).toHaveAttribute("href", "/browse");
+    expect(screen.getByRole("link", { name: /marked step by step/i })).toHaveAttribute(
+      "href",
+      "/notes/trigonometry",
+    );
   });
 
-  it("a plain click is prevented and routes client-side to /browse", () => {
+  it("a plain click is prevented and routes client-side", () => {
     renderRouted();
-    const explore = screen.getByRole("link", { name: /Explore/ });
-    expect(fireEvent.click(explore, { button: 0 })).toBe(false);
-    expect(screen.getByTestId("loc")).toHaveTextContent("/browse");
+    const link = screen.getByRole("link", { name: /marked step by step/i });
+    expect(fireEvent.click(link, { button: 0 })).toBe(false);
+    expect(screen.getByTestId("loc")).toHaveTextContent("/notes/trigonometry");
   });
 
   it("CONTROL: a modifier click is NOT prevented and does not route in-app", () => {
     renderRouted();
-    const explore = screen.getByRole("link", { name: /Explore/ });
-    expect(fireEvent.click(explore, { button: 0, metaKey: true })).toBe(true);
-    expect(fireEvent.click(explore, { button: 0, ctrlKey: true })).toBe(true);
+    const link = screen.getByRole("link", { name: /marked step by step/i });
+    expect(fireEvent.click(link, { button: 0, metaKey: true })).toBe(true);
+    expect(fireEvent.click(link, { button: 0, ctrlKey: true })).toBe(true);
     expect(screen.queryByTestId("loc")).toBeNull();
+  });
+});
+
+/**
+ * ★ THE CBSE RETURN TICKET — §2.5, and it is a defect this product already shipped
+ * once. Both landings this page replaces passed the visited pathname AND a backLabel
+ * so /cbse/class-10 could offer a back-link naming where the reader came from. The
+ * footer's own CBSE link deliberately carries NO backLabel — a site-wide row cannot
+ * honestly name its origin — so losing the page-level link would silently downgrade
+ * that back-link to a generic "Back" with every other gate green.
+ */
+describe("Welcome — the page-level CBSE link carries a named return ticket", () => {
+  function cbseLink() {
+    renderWelcome();
+    return screen.getByRole("link", { name: /dates, rules and official papers/i });
+  }
+
+  it("carries BOTH returnTo and a backLabel that names this page", () => {
+    const href = cbseLink().getAttribute("href") || "";
+    expect(href.split("?")[0]).toBe("/cbse/class-10");
+    const params = new URLSearchParams(href.split("?")[1] || "");
+    expect(params.get("returnTo")).toBe("/");
+    expect(params.get("backLabel")).toBe("Back to LazyTopper");
+  });
+
+  it("★ CONTROL — the footer's own CBSE link carries returnTo but NO backLabel", () => {
+    // Proves the assertion above is about the PAGE-LEVEL link and not satisfied by
+    // any CBSE link on the page. If the two were interchangeable, adding a backLabel
+    // to the shared footer would pass the test above while weakening the honesty
+    // rule PublicLegalFooter states in its own comment.
+    renderWelcome();
+    const foot = screen.getByRole("contentinfo", { name: "Legal" });
+    const footHref = within(foot).getByRole("link", { name: /CBSE 2027/i }).getAttribute("href")
+      || "";
+    const footParams = new URLSearchParams(footHref.split("?")[1] || "");
+    expect(footParams.get("returnTo")).toBe("/");
+    expect(footParams.get("backLabel")).toBeNull();
   });
 });
 

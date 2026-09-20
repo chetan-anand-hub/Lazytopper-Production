@@ -75,7 +75,9 @@ const QuestionReportsPage = lazy(() => import("./pages/QuestionReportsPage"));
 const Intent            = lazy(() => import("./pages/app/Intent"));
 const WorksheetReady    = lazy(() => import("./pages/app/WorksheetReady"));
 const MobileHome        = lazy(() => import("./pages/app/MobileHome"));
-const MobileWelcome     = lazy(() => import("./pages/MobileWelcome"));
+// LANDING-MERGE-1 — MobileWelcome is retired. `Welcome` (statically imported
+// above) is now the ONE landing at every width; the width branch that used to
+// choose between them is gone from the /welcome route below.
 
 // Mobile baseline pages (#438 — broken destination repair)
 
@@ -179,8 +181,11 @@ function RootEntry() {
  *
  * Members:
  *   • `/browse`  — MobileHome draws its own locked-design brand bar.
- *   • `/welcome` — MobileWelcome (also suppressed via `isPublicLandingRoute`; kept
- *                  here defensively to document intent).
+ *   • `/welcome` — the public landing, which draws its own brand bar (also
+ *                  suppressed via `isPublicLandingRoute`; kept here defensively
+ *                  to document intent). LANDING-MERGE-1: this used to name
+ *                  MobileWelcome, which no longer exists — one responsive
+ *                  `Welcome` now serves this route at every width.
  *   • `/me`      — the converged MeProgressPage gets ONE clean header from the
  *                  route-layer <MobileSelfChrome> (MobileShell)
  *                  matching the desktop treatment; the old thin LT brand bar is
@@ -855,10 +860,13 @@ export default function App() {
               signed-in/local-session desktop → DesktopHome cockpit
               (shell-wrapped above), mobile → HomeRedirect. */}
           <Route path="/" element={<RootEntry />} />
-          <Route
-            path="/welcome"
-            element={isDesktop ? <Welcome /> : withRouteSuspense(<MobileWelcome />)}
-          />
+          {/* LANDING-MERGE-1 — ONE landing at every width. This route used to read
+              `isDesktop ? <Welcome /> : <MobileWelcome />`; that width branch is
+              the thing the merge removes. The route itself is deliberately KEPT:
+              it is live-linked from Intent.tsx:61's back button and is the
+              signed-out mobile target of "/" just below, and redirecting it to
+              "/" would loop against that redirect. */}
+          <Route path="/welcome" element={<Welcome />} />
           {/* SEVER PR: at mobile width /browse ALWAYS renders the live MobileHome
               (signed-in or out) — this is the signed-in mobile home landing that
               "/" (RootEntry) redirects to. Desktop is unchanged: signed-in users
