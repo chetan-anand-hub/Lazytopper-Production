@@ -14,10 +14,152 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 **The check:** after a symbol search, take every component the search DID find and grep for **who mounts it**, transitively, until the set stops growing. A surface that renders a value is a surface that owns it, whether or not it names the constant.
 
+⚠ **SECOND COSTUME, found the very next day and owner-promoted here 2026-09-20: SCOPING THE SEARCH BY FILE TYPE.** The PAY-1 scoping report declared *"PAY-1 is greenfield. Measured."* That was **right about code and wrong about the lane.** The search ran `--include='*.ts' --include='*.tsx' --include='*.mjs' --include='*.js'`, and **the answer was in `.md` files the whole time**: `NEXT_ACTION.md:2779-2786` records that Razorpay Phase 1 was *"done and proven, not merely configured"* — three env vars in Railway, webhook registered and Enabled, and a live `POST /v1/orders` that returned a real test order. **A search scoped to source cannot find a fact recorded in prose**, and the whole lane was labelled from a source-only result.
+
+★ **THE HANDOFF BOARD IS A MEASURABLE SURFACE AND BELONGS IN THE SEARCH SET.** Before declaring anything absent from this product, grep `handoff/`, `ops/` and `docs/` too. The board exists precisely to hold what the code does not say; a sweep that excludes it is asking the code a question only the record can answer.
+
 ⚠ **The same shape has bitten this board twice before under different names** — "a router `<Link>` renders an `<a href>` too, so an href assertion is blind", and "grep who INVOKES, not who imports". **This rule is the general form: the symbol is not the surface.** Any future sweep — pricing, copy, a retired API, a doctrine claim — that greps a constant name will under-count the same way.
 
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
+
+## 2026-09-20 — STORED-RATE LANE: DESIGN RULINGS ADOPTED (**REPORT ONLY** — nothing started; open PRs at the time of writing: **none**) — and the client-forgeable field that reshaped the lane
+
+**The report:** `Desktop/diff/report-stored-rate-lane-view-2026-09-20.md`, from a read-only
+worktree at trunk `104a1504`. ⚠ **NOTHING STARTS. Specs follow.**
+
+### ★★ THE FINDING THAT RESHAPED THE LANE — a new rate field is CLIENT-FORGEABLE BY DEFAULT
+
+`firestore.rules`'s `clientWritableEntitlement()` allowlists **only two fields** —
+`tier in ['free','trial']` and `plan in ['none','trial_7day']` — plus the two date guards. **Nothing
+constrains any other field.** So a `rate` field added today would be writable from devtools by any
+signed-in student: `{tier:"free", plan:"none", purchasedRateInr: 1}` would pass the rules.
+
+⚠ **This is the `trialEndDate` defect in a costlier place.** That field was *"a client-supplied ISO
+string that `applyExpiry` trusted"*, and the repo's fix is instructive: **it did not validate the
+forgeable field, it removed it** and derived the value. A rate cannot be derived, so it must be
+**explicitly denied to the client** — a `purchasedRateNotForged()` predicate mirroring
+`trialEndDateNotForged()`: the client may never introduce the field and never move it once set.
+
+**OWNER RULING: the field and that rule are ONE INDIVISIBLE CHANGE.** Shipping the field without
+the rule ships a forgeable price. Extend the **proven** `tier:"premium"` Admin-SDK-only boundary
+rather than inventing a second one.
+
+### The adopted design — REQUIREMENTS, not suggestions
+
+- ★★ **STORE THE OFFER KEY, NOT ONLY THE NUMBER.** A bare `999` cannot distinguish *"holds the
+  founding entitlement"* from *"happened to pay ₹999"* once a later cohort is priced differently.
+  **The number is recoverable from the ledger; the entitlement is not** — which is the whole reason
+  this lane runs first.
+- **TWO RECORDS WITH DIFFERENT JOBS.** Entitlement fields on `subscriptions/{uid}` are the **quote**
+  authority; an append-only order record is the **money** authority (Razorpay ids, amount, currency,
+  offer key, term, timestamp — what a refund, dispute or GST invoice needs). ⚠ **If they disagree,
+  the LEDGER WINS** and the entitlement is repaired from it.
+- **THE RATE IS WRITTEN IN THE SAME ADMIN TRANSACTION THAT GRANTS PREMIUM**, never as a follow-up
+  write. ⚠ **A separate write that fails leaves a premium account with no rate — the worst state in
+  the system.**
+- ★ **PAISE VERSUS RUPEES IS PINNED.** Razorpay transacts in **paise**; the display formats rupees.
+  **Name the field for its unit and convert at exactly one boundary.** A silent **100×** in the
+  direction of over-charging is the kind of defect that ends a young product.
+- **GST IS INCLUSIVE** (owner ruling, 2026-09-20): the stored rate is **what the student paid**; the
+  tax component is **derived for the invoice, never stored as a second promise**. ⚠ **No surface may
+  render a "+18% GST" line**, and the invoice breaks the tax **out of** the inclusive amount.
+
+### `useQuotedRate()` — and the caveat is the important half
+
+The real defect is that **one string answers two different questions**. *"What does this product
+cost?"* (public) and *"What will YOU be charged?"* (entitlement) both read the same founding-bound
+`MONTHLY_INLINE` today.
+
+- **The three gated surfaces** (`MockViewGate:239`, `PracticeLimitGate:100`, `UpgradeSheet:240`)
+  resolve through a **`useQuotedRate()`** hook: the account's stored rate, falling back to the
+  **public** rate.
+- ⚠ **The fallback must be the PUBLIC rate, not the founding constant** — otherwise a new visitor
+  after the offer closes is quoted the founding price: the same bug mirrored, and harder to spot
+  because it under-quotes.
+- ⚠ **Do not rename the constant and re-point the three imports.** That is a rename wearing a fix's
+  name; the consumers would still read a build-time value and still reprice on flip.
+- ★★ **THE LANDING AND `/pricing` KEEP THE CONSTANT — OWNER RULING.** The hook makes a component
+  **auth-dependent**, and the landing is **already** blocked from prerendering by an auth split
+  (`[FU-SEO-ROOT-CAPTURE]`). **Do not create a second one.**
+
+### The test — the control IS the test
+
+**Subject:** an account **with** a stored rate → flip `FOUNDING_OFFER_OPEN` → the quote **does not
+move**. ★ **CONTROL, same flip:** an account with **no** stored rate → the quote **DOES move**.
+
+⚠ **Without the control, "did not move" passes on a broken mock, on a component that stopped
+rendering a price, and on a run that never reached the case.** Further requirements: assert on the
+**rendered text of all three consumers** (a hook-level test passes green while `MockViewGate` still
+imports the old constant); **assert preconditions on subject AND control**; flip the flag with
+`vi.resetModules()` + `vi.doMock()` on that one constant so the **real** module re-evaluates rather
+than mocking the whole pricing module.
+
+### `[FU-PRICING-FOUNDING-LOCK-COPY]` — the copy fix ships WITH this lane
+
+`FOUNDING_LOCK_COPY = "Locked for as long as you stay subscribed."` promises a lock the data model
+cannot honour **and** is subscription-framed under a one-time-pass model. **Owner ruling: it ships
+with this lane, because that is when it becomes true.**
+
+### SEQUENCING — owner rulings, 2026-09-20
+
+1. ★ **`FREE-CHECK-1` IS CONFIRMED AND RUNS IN PARALLEL** with the stored-rate lane. Different
+   surfaces — entitlement storage versus anonymous grading — and **the free check is on the landing
+   page's critical path**: see `[FU-LANDING-CTA-HONESTY]` below.
+2. ★ **STEP ONE OF THE STORED-RATE LANE IS ONE FRESH `POST /v1/orders` AGAINST THE CURRENT RAILWAY
+   SECRET.** The recorded live call used keys **"generated then rotated after being exercised"**, so
+   it proves the **path**, not the **credential**. Everything else is designed on top of it.
+   ⚠ Unverifiable from a worktree — no Railway access.
+3. **IDEMPOTENCY AND A REPLAY/REPAIR PATH ARE PART OF THIS LANE'S THINKING** even though the path is
+   built next: ⚠ **a payment that succeeds with no entitlement write is a student who paid and got
+   nothing.** The storage shape must support repair.
+
+⚠ **The GSTIN is an OWNER action in Razorpay's dashboard.** It must never appear in the repo, in a
+spec, or in any config file. If anything asks for it, that is the answer.
+
+### `[FU-LANDING-BOARDS-ANCHOR]` — ⚠ CORRECTS WHAT `#806` SHIPPED. Landing lane, not PAY-1.
+
+**Owner ruling: the months figure stays real, computed against LAST YEAR'S BOARD START DATE until
+CBSE publishes 2027's.**
+
+`#806` shipped `BOARDS_ANCHOR_ISO = "2027-02-01"` (`Welcome.tsx:52`), derived from
+`CBSE_2027_MAIN_EXAM_WINDOW` = "February 2027" taken at the **start of the published window**. The
+ruled anchor is **last year's start date rolled forward: `2027-02-17`** — the repo already holds
+`2026-02-17` at `services/cbseExamDate.ts:93` (`officialDates["2025-26"]["10"]`), and
+`predictCbseExamDate()` already implements the roll-forward.
+
+**Measured divergence — they agree today and part company exactly when it matters:**
+
+| date | `2027-02-01` (shipped) | `2027-02-17` (ruled) |
+|---|---|---|
+| 2026-09-20 | 4 months | 4 months — **identical today** |
+| 2026-12-25 | 1 month | 1 month |
+| **2027-01-05** | **3 weeks** | **1 month** |
+| **2027-01-20** | **12 days** | **4 weeks** |
+
+⚠ **The divergence is in the FINAL MONTH, when the countdown matters most.** Not urgent today;
+**wrong before January.** The landing lane decides whether to hardcode the rolled date with a
+comment or reuse `predictCbseExamDate()`; the pure, `now`-supplied `boardsCountdownLabel(now,
+anchorIso)` signature already takes the anchor as a parameter, so this is a one-constant change
+plus its test table.
+
+### `[FU-LANDING-CTA-HONESTY]` — the hero CTA outruns the product until `FREE-CHECK-1` lands
+
+**Owner ruling:** *"the hero CTA cannot honestly say 'Check my answer' until it exists."* `#806`'s
+landing carries "Check my answer" in three places (hero, close, sticky), all routing to
+`/sign-up?redirect=%2F` — **a student who taps it lands on the home cockpit with nothing checked.**
+The CTA was wired to `/` deliberately (routing it to Check & Improve would strand them on an empty
+grading surface with nothing to grade), so **the honest fix is the free check, not a re-route.**
+⚠ **Landing lane + `FREE-CHECK-1`, not PAY-1.**
+
+### Recorded: the Board Questions tab EXISTS — the open question is deep-link targeting
+
+Owner correction, and **it agrees with what `#806` measured**: `prerendered/notes/trigonometry.html`
+(187,735 bytes) contains the `Board Questions` tab plus real step-marked solutions with per-step
+marks, and **all 26 notes pages carry it** (which is why check 9's control had to be a different
+surface entirely). ⇒ **Nothing needs creating. The open question is targeting the tab from a deep
+link**, i.e. selecting it on arrival rather than leaving the reader on the default tab
+(`aria-selected="false"` on the Board Questions button in the captured markup). **Landing/SEO lane.**
 
 ## 2026-09-20 — PAY-1 SCOPING REPORT (**REPORT ONLY** — no branch, no edit, no commit; open PRs at the time of writing: **none**) — three findings accepted, two of them corrections to the brief, and the sequencing ruled
 

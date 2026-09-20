@@ -26,6 +26,25 @@ TRUNK IS `6a89209060e0e2efb831e47a5804ae9eb771c901`, MEASURED 2026-09-20.
    ⚠ DO NOT change a price constant first. It is the easy edit and it is
    the wrong one.
 
+   TWO LANES RUN IN PARALLEL (owner ruling 2026-09-20):
+     A. STORED-RATE  - entitlement storage. STEP ONE IS ONE FRESH
+        POST /v1/orders AGAINST THE CURRENT RAILWAY SECRET: the recorded
+        live call used keys "generated then rotated after being
+        exercised", so it proves the PATH, not the CREDENTIAL.
+     B. FREE-CHECK-1 - anonymous grading. Different surfaces, and it is on
+        the LANDING'S CRITICAL PATH: the hero CTA cannot honestly say
+        "Check my answer" until it exists. See [FU-LANDING-CTA-HONESTY].
+
+   ⚠ A NEW RATE FIELD IS CLIENT-FORGEABLE BY DEFAULT. firestore.rules
+   allowlists only tier and plan, so a rate field is writable from
+   devtools. The field and purchasedRateNotForged() are ONE INDIVISIBLE
+   CHANGE - this is the trialEndDate defect in a costlier place.
+
+   ⚠ LANDING FOLLOW-UPS ARE A SEPARATE LANE. [FU-LANDING-BOARDS-ANCHOR]
+   corrects what #806 shipped (anchor 2027-02-01 should be last year's
+   board start rolled forward, 2027-02-17). The two agree TODAY and
+   diverge in January, when the countdown matters most.
+
 (SUPERSEDED 2026-09-20, kept verbatim per standing rule 3)
 ★★★ NEXT: PAY-1 SCOPING REPORT IS COMMISSIONED AND IS REPORT-ONLY.
    The owner issued a final pricing ruling on 2026-09-20 (one-time passes,
