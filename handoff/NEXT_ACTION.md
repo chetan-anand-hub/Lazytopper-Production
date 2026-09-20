@@ -9,6 +9,24 @@ TRUNK IS `6a89209060e0e2efb831e47a5804ae9eb771c901`, MEASURED 2026-09-20.
    290d2fe6 = #802 (WELCOME-FIGURES-1)
    2670c87d = #801 (ASSET-404-1)
 
+★★★ NEXT: NOTHING STARTS. THE OWNER RULES ON GST, THEN SPECS THE
+   STORED-RATE LANE. The PAY-1 scoping report is DELIVERED
+   (Desktop/diff/report-pay1-pricing-scope-2026-09-20.md) and its rulings
+   are on the board under 2026-09-20 - PAY-1 SCOPING REPORT.
+
+   ORDER IS RULED, AND IT IS NOT THE OBVIOUS ONE:
+     1. THE STORED-RATE FIELD, before any price change. It is the only
+        item where DELAY DESTROYS INFORMATION - once FOUNDING_OFFER_OPEN
+        flips with no stored rates, who earned the founding rate is not
+        recoverable from anything. A price constant can be changed at any
+        time; a lost cohort cannot be reconstructed.
+     2. GST treatment - OWNER-OWNED, and it BLOCKS the displayed figure.
+     3. Everything else (constants, copy, the dynamic term, the gateway).
+
+   ⚠ DO NOT change a price constant first. It is the easy edit and it is
+   the wrong one.
+
+(SUPERSEDED 2026-09-20, kept verbatim per standing rule 3)
 ★★★ NEXT: PAY-1 SCOPING REPORT IS COMMISSIONED AND IS REPORT-ONLY.
    The owner issued a final pricing ruling on 2026-09-20 (one-time passes,
    NO recurring billing, a dynamic till-boards price, a stored earned rate).
