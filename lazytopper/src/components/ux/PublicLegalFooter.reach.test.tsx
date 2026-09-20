@@ -15,7 +15,7 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
  * a query that might simply be wrong. `it("CONTROL: …")` below proves the exact
  * getByRole("link", { name }) query used throughout DOES find the legal links on a
  * surface trunk already ships them on (the sign-in door), so a failure on
- * MobileWelcome/PricingPage is a real absence and not a broken query.
+ * Welcome/PricingPage is a real absence and not a broken query.
  *
  * ⚠ This file deliberately does NOT touch src/pages/Login.legalLinks.test.tsx, which
  * pins the login footer independently. The control here renders the same component
@@ -36,7 +36,7 @@ vi.mock("../../services/uxTelemetry", () => ({ trackUxEvent: vi.fn() }));
 vi.mock("../../services/referralService", () => ({ creditPendingReferral: vi.fn() }));
 
 import PublicLegalFooter from "./PublicLegalFooter";
-import MobileWelcome from "../../pages/MobileWelcome";
+import Welcome from "../../pages/Welcome";
 import PricingPage from "../../pages/PricingPage";
 import LegalPage from "../../pages/LegalPage";
 import Login from "../../pages/Login";
@@ -68,11 +68,11 @@ describe("CONTROL — the link query used by this file can find a legal link tha
   });
 });
 
-describe("MobileWelcome (mobile public landing) reaches the policies", () => {
+describe("Welcome (the one public landing, every width) reaches the policies", () => {
   it.each(FOOTER_LINKS)("renders a %s link to %s", (label, href) => {
     render(
       <MemoryRouter>
-        <MobileWelcome />
+        <Welcome />
       </MemoryRouter>,
     );
     const foot = screen.getByRole("contentinfo", { name: "Legal" });
@@ -124,7 +124,7 @@ describe("the footer links to Exam Trends (the chapter index) on every public su
   // useLocation() to build its return ticket, so the expectation is surface-specific
   // rather than one hardcoded string that would hide a footer sending everyone home.
   const surfaces: [string, () => ReactElement, string][] = [
-    ["MobileWelcome", () => <MemoryRouter><MobileWelcome /></MemoryRouter>, "/"],
+    ["Welcome", () => <MemoryRouter><Welcome /></MemoryRouter>, "/"],
     ["PricingPage", () => <MemoryRouter initialEntries={["/pricing"]}><PricingPage /></MemoryRouter>, "/pricing"],
     ["PublicLegalFooter", () => <MemoryRouter><PublicLegalFooter /></MemoryRouter>, "/"],
   ];
