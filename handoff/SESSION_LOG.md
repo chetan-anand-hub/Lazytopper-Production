@@ -1,5 +1,138 @@
 ---
 
+## 2026-09-20 — LANDING-MERGE-1 — **ONE LANDING PAGE FOR EVERY SCREEN, AND TWO DEAD BRANCHES A VALUE TABLE COULD NOT SEE** — `#806` MERGED — trunk `6a892090`
+
+★ **PROVENANCE.**
+- Built in an isolated worktree at the base SHA. Premise gate exit 0 (10 premises, 8/8 anchors resolved, 2 UNVERIFIED by design); tsc app + `typecheck:test` both 0; `vitest run src` **172 files / 2302 tests, 0 failed, 0 skipped**; build 15.18s + `verify-production-build`; mojibake **0 hits in any file this lane touched**; `scope:guard --mode mixed` **`SCOPE_GUARD_OK`, inspected=12** (non-vacuous); **root guard matrix 211 tests / 31 suites, fail 0, skipped 0**; lazytopper ops matrix all suites; `git diff --check` clean. **All 8 CI checks green.**
+- **§4 run against the Vercel preview of the exact commit**, production as the control, every control shown.
+- ⚠ **12 acceptance clauses machine-verified + 1 WAIVED BY THE OWNER. Not 13/13.** See below.
+
+**Trunk `6a89209060e0e2efb831e47a5804ae9eb771c901`** (`#806` squash, no `--admin`). Before it: `8198292d` = `#805`.
+
+**What shipped.** `Welcome.tsx` (>=1024px) and `MobileWelcome.tsx` (<1024px) are now ONE CSS-only
+responsive component built from the v6 prototype. The router no longer picks a landing by width.
+The page is marketing, not a product tour: one trigonometry question and three students who lost
+marks on it for three different reasons. The four preview cards, the product-loop story rail and
+the BenefitRow are gone with the old page.
+
+**What is deliberate and must not be read as an accident:**
+- **The frozen >=1180px layout is DROPPED** (owner ruling). The page scrolls at every width, so the
+  legal footer no longer has to occupy the fifth row of a `height:100vh` grid to stay reachable.
+- **CSS-only, no `useIsDesktop()`.** The spec PERMITTED the hook; the prototype FORBADE it.
+  CSS-only satisfies both, so no side had to be chosen. A width hook reads `matchMedia` at render
+  time, which would bake the desktop DOM into HTML served to phones if the root were ever captured.
+- **This lane does NOT make `/app/` prerenderable and never claimed to.** The exclusion is an AUTH
+  split (`Welcome` vs `DesktopHome`), not a width split. **The build proves it survives the merge:**
+  `STATIC_BODIES_APPLY ... applied=59 (root excluded)`. The prototype's header asserts the opposite;
+  measured against the code, it is wrong.
+- **`/welcome` is untouched** — live-linked from `Intent.tsx:61` and redirecting it would loop
+  against the signed-out mobile root redirect at `App.tsx:161-162`.
+
+### ★★★ TWO DEAD BRANCHES I WROTE, AND THE INSTRUMENT THAT FOUND THEM
+
+The lane's best self-catch. My first `boardsCountdownLabel` draft ended the weeks band at 60 days.
+Above 60 days `Math.floor(days / 30.44)` is always >= 2, so **`"1 month left."` was unreachable —
+a branch no date could ever render.** Moving the boundary to 30 fixed it and immediately exposed
+the same defect one band down: with days <= 14 handled first, `weeks` is always 2-4, so
+**`"1 week left."` was unreachable too.**
+
+★★ **A TABLE OF EXPECTED VALUES WOULD HAVE PASSED ON BOTH, AND THAT IS THE GENERAL LESSON.** Every
+row of an `it.each` table asserts an input the author already believes reachable, so a branch no
+input reaches is **structurally invisible** to it. The test stays green while shipping code that
+can never run. What catches it is asserting **branch reachability** instead of values: sweep the
+input domain (here all 400 days before the anchor), reduce each output to its *shape*
+(`"4 months left."` -> `"N months left."`), and assert the set of shapes is exactly what the
+function claims to produce. A dead branch is a missing shape; singular/plural pairs prove both
+halves render.
+
+**This generalises past this lane.** Any banded or bucketed function — mark bands, tier
+thresholds, difficulty buckets, date ranges — can carry a branch nothing reaches, and a value
+table cannot see it.
+
+### ⚠ ONE ACCEPTANCE CLAUSE WAS WAIVED BY THE OWNER — READ THIS BEFORE QUOTING THE COUNT
+
+**§4.8's second clause, "two captures on different machines agree", was NOT RUN.** There is no
+capture of this route to compare: `capturablePaths()` filters `"/"` out, `prerendered/` holds no
+root artifact, and the build says `applied=59 (root excluded)`. **Two captures of nothing agree
+trivially** — the green-that-measures-nothing this board keeps cataloguing. It was reported rather
+than claimed, and **the owner waived it on 2026-09-20** on exactly that reasoning.
+
+⚠ The standard the previous lane set — *"a different machine with a different clock, i.e. CI's
+`capture` job"* — is correct and **simply has no purchase on an uncaptured route**. The waiver is
+bounded to this clause on this route: if a later lane adds `/` to `capturablePaths()`, it becomes
+runnable and is owed again. The countdown node is already built to satisfy it.
+
+**What WAS verified about the countdown:** the source contains exactly ONE clock read and it is
+inside the `useEffect` (asserted, with a control proving the detector fires on
+`services/cbseExamDate.ts`, and a second control proving the comment-stripper hides nothing). On
+the preview, the served HTML contains no countdown text; after hydration the node reads
+"4 months left." and is **not inside any heading**. All three `<h2>`s are static.
+
+### ★★ THE EVIDENCE-BASE TEST WAS REWRITTEN BY REASONING, AND THE FINDING WAS BIGGER THAN THE SPEC
+
+The spec cited `Welcome.evidenceBase.test.tsx:114` — the "Sample" honesty tag. In fact **every
+assertion in that file named a preview card the merge deletes**, and **two of its negative
+assertions kept PASSING after the merge while proving nothing**, because the elements they
+searched no longer existed.
+
+- **The "Sample" tag is not replaced — it is no longer owed.** It existed to mark invented figures
+  as not-real; the new page renders no progress ring, no accuracy figure, no rank and no bar. That
+  is the better answer, not a loophole. Re-pointing the old assertion at a surviving element would
+  have been a red-test fix wearing the old test's name.
+- ⚠ **But deleting the file would have let the no-fake-data rule stop guarding the front door.** So
+  the doctrine was **re-homed** onto the page's actual numbers: the three illustrative diagnoses
+  (framed as one question's marks, asserted PRESENT as a control first) and the price (read from
+  `src/config/pricing.ts`, asserted equal to the constant, with a control that the prototype's
+  wrong `1,999` is absent).
+
+**Same discipline on the legal-footer test.** Its `.lt-landing-stage` placement assertion died with
+the frozen grid, so it was **removed by reasoning** and replaced with the hazard that now actually
+matters: **the footer is inside no `<section>`**, because `stripAuthChrome()` deletes the
+`<section>` enclosing any `/login` anchor and this page has a Log in link — a future capture could
+otherwise delete the one crawl path Google has followed, with every gate green. **With a control
+proving the login link that makes the hazard real exists**, so the defence is not vacuous.
+
+### The price: a stop condition the prototype declared on itself
+
+The prototype's card read **Rs 1,999/mo**, a figure that appears **zero times** in
+`src/config/pricing.ts` (list 999, founding 599). Its own header says *"This figure MUST match
+/app/pricing. If they differ, stop."* They differed. **Stopped and asked; the owner ruled the LIST
+rate.** The card now renders `PRICE_MONTHLY_LIST_DISPLAY`, so it cannot drift from the pricing
+page — and `pricing.guard.test.ts` forbids a rupee literal in `.ts/.tsx` anyway, so importing was
+required regardless. ⚠ **Superseded the same day by a full owner pricing ruling** — see
+`[FU-PRICING-MODEL-2026-09]`.
+
+### Other findings worth keeping
+
+- ★ **The scout report was the stale document, not the prototype.** It measured a 238,855-byte
+  revision; the delivered prototype is 239,604 and **already carried no trial promise**, so §2.4
+  was a no-op — nothing to remove, only nothing to reintroduce. Re-deriving the numbers against the
+  delivered hash rather than trusting either paper is what found it.
+- ★ **The spec's own P9 control was wrong.** It named `Login.tsx` as "known to reference" the
+  landings; measured, `Login.tsx` contains **zero** references to `Welcome`, `MobileWelcome` or
+  `/welcome` — its three matches are "Welcome back" microcopy and a back-link whose `<Link>` goes
+  to `/`. The control still did its job; its premise did not hold.
+- ★ **A merge-verification grep matched my own comment.** `grep -c 'MobileWelcome />'` on trunk
+  returns **1** — inside the comment quoting the old route. The executable line reads
+  `<Route path="/welcome" element={<Welcome />} />`. Checking the executable statement separately
+  is what distinguished them; the bare count read as a failed merge.
+- ★ **The prototype breaks its own declared accessibility floor.** It states ">=44px tap targets"
+  and ships `.cls button { min-height: 34px }`. Raised to 44px (and the Log in link likewise),
+  because the stated floor is normative and 34px is a live WCAG failure.
+- ⚠ **`npx tsc` in a worktree with no `node_modules` prints "This is not the tsc command you are
+  looking for" AND EXITS 0.** A false green if read carelessly.
+- ⚠ **Windows:** vitest and vite both need `@rollup/rollup-win32-x64-msvc@4.59.0` dropped into
+  `node_modules/.pnpm/rollup@4.59.0/node_modules/@rollup/` in a fresh worktree. The documented fix;
+  both then ran normally, build included (15.18s).
+
+### Assets
+The prototype's three base64 images became real files under `public/brand/` (105,445 B). The
+fingerprint was inlined **twice** in the prototype; one file referenced twice saves **62,332 bytes**.
+Verified in the built bundle: `K0="/app/".replace(/\/$/,"")` then `\`${K0}/brand/...\`` — Vite
+injects the base, so the source carries no hardcoded `/app/` (CLAUDE.md §7).
+
+---
+
 ## 2026-09-19 — CBSE-PAGE-1 — **FOUR CHECKS PASSED WHILE MEASURING NOTHING, AND EACH ONE LOOKED THOROUGH** — `#804` MERGED — trunk `f7bd1daf`
 
 ★ **PROVENANCE.**

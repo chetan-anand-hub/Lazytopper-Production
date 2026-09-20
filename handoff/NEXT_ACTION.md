@@ -2,10 +2,27 @@
 ⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW ON TRUNK SHA AND ON THE GATE SET.
    IT DOES NOT SUPERSEDE ANY OPEN FOLLOW-UP RECORDED BELOW.
 
-TRUNK IS `f7bd1daf312f13d638f07f6a02d7a6b70f5036b7`, MEASURED 2026-09-19.
+TRUNK IS `6a89209060e0e2efb831e47a5804ae9eb771c901`, MEASURED 2026-09-20.
+   6a892090 = #806 (LANDING-MERGE-1)
+   8198292d = #805 (docs handoff for CBSE-PAGE-1)
    f7bd1daf = #804 (CBSE-PAGE-1)
    290d2fe6 = #802 (WELCOME-FIGURES-1)
    2670c87d = #801 (ASSET-404-1)
+
+★★★ NEXT: PAY-1 SCOPING REPORT IS COMMISSIONED AND IS REPORT-ONLY.
+   The owner issued a final pricing ruling on 2026-09-20 (one-time passes,
+   NO recurring billing, a dynamic till-boards price, a stored earned rate).
+   It CONTRADICTS the constants on trunk today. Read
+   [FU-PRICING-MODEL-2026-09] in OPEN_QUESTIONS before touching any price.
+   NO BRANCH, NO EDIT until that report is read.
+
+★★★ THE LAST LANE SHIPPED TWO DEAD BRANCHES AND CAUGHT THEM. READ THIS.
+   A banded function had two branches NO INPUT COULD REACH, and a table of
+   expected values passed on both - every row asserts an input the author
+   already believes reachable, so an unreachable branch is invisible to it.
+   Assert BRANCH REACHABILITY: sweep the input domain, reduce each output to
+   its shape, assert the SET of shapes. Applies to any banded or bucketed
+   function - mark bands, tier thresholds, difficulty buckets, date ranges.
 
 ★★★ FOUR CHECKS IN THE LAST LANE PASSED WHILE MEASURING NOTHING. READ THIS FIRST.
 

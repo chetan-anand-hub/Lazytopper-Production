@@ -1,5 +1,27 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-20 — LANDING-MERGE-1 (`#806` `6a892090`), trunk `6a892090`.**
+> ★★ **ONE CELL MOVES, AND IT IS THE FRONT DOOR ITSELF: the landing is now ONE component at every width.** Verified on the Vercel preview at 390/768/1024/1440. ⚠ **Cells move on live evidence, not code evidence — the OWNER LIVE-VERIFY in §6 is still outstanding** (a physical iPhone for the home-indicator clearance, and the large-desktop scroll). Marked accordingly below.
+
+### ✅ CELL — PUBLIC LANDING (`/` signed-out desktop, `/welcome` every width) — **TWO COMPONENTS → ONE**
+- **One CSS-only responsive component**, three mobile-first breakpoints, **no `useIsDesktop()`**. `MobileWelcome.tsx` (403 lines) and its test are deleted; the router's width branch is gone.
+- **Preview-verified at four widths** — same component, identical H1, 3 cards each; **four differing screenshot hashes** as the control, and rendered-text lengths proving none is blank.
+- **The frozen >=1180px layout is dropped, deliberately.** The page scrolls at every width.
+- **The legal footer is outside every `<section>`** — the property that stops a future `stripAuthChrome` deleting the one crawl path Google has followed. Asserted with a control.
+- **The CBSE return ticket survives with its `backLabel`**; the footer's link keeps `returnTo` only, deliberately.
+- **No trial promise** — 0 matches on the preview, with the same grep finding the string still live on production as the control.
+- ⏳ **NOT YET OWNER-VERIFIED LIVE:** the sticky CTA on a real iPhone (headless Chromium reports `env(safe-area-inset-bottom)` as 0, so the geometry was measured with the inset **substituted**), and the large-desktop scroll.
+
+### ✅ CELL — OUTBOUND CRAWL PATH FROM THE LANDING — **`/app/` → A REAL PRERENDERED PAGE**
+The prototype's "Just looking? Explore the product" pointed at `/app/`, which is **not captured** and was therefore never a crawl path. Owner replaced it with a link to a real board question with a step-marked solution at `/notes/trigonometry` — a **prerendered, indexed** page (187,735-byte artifact, per-step marks verified, with a control proving the markers are absent from a page that has no such tab).
+
+### ⬜ CELL UNCHANGED — HOMEPAGE PRERENDERING — **STILL EXCLUDED, AND THIS LANE DID NOT CHANGE IT**
+⚠ **Do not read the merge as progress on this cell.** The root is excluded because `RootEntry` serves the landing to a signed-out visitor and `DesktopHome` to a signed-in one — an **AUTH** split. `#806` collapsed the **WIDTH** branch, which leaves that reason true word for word. **The build proves it: `applied=59 (root excluded)`.** See `[FU-SEO-ROOT-CAPTURE]` and `[FU-HOMEPAGE-AI-INVISIBLE]`.
+
+### ⚠ SCOPE DISCOVERED — PRICING COPY ON THIS SURFACE
+The landing's plan card renders `PRICE_MONTHLY_LIST_DISPLAY` with a **"/mo"** suffix. The owner's 2026-09-20 ruling (`[FU-PRICING-MODEL-2026-09]`) establishes **one-time passes with no recurring billing**, and bans the slash because it implies an auto-renewal that does not exist. **The figure will follow `pricing.ts` automatically; the suffix will not.** Scope status for this surface: **SETTLING** — owned by PAY-1, not by a landing fix.
+
+
 > **2026-09-19 — CBSE-PAGE-1 (`#804` `f7bd1daf`), trunk `f7bd1daf`.**
 > ★★ **ONE NEW SURFACE, AND IT IS A FRONT DOOR.** `/app/cbse/class-10` is public, crawlable and reachable from eight existing surfaces. **OWNER-VERIFIED LIVE 2026-09-19** on a Maths chapter test and a Science full mock. Cells move on live evidence, not code evidence.
 

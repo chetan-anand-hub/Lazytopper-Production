@@ -1,5 +1,46 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-20 — LANDING: **LANDING-MERGE-1 — ONE LANDING PAGE FOR EVERY SCREEN** — `#806` MERGED — trunk `6a892090`
+
+- ✅ **One responsive landing component replaces two.** `Welcome.tsx` (>=1024px) and
+  `MobileWelcome.tsx` (<1024px) merged; the router's width branch is gone. Verified on the Vercel
+  preview at **390 / 768 / 1024 / 1440** — same component, identical H1, 3 cards at each, with four
+  DIFFERING screenshot hashes as the control that the instrument can tell the widths apart, and
+  rendered-text lengths proving none of the four is a blank page.
+- ✅ **CSS-only, no width hook** — three mobile-first breakpoints. The spec permitted
+  `useIsDesktop()`, the prototype forbade it; CSS-only satisfies both, so no side was chosen.
+- ✅ **The frozen >=1180px layout is dropped, deliberately** (owner ruling), and the legal footer
+  moves to an ordinary last child — **inside no `<section>`**, because `stripAuthChrome()` deletes
+  the `<section>` enclosing any `/login` anchor.
+- ✅ **The sticky phone CTA reuses `MobileWelcome.tsx:237`'s `env(safe-area-inset-bottom)`** rather
+  than re-solving it. Verified on the preview by reading the live rule, then measuring geometry
+  with a 34px inset substituted; **the control shows the same assertion FAILING with the inset
+  removed** (overlaps by 24px).
+- ✅ **No trial promise.** 0 matches for `/trial|7-day/i` on the preview; **the control is the same
+  grep finding "7-day Premium trial" still live on production**.
+- ✅ **The CBSE return ticket survives with its `backLabel`**, as a page-level link; the footer's
+  link keeps `returnTo` only, deliberately.
+- ✅ **Owner instruction: "Explore the product" → `/app/` replaced by a link to a real board
+  question** with a step-marked solution. Check 9 verifies the destination actually carries that
+  content (187,735-byte artifact, per-step marks), **with a control proving the markers are absent
+  from a page that has no such tab** — which had to be a different surface, since all 26 notes
+  pages carry it.
+- ⚠ **This did NOT make `/app/` prerenderable and does not claim to.** The exclusion is an AUTH
+  split; the build still reports `applied=59 (root excluded)`.
+- ⚠ **§4.8's second clause was WAIVED BY THE OWNER as unexecutable** — `/` is not captured, so two
+  captures of nothing agree trivially. **12 verified + 1 waived, not 13/13.**
+- ★★★ **PROCESS — two dead branches, invisible to a value table.** A banded function shipped two
+  branches no input could reach; `it.each` rows passed on both. **Branch-reachability sweeps** are
+  the instrument: reduce outputs to shapes, assert the set. Generalises to any banded function.
+- ★★★ **PROCESS — the evidence-base test was rewritten by reasoning, not redness.** Every assertion
+  named a deleted card and **two negative ones kept passing while proving nothing**. The "Sample"
+  tag is **no longer owed** rather than replaced; the doctrine was re-homed onto the page's real
+  numbers so the no-fake-data guard keeps guarding.
+- ★★ **A stop condition the prototype declared on itself:** its Rs 1,999/mo appears **zero times**
+  in `pricing.ts`. Stopped, asked, owner ruled the list rate; the card now reads the constant.
+- ★★ **The scout report was the stale document, not the prototype** — re-deriving every number
+  against the delivered hash is what found it.
+
 ## 2026-09-19 — SEO: **CBSE-PAGE-1 — THE CBSE PAGE, EIGHT WAYS IN, AND FOUR CHECKS THAT MEASURED NOTHING** — `#804` MERGED — trunk `f7bd1daf`
 
 - ✅ **A public, crawlable page at `/app/cbse/class-10`** — 20 official CBSE source links (7 Science + 8 Maths papers + 5 circulars), unit-wise marks, the two-exam timeline, six `<details>` trap cards, the helpline. Sitemap **59 → 60**, self-canonical, own `STATIC_PAGE_HEADS` entry.
