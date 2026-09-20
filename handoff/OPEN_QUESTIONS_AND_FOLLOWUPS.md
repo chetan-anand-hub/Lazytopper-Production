@@ -8,8 +8,150 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 
 **2 · When an FU is assigned to two lanes, the lane that writes FIRST records it**, with an explicit "do not duplicate" line naming the other lane. A visible duplicate is recoverable by anyone reading; a silent loss is recoverable by nobody. Prefer the recoverable failure. *(Owner-confirmed as the default rule for FU placement, 2026-07-27.)*
 
+**★ 4 · Enumerate by REACHABILITY, not by symbol.** *(Owner-promoted to this board 2026-09-20, from the PAY-1 scoping report.)*
+
+**A grep for a constant name finds only the files that IMPORT it, and misses every surface that renders the value through a component.** This is not hypothetical: the PAY-1 scope was asked to find five named pricing files. `grep -rln 'PRICE_...'` found four and **missed `Login.tsx`**, which reaches the price through `<OfferStrip variant="panel" />` (`Login.tsx:2015`, `:2557`) and imports no pricing constant at all. The owner's control caught it; the instrument was wrong, not the control.
+
+**The check:** after a symbol search, take every component the search DID find and grep for **who mounts it**, transitively, until the set stops growing. A surface that renders a value is a surface that owns it, whether or not it names the constant.
+
+⚠ **The same shape has bitten this board twice before under different names** — "a router `<Link>` renders an `<a href>` too, so an href assertion is blind", and "grep who INVOKES, not who imports". **This rule is the general form: the symbol is not the surface.** Any future sweep — pricing, copy, a retired API, a doctrine claim — that greps a constant name will under-count the same way.
+
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
+
+## 2026-09-20 — PAY-1 SCOPING REPORT (**REPORT ONLY** — no branch, no edit, no commit; open PRs at the time of writing: **none**) — three findings accepted, two of them corrections to the brief, and the sequencing ruled
+
+**The report:** `Desktop/diff/report-pay1-pricing-scope-2026-09-20.md`, produced from a read-only
+detached worktree at trunk `6a892090`. ⚠ **NOTHING STARTS.** The owner rules on GST, then specs the
+stored-rate lane.
+
+### ★★ SEQUENCING RULING — the stored-rate field is PAY-1's FIRST lane, before any price change
+
+**Owner ruling, 2026-09-20**, adopting the report's reasoning for the decision:
+
+> **A price constant can be changed at any time; a lost cohort cannot be reconstructed.**
+
+It is **the only item in PAY-1 where delay destroys information.** Once `FOUNDING_OFFER_OPEN` flips
+with no stored rates, *who earned the founding rate* is not recoverable from anything — not from
+the constants, which will have moved, and not from `SubscriptionStatus`, which never held a rate.
+Every other item is copy and arithmetic that can follow.
+
+### `[FU-PRICING-QUOTE-REPRICES-FOUNDING]` — ★★ the promise "founding members keep their rate permanently" is UNIMPLEMENTABLE as the data model stands
+
+**Measured on trunk `6a892090`.** The owner's stop-and-report asked whether the earned rate is
+resolved from `PRICE_MONTHLY_FOUNDING_INR`. **It is not — and the reason is worse than the
+premise.** `SubscriptionStatus` (`src/services/subscriptionService.ts:8-27`) is
+`tier / plan / trialStartDate / trialEndDate (deprecated) / premiumSince`. **There is no rate,
+price or amount field at all**, so nothing resolves a member's rate from anything.
+
+⚠ **But the same defect is already LIVE in the QUOTE.** `pricing.ts:178`
+`MONTHLY_INLINE = \`${PRICE_MONTHLY_FOUNDING_DISPLAY}/month\`` is consumed by three gates, **all
+three verified by the owner**: `MockViewGate.tsx:239`, `PracticeLimitGate.tsx:100`,
+`UpgradeSheet.tsx:240`. `UpgradeSheet.tsx:29-31` states the hazard in its own words — the constant
+is *"hard-bound to the founding rate while the cohort is open"*. ⇒ **The day the offer closes, all
+three quote the list price to a founding member.** The entitlement is not repriced (there is none
+to reprice); the product simply tells them the wrong price.
+
+**What the lane owes:** a stored rate written **at purchase from the server's authoritative
+figure**, every quote surface reading the account first and the constant only as a fallback for an
+account that never bought, and ★ **a test that closes the offer and asserts an existing member's
+quote does not move** — today, flipping the flag changes what three gates say and nothing turns red.
+
+⚠ Related copy defect, already live: `FOUNDING_LOCK_COPY = "Locked for as long as you stay
+subscribed."` promises a lock the data model cannot honour **and is subscription-framed**, which
+the one-time-pass ruling contradicts outright.
+
+### `[FU-PRICING-GST-TREATMENT]` — ⚠ BLOCKS the displayed figure
+
+**Nothing in the repo states whether the ruled prices are GST-inclusive or exclusive.** It changes
+**both** the figure shown and the invoice, so copy cannot be written until it is settled. **Now
+answerable** — the owner holds a GSTIN. **Owner-owned; blocks the price-change lane, not the
+stored-rate lane.**
+
+### `[FU-PRICING-JSONLD-DORMANT]` — the structured-data premise was wrong, and the constants are inert
+
+**The owner's brief assumed `pricing.ts:219-223` emits prices into JSON-LD that Google may have
+indexed. Measured: it emits nothing.** `PRICE_MONTHLY_LIST_JSONLD` and its four siblings have
+**zero consumers** outside their own guard test, and `index.html:53`'s `application/ld+json`
+carries only `Organization` + `WebSite` — no `Offer`, no price. `pricing.guard.test.ts:187-207`
+independently asserts `index.html` carries no price at all.
+
+**The owner verified this correction personally before accepting it**, and ruled, verbatim:
+
+> **"PAY-1 either wires those constants or deletes them, and updating them while believing Google
+> reads them is the failure mode."**
+
+★ **The real indexed price surface is `lazytopper/prerendered/pricing.html`** — the owner confirmed
+**₹599, ₹999, ₹5,999, ₹8,999, ₹1,189 and ₹7,188** sitting in it as rendered text. ⚠ **Other
+artifacts contain `₹` and are NOT price surfaces:** `prerendered/notes/*.html` carry rupee amounts
+inside CBSE word problems ("the entry fee is ₹5", "repays a total loan of ₹1,18,000") — which is
+exactly why `pricing.guard` exempts `src/data/`, and why **no price sweep may text-match `₹`
+across the tree.**
+
+### `[FU-PRICING-DYNAMIC-TERM-IS-A-CLOCK-READ]` — a LIVE baking hazard, not a prospective one
+
+The till-boards price is **the remaining months to February at 20% off, counted from the current
+month** — 6 in September, 3 in December. That is a clock read. ⚠ **And unlike the root, `/pricing`
+IS CAPTURED** (`prerendered/pricing.html` exists), so a clock read in its render path **bakes a
+price into a committed artifact** and serves it until the next build. **An effect does not save
+it** — the capture waits for the page to settle.
+
+**Owner ruling:** a stale price on a page Google has indexed is **commercial, not cosmetic**, and
+**the charged amount must be server-computed at purchase** — client math here is *"the forgeable
+`trialEndDate` mistake in a costlier place."*
+
+⚠ **DEPENDENCY, NOT A TAKING.** The matching strip rule belongs in `stripAuthChrome()` with its
+line in `countResidualAuthNodes()` (`scripts/seo/captureStaticBodies.ts`), and **that file is
+owned elsewhere** — see `[FU-SEO-ROOT-CAPTURE]`, left open by `#806` for the same reason.
+**Owner ruling: PAY-1 reports the dependency and coordinates; it does not inherit the file.**
+
+### `[FU-PRICING-ANNUAL-CONCEPT-DIES]` — the 12-month assumption, and the names that stop being true
+
+`MONTHS_PER_BOARD_YEAR = 12` (`pricing.ts:102`) is baked into `ANNUAL_AT_MONTHLY_RATE_*_INR`
+(`:109-112`), both `ANNUAL_SAVING_*` (`:116-118`), `BILLING_INCREMENT_ANNUAL` (`:242`), the
+defining comment (`:101`), and `PricingPage.tsx` (`:13` import, `:712` rendered as *"12 months at
+₹599 comes to …"*).
+
+**A months-to-boards value cannot be a constant** — it is a function of the current month. Three
+properties it needs, each learned from a defect already paid for: **pure, with `now` supplied by
+the caller** (what made `#806`'s countdown testable across every band without mocking `Date`);
+**floored at 1 and never negative** past February; and **never the authority for what is charged**.
+
+⚠ **"Annual" stops being true.** `PRICE_ANNUAL_*`, `ANNUAL_AT_MONTHLY_RATE_*`, `ANNUAL_SAVING_*`,
+`BILLING_INCREMENT_ANNUAL` and `MONTHS_PER_BOARD_YEAR` all name a 12-month subscription year the
+new model does not sell. **Renaming is part of the work, not cosmetic** — a constant named `ANNUAL`
+holding a 6-month till-boards price is precisely the name-vs-effect drift this board tracks.
+Likewise `BILLING_UNIT_MONTH` / `BILLING_INCREMENT_*`: **billing increments describe a
+subscription, and a one-time pass has none.**
+
+### `[FU-PAY-GATEWAY-GREENFIELD]` — measured, not inferred from an absent folder
+
+**Zero payment integration exists.** No SDK in any `package.json`
+(`razorpay|stripe|payu|cashfree|paytm|phonepe`); no env var matching
+`(VITE_|process.env.)*(PAY|RAZOR|STRIPE|CHECKOUT|WEBHOOK)*`; no webhook route or handler.
+⚠ **Five source files matched the gateway grep and ALL FIVE ARE FALSE POSITIVES — the word
+"striped":** billiard balls (`competency.z3.ts:823`), a flag stripe
+(`triangles.expand.caseE.ts:230`), a caterpillar (`control-and-coordination.cfpq.ts:171`), and a
+CSS stripe in a test (`DesktopPracticePage.aliveness.test.tsx:93`). **Each was opened and read; a
+bare hit count would have reported "payment references exist".**
+
+The closest thing that exists is `activatePremium()` (`subscriptionService.ts:360`), a
+*"Payment/admin-only helper"* whose cloud write **is refused by `firestore.rules`** — premium is
+Admin-SDK only and is set by the owner via the Firebase Console. **It mints nothing.**
+
+⇒ Gateway, checkout, webhook verification, order records, receipts and the entitlement write are
+all to be built. ⚠ **Sequencing hazard to settle in the spec:** a payment that succeeds with **no
+server-side entitlement write** is a student who paid and got nothing.
+
+### ⚠ OWED, AND NOT RESOLVABLE FROM THE REPO — the founding-member count
+
+The owner states there are none today. **Confirm against the data, not the statement.** The
+collection is `subscriptions/{uid}` (`firestore.rules`); count documents where `tier == "premium"`
+or `plan in ("premium_monthly", "premium_yearly")`. Code evidence says any such account was created
+**manually via the Firebase Console**, because no client path can write a paid tier — the rules
+allowlist `tier:"trial"` / `plan:"trial_7day"` only. **If the count is 0, the stored-rate field
+needs no backfill. If it is not 0, those accounts need their earned rate written BEFORE the offer
+closes**, after which the information may be unrecoverable. **Owner-owned.**
 
 ## 2026-09-20 — LANDING-MERGE-1 (`#806` MERGED as `6a892090`, squash, no `--admin`; open PRs at the time of writing: **none**) — four follow-ups, one owner waiver, one owner pricing ruling that contradicts trunk
 
