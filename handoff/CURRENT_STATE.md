@@ -1,6 +1,47 @@
 # LazyTopper — Current State
 
-## [CURRENT · SEO] CBSE-PAGE-1 — **A PUBLIC CBSE PAGE AT `/app/cbse/class-10`, AND FOUR CHECKS THAT PASSED WHILE MEASURING NOTHING** — `#804` MERGED — trunk `f7bd1daf`
+## [CURRENT · LANDING] LANDING-MERGE-1 — **ONE LANDING PAGE FOR EVERY SCREEN** — `#806` MERGED — trunk `6a892090`
+
+★ **PROVENANCE.** Premise gate exit 0 (10 premises, 8/8 anchors resolved); tsc app + `typecheck:test` both 0; `vitest run src` **172 files / 2302 tests, 0 failed, 0 skipped**; build 15.18s + `verify-production-build`; mojibake 0 in touched files; `scope:guard --mode mixed` **`SCOPE_GUARD_OK`, inspected=12**; **root guard matrix 211 tests / 31 suites, fail 0, skipped 0**; lazytopper ops matrix all suites; `git diff --check` clean; **all 8 CI checks green**. §4 run against the Vercel preview of the exact commit, production as the control.
+
+**Trunk `6a89209060e0e2efb831e47a5804ae9eb771c901`** (`#806` squash). Before it: `8198292d` = `#805`.
+
+### What shipped
+`Welcome.tsx` and `MobileWelcome.tsx` are **one CSS-only responsive component**. 12 files,
++1030/-2945. `MobileWelcome.tsx` (403 lines) and its test are deleted; three brand PNGs added
+under `public/brand/`; two new test files (countdown, board-question link).
+
+### ⚠ THE COUNT IS 12 VERIFIED + 1 WAIVED, NEVER 13/13
+**§4.8's second clause — "two captures on different machines agree" — was WAIVED BY THE OWNER as
+unexecutable on this route.** `/` is not captured (`applied=59 (root excluded)`), so there is
+nothing to compare and two captures of nothing agree trivially. It was reported, not claimed, and
+not silently skipped. **If a later lane adds `/` to `capturablePaths()`, the clause is owed again.**
+
+### The three things to read before touching this page
+1. **The frozen >=1180px layout is GONE, deliberately** (owner ruling). The page scrolls at every
+   width. If the desktop landing no longer fills exactly one screen, that is the intent.
+2. **No `useIsDesktop()` in this page, and the omission is load-bearing.** The spec permits it, the
+   prototype forbids it; CSS-only satisfies both. A width hook would bake the desktop DOM into
+   phone-served HTML if the root were ever captured.
+3. **This did NOT make `/app/` prerenderable.** The exclusion is an **auth** split, not a width
+   split, and the build confirms the reason survives the merge unchanged.
+
+### Standing constraints this page now carries
+- **The legal footer must stay outside every `<section>`.** `stripAuthChrome()` removes the
+  `<section>` enclosing any `/login` anchor, and this page has a Log in link in its top bar.
+  Asserted, with a control proving that login link exists.
+- **The CBSE page-level link carries `returnTo` AND `backLabel`; the footer's carries `returnTo`
+  only.** That asymmetry is deliberate — a site-wide row cannot honestly name where it was clicked
+  from (`PublicLegalFooter.tsx:93-96`). **Do not add `backLabel` to the footer.**
+- **No trial promise.** `startTrial()` has one production caller, inside the premium gate; a new
+  account is signed-in FREE. "Free to start" is true, "free for 7 days" is not.
+- **The boards countdown must never enter a heading**, and its `data-testid="boards-countdown"` is
+  the strip handle. The strip rule itself does not exist yet — see `[FU-SEO-ROOT-CAPTURE]`.
+
+
+---
+
+## [PREVIOUS · SEO] CBSE-PAGE-1 — **A PUBLIC CBSE PAGE AT `/app/cbse/class-10`, AND FOUR CHECKS THAT PASSED WHILE MEASURING NOTHING** — `#804` MERGED — trunk `f7bd1daf`
 
 ★ **PROVENANCE.**
 - **HANDOFF-VERIFIED** in a fresh worktree at the merged SHA: premise gate exit 0 (11 premises, 9/9 anchors resolved, 2 UNVERIFIED by design); tsc app + `typecheck:test` both 0; `vitest run src` **171 files / 2279 tests, 0 failed, 0 skipped**; new guard **31 tests**; build + `seo:capture` + `verify-production-build`; mojibake 0; `scope:guard --mode mixed` **`SCOPE_GUARD_OK`**; **root guard matrix 211 tests / 31 suites, fail 0, skipped 0**; lazytopper ops matrix all suites; `git diff --check` clean. CI green read by `head_sha`.

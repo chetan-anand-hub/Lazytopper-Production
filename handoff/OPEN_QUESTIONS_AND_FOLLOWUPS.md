@@ -11,6 +11,90 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-20 — LANDING-MERGE-1 (`#806` MERGED as `6a892090`, squash, no `--admin`; open PRs at the time of writing: **none**) — four follow-ups, one owner waiver, one owner pricing ruling that contradicts trunk
+
+### `[FU-PRICING-MODEL-2026-09]` — ★★★ THE OWNER'S FINAL PRICING RULING CONTRADICTS THE CONSTANTS ON TRUNK. READ BEFORE TOUCHING ANY PRICE.
+
+Issued 2026-09-20, immediately after `#806` merged. **A PAY-1 scoping report is commissioned and
+is REPORT-ONLY — no branch, no edit — until it is read.** The ruling:
+
+- **List: ₹1,999 for one month.** Trunk today has `PRICE_MONTHLY_LIST_INR = 999`.
+- **Founding: ₹999 for one month, first 200 students.** Trunk has `PRICE_MONTHLY_FOUNDING_INR = 599`.
+- **Till-boards: the remaining months to February at 20% off, on BOTH rates.** From September,
+  founding `6 × 999 × 0.8 = ₹4,795`; list `6 × 1,999 × 0.8 = ₹9,595`. ⚠ **The term counts from the
+  CURRENT MONTH, so this price is DYNAMIC** — 6 months in September, 3 in December.
+- **A founding member paying month by month pays ₹999 each month** (`6 × 999 = ₹5,994`), i.e.
+  **₹1,199 more than paying upfront. That premium is intended.**
+- **When the offer closes, new students pay ₹1,999; existing founding members keep ₹999 permanently.**
+
+★★ **ONE-TIME PAYMENTS ONLY. There is no recurring billing and no subscription product.** "One
+month" is a pass bought outright and re-bought if the student wants more. This avoids RBI
+e-mandate entirely. ⚠ **Copy must therefore say "₹999 for a month", NEVER "₹999/month"** — the
+slash implies an auto-renewal that does not exist. `MONTHLY_INLINE` (`pricing.ts:178`) currently
+reads `/month` and will need revisiting.
+
+★★ **THE EARNED RATE MUST BE STORED ON THE ACCOUNT AT PURCHASE, never resolved from
+`PRICE_MONTHLY_FOUNDING_INR`.** If it reads the constant, closing the offer **silently reprices
+every founding member to ₹1,999**. **This is a stop-and-report if the current code does it.** The
+owner states there are no existing founding members today — **confirm that against the subscriber
+data rather than taking it on trust.**
+
+★ **No live seat counter.** The page says "Founding rate — first 200 students" and nothing more.
+Do **not** build a "seats remaining" display; `FOUNDING_OFFER_OPEN` already gives a close-anytime
+switch, which is the flexibility wanted.
+
+⚠ **Immediate consequence for the landing page (`#806`).** Its plan card renders
+`PRICE_MONTHLY_LIST_DISPLAY` — correct by construction, so it will follow `pricing.ts` and needs no
+edit of its own — **but its "/mo" suffix is exactly the slash this ruling bans.** That suffix is
+part of PAY-1's copy sweep, not a separate fix.
+
+### `[FU-TRIAL-PROMISE-SWEEP]` — a trial promised under a button that starts no trial may live on other surfaces
+
+**Measured, not suspected.** Production's mobile landing reads *"7-day Premium trial — then free
+Basic, upgrade anytime."* beneath a "Start free" button whose handler is
+`navigate(user ? "/" : "/browse")`. `startTrial()` has **exactly one** production caller —
+`RequireAuth.tsx:74`, a button **inside the premium gate**. A new account is **signed-in FREE, not
+trial**. This is the fake-trial-activation the doctrine forbids, told the other way round.
+
+`#806` removes it from the landing. **That production string is also what proved acceptance check
+5's matcher works**, so its existence is measured rather than assumed. **The sweep owed:** enumerate
+every rendered occurrence of a trial claim across the product and check each against what the
+account actually receives at signup. Owner has filed it as its own lane. ⚠ Note `PricingPage.tsx:779`
+navigates with `reason=start-trial`, whose **only** effect is a back-link label at `Login.tsx:2568` —
+a CTA named "start trial" that starts no trial.
+
+### `[FU-SEO-ROOT-CAPTURE]` — the countdown's strip rule does not exist, and the waived clause becomes owed again if the root is ever captured
+
+The boards countdown on the landing is **built to be stripped** — its own line, its own
+`data-testid="boards-countdown"`, never a text match (`"months"` and `"left"` are ordinary words
+that occur inside CBSE content). **But the strip rule itself was not written**: it belongs in
+`stripAuthChrome()` with a matching line in `countResidualAuthNodes()` in
+`scripts/seo/captureStaticBodies.ts`, which `#806` was forbidden to touch.
+
+**Nothing can bake today** because the root is not captured at all (`capturablePaths()` filters
+`"/"`; the build reports `applied=59 (root excluded)`). ⚠ **Whoever adds `/` to `capturablePaths()`
+owes three things at once:** the strip rule, its verifier line, and **the re-run of §4.8's second
+clause, which the owner waived for `#806` only because it was unexecutable on an uncaptured route.**
+See `[FU-HOMEPAGE-AI-INVISIBLE]` — the root's exclusion is an **auth** split (`Welcome` vs
+`DesktopHome`), and `#806` collapsing the **width** branch left that reason true word for word.
+
+### `[FU-LANDING-FROZEN-ILLUSTRATIONS]` — four owner-frozen v4 SVGs were deleted with `MobileWelcome.tsx`
+
+`MobileWelcome.tsx:36-108` held four inline SVG illustrations (`ArtTrends`, `ArtPredicted`,
+`ArtCheck`, `ArtMistake`) marked **"verbatim — do not restyle"**. The v6 prototype does not use
+them, so they went with the file. **Flagged at pre-flight, not objected to, and recorded here
+rather than quietly dropped.** They are recoverable at
+`8198292d:lazytopper/src/pages/MobileWelcome.tsx`. ⚠ **This is the one genuine content loss in the
+lane** — decide whether they are retired for good or belong on some other surface.
+
+### Recorded, not a follow-up: the spec's own P9 control did not hold
+
+`LANDING-MERGE-1.md`'s P9 control named `Login.tsx` among files "known to reference" the landings.
+**Measured: `Login.tsx` contains zero references to `Welcome`, `MobileWelcome` or `/welcome`** —
+two "Welcome back" microcopy strings and a back-link label whose `<Link>` goes to `/`. The control
+still did its job (it proved the search was wide enough); its stated premise was simply wrong.
+**Kept as written per standing rule 3.**
+
 ## 2026-09-19 — CBSE-PAGE-1 (`#804` MERGED as `f7bd1daf`, squash, no `--admin`; open PRs at the time of writing: **none**) — four new follow-ups, six owner rulings recorded, two spec premises corrected
 
 **Trunk `f7bd1daf312f13d638f07f6a02d7a6b70f5036b7`.** The lane shipped `/app/cbse/class-10` and
