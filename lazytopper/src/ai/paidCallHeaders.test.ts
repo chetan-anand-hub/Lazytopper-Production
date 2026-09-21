@@ -20,7 +20,7 @@ import { resolve } from "node:path";
  */
 
 const H = vi.hoisted(() => ({
-  currentUser: null as null | { uid: string; getIdToken: () => Promise<string> },
+  currentUser: null as null | { uid: string; getIdToken: (forceRefresh?: boolean) => Promise<string> },
 }));
 
 vi.mock("../services/firebaseClient", () => ({
@@ -72,19 +72,87 @@ describe("paidCallHeaders — a signed-in caller is identified", () => {
     expect(Object.keys(headers).map(k => k.toLowerCase())).not.toContain("x-user-id");
   });
 
-  it("degrades to the uid header alone when the token cannot be minted", async () => {
+});
+
+/**
+ * UID-HEADER-CLOSE-1 — the token fetch RETRIES, and a bare uid is never sent.
+ *
+ * The server now DENIES a uid header that arrives without a bearer token (a string
+ * anyone can type was being served paid AI). So a client that gave up after one
+ * failed getIdToken() would lock out a real, signed-in student. These pin both halves:
+ * a transient failure is retried with a forced refresh, and exhaustion refuses the
+ * call with sign-in copy instead of sending the header alone.
+ */
+describe("paidCallHeaders — a failed token fetch is retried, never degraded to a bare uid", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  function flakyUser(failures: number) {
+    const calls: Array<boolean | undefined> = [];
     H.currentUser = {
       uid: "student-123",
-      getIdToken: async () => {
-        throw new Error("network");
+      getIdToken: async (forceRefresh?: boolean) => {
+        calls.push(forceRefresh);
+        if (calls.length <= failures) throw new Error("auth/network-request-failed");
+        return "tok-retried";
       },
     };
+    return calls;
+  }
 
-    // An AI call must not fail because identity could not be fully attached.
+  it("a healthy token is fetched ONCE — no retry, no forced refresh, no delay", async () => {
+    const calls = flakyUser(0);
     const headers = await paidCallHeaders();
+    expect(calls).toEqual([undefined]);
+    expect(headers.Authorization).toBe("Bearer tok-retried");
+  });
 
-    expect(headers[UID_HEADER]).toBe("student-123");
-    expect(headers.Authorization).toBeUndefined();
+  it("★ retries when the first fetch fails, FORCING a refresh on the second attempt", async () => {
+    const calls = flakyUser(1);
+    const pending = paidCallHeaders();
+    await vi.runAllTimersAsync();
+    const headers = await pending;
+
+    expect(calls.length, "the token fetch must be attempted more than once").toBeGreaterThan(1);
+    expect(calls[1], "the second attempt must force a refresh").toBe(true);
+    expect(headers).toEqual({ [UID_HEADER]: "student-123", Authorization: "Bearer tok-retried" });
+  });
+
+  it("★ after exhaustion it sends NO bare uid — it refuses with sign-in copy", async () => {
+    const calls = flakyUser(Infinity);
+    const outcome = paidCallHeaders().then(
+      (headers) => ({ ok: true as const, headers }),
+      (err: unknown) => ({ ok: false as const, err }),
+    );
+    await vi.runAllTimersAsync();
+    const result = await outcome;
+
+    expect(calls.length, "every attempt must have been made").toBe(3);
+    expect(result.ok, `a bare uid was sent: ${JSON.stringify(result)}`).toBe(false);
+    const err = (result as { err: Error }).err;
+    expect(err.name).toBe("SignInAgainError");
+    expect(err.message).toMatch(/sign in again/i);
+    // Plain English for a fifteen-year-old: no code, no underscore, no jargon.
+    expect(err.message).not.toMatch(/_|token|401|402|uid/i);
+  });
+
+  it("an empty token string is a failure too, not a credential", async () => {
+    const calls: Array<boolean | undefined> = [];
+    H.currentUser = {
+      uid: "student-123",
+      getIdToken: async (forceRefresh?: boolean) => {
+        calls.push(forceRefresh);
+        return calls.length === 1 ? "" : "tok-2";
+      },
+    };
+    const pending = paidCallHeaders();
+    await vi.runAllTimersAsync();
+    expect((await pending).Authorization).toBe("Bearer tok-2");
+    expect(calls.length).toBe(2);
   });
 });
 

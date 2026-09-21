@@ -65,23 +65,72 @@ async function currentFirebaseUser() {
   return authClient?.currentUser ?? null;
 }
 
+/** What a signed-in student reads when their sign-in could not be confirmed. */
+export const SIGN_IN_AGAIN_MESSAGE =
+  "We couldn't confirm you're signed in. Please sign in again, then try once more.";
+
+/**
+ * Thrown when a SIGNED-IN student's ID token could not be fetched after every retry.
+ * Nothing about it is the student's fault, so the message is plain English and asks
+ * for the one thing that fixes it. Callers render `err.message`; detect by `name`.
+ */
+export class SignInAgainError extends Error {
+  constructor() {
+    super(SIGN_IN_AGAIN_MESSAGE);
+    this.name = "SignInAgainError";
+  }
+}
+
+/**
+ * Waits before attempts 2 and 3 — THREE attempts in all.
+ *
+ * Attempt 1 is the ordinary `getIdToken()`: served from cache when fresh, so a healthy
+ * student pays nothing. Attempts 2 and 3 FORCE a refresh, because a failure there is
+ * usually a refresh that did not complete (a network blip) or a cached token in a bad
+ * state, and only a forced refresh replaces it. The waits cover a short connectivity
+ * drop without keeping a student staring at a spinner: at most ~1.3s is added, and
+ * only to a call that was about to be refused anyway.
+ */
+export const TOKEN_RETRY_DELAYS_MS: readonly number[] = [300, 1000];
+
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+async function fetchIdToken(user: { getIdToken: (forceRefresh?: boolean) => Promise<string> }) {
+  for (let attempt = 0; attempt <= TOKEN_RETRY_DELAYS_MS.length; attempt += 1) {
+    if (attempt > 0) await sleep(TOKEN_RETRY_DELAYS_MS[attempt - 1]);
+    try {
+      const token = attempt === 0 ? await user.getIdToken() : await user.getIdToken(true);
+      if (token) return token;
+    } catch {
+      /* retried below; exhaustion is handled by the caller */
+    }
+  }
+  return null;
+}
+
 /**
  * Headers identifying the signed-in caller, merged onto a paid request.
  *
- * Never throws and never blocks: a token failure degrades to the uid header
- * alone, and a signed-out caller gets `{}` — an AI call must not fail because
- * identity could not be attached.
+ * A signed-out caller gets `{}`, as before. A signed-in caller gets the uid header
+ * AND a bearer token, and NEVER the uid header alone.
+ *
+ * ★ THIS THROWS (UID-HEADER-CLOSE-1). It used to degrade to the uid header alone when
+ * the token could not be fetched, and the server served that — which meant it served
+ * any stranger who typed a uid. The server now refuses a uid with no token, so
+ * sending one would only buy a Premium upgrade prompt shown to a student who may
+ * well have paid. Instead, after every retry fails, this throws SignInAgainError
+ * BEFORE the request is made, and the call site shows its message. This applies to
+ * every paid call, ungated ones included, so a student meets the same "sign in
+ * again" everywhere rather than being served on some surfaces and refused on others.
  */
 export async function paidCallHeaders(): Promise<Record<string, string>> {
   const current = await currentFirebaseUser();
   if (!current?.uid) return {};
 
-  const headers: Record<string, string> = { [UID_HEADER]: current.uid };
+  const token = await fetchIdToken(current);
+  if (!token) throw new SignInAgainError();
 
-  const token = await current.getIdToken().catch(() => null);
-  if (token) headers.Authorization = `Bearer ${token}`;
-
-  return headers;
+  return { [UID_HEADER]: current.uid, Authorization: `Bearer ${token}` };
 }
 
 /** Convenience: JSON content type plus caller identity, the shape most sites need. */

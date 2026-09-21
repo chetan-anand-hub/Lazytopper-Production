@@ -33,6 +33,7 @@ const {
   FAIL_OPEN_NO_UID,
   FAIL_OPEN_READ_ERROR,
   DENY_ANONYMOUS,
+  DENY_UID_HEADER_NO_TOKEN,
 } = ENT;
 
 /**
@@ -770,25 +771,130 @@ test('NC2 · ★ THE PRESERVED CASE: an offered token that did not verify is SER
   assert.notEqual(served.entitled, denied.entitled, 'token-offered and anonymous must not agree');
 });
 
-test('NC2b · ★ a uid header WITHOUT a token is SERVED as no_uid — CONTROL: neither present is denied', async () => {
-  // paidCallHeaders.ts sends the uid header alone when getIdToken() rejects: a
-  // signed-in student whose token fetch failed, not an anonymous caller.
-  const headerOnly = gateFor({ tier: 'free' });
-  const served = await headerOnly.gate.resolve('', reqUidHeaderOnly());
-  assert.equal(served.entitled, true, 'a failed token fetch must never lock out a paying student');
-  assert.equal(served.outcome, 'fail-open');
-  assert.equal(headerOnly.telemetry.get(FAIL_OPEN_NO_UID), 1);
+test('NC2b · ★ a uid header WITHOUT a token is DENIED under its own name — CONTROL: neither present is denied as anonymous', async () => {
+  // UID-HEADER-CLOSE-1: this used to be SERVED as no_uid. paidCallHeaders.ts no longer
+  // sends the header alone, so the only sender of this shape is someone typing a uid.
+  const headerOnly = gateFor({ tier: 'premium' });
+  const denied = await headerOnly.gate.resolve('', reqUidHeaderOnly());
+  assert.equal(denied.entitled, false, 'a uid string with nothing behind it must not be served');
+  assert.equal(denied.outcome, 'uid-header-no-token');
+  assert.equal(headerOnly.telemetry.get(DENY_UID_HEADER_NO_TOKEN), 1);
+  assert.equal(headerOnly.telemetry.get(FAIL_OPEN_NO_UID), 0, 'it must no longer count as a failed token');
+  assert.equal(headerOnly.telemetry.get(FAIL_OPEN_EVENT), 0);
   assert.equal(headerOnly.telemetry.get(DENY_ANONYMOUS), 0);
+  assert.equal(headerOnly.store.calls.get, 0, 'refusing an unverifiable uid must not spend a read');
   const res = resStub();
-  assert.equal(await headerOnly.gate.applyToRequest(reqUidHeaderOnly(), res, '/api/check-solution', ''), false);
-  assert.equal(res.sent.length, 0);
+  assert.equal(await headerOnly.gate.applyToRequest(reqUidHeaderOnly(), res, '/api/check-solution', ''), true);
+  assert.equal(res.last().status, 402);
 
   const neither = gateFor({ tier: 'free' });
-  const denied = await neither.gate.resolve('', reqAnon());
-  assert.equal(denied.entitled, false);
+  const anon = await neither.gate.resolve('', reqAnon());
+  assert.equal(anon.entitled, false);
+  assert.equal(anon.outcome, 'anonymous');
   assert.equal(neither.telemetry.get(DENY_ANONYMOUS), 1);
-  assert.equal(neither.telemetry.get(FAIL_OPEN_NO_UID), 0);
-  assert.notEqual(served.entitled, denied.entitled, 'uid-header-only and no-identity must not agree');
+  assert.equal(neither.telemetry.get(DENY_UID_HEADER_NO_TOKEN), 0);
+  assert.notEqual(denied.outcome, anon.outcome, 'the two denials must stay distinguishable');
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   §9 · UID-HEADER-CLOSE-1 — spec §4 acceptance, in-process, no network.
+   The REAL entitlement.cjs, verifiedCaller.cjs and rateLimiter.cjs, driven in
+   index.cjs's own order (verify -> limiter -> gate). firebase-admin is a stub and
+   nothing is dispatched to a handler, so no paid endpoint can be reached.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const { createVerifiedCaller } = require('./verifiedCaller.cjs');
+const { createRateLimiter } = require('./rateLimiter.cjs');
+
+const reqP2TokenFailed = () => ({ method: 'POST', headers: { [UID_HEADER]: 'student-1', authorization: 'Bearer expired' } });
+const reqVerified = () => ({ method: 'POST', headers: { [UID_HEADER]: 'student-1', authorization: 'Bearer good-token' } });
+
+function edgeFor(doc) {
+  const g = gateFor(doc);
+  const verifiedCaller = createVerifiedCaller({
+    firebaseAdmin: {
+      auth: () => ({
+        verifyIdToken: async (t) => {
+          if (t === 'good-token') return { uid: 'student-1' };
+          throw new Error('token did not verify');
+        },
+      }),
+    },
+    telemetry: g.telemetry,
+  });
+  return { ...g, verifiedCaller };
+}
+
+test('UHC §4.1 · ★ a spoofed uid with no token is DENIED — CONTROL: the same harness SERVES a token that did not verify (P2)', async () => {
+  const spoof = edgeFor({ tier: 'premium' });
+  const spoofReq = reqUidHeaderOnly();
+  const spoofed = await spoof.gate.resolve(await spoof.verifiedCaller.resolveVerifiedUid(spoofReq), spoofReq);
+  assert.equal(spoofed.entitled, false);
+
+  const p2 = edgeFor({ tier: 'premium' });
+  const p2Req = reqP2TokenFailed();
+  const served = await p2.gate.resolve(await p2.verifiedCaller.resolveVerifiedUid(p2Req), p2Req);
+  assert.equal(served.entitled, true, 'a harness that denies everything proves nothing');
+});
+
+test('UHC §4.2 · the denial has its own telemetry name, distinct from P2\'s', async () => {
+  assert.equal(DENY_UID_HEADER_NO_TOKEN, 'entitlement.deny.uid_header_no_token');
+  assert.equal(FAIL_OPEN_NO_UID, 'entitlement.fail_open.no_uid');
+  assert.notEqual(DENY_UID_HEADER_NO_TOKEN, FAIL_OPEN_NO_UID);
+
+  const g = edgeFor({ tier: 'premium' });
+  await g.gate.resolve('', reqUidHeaderOnly());
+  await g.gate.resolve('', reqP2TokenFailed());
+  assert.equal(g.telemetry.get(DENY_UID_HEADER_NO_TOKEN), 1, 'P1 counts once under its own name');
+  assert.equal(g.telemetry.get(FAIL_OPEN_NO_UID), 1, 'P2 counts once under its own name');
+});
+
+test('UHC §4.3 · a verified token resolves as before — CONTROL: the same assertion FAILS with the token removed', async () => {
+  const g = edgeFor({ tier: 'premium' });
+  const req = reqVerified();
+  const d = await g.gate.resolve(await g.verifiedCaller.resolveVerifiedUid(req), req);
+  assert.deepEqual({ entitled: d.entitled, tier: d.tier, outcome: d.outcome }, { entitled: true, tier: 'premium', outcome: 'read' });
+
+  const c = edgeFor({ tier: 'premium' });
+  const stripped = reqVerified();
+  delete stripped.headers.authorization;
+  const cd = await c.gate.resolve(await c.verifiedCaller.resolveVerifiedUid(stripped), stripped);
+  assert.throws(
+    () => assert.deepEqual({ entitled: cd.entitled, tier: cd.tier, outcome: cd.outcome }, { entitled: true, tier: 'premium', outcome: 'read' }),
+    assert.AssertionError,
+    'the same assertion must fail once the token is gone',
+  );
+});
+
+test('UHC §4.6 · the rate limiter counts a denied P1 call exactly as it counts a served one', async () => {
+  // index.cjs runs rateLimiter.check() BEFORE the gate, so a denial cannot un-count.
+  const tel = telemetryStub();
+  const limiter = createRateLimiter({ telemetry: tel, now: () => NOW });
+  const g = edgeFor({ tier: 'premium' });
+  for (const req of [reqUidHeaderOnly(), reqVerified()]) {
+    const uid = await g.verifiedCaller.resolveVerifiedUid(req);
+    assert.equal(limiter.check(req, '/api/check-solution', uid).allowed, true);
+    await g.gate.applyToRequest(req, resStub(), '/api/check-solution', uid);
+  }
+  const snap = limiter.snapshot();
+  const studentKey = Object.keys(snap).find((k) => k.startsWith('student-1:'));
+  assert.equal(snap[studentKey], 2, 'the denied spoof and the served call both count against student-1');
+  assert.equal(tel.get('rate_limit.uid_source.header'), 1);
+  assert.equal(tel.get('rate_limit.uid_source.verified'), 1);
+});
+
+test('UHC §4.7 · ★ P2 STILL FAILS OPEN — the scope boundary, asserted', async () => {
+  const g = edgeFor({ tier: 'free' });
+  const req = reqP2TokenFailed();
+  const d = await g.gate.resolve(await g.verifiedCaller.resolveVerifiedUid(req), req);
+  assert.equal(d.entitled, true);
+  assert.equal(d.outcome, 'fail-open');
+  assert.equal(d.reason, 'a bearer token was offered and did not verify');
+  assert.equal(g.telemetry.get(FAIL_OPEN_EVENT), 1);
+  assert.equal(g.telemetry.get(DENY_UID_HEADER_NO_TOKEN), 0);
+  const res = resStub();
+  assert.equal(await g.gate.applyToRequest(reqP2TokenFailed(), res, '/api/check-solution', ''), false);
+  assert.equal(res.sent.length, 0, 'P2 must reach the handler, not a 402');
 });
 
 test('NC3 · the other fail-opens are untouched: no firebase-admin, and a Firestore read that throws', async () => {
@@ -847,7 +953,7 @@ test('NC5 · ★ /api/step-solution still serves STORED steps to an anonymous ca
   assert.equal(geminiCalls.length, 0, 'an anonymous caller must not spend money at Gemini');
 });
 
-test('CONTROL 3 · ★ over REAL HTTP: no identity gets a 402; a uid header alone is SERVED',
+test('CONTROL 3 · ★ over REAL HTTP: no identity and a uid header alone both get a 402 — CONTROL: an unverifiable token is SERVED',
   { timeout: 90000 }, async (t) => {
     const port = await freePort();
     const srv = bootServer({ port, stubAdmin: false });
@@ -858,8 +964,17 @@ test('CONTROL 3 · ★ over REAL HTTP: no identity gets a 402; a uid header alon
     assert.equal(anon.status, 402, `an anonymous POST must be refused over HTTP, got ${anon.status}: ${anon.text}`);
     assert.equal(anon.json.error, 'premium_required');
 
+    // UID-HEADER-CLOSE-1: a uid header alone was SERVED here until that lane.
     const withUid = await post(port, '/api/check-solution',
       { question: 'Q', marks: 3, textAnswer: 'a' }, { [UID_HEADER]: 'student-1' });
-    assert.notEqual(withUid.status, 402,
-      'the uid header must reach the gate under the name the client sends it');
+    assert.equal(withUid.status, 402,
+      `a uid header with no token must be refused over HTTP, got ${withUid.status}: ${withUid.text}`);
+    await new Promise((r) => setTimeout(r, 300));
+    assert.match(srv.log(), /DENY \(a uid header arrived without a bearer token\)/,
+      'the refusal must be the uid-header branch, reached under the name the client sends');
+
+    // Control (P2): with no firebase-admin a token cannot verify, so it fails OPEN.
+    const withToken = await post(port, '/api/check-solution',
+      { question: 'Q', marks: 3, textAnswer: 'a' }, { [UID_HEADER]: 'student-1', authorization: 'Bearer any' });
+    assert.notEqual(withToken.status, 402, 'an offered token that did not verify must still be served');
   });
