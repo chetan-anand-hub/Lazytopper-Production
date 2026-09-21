@@ -23,7 +23,7 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
-## 2026-09-21 — ANALYTICS-1 (`#811` MERGED as `19ab44d0`, squash, no `--admin`; open PRs at the time of writing: **`#812`** `lane/uid-header-close-1` — server entitlement + `paidCallHeaders`, **no `handoff/` path** — and **`#810`** dependabot) — seven follow-ups: one standing constraint, four owner items, two recorded facts
+## 2026-09-21 — ANALYTICS-1 (`#811` MERGED as `19ab44d0`, squash, no `--admin`; open PRs at the time of writing: **`#810`** dependabot only; **`#812`** merged as `3b011bc7` while this handoff was being written, and touched **no `handoff/` path**) — seven follow-ups: one standing constraint, four owner items, two recorded facts
 
 ### `[FU-ANALYTICS-NEW-CREDENTIAL-ROUTE]` — ★★★ STANDING CONSTRAINT: A NEW ROUTE WITH A SECRET IN ITS PATH MUST BE REDACTED IN **TWO** PLACES
 

@@ -2,7 +2,10 @@
 ⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW ON TRUNK SHA AND ON THE GATE SET.
    IT DOES NOT SUPERSEDE ANY OPEN FOLLOW-UP RECORDED BELOW.
 
-TRUNK IS `19ab44d06c4619e6691f018dc15bf60df7aef1bc`, MEASURED 2026-09-21.
+TRUNK IS `3b011bc762660b9556a97ed5fd9addaa25fe15f3`, MEASURED 2026-09-21.
+   3b011bc7 = #812 (UID-HEADER-CLOSE-1) - merged WHILE this handoff was
+              being written; its own handoff is owed by ITS lane, and
+              nothing about its content is asserted here.
    19ab44d0 = #811 (ANALYTICS-1)
    65a4a67c = #809 (docs: stored-rate design rulings)
    104a1504 = #808 (docs: PAY-1 scope rulings)
@@ -14,8 +17,7 @@ TRUNK IS `19ab44d06c4619e6691f018dc15bf60df7aef1bc`, MEASURED 2026-09-21.
 
 ★★★ NEXT: UNCHANGED BY ANALYTICS-1. The order ruled below still governs:
    STORED-RATE and FREE-CHECK-1 in parallel, GST owner-owned.
-   IN FLIGHT at the time of writing: #812 lane/uid-header-close-1
-   (server entitlement + paidCallHeaders) and #810 dependabot.
+   OPEN at the time of writing: #810 dependabot only.
 
    ★ FREE-CHECK-1 CAN NOW COUNT, BUT CANNOT JOIN. Page views and signups
    are countable separately; "did this visitor become an account?" is
