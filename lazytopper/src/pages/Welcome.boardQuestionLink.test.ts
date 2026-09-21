@@ -23,14 +23,14 @@ import { dirname, resolve } from "node:path";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SUBJECT = resolve(HERE, "../../prerendered/notes/trigonometry.html");
-/** A prerendered page that has no Board Questions tab — the control's subject. */
+/** A prerendered page that has no Competency-based questions tab — the control's subject. */
 const CONTROL = resolve(HERE, "../../prerendered/exam-trends.html");
 
 /** The link's destination, as the landing spells it. */
 const LINK_TARGET = "/notes/trigonometry";
 
 const BOARD_QUESTION_MARKERS = [
-  "Board Questions", // the tab
+  "Competency-based questions", // the tab (renamed from its board-questions label, LANDING-FOLLOWUP-1)
   "Step-marked solution", // the per-question solution label
   "step-marked solution for each", // the section's own intro copy
 ];
@@ -60,7 +60,7 @@ describe("check 9 — the board-question link's destination really carries board
     expect(steps.length).toBeGreaterThan(3);
   });
 
-  it("★★★ CONTROL — the same markers are ABSENT from a page with no Board Questions tab", () => {
+  it("★★★ CONTROL — the same markers are ABSENT from a page with no Competency-based questions tab", () => {
     // Without this, every assertion above could be passing against markers so generic
     // that any page in the build would satisfy them. exam-trends is prerendered and
     // substantial, so a failure here would mean the markers are not discriminating.
@@ -78,6 +78,9 @@ describe("check 9 — the board-question link's destination really carries board
     // topic, this turns red rather than leaving check 9 verifying a page nothing
     // links to any more.
     const landing = readFileSync(resolve(HERE, "./Welcome.tsx"), "utf8");
-    expect(landing).toContain(`to="${LINK_TARGET}"`);
+    // LANDING-FOLLOWUP-1: the link is built as `questionsHref`, opening the questions
+    // tab. The path segment is still exactly the page this file verified.
+    expect(landing).toContain(`\`${LINK_TARGET}?tab=questions&returnTo=`);
+    expect(landing).toContain("<Link to={questionsHref}>");
   });
 });

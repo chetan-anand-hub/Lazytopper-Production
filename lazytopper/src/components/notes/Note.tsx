@@ -1087,7 +1087,7 @@ function BoardQuestionsPanel({ topicKey, title }: { topicKey: string; title: str
   if (!entry || entry.questions.length === 0) {
     return (
       <p className="lt-note__hint">
-        Board questions for this chapter are not published yet.
+        Competency-based questions for this chapter are not published yet.
       </p>
     );
   }
@@ -1130,12 +1130,31 @@ function BoardQuestionsPanel({ topicKey, title }: { topicKey: string; title: str
 
 type NoteTab = "note" | "mind" | "third" | "questions";
 
+/**
+ * ★ THE ONE TAB A CALLER MAY OPEN ON, AND THE TYPE IS THE ALLOW-LIST
+ * (LANDING-FOLLOWUP-1). Deliberately not `NoteTab`: only the questions tab has a
+ * deep link today, and a wider type would invite callers to pass whatever a URL
+ * happened to carry.
+ */
+export type NoteInitialTab = "questions";
+
 export interface NoteProps {
   spec: NoteSpec;
+  /**
+   * ⚠ <Note> NEVER READS THE URL ITSELF, and that is load-bearing. `NoteModal`
+   * mounts this component inside the Topic Hub, whose URLs already carry
+   * `?tab=learn|grind|revision` for the HUB's tabs. A <Note> reading `?tab=`
+   * would collide with them. The standalone notes page reads its own URL and
+   * passes the result here; every other mount passes nothing and opens on Note.
+   *
+   * Used ONLY as the initial state. Absent — as it is for the prerender capture,
+   * which loads the bare path — the first render is identical to before.
+   */
+  initialTab?: NoteInitialTab;
 }
 
-export function Note({ spec }: NoteProps) {
-  const [tab, setTab] = useState<NoteTab>("note");
+export function Note({ spec, initialTab }: NoteProps) {
+  const [tab, setTab] = useState<NoteTab>(initialTab ?? "note");
   // C4 — the NCERT page-ref whose popup is open (null = closed). Set by any
   // clickable "p.N" cite (CiteLine); rendered by <NcertPageModal> below.
   const [pageRef, setPageRef] = useState<NcertPageRef | null>(null);
@@ -1206,7 +1225,11 @@ export function Note({ spec }: NoteProps) {
         >
           <NoteRichText text={meta.third_tab.label} />
         </button>
-        {/* CBQ-TAB-1 — labelled for what a student searches for, not an internal term. */}
+        {/* CBQ-TAB-1 — labelled for what a student searches for, not an internal term.
+            LANDING-FOLLOWUP-1 — renamed from its earlier board-questions label (owner ruling): every row
+            the selection rule publishes is `isCompetencyBased === true`
+            (selectionRule.ts), and only 3 of 78 carry a board year, so the new label is
+            the accurate one. */}
         <button
           type="button"
           role="tab"
@@ -1214,7 +1237,7 @@ export function Note({ spec }: NoteProps) {
           className={`lt-note__tab${tab === "questions" ? " lt-note__tab--active" : ""}`}
           onClick={() => setTab("questions")}
         >
-          Board Questions
+          Competency-based questions
         </button>
         </div>
         <button
@@ -1422,7 +1445,7 @@ export function Note({ spec }: NoteProps) {
         <ThirdTabPanel content={spec.third_tab_content} figures={figures} />
       </div>
 
-      {/* ── Board Questions tab (CBQ-TAB-1) ──
+      {/* ── Competency-based questions tab (CBQ-TAB-1) ──
           ★ Renders into the DOM unconditionally and hides via .lt-note__panel, exactly
           as the three panels above do. That is the whole point of this lane: a panel that
           unmounts when inactive is invisible to a crawler, and invisible is the state this
