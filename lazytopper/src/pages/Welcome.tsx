@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import {
@@ -62,45 +62,109 @@ import { predictCbseExamDate } from "../services/cbseExamDate";
  * publishes the real date, one line in its `officialDates` corrects this page
  * with no edit of its own.
  *
- * Returns the FIGURE only ("5 months"); the section's heading, "Time left before
- * your boards", supplies the words around it — owner ruling.
+ * Returns the FIGURE only ("5 months"); the section's heading, "Your boards are
+ * closer than you think." (ADDENDUM-A A5), supplies the words around it.
  *
- * Months, then weeks, then days — the owner's ruling, with two refinements:
- *   · MONTHS ARE ROUNDED, not floored (owner ruling): 150 days is 4.93 months,
- *     and "4 months" understated it.
- *   · ⚠ AND MONTHS STOP AT 60 DAYS. Rounding overstates by up to half a month —
- *     at 46 days it would read "2 months", false comfort in the final stretch
- *     (owner ruling). Below 60 days the count is in weeks, FLOORED, so the coarse
- *     unit never overstates by more than a few days and the fine one never at all.
+ * The full year, by calendar days to the boards (owner rulings):
+ *   · >= 60 — MONTHS, ROUNDED (150 days is 4.93 months; "4 months" understated it).
+ *   · 15-59 — WEEKS, FLOORED. Rounded months would read 46 days as "2 months",
+ *     false comfort in the final stretch; floored weeks never overstate.
+ *   · 2-14  — DAYS.  · 1 — "Tomorrow".  · 0 — "Today".
+ *   · ★ the exam window — no countdown: the heading becomes BOARDS_ON_HEADING
+ *     and the figure BOARDS_ON_FIGURE (see below).
  *
- * ⚠ THE SINGULARS "1 month" AND "1 week" ARE GONE BECAUSE THEY ARE UNREACHABLE,
+ * ⚠ The addendum's table says months for "more than 60" and weeks for "15-59",
+ * which leaves day 60 itself unassigned. It stays in MONTHS ("2 months", 1.97
+ * rounded), as in step 3 — reported, not silently chosen.
+ *
+ * ⚠ THE SINGULARS "1 month" AND "1 week" ARE ABSENT BECAUSE THEY ARE UNREACHABLE,
  * not forgotten: at >= 60 days `Math.round(days / 30.44)` is always >= 2, and the
  * weeks band is 15-59 days, so `weeks` is always 2..8. A branch for either would
  * be dead code — the defect the reachability test in Welcome.countdown.test.tsx
- * exists to catch. "1 day" is reachable and kept.
+ * exists to catch.
+ *
+ * ★★ THE EXAM WINDOW. `predictCbseExamDate()` never returns a past date: the day
+ * after the boards start it rolls straight to next year's date. Without this
+ * branch, during the boards themselves the page would say "12 months". The date
+ * that JUST passed is recovered as the upcoming date minus one year — derived
+ * here, in this pure helper, so the predictor (which other surfaces rely on) is
+ * untouched. ⚠ That derivation is exact for the predictor's rolled-forward date
+ * (same calendar day, one year on); if a session's `officialDates` entry differs
+ * from the day the predictor rolls to, the window ends that many days early.
  */
-export function boardsCountdownLabel(now: Date, anchorIso: string): string {
-  const target = new Date(`${anchorIso}T00:00:00`);
-  if (Number.isNaN(target.getTime())) return "";
-  const days = Math.ceil((target.getTime() - now.getTime()) / 86_400_000);
-  if (days <= 0) return "The boards are here.";
-  if (days <= 14) return days === 1 ? "1 day" : `${days} days`;
+export function boardsCountdown(now: Date, upcomingIso: string): BoardsCountdown {
+  const upcoming = new Date(`${upcomingIso}T00:00:00`);
+  if (Number.isNaN(upcoming.getTime())) return { inWindow: false, figure: "" };
+  // Calendar days, from local midnights — so 3pm the day before still reads
+  // "Tomorrow", and a DST shift cannot turn 1 day into 0.96.
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const days = Math.round((upcoming.getTime() - today.getTime()) / 86_400_000);
+  const previous = new Date(upcoming);
+  previous.setFullYear(upcoming.getFullYear() - 1);
+  const sincePrevious = Math.round((today.getTime() - previous.getTime()) / 86_400_000);
+  if (days > 0 && sincePrevious >= 1 && sincePrevious <= BOARDS_WINDOW_DAYS) {
+    return { inWindow: true, figure: BOARDS_ON_FIGURE };
+  }
+  return { inWindow: false, figure: countdownFigure(days) };
+}
+
+function countdownFigure(days: number): string {
+  if (days <= 0) return "Today";
+  if (days === 1) return "Tomorrow";
+  if (days <= 14) return `${days} days`;
   if (days < 60) return `${Math.floor(days / 7)} weeks`;
   return `${Math.round(days / 30.44)} months`;
 }
+
+export interface BoardsCountdown {
+  /** True for BOARDS_WINDOW_DAYS days after the boards start: the heading swaps too. */
+  inWindow: boolean;
+  /** The figure line: "5 months", "Tomorrow", BOARDS_ON_FIGURE… or "" for a bad date. */
+  figure: string;
+}
+
+/**
+ * ⚠ AN ASSUMPTION, NAMED SO IT CAN BE CORRECTED. Class 10 boards run about a month
+ * from the first paper. For this many days after the board START the page says
+ * the boards are on instead of counting to next year. Correct it when CBSE
+ * publishes the 2027 date sheet.
+ *
+ * ⚠ KNOWN LIMIT (owner-accepted). The window's start is recovered as the
+ * predictor's rolled-forward date minus one year. If CBSE's official date differs
+ * from that roll-forward, THE WINDOW ENDS EARLY BY THE DIFFERENCE (official 20 Feb
+ * vs roll-forward 17 Feb → it ends 3 days early). Small, known, and corrected
+ * automatically once `officialDates` in cbseExamDate.ts carries the real date.
+ */
+export const BOARDS_WINDOW_DAYS = 30;
+
+/** The close section's durable heading — the ONLY one in the rendered/captured markup. */
+export const BOARDS_HEADING = "Your boards are closer than you think.";
+/** During the exam window only, written client-side by the effect (owner ruling). */
+export const BOARDS_ON_HEADING = "Your boards are on.";
+export const BOARDS_ON_FIGURE = "Best of luck.";
 
 /**
  * Public assets, resolved through Vite's own base. CLAUDE.md §7 forbids a
  * hardcoded `/app/` prefix in source; `BASE_URL` is the mechanism the repo
  * already uses for exactly this (`QuestionVisualAid.tsx:18`).
  *
- * ⚠ The prototype inlined these three as base64 for portability and says so in
- * its header: "In production use real image files, not base64." They now live
- * in `public/brand/`. The fingerprint is referenced TWICE (background mark and
- * brand lockup) from ONE file — as base64 that duplication cost 62,332 bytes.
+ * ⚠ The prototype inlined these as base64 for portability and says so in its
+ * header: "In production use real image files, not base64." They live in
+ * `public/brand/`.
+ *
+ * ★ ADDENDUM-A A4 — ALL FOUR ARE CUT FROM `LazyTopper_Logo_HD.png` (3366x4206) AT
+ * THE OWNER'S EXACT BOXES: fingerprint 700,190-2680,2930 · wordmark + plane
+ * 300,2820-3240,3660 with the leaked dots blanked in x1300-2010, y<2948 ·
+ * tagline 850,3780-2540,3965. The previous crop put three fingerprint dots above
+ * the "T"; the wordmark cut sits inside the clean band between the last dot
+ * (y~2915) and the T (y~2976). The paper plane is part of the registered mark.
+ * The fingerprint ships as TWO files: a small one for the 48px lockup and a
+ * 555px-wide one for the right-half mark, because one file at the mark's
+ * resolution cost ~250 KB on every phone for a 48px icon.
  */
 const ASSET_BASE = (import.meta.env.BASE_URL ?? "/").replace(/\/$/, "");
 const FINGERPRINT = `${ASSET_BASE}/brand/lazytopper-fingerprint.png`;
+const FINGERPRINT_MARK = `${ASSET_BASE}/brand/lazytopper-fingerprint-mark.png`;
 const WORDMARK = `${ASSET_BASE}/brand/lazytopper-wordmark.png`;
 const TAGLINE = `${ASSET_BASE}/brand/lazytopper-tagline.png`;
 
@@ -189,19 +253,18 @@ const CSS = `
 .lt-landing-brand .col{display:flex;flex-direction:column;gap:3px}
 .lt-landing-brand .word{height:21px;width:auto;display:block}
 .lt-landing-brand .tag{height:10px;width:auto;display:block;opacity:.95}
-.lt-landing-login{font-size:14px;font-weight:600;color:var(--ink2);text-decoration:none;
-  padding:10px 4px;display:inline-flex;align-items:center;min-height:44px}
+/* ADDENDUM-A A3 — "Log in" is a solid green button, matching every other CTA.
+   The (0,2,1) selector outranks ".lt-landing a{color:var(--gd)}", which would
+   otherwise paint the label green-on-green. min-height stays 44px (touch target). */
+.lt-landing a.lt-landing-login{font-size:14px;font-weight:700;color:#fff;background-color:var(--g);
+  text-decoration:none;padding:10px 18px;border-radius:12px;display:inline-flex;align-items:center;min-height:44px}
+.lt-landing a.lt-landing-login:hover{background-color:var(--gd)}
 
 .lt-landing-cls{display:flex;gap:6px;padding:0 var(--pad)}
 .lt-landing-cls button{font:inherit;font-size:12px;font-weight:700;padding:6px 13px;border-radius:999px;
   border:1px solid var(--line);background:var(--card);color:var(--ink2);cursor:pointer;min-height:44px}
 .lt-landing-cls button[aria-selected="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
 .lt-landing-cls button[disabled]{opacity:.45;cursor:default}
-
-.lt-landing-urg{display:inline-flex;align-items:center;gap:8px;margin:16px var(--pad) 0;
-  background:var(--urgw);border:1px solid #f0cdbb;border-radius:999px;padding:7px 14px;
-  font-size:12px;font-weight:800;letter-spacing:.04em;color:var(--urg)}
-.lt-landing-urg i{width:7px;height:7px;border-radius:50%;background:var(--urg);flex:0 0 auto}
 
 .lt-landing-hero{padding:14px var(--pad) 0}
 .lt-landing h1{font-size:clamp(42px,12.2vw,92px);line-height:.94;max-width:11ch}
@@ -251,10 +314,17 @@ const CSS = `
 .lt-landing-close p b{color:var(--ink);font-weight:700}
 /* ⚠ QUALIFIED BY .lt-landing-close ON PURPOSE: the node is a <p> inside the close
    section, and ".lt-landing-close p" (0,1,1) outranks a bare class (0,1,0) — which
-   silently rendered the figure at body size, grey. (0,2,0) wins. */
+   silently rendered the figure at body size, grey. (0,2,0) wins. The owner's v8
+   mockup reproduced exactly this bug; Welcome.countdown.test.tsx asserts the
+   COMPUTED style so it cannot come back. */
 .lt-landing-close .lt-landing-countdown{font-family:var(--serif);font-size:clamp(56px,15vw,112px);font-weight:900;
   color:var(--urg);letter-spacing:-.035em;margin:2px 0 18px;line-height:.95;max-width:none}
+/* The exam-window sentence is a line of words, not a figure: same voice, smaller. */
+.lt-landing-close .lt-landing-countdown--on{font-size:clamp(44px,11vw,88px)}
 .lt-landing-countdown:empty{display:none}
+/* ADDENDUM-A A6 — the second "Free to start" matches the first. Same trap as the
+   figure: ".lt-landing-close p" set it to 15px ink2; (0,2,0) restores the hero's. */
+.lt-landing-close .lt-landing-hnote{font-size:13px;color:var(--ink3);margin:12px 0 4px}
 .lt-landing-plans{display:grid;gap:10px;margin-top:22px;max-width:540px}
 .lt-landing-plan{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:14px 16px;
   box-shadow:var(--sh);text-decoration:none;color:inherit;display:block}
@@ -295,12 +365,33 @@ const CSS = `
   .lt-landing-brand .fp{height:48px}
   .lt-landing-brand .word{height:24px}
   .lt-landing-brand .tag{height:11px}
+  /* ADDENDUM-A A3 — the class row aligns right beneath Log in from 700px up. */
+  .lt-landing-cls{justify-content:flex-end}
 }
 @media(min-width:1000px){
-  .lt-landing{--pad:40px}
+  .lt-landing{--pad:40px;position:relative}
   .lt-landing-rail{display:grid;grid-template-columns:repeat(3,1fr);overflow:visible;padding-bottom:0}
   .lt-landing-kid{flex:none}
-  .lt-landing-bgmark{right:2vw;width:34vw;max-width:520px;top:4vh}
+  /* ★ ADDENDUM-A A2 — THE FINGERPRINT FILLS THE RIGHT HALF, and it is the tagline:
+     "One size fits one" is a fingerprint. ~60% opacity beside the hero's lower
+     half, starting just below the class row; its bottom fades out (mask) before
+     the student cards begin. ⚠ NO clip-path: with the owner's crop there is no
+     paper plane in this image; an earlier clip only sliced real dots flat.
+     ★ FIXED, AS IT ALWAYS WAS (owner ruling — the v8 mockup's scroll-away was a
+     mistake). Fixed + 60% would sit behind the payoff and the countdown, so it
+     is loud ONLY while the hero is on screen: once the hero is less than half
+     visible, "is-quiet" returns it to production's faint level. That class is set
+     only after the page has scrolled (see the effect), so nothing scroll-derived
+     exists at scroll 0 — where a capture runs. */
+  .lt-landing-bgmark{right:max(0px,calc((100vw - 1040px)/2 - 110px));top:185px;
+    width:27vw;max-width:370px;opacity:.6;transition:opacity .45s ease;
+    -webkit-mask-image:linear-gradient(to bottom,#000 70%,transparent 96%);
+    mask-image:linear-gradient(to bottom,#000 70%,transparent 96%)}
+  .lt-landing-bgmark.is-quiet{opacity:.075}
+}
+/* Reduced motion: no scroll-driven change at any width — just the faint fixed mark. */
+@media(min-width:1000px) and (prefers-reduced-motion:reduce){
+  .lt-landing-bgmark{opacity:.075;transition:none}
 }
 `;
 
@@ -330,14 +421,40 @@ export default function Welcome() {
    * advance. Whoever adds the root to `capturablePaths()` owes the strip and
    * its matching line in `countResidualAuthNodes()`.
    */
-  const [countdown, setCountdown] = useState("");
+  const [countdown, setCountdown] = useState<BoardsCountdown>({ inWindow: false, figure: "" });
   useEffect(() => {
     // ★★ BOTH CLOCK READS LIVE HERE. `predictCbseExamDate` reads the clock itself
     // (it picks the academic year from today), so it is a clock read by another
     // name. Hoisting it to module scope — `const ANCHOR = predictCbseExamDate("10")`
     // — would keep the `new Date()` count at one while baking the date into any
     // capture at build time. Welcome.countdown.test.tsx asserts the call site.
-    setCountdown(boardsCountdownLabel(new Date(), predictCbseExamDate("10")));
+    setCountdown(boardsCountdown(new Date(), predictCbseExamDate("10")));
+  }, []);
+
+  /**
+   * ★ THE MARK QUIETS WHEN THE HERO LEAVES (owner ruling). A fixed mark at ~60%
+   * would sit behind the payoff and the countdown, where no card backs the text.
+   * So: loud beside the hero, production's faint level once the hero is less than
+   * half visible. Three guards, each load-bearing:
+   *   · `window.scrollY > 0` — nothing scroll-derived exists at scroll 0, where a
+   *     capture runs, whatever the viewport height.
+   *   · prefers-reduced-motion — no observer at all; the CSS pins the faint level.
+   *   · no IntersectionObserver (jsdom, old browsers) — the mark simply stays as
+   *     rendered. The CSS only applies the loud state from 1000px up; below that
+   *     `is-quiet` changes nothing.
+   */
+  const heroRef = useRef<HTMLElement>(null);
+  const [markQuiet, setMarkQuiet] = useState(false);
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero || typeof IntersectionObserver === "undefined") return;
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setMarkQuiet(window.scrollY > 0 && entry.intersectionRatio < 0.5),
+      { threshold: [0, 0.25, 0.5, 0.75, 1] },
+    );
+    io.observe(hero);
+    return () => io.disconnect();
   }, []);
 
   const cbseHref =
@@ -354,12 +471,24 @@ export default function Welcome() {
     <main className="lt-landing" aria-label="LazyTopper public landing">
       <style>{CSS}</style>
 
-      <img className="lt-landing-bgmark" src={FINGERPRINT} alt="" />
+      {/* Decorative: alt="" AND aria-hidden (ADDENDUM-A A2). ★ <picture> so a phone
+          never downloads the 555px mark: below 1000px the faint fixed mark uses the
+          same small file as the lockup (already fetched), exactly as production
+          did; only a viewport >= 1000px selects FINGERPRINT_MARK. */}
+      <picture>
+        <source media="(min-width: 1000px)" srcSet={FINGERPRINT_MARK} />
+        <img
+          className={"lt-landing-bgmark" + (markQuiet ? " is-quiet" : "")}
+          src={FINGERPRINT}
+          alt=""
+          aria-hidden="true"
+        />
+      </picture>
 
       <div className="lt-landing-wrap">
         <div className="lt-landing-top">
           <div className="lt-landing-brand">
-            <img className="fp" src={FINGERPRINT} alt="" />
+            <img className="fp" src={FINGERPRINT} alt="" aria-hidden="true" />
             <span className="col">
               <img className="word" src={WORDMARK} alt="LazyTopper" />
               <img className="tag" src={TAGLINE} alt="One Size Fits One." />
@@ -382,14 +511,12 @@ export default function Welcome() {
           </button>
         </div>
 
-        {/* Static, non-clock-derived. The LIVE figure is the countdown line in
-            the close section, and only that line. */}
-        <div className="lt-landing-urg">
-          <i />
-          BOARDS: FEBRUARY 2027
-        </div>
+        {/* ADDENDUM-A A3 — the "BOARDS: FEBRUARY 2027" pill is REMOVED. It was a
+            hardcoded month that would contradict the countdown the day CBSE
+            published a non-February date; the countdown is now the page's only
+            statement about when the boards are. */}
 
-        <section className="lt-landing-hero">
+        <section className="lt-landing-hero" ref={heroRef}>
           <h1>
             Full marks<em>milenge kya?</em>
           </h1>
@@ -472,13 +599,22 @@ export default function Welcome() {
               for a crawler and the page is left with a hole where its structure
               was. So the heading states the durable fact and the countdown sits
               on its own removable line.
-              LANDING-FOLLOWUP-1 (owner ruling): "Then the real paper." is removed;
-              the heading is "Time left before your boards" and the figure stands
-              alone beneath it, large and bold. With the figure stripped, the
-              heading still reads as a true, complete label for the section. */}
-          <h2>Time left before your boards</h2>
-          <p className="lt-landing-countdown" data-testid="boards-countdown">
-            {countdown}
+              LANDING-FOLLOWUP-1 (owner rulings): "Then the real paper." is removed;
+              the heading is "Your boards are closer than you think." (ADDENDUM-A
+              A5) and the figure stands alone beneath it, large and rust. With the
+              figure stripped, the heading still stands alone, true in any month. */}
+          {/* ★ THE HEADING SWAPS ONLY CLIENT-SIDE, ONLY IN THE EXAM WINDOW (owner
+              ruling). The first render — the only one a capture could see before
+              the strip rule removes the figure — always carries BOARDS_HEADING;
+              the effect alone can flip `inWindow`, so no clock reaches markup. */}
+          <h2 data-testid="boards-heading">
+            {countdown.inWindow ? BOARDS_ON_HEADING : BOARDS_HEADING}
+          </h2>
+          <p
+            className={"lt-landing-countdown" + (countdown.inWindow ? " lt-landing-countdown--on" : "")}
+            data-testid="boards-countdown"
+          >
+            {countdown.figure}
           </p>
           <p>
             Find out which mistake is costing you marks &mdash; and <b>fix it now</b>, not in the

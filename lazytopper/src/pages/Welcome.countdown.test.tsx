@@ -1,11 +1,18 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
-import Welcome, { boardsCountdownLabel } from "./Welcome";
+import Welcome, {
+  BOARDS_HEADING,
+  BOARDS_ON_FIGURE,
+  BOARDS_ON_HEADING,
+  BOARDS_WINDOW_DAYS,
+  boardsCountdown,
+} from "./Welcome";
+import { predictCbseExamDate } from "../services/cbseExamDate";
 
 /**
  * LANDING-MERGE-1 §2.7 — the live boards figure. Revised in LANDING-FOLLOWUP-1.
@@ -16,7 +23,7 @@ import Welcome, { boardsCountdownLabel } from "./Welcome";
  * ★ IT MUST NOT BE THE HEADLINE. The prototype put it inside an <h2> ("Six months
  * left. Then the real paper."). A heading is page structure: strip it for a crawler
  * and the page is left with a hole where its structure was. So the heading is static
- * ("Time left before your boards", owner ruling) and the figure sits on its own line
+ * ("Your boards are closer than you think.", owner ruling) and the figure sits on its own line
  * beneath it, removable on its own.
  *
  * ★★ AND NO CLOCK READ MAY REACH SERVER-RENDERED MARKUP. A static capture runs the
@@ -39,73 +46,135 @@ import Welcome, { boardsCountdownLabel } from "./Welcome";
 
 afterEach(() => cleanup());
 
-describe("boardsCountdownLabel — the bands, from a supplied clock", () => {
-  // ★ The function takes `now` AND the anchor rather than reading a clock, which is
-  // what lets every band be asserted exactly without mocking global Date. That is a
-  // design property, not a convenience: a helper that read the clock itself could not
-  // be tested this way and could not be kept out of the render path.
-  // The anchor is what `predictCbseExamDate("10")` returns today (2026-09-21).
-  const anchor = "2027-02-17";
+/**
+ * ★★ ADDENDUM-A A5 — EVERY STAGE, ASSERTED AS RENDERED TEXT.
+ * The clock is faked (Date only) and the REAL page renders: the effect calls the
+ * real `predictCbseExamDate("10")`, which rolls forward exactly as in production,
+ * and the assertion reads the DOM node. A helper-level test could pass while the
+ * page showed "12 months" during the boards — the defect this section exists for.
+ * Exam date in this window: 2027-02-17 (the predictor's roll-forward; 2026-27 has
+ * no `officialDates` entry yet).
+ */
+function renderedOn(isoDate: string): { heading: string; figure: string } {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  // Mid-morning local time, so "calendar day" is being tested, not midnight edges.
+  vi.setSystemTime(new Date(`${isoDate}T10:30:00`));
+  try {
+    render(
+      <MemoryRouter>
+        <Welcome />
+      </MemoryRouter>,
+    );
+    return {
+      heading: screen.getByTestId("boards-heading").textContent ?? "",
+      figure: screen.getByTestId("boards-countdown").textContent ?? "",
+    };
+  } finally {
+    cleanup();
+    vi.useRealTimers();
+  }
+}
+const renderedFigureOn = (isoDate: string) => renderedOn(isoDate).figure;
+
+describe("the countdown — every stage of the year, as rendered", () => {
+  it.each([
+    ["2026-09-21", "5 months"], //   149 days = 4.89 — ROUNDED; floor would say 4
+    ["2026-12-19", "2 months"], //    60 days — bottom of the months band
+    ["2026-12-20", "8 weeks"], //     59 days — top of the weeks band
+    ["2027-01-02", "6 weeks"], //     46 days — NOT "2 months" (false comfort)
+    ["2027-02-02", "2 weeks"], //     15 days — bottom of the weeks band
+    ["2027-02-03", "14 days"], //     14 days — top of the days band
+    ["2027-02-15", "2 days"], //       2 days — bottom of the days band
+    ["2027-02-16", "Tomorrow"], //     1 day
+    ["2027-02-17", "Today"], //        0 — exam day
+    ["2027-02-18", BOARDS_ON_FIGURE], // exam day +1 — the predictor has rolled to 2028
+    ["2027-03-19", BOARDS_ON_FIGURE], // exam day +30 — last day of the window
+    ["2027-03-20", "11 months"], //   exam day +31 — counting to 2028-02-17 as normal
+  ])("on %s the page reads %s", (today, expected) => {
+    expect(renderedFigureOn(today)).toBe(expected);
+  });
+
+  it("★★ CONTROL — on exam day +1 the predictor HAS rolled a year ahead", () => {
+    // The precondition the window exists for, asserted rather than assumed: the
+    // predictor itself (unchanged) returns next year's date the day after the boards
+    // start. Counted plainly, that is 364 days — "12 months" — which is what the page
+    // would say mid-boards without the window branch.
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2027-02-18T10:30:00"));
+    try {
+      expect(predictCbseExamDate("10")).toBe("2028-02-17");
+    } finally {
+      vi.useRealTimers();
+    }
+    expect(Math.round(364 / 30.44)).toBe(12);
+    expect(renderedFigureOn("2027-02-18")).not.toMatch(/month/);
+  });
 
   it.each([
-    ["2026-09-21", "5 months"], //  149 days = 4.89 months — ROUNDED; floor would say 4
-    ["2026-12-19", "2 months"], //   60 days — bottom of the months band
-    ["2026-12-20", "8 weeks"], //    59 days — top of the weeks band
-    ["2027-01-02", "6 weeks"], //    46 days — NOT "2 months" (owner ruling: false comfort)
-    ["2027-02-02", "2 weeks"], //    15 days — bottom of the weeks band
-    ["2027-02-03", "14 days"], //    14 days — top of the days band
-    ["2027-02-16", "1 day"], //       1 day  — singular
-    ["2027-02-17", "The boards are here."], // 0 days
-    ["2027-03-01", "The boards are here."], // past the anchor, never negative
-  ])("at %s reads %s", (today, expected) => {
-    expect(boardsCountdownLabel(new Date(`${today}T00:00:00`), anchor)).toBe(expected);
+    ["2027-02-16", BOARDS_HEADING], //    1 day before — durable heading
+    ["2027-02-17", BOARDS_HEADING], //    exam day ("Today") — durable heading
+    ["2027-02-18", BOARDS_ON_HEADING], // exam day +1 — SWAPPED
+    ["2027-03-19", BOARDS_ON_HEADING], // exam day +30 — still swapped
+    ["2027-03-20", BOARDS_HEADING], //    exam day +31 — RESTORED
+  ])("★ the heading on %s reads %s", (today, expected) => {
+    expect(renderedOn(today).heading).toBe(expected);
   });
 
-  it("★ CONTROL — rounding, not flooring: today's figure is the rounded one", () => {
-    // 149 / 30.44 = 4.89. The previous implementation floored this to "4 months";
-    // the owner ruled that an understatement. If a later edit restores Math.floor,
-    // the table row above AND this one go red.
-    const days = 149;
-    expect(Math.floor(days / 30.44)).toBe(4);
-    expect(boardsCountdownLabel(new Date("2026-09-21T00:00:00"), anchor)).toBe("5 months");
+  it("★★ the window pairs the swapped heading with 'Best of luck.' — never the old clash", () => {
+    const during = renderedOn("2027-02-18");
+    expect(`${during.heading} ${during.figure}`).toBe("Your boards are on. Best of luck.");
+    // CONTROL — outside the window the durable heading never meets the window copy.
+    const after = renderedOn("2027-03-20");
+    expect(after.heading).toBe(BOARDS_HEADING);
+    expect(after.figure).not.toBe(BOARDS_ON_FIGURE);
   });
 
-  it("★ CONTROL — below 60 days the count is weeks, so months never overstate there", () => {
-    // Rounded months would read 46 days as "2 months" — a fortnight of false comfort.
-    // Every day in 15..59 must be in weeks, and weeks are floored, so the figure is
-    // never more than the time remaining.
-    const target = Date.parse(`${anchor}T00:00:00`);
-    for (let d = 15; d < 60; d++) {
-      const label = boardsCountdownLabel(new Date(target - d * 86_400_000), anchor);
-      expect(label, `${d} days`).toMatch(/^\d+ weeks$/);
-      expect(Number(label.split(" ")[0]) * 7, `${d} days`).toBeLessThanOrEqual(d);
-    }
+  it("the window length is the named assumption, 30 days", () => {
+    expect(BOARDS_WINDOW_DAYS).toBe(30);
   });
 
-  it("★ CONTROL — the bands really do differ, so the table above is not one value ten times", () => {
-    const labels = ["2026-09-21", "2026-12-20", "2027-02-03", "2027-02-16", "2027-02-17"].map((d) =>
-      boardsCountdownLabel(new Date(`${d}T00:00:00`), anchor),
-    );
-    expect(new Set(labels).size).toBe(5);
-  });
-
-  it("★★ every branch is REACHABLE — no band is dead code", () => {
-    // ⚠ THIS CAUGHT TWO REAL DEFECTS IN LANDING-MERGE-1 (unreachable "1 month left."
-    // and "1 week left." branches). With months starting at 60 days and rounded, "1
-    // month" is unreachable, and with weeks at 15-59 days, "1 week" is too — so neither
-    // singular exists in the function, and this sweep proves nothing else is dead.
+  it("★★ every stage is REACHABLE across a full year, as rendered", { timeout: 120_000 }, () => {
+    // ⚠ This shape caught two dead branches in LANDING-MERGE-1. Walk every day from
+    // a month before the boards to the next boards, render the page, and collect the
+    // shapes. Every stage in the owner's table must appear, and nothing else may.
     const shapes = new Set<string>();
-    for (let d = 0; d <= 400; d++) {
-      const now = new Date(Date.parse(`${anchor}T00:00:00`) - d * 86_400_000);
-      shapes.add(boardsCountdownLabel(now, anchor).replace(/\d+/, "N"));
+    const day = new Date("2027-01-15T12:00:00");
+    const stop = new Date("2028-02-18T12:00:00");
+    while (day < stop) {
+      const iso = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, "0")}-${String(day.getDate()).padStart(2, "0")}`;
+      shapes.add(renderedFigureOn(iso).replace(/\d+/, "N"));
+      day.setDate(day.getDate() + 1);
     }
     expect(shapes).toEqual(
-      new Set(["The boards are here.", "N day", "N days", "N weeks", "N months"]),
+      new Set(["N months", "N weeks", "N days", "Tomorrow", "Today", BOARDS_ON_FIGURE]),
     );
   });
 
-  it("returns an empty string for an unparseable anchor rather than throwing", () => {
-    expect(boardsCountdownLabel(new Date("2026-09-20T00:00:00"), "not-a-date")).toBe("");
+  it("the exam-window sentence gets the smaller style; the figure does not", () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2027-02-20T10:30:00"));
+    render(
+      <MemoryRouter>
+        <Welcome />
+      </MemoryRouter>,
+    );
+    expect(screen.getByTestId("boards-countdown")).toHaveClass("lt-landing-countdown--on");
+    cleanup();
+    vi.setSystemTime(new Date("2026-09-21T10:30:00"));
+    render(
+      <MemoryRouter>
+        <Welcome />
+      </MemoryRouter>,
+    );
+    expect(screen.getByTestId("boards-countdown")).not.toHaveClass("lt-landing-countdown--on");
+    vi.useRealTimers();
+  });
+
+  it("returns an empty string for an unparseable date rather than throwing", () => {
+    expect(boardsCountdown(new Date("2026-09-20T00:00:00"), "not-a-date")).toEqual({
+      inWindow: false,
+      figure: "",
+    });
   });
 });
 
@@ -126,7 +195,7 @@ describe("the countdown is a separate, structurally strippable node", () => {
   it("the rendered figure is a real count (the effect ran and read the predictor)", () => {
     renderWelcome();
     expect(screen.getByTestId("boards-countdown").textContent).toMatch(
-      /^(\d+ (months|weeks|days)|1 day|The boards are here\.)$/,
+      /^(\d+ (months|weeks|days)|Tomorrow|Today|Best of luck\.)$/,
     );
   });
 
@@ -154,7 +223,7 @@ describe("the countdown is a separate, structurally strippable node", () => {
     // ...and the heading it sits beneath is still there and says something durable,
     // so "not in a heading" was not achieved by deleting the heading.
     const headings = Array.from(container.querySelectorAll("h2")).map((h) => h.textContent);
-    expect(headings).toContain("Time left before your boards");
+    expect(headings).toContain(BOARDS_HEADING);
     expect(headings).not.toContain("Then the real paper."); // owner ruling: removed
   });
 
@@ -163,7 +232,7 @@ describe("the countdown is a separate, structurally strippable node", () => {
     // the close section keeps its heading, its CTA and its copy.
     const { container } = renderWelcome();
     const heading = Array.from(container.querySelectorAll("h2")).find(
-      (h) => h.textContent === "Time left before your boards",
+      (h) => h.textContent === BOARDS_HEADING,
     );
     screen.getByTestId("boards-countdown").remove();
     expect(heading?.isConnected).toBe(true);
@@ -265,7 +334,7 @@ describe("no clock read reaches the landing's render path", () => {
 const ANCHOR = predictCbseExamDate("10");
 export default function W() {
   useEffect(() => {
-    setCountdown(boardsCountdownLabel(new Date(), ANCHOR));
+    setCountdown(boardsCountdown(new Date(), ANCHOR));
   }, []);
 }`;
     expect(sites(hoisted, PREDICTOR).outside).toEqual([`const ANCHOR = predictCbseExamDate("10");`]);
@@ -275,7 +344,7 @@ export default function W() {
     const inRender = `export default function W() {
   const anchor = predictCbseExamDate("10");
   useEffect(() => {
-    setCountdown(boardsCountdownLabel(new Date(), anchor));
+    setCountdown(boardsCountdown(new Date(), anchor));
   }, []);
 }`;
     expect(sites(inRender, PREDICTOR).outside).toHaveLength(1);
@@ -285,12 +354,12 @@ export default function W() {
     const good = `export default function W() {
   useEffect(() => {
     if (ready) { go(); }
-    setCountdown(boardsCountdownLabel(new Date(), predictCbseExamDate("10")));
+    setCountdown(boardsCountdown(new Date(), predictCbseExamDate("10")));
   }, []);
   const after = 1;
 }`;
     expect(sites(good, PREDICTOR)).toEqual({
-      inside: [`setCountdown(boardsCountdownLabel(new Date(), predictCbseExamDate("10")));`],
+      inside: [`setCountdown(boardsCountdown(new Date(), predictCbseExamDate("10")));`],
       outside: [],
     });
   });
@@ -309,7 +378,7 @@ export default function W() {
     const code = stripComments(WELCOME());
     // Real code survived the strip...
     expect(code).toContain("export default function Welcome()");
-    expect(code).toContain("boardsCountdownLabel");
+    expect(code).toContain("boardsCountdown");
     expect(code).toContain(`predictCbseExamDate("10")`);
     // ...and the prose that mentions Date() in a comment did not.
     expect(code).not.toContain("A static capture waits for the page to settle");
