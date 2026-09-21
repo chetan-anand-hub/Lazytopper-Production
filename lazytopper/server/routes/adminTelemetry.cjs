@@ -88,6 +88,9 @@ const {
   WORKLOAD_CLASSES,
   UNCLASSIFIED_WORKLOAD,
 } = require('../services/geminiClient.cjs');
+// Required, not restated, for the same reason: the name this endpoint reads must be
+// the name entitlement.cjs emits.
+const { DENY_UID_HEADER_NO_TOKEN } = require('../services/entitlement.cjs');
 
 const REPORTED_WORKLOAD_CLASSES = Object.freeze([
   ...WORKLOAD_CLASSES,
@@ -432,6 +435,13 @@ function createAdminTelemetryRoutes(deps) {
           header: toNumber(counters['rate_limit.uid_source.header']),
           unverified: toNumber(counters['rate_limit.uid_source.unverified']),
         },
+      },
+      // ★ UID-HEADER-CLOSE-1 — a uid header that arrived with no bearer token, now
+      // DENIED. Until that lane it was served and counted with a failed token under
+      // one name, so the two could not be told apart. This is the only entitlement
+      // counter the endpoint reports; the rest are [FU-ENTITLEMENT-COUNTERS-NO-READER].
+      entitlement: {
+        denyUidHeaderNoToken: toNumber(counters[DENY_UID_HEADER_NO_TOKEN]),
       },
       recentSampleSize,
     };

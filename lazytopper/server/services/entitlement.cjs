@@ -60,10 +60,15 @@
 // which degrades to the header rather than to the anonymous bucket: a student who
 // paid must never be locked out by an infrastructure blip.
 //
-// ONE OTHER POSITIVE FACT DENIES: a request that carried NO caller identity at all
-// — no bearer token AND no uid header (ENTITLEMENT-NO-CREDENTIAL-1). That is
-// something observed about the request, not a failure to conclude something, so
-// nothing about a broken deploy or an expired token can produce it.
+// TWO OTHER POSITIVE FACTS DENY, both observed about the request rather than
+// failures to conclude something, so nothing about a broken deploy or an expired
+// token can produce either:
+//   • NO caller identity at all — no bearer token AND no uid header
+//     (ENTITLEMENT-NO-CREDENTIAL-1).
+//   • a uid header with NO bearer token (UID-HEADER-CLOSE-1). The header is a string
+//     anyone can type; without a token there is nothing to verify it against. The
+//     client no longer sends it alone — `paidCallHeaders.ts` retries the token and,
+//     on exhaustion, refuses to make the call and asks the student to sign in again.
 //
 // ★ AND THE PART THAT MAKES IT MORE THAN A COMMENT. If firebase-admin credentials
 // are absent on Railway, EVERY read fails, EVERY request is served, and this
@@ -108,13 +113,23 @@ const FAIL_OPEN_EVENT = 'entitlement.fail_open';
 const FAIL_OPEN_NO_ADMIN = 'entitlement.fail_open.no_admin';
 const FAIL_OPEN_READ_ERROR = 'entitlement.fail_open.read_error';
 /**
- * A caller identified itself but produced no verified uid: a token WAS offered and
- * did not verify, or a uid header arrived WITHOUT a token (`paidCallHeaders.ts`
- * drops `Authorization` when `getIdToken()` rejects but keeps the uid header).
- * THIS IS THE CREDENTIALS-BROKEN SIGNAL — a signed-in student this deploy or this
- * client could not verify.
+ * A caller offered a bearer token and it did not verify — an expired token, a clock
+ * skew, firebase-admin unable to check it. THIS IS THE CREDENTIALS-BROKEN SIGNAL — a
+ * signed-in student this deploy could not verify. Still a fail-open, deliberately.
+ *
+ * It no longer counts a uid header that arrived WITHOUT a token: that case is a
+ * denial now, under its own name below, so the two can be told apart.
  */
 const FAIL_OPEN_NO_UID = 'entitlement.fail_open.no_uid';
+/**
+ * A uid header with NO bearer token (UID-HEADER-CLOSE-1). A DENIAL, not a fail-open.
+ *
+ * Until UID-HEADER-CLOSE-1 this was served and counted under no_uid, which made it
+ * indistinguishable from a token that failed to verify. It has its own name so the
+ * owner can see how often somebody sends a uid with nothing behind it. Reported by
+ * /api/admin/token-telemetry as `entitlement.denyUidHeaderNoToken`.
+ */
+const DENY_UID_HEADER_NO_TOKEN = 'entitlement.deny.uid_header_no_token';
 /**
  * No caller identity at all — no bearer token and no uid header. A DENIAL, not a
  * fail-open, so it must never count toward `entitlement.fail_open`.
@@ -363,28 +378,48 @@ function createEntitlementGate(deps = {}) {
   }
 
   /**
+   * Refuse a uid header that arrived with no bearer token. INFO, not WARN, for the
+   * same reason as denyAnonymous: it is not the paywall leaking, it is the paywall
+   * holding. Its own counter is what makes it countable apart from no_uid.
+   */
+  function denyUidHeaderNoToken() {
+    emit(DENY_EVENT);
+    emit(DENY_UID_HEADER_NO_TOKEN);
+    try {
+      if (typeof logger.info === 'function') {
+        logger.info('[entitlement] DENY (a uid header arrived without a bearer token)');
+      }
+    } catch {
+      /* logging must never fail a request */
+    }
+    return { entitled: false, tier: null, trialEndsAtMs: null, outcome: 'uid-header-no-token' };
+  }
+
+  /**
    * Resolve entitlement for a verified uid. NEVER throws.
    *
    * Outcomes: 'cache' | 'read' (document found) | 'absent' (read succeeded, no
-   * document -> free) | 'anonymous' (no caller identity on the request) | 'fail-open'.
+   * document -> free) | 'anonymous' (no caller identity on the request) |
+   * 'uid-header-no-token' (a uid header with nothing to verify it) | 'fail-open'.
    */
   async function resolve(uid, req) {
     const id = typeof uid === 'string' ? uid.trim() : '';
 
-    // No verified uid. If the caller identified itself — a bearer token, or a uid
-    // header without one — this is NOT a positive read of a non-entitled tier: it is
-    // an expired token, a clock skew, firebase-admin being unable to verify, or a
-    // client whose getIdToken() failed. So it fails OPEN, exactly as
-    // verifiedCaller.cjs refuses to conclude "anonymous" from a verification failure.
-    // Only a request carrying NEITHER is denied: that is observed, not inferred.
+    // No verified uid. If a bearer token was OFFERED, this is NOT a positive read of
+    // a non-entitled tier: it is an expired token, a clock skew, or firebase-admin
+    // being unable to verify. So it fails OPEN, exactly as verifiedCaller.cjs refuses
+    // to conclude "anonymous" from a verification failure.
+    //
+    // ★ A uid header WITHOUT a token is DENIED (UID-HEADER-CLOSE-1). It used to fail
+    // open to cover a client whose getIdToken() failed, but that trusted a string
+    // anyone can type: any caller who knew the endpoint got paid AI with no account.
+    // The client now retries the token and never sends the header alone.
     if (!id) {
       if (!req) return failOpen(FAIL_OPEN_NO_UID, 'no request to read a credential from');
       if (extractBearerToken(req)) {
         return failOpen(FAIL_OPEN_NO_UID, 'a bearer token was offered and did not verify');
       }
-      if (!resolveCaller(req).anonymous) {
-        return failOpen(FAIL_OPEN_NO_UID, 'a uid header arrived without a bearer token');
-      }
+      if (!resolveCaller(req).anonymous) return denyUidHeaderNoToken();
       return denyAnonymous();
     }
 
@@ -529,4 +564,5 @@ module.exports = {
   FAIL_OPEN_NO_UID,
   FAIL_OPEN_READ_ERROR,
   DENY_ANONYMOUS,
+  DENY_UID_HEADER_NO_TOKEN,
 };
