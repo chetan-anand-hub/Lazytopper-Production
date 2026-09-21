@@ -8,15 +8,16 @@ import { dirname, resolve } from "node:path";
 import Welcome, { boardsCountdownLabel } from "./Welcome";
 
 /**
- * LANDING-MERGE-1 §2.7 — the live boards figure.
+ * LANDING-MERGE-1 §2.7 — the live boards figure. Revised in LANDING-FOLLOWUP-1.
  *
- * The owner wants the count current: months now, weeks and then days as February
- * nears. Two constraints shape how it is built, and both are defended here.
+ * The owner wants the count current: months now, weeks and then days as the boards
+ * near. Two constraints shape how it is built, and both are defended here.
  *
  * ★ IT MUST NOT BE THE HEADLINE. The prototype put it inside an <h2> ("Six months
  * left. Then the real paper."). A heading is page structure: strip it for a crawler
  * and the page is left with a hole where its structure was. So the heading is static
- * and the count sits on its own line, removable on its own.
+ * ("Time left before your boards", owner ruling) and the figure sits on its own line
+ * beneath it, removable on its own.
  *
  * ★★ AND NO CLOCK READ MAY REACH SERVER-RENDERED MARKUP. A static capture runs the
  * render path in a headless browser on the BUILD machine and freezes the output, so a
@@ -28,7 +29,7 @@ import Welcome, { boardsCountdownLabel } from "./Welcome";
  * The defence is the PAIRING: the value is written outside the render path AND the
  * node carries a `data-testid` so a capture can remove it BY STRUCTURAL SELECTOR,
  * exactly as `stripAuthChrome()` removes the greeting — never by matching text,
- * because "months" and "left" are ordinary words that occur inside CBSE content.
+ * because "months" and "weeks" are ordinary words that occur inside CBSE content.
  *
  * ⚠ THE STRIP RULE ITSELF IS NOT IN THIS LANE — it lives in scripts/seo/, which this
  * lane may not touch, and nothing can bake today because the root is not captured at
@@ -39,58 +40,67 @@ import Welcome, { boardsCountdownLabel } from "./Welcome";
 afterEach(() => cleanup());
 
 describe("boardsCountdownLabel — the bands, from a supplied clock", () => {
-  // ★ The function takes `now` rather than reading a clock, which is what lets every
-  // band be asserted exactly without mocking global Date. That is a design property,
-  // not a convenience: a helper that read the clock itself could not be tested this
-  // way and could not be kept out of the render path.
-  const anchor = "2027-02-01";
+  // ★ The function takes `now` AND the anchor rather than reading a clock, which is
+  // what lets every band be asserted exactly without mocking global Date. That is a
+  // design property, not a convenience: a helper that read the clock itself could not
+  // be tested this way and could not be kept out of the render path.
+  // The anchor is what `predictCbseExamDate("10")` returns today (2026-09-21).
+  const anchor = "2027-02-17";
 
   it.each([
-    ["2026-09-20", "4 months left."], // 134 days — the band the page ships in today
-    ["2026-11-15", "2 months left."], //  78 days
-    ["2026-12-20", "1 month left."], //   43 days — singular, and reachable
-    ["2027-01-02", "4 weeks left."], //   30 days — top of the weeks band
-    ["2027-01-10", "3 weeks left."], //   22 days
-    ["2027-01-18", "14 days left."], //   14 days — top of the days band
-    ["2027-01-25", "7 days left."], //     7 days — NOT "1 week": days wins below 15
-    ["2027-01-31", "1 day left."], //      1 day  — singular
-    ["2027-02-01", "The boards are here."], // 0 days
+    ["2026-09-21", "5 months"], //  149 days = 4.89 months — ROUNDED; floor would say 4
+    ["2026-12-19", "2 months"], //   60 days — bottom of the months band
+    ["2026-12-20", "8 weeks"], //    59 days — top of the weeks band
+    ["2027-01-02", "6 weeks"], //    46 days — NOT "2 months" (owner ruling: false comfort)
+    ["2027-02-02", "2 weeks"], //    15 days — bottom of the weeks band
+    ["2027-02-03", "14 days"], //    14 days — top of the days band
+    ["2027-02-16", "1 day"], //       1 day  — singular
+    ["2027-02-17", "The boards are here."], // 0 days
     ["2027-03-01", "The boards are here."], // past the anchor, never negative
   ])("at %s reads %s", (today, expected) => {
     expect(boardsCountdownLabel(new Date(`${today}T00:00:00`), anchor)).toBe(expected);
   });
 
+  it("★ CONTROL — rounding, not flooring: today's figure is the rounded one", () => {
+    // 149 / 30.44 = 4.89. The previous implementation floored this to "4 months";
+    // the owner ruled that an understatement. If a later edit restores Math.floor,
+    // the table row above AND this one go red.
+    const days = 149;
+    expect(Math.floor(days / 30.44)).toBe(4);
+    expect(boardsCountdownLabel(new Date("2026-09-21T00:00:00"), anchor)).toBe("5 months");
+  });
+
+  it("★ CONTROL — below 60 days the count is weeks, so months never overstate there", () => {
+    // Rounded months would read 46 days as "2 months" — a fortnight of false comfort.
+    // Every day in 15..59 must be in weeks, and weeks are floored, so the figure is
+    // never more than the time remaining.
+    const target = Date.parse(`${anchor}T00:00:00`);
+    for (let d = 15; d < 60; d++) {
+      const label = boardsCountdownLabel(new Date(target - d * 86_400_000), anchor);
+      expect(label, `${d} days`).toMatch(/^\d+ weeks$/);
+      expect(Number(label.split(" ")[0]) * 7, `${d} days`).toBeLessThanOrEqual(d);
+    }
+  });
+
   it("★ CONTROL — the bands really do differ, so the table above is not one value ten times", () => {
-    const labels = ["2026-09-20", "2026-12-20", "2027-01-10", "2027-01-25", "2027-02-01"].map((d) =>
+    const labels = ["2026-09-21", "2026-12-20", "2027-02-03", "2027-02-16", "2027-02-17"].map((d) =>
       boardsCountdownLabel(new Date(`${d}T00:00:00`), anchor),
     );
     expect(new Set(labels).size).toBe(5);
   });
 
   it("★★ every branch is REACHABLE — no band is dead code", () => {
-    // ⚠ THIS CAUGHT TWO REAL DEFECTS. A first draft ended the weeks band at 60 days,
-    // which made "1 month left." unreachable (above 60 days the month count is always
-    // >= 2); the same reasoning then showed "1 week left." could never render either,
-    // because the days band below claims everything up to 14. A table of expectations
-    // alone would not have found these — every row would still have passed.
+    // ⚠ THIS CAUGHT TWO REAL DEFECTS IN LANDING-MERGE-1 (unreachable "1 month left."
+    // and "1 week left." branches). With months starting at 60 days and rounded, "1
+    // month" is unreachable, and with weeks at 15-59 days, "1 week" is too — so neither
+    // singular exists in the function, and this sweep proves nothing else is dead.
     const shapes = new Set<string>();
     for (let d = 0; d <= 400; d++) {
       const now = new Date(Date.parse(`${anchor}T00:00:00`) - d * 86_400_000);
       shapes.add(boardsCountdownLabel(now, anchor).replace(/\d+/, "N"));
     }
-    // Six shapes, and the singular/plural pairs are the point: "N day left." and
-    // "N month left." appearing here is the proof that both singular branches
-    // actually render for some real date, which is exactly what the two removed
-    // branches could not do.
     expect(shapes).toEqual(
-      new Set([
-        "The boards are here.",
-        "N day left.",
-        "N days left.",
-        "N weeks left.",
-        "N month left.",
-        "N months left.",
-      ]),
+      new Set(["The boards are here.", "N day", "N days", "N weeks", "N months"]),
     );
   });
 
@@ -113,24 +123,35 @@ describe("the countdown is a separate, structurally strippable node", () => {
     expect(screen.getByTestId("boards-countdown")).toBeInTheDocument();
   });
 
+  it("the rendered figure is a real count (the effect ran and read the predictor)", () => {
+    renderWelcome();
+    expect(screen.getByTestId("boards-countdown").textContent).toMatch(
+      /^(\d+ (months|weeks|days)|1 day|The boards are here\.)$/,
+    );
+  });
+
   it("★★ the countdown is NOT inside a heading — removing it leaves the structure intact", () => {
     // The property §2.7 is actually about. If a later edit moved the figure back into
     // the <h2>, every other assertion in this file would stay green.
     const { container } = renderWelcome();
     const node = screen.getByTestId("boards-countdown");
     expect(node.closest("h1, h2, h3, h4, h5, h6")).toBeNull();
-    // ...and the heading it sits beside is still there and still says something
-    // durable, so "not in a heading" was not achieved by deleting the heading.
+    // ...and the heading it sits beneath is still there and says something durable,
+    // so "not in a heading" was not achieved by deleting the heading.
     const headings = Array.from(container.querySelectorAll("h2")).map((h) => h.textContent);
-    expect(headings).toContain("Then the real paper.");
+    expect(headings).toContain("Time left before your boards");
+    expect(headings).not.toContain("Then the real paper."); // owner ruling: removed
   });
 
   it("★ CONTROL — removing the node takes the figure and nothing else with it", () => {
     // Simulates what the future strip rule will do, and proves the page survives it:
     // the close section keeps its heading, its CTA and its copy.
     const { container } = renderWelcome();
+    const heading = Array.from(container.querySelectorAll("h2")).find(
+      (h) => h.textContent === "Time left before your boards",
+    );
     screen.getByTestId("boards-countdown").remove();
-    expect(container.querySelector("h2")).not.toBeNull();
+    expect(heading?.isConnected).toBe(true);
     expect(screen.getAllByRole("link", { name: /Check my answer/i }).length).toBeGreaterThan(0);
     expect(screen.queryByTestId("boards-countdown")).toBeNull();
   });
@@ -147,46 +168,134 @@ describe("the countdown is a separate, structurally strippable node", () => {
  * `new Date()` with no argument is a clock read. `new Date("2027-02-01T00:00:00")` is
  * not — it parses a declared constant — so the detector is written to tell them apart
  * rather than counting the word "Date".
+ *
+ * ★★★ AND `predictCbseExamDate` IS A CLOCK READ BY ANOTHER NAME (LANDING-FOLLOWUP-1).
+ * It reads `new Date()` inside the service. Counting `new Date()` in Welcome.tsx alone
+ * would stay at one while `const ANCHOR = predictCbseExamDate("10")` at module scope
+ * baked the build-day date into a capture. So every mention of that identifier —
+ * a call, an alias, a reference passed elsewhere — must sit inside a `useEffect`
+ * body, located by brace matching rather than by searching for a closing string.
  */
 const HERE = dirname(fileURLToPath(import.meta.url));
 const CLOCK_READ = /new Date\(\s*\)|Date\.now\(\s*\)|Intl\.DateTimeFormat/g;
+const PREDICTOR = /\bpredictCbseExamDate\b/g;
 
-function clockReads(relPath: string): string[] {
-  const src = readFileSync(resolve(HERE, relPath), "utf8");
+function stripComments(src: string): string {
   // Comments discuss these constructs at length in this very file's subject; strip
   // block and line comments so prose cannot trip or satisfy the detector.
-  const code = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
-  return code.match(CLOCK_READ) ?? [];
+  return src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 }
 
-describe("no clock read reaches the landing's render path", () => {
-  it("★★ Welcome.tsx performs exactly ONE clock read, and it is inside the effect", () => {
-    const reads = clockReads("./Welcome.tsx");
-    expect(reads).toEqual(["new Date()"]);
+function stripImports(code: string): string {
+  return code.replace(/^import\s[\s\S]*?from\s+["'][^"']+["'];?/gm, "");
+}
 
-    // ...and it is inside useEffect, not in the component body or module scope.
-    const src = readFileSync(resolve(HERE, "./Welcome.tsx"), "utf8");
-    const effect = src.slice(src.indexOf("useEffect(("), src.indexOf("}, []);"));
-    expect(effect).toContain("new Date()");
+/** [start, end] of every `useEffect(` callback body, by brace matching. */
+function effectBodies(code: string): Array<[number, number]> {
+  const ranges: Array<[number, number]> = [];
+  let at = code.indexOf("useEffect(");
+  while (at !== -1) {
+    const open = code.indexOf("{", at);
+    let depth = 0;
+    let end = open;
+    for (; end < code.length; end++) {
+      if (code[end] === "{") depth++;
+      else if (code[end] === "}" && --depth === 0) break;
+    }
+    ranges.push([open, end]);
+    at = code.indexOf("useEffect(", end);
+  }
+  return ranges;
+}
+
+/** Every match of `pattern` in `src`, split by whether it sits inside an effect body. */
+function sites(src: string, pattern: RegExp) {
+  const code = stripImports(stripComments(src));
+  const bodies = effectBodies(code);
+  const inside: string[] = [];
+  const outside: string[] = [];
+  for (const m of code.matchAll(pattern)) {
+    const i = m.index ?? 0;
+    const line = code.slice(code.lastIndexOf("\n", i) + 1, code.indexOf("\n", i)).trim();
+    (bodies.some(([a, b]) => i > a && i < b) ? inside : outside).push(line);
+  }
+  return { inside, outside };
+}
+
+const WELCOME = () => readFileSync(resolve(HERE, "./Welcome.tsx"), "utf8");
+
+describe("no clock read reaches the landing's render path", () => {
+  it("★★ Welcome.tsx performs exactly ONE `new Date()`, and it is inside the effect", () => {
+    expect(stripComments(WELCOME()).match(CLOCK_READ) ?? []).toEqual(["new Date()"]);
+    const { inside, outside } = sites(WELCOME(), CLOCK_READ);
+    expect(inside).toHaveLength(1);
+    expect(outside).toEqual([]);
+  });
+
+  it("★★★ predictCbseExamDate is referenced ONLY inside a useEffect body", () => {
+    const { inside, outside } = sites(WELCOME(), PREDICTOR);
+    expect(inside.length, "the effect no longer calls the predictor").toBeGreaterThanOrEqual(1);
+    expect(outside, "predictCbseExamDate referenced outside an effect").toEqual([]);
+  });
+
+  it("★★ ...and it is imported by its own name, once — no alias to hide a call behind", () => {
+    const code = stripComments(WELCOME());
+    // `[^;]` keeps each match inside ONE import statement.
+    const imports = code.match(/^import\s[^;]*?from\s+["'][^"';]*cbseExamDate["'];?/gm) ?? [];
+    expect(imports).toEqual([`import { predictCbseExamDate } from "../services/cbseExamDate";`]);
+  });
+
+  it("★★★ CONTROL — a MODULE-SCOPE predictor call turns the guard red", () => {
+    const hoisted = `import { predictCbseExamDate } from "../services/cbseExamDate";
+const ANCHOR = predictCbseExamDate("10");
+export default function W() {
+  useEffect(() => {
+    setCountdown(boardsCountdownLabel(new Date(), ANCHOR));
+  }, []);
+}`;
+    expect(sites(hoisted, PREDICTOR).outside).toEqual([`const ANCHOR = predictCbseExamDate("10");`]);
+  });
+
+  it("★★ CONTROL — a call in the COMPONENT BODY (the render path) turns it red too", () => {
+    const inRender = `export default function W() {
+  const anchor = predictCbseExamDate("10");
+  useEffect(() => {
+    setCountdown(boardsCountdownLabel(new Date(), anchor));
+  }, []);
+}`;
+    expect(sites(inRender, PREDICTOR).outside).toHaveLength(1);
+  });
+
+  it("★ CONTROL — a call genuinely inside the effect passes, so the guard is not always red", () => {
+    const good = `export default function W() {
+  useEffect(() => {
+    if (ready) { go(); }
+    setCountdown(boardsCountdownLabel(new Date(), predictCbseExamDate("10")));
+  }, []);
+  const after = 1;
+}`;
+    expect(sites(good, PREDICTOR)).toEqual({
+      inside: [`setCountdown(boardsCountdownLabel(new Date(), predictCbseExamDate("10")));`],
+      outside: [],
+    });
   });
 
   it("★★★ CONTROL — the detector FIRES on a file that really does read the clock", () => {
     // Without this, "zero clock reads" passes just as happily on a broken regex, a
     // misresolved path, or an empty string. cbseExamDate.ts reads the clock twice in
     // predictCbseExamDate and once in daysLeftFromIsoDate.
-    const reads = clockReads("../services/cbseExamDate.ts");
-    expect(reads.length).toBeGreaterThan(0);
-    expect(reads).toContain("new Date()");
+    const src = readFileSync(resolve(HERE, "../services/cbseExamDate.ts"), "utf8");
+    expect(stripComments(src).match(CLOCK_READ) ?? []).toContain("new Date()");
   });
 
   it("★ CONTROL — the comment stripper does not hide a real clock read", () => {
     // The stripper above is itself a place a defect could hide: if it were too greedy
     // it would delete code and turn the main assertion vacuously green.
-    const src = readFileSync(resolve(HERE, "./Welcome.tsx"), "utf8");
-    const code = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+    const code = stripComments(WELCOME());
     // Real code survived the strip...
     expect(code).toContain("export default function Welcome()");
     expect(code).toContain("boardsCountdownLabel");
+    expect(code).toContain(`predictCbseExamDate("10")`);
     // ...and the prose that mentions Date() in a comment did not.
     expect(code).not.toContain("A static capture waits for the page to settle");
   });

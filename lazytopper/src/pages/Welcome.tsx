@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
-import { PRICE_FREE_DISPLAY, PRICE_MONTHLY_LIST_DISPLAY } from "../config/pricing";
+import {
+  FOUNDING_LABEL,
+  FOUNDING_OFFER_OPEN,
+  PRICE_FREE_DISPLAY,
+  PRICE_MONTHLY_FOUNDING_DISPLAY,
+  PRICE_MONTHLY_LIST_DISPLAY,
+} from "../config/pricing";
+import { predictCbseExamDate } from "../services/cbseExamDate";
 
 /**
  * LazyTopper public landing — ONE component for every screen size.
@@ -44,41 +51,42 @@ import { PRICE_FREE_DISPLAY, PRICE_MONTHLY_LIST_DISPLAY } from "../config/pricin
  */
 
 /**
- * The boards anchor. NOT a clock read — a declared constant.
- * Derived from `CBSE_2027_MAIN_EXAM_WINDOW` ("February 2027",
- * `src/pages/cbse2027Sources.ts:391`), taken at the START of the published
- * window so the count can never promise more time than a student has.
- */
-const BOARDS_ANCHOR_ISO = "2027-02-01";
-
-/**
- * ★ PURE, AND THE CALLER SUPPLIES `now`. This function reads no clock of its
- * own, which is what lets a test assert every band without mocking Date, and
- * what keeps the only clock read in this module inside an effect (see below).
+ * ★ PURE, AND THE CALLER SUPPLIES BOTH `now` AND THE ANCHOR. This function reads
+ * no clock of its own, which is what lets a test assert every band without
+ * mocking Date, and what keeps every clock read in this module inside the effect
+ * (see below).
  *
- * Months while months remain, then weeks, then days — the owner's ruling.
+ * The anchor is `predictCbseExamDate("10")` (LANDING-FOLLOWUP-1), NOT a date typed
+ * here. The landing used to hardcode "2027-02-01", which was not the ruled date;
+ * the predictor rolls last year's real board start forward, and the day CBSE
+ * publishes the real date, one line in its `officialDates` corrects this page
+ * with no edit of its own.
+ *
+ * Returns the FIGURE only ("5 months"); the section's heading, "Time left before
+ * your boards", supplies the words around it — owner ruling.
+ *
+ * Months, then weeks, then days — the owner's ruling, with two refinements:
+ *   · MONTHS ARE ROUNDED, not floored (owner ruling): 150 days is 4.93 months,
+ *     and "4 months" understated it.
+ *   · ⚠ AND MONTHS STOP AT 60 DAYS. Rounding overstates by up to half a month —
+ *     at 46 days it would read "2 months", false comfort in the final stretch
+ *     (owner ruling). Below 60 days the count is in weeks, FLOORED, so the coarse
+ *     unit never overstates by more than a few days and the fine one never at all.
+ *
+ * ⚠ THE SINGULARS "1 month" AND "1 week" ARE GONE BECAUSE THEY ARE UNREACHABLE,
+ * not forgotten: at >= 60 days `Math.round(days / 30.44)` is always >= 2, and the
+ * weeks band is 15-59 days, so `weeks` is always 2..8. A branch for either would
+ * be dead code — the defect the reachability test in Welcome.countdown.test.tsx
+ * exists to catch. "1 day" is reachable and kept.
  */
-export function boardsCountdownLabel(now: Date, anchorIso = BOARDS_ANCHOR_ISO): string {
+export function boardsCountdownLabel(now: Date, anchorIso: string): string {
   const target = new Date(`${anchorIso}T00:00:00`);
   if (Number.isNaN(target.getTime())) return "";
   const days = Math.ceil((target.getTime() - now.getTime()) / 86_400_000);
   if (days <= 0) return "The boards are here.";
-  if (days <= 14) return days === 1 ? "1 day left." : `${days} days left.`;
-  // ⚠ THE WEEKS BAND ENDS AT 30 DAYS, AND THE NUMBER IS LOAD-BEARING. An earlier
-  // draft ended it at 60, which made the singular "1 month left." UNREACHABLE —
-  // above 60 days `Math.floor(days / 30.44)` is always >= 2, so that branch was
-  // dead code that would never have rendered. Ending the band at 30 gives the
-  // progression the owner asked for (months, then weeks, then days) with every
-  // branch reachable.
-  // No singular case here, deliberately: the band is 15-30 days, so `weeks` is
-  // always 2, 3 or 4. A `weeks === 1` branch would be unreachable for the same
-  // reason the 60-day ceiling made "1 month" unreachable — one week out, the days
-  // band above has already claimed it and reads "7 days left."
-  if (days <= 30) return `${Math.floor(days / 7)} weeks left.`;
-  // Floor, never round: 45 days reads "1 month left.", not "2 months". The count
-  // must never promise more time than a student actually has.
-  const months = Math.floor(days / 30.44);
-  return months === 1 ? "1 month left." : `${months} months left.`;
+  if (days <= 14) return days === 1 ? "1 day" : `${days} days`;
+  if (days < 60) return `${Math.floor(days / 7)} weeks`;
+  return `${Math.round(days / 30.44)} months`;
 }
 
 /**
@@ -241,8 +249,8 @@ const CSS = `
 .lt-landing-close h2 em{font-style:normal;color:var(--urg)}
 .lt-landing-close p{font-size:15px;color:var(--ink2);margin:0 0 20px;max-width:33ch}
 .lt-landing-close p b{color:var(--ink);font-weight:700}
-.lt-landing-countdown{font-family:var(--serif);font-size:clamp(20px,5vw,30px);font-weight:900;
-  color:var(--urg);letter-spacing:-.028em;margin:0 0 9px;line-height:1.05}
+.lt-landing-countdown{font-family:var(--serif);font-size:clamp(56px,15vw,112px);font-weight:900;
+  color:var(--urg);letter-spacing:-.035em;margin:2px 0 18px;line-height:.95}
 .lt-landing-countdown:empty{display:none}
 .lt-landing-plans{display:grid;gap:10px;margin-top:22px;max-width:540px}
 .lt-landing-plan{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:14px 16px;
@@ -255,6 +263,8 @@ const CSS = `
 .lt-landing-plan .pp{font-family:var(--serif);font-size:20px;font-weight:900;white-space:nowrap}
 .lt-landing-plan .per{font-size:12.5px;font-weight:600}
 .lt-landing-plan.pay .pp{color:var(--gd)}
+.lt-landing-plan .was{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--ink3)}
+.lt-landing-plan .fl{font-size:11.5px;font-weight:800;letter-spacing:.04em;color:var(--gd);margin:0 0 4px}
 .lt-landing-plan .pd{font-size:13.4px;color:var(--ink2);margin:0}
 .lt-landing-plan .go{font-size:12.3px;font-weight:700;color:var(--gd);margin:7px 0 0}
 
@@ -295,7 +305,9 @@ export default function Welcome() {
   const { pathname } = useLocation();
 
   /**
-   * ★ THE ONLY CLOCK READ IN THIS MODULE, AND IT IS OUTSIDE THE RENDER PATH.
+   * ★ THE ONLY CLOCK READS IN THIS MODULE, AND THEY ARE OUTSIDE THE RENDER PATH:
+   * `new Date()` and `predictCbseExamDate()` (which reads the clock internally),
+   * both called inside the effect below and nowhere else.
    * §2.7: no clock read may reach server-rendered markup. The first render
    * emits this node EMPTY, so nothing time-derived exists at render time; the
    * live figure is written by the browser afterwards.
@@ -317,11 +329,23 @@ export default function Welcome() {
    */
   const [countdown, setCountdown] = useState("");
   useEffect(() => {
-    setCountdown(boardsCountdownLabel(new Date()));
+    // ★★ BOTH CLOCK READS LIVE HERE. `predictCbseExamDate` reads the clock itself
+    // (it picks the academic year from today), so it is a clock read by another
+    // name. Hoisting it to module scope — `const ANCHOR = predictCbseExamDate("10")`
+    // — would keep the `new Date()` count at one while baking the date into any
+    // capture at build time. Welcome.countdown.test.tsx asserts the call site.
+    setCountdown(boardsCountdownLabel(new Date(), predictCbseExamDate("10")));
   }, []);
 
   const cbseHref =
     `/cbse/class-10?returnTo=${encodeURIComponent(pathname)}` + `&backLabel=Back+to+LazyTopper`;
+  // ★ THE SAME SHAPE AS THE CBSE LINK, SO THE SAME RETURN TICKET (LANDING-FOLLOWUP-1).
+  // The notes page reads it through `useReturnTicket()` → `safeInternalReturnTo`;
+  // without it, a student who followed this link had no way back to the landing.
+  // `tab=questions` opens the note on the competency-based questions tab.
+  const questionsHref =
+    `/notes/trigonometry?tab=questions&returnTo=${encodeURIComponent(pathname)}` +
+    `&backLabel=Back+to+LazyTopper`;
 
   return (
     <main className="lt-landing" aria-label="LazyTopper public landing">
@@ -366,9 +390,15 @@ export default function Welcome() {
           <h1>
             Full marks<em>milenge kya?</em>
           </h1>
+          {/* ★ LANDING-FOLLOWUP-1 — A CLAIM THE PRODUCT ALWAYS MEETS. This read "against
+              CBSE's own marking scheme", which is false whenever no stored scheme exists:
+              the grader then derives its own value points from the question
+              (checkSolution.cjs, DERIVE-AND-STATE), and the result page says so —
+              "marks estimated from the question". Marking the way an examiner does,
+              step by step, is true on both paths. */}
           <p className="lt-landing-sub">
-            Upload your answer. We mark it against <b>CBSE&apos;s own marking scheme</b> &mdash;
-            step by step.
+            Upload your answer. We mark it <b>the way a CBSE examiner does</b> &mdash; step by
+            step.
           </p>
           <div className="lt-landing-hcta">
             <Link className="btn solid" to={START_URL}>
@@ -383,8 +413,8 @@ export default function Welcome() {
                 questions with step-marked solutions, so this SHOWS the claim
                 rather than restating it. It also points at a prerendered, indexed
                 page, which makes it a real internal crawl link — /app/ was not. */}
-            <Link to="/notes/trigonometry">
-              See a real board question, marked step by step &rarr;
+            <Link to={questionsHref}>
+              See real competency-based questions, marked step by step &rarr;
             </Link>
             {/* ★ THE CBSE RETURN TICKET, PRESERVED. Both landings this replaces
                 passed the visited pathname AND a backLabel so /cbse/class-10 can
@@ -438,13 +468,15 @@ export default function Welcome() {
               left. Then the real paper."). A heading is page structure: strip it
               for a crawler and the page is left with a hole where its structure
               was. So the heading states the durable fact and the countdown sits
-              on its own removable line above it. */}
+              on its own removable line.
+              LANDING-FOLLOWUP-1 (owner ruling): "Then the real paper." is removed;
+              the heading is "Time left before your boards" and the figure stands
+              alone beneath it, large and bold. With the figure stripped, the
+              heading still reads as a true, complete label for the section. */}
+          <h2>Time left before your boards</h2>
           <p className="lt-landing-countdown" data-testid="boards-countdown">
             {countdown}
           </p>
-          <h2>
-            <em>Then the real paper.</em>
-          </h2>
           <p>
             Find out which mistake is costing you marks &mdash; and <b>fix it now</b>, not in the
             exam hall.
@@ -460,7 +492,16 @@ export default function Welcome() {
                 not: the prototype shows Rs 1,999/mo, which appears nowhere in
                 `src/config/pricing.ts` (list 999, founding 599). Owner ruled the
                 LIST rate. Reading the constant means this card cannot drift from
-                the pricing page. */}
+                the pricing page.
+                ★ SUPERSEDED — LANDING-FOLLOWUP-1, owner ruling. The owner has since
+                set final pricing: the founding rate, closable at will, then the
+                list rate after. Showing only the list rate while the founding offer
+                is open hid the deal a student would actually get. So the card now
+                reads `FOUNDING_OFFER_OPEN`: while it is true, the founding price
+                leads and the list price is struck through beside it (the same
+                pattern as OfferStrip and /pricing), so the saving is legible; when
+                it is false, the list price stands alone. Still constants, never a
+                literal. */}
             <Link className="lt-landing-plan" to="/pricing">
               <div className="pt">
                 <span className="pn">FREE</span>
@@ -474,14 +515,27 @@ export default function Welcome() {
             <Link className="lt-landing-plan pay" to="/pricing">
               <div className="pt">
                 <span className="pn">WITH MARKING</span>
-                <span className="pp">
-                  {PRICE_MONTHLY_LIST_DISPLAY}
-                  <span className="per">/mo</span>
-                </span>
+                {FOUNDING_OFFER_OPEN ? (
+                  <span className="pp" data-testid="landing-paid-price">
+                    {PRICE_MONTHLY_FOUNDING_DISPLAY}
+                    <span className="per">/mo</span> <s className="was">{PRICE_MONTHLY_LIST_DISPLAY}</s>
+                  </span>
+                ) : (
+                  <span className="pp" data-testid="landing-paid-price">
+                    {PRICE_MONTHLY_LIST_DISPLAY}
+                    <span className="per">/mo</span>
+                  </span>
+                )}
               </div>
-              <p className="pd">
-                Unlimited AI marking for Maths and Science, plus your mistake pattern.
-              </p>
+              {FOUNDING_OFFER_OPEN && <p className="fl">{FOUNDING_LABEL} price</p>}
+              {/* ⚠ "Unlimited" REMOVED, NOT ABANDONED (LANDING-FOLLOWUP-1, owner
+                  ruling). The rate limiter has a product-wide daily ceiling
+                  (rateLimiter.cjs GLOBAL_DAILY_HARD_CALLS) at which grading is shed,
+                  so a paying student can be refused after two checks on a busy day
+                  for reasons unrelated to their own use. We don't ship claims that
+                  are false today. It returns, with a fair-use line, once
+                  [FU-GLOBAL-SHED-REFUSES-PAYING] is fixed. */}
+              <p className="pd">AI marking for Maths and Science, plus your mistake pattern.</p>
               <p className="go">See plans &rarr;</p>
             </Link>
           </div>

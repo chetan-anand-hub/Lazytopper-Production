@@ -78,6 +78,9 @@ describe("check 9 — the board-question link's destination really carries board
     // topic, this turns red rather than leaving check 9 verifying a page nothing
     // links to any more.
     const landing = readFileSync(resolve(HERE, "./Welcome.tsx"), "utf8");
-    expect(landing).toContain(`to="${LINK_TARGET}"`);
+    // LANDING-FOLLOWUP-1: the link is built as `questionsHref`, opening the questions
+    // tab. The path segment is still exactly the page this file verified.
+    expect(landing).toContain(`\`${LINK_TARGET}?tab=questions&returnTo=`);
+    expect(landing).toContain("<Link to={questionsHref}>");
   });
 });

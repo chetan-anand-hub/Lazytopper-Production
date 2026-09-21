@@ -132,9 +132,11 @@ describe("Welcome — the hero's board-question link is a real link", () => {
 
   it("exposes a crawlable href at the prerendered notes page", () => {
     renderRouted();
+    // LANDING-FOLLOWUP-1: the href now opens the questions tab and carries the same
+    // return ticket as the CBSE link. The PATH is still the prerendered notes page.
     expect(screen.getByRole("link", { name: /marked step by step/i })).toHaveAttribute(
       "href",
-      "/notes/trigonometry",
+      "/notes/trigonometry?tab=questions&returnTo=%2Fwelcome&backLabel=Back+to+LazyTopper",
     );
   });
 
@@ -266,5 +268,64 @@ describe("every slug the landing's legal links point at renders real policy cont
       </MemoryRouter>,
     );
     expect(screen.getByText("Page not found")).toBeInTheDocument();
+  });
+});
+
+/**
+ * ★★ LANDING-FOLLOWUP-1 §4.5 — THE ROUND TRIP, asserted by LANDED PATH.
+ * Follow the landing's questions link into the REAL notes page, confirm it opened on
+ * the questions tab, follow the back-link, and confirm the reader is on the landing
+ * again. ⚠ A check that counts links on a page it never verified it reached passes on
+ * a redirect — so every hop asserts the pathname a probe actually observed.
+ */
+describe("Welcome — the questions link round-trips through the notes page", () => {
+  function Where() {
+    const { pathname, search } = useLocation();
+    return <output data-testid="where">{pathname + search}</output>;
+  }
+
+  it("landing → questions tab → back-link → landing", async () => {
+    const { default: DesktopNotesPage } = await import("./desktop/DesktopNotesPage");
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <Where />
+        <Routes>
+          <Route path="/" element={<Welcome />} />
+          <Route path="/notes/:topicSlug" element={<DesktopNotesPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    // Hop 1 — start on the landing, and prove it.
+    expect(screen.getByTestId("where")).toHaveTextContent(/^\/$/);
+    fireEvent.click(screen.getByRole("link", { name: /competency-based questions, marked step by step/i }));
+
+    // Hop 2 — on the notes page, on the questions tab.
+    expect(screen.getByTestId("where").textContent).toBe(
+      "/notes/trigonometry?tab=questions&returnTo=%2F&backLabel=Back+to+LazyTopper",
+    );
+    const selected = screen.getAllByRole("tab").find((t) => t.getAttribute("aria-selected") === "true");
+    expect(selected).toHaveTextContent("Competency-based questions");
+
+    // Hop 3 — the back-link is named for the landing and lands there.
+    fireEvent.click(screen.getByRole("link", { name: /Back to LazyTopper/ }));
+    expect(screen.getByTestId("where").textContent).toBe("/");
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/Full marks/);
+  });
+
+  it("★ CONTROL — the notes page's default back-link does NOT go to the landing", async () => {
+    // Without the ticket the same click lands on the Topic Hub, so hop 3 above is
+    // proving the ticket, not a back-link that happened to point at "/" anyway.
+    const { default: DesktopNotesPage } = await import("./desktop/DesktopNotesPage");
+    render(
+      <MemoryRouter initialEntries={["/notes/trigonometry?tab=questions"]}>
+        <Where />
+        <Routes>
+          <Route path="/notes/:topicSlug" element={<DesktopNotesPage />} />
+          <Route path="*" element={<p>elsewhere</p>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByRole("link", { name: /Trigonometry Topic Hub/ }));
+    expect(screen.getByTestId("where").textContent).toBe("/topic-hub/trigonometry");
   });
 });
