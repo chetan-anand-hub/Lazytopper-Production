@@ -8,6 +8,7 @@ import { ProfileProvider } from "./context/ProfileContext";
 import { SmartLearningProvider } from "./engine/smartLearningStore";
 import { VibeProvider } from "./context/vibeModeContext";
 import { ThemeProvider } from "./context/ThemeContext";
+import RouteAnalytics from "./analytics/RouteAnalytics";
 
 // ★ THE DUPLICATE-ID CHECK IS NOT HERE ANY MORE — PERF-1. It ran at module scope, and
 // it was the SINGLE eager import that pulled the whole question bank into the main
@@ -27,6 +28,11 @@ import { ThemeProvider } from "./context/ThemeContext";
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+      {/* Page views for a client-side router: one document load, then every "page" is a
+          route change. Renders nothing; inside the router so it can read the location,
+          outside every provider so it depends on none of them. Disabled automatically in
+          the SEO capture — see analytics/analytics.ts. */}
+      <RouteAnalytics />
       <AuthProvider>
         <ProfileProvider>
           <SmartLearningProvider>

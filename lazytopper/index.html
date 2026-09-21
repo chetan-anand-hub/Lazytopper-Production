@@ -88,6 +88,35 @@
         console.warn("[preload-net] rendering without a stylesheet. " + message);
       });
     </script>
+    <!-- VERCEL WEB ANALYTICS. Cookieless, no npm dependency, and no new data processor:
+         Vercel already serves every request here. Page views are answered by
+         src/analytics/, NOT by this script.
+
+         ⚠ `data-disable-auto-track="1"` IS LOAD-BEARING, NOT A PREFERENCE. Left on, the
+         script sends its own page view from `window.location` the instant it loads —
+         before any app code runs. That would double-count every first view, and on
+         `/u/<token>` it would transmit a LIVE 256-bit single-use capability token
+         (App.tsx:1235) to the vendor in plain text. Off, no page view leaves this app
+         that has not been through normalisePath().
+
+         `beforeSend` is the second line of defence: the vendor stamps its own `url` on
+         every event it sends, which our redaction of the `path` argument does not touch.
+         This scrubs that too. src/analytics/indexHtml.guard.test.ts reads this file from
+         disk and pins both, the way head.guard.test.ts pins the canonical tags above. -->
+    <script>
+      window.va =
+        window.va ||
+        function () {
+          (window.vaq = window.vaq || []).push(arguments);
+        };
+      window.va("beforeSend", function (event) {
+        if (!event || typeof event.url !== "string") return event;
+        var url = event.url.split("?")[0].split("#")[0];
+        event.url = url.replace(/\/u\/[^/]+/, "/u/:token");
+        return event;
+      });
+    </script>
+    <script defer src="/_vercel/insights/script.js" data-disable-auto-track="1"></script>
   </head>
   <body>
     <div id="root"></div>
