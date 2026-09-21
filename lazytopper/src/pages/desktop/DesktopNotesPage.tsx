@@ -1,7 +1,8 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 
 import { Card } from "../../components/grammar/Card";
-import { Note } from "../../components/notes/Note";
+import { useReturnTicket } from "../../components/navigation/ReturnTicket";
+import { Note, type NoteInitialTab } from "../../components/notes/Note";
 import { getNoteSpecForTopic } from "../../components/notes/noteSpecRegistry";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
 
@@ -12,8 +13,14 @@ import { desktopTopicBySlug } from "../../lib/desktop/topics";
  * The Topic Hub's Notes control opens the SAME `<Note>` as a popup (NoteModal).
  * That popup had no address, so the notes — the page students search for — could
  * never be crawled, shared or opened in a new tab. This page mounts `<Note>`
- * standalone: it takes only `{ spec }` and owns no dialog, focus or portal
- * behaviour (all of that lives in NoteModal), so nothing is re-implemented here.
+ * standalone: it takes `{ spec }` (plus an optional `initialTab`) and owns no
+ * dialog, focus or portal behaviour (all of that lives in NoteModal), so nothing
+ * is re-implemented here.
+ *
+ * LANDING-FOLLOWUP-1 — this page, not <Note>, reads the URL: `?tab=questions`
+ * opens the questions tab, and `?returnTo=&backLabel=` (via `useReturnTicket`)
+ * points the back-link at wherever the reader came from. Both are absent in the
+ * prerender capture, so the captured body is unchanged.
  *
  * Chrome comes from the route layer, exactly as for `/topic-hub/:topicName`:
  * DesktopShell at desktop width (isDesktopShellRoute) and MobileSelfChrome below it.
@@ -70,8 +77,24 @@ const NOTES_PAGE_CSS = `
 }
 `;
 
+/**
+ * `?tab=` → the tab the note opens on. ★ AN ALLOW-LIST, NOT A CAST: only
+ * `questions` maps; anything else (absent, unknown, or a Topic Hub value such as
+ * `learn`) opens the note on its default tab. The capture loads the bare path, so
+ * the prerendered body is always the default view.
+ */
+export function noteTabFromParam(raw: string | null): NoteInitialTab | undefined {
+  return raw === "questions" ? "questions" : undefined;
+}
+
 export default function DesktopNotesPage() {
   const { topicSlug = "" } = useParams<{ topicSlug?: string }>();
+  const [params] = useSearchParams();
+  // The return ticket, if the entry point supplied a safe one — validated by
+  // `safeInternalReturnTo` inside the hook, exactly as /cbse/class-10 does. With no
+  // ticket (a crawler, a shared link, the capture) the back-link is today's Topic
+  // Hub link, unchanged.
+  const ticket = useReturnTicket();
   const topic = topicSlug ? desktopTopicBySlug(topicSlug) : undefined;
   const spec = topic ? getNoteSpecForTopic(topic.slug) : null;
 
@@ -97,9 +120,9 @@ export default function DesktopNotesPage() {
   return (
     <div className="lt-notes-page">
       <style>{NOTES_PAGE_CSS}</style>
-      <Link to={`/topic-hub/${topic.slug}`} className="lt-notes-page__back">
+      <Link to={ticket?.path ?? `/topic-hub/${topic.slug}`} className="lt-notes-page__back">
         <span aria-hidden="true">←</span>
-        <span>{topic.name} Topic Hub</span>
+        <span>{ticket?.label ?? `${topic.name} Topic Hub`}</span>
       </Link>
       <h1 className="lt-notes-page__title">{topic.name} — Class 10 Notes</h1>
       <Link
@@ -109,7 +132,7 @@ export default function DesktopNotesPage() {
       >
         CBSE 2027 — dates, rules and official papers →
       </Link>
-      <Note spec={spec} />
+      <Note spec={spec} initialTab={noteTabFromParam(params.get("tab"))} />
     </div>
   );
 }
