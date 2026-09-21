@@ -23,6 +23,32 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-21 — LANDING-FOLLOWUP-1 (`#815` MERGED as `07073d9f`, squash, no `--admin`; open PRs at the time of writing: **`#810`** dependabot only) — two new follow-ups, two closures, one resolved by removal, one still open
+
+### `[FU-GLOBAL-SHED-REFUSES-PAYING]` — ★★ OPEN. **PAYING STUDENTS CAN BE REFUSED BECAUSE FREE TRAFFIC EXHAUSTED THE SHARED CEILING**
+- `rateLimiter.cjs` has a **product-wide** daily ceiling, `GLOBAL_DAILY_HARD_CALLS` (≈1,303 calls). The vision/grading class is **shed at 80%** (`VISION_SHED_FRACTION`).
+- The limiter is **tier-blind** by design, so the shed does not distinguish a paying student from anonymous or free traffic. **A paying student can be refused after two checks on a busy day, for reasons unrelated to their own use.**
+- **Rule (owner):** paying students must never be refused because free traffic exhausted the shared ceiling.
+- **Consequence already shipped:** the landing's paid card **no longer says "Unlimited"** (`#815`). It returns, with a fair-use line, once this is fixed. It was removed, not abandoned.
+- **Related, do not duplicate:** `[FU-LIMITER-TRUSTS-UNVERIFIED-UID-HEADER]` (rotation defeats the per-caller cap; the global counter is the real bound).
+
+### `[FU-EXAM-WINDOW-PARAGRAPH]` — ★ OPEN, **DUE 17 FEB 2027** (before the window opens on 18 Feb)
+During the exam window (`BOARDS_WINDOW_DAYS = 30` from the boards' start), the landing's close section reads **"Your boards are on." / "Best of luck."**. **The paragraph under it still says "Find out which mistake is costing you marks — and fix it now, not in the exam hall."** That is wrong on exactly those days. It is copy only: swap it in the same effect, keyed on the same `inWindow` flag, so the captured markup keeps the durable paragraph. Needs an owner line for the window copy.
+
+### CLOSURE — `[FU-LANDING-BOARDS-ANCHOR]` — **CLOSED by `#815`**
+*(Recorded here per standing rule 3. The original entry is left exactly as written.)*
+- The countdown anchors on **`predictCbseExamDate("10")`**, called inside the effect, not on a hardcoded date. Today it returns `2027-02-17`, and one line in `officialDates` will correct the landing when CBSE publishes.
+- **Two things that entry did not foresee:** (1) the predictor **never returns a past date**, so the exam window needed its own branch (otherwise "12 months" mid-boards); (2) the predictor reads the clock itself, so the call-site guard now requires every predictor reference to sit inside a `useEffect` body.
+
+### CLOSURE — "Board Questions deep-link targeting" (recorded 2026-09-20, no FU ID) — **CLOSED by `#815`**
+`/notes/:slug?tab=questions` opens the tab, which is now named **"Competency-based questions"**. `DesktopNotesPage` reads the URL through an allow-list; `<Note>` takes `initialTab` and never reads the URL. **Captured bodies are unchanged by the mechanism** (0 of 59 pages).
+
+### RESOLVED BY REMOVAL — the hardcoded "BOARDS: FEBRUARY 2027" pill
+Flagged at `#815`'s pre-flight: a static month that would contradict the countdown if CBSE published a non-February date. **It was never filed as an FU; the owner removed the pill (Addendum A3)**, so there is nothing to track.
+
+### STILL OPEN — `[FU-LANDING-CTA-HONESTY]` (item 8 of `#815`)
+Unchanged by `#815`, deliberately: "Check my answer" still routes to `/sign-up?redirect=%2F` and then home. **Pending `FREE-CHECK-1`**, which is now first in the owner's sequence.
+
 ## 2026-09-21 — UID-HEADER-CLOSE-1 (`#812` MERGED as `3b011bc7`, squash, no `--admin`; open PRs at the time of writing: **`#810`** dependabot only) — five follow-ups, one closure
 
 ### CLOSURE — `[FU-UID-HEADER-TRUSTED-UNVERIFIED]` — **CLOSED on every gated route by `#812`**

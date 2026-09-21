@@ -1,5 +1,54 @@
 # LazyTopper — Current State
 
+## [CURRENT · LANDING] LANDING-FOLLOWUP-1 — **THE LANDING PAGE'S PROMISES ARE TRUE: THE MARKING CLAIM, THE PRICE, THE COUNTDOWN** — `#815` MERGED — trunk `07073d9f`
+
+★ **PROVENANCE.**
+- Spec SHA-256 was verified before reading, and so were `ADDENDUM-A` and the design `LazyTopper_landing_v8_FINAL.html`. Premise gate exit 0 (13 premises, 11/11 anchors resolved). ⚠ **It passed P10 two lines off** (`:476` cited, `:478` real); caught by reading the file.
+- Both staleness axes were run at pre-flight and again before the push (only `#810` open).
+- **Local gates on the merged head `800279b4`**, every exit code captured unpiped:
+  - `vitest run src`: **176 files / 2369 tests, 0 failed**
+  - root matrix: **211 / 31 suites, fail 0, skipped 0**
+  - ops matrix: **0 `not ok`, 16× `# fail 0`**
+  - tsc app + `typecheck:test`: both 0
+  - build + `verify-production-build`: 0
+  - `seo:capture` + drift: 0
+  - mojibake: 0 enforced hits
+- **CI 8/8 green.** The quality-gate vitest step shows **176 / 2369**, and the capture job says "committed artifact matches a fresh capture".
+- **§4 9/9 on the Vercel preview of the exact commit, production as the control.**
+
+**Trunk `07073d9f815873fdccf81a6917095b8482198341`** (`#815` squash, `--match-head-commit`, no `--admin`). The trunk tree equals the tested tree (`c2d28a1c`).
+
+### What shipped
+- **Hero:** "We mark it **the way a CBSE examiner does** — step by step." The old claim, "against CBSE's own marking scheme", was false whenever the grader derives its own value points (the result page says "estimated from the question").
+- **Paid card reads `FOUNDING_OFFER_OPEN`:** ₹599/mo with ₹999 struck through while it is open, ₹999 alone when it closes. `PaidPlanHead({ offerOpen })` carries the price; `pricing.ts` is untouched.
+- **"Unlimited" removed** until `[FU-GLOBAL-SHED-REFUSES-PAYING]` is fixed.
+- **Countdown:** `predictCbseExamDate("10")`, called **inside the effect**. The call-site guard brace-matches `useEffect` bodies, and a module-scope call turns it red.
+  - Months rounded (≥60 days), weeks below 60, days, then Tomorrow and Today.
+  - Heading: "Your boards are closer than you think."
+  - For **30 days from the boards' start** (`BOARDS_WINDOW_DAYS`, a named assumption), the effect swaps in **"Your boards are on." / "Best of luck."**. By then the predictor has already rolled a year ahead.
+- **Tab renamed "Competency-based questions"**, and the 26 notes captures were **machine-regenerated** (each exactly +11 bytes, the label only).
+  - `/notes/:slug?tab=questions` opens that tab. `DesktopNotesPage` reads the URL; `<Note>` never does, because the Topic Hub uses `?tab=` for its own values.
+  - The landing link carries a return ticket (`useReturnTicket` → `safeInternalReturnTo`).
+- **Addendum A:**
+  - single column;
+  - the fingerprint fills the right half at ≥1000px, **fixed**;
+  - solid green Log in (44px floor kept);
+  - class row right-aligned from 700px;
+  - **the hardcoded "BOARDS: FEBRUARY 2027" pill removed**;
+  - logo recut from the HD artwork (0 px above the T, against 837 in the old crop);
+  - `<picture>` keeps the large mark off phones: **105,445 → 66,744 brand bytes at 390px**.
+
+### Three things to read before touching the landing
+1. **Nothing time- or scroll-derived may reach markup.** Every clock read and every observer lives in an effect. The countdown node carries `data-testid="boards-countdown"` so a future root capture can strip it. The mark's quiet class is only set after `scrollY > 0`.
+2. **Never `vi.mock` anything under `src/config`.** `gradingLimits.guard.test.ts` scans all of `src`. This lane broke it once, and only the **full** suite caught it; a folder-scoped run was green. Pass config-derived state as a prop instead.
+3. **`.lt-landing-close p` (0,1,1) silently overrides any bare-class `<p>` in the close section.** It shrank both the countdown figure and the second "Free to start". Qualify to (0,2,0), and keep the computed-style tests.
+
+### ★ OWNER SEQUENCE (2026-09-21) — THIS ORDER GOVERNS
+1. **`FREE-CHECK-1`** — next. It is what makes "Check my answer" true (`[FU-LANDING-CTA-HONESTY]`).
+2. **Resubmit the sitemap and request indexing on the URLs** (Search Console, an owner action).
+3. **`STORED-RATE-1`**.
+*(In flight before this list: `LANDING-MARK-FADE-1`, approved and landing right after this docs PR. The fingerprint stays bright wherever the right half is empty and fades only behind the full-width card rows.)*
+
 ## [CURRENT · SECURITY] UID-HEADER-CLOSE-1 — **A TYPED UID WITH NO TOKEN NO LONGER GETS PAID AI** — `#812` MERGED — trunk `3b011bc7`
 
 ★ **PROVENANCE.**

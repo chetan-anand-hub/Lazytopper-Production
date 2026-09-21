@@ -2,6 +2,49 @@
 ⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW ON TRUNK SHA AND ON THE GATE SET.
    IT DOES NOT SUPERSEDE ANY OPEN FOLLOW-UP RECORDED BELOW.
 
+TRUNK IS `07073d9f815873fdccf81a6917095b8482198341`, MEASURED 2026-09-21.
+   07073d9f = #815 (LANDING-FOLLOWUP-1) - THIS handoff
+   719186e4 = #814 (docs: UID-HEADER-CLOSE-1 handoff)
+   Re-derived with `git log --oneline 719186e4..origin/base/approved-thru-437`.
+
+★★★ NEXT: THE OWNER'S SEQUENCE (2026-09-21). It SUPERSEDES the 2026-09-20
+   "FREE-CHECK-1 and STORED-RATE in parallel" ruling:
+   0. LANDING-MARK-FADE-1 - in flight, approved. It lands right after this
+      docs PR. The fingerprint is bright wherever the right half is empty and
+      fades only behind the two full-width card rows.
+   1. FREE-CHECK-1 - next product lane. It is what makes the landing's
+      "Check my answer" true ([FU-LANDING-CTA-HONESTY], still OPEN).
+      Its premise changed with #812 - read the UID-HEADER-CLOSE-1 banner below.
+   2. Resubmit the sitemap + Request Indexing on the URLs (owner, Search Console).
+   3. STORED-RATE-1.
+   OPEN at the time of writing: #810 dependabot only.
+
+★★ DATED: [FU-EXAM-WINDOW-PARAGRAPH] is DUE 17 FEB 2027. From 18 Feb the landing
+   says "Your boards are on. / Best of luck." but the paragraph under it still
+   says "fix it now, not in the exam hall". Fix the copy before the window opens.
+
+★★ LANDING-FOLLOWUP-1: THREE THINGS TO CARRY FORWARD.
+
+   1. A FOLDER-SCOPED TEST RUN CANNOT SEE A REPO-WIDE GUARD.
+      `vitest run src/pages/Welcome` was green. The full `vitest run src` was
+      red: gradingLimits.guard.test.ts forbids vi.mock of anything under
+      src/config, and a new test mocked config/pricing. Run the FULL suite
+      before any commit that adds a mock. Pass config state as a prop.
+
+   2. A PREMISE GATE PASS IS NOT A LINE CHECK.
+      P10 cited Welcome.tsx:476; the anchor was at :478. The gate's anchor
+      tolerance passed it. Read every cited line yourself.
+
+   3. MEASURE RENDERED TEXT, NOT ELEMENT BOXES.
+      "5 months" has a box reaching x=1200 at 1440 and text ending at x=656.
+      Any rule about what sits "behind" or "beside" something must use Range
+      client rects, or the full-width card rows - never getBoundingClientRect
+      of a block.
+
+(SUPERSEDED 2026-09-21, kept verbatim per standing rule 3)
+⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW ON TRUNK SHA AND ON THE GATE SET.
+   IT DOES NOT SUPERSEDE ANY OPEN FOLLOW-UP RECORDED BELOW.
+
 TRUNK IS `c800e5426fd5db2aa5d7ee56cd697f27b7ca2eb2`, MEASURED 2026-09-21.
    c800e542 = #813 (docs: ANALYTICS-1 handoff)
    3b011bc7 = #812 (UID-HEADER-CLOSE-1) - THIS handoff

@@ -1,5 +1,18 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-21 — LANDING-FOLLOWUP-1 (`#815` `07073d9f`), trunk `07073d9f`.**
+> ★ **ONE SURFACE MOVES: the public landing (`/`, `/welcome`)**, plus the notes pages' tab label. Every change was owner-ruled and verified on the preview against production (§4 9/9).
+
+### ✅ Landing — copy, price, countdown, questions link, layout (Addendum A)
+- **Moved:** the hero claim, the paid-card price (founding rate while open), the countdown (predictor, exam window), the questions link (`?tab=questions` + return ticket), header chrome (green Log in, class row right, pill removed), the right-half fingerprint, and the logo recut.
+- **Unchanged, by link-level diff against production:** 11 of 13 links (Log in, both CTAs, sticky CTA, CBSE link, free plan, all footer links).
+
+### ✅ Notes pages — the tab is "Competency-based questions"
+- It opens from `?tab=questions`. **The captured body is unchanged apart from the 11-byte label** (26 pages, machine-regenerated).
+
+### 📋 Scope discovered? — **NO**
+Defects and copy gaps were filed as FUs, not scope: `[FU-GLOBAL-SHED-REFUSES-PAYING]` (limiter/pricing claim) and `[FU-EXAM-WINDOW-PARAGRAPH]` (landing copy, dated). No surface's Scope changes to Settling.
+
 > **2026-09-21 — UID-HEADER-CLOSE-1 (`#812` `3b011bc7`), trunk `3b011bc7`.**
 > ★ **NO SURFACE CELL MOVES.** The lane changes **who is served** on the paid routes, not what a signed-in student sees. For a student whose token is healthy, the request is byte-identical to before (the same two headers, one `getIdToken()` call, no delay), and the full vitest run is green.
 
