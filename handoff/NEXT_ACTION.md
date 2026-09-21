@@ -2,6 +2,76 @@
 ⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW ON TRUNK SHA AND ON THE GATE SET.
    IT DOES NOT SUPERSEDE ANY OPEN FOLLOW-UP RECORDED BELOW.
 
+TRUNK IS `3b011bc762660b9556a97ed5fd9addaa25fe15f3`, MEASURED 2026-09-21.
+   3b011bc7 = #812 (UID-HEADER-CLOSE-1) - merged WHILE this handoff was
+              being written; its own handoff is owed by ITS lane, and
+              nothing about its content is asserted here.
+   19ab44d0 = #811 (ANALYTICS-1)
+   65a4a67c = #809 (docs: stored-rate design rulings)
+   104a1504 = #808 (docs: PAY-1 scope rulings)
+   2c99f260 = #807 (docs: LANDING-MERGE-1 handoff)
+   6a892090 = #806 (LANDING-MERGE-1)
+   ⚠ The banner below still reads 6a892090. #807-#809 were docs-only and
+   added their NEXT sections without advancing it. Re-derived here with
+   `git log --oneline 6a892090..origin/base/approved-thru-437`.
+
+★★★ NEXT: UNCHANGED BY ANALYTICS-1. The order ruled below still governs:
+   STORED-RATE and FREE-CHECK-1 in parallel, GST owner-owned.
+   OPEN at the time of writing: #810 dependabot only.
+
+   ★ FREE-CHECK-1 CAN NOW COUNT, BUT CANNOT JOIN. Page views and signups
+   are countable separately; "did this visitor become an account?" is
+   UNMEASURABLE BY RULING (no identifier - the users are minors).
+   See [FU-ANALYTICS-CONVERSION-NEEDS-CONSENT]. Do not add identify().
+
+★★★ ANALYTICS-1: FOUR CHECKS WOULD HAVE PASSED WHILE MEASURING NOTHING.
+   READ THIS BEFORE ANY BROWSER CHECK, AND BEFORE REPORTING ANY GATE.
+
+   1. A PLATFORM FEATURE CAN BE OFF UNDER A GREEN GATE SET.
+      Web Analytics was not enabled on the Vercel project. Every static
+      gate and all 8 CI checks passed on a build that recorded nothing,
+      silently BY DESIGN (a missing vendor is the case the app must
+      tolerate quietly). Only a curl against the preview showed it:
+      /_vercel/insights/script.js -> 404.
+      The CONTROL made it a diagnosis: /_vercel/speed-insights/script.js
+      on the same domain -> 200. Same namespace served; that one feature
+      off. Enabling adds the routes only on the NEXT deployment.
+
+   2. VERCEL'S SCRIPT DROPS ANY USER AGENT CONTAINING "Headless".
+      Read out of the served script:
+        navigator.webdriver || navigator.userAgent.includes("Headless")
+      Playwright's headless Chromium sends "HeadlessChrome", so the first
+      network run sent ZERO views in EVERY configuration - the subject
+      and both controls alike. A result that reads the same for the
+      subject and every control is not a result.
+      FOR ANY FUTURE BROWSER CHECK against analytics (or any vendor with
+      a bot filter): --disable-blink-features=AutomationControlled PLUS
+      an ordinary Chrome user agent, and ASSERT THE VENDOR IS RUNNING IN
+      THAT SESSION (window.va replaced) before reading any result.
+
+   3. A NEGATIVE ON AN EMPTY RUN PROVES NOTHING.
+      "email in any payload: false" was true and meaningless: zero
+      payloads were sent. A "returning login sends 0 events" control had
+      never signed in. Quote every negative BESIDE A NON-ZERO COUNT for
+      the same session; assert the login happened (same uid) before its
+      "0" means anything.
+
+   4. A PIPE HIDES THE EXIT CODE.
+      `vitest run src 2>&1 | tail` printed exit 0 on a run with
+      "Tests 7 failed | 2314 passed" - the pipeline returns TAIL's code.
+      Capture it unpiped: `cmd > log 2>&1; echo EXIT=$?`, then read the
+      COUNTS. The exit code lied; the counts did not.
+
+★★ STANDING CONSTRAINT FROM ANALYTICS-1: any NEW ROUTE with a token, code
+   or id in its PATH must be redacted in TWO places - `REDACTIONS` in
+   src/analytics/analytics.ts AND the beforeSend regex in index.html.
+   See [FU-ANALYTICS-NEW-CREDENTIAL-ROUTE]. The guard test cannot see a
+   route that does not exist yet.
+
+(SUPERSEDED 2026-09-21, kept verbatim per standing rule 3)
+⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW ON TRUNK SHA AND ON THE GATE SET.
+   IT DOES NOT SUPERSEDE ANY OPEN FOLLOW-UP RECORDED BELOW.
+
 TRUNK IS `6a89209060e0e2efb831e47a5804ae9eb771c901`, MEASURED 2026-09-20.
    6a892090 = #806 (LANDING-MERGE-1)
    8198292d = #805 (docs handoff for CBSE-PAGE-1)

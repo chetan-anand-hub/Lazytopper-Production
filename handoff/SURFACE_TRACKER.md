@@ -1,5 +1,19 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-21 — ANALYTICS-1 (`#811` `19ab44d0`), trunk `19ab44d0`.**
+> ★ **NO SURFACE CELL MOVES.** This lane added **instrumentation across surfaces, not behaviour on any of them** — measured, not assumed: all 7 instrumented surfaces render **identical text** on the preview and on production, **with the vendor live**. ⚠ **The owner live-verify in §6 is still outstanding** (`[FU-ANALYTICS-LIVE-VERIFY]`).
+
+### ⬜ NO SURFACE CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- **Measured on seven surfaces**, preview vs production, vendor live: `/app/` 1470=1470 · `/app/notes/real-numbers` 9640=9640 · `/app/topic-hub/real-numbers` 1368=1368 · `/app/practice-hub` 1251=1251 · `/app/check-improve` (→ `/app/login` on both) 1143=1143 · `/app/cbse/class-10` 3423=3423 · `/app/sign-up` 1180=1180 — all identical.
+- **Prerendered bodies byte-identical** — `body_bytes_total=4180330` before and after; `seo:capture` left `prerendered/**` unchanged.
+
+### ✅ NEW CAPABILITY (not a surface) — PRODUCT ANALYTICS — **NONE → COOKIELESS PAGE VIEWS + A SIGNUP COUNT**
+- Page views on every SPA route change; one `sign_up` per new account; no identifier.
+- Recorded here because it is new, **not as a surface cell**: it changes what the owner can see, not what a student sees.
+
+### 📋 Scope discovered? — **NO**
+Seven follow-ups are logged in `OPEN_QUESTIONS` 2026-09-21. None is scope on a surface: one is a standing constraint on future routes, four are owner items, and two are recorded facts.
+
 > **2026-09-20 — LANDING-MERGE-1 (`#806` `6a892090`), trunk `6a892090`.**
 > ★★ **ONE CELL MOVES, AND IT IS THE FRONT DOOR ITSELF: the landing is now ONE component at every width.** Verified on the Vercel preview at 390/768/1024/1440. ⚠ **Cells move on live evidence, not code evidence — the OWNER LIVE-VERIFY in §6 is still outstanding** (a physical iPhone for the home-indicator clearance, and the large-desktop scroll). Marked accordingly below.
 

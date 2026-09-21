@@ -1,3 +1,42 @@
+## 2026-09-21 — ANALYTICS-1 (lane `analytics-1`) — trunk `19ab44d0`, PR `#811`
+
+**`2026-09-21`**
+
+> ⚠ **NUMBERING.** `DECISION N` is SECTION-LOCAL and restarts at 1 in every section. This section starts at `DECISION 1`.
+> The seven handoff files updated this cycle: `CURRENT_STATE.md`, `NEXT_ACTION.md`, `SESSION_LOG.md`, `IMPLEMENTATION_ROADMAP.md`, `OPEN_QUESTIONS_AND_FOLLOWUPS.md`, `SURFACE_TRACKER.md`, `DECISION_LOG.md` — enumerated, not counted.
+
+### DECISION 1 — **COOKIELESS, AND NO IDENTITY OF ANY KIND. The users are fifteen-year-olds.** *(Owner ruling.)*
+
+India's DPDP Act requires verifiable parental consent to process a child's personal data, and restricts behavioural tracking of children. **Cross-session identity is the one thing that turns page counting into behavioural tracking of minors** — and it is the only thing a cookieless tool gives up. The owner's two questions, *is anyone here* and *which pages are they using*, are fully answerable without it.
+
+**Rule recorded:** no cookie, no persistent identifier, no `identify()`, no uid, no consent banner. A signup is a **count**. ⚠ **An opaque uid is still an identifier** — stored once, it links this visit to the next. It was offered as "acceptable because it is already opaque" and declined on exactly that ground.
+**Consequence, recorded so it is not later "discovered" as a gap:** *did this visitor become an account?* is **deliberately unmeasurable**. It belongs to the free-check lane, with its own consent design. See `[FU-ANALYTICS-CONVERSION-NEEDS-CONSENT]`.
+
+### DECISION 2 — **VERCEL WEB ANALYTICS, ON PRO. Rejected: Umami, Plausible, PostHog, GA4 and `firebase/analytics`.** *(Owner ruling.)*
+
+**Decisive: Vercel adds no new data processor.** Vercel already serves every request, so no new third party receives students' IP addresses, and there is no new entry for the privacy policy. On a product used by minors that outweighs Umami's larger free tier. Second benefit: it is first-party (`/_vercel/insights/*`), which ad blockers largely leave alone.
+
+**The plan decided the vendor, not the price.** Vercel Hobby has **no custom events** — so on Hobby a signup event is *impossible*, and §2.5 would have shipped half-done and silent. Hobby's reporting window is also one month. The owner moved to Pro.
+**`firebase/analytics` was rejected despite needing no new package** (`firebase` is already a dependency): it sets identifiers and lands directly in the consent problem DECISION 1 avoids.
+**Script tag, not the npm package.** Vercel's dashboard "Get started" shows `npm i @vercel/analytics` and a Next.js import. **Deliberately ignored** — the script tag adds no dependency, and the package's React component has no route support for this router anyway.
+
+### DECISION 3 — **DETECT THE SEO CAPTURE BY LOOPBACK, NEVER BY A PRODUCTION-HOSTNAME ALLOWLIST.**
+
+`captureStaticBodies.ts` drives a real Chromium over every advertised page from `http://127.0.0.1:<ephemeral port>`. It may not be edited, so detection lives on the app side. **Loopback is primary** because it is structural: serving local files is the capture's entire purpose. `navigator.webdriver` is defence in depth.
+**The allowlist is the trap.** The §4 acceptance suite runs on a `*.vercel.app` preview, so a `www.lazytopper.com` allowlist switches analytics off exactly where it is tested — and the checks then pass by measuring nothing.
+**Proven as a 2×2**, with the same build, server and browser binary and only the hostname and `webdriver` varied: **only the normal browser fires**. Loopback alone silences it, and `webdriver` alone silences it.
+
+### DECISION 4 — **VENDOR AUTO-TRACKING OFF, AND THREE REDACTION LAYERS — because one route carries a live credential.**
+
+`/u/:token` (`App.tsx:1235`) carries a **256-bit, 5-minute, single-use, write-only capability token** in `location.pathname`. Every default pageview integration sends the raw pathname.
+**Measured, not assumed:** with Vercel's auto-tracking on, three pages produced **six** views, and the first carried the **raw, unredacted URL** — so the redaction would have been bypassed on the very first view. Disabling auto-tracking was **necessary, not cautious**.
+**The three layers:** `data-disable-auto-track="1"` (stops the vendor's own view before app code runs) · `normalisePath()` (our `path`) · `window.va("beforeSend")` (the `url` the vendor stamps itself). Each alone leaves a gap.
+
+### DECISION 5 — **A SIGNUP IS GATED ON `isNewUser`, AND THAT GATE MAY NEVER THROW OUT OF A LOGIN.**
+
+`signInWithPopup` and phone `confirm()` are each one call for a new account **and** a returning student. Ungated, every login counts as a signup — **wrong in the flattering direction**. `getAdditionalUserInfo(credential).isNewUser` distinguishes them.
+**Where the gate lives is part of the decision.** Written inline in `AuthContext`, it ran on the auth hot path **outside the try/catch** that makes analytics safe — and the full suite turned 7 tests red. That was a real hole, not a mock gap: an analytics call able to throw out of login. It lives in `trackSignUpIfNew()`, wrapped. **A signup count is never worth a failed login.**
+
 ## 2026-09-16 — AUTH-GATE-MOVE-1 (lane `auth-gate-move-1`) — trunk `5c5fc57b`, PR `#793`
 
 **`2026-09-16`**

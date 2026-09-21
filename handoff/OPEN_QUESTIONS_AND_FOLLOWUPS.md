@@ -23,6 +23,58 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-21 — ANALYTICS-1 (`#811` MERGED as `19ab44d0`, squash, no `--admin`; open PRs at the time of writing: **`#810`** dependabot only; **`#812`** merged as `3b011bc7` while this handoff was being written, and touched **no `handoff/` path**) — seven follow-ups: one standing constraint, four owner items, two recorded facts
+
+### `[FU-ANALYTICS-NEW-CREDENTIAL-ROUTE]` — ★★★ STANDING CONSTRAINT: A NEW ROUTE WITH A SECRET IN ITS PATH MUST BE REDACTED IN **TWO** PLACES
+
+Every page view now sends the route path to Vercel. `/u/:token` carries a live capability token, and it is redacted at three layers (see `DECISION_LOG` 2026-09-21, DECISION 4). **Two of those layers hold the rule as code, in two different files:**
+
+- `REDACTIONS` in `lazytopper/src/analytics/analytics.ts` — our `path` argument.
+- the `beforeSend` regex in `lazytopper/index.html` — the `url` the vendor stamps itself.
+
+**Any future route that puts a token, code, id or secret in its PATH must be added to BOTH.** ⚠ `indexHtml.guard.test.ts` pins the *existing* regex and asserts it redacts `/u/<token>`; **it cannot know about a route that does not exist yet.** A new capability route added to only one list would leak through the other, with every test green.
+**Query strings are already safe** — both layers drop `?…` and `#…` wholesale, and the vendor itself sets `search = ""`. This constraint is only about path segments.
+**Who owns it:** any lane that adds a route to `App.tsx`. Not closable; it is a standing rule.
+
+### `[FU-ANALYTICS-TEST-ACCOUNT]` — OWNER: REMOVE THE ONE ACCEPTANCE ACCOUNT
+
+§4.7 needed one real signup on the preview, which uses the production Firebase project.
+- **uid `SDFoJI7NRGMxQGaeibT1IdCjI9G3`** · `analytics-1.acceptance+1789958987799@example.com` · display name "Analytics Acceptance"
+- **It is the only account created.** The first harness run never reached the form, and the first returning-login attempt was refused with `email-already-in-use`.
+- The owner is deleting it (2026-09-21). **Close when confirmed.** ⚠ It may also have left learner-baseline documents; `ensureLearnerCloudBaseline` runs on sign-in.
+
+### `[FU-ANALYTICS-LIVE-VERIFY]` — OWNER: THE §6 DASHBOARD CHECKS
+
+In progress (owner, 2026-09-21). Three checks:
+1. Three pages → three views in the dashboard.
+2. The `sign_up` event is **stored**. The collector returned `200`, which shows acceptance, not storage.
+3. One deploy → no sessions from the build.
+
+**Surface cells in `SURFACE_TRACKER` do not move on this lane's evidence until this closes.**
+
+### `[FU-ANALYTICS-OAUTH-PHONE-DOORS-UNIT-ONLY]` — THE GOOGLE AND PHONE SIGNUP DOORS ARE UNIT-TESTED, NOT LIVE-TESTED
+
+Only the email/password door was driven live. Google needs a real popup and phone needs a real OTP.
+- Their `isNewUser` gating is covered by `analytics.vendor.test.ts`: returning → 0 events · new → exactly 1 · a throwing gate → the login still succeeds.
+- **Live confirmation arrives for free:** the first real Google or phone signup should appear as one `sign_up` in the dashboard, and a returning Google login as none.
+- ⚠ The phone **link** path (`linkWithPhoneNumber().confirm()`) is **deliberately not counted** — it attaches a phone to an existing account.
+
+### `[FU-ANALYTICS-CONVERSION-NEEDS-CONSENT]` — "DID THIS VISITOR BECOME AN ACCOUNT?" IS UNMEASURABLE, BY RULING
+
+**Recorded so a later lane does not mistake it for a gap and "fix" it.** Page views and signups are counted separately, with **no identifier linking them**, so the funnel from a visit to an account cannot be joined. That is DECISION 1 of `DECISION_LOG` 2026-09-21 working as intended: cross-session identity is behavioural tracking of minors.
+**Where it goes:** the free-check lane, with its own consent design, if the owner wants the funnel. ⚠ **Do not add `identify()`, a uid or any stored id to `src/analytics/`** to get it.
+
+### `[FU-VERCEL-CLI-TOKEN-EXPIRED]` — THE STORED VERCEL CLI TOKEN IS INVALID
+
+`C:\Users\Chetan\AppData\Roaming\com.vercel.cli\Data\auth.json` returns `{"invalidToken": true}` from `api.vercel.com`. **No lane can read project settings or the plan from the API**, and a non-interactive session cannot `vercel login`. ANALYTICS-1 could not verify Pro itself; the owner confirmed it from the dashboard.
+**Owner:** run `vercel login` interactively if any future lane is expected to verify Vercel configuration itself. Until then, **treat a Vercel setting as unverified unless a preview curl or the owner confirms it.**
+
+### `[FU-VERCEL-SPEED-INSIGHTS-UNLOADED]` — SPEED INSIGHTS IS ENABLED, AND NOTHING LOADS IT
+
+**Measured 2026-09-21:** `https://www.lazytopper.com/_vercel/speed-insights/script.js` → `200 application/javascript`, so the feature is enabled on the project. But `git grep` for `speed-insights`, `speedInsights` and `@vercel/speed` across `lazytopper/src`, `index.html`, `package.json` and `vercel.json` finds **nothing**.
+**So it collects nothing.** That was the control that proved Web Analytics was off (the same `/_vercel/*` namespace, served) — and it is also an enabled dashboard showing no data.
+**Owner decides:** disable it, or wire it in its own lane. ⚠ **Not in ANALYTICS-1's scope, and not started.**
+
 ## 2026-09-20 — STORED-RATE LANE: DESIGN RULINGS ADOPTED (**REPORT ONLY** — nothing started; open PRs at the time of writing: **none**) — and the client-forgeable field that reshaped the lane
 
 **The report:** `Desktop/diff/report-stored-rate-lane-view-2026-09-20.md`, from a read-only

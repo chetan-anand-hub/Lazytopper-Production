@@ -1,5 +1,32 @@
 # LazyTopper — Current State
 
+## [CURRENT · ANALYTICS] ANALYTICS-1 — **THE OWNER CAN SEE WHETHER ANYONE IS HERE, AND WHICH PAGES** — `#811` MERGED — trunk `19ab44d0`
+
+★ **PROVENANCE.** Premise gate exit 0 (7 premises, 4/4 anchors resolved). **On the pushed commit**, every exit code captured unpiped: tsc app + `typecheck:test` both 0; `vitest run src` **175 files / 2324 tests, 0 failed**; **root guard matrix 211 tests / 31 suites, fail 0, skipped 0**; lazytopper ops matrix **16 suites, all `fail 0`**; build + `verify-production-build`; `scope:guard --mode mixed` **`SCOPE_GUARD_OK`, inspected=8**; mojibake `enforced_hits=0`; `git diff --check` clean; **all 8 CI checks green on both heads**. **§4 8/8** on the immutable deployment of the accepted head, production as the control.
+
+**Trunk `19ab44d06c4619e6691f018dc15bf60df7aef1bc`** (`#811` squash, no `--admin`). Trunk tree `576092a9` **equals the accepted tree**; the squash touched exactly 8 files. Before it: `65a4a67c` = `#809`.
+
+### What shipped
+**Vercel Web Analytics, cookieless, as a plain script tag** — no npm dependency, no cookie, no identifier, no consent banner. Page views on every route change of the SPA, plus a signup count. **+782 gzipped bytes** on the entry chunk; prerendered bodies byte-identical. Live on production: `/_vercel/insights/script.js` → `200 application/javascript`.
+- `lazytopper/src/analytics/` — `analytics.ts` (detector, redactor, wrapped sender), `RouteAnalytics.tsx` (one router-level page view covering all 52 routes), three test files.
+- `main.tsx` (+6/−0) and `index.html` (+29/−0) — **analytics init only**, under a narrow owner grant.
+- `AuthContext.tsx` (+14/−1) — the three signup doors.
+
+### The things to read before touching analytics
+1. **No identity, by ruling.** No `identify()`, no uid, no stored id. The users are minors under DPDP. *Visit → account* is **unmeasurable on purpose** — `[FU-ANALYTICS-CONVERSION-NEEDS-CONSENT]`.
+2. **`data-disable-auto-track="1"` is load-bearing.** With it removed, three pages produced **six** views, and the first carried the **raw URL** — bypassing the credential redaction on the very first view.
+3. **`/u/:token` is a live capability token.** It is redacted in three layers. **A new route with a secret in its path must be added to TWO lists** — `[FU-ANALYTICS-NEW-CREDENTIAL-ROUTE]`.
+4. **A page view is `va("pageview", {route, path})`, never `va("event", …)`.** From the package source. The wrong shape throws nothing — it misfiles every page view as a custom event.
+5. **The `isNewUser` gate lives in `trackSignUpIfNew()`, wrapped.** Never inline it in `AuthContext`: written inline, it could throw out of **login** — and the full suite caught it doing so.
+6. **The SEO capture is excluded by loopback detection, never a production-hostname allowlist**, which would silence the Vercel preview the acceptance suite runs on.
+7. **A browser test of analytics needs an ordinary user agent.** Vercel's script ignores any user agent containing `Headless`, which includes Playwright's.
+
+### Open on this lane — all owner-side
+`[FU-ANALYTICS-TEST-ACCOUNT]` (remove uid `SDFoJI7NRGMxQGaeibT1IdCjI9G3`) · `[FU-ANALYTICS-LIVE-VERIFY]` (§6 dashboard) · `[FU-ANALYTICS-OAUTH-PHONE-DOORS-UNIT-ONLY]`.
+
+
+---
+
 ## [CURRENT · LANDING] LANDING-MERGE-1 — **ONE LANDING PAGE FOR EVERY SCREEN** — `#806` MERGED — trunk `6a892090`
 
 ★ **PROVENANCE.** Premise gate exit 0 (10 premises, 8/8 anchors resolved); tsc app + `typecheck:test` both 0; `vitest run src` **172 files / 2302 tests, 0 failed, 0 skipped**; build 15.18s + `verify-production-build`; mojibake 0 in touched files; `scope:guard --mode mixed` **`SCOPE_GUARD_OK`, inspected=12**; **root guard matrix 211 tests / 31 suites, fail 0, skipped 0**; lazytopper ops matrix all suites; `git diff --check` clean; **all 8 CI checks green**. §4 run against the Vercel preview of the exact commit, production as the control.
