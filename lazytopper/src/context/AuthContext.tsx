@@ -33,6 +33,7 @@ import { hydrateSubscriptionFromCloud } from "../services/subscriptionService";
 import { hydrateMistakeLogsFromCloud } from "../services/mistakeLogService";
 import { authClient, firebaseConfigured } from "../services/firebaseClient";
 import { restoreFromDB } from "../services/dbSyncService";
+import { trackSignUp, trackSignUpIfNew } from "../analytics/analytics";
 
 export type AuthUser = {
   uid: string;
@@ -344,7 +345,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!authClient) throw new Error("Firebase Auth is not configured");
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: "select_account" });
-    await signInWithPopup(authClient, provider);
+    const credential = await signInWithPopup(authClient, provider);
+    // ★ `signInWithPopup` IS BOTH DOORS — a brand-new account and a returning student
+    // are the same call, so this counts only when `isNewUser`. The gate lives inside
+    // trackSignUpIfNew, wrapped, so it can never throw out of a login. See analytics.ts.
+    trackSignUpIfNew(credential);
   }, []);
 
   const signInWithEmailPassword = useCallback(async (email: string, password: string) => {
@@ -356,6 +361,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async (email: string, password: string, displayName?: string) => {
       if (!authClient) throw new Error("Firebase Auth is not configured");
       const credential = await createUserWithEmailAndPassword(authClient, email, password);
+      // No `isNewUser` gate here, and none is needed: this call CREATES the account or
+      // throws `auth/email-already-in-use`. Reaching this line is itself the signup.
+      trackSignUp();
       const trimmedName = (displayName || "").trim();
       if (trimmedName && credential.user) {
         try {
@@ -470,6 +478,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const confirmation = phoneConfirmationRef.current;
     if (!confirmation) throw new Error("Request an OTP before verifying");
     const credential = await confirmation.confirm(code);
+    // Phone is the third door into an account, and like Google it is one call for both
+    // a new student and a returning one. ⚠ Deliberately NOT mirrored onto the
+    // `linkWithPhoneNumber().confirm()` path below: that attaches a phone to an account
+    // that already exists, which is not a signup and must not be counted as one.
+    trackSignUpIfNew(credential);
 
     // ── THE NAME ────────────────────────────────────────────────────────────
     // `mapFirebaseUser` only ever READS `displayName`. Google supplies one and
