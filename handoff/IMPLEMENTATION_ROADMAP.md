@@ -1,5 +1,19 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-21 — ANALYTICS: **ANALYTICS-1 — THE OWNER CAN SEE WHETHER ANYONE IS HERE, AND WHICH PAGES** — `#811` MERGED — trunk `19ab44d0`
+
+- ✅ **Product analytics exists for the first time.** Before this lane there was none anywhere — enumerated by location, with a control proving the search finds a real integration.
+- ✅ **Cookieless Vercel Web Analytics, on Pro** (owner ruling): no cookie, no identifier, no consent banner, no npm dependency, no new data processor.
+- ✅ **Page views on every client-side route change** — one router-level mount covers all 52 routes. Verified on the network: landing → notes → topic hub = **3 views, 1 page load**.
+- ✅ **Signups countable** — exactly **one** `sign_up` event at account creation, **none** on a returning login; gated on `isNewUser`, and unable to throw out of a login.
+- ✅ **The SEO capture is not counted** — loopback detection, proven by a 2×2; `seo:capture` output byte-identical.
+- ✅ **No personal data leaves the page** — every payload field named; the `/u/:token` credential redacted in three layers.
+- ✅ **A blocked vendor breaks nothing** — the landing renders and its CTA works with the script blocked.
+- ✅ **Nothing else moved** — all 7 instrumented surfaces render identical text to production, with the vendor live.
+- ⬜ **Owner §6 live-verify** — `[FU-ANALYTICS-LIVE-VERIFY]`.
+- ⬜ **Remove the acceptance test account** — `[FU-ANALYTICS-TEST-ACCOUNT]`.
+- ⛔ **Visit → account conversion: not built, by ruling** — `[FU-ANALYTICS-CONVERSION-NEEDS-CONSENT]`.
+
 ## 2026-09-20 — LANDING: **LANDING-MERGE-1 — ONE LANDING PAGE FOR EVERY SCREEN** — `#806` MERGED — trunk `6a892090`
 
 - ✅ **One responsive landing component replaces two.** `Welcome.tsx` (>=1024px) and

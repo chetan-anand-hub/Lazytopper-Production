@@ -1,5 +1,35 @@
 ---
 
+## 2026-09-21 — ANALYTICS-1 — **IS ANYONE HERE, AND WHICH PAGES — AND FOUR CHECKS THAT WOULD HAVE PASSED WHILE MEASURING NOTHING** — `#811` MERGED — trunk `19ab44d0`
+
+★ **PROVENANCE.**
+- Built in an isolated worktree at base `65a4a67c`; spec SHA-256 verified before reading. Premise gate exit 0 (7 premises, 4/4 anchors resolved, 3 UNVERIFIED by design). Both staleness axes run: trunk unmoved; the only open PR (`#810`, dependabot) shared no path.
+- **On the pushed commit**, exit codes captured **unpiped**: `vitest run src` **175 / 2324, 0 failed**; root matrix **211 / 31 suites, fail 0, skipped 0**; ops matrix **16 suites, all `fail 0`**; `typecheck:test` 0; **8/8 CI**.
+- **§4 8/8** on the **immutable** deployment of the accepted head (`f548db19`, an empty redeploy commit with a tree identical to `bc7e68a9`). Trunk tree equals the accepted tree.
+
+**Trunk `19ab44d06c4619e6691f018dc15bf60df7aef1bc`** (`#811` squash, no `--admin`). Before it: `65a4a67c` = `#809`.
+
+**What shipped.** Cookieless Vercel Web Analytics as a script tag: page views on every SPA route change, and a signup count. No npm dependency, no identifier, no consent banner. **+782 gzipped bytes.**
+
+**The vendor ruling.** Pre-flight reported options without choosing. The owner ruled **cookieless, with no identity**, because the users are minors under DPDP, and chose **Vercel on Pro** because it adds no new data processor. **The plan decided the vendor**: Vercel Hobby has no custom events, which would have made the signup count impossible — silently. `firebase/analytics` was rejected despite needing no package; it sets identifiers.
+
+**What the spec had wrong, corrected before building:**
+- **§4.3's control could not fail.** `seo:capture` is **not** part of `build`. "Run the build, assert zero events" passes on a broken detector. The control runs `seo:capture`, and the proof is a **2×2** isolating the detector: only a normal browser fires.
+- **The axis-2 hold condition was stale** — no lane was holding `main.tsx` or `index.html`.
+- **"A naive integration records one view per session"** — Vercel's auto-tracking (`sv 0.1.3`) records **six for three pages**, the first with the raw URL.
+
+**Found without being asked:** `/u/:token` carries a **live 256-bit single-use capability token** in the path, which every default integration would send. Redacted in three layers.
+
+**The four near-misses — each a check that would have read green:**
+1. **Web Analytics was not enabled.** Every static gate and all 8 CI checks passed on a build that recorded nothing. A curl against the preview showed the script 404ing; Speed Insights, on the same domain, returning 200 was the control that made it a diagnosis. The owner enabled it; an empty commit redeployed.
+2. **Vercel's script drops `Headless` user agents.** The first network run sent zero views everywhere, controls included. Fixed with an ordinary user agent and a per-session "vendor live" precondition.
+3. **Negatives on an empty run.** "No email in any payload" with zero payloads; a returning-login control that never signed in. Every negative is now quoted beside a non-zero count.
+4. **A pipe hid 7 failed tests.** `| tail` reported exit 0. **The 7 failures were real**: an inline `isNewUser` check on the login path, able to throw out of login. Fixed in product code, with the failing suite left unedited.
+
+**The one real account** created by §4.7 is logged for the owner to remove: `[FU-ANALYTICS-TEST-ACCOUNT]`. Google and phone signup doors are unit-tested only.
+
+---
+
 ## 2026-09-20 — LANDING-MERGE-1 — **ONE LANDING PAGE FOR EVERY SCREEN, AND TWO DEAD BRANCHES A VALUE TABLE COULD NOT SEE** — `#806` MERGED — trunk `6a892090`
 
 ★ **PROVENANCE.**
