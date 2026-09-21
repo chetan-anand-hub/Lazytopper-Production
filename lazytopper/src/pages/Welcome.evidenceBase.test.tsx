@@ -1,31 +1,17 @@
-import { describe, it, expect, afterEach, vi } from "vitest";
+import { describe, it, expect, afterEach } from "vitest";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
 import { render, screen, cleanup } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
-import Welcome from "./Welcome";
+import Welcome, { PaidPlanHead } from "./Welcome";
 import {
   FOUNDING_OFFER_OPEN,
   PRICE_MONTHLY_FOUNDING_DISPLAY,
   PRICE_MONTHLY_LIST_DISPLAY,
 } from "../config/pricing";
 
-/**
- * ★ THE OFFER FLAG, FLIPPABLE PER TEST — LANDING-FOLLOWUP-1 §4.8. The real module is
- * re-exported untouched except `FOUNDING_OFFER_OPEN`, which is a GETTER: it returns
- * the real value unless a test sets `offer.open`. Welcome reads the flag at render,
- * so one file can assert both states without re-importing React. Every other test in
- * this file sees the real config.
- */
-const offer = vi.hoisted(() => ({ open: undefined as boolean | undefined }));
-vi.mock("../config/pricing", async (importOriginal) => {
-  const real = await importOriginal<typeof import("../config/pricing")>();
-  return {
-    ...real,
-    get FOUNDING_OFFER_OPEN() {
-      return offer.open ?? real.FOUNDING_OFFER_OPEN;
-    },
-  };
-});
 
 /**
  * [FU-LANDING-FABRICATED-FIGURES] — the landing page states no figure it cannot
@@ -69,10 +55,7 @@ vi.mock("../config/pricing", async (importOriginal) => {
  * The page reads no auth state at all, so this file needs no useAuth mock.
  */
 
-afterEach(() => {
-  cleanup();
-  offer.open = undefined;
-});
+afterEach(() => cleanup());
 
 function renderWelcome() {
   return render(
@@ -177,14 +160,30 @@ describe("Welcome — the price is read from the pricing config, never typed", (
     expect(price.firstChild?.textContent).toBe(PRICE_MONTHLY_FOUNDING_DISPLAY);
   });
 
-  it("★★ CONTROL — flip FOUNDING_OFFER_OPEN off and the card shows the list price alone", () => {
-    offer.open = false;
-    renderWelcome();
+  it("★★ CONTROL — flip the offer off and the card shows the list price alone", () => {
+    // ⚠ NOT a vi.mock of config/pricing — the repo forbids mocking src/config
+    // (gradingLimits.guard.test.ts), and this file once did exactly that. The card
+    // head takes the offer state as a prop, so the flip is a plain render.
+    render(<PaidPlanHead offerOpen={false} />);
     const price = screen.getByTestId("landing-paid-price");
     expect(price).toHaveTextContent(PRICE_MONTHLY_LIST_DISPLAY);
     expect(price).not.toHaveTextContent(PRICE_MONTHLY_FOUNDING_DISPLAY);
     expect(price.querySelector("s")).toBeNull();
     expect(screen.queryByText(/Founding member/)).toBeNull();
+  });
+
+  it("★ and the flag-on render of the same head is the founding state", () => {
+    render(<PaidPlanHead offerOpen={true} />);
+    expect(screen.getByTestId("landing-paid-price")).toHaveTextContent(PRICE_MONTHLY_FOUNDING_DISPLAY);
+    expect(screen.getByText(/Founding member/)).toBeInTheDocument();
+  });
+
+  it("★ Welcome wires the REAL flag into the head — not a literal true", () => {
+    // The render above proves the head reacts to the prop; this proves the page
+    // feeds it the config constant, so closing the offer in pricing.ts moves the page.
+    const HERE = dirname(fileURLToPath(import.meta.url));
+    const src = readFileSync(resolve(HERE, "./Welcome.tsx"), "utf8");
+    expect(src).toContain("<PaidPlanHead offerOpen={FOUNDING_OFFER_OPEN} />");
   });
 
   it("★ CONTROL — the prototype's 1,999 figure is NOT on the page", () => {

@@ -395,6 +395,36 @@ const CSS = `
 }
 `;
 
+/**
+ * The paid card's head — name, price, founding line. ★ TAKES THE OFFER STATE AS A
+ * PROP so a test can render both states WITHOUT mocking src/config: the repo forbids
+ * `vi.mock` of anything under config/ (gradingLimits.guard.test.ts), and a flag
+ * flipped by mock would be exactly that. Welcome passes `FOUNDING_OFFER_OPEN`.
+ * While the offer is open the founding price leads with the list price struck
+ * beside it; when it closes, the list price stands alone. Constants only.
+ */
+export function PaidPlanHead({ offerOpen }: { offerOpen: boolean }) {
+  return (
+    <>
+      <div className="pt">
+        <span className="pn">WITH MARKING</span>
+        {offerOpen ? (
+          <span className="pp" data-testid="landing-paid-price">
+            {PRICE_MONTHLY_FOUNDING_DISPLAY}
+            <span className="per">/mo</span> <s className="was">{PRICE_MONTHLY_LIST_DISPLAY}</s>
+          </span>
+        ) : (
+          <span className="pp" data-testid="landing-paid-price">
+            {PRICE_MONTHLY_LIST_DISPLAY}
+            <span className="per">/mo</span>
+          </span>
+        )}
+      </div>
+      {offerOpen && <p className="fl">{FOUNDING_LABEL} price</p>}
+    </>
+  );
+}
+
 export default function Welcome() {
   const { pathname } = useLocation();
 
@@ -652,21 +682,7 @@ export default function Welcome() {
               <p className="go">See what&apos;s included &rarr;</p>
             </Link>
             <Link className="lt-landing-plan pay" to="/pricing">
-              <div className="pt">
-                <span className="pn">WITH MARKING</span>
-                {FOUNDING_OFFER_OPEN ? (
-                  <span className="pp" data-testid="landing-paid-price">
-                    {PRICE_MONTHLY_FOUNDING_DISPLAY}
-                    <span className="per">/mo</span> <s className="was">{PRICE_MONTHLY_LIST_DISPLAY}</s>
-                  </span>
-                ) : (
-                  <span className="pp" data-testid="landing-paid-price">
-                    {PRICE_MONTHLY_LIST_DISPLAY}
-                    <span className="per">/mo</span>
-                  </span>
-                )}
-              </div>
-              {FOUNDING_OFFER_OPEN && <p className="fl">{FOUNDING_LABEL} price</p>}
+              <PaidPlanHead offerOpen={FOUNDING_OFFER_OPEN} />
               {/* ⚠ "Unlimited" REMOVED, NOT ABANDONED (LANDING-FOLLOWUP-1, owner
                   ruling). The rate limiter has a product-wide daily ceiling
                   (rateLimiter.cjs GLOBAL_DAILY_HARD_CALLS) at which grading is shed,
