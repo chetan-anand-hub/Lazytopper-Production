@@ -1087,7 +1087,7 @@ function BoardQuestionsPanel({ topicKey, title }: { topicKey: string; title: str
   if (!entry || entry.questions.length === 0) {
     return (
       <p className="lt-note__hint">
-        Board questions for this chapter are not published yet.
+        Competency-based questions for this chapter are not published yet.
       </p>
     );
   }
@@ -1225,7 +1225,11 @@ export function Note({ spec, initialTab }: NoteProps) {
         >
           <NoteRichText text={meta.third_tab.label} />
         </button>
-        {/* CBQ-TAB-1 — labelled for what a student searches for, not an internal term. */}
+        {/* CBQ-TAB-1 — labelled for what a student searches for, not an internal term.
+            LANDING-FOLLOWUP-1 — renamed from its earlier board-questions label (owner ruling): every row
+            the selection rule publishes is `isCompetencyBased === true`
+            (selectionRule.ts), and only 3 of 78 carry a board year, so the new label is
+            the accurate one. */}
         <button
           type="button"
           role="tab"
@@ -1233,7 +1237,7 @@ export function Note({ spec, initialTab }: NoteProps) {
           className={`lt-note__tab${tab === "questions" ? " lt-note__tab--active" : ""}`}
           onClick={() => setTab("questions")}
         >
-          Board Questions
+          Competency-based questions
         </button>
         </div>
         <button
@@ -1441,7 +1445,7 @@ export function Note({ spec, initialTab }: NoteProps) {
         <ThirdTabPanel content={spec.third_tab_content} figures={figures} />
       </div>
 
-      {/* ── Board Questions tab (CBQ-TAB-1) ──
+      {/* ── Competency-based questions tab (CBQ-TAB-1) ──
           ★ Renders into the DOM unconditionally and hides via .lt-note__panel, exactly
           as the three panels above do. That is the whole point of this lane: a panel that
           unmounts when inactive is invisible to a crawler, and invisible is the state this

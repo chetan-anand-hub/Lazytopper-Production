@@ -1,5 +1,5 @@
 /**
- * GUARD — the Board Questions tab is readable by a crawler (lane CBQ-TAB-1).
+ * GUARD — the Competency-based questions tab is readable by a crawler (lane CBQ-TAB-1).
  *
  * ★ WHAT THIS PINS. The failure that would make the whole lane pointless is content a
  * crawler cannot read: a panel that unmounts when inactive, or a solution behind a
@@ -38,7 +38,7 @@ const panelFor = (container: HTMLElement, text: string): HTMLElement => {
   return hit;
 };
 
-describe("Board Questions tab — structure", () => {
+describe("Competency-based questions tab — structure", () => {
   it("adds a FOURTH tab and leaves the original three intact", () => {
     mountNote();
     const tabs = screen.getAllByRole("tab");
@@ -46,7 +46,7 @@ describe("Board Questions tab — structure", () => {
     const labels = tabs.map((t) => (t.textContent || "").trim());
     expect(labels[0]).toBe("Note");
     expect(labels[1]).toBe("Mindmap");
-    expect(labels[3]).toBe("Board Questions");
+    expect(labels[3]).toBe("Competency-based questions");
     // The note tab is still the one selected on load; the new tab is NOT.
     expect(tabs[0].getAttribute("aria-selected")).toBe("true");
     expect(tabs[3].getAttribute("aria-selected")).toBe("false");
