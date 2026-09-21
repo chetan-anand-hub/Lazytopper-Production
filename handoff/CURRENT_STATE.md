@@ -1,5 +1,42 @@
 # LazyTopper — Current State
 
+## [CURRENT · SECURITY] UID-HEADER-CLOSE-1 — **A TYPED UID WITH NO TOKEN NO LONGER GETS PAID AI** — `#812` MERGED — trunk `3b011bc7`
+
+★ **PROVENANCE.**
+- Spec SHA-256 was verified before reading. Premise gate exit 0 (8 premises, 6/6 anchors resolved, 2 UNVERIFIED by design). Both staleness axes were run.
+- **Local gates on the lane commit `70d38bfc`** (base `65a4a67c`), every exit code captured unpiped:
+  - `vitest run src`: **172 files / 2305 tests, 0 failed**
+  - server suite (all 16 `server/**/*.test.cjs`): **544 / 544, 0 skipped**
+  - root matrix: **211 tests / 31 suites, fail 0, skipped 0**
+  - ops matrix: **16 blocks, all `fail 0`**
+  - tsc app + `typecheck:test`: both 0
+  - build + `verify-production-build`: 0
+  - mojibake: 0 enforced hits
+  - `scope:guard --mode mixed`: **`SCOPE_GUARD_OK`, inspected=6**
+- **CI: 8/8 green on the merged head `4a956446`** (the lane plus `#811`). The 5 `UHC §4` tests appear in the quality-gate log.
+- **No paid endpoint was called in any check.**
+
+**Trunk `3b011bc762660b9556a97ed5fd9addaa25fe15f3`** (`#812` squash, no `--admin`). Before it: `19ab44d0` = `#811`.
+
+### What shipped (6 files, the allowed set exactly)
+- **`src/ai/paidCallHeaders.ts`:** the ID-token fetch **retries**. It calls `getIdToken()`, then `getIdToken(true)` after 300ms, and again after 1000ms. On exhaustion it **throws `SignInAgainError`** ("We couldn't confirm you're signed in. Please sign in again, then try once more.") **before the request is made**. It never sends the uid header alone.
+- **`server/services/entitlement.cjs`:** a uid header with **no** bearer token is **DENIED**, as `entitlement.deny.uid_header_no_token` (outcome `uid-header-no-token`).
+- **`server/routes/adminTelemetry.cjs`:** reports that one counter as `entitlement.denyUidHeaderNoToken`. That is **the only** change in the file (owner ruling B, a narrow grant).
+- Guard tests for all three.
+
+### The three things to read before touching this path
+1. **`paidCallHeaders()` NOW THROWS.** Its old "never throws, never blocks" contract is gone, at **all 11 paid call sites, ungated ones included** (owner ruling). A signed-in student whose token cannot be fetched is refused everywhere, and waits up to about 1.3s first. A new call site must catch it and render `err.message`. **Detect it by `err.name === "SignInAgainError"`, not `instanceof`**, the same reason `PremiumRequiredError` is detected by name.
+2. **P2 IS STILL OPEN, ON PURPOSE.** A bearer token that was **offered and did not verify** is still SERVED, as `entitlement.fail_open.no_uid`. That is a real signed-in student hitting an expired token, clock skew or a missing firebase-admin config. Closing it is a separate owner decision, and `UHC §4.7` asserts it stays open.
+3. **The rate limiter did not move.** `index.cjs:397` counts **before** the gate at `:408`, so a denied call is counted exactly like a served one. A before/after harness showed `limiter.snapshot()` and every `rate_limit.*` counter byte-identical.
+
+### ⚠ The count is 7 PASSED + 1 WAIVED, never 8/8
+**§4.5 (honest copy at every call site) was WAIVED BY THE OWNER for four surfaces**: desktop Check & Improve, step solutions on HPQ, step solutions on Practice, and Quick Practice grading.
+- **Why:** their copy is honest (no fake result, no raw code, no 402), and a student reaches it only after three failed token fetches, two of them forced refreshes. → `[FU-SIGNIN-COPY-FOUR-SURFACES]`.
+- **Where the sign-in copy IS shown word for word:** Check my answer, Tutor, and the Worksheet, Chapter Test and Full Mock grade panels.
+
+### Deploy constraint
+**Client (Vercel) before, or together with, server (Railway).** A stale bundle still sends a bare uid when its single token fetch fails. Against the new server, that student gets the old 402, i.e. the **Premium upgrade sheet**, until their tab reloads.
+
 ## [CURRENT · ANALYTICS] ANALYTICS-1 — **THE OWNER CAN SEE WHETHER ANYONE IS HERE, AND WHICH PAGES** — `#811` MERGED — trunk `19ab44d0`
 
 ★ **PROVENANCE.** Premise gate exit 0 (7 premises, 4/4 anchors resolved). **On the pushed commit**, every exit code captured unpiped: tsc app + `typecheck:test` both 0; `vitest run src` **175 files / 2324 tests, 0 failed**; **root guard matrix 211 tests / 31 suites, fail 0, skipped 0**; lazytopper ops matrix **16 suites, all `fail 0`**; build + `verify-production-build`; `scope:guard --mode mixed` **`SCOPE_GUARD_OK`, inspected=8**; mojibake `enforced_hits=0`; `git diff --check` clean; **all 8 CI checks green on both heads**. **§4 8/8** on the immutable deployment of the accepted head, production as the control.

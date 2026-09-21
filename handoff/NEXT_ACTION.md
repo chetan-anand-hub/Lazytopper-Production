@@ -2,6 +2,50 @@
 ⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW ON TRUNK SHA AND ON THE GATE SET.
    IT DOES NOT SUPERSEDE ANY OPEN FOLLOW-UP RECORDED BELOW.
 
+TRUNK IS `c800e5426fd5db2aa5d7ee56cd697f27b7ca2eb2`, MEASURED 2026-09-21.
+   c800e542 = #813 (docs: ANALYTICS-1 handoff)
+   3b011bc7 = #812 (UID-HEADER-CLOSE-1) - THIS handoff
+   19ab44d0 = #811 (ANALYTICS-1)
+   Re-derived with `git log --oneline 19ab44d0..origin/base/approved-thru-437`.
+
+★★★ NEXT: THE ORDER BELOW STILL GOVERNS - with ONE item promoted:
+   [FU-QP-RETRY-BUTTON-DEAD] is MORE URGENT than the copy gap. It is on
+   trunk, and it hits EVERY Quick Practice grading failure, not a rare one.
+   OPEN at the time of writing: #810 dependabot only.
+
+★★★ FREE-CHECK-1'S PREMISE CHANGED. READ BEFORE SCOPING IT.
+   FREE-CHECK-SCOUT wrote: "a free check narrows and supervises an OPEN
+   hole; it does not open a new one." THAT WAS TRUE AT 65a4a67c AND IS
+   FALSE NOW. #812 closed the typed-uid path on every GATED route. A free
+   check would now OPEN a supervised path where none exists - so it owes
+   its own abuse bound, and cannot borrow the argument "it is already open".
+   Still open: a token that fails to verify (P2, deliberate), and the
+   limiter's trust in the header ([FU-LIMITER-TRUSTS-UNVERIFIED-UID-HEADER]).
+
+★★ UID-HEADER-CLOSE-1: THREE THINGS TO CARRY FORWARD.
+
+   1. paidCallHeaders() NOW THROWS SignInAgainError. Any new paid call site
+      must catch it and render err.message. Detect by err.name, never by
+      instanceof. The "never throws" contract is gone at all 11 sites.
+
+   2. A COUNTER WITH NO READER IS A FABRICATED MEASUREMENT.
+      No entitlement.* counter had a reader: adminTelemetry.cjs iterates
+      closed sets only, and entitlement.cjs:73/:104 claim otherwise. The
+      old plan for this very fix said "watch fail_open.no_uid before
+      closing" - a counter nobody could read. #812 gives ONE counter a
+      reader; the rest are [FU-ENTITLEMENT-COUNTERS-NO-READER].
+
+   3. A TRUNK MOVE MID-LANE IS SAFE ONLY WHEN PROVEN.
+      #811 merged during the lane. Nine files were blob-compared at both
+      SHAs (six lane files + rateLimiter, verifiedCaller, index.cjs), then
+      `gh pr update-branch` (a merge commit - no rebase, no force) and a
+      CI re-run. Owner precedent: this is allowed on a self-merge PR, with
+      a ONE-LINE heads-up before running it. Never --admin.
+
+(SUPERSEDED 2026-09-21, kept verbatim per standing rule 3)
+⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW ON TRUNK SHA AND ON THE GATE SET.
+   IT DOES NOT SUPERSEDE ANY OPEN FOLLOW-UP RECORDED BELOW.
+
 TRUNK IS `3b011bc762660b9556a97ed5fd9addaa25fe15f3`, MEASURED 2026-09-21.
    3b011bc7 = #812 (UID-HEADER-CLOSE-1) - merged WHILE this handoff was
               being written; its own handoff is owed by ITS lane, and

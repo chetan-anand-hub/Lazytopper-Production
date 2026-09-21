@@ -1,3 +1,31 @@
+## 2026-09-21 — UID-HEADER-CLOSE-1 (lane `uid-header-close-1`) — trunk `3b011bc7`, PR `#812`
+
+**`2026-09-21`**
+
+> ⚠ **NUMBERING.** `DECISION N` is SECTION-LOCAL and restarts at 1 in every section. This section starts at `DECISION 1`.
+
+### DECISION 1 — **SCOPE IN `adminTelemetry.cjs`, TO EXPOSE THE NEW COUNTER ONLY.** *(Owner ruling B, at pre-flight.)*
+Pre-flight found that **no `entitlement.*` counter had a reader**. `buildTelemetryPayload()` iterates closed sets only. So §2.2's "the owner must be able to tell the two fail-opens apart" was unreachable within the spec's allowed files.
+**Ruling:** a telemetry name with no reader is a **fabricated measurement**. It lets the owner believe he can see how often the hole was hit when he cannot, and this project does not ship numbers that look real and are not. **The grant is narrow:** one import, one payload key, no other change in the file.
+
+### DECISION 2 — **THE HONEST COPY COMES FROM THE CLIENT, AND UNGATED ENDPOINTS REFUSE TOO.** *(Owner ruling, F2 + F3.)*
+The server's only denial is `402 premium_required`. That would put the **upgrade sheet** in front of a paying student whose token failed. So the client refuses **before** the call, with a message the call sites already render.
+**F3:** refuse on the ungated endpoints as well. A token-failed student is asked to sign in again **consistently**, rather than served on some surfaces and refused on others. **Accepted cost:** the helper's "never throws" contract is gone at all 11 call sites.
+
+### DECISION 3 — **§4.5 WAIVED FOR FOUR SURFACES; MERGE THE SECURITY FIX.** *(Owner ruling, before merge.)*
+This is a security lane, and it stays narrow. The four generic-copy surfaces are desktop C&I, HPQ and Practice step solutions, and Quick Practice grading.
+- The copy there is honest.
+- It is reached only after three failed token fetches, two of them forced refreshes.
+The gap is filed as `[FU-SIGNIN-COPY-FOUR-SURFACES]`. The Quick Practice dead retry button is filed **separately** as `[FU-QP-RETRY-BUTTON-DEAD]`, ranked **more urgent**, because it is on trunk and hits every grading failure.
+
+### DECISION 4 — **`gh pr update-branch` IS ALLOWED ON A SELF-MERGE PR, WITH A ONE-LINE HEADS-UP.** *(Owner precedent.)*
+`#811` merged mid-lane, and branch protection required an up-to-date head. `update-branch` adds a merge commit: it rewrites nothing and does not force-push. The "ask before `git merge`" rule exists to prevent a rewrite or a content sweep, and the proof that neither happened is the one that was given:
+- nine files blob-compared at both SHAs before the update;
+- the PR diff still exactly the six lane files after it;
+- the lane code byte-identical to `70d38bfc`;
+- CI re-run.
+**Next time:** a one-line heads-up before running it is enough. `--admin` stays forbidden.
+
 ## 2026-09-21 — ANALYTICS-1 (lane `analytics-1`) — trunk `19ab44d0`, PR `#811`
 
 **`2026-09-21`**

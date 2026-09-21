@@ -1,5 +1,44 @@
 ---
 
+## 2026-09-21 — UID-HEADER-CLOSE-1 — **A TYPED UID WITH NO TOKEN NO LONGER GETS PAID AI** — `#812` MERGED — trunk `3b011bc7`
+
+★ **PROVENANCE.**
+- Built in an isolated worktree at base `65a4a67c`. Spec SHA-256 verified before reading. Premise gate exit 0 (8 premises, 6/6 anchors resolved).
+- Both staleness axes were run, and ANALYTICS-1 was confirmed to be local-only at the time.
+- Local gates on `70d38bfc`: `vitest run src` **172 / 2305**, server suite **544 / 544**, root matrix **211 / 31 suites**, ops matrix **16 blocks, fail 0**, all captured unpiped. **CI 8/8** on the merged head.
+- **No paid endpoint was called in any check.** The server half ran in-process (the real modules, `resolve()` called directly), and one real-HTTP test ran against a child server with every Gemini key deleted.
+
+**Trunk `3b011bc762660b9556a97ed5fd9addaa25fe15f3`** (`#812` squash, no `--admin`). Before it: `19ab44d0` = `#811`.
+
+**The hole.** A caller sending `X-Lazytopper-Uid: <anything>` with **no** bearer token was served paid AI (`entitlement.cjs:386`). FREE-CHECK-SCOUT measured it, with a control. It was open on purpose: the client dropped the token on one failed `getIdToken()` and kept the uid, so the server could not tell a stranger from a student with a token hiccup.
+
+**The fix, in the order the spec required.**
+- **Client first:** retry the token, with a forced refresh. On exhaustion, throw `SignInAgainError` rather than send a bare uid.
+- **Server second:** deny the uid-only request, under its own counter.
+- **The owner ruled B at pre-flight.** A counter with no reader would have been a fabricated measurement, so `adminTelemetry.cjs` was scoped in to expose that one counter.
+
+**The controls that made it a test.**
+- `§4.1`: the same harness that denies the spoof **serves** P2's case, so it does not deny everything.
+- `§4.4`: the new client tests, run against the **unmodified** code, fail with `expected 1 to be 3` (one attempt).
+- **Mutations:** restoring the old P1 fail-open reddens **5** tests. Wrongly closing P2 reddens **9**, including `§4.7`. Both restores were byte-exact.
+- `§4.6`: a before/after harness shows the limiter's snapshot and every `rate_limit.*` counter byte-identical.
+
+**The owner waived §4.5 for four surfaces** (desktop C&I, HPQ and Practice step solutions, Quick Practice grading). The copy there is honest but generic, and it is reached only after three failed fetches. → `[FU-SIGNIN-COPY-FOUR-SURFACES]`.
+
+**Found on the way, filed separately:**
+- `[FU-QP-RETRY-BUTTON-DEAD]`: **most urgent**, on trunk.
+- `[FU-LIMITER-TRUSTS-UNVERIFIED-UID-HEADER]`
+- `[FU-ENTITLEMENT-COUNTERS-NO-READER]`
+- `[FU-TUTOR-402-RAW-CODE]`
+
+**Closes `[FU-UID-HEADER-TRUSTED-UNVERIFIED]` on every gated route.** The closure is recorded on the board; the original entry is left as written.
+
+**Mid-lane trunk move.** `#811` merged during the lane. Blob comparison of nine files at both SHAs found them identical, and #811's `AuthContext.tsx` change leaves the token path untouched. Then `gh pr update-branch` (a merge commit, `4a956446`) and a CI re-run. The owner accepted this, and set the precedent: a one-line heads-up before running it.
+
+**Owner actions:** deploy the client with or before the server; run the §6 live check (sign in, check an answer; revert if it does not grade as before).
+
+---
+
 ## 2026-09-21 — ANALYTICS-1 — **IS ANYONE HERE, AND WHICH PAGES — AND FOUR CHECKS THAT WOULD HAVE PASSED WHILE MEASURING NOTHING** — `#811` MERGED — trunk `19ab44d0`
 
 ★ **PROVENANCE.**

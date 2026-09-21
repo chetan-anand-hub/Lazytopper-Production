@@ -23,6 +23,51 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-21 — UID-HEADER-CLOSE-1 (`#812` MERGED as `3b011bc7`, squash, no `--admin`; open PRs at the time of writing: **`#810`** dependabot only) — five follow-ups, one closure
+
+### CLOSURE — `[FU-UID-HEADER-TRUSTED-UNVERIFIED]` — **CLOSED on every gated route by `#812`**
+*(Recorded here per standing rule 3. The original entry is left exactly as written.)*
+- **The client half shipped as the entry named it.** `paidCallHeaders()` retries `getIdToken()` with a forced refresh and never sends a uid alone.
+- **The server half also shipped: the uid-header fail-open is replaced by a DENIAL** (`entitlement.deny.uid_header_no_token`).
+- **Two differences from the plan in that entry, stated rather than smoothed over:**
+  1. **Both halves shipped in ONE lane, not "once (1) has been live long enough to rule out stale clients".** The stale-client risk is real. A cached bundle whose single token fetch fails meets the old 402 and the upgrade sheet until it reloads. It is mitigated by **deploying the client with or before the server**. It was not eliminated by waiting.
+  2. **The evidence that entry said to watch first, `entitlement.fail_open.no_uid`, was never readable.** No `entitlement.*` counter had a reader (see `[FU-ENTITLEMENT-COUNTERS-NO-READER]`), so "watch it stay near zero" was not an available step.
+- **Still open, deliberately:** a bearer token that was offered and did not verify is SERVED (P2). That is a different case, with a different victim, and closing it is a separate owner decision.
+
+### `[FU-QP-RETRY-BUTTON-DEAD]` — ★★★ MOST URGENT OF THIS SET. **QUICK PRACTICE'S "TRY AGAIN" DOES NOTHING AFTER ANY GRADING FAILURE**
+**On trunk today, and it affects EVERY Quick Practice grading failure** (outage, 429, a failed sign-in), not only the rare one #812 added.
+- On `skipped-error`, `PracticePage.tsx:2201` sets `batchResult` anyway.
+- `handleGradeBatch` then returns early on `if (batchGrading || batchResult) return;` (`:2177`).
+- The scorecard branch at `:2705` only takes `outcome === "graded"`, so a failed result falls through to the confirm panel. The "Grade my N answers" button (`:2881-2886`) stays **enabled**, and tapping it does nothing.
+- The only reset of `batchResult` is `onKeepPracticing` (`:2792`), which lives in the graded-scorecard branch.
+**What the student reads is a promise the button breaks:** "We could not grade your answers just now. Your MCQ marks are safe — try grading again in a moment." (`:2204`).
+**Found during #812. Every cited line was verified at source on trunk `c800e542` (a static read); it has not been run in a browser.** Whether any other path resets the state is not determined. Reproduce before fixing.
+**Related, do not duplicate:** `quickPracticeSessionService.ts:784` reports `calls: 1` on a path that made no network request.
+
+### `[FU-SIGNIN-COPY-FOUR-SURFACES]` — OPEN. **SIGN-IN COPY IS NOT SHOWN ON FOUR SURFACES** *(§4.5 of #812, waived by the owner)*
+When `paidCallHeaders()` throws `SignInAgainError`, these surfaces show their own generic copy instead of `err.message`:
+- **Desktop Check & Improve** (`DesktopCheckImprovePage.tsx:1505`, `:1627`): "Grading unavailable — please try again." + "No score has been generated. Press Retry to call the grader again." The read-question step (`:1144`) shows "We couldn't read the question — please try again."
+- **HPQ step solutions** (`HighlyProbableQuestions.tsx:1877` → `getSolutionUnavailableCopy`, `:345`): "Step solution is unavailable right now…". HPQ stores `err.message` at `:624` and never renders it.
+- **Practice step solutions** (`PracticePage.tsx:1969`): "Solution steps are unavailable right now. You can still check your work or try again."
+- **Quick Practice grading** (`PracticePage.tsx:2204`): see `[FU-QP-RETRY-BUTTON-DEAD]`, which should land first.
+**Honest but not actionable:** "try again" fails again until the student signs in. **Fix:** one narrow `err.name === "SignInAgainError"` branch per site, rendering `err.message`. Detect by name, never `instanceof`.
+
+### `[FU-LIMITER-TRUSTS-UNVERIFIED-UID-HEADER]` — OPEN, LOWER PRIORITY. **A ROTATED SPOOFED UID IS A FRESH RATE-LIMIT BUCKET EACH TIME**
+`resolveCaller` (`rateLimiter.cjs:307`) keys on `x-lazytopper-uid` whenever no verified uid exists. After #812, a spoofed uid on a **gated** route is counted and then **denied**, so it buys no paid access. On an **ungated** route (`/api/detect-question`, `generate-visual`, `generate-diagram`, `more-like-this`) it is still **served**, in a non-anonymous `uid:<spoofed>` bucket instead of the 3/day anonymous one.
+**The harm is not paid access; it is that rotation defeats the per-caller cap.** FREE-CHECK-SCOUT measured it: rotating spoofed uid → **1,042/day** (the vision shed, global). **CONTROL:** one fixed spoofed uid → **30**.
+⚠ **Rotating `X-Forwarded-For` with no uid reaches the SAME 1,042.** So the uid path is a second route to fresh buckets, not a higher ceiling. The real bound is the global counter, which is in-process and per replica.
+**Same root as `[FU-VERIFY-UID-ON-AI-ENDPOINTS]`** (the limiter's trust in the header), and it belongs with it. The fix: key the bucket on the **verified** uid only, and treat a uid header with no token as anonymous. `rateLimiter.cjs` was forbidden in #812.
+
+### `[FU-ENTITLEMENT-COUNTERS-NO-READER]` — OPEN. **SEVEN ENTITLEMENT COUNTERS ARE INCREMENTED AND NEVER READ**
+`entitlement.allow`, `entitlement.deny`, `entitlement.deny.anonymous`, `entitlement.fail_open`, `.fail_open.no_uid`, `.fail_open.no_admin` and `.fail_open.read_error` are all emitted. **`/api/admin/token-telemetry` reports none of them.** `buildTelemetryPayload()` iterates closed sets only. #812 added a reader for exactly one new counter, `entitlement.denyUidHeaderNoToken`, and no other.
+- **`entitlement.cjs:73` and `:104` claim these are "visible through /api/admin/token-telemetry". That is false on trunk.**
+- **Why it matters:** the file's own design says *"a fail-safe you cannot observe firing is indistinguishable from no gate at all"*, and *"WATCH `entitlement.fail_open` IN PRODUCTION"*. Nobody can. A credentials-absent deploy that serves every request for free would be invisible.
+**Fix:** add them to the payload (the closed-set pattern, `toNumber`, zero before traffic). Correct the two comments in the same change.
+
+### `[FU-TUTOR-402-RAW-CODE]` — OPEN. **THE TUTOR SHOWS THE RAW STRING `premium_required`**
+`tutorClient.ts:162` throws `new Error(details.error || details.message || …)`, so **`error` wins over `message`**. `useTutorSession.ts:406` renders `e.message`. **Any 402 on the tutor shows a student the literal code `premium_required`**, which is the exact defect `aiClient.ts`'s 402 branch exists to prevent. It is on trunk, independent of #812 (the tutor is behind `RequirePremium` in the client, so it is rare).
+**Fix:** a typed 402 branch in `tutorClient.ts`, mirroring `aiClient.ts:196`, or prefer `message` over `error`.
+
 ## 2026-09-21 — ANALYTICS-1 (`#811` MERGED as `19ab44d0`, squash, no `--admin`; open PRs at the time of writing: **`#810`** dependabot only; **`#812`** merged as `3b011bc7` while this handoff was being written, and touched **no `handoff/` path**) — seven follow-ups: one standing constraint, four owner items, two recorded facts
 
 ### `[FU-ANALYTICS-NEW-CREDENTIAL-ROUTE]` — ★★★ STANDING CONSTRAINT: A NEW ROUTE WITH A SECRET IN ITS PATH MUST BE REDACTED IN **TWO** PLACES

@@ -1,5 +1,17 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-21 — SECURITY: **UID-HEADER-CLOSE-1 — A TYPED UID WITH NO TOKEN NO LONGER GETS PAID AI** — `#812` MERGED — trunk `3b011bc7`
+
+- ✅ **The typed-uid hole is closed on every gated route.** Check-solution, grade-worksheet, tutor, and step-solution generation all **deny** a uid header with no bearer token. Measured in-process, with a control that serves P2.
+- ✅ **The client retries the token** (normal, then forced refresh ×2) and **never sends a bare uid**. On exhaustion it asks the student to sign in again.
+- ✅ **The denial is countable, and the count is readable.** `entitlement.denyUidHeaderNoToken` on `/api/admin/token-telemetry`, distinct from P2's `fail_open.no_uid`.
+- ✅ **P2 (an unverifiable token) still fails open**, and a test asserts it.
+- ✅ **The rate limiter counts exactly as before**, shown by a before/after snapshot.
+- ⚠ **§4.5 WAIVED BY THE OWNER for four surfaces** → `[FU-SIGNIN-COPY-FOUR-SURFACES]`.
+- ⬜ **Fix the dead Quick Practice retry button**: `[FU-QP-RETRY-BUTTON-DEAD]`. **More urgent than the copy gap.**
+- ⬜ **Owner §6 live-verify**: sign in, check an answer.
+- ⬜ **Deploy order**: client with or before server.
+
 ## 2026-09-21 — ANALYTICS: **ANALYTICS-1 — THE OWNER CAN SEE WHETHER ANYONE IS HERE, AND WHICH PAGES** — `#811` MERGED — trunk `19ab44d0`
 
 - ✅ **Product analytics exists for the first time.** Before this lane there was none anywhere — enumerated by location, with a control proving the search finds a real integration.
