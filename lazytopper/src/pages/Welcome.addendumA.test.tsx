@@ -2,6 +2,10 @@ import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, cleanup, act } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+
 import Welcome from "./Welcome";
 
 /**
@@ -96,57 +100,87 @@ describe("the mark's source selection", () => {
 });
 
 /**
- * ★★ The fixed mark goes quiet once the hero leaves — and NOTHING scroll-derived
- * exists at scroll 0. IntersectionObserver is stubbed so the test drives the entry.
+ * ★★ The fixed mark is faint ONLY while a full-width card row sits behind it (owner
+ * ruling after live-verify) — and NOTHING scroll-derived exists at scroll 0.
+ * IntersectionObserver is stubbed so the test drives the entries; the real
+ * geometry (which rows reach under the mark, text extents) is measured in a browser
+ * in the lane report.
  */
-describe("the fixed mark quiets when the hero scrolls out", () => {
-  type Cb = (entries: Array<{ intersectionRatio: number }>) => void;
+describe("the fixed mark fades only behind the card rows", () => {
+  type Entry = { target: Element; isIntersecting: boolean };
+  type Cb = (entries: Entry[]) => void;
   let fire: Cb | null = null;
+  let observed: Element[] = [];
+  let options: IntersectionObserverInit | undefined;
   let constructed = 0;
   class FakeIO {
-    constructor(cb: Cb) {
+    constructor(cb: Cb, opts?: IntersectionObserverInit) {
       fire = cb;
+      options = opts;
+      observed = [];
       constructed++;
     }
-    observe() {}
+    observe(el: Element) {
+      observed.push(el);
+    }
     disconnect() {}
   }
-  function setup(reducedMotion = false) {
+  function setup(reducedMotion = false, wide = true) {
     fire = null;
     constructed = 0;
     vi.stubGlobal("IntersectionObserver", FakeIO);
     vi.stubGlobal(
       "matchMedia",
-      (q: string) => ({ matches: reducedMotion && q.includes("reduce"), media: q }) as MediaQueryList,
+      (q: string) =>
+        ({
+          matches: q.includes("reduce") ? reducedMotion : q.includes("min-width: 1000px") ? wide : false,
+          media: q,
+        }) as MediaQueryList,
     );
     Object.defineProperty(window, "scrollY", { value: 0, configurable: true, writable: true });
-    return renderWelcome().container.querySelector("img.lt-landing-bgmark") as HTMLImageElement;
+    const { container } = renderWelcome();
+    return {
+      mark: container.querySelector("img.lt-landing-bgmark") as HTMLImageElement,
+      rail: container.querySelector(".lt-landing-rail") as Element,
+      plans: container.querySelector(".lt-landing-plans") as Element,
+    };
   }
   afterEach(() => {
     vi.unstubAllGlobals();
     Object.defineProperty(window, "scrollY", { value: 0, configurable: true, writable: true });
   });
 
+  it("★ the triggers are exactly the two full-width card rows — not the hero, not paragraphs", () => {
+    const { rail, plans } = setup();
+    expect(observed).toEqual([rail, plans]);
+    // The band is the mark's own vertical extent, expressed as the root margin.
+    expect(options?.rootMargin).toMatch(/^-?\d+px 0px -?\d+px 0px$/);
+    expect(options?.threshold).toBe(0);
+  });
+
   it("★ at scroll 0 the mark's markup is exactly the static markup", () => {
-    const mark = setup();
+    const { mark } = setup();
     expect(mark.getAttribute("class")).toBe("lt-landing-bgmark");
     expect(mark.hasAttribute("style")).toBe(false);
   });
 
-  it("★★ CONTROL — at scroll 0 even a hero reported off-screen changes nothing", () => {
-    // A short viewport can report the hero < 50% visible before any scroll. The
-    // scrollY guard is what keeps that out of the markup.
-    const mark = setup();
-    act(() => fire?.([{ intersectionRatio: 0.1 }]));
+  it("★★ CONTROL — at scroll 0 even a card row reported behind the mark changes nothing", () => {
+    const { mark, rail } = setup();
+    act(() => fire?.([{ target: rail, isIntersecting: true }]));
     expect(mark.getAttribute("class")).toBe("lt-landing-bgmark");
   });
 
-  it("scrolled, with the hero under half visible → is-quiet; back over half → loud", () => {
-    const mark = setup();
+  it("scrolled: faint while a row is behind, bright again once none is", () => {
+    const { mark, rail, plans } = setup();
     window.scrollY = 600;
-    act(() => fire?.([{ intersectionRatio: 0.2 }]));
+    act(() => fire?.([{ target: rail, isIntersecting: true }]));
     expect(mark).toHaveClass("is-quiet");
-    act(() => fire?.([{ intersectionRatio: 0.9 }]));
+    // Both rows behind, then one leaves — still faint (the other is still behind).
+    act(() => fire?.([{ target: plans, isIntersecting: true }]));
+    act(() => fire?.([{ target: rail, isIntersecting: false }]));
+    expect(mark).toHaveClass("is-quiet");
+    // The last row leaves — empty right half — bright.
+    act(() => fire?.([{ target: plans, isIntersecting: false }]));
     expect(mark).not.toHaveClass("is-quiet");
   });
 
@@ -160,11 +194,25 @@ describe("the fixed mark quiets when the hero scrolls out", () => {
     expect(constructed).toBe(1);
   });
 
+  it("★ below 1000px the observer never runs — the mobile markup cannot change", () => {
+    const { mark } = setup(false, false);
+    expect(constructed).toBe(0);
+    window.scrollY = 1200;
+    expect(mark.getAttribute("class")).toBe("lt-landing-bgmark");
+  });
+
   it("★ the CSS pins reduced-motion users to the faint level at desktop width", () => {
     const { container } = renderWelcome();
     const css = container.querySelector("style")?.textContent ?? "";
     expect(css).toMatch(
       /@media\(min-width:1000px\) and \(prefers-reduced-motion:reduce\)\{\s*\.lt-landing-bgmark\{opacity:\.075;transition:none\}/,
     );
+  });
+
+  it("★ no scroll listener anywhere in the page — IntersectionObserver only", () => {
+    const HERE = dirname(fileURLToPath(import.meta.url));
+    const src = readFileSync(resolve(HERE, "./Welcome.tsx"), "utf8");
+    expect(src).not.toMatch(/addEventListener\(\s*["']scroll["']/);
+    expect(src).not.toMatch(/onScroll\s*=/);
   });
 });
