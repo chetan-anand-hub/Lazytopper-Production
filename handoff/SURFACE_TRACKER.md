@@ -1,5 +1,15 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-21 — UID-HEADER-CLOSE-1 (`#812` `3b011bc7`), trunk `3b011bc7`.**
+> ★ **NO SURFACE CELL MOVES.** The lane changes **who is served** on the paid routes, not what a signed-in student sees. For a student whose token is healthy, the request is byte-identical to before (the same two headers, one `getIdToken()` call, no delay), and the full vitest run is green.
+
+### ⬜ NO SURFACE CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- **Changed behaviour on every paid surface, rare path only:** a signed-in student whose token cannot be fetched after three attempts is **refused with sign-in copy before the call** instead of being served.
+- **The copy they meet varies by surface, and was audited per site.** Sign-in copy appears word for word on Check my answer, Tutor, and the Worksheet, Chapter Test and Full Mock grade panels. Desktop C&I, HPQ and Practice step solutions, and Quick Practice grading show honest generic copy. **§4.5 was waived by the owner for those four** → `[FU-SIGNIN-COPY-FOUR-SURFACES]`.
+
+### 📋 Scope discovered? — **NO**
+Two **defects** were found, not scope: `[FU-QP-RETRY-BUTTON-DEAD]` (Practice, on trunk, **most urgent**) and `[FU-TUTOR-402-RAW-CODE]` (Tutor). No surface's Scope changes to Settling.
+
 > **2026-09-21 — ANALYTICS-1 (`#811` `19ab44d0`), trunk `19ab44d0`.**
 > ★ **NO SURFACE CELL MOVES.** This lane added **instrumentation across surfaces, not behaviour on any of them** — measured, not assumed: all 7 instrumented surfaces render **identical text** on the preview and on production, **with the vendor live**. ⚠ **The owner live-verify in §6 is still outstanding** (`[FU-ANALYTICS-LIVE-VERIFY]`).
 
