@@ -1,5 +1,18 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-21 — LANDING: **LANDING-FOLLOWUP-1 — THE LANDING PAGE'S PROMISES ARE TRUE** — `#815` MERGED — trunk `07073d9f`
+
+- ✅ **The hero's marking claim is one the product always meets**: "the way a CBSE examiner does".
+- ✅ **The paid card shows the offer a student will actually get**: ₹599 with ₹999 struck, driven by `FOUNDING_OFFER_OPEN`.
+- ✅ **The countdown is real.** It uses the predictor, is rounded, and switches to weeks and days. It is right during the exam window too ("Your boards are on. / Best of luck."), and nothing clock-derived reaches the markup.
+- ✅ **The questions link lands on the questions tab and comes back** (return ticket). The tab is renamed "Competency-based questions" and all 26 captures were machine-regenerated.
+- ✅ **Addendum A:** single column, fingerprint in the right half (fixed), green Log in, February pill removed, logo recut, phones download 37% fewer brand bytes.
+- ✅ **"Unlimited" removed** until the shed stops refusing paying students.
+- ⬜ **LANDING-MARK-FADE-1**: approved, lands next.
+- ⬜ **`FREE-CHECK-1`** (owner sequence #1) → sitemap resubmit (#2) → **`STORED-RATE-1`** (#3).
+- ⬜ **`[FU-EXAM-WINDOW-PARAGRAPH]`**: due 17 Feb 2027.
+- ⬜ **Owner §6 live-verify** on phone and laptop.
+
 ## 2026-09-21 — SECURITY: **UID-HEADER-CLOSE-1 — A TYPED UID WITH NO TOKEN NO LONGER GETS PAID AI** — `#812` MERGED — trunk `3b011bc7`
 
 - ✅ **The typed-uid hole is closed on every gated route.** Check-solution, grade-worksheet, tutor, and step-solution generation all **deny** a uid header with no bearer token. Measured in-process, with a control that serves P2.
