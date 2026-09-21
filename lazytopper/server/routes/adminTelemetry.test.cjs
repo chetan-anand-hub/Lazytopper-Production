@@ -384,6 +384,35 @@ test("uidSource reads as zeros before any traffic, never undefined", () => {
   assert.deepEqual(p.rateLimit.uidSource, { verified: 0, header: 0, unverified: 0 });
 });
 
+/* ── 5b · UID-HEADER-CLOSE-1 — the uid-header denial has a READER ─────────────
+   A counter nobody can read is a fabricated measurement: it lets the owner think
+   he can see how often a uid was sent with no token when he cannot. So this is
+   pinned end to end: the REAL gate emits, the REAL payload reads.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+test("entitlement.denyUidHeaderNoToken is surfaced, and reads 0 before any traffic", () => {
+  assert.deepEqual(payloadFor({ "entitlement.deny.uid_header_no_token": 5 }).entitlement, { denyUidHeaderNoToken: 5 });
+  assert.deepEqual(payloadFor({}).entitlement, { denyUidHeaderNoToken: 0 });
+});
+
+test("★ a REAL uid-header denial from the REAL gate is visible in the payload — CONTROL: a failed token (P2) is not counted there", async () => {
+  const { createEntitlementGate } = require("../services/entitlement.cjs");
+  const counts = {};
+  const telemetry = {
+    increment: (e, v = 1) => { counts[e] = (counts[e] || 0) + v; },
+    snapshot: () => ({ ...counts }),
+  };
+  const gate = createEntitlementGate({ telemetry, logger: { warn() {}, info() {} }, cacheTtlMs: 0 });
+  const { r } = routes({ telemetry });
+
+  await gate.resolve("", { headers: { "x-lazytopper-uid": "spoofed" } });
+  assert.equal(r.buildTelemetryPayload().entitlement.denyUidHeaderNoToken, 1);
+
+  await gate.resolve("", { headers: { "x-lazytopper-uid": "student-1", authorization: "Bearer expired" } });
+  assert.equal(r.buildTelemetryPayload().entitlement.denyUidHeaderNoToken, 1,
+    "a token that did not verify is a different case and must not move this counter");
+});
+
 /* ══════════════════════════════════════════════════════════════════════════════
    §T · TELEMETRY-1 — the WORKLOAD axis, percentiles, and the marks bands.
 
