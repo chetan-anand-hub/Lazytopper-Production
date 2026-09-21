@@ -130,6 +130,21 @@ describe("the countdown is a separate, structurally strippable node", () => {
     );
   });
 
+  it("★★ the figure is the LARGE, BOLD element — the stylesheet actually reaches it", () => {
+    // ⚠ A real defect, caught by screenshot: `.lt-landing-close p` (0,1,1) outranked the
+    // bare `.lt-landing-countdown` (0,1,0), so the figure rendered at body size, grey,
+    // with every other test in this file green. jsdom resolves the cascade, so the
+    // computed style is asserted — not the presence of a class name.
+    renderWelcome();
+    const figure = getComputedStyle(screen.getByTestId("boards-countdown"));
+    expect(figure.fontWeight).toBe("900");
+    expect(figure.fontSize).not.toBe("15px");
+    // CONTROL — the cascade is really being computed: the ordinary <p> beside it DOES
+    // get the section's body size, so "not 15px" above is not a default passing by.
+    const body = document.querySelector(".lt-landing-close > p:not([data-testid])");
+    expect(getComputedStyle(body as Element).fontSize).toBe("15px");
+  });
+
   it("★★ the countdown is NOT inside a heading — removing it leaves the structure intact", () => {
     // The property §2.7 is actually about. If a later edit moved the figure back into
     // the <h2>, every other assertion in this file would stay green.

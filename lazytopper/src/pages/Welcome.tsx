@@ -249,8 +249,11 @@ const CSS = `
 .lt-landing-close h2 em{font-style:normal;color:var(--urg)}
 .lt-landing-close p{font-size:15px;color:var(--ink2);margin:0 0 20px;max-width:33ch}
 .lt-landing-close p b{color:var(--ink);font-weight:700}
-.lt-landing-countdown{font-family:var(--serif);font-size:clamp(56px,15vw,112px);font-weight:900;
-  color:var(--urg);letter-spacing:-.035em;margin:2px 0 18px;line-height:.95}
+/* ⚠ QUALIFIED BY .lt-landing-close ON PURPOSE: the node is a <p> inside the close
+   section, and ".lt-landing-close p" (0,1,1) outranks a bare class (0,1,0) — which
+   silently rendered the figure at body size, grey. (0,2,0) wins. */
+.lt-landing-close .lt-landing-countdown{font-family:var(--serif);font-size:clamp(56px,15vw,112px);font-weight:900;
+  color:var(--urg);letter-spacing:-.035em;margin:2px 0 18px;line-height:.95;max-width:none}
 .lt-landing-countdown:empty{display:none}
 .lt-landing-plans{display:grid;gap:10px;margin-top:22px;max-width:540px}
 .lt-landing-plan{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:14px 16px;
