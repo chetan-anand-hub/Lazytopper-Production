@@ -1,3 +1,28 @@
+## 2026-09-21 — LANDING-FOLLOWUP-1 (lane `landing-followup-1`) — trunk `07073d9f`, PR `#815`
+
+**`2026-09-21`**
+
+> ⚠ **NUMBERING.** `DECISION N` is SECTION-LOCAL and restarts at 1 in every section. This section starts at `DECISION 1`.
+
+### DECISION 1 — **"UNLIMITED" IS REMOVED UNTIL THE PRODUCT CAN KEEP IT.** *(Owner ruling.)*
+The limiter's product-wide daily ceiling (`GLOBAL_DAILY_HARD_CALLS`, about 1,303 calls, with grading shed at 80%) can refuse a paying student after two checks on a busy day, for reasons unrelated to their own use. **We don't ship claims that are false today.** "Unlimited" returns, with a fair-use line, once `[FU-GLOBAL-SHED-REFUSES-PAYING]` is fixed. It was removed, not abandoned.
+
+### DECISION 2 — **THE LANDING SHOWS THE FOUNDING PRICE WHILE THE OFFER IS OPEN.** *(Owner ruling; supersedes #806's "list rate" ruling.)*
+Final pricing: **₹599 founding, closable at will; ₹999 after.** The card reads `FOUNDING_OFFER_OPEN`. The history at the old ruling's comment is kept and annotated rather than deleted.
+
+### DECISION 3 — **THE PAGE IS A STORY; THE FINGERPRINT FILLS THE RIGHT HALF, FIXED.** *(Owner rulings after two layout reviews.)*
+- The students-beside-the-headline layout was **rejected**: it turned the question → students → meaning → time-left sequence into a layout.
+- The fingerprint fills the right half at ≥1000px and stays **fixed**; the mockup's scroll-away was a mistake.
+- Mobile keeps its faint fixed mark.
+- **44px is the tap-target floor**; the mockup's 34/42px was wrong.
+
+### DECISION 4 — **DURING THE EXAM WINDOW THE HEADING SWAPS TOO, CLIENT-SIDE.** *(Owner ruling.)*
+"Your boards are closer than you think." above "Your boards are on. Best of luck." read badly. **For 30 days from the boards' start**, the effect writes "Your boards are on." / "Best of luck.". The captured markup keeps the durable heading.
+**Accepted limit:** if CBSE's official date differs from the predictor's roll-forward, the window ends early by the difference. It corrects itself once `officialDates` carries the real date.
+
+### DECISION 5 — **OWNER SEQUENCE: FREE-CHECK-1 → SITEMAP RESUBMIT → STORED-RATE-1.** *(Owner ruling; supersedes 2026-09-20 "run in parallel".)*
+It is serial, not parallel. `FREE-CHECK-1` goes first because the landing's "Check my answer" is not true until it exists.
+
 ## 2026-09-21 — UID-HEADER-CLOSE-1 (lane `uid-header-close-1`) — trunk `3b011bc7`, PR `#812`
 
 **`2026-09-21`**

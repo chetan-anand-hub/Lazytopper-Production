@@ -1,5 +1,43 @@
 ---
 
+## 2026-09-21 — LANDING-FOLLOWUP-1 — **THE LANDING PAGE'S PROMISES ARE TRUE: THE MARKING CLAIM, THE PRICE, THE COUNTDOWN** — `#815` MERGED — trunk `07073d9f`
+
+★ **PROVENANCE.**
+- Built in isolated worktrees at base `719186e4`. The spec, `ADDENDUM-A` and the v8 design were all SHA-256 verified before reading. Premise gate exit 0; **P10 was two lines off and passed anyway.**
+- Local gates on `800279b4`: `vitest run src` **176 / 2369**, root matrix **211 / 31 suites**, ops matrix **0 `not ok`**, all exit codes captured unpiped. **CI 8/8.** **§4 9/9 on the preview of the exact commit.**
+
+**Trunk `07073d9f815873fdccf81a6917095b8482198341`** (`#815` squash, `--match-head-commit`, no `--admin`; tree identical to the tested commit).
+
+**Why.** The owner found five problems on the live landing, and an audit found five more. **Two were claims on the hero that the product contradicted:**
+- "against CBSE's own marking scheme", while the grader derives its own value points;
+- ₹999, while the ₹599 founding offer was open.
+
+**How it was proven.**
+- **Captures in two steps.** The `?tab=questions` mechanism alone: **0 of 59** captured pages changed. The rename: each of the 26 notes pages **+11 bytes**, the label only. A local capture at base first reproduced the committed artifact, and was confirmed to have really written.
+- **Call-site guard:** two real module-scope mutations of Welcome.tsx each turned it red.
+- **Exam window:** with `BOARDS_WINDOW_DAYS = 0`, exam day +1 renders **"12 months"** (6 red).
+- **Round trip by landed path:** `/app/` → questions tab → "Back to LazyTopper" → `/app`. Production's link lands on the Note tab, and its back-link goes to the Topic Hub.
+- **Logo:** 0 visible px above the T in the new crop, against 837 in the old one.
+- **Phone bytes:** 66,744 against 105,445, and the 157,513 B mark is never requested below 1000px.
+
+**Two defects the lane itself introduced, both caught before merge:**
+1. **The countdown figure rendered at body size and grey** (`.lt-landing-close p` outranked the class). Caught by a screenshot and pinned with a computed-style test. The owner's v8 mockup reproduced the same bug.
+2. **A new test `vi.mock`ed `config/pricing`**, which `gradingLimits.guard.test.ts` forbids. Only the full suite caught it. Fixed by making the price head take `offerOpen` as a prop.
+
+**Owner rulings along the way:**
+- the two-column layout was rejected (the page is a story);
+- the fingerprint fills the right half, fixed;
+- the heading swaps during the exam window;
+- 44px tap targets over the mockup's 34/42;
+- "Unlimited" removed pending `[FU-GLOBAL-SHED-REFUSES-PAYING]`;
+- the owner sequence (FREE-CHECK-1 → sitemap → STORED-RATE-1).
+
+**Closes:** `[FU-LANDING-BOARDS-ANCHOR]` and the "Board Questions deep-link targeting" item. **Resolved by removal:** the hardcoded February pill. **New:** `[FU-GLOBAL-SHED-REFUSES-PAYING]` and `[FU-EXAM-WINDOW-PARAGRAPH]` (due 17 Feb 2027). **Still open:** `[FU-LANDING-CTA-HONESTY]` (item 8), pending `FREE-CHECK-1`.
+
+**Owner actions:** the §6 live check on lazytopper.com, on a phone and a laptop.
+
+---
+
 ## 2026-09-21 — UID-HEADER-CLOSE-1 — **A TYPED UID WITH NO TOKEN NO LONGER GETS PAID AI** — `#812` MERGED — trunk `3b011bc7`
 
 ★ **PROVENANCE.**
