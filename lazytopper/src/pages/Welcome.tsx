@@ -378,13 +378,18 @@ const CSS = `
      the student cards begin. ⚠ NO clip-path: with the owner's crop there is no
      paper plane in this image; an earlier clip only sliced real dots flat.
      ★ FIXED, AS IT ALWAYS WAS (owner ruling — the v8 mockup's scroll-away was a
-     mistake). Fixed + 60% would sit behind the payoff and the countdown, so it
-     is loud ONLY while the hero is on screen: once the hero is less than half
-     visible, "is-quiet" returns it to production's faint level. That class is set
-     only after the page has scrolled (see the effect), so nothing scroll-derived
-     exists at scroll 0 — where a capture runs. */
+     mistake). ★★ BRIGHT WHEREVER THE RIGHT HALF IS EMPTY, FAINT ONLY WHERE CONTENT
+     ACTUALLY SITS BEHIND IT (owner ruling after live-verify): beside "One size fits
+     one." the fingerprint is the tagline drawn next to the tagline written. The only
+     content that ever reaches under the mark is the two FULL-WIDTH CARD ROWS (the
+     students, the plans); every paragraph's TEXT ends well left of it, though its
+     block box spans the container. So "is-quiet" is set when a card row enters the
+     mark's band — see the effect. It is only ever set after the page has scrolled,
+     so nothing scroll-derived exists at scroll 0, where a capture runs.
+     aspect-ratio = the mark file's 555x768, so the box (and the band the effect
+     reads from it) is right before the image has loaded. */
   .lt-landing-bgmark{right:max(0px,calc((100vw - 1040px)/2 - 110px));top:185px;
-    width:27vw;max-width:370px;opacity:.6;transition:opacity .45s ease;
+    width:27vw;max-width:370px;aspect-ratio:555/768;opacity:.6;transition:opacity .45s ease;
     -webkit-mask-image:linear-gradient(to bottom,#000 70%,transparent 96%);
     mask-image:linear-gradient(to bottom,#000 70%,transparent 96%)}
   .lt-landing-bgmark.is-quiet{opacity:.075}
@@ -403,6 +408,9 @@ const CSS = `
  * While the offer is open the founding price leads with the list price struck
  * beside it; when it closes, the list price stands alone. Constants only.
  */
+/** The mark's visible height: its mask fades it out between 70% and 96%. */
+const MARK_VISIBLE_FRACTION = 0.96;
+
 export function PaidPlanHead({ offerOpen }: { offerOpen: boolean }) {
   return (
     <>
@@ -462,29 +470,77 @@ export default function Welcome() {
   }, []);
 
   /**
-   * ★ THE MARK QUIETS WHEN THE HERO LEAVES (owner ruling). A fixed mark at ~60%
-   * would sit behind the payoff and the countdown, where no card backs the text.
-   * So: loud beside the hero, production's faint level once the hero is less than
-   * half visible. Three guards, each load-bearing:
+   * ★★ THE MARK IS FAINT ONLY WHERE A CARD ROW SITS BEHIND IT (owner ruling after
+   * live-verify). Bright wherever the right half is empty — beside the hero, beside
+   * the payoff ("One size fits one."), beside "5 months" — and faint while the
+   * student cards or the plans pass behind it.
+   *
+   * ⚠ WHY CARD ROWS AND NOT ELEMENT BOXES. A paragraph is a block: "5 months" has a
+   * box reaching x=1200 at 1440 while its text ends at x=633. Fading on boxes would
+   * fade behind every paragraph — the opposite of the ruling. The two card rows are
+   * the only content whose RENDERED extent reaches under the mark (measured per
+   * width in the lane report), so they are the triggers.
+   *
+   * HOW, WITHOUT PER-FRAME LAYOUT WORK. One IntersectionObserver whose root margin
+   * is the mark's own vertical band (top → the end of its mask fade). The band is
+   * read from the mark's box once, and again on resize — never on scroll. The
+   * browser reports only crossings; the CSS transition smooths each one, and a row
+   * edge crossing a fixed band edge toggles once, so there is nothing to flicker.
+   *
+   * Guards, each load-bearing:
    *   · `window.scrollY > 0` — nothing scroll-derived exists at scroll 0, where a
    *     capture runs, whatever the viewport height.
    *   · prefers-reduced-motion — no observer at all; the CSS pins the faint level.
-   *   · no IntersectionObserver (jsdom, old browsers) — the mark simply stays as
-   *     rendered. The CSS only applies the loud state from 1000px up; below that
-   *     `is-quiet` changes nothing.
+   *   · no IntersectionObserver (jsdom, old browsers) — the mark stays as rendered.
+   *   · below 1000px the observer does not run at all, so the mobile markup never
+   *     changes (the CSS gives "is-quiet" no effect there either). Re-checked on resize.
    */
-  const heroRef = useRef<HTMLElement>(null);
+  const markRef = useRef<HTMLImageElement>(null);
+  const railRef = useRef<HTMLDivElement>(null);
+  const plansRef = useRef<HTMLDivElement>(null);
   const [markQuiet, setMarkQuiet] = useState(false);
   useEffect(() => {
-    const hero = heroRef.current;
-    if (!hero || typeof IntersectionObserver === "undefined") return;
+    const mark = markRef.current;
+    const rows = [railRef.current, plansRef.current].filter((r): r is HTMLDivElement => !!r);
+    if (!mark || rows.length === 0 || typeof IntersectionObserver === "undefined") return;
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
-    const io = new IntersectionObserver(
-      ([entry]) => setMarkQuiet(window.scrollY > 0 && entry.intersectionRatio < 0.5),
-      { threshold: [0, 0.25, 0.5, 0.75, 1] },
-    );
-    io.observe(hero);
-    return () => io.disconnect();
+    let io: IntersectionObserver | null = null;
+    const behind = new Set<Element>();
+    const watch = () => {
+      io?.disconnect();
+      io = null;
+      behind.clear();
+      if (!window.matchMedia?.("(min-width: 1000px)").matches) {
+        setMarkQuiet(false);
+        return;
+      }
+      const box = mark.getBoundingClientRect();
+      const top = Math.round(box.top);
+      const bottom = Math.round(box.top + box.height * MARK_VISIBLE_FRACTION);
+      io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting) behind.add(e.target);
+            else behind.delete(e.target);
+          }
+          setMarkQuiet(window.scrollY > 0 && behind.size > 0);
+        },
+        { rootMargin: `${-top}px 0px ${bottom - window.innerHeight}px 0px`, threshold: 0 },
+      );
+      for (const row of rows) io.observe(row);
+    };
+    watch();
+    let resizeTimer: number | undefined;
+    const onResize = () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(watch, 150);
+    };
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      window.clearTimeout(resizeTimer);
+      io?.disconnect();
+    };
   }, []);
 
   const cbseHref =
@@ -508,6 +564,7 @@ export default function Welcome() {
       <picture>
         <source media="(min-width: 1000px)" srcSet={FINGERPRINT_MARK} />
         <img
+          ref={markRef}
           className={"lt-landing-bgmark" + (markQuiet ? " is-quiet" : "")}
           src={FINGERPRINT}
           alt=""
@@ -546,7 +603,7 @@ export default function Welcome() {
             published a non-February date; the countdown is now the page's only
             statement about when the boards are. */}
 
-        <section className="lt-landing-hero" ref={heroRef}>
+        <section className="lt-landing-hero">
           <h1>
             Full marks<em>milenge kya?</em>
           </h1>
@@ -592,7 +649,7 @@ export default function Welcome() {
             <h2>Lost marks tell different stories.</h2>
             <p className="lt-landing-q">One question &middot; Trigonometry &middot; 3 marks</p>
           </div>
-          <div className="lt-landing-rail">
+          <div className="lt-landing-rail" ref={railRef}>
             {STUDENTS.map((s) => (
               <div key={s.key} className={`lt-landing-kid lt-landing-kid--${s.key}`}>
                 <div className="lt-landing-kid-h">
@@ -654,7 +711,7 @@ export default function Welcome() {
             Check my answer
           </Link>
           <p className="lt-landing-hnote">Free to start. One-tap sign-up, no card.</p>
-          <div className="lt-landing-plans">
+          <div className="lt-landing-plans" ref={plansRef}>
             {/* ⚠ THE PRICE IS IMPORTED, NEVER TYPED. `pricing.guard.test.ts`
                 forbids a rupee literal in .ts/.tsx, and the prototype's own
                 header says the figure MUST match /app/pricing or stop. It did
