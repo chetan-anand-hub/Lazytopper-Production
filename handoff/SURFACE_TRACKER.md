@@ -1,5 +1,15 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-21 — LANDING-MARK-FADE-1 (`#817` `bc11e800`), trunk `bc11e800`.**
+> ★ **ONE SURFACE MOVES: the public landing (`/`, `/welcome`)** — and only its background fingerprint. Owner-ruled after live-verifying `#815`, and verified on both previews and on production.
+
+### ✅ Landing — the background fingerprint's brightness rule
+- **Moved:** the mark is now **bright wherever the right half is empty** and **faint only behind the two full-width card rows**, replacing `#815`'s "loud beside the hero, faint below". Implemented with one `IntersectionObserver` against the mark's own band, `aspect-ratio: 555/768`, and a 0.45s transition.
+- **Unchanged:** every other cell of this surface. Mobile markup is byte-identical (no observer below 1000px), reduced motion is faint throughout, and nothing scroll-derived exists at scroll 0 — the captured markup is untouched (`seo:capture` drift 0).
+
+### 📋 Scope discovered? — **NO**
+One pre-existing defect was found and filed as a follow-up, not as scope: `[FU-LANDING-FONT-SWAP-CLS]` (web-font swap shifts the hero text on phones; present on production before this lane). No surface's Scope changes to Settling.
+
 > **2026-09-21 — LANDING-FOLLOWUP-1 (`#815` `07073d9f`), trunk `07073d9f`.**
 > ★ **ONE SURFACE MOVES: the public landing (`/`, `/welcome`)**, plus the notes pages' tab label. Every change was owner-ruled and verified on the preview against production (§4 9/9).
 

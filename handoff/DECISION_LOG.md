@@ -1,3 +1,27 @@
+## 2026-09-21 — LANDING-MARK-FADE-1 (lane `landing-mark-fade-1`) — trunk `bc11e800`, PR `#817`
+
+**`2026-09-21`**
+
+> ⚠ **NUMBERING.** `DECISION N` is SECTION-LOCAL and restarts at 1 in every section. This section starts at `DECISION 1`.
+
+### DECISION 1 — **THE FINGERPRINT IS BRIGHT WHEREVER THE RIGHT HALF IS EMPTY, FAINT ONLY WHERE CONTENT SITS BEHIND IT.** *(Owner ruling, after live-verifying `#815`.)*
+`#815` shipped the mark loud beside the hero and faint everywhere below, on the assumption that a fixed mark at 60% would sit behind the payoff and the countdown. **Seen live, that was backwards.** Beside "One size fits one." the fingerprint is the tagline drawn next to the tagline written — it belongs at full strength there. The rule is now about *occlusion*, not about *scroll position*: faint only where something is actually behind it.
+
+### DECISION 2 — **THE TRIGGERS ARE THE TWO FULL-WIDTH CARD ROWS, NOT ELEMENT BOXES.**
+The students row and the plans row are the only content whose **rendered** extent reaches under the mark. This was measured, not assumed: at 1024, 1440 and 1920, no text outside those rows lies right of the mark's left edge at a `y` the mark occupies. The only text right of that edge — "Log in" and the class row — sits above the mark's top and moves further away on scroll.
+
+### DECISION 3 — **NO SCROLL LISTENER; ONE INTERSECTION OBSERVER AGAINST THE MARK'S OWN BAND.**
+The observer's `rootMargin` is the mark's vertical band (top → the end of its mask fade at 96%). The band is read from the mark's box **once, and again on resize**, never on scroll, so the browser does the crossing detection and the page does no per-frame layout work. A test asserts the absence of `addEventListener('scroll')` and `onScroll` in the source, so a future scroll-based "fix" turns it red.
+
+### DECISION 4 — **THE MARK CARRIES ITS OWN ASPECT RATIO, SO THE BAND IS RIGHT BEFORE THE IMAGE LOADS.**
+`aspect-ratio: 555/768` matches the file's real dimensions. It does two jobs at once: the observer's band is computed correctly on first paint rather than after decode, and the mark contributes **no layout shift** (0 mark-related layout-shift entries across 10+ loads on preview and production).
+
+### DECISION 5 — **AT 1920 THE PRICING CARDS STAY BRIGHT — ACCEPTED, NOT A DEFECT.**
+At 1920 the page ends before the plans row reaches the mark's band: at maximum scroll the plans top is at y=700 and the mark is fully transparent from y=677. Nothing is ever behind the mark there, so bright is the *correct* reading of the rule, not an exception to it.
+
+### DECISION 6 — **MOBILE IS UNTOUCHED, AND REDUCED MOTION GETS NO OBSERVER AT ALL.**
+Below 1000px the observer does not run (re-checked on resize) and the CSS gives `is-quiet` no effect, so the mobile markup is byte-identical to `#815`. Under `prefers-reduced-motion` the CSS pins the faint level and no observer is constructed — the state never changes, rather than changing without a transition.
+
 ## 2026-09-21 — LANDING-FOLLOWUP-1 (lane `landing-followup-1`) — trunk `07073d9f`, PR `#815`
 
 **`2026-09-21`**

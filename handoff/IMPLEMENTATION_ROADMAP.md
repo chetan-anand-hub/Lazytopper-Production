@@ -1,5 +1,17 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-21 — LANDING: **LANDING-MARK-FADE-1 — THE FINGERPRINT IS BRIGHT WHERE THE PAGE IS EMPTY** — `#817` MERGED — trunk `bc11e800`
+
+- ✅ **The fade rule is occlusion, not scroll position.** Bright beside the hero, the payoff and the countdown; faint only while a full-width card row passes behind the mark.
+- ✅ **One `IntersectionObserver` against the mark's own band**, read once and on resize. **No scroll listener** — a test pins that.
+- ✅ **`aspect-ratio: 555/768`**: the band is correct before the image loads, and the mark causes **no layout shift**.
+- ✅ **Mobile markup unchanged** (the observer does not run below 1000px) and **faint throughout under `prefers-reduced-motion`** (no observer at all).
+- ✅ **Verified on both previews and on production**: 4 positions × 3 widths, one state change across a 4 px sweep, nothing scroll-derived at scroll 0.
+- ⬜ **`FREE-CHECK-1`** (owner sequence #1) → sitemap resubmit (#2) → **`STORED-RATE-1`** (#3). Unchanged by this lane.
+- ⬜ **`[FU-LANDING-FONT-SWAP-CLS]`**: mobile CLS on the landing measures 0.027–0.144 across loads, some over 0.1. Pre-existing; a candidate for the mobile-performance work (mobile Performance is 60).
+- ⬜ **`[FU-EXAM-WINDOW-PARAGRAPH]`**: due 17 Feb 2027.
+- ⬜ **Owner §6 live-verify** on phone and laptop.
+
 ## 2026-09-21 — LANDING: **LANDING-FOLLOWUP-1 — THE LANDING PAGE'S PROMISES ARE TRUE** — `#815` MERGED — trunk `07073d9f`
 
 - ✅ **The hero's marking claim is one the product always meets**: "the way a CBSE examiner does".

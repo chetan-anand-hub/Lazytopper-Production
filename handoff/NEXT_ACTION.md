@@ -2,6 +2,52 @@
 ⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW ON TRUNK SHA AND ON THE GATE SET.
    IT DOES NOT SUPERSEDE ANY OPEN FOLLOW-UP RECORDED BELOW.
 
+TRUNK IS `bc11e8008d613d2afd2af2c99cf355a6be1e5ce9`, MEASURED 2026-09-24.
+   bc11e800 = #817 (LANDING-MARK-FADE-1) - THIS handoff
+   bdc4f513 = #816 (docs: LANDING-FOLLOWUP-1 handoff)
+   Re-derived with `git log --oneline bdc4f513..origin/base/approved-thru-437`.
+
+★★★ NEXT: THE OWNER'S SEQUENCE (2026-09-21) IS UNCHANGED. Item 0 is now DONE:
+   0. LANDING-MARK-FADE-1 - DONE, #817, merged bc11e800 and live on
+      lazytopper.com. The fingerprint is bright wherever the right half is
+      empty and faint only behind the two full-width card rows.
+   1. FREE-CHECK-1 - next product lane. It is what makes the landing's
+      "Check my answer" true ([FU-LANDING-CTA-HONESTY], still OPEN).
+      Its premise changed with #812 - read the UID-HEADER-CLOSE-1 banner below.
+   2. Resubmit the sitemap + Request Indexing on the URLs (owner, Search Console).
+   3. STORED-RATE-1.
+   OPEN at the time of writing: #810, #818, #819 - dependabot only.
+
+★★★ LANDING-MARK-FADE-1: MEASURE THE RENDERED TEXT, NOT THE ELEMENT'S BOX.
+   This is the one thing from the lane that generalises beyond the landing.
+   A block element spans its container whether or not its text does. At 1440,
+   "5 months" has a getBoundingClientRect() reaching x=1200 while its text
+   ends at x=656. The lane's whole job was "fade the mark only where content
+   is behind it" - and fading on element boxes would have faded it behind
+   EVERY paragraph on the page, the exact opposite of the ruling.
+   Any rule about what sits "behind", "beside" or "under" something must be
+   measured with Range client rects, or against a container whose RENDERED
+   extent genuinely is full-width (here: the two card rows). The same note
+   was carried forward from #815; #817 is the lane that depended on it.
+   (Minor: the in-code comment in Welcome.tsx cites x=633 for this figure
+   where the lane report, the commit message and the PR body cite x=656.
+   The measurement table in CURRENT_STATE is the record.)
+
+★★ NEW, PRE-EXISTING: [FU-LANDING-FONT-SWAP-CLS]. Mobile CLS on the landing
+   measures 0.027 to 0.144 across repeated loads, some loads over Google's
+   0.1 threshold, on production as well as the preview. It is NOT caused by
+   #817 (the mark itself contributes 0 layout-shift entries). It is a
+   candidate for the mobile-performance work: mobile Performance is 60 and
+   the landing is the page search results show.
+
+★★ DATED: [FU-EXAM-WINDOW-PARAGRAPH] is DUE 17 FEB 2027. From 18 Feb the landing
+   says "Your boards are on. / Best of luck." but the paragraph under it still
+   says "fix it now, not in the exam hall". Fix the copy before the window opens.
+
+(SUPERSEDED 2026-09-24, kept verbatim per standing rule 3)
+⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW ON TRUNK SHA AND ON THE GATE SET.
+   IT DOES NOT SUPERSEDE ANY OPEN FOLLOW-UP RECORDED BELOW.
+
 TRUNK IS `07073d9f815873fdccf81a6917095b8482198341`, MEASURED 2026-09-21.
    07073d9f = #815 (LANDING-FOLLOWUP-1) - THIS handoff
    719186e4 = #814 (docs: UID-HEADER-CLOSE-1 handoff)
