@@ -1,5 +1,49 @@
 # LazyTopper — Current State
 
+## [CURRENT · LANDING] LANDING-MARK-FADE-1 — **THE FINGERPRINT IS BRIGHT WHEREVER THE RIGHT HALF IS EMPTY, FAINT ONLY BEHIND THE CARD ROWS** — `#817` MERGED — trunk `bc11e800`
+
+★ **PROVENANCE.**
+- Built in an isolated worktree from trunk `07073d9f`. Lane commit **`c1549191`**, brought up to trunk as **`e9b668c9`** by `gh pr update-branch` (a merge commit — no rebase, no force, heads-up given first). Both heads are **blob-identical** on the two changed files.
+- Both staleness axes were run before the push (open at the time: `#810` dependabot only).
+- **Local gates on `c1549191`**, every exit code captured unpiped:
+  - `vitest run src`: **176 files / 2372 tests, 0 failed**
+  - root matrix: **211 / 211, fail 0, skipped 0**
+  - ops matrix: **0 `not ok`, 16× `# fail 0`, 0 skipped**
+  - tsc app + `typecheck:test`: both 0
+  - build + `verify-production-build`: 0 ("All checks passed")
+  - `seo:capture` + prerendered drift: 0 + 0 (no drift)
+  - mojibake: 0 enforced hits · `git diff --check`: 0 · `scope:guard`: OK
+- **CI 8/8 green on BOTH `c1549191` and `e9b668c9`.** The quality-gate vitest step shows **176 files / 2372 tests** on each — the invocation (`pnpm --filter lazytopper exec vitest run`) and the counts were read out of the run log, not inferred from the green tick.
+- **Verified on the preview of each commit and again on `lazytopper.com` after deploy**, with identical results.
+
+**Trunk `bc11e8008d613d2afd2af2c99cf355a6be1e5ce9`** (`#817` squash, `--match-head-commit e9b668c9`, no `--admin`). The trunk tree equals the tested tree (`eab5f9fc`, 0 diff lines). Two files: `Welcome.tsx` and `Welcome.addendumA.test.tsx`. No forbidden file touched.
+
+### What shipped
+- **The rule changed, not just the numbers.** Before `#817` the mark was bright beside the hero and faint everywhere below it. Now it is **bright wherever the right half of the page is empty** — beside the hero, beside the payoff ("One size fits one."), beside "5 months" — and **faint only while content actually sits behind it**. Owner ruling after live-verifying `#815`: beside the payoff, the fingerprint is the tagline drawn next to the tagline written, so that is where it should be most visible, not least.
+- **The only triggers are the two full-width card rows** — the student cards (`lt-landing-rail`) and the plans (`lt-landing-plans`). Nothing else on the page can reach under the mark.
+- **One `IntersectionObserver`, no scroll listener.** Its `rootMargin` is the mark's own vertical band (its top, down to where the mask fade ends at 96% — `MARK_VISIBLE_FRACTION`). The band is read from the mark's box once, and again on resize (debounced 150 ms) — never on scroll. A test asserts the source contains no `addEventListener('scroll')` and no `onScroll`.
+- **`aspect-ratio: 555/768`** on the mark, matching the file's own dimensions, so the box — and therefore the band the effect reads from it — is correct **before the image has loaded**, and the mark causes no layout shift.
+- **Four guards, each load-bearing:** `window.scrollY > 0` (nothing scroll-derived exists at scroll 0, where a capture runs); `prefers-reduced-motion` (no observer at all — the CSS pins the faint level); no `IntersectionObserver` (jsdom, old browsers — the mark stays as rendered); and **below 1000px the observer does not run at all**, re-checked on resize, so the mobile markup is unchanged.
+- **The transition is 0.45s ease**, so each crossing is smoothed rather than snapped.
+
+### How it was proven
+- **Fade triggers, by rendered text extent at three widths** (mark left edge / "5 months" box right / its TEXT right / payoff `h2` text right): 1024 → 748 / 984 / 456 / 497. 1440 → 980 / 1200 / **656** / 697. 1920 → 1220 / 1440 / 896 / 937. **At every width, no text outside the two card rows can ever sit behind the mark.** The only text right of the mark's edge is "Log in" and "Class 11/12 · soon" at y 15–118, above the mark's top (185); scrolling only moves them further up.
+- **Acceptance, 4 positions × 3 widths, on both previews and on production:** 0.6 bright beside the payoff and beside "5 months" at all three widths; 0.075 faint over both card rows at 1024 and 1440. **At 1920 the pricing cards read 0.6 bright — accepted:** the page ends before they reach the mark (plans top y=700 at max scroll; the mark is fully transparent from y=677), so nothing is ever behind it there.
+- **No flicker:** a 4 px sweep across the card-row/band edge gives `QQQ…QBBB…B` — exactly one state change.
+- **Nothing scroll-derived at scroll 0:** at 1280×900 and 1280×420 the markup is exactly `<img class="lt-landing-bgmark" alt="" aria-hidden="true" src=…>`.
+- **Reduced motion:** 0.075 at the top and mid-scroll, no observer. **Mobile:** at 390px, opacity 0.065 and class `lt-landing-bgmark`, at the top and scrolled.
+- **No layout shift from the mark:** across 10+ loads (preview and production, 390 and 1440), **0 layout-shift entries involve the mark**.
+- **Deploy confirmed by a control, not by waiting:** the old entry chunk `index-B5dNE0rn.js` does **not** contain `aspect-ratio:555/768`; the new entry `index-D6DAef63.js` does. The behavioural table was only then run against `https://www.lazytopper.com/app/`. Screenshots: `Desktop\diff\landing-mark-fade-1-live\`.
+
+### ★ Read this before touching the landing again
+**MEASURE THE RENDERED TEXT'S EXTENT, NOT THE ELEMENT'S BOX.** A block element spans its container whether or not its text does: at 1440, "5 months" has a `getBoundingClientRect()` reaching **x=1200** while its text ends at **x=656**. Fading on element boxes would have faded the mark behind **every paragraph on the page** — the exact opposite of the ruling this lane implemented. Any rule about what sits "behind" or "beside" something must use `Range` client rects, or a container whose rendered extent genuinely is full-width. *(Minor: the in-code comment in `Welcome.tsx` cites x=633 for this figure where the lane report, the commit message and the PR body all cite x=656 at 1440. The measurement table is the record; the comment's number is stale by one measurement pass.)*
+
+### ★ OWNER SEQUENCE (2026-09-21) — UNCHANGED BY THIS LANE
+1. **`FREE-CHECK-1`** — next. It is what makes "Check my answer" true (`[FU-LANDING-CTA-HONESTY]`, still open).
+2. **Resubmit the sitemap and request indexing on the URLs** (Search Console, an owner action).
+3. **`STORED-RATE-1`**.
+*(`LANDING-MARK-FADE-1`, listed as item 0 in the `#815` banner, is now DONE.)*
+
 ## [CURRENT · LANDING] LANDING-FOLLOWUP-1 — **THE LANDING PAGE'S PROMISES ARE TRUE: THE MARKING CLAIM, THE PRICE, THE COUNTDOWN** — `#815` MERGED — trunk `07073d9f`
 
 ★ **PROVENANCE.**

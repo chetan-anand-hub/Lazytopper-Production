@@ -1,5 +1,39 @@
 ---
 
+## 2026-09-21 — LANDING-MARK-FADE-1 — **THE FINGERPRINT IS BRIGHT WHEREVER THE RIGHT HALF IS EMPTY, FAINT ONLY BEHIND THE CARD ROWS** — `#817` MERGED — trunk `bc11e800`
+
+★ **PROVENANCE.**
+- Built in an isolated worktree from trunk `07073d9f`. Lane commit **`c1549191`**, brought up to trunk as **`e9b668c9`** by `gh pr update-branch` (merge commit, no rebase, no force, heads-up given); both heads **blob-identical** on the two changed files.
+- Local gates on `c1549191`: `vitest run src` **176 files / 2372 tests**, root matrix **211/211**, ops matrix **0 `not ok` / 16× `# fail 0`**, tsc app + `typecheck:test` 0, build + verifier 0, capture + drift 0, mojibake 0, `diff --check` 0, `scope:guard` OK — every exit code captured unpiped.
+- **CI 8/8 on both heads**, with the vitest **invocation and counts read out of the run log** (`pnpm --filter lazytopper exec vitest run` → 176 / 2372), not inferred from the green tick.
+
+**Trunk `bc11e8008d613d2afd2af2c99cf355a6be1e5ce9`** (`#817` squash, `--match-head-commit e9b668c9`, no `--admin`; trunk tree `eab5f9fc` identical to the tested tree). Two files, both under `lazytopper/src/pages/`. No forbidden file touched.
+
+**Why.** `#815` shipped the mark loud beside the hero and faint everywhere below, on the assumption that a fixed mark would otherwise sit behind the payoff and the countdown. **Live-verifying it showed the assumption was backwards.** Beside "One size fits one." the fingerprint is the tagline drawn next to the tagline written, and that is where it was dimmest. The owner's ruling reframed the rule from *scroll position* to *occlusion*: bright wherever the right half is empty, faint only where content actually sits behind it.
+
+**★★★ The finding that decided the implementation — MEASURE RENDERED TEXT, NOT ELEMENT BOXES.**
+The natural way to build "fade where content is behind it" is to overlap-test each element's `getBoundingClientRect()`. **That would have inverted the feature.** A block element spans its container whether or not its text does: at 1440 the paragraph reading "5 months" has a box reaching **x=1200** while its text ends at **x=656**, and the mark's left edge is at x=980. By box it overlaps; by text it is 324 px clear. Fading on boxes would have faded the mark behind **every paragraph on the page**. So every rendered text line was measured at 1024, 1440 and 1920 instead, which showed that **the only content that can ever reach under the mark is the two full-width card rows** — and those became the triggers.
+
+**How it was built.** One `IntersectionObserver` whose `rootMargin` is the mark's own vertical band (top → the end of its mask fade at 96%, `MARK_VISIBLE_FRACTION`), observing the students row and the plans row. The band is read from the mark's box once and again on resize (debounced 150 ms) — **never on scroll**; a test asserts the source has no `addEventListener('scroll')` and no `onScroll`. `aspect-ratio: 555/768` makes the box correct before the image decodes, which both fixes the band on first paint and keeps the mark out of CLS. A 0.45s CSS transition smooths each crossing.
+
+**Four guards, each load-bearing:** `scrollY > 0` (nothing scroll-derived at scroll 0, where a capture runs); `prefers-reduced-motion` (no observer at all — the CSS pins faint); no `IntersectionObserver` (jsdom, old browsers — the mark stays as rendered); and **no observer below 1000px**, re-checked on resize, so the mobile markup is unchanged.
+
+**How it was proven.**
+- **Acceptance, 4 positions × 3 widths, on the preview of `c1549191`, again on the preview of `e9b668c9`, and again on `lazytopper.com` after deploy — identical each time.** 0.6 bright beside the payoff and beside "5 months" at 1024/1440/1920; 0.075 faint over both card rows at 1024 and 1440.
+- **At 1920 the pricing cards stay bright — accepted.** The page ends before they reach the mark (plans top y=700 at max scroll; the mark is fully transparent from y=677), so nothing is ever behind it there. That is the rule holding, not an exception to it.
+- **No flicker:** a 4 px sweep across the card-row/band edge gives exactly one state change.
+- **Scroll 0:** at 1280×900 and 1280×420 the markup is exactly `<img class="lt-landing-bgmark" alt="" aria-hidden="true" src=…>`. `seo:capture` drift 0.
+- **Reduced motion** 0.075 top and mid-scroll, no observer. **Mobile** at 390px: opacity 0.065, class unchanged, top and scrolled.
+- **Deploy proven with a control, not by waiting:** the old entry chunk `index-B5dNE0rn.js` does **not** contain `aspect-ratio:555/768`; the new one `index-D6DAef63.js` does. Only then was the behavioural table run against production. Screenshots in `Desktop\diff\landing-mark-fade-1-live\`.
+
+**Found on the way, pre-existing:** **`[FU-LANDING-FONT-SWAP-CLS]`** — mobile CLS on the landing varies **0.027 to 0.144** across loads, some over 0.1, on production as well as the preview. The shifting nodes are the hero text and the proof section, consistent with Fraunces/Inter swapping in via `display=swap`. **Not caused by `#817`** — the mark itself contributes 0 layout-shift entries. Filed as a candidate for the mobile-performance work, since mobile Performance is 60 and the landing is the page search results show.
+
+**Closes:** nothing. **New:** `[FU-LANDING-FONT-SWAP-CLS]`. **Unchanged and still open:** `[FU-LANDING-CTA-HONESTY]` (pending `FREE-CHECK-1`), `[FU-GLOBAL-SHED-REFUSES-PAYING]`, `[FU-EXAM-WINDOW-PARAGRAPH]` (due 17 Feb 2027).
+
+**Owner sequence unchanged:** `FREE-CHECK-1` → sitemap resubmit → `STORED-RATE-1`. **Owner actions:** the §6 live check on lazytopper.com, on a phone and a laptop.
+
+---
+
 ## 2026-09-21 — LANDING-FOLLOWUP-1 — **THE LANDING PAGE'S PROMISES ARE TRUE: THE MARKING CLAIM, THE PRICE, THE COUNTDOWN** — `#815` MERGED — trunk `07073d9f`
 
 ★ **PROVENANCE.**

@@ -23,6 +23,22 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-24 — LANDING-MARK-FADE-1 (`#817` MERGED as `bc11e800`, squash, no `--admin`; open PRs at the time of writing: **`#810`, `#818`, `#819`** — dependabot only) — one new follow-up, one method note, no closures
+
+### `[FU-LANDING-FONT-SWAP-CLS]` — ★ OPEN. **THE HERO TEXT SHIFTS ON PHONES AS THE WEB FONTS LOAD**
+- **Measured:** mobile CLS on the landing varies from **0.027 to 0.144 across repeated loads**, on **production as well as the preview**. Some loads cross Google's **0.1** "needs improvement" line; others are well inside it. The variance is load-to-load, not device-to-device.
+- **The shifting nodes** are the hero text and the proof section — `lt-landing-sub`, `lt-landing-hcta`, `lt-landing-peek`, `lt-landing-proof` — consistent with **web-font swap timing** (Fraunces and Inter, served from Google Fonts with `display=swap`). The fallback font is laid out first, then replaced by a face with different metrics, and the block below moves.
+- ⚠ **PRE-EXISTING, NOT CAUSED BY `#817`.** It was found while proving that `#817`'s fingerprint causes no layout shift, and it reproduces on production at commits before this lane. **The mark itself contributes 0 layout-shift entries** across 10+ loads at 390 and 1440 (`aspect-ratio: 555/768` fixes its box before the image loads) — the two findings are independent.
+- **Why it is worth a lane:** **mobile Performance currently scores 60**, and the landing is the page search results show. CLS is one of the three Core Web Vitals, so this is both a ranking input and the first thing a student on a phone sees move under their thumb. Record it as a **candidate for the mobile-performance work**, alongside whatever else that lane finds; it is not urgent on its own.
+- **Not yet investigated, deliberately:** whether `size-adjust` / `ascent-override` on the fallback face, self-hosting the two families, or preloading the woff2 files is the right fix. `#779` already added font preloads for the SEO pages — check what is already in the document head before adding more.
+
+### METHOD NOTE (no FU — nothing to fix, something to remember) — ★★★ **MEASURE THE RENDERED TEXT'S EXTENT, NOT THE ELEMENT'S BOX**
+*(Recorded here because it generalises well past the landing, and because a plausible wrong reading of it would have inverted the feature this lane shipped.)*
+- `#817`'s rule is "fade the mark only where content actually sits behind it". The obvious implementation asks each candidate element for its `getBoundingClientRect()` and checks overlap. **That would have been wrong in the worst possible way — it would have faded the mark behind every paragraph on the page, the exact opposite of the owner's ruling.**
+- **Why:** a block element spans its container whether or not its text does. At 1440, the paragraph reading "5 months" has a **box reaching x=1200** while its **text ends at x=656**; the mark's left edge is at x=980. By box, it overlaps. By text, it is 324 px clear.
+- **The rule:** any question of the form "is A behind / beside / under B" must be answered with the **rendered** extent — `Range` client rects over the text nodes — or against a container whose rendered extent genuinely is full-width. Here the answer was the two full-width card rows, and it was confirmed by measuring every rendered text line at 1024, 1440 and 1920 rather than by reasoning about the layout.
+- **Related, same family, do not duplicate:** the standing rule **"the symbol is not the surface"** above. This is its layout-time twin — *the box is not the text.*
+
 ## 2026-09-21 — LANDING-FOLLOWUP-1 (`#815` MERGED as `07073d9f`, squash, no `--admin`; open PRs at the time of writing: **`#810`** dependabot only) — two new follow-ups, two closures, one resolved by removal, one still open
 
 ### `[FU-GLOBAL-SHED-REFUSES-PAYING]` — ★★ OPEN. **PAYING STUDENTS CAN BE REFUSED BECAUSE FREE TRAFFIC EXHAUSTED THE SHARED CEILING**
