@@ -415,6 +415,25 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
   },
 ];
 
+/**
+ * ★★ Firestore collections that hold NO student data, and so are deliberately NOT in
+ * STUDENT_DATA_MAP. Each is a server-only, identifier-free aggregate: nothing in it
+ * names, keys on or can be joined back to a student, so there is nothing to erase or
+ * export, and it needs no erasure.
+ *
+ *   - `freeCheckDaily` (FREE-CHECK-1a, owner ruling OR-3): one document per IST day,
+ *     id = the day key (`istDayKey`), holding ONLY four counters — `served`,
+ *     `refused_quota`, `refused_budget`, `refused_appcheck`. No uid, no IP, no App Check
+ *     app id. Written only by `server/services/freeCheck.cjs` through the Admin SDK; no
+ *     client rule matches it, so browsers are denied by the catch-all.
+ *
+ * ★ This list is an EXEMPTION, and exemptions are how a drift guard dies. It is exact,
+ * it is pinned by `studentDataMap.test.ts`, and a name belongs here only with a reason
+ * of the kind above. A collection that could hold anything about a student goes in the
+ * map, never here. ErasureMechanism and erasure/export behaviour are unchanged by it.
+ */
+export const NON_STUDENT_COLLECTIONS: readonly string[] = Object.freeze(["freeCheckDaily"]);
+
 /** ★ Locations no browser can erase — the proof that erasure needs a server path. */
 export function adminOnlyLocations(): readonly StudentDataLocation[] {
   return STUDENT_DATA_MAP.filter((l) => l.mechanism === "admin-sdk-required");

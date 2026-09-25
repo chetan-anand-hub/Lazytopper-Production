@@ -21,6 +21,7 @@ import {
   unreachableLocations,
   firestoreCollectionNames,
   subcollectionsOf,
+  NON_STUDENT_COLLECTIONS,
 } from "./studentDataMap";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -200,12 +201,29 @@ describe("studentDataMap — drift guard", () => {
   it("★★ every collection in the SOURCE is present in the map", () => {
     const found = scanCollectionsFromSource();
     const mapped = new Set(firestoreCollectionNames());
-    const missing = [...found].filter((c) => !mapped.has(c)).sort();
+    // ★ The ONLY names exempt from the map are NON_STUDENT_COLLECTIONS (owner ruling
+    // OR-3): server-only, identifier-free aggregates with nothing to erase. The
+    // exemption list itself is pinned exactly in the next test.
+    const exempt = new Set(NON_STUDENT_COLLECTIONS);
+    const missing = [...found].filter((c) => !mapped.has(c) && !exempt.has(c)).sort();
     expect(
       missing,
       `Collection(s) exist in the product but are NOT in STUDENT_DATA_MAP: ${missing.join(", ")}. ` +
         `Any erasure built on this map would silently leave them behind — add them.`
     ).toEqual([]);
+  });
+
+  it("★★ the non-student exemption is EXACT, disjoint from the map, and not dead (OR-3)", () => {
+    // An exemption list that can grow silently is how a drift guard stops guarding.
+    // Exact (toEqual), so adding a name here is a deliberate, reviewed edit.
+    expect([...NON_STUDENT_COLLECTIONS]).toEqual(["freeCheckDaily"]);
+    // An exempt name must never ALSO be a student-data location.
+    const mapped = new Set(firestoreCollectionNames());
+    expect(NON_STUDENT_COLLECTIONS.filter((c) => mapped.has(c))).toEqual([]);
+    // CONTROL: the exemption is live — the scanner really finds the collection in the
+    // server source, so this is not an exemption for something that does not exist.
+    const found = scanCollectionsFromSource();
+    for (const c of NON_STUDENT_COLLECTIONS) expect(found.has(c), `${c} not found in source`).toBe(true);
   });
 
   it("★★ every collection declared in firestore.rules is present in the map", () => {
@@ -235,7 +253,13 @@ describe("studentDataMap — drift guard", () => {
     //   2. Anything else undeclared appearing here also goes RED — the general drift
     //      property is unchanged.
     // Do NOT relax this to a subset check to make a future write pass.
-    expect(undeclared).toEqual(["qrUploadSlots"]);
+    //
+    // ★ `freeCheckDaily` JOINED this set with FREE-CHECK-1a (owner ruling OR-3). It is a
+    // server-only day document of four identifier-free counters, written only through
+    // the Admin SDK, so — exactly like `qrUploadSlots` — it must match NO client rule and
+    // fall through to the deny-all catch-all. It is here because it is undeclared on
+    // purpose, not because the guard was loosened: the assertion is still EXACT.
+    expect(undeclared).toEqual(["freeCheckDaily", "qrUploadSlots"]);
   });
 
   it("★★ the map still declares `users` even though no code writes it (OWNER RULING)", () => {
