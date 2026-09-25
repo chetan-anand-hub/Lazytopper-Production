@@ -194,6 +194,28 @@ export function trackSignUp(): void {
 }
 
 /**
+ * FREE-CHECK-1b (R10) — the free-check funnel, as COUNTS.
+ *
+ * Exactly the same rule as `trackSignUp` above, for the same reason (DPDP §9(3)): the
+ * payload is the event NAME and nothing else. No uid, no device id, no result, no
+ * reason code, no timestamp of ours — a count needs no identifier, and an opaque one is
+ * still an identifier. The name is a closed union, so a caller cannot smuggle a value
+ * into it either.
+ *
+ *   free_check_used_block   a browser that already used its free check was shown "used"
+ *   free_check_signup       a free result was saved to a new sign-in (the R8 replay)
+ *   free_check_trial_start  the student tapped "Start my free trial" in the R9 offer
+ */
+export type NamedAnalyticsEvent =
+  | "free_check_used_block"
+  | "free_check_signup"
+  | "free_check_trial_start";
+
+export function trackNamedEvent(name: NamedAnalyticsEvent): void {
+  send("event", { name });
+}
+
+/**
  * ★★ WHY THE `isNewUser` CHECK LIVES HERE AND NOT IN AuthContext.
  *
  * `signInWithPopup` and phone `confirm()` are each ONE call for both a brand-new account

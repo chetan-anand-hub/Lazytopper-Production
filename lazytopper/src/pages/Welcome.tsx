@@ -182,7 +182,9 @@ const TAGLINE = `${ASSET_BASE}/brand/lazytopper-tagline.png`;
  * prototype's subtext is "Free to start", which is true; "free for 7 days"
  * would not be. Do not reintroduce it.
  */
-const START_URL = "/sign-up?redirect=%2F";
+const START_URL = /^(1|true|on|yes)$/i.test(String(import.meta.env.VITE_FREE_CHECK_ENABLED ?? "").trim())
+  ? "/check-improve"
+  : "/sign-up?redirect=%2F";
 const SIGN_IN_URL = "/login?reason=login&redirect=%2F";
 
 /** The three illustrative diagnoses. Prototype copy, verbatim — owner ruling. */
@@ -476,7 +478,7 @@ export default function Welcome() {
    * student cards or the plans pass behind it.
    *
    * ⚠ WHY CARD ROWS AND NOT ELEMENT BOXES. A paragraph is a block: "5 months" has a
-   * box reaching x=1200 at 1440 while its text ends at x=633. Fading on boxes would
+   * box reaching x=1200 at 1440 while its text ends at x=656. Fading on boxes would
    * fade behind every paragraph — the opposite of the ruling. The two card rows are
    * the only content whose RENDERED extent reaches under the mark (measured per
    * width in the lane report), so they are the triggers.

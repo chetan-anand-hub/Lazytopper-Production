@@ -1710,6 +1710,11 @@ export interface CheckImproveVariantInput {
    *  scroll up hunting for the way home at the exact moment they want to leave.
    *  Omitted (a direct visit) → the menu is byte-identical to before. */
   returnTicket?: { label: string; onReturn: () => void };
+  /** FREE-CHECK-1b (optional, additive): a SIGNED-OUT visitor's free check. Adds the
+   *  sign-in row to the what-next menu and replaces the "Not saved" footnote with the
+   *  free-check save line. Omitted — every signed-in grade — the variant is
+   *  byte-identical to before. */
+  signUpToSave?: { label: string; footnote: string; onSignUp: () => void };
 }
 
 /** The return-ticket row. `tone: "secondary"` deliberately: the what-next menu's
@@ -1775,6 +1780,9 @@ export function checkImproveScorecardVariant(input: CheckImproveVariantInput): S
     // shouldn't scroll past everything else to find it at the moment they want to
     // leave. Absent on a direct visit → this menu is byte-identical to before.
     ...(input.returnTicket ? [returnTicketAction(input.returnTicket)] : []),
+    ...(input.signUpToSave
+      ? [{ label: input.signUpToSave.label, tag: "Save", tone: "secondary" as const, onClick: input.signUpToSave.onSignUp }]
+      : []),
     {
       label: "Read my graded answer sheet",
       tag: "Sheet",
@@ -1827,12 +1835,14 @@ export function checkImproveScorecardVariant(input: CheckImproveVariantInput): S
     allPending: null,
     actionsHeading: "What next?",
     stackActions: true,
-    ...(saved
-      ? {}
-      : {
-          footnote:
-            "Not saved — sign in to keep your checked papers in your history and progress.",
-        }),
+    ...(input.signUpToSave
+      ? { footnote: input.signUpToSave.footnote }
+      : saved
+        ? {}
+        : {
+            footnote:
+              "Not saved — sign in to keep your checked papers in your history and progress.",
+          }),
     actions: menu,
   };
 }
