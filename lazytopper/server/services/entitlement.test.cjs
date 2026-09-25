@@ -978,3 +978,471 @@ test('CONTROL 3 · ★ over REAL HTTP: no identity and a uid header alone both g
       { question: 'Q', marks: 3, textAnswer: 'a' }, { [UID_HEADER]: 'student-1', authorization: 'Bearer any' });
     assert.notEqual(withToken.status, 402, 'an offered token that did not verify must still be served');
   });
+
+/* ══════════════════════════════════════════════════════════════════════════
+   §10 · FREE-CHECK-1a — ADMISSION. entitlement.cjs is byte-identical; these prove
+   the free-check gate in front of it admits EXACTLY the N2 shape and nothing else,
+   that it is inert with FREE_CHECK_ENABLED off, and that it fails CLOSED.
+   In-process first (the REAL verifiedCaller, rateLimiter, entitlement and freeCheck
+   modules in index.cjs's order), then over REAL HTTP through the REAL index.cjs.
+   Each test names the mutation that turns it red.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const FC = require('./freeCheck.cjs');
+const { createHttpUtils, DIAGNOSTIC_KEYS } = require('./httpUtils.cjs');
+
+const MARKER = FC.FREE_CHECK_MARKER_HEADER.toLowerCase();
+const APPCHECK = FC.APP_CHECK_HEADER.toLowerCase();
+const AC_GOOD = 'ac-good';
+const markedHeaders = (extra = {}) => ({ [MARKER]: FC.FREE_CHECK_MARKER_VALUE, [APPCHECK]: AC_GOOD, ...extra });
+const reqMarked = (extra = {}) => ({ method: 'POST', headers: markedHeaders(extra), socket: { remoteAddress: '203.0.113.9' } });
+
+/** Free-check day documents, with every touch recorded — a flag-off request must touch NOTHING. */
+function freeStore({ failTx = false } = {}) {
+  const docs = new Map();
+  const touches = { reads: 0, writes: 0, transactions: 0 };
+  return {
+    docs,
+    touches,
+    db: {
+      collection(name) {
+        assert.equal(name, FC.FREE_CHECK_COLLECTION);
+        return { doc: (id) => ({ key: `${name}/${id}` }) };
+      },
+      async runTransaction(fn) {
+        touches.transactions += 1;
+        if (failTx) throw new Error('FIRESTORE UNAVAILABLE');
+        const pending = [];
+        const tx = {
+          async get(ref) {
+            touches.reads += 1;
+            const d = docs.get(ref.key);
+            return { exists: !!d, data: () => (d ? { ...d } : undefined) };
+          },
+          set(ref, data) { pending.push([ref.key, data]); },
+        };
+        const out = await fn(tx);
+        for (const [k, d] of pending) { touches.writes += 1; docs.set(k, { ...(docs.get(k) || {}), ...d }); }
+        return out;
+      },
+    },
+  };
+}
+
+/**
+ * firebase-admin stand-in. Its verifyToken follows the 13.7.0 replay contract
+ * (lib/app-check/app-check-api.d.ts): with `{ consume: true }` the first sight of a
+ * token answers `alreadyConsumed: false` and marks it, every later sight answers
+ * `alreadyConsumed: true`. The options of every call are recorded.
+ */
+function freeAdmin() {
+  const calls = { verifyToken: 0, options: [] };
+  const consumed = new Set();
+  return {
+    calls,
+    auth: () => ({
+      verifyIdToken: async (t) => {
+        if (t === 'good-token') return { uid: 'student-1' };
+        throw new Error('token did not verify');
+      },
+    }),
+    appCheck: () => ({
+      async verifyToken(t, options) {
+        calls.verifyToken += 1;
+        calls.options.push(options === undefined ? undefined : { ...options });
+        if (t !== AC_GOOD) throw new Error('app check token did not verify');
+        const out = { appId: '1:123:web:abc' };
+        if (options && options.consume === true) {
+          out.alreadyConsumed = consumed.has(t);
+          consumed.add(t);
+        }
+        return out;
+      },
+    }),
+  };
+}
+
+const FLAG = { FREE_CHECK_ENABLED: 'true' };
+
+/**
+ * The edge, in index.cjs's order: verify -> free-check classify/admit -> limiter -> gate.
+ * `admin: null` / `firestore: null` reproduce a deploy without firebase-admin.
+ */
+function freeEdgeFor(doc, { env = FLAG, admin, firestore, failTx, limits } = {}) {
+  const g = gateFor(doc);
+  const fakeAdminObj = freeAdmin();
+  const store = freeStore({ failTx });
+  const verifiedCaller = createVerifiedCaller({ firebaseAdmin: fakeAdminObj, telemetry: g.telemetry });
+  const limiter = createRateLimiter({ telemetry: g.telemetry, now: () => NOW, ...(limits ? { limits } : {}) });
+  const free = FC.createFreeCheckGate({
+    firebaseAdmin: admin === undefined ? fakeAdminObj : admin,
+    adminFirestore: firestore === undefined ? store.db : firestore,
+    telemetry: g.telemetry,
+    logger: { warn() {} },
+    env,
+    now: () => NOW,
+    globalCountToday: () => limiter.globalCountToday(),
+    globalHardLimit: () => limiter.limits.global.hard,
+  });
+  async function run(req, reqPath) {
+    const res = resStub();
+    const uid = await verifiedCaller.resolveVerifiedUid(req);
+    let admitted = false;
+    if (free.isFreeCheckRequest(req, reqPath, uid)) {
+      const a = await free.admit(req, reqPath);
+      if (!a.admitted) { sendJsonStub(res, a.status, a.body); return { res, stage: 'free-check', admitted }; }
+      admitted = true;
+    }
+    const v = admitted ? limiter.check(req, reqPath, uid, { freeCheck: true }) : limiter.check(req, reqPath, uid);
+    if (!v.allowed) { sendJsonStub(res, v.status, v.body); return { res, stage: 'limiter', admitted }; }
+    if (!admitted && await g.gate.applyToRequest(req, res, reqPath, uid)) return { res, stage: 'entitlement', admitted };
+    return { res, stage: 'handler', admitted };
+  }
+  return { ...g, free, limiter, store, fakeAdmin: fakeAdminObj, run };
+}
+
+// MUTATION M5: treat the flag as always on ⇒ RED here.
+for (const env of [{}, { FREE_CHECK_ENABLED: '' }, { FREE_CHECK_ENABLED: '0' }, { FREE_CHECK_ENABLED: 'false' }, { FREE_CHECK_ENABLED: 'off' }]) {
+  test(`FC-E1 · ★ flag OFF (${JSON.stringify(env)}): marker + valid App Check change NOTHING — P2 'anonymous' and P3 'uid-header-no-token' stand`, async () => {
+    const p2 = freeEdgeFor({ tier: 'premium' }, { env });
+    assert.equal(p2.free.isFreeCheckRequest(reqMarked(), '/api/check-solution', ''), false);
+    const r2 = await p2.run(reqMarked(), '/api/check-solution');
+    assert.equal(r2.stage, 'entitlement');
+    assert.equal(r2.res.last().status, 402);
+    assert.equal(r2.res.last().body.error, 'premium_required');
+    assert.equal(p2.telemetry.get(DENY_ANONYMOUS), 1);
+    assert.equal((await p2.gate.resolve('', reqMarked())).outcome, 'anonymous');
+    assert.ok(Object.keys(p2.limiter.snapshot()).some((k) => k.startsWith('ip:')), 'the per-IP bucket is charged exactly as before');
+    assert.deepEqual(p2.store.touches, { reads: 0, writes: 0, transactions: 0 }, 'flag off must never touch the free-check store');
+    assert.equal(p2.fakeAdmin.calls.verifyToken, 0, 'flag off must never verify App Check');
+
+    const p3 = freeEdgeFor({ tier: 'premium' }, { env });
+    const p3Req = reqMarked({ [UID_HEADER]: 'student-1' });
+    const r3 = await p3.run(p3Req, '/api/check-solution');
+    assert.equal(r3.stage, 'entitlement');
+    assert.equal(r3.res.last().status, 402);
+    assert.equal(p3.telemetry.get(DENY_UID_HEADER_NO_TOKEN), 1);
+    assert.equal((await p3.gate.resolve('', p3Req)).outcome, 'uid-header-no-token');
+    assert.deepEqual(p3.store.touches, { reads: 0, writes: 0, transactions: 0 });
+    assert.equal(p3.fakeAdmin.calls.verifyToken, 0);
+
+    // CONTROL: the identical P2 request WITH the flag on is admitted, so the flag — and
+    // only the flag — is what kept the paths above unchanged.
+    const on = freeEdgeFor({ tier: 'premium' });
+    const ron = await on.run(reqMarked(), '/api/check-solution');
+    assert.equal(ron.stage, 'handler');
+    assert.equal(ron.admitted, true);
+  });
+}
+
+test('FC-E2 · ★ signed-in callers are untouched with the flag ON, marker or not — a signed-in FREE student is still refused 402', async () => {
+  for (const withMarker of [false, true]) {
+    const extra = { authorization: 'Bearer good-token', [UID_HEADER]: 'student-1' };
+    const req = withMarker ? reqMarked(extra) : { method: 'POST', headers: extra };
+    const premium = freeEdgeFor({ tier: 'premium' });
+    const r = await premium.run(req, '/api/check-solution');
+    assert.equal(r.stage, 'handler');
+    assert.equal(r.admitted, false, 'a signed-in caller is never a free check');
+    const d = await premium.gate.resolve('student-1', req);
+    assert.deepEqual({ entitled: d.entitled, tier: d.tier }, { entitled: true, tier: 'premium' });
+    assert.ok(Object.keys(premium.limiter.snapshot()).some((k) => k.startsWith('student-1:vision:')), 'charged to the student as before');
+    assert.deepEqual(premium.store.touches, { reads: 0, writes: 0, transactions: 0 });
+    assert.equal(premium.fakeAdmin.calls.verifyToken, 0);
+
+    const free = freeEdgeFor({ tier: 'free' });
+    const rf = await free.run(req, '/api/check-solution');
+    assert.equal(rf.stage, 'entitlement', 'the marker must not open grading to a signed-in free student');
+    assert.equal(rf.res.last().status, 402);
+    assert.deepEqual(free.store.touches, { reads: 0, writes: 0, transactions: 0 });
+  }
+});
+
+// MUTATION M1: App Check verification always passes ⇒ RED here.
+test('FC-E3 · ★ App Check MISSING or INVALID is refused before the limiter and the gate, with NO Firestore work — CONTROL: a valid token is admitted', async () => {
+  const missing = freeEdgeFor({ tier: 'free' });
+  const rm = await missing.run(reqMarked({ [APPCHECK]: '' }), '/api/check-solution');
+  assert.equal(rm.stage, 'free-check');
+  assert.equal(rm.res.last().status, FC.REFUSAL_STATUS);
+  assert.equal(rm.res.last().body.reason, FC.REASONS.APP_CHECK_MISSING);
+  assert.equal(missing.fakeAdmin.calls.verifyToken, 0);
+  assert.deepEqual(missing.store.touches, { reads: 0, writes: 0, transactions: 0 }, 'OR-13: a missing token does no Firestore work');
+  assert.equal(missing.telemetry.get('free_check.refused.app_check_missing'), 1, 'counted by telemetry only');
+
+  for (const bad of ['forged', 'x.y.z', AC_GOOD + 'x']) {
+    const invalid = freeEdgeFor({ tier: 'free' });
+    const ri = await invalid.run(reqMarked({ [APPCHECK]: bad }), '/api/check-solution');
+    assert.equal(ri.stage, 'free-check');
+    assert.equal(ri.res.last().status, FC.REFUSAL_STATUS);
+    assert.equal(ri.res.last().body.reason, FC.REASONS.APP_CHECK_INVALID);
+    assert.equal(invalid.fakeAdmin.calls.verifyToken, 1, 'the token must really be verified');
+    assert.deepEqual(invalid.limiter.snapshot(), {}, 'a refused free check commits nothing to the limiter');
+    assert.equal(invalid.telemetry.get(DENY_ANONYMOUS), 0, 'and never reaches entitlement');
+    // OR-13: counted by telemetry only — never written to freeCheckDaily.
+    assert.deepEqual(invalid.store.touches, { reads: 0, writes: 0, transactions: 0 }, 'an invalid token does no Firestore work');
+    assert.equal(invalid.store.docs.size, 0);
+    assert.equal(invalid.telemetry.get('free_check.refused.app_check_invalid'), 1);
+  }
+  // A marked DETECT with a bad token is refused too (detect is ungated, so the edge must do it — N3).
+  const detect = freeEdgeFor({ tier: 'free' });
+  const rd = await detect.run(reqMarked({ [APPCHECK]: 'forged' }), '/api/detect-question');
+  assert.equal(rd.res.last().body.reason, FC.REASONS.APP_CHECK_INVALID);
+
+  const ok = freeEdgeFor({ tier: 'free' });
+  const rok = await ok.run(reqMarked(), '/api/check-solution');
+  assert.equal(rok.stage, 'handler');
+  assert.equal(rok.admitted, true);
+  assert.equal(ok.fakeAdmin.calls.verifyToken, 1);
+});
+
+// MUTATIONS F1 / F2 (drop consume:true / ignore alreadyConsumed) ⇒ RED here.
+test('FC-E8 · ★ OR-13 replay protection at the edge: consume:true on EACH free-check path, and a replayed token is refused app_check_invalid before the limiter, with no Firestore work', async () => {
+  for (const p of FC.FREE_CHECK_PATHS) {
+    const e = freeEdgeFor({ tier: 'free' });
+    const first = await e.run(reqMarked(), p);
+    assert.equal(first.admitted, true, `${p}: the first use of the token is admitted`);
+    assert.deepEqual(e.fakeAdmin.calls.options, [{ consume: true }], `${p}: verifyToken called with { consume: true }`);
+    const touchesAfterFirst = { ...e.store.touches };
+    const limiterAfterFirst = e.limiter.snapshot();
+
+    const replay = await e.run(reqMarked(), p);
+    assert.equal(replay.admitted, false, `${p}: the replay is not admitted`);
+    assert.equal(replay.stage, 'free-check', `${p}: refused at the edge`);
+    assert.equal(replay.res.last().status, FC.REFUSAL_STATUS);
+    assert.equal(replay.res.last().body.error, 'free_check_refused');
+    assert.equal(replay.res.last().body.reason, FC.REASONS.APP_CHECK_INVALID, `${p}: no new reason — replay is app_check_invalid`);
+    assert.deepEqual(e.fakeAdmin.calls.options, [{ consume: true }, { consume: true }]);
+    assert.deepEqual(e.store.touches, touchesAfterFirst, `${p}: the replay did no Firestore work`);
+    assert.deepEqual(e.limiter.snapshot(), limiterAfterFirst, `${p}: the replay committed nothing to the limiter`);
+    assert.equal(e.telemetry.get(DENY_ANONYMOUS), 0, `${p}: and never reached entitlement`);
+  }
+});
+
+test('FC-E4 · ★ the marker on a NON-free-check path is never admitted (paid headers go out from 11 call sites)', async () => {
+  for (const p of ['/api/tutor', '/api/generate-visual', '/api/generate-diagram', '/api/step-solution', '/api/more-like-this']) {
+    const e = freeEdgeFor({ tier: 'free' });
+    assert.equal(e.free.isFreeCheckRequest(reqMarked(), p, ''), false, `${p} must not be a free-check path`);
+    await e.run(reqMarked(), p);
+    assert.equal(e.fakeAdmin.calls.verifyToken, 0);
+    assert.deepEqual(e.store.touches, { reads: 0, writes: 0, transactions: 0 });
+  }
+  const tutor = freeEdgeFor({ tier: 'free' });
+  const r = await tutor.run(reqMarked(), '/api/tutor');
+  assert.equal(r.stage, 'entitlement');
+  assert.equal(r.res.last().status, 402);
+  assert.equal(tutor.telemetry.get(DENY_ANONYMOUS), 1);
+  // Only the exact marker value counts.
+  const e = freeEdgeFor({ tier: 'free' });
+  for (const v of ['0', 'true', 'yes', ' ']) {
+    assert.equal(e.free.isFreeCheckRequest(reqMarked({ [MARKER]: v }), '/api/check-solution', ''), false, `marker value ${JSON.stringify(v)}`);
+  }
+  // CONTROL: every free-check path IS classified.
+  for (const p of FC.FREE_CHECK_PATHS) assert.equal(e.free.isFreeCheckRequest(reqMarked(), p, ''), true, p);
+});
+
+// MUTATION M8: classify via resolveCaller().anonymous instead of the exact P2 shape ⇒ RED here.
+test('FC-E5 · ★ the marker on a FAILED-BEARER caller is never admitted — it keeps P2\'s fail-open path exactly', async () => {
+  for (const extra of [{ authorization: 'Bearer expired' }, { authorization: 'Bearer expired', [UID_HEADER]: 'student-1' }]) {
+    const e = freeEdgeFor({ tier: 'free' });
+    const req = reqMarked(extra);
+    assert.equal(e.free.isFreeCheckRequest(req, '/api/check-solution', ''), false);
+    const r = await e.run(req, '/api/check-solution');
+    assert.equal(r.admitted, false);
+    assert.equal(r.stage, 'handler', 'P2 still fails open, as before');
+    assert.equal(e.telemetry.get(FAIL_OPEN_NO_UID), 1);
+    assert.equal(e.fakeAdmin.calls.verifyToken, 0, 'a failed-bearer caller must never reach App Check');
+    assert.deepEqual(e.store.touches, { reads: 0, writes: 0, transactions: 0 });
+  }
+  // The distinction the rule exists for: resolveCaller() calls this caller anonymous.
+  const { resolveCaller } = require('./rateLimiter.cjs');
+  assert.equal(resolveCaller(reqMarked({ authorization: 'Bearer expired' }), '').anonymous, true);
+});
+
+// MUTATION M9: admin handles null ⇒ admitted ⇒ RED here.
+test('FC-E6 · ★ FAIL CLOSED: no firebase-admin, no Firestore, no appCheck(), or a failing transaction ⇒ refused `unavailable`', async () => {
+  const cases = [
+    ['firebase-admin null', { admin: null }],
+    ['Firestore null', { firestore: null }],
+    ['no appCheck()', { admin: { auth: () => ({}) } }],
+    ['transaction throws', { failTx: true }],
+  ];
+  for (const [name, opts] of cases) {
+    const e = freeEdgeFor({ tier: 'premium' }, opts);
+    const r = await e.run(reqMarked(), '/api/check-solution');
+    assert.equal(r.admitted, false, `${name}: must not admit`);
+    assert.equal(r.stage, 'free-check', `${name}: refused at the edge`);
+    assert.equal(r.res.last().status, FC.REFUSAL_STATUS);
+    assert.equal(r.res.last().body.reason, FC.REASONS.UNAVAILABLE, name);
+    assert.deepEqual(e.limiter.snapshot(), {}, `${name}: nothing committed`);
+  }
+});
+
+test('FC-E7 · ★ every refusal has its OWN machine-readable reason, 403 + free_check_refused, distinct from 402 and 429', async () => {
+  const bodies = {};
+  const capZero = freeEdgeFor({ tier: 'free' }, { env: { ...FLAG, LT_FREECHECK_DAILY: '0' } });
+  bodies.ceiling = (await capZero.run(reqMarked(), '/api/check-solution')).res.last();
+  const budget = freeEdgeFor({ tier: 'free' }, {
+    limits: { vision: { soft: 50, hard: 50 }, tutor: { soft: 50, hard: 50 }, practice: { soft: 50, hard: 50 },
+      visual: { soft: 50, hard: 50 }, anonymous: { soft: 5, hard: 5 }, global: { soft: 50, hard: 10 } },
+  });
+  for (let i = 0; i < 6; i += 1) budget.limiter.check({ headers: { [UID_HEADER]: `t${i}` } }, '/api/tutor');
+  bodies.budget = (await budget.run(reqMarked(), '/api/check-solution')).res.last();
+  bodies.missing = (await freeEdgeFor({ tier: 'free' }).run(reqMarked({ [APPCHECK]: '' }), '/api/check-solution')).res.last();
+  bodies.invalid = (await freeEdgeFor({ tier: 'free' }).run(reqMarked({ [APPCHECK]: 'forged' }), '/api/check-solution')).res.last();
+  bodies.unavailable = (await freeEdgeFor({ tier: 'free' }, { admin: null }).run(reqMarked(), '/api/check-solution')).res.last();
+
+  const reasons = Object.values(bodies).map((b) => b.body[FC.REFUSAL_REASON_KEY]);
+  assert.deepEqual(reasons.slice().sort(), Object.values(FC.REASONS).slice().sort(), 'one distinct reason per refusal');
+  assert.equal(new Set(reasons).size, 5);
+  assert.equal(FC.REFUSAL_REASON_KEY, 'reason');
+  assert.ok(!DIAGNOSTIC_KEYS.has(FC.REFUSAL_REASON_KEY), 'the reason must not be a redacted diagnostic key');
+  for (const [name, { status, body }] of Object.entries(bodies)) {
+    assert.equal(status, 403, name);
+    assert.ok(status !== 402 && status !== 429, name);
+    assert.equal(body.error, 'free_check_refused', name);
+    assert.ok(body.error !== 'premium_required' && body.error !== 'daily_limit', name);
+    assert.ok(typeof body.message === 'string' && body.message && !body.message.includes('_'), `${name}: plain-English message`);
+  }
+  assert.equal(typeof bodies.ceiling.body.resetAt, 'string');
+  assert.equal(typeof bodies.budget.body.resetAt, 'string');
+
+  // The REAL sendJson (with its redaction) delivers the reason intact.
+  const { sendJson } = createHttpUtils('*');
+  let written = '';
+  let head = null;
+  sendJson({ writeHead: (s) => { head = s; }, end: (t) => { written = t; } }, bodies.invalid.status, bodies.invalid.body);
+  assert.equal(head, 403);
+  assert.equal(JSON.parse(written).reason, FC.REASONS.APP_CHECK_INVALID);
+});
+
+/* ── over REAL HTTP, through the REAL index.cjs ─────────────────────────── */
+
+/**
+ * Boot index.cjs with a firebase-admin stand-in that ALSO has appCheck() and a
+ * transactional Firestore, so the free-check path can be driven end to end.
+ * ★ bootServer spreads process.env, so both flags are DELETED here and set only
+ * when the test asks: a flag-off run can never inherit a flag from the shell.
+ */
+function bootFreeCheckServer({ port, flagOn }) {
+  const launcher = [
+    "const Module = require('module');",
+    'const store = new Map();',
+    'const consumed = new Set();',
+    'const fake = {',
+    '  apps: [],',
+    '  credential: { cert: () => ({}) },',
+    '  initializeApp() { fake.apps.push({}); },',
+    "  auth: () => ({ verifyIdToken: async (t) => { if (t === 'good-token') return { uid: 'student-1' }; throw new Error('bad token'); } }),",
+    // Genuine = AC_GOOD or AC_GOOD.<n>. The replay contract of firebase-admin 13.7.0:
+    // with { consume: true } a token's first sight is alreadyConsumed:false, later ones true.
+    "  appCheck: () => ({ verifyToken: async (t, o) => { if (t !== " + JSON.stringify(AC_GOOD) + " && !String(t).startsWith(" + JSON.stringify(AC_GOOD + '.') + ")) throw new Error('bad app check'); const out = { appId: '1:123:web:abc' }; if (o && o.consume === true) { out.alreadyConsumed = consumed.has(t); consumed.add(t); } return out; } }),",
+    '  firestore: () => ({',
+    '    collection: (name) => ({ doc: (id) => ({',
+    "      key: name + '/' + id,",
+    "      get: async () => (name === 'subscriptions' ? { exists: true, data: () => ({ tier: 'free' }) } : { exists: store.has(name + '/' + id), data: () => store.get(name + '/' + id) }),",
+    '    }) }),',
+    '    runTransaction: async (fn) => {',
+    '      const pending = [];',
+    '      const out = await fn({ get: async (ref) => ({ exists: store.has(ref.key), data: () => store.get(ref.key) }), set: (ref, d) => pending.push([ref.key, d]) });',
+    '      for (const [k, d] of pending) store.set(k, Object.assign({}, store.get(k) || {}, d));',
+    '      return out;',
+    '    },',
+    '  }),',
+    '};',
+    'const orig = Module._load;',
+    "Module._load = function (r) { return r === 'firebase-admin' ? fake : orig.apply(this, arguments); };",
+    `require(${JSON.stringify(INDEX_CJS)});`,
+  ].join('\n');
+  const env = { ...process.env, PORT: String(port), VITE_FIREBASE_PROJECT_ID: 'demo-free-check' };
+  delete env.GEMINI_API_KEY; delete env.DIRECT_GEMINI_API_KEY;
+  delete env.REPLIT_GEMINI_BASE_URL; delete env.REPLIT_ANTHROPIC_BASE_URL;
+  delete env.DATABASE_URL;
+  delete env.FREE_CHECK_ENABLED; delete env.LT_FREECHECK_DAILY;
+  delete env.LT_CAP_ANON_HARD; delete env.LT_CAP_ANON_SOFT;
+  if (flagOn) env.FREE_CHECK_ENABLED = 'true';
+
+  const child = spawn(process.execPath, ['-e', launcher], { env, cwd: path.dirname(INDEX_CJS) });
+  let out = '';
+  child.stdout.on('data', (d) => { out += d; });
+  child.stderr.on('data', (d) => { out += d; });
+  const ready = new Promise((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error(`server did not start:\n${out}`)), 40000);
+    const tick = setInterval(() => {
+      if (/running on port/.test(out)) { clearInterval(tick); clearTimeout(t); resolve(); }
+      if (child.exitCode !== null) {
+        clearInterval(tick); clearTimeout(t); reject(new Error(`server exited:\n${out}`));
+      }
+    }, 200);
+  });
+  return { child, ready, log: () => out };
+}
+
+function preflight(port, urlPath) {
+  return new Promise((resolve, reject) => {
+    const req = http.request({ host: '127.0.0.1', port, path: urlPath, method: 'OPTIONS' }, (res) => {
+      res.resume();
+      res.on('end', () => resolve({ status: res.statusCode, headers: res.headers }));
+    });
+    req.on('error', reject);
+    req.end();
+  });
+}
+
+test('FC-H1 · ★ over REAL HTTP, flag OFF: marker + valid App Check still get the P2 and P3 402s',
+  { timeout: 90000 }, async (t) => {
+    const port = await freePort();
+    const srv = bootFreeCheckServer({ port, flagOn: false });
+    t.after(() => srv.child.kill());
+    await srv.ready;
+
+    const anon = await post(port, '/api/check-solution', { question: 'Q', marks: 3, textAnswer: 'a' }, markedHeaders());
+    assert.equal(anon.status, 402, `flag off: a marked anonymous POST must still be refused 402, got ${anon.status}: ${anon.text}`);
+    assert.equal(anon.json.error, 'premium_required');
+
+    const withUid = await post(port, '/api/check-solution', { question: 'Q', marks: 3, textAnswer: 'a' },
+      markedHeaders({ [UID_HEADER]: 'student-1' }));
+    assert.equal(withUid.status, 402);
+    await new Promise((r) => setTimeout(r, 300));
+    assert.match(srv.log(), /DENY \(a uid header arrived without a bearer token\)/);
+  });
+
+// MUTATION M4 (at the wiring): index.cjs drops the R6 option ⇒ the 4th marked call 429s ⇒ RED here.
+test('FC-H2 · ★ over REAL HTTP, flag ON: admitted free checks pass the 3/day loopback bucket, bad App Check is refused, CORS allows the headers',
+  { timeout: 90000 }, async (t) => {
+    const port = await freePort();
+    const srv = bootFreeCheckServer({ port, flagOn: true });
+    t.after(() => srv.child.kill());
+    await srv.ready;
+
+    // R7 — the preflight advertises both headers.
+    const pf = await preflight(port, '/api/check-solution');
+    assert.equal(pf.status, 204);
+    const allowHeaders = String(pf.headers['access-control-allow-headers'] || '');
+    assert.match(allowHeaders, /X-Firebase-AppCheck/);
+    assert.match(allowHeaders, new RegExp(FC.FREE_CHECK_MARKER_HEADER));
+
+    // R6 — five admitted marked calls from ONE loopback address; the anonymous cap is 3.
+    for (let i = 1; i <= 5; i += 1) {
+      const r = await post(port, '/api/detect-question', {}, markedHeaders({ [APPCHECK]: `${AC_GOOD}.h${i}` }));
+      assert.ok(![402, 403, 429].includes(r.status), `admitted free check ${i} was refused ${r.status}: ${r.text}`);
+    }
+    const gradeToken = `${AC_GOOD}.grade`;
+    const grade = await post(port, '/api/check-solution', { question: 'Q', marks: 3, textAnswer: 'a' }, markedHeaders({ [APPCHECK]: gradeToken }));
+    assert.ok(![402, 403, 429].includes(grade.status), `an admitted grading call passes entitlement, got ${grade.status}: ${grade.text}`);
+
+    // OR-13 — the SAME token replayed through the real index.cjs is refused as app_check_invalid.
+    const replay = await post(port, '/api/check-solution', { question: 'Q', marks: 3, textAnswer: 'a' }, markedHeaders({ [APPCHECK]: gradeToken }));
+    assert.equal(replay.status, 403, `a replayed App Check token must be refused, got ${replay.status}: ${replay.text}`);
+    assert.equal(replay.json.error, 'free_check_refused');
+    assert.equal(replay.json.reason, FC.REASONS.APP_CHECK_INVALID);
+
+    // App Check — refused with its reason over the wire.
+    const bad = await post(port, '/api/check-solution', { question: 'Q', marks: 3, textAnswer: 'a' }, markedHeaders({ [APPCHECK]: 'forged' }));
+    assert.equal(bad.status, 403);
+    assert.equal(bad.json.error, 'free_check_refused');
+    assert.equal(bad.json.reason, FC.REASONS.APP_CHECK_INVALID);
+
+    // CONTROL — the unmarked anonymous path is exactly P2, and the bucket is still fresh.
+    const plain = await post(port, '/api/check-solution', { question: 'Q', marks: 3, textAnswer: 'a' });
+    assert.equal(plain.status, 402, `an unmarked anonymous POST is still P2, got ${plain.status}: ${plain.text}`);
+    assert.equal(plain.json.error, 'premium_required');
+  });

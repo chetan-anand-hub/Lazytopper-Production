@@ -175,6 +175,10 @@ const { createVerifiedCaller } = require('./services/verifiedCaller.cjs');
 // ★ Fails OPEN with a warning AND a counter: a student who paid must never be
 // locked out by an infrastructure blip. Watch `entitlement.fail_open`.
 const { createEntitlementGate } = require('./services/entitlement.cjs');
+// FREE-CHECK-1a: one free marked upload for a signed-out visitor. DARK unless the
+// server env FREE_CHECK_ENABLED is on. Fails CLOSED (the opposite of entitlement):
+// there is no paying student to protect on this path, only a budget.
+const { createFreeCheckGate } = require('./services/freeCheck.cjs');
 // DPDP account erasure (ERASE-1). Owner-scoped: a student erases their OWN account,
 // uid taken from the verified token and from nowhere else. Walks STUDENT_DATA_MAP —
 // the map is the spec, so a collection added there is erased without touching this
@@ -305,6 +309,15 @@ const tutorRoute = createTutorRoute(routeDeps);
 const rateLimiter = createRateLimiter({ telemetry });
 const verifiedCaller = createVerifiedCaller({ firebaseAdmin, telemetry });
 const entitlementGate = createEntitlementGate({ adminFirestore, telemetry, sendJson });
+// R5 reads the limiter's all-class global:<day> count against 60% of limits.global.hard
+// through these two accessors (OR-4a) — threaded from THIS limiter instance, no new counter.
+const freeCheckGate = createFreeCheckGate({
+  firebaseAdmin,
+  adminFirestore,
+  telemetry,
+  globalCountToday: () => rateLimiter.globalCountToday(),
+  globalHardLimit: () => rateLimiter.limits.global.hard,
+});
 // DPDP erasure. The service loads STUDENT_DATA_MAP through the require.extensions
 // ['.ts'] hook installed at the top of this file — the same mechanism that already
 // loads trianglesGrindContract.ts at boot. A map that fails to load does NOT kill the
@@ -370,7 +383,7 @@ async function handleRequest(req, res) {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': config.CORS_ORIGIN,
       'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Lazytopper-Uid, X-Admin-Key, X-User-ID',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Lazytopper-Uid, X-Admin-Key, X-User-ID, X-Firebase-AppCheck, X-Lazytopper-Free-Check',
       'Access-Control-Max-Age': '86400',
     });
     return res.end();
@@ -394,7 +407,23 @@ async function handleRequest(req, res) {
     // untouched. Returns "" — never throws, never blocks — so a verification
     // fault degrades to the previous header-based behaviour.
     const verifiedUid = await verifiedCaller.resolveVerifiedUid(req);
-    const verdict = rateLimiter.check(req, reqPath, verifiedUid);
+
+    // ── Free check (FREE-CHECK-1a) ───────────────────────────────────────────
+    // Decided HERE, between verification and the limiter, because R6 must reach
+    // the limiter: an admitted free check must not charge the shared per-IP
+    // bucket, and entitlement (below) runs too late to prevent that. With
+    // FREE_CHECK_ENABLED off, isFreeCheckRequest is false and this block is inert:
+    // the limiter call and the entitlement gate below are exactly as before.
+    let freeCheckAdmitted = false;
+    if (freeCheckGate.isFreeCheckRequest(req, reqPath, verifiedUid)) {
+      const admission = await freeCheckGate.admit(req, reqPath);
+      if (!admission.admitted) return sendJson(res, admission.status, admission.body);
+      freeCheckAdmitted = true;
+    }
+
+    const verdict = freeCheckAdmitted
+      ? rateLimiter.check(req, reqPath, verifiedUid, { freeCheck: true })
+      : rateLimiter.check(req, reqPath, verifiedUid);
     if (!verdict.allowed) {
       return sendJson(res, verdict.status, verdict.body);
     }
@@ -405,7 +434,10 @@ async function handleRequest(req, res) {
     // has already sent a 402. For /api/step-solution it gates nothing here and
     // instead attaches a LAZY resolver the handler consults at its generation
     // branch, so bank-backed and cache-backed steps stay free AND pay for no read.
-    if (await entitlementGate.applyToRequest(req, res, reqPath, verifiedUid)) return;
+    //
+    // An ADMITTED free check bypasses this gate and only it; entitlement.cjs is
+    // byte-identical, so every non-free-check caller is decided exactly as before.
+    if (!freeCheckAdmitted && await entitlementGate.applyToRequest(req, res, reqPath, verifiedUid)) return;
   }
 
   const SHARE_SECRET = process.env.SESSION_SECRET;

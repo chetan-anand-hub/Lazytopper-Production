@@ -379,8 +379,17 @@ function createRateLimiter(options = {}) {
    *
    * A DENIED request commits nothing — being blocked must not push a caller
    * further from their reset.
+   *
+   * `options` is optional and fourth, so every existing call keeps its exact
+   * previous behaviour. `options.freeCheck === true` is passed by index.cjs ONLY
+   * for a request freeCheck.cjs has ADMITTED (FREE-CHECK-1a, R6), and is honoured
+   * only for an anonymous caller. It skips exactly the per-caller block and its
+   * soft-breach twin — the shared per-IP bucket (P10) is neither checked nor
+   * charged, because shared mobile IPs would refuse real students. The global hard
+   * ceiling, the 80% vision shed and the `global:<day>` commit all still apply: an
+   * admitted free check COUNTS toward the budget-derived ceiling (OR-4b).
    */
-  function check(req, reqPath, verifiedUid) {
+  function check(req, reqPath, verifiedUid, options) {
     const nowMs = now();
     const endpointClass = classify(reqPath);
 
@@ -390,6 +399,7 @@ function createRateLimiter(options = {}) {
 
     const day = rollIfNeeded(nowMs);
     const caller = resolveCaller(req, verifiedUid);
+    const freeCheck = !!(options && options.freeCheck === true) && caller.anonymous;
 
     /* ── UID-SOURCE DIAGNOSTIC ────────────────────────────────────────────────
        Which identity actually keyed this bucket. Emitted HERE because this is
@@ -450,7 +460,7 @@ function createRateLimiter(options = {}) {
 
     // ── HARD ceilings: block. Per-caller first, so the student gets the more
     //    specific (and more actionable) of the two messages.
-    if (rules && callerSoFar + 1 > rules.hard) {
+    if (!freeCheck && rules && callerSoFar + 1 > rules.hard) {
       emit(`rate_limit.hard_block.${klass}`);
       return denial(klass, nowMs);
     }
@@ -487,16 +497,17 @@ function createRateLimiter(options = {}) {
     // ── Allowed. Commit.
     const callerCount = callerSoFar + 1;
     const globalCount = globalSoFar + 1;
-    counts.set(callerKey, callerCount);
+    if (!freeCheck) counts.set(callerKey, callerCount);
     counts.set(globalKey, globalCount);
 
     // ── Calibration signal. THIS is the point of the whole table: the numbers
     //    above are guesses until these counters say otherwise.
     emit(`rate_limit.call.${endpointClass}`);
     emit("rate_limit.call.total");
+    if (freeCheck) emit("rate_limit.call.free_check");
 
     // ── SOFT thresholds: alert, never block. Announced once per class per day.
-    if (rules && callerCount > rules.soft && !softAnnounced.has(callerKey)) {
+    if (!freeCheck && rules && callerCount > rules.soft && !softAnnounced.has(callerKey)) {
       softAnnounced.add(callerKey);
       emit(`rate_limit.soft_breach.${klass}`);
     }
@@ -517,7 +528,17 @@ function createRateLimiter(options = {}) {
     return out;
   }
 
-  return { check, snapshot, limits, paidEndpoints };
+  /**
+   * Today's all-class `global:<day>` count (FREE-CHECK-1a, R5 / OR-4a). Rolls the
+   * day first, so it can never report yesterday's total. Read-only. Per-process and
+   * per-replica, like every count here — only R3's ceiling is durable.
+   */
+  function globalCountToday() {
+    const day = rollIfNeeded(now());
+    return counts.get(`${GLOBAL_CLASS}:${day}`) || 0;
+  }
+
+  return { check, snapshot, globalCountToday, limits, paidEndpoints };
 }
 
 module.exports = {

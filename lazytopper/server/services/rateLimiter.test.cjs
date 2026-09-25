@@ -631,3 +631,485 @@ test("the shape emit carries no IP and no PII", () => {
     assert.match(e.event, /^[a-z0-9._]+$/, `unexpected free text in event: ${e.event}`);
   }
 });
+
+/* ══════════════════════════════════════════════════════════════════════════
+   §FC · FREE-CHECK-1a — the durable ceiling (R3), the 60% budget line (R5), the
+   per-IP bucket (R6) and the global count (OR-4b).
+
+   The limiter is driven together with the REAL freeCheck.cjs gate, over a Firestore
+   stand-in with REAL transaction semantics (transactions are serialised, the way the
+   server SDK's pessimistic locks serialise them, and every read yields a tick so
+   anything done OUTSIDE a transaction genuinely interleaves). The store is a plain
+   object handed in from outside, so it OUTLIVES any module instance — which is what
+   "survives a restart" has to mean for a process-local limiter next to a durable
+   Firestore document (N6). Each test names the mutation that turns it red.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const FREE_CHECK_CJS = require.resolve("./freeCheck.cjs");
+const FC = require("./freeCheck.cjs");
+
+/** The durable store. Outlives every gate, limiter and module instance built over it. */
+function durableStore() {
+  return { docs: new Map(), writes: [], txCount: 0 };
+}
+
+const tick = () => new Promise((r) => setImmediate(r));
+
+function fakeFirestore(store, { failTx = false } = {}) {
+  let chain = Promise.resolve();
+  function commit(key, data, opts) {
+    store.writes.push({ key, data: { ...data }, merge: !!(opts && opts.merge) });
+    const prev = store.docs.get(key) || {};
+    store.docs.set(key, opts && opts.merge ? { ...prev, ...data } : { ...data });
+  }
+  function snapOf(key) {
+    const d = store.docs.get(key);
+    return { exists: !!d, data: () => (d ? { ...d } : undefined) };
+  }
+  return {
+    collection(name) {
+      return {
+        doc(id) {
+          const key = `${name}/${id}`;
+          return {
+            key,
+            async get() { await tick(); return snapOf(key); },
+            async set(data, opts) { await tick(); commit(key, data, opts); },
+          };
+        },
+      };
+    },
+    runTransaction(fn) {
+      if (failTx) return Promise.reject(new Error("FIRESTORE UNAVAILABLE"));
+      const run = chain.then(async () => {
+        store.txCount += 1;
+        const pending = [];
+        const tx = {
+          async get(ref) { await tick(); return snapOf(ref.key); },
+          set(ref, data, opts) { pending.push([ref.key, data, opts]); },
+        };
+        const result = await fn(tx);
+        for (const [k, d, o] of pending) commit(k, d, o);
+        return result;
+      });
+      chain = run.catch(() => {});
+      return run;
+    },
+  };
+}
+
+const GOOD_APPCHECK = "appcheck-good";
+/** A genuine token is GOOD_APPCHECK or GOOD_APPCHECK.<n> — 1b sends a FRESH limited-use token per call. */
+const isGenuine = (t) => t === GOOD_APPCHECK || String(t).startsWith(`${GOOD_APPCHECK}.`);
+let tokenSeq = 0;
+const freshToken = () => `${GOOD_APPCHECK}.${++tokenSeq}`;
+
+/**
+ * firebase-admin stand-in whose verifyToken follows the 13.7.0 replay contract
+ * (lib/app-check/app-check-api.d.ts): with `{ consume: true }` the first sight of a
+ * token returns `alreadyConsumed: false` and marks it; every later sight returns
+ * `alreadyConsumed: true`. Without `consume` the field is absent and nothing is marked.
+ * Every call's options are recorded so a test can prove `consume: true` was passed.
+ */
+function fakeAdmin() {
+  const calls = { verifyToken: 0, options: [] };
+  const consumed = new Set();
+  return {
+    calls,
+    consumed,
+    appCheck: () => ({
+      async verifyToken(t, options) {
+        calls.verifyToken += 1;
+        calls.options.push(options === undefined ? undefined : { ...options });
+        if (!isGenuine(t)) throw new Error("app check token did not verify");
+        const out = { appId: "1:123:web:abc", token: { sub: "1:123:web:abc" } };
+        if (options && options.consume === true) {
+          out.alreadyConsumed = consumed.has(t);
+          consumed.add(t);
+        }
+        return out;
+      },
+    }),
+  };
+}
+
+const FLAG_ON = Object.freeze({ FREE_CHECK_ENABLED: "true" });
+
+/** A signed-out visitor's marked free-check request, as 1b sends it. */
+function reqFree(ip = "203.0.113.9", extra = {}) {
+  return {
+    method: "POST",
+    headers: {
+      "x-lazytopper-free-check": "1",
+      "x-firebase-appcheck": freshToken(),
+      "x-forwarded-for": `${ip}, 10.0.0.1`,
+      ...extra,
+    },
+    socket: { remoteAddress: "127.0.0.1" },
+  };
+}
+
+/** Limiter + gate, threaded the way index.cjs threads them (the accessor, from the limiter). */
+function freeHarness({ store = durableStore(), env = FLAG_ON, limits = TEST_LIMITS, now = clock(), failTx, mod = FC, admin = fakeAdmin() } = {}) {
+  const telemetry = recorder();
+  const rl = createRateLimiter({ now, telemetry, limits });
+  const firestore = fakeFirestore(store, { failTx });
+  const gate = mod.createFreeCheckGate({
+    firebaseAdmin: admin,
+    adminFirestore: firestore,
+    telemetry,
+    logger: { warn() {} },
+    env,
+    now,
+    globalCountToday: () => rl.globalCountToday(),
+    globalHardLimit: () => rl.limits.global.hard,
+  });
+  return { rl, gate, store, admin, telemetry, now };
+}
+
+/** index.cjs's order: classify -> admit -> limiter (with the R6 option only when admitted). */
+async function throughEdge(h, req, reqPath) {
+  if (!h.gate.isFreeCheckRequest(req, reqPath, "")) return { free: false, verdict: h.rl.check(req, reqPath, "") };
+  const a = await h.gate.admit(req, reqPath);
+  if (!a.admitted) return { free: true, refused: a };
+  return { free: true, admitted: true, verdict: h.rl.check(req, reqPath, "", { freeCheck: true }) };
+}
+
+/** The day document for the IST day of `nowMs` (T0 is 2026-07-25 in IST). */
+const dayDoc = (store, day = "2026-07-25") => store.docs.get(`${FC.FREE_CHECK_COLLECTION}/${day}`) || {};
+
+// MUTATION M3: do the served read-modify-write OUTSIDE runTransaction ⇒ RED here.
+test("FC-R3a · ★ the ceiling is TRANSACTIONAL: concurrent uploads at cap−1 ⇒ exactly ONE admitted", async () => {
+  const store = durableStore();
+  const h = freeHarness({ store, env: { ...FLAG_ON, LT_FREECHECK_DAILY: "5" } });
+  const key = `${FC.FREE_CHECK_COLLECTION}/2026-07-25`;
+  store.docs.set(key, { served: 4 }); // cap − 1
+
+  const results = await Promise.all(
+    Array.from({ length: 10 }, (_, i) => h.gate.admit(reqFree(`198.51.100.${i}`), "/api/check-solution")),
+  );
+  const admitted = results.filter((r) => r.admitted).length;
+  assert.equal(admitted, 1, `exactly one upload may take the last slot, ${admitted} did`);
+  assert.equal(store.docs.get(key).served, 5, "served stops at the cap");
+  assert.equal(store.docs.get(key).refused_quota, 9, "every other attempt is counted as refused_quota");
+  for (const r of results.filter((x) => !x.admitted)) assert.equal(r.body.reason, FC.REASONS.CEILING);
+});
+
+test("FC-R3a CONTROL · the fake really interleaves: a NON-transactional read-modify-write over it over-admits", async () => {
+  // Without this, "exactly one" above could be an artefact of a fake that never races.
+  const store = durableStore();
+  const db = fakeFirestore(store);
+  const ref = db.collection(FC.FREE_CHECK_COLLECTION).doc("2026-07-25");
+  store.docs.set(ref.key, { served: 4 });
+  const naive = async () => {
+    const snap = await ref.get();
+    const served = snap.data().served;
+    if (served >= 5) return false;
+    await ref.set({ served: served + 1 }, { merge: true });
+    return true;
+  };
+  const results = await Promise.all(Array.from({ length: 10 }, naive));
+  assert.ok(results.filter(Boolean).length > 1, "the fake must be able to expose a lost update");
+});
+
+// MUTATION: count `served` on /api/detect-question too ⇒ RED (N4).
+test("FC-R3b · served counts GRADING calls only; a marked detect is checked against the cap but never counted", async () => {
+  const h = freeHarness({ env: { ...FLAG_ON, LT_FREECHECK_DAILY: "2" } });
+  assert.equal((await h.gate.admit(reqFree(), "/api/detect-question")).admitted, true);
+  assert.equal(dayDoc(h.store).served, undefined, "a detect must not count as an upload");
+  assert.equal((await h.gate.admit(reqFree(), "/api/check-solution")).admitted, true);
+  assert.equal((await h.gate.admit(reqFree(), "/api/grade-worksheet")).admitted, true);
+  assert.equal(dayDoc(h.store).served, 2);
+  const detectAtCap = await h.gate.admit(reqFree(), "/api/detect-question");
+  assert.equal(detectAtCap.admitted, false, "the cap check still applies to a marked detect");
+  assert.equal(detectAtCap.body.reason, FC.REASONS.CEILING);
+});
+
+test("FC-R3d · LT_FREECHECK_DAILY defaults to 100 and is read from env", () => {
+  assert.equal(FC.freeCheckDailyCap({}), 100);
+  assert.equal(FC.DEFAULT_DAILY_CAP, 100);
+  assert.equal(FC.freeCheckDailyCap({ LT_FREECHECK_DAILY: "40" }), 40);
+  assert.equal(FC.freeCheckDailyCap({ LT_FREECHECK_DAILY: "0" }), 0);
+  assert.equal(FC.freeCheckDailyCap({ LT_FREECHECK_DAILY: "banana" }), 100);
+});
+
+// MUTATION: keep served in module memory instead of the store ⇒ RED here.
+test("FC-R3c · ★ the ceiling SURVIVES A RESTART — a fresh module instance over the same store refuses; the in-memory limiter does not remember", async () => {
+  const store = durableStore();
+  const env = { ...FLAG_ON, LT_FREECHECK_DAILY: "3" };
+  const before = freeHarness({ store, env });
+  for (let i = 0; i < 3; i += 1) {
+    const r = await throughEdge(before, reqFree(), "/api/check-solution");
+    assert.equal(r.admitted, true, `upload ${i + 1} of 3 should be admitted`);
+  }
+  assert.equal(before.rl.globalCountToday(), 3);
+
+  // "Restart": drop the module from the require cache, load a NEW instance, build a NEW
+  // limiter and gate. Only the durable store carries over.
+  delete require.cache[FREE_CHECK_CJS];
+  const fresh = require("./freeCheck.cjs");
+  assert.notEqual(fresh, FC, "control: this really is a new module instance");
+  const after = freeHarness({ store, env, mod: fresh });
+  assert.equal(after.rl.globalCountToday(), 0, "control: the process-local limiter DID reset (P8)");
+
+  const refused = await after.gate.admit(reqFree(), "/api/check-solution");
+  assert.equal(refused.admitted, false, "the durable ceiling must survive the restart");
+  assert.equal(refused.status, FC.REFUSAL_STATUS);
+  assert.equal(refused.body.reason, FC.REASONS.CEILING);
+  assert.equal(dayDoc(store).served, 3);
+
+  // The next IST day is a new document: the ceiling resets by date, not by restart.
+  after.now.advance(DAY);
+  assert.equal((await after.gate.admit(reqFree(), "/api/check-solution")).admitted, true);
+  assert.equal(dayDoc(store, "2026-07-26").served, 1);
+});
+
+// MUTATION M2: BUDGET_FRACTION 0.6 → 0.8, or delete the R5 branch ⇒ RED here.
+test("FC-R5 · ★ the 60% line: floor(hard×0.6)−1 is ADMITTED, floor(hard×0.6) is REFUSED — derived from HARD, not soft", async () => {
+  const GLOBAL_HARD = 10; // R5 line = 6, vision shed = 8
+  const limits = {
+    ...TEST_LIMITS,
+    tutor: { soft: 50, hard: 50 },
+    vision: { soft: 50, hard: 50 },
+    global: { soft: 2, hard: GLOBAL_HARD }, // soft deliberately far below: it must not be the operand
+  };
+  const h = freeHarness({ limits });
+  assert.equal(FC.budgetThreshold(GLOBAL_HARD), 6);
+
+  for (let i = 0; i < 5; i += 1) assert.equal(h.rl.check(reqWithUid(`t${i}`), "/api/tutor").allowed, true);
+  assert.equal(h.rl.globalCountToday(), 5);
+  const below = await h.gate.admit(reqFree(), "/api/check-solution");
+  assert.equal(below.admitted, true, "floor(hard×0.6)−1 must be admitted");
+
+  assert.equal(h.rl.check(reqWithUid("t5"), "/api/tutor").allowed, true);
+  assert.equal(h.rl.globalCountToday(), 6);
+  const at = await h.gate.admit(reqFree(), "/api/check-solution");
+  assert.equal(at.admitted, false, "floor(hard×0.6) must be refused");
+  assert.equal(at.status, FC.REFUSAL_STATUS);
+  assert.equal(at.body.reason, FC.REASONS.BUDGET);
+  assert.equal(dayDoc(h.store).refused_budget, 1);
+
+  // The band between 60% and the 80% shed stays open for a PAYING student.
+  assert.equal(h.rl.check(reqWithUid("paying"), "/api/check-solution").allowed, true);
+});
+
+test("FC-R5b · at shipped defaults the line is floor(DEFAULT hard × 0.6), below the 80% shed", () => {
+  const hard = DEFAULT_LIMITS.global.hard;
+  assert.equal(FC.BUDGET_FRACTION, 0.6);
+  assert.equal(FC.budgetThreshold(hard), Math.floor(hard * 0.6));
+  assert.ok(FC.budgetThreshold(hard) < Math.floor(hard * VISION_SHED_FRACTION), "R5 must sit below the shed");
+});
+
+// MUTATION M4: charge the per-IP bucket for an admitted free check ⇒ RED here.
+test("FC-R6 · ★ admitted free checks do NOT consume the per-IP bucket — CONTROL: the same calls unmarked do", async () => {
+  const h = freeHarness(); // TEST_LIMITS: anonymous hard = 2
+  for (let i = 0; i < 5; i += 1) {
+    const r = await throughEdge(h, reqFree("203.0.113.9"), i % 2 ? "/api/detect-question" : "/api/check-solution");
+    assert.equal(r.admitted, true);
+    assert.equal(r.verdict.allowed, true, `admitted free check ${i + 1} must not hit the anonymous cap`);
+  }
+  assert.ok(!Object.keys(h.rl.snapshot()).some((k) => k.startsWith("ip:")), "no per-IP key may be charged");
+
+  // The visitor's ordinary anonymous allowance is intact.
+  const plain = { headers: { "x-forwarded-for": "203.0.113.9, 10.0.0.1" }, socket: { remoteAddress: "127.0.0.1" } };
+  assert.equal(h.rl.check(plain, "/api/tutor").allowed, true);
+  assert.equal(h.rl.check(plain, "/api/tutor").allowed, true);
+  assert.equal(h.rl.check(plain, "/api/tutor").allowed, false, "control: the bucket still bites at its cap");
+
+  // CONTROL: without the R6 option the same anonymous calls exhaust the bucket at 2.
+  const c = freeHarness();
+  const noOption = [0, 1, 2].map(() => c.rl.check(reqFree("203.0.113.9"), "/api/check-solution").allowed);
+  assert.deepEqual(noOption, [true, true, false]);
+});
+
+test("FC-R6b · the R6 option is honoured ONLY for an anonymous caller — a signed-in caller passing it is still charged", () => {
+  const { rl } = limiter();
+  for (let i = 0; i < 4; i += 1) {
+    assert.equal(rl.check(reqWithUid("u1"), "/api/check-solution", "", { freeCheck: true }).allowed, true);
+  }
+  assert.equal(rl.check(reqWithUid("u1"), "/api/check-solution", "", { freeCheck: true }).allowed, false,
+    "a uid's per-caller cap must never be bypassable");
+});
+
+// MUTATION M10: skip the global:<day> commit for an admitted free check ⇒ RED here.
+test("FC-OR4b · ★ admitted free checks DO count in global:<day>, and the global hard ceiling still binds them", async () => {
+  const h = freeHarness();
+  for (let i = 0; i < 4; i += 1) assert.equal((await throughEdge(h, reqFree(), "/api/check-solution")).admitted, true);
+  assert.equal(h.rl.snapshot()["global:2026-07-25"], 4, "every admitted free check is a global call");
+  assert.equal(h.rl.globalCountToday(), 4);
+
+  const tight = limiter({ limits: { ...TEST_LIMITS, global: { soft: 50, hard: 1 } } });
+  assert.equal(tight.rl.check(reqFree(), "/api/detect-question", "", { freeCheck: true }).allowed, true);
+  const over = tight.rl.check(reqFree(), "/api/detect-question", "", { freeCheck: true });
+  assert.equal(over.allowed, false, "the circuit breaker applies to free checks too");
+  assert.equal(over.body.class, "global");
+});
+
+// MUTATION M6: the writer adds a `uid` (or any non-counter) field ⇒ RED here.
+// MUTATION F4: re-add `refused_appcheck` to COUNTER_FIELDS ⇒ RED here (the exact pin).
+test("FC-OR3 · ★ every field the free-check writer sets is one of the THREE counters — no uid, no IP, no App Check id", async () => {
+  // OR-13: App Check refusals are telemetry-only, so `refused_appcheck` is NOT a durable field.
+  assert.deepEqual([...FC.COUNTER_FIELDS], ["served", "refused_quota", "refused_budget"]);
+  const store = durableStore();
+  const env = { ...FLAG_ON, LT_FREECHECK_DAILY: "1" };
+  const h = freeHarness({ store, env, limits: { ...TEST_LIMITS, tutor: { soft: 99, hard: 99 }, global: { soft: 50, hard: 100 } } });
+
+  await h.gate.admit(reqFree("203.0.113.77"), "/api/check-solution"); // served
+  await h.gate.admit(reqFree("203.0.113.77"), "/api/check-solution"); // refused_quota
+  await h.gate.admit(reqFree("203.0.113.77", { "x-firebase-appcheck": "" }), "/api/check-solution"); // app_check_missing: telemetry only
+  await h.gate.admit(reqFree("203.0.113.77", { "x-firebase-appcheck": "forged" }), "/api/check-solution"); // app_check_invalid: telemetry only
+  for (let i = 0; i < 60; i += 1) h.rl.check(reqWithUid(`t${i}`), "/api/tutor");
+  await h.gate.admit(reqFree("203.0.113.77"), "/api/check-solution"); // refused_budget
+
+  // CONTROL: every writer path really ran, so the containment check below is not vacuous.
+  const written = new Set(store.writes.flatMap((w) => Object.keys(w.data)));
+  assert.deepEqual([...written].sort(), [...FC.COUNTER_FIELDS].sort());
+  assert.deepEqual(dayDoc(store), { served: 1, refused_quota: 1, refused_budget: 1 });
+  assert.equal(h.telemetry.count("free_check.refused.app_check_missing"), 1, "the App Check refusals ARE counted — in telemetry");
+  assert.equal(h.telemetry.count("free_check.refused.app_check_invalid"), 1);
+
+  const allowed = new Set(FC.COUNTER_FIELDS);
+  for (const w of store.writes) {
+    for (const field of Object.keys(w.data)) assert.ok(allowed.has(field), `forbidden field written: ${field}`);
+    for (const v of Object.values(w.data)) assert.equal(typeof v, "number", "counters only");
+    assert.match(w.key, /^freeCheckDaily\/\d{4}-\d{2}-\d{2}$/, "the document id is the IST day and nothing else");
+  }
+  const serialised = JSON.stringify([...store.docs.entries(), ...store.writes]);
+  for (const leak of ["203.0.113.77", GOOD_APPCHECK, "forged", "1:123:web:abc"]) {
+    assert.ok(!serialised.includes(leak), `an identifier reached the durable store: ${leak}`);
+  }
+});
+
+/* ── OR-13 · App Check REPLAY PROTECTION, and zero Firestore work for App Check refusals ──
+   Owner ruling OR-13: verify with `verifyToken(token, { consume: true })`; a token the
+   backend reports `alreadyConsumed: true` is refused `app_check_invalid` (no new reason);
+   `app_check_missing` / `app_check_invalid` are counted by telemetry ONLY and never
+   written to freeCheckDaily. */
+
+// MUTATION F1: drop `{ consume: true }` from the verifyToken call ⇒ RED here (and FC-OR13d).
+test("FC-OR13a · ★ `consume: true` is passed to verifyToken on EACH of the three free-check paths", async () => {
+  assert.deepEqual([...FC.FREE_CHECK_PATHS], ["/api/check-solution", "/api/grade-worksheet", "/api/detect-question"]);
+  for (const p of FC.FREE_CHECK_PATHS) {
+    const h = freeHarness();
+    const r = await h.gate.admit(reqFree(), p);
+    assert.equal(r.admitted, true, `${p}: a fresh genuine token is admitted`);
+    assert.equal(h.admin.calls.verifyToken, 1, `${p}: verified exactly once`);
+    assert.deepEqual(h.admin.calls.options, [{ consume: true }], `${p}: verifyToken must be called with { consume: true }`);
+    assert.equal(h.admin.consumed.size, 1, `${p}: the token is now consumed at the backend`);
+  }
+});
+
+// MUTATION F2: ignore `alreadyConsumed` ⇒ RED here (and FC-OR13c, FC-OR13d).
+test("FC-OR13b · ★ a verifier answer of `alreadyConsumed: true` is refused `app_check_invalid` — no new reason, no store work, nothing committed", async () => {
+  // A verifier that ALWAYS reports the token as already consumed, independent of the
+  // fake's own bookkeeping, so this pins the gate's reading of the field alone.
+  const replayAdmin = (alreadyConsumed) => {
+    const calls = { verifyToken: 0, options: [] };
+    return {
+      calls,
+      appCheck: () => ({
+        async verifyToken(t, options) {
+          calls.verifyToken += 1;
+          calls.options.push(options);
+          return { appId: "1:123:web:abc", token: { sub: "1:123:web:abc" }, alreadyConsumed };
+        },
+      }),
+    };
+  };
+  for (const p of FC.FREE_CHECK_PATHS) {
+    const h = freeHarness({ admin: replayAdmin(true) });
+    const r = await throughEdge(h, reqFree(), p);
+    assert.equal(r.free, true);
+    assert.equal(r.admitted, undefined, `${p}: a replayed token must not be admitted`);
+    assert.equal(r.refused.status, FC.REFUSAL_STATUS);
+    assert.equal(r.refused.body.error, FC.REFUSAL_ERROR);
+    assert.equal(r.refused.body.reason, FC.REASONS.APP_CHECK_INVALID, `${p}: replay is reported as app_check_invalid`);
+    assert.equal(h.store.txCount, 0, `${p}: no Firestore transaction for a replay`);
+    assert.equal(h.store.writes.length, 0);
+    assert.deepEqual(h.rl.snapshot(), {}, `${p}: a refused replay commits nothing to the limiter`);
+    assert.equal(h.telemetry.count("free_check.refused.app_check_invalid"), 1, "counted by telemetry");
+  }
+  // The 1b wire contract is unchanged: still exactly the five reasons.
+  assert.deepEqual(Object.values(FC.REASONS).slice().sort(),
+    ["app_check_invalid", "app_check_missing", "budget", "ceiling_reached", "unavailable"]);
+  // CONTROL: the same verifier answering `alreadyConsumed: false` is admitted, so the
+  // refusal above is caused by the field and nothing else.
+  const ok = freeHarness({ admin: replayAdmin(false) });
+  assert.equal((await ok.gate.admit(reqFree(), "/api/check-solution")).admitted, true);
+});
+
+// MUTATION F3: write a refusal counter for App Check refusals again ⇒ RED here.
+test("FC-OR13c · ★ a BURST of missing / forged / replayed tokens performs ZERO Firestore transactions — CONTROL: a genuine call performs one", async () => {
+  const store = durableStore();
+  const h = freeHarness({ store, env: { ...FLAG_ON, LT_FREECHECK_DAILY: "100" } });
+
+  // Prime: one genuine grading call, whose token the burst will then replay.
+  const primed = freshToken();
+  assert.equal((await h.gate.admit(reqFree("198.51.100.1", { "x-firebase-appcheck": primed }), "/api/check-solution")).admitted, true);
+  assert.equal(store.txCount, 1, "control: a genuine call really runs a transaction on this fake");
+  const txBefore = store.txCount;
+  const writesBefore = store.writes.length;
+  const docBefore = { ...dayDoc(store) };
+
+  const burst = [];
+  for (let i = 0; i < 40; i += 1) {
+    const p = FC.FREE_CHECK_PATHS[i % 3];
+    burst.push(h.gate.admit(reqFree(`198.51.100.${i}`, { "x-firebase-appcheck": "" }), p)); // missing
+    burst.push(h.gate.admit(reqFree(`198.51.100.${i}`, { "x-firebase-appcheck": `forged-${i}` }), p)); // invalid
+    burst.push(h.gate.admit(reqFree(`198.51.100.${i}`, { "x-firebase-appcheck": primed }), p)); // replayed
+  }
+  const results = await Promise.all(burst);
+  assert.equal(results.filter((r) => r.admitted).length, 0, "nothing in the burst is admitted");
+  const reasons = results.map((r) => r.body.reason);
+  assert.equal(reasons.filter((x) => x === FC.REASONS.APP_CHECK_MISSING).length, 40);
+  assert.equal(reasons.filter((x) => x === FC.REASONS.APP_CHECK_INVALID).length, 80, "forged AND replayed are both app_check_invalid");
+
+  assert.equal(store.txCount - txBefore, 0, "★ the burst ran ZERO Firestore transactions");
+  assert.equal(store.writes.length - writesBefore, 0, "and wrote nothing");
+  assert.deepEqual(dayDoc(store), docBefore, "the day document is untouched by the burst");
+  assert.ok(!Object.keys(dayDoc(store)).some((k) => /appcheck/i.test(k)), "no App Check counter field exists");
+
+  // They ARE counted — by telemetry only.
+  assert.equal(h.telemetry.count("free_check.refused.app_check_missing"), 40);
+  assert.equal(h.telemetry.count("free_check.refused.app_check_invalid"), 80);
+
+  // CONTROL: the served transaction was never contended — the next genuine upload
+  // runs exactly one transaction and takes the next slot.
+  assert.equal((await h.gate.admit(reqFree(), "/api/grade-worksheet")).admitted, true);
+  assert.equal(store.txCount - txBefore, 1);
+  assert.equal(dayDoc(store).served, 2);
+});
+
+// MUTATIONS F1 and F2 both turn this red: without consume, or ignoring the answer, a replay is served.
+test("FC-OR13d · ★ a REPLAYED token cannot take a second served slot — sequential or concurrent, on any path", async () => {
+  const store = durableStore();
+  const h = freeHarness({ store, env: { ...FLAG_ON, LT_FREECHECK_DAILY: "5" } });
+  const token = freshToken();
+  const withToken = (t) => reqFree("203.0.113.50", { "x-firebase-appcheck": t });
+
+  const first = await throughEdge(h, withToken(token), "/api/check-solution");
+  assert.equal(first.admitted, true, "the first use of a fresh token is admitted");
+  assert.equal(dayDoc(store).served, 1);
+  assert.equal(h.rl.globalCountToday(), 1);
+
+  for (const p of FC.FREE_CHECK_PATHS) {
+    const again = await throughEdge(h, withToken(token), p);
+    assert.equal(again.admitted, undefined, `${p}: the replay must be refused`);
+    assert.equal(again.refused.body.reason, FC.REASONS.APP_CHECK_INVALID);
+  }
+  assert.equal(dayDoc(store).served, 1, "★ the replay took no second served slot");
+  assert.equal(h.rl.globalCountToday(), 1, "and no second global call");
+
+  // Concurrent: ten uploads racing on ONE fresh token ⇒ exactly one served slot.
+  const racer = freshToken();
+  const raced = await Promise.all(
+    Array.from({ length: 10 }, () => h.gate.admit(withToken(racer), "/api/grade-worksheet")),
+  );
+  assert.equal(raced.filter((r) => r.admitted).length, 1, "one token buys one admission");
+  for (const r of raced.filter((x) => !x.admitted)) assert.equal(r.body.reason, FC.REASONS.APP_CHECK_INVALID);
+  assert.equal(dayDoc(store).served, 2);
+
+  // CONTROL: fresh tokens — as 1b sends them — are each admitted, up to the cap.
+  for (let i = 0; i < 3; i += 1) assert.equal((await h.gate.admit(reqFree(), "/api/check-solution")).admitted, true);
+  assert.equal(dayDoc(store).served, 5);
+});
