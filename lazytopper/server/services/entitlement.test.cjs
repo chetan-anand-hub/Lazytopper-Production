@@ -1000,7 +1000,7 @@ const reqMarked = (extra = {}) => ({ method: 'POST', headers: markedHeaders(extr
 /** Free-check day documents, with every touch recorded — a flag-off request must touch NOTHING. */
 function freeStore({ failTx = false } = {}) {
   const docs = new Map();
-  const touches = { reads: 0, writes: 0 };
+  const touches = { reads: 0, writes: 0, transactions: 0 };
   return {
     docs,
     touches,
@@ -1010,6 +1010,7 @@ function freeStore({ failTx = false } = {}) {
         return { doc: (id) => ({ key: `${name}/${id}` }) };
       },
       async runTransaction(fn) {
+        touches.transactions += 1;
         if (failTx) throw new Error('FIRESTORE UNAVAILABLE');
         const pending = [];
         const tx = {
@@ -1028,8 +1029,15 @@ function freeStore({ failTx = false } = {}) {
   };
 }
 
+/**
+ * firebase-admin stand-in. Its verifyToken follows the 13.7.0 replay contract
+ * (lib/app-check/app-check-api.d.ts): with `{ consume: true }` the first sight of a
+ * token answers `alreadyConsumed: false` and marks it, every later sight answers
+ * `alreadyConsumed: true`. The options of every call are recorded.
+ */
 function freeAdmin() {
-  const calls = { verifyToken: 0 };
+  const calls = { verifyToken: 0, options: [] };
+  const consumed = new Set();
   return {
     calls,
     auth: () => ({
@@ -1039,10 +1047,16 @@ function freeAdmin() {
       },
     }),
     appCheck: () => ({
-      async verifyToken(t) {
+      async verifyToken(t, options) {
         calls.verifyToken += 1;
-        if (t === AC_GOOD) return { appId: '1:123:web:abc' };
-        throw new Error('app check token did not verify');
+        calls.options.push(options === undefined ? undefined : { ...options });
+        if (t !== AC_GOOD) throw new Error('app check token did not verify');
+        const out = { appId: '1:123:web:abc' };
+        if (options && options.consume === true) {
+          out.alreadyConsumed = consumed.has(t);
+          consumed.add(t);
+        }
+        return out;
       },
     }),
   };
@@ -1099,7 +1113,7 @@ for (const env of [{}, { FREE_CHECK_ENABLED: '' }, { FREE_CHECK_ENABLED: '0' }, 
     assert.equal(p2.telemetry.get(DENY_ANONYMOUS), 1);
     assert.equal((await p2.gate.resolve('', reqMarked())).outcome, 'anonymous');
     assert.ok(Object.keys(p2.limiter.snapshot()).some((k) => k.startsWith('ip:')), 'the per-IP bucket is charged exactly as before');
-    assert.deepEqual(p2.store.touches, { reads: 0, writes: 0 }, 'flag off must never touch the free-check store');
+    assert.deepEqual(p2.store.touches, { reads: 0, writes: 0, transactions: 0 }, 'flag off must never touch the free-check store');
     assert.equal(p2.fakeAdmin.calls.verifyToken, 0, 'flag off must never verify App Check');
 
     const p3 = freeEdgeFor({ tier: 'premium' }, { env });
@@ -1109,7 +1123,7 @@ for (const env of [{}, { FREE_CHECK_ENABLED: '' }, { FREE_CHECK_ENABLED: '0' }, 
     assert.equal(r3.res.last().status, 402);
     assert.equal(p3.telemetry.get(DENY_UID_HEADER_NO_TOKEN), 1);
     assert.equal((await p3.gate.resolve('', p3Req)).outcome, 'uid-header-no-token');
-    assert.deepEqual(p3.store.touches, { reads: 0, writes: 0 });
+    assert.deepEqual(p3.store.touches, { reads: 0, writes: 0, transactions: 0 });
     assert.equal(p3.fakeAdmin.calls.verifyToken, 0);
 
     // CONTROL: the identical P2 request WITH the flag on is admitted, so the flag — and
@@ -1132,25 +1146,27 @@ test('FC-E2 · ★ signed-in callers are untouched with the flag ON, marker or n
     const d = await premium.gate.resolve('student-1', req);
     assert.deepEqual({ entitled: d.entitled, tier: d.tier }, { entitled: true, tier: 'premium' });
     assert.ok(Object.keys(premium.limiter.snapshot()).some((k) => k.startsWith('student-1:vision:')), 'charged to the student as before');
-    assert.deepEqual(premium.store.touches, { reads: 0, writes: 0 });
+    assert.deepEqual(premium.store.touches, { reads: 0, writes: 0, transactions: 0 });
     assert.equal(premium.fakeAdmin.calls.verifyToken, 0);
 
     const free = freeEdgeFor({ tier: 'free' });
     const rf = await free.run(req, '/api/check-solution');
     assert.equal(rf.stage, 'entitlement', 'the marker must not open grading to a signed-in free student');
     assert.equal(rf.res.last().status, 402);
-    assert.deepEqual(free.store.touches, { reads: 0, writes: 0 });
+    assert.deepEqual(free.store.touches, { reads: 0, writes: 0, transactions: 0 });
   }
 });
 
 // MUTATION M1: App Check verification always passes ⇒ RED here.
-test('FC-E3 · ★ App Check MISSING or INVALID is refused before the limiter and the gate — CONTROL: a valid token is admitted', async () => {
+test('FC-E3 · ★ App Check MISSING or INVALID is refused before the limiter and the gate, with NO Firestore work — CONTROL: a valid token is admitted', async () => {
   const missing = freeEdgeFor({ tier: 'free' });
   const rm = await missing.run(reqMarked({ [APPCHECK]: '' }), '/api/check-solution');
   assert.equal(rm.stage, 'free-check');
   assert.equal(rm.res.last().status, FC.REFUSAL_STATUS);
   assert.equal(rm.res.last().body.reason, FC.REASONS.APP_CHECK_MISSING);
   assert.equal(missing.fakeAdmin.calls.verifyToken, 0);
+  assert.deepEqual(missing.store.touches, { reads: 0, writes: 0, transactions: 0 }, 'OR-13: a missing token does no Firestore work');
+  assert.equal(missing.telemetry.get('free_check.refused.app_check_missing'), 1, 'counted by telemetry only');
 
   for (const bad of ['forged', 'x.y.z', AC_GOOD + 'x']) {
     const invalid = freeEdgeFor({ tier: 'free' });
@@ -1161,7 +1177,10 @@ test('FC-E3 · ★ App Check MISSING or INVALID is refused before the limiter an
     assert.equal(invalid.fakeAdmin.calls.verifyToken, 1, 'the token must really be verified');
     assert.deepEqual(invalid.limiter.snapshot(), {}, 'a refused free check commits nothing to the limiter');
     assert.equal(invalid.telemetry.get(DENY_ANONYMOUS), 0, 'and never reaches entitlement');
-    assert.equal(invalid.store.docs.get(`${FC.FREE_CHECK_COLLECTION}/2026-08-03`).refused_appcheck, 1);
+    // OR-13: counted by telemetry only — never written to freeCheckDaily.
+    assert.deepEqual(invalid.store.touches, { reads: 0, writes: 0, transactions: 0 }, 'an invalid token does no Firestore work');
+    assert.equal(invalid.store.docs.size, 0);
+    assert.equal(invalid.telemetry.get('free_check.refused.app_check_invalid'), 1);
   }
   // A marked DETECT with a bad token is refused too (detect is ungated, so the edge must do it — N3).
   const detect = freeEdgeFor({ tier: 'free' });
@@ -1175,13 +1194,36 @@ test('FC-E3 · ★ App Check MISSING or INVALID is refused before the limiter an
   assert.equal(ok.fakeAdmin.calls.verifyToken, 1);
 });
 
+// MUTATIONS F1 / F2 (drop consume:true / ignore alreadyConsumed) ⇒ RED here.
+test('FC-E8 · ★ OR-13 replay protection at the edge: consume:true on EACH free-check path, and a replayed token is refused app_check_invalid before the limiter, with no Firestore work', async () => {
+  for (const p of FC.FREE_CHECK_PATHS) {
+    const e = freeEdgeFor({ tier: 'free' });
+    const first = await e.run(reqMarked(), p);
+    assert.equal(first.admitted, true, `${p}: the first use of the token is admitted`);
+    assert.deepEqual(e.fakeAdmin.calls.options, [{ consume: true }], `${p}: verifyToken called with { consume: true }`);
+    const touchesAfterFirst = { ...e.store.touches };
+    const limiterAfterFirst = e.limiter.snapshot();
+
+    const replay = await e.run(reqMarked(), p);
+    assert.equal(replay.admitted, false, `${p}: the replay is not admitted`);
+    assert.equal(replay.stage, 'free-check', `${p}: refused at the edge`);
+    assert.equal(replay.res.last().status, FC.REFUSAL_STATUS);
+    assert.equal(replay.res.last().body.error, 'free_check_refused');
+    assert.equal(replay.res.last().body.reason, FC.REASONS.APP_CHECK_INVALID, `${p}: no new reason — replay is app_check_invalid`);
+    assert.deepEqual(e.fakeAdmin.calls.options, [{ consume: true }, { consume: true }]);
+    assert.deepEqual(e.store.touches, touchesAfterFirst, `${p}: the replay did no Firestore work`);
+    assert.deepEqual(e.limiter.snapshot(), limiterAfterFirst, `${p}: the replay committed nothing to the limiter`);
+    assert.equal(e.telemetry.get(DENY_ANONYMOUS), 0, `${p}: and never reached entitlement`);
+  }
+});
+
 test('FC-E4 · ★ the marker on a NON-free-check path is never admitted (paid headers go out from 11 call sites)', async () => {
   for (const p of ['/api/tutor', '/api/generate-visual', '/api/generate-diagram', '/api/step-solution', '/api/more-like-this']) {
     const e = freeEdgeFor({ tier: 'free' });
     assert.equal(e.free.isFreeCheckRequest(reqMarked(), p, ''), false, `${p} must not be a free-check path`);
     await e.run(reqMarked(), p);
     assert.equal(e.fakeAdmin.calls.verifyToken, 0);
-    assert.deepEqual(e.store.touches, { reads: 0, writes: 0 });
+    assert.deepEqual(e.store.touches, { reads: 0, writes: 0, transactions: 0 });
   }
   const tutor = freeEdgeFor({ tier: 'free' });
   const r = await tutor.run(reqMarked(), '/api/tutor');
@@ -1208,7 +1250,7 @@ test('FC-E5 · ★ the marker on a FAILED-BEARER caller is never admitted — it
     assert.equal(r.stage, 'handler', 'P2 still fails open, as before');
     assert.equal(e.telemetry.get(FAIL_OPEN_NO_UID), 1);
     assert.equal(e.fakeAdmin.calls.verifyToken, 0, 'a failed-bearer caller must never reach App Check');
-    assert.deepEqual(e.store.touches, { reads: 0, writes: 0 });
+    assert.deepEqual(e.store.touches, { reads: 0, writes: 0, transactions: 0 });
   }
   // The distinction the rule exists for: resolveCaller() calls this caller anonymous.
   const { resolveCaller } = require('./rateLimiter.cjs');
@@ -1284,12 +1326,15 @@ function bootFreeCheckServer({ port, flagOn }) {
   const launcher = [
     "const Module = require('module');",
     'const store = new Map();',
+    'const consumed = new Set();',
     'const fake = {',
     '  apps: [],',
     '  credential: { cert: () => ({}) },',
     '  initializeApp() { fake.apps.push({}); },',
     "  auth: () => ({ verifyIdToken: async (t) => { if (t === 'good-token') return { uid: 'student-1' }; throw new Error('bad token'); } }),",
-    "  appCheck: () => ({ verifyToken: async (t) => { if (t === " + JSON.stringify(AC_GOOD) + ") return { appId: '1:123:web:abc' }; throw new Error('bad app check'); } }),",
+    // Genuine = AC_GOOD or AC_GOOD.<n>. The replay contract of firebase-admin 13.7.0:
+    // with { consume: true } a token's first sight is alreadyConsumed:false, later ones true.
+    "  appCheck: () => ({ verifyToken: async (t, o) => { if (t !== " + JSON.stringify(AC_GOOD) + " && !String(t).startsWith(" + JSON.stringify(AC_GOOD + '.') + ")) throw new Error('bad app check'); const out = { appId: '1:123:web:abc' }; if (o && o.consume === true) { out.alreadyConsumed = consumed.has(t); consumed.add(t); } return out; } }),",
     '  firestore: () => ({',
     '    collection: (name) => ({ doc: (id) => ({',
     "      key: name + '/' + id,",
@@ -1377,11 +1422,18 @@ test('FC-H2 · ★ over REAL HTTP, flag ON: admitted free checks pass the 3/day 
 
     // R6 — five admitted marked calls from ONE loopback address; the anonymous cap is 3.
     for (let i = 1; i <= 5; i += 1) {
-      const r = await post(port, '/api/detect-question', {}, markedHeaders());
+      const r = await post(port, '/api/detect-question', {}, markedHeaders({ [APPCHECK]: `${AC_GOOD}.h${i}` }));
       assert.ok(![402, 403, 429].includes(r.status), `admitted free check ${i} was refused ${r.status}: ${r.text}`);
     }
-    const grade = await post(port, '/api/check-solution', { question: 'Q', marks: 3, textAnswer: 'a' }, markedHeaders());
+    const gradeToken = `${AC_GOOD}.grade`;
+    const grade = await post(port, '/api/check-solution', { question: 'Q', marks: 3, textAnswer: 'a' }, markedHeaders({ [APPCHECK]: gradeToken }));
     assert.ok(![402, 403, 429].includes(grade.status), `an admitted grading call passes entitlement, got ${grade.status}: ${grade.text}`);
+
+    // OR-13 — the SAME token replayed through the real index.cjs is refused as app_check_invalid.
+    const replay = await post(port, '/api/check-solution', { question: 'Q', marks: 3, textAnswer: 'a' }, markedHeaders({ [APPCHECK]: gradeToken }));
+    assert.equal(replay.status, 403, `a replayed App Check token must be refused, got ${replay.status}: ${replay.text}`);
+    assert.equal(replay.json.error, 'free_check_refused');
+    assert.equal(replay.json.reason, FC.REASONS.APP_CHECK_INVALID);
 
     // App Check — refused with its reason over the wire.
     const bad = await post(port, '/api/check-solution', { question: 'Q', marks: 3, textAnswer: 'a' }, markedHeaders({ [APPCHECK]: 'forged' }));

@@ -23,7 +23,16 @@
  *      fail-open: that fail-open protects a PAYING student from a blip; there is no
  *      paying student here to protect, only a budget.
  *   b. a valid Firebase App Check token in `X-Firebase-AppCheck`, verified with
- *      `admin.appCheck().verifyToken()` — else `app_check_missing` / `app_check_invalid`.
+ *      `admin.appCheck().verifyToken(token, { consume: true })` — else
+ *      `app_check_missing` / `app_check_invalid`. ★ REPLAY PROTECTION (owner ruling
+ *      OR-13): `consume: true` makes the App Check backend mark the token used, and a
+ *      token it has already seen comes back `alreadyConsumed: true` — refused as
+ *      `app_check_invalid` (no new reason; the 1b wire contract is unchanged). One
+ *      token therefore buys at most one admitted call, on every free-check path. 1b
+ *      must send a fresh limited-use token (getLimitedUseToken()) per call.
+ *      ★ An App Check refusal does NO Firestore work at all: it is counted by the
+ *      `free_check.refused.app_check_*` telemetry only, so a flood of missing,
+ *      forged or replayed tokens can never contend on the day document.
  *   c. R5: today's all-class `global:<day>` count is below
  *      `Math.floor(limits.global.hard * 0.6)` — else `budget`. Derived from HARD,
  *      never soft (soft is independently env-overridable). The band between 60% and
@@ -33,15 +42,18 @@
  * R3 — THE DURABLE CEILING. The limiter's counts live in a process-local Map that
  * resets on every deploy (P8), so the ceiling lives in Firestore instead:
  *   collection FREE_CHECK_COLLECTION, document id = istDayKey(now) (the IST day).
- *   The document holds ONLY the four COUNTER_FIELDS. No uid, no IP, no App Check
+ *   The document holds ONLY the three COUNTER_FIELDS. No uid, no IP, no App Check
  *   app id — nothing that identifies anyone (DPDP §9(3)); `studentDataMap.ts`
  *   exempts the collection as a non-student aggregate on exactly that basis.
  *   `served` is incremented inside a transaction, once per upload, on the GRADING
  *   call only (check-solution / grade-worksheet). A marked detect-question is
  *   checked against the cap but never counted (N4).
  *
- * The refusal counters are also written through a transaction. They are
- * best-effort: a failed counter write never changes the refusal the caller gets.
+ * The two durable refusal counters (`refused_quota`, `refused_budget`) are also
+ * written through a transaction. Both are reached only AFTER a valid, freshly
+ * consumed App Check token, so an attacker cannot drive them without an attestation
+ * per write. They are best-effort: a failed counter write never changes the refusal
+ * the caller gets.
  *
  * WIRE CONTRACT (for lane 1b):
  *   request  — marker header `X-Lazytopper-Free-Check: 1` + `X-Firebase-AppCheck: <token>`,
@@ -74,7 +86,7 @@ const GRADING_PATHS = Object.freeze(['/api/check-solution', '/api/grade-workshee
 /** R3 / R10 durable day documents. Server-only; see studentDataMap.ts NON_STUDENT_COLLECTIONS. */
 const FREE_CHECK_COLLECTION = 'freeCheckDaily';
 /** ★ The ONLY fields ever written to a day document. */
-const COUNTER_FIELDS = Object.freeze(['served', 'refused_quota', 'refused_budget', 'refused_appcheck']);
+const COUNTER_FIELDS = Object.freeze(['served', 'refused_quota', 'refused_budget']);
 
 const DEFAULT_DAILY_CAP = 100;
 /** R5: free checks stop at this fraction of limits.global.hard. */
@@ -100,12 +112,14 @@ const MESSAGES = Object.freeze({
   [REASONS.UNAVAILABLE]: 'Free checks are not available right now.',
 });
 
-/** Which refusal counter each reason increments. `unavailable` has none: there is no store to write to. */
+/**
+ * Which DURABLE refusal counter each reason increments. `unavailable` has none: there
+ * is no store to write to. The App Check reasons have none BY RULING (OR-13): they are
+ * telemetry-only, so a bad-token burst performs zero Firestore transactions.
+ */
 const COUNTER_FOR_REASON = Object.freeze({
   [REASONS.CEILING]: 'refused_quota',
   [REASONS.BUDGET]: 'refused_budget',
-  [REASONS.APP_CHECK_MISSING]: 'refused_appcheck',
-  [REASONS.APP_CHECK_INVALID]: 'refused_appcheck',
 });
 
 /** `FREE_CHECK_ENABLED` — read on every request so the switch needs no redeploy of code. */
@@ -221,9 +235,10 @@ function createFreeCheckGate(deps = {}) {
       return refusal(REASONS.UNAVAILABLE, nowMs);
     }
 
-    // (b) App Check.
+    // (b) App Check, with replay protection (OR-13). Refusals here are telemetry-only:
+    //     `refusal` emits free_check.refused.<reason> and touches no store.
     const token = headerOf(req, APP_CHECK_HEADER);
-    if (!token) return refuseAndCount(REASONS.APP_CHECK_MISSING, nowMs);
+    if (!token) return refusal(REASONS.APP_CHECK_MISSING, nowMs);
     let verifier;
     try {
       verifier = firebaseAdmin.appCheck();
@@ -232,12 +247,13 @@ function createFreeCheckGate(deps = {}) {
     }
     let verified = false;
     try {
-      const claims = await verifier.verifyToken(token);
-      verified = !!(claims && typeof claims.appId === 'string' && claims.appId);
+      const claims = await verifier.verifyToken(token, { consume: true });
+      verified = !!(claims && typeof claims.appId === 'string' && claims.appId) &&
+        claims.alreadyConsumed !== true; // a replayed token is refused as invalid
     } catch {
       verified = false;
     }
-    if (!verified) return refuseAndCount(REASONS.APP_CHECK_INVALID, nowMs);
+    if (!verified) return refusal(REASONS.APP_CHECK_INVALID, nowMs);
 
     // (c) R5 — the all-class global count against 60% of HARD.
     const hard = Number(globalHardLimit());

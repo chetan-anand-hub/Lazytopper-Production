@@ -255,7 +255,7 @@ describe("studentDataMap — drift guard", () => {
     // Do NOT relax this to a subset check to make a future write pass.
     //
     // ★ `freeCheckDaily` JOINED this set with FREE-CHECK-1a (owner ruling OR-3). It is a
-    // server-only day document of four identifier-free counters, written only through
+    // server-only day document of three identifier-free counters, written only through
     // the Admin SDK, so — exactly like `qrUploadSlots` — it must match NO client rule and
     // fall through to the deny-all catch-all. It is here because it is undeclared on
     // purpose, not because the guard was loosened: the assertion is still EXACT.

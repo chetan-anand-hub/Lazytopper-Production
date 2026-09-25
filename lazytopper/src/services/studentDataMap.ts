@@ -422,8 +422,9 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
  * export, and it needs no erasure.
  *
  *   - `freeCheckDaily` (FREE-CHECK-1a, owner ruling OR-3): one document per IST day,
- *     id = the day key (`istDayKey`), holding ONLY four counters — `served`,
- *     `refused_quota`, `refused_budget`, `refused_appcheck`. No uid, no IP, no App Check
+ *     id = the day key (`istDayKey`), holding ONLY three counters — `served`,
+ *     `refused_quota`, `refused_budget` (owner ruling OR-13 removed `refused_appcheck`:
+ *     App Check refusals are counted by telemetry only). No uid, no IP, no App Check
  *     app id. Written only by `server/services/freeCheck.cjs` through the Admin SDK; no
  *     client rule matches it, so browsers are denied by the catch-all.
  *
