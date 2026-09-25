@@ -168,11 +168,22 @@ export function refusalCopy(reason: FreeCheckRefusalReason): string {
 
 /* ─────────────────────────── App Check (R4) ─────────────────────────── */
 
-type AppCheckInstance = import("firebase/app-check").AppCheck;
+type AppCheckModule = typeof import("firebase/app-check");
 
-let appCheckInit: Promise<AppCheckInstance | null> | null = null;
+/**
+ * The initialised instance TOGETHER WITH the module it came from. The token path uses
+ * this module's own `getLimitedUseToken` instead of importing `firebase/app-check` a
+ * second time: one dynamic import, resolved once, shared by every concurrent caller
+ * (the N per-question detects fire together).
+ */
+interface AppCheckHandle {
+  appCheck: import("firebase/app-check").AppCheck;
+  getLimitedUseToken: AppCheckModule["getLimitedUseToken"];
+}
 
-async function initAppCheck(): Promise<AppCheckInstance | null> {
+let appCheckInit: Promise<AppCheckHandle | null> | null = null;
+
+async function initAppCheck(): Promise<AppCheckHandle | null> {
   const { app } = await import("./firebaseClient");
   // Firebase is unconfigured (no VITE_FIREBASE_* env): there is no app to attest.
   if (!app) return null;
@@ -183,11 +194,12 @@ async function initAppCheck(): Promise<AppCheckInstance | null> {
     // this global inside initializeAppCheck().
     (globalThis as { FIREBASE_APPCHECK_DEBUG_TOKEN?: string }).FIREBASE_APPCHECK_DEBUG_TOKEN = debugToken;
   }
-  return mod.initializeAppCheck(app, {
+  const appCheck = mod.initializeAppCheck(app, {
     provider: new mod.ReCaptchaEnterpriseProvider(recaptchaSiteKey()),
     // Only limited-use tokens are ever sent, so there is nothing to keep refreshed.
     isTokenAutoRefreshEnabled: false,
   });
+  return { appCheck, getLimitedUseToken: mod.getLimitedUseToken };
 }
 
 /**
@@ -198,7 +210,7 @@ async function initAppCheck(): Promise<AppCheckInstance | null> {
  *
  * Called lazily — by the free-check page for a signed-out visitor, never from main.tsx.
  */
-export function ensureFreeCheckAppCheck(): Promise<AppCheckInstance | null> {
+export function ensureFreeCheckAppCheck(): Promise<AppCheckHandle | null> {
   if (!appCheckInit) {
     appCheckInit = initAppCheck().then(
       (instance) => {
@@ -219,12 +231,11 @@ export function ensureFreeCheckAppCheck(): Promise<AppCheckInstance | null> {
  * cached `getToken()`: the server consumes every token it verifies.
  */
 export async function freshLimitedUseToken(): Promise<string> {
-  const appCheck = await ensureFreeCheckAppCheck();
-  if (!appCheck) throw new FreeCheckRefusedError("app_check_missing");
-  const { getLimitedUseToken } = await import("firebase/app-check");
+  const handle = await ensureFreeCheckAppCheck();
+  if (!handle) throw new FreeCheckRefusedError("app_check_missing");
   let token = "";
   try {
-    token = (await getLimitedUseToken(appCheck)).token;
+    token = (await handle.getLimitedUseToken(handle.appCheck)).token;
   } catch {
     token = "";
   }
