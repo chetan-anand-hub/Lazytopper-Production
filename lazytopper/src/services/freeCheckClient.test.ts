@@ -108,12 +108,14 @@ describe("refusal reason → copy (the spec's lines, verbatim)", () => {
   const QUOTA =
     "Today's free checks are all used up. Come back tomorrow — or sign up free now and start your 7-day trial to check today.";
   const BROWSER = "We couldn't start a free check in this browser. Sign up free and your 7-day trial covers it.";
+  // OR-14 — `unavailable` has its own line; the App Check line is for app_check_* only.
+  const UNAVAILABLE = "Free checks aren't available right now. Sign up free and your 7-day trial covers it.";
   it.each([
     ["ceiling_reached", QUOTA],
     ["budget", QUOTA],
     ["app_check_missing", BROWSER],
     ["app_check_invalid", BROWSER],
-    ["unavailable", BROWSER],
+    ["unavailable", UNAVAILABLE],
   ] as const)("%s", (reason, copy) => {
     expect(refusalCopy(reason)).toBe(copy);
   });

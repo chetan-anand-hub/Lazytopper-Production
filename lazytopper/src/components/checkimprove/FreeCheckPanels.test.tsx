@@ -2,7 +2,8 @@
  * FREE-CHECK-1b — the free-check panels: exact copy, the ONE sign-in target (OR-8), and
  * a trial offer that starts nothing on its own (R9).
  *
- * Mutations this file turns RED: B4 (a sign-in link pointed at /sign-up).
+ * Mutations this file turns RED: B4 (a sign-in link pointed at /sign-up); B10 (OR-14:
+ * `unavailable` mapped back to the App Check line).
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, cleanup, fireEvent, within } from "@testing-library/react";
@@ -68,10 +69,31 @@ describe("the copy is the spec's, verbatim", () => {
     ["budget", "Today's free checks are all used up."],
     ["app_check_missing", "We couldn't start a free check in this browser."],
     ["app_check_invalid", "We couldn't start a free check in this browser."],
-    ["unavailable", "We couldn't start a free check in this browser."],
+    ["unavailable", "Free checks aren't available right now."],
   ] as const)("refusal %s → its line", (reason, head) => {
     const { container } = mount(<FreeCheckRefusalPanel reason={reason} />);
     expect(container.textContent).toContain(head);
+  });
+
+  describe("OR-14 — `unavailable` has its own line; the App Check line is for app_check_* only", () => {
+    const BROWSER = "We couldn't start a free check in this browser. Sign up free and your 7-day trial covers it.";
+    const UNAVAILABLE = "Free checks aren't available right now. Sign up free and your 7-day trial covers it.";
+
+    it("unavailable → 'Free checks aren't available right now…', linking to /login?redirect=%2Fcheck-improve", () => {
+      const { container } = mount(<FreeCheckRefusalPanel reason="unavailable" />);
+      expect(container.querySelector("p")?.textContent).toBe(UNAVAILABLE);
+      expect(container.textContent).not.toContain("in this browser");
+      expect(signInHrefs(container)).toEqual(["/login?redirect=%2Fcheck-improve"]);
+    });
+
+    it.each(["app_check_missing", "app_check_invalid"] as const)(
+      "%s → the App Check line, linking to /login?redirect=%2Fcheck-improve",
+      (reason) => {
+        const { container } = mount(<FreeCheckRefusalPanel reason={reason} />);
+        expect(container.querySelector("p")?.textContent).toBe(BROWSER);
+        expect(signInHrefs(container)).toEqual(["/login?redirect=%2Fcheck-improve"]);
+      },
+    );
   });
 
   it("saving never claims more than it knows", () => {

@@ -390,12 +390,14 @@ describe("R1 — the mark is set ONLY on a successful result", () => {
 describe("each refusal reason → its copy, with the one sign-in link (N13 catch mapping)", () => {
   const QUOTA = "Today's free checks are all used up. Come back tomorrow — or sign up free now and start your 7-day trial to check today.";
   const BROWSER = "We couldn't start a free check in this browser. Sign up free and your 7-day trial covers it.";
+  // OR-14 — `unavailable` has its own line; the App Check line is for app_check_* only.
+  const UNAVAILABLE = "Free checks aren't available right now. Sign up free and your 7-day trial covers it.";
   it.each([
     ["ceiling_reached", QUOTA],
     ["budget", QUOTA],
     ["app_check_missing", BROWSER],
     ["app_check_invalid", BROWSER],
-    ["unavailable", BROWSER],
+    ["unavailable", UNAVAILABLE],
   ] as Array<[FreeCheckRefusalReason, string]>)("detect refused: %s", async (reason, copy) => {
     flagOn();
     H.detectQuestion.mockRejectedValue(new FreeCheckRefusedError(reason));
@@ -414,7 +416,8 @@ describe("each refusal reason → its copy, with the one sign-in link (N13 catch
     const { container } = renderPage();
     await readQuestion();
     await gradeTypedAnswer();
-    await waitFor(() => expect(container.textContent).toContain(BROWSER));
+    await waitFor(() => expect(container.textContent).toContain(UNAVAILABLE));
+    expect(container.textContent).not.toContain(BROWSER);
   });
 });
 

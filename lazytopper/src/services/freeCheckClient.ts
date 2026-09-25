@@ -145,11 +145,13 @@ export const FREE_CHECK_COPY = {
   /** R3 / R5 — `ceiling_reached` and `budget`. */
   quota:
     "Today's free checks are all used up. Come back tomorrow — or sign up free now and start your 7-day trial to check today.",
-  /**
-   * `app_check_missing` / `app_check_invalid` — and `unavailable`, which the spec gives
-   * no line of its own (reported in the 1b report).
-   */
+  /** `app_check_missing` / `app_check_invalid` ONLY (OR-14). */
   browser: "We couldn't start a free check in this browser. Sign up free and your 7-day trial covers it.",
+  /**
+   * OR-14 — `unavailable` gets its own line. It is also what a plain 402 in free mode maps
+   * to (the client flag on, the server's free check off), so it must not blame the browser.
+   */
+  unavailable: "Free checks aren't available right now. Sign up free and your 7-day trial covers it.",
   /** R9 — the trial offer after a saved free result. */
   offerTitle: "Your answer is saved.",
   offerBody: (endsOn: string) =>
@@ -163,7 +165,9 @@ export const FREE_CHECK_COPY = {
 } as const;
 
 export function refusalCopy(reason: FreeCheckRefusalReason): string {
-  return reason === "ceiling_reached" || reason === "budget" ? FREE_CHECK_COPY.quota : FREE_CHECK_COPY.browser;
+  if (reason === "ceiling_reached" || reason === "budget") return FREE_CHECK_COPY.quota;
+  if (reason === "unavailable") return FREE_CHECK_COPY.unavailable;
+  return FREE_CHECK_COPY.browser;
 }
 
 /* ─────────────────────────── App Check (R4) ─────────────────────────── */
