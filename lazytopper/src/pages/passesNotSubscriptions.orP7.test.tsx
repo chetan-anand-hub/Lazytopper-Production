@@ -140,7 +140,8 @@ function walk(dir: string, keep: (file: string) => boolean, out: string[] = []):
 
 function staticHits(text: string): string[] {
   const out: string[] = [];
-  const body = text.replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<script[\s\S]*?<\/script>/gi, " ");
+  // No <style>/<script> stripping: scanning their contents too only makes the ban stricter.
+  const body = text;
   for (const chunk of body.split(/<[^>]+>/)) {
     if (ALL_BANS.some((b) => b.test(chunk))) out.push(flat(chunk));
   }
