@@ -1,3 +1,33 @@
+## ★★★ 2026-09-26 — CBSE-AUTO-1 CLOSED (docs) — THIS BLOCK SUPERSEDES THE FREE-CHECK-1 BLOCK BELOW ON TRUNK SHA AND ON THE NEXT STEP
+*(It does not supersede any open follow-up recorded below, and it leaves the owner sequence of 2026-09-25 below unchanged.)*
+
+**TRUNK IS `d74db872c7f20952b3d12802480f3b890e5fca29`**, measured 2026-09-26 (`git ls-remote`):
+- `d74db872` = `#824` (CBSE-AUTO-1: the self-updating CBSE page, the Storage mirror and the Home banner — dark)
+- `1aea52c4` = `#823` (docs: FREE-CHECK-1 handoff)
+- `f30f9898` = `#822` (FREE-CHECK-1b, page)
+
+Open at the time of writing: `#810`, `#818`, `#819` — dependabot only.
+
+**Where we are:**
+- FREE-CHECK-1 is **LIVE**: both flags were switched ON on 2026-09-26 after the §5 live-verify passed.
+- CBSE-AUTO-1 (`#824`) was **merged before its final audit** (owner ruling OR-C1), and it is dark until the owner sets `CBSE_MIRROR_LIVE=1`.
+
+### NEXT — OWNER
+1. **Read the final audit request** for CBSE-AUTO-1. The controller writes it after this docs PR: `Desktop\diff\audit-request-cbse-auto-1-final-2026-09-26.md`, covering `1aea52c4..trunk`.
+   - A final **HOLD** is fixed as a **follow-up PR**.
+   - Nothing writes to Storage before AUDIT PASS **and** `CBSE_MIRROR_LIVE=1`.
+2. **On AUDIT PASS**, do these in order:
+   1. Actions → `cbse-mirror` → Run workflow with `dry_run: true`, and read the plan.
+   2. Set the repository variable `CBSE_MIRROR_LIVE=1`.
+   3. Run with `dry_run: false`.
+3. **Spec §5 live-verify**, after the first real run:
+   - `/cbse/class-10` rows read "Download", and a tap downloads the file on **a phone and a laptop**;
+   - circulars show a recent "checked" date, and Storage `cbse/` holds `files/` and `manifest.json`;
+   - Home shows the banner only if an important circular exists, dismissing it hides it, and **the dismissal persists across a reload**.
+4. **Confirm the two FREE-CHECK-1 items that are still PENDING** (they are not recorded as passed):
+   - (a) the shared-device retest;
+   - (b) the `free_check_signup` / `free_check_trial_start` analytics events.
+
 ## ★★★ 2026-09-26 — FREE-CHECK-1 CLOSED (docs) — THIS BLOCK SUPERSEDES THE BANNER BELOW ON TRUNK SHA AND ON THE OWNER SEQUENCE
 *(It does not supersede any open follow-up recorded below.)*
 

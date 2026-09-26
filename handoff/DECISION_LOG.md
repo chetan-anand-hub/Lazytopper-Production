@@ -1,3 +1,52 @@
+## 2026-09-26 — CBSE-AUTO-1 (build / FIX-1 / docs) — trunk `d74db872`, PR `#824`
+
+> ⚠ **NUMBERING.** Like the FREE-CHECK-1 section below, this section records rulings by their lane IDs (C4 ruling, CA-1 … CA-5, OR-C1) rather than `DECISION N`.
+
+### C4 — the `/Type /Page` check inflates object streams with `node:zlib` (no new dependency)
+- **Spec ruling (C4):** a first-page text check needs a PDF library the repo lacks, and adding one changes the lockfile that `#810` holds. So C4 replaced it with byte-level checks, including "a PDF contains at least one `/Type /Page`".
+- **Finding** *(subagent-reported, measured on the live file)*: a raw `/Type /Page` scan finds **0** markers in `CFPQ_Science10.pdf` (22,067,517 B), because its pages live in compressed object streams (`/ObjStm`). A raw scan would reject that paper forever.
+- **Ruling as built:** `scripts/cbse-mirror/guards.ts` `pdfHasPage` inflates Flate object streams with **`node:zlib`**. It found 145 markers. **There is no new dependency.** The PDF-library route would have touched the lockfile `#810` holds.
+
+### AUDIT HOLD 824 @ `e4e8bf6ca1abe9bb43519b72fe4e64cd4638dd53` (cofounder, 2026-09-26)
+Reasons:
+- (1) the size-ratio guard rejects the 2026-27 Maths Standard SQP on the first real run (5.9×, with no override path);
+- (2) papers that CBSE removed linked to dead CBSE URLs.
+
+Auditor-verified KEEP-UNCHANGED:
+- the workflow triggers and secret gating;
+- the `run.ts` key handling;
+- `assertCbsePath` / `guardedStorage` / the read-only dry run;
+- `fetchCbseManifest` returning null on failure;
+- the Home diffs, which are mount-only;
+- `scripts/package.json`, where only the test entry changed.
+
+### Owner rulings CA-1 … CA-5 (FIX-1)
+- **CA-1:** new-session (`requireLaterSession`) candidates skip ONLY the 3× upper size bound; same-session candidates keep it. It needs a test and a mutation. → `2ca1bf8c`, and it resolves `[FU-CBSE-MIRROR-GUARD-OVERRIDE]`.
+- **CA-2:** C6 wins. A source-missing paper with a `storagePath` links to Storage and reads "Download"; stale and other papers keep the committed link. → `2ca1bf8c`, and it resolves `[FU-CBSE-MIRROR-SOURCE-MISSING-LINK]`.
+- **CA-3:** the "Sample papers awaited" pill reads the manifest. A mirrored SQP that is ok or source-missing with `sessionYear` ≥ 2026-27 → "Sample papers out" (ok-pill style); otherwise today's text. → `2ca1bf8c`, and it resolves `[FU-CBSE-PILLS-STATIC]`.
+- **CA-4 (owner, verbatim):** "the job may write only when repository variable CBSE_MIRROR_LIVE equals 1: gate the scheduled run on vars.CBSE_MIRROR_LIVE == '1' so it doesn't run otherwise; a manual dry_run: false run also refuses unless vars.CBSE_MIRROR_LIVE == '1'; manual dry runs stay allowed. Do NOT create the variable — the owner sets it after the final audit passes." → `ec4645d5`.
+- **CA-5:** watch CBSE Academic's notifications index (the SQP release = `132_Notification_2026.pdf`); parse like C8, merge into the circular feed with the source recorded; C9 unchanged. "No stable index page ⇒ STOP and report; never scrape the homepage." → `fdc33f8a`.
+  - **Finding** *(subagent-reported)*: there is no separate notifications page (`notifications.html` and `notification.html` both 404). The stable index is the **"Notifications- 2026" table on `cbseacademic.nic.in/circulars.html`**, which is not the homepage, so the STOP did not trigger. The controller judged it right to proceed and flagged it for the final audit.
+  - **As built:** per-source guard; each source keeps a 5-row share of the 30 rows.
+
+### OWNER RULING OR-C1 (2026-09-26) — for this lane only
+> "supersedes the 'stop at audit gate' in §1 and OR-12 for this lane only: do not wait for an audit verdict. Finish everything, then write ONE final audit request."
+
+**What it means in practice:**
+- **`#824` merged BEFORE its final audit:** `--match-head-commit fdc33f8a` → `d74db872`, with CI green and the PR up to date with trunk.
+- The owner's rationale: nothing is live until the owner sets `CBSE_MIRROR_LIVE`, and without a manifest the page falls back to today's content.
+- **The final audit request covers `1aea52c4..trunk`.**
+- **A final HOLD is fixed as a follow-up PR.**
+- **Nothing writes to Storage until AUDIT PASS + `CBSE_MIRROR_LIVE=1`.**
+
+OR-12 is unchanged for every other lane.
+
+### FREE-CHECK-1 switch-on (owner-supplied facts, 2026-09-26)
+- Both flags were ON on 2026-09-26, and the §5 live-verify passed.
+- Railway on 1 replica (U5). WhatsApp and Instagram OK (U7).
+- `freeCheckDaily` holds counters only.
+- **PENDING owner confirmation, not recorded as passed:** the shared-device retest; the `free_check_signup` / `free_check_trial_start` analytics events.
+
 ## 2026-09-26 — FREE-CHECK-1 (lanes 1a / 1b / docs) — trunk `f30f9898`, PRs `#821` + `#822`
 
 **`2026-09-25 → 2026-09-26`**
