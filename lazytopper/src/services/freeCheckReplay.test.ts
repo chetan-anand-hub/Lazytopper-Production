@@ -4,9 +4,13 @@
  * EXACTLY ONCE, only after the active progress uid is set, keeping the grade time, and
  * under a session code RE-MINTED after sign-in (N14).
  *
- * Mutation B5 (replay twice / before the uid is set) turns this file RED.
+ * FIX-2 (OR-18): the replay runs ONLY with this tab's sign-in marker, equal to the waiting
+ * result's gradedAt, and the marker is cleared after the replay, saved or failed.
+ *
+ * Mutations this file turns RED: B5 (replay twice / before the uid is set); B11 (the
+ * OR-18 marker check removed).
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import type { AuthUser } from "../context/AuthContext";
 
 const H = vi.hoisted(() => ({
@@ -45,8 +49,12 @@ import {
 } from "./freeCheckReplay";
 import {
   FREE_CHECK_PENDING_KEY,
+  FREE_CHECK_SIGNIN_INTENT_KEY,
+  __setFreeCheckClockForTests,
   hasPendingFreeCheck,
+  markFreeCheckSigninIntent,
   recordFreeCheckSuccess,
+  type PendingFreeCheck,
   type PendingMultiFreeCheck,
   type PendingSingleFreeCheck,
 } from "./freeCheckClient";
@@ -105,8 +113,20 @@ const MULTI: PendingMultiFreeCheck = {
   },
 };
 
+/**
+ * The free result is waiting AND this tab clicked a free-check sign-in link for it
+ * (OR-18) — the same-tab flow every pre-FIX-2 replay test describes.
+ */
+function waitingWithIntent(p: PendingFreeCheck): void {
+  recordFreeCheckSuccess(p);
+  markFreeCheckSigninIntent();
+}
+
 beforeEach(() => {
   window.localStorage.clear();
+  window.sessionStorage.clear();
+  // The injectable clock (OR-18): five minutes after the fixtures were graded.
+  __setFreeCheckClockForTests(() => GRADED_AT + 5 * 60 * 1000);
   H.activeUid = null;
   H.recordMistake.mockReset().mockResolvedValue({ outcome: "logged", bridged: false });
   H.recordAttempt.mockReset().mockReturnValue("recorded");
@@ -115,10 +135,14 @@ beforeEach(() => {
   H.persist.mockReset().mockReturnValue("recorded");
   H.track.mockReset();
 });
+afterEach(() => {
+  __setFreeCheckClockForTests(null);
+  vi.restoreAllMocks();
+});
 
 describe("R8 replay — timing (N14 hazard 1)", () => {
   it("does NOTHING before the active progress uid is this student's — the result keeps waiting", async () => {
-    recordFreeCheckSuccess(SINGLE);
+    waitingWithIntent(SINGLE);
     H.activeUid = null;
     expect(await replayPendingFreeCheck(USER)).toEqual({ kind: "not-ready" });
     H.activeUid = "someone-else";
@@ -130,7 +154,7 @@ describe("R8 replay — timing (N14 hazard 1)", () => {
   });
 
   it("a signed-out or local session never replays", async () => {
-    recordFreeCheckSuccess(SINGLE);
+    waitingWithIntent(SINGLE);
     expect(await replayPendingFreeCheck(null)).toEqual({ kind: "none" });
     H.activeUid = "local";
     expect(await replayPendingFreeCheck({ uid: "local", isLocalSession: true } as never)).toEqual({ kind: "none" });
@@ -141,7 +165,7 @@ describe("R8 replay — timing (N14 hazard 1)", () => {
 
 describe("R8 replay — a single-question result", () => {
   it("goes through recordMistake + recordAttempt EXACTLY ONCE, with the grade time kept", async () => {
-    recordFreeCheckSuccess(SINGLE);
+    waitingWithIntent(SINGLE);
     H.activeUid = USER.uid;
 
     const out = await replayPendingFreeCheck(USER);
@@ -171,7 +195,7 @@ describe("R8 replay — a single-question result", () => {
   });
 
   it("★ RE-MINTS the session code signed in, and writes the record under THAT code (N14 hazard 3)", async () => {
-    recordFreeCheckSuccess(SINGLE);
+    waitingWithIntent(SINGLE);
     H.activeUid = USER.uid;
     await replayPendingFreeCheck(USER);
 
@@ -186,7 +210,7 @@ describe("R8 replay — a single-question result", () => {
   });
 
   it("counts a free_check_signup with NO identifier (R10)", async () => {
-    recordFreeCheckSuccess(SINGLE);
+    waitingWithIntent(SINGLE);
     H.activeUid = USER.uid;
     await replayPendingFreeCheck(USER);
     expect(H.track).toHaveBeenCalledTimes(1);
@@ -197,7 +221,7 @@ describe("R8 replay — a single-question result", () => {
 describe("R8 replay — a whole-paper result", () => {
   it("one recordMistake + recordAttempt per LEGIBLE question, on ids under the re-minted code", async () => {
     H.ensureCode.mockResolvedValue({ code: "CI-S-MIX-02", name: "Uploaded paper · #2", sequence: 2 });
-    recordFreeCheckSuccess(MULTI);
+    waitingWithIntent(MULTI);
     H.activeUid = USER.uid;
     await replayPendingFreeCheck(USER);
 
@@ -215,7 +239,7 @@ describe("R8 replay — a whole-paper result", () => {
 
 describe("exactly once, under concurrency and failure", () => {
   it("two concurrent starts share ONE replay (StrictMode / remount)", async () => {
-    recordFreeCheckSuccess(SINGLE);
+    waitingWithIntent(SINGLE);
     H.activeUid = USER.uid;
     const a = startFreeCheckReplay(USER);
     expect(getInflightFreeCheckReplay(USER.uid)).toBe(a);
@@ -227,13 +251,96 @@ describe("exactly once, under concurrency and failure", () => {
     expect(getInflightFreeCheckReplay(USER.uid)).toBeNull();
   });
 
-  it("a replay that throws puts the result back for the next visit", async () => {
-    recordFreeCheckSuccess(SINGLE);
+  it("a replay that throws puts the result back on the device (where it still expires)", async () => {
+    waitingWithIntent(SINGLE);
     H.activeUid = USER.uid;
     H.recordMistake.mockRejectedValueOnce(new Error("offline"));
     vi.spyOn(console, "warn").mockImplementation(() => {});
     expect(await replayPendingFreeCheck(USER)).toEqual({ kind: "failed" });
     expect(window.localStorage.getItem(FREE_CHECK_PENDING_KEY)).not.toBeNull();
     expect(H.track).not.toHaveBeenCalled();
+  });
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   OR-18 — a waiting result is saved ONLY with this tab's sign-in intent
+   ══════════════════════════════════════════════════════════════════════════ */
+
+describe("OR-18 — replay only with the sign-in marker", () => {
+  it("★ NO MARKER → no recordMistake / recordAttempt call, nothing saved; the result is left to expire", async () => {
+    // A result is waiting on a shared device; someone signs in WITHOUT clicking a
+    // free-check sign-in link in this tab (another person, another tab, the navbar).
+    recordFreeCheckSuccess(SINGLE);
+    H.activeUid = USER.uid; // fully ready — only the marker is missing
+    expect(window.sessionStorage.getItem(FREE_CHECK_SIGNIN_INTENT_KEY)).toBeNull();
+
+    expect(await replayPendingFreeCheck(USER)).toEqual({ kind: "none" });
+    expect(await startFreeCheckReplay(USER)).toEqual({ kind: "none" });
+
+    expect(H.recordMistake).not.toHaveBeenCalled();
+    expect(H.recordAttempt).not.toHaveBeenCalled();
+    expect(H.persist).not.toHaveBeenCalled();
+    expect(H.ensureCode).not.toHaveBeenCalled();
+    expect(H.track).not.toHaveBeenCalled(); // no free_check_signup
+    // Not claimed, not deleted: left on the device until it expires.
+    expect(hasPendingFreeCheck()).toBe(true);
+  });
+
+  it("★ a marker for a MISMATCHED gradedAt → no save", async () => {
+    recordFreeCheckSuccess(SINGLE);
+    window.sessionStorage.setItem(FREE_CHECK_SIGNIN_INTENT_KEY, String(GRADED_AT - 60_000));
+    H.activeUid = USER.uid;
+
+    expect(await replayPendingFreeCheck(USER)).toEqual({ kind: "none" });
+    expect(H.recordMistake).not.toHaveBeenCalled();
+    expect(H.recordAttempt).not.toHaveBeenCalled();
+    expect(H.persist).not.toHaveBeenCalled();
+    expect(hasPendingFreeCheck()).toBe(true);
+  });
+
+  it("★ a pending result 2h+1m old is DISCARDED — even with a matching marker, nothing is saved", async () => {
+    waitingWithIntent(SINGLE);
+    H.activeUid = USER.uid;
+    __setFreeCheckClockForTests(() => GRADED_AT + 2 * 60 * 60 * 1000 + 60 * 1000);
+
+    expect(await replayPendingFreeCheck(USER)).toEqual({ kind: "none" });
+    expect(H.recordMistake).not.toHaveBeenCalled();
+    expect(H.recordAttempt).not.toHaveBeenCalled();
+    expect(window.localStorage.getItem(FREE_CHECK_PENDING_KEY)).toBeNull(); // deleted on peek
+  });
+
+  it("★ the marker is CLEARED after a replay that SAVED", async () => {
+    waitingWithIntent(SINGLE);
+    H.activeUid = USER.uid;
+    expect(window.sessionStorage.getItem(FREE_CHECK_SIGNIN_INTENT_KEY)).toBe(String(GRADED_AT));
+
+    expect(await replayPendingFreeCheck(USER)).toEqual({ kind: "saved", code: "CI-M-REAL-03" });
+    expect(window.sessionStorage.getItem(FREE_CHECK_SIGNIN_INTENT_KEY)).toBeNull();
+  });
+
+  it("★ the marker is CLEARED after a replay that FAILED — the restored result then needs a new intent", async () => {
+    waitingWithIntent(SINGLE);
+    H.activeUid = USER.uid;
+    H.recordMistake.mockRejectedValueOnce(new Error("offline"));
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    expect(await replayPendingFreeCheck(USER)).toEqual({ kind: "failed" });
+    expect(window.sessionStorage.getItem(FREE_CHECK_SIGNIN_INTENT_KEY)).toBeNull();
+    // Put back on the device, but a later sign-in without a fresh click saves nothing.
+    expect(hasPendingFreeCheck()).toBe(true);
+    H.recordMistake.mockClear();
+    expect(await replayPendingFreeCheck(USER)).toEqual({ kind: "none" });
+    expect(H.recordMistake).not.toHaveBeenCalled();
+  });
+
+  it("the marker is NOT spent while the progress scope is not ready — the same tab still saves once it is", async () => {
+    waitingWithIntent(SINGLE);
+    H.activeUid = null;
+    expect(await replayPendingFreeCheck(USER)).toEqual({ kind: "not-ready" });
+    expect(window.sessionStorage.getItem(FREE_CHECK_SIGNIN_INTENT_KEY)).toBe(String(GRADED_AT));
+    H.activeUid = USER.uid;
+    expect(await replayPendingFreeCheck(USER)).toEqual({ kind: "saved", code: "CI-M-REAL-03" });
+    expect(H.recordMistake).toHaveBeenCalledTimes(1);
+    expect(H.recordAttempt).toHaveBeenCalledTimes(1);
   });
 });

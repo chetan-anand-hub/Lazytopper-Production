@@ -1,6 +1,7 @@
 /**
  * FREE-CHECK-1b — the client module's own promises: the flag grammar, R1's mark, R8's
  * text-only waiting result, the refusal copy map, and the sign-in target (OR-8, N17).
+ * FIX-2 (OR-18): the two-hour expiry and the sign-in intent marker.
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { readdirSync, readFileSync, statSync } from "node:fs";
@@ -9,10 +10,17 @@ import {
   FREE_CHECK_COPY,
   FREE_CHECK_PENDING_KEY,
   FREE_CHECK_REFUSAL_REASONS,
+  FREE_CHECK_PENDING_MAX_AGE_MS,
+  FREE_CHECK_SIGNIN_INTENT_KEY,
   FREE_CHECK_SIGNIN_PATH,
   FREE_CHECK_USED_KEY,
+  __setFreeCheckClockForTests,
   claimPendingFreeCheck,
+  clearFreeCheckSigninIntent,
+  hasFreeCheckSigninIntentFor,
   hasPendingFreeCheck,
+  hasReplayablePendingFreeCheck,
+  markFreeCheckSigninIntent,
   hasUsedFreeCheck,
   isFreeCheckClientEnabled,
   peekPendingFreeCheck,
@@ -44,8 +52,19 @@ const SINGLE: PendingSingleFreeCheck = {
   },
 };
 
-beforeEach(() => window.localStorage.clear());
-afterEach(() => vi.unstubAllEnvs());
+const MINUTE = 60 * 1000;
+
+beforeEach(() => {
+  window.localStorage.clear();
+  window.sessionStorage.clear();
+  // The injectable clock (OR-18): one minute after the fixture was graded.
+  __setFreeCheckClockForTests(() => SINGLE.gradedAt + MINUTE);
+});
+afterEach(() => {
+  vi.unstubAllEnvs();
+  vi.restoreAllMocks();
+  __setFreeCheckClockForTests(null);
+});
 
 describe("R11 — the client flag", () => {
   it("is OFF when unset (the default every existing test runs under)", () => {
@@ -101,6 +120,94 @@ describe("R8 — the result waits on the device, text only", () => {
     expect(peekPendingFreeCheck()).toBeNull();
     window.localStorage.setItem(FREE_CHECK_PENDING_KEY, "{not json");
     expect(peekPendingFreeCheck()).toBeNull();
+  });
+});
+
+describe("OR-18 — a waiting result expires two hours after it was graded", () => {
+  it("★ a pending result 2h+1m old is DISCARDED: treated as absent and deleted when peeked", () => {
+    recordFreeCheckSuccess(SINGLE);
+    __setFreeCheckClockForTests(() => SINGLE.gradedAt + 2 * 60 * MINUTE + MINUTE);
+    expect(peekPendingFreeCheck()).toBeNull();
+    // Deleted by the peek itself, not merely hidden.
+    expect(window.localStorage.getItem(FREE_CHECK_PENDING_KEY)).toBeNull();
+    expect(hasPendingFreeCheck()).toBe(false);
+    expect(claimPendingFreeCheck()).toBeNull();
+    // Even a marker for it cannot make it replayable.
+    window.sessionStorage.setItem(FREE_CHECK_SIGNIN_INTENT_KEY, String(SINGLE.gradedAt));
+    expect(hasReplayablePendingFreeCheck()).toBe(false);
+  });
+
+  it("CONTROL: 1h59m old, and exactly 2h old, it still waits (the window is 'older than 2 hours')", () => {
+    expect(FREE_CHECK_PENDING_MAX_AGE_MS).toBe(2 * 60 * 60 * 1000);
+    recordFreeCheckSuccess(SINGLE);
+    __setFreeCheckClockForTests(() => SINGLE.gradedAt + 119 * MINUTE);
+    expect(peekPendingFreeCheck()).toEqual(SINGLE);
+    __setFreeCheckClockForTests(() => SINGLE.gradedAt + FREE_CHECK_PENDING_MAX_AGE_MS);
+    expect(peekPendingFreeCheck()).toEqual(SINGLE);
+    expect(window.localStorage.getItem(FREE_CHECK_PENDING_KEY)).not.toBeNull();
+  });
+
+  it("a waiting result with no usable grade time can never be aged, so it is discarded", () => {
+    window.localStorage.setItem(FREE_CHECK_PENDING_KEY, JSON.stringify({ ...SINGLE, gradedAt: "soon" }));
+    expect(peekPendingFreeCheck()).toBeNull();
+    expect(window.localStorage.getItem(FREE_CHECK_PENDING_KEY)).toBeNull();
+  });
+});
+
+describe("OR-18 — the sign-in intent marker", () => {
+  it("is exactly `ltFreeCheck.signinIntent.v1`, never `lazytopper.`-prefixed (N14)", () => {
+    expect(FREE_CHECK_SIGNIN_INTENT_KEY).toBe("ltFreeCheck.signinIntent.v1");
+    expect(FREE_CHECK_SIGNIN_INTENT_KEY.startsWith("lazytopper.")).toBe(false);
+  });
+
+  it("a click writes the waiting result's gradedAt to sessionStorage (this tab), not localStorage", () => {
+    recordFreeCheckSuccess(SINGLE);
+    markFreeCheckSigninIntent();
+    expect(window.sessionStorage.getItem(FREE_CHECK_SIGNIN_INTENT_KEY)).toBe(String(SINGLE.gradedAt));
+    expect(window.localStorage.getItem(FREE_CHECK_SIGNIN_INTENT_KEY)).toBeNull();
+    expect(hasFreeCheckSigninIntentFor(SINGLE.gradedAt)).toBe(true);
+    expect(hasReplayablePendingFreeCheck()).toBe(true);
+  });
+
+  it("with nothing waiting, a click writes no marker (and clears an old one)", () => {
+    window.sessionStorage.setItem(FREE_CHECK_SIGNIN_INTENT_KEY, "123");
+    markFreeCheckSigninIntent();
+    expect(window.sessionStorage.getItem(FREE_CHECK_SIGNIN_INTENT_KEY)).toBeNull();
+  });
+
+  it("no marker, or a marker for a DIFFERENT gradedAt → not replayable", () => {
+    recordFreeCheckSuccess(SINGLE);
+    expect(hasReplayablePendingFreeCheck()).toBe(false);
+    window.sessionStorage.setItem(FREE_CHECK_SIGNIN_INTENT_KEY, String(SINGLE.gradedAt - 1));
+    expect(hasFreeCheckSigninIntentFor(SINGLE.gradedAt)).toBe(false);
+    expect(hasReplayablePendingFreeCheck()).toBe(false);
+    // …and the result is left waiting (to expire), not deleted.
+    expect(hasPendingFreeCheck()).toBe(true);
+  });
+
+  it("clear removes it", () => {
+    recordFreeCheckSuccess(SINGLE);
+    markFreeCheckSigninIntent();
+    clearFreeCheckSigninIntent();
+    expect(window.sessionStorage.getItem(FREE_CHECK_SIGNIN_INTENT_KEY)).toBeNull();
+    expect(hasReplayablePendingFreeCheck()).toBe(false);
+  });
+
+  it("FAIL CLOSED: sessionStorage that throws → no marker is written or read → nothing replayable", () => {
+    recordFreeCheckSuccess(SINGLE); // the result is waiting before storage starts refusing
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("SecurityError");
+    });
+    expect(() => markFreeCheckSigninIntent()).not.toThrow();
+    vi.restoreAllMocks();
+    expect(window.sessionStorage.getItem(FREE_CHECK_SIGNIN_INTENT_KEY)).toBeNull();
+    expect(hasReplayablePendingFreeCheck()).toBe(false);
+
+    window.sessionStorage.setItem(FREE_CHECK_SIGNIN_INTENT_KEY, String(SINGLE.gradedAt));
+    vi.spyOn(Storage.prototype, "getItem").mockImplementation(() => {
+      throw new Error("SecurityError");
+    });
+    expect(hasFreeCheckSigninIntentFor(SINGLE.gradedAt)).toBe(false);
   });
 });
 

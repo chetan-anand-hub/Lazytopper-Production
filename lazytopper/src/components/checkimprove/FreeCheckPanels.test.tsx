@@ -2,6 +2,9 @@
  * FREE-CHECK-1b — the free-check panels: exact copy, the ONE sign-in target (OR-8), and
  * a trial offer that starts nothing on its own (R9).
  *
+ * FIX-2 (OR-18): clicking ANY of those sign-in links writes this tab's sign-in marker,
+ * holding the waiting result's gradedAt.
+ *
  * Mutations this file turns RED: B4 (a sign-in link pointed at /sign-up); B10 (OR-14:
  * `unavailable` mapped back to the App Check line).
  */
@@ -22,10 +25,23 @@ import {
   FreeCheckTrialOffer,
   FreeCheckUsedPanel,
 } from "./FreeCheckPanels";
-import { FREE_CHECK_REFUSAL_REASONS } from "../../services/freeCheckClient";
+import {
+  FREE_CHECK_REFUSAL_REASONS,
+  FREE_CHECK_SIGNIN_INTENT_KEY,
+  __setFreeCheckClockForTests,
+  recordFreeCheckSuccess,
+  type PendingSingleFreeCheck,
+} from "../../services/freeCheckClient";
 
-beforeEach(() => track.mockReset());
-afterEach(cleanup);
+beforeEach(() => {
+  track.mockReset();
+  window.localStorage.clear();
+  window.sessionStorage.clear();
+});
+afterEach(() => {
+  cleanup();
+  __setFreeCheckClockForTests(null);
+});
 
 const mount = (ui: React.ReactElement) => render(<MemoryRouter>{ui}</MemoryRouter>);
 
@@ -47,6 +63,48 @@ describe("OR-8 — every free-check sign-in prompt links to /login?redirect=%2Fc
     const hrefs = signInHrefs(container);
     expect(hrefs).toEqual(["/login?redirect=%2Fcheck-improve"]);
     expect(hrefs.some((h) => h.startsWith("/sign-up"))).toBe(false);
+  });
+});
+
+describe("OR-18 — every free-check sign-in link writes the sign-in marker on click", () => {
+  const GRADED_AT = 1_700_000_000_000;
+  const WAITING = {
+    v: 1,
+    kind: "single",
+    gradedAt: GRADED_AT,
+    subject: "Maths",
+    topicName: "Real Numbers",
+    topicSlug: "real-numbers",
+    topicTouched: false,
+    question: "Q",
+    marksSource: null,
+    detectionOverride: null,
+    graded: {
+      ok: true,
+      totalMarks: 3,
+      marksAwarded: 1,
+      percentage: 33,
+      annotatedSteps: [],
+      mistakeSummary: { conceptual: 1, calculation: 0, silly: 0, presentation: 0 },
+      teacherNote: "",
+    },
+  } as PendingSingleFreeCheck;
+  const links: Array<[string, React.ReactElement]> = [
+    ["the post-result save prompt", <FreeCheckSavePrompt />],
+    ["the inline save prompt", <FreeCheckSavePrompt inline />],
+    ["the 'used' line", <FreeCheckUsedPanel />],
+    ...FREE_CHECK_REFUSAL_REASONS.map(
+      (r) => [`the ${r} refusal`, <FreeCheckRefusalPanel reason={r} />] as [string, React.ReactElement],
+    ),
+  ];
+  it.each(links)("%s → sessionStorage holds the waiting result's gradedAt", (_label, ui) => {
+    __setFreeCheckClockForTests(() => GRADED_AT + 60 * 1000);
+    recordFreeCheckSuccess(WAITING);
+    const { container } = mount(ui);
+    expect(window.sessionStorage.getItem(FREE_CHECK_SIGNIN_INTENT_KEY)).toBeNull(); // rendering writes nothing
+    const link = container.querySelector("a") as HTMLAnchorElement;
+    fireEvent.click(link);
+    expect(window.sessionStorage.getItem(FREE_CHECK_SIGNIN_INTENT_KEY)).toBe(String(GRADED_AT));
   });
 });
 

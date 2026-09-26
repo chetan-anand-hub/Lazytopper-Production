@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { AuthUser } from "../context/AuthContext";
-import { hasPendingFreeCheck } from "../services/freeCheckClient";
+import { hasReplayablePendingFreeCheck } from "../services/freeCheckClient";
 import {
   getInflightFreeCheckReplay,
   isReplayReady,
@@ -18,6 +18,10 @@ import {
  * `user` must be null while auth is loading. The replay waits for the ACTIVE PROGRESS
  * uid to equal `user.uid` (AuthContext sets it in an effect that runs after ours), polling
  * briefly; if it never arrives the result is left on the device for the next visit.
+ *
+ * OR-18 — only a REPLAYABLE result counts here: unexpired, and matched by this tab's
+ * sign-in marker. A sign-in without the marker is `none` from the first render — no
+ * "saving", no write, no trial offer — and the result is left on the device to expire.
  */
 export type FreeCheckReturnPhase = "none" | "saving" | "saved";
 
@@ -43,7 +47,7 @@ export function useFreeCheckReturn(user: AuthUser | null, enabled: boolean): Fre
     const run = async (tries: number): Promise<void> => {
       if (cancelled) return;
       const joined = getInflightFreeCheckReplay(uid);
-      if (!joined && !hasPendingFreeCheck()) {
+      if (!joined && !hasReplayablePendingFreeCheck()) {
         settle("none");
         return;
       }
@@ -74,7 +78,7 @@ export function useFreeCheckReturn(user: AuthUser | null, enabled: boolean): Fre
   // render after sign-in never flashes the Premium lock at a student whose answer is
   // about to be saved.
   if (settledUid !== uid) {
-    return hasPendingFreeCheck() || getInflightFreeCheckReplay(uid) ? "saving" : "none";
+    return hasReplayablePendingFreeCheck() || getInflightFreeCheckReplay(uid) ? "saving" : "none";
   }
   return phase;
 }

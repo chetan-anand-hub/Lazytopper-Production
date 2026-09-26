@@ -338,16 +338,114 @@ function isPending(v: unknown): v is PendingFreeCheck {
   return false;
 }
 
+/* ─────────── OR-18 — a waiting result expires, and replays only with sign-in intent ─────────── */
+
+/**
+ * OR-18 — a waiting result older than TWO HOURS (by `gradedAt`) is treated as absent and
+ * deleted the moment it is peeked. A result nobody claimed on a shared device must not
+ * sit there for the next person who signs in.
+ */
+export const FREE_CHECK_PENDING_MAX_AGE_MS = 2 * 60 * 60 * 1000;
+
+/**
+ * OR-18 — the SIGN-IN INTENT marker. Written to `sessionStorage` (this tab only) when a
+ * free-check sign-in link is clicked, holding the waiting result's `gradedAt`. The R8
+ * replay runs only if it is present AND equals the waiting result's `gradedAt`, so a
+ * different person who signs in on the same device (another tab, a later visit, the
+ * navbar's own "Log in") saves nothing. sessionStorage survives same-tab navigation —
+ * the /login round trip, the Google popup, the phone OTP — so OR-8's flow is unchanged.
+ * Like the R1 key, it does NOT start with `lazytopper.` (N14).
+ */
+export const FREE_CHECK_SIGNIN_INTENT_KEY = "ltFreeCheck.signinIntent.v1";
+
+let freeCheckClock: () => number = () => Date.now();
+
+/** The clock the expiry reads. Injectable in tests only. */
+export function freeCheckNow(): number {
+  return freeCheckClock();
+}
+
+/** Test seam: pin the expiry clock (null restores `Date.now`). */
+export function __setFreeCheckClockForTests(clock: (() => number) | null): void {
+  freeCheckClock = clock ?? (() => Date.now());
+}
+
+/** Older than two hours — or with no usable grade time, which can never be aged. */
+function isExpired(p: PendingFreeCheck, nowMs: number): boolean {
+  const gradedAt = Number(p.gradedAt);
+  if (!Number.isFinite(gradedAt)) return true;
+  return nowMs - gradedAt > FREE_CHECK_PENDING_MAX_AGE_MS;
+}
+
+function removePendingFreeCheck(): void {
+  try {
+    window.localStorage.removeItem(FREE_CHECK_PENDING_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
 export function peekPendingFreeCheck(): PendingFreeCheck | null {
   try {
     if (typeof window === "undefined") return null;
     const raw = window.localStorage.getItem(FREE_CHECK_PENDING_KEY);
     if (!raw) return null;
     const parsed: unknown = JSON.parse(raw);
-    return isPending(parsed) ? parsed : null;
+    if (!isPending(parsed)) return null;
+    // OR-18 — expired: absent, and deleted here, when peeked.
+    if (isExpired(parsed, freeCheckNow())) {
+      removePendingFreeCheck();
+      return null;
+    }
+    return parsed;
   } catch {
     return null;
   }
+}
+
+/**
+ * OR-18 — called on the click of EVERY free-check sign-in link (FREE_CHECK_SIGNIN_PATH):
+ * the panels' link and the scorecard's "Sign up free" row. Records that THIS tab is
+ * going to sign in to save THIS waiting result. With nothing waiting there is nothing to
+ * intend, so any old marker is cleared instead. If sessionStorage is unavailable no
+ * marker is written, and so nothing is ever saved: fail closed.
+ */
+export function markFreeCheckSigninIntent(): void {
+  const pending = peekPendingFreeCheck();
+  try {
+    if (pending) window.sessionStorage.setItem(FREE_CHECK_SIGNIN_INTENT_KEY, String(pending.gradedAt));
+    else window.sessionStorage.removeItem(FREE_CHECK_SIGNIN_INTENT_KEY);
+  } catch {
+    /* no sessionStorage → no marker → no save (fail closed) */
+  }
+}
+
+/** OR-18 — does this tab hold a sign-in marker for exactly this `gradedAt`? */
+export function hasFreeCheckSigninIntentFor(gradedAt: number): boolean {
+  try {
+    const marker = window.sessionStorage.getItem(FREE_CHECK_SIGNIN_INTENT_KEY);
+    return marker !== null && marker === String(gradedAt);
+  } catch {
+    return false; // unreadable → no marker → no save (fail closed)
+  }
+}
+
+/** OR-18 — cleared after every replay, whether it saved or failed. */
+export function clearFreeCheckSigninIntent(): void {
+  try {
+    window.sessionStorage.removeItem(FREE_CHECK_SIGNIN_INTENT_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * OR-18 — a waiting, unexpired result that THIS tab signed in to save (the marker
+ * matches). Anything else is not replayable: it is left on the device to expire.
+ */
+export function hasReplayablePendingFreeCheck(): boolean {
+  const pending = peekPendingFreeCheck();
+  return pending !== null && hasFreeCheckSigninIntentFor(pending.gradedAt);
 }
 
 export function hasPendingFreeCheck(): boolean {
@@ -360,11 +458,7 @@ export function hasPendingFreeCheck(): boolean {
  */
 export function claimPendingFreeCheck(): PendingFreeCheck | null {
   const pending = peekPendingFreeCheck();
-  try {
-    window.localStorage.removeItem(FREE_CHECK_PENDING_KEY);
-  } catch {
-    /* ignore */
-  }
+  removePendingFreeCheck();
   return pending;
 }
 

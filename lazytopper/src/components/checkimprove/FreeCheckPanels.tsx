@@ -4,6 +4,7 @@ import { trackNamedEvent } from "../../analytics/analytics";
 import {
   FREE_CHECK_COPY,
   FREE_CHECK_SIGNIN_PATH,
+  markFreeCheckSigninIntent,
   refusalCopy,
   type FreeCheckRefusalReason,
 } from "../../services/freeCheckClient";
@@ -104,9 +105,19 @@ const FC_CSS = `
 }
 `;
 
+/**
+ * The one sign-in link. Its click writes the OR-18 sign-in marker (this tab, this waiting
+ * result) BEFORE the router navigates, so the result is saved only for whoever signs in
+ * from here.
+ */
 function SignInLink() {
   return (
-    <Link className="lt-fc__cta" to={FREE_CHECK_SIGNIN_PATH} data-testid="free-check-signin">
+    <Link
+      className="lt-fc__cta"
+      to={FREE_CHECK_SIGNIN_PATH}
+      onClick={markFreeCheckSigninIntent}
+      data-testid="free-check-signin"
+    >
       {FREE_CHECK_COPY.signUpCta}
     </Link>
   );

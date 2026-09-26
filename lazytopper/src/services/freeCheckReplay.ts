@@ -27,7 +27,14 @@
  *
  * EXACTLY ONCE. The pending result is CLAIMED (read and removed) synchronously before
  * the first await, so a concurrent second call finds nothing. A replay that throws puts
- * it back, so the next visit can try again.
+ * it back on the device (it still expires two hours after it was graded).
+ *
+ * ★ OR-18 — ONLY WITH SIGN-IN INTENT. A waiting result is saved ONLY if this tab holds
+ * the sign-in marker written when a free-check sign-in link was clicked, AND the marker
+ * equals the waiting result's `gradedAt`. A sign-in without it — another person on a
+ * shared device, another tab, the navbar's "Log in" — saves nothing and shows no trial
+ * offer; the result is left to expire (2h, freeCheckClient). The marker is cleared after
+ * the replay, whether it saved or failed.
  */
 import type { AuthUser } from "../context/AuthContext";
 import type { CheckSolutionResponse, WorksheetQuestionGrade } from "../ai/aiClient";
@@ -43,6 +50,8 @@ import {
 import { getActiveProgressUser } from "./studentProgressStore";
 import {
   claimPendingFreeCheck,
+  clearFreeCheckSigninIntent,
+  hasFreeCheckSigninIntentFor,
   peekPendingFreeCheck,
   restorePendingFreeCheck,
   type PendingFreeCheck,
@@ -165,7 +174,10 @@ export async function replayPendingFreeCheck(
   user: AuthUser | null | undefined,
 ): Promise<FreeCheckReplayOutcome> {
   if (!user?.uid || user.isLocalSession) return { kind: "none" };
-  if (!peekPendingFreeCheck()) return { kind: "none" };
+  const waiting = peekPendingFreeCheck(); // expired → null (and deleted), OR-18
+  if (!waiting) return { kind: "none" };
+  // ★ OR-18 — no marker (or one for a different result), no save. Left to expire.
+  if (!hasFreeCheckSigninIntentFor(waiting.gradedAt)) return { kind: "none" };
   if (!isReplayReady(user)) return { kind: "not-ready" }; // hazard 1
   const pending = claimPendingFreeCheck();
   if (!pending) return { kind: "none" };
@@ -178,6 +190,9 @@ export async function replayPendingFreeCheck(
     console.warn("[freeCheckReplay] replay failed; the result stays on the device", error);
     restorePendingFreeCheck(pending);
     return { kind: "failed" };
+  } finally {
+    // OR-18 — the intent is spent by the replay, saved or failed.
+    clearFreeCheckSigninIntent();
   }
 }
 

@@ -4,6 +4,10 @@
  * after the page's), exactly ONCE — even under React StrictMode's double effect — and
  * reports `saved` so the R9 offer can follow.
  *
+ * FIX-2 (OR-18): only a result this tab signed in to save (the sign-in marker) is
+ * replayed; without the marker the hook is `none` from the first render — no "saving",
+ * no write — and the result is left on the device to expire.
+ *
  * Mutation B5 (replay twice / before the uid is set) turns this file RED.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
@@ -37,7 +41,14 @@ vi.mock("../services/studentProgressStore", () => ({
 vi.mock("../analytics/analytics", () => ({ trackNamedEvent: vi.fn() }));
 
 import { useFreeCheckReturn } from "./useFreeCheckReturn";
-import { hasPendingFreeCheck, recordFreeCheckSuccess, type PendingSingleFreeCheck } from "../services/freeCheckClient";
+import {
+  FREE_CHECK_SIGNIN_INTENT_KEY,
+  __setFreeCheckClockForTests,
+  hasPendingFreeCheck,
+  markFreeCheckSigninIntent,
+  recordFreeCheckSuccess,
+  type PendingSingleFreeCheck,
+} from "../services/freeCheckClient";
 
 const USER = { uid: "u9", email: null, phoneNumber: null, displayName: null } as never;
 const PENDING: PendingSingleFreeCheck = {
@@ -66,13 +77,18 @@ const strict = ({ children }: { children: ReactNode }) => createElement(StrictMo
 
 beforeEach(() => {
   window.localStorage.clear();
+  window.sessionStorage.clear();
+  __setFreeCheckClockForTests(() => PENDING.gradedAt + 60 * 1000); // graded a minute ago
   H.activeUid = null;
   H.recordMistake.mockReset().mockResolvedValue({ outcome: "logged", bridged: false });
   H.recordAttempt.mockReset().mockReturnValue("recorded");
   H.ensureCode.mockReset().mockResolvedValue({ code: "CI-M-REAL-02", name: "Real Numbers · Paper #2", sequence: 2 });
   H.persist.mockReset().mockReturnValue("recorded");
 });
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  __setFreeCheckClockForTests(null);
+});
 
 describe("useFreeCheckReturn", () => {
   it("nothing waiting → none, and nothing is written", async () => {
@@ -85,6 +101,7 @@ describe("useFreeCheckReturn", () => {
 
   it("★ waits for the active progress uid, then replays EXACTLY ONCE (StrictMode on)", async () => {
     recordFreeCheckSuccess(PENDING);
+    markFreeCheckSigninIntent(); // this tab clicked the free-check sign-in link (OR-18)
     const { result } = renderHook(() => useFreeCheckReturn(USER, true), { wrapper: strict });
 
     // Before AuthContext's effect has set the progress scope: saving, and NO writes.
@@ -103,6 +120,33 @@ describe("useFreeCheckReturn", () => {
     expect(H.recordAttempt).toHaveBeenCalledTimes(1);
     expect(H.ensureCode).toHaveBeenCalledTimes(1);
     expect(hasPendingFreeCheck()).toBe(false);
+    expect(window.sessionStorage.getItem(FREE_CHECK_SIGNIN_INTENT_KEY)).toBeNull(); // OR-18: spent
+  });
+
+  it("★ OR-18 — NO MARKER: none from the FIRST render (no 'saving'), nothing written, the result left to expire", async () => {
+    recordFreeCheckSuccess(PENDING); // waiting on the device, but nobody clicked sign-in in this tab
+    H.activeUid = "u9";
+    const { result } = renderHook(() => useFreeCheckReturn(USER, true), { wrapper: strict });
+    expect(result.current).toBe("none");
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 250));
+    });
+    expect(result.current).toBe("none");
+    expect(H.recordMistake).not.toHaveBeenCalled();
+    expect(H.recordAttempt).not.toHaveBeenCalled();
+    expect(H.persist).not.toHaveBeenCalled();
+    expect(hasPendingFreeCheck()).toBe(true);
+  });
+
+  it("★ OR-18 — a marker for a MISMATCHED gradedAt: none, nothing written", async () => {
+    recordFreeCheckSuccess(PENDING);
+    window.sessionStorage.setItem(FREE_CHECK_SIGNIN_INTENT_KEY, String(PENDING.gradedAt + 1));
+    H.activeUid = "u9";
+    const { result } = renderHook(() => useFreeCheckReturn(USER, true), { wrapper: strict });
+    await act(async () => {});
+    expect(result.current).toBe("none");
+    expect(H.recordMistake).not.toHaveBeenCalled();
+    expect(H.recordAttempt).not.toHaveBeenCalled();
   });
 
   it("signed out, or disabled (flag off) → none, and the waiting result is left alone", async () => {

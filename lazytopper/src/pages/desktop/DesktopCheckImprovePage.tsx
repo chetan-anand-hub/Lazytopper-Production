@@ -80,6 +80,7 @@ import {
   hasUsedFreeCheck,
   isFreeCheckClientEnabled,
   isFreeCheckRefusedError,
+  markFreeCheckSigninIntent,
   recordFreeCheckSuccess,
   type FreeCheckRefusalReason,
 } from "../../services/freeCheckClient";
@@ -811,7 +812,11 @@ const DesktopCheckImprovePageInner: React.FC<{
   const freeSignUpToSave = {
     label: FREE_CHECK_COPY.signUpCta,
     footnote: FREE_CHECK_COPY.afterResult,
-    onSignUp: () => navigate(FREE_CHECK_SIGNIN_PATH),
+    // OR-18 — the sign-in marker is written on the click, before navigating.
+    onSignUp: () => {
+      markFreeCheckSigninIntent();
+      navigate(FREE_CHECK_SIGNIN_PATH);
+    },
   };
 
   // ── DEVICE CAPABILITY — not layout (§2.1) ────────────────────────
