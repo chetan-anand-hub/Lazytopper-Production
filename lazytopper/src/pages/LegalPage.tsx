@@ -362,7 +362,7 @@ export { LEGAL_SLUGS } from "./legalSlugs";
 const TABS: { slug: LegalSlug; label: string }[] = [
   { slug: "privacy", label: "Privacy Policy" },
   { slug: "terms", label: "Terms of Service" },
-  { slug: "refund", label: "Refund Policy" },
+  { slug: "refund", label: "Cancellation & Refunds" },
 ];
 
 // Sticky back-bar only — NO logo/wordmark. The global app navbar (App.tsx) already

@@ -129,10 +129,12 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
       "preparation — accounts, subscriptions, and what the predictions are not.",
   },
   "/legal/refund": {
-    title: "Refund Policy | LazyTopper",
+    // PRICING-TB-1 · OR-P5 (owner, 2026-09-26): word for word — the page states a
+    // no-refund policy (OR-P4), so the head may not promise a refund window.
+    title: "Cancellation & Refund Policy | LazyTopper",
     description:
-      "The LazyTopper refund policy — the 7-day free trial, the 7-day refund " +
-      "window, how to request one, and what is non-refundable.",
+      "LazyTopper's cancellation and refund policy — the 7-day free trial, how to " +
+      "cancel a monthly plan, and refunds for billing errors.",
   },
 };
 
