@@ -43,13 +43,14 @@ const SECTIONS: Array<[string, string]> = [
     "A one-time payment covering Premium until your first board exam. It is not refunded once paid.",
   ],
   [
+    // OR-P7 (owner, 2026-09-26): no "charged after cancelling" — a pass is never cancelled.
     "Billing Errors",
-    "If you were charged twice, charged after cancelling, or charged the wrong amount, email us and we will refund the amount charged in error. We start the refund within 3 business days; your bank usually credits it within 5–7 business days.",
+    "If you were charged twice or charged the wrong amount, email us and we will refund the amount charged in error. We start the refund within 3 business days; your bank usually credits it within 5–7 business days.",
   ],
 ];
 
 /** OR-P6: billing is one-time passes only — nothing may imply a renewing subscription. */
-const SUBSCRIPTION_TERMS = [/subscribed/i, /cancel at any time/i, /charged again/i];
+const SUBSCRIPTION_TERMS = [/subscribed/i, /cancel at any time/i, /charged again/i, /charged after cancelling/i];
 
 /** Retired promises and products — none may appear anywhere a student reads. */
 const RETIRED = [
@@ -119,7 +120,8 @@ describe("OR-P4 — the refund page, as rendered", () => {
     }
     // CONTROL — the same patterns DO match the Monthly Plan text the page shipped before OR-P6.
     const old =
-      "You can cancel at any time. You keep Premium until the end of the month you have paid for, and you will not be charged again. Locked for as long as you stay subscribed.";
+      "You can cancel at any time. You keep Premium until the end of the month you have paid for, and you will not be charged again. Locked for as long as you stay subscribed. " +
+      "If you were charged twice, charged after cancelling, or charged the wrong amount";
     for (const banned of SUBSCRIPTION_TERMS) expect(old).toMatch(banned);
   });
 
@@ -207,8 +209,9 @@ describe("OR-P4 — WHERE ELSE: no retired refund term on any student-facing sur
  * title, description and tab label are pinned here word for word.
  */
 const HEAD_TITLE = "Cancellation & Refund Policy | LazyTopper";
+// OR-P7 (owner, 2026-09-26): passes, not "a monthly plan" you cancel.
 const HEAD_DESCRIPTION =
-  "LazyTopper's cancellation and refund policy — the 7-day free trial, how to cancel a monthly plan, and refunds for billing errors.";
+  "LazyTopper's cancellation and refund policy — the 7-day free trial, month and till-boards passes, and refunds for billing errors.";
 const TAB_LABEL = "Cancellation & Refunds";
 
 /** Decode exactly what `escapeAttr` / `escapeText` encode, ampersand LAST. */

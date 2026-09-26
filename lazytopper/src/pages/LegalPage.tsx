@@ -310,7 +310,7 @@ const PAGES: Record<LegalSlug, PageDef> = {
         <h2>User Accounts</h2>
         <p>You are responsible for maintaining the confidentiality of your account. You must be at least 13 years old to use LazyTopper. If you are under 18, you must have your parent or guardian's permission to use LazyTopper. By creating an account, you confirm that you have it.</p>
         <h2>Subscription &amp; Payment</h2>
-        <p>Free tier features are available without payment. Premium features require a subscription at the listed prices. You can cancel your subscription at any time.</p>
+        <p>Free tier features are available without payment. Premium features require a pass at the listed prices. Passes are one-time payments and do not renew automatically.</p>
         <h2>Intellectual Property</h2>
         <p>All content, including prediction algorithms, question banks, and AI-generated explanations, is the property of LazyTopper.</p>
       </>
@@ -340,7 +340,7 @@ const PAGES: Record<LegalSlug, PageDef> = {
         <h2>Till-Boards Plan</h2>
         <p>A one-time payment covering Premium until your first board exam. It is not refunded once paid.</p>
         <h2>Billing Errors</h2>
-        <p>If you were charged twice, charged after cancelling, or charged the wrong amount, email us and we will refund the amount charged in error. We start the refund within 3 business days; your bank usually credits it within 5–7 business days.</p>
+        <p>If you were charged twice or charged the wrong amount, email us and we will refund the amount charged in error. We start the refund within 3 business days; your bank usually credits it within 5–7 business days.</p>
       </>
     ),
     contact: (

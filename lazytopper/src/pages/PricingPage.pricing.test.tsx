@@ -242,7 +242,7 @@ describe("PricingPage — R6 FAQ copy", () => {
     );
   });
 
-  it("answers what happens after the cohort fills, and locks the SUBSCRIBER's rate", () => {
+  it("answers what happens after the cohort fills, and locks the founding PASS price (OR-P7)", () => {
     const { inner } = renderPricing();
     const faq = flat(inner.querySelector(".lt-pricing-faq"));
 
@@ -255,10 +255,11 @@ describe("PricingPage — R6 FAQ copy", () => {
     );
     // ...and the lock, which is what makes the close honest rather than a bait.
     expect(faq).toContain("Your rate is locked.");
+    // OR-P7 (owner, 2026-09-26), word for word: passes, never a subscription.
     expect(faq).toContain(
-      "you keep that rate for as long as your subscription stays active",
+      "Once you buy a pass as a founding member, every pass you buy after that stays at the founding price. We never raise the price of a pass you have already bought.",
     );
-    expect(faq).toContain("We never change the price of an active subscription.");
+    expect(faq).not.toMatch(/subscri/i);
   });
 
   it("the FAQ carries no rupee figure other than the static monthly prices", () => {
@@ -281,7 +282,7 @@ describe("PricingPage — R6 FAQ copy", () => {
   });
 
   /**
-   * The promise must stay scoped to an ACTIVE SUBSCRIPTION.
+   * The promise must stay scoped to the student's OWN passes (OR-P7; formerly "an active subscription").
    *
    * "We do not raise anyone's price" is a claim about PUBLISHED prices, and the
    * product cannot support it — a fixed board-year price moved between #539 and
@@ -303,7 +304,7 @@ describe("PricingPage — R6 FAQ copy", () => {
     ]) {
       expect(
         page,
-        `overbroad price promise on the page: "${overreach}" — scope it to an active subscription instead`,
+        `overbroad price promise on the page: "${overreach}" — scope it to the student's own passes instead`,
       ).not.toContain(overreach);
     }
   });
