@@ -400,6 +400,25 @@ export function stripAuthChrome(root: Element): number {
     if (label === "log in" || label === "login" || label === "sign in") doomed.push(button);
   }
 
+  // 4. CLOCK-DERIVED FIGURES (PRICING-TB-1, owner ruling OR-P1). Not auth chrome, but
+  //    the same hazard as the greeting: a value computed from the BUILD machine's
+  //    clock would be frozen into a static file and read as true for months. The
+  //    components write these figures only after mount and wrap every one of them in
+  //    a single node carrying the test id, so the whole node goes — structurally,
+  //    never by text ("months", "save" and "boards" are ordinary words in content).
+  //      · till-boards-figures — /pricing's one-time price, struck full price, month
+  //        label and saving (PricingPage `TillBoardsOffer`).
+  //      · boards-countdown — the landing's "N months" figure (Welcome.tsx). Prepared
+  //        in advance: the root is not captured today (`capturablePaths()`), and this
+  //        is the rule Welcome.tsx's own comment asks whoever captures it to add.
+  //    ⚠ The selector is inlined, not a module constant: this body ships to the
+  //    browser via `toString()` and cannot see module scope.
+  for (const figure of Array.from(
+    root.querySelectorAll('[data-testid="till-boards-figures"], [data-testid="boards-countdown"]'),
+  )) {
+    doomed.push(figure);
+  }
+
   let removed = 0;
   for (const node of doomed) {
     if (node.parentNode) {
@@ -423,6 +442,10 @@ export function stripAuthChrome(root: Element): number {
 export function countResidualAuthNodes(root: Element): number {
   let residual = root.querySelectorAll('a[href*="/login"]').length;
   residual += root.querySelectorAll('[data-testid="shell-greeting"]').length;
+  // Clock-derived figures (strip rule 4, PRICING-TB-1 OR-P1) — none may survive.
+  residual += root.querySelectorAll(
+    '[data-testid="till-boards-figures"], [data-testid="boards-countdown"]',
+  ).length;
   for (const button of Array.from(root.querySelectorAll("button"))) {
     const label = (button.textContent || "").replace(/\s+/g, " ").trim().toLowerCase();
     if (label === "log in" || label === "login" || label === "sign in") residual += 1;

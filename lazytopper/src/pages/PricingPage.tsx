@@ -1,26 +1,25 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import {
-  ANNUAL_AT_MONTHLY_RATE_FOUNDING_DISPLAY,
-  ANNUAL_SAVING_FOUNDING_DISPLAY,
-  ANNUAL_SAVING_SUBLINE,
   FOUNDING_COHORT_COPY,
   FOUNDING_COHORT_SIZE,
   FOUNDING_LABEL,
   FOUNDING_LOCK_COPY,
-  MONTHS_PER_BOARD_YEAR,
-  PERIOD_ANNUAL_LABEL,
+  FOUNDING_OFFER_OPEN,
   PERIOD_FREE_LABEL,
   PERIOD_MONTHLY_LABEL,
-  PRICE_ANNUAL_FOUNDING_DISPLAY,
-  PRICE_ANNUAL_LIST_DISPLAY,
   PRICE_FREE_DISPLAY,
   PRICE_MONTHLY_FOUNDING_DISPLAY,
   PRICE_MONTHLY_LIST_DISPLAY,
+  TILL_BOARDS_LINE,
+  TILL_BOARDS_SAVING_PERCENT,
   TUITION_ANCHOR,
+  tillBoardsQuote,
+  type TillBoardsQuote,
 } from "../config/pricing";
+import { predictCbseExamDate } from "../services/cbseExamDate";
 
 const WAITLIST_KEY = "lazytopper.waitlist.v1";
 
@@ -218,17 +217,83 @@ const PRICING_CSS = `
   }
 
   .lt-pricing-price-alt {
-    margin: 0 0 2px;
+    margin: 0 0 14px;
     color: var(--lt-muted);
     font-size: 0.85rem;
     font-weight: 600;
   }
 
-  .lt-pricing-price-sub {
-    margin: 0 0 10px;
-    color: var(--lt-green);
-    font-size: 0.82rem;
+  .lt-pricing-price-alt::first-letter {
+    text-transform: uppercase;
+  }
+
+  /* A struck LIST figure beside the price a founding member actually pays. */
+  .lt-pricing-was {
+    color: var(--lt-muted);
+    font-size: 1rem;
+    font-weight: 600;
+    opacity: 0.85;
+  }
+
+  /* Till boards — one payment until the first board paper. The number-free
+     line is static; the figures below it are written only after mount and
+     are stripped from the prerendered capture by their data-testid. */
+  .lt-pricing-tillboards {
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(22, 185, 106, 0.22);
+  }
+
+  .lt-pricing-tillboards-line {
+    margin: 0;
+    color: var(--lt-ink);
+    font-size: 0.85rem;
     font-weight: 700;
+    line-height: 1.45;
+  }
+
+  .lt-pricing-tillboards-figures {
+    margin-top: 8px;
+  }
+
+  .lt-pricing-tillboards-price {
+    margin: 0 0 2px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .lt-pricing-tillboards-amount {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+
+  .lt-pricing-tillboards-once {
+    color: var(--lt-muted);
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  .lt-pricing-tillboards-meta {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    color: var(--lt-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .lt-pricing-tillboards-save {
+    color: var(--lt-green);
+    font-weight: 800;
   }
 
   /* Founding-offer chrome. The flag sits above the price so the number is read
@@ -246,18 +311,6 @@ const PRICING_CSS = `
     font-weight: 900;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-  }
-
-  .lt-pricing-list-line {
-    margin: 0 0 6px;
-    color: var(--lt-muted);
-    font-size: 0.78rem;
-    font-weight: 600;
-    opacity: 0.85;
-  }
-
-  .lt-pricing-list-line--annual {
-    margin-bottom: 10px;
   }
 
   .lt-pricing-founding-note {
@@ -708,8 +761,11 @@ const FAQ_ITEMS = [
     a: "Yes. Basic keeps browse-first access and limited practice tools available without paid activation.",
   },
   {
-    q: "Should I pay monthly or for the board year?",
-    a: `${MONTHS_PER_BOARD_YEAR} months at ${PRICE_MONTHLY_FOUNDING_DISPLAY} comes to ${ANNUAL_AT_MONTHLY_RATE_FOUNDING_DISPLAY}. The board year is ${PRICE_ANNUAL_FOUNDING_DISPLAY}, so you save ${ANNUAL_SAVING_FOUNDING_DISPLAY} and stay covered right through your board exams. Monthly is there if you would rather start small.`,
+    // PRICING-TB-1 (owner ruling): NO FIGURE HERE. The till-boards price
+    // depends on today's date, and this answer is in the prerendered page, so a
+    // number here would be baked at capture time and go stale the next month.
+    q: "Should I pay monthly or till my boards?",
+    a: `Till boards is one payment that covers every month until your first board paper, at ${TILL_BOARDS_SAVING_PERCENT}% less than paying monthly. The price shrinks each month as the boards get closer.`,
   },
   {
     // The offer's honesty rests entirely on this answer, so it states the close
@@ -719,14 +775,15 @@ const FAQ_ITEMS = [
     // ⚠ THE PROMISE IS SCOPED TO AN ACTIVE SUBSCRIPTION, deliberately.
     // An earlier draft said "we do not raise anyone's price". That is a claim
     // about PUBLISHED prices, and it is broader than this product can support —
-    // the board year was ₹4,999 as recently as #539, one day before this PR.
+    // a fixed board-year price moved between #539 and #548, one day apart
+    // (that plan was later retired by PRICING-TB-1).
     // What can be supported without qualification is narrower and is the thing
     // a subscriber actually cares about: your own rate never moves while your
     // subscription is active. Do not widen this back out. The broad version is
     // precisely the sentence a student who saw an older published price would
     // quote back.
     q: `What happens after the first ${FOUNDING_COHORT_SIZE} students?`,
-    a: `The founding offer closes. New members then join at the regular price — ${PRICE_MONTHLY_LIST_DISPLAY} ${PERIOD_MONTHLY_LABEL} or ${PRICE_ANNUAL_LIST_DISPLAY} ${PERIOD_ANNUAL_LABEL}, which is what we publish today alongside the founding rate. Your rate is locked. Once you subscribe as a founding member you keep that rate for as long as your subscription stays active. We never change the price of an active subscription.`,
+    a: `The founding offer closes. New members then join at the regular price — ${PRICE_MONTHLY_LIST_DISPLAY} ${PERIOD_MONTHLY_LABEL}, or ${TILL_BOARDS_SAVING_PERCENT}% off when you pay once till your boards, which is what we publish today alongside the founding rate. Your rate is locked. Once you subscribe as a founding member you keep that rate for as long as your subscription stays active. We never change the price of an active subscription.`,
   },
   {
     q: "Are there any usage limits?",
@@ -765,6 +822,74 @@ const RETURN_TARGETS: Record<string, { backTo: string; backLabel: string }> = {
 };
 
 const DEFAULT_RETURN = { backTo: "/", backLabel: "Back to home" };
+
+/**
+ * PRICING-TB-1 · R1 — the Premium headline is the MONTHLY price.
+ *
+ * Takes the offer state as a PROP (the pattern of Welcome's `PaidPlanHead`) so a
+ * test can render both states without mocking src/config, which the repo forbids.
+ * Open: the founding rate leads, with the list rate struck beside it. The list
+ * price is struck because it is not what a founding member pays — NOT because
+ * it is retired; it is live and charged from student 201. `<s>` carries that
+ * meaning natively. Closed: the list rate stands alone, nothing struck.
+ */
+export function PremiumPriceHead({ offerOpen }: { offerOpen: boolean }) {
+  return (
+    <div className="lt-pricing-price" data-testid="pricing-monthly-price">
+      <span className="lt-pricing-amount">
+        {offerOpen ? PRICE_MONTHLY_FOUNDING_DISPLAY : PRICE_MONTHLY_LIST_DISPLAY}
+      </span>
+      <span className="lt-pricing-period">{PERIOD_MONTHLY_LABEL}</span>
+      {offerOpen && <s className="lt-pricing-was">{PRICE_MONTHLY_LIST_DISPLAY}</s>}
+    </div>
+  );
+}
+
+/**
+ * PRICING-TB-1 · R3/R4 — the till-boards offer.
+ *
+ * ★ THE FIRST RENDER CARRIES NO FIGURE. The number-free line is static; the
+ * figures are computed from the clock and the predicted board date inside the
+ * effect, so they do not exist until the page has mounted in a browser.
+ *
+ * ⚠ AN EFFECT IS NOT BY ITSELF A DEFENCE. The prerender capture waits for the
+ * page to settle, so it WOULD see the figures. What keeps them out of
+ * `prerendered/pricing.html` is the pairing: every figure sits inside the one
+ * node carrying `data-testid="till-boards-figures"`, and
+ * `stripAuthChrome()` in scripts/seo/captureStaticBodies.ts removes that node BY
+ * STRUCTURAL SELECTOR (and `countResidualAuthNodes()` fails the capture if one
+ * survives). Keep EVERY clock-derived figure inside that node, and keep the
+ * number-free line OUTSIDE it so the static page still says the offer exists.
+ *
+ * Both clock reads — `new Date()` and `predictCbseExamDate()` (which reads the
+ * clock itself) — live in the effect, never at module scope, so nothing is
+ * baked at build time either.
+ */
+export function TillBoardsOffer({ offerOpen }: { offerOpen: boolean }) {
+  const [quote, setQuote] = useState<TillBoardsQuote | null>(null);
+  useEffect(() => {
+    setQuote(tillBoardsQuote(new Date(), predictCbseExamDate("10"), offerOpen));
+  }, [offerOpen]);
+
+  return (
+    <div className="lt-pricing-tillboards" data-testid="till-boards">
+      <p className="lt-pricing-tillboards-line">{TILL_BOARDS_LINE}</p>
+      {quote && (
+        <div className="lt-pricing-tillboards-figures" data-testid="till-boards-figures">
+          <p className="lt-pricing-tillboards-price">
+            <span className="lt-pricing-tillboards-amount">{quote.priceDisplay}</span>
+            <span className="lt-pricing-tillboards-once">one-time</span>
+            <s className="lt-pricing-was">{quote.fullDisplay}</s>
+          </p>
+          <p className="lt-pricing-tillboards-meta">
+            <span className="lt-pricing-tillboards-until">{quote.untilLabel}</span>
+            <span className="lt-pricing-tillboards-save">{quote.savingLabel}</span>
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function PricingPage() {
   const navigate = useNavigate();
@@ -850,28 +975,9 @@ export default function PricingPage() {
             <p className="lt-pricing-founding-flag">
               {`${FOUNDING_LABEL} · ${FOUNDING_COHORT_COPY}`}
             </p>
-            <div className="lt-pricing-price">
-              <span className="lt-pricing-amount">{PRICE_ANNUAL_FOUNDING_DISPLAY}</span>
-              <span className="lt-pricing-period">{PERIOD_ANNUAL_LABEL}</span>
-            </div>
-            {/* The list price is struck because it is not what a founding member
-                pays — NOT because it is a retired price. It is live and charged
-                from student 201. `<s>` carries that meaning natively and needs no
-                extra CSS to render the strike. */}
-            <p className="lt-pricing-list-line lt-pricing-list-line--annual">
-              {"Regular price "}
-              <s>{PRICE_ANNUAL_LIST_DISPLAY}</s>
-              {` ${PERIOD_ANNUAL_LABEL}`}
-            </p>
-            <p className="lt-pricing-price-alt">
-              {`or ${PRICE_MONTHLY_FOUNDING_DISPLAY} ${PERIOD_MONTHLY_LABEL} · ${TUITION_ANCHOR}`}
-            </p>
-            <p className="lt-pricing-list-line lt-pricing-list-line--monthly">
-              {"Regular price "}
-              <s>{PRICE_MONTHLY_LIST_DISPLAY}</s>
-              {` ${PERIOD_MONTHLY_LABEL}`}
-            </p>
-            <p className="lt-pricing-price-sub">{ANNUAL_SAVING_SUBLINE}</p>
+            <PremiumPriceHead offerOpen={FOUNDING_OFFER_OPEN} />
+            <p className="lt-pricing-price-alt">{TUITION_ANCHOR}</p>
+            <TillBoardsOffer offerOpen={FOUNDING_OFFER_OPEN} />
             <p className="lt-pricing-founding-note">{FOUNDING_LOCK_COPY}</p>
             <p className="lt-pricing-plan-desc">
               Manual activation during beta. Payment checkout coming soon.

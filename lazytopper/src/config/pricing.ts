@@ -21,8 +21,9 @@
  * ⚠ SCOPE THE PROMISE TO AN ACTIVE SUBSCRIPTION, NOT TO PUBLISHED PRICES.
  * The supportable claim is "we never change the price of an active
  * subscription". The broader-sounding "we never raise anyone's price" is a claim
- * about PUBLISHED prices and this product cannot support it: the board year was
- * ₹4,999 under #539 and is ₹5,999 here, one day apart. Published prices are
+ * about PUBLISHED prices and this product cannot support it: a fixed board-year
+ * price was published at two different figures one day apart (#539 → #548), and
+ * PRICING-TB-1 then retired that plan altogether. Published prices are
  * provisional pending the cost model; a subscriber's own rate is not. Keep the
  * two apart in copy — see [FU-ANNUAL-PRICE-ROSE-POST-539].
  *
@@ -52,11 +53,16 @@ export const PRICE_FREE_INR = 0;
 
 /** Regular published price — what student 201 onwards pays. */
 export const PRICE_MONTHLY_LIST_INR = 999;
-export const PRICE_ANNUAL_LIST_INR = 8999;
 
 /** Founding-member price — the first `FOUNDING_COHORT_SIZE` students. */
 export const PRICE_MONTHLY_FOUNDING_INR = 599;
-export const PRICE_ANNUAL_FOUNDING_INR = 5999;
+
+// NOTE (PRICING-TB-1): there is deliberately NO fixed board-year price any more.
+// The board-year plan (a list and a founding figure, a "/ board year" label, a
+// derived saving and two JSON-LD strings) was retired by owner ruling on
+// 2026-09-26 and replaced by "till boards" — one payment covering every month
+// until the first board paper, 20% under the monthly rate. That price depends on
+// TODAY'S DATE, so it cannot be a constant here: see `tillBoardsQuote()` below.
 
 /**
  * How many students the founding rate is open to. The offer closes when this
@@ -98,24 +104,13 @@ export const FOUNDING_COHORT_SIZE = 200;
  */
 export const FOUNDING_OFFER_OPEN = true;
 
-/** A "board year" is a full twelve months of access through the exams. */
-export const MONTHS_PER_BOARD_YEAR = 12;
-
-// ---------------------------------------------------------------------------
-// Derived. Never hardcode these — they must move when a price above moves.
-// ---------------------------------------------------------------------------
-
-/** What twelve months at each monthly rate would cost. */
-export const ANNUAL_AT_MONTHLY_RATE_LIST_INR =
-  PRICE_MONTHLY_LIST_INR * MONTHS_PER_BOARD_YEAR;
-export const ANNUAL_AT_MONTHLY_RATE_FOUNDING_INR =
-  PRICE_MONTHLY_FOUNDING_INR * MONTHS_PER_BOARD_YEAR;
-
-/** What each board year saves against paying monthly at the same tier. */
-export const ANNUAL_SAVING_LIST_INR =
-  ANNUAL_AT_MONTHLY_RATE_LIST_INR - PRICE_ANNUAL_LIST_INR;
-export const ANNUAL_SAVING_FOUNDING_INR =
-  ANNUAL_AT_MONTHLY_RATE_FOUNDING_INR - PRICE_ANNUAL_FOUNDING_INR;
+/**
+ * Till boards pays this fraction of the monthly total — i.e. 20% off. Owner
+ * ruling, PRICING-TB-1 (2026-09-26). The percentage shown in copy is DERIVED
+ * from this (`TILL_BOARDS_SAVING_PERCENT`), never typed beside it.
+ */
+export const TILL_BOARDS_PAY_FRACTION = 0.8;
+export const TILL_BOARDS_SAVING_PERCENT = Math.round((1 - TILL_BOARDS_PAY_FRACTION) * 100);
 
 // ---------------------------------------------------------------------------
 // Display formatting
@@ -141,18 +136,7 @@ export function formatInr(amount: number): string {
 export const PRICE_FREE_DISPLAY = formatInr(PRICE_FREE_INR);
 
 export const PRICE_MONTHLY_LIST_DISPLAY = formatInr(PRICE_MONTHLY_LIST_INR);
-export const PRICE_ANNUAL_LIST_DISPLAY = formatInr(PRICE_ANNUAL_LIST_INR);
 export const PRICE_MONTHLY_FOUNDING_DISPLAY = formatInr(PRICE_MONTHLY_FOUNDING_INR);
-export const PRICE_ANNUAL_FOUNDING_DISPLAY = formatInr(PRICE_ANNUAL_FOUNDING_INR);
-
-export const ANNUAL_AT_MONTHLY_RATE_LIST_DISPLAY = formatInr(
-  ANNUAL_AT_MONTHLY_RATE_LIST_INR,
-);
-export const ANNUAL_AT_MONTHLY_RATE_FOUNDING_DISPLAY = formatInr(
-  ANNUAL_AT_MONTHLY_RATE_FOUNDING_INR,
-);
-export const ANNUAL_SAVING_LIST_DISPLAY = formatInr(ANNUAL_SAVING_LIST_INR);
-export const ANNUAL_SAVING_FOUNDING_DISPLAY = formatInr(ANNUAL_SAVING_FOUNDING_INR);
 
 // ---------------------------------------------------------------------------
 // Period labels + reusable copy fragments
@@ -160,7 +144,6 @@ export const ANNUAL_SAVING_FOUNDING_DISPLAY = formatInr(ANNUAL_SAVING_FOUNDING_I
 
 export const PERIOD_FREE_LABEL = "/ forever";
 export const PERIOD_MONTHLY_LABEL = "/ month";
-export const PERIOD_ANNUAL_LABEL = "/ board year";
 
 /**
  * Compact inline form for upgrade prompts: "₹599/month".
@@ -178,11 +161,14 @@ export const PERIOD_ANNUAL_LABEL = "/ board year";
 export const MONTHLY_INLINE = `${PRICE_MONTHLY_FOUNDING_DISPLAY}/month`;
 
 /**
- * Saving sub-line, founding tier. The pricing page and Home both show founding
- * as the headline price, so the saving shown beside it must be the founding
- * saving — pairing a founding price with a list saving would overstate it.
+ * Till-boards copy that carries NO rupee figure. These are the only till-boards
+ * strings allowed in static markup (prerendered/*.html, the sign-in strip, the
+ * FAQ): the figures themselves depend on today's date, so they exist only after
+ * the page mounts in a browser. See `tillBoardsQuote()`.
  */
-export const ANNUAL_SAVING_SUBLINE = `save ${ANNUAL_SAVING_FOUNDING_DISPLAY}`;
+export const TILL_BOARDS_LINE = `Or pay once till your boards — ${TILL_BOARDS_SAVING_PERCENT}% off.`;
+export const TILL_BOARDS_INLINE = `or pay once till boards — ${TILL_BOARDS_SAVING_PERCENT}% off`;
+export const TILL_BOARDS_SAVING_LABEL = `save ${TILL_BOARDS_SAVING_PERCENT}%`;
 
 /**
  * Value anchor for the MONTHLY price. Owner-ruled: it still holds at
@@ -218,9 +204,11 @@ export const FOUNDING_COHORT_COPY = `First ${FOUNDING_COHORT_SIZE} students.`;
 export const PRICE_CURRENCY = "INR";
 export const PRICE_FREE_JSONLD = String(PRICE_FREE_INR);
 export const PRICE_MONTHLY_LIST_JSONLD = String(PRICE_MONTHLY_LIST_INR);
-export const PRICE_ANNUAL_LIST_JSONLD = String(PRICE_ANNUAL_LIST_INR);
 export const PRICE_MONTHLY_FOUNDING_JSONLD = String(PRICE_MONTHLY_FOUNDING_INR);
-export const PRICE_ANNUAL_FOUNDING_JSONLD = String(PRICE_ANNUAL_FOUNDING_INR);
+// NOTE (PRICING-TB-1, OR-P2): the board-year `*_JSONLD` strings and
+// `BILLING_INCREMENT_ANNUAL` were deleted, not repointed. Nothing emits pricing
+// JSON-LD today ([FU-PRICING-JSONLD-NO-EMITTER]), and the till-boards price is
+// clock-derived, so it must never be written into structured data at all.
 
 /**
  * schema.org availability for the founding offers. `LimitedAvailability` is the
@@ -236,7 +224,133 @@ export const PRICE_ANNUAL_FOUNDING_JSONLD = String(PRICE_ANNUAL_FOUNDING_INR);
 export const AVAILABILITY_LIMITED = "https://schema.org/LimitedAvailability";
 export const AVAILABILITY_IN_STOCK = "https://schema.org/InStock";
 
-/** schema.org unit code for a month. The board year is 12 of these. */
+/** schema.org unit code for a month. */
 export const BILLING_UNIT_MONTH = "MON";
 export const BILLING_INCREMENT_MONTHLY = 1;
-export const BILLING_INCREMENT_ANNUAL = MONTHS_PER_BOARD_YEAR;
+
+// ---------------------------------------------------------------------------
+// Till boards — one payment, until the first board paper (PRICING-TB-1)
+// ---------------------------------------------------------------------------
+
+/** IST is a fixed UTC+05:30 — India observes no daylight saving. */
+const IST_OFFSET_MINUTES = 5 * 60 + 30;
+
+const MONTH_SHORT = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+] as const;
+
+/** A calendar date with a 0-based month, compared field by field. */
+interface CalendarDate {
+  y: number;
+  m: number;
+  d: number;
+}
+
+/**
+ * The calendar date in Asia/Kolkata at the instant `now`. Computed from the
+ * fixed offset rather than `Intl` so the result cannot vary with the host's ICU
+ * build or time zone — the same reason `formatInr` avoids `toLocaleString`.
+ */
+function istCalendarDate(now: Date): CalendarDate {
+  const shifted = new Date(now.getTime() + IST_OFFSET_MINUTES * 60_000);
+  return { y: shifted.getUTCFullYear(), m: shifted.getUTCMonth(), d: shifted.getUTCDate() };
+}
+
+function parseIsoDate(iso: string): CalendarDate | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  if (!match) return null;
+  const y = Number(match[1]);
+  const m = Number(match[2]) - 1;
+  const d = Number(match[3]);
+  if (m < 0 || m > 11 || d < 1 || d > daysInMonth(y, m)) return null;
+  return { y, m, d };
+}
+
+function daysInMonth(y: number, m: number): number {
+  return new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+}
+
+/**
+ * `date + k` calendar months. A day past the end of the target month is clamped
+ * to that month's last day (31 Jan + 1 month = 28/29 Feb), never rolled into the
+ * month after — rolling would make "one month" longer than a month.
+ */
+function addCalendarMonths(date: CalendarDate, k: number): CalendarDate {
+  const total = date.m + k;
+  const y = date.y + Math.floor(total / 12);
+  const m = ((total % 12) + 12) % 12;
+  return { y, m, d: Math.min(date.d, daysInMonth(y, m)) };
+}
+
+function compareDates(a: CalendarDate, b: CalendarDate): number {
+  return a.y - b.y || a.m - b.m || a.d - b.d;
+}
+
+/** Hard ceiling on the month search — the predictor never looks > ~18 months out. */
+const TILL_BOARDS_MAX_MONTHS = 36;
+
+export interface TillBoardsQuote {
+  /** Smallest k >= 1 with (today in IST) + k calendar months >= the board date. */
+  monthsLeft: number;
+  /** The monthly rate the quote is built from (founding while open, else list). */
+  monthlyInr: number;
+  /** monthly × monthsLeft — shown struck through. */
+  fullInr: number;
+  /** Math.round(full × TILL_BOARDS_PAY_FRACTION) — the one-time price. */
+  priceInr: number;
+  fullDisplay: string;
+  priceDisplay: string;
+  /** "till your boards (Feb 2027)" — the month and year of the board date. */
+  untilLabel: string;
+  /** "save 20%". */
+  savingLabel: string;
+}
+
+/**
+ * The till-boards price for a given instant and board date. PURE: the clock is
+ * an argument (`now`), never read here, so a test can pin any day and the
+ * prerendered capture — which never mounts the component that calls this with
+ * the real clock — cannot bake a figure. Returns null for an unparseable date.
+ *
+ * `boardIso` is `predictCbseExamDate("10")` at the call site — the same date the
+ * landing countdown uses — so the two surfaces cannot disagree about when the
+ * boards are.
+ *
+ * `foundingOpen` defaults to the shipped flag; it is a parameter so the closed
+ * state can be tested without mocking this module (nothing may `vi.mock`
+ * src/config — see gradingLimits.guard.test.ts).
+ */
+export function tillBoardsQuote(
+  now: Date,
+  boardIso: string,
+  foundingOpen: boolean = FOUNDING_OFFER_OPEN,
+): TillBoardsQuote | null {
+  const board = parseIsoDate(boardIso);
+  if (!board || Number.isNaN(now.getTime())) return null;
+  const today = istCalendarDate(now);
+
+  // k starts at 1: on the day of the first paper itself (k = 0 would already
+  // satisfy the inequality) the plan still covers one month, never zero.
+  let monthsLeft = 1;
+  while (
+    monthsLeft < TILL_BOARDS_MAX_MONTHS &&
+    compareDates(addCalendarMonths(today, monthsLeft), board) < 0
+  ) {
+    monthsLeft += 1;
+  }
+
+  const monthlyInr = foundingOpen ? PRICE_MONTHLY_FOUNDING_INR : PRICE_MONTHLY_LIST_INR;
+  const fullInr = monthlyInr * monthsLeft;
+  const priceInr = Math.round(fullInr * TILL_BOARDS_PAY_FRACTION);
+  return {
+    monthsLeft,
+    monthlyInr,
+    fullInr,
+    priceInr,
+    fullDisplay: formatInr(fullInr),
+    priceDisplay: formatInr(priceInr),
+    untilLabel: `till your boards (${MONTH_SHORT[board.m]} ${board.y})`,
+    savingLabel: TILL_BOARDS_SAVING_LABEL,
+  };
+}

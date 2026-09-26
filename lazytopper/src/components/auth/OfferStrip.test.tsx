@@ -7,11 +7,10 @@ import { resolve } from "node:path";
 import {
   FOUNDING_COHORT_COPY,
   FOUNDING_LABEL,
-  PERIOD_ANNUAL_LABEL,
   PERIOD_MONTHLY_LABEL,
-  PRICE_ANNUAL_LIST_DISPLAY,
   PRICE_MONTHLY_FOUNDING_DISPLAY,
   PRICE_MONTHLY_LIST_DISPLAY,
+  TILL_BOARDS_INLINE,
 } from "../../config/pricing";
 
 /**
@@ -157,8 +156,18 @@ describe("offer CLOSED", () => {
     const text = flat(strip);
 
     expect(text).toContain(`${PRICE_MONTHLY_LIST_DISPLAY} ${PERIOD_MONTHLY_LABEL}`);
-    expect(text).toContain(`${PRICE_ANNUAL_LIST_DISPLAY} ${PERIOD_ANNUAL_LABEL}`);
-    expect(text).toContain("Upgrade whenever you like.");
+    // PRICING-TB-1 (R6): the board-year figure is replaced by a NUMBER-FREE
+    // till-boards line — the owner's exact wording, pinned as a literal too so a
+    // drift in the shared constant cannot silently reword the sign-in page.
+    expect(text).toContain(TILL_BOARDS_INLINE);
+    expect(text).toContain(
+      `Premium is ${PRICE_MONTHLY_LIST_DISPLAY} ${PERIOD_MONTHLY_LABEL} or pay once till boards — 20% off. Upgrade whenever you like.`,
+    );
+    for (const retired of ["₹5,999", "₹8,999", "₹1,189", "board year"]) {
+      expect(text, `retired board-year copy on the sign-in strip: ${retired}`).not.toContain(retired);
+    }
+    // The only figure left is the monthly list price.
+    expect(text.match(/₹[\d,]+/g)).toEqual([PRICE_MONTHLY_LIST_DISPLAY]);
 
     expect(screen.queryByTestId("lt-offer-founding-badge")).toBeNull();
     expect(text).not.toContain(PRICE_MONTHLY_FOUNDING_DISPLAY);
@@ -415,7 +424,7 @@ describe("mounted on the auth surface", () => {
     await renderLogin(false);
 
     const strip = screen.getByTestId("lt-offer-strip");
-    expect(flat(strip)).toContain(PRICE_ANNUAL_LIST_DISPLAY);
+    expect(flat(strip)).toContain(TILL_BOARDS_INLINE);
     expect(within(strip).queryByTestId("lt-offer-founding-badge")).toBeNull();
   });
 });

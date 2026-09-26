@@ -3,15 +3,9 @@ import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve, relative, sep } from "node:path";
 
+import * as pricing from "./pricing";
 import {
-  ANNUAL_AT_MONTHLY_RATE_FOUNDING_INR,
-  ANNUAL_AT_MONTHLY_RATE_LIST_INR,
-  ANNUAL_SAVING_FOUNDING_INR,
-  ANNUAL_SAVING_LIST_INR,
   MONTHLY_INLINE,
-  MONTHS_PER_BOARD_YEAR,
-  PRICE_ANNUAL_FOUNDING_INR,
-  PRICE_ANNUAL_LIST_INR,
   PRICE_MONTHLY_FOUNDING_INR,
   PRICE_MONTHLY_LIST_INR,
   formatInr,
@@ -226,34 +220,12 @@ describe("pricing guard — index.html carries no price at all", () => {
 });
 
 describe("pricing module — the derivation holds", () => {
-  it("derives BOTH savings from their own tier's prices rather than restating them", () => {
-    expect(ANNUAL_AT_MONTHLY_RATE_LIST_INR).toBe(
-      PRICE_MONTHLY_LIST_INR * MONTHS_PER_BOARD_YEAR,
-    );
-    expect(ANNUAL_SAVING_LIST_INR).toBe(
-      ANNUAL_AT_MONTHLY_RATE_LIST_INR - PRICE_ANNUAL_LIST_INR,
-    );
-
-    expect(ANNUAL_AT_MONTHLY_RATE_FOUNDING_INR).toBe(
-      PRICE_MONTHLY_FOUNDING_INR * MONTHS_PER_BOARD_YEAR,
-    );
-    expect(ANNUAL_SAVING_FOUNDING_INR).toBe(
-      ANNUAL_AT_MONTHLY_RATE_FOUNDING_INR - PRICE_ANNUAL_FOUNDING_INR,
-    );
-
-    // Each board year must actually be cheaper than 12 months at its OWN
-    // monthly rate, or that tier's saving line is a lie.
-    expect(ANNUAL_SAVING_LIST_INR).toBeGreaterThan(0);
-    expect(ANNUAL_SAVING_FOUNDING_INR).toBeGreaterThan(0);
-  });
-
   it("keeps every founding price strictly below its list counterpart", () => {
     // The entire founding proposition is "you pay less for taking a risk". If a
     // founding price ever met or exceeded its list price the offer would be
     // meaningless, and the struck-through list figure beside it would be
     // actively misleading rather than merely redundant.
     expect(PRICE_MONTHLY_FOUNDING_INR).toBeLessThan(PRICE_MONTHLY_LIST_INR);
-    expect(PRICE_ANNUAL_FOUNDING_INR).toBeLessThan(PRICE_ANNUAL_LIST_INR);
   });
 
   it("quotes the FOUNDING rate at the moment of upgrade intent", () => {
@@ -271,5 +243,130 @@ describe("pricing module — the derivation holds", () => {
     expect(formatInr(599)).toBe("₹599");
     expect(formatInr(4999)).toBe("₹4,999");
     expect(formatInr(100000)).toBe("₹1,00,000");
+  });
+});
+
+/**
+ * PRICING-TB-1 — THE BOARD-YEAR PLAN IS RETIRED, EVERYWHERE A STUDENT CAN READ IT.
+ *
+ * Owner ruling (2026-09-26): the fixed board-year plan is replaced by "till
+ * boards". No ₹5,999, ₹8,999 or ₹1,189 may remain anywhere a student can read it —
+ * the app source, index.html, public/ and the committed prerendered pages, which
+ * are what crawlers and a no-JS reader actually receive. The price-literal guard
+ * above cannot see this: it exempts the pricing module (where these numbers used
+ * to live legitimately) and never reads public/ or prerendered/.
+ */
+const RETIRED_FIGURE_IN_SOURCE = /\b(5,?999|8,?999|1,?189)\b/;
+const RETIRED_FIGURE_IN_STATIC =
+  /(₹|&#8377;|&#x20b9;|\brs\.?)\s*(5,?999|8,?999|1,?189)\b|\/\s*board year/i;
+const STATIC_TEXT_FILE = /\.(html|json|txt|xml|svg)$/;
+
+function walkAll(dir: string, keep: (entry: string) => boolean, out: string[] = []): string[] {
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry);
+    if (statSync(full).isDirectory()) walkAll(full, keep, out);
+    else if (keep(entry)) out.push(full);
+  }
+  return out;
+}
+
+describe("PRICING-TB-1 — no retired board-year figure remains anywhere a student can read it", () => {
+  it("no ₹5,999 / ₹8,999 / ₹1,189 in shipped src (the pricing module INCLUDED), comments too", () => {
+    const hits: string[] = [];
+    for (const abs of walk(SRC_ROOT)) {
+      const rel = relative(process.cwd(), abs).split(sep).join("/");
+      if (/\.test\.tsx?$/.test(rel) || rel.startsWith("src/data/")) continue;
+      readFileSync(abs, "utf8")
+        .split(/\r?\n/)
+        .forEach((line, i) => {
+          if (RETIRED_FIGURE_IN_SOURCE.test(line)) hits.push(`  ${rel}:${i + 1}  ${line.trim()}`);
+        });
+    }
+    expect(hits, `retired board-year figures still in src:\n${hits.join("\n")}`).toEqual([]);
+  });
+
+  it("no retired figure or '/ board year' label in index.html, public/ or prerendered/", () => {
+    const files = [
+      resolve(process.cwd(), "index.html"),
+      ...walkAll(resolve(process.cwd(), "public"), (e) => STATIC_TEXT_FILE.test(e)),
+      ...walkAll(resolve(process.cwd(), "prerendered"), (e) => STATIC_TEXT_FILE.test(e)),
+    ];
+    // The walk is real: prerendered/ carries every advertised page, /pricing among them.
+    const rels = files.map((f) => relative(process.cwd(), f).split(sep).join("/"));
+    expect(rels).toContain("prerendered/pricing.html");
+    expect(rels.length).toBeGreaterThan(50);
+
+    const hits: string[] = [];
+    for (const abs of files) {
+      const rel = relative(process.cwd(), abs).split(sep).join("/");
+      const text = readFileSync(abs, "utf8");
+      const m = RETIRED_FIGURE_IN_STATIC.exec(text);
+      if (m) hits.push(`  ${rel}: "${text.slice(Math.max(0, m.index - 40), m.index + 40)}"`);
+    }
+    expect(hits, `retired board-year figures in static files:\n${hits.join("\n")}`).toEqual([]);
+  });
+
+  it("CONTROL — both patterns DO match the retired figures in every form they shipped in", () => {
+    for (const line of [
+      "export const PRICE_ANNUAL_FOUNDING_INR = 5999;",
+      "export const PRICE_ANNUAL_LIST_INR = 8999;",
+      "save ₹1,189",
+    ]) {
+      expect(RETIRED_FIGURE_IN_SOURCE.test(line), line).toBe(true);
+    }
+    for (const html of [
+      '<span class="lt-pricing-amount">₹5,999</span>',
+      "Regular price <s>&#8377;8,999</s>",
+      "so you save ₹1,189 and stay covered",
+      '<span class="lt-pricing-period">/ board year</span>',
+    ]) {
+      expect(RETIRED_FIGURE_IN_STATIC.test(html), html).toBe(true);
+    }
+    // ...and NOT the live monthly prices, or the guard would fail a correct page.
+    expect(RETIRED_FIGURE_IN_STATIC.test("₹599 / month ₹999 ₹0")).toBe(false);
+    expect(RETIRED_FIGURE_IN_SOURCE.test("PRICE_MONTHLY_FOUNDING_INR = 599")).toBe(false);
+  });
+
+  it("the board-year exports are DELETED from the module, not left unused (OR-P2)", () => {
+    const exported = Object.keys(pricing);
+    for (const retired of [
+      "PRICE_ANNUAL_LIST_INR",
+      "PRICE_ANNUAL_FOUNDING_INR",
+      "PRICE_ANNUAL_LIST_DISPLAY",
+      "PRICE_ANNUAL_FOUNDING_DISPLAY",
+      "PERIOD_ANNUAL_LABEL",
+      "ANNUAL_SAVING_SUBLINE",
+      "MONTHS_PER_BOARD_YEAR",
+      "PRICE_ANNUAL_LIST_JSONLD",
+      "PRICE_ANNUAL_FOUNDING_JSONLD",
+      "BILLING_INCREMENT_ANNUAL",
+    ]) {
+      expect(exported, `${retired} must be deleted`).not.toContain(retired);
+    }
+    expect(exported.filter((name) => /ANNUAL|BOARD_YEAR/.test(name))).toEqual([]);
+
+    // OR-P2 LEAVES THESE UNTOUCHED — the control that the namespace read is live.
+    for (const kept of [
+      "PRICE_MONTHLY_LIST_JSONLD",
+      "PRICE_MONTHLY_FOUNDING_JSONLD",
+      "AVAILABILITY_LIMITED",
+      "AVAILABILITY_IN_STOCK",
+      "BILLING_UNIT_MONTH",
+    ]) {
+      expect(exported, `${kept} must stay`).toContain(kept);
+    }
+  });
+
+  it("every JSON-LD price string is a MONTHLY (or free) price — none is clock-derived (R5)", () => {
+    const jsonld = Object.entries(pricing).filter(([name]) => name.endsWith("_JSONLD"));
+    expect(jsonld.length).toBeGreaterThan(0);
+    const allowed = new Set([
+      String(pricing.PRICE_FREE_INR),
+      String(PRICE_MONTHLY_FOUNDING_INR),
+      String(PRICE_MONTHLY_LIST_INR),
+    ]);
+    for (const [name, value] of jsonld) {
+      expect(allowed.has(String(value)), `${name} = ${String(value)}`).toBe(true);
+    }
   });
 });

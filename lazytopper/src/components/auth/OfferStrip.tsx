@@ -4,11 +4,10 @@ import {
   FOUNDING_LABEL,
   FOUNDING_LOCK_COPY,
   FOUNDING_OFFER_OPEN,
-  PERIOD_ANNUAL_LABEL,
   PERIOD_MONTHLY_LABEL,
-  PRICE_ANNUAL_LIST_DISPLAY,
   PRICE_MONTHLY_FOUNDING_DISPLAY,
   PRICE_MONTHLY_LIST_DISPLAY,
+  TILL_BOARDS_INLINE,
 } from "../../config/pricing";
 
 /**
@@ -367,11 +366,10 @@ export default function OfferStrip({
           <span className="lt-offer-strip-price">
             {`${PRICE_MONTHLY_LIST_DISPLAY} ${PERIOD_MONTHLY_LABEL}`}
           </span>
-          {" or "}
-          <span className="lt-offer-strip-price">
-            {`${PRICE_ANNUAL_LIST_DISPLAY} ${PERIOD_ANNUAL_LABEL}`}
-          </span>
-          {". Upgrade whenever you like."}
+          {/* PRICING-TB-1: the board-year figure is gone. The till-boards price
+              depends on today's date, so this strip names the offer with NO
+              figure — the amount is shown only on /pricing, after load. */}
+          {` ${TILL_BOARDS_INLINE}. Upgrade whenever you like.`}
         </p>
       )}
 

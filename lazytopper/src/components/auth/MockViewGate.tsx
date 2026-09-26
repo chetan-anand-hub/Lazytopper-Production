@@ -156,8 +156,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
           Your Free Trial Has Ended
         </h2>
         <p style={{ color: "var(--text-muted)", fontSize: "0.92rem", marginBottom: 6, lineHeight: 1.5 }}>
-          You&rsquo;ve used your {SIGNED_IN_DAILY_MOCK_LIMIT} papers for today. During your
-          trial they were unlimited.
+          You&rsquo;ve used your {SIGNED_IN_DAILY_MOCK_LIMIT} papers for today.
         </p>
         <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginBottom: 6, lineHeight: 1.6 }}>
           Upgrade now to keep access to:
@@ -168,7 +167,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
           background: "var(--bg-card)", borderRadius: 12, padding: "12px 20px",
           border: "1px solid var(--bg-card-border)",
         }}>
-          {["Unlimited mock tests", "Your mastery progress & streak", "Practice history & weak-area insights"].map(item => (
+          {["Full mock tests, marked like the board exam", "Your mastery progress & streak", "Practice history & weak-area insights"].map(item => (
             <div key={item} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.84rem", color: "var(--text)" }}>
               <span style={{ color: "#22c55e", fontWeight: 800 }}>✓</span>
               {item}
@@ -192,7 +191,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
         <UpgradeModal
           open={showUpgrade}
           onClose={() => setShowUpgrade(false)}
-          featureLabel="Unlimited Mock Tests"
+          featureLabel="Premium Mock Tests"
         />
       </div>
     );
@@ -236,7 +235,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
           Free accounts open {SIGNED_IN_DAILY_MOCK_LIMIT} papers a day.
         </p>
         <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", marginBottom: 20, lineHeight: 1.5 }}>
-          Unlock unlimited mock tests for {MONTHLY_INLINE}.
+          Get full mock tests with Premium for {MONTHLY_INLINE}.
         </p>
         <button
           type="button"
@@ -248,12 +247,12 @@ export function MockViewGate({ children }: { children: ReactNode }) {
             textTransform: "uppercase",
           }}
         >
-          Unlock Unlimited Mocks
+          Unlock Premium mocks
         </button>
         <UpgradeModal
           open={showUpgrade}
           onClose={() => setShowUpgrade(false)}
-          featureLabel="Unlimited Mock Tests"
+          featureLabel="Premium Mock Tests"
         />
       </div>
     );

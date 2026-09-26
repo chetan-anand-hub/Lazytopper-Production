@@ -97,7 +97,7 @@ export function PracticeLimitGate({ children }: { children: ReactNode }) {
           You've used your {FREE_DAILY_LIMIT} free questions for today.
         </p>
         <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", marginBottom: 20, lineHeight: 1.5 }}>
-          Unlock unlimited practice for {MONTHLY_INLINE}.
+          Keep practising with Premium for {MONTHLY_INLINE}.
         </p>
         <button
           type="button"
@@ -109,12 +109,12 @@ export function PracticeLimitGate({ children }: { children: ReactNode }) {
             textTransform: "uppercase",
           }}
         >
-          Unlock Unlimited Practice
+          Unlock Premium practice
         </button>
         <UpgradeModal
           open={showUpgrade}
           onClose={() => setShowUpgrade(false)}
-          featureLabel="Unlimited Practice"
+          featureLabel="Premium Practice"
         />
       </div>
     );
