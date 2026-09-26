@@ -1,3 +1,231 @@
+## 2026-09-26 — FREE-CHECK-1 (lanes 1a / 1b / docs) — trunk `f30f9898`, PRs `#821` + `#822`
+
+**`2026-09-25 → 2026-09-26`**
+
+> ⚠ **NUMBERING.** This section records owner rulings by their lane IDs (OR-1 … OR-18) rather than `DECISION N`.
+> The payload block is the owner's own text, pasted verbatim. Where an in-lane ruling later superseded a payload line, the ruling says so explicitly; the payload is left as written:
+> - OR-11 supersedes "builders at `xhigh`" (builders ran at `high`);
+> - OR-12 supersedes "owner-started independent auditor" (the auditor was the cofounder, in the owner's chat);
+> - OR-13 supersedes "four counters" (the durable fields are three).
+
+### Owner payload (FREE-CHECK-1 docs payload v1.1, pasted verbatim)
+
+### 2026-09-25 — FREE-CHECK-1 and monetisation limits (owner rulings)
+- One free check per **browser, ever**; = one whole Check & Improve upload; device-local mark (no anon auth,
+  no fingerprint, no IP key). Global ceiling 100/day IST, durable, env-tunable. Free checks stop at 60% of the global
+  vision ceiling. The free check is a marketing cost until traction; it is not permanent.
+- Bot protection: Firebase App Check, reCAPTCHA Enterprise provider (key `lazytopper-web-appcheck`,
+  domains lazytopper.com + www only, invisible), unenforced on every Firebase API. Owner configured 2026-09-25.
+- After sign-up: trial is **offered automatically and started with one tap** — never auto-started (auto-start burned
+  trials on abandoned logins).
+- **No tracking identifiers for minors.** Owner said tracking is acceptable if the product needs it; cofounder advised
+  DPDP Act §9(3) prohibits tracking/behavioural monitoring of children and the free check does not need it. Standing
+  analytics ruling (no visit→account link) holds.
+- **Self-merge** authorized for FREE-CHECK-1 ONLY, behind `FREE_CHECK_ENABLED` (off = no behaviour change), after CI
+  green + an owner-started independent auditor PASS. The owner's switch-on after live-verify is the release gate.
+  Standing rule elsewhere unchanged: product PRs never self-merge.
+- Agents run Opus 5.5 for every role (controller, builders at `xhigh`, auditor at `xhigh`). Fable not used.
+- **Trial limits:** 5 answer checks/day (Quick Practice + C&I, counted per question) · 1 chapter test/day ·
+  1 full mock/week · 1 worksheet grading/week. An upload that crosses the limit: warn first, mark the first N left.
+- **Premium limits:** metered on REAL model spend, shown as progress bars (5-hour, daily, weekly), not counts.
+  Weekly cost cap ₹84 (= ₹360/month per student). Paying students are never paused by the global budget.
+- **Top-ups:** extra marking sold in rupees after the plan's allowance (e.g. ₹49 → ₹25 of marking), after Razorpay.
+- **CBSE mirror (Lane B) auto-replaces** changed/new official files — reversing "never auto-merge" — but only when
+  every check passes: real PDF/ZIP bytes, ≥50 kB, sane size delta, same subject code + first-page subject, same-or-later
+  session year and later Last-Modified. The old file is archived (one-step rollback) and a GitHub issue reports each
+  replacement. Any failed check keeps the old file live and alerts instead.
+
+### Owner rulings OR-1 … OR-18, copied from the controller state file (verbatim)
+
+#### OR-1, OR-1 clarified, OR-2 (recorded by the controller; the owner's words are in quotes)
+
+- OWNER RULING 2026-09-25 (OR-1): `lazytopper/package.json` is OUT of 1a's allowlist while #810 is open. 1a's tests go where the EXISTING `test:matrix:all` already discovers them. If that is impossible → 1a STOPS and reports; it never edits package.json. Do not touch or rebase Dependabot PRs (#810/#818/#819). — Reason: #810 holds lazytopper/package.json; lane-overlap is exact-path and required. → MUST be written into the 1a brief.
+- OWNER RULING 2026-09-25 (OR-1 CLARIFIED — supersedes the OR-1 scout's placement suggestions): "a new test file is not discovered (package.json:105 chains named scripts). 1a's tests extend the already-registered files: free-check admission cases in server/services/entitlement.test.cjs, ceiling / 60% / IP-bucket cases in server/services/rateLimiter.test.cjs. No new test file, no package.json edit."
+  → Mapping for the 1a brief: entitlement.test.cjs = admission (flag-off P2/P3 unchanged, signed-in untouched, bad/missing App Check refused, each refusal reason). rateLimiter.test.cjs = R3 ceiling (transactional + survives restart), R5 60% refusal, R6 IP-bucket not consumed. The scout's verifiedCaller.test.cjs suggestion is NOT used. Any case that seems to need a third file → builder STOPS and asks.
+- OWNER RULING 2026-09-25 (OR-2): build lanes are proportionate — ONE builder subagent per PR (claude-opus-5-5, xhigh), plus the owner-started auditor. The 21-agent workflow was for the one-time read-only pre-flight only; it is NOT the pattern for 1a/1b/docs.
+
+#### OR-3 … OR-11 (verbatim)
+
+"The cofounder has independently checked SC1–SC5 against the code at e1c0ac47."
+
+OR-3 · SC1: widen 1a's allowlist, and exempt the collection explicitly with a reason.
+Add lazytopper/src/services/studentDataMap.ts and studentDataMap.test.ts to 1a's allowlist.
+The collection: name it freeCheckDaily (camelCase, not an evasion). The document ID is the IST day key from istDayKey. It holds only the counters served, refused_quota, refused_budget and refused_appcheck: no uid, no IP, no App Check app ID.
+In studentDataMap.ts: add an exported, documented NON_STUDENT_COLLECTIONS = ["freeCheckDaily"], meaning server-only, identifier-free aggregates that hold no student data and need no erasure.
+In studentDataMap.test.ts:
+:200-209 exempts only those names from the map requirement;
+:238 stays an exact set: ["freeCheckDaily", "qrUploadSlots"], with a comment explaining why;
+no change to ErasureMechanism or to erasure/export behaviour.
+Extra 1a test: every field the free-check writer sets is within the four counter names. If a uid or IP ever gets written, the test fails.
+
+OR-4 · SC2: R5 uses the all-class total, and free checks count toward it.
+(a) R5 refuses a free check when global:<day> is at or above Math.floor(limits.global.hard * 0.6), derived from hard, never soft. Thread an accessor from index.cjs:305. No new vision-only counter.
+(b) Admitted free-check calls do count in global:<day>, so free spend stays inside the budget-derived ceiling.
+What R5 guarantees, restated: free checks can never use the band between 60% and the 80% shed. That band is reserved for paying students.
+Per-replica counting is accepted; only R3 needs to be durable.
+
+OR-5 · N5 is withdrawn, per your correction. 1a makes no lazytopper/package.json edit, and all 1a tests go into already-wired suites (OR-1). #810, #818 and #819 stay untouched, so there's no lane-overlap conflict and 1a doesn't wait on #810. Never create a new file whose name ends in .test.cjs.
+
+OR-6 · SC3: yes. Add lazytopper/prerendered/legal/privacy.html to 1b's allowlist, regenerated only (seo:capture or the CI prerendered-<PR#> artifact), never hand-edited. Its diff must be exactly the R12 sentence; the auditor checks that. If prerender-capture can't run (for example, a missing token), that's a STOP, not a skip.
+
+OR-7 · SC4: drop the count line. Delete "<3 − n> more checks and your mistake pattern appears." and replace it with "Every answer you check helps build your mistake pattern." The rest of R9's copy is unchanged. Promise nothing about a threshold the product doesn't have.
+
+OR-8 · SC5: option (c). Every free-check sign-in prompt (R8, and the three refusal messages) points to /login?redirect=%2Fcheck-improve. /login is the one door that serves both new and returning students: it has the new/returning toggle and "New here? Just continue — your account is created automatically." (Login.tsx:2062). Don't change the auth door beyond OR-9. The OfferStrip→Pricing and navbar exits that drop the redirect are logged as FU-SIGNIN-REDIRECT-EXITS, not fixed in 1b. Because the saved result waits in localStorage, it replays the next time the student opens /check-improve.
+
+OR-9 · N18: fix the false copy in 1b. At Login.tsx:2254 and :2435, change "We'll create your account and start your 7-day trial." to "We'll create your account." The trial is offered right after, by R9.
+
+OR-10 · The notes and unresolved items:
+Carry N1–N4, N6–N17 and N19 into the briefs as written. In particular:
+N2's exact P2 classification plus path matching;
+N3's fail-CLOSED;
+N10's zero-diff files and pinned counts;
+N14's re-minting of the session code after sign-in.
+U1 and U2 are settled by the builder after install, before any code. If admin.appCheck().verifyToken doesn't exist, STOP.
+U5 and U7 join my §5 live-verify.
+N15 is accepted as ruled, and N4 and N8 are acknowledged.
+
+GO: dispatch 1a now under OR-1 to OR-10. 1b may start as soon as 1a has merged, without asking me again, provided no new STOP-class finding appears. The auditor gate stays at each PR: STOP, write the audit request, and wait for my auditor's verdict.
+
+OR-11 (owner, supersedes the xhigh default in OR-2 and the spec header): effort per role. Controller: medium (owner has set it). 1a builder: high. 1b builder: high. Docs-PR builder: medium. The model stays claude-opus-5-5 for all, named explicitly. Exception: if a builder fails the same gate twice, re-run that task once at xhigh rather than looping. The independent auditor is owner-started and stays xhigh. Record OR-11 in the state file.
+
+#### OR-12 (verbatim)
+
+OR-12 (owner, verbatim, 2026-09-25; supersedes OR-2's "owner-started auditor session" and §1(e)'s auditor wording): the independent auditor for 1a, 1b and the docs PR is the cofounder (Claude, in the owner's chat), not a VS Code session.
+At each audit STOP, write C:\Users\Chetan\OneDrive\Desktop\diff\audit-request-free-check-1<a|b|docs>-<date>.md containing:
+PR number, branch and head SHA;
+base SHA;
+git diff --name-only <base>...<head>;
+the allowlist in force;
+each §3 gate's real output with its execution-proof line;
+gh pr checks <N> output;
+how each OR-3–OR-10 obligation is met, with file:line;
+anything unverified.
+The owner relays the verdict as AUDIT PASS <PR#> @ <sha> or AUDIT HOLD <PR#> @ <sha> — <reasons>.
+Merge only on PASS, and only if <sha> equals the PR's current head. Any later commit voids the verdict and needs a new request. Record OR-12 in the state file.
+
+#### AUDIT HOLD on #821 and OR-13 (verbatim)
+
+AUDIT HOLD 821 @ 7c0d7d7854b68e9b1bc8b35156203d8bc5d1223b — App Check tokens are replayable; bad-token refusals contend on the day doc.
+
+Verified sound (auditor-checked, keep as is): index.cjs placement and entitlement bypass, the limiter freeCheck option and global charging, P2-exact classification, fail-closed, OR-4a/4b, the OR-3 exemption. rateLimiter.test.cjs is 38/38 on the auditor's run.
+
+OR-13 (owner), a fix in 1a, same branch, same allowlist, no package.json:
+
+Replay protection. On all three free-check paths, verify with firebaseAdmin.appCheck().verifyToken(token, { consume: true }). If alreadyConsumed === true, refuse with reason app_check_invalid. Keep the 1b wire contract unchanged; no new reason. (API confirmed in firebase-admin 13.7.0 lib/app-check/app-check-api.d.ts: consume?: boolean, alreadyConsumed?: boolean.)
+No Firestore write for App Check refusals. app_check_missing and app_check_invalid are counted by telemetry only (the existing free_check.refused.* emits). They are never written to freeCheckDaily.
+Remove refused_appcheck from the durable fields: COUNTER_FIELDS becomes served, refused_quota, refused_budget.
+Update the studentDataMap.ts comment ("four counters" → three) and the FC-OR3 test to match.
+refused_quota and refused_budget stay durable; they occur only after a valid, consumed token.
+Tests, in the already-wired suites only:
+consume: true is passed on each of the three paths;
+alreadyConsumed: true is refused as app_check_invalid;
+a burst of missing or invalid tokens performs zero Firestore transactions;
+a replayed token cannot take a second served slot.
+Carry into the 1b brief: each free-check request must send a limited-use token from getLimitedUseToken(), a fresh one per call, not the cached getToken().
+
+Re-dispatch the same builder task at high (first failure, so no escalation), push to lane/free-check-1a, re-run §3 and CI, and write a new audit request with the new head SHA. This verdict is void for any other SHA.
+
+#### OR-14 (verbatim)
+
+OR-14 (owner, copy for unavailable): map unavailable to its own message: "Free checks aren't available right now. Sign up free and your 7-day trial covers it." It links to /login?redirect=%2Fcheck-improve, like the other refusals. The App Check line stays for app_check_missing / app_check_invalid only. Record OR-14 in the state file and add it to the 1b brief; the builder may be mid-flight, so send it now.
+
+#### OR-15 (verbatim)
+
+OR-15 (owner, effective for every dispatch after the current 1b builder): local gates are fast only:
+
+typecheck (tsconfig.app.json, plus typecheck:test if tests changed);
+scope:guard before git add;
+git diff --check;
+the lane's own changed or added test files;
+for page lanes, the screenshots.
+
+Mutations run only the single named test file they must turn red.
+
+The full vitest suite, both test:matrix:all runs and the production build are not run locally. CI is the gate for those.
+
+The audit request must quote CI's own log lines as proof of execution (pass/fail counts, 0 skipped, on the head SHA), as it did for 1a. If CI fails, fix and push; don't re-run the full suites locally to investigate unless the failure needs it.
+
+Record OR-15 in the state file. It supersedes the "full CLAUDE.md §6 gate set locally" wording in the briefs.
+
+#### OR-16 (verbatim)
+
+OR-16 (owner, supersedes OR-12 and OR-2 for the docs PR only): the docs PR gets no builder and no cofounder audit. The controller writes it directly (docs-only; this is not product code):
+
+handoff/*.md only;
+the payload sections pasted verbatim;
+the 1a/1b handoff paragraphs from the state file;
+OR-1 to OR-16 recorded in DECISION_LOG.md.
+
+Mechanical proof in the PR body:
+
+each payload section appears byte-exact (a grep -F hit for every section's first and last lines);
+the heading set-difference is LOST=0 on every edited file;
+git diff --name-only shows only handoff/*.md;
+CI is green.
+
+Then self-merge (the standing docs-only rule).
+
+The running 1b builder is not stopped. If OR-14 is missing, the fix goes in as its own commit under OR-15, and one audit request covers 1b plus the fix together. Record OR-16 in the state file.
+
+#### OR-17 (verbatim)
+
+OR-17 (owner, for overnight running): proceed without me:
+
+let the 1b builder finish;
+if OR-14 is missing, dispatch its fix builder (OR-15 gates);
+push, get CI green;
+write one audit request covering 1b plus the fix.
+
+Then STOP. Do not merge 1b until AUDIT PASS arrives in the morning.
+
+After the PASS: merge per OR-12, then write and self-merge the docs PR per OR-16 without waiting for me again.
+
+If anything STOP-class comes up overnight, record it in the state file and wait; don't route around it. Record OR-17 in the state file.
+
+#### AUDIT HOLD on #822 and OR-18 (verbatim)
+
+AUDIT HOLD 822 @ 4317af919ec5680e6f1cf483121ffa40526f9b09 — a waiting free result can be saved into a different person's account on a shared device (builder report §m, "no expiry").
+
+Everything else is auditor-verified sound on this SHA, so keep it unchanged:
+
+the flag-off render and START_URL gating;
+lazy App Check with a fresh getLimitedUseToken per call;
+the copy (OR-7, OR-8, OR-9, OR-14);
+the trial-offer gating;
+the R1 mark on success, and photos stripped;
+analytics carrying the name only;
+privacy.html equal to the R12 sentence;
+useSubscription.ts additive only.
+
+OR-18 (owner), a fix on lane/free-check-1b, commits only, under OR-15 gates, builder claude-opus-5-5 at high:
+
+Sign-in intent. Clicking any free-check sign-in link (every FREE_CHECK_SIGNIN_PATH link) writes a sessionStorage marker, ltFreeCheck.signinIntent.v1, holding the pending result's gradedAt.
+Replay only with the marker. On return, the R8 replay runs only if the marker is present and equals the pending gradedAt. Clear the marker after the replay, whether it succeeded or failed.
+No marker, no save. A sign-in without the marker does not save the pending result or show the trial offer. The pending result is left to expire.
+Two-hour expiry. A pending result older than 2 hours (by gradedAt) is treated as absent and deleted when peeked.
+Unchanged: the R1 "used" mark stays per-browser, and OR-8's same-tab behaviour is preserved (the marker survives same-tab navigation, including the Google popup and OTP flows).
+Tests, in the new free-check test files:
+no marker → no recordMistake/recordAttempt call and no offer;
+a mismatched gradedAt → no save;
+a 2h+1m pending result → discarded;
+the marker is cleared after the replay;
+a same-tab flow with the marker → saved as before.
+Mutation B11 (remove the marker check) must turn a named test red.
+
+Write a new audit request at the new head, listing the fix commit separately. This verdict is void for any other SHA.
+
+#### AUDIT PASS on #822 and FU-FREECHECK-SHARED-TAB (verbatim)
+
+AUDIT PASS 822 @ 7dac0009d07ab1327edc5657779de30a06b0794e
+The same-tab residual gap is accepted. Log it as FU-FREECHECK-SHARED-TAB (a second person in the same tab within 2 hours can claim a waiting result via the "used" panel's sign-up; closing it needs a per-producing-tab ruling), and put it in the docs PR.
+Proceed per OR-17: merge per OR-12 with --match-head-commit, prove it landed on trunk, then write and self-merge the docs PR per OR-16. The docs PR includes OR-18, FU-FREECHECK-OFFLINE-SAVING and FU-FREECHECK-SHARED-TAB.
+
+#### Audit and merge record
+
+- `#821`: AUDIT HOLD @ `7c0d7d78` → FIX-1 (OR-13) → AUDIT PASS @ `d731d961` → merged `39bae5f1` (`--match-head-commit d731d961…`).
+
+- `#822`: FIX-1 (OR-14) at `4317af91` → AUDIT HOLD @ `4317af91` → FIX-2 (OR-18) → AUDIT PASS @ `7dac0009` → merged `f30f9898` (`--match-head-commit 7dac0009…`).
+
 ## 2026-09-21 — LANDING-MARK-FADE-1 (lane `landing-mark-fade-1`) — trunk `bc11e800`, PR `#817`
 
 **`2026-09-21`**

@@ -1,5 +1,36 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-26 — FREE-CHECK-1 (`#821` `39bae5f1` + `#822` `f30f9898`), trunk `f30f9898`.**
+> ★ **ONE SURFACE MOVES, DARK: Check & Improve (`/check-improve`) for a signed-out visitor.** Two neighbouring cells move LIVE (unflagged): the privacy policy, and the Login copy.
+
+### 🌑 Check & Improve — signed-out visitor — **LOCKED → ONE FREE MARKED UPLOAD (behind `VITE_FREE_CHECK_ENABLED`, OFF)**
+- **Moved (dark):**
+  - a signed-out visitor gets one whole upload marked;
+  - the result waits on the device and saves to their account after a same-tab sign-in through `/login?redirect=%2Fcheck-improve`;
+  - they are then offered the 7-day trial, which starts with one tap.
+
+  This works at every width (one route, no mobile twin).
+- **Unchanged while the flag is off:** a signed-out visitor is redirected to `/login`; a signed-in free student sees the Premium lock; paid grading is byte-for-byte the same.
+
+### ✅ Privacy policy (`/legal/privacy`) — reCAPTCHA Enterprise disclosure — LIVE
+The R12 sentence follows the Firebase Authentication sentence, and the prerendered page is regenerated (the diff is exactly that sentence).
+
+### ✅ Login door — sign-up copy — LIVE
+"We'll create your account and start your 7-day trial." → "We'll create your account." (OR-9). The old copy was false: a trial never started at sign-up.
+
+### 🌑 Landing CTA — **sign-up → `/check-improve` when `VITE_FREE_CHECK_ENABLED` is on** (OFF: unchanged)
+
+### 📋 Scope discovered? — **YES, FIVE, during pre-flight — every one owner-ruled BEFORE any build; logged in `DECISION_LOG` and §2a below**
+
+### ⚠ §2a — SCOPE DISCOVERED THIS LANE *(logged in `DECISION_LOG.md`, per `CLAUDE.md` §10)*
+- **SC1:** a new server Firestore collection trips the studentDataMap drift guard → OR-3 (`NON_STUDENT_COLLECTIONS`).
+- **SC2:** "today's global vision count" does not exist → OR-4 (the all-class total; free checks count).
+- **SC3:** R12 changes the prerendered privacy page → OR-6 (regenerated only).
+- **SC4:** the "3 more checks" copy promised a threshold the product does not have (P23) → OR-7.
+- **SC5:** `/sign-up?redirect=` strands returning students → OR-8 (`/login`).
+
+**No surface's Scope is left Settling:** all five were resolved and shipped inside this lane.
+
 > **2026-09-21 — LANDING-MARK-FADE-1 (`#817` `bc11e800`), trunk `bc11e800`.**
 > ★ **ONE SURFACE MOVES: the public landing (`/`, `/welcome`)** — and only its background fingerprint. Owner-ruled after live-verifying `#815`, and verified on both previews and on production.
 

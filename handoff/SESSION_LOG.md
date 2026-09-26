@@ -1,5 +1,47 @@
 ---
 
+## 2026-09-26 — FREE-CHECK-1 — **ONE FREE MARKED UPLOAD FOR A SIGNED-OUT VISITOR, BUILT AND DARK** — `#821` + `#822` MERGED — trunk `f30f9898`
+
+★ **PROVENANCE.**
+- One controller session held the plan. One builder per PR ran `claude-opus-5-5` (effort `high` per OR-11; the pre-flight scouts ran at `xhigh`). Every builder worked in its own worktree under `C:/Projects/LT-worktrees/`.
+- The auditor was the cofounder (OR-12). Every verdict named a SHA, and each merge used `--match-head-commit` on exactly that SHA.
+
+**Timeline.**
+- **Pre-flight, 2026-09-25, trunk `e1c0ac47`.**
+  - The §0c.0 gate passed.
+  - 21 read-only scouts plus adversarial skeptics re-checked all 26 ledger rows at the exact line: 25 OK, **P23 MISMATCH**.
+  - They answered P26–P32 and raised five STOP-class shape changes. The owner ruled them as OR-3 (studentDataMap exemption), OR-4 (R5 operand), OR-6 (prerendered privacy page), OR-7 (drop the "3 more checks" line) and OR-8 (the `/login` door).
+  - One scout claim, "package.json edit mandatory", was **retracted** by a follow-up scout: tests extend the suites that are already wired (OR-1, OR-5).
+- **1a, `#821`.**
+  - The build at `7c0d7d78` received an **AUDIT HOLD**: App Check tokens were replayable, and refusals contended on the day document.
+  - FIX-1 (OR-13) at `d731d961` added `consume: true`, made App Check refusals telemetry-only and reduced the counters to three.
+  - AUDIT PASS; merged as **`39bae5f1`**.
+- **1b, `#822`.**
+  - The build at `dd686f47` included an in-lane token-singleton fix after a red CI run (a race between concurrent per-question detects).
+  - FIX-1 (OR-14) at `4317af91` gave `unavailable` its own copy, then received an **AUDIT HOLD**: a waiting result could be saved into another person's account on a shared device.
+  - FIX-2 (OR-18) at `7dac0009` added a same-tab sign-in-intent marker and a 2-hour expiry.
+  - AUDIT PASS; merged as **`f30f9898`**.
+
+### 1a
+#821 merged 39bae5f1: the server can admit ONE free, signed-out Check & Improve upload per request class, dark behind FREE_CHECK_ENABLED. An admitted request is P2-exact anonymous + marker `X-Lazytopper-Free-Check: 1` + App Check verified with `consume: true` (a replayed token is refused), on check-solution / grade-worksheet / detect-question. Durable daily ceiling in `freeCheckDaily/{istDayKey}` (served, refused_quota, refused_budget; LT_FREECHECK_DAILY default 100, transactional). R5 refuses at floor(global.hard×0.6) of the all-class global:<day> total, which free checks count toward. Admitted free checks skip the anon per-IP bucket (R6); CORS allows X-Firebase-AppCheck (R7). Refusals are 403 free_check_refused, with `reason` ceiling_reached|budget|app_check_missing|app_check_invalid|unavailable. App Check refusals are telemetry-only. NON_STUDENT_COLLECTIONS=["freeCheckDaily"] in studentDataMap.ts. entitlement.cjs and package.json are untouched. One AUDIT HOLD (replayable tokens + refusal contention on the day doc) was fixed by FIX-1 (OR-13). With the flag off, nothing a student sees changes.
+
+### 1b
+#822 merged f30f9898 (three rounds: build; FIX-1 OR-14; FIX-2 OR-18 after AUDIT HOLDs on 4317af91). Dark behind VITE_FREE_CHECK_ENABLED, it opens Check & Improve to one free marked upload for signed-out visitors:
+- App Check (reCAPTCHA Enterprise) is loaded lazily on /check-improve only, and a fresh getLimitedUseToken() is sent per call;
+- the R1 device mark is set only on success;
+- the result waits on the device (photos stripped, 2h expiry) and replays through recordMistake + recordAttempt only after a same-session sign-in via /login?redirect=%2Fcheck-improve that carries the ltFreeCheck.signinIntent.v1 marker (OR-18);
+- R9 one-tap trial offer (OR-7 copy); `unavailable` has its own copy (OR-14); R10 events are name-only;
+- the landing CTA goes to /check-improve when the flag is on.
+Unflagged: the R12 reCAPTCHA privacy sentence (prerendered page regenerated), and the OR-9 Login copy "We'll create your account."
+
+### ★ What this lane teaches
+- **A GREEN PREMISE GATE IS NOT A LINE CHECK.** §0c.0 passed 26/26 and P23 was still wrong. Its anchor sits on the right line of a component that nothing mounts. **A premise about behaviour needs a MOUNT check, not an anchor check.**
+- **A CONTROLLER AMPLIFIES.** A single unchallenged scout claim ("package.json edit mandatory") contradicted an owner ruling. It was stopped by one narrow scout before any brief carried it, and it was corrected in the report file where it had already landed.
+- **THE AUDITOR FOUND WHAT NO GATE COULD.** Token replay and a shared-device save are both properties of the live round-trip. CI was green on both held SHAs.
+
+### Live-verify owed (owner) — the switch-on gate
+Spec §5, plus **U5** (the production limiter env and Railway replica count) and **U7** (Google sign-in inside in-app webviews such as WhatsApp and Instagram). Also watch `[FU-FREECHECK-OFFLINE-SAVING]`.
+
 ## 2026-09-21 — LANDING-MARK-FADE-1 — **THE FINGERPRINT IS BRIGHT WHEREVER THE RIGHT HALF IS EMPTY, FAINT ONLY BEHIND THE CARD ROWS** — `#817` MERGED — trunk `bc11e800`
 
 ★ **PROVENANCE.**

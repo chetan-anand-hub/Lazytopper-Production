@@ -1,3 +1,29 @@
+## ★★★ 2026-09-26 — FREE-CHECK-1 CLOSED (docs) — THIS BLOCK SUPERSEDES THE BANNER BELOW ON TRUNK SHA AND ON THE OWNER SEQUENCE
+*(It does not supersede any open follow-up recorded below.)*
+
+**TRUNK IS `f30f9898bed86fc9d0a592e928fb8c8bdf3a4314`**, measured 2026-09-26:
+- `f30f9898` = `#822` (FREE-CHECK-1b, page)
+- `39bae5f1` = `#821` (FREE-CHECK-1a, server)
+- `e1c0ac47` = `#820` (docs: LANDING-MARK-FADE-1 handoff)
+
+Open at the time of writing: `#810`, `#818`, `#819` — dependabot only.
+
+**Status of item 1:** 1a and 1b are MERGED and dark, and this is the docs PR. **The next step is the OWNER'S:**
+1. run the spec §5 live-verify, plus U5 (the production limiter env and Railway replica count) and U7 (Google sign-in inside in-app webviews);
+2. then flip `FREE_CHECK_ENABLED` (Railway) and `VITE_FREE_CHECK_ENABLED` (Vercel).
+
+### OWNER SEQUENCE — replaced 2026-09-25 (owner payload, pasted verbatim)
+
+1. FREE-CHECK-1 (1a server → 1b page → docs), dark behind `FREE_CHECK_ENABLED`; owner flips it after live-verify.
+2. Sitemap + URL resubmit to Google Search Console and Bing (owner) — after the free check is live.
+3. FAIR-USE-1 — paying students never paused; trial limits; premium spend metering with 5-hour/day/week bars.
+4. STORED-RATE-1 — store the earned rate + offer key on the account before Razorpay takes money.
+5. Razorpay go-live (with the owner's CA).
+6. TOPUP-1 — extra-marking packs.
+7. PARENT-CONSENT-1 — verifiable parental consent at sign-up (see ruling). Watch date: 13 Nov 2026.
+∥ CBSE-PAGE Lane B — runs in parallel (file-disjoint). **UNBLOCKED:** `FIREBASE_SERVICE_ACCOUNT` exists (2026-09-25).
+∥ CBSE-BANNER-1 — after Lane B.
+
 ```
 ⛔ THIS BANNER SUPERSEDES EVERY BANNER BELOW ON TRUNK SHA AND ON THE GATE SET.
    IT DOES NOT SUPERSEDE ANY OPEN FOLLOW-UP RECORDED BELOW.
