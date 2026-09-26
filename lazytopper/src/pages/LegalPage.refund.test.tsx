@@ -16,6 +16,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative, resolve, sep } from "node:path";
 
 import LegalPage from "./LegalPage";
+import { STATIC_PAGE_HEADS, escapeAttr, escapeText } from "../../scripts/seo/writeStaticHeads";
 
 afterEach(cleanup);
 
@@ -166,6 +167,77 @@ describe("OR-P4 — WHERE ELSE: no retired refund term on any student-facing sur
     }
     for (const retired of RETIRED) {
       expect(html, `retired refund copy in prerendered/legal/refund.html: ${retired}`).not.toMatch(retired);
+    }
+  });
+});
+
+/**
+ * PRICING-TB-1 · OR-P5 (owner, 2026-09-26) — the refund page's HEAD and TAB LABEL.
+ *
+ * #827 rewrote the page body (OR-P4) but `scripts/seo/writeStaticHeads.ts` — outside
+ * the `src/` walk above — still told crawlers "the 7-day refund window". The owner's
+ * title, description and tab label are pinned here word for word.
+ */
+const HEAD_TITLE = "Cancellation & Refund Policy | LazyTopper";
+const HEAD_DESCRIPTION =
+  "LazyTopper's cancellation and refund policy — the 7-day free trial, how to cancel a monthly plan, and refunds for billing errors.";
+const TAB_LABEL = "Cancellation & Refunds";
+
+/** Decode exactly what `escapeAttr` / `escapeText` encode, ampersand LAST. */
+function decode(value: string): string {
+  return value.replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+}
+
+describe("OR-P5 — the /legal/refund head and the refund tab label", () => {
+  it("the static head carries the owner's title and description, word for word", () => {
+    const head = STATIC_PAGE_HEADS["/legal/refund"];
+    expect(head).toBeDefined();
+    expect(head.title).toBe(HEAD_TITLE);
+    expect(head.description).toBe(HEAD_DESCRIPTION);
+  });
+
+  it("the emitted (escaped) head decodes back to the owner's exact strings", () => {
+    const head = STATIC_PAGE_HEADS["/legal/refund"];
+    expect(escapeText(head.title)).toBe("Cancellation &amp; Refund Policy | LazyTopper");
+    expect(decode(escapeText(head.title))).toBe(HEAD_TITLE);
+    expect(decode(escapeAttr(head.title))).toBe(HEAD_TITLE);
+    expect(decode(escapeAttr(head.description))).toBe(HEAD_DESCRIPTION);
+  });
+
+  it("no static head promises a refund window", () => {
+    for (const [path, head] of Object.entries(STATIC_PAGE_HEADS)) {
+      expect(`${head.title} ${head.description}`, path).not.toMatch(/refund\s+window/i);
+    }
+    // CONTROL — the pattern does match the description the head used to ship.
+    expect(
+      "The LazyTopper refund policy — the 7-day free trial, the 7-day refund window, how to request one",
+    ).toMatch(/refund\s+window/i);
+  });
+
+  it("the refund tab reads the owner's label and links to /legal/refund", () => {
+    render(
+      <MemoryRouter initialEntries={["/legal/privacy"]}>
+        <Routes>
+          <Route path="/legal/:slug" element={<LegalPage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    const tabs = Array.from(document.querySelectorAll(".lt-legal-tabs a")).map((a) => [
+      flat(a.textContent),
+      a.getAttribute("href"),
+    ]);
+    expect(tabs).toContainEqual([TAB_LABEL, "/legal/refund"]);
+    expect(tabs.map(([label]) => label)).not.toContain("Refund Policy");
+  });
+
+  it("every committed prerendered legal page carries the new tab label, not the old one", () => {
+    for (const slug of ["privacy", "terms", "refund"]) {
+      const html = readFileSync(resolve(process.cwd(), `prerendered/legal/${slug}.html`), "utf8").replace(
+        /&amp;/g,
+        "&",
+      );
+      expect(html, slug).toContain(`href="/app/legal/refund" data-discover="true">${TAB_LABEL}</a>`);
+      expect(html, slug).not.toContain(">Refund Policy</a>");
     }
   });
 });

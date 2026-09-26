@@ -46,7 +46,7 @@ describe("LegalPage — reachable, on-grammar (Lane C)", () => {
     // Policy tab chips cross-link every slug.
     expect(screen.getAllByRole("link", { name: "Privacy Policy" })[0]).toHaveAttribute("href", "/legal/privacy");
     expect(screen.getAllByRole("link", { name: "Terms of Service" })[0]).toHaveAttribute("href", "/legal/terms");
-    expect(screen.getAllByRole("link", { name: "Refund Policy" })[0]).toHaveAttribute("href", "/legal/refund");
+    expect(screen.getAllByRole("link", { name: "Cancellation & Refunds" })[0]).toHaveAttribute("href", "/legal/refund");
   });
 
   it("Back is a button (router history), not a hard-reload anchor", () => {
