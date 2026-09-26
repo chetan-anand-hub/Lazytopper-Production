@@ -19,7 +19,7 @@
  * client parses it defensively again — a manifest the job would refuse to write is a
  * manifest the page would refuse to render.
  */
-import { HEADLINE_RULES, type Circular } from "./circulars";
+import { CIRCULAR_ORIGINS, HEADLINE_RULES, type Circular, type CircularOrigin } from "./circulars";
 
 export type PaperStatus = "ok" | "source-missing" | "stale";
 
@@ -42,6 +42,12 @@ export type Manifest = {
   readonly papers: readonly ManifestPaper[];
   readonly circulars: readonly Circular[];
   readonly circularsCheckedAt: string | null;
+  /**
+   * CA-5 — per-source row counts (after the Class-XII filter and de-duplication, before
+   * the 30-row cap) from the run that produced `circulars`. The next run's per-source
+   * count guard compares against these. Absent in a manifest written before CA-5.
+   */
+  readonly circularSourceCounts?: Partial<Record<CircularOrigin, number>>;
 };
 
 const PAPER_KEYS = [
@@ -75,6 +81,21 @@ export function validateManifest(value: unknown): string[] {
   if (!isStringOrNull(m.circularsCheckedAt)) errors.push("circularsCheckedAt must be string|null");
   if (!Array.isArray(m.papers)) errors.push("papers must be an array");
   if (!Array.isArray(m.circulars)) errors.push("circulars must be an array");
+  if (m.circularSourceCounts !== undefined) {
+    const counts = m.circularSourceCounts as Record<string, unknown> | null;
+    if (!counts || typeof counts !== "object" || Array.isArray(counts)) {
+      errors.push("circularSourceCounts must be an object");
+    } else {
+      for (const [origin, count] of Object.entries(counts)) {
+        if (!(CIRCULAR_ORIGINS as readonly string[]).includes(origin)) {
+          errors.push(`circularSourceCounts has an unknown origin ${origin}`);
+        }
+        if (!(typeof count === "number" && Number.isInteger(count) && count >= 0)) {
+          errors.push(`circularSourceCounts.${origin} must be a non-negative integer`);
+        }
+      }
+    }
+  }
 
   const ids = new Set<string>();
   for (const [i, raw] of (Array.isArray(m.papers) ? m.papers : []).entries()) {
@@ -119,6 +140,10 @@ export function validateManifest(value: unknown): string[] {
       errors.push(`circulars[${i}].href must be an absolute http(s) URL`);
     }
     if (c?.source !== "document" && c?.source !== "index") errors.push(`circulars[${i}].source is invalid`);
+    // CA-5: every row the mirror writes records its origin; a pre-CA-5 row may lack it.
+    if (c?.origin !== undefined && !(CIRCULAR_ORIGINS as readonly unknown[]).includes(c.origin)) {
+      errors.push(`circulars[${i}].origin is invalid`);
+    }
     if (typeof c?.important !== "boolean") errors.push(`circulars[${i}].important must be boolean`);
     if (typeof c?.headline !== "string") errors.push(`circulars[${i}].headline must be a string`);
     if (c?.important === false && c?.headline !== "") {

@@ -6,12 +6,17 @@ import { fileURLToPath } from "node:url";
 
 import {
   ACADEMIC_INDEX_URL,
+  ACADEMIC_NOTIFICATIONS_URL,
   FEED_SIZE,
   GOV_INDEX_URL,
   HEADLINE_RULES,
+  MIN_ROWS_PER_ORIGIN,
   buildCircularFeed,
   classifyCircular,
+  countByOrigin,
   feedGuard,
+  filteredCirculars,
+  sourceGuard,
   isClassXIIOnly,
   isWithinDays,
   parseAcademicCirculars,
@@ -63,6 +68,7 @@ describe("C8 — cbse.gov.in examination circulars (fixture)", () => {
       title: "Streamlining the process of corrections in the demographic details-reg.",
       href: "https://www.cbse.gov.in/cbsenew/documents/Streamling_Process_Corrections_23092026.pdf",
       source: "document",
+      origin: "cbse-gov",
     });
   });
 
@@ -97,6 +103,7 @@ describe("C8 — cbseacademic.nic.in circulars + notifications (fixture)", () =>
       title: "Observance of Swachhata Hi Seva (SHS) 2026",
       href: "https://cbseacademic.nic.in/web_material/Circulars/2026/63_Circular_2026.pdf",
       source: "document",
+      origin: "academic-circulars",
     });
   });
 
@@ -144,7 +151,7 @@ describe("C8 — filtering and ordering", () => {
   });
 
   it("de-duplicates the same href arriving from both pages", () => {
-    const row: ParsedCircular = { date: "2026-09-01", title: "A", href: "https://www.cbse.gov.in/a.pdf", source: "document" };
+    const row: ParsedCircular = { date: "2026-09-01", title: "A", href: "https://www.cbse.gov.in/a.pdf", source: "document", origin: "cbse-gov" };
     assert.equal(buildCircularFeed([row, { ...row, title: "A again" }], NOW).length, 1);
   });
 });
@@ -194,8 +201,8 @@ describe("C9 — the fixed rule table, and no generated headline", () => {
 
   it("★ a RECENT row that matches NO rule gets no headline — nothing is composed from its title", () => {
     const rows: ParsedCircular[] = [
-      { date: "2026-09-25", title: "Observance of Swachhata Hi Seva (SHS) 2026", href: "https://www.cbse.gov.in/x.pdf", source: "document" },
-      { date: "2026-09-24", title: "Results of Skill Expo 2026–27", href: "https://www.cbse.gov.in/y.pdf", source: "document" },
+      { date: "2026-09-25", title: "Observance of Swachhata Hi Seva (SHS) 2026", href: "https://www.cbse.gov.in/x.pdf", source: "document", origin: "cbse-gov" },
+      { date: "2026-09-24", title: "Results of Skill Expo 2026–27", href: "https://www.cbse.gov.in/y.pdf", source: "document", origin: "cbse-gov" },
     ];
     for (const row of buildCircularFeed(rows, NOW)) {
       assert.equal(row.important, false, row.title);
@@ -216,12 +223,121 @@ describe("C9 — the fixed rule table, and no generated headline", () => {
 
   it("re-classifying a kept feed lets importance EXPIRE", () => {
     const [row] = buildCircularFeed(
-      [{ date: "2026-09-20", title: "Date sheet 2027", href: "https://www.cbse.gov.in/d.pdf", source: "document" }],
+      [{ date: "2026-09-20", title: "Date sheet 2027", href: "https://www.cbse.gov.in/d.pdf", source: "document", origin: "cbse-gov" }],
       NOW,
     );
     assert.equal(row.important, true);
     const later = reclassify([row], new Date("2026-11-01T00:30:00Z"));
     assert.deepEqual([later[0].important, later[0].headline], [false, ""]);
+  });
+});
+
+describe("★ CA-5 — CBSE Academic's notifications index", () => {
+  const all = () => [...parseGovCirculars(GOV_HTML), ...parseAcademicCirculars(ACADEMIC_HTML)];
+  const SQP_NOTIFICATION = "https://cbseacademic.nic.in/web_material/Notifications/2026/132_Notification_2026.pdf";
+
+  it("the notifications index is the stable academic index page, not a homepage", () => {
+    assert.equal(ACADEMIC_NOTIFICATIONS_URL, "https://cbseacademic.nic.in/circulars.html");
+    // PRECONDITION: the committed fixture really carries the notifications table.
+    assert.match(ACADEMIC_HTML, /<div id="notification">/);
+    assert.match(ACADEMIC_HTML, /Notifications\/2026\/132_Notification_2026\.pdf/);
+  });
+
+  it("records each row's origin — circulars table vs notifications table vs cbse.gov.in", () => {
+    const counts = countByOrigin(filteredCirculars(all()));
+    for (const origin of ["cbse-gov", "academic-circulars", "academic-notifications"] as const) {
+      assert.ok(counts[origin] > 0, `${origin} parsed no rows`);
+    }
+    const rows = parseAcademicCirculars(ACADEMIC_HTML);
+    assert.equal(rows.find((r) => r.href === SQP_NOTIFICATION)?.origin, "academic-notifications");
+    assert.equal(rows.find((r) => r.href.endsWith("/Circulars/2026/63_Circular_2026.pdf"))?.origin, "academic-circulars");
+    assert.ok(parseGovCirculars(GOV_HTML).every((r) => r.origin === "cbse-gov"));
+    // every notifications-origin row really is a Notifications/ link, and vice versa
+    for (const row of rows) {
+      assert.equal(row.origin === "academic-notifications", /\/Notifications\//.test(row.href), row.href);
+    }
+  });
+
+  it("★ the 132 notification is IMPORTANT with 'New CBSE sample papers are out' (now pinned: 26 Sep 2026)", () => {
+    const pinnedNow = new Date("2026-09-26T00:30:00Z");
+    const row = buildCircularFeed(all(), pinnedNow).find((r) => r.href === SQP_NOTIFICATION);
+    assert.ok(row, "the SQP notification is not in the feed");
+    assert.equal(row.origin, "academic-notifications");
+    assert.equal(row.important, true);
+    assert.equal(row.headline, "New CBSE sample papers are out");
+  });
+
+  it("CONTROL — the same row is NOT important once 30 days have passed (now pinned: 15 Nov 2026)", () => {
+    const later = new Date("2026-11-15T00:30:00Z");
+    const row = buildCircularFeed(all(), later).find((r) => r.href === SQP_NOTIFICATION);
+    assert.ok(row);
+    assert.deepEqual([row.important, row.headline], [false, ""]);
+  });
+
+  it("de-duplicates across sources by absolute href — cbse.gov.in wins, whatever the arrival order", () => {
+    const href = "https://cbseacademic.nic.in/web_material/Notifications/2026/999_Notification_2026.pdf";
+    const notification: ParsedCircular = { date: "2026-09", title: "N", href, source: "document", origin: "academic-notifications" };
+    const gov: ParsedCircular = { date: "2026-09-20", title: "G", href, source: "document", origin: "cbse-gov" };
+    const [kept] = filteredCirculars([notification, gov]);
+    assert.equal(filteredCirculars([notification, gov]).length, 1);
+    assert.equal(kept.origin, "cbse-gov");
+  });
+
+  it("★ the 30-row cap reserves each source's newest rows — a busy source cannot starve another", () => {
+    const academic: ParsedCircular[] = Array.from({ length: 40 }, (_, i) => ({
+      date: "2026-09",
+      title: `Academic ${i}`,
+      href: `https://cbseacademic.nic.in/web_material/Circulars/2026/${i}_Circular_2026.pdf`,
+      source: "document",
+      origin: "academic-circulars",
+    }));
+    const notifications: ParsedCircular[] = Array.from({ length: 40 }, (_, i) => ({
+      date: "2026-09",
+      title: `Notification ${i}`,
+      href: `https://cbseacademic.nic.in/web_material/Notifications/2026/${i}_Notification_2026.pdf`,
+      source: "document",
+      origin: "academic-notifications",
+    }));
+    // cbse.gov.in's rows are OLDER than all 80 academic rows, so newest-first alone would drop them.
+    const gov: ParsedCircular[] = Array.from({ length: 8 }, (_, i) => ({
+      date: `2026-08-${String(10 + i).padStart(2, "0")}`,
+      title: `Gov ${i}`,
+      href: `https://www.cbse.gov.in/cbsenew/documents/g${i}.pdf`,
+      source: "document",
+      origin: "cbse-gov",
+    }));
+    const feed = buildCircularFeed([...gov, ...academic, ...notifications], NOW);
+    assert.equal(feed.length, FEED_SIZE);
+    const counts = countByOrigin(feed);
+    assert.equal(counts["cbse-gov"], MIN_ROWS_PER_ORIGIN);
+    assert.ok(counts["academic-notifications"] >= MIN_ROWS_PER_ORIGIN);
+    // the reserved gov rows are its NEWEST five, and the feed is still newest first
+    assert.deepEqual(
+      feed.filter((r) => r.origin === "cbse-gov").map((r) => r.date),
+      ["2026-08-17", "2026-08-16", "2026-08-15", "2026-08-14", "2026-08-13"],
+    );
+    const keys = feed.map((r) => (r.date.length === 7 ? `${r.date}-00` : r.date));
+    assert.deepEqual([...keys].sort().reverse(), keys);
+  });
+
+  it("★ the count guard is PER SOURCE — healthy sources cannot mask one that collapsed", () => {
+    const healthy = { "cbse-gov": 330, "academic-circulars": 62, "academic-notifications": 131 };
+    assert.deepEqual(sourceGuard(healthy, healthy), { ok: true });
+    assert.deepEqual(sourceGuard(healthy, null), { ok: true });
+    // one source at 0 — the other two alone would still fill a 30-row feed
+    const zero = sourceGuard({ ...healthy, "academic-notifications": 0 }, healthy);
+    assert.equal(zero.ok, false);
+    assert.match(zero.ok ? "" : zero.reason, /academic-notifications parsed to 0 rows/);
+    // one source below 50% of ITS previous count
+    const halved = sourceGuard({ ...healthy, "cbse-gov": 100 }, healthy);
+    assert.match(halved.ok ? "" : halved.reason, /cbse-gov has 100 rows, fewer than 50% of the previous 330/);
+    // a zero is caught even on the first run, with no previous counts
+    assert.equal(sourceGuard({ ...healthy, "cbse-gov": 0 }, null).ok, false);
+  });
+
+  it("the real fixtures pass the per-source guard", () => {
+    const counts = countByOrigin(filteredCirculars(all()));
+    assert.deepEqual(sourceGuard(counts, counts), { ok: true });
   });
 });
 

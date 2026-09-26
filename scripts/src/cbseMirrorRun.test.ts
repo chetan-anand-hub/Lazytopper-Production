@@ -141,6 +141,7 @@ function seededManifest(): Manifest {
       title: i === 0 ? "Date sheet for Class X 2027" : `Previous circular ${i}`,
       href: `https://www.cbse.gov.in/cbsenew/documents/prev${i}.pdf`,
       source: "document" as const,
+      origin: "cbse-gov" as const,
       important: i === 0,
       headline: i === 0 ? "The 2027 board exam date sheet is out" : "",
     })),
@@ -402,6 +403,42 @@ describe("C8 — circulars guard in a run", () => {
     assert.equal(manifest.circulars[0].title, "Date sheet for Class X 2027");
     assert.deepEqual(created.map((c) => c.title), ["CBSE mirror: circulars feed rejected"]);
     assert.match(created[0].body, /HTTP 503/);
+  });
+
+  it("★ CA-5 — one source collapsing is rejected even though the others would fill the feed", async () => {
+    const { storage, objects } = fakeStorage(seededManifest());
+    const { tracker, created } = fakeIssues();
+    await runMirror({
+      now: NOW, papers: PAPERS, storage, issues: tracker, dryRun: false, log: quiet,
+      fetch: fakeFetch({
+        [URL_2526]: { status: 304 },
+        [TOPPERS]: { status: 304 },
+        [GOV_INDEX_URL]: { status: 200, body: "<html>redesigned</html>" },
+        // the academic page alone still parses 190+ rows — plenty for a 30-row feed
+        [ACADEMIC_INDEX_URL]: { status: 200, body: ACADEMIC_HTML },
+      }),
+    });
+    const manifest = writtenManifest(objects);
+    assert.equal(manifest.circularsCheckedAt, "2026-09-25T00:30:00.000Z", "the previous feed should be kept");
+    assert.deepEqual(created.map((c) => c.title), ["CBSE mirror: circulars feed rejected"]);
+    assert.match(created[0].body, /cbse-gov parsed to 0 rows/);
+  });
+
+  it("CA-5 — a healthy run records per-source counts and each row's origin in the manifest", async () => {
+    const { storage, objects } = fakeStorage(seededManifest());
+    await runMirror({
+      now: NOW, papers: PAPERS, storage, issues: fakeIssues().tracker, dryRun: false, log: quiet,
+      fetch: fakeFetch({ [URL_2526]: { status: 304 }, [TOPPERS]: { status: 304 }, ...CIRCULAR_ROUTES }),
+    });
+    const manifest = writtenManifest(objects);
+    assert.deepEqual(validateManifest(manifest), []);
+    const counts = manifest.circularSourceCounts ?? {};
+    for (const origin of ["cbse-gov", "academic-circulars", "academic-notifications"] as const) {
+      assert.ok((counts[origin] ?? 0) > 0, origin);
+    }
+    assert.ok(manifest.circulars.every((c) => typeof c.origin === "string"));
+    const sqp = manifest.circulars.find((c) => c.href.endsWith("/132_Notification_2026.pdf"));
+    assert.deepEqual([sqp?.origin, sqp?.important, sqp?.headline], ["academic-notifications", true, "New CBSE sample papers are out"]);
   });
 });
 

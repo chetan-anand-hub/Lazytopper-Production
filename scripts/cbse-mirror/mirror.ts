@@ -22,7 +22,10 @@ import {
   ACADEMIC_INDEX_URL,
   GOV_INDEX_URL,
   buildCircularFeed,
+  countByOrigin,
   feedGuard,
+  filteredCirculars,
+  sourceGuard,
   parseAcademicCirculars,
   parseGovCirculars,
   reclassify,
@@ -336,21 +339,29 @@ export async function runMirror(deps: MirrorDeps): Promise<MirrorResult> {
   const status = (f: Fetched) => (f.kind === "error" ? f.message : `HTTP ${f.status}`);
   const govHtml = text(gov);
   const academicHtml = text(academic);
-  const feed = buildCircularFeed(
-    [
-      ...(govHtml ? parseGovCirculars(govHtml, GOV_INDEX_URL) : []),
-      ...(academicHtml ? parseAcademicCirculars(academicHtml, ACADEMIC_INDEX_URL) : []),
-    ],
-    now,
-  );
+  // CA-5: the academic page yields BOTH origins — its circulars table and its
+  // notifications table (the stable notifications index; see ACADEMIC_NOTIFICATIONS_URL).
+  const parsed = [
+    ...(govHtml ? parseGovCirculars(govHtml, GOV_INDEX_URL) : []),
+    ...(academicHtml ? parseAcademicCirculars(academicHtml, ACADEMIC_INDEX_URL) : []),
+  ];
+  const sourceCounts = countByOrigin(filteredCirculars(parsed));
+  const feed = buildCircularFeed(parsed, now);
   const previousCirculars: readonly Circular[] = previous?.circulars ?? [];
-  const verdict = feedGuard(feed.length, previousCirculars.length);
+  // The whole-feed guard (C8) AND the per-source guard (CA-5) must both pass.
+  const whole = feedGuard(feed.length, previousCirculars.length);
+  const perSource = sourceGuard(sourceCounts, previous?.circularSourceCounts ?? null);
+  const verdict = !whole.ok ? whole : perSource;
   let circulars: Circular[];
   let circularsCheckedAt: string | null;
+  let circularSourceCounts = previous?.circularSourceCounts;
   if (verdict.ok) {
     circulars = feed;
     circularsCheckedAt = nowIso;
-    note(`circulars: ${feed.length} rows (${feed.filter((c) => c.important).length} important)`);
+    circularSourceCounts = sourceCounts;
+    note(
+      `circulars: ${feed.length} rows (${feed.filter((c) => c.important).length} important) — per source ${JSON.stringify(sourceCounts)}`,
+    );
   } else {
     circulars = reclassify(previousCirculars, now);
     circularsCheckedAt = previous?.circularsCheckedAt ?? null;
@@ -370,6 +381,7 @@ export async function runMirror(deps: MirrorDeps): Promise<MirrorResult> {
     papers: papers.map((paper) => entries.get(paper.id) ?? emptyEntry(paper)),
     circulars,
     circularsCheckedAt,
+    ...(circularSourceCounts ? { circularSourceCounts } : {}),
   };
   const problems = validateManifest(manifest);
   if (problems.length > 0) {

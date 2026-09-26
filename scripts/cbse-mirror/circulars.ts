@@ -22,7 +22,27 @@ import { createHash } from "node:crypto";
 export const GOV_INDEX_URL = "https://www.cbse.gov.in/cbsenew/examination_Circular.html";
 export const ACADEMIC_INDEX_URL = "https://cbseacademic.nic.in/circulars.html";
 
+/**
+ * CA-5 — CBSE Academic's NOTIFICATIONS index. Measured 2026-09-26: there is no separate
+ * notifications page (`notifications.html` and `notification.html` both 404 with a
+ * 624-byte body); the stable index is the SECOND table of `circulars.html`
+ * (`<div id="notification">`, heading "Notifications- 2026"), which lists
+ * `web_material/Notifications/2026/…` — including `132_Notification_2026.pdf`, the
+ * 2026-27 sample-paper release. It is fetched with the circulars page (one request)
+ * and its rows are recorded as their own origin.
+ */
+export const ACADEMIC_NOTIFICATIONS_URL = ACADEMIC_INDEX_URL;
+
+/** Where a row came from. Order is precedence: on a duplicate href the FIRST wins. */
+export const CIRCULAR_ORIGINS = ["cbse-gov", "academic-circulars", "academic-notifications"] as const;
+export type CircularOrigin = (typeof CIRCULAR_ORIGINS)[number];
+
 export const FEED_SIZE = 30;
+/**
+ * CA-5 — the 30-row cap must not starve a source. Each origin's newest rows, up to
+ * this many, are reserved a place; the rest of the 30 goes to the newest rows overall.
+ */
+export const MIN_ROWS_PER_ORIGIN = 5;
 export const IMPORTANT_WITHIN_DAYS = 30;
 
 export type ParsedCircular = {
@@ -31,6 +51,8 @@ export type ParsedCircular = {
   readonly title: string;
   readonly href: string;
   readonly source: "document" | "index";
+  /** CA-5 — which index the row was read from. */
+  readonly origin: CircularOrigin;
 };
 
 export type Circular = ParsedCircular & {
@@ -206,6 +228,7 @@ export function parseGovCirculars(html: string, pageUrl: string = GOV_INDEX_URL)
       title,
       href: href ?? pageUrl,
       source: href ? "document" : "index",
+      origin: "cbse-gov",
     });
   }
   return out;
@@ -245,6 +268,8 @@ export function parseAcademicCirculars(
   const headings = Array.from(html.matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>/gi), (m) => ({
     at: m.index ?? 0,
     year: textOf(m[1]).match(/(20\d\d)\s*$/)?.[1] ?? null,
+    // CA-5: a row under the "Notifications" heading is a notification, not a circular.
+    notifications: /notification/i.test(textOf(m[1])),
   }));
 
   const out: ParsedCircular[] = [];
@@ -256,7 +281,9 @@ export function parseAcademicCirculars(
 
     const ownYear = textOf(cells[0]).match(/\/(20\d\d)\b/)?.[1] ?? null;
     let headingYear: string | null = null;
+    let underNotifications = false;
     for (const heading of headings) {
+      if (heading.at < at) underNotifications = heading.notifications;
       if (heading.at < at && heading.year) headingYear = heading.year;
     }
     const year = ownYear ?? headingYear;
@@ -271,6 +298,7 @@ export function parseAcademicCirculars(
       title,
       href: href ?? pageUrl,
       source: href ? "document" : "index",
+      origin: underNotifications ? "academic-notifications" : "academic-circulars",
     });
   }
   return out;
@@ -332,32 +360,80 @@ export function circularId(href: string): string {
   return createHash("sha256").update(href).digest("hex").slice(0, 16);
 }
 
+function dedupeKey(row: ParsedCircular): string {
+  return row.source === "index" ? `${row.href}#${row.date}#${row.title}` : row.href;
+}
+
 /**
- * Both sources → one feed: Class-XII-only rows dropped, de-duplicated by href,
- * newest first (stable — ties keep source order), capped at 30, classified.
+ * Every source's rows after the Class-XII filter and de-duplication — the set the feed
+ * is cut from, and the set the CA-5 per-source count guard measures. On a duplicate
+ * absolute href the row from the EARLIER origin in `CIRCULAR_ORIGINS` wins (cbse.gov.in
+ * over the academic circulars over the academic notifications), whatever order the
+ * rows arrived in.
  */
-export function buildCircularFeed(rows: readonly ParsedCircular[], now: Date): Circular[] {
+export function filteredCirculars(rows: readonly ParsedCircular[]): ParsedCircular[] {
+  const byPrecedence = rows
+    .map((row, index) => ({ row, index }))
+    .sort(
+      (a, b) =>
+        CIRCULAR_ORIGINS.indexOf(a.row.origin) - CIRCULAR_ORIGINS.indexOf(b.row.origin) ||
+        a.index - b.index,
+    )
+    .map(({ row }) => row);
   const seen = new Set<string>();
   const kept: ParsedCircular[] = [];
-  for (const row of rows) {
+  for (const row of byPrecedence) {
     if (isClassXIIOnly(row.title)) continue;
-    const key = row.source === "index" ? `${row.href}#${row.date}#${row.title}` : row.href;
+    const key = dedupeKey(row);
     if (seen.has(key)) continue;
     seen.add(key);
     kept.push(row);
   }
-  const ordered = kept
+  return kept;
+}
+
+export function countByOrigin(rows: readonly ParsedCircular[]): Record<CircularOrigin, number> {
+  const counts: Record<CircularOrigin, number> = {
+    "cbse-gov": 0,
+    "academic-circulars": 0,
+    "academic-notifications": 0,
+  };
+  for (const row of rows) counts[row.origin] += 1;
+  return counts;
+}
+
+/**
+ * All sources → one feed: Class-XII-only rows dropped, de-duplicated by href (earlier
+ * origin wins), newest first (stable), capped at 30, classified.
+ *
+ * CA-5 — THE CAP RESERVES A SHARE PER SOURCE. Each origin's newest
+ * `MIN_ROWS_PER_ORIGIN` rows are always in the 30; the remaining places go to the
+ * newest rows overall. Without it, CBSE Academic's many month-only rows can push every
+ * cbse.gov.in row out of a busy month — silently.
+ */
+export function buildCircularFeed(rows: readonly ParsedCircular[], now: Date): Circular[] {
+  const kept = filteredCirculars(rows)
     .map((row, index) => ({ row, index }))
     .sort((a, b) => {
       const ka = sortKey(a.row.date);
       const kb = sortKey(b.row.date);
       if (ka !== kb) return ka < kb ? 1 : -1;
       return a.index - b.index;
-    })
-    .slice(0, FEED_SIZE)
-    .map(({ row }) => row);
+    });
+  const chosen = new Set<number>();
+  for (const origin of CIRCULAR_ORIGINS) {
+    kept
+      .filter(({ row }) => row.origin === origin)
+      .slice(0, MIN_ROWS_PER_ORIGIN)
+      .forEach(({ index }) => chosen.add(index));
+  }
+  for (const { index } of kept) {
+    if (chosen.size >= FEED_SIZE) break;
+    chosen.add(index);
+  }
+  const ordered = kept.filter(({ index }) => chosen.has(index)).map(({ row }) => row);
   return ordered.map((row) => ({
-    id: circularId(row.source === "index" ? `${row.href}#${row.date}#${row.title}` : row.href),
+    id: circularId(dedupeKey(row)),
     ...row,
     ...classifyCircular(row, now),
   }));
@@ -366,6 +442,29 @@ export function buildCircularFeed(rows: readonly ParsedCircular[], now: Date): C
 /** Re-apply C9 to rows kept from a previous run, so `important` still expires. */
 export function reclassify(rows: readonly Circular[], now: Date): Circular[] {
   return rows.map((row) => ({ ...row, ...classifyCircular(row, now) }));
+}
+
+/**
+ * CA-5 — the C8 count guard, applied PER SOURCE, so a healthy source cannot mask the
+ * collapse of another. Each origin must parse at least one row, and — when the previous
+ * manifest recorded per-source counts — at least 50% of its previous count. Counts are
+ * of `filteredCirculars` (before the 30-row cap), which keeps them comparable run to
+ * run. Any failure keeps the previous feed and opens an issue.
+ */
+export function sourceGuard(
+  counts: Record<CircularOrigin, number>,
+  previous: Partial<Record<CircularOrigin, number>> | null,
+): { ok: true } | { ok: false; reason: string } {
+  const problems: string[] = [];
+  for (const origin of CIRCULAR_ORIGINS) {
+    const current = counts[origin];
+    const before = previous?.[origin] ?? 0;
+    if (current === 0) problems.push(`${origin} parsed to 0 rows`);
+    else if (before > 0 && current < before * 0.5) {
+      problems.push(`${origin} has ${current} rows, fewer than 50% of the previous ${before}`);
+    }
+  }
+  return problems.length === 0 ? { ok: true } : { ok: false, reason: problems.join("; ") };
 }
 
 /**
