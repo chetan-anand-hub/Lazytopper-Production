@@ -1,5 +1,45 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-26 — CBSE-AUTO-1 (`#824` `d74db872`), trunk `d74db872`; and FREE-CHECK-1 switched on.**
+> ★ **TWO SURFACES MOVE DARK: the CBSE page (`/cbse/class-10`) and Home (a CBSE banner).** Nothing a student sees changes until the owner sets `CBSE_MIRROR_LIVE=1` after the final audit passes. **Two FREE-CHECK-1 cells move DARK → LIVE** (owner-supplied facts).
+
+### 🌑 CBSE page (`/cbse/class-10`) — **COMMITTED LINKS ONLY → MANIFEST OVERLAY, MIRRORED PAPERS READ "Download"** (behind `CBSE_MIRROR_LIVE`, unset)
+- **Moved (dark):**
+  - a paper whose manifest status is `ok`, or `source-missing` with a mirrored copy (CA-2), links its Storage copy and reads **"Download"**;
+  - the circulars and the "Checked … on" date come from the manifest;
+  - the "Sample papers awaited" pill reads "Sample papers out" only for a mirrored 2026-27+ SQP (CA-3);
+  - the "opens the original on CBSE's own site" copy changes only when a row downloads.
+- **Unchanged until a manifest exists:** with no manifest, or on any fetch failure, the page is today's page. The builder measured this as byte-identical, and the CI `prerender-capture` check matched the committed artifact.
+
+### 🌑 Home — CBSE banner (DesktopHome + MobileHome) — **NONE → A DISMISSIBLE BANNER FOR THE NEWEST IMPORTANT CIRCULAR** (behind `CBSE_MIRROR_LIVE`, unset)
+- **Moved (dark):**
+  - a fixed C9 headline that links to `/cbse/class-10`;
+  - a dismissal kept per circular in `localStorage["ltCbseBanner.dismissed.v1"]`, so that a newer important circular shows again.
+- **Unchanged now:** with no manifest, or no important row, the banner renders nothing and the Home layout is unchanged.
+- **Live-verify owed:** the banner's placement at phone and desktop width, and the dismissal persisting across a reload.
+
+### ✅ Check & Improve — signed-out visitor — **ONE FREE MARKED UPLOAD — DARK → LIVE** (owner, 2026-09-26)
+- `FREE_CHECK_ENABLED` and `VITE_FREE_CHECK_ENABLED` were switched ON on 2026-09-26, and the spec §5 live-verify passed. Railway on 1 replica (U5). WhatsApp and Instagram OK (U7).
+- **PENDING owner confirmation (not passed):**
+  - the shared-device retest;
+  - the `free_check_signup` / `free_check_trial_start` analytics events.
+
+### ✅ Landing CTA — **→ `/check-improve` — DARK → LIVE** (the same flag, `VITE_FREE_CHECK_ENABLED`, ON 2026-09-26)
+
+### ⬜ NO OTHER SURFACE CELL MOVES — stated plainly, per `CLAUDE.md` §10
+The privacy policy and the Login copy were already LIVE (`#822`). The landing fingerprint, the notes pages, the other Home content, Practice, Topic Hub, Chapter Test, Full Mock, Mistake Intelligence and Exam Trends are unchanged by this lane.
+
+### 📋 Scope discovered? — **YES, FIVE — every one resolved inside this lane; logged in `DECISION_LOG` and §2a below**
+
+### ⚠ §2a — SCOPE DISCOVERED THIS LANE *(logged in `DECISION_LOG.md`, per `CLAUDE.md` §10)*
+- **SC1:** C4's literal `/Type /Page` check is unsatisfiable on real CBSE files that use compressed object streams → the object streams are inflated with `node:zlib` (no dependency).
+- **SC2:** the C4 3× ceiling rejects the real 2026-27 Maths Standard SQP → CA-1.
+- **SC3:** C6 and C11 disagree on a source-missing paper → CA-2 (C6 wins).
+- **SC4:** the hand-set "Sample papers awaited" pill was already false → CA-3.
+- **SC5:** the SQP release notice lives on CBSE Academic's notifications index → CA-5 (the "Notifications- 2026" table on `circulars.html`; there is no separate page).
+
+**No surface's Scope is left Settling:** all five were resolved and shipped inside `#824`. The final audit is still owed (OR-C1).
+
 > **2026-09-26 — FREE-CHECK-1 (`#821` `39bae5f1` + `#822` `f30f9898`), trunk `f30f9898`.**
 > ★ **ONE SURFACE MOVES, DARK: Check & Improve (`/check-improve`) for a signed-out visitor.** Two neighbouring cells move LIVE (unflagged): the privacy policy, and the Login copy.
 

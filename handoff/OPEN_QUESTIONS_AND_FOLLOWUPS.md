@@ -23,6 +23,44 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-26 — CBSE-AUTO-1 (`#824` MERGED as `d74db872`, squash, `--match-head-commit fdc33f8a`, no `--admin`; open PRs at the time of writing: **`#810`, `#818`, `#819`** — dependabot only) — five follow-ups: three raised and resolved in-lane, one new and open, one carried and still open; two scopes delivered
+
+### `[FU-CBSE-MIRROR-GUARD-OVERRIDE]` — ✅ RESOLVED by CA-1 (`2ca1bf8c`). **THE SIZE-RATIO GUARD WOULD HAVE REJECTED THE 2026-27 MATHS STANDARD SQP**
+- Raised by the builder at `e4e8bf6c`. The live dry run measured the 2026-27 Maths Standard SQP against the 2025-26 copy: 3,014,269 B vs 511,677 B, a ratio of 5.9×. That breaches C4's 3× ceiling, and there was no override path. This was one of the two reasons for `AUDIT HOLD 824 @ e4e8bf6c`.
+- **Resolution (owner ruling CA-1):** new-session candidates (`requireLaterSession`) skip **only** the 3× ceiling, and same-session candidates keep it. The 0.33× floor, the 50 kB floor, the magic bytes, the subject token, the strictly-later session, `Last-Modified` and the page check all still apply. The fix is `scripts/cbse-mirror/guards.ts` `evaluateCandidate` `skipCeiling`, with a test and a mutation.
+
+### `[FU-CBSE-MIRROR-SOURCE-MISSING-LINK]` — ✅ RESOLVED by CA-2 (`2ca1bf8c`). **A PAPER CBSE REMOVED LINKED TO CBSE'S DEAD URL**
+- At `e4e8bf6c` the builder followed C11 literally: only `ok` linked Storage, so a `source-missing` paper linked CBSE's dead href. C6 says "keep serving the mirror". This was the other reason for the HOLD.
+- **Resolution (owner ruling CA-2): C6 wins over C11.** A source-missing paper that has a `storagePath` links its Storage copy and reads "Download". A stale paper, one with no copy, or one with no entry keeps the committed link. The fix is `lazytopper/src/services/cbseManifest.ts` `cbsePaperLink`.
+
+### `[FU-CBSE-PILLS-STATIC]` — ✅ RESOLVED by CA-3 (`2ca1bf8c`). **THE HAND-SET "Sample papers awaited" PILL WAS ALREADY FALSE**
+- CBSE published the 2026-27 Class X SQPs on 23 Sep 2026 *(subagent-reported)*, but the page's hero pill still said "Sample papers awaited".
+- **Resolution (owner ruling CA-3):** `cbseManifest.ts` `cbseSamplePapersOut`. The pill reads "Sample papers out" (ok style) only when a mirrored `-SQP.pdf` under `/SQP/` has status ok or source-missing, has a copy, and is for session 2026-27 or later. Otherwise, including when there is no manifest, it renders today's exact markup.
+- The other three hero pills are still hand-set. No owner ruling covers them.
+
+### `[FU-CBSE-MIRROR-PRERENDER-BUCKET]` — ★ OPEN. **THE PRERENDER CAPTURE'S DATA-DEPENDENCE CONTROL DOES NOT COVER STORAGE FETCHES**
+- Today the capture build has no `VITE_FIREBASE_STORAGE_BUCKET`, so `fetchCbseManifest` returns null before any request, and the prerendered `/cbse/class-10` body is the committed page. CI confirmed this: `PRERENDER: committed artifact matches a fresh capture.`
+- **The risk:** if a future build gives the prerender capture a Storage bucket, its blocked-vs-live control would **NOT** catch a frozen manifest, because it blocks only `/api/**`. A day's manifest could then be baked into the crawler body.
+- This is noted in `lazytopper/src/services/cbseManifest.ts`. **It is not a defect today** *(subagent-reported)*. Fix it before any change gives the capture a bucket: block the firebasestorage origin in the capture, or strip the manifest-driven nodes.
+
+### `[FU-CAPTURE-STRIP-CLOCK-DERIVED]` — ★ STILL OPEN. **NOT IN THIS LANE** (spec §2: "stays a follow-up")
+The body is unchanged; see its heading in the 2026-09-19 section. CBSE-AUTO-1 did not touch `scripts/seo/captureStaticBodies.ts`.
+
+### DELIVERED — `[CBSE-PAGE-LANE-B]` and `[CBSE-BANNER-1]` — **BUILT (DARK) by `#824`**
+- The CBSE-AUTO-1 spec supersedes both unbuilt scopes, which were recorded in the FREE-CHECK-1 owner payload below.
+- **Two deviations from their text:**
+  - C4 replaces the payload's "first-page subject" check with the page and token guards. There is no PDF library; see `DECISION_LOG.md`.
+  - The banner links `/cbse/class-10`, never with an `/app/` prefix (CLAUDE.md §7).
+- They go live only when the owner sets `CBSE_MIRROR_LIVE=1` after the final audit passes.
+
+### Unverified (cannot be proven before the first live run) *(subagent-reported)*
+- That the firebasestorage `?alt=media` endpoint serves `contentDisposition: attachment`, so that the browser downloads.
+- That CBSE's WAF accepts GitHub-hosted runner IPs.
+- That firebase-admin `file.save` / `file.copy` work against the real bucket.
+- That the workflow runs at all: it has never executed, and `vars.CBSE_MIRROR_LIVE` in a job-level `if:` on a schedule is unexercised.
+- The banner's visual placement at phone and desktop widths.
+- CA-5 on live data: it is covered by the fixtures only.
+
 ## 2026-09-26 — FREE-CHECK-1 (`#821` MERGED as `39bae5f1`, `#822` MERGED as `f30f9898`, squash, `--match-head-commit`, no `--admin`; open PRs at the time of writing: **`#810`, `#818`, `#819`** — dependabot only) — three new follow-ups, the owner's payload, one closure, one still open
 
 ### `[FU-FREECHECK-SHARED-TAB]` — ★ OPEN, **owner-ACCEPTED residual**. **A SECOND PERSON IN THE SAME TAB WITHIN 2 HOURS CAN CLAIM A WAITING FREE RESULT**

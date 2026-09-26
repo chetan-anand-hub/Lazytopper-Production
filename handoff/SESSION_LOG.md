@@ -1,5 +1,48 @@
 ---
 
+## 2026-09-26 — CBSE-AUTO-1 — **/cbse/class-10 KEEPS ITSELF UP TO DATE, AND HOME CAN SHOW AN IMPORTANT CIRCULAR — BUILT AND DARK** — `#824` MERGED — trunk `d74db872`
+
+★ **PROVENANCE.**
+- One controller session held the plan. One builder ran `claude-opus-5-5` at effort `high` in `C:/Projects/LT-worktrees/cbse-auto-1`, and this docs subagent worked in its own worktree.
+- FREE-CHECK-1 ran **in parallel** in another controller session. The two lanes were file-disjoint, and `handoff/**` stayed with FREE-CHECK-1 until its docs PR `#823` merged.
+- Items marked *(subagent-reported)* come from the builder's report and were not re-measured by the controller. Items marked *(controller-verified)* were.
+
+**Timeline.**
+- **Pre-flight, trunk `39bae5f1`.** The §0c premise gate passed (20 premises, 15/15 anchors, exit 0). No scouts ran: the builder answered P16–P20 itself, and none of them changed the task's shape.
+- **Build.** Trunk moved to `1aea52c4` (FREE-CHECK-1), and the empty lane branch was fast-forwarded. The lane commit was `e5647d17`. Two CodeQL fixes followed (`e69f8aab`, `e4e8bf6c`) for an "Incomplete multi-character sanitization" finding in `circulars.ts` `textOf`.
+- **`AUDIT HOLD 824 @ e4e8bf6c`.** On its first live run, the size-ratio guard would have rejected the 2026-27 Maths Standard SQP (5.9×). Separately, papers that CBSE had removed linked to dead CBSE URLs.
+- **FIX-1**, the same builder resumed:
+  - `2ca1bf8c` = CA-1/2/3;
+  - `ec4645d5` = CA-4;
+  - `fdc33f8a` = CA-5.
+  - Checks *(subagent-reported)*: node --test 82/0/0; vitest 73/73; 13 mutations went red, with sha-verified restores.
+- **Owner ruling OR-C1.** Do not wait for an audit verdict; finish everything, then write ONE final audit request.
+- **Merge** *(controller-verified)*:
+  - CI was green on `fdc33f8a` (Quality Gate `36220299167`: `# pass 293 # fail 0 # skipped 0`, `Tests 2563 passed (2563)`), and the PR was up to date with trunk.
+  - `gh pr merge 824 --squash --match-head-commit fdc33f8a` → **`d74db872`**.
+  - Proved by content: ancestry OK, and the tree is identical to the head.
+
+### What it does
+- A daily GitHub job (06:00 IST) mirrors the page's CBSE papers into Firebase Storage `cbse/` behind the C4 guards. It archives a file before replacing it and opens deduped issues.
+- It watches CBSE's circular indexes, including the academic "Notifications- 2026" table (CA-5), and publishes `cbse/manifest.json`.
+- `/cbse/class-10` reads the manifest (5 s timeout). Mirrored papers read "Download", and on any failure the page falls back exactly to the committed page.
+- Home shows a dismissible banner only for an important circular, using the fixed C9 headlines only.
+- **Dark until the owner sets `CBSE_MIRROR_LIVE=1` after the final audit passes.**
+
+### FREE-CHECK-1 switched on (owner-supplied facts)
+- Both flags were ON on 2026-09-26, and the §5 live-verify passed.
+- Railway on 1 replica (U5). WhatsApp and Instagram OK (U7).
+- `freeCheckDaily` holds counters only.
+- **PENDING owner confirmation:** the shared-device retest, and the `free_check_signup` / `free_check_trial_start` analytics events.
+
+### ★ What this lane teaches
+- **A SPEC'S LITERAL CHECK CAN BE UNSATISFIABLE ON REAL DATA.** A raw `/Type /Page` scan finds 0 markers in `CFPQ_Science10.pdf`, because its pages live in compressed object streams; after inflation there are 145 *(subagent-reported)*. The builder ran the dry run against the live files, and that exposed it before any student did.
+- **A GUARD THAT WORKS AS SPECIFIED CAN STILL BLOCK THE THING IT EXISTS FOR.** The 3× ceiling would have kept the new session's sample paper out. The audit caught this, not CI (green on the held SHA), and CA-1 narrows the exemption to exactly the new-session case.
+- **A CLAIM ABOUT WHERE LINKS GO MUST CHANGE WHEN A LINK DOES.** The page's "Every link opens the original file on CBSE's own site" copy is conditional on whether any row downloads.
+
+### Live-verify owed (owner)
+The final audit, then the dry run, `CBSE_MIRROR_LIVE=1` and a live run. After that, spec §5: a phone and a laptop download, and the banner dismissal persisting across a reload. See `NEXT_ACTION.md`.
+
 ## 2026-09-26 — FREE-CHECK-1 — **ONE FREE MARKED UPLOAD FOR A SIGNED-OUT VISITOR, BUILT AND DARK** — `#821` + `#822` MERGED — trunk `f30f9898`
 
 ★ **PROVENANCE.**

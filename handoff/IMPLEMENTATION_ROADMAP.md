@@ -1,5 +1,25 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-26 — CBSE PAGE: **CBSE-AUTO-1 — THE SELF-UPDATING CBSE PAGE + THE HOME BANNER (DARK)** — `#824` MERGED — trunk `d74db872`
+
+- ✅ **The mirror job** (`.github/workflows/cbse-mirror.yml` + `scripts/cbse-mirror/**`):
+  - a daily conditional-GET mirror into Storage `cbse/`;
+  - the C4 guards, with object streams inflated through `node:zlib`;
+  - archive-before-replace and deduped issues;
+  - the new-session SQP probe;
+  - both circular indexes, plus the notifications table (CA-5);
+  - the manifest, written last.
+
+  It is gated on `CBSE_MIRROR_LIVE=1` (CA-4).
+- ✅ **The page** (`/cbse/class-10`): the manifest overlay, with mirrored papers reading "Download" (CA-2: source-missing too). The pill is manifest-driven (CA-3). The circulars and the checked date come from the manifest, and on any failure the page is exactly today's page.
+- ✅ **The Home banner** (`CbseBanner`, on desktop and mobile): the newest important circular, using fixed headlines only, and dismissible per circular.
+- ✅ **This supersedes and delivers** the unbuilt scopes `CBSE-PAGE Lane B` and `CBSE-BANNER-1`.
+- ✅ **Docs:** this handoff.
+- ⬜ **Final audit** (OR-C1: merged before it; range `1aea52c4..trunk`). A HOLD is fixed as a follow-up PR.
+- ⬜ **Owner:** a dry run, then `CBSE_MIRROR_LIVE=1`, then a live run, then the spec §5 live-verify.
+- ⬜ `[FU-CBSE-MIRROR-PRERENDER-BUCKET]` · `[FU-CAPTURE-STRIP-CLOCK-DERIVED]`.
+- ✅ **FREE-CHECK-1 is LIVE** (both flags ON on 2026-09-26). ⬜ Pending owner confirmation: the shared-device retest, and the `free_check_signup` / `free_check_trial_start` events.
+
 ## 2026-09-26 — CHECK & IMPROVE: **FREE-CHECK-1 — ONE FREE MARKED UPLOAD FOR A SIGNED-OUT VISITOR (DARK)** — `#821` + `#822` MERGED — trunk `f30f9898`
 
 - ✅ **1a — server** (`#821` `39bae5f1`):

@@ -1,5 +1,58 @@
 # LazyTopper — Current State
 
+## [CURRENT · CBSE PAGE] CBSE-AUTO-1 — **/cbse/class-10 KEEPS ITSELF UP TO DATE, AND HOME CAN SHOW AN IMPORTANT CIRCULAR — BUILT AND DARK** — `#824` MERGED — trunk `d74db872`
+
+★ **PROVENANCE.**
+- Controller/builder model. One builder (`claude-opus-5-5`, effort `high`) in its own worktree. Spec `ops/.specs/CBSE-AUTO-1.md` v1.0 (sha256 `135ac515…e770aa3`); its §0c premise gate passed (20 premises, 15/15 anchors, P16–P20 open by design, exit 0).
+- **One AUDIT HOLD** from the cofounder: `AUDIT HOLD 824 @ e4e8bf6c`. FIX-1 (CA-1..CA-5) answered it in three commits on the same PR.
+- **Owner ruling OR-C1** then replaced the audit gate for this lane only: `#824` was **merged BEFORE its final audit**. See the section below and `DECISION_LOG.md`.
+- The merge was `gh pr merge 824 --squash --match-head-commit fdc33f8a` → **`d74db872`**. The controller proved it on trunk: `merge-base --is-ancestor` OK, and `git diff fdc33f8a d74db872` is EMPTY (the trees are identical). 26 files changed in `1aea52c4..d74db872`.
+
+**Trunk `d74db872c7f20952b3d12802480f3b890e5fca29`** (`#824`). The previous trunk was `1aea52c4` (`#823`, the FREE-CHECK-1 docs).
+
+*(This block supersedes the FREE-CHECK-1 block below on trunk SHA and on its "BOTH FLAGS ARE OFF" status. That block's content otherwise stands as written.)*
+
+### ★ NOTHING WRITES TO STORAGE YET — THE MIRROR IS DARK
+- The job writes only when the repository variable **`CBSE_MIRROR_LIVE` equals `1`** (CA-4). The owner sets it **only after the final audit passes**. The variable did not exist at merge (controller-verified with `gh variable list`).
+- Until the variable is set: a scheduled run does not start, and a manual `dry_run: false` run refuses at its first step. Manual dry runs are allowed, and they write nothing.
+- **With no manifest, `/cbse/class-10` is today's page:** the committed hrefs, "Open", the committed circulars and the committed date. The builder measured this as byte-identical to trunk, and the `prerender-capture` check confirmed it ("committed artifact matches a fresh capture"). Home renders no banner.
+
+### What shipped — C1–C13 (spec §2), one line each
+- **C1 Job:** `.github/workflows/cbse-mirror.yml` — cron `30 0 * * *` (06:00 IST) plus `workflow_dispatch` with the input `dry_run` (default true). It never runs on PRs, and it declares `permissions: contents: read, issues: write`.
+- **C2 Stable ids:** `lazytopper/src/pages/cbse2027Sources.ts` `CbsePaper.id`. There are 15 kebab-case ids, and the committed hrefs stay as the fallback.
+- **C3 Mirror:** `scripts/cbse-mirror/papers.ts` `storagePathFor` / `contentDispositionFor` / `CACHE_CONTROL`, plus `mirror.ts` `runMirror`. Files go to `cbse/files/<id>.<ext>` with an attachment disposition and `max-age=300`, and are fetched by conditional GET.
+- **C4 Guards:** `scripts/cbse-mirror/guards.ts` `evaluateCandidate`, which checks magic bytes, ≥ 50,000 bytes, a 0.33×–3× size ratio, the subject token, the session year, `Last-Modified` and `pdfHasPage`. The zlib ruling is below.
+- **C5 Replace:** `mirror.ts` `runMirror` + `papers.ts` `archivePathFor`. It archives to `cbse/archive/<id>/<YYYY-MM-DD>.<ext>` before it overwrites. `issues.ts` `ISSUE_TITLES` / `dedupeIssues` never open a second OPEN issue with the same title.
+- **C6 Source gone:** `scripts/cbse-mirror/manifest.ts` `PaperStatus` `"source-missing"`. The mirrored copy is kept, and one deduped issue opens.
+- **C7 New session:** `scripts/cbse-mirror/sqpIndex.ts` `nextSessionIndexUrl` / `mapSqpLinks`. The URL is derived from the current year. An unmapped link is reported in an issue and never ingested.
+- **C8 Circulars:** `scripts/cbse-mirror/circulars.ts` `parseGovCirculars` / `parseAcademicCirculars` / `buildCircularFeed` / `feedGuard`. It keeps the newest 30 rows, drops Class-XII-only rows (`isClassXIIOnly`), and applies the 0-row and < 50% guard.
+- **C9 Fixed rule table:** `circulars.ts` `HEADLINE_RULES` / `ruleHeadline` / `classifyCircular`, which marks a row important only if it is dated within 30 days. **It never generates a headline.**
+- **C10 Manifest:** `scripts/cbse-mirror/manifest.ts` `Manifest` / `validateManifest`, written last through `papers.ts` `MANIFEST_TEMP_PATH` and then copied. A dry run writes nothing (`storage.ts` `readOnlyStorage`), and every write path passes `storage.ts` `assertCbsePath` / `guardedStorage`.
+- **C11 Page:** `lazytopper/src/services/cbseManifest.ts` `fetchCbseManifest` (5 s timeout, returns null on any failure) / `useCbseManifest` / `cbsePaperLink` / `cbseCircularFeed`. `Cbse2027Page.tsx` renders the overlay: a mirrored paper reads **"Download"**, and anything else keeps its CBSE href and "Open".
+- **C12 Banner:** `lazytopper/src/components/cbse/CbseBanner.tsx` shows the newest important circular (`newestImportantCircular`) and links to `/cbse/class-10`. It is mounted in `DesktopHome.tsx` (before `<LinkPhoneNudge />`) and in `MobileHome.tsx` (`<CbseBanner spaced />`, before the greeting). Dismissal is stored in `localStorage["ltCbseBanner.dismissed.v1"]` (`CBSE_BANNER_DISMISSED_KEY`). It renders nothing when the manifest fails or no row is important.
+- **C13 Tests:** `scripts/src/cbseMirror{Guards,Feeds,Run}.test.ts`, wired into `scripts/package.json` `test:matrix:all`, plus vitest `cbseManifest.test.ts`, `CbseBanner.test.tsx` and `Cbse2027Page.guard.test.tsx`. No test touches the network.
+
+### What shipped — FIX-1 (CA-1..CA-5), one line each
+- **CA-1** (`2ca1bf8c`): `scripts/cbse-mirror/guards.ts` `evaluateCandidate` `skipCeiling`. A new-session candidate (`requireLaterSession`) skips **only** the 3× ceiling; the floor and every other guard still apply. This lets the 2026-27 Maths Standard SQP (5.9×) through.
+- **CA-2** (`2ca1bf8c`): `lazytopper/src/services/cbseManifest.ts` `cbsePaperLink` (`SERVED_FROM_MIRROR = ["ok", "source-missing"]`). **C6 wins over C11**: a source-missing paper that has a mirrored copy reads "Download" from Storage.
+- **CA-3** (`2ca1bf8c`): `cbseManifest.ts` `cbseSamplePapersOut` (`CBSE_SQP_READY_FROM_SESSION = 2026`), used by `Cbse2027Page.tsx`. The "Sample papers awaited" pill reads "Sample papers out" (ok style) only for a mirrored 2026-27+ SQP. Otherwise it keeps today's exact markup.
+- **CA-4** (`ec4645d5`): `.github/workflows/cbse-mirror.yml` job `if: github.event_name != 'schedule' || vars.CBSE_MIRROR_LIVE == '1'`, plus a first step that refuses a writing run. `scripts/cbse-mirror/mirror.ts` `liveRunRefusal`, called in `run.ts` before the key is read, repeats the refusal (defence in depth).
+- **CA-5** (`fdc33f8a`): `scripts/cbse-mirror/circulars.ts` `CIRCULAR_ORIGINS` / `ACADEMIC_NOTIFICATIONS_URL` / `sourceGuard` / `MIN_ROWS_PER_ORIGIN`. The feed now records the origin of each row and guards each origin's count. Duplicates are resolved by href in the order gov > academic circulars > notifications, and each origin keeps a 5-row share of the 30 rows.
+
+### ★ Read this before touching the CBSE mirror
+- **The C4 page check inflates object streams with `node:zlib`.** Do not replace it with a raw-bytes `/Type /Page` scan: that scan rejects `CFPQ_Science10.pdf` forever. There is no PDF library, and adding one would touch the lockfile. See `DECISION_LOG.md`.
+- **www.cbse.gov.in answers 403 to a User-Agent that contains a URL.** `mirror.ts` `USER_AGENT` carries none, and a test pins this.
+- **The final audit has not happened yet** (OR-C1). A final HOLD is fixed as a follow-up PR.
+- The `WIRE-2` dormancy block is unchanged by this lane; see its section (`### 8 - ★ THE WIRE-2 QUESTION`) below.
+
+### ★ FREE-CHECK-1 IS LIVE (owner-supplied facts, 2026-09-26)
+- **Both flags are ON** (`FREE_CHECK_ENABLED`, `VITE_FREE_CHECK_ENABLED`), switched on 2026-09-26.
+- **Spec §5 live-verify passed.** Railway on **1 replica** (U5). **WhatsApp and Instagram OK** (U7, Google sign-in inside in-app webviews).
+- `freeCheckDaily` holds counters only.
+- **PENDING owner confirmation — NOT passed:**
+  - (a) the shared-device retest;
+  - (b) the `free_check_signup` / `free_check_trial_start` analytics events.
+
 ## [CURRENT · CHECK & IMPROVE] FREE-CHECK-1 — **ONE FREE MARKED UPLOAD FOR A SIGNED-OUT VISITOR, BUILT AND DARK** — `#821` + `#822` MERGED — trunk `f30f9898`
 
 ★ **PROVENANCE.**
