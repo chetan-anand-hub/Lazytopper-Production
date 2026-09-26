@@ -109,8 +109,17 @@ describe("offer OPEN", () => {
     // printed twice.
     const struck = strip.querySelector("s");
     expect(struck, "the list price must render inside <s>").not.toBeNull();
-    expect(flat(struck)).toBe(`${PRICE_MONTHLY_LIST_DISPLAY} ${PERIOD_MONTHLY_LABEL}`);
+    expect(flat(struck)).toBe(PRICE_MONTHLY_LIST_DISPLAY);
     expect(flat(struck)).not.toContain(PRICE_MONTHLY_FOUNDING_DISPLAY);
+
+    // PRICING-TB-1 · OR-P6 Decision 1(b) (owner): the founding line, word for word,
+    // pinned as a literal so a constant drift cannot silently reword it.
+    const body = strip.querySelector(".lt-offer-strip-body");
+    expect(flat(body)).toBe(
+      "Founding member: ₹599 for a month ₹999, locked for every pass you buy. First 200 students.",
+    );
+    // ...and the ₹999 inside it is the struck element, not a live second price.
+    expect(body?.querySelector("s")).toBe(struck);
 
     // The cohort claim, read from the module rather than retyped — a literal
     // here would keep passing after the cohort size moved.
@@ -142,7 +151,7 @@ describe("offer OPEN", () => {
 
     // CONTROL for the absence above: the scoped claim IS present, so this test
     // is checking the wording rather than an empty string.
-    expect(text).toContain("locked for as long as you stay subscribed");
+    expect(text).toContain("your founding price stays locked for every pass you buy");
   });
 });
 

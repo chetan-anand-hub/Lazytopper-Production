@@ -34,8 +34,9 @@ const SECTIONS: Array<[string, string]> = [
     "LazyTopper offers a 7-day free trial of Premium features. No payment is required during the trial.",
   ],
   [
-    "Monthly Plan",
-    "You can cancel at any time. You keep Premium until the end of the month you have paid for, and you will not be charged again. A month that has been paid for is not refunded.",
+    // OR-P6 (owner, 2026-09-26): one-time passes only, no auto-renew.
+    "Month Pass",
+    "A month pass gives you Premium for one month from the day you pay. It does not renew automatically, and it is not refunded once paid.",
   ],
   [
     "Till-Boards Plan",
@@ -46,6 +47,9 @@ const SECTIONS: Array<[string, string]> = [
     "If you were charged twice, charged after cancelling, or charged the wrong amount, email us and we will refund the amount charged in error. We start the refund within 3 business days; your bank usually credits it within 5–7 business days.",
   ],
 ];
+
+/** OR-P6: billing is one-time passes only — nothing may imply a renewing subscription. */
+const SUBSCRIPTION_TERMS = [/subscribed/i, /cancel at any time/i, /charged again/i];
 
 /** Retired promises and products — none may appear anywhere a student reads. */
 const RETIRED = [
@@ -108,6 +112,27 @@ describe("OR-P4 — the refund page, as rendered", () => {
     expect(text).toContain("final and non-refundable");
   });
 
+  it("OR-P6 — says nothing that implies a renewing subscription", () => {
+    const text = flat(renderRefund().textContent);
+    for (const banned of SUBSCRIPTION_TERMS) {
+      expect(text, `subscription wording on the refund page: ${banned}`).not.toMatch(banned);
+    }
+    // CONTROL — the same patterns DO match the Monthly Plan text the page shipped before OR-P6.
+    const old =
+      "You can cancel at any time. You keep Premium until the end of the month you have paid for, and you will not be charged again. Locked for as long as you stay subscribed.";
+    for (const banned of SUBSCRIPTION_TERMS) expect(old).toMatch(banned);
+  });
+
+  it("OR-P6 — the Month Pass section, word for word", () => {
+    const card = renderRefund();
+    const h2 = Array.from(card.querySelectorAll("h2")).find((h) => flat(h.textContent) === "Month Pass");
+    expect(h2, "Month Pass heading").toBeDefined();
+    expect(flat(h2?.nextElementSibling?.textContent)).toBe(
+      "A month pass gives you Premium for one month from the day you pay. It does not renew automatically, and it is not refunded once paid.",
+    );
+    expect(Array.from(card.querySelectorAll("h2")).map((h) => flat(h.textContent))).not.toContain("Monthly Plan");
+  });
+
   it("CONTROL — the retired patterns DO match the sentences the old page shipped", () => {
     const old =
       "you may request a full refund within 7 days of your first payment. Refund requests after 7 days will be processed on a pro-rata basis " +
@@ -167,6 +192,9 @@ describe("OR-P4 — WHERE ELSE: no retired refund term on any student-facing sur
     }
     for (const retired of RETIRED) {
       expect(html, `retired refund copy in prerendered/legal/refund.html: ${retired}`).not.toMatch(retired);
+    }
+    for (const banned of SUBSCRIPTION_TERMS) {
+      expect(html, `subscription wording in prerendered/legal/refund.html: ${banned}`).not.toMatch(banned);
     }
   });
 });

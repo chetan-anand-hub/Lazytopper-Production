@@ -235,7 +235,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
           Free accounts open {SIGNED_IN_DAILY_MOCK_LIMIT} papers a day.
         </p>
         <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", marginBottom: 20, lineHeight: 1.5 }}>
-          Get full mock tests with Premium for {MONTHLY_INLINE}.
+          Get full mock tests with Premium at {MONTHLY_INLINE}.
         </p>
         <button
           type="button"

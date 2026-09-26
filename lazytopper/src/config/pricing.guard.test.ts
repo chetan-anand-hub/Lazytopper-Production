@@ -234,7 +234,7 @@ describe("pricing module — the derivation holds", () => {
     // open the only honest number there is the one actually charged today. This
     // pins the binding so that a tier rename cannot silently repoint the gates
     // at the list price without a test going red.
-    expect(MONTHLY_INLINE).toBe(`${formatInr(PRICE_MONTHLY_FOUNDING_INR)}/month`);
+    expect(MONTHLY_INLINE).toBe(`${formatInr(PRICE_MONTHLY_FOUNDING_INR)} for a month`);
     expect(MONTHLY_INLINE).not.toContain(String(PRICE_MONTHLY_LIST_INR));
   });
 
@@ -368,5 +368,115 @@ describe("PRICING-TB-1 — no retired board-year figure remains anywhere a stude
     for (const [name, value] of jsonld) {
       expect(allowed.has(String(value)), `${name} = ${String(value)}`).toBe(true);
     }
+  });
+});
+
+/**
+ * PRICING-TB-1 · OR-P6 (owner, 2026-09-26) — BILLING IS ONE-TIME PASSES ONLY.
+ *
+ * There is no auto-renew, and a "/month" slash reads as a recurring charge, so every
+ * student-facing period reads "for a month" ("₹599 for a month", ₹999 struck). This
+ * pins it three ways, because the slash never appears where a naive grep looks:
+ * the gates and the offer strip COMPOSE it from constants in this module.
+ *
+ *   1. SOURCE — every string literal, template literal and JSX text node in the
+ *      allowlisted surfaces (comments stripped FIRST, so a comment can neither trip
+ *      nor satisfy it).
+ *   2. VALUES — every string this module exports, evaluated, so a composed constant
+ *      is read as the sentence it becomes.
+ *   3. STATIC — the committed prerendered pricing and refund pages.
+ */
+const SLASH_MONTH = /\/\s*mo(?:nth)?\b/i;
+const OR_P6_SURFACES = [
+  "src/config/pricing.ts",
+  "src/pages/PricingPage.tsx",
+  "src/pages/LegalPage.tsx",
+  "src/components/auth/OfferStrip.tsx",
+  "src/components/auth/MockViewGate.tsx",
+  "src/components/auth/PracticeLimitGate.tsx",
+];
+
+// Same extractor as the OR-P3 "unlimited" pin (PracticeLimitGate.openAccess.test.tsx),
+// written as regex literals: this file is .ts, so `<`, `>` and backticks are unambiguous.
+const OR_P6_LINE_COMMENT = /(^|[^:"'`\\])\/\/[^\n]*/g;
+const OR_P6_STRING_LITERAL = /"((?:[^"\\\n]|\\.)*)"|'((?:[^'\\\n]|\\.)*)'|`((?:[^`\\]|\\.)*)`/g;
+const OR_P6_JSX_TEXT = new RegExp("[>}]([^<>{}]+)(?=[<{])", "g");
+
+/** Student-facing text: string literals, template literals and JSX text nodes. */
+function orP6StudentFacingStrings(source: string): string[] {
+  const code = source.replace(/\/\*[\s\S]*?\*\//g, " ").replace(OR_P6_LINE_COMMENT, "$1");
+  const out: string[] = [];
+  for (const m of code.matchAll(OR_P6_STRING_LITERAL)) out.push(m[1] ?? m[2] ?? m[3] ?? "");
+  for (const m of code.matchAll(OR_P6_JSX_TEXT)) out.push(m[1]);
+  return out;
+}
+
+describe("OR-P6 — no '/month' anywhere a student reads a price", () => {
+  it("SOURCE: no '/ month' or '/month' in a student-facing string on any allowlisted surface", () => {
+    const hits: string[] = [];
+    for (const rel of OR_P6_SURFACES) {
+      for (const text of orP6StudentFacingStrings(readFileSync(resolve(process.cwd(), rel), "utf8"))) {
+        if (SLASH_MONTH.test(text)) hits.push(`  ${rel}: ${JSON.stringify(text.trim())}`);
+      }
+    }
+    expect(hits, `"/month" still in student-facing copy:\n${hits.join("\n")}`).toEqual([]);
+  });
+
+  it("CONTROL — the scan sees a COMPOSED constant, JSX text and literals, and ignores comments", () => {
+    const sample = [
+      '/** Compact form: "₹599/month". */',
+      "// the retired ₹149/month claim",
+      "export const PERIOD_MONTHLY_LABEL = \"/ month\";",
+      "export const MONTHLY_INLINE = `${PRICE_MONTHLY_FOUNDING_DISPLAY}/month`;",
+      "<span className=\"per\">/mo</span>",
+    ].join("\n");
+    const found = orP6StudentFacingStrings(sample).filter((s) => SLASH_MONTH.test(s));
+    const trimmed = found.map((s) => s.trim());
+    // The JSX-text heuristic is a deliberate SUPERSET (it also catches the tail of the
+    // template literal), which only makes a ban scan stricter — so assert containment.
+    expect(trimmed).toEqual(
+      expect.arrayContaining(["/ month", "${PRICE_MONTHLY_FOUNDING_DISPLAY}/month", "/mo"]),
+    );
+    // The two comments were stripped before scanning: neither contributes a hit.
+    expect(trimmed.filter((s) => /Compact form|149/.test(s))).toEqual([]);
+    // ...and the new wording does NOT trip it.
+    expect(SLASH_MONTH.test("₹599 for a month")).toBe(false);
+  });
+
+  it("VALUES: every string this module exports reads 'for a month', never '/month'", () => {
+    const strings = Object.entries(pricing).filter(([, v]) => typeof v === "string") as Array<[string, string]>;
+    const hits = strings.filter(([, v]) => SLASH_MONTH.test(v)).map(([n, v]) => `${n} = ${JSON.stringify(v)}`);
+    expect(hits).toEqual([]);
+    // CONTROL — the namespace read is live and reaches the composed constants.
+    expect(pricing.PERIOD_MONTHLY_LABEL).toBe("for a month");
+    expect(MONTHLY_INLINE).toBe(`${formatInr(PRICE_MONTHLY_FOUNDING_INR)} for a month`);
+    expect(strings.map(([n]) => n)).toEqual(expect.arrayContaining(["PERIOD_MONTHLY_LABEL", "MONTHLY_INLINE"]));
+  });
+
+  it("the two gates read '… with Premium at ₹599 for a month.' — never 'for ₹599 for a month'", () => {
+    // MONTHLY_INLINE now ends "for a month", so "Premium for {MONTHLY_INLINE}" would
+    // render "Premium for ₹599 for a month." The one-word grammar fix is "at".
+    for (const rel of ["src/components/auth/MockViewGate.tsx", "src/components/auth/PracticeLimitGate.tsx"]) {
+      const src = readFileSync(resolve(process.cwd(), rel), "utf8");
+      expect(src, rel).toContain("with Premium at {MONTHLY_INLINE}.");
+      expect(src, rel).not.toContain("Premium for {MONTHLY_INLINE}");
+    }
+  });
+
+  it("the lock note is the owner's wording, and no longer says 'subscribed'", () => {
+    expect(pricing.FOUNDING_LOCK_COPY).toBe("Your founding price stays locked for every pass you buy.");
+    expect(pricing.FOUNDING_LOCK_COPY).not.toMatch(/subscri/i);
+  });
+
+  it("STATIC: the committed prerendered pricing and refund pages carry no '/month'", () => {
+    for (const rel of ["prerendered/pricing.html", "prerendered/legal/refund.html"]) {
+      const html = readFileSync(resolve(process.cwd(), rel), "utf8");
+      const m = SLASH_MONTH.exec(html);
+      expect(m, `${rel}: "${m ? html.slice(Math.max(0, m.index - 40), m.index + 40) : ""}"`).toBeNull();
+    }
+    // CONTROL — the pricing page was captured with the new period, so the file read is real.
+    expect(readFileSync(resolve(process.cwd(), "prerendered/pricing.html"), "utf8")).toContain(
+      '<span class="lt-pricing-period">for a month</span>',
+    );
   });
 });

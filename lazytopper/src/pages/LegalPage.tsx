@@ -323,6 +323,8 @@ const PAGES: Record<LegalSlug, PageDef> = {
   },
   refund: {
     // PRICING-TB-1 · OR-P4 (owner, 2026-09-26): a no-refund policy, word for word.
+    // OR-P6 (owner, 2026-09-26): "Monthly Plan" became "Month Pass" — one-time, no
+    // auto-renew — with the owner's text word for word.
     // "How to Contact Us" is the page's shared contact block below — its email
     // text is unchanged.
     title: "Cancellation & Refund Policy",
@@ -333,8 +335,8 @@ const PAGES: Record<LegalSlug, PageDef> = {
         <p>All payments to LazyTopper are final and non-refundable, except for the billing errors listed below. Please use the free trial to decide before you pay.</p>
         <h2>Free Trial</h2>
         <p>LazyTopper offers a 7-day free trial of Premium features. No payment is required during the trial.</p>
-        <h2>Monthly Plan</h2>
-        <p>You can cancel at any time. You keep Premium until the end of the month you have paid for, and you will not be charged again. A month that has been paid for is not refunded.</p>
+        <h2>Month Pass</h2>
+        <p>A month pass gives you Premium for one month from the day you pay. It does not renew automatically, and it is not refunded once paid.</p>
         <h2>Till-Boards Plan</h2>
         <p>A one-time payment covering Premium until your first board exam. It is not refunded once paid.</p>
         <h2>Billing Errors</h2>

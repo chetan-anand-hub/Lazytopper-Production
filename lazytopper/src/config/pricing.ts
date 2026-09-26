@@ -143,10 +143,13 @@ export const PRICE_MONTHLY_FOUNDING_DISPLAY = formatInr(PRICE_MONTHLY_FOUNDING_I
 // ---------------------------------------------------------------------------
 
 export const PERIOD_FREE_LABEL = "/ forever";
-export const PERIOD_MONTHLY_LABEL = "/ month";
+// PRICING-TB-1 · OR-P6 (owner, 2026-09-26): billing is ONE-TIME PASSES ONLY, with no
+// auto-renew. A "/month" slash reads as a recurring charge, so the period is worded
+// "for a month". Every consumer composes "<price> for a month".
+export const PERIOD_MONTHLY_LABEL = "for a month";
 
 /**
- * Compact inline form for upgrade prompts: "₹599/month".
+ * Compact inline form for upgrade prompts: "₹599 for a month" (OR-P6: never "/month").
  *
  * Bound to the FOUNDING rate on purpose. This string is rendered at the moment
  * of upgrade intent (the practice-limit gate and the mock-view gate), where the
@@ -158,7 +161,7 @@ export const PERIOD_MONTHLY_LABEL = "/ month";
  * longer available. Those two files import nothing else from this module, so
  * this one line is the entire switch. See [FU-PRICING-FOUNDING-COHORT].
  */
-export const MONTHLY_INLINE = `${PRICE_MONTHLY_FOUNDING_DISPLAY}/month`;
+export const MONTHLY_INLINE = `${PRICE_MONTHLY_FOUNDING_DISPLAY} for a month`;
 
 /**
  * Till-boards copy that carries NO rupee figure. These are the only till-boards
@@ -183,7 +186,7 @@ export const TUITION_ANCHOR = "less than one tuition session";
  * surface's copy while another keeps promising them.
  */
 export const FOUNDING_LABEL = "Founding member";
-export const FOUNDING_LOCK_COPY = "Locked for as long as you stay subscribed.";
+export const FOUNDING_LOCK_COPY = "Your founding price stays locked for every pass you buy.";
 export const FOUNDING_COHORT_COPY = `First ${FOUNDING_COHORT_SIZE} students.`;
 
 // NOTE: there is deliberately no `FOUNDING_REGULAR_PRICE_COPY` constant. A first
