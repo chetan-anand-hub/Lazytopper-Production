@@ -1,5 +1,30 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-26 — CHECK & IMPROVE: **FREE-CHECK-1 — ONE FREE MARKED UPLOAD FOR A SIGNED-OUT VISITOR (DARK)** — `#821` + `#822` MERGED — trunk `f30f9898`
+
+- ✅ **1a — server** (`#821` `39bae5f1`):
+  - free-check admission (P2-exact anonymous + marker + App Check with `consume: true`);
+  - the durable `freeCheckDaily` ceiling (100/day IST);
+  - the R5 60% refusal on the all-class total;
+  - the R6 per-IP bypass;
+  - the R7 CORS header.
+
+  Dark behind `FREE_CHECK_ENABLED`.
+- ✅ **1b — page** (`#822` `f30f9898`):
+  - one free upload for signed-out visitors, with lazy App Check and a fresh limited-use token per call;
+  - the R1 device mark;
+  - the save that waits for sign-in, replaying only with the same-tab sign-in marker (2h expiry);
+  - the one-tap trial offer;
+  - events carrying the name only;
+  - the landing CTA going to `/check-improve`.
+
+  Dark behind `VITE_FREE_CHECK_ENABLED`.
+- ✅ **Unflagged and live:** the reCAPTCHA Enterprise sentence in the privacy policy (R12), and the Login copy "We'll create your account." (OR-9).
+- ✅ **Docs:** this handoff.
+- ⬜ **Owner §5 live-verify** (plus U5, U7) → **flip both flags**. Only this makes `[FU-LANDING-CTA-HONESTY]` closable.
+- ⬜ The owner sequence continues: the sitemap resubmit → `FAIR-USE-1` → `STORED-RATE-1` → Razorpay → `TOPUP-1` → `PARENT-CONSENT-1`; ∥ CBSE-PAGE Lane B → CBSE-BANNER-1.
+- ⬜ `[FU-FREECHECK-SHARED-TAB]` · `[FU-FREECHECK-OFFLINE-SAVING]` · `[FU-SIGNIN-REDIRECT-EXITS]`.
+
 ## 2026-09-21 — LANDING: **LANDING-MARK-FADE-1 — THE FINGERPRINT IS BRIGHT WHERE THE PAGE IS EMPTY** — `#817` MERGED — trunk `bc11e800`
 
 - ✅ **The fade rule is occlusion, not scroll position.** Bright beside the hero, the payoff and the countdown; faint only while a full-width card row passes behind the mark.

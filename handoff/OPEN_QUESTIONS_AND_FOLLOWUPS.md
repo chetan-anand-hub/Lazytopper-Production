@@ -23,6 +23,68 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-26 — FREE-CHECK-1 (`#821` MERGED as `39bae5f1`, `#822` MERGED as `f30f9898`, squash, `--match-head-commit`, no `--admin`; open PRs at the time of writing: **`#810`, `#818`, `#819`** — dependabot only) — three new follow-ups, the owner's payload, one closure, one still open
+
+### `[FU-FREECHECK-SHARED-TAB]` — ★ OPEN, **owner-ACCEPTED residual**. **A SECOND PERSON IN THE SAME TAB WITHIN 2 HOURS CAN CLAIM A WAITING FREE RESULT**
+- OR-18 ties the save to a same-session sign-in marker (`ltFreeCheck.signinIntent.v1`, matched on `gradedAt`, 2h expiry). The marker belongs to the **tab, not the person**.
+- The window survives in two cases:
+  - (a) in the same browser, person B clicks "Sign up free" on the "used" panel, which writes the marker for person A's waiting result;
+  - (b) person B signs in on the tab that person A had already sent to `/login`.
+- **Closing it needs a new owner ruling** (for example, a per-producing-tab marker). Accepted by the owner at `AUDIT PASS 822 @ 7dac0009`.
+
+### `[FU-FREECHECK-OFFLINE-SAVING]` — ★ OPEN. **A REPLAY WITH MISTAKES WAITS ON THE FIRESTORE ACKNOWLEDGEMENT; OFFLINE IT STAYS ON "Saving your answer…"**
+- Seen by the 1b builder on an offline dev box. The replay of a result that contains mistakes awaits the Firestore write acknowledgement, and with no connection the page never leaves "Saving your answer…".
+- Not changed in `#822`. **This needs the owner's live-verify** on a flaky phone connection, then a ruling: add a timeout with honest copy, or accept it.
+
+### `[FU-SIGNIN-REDIRECT-EXITS]` — OPEN. **TWO EXITS FROM THE AUTH DOOR DROP `?redirect=`**
+- The OfferStrip → Pricing → bare `/login` exit (`OfferStrip.tsx`, `PricingPage.tsx`).
+- The legacy navbar exit in `App.tsx`, which is a globally FORBIDDEN file.
+
+A student who takes either one loses the return to `/check-improve`. Their waiting result still replays the next time they open `/check-improve` in the same tab, within 2 hours. Logged by OR-8 and **not** fixed in 1b.
+
+### CLOSURE — `[FU-WELCOME-X633-COMMENT]` — **CLOSED by `#822`** (the owner payload below records it). The `Welcome.tsx` comment now reads x=656.
+
+### STILL OPEN — `[FU-LANDING-CTA-HONESTY]`
+The free check that makes "Check my answer — free" true is **built but dark**. This closes only when the owner flips `FREE_CHECK_ENABLED` + `VITE_FREE_CHECK_ENABLED` after live-verify.
+
+### Owner payload (FREE-CHECK-1 docs payload v1.1, pasted verbatim)
+
+### [CBSE-PAGE-LANE-B] — scoped, never started (now unblocked)
+Make `/app/cbse/class-10` self-updating. Lane A (#804) shipped the page; every download link still points at CBSE's
+servers and the circular feed is a committed list nobody updates. Link rot is proven: four *VIC* variants on CBSE's own
+2025-26 sample-paper index return 404 (624-byte HTML bodies).
+- Mirror the 27 official PDFs/ZIPs (112,608,885 bytes; largest CFPQ Maths 39,567,003) to Firebase Storage, served with
+  `Content-Disposition: attachment` so the page can say "Download", not "Open".
+- Daily freshness check with conditional GETs (both CBSE hosts support ETag and Last-Modified).
+- Auto-replace per the 2026-09-25 ruling above (checks + archive + issue). A truncated file or HTML error page saved as
+  .pdf is never served (largest error body measured 1,245 B; smallest real file 205,089 B).
+- Detect newly published files a hash check cannot see: `SQP_CLASSX_2026-27.html` 404s today while its 2025-26 twin
+  returns 200 — that probe is its own control.
+- Watch both circular indexes daily: `cbse.gov.in/cbsenew/examination_Circular.html` and `cbseacademic.nic.in/circulars.html`.
+- `[FU-CAPTURE-STRIP-CLOCK-DERIVED]` rides here, alongside `stripAuthChrome`.
+- Credential: GitHub secret `FIREBASE_SERVICE_ACCOUNT` = service account `cbse-mirror@lazzyy-topper`, **Storage Object
+  Admin on bucket `lazzyy-topper.firebasestorage.app` only** (no project-level role). Created by the owner; no agent
+  ever handles the key.
+
+### [CBSE-BANNER-1] — after Lane B
+Dismissible strip at the top of Home showing the newest circular marked important, linking to `/app/cbse/class-10`.
+Dismissal keyed per announcement; renders nothing when none is important. Feed rows already carry `important` and
+`headline` (all false today, provisioned by CBSE-PAGE-1). The watcher sets them from a FIXED rule table — date sheet /
+sample papers / two-exam rules / syllabus → pre-written headlines. Never a generated headline.
+
+### [FU-WELCOME-X633-COMMENT] — closed by FREE-CHECK-1b
+`Welcome.tsx` comment cited x=633; the measurement record (#817) is x=656.
+
+### Compliance rulings (cofounder, owner-delegated 2026-09-25 — no lawyer at this stage)
+- **Parental consent (DPDP Rule 10).** Rule 10 commences **14 May 2027** (the 18-month phase, per gazette G.S.R. 846(E)
+  of 13 Nov 2025). MeitY floated shortening it to **13 Nov 2026**; that proposal is **not notified**. Ruling: not a
+  blocker for FREE-CHECK-1 or launch today. Build **PARENT-CONSENT-1** after Razorpay, before May 2027; if the 12-month
+  proposal is gazetted, it jumps the queue. Until then, collect no more child data than the product needs.
+- **No tracking of minors** (DPDP §9(3)) stands as a product rule, not a legal-review item.
+- **Privacy policy:** the reCAPTCHA disclosure line ships in FREE-CHECK-1b (`LegalPage.tsx`, Third-Party Services).
+- **Gemini spend cap:** confirmed at ₹20,000 by the owner (2026-09-25); keep it there while the free check runs
+  (worst case ~₹750/day at 100 whole-paper uploads).
+
 ## 2026-09-24 — LANDING-MARK-FADE-1 (`#817` MERGED as `bc11e800`, squash, no `--admin`; open PRs at the time of writing: **`#810`, `#818`, `#819`** — dependabot only) — one new follow-up, one method note, no closures
 
 ### `[FU-LANDING-FONT-SWAP-CLS]` — ★ OPEN. **THE HERO TEXT SHIFTS ON PHONES AS THE WEB FONTS LOAD**

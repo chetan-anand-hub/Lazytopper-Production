@@ -1,5 +1,55 @@
 # LazyTopper — Current State
 
+## [CURRENT · CHECK & IMPROVE] FREE-CHECK-1 — **ONE FREE MARKED UPLOAD FOR A SIGNED-OUT VISITOR, BUILT AND DARK** — `#821` + `#822` MERGED — trunk `f30f9898`
+
+★ **PROVENANCE.**
+- Controller/builder model; every builder ran `claude-opus-5-5` (effort per OR-11). Spec `ops/.specs/FREE-CHECK-1.md` v1.1 (sha256 `29b72bc3…77f8e`); its §0c.0 premise gate passed (26/26 anchors, exit 0).
+- §0c.1 was re-checked by read-only scouts: 25/26 rows OK, and **P23 MISMATCH** (the 3-check mistake-pattern component is dead code; the live pattern shows after 1 check). Five shape changes were owner-ruled before any build (OR-3…OR-9).
+- **Two AUDIT HOLDs, both fixed, both then PASSED** by the cofounder auditor (OR-12):
+  - `#821` @ `7c0d7d78`: App Check tokens were replayable → OR-13;
+  - `#822` @ `4317af91`: a waiting free result could be saved into another person's account on a shared device → OR-18.
+- Each merge used `gh pr merge --squash --match-head-commit <audited head>`, and each was proven on trunk by ancestry plus content identity with the audited head.
+
+**Trunk `f30f9898bed86fc9d0a592e928fb8c8bdf3a4314`** (`#822`); `#821` = `39bae5f147db7f52ec451a11294366377778d866`.
+
+### ★ NOTHING IS LIVE FOR STUDENTS YET — BOTH FLAGS ARE OFF
+With `FREE_CHECK_ENABLED` (server) and `VITE_FREE_CHECK_ENABLED` (client) off:
+- the landing CTA still goes to sign-up;
+- Check & Improve still redirects a signed-out visitor to `/login` and locks a signed-in free student;
+- paid grading is unchanged.
+
+**Two things ARE live now, unflagged:**
+- the R12 reCAPTCHA Enterprise sentence in the privacy policy (with the prerendered `/legal/privacy` page regenerated);
+- the `Login.tsx` copy fix (OR-9): "We'll create your account." Previously it falsely promised a trial.
+
+**The owner flips the flags only after the spec §5 live-verify, plus U5 (the production limiter env and replica count) and U7 (Google sign-in inside in-app webviews).**
+
+### What shipped — 1a (server)
+#821 merged 39bae5f1: the server can admit ONE free, signed-out Check & Improve upload per request class, dark behind FREE_CHECK_ENABLED. An admitted request is P2-exact anonymous + marker `X-Lazytopper-Free-Check: 1` + App Check verified with `consume: true` (a replayed token is refused), on check-solution / grade-worksheet / detect-question. Durable daily ceiling in `freeCheckDaily/{istDayKey}` (served, refused_quota, refused_budget; LT_FREECHECK_DAILY default 100, transactional). R5 refuses at floor(global.hard×0.6) of the all-class global:<day> total, which free checks count toward. Admitted free checks skip the anon per-IP bucket (R6); CORS allows X-Firebase-AppCheck (R7). Refusals are 403 free_check_refused, with `reason` ceiling_reached|budget|app_check_missing|app_check_invalid|unavailable. App Check refusals are telemetry-only. NON_STUDENT_COLLECTIONS=["freeCheckDaily"] in studentDataMap.ts. entitlement.cjs and package.json are untouched. One AUDIT HOLD (replayable tokens + refusal contention on the day doc) was fixed by FIX-1 (OR-13). With the flag off, nothing a student sees changes.
+
+### What shipped — 1b (page)
+#822 merged f30f9898 (three rounds: build; FIX-1 OR-14; FIX-2 OR-18 after AUDIT HOLDs on 4317af91). Dark behind VITE_FREE_CHECK_ENABLED, it opens Check & Improve to one free marked upload for signed-out visitors:
+- App Check (reCAPTCHA Enterprise) is loaded lazily on /check-improve only, and a fresh getLimitedUseToken() is sent per call;
+- the R1 device mark is set only on success;
+- the result waits on the device (photos stripped, 2h expiry) and replays through recordMistake + recordAttempt only after a same-session sign-in via /login?redirect=%2Fcheck-improve that carries the ltFreeCheck.signinIntent.v1 marker (OR-18);
+- R9 one-tap trial offer (OR-7 copy); `unavailable` has its own copy (OR-14); R10 events are name-only;
+- the landing CTA goes to /check-improve when the flag is on.
+Unflagged: the R12 reCAPTCHA privacy sentence (prerendered page regenerated), and the OR-9 Login copy "We'll create your account."
+
+### ★ Read this before touching the free check
+- **The auth door is `/login?redirect=%2Fcheck-improve`, never `/sign-up`** (OR-8). `/sign-up` strands returning email/password students.
+- **A waiting result replays only with the same-tab sign-in marker `ltFreeCheck.signinIntent.v1`,** matched on `gradedAt`, and expires after 2 hours. The residual same-tab gap is owner-accepted: `[FU-FREECHECK-SHARED-TAB]`.
+- **Tests live only in already-wired suites.** Any new `*.test.cjs` under `lazytopper/server/` trips check a15 (`ci_docs_lane_acceptance.mjs`) unless it is wired in `lazytopper/package.json`.
+- The `WIRE-2` dormancy block is unchanged by this lane; see its section (`### 8 - ★ THE WIRE-2 QUESTION`) below.
+
+### ★ OWNER SEQUENCE — REPLACED 2026-09-25 (see `NEXT_ACTION.md`)
+1. `FREE-CHECK-1`: 1a + 1b merged, and this is the docs PR. **The owner flips both flags after live-verify.**
+2. Resubmit the sitemap and URLs to Search Console and Bing (owner), after the free check is live.
+3. `FAIR-USE-1` · 4. `STORED-RATE-1` · 5. Razorpay go-live · 6. `TOPUP-1` · 7. `PARENT-CONSENT-1`
+∥ CBSE-PAGE Lane B (unblocked) · ∥ CBSE-BANNER-1 after Lane B.
+
+*(The "OWNER SEQUENCE (2026-09-21)" in the `#817` block below is superseded by this one.)*
+
 ## [CURRENT · LANDING] LANDING-MARK-FADE-1 — **THE FINGERPRINT IS BRIGHT WHEREVER THE RIGHT HALF IS EMPTY, FAINT ONLY BEHIND THE CARD ROWS** — `#817` MERGED — trunk `bc11e800`
 
 ★ **PROVENANCE.**
