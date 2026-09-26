@@ -139,6 +139,28 @@ describe("C4 — each guard FIRES on the candidate built to fail it", () => {
     }
   });
 
+  it("★ CA-1: a NEW-SESSION candidate at 5.9x is accepted; a SAME-SESSION one at 5.9x is rejected", () => {
+    // The measured case: 2026-27 MathsStandard-SQP.pdf 3,014,269 B vs 511,677 B live.
+    const live: LiveCopy = { bytes: 511_677, sessionYear: "2025-26", lastModified: LIVE.lastModified };
+    const big = plainPdf(3_014_269);
+    const fresh = evaluateCandidate(SCIENCE_SQP, { url: URL_2627, body: big, lastModified: LATER }, live, {
+      requireLaterSession: true,
+    });
+    assert.deepEqual(fresh, { pass: true, failed: [] });
+    const same = evaluateCandidate(SCIENCE_SQP, { url: URL_2526, body: big, lastModified: LATER }, live);
+    assert.deepEqual(same.failed, ["size-ratio"]);
+  });
+
+  it("CA-1 keeps the 0.33x FLOOR for a new-session candidate", () => {
+    const shrunk = evaluateCandidate(
+      SCIENCE_SQP,
+      { url: URL_2627, body: plainPdf(65_000), lastModified: LATER },
+      LIVE,
+      { requireLaterSession: true },
+    );
+    assert.deepEqual(shrunk.failed, ["size-ratio"]);
+  });
+
   it("session-year: an earlier session fails; the same session passes (>=); C7 demands strictly later", () => {
     const older = "https://cbseacademic.nic.in/web_material/SQP/ClassX_2024_25/Science-SQP.pdf";
     assert.ok(evaluateCandidate(SCIENCE_SQP, { url: older, body: plainPdf(), lastModified: LATER }, LIVE).failed.includes("session-year"));

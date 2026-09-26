@@ -5,6 +5,7 @@ import { useReturnTicket } from "../components/navigation/ReturnTicket";
 import {
   cbseCircularFeed,
   cbsePaperLink,
+  cbseSamplePapersOut,
   useCbseManifest,
 } from "../services/cbseManifest";
 
@@ -343,6 +344,11 @@ export default function Cbse2027Page() {
   const anyDownload = CBSE_SUBJECTS.some((subject) =>
     subject.papers.some((paper) => cbsePaperLink(paper, manifest).label === "Download"),
   );
+  // CA-3 — the sample-paper pill follows the mirror; no manifest ⇒ today's "awaited" pill.
+  const samplePapersOut = cbseSamplePapersOut(
+    manifest,
+    CBSE_SUBJECTS.flatMap((subject) => subject.papers),
+  );
 
   // The return ticket, if the entry point supplied a safe one. When it did not —
   // a crawler, a shared link, a footer click from a page that passed nothing — fall
@@ -397,10 +403,17 @@ export default function Cbse2027Page() {
             <i aria-hidden="true" />
             Syllabus <b>released</b>
           </a>
-          <a className="lt-cbse__pill lt-cbse__pill--wait" href="#papers">
-            <i aria-hidden="true" />
-            Sample papers <b>awaited</b>
-          </a>
+          {samplePapersOut ? (
+            <a className="lt-cbse__pill lt-cbse__pill--ok" href="#papers">
+              <i aria-hidden="true" />
+              Sample papers <b>out</b>
+            </a>
+          ) : (
+            <a className="lt-cbse__pill lt-cbse__pill--wait" href="#papers">
+              <i aria-hidden="true" />
+              Sample papers <b>awaited</b>
+            </a>
+          )}
           <a className="lt-cbse__pill lt-cbse__pill--ok" href="#exams">
             <i aria-hidden="true" />
             Two exams <b>confirmed</b>

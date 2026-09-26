@@ -647,4 +647,50 @@ describe("★ C11 — the mirror's manifest overlays the page, and its failure c
     // and still no frequency claim
     expect(body).not.toMatch(/updated daily|every day/i);
   });
+
+  it("★ CA-2 — a source-missing paper with a mirrored copy downloads from Storage", async () => {
+    const missing = {
+      ...manifest,
+      papers: [
+        { ...manifest.papers[0], id: "science-question-bank", storagePath: "cbse/files/science-question-bank.pdf", status: "source-missing" },
+      ],
+    };
+    const { container } = await renderWithFetch(async () => new Response(JSON.stringify(missing), { status: 200 }));
+    const url = `https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o/cbse%2Ffiles%2Fscience-question-bank.pdf?alt=media`;
+    expect(links(container)).toContain(`${url} | Download`);
+  });
+
+  function samplePill(container: HTMLElement): Element | null {
+    return (
+      Array.from(container.querySelectorAll(".lt-cbse__pill")).find((pill) =>
+        (pill.textContent ?? "").startsWith("Sample papers"),
+      ) ?? null
+    );
+  }
+
+  it("★ CA-3 — no manifest ⇒ the pill reads today's text, unchanged", () => {
+    const { container } = renderPage();
+    const pill = samplePill(container);
+    expect(pill?.textContent).toBe("Sample papers awaited");
+    expect(pill?.className).toBe("lt-cbse__pill lt-cbse__pill--wait");
+  });
+
+  it("★ CA-3 — a mirrored 2026-27 SQP ⇒ the pill reads 'Sample papers out' in the ok style", async () => {
+    const out = {
+      ...manifest,
+      papers: [{ ...manifest.papers[0], sourceUrl: "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/Science-SQP.pdf", sessionYear: "2026-27", status: "ok" }],
+    };
+    const { container } = await renderWithFetch(async () => new Response(JSON.stringify(out), { status: 200 }));
+    const pill = samplePill(container);
+    expect(pill?.textContent).toBe("Sample papers out");
+    expect(pill?.className).toBe("lt-cbse__pill lt-cbse__pill--ok");
+  });
+
+  it("CA-3 — a mirrored SQP that is still 2025-26 ⇒ the pill stays 'awaited'", async () => {
+    const old = { ...manifest, papers: [{ ...manifest.papers[0], sessionYear: "2025-26", status: "ok" }] };
+    const { container } = await renderWithFetch(async () => new Response(JSON.stringify(old), { status: 200 }));
+    // PRECONDITION: the manifest DID load — the SQP row downloads.
+    expect(links(container).some((l) => l.endsWith("| Download"))).toBe(true);
+    expect(samplePill(container)?.textContent).toBe("Sample papers awaited");
+  });
 });

@@ -200,7 +200,12 @@ export function evaluateCandidate(
 
   if (live && live.bytes > 0) {
     const ratio = size / live.bytes;
-    if (ratio < RATIO_MIN || ratio > RATIO_MAX) failed.push("size-ratio");
+    // CA-1 (owner ruling, AUDIT HOLD on #824): a C7 NEW-SESSION candidate skips the 3x
+    // UPPER bound only — a new session's paper is a different document, and the real
+    // 2026-27 Maths Standard SQP is 5.9x its 2025-26 predecessor. The 0.33x lower bound
+    // still applies to it, and a same-session update keeps the 3x ceiling.
+    const skipCeiling = options.requireLaterSession === true;
+    if (ratio < RATIO_MIN || (!skipCeiling && ratio > RATIO_MAX)) failed.push("size-ratio");
   }
 
   if (subjectOfUrl(candidate.url) !== paper.subject) failed.push("subject-token");

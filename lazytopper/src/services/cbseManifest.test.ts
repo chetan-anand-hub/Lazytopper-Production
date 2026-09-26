@@ -4,6 +4,7 @@ import {
   CBSE_MANIFEST_PATH,
   cbseCircularFeed,
   cbsePaperLink,
+  cbseSamplePapersOut,
   cbseStorageUrl,
   fetchCbseManifest,
   formatCheckedOn,
@@ -152,12 +153,34 @@ describe("cbsePaperLink — C11", () => {
     });
   });
 
-  it("★ stale, source-missing, and no entry → the committed href and 'Open'", () => {
+  it("★ stale and no entry → the committed href and 'Open'", () => {
     const m = manifestFixture();
-    for (const id of ["science-ms", "science-question-bank", "science-toppers"]) {
+    for (const id of ["science-ms", "science-toppers"]) {
       const paper = CBSE_SUBJECTS[0].papers.find((p) => p.id === id)!;
       expect(cbsePaperLink(paper, m, BUCKET), id).toEqual({ href: paper.href, label: "Open", title: paper.title });
     }
+  });
+
+  it("★ CA-2: source-missing WITH a mirrored copy → the Storage URL and 'Download'", () => {
+    const paper = CBSE_SUBJECTS[0].papers.find((p) => p.id === "science-question-bank")!;
+    // PRECONDITION: the fixture really marks this paper source-missing with a storagePath.
+    const entry = manifestFixture().papers.find((p) => p.id === paper.id)!;
+    expect([entry.status, entry.storagePath]).toEqual(["source-missing", "cbse/files/science-question-bank.pdf"]);
+    expect(cbsePaperLink(paper, manifestFixture(), BUCKET)).toEqual({
+      href: `https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o/cbse%2Ffiles%2Fscience-question-bank.pdf?alt=media`,
+      label: "Download",
+      title: paper.title,
+    });
+  });
+
+  it("CA-2: source-missing with NO mirrored copy → the committed row", () => {
+    const paper = CBSE_SUBJECTS[0].papers.find((p) => p.id === "science-question-bank")!;
+    const m = manifestFixture();
+    const noCopy = {
+      ...m,
+      papers: m.papers.map((p) => (p.id === paper.id ? { ...p, storagePath: null } : p)),
+    };
+    expect(cbsePaperLink(paper, noCopy, BUCKET)).toEqual({ href: paper.href, label: "Open", title: paper.title });
   });
 
   it("★ no manifest, or no bucket → the committed row exactly", () => {
@@ -201,6 +224,39 @@ describe("the circular feed and its dates", () => {
     expect(formatCircularDate("2025-08", 2026)).toBe("Aug 2025");
     expect(formatCheckedOn("2026-09-26T00:31:00.000Z")).toBe("26 September 2026");
     expect(formatCheckedOn("nonsense")).toBeNull();
+  });
+});
+
+describe("cbseSamplePapersOut — CA-3's input", () => {
+  const PAPERS = CBSE_SUBJECTS.flatMap((s) => s.papers);
+  const sqp = (sessionYear: string | null, status: "ok" | "source-missing" | "stale", storagePath: string | null = "cbse/files/maths-standard-sqp.pdf") =>
+    manifestFixture({
+      papers: [
+        { id: "maths-standard-sqp", sourceUrl: "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/MathsStandard-SQP.pdf", storagePath, sessionYear, status },
+      ],
+    });
+
+  it("READY: a mirrored SQP from 2026-27 (ok or source-missing), and later sessions", () => {
+    expect(cbseSamplePapersOut(sqp("2026-27", "ok"), PAPERS)).toBe(true);
+    expect(cbseSamplePapersOut(sqp("2026-27", "source-missing"), PAPERS)).toBe(true);
+    expect(cbseSamplePapersOut(sqp("2027-28", "ok"), PAPERS)).toBe(true);
+  });
+
+  it("NOT READY: no manifest, a 2025-26 SQP, a stale one, no copy, or a non-SQP paper", () => {
+    expect(cbseSamplePapersOut(null, PAPERS)).toBe(false);
+    expect(cbseSamplePapersOut(sqp("2025-26", "ok"), PAPERS)).toBe(false);
+    expect(cbseSamplePapersOut(sqp("2026-27", "stale"), PAPERS)).toBe(false);
+    expect(cbseSamplePapersOut(sqp("2026-27", "ok", null), PAPERS)).toBe(false);
+    // a 2026-27 SYLLABUS is not a sample paper
+    const syllabus = manifestFixture({
+      papers: [{ id: "science-syllabus", sourceUrl: "https://cbseacademic.nic.in/x/Science_SecP1_2026-27.pdf", storagePath: "cbse/files/science-syllabus.pdf", sessionYear: "2026-27", status: "ok" }],
+    });
+    expect(cbseSamplePapersOut(syllabus, PAPERS)).toBe(false);
+    // the marking scheme is not a sample paper either
+    const ms = manifestFixture({
+      papers: [{ id: "science-ms", sourceUrl: "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/Science-MS.pdf", storagePath: "cbse/files/science-ms.pdf", sessionYear: "2026-27", status: "ok" }],
+    });
+    expect(cbseSamplePapersOut(ms, PAPERS)).toBe(false);
   });
 });
 

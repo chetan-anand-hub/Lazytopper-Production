@@ -210,13 +210,20 @@ export type CbsePaperLink = {
 /**
  * C11 — a paper whose manifest status is `ok` links its Storage copy and reads
  * "Download", because the mirror serves it with `Content-Disposition: attachment`
- * (P5: the label changes because the behaviour does). Anything else — no manifest,
- * no bucket, no entry, any other status — is exactly the committed row.
+ * (P5: the label changes because the behaviour does).
+ *
+ * CA-2 (owner ruling, AUDIT HOLD on #824 — resolves C6 vs C11 in C6's favour): a
+ * `source-missing` paper is treated like `ok` WHEN A MIRRORED COPY EXISTS. CBSE has
+ * pulled the file, so its href is dead; the mirror keeps serving the last good copy.
+ * `stale` and anything else — and no manifest, no bucket, no entry, no storagePath —
+ * is exactly the committed row.
  *
  * P16: the only session year a paper row shows is in its title (the two
  * "Syllabus 2026-27" rows). When the mirrored copy is from a named session, that
  * year is shown instead of the committed one.
  */
+const SERVED_FROM_MIRROR: readonly CbseManifestPaperStatus[] = ["ok", "source-missing"];
+
 export function cbsePaperLink(
   paper: CbsePaper,
   manifest: CbseManifest | null,
@@ -225,12 +232,38 @@ export function cbsePaperLink(
   const committed: CbsePaperLink = { href: paper.href, label: "Open", title: paper.title };
   if (!manifest || !bucket) return committed;
   const entry = manifest.papers.find((p) => p.id === paper.id);
-  if (!entry || entry.status !== "ok" || !entry.storagePath) return committed;
+  if (!entry || !SERVED_FROM_MIRROR.includes(entry.status) || !entry.storagePath) return committed;
   const title =
     entry.sessionYear && /^\d{4}-\d{2}$/.test(entry.sessionYear)
       ? paper.title.replace(/\b\d{4}-\d{2}\b/, entry.sessionYear)
       : paper.title;
   return { href: cbseStorageUrl(bucket, entry.storagePath), label: "Download", title };
+}
+
+/** The first session whose sample papers make the "Sample papers" pill read "out". */
+export const CBSE_SQP_READY_FROM_SESSION = 2026;
+
+/**
+ * CA-3 (owner ruling, AUDIT HOLD on #824) — the hero's "Sample papers" pill reads the
+ * manifest. It is READY only when a mirrored sample-paper row (a committed paper whose
+ * href is a `-SQP.pdf` under CBSE's `/SQP/` folder) has status `ok` or `source-missing`,
+ * a storagePath, and a sessionYear of 2026-27 or later. Everything else — including no
+ * manifest at all — keeps today's "awaited" pill exactly.
+ */
+export function cbseSamplePapersOut(
+  manifest: CbseManifest | null,
+  papers: readonly CbsePaper[],
+): boolean {
+  if (!manifest) return false;
+  const sqpIds = new Set(
+    papers.filter((p) => /\/SQP\/.*-SQP\.pdf$/i.test(p.href)).map((p) => p.id),
+  );
+  return manifest.papers.some((entry) => {
+    if (!sqpIds.has(entry.id)) return false;
+    if (!SERVED_FROM_MIRROR.includes(entry.status) || !entry.storagePath) return false;
+    const start = entry.sessionYear?.match(/^(\d{4})-\d{2}$/)?.[1];
+    return start !== undefined && Number(start) >= CBSE_SQP_READY_FROM_SESSION;
+  });
 }
 
 const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
