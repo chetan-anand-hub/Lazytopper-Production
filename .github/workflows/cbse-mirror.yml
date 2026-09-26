@@ -50,9 +50,34 @@ concurrency:
 
 jobs:
   mirror:
+    # ★ CA-4 (owner ruling): the job writes ONLY when the repository variable
+    # CBSE_MIRROR_LIVE is '1'. A scheduled run does not start at all without it;
+    # a manual run always starts (dry runs stay allowed) and the live-write refusal
+    # below handles dry_run: false. The owner sets the variable after the final audit.
+    if: github.event_name != 'schedule' || vars.CBSE_MIRROR_LIVE == '1'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      # ★ CA-4: refuse a WRITING run unless CBSE_MIRROR_LIVE is '1' — first step, so it
+      # fails before any install, before the secret is read and before any write. The
+      # dry-run decision is the same rule as run.ts resolveDryRun: a schedule writes; a
+      # manual run writes only when dry_run is explicitly false (the input renders as
+      # the string "true"/"false"); anything else is a dry run and is allowed.
+      - name: Refuse a live run unless CBSE_MIRROR_LIVE is 1
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_DRY_RUN: ${{ inputs.dry_run }}
+          MIRROR_LIVE: ${{ vars.CBSE_MIRROR_LIVE }}
+        run: |
+          live_write=false
+          if [ "$EVENT_NAME" = "schedule" ]; then live_write=true; fi
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$INPUT_DRY_RUN" = "false" ]; then live_write=true; fi
+          if [ "$live_write" = "true" ] && [ "$MIRROR_LIVE" != "1" ]; then
+            echo "::error::cbse-mirror: refusing a live (writing) run — repository variable CBSE_MIRROR_LIVE is not '1'. Dry runs are allowed."
+            exit 1
+          fi
+          echo "cbse-mirror: live_write=$live_write CBSE_MIRROR_LIVE=${MIRROR_LIVE:-unset} — allowed"
+
       - name: Checkout repository
         uses: actions/checkout@v7
 
@@ -83,4 +108,6 @@ jobs:
           # manual run with dry_run unticked). A dry run gets an empty string.
           FIREBASE_SERVICE_ACCOUNT: ${{ (github.event_name == 'schedule' || inputs.dry_run == false) && secrets.FIREBASE_SERVICE_ACCOUNT || '' }}
           GITHUB_TOKEN: ${{ github.token }}
+          # CA-4 defence in depth: run.ts refuses a live run unless this is '1' too.
+          CBSE_MIRROR_LIVE: ${{ vars.CBSE_MIRROR_LIVE }}
         run: pnpm --filter @workspace/scripts exec node --import tsx/esm cbse-mirror/run.ts

@@ -21,7 +21,9 @@ import {
   contentDispositionFor,
   storagePathFor,
 } from "../cbse-mirror/papers";
-import { USER_AGENT, resolveDryRun } from "../cbse-mirror/mirror";
+import { spawnSync } from "node:child_process";
+
+import { USER_AGENT, liveRunRefusal, resolveDryRun } from "../cbse-mirror/mirror";
 import { assertCbsePath, guardedStorage, type MirrorStorage } from "../cbse-mirror/storage";
 
 /**
@@ -323,6 +325,62 @@ describe("the User-Agent the job sends", () => {
       "Mozilla/5.0 (compatible; LazyTopper-cbse-mirror/1; +https://github.com/chetan-anand-hub/Lazytopper-Production)",
       /https?:|\+|\.com|\.in\b|github/i,
     );
+  });
+});
+
+describe("★ CA-4 — the job writes only when CBSE_MIRROR_LIVE is '1'", () => {
+  const yml = readFileSync(resolve(REPO, ".github/workflows/cbse-mirror.yml"), "utf8");
+  const code = yml
+    .split(/\r?\n/)
+    .filter((line) => !/^\s*#/.test(line))
+    .join("\n");
+
+  it("the JOB is gated so a scheduled run does not start without the variable", () => {
+    assert.match(
+      code,
+      /\n  mirror:\n    if: github\.event_name != 'schedule' \|\| vars\.CBSE_MIRROR_LIVE == '1'\n/,
+    );
+  });
+
+  it("the refusal step is the FIRST step — before install, the secret and any write", () => {
+    const steps = code.split(/\n\s+- name: /).slice(1).map((s) => s.split("\n")[0]);
+    assert.equal(steps[0], "Refuse a live run unless CBSE_MIRROR_LIVE is 1");
+    assert.ok(steps.indexOf("Mirror CBSE papers and circulars") > 0);
+  });
+
+  /** The refusal step's shell, EXECUTED with each input combination — not just grepped. */
+  function refuse(env: Record<string, string>): number {
+    const block = code.match(/- name: Refuse a live run unless CBSE_MIRROR_LIVE is 1\n[\s\S]*?\n        run: \|\n([\s\S]*?)\n\n/);
+    assert.ok(block, "refusal step not found");
+    const script = block[1].replace(/^ {10}/gm, "");
+    const result = spawnSync("bash", ["-c", script], { env: { PATH: process.env.PATH ?? "", ...env }, encoding: "utf8" });
+    return result.status ?? -1;
+  }
+
+  it("refuses a schedule and a dry_run:false manual run without the variable; allows them with it", () => {
+    assert.equal(refuse({ EVENT_NAME: "schedule", INPUT_DRY_RUN: "", MIRROR_LIVE: "" }), 1);
+    assert.equal(refuse({ EVENT_NAME: "workflow_dispatch", INPUT_DRY_RUN: "false", MIRROR_LIVE: "" }), 1);
+    assert.equal(refuse({ EVENT_NAME: "workflow_dispatch", INPUT_DRY_RUN: "false", MIRROR_LIVE: "0" }), 1);
+    assert.equal(refuse({ EVENT_NAME: "workflow_dispatch", INPUT_DRY_RUN: "false", MIRROR_LIVE: "1" }), 0);
+    assert.equal(refuse({ EVENT_NAME: "schedule", INPUT_DRY_RUN: "", MIRROR_LIVE: "1" }), 0);
+  });
+
+  it("★ DEFAULT PATH — a manual dry run is allowed with the variable unset", () => {
+    assert.equal(refuse({ EVENT_NAME: "workflow_dispatch", INPUT_DRY_RUN: "true", MIRROR_LIVE: "" }), 0);
+    assert.equal(refuse({ EVENT_NAME: "workflow_dispatch", INPUT_DRY_RUN: "", MIRROR_LIVE: "" }), 0);
+  });
+
+  it("run.ts refuses a live run unless CBSE_MIRROR_LIVE is '1' (defence in depth)", () => {
+    assert.match(code, /\n {10}CBSE_MIRROR_LIVE: \$\{\{ vars\.CBSE_MIRROR_LIVE \}\}\n/);
+    assert.equal(liveRunRefusal(true, undefined), null);
+    assert.equal(liveRunRefusal(true, ""), null);
+    assert.match(liveRunRefusal(false, undefined) ?? "", /CBSE_MIRROR_LIVE/);
+    assert.match(liveRunRefusal(false, "0") ?? "", /CBSE_MIRROR_LIVE/);
+    assert.equal(liveRunRefusal(false, "1"), null);
+    const runTs = readFileSync(resolve(REPO, "scripts/cbse-mirror/run.ts"), "utf8");
+    const refusalAt = runTs.indexOf("liveRunRefusal(dryRun, env.CBSE_MIRROR_LIVE)");
+    assert.ok(refusalAt > 0, "run.ts does not call liveRunRefusal");
+    assert.ok(refusalAt < runTs.indexOf("env.FIREBASE_SERVICE_ACCOUNT"), "the refusal must come before the key is read");
   });
 });
 

@@ -9,13 +9,14 @@
  *   FIREBASE_SERVICE_ACCOUNT the service-account JSON — only needed, and only read,
  *                            when this is NOT a dry run
  *   FIREBASE_STORAGE_BUCKET  the bucket name
+ *   CBSE_MIRROR_LIVE         the repository variable; a writing run is refused unless "1" (CA-4)
  *   GITHUB_TOKEN, GITHUB_REPOSITORY, GITHUB_SERVER_URL, GITHUB_RUN_ID
  */
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { githubIssueTracker } from "./issues";
-import { resolveDryRun, runMirror } from "./mirror";
+import { liveRunRefusal, resolveDryRun, runMirror } from "./mirror";
 import { firebaseStorage, readOnlyStorage } from "./storage";
 
 const DEFAULT_BUCKET = "lazzyy-topper.firebasestorage.app";
@@ -23,6 +24,9 @@ const DEFAULT_BUCKET = "lazzyy-topper.firebasestorage.app";
 async function main(): Promise<void> {
   const env = process.env;
   const dryRun = resolveDryRun(env.EVENT_NAME, env.INPUT_DRY_RUN);
+  // CA-4 — before anything else is read or written.
+  const refusal = liveRunRefusal(dryRun, env.CBSE_MIRROR_LIVE);
+  if (refusal) throw new Error(refusal);
   const bucket = (env.FIREBASE_STORAGE_BUCKET || DEFAULT_BUCKET).trim();
   const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
   const log = (line: string) => process.stdout.write(`${line}\n`);

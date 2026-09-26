@@ -88,6 +88,17 @@ export function resolveDryRun(eventName: string | undefined, input: string | und
   return true;
 }
 
+/**
+ * CA-4 (owner ruling) — defence in depth behind the workflow's own gate: a WRITING run
+ * is refused unless the repository variable CBSE_MIRROR_LIVE is exactly "1". A dry run
+ * is always allowed. Returns the refusal message, or null when the run may proceed.
+ */
+export function liveRunRefusal(dryRun: boolean, mirrorLive: string | undefined): string | null {
+  if (dryRun) return null;
+  if (String(mirrorLive ?? "").trim() === "1") return null;
+  return "cbse-mirror: refusing a live (writing) run — CBSE_MIRROR_LIVE is not '1'. Dry runs are allowed.";
+}
+
 type Fetched =
   | { readonly kind: "response"; readonly status: number; readonly headers: Headers; readonly body: Uint8Array }
   | { readonly kind: "error"; readonly message: string };
