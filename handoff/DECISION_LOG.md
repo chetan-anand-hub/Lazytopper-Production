@@ -1,3 +1,53 @@
+## 2026-09-26 — PRICING-TB-1 (build / OR-P5 / docs) — trunk `81973143`, PRs `#827` + `#828`
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by their lane IDs (R1–R7, OR-P1 … OR-P5) rather than `DECISION N`.
+
+### R1–R7 — owner spec PRICING-TB-1 v1.0 (2026-09-26), as shipped in `#827`
+- **R1:** ₹599 / month with ~~₹999~~ while founding is open; ₹999 / month when it is closed.
+- **R2:** the board-year plan is deleted everywhere, with no ₹5,999 / ₹8,999 / ₹1,189 left that a student can read.
+- **R3:** till boards = `round(monthly × monthsLeft × 0.8)`, where `monthsLeft` is the smallest k ≥ 1 with IST today + k months ≥ `predictCbseExamDate("10")`. It is a pure function plus a component that calls it after mount.
+- **R4:** the figures stay out of the static page. The number-free line stays.
+- **R5:** as amended by OR-P2.
+- **R6:** the FAQ and OfferStrip copy.
+- **R7:** the five dated cases plus the remnant and static pins; three mutations.
+
+### OR-P1 (owner, 2026-09-26, cofounder-verified on `49ac1ae8`) — P15 option (a)
+- **One scoped edit to `lazytopper/scripts/seo/captureStaticBodies.ts`:** `stripAuthChrome` strips `[data-testid="till-boards-figures"]` and `[data-testid="boards-countdown"]`, and `countResidualAuthNodes` counts both. No other change under `scripts/seo/**`, and `Welcome.tsx` stayed forbidden.
+- **Reason:** the builder found that the landing countdown is excluded only because `/` is never captured. `/pricing` is captured, so a post-mount figure would be baked. This rule is what `Welcome.tsx` already asked for.
+- **Rejected alternatives:** loopback-host detection (it hides the figures locally); showing the figures on click (changes the UX); allowing them in the static page (breaks R4).
+- A clarification from the owner: the fragment "Add to 1b's… — correction," in the ruling was an editing slip; the allowlist addition was for this lane only.
+
+### OR-P2 (owner) — P16 option (a)
+- Delete `PRICE_ANNUAL_LIST_JSONLD`, `PRICE_ANNUAL_FOUNDING_JSONLD` and `BILLING_INCREMENT_ANNUAL` only, and add no JSON-LD.
+- **Reason:** no emitter exists, and adding structured data is a separate SEO task (`[FU-PRICING-JSONLD-NO-EMITTER]`).
+
+### OR-P3 (owner) — remove every "unlimited" claim (copy only)
+- `MockViewGate.tsx` and `PracticeLimitGate.tsx` use the owner's exact strings. The builder found `PracticeLimitGate.tsx` `featureLabel="Unlimited Practice"` unworded (students see it through `UpgradeModal`), and the owner ruled "Premium Practice".
+
+### OR-P4 (owner) — the refund page states a no-refund policy
+- The "Cancellation & Refund Policy" has five sections word for word; the old eligibility, pro-rata and "Non-Refundable Items" text is deleted; the date is September 2026. `refund.html` is regenerated only.
+
+### OR-P5 (owner) — the refund title, description and tab label (`#828`)
+- The strings were owner-given. The PR was self-merged on CI green with no audit, because it was copy only.
+- **Reason:** `writeStaticHeads.ts` still promised crawlers "the 7-day refund window".
+
+### OR-15 applied, and one deviation accepted
+- Local gates were fast only; CI runs the full suites.
+- One local build + `seo:capture` ran before the owner's "no local build" reminder reached the builder. **The owner accepted it** because the CI `prerender-capture` job re-checks both static files.
+- `scope:guard` passes in `--mode mixed`, not `product`, because `captureStaticBodies.ts` / `writeStaticHeads.ts` are tooling. The owner accepted this, as OR-P1 anticipated.
+
+### AUDIT PASS 827 @ `fa0dd24b1a39715f9b7c03c196bb70f9c020fc71` (cofounder, before merge, OR-12)
+Auditor-verified:
+- the capture diff is the strip rule plus the residual line only;
+- `staticBodies.guard.test.ts` pre-existed;
+- `tillBoardsQuote` matches R3;
+- `pricing.html` has 0 of 5,999 / 8,999 / 1,189 / 2,396 / 2,995 / "board year", and exactly one number-free line;
+- OR-P4 is word for word;
+- there is no student-facing "unlimited".
+
+### ⚠ NOT DECIDED — `[FU-PRICING-MODEL-2026-09]` vs PRICING-TB-1
+This lane shipped the 2026-09-26 spec. The 2026-09-20 ruling (₹1,999 / ₹999, one-time passes, no "/month") was not withdrawn in writing. **Owner to rule.**
+
 ## 2026-09-26 — CBSE-AUTO-1 (build / FIX-1 / docs) — trunk `d74db872`, PR `#824`
 
 > ⚠ **NUMBERING.** Like the FREE-CHECK-1 section below, this section records rulings by their lane IDs (C4 ruling, CA-1 … CA-5, OR-C1) rather than `DECISION N`.

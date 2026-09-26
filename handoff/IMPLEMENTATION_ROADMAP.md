@@ -1,5 +1,17 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-26 — PRICING: **PRICING-TB-1 — MONTHLY + TILL-BOARDS PRICING; NO-REFUND POLICY; NO "UNLIMITED"** — `#827` + `#828` MERGED — trunk `81973143`
+
+- ✅ **R1–R7** (`#827` `8ccd63ca`): the monthly price with its founding strike; the board-year plan deleted everywhere; the `tillBoardsQuote` pure function + `TillBoardsOffer`; figures kept out of `prerendered/pricing.html`; the unused annual JSON-LD constants deleted (OR-P2); the FAQ and OfferStrip copy; the five ruled test cases.
+- ✅ **OR-P1:** the capture strips clock-derived nodes (`till-boards-figures`, `boards-countdown`).
+- ✅ **OR-P3:** no "unlimited" claim on the paywalls.
+- ✅ **OR-P4:** the no-refund policy.
+- ✅ **OR-P5** (`#828` `81973143`): the refund page's title, meta description and tab label.
+- ✅ **Docs:** this handoff.
+- ⬜ **Owner live-verify** (spec §4).
+- ⬜ **Owner ruling:** `[FU-PRICING-MODEL-2026-09]` vs PRICING-TB-1.
+- ⬜ `[FU-CBSEDATES-STALE]` · `[FU-PRICING-JSONLD-NO-EMITTER]` · `[FU-PRICING-PAGE-FOUNDING-CHROME-WHEN-CLOSED]` · `[FU-REFUND-LABEL-PARITY]` · `[FU-CAPTURE-STRIP-CLOCK-DERIVED]` for `/` (`Welcome.tsx` testid).
+
 ## 2026-09-26 — CBSE PAGE: **CBSE-AUTO-1 — THE SELF-UPDATING CBSE PAGE + THE HOME BANNER (DARK)** — `#824` MERGED — trunk `d74db872`
 
 - ✅ **The mirror job** (`.github/workflows/cbse-mirror.yml` + `scripts/cbse-mirror/**`):

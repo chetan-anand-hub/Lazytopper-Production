@@ -1,5 +1,33 @@
 ---
 
+## 2026-09-26 — PRICING-TB-1 — **MONTHLY + "TILL BOARDS" PRICING REPLACES THE BOARD-YEAR PLAN; NO-REFUND POLICY; NO "UNLIMITED"** — `#827` + `#828` MERGED — trunk `81973143`
+
+★ **PROVENANCE.**
+- One controller session held the plan. The builders ran `claude-opus-5-5` at effort `high`: `#827` in `C:/Projects/LT-worktrees/pricing-tb-1` and `#828` in `…/pricing-tb-1-refund-meta`. The controller wrote this docs PR (OR-16).
+- Items marked *(subagent-reported)* come from builder reports and were not re-measured by the controller. Items marked *(controller-verified)* were.
+
+**Timeline.**
+- **Pre-flight, trunk `49ac1ae8`.** The spec's sha256 prefix `BE893A8CCFC3` matched. The §0c premise gate passed (17 premises, 14/14 anchors, exit 0).
+- **B1 BLOCKED at §0b, with no code written** *(subagent-reported)*:
+  - P15: the landing countdown has no reusable exclusion; it stays out of the static files only because `/` is never captured, and `/pricing` is captured.
+  - P16: nothing emits pricing JSON-LD.
+- **Owner OR-P1 / OR-P2** → B2. **B2 BLOCKED once more**: OR-P3 (added mid-run) had no wording for `featureLabel="Unlimited Practice"`, and the owner supplied "Premium Practice". **OR-P4** (the refund policy) was added.
+- **OR-15 note:** B2 had already run a local build + `seo:capture` for `pricing.html` before the owner's "no local build" reminder reached it. The owner accepted this. `refund.html` was then regenerated **without** a local build, from the CI `prerender-capture` artifact `prerendered-827`.
+- **`AUDIT PASS 827 @ fa0dd24b`** (cofounder). Merge *(controller-verified)*: all 8 checks green on `fa0dd24b`, which was up to date with trunk; `--match-head-commit fa0dd24b` → `8ccd63ca`; tree identical to the head. CI *(subagent-reported)*: Quality Gate `36233975277`, `Tests 2601 passed (2601)`, `# pass 293 # fail 0 # skipped 0`.
+- **OR-P5** (`FU-REFUND-META-STALE`, found by B2) → `#828`: copy only, self-merged on CI green. `--match-head-commit f63dac4f` → `81973143` *(controller-verified: 8/8 checks, tree identical)*. CI *(subagent-reported)*: `36237544790`, `Tests 2606 passed (2606)`.
+
+### What it does
+- `/pricing` shows ₹599 / month (~~₹999~~) while founding is open. Below it, a one-time "till your boards" price, 20% under paying monthly, appears after load; it shrinks each month as the boards approach. The ₹5,999 / ₹8,999 board-year plan is gone.
+- The refund page states that payments are final except billing errors. The mock and practice paywalls no longer promise "unlimited".
+
+### ★ What this lane teaches
+- **A MECHANISM THAT WORKS BY OMISSION IS NOT A MECHANISM ANOTHER PAGE CAN REUSE.** The spec premised that the landing countdown "avoids" the static capture. It does so only because `/` is never captured. The builder read the capture's `sitemapPaths().filter(path !== "/")` and stopped rather than copying a non-mechanism. OR-P1 built the real one (a node-level strip) and prepared it for `/`.
+- **"REGENERATED ONLY" + "NO LOCAL BUILD" WAS SATISFIABLE.** The CI `prerender-capture` job uploads its fresh capture as an artifact, and committing that artifact verbatim is a regeneration with no local build.
+- **A COPY CHANGE HAS A CRAWLER-FACING TWIN.** The refund body changed in `LegalPage.tsx`, but its `<title>` and meta description live in `scripts/seo/writeStaticHeads.ts`, a file the lane was forbidden to touch, so the lane needed its own follow-up PR (OR-P5).
+
+### Live-verify owed (owner)
+Spec §4, on a phone and a laptop, plus the refund page and the paywall copy. See `NEXT_ACTION.md`.
+
 ## 2026-09-26 — CBSE-AUTO-1 — **/cbse/class-10 KEEPS ITSELF UP TO DATE, AND HOME CAN SHOW AN IMPORTANT CIRCULAR — BUILT AND DARK** — `#824` MERGED — trunk `d74db872`
 
 ★ **PROVENANCE.**

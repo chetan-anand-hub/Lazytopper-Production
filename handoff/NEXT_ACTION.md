@@ -1,3 +1,22 @@
+## ★★★ 2026-09-26 — PRICING-TB-1 CLOSED (docs) — THIS BLOCK SUPERSEDES THE CBSE-AUTO-1 BLOCK BELOW ON TRUNK SHA ONLY
+*(It does not supersede that block's owner sequence (the CBSE final audit, the dry run, `CBSE_MIRROR_LIVE`) or any open follow-up recorded below.)*
+
+**TRUNK IS `81973143563aecad9dd35d92c3526f9c04c6cd4a`**, measured 2026-09-26 (`git ls-remote`):
+- `81973143` = `#828` (PRICING-TB-1 OR-P5: the refund page's title, description and tab label)
+- `8ccd63ca` = `#827` (PRICING-TB-1: monthly + till-boards pricing, the no-refund policy, no "unlimited")
+- `49ac1ae8` = `#825` (docs: CBSE-AUTO-1 handoff)
+
+Open at the time of writing: `#818`, `#819`, `#826` — dependabot only.
+
+### NEXT — OWNER
+1. **Live-verify PRICING-TB-1 (spec §4)** on a phone and a laptop:
+   - `/app/pricing`: ~~₹999~~ **₹599 / month**; the till-boards card shows ~~₹2,995~~ **₹2,396**, "till your boards (Feb 2027)" and "save 20%" (in Sept 2026);
+   - no ₹5,999, ₹8,999 or "save ₹1,189" anywhere, including the sign-in strip;
+   - `/legal/refund` shows "Cancellation & Refund Policy" with the no-refund sections, and its tab reads "Cancellation & Refunds";
+   - the mock and practice upgrade prompts say "Premium", not "unlimited".
+2. **Rule on `[FU-PRICING-MODEL-2026-09]` vs PRICING-TB-1.** They disagree on the prices, on the till-boards month count, on the "/ month" slash and on recurring vs one-time. This lane shipped the 2026-09-26 spec; the 2026-09-20 ruling was not withdrawn in writing. See `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+3. The CBSE-AUTO-1 sequence below is unchanged.
+
 ## ★★★ 2026-09-26 — CBSE-AUTO-1 CLOSED (docs) — THIS BLOCK SUPERSEDES THE FREE-CHECK-1 BLOCK BELOW ON TRUNK SHA AND ON THE NEXT STEP
 *(It does not supersede any open follow-up recorded below, and it leaves the owner sequence of 2026-09-25 below unchanged.)*
 
