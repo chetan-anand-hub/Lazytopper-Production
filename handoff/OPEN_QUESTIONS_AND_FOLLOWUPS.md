@@ -23,6 +23,41 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-26 — PRICING-TB-1 (`#827` MERGED as `8ccd63ca`, `#828` MERGED as `81973143`, squash, `--match-head-commit`, no `--admin`; open PRs at the time of writing: **`#818`, `#819`, `#826`** — dependabot only) — one owner conflict, five new follow-ups (one resolved in-lane), one carried and partly resolved
+
+### ★★★ OWNER DECISION — `[FU-PRICING-MODEL-2026-09]` vs PRICING-TB-1: **TWO OWNER PRICING RULINGS DISAGREE, AND THE LATER ONE SHIPPED**
+- `[FU-PRICING-MODEL-2026-09]` (2026-09-20, body below and unedited) rules:
+  - ₹1,999 list / ₹999 founding;
+  - a till-boards term counted **from the current month** (6 months in September → founding ₹4,795);
+  - **one-time passes only, no recurring billing**, and copy that says "₹999 for a month", **never "/month"**.
+- **PRICING-TB-1** (owner spec v1.0, 2026-09-26) shipped:
+  - ₹999 list / ₹599 founding (P1/P2 kept);
+  - `monthsLeft` = the smallest k ≥ 1 with today + k months ≥ the board date (**5** on 2026-09-26 → ₹2,396);
+  - **"₹599 / month"** (R1).
+- The OR-P4 refund copy ("You can cancel at any time… you will not be charged again") **reads as recurring billing**.
+- The PRICING-TB-1 spec states that it supersedes "the fixed ₹5,999 / ₹8,999 board year plan". **It does not say it supersedes the 2026-09-20 ruling.** The controller has not inferred that it does.
+- **The owner must rule on which ruling is in force** before PAY-1 builds payment. Until then, **what is live is PRICING-TB-1**.
+
+### `[FU-CAPTURE-STRIP-CLOCK-DERIVED]` — ✅ RESOLVED for `/pricing`; ★ PREPARED, still OPEN for `/`
+- OR-P1: `scripts/seo/captureStaticBodies.ts` `stripAuthChrome` removes `[data-testid="till-boards-figures"]` and `[data-testid="boards-countdown"]`, and `countResidualAuthNodes` counts both. Pinned in `src/config/staticBodies.guard.test.ts`, and the mutation that removes the rule goes red *(subagent-reported)*.
+- **For `/`:** the rule exists, but `Welcome.tsx` does not yet put `data-testid="boards-countdown"` on its countdown, and `/` is still excluded from capture. Adding the testid (a `Welcome.tsx` lane) is what remains. The 2026-09-19 body below is unedited.
+
+### `[FU-PRICING-JSONLD-NO-EMITTER]` — ★ OPEN (owner-confirmed, OR-P2). **THE PRICING PAGE HAS NEVER CARRIED STRUCTURED DATA**
+- The `*_JSONLD` / `AVAILABILITY_*` / `BILLING_*` exports in `pricing.ts` have no consumer. No file emits pricing JSON-LD, and `writeStaticHeads.ts` does not *(subagent-reported)*. PRICING-TB-1 deleted only the three board-year constants.
+- **Adding `Offer` JSON-LD is a later SEO task.** If it is added, it must carry the monthly price only; the till-boards price is clock-derived (R4/R5).
+
+### `[FU-CBSEDATES-STALE]` — ★ OPEN (spec-mandated). **`src/config/cbseDates.ts` STILL SAYS 2026-02-17**
+- It is used by SprintDashboard and Onboarding *(spec)*. `/pricing` and the landing countdown use `cbseExamDate.ts` `predictCbseExamDate("10")` (→ `2027-02-17`), so the two can disagree. The file was forbidden to this lane.
+
+### `[FU-PRICING-PAGE-FOUNDING-CHROME-WHEN-CLOSED]` — ★ OPEN. **THE "Founding member" CHIP AND THE LOCK NOTE STILL SHOW WHEN THE OFFER IS CLOSED**
+- R6 said to keep them unchanged, so the builder did not gate them on `FOUNDING_OFFER_OPEN` *(subagent-reported)*. Harmless while the offer is open, but wrong the day `FOUNDING_OFFER_OPEN = false`.
+
+### `[FU-REFUND-META-STALE]` — ✅ RESOLVED by `#828` (OR-P5)
+- `scripts/seo/writeStaticHeads.ts` gave `/legal/refund` the title "Refund Policy" and a description promising "the 7-day refund window", which crawlers read and which contradicted OR-P4. It is now "Cancellation & Refund Policy | LazyTopper", with the owner's description. The PR body carries the repo-wide "refund window" grep.
+
+### `[FU-REFUND-LABEL-PARITY]` — ★ OPEN, optional. **"Refunds" vs "Cancellation & Refunds"**
+- `PublicLegalFooter.tsx:31`, `DesktopShell`, `MobileAccountMenu` and `Welcome` label the link "Refunds", while the in-page tab now reads "Cancellation & Refunds" *(subagent-reported)*. Not wrong, only inconsistent. `DesktopShell` and `Welcome` are globally forbidden.
+
 ## 2026-09-26 — CBSE-AUTO-1 (`#824` MERGED as `d74db872`, squash, `--match-head-commit fdc33f8a`, no `--admin`; open PRs at the time of writing: **`#810`, `#818`, `#819`** — dependabot only) — five follow-ups: three raised and resolved in-lane, one new and open, one carried and still open; two scopes delivered
 
 ### `[FU-CBSE-MIRROR-GUARD-OVERRIDE]` — ✅ RESOLVED by CA-1 (`2ca1bf8c`). **THE SIZE-RATIO GUARD WOULD HAVE REJECTED THE 2026-27 MATHS STANDARD SQP**

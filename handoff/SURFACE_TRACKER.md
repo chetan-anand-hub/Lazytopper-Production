@@ -1,5 +1,30 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-26 — PRICING-TB-1 (`#827` `8ccd63ca` + `#828` `81973143`), trunk `81973143`.**
+> ★ **FOUR SURFACES MOVE, LIVE (no flag):** Pricing, the sign-in OfferStrip, the mock/practice paywalls and the refund page. **Owner live-verify OWED.**
+
+### ✅ Pricing (`/pricing`) — **BOARD-YEAR ₹5,999 → MONTHLY ₹599 (~~₹999~~) + A ONE-TIME TILL-BOARDS PRICE, 20% OFF** — LIVE
+- The till-boards figures are computed in IST after load, and the static page carries only "Or pay once till your boards — 20% off."
+- **Scope: SETTLING.** `[FU-PRICING-MODEL-2026-09]` (2026-09-20) disagrees with what shipped; the owner must rule. See §2a.
+
+### ✅ Sign-in OfferStrip — **"₹8,999 / board year" → "or pay once till boards — 20% off"** — LIVE
+
+### ✅ Paywalls (MockViewGate, PracticeLimitGate) — **"Unlimited …" → "Premium …"** — LIVE (copy only)
+
+### ✅ Legal — refund (`/legal/refund`) — **7-DAY REFUND → NO-REFUND POLICY; TITLE, META AND TAB RENAMED** — LIVE
+
+### ⬜ NO OTHER SURFACE CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- The landing page is unchanged: `Welcome.tsx` was forbidden. The capture rule for its countdown is prepared, not wired.
+- The privacy and terms pages changed only in the refund tab label in their nav.
+
+### 📋 Scope discovered? — **YES — logged in `DECISION_LOG` and §2a below**
+
+### ⚠ §2a — SCOPE DISCOVERED THIS LANE *(logged in `DECISION_LOG.md`, per `CLAUDE.md` §10)*
+- **SC1:** P15. There was no reusable way to keep a clock-derived figure out of a captured page → OR-P1 (a capture strip rule).
+- **SC2:** P16. No pricing JSON-LD emitter exists → OR-P2 (delete the unused constants; add nothing).
+- **SC3:** OR-P3 ("unlimited"), OR-P4 (the refund policy) and OR-P5 (the refund meta and tab), all added by the owner mid-lane.
+- **SC4 — UNRESOLVED:** `[FU-PRICING-MODEL-2026-09]` vs PRICING-TB-1. **Pricing's Scope stays Settling until the owner rules.**
+
 > **2026-09-26 — CBSE-AUTO-1 (`#824` `d74db872`), trunk `d74db872`; and FREE-CHECK-1 switched on.**
 > ★ **TWO SURFACES MOVE DARK: the CBSE page (`/cbse/class-10`) and Home (a CBSE banner).** Nothing a student sees changes until the owner sets `CBSE_MIRROR_LIVE=1` after the final audit passes. **Two FREE-CHECK-1 cells move DARK → LIVE** (owner-supplied facts).
 

@@ -1,5 +1,39 @@
 # LazyTopper — Current State
 
+## [CURRENT · PRICING] PRICING-TB-1 — **MONTHLY + "TILL BOARDS" PRICING REPLACES THE BOARD-YEAR PLAN; THE REFUND PAGE STATES A NO-REFUND POLICY; NO "UNLIMITED" CLAIMS** — `#827` + `#828` MERGED — trunk `81973143`
+
+★ **PROVENANCE.**
+- Controller/builder model. The builders ran `claude-opus-5-5` at effort `high`: one for `#827` (it BLOCKED once at §0b and then resumed) and one for `#828`. Spec `ops/.specs/PRICING-TB-1.md` v1.0 (sha256 `be893a8c…e9dfc604`). Its §0c premise gate passed: 17 premises, 14/14 anchors resolved, P15–P17 open by design, exit 0.
+- **Owner rulings added mid-lane:** OR-P1 … OR-P5 (see `DECISION_LOG.md`). **`AUDIT PASS 827 @ fa0dd24b`** (cofounder, before merge, OR-12).
+- `#827`: `gh pr merge 827 --squash --match-head-commit fa0dd24b` → **`8ccd63ca`**. `#828` (OR-P5, copy only, self-merged on CI green, no audit): `--match-head-commit f63dac4f` → **`81973143`**. The controller proved both on trunk: `merge-base --is-ancestor` OK, and `git diff <head> <merge>` is EMPTY for each.
+- Items marked *(subagent-reported)* come from the builders' reports and were not re-measured by the controller.
+
+**Trunk `81973143563aecad9dd35d92c3526f9c04c6cd4a`** (`#828`). Before that it was `8ccd63ca` (`#827`), and the previous trunk was `49ac1ae8` (`#825`, the CBSE-AUTO-1 docs).
+
+*(This block supersedes the CBSE-AUTO-1 block below on trunk SHA only. That block's content otherwise stands as written.)*
+
+### ★ THIS IS LIVE — no flag
+Students see the new prices and copy as soon as the deploys pick up `81973143`. **The owner's live-verify (spec §4) is OWED.** See `NEXT_ACTION.md`.
+
+### What shipped — R1–R7 (spec §2) and OR-P1 … OR-P5, one line each
+- **R1 Monthly:** `PricingPage.tsx` `PremiumPriceHead`. While `FOUNDING_OFFER_OPEN`, it shows ₹599 / month with ~~₹999~~ struck; when the offer is closed, ₹999 / month with no strike.
+- **R2 Board year deleted:** the ₹5,999 / ₹8,999 board-year constants, the "save ₹1,189" subline, the `/ board year` label and its JSON-LD constants are gone from `pricing.ts`. Pins in `pricing.guard.test.ts` confirm that no ₹5,999 / ₹8,999 / ₹1,189 remains in shipped `src/`, `index.html`, `public/` or `prerendered/`.
+- **R3 Till boards:** `pricing.ts` `tillBoardsQuote(now, boardIso, offerOpen)` is a pure function. It works on the IST calendar date (`istCalendarDate`), takes `monthsLeft` = the smallest k ≥ 1 with today + k months ≥ the board date (month-end clamped), and computes `price = round(monthly × monthsLeft × 0.8)` (`TILL_BOARDS_PAY_FRACTION`). `PricingPage.tsx` `TillBoardsOffer` calls it after mount with `predictCbseExamDate("10")`.
+- **R4 Not baked:** the figures sit inside `data-testid="till-boards-figures"`. The number-free line "Or pay once till your boards — 20% off." (`TILL_BOARDS_LINE`) sits outside it. `prerendered/pricing.html` has the line and none of the figures (auditor-verified).
+- **R5 / OR-P2:** there is no JSON-LD emitter for pricing. The unused `PRICE_ANNUAL_LIST_JSONLD`, `PRICE_ANNUAL_FOUNDING_JSONLD` and `BILLING_INCREMENT_ANNUAL` were deleted. The monthly `*_JSONLD`, `AVAILABILITY_*` and `BILLING_UNIT_MONTH` constants are kept. **No JSON-LD was added.**
+- **R6 Copy:** the FAQ now reads "Should I pay monthly or till my boards?". The "after the first 200" FAQ gives ₹999 / month "or 20% off when you pay once till your boards". The `OfferStrip.tsx` line becomes "or pay once till boards — 20% off" (`TILL_BOARDS_INLINE`).
+- **R7 Tests:** `pricing.tillBoards.test.ts` covers the five ruled cases (2026-09-26 → 5, ₹2,396, ~~₹2,995~~; 12-16 → 3; 12-17 → 2; 2027-02-17 → 1; founding closed → ₹3,996). The remnant pins are in `pricing.guard.test.ts`, and the static-page pin is in `PricingPage.pricing.test.tsx`.
+- **OR-P1 (capture strip):** `scripts/seo/captureStaticBodies.ts` `stripAuthChrome` now removes `[data-testid="till-boards-figures"]` and `[data-testid="boards-countdown"]`, and `countResidualAuthNodes` counts both. It is pinned in `src/config/staticBodies.guard.test.ts`, which pre-existed (auditor-verified). **`boards-countdown` is prepared for the landing page; `Welcome.tsx` does not carry the testid yet.**
+- **OR-P3 ("unlimited" removed):** `MockViewGate.tsx` and `PracticeLimitGate.tsx` now say "Premium" (`featureLabel="Premium Mock Tests"` / `"Premium Practice"`, "Unlock Premium mocks" / "Unlock Premium practice"). The pin `PracticeLimitGate.openAccess.test.tsx` scans student-facing strings, not comments, under `src/components/auth/` and in `PricingPage.tsx`.
+- **OR-P4 (refund):** `LegalPage.tsx` refund entry is titled "Cancellation & Refund Policy", with five sections word for word (non-refundable, Free Trial, Monthly Plan, Till-Boards Plan, Billing Errors) and "Last updated: September 2026". `prerendered/legal/refund.html` was regenerated from the CI capture artifact, never hand-edited.
+- **OR-P5 (`#828`, refund meta):** in `scripts/seo/writeStaticHeads.ts` `/legal/refund`, the title is "Cancellation & Refund Policy | LazyTopper" and the description drops "the 7-day refund window". The `LegalPage.tsx` tab label becomes "Cancellation & Refunds". `privacy.html`, `terms.html` and `refund.html` were regenerated from the CI artifact `prerendered-828`; the diff is the label swap only (controller-verified by substitution and sha256).
+
+### ★ Read this before touching a price
+- ⚠ **`[FU-PRICING-MODEL-2026-09]` (the owner ruling of 2026-09-20) is NOT reconciled with what shipped.** It says ₹1,999 list / ₹999 founding, a till-boards term counted from the current month (6 in September), one-time passes only, and **no "/month" slash**. PRICING-TB-1 (the owner spec of 2026-09-26) shipped ₹999 / ₹599, k ≥ 1 months (5 in September) and "₹599 / month". The OR-P4 refund copy ("cancel at any time… will not be charged again") also implies recurring billing. **Which ruling is in force is an OWNER decision; see `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.**
+- **The till-boards figures are clock-derived:** never render them outside the `till-boards-figures` node, or the capture will bake them.
+- **Payment is still deferred** ("Manual activation during beta…" is unchanged). Nothing in this lane activates premium.
+- The `WIRE-2` dormancy block is unchanged by this lane; see its section (`### 8 - ★ THE WIRE-2 QUESTION`) below.
+
 ## [CURRENT · CBSE PAGE] CBSE-AUTO-1 — **/cbse/class-10 KEEPS ITSELF UP TO DATE, AND HOME CAN SHOW AN IMPORTANT CIRCULAR — BUILT AND DARK** — `#824` MERGED — trunk `d74db872`
 
 ★ **PROVENANCE.**
