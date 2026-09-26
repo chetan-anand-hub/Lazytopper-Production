@@ -1,0 +1,346 @@
+/**
+ * circulars — C8 (parse both CBSE circular indexes) and C9 (the fixed rule table).
+ *
+ * ★ NO HTML LIBRARY, ON PURPOSE: adding one moves the lockfile #810 holds. Both pages
+ * are table-of-rows markup, parsed here row by row. The row shapes were read off the
+ * two pages on 2026-09-26 and the pages themselves are committed as fixtures under
+ * `fixtures/`, so the parser is tested against what CBSE really serves, with no
+ * network in any test.
+ *
+ *   cbse.gov.in  — `<tr>` = DATE (DD/MM/YYYY) · CIRCULAR (title) · ENGLISH (link) ·
+ *                  HINDI (link) · FILE TYPE · FILE SIZE. Five tables, one per year.
+ *   cbseacademic — `<tr>` = number (`Acad-63/2026`, or `132` in the notifications
+ *                  table) · MONTH ONLY · subject (link). No day is published, so the
+ *                  row's date is `YYYY-MM` — never an invented day.
+ *
+ * ★ HEADLINES COME FROM THE TABLE BELOW AND NOWHERE ELSE (C9). There is no code path
+ * that composes a headline from a circular's title. A row that matches no rule, or
+ * matches one but is older than 30 days, ships `important: false` and `headline: ""`.
+ */
+import { createHash } from "node:crypto";
+
+export const GOV_INDEX_URL = "https://www.cbse.gov.in/cbsenew/examination_Circular.html";
+export const ACADEMIC_INDEX_URL = "https://cbseacademic.nic.in/circulars.html";
+
+export const FEED_SIZE = 30;
+export const IMPORTANT_WITHIN_DAYS = 30;
+
+export type ParsedCircular = {
+  /** `YYYY-MM-DD`, or `YYYY-MM` where the source publishes only a month. */
+  readonly date: string;
+  readonly title: string;
+  readonly href: string;
+  readonly source: "document" | "index";
+};
+
+export type Circular = ParsedCircular & {
+  readonly id: string;
+  readonly important: boolean;
+  readonly headline: string;
+};
+
+/** C9 — the fixed rule table. Case-insensitive; the FIRST matching rule wins. */
+export const HEADLINE_RULES: readonly { readonly pattern: RegExp; readonly headline: string }[] =
+  Object.freeze([
+    Object.freeze({ pattern: /date ?sheet/i, headline: "The 2027 board exam date sheet is out" }),
+    Object.freeze({
+      pattern: /sample (question )?papers?|\bSQP\b/i,
+      headline: "New CBSE sample papers are out",
+    }),
+    Object.freeze({
+      pattern: /two (board )?exam|second board exam|board exams? twice/i,
+      headline: "CBSE has updated the two-exam rules",
+    }),
+    Object.freeze({ pattern: /syllabus|curriculum/i, headline: "CBSE has updated the syllabus" }),
+  ]);
+
+/** The headline a title earns from the table, or null. Never anything else. */
+export function ruleHeadline(title: string): string | null {
+  for (const rule of HEADLINE_RULES) {
+    if (rule.pattern.test(title)) return rule.headline;
+  }
+  return null;
+}
+
+// ─── HTML helpers ────────────────────────────────────────────────────────────
+
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " ",
+  rsquo: "’",
+  lsquo: "‘",
+  rdquo: "”",
+  ldquo: "“",
+  ndash: "–",
+  mdash: "—",
+  hellip: "…",
+};
+
+export function decodeEntities(text: string): string {
+  return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (whole, body: string) => {
+    if (body[0] === "#") {
+      const code =
+        body[1] === "x" || body[1] === "X" ? parseInt(body.slice(2), 16) : parseInt(body.slice(1), 10);
+      return Number.isFinite(code) && code > 0 && code < 0x110000 ? String.fromCodePoint(code) : whole;
+    }
+    return NAMED_ENTITIES[body.toLowerCase()] ?? whole;
+  });
+}
+
+export function textOf(html: string): string {
+  return decodeEntities(html.replace(/<!--[\s\S]*?-->/g, "").replace(/<[^>]*>/g, " "))
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function englishSpan(html: string): string | null {
+  const match = html.match(/<span[^>]*class\s*=\s*["']?english["']?[^>]*>([\s\S]*?)<\/span>/i);
+  return match ? match[1] : null;
+}
+
+function firstHref(html: string): string | null {
+  const match = html.match(/<a\b[^>]*\bhref\s*=\s*["']([^"']+)["']/i);
+  return match ? decodeEntities(match[1].trim()) : null;
+}
+
+/** An absolute http(s) URL, or null. `javascript:` and friends never survive. */
+export function absoluteHref(href: string | null, base: string): string | null {
+  if (!href) return null;
+  try {
+    const url = new URL(href, base);
+    return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
+type Row = { readonly at: number; readonly cells: readonly string[] };
+
+/**
+ * Every LEAF table row: a row's content runs to the next `<tr` or `</tr>`, whichever
+ * comes first, so an outer layout row that merely CONTAINS a nested table yields no
+ * cells of its own rather than one giant bogus row.
+ */
+function rowsOf(html: string): Row[] {
+  const clean = html.replace(/<!--[\s\S]*?-->/g, (c) => " ".repeat(c.length));
+  const rows: Row[] = [];
+  const opener = /<tr\b[^>]*>/gi;
+  let match: RegExpExecArray | null;
+  while ((match = opener.exec(clean)) !== null) {
+    const start = match.index + match[0].length;
+    const rest = clean.slice(start);
+    const stop = rest.search(/<tr\b|<\/tr>/i);
+    const block = stop < 0 ? rest : rest.slice(0, stop);
+    const cells = Array.from(block.matchAll(/<td\b[^>]*>([\s\S]*?)<\/td>/gi), (m) => m[1]);
+    if (cells.length > 0) rows.push({ at: match.index, cells });
+  }
+  return rows;
+}
+
+// ─── cbse.gov.in ─────────────────────────────────────────────────────────────
+
+export function parseGovCirculars(html: string, pageUrl: string = GOV_INDEX_URL): ParsedCircular[] {
+  const out: ParsedCircular[] = [];
+  for (const { cells } of rowsOf(html)) {
+    if (cells.length < 3) continue;
+    const dateMatch = textOf(cells[0]).match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (!dateMatch) continue;
+    const [, dd, mm, yyyy] = dateMatch;
+    if (Number(mm) < 1 || Number(mm) > 12 || Number(dd) < 1 || Number(dd) > 31) continue;
+    // The title cell sometimes carries extra inline links after " | " (a user
+    // manual, an "apply here" link). The circular's own title is the part before.
+    const title = textOf(cells[1]).split(" | ")[0].trim();
+    if (!title) continue;
+    const href =
+      absoluteHref(firstHref(cells[2]), pageUrl) ??
+      absoluteHref(firstHref(cells[3] ?? ""), pageUrl) ??
+      absoluteHref(firstHref(cells[1]), pageUrl);
+    out.push({
+      date: `${yyyy}-${mm}-${dd}`,
+      title,
+      href: href ?? pageUrl,
+      source: href ? "document" : "index",
+    });
+  }
+  return out;
+}
+
+// ─── cbseacademic.nic.in ─────────────────────────────────────────────────────
+
+const MONTHS = [
+  "january",
+  "february",
+  "march",
+  "april",
+  "may",
+  "june",
+  "july",
+  "august",
+  "september",
+  "october",
+  "november",
+  "december",
+];
+
+function monthIndex(text: string): number | null {
+  const word = text.trim().toLowerCase().match(/^[a-z]+/);
+  if (!word) return null;
+  const index = MONTHS.indexOf(word[0]);
+  return index < 0 ? null : index + 1;
+}
+
+export function parseAcademicCirculars(
+  html: string,
+  pageUrl: string = ACADEMIC_INDEX_URL,
+): ParsedCircular[] {
+  // The notifications table states its year only in its heading ("Notifications- 2026"),
+  // so each row takes the year of the nearest heading above it unless its own number
+  // carries one (`Acad-63/2026`).
+  const headings = Array.from(html.matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>/gi), (m) => ({
+    at: m.index ?? 0,
+    year: textOf(m[1]).match(/(20\d\d)\s*$/)?.[1] ?? null,
+  }));
+
+  const out: ParsedCircular[] = [];
+  for (const { at, cells } of rowsOf(html)) {
+    if (cells.length < 3) continue;
+    const monthCell = englishSpan(cells[1]) ?? cells[1];
+    const month = monthIndex(textOf(monthCell));
+    if (month === null) continue;
+
+    const ownYear = textOf(cells[0]).match(/\/(20\d\d)\b/)?.[1] ?? null;
+    let headingYear: string | null = null;
+    for (const heading of headings) {
+      if (heading.at < at && heading.year) headingYear = heading.year;
+    }
+    const year = ownYear ?? headingYear;
+    if (!year) continue;
+
+    const subject = englishSpan(cells[2]) ?? cells[2];
+    const title = textOf(subject);
+    if (!title) continue;
+    const href = absoluteHref(firstHref(subject) ?? firstHref(cells[2]), pageUrl);
+    out.push({
+      date: `${year}-${String(month).padStart(2, "0")}`,
+      title,
+      href: href ?? pageUrl,
+      source: href ? "document" : "index",
+    });
+  }
+  return out;
+}
+
+// ─── C8 filtering, ordering and C9 classification ────────────────────────────
+
+/**
+ * C8 — drop a row whose title names Class XII/12 and NOT Class X/10. "Class X/XII",
+ * "Classes X & XII" and a range such as "Classes IX-XII" all name Class X and stay.
+ * Roman numerals are matched case-sensitively: a lowercase "x" is not Class X.
+ */
+export function isClassXIIOnly(title: string): boolean {
+  const names12 = /\bXII\b/.test(title) || /\bclass(es)?\s*[-:]?\s*12(th)?\b|\b12th\b/i.test(title);
+  if (!names12) return false;
+  const names10 =
+    /\bX\b/.test(title) ||
+    /\bclass(es)?\s*[-:]?\s*10(th)?\b|\b10th\b/i.test(title) ||
+    /\b(IX|9)\s*(-|–|to)\s*(XII|12)\b/i.test(title);
+  return !names10;
+}
+
+/** Sortable key: a month-only date sorts below every dated row of the same month. */
+function sortKey(date: string): string {
+  return date.length === 7 ? `${date}-00` : date;
+}
+
+function dateMs(date: string): number | null {
+  const match = date.match(/^(\d{4})-(\d{2})(?:-(\d{2}))?$/);
+  if (!match) return null;
+  return Date.UTC(Number(match[1]), Number(match[2]) - 1, match[3] ? Number(match[3]) : 1);
+}
+
+/**
+ * Whether a row is dated within the last `days` days of `now`. A month-only row is
+ * dated the FIRST of its month — the conservative reading, which can only make a
+ * row stop being important sooner, never later. A row dated in the future (beyond a
+ * day of clock skew) is not "recent", it is wrong, and is not flagged.
+ */
+export function isWithinDays(date: string, now: Date, days: number): boolean {
+  const at = dateMs(date);
+  if (at === null) return false;
+  const age = now.getTime() - at;
+  return age >= -86_400_000 && age <= days * 86_400_000;
+}
+
+export function classifyCircular(
+  row: Pick<ParsedCircular, "title" | "date">,
+  now: Date,
+): { important: boolean; headline: string } {
+  const headline = ruleHeadline(row.title);
+  if (headline && isWithinDays(row.date, now, IMPORTANT_WITHIN_DAYS)) {
+    return { important: true, headline };
+  }
+  return { important: false, headline: "" };
+}
+
+export function circularId(href: string): string {
+  return createHash("sha256").update(href).digest("hex").slice(0, 16);
+}
+
+/**
+ * Both sources → one feed: Class-XII-only rows dropped, de-duplicated by href,
+ * newest first (stable — ties keep source order), capped at 30, classified.
+ */
+export function buildCircularFeed(rows: readonly ParsedCircular[], now: Date): Circular[] {
+  const seen = new Set<string>();
+  const kept: ParsedCircular[] = [];
+  for (const row of rows) {
+    if (isClassXIIOnly(row.title)) continue;
+    const key = row.source === "index" ? `${row.href}#${row.date}#${row.title}` : row.href;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    kept.push(row);
+  }
+  const ordered = kept
+    .map((row, index) => ({ row, index }))
+    .sort((a, b) => {
+      const ka = sortKey(a.row.date);
+      const kb = sortKey(b.row.date);
+      if (ka !== kb) return ka < kb ? 1 : -1;
+      return a.index - b.index;
+    })
+    .slice(0, FEED_SIZE)
+    .map(({ row }) => row);
+  return ordered.map((row) => ({
+    id: circularId(row.source === "index" ? `${row.href}#${row.date}#${row.title}` : row.href),
+    ...row,
+    ...classifyCircular(row, now),
+  }));
+}
+
+/** Re-apply C9 to rows kept from a previous run, so `important` still expires. */
+export function reclassify(rows: readonly Circular[], now: Date): Circular[] {
+  return rows.map((row) => ({ ...row, ...classifyCircular(row, now) }));
+}
+
+/**
+ * C8 guard — a feed with no rows, or with fewer than half the previous count, is a
+ * parse failure until proven otherwise (CBSE redesigned the page, or served an error
+ * page with a 200). The previous feed is kept and an issue opened.
+ */
+export function feedGuard(
+  newCount: number,
+  previousCount: number,
+): { ok: true } | { ok: false; reason: string } {
+  if (newCount === 0) return { ok: false, reason: "the new feed parsed to 0 rows" };
+  if (previousCount > 0 && newCount < previousCount * 0.5) {
+    return {
+      ok: false,
+      reason: `the new feed has ${newCount} rows, fewer than 50% of the previous ${previousCount}`,
+    };
+  }
+  return { ok: true };
+}

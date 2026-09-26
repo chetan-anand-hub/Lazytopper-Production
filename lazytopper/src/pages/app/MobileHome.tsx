@@ -17,6 +17,7 @@ import {
 import { MobileAccountMenu } from "../../components/mobile/MobileAccountMenu";
 import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import FirstSession from "../../components/home/FirstSession";
+import CbseBanner from "../../components/cbse/CbseBanner";
 import {
   BORDER,
   CARD_BG,
@@ -684,6 +685,11 @@ export default function MobileHome() {
 
       {/* 96px bottom padding clears App.tsx's 60px BottomNav. */}
       <div style={{ padding: "15px 14px 96px", maxWidth: "100%" }}>
+        {/* CBSE news strip (CBSE-AUTO-1 C12). Renders null unless the mirror's
+            manifest flags a recent circular important and it is not dismissed;
+            `spaced` is its own margin, so a null leaves the layout unchanged. */}
+        <CbseBanner spaced />
+
         {/* Greeting */}
         <h1 style={{ fontFamily: FONT_DISPLAY, fontSize: 23, fontWeight: 600, lineHeight: 1.05, color: FG, margin: 0 }}>
           {isSignedIn ? "Welcome back" : "What do you want to do?"}

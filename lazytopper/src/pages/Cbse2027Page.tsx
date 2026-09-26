@@ -2,6 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 
 import { useReturnTicket } from "../components/navigation/ReturnTicket";
+import {
+  cbseCircularFeed,
+  cbsePaperLink,
+  useCbseManifest,
+} from "../services/cbseManifest";
 
 import {
   CBSE_CIRCULARS,
@@ -50,6 +55,15 @@ import {
  * attribute. The prototype predates the ruling and contradicts it on all 15 rows;
  * the ruling governs. Lane B makes these real downloads through a Firebase
  * mirror, and the labels change when the behaviour does.
+ *
+ * ★ CBSE-AUTO-1 (Lane B) — THE MIRROR NOW EXISTS, AND IT IS AN OVERLAY, NEVER A
+ * DEPENDENCY. `useCbseManifest()` fetches `cbse/manifest.json` from Storage after
+ * mount. A paper whose manifest status is `ok` links its Storage copy — served as an
+ * attachment — and reads "Download"; every other paper, and EVERY paper when the
+ * manifest is missing, slow or malformed, renders exactly the committed row above
+ * ("Open", CBSE's own href). The circulars and the "Checked … on" date follow the
+ * same rule. The first paint is always the committed page, which is also what the
+ * prerender capture freezes: that build has no Storage bucket, so no fetch is made.
  *
  * ★ IT IS IN THE SAME ROUTE CLASS AS /exam-trends, NOT A THIRD TREATMENT.
  * Owner ruling, 2026-09-19, correcting an earlier "no app chrome" instruction: the
@@ -318,6 +332,18 @@ export default function Cbse2027Page() {
   }, [hash]);
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
+  // C11 — null until (and unless) the mirror's manifest loads; null renders the
+  // committed page exactly.
+  const manifest = useCbseManifest();
+  const feed = cbseCircularFeed(manifest, CBSE_CIRCULARS, CBSE_CIRCULARS_CHECKED_ON);
+  // The page's own copy says where a link goes, so it must change when a link does:
+  // "every link opens the original on CBSE's site" is false the moment one row
+  // downloads from the mirror. Without a manifest this is false and the copy is the
+  // committed copy, word for word.
+  const anyDownload = CBSE_SUBJECTS.some((subject) =>
+    subject.papers.some((paper) => cbsePaperLink(paper, manifest).label === "Download"),
+  );
+
   // The return ticket, if the entry point supplied a safe one. When it did not —
   // a crawler, a shared link, a footer click from a page that passed nothing — fall
   // back to Home rather than to nothing. `/` serves the landing at every width.
@@ -350,7 +376,7 @@ export default function Cbse2027Page() {
           <h1>Your 2027 boards, in one place</h1>
           <p className="lt-cbse__hero-sub">
             Every official paper CBSE gives you free, and what the new two-exam rule actually
-            means. Checked against cbse.gov.in on {CBSE_CIRCULARS_CHECKED_ON}.
+            means. Checked against cbse.gov.in on {feed.checkedOn}.
           </p>
           <div className="lt-cbse__count">
             <b>{CBSE_2027_MAIN_EXAM_WINDOW}</b>
@@ -387,9 +413,20 @@ export default function Cbse2027Page() {
             <em>all official</em>
           </div>
           <p className="lt-cbse__lede">
-            CBSE publishes these and almost nobody opens them. Pick your subject &mdash; the marks
-            breakdown changes with it. Every link opens the original file on CBSE&rsquo;s own site,
-            in a new tab.
+            {anyDownload ? (
+              <>
+                CBSE publishes these and almost nobody opens them. Pick your subject &mdash; the
+                marks breakdown changes with it. A file marked Download is CBSE&rsquo;s own,
+                copied unchanged so it saves straight to your device; the rest open the original
+                file on CBSE&rsquo;s own site, in a new tab.
+              </>
+            ) : (
+              <>
+                CBSE publishes these and almost nobody opens them. Pick your subject &mdash; the marks
+                breakdown changes with it. Every link opens the original file on CBSE&rsquo;s own site,
+                in a new tab.
+              </>
+            )}
           </p>
 
           <div className="lt-cbse__subs" role="tablist" aria-label="Subject">
@@ -427,23 +464,26 @@ export default function Cbse2027Page() {
                   aria-labelledby={`lt-cbse-tab-${subject.key}`}
                   hidden={subject.key !== subjectKey}
                 >
-                  {subject.papers.map((paper) => (
-                    <a
-                      key={paper.href}
-                      href={paper.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <span className={`lt-cbse__ico lt-cbse__ico--${paper.kind}`}>
-                        {paper.kind.toUpperCase()}
-                      </span>
-                      <span className="lt-cbse__dlt">
-                        <b>{paper.title}</b>
-                        <span>{paper.blurb}</span>
-                      </span>
-                      <span className="lt-cbse__open">Open</span>
-                    </a>
-                  ))}
+                  {subject.papers.map((paper) => {
+                    const link = cbsePaperLink(paper, manifest);
+                    return (
+                      <a
+                        key={paper.href}
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <span className={`lt-cbse__ico lt-cbse__ico--${paper.kind}`}>
+                          {paper.kind.toUpperCase()}
+                        </span>
+                        <span className="lt-cbse__dlt">
+                          <b>{link.title}</b>
+                          <span>{paper.blurb}</span>
+                        </span>
+                        <span className="lt-cbse__open">{link.label}</span>
+                      </a>
+                    );
+                  })}
                 </div>
               ))}
             </div>
@@ -534,8 +574,8 @@ export default function Cbse2027Page() {
           <div className="lt-cbse__sh">
             <h2>Latest from CBSE</h2>
           </div>
-          {CBSE_CIRCULARS.map((circular) => (
-            <div className="lt-cbse__fi" key={circular.href + circular.date}>
+          {feed.rows.map((circular) => (
+            <div className="lt-cbse__fi" key={circular.key}>
               <span className="lt-cbse__fd">{circular.date}</span>
               <p className="lt-cbse__ft">
                 <a href={circular.href} target="_blank" rel="noopener noreferrer">
@@ -548,7 +588,7 @@ export default function Cbse2027Page() {
             </div>
           ))}
           <p className="lt-cbse__auto">
-            Checked against CBSE&rsquo;s circulars pages on {CBSE_CIRCULARS_CHECKED_ON}.
+            Checked against CBSE&rsquo;s circulars pages on {feed.checkedOn}.
           </p>
         </section>
 
@@ -582,9 +622,20 @@ export default function Cbse2027Page() {
         </div>
 
         <p className="lt-cbse__foot">
-          LazyTopper is not affiliated with CBSE. Every link above opens the original file on
-          cbse.gov.in or cbseacademic.nic.in. Where our reading and the official document differ,
-          the official document is right.
+          {anyDownload ? (
+            <>
+              LazyTopper is not affiliated with CBSE. Every file above is CBSE&rsquo;s own: it
+              either opens on cbse.gov.in or cbseacademic.nic.in, or downloads from an unchanged
+              copy of it. Where our reading and the official document differ, the official
+              document is right.
+            </>
+          ) : (
+            <>
+              LazyTopper is not affiliated with CBSE. Every link above opens the original file on
+              cbse.gov.in or cbseacademic.nic.in. Where our reading and the official document differ,
+              the official document is right.
+            </>
+          )}
         </p>
       </div>
     </main>

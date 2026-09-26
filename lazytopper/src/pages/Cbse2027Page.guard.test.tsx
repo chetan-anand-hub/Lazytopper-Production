@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { describe, it, expect, afterEach } from "vitest";
-import { render, screen, cleanup, within } from "@testing-library/react";
+import { describe, it, expect, afterEach, vi } from "vitest";
+import { act, render, screen, cleanup, within, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { readFileSync } from "node:fs";
@@ -9,6 +9,7 @@ import { resolve } from "node:path";
 import Cbse2027Page from "./Cbse2027Page";
 import {
   CBSE_CIRCULARS,
+  CBSE_CIRCULARS_CHECKED_ON,
   CBSE_SUBJECTS,
   CBSE_THEORY_MARKS,
   CBSE_TRAPS,
@@ -37,6 +38,12 @@ import { STATIC_PAGE_HEADS } from "../../scripts/seo/writeStaticHeads";
  *      SEO purpose. A `<details>` swapped for conditional rendering looks
  *      identical to a user and is invisible to a crawler, and every other gate
  *      stays green.
+ *
+ * CBSE-AUTO-1: ruling (b) and the committed feed below now describe the page
+ * WITHOUT a manifest — every render in this file except the "C11" block at the end,
+ * because no Storage bucket is configured under test. The C11 block proves that a
+ * failing manifest leaves the page byte-for-byte as it is here, and that only a
+ * paper the mirror serves as an attachment reads "Download".
  *
  * ⚠ EVERY NEGATIVE ASSERTION HERE IS PAIRED WITH A PRECONDITION. A test that
  * asserts "no control reads Download" passes vacuously on a page that rendered
@@ -512,5 +519,132 @@ describe("deep links", () => {
     const panels = Array.from(container.querySelectorAll('[role="tabpanel"]'));
     const maths = panels.find((n) => n.id === "lt-cbse-panel-maths");
     expect(maths?.hasAttribute("hidden")).toBe(true);
+  });
+});
+
+/**
+ * ★ CBSE-AUTO-1 C11 — the Storage manifest is an OVERLAY on the committed page.
+ *
+ * The two properties, and why each needs the other:
+ *   1. A manifest that FAILS — network error, 404, garbage, wrong version — leaves
+ *      the page byte-for-byte what it is with no manifest at all (committed hrefs,
+ *      "Open", committed circulars, committed date).
+ *   2. A manifest that LOADS changes exactly the rows it vouches for.
+ * (1) alone passes vacuously on a page that never reads a manifest; (2) is the
+ * control that proves the same harness CAN change the page.
+ */
+describe("★ C11 — the mirror's manifest overlays the page, and its failure changes nothing", () => {
+  const BUCKET = "test-bucket.firebasestorage.app";
+  const OK_ID = "science-sqp";
+  const okPaper = CBSE_SUBJECTS[0].papers.find((p) => p.id === OK_ID)!;
+  const manifest = {
+    v: 1,
+    generatedAt: "2026-09-26T00:31:00.000Z",
+    papers: [
+      { id: OK_ID, sourceUrl: okPaper.href, storagePath: "cbse/files/science-sqp.pdf", sessionYear: "2026-27", bytes: 1, sha256: "a", etag: null, lastModified: null, checkedAt: "2026-09-26T00:31:00.000Z", status: "ok" },
+      { id: "science-ms", sourceUrl: "https://cbseacademic.nic.in/x/Science-MS.pdf", storagePath: "cbse/files/science-ms.pdf", sessionYear: "2025-26", bytes: 1, sha256: "b", etag: null, lastModified: null, checkedAt: null, status: "stale" },
+    ],
+    circulars: [
+      { id: "c1", date: "2026-09", title: "Sample Question Papers for Classes X & XII 2026-27", href: "https://cbseacademic.nic.in/web_material/Notifications/2026/132_Notification_2026.pdf", source: "document", important: true, headline: "New CBSE sample papers are out" },
+      { id: "c2", date: "2026-09-23", title: "Streamlining the process of corrections", href: "https://www.cbse.gov.in/cbsenew/documents/Streamling_Process_Corrections_23092026.pdf", source: "document", important: false, headline: "" },
+    ],
+    circularsCheckedAt: "2026-09-26T00:31:00.000Z",
+  };
+
+  function links(container: HTMLElement): string[] {
+    return Array.from(container.querySelectorAll(".lt-cbse__dl a")).map(
+      (a) => `${a.getAttribute("href")} | ${a.querySelector(".lt-cbse__open")?.textContent}`,
+    );
+  }
+
+  async function settle() {
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 30));
+    });
+  }
+
+  async function renderWithFetch(impl: () => Promise<Response>) {
+    vi.stubEnv("VITE_FIREBASE_STORAGE_BUCKET", BUCKET);
+    const fetchMock = vi.fn(impl);
+    vi.stubGlobal("fetch", fetchMock);
+    const view = renderPage();
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    await settle();
+    return { ...view, fetchMock };
+  }
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
+  it("the ids the mirror keys on are unique and kebab-case (C2)", () => {
+    const ids = CBSE_SUBJECTS.flatMap((s) => s.papers.map((p) => p.id));
+    expect(ids.length).toBe(15);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const id of ids) expect(id).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
+  });
+
+  it("★ manifest FAILURE ⇒ today's page, byte for byte — links, labels, circulars, date", async () => {
+    // The committed page: no bucket, so no request at all.
+    const { container: base } = renderPage();
+    const committedHtml = base.innerHTML;
+    const committedLinks = links(base);
+    // PRECONDITION: the committed page is what we think it is.
+    expect(committedLinks).toHaveLength(15);
+    expect(committedLinks.every((l) => l.endsWith("| Open"))).toBe(true);
+    expect(visibleText(base)).toContain(`Checked against CBSE’s circulars pages on ${CBSE_CIRCULARS_CHECKED_ON}`);
+    cleanup();
+
+    const failures: Array<[string, () => Promise<Response>]> = [
+      [
+        "network error",
+        async () => {
+          throw new TypeError("Failed to fetch");
+        },
+      ],
+      ["404", async () => new Response("not found", { status: 404 })],
+      ["not JSON", async () => new Response("<html>", { status: 200 })],
+      ["wrong version", async () => new Response(JSON.stringify({ ...manifest, v: 2 }), { status: 200 })],
+    ];
+    for (const [name, impl] of failures) {
+      const { container, fetchMock } = await renderWithFetch(impl);
+      expect(fetchMock, name).toHaveBeenCalledTimes(1);
+      expect(links(container), name).toEqual(committedLinks);
+      expect(container.innerHTML, name).toBe(committedHtml);
+      cleanup();
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("CONTROL — manifest OK ⇒ that paper downloads from Storage; the rest are unchanged", async () => {
+    const { container } = await renderWithFetch(async () => new Response(JSON.stringify(manifest), { status: 200 }));
+    const rendered = links(container);
+    const storageUrl = `https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o/cbse%2Ffiles%2Fscience-sqp.pdf?alt=media`;
+    expect(rendered).toContain(`${storageUrl} | Download`);
+    // stale → CBSE href and Open; every paper the manifest does not vouch for → committed row
+    const others = CBSE_SUBJECTS.flatMap((s) => s.papers).filter((p) => p.id !== OK_ID);
+    for (const paper of others) expect(rendered, paper.id).toContain(`${paper.href} | Open`);
+    expect(rendered.filter((l) => l.endsWith("| Download"))).toHaveLength(1);
+    // Still a new tab, still no download attribute (cross-origin ignores it anyway).
+    const anchor = container.querySelector(`a[href="${storageUrl}"]`)!;
+    expect(anchor.getAttribute("target")).toBe("_blank");
+    expect(anchor.hasAttribute("download")).toBe(false);
+  });
+
+  it("CONTROL — manifest OK ⇒ circulars, the checked date and the link copy follow it", async () => {
+    const { container } = await renderWithFetch(async () => new Response(JSON.stringify(manifest), { status: 200 }));
+    const body = visibleText(container);
+    expect(screen.getByText("Streamlining the process of corrections")).toBeTruthy();
+    expect(body).toContain("Checked against CBSE’s circulars pages on 26 September 2026");
+    expect(body).toContain("Checked against cbse.gov.in on 26 September 2026");
+    expect(body).not.toContain(CBSE_CIRCULARS[0].title);
+    // The copy no longer claims every link opens on CBSE's site — one downloads.
+    expect(body).not.toContain("Every link opens the original file on CBSE’s own site");
+    expect(body).toContain("A file marked Download is CBSE’s own");
+    // The page still renders no headline: the Home banner is their only reader.
+    expect(body).not.toContain("New CBSE sample papers are out");
+    // and still no frequency claim
+    expect(body).not.toMatch(/updated daily|every day/i);
   });
 });
