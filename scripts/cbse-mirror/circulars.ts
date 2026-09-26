@@ -91,8 +91,25 @@ export function decodeEntities(text: string): string {
   });
 }
 
+/**
+ * The TEXT of a fragment of CBSE's markup — a title, a date, a month.
+ *
+ * ⚠ ONE STRIPPING PASS IS NOT ENOUGH, AND CodeQL SAID SO ON THIS LANE'S FIRST PUSH
+ * ("incomplete multi-character sanitization"): removing `<!-- … -->` or `<…>` once can
+ * splice the leftovers into a NEW `<!--` or tag. So the strip repeats until nothing
+ * changes, and whatever `<` / `>` survive (including any decoded from `&lt;`) are dropped.
+ * The result is plain text with no angle brackets at all; React escapes it again when
+ * the page renders it, but this function does not rely on that.
+ */
 export function textOf(html: string): string {
-  return decodeEntities(html.replace(/<!--[\s\S]*?-->/g, "").replace(/<[^>]*>/g, " "))
+  let text = html;
+  let previous: string;
+  do {
+    previous = text;
+    text = text.replace(/<!--[\s\S]*?-->/g, "").replace(/<[^>]*>/g, " ");
+  } while (text !== previous);
+  return decodeEntities(text)
+    .replace(/[<>]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }

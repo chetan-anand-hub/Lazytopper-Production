@@ -18,6 +18,7 @@ import {
   parseGovCirculars,
   reclassify,
   ruleHeadline,
+  textOf,
   type ParsedCircular,
 } from "../cbse-mirror/circulars";
 import { MIRROR_PAPERS } from "../cbse-mirror/papers";
@@ -231,6 +232,20 @@ describe("C8 — the feed guard", () => {
     assert.equal(feedGuard(14, 30).ok, false);
     assert.equal(feedGuard(15, 30).ok, true);
     assert.equal(feedGuard(3, 0).ok, true);
+  });
+
+  it("titles are plain text: no angle bracket survives, even from spliced or encoded markup", () => {
+    for (const nasty of [
+      "<!<!-- x -->-- y --><script>alert(1)</script>Date sheet",
+      "<<b>scr</b>ipt>Date sheet",
+      "&lt;img src=x onerror=alert(1)&gt;Date sheet",
+    ]) {
+      const text = textOf(nasty);
+      assert.doesNotMatch(text, /[<>]/, JSON.stringify(text));
+      assert.match(text, /Date sheet$/);
+    }
+    // CONTROL — ordinary markup still yields its words
+    assert.equal(textOf("<td><span class=\"english\">Observance &amp; Seva</span></td>"), "Observance & Seva");
   });
 
   it("an error page served with 200 parses to 0 rows (so the guard is what catches it)", () => {
