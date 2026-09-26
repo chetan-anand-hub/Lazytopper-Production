@@ -1,3 +1,28 @@
+## 2026-09-26 — PRICING-TB-1 OR-P6 / OR-P7 (copy PRs + docs) — trunk `759b9d69`, PRs `#830` + `#831`
+
+### OR-P6 (owner, 2026-09-26) — resolves `[FU-PRICING-MODEL-2026-09]` vs PRICING-TB-1. **It supersedes the 2026-09-20 ruling where they differ.**
+- **Prices:** PRICING-TB-1 stands (₹999 list, ₹599 founding). The 2026-09-20 ₹1,999 / ₹999 is **retired**.
+- **Till-boards months:** PRICING-TB-1 stands (the smallest k ≥ 1 reaching the board date; 5 on 2026-09-26). "Counted from the current month" is **retired**.
+- **Billing:** one-time passes only for now, with no auto-renew. **This is the 2026-09-20 billing rule, and it stays in force.** Auto-renew via Razorpay e-mandate comes later (`[FU-AUTO-RENEW-LATER]`); it will need RBI pre-debit notices at least 24 hours before each charge, with a cancel option.
+- **Copy (`#830`):**
+  - every student-facing "/ month" or "/month" → "for a month";
+  - the lock note → "Your founding price stays locked for every pass you buy.";
+  - the refund section "Monthly Plan" → "Month Pass", with the text "A month pass gives you Premium for one month from the day you pay. It does not renew automatically, and it is not refunded once paid."
+- **Reason:** the "/month" slash and subscription wording imply an auto-renewal that does not exist.
+
+### Owner Decision 1(b) (2026-09-26) — the founding OfferStrip
+- **Exact text:** "Founding member: ₹599 for a month ₹999, locked for every pass you buy. First 200 students." (₹999 struck).
+- **Reason:** the mechanical rule produced "you keep ₹599 for a month", which reads as a one-month founding rate. The controller held `#830`'s merge for this ruling.
+
+### OR-P7 (owner, 2026-09-26) — the residual subscription copy (`#831`), word for word
+- **PricingPage FAQ:** "Once you buy a pass as a founding member, every pass you buy after that stays at the founding price. We never raise the price of a pass you have already bought." The builder replaced the "Once you subscribe…" sentences and kept the R6 lead-in of the same answer. The controller checked this before merging.
+- **Refund Billing Errors:** "If you were charged twice or charged the wrong amount, email us and we will refund the amount charged in error. We start the refund within 3 business days; your bank usually credits it within 5–7 business days."
+- **Terms:** "Premium features require a pass at the listed prices. Passes are one-time payments and do not renew automatically."
+- **Heads:** `/legal/refund` → "LazyTopper's cancellation and refund policy — the 7-day free trial, month and till-boards passes, and refunds for billing errors."; `/pricing` → "What the free tier includes, what Premium adds, and how passes work. CBSE Class 10 Maths and Science prep."
+- **`Welcome.tsx` :424/:429:** an **owner grant for these two spans' text only**, "/mo" → "for a month". As built, the span text is " for a month" with a leading space, because JSX drops the newline between the price and the span. This is text only: no class, style or structure changed.
+- **Pins:** no "subscribe" / "subscription" / "cancel at any time" / "charged after cancelling" / "/mo" / "/month" in student- or crawler-facing text. Three known remaining hits are listed in `KNOWN_REMAINING`. **Mutation:** restoring the old Terms sentence turns a named test red *(subagent-reported)*.
+- **Merge policy:** both PRs were copy only and self-merged on CI green with `--match-head-commit`, with no audit (owner).
+
 ## 2026-09-26 — PRICING-TB-1 (build / OR-P5 / docs) — trunk `81973143`, PRs `#827` + `#828`
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by their lane IDs (R1–R7, OR-P1 … OR-P5) rather than `DECISION N`.

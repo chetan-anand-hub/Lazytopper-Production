@@ -1,3 +1,23 @@
+## ★★★ 2026-09-26 — PRICING-TB-1 OR-P6 + OR-P7 CLOSED (docs) — THIS BLOCK SUPERSEDES THE PRICING-TB-1 BLOCK BELOW ON TRUNK SHA AND ON ITS ITEM 2
+*(Item 2 of the block below, "Rule on `[FU-PRICING-MODEL-2026-09]` vs PRICING-TB-1", is DONE: OR-P6. Its item 1 (the live-verify) and the CBSE-AUTO-1 sequence are unchanged.)*
+
+**TRUNK IS `759b9d692e85154ecef83a391db90154d3889e73`**, measured 2026-09-26 (`git ls-remote`):
+- `759b9d69` = `#831` (OR-P7: passes, not subscriptions — FAQ, refund, terms, heads, landing card)
+- `3417f2a0` = `#830` (OR-P6: "for a month", Month Pass, the OfferStrip line)
+- `110509a0` = `#829` (docs: PRICING-TB-1 handoff)
+
+Open at the time of writing: `#818`, `#819`, `#826` — dependabot only.
+
+### NEXT — OWNER
+1. **Live-verify** (it extends the PRICING-TB-1 item below), on a phone and a laptop:
+   - `/app/pricing` reads "₹599 for a month" with ~~₹999~~ and has no "/month";
+   - the sign-in strip reads "Founding member: ₹599 for a month ~~₹999~~, locked for every pass you buy. First 200 students.";
+   - the landing price card reads "for a month" and does not wrap;
+   - `/legal/refund` has a "Month Pass" section and no "charged after cancelling";
+   - `/legal/terms` has the passes sentence.
+2. **Spec STORED-RATE-1 and the Razorpay go-live against one-time passes** (OR-P6). Auto-renew is `[FU-AUTO-RENEW-LATER]`.
+3. Optional copy lane: `[FU-PASSES-TERMS-HEADING]`, `[FU-PASSES-MANAGE-SUBSCRIPTION-MENU]`, `[FU-PASSES-TERMS-HEAD]`, `[FU-OR-P6-OFFERSTRIP-LOCK-DUPLICATE]`, `[FU-REFUND-LABEL-PARITY]`.
+
 ## ★★★ 2026-09-26 — PRICING-TB-1 CLOSED (docs) — THIS BLOCK SUPERSEDES THE CBSE-AUTO-1 BLOCK BELOW ON TRUNK SHA ONLY
 *(It does not supersede that block's owner sequence (the CBSE final audit, the dry run, `CBSE_MIRROR_LIVE`) or any open follow-up recorded below.)*
 

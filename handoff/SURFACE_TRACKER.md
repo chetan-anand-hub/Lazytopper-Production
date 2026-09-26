@@ -1,5 +1,31 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-26 — PRICING-TB-1 OR-P6 + OR-P7 (`#830` `3417f2a0` + `#831` `759b9d69`), trunk `759b9d69`.**
+> ★ **PRICING IS SETTLED.** OR-P6 resolved the conflict with `[FU-PRICING-MODEL-2026-09]`. Copy moves on six surfaces, all LIVE; the owner live-verify is OWED.
+
+### ✅ Pricing (`/pricing`) — **"₹599 / month" → "₹599 for a month"; FAQ in pass terms** — LIVE
+- **Scope: SETTLED** (was Settling in the PRICING-TB-1 entry below). The model: ₹999 / ₹599, till-boards k ≥ 1, one-time passes, no auto-renew (OR-P6).
+
+### ✅ Sign-in OfferStrip — **"Founding member: ₹599 for a month ~~₹999~~, locked for every pass you buy. First 200 students."** — LIVE
+
+### ✅ Paywalls (MockViewGate, PracticeLimitGate) — **"…at ₹599 for a month."** — LIVE
+
+### ✅ Legal — refund — **"Monthly Plan" → "Month Pass"; Billing Errors drops "charged after cancelling"; head description re-worded** — LIVE
+
+### ✅ Legal — terms — **the payment sentence says passes, one-time, no auto-renew** — LIVE (the heading "Subscription & Payment" is still open)
+
+### ✅ Landing — price card — **"/mo" → "for a month"** (owner grant, two spans' text only) — LIVE
+
+### ⬜ NO OTHER SURFACE CELL MOVES — stated plainly, per `CLAUDE.md` §10
+The account menus still say "Manage subscription" (`[FU-PASSES-MANAGE-SUBSCRIPTION-MENU]`).
+
+### 📋 Scope discovered? — **YES, resolved in-lane; logged in `DECISION_LOG` and §2a**
+
+### ⚠ §2a — SCOPE DISCOVERED THIS LANE *(logged in `DECISION_LOG.md`, per `CLAUDE.md` §10)*
+- **SC5:** the "/month" rule applied mechanically inverted the OfferStrip's lock promise → owner Decision 1(b).
+- **SC6:** subscription and cancel copy outside the "/month" rule → OR-P7.
+- **SC4 (from the PRICING-TB-1 entry below): RESOLVED by OR-P6. Pricing's Scope is SETTLED.**
+
 > **2026-09-26 — PRICING-TB-1 (`#827` `8ccd63ca` + `#828` `81973143`), trunk `81973143`.**
 > ★ **FOUR SURFACES MOVE, LIVE (no flag):** Pricing, the sign-in OfferStrip, the mock/practice paywalls and the refund page. **Owner live-verify OWED.**
 

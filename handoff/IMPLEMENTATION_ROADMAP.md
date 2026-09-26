@@ -1,5 +1,14 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-26 — PRICING: **PRICING-TB-1 OR-P6 + OR-P7 — PASSES, NOT SUBSCRIPTIONS** — `#830` + `#831` MERGED — trunk `759b9d69`
+
+- ✅ **OR-P6** (`#830` `3417f2a0`): the pricing model is reconciled (PRICING-TB-1 prices and month count; one-time passes, no auto-renew); "for a month" replaces "/month"; the Month Pass refund section; the OfferStrip line (Decision 1b).
+- ✅ **OR-P7** (`#831` `759b9d69`): the FAQ, refund Billing Errors, Terms sentence, two head descriptions and the landing card "/mo", with a repo-wide passes-not-subscriptions pin.
+- ✅ **Docs:** this handoff. **Pricing is SETTLED.**
+- ⬜ **Owner live-verify** (see `NEXT_ACTION.md`).
+- ⬜ **STORED-RATE-1** and the **Razorpay go-live**, specced against passes. `[FU-AUTO-RENEW-LATER]` comes after.
+- ⬜ `[FU-PASSES-TERMS-HEADING]` · `[FU-PASSES-MANAGE-SUBSCRIPTION-MENU]` · `[FU-PASSES-TERMS-HEAD]` · `[FU-OR-P6-OFFERSTRIP-LOCK-DUPLICATE]` · `[FU-REFUND-LABEL-PARITY]`.
+
 ## 2026-09-26 — PRICING: **PRICING-TB-1 — MONTHLY + TILL-BOARDS PRICING; NO-REFUND POLICY; NO "UNLIMITED"** — `#827` + `#828` MERGED — trunk `81973143`
 
 - ✅ **R1–R7** (`#827` `8ccd63ca`): the monthly price with its founding strike; the board-year plan deleted everywhere; the `tillBoardsQuote` pure function + `TillBoardsOffer`; figures kept out of `prerendered/pricing.html`; the unused annual JSON-LD constants deleted (OR-P2); the FAQ and OfferStrip copy; the five ruled test cases.

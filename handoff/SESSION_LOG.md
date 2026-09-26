@@ -1,5 +1,21 @@
 ---
 
+## 2026-09-26 — PRICING-TB-1 OR-P6 + OR-P7 — **PASSES, NOT SUBSCRIPTIONS; THE TWO PRICING RULINGS RECONCILED** — `#830` + `#831` MERGED — trunk `759b9d69`
+
+★ **PROVENANCE.**
+- The PRICING-TB-1 controller was reopened after its docs PR `#829`. There was one builder per PR (`claude-opus-5-5`, `high`), in worktrees `…/pricing-tb-1-month-pass` and `…/pricing-tb-1-residual-copy`. The controller wrote this docs PR (OR-16).
+- *(subagent-reported)* = from builder reports; *(controller-verified)* = re-measured.
+
+**Timeline.**
+- **OR-P6** (the owner resolves `[FU-PRICING-MODEL-2026-09]` vs PRICING-TB-1) → builder B4 → `#830` @ `0b6f449f`, CI green.
+- **The controller held the merge** on one builder flag: the founding OfferStrip rendered "you keep ₹599 for a month ~~₹999 for a month~~", which reads as "the founding rate lasts one month". The owner ruled Decision 1(b) with exact wording. The same builder amended it (`cebfae56`), and the lock claim now appears twice (`[FU-OR-P6-OFFERSTRIP-LOCK-DUPLICATE]`). The PR merged on green → `3417f2a0` *(controller-verified: 11 files all allowlisted, 8/8 checks, tree identical)*.
+- **OR-P7** (the residual subscription copy, including an owner grant for two `Welcome.tsx` spans) → B5 → `#831`. The first head `d6002b90` failed CodeQL `js/bad-tag-filter` on a `<script>`-stripping regex in the new test; `54a72b91` fixed it. CI `36250555403`, `Tests 2619 passed (2619)` *(subagent-reported)*. Merged → `759b9d69` *(controller-verified: 8/8 checks, tree identical; the controller read the FAQ and Welcome diff lines before merging)*.
+
+### ★ What this lane teaches
+- **A MECHANICAL COPY RULE CAN INVERT A PROMISE.** "/month → for a month" applied exactly to "you keep ₹599/month" produced "you keep ₹599 for a month", which a student reads as a one-month rate: the opposite of the lock. Every gate was green, and the builder's reading of the rendered sentence caught it. **Read composed strings in their rendered sentence, not in the constant.**
+- **"THE TEXT ONLY" CAN STILL NEED A CHARACTER THE RULING DID NOT SAY.** JSX drops the newline between `{price}` and `<span>`, so "for a month" rendered as "₹599for a month". The leading space is text, not style, and it stayed within the grant.
+- **A PIN WITH A `KNOWN_REMAINING` LIST IS HONEST ONLY IF THE LIST IS IN THE HANDOFF.** The three remaining "subscription" hits are named in the test and in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
 ## 2026-09-26 — PRICING-TB-1 — **MONTHLY + "TILL BOARDS" PRICING REPLACES THE BOARD-YEAR PLAN; NO-REFUND POLICY; NO "UNLIMITED"** — `#827` + `#828` MERGED — trunk `81973143`
 
 ★ **PROVENANCE.**
