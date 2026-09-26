@@ -421,12 +421,12 @@ export function PaidPlanHead({ offerOpen }: { offerOpen: boolean }) {
         {offerOpen ? (
           <span className="pp" data-testid="landing-paid-price">
             {PRICE_MONTHLY_FOUNDING_DISPLAY}
-            <span className="per">/mo</span> <s className="was">{PRICE_MONTHLY_LIST_DISPLAY}</s>
+            <span className="per"> for a month</span> <s className="was">{PRICE_MONTHLY_LIST_DISPLAY}</s>
           </span>
         ) : (
           <span className="pp" data-testid="landing-paid-price">
             {PRICE_MONTHLY_LIST_DISPLAY}
-            <span className="per">/mo</span>
+            <span className="per"> for a month</span>
           </span>
         )}
       </div>

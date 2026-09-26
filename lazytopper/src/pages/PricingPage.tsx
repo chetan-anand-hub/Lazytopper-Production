@@ -772,18 +772,20 @@ const FAQ_ITEMS = [
     // condition and the lock in the same breath. If a future edit drops either
     // half, the founding framing stops being true.
     //
-    // ⚠ THE PROMISE IS SCOPED TO AN ACTIVE SUBSCRIPTION, deliberately.
+    // ⚠ THE PROMISE IS SCOPED TO THE STUDENT'S OWN PASSES, deliberately.
+    // (PRICING-TB-1 · OR-P7, owner 2026-09-26: billing is one-time passes, so the
+    // lock is worded per pass, never "an active subscription".)
     // An earlier draft said "we do not raise anyone's price". That is a claim
     // about PUBLISHED prices, and it is broader than this product can support —
     // a fixed board-year price moved between #539 and #548, one day apart
     // (that plan was later retired by PRICING-TB-1).
     // What can be supported without qualification is narrower and is the thing
-    // a subscriber actually cares about: your own rate never moves while your
-    // subscription is active. Do not widen this back out. The broad version is
+    // a founding member actually cares about: the price of your own passes never
+    // moves. Do not widen this back out. The broad version is
     // precisely the sentence a student who saw an older published price would
     // quote back.
     q: `What happens after the first ${FOUNDING_COHORT_SIZE} students?`,
-    a: `The founding offer closes. New members then join at the regular price — ${PRICE_MONTHLY_LIST_DISPLAY} ${PERIOD_MONTHLY_LABEL}, or ${TILL_BOARDS_SAVING_PERCENT}% off when you pay once till your boards, which is what we publish today alongside the founding rate. Your rate is locked. Once you subscribe as a founding member you keep that rate for as long as your subscription stays active. We never change the price of an active subscription.`,
+    a: `The founding offer closes. New members then join at the regular price — ${PRICE_MONTHLY_LIST_DISPLAY} ${PERIOD_MONTHLY_LABEL}, or ${TILL_BOARDS_SAVING_PERCENT}% off when you pay once till your boards, which is what we publish today alongside the founding rate. Your rate is locked. Once you buy a pass as a founding member, every pass you buy after that stays at the founding price. We never raise the price of a pass you have already bought.`,
   },
   {
     q: "Are there any usage limits?",

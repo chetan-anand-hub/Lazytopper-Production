@@ -78,7 +78,7 @@ export interface PageHead {
  * papered over. Sources, per entry:
  *
  *   /pricing        `src/pages/PricingPage.tsx` free/premium feature lists;
- *                   "cancel at any time" is the Terms' own wording.
+ *                   "how passes work" is OR-P7's wording (owner, 2026-09-26).
  *   /exam-trends    `src/pages/ExamTrendsRanked.tsx` tier captions, verbatim in
  *                   substance ("non-negotiables" / "if time permits").
  *   /practice-hub   the scope-builder hub `DesktopPracticePage` (App.tsx:1070)
@@ -95,7 +95,7 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
   "/pricing": {
     title: "Pricing — Free and Premium | LazyTopper",
     description:
-      "What the free tier includes, what Premium adds, and how to cancel. " +
+      "What the free tier includes, what Premium adds, and how passes work. " +
       "CBSE Class 10 Maths and Science prep.",
   },
   "/exam-trends": {
@@ -133,8 +133,8 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
     // no-refund policy (OR-P4), so the head may not promise a refund window.
     title: "Cancellation & Refund Policy | LazyTopper",
     description:
-      "LazyTopper's cancellation and refund policy — the 7-day free trial, how to " +
-      "cancel a monthly plan, and refunds for billing errors.",
+      "LazyTopper's cancellation and refund policy — the 7-day free trial, month and " +
+      "till-boards passes, and refunds for billing errors.",
   },
 };
 
