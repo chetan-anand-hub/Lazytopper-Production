@@ -1,3 +1,7 @@
+/// <reference lib="dom" />
+// ^ Vercel typechecks this file against the REPO-ROOT tsconfig (lib es2022, no DOM, no
+//   @types/node) before deploying it — measured: the first preview failed on
+//   "Cannot find name 'Request'". The reference supplies the Fetch API types.
 import { next } from "@vercel/functions/middleware";
 
 /**
@@ -84,8 +88,10 @@ export function pinAssetsToDeployment(request: Request, readEnv: () => PinEnv): 
   }
 }
 
+// Read through globalThis so this file needs no @types/node under the root tsconfig.
 function processEnv(): PinEnv {
-  return typeof process === "undefined" ? {} : (process.env as PinEnv);
+  const proc = (globalThis as { process?: { env?: PinEnv } }).process;
+  return proc?.env ?? {};
 }
 
 export default function middleware(request: Request): Response | undefined {
@@ -95,4 +101,7 @@ export default function middleware(request: Request): Response | undefined {
 export const config = {
   // Invoke only for /app/ pages; hashed assets are left out here as well as in code.
   matcher: ["/app", "/app/((?!assets/).*)"],
+  // Vercel's build warns that the default "edge" runtime for middleware.ts is deprecated
+  // and recommends Node.js (https://vercel.com/docs/routing-middleware#runtime-options).
+  runtime: "nodejs",
 };

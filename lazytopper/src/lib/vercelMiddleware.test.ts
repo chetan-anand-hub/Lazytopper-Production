@@ -145,6 +145,7 @@ describe("OR-C2 — FAIL OPEN: an internal error passes the request through unch
 describe("config — invocation limited to /app pages", () => {
   it("matcher targets /app and /app/* except /app/assets/", () => {
     expect(config.matcher).toEqual(["/app", "/app/((?!assets/).*)"]);
+    expect(config.runtime).toBe("nodejs");
     const pattern = new RegExp(`^${config.matcher[1].replace("/app/", "\\/app\\/")}$`);
     expect(pattern.test("/app/pricing")).toBe(true);
     expect(pattern.test("/app/")).toBe(true);
