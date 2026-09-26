@@ -94,21 +94,31 @@ export function decodeEntities(text: string): string {
 /**
  * The TEXT of a fragment of CBSE's markup — a title, a date, a month.
  *
- * ⚠ ONE STRIPPING PASS IS NOT ENOUGH, AND CodeQL SAID SO ON THIS LANE'S FIRST PUSH
- * ("incomplete multi-character sanitization"): removing `<!-- … -->` or `<…>` once can
- * splice the leftovers into a NEW `<!--` or tag. So the strip repeats until nothing
- * changes, and whatever `<` / `>` survive (including any decoded from `&lt;`) are dropped.
- * The result is plain text with no angle brackets at all; React escapes it again when
- * the page renders it, but this function does not rely on that.
+ * ⚠ A MULTI-CHARACTER STRIP IS NOT A SANITISER, AND CodeQL SAID SO TWICE ON THIS LANE
+ * ("incomplete multi-character sanitization"): deleting `<!-- … -->` can splice the
+ * leftovers into a NEW `<!--`, and a strip-until-stable loop did not satisfy it either.
+ * So: comments are cut by index with a SPACE left in their place (a space cannot splice
+ * into `<!--`), tags are blanked, and then EVERY `<` and `>` is removed outright —
+ * before and after entity decoding, so `&lt;` cannot bring one back. The result is plain
+ * text with no angle brackets at all; React escapes it again when the page renders it,
+ * but this function does not rely on that.
  */
+function withoutComments(html: string): string {
+  let out = "";
+  let at = 0;
+  for (;;) {
+    const open = html.indexOf("<!--", at);
+    if (open < 0) return out + html.slice(at);
+    out += `${html.slice(at, open)} `;
+    const close = html.indexOf("-->", open + 4);
+    if (close < 0) return out; // an unterminated comment runs to the end
+    at = close + 3;
+  }
+}
+
 export function textOf(html: string): string {
-  let text = html;
-  let previous: string;
-  do {
-    previous = text;
-    text = text.replace(/<!--[\s\S]*?-->/g, "").replace(/<[^>]*>/g, " ");
-  } while (text !== previous);
-  return decodeEntities(text)
+  const stripped = withoutComments(html).replace(/<[^>]*>/g, " ").replace(/[<>]/g, " ");
+  return decodeEntities(stripped)
     .replace(/[<>]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
@@ -137,13 +147,28 @@ export function absoluteHref(href: string | null, base: string): string | null {
 
 type Row = { readonly at: number; readonly cells: readonly string[] };
 
+/** Comments replaced by the same number of spaces, so every index still lines up with
+ *  the raw page (the academic parser matches row positions against heading positions). */
+function blankComments(html: string): string {
+  let out = "";
+  let at = 0;
+  for (;;) {
+    const open = html.indexOf("<!--", at);
+    if (open < 0) return out + html.slice(at);
+    const close = html.indexOf("-->", open + 4);
+    const end = close < 0 ? html.length : close + 3;
+    out += html.slice(at, open) + " ".repeat(end - open);
+    at = end;
+  }
+}
+
 /**
  * Every LEAF table row: a row's content runs to the next `<tr` or `</tr>`, whichever
  * comes first, so an outer layout row that merely CONTAINS a nested table yields no
  * cells of its own rather than one giant bogus row.
  */
 function rowsOf(html: string): Row[] {
-  const clean = html.replace(/<!--[\s\S]*?-->/g, (c) => " ".repeat(c.length));
+  const clean = blankComments(html);
   const rows: Row[] = [];
   const opener = /<tr\b[^>]*>/gi;
   let match: RegExpExecArray | null;
