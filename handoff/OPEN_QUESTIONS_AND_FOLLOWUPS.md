@@ -23,6 +23,48 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-26 — PRICING-TB-1 OR-P6 + OR-P7 (`#830` MERGED as `3417f2a0`, `#831` MERGED as `759b9d69`, squash, `--match-head-commit`, no `--admin`; open PRs at the time of writing: **`#818`, `#819`, `#826`** — dependabot only) — one owner conflict resolved, four follow-ups resolved, five new, one kept open
+
+### `[FU-PRICING-MODEL-2026-09]` — ✅ RESOLVED by OR-P6 (owner, 2026-09-26)
+- **Prices:** PRICING-TB-1 stands (₹999 list / ₹599 founding). The ₹1,999 / ₹999 of 2026-09-20 is retired.
+- **Till-boards months:** PRICING-TB-1 stands (the smallest k ≥ 1). "Counted from the current month" is retired.
+- **Billing:** the 2026-09-20 rule **stays**: one-time passes only, no auto-renew, and "for a month", never "/month". Shipped by `#830` + `#831`.
+- **Still open from that ruling, and NOT resolved here:** its "store the earned rate on the account at purchase" requirement is for **STORED-RATE-1**. The 2026-09-20 body below is unedited.
+
+### The 2026-09-26 "★★★ OWNER DECISION — `[FU-PRICING-MODEL-2026-09]` vs PRICING-TB-1" block — ✅ RESOLVED by OR-P6
+The block below is kept as written (rule 3).
+
+### `[FU-OR-P6-WELCOME-SLASH-MO]` — ✅ RESOLVED by OR-P7 (`#831`)
+`Welcome.tsx` :424/:429 "/mo" → " for a month", under the owner's grant for the two spans' text only.
+
+### `[FU-OR-P6-TERMS-SUBSCRIPTION]` — ✅ RESOLVED by OR-P7 (`#831`)
+The Terms sentence now reads "Premium features require a pass at the listed prices. Passes are one-time payments and do not renew automatically."
+
+### `[FU-OR-P6-HEADS-CANCEL]` — ✅ RESOLVED by OR-P7 (`#831`)
+The `writeStaticHeads.ts` `/legal/refund` and `/pricing` descriptions are owner-worded, with no "cancel".
+
+### `[FU-OR-P6-RESIDUAL-SUBSCRIPTION-COPY]` — ✅ RESOLVED by OR-P7 (`#831`)
+The PricingPage FAQ now uses pass wording, and refund Billing Errors drops "charged after cancelling".
+
+### `[FU-AUTO-RENEW-LATER]` — ★ OPEN (owner, OR-P6). **AUTO-RENEW VIA RAZORPAY E-MANDATE COMES LATER**
+- It will need **RBI pre-debit notices at least 24 hours before each charge, with a cancel option**.
+- Until then, every surface says one-time passes with no auto-renew. Turning on auto-renew means re-wording OR-P6/OR-P7 copy, whose pins (`passesNotSubscriptions.orP7.test.tsx`, the refund pins) will go red on purpose.
+
+### `[FU-PASSES-TERMS-HEADING]` — ★ OPEN. **THE TERMS HEADING STILL READS "Subscription & Payment"**
+- It is at `LegalPage.tsx` ~:312 and in `prerendered/legal/terms.html` *(subagent-reported)*. OR-P7 ruled only the sentence. The heading needs owner wording.
+
+### `[FU-PASSES-MANAGE-SUBSCRIPTION-MENU]` — ★ OPEN. **"Manage subscription" IN THE ACCOUNT MENUS**
+- It is at `DesktopShell.tsx` ~:645 (§4-forbidden) and `MobileAccountMenu.tsx` ~:215 *(subagent-reported)*.
+
+### `[FU-PASSES-TERMS-HEAD]` — ★ OPEN. **THE `/legal/terms` HEAD DESCRIPTION SAYS "…accounts, subscriptions…"**
+- It is at `writeStaticHeads.ts` ~:129 *(subagent-reported)*. Crawler-facing.
+- All three items above are in the OR-P7 pin's `KNOWN_REMAINING`, so the pin passes without them. **Remove each one from that list when it is fixed.**
+
+### `[FU-OR-P6-OFFERSTRIP-LOCK-DUPLICATE]` — ★ OPEN, cosmetic. **THE LOCK PROMISE SHOWS TWICE ON THE FOUNDING STRIP**
+- The Decision 1(b) line ends "locked for every pass you buy", and the `FOUNDING_LOCK_COPY` line below it says "Your founding price stays locked for every pass you buy." The builder did not delete it, as instructed.
+
+### `[FU-REFUND-LABEL-PARITY]` — ★ STILL OPEN (see the PRICING-TB-1 section below). Body unchanged.
+
 ## 2026-09-26 — PRICING-TB-1 (`#827` MERGED as `8ccd63ca`, `#828` MERGED as `81973143`, squash, `--match-head-commit`, no `--admin`; open PRs at the time of writing: **`#818`, `#819`, `#826`** — dependabot only) — one owner conflict, five new follow-ups (one resolved in-lane), one carried and partly resolved
 
 ### ★★★ OWNER DECISION — `[FU-PRICING-MODEL-2026-09]` vs PRICING-TB-1: **TWO OWNER PRICING RULINGS DISAGREE, AND THE LATER ONE SHIPPED**

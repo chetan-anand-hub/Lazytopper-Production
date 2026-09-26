@@ -1,5 +1,44 @@
 # LazyTopper — Current State
 
+## [CURRENT · PRICING] PRICING-TB-1 OR-P6 + OR-P7 — **PASSES, NOT SUBSCRIPTIONS: "₹599 for a month", NO AUTO-RENEW, THE PRICING CONFLICT RESOLVED** — `#830` + `#831` MERGED — trunk `759b9d69`
+
+★ **PROVENANCE.**
+- The PRICING-TB-1 controller was reopened by the owner for OR-P6 (the ruling) and OR-P7 (the residual copy). The builders ran `claude-opus-5-5` at effort `high`, one per PR, each in a fresh worktree.
+- Both PRs were copy only and self-merged on CI green with no audit, per owner authorization:
+  - `#830`: `--match-head-commit cebfae56` → **`3417f2a0`**;
+  - `#831`: `--match-head-commit 54a72b91` → **`759b9d69`**.
+- The controller proved both on trunk: `merge-base --is-ancestor` OK, and `git diff <head> <merge>` is EMPTY for each.
+- Items marked *(subagent-reported)* were not re-measured by the controller.
+
+**Trunk `759b9d692e85154ecef83a391db90154d3889e73`** (`#831`). Before that it was `3417f2a0` (`#830`), and the previous trunk was `110509a0` (`#829`, the PRICING-TB-1 docs).
+
+*(This block supersedes the PRICING-TB-1 block below on trunk SHA, and **it supersedes that block's "⚠ `[FU-PRICING-MODEL-2026-09]` … is NOT reconciled" bullet: that conflict is RESOLVED by OR-P6.** The rest of that block stands as written.)*
+
+### ★ THE PRICING MODEL, AS OF OR-P6 (owner, 2026-09-26) — read this before touching a price
+- **Prices:** ₹999 list, ₹599 founding (PRICING-TB-1 stands). The 2026-09-20 ₹1,999 / ₹999 is **retired**.
+- **Till-boards months:** the smallest k ≥ 1 reaching the board date (5 on 2026-09-26). "Counted from the current month" is **retired**.
+- **Billing: ONE-TIME PASSES ONLY, with no auto-renew.** The 2026-09-20 billing rule stays in force. Copy says "₹599 for a month", never "/month" or "/mo", and never "subscribe", "subscription" or "cancel".
+- **Auto-renew comes later** (Razorpay e-mandate, `[FU-AUTO-RENEW-LATER]`). STORED-RATE-1 and the Razorpay go-live are to be specced against these passes.
+
+### What shipped, one line each
+- **`#830` (OR-P6):** every student-facing "/ month" or "/month" in the allowlist now reads "for a month" (`PERIOD_MONTHLY_LABEL` / `MONTHLY_INLINE` in `pricing.ts`, PricingPage, OfferStrip, MockViewGate, PracticeLimitGate). The paywall sentences read "…with Premium **at** ₹599 for a month." (a one-word grammar fix *(subagent-reported)*). The lock note reads "Your founding price stays locked for every pass you buy." The refund section "Monthly Plan" became **"Month Pass"**, worded by the owner.
+- **`#830` (owner Decision 1b):** the founding OfferStrip reads exactly "Founding member: ₹599 for a month ~~₹999~~, locked for every pass you buy. First 200 students.", with ₹999 alone struck.
+- **`#831` (OR-P7):**
+  - the PricingPage "after the first 200" FAQ ends "Once you buy a pass as a founding member, every pass you buy after that stays at the founding price. We never raise the price of a pass you have already bought." The R6 lead-in is kept.
+  - Refund Billing Errors drops "charged after cancelling".
+  - The Terms sentence reads "Premium features require a pass at the listed prices. Passes are one-time payments and do not renew automatically."
+  - The `writeStaticHeads.ts` `/legal/refund` and `/pricing` descriptions are owner-worded.
+  - **`Welcome.tsx` (owner grant, two spans' text only):** "/mo" → " for a month". The leading space is needed because JSX drops the newline, which would render "₹599for a month". Screenshots at 375 and 1280 show no wrap and no overflow *(subagent-reported)*.
+  - A repo-wide pin, `passesNotSubscriptions.orP7.test.tsx`, bans "subscribe" / "subscription" / "cancel at any time" / "charged after cancelling" / "/mo" / "/month" in student- and crawler-facing text. Its `KNOWN_REMAINING` list names the three open follow-ups below.
+- The prerendered `pricing.html`, `legal/refund.html` and `legal/terms.html` were regenerated from the CI capture artifacts, never hand-edited.
+
+### ★ Still says "subscription" (open, listed in the pin's `KNOWN_REMAINING`)
+- The Terms heading "Subscription & Payment" (`[FU-PASSES-TERMS-HEADING]`).
+- The "Manage subscription" menu item (`[FU-PASSES-MANAGE-SUBSCRIPTION-MENU]`; DesktopShell is §4-forbidden).
+- The `/legal/terms` head description (`[FU-PASSES-TERMS-HEAD]`).
+
+- The `WIRE-2` dormancy block is unchanged by this lane; see its section (`### 8 - ★ THE WIRE-2 QUESTION`) below.
+
 ## [CURRENT · PRICING] PRICING-TB-1 — **MONTHLY + "TILL BOARDS" PRICING REPLACES THE BOARD-YEAR PLAN; THE REFUND PAGE STATES A NO-REFUND POLICY; NO "UNLIMITED" CLAIMS** — `#827` + `#828` MERGED — trunk `81973143`
 
 ★ **PROVENANCE.**
