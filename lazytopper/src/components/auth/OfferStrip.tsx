@@ -348,15 +348,17 @@ export default function OfferStrip({
             <span className="lt-offer-strip-badge" data-testid="lt-offer-founding-badge">
               {FOUNDING_LABEL}
             </span>
-            {": you keep "}
+            {/* PRICING-TB-1 · OR-P6 Decision 1(b) (owner, 2026-09-26), word for word:
+                "Founding member: <founding> for a month <list>, locked for every pass
+                you buy. First 200 students." — the list figure stays struck (R1).
+                No figure is typed here: the price-literal pin scans this file. */}
+            {": "}
             <span className="lt-offer-strip-price">
               {`${PRICE_MONTHLY_FOUNDING_DISPLAY} ${PERIOD_MONTHLY_LABEL}`}
             </span>
             {" "}
-            <s className="lt-offer-strip-was">
-              {`${PRICE_MONTHLY_LIST_DISPLAY} ${PERIOD_MONTHLY_LABEL}`}
-            </s>
-            {`. ${FOUNDING_COHORT_COPY}`}
+            <s className="lt-offer-strip-was">{PRICE_MONTHLY_LIST_DISPLAY}</s>
+            {`, locked for every pass you buy. ${FOUNDING_COHORT_COPY}`}
           </p>
           <p className="lt-offer-strip-note">{FOUNDING_LOCK_COPY}</p>
         </>
