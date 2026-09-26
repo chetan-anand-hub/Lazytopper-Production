@@ -8,7 +8,7 @@ import Welcome from "./pages/Welcome";
 // Import the new Vibe toggle and command palette components.
 
 import { CommandPalette } from './ui/components/CommandPalette';
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react"; import { lazyWithRetry as lazy } from "./lib/lazyWithRetry";
 import { useVibeMode } from './context/vibeModeContext';
 import { parseCommandIntent } from "./services/commandIntent";
 import { normalizeTopicKey } from "./utils/topicResolver";
