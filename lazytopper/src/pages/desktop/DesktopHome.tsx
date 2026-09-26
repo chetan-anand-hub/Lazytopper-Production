@@ -18,6 +18,7 @@ import {
 } from "../../lib/desktop/homeDestinations";
 import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import FirstSession from "../../components/home/FirstSession";
+import CbseBanner from "../../components/cbse/CbseBanner";
 
 /**
  * DesktopHome — the Home cockpit at desktop width (and at /browse for a
@@ -397,6 +398,11 @@ export default function DesktopHome() {
             Renders null unless the student is signed in with a real account,
             has no phone credential linked, has not dismissed it, and has
             RETURNED at least once. All four live inside the component. */}
+        {/* ── CBSE news strip (CBSE-AUTO-1 C12) ────────────────────
+            Renders null unless the mirror's manifest flags a recent circular
+            important and this student has not dismissed it. */}
+        <CbseBanner />
+
         <LinkPhoneNudge />
 
         {/* ── Start here — 4 hero cards ──────────────────────────

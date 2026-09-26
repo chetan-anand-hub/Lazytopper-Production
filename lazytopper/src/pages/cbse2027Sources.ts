@@ -19,12 +19,25 @@
  * watcher, no credential, no generated file. Owner ruling, 2026-09-18: cut the
  * automation claim entirely and state only the date the list was last checked.
  * Lane B earns that copy back when it ships.
+ *
+ * CBSE-AUTO-1 (Lane B) — the automation now exists, but NOT in this file. A daily
+ * job (`scripts/cbse-mirror/`) mirrors the papers below into Firebase Storage and
+ * publishes `cbse/manifest.json`; the page overlays that manifest at runtime. This
+ * file is still hand-checked data and is now the FALLBACK the page renders whenever
+ * the manifest is unreachable. The page still states only a date, never a frequency.
  */
 
 /** What a source link actually serves, so the page can label it honestly. */
 export type CbseSourceKind = "pdf" | "zip";
 
 export type CbsePaper = {
+  /**
+   * Stable, unique, kebab-case key (CBSE-AUTO-1 C2). The Storage mirror files this
+   * paper at `cbse/files/<id>.<kind>` and the manifest joins on it, so it must never
+   * change once shipped — even when CBSE moves the file to a new session's folder.
+   * Uniqueness and the kebab-case shape are pinned by the page guard test.
+   */
+  readonly id: string;
   /** Row heading — what the document is, in the student's words. */
   readonly title: string;
   /** One line on why it is worth opening. */
@@ -61,6 +74,11 @@ export type CbseUnitMark = {
  * Every `papers` href below is a real CBSE URL. The Firebase mirror (Lane B)
  * will put a Storage URL in front of these with the CBSE URL as the fallback;
  * until it exists, these ARE the links, and they open on CBSE's own site.
+ *
+ * CBSE-AUTO-1: the mirror reads THIS list — it mirrors exactly the papers declared
+ * here, keyed by `id`. These hrefs stay the fallback: whenever the manifest is
+ * unreachable, or a paper's manifest status is not `ok`, the page links the committed
+ * href below and labels it "Open", exactly as it did before the mirror existed.
  */
 export const CBSE_SUBJECTS: readonly CbseSubject[] = [
   {
@@ -68,42 +86,49 @@ export const CBSE_SUBJECTS: readonly CbseSubject[] = [
     label: "Science",
     papers: [
       {
+        id: "science-sqp",
         title: "Sample paper",
         blurb: "The closest thing to your real February paper",
         href: "https://cbseacademic.nic.in/web_material/SQP/ClassX_2025_26/Science-SQP.pdf",
         kind: "pdf",
       },
       {
+        id: "science-ms",
         title: "Marking scheme",
         blurb: "Mark by mark — where each one is awarded",
         href: "https://cbseacademic.nic.in/web_material/SQP/ClassX_2025_26/Science-MS.pdf",
         kind: "pdf",
       },
       {
+        id: "science-competency-answers",
         title: "Competency questions, with answers",
         blurb: "Case-based practice for half your paper",
         href: "https://cbseacademic.nic.in/web_material/Manuals/CFPQ_Science10.pdf",
         kind: "pdf",
       },
       {
+        id: "science-competency-items",
         title: "Competency test items",
         blurb: "Questions without answers — use as a mock",
         href: "https://cbseacademic.nic.in/cbe/documents/SAS_Science-Class-10.pdf",
         kind: "pdf",
       },
       {
+        id: "science-question-bank",
         title: "Question bank",
         blurb: "CBSE's standing bank for Class 10 Science",
         href: "https://cbseacademic.nic.in/web_material/QuestionBank/ClassX/ScienceX.pdf",
         kind: "pdf",
       },
       {
+        id: "science-toppers",
         title: "Toppers' answer sheets, 2025",
         blurb: "Real evaluated scripts with examiner ticks",
         href: "https://www.cbse.gov.in/cbsenew/model-answer/2025/X/Science.zip",
         kind: "zip",
       },
       {
+        id: "science-syllabus",
         title: "Syllabus 2026-27",
         blurb: "What your paper is set from",
         href: "https://cbseacademic.nic.in/web_material/CurriculumMain27/SecPart1/Science_SecP1_2026-27.pdf",
@@ -124,48 +149,56 @@ export const CBSE_SUBJECTS: readonly CbseSubject[] = [
     label: "Maths",
     papers: [
       {
+        id: "maths-standard-sqp",
         title: "Sample paper — Standard",
         blurb: "The closest thing to your real February paper",
         href: "https://cbseacademic.nic.in/web_material/SQP/ClassX_2025_26/MathsStandard-SQP.pdf",
         kind: "pdf",
       },
       {
+        id: "maths-basic-sqp",
         title: "Sample paper — Basic",
         blurb: "If you're taking Maths Basic",
         href: "https://cbseacademic.nic.in/web_material/SQP/ClassX_2025_26/MathsBasic-SQP.pdf",
         kind: "pdf",
       },
       {
+        id: "maths-standard-ms",
         title: "Marking scheme",
         blurb: "Mark by mark — where each one is awarded",
         href: "https://cbseacademic.nic.in/web_material/SQP/ClassX_2025_26/MathsStandard-MS.pdf",
         kind: "pdf",
       },
       {
+        id: "maths-competency-items",
         title: "Competency test items",
         blurb: "Application questions, exam-style",
         href: "https://cbseacademic.nic.in/cbe/documents/SAS_Maths-Class-10.pdf",
         kind: "pdf",
       },
       {
+        id: "maths-item-bank",
         title: "Item bank",
         blurb: "With mark schemes for every question",
         href: "https://cbseacademic.nic.in/cbe/documents/Item-Bank--Maths---Class-10.pdf",
         kind: "pdf",
       },
       {
+        id: "maths-question-bank",
         title: "Question bank",
         blurb: "CBSE's standing bank for Class 10 Maths",
         href: "https://cbseacademic.nic.in/web_material/QuestionBank/ClassX/MathsX.pdf",
         kind: "pdf",
       },
       {
+        id: "maths-toppers",
         title: "Toppers' answer sheets, 2025",
         blurb: "See what full marks actually looks like",
         href: "https://www.cbse.gov.in/cbsenew/model-answer/2025/X/Math_Stand.zip",
         kind: "zip",
       },
       {
+        id: "maths-syllabus",
         title: "Syllabus 2026-27",
         blurb: "Unit-wise marks are on page 1",
         href: "https://cbseacademic.nic.in/web_material/CurriculumMain27/SecPart1/Maths_SecP1X_2026-27.pdf",
@@ -248,6 +281,12 @@ export const CBSE_TIMELINE: readonly CbseTimelineStop[] = [
  * "CBSE has released the 2027 date sheet", never "Date Sheet for Secondary School
  * Examination 2027". The strip shows the headline; the row keeps `title` for the
  * link itself.
+ *
+ * CBSE-AUTO-1: the committed rows below still ship `important: false` (pinned by the
+ * guard test). The LIVE rows come from the Storage manifest, where `important` and
+ * `headline` are set only by the mirror's fixed rule table (never generated), and
+ * the Home banner (`components/cbse/CbseBanner.tsx`) is their one reader. The page
+ * itself still renders neither field.
  */
 export type CbseCircular = {
   readonly date: string;
@@ -264,6 +303,11 @@ export type CbseCircular = {
  * ⚠ COMMITTED DATA, HAND-CHECKED. Not generated, not watched, not refreshed.
  * Lane B replaces this array wholesale. Until then the page states only the date
  * below — never a frequency.
+ *
+ * CBSE-AUTO-1: Lane B replaces it AT RUNTIME, not in this file. When the Storage
+ * manifest loads and carries circulars, the page renders those rows and the
+ * manifest's `circularsCheckedAt` date instead; otherwise these rows and this date
+ * render unchanged. This array is now the honest FALLBACK, and stays hand-checked.
  */
 export const CBSE_CIRCULARS_CHECKED_ON = "18 September 2026";
 

@@ -1,0 +1,113 @@
+# cbse-mirror — keeps /cbse/class-10's papers and circulars current (CBSE-AUTO-1).
+#
+# Every morning at 06:00 IST this job:
+#   - mirrors each paper the page lists into Firebase Storage at cbse/files/<id>.<ext>
+#     (conditional GET; download only on change; every replacement must pass the C4
+#     guards, and the previous copy is archived first),
+#   - probes the current session's Class X sample-paper index for new-session papers,
+#   - rebuilds the circular feed from both CBSE circular indexes,
+#   - writes cbse/manifest.json LAST, and opens a de-duplicated issue for anything
+#     that was replaced, rejected, or has gone missing at CBSE.
+# The page and the Home banner read the manifest; if it is unreachable they render
+# exactly what the committed data says.
+#
+# ★ A MANUAL RUN IS A DRY RUN UNLESS YOU SAY OTHERWISE. `dry_run` defaults to true:
+# the job fetches everything, prints the plan and writes NOTHING — no Storage object,
+# no issue — and it never even receives the service-account key. Only the schedule,
+# or a manual run with dry_run unticked, writes.
+#
+# ★ NEVER ON A PULL REQUEST. There is deliberately no pull_request trigger: a PR's
+# code must never run with the Storage key.
+#
+# ★ THE KEY. FIREBASE_SERVICE_ACCOUNT (cbse-mirror@lazzyy-topper, Storage Object Admin
+# on this one bucket) reaches ONE step as an environment variable and is parsed in
+# memory. It is never echoed and never written to a file. The script refuses to write
+# anything outside cbse/.
+#
+# ★ issues: write IS REQUIRED. This repo's default workflow token is read-only
+# (default_workflow_permissions: "read", measured 2026-09-26), so without it the
+# job could not open a single issue.
+name: cbse-mirror
+
+on:
+  schedule:
+    - cron: "30 0 * * *" # 00:30 UTC = 06:00 IST
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run: fetch and print the plan, write nothing"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  issues: write
+
+# Two overlapping runs would race on the manifest. Queue, never cancel mid-write.
+concurrency:
+  group: cbse-mirror
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    # ★ CA-4 (owner ruling): the job writes ONLY when the repository variable
+    # CBSE_MIRROR_LIVE is '1'. A scheduled run does not start at all without it;
+    # a manual run always starts (dry runs stay allowed) and the live-write refusal
+    # below handles dry_run: false. The owner sets the variable after the final audit.
+    if: github.event_name != 'schedule' || vars.CBSE_MIRROR_LIVE == '1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      # ★ CA-4: refuse a WRITING run unless CBSE_MIRROR_LIVE is '1' — first step, so it
+      # fails before any install, before the secret is read and before any write. The
+      # dry-run decision is the same rule as run.ts resolveDryRun: a schedule writes; a
+      # manual run writes only when dry_run is explicitly false (the input renders as
+      # the string "true"/"false"); anything else is a dry run and is allowed.
+      - name: Refuse a live run unless CBSE_MIRROR_LIVE is 1
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_DRY_RUN: ${{ inputs.dry_run }}
+          MIRROR_LIVE: ${{ vars.CBSE_MIRROR_LIVE }}
+        run: |
+          live_write=false
+          if [ "$EVENT_NAME" = "schedule" ]; then live_write=true; fi
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ "$INPUT_DRY_RUN" = "false" ]; then live_write=true; fi
+          if [ "$live_write" = "true" ] && [ "$MIRROR_LIVE" != "1" ]; then
+            echo "::error::cbse-mirror: refusing a live (writing) run — repository variable CBSE_MIRROR_LIVE is not '1'. Dry runs are allowed."
+            exit 1
+          fi
+          echo "cbse-mirror: live_write=$live_write CBSE_MIRROR_LIVE=${MIRROR_LIVE:-unset} — allowed"
+
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Enable pnpm (corepack)
+        # Same pin as quality-gate.yml — see the reasoning there.
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.32.1 --activate
+          pnpm --version
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      # firebase-admin lives in the lazytopper workspace; the script loads it from
+      # there with createRequire, so the normal frozen install is all it needs.
+      - name: Install workspace (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Mirror CBSE papers and circulars
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_DRY_RUN: ${{ inputs.dry_run }}
+          FIREBASE_STORAGE_BUCKET: lazzyy-topper.firebasestorage.app
+          # The key is handed over ONLY for a run that will write (the schedule, or a
+          # manual run with dry_run unticked). A dry run gets an empty string.
+          FIREBASE_SERVICE_ACCOUNT: ${{ (github.event_name == 'schedule' || inputs.dry_run == false) && secrets.FIREBASE_SERVICE_ACCOUNT || '' }}
+          GITHUB_TOKEN: ${{ github.token }}
+          # CA-4 defence in depth: run.ts refuses a live run unless this is '1' too.
+          CBSE_MIRROR_LIVE: ${{ vars.CBSE_MIRROR_LIVE }}
+        run: pnpm --filter @workspace/scripts exec node --import tsx/esm cbse-mirror/run.ts
