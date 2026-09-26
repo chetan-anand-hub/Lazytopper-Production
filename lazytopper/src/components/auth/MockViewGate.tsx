@@ -167,7 +167,7 @@ export function MockViewGate({ children }: { children: ReactNode }) {
           background: "var(--bg-card)", borderRadius: 12, padding: "12px 20px",
           border: "1px solid var(--bg-card-border)",
         }}>
-          {["Full mock tests, marked like the board exam","Your mastery progress & streak", "Practice history & weak-area insights"].map(item => (
+          {["Full mock tests, marked like the board exam", "Your mastery progress & streak", "Practice history & weak-area insights"].map(item => (
             <div key={item} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: "0.84rem", color: "var(--text)" }}>
               <span style={{ color: "#22c55e", fontWeight: 800 }}>✓</span>
               {item}
