@@ -142,17 +142,83 @@
   }
 
   .lt-pricing-price-alt {
-    margin: 0 0 2px;
+    margin: 0 0 14px;
     color: var(--lt-muted);
     font-size: 0.85rem;
     font-weight: 600;
   }
 
-  .lt-pricing-price-sub {
-    margin: 0 0 10px;
-    color: var(--lt-green);
-    font-size: 0.82rem;
+  .lt-pricing-price-alt::first-letter {
+    text-transform: uppercase;
+  }
+
+  /* A struck LIST figure beside the price a founding member actually pays. */
+  .lt-pricing-was {
+    color: var(--lt-muted);
+    font-size: 1rem;
+    font-weight: 600;
+    opacity: 0.85;
+  }
+
+  /* Till boards — one payment until the first board paper. The number-free
+     line is static; the figures below it are written only after mount and
+     are stripped from the prerendered capture by their data-testid. */
+  .lt-pricing-tillboards {
+    margin: 0 0 16px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(22, 185, 106, 0.22);
+  }
+
+  .lt-pricing-tillboards-line {
+    margin: 0;
+    color: var(--lt-ink);
+    font-size: 0.85rem;
     font-weight: 700;
+    line-height: 1.45;
+  }
+
+  .lt-pricing-tillboards-figures {
+    margin-top: 8px;
+  }
+
+  .lt-pricing-tillboards-price {
+    margin: 0 0 2px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  .lt-pricing-tillboards-amount {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+
+  .lt-pricing-tillboards-once {
+    color: var(--lt-muted);
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+
+  .lt-pricing-tillboards-meta {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    color: var(--lt-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .lt-pricing-tillboards-save {
+    color: var(--lt-green);
+    font-weight: 800;
   }
 
   /* Founding-offer chrome. The flag sits above the price so the number is read
@@ -170,18 +236,6 @@
     font-weight: 900;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-  }
-
-  .lt-pricing-list-line {
-    margin: 0 0 6px;
-    color: var(--lt-muted);
-    font-size: 0.78rem;
-    font-weight: 600;
-    opacity: 0.85;
-  }
-
-  .lt-pricing-list-line--annual {
-    margin-bottom: 10px;
   }
 
   .lt-pricing-founding-note {
@@ -624,7 +678,7 @@
       width: 100%;
     }
   }
-</style><div class="lt-pricing-inner"><div class="ux-return-bar" data-testid="ux-return-context"><button type="button" class="ux-return-bar__back" aria-label="Back to home">&lt;- Back to home</button></div><section class="lt-pricing-header"><h1 class="lt-pricing-title">Simple, Student-Friendly Plans</h1><p class="lt-pricing-subtitle">Browse first. Sign in for a 7-day trial. Choose Premium when you need checked answers, Mistake Intelligence, and full mock workflows. Payment checkout is not automated yet.</p></section><div class="lt-pricing-cards"><div class="lt-pricing-card"><div class="lt-pricing-plan-label">Basic</div><div class="lt-pricing-price"><span class="lt-pricing-amount">₹0</span><span class="lt-pricing-period">/ forever</span></div><p class="lt-pricing-plan-desc">Browse the product and use limited learning tools without paid access.</p><ul class="lt-pricing-features" aria-label="Basic plan features"><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Browse Home, Exam Trends, and topic surfaces</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Practice picker and limited practice</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Limited worksheet generation</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Basic topic insights</span></li><li class="lt-pricing-feature lt-pricing-feature--off"><span class="lt-pricing-feature-icon" aria-hidden="true">—</span><span>Solution Checker / Check &amp; Improve</span></li><li class="lt-pricing-feature lt-pricing-feature--off"><span class="lt-pricing-feature-icon" aria-hidden="true">—</span><span>Deep Mistake Intelligence</span></li><li class="lt-pricing-feature lt-pricing-feature--off"><span class="lt-pricing-feature-icon" aria-hidden="true">—</span><span>Full mocks and predicted-question execution</span></li><li class="lt-pricing-feature lt-pricing-feature--off"><span class="lt-pricing-feature-icon" aria-hidden="true">—</span><span>Richer Me / Progress recommendations</span></li></ul><button type="button" class="lt-pricing-cta lt-pricing-cta--secondary">Start free</button></div><div class="lt-pricing-card lt-pricing-card--premium"><span class="lt-pricing-badge">Most Popular</span><div class="lt-pricing-plan-label lt-pricing-plan-label--premium">Premium</div><p class="lt-pricing-founding-flag">Founding member · First 200 students.</p><div class="lt-pricing-price"><span class="lt-pricing-amount">₹5,999</span><span class="lt-pricing-period">/ board year</span></div><p class="lt-pricing-list-line lt-pricing-list-line--annual">Regular price <s>₹8,999</s> / board year</p><p class="lt-pricing-price-alt">or ₹599 / month · less than one tuition session</p><p class="lt-pricing-list-line lt-pricing-list-line--monthly">Regular price <s>₹999</s> / month</p><p class="lt-pricing-price-sub">save ₹1,189</p><p class="lt-pricing-founding-note">Locked for as long as you stay subscribed.</p><p class="lt-pricing-plan-desc">Manual activation during beta. Payment checkout coming soon. Premium is not activated automatically.</p><ul class="lt-pricing-features" aria-label="Premium plan features"><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Everything in Basic</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Your AI tutor that actually knows you — your chapters, your mistakes, your pace</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Mistake Intelligence — why you lose marks, not just where</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Check &amp; Improve — photograph your handwritten solution, graded like a board examiner</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Full mocks and predicted-question papers — real board blueprint</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Progress that tells you what to fix next</span></li></ul><button type="button" class="lt-pricing-cta lt-pricing-cta--primary">Start 7-day trial</button><p class="lt-pricing-fine-print">No credit card required. Premium is not activated automatically.</p></div></div><section class="lt-pricing-faq" aria-label="Pricing frequently asked questions"><h2 class="lt-pricing-faq-title">Frequently Asked Questions</h2><div class="lt-pricing-faq-list"><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">Is Basic really free?</div><div class="lt-pricing-faq-a">Yes. Basic keeps browse-first access and limited practice tools available without paid activation.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">Should I pay monthly or for the board year?</div><div class="lt-pricing-faq-a">12 months at ₹599 comes to ₹7,188. The board year is ₹5,999, so you save ₹1,189 and stay covered right through your board exams. Monthly is there if you would rather start small.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">What happens after the first 200 students?</div><div class="lt-pricing-faq-a">The founding offer closes. New members then join at the regular price — ₹999 / month or ₹8,999 / board year, which is what we publish today alongside the founding rate. Your rate is locked. Once you subscribe as a founding member you keep that rate for as long as your subscription stays active. We never change the price of an active subscription.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">Are there any usage limits?</div><div class="lt-pricing-faq-a">Basic includes limited practice and worksheet generation. Premium includes stronger practice and worksheet quotas, subject to fair use.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">What happens after the trial ends?</div><div class="lt-pricing-faq-a">You keep using the free plan. Nothing is charged automatically; you choose when to upgrade.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">Can I pay here?</div><div class="lt-pricing-faq-a">Not yet. Payment checkout is not connected in this build, so Premium activation stays manual.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">Is this only for CBSE Class 10?</div><div class="lt-pricing-faq-a">Currently yes. We're expanding to ICSE, State Boards, and Class 12 soon!</div></div></div></section><section class="lt-pricing-coming" aria-label="Boards and classes coming soon"><h2 class="lt-pricing-coming-title">Coming Soon</h2><p class="lt-pricing-coming-lede">We're expanding to more boards and classes. Join the waitlist to get early access.</p><div class="lt-pricing-coming-chips"><span class="lt-pricing-coming-chip"><span class="lt-pricing-coming-chip-icon" aria-hidden="true">🏛️</span><span>ICSE Board</span></span><span class="lt-pricing-coming-chip"><span class="lt-pricing-coming-chip-icon" aria-hidden="true">🗺️</span><span>State Boards</span></span><span class="lt-pricing-coming-chip"><span class="lt-pricing-coming-chip-icon" aria-hidden="true">🎓</span><span>Class 12 CBSE</span></span></div></section><section class="lt-pricing-waitlist" aria-label="Early access waitlist"><h2 class="lt-pricing-waitlist-title">Join the waitlist</h2><p class="lt-pricing-waitlist-lede">Tell us where to reach you and which board you're hoping for. We'll let you know as soon as we open access.</p><div class="lt-pricing-waitlist-form"><input class="lt-pricing-waitlist-input" placeholder="Email or phone number" aria-label="Email or phone number" type="text" value=""><select class="lt-pricing-waitlist-select" aria-label="Board"><option value="">Board...</option><option value="icse">ICSE</option><option value="state">State Board</option><option value="cbse12">CBSE Class 12</option></select><button type="button" class="lt-pricing-waitlist-cta">Join Waitlist</button></div></section></div><footer class="lt-public-legal" aria-label="Legal"><style>
+</style><div class="lt-pricing-inner"><div class="ux-return-bar" data-testid="ux-return-context"><button type="button" class="ux-return-bar__back" aria-label="Back to home">&lt;- Back to home</button></div><section class="lt-pricing-header"><h1 class="lt-pricing-title">Simple, Student-Friendly Plans</h1><p class="lt-pricing-subtitle">Browse first. Sign in for a 7-day trial. Choose Premium when you need checked answers, Mistake Intelligence, and full mock workflows. Payment checkout is not automated yet.</p></section><div class="lt-pricing-cards"><div class="lt-pricing-card"><div class="lt-pricing-plan-label">Basic</div><div class="lt-pricing-price"><span class="lt-pricing-amount">₹0</span><span class="lt-pricing-period">/ forever</span></div><p class="lt-pricing-plan-desc">Browse the product and use limited learning tools without paid access.</p><ul class="lt-pricing-features" aria-label="Basic plan features"><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Browse Home, Exam Trends, and topic surfaces</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Practice picker and limited practice</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Limited worksheet generation</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Basic topic insights</span></li><li class="lt-pricing-feature lt-pricing-feature--off"><span class="lt-pricing-feature-icon" aria-hidden="true">—</span><span>Solution Checker / Check &amp; Improve</span></li><li class="lt-pricing-feature lt-pricing-feature--off"><span class="lt-pricing-feature-icon" aria-hidden="true">—</span><span>Deep Mistake Intelligence</span></li><li class="lt-pricing-feature lt-pricing-feature--off"><span class="lt-pricing-feature-icon" aria-hidden="true">—</span><span>Full mocks and predicted-question execution</span></li><li class="lt-pricing-feature lt-pricing-feature--off"><span class="lt-pricing-feature-icon" aria-hidden="true">—</span><span>Richer Me / Progress recommendations</span></li></ul><button type="button" class="lt-pricing-cta lt-pricing-cta--secondary">Start free</button></div><div class="lt-pricing-card lt-pricing-card--premium"><span class="lt-pricing-badge">Most Popular</span><div class="lt-pricing-plan-label lt-pricing-plan-label--premium">Premium</div><p class="lt-pricing-founding-flag">Founding member · First 200 students.</p><div class="lt-pricing-price" data-testid="pricing-monthly-price"><span class="lt-pricing-amount">₹599</span><span class="lt-pricing-period">/ month</span><s class="lt-pricing-was">₹999</s></div><p class="lt-pricing-price-alt">less than one tuition session</p><div class="lt-pricing-tillboards" data-testid="till-boards"><p class="lt-pricing-tillboards-line">Or pay once till your boards — 20% off.</p></div><p class="lt-pricing-founding-note">Locked for as long as you stay subscribed.</p><p class="lt-pricing-plan-desc">Manual activation during beta. Payment checkout coming soon. Premium is not activated automatically.</p><ul class="lt-pricing-features" aria-label="Premium plan features"><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Everything in Basic</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Your AI tutor that actually knows you — your chapters, your mistakes, your pace</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Mistake Intelligence — why you lose marks, not just where</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Check &amp; Improve — photograph your handwritten solution, graded like a board examiner</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Full mocks and predicted-question papers — real board blueprint</span></li><li class="lt-pricing-feature lt-pricing-feature--on"><span class="lt-pricing-feature-icon" aria-hidden="true">✓</span><span>Progress that tells you what to fix next</span></li></ul><button type="button" class="lt-pricing-cta lt-pricing-cta--primary">Start 7-day trial</button><p class="lt-pricing-fine-print">No credit card required. Premium is not activated automatically.</p></div></div><section class="lt-pricing-faq" aria-label="Pricing frequently asked questions"><h2 class="lt-pricing-faq-title">Frequently Asked Questions</h2><div class="lt-pricing-faq-list"><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">Is Basic really free?</div><div class="lt-pricing-faq-a">Yes. Basic keeps browse-first access and limited practice tools available without paid activation.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">Should I pay monthly or till my boards?</div><div class="lt-pricing-faq-a">Till boards is one payment that covers every month until your first board paper, at 20% less than paying monthly. The price shrinks each month as the boards get closer.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">What happens after the first 200 students?</div><div class="lt-pricing-faq-a">The founding offer closes. New members then join at the regular price — ₹999 / month, or 20% off when you pay once till your boards, which is what we publish today alongside the founding rate. Your rate is locked. Once you subscribe as a founding member you keep that rate for as long as your subscription stays active. We never change the price of an active subscription.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">Are there any usage limits?</div><div class="lt-pricing-faq-a">Basic includes limited practice and worksheet generation. Premium includes stronger practice and worksheet quotas, subject to fair use.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">What happens after the trial ends?</div><div class="lt-pricing-faq-a">You keep using the free plan. Nothing is charged automatically; you choose when to upgrade.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">Can I pay here?</div><div class="lt-pricing-faq-a">Not yet. Payment checkout is not connected in this build, so Premium activation stays manual.</div></div><div class="lt-pricing-faq-item"><div class="lt-pricing-faq-q">Is this only for CBSE Class 10?</div><div class="lt-pricing-faq-a">Currently yes. We're expanding to ICSE, State Boards, and Class 12 soon!</div></div></div></section><section class="lt-pricing-coming" aria-label="Boards and classes coming soon"><h2 class="lt-pricing-coming-title">Coming Soon</h2><p class="lt-pricing-coming-lede">We're expanding to more boards and classes. Join the waitlist to get early access.</p><div class="lt-pricing-coming-chips"><span class="lt-pricing-coming-chip"><span class="lt-pricing-coming-chip-icon" aria-hidden="true">🏛️</span><span>ICSE Board</span></span><span class="lt-pricing-coming-chip"><span class="lt-pricing-coming-chip-icon" aria-hidden="true">🗺️</span><span>State Boards</span></span><span class="lt-pricing-coming-chip"><span class="lt-pricing-coming-chip-icon" aria-hidden="true">🎓</span><span>Class 12 CBSE</span></span></div></section><section class="lt-pricing-waitlist" aria-label="Early access waitlist"><h2 class="lt-pricing-waitlist-title">Join the waitlist</h2><p class="lt-pricing-waitlist-lede">Tell us where to reach you and which board you're hoping for. We'll let you know as soon as we open access.</p><div class="lt-pricing-waitlist-form"><input class="lt-pricing-waitlist-input" placeholder="Email or phone number" aria-label="Email or phone number" type="text" value=""><select class="lt-pricing-waitlist-select" aria-label="Board"><option value="">Board...</option><option value="icse">ICSE</option><option value="state">State Board</option><option value="cbse12">CBSE Class 12</option></select><button type="button" class="lt-pricing-waitlist-cta">Join Waitlist</button></div></section></div><footer class="lt-public-legal" aria-label="Legal"><style>
   .lt-public-legal {
     display: flex;
     flex-wrap: wrap;

@@ -6,6 +6,7 @@ import {
   MIN_BODY_BYTES,
   SUBSTRING_TRAP_WITNESSES,
   capturablePaths,
+  countResidualAuthNodes,
   servableKey,
   stripAuthChrome,
   validateCaptures,
@@ -140,6 +141,78 @@ describe("stripAuthChrome removes NODES, never text", () => {
     expect(root.textContent).not.toContain("Start free trial");
     // The neighbouring section is untouched — the strip is surgical, not a purge.
     expect(root.textContent).toContain("Quick Practice");
+  });
+
+  /**
+   * ★ PRICING-TB-1 (owner ruling OR-P1) — CLOCK-DERIVED FIGURES. /pricing's
+   * till-boards price and the landing's boards countdown are computed from today's
+   * date after mount; a capture waits for the page to settle, so it WOULD see them.
+   * The strip removes each by its data-testid — the whole node, never by text.
+   */
+  it("removes the till-boards figures node, keeping the number-free line beside it", () => {
+    const root = document.createElement("div");
+    root.innerHTML =
+      '<div data-testid="till-boards"><p>Or pay once till your boards — 20% off.</p>' +
+      '<div data-testid="till-boards-figures"><p><span>₹2,396</span> one-time <s>₹2,995</s></p>' +
+      "<p>till your boards (Feb 2027) · save 20%</p></div></div>";
+
+    // CONTROL — before the strip the residual counter DOES see the node.
+    expect(countResidualAuthNodes(root)).toBe(1);
+
+    stripAuthChrome(root);
+
+    expect(root.querySelector('[data-testid="till-boards-figures"]')).toBeNull();
+    expect(countResidualAuthNodes(root)).toBe(0);
+    expect(root.textContent).not.toContain("₹2,396");
+    expect(root.textContent).not.toContain("till your boards (Feb 2027)");
+    expect(root.textContent).toContain("Or pay once till your boards — 20% off.");
+  });
+
+  it("removes the landing boards-countdown figure, keeping its heading (prepared for /)", () => {
+    const root = document.createElement("div");
+    root.innerHTML =
+      '<section><h2 data-testid="boards-heading">Your boards are closer than you think.</h2>' +
+      '<p class="lt-landing-countdown" data-testid="boards-countdown">5 months</p></section>';
+
+    expect(countResidualAuthNodes(root)).toBe(1);
+
+    stripAuthChrome(root);
+
+    expect(root.querySelector('[data-testid="boards-countdown"]')).toBeNull();
+    expect(countResidualAuthNodes(root)).toBe(0);
+    expect(root.textContent).not.toContain("5 months");
+    expect(root.textContent).toContain("Your boards are closer than you think.");
+  });
+
+  it("strips clock figures by NODE, never by text: 'months' and 'save' in content survive", () => {
+    const root = document.createElement("div");
+    const prose =
+      "<main><p>It takes 5 months to save enough; till your boards, revise daily.</p></main>";
+    root.innerHTML = prose;
+
+    stripAuthChrome(root);
+
+    expect(root.innerHTML).toBe(prose);
+    expect(countResidualAuthNodes(root)).toBe(0);
+  });
+
+  it("the residual counter FAILS a capture whose clock figure survived", () => {
+    // Fed straight to the validator: a surviving till-boards node counts as residual
+    // chrome, so the capture is refused rather than written to disk.
+    const root = document.createElement("div");
+    root.innerHTML = '<div data-testid="till-boards-figures"><span>₹2,396</span></div>';
+    const residual = countResidualAuthNodes(root);
+    expect(residual).toBe(1);
+    const failures = validateCaptures([
+      { ...capture("/pricing", "Simple, Student-Friendly Plans"), residualAuthNodes: residual },
+    ]);
+    expect(failures.join(" ")).toContain("/pricing: 1 auth-chrome node(s) survived");
+    // CONTROL — the same capture with the node stripped passes.
+    expect(
+      validateCaptures([
+        { ...capture("/pricing", "Simple, Student-Friendly Plans"), residualAuthNodes: 0 },
+      ]),
+    ).toEqual([]);
   });
 
   it("leaves a page with no auth chrome completely unchanged", () => {

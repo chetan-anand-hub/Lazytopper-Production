@@ -1,30 +1,42 @@
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, cleanup } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+import { renderToStaticMarkup } from "react-dom/server";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
-import PricingPage from "./PricingPage";
+import PricingPage, { PremiumPriceHead, TillBoardsOffer } from "./PricingPage";
+import {
+  PRICE_FREE_DISPLAY,
+  PRICE_MONTHLY_FOUNDING_DISPLAY,
+  PRICE_MONTHLY_LIST_DISPLAY,
+  TILL_BOARDS_LINE,
+} from "../config/pricing";
+import { stripAuthChrome, countResidualAuthNodes } from "../../scripts/seo/captureStaticBodies";
 
 /**
- * PricingPage — published price + packaging pins (Lane H-2).
+ * PricingPage — published price + packaging pins (Lane H-2, rewritten by PRICING-TB-1).
  *
  * This page publishes a PRICE to the public, so the numbers are pinned harder
- * than the copy. Two things matter and are asserted separately:
+ * than the copy. PRICING-TB-1 (owner ruling 2026-09-26) retired the fixed
+ * board-year plan:
  *
- *  1. The exact owner-final figures render with their period labels
- *     (₹4,999 / board year as the hero, ₹599 / month as the alternative).
- *  2. The RELATIONSHIP between them holds. `savings` is a DERIVED value, and a
- *     derived value that is pinned as a literal goes quietly stale the moment
- *     one of its inputs moves. So the arithmetic test parses all three figures
- *     back out of the rendered DOM and asserts
- *     `monthly * 12 - boardYear === saving` — change ANY one of the three and
- *     this goes red, which is the property the owner actually cares about.
+ *  R1  the headline is the MONTHLY price — founding ₹599 / month with the list
+ *      ₹999 struck beside it while the offer is open; ₹999 alone once it closes.
+ *  R3  "till boards" — one payment until the first board paper, 20% under
+ *      monthly × months-left. Its figures depend on TODAY, so they are written
+ *      only after mount.
+ *  R4  and therefore never baked into the prerendered page: the capture strips
+ *      the one node that holds them, leaving the number-free line.
+ *  R6  the FAQ copy.
  *
- * It also pins the packaging that a concurrent lane depends on (Check & Improve
- * stays OUT of the Basic column) and the honest "checkout is not automated"
- * notice, which must survive until a real payment rail exists.
+ * The till-boards arithmetic itself is pinned in src/config/pricing.tillBoards.test.ts.
  */
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
 /** Collapse JSX line-wrapping so copy assertions are whitespace-insensitive. */
 function flat(el: Element | null | undefined): string {
@@ -36,6 +48,14 @@ function parseRupees(text: string): number {
   expect(m, `expected a ₹ amount in: ${JSON.stringify(text)}`).not.toBeNull();
   return Number(m![1].replace(/,/g, ""));
 }
+
+/** Pin the clock (Date only — React's scheduler keeps real timers). */
+function pinToday(isoInstant: string) {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date(isoInstant));
+}
+
+const SEPT_26_IST = "2026-09-26T12:00:00+05:30";
 
 function renderPricing() {
   const utils = render(
@@ -52,52 +72,174 @@ function renderPricing() {
   return { ...utils, inner: inner as Element, premium: premium as Element };
 }
 
-describe("PricingPage — published prices (test 1)", () => {
-  it("renders ₹5,999 / board year as the FOUNDING hero price, with ₹599 / month and the saving", () => {
-    const { premium } = renderPricing();
+/** Every rupee amount in a text, as displayed ("₹2,396"). */
+function rupeeAmounts(text: string): string[] {
+  return text.match(/₹[\d,]+/g) ?? [];
+}
 
-    expect(flat(premium.querySelector(".lt-pricing-amount"))).toBe("₹5,999");
-    expect(flat(premium.querySelector(".lt-pricing-period"))).toBe("/ board year");
+/** The only figures the STATIC page may carry: free and the two monthly rates. */
+const STATIC_FIGURES = new Set([
+  PRICE_FREE_DISPLAY,
+  PRICE_MONTHLY_FOUNDING_DISPLAY,
+  PRICE_MONTHLY_LIST_DISPLAY,
+]);
+
+describe("PricingPage — R1 the monthly headline", () => {
+  it("founding OPEN (as shipped): ₹599 / month, with ₹999 struck beside it", () => {
+    const { premium } = renderPricing();
+    const head = premium.querySelector('[data-testid="pricing-monthly-price"]');
+
+    expect(flat(head?.querySelector(".lt-pricing-amount"))).toBe("₹599");
+    expect(flat(head?.querySelector(".lt-pricing-period"))).toBe("/ month");
+    // The LIST figure, and only the list figure, is struck — `<s>` specifically,
+    // so an edit that drops the strike leaves two live prices side by side.
+    expect(flat(head?.querySelector("s"))).toBe("₹999");
+    expect(flat(head?.querySelector(".lt-pricing-amount s"))).toBe("");
+  });
+
+  it("founding CLOSED: ₹999 / month and nothing struck", () => {
+    const closed = render(<PremiumPriceHead offerOpen={false} />);
+    expect(flat(closed.container.querySelector(".lt-pricing-amount"))).toBe("₹999");
+    expect(flat(closed.container.querySelector(".lt-pricing-period"))).toBe("/ month");
+    expect(closed.container.querySelector("s")).toBeNull();
+    // CONTROL — the same query finds the strike when the offer is open.
+    cleanup();
+    const open = render(<PremiumPriceHead offerOpen />);
+    expect(open.container.querySelector("s")).not.toBeNull();
+  });
+
+  it("keeps the tuition anchor beside the monthly price", () => {
+    const { premium } = renderPricing();
     expect(flat(premium.querySelector(".lt-pricing-price-alt"))).toBe(
-      "or ₹599 / month · less than one tuition session",
+      "less than one tuition session",
     );
-    expect(flat(premium.querySelector(".lt-pricing-price-sub"))).toBe("save ₹1,189");
   });
 
+  it("every founding figure undercuts its list counterpart on the rendered page", () => {
+    const { premium } = renderPricing();
+    const head = premium.querySelector('[data-testid="pricing-monthly-price"]');
+    const founding = parseRupees(flat(head?.querySelector(".lt-pricing-amount")));
+    const list = parseRupees(flat(head?.querySelector("s")));
+    expect(founding).toBeLessThan(list);
+  });
+});
+
+describe("PricingPage — R2 the board-year plan is gone", () => {
+  it("renders no ₹5,999, ₹8,999, ₹1,189 or '/ board year' anywhere on the page", () => {
+    pinToday(SEPT_26_IST);
+    const { inner } = renderPricing();
+    const page = flat(inner);
+
+    for (const retired of ["₹5,999", "₹8,999", "₹1,189", "board year", "save ₹"]) {
+      expect(page, `retired board-year copy still rendered: ${retired}`).not.toContain(retired);
+    }
+    // CONTROL — the same flattened text DOES carry the live prices.
+    expect(page).toContain("₹599");
+    expect(page).toContain("₹2,396");
+  });
+
+  it("no longer publishes the retired ₹2,999 / ₹250 figures anywhere on the page", () => {
+    const { inner } = renderPricing();
+    const page = flat(inner);
+
+    expect(page).not.toContain("₹2,999");
+    expect(page).not.toContain("₹250");
+  });
+});
+
+describe("PricingPage — R3 the till-boards card", () => {
+  it("after load on 2026-09-26: ₹2,396 one-time, ₹2,995 struck, till your boards (Feb 2027), save 20%", () => {
+    pinToday(SEPT_26_IST);
+    const { premium } = renderPricing();
+    const card = premium.querySelector('[data-testid="till-boards"]');
+    const figures = premium.querySelector('[data-testid="till-boards-figures"]');
+    expect(card).not.toBeNull();
+    expect(figures, "the figures render after mount").not.toBeNull();
+
+    expect(flat(figures?.querySelector(".lt-pricing-tillboards-amount"))).toBe("₹2,396");
+    expect(flat(figures?.querySelector("s"))).toBe("₹2,995");
+    expect(flat(figures)).toContain("one-time");
+    expect(flat(figures)).toContain("till your boards (Feb 2027)");
+    expect(flat(figures)).toContain("save 20%");
+  });
+
+  it("founding CLOSED on 2026-09-26: ₹3,996 one-time, ₹4,995 struck", () => {
+    pinToday(SEPT_26_IST);
+    const { container } = render(<TillBoardsOffer offerOpen={false} />);
+    const figures = container.querySelector('[data-testid="till-boards-figures"]');
+    expect(flat(figures?.querySelector(".lt-pricing-tillboards-amount"))).toBe("₹3,996");
+    expect(flat(figures?.querySelector("s"))).toBe("₹4,995");
+  });
+
+  it("the FIRST render carries the number-free line and NO figure (nothing clock-derived in markup)", () => {
+    pinToday(SEPT_26_IST);
+    // renderToStaticMarkup runs no effects: this is exactly the markup before mount.
+    const html = renderToStaticMarkup(
+      <MemoryRouter>
+        <PricingPage />
+      </MemoryRouter>,
+    );
+    expect(html).toContain(TILL_BOARDS_LINE);
+    expect(html).not.toContain("till-boards-figures");
+    expect(html).not.toContain("till your boards (");
+    // CONTROL — the mounted page does carry them, so these absences mean something.
+    const { inner } = renderPricing();
+    expect(flat(inner)).toContain("till your boards (Feb 2027)");
+  });
+});
+
+describe("PricingPage — R4 the till-boards figures never reach the static page", () => {
   /**
-   * BOTH tiers must be visible, and the list figures must be struck.
-   *
-   * This is the assertion the founding offer actually rests on. A page showing
-   * only ₹599 is not a founding offer — it is just a low price, and the claim
-   * "regular price ₹999" becomes unfalsifiable copy. Asserting the `<s>` element
-   * specifically (not merely that the digits appear somewhere) pins the
-   * PRESENTATION: an edit that drops the strike leaves two live prices sitting
-   * side by side with nothing saying which one a student pays.
+   * ★ THIS DRIVES THE REAL CAPTURE STRIP. The prerender capture renders the page in
+   * a browser, waits for it to settle (so the effect HAS run), then calls
+   * `stripAuthChrome()` and `countResidualAuthNodes()` from
+   * scripts/seo/captureStaticBodies.ts. Doing the same here, on the mounted page,
+   * proves the whole pairing — every figure inside the one node, and the rule that
+   * removes that node — rather than either half alone.
    */
-  it("publishes the LIST price for both periods, struck, alongside the founding price", () => {
-    const { premium } = renderPricing();
+  it("after the capture strip: the number-free line stays, no till-boards figure survives", () => {
+    pinToday(SEPT_26_IST);
+    const { container } = renderPricing();
 
-    const annualList = premium.querySelector(".lt-pricing-list-line--annual");
-    const monthlyList = premium.querySelector(".lt-pricing-list-line--monthly");
+    // CONTROL — before the strip the figures ARE on the settled page.
+    expect(countResidualAuthNodes(container)).toBeGreaterThan(0);
+    expect(rupeeAmounts(flat(container)).some((a) => !STATIC_FIGURES.has(a))).toBe(true);
 
-    expect(flat(annualList)).toBe("Regular price ₹8,999 / board year");
-    expect(flat(monthlyList)).toBe("Regular price ₹999 / month");
+    stripAuthChrome(container);
 
-    // The list figure, and only the list figure, is struck through.
-    expect(flat(annualList?.querySelector("s"))).toBe("₹8,999");
-    expect(flat(monthlyList?.querySelector("s"))).toBe("₹999");
-    expect(flat(premium.querySelector(".lt-pricing-amount s"))).toBe("");
+    expect(countResidualAuthNodes(container)).toBe(0);
+    const text = flat(container.querySelector(".lt-pricing-inner"));
+    expect(text).toContain(TILL_BOARDS_LINE);
+    const baked = rupeeAmounts(text).filter((a) => !STATIC_FIGURES.has(a));
+    expect(baked, `clock-derived figures survived the capture strip: ${baked.join(", ")}`).toEqual([]);
+    for (const label of ["till your boards (", "save 20%", "one-time"]) {
+      expect(text, `till-boards label survived the strip: ${label}`).not.toContain(label);
+    }
   });
 
-  it("states the founding offer's two load-bearing promises: the lock and the cohort", () => {
-    const { premium } = renderPricing();
-    const card = flat(premium);
+  it("the committed prerendered/pricing.html carries the number-free line and NO till-boards figure", () => {
+    const html = readFileSync(resolve(process.cwd(), "prerendered/pricing.html"), "utf8");
+    // CONTROL — it IS the pricing page, with the static monthly headline.
+    expect(html).toContain("Simple, Student-Friendly Plans");
+    expect(html).toContain(PRICE_MONTHLY_FOUNDING_DISPLAY);
+    expect(html).toContain(TILL_BOARDS_LINE);
 
-    // Without BOTH of these the offer is a discount, not a founding rate — and
-    // "nobody's price ever rises" stops being something the page has said.
-    expect(card).toContain("Locked for as long as you stay subscribed.");
-    expect(card).toContain("First 200 students.");
-    expect(card.toLowerCase()).toContain("founding member");
+    expect(html).not.toContain("till-boards-figures");
+    expect(html).not.toContain("till your boards (");
+    expect(html).not.toContain("save 20%");
+    const baked = rupeeAmounts(html).filter((a) => !STATIC_FIGURES.has(a));
+    expect(baked, `non-static figures in prerendered/pricing.html: ${baked.join(", ")}`).toEqual([]);
+  });
+});
+
+describe("PricingPage — R6 FAQ copy", () => {
+  it("asks monthly vs till boards, and answers with NO figure", () => {
+    const { inner } = renderPricing();
+    const faq = flat(inner.querySelector(".lt-pricing-faq"));
+    expect(faq).toContain("Should I pay monthly or till my boards?");
+    expect(faq).toContain(
+      "Till boards is one payment that covers every month until your first board paper, at 20% less than paying monthly. The price shrinks each month as the boards get closer.",
+    );
   });
 
   it("answers what happens after the cohort fills, and locks the SUBSCRIBER's rate", () => {
@@ -107,28 +249,43 @@ describe("PricingPage — published prices (test 1)", () => {
     expect(faq).toContain("What happens after the first 200 students?");
     // The close condition...
     expect(faq).toContain("The founding offer closes.");
+    // ...the regular price, with till boards named WITHOUT a figure...
+    expect(faq).toContain(
+      "New members then join at the regular price — ₹999 / month, or 20% off when you pay once till your boards",
+    );
     // ...and the lock, which is what makes the close honest rather than a bait.
     expect(faq).toContain("Your rate is locked.");
     expect(faq).toContain(
       "you keep that rate for as long as your subscription stays active",
     );
     expect(faq).toContain("We never change the price of an active subscription.");
-    // Both tiers named in the FAQ, so a reader can check the claim.
-    expect(faq).toContain("₹999");
-    expect(faq).toContain("₹8,999");
-    expect(faq).toContain("₹599");
-    expect(faq).toContain("₹5,999");
+  });
+
+  it("the FAQ carries no rupee figure other than the static monthly prices", () => {
+    pinToday(SEPT_26_IST);
+    const { inner } = renderPricing();
+    const faq = flat(inner.querySelector(".lt-pricing-faq"));
+    expect(rupeeAmounts(faq)).toContain("₹999");
+    expect(rupeeAmounts(faq).filter((a) => !STATIC_FIGURES.has(a))).toEqual([]);
+  });
+
+  it("keeps the founding offer's load-bearing promises: the label, the lock and the cohort", () => {
+    const { premium } = renderPricing();
+    const card = flat(premium);
+
+    expect(card).toContain("Locked for as long as you stay subscribed.");
+    expect(card).toContain("First 200 students.");
+    expect(card.toLowerCase()).toContain("founding member");
+    expect(card).toContain("Start 7-day trial");
+    expect(card).toContain("Manual activation during beta.");
   });
 
   /**
    * The promise must stay scoped to an ACTIVE SUBSCRIPTION.
    *
    * "We do not raise anyone's price" is a claim about PUBLISHED prices, and the
-   * product cannot support it — the board year moved ₹4,999 → ₹5,999 between
-   * #539 and this PR. A reader who saw the older figure would quote the broad
-   * sentence back. This is a copy regression that no type, build or render check
-   * can see, so it is pinned as text: if the narrow claim is ever widened, this
-   * goes red and names the reason.
+   * product cannot support it — a fixed board-year price moved between #539 and
+   * #548. A reader who saw the older figure would quote the broad sentence back.
    */
   it("makes no absolute claim about PUBLISHED prices anywhere on the page", () => {
     const { inner } = renderPricing();
@@ -157,65 +314,6 @@ describe("PricingPage — published prices (test 1)", () => {
 
     expect(flat(basic.querySelector(".lt-pricing-amount"))).toBe("₹0");
     expect(flat(basic.querySelector(".lt-pricing-period"))).toBe("/ forever");
-  });
-
-  it("the three published FOUNDING figures are arithmetically consistent", () => {
-    const { premium } = renderPricing();
-
-    const boardYear = parseRupees(flat(premium.querySelector(".lt-pricing-amount")));
-    const monthly = parseRupees(flat(premium.querySelector(".lt-pricing-price-alt")));
-    const saving = parseRupees(flat(premium.querySelector(".lt-pricing-price-sub")));
-
-    expect(monthly * 12 - boardYear).toBe(saving);
-  });
-
-  it("the LIST tier is internally consistent too — its board year really is cheaper", () => {
-    // The list pair is published, so it carries the same promise the founding
-    // pair does: paying for the board year beats twelve monthly payments. Read
-    // from the DOM rather than the constants so this fails on a rendering bug,
-    // not only on a config edit.
-    const { premium } = renderPricing();
-
-    const listAnnual = parseRupees(flat(premium.querySelector(".lt-pricing-list-line--annual")));
-    const listMonthly = parseRupees(flat(premium.querySelector(".lt-pricing-list-line--monthly")));
-
-    expect(listMonthly * 12).toBeGreaterThan(listAnnual);
-  });
-
-  it("every founding figure undercuts its list counterpart on the rendered page", () => {
-    const { premium } = renderPricing();
-
-    const foundingAnnual = parseRupees(flat(premium.querySelector(".lt-pricing-amount")));
-    const foundingMonthly = parseRupees(flat(premium.querySelector(".lt-pricing-price-alt")));
-    const listAnnual = parseRupees(flat(premium.querySelector(".lt-pricing-list-line--annual")));
-    const listMonthly = parseRupees(flat(premium.querySelector(".lt-pricing-list-line--monthly")));
-
-    expect(foundingAnnual).toBeLessThan(listAnnual);
-    expect(foundingMonthly).toBeLessThan(listMonthly);
-  });
-
-  it("the FAQ's twelve-month total matches the monthly price and the saving", () => {
-    const { inner, premium } = renderPricing();
-
-    const monthly = parseRupees(flat(premium.querySelector(".lt-pricing-price-alt")));
-    const boardYear = parseRupees(flat(premium.querySelector(".lt-pricing-amount")));
-
-    const faq = flat(inner.querySelector(".lt-pricing-faq"));
-    const total = faq.match(/comes to ₹([\d,]+)/);
-    expect(total, "FAQ must state the twelve-month total").not.toBeNull();
-    expect(Number(total![1].replace(/,/g, ""))).toBe(monthly * 12);
-
-    const faqSaving = faq.match(/you save ₹([\d,]+)/);
-    expect(faqSaving, "FAQ must state the saving").not.toBeNull();
-    expect(Number(faqSaving![1].replace(/,/g, ""))).toBe(monthly * 12 - boardYear);
-  });
-
-  it("no longer publishes the retired ₹2,999 / ₹250 figures anywhere on the page", () => {
-    const { inner } = renderPricing();
-    const page = flat(inner);
-
-    expect(page).not.toContain("₹2,999");
-    expect(page).not.toContain("₹250");
   });
 });
 

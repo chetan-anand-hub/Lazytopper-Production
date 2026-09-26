@@ -322,18 +322,23 @@ const PAGES: Record<LegalSlug, PageDef> = {
     ),
   },
   refund: {
-    title: "Refund Policy",
-    updated: "Last updated: April 2026",
+    // PRICING-TB-1 · OR-P4 (owner, 2026-09-26): a no-refund policy, word for word.
+    // "How to Contact Us" is the page's shared contact block below — its email
+    // text is unchanged.
+    title: "Cancellation & Refund Policy",
+    updated: "Last updated: September 2026",
     body: (
       <>
+        <h2>Payments are non-refundable</h2>
+        <p>All payments to LazyTopper are final and non-refundable, except for the billing errors listed below. Please use the free trial to decide before you pay.</p>
         <h2>Free Trial</h2>
-        <p>LazyTopper offers a 7-day free trial of Premium features. No payment is required during the trial period.</p>
-        <h2>Refund Eligibility</h2>
-        <p>If you are not satisfied with your Premium subscription, you may request a full refund within 7 days of your first payment. Refund requests after 7 days will be processed on a pro-rata basis for the unused portion of your subscription.</p>
-        <h2>How to Request a Refund</h2>
-        <p>Email us with your registered email or phone number and the reason for the refund. We will process your request within 5-7 business days.</p>
-        <h2>Non-Refundable Items</h2>
-        <p>Board Season Packs and Annual plans that have been used for more than 30 days are non-refundable, but you can cancel to prevent future charges.</p>
+        <p>LazyTopper offers a 7-day free trial of Premium features. No payment is required during the trial.</p>
+        <h2>Monthly Plan</h2>
+        <p>You can cancel at any time. You keep Premium until the end of the month you have paid for, and you will not be charged again. A month that has been paid for is not refunded.</p>
+        <h2>Till-Boards Plan</h2>
+        <p>A one-time payment covering Premium until your first board exam. It is not refunded once paid.</p>
+        <h2>Billing Errors</h2>
+        <p>If you were charged twice, charged after cancelling, or charged the wrong amount, email us and we will refund the amount charged in error. We start the refund within 3 business days; your bank usually credits it within 5–7 business days.</p>
       </>
     ),
     contact: (
