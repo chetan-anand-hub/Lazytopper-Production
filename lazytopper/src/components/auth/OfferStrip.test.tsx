@@ -142,7 +142,7 @@ describe("offer OPEN", () => {
 
     // CONTROL for the absence above: the scoped claim IS present, so this test
     // is checking the wording rather than an empty string.
-    expect(text).toContain("locked for as long as you stay subscribed");
+    expect(text).toContain("your founding price stays locked for every pass you buy");
   });
 });
 

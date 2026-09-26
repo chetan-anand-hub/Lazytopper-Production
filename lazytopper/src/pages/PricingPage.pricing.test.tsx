@@ -21,7 +21,7 @@ import { stripAuthChrome, countResidualAuthNodes } from "../../scripts/seo/captu
  * than the copy. PRICING-TB-1 (owner ruling 2026-09-26) retired the fixed
  * board-year plan:
  *
- *  R1  the headline is the MONTHLY price — founding ₹599 / month with the list
+ *  R1  the headline is the MONTHLY price — founding ₹599 for a month with the list
  *      ₹999 struck beside it while the offer is open; ₹999 alone once it closes.
  *  R3  "till boards" — one payment until the first board paper, 20% under
  *      monthly × months-left. Its figures depend on TODAY, so they are written
@@ -85,22 +85,22 @@ const STATIC_FIGURES = new Set([
 ]);
 
 describe("PricingPage — R1 the monthly headline", () => {
-  it("founding OPEN (as shipped): ₹599 / month, with ₹999 struck beside it", () => {
+  it("founding OPEN (as shipped): ₹599 for a month, with ₹999 struck beside it", () => {
     const { premium } = renderPricing();
     const head = premium.querySelector('[data-testid="pricing-monthly-price"]');
 
     expect(flat(head?.querySelector(".lt-pricing-amount"))).toBe("₹599");
-    expect(flat(head?.querySelector(".lt-pricing-period"))).toBe("/ month");
+    expect(flat(head?.querySelector(".lt-pricing-period"))).toBe("for a month");
     // The LIST figure, and only the list figure, is struck — `<s>` specifically,
     // so an edit that drops the strike leaves two live prices side by side.
     expect(flat(head?.querySelector("s"))).toBe("₹999");
     expect(flat(head?.querySelector(".lt-pricing-amount s"))).toBe("");
   });
 
-  it("founding CLOSED: ₹999 / month and nothing struck", () => {
+  it("founding CLOSED: ₹999 for a month and nothing struck", () => {
     const closed = render(<PremiumPriceHead offerOpen={false} />);
     expect(flat(closed.container.querySelector(".lt-pricing-amount"))).toBe("₹999");
-    expect(flat(closed.container.querySelector(".lt-pricing-period"))).toBe("/ month");
+    expect(flat(closed.container.querySelector(".lt-pricing-period"))).toBe("for a month");
     expect(closed.container.querySelector("s")).toBeNull();
     // CONTROL — the same query finds the strike when the offer is open.
     cleanup();
@@ -251,7 +251,7 @@ describe("PricingPage — R6 FAQ copy", () => {
     expect(faq).toContain("The founding offer closes.");
     // ...the regular price, with till boards named WITHOUT a figure...
     expect(faq).toContain(
-      "New members then join at the regular price — ₹999 / month, or 20% off when you pay once till your boards",
+      "New members then join at the regular price — ₹999 for a month, or 20% off when you pay once till your boards",
     );
     // ...and the lock, which is what makes the close honest rather than a bait.
     expect(faq).toContain("Your rate is locked.");
@@ -273,7 +273,7 @@ describe("PricingPage — R6 FAQ copy", () => {
     const { premium } = renderPricing();
     const card = flat(premium);
 
-    expect(card).toContain("Locked for as long as you stay subscribed.");
+    expect(card).toContain("Your founding price stays locked for every pass you buy.");
     expect(card).toContain("First 200 students.");
     expect(card.toLowerCase()).toContain("founding member");
     expect(card).toContain("Start 7-day trial");
