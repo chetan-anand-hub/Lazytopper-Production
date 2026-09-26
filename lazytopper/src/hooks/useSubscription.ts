@@ -18,6 +18,12 @@ export interface UseSubscriptionResult {
   isTrialExpired: boolean;
   daysLeftInTrial: number;
   status: SubscriptionStatus;
+  /**
+   * True once THIS uid's cloud hydration has resolved, so `status` is the reconciled
+   * record rather than the local cache. FREE-CHECK-1b's R9 offer waits on it: offering
+   * a trial off a stale cache could show a trial the rules then refuse (N15).
+   */
+  hydrated: boolean;
   startTrial: () => void;
   /** Payment/admin-only. Client upgrade UI should navigate to pricing. */
   upgradeToPremium: () => void;
@@ -29,6 +35,7 @@ export function useSubscription(): UseSubscriptionResult {
 
   const localStatus = useMemo(() => loadSubscription(uid), [uid]);
   const [status, setStatus] = useState<SubscriptionStatus>(localStatus);
+  const [hydratedUid, setHydratedUid] = useState<string>("");
 
   useEffect(() => {
     setStatus(loadSubscription(uid));
@@ -42,7 +49,10 @@ export function useSubscription(): UseSubscriptionResult {
       // status for every case: premium / active-trial / expired-trial resolve to the
       // cloud record, and a fresh user resolves to a free defaultStatus().
       // [FU-SUBSCRIPTION-AUTOTRIAL-ONMOUNT]
-      if (!cancelled) setStatus(cloud);
+      if (!cancelled) {
+        setStatus(cloud);
+        setHydratedUid(uid);
+      }
     }).catch(() => {});
     return () => { cancelled = true; };
   }, [uid]);
@@ -58,6 +68,7 @@ export function useSubscription(): UseSubscriptionResult {
     isTrialExpired,
     daysLeftInTrial: daysLeft,
     status,
+    hydrated: Boolean(uid) && hydratedUid === uid,
     startTrial: () => {
       if (uid) {
         const updated = activateTrial(uid);

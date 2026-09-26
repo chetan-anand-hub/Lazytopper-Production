@@ -285,7 +285,7 @@ const PAGES: Record<LegalSlug, PageDef> = {
         <h2>Data Storage</h2>
         <p>Your data is stored securely using Firebase (Google Cloud Platform). Learning progress is stored locally on your device and optionally synced to the cloud for cross-device access.</p>
         <h2>Third-Party Services</h2>
-        <p>We use Firebase Authentication (Google) for secure sign-in. We do not sell your data to any third party.</p>
+        <p>We use Firebase Authentication (Google) for secure sign-in. Our free answer check is protected by Google reCAPTCHA Enterprise, which sends device and interaction signals to Google to tell students from automated bots; Google's Privacy Policy and Terms of Service apply. We do not sell your data to any third party.</p>
         <h2>Your Rights</h2>
         <p>You can request deletion of your account and all associated data by contacting us. A parent or guardian may also write to us to review, export or delete their child's data.</p>
       </>

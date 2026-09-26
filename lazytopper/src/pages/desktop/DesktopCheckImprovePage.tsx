@@ -11,6 +11,8 @@ import {
   type DetectedQuestion,
   type WorksheetGradeResponse,
   type WorksheetQuestionGrade,
+  isPremiumRequiredError,
+  type PaidCallOptions,
 } from "../../ai/aiClient";
 import { recordMistake } from "../../services/mistakeIntelligence";
 import { recordAttempt, type DetectionOverrideLog } from "../../services/practiceInsights";
@@ -68,6 +70,31 @@ import {
   storedCheckImproveScorecardVariant,
 } from "../../components/results/scorecardVariants";
 import CheckImproveHistoryPanel from "../../components/checkimprove/CheckImproveHistoryPanel";
+// FREE-CHECK-1b — one free marked upload for a signed-out visitor. Every import below is
+// reached only when VITE_FREE_CHECK_ENABLED is on and nobody is signed in (or a signed-in
+// student has a free result waiting to be saved); with the flag off none of it renders.
+import {
+  FREE_CHECK_COPY,
+  FREE_CHECK_SIGNIN_PATH,
+  ensureFreeCheckAppCheck,
+  hasUsedFreeCheck,
+  isFreeCheckClientEnabled,
+  isFreeCheckRefusedError,
+  markFreeCheckSigninIntent,
+  recordFreeCheckSuccess,
+  type FreeCheckRefusalReason,
+} from "../../services/freeCheckClient";
+import {
+  FreeCheckRefusalPanel,
+  FreeCheckSavePrompt,
+  FreeCheckSavingPanel,
+  FreeCheckTrialOffer,
+  FreeCheckUsedPanel,
+} from "../../components/checkimprove/FreeCheckPanels";
+import { useSubscription } from "../../hooks/useSubscription";
+import { useFreeCheckReturn } from "../../hooks/useFreeCheckReturn";
+import { trackNamedEvent } from "../../analytics/analytics";
+import { TRIAL_DAYS } from "../../services/subscriptionService";
 
 /**
  * DesktopCheckImprovePage — real desktop Check & Improve workflow.
@@ -723,7 +750,32 @@ export interface CheckImproveOverlayProps {
   ) => void;
 }
 
-const DesktopCheckImprovePageInner: React.FC<{ overlay?: CheckImproveOverlayProps }> = ({ overlay }) => {
+/**
+ * FREE-CHECK-1b — how the wrapper is using the inner page for a free check. ABSENT on
+ * every other visit (a signed-in student, the tutor overlay, the flag off), and then
+ * every path below is exactly as before.
+ *   free    a signed-out visitor's one free check
+ *   return  a signed-in student whose free result is being saved (R8), then offered
+ *           the trial (R9) — rendered through this page's own chrome (N11)
+ */
+type FreeCheckInnerMode =
+  | { mode: "free" }
+  | { mode: "return"; step: "saving" }
+  | {
+      mode: "return";
+      step: "offer";
+      endsOn: string;
+      onStartTrial: () => void;
+      onMaybeLater: () => void;
+    };
+
+/** The per-call opt-in that makes aiClient send the marker + a fresh App Check token. */
+const FREE_CHECK_CALL: PaidCallOptions = { freeCheck: true };
+
+const DesktopCheckImprovePageInner: React.FC<{
+  overlay?: CheckImproveOverlayProps;
+  freeCheck?: FreeCheckInnerMode;
+}> = ({ overlay, freeCheck }) => {
   const navigate = useNavigate();
   // The return ticket (Section C). Null on a direct visit — this page then renders
   // exactly as it always has. ROUTE_CTX below is the OUTBOUND context this page hands
@@ -735,6 +787,37 @@ const DesktopCheckImprovePageInner: React.FC<{ overlay?: CheckImproveOverlayProp
   );
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // ── FREE-CHECK-1b: the signed-out free check (inert unless the wrapper says so) ──
+  const isFreeMode = freeCheck?.mode === "free";
+  // Passed to the three C&I calls. Undefined on every other visit → the calls are the
+  // same as before (paid identity headers, no marker, no App Check).
+  const freeCallOpts: PaidCallOptions | undefined = isFreeMode ? FREE_CHECK_CALL : undefined;
+  const [freeRefusal, setFreeRefusal] = useState<FreeCheckRefusalReason | null>(null);
+  // App Check loads HERE — on /check-improve, for a signed-out visitor — and nowhere
+  // else (R4). Warmed on mount so reCAPTCHA has signals before the first request.
+  useEffect(() => {
+    if (isFreeMode) void ensureFreeCheckAppCheck();
+  }, [isFreeMode]);
+  // A refusal the free check must SHOW (its own copy), rather than the generic error the
+  // catch blocks below would otherwise swallow it into (N13). Null outside free mode.
+  function freeRefusalFor(e: unknown): FreeCheckRefusalReason | null {
+    if (!isFreeMode) return null;
+    if (isFreeCheckRefusedError(e)) return e.reason;
+    // The server's free check is off (FREE_CHECK_ENABLED unset): it answers a signed-out
+    // grade with the ordinary 402. For this visitor that means "no free check here".
+    if (isPremiumRequiredError(e)) return "unavailable";
+    return null;
+  }
+  const freeSignUpToSave = {
+    label: FREE_CHECK_COPY.signUpCta,
+    footnote: FREE_CHECK_COPY.afterResult,
+    // OR-18 — the sign-in marker is written on the click, before navigating.
+    onSignUp: () => {
+      markFreeCheckSigninIntent();
+      navigate(FREE_CHECK_SIGNIN_PATH);
+    },
+  };
 
   // ── DEVICE CAPABILITY — not layout (§2.1) ────────────────────────
   // This replaced a `matchMedia("(max-width: 960px)")` listener that drove an
@@ -1126,7 +1209,7 @@ const DesktopCheckImprovePageInner: React.FC<{ overlay?: CheckImproveOverlayProp
           ? { imageBase64: qImageBase64, imageMimeType: qImageMime }
           : {}),
         topicVocabulary: CANONICAL_TOPIC_VOCAB,
-      });
+      }, freeCallOpts);
       if (!d || d.ok === false) {
         setDetectError(d?.error ?? "We couldn't read the question — please try again.");
         return;
@@ -1140,8 +1223,10 @@ const DesktopCheckImprovePageInner: React.FC<{ overlay?: CheckImproveOverlayProp
       // Multi-question: keep every detected question. A single-item (or absent)
       // array leaves the existing single-question flow exactly as before.
       setDetectedQuestions(d.questions && d.questions.length > 0 ? d.questions : null);
-    } catch {
-      setDetectError("We couldn't read the question — please try again.");
+    } catch (e) {
+      const refused = freeRefusalFor(e);
+      if (refused) setFreeRefusal(refused);
+      else setDetectError("We couldn't read the question — please try again.");
     } finally {
       setDetecting(false);
     }
@@ -1400,7 +1485,7 @@ const DesktopCheckImprovePageInner: React.FC<{ overlay?: CheckImproveOverlayProp
         })),
         imageBase64,
         imageMimeType: imageMime,
-      });
+      }, freeCallOpts);
       if (!response || response.ok === false) {
         setErrorMessage("Grading unavailable — please try a clearer scan, or try again.");
         setStatus("error");
@@ -1420,6 +1505,7 @@ const DesktopCheckImprovePageInner: React.FC<{ overlay?: CheckImproveOverlayProp
             questionText: q.questionText,
           })),
           CANONICAL_TOPIC_VOCAB,
+          freeCallOpts,
         );
         const topicByQ = new Map(perQTopics.map((t) => [t.qNumber, t]));
         for (const r of response.results) {
@@ -1431,6 +1517,25 @@ const DesktopCheckImprovePageInner: React.FC<{ overlay?: CheckImproveOverlayProp
         }
       } catch (e) {
         console.warn("[check-improve] per-question topic resolution failed (grade preserved):", e);
+      }
+
+      // FREE-CHECK-1b — R1 + R8, on a SUCCESSFUL whole-paper grade only: the result waits
+      // on the device (text only) for sign-in, then the browser's one free check is spent.
+      if (isFreeMode) {
+        recordFreeCheckSuccess({
+          v: 1,
+          kind: "multi",
+          gradedAt: Date.now(),
+          subject: confirmed.subject,
+          topicName: confirmed.topicName,
+          topicSlug: confirmed.topicSlug,
+          topicTouched,
+          questions: detectedQuestions.map((q) => ({
+            questionNumber: q.questionNumber,
+            questionText: q.questionText,
+          })),
+          response,
+        });
       }
 
       setWsResult(response);
@@ -1501,7 +1606,13 @@ const DesktopCheckImprovePageInner: React.FC<{ overlay?: CheckImproveOverlayProp
         console.warn("[check-improve] MI recording failed (grade preserved):", e);
         setSaveStatus("save-failed");
       }
-    } catch {
+    } catch (e) {
+      const refused = freeRefusalFor(e);
+      if (refused) {
+        setFreeRefusal(refused);
+        setStatus("idle");
+        return;
+      }
       setErrorMessage("Grading unavailable — please try again.");
       setStatus("error");
     }
@@ -1541,7 +1652,7 @@ const DesktopCheckImprovePageInner: React.FC<{ overlay?: CheckImproveOverlayProp
         // fraction). Omitted (non-objective) → grading is byte-identical to before.
         ...(detectedQuestions?.[0]?.objective === true ? { objective: true } : {}),
         ...answerPart,
-      });
+      }, freeCallOpts);
       if (!graded || graded.ok === false) {
         setErrorMessage(
           graded?.error
@@ -1602,6 +1713,23 @@ const DesktopCheckImprovePageInner: React.FC<{ overlay?: CheckImproveOverlayProp
         setCiName(nomen.name);
       }
 
+      // FREE-CHECK-1b — R1 + R8, on a SUCCESSFUL single grade only (the grader said ok).
+      if (isFreeMode) {
+        recordFreeCheckSuccess({
+          v: 1,
+          kind: "single",
+          gradedAt: Date.now(),
+          subject: ctx.subject,
+          topicName: ctx.topicName,
+          topicSlug: ctx.topicSlug,
+          topicTouched,
+          question: ctx.question,
+          marksSource: ctx.marksSource,
+          detectionOverride: ctx.detectionOverride,
+          graded,
+        });
+      }
+
       setResult(graded);
       setResultCtx(ctx);
       setStatus("ready");
@@ -1623,7 +1751,13 @@ const DesktopCheckImprovePageInner: React.FC<{ overlay?: CheckImproveOverlayProp
       setCiSaved(persistOutcome === "recorded");
       if (persistOutcome === "recorded") void loadCiRecords();
       setScorecardOpen(true);
-    } catch {
+    } catch (e) {
+      const refused = freeRefusalFor(e);
+      if (refused) {
+        setFreeRefusal(refused);
+        setStatus("idle");
+        return;
+      }
       setErrorMessage("Grading unavailable — please try again.");
       setStatus("error");
     }
@@ -1719,6 +1853,31 @@ const DesktopCheckImprovePageInner: React.FC<{ overlay?: CheckImproveOverlayProp
     } catch {
       setReopenResponse(null);
     }
+  }
+
+  /* ──────────── FREE-CHECK-1b — the free-check states (absent on every other visit) ──────────── */
+
+  if (freeCheck?.mode === "return") {
+    return withChrome(
+      freeCheck.step === "offer" ? (
+        <FreeCheckTrialOffer
+          endsOn={freeCheck.endsOn}
+          onStartTrial={freeCheck.onStartTrial}
+          onMaybeLater={freeCheck.onMaybeLater}
+        />
+      ) : (
+        <FreeCheckSavingPanel />
+      ),
+      "Your answer",
+    );
+  }
+  if (isFreeMode && freeRefusal) {
+    return withChrome(<FreeCheckRefusalPanel reason={freeRefusal} />, "Free check");
+  }
+  // R1 — this browser's one free check is spent. A result on screen stays on screen;
+  // "Grade another" (or any later visit) lands here instead of the form.
+  if (isFreeMode && status !== "ready" && hasUsedFreeCheck()) {
+    return withChrome(<FreeCheckUsedPanel />, "Free check");
   }
 
   /* ────────────────── INPUT VIEW ────────────────── */
@@ -2480,7 +2639,7 @@ const DesktopCheckImprovePageInner: React.FC<{ overlay?: CheckImproveOverlayProp
               <strong style={{ color: ACCENT_FG }}>We never invent a score.</strong>{" "}
               If grading fails, you&rsquo;ll see an honest error and can retry.
             </div>
-            {!user && (
+            {!user && !isFreeMode && (
               <div style={{ marginTop: 8, fontSize: 12, color: TEXT_MUTED, lineHeight: 1.5 }}>
                 Sign in to save mistake history. Without an account we&rsquo;ll still
                 grade your answer, but the result won&rsquo;t be remembered after you
@@ -2489,7 +2648,7 @@ const DesktopCheckImprovePageInner: React.FC<{ overlay?: CheckImproveOverlayProp
             )}
           </div>
 
-          {!user && (
+          {!user && !isFreeMode && (
             <button type="button" style={buttonOutline} onClick={gotoLogin}>
               Sign in to save history <ChevronRightGlyph />
             </button>
@@ -2605,6 +2764,7 @@ const DesktopCheckImprovePageInner: React.FC<{ overlay?: CheckImproveOverlayProp
               topicSource: ciTopicSource ?? deriveTopicSource(confirmed.topicSlug, topicTouched),
               response: ws,
               saved: ciSaved,
+              ...(isFreeMode ? { signUpToSave: freeSignUpToSave } : {}),
               downloading,
               onReadSheet: () => setScorecardOpen(false),
               onDownloadGraded: () => void downloadGraded(buildMultiPrintProps()),
@@ -2796,7 +2956,8 @@ const DesktopCheckImprovePageInner: React.FC<{ overlay?: CheckImproveOverlayProp
             couldn't write to your mistake history this time.
           </div>
         )}
-        {saveStatus === "no-user" && (
+        {saveStatus === "no-user" && isFreeMode && <FreeCheckSavePrompt inline />}
+        {saveStatus === "no-user" && !isFreeMode && (
           <div style={{ fontSize: 12.5, color: TEXT_MUTED, marginTop: 14 }}>
             Sign in to save these mistakes to your progress.
           </div>
@@ -2877,6 +3038,7 @@ const DesktopCheckImprovePageInner: React.FC<{ overlay?: CheckImproveOverlayProp
             topicSource: ciTopicSource ?? deriveTopicSource(resultCtx.topicSlug, topicTouched),
             response: singleCheckToWorksheetResponse(result),
             saved: ciSaved,
+            ...(isFreeMode ? { signUpToSave: freeSignUpToSave } : {}),
             downloading,
             onReadSheet: () => setScorecardOpen(false),
             onDownloadGraded: () => void downloadGraded(buildSinglePrintProps()),
@@ -3132,7 +3294,8 @@ const DesktopCheckImprovePageInner: React.FC<{ overlay?: CheckImproveOverlayProp
                 couldn't write to your mistake history this time.
               </p>
             )}
-            {saveStatus === "no-user" && (
+            {saveStatus === "no-user" && isFreeMode && <FreeCheckSavePrompt inline />}
+            {saveStatus === "no-user" && !isFreeMode && (
               <>
                 <p
                   style={{
@@ -3287,10 +3450,88 @@ const DesktopCheckImprovePageInner: React.FC<{ overlay?: CheckImproveOverlayProp
  * opens from the tutor, which is itself premium-gated, so a premium user reaching
  * it passes this gate too.
  */
-const DesktopCheckImprovePage: React.FC<{ overlay?: CheckImproveOverlayProps }> = ({ overlay }) => (
-  <RequirePremium featureLabel="Check & Improve">
-    <DesktopCheckImprovePageInner overlay={overlay} />
-  </RequirePremium>
-);
+const DesktopCheckImprovePage: React.FC<{ overlay?: CheckImproveOverlayProps }> = ({ overlay }) =>
+  // FREE-CHECK-1b branches HERE, in the C&I wrapper — never inside the shared
+  // RequirePremium (N11). Flag off, or the tutor overlay: exactly the gate below, as
+  // before. The flag is a build-time constant, so this branch never flips on a mount.
+  !overlay && isFreeCheckClientEnabled() ? (
+    <FreeCheckCheckImprovePage />
+  ) : (
+    <RequirePremium featureLabel="Check & Improve">
+      <DesktopCheckImprovePageInner overlay={overlay} />
+    </RequirePremium>
+  );
+
+const FREE_CHECK_MODE: FreeCheckInnerMode = { mode: "free" };
+
+/** "Ends <date>" for the R9 offer: the trial window the one tap would start now. */
+function trialEndsOnLabel(nowMs: number): string {
+  return new Date(nowMs + TRIAL_DAYS * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+/**
+ * FREE-CHECK-1b — the wrapper when the client flag is on (direct visits only).
+ *
+ *   auth loading          → the gate, exactly as today (its "Checking your session…")
+ *   signed OUT            → the page, in free-check mode: one upload (R1–R4)
+ *   signed IN, result
+ *   waiting on the device → saved through recordMistake + recordAttempt (R8), then —
+ *                           once the subscription has HYDRATED, and only for a student
+ *                           who is neither premium nor an expired trial — the trial offer
+ *                           (R9). Nothing starts a trial but the tap.
+ *   everyone else         → the gate, exactly as today (the lock stays, P16)
+ *
+ * ★ N15 — "Start my free trial" calls `startTrial()` on THIS component's
+ * useSubscription, then REMOUNTS the gate: RequirePremium is not mounted while the
+ * offer shows, so it mounts fresh and reads the trial `activateTrial` just cached.
+ * The shell chrome's own instances (App.tsx / DesktopShell.tsx, both forbidden here)
+ * stay stale until their next mount — pre-existing, and noted in the report.
+ */
+const FreeCheckCheckImprovePage: React.FC = () => {
+  const { user, loading } = useAuth();
+  const subscription = useSubscription();
+  const phase = useFreeCheckReturn(loading ? null : user, true);
+  const [offerClosed, setOfferClosed] = useState(false);
+
+  const gated = (
+    <RequirePremium featureLabel="Check & Improve">
+      <DesktopCheckImprovePageInner />
+    </RequirePremium>
+  );
+
+  if (loading) return gated;
+  if (!user) return <DesktopCheckImprovePageInner freeCheck={FREE_CHECK_MODE} />;
+  if (phase === "saving" || (phase === "saved" && !offerClosed && !subscription.hydrated)) {
+    return <DesktopCheckImprovePageInner freeCheck={{ mode: "return", step: "saving" }} />;
+  }
+  if (
+    phase === "saved" &&
+    !offerClosed &&
+    subscription.hydrated &&
+    !subscription.isPremium &&
+    !subscription.isTrialExpired
+  ) {
+    return (
+      <DesktopCheckImprovePageInner
+        freeCheck={{
+          mode: "return",
+          step: "offer",
+          endsOn: trialEndsOnLabel(Date.now()),
+          onStartTrial: () => {
+            subscription.startTrial();
+            trackNamedEvent("free_check_trial_start");
+            setOfferClosed(true);
+          },
+          onMaybeLater: () => setOfferClosed(true),
+        }}
+      />
+    );
+  }
+  return gated;
+};
 
 export default DesktopCheckImprovePage;

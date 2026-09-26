@@ -14,6 +14,7 @@ import {
   type CheckSolutionResponse,
   type CheckSolutionTopicVocab,
   type DetectQuestionResponse,
+  type PaidCallOptions,
 } from "../ai/aiClient";
 
 /**
@@ -109,17 +110,24 @@ export interface PerQuestionTopic {
  * The calls run concurrently; each is the same focused, cheap read the confirm step
  * already makes. Pure w.r.t. state — returns the resolved topics for the caller to
  * attach to the grade response (it does not mutate anything).
+ *
+ * FREE-CHECK-1b: `callOpts` is forwarded to EVERY per-question detect, so a signed-out
+ * visitor's free check sends the marker + its own fresh limited-use App Check token on
+ * each of the N calls (OR-13 item 4). Omitted, each call is byte-identical to before.
  */
 export async function resolvePerQuestionGradeTopics(
   questions: Array<{ questionNumber: number; questionText: string }>,
   topicVocabulary: CheckSolutionTopicVocab[],
+  callOpts?: PaidCallOptions,
 ): Promise<PerQuestionTopic[]> {
   const settled = await Promise.all(
     questions.map(async (q): Promise<PerQuestionTopic> => {
       const text = String(q.questionText || "").trim();
       if (!text) return { qNumber: q.questionNumber, topicSlug: "", topicName: "" };
       try {
-        const d = await detectQuestion({ question: text, topicVocabulary });
+        const d = callOpts
+          ? await detectQuestion({ question: text, topicVocabulary }, callOpts)
+          : await detectQuestion({ question: text, topicVocabulary });
         const { topicSlug, topicName } = resolveDetectedGradeTopic({
           detectedTopic: d.detectedTopic ?? null,
           detectedSubject: d.detectedSubject ?? null,

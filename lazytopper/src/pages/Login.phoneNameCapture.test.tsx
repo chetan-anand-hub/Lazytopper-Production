@@ -350,7 +350,7 @@ describe("the phone path discloses nothing about who exists", () => {
 
     expect(
       screen.getByText(
-        "We'll create your account and start your 7-day trial. No password to remember.",
+        "We'll create your account. No password to remember.",
       ),
     ).toBeDefined();
 

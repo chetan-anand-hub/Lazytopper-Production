@@ -86,6 +86,28 @@ export interface MoreLikeThisResponse {
 
 import { paidJsonHeaders } from "./paidCallHeaders";
 
+/**
+ * FREE-CHECK-1b — per-call options for the three Check & Improve endpoints.
+ *
+ * `freeCheck: true` sends the free-check marker + a FRESH limited-use App Check token
+ * INSTEAD of the paid identity headers (never both: a free check is the P2 anonymous
+ * shape). OPT-IN and per call: omitted — as every existing caller omits it — the
+ * request is byte-identical to before, and no other endpoint in this file accepts it.
+ *
+ * ★ `freeCheckClient` is imported LAZILY, only on a free-check path, and that is
+ * load-bearing: `server/services/entitlement.test.cjs` (A11) transpiles THIS file and
+ * runs it under plain Node with only `./paidCallHeaders` stubbed. A new STATIC import
+ * here fails that server suite with MODULE_NOT_FOUND; a deferred one is never reached.
+ */
+export interface PaidCallOptions {
+  freeCheck?: boolean;
+}
+
+async function freeCheckJsonHeaders(): Promise<Record<string, string>> {
+  const { freeCheckJsonHeaders: headers } = await import("../services/freeCheckClient");
+  return headers();
+}
+
 const API_BASE = "/api"; // Vite dev proxy or same origin in production
 export const MENTOR_ENDPOINT = `${API_BASE}/mentor`;
 
@@ -167,7 +189,7 @@ async function handleJsonResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {
     let details: {
       error?: string; message?: string; raw?: string; class?: string; resetAt?: string;
-      feature?: string; tier?: string; trialEndedAt?: string;
+      feature?: string; tier?: string; trialEndedAt?: string; reason?: string;
     };
     try {
       details = JSON.parse(text);
@@ -200,6 +222,14 @@ async function handleJsonResponse<T>(res: Response): Promise<T> {
         details.tier || "free",
         details.trialEndedAt || null,
       );
+    }
+
+    // ── Free-check refusal (FREE-CHECK-1a wire contract). Expected operation for a
+    //    signed-out visitor, not a fault: a typed throw carrying the machine reason the
+    //    page maps to its own copy, and no console.error.
+    if (res.status === 403 && details?.error === "free_check_refused") {
+      const { FreeCheckRefusedError, toRefusalReason } = await import("../services/freeCheckClient");
+      throw new FreeCheckRefusedError(toRefusalReason(details.reason), details.resetAt || null);
     }
 
     console.error("AI API error:", res.status, details);
@@ -422,10 +452,10 @@ export async function checkSolutionImage(req: {
   answer?: string;
   options?: string[];
   objective?: boolean;
-}): Promise<CheckSolutionResponse> {
+}, opts?: PaidCallOptions): Promise<CheckSolutionResponse> {
   const res = await fetch(`${API_BASE}/check-solution`, {
     method: "POST",
-    headers: await paidJsonHeaders(),
+    headers: opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders(),
     body: JSON.stringify(req),
   });
   return handleJsonResponse<CheckSolutionResponse>(res);
@@ -467,10 +497,10 @@ export async function detectQuestion(req: {
   imageBase64?: string;
   imageMimeType?: string;
   topicVocabulary?: CheckSolutionTopicVocab[];
-}): Promise<DetectQuestionResponse> {
+}, opts?: PaidCallOptions): Promise<DetectQuestionResponse> {
   const res = await fetch(`${API_BASE}/detect-question`, {
     method: "POST",
-    headers: await paidJsonHeaders(),
+    headers: opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders(),
     body: JSON.stringify(req),
   });
   return handleJsonResponse<DetectQuestionResponse>(res);
@@ -629,10 +659,10 @@ export async function gradeWorksheet(req: {
   imageBase64?: string;
   imageMimeType?: string;
   uploads?: WorksheetGradeUpload[];
-}): Promise<WorksheetGradeResponse> {
+}, opts?: PaidCallOptions): Promise<WorksheetGradeResponse> {
   const res = await fetch(`${API_BASE}/grade-worksheet`, {
     method: "POST",
-    headers: await paidJsonHeaders(),
+    headers: opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders(),
     body: JSON.stringify(req),
   });
   return handleJsonResponse<WorksheetGradeResponse>(res);

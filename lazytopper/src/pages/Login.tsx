@@ -2251,7 +2251,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
 
                     <p className="lt-login-stepsub">
                       {creatingAccount
-                        ? "We'll create your account and start your 7-day trial."
+                        ? "We'll create your account."
                         : "Welcome back — sign in to pick up where you left off."}
                     </p>
 
@@ -2432,7 +2432,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
                       */}
                       <p className="lt-login-stepsub">
                         {creatingPhoneAccount
-                          ? "We'll create your account and start your 7-day trial. No password to remember."
+                          ? "We'll create your account. No password to remember."
                           : "Welcome back — we'll text you a code. No password to remember."}
                       </p>
 

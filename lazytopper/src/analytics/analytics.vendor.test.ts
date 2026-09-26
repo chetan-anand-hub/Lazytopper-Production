@@ -6,7 +6,7 @@ const { getAdditionalUserInfo } = vi.hoisted(() => ({
 }));
 vi.mock("firebase/auth", () => ({ getAdditionalUserInfo }));
 
-import { trackPageview, trackSignUp, trackSignUpIfNew } from "./analytics";
+import { trackNamedEvent, trackPageview, trackSignUp, trackSignUpIfNew } from "./analytics";
 
 const credential = {} as UserCredential;
 
@@ -133,5 +133,31 @@ describe("the Vercel binding", () => {
     };
     expect(() => trackPageview("/")).not.toThrow();
     expect(() => trackSignUp()).not.toThrow();
+  });
+
+  /**
+   * FREE-CHECK-1b (R10) — the free-check funnel is COUNTED, never identified. Each event
+   * is `"event"` + `{ name }` and NOTHING ELSE: the payload is compared by deep equality
+   * against the bare name, so any added key — a uid, a device id, a reason, a `data`
+   * object — fails it. (The sign_up test's `name":"[^s]` regex is deliberately not
+   * reused: every one of these names starts with "f", which that pattern would flag.)
+   */
+  it.each(["free_check_used_block", "free_check_signup", "free_check_trial_start"] as const)(
+    "R10: %s is sent as a bare name — no identifier of any kind",
+    (name) => {
+      trackNamedEvent(name);
+      expect(calls).toEqual([["event", { name }]]);
+      expect(Object.keys(calls[0][1])).toEqual(["name"]);
+      expect(JSON.stringify(calls[0][1])).not.toMatch(/uid|email|phone|device|data/i);
+    },
+  );
+
+  it("R10 ★ CONTROL — the loopback capture origin sends nothing, a blocked vendor is silent", () => {
+    setHostname("127.0.0.1");
+    trackNamedEvent("free_check_signup");
+    expect(calls).toHaveLength(0);
+    delete (window as unknown as { va?: unknown }).va;
+    setHostname("www.lazytopper.com");
+    expect(() => trackNamedEvent("free_check_trial_start")).not.toThrow();
   });
 });
