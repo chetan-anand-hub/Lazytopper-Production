@@ -13,6 +13,34 @@ import {
   validateCoverage,
 } from "../../scripts/seo/captureStaticBodies";
 import { sitemapPaths } from "./sitemapUrls";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+/**
+ * ★ SEO-FRESH-1 — THE COMMITTED LANDING (`prerendered/index.html`, CI artifact only).
+ * §3: it carries the landing `<h1>` and NO countdown figure (strip rule 4). OR-A1-5: its
+ * CTA points at `/check-improve`, as production's does — the capture build sets
+ * VITE_FREE_CHECK_ENABLED=1 (prerender-capture.yml). A capture built without the flag
+ * links the CTA to `/sign-up` and fails here.
+ */
+describe("the committed landing capture (prerendered/index.html)", () => {
+  const landing = (): string => readFileSync(resolve(process.cwd(), "prerendered", "index.html"), "utf8");
+
+  it("carries the landing <h1> and no boards-countdown node", () => {
+    const html = landing();
+    expect(html).toMatch(/<h1>Full marks<em>milenge kya\?<\/em><\/h1>/);
+    expect(html).not.toContain('data-testid="boards-countdown"');
+    expect(html).toContain("Your boards are closer than you think.");
+  });
+
+  it("its 'Check my answer' CTA points to /check-improve, not /sign-up (OR-A1-5)", () => {
+    const html = landing();
+    const ctas = [...html.matchAll(/<a[^>]*href="([^"]*)"[^>]*>Check my answer/g)].map((m) => m[1]);
+    expect(ctas.length, "no 'Check my answer' CTA in the committed landing").toBeGreaterThan(0);
+    for (const href of ctas) expect(href).toBe("/app/check-improve");
+    expect(html).not.toContain('href="/app/sign-up');
+  });
+});
 
 /**
  * GUARD — the post-build body capture, `scripts/seo/captureStaticBodies.ts`.
@@ -40,17 +68,16 @@ function capture(path: string, text: string, html?: string) {
 }
 
 describe("capturablePaths", () => {
-  it("covers every advertised path except the root", () => {
+  // SEO-FRESH-1 (owner ruling OR-A1-1): the root is captured; its clock-derived
+  // `boards-countdown` node is removed by strip rule 4 (asserted further down).
+  it("covers every advertised path, the root included", () => {
     const advertised = sitemapPaths();
     const capturable = capturablePaths();
 
     expect(advertised).toContain("/");
-    expect(capturable).not.toContain("/");
-    expect(capturable).toHaveLength(advertised.length - 1);
-    // Every non-root advertised path is captured — no silent family drop-outs.
-    expect(capturable.slice().sort()).toEqual(
-      advertised.filter((path) => path !== "/").slice().sort(),
-    );
+    expect(capturable).toContain("/");
+    // Every advertised path is captured — no silent family drop-outs.
+    expect(capturable.slice().sort()).toEqual(advertised.slice().sort());
   });
 
   it("still covers all 26 chapters and all 26 notes", () => {
@@ -383,9 +410,21 @@ describe("validateCoverage catches a page that was never captured at all", () =>
     expect(failures[0]).toContain("advertised but never captured");
   });
 
-  it("REJECTS the root, which this lane deliberately does not capture", () => {
-    const withRoot = [...capturablePaths().map((path) => capture(path, path)), capture("/", "home")];
-    expect(validateCoverage(withRoot).join(" ")).toContain("not an advertised, capturable path");
+  // SEO-FRESH-1 (OR-A1-1): the root IS captured now, so the orphan control is re-pointed
+  // at `/welcome` — a real route that is not advertised — and the root gets the
+  // dropped-path control instead.
+  it("REJECTS a captured path that is not advertised (/welcome)", () => {
+    const withOrphan = [...capturablePaths().map((path) => capture(path, path)), capture("/welcome", "home")];
+    expect(validateCoverage(withOrphan).join(" ")).toContain("not an advertised, capturable path");
+  });
+
+  it("REJECTS a set that dropped the root", () => {
+    const noRoot = capturablePaths()
+      .filter((path) => path !== "/")
+      .map((path) => capture(path, path));
+    const failures = validateCoverage(noRoot);
+    expect(failures).toHaveLength(1);
+    expect(failures[0]).toContain("/: advertised but never captured");
   });
 
   it("REJECTS a set missing a substring-trap witness", () => {

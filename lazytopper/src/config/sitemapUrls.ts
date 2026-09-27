@@ -139,12 +139,55 @@ export function sitemapUrls(basename: string): string[] {
 }
 
 /**
+ * One path's entry in `prerendered/lastmod.json` (SEO-FRESH-1, F1).
+ *
+ * `sha256` is the hash of the COMMITTED prerendered fragment for the path (line endings
+ * normalised to LF, so a Windows checkout hashes the same bytes CI does); `lastmod` is
+ * the date that fragment last changed.
+ */
+export interface LastmodEntry {
+  sha256: string;
+  lastmod: string;
+}
+
+export type LastmodLedger = Readonly<Record<string, LastmodEntry>>;
+
+/**
+ * THE HONEST-DATE RULE, as a pure function so it can be tested without a clock.
+ *
+ * ★ A DATE MOVES ONLY WHEN THE PAGE MOVED. For every advertised path: if the ledger's
+ * hash equals the fragment's current hash, the published date is KEPT; if the hash
+ * differs, or the path is new, it is stamped `today`. The old generator kept every
+ * date forever (a page rewritten last week still claimed its first-publish date), and
+ * restamping on every run would tell Google the whole site changed on every merge —
+ * both blunt the one freshness signal a sitemap carries. A missing ledger is the first
+ * run: every path is new, so every path is stamped `today`.
+ *
+ * The result holds exactly the paths in `hashes`: a path no longer advertised drops out.
+ */
+export function nextLastmods(
+  previous: LastmodLedger,
+  hashes: ReadonlyMap<string, string>,
+  today: string,
+): Record<string, LastmodEntry> {
+  const next: Record<string, LastmodEntry> = {};
+  for (const [path, sha256] of hashes) {
+    const known = previous[path];
+    next[path] =
+      known && known.sha256 === sha256
+        ? { sha256, lastmod: known.lastmod }
+        : { sha256, lastmod: today };
+  }
+  return next;
+}
+
+/**
  * Render the sitemap XML.
  *
  * `lastmodFor` is supplied by the caller because a last-modified date is NOT
- * derivable from the route table — the generator preserves the date already
- * published for a URL and stamps only genuinely new ones, so regenerating does
- * not falsely re-date every page and blunt the freshness signal.
+ * derivable from the route table — the generator reads it from
+ * `prerendered/lastmod.json`, where a date moves only when that page's committed
+ * prerendered body changed (`nextLastmods`, above).
  *
  * `<changefreq>` and `<priority>` are omitted on purpose: Google ignores both,
  * and `crawlerReachability.guard.test.ts` fails if either reappears.

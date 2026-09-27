@@ -93,8 +93,35 @@ jobs:
       - name: Install the headless shell
         run: pnpm --filter lazytopper exec playwright install --only-shell --no-progress chromium
 
+      # ⚠ THE CAPTURE'S BUILD MUST NOT DEPEND ON THE ARTIFACT IT IS ABOUT TO REPLACE.
+      # `applyPrerendered` (in `build`) refuses an artifact that does not cover every
+      # advertised path — correct for a deploy, but here it deadlocks: a PR that
+      # advertises a new path (SEO-FRESH-1 added `/`) cannot build until the artifact
+      # has the fragment, and cannot get the fragment until the build passes. The
+      # capture renders through React and never reads the applied bodies, so the
+      # committed set is moved aside for the build. Only the date ledger comes back —
+      # `gen:sitemap` compares the fresh fragments against it. The staleness check
+      # below still compares against the COMMITTED tree (`git status`), unchanged.
+      - name: Set the committed artifact aside for the build
+        run: |
+          mkdir -p "$RUNNER_TEMP/committed"
+          if [ -d lazytopper/prerendered ]; then mv lazytopper/prerendered "$RUNNER_TEMP/committed/"; fi
+
+      # OR-A1-5 — the capture build mirrors PRODUCTION's flags. The landing's CTA target is
+      # a build-time flag (Welcome.tsx START_URL): unset, the captured page would link to
+      # /sign-up while production links to /check-improve, and crawlers would read the
+      # wrong CTA. `staticBodies.guard.test.ts` pins the committed landing's CTA.
       - name: Build (no browser in this chain)
+        env:
+          VITE_FREE_CHECK_ENABLED: "1"
         run: pnpm --filter lazytopper run build
+
+      - name: Restore the date ledger
+        run: |
+          mkdir -p lazytopper/prerendered
+          if [ -f "$RUNNER_TEMP/committed/prerendered/lastmod.json" ]; then
+            cp "$RUNNER_TEMP/committed/prerendered/lastmod.json" lazytopper/prerendered/lastmod.json
+          fi
 
       # Renders every advertised path twice — once with the app's APIs unreachable (that
       # run becomes the artifact, so it provably cannot contain runtime data) and once
@@ -103,26 +130,41 @@ jobs:
       - name: Capture
         run: pnpm --filter lazytopper run seo:capture
 
+      # SEO-FRESH-1 (F2) — the sitemap's dates are derived from the fragments just
+      # captured: a path whose fragment hash moved is restamped to today (IST) in
+      # `prerendered/lastmod.json` and `public/sitemap.xml`; every other path keeps its
+      # date. Both files are part of the artifact below, so a stale date fails this job
+      # exactly as a stale fragment does, and is supplied the same way.
+      - name: Regenerate the sitemap dates from the fresh capture
+        run: pnpm --filter lazytopper run gen:sitemap
+
+      # ⚠ `git status --porcelain`, NOT `git diff --quiet`. `git diff` is blind to
+      # UNTRACKED files, so a fragment for a newly advertised page (or a first
+      # `lastmod.json`) would read as "matches" while being absent from the commit.
       - name: Is the committed artifact current?
         id: check
         run: |
-          if git diff --quiet -- lazytopper/prerendered; then
+          changed="$(git status --porcelain -- lazytopper/prerendered lazytopper/public/sitemap.xml)"
+          if [ -z "$changed" ]; then
             echo "stale=false" >> "$GITHUB_OUTPUT"
             echo "PRERENDER: committed artifact matches a fresh capture."
           else
             echo "stale=true" >> "$GITHUB_OUTPUT"
             echo "PRERENDER: the committed artifact is STALE. Changed files:"
-            git diff --stat -- lazytopper/prerendered
+            echo "$changed"
           fi
 
       # Available whether or not the push path is enabled, so the artifact can always be
-      # refreshed without a browser on anyone's machine.
+      # refreshed without a browser on anyone's machine. Two paths, so the artifact's
+      # root is `lazytopper/`: it holds `prerendered/**` and `public/sitemap.xml`.
       - name: Upload the freshly captured artifact
         if: steps.check.outputs.stale == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: prerendered-${{ github.event.pull_request.number }}
-          path: lazytopper/prerendered
+          path: |
+            lazytopper/prerendered
+            lazytopper/public/sitemap.xml
           retention-days: 7
 
       - name: Push the refresh (only with a token whose pushes trigger checks)
@@ -130,11 +172,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add lazytopper/prerendered
+          git add lazytopper/prerendered lazytopper/public/sitemap.xml
           # ⚠ SCOPED ON PURPOSE. This job may only ever touch the generated artifact. If
           # anything else is staged, something has gone wrong, and pushing it would be a
           # bot committing product code.
-          staged="$(git diff --cached --name-only | grep -v '^lazytopper/prerendered/' || true)"
+          staged="$(git diff --cached --name-only | grep -v -e '^lazytopper/prerendered/' -e '^lazytopper/public/sitemap\.xml$' || true)"
           if [ -n "$staged" ]; then
             echo "::error::capture staged files outside the artifact:"; echo "$staged"; exit 1
           fi
@@ -149,6 +191,7 @@ jobs:
           echo "The page content this PR ships would be stale."
           echo ""
           echo "To fix without a local browser: download the 'prerendered-${{ github.event.pull_request.number }}'"
-          echo "artifact from this run, replace lazytopper/prerendered/ with it, and commit."
-          echo "Locally, if you have a browser: pnpm --filter lazytopper run seo:capture"
+          echo "artifact from this run into lazytopper/ (it holds prerendered/** and public/sitemap.xml;"
+          echo "delete lazytopper/prerendered/ first so removed pages do not linger), and commit."
+          echo "Locally, if you have a browser: pnpm --filter lazytopper run seo:capture && pnpm --filter lazytopper run gen:sitemap"
           exit 1

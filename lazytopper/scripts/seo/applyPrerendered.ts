@@ -51,27 +51,45 @@ export const PRERENDERED_DIR = resolve(LAZYTOPPER_ROOT, "prerendered");
 const EMPTY_ROOT = '<div id="root"></div>';
 
 /**
- * Every advertised path this step fills — the sitemap's set, minus the root.
+ * Every advertised path this step fills — the sitemap's whole set, root included.
  *
- * ★ THE ROOT IS EXCLUDED BY OWNER RULING. `RootEntry` serves `Welcome` to a signed-out
- * visitor and `DesktopHome` to a signed-in one, so `/` is not one page with
- * auth-dependent chrome on it — it is TWO DIFFERENT PAGES. Prerendering it would show
- * a signed-in student the entire marketing landing page before their dashboard, on a
- * route they hit constantly. The stated cost is that `/app/` keeps an empty body for
- * crawlers, and it is one of only two pages Google has indexed; the homepage needs a
- * different answer than this one.
+ * ★ THE ROOT IS CAPTURED NOW (SEO-FRESH-1, owner ruling OR-A1-1), AND THE REASON IT
+ * USED TO BE EXCLUDED IS ANSWERED, NOT IGNORED. `RootEntry` serves `Welcome` signed-out
+ * and `DesktopHome` signed-in, and — the part that made it unsafe — the root's file,
+ * `index.html`, was ALSO the SPA fallback: `vercel.json` rewrote every unmatched
+ * `/app/*` URL to `/app/index.html`, so a filled root would have put the landing page in
+ * front of `/app/login`, `/app/me` and every deep link. This step now copies the CLEAN
+ * shell to `__shell.html` before filling the root (`SPA_SHELL`, below), and the
+ * catch-all points there. Only `/app/` itself carries the landing body; a signed-in
+ * student on `/app/` sees it until React mounts, which the owner accepted.
  *
  * ⚠ DRIVEN FROM `sitemapPaths()`, NEVER FROM A DIRECTORY LISTING. The build output also
  * contains 105 `visuals/*.html` copied from `public/`, which are not advertised and
  * must not be touched.
  */
 export function applicablePaths(): string[] {
-  return sitemapPaths().filter((path) => path !== "/");
+  return sitemapPaths();
 }
 
-/** `/topic-hub/trigonometry` -> `<prerendered>/topic-hub/trigonometry.html` */
+/**
+ * The clean SPA shell every unmatched `/app/*` URL is served (`vercel.json` catch-all).
+ * Written by this step as a byte copy of the built `index.html` BEFORE the root is
+ * filled, so it can never carry the landing body. `X-Robots-Tag: noindex` is set on it
+ * in `vercel.json`, and it is never advertised.
+ */
+export const SPA_SHELL = "__shell.html";
+
+/** The root's fragment is `index.html`; every other path is `<path>.html`. */
+function fragmentStem(path: string): string {
+  return path === "/" ? "index" : path.replace(/^\//, "");
+}
+
+/**
+ * `/topic-hub/trigonometry` -> `<prerendered>/topic-hub/trigonometry.html`,
+ * `/` -> `<prerendered>/index.html`.
+ */
 export function fragmentPathFor(path: string, dir: string = PRERENDERED_DIR): string {
-  return join(dir, `${path.replace(/^\//, "")}.html`);
+  return join(dir, `${fragmentStem(path)}.html`);
 }
 
 /** Every `*.html` under `dir`, as advertised-style paths, for orphan detection. */
@@ -82,7 +100,9 @@ function fragmentsPresent(dir: string): string[] {
       const absolute = join(current, entry.name);
       if (entry.isDirectory()) walk(absolute, `${prefix}/${entry.name}`);
       else if (entry.name.endsWith(".html")) {
-        found.push(`${prefix}/${entry.name.replace(/\.html$/, "")}`);
+        const path = `${prefix}/${entry.name.replace(/\.html$/, "")}`;
+        // `index.html` at the top level is the root's fragment (`fragmentStem`).
+        found.push(path === "/index" ? "/" : path);
       }
     }
   };
@@ -151,16 +171,44 @@ async function resolveOutDir(): Promise<string> {
   return resolve(LAZYTOPPER_ROOT, outDir);
 }
 
-async function main(): Promise<void> {
-  const outDir = await resolveOutDir();
-  if (!existsSync(join(outDir, "index.html"))) {
+export interface ApplyResult {
+  /** Paths filled. 0 in the pre-capture state (no artifact directory). */
+  applied: number;
+  filesWritten: number;
+  bodyBytes: number;
+}
+
+/**
+ * Fill the built shells in `outDir` from the fragments in `prerenderedDir`.
+ *
+ * ★★ THE CLEAN SHELL IS WRITTEN FIRST AND UNCONDITIONALLY. `vercel.json` rewrites every
+ * unmatched `/app/*` URL to `/app/__shell.html`, so a build without that file would 404
+ * every deep link on the site — including in the pre-capture state below, where nothing
+ * else is written. It is a byte copy of the built `index.html` taken BEFORE the root is
+ * filled, and the copy is refused if `index.html` has already lost its empty mount point
+ * (this step running twice), because that copy would carry the landing body onto
+ * `/app/login`, `/app/me` and every other route — the exact spill it exists to prevent.
+ */
+export function applyArtifact(
+  outDir: string,
+  prerenderedDir: string = PRERENDERED_DIR,
+  expected: readonly string[] = applicablePaths(),
+): ApplyResult {
+  const indexHtml = join(outDir, "index.html");
+  if (!existsSync(indexHtml)) {
     throw new Error(
-      `applyPrerendered: no built shell at ${join(outDir, "index.html")}. This step runs ` +
+      `applyPrerendered: no built shell at ${indexHtml}. This step runs ` +
         `AFTER vite build AND after writeStaticHeads, and fills the files they emit.`,
     );
   }
-
-  const expected = applicablePaths();
+  const cleanShell = readFileSync(indexHtml, "utf8");
+  if (!cleanShell.includes(EMPTY_ROOT)) {
+    throw new Error(
+      `applyPrerendered: index.html has no empty mount point, so it is not a clean shell ` +
+        `and cannot be copied to ${SPA_SHELL}. The shell changed shape, or this step ran twice.`,
+    );
+  }
+  writeFileSync(join(outDir, SPA_SHELL), cleanShell, "utf8");
 
   // ★ THE UN-BOOTSTRAPPED STATE IS ANNOUNCED, NOT SKIPPED. Until the capture job has
   // committed its first artifact there is nothing to apply, and the site keeps the
@@ -168,17 +216,17 @@ async function main(): Promise<void> {
   // a legitimate state exactly once, so it says so loudly on stdout rather than
   // passing in silence. A directory that EXISTS must be complete: a partial artifact
   // is a broken one and fails below.
-  if (!existsSync(PRERENDERED_DIR)) {
+  if (!existsSync(prerenderedDir)) {
     // eslint-disable-next-line no-console
     console.log(
-      `STATIC_BODIES_APPLY: no artifact at ${PRERENDERED_DIR} — ${expected.length} advertised ` +
+      `STATIC_BODIES_APPLY: no artifact at ${prerenderedDir} — ${expected.length} advertised ` +
         `pages keep an EMPTY BODY. This is the pre-capture state; the CI capture job has not ` +
-        `committed a prerendered set yet.`,
+        `committed a prerendered set yet. ${SPA_SHELL} was still written.`,
     );
-    return;
+    return { applied: 0, filesWritten: 0, bodyBytes: 0 };
   }
 
-  const present = fragmentsPresent(PRERENDERED_DIR);
+  const present = fragmentsPresent(prerenderedDir);
   const failures = validateArtifact(expected, present);
   if (failures.length > 0) {
     throw new Error(
@@ -192,7 +240,7 @@ async function main(): Promise<void> {
   const fragments = new Map<string, string>();
   const assetFailures: string[] = [];
   for (const path of expected) {
-    const fragment = readFileSync(fragmentPathFor(path), "utf8");
+    const fragment = readFileSync(fragmentPathFor(path, prerenderedDir), "utf8");
     fragments.set(path, fragment);
     for (const ref of assetRefsIn(fragment)) {
       // `/app/assets/x.webp` -> `<outDir>/assets/x.webp`
@@ -218,8 +266,10 @@ async function main(): Promise<void> {
   let bodyBytes = 0;
   for (const [path, fragment] of fragments) {
     const relative = path.replace(/^\//, "");
-    // Both emitted files per path, exactly as writeStaticHeads wrote them.
-    for (const target of [`${relative}.html`, join(relative, "index.html")]) {
+    // The root is the one `index.html`; every other path has the two files
+    // writeStaticHeads emitted for it.
+    const targets = path === "/" ? ["index.html"] : [`${relative}.html`, join(relative, "index.html")];
+    for (const target of targets) {
       const file = join(outDir, target);
       const shell = readFileSync(file, "utf8");
       if (!shell.includes(EMPTY_ROOT)) {
@@ -233,13 +283,19 @@ async function main(): Promise<void> {
     }
     bodyBytes += Buffer.byteLength(fragment, "utf8");
   }
+  return { applied: fragments.size, filesWritten, bodyBytes };
+}
+
+async function main(): Promise<void> {
+  const outDir = await resolveOutDir();
+  const { applied, filesWritten, bodyBytes } = applyArtifact(outDir);
 
   // ★ Names its subject on every run, green included: a run that silently applied
   // nothing must be visible in the build log rather than reading as success.
   // eslint-disable-next-line no-console
   console.log(
     `STATIC_BODIES_APPLY: outDir=${outDir} advertised=${sitemapPaths().length} ` +
-      `applied=${fragments.size} (root excluded) files=${filesWritten} ` +
+      `applied=${applied} (root included) files=${filesWritten} shell=${SPA_SHELL} ` +
       `body_bytes_total=${bodyBytes}`,
   );
 }

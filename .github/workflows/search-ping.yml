@@ -1,0 +1,67 @@
+# search-ping — tells search engines which pages changed, after every PRODUCTION deploy.
+#
+# SEO-FRESH-1 (F4 + F5). Vercel posts a GitHub `deployment_status` for every deployment
+# it makes. Verified for this repo (gh api .../deployments): production deployments carry
+# environment "Production" and reach state "success"; previews carry "Preview"; Railway
+# also posts, as "lazytopper-backend / production".
+#
+# ⚠ THE FILTER IS AN EXACT MATCH ON "Production", AND THE CASE MATTERS. A case-insensitive
+# or `contains(...)` match on "production" would also fire on Railway's backend deploys.
+# Previews and pull requests never ping: a preview URL is not a page anyone should index.
+# `searchPing.guard.test.ts` evaluates this condition against those real event shapes.
+#
+# What it does (lazytopper/scripts/seo/searchPing.ts):
+#   · diffs public/sitemap.xml between the deployed commit and its parent — `gen:sitemap`
+#     restamps a URL only when its prerendered page changed, so the new/restamped <loc>s
+#     ARE the changed pages;
+#   · POSTs them to IndexNow (Bing & friends). No changed URLs → no request. Any status
+#     other than 200/202 fails this job, visibly;
+#   · if the GSC_SERVICE_ACCOUNT secret exists, resubmits the sitemap to Google Search
+#     Console (sitemaps.submit); if not, logs a notice and succeeds. No other Google call.
+name: search-ping
+
+on:
+  deployment_status:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: search-ping-${{ github.event.deployment.sha }}
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    if: github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # ⚠ `secrets` is NOT available in a step-level `if`; resolve presence here (the same
+    # pattern prerender-capture.yml documents).
+    env:
+      HAS_GSC: ${{ secrets.GSC_SERVICE_ACCOUNT != '' }}
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.deployment.sha }}
+          # The deployed commit AND its parent — the sitemap is diffed between the two.
+          fetch-depth: 2
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install workspace (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Ping IndexNow (and Search Console when configured)
+        env:
+          DEPLOY_SHA: ${{ github.event.deployment.sha }}
+          GSC_SERVICE_ACCOUNT: ${{ secrets.GSC_SERVICE_ACCOUNT }}
+          GSC_SITE_URL: ${{ vars.GSC_SITE_URL }}
+        run: |
+          echo "Deployment ${{ github.event.deployment.id }} (${{ github.event.deployment.environment }}) state=${{ github.event.deployment_status.state }} sha=$DEPLOY_SHA gsc_configured=$HAS_GSC"
+          pnpm --filter lazytopper exec tsx scripts/seo/searchPing.ts --sha="$DEPLOY_SHA"

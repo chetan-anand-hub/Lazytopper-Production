@@ -1,10 +1,18 @@
 // @vitest-environment node
 import { describe, it, expect } from "vitest";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 import viteConfig from "../../vite.config";
-import { renderSitemapXml, sitemapPaths, sitemapUrls } from "./sitemapUrls";
+import {
+  nextLastmods,
+  renderSitemapXml,
+  sitemapPaths,
+  sitemapUrls,
+  type LastmodLedger,
+} from "./sitemapUrls";
+import { fragmentHash } from "../../scripts/generateSitemap";
+import { SPA_SHELL, fragmentPathFor } from "../../scripts/seo/applyPrerendered";
 import {
   SELF_CANONICAL_EXACT,
   SELF_CANONICAL_ONE_SEGMENT,
@@ -296,5 +304,91 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
     for (const loc of locsOnDisk()) {
       expect(/\s/.test(loc), `<loc> ${loc} contains whitespace`).toBe(false);
     }
+  });
+});
+
+/**
+ * ★ SEO-FRESH-1 (F1) — HONEST DATES. `<lastmod>` moves when the page's committed
+ * prerendered body moved, and only then. The rule is `nextLastmods`; the committed state
+ * is `prerendered/lastmod.json` + `public/sitemap.xml`, and CI's prerender-capture job
+ * regenerates both from a fresh capture (F2).
+ */
+describe("sitemap lastmod — restamped only when the page changed (F1)", () => {
+  const TODAY = "2026-09-27";
+  const previous: LastmodLedger = {
+    "/": { sha256: "aaa", lastmod: "2026-09-01" },
+    "/pricing": { sha256: "bbb", lastmod: "2026-08-15" },
+  };
+
+  it("unchanged hash → the published date is KEPT", () => {
+    const next = nextLastmods(previous, new Map([["/", "aaa"]]), TODAY);
+    expect(next["/"]).toEqual({ sha256: "aaa", lastmod: "2026-09-01" });
+  });
+
+  it("changed hash → restamped to today", () => {
+    const next = nextLastmods(previous, new Map([["/pricing", "ccc"]]), TODAY);
+    expect(next["/pricing"]).toEqual({ sha256: "ccc", lastmod: TODAY });
+  });
+
+  it("new path → today", () => {
+    const next = nextLastmods(previous, new Map([["/notes/electricity", "ddd"]]), TODAY);
+    expect(next["/notes/electricity"]).toEqual({ sha256: "ddd", lastmod: TODAY });
+  });
+
+  it("first run (no ledger) → every path today; a path no longer advertised drops out", () => {
+    const hashes = new Map([["/", "aaa"], ["/pricing", "bbb"]]);
+    expect(Object.values(nextLastmods({}, hashes, TODAY)).map((e) => e.lastmod)).toEqual([TODAY, TODAY]);
+    expect(Object.keys(nextLastmods(previous, new Map([["/", "aaa"]]), TODAY))).toEqual(["/"]);
+  });
+
+  it("the hash ignores CRLF vs LF, so a Windows checkout sees no change", () => {
+    expect(fragmentHash("<main>\r\n<h1>x</h1>\r\n</main>")).toBe(fragmentHash("<main>\n<h1>x</h1>\n</main>"));
+    expect(fragmentHash("<main>a</main>")).not.toBe(fragmentHash("<main>b</main>"));
+  });
+
+  /**
+   * ★ THE COMMITTED STATE IS CONSISTENT — the ledger covers exactly the advertised paths,
+   * each hash is the hash of the committed fragment, and each sitemap date is the ledger's.
+   * Anything else means the files were hand-edited or taken from different captures.
+   */
+  it("★ committed lastmod.json matches the committed fragments and the committed sitemap", () => {
+    const ledgerFile = resolve(ROOT, "prerendered", "lastmod.json");
+    expect(existsSync(ledgerFile), "prerendered/lastmod.json is not committed").toBe(true);
+    const ledger = JSON.parse(readFileSync(ledgerFile, "utf8")) as LastmodLedger;
+    const paths = sitemapPaths();
+
+    expect(Object.keys(ledger).sort()).toEqual([...paths].sort());
+    const published = publishedLastmods();
+    for (const path of paths) {
+      const fragment = readFileSync(fragmentPathFor(path), "utf8");
+      expect(ledger[path].sha256, `${path}: ledger hash is not the committed fragment's`).toBe(
+        fragmentHash(fragment),
+      );
+      expect(/^\d{4}-\d{2}-\d{2}$/.test(ledger[path].lastmod)).toBe(true);
+      expect(published.get(canonicalFor(path, PROD_BASENAME)), `${path}: sitemap date ≠ ledger date`).toBe(
+        ledger[path].lastmod,
+      );
+    }
+  });
+
+  it("the SPA shell (__shell.html) is never advertised", () => {
+    expect(SPA_SHELL).toBe("__shell.html");
+    for (const loc of locsOnDisk()) expect(loc).not.toContain("__shell");
+    for (const path of sitemapPaths()) expect(path).not.toContain("__shell");
+  });
+
+  /**
+   * ⚠ THE FRAGMENT CARRIES NO CANONICAL AT ALL — the one a crawler reads comes from the
+   * static head `writeStaticHeads` stamps via `canonicalFor`. So "no query string in the
+   * canonical" is asserted on BOTH: the committed fragment adds no canonical of its own,
+   * and the canonical/sitemap URL for the page is query-free even when asked with one.
+   */
+  it("the canonical for prerendered/notes/trigonometry.html has no query string", () => {
+    const fragment = readFileSync(fragmentPathFor("/notes/trigonometry"), "utf8");
+    expect(fragment).not.toMatch(/rel="canonical"/);
+    const canonical = canonicalFor("/notes/trigonometry?tab=competency#q3", PROD_BASENAME);
+    expect(canonical).toBe("https://www.lazytopper.com/app/notes/trigonometry");
+    expect(locsOnDisk()).toContain(canonical);
+    for (const loc of locsOnDisk()) expect(loc, `${loc} carries a query string`).not.toMatch(/[?#]/);
   });
 });

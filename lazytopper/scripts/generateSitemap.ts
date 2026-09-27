@@ -37,22 +37,41 @@
  * into `BASE_URL`, so reading it is reading the same source one step upstream.
  * It is emphatically NOT a `/app/` literal, which is what #736 existed to kill.
  *
- * ⚠ LASTMOD IS PRESERVED, NOT RESTAMPED. A date is not derivable from the route
- * table. Re-dating all 31 URLs on every run would tell Google the whole site
- * changed whenever one topic was added, which is how a freshness signal stops
- * meaning anything. Existing URLs keep the date already published; only genuinely
- * new URLs are stamped with today (override with `--lastmod=YYYY-MM-DD`).
+ * ★ LASTMOD MOVES WHEN THE PAGE MOVED — AND ONLY THEN (SEO-FRESH-1, F1). A date is
+ * not derivable from the route table, so it is derived from the one thing that IS the
+ * page a crawler reads: the committed prerendered fragment. `prerendered/lastmod.json`
+ * records, per advertised path, the sha256 of that fragment and the date it last
+ * changed. A run restamps a path to today (IST — the product's and its students' day)
+ * only when the hash moved; new paths get today; everything else keeps its date. The
+ * generator this replaced kept every date FOREVER, so a rewritten page still claimed
+ * its first-publish date. Restamping everything on every run would be the opposite
+ * lie. `--lastmod=YYYY-MM-DD` overrides "today" (tests, backfills).
+ *
+ * ⚠ IT READS THE FRAGMENTS, SO IT RUNS AFTER A CAPTURE. In CI the prerender-capture job
+ * runs this right after `seo:capture`, and a stale `sitemap.xml` or `lastmod.json`
+ * fails that job and is supplied in its artifact — the same verify-and-supply pattern
+ * as the fragments themselves (F2).
  */
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import viteConfig from "../vite.config";
-import { renderSitemapXml } from "../src/config/sitemapUrls";
+import { canonicalFor } from "../src/config/canonicalUrl";
+import {
+  nextLastmods,
+  renderSitemapXml,
+  sitemapPaths,
+  type LastmodEntry,
+  type LastmodLedger,
+} from "../src/config/sitemapUrls";
+import { PRERENDERED_DIR, fragmentPathFor } from "./seo/applyPrerendered";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const SITEMAP = join(here, "..", "public", "sitemap.xml");
+export const LASTMOD_LEDGER = join(PRERENDERED_DIR, "lastmod.json");
 
 /** `/app/` -> `/app`, matching how `main.tsx` feeds `<BrowserRouter basename>`. */
 function basenameFromViteConfig(): string {
@@ -66,22 +85,24 @@ function basenameFromViteConfig(): string {
   return base.endsWith("/") ? base.slice(0, -1) : base;
 }
 
-/** The dates already published, so a regenerate does not re-date the whole site. */
-function publishedLastmods(): Map<string, string> {
-  const dates = new Map<string, string>();
-  let xml: string;
-  try {
-    xml = readFileSync(SITEMAP, "utf8");
-  } catch {
-    return dates;
-  }
-  const entry = /<url>[\s\S]*?<\/url>/g;
-  for (const block of xml.match(entry) ?? []) {
-    const loc = /<loc>\s*([^<\s]+)\s*<\/loc>/.exec(block)?.[1];
-    const lastmod = /<lastmod>\s*([^<\s]+)\s*<\/lastmod>/.exec(block)?.[1];
-    if (loc && lastmod) dates.set(loc, lastmod);
-  }
-  return dates;
+/**
+ * sha256 of a committed fragment, with CRLF normalised to LF: a Windows checkout
+ * (autocrlf) must hash the same bytes the linux runner does, or every local run would
+ * see every page as changed.
+ */
+export function fragmentHash(contents: string): string {
+  return createHash("sha256").update(contents.replace(/\r\n/g, "\n"), "utf8").digest("hex");
+}
+
+/** Today's calendar date in India (IST), as YYYY-MM-DD. */
+export function todayIst(now: Date = new Date()): string {
+  // en-CA formats as YYYY-MM-DD.
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(now);
 }
 
 function today(): string {
@@ -94,23 +115,69 @@ function today(): string {
     }
     return override;
   }
-  return new Date().toISOString().slice(0, 10);
+  return todayIst();
 }
 
-const published = publishedLastmods();
-const stamp = today();
-// LF on purpose: `.gitattributes` normalises the repo to LF, and CI reads the
-// committed bytes. Writing CRLF here would make the guard pass on Windows and
-// fail on the linux runner.
-const xml = renderSitemapXml(
-  basenameFromViteConfig(),
-  (url) => published.get(url) ?? stamp,
-);
-writeFileSync(SITEMAP, xml, "utf8");
+/** Render the ledger deterministically (sorted keys, 2-space JSON, LF, trailing newline). */
+export function renderLedger(ledger: Readonly<Record<string, LastmodEntry>>): string {
+  const sorted: Record<string, LastmodEntry> = {};
+  for (const path of Object.keys(ledger).sort()) {
+    sorted[path] = { sha256: ledger[path].sha256, lastmod: ledger[path].lastmod };
+  }
+  return `${JSON.stringify(sorted, null, 2)}\n`;
+}
 
-const added = xml.match(/<loc>/g)?.length ?? 0;
-// eslint-disable-next-line no-console
-console.log(
-  `sitemap.xml written: ${added} <loc> (${added - published.size} new, ` +
-    `stamped ${stamp}; ${published.size} kept their published lastmod)`,
-);
+function main(): void {
+  const basename = basenameFromViteConfig();
+  const paths = sitemapPaths();
+
+  const hashes = new Map<string, string>();
+  const missing: string[] = [];
+  for (const path of paths) {
+    const file = fragmentPathFor(path);
+    if (!existsSync(file)) {
+      missing.push(`${path} (${file})`);
+      continue;
+    }
+    hashes.set(path, fragmentHash(readFileSync(file, "utf8")));
+  }
+  if (missing.length > 0) {
+    throw new Error(
+      `gen:sitemap: ${missing.length} advertised path(s) have no prerendered fragment, so ` +
+        `no honest lastmod can be computed. Run the capture first (CI's prerender-capture ` +
+        `job supplies it).\n  - ${missing.join("\n  - ")}`,
+    );
+  }
+
+  const firstRun = !existsSync(LASTMOD_LEDGER);
+  const previous: LastmodLedger = firstRun
+    ? {}
+    : (JSON.parse(readFileSync(LASTMOD_LEDGER, "utf8")) as LastmodLedger);
+  const stamp = today();
+  const ledger = nextLastmods(previous, hashes, stamp);
+
+  const byUrl = new Map(paths.map((path) => [canonicalFor(path, basename), ledger[path].lastmod]));
+  // LF on purpose: `.gitattributes` normalises the repo to LF, and CI reads the
+  // committed bytes. Writing CRLF here would make the guard pass on Windows and
+  // fail on the linux runner.
+  const xml = renderSitemapXml(basename, (url) => {
+    const lastmod = byUrl.get(url);
+    if (!lastmod) throw new Error(`gen:sitemap: no lastmod computed for ${url}`);
+    return lastmod;
+  });
+  writeFileSync(SITEMAP, xml, "utf8");
+  writeFileSync(LASTMOD_LEDGER, renderLedger(ledger), "utf8");
+
+  const restamped = paths.filter((path) => previous[path]?.sha256 !== ledger[path].sha256);
+  // eslint-disable-next-line no-console
+  console.log(
+    `sitemap.xml written: ${paths.length} <loc>; ${restamped.length} stamped ${stamp}` +
+      `${firstRun ? " (FIRST RUN — no ledger, every path stamped)" : ""}; ` +
+      `${paths.length - restamped.length} kept their date. Ledger: ${LASTMOD_LEDGER}` +
+      (restamped.length > 0 ? `\n  restamped: ${restamped.join(", ")}` : ""),
+  );
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}
