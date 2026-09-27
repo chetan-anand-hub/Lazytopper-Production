@@ -236,10 +236,11 @@ describe("ConceptSpine — Notes (single unified toggle, not split tabs)", () =>
     expect(getNoteSpecForTopic(previewTopic.slug)).toBeNull();
     renderSpine(previewTopic, previewContent);
 
-    expect(screen.queryByText(/Notes coming soon/)).toBeNull();
+    // SEO-HUB-1 H2 — collapsed means HIDDEN, not unrendered: the text is in the DOM.
+    expect(screen.getByText(/Notes coming soon/)).not.toBeVisible();
     fireEvent.click(screen.getByRole("button", { name: /Notes/ }));
     // Honest placeholder — and no modal, because there is no note to show.
-    expect(screen.getByText(/Notes coming soon/)).toBeInTheDocument();
+    expect(screen.getByText(/Notes coming soon/)).toBeVisible();
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 });
@@ -321,12 +322,13 @@ describe("ConceptSpine — Examiner's tips (expandable container, no fabrication
     renderSpine();
     const toggle = screen.getByRole("button", { name: /Examiner.s tips/ });
     expect(toggle).toHaveAttribute("aria-expanded", "false");
-    expect(screen.queryByText(/More examiner.s tips/)).toBeNull();
+    // SEO-HUB-1 H2 — collapsed means HIDDEN, not unrendered: the text is in the DOM.
+    expect(screen.getByText(/More examiner.s tips/)).not.toBeVisible();
 
     fireEvent.click(toggle);
     expect(toggle).toHaveAttribute("aria-expanded", "true");
     // Honest "coming soon" — the full tip set is a later stage, not fabricated here.
-    expect(screen.getByText(/More examiner.s tips/)).toBeInTheDocument();
+    expect(screen.getByText(/More examiner.s tips/)).toBeVisible();
   });
 
   it("seeds the one real examinerWarning as a preview tip on a seeded topic", () => {

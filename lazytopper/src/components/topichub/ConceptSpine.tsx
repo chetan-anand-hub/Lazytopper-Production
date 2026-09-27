@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "rea
 import { Link, useHref } from "react-router-dom";
 import { Card } from "../grammar/Card";
 import { getNoteSpecForTopic } from "../notes/noteSpecRegistry";
+import { ChapterAtAGlance } from "./ChapterAtAGlance";
 import { findVisualForConcept } from "../../data/visualConceptRegistry";
 import type { DesktopTopicSummary } from "../../lib/desktop/topics";
 import type {
@@ -583,29 +584,30 @@ export function ConceptSpine({
           type="button"
           className="lt-spine__tips-toggle"
           aria-expanded={tipsOpen}
+          aria-controls="lt-spine-tips-panel"
           onClick={() => setTipsOpen((v) => !v)}
         >
           <span aria-hidden="true">★</span>
           <span>Examiner&rsquo;s tips</span>
           <span className="lt-spine__chev" aria-hidden="true">{tipsOpen ? "▲" : "▼"}</span>
         </button>
-        {tipsOpen && (
-          <div className="lt-spine__tips-panel">
-            {seededTip && (
-              <div className="lt-spine__tip">
-                <span className="lt-spine__tip-num">1</span>
-                <span>{seededTip}</span>
-              </div>
-            )}
-            <div className="lt-spine__tips-soon">
-              <span aria-hidden="true">☆</span>
-              <span>
-                More examiner&rsquo;s tips for this topic are on the way — a curated
-                set of board do&rsquo;s and don&rsquo;ts is coming soon.
-              </span>
+        {/* SEO-HUB-1 H2 — collapsed by the `hidden` attribute, never by not rendering:
+            the tip text stays in the DOM, so the static (prerendered) page carries it. */}
+        <div id="lt-spine-tips-panel" className="lt-spine__tips-panel" hidden={!tipsOpen}>
+          {seededTip && (
+            <div className="lt-spine__tip">
+              <span className="lt-spine__tip-num">1</span>
+              <span>{seededTip}</span>
             </div>
+          )}
+          <div className="lt-spine__tips-soon">
+            <span aria-hidden="true">☆</span>
+            <span>
+              More examiner&rsquo;s tips for this topic are on the way — a curated
+              set of board do&rsquo;s and don&rsquo;ts is coming soon.
+            </span>
           </div>
-        )}
+        </div>
 
         {/* Notes — ONE unified toggle. When a note exists it opens as a POPUP over
             the hub (NoteModal); otherwise an inline honest "coming soon". */}
@@ -659,18 +661,24 @@ export function ConceptSpine({
             </Suspense>
           )
         ) : (
-          notesOpen && (
-            <div className="lt-spine__notes-panel">
-              <p className="lt-spine__panel-note">
-                Notes coming soon. One unified view will gather this topic&rsquo;s
-                formula sheet, board-format proofs and a mind-map (with a downloadable
-                PDF). No notes are authored here yet — the content arrives pre-generated
-                in a later stage.
-              </p>
-            </div>
-          )
+          /* SEO-HUB-1 H2 — hidden, not unrendered (see the tips panel above). */
+          <div className="lt-spine__notes-panel" hidden={!notesOpen}>
+            <p className="lt-spine__panel-note">
+              Notes coming soon. One unified view will gather this topic&rsquo;s
+              formula sheet, board-format proofs and a mind-map (with a downloadable
+              PDF). No notes are authored here yet — the content arrives pre-generated
+              in a later stage.
+            </p>
+          </div>
         )}
       </Card>
+
+      {/* SEO-HUB-1 H1 — "Chapter at a glance", expanded, composed from the chapter's
+          existing note spec. The note itself (NoteModal) stays lazy and latched; this
+          section is plain text so the route never touches katex. */}
+      {noteSpec && (
+        <ChapterAtAGlance spec={noteSpec} slug={topic.slug} chapterName={topic.name} />
+      )}
 
       {/* Per-topic before→now trajectory (arc PR-4) — honest-or-silent; renders nothing
           until there is a real data-backed trend on this topic. */}

@@ -128,7 +128,9 @@ describe("DesktopTopicHubPage — arrival concept (?concept=)", () => {
     expect(scrollSpy).not.toHaveBeenCalled();
     // Honest fallback: a missing concept is a NORMAL state, never an error state.
     expect(screen.queryByText(/Topic not found/)).toBeNull();
-    expect(screen.getByText(topic.name)).toBeTruthy();
+    // The h1, not bare text: "Chapter at a glance" (SEO-HUB-1) also lists a
+    // definition whose term is the chapter name ("Trigonometry").
+    expect(screen.getByRole("heading", { level: 1, name: topic.name })).toBeTruthy();
   });
 
   it("a concept belonging to a DIFFERENT topic does not mark a row here", () => {
@@ -168,7 +170,9 @@ describe("DesktopTopicHubPage — arrival concept (?concept=)", () => {
 describe("DesktopTopicHubPage — the existing params still work (shared parsing)", () => {
   it("?topic= still resolves the topic on the bare route", () => {
     const { container } = renderAt(`/topic-hub?topic=${TOPIC_SLUG}`);
-    expect(screen.getByText(topic.name)).toBeTruthy();
+    // The h1, not bare text: "Chapter at a glance" (SEO-HUB-1) also lists a
+    // definition whose term is the chapter name ("Trigonometry").
+    expect(screen.getByRole("heading", { level: 1, name: topic.name })).toBeTruthy();
     expect(container.querySelectorAll(".lt-spine__row")).toHaveLength(
       conceptNames.length,
     );
