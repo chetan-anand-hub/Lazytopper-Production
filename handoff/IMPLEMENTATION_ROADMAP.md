@@ -1,5 +1,16 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-27 — MONEY: **WAVE B-2 — FAIR-USE-1 (FAIR LIMITS METERED, DARK; PREMIUM NEVER SHED, LIVE) + RAZORPAY-1 (BUY A PASS, DARK)** — `#852` + `#853` MERGED — trunk `fecbbe08`
+
+- ✅ **FAIR-USE-1** (`#852` `4984655e`): U1/U2 trial allowances (5 checks/IST day per question, 1 chapter test/day, 1 mock + 1 worksheet per rolling 7 days) · U3 premium real-cost caps (₹84/7d, ₹38/day, ₹25/5h, ledger hour buckets) · U4 premium exempt from the 80% vision shed (LIVE) · U5 `GET /api/usage/me` · U8 refusals only with `FAIR_USE_ENFORCE=1`, else `fair_use.would_refuse.<rule>` · surface header from chapter test, full mock, worksheet.
+- ✅ **RAZORPAY-1** (`#853` `fecbbe08`): server-priced orders (`payOrders`) · verify + raw-body webhook, timing-safe HMAC, amount and uid checks · Z9 payment-level idempotent `grantPass` · Z7 `payOrders` exported and uid-anonymised on erasure · `PassCheckout` behind `VITE_PAYMENTS_ENABLED`; routes 404 without `PAYMENTS_ENABLED`.
+- ✅ **Closed:** the wave B-1 audit finding (double grant on A, B, replay A) — by Z9.
+- ✅ **Docs:** this handoff.
+- ⬜ **Rollout:** RAZORPAY-1 rolls out alone (OR-LIVE D7) — result in `CURRENT_STATE.md`.
+- ⬜ **Owner:** live-verify FAIR-USE-1 · RAZORPAY-1 §3 test (Razorpay test mode, Preview only) · `[FU-PRICING-COPY-WHEN-PAYMENTS-ON]` before production payments · `FAIR_USE_ENFORCE=1` only after FAIR-USE-2 + the surface-forgery decision · the wave B-1 owner steps.
+- ⬜ **Next:** FAIR-USE-2 (the student-facing bars).
+- ⬜ `[FU-FAIR-USE-SURFACE-UNVERIFIABLE]` · `[FU-FAIR-USE-TRIAL-COUNT-ON-UNREADABLE]` · `[FU-FAIR-USE-USAGE-ME-RATE]` · `[FU-FAIR-USE-QP-SURFACE-HEADER]` · `[FU-PRICING-COPY-WHEN-PAYMENTS-ON]` · `[FU-PASS-PRICE-ORDER-VS-GRANT-DRIFT]` · `[FU-PAY-BUTTON-LABEL-FOUNDING-AFTER-CLOSE]` · `[FU-STUDENTDATAMAP-HEADER-COUNT]`.
+
 ## 2026-09-27 — HUB + FIXES: **WAVE A-2 — HUB-REVERT-1 + FREECHECK-2 + BUGFIX-1** — `#848` + `#849` + `#850` MERGED — trunk `754d5af3`
 
 - ✅ **HUB-REVERT-1** (`#848` `1cad7818`): "Chapter at a glance" removed from all 26 hubs (SEO-HUB-1 H1 reversed); new pin: no overview node + one notes link per hub; prod check PASS.

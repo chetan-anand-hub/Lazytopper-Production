@@ -1,3 +1,28 @@
+## ★★★ 2026-09-27 — WAVE B-2 (MONEY) CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-2 BLOCK BELOW ON TRUNK SHA ONLY
+*(It does not supersede that block's owner items (the FREECHECK-2 and BUGFIX-1 live-verifies), nor the WAVE B-1 (MONEY) block's owner items, which stand unchanged.)*
+
+**TRUNK IS `fecbbe08fd4ae370814b38f139e861a6601f2453`**, measured 2026-09-28 (`git ls-remote origin refs/heads/base/approved-thru-437`):
+- `fecbbe08` = `#853` (RAZORPAY-1: students can buy a pass through Razorpay, dark behind two switches)
+- `4984655e` = `#852` (FAIR-USE-1: fair limits on grading, enforced on the server (dark); premium never shed)
+- `2d581e88` = `#851` (docs: wave A-2)
+
+Open at the time of writing: none besides this docs PR. RAZORPAY-1 rolls out alone (OR-LIVE); its rollout result is recorded in the `CURRENT_STATE.md` block and the `SESSION_LOG.md` entry.
+
+### NEXT — OWNER (none of these was run by the controller or a builder)
+1. **`FAIR_USE_ENFORCE` — leave it UNSET** until FAIR-USE-2 ships the student-facing bars **and** `[FU-FAIR-USE-SURFACE-UNVERIFIABLE]` is decided (a caller can forge a paper surface and move a multi-question grade into a paper allowance). Then set `FAIR_USE_ENFORCE=1` (exactly `1`) on Railway to enforce. Optional tuning env (defaults are the spec's numbers): `FAIR_USE_TRIAL_CHECKS_PER_DAY`, `FAIR_USE_TRIAL_CHAPTER_TESTS_PER_DAY`, `FAIR_USE_TRIAL_MOCKS_PER_WEEK`, `FAIR_USE_TRIAL_WORKSHEETS_PER_WEEK`, `FAIR_USE_PREMIUM_WEEK_INR`, `FAIR_USE_PREMIUM_DAY_INR`, `FAIR_USE_PREMIUM_FIVE_HOUR_INR` *(subagent-reported)*.
+2. **Live-verify FAIR-USE-1** (a live grading round trip, CLAUDE.md §6): one trial grade and one premium grade on production. While dark, both are served, and `/api/usage/me` returns the shape. Watch `fair_use.would_refuse.<rule>`, `fair_use.surface.<surface>`, `fair_use.tier_unknown`, `fair_use.ledger_unreadable` and `rate_limit.shed.vision.premium_exempt` via `/api/admin/token-telemetry` *(subagent-reported)*.
+3. **RAZORPAY-1 spec §3 owner test** (a live money round trip; report the steps, the builder did not run them):
+   - Razorpay dashboard (test mode) → webhook `https://www.lazytopper.com/api/pay/webhook`, event `payment.captured`;
+   - Railway `PAYMENTS_ENABLED=1`;
+   - Vercel **Preview-only** `VITE_PAYMENTS_ENABLED=1`;
+   - buy a month pass with a test card on a preview;
+   - confirm premium + `passEnd`.
+   - Env the code reads: `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`, `PAYMENTS_ENABLED` (server), `VITE_PAYMENTS_ENABLED` (client build); optional `LT_CAP_PAYMENTS_SOFT` / `LT_CAP_PAYMENTS_HARD` *(subagent-reported)*. Live keys and switching production on are the owner's call, with the CA.
+4. **`[FU-PRICING-COPY-WHEN-PAYMENTS-ON]` BEFORE production payments:** three pricing-page strings outside the P7 block (the subtitle, the FAQ "Can I pay here?", the fine print) go stale when `VITE_PAYMENTS_ENABLED=1`. Reword them (flag-gated) before switching production on — an owner copy call.
+5. **The wave B-1 owner steps are still owed** (the B-1 block below): the rules mutation proof → `deploy:firestore-rules` → `PASS_ADMIN_SECRET` on Railway → METER-1 live-verify; rulings `[FU-PASS-TRIAL-AFTER-EXPIRY]` and admin-tool Gemini spend; the wave B-1 final audit. This lane did not re-check whether any of them has since been done.
+6. **Owner call:** `[FU-FAIR-USE-TRIAL-COUNT-ON-UNREADABLE]` — should an unreadable scan (200 `{ok:false}`) refund the trial checks it spent?
+7. **Next in the money arc:** FAIR-USE-2 (the student-facing bars; it should poll `/api/usage/me` sparingly — `[FU-FAIR-USE-USAGE-ME-RATE]`).
+
 ## ★★★ 2026-09-27 — WAVE A-2 (REACH & POLISH) CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-1 BLOCK BELOW ON TRUNK SHA, AND ITEM 2 OF IT (the hub overview it asks you to live-verify is gone)
 *(It does not supersede that block's other owner items — Search Console live test, optional `GSC_SERVICE_ACCOUNT`, the `__shell.html` pairing — which stand unchanged.)*
 

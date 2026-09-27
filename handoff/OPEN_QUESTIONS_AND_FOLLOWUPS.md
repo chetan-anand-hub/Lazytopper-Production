@@ -23,6 +23,38 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-27 — WAVE B-2 (MONEY): FAIR-USE-1 (`#852` MERGED as `4984655e`) + RAZORPAY-1 (`#853` MERGED as `fecbbe08`), squash, `--match-head-commit`, no `--admin` — eight new follow-ups, one audit finding closed, five kept open
+
+### ✅ CLOSED — the wave B-1 audit finding: `grantPass` replayed only on `lastPaymentRef`
+Payments A, B, then a late retry of A granted A twice. **Closed by RAZORPAY-1 Z9**: `grantPass` writes `subscriptions/{uid}/payments/{paymentRef}` in the same transaction, so each payment grants once. CI (`#853`, run `36341250786`): `ok 15 - Z9 · A, B, then replay A -> exactly two grants (lastPaymentRef alone would grant A twice)`, `ok 16 - Z9 · CONCURRENT replay of one payment -> one grant` *(subagent-reported, log-quoted; run controller-verified)*.
+
+### `[FU-FAIR-USE-SURFACE-UNVERIFIABLE]` — ★ OPEN, **DECIDE BEFORE `FAIR_USE_ENFORCE=1`** *(subagent-reported)*
+A caller can forge BOTH a paper surface (`chapter-test`, `full-mock` or `worksheet`) AND a worksheet id that isn't `ci:`/`qp:` on grade-worksheet. That moves a multi-question grade out of the per-question checks and into a paper allowance, because the server holds no record of which paper a request is for. Fix: a server-side paper/session lookup, or bind papers to a server-minted id. Inherent to U1 as written; dark on merge, so no exposure now. Watch `fair_use.surface.*`.
+
+### `[FU-FAIR-USE-TRIAL-COUNT-ON-UNREADABLE]` — OPEN, **OWNER CALL** *(subagent-reported)*
+A 200 `{ok:false}` (unreadable scan) uses up trial checks, because trial counters are committed when a 2xx is served. Owner call: refund when the response is `ok:false`, which needs a response hook.
+
+### `[FU-FAIR-USE-USAGE-ME-RATE]` — OPEN *(subagent-reported)*
+`GET /api/usage/me` is not rate-limited, because GETs are outside the POST limiter. Each call costs up to 1 subscription read (cached for 60 s) plus 7 ledger reads. FAIR-USE-2 should poll sparingly; add a per-uid cap if needed.
+
+### `[FU-FAIR-USE-QP-SURFACE-HEADER]` — OPEN *(subagent-reported)*
+Quick Practice sends no surface header, so it shows up as check-improve in `fair_use.surface.*` (the allowance is the same). Sending `quick-practice` needs the `QuickPracticeBatchGrader` seam to accept options (UI, forbidden to the lane).
+
+### `[FU-PRICING-COPY-WHEN-PAYMENTS-ON]` — ★ OPEN, **FIX BEFORE `VITE_PAYMENTS_ENABLED=1` IN PRODUCTION** *(subagent-reported)*
+With `VITE_PAYMENTS_ENABLED` on, three strings outside the P7 block go stale: the subtitle "Payment checkout is not automated yet." (PricingPage header); the FAQ "Can I pay here? — Not yet. Payment checkout is not connected in this build, so Premium activation stays manual."; and the fine print "No credit card required. Premium is not activated automatically." They were left untouched because the spec says mount in the P7 block ONLY. They must be reworded (flag-gated) before production is switched on. The owner's copy call.
+
+### `[FU-PASS-PRICE-ORDER-VS-GRANT-DRIFT]` — OPEN, record only *(subagent-reported)*
+The order is priced when it is created; `grantPass` recomputes `pricePaidInr` at grant time (its pricing logic was forbidden to the lane). Across an IST month boundary (till-boards monthsLeft), or if the offer closes between order and payment, `subscriptions.pricePaidInr` can differ from the charged `payOrders.amountPaise`. The amount charged is always the server order price, and the order record keeps it. A later lane may pass the order's amount into the grant record.
+
+### `[FU-PAY-BUTTON-LABEL-FOUNDING-AFTER-CLOSE]` — OPEN *(subagent-reported)*
+After the founding offer closes, a founding member is charged the founding rate (it is sticky) while the month button shows the list price — the charge is lower than the label. Razorpay's checkout shows the true amount. The label could come from a server quote instead.
+
+### `[FU-STUDENTDATAMAP-HEADER-COUNT]` — OPEN, comment-only *(subagent-reported)*
+The `studentDataMap.ts` header still says "FIVE of the locations below are provably unreachable". The admin-sdk-required count was already 7 before RAZORPAY-1 and is 9 now.
+
+### Kept open from wave B-1 (unchanged by this wave)
+`[FU-STORED-RATE-RULES-MUTATION-PROOF]` · `[FU-SERVER-CBSEEXAMDATE-DAY-DRIFT]` · `[FU-PASS-TRIAL-AFTER-EXPIRY]` · `[FU-METER-STREAM-UNMETERED]` · `[FU-METER-PRICE-TABLE-SINGLE-MODEL]` — see the 2026-09-27 WAVE B-1 section below.
+
 ## 2026-09-27 — WAVE A-2 (REACH & POLISH): HUB-REVERT-1 (`#848` MERGED as `1cad7818`) + FREECHECK-2 (`#849` MERGED as `f2f01b97`) + BUGFIX-1 (`#850` MERGED as `754d5af3`), squash, `--match-head-commit`, no `--admin` — one resolved in-lane, one closed as DECIDED, one new, one superseded
 
 ### `[FU-BUGFIX1-P3-SIGNIN-NAME-LOST]` — ✅ RESOLVED in-lane by `#850` (owner ruling (a))
