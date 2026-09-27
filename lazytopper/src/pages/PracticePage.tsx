@@ -2220,8 +2220,13 @@ const packTopicKey = useMemo(() => {
     }
     setBatchResult(result);
     if (result.outcome === "skipped-error") {
+      // BUGFIX-1 (B2, P3): a SignInAgainError (by NAME, carried through the service as
+      // `errorName`) shows its own sign-in-again message; every other failure keeps
+      // today's copy.
       setBatchError(
-        "We could not grade your answers just now. Your MCQ marks are safe \u2014 try grading again in a moment.",
+        result.errorName === "SignInAgainError" && result.error
+          ? result.error
+          : "We could not grade your answers just now. Your MCQ marks are safe \u2014 try grading again in a moment.",
       );
     }
   }, [batchGrading, batchResult, batchSelection.batch.length, filterSignature, sessionStartedAt, subjectKey, sessionAnswers, authUserForJourney]);

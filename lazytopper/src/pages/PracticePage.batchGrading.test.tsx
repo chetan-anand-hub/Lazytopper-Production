@@ -1009,6 +1009,22 @@ describe("15 · BUGFIX-1 · a failed grade is retryable", () => {
     expect(writeSessionPerQuestion.mock.calls[1][1].response.results.some((r) => r.marksAwarded === 2)).toBe(true);
   });
 
+  it("★★ P3 · a SignInAgainError at grade time shows the sign-in-again message, not the generic failure", async () => {
+    const SIGN_IN_COPY = "We couldn't confirm you're signed in. Please sign in again, then try once more.";
+    const e = new Error(SIGN_IN_COPY);
+    e.name = "SignInAgainError";
+    gradeWorksheet.mockRejectedValueOnce(e);
+    await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, false)]);
+    await saveAPhotoFor(1);
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toBe(SIGN_IN_COPY);
+    expect(alert.textContent).not.toMatch(/could not grade your answers/i);
+    // The CONTROL is test "9 · … an ordinary grader outage DOES show the error box":
+    // any other error still reads "could not grade your answers".
+  });
+
   it("★ CONTROL: a GRADED result is not re-sent — the flow after success is unchanged", async () => {
     gradeWorksheet.mockResolvedValue(okBatch([okGrade(1)]));
     await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, false)]);
