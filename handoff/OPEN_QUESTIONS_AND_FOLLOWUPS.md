@@ -23,6 +23,20 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-27 — WAVE A-2 (REACH & POLISH): HUB-REVERT-1 (`#848` MERGED as `1cad7818`) + FREECHECK-2 (`#849` MERGED as `f2f01b97`) + BUGFIX-1 (`#850` MERGED as `754d5af3`), squash, `--match-head-commit`, no `--admin` — one resolved in-lane, one closed as DECIDED, one new, one superseded
+
+### `[FU-BUGFIX1-P3-SIGNIN-NAME-LOST]` — ✅ RESOLVED in-lane by `#850` (owner ruling (a))
+The batch-grading failure (spec P3) could not detect SignInAgainError, because `gradeQuickPracticeBatch` caught the throw and returned only `error: message`. `quickPracticeSessionService.ts` now carries `errorName` on the skipped-error result, and P3 matches `result.errorName === "SignInAgainError"`. There is no grading, scoring or prompt change. A mutation that drops `errorName` turns the test red *(subagent-reported)*.
+
+### `[FU-PREVIEW-FREECHECK-FLAG]` — CLOSED, DECIDED (won't do), owner 2026-09-27
+Vercel previews do not offer the free check. Owner: "Previews can't pass App Check (the reCAPTCHA key is domain-restricted to lazytopper.com), and widening it would weaken the live free check's protection and spend the production daily budget." Free-check proofs run on a flag-on local production build plus a production smoke.
+
+### `[FU-FREECHECK-DETECT-SIGNIN-COPY]` — F4 covers only the C&I grading catch sites
+The detect-question step's error path still shows that step's own copy on a SignInAgainError. It is unverified whether students ever reach it *(subagent-reported)*. Check in a later lane. **Status: OPEN.**
+
+### `[FU-HUB-HIDDEN-TEXT-WEIGHT]` — note: its premise changed with `#848`
+The ≥ 2,500-character floor and the overview it cited are gone (HUB-REVERT-1). The tips and no-spec notes text is still in the DOM via `hidden`. The entry below keeps its body as written; its status is unchanged (OPEN, informational).
+
 ## 2026-09-27 — WAVE A-1 (REACH & POLISH): SEO-FRESH-1 (`#844` MERGED as `0a4895b7`) + SEO-HUB-1 (`#845` MERGED as `e6349799`) + COPY-2 (`#846` MERGED as `bdc3371d`), squash, `--match-head-commit`, no `--admin` — three resolved, one withdrawn, seven new
 
 ### `[FU-LAZY-OUTSIDE-APP-UNWRAPPED]` — ✅ RESOLVED 2026-09-27 by `#845` (`e6349799`), owner item OR-AUTO

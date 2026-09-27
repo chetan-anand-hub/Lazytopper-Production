@@ -1,3 +1,36 @@
+## 2026-09-27 — WAVE A-2 (REACH & POLISH): HUB-REVERT-1 + FREECHECK-2 + BUGFIX-1 (build + docs) — trunk `754d5af3`, PRs `#848` + `#849` + `#850`
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by lane ID rather than `DECISION N`. The text under each ruling is the owner's, verbatim.
+
+### HUB-REVERT-1 — the owner's ruling (spec v1.0 `A0294C41597A`, WHY section, verbatim)
+SEO-HUB-1 rested on a wrong diagnosis: that hubs were "Soft 404" because they were thin. The real cause was the deploy-skew crash (fixed by CHUNK-RESILIENCE-1 #839); notes pages with ~14,000 characters failed the same way, and the hub was already "URL is on Google" at ~1,000 characters. By design (SEO-NOTES-AND-LINKS-1) notes pages are the SEO content and hubs are the app surface (concept spine + Notes link). The overview made the hub a wall of text and duplicated the notes page.
+
+**Record: SEO-HUB-1 H1 reversed — hubs are the app surface, notes pages are the SEO content; the Soft 404 was the deploy-skew crash (CHUNK-RESILIENCE-1).**
+
+### Wave grants (owner, 2026-09-27, dispatch message)
+FREECHECK-2 touches the live free check: its preview smoke is required before merge, and a production smoke of /app/check-improve signed out within 10 minutes of the deploy. On failure, revert and STOP.
+OR-AUTO applies. If a granted edit to a protected file is refused, give the owner the exact text or command. PricingPage.tsx / OfferStrip.tsx may be in a Controller B PR: lane-overlap decides, so wait if blocked. All three lanes regenerate prerendered files, so take them only from each PR's own CI artifact after rebasing.
+
+### Owner rulings, wave A-2 (2026-09-27, verbatim)
+BUGFIX-1 → (a). Add lazytopper/src/services/quickPracticeSessionService.ts to the allowlist, only to carry the error's name on the skipped-error result (e.g. errorName). No change to grading, scoring or prompts. P3 matches result.errorName === "SignInAgainError" and shows that error's message. Add 1 test, plus a mutation (drop errorName → red). Resolve FU-BUGFIX1-P3-SIGNIN-NAME-LOST in this PR. Then CI green → merge per §3.
+
+FREECHECK-2 → option B. Accept the flag-on local production build plus the preview round-trip as the pre-merge proof. Production smoke within 10 minutes of Ready is mandatory, with revert-on-fail.
+
+FU-PREVIEW-FREECHECK-FLAG → close as DECIDED (won't do). Previews can't pass App Check (the reCAPTCHA key is domain-restricted to lazytopper.com), and widening it would weaken the live free check's protection and spend the production daily budget.
+
+Merge order is free. Then the docs PR and the final audit request.
+
+### Controller decisions, with the reason
+- **Builder findings accepted at builder confidence (flagged for the final audit):**
+  - HUB-REVERT-1: the P6 grep hit `__fixtures__/topic-hub-below-floor.html` (the #845 pin's control). It was deleted as a P6-listed test file, and the control moved inline into the pin test.
+  - HUB-REVERT-1: R5 as written cannot go red from a mount change against committed HTML alone, so a source-level check was added to the pin.
+  - FREECHECK-2: P9 is two page call sites sharing one writer, so F1 went into `recordFreeCheckSuccess` and the page's P9 lines are untouched.
+  - FREECHECK-2: the P6 site (`:1490`) is an `ok:false` branch with no error object, so F4 went into both grading catch sites.
+  - BUGFIX-1: the outcome-keyed session-record latch (OR-AUTO), because without it a successful retry's record was latched out by the failure.
+- **Merge order HUB-REVERT-1 → BUGFIX-1 → FREECHECK-2, then freed.** **Reason:** the shared generated files (`prerendered/**`, `lastmod.json`, `sitemap.xml`). Only `#848` needed them. Once the other two lanes' captures reported "matches", the owner freed the order, and `#849` merged before `#850`.
+- **Builders stop at MERGE-READY; the controller merges** with `--match-head-commit` and proves trunk tree == head tree; branch updates use `git merge origin/base` (no rebase, no force-push). **Reason:** merge is the irreversible step.
+- **Post-merge production checks were run by each lane's own builder, resumed by message.** **Reason:** the controller does not run browsers.
+
 ## 2026-09-27 — WAVE A-1 (REACH & POLISH): SEO-FRESH-1 + SEO-HUB-1 + COPY-2 (build + docs) — trunk `bdc3371d`, PRs `#844` + `#845` + `#846`
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by their lane IDs (OR-A1-1 … OR-A1-5, OR-AUTO) rather than `DECISION N`. The OR-A1-* IDs were assigned by the controller; the text under each is the owner's, verbatim.

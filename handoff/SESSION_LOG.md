@@ -1,3 +1,27 @@
+## 2026-09-27 — WAVE A-2 (REACH & POLISH) — **HUB-REVERT-1: HUBS ARE THE APP SURFACE AGAIN · FREECHECK-2: THE FREE CHECK'S GAPS CLOSED · BUGFIX-1: "TRY AGAIN" WORKS** — `#848` + `#849` + `#850` MERGED — trunk `754d5af3`
+
+★ **PROVENANCE.**
+- Controller A (Reach & polish), one session. There was one builder per PR (`claude-opus-5-5`, effort `high`), in worktrees `C:/Projects/LT-worktrees/hub-revert-1`, `…/bugfix-1`, `…/freecheck-2`. The controller wrote this docs PR (OR-16) in `…/docs-wave-a2`.
+- *(subagent-reported)* = from builder reports; *(controller-verified)* = re-measured.
+
+**Timeline.**
+- The three specs were hash-verified on receipt (`A0294C41597A`, `70C9A595FACE`, `E475E6691DE2`). They were staged in `LT-worktrees/controller-a2/ops/.specs/`, not the shared checkout's `ops/.specs/`. Each lane ran its own §0c premise gate on tip `bef955e6`: EXIT 0 ×3 *(subagent-reported)*.
+- All three builders were dispatched at once, with merge order HUB-REVERT-1 → BUGFIX-1 → FREECHECK-2 for the shared generated files.
+- HUB-REVERT-1 → `#848` → `1cad7818`. It took 26 hubs + `lastmod.json` from its own artifact. Production check PASS 14 s after Ready.
+- FREECHECK-2 came back HELD: the §3 preview could not show the free check. The owner chose option B and closed FU-PREVIEW-FREECHECK-FLAG as DECIDED.
+- BUGFIX-1 came back HELD: P3 could not see the error name. The owner chose (a), extending the allowlist to `quickPracticeSessionService.ts`.
+- Neither remaining lane needed generated files, and the owner freed the order. FREECHECK-2 merged trunk in → `#849` → `f2f01b97`. The production smoke was 13/13 within 30 s of Ready, with no revert.
+- BUGFIX-1 added `errorName` → `#850` → `754d5af3`.
+- The docs PR (this) followed; no other docs PR was open.
+
+**Lessons.**
+- **A spec's premise can be a diagnosis, and a diagnosis can be wrong.** SEO-HUB-1 fixed "thin hubs" for a Soft 404 whose real cause was the deploy-skew crash. The fix shipped green and was a UX regression. Check the diagnosis against a counter-example: notes pages at ~14,000 characters failed the same way.
+- **A mutation against committed artifacts cannot see a source change until re-capture.** Pair an artifact pin with a source-level check, or the mutation cannot go red.
+- **A proof can be unreachable by environment:** previews cannot pass App Check, so "the free check is offered on the preview" can never be true there. Name the environment the proof needs before writing it into §3.
+- **Catching an error and returning its message drops its identity:** name-based detection needs the name carried through every service boundary.
+
+---
+
 ## 2026-09-27 — WAVE A-1 (REACH & POLISH) — **SEO-FRESH-1: HONEST SITEMAP DATES + LANDING CAPTURE + INDEXNOW · SEO-HUB-1: TOPIC HUBS READ AS PAGES · COPY-2: PASSES, NOT SUBSCRIPTIONS** — `#844` + `#845` + `#846` MERGED — trunk `bdc3371d`
 
 ★ **PROVENANCE.**

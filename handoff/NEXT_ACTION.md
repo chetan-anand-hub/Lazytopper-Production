@@ -1,3 +1,18 @@
+## ★★★ 2026-09-27 — WAVE A-2 (REACH & POLISH) CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-1 BLOCK BELOW ON TRUNK SHA, AND ITEM 2 OF IT (the hub overview it asks you to live-verify is gone)
+*(It does not supersede that block's other owner items — Search Console live test, optional `GSC_SERVICE_ACCOUNT`, the `__shell.html` pairing — which stand unchanged.)*
+
+**TRUNK IS `754d5af3965dd0b10fc98e4b4631eff452e4de51`**, measured 2026-09-27 (`git ls-remote origin base/approved-thru-437`):
+- `754d5af3` = `#850` (BUGFIX-1: "Try again" grades again; errors speak to students)
+- `f2f01b97` = `#849` (FREECHECK-2: the free check's known gaps closed)
+- `1cad7818` = `#848` (HUB-REVERT-1: "Chapter at a glance" removed from the topic hubs)
+- `bef955e6` = `#847` (docs: wave A-1)
+
+### NEXT — OWNER
+1. **Live-verify FREECHECK-2** (live free check; auth round trip + persistence): a signed-out free check → sign in via the **Pricing detour** → the result is saved; and an **offline save on a phone** (offline message, then saved once back online).
+2. **Live-verify BUGFIX-1** (persistence): make a Practice batch grading fail, then tap "Grade my N answers" → it grades and the session record is written. Also check the sign-in copy on a batch failure.
+3. Optionally eyeball one topic hub on mobile. The production check already passed *(subagent-reported)*.
+4. Optional follow-up: `[FU-FREECHECK-DETECT-SIGNIN-COPY]`.
+
 ## ★★★ 2026-09-27 — WAVE A-1 (REACH & POLISH) CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE B-1 (MONEY) BLOCK BELOW ON TRUNK SHA ONLY
 *(It does not supersede that block's owner items, which stand unchanged.)*
 
