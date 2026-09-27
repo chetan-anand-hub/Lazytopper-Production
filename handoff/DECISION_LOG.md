@@ -1,3 +1,60 @@
+## 2026-09-27 — WAVE A-1 (REACH & POLISH): SEO-FRESH-1 + SEO-HUB-1 + COPY-2 (build + docs) — trunk `bdc3371d`, PRs `#844` + `#845` + `#846`
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by their lane IDs (OR-A1-1 … OR-A1-5, OR-AUTO) rather than `DECISION N`. The OR-A1-* IDs were assigned by the controller; the text under each is the owner's, verbatim.
+
+### Wave grants (owner, 2026-09-27, verbatim)
+DesktopShell.tsx: COPY-2, lines P2 + P9 only.
+repo_boundary_policy.json: one entry per new file a lane creates, only if the classification check demands it.
+
+Audits (owner ruling): merge each PR on its spec §3 proof (--match-head-commit, prove on trunk) without waiting for me. After COPY-2 merges, write one docs PR (OR-16; wait if another controller's docs PR is open) and ONE final audit request, Desktop\diff\audit-request-wave-a1-final-<date>.md, then STOP.
+
+*(Controller note: no `repo_boundary_policy.json` entry was needed — the policy classifies by prefix. `DesktopShell.tsx` in `#846` changed exactly the P2 and P9 lines, controller-verified.)*
+
+### OR-A1-1 (owner, 2026-09-27) — root capture (answers SEO-FRESH-1 §0b P8 STOP)
+Settle it in this PR. Owner grant: vercel.json (two edits only) + applyPrerendered.ts.
+
+applyPrerendered.ts: before writing the landing capture into /app/index.html, copy the clean built shell to /app/__shell.html.
+vercel.json: change only the catch-all's destination, /app/:path(.*) → /app/__shell.html. Add one headers entry giving /app/__shell.html the header X-Robots-Tag: noindex. All other rules, including the ASSET-404 rule and its position before the catch-all, stay byte-identical.
+Tests:
+a parse of vercel.json pinning the new destination, the ASSET-404 rule preceding it, and the noindex header;
+applyPrerendered writes a __shell.html that contains no landing text.
+__shell.html never appears in the sitemap.
+Proof on the PR's preview, all required before merge, with raw outputs in the report:
+curl the raw HTML of each of these: /app/ must contain the landing <h1>. /app/login, /app/me, /app/tutor/10/Maths and /app/notes/does-not-exist must contain no landing text. /app/pricing must be its own prerendered page. /app/assets/missing-xyz.js must return 404 text/plain.
+headless render: each of those pages renders without the ErrorBoundary text.
+curl -sI /app/__shell.html shows X-Robots-Tag: noindex.
+If any check fails, don't merge: fix and re-prove.
+Production smoke test within 10 minutes of the deploy going Ready: repeat the raw-HTML checks on https://www.lazytopper.com. On any failure, revert immediately and STOP.
+
+Resolve FU-SEO-FRESH-ROOT-FALLBACK-SPILL in this PR; there's no follow-up.
+
+### OR-A1-2 (owner, 2026-09-27) — `/check-improve` (answers SEO-FRESH-1 §0b P10 STOP) — **DECIDED**
+Decision, not deferral: /check-improve stays out of the sitemap, and its canonical stays the root. Signed out, its static content is mainly an upload box, which is thin (the same shape that got the topic hubs flagged Soft 404), and the landing page already carries "Check my answer" for search. canonicalUrl.ts and its guards are unchanged.
+
+Remove /check-improve from F3. Record the decision in the docs PR as DECIDED, not a follow-up: "/check-improve is not advertised; the landing page is its search entry." No FU entry.
+
+### OR-A1-3 (owner, 2026-09-27) — the `vercel.json` permission
+The owner chose to allow the permission; the harness denied the headers entry again, and **the owner added the noindex entry by hand** as the first element of `"headers"`. The controller verified the file before resuming the builder.
+
+### OR-A1-4 (owner, 2026-09-27) — forced edits beyond SEO-FRESH-1's §1 lines
+Accept all four, with one condition. In the final audit, list each changed guard-test assertion as before → after, and show that its CONTROL still fails on bad input, so no guard was weakened, only re-pointed from index.html to __shell.html.
+
+### OR-A1-5 (owner, 2026-09-27) — landing CTA flag mismatch
+Fix in this PR: the capture build in prerender-capture.yml sets VITE_FREE_CHECK_ENABLED=1, mirroring production. Add a pin: the committed landing page's CTA points to /check-improve. No follow-up.
+
+### Standing rule (owner, 2026-09-27, verbatim)
+Owner note for protected files: if a future granted edit to a protected file is refused by the permission system, give me the exact text or command and I'll apply it. Don't wait on permission settings.
+
+### OR-AUTO (owner, 2026-09-27, verbatim) — SEO-HUB-1
+OR-AUTO item for SEO-HUB-1 (from the CHUNK-RESILIENCE audit): lazytopper/src/components/topichub/ConceptSpine.tsx:16 uses React's lazy. Switch it to lazyWithRetry from ../../lib/lazyWithRetry (one import line, inside your allowlist). Record it in the final audit and resolve FU-LAZY-OUTSIDE-APP-UNWRAPPED.
+
+### Controller decisions, with the reason
+- **SEO-HUB-1 H2 narrowed (builder finding, accepted at builder confidence; flagged for the final audit):** NoteModal stays unmounted until first click. **Reason:** `ConceptSpine.noteModal.guard.test.ts` enforces it (an eager mount pulled katex CSS into the route and crashed chapters for Googlebot); H2's purpose — the text is in the static page — is met through the H1 overview. Not escalated.
+- **Held lanes built without pushing** (SEO-HUB-1, COPY-2), then rebased: avoids any force-push and a `lane-overlap` collision on `prerendered/**`.
+- **Builders stop at MERGE-READY; the controller merges** with `--match-head-commit` and proves trunk tree == head tree. **Reason:** merge is the irreversible step.
+- **SEO-HUB-1 was held until SEO-FRESH-1's production smoke passed**, so it did not rebase onto a trunk that might be reverted.
+- **COPY-2 runs `scope:guard --mode mixed`:** its allowlisted `writeStaticHeads.ts` is tracked tooling, so `--mode product` cannot pass.
+
 ## 2026-09-27 — WAVE B-1 (MONEY): STORED-RATE-1 + METER-1 (build + docs) — trunk `91d7d1a8`, PRs `#841` + `#842`
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name, not `DECISION N`.

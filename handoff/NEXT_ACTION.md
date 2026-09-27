@@ -1,3 +1,19 @@
+## ★★★ 2026-09-27 — WAVE A-1 (REACH & POLISH) CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE B-1 (MONEY) BLOCK BELOW ON TRUNK SHA ONLY
+*(It does not supersede that block's owner items, which stand unchanged.)*
+
+**TRUNK IS `bdc3371d79339a64ddbc93493aa1b12ee74a56e2`**, measured 2026-09-27 (`git ls-remote origin base/approved-thru-437`):
+- `bdc3371d` = `#846` (COPY-2: "passes, not subscriptions" finished)
+- `e6349799` = `#845` (SEO-HUB-1: Chapter-at-a-glance on every topic hub)
+- `0a4895b7` = `#844` (SEO-FRESH-1: honest sitemap dates, landing capture on a clean SPA shell, IndexNow + GSC ping)
+- `0f88754e` = `#843` (docs: wave B-1)
+
+### NEXT — OWNER
+1. **Search Console:** re-run the live test on two `/app/topic-hub/*` URLs (the Soft-404 ones) and on `/app/`. Expect the hub to read as a page and `/app/` to carry the landing `<h1>`.
+2. **Live-verify one topic hub** on production at desktop and mobile width (SEO-HUB-1 is page-visible; its preview was not owner-eyeballed before merge).
+3. **Optional — switch on Google resubmission (F5):** add secret `GSC_SERVICE_ACCOUNT` (+ `vars.GSC_SITE_URL` if the property is not `https://www.lazytopper.com/`). Until then search-ping logs a notice and succeeds.
+4. Keep the `vercel.json` catch-all → `/app/__shell.html` pairing with `applyPrerendered.ts` intact: pointing the catch-all back at `/app/index.html` would pre-paint landing text on every unlisted route.
+5. Optional follow-ups: `[FU-SEARCHPING-SKIPPED-DEPLOY-GAP]`, `[FU-WELCOME-STALE-PRERENDER-COMMENT]`, `[FU-NOTES-FORMULA-TEXTBF-RAW]` (UNVERIFIED), `[FU-HUB-HIDDEN-TEXT-WEIGHT]`, `[FU-COPY2-OFFERSTRIP-NOTE-CSS]`, `[FU-COPY2-SITEMAP-COMMENT]`, `[FU-COPY2-REFUNDS-COMMENTS]`.
+
 ## ★★★ 2026-09-27 — WAVE B-1 (MONEY) CLOSED (docs) — THIS BLOCK SUPERSEDES THE CHUNK-RESILIENCE-1 BLOCK BELOW ON TRUNK SHA, AND ITEM 2 OF THE PRICING-TB-1 OR-P6 + OR-P7 BLOCK (STORED-RATE-1 is DONE; the Razorpay go-live is still open)
 *(It does not supersede the CHUNK-RESILIENCE-1 owner items (the Search Console live test during a deploy; keeping Skew Protection on) or the pricing live-verify, which stand unchanged.)*
 

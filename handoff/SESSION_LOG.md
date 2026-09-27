@@ -1,3 +1,23 @@
+## 2026-09-27 — WAVE A-1 (REACH & POLISH) — **SEO-FRESH-1: HONEST SITEMAP DATES + LANDING CAPTURE + INDEXNOW · SEO-HUB-1: TOPIC HUBS READ AS PAGES · COPY-2: PASSES, NOT SUBSCRIPTIONS** — `#844` + `#845` + `#846` MERGED — trunk `bdc3371d`
+
+★ **PROVENANCE.**
+- Controller A (Reach & polish), one session. There was one builder per PR (`claude-opus-5-5`, effort `high`), in worktrees `C:/Projects/LT-worktrees/seo-fresh-1`, `…/seo-hub-1`, `…/copy-2`. The controller wrote this docs PR (OR-16) in `…/docs-wave-a1`.
+- *(subagent-reported)* = from builder reports; *(controller-verified)* = re-measured.
+
+**Timeline.**
+- The three specs were hash-verified on receipt (`DFA970B240BA`, `F260550A11F0`, `4930EE4F4A7D`). Trunk had moved from the specs' base `a86130c2` to `b031caac` (`#839`), so all three §0c premise gates were run on the new tip: PASS, EXIT=0 (7/7, 4/4, 11/11 anchors) *(controller-verified)*.
+- All three builders were dispatched at once. SEO-HUB-1 and COPY-2 built in two phases (build and commit locally, **no push, no PR**; then rebase and open the PR), because all three regenerate `prerendered/**` and `lane-overlap` counts drafts.
+- SEO-FRESH-1 returned BLOCKED three times: (1) §0b P8 — the root capture's `index.html` is also the SPA fallback — and P10 — `/check-improve` canonicalises to root; owner ruled OR-A1-1 and OR-A1-2. (2) The harness denied the granted `vercel.json` edits and the builder made forced edits beyond its §1 lines; owner ruled OR-A1-3/4/5. (3) The headers entry was denied again; **the owner added it by hand**, and the controller verified the file (`git diff` +10/−1, the two edits only, valid JSON, ASSET-404 at `rewrites[7]` before the catch-all at `rewrites[8]`). The controller never performed a denied edit.
+- `#844` → `0a4895b7`; production smoke PASS one minute after Ready; first search-ping → IndexNow HTTP 200.
+- SEO-HUB-1 took OR-AUTO (ConceptSpine `lazyWithRetry`) as a local commit, rebased on `0a4895b7`, opened `#845`; CodeQL flagged the pin test's own `</script>` regex and it was fixed pre-merge → `e6349799`.
+- COPY-2 rebased on `e6349799`, opened `#846`; CI caught a case-insensitive `/manage subscription/i` pin in `MobileHome.test.tsx` that a case-sensitive search had missed → fixed → `bdc3371d`.
+- The docs PR (this) followed; no other docs PR was open.
+
+**Lessons.**
+- **A proof on a preview can be vacuous by platform:** Vercel noindexes every preview, so "`__shell.html` is noindex" on a preview proves nothing about `vercel.json`. Move such proofs to production, with a control.
+- **A premise gate fails on the lane head by construction** when the lane rewrites its anchored lines — run it against trunk.
+- **A permission denial is not routed around:** the owner applies the exact text by hand (standing rule, 2026-09-27).
+
 ---
 
 ## 2026-09-27 — WAVE B-1 (MONEY) — **STORED-RATE-1: A PASS IS STORED, PRICED, DATED AND UNFORGEABLE · METER-1: EVERY PAID AI CALL'S COST RECORDED PER STUDENT** — `#841` + `#842` MERGED — trunk `91d7d1a8`

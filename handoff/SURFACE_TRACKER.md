@@ -1,5 +1,21 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-27 — WAVE A-1 (REACH & POLISH): SEO-FRESH-1 (`#844` `0a4895b7`) + SEO-HUB-1 (`#845` `e6349799`) + COPY-2 (`#846` `bdc3371d`), trunk `bdc3371d`.**
+> ★ **WHAT SEARCH ENGINES AND SIGNED-OUT READERS SEE CHANGED; NO STATUS CELL FLIPS.**
+
+### ✅ Landing (`/`) — **prerendered: the `<h1>` and CTAs are in the static HTML; the SPA fallback is a clean noindexed `/app/__shell.html`** — LIVE (prod smoke PASS)
+### ✅ Topic Hub (`/topic-hub/*`) — **"Chapter at a glance" at the top of all 26 hubs; 3,369–6,840 visible chars each** — LIVE (owner live-verify owed, desktop + mobile)
+### ✅ Pricing (`/pricing`) — **founding chip + lock note render only while `FOUNDING_OFFER_OPEN`** — LIVE
+### ✅ Sign-in OfferStrip — **the repeated lock-promise note is gone** — LIVE
+### ✅ Legal — terms — **heading "Passes & Payment"; search description says passes** — LIVE (closes the "Subscription & Payment" item left open by PRICING-TB-1)
+### ✅ Account menus (desktop + mobile) + legal-links rows — **"Manage your pass"; "Cancellation & Refunds"** — LIVE
+
+### ⬜ NO STATUS CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- Every change above is content on surfaces already tracked; no surface's Scope/Built/Verified cell flips. Topic Hub's content moved, but its owner live-verify of the new overview is still owed.
+
+### 📋 Scope discovered? — **YES, resolved in-lane; logged in `DECISION_LOG`.** SEO-FRESH-1's root capture needed `vercel.json` + `applyPrerendered.ts` (OR-A1-1) and forced edits beyond its §1 lines (OR-A1-4); `/check-improve` was DECIDED out of the sitemap (OR-A1-2). None sets a surface to Settling.
+
+
 > **2026-09-27 — WAVE B-1 (MONEY): STORED-RATE-1 (`#841` `ceb93c81`) + METER-1 (`#842` `91d7d1a8`), trunk `91d7d1a8`.**
 > ★ **SERVER AND RULES ONLY: a pass is stored and priced by the server, and every paid AI call's cost is recorded per student.** No UI changed in either lane.
 

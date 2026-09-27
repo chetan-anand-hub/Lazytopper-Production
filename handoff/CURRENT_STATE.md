@@ -1,5 +1,40 @@
 # LazyTopper — Current State
 
+## [CURRENT · SEO + COPY] WAVE A-1 (REACH & POLISH) — **SEARCH ENGINES LEARN ABOUT EVERY CHANGE (SEO-FRESH-1) · TOPIC HUBS CARRY REAL CONTENT (SEO-HUB-1) · "PASSES, NOT SUBSCRIPTIONS" FINISHED (COPY-2)** — `#844` + `#845` + `#846` MERGED — trunk `bdc3371d`
+
+★ **PROVENANCE.**
+- Controller A (Reach & polish), one session. There was one builder per PR (`claude-opus-5-5`, effort `high`). The controller wrote this docs PR (OR-16).
+- *(subagent-reported)* = from builder reports `report-seo-fresh-1-2026-09-27.md`, `report-seo-hub-1-2026-09-27.md`, `report-copy-2-2026-09-27.md`; *(controller-verified)* = re-measured by the controller with `gh`/`git`.
+- Each PR was squash-merged with `--match-head-commit`, no `--admin`; for each, the merge commit is an ancestor of trunk and **trunk tree == head tree** *(controller-verified)*: `#844` `0a4895b7` tree `2a0ff5ed` · `#845` `e6349799` tree `33318ec7` · `#846` `bdc3371d` tree `38abc8f4`.
+
+**Trunk `bdc3371d79339a64ddbc93493aa1b12ee74a56e2`** (`#846`). Before that `e6349799` (`#845`), `0a4895b7` (`#844`), and `0f88754e` (`#843`, the wave B-1 docs).
+
+*(This block supersedes the WAVE B-1 (MONEY) block below on trunk SHA only. That block's content otherwise stands as written.)*
+
+### What shipped
+- **SEO-FRESH-1 (`#844`)** — honest sitemap dates + automatic pings.
+  - `lazytopper/prerendered/lastmod.json` records per path the sha256 of the committed prerendered file and its `lastmod`; `gen:sitemap` restamps a date **only when the hash changes** (IST today); the first run stamped every path.
+  - CI's `prerender-capture` job also runs `gen:sitemap` and fails a stale `sitemap.xml`/`lastmod.json`; staleness now uses `git status --porcelain`, so a new untracked page no longer passes as current. The capture build sets `VITE_FREE_CHECK_ENABLED=1`, mirroring production (OR-A1-5).
+  - **The landing page `/` is prerendered** (`prerendered/index.html`: the `<h1>`, no countdown, CTAs → `/app/check-improve`). **The SPA fallback moved** from `/app/index.html` to a clean **`/app/__shell.html`**, served `X-Robots-Tag: noindex` (`vercel.json`: the catch-all destination + one headers entry; the ASSET-404 rule still precedes the catch-all). So no other route pre-paints landing text (OR-A1-1).
+  - `.github/workflows/search-ping.yml` runs on `deployment_status` with environment **exactly `Production`** and `state == success`; it POSTs new/restamped sitemap URLs to IndexNow. Google (`sitemaps.submit`) is wired but **dormant until secret `GSC_SERVICE_ACCOUNT` exists**.
+  - **`/check-improve` is not in the sitemap and its canonical stays the root — DECIDED (OR-A1-2):** "/check-improve is not advertised; the landing page is its search entry."
+- **SEO-HUB-1 (`#845`)** — every `/app/topic-hub/*` opens with an expanded **"Chapter at a glance"** (the chapter summary, what the board asks with marks, key formulas/definitions, a "Read the full <chapter> notes" link to `/notes/<slug>`), composed only from existing note specs (`getNoteSpecForTopic`). Collapsed tips and no-spec notes panels keep their text in the DOM (`hidden`). **All 26 committed hub pages carry 3,369–6,840 visible characters** (were 859–1,676), pinned ≥ 2,500 with a control. `ConceptSpine.tsx` `NoteModal` now uses `lazyWithRetry` (OR-AUTO). NoteModal stays click-loaded (see Known limits).
+- **COPY-2 (`#846`)** — Terms heading **"Passes & Payment"**; account menus **"Manage your pass"** (desktop + mobile); the Terms search description says passes; every legal-links label **"Cancellation & Refunds"**; the Pricing founding chip and lock note render **only while `FOUNDING_OFFER_OPEN`**; the sign-in strip no longer repeats the lock promise. Copy only — no logic, price or route change.
+
+### Evidence
+- **CI** *(subagent-reported, log lines quoted)*: `#844` quality-gate `36292105527` `Tests  2750 passed (2750)` + prerender-capture `36292105529` "PRERENDER: committed artifact matches a fresh capture." · `#845` `36293471267` `Tests  2814 passed (2814)`, pin `topicHubPrerendered.pin.test.ts (31 tests)` + capture `36293471208` matches · `#846` `36294571191` `Tests  2822 passed (2822)`, root matrix `# pass 293 # fail 0 # skipped 0` + capture `36294571245` matches.
+- **Pre-merge PR state** *(controller-verified)*: not draft, `CLEAN`, every check pass (search-ping `skipping` on previews, as designed), head up to date with trunk, file list inside the allowlist; `#846` `DesktopShell.tsx` diff = exactly the two granted lines.
+- **SEO-FRESH-1 production smoke** *(subagent-reported)*: deploy `6687694462` Ready 2026-09-27T03:50:45Z; smoke 03:51:02–03:51:43Z — `/app/` landing `<h1>`, 0 countdown, 3 CTAs → `/app/check-improve`, **no** `X-Robots-Tag`; `/app/login`, `/app/me`, `/app/tutor/10/Maths`, `/app/notes/does-not-exist` empty shell, 0 landing phrases; `/app/pricing` its own page; `/app/assets/missing-xyz.js` 404 `text/plain`; `/app/__shell.html` `X-Robots-Tag: noindex`, not inherited by `/app/login`, `/app/me`, `/app/pricing`; headless 0 error-boundary on all 6. **No revert.**
+- **search-ping** *(subagent-reported)*: run `36292588326` SUCCESS — `changed=60` (first-run restamp) → IndexNow HTTP 200; GSC skipped (secret absent). A Railway `lazytopper-backend / production` event was refused (run `36292546054`, skipped).
+
+### ★ Known limits
+- **The preview noindex proof cannot fail:** Vercel adds `X-Robots-Tag: noindex` to every preview response (control: `/app/pricing` on the preview). The real check is production-only and passed.
+- **NoteModal is outside H2** (SEO-HUB-1): it stays unmounted until first click, enforced by `ConceptSpine.noteModal.guard.test.ts` (an eager mount pulled katex CSS into the route and crashed chapters for Googlebot). Its content reaches the hub through the overview.
+- `light-reflection-and-refraction` has no `big_idea` in its note spec, so its hub shows no summary paragraph (honest empty; still 3,711 characters).
+- search-ping diffs the deployed SHA against its parent only: a skipped production deploy's pages are never pinged — `[FU-SEARCHPING-SKIPPED-DEPLOY-GAP]`.
+
+- The `WIRE-2` dormancy block is unchanged by this wave; see its section (`### 8 - ★ THE WIRE-2 QUESTION`) below.
+
 ## [CURRENT · MONEY] WAVE B-1 — **A STUDENT'S PASS IS STORED, PRICED, DATED AND UNFORGEABLE (STORED-RATE-1) + EVERY PAID AI CALL'S COST IS RECORDED PER STUDENT (METER-1)** — `#841` + `#842` MERGED — trunk `91d7d1a8`
 
 ★ **PROVENANCE.**
