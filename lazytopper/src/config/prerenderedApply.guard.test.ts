@@ -6,7 +6,9 @@ import { join, dirname, resolve } from "node:path";
 import { readFileSync } from "node:fs";
 
 import {
+  SPA_SHELL,
   applicablePaths,
+  applyArtifact,
   assetRefsIn,
   fragmentPathFor,
   validateArtifact,
@@ -26,16 +28,15 @@ import { sitemapPaths } from "./sitemapUrls";
  */
 
 describe("applicablePaths", () => {
-  it("is every advertised path except the root", () => {
+  // SEO-FRESH-1 (owner ruling OR-A1-1): the root is captured and applied now; the SPA
+  // fallback moved to a clean `__shell.html`, tested below.
+  it("is every advertised path, the root included", () => {
     const advertised = sitemapPaths();
     const applicable = applicablePaths();
 
     expect(advertised).toContain("/");
-    expect(applicable).not.toContain("/");
-    expect(applicable).toHaveLength(advertised.length - 1);
-    expect(applicable.slice().sort()).toEqual(
-      advertised.filter((path) => path !== "/").slice().sort(),
-    );
+    expect(applicable).toContain("/");
+    expect(applicable.slice().sort()).toEqual(advertised.slice().sort());
   });
 
   it("still covers all 26 chapters and all 26 notes", () => {
@@ -50,6 +51,90 @@ describe("fragmentPathFor", () => {
     expect(fragmentPathFor("/topic-hub/trigonometry", "/art")).toBe(
       join("/art", "topic-hub", "trigonometry.html"),
     );
+  });
+
+  it("maps the root to index.html (never `.html`)", () => {
+    expect(fragmentPathFor("/", "/art")).toBe(join("/art", "index.html"));
+  });
+});
+
+/**
+ * ★★ OR-A1-1 — THE ROOT IS FILLED, THE FALLBACK IS NOT. `vercel.json` sends every unmatched
+ * `/app/*` URL to `/app/__shell.html`; if that file carried the landing body, `/app/login`,
+ * `/app/me` and every deep link would open on the marketing page. Run the real apply step
+ * over a synthetic build and prove the split.
+ */
+describe("applyArtifact — the landing fills index.html, __shell.html stays clean", () => {
+  const SHELL = '<!doctype html><html><head><title>t</title></head><body><div id="root"></div></body></html>';
+  const LANDING = "<main><h1>Full marks<em>milenge kya?</em></h1><p>Upload your answer.</p></main>";
+
+  function syntheticBuild(): { out: string; art: string; cleanup: () => void } {
+    const out = mkdtempSync(join(tmpdir(), "apply-out-"));
+    const art = mkdtempSync(join(tmpdir(), "apply-art-"));
+    writeFileSync(join(out, "index.html"), SHELL, "utf8");
+    for (const path of ["/pricing", "/notes/electricity"]) {
+      const rel = path.slice(1);
+      mkdirSync(join(out, rel), { recursive: true });
+      writeFileSync(join(out, `${rel}.html`), SHELL, "utf8");
+      writeFileSync(join(out, rel, "index.html"), SHELL, "utf8");
+    }
+    mkdirSync(join(art, "notes"), { recursive: true });
+    writeFileSync(fragmentPathFor("/", art), LANDING, "utf8");
+    writeFileSync(fragmentPathFor("/pricing", art), "<main><h1>Pricing</h1></main>", "utf8");
+    writeFileSync(fragmentPathFor("/notes/electricity", art), "<main><h1>Electricity</h1></main>", "utf8");
+    return {
+      out,
+      art,
+      cleanup: () => {
+        rmSync(out, { recursive: true, force: true });
+        rmSync(art, { recursive: true, force: true });
+      },
+    };
+  }
+
+  it("writes a __shell.html that contains no landing text, and fills index.html with it", () => {
+    const { out, art, cleanup } = syntheticBuild();
+    try {
+      const result = applyArtifact(out, art, ["/", "/pricing", "/notes/electricity"]);
+      const shell = readFileSync(join(out, SPA_SHELL), "utf8");
+      const index = readFileSync(join(out, "index.html"), "utf8");
+
+      expect(shell).toBe(SHELL);
+      expect(shell).toContain('<div id="root"></div>');
+      expect(shell).not.toContain("Full marks");
+      expect(index).toContain("<h1>Full marks<em>milenge kya?</em></h1>");
+      // CONTROL — the other pages got their own bodies, not the landing.
+      expect(readFileSync(join(out, "pricing.html"), "utf8")).toContain("<h1>Pricing</h1>");
+      expect(readFileSync(join(out, "pricing.html"), "utf8")).not.toContain("Full marks");
+      // Root: one file. Others: two each.
+      expect(result.filesWritten).toBe(1 + 2 + 2);
+    } finally {
+      cleanup();
+    }
+  });
+
+  it("still writes __shell.html in the pre-capture state (no artifact) — deep links must not 404", () => {
+    const { out, art, cleanup } = syntheticBuild();
+    try {
+      rmSync(art, { recursive: true, force: true });
+      expect(applyArtifact(out, art, ["/", "/pricing"]).applied).toBe(0);
+      expect(readFileSync(join(out, SPA_SHELL), "utf8")).toBe(SHELL);
+    } finally {
+      cleanup();
+    }
+  });
+
+  it("REFUSES to run twice — a second run would copy the landing into __shell.html", () => {
+    const { out, art, cleanup } = syntheticBuild();
+    try {
+      applyArtifact(out, art, ["/", "/pricing", "/notes/electricity"]);
+      expect(() => applyArtifact(out, art, ["/", "/pricing", "/notes/electricity"])).toThrow(
+        /not a clean shell/,
+      );
+      expect(readFileSync(join(out, SPA_SHELL), "utf8")).not.toContain("Full marks");
+    } finally {
+      cleanup();
+    }
   });
 });
 

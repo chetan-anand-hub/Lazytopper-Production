@@ -41,10 +41,19 @@
     },
     {
       "source": "/app/:path(.*)",
-      "destination": "/app/index.html"
+      "destination": "/app/__shell.html"
     }
   ],
   "headers": [
+    {
+      "source": "/app/__shell.html",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
+    },
     {
       "source": "/app/assets/:path(.*)",
       "headers": [

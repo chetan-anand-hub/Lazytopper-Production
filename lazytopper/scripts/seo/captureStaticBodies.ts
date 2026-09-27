@@ -17,17 +17,14 @@
  * last is what makes each page's body its own. `PAIRWISE-DISTINCT` below is the
  * assertion that keeps it that way rather than trusting the order.
  *
- * ★ THE ROOT IS DELIBERATELY NOT CAPTURED — owner ruling, 2026-09-16.
- * `RootEntry` (`src/App.tsx`) serves `Welcome` to a signed-out visitor and
- * `DesktopHome` to a signed-in one: `/` is not one page with auth-dependent chrome
- * on it, it is TWO DIFFERENT PAGES. Stripping chrome cannot reconcile that — a
- * signed-in student loading `/app/` would see the entire marketing landing page
- * before their dashboard, which is the "signed-in student sees signed-out chrome"
- * glitch at whole-page scale, on a route signed-in students hit constantly. So the
- * homepage keeps its empty body and needs a different answer than this one. That
- * is a real, stated cost: `/app/` is one of only two pages Google has indexed.
- * `sitemapPaths()` yields 59; this step covers the 58 that are not the root,
- * including all 26 chapters and all 26 notes.
+ * ★ THE ROOT IS CAPTURED — owner ruling OR-A1-1 (SEO-FRESH-1, 2026-09-27), which
+ * supersedes the 2026-09-16 exclusion. `RootEntry` (`src/App.tsx`) serves `Welcome`
+ * to a signed-out visitor and `DesktopHome` to a signed-in one, so a signed-in student
+ * loading `/app/` sees the landing body until React mounts; the owner accepted that
+ * for the landing's `<h1>` reaching crawlers. What was NOT acceptable — the root's file
+ * doubling as the SPA fallback for every other `/app/*` URL — is closed by
+ * `applyPrerendered.ts` writing a clean `__shell.html` that `vercel.json`'s catch-all
+ * now targets. The capture viewport is desktop-width, so the root renders `Welcome`.
  *
  * ★ AUTH-DEPENDENT CHROME IS REMOVED AS **DOM NODES**, NEVER AS TEXT, and that
  * distinction is not stylistic — it is the difference between a correct page and
@@ -56,6 +53,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import type { AddressInfo } from "node:net";
 import { chromium, type Browser, type Page } from "@playwright/test";
 import { sitemapPaths } from "../../src/config/sitemapUrls";
+import { fragmentPathFor } from "./applyPrerendered";
 
 const LAZYTOPPER_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -338,13 +336,16 @@ function isAppApiUrl(url: string): boolean {
 }
 
 /**
- * Every advertised path this step captures — the sitemap's set, minus the root.
+ * Every advertised path this step captures — the sitemap's whole set, root included
+ * (SEO-FRESH-1, owner ruling OR-A1-1; `applyPrerendered.ts` keeps the SPA fallback on a
+ * clean `__shell.html`, which is what made the root safe to fill). The landing's one
+ * clock-derived node, `boards-countdown`, is removed by strip rule 4 below.
  * Driven from `sitemapPaths()`, never from a directory listing: the build output
  * also contains 105 `visuals/*.html` copied from `public/`, which are not
  * advertised and must not be touched.
  */
 export function capturablePaths(): string[] {
-  return sitemapPaths().filter((path) => path !== "/");
+  return sitemapPaths();
 }
 
 /**
@@ -408,9 +409,8 @@ export function stripAuthChrome(root: Element): number {
   //    never by text ("months", "save" and "boards" are ordinary words in content).
   //      · till-boards-figures — /pricing's one-time price, struck full price, month
   //        label and saving (PricingPage `TillBoardsOffer`).
-  //      · boards-countdown — the landing's "N months" figure (Welcome.tsx). Prepared
-  //        in advance: the root is not captured today (`capturablePaths()`), and this
-  //        is the rule Welcome.tsx's own comment asks whoever captures it to add.
+  //      · boards-countdown — the landing's "N months" figure (Welcome.tsx). Live
+  //        since SEO-FRESH-1 captures the root.
   //    ⚠ The selector is inlined, not a module constant: this body ships to the
   //    browser via `toString()` and cannot see module scope.
   for (const figure of Array.from(
@@ -708,7 +708,7 @@ async function main(): Promise<void> {
     );
   }
 
-  // The root is excluded by owner ruling — see the header note.
+  // The root is included (OR-A1-1) — see the header note.
   const advertised = capturablePaths();
   if (advertised.length === 0) {
     throw new Error(
@@ -786,10 +786,17 @@ async function main(): Promise<void> {
   // One fragment per path, not two: the two files `writeStaticHeads` emits per path are
   // byte-identical (verified across all 58 pairs), so `applyPrerendered` fills both from
   // one fragment.
-  rmSync(PRERENDERED_DIR, { recursive: true, force: true });
+  // ⚠ `lastmod.json` SURVIVES THE WIPE (SEO-FRESH-1, F1). It is the date ledger
+  // `gen:sitemap` compares these fragments against; deleting it here would make every
+  // capture a "first run" and restamp every page with today's date.
+  for (const entry of existsSync(PRERENDERED_DIR) ? readdirSync(PRERENDERED_DIR) : []) {
+    if (entry === "lastmod.json") continue;
+    rmSync(join(PRERENDERED_DIR, entry), { recursive: true, force: true });
+  }
   let filesWritten = 0;
   for (const capture of captures) {
-    const file = join(PRERENDERED_DIR, `${capture.path.replace(/^\//, "")}.html`);
+    // The root's fragment is `index.html` — the mapping `applyPrerendered` reads back.
+    const file = fragmentPathFor(capture.path);
     mkdirSync(dirname(file), { recursive: true });
     writeFileSync(file, capture.html, "utf8");
     filesWritten += 1;
@@ -847,7 +854,7 @@ async function main(): Promise<void> {
   // eslint-disable-next-line no-console
   console.log(
     `STATIC_BODIES_CAPTURE: artifact=${PRERENDERED_DIR} ` +
-      `advertised=${sitemapPaths().length} captured=${captures.length} (root excluded) ` +
+      `advertised=${sitemapPaths().length} captured=${captures.length} (root included) ` +
       `files=${filesWritten} auth_nodes_removed=${removed} ` +
       `body_bytes_min=${Math.min(...bytes)} body_bytes_max=${Math.max(...bytes)} ` +
       `entry=${entryChunkOf(outDir)}`,

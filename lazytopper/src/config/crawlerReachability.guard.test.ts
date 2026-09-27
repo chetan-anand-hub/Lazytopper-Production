@@ -70,6 +70,21 @@ const PRODUCT_HOST = "lazytopper.com";
  */
 const SERVED_PREFIX = "/app";
 
+/**
+ * ★ SEO-FRESH-1 (owner ruling OR-A1-1) — THE SPA FALLBACK IS `__shell.html`, NOT
+ * `index.html`. The root is now prerendered: `index.html` carries the landing body, so
+ * it can no longer be what `/app/login` or `/app/me` are served. `applyPrerendered.ts`
+ * writes a byte copy of the CLEAN built shell to `/app/__shell.html` on every build, and
+ * the catch-all rewrite targets it. It is a BUILD-EMITTED file (not in `public/`), so
+ * the model below adds it explicitly — exactly as it models `index.html`.
+ */
+const SPA_SHELL_SERVED = `${SERVED_PREFIX}/__shell.html`;
+
+/** Both files that boot the SPA rather than being a page of their own. */
+function isSpaShell(path: string): boolean {
+  return path === `${SERVED_PREFIX}/index.html` || path === SPA_SHELL_SERVED;
+}
+
 // --------------------------------------------------------------------------
 // 1 · THE MODEL OF WHAT IS SERVED
 // --------------------------------------------------------------------------
@@ -89,7 +104,11 @@ function walk(dir: string, out: string[] = []): string[] {
 /** Every URL path the deployment serves as a real static file. */
 function servedFiles(): Set<string> {
   const paths = new Set<string>();
-  if (existsSync(INDEX_HTML)) paths.add(`${SERVED_PREFIX}/index.html`);
+  if (existsSync(INDEX_HTML)) {
+    paths.add(`${SERVED_PREFIX}/index.html`);
+    // Emitted from index.html by applyPrerendered.ts on every build (see SPA_SHELL_SERVED).
+    paths.add(SPA_SHELL_SERVED);
+  }
   if (existsSync(PUBLIC_ROOT)) {
     for (const abs of walk(PUBLIC_ROOT)) {
       const rel = relative(PUBLIC_ROOT, abs).split(sep).join("/");
@@ -602,7 +621,7 @@ function resolveAgainstRouteTable(urlPath: string): RouteVerdict {
  */
 function servedAsStaticPage(urlPath: string): boolean {
   const r = resolvePath(urlPath);
-  return r.kind === "file" && r.path !== `${SERVED_PREFIX}/index.html`;
+  return r.kind === "file" && !isSpaShell(r.path);
 }
 
 // --------------------------------------------------------------------------
@@ -625,7 +644,7 @@ describe("crawler reachability — every URL the app advertises resolves to some
 
     // The SPA catch-all still works for a route with no file behind it.
     const spa = resolvePath("/app/some-client-route");
-    expect(spa.kind === "file" && spa.path).toBe("/app/index.html");
+    expect(spa.kind === "file" && spa.path).toBe(SPA_SHELL_SERVED);
 
     // Known-UNSERVED: proves the resolver can actually say no.
     expect(resolvePath("/definitely-not-a-real-path").kind).toBe("unreachable");
@@ -749,7 +768,7 @@ describe("crawler reachability — every URL the app advertises resolves to some
     // LITERAL, always-present file that cannot fail to resolve. If the destination
     // cannot fail and the request still 404s, the SOURCE is what failed to match.
     const { rewrites } = readVercelConfig();
-    const appRule = rewrites.find((w) => w.destination === "/app/index.html");
+    const appRule = rewrites.find((w) => w.destination === SPA_SHELL_SERVED);
     expect(appRule, "the /app/ catch-all rewrite is gone").toBeDefined();
     expect(
       (appRule as Rule).source,
@@ -762,7 +781,7 @@ describe("crawler reachability — every URL the app advertises resolves to some
       expect(
         r.kind === "file" && r.path,
         `${probe} must resolve to the SPA shell`,
-      ).toBe("/app/index.html");
+      ).toBe(SPA_SHELL_SERVED);
     }
 
     // ★ CONTROL — the slashless twins already worked and must NOT regress. Without
@@ -771,7 +790,7 @@ describe("crawler reachability — every URL the app advertises resolves to some
     for (const probe of ["/app/pricing", "/app/exam-trends", "/app/practice"]) {
       const r = resolvePath(probe);
       expect(r.kind === "file" && r.path, `CONTROL ${probe} regressed`).toBe(
-        "/app/index.html",
+        SPA_SHELL_SERVED,
       );
     }
   });
@@ -922,7 +941,7 @@ describe("route reachability — every advertised URL names a REAL route, not ju
     for (const url of staticPages) {
       const r = resolvePath(new URL(url).pathname);
       expect(
-        r.kind === "file" && r.path !== `${SERVED_PREFIX}/index.html`,
+        r.kind === "file" && !isSpaShell(r.path),
         `${url} was classified as a pre-rendered static page, but it resolves as ` +
           `${describeResolution(r)}. Only a real file that is not the SPA shell may ` +
           `skip the route check.`,
@@ -1185,6 +1204,7 @@ describe("asset 404 — a missing chunk must fail as a missing chunk, not impers
       dest,
       `the assets rule points at the SPA shell — this IS the original defect`,
     ).not.toBe("/app/index.html");
+    expect(dest, "the assets rule points at the SPA fallback shell").not.toBe(SPA_SHELL_SERVED);
 
     // SLASH-1's lesson, reused: `:path*` compiles to SEGMENTS and does not match a
     // trailing slash, so the `(.*)` form is required for full coverage.
@@ -1196,7 +1216,7 @@ describe("asset 404 — a missing chunk must fail as a missing chunk, not impers
     // catch-all this rule would be dead code that still reads as a fix.
     const { rewrites } = readVercelConfig();
     const assetsIdx = rewrites.findIndex((w) => w.source === ASSETS_RULE_SOURCE);
-    const catchAllIdx = rewrites.findIndex((w) => w.destination === "/app/index.html");
+    const catchAllIdx = rewrites.findIndex((w) => w.destination === SPA_SHELL_SERVED);
 
     expect(assetsIdx, "the assets rule is missing").toBeGreaterThanOrEqual(0);
     expect(catchAllIdx, "the SPA catch-all is missing").toBeGreaterThanOrEqual(0);
@@ -1246,10 +1266,10 @@ describe("asset 404 — a missing chunk must fail as a missing chunk, not impers
         (m as Rule).destination,
         `CONTROL ${probe} is no longer claimed by the SPA catch-all — the assets ` +
           `rule has widened and is swallowing page routes`,
-      ).toBe("/app/index.html");
+      ).toBe(SPA_SHELL_SERVED);
       const r = resolvePath(probe);
       expect(r.kind === "file" && r.path, `CONTROL ${probe} no longer serves the shell`).toBe(
-        "/app/index.html",
+        SPA_SHELL_SERVED,
       );
     }
   });
@@ -1369,3 +1389,48 @@ describe("asset 404 — a missing chunk must fail as a missing chunk, not impers
  *    strict host equality, and the registrable-domain fallback is GONE (`bare()`
  *    survives only in the diagnostic line). [FU-ROBOTS-SITEMAP-WWW-HOST] CLOSED.
  * ------------------------------------------------------------------------- */
+
+/**
+ * ★★ OR-A1-1 — THE vercel.json PINS (SEO-FRESH-1). The owner granted exactly two edits:
+ * the catch-all's destination moves to `/app/__shell.html`, and that file gets
+ * `X-Robots-Tag: noindex` (it is a duplicate of the root's head and must never be indexed
+ * under its own URL). The ASSET-404 rule stays where it is: BEFORE the catch-all.
+ */
+describe("vercel.json — the SPA fallback is the clean shell (OR-A1-1)", () => {
+  const raw = JSON.parse(readFileSync(VERCEL_JSON, "utf8")) as {
+    rewrites: Rule[];
+    headers?: Array<{ source: string; headers: Array<{ key: string; value: string }> }>;
+  };
+
+  it("the /app/ catch-all's destination is /app/__shell.html — and nothing rewrites to index.html", () => {
+    const catchAll = raw.rewrites.find((w) => w.source === "/app/:path(.*)");
+    expect(catchAll, "the /app/ catch-all is gone").toBeDefined();
+    expect((catchAll as Rule).destination).toBe("/app/__shell.html");
+    expect(raw.rewrites.filter((w) => w.destination === "/app/index.html")).toEqual([]);
+  });
+
+  it("the ASSET-404 rule precedes the catch-all", () => {
+    const assetsIdx = raw.rewrites.findIndex((w) => w.source === "/app/assets/:path(.*)");
+    const catchAllIdx = raw.rewrites.findIndex((w) => w.source === "/app/:path(.*)");
+    expect(assetsIdx).toBeGreaterThanOrEqual(0);
+    expect(raw.rewrites[assetsIdx].destination).toBe("/__asset-not-found__");
+    expect(assetsIdx).toBeLessThan(catchAllIdx);
+  });
+
+  it("/app/__shell.html is served with X-Robots-Tag: noindex", () => {
+    const entry = (raw.headers ?? []).find((h) => h.source === "/app/__shell.html");
+    expect(entry, "no headers entry for /app/__shell.html").toBeDefined();
+    expect(
+      (entry as { headers: Array<{ key: string; value: string }> }).headers,
+    ).toContainEqual({ key: "X-Robots-Tag", value: "noindex" });
+  });
+
+  it("CONTROL — /app/ itself is the prerendered root file, and a deep link is the shell", () => {
+    const root = resolvePath("/app/");
+    expect(root.kind === "file" && root.path).toBe("/app/index.html");
+    for (const probe of ["/app/login", "/app/me", "/app/tutor/10/Maths", "/app/notes/does-not-exist"]) {
+      const r = resolvePath(probe);
+      expect(r.kind === "file" && r.path, `${probe} must fall back to the clean shell`).toBe(SPA_SHELL_SERVED);
+    }
+  });
+});
