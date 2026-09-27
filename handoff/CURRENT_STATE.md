@@ -1,5 +1,42 @@
 # LazyTopper — Current State
 
+## [CURRENT · INFRA] CHUNK-RESILIENCE-1 — **ASSETS PINNED TO THE PAGE'S DEPLOYMENT (SKEW PROTECTION ON) + A FAILED ROUTE CHUNK IS RETRIED** — `#839` MERGED — trunk `b031caac`
+
+★ **PROVENANCE.**
+- Controller/builder model; builders ran `claude-opus-5-5`. Owner rulings OR-C2 and OR-C3 (see `DECISION_LOG.md`). This docs PR is by a separate docs builder (OR-16).
+- `#839` "feat(app): CHUNK-RESILIENCE-1 — pin assets to the page's deployment + retry a failed route chunk" squash-merged **2026-09-27T01:29:35Z** as **`b031caaca0c0ba005df149fe22fe06c7887b2e98`**, parent `a86130c2`. Head `83dc57500457373bfafc215ff6994c6ee0754a68`; **trunk tree == head tree `73e18744`** *(controller-verified)*.
+- Items marked *(subagent-reported)* come from the builder report `report-chunk-resilience-1-b2-2026-09-27.md` and were not re-measured by the controller.
+
+**Trunk `b031caaca0c0ba005df149fe22fe06c7887b2e98`** (`#839`). Before that it was `a86130c2` (`#826`, dependabot), and before that `ef6385e4` (`#832`, the PRICING-TB-1 OR-P6/P7 docs).
+
+*(This block supersedes the PRICING-TB-1 OR-P6 + OR-P7 block below on trunk SHA only. That block's content otherwise stands as written.)*
+
+### ★ THE CAUSE (C17 — the chunk-failure family: `#776`, `#779`, SEO-CACHE-1, PERF-1, ASSET-404-1)
+- **Deploy skew.** A page's HTML from deployment N requests hashed route chunks after N+1 is live; the old chunk 404s, the lazy dynamic import rejects, the global ErrorBoundary renders "Something went wrong", and **Google records a Soft 404**. Owner evidence: Google live test on `/app/notes/real-numbers`; the same URLs pass with no deploy in flight.
+- Secondary: Googlebot dropping one request (covered by the retry, K2).
+
+### What shipped (K1–K3)
+- **K1 — root `middleware.ts`** (Vercel Routing Middleware, `runtime: "nodejs"`). On `/app` **document** requests only, it sets `Set-Cookie: __vdpl=<VERCEL_DEPLOYMENT_ID>; Path=/app/assets; Max-Age=604800; Secure; HttpOnly; SameSite=Lax`, so the browser's later `/app/assets/*` requests are served by the page's own deployment. Fail-open (try/catch). `isAppDocumentRequest` `middleware.ts:50`, `deploymentPinCookie` `:67`, `pinAssetsToDeployment` `:80`, `config` `:101` with matcher `["/app", "/app/((?!assets/).*)"]` `:103`.
+- **K2 — `lazytopper/src/lib/lazyWithRetry.ts`**: `CHUNK_ERROR_PATTERNS` `:41`, `failedModuleUrl` `:66`, `retryUrl` `:80`, `importWithRetry` `:103`, `lazyWithRetry` `:143` (delays `RETRY_DELAYS_MS` `[300, 1000]` `:39`). **`lazytopper/src/App.tsx:11`** is a one-line import swap (`lazyWithRetry as lazy`), so **all 31 `lazy(` route call sites in `App.tsx` go through the retry**.
+- **K3 — tests:** `lazytopper/src/lib/vercelMiddleware.test.ts` (33 tests, including the document-only pin: never `/app/assets/*`, `/api/*`, `/shared-api/*`) and `lazytopper/src/lib/lazyWithRetry.test.ts` (16 tests).
+- **Governance (OR-C3):** `"middleware.ts"` added to `lanes.repoRoot` in `lazytopper/docs/project_memory/governance/repo_boundary_policy.json` (one line). It fixed the CI red `all_tracked_files_classified: middleware.ts` on run `36268417015`.
+- **Platform (owner):** Vercel **Skew Protection enabled** with a max age, and System Environment Variables exposed; production redeployed. `[FU-SKEW-PROTECTION-UNAVAILABLE-ON-FREE-PLAN]` is **RESOLVED**.
+
+### Evidence
+- **K4 (preview, branch alias)** *(subagent-reported)*: K4.1 `Set-Cookie` on `/app` pages, absent on robots / api / sitemap; K4.2 an old production chunk 404s without the cookie and returns 200 with a hand-set `__vdpl`; K4.3 a current asset returns 200 with no `Set-Cookie`. All PASS.
+- **CI** quality-gate run `36285154436` on `83dc5750`: success — ` ✓ src/lib/vercelMiddleware.test.ts (33 tests) 19ms`, `Tests  2668 passed (2668)`, `Repo boundary acceptance PASSED (11/11).`, root guard matrix `# pass 293 / # fail 0 / # skipped 0`.
+- **Production (`www.lazytopper.com`), deploy Ready 01:30:27Z** *(controller-verified)*:
+  - `curl -sI /app/pricing` → `Set-Cookie: __vdpl=dpl_Xe89n1VyAqycw3mS8ZNsnFGCpYgc; Path=/app/assets; Max-Age=604800; Secure; HttpOnly; SameSite=Lax` (also present on `X-Vercel-Cache: HIT`).
+  - **No cookie** on `/app/assets/*.js`, `/api/health`, `/shared-api/health`, `/app/robots.txt`.
+  - 6-page headless smoke **6/6 PASS** (01:31:07–01:31:35Z); the control fires.
+  - **TTFB** (median of 5, curl `time_starttransfer`): `/app/pricing` 0.111s → 0.113s; `/app/notes/trigonometry` 0.149s → 0.115s. **No regression.**
+
+### ★ Known limits (accepted by the owner; see `DECISION_LOG.md`)
+- Cookie routing works on the branch alias and `www`, **not** on the immutable per-deployment URL.
+- WebKit gives a fourth rejection message (text/html MIME); only Chromium caches a failed import URL.
+- Production honours a hand-set **preview** `__vdpl` for `/app/assets` — a pre-existing platform finding, `[FU-PROD-HONOURS-PREVIEW-VDPL]`.
+- `ConceptSpine.tsx:16` (`NoteModal`) still uses React's own `lazy` — `[FU-LAZY-OUTSIDE-APP-UNWRAPPED]`.
+
 ## [CURRENT · PRICING] PRICING-TB-1 OR-P6 + OR-P7 — **PASSES, NOT SUBSCRIPTIONS: "₹599 for a month", NO AUTO-RENEW, THE PRICING CONFLICT RESOLVED** — `#830` + `#831` MERGED — trunk `759b9d69`
 
 ★ **PROVENANCE.**

@@ -1,5 +1,13 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-27 — CHUNK-RESILIENCE-1 (`#839` `b031caac`), trunk `b031caac`.**
+> ★ **INFRA, ALL `/app` SURFACES AT ONCE: assets are pinned to the page's deployment (Vercel Skew Protection + `__vdpl` cookie) and a failed route chunk is retried.** LIVE, verified on production (6/6 smoke).
+
+### ⬜ NO SURFACE CELL MOVES — stated plainly, per `CLAUDE.md` §10
+This lane changes delivery, not any surface's content, state or scope. It makes every lazy-loaded `/app` route less likely to render "Something went wrong" (and a Soft 404 for Google) during a deploy, but no surface changes status.
+
+### 📋 Scope discovered? — **NO surface scope.** Three platform/infra follow-ups are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md` (`[FU-PROD-HONOURS-PREVIEW-VDPL]`, `[FU-PREVIEW-ENTRY-HASH-DRIFT]`, `[FU-LAZY-OUTSIDE-APP-UNWRAPPED]`); none sets a surface to Settling.
+
 > **2026-09-26 — PRICING-TB-1 OR-P6 + OR-P7 (`#830` `3417f2a0` + `#831` `759b9d69`), trunk `759b9d69`.**
 > ★ **PRICING IS SETTLED.** OR-P6 resolved the conflict with `[FU-PRICING-MODEL-2026-09]`. Copy moves on six surfaces, all LIVE; the owner live-verify is OWED.
 

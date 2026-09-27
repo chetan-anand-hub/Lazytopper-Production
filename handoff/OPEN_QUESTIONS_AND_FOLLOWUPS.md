@@ -23,6 +23,29 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-27 — CHUNK-RESILIENCE-1 (`#839` MERGED as `b031caac`, squash, `--match-head-commit 83dc5750`, no `--admin`) — one follow-up resolved, three new
+
+### `[FU-SKEW-PROTECTION-UNAVAILABLE-ON-FREE-PLAN]` — ✅ RESOLVED 2026-09-27 by `#839` (`b031caac`)
+- The owner enabled **Vercel Skew Protection** (with a max age) and exposed System Environment Variables; production was redeployed.
+- `#839`'s root `middleware.ts` sets `__vdpl=<VERCEL_DEPLOYMENT_ID>` (`Path=/app/assets`) on `/app` documents, so a page's chunks are served by the page's own deployment. `lazyWithRetry` retries a failed route chunk (the secondary cause, a dropped request).
+- Verified on production 2026-09-27: the cookie is set on `/app/pricing` and absent on `/app/assets/*.js`, `/api/health`, `/shared-api/health` and `/app/robots.txt`; 6/6 headless smoke PASS.
+- The original entry further down keeps its body as written (rule 3); only its heading and status line were marked resolved.
+
+### `[FU-PROD-HONOURS-PREVIEW-VDPL]` — ⚠ **PRODUCTION SERVES `/app/assets` FROM A PREVIEW DEPLOYMENT WHEN THE CLIENT HAND-SETS THAT PREVIEW'S `__vdpl`**
+Found during K4 *(subagent-reported)*. A hand-set `__vdpl` naming a **preview** deployment is honoured by production for `/app/assets/*`. This is **pre-existing platform behaviour** of Vercel Skew Protection, not something `#839` introduced — `#839` only sets the cookie to the page's own deployment ID. The owner ACCEPTED it with no code change (ruling (d), 2026-09-27).
+- **Not investigated:** whether it matters. Only a client that forges its own cookie can reach it, and it serves only static hashed assets, but a preview build can carry unreviewed code.
+- **Status: OPEN, report-only.**
+
+### `[FU-PREVIEW-ENTRY-HASH-DRIFT]` — ⚠ **UNVERIFIED: A PREVIEW'S ENTRY CHUNK HASH CHANGED WITH NO SHIPPED-CODE CHANGE**
+Observed during the lane *(subagent-reported)*: the preview entry chunk's content hash changed between builds with no change to shipped code. **Cause unknown.** If builds are not deterministic, every deploy rotates chunk names even when nothing changed, which widens the skew window this lane pinned.
+- **Status: OPEN, UNVERIFIED.** Needs one commit built twice, comparing the emitted `assets/` names.
+
+### `[FU-LAZY-OUTSIDE-APP-UNWRAPPED]` — **ONE `lazy(` OUTSIDE `App.tsx` STILL USES REACT'S OWN `lazy`**
+- `lazytopper/src/components/topichub/ConceptSpine.tsx:16` — `const NoteModal = lazy(() => import("../notes/NoteModal"));`, with `lazy` imported from `react` (`:1`). It gets no retry.
+- ⚠ **Count correction:** the lane's docs brief said "30 other `lazy(` call sites outside `App.tsx` line 11 are not wrapped". **That is wrong.** Measured on trunk `b031caac`: `App.tsx:11` imports `lazyWithRetry as lazy`, so **all 31** `lazy(` call sites in `App.tsx` are wrapped. The only other non-test `lazy(` hits are `ConceptSpine.tsx:16` (unwrapped) and `lazyWithRetry.ts:146` (the wrapper itself); `main.tsx:16` is a comment (builder report §P11).
+- Not enumerated: bare dynamic `import()` calls that are not behind `lazy(`.
+- **Status: OPEN, one site.**
+
 ## 2026-09-26 — PRICING-TB-1 OR-P6 + OR-P7 (`#830` MERGED as `3417f2a0`, `#831` MERGED as `759b9d69`, squash, `--match-head-commit`, no `--admin`; open PRs at the time of writing: **`#818`, `#819`, `#826`** — dependabot only) — one owner conflict resolved, four follow-ups resolved, five new, one kept open
 
 ### `[FU-PRICING-MODEL-2026-09]` — ✅ RESOLVED by OR-P6 (owner, 2026-09-26)
@@ -855,7 +878,7 @@ fabricated figures — its copy is qualitative. Nothing is left undone outside t
 **Status: OPEN as standing knowledge. OWNER-RULED: the finding corrects the instruction, not the
 work.**
 
-### `[FU-SKEW-PROTECTION-UNAVAILABLE-ON-FREE-PLAN]` — ⚠ **THE ACTUAL CAUSE OF MISSING CHUNKS REMAINS UNFIXED**
+### `[FU-SKEW-PROTECTION-UNAVAILABLE-ON-FREE-PLAN]` — ✅ **RESOLVED 2026-09-27 by `#839` (`b031caac`)** (was: ⚠ **THE ACTUAL CAUSE OF MISSING CHUNKS REMAINS UNFIXED**)
 
 ASSET-404-1 changes only how a missing chunk **is reported**. The cause is **deploy skew** — a
 client holding an old `index.html` requesting chunks a newer deployment no longer has. The
@@ -865,7 +888,7 @@ platform-level fix is **Vercel Skew Protection, a paid feature, and the owner is
 still sees the error boundary; the difference is that the failure now names itself as a 404 instead
 of arriving as an HTML document pretending to be a JavaScript module.
 
-**Status: OPEN, blocked on plan.**
+**Status: ✅ RESOLVED 2026-09-27 by `#839` (`b031caac`) — the owner enabled Vercel Skew Protection and `#839` pins `/app/assets` to the page's deployment; see the 2026-09-27 section at the top. (Was: OPEN, blocked on plan.)**
 
 ### `[FU-GREENDARK-ON-WHITE-FAILS-AA]` — ⚠ **BRAND `GREEN_DARK` ON WHITE IS 4.15:1**
 
