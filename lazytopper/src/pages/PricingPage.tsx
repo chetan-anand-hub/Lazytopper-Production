@@ -25,6 +25,8 @@ import {
   type TillBoardsQuote,
 } from "../config/pricing";
 import { predictCbseExamDate } from "../services/cbseExamDate";
+import PassCheckout from "../components/pricing/PassCheckout";
+import { isPaymentsClientEnabled } from "../services/checkout";
 
 const WAITLIST_KEY = "lazytopper.waitlist.v1";
 
@@ -1013,10 +1015,16 @@ export default function PricingPage() {
             {FOUNDING_OFFER_OPEN && (
               <p className="lt-pricing-founding-note">{FOUNDING_LOCK_COPY}</p>
             )}
-            <p className="lt-pricing-plan-desc">
-              Manual activation during beta. Payment checkout coming soon.
-              Premium is not activated automatically.
-            </p>
+            {/* RAZORPAY-1 · P7: the buy area. Payments dark (VITE_PAYMENTS_ENABLED unset)
+                -> this exact manual-activation paragraph, unchanged. */}
+            {isPaymentsClientEnabled() ? (
+              <PassCheckout />
+            ) : (
+              <p className="lt-pricing-plan-desc">
+                Manual activation during beta. Payment checkout coming soon.
+                Premium is not activated automatically.
+              </p>
+            )}
             <ul className="lt-pricing-features" aria-label="Premium plan features">
               {PREMIUM_FEATURES.map(f => (
                 <li

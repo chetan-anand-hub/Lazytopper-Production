@@ -78,6 +78,14 @@ export interface StudentDataLocation {
   readonly parentId?: string;
   /** Can its contents be included in a data export? */
   readonly exportable: boolean;
+  /**
+   * What account erasure does here. Absent means `"delete"`.
+   * `"anonymise-uid"` (RAZORPAY-1 · Z7) KEEPS the documents and replaces their `uid`
+   * FIELD with `"erased"` — for records the business must retain for accounting. Only
+   * valid on a field-keyed (no `{uid}` segment) Firestore location; the erasure walker
+   * refuses it anywhere else rather than guess.
+   */
+  readonly onErase?: "delete" | "anonymise-uid";
   readonly notes?: string;
 }
 
@@ -342,6 +350,46 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "deliberate refusal (it stops a student dropping and re-creating the doc to reset " +
       "the trial clock). A browser therefore CANNOT erase it. This single rule is why " +
       "account erasure requires an admin-credential server path.",
+  },
+
+  {
+    id: "subscriptions.payments",
+    kind: "firestore-subcollection",
+    parentId: "subscriptions",
+    path: "subscriptions/{uid}/payments/{paymentRef}",
+    holds:
+      "One record per pass payment applied to this account: the pass type, the price " +
+      "paid in rupees, and when it was granted.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "★★ RAZORPAY-1 · Z9 — payment-level idempotency. Written ONLY by " +
+      "server/services/passGrant.cjs inside the grant transaction; its existence is what " +
+      "makes a replayed payment a no-op. Erased with the account (the anonymised " +
+      "`payOrders` keep the accounting record). No client rule matches it: the parent " +
+      "document's rules block has no nested wildcard, so the path falls to the deny-all " +
+      "catch-all.",
+  },
+
+  // ── Firestore: payment orders (server-only, RAZORPAY-1) ──────────────────────────
+  {
+    id: "payOrders",
+    kind: "firestore-collection",
+    path: "payOrders/{orderId}",
+    holds:
+      "★ Checkout orders keyed by the Razorpay order id, with the student's `uid` as a " +
+      "FIELD: pass type, amount in paise, offer, status (created / paid), payment id and " +
+      "timestamps. No card or bank details — those never reach LazyTopper.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    onErase: "anonymise-uid",
+    notes:
+      "★★ KEPT ON ERASURE, NOT DELETED (owner ruling Z7): payment records are retained for " +
+      "accounting, so erasure replaces the `uid` field with `\"erased\"` and keeps the " +
+      "document. Written only by server/routes/payments.cjs and passGrant.cjs through the " +
+      "Admin SDK; NOT declared in firestore.rules, so browsers fall to the deny-all " +
+      "catch-all. ★ Field-keyed like `qrUploadSlots`: export and erasure must QUERY " +
+      "`where('uid','==',uid)`.",
   },
 
   // ── Firestore: AI usage ledger (server-only, METER-1) ────────────────────────────

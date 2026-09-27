@@ -175,6 +175,12 @@ function realSeed(uid = UID) {
     [`tutorSessions/${uid}`]: {},
     [`tutorSessions/${uid}/topics/electricity`]: {},
     [`subscriptions/${uid}`]: { tier: 'free' },
+    // RAZORPAY-1 · Z9: one record per applied pass payment.
+    [`subscriptions/${uid}/payments/pay_A`]: { passType: 'month', pricePaidInr: 599, grantedAt: '2026-09-27T06:30:00.000Z' },
+    // RAZORPAY-1 · Z7: FIELD-KEYED like qrUploadSlots — the doc id is the Razorpay order id.
+    'payOrders/order_A': { uid, passType: 'month', amountPaise: 59900, offerKey: 'founding', status: 'paid', paymentId: 'pay_A' },
+    // Another student's order — must never appear in this student's export.
+    'payOrders/order_Z': { uid: OTHER, passType: 'month', amountPaise: 59900, offerKey: 'founding', status: 'created' },
     // METER-1. The parent is seeded only so the map-driven "every location carries data"
     // test has a row to find; production never writes it (see the phantom-parent test).
     [`usageLedger/${uid}`]: {},
@@ -281,6 +287,23 @@ test('★★ EVERY exportable:true location the server can reach carries data, d
     );
     assert.ok(row.recordCount > 0, `${id} reported exported with no records`);
   }
+});
+
+test('★★ RAZORPAY-1 Z7: payOrders is exported BY FIELD — only this student\'s orders', async () => {
+  const { service, store } = makeService();
+  const result = await service.exportAccount(UID);
+  const row = byId(result, 'payOrders');
+  assert.ok(row, 'payOrders is missing from the export');
+  assert.equal(row.status, EXPORT_STATUS.EXPORTED);
+  assert.deepEqual(row.records.map((r) => r.id), ['order_A']);
+  assert.equal(row.records[0].data.amountPaise, 59900);
+  assert.ok(!JSON.stringify(result).includes('order_Z'), "another student's order leaked into this export");
+  // CONTROL: reached by a where() on the uid FIELD, not a doc-id read.
+  const q = store.queriedByField && store.queriedByField.find((x) => x.collection === 'payOrders');
+  assert.ok(q && q.field === 'uid' && q.value === UID, 'payOrders must be queried by uid field');
+  const pays = byId(result, 'subscriptions.payments');
+  assert.equal(pays.status, EXPORT_STATUS.EXPORTED);
+  assert.equal(pays.recordCount, 1);
 });
 
 test('★ CONTROL: an entry added to a FIXTURE map is exported too (the list is not hardcoded)', async () => {
