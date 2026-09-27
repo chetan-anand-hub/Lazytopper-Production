@@ -309,7 +309,7 @@ const PAGES: Record<LegalSlug, PageDef> = {
         <p>LazyTopper provides data-driven predictions based on historical CBSE patterns. These are not guaranteed exam questions. We do not guarantee any specific exam results or scores.</p>
         <h2>User Accounts</h2>
         <p>You are responsible for maintaining the confidentiality of your account. You must be at least 13 years old to use LazyTopper. If you are under 18, you must have your parent or guardian's permission to use LazyTopper. By creating an account, you confirm that you have it.</p>
-        <h2>Subscription &amp; Payment</h2>
+        <h2>Passes &amp; Payment</h2>
         <p>Free tier features are available without payment. Premium features require a pass at the listed prices. Passes are one-time payments and do not renew automatically.</p>
         <h2>Intellectual Property</h2>
         <p>All content, including prediction algorithms, question banks, and AI-generated explanations, is the property of LazyTopper.</p>

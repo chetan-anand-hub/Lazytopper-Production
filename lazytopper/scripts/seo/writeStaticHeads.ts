@@ -126,7 +126,7 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
     title: "Terms of Service | LazyTopper",
     description:
       "The terms for using LazyTopper, an educational tool for CBSE Class 10 exam " +
-      "preparation — accounts, subscriptions, and what the predictions are not.",
+      "preparation — accounts, passes, and what the predictions are not.",
   },
   "/legal/refund": {
     // PRICING-TB-1 · OR-P5 (owner, 2026-09-26): word for word — the page states a

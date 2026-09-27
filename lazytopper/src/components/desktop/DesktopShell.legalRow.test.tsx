@@ -64,7 +64,8 @@ function signInAndOpenMenu() {
 const LEGAL = [
   ["Privacy", "/legal/privacy"],
   ["Terms", "/legal/terms"],
-  ["Refunds", "/legal/refund"],
+  // COPY-2 · K6 (owner, 2026-09-27): matches the page tab and title.
+  ["Cancellation & Refunds", "/legal/refund"],
 ] as const;
 
 describe("DesktopShell account dropdown — legal row (Lane C)", () => {
@@ -86,5 +87,15 @@ describe("DesktopShell account dropdown — legal row (Lane C)", () => {
     expect(screen.getByTestId("pathname").textContent).toBe(slug);
     // Closes on navigation (setAccountOpen(false)).
     expect(screen.queryByRole("menu", { name: "Account menu" })).toBeNull();
+  });
+});
+
+describe("DesktopShell account dropdown — COPY-2 · K2 passes, not subscriptions", () => {
+  it("labels the manage entry 'Manage your pass', word for word", () => {
+    signInAndOpenMenu();
+    const menu = screen.getByRole("menu", { name: "Account menu" });
+    const item = screen.getByRole("menuitem", { name: "Manage your pass" });
+    expect(item.closest("[role='menu']")).toBe(menu);
+    expect(menu.textContent).not.toMatch(/subscription/i);
   });
 });

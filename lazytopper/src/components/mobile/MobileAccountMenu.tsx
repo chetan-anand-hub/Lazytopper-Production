@@ -212,7 +212,7 @@ export function MobileAccountMenu() {
                 onClick={goManage}
                 style={menuItemStyle("var(--mob-fg)", 600)}
               >
-                Manage subscription
+                Manage your pass
               </button>
               {/* Quiet entry point. Linking is OPTIONAL - this opens a modal and
                   never gates anything. Closes the dropdown first so the modal is
@@ -280,7 +280,7 @@ export function MobileAccountMenu() {
 const LEGAL_LINKS = [
   { label: "Privacy", slug: "privacy" },
   { label: "Terms", slug: "terms" },
-  { label: "Refunds", slug: "refund" },
+  { label: "Cancellation & Refunds", slug: "refund" },
 ] as const;
 
 const legalLinkStyle: CSSProperties = {

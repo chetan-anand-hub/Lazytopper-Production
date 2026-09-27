@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import {
   FOUNDING_COHORT_COPY,
   FOUNDING_LABEL,
-  FOUNDING_LOCK_COPY,
   FOUNDING_OFFER_OPEN,
   PERIOD_MONTHLY_LABEL,
   PRICE_MONTHLY_FOUNDING_DISPLAY,
@@ -34,11 +33,10 @@ import {
  * the pricing module; `OfferStrip.test.tsx` additionally re-runs that scan
  * against this one file so the assertion names its subject.
  *
- * ★ THE PERMANENCE CLAIM IS SCOPED TO AN ACTIVE SUBSCRIPTION.
- * `FOUNDING_LOCK_COPY` is rendered verbatim rather than reworded. The broad
- * "we never raise anyone's price" is a claim about PUBLISHED prices, which this
- * product cannot support (the board year moved between #539 and #548). Reusing
- * the approved string is what keeps the two apart.
+ * ★ THE LOCK PROMISE IS STATED ONCE, AND ONLY WHILE THE OFFER IS OPEN.
+ * COPY-2 · K4 (owner, 2026-09-27): the separate `FOUNDING_LOCK_COPY` note was
+ * deleted — the strip line already says "locked for every pass you buy" when the
+ * offer is open, and the promise is false when it is closed.
  *
  * The offer state is a single build-time boolean (`FOUNDING_OFFER_OPEN`). A
  * Firestore-backed toggle is a later change; a constant the owner edits cannot
@@ -360,7 +358,6 @@ export default function OfferStrip({
             <s className="lt-offer-strip-was">{PRICE_MONTHLY_LIST_DISPLAY}</s>
             {`, locked for every pass you buy. ${FOUNDING_COHORT_COPY}`}
           </p>
-          <p className="lt-offer-strip-note">{FOUNDING_LOCK_COPY}</p>
         </>
       ) : (
         <p className="lt-offer-strip-body">

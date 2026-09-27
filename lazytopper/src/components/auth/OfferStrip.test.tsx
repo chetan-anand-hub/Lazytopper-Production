@@ -126,7 +126,7 @@ describe("offer OPEN", () => {
     expect(text).toContain(FOUNDING_COHORT_COPY);
   });
 
-  it("scopes the permanence claim to an ACTIVE SUBSCRIPTION, never to published prices", async () => {
+  it("scopes the permanence claim to the student's own passes, never to published prices", async () => {
     const strip = await renderStrip(true);
     const text = flat(strip).toLowerCase();
 
@@ -150,8 +150,33 @@ describe("offer OPEN", () => {
     }
 
     // CONTROL for the absence above: the scoped claim IS present, so this test
-    // is checking the wording rather than an empty string.
-    expect(text).toContain("your founding price stays locked for every pass you buy");
+    // is checking the wording rather than an empty string. (COPY-2 · K4: it now
+    // lives only in the strip line — the separate lock note was deleted.)
+    expect(text).toContain("locked for every pass you buy");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// COPY-2 · K4 (owner, 2026-09-27) — the lock promise is stated ONCE, and only
+// while the offer is open: the separate FOUNDING_LOCK_COPY note is deleted.
+// ---------------------------------------------------------------------------
+
+describe("COPY-2 · K4 the lock promise", () => {
+  const LOCK = "locked for every pass you buy";
+  const count = (text: string) => text.split(LOCK).length - 1;
+
+  it("offer OPEN: the strip says it exactly once, and has no separate lock note", async () => {
+    const strip = await renderStrip(true);
+    expect(count(flat(strip))).toBe(1);
+    expect(strip.querySelector(".lt-offer-strip-note")).toBeNull();
+  });
+
+  it("offer CLOSED: the strip says it zero times", async () => {
+    const strip = await renderStrip(false);
+    // CONTROL — the strip rendered real copy, so zero is a finding, not an empty node.
+    expect(flat(strip)).toContain(PRICE_MONTHLY_LIST_DISPLAY);
+    expect(count(flat(strip))).toBe(0);
+    expect(strip.querySelector(".lt-offer-strip-note")).toBeNull();
   });
 });
 

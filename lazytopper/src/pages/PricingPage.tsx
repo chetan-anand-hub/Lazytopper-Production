@@ -974,13 +974,17 @@ export default function PricingPage() {
             <div className="lt-pricing-plan-label lt-pricing-plan-label--premium">
               Premium
             </div>
-            <p className="lt-pricing-founding-flag">
-              {`${FOUNDING_LABEL} · ${FOUNDING_COHORT_COPY}`}
-            </p>
+            {FOUNDING_OFFER_OPEN && (
+              <p className="lt-pricing-founding-flag">
+                {`${FOUNDING_LABEL} · ${FOUNDING_COHORT_COPY}`}
+              </p>
+            )}
             <PremiumPriceHead offerOpen={FOUNDING_OFFER_OPEN} />
             <p className="lt-pricing-price-alt">{TUITION_ANCHOR}</p>
             <TillBoardsOffer offerOpen={FOUNDING_OFFER_OPEN} />
-            <p className="lt-pricing-founding-note">{FOUNDING_LOCK_COPY}</p>
+            {FOUNDING_OFFER_OPEN && (
+              <p className="lt-pricing-founding-note">{FOUNDING_LOCK_COPY}</p>
+            )}
             <p className="lt-pricing-plan-desc">
               Manual activation during beta. Payment checkout coming soon.
               Premium is not activated automatically.
