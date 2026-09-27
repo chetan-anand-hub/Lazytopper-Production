@@ -156,4 +156,16 @@ describe("config — invocation limited to /app pages", () => {
     expect(isAppDocumentRequest(req("/app/notes/trigonometry"))).toBe(true);
     expect(isAppDocumentRequest(req("/app/assets/x.js"))).toBe(false);
   });
+
+  it("document-only: never /app/assets/*, /api/*, /shared-api/* (matcher AND code path)", () => {
+    // Every matcher entry, anchored ("/" needs no escape inside new RegExp).
+    const patterns = config.matcher.map((m) => new RegExp(`^${m}$`));
+    const matched = (path: string) => patterns.some((p) => p.test(path));
+    expect(matched("/app")).toBe(true);
+    expect(matched("/app/pricing")).toBe(true);
+    for (const path of ["/app/assets/x.js", "/api/grade", "/api/", "/shared-api/tutor"]) {
+      expect(matched(path)).toBe(false);
+      expect(isAppDocumentRequest(req(path))).toBe(false);
+    }
+  });
 });
