@@ -127,10 +127,6 @@ function studentFacingHits(source: string): string[] {
  * Listed so the pin can go green without them; remove an entry when it is fixed.
  */
 const KNOWN_REMAINING = new Set<string>([
-  // COPY-2 · K1 fixed the source heading (LegalPage.tsx). This CAPTURED copy changes only when
-  // the PR's CI prerender artifact lands — remove this entry in the same PR when it does
-  // (the "still a real hit" assertion below turns red until you do).
-  "prerendered/legal/terms.html :: Subscription &amp; Payment",
   // Internal data-map description; no component renders `.holds`. Classified internal.
   "src/services/studentDataMap.ts :: Subscription/trial state: tier, plan, trialStartDate.",
 ]);
