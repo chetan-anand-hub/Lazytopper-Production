@@ -391,6 +391,40 @@ function createGeminiClient(cfg) {
 
   const tokenTelemetryRing = [];
 
+  /* ──────────────────────────────────────────────────────────────────────────
+     METER-1 · per-student usage ledger (usageLedger.cjs).
+
+     Same injection shape as the telemetry sink: `cfg.usageLedger` wins (tests),
+     otherwise the real module is required LAZILY, once, inside a try/catch, so a
+     resolution failure degrades to "no ledger", never to a broken client.
+
+     ★ The ledger decides WHO to charge from the request context index.cjs binds;
+     outside a bound request (warm pool, scripts, evals, anonymous callers) it
+     writes nothing. ★ FIRE-AND-FORGET: the returned write promise is NOT awaited,
+     so a slow or failing ledger write never delays or fails the student's call.
+     ────────────────────────────────────────────────────────────────────────── */
+  let usageLedger = cfg && cfg.usageLedger ? cfg.usageLedger : undefined;
+  let usageLedgerResolved = usageLedger !== undefined;
+
+  function recordLedgerUsage(record) {
+    try {
+      if (!usageLedgerResolved) {
+        usageLedgerResolved = true;
+        try {
+          usageLedger = require('./usageLedger.cjs').createUsageLedger();
+        } catch {
+          usageLedger = null;
+        }
+      }
+      if (usageLedger && typeof usageLedger.recordUsage === 'function') {
+        return usageLedger.recordUsage(record);
+      }
+    } catch {
+      /* A ledger failure must NEVER fail a Gemini call. */
+    }
+    return null;
+  }
+
 
   /**
    * Emit one token-usage record.
@@ -722,8 +756,7 @@ function createGeminiClient(cfg) {
     // all in scope right here and NONE of them is passed. That is the content
     // firewall, and the "no prompt or response content is logged" test asserts it
     // against a payload whose prompt and candidate text are unique sentinels.
-    emitTokenTelemetry(
-      buildTokenTelemetryRecord({
+    const tokenRecord = buildTokenTelemetryRecord({
         usageMetadata: data && data.usageMetadata,
         model,
         callClass: classifyCall(config, telemetryCallerStack),
@@ -737,8 +770,10 @@ function createGeminiClient(cfg) {
         latencyMs: Date.now() - telemetryStartedAt,
         attempts: telemetryAttempts,
         usedFallback,
-      })
-    );
+      });
+    emitTokenTelemetry(tokenRecord);
+    // METER-1 (M3): the SAME firewalled record, handed to the ledger. NOT awaited.
+    recordLedgerUsage(tokenRecord);
 
     return { text, raw: data };
   }

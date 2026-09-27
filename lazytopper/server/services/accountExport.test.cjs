@@ -175,6 +175,12 @@ function realSeed(uid = UID) {
     [`tutorSessions/${uid}`]: {},
     [`tutorSessions/${uid}/topics/electricity`]: {},
     [`subscriptions/${uid}`]: { tier: 'free' },
+    // METER-1. The parent is seeded only so the map-driven "every location carries data"
+    // test has a row to find; production never writes it (see the phantom-parent test).
+    [`usageLedger/${uid}`]: {},
+    [`usageLedger/${uid}/days/2026-09-27`]: {
+      calls: 3, promptTokens: 4200, outputTokens: 610, thoughtsTokens: 2900, costMicroInr: 883520,
+    },
     // ★ FIELD-KEYED. The doc id is sha256(uploadToken); the student is a `uid` FIELD.
     'qrUploadSlots/sha-aaa': { uid, storagePath: `qr-uploads/${uid}/sha-aaa.jpg` },
     'qrUploadSlots/sha-bbb': { uid, storagePath: `qr-uploads/${uid}/sha-bbb.jpg` },
@@ -629,6 +635,44 @@ test('★ a two-level-deep subcollection is reached by its OWN path, not inferre
   // The parent is its own row, addressed by its own path — asserting the parent
   // proves nothing about the orphan underneath it.
   assert.equal(byId(result, 'learnerProfiles.sessions').records[0].path, `learnerProfiles/${UID}/sessions/s1`);
+});
+
+/* METER-1 (M4/M5) — the usage ledger is student data, so it is IN the export.
+   Seeded the way production writes it: day documents under a MISSING parent
+   (`usageLedger/{uid}` is never written), plus another student's day that must
+   not appear. The records carry the five ledger numbers and nothing else.
+   MUTATION: drop the `usageLedger.days` entry from studentDataMap.ts => RED. */
+test('★ METER-1: the usage ledger is exported — day records under a parent that was never written', async () => {
+  const seed = {
+    [`usageLedger/${UID}/days/2026-09-26`]: {
+      calls: 1, promptTokens: 1000, outputTokens: 200, thoughtsTokens: 800, costMicroInr: 246400,
+    },
+    [`usageLedger/${UID}/days/2026-09-27`]: {
+      calls: 2, promptTokens: 10, outputTokens: 20, thoughtsTokens: 0, costMicroInr: 4664,
+    },
+    [`usageLedger/${OTHER}/days/2026-09-27`]: {
+      calls: 9, promptTokens: 9, outputTokens: 9, thoughtsTokens: 9, costMicroInr: 9,
+    },
+  };
+  const { service } = makeService({ seed, files: [], users: {} });
+  const result = await service.exportAccount(UID);
+
+  const days = byId(result, 'usageLedger.days');
+  assert.ok(days, 'usageLedger.days is missing from the export entirely');
+  assert.equal(days.status, EXPORT_STATUS.EXPORTED);
+  assert.deepEqual(
+    days.records.map((r) => r.path).sort(),
+    [`usageLedger/${UID}/days/2026-09-26`, `usageLedger/${UID}/days/2026-09-27`],
+    "exactly this student's days, never another student's"
+  );
+  const first = days.records.find((r) => r.path.endsWith('2026-09-26')).data;
+  assert.deepEqual(first, {
+    calls: 1, promptTokens: 1000, outputTokens: 200, thoughtsTokens: 800, costMicroInr: 246400,
+  });
+  assert.ok(
+    !JSON.stringify(result).includes(OTHER),
+    "another student's ledger leaked into this export"
+  );
 });
 
 test('the auth account is exported, and an absent one is EMPTY rather than a failure', async () => {

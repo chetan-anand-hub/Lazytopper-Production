@@ -344,6 +344,41 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "account erasure requires an admin-credential server path.",
   },
 
+  // ── Firestore: AI usage ledger (server-only, METER-1) ────────────────────────────
+  {
+    id: "usageLedger",
+    kind: "firestore-collection",
+    path: "usageLedger/{uid}",
+    holds:
+      "Parent of the per-day AI usage records below. Never written itself; it exists " +
+      "only as the path its day records live under.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "★ server/services/usageLedger.cjs writes ONLY the `days` subcollection, so this " +
+      "document is a Firestore 'missing' parent. It is mapped anyway so the erasure walk " +
+      "sweeps the whole tree rather than trusting that the parent is empty. ★ NOT declared " +
+      "in firestore.rules: no client reads or writes it, so browsers fall through to the " +
+      "deny-all catch-all and only the Admin SDK reaches it.",
+  },
+  {
+    id: "usageLedger.days",
+    kind: "firestore-subcollection",
+    parentId: "usageLedger",
+    path: "usageLedger/{uid}/days/{dayKey}",
+    holds:
+      "How much AI this student used each day (IST): number of model calls, prompt, " +
+      "output and thinking token counts, and the cost in micro-rupees. Numbers only — " +
+      "no question, answer or tutor text.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "★★ Keyed on the VERIFIED uid of a signed-in student on a paid endpoint " +
+      "(usageLedger.cjs bindRequestUid) — never a header, never a free check. Written " +
+      "fire-and-forget with FieldValue.increment after each successful callGemini. " +
+      "Student data: erased with the account and included in the export.",
+  },
+
   // ── Firestore: QR upload slots (server-only) ─────────────────────────────────────
   {
     id: "qrUploadSlots",

@@ -193,6 +193,10 @@ const { createAccountErasureRoutes, ACCOUNT_ERASE_PATH } = require('./routes/acc
 // silently omitted, because silence would tell a parent the location does not exist.
 const { createAccountExportService } = require('./services/accountExport.cjs');
 const { createAccountExportRoutes, ACCOUNT_EXPORT_PATH } = require('./routes/accountExport.cjs');
+// METER-1 (M1): the per-request context the usage ledger charges. Each request runs
+// inside an EMPTY AsyncLocalStorage store; bindRequestUid (below, after the gates)
+// puts ONLY the verified uid into it, never for a free check, only on a paid path.
+const { runWithRequestContext, bindRequestUid } = require('./services/usageLedger.cjs');
 
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
 
@@ -438,6 +442,10 @@ async function handleRequest(req, res) {
     // An ADMITTED free check bypasses this gate and only it; entitlement.cjs is
     // byte-identical, so every non-free-check caller is decided exactly as before.
     if (!freeCheckAdmitted && await entitlementGate.applyToRequest(req, res, reqPath, verifiedUid)) return;
+
+    // METER-1 (M1): charge this request's model calls to the VERIFIED uid — the one the
+    // limiter was handed above — and to nobody for a free check. Records only.
+    bindRequestUid(verifiedUid, reqPath, { freeCheck: freeCheckAdmitted });
   }
 
   const SHARE_SECRET = process.env.SESSION_SECRET;
@@ -714,7 +722,7 @@ async function handleRequest(req, res) {
 }
 
 const server = http.createServer((req, res) => {
-  handleRequest(req, res).catch((e) => {
+  runWithRequestContext(() => handleRequest(req, res)).catch((e) => {
     console.error(e);
     sendJson(res, 500, { error: 'Unhandled server error', details: e.message });
   });
