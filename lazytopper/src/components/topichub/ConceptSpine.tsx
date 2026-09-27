@@ -1,8 +1,9 @@
-import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react";
+import { Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useHref } from "react-router-dom";
 import { Card } from "../grammar/Card";
 import { getNoteSpecForTopic } from "../notes/noteSpecRegistry";
 import { ChapterAtAGlance } from "./ChapterAtAGlance";
+import { lazyWithRetry } from "../../lib/lazyWithRetry";
 import { findVisualForConcept } from "../../data/visualConceptRegistry";
 import type { DesktopTopicSummary } from "../../lib/desktop/topics";
 import type {
@@ -14,7 +15,7 @@ import type {
    CSS dependency is the one kind Vite's preload helper can reject — which crashed this
    route in Googlebot's renderer. React.lazy starts its import when the lazy ELEMENT renders,
    not when the modal opens, so the mount below is gated on `notesRequested` too. */
-const NoteModal = lazy(() => import("../notes/NoteModal"));
+const NoteModal = lazyWithRetry(() => import("../notes/NoteModal"));
 
 /**
  * ConceptSpine — the Topic Hub main view, final-IA LAYOUT (Learn-Flow PR-D).
