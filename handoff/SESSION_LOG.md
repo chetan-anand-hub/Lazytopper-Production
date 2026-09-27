@@ -1,5 +1,25 @@
 ---
 
+## 2026-09-27 — CHUNK-RESILIENCE-1 — **ASSETS PINNED TO THE PAGE'S DEPLOYMENT + A FAILED ROUTE CHUNK RETRIED; SKEW PROTECTION ON** — `#839` MERGED — trunk `b031caac`
+
+★ **PROVENANCE.**
+- One controller session; builders ran `claude-opus-5-5`, in worktree `C:/Projects/LT-worktrees/chunk-resilience-1`. A separate docs builder wrote this PR (OR-16).
+- *(subagent-reported)* = from builder reports; *(controller-verified)* = re-measured.
+
+**Timeline.**
+- The owner brought Google live-test evidence: `/app/notes/real-numbers` rendered "Something went wrong" (Soft 404) while a deploy was in flight, and passed with none. Cause: **deploy skew** — HTML from deployment N asking for hashed chunks only N could serve (C17; the same family as `#776`, `#779`, SEO-CACHE-1, PERF-1, ASSET-404-1).
+- The owner **enabled Vercel Skew Protection** (with a max age) and exposed System Environment Variables — closing `[FU-SKEW-PROTECTION-UNAVAILABLE-ON-FREE-PLAN]` — and ruled **OR-C2**: finish the whole lane with one final audit at the end, under safeguards, instead of the spec §3 mid-lane audit stop.
+- The first preview **failed**: Vercel typechecks `middleware.ts` against the root tsconfig at deploy time (`Cannot find name 'Request'`), which neither local tsconfig covered. Fixed in commit 2 *(subagent-reported)*. Vercel also flagged edge middleware as deprecated → `runtime: "nodejs"`.
+- CI went red on run `36268417015`: `all_tracked_files_classified: middleware.ts`. **OR-C3** granted one line in `repo_boundary_policy.json` (`lanes.repoRoot`).
+- K4 preview curls 1–3 PASS on the branch alias *(subagent-reported)*; CI run `36285154436` on `83dc5750` green (`Tests  2668 passed (2668)`, root matrix `# pass 293 / # fail 0 / # skipped 0`).
+- Merged `--match-head-commit 83dc5750` squash → **`b031caac`** at 01:29:35Z; trunk tree == head tree `73e18744` *(controller-verified)*. Prod Ready 01:30:27Z; prod curls + 6/6 headless smoke by 01:31:35Z, inside the 10-minute window; TTFB unchanged *(controller-verified)*.
+
+### ★ What this lane teaches
+- **A DEPLOY-TIME TYPECHECK IS A GATE NO LOCAL CONFIG RAN.** `tsconfig.app.json` does not include root `middleware.ts`, and the root `tsconfig.json` has `files: []`; only Vercel's own build saw it. A file outside every local tsconfig is typechecked first by the platform, so the preview is the first real gate for it.
+- **A FIX THAT DEPENDS ON A PLATFORM TOGGLE MUST FAIL OPEN, AND FAIL-OPEN IS SILENT.** Without `VERCEL_DEPLOYMENT_ID` the middleware sets no cookie and the site behaves exactly as before. That keeps a broken toggle harmless, and it also means a switched-off toggle goes unnoticed — hence the owner item in `NEXT_ACTION.md`.
+- **THE PIN IS PROVEN BY ITS ABSENCE TOO.** The prod check is the cookie on `/app` documents **and** its absence on `/app/assets/*`, `/api/*`, `/shared-api/*` and `/app/robots.txt`. The document-only matcher is pinned by test, which is the condition under which the nodejs runtime was accepted.
+- **A BRIEF'S COUNT WAS WRONG AND THE CODE CORRECTED IT.** The docs brief said "30 other `lazy(` call sites are not wrapped". Measured on trunk, the `App.tsx:11` alias wraps **all 31** `App.tsx` call sites; exactly **one** `lazy(` outside `App.tsx` (`ConceptSpine.tsx:16`) is not wrapped.
+
 ## 2026-09-26 — PRICING-TB-1 OR-P6 + OR-P7 — **PASSES, NOT SUBSCRIPTIONS; THE TWO PRICING RULINGS RECONCILED** — `#830` + `#831` MERGED — trunk `759b9d69`
 
 ★ **PROVENANCE.**

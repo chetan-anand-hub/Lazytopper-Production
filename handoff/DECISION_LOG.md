@@ -1,3 +1,25 @@
+## 2026-09-27 — CHUNK-RESILIENCE-1 (build + docs) — trunk `b031caac`, PR `#839`
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by their lane IDs (OR-C2, OR-C3, (a)–(d)) rather than `DECISION N`.
+
+### OR-C2 (owner, 2026-09-27) — **supersedes spec §3 "STOP for AUDIT PASS"**
+- Finish the whole lane with **ONE final audit at the end**, under safeguards:
+  - fail-open middleware + a forced-error test;
+  - merge only on CI green + up-to-date, K4 1–3, and a 6-page preview smoke;
+  - `--match-head-commit` squash + a trunk-tree proof;
+  - a production smoke within 10 minutes of Ready;
+  - **any production failure → revert + STOP.**
+- The safeguards were met: trunk tree == head tree `73e18744`; prod Ready 01:30:27Z, smoke 6/6 by 01:31:35Z.
+
+### OR-C3 (owner, 2026-09-27) — one line in the governance policy
+- Grant to add `"middleware.ts"` to `lanes.repoRoot` in `lazytopper/docs/project_memory/governance/repo_boundary_policy.json`. It fixed CI red `all_tracked_files_classified: middleware.ts` on run `36268417015`.
+
+### Owner rulings on the builder's departures (2026-09-27)
+- **(a)** Cookie routing works on the branch alias and `www`, **not** on the immutable per-deployment URL — **ACCEPTED**.
+- **(b)** `runtime: "nodejs"` (Vercel flags edge middleware as deprecated) — **ACCEPTED on condition** of a document-only matcher pinned by test **and** a production TTFB before/after. Both met: the matcher is pinned in `vercelMiddleware.test.ts`; TTFB `/app/pricing` 0.111s → 0.113s, `/app/notes/trigonometry` 0.149s → 0.115s (median of 5).
+- **(c)** WebKit gives a fourth rejection message (text/html MIME); only Chromium caches a failed import URL — **ACCEPTED**.
+- **(d)** Production honours a hand-set **preview** `__vdpl` for `/app/assets` — **ACCEPTED as a pre-existing platform finding, no code change**; recorded as `[FU-PROD-HONOURS-PREVIEW-VDPL]`.
+
 ## 2026-09-26 — PRICING-TB-1 OR-P6 / OR-P7 (copy PRs + docs) — trunk `759b9d69`, PRs `#830` + `#831`
 
 ### OR-P6 (owner, 2026-09-26) — resolves `[FU-PRICING-MODEL-2026-09]` vs PRICING-TB-1. **It supersedes the 2026-09-20 ruling where they differ.**

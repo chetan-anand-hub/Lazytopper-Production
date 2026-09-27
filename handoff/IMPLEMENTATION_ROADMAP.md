@@ -1,5 +1,16 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-27 — INFRA: **CHUNK-RESILIENCE-1 — ASSETS PINNED TO THE PAGE'S DEPLOYMENT + ROUTE-CHUNK RETRY** — `#839` MERGED — trunk `b031caac`
+
+- ✅ **K1** root `middleware.ts`: `__vdpl` cookie on `/app` documents only, `Path=/app/assets`, fail-open, nodejs runtime.
+- ✅ **K2** `lazyWithRetry` + the `App.tsx:11` import swap (all 31 `App.tsx` route `lazy(` sites).
+- ✅ **K3** tests: `vercelMiddleware.test.ts` (33), `lazyWithRetry.test.ts` (16).
+- ✅ **K4** preview curls 1–3; CI `36285154436` green; prod cookie + 6/6 smoke + TTFB unchanged.
+- ✅ **Vercel Skew Protection ON** (owner) — `[FU-SKEW-PROTECTION-UNAVAILABLE-ON-FREE-PLAN]` RESOLVED.
+- ✅ **Docs:** this handoff.
+- ⬜ **Owner:** Search Console live test on the Soft-404 URLs during a deploy.
+- ⬜ `[FU-PROD-HONOURS-PREVIEW-VDPL]` · `[FU-PREVIEW-ENTRY-HASH-DRIFT]` · `[FU-LAZY-OUTSIDE-APP-UNWRAPPED]`.
+
 ## 2026-09-26 — PRICING: **PRICING-TB-1 OR-P6 + OR-P7 — PASSES, NOT SUBSCRIPTIONS** — `#830` + `#831` MERGED — trunk `759b9d69`
 
 - ✅ **OR-P6** (`#830` `3417f2a0`): the pricing model is reconciled (PRICING-TB-1 prices and month count; one-time passes, no auto-renew); "for a month" replaces "/month"; the Month Pass refund section; the OfferStrip line (Decision 1b).
