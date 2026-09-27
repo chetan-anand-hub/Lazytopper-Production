@@ -2,7 +2,6 @@ import { Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useHref } from "react-router-dom";
 import { Card } from "../grammar/Card";
 import { getNoteSpecForTopic } from "../notes/noteSpecRegistry";
-import { ChapterAtAGlance } from "./ChapterAtAGlance";
 import { lazyWithRetry } from "../../lib/lazyWithRetry";
 import { findVisualForConcept } from "../../data/visualConceptRegistry";
 import type { DesktopTopicSummary } from "../../lib/desktop/topics";
@@ -673,13 +672,6 @@ export function ConceptSpine({
           </div>
         )}
       </Card>
-
-      {/* SEO-HUB-1 H1 — "Chapter at a glance", expanded, composed from the chapter's
-          existing note spec. The note itself (NoteModal) stays lazy and latched; this
-          section is plain text so the route never touches katex. */}
-      {noteSpec && (
-        <ChapterAtAGlance spec={noteSpec} slug={topic.slug} chapterName={topic.name} />
-      )}
 
       {/* Per-topic before→now trajectory (arc PR-4) — honest-or-silent; renders nothing
           until there is a real data-backed trend on this topic. */}
