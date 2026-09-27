@@ -200,6 +200,11 @@ const { runWithRequestContext, bindRequestUid } = require('./services/usageLedge
 // RAZORPAY-1: a student buys a pass. DARK unless the server env PAYMENTS_ENABLED is on —
 // off, all three routes answer this file's own 404. Keys only from env; see the module.
 const { createPaymentRoutes, PAY_ORDER_PATH, PAY_VERIFY_PATH, PAY_WEBHOOK_PATH } = require('./routes/payments.cjs');
+// FAIR-USE-1: trial allowances + premium cost caps on the two grading endpoints, the
+// premium exemption from the 80% vision shed (U4), and GET /api/usage/me. Refusals are
+// DARK unless FAIR_USE_ENFORCE=1 (U8). cachedReadJson lets a grade-worksheet body that
+// fair use had to read (to count its questions) reach the handler as the same parse.
+const { createFairUse, cachedReadJson, USAGE_ME_PATH } = require('./services/fairUse.cjs');
 
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
 
@@ -270,7 +275,7 @@ const tutorCache = createTutorCache({
 
 
 const routeDeps = {
-  sendJson, sendJsonWithHeaders, readJson,
+  sendJson, sendJsonWithHeaders, readJson: cachedReadJson(readJson),
   callGemini, callClaude,
   GEMINI_MODEL: config.GEMINI_MODEL,
   GEMINI_TUTOR_MODEL: config.GEMINI_TUTOR_MODEL,
@@ -316,6 +321,7 @@ const tutorRoute = createTutorRoute(routeDeps);
 const rateLimiter = createRateLimiter({ telemetry });
 const verifiedCaller = createVerifiedCaller({ firebaseAdmin, telemetry });
 const entitlementGate = createEntitlementGate({ adminFirestore, telemetry, sendJson });
+const fairUse = createFairUse({ adminFirestore, telemetry, sendJson, verifiedCaller, readJson });
 // R5 reads the limiter's all-class global:<day> count against 60% of limits.global.hard
 // through these two accessors (OR-4a) — threaded from THIS limiter instance, no new counter.
 const freeCheckGate = createFreeCheckGate({
@@ -382,6 +388,8 @@ async function handleRequest(req, res) {
       // credentialed GET is preflighted exactly like the POST above. Without this
       // entry the download request never leaves the browser.
       reqPath === ACCOUNT_EXPORT_PATH ||
+      // FAIR-USE-1 (U5): a credentialed GET, preflighted for the same reason.
+      reqPath === USAGE_ME_PATH ||
       /^\/api\/qr-upload\/pickup\/[^/]+$/.test(reqPath) ||
       /^\/api\/qr-upload\/[^/]+\/status$/.test(reqPath) ||
       /^\/api\/qr-upload\/[^/]+$/.test(reqPath) ||
@@ -392,7 +400,7 @@ async function handleRequest(req, res) {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': config.CORS_ORIGIN,
       'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Lazytopper-Uid, X-Admin-Key, X-User-ID, X-Firebase-AppCheck, X-Lazytopper-Free-Check',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Lazytopper-Uid, X-Admin-Key, X-User-ID, X-Firebase-AppCheck, X-Lazytopper-Free-Check, X-Lazytopper-Surface',
       'Access-Control-Max-Age': '86400',
     });
     return res.end();
@@ -430,9 +438,17 @@ async function handleRequest(req, res) {
       freeCheckAdmitted = true;
     }
 
+    // FAIR-USE-1 (U4): a PREMIUM caller is never paused by the day's budget. The tier
+    // is read ONLY when the 80% vision shed is about to fire, so every other request
+    // pays nothing for it; a non-premium caller gets exactly the previous call.
+    const premiumShedExempt = !freeCheckAdmitted && rateLimiter.wouldShed(reqPath)
+      && await fairUse.isPremium(verifiedUid, req);
+
     const verdict = freeCheckAdmitted
       ? rateLimiter.check(req, reqPath, verifiedUid, { freeCheck: true })
-      : rateLimiter.check(req, reqPath, verifiedUid);
+      : premiumShedExempt
+        ? rateLimiter.check(req, reqPath, verifiedUid, { premium: true })
+        : rateLimiter.check(req, reqPath, verifiedUid);
     if (!verdict.allowed) {
       return sendJson(res, verdict.status, verdict.body);
     }
@@ -451,6 +467,15 @@ async function handleRequest(req, res) {
     // METER-1 (M1): charge this request's model calls to the VERIFIED uid — the one the
     // limiter was handed above — and to nobody for a free check. Records only.
     bindRequestUid(verifiedUid, reqPath, { freeCheck: freeCheckAdmitted });
+
+    // FAIR-USE-1 (U2/U3): grading endpoints only, verified trial/premium callers only.
+    // Returns true only when FAIR_USE_ENFORCE=1 and it has already sent the 409/429.
+    if (await fairUse.applyToRequest(req, res, reqPath, verifiedUid, { freeCheck: freeCheckAdmitted })) return;
+  }
+
+  // FAIR-USE-1 (U5): the verified caller's own allowances — percentages, never rupees.
+  if (req.method === 'GET' && reqPath === USAGE_ME_PATH) {
+    return fairUse.handleUsageMe(req, res);
   }
 
   const SHARE_SECRET = process.env.SESSION_SECRET;

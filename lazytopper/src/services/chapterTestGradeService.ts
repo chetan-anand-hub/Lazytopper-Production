@@ -262,7 +262,7 @@ export async function gradeChapterTestUpload(args: {
     })),
     imageBase64: upload.imageBase64,
     imageMimeType: upload.imageMimeType,
-  });
+  }, { surface: "chapter-test" });
 
   if (!subjectiveResponse.ok) return { ok: false, response: subjectiveResponse, miOutcomes: [] };
 

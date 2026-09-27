@@ -10,6 +10,8 @@
  * module is deliberately TIER-BLIND: the server does not know whether a caller
  * is free, trial or premium, and finding out would cost a Firestore read on
  * every single request. Keep that separation — do not read subscriptions here.
+ * FAIR-USE-1 (U4) keeps it: the tier is read in index.cjs, only when wouldShed()
+ * says the shed is about to fire, and arrives here as `options.premium`.
  *
  * SOFT / HARD
  * -----------
@@ -389,6 +391,16 @@ function createRateLimiter(options = {}) {
    * ceiling, the 80% vision shed and the `global:<day>` commit all still apply: an
    * admitted free check COUNTS toward the budget-derived ceiling (OR-4b).
    */
+  /*
+   * `options.premium === true` (FAIR-USE-1, U4) is passed by index.cjs ONLY when the
+   * caller's EFFECTIVE tier — entitlement.cjs deriveEffectiveTier, pass expiry
+   * included — was read as `premium` for a VERIFIED uid. It is honoured only for a
+   * VERIFIED caller (a spoofable header uid can never earn it), and it skips exactly
+   * one thing: the 80% vision shed. A paying student is never paused by the day's
+   * budget. The per-caller hard caps and the global HARD ceiling still apply, and the
+   * request still commits to `global:<day>`. Free and trial callers never carry it,
+   * so they keep the shed exactly as before.
+   */
   function check(req, reqPath, verifiedUid, options) {
     const nowMs = now();
     const endpointClass = classify(reqPath);
@@ -400,6 +412,7 @@ function createRateLimiter(options = {}) {
     const day = rollIfNeeded(nowMs);
     const caller = resolveCaller(req, verifiedUid);
     const freeCheck = !!(options && options.freeCheck === true) && caller.anonymous;
+    const premiumShedExempt = !!(options && options.premium === true) && caller.verified;
 
     /* ── UID-SOURCE DIAGNOSTIC ────────────────────────────────────────────────
        Which identity actually keyed this bucket. Emitted HERE because this is
@@ -486,12 +499,18 @@ function createRateLimiter(options = {}) {
       endpointClass === "vision" &&
       globalSoFar + 1 > Math.floor(globalRules.hard * VISION_SHED_FRACTION)
     ) {
-      emit("rate_limit.shed.vision");
-      return denial(
-        "vision",
-        nowMs,
-        "Photo checking is paused for today while we keep the tutor and practice running. It resets tomorrow.",
-      );
+      // U4: a premium caller is served through the shed — and SAID so, so the owner
+      // can see how much of the reserved 20% paying students actually used.
+      if (premiumShedExempt) {
+        emit("rate_limit.shed.vision.premium_exempt");
+      } else {
+        emit("rate_limit.shed.vision");
+        return denial(
+          "vision",
+          nowMs,
+          "Photo checking is paused for today while we keep the tutor and practice running. It resets tomorrow.",
+        );
+      }
     }
 
     // ── Allowed. Commit.
@@ -538,7 +557,20 @@ function createRateLimiter(options = {}) {
     return counts.get(`${GLOBAL_CLASS}:${day}`) || 0;
   }
 
-  return { check, snapshot, globalCountToday, limits, paidEndpoints };
+  /**
+   * FAIR-USE-1 (U4): would a `vision` request on `reqPath` be SHED right now? Read-only
+   * — commits nothing, emits nothing. index.cjs asks this BEFORE check() so that the
+   * caller's tier is read (a Firestore read) only on the rare request the shed would
+   * actually refuse; every other request pays nothing for U4.
+   */
+  function wouldShed(reqPath) {
+    if (classify(reqPath) !== "vision") return false;
+    const globalRules = limitsFor(GLOBAL_CLASS);
+    if (!globalRules) return false;
+    return globalCountToday() + 1 > Math.floor(globalRules.hard * VISION_SHED_FRACTION);
+  }
+
+  return { check, snapshot, globalCountToday, wouldShed, limits, paidEndpoints };
 }
 
 module.exports = {
