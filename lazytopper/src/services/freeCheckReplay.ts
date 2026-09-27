@@ -62,7 +62,26 @@ export type FreeCheckReplayOutcome =
   | { kind: "none" }
   | { kind: "not-ready" }
   | { kind: "saved"; code: string }
-  | { kind: "failed" };
+  /**
+   * FREECHECK-2 · F2 — `offline`: the browser had no network when it failed, so the
+   * caller waits for `online` rather than offering a button. `gradedAt` names the result
+   * THIS tab tried to save, so a resume (below) retries exactly that one.
+   */
+  | { kind: "failed"; offline: boolean; gradedAt: number };
+
+/** F2 — did this failure happen for lack of network? */
+export function isOfflineFailure(error: unknown): boolean {
+  try {
+    if (typeof navigator !== "undefined" && navigator.onLine === false) return true;
+  } catch {
+    /* ignore */
+  }
+  const e = error as { name?: unknown; message?: unknown; code?: unknown } | null;
+  if (e && e.code === "unavailable") return true; // Firestore: the backend could not be reached
+  return Boolean(
+    e && e.name === "TypeError" && /failed to fetch|network/i.test(String(e.message ?? "")),
+  );
+}
 
 /** A real, persisting account whose progress scope is already active. */
 export function isReplayReady(user: AuthUser | null | undefined): boolean {
@@ -172,12 +191,20 @@ async function writePending(user: AuthUser, pending: PendingFreeCheck): Promise<
  */
 export async function replayPendingFreeCheck(
   user: AuthUser | null | undefined,
+  resumeGradedAt?: number,
 ): Promise<FreeCheckReplayOutcome> {
   if (!user?.uid || user.isLocalSession) return { kind: "none" };
   const waiting = peekPendingFreeCheck(); // expired → null (and deleted), OR-18
   if (!waiting) return { kind: "none" };
   // ★ OR-18 — no marker (or one for a different result), no save. Left to expire.
-  if (!hasFreeCheckSigninIntentFor(waiting.gradedAt)) return { kind: "none" };
+  // FREECHECK-2 · F2 — a RESUME is this tab retrying a save it already started (the
+  // marker was spent by that first replay). It is honoured only for the exact result
+  // that replay failed on, whose `gradedAt` only this tab's memory holds.
+  const intended =
+    resumeGradedAt !== undefined
+      ? waiting.gradedAt === resumeGradedAt
+      : hasFreeCheckSigninIntentFor(waiting.gradedAt);
+  if (!intended) return { kind: "none" };
   if (!isReplayReady(user)) return { kind: "not-ready" }; // hazard 1
   const pending = claimPendingFreeCheck();
   if (!pending) return { kind: "none" };
@@ -189,7 +216,7 @@ export async function replayPendingFreeCheck(
   } catch (error) {
     console.warn("[freeCheckReplay] replay failed; the result stays on the device", error);
     restorePendingFreeCheck(pending);
-    return { kind: "failed" };
+    return { kind: "failed", offline: isOfflineFailure(error), gradedAt: pending.gradedAt };
   } finally {
     // OR-18 — the intent is spent by the replay, saved or failed.
     clearFreeCheckSigninIntent();
@@ -207,12 +234,63 @@ export function getInflightFreeCheckReplay(uid: string): Promise<FreeCheckReplay
   return inflight.get(uid) ?? null;
 }
 
-export function startFreeCheckReplay(user: AuthUser): Promise<FreeCheckReplayOutcome> {
+export function startFreeCheckReplay(
+  user: AuthUser,
+  resumeGradedAt?: number,
+): Promise<FreeCheckReplayOutcome> {
   const existing = inflight.get(user.uid);
   if (existing) return existing;
-  const run = replayPendingFreeCheck(user).finally(() => {
+  const run = replayPendingFreeCheck(user, resumeGradedAt).finally(() => {
     inflight.delete(user.uid);
   });
   inflight.set(user.uid, run);
   return run;
+}
+
+/* ─────────── FREECHECK-2 · F2 — what the "saving" panel shows ─────────── */
+
+/**
+ * The save panel's state. The page shows its saving panel for as long as the return
+ * hook reports `"saving"`; WHAT that panel says comes from here, so an offline or failed
+ * save is never an endless "Saving your answer…":
+ *   saving   the write is running
+ *   offline  no network — it resumes by itself on the browser `online` event
+ *   failed   anything else — the panel offers a "Try again" button (`retry`)
+ */
+export type FreeCheckSaveStatus = "saving" | "offline" | "failed";
+
+let saveStatus: FreeCheckSaveStatus = "saving";
+let saveRetry: (() => void) | null = null;
+const saveListeners = new Set<() => void>();
+
+export function getFreeCheckSaveStatus(): FreeCheckSaveStatus {
+  return saveStatus;
+}
+
+export function subscribeFreeCheckSaveStatus(listener: () => void): () => void {
+  saveListeners.add(listener);
+  return () => {
+    saveListeners.delete(listener);
+  };
+}
+
+/** Set by the return hook. `retry` is kept only for `failed`. */
+export function setFreeCheckSaveStatus(next: FreeCheckSaveStatus, retry: (() => void) | null = null): void {
+  const nextRetry = next === "failed" ? retry : null;
+  if (next === saveStatus && nextRetry === saveRetry) return;
+  saveStatus = next;
+  saveRetry = nextRetry;
+  saveListeners.forEach((l) => l());
+}
+
+/** The "Try again" button. A no-op unless the save is `failed`. */
+export function retryFreeCheckSave(): void {
+  if (saveStatus === "failed" && saveRetry) saveRetry();
+}
+
+/** Test seam: back to the initial `saving`, no retry, no listeners. */
+export function __resetFreeCheckSaveStatusForTests(): void {
+  saveStatus = "saving";
+  saveRetry = null;
+  saveListeners.clear();
 }

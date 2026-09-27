@@ -11,6 +11,7 @@ import {
   FREE_CHECK_PENDING_KEY,
   FREE_CHECK_REFUSAL_REASONS,
   FREE_CHECK_PENDING_MAX_AGE_MS,
+  FREE_CHECK_PRODUCED_HERE_KEY,
   FREE_CHECK_SIGNIN_INTENT_KEY,
   FREE_CHECK_SIGNIN_PATH,
   FREE_CHECK_USED_KEY,
@@ -26,7 +27,10 @@ import {
   peekPendingFreeCheck,
   recordFreeCheckSuccess,
   refusalCopy,
+  safeSigninRedirect,
   toRefusalReason,
+  wasFreeCheckProducedHere,
+  withSigninRedirect,
   type PendingSingleFreeCheck,
 } from "./freeCheckClient";
 
@@ -290,5 +294,88 @@ describe("OR-8 + N17 — the one sign-in target, and its redirect hygiene", () =
     // The router basename adds /app/ — a redirect carrying it would double it.
     expect(redirect).not.toContain("/app/");
     expect(FREE_CHECK_SIGNIN_PATH).not.toContain("/app/");
+  });
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   FREECHECK-2 · F1 — the sign-in marker only for the tab that PRODUCED the result
+   (FU-FREECHECK-SHARED-TAB). Mutation M1 (write the marker without the flag) → RED.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+describe("F1 — producing tab only", () => {
+  it("the flag's key is exactly `ltFreeCheck.producedHere.v1`, never `lazytopper.`-prefixed (N14)", () => {
+    expect(FREE_CHECK_PRODUCED_HERE_KEY).toBe("ltFreeCheck.producedHere.v1");
+    expect(FREE_CHECK_PRODUCED_HERE_KEY.startsWith("lazytopper.")).toBe(false);
+  });
+
+  it("storing a result writes the flag = its gradedAt, in sessionStorage (this tab), not localStorage", () => {
+    recordFreeCheckSuccess(SINGLE);
+    expect(window.sessionStorage.getItem(FREE_CHECK_PRODUCED_HERE_KEY)).toBe(String(SINGLE.gradedAt));
+    expect(window.localStorage.getItem(FREE_CHECK_PRODUCED_HERE_KEY)).toBeNull();
+    expect(wasFreeCheckProducedHere(SINGLE.gradedAt)).toBe(true);
+    expect(wasFreeCheckProducedHere(SINGLE.gradedAt + 1)).toBe(false);
+  });
+
+  it("★ FLAG PRESENT (the producing tab) → a sign-in click writes the marker, and it is replayable", () => {
+    recordFreeCheckSuccess(SINGLE);
+    markFreeCheckSigninIntent();
+    expect(window.sessionStorage.getItem(FREE_CHECK_SIGNIN_INTENT_KEY)).toBe(String(SINGLE.gradedAt));
+    expect(hasReplayablePendingFreeCheck()).toBe(true);
+  });
+
+  it("★ FLAG ABSENT (a DIFFERENT tab: same localStorage, its own sessionStorage) → no marker, not replayable", () => {
+    recordFreeCheckSuccess(SINGLE);
+    // Another tab: the waiting result is visible through shared localStorage, but this
+    // tab's sessionStorage never saw the grade.
+    window.sessionStorage.clear();
+    expect(hasPendingFreeCheck()).toBe(true); // PRECONDITION: the result IS waiting
+    markFreeCheckSigninIntent();
+    expect(window.sessionStorage.getItem(FREE_CHECK_SIGNIN_INTENT_KEY)).toBeNull();
+    expect(hasReplayablePendingFreeCheck()).toBe(false);
+  });
+
+  it("a flag for a DIFFERENT result → no marker, and an old marker is cleared", () => {
+    recordFreeCheckSuccess(SINGLE);
+    window.sessionStorage.setItem(FREE_CHECK_PRODUCED_HERE_KEY, String(SINGLE.gradedAt - 1));
+    window.sessionStorage.setItem(FREE_CHECK_SIGNIN_INTENT_KEY, String(SINGLE.gradedAt));
+    markFreeCheckSigninIntent();
+    expect(window.sessionStorage.getItem(FREE_CHECK_SIGNIN_INTENT_KEY)).toBeNull();
+  });
+
+  it("putting a claimed result BACK (a failed replay) is not a production: it writes no flag", () => {
+    recordFreeCheckSuccess(SINGLE);
+    window.sessionStorage.clear();
+    const claimed = claimPendingFreeCheck();
+    expect(claimed).not.toBeNull();
+    // restorePendingFreeCheck is what the replay uses; recordFreeCheckSuccess is the ONLY writer of the flag.
+    window.localStorage.setItem(FREE_CHECK_PENDING_KEY, JSON.stringify(claimed));
+    expect(window.sessionStorage.getItem(FREE_CHECK_PRODUCED_HERE_KEY)).toBeNull();
+  });
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   FREECHECK-2 · F3 — the door's ?redirect= may ride through /pricing, safely
+   ══════════════════════════════════════════════════════════════════════════ */
+
+describe("F3 — safeSigninRedirect / withSigninRedirect", () => {
+  it("passes a safe internal path through", () => {
+    expect(safeSigninRedirect("/check-improve")).toBe("/check-improve");
+    expect(safeSigninRedirect("/practice?topic=real-numbers")).toBe("/practice?topic=real-numbers");
+  });
+
+  it("drops anything that is not a safe internal path (the door's own rule)", () => {
+    for (const bad of [null, undefined, "", "check-improve", "//evil.test", "/\\evil.test", "https://evil.test", "/x?u=javascript:alert(1)"]) {
+      expect(safeSigninRedirect(bad as string | null | undefined)).toBeNull();
+    }
+  });
+
+  it("appends it encoded, with the right separator; nothing to carry → unchanged", () => {
+    expect(withSigninRedirect("/login", "/check-improve")).toBe("/login?redirect=%2Fcheck-improve");
+    expect(withSigninRedirect("/pricing?source=login", "/check-improve")).toBe(
+      "/pricing?source=login&redirect=%2Fcheck-improve",
+    );
+    expect(withSigninRedirect("/login", null)).toBe("/login");
+    // The free-check door's own target is exactly what the helper builds.
+    expect(withSigninRedirect("/login", "/check-improve")).toBe(FREE_CHECK_SIGNIN_PATH);
   });
 });

@@ -12,7 +12,7 @@
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { StrictMode, createElement, type ReactNode } from "react";
-import { renderHook, waitFor, act, cleanup } from "@testing-library/react";
+import { renderHook, render, screen, fireEvent, waitFor, act, cleanup } from "@testing-library/react";
 
 const H = vi.hoisted(() => ({
   activeUid: null as string | null,
@@ -40,7 +40,9 @@ vi.mock("../services/studentProgressStore", () => ({
 }));
 vi.mock("../analytics/analytics", () => ({ trackNamedEvent: vi.fn() }));
 
-import { useFreeCheckReturn } from "./useFreeCheckReturn";
+import { SAVE_STALL_MS, useFreeCheckReturn } from "./useFreeCheckReturn";
+import { FreeCheckSavingPanel } from "../components/checkimprove/FreeCheckPanels";
+import { __resetFreeCheckSaveStatusForTests } from "../services/freeCheckReplay";
 import {
   FREE_CHECK_SIGNIN_INTENT_KEY,
   __setFreeCheckClockForTests,
@@ -88,6 +90,9 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   __setFreeCheckClockForTests(null);
+  __resetFreeCheckSaveStatusForTests();
+  vi.restoreAllMocks();
+  vi.useRealTimers();
 });
 
 describe("useFreeCheckReturn", () => {
@@ -159,5 +164,121 @@ describe("useFreeCheckReturn", () => {
     expect(b.result.current).toBe("none");
     expect(H.recordMistake).not.toHaveBeenCalled();
     expect(hasPendingFreeCheck()).toBe(true);
+  });
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   FREECHECK-2 · F2 — never an endless "Saving…" (FU-FREECHECK-OFFLINE-SAVING).
+   The page renders FreeCheckSavingPanel while the hook says "saving"; this harness
+   does exactly that, so what a student would read is what is asserted.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const OFFLINE_COPY = "You're offline — we'll save your answer as soon as you're back.";
+const FAILED_COPY = "We couldn't save your answer. Try again.";
+
+function Harness() {
+  const phase = useFreeCheckReturn(USER, true);
+  return phase === "saving" ? <FreeCheckSavingPanel /> : <div data-testid="phase">{phase}</div>;
+}
+
+function setOnline(online: boolean) {
+  vi.spyOn(window.navigator, "onLine", "get").mockReturnValue(online);
+}
+
+function goOnline() {
+  setOnline(true);
+  act(() => {
+    window.dispatchEvent(new Event("online"));
+  });
+}
+
+describe("F2 — offline and failed saves", () => {
+  beforeEach(() => {
+    recordFreeCheckSuccess(PENDING);
+    markFreeCheckSigninIntent(); // the producing tab clicked sign-in (F1 + OR-18)
+    H.activeUid = "u9";
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+  });
+
+  it("★ OFFLINE on arrival → the offline line, NOTHING claimed or written; back online → saved", async () => {
+    setOnline(false);
+    render(<Harness />);
+    expect(await screen.findByText(OFFLINE_COPY)).toBeInTheDocument();
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 150));
+    });
+    expect(screen.queryByText("Saving your answer…")).toBeNull(); // never an endless spinner
+    expect(H.ensureCode).not.toHaveBeenCalled();
+    expect(H.recordMistake).not.toHaveBeenCalled();
+    expect(hasPendingFreeCheck()).toBe(true); // still waiting on the device
+
+    goOnline();
+    await waitFor(() => expect(screen.getByTestId("phase")).toHaveTextContent("saved"));
+    expect(H.recordMistake).toHaveBeenCalledTimes(1);
+    expect(hasPendingFreeCheck()).toBe(false);
+  });
+
+  it("★ a save that FAILS for lack of network → offline line, retried ONCE on `online` → saved", async () => {
+    H.ensureCode.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+    render(<Harness />);
+    expect(await screen.findByText(OFFLINE_COPY)).toBeInTheDocument();
+    expect(H.ensureCode).toHaveBeenCalledTimes(1);
+    expect(hasPendingFreeCheck()).toBe(true); // put back, not lost
+    expect(window.sessionStorage.getItem(FREE_CHECK_SIGNIN_INTENT_KEY)).toBeNull(); // OR-18: spent
+
+    goOnline();
+    await waitFor(() => expect(screen.getByTestId("phase")).toHaveTextContent("saved"));
+    expect(H.ensureCode).toHaveBeenCalledTimes(2);
+    expect(H.recordMistake).toHaveBeenCalledTimes(1);
+  });
+
+  it("the ONE automatic retry failing too → the failed line with a button (not a second silent wait)", async () => {
+    H.ensureCode
+      .mockRejectedValueOnce(new TypeError("Failed to fetch"))
+      .mockRejectedValueOnce(new TypeError("Failed to fetch"));
+    render(<Harness />);
+    expect(await screen.findByText(OFFLINE_COPY)).toBeInTheDocument();
+    goOnline();
+    expect(await screen.findByText(FAILED_COPY)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
+    expect(H.ensureCode).toHaveBeenCalledTimes(2);
+  });
+
+  it("★ ANY OTHER failure → 'We couldn't save your answer. Try again.' + a button that saves it", async () => {
+    H.ensureCode.mockRejectedValueOnce(new Error("permission-denied"));
+    render(<Harness />);
+    expect(await screen.findByText(FAILED_COPY)).toBeInTheDocument();
+    expect(screen.queryByText(OFFLINE_COPY)).toBeNull();
+    expect(H.recordMistake).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    await waitFor(() => expect(screen.getByTestId("phase")).toHaveTextContent("saved"));
+    expect(H.recordMistake).toHaveBeenCalledTimes(1);
+    expect(H.recordAttempt).toHaveBeenCalledTimes(1);
+  });
+
+  it("★ a write that never confirms stops saying 'Saving…' after SAVE_STALL_MS; its retry joins it (no second write)", async () => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    let release: (v: unknown) => void = () => {};
+    H.ensureCode.mockReturnValueOnce(new Promise((r) => (release = r)));
+    render(<Harness />);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10);
+    });
+    expect(screen.getByText("Saving your answer…")).toBeInTheDocument();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(SAVE_STALL_MS);
+    });
+    expect(screen.getByText(FAILED_COPY)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+    expect(screen.getByText("Saving your answer…")).toBeInTheDocument();
+    await act(async () => {
+      release({ code: "CI-M-REAL-02", name: "Real Numbers · Paper #2", sequence: 2 });
+      await vi.advanceTimersByTimeAsync(10);
+    });
+    expect(screen.getByTestId("phase")).toHaveTextContent("saved");
+    expect(H.ensureCode).toHaveBeenCalledTimes(1); // joined, never a second write
+    expect(H.recordMistake).toHaveBeenCalledTimes(1);
   });
 });
