@@ -1,5 +1,20 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-27 — WAVE A-2 (REACH & POLISH): HUB-REVERT-1 (`#848` `1cad7818`) + FREECHECK-2 (`#849` `f2f01b97`) + BUGFIX-1 (`#850` `754d5af3`), trunk `754d5af3`.**
+> ★ **CONTENT AND BEHAVIOUR ON TRACKED SURFACES; NO STATUS CELL FLIPS.**
+
+### ✅ Topic Hub (`/topic-hub/*`) — **"Chapter at a glance" REMOVED (SEO-HUB-1 H1 reversed); concept spine is the first content again** — LIVE (prod check PASS). Supersedes the A-1 line below.
+### ✅ Check & Improve free check (`/check-improve`, signed out) — **claimable only in the producing tab; offline/failed save states; the redirect survives a Pricing detour; sign-in copy on grading errors** — LIVE (prod smoke 13/13; owner live-verify owed: Pricing-detour save, offline save on a phone)
+### ✅ Pricing + sign-in OfferStrip — **links carry and pass back `redirect`** — LIVE
+### ✅ Practice — **"Try again" re-grades after a failed batch grading; the retry's record is saved; sign-in copy** — LIVE (owner live-verify owed: fail → retry → record written)
+### ✅ HPQ + Tutor — **sign-in copy on HPQ solutions; tutor 402 never shows `premium_required`** — LIVE
+
+### ⬜ NO STATUS CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- Every change above is on surfaces already tracked; no Scope/Built/Verified cell flips.
+
+### 📋 Scope discovered? — **YES, resolved in-lane; logged in `DECISION_LOG`.** BUGFIX-1 needed `quickPracticeSessionService.ts` (owner ruling (a)). No surface is set to Settling.
+
+
 > **2026-09-27 — WAVE A-1 (REACH & POLISH): SEO-FRESH-1 (`#844` `0a4895b7`) + SEO-HUB-1 (`#845` `e6349799`) + COPY-2 (`#846` `bdc3371d`), trunk `bdc3371d`.**
 > ★ **WHAT SEARCH ENGINES AND SIGNED-OUT READERS SEE CHANGED; NO STATUS CELL FLIPS.**
 

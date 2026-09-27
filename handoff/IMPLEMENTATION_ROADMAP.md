@@ -1,5 +1,14 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-27 — HUB + FIXES: **WAVE A-2 — HUB-REVERT-1 + FREECHECK-2 + BUGFIX-1** — `#848` + `#849` + `#850` MERGED — trunk `754d5af3`
+
+- ✅ **HUB-REVERT-1** (`#848` `1cad7818`): "Chapter at a glance" removed from all 26 hubs (SEO-HUB-1 H1 reversed); new pin: no overview node + one notes link per hub; prod check PASS.
+- ✅ **FREECHECK-2** (`#849` `f2f01b97`): producing-tab-only claim, offline/failed save states, redirect survives Pricing, sign-in copy on C&I grading; prod smoke 13/13.
+- ✅ **BUGFIX-1** (`#850` `754d5af3`): "Try again" re-grades after a failure (record saved); SignInAgainError copy on Practice/HPQ/batch failure; tutor 402 typed.
+- ✅ **Docs:** this handoff.
+- ⬜ **Owner live-verify:** Pricing-detour sign-in save; offline save on a phone; failed grade → retry → record written; batch-failure sign-in copy.
+- ⬜ `[FU-FREECHECK-DETECT-SIGNIN-COPY]`.
+
 ## 2026-09-27 — SEO + COPY: **WAVE A-1 — SEO-FRESH-1 + SEO-HUB-1 + COPY-2** — `#844` + `#845` + `#846` MERGED — trunk `bdc3371d`
 
 - ✅ **SEO-FRESH-1** (`#844` `0a4895b7`): hash-gated `lastmod`, CI-enforced sitemap, landing `/` prerendered on a clean noindexed `/app/__shell.html` fallback, IndexNow on production deploys; prod smoke PASS; first ping HTTP 200.

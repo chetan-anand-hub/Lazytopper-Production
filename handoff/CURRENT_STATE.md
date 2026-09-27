@@ -1,5 +1,61 @@
 # LazyTopper — Current State
 
+## [CURRENT · HUB + FIXES] WAVE A-2 (REACH & POLISH) — **TOPIC HUBS ARE THE APP SURFACE AGAIN (HUB-REVERT-1) · THE FREE CHECK'S KNOWN GAPS CLOSED (FREECHECK-2) · "TRY AGAIN" GRADES AGAIN, ERRORS SPEAK TO STUDENTS (BUGFIX-1)** — `#848` + `#849` + `#850` MERGED — trunk `754d5af3`
+
+★ **PROVENANCE.**
+- Controller A (Reach & polish), one session. There was one builder per PR (`claude-opus-5-5`, effort `high`). The controller wrote this docs PR (OR-16).
+- *(subagent-reported)* = from builder reports `report-hub-revert-1-2026-09-27.md`, `report-freecheck-2-2026-09-27.md`, `report-bugfix-1-2026-09-27.md`; *(controller-verified)* = re-measured by the controller with `gh`/`git`.
+- Each PR was squash-merged with `--match-head-commit`, no `--admin`; for each, the merge commit is an ancestor of trunk and **trunk tree == head tree** *(controller-verified)*: `#848` `1cad7818` tree `ea730d8d` · `#849` `f2f01b97` tree `87199e57` · `#850` `754d5af3` tree `203f46b4`.
+
+**Trunk `754d5af3965dd0b10fc98e4b4631eff452e4de51`** (`#850`). Before that `f2f01b97` (`#849`), `1cad7818` (`#848`), and `bef955e6` (`#847`, the wave A-1 docs).
+
+*(This block supersedes the WAVE A-1 block below on trunk SHA, and **reverses that block's SEO-HUB-1 "Chapter at a glance" item**. The rest of that block stands as written.)*
+
+### What shipped
+- **HUB-REVERT-1 (`#848`)** — **SEO-HUB-1 H1 reversed (owner ruling): hubs are the app surface, notes pages are the SEO content; the Soft 404 was the deploy-skew crash (CHUNK-RESILIENCE-1, `#839`), not thinness.**
+  - "Chapter at a glance" is gone from all 26 `/app/topic-hub/*` pages: `ChapterAtAGlance.tsx`, its test, and `chapterGlanceContent.ts` are deleted, and ConceptSpine no longer imports or mounts it. The hub renders as before `#845`: header, chips, Notes link, progress slot, then the concept spine as the first content.
+  - Kept from `#845`: NoteModal via `lazyWithRetry`; the tips and no-spec notes text stays in the DOM (`hidden`).
+  - The ≥ 2,500-character pin is replaced: every committed hub (26) carries **no** `chapter-at-a-glance` node and **exactly one** `href="/app/notes/<slug>"`, with an inline CONTROL. There is also a source-level check that `ConceptSpine.tsx` does not name the overview, so remounting it turns the pin red immediately *(subagent-reported)*.
+- **FREECHECK-2 (`#849`)** — the live free check's known gaps are closed. It keeps the audited FREE-CHECK-1 behaviour except for the following.
+  - **F1 producing tab only:** storing a free result also writes sessionStorage `ltFreeCheck.producedHere.v1 = <gradedAt>` (inside `recordFreeCheckSuccess`, the one writer shared by both page call sites). The sign-in marker is written only if that flag matches the pending `gradedAt`.
+  - **F2 offline save:** "You're offline — we'll save your answer as soon as you're back." with one retry on the `online` event. Any other failure shows "We couldn't save your answer. Try again." with a button. The save never sits on an endless "Saving…".
+  - **F3 the redirect survives Pricing:** the `/login` → `/pricing` link carries `redirect`, and `/pricing` → `/login` passes it back. The marker is written on that final sign-in click.
+  - **F4:** both C&I grading catch sites show `err.message` when `err.name === "SignInAgainError"`.
+- **BUGFIX-1 (`#850`)**
+  - **B1 "Try again" works:** after a `skipped-error` batch grading, "Grade my N answers" sends a new request, and MCQ marks already earned stay. The session-record latch is now keyed by outcome, so a successful retry's graded record is saved (OR-AUTO).
+  - **B2 sign-in copy:** Practice step solutions, HPQ solutions and the batch-grading failure show the SignInAgainError message, matched by name. For the batch failure, `quickPracticeSessionService.ts` now carries `errorName` on the skipped-error result (owner ruling (a); no grading, scoring or prompt change).
+  - **B3 tutor:** a tutor 402 is a typed branch, so the student never sees `premium_required`. Other tutor failures prefer `message` over `error`.
+
+### Evidence
+- **CI** *(subagent-reported, log lines quoted)*:
+  - `#848` quality-gate `36323170167` `Tests  2791 passed (2791)`, root `# pass 293` `# skipped 0`; capture `36323170228` "PRERENDER: committed artifact matches a fresh capture."
+  - `#849` `36326141346` `Tests  2812 passed (2812)`, 21 node --test blocks `# skipped 0`; capture `36326141347` matches.
+  - `#850` `36326779757` `Tests  2827 passed (2827)`; capture `36326779762` matches.
+  - Only `#848` changed generated files: 26 hubs + `lastmod.json`, from its own artifact; `sitemap.xml` was unchanged.
+- **Pre-merge PR state** *(controller-verified)*: not draft, `CLEAN`, every check pass (search-ping `skipping`), up to date with trunk, file list inside the allowlist (#850's allowlist extended by the owner to `quickPracticeSessionService.ts`, +9 lines).
+- **Mutations** *(subagent-reported)*: `#848` 1 · `#849` 2 · `#850` 5. Each turned its named test red, and the restore was verified by `git diff` sha256.
+- **HUB-REVERT-1 production check** *(subagent-reported)*:
+  - Production Ready 2026-09-27T13:49:48Z; checked 13:50:02–13:50:10Z.
+  - `/app/topic-hub/triangles` returned 200, with 0 glance nodes and 1 `/app/notes/triangles` href.
+  - At 375 and 1280px the spine is the first content after the header, with no ErrorBoundary.
+- **FREECHECK-2 production smoke** *(subagent-reported)*:
+  - Deploy `6693561394` Ready 14:39:19Z; control PASS; `www.lazytopper.com` 13/13 at 14:39:28–14:39:46Z.
+  - `/app/check-improve` signed out at 1280 and 390px: 200, "Read the question", no ErrorBoundary.
+  - The F3 round trip kept `redirect=%2Fcheck-improve`, and the marker was written.
+  - The live chunks carry the offline and failed copy and `ltFreeCheck.producedHere.v1`.
+  - No revert was needed.
+
+### ★ Known limits
+- **Vercel previews cannot show the free check:** App Check's reCAPTCHA key is domain-restricted to lazytopper.com. The pre-merge proof was a flag-on local production build plus the preview round trip (owner option B), and production is the real check. `[FU-PREVIEW-FREECHECK-FLAG]` is closed as DECIDED (won't do).
+- F4 does not cover the detect-question step's error path — `[FU-FREECHECK-DETECT-SIGNIN-COPY]`.
+- **Owner live-verify owed:**
+  - (1) a signed-out free check → sign in through the Pricing detour → the result is saved;
+  - (2) an offline save on a phone;
+  - (3) a failed Practice grading → "Grade my N answers" → it grades and the session record is written;
+  - (4) the batch-failure sign-in copy.
+
+- The `WIRE-2` dormancy block is unchanged by this wave; see its section (`### 8 - ★ THE WIRE-2 QUESTION`) below.
+
 ## [CURRENT · SEO + COPY] WAVE A-1 (REACH & POLISH) — **SEARCH ENGINES LEARN ABOUT EVERY CHANGE (SEO-FRESH-1) · TOPIC HUBS CARRY REAL CONTENT (SEO-HUB-1) · "PASSES, NOT SUBSCRIPTIONS" FINISHED (COPY-2)** — `#844` + `#845` + `#846` MERGED — trunk `bdc3371d`
 
 ★ **PROVENANCE.**
