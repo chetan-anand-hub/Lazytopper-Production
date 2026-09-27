@@ -35,9 +35,10 @@ const ENTITIES: Readonly<Record<string, string>> = {
 /** Visible text of an HTML fragment: scripts/styles/comments stripped, tags removed. */
 function visibleText(html: string): string {
   return html
-    .replace(/<script\b[\s\S]*?<\/script>/gi, " ")
-    .replace(/<style\b[\s\S]*?<\/style>/gi, " ")
-    .replace(/<!--[\s\S]*?-->/g, " ")
+    // End tags per the HTML parser: `</script >` / `</script foo>` close too, and so does `--!>`.
+    .replace(/<script\b[\s\S]*?<\/script\b[^>]*>/gi, " ")
+    .replace(/<style\b[\s\S]*?<\/style\b[^>]*>/gi, " ")
+    .replace(/<!--[\s\S]*?--!?>/g, " ")
     .replace(/<[^>]+>/g, " ")
     .replace(/&[a-z]+;|&#\d+;/gi, (e) => ENTITIES[e] ?? e)
     .replace(/\s+/g, " ")
