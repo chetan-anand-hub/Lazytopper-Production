@@ -6,125 +6,125 @@ import { fileURLToPath } from "node:url";
 import { applicablePaths, fragmentPathFor } from "../../../scripts/seo/applyPrerendered";
 
 /**
- * SEO-HUB-1 H3 — PIN over the COMMITTED prerendered Topic Hub bodies.
+ * HUB-REVERT-1 R3 — PIN over the COMMITTED prerendered Topic Hub bodies.
  *
- * Google's live test called every /app/topic-hub/* "Soft 404": ~1,000 visible characters
- * against ~14,000 on the matching notes page. This pins what a non-JS crawler actually
- * receives — the committed `lazytopper/prerendered/topic-hub/*.html` — not the component:
+ * SEO-HUB-1 (#845) put a "Chapter at a glance" overview at the top of every hub on the
+ * diagnosis that hubs were a thin "Soft 404". That diagnosis was wrong — the Soft 404 was
+ * the deploy-skew crash (CHUNK-RESILIENCE-1, #839) — and the overview turned the hub into a
+ * wall of text duplicating the notes page. By design notes pages are the SEO content and
+ * hubs are the app surface (concept spine + the Notes link). This pins what a non-JS
+ * crawler actually receives — the committed `lazytopper/prerendered/topic-hub/*.html`:
  *   - every advertised hub has a committed body;
- *   - each carries >= 2,500 VISIBLE characters (scripts, styles and comments stripped);
- *   - each carries the "Read the full <chapter> notes" link to its own /notes/<slug>;
- *   - no two hubs share an identical "Chapter at a glance" overview.
+ *   - it carries NO "chapter at a glance" node (no `chapter-at-a-glance` test id, no
+ *     `lt-glance` markup or CSS);
+ *   - it carries EXACTLY ONE link to the notes pages, and that link is to its own
+ *     /app/notes/<slug> (the Notes button — SEO-NOTES-AND-LINKS-1).
  *
  * The file list is DERIVED from `applicablePaths()` (the sitemap), never hand-written, and
  * its size is asserted, so a hub dropped from the artifact fails here instead of being
  * silently skipped.
  *
- * CONTROL: `__fixtures__/topic-hub-below-floor.html` is a hub body that carries the notes
- * link but sits below the floor, and whose RAW byte size is ABOVE it (a long <script>).
- * The measurer must reject it — which proves both that the floor can fail and that
- * script text is not counted.
+ * The SOURCE is pinned too: ConceptSpine.tsx (the hub body's component) must not name the
+ * overview, so re-mounting it fails here at once, before any prerender capture has run.
+ *
+ * CONTROL: `WITH_OVERVIEW` is a hub body shaped like the #845 capture (Notes button plus the
+ * overview section with its own "Read the full … notes" link). The checker must reject it —
+ * proving the pin can fail — while `WITHOUT_OVERVIEW` (the same body minus the section)
+ * passes, so the rejection is caused by the overview and nothing else.
  */
 
-const MIN_VISIBLE_CHARS = 2500;
+const NOTES_BUTTON =
+  '<a href="/app/notes/fixture-chapter" class="lt-spine__notes-btn" aria-expanded="false" ' +
+  'aria-haspopup="dialog"><span aria-hidden="true">▤</span><span>Notes</span></a>';
 
-const ENTITIES: Readonly<Record<string, string>> = {
-  "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#39;": "'", "&nbsp;": " ",
-};
+const OVERVIEW =
+  "<style>.lt-glance { margin-top: 14px; }</style>" +
+  '<section class="lt-glance" aria-labelledby="lt-glance-title" data-testid="chapter-at-a-glance">' +
+  '<h2 id="lt-glance-title" class="lt-glance__title">Chapter at a glance</h2>' +
+  "<p>A short fixture overview.</p>" +
+  '<a class="lt-glance__notes-link" href="/app/notes/fixture-chapter" data-discover="true">' +
+  "Read the full Fixture Chapter notes</a></section>";
 
-/** Visible text of an HTML fragment: scripts/styles/comments stripped, tags removed. */
-function visibleText(html: string): string {
-  return html
-    // End tags per the HTML parser: `</script >` / `</script foo>` close too, and so does `--!>`.
-    .replace(/<script\b[\s\S]*?<\/script\b[^>]*>/gi, " ")
-    .replace(/<style\b[\s\S]*?<\/style\b[^>]*>/gi, " ")
-    .replace(/<!--[\s\S]*?--!?>/g, " ")
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&[a-z]+;|&#\d+;/gi, (e) => ENTITIES[e] ?? e)
-    .replace(/\s+/g, " ")
-    .trim();
-}
+const HEAD =
+  '<div class="lt-spine"><h1 class="lt-spine__title">Fixture Chapter</h1>' +
+  `<div class="lt-spine__notes-row">${NOTES_BUTTON}</div>`;
+const SPINE = '<div class="lt-spine__concepts-head"><span>Learn the 2 concepts</span></div></div>';
 
-function visibleCharCount(html: string): number {
-  return [...visibleText(html)].length;
-}
+const WITHOUT_OVERVIEW = HEAD + SPINE;
+const WITH_OVERVIEW = HEAD + OVERVIEW + SPINE;
 
-/** The "Chapter at a glance" section's visible text, or null when absent. */
-function overviewText(html: string): string | null {
-  const m = /<section\b[^>]*data-testid="chapter-at-a-glance"[^>]*>([\s\S]*?)<\/section>/.exec(html);
-  return m ? visibleText(m[1]) : null;
-}
-
-function escapeRe(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-/** The visible "Read the full … notes" link pointing at /app/notes/<slug>. */
-function hasNotesLink(html: string, slug: string): boolean {
-  const re = new RegExp(
-    `<a\\b[^>]*href="/app/notes/${escapeRe(slug)}"[^>]*>\\s*Read the full [^<]+ notes`,
-  );
-  return re.test(html);
+/** Every `href` into the notes pages, whichever slug it names. */
+function notesHrefs(html: string): string[] {
+  return [...html.matchAll(/href="(\/app\/notes\/[^"]*)"/g)].map((m) => m[1]);
 }
 
 function hubFailures(html: string, slug: string): string[] {
   const failures: string[] = [];
-  const chars = visibleCharCount(html);
-  if (chars < MIN_VISIBLE_CHARS) failures.push(`visible chars ${chars} < ${MIN_VISIBLE_CHARS}`);
-  if (!hasNotesLink(html, slug)) failures.push("no 'Read the full … notes' link");
-  if (overviewText(html) === null) failures.push("no Chapter at a glance section");
+  if (html.includes("chapter-at-a-glance")) failures.push("has a chapter-at-a-glance node");
+  if (/\blt-glance/.test(html)) failures.push("has lt-glance markup or CSS");
+  const hrefs = notesHrefs(html);
+  if (hrefs.length !== 1 || hrefs[0] !== `/app/notes/${slug}`) {
+    failures.push(`notes hrefs ${JSON.stringify(hrefs)} != exactly one /app/notes/${slug}`);
+  }
   return failures;
 }
 
+/** Any reference to the retired overview: component, content builder, test id or CSS. */
+const OVERVIEW_REF = /ChapterAtAGlance|chapterGlanceContent|chapter-at-a-glance|lt-glance/;
+
 const hubPaths = applicablePaths().filter((p) => p.startsWith("/topic-hub/"));
 
-describe("SEO-HUB-1 H3 — CONTROL: the measurer can fail", () => {
-  const fixture = readFileSync(
-    fileURLToPath(new URL("./__fixtures__/topic-hub-below-floor.html", import.meta.url)),
-    "utf8",
-  );
-
-  it("the fixture's RAW size is above the floor (so only stripping can reject it)", () => {
-    expect(fixture.length).toBeGreaterThan(MIN_VISIBLE_CHARS);
-  });
-
-  it("rejects a hub body below the visible-character floor", () => {
-    expect(visibleCharCount(fixture)).toBeLessThan(MIN_VISIBLE_CHARS);
-    expect(hubFailures(fixture, "fixture-chapter")).toEqual([
-      expect.stringMatching(/^visible chars \d+ < 2500$/),
+describe("HUB-REVERT-1 R3 — CONTROL: the pin can fail", () => {
+  it("rejects a hub body carrying the Chapter-at-a-glance overview", () => {
+    expect(hubFailures(WITH_OVERVIEW, "fixture-chapter")).toEqual([
+      "has a chapter-at-a-glance node",
+      "has lt-glance markup or CSS",
+      'notes hrefs ["/app/notes/fixture-chapter","/app/notes/fixture-chapter"] != exactly one /app/notes/fixture-chapter',
     ]);
   });
 
-  it("the link and overview matchers fire on the fixture, and reject a wrong slug", () => {
-    expect(hasNotesLink(fixture, "fixture-chapter")).toBe(true);
-    expect(hasNotesLink(fixture, "another-chapter")).toBe(false);
-    expect(overviewText(fixture)).toContain("A short fixture overview.");
-    expect(overviewText("<div>no overview here</div>")).toBeNull();
+  it("accepts the same body without the overview", () => {
+    expect(hubFailures(WITHOUT_OVERVIEW, "fixture-chapter")).toEqual([]);
+  });
+
+  it("rejects a notes link to another chapter, and a missing notes link", () => {
+    expect(hubFailures(WITHOUT_OVERVIEW, "another-chapter")).toHaveLength(1);
+    expect(hubFailures(SPINE, "fixture-chapter")).toEqual([
+      "notes hrefs [] != exactly one /app/notes/fixture-chapter",
+    ]);
   });
 });
 
-describe("SEO-HUB-1 H3 — every committed Topic Hub body reads as a page", () => {
+describe("HUB-REVERT-1 R3 — the hub component does not mount the overview", () => {
+  const source = readFileSync(
+    fileURLToPath(new URL("./ConceptSpine.tsx", import.meta.url)),
+    "utf8",
+  );
+
+  it("read the real ConceptSpine source", () => {
+    // Without this, a wrong path or an empty read would pass the check below vacuously.
+    expect(source).toContain("export function ConceptSpine");
+  });
+
+  it("ConceptSpine.tsx does not reference the overview", () => {
+    expect(source).not.toMatch(OVERVIEW_REF);
+  });
+
+  it("the reference matcher fires on the #845 mount", () => {
+    expect(OVERVIEW_REF.test('import { ChapterAtAGlance } from "./ChapterAtAGlance";')).toBe(true);
+  });
+});
+
+describe("HUB-REVERT-1 R3 — every committed Topic Hub body is the app surface", () => {
   it("covers all 26 advertised hubs", () => {
     expect(hubPaths).toHaveLength(26);
   });
 
-  it.each(hubPaths)("%s: committed, >= 2,500 visible chars, notes link, overview", (path) => {
+  it.each(hubPaths)("%s: committed, no overview, exactly one notes link to its own slug", (path) => {
     const file = fragmentPathFor(path);
     expect(existsSync(file)).toBe(true);
     const html = readFileSync(file, "utf8");
     const slug = path.slice("/topic-hub/".length);
     expect(hubFailures(html, slug)).toEqual([]);
-  });
-
-  it("no two hubs share an identical overview", () => {
-    const seen = new Map<string, string>();
-    for (const path of hubPaths) {
-      const overview = overviewText(readFileSync(fragmentPathFor(path), "utf8"));
-      expect(overview, `${path} has no overview`).not.toBeNull();
-      const prior = seen.get(overview as string);
-      expect(prior, `${path} repeats the overview of ${prior}`).toBeUndefined();
-      seen.set(overview as string, path);
-    }
-    expect(seen.size).toBe(26);
   });
 });
