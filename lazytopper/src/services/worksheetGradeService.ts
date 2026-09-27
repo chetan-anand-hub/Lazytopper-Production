@@ -123,7 +123,7 @@ export async function gradeWorksheetAndRecord(
     })),
     imageBase64: upload.imageBase64,
     imageMimeType: upload.imageMimeType,
-  });
+  }, { surface: "worksheet" });
 
   if (!response.ok) return { response, miOutcomes: [] };
 
