@@ -158,15 +158,38 @@ service cloud.firestore {
                 && request.resource.data.trialEndDate == resource.data.trialEndDate);
       }
 
+      // ★ STORED-RATE-1 R2 — a PAID PASS is written ONLY by the Admin SDK
+      // (lazytopper/server/services/passGrant.cjs), which bypasses these rules. These
+      // seven fields decide how long a student is premium and what they paid, so a
+      // client may never put one in a new document, nor add, move, or remove one on an
+      // update. A merge write that omits them leaves them exactly as stored, which is
+      // why the everyday trial and expiry write-backs keep working on a document that
+      // carries a pass. This block is the ONLY match for subscriptions/{uid} (no nested
+      // wildcard, catch-all denies), so no more-permissive rule can re-grant them.
+      function passFields() {
+        return ['passType', 'passStart', 'passEnd', 'pricePaidInr',
+                'offerKey', 'foundingMember', 'lastPaymentRef'];
+      }
+
+      function createCarriesNoPassField() {
+        return !request.resource.data.keys().hasAny(passFields());
+      }
+
+      function updateChangesNoPassField() {
+        return !request.resource.data.diff(resource.data).affectedKeys().hasAny(passFields());
+      }
+
       allow read: if isOwner(uid);
       allow create: if isOwner(uid)
                     && clientWritableEntitlement()
                     && trialStartServerPinned()
-                    && trialEndDateNotForged();
+                    && trialEndDateNotForged()
+                    && createCarriesNoPassField();
       allow update: if isOwner(uid)
                     && clientWritableEntitlement()
                     && trialStartImmutable()
-                    && trialEndDateNotForged();
+                    && trialEndDateNotForged()
+                    && updateChangesNoPassField();
       // ★ Explicit. Nothing in the product deletes a subscription document, and a
       // student who could would reset their own trial clock by deleting and
       // re-creating. Stated rather than left to the catch-all so that a later edit

@@ -552,3 +552,119 @@ test("14 REGRESSION — carol still cannot self-grant premium after all of the a
     setDoc(doc(asStudent(CAROL), "subscriptions", CAROL, "override", "x"), { tier: "premium" }),
   );
 });
+
+// ===========================================================================
+// 15 / 16 — ★★ STORED-RATE-1 R2. A PAID PASS IS ADMIN-SDK ONLY.
+//
+//     The seven pass fields decide how long a student is premium and what they
+//     paid. server/services/passGrant.cjs writes them through the Admin SDK (which
+//     bypasses rules); a client may never CREATE a document carrying one, nor ADD,
+//     CHANGE or REMOVE one on update. Each field is tested ALONE, on a write that is
+//     otherwise legal — the CONTROLS (15-control, 16-control) prove the same write
+//     without the field succeeds, so a denial here is the pass clause firing and not
+//     some other clause refusing the payload.
+//
+//     Reddens when the R2 clauses are dropped from firestore.rules (mutation proved
+//     in CI — see the STORED-RATE-1 report).
+// ===========================================================================
+const PASS_FORGERIES = {
+  passType: "till_boards",
+  passStart: new Date(Date.now() - DAY),
+  passEnd: new Date("2099-01-01T00:00:00Z"),
+  pricePaidInr: 1,
+  offerKey: "founding",
+  foundingMember: true,
+  lastPaymentRef: "pay_forged",
+};
+
+test("15-control CONTROL — the same trial create WITHOUT a pass field is ALLOWED", async () => {
+  const uid = "student-pass-control";
+  await assertSucceeds(
+    setDoc(
+      subDoc(asStudent(uid), uid),
+      clientWrite({ tier: "trial", plan: "trial_7day", trialStartDate: serverTimestamp() }),
+    ),
+  );
+});
+
+for (const [field, forged] of Object.entries(PASS_FORGERIES)) {
+  test(`15 ★★ R2 create carrying ${field} is DENIED`, async () => {
+    const uid = `student-pass-create-${field}`;
+    await assertFails(
+      setDoc(
+        subDoc(asStudent(uid), uid),
+        clientWrite({ tier: "trial", plan: "trial_7day", trialStartDate: serverTimestamp(), [field]: forged }),
+      ),
+    );
+  });
+}
+
+// A document that already holds a pass, seeded the way passGrant.cjs writes it
+// (Admin SDK = rules disabled). Stored tier is free so the ONLY clause that can refuse
+// a client update touching a pass field is R2 — clientWritableEntitlement passes.
+// A REGULAR-offer pass, so forging the founding offer is a real change on every field.
+const FRANK = "student-frank";
+const STORED_PASS = {
+  passType: "month",
+  passStart: new Date("2026-08-01T06:30:00Z"),
+  passEnd: new Date("2026-09-01T06:30:00Z"),
+  pricePaidInr: 999,
+  offerKey: "regular",
+  foundingMember: false,
+  lastPaymentRef: "pay_real_1",
+};
+
+test("16-seed the Admin SDK can write a pass (rules bypassed)", async () => {
+  await testEnv.withSecurityRulesDisabled(async (ctx) => {
+    await setDoc(doc(ctx.firestore(), "subscriptions", FRANK), {
+      ...clientWrite({ tier: "free", plan: "none" }),
+      ...STORED_PASS,
+    });
+  });
+});
+
+test("16-control CONTROL — a merge update that OMITS every pass field is ALLOWED, and the pass survives", async () => {
+  await assertSucceeds(
+    setDoc(subDoc(asStudent(FRANK), FRANK), clientWrite({ tier: "free", plan: "none" }), merge),
+  );
+  let stored;
+  await testEnv.withSecurityRulesDisabled(async (ctx) => {
+    stored = (await getDoc(doc(ctx.firestore(), "subscriptions", FRANK))).data();
+  });
+  assert.ok(stored, "frank's subscription document is missing");
+  assert.equal(stored.lastPaymentRef, "pay_real_1", "the stored pass was altered by a client write");
+  assert.equal(stored.pricePaidInr, 999);
+  assert.equal(typeof stored.passEnd.toDate, "function", "passEnd is not a Firestore Timestamp");
+});
+
+for (const [field, forged] of Object.entries(PASS_FORGERIES)) {
+  test(`16 ★★ R2 update CHANGING ${field} is DENIED`, async () => {
+    // ★ PRECONDITION: the forged value must DIFFER from the stored one, or the write
+    // changes nothing and is rightly allowed — this test would then be measuring nothing.
+    assert.notDeepEqual(forged, STORED_PASS[field], `forgery for ${field} equals the stored value`);
+    await assertFails(
+      setDoc(subDoc(asStudent(FRANK), FRANK), { ...clientWrite({ tier: "free", plan: "none" }), [field]: forged }, merge),
+    );
+  });
+}
+
+test("16b ★ R2 update that ADDS a pass field to a pass-less document is DENIED", async () => {
+  // Carol has been through the whole trial lifecycle above and holds no pass.
+  await assertFails(
+    setDoc(
+      subDoc(asStudent(CAROL), CAROL),
+      { ...clientWrite({ tier: "free", plan: "trial_7day" }), passEnd: new Date("2099-01-01T00:00:00Z") },
+      merge,
+    ),
+  );
+});
+
+test("16c ★ R2 update that REMOVES the pass (non-merge overwrite) is DENIED", async () => {
+  await assertFails(setDoc(subDoc(asStudent(FRANK), FRANK), clientWrite({ tier: "free", plan: "none" })));
+});
+
+test("16d ★ R2 update that NULLS passEnd is DENIED", async () => {
+  await assertFails(
+    setDoc(subDoc(asStudent(FRANK), FRANK), { ...clientWrite({ tier: "free", plan: "none" }), passEnd: null }, merge),
+  );
+});
