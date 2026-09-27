@@ -1613,6 +1613,13 @@ const DesktopCheckImprovePageInner: React.FC<{
         setStatus("idle");
         return;
       }
+      // FREECHECK-2 · F4 — a signed-in student whose sign-in could not be confirmed is
+      // told so, in the error's own words (paidCallHeaders' SignInAgainError).
+      if (e instanceof Error && e.name === "SignInAgainError") {
+        setErrorMessage(e.message);
+        setStatus("error");
+        return;
+      }
       setErrorMessage("Grading unavailable — please try again.");
       setStatus("error");
     }
@@ -1756,6 +1763,13 @@ const DesktopCheckImprovePageInner: React.FC<{
       if (refused) {
         setFreeRefusal(refused);
         setStatus("idle");
+        return;
+      }
+      // FREECHECK-2 · F4 — a signed-in student whose sign-in could not be confirmed is
+      // told so, in the error's own words (paidCallHeaders' SignInAgainError).
+      if (e instanceof Error && e.name === "SignInAgainError") {
+        setErrorMessage(e.message);
+        setStatus("error");
         return;
       }
       setErrorMessage("Grading unavailable — please try again.");

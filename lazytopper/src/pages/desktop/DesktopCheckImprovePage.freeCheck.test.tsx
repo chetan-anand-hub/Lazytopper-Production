@@ -64,6 +64,7 @@ vi.mock("../../analytics/analytics", async (importOriginal) => {
 
 import DesktopCheckImprovePage from "./DesktopCheckImprovePage";
 import { PremiumRequiredError } from "../../ai/aiClient";
+import { SIGN_IN_AGAIN_MESSAGE, SignInAgainError } from "../../ai/paidCallHeaders";
 import {
   FREE_CHECK_PENDING_KEY,
   FREE_CHECK_USED_KEY,
@@ -491,5 +492,79 @@ describe("R9 — the trial offer (signed in, a free result saved)", () => {
     const { container } = renderPage();
     expect(container.textContent).not.toContain("Your answer is saved.");
     expect(container.textContent).not.toMatch(/Start my free trial/);
+  });
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   FREECHECK-2 · F4 — a signed-in student whose sign-in could not be confirmed reads
+   SignInAgainError's own message, at both grading error sites; every other error
+   keeps the generic copy.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+describe("F4 — sign-in copy on C&I grading errors", () => {
+  const GENERIC = "Grading unavailable — please try again.";
+
+  function signedInPremium() {
+    flagOff();
+    H.auth = { user: SIGNED_IN, loading: false };
+    H.sub.isPremium = true;
+  }
+
+  async function uploadAnswerSheetAndGrade(container: HTMLElement) {
+    const answerInput = container.querySelectorAll('input[type="file"]')[0] as HTMLInputElement;
+    fireEvent.change(answerInput, {
+      target: { files: [new File(["png-bytes"], "answers.png", { type: "image/png" })] },
+    });
+    const grade = await screen.findByRole("button", { name: /Grade my answer/ });
+    await waitFor(() => expect(grade).not.toBeDisabled());
+    fireEvent.click(grade);
+  }
+
+  const TWO_QUESTIONS = {
+    ...DETECTED,
+    questions: [
+      { questionNumber: 1, questionText: "Q-A", marks: 2, marksSource: "stated" },
+      { questionNumber: 2, questionText: "Q-B", marks: 3, marksSource: "stated" },
+    ],
+  };
+
+  it("★ single question: SignInAgainError → its message, never the generic line", async () => {
+    signedInPremium();
+    H.checkSolutionImage.mockRejectedValue(new SignInAgainError());
+    const { container } = renderPage();
+    await readQuestion();
+    await gradeTypedAnswer();
+    await waitFor(() => expect(container.textContent).toContain(SIGN_IN_AGAIN_MESSAGE));
+    expect(container.textContent).not.toContain(GENERIC);
+  });
+
+  it("CONTROL single question: any other error keeps 'Grading unavailable — please try again.'", async () => {
+    signedInPremium();
+    H.checkSolutionImage.mockRejectedValue(new Error("boom"));
+    const { container } = renderPage();
+    await readQuestion();
+    await gradeTypedAnswer();
+    await waitFor(() => expect(container.textContent).toContain(GENERIC));
+    expect(container.textContent).not.toContain(SIGN_IN_AGAIN_MESSAGE);
+  });
+
+  it("★ whole paper: SignInAgainError → its message; CONTROL: another error → the generic line", async () => {
+    signedInPremium();
+    H.detectQuestion.mockResolvedValue(TWO_QUESTIONS);
+    H.gradeWorksheet.mockRejectedValueOnce(new SignInAgainError());
+    const first = renderPage();
+    await readQuestion();
+    await uploadAnswerSheetAndGrade(first.container);
+    await waitFor(() => expect(first.container.textContent).toContain(SIGN_IN_AGAIN_MESSAGE));
+    expect(first.container.textContent).not.toContain(GENERIC);
+    cleanup();
+
+    H.detectQuestion.mockClear();
+    H.gradeWorksheet.mockRejectedValueOnce(new Error("boom"));
+    const second = renderPage();
+    await readQuestion();
+    await uploadAnswerSheetAndGrade(second.container);
+    await waitFor(() => expect(second.container.textContent).toContain(GENERIC));
+    expect(second.container.textContent).not.toContain(SIGN_IN_AGAIN_MESSAGE);
   });
 });

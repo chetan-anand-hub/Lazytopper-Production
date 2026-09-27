@@ -94,6 +94,32 @@ function recaptchaSiteKey(): string {
  */
 export const FREE_CHECK_SIGNIN_PATH = "/login?redirect=%2Fcheck-improve";
 
+/**
+ * FREECHECK-2 · F3 (FU-SIGNIN-REDIRECT-EXITS) — the sign-in door's `?redirect=` must
+ * survive a detour to /pricing and back. The login page's offer links carry it to
+ * /pricing, and /pricing hands it back to /login; neither ever navigates TO it.
+ *
+ * A value is passed on only if it is a safe INTERNAL path — the same rule Login.tsx's
+ * `isSafeInternalPath` applies (a leading "/", no "//" or backslash, no `scheme:`
+ * token). Anything else is dropped, so a crafted link cannot smuggle an external
+ * target through /pricing. Login re-checks it on arrival regardless.
+ */
+export function safeSigninRedirect(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const trimmed = raw.trim();
+  if (!trimmed.startsWith("/")) return null;
+  if (trimmed.startsWith("//")) return null;
+  if (trimmed.includes("\\")) return null;
+  if (/[a-zA-Z][a-zA-Z0-9+.-]*:/.test(trimmed)) return null;
+  return trimmed;
+}
+
+/** `base` with `redirect=<safe path>` appended (or `base` unchanged when there is none). */
+export function withSigninRedirect(base: string, redirect: string | null): string {
+  if (!redirect) return base;
+  return `${base}${base.includes("?") ? "&" : "?"}redirect=${encodeURIComponent(redirect)}`;
+}
+
 /* ─────────────────────────── refusals ─────────────────────────── */
 
 export const FREE_CHECK_REFUSAL_REASONS = [
@@ -162,6 +188,11 @@ export const FREE_CHECK_COPY = {
   offerLater: "Maybe later",
   /** The one sign-in link label every free-check prompt uses. */
   signUpCta: "Sign up free",
+  /** FREECHECK-2 · F2 — the save could not reach the network. Retried on `online`. */
+  saveOffline: "You're offline — we'll save your answer as soon as you're back.",
+  /** FREECHECK-2 · F2 — any other failed save. Never an endless "Saving…". */
+  saveFailed: "We couldn't save your answer. Try again.",
+  saveRetry: "Try again",
 } as const;
 
 export function refusalCopy(reason: FreeCheckRefusalReason): string {
@@ -404,17 +435,53 @@ export function peekPendingFreeCheck(): PendingFreeCheck | null {
 }
 
 /**
+ * FREECHECK-2 · F1 (FU-FREECHECK-SHARED-TAB) — "this result was PRODUCED in this tab".
+ * Written to `sessionStorage` (this tab only) at the same moment the result is stored
+ * (recordFreeCheckSuccess), holding its `gradedAt`. The OR-18 sign-in marker is written
+ * ONLY if this flag matches the waiting result, so a second person in a DIFFERENT tab —
+ * who can see the waiting result in shared localStorage but never produced it — can no
+ * longer claim it by clicking a sign-in link. Same tab: unchanged.
+ * Like the other keys, it does NOT start with `lazytopper.` (N14).
+ */
+export const FREE_CHECK_PRODUCED_HERE_KEY = "ltFreeCheck.producedHere.v1";
+
+function markFreeCheckProducedHere(gradedAt: number): void {
+  try {
+    window.sessionStorage.setItem(FREE_CHECK_PRODUCED_HERE_KEY, String(gradedAt));
+  } catch {
+    /* no sessionStorage → no flag → no marker → no save (fail closed) */
+  }
+}
+
+/** F1 — was the result graded at `gradedAt` produced in THIS tab? */
+export function wasFreeCheckProducedHere(gradedAt: number): boolean {
+  try {
+    const flag = window.sessionStorage.getItem(FREE_CHECK_PRODUCED_HERE_KEY);
+    return flag !== null && flag === String(gradedAt);
+  } catch {
+    return false; // unreadable → not provably this tab's → fail closed
+  }
+}
+
+/**
  * OR-18 — called on the click of EVERY free-check sign-in link (FREE_CHECK_SIGNIN_PATH):
  * the panels' link and the scorecard's "Sign up free" row. Records that THIS tab is
  * going to sign in to save THIS waiting result. With nothing waiting there is nothing to
  * intend, so any old marker is cleared instead. If sessionStorage is unavailable no
  * marker is written, and so nothing is ever saved: fail closed.
+ *
+ * FREECHECK-2 · F1 — and only if THIS tab produced the waiting result (the
+ * `producedHere` flag matches its `gradedAt`). Otherwise any old marker is cleared too.
+ * F3 — the /pricing → /login links that carry the door's `?redirect=` call this as well.
  */
 export function markFreeCheckSigninIntent(): void {
   const pending = peekPendingFreeCheck();
   try {
-    if (pending) window.sessionStorage.setItem(FREE_CHECK_SIGNIN_INTENT_KEY, String(pending.gradedAt));
-    else window.sessionStorage.removeItem(FREE_CHECK_SIGNIN_INTENT_KEY);
+    if (pending && wasFreeCheckProducedHere(pending.gradedAt)) {
+      window.sessionStorage.setItem(FREE_CHECK_SIGNIN_INTENT_KEY, String(pending.gradedAt));
+    } else {
+      window.sessionStorage.removeItem(FREE_CHECK_SIGNIN_INTENT_KEY);
+    }
   } catch {
     /* no sessionStorage → no marker → no save (fail closed) */
   }
@@ -475,8 +542,12 @@ export function restorePendingFreeCheck(pending: PendingFreeCheck): void {
  * ★ THE ONLY PLACE THE R1 MARK IS SET — called from a SUCCESSFUL free grade only, after
  * the grader answered `ok`. The result is written first (R8: it must be on the device
  * before the student can navigate to sign in), then the mark.
+ *
+ * FREECHECK-2 · F1 — and the `producedHere` flag for THIS tab. Only here: a replay that
+ * puts a claimed result back (restorePendingFreeCheck) is not a new production.
  */
 export function recordFreeCheckSuccess(pending: PendingFreeCheck): void {
   restorePendingFreeCheck(pending);
+  markFreeCheckProducedHere(pending.gradedAt);
   markFreeCheckUsed();
 }

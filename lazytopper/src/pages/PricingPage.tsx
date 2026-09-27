@@ -3,6 +3,11 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import {
+  markFreeCheckSigninIntent,
+  safeSigninRedirect,
+  withSigninRedirect,
+} from "../services/freeCheckClient";
+import {
   FOUNDING_COHORT_COPY,
   FOUNDING_COHORT_SIZE,
   FOUNDING_LABEL,
@@ -898,12 +903,26 @@ export default function PricingPage() {
   const [searchParams] = useSearchParams();
   const returnTarget =
     RETURN_TARGETS[(searchParams.get("source") || "").trim().toLowerCase()] ?? DEFAULT_RETURN;
+  // FREECHECK-2 · F3 — the sign-in door's `?redirect=`, carried here by its offer links.
+  // It is never a destination on this page: it is only handed BACK to /login by the
+  // links below, and only as a safe internal path. Those clicks write the free-check
+  // sign-in marker exactly as the free-check panel's link does (it writes nothing
+  // unless this tab produced a waiting free result).
+  const carriedRedirect = safeSigninRedirect(searchParams.get("redirect"));
+  const backTo =
+    returnTarget.backTo === "/login"
+      ? withSigninRedirect("/login", carriedRedirect)
+      : returnTarget.backTo;
+  const toLogin = (path: string) => {
+    if (carriedRedirect) markFreeCheckSigninIntent();
+    navigate(path);
+  };
   const [waitlistContact, setWaitlistContact] = useState("");
   const [waitlistBoard, setWaitlistBoard] = useState("");
   const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
 
   const handleStartTrial = () => {
-    navigate(`/login?reason=start-trial&redirect=${encodeURIComponent("/pricing")}`);
+    toLogin(`/login?reason=start-trial&redirect=${encodeURIComponent(carriedRedirect ?? "/pricing")}`);
   };
 
   const handleWaitlistSubmit = () => {
@@ -922,7 +941,16 @@ export default function PricingPage() {
     <main className="lt-pricing-page" aria-label="LazyTopper pricing">
       <style dangerouslySetInnerHTML={{ __html: PRICING_CSS }} />
       <div className="lt-pricing-inner">
-        <ReturnContextBar backTo={returnTarget.backTo} backLabel={returnTarget.backLabel} />
+        {carriedRedirect && backTo !== returnTarget.backTo ? (
+          // Wrapped only when a redirect is carried, so the page's markup without one
+          // (and so the prerendered /pricing) is unchanged. The capture runs before the
+          // bar's own click navigates.
+          <div className="lt-pricing-return" onClickCapture={markFreeCheckSigninIntent}>
+            <ReturnContextBar backTo={backTo} backLabel={returnTarget.backLabel} />
+          </div>
+        ) : (
+          <ReturnContextBar backTo={returnTarget.backTo} backLabel={returnTarget.backLabel} />
+        )}
 
         <section className="lt-pricing-header">
           <h1 className="lt-pricing-title">Simple, Student-Friendly Plans</h1>
@@ -963,7 +991,7 @@ export default function PricingPage() {
             <button
               type="button"
               className="lt-pricing-cta lt-pricing-cta--secondary"
-              onClick={() => navigate("/login")}
+              onClick={() => toLogin(withSigninRedirect("/login", carriedRedirect))}
             >
               Start free
             </button>
