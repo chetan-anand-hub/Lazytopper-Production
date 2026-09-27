@@ -602,14 +602,15 @@ for (const [field, forged] of Object.entries(PASS_FORGERIES)) {
 // A document that already holds a pass, seeded the way passGrant.cjs writes it
 // (Admin SDK = rules disabled). Stored tier is free so the ONLY clause that can refuse
 // a client update touching a pass field is R2 — clientWritableEntitlement passes.
+// A REGULAR-offer pass, so forging the founding offer is a real change on every field.
 const FRANK = "student-frank";
 const STORED_PASS = {
   passType: "month",
   passStart: new Date("2026-08-01T06:30:00Z"),
   passEnd: new Date("2026-09-01T06:30:00Z"),
-  pricePaidInr: 599,
-  offerKey: "founding",
-  foundingMember: true,
+  pricePaidInr: 999,
+  offerKey: "regular",
+  foundingMember: false,
   lastPaymentRef: "pay_real_1",
 };
 
@@ -632,12 +633,15 @@ test("16-control CONTROL — a merge update that OMITS every pass field is ALLOW
   });
   assert.ok(stored, "frank's subscription document is missing");
   assert.equal(stored.lastPaymentRef, "pay_real_1", "the stored pass was altered by a client write");
-  assert.equal(stored.pricePaidInr, 599);
+  assert.equal(stored.pricePaidInr, 999);
   assert.equal(typeof stored.passEnd.toDate, "function", "passEnd is not a Firestore Timestamp");
 });
 
 for (const [field, forged] of Object.entries(PASS_FORGERIES)) {
   test(`16 ★★ R2 update CHANGING ${field} is DENIED`, async () => {
+    // ★ PRECONDITION: the forged value must DIFFER from the stored one, or the write
+    // changes nothing and is rightly allowed — this test would then be measuring nothing.
+    assert.notDeepEqual(forged, STORED_PASS[field], `forgery for ${field} equals the stored value`);
     await assertFails(
       setDoc(subDoc(asStudent(FRANK), FRANK), { ...clientWrite({ tier: "free", plan: "none" }), [field]: forged }, merge),
     );
