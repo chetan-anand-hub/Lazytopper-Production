@@ -474,7 +474,7 @@ describe("Mobile Home account avatar", () => {
 
     // Same functionality as every other surface.
     expect(screen.getByRole("menuitem", { name: /me \/ progress/i })).toBeInTheDocument();
-    expect(screen.getByRole("menuitem", { name: /manage subscription/i })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: /manage your pass/i })).toBeInTheDocument();
     expect(screen.getByRole("menuitem", { name: /log out/i })).toBeInTheDocument();
 
     // And it still owns exactly ONE brand bar — no shell was introduced.
