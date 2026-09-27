@@ -1,3 +1,16 @@
+## ★★★ 2026-09-27 — CHUNK-RESILIENCE-1 CLOSED (docs) — THIS BLOCK SUPERSEDES THE PRICING-TB-1 OR-P6 + OR-P7 BLOCK BELOW ON TRUNK SHA ONLY
+*(It does not supersede that block's owner items — the pricing live-verify, STORED-RATE-1 / Razorpay against passes, the optional copy lane — which stand unchanged.)*
+
+**TRUNK IS `b031caaca0c0ba005df149fe22fe06c7887b2e98`**, measured 2026-09-27 (`git fetch`, `origin/base/approved-thru-437`):
+- `b031caac` = `#839` (CHUNK-RESILIENCE-1: pin assets to the page's deployment + retry a failed route chunk)
+- `a86130c2` = `#826` (dependabot, npm minor-and-patch group)
+- `ef6385e4` = `#832` (docs: PRICING-TB-1 OR-P6 + OR-P7)
+
+### NEXT — OWNER
+1. **Search Console:** re-run the Google live test on `/app/notes/real-numbers` (and the other Soft-404 URLs) **while a deploy is in flight**. That is the condition that failed before; a pass with no deploy in flight proves nothing new.
+2. **Keep Vercel Skew Protection ON** (with a max age) and the System Environment Variables exposed. `middleware.ts` fails open without `VERCEL_DEPLOYMENT_ID` (no cookie is set), so turning either off silently removes the pin.
+3. Optional follow-ups: `[FU-PROD-HONOURS-PREVIEW-VDPL]` (platform, report-only), `[FU-PREVIEW-ENTRY-HASH-DRIFT]` (UNVERIFIED), `[FU-LAZY-OUTSIDE-APP-UNWRAPPED]` (one site, `ConceptSpine.tsx:16`).
+
 ## ★★★ 2026-09-26 — PRICING-TB-1 OR-P6 + OR-P7 CLOSED (docs) — THIS BLOCK SUPERSEDES THE PRICING-TB-1 BLOCK BELOW ON TRUNK SHA AND ON ITS ITEM 2
 *(Item 2 of the block below, "Rule on `[FU-PRICING-MODEL-2026-09]` vs PRICING-TB-1", is DONE: OR-P6. Its item 1 (the live-verify) and the CBSE-AUTO-1 sequence are unchanged.)*
 
