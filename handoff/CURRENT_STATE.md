@@ -1,5 +1,65 @@
 # LazyTopper — Current State
 
+## [CURRENT · MONEY] WAVE B-2 — **FAIR LIMITS ARE METERED ON THE SERVER (FAIR-USE-1) · STUDENTS CAN BUY A PASS THROUGH RAZORPAY (RAZORPAY-1) — BOTH DARK; PREMIUM IS NEVER SHED (LIVE)** — `#852` + `#853` MERGED — trunk `fecbbe08`
+
+★ **PROVENANCE.**
+- Controller B (Money), wave B-2, one controller session. There was one builder per PR (Agent model `opus` = `claude-opus-5-5`; effort "high" was stated in each brief, but the Agent tool exposes no effort setting, so it could not be set mechanically). Each builder worked in its own worktree (`C:/Projects/LT-worktrees/fair-use-1`, `…/razorpay-1`). This docs PR was written by a docs builder in `…/b2-docs` from the controller's state file `WAVE_STATE_B2.md` (OR-16).
+- Specs are owner-authored and hash-verified on receipt: `FAIR-USE-1.md` `101B4732869A`, `RAZORPAY-1.md` `37D280EBD439`. Both §0c premise gates were run by the controller on trunk `2d581e88` with `--strict-anchor`: PASS, 4/4 anchors resolved, 3 UNVERIFIED (P5–P7, open by design), EXIT=0. Each builder re-ran its gate in its own fresh worktree.
+- Merges, squash, `--match-head-commit`, no `--admin` *(controller-verified)*:
+  - `#852` `--match-head-commit ef2f8900` → **`4984655e`** (parent `2d581e88`; trunk tree == head tree `28056734`);
+  - `#853` `--match-head-commit b7c1d434` → **`fecbbe08`** (parent `4984655e`; trunk tree == head tree `71062a25`).
+- Items marked *(subagent-reported)* come from `report-fair-use-1-2026-09-27.md` / `report-razorpay-1-2026-09-27.md` and were not re-measured by the controller.
+
+**Trunk `fecbbe08fd4ae370814b38f139e861a6601f2453`** (`#853`). Before that `4984655e` (`#852`), and before that `2d581e88` (`#851`, the wave A-2 docs).
+
+*(This block supersedes the WAVE A-2 block below on trunk SHA — that block is demoted to previous on trunk SHA; its content otherwise stands as written. In the money line it follows the WAVE B-1 block below, whose content stands except the one audit finding this wave closes — see "Closed" below.)*
+
+### In one paragraph
+FAIR-USE-1 (`#852`) and RAZORPAY-1 (`#853`) are on trunk. The server now counts every grading request per student: trial allowances and premium real-cost caps are metered and visible at `GET /api/usage/me`, but nothing is refused until the owner sets `FAIR_USE_ENFORCE=1` (after FAIR-USE-2 ships the student-facing bars). One change is live for students: paying students are no longer shed when the day's global AI budget passes 80%. Students can buy a month or till-boards pass through Razorpay (server-priced orders, verified signatures, payment-level idempotent grants), but the routes answer 404 and the pricing page is unchanged until the owner sets `PAYMENTS_ENABLED=1` (Railway) and `VITE_PAYMENTS_ENABLED=1` (Vercel).
+
+### What shipped — FAIR-USE-1 (`#852`)
+- Grading is metered per student on the server: **trial allowances** (5 answer checks per IST day, counted per question; 1 chapter test per day; 1 mock and 1 worksheet grading per rolling 7 days) and **premium real-cost caps** (₹84 / 7 days, ₹38 / day, ₹25 / 5 hours, via new ledger hour buckets), all env-tunable.
+- Refusals (`409 trial_limit` / `429 usage_limit`) happen **only with `FAIR_USE_ENFORCE=1`**; otherwise each would-be refusal is logged as `fair_use.would_refuse.<rule>`.
+- **LIVE on merge:** premium callers are exempt from the 80% global vision shed (only the hard ceiling refuses them). The builder kept the per-caller hard caps for premium as a runaway-loop backstop *(subagent-reported, choice C1)*.
+- `GET /api/usage/me` returns remaining allowances and percentages, never rupees (401 without a verified token; a header uid is refused) *(subagent-reported)*.
+- Client grading calls for chapter test, full mock and worksheet send `X-Lazytopper-Surface`. Quick Practice, C&I and SolutionChecker send none and fall back to check-improve (the same allowance) *(subagent-reported)*.
+- Hour buckets and trial counters live in the same `usageLedger/{uid}/days/{istDayKey}` document, so DPDP erasure and export still reach them *(subagent-reported, choice C4)*.
+- Confirmed the B-1 subagent claim (the ledger writes only on `PAID_ENDPOINTS`) is TRUE and both grading endpoints are covered, so the premium caps are not a no-op for any surface *(subagent-reported)*. The surface header cannot be verified server-side (`[FU-FAIR-USE-SURFACE-UNVERIFIABLE]`).
+
+### What shipped — RAZORPAY-1 (`#853`)
+- Server-priced Razorpay orders (`payOrders/{orderId}`); verify and a raw-body webhook with timing-safe HMAC, amount and uid checks; grants go through `grantPass`.
+- **Z9 payment-level idempotency** inside `grantPass`'s transaction (`subscriptions/{uid}/payments/{paymentRef}`).
+- `payOrders` is exported, and uid-anonymised on erasure.
+- `PassCheckout` on the pricing page behind `VITE_PAYMENTS_ENABLED`; the routes answer 404 without `PAYMENTS_ENABLED` (byte-identical to an unknown path, per the Z1 test on the real `index.cjs`) *(subagent-reported)*.
+- **Disproved** *(subagent-reported)*: P6 feared the raw body might be unreachable — nothing reads the body before the route, so the webhook reads the raw bytes itself. Re-verified after the merge with FAIR-USE-1: its body pre-read is only for `/api/grade-worksheet`.
+- **D5 verified** *(subagent-reported)*: `payOrders` and `subscriptions/{uid}/payments` are client-deny under the catch-all (`firestore.rules:266-267`). `firestore.rules` was not edited.
+
+### Closed
+- The wave B-1 audit finding (`grantPass` replayed only on `lastPaymentRef`, so A, B, then a late retry of A granted A twice) — closed by RAZORPAY-1 Z9. CI names: `Z9 · A, B, then replay A -> exactly two grants (lastPaymentRef alone would grant A twice)` and `Z9 · CONCURRENT replay of one payment -> one grant` *(subagent-reported, log-quoted)*.
+
+### Evidence
+- **`#852`** quality-gate run `36340450939` on head `ef2f8900` *(controller-verified)*: 11 files reconciled (`gh` files == diff), head contains trunk; 0 non-zero `# fail` / `# skipped` lines; vitest `Tests  2827 passed (2827)`, `Test Files  200 passed (200)`; fairUse `# tests 29 # pass 29 # fail 0 # skipped 0`, with the U1–U8 and WIRING names in the log, including U8 both ways.
+- **`#853`** quality-gate run `36341250786` on head `b7c1d434` *(controller-verified)*: 15 files reconciled, 0 FAIR-USE-1 files, head contains trunk `4984655e`; 0 non-zero fail/skip lines; vitest `Tests  2849 passed (2849)`, `Test Files  201 passed (201)`; payments `# pass 23 # fail 0 # skipped 0` (Z1–Z5, including switch-off 404 byte-identical, tampered amount, uid mismatch, replay, STATIC timing-safe); Z9 two grants + concurrent one grant; Z7 `payOrders` anonymised; `PassCheckout` 16 tests, including flag-off manual paragraph unchanged and no buy button; the existing PricingPage suites (24 + 9) unmodified and green. Diff: PricingPage 12+/4-, `index.cjs` 13+/0-, `passGrant` 62+/2-.
+- **OR-LIVE gate D6 before merging `#853`** *(controller-verified)*: at 18:49:43Z www served `#852`'s deployment (`dpl_FAkHs2P17…`, 17 min old); Railway deployment `6696175774` success at 18:41:12Z, and www `/api/usage/me` answered 401 (the new server live); the only open PR was `#853`.
+
+### ★ Deviations and decisions, recorded for the wave's final audit
+- **D1:** both lanes edited `lazytopper/package.json` (not in either spec's allowlist) to wire their new server suites into `test:matrix:all` — server `node:test` files run in CI only through that script, and the specs require the test names in the CI log. Same pattern as B-1. `scope:guard --mode product` therefore fails on the D1 line; both lanes ran `--mode mixed`.
+- Both lanes were built on trunk `2d581e88`, not the specs' base `0f88754e`: the premise gates passed there.
+- **OR-LIVE (owner, mid-wave):** RAZORPAY-1 is a payments lane, so it rolls out alone — merged only after `#852`'s deployment served www and Railway served the new server, and nothing merges after it until its own rollout and smoke pass.
+- **U4 (premium never shed)** is the one student-facing behaviour change live without a switch — the spec rules it live, and it only ever serves paying students more.
+
+### Rollout (OR-LIVE D7)
+ROLLOUT (controller-verified, 2026-09-27): #852 (4984655e) production deployment dpl_FAkHs2P17 served www and Railway served the new server (/api/usage/me 401) before #853 merged. #853 (fecbbe08) was a payments lane and rolled out alone (OR-LIVE): Vercel rolling release dpl_7Z5QbMvgQUxQhKHBw5iQJXRxfBWe reached COMPLETE / 100% at 19:07:39Z and Railway finished. Canary and www smoke passed: /app/, /app/pricing and /app/practice 200; POST /api/pay/order, /verify and /webhook 404, identical to an unknown path (PAYMENTS_ENABLED unset); served pricing HTML identical to the pre-merge page except for asset hashes, with no Razorpay checkout or buy button. FAIR_USE_ENFORCE, PAYMENTS_ENABLED and VITE_PAYMENTS_ENABLED are all unset.
+
+### ★ OWNER STEPS (none run by the controller or any builder) — detail in `NEXT_ACTION.md`
+1. Leave `FAIR_USE_ENFORCE` unset until FAIR-USE-2 ships **and** `[FU-FAIR-USE-SURFACE-UNVERIFIABLE]` is decided; then set `=1` on Railway to enforce.
+2. RAZORPAY-1 spec §3 owner test (Razorpay test mode, Preview only).
+3. `[FU-PRICING-COPY-WHEN-PAYMENTS-ON]` before production payments.
+4. The wave B-1 owner steps still stand.
+
+### Carried forward — ★ THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this wave
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.** **Wave B-2 moved NO dormancy in that trio.** The full block, including the `#647`/`#655` resolution and every subsequent amendment, is preserved verbatim in its section (`### 8 - ★ THE WIRE-2 QUESTION` and `### 9`) and the demoted `[CURRENT]` sections below, and must be read there before any lane acts on it.
+
 ## [CURRENT · HUB + FIXES] WAVE A-2 (REACH & POLISH) — **TOPIC HUBS ARE THE APP SURFACE AGAIN (HUB-REVERT-1) · THE FREE CHECK'S KNOWN GAPS CLOSED (FREECHECK-2) · "TRY AGAIN" GRADES AGAIN, ERRORS SPEAK TO STUDENTS (BUGFIX-1)** — `#848` + `#849` + `#850` MERGED — trunk `754d5af3`
 
 ★ **PROVENANCE.**

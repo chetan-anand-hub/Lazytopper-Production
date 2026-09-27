@@ -1,3 +1,25 @@
+## 2026-09-27 — WAVE B-2 (MONEY) — **FAIR-USE-1: FAIR LIMITS METERED ON THE SERVER (DARK), PREMIUM NEVER SHED (LIVE) · RAZORPAY-1: STUDENTS CAN BUY A PASS (DARK)** — `#852` + `#853` MERGED — trunk `fecbbe08`
+
+★ **PROVENANCE.**
+- Controller B (Money), one session. There was one builder per PR (`claude-opus-5-5`), in worktrees `C:/Projects/LT-worktrees/fair-use-1` and `…/razorpay-1`. This docs PR was written by a docs builder in `…/b2-docs` from the controller's state file (OR-16).
+- *(subagent-reported)* = from builder reports; *(controller-verified)* = re-measured.
+
+**Timeline.**
+- Both specs were hash-verified on receipt (`101B4732869A`, `37D280EBD439`). Trunk had moved from the specs' base `0f88754e` to `2d581e88` (waves A-1/A-2, `#844`–`#851`), so both §0c premise gates were run on the new tip: PASS, 4/4 anchors, EXIT=0 *(controller-verified)*. No PRs were open at dispatch.
+- Both builders were dispatched at once. RAZORPAY-1 built in two phases (build and push the branch, **no PR, not even a draft**; then merge trunk in and open the PR), because both lanes edit `server/index.cjs` and `lazytopper/package.json`, and `lane-overlap` is exact-path and counts drafts.
+- FAIR-USE-1 → `#852`. CI green on `ef2f8900` (run `36340450939`), merged → `4984655e`.
+- **OR-LIVE arrived from the owner mid-wave, after `#852` merged:** one rollout at a time; server changes additive for 7 days; student-facing changes behind a switch. It was applied to `#852` retroactively (server additive; refusals dark; U4 live by spec ruling). The owner then revised rule 1 (back-to-back merges are fine) with one exception: **a lane changing routing, payments, the free check or sign-in rolls out ALONE.**
+- RAZORPAY-1 merged trunk in (no rebase, D3; conflicts in `package.json` and `index.cjs`, both lanes' lines kept) → `#853`. CI green on `b7c1d434` (run `36341250786`).
+- The D6 gate held at 18:49:43Z (www on `#852`'s deployment for 17 min; Railway's new server answering 401 on `/api/usage/me`), and `#853` was merged → `fecbbe08`. The D7 rollout (canary smoke, 100%, www smoke: `/app/pricing` 200 and `/api/pay/order`, `/api/pay/verify`, `/api/pay/webhook` → 404) precedes this docs PR.
+
+ROLLOUT (controller-verified, 2026-09-27): #852 (4984655e) production deployment dpl_FAkHs2P17 served www and Railway served the new server (/api/usage/me 401) before #853 merged. #853 (fecbbe08) was a payments lane and rolled out alone (OR-LIVE): Vercel rolling release dpl_7Z5QbMvgQUxQhKHBw5iQJXRxfBWe reached COMPLETE / 100% at 19:07:39Z and Railway finished. Canary and www smoke passed: /app/, /app/pricing and /app/practice 200; POST /api/pay/order, /verify and /webhook 404, identical to an unknown path (PAYMENTS_ENABLED unset); served pricing HTML identical to the pre-merge page except for asset hashes, with no Razorpay checkout or buy button. FAIR_USE_ENFORCE, PAYMENTS_ENABLED and VITE_PAYMENTS_ENABLED are all unset.
+
+### ★ What this wave teaches
+- **AN UNWIRED TEST IS A SILENT NO-OP.** Server `node:test` files run in CI only through `lazytopper/package.json` `test:matrix:all` (vitest's include is `src/**` only). Both specs required their tests' names in the CI log, so the controller allowed the wiring lines (D1) and the proof was read from the log, not the tick: `> lazytopper@0.0.0 test:server:fair-use` and `test:server:payments` appear, with `# fail 0` and `# skipped 0`.
+- **A MODE IS PART OF THE GATE.** `scope:guard --mode product` fails on the D1 `package.json` line by design (it is tracked tooling); the correct mode for a D1 lane is `--mode mixed`. The failing run and the passing run were both recorded, not just the green one *(subagent-reported)*.
+- **A FEARED BLOCKER CAN BE DISPROVED BY READING THE PATH.** P6 feared the webhook's raw body would already be consumed. Nothing reads the body before the route, so the webhook reads the raw bytes itself — and after FAIR-USE-1 landed (which pre-reads a body for one route), it was re-verified that its pre-read never touches `/api/pay/*` *(subagent-reported)*.
+- **WHEN THE CLI CANNOT SHOW ROLLOUT STATE, NAME THE PROXY.** `vercel rolling-release fetch` returned `null`, so the controller did not take it as proof of 100%. The D6 gate used observables instead (alias target and age, Railway status, a new route answering 401 on www), and recorded that canary error rates are owner-visible only.
+
 ## 2026-09-27 — WAVE A-2 (REACH & POLISH) — **HUB-REVERT-1: HUBS ARE THE APP SURFACE AGAIN · FREECHECK-2: THE FREE CHECK'S GAPS CLOSED · BUGFIX-1: "TRY AGAIN" WORKS** — `#848` + `#849` + `#850` MERGED — trunk `754d5af3`
 
 ★ **PROVENANCE.**

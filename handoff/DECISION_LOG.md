@@ -1,3 +1,31 @@
+## 2026-09-27 — WAVE B-2 (MONEY): FAIR-USE-1 + RAZORPAY-1 (build + docs) — trunk `fecbbe08`, PRs `#852` + `#853`
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (D0–D7, OR-LIVE), not `DECISION N`.
+
+### Owner rulings for the wave
+- **Specs** are owner-authored and hash-verified: `FAIR-USE-1.md` `101B4732869A`, `RAZORPAY-1.md` `37D280EBD439`. **PR order:** RAZORPAY-1 opens its PR only after FAIR-USE-1 merges, with trunk merged into its branch (both touch `server/index.cjs` and `lazytopper/package.json`).
+- **OR-AUTO:** builders never ask the owner; where a choice is needed they take the safest option inside the allowlist and record it.
+- **OR-15** (fast local gates; CI runs the full suites) and **OR-16** (the docs PR is written for the controller) apply.
+- **OR-LIVE (2026-09-27, standing; received mid-wave, after `#852` merged):**
+  - One rollout at a time; smoke on the canary deployment URL, then www after 100%; a canary error rise or failed smoke → abort or roll back, STOP, report.
+  - Server changes compatible with the previous app version for 7 days (additive only). Firestore/rules additive only. Student-facing behaviour changes behind a switch.
+  - **Rule 1 revised (owner, mid-wave):** back-to-back merges are OK (a superseded deploy is not lost); after a batch's last merge, confirm production serves the latest trunk commit. **Exception: a lane changing routing, payments, the free check or sign-in rolls out ALONE** — its rollout reaches 100% and its smoke passes before anything else merges.
+  - Applied to `#852` retroactively: server additive (new `/api/usage/me`, optional header, old clients send none → check-improve fallback); refusals dark behind `FAIR_USE_ENFORCE`. U4 (premium never shed) is live by spec ruling and only serves paying students more — recorded as the one unswitched behaviour change, spec-mandated.
+
+### Controller decisions, with reasons (what, why, before → after)
+- **D0 — built on trunk `2d581e88`, not the specs' base `0f88754e`.** §0c says run on the current tip; both gates PASS there, and the owner states the specs were verified on `2d581e88`.
+- **D1 — `lazytopper/package.json` allowed in BOTH lanes, ONLY for test wiring** (`"test:server:<name>": "node --test <file>"` + `&& npm run test:server:<name>` in `test:matrix:all`, one per NEW server test file). Why: the only CI path for server `node:test` files is that script (vitest's include is `src/**/*.test.{ts,tsx}`), so an unwired test is a silent no-op, and both specs require the test names in the CI log. Same pattern as B-1 (`#841`/`#842`). Before: `package.json` not in either allowlist → after: wiring lines only. Flagged as the wave's first deviation for the final audit. Consequence: `scope:guard --mode product` fails on it; `--mode mixed` is the correct mode for a D1 lane.
+- **D2 — `repo_boundary_policy.json` NOT granted.** B-1's new server files needed no entry; if CI demanded one, the builder would report the exact entry.
+- **D3 — RAZORPAY-1 brings trunk in with `git merge`, not a rebase**, so its branch is never force-pushed. Squash merge makes the history irrelevant.
+- **D4 — builder model:** Agent model `opus` (= `claude-opus-5-5`). Effort "high" was stated in the brief; the Agent tool exposes no effort parameter (same as B-1) — flagged, not hidden.
+- **D5 — `firestore.rules` stays forbidden.** RAZORPAY-1 had to VERIFY (not edit) that `payOrders/{id}` and `subscriptions/{uid}/payments/{id}` are client-deny under the deployed rules; client-writable would have been a STOP-class finding. Result: client-deny under the catch-all (`firestore.rules:266-267`) *(subagent-reported)*.
+- **D6 — the OR-LIVE gate for merging RAZORPAY-1:** ≥ 15 min since `#852`'s deployment (created 18:33Z); www aliased to it; Railway deployment status success; `/api/usage/me` via www non-404 (401 unauthenticated expected). Why: `vercel rolling-release fetch` returned `null`, which was NOT taken as proof of 100%, so this was the safest observable proxy. Canary/www error rates are owner-visible only (no Vercel analytics access for the controller) — flagged. Held at 18:49:43Z; `#853` merged → `fecbbe08`.
+- **D7 — RAZORPAY-1 is a PAYMENTS lane, so it rolls out ALONE:** (a) D6 still gated its merge; (b) after merge, wait for its deploy to reach 100% and smoke its canary URL then www — `/app/pricing` 200, and `/api/pay/order`, `/api/pay/verify`, `/api/pay/webhook` → 404 (`PAYMENTS_ENABLED` unset) — BEFORE merging this docs PR; (c) after this docs PR, confirm production serves the latest trunk commit (a docs-only commit may skip a Vercel build — then confirm the newest DEPLOYED commit equals the newest product commit, and record it).
+
+### Builder choices worth keeping *(subagent-reported)*
+- FAIR-USE-1 C1: premium skips ONLY the 80% vision shed; the per-caller hard caps stay as the runaway-loop backstop. C6: trial counters commit only when a grade is served (2xx). C11: fail-open — a refusal needs a positive read of tier and ledger.
+- RAZORPAY-1 1: the order price is `computeGrant` itself (one pricing function serves the charge and the recorded price). 7: no CORS preflight entries for `/api/pay/*` (same-origin; they would make OPTIONS answer 204 while payments are dark). 15: the sign-in redirect is the constant `/pricing`, never taken from the URL.
+
 ## 2026-09-27 — WAVE A-2 (REACH & POLISH): HUB-REVERT-1 + FREECHECK-2 + BUGFIX-1 (build + docs) — trunk `754d5af3`, PRs `#848` + `#849` + `#850`
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by lane ID rather than `DECISION N`. The text under each ruling is the owner's, verbatim.

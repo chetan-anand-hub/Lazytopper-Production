@@ -1,5 +1,18 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-27 — WAVE B-2 (MONEY): FAIR-USE-1 (`#852` `4984655e`) + RAZORPAY-1 (`#853` `fecbbe08`), trunk `fecbbe08`.**
+> ★ **SERVER-FIRST, AND DARK EXCEPT ONE LINE: fair limits are metered but not enforced; payments are built but switched off; paying students are never shed (live).**
+
+### ⬜ Pricing (`/pricing`) + payments — **BUILT, DARK.** `PassCheckout` mounts in the P7 block only when `VITE_PAYMENTS_ENABLED` is on; with it off the page is unchanged (the manual-activation paragraph renders, no buy button — `PassCheckout` flag-off tests) *(subagent-reported)*. `/api/pay/order`, `/api/pay/verify`, `/api/pay/webhook` answer 404 without `PAYMENTS_ENABLED`. Owner test owed (Razorpay test mode, Preview only); `[FU-PRICING-COPY-WHEN-PAYMENTS-ON]` before production.
+### ⬜ Fair use (grading on Check & Improve, Quick Practice, Chapter Test, Full Mock, Worksheet) — **METERED, DARK.** Every grading request is counted per student; nothing is refused until `FAIR_USE_ENFORCE=1`. `GET /api/usage/me` exists; no surface shows it yet (FAIR-USE-2).
+### ✅ Premium never shed — **LIVE.** Paying students are exempt from the 80% global vision shed; only the hard ceiling refuses them. The one student-facing change without a switch (spec-ruled).
+
+### ⬜ NO MATRIX CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- The §2 matrix has a **Pricing** row but no payments or fair-use row. Payments are dark, so nothing a student sees on `/pricing` changed; the Pricing row's cells stay as they are (Verified 🟡).
+- Fair use is metered but unseen and unenforced, so no grading surface's cells move. Premium-never-shed changes server behaviour under load, not any surface's content or status.
+
+### 📋 Scope discovered? — **NO surface scope set to Settling.** Eight follow-ups are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`. `[FU-PRICING-COPY-WHEN-PAYMENTS-ON]` is copy on the Pricing surface that must move before production payments; this wave does not change Pricing's Scope cell.
+
 > **2026-09-27 — WAVE A-2 (REACH & POLISH): HUB-REVERT-1 (`#848` `1cad7818`) + FREECHECK-2 (`#849` `f2f01b97`) + BUGFIX-1 (`#850` `754d5af3`), trunk `754d5af3`.**
 > ★ **CONTENT AND BEHAVIOUR ON TRACKED SURFACES; NO STATUS CELL FLIPS.**
 
