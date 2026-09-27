@@ -197,6 +197,9 @@ const { createAccountExportRoutes, ACCOUNT_EXPORT_PATH } = require('./routes/acc
 // inside an EMPTY AsyncLocalStorage store; bindRequestUid (below, after the gates)
 // puts ONLY the verified uid into it, never for a free check, only on a paid path.
 const { runWithRequestContext, bindRequestUid } = require('./services/usageLedger.cjs');
+// RAZORPAY-1: a student buys a pass. DARK unless the server env PAYMENTS_ENABLED is on —
+// off, all three routes answer this file's own 404. Keys only from env; see the module.
+const { createPaymentRoutes, PAY_ORDER_PATH, PAY_VERIFY_PATH, PAY_WEBHOOK_PATH } = require('./routes/payments.cjs');
 
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
 
@@ -347,6 +350,8 @@ const accountExportRoutes = createAccountExportRoutes({
   corsOrigin: config.CORS_ORIGIN,
 });
 
+const paymentRoutes = createPaymentRoutes({ sendJson, verifiedCaller, adminFirestore, telemetry });
+
 async function handleRequest(req, res) {
   const reqUrlRaw = String(req.url || "");
   const reqPath = reqUrlRaw.split("?")[0];
@@ -484,6 +489,14 @@ async function handleRequest(req, res) {
   if (req.method === 'GET' && reqPath === ACCOUNT_EXPORT_PATH) {
     return accountExportRoutes.handleExport(req, res);
   }
+
+  // ── Payments (RAZORPAY-1) ────────────────────────────────────────────────────
+  // Self-gating: each handler answers 404 while PAYMENTS_ENABLED is off, resolves the
+  // verified uid itself (order/verify) or checks the Razorpay signature over the RAW
+  // body (webhook). Nothing above this point reads a request body.
+  if (req.method === 'POST' && reqPath === PAY_ORDER_PATH) return paymentRoutes.handleOrder(req, res);
+  if (req.method === 'POST' && reqPath === PAY_VERIFY_PATH) return paymentRoutes.handleVerify(req, res);
+  if (req.method === 'POST' && reqPath === PAY_WEBHOOK_PATH) return paymentRoutes.handleWebhook(req, res);
 
   // ── QR answer handoff ────────────────────────────────────────────────────────
   // ORDER IS LOAD-BEARING: '/api/qr-upload/new' must be matched BEFORE the

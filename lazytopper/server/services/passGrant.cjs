@@ -21,10 +21,27 @@
 // ★ IDEMPOTENT. Razorpay (and a nervous owner with curl) will deliver the same payment
 // twice. If the stored `lastPaymentRef` equals this `paymentRef`, nothing is written
 // and the stored pass is returned as-is.
+//
+// ★★ PAYMENT-LEVEL IDEMPOTENCY (RAZORPAY-1 · Z9). `lastPaymentRef` remembers only the
+// LATEST payment, so payments A then B then a late webhook retry of A would grant A a
+// second time. Every applied payment therefore also leaves a record at
+// `subscriptions/{uid}/payments/{paymentRef}`, read and written INSIDE the same
+// transaction as the pass: if that record exists the payment is a replay and nothing
+// changes. When the grant comes from a checkout order (`payOrderId`), the order's
+// `created -> paid` transition is written in that SAME transaction, so a grant and its
+// order can never disagree. Only idempotency changed here — price and dates did not.
 
 const pricing = require('./passPricing.cjs');
 
 const FIRESTORE_COLLECTION = 'subscriptions';
+/**
+ * Subcollection / sibling-collection names. Held in an object on purpose, NOT as
+ * top-level `.collection(CONST)` constants: the studentDataMap drift guard scans
+ * `.collection(UPPER_CONST)` as a TOP-LEVEL collection, and `payments` is a
+ * subcollection (mapped as `subscriptions.payments`). `payOrders` IS top-level and is
+ * named where it is created (routes/payments.cjs), which the guard does see.
+ */
+const PAYMENT_SEGMENTS = Object.freeze({ payments: 'payments', payOrders: 'payOrders' });
 
 const PASS_TYPES = Object.freeze({
   month: 'pass_month',
@@ -95,6 +112,10 @@ function validateInput(input) {
   const paymentRef = typeof src.paymentRef === 'string' ? src.paymentRef.trim() : '';
   if (!paymentRef || paymentRef.length > MAX_PAYMENT_REF_LENGTH) {
     throw new PassGrantInputError(`paymentRef must be a non-empty string of at most ${MAX_PAYMENT_REF_LENGTH} characters`);
+  }
+  // Z9: the paymentRef is now also a document id (subscriptions/{uid}/payments/{ref}).
+  if (paymentRef.includes('/') || paymentRef === '.' || paymentRef === '..' || /^__.*__$/.test(paymentRef)) {
+    throw new PassGrantInputError('paymentRef must be usable as a document id');
   }
   const nowMs = src.now === undefined ? Date.now() : toMillis(src.now);
   if (nowMs === null) throw new PassGrantInputError('now must be a valid instant');
@@ -190,19 +211,57 @@ function describePass(uid, data) {
  * @returns {Promise<{ replayed: boolean, pass: object }>}
  * @throws PassGrantInputError on bad input; any other error is an infrastructure fault.
  */
-async function grantPass(input, { firestore, foundingOfferOpen } = {}) {
+async function grantPass(input, { firestore, foundingOfferOpen, payOrderId } = {}) {
   const request = validateInput(input);
   if (!firestore || typeof firestore.runTransaction !== 'function') {
     throw new Error('firebase-admin Firestore is unavailable');
   }
+  const hasOrder = payOrderId !== undefined && payOrderId !== null;
+  const orderId = hasOrder ? String(payOrderId).trim() : '';
+  if (hasOrder && (!orderId || orderId.includes('/'))) {
+    throw new PassGrantInputError('payOrderId must be a document id');
+  }
   const ref = firestore.collection(FIRESTORE_COLLECTION).doc(request.uid);
+  const paymentDocRef = ref.collection(PAYMENT_SEGMENTS.payments).doc(request.paymentRef);
+  const orderRef = hasOrder ? firestore.collection(PAYMENT_SEGMENTS.payOrders).doc(orderId) : null;
 
   return firestore.runTransaction(async (tx) => {
+    // Every read before any write — Firestore's transaction contract.
     const snap = await tx.get(ref);
+    const paymentSnap = await tx.get(paymentDocRef);
+    const orderSnap = orderRef ? await tx.get(orderRef) : null;
     const stored = snap && snap.exists ? snap.data() || {} : {};
+
+    let order = null;
+    if (orderRef) {
+      if (!orderSnap || !orderSnap.exists) throw new PassGrantInputError('payment order not found');
+      order = orderSnap.data() || {};
+      if (order.uid !== request.uid) throw new PassGrantInputError('payment order belongs to another account');
+    }
+    // created -> paid, in THIS transaction. An order already paid is never rewritten.
+    const markOrderPaid = () => {
+      if (order && order.status !== 'paid') {
+        tx.set(orderRef, { status: 'paid', paymentId: request.paymentRef, paidAt: new Date(request.nowMs) }, { merge: true });
+      }
+    };
+
+    // Z9: this payment was already applied — by any path, at any time. Nothing changes.
+    if (paymentSnap && paymentSnap.exists) {
+      markOrderPaid();
+      return { replayed: true, pass: describePass(request.uid, stored) };
+    }
     const decision = computeGrant(stored, request, { foundingOfferOpen });
-    if (decision.replay) return { replayed: true, pass: describePass(request.uid, stored) };
+    if (decision.replay) {
+      markOrderPaid();
+      return { replayed: true, pass: describePass(request.uid, stored) };
+    }
     tx.set(ref, decision.fields, { merge: true });
+    tx.set(paymentDocRef, {
+      passType: request.passType,
+      pricePaidInr: decision.fields.pricePaidInr,
+      grantedAt: new Date(request.nowMs),
+    });
+    markOrderPaid();
     return { replayed: false, pass: describePass(request.uid, { ...stored, ...decision.fields }) };
   });
 }
@@ -217,4 +276,5 @@ module.exports = {
   PASS_FIELDS,
   PASS_TYPES,
   FIRESTORE_COLLECTION,
+  PAYMENT_SEGMENTS,
 };

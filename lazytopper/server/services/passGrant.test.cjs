@@ -11,6 +11,8 @@
 //   M1  passGrant.cjs takes pricePaidInr from the input  -> "R6 · price from input is IGNORED" red
 //   M2  passGrant.cjs drops runTransaction for a plain get/set
 //                                                         -> "R6 · CONCURRENT double grant" red
+//   M3  (RAZORPAY-1 Z9) passGrant.cjs drops the payments-doc check
+//                                                         -> "Z9 · A, B, then replay A" red
 //
 // Run: node --test lazytopper/server/services/passGrant.test.cjs
 
@@ -59,6 +61,8 @@ function memoryFirestore(seed = {}) {
   function ref(key) {
     return {
       key,
+      // Z9: subscriptions/{uid}/payments/{ref} — a subcollection under this document.
+      collection: (sub) => ({ doc: (id) => ref(`${key}/${sub}/${id}`) }),
       async get() { await yieldNow(); return snapOf(docs.get(key)); },
       async set(data, opts) { await yieldNow(); stats.plainWrites += 1; write(key, data, opts); },
     };
@@ -296,6 +300,101 @@ test('R3 · bad input is refused with PassGrantInputError and writes nothing', a
 });
 
 /* ══════════════════════════════════════════════════════════════════════════
+   RAZORPAY-1 · Z9 — payment-level idempotency, and the order's created -> paid
+   transition in the SAME transaction as the grant
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const PAY_KEY = (uid, ref) => `subscriptions/${uid}/payments/${ref}`;
+
+test('Z9 · A, B, then replay A -> exactly two grants (lastPaymentRef alone would grant A twice)', async () => {
+  const db = memoryFirestore();
+  const a = await grantPass({ uid: 'u1', passType: 'month', paymentRef: 'pay_A', now: istNoon('2026-09-27') }, { firestore: db });
+  const b = await grantPass({ uid: 'u1', passType: 'month', paymentRef: 'pay_B', now: istNoon('2026-09-28') }, { firestore: db });
+  assert.equal(a.replayed, false);
+  assert.equal(b.replayed, false);
+  const afterTwo = db.read(KEY('u1'));
+  const versionAfterTwo = db.version(KEY('u1'));
+  // CONTROL: the stored lastPaymentRef is now B, so the OLD check cannot see A.
+  assert.equal(afterTwo.lastPaymentRef, 'pay_B');
+  assert.equal(ms(afterTwo.passEnd), istNoon('2026-11-27'), 'two months stacked');
+
+  // The late webhook retry of A.
+  const replayA = await grantPass({ uid: 'u1', passType: 'month', paymentRef: 'pay_A', now: istNoon('2026-10-02') }, { firestore: db });
+  assert.equal(replayA.replayed, true, 'payment A was granted a second time');
+  assert.equal(db.version(KEY('u1')), versionAfterTwo, 'a replay wrote to the subscription');
+  assert.deepEqual(db.read(KEY('u1')), afterTwo);
+  assert.equal(ms(db.read(KEY('u1')).passEnd), istNoon('2026-11-27'), 'still exactly two months');
+  // One record per applied payment, and only two.
+  const payDocs = [...db.docs.keys()].filter((k) => k.startsWith('subscriptions/u1/payments/')).sort();
+  assert.deepEqual(payDocs, [PAY_KEY('u1', 'pay_A'), PAY_KEY('u1', 'pay_B')]);
+});
+
+test('Z9 · CONCURRENT replay of one payment -> one grant', async () => {
+  const db = memoryFirestore();
+  const now = istNoon('2026-09-27');
+  const results = await Promise.all([
+    grantPass({ uid: 'u1', passType: 'month', paymentRef: 'pay_X', now }, { firestore: db }),
+    grantPass({ uid: 'u1', passType: 'month', paymentRef: 'pay_X', now }, { firestore: db }),
+    grantPass({ uid: 'u1', passType: 'month', paymentRef: 'pay_X', now }, { firestore: db }),
+  ]);
+  assert.equal(results.filter((r) => !r.replayed).length, 1, 'exactly one of the three may grant');
+  assert.equal(ms(db.read(KEY('u1')).passEnd), istNoon('2026-10-27'), 'one month, not two or three');
+  assert.ok(db.stats.retries >= 1, 'the replays never contended, so this test proved nothing');
+});
+
+test('Z9 · the payment record holds { passType, pricePaidInr, grantedAt } and nothing else', async () => {
+  const db = memoryFirestore();
+  const now = istNoon('2026-09-27');
+  await grantPass({ uid: 'u1', passType: 'till_boards', paymentRef: 'pay_T', now }, { firestore: db, foundingOfferOpen: true });
+  const rec = db.read(PAY_KEY('u1', 'pay_T'));
+  assert.deepEqual(Object.keys(rec).sort(), ['grantedAt', 'passType', 'pricePaidInr']);
+  assert.equal(rec.passType, 'till_boards');
+  assert.equal(rec.pricePaidInr, db.read(KEY('u1')).pricePaidInr);
+  assert.equal(ms(rec.grantedAt), now);
+});
+
+test('Z9 · payOrderId: the order goes created -> paid in the SAME transaction as the grant', async () => {
+  const db = memoryFirestore({ 'payOrders/order_1': { uid: 'u1', passType: 'month', amountPaise: 59900, status: 'created' } });
+  const now = istNoon('2026-09-27');
+  const r = await grantPass({ uid: 'u1', passType: 'month', paymentRef: 'pay_1', now }, { firestore: db, payOrderId: 'order_1' });
+  assert.equal(r.replayed, false);
+  const order = db.read('payOrders/order_1');
+  assert.equal(order.status, 'paid');
+  assert.equal(order.paymentId, 'pay_1');
+  assert.equal(ms(order.paidAt), now);
+  assert.equal(order.uid, 'u1', 'the merge kept the order fields');
+  assert.equal(db.stats.commits, 1, 'grant and order transition must be ONE commit');
+  // Replaying the same payment neither re-grants nor rewrites the paid order.
+  const v = db.version('payOrders/order_1');
+  const again = await grantPass({ uid: 'u1', passType: 'month', paymentRef: 'pay_1', now: now + DAY }, { firestore: db, payOrderId: 'order_1' });
+  assert.equal(again.replayed, true);
+  assert.equal(db.version('payOrders/order_1'), v, 'a paid order was rewritten');
+});
+
+test('Z9 · payOrderId: an order of another account, or a missing one, is refused and NOTHING is written', async () => {
+  const db = memoryFirestore({ 'payOrders/order_1': { uid: 'someone-else', passType: 'month', amountPaise: 59900, status: 'created' } });
+  await assert.rejects(
+    grantPass({ uid: 'u1', passType: 'month', paymentRef: 'pay_1', now: istNoon('2026-09-27') }, { firestore: db, payOrderId: 'order_1' }),
+    PassGrantInputError,
+  );
+  await assert.rejects(
+    grantPass({ uid: 'u1', passType: 'month', paymentRef: 'pay_1', now: istNoon('2026-09-27') }, { firestore: db, payOrderId: 'nope' }),
+    PassGrantInputError,
+  );
+  assert.equal(db.read(KEY('u1')), undefined);
+  assert.equal(db.read(PAY_KEY('u1', 'pay_1')), undefined);
+  assert.equal(db.read('payOrders/order_1').status, 'created');
+});
+
+test('Z9 · a paymentRef that cannot be a document id is refused', async () => {
+  const db = memoryFirestore();
+  for (const paymentRef of ['a/b', '.', '..', '__x__']) {
+    await assert.rejects(grantPass({ uid: 'u1', passType: 'month', paymentRef }, { firestore: db }), PassGrantInputError, paymentRef);
+  }
+  assert.equal(db.docs.size, 0);
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
    R5 — expiry in the server gate (deriveEffectiveTier / resolve)
    ══════════════════════════════════════════════════════════════════════════ */
 
@@ -398,13 +497,14 @@ function bootServer({ port, secret }) {
   const launcher = `
     const Module = require('module');
     const docs = new Map();
+    const mkRef = (key) => ({ key, collection: (s) => ({ doc: (id) => mkRef(key + '/' + s + '/' + id) }) });
     const fake = {
       apps: [],
       credential: { cert: () => ({}) },
       initializeApp() { fake.apps.push({}); },
       auth: () => ({ verifyIdToken: async () => { throw new Error('no'); } }),
       firestore: () => ({
-        collection: (n) => ({ doc: (id) => ({ key: n + '/' + id }) }),
+        collection: (n) => ({ doc: (id) => mkRef(n + '/' + id) }),
         async runTransaction(fn) {
           const pending = [];
           const out = await fn({

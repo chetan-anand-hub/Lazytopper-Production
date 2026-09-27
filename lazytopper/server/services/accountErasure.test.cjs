@@ -44,6 +44,7 @@ const {
 function makeFirestore(seed = {}, failOnDelete = null) {
   const docs = new Map(Object.entries(seed));
   const deleted = [];
+  const updated = [];
   const queriedByField = [];
 
   function docRef(fullPath) {
@@ -58,6 +59,12 @@ function makeFirestore(seed = {}, failOnDelete = null) {
         if (failOnDelete && failOnDelete === fullPath) throw new Error(`simulated delete failure`);
         deleted.push(fullPath);
         docs.delete(fullPath);
+      },
+      // RAZORPAY-1 · Z7: an anonymise is an UPDATE of an existing document.
+      async update(fields) {
+        if (!docs.has(fullPath)) throw new Error(`NOT_FOUND: no document to update at ${fullPath}`);
+        updated.push({ path: fullPath, fields });
+        docs.set(fullPath, { ...docs.get(fullPath), ...fields });
       },
     };
   }
@@ -105,7 +112,7 @@ function makeFirestore(seed = {}, failOnDelete = null) {
     };
   }
 
-  return { db: { collection: collRef }, docs, deleted, queriedByField };
+  return { db: { collection: collRef }, docs, deleted, updated, queriedByField };
 }
 
 function makeBucket(names = []) {
@@ -183,6 +190,13 @@ function realSeed(uid = UID) {
     [`tutorSessions/${uid}`]: {},
     [`tutorSessions/${uid}/topics/electricity`]: {},
     [`subscriptions/${uid}`]: {},
+    // RAZORPAY-1 · Z9: one record per applied pass payment — erased with the account.
+    [`subscriptions/${uid}/payments/pay_A`]: { passType: 'month', pricePaidInr: 599 },
+    // RAZORPAY-1 · Z7: FIELD-KEYED, and KEPT on erasure with uid -> "erased".
+    'payOrders/order_A': { uid, passType: 'month', amountPaise: 59900, status: 'paid', paymentId: 'pay_A' },
+    'payOrders/order_B': { uid, passType: 'till_boards', amountPaise: 239600, status: 'created' },
+    // Another student's order — must survive untouched.
+    'payOrders/order_Z': { uid: OTHER, passType: 'month', amountPaise: 59900, status: 'paid' },
     // METER-1: production writes ONLY the day documents; the parent stays missing.
     [`usageLedger/${uid}/days/2026-09-27`]: { calls: 1, costMicroInr: 246400 },
     // ★ FIELD-KEYED. The doc id is sha256(uploadToken); the student is a `uid` FIELD.
@@ -499,6 +513,71 @@ test('★ a two-level-deep subcollection is reached, and reached BEFORE its pare
 /* ══════════════════════════════════════════════════════════════════════════════
    5 · THE MAP IS THE SPEC — coverage, and the fixture-map CONTROL
    ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   RAZORPAY-1 · Z7 / Z9 — payment records
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+test('★★ Z7: payOrders are KEPT with uid -> "erased" — anonymised, never deleted, never another student’s', async () => {
+  const { service, store } = makeService();
+  const result = await service.eraseAccount(UID);
+  const row = byId(result, 'payOrders');
+  assert.equal(row.status, STATUS.ANONYMISED);
+  assert.equal(row.anonymised, 2);
+  assert.equal(row.deleted, 0, 'an anonymised location must not report a delete');
+  // Kept, with every accounting field intact and only the uid replaced.
+  assert.deepEqual(store.docs.get('payOrders/order_A'), {
+    uid: 'erased', passType: 'month', amountPaise: 59900, status: 'paid', paymentId: 'pay_A',
+  });
+  assert.equal(store.docs.get('payOrders/order_B').uid, 'erased');
+  assert.ok(!store.deleted.some((p) => p.startsWith('payOrders/')), 'a payment record was deleted');
+  // Another student's order is untouched.
+  assert.equal(store.docs.get('payOrders/order_Z').uid, OTHER);
+  assert.ok(!store.updated.some((u) => u.path === 'payOrders/order_Z'));
+  // Reached BY FIELD.
+  const q = store.queriedByField.find((x) => x.collection === 'payOrders');
+  assert.deepEqual({ field: q.field, value: q.value }, { field: 'uid', value: UID });
+  // An anonymised location is handled — it is not "remaining" and does not fail the run.
+  assert.ok(!result.remaining.some((r) => r.id === 'payOrders'));
+  assert.equal(result.ok, true);
+  assert.equal(result.summary.documentsAnonymised, 2);
+});
+
+test('★ Z7: a second erasure finds no payOrders under the uid -> notFound, and rewrites nothing', async () => {
+  const { service, store } = makeService();
+  await service.eraseAccount(UID);
+  const updatesAfterFirst = store.updated.length;
+  const second = await service.eraseAccount(UID);
+  assert.equal(byId(second, 'payOrders').status, STATUS.NOT_FOUND);
+  assert.equal(store.updated.length, updatesAfterFirst);
+});
+
+test('★★ Z9: subscriptions/{uid}/payments/* is deleted by its CHILD path, before the parent', async () => {
+  const { service, store } = makeService();
+  const result = await service.eraseAccount(UID);
+  assert.equal(byId(result, 'subscriptions.payments').status, STATUS.DELETED);
+  const child = store.deleted.indexOf(`subscriptions/${UID}/payments/pay_A`);
+  const parent = store.deleted.indexOf(`subscriptions/${UID}`);
+  assert.ok(child >= 0, 'the payment record survived the erasure');
+  assert.ok(parent > child, 'the parent was deleted before its payments subcollection');
+});
+
+test('AUDIT: onErase "anonymise-uid" on a location whose doc id IS the uid is REFUSED, not guessed', () => {
+  const docTree = classifyLocation({
+    id: 'x', kind: 'firestore-collection', path: 'x/{uid}', mechanism: 'admin-sdk-required', exportable: true, onErase: 'anonymise-uid',
+  });
+  assert.equal(docTree.strategy, STRATEGY.UNSUPPORTED);
+  const unknown = classifyLocation({
+    id: 'y', kind: 'firestore-collection', path: 'y/{id}', mechanism: 'admin-sdk-required', exportable: true, onErase: 'shred',
+  });
+  assert.equal(unknown.strategy, STRATEGY.UNSUPPORTED);
+  // CONTROL: the real map's payOrders is planned as an anonymising field query.
+  const planned = planErasure(loadStudentDataMap()).find((p) => p.id === 'payOrders');
+  assert.equal(planned.strategy, STRATEGY.FIRESTORE_FIELD_QUERY);
+  assert.equal(planned.anonymise, true);
+  // And nothing else in the real map anonymises.
+  assert.deepEqual(planErasure(loadStudentDataMap()).filter((p) => p.anonymise).map((p) => p.id), ['payOrders']);
+});
 
 test('every entry in the map is visited', async () => {
   const locations = loadStudentDataMap();

@@ -264,7 +264,12 @@ describe("studentDataMap — drift guard", () => {
     // only by server/services/usageLedger.cjs through the Admin SDK, read by no client,
     // so it is undeclared on purpose and falls to the deny-all catch-all. Unlike
     // `freeCheckDaily` it IS student data (uid-keyed) — it is in the map, not exempted.
-    expect(undeclared).toEqual(["freeCheckDaily", "qrUploadSlots", "usageLedger"]);
+    //
+    // ★ `payOrders` JOINED this set with RAZORPAY-1. Written only by
+    // server/routes/payments.cjs and passGrant.cjs through the Admin SDK; no client may
+    // read or write a payment order, so it is undeclared on purpose (deny-all catch-all).
+    // It IS student data (a `uid` field) — mapped, anonymised on erasure (Z7).
+    expect(undeclared).toEqual(["freeCheckDaily", "payOrders", "qrUploadSlots", "usageLedger"]);
   });
 
   it("★★ the map still declares `users` even though no code writes it (OWNER RULING)", () => {
@@ -357,6 +362,8 @@ describe("studentDataMap — per-location properties", () => {
     "tutorSessions",
     "tutorSessions.topics",
     "subscriptions",
+    "subscriptions.payments",
+    "payOrders",
     "usageLedger",
     "usageLedger.days",
     "qrUploadSlots",
@@ -398,6 +405,49 @@ describe("studentDataMap — per-location properties", () => {
   });
 });
 
+describe("studentDataMap — payment records are STUDENT data (RAZORPAY-1, Z7/Z9)", () => {
+  // MUTATION: drop either entry, or move "payOrders" into NON_STUDENT_COLLECTIONS => RED.
+  it("★★ payOrders is mapped, FIELD-keyed, exportable, anonymised (not deleted) on erasure", () => {
+    const orders = STUDENT_DATA_MAP.find((l) => l.id === "payOrders");
+    expect(orders, "payOrders is missing from STUDENT_DATA_MAP").toBeDefined();
+    expect(orders!.kind).toBe("firestore-collection");
+    // No {uid} segment: the uid is a FIELD, so export and erasure must QUERY it.
+    expect(orders!.path).toBe("payOrders/{orderId}");
+    expect(orders!.path).not.toContain("{uid}");
+    expect(orders!.exportable).toBe(true);
+    expect(orders!.mechanism).toBe("admin-sdk-required");
+    expect(orders!.onErase).toBe("anonymise-uid");
+    expect(NON_STUDENT_COLLECTIONS).not.toContain("payOrders");
+    expect(firestoreCollectionNames()).toContain("payOrders");
+    // Nothing else in the map is kept on erasure.
+    expect(STUDENT_DATA_MAP.filter((l) => l.onErase === "anonymise-uid").map((l) => l.id)).toEqual([
+      "payOrders",
+    ]);
+  });
+
+  it("★★ subscriptions.payments is mapped under subscriptions, exportable, and DELETED on erasure", () => {
+    const pays = STUDENT_DATA_MAP.find((l) => l.id === "subscriptions.payments");
+    expect(pays, "subscriptions.payments is missing from STUDENT_DATA_MAP").toBeDefined();
+    expect(pays!.kind).toBe("firestore-subcollection");
+    expect(pays!.parentId).toBe("subscriptions");
+    expect(pays!.path).toBe("subscriptions/{uid}/payments/{paymentRef}");
+    expect(pays!.exportable).toBe(true);
+    expect(pays!.mechanism).toBe("admin-sdk-required");
+    expect(pays!.onErase === undefined || pays!.onErase === "delete").toBe(true);
+    expect(subcollectionsOf("subscriptions").map((l) => l.id)).toEqual(["subscriptions.payments"]);
+  });
+
+  it("★ CONTROL: the source scan really finds payOrders (the writer is live), and no phantom `payments`", () => {
+    expect(scanCollectionsFromSource().has("payOrders")).toBe(true);
+    expect(scanCollectionsFromSource().has("payments")).toBe(false);
+  });
+
+  it("★★ firestore.rules declares no client block for payOrders — default-deny covers it", () => {
+    expect(scanCollectionsFromRules().has("payOrders")).toBe(false);
+    expect(readFileSync(RULES, "utf8")).not.toMatch(/payOrders/);
+  });
+});
+
 describe("studentDataMap — erasure architecture facts", () => {
   it("★★ subscriptions is admin-only because firestore.rules REFUSES client delete", () => {
     const rules = readFileSync(RULES, "utf8");
@@ -434,6 +484,8 @@ describe("studentDataMap — erasure architecture facts", () => {
     const adminOnly = adminOnlyLocations().map((l) => l.id);
     // Each of these individually forces the server path.
     expect(adminOnly).toContain("subscriptions");
+    expect(adminOnly).toContain("subscriptions.payments");
+    expect(adminOnly).toContain("payOrders");
     expect(adminOnly).toContain("qrUploadSlots");
     expect(adminOnly).toContain("storage.qr-uploads");
     expect(adminOnly).toContain("users");

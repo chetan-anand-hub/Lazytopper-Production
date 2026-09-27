@@ -36,6 +36,14 @@
  *     written here.
  *   Both appear in `remaining`, so `complete` is false and the caller cannot
  *   accidentally claim a whole-account erasure.
+ *
+ * ★ ANONYMISE, DON'T DELETE — only where the MAP says so (RAZORPAY-1 · Z7). A location
+ * carrying `onErase: "anonymise-uid"` (today: `payOrders`, the accounting record of a
+ * payment) keeps its documents and has its `uid` FIELD replaced with `"erased"`. It is
+ * reported `anonymised: N` — never `deleted` — and a zero-match is `notFound` exactly
+ * as for a delete. The flag is honoured ONLY on a field-keyed location; anywhere else
+ * the plan REFUSES it, because "anonymise" has no meaning for a document whose id IS
+ * the uid.
  */
 
 const path = require('path');
@@ -53,6 +61,12 @@ const { __internals: qrInternals } = require('./qrUploadChannel.cjs');
  * inspectable rather than implicit.
  */
 const UID_FIELD = 'uid';
+
+/** What an anonymised location's `uid` field becomes (studentDataMap `onErase`). */
+const ERASED_UID = 'erased';
+
+/** The map's `onErase` values. Absent = delete. */
+const ON_ERASE = Object.freeze({ DELETE: 'delete', ANONYMISE_UID: 'anonymise-uid' });
 
 /** Where the map lives, relative to this file. Resolved once. */
 const STUDENT_DATA_MAP_PATH = path.join(__dirname, '..', '..', 'src', 'services', 'studentDataMap.ts');
@@ -75,6 +89,8 @@ const STRATEGY = Object.freeze({
 
 const STATUS = Object.freeze({
   DELETED: 'deleted',
+  /** Kept, with the uid field replaced by "erased" (map `onErase: "anonymise-uid"`). */
+  ANONYMISED: 'anonymised',
   /** ★ The query ran and matched nothing. NOT the same as success. */
   NOT_FOUND: 'notFound',
   FAILED: 'failed',
@@ -156,6 +172,19 @@ const isPlaceholder = (seg) => /^\{.+\}$/.test(seg);
  * `id === "qrUploadSlots"` the walker stops being a map-walker.
  */
 function classifyLocation(location) {
+  const classified = classifyByShape(location);
+  const onErase = location.onErase === undefined ? ON_ERASE.DELETE : location.onErase;
+  if (onErase === ON_ERASE.DELETE) return classified;
+  if (onErase === ON_ERASE.ANONYMISE_UID && classified.strategy === STRATEGY.FIRESTORE_FIELD_QUERY) {
+    return { ...classified, anonymise: true };
+  }
+  return {
+    strategy: STRATEGY.UNSUPPORTED,
+    reason: `onErase "${onErase}" is only supported on a field-keyed firestore location`,
+  };
+}
+
+function classifyByShape(location) {
   if (location.mechanism === 'client-local') {
     return { strategy: STRATEGY.NOT_SERVER_ERASABLE, reason: 'lives in the student browser' };
   }
@@ -257,6 +286,7 @@ function planErasure(locations) {
       parentId: location.parentId,
       strategy: classified.strategy,
       field: classified.field,
+      anonymise: classified.anonymise === true,
       reason: classified.reason,
       depth,
       index,
@@ -343,6 +373,19 @@ async function deleteFirestoreByField(db, pathTemplate, uid, field) {
   return docs.length;
 }
 
+/**
+ * ★ THE FIELD-KEYED ANONYMISE (Z7). Same query as the delete above — the student is a
+ * `uid` FIELD — but the document is KEPT and only that field is overwritten with
+ * "erased". Returns the count, so zero matched is `notFound`, never success.
+ */
+async function anonymiseFirestoreByField(db, pathTemplate, uid, field) {
+  const segs = templateSegments(pathTemplate);
+  const snap = await db.collection(segs[0]).where(field, '==', uid).get();
+  const docs = snap && Array.isArray(snap.docs) ? snap.docs : [];
+  for (const doc of docs) await doc.ref.update({ [field]: ERASED_UID });
+  return docs.length;
+}
+
 /** `qr-uploads/{uid}/{slotId}.{ext}` -> `qr-uploads/<uid>/`. */
 function storagePrefixFor(pathTemplate, uid) {
   const segs = templateSegments(pathTemplate);
@@ -424,6 +467,7 @@ function createAccountErasureService(deps = {}) {
       case STRATEGY.FIRESTORE_DOC_TREE:
         return deleteFirestoreDocTree(adminFirestore, step.path, uid);
       case STRATEGY.FIRESTORE_FIELD_QUERY:
+        if (step.anonymise) return anonymiseFirestoreByField(adminFirestore, step.path, uid, step.field || UID_FIELD);
         return deleteFirestoreByField(adminFirestore, step.path, uid, step.field || UID_FIELD);
       case STRATEGY.STORAGE_PREFIX:
         return deleteStoragePrefix(bucket(), step.path, uid);
@@ -493,8 +537,13 @@ function createAccountErasureService(deps = {}) {
         try {
           const count = await runOne(step, trimmed);
           // ★★ ZERO MATCHED IS NOT SUCCESS.
-          row.status = count > 0 ? STATUS.DELETED : STATUS.NOT_FOUND;
-          row.deleted = count;
+          if (step.anonymise) {
+            row.status = count > 0 ? STATUS.ANONYMISED : STATUS.NOT_FOUND;
+            row.anonymised = count;
+          } else {
+            row.status = count > 0 ? STATUS.DELETED : STATUS.NOT_FOUND;
+            row.deleted = count;
+          }
         } catch (e) {
           // Swallowing this is the same defect class the `users` write shipped with:
           // it failed for three months and nothing noticed. Record and keep going,
@@ -511,6 +560,7 @@ function createAccountErasureService(deps = {}) {
     const summary = {
       total: results.length,
       documentsDeleted: results.reduce((n, r) => n + (r.deleted || 0), 0),
+      documentsAnonymised: results.reduce((n, r) => n + (r.anonymised || 0), 0),
     };
     for (const value of Object.values(STATUS)) {
       summary[value] = results.filter((r) => r.status === value).length;
@@ -520,7 +570,7 @@ function createAccountErasureService(deps = {}) {
     // `third-party.gemini` are always here, so `complete` is always false — which
     // is the honest answer for a server-only erasure and must stay visible.
     const remaining = results
-      .filter((r) => r.status !== STATUS.DELETED && r.status !== STATUS.NOT_FOUND)
+      .filter((r) => r.status !== STATUS.DELETED && r.status !== STATUS.ANONYMISED && r.status !== STATUS.NOT_FOUND)
       .map((r) => ({ id: r.id, status: r.status, reason: r.reason || r.error }));
 
     const failed = results.filter(
@@ -550,5 +600,7 @@ module.exports = {
   STRATEGY,
   STATUS,
   UID_FIELD,
+  ERASED_UID,
+  ON_ERASE,
   STUDENT_DATA_MAP_PATH,
 };
