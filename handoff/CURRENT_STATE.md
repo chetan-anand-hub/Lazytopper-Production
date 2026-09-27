@@ -49,7 +49,7 @@ FAIR-USE-1 (`#852`) and RAZORPAY-1 (`#853`) are on trunk. The server now counts 
 - **U4 (premium never shed)** is the one student-facing behaviour change live without a switch — the spec rules it live, and it only ever serves paying students more.
 
 ### Rollout (OR-LIVE D7)
-ROLLOUT: <pending controller>
+ROLLOUT (controller-verified, 2026-09-27): #852 (4984655e) production deployment dpl_FAkHs2P17 served www and Railway served the new server (/api/usage/me 401) before #853 merged. #853 (fecbbe08) was a payments lane and rolled out alone (OR-LIVE): Vercel rolling release dpl_7Z5QbMvgQUxQhKHBw5iQJXRxfBWe reached COMPLETE / 100% at 19:07:39Z and Railway finished. Canary and www smoke passed: /app/, /app/pricing and /app/practice 200; POST /api/pay/order, /verify and /webhook 404, identical to an unknown path (PAYMENTS_ENABLED unset); served pricing HTML identical to the pre-merge page except for asset hashes, with no Razorpay checkout or buy button. FAIR_USE_ENFORCE, PAYMENTS_ENABLED and VITE_PAYMENTS_ENABLED are all unset.
 
 ### ★ OWNER STEPS (none run by the controller or any builder) — detail in `NEXT_ACTION.md`
 1. Leave `FAIR_USE_ENFORCE` unset until FAIR-USE-2 ships **and** `[FU-FAIR-USE-SURFACE-UNVERIFIABLE]` is decided; then set `=1` on Railway to enforce.

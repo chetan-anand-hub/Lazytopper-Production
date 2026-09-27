@@ -12,7 +12,7 @@
 - RAZORPAY-1 merged trunk in (no rebase, D3; conflicts in `package.json` and `index.cjs`, both lanes' lines kept) → `#853`. CI green on `b7c1d434` (run `36341250786`).
 - The D6 gate held at 18:49:43Z (www on `#852`'s deployment for 17 min; Railway's new server answering 401 on `/api/usage/me`), and `#853` was merged → `fecbbe08`. The D7 rollout (canary smoke, 100%, www smoke: `/app/pricing` 200 and `/api/pay/order`, `/api/pay/verify`, `/api/pay/webhook` → 404) precedes this docs PR.
 
-ROLLOUT: <pending controller>
+ROLLOUT (controller-verified, 2026-09-27): #852 (4984655e) production deployment dpl_FAkHs2P17 served www and Railway served the new server (/api/usage/me 401) before #853 merged. #853 (fecbbe08) was a payments lane and rolled out alone (OR-LIVE): Vercel rolling release dpl_7Z5QbMvgQUxQhKHBw5iQJXRxfBWe reached COMPLETE / 100% at 19:07:39Z and Railway finished. Canary and www smoke passed: /app/, /app/pricing and /app/practice 200; POST /api/pay/order, /verify and /webhook 404, identical to an unknown path (PAYMENTS_ENABLED unset); served pricing HTML identical to the pre-merge page except for asset hashes, with no Razorpay checkout or buy button. FAIR_USE_ENFORCE, PAYMENTS_ENABLED and VITE_PAYMENTS_ENABLED are all unset.
 
 ### ★ What this wave teaches
 - **AN UNWIRED TEST IS A SILENT NO-OP.** Server `node:test` files run in CI only through `lazytopper/package.json` `test:matrix:all` (vitest's include is `src/**` only). Both specs required their tests' names in the CI log, so the controller allowed the wiring lines (D1) and the proof was read from the log, not the tick: `> lazytopper@0.0.0 test:server:fair-use` and `test:server:payments` appear, with `# fail 0` and `# skipped 0`.
