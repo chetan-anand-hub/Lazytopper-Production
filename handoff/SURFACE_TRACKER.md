@@ -1,5 +1,14 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-27 — WAVE B-1 (MONEY): STORED-RATE-1 (`#841` `ceb93c81`) + METER-1 (`#842` `91d7d1a8`), trunk `91d7d1a8`.**
+> ★ **SERVER AND RULES ONLY: a pass is stored and priced by the server, and every paid AI call's cost is recorded per student.** No UI changed in either lane.
+
+### ⬜ NO SURFACE CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- STORED-RATE-1 changes what "premium" means underneath every gated surface: a pass with `passEnd` at or before now reads as free. But no surface's content, copy or status changes, and no pass has been granted yet (the admin route is dark until `PASS_ADMIN_SECRET` is set).
+- METER-1 records only: no limit, no refusal, no UI.
+
+### 📋 Scope discovered? — **NO surface scope.** Five follow-ups and one owner question are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`; none sets a surface to Settling. `[FU-PASS-TRIAL-AFTER-EXPIRY]` may touch the trial surface once ruled.
+
 > **2026-09-27 — CHUNK-RESILIENCE-1 (`#839` `b031caac`), trunk `b031caac`.**
 > ★ **INFRA, ALL `/app` SURFACES AT ONCE: assets are pinned to the page's deployment (Vercel Skew Protection + `__vdpl` cookie) and a failed route chunk is retried.** LIVE, verified on production (6/6 smoke).
 

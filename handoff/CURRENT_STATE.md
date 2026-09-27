@@ -1,5 +1,58 @@
 # LazyTopper — Current State
 
+## [CURRENT · MONEY] WAVE B-1 — **A STUDENT'S PASS IS STORED, PRICED, DATED AND UNFORGEABLE (STORED-RATE-1) + EVERY PAID AI CALL'S COST IS RECORDED PER STUDENT (METER-1)** — `#841` + `#842` MERGED — trunk `91d7d1a8`
+
+★ **PROVENANCE.**
+- Controller B (Money), wave B-1, one controller session. There was one builder per PR (`claude-opus-5-5`; effort "high" was stated in each brief, but the Agent tool exposes no effort setting, so it could not be set mechanically). Each builder worked in its own worktree (`C:/Projects/LT-worktrees/stored-rate-1`, `…/meter-1`). The controller wrote this docs PR directly (OR-16).
+- Specs are owner-authored and hash-verified on receipt: `STORED-RATE-1.md` `D42E47252620`, `METER-1.md` `BC5D8F456B0B`. Both §0c premise gates were run by the controller on trunk `b031caac` with `--strict-anchor`: PASS, 15/15 and 7/7 anchors resolved, EXIT=0.
+- Merges, under the owner ruling (merge on the spec §3 proof, no pre-merge audit; ONE final audit per wave):
+  - `#841` `--match-head-commit c93dd8f2` → **`ceb93c81`**;
+  - `#842` `--match-head-commit 4b008fe3` → **`91d7d1a8`**.
+  - For each: `merge-base --is-ancestor` OK, and `git diff <head> <merge>` is EMPTY *(controller-verified)*.
+- Items marked *(subagent-reported)* come from `report-stored-rate-1-2026-09-27.md` / `report-meter-1-2026-09-27.md` and were not re-measured by the controller.
+
+**Trunk `91d7d1a8cc277f30dada44d1caed0a85aa264daf`** (`#842`). Before that it was `ceb93c81` (`#841`), and before that `afa770b7` (`#840`, the CHUNK-RESILIENCE-1 docs).
+
+*(This block supersedes the CHUNK-RESILIENCE-1 block below on trunk SHA only. That block's content otherwise stands as written.)*
+
+### What shipped — STORED-RATE-1 (`#841`)
+- **R1 pass fields on `subscriptions/{uid}`**, written only by the Admin SDK: `passType` (`month` | `till_boards`), `passStart`, `passEnd`, `pricePaidInr`, `offerKey` (`founding` | `regular`), `foundingMember` (sticky), `lastPaymentRef`, plus `tier: "premium"` and `plan: "pass_month"` | `"pass_till_boards"`. Built by `computeGrant` in the new `lazytopper/server/services/passGrant.cjs` *(subagent-reported)*.
+- **R2 rules (`firestore.rules`, the subscriptions block only, owner grant):** `passFields()`, `createCarriesNoPassField()` and `updateChangesNoPassField()` are added to `allow create` and `allow update`. A client can no longer create or change any R1 field. `subscriptions/{uid}` has no other match block; the catch-all denies *(subagent-reported)*.
+- **R3 `grantPass({ uid, passType, paymentRef, now })`**: one Firestore transaction, server-computed only. The price comes from the new `passPricing.cjs` (a pure CJS mirror of `tillBoardsQuote` / `predictCbseExamDate` with the clock as an argument, IST). Month passes stack from the current unexpired `passEnd`; till-boards runs to the end of the first board day IST. It is idempotent on `lastPaymentRef`.
+- **R4 `POST /api/admin/grant-pass`** in `lazytopper/server/index.cjs`, guarded by `PASS_ADMIN_SECRET` exactly like the warm-pool admin route: 503 when unset, 401 on mismatch. This is the owner's manual path until Razorpay.
+- **R5 expiry**, server (`entitlement.cjs` `deriveEffectiveTier`, positive cache capped at `passEnd`) and client (`subscriptionService.ts` `applyPassExpiry`): premium with `passEnd` at or before now reads as **free**. Legacy premium with no `passEnd` stays premium (grandfathered). **An expired pass is not written back**; expiry is derived on read, like the trial end *(subagent-reported)*.
+- **R6 tests:** `passGrant.test.cjs` (25, wired as `test:server:pass-grant` in `test:matrix:all`), rules §15/§16 (18), `subscriptionService.entitlement.test.ts` §9 (7), `passPricing.parity.test.ts` (38; 17 dated cases, including month ends and the board day).
+
+### What shipped — METER-1 (`#842`) — records only: no limit, no refusal, no UI
+- **M1** `index.cjs` runs every request inside `AsyncLocalStorage` (`runWithRequestContext`). After the limiter and entitlement gates, `bindRequestUid(verifiedUid, reqPath, { freeCheck })` binds the **verified** uid only (never a header value), **only on `PAID_ENDPOINTS`**, and never for a free check.
+- **M2** `modelPrices.cjs` (data only): `gemini-2.5-flash` $0.30 in / $2.50 out per 1M tokens, with thinking tokens costed at the output rate; `LT_USD_INR`, default 88. An unknown model costs 0 and counts `usage.unpriced_model`.
+- **M3** `usageLedger.cjs`: after each successful `callGemini`, a fire-and-forget `FieldValue.increment` on `usageLedger/{uid}/days/{istDayKey}` of `calls`, `promptTokens`, `outputTokens`, `thoughtsTokens`, `costMicroInr`. It is fed from the same firewalled `buildTokenTelemetryRecord` record in `geminiClient.cjs`. A ledger failure never delays or fails the request (`usage.ledger_write_failed`).
+- **M4** `usageLedger` and `usageLedger.days` are declared as **student data** in `studentDataMap.ts` (admin-sdk-required, exportable; not in `NON_STUDENT_COLLECTIONS`). Erasure and export are map-driven, so **neither service changed**; their tests prove the ledger is erased and exported *(subagent-reported)*.
+- **Rules:** `firestore.rules` is unchanged by METER-1. The top-level `match /{document=**}` deny-all covers `usageLedger`, and only the Admin SDK writes it. A test pins that the rules never mention `usageLedger`.
+
+### ★ Deviations from the specs, recorded for the wave's final audit
+- **METER-1 records on paid endpoints only**, narrower than M1's "the verified uid". **Reason** *(subagent-reported)*: ALS context survives timers and promises, so admin warm-pool and solution-cache runs, which are verified-uid requests, would otherwise be charged to the admin's own ledger. **So admin-tool Gemini spend is not metered.** Owner confirmation is outstanding.
+- **Both lanes edited `lazytopper/package.json`** to wire their new suites into `test:matrix:all`. STORED-RATE-1's §1 allows this; METER-1's §1 requires the wiring but does not name the file.
+- **STORED-RATE-1 ran 2 of its 3 mutations.** The third, "drop R2 → a rules test red", **was NOT run**. No Java is installed locally, and the CI route (push a rules-weakening commit, then revert it) was refused by the auto-mode permission classifier as a security weakening. Neither the builder nor the controller worked around the refusal. The controller merged on the spec §3 proof (which does not list mutations) because **merging does not deploy rules**. The proof is owed **before** `deploy:firestore-rules`: `[FU-STORED-RATE-RULES-MUTATION-PROOF]`.
+
+### Evidence
+- **`#841`** quality-gate run `36290328169` on head `c93dd8f2` *(controller-verified)*: 6/6 checks SUCCESS. Every node suite reports `# fail 0` and `# skipped 0`, including Firestore rules `# tests 47 # pass 47` and pass-grant `# tests 25 # pass 25`. Vitest `Test Files  195 passed (195)`, `Tests  2713 passed (2713)`. The first CI run, on `76e1d668`, was red on two rules tests from a test-seed bug, fixed in `61781616` *(subagent-reported)*.
+- **`#842`** quality-gate run `36290739038` on head `4b008fe3` *(controller-verified)*: 8/8 checks SUCCESS, 0 lines with a non-zero fail or skipped count. Vitest `Tests  2718 passed (2718)`; usageLedger `# tests 14`; rules `# tests 47`. The erasure and export test names appear in the log.
+- **Mutations** *(subagent-reported)*:
+  - STORED-RATE-1: price from input → `not ok 12`; transaction dropped → `not ok 13` (concurrent double grant).
+  - METER-1: thinking at the input price → `not ok 1`; awaited ledger write → `not ok 8` (`TIMEOUT`); header uid charged → `not ok 14` (`LEDGER_SET usageLedger/forged-header-uid/…`); plus two extra (map entry removed; collection exempted).
+  - All were restored, each restore verified by sha256 or an identical diff.
+
+### ★ OWNER STEPS (none run by the controller)
+1. **Run the rules mutation proof** on a machine with Java: remove the two `&& create/updateChangesNoPassField()` clauses, run `pnpm run test:firestore-rules`, expect §15/§16 red, then restore. **Do this before step 2.**
+2. `pnpm run deploy:firestore-rules`. Until then the R2 protection is merged but **not live**.
+3. Set **`PASS_ADMIN_SECRET`** on Railway. Until then `POST /api/admin/grant-pass` returns 503 (fail-closed).
+4. Optional: `LT_USD_INR` on Railway (default 88).
+5. **Live-verify METER-1**: make one signed-in paid call, then confirm that `usageLedger/{uid}/days/<today IST>` in the Firebase console holds the five fields, and that response latency is unchanged.
+
+### Carried forward
+- The `WIRE-2` dormancy block is unchanged by this wave; see its section (`### 8 - ★ THE WIRE-2 QUESTION`) below.
+
 ## [CURRENT · INFRA] CHUNK-RESILIENCE-1 — **ASSETS PINNED TO THE PAGE'S DEPLOYMENT (SKEW PROTECTION ON) + A FAILED ROUTE CHUNK IS RETRIED** — `#839` MERGED — trunk `b031caac`
 
 ★ **PROVENANCE.**

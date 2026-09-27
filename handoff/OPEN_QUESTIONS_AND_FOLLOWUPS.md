@@ -23,6 +23,29 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-27 — WAVE B-1 (MONEY): STORED-RATE-1 (`#841` MERGED as `ceb93c81`) + METER-1 (`#842` MERGED as `91d7d1a8`), squash, `--match-head-commit`, no `--admin` — five new follow-ups
+
+### `[FU-STORED-RATE-RULES-MUTATION-PROOF]` — ★ OPEN, **OWNER, BEFORE `deploy:firestore-rules`. THE R2 RULES MUTATION WAS NEVER RUN**
+- STORED-RATE-1 R6 requires "drop R2 → a rules test red". It was not run. No Java is installed locally (the emulator cannot start), and the CI route (push a commit removing the two `&& create/updateChangesNoPassField()` clauses, quote the red run, push a revert) was refused by the Claude Code auto-mode permission classifier as a security weakening. The refusal was **not** worked around.
+- **What exists instead** *(subagent-reported)*: the rules tests' controls `15-control` / `16-control` show that each denial is the pass clause firing, not another clause. CI shows `# tests 47 # pass 47 # fail 0 # skipped 0` on the merged head.
+- **To close:** on a machine with Java, remove the two clauses, run `pnpm run test:firestore-rules`, see §15/§16 red, restore, see green. Then deploy.
+
+### `[FU-SERVER-CBSEEXAMDATE-DAY-DRIFT]` — OPEN. **THE SERVER'S BOARD-DAY PREDICTOR SAYS FEB 15; THE CLIENT'S SAYS FEB 17** *(subagent-reported, not re-measured)*
+- `lazytopper/server/services/cbseExamDate.cjs` `predictCbseExamDate` uses day 15 for class 10; `lazytopper/src/services/cbseExamDate.ts` uses 17.
+- STORED-RATE-1 does **not** use the server file. Its own `passPricing.cjs` mirrors the client, and a parity test pins it. Anything else that reads the server predictor gets a date two days earlier than the student sees.
+
+### `[FU-PASS-TRIAL-AFTER-EXPIRY]` — OPEN, **OWNER RULING. A STUDENT WHOSE PASS EXPIRED, AND WHO NEVER TRIALLED, CAN START THE 7-DAY TRIAL**
+- Expiry is derived on read (the stored doc stays `tier: "premium"` with the old `passEnd`). The trial rules allow the start because no pass field changes *(subagent-reported)*. Whether a former paying student should get a trial is a product call.
+
+### `[FU-METER-STREAM-UNMETERED]` — OPEN. **`callGeminiStream` IS NOT METERED**
+- It has no consumer today, and it is the same gap as its token telemetry *(subagent-reported)*. Any future streaming route must add the ledger hook, or its cost is invisible to FAIR-USE-1.
+
+### `[FU-METER-PRICE-TABLE-SINGLE-MODEL]` — OPEN. **ONLY `gemini-2.5-flash` IS PRICED**
+- Any env switch of `GEMINI_MODEL` / `GEMINI_TUTOR_MODEL` to another model records cost 0 and counts `usage.unpriced_model`, by design (never a guessed price). Add a row to `modelPrices.cjs` **before** switching a model. `diagrams.cjs` can fall back to `gemini-2.5-pro` only when `GEMINI_TUTOR_MODEL` is empty *(subagent-reported)*.
+
+### Owner question (not an FU): admin-tool Gemini spend is not metered
+METER-1 binds the uid only on `PAID_ENDPOINTS`, so admin warm-pool and solution-cache regenerate runs record nothing. This is narrower than spec M1's "the verified uid", and it is recorded as a deviation for the wave's final audit. Confirm, or ask for a separate admin ledger.
+
 ## 2026-09-27 — CHUNK-RESILIENCE-1 (`#839` MERGED as `b031caac`, squash, `--match-head-commit 83dc5750`, no `--admin`) — one follow-up resolved, three new
 
 ### `[FU-SKEW-PROTECTION-UNAVAILABLE-ON-FREE-PLAN]` — ✅ RESOLVED 2026-09-27 by `#839` (`b031caac`)
