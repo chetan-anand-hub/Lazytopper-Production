@@ -277,7 +277,26 @@ function deriveEffectiveTier(raw, nowMs) {
     if (start === null || start + TRIAL_MS < nowMs) tier = 'free';
   }
 
-  return { tier, trialEndsAtMs };
+  // Pass expiry (STORED-RATE-1 R5) — mirror of subscriptionService.applyExpiry's
+  // premium branch. A paid pass is premium only until its `passEnd`: AT or after that
+  // instant it is free. A premium record with NO `passEnd` is a legacy, owner-granted
+  // premium and stays premium (grandfathered). A `passEnd` that is present but cannot
+  // be read as an instant fails CLOSED — it cannot prove the pass is still running.
+  //
+  // `passEnd` is only ever consulted on a stored PREMIUM record, and firestore.rules
+  // refuse any client write of it, so a client-written far-future `passEnd` on a free
+  // document buys nothing here.
+  const passEndsAtMs = hasPassEnd(doc) ? toMillis(doc.passEnd) : null;
+  if (tier === 'premium' && hasPassEnd(doc)) {
+    if (passEndsAtMs === null || passEndsAtMs <= nowMs) tier = 'free';
+  }
+
+  return { tier, trialEndsAtMs, passEndsAtMs };
+}
+
+/** True when the document carries a pass end at all (absent or null = legacy premium). */
+function hasPassEnd(doc) {
+  return !!doc && doc.passEnd !== null && doc.passEnd !== undefined;
 }
 
 /**
@@ -466,12 +485,16 @@ function createEntitlementGate(deps = {}) {
       return failOpen(FAIL_OPEN_READ_ERROR, `snapshot.data() threw: ${(e && e.message) || e}`);
     }
 
-    const { tier, trialEndsAtMs } = deriveEffectiveTier(raw, nowMs);
+    const { tier, trialEndsAtMs, passEndsAtMs } = deriveEffectiveTier(raw, nowMs);
     const entitled = isEntitled(tier);
 
     if (entitled) {
       emit(ALLOW_EVENT);
-      if (cacheTtlMs > 0) positiveCache.set(id, { tier, trialEndsAtMs, expiresAt: nowMs + cacheTtlMs });
+      // A cached ALLOW never outlives the pass it was read from: a pass that ends
+      // inside the TTL is re-read at its end, not served for up to a TTL past it.
+      const ttlEnd = nowMs + cacheTtlMs;
+      const expiresAt = tier === 'premium' && passEndsAtMs !== null ? Math.min(ttlEnd, passEndsAtMs) : ttlEnd;
+      if (cacheTtlMs > 0) positiveCache.set(id, { tier, trialEndsAtMs, expiresAt });
     } else {
       emit(DENY_EVENT);
     }

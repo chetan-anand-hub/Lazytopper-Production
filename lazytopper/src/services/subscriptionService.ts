@@ -3,7 +3,14 @@ import { firestoreDb } from "./firebaseClient";
 
 export type SubscriptionTier = "free" | "trial" | "premium";
 
-export type SubscriptionPlan = "none" | "trial_7day" | "premium_monthly" | "premium_yearly";
+export type SubscriptionPlan =
+  | "none"
+  | "trial_7day"
+  | "premium_monthly"
+  | "premium_yearly"
+  /** STORED-RATE-1 — a paid pass, written only by the server (passGrant.cjs). */
+  | "pass_month"
+  | "pass_till_boards";
 
 export interface SubscriptionStatus {
   tier: SubscriptionTier;
@@ -24,6 +31,14 @@ export interface SubscriptionStatus {
    */
   trialEndDate: string | null;
   premiumSince: string | null;
+  /**
+   * STORED-RATE-1 R5 — when a PAID PASS ends (ISO). Written ONLY by the server through
+   * the Admin SDK (firestore.rules refuse every client write of it). A premium status
+   * whose passEnd is at or before now is FREE; a premium status with NO passEnd is a
+   * legacy owner-granted premium and stays premium. Optional so the many call sites
+   * that build a status literal need not name it.
+   */
+  passEnd?: string | null;
 }
 
 const STORAGE_KEY = "lazytopper.subscription.v1";
@@ -136,11 +151,39 @@ function trialStartMs(status: SubscriptionStatus): number | null {
  * ★ Fails closed: a `trial` that cannot prove when it began has NOT begun.
  */
 function applyExpiry(status: SubscriptionStatus): SubscriptionStatus {
+  if (status.tier === "premium") return applyPassExpiry(status);
   if (status.tier !== "trial") return status;
   const start = trialStartMs(status);
   if (start === null) return { ...status, tier: "free" };
   if (start + TRIAL_MS < Date.now()) return { ...status, tier: "free" };
   return status;
+}
+
+/**
+ * STORED-RATE-1 R5 — a paid pass is premium only until its `passEnd`. Mirror of the
+ * server's pass-expiry branch in `server/services/entitlement.cjs` deriveEffectiveTier.
+ *
+ *   no passEnd (absent / null)      legacy owner-granted premium -> stays premium
+ *   passEnd at or before now        -> free
+ *   passEnd present but unreadable  -> free (fails closed: it cannot prove the pass runs)
+ */
+function applyPassExpiry(status: SubscriptionStatus): SubscriptionStatus {
+  if (status.passEnd === undefined || status.passEnd === null) return status;
+  const endMs = new Date(status.passEnd).getTime();
+  if (!Number.isFinite(endMs) || endMs <= Date.now()) return { ...status, tier: "free" };
+  return status;
+}
+
+/**
+ * The tier/plan pairs firestore.rules let a BROWSER write (clientWritableEntitlement).
+ * Anything else — premium, or a pass plan — is server-written, and a client write of
+ * it is refused by rules, so it is not attempted at all.
+ */
+function isClientWritable(status: SubscriptionStatus): boolean {
+  return (
+    (status.tier === "free" || status.tier === "trial") &&
+    (status.plan === "none" || status.plan === "trial_7day")
+  );
 }
 
 /**
@@ -216,6 +259,10 @@ async function saveCloud(
   opts: { pinTrialStart?: boolean } = {},
 ): Promise<void> {
   if (!firestoreDb) return;
+  // A pass (or legacy premium) record is SERVER-owned. Its expiry is DERIVED on every
+  // read, never written back: the write would carry plan "pass_*", which rules refuse,
+  // and the stored pass must survive so a later grant can see it.
+  if (!isClientWritable(status)) return;
   try {
     const ref = doc(firestoreDb, FIRESTORE_COLLECTION, uid);
     const payload: Record<string, unknown> = {
@@ -266,6 +313,13 @@ async function loadCloud(uid: string): Promise<CloudResult> {
       // Never carried forward from the cloud: nothing may read it.
       trialEndDate: null,
       premiumSince: (raw.premiumSince as string | null) ?? null,
+      // Server-written only (rules refuse a client write), so safe to carry. Read
+      // through toIso: the Admin SDK stores it as a Firestore Timestamp. A value that is
+      // PRESENT but unreadable must not collapse to null — null means "legacy premium,
+      // no end" — so it is kept as an unparseable marker and applyPassExpiry fails it
+      // closed, exactly as the server does.
+      passEnd:
+        raw.passEnd === undefined || raw.passEnd === null ? null : (toIso(raw.passEnd) ?? "unreadable"),
     };
     return { kind: "found", data, startIsServerPinned };
   } catch {

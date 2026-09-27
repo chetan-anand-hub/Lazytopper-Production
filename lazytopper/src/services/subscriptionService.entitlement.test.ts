@@ -21,7 +21,7 @@
 //   (M3, moving a pinned trialStartDate, is a RULES mutation — see
 //    firestore-rules-tests/subscriptions.rules.test.mjs)
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("./firebaseClient", () => ({ firestoreDb: { __fakeDb: true } }));
 
@@ -273,5 +273,99 @@ describe("8  what the client actually sends to Firestore", () => {
     const again = activateTrial(UID);
     expect(setDocMock.mock.calls.length).toBe(callsAfterFirst);
     expect(again.tier).toBe("trial");
+  });
+});
+
+// ===========================================================================
+// 9 — ★★ STORED-RATE-1 R5. A PAID PASS ENDS AT `passEnd`, on the client exactly as
+//     on the server (server/services/entitlement.cjs deriveEffectiveTier). Premium
+//     with NO passEnd is a legacy owner grant and stays premium.
+// ===========================================================================
+describe("9  STORED-RATE-1 R5 — pass expiry on the client", () => {
+  /** A Firestore Timestamp stand-in — the shape the Admin SDK stores passEnd as. */
+  const stamp = (ms: number) => ({ toDate: () => new Date(ms) });
+  const passDoc = (passEndMs: number | null, over: Record<string, unknown> = {}) => ({
+    tier: "premium",
+    plan: "pass_month",
+    premiumSince: null,
+    passType: "month",
+    passStart: stamp(Date.UTC(2026, 7, 1)),
+    ...(passEndMs === null ? {} : { passEnd: stamp(passEndMs) }),
+    pricePaidInr: 599,
+    offerKey: "founding",
+    foundingMember: true,
+    lastPaymentRef: "pay_1",
+    ...over,
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const END = Date.UTC(2026, 9, 27, 6, 30);
+
+  it("9a R5 expiry BEFORE passEnd -> premium", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(END - 1);
+    getDocMock.mockResolvedValue(found(passDoc(END)));
+    const resolved = await hydrateSubscriptionFromCloud(UID);
+    expect(resolved.tier).toBe("premium");
+    expect(isPremiumAccess(resolved)).toBe(true);
+  });
+
+  it("9b R5 expiry AT passEnd -> free", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(END);
+    getDocMock.mockResolvedValue(found(passDoc(END)));
+    const resolved = await hydrateSubscriptionFromCloud(UID);
+    expect(resolved.tier).toBe("free");
+    expect(isPremiumAccess(resolved)).toBe(false);
+  });
+
+  it("9c R5 expiry AFTER passEnd -> free, also from the cache alone", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(END + DAY);
+    getDocMock.mockResolvedValue(found(passDoc(END)));
+    const resolved = await hydrateSubscriptionFromCloud(UID);
+    expect(resolved.tier).toBe("free");
+    // The cached copy carries passEnd, so an offline mount expires it too.
+    expect(loadSubscription(UID).tier).toBe("free");
+  });
+
+  it("9d R5 legacy premium with NO passEnd stays premium (grandfathered)", async () => {
+    getDocMock.mockResolvedValue(found(passDoc(null, { plan: "premium_monthly" })));
+    const resolved = await hydrateSubscriptionFromCloud(UID);
+    expect(resolved.tier).toBe("premium");
+  });
+
+  it("9e R5 a present but UNREADABLE passEnd fails closed -> free", async () => {
+    getDocMock.mockResolvedValue(found(passDoc(null, { passEnd: { garbage: true } })));
+    const resolved = await hydrateSubscriptionFromCloud(UID);
+    expect(resolved.tier).toBe("free");
+  });
+
+  it("9f ★ R6 forged: a FREE doc with a client-written passEnd in 2099 stays free", async () => {
+    getDocMock.mockResolvedValue(
+      found({ tier: "free", plan: "none", premiumSince: null, passEnd: "2099-01-01T00:00:00.000Z" }),
+    );
+    const resolved = await hydrateSubscriptionFromCloud(UID);
+    expect(resolved.tier).toBe("free");
+    expect(isPremiumAccess(resolved)).toBe(false);
+  });
+
+  it("9g an expired pass is NOT written back — the server-owned record is left intact", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(END + DAY);
+    getDocMock.mockResolvedValue(found(passDoc(END)));
+    const resolved = await hydrateSubscriptionFromCloud(UID);
+    expect(resolved.tier).toBe("free");
+    // CONTROL: an elapsed TRIAL in the same flow IS written back, so the absence
+    // below is the pass branch and not a broken write path.
+    expect(setDocMock).not.toHaveBeenCalled();
+    getDocMock.mockResolvedValue(
+      found({ tier: "trial", plan: "trial_7day", trialStartDate: stamp(END - 30 * DAY), premiumSince: null }),
+    );
+    await hydrateSubscriptionFromCloud(UID);
+    expect(setDocMock).toHaveBeenCalledTimes(1);
   });
 });

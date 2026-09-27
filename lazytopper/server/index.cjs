@@ -675,6 +675,41 @@ async function handleRequest(req, res) {
     return;
   }
 
+  // STORED-RATE-1 R4 — the owner's manual pass grant until Razorpay (which will call
+  // grantPass directly). Guarded EXACTLY like warm-question-pool above: fail-closed
+  // 503 when PASS_ADMIN_SECRET is unset, 401 on a mismatched X-Admin-Key, same compare.
+  // Owner tooling only (curl) — deliberately NOT in the browser CORS preflight list.
+  // Only {uid, passType, paymentRef} are read from the body; price, offer and dates
+  // are computed server-side in passGrant.cjs and any other body field is ignored.
+  if (req.method === 'POST' && reqPath === '/api/admin/grant-pass') {
+    const adminSecret = process.env.PASS_ADMIN_SECRET;
+    if (!adminSecret) {
+      return sendJson(res, 503, { ok: false, error: 'Endpoint disabled: PASS_ADMIN_SECRET env var is not configured' });
+    }
+    const providedKey = req.headers['x-admin-key'] || '';
+    if (providedKey !== adminSecret) {
+      return sendJson(res, 401, { ok: false, error: 'Unauthorized: valid X-Admin-Key header required' });
+    }
+    let reqJson;
+    try { reqJson = await readJson(req); } catch (_) { return sendJson(res, 400, { ok: false, error: 'Invalid JSON' }); }
+    const { grantPass, PassGrantInputError } = require('./services/passGrant.cjs');
+    if (!adminFirestore) {
+      return sendJson(res, 503, { ok: false, error: 'firebase-admin Firestore is not initialised on this deploy' });
+    }
+    try {
+      const body = reqJson && typeof reqJson === 'object' ? reqJson : {};
+      const result = await grantPass(
+        { uid: body.uid, passType: body.passType, paymentRef: body.paymentRef },
+        { firestore: adminFirestore },
+      );
+      return sendJson(res, 200, { ok: true, replayed: result.replayed, pass: result.pass });
+    } catch (e) {
+      if (e instanceof PassGrantInputError) return sendJson(res, 400, { ok: false, error: e.message });
+      console.error('[grant-pass] grant failed:', e && e.message);
+      return sendJson(res, 500, { ok: false, error: 'Pass grant failed' });
+    }
+  }
+
   return sendJson(res, 404, { error: 'Not Found' });
 }
 
