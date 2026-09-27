@@ -937,3 +937,86 @@ describe("8 · signed out at the grade boundary", () => {
     expect(screen.queryByTestId("qp-signin-to-grade")).toBeNull();
   });
 });
+
+// ---------------------------------------------------------------------------
+// 15 · BUGFIX-1 · "TRY AGAIN" MUST ACTUALLY TRY AGAIN
+//
+// The failure copy says "try grading again in a moment" and leaves the "Grade my N
+// answers" button enabled. Before this fix a `skipped-error` result was stored as the
+// batch result and the handler returned early on ANY stored result — so the tap did
+// nothing at all. Every test below counts calls on the real grader seam.
+// ---------------------------------------------------------------------------
+describe("15 · BUGFIX-1 · a failed grade is retryable", () => {
+  it("★★ after a failed grade, tapping 'Grade my N answers' sends a NEW grading request", async () => {
+    gradeWorksheet.mockRejectedValueOnce(new Error("network down"));
+    gradeWorksheet.mockResolvedValueOnce(okBatch([okGrade(1)]));
+    await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, false)]);
+    await saveAPhotoFor(1);
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    // The failure is on screen and the button is still offered.
+    expect((await screen.findByRole("alert")).textContent).toMatch(/could not grade your answers/i);
+    expect(gradeWorksheet).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByTestId("qp-grade-batch"));
+    await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(2));
+    // The retry's grade lands on the graded sheet, and the error box is gone.
+    await waitFor(() => expect(screen.getByText("Diagnosed from your working")).toBeInTheDocument());
+    expect(screen.queryByText(/could not grade your answers/i)).toBeNull();
+  });
+
+  it("★ a SECOND failure is also retryable, and the MCQ marks already earned stay", async () => {
+    gradeWorksheet.mockRejectedValueOnce(new Error("network down"));
+    gradeWorksheet.mockRejectedValueOnce(new Error("still down"));
+    gradeWorksheet.mockResolvedValueOnce(okBatch([okGrade(2)]));
+    await buildSet([mkItem(1, true), mkItem(2, false), mkItem(3, false)]);
+    fireEvent.click(screen.getByText("q1-correct"));
+    await saveAPhotoFor(2);
+    finish();
+
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    await screen.findByRole("alert");
+    fireEvent.click(screen.getByTestId("qp-grade-batch"));
+    await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(2));
+    await screen.findByRole("alert");
+    // Still the confirmation step, still showing the free MCQ mark (1 of 1).
+    const confirm = screen.getByTestId("qp-confirm");
+    expect(confirm.querySelector(".qp-cf__big")?.textContent).toBe("1 of 1");
+
+    fireEvent.click(screen.getByTestId("qp-grade-batch"));
+    await waitFor(() => expect(gradeWorksheet).toHaveBeenCalledTimes(3));
+    await waitFor(() => expect(screen.getByText("Diagnosed from your working")).toBeInTheDocument());
+  });
+
+  it("★★ the retry's GRADED result is recorded — the failed attempt's MCQ-only record does not latch it out", async () => {
+    gradeWorksheet.mockRejectedValueOnce(new Error("network down"));
+    gradeWorksheet.mockResolvedValueOnce(okBatch([okGrade(2)]));
+    await buildSet([mkItem(1, true), mkItem(2, false), mkItem(3, false)]);
+    fireEvent.click(screen.getByText("q1-correct"));
+    await saveAPhotoFor(2);
+    finish();
+
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    await screen.findByRole("alert");
+    // The failed attempt keeps today's behaviour: the free MCQ mark is recorded.
+    await waitFor(() => expect(writeSessionPerQuestion).toHaveBeenCalledTimes(1));
+    expect(writeSessionPerQuestion.mock.calls[0][1].response.results.some((r) => r.marksAwarded === 2)).toBe(false);
+
+    fireEvent.click(screen.getByTestId("qp-grade-batch"));
+    await waitFor(() => expect(writeSessionPerQuestion).toHaveBeenCalledTimes(2));
+    // Same session identity (idempotent doc id), now carrying the graded mark.
+    expect(writeSessionRecord.mock.calls[1][1].id).toBe(writeSessionRecord.mock.calls[0][1].id);
+    expect(writeSessionPerQuestion.mock.calls[1][1].response.results.some((r) => r.marksAwarded === 2)).toBe(true);
+  });
+
+  it("★ CONTROL: a GRADED result is not re-sent — the flow after success is unchanged", async () => {
+    gradeWorksheet.mockResolvedValue(okBatch([okGrade(1)]));
+    await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, false)]);
+    await saveAPhotoFor(1);
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    await waitFor(() => expect(screen.getByText("Diagnosed from your working")).toBeInTheDocument());
+    expect(gradeWorksheet).toHaveBeenCalledTimes(1);
+    expect(screen.queryByTestId("qp-grade-batch")).toBeNull();
+  });
+});

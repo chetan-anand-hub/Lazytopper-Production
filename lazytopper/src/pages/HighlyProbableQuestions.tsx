@@ -348,6 +348,22 @@ function getSolutionUnavailableCopy(isObjective: boolean): string {
     : "Step solution is unavailable right now. Try Check my answer or Revise topic.";
 }
 
+/**
+ * BUGFIX-1 (B2). A `SignInAgainError` (ai/paidCallHeaders.ts) carries student-facing
+ * copy asking the student to sign in again, so it is shown; every other error keeps
+ * `getSolutionUnavailableCopy`. Detected by NAME, never `instanceof` (a mocked or
+ * duplicated module breaks class identity; `name` survives it).
+ */
+function signInAgainMessage(err: unknown): string | null {
+  const e = err as { name?: unknown; message?: unknown } | null;
+  return e && e.name === "SignInAgainError" && typeof e.message === "string" && e.message
+    ? e.message
+    : null;
+}
+
+/** A failed step-solution load. `signInMessage` is set only for a SignInAgainError. */
+type SolutionLoadError = { signInMessage: string | null };
+
 function FilterRow({
   label,
   children,
@@ -492,7 +508,7 @@ const HighlyProbableQuestions: React.FC = () => {
 
   const [solutionData, setSolutionData] = useState<Record<string, StepSolutionResponse>>({});
   const [solutionLoading, setSolutionLoading] = useState<Record<string, boolean>>({});
-  const [solutionError, setSolutionError] = useState<Record<string, string | undefined>>({});
+  const [solutionError, setSolutionError] = useState<Record<string, SolutionLoadError | undefined>>({});
   const [solutionOpen, setSolutionOpen] = useState<Record<string, "solve" | "explain" | undefined>>({});
 
   // Subject-level buckets (Maths vs Science) using engine helper
@@ -621,7 +637,7 @@ const HighlyProbableQuestions: React.FC = () => {
       console.warn("HPQ step solution unavailable", err);
       setSolutionError((prev) => ({
         ...prev,
-        [qId]: err?.message || "Failed to load solution",
+        [qId]: { signInMessage: signInAgainMessage(err) },
       }));
     } finally {
       setSolutionLoading((prev) => ({ ...prev, [qId]: false }));
@@ -1874,7 +1890,7 @@ const HighlyProbableQuestions: React.FC = () => {
 
                                 {solutionError[q.id] && (
                                   <div style={{ fontSize: "0.82rem", color: "#ef4444", padding: "8px 0" }}>
-                                    {getSolutionUnavailableCopy(isObjective)}
+                                    {solutionError[q.id]?.signInMessage ?? getSolutionUnavailableCopy(isObjective)}
                                   </div>
                                 )}
 
