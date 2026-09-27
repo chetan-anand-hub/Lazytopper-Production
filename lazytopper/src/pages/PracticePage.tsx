@@ -534,6 +534,20 @@ const QP_CONFIRM_CSS = `
 
 const QTYPE_FIRST_TRIG = import.meta.env.VITE_QTYPE_FIRST_TRIGONOMETRY === "true";
 
+/**
+ * BUGFIX-1 (B2). A signed-in student whose ID token could not be confirmed is thrown a
+ * `SignInAgainError` (ai/paidCallHeaders.ts) whose message asks for the one thing that
+ * fixes it, so that message is shown. Every other error keeps the page's own copy.
+ * Detected by NAME, never `instanceof`: suites mock the ai modules as whole-module
+ * replacements, and a class identity does not survive that; `name` does.
+ */
+function signInAgainMessage(err: unknown): string | null {
+  const e = err as { name?: unknown; message?: unknown } | null;
+  return e && e.name === "SignInAgainError" && typeof e.message === "string" && e.message
+    ? e.message
+    : null;
+}
+
 interface PracticeNavState {
   subjectKey?: string;
   subject?: string;
@@ -1963,10 +1977,12 @@ const packTopicKey = useMemo(() => {
           finalAnswer: q.finalAnswer || undefined,
         });
         setPracticeSolutionData((prev) => ({ ...prev, [id]: result }));
-      } catch {
+      } catch (err) {
         setPracticeSolutionError((prev) => ({
           ...prev,
-          [id]: "Solution steps are unavailable right now. You can still check your work or try again.",
+          [id]:
+            signInAgainMessage(err) ??
+            "Solution steps are unavailable right now. You can still check your work or try again.",
         }));
       } finally {
         setPracticeSolutionLoading((prev) => ({ ...prev, [id]: false }));
@@ -2174,7 +2190,11 @@ const packTopicKey = useMemo(() => {
    * guards a double tap, so one confirmed session issues EXACTLY ONE call.
    */
   const handleGradeBatch = useCallback(async () => {
-    if (batchGrading || batchResult) return;
+    // BUGFIX-1 (B1): only a GRADED result ends the flow. A `skipped-error` result is kept
+    // (its free MCQ marks still feed the session record below) but it must NOT block the
+    // retry its own copy promises: the button stays enabled after a failure, and before
+    // this guard read `batchResult` alone, the tap did nothing at all.
+    if (batchGrading || batchResult?.outcome === "graded") return;
     if (batchSelection.batch.length === 0) return;
     setBatchGrading(true);
     setBatchError(null);
@@ -2200,8 +2220,13 @@ const packTopicKey = useMemo(() => {
     }
     setBatchResult(result);
     if (result.outcome === "skipped-error") {
+      // BUGFIX-1 (B2, P3): a SignInAgainError (by NAME, carried through the service as
+      // `errorName`) shows its own sign-in-again message; every other failure keeps
+      // today's copy.
       setBatchError(
-        "We could not grade your answers just now. Your MCQ marks are safe \u2014 try grading again in a moment.",
+        result.errorName === "SignInAgainError" && result.error
+          ? result.error
+          : "We could not grade your answers just now. Your MCQ marks are safe \u2014 try grading again in a moment.",
       );
     }
   }, [batchGrading, batchResult, batchSelection.batch.length, filterSignature, sessionStartedAt, subjectKey, sessionAnswers, authUserForJourney]);
@@ -2227,7 +2252,11 @@ const packTopicKey = useMemo(() => {
     // figures only if it ever came. Holding the write until the student has confirmed (or
     // until there is nothing to confirm) means the record is written once, correct.
     if (!batchResult && batchSelection.batch.length > 0) return;
-    const identityKey = `${filterSignature}::${displayed.map((q) => String(q.id)).join(",")}`;
+    // BUGFIX-1: the latch carries the batch OUTCOME as well as the session identity. A
+    // failed grade still writes today's MCQ-only record; a successful RETRY must then be
+    // allowed to write again (same idempotent doc id, now with the graded marks) instead
+    // of being latched out by the failure. A second failure repeats no write.
+    const identityKey = `${filterSignature}::${displayed.map((q) => String(q.id)).join(",")}::${batchResult?.outcome ?? "none"}`;
     if (recordedSessionRef.current === identityKey) return;
     recordedSessionRef.current = identityKey;
 

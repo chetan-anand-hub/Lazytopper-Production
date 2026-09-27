@@ -645,6 +645,10 @@ export interface QuickPracticeBatchResult {
    *  student-facing fields straight through to `UpgradeSheet` — never a client-invented
    *  message, and never a date this side guessed. */
   premiumRequired?: { feature: string; trialEndedAt: string | null };
+  /** BUGFIX-1 · on a `skipped-error` from a THROWN grade call, the thrown error's
+   *  `name` (e.g. "SignInAgainError"), so the page can detect it BY NAME. Absent when
+   *  nothing was thrown (a malformed response). */
+  errorName?: string;
   error?: string;
 }
 
@@ -787,6 +791,11 @@ export async function gradeQuickPracticeBatch(args: {
       overCapQNumbers,
       miOutcomes: [],
       error: error instanceof Error ? error.message : String(error),
+      // BUGFIX-1 (P3): the thrown error's NAME, carried so the page can tell a
+      // SignInAgainError apart by name. Read as a plain field, not by `instanceof`.
+      ...(typeof (error as { name?: unknown } | null)?.name === "string"
+        ? { errorName: (error as { name: string }).name }
+        : {}),
     };
   }
 

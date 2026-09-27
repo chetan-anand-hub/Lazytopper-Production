@@ -139,6 +139,26 @@ export interface TutorReply {
 }
 
 /**
+ * BUGFIX-1 (B3) - thrown when the tutor endpoint answers 402 `premium_required`.
+ * The tutor's own copy of aiClient's `PremiumRequiredError` (same `name`, same
+ * fields), kept here so this fresh client takes no runtime edge into aiClient.
+ * Callers detect it by `name`; `message` is student-facing.
+ */
+export class TutorPremiumRequiredError extends Error {
+  readonly feature: string;
+  readonly tier: string;
+  readonly trialEndedAt: string | null;
+
+  constructor(message: string, feature: string, tier: string, trialEndedAt: string | null) {
+    super(message);
+    this.name = "PremiumRequiredError";
+    this.feature = feature;
+    this.tier = tier;
+    this.trialEndedAt = trialEndedAt;
+  }
+}
+
+/**
  * Call the fresh tutor endpoint for the next turn. Throws a plain Error carrying the
  * server's message on a non-2xx or unparseable response (the UI surfaces it as an
  * honest, retryable error — never a fabricated reply).
@@ -153,13 +173,32 @@ export async function callTutor(req: TutorRequest): Promise<TutorReply> {
   const text = await res.text();
 
   if (!res.ok) {
-    let details: { error?: string; message?: string } = {};
+    let details: {
+      error?: string;
+      message?: string;
+      feature?: string;
+      tier?: string;
+      trialEndedAt?: string | null;
+    } = {};
     try {
       details = JSON.parse(text);
     } catch {
       /* non-JSON error body — fall through to the generic message */
     }
-    throw new Error(details.error || details.message || "The tutor request failed.");
+    // BUGFIX-1 (B3) - a Premium refusal is a TYPED branch, mirroring aiClient's
+    // handleJsonResponse: the student reads the server's own copy (or plain English),
+    // never the raw `premium_required` code.
+    if (res.status === 402 && details?.error === "premium_required") {
+      throw new TutorPremiumRequiredError(
+        details.message || "The tutor is a Premium feature. You can unlock it whenever you're ready.",
+        details.feature || "unknown",
+        details.tier || "free",
+        details.trialEndedAt || null,
+      );
+    }
+    // Every other failure: the server's student-facing `message` first, the machine
+    // `error` code only when there is no message.
+    throw new Error(details.message || details.error || "The tutor request failed.");
   }
 
   let parsed: TutorReply;
