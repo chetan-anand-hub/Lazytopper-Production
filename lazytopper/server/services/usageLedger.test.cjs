@@ -43,6 +43,8 @@ const {
   currentUid,
   USAGE_LEDGER_COLLECTION,
   LEDGER_FIELDS,
+  LEDGER_HOUR_FIELD,
+  istHourKey,
   TELEMETRY,
 } = require('./usageLedger.cjs');
 const { MODEL_PRICES, DEFAULT_USD_INR, usdInrRate } = require('./modelPrices.cjs');
@@ -223,6 +225,8 @@ test('M3 · a successful call by a bound student increments usageLedger/{uid}/da
       outputTokens: { __increment: 200 },
       thoughtsTokens: { __increment: 800 },
       costMicroInr: { __increment: 246400 },
+      // FAIR-USE-1 hour bucket: 06:00 UTC is 11:30 IST -> bucket "11", same cost.
+      hourCostMicroInr: { 11: { __increment: 246400 } },
     });
   } finally {
     f.restore();
@@ -324,11 +328,14 @@ test('M3 · the ledger document holds ONLY the five named numbers — no prompt,
     await settle();
     assert.equal(store.writes.length, 1);
     const data = store.writes[0].data;
-    assert.deepEqual(Object.keys(data).sort(), [...LEDGER_FIELDS].sort());
+    assert.deepEqual(Object.keys(data).sort(), [...LEDGER_FIELDS, LEDGER_HOUR_FIELD].sort());
     assert.deepEqual(
       [...LEDGER_FIELDS].sort(),
       ['calls', 'costMicroInr', 'outputTokens', 'promptTokens', 'thoughtsTokens']
     );
+    // FAIR-USE-1: the hour bucket is the same cost number keyed by an IST hour — no text.
+    assert.equal(LEDGER_HOUR_FIELD, 'hourCostMicroInr');
+    assert.deepEqual(Object.keys(data[LEDGER_HOUR_FIELD]), ['11']);
     const serialised = JSON.stringify(store.writes[0]);
     for (const banned of [PROMPT_SENTINEL, REPLY_SENTINEL, 'gemini-2.5-flash', 'tutor', 'TEXT']) {
       assert.ok(!serialised.includes(banned), `ledger write leaked: ${banned}`);
@@ -576,6 +583,14 @@ test('M1 · REAL index.cjs: verified charged, unverified header uid NOT, free ch
     assert.ok(delta.includes(`LEDGER_SET usageLedger/verified-student/days/${today} `),
       `the charge must land on today's IST day (${today})\n${delta}`);
     const written = JSON.parse(delta.match(/LEDGER_SET \S+ (\{.*\})/)[1]);
+    // FAIR-USE-1 hour bucket: one IST hour key, the same cost. The key is read back from
+    // the write (the call may straddle an hour boundary), then checked.
+    const hourKeys = Object.keys(written.hourCostMicroInr || {});
+    assert.equal(hourKeys.length, 1, `exactly one hour bucket per call\n${delta}`);
+    assert.ok([istHourKey(Date.now()), istHourKey(Date.now() - 3600000)].includes(hourKeys[0]),
+      `the hour bucket must be the current IST hour, got ${hourKeys[0]}`);
+    assert.deepEqual(written.hourCostMicroInr[hourKeys[0]], { increment: 246400 });
+    delete written.hourCostMicroInr;
     assert.deepEqual(written, {
       calls: { increment: 1 },
       promptTokens: { increment: 1000 },

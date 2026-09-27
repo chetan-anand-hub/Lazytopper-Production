@@ -101,6 +101,8 @@ import { paidJsonHeaders } from "./paidCallHeaders";
  */
 export interface PaidCallOptions {
   freeCheck?: boolean;
+  /** FAIR-USE-1 (U1): the grading surface, sent as X-Lazytopper-Surface. Omitted -> the server counts check-improve. */
+  surface?: "quick-practice" | "check-improve" | "chapter-test" | "full-mock" | "worksheet";
 }
 
 async function freeCheckJsonHeaders(): Promise<Record<string, string>> {
@@ -455,7 +457,7 @@ export async function checkSolutionImage(req: {
 }, opts?: PaidCallOptions): Promise<CheckSolutionResponse> {
   const res = await fetch(`${API_BASE}/check-solution`, {
     method: "POST",
-    headers: opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders(),
+    headers: { ...(opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders()), ...(opts?.surface ? { "X-Lazytopper-Surface": opts.surface } : {}) },
     body: JSON.stringify(req),
   });
   return handleJsonResponse<CheckSolutionResponse>(res);
@@ -662,7 +664,7 @@ export async function gradeWorksheet(req: {
 }, opts?: PaidCallOptions): Promise<WorksheetGradeResponse> {
   const res = await fetch(`${API_BASE}/grade-worksheet`, {
     method: "POST",
-    headers: opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders(),
+    headers: { ...(opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders()), ...(opts?.surface ? { "X-Lazytopper-Surface": opts.surface } : {}) },
     body: JSON.stringify(req),
   });
   return handleJsonResponse<WorksheetGradeResponse>(res);

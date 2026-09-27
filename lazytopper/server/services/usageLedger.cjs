@@ -1,8 +1,9 @@
 /**
  * usageLedger.cjs — METER-1. Record what each student's AI use actually costs.
  *
- * RECORDS ONLY. Nothing here limits, refuses, or renders anything. FAIR-USE-1 reads
- * the ledger this module writes; this module never reads it back.
+ * RECORDS ONLY. Nothing here limits, refuses, or renders anything. FAIR-USE-1
+ * (services/fairUse.cjs) reads the ledger back through `readDays` below and decides;
+ * this module only stores and returns numbers.
  *
  * THE SHAPE. One document per student per IST day:
  *
@@ -12,6 +13,14 @@
  *       outputTokens   — usageMetadata.candidatesTokenCount (visible output)
  *       thoughtsTokens — usageMetadata.thoughtsTokenCount   (thinking)
  *       costMicroInr   — integer; 1 rupee = 1,000,000
+ *
+ *       hourCostMicroInr — FAIR-USE-1 hour buckets: a map { "HH": costMicroInr } keyed
+ *                          by the IST hour, so the rolling 5-hour premium window is
+ *                          read from the SAME document (no new location to erase)
+ *
+ * and, written by FAIR-USE-1 (recordTrialUse), never by a model call:
+ *       trialChecks / trialChapterTests / trialMocks / trialWorksheets — the durable
+ *       trial allowance counters (U2), one increment per graded question / paper.
  *
  * Every field is written with FieldValue.increment, so concurrent calls from one
  * student never lose a count to a read-modify-write race, and there is no read.
@@ -52,7 +61,11 @@ const USAGE_LEDGER_COLLECTION = 'usageLedger';
 /** Subcollection segment, deliberately NOT a top-level `.collection(CONST)` shape. */
 const LEDGER_SEGMENTS = Object.freeze({ days: 'days' });
 
-/** ★ The ONLY fields a ledger day document ever holds. Pinned by the tests. */
+/**
+ * ★ The ONLY per-call NUMBERS a model call writes. Pinned by the tests. A call's
+ * write also carries LEDGER_HOUR_FIELD (the same cost, by IST hour); the day
+ * document additionally holds TRIAL_COUNTER_FIELDS, written by FAIR-USE-1 only.
+ */
 const LEDGER_FIELDS = Object.freeze([
   'calls',
   'promptTokens',
@@ -60,6 +73,29 @@ const LEDGER_FIELDS = Object.freeze([
   'thoughtsTokens',
   'costMicroInr',
 ]);
+
+/**
+ * FAIR-USE-1 hour buckets. A MAP field on the day document, keyed by the IST hour
+ * ("00".."23"), holding that hour's costMicroInr. Kept in the day document on
+ * purpose: DPDP erasure and export already walk `days`, so a new subcollection
+ * would be a location they silently miss.
+ */
+const LEDGER_HOUR_FIELD = 'hourCostMicroInr';
+
+/** FAIR-USE-1 (U2) trial counters, stored on the same IST day document. */
+const TRIAL_COUNTER_FIELDS = Object.freeze({
+  checks: 'trialChecks',
+  chapterTests: 'trialChapterTests',
+  mocks: 'trialMocks',
+  worksheets: 'trialWorksheets',
+});
+
+const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+
+/** The IST hour ("00".."23") of an instant — the hour-bucket key inside its IST day. */
+function istHourKey(nowMs) {
+  return new Date(nowMs + IST_OFFSET_MS).toISOString().slice(11, 13);
+}
 
 const TELEMETRY = Object.freeze({
   UNPRICED_MODEL: 'usage.unpriced_model',
@@ -207,11 +243,8 @@ function createUsageLedger(deps = {}) {
         return null;
       }
       const { db, FieldValue } = fs;
-      const ref = db
-        .collection(USAGE_LEDGER_COLLECTION)
-        .doc(uid)
-        .collection(LEDGER_SEGMENTS.days)
-        .doc(istDayKey(now()));
+      const nowMs = now();
+      const ref = dayRef(db, uid, istDayKey(nowMs));
 
       const data = {
         calls: FieldValue.increment(increment.calls),
@@ -219,6 +252,9 @@ function createUsageLedger(deps = {}) {
         outputTokens: FieldValue.increment(increment.outputTokens),
         thoughtsTokens: FieldValue.increment(increment.thoughtsTokens),
         costMicroInr: FieldValue.increment(increment.costMicroInr),
+        // FAIR-USE-1: the same cost, bucketed by IST hour for the rolling 5-hour cap.
+        // Same instant as the day key above, so the bucket always sits in its own day.
+        [LEDGER_HOUR_FIELD]: { [istHourKey(nowMs)]: FieldValue.increment(increment.costMicroInr) },
       };
 
       // ★ NOT AWAITED. Promise.resolve().then() also moves a synchronously-throwing
@@ -238,7 +274,76 @@ function createUsageLedger(deps = {}) {
     }
   }
 
-  return { recordUsage };
+  function dayRef(db, uid, dayKey) {
+    return db
+      .collection(USAGE_LEDGER_COLLECTION)
+      .doc(uid)
+      .collection(LEDGER_SEGMENTS.days)
+      .doc(dayKey);
+  }
+
+  /**
+   * FAIR-USE-1 (U2): add a trial caller's graded use to TODAY's ledger document.
+   * `counts` maps a TRIAL_COUNTER_FIELDS key (checks | chapterTests | mocks |
+   * worksheets) to a positive integer. Same contract as recordUsage: synchronous,
+   * never throws, never awaited by a request path; returns null when nothing was
+   * written, else a settlement promise that never rejects.
+   */
+  function recordTrialUse(uid, counts) {
+    try {
+      const id = typeof uid === 'string' ? uid.trim() : '';
+      if (!id) return null;
+      const fs = resolveFirestore();
+      if (!fs || !fs.db || !fs.FieldValue) {
+        count(TELEMETRY.UNAVAILABLE);
+        return null;
+      }
+      const data = {};
+      for (const [key, field] of Object.entries(TRIAL_COUNTER_FIELDS)) {
+        const n = toCount(counts && counts[key]);
+        if (n > 0) data[field] = fs.FieldValue.increment(n);
+      }
+      if (Object.keys(data).length === 0) return null;
+      const ref = dayRef(fs.db, id, istDayKey(now()));
+      return Promise.resolve()
+        .then(() => ref.set(data, { merge: true }))
+        .then(
+          () => true,
+          () => {
+            count(TELEMETRY.WRITE_FAILED);
+            return false;
+          }
+        );
+    } catch {
+      count(TELEMETRY.ERROR);
+      return null;
+    }
+  }
+
+  /**
+   * FAIR-USE-1: read a student's day documents. Resolves to a Map dayKey -> plain data
+   * object ({} for a day with no document). REJECTS when the ledger cannot be read —
+   * the caller (fairUse.cjs) decides what an unreadable ledger means, and it fails
+   * OPEN: a refusal needs a POSITIVE read.
+   */
+  async function readDays(uid, dayKeys) {
+    const id = typeof uid === 'string' ? uid.trim() : '';
+    if (!id) throw new Error('readDays: no uid');
+    const fs = resolveFirestore();
+    if (!fs || !fs.db) throw new Error('readDays: ledger unavailable');
+    const keys = Array.isArray(dayKeys) ? dayKeys : [];
+    const snaps = await Promise.all(keys.map((k) => dayRef(fs.db, id, k).get()));
+    const out = new Map();
+    keys.forEach((k, i) => {
+      const snap = snaps[i];
+      if (!snap || typeof snap.exists === 'undefined') throw new Error('readDays: no snapshot');
+      const data = snap.exists && typeof snap.data === 'function' ? snap.data() : null;
+      out.set(k, data && typeof data === 'object' ? data : {});
+    });
+    return out;
+  }
+
+  return { recordUsage, recordTrialUse, readDays };
 }
 
 module.exports = {
@@ -250,5 +355,8 @@ module.exports = {
   USAGE_LEDGER_COLLECTION,
   LEDGER_SEGMENTS,
   LEDGER_FIELDS,
+  LEDGER_HOUR_FIELD,
+  TRIAL_COUNTER_FIELDS,
+  istHourKey,
   TELEMETRY,
 };
