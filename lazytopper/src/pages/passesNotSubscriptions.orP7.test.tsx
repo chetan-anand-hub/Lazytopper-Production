@@ -59,6 +59,18 @@ describe("OR-P7 — the owner's strings, word for word", () => {
     expect(text).not.toMatch(/cancel your subscription/i);
   });
 
+  it("COPY-2 · K1: the Terms payment heading reads 'Passes & Payment'", () => {
+    const headings = [...renderTerms().querySelectorAll("h2")].map((h) => flat(h.textContent));
+    expect(headings).toContain("Passes & Payment");
+    expect(headings).not.toContain("Subscription & Payment");
+  });
+
+  it("COPY-2 · K3: the /legal/terms static head says passes, word for word", () => {
+    expect(STATIC_PAGE_HEADS["/legal/terms"]?.description).toBe(
+      "The terms for using LazyTopper, an educational tool for CBSE Class 10 exam preparation — accounts, passes, and what the predictions are not.",
+    );
+  });
+
   it("the /pricing static head describes how passes work", () => {
     expect(STATIC_PAGE_HEADS["/pricing"]?.description).toBe(PRICING_HEAD_DESCRIPTION);
   });
@@ -115,16 +127,8 @@ function studentFacingHits(source: string): string[] {
  * Listed so the pin can go green without them; remove an entry when it is fixed.
  */
 const KNOWN_REMAINING = new Set<string>([
-  // Terms heading — the owner ruled the sentence, not the heading. FU-PASSES-TERMS-HEADING.
-  "src/pages/LegalPage.tsx :: Subscription &amp; Payment",
-  "prerendered/legal/terms.html :: Subscription &amp; Payment",
-  // Account menus — DesktopShell.tsx is CLAUDE.md §4-forbidden. FU-PASSES-MANAGE-SUBSCRIPTION-MENU.
-  "src/components/desktop/DesktopShell.tsx :: Manage subscription",
-  "src/components/mobile/MobileAccountMenu.tsx :: Manage subscription",
   // Internal data-map description; no component renders `.holds`. Classified internal.
   "src/services/studentDataMap.ts :: Subscription/trial state: tier, plan, trialStartDate.",
-  // /legal/terms head — outside OR-P7's two head entries. FU-PASSES-TERMS-HEAD.
-  "head:/legal/terms :: The terms for using LazyTopper, an educational tool for CBSE Class 10 exam preparation — accounts, subscriptions, and what the predictions are not.",
 ]);
 
 const STATIC_TEXT_FILE = /\.(html|json|txt|xml|svg|webmanifest)$/;
@@ -187,6 +191,9 @@ describe("OR-P7 — REPO-WIDE: no subscription / cancel / '/month' wording a stu
 
     const unexpected = [...new Set(hits)].filter((h) => !KNOWN_REMAINING.has(h));
     expect(unexpected, `subscription wording on a student/crawler surface:\n${unexpected.join("\n")}`).toEqual([]);
+    // COPY-2 · K7: a KNOWN_REMAINING entry must still be a real hit — a fixed one is removed.
+    const stale = [...KNOWN_REMAINING].filter((k) => !hits.includes(k));
+    expect(stale, `KNOWN_REMAINING entries that no longer hit — remove them:\n${stale.join("\n")}`).toEqual([]);
   });
 
   it("CONTROL — the scanner sees the old sentences, the '/mo' span and a head, and ignores comments and keys", () => {

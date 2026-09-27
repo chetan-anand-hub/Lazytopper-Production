@@ -84,7 +84,7 @@ function navItemStyle(isActive: boolean): React.CSSProperties {
 const LEGAL_LINKS: { label: string; slug: string }[] = [
   { label: "Privacy", slug: "privacy" },
   { label: "Terms", slug: "terms" },
-  { label: "Refunds", slug: "refund" },
+  { label: "Cancellation & Refunds", slug: "refund" },
 ];
 
 const NAV_ITEMS: NavItem[] = [
@@ -642,7 +642,7 @@ export function DesktopShell({ children }: DesktopShellProps) {
                             cursor: "pointer",
                           }}
                         >
-                          Manage subscription
+                          Manage your pass
                         </button>
                         {/* Quiet entry point. Linking is OPTIONAL - this opens a
                             modal and never gates anything. Closes the dropdown

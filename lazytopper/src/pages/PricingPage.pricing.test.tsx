@@ -408,3 +408,50 @@ describe("PricingPage — honest manual-activation notice (test 4)", () => {
     expect(page).toContain("Premium is not activated automatically.");
   });
 });
+
+// ─── COPY-2 · K5 (owner, 2026-09-27) ───────────────────────────────────────────
+// The founding chip and the lock note render ONLY while FOUNDING_OFFER_OPEN is true.
+// A partial mock over importActual, so every other figure is the real published one.
+describe("PricingPage — COPY-2 · K5 the founding chip and lock note follow the offer", () => {
+  afterEach(() => {
+    vi.doUnmock("../config/pricing");
+    vi.resetModules();
+  });
+
+  async function renderWithOffer(open: boolean) {
+    vi.resetModules();
+    vi.doMock("../config/pricing", async () => {
+      const actual = await vi.importActual<typeof import("../config/pricing")>("../config/pricing");
+      return { ...actual, FOUNDING_OFFER_OPEN: open };
+    });
+    const { default: Page } = await import("./PricingPage");
+    const { container } = render(
+      <MemoryRouter>
+        <Page />
+      </MemoryRouter>,
+    );
+    const premium = container.querySelector(".lt-pricing-card--premium");
+    expect(premium).not.toBeNull();
+    return premium as Element;
+  }
+
+  it("offer CLOSED: no founding chip and no lock note", async () => {
+    const premium = await renderWithOffer(false);
+    expect(premium.querySelector(".lt-pricing-founding-flag")).toBeNull();
+    expect(premium.querySelector(".lt-pricing-founding-note")).toBeNull();
+    const card = flat(premium);
+    expect(card).not.toContain("Your founding price stays locked for every pass you buy.");
+    expect(card).not.toContain("First 200 students.");
+    // CONTROL — the card still rendered, at the list price.
+    expect(card).toContain("Manual activation during beta.");
+    expect(flat(premium.querySelector(".lt-pricing-amount"))).toBe(PRICE_MONTHLY_LIST_DISPLAY);
+  });
+
+  it("CONTROL — offer OPEN: the same queries find the chip and the lock note", async () => {
+    const premium = await renderWithOffer(true);
+    expect(flat(premium.querySelector(".lt-pricing-founding-flag"))).toContain("First 200 students.");
+    expect(flat(premium.querySelector(".lt-pricing-founding-note"))).toBe(
+      "Your founding price stays locked for every pass you buy.",
+    );
+  });
+});

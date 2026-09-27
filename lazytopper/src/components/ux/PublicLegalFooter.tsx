@@ -28,7 +28,7 @@ import { Link, useLocation } from "react-router-dom";
 const LEGAL_LINKS = [
   { label: "Privacy", slug: "privacy" },
   { label: "Terms", slug: "terms" },
-  { label: "Refunds", slug: "refund" },
+  { label: "Cancellation & Refunds", slug: "refund" },
 ] as const;
 
 /**

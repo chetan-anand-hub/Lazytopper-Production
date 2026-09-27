@@ -54,7 +54,7 @@ function renderWelcome() {
 }
 
 /** Mirrors the labels PublicLegalFooter renders. Hrefs are NOT re-stated here — see below. */
-const EXPECTED_LABELS = ["Privacy", "Terms", "Refunds"];
+const EXPECTED_LABELS = ["Privacy", "Terms", "Cancellation & Refunds"]; // COPY-2 · K6
 
 describe("Welcome — the signed-out desktop landing reaches the policies", () => {
   it.each(EXPECTED_LABELS)("renders a %s link inside a labelled legal footer", (label) => {
