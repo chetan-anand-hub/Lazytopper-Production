@@ -1,3 +1,25 @@
+## 2026-09-27 — WAVE B-1 (MONEY): STORED-RATE-1 + METER-1 (build + docs) — trunk `91d7d1a8`, PRs `#841` + `#842`
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name, not `DECISION N`.
+
+### Owner rulings for the wave (2026-09-27)
+- **Model:** the controller writes no product code; there is one builder per PR (`claude-opus-5-5`, effort high), named explicitly. **PR order:** STORED-RATE-1 first; METER-1 opens only after it merges (both touch `server/index.cjs`).
+- **Grant — `firestore.rules`:** STORED-RATE-1, the `subscriptions` block only.
+- **Grant — `repo_boundary_policy.json`:** one entry per new file a lane creates, only if the classification check demands it. **Not used**: `scope:guard` classified every new file without it *(subagent-reported)*.
+- **Audits:** merge each PR on its spec §3 proof (`--match-head-commit`, prove on trunk) without waiting for the owner. There is ONE final audit request for the wave after METER-1 merges.
+- **OR-15** (fast local gates) and **OR-16** (the controller writes the docs PR directly) apply.
+- **Not delegated:** `deploy:firestore-rules` and Railway secrets remain owner steps.
+
+### Controller decisions, with reasons
+- **Built on trunk `b031caac`, not the specs' base `a86130c2`.** Each spec's §0c says to re-run the gate on the new tip if trunk moved; both gates passed there.
+- **METER-1 built in parallel but pushed its branch only (no PR, not even a draft) until `#841` merged.** `lane-overlap` compares exact paths and counts drafts; a durable pushed branch cost nothing.
+- **`#841` merged with its rules mutation ("drop R2 → rules test red") NOT run.**
+  - Why it was not run: no local Java, and the CI mutation push was refused by the permission classifier as a security weakening. The controller did not work around the refusal.
+  - Why the merge was still safe: the spec §3 proof (CI green including the rules step and its counts, up to date, allowlist-only, test names in the log) was met, and **merging does not deploy rules**.
+  - The proof is carried to the owner as a step **before** `deploy:firestore-rules` (`[FU-STORED-RATE-RULES-MUTATION-PROOF]`).
+- **The controller updated `#841`'s branch** with the docs-only `#840` to satisfy "branch up to date". The lane code outside `handoff/` was proven byte-identical to the previously green head before the new CI run.
+- **METER-1's paid-endpoints-only binding and the `package.json` wiring were accepted and passed to the final audit as deviations, not ruled on.** Provenance: builder-reported. The admin-spend question stays open for the owner.
+
 ## 2026-09-27 — CHUNK-RESILIENCE-1 (build + docs) — trunk `b031caac`, PR `#839`
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by their lane IDs (OR-C2, OR-C3, (a)–(d)) rather than `DECISION N`.

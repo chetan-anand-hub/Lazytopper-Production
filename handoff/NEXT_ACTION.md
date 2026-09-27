@@ -1,3 +1,24 @@
+## ★★★ 2026-09-27 — WAVE B-1 (MONEY) CLOSED (docs) — THIS BLOCK SUPERSEDES THE CHUNK-RESILIENCE-1 BLOCK BELOW ON TRUNK SHA, AND ITEM 2 OF THE PRICING-TB-1 OR-P6 + OR-P7 BLOCK (STORED-RATE-1 is DONE; the Razorpay go-live is still open)
+*(It does not supersede the CHUNK-RESILIENCE-1 owner items (the Search Console live test during a deploy; keeping Skew Protection on) or the pricing live-verify, which stand unchanged.)*
+
+**TRUNK IS `91d7d1a8cc277f30dada44d1caed0a85aa264daf`**, measured 2026-09-27 (`git ls-remote`):
+- `91d7d1a8` = `#842` (METER-1: record what each student's AI use costs, records only)
+- `ceb93c81` = `#841` (STORED-RATE-1: a student's pass is stored, priced, dated and unforgeable)
+- `afa770b7` = `#840` (docs: CHUNK-RESILIENCE-1)
+
+Open at the time of writing: none besides this docs PR.
+
+### NEXT — OWNER (in this order)
+1. **Rules mutation proof, BEFORE deploying the rules** (`[FU-STORED-RATE-RULES-MUTATION-PROOF]`): on a machine with Java, remove the two `&& create/updateChangesNoPassField()` clauses from the `subscriptions` block, run `pnpm run test:firestore-rules`, confirm §15/§16 go red, then restore.
+2. **`pnpm run deploy:firestore-rules`**. Merging `#841` did not deploy them: until this runs, a client can still write pass fields to its own subscription doc. The server ignores a forged `passEnd` on a free doc *(R6 test, subagent-reported)*.
+3. **Set `PASS_ADMIN_SECRET` on Railway**; the grant route returns 503 until then. Optional: `LT_USD_INR` (default 88).
+4. **Live-verify METER-1**: make one signed-in paid call, then confirm that `usageLedger/{uid}/days/<today IST>` holds `calls`, `promptTokens`, `outputTokens`, `thoughtsTokens` and `costMicroInr`, and that latency is unchanged.
+5. **Rulings owed:**
+   - `[FU-PASS-TRIAL-AFTER-EXPIRY]`: may a student whose pass expired, and who never trialled, start the 7-day trial? Today they can.
+   - Admin-tool Gemini spend: METER-1 does not meter it (paid endpoints only). Confirm, or ask for a separate admin ledger.
+6. **The wave's ONE final audit** covers `#841` + `#842`: `Desktop\diff\audit-request-wave-b1-final-2026-09-27.md`.
+7. **Next in the money arc:** FAIR-USE-1 (wave B-2) reads the `usageLedger`. The Razorpay go-live calls `grantPass` directly.
+
 ## ★★★ 2026-09-27 — CHUNK-RESILIENCE-1 CLOSED (docs) — THIS BLOCK SUPERSEDES THE PRICING-TB-1 OR-P6 + OR-P7 BLOCK BELOW ON TRUNK SHA ONLY
 *(It does not supersede that block's owner items — the pricing live-verify, STORED-RATE-1 / Razorpay against passes, the optional copy lane — which stand unchanged.)*
 
