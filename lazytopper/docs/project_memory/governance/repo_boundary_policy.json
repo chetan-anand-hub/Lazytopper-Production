@@ -108,6 +108,7 @@
       "Dockerfile",
       "railway.json",
       "vercel.json",
+      "middleware.ts",
       "tsconfig.base.json",
       "lazytopper-product-features.docx"
     ]
