@@ -23,6 +23,43 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-27 — WAVE A-1 (REACH & POLISH): SEO-FRESH-1 (`#844` MERGED as `0a4895b7`) + SEO-HUB-1 (`#845` MERGED as `e6349799`) + COPY-2 (`#846` MERGED as `bdc3371d`), squash, `--match-head-commit`, no `--admin` — three resolved, one withdrawn, seven new
+
+### `[FU-LAZY-OUTSIDE-APP-UNWRAPPED]` — ✅ RESOLVED 2026-09-27 by `#845` (`e6349799`), owner item OR-AUTO
+- `ConceptSpine.tsx`: `import { lazy, … } from "react"` → `import { Suspense, … } from "react"` + `import { lazyWithRetry } from "../../lib/lazyWithRetry";`; `const NoteModal = lazy(…)` → `lazyWithRetry(…)` (line 16 at `b031caac`, line 17 in the lane). The `notesRequested && (<Suspense>` gate is unchanged, so NoteModal still mounts only on first click; `ConceptSpine.noteModal.guard.test.ts` passes *(subagent-reported)*.
+- The original entry keeps its body as written (rule 3); only its status line was marked resolved.
+
+### `[FU-SEO-FRESH-ROOT-FALLBACK-SPILL]` — ✅ RESOLVED in-lane by `#844` (OR-A1-1)
+The root capture's `index.html` was also the SPA fallback for every `/app/*` route. The fallback now points at a clean `/app/__shell.html` (noindex). Verified on production: unlisted routes carry 0 landing phrases.
+
+### `[FU-CAPTURE-CTA-FLAG-MISMATCH]` — ✅ RESOLVED in-lane by `#844` (OR-A1-5)
+The CI capture build rendered the landing CTA as `/sign-up?redirect=%2F` (flag unset) vs production `/check-improve`. The capture build now sets `VITE_FREE_CHECK_ENABLED=1`; a pin asserts the committed landing CTA → `/app/check-improve`.
+
+### `[FU-SEO-FRESH-CHECKIMPROVE-CANONICAL]` — WITHDRAWN (DECIDED by OR-A1-2, not a follow-up)
+"/check-improve is not advertised; the landing page is its search entry." See `DECISION_LOG.md`.
+
+### `[FU-SEARCHPING-ENV-EXACT-MATCH]` — ✅ CLOSED in-lane by `#844`
+Railway also posts `deployment_status` (`lazytopper-backend / production`). The workflow matches environment **exactly** `Production`; the Railway event was refused live (run `36292546054`, skipped) *(subagent-reported)*.
+
+### `[FU-SEARCHPING-SKIPPED-DEPLOY-GAP]` — search-ping diffs the deployed SHA against its parent only
+If Vercel skips a production deploy (e.g. a docs-only push that is not deployed), the URLs restamped in the skipped commit are never pinged *(subagent-reported)*. Fix shape: diff against the last successfully pinged SHA. **Status: OPEN.**
+
+### `[FU-WELCOME-STALE-PRERENDER-COMMENT]` — `Welcome.tsx:39-44` says "THIS LANE DOES NOT MAKE /app/ PRERENDERABLE"
+Now stale: `#844` prerenders `/app/`. Comment-only; `Welcome.tsx` is globally forbidden, so it needs a grant. **Status: OPEN.**
+
+### `[FU-NOTES-FORMULA-TEXTBF-RAW]` — ⚠ UNVERIFIED: raw `\textbf{…}` may show on `/notes/real-numbers`
+`notes/specs/real-numbers.json` formula_strip `math` for HCF/LCM uses `\textbf{…}` outside `$…$`; `NoteRichText` typesets only inside `$`. Not checked in a browser *(subagent-reported)*. The hub's plain-text renderer handles it. **Status: OPEN, UNVERIFIED.**
+
+### `[FU-HUB-HIDDEN-TEXT-WEIGHT]` — collapsed hub text is in the HTML via `hidden`
+Search engines may weight hidden text lower. Informational: the ≥ 2,500-character floor is met by the expanded overview alone. **Status: OPEN, informational.**
+
+### `[FU-COPY2-OFFERSTRIP-NOTE-CSS]` — dead `.lt-offer-strip-note` CSS rules in `OfferStrip.tsx`
+K4 removed the `<p>`; its CSS rules remain (copy-only lane). **Status: OPEN.**
+
+### `[FU-COPY2-SITEMAP-COMMENT]` + `[FU-COPY2-REFUNDS-COMMENTS]` — comments still say every label reads "Refunds"
+`sitemapUrls.guard.test.ts` (~:187, ~:195), `sitemapUrls.ts:79`, `legalSlugs.ts:33` — comment-only, outside COPY-2's allowlist. The labels themselves are "Cancellation & Refunds" everywhere a student reads. **Status: OPEN.**
+
+
 ## 2026-09-27 — WAVE B-1 (MONEY): STORED-RATE-1 (`#841` MERGED as `ceb93c81`) + METER-1 (`#842` MERGED as `91d7d1a8`), squash, `--match-head-commit`, no `--admin` — five new follow-ups
 
 ### `[FU-STORED-RATE-RULES-MUTATION-PROOF]` — ★ OPEN, **OWNER, BEFORE `deploy:firestore-rules`. THE R2 RULES MUTATION WAS NEVER RUN**
@@ -67,7 +104,7 @@ Observed during the lane *(subagent-reported)*: the preview entry chunk's conten
 - `lazytopper/src/components/topichub/ConceptSpine.tsx:16` — `const NoteModal = lazy(() => import("../notes/NoteModal"));`, with `lazy` imported from `react` (`:1`). It gets no retry.
 - ⚠ **Count correction:** the lane's docs brief said "30 other `lazy(` call sites outside `App.tsx` line 11 are not wrapped". **That is wrong.** Measured on trunk `b031caac`: `App.tsx:11` imports `lazyWithRetry as lazy`, so **all 31** `lazy(` call sites in `App.tsx` are wrapped. The only other non-test `lazy(` hits are `ConceptSpine.tsx:16` (unwrapped) and `lazyWithRetry.ts:146` (the wrapper itself); `main.tsx:16` is a comment (builder report §P11).
 - Not enumerated: bare dynamic `import()` calls that are not behind `lazy(`.
-- **Status: OPEN, one site.**
+- **Status: ✅ RESOLVED 2026-09-27 by `#845` (`e6349799`), OR-AUTO — see the 2026-09-27 WAVE A-1 section at the top. (Was: OPEN, one site.)**
 
 ## 2026-09-26 — PRICING-TB-1 OR-P6 + OR-P7 (`#830` MERGED as `3417f2a0`, `#831` MERGED as `759b9d69`, squash, `--match-head-commit`, no `--admin`; open PRs at the time of writing: **`#818`, `#819`, `#826`** — dependabot only) — one owner conflict resolved, four follow-ups resolved, five new, one kept open
 

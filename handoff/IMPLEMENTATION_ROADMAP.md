@@ -1,5 +1,14 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-27 — SEO + COPY: **WAVE A-1 — SEO-FRESH-1 + SEO-HUB-1 + COPY-2** — `#844` + `#845` + `#846` MERGED — trunk `bdc3371d`
+
+- ✅ **SEO-FRESH-1** (`#844` `0a4895b7`): hash-gated `lastmod`, CI-enforced sitemap, landing `/` prerendered on a clean noindexed `/app/__shell.html` fallback, IndexNow on production deploys; prod smoke PASS; first ping HTTP 200.
+- ✅ **SEO-HUB-1** (`#845` `e6349799`): Chapter-at-a-glance on all 26 hubs, 3,369–6,840 visible chars each (≥ 2,500 pinned); collapsed text in the DOM; ConceptSpine `lazyWithRetry`.
+- ✅ **COPY-2** (`#846` `bdc3371d`): K1–K8 pass wording, "Cancellation & Refunds", founding chip/note gated on `FOUNDING_OFFER_OPEN`.
+- ✅ **Docs:** this handoff.
+- ⬜ **Owner:** Search Console live test on hubs + `/app/`; live-verify one hub (desktop + mobile); optional `GSC_SERVICE_ACCOUNT`.
+- ⬜ `[FU-SEARCHPING-SKIPPED-DEPLOY-GAP]` · `[FU-WELCOME-STALE-PRERENDER-COMMENT]` · `[FU-NOTES-FORMULA-TEXTBF-RAW]` · `[FU-HUB-HIDDEN-TEXT-WEIGHT]` · `[FU-COPY2-OFFERSTRIP-NOTE-CSS]` · `[FU-COPY2-SITEMAP-COMMENT]` · `[FU-COPY2-REFUNDS-COMMENTS]`.
+
 ## 2026-09-27 — MONEY: **WAVE B-1 — STORED-RATE-1 (PASS STORED, PRICED, DATED, UNFORGEABLE) + METER-1 (AI COST PER STUDENT, RECORDS ONLY)** — `#841` + `#842` MERGED — trunk `91d7d1a8`
 
 - ✅ **STORED-RATE-1** (`#841` `ceb93c81`): R1 pass fields · R2 rules deny client writes of any pass field · R3 transactional, idempotent `grantPass` with server-only pricing · R4 `POST /api/admin/grant-pass` (`PASS_ADMIN_SECRET`) · R5 expiry on server and client, legacy premium grandfathered · R6 tests (25 + 18 rules + 7 + 38 parity).
