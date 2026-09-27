@@ -259,7 +259,12 @@ describe("studentDataMap — drift guard", () => {
     // the Admin SDK, so — exactly like `qrUploadSlots` — it must match NO client rule and
     // fall through to the deny-all catch-all. It is here because it is undeclared on
     // purpose, not because the guard was loosened: the assertion is still EXACT.
-    expect(undeclared).toEqual(["freeCheckDaily", "qrUploadSlots"]);
+    //
+    // ★ `usageLedger` JOINED this set with METER-1. Same shape as the two above: written
+    // only by server/services/usageLedger.cjs through the Admin SDK, read by no client,
+    // so it is undeclared on purpose and falls to the deny-all catch-all. Unlike
+    // `freeCheckDaily` it IS student data (uid-keyed) — it is in the map, not exempted.
+    expect(undeclared).toEqual(["freeCheckDaily", "qrUploadSlots", "usageLedger"]);
   });
 
   it("★★ the map still declares `users` even though no code writes it (OWNER RULING)", () => {
@@ -284,6 +289,42 @@ describe("studentDataMap — drift guard", () => {
     // CONTROL: `users` really is absent from the product source now, so the assertions
     // above are pinning the write-removed state and not silently passing on the old one.
     expect(scanCollectionsFromSource().has("users")).toBe(false);
+  });
+});
+
+describe("studentDataMap — the AI usage ledger is STUDENT data (METER-1, M4)", () => {
+  // ★★ The ledger is keyed on the student's uid, so it is erased with the account and
+  // included in the export. Exempting it as NON_STUDENT would make both silently skip it.
+  // MUTATION: move "usageLedger" into NON_STUDENT_COLLECTIONS (or drop either map entry)
+  // => RED here.
+  it("★★ usageLedger is mapped, uid-keyed, exportable, and NOT exempted", () => {
+    const parent = STUDENT_DATA_MAP.find((l) => l.id === "usageLedger");
+    const days = STUDENT_DATA_MAP.find((l) => l.id === "usageLedger.days");
+    expect(parent, "usageLedger is missing from STUDENT_DATA_MAP").toBeDefined();
+    expect(days, "usageLedger.days is missing from STUDENT_DATA_MAP").toBeDefined();
+    expect(parent!.path).toBe("usageLedger/{uid}");
+    expect(days!.path).toBe("usageLedger/{uid}/days/{dayKey}");
+    expect(days!.kind).toBe("firestore-subcollection");
+    expect(days!.parentId).toBe("usageLedger");
+    expect(parent!.exportable).toBe(true);
+    expect(days!.exportable).toBe(true);
+    // Server-only: undeclared in rules, so only the Admin SDK can erase it.
+    expect(parent!.mechanism).toBe("admin-sdk-required");
+    expect(days!.mechanism).toBe("admin-sdk-required");
+    expect(NON_STUDENT_COLLECTIONS).not.toContain("usageLedger");
+    expect(firestoreCollectionNames()).toContain("usageLedger");
+    expect(subcollectionsOf("usageLedger").map((l) => l.id)).toEqual(["usageLedger.days"]);
+  });
+
+  it("★ CONTROL: the source scan really finds the ledger's collection (the writer is live)", () => {
+    expect(scanCollectionsFromSource().has("usageLedger")).toBe(true);
+    // The subcollection segment must NOT surface as a phantom top-level collection.
+    expect(scanCollectionsFromSource().has("days")).toBe(false);
+  });
+
+  it("★★ firestore.rules declares no client block for usageLedger — default-deny covers it", () => {
+    expect(scanCollectionsFromRules().has("usageLedger")).toBe(false);
+    expect(readFileSync(RULES, "utf8")).not.toMatch(/usageLedger/);
   });
 });
 
@@ -316,6 +357,8 @@ describe("studentDataMap — per-location properties", () => {
     "tutorSessions",
     "tutorSessions.topics",
     "subscriptions",
+    "usageLedger",
+    "usageLedger.days",
     "qrUploadSlots",
     "storage.qr-uploads",
     "local-storage",

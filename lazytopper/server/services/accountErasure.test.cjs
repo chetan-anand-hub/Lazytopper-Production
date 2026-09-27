@@ -183,6 +183,8 @@ function realSeed(uid = UID) {
     [`tutorSessions/${uid}`]: {},
     [`tutorSessions/${uid}/topics/electricity`]: {},
     [`subscriptions/${uid}`]: {},
+    // METER-1: production writes ONLY the day documents; the parent stays missing.
+    [`usageLedger/${uid}/days/2026-09-27`]: { calls: 1, costMicroInr: 246400 },
     // ★ FIELD-KEYED. The doc id is sha256(uploadToken); the student is a `uid` FIELD.
     'qrUploadSlots/sha-aaa': { uid, storagePath: `qr-uploads/${uid}/sha-aaa.jpg` },
     'qrUploadSlots/sha-bbb': { uid, storagePath: `qr-uploads/${uid}/sha-bbb.jpg` },
@@ -455,6 +457,32 @@ test('★ subcollections are deleted EXPLICITLY, by their own child path', async
   // Nothing is left under the student anywhere.
   const survivors = [...store.docs.keys()].filter((p) => p.includes(UID));
   assert.deepEqual(survivors, [], 'an orphan under a deleted parent is still readable');
+});
+
+/* METER-1 (M4/M5) — the usage ledger is erased with the account.
+   Seeded exactly as production writes it: day documents under a MISSING parent.
+   Another student's ledger must survive.
+   MUTATION: drop the `usageLedger.days` entry from studentDataMap.ts => RED. */
+test('★ METER-1: erasure deletes the usage ledger — every day, under a parent that was never written', async () => {
+  const seed = {
+    [`usageLedger/${UID}/days/2026-09-26`]: { calls: 1, costMicroInr: 246400 },
+    [`usageLedger/${UID}/days/2026-09-27`]: { calls: 2, costMicroInr: 4664 },
+    [`usageLedger/${OTHER}/days/2026-09-27`]: { calls: 9, costMicroInr: 9 },
+  };
+  const { service, store } = makeService({ seed, files: [], users: [] });
+  const result = await service.eraseAccount(UID);
+
+  for (const p of [`usageLedger/${UID}/days/2026-09-26`, `usageLedger/${UID}/days/2026-09-27`]) {
+    assert.ok(store.deleted.includes(p), `ledger day never targeted: ${p}`);
+    assert.equal(store.docs.has(p), false, `ledger day still readable after erasure: ${p}`);
+  }
+  const days = byId(result, 'usageLedger.days');
+  assert.equal(days.status, STATUS.DELETED);
+  assert.equal(days.deleted, 2);
+  // The never-written parent is honestly notFound — not a fake "deleted".
+  assert.equal(byId(result, 'usageLedger').status, STATUS.NOT_FOUND);
+  // Another student's ledger is untouched.
+  assert.equal(store.docs.has(`usageLedger/${OTHER}/days/2026-09-27`), true);
 });
 
 test('★ a two-level-deep subcollection is reached, and reached BEFORE its parent', async () => {
