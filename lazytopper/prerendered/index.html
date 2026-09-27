@@ -1,0 +1,212 @@
+<div style="padding-bottom: 60px;"><main class="lt-landing" aria-label="LazyTopper public landing"><style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Inter:wght@400;500;600;700;800&display=swap');
+
+.lt-landing{
+  --bg:#fbfcfe; --card:#fff; --ink:#0b1c33; --ink2:#48607c; --ink3:#7589a0;
+  --line:#dde6f0; --g:hsl(152,55%,45%); --gd:hsl(152,60%,30%); --gw:hsl(152,50%,96%); --gl:hsl(152,40%,84%);
+  --navy:#0a1a30; --blue:#2f7fd4; --bluew:#eaf2fc; --amber:#c98a1e; --amberw:#fdf4e5;
+  --violet:#7a5fb0; --violetw:#f2eefa; --urg:#b4451f; --urgw:#fdf0ea;
+  --serif:Fraunces,Georgia,serif; --sans:Inter,system-ui,sans-serif;
+  --sh:0 1px 2px rgba(11,28,51,.04),0 10px 28px rgba(11,28,51,.06);
+  --pad:20px;
+  display:block;background:var(--bg);color:var(--ink);font-family:var(--sans);
+  font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+  padding-bottom:78px;
+}
+.lt-landing *{box-sizing:border-box}
+.lt-landing h1,.lt-landing h2{font-family:var(--serif);letter-spacing:-.028em;margin:0;font-weight:900}
+.lt-landing a{color:var(--gd)}
+.lt-landing :focus-visible{outline:2px solid var(--g);outline-offset:3px;border-radius:5px}
+.lt-landing-wrap{max-width:1040px;margin:0 auto;position:relative;z-index:1}
+.lt-landing-bgmark{position:fixed;right:-22vw;top:6vh;width:82vw;max-width:640px;opacity:.065;pointer-events:none;z-index:0}
+
+.lt-landing .btn{font:inherit;font-weight:700;font-size:15.5px;padding:15px 26px;border-radius:14px;
+  text-decoration:none;display:inline-flex;align-items:center;justify-content:center;min-height:54px;
+  border:2px solid transparent;white-space:nowrap}
+.lt-landing .btn.solid{background:var(--g);color:#fff}
+.lt-landing .btn.solid:hover{background:var(--gd)}
+
+.lt-landing-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px var(--pad)}
+.lt-landing-brand{display:flex;align-items:center;gap:10px}
+.lt-landing-brand .fp{height:42px;width:auto;display:block;flex:0 0 auto}
+.lt-landing-brand .col{display:flex;flex-direction:column;gap:3px}
+.lt-landing-brand .word{height:21px;width:auto;display:block}
+.lt-landing-brand .tag{height:10px;width:auto;display:block;opacity:.95}
+/* ADDENDUM-A A3 — "Log in" is a solid green button, matching every other CTA.
+   The (0,2,1) selector outranks ".lt-landing a{color:var(--gd)}", which would
+   otherwise paint the label green-on-green. min-height stays 44px (touch target). */
+.lt-landing a.lt-landing-login{font-size:14px;font-weight:700;color:#fff;background-color:var(--g);
+  text-decoration:none;padding:10px 18px;border-radius:12px;display:inline-flex;align-items:center;min-height:44px}
+.lt-landing a.lt-landing-login:hover{background-color:var(--gd)}
+
+.lt-landing-cls{display:flex;gap:6px;padding:0 var(--pad)}
+.lt-landing-cls button{font:inherit;font-size:12px;font-weight:700;padding:6px 13px;border-radius:999px;
+  border:1px solid var(--line);background:var(--card);color:var(--ink2);cursor:pointer;min-height:44px}
+.lt-landing-cls button[aria-selected="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+.lt-landing-cls button[disabled]{opacity:.45;cursor:default}
+
+.lt-landing-hero{padding:14px var(--pad) 0}
+.lt-landing h1{font-size:clamp(42px,12.2vw,92px);line-height:.94;max-width:11ch}
+.lt-landing h1 em{font-style:normal;display:block;color:var(--g)}
+.lt-landing-sub{font-size:clamp(16.5px,4.3vw,20px);color:var(--ink2);margin:18px 0 0;max-width:31ch;line-height:1.4}
+.lt-landing-sub b{color:var(--ink);font-weight:700}
+.lt-landing-hcta{margin-top:24px}
+.lt-landing-hnote{font-size:13px;color:var(--ink3);margin:12px 0 0}
+.lt-landing-peek{margin:14px 0 0;display:flex;flex-direction:column;gap:9px;align-items:flex-start}
+.lt-landing-peek a{font-size:13.5px;font-weight:600;color:var(--ink2);text-decoration:none;
+  border-bottom:1px solid var(--line);padding-bottom:2px}
+.lt-landing-peek a:hover{color:var(--gd);border-color:var(--gl)}
+
+.lt-landing-proof{padding:52px 0 0}
+.lt-landing-ph{padding:0 var(--pad);margin-bottom:14px}
+.lt-landing h2{font-size:clamp(26px,6.8vw,44px);line-height:1.04;max-width:14ch}
+.lt-landing-q{font-size:12.5px;color:var(--ink3);margin:11px 0 0;padding-left:13px;border-left:3px solid var(--line)}
+.lt-landing-rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
+  padding:4px var(--pad) 12px;scrollbar-width:none}
+.lt-landing-rail::-webkit-scrollbar{display:none}
+.lt-landing-kid{flex:0 0 80%;scroll-snap-align:center;background:var(--card);border:1px solid var(--line);
+  border-top:5px solid var(--c);border-radius:20px;padding:16px 17px;box-shadow:var(--sh);
+  display:flex;flex-direction:column}
+.lt-landing-kid--concept{--c:var(--blue);--cw:var(--bluew)}
+.lt-landing-kid--step{--c:var(--amber);--cw:var(--amberw)}
+.lt-landing-kid--calc{--c:var(--violet);--cw:var(--violetw)}
+.lt-landing-kid-h{display:flex;align-items:baseline;justify-content:space-between;gap:9px}
+.lt-landing-kid-n{font-size:14.5px;font-weight:700}
+.lt-landing-kid-s{font-family:var(--serif);font-size:26px;font-weight:900;color:var(--c);line-height:1}
+.lt-landing-kid-w{font-size:10.5px;font-weight:800;letter-spacing:.05em;color:var(--c);background:var(--cw);
+  border-radius:999px;padding:4px 10px;align-self:flex-start;margin:9px 0 10px}
+.lt-landing-kid-q{font-size:13.8px;color:var(--ink2);margin:0 0 12px;flex:1}
+.lt-landing-kid-q b{color:var(--ink);font-weight:600}
+.lt-landing-kid-f{border-top:1px dashed var(--line);padding-top:10px;font-size:13.2px;font-weight:600;color:var(--ink)}
+.lt-landing-swipe{font-size:11.5px;color:var(--ink3);padding:0 var(--pad);margin:0}
+
+.lt-landing-payoff{padding:36px var(--pad) 0}
+.lt-landing-payoff h2{max-width:15ch}
+.lt-landing-payoff h2 em{font-style:normal;color:var(--g)}
+.lt-landing-payoff p{font-size:15.5px;color:var(--ink2);margin:14px 0 0;max-width:36ch}
+.lt-landing-payoff p b{color:var(--ink);font-weight:700}
+
+.lt-landing-close{padding:46px var(--pad) 0}
+.lt-landing-close h2{font-size:clamp(24px,6vw,36px);max-width:15ch;margin-bottom:9px}
+.lt-landing-close h2 em{font-style:normal;color:var(--urg)}
+.lt-landing-close p{font-size:15px;color:var(--ink2);margin:0 0 20px;max-width:33ch}
+.lt-landing-close p b{color:var(--ink);font-weight:700}
+/* ⚠ QUALIFIED BY .lt-landing-close ON PURPOSE: the node is a <p> inside the close
+   section, and ".lt-landing-close p" (0,1,1) outranks a bare class (0,1,0) — which
+   silently rendered the figure at body size, grey. (0,2,0) wins. The owner's v8
+   mockup reproduced exactly this bug; Welcome.countdown.test.tsx asserts the
+   COMPUTED style so it cannot come back. */
+.lt-landing-close .lt-landing-countdown{font-family:var(--serif);font-size:clamp(56px,15vw,112px);font-weight:900;
+  color:var(--urg);letter-spacing:-.035em;margin:2px 0 18px;line-height:.95;max-width:none}
+/* The exam-window sentence is a line of words, not a figure: same voice, smaller. */
+.lt-landing-close .lt-landing-countdown--on{font-size:clamp(44px,11vw,88px)}
+.lt-landing-countdown:empty{display:none}
+/* ADDENDUM-A A6 — the second "Free to start" matches the first. Same trap as the
+   figure: ".lt-landing-close p" set it to 15px ink2; (0,2,0) restores the hero's. */
+.lt-landing-close .lt-landing-hnote{font-size:13px;color:var(--ink3);margin:12px 0 4px}
+.lt-landing-plans{display:grid;gap:10px;margin-top:22px;max-width:540px}
+.lt-landing-plan{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:14px 16px;
+  box-shadow:var(--sh);text-decoration:none;color:inherit;display:block}
+.lt-landing-plan:hover{border-color:var(--gl)}
+.lt-landing-plan.pay{border-color:var(--gl);background:var(--gw)}
+.lt-landing-plan .pt{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:4px}
+.lt-landing-plan .pn{font-size:12.5px;font-weight:800;letter-spacing:.04em;color:var(--ink3)}
+.lt-landing-plan.pay .pn{color:var(--gd)}
+.lt-landing-plan .pp{font-family:var(--serif);font-size:20px;font-weight:900;white-space:nowrap}
+.lt-landing-plan .per{font-size:12.5px;font-weight:600}
+.lt-landing-plan.pay .pp{color:var(--gd)}
+.lt-landing-plan .was{font-family:var(--sans);font-size:13px;font-weight:600;color:var(--ink3)}
+.lt-landing-plan .fl{font-size:11.5px;font-weight:800;letter-spacing:.04em;color:var(--gd);margin:0 0 4px}
+.lt-landing-plan .pd{font-size:13.4px;color:var(--ink2);margin:0}
+.lt-landing-plan .go{font-size:12.3px;font-weight:700;color:var(--gd);margin:7px 0 0}
+
+/* ★ STICKY MOBILE CTA — phone only, kept from MobileWelcome on the owner's ruling.
+   env(safe-area-inset-bottom) is NOT optional: without it this sits underneath the
+   iPhone home indicator. This is MobileWelcome.tsx:237's mechanism REUSED, not a
+   second solution to the same problem — same env() inset, same calc() shape, same
+   sticky bar. It is hidden from 700px up, where there is no home indicator. */
+.lt-landing-sticky{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(251,252,254,.94);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-top:1px solid var(--line);
+  padding:10px var(--pad) calc(10px + env(safe-area-inset-bottom,0px))}
+.lt-landing-sticky a{width:100%;font-size:15.5px;min-height:50px}
+
+.lt-landing-fineprint{margin-top:46px;border-top:1px solid var(--line);padding:20px var(--pad) 0}
+.lt-landing-fn{font-size:11.5px;color:var(--ink3);max-width:56ch;margin:0}
+.lt-landing .lt-public-legal{padding:12px var(--pad) 34px}
+
+@media(min-width:700px){
+  .lt-landing{--pad:32px;padding-bottom:0}
+  .lt-landing-sticky{display:none}
+  .lt-landing-kid{flex:0 0 31.5%}
+  .lt-landing-swipe{display:none}
+  .lt-landing-bgmark{right:-8vw;width:52vw;opacity:.075}
+  .lt-landing-plans{grid-template-columns:1fr 1fr;max-width:none}
+  .lt-landing-brand .fp{height:48px}
+  .lt-landing-brand .word{height:24px}
+  .lt-landing-brand .tag{height:11px}
+  /* ADDENDUM-A A3 — the class row aligns right beneath Log in from 700px up. */
+  .lt-landing-cls{justify-content:flex-end}
+}
+@media(min-width:1000px){
+  .lt-landing{--pad:40px;position:relative}
+  .lt-landing-rail{display:grid;grid-template-columns:repeat(3,1fr);overflow:visible;padding-bottom:0}
+  .lt-landing-kid{flex:none}
+  /* ★ ADDENDUM-A A2 — THE FINGERPRINT FILLS THE RIGHT HALF, and it is the tagline:
+     "One size fits one" is a fingerprint. ~60% opacity beside the hero's lower
+     half, starting just below the class row; its bottom fades out (mask) before
+     the student cards begin. ⚠ NO clip-path: with the owner's crop there is no
+     paper plane in this image; an earlier clip only sliced real dots flat.
+     ★ FIXED, AS IT ALWAYS WAS (owner ruling — the v8 mockup's scroll-away was a
+     mistake). ★★ BRIGHT WHEREVER THE RIGHT HALF IS EMPTY, FAINT ONLY WHERE CONTENT
+     ACTUALLY SITS BEHIND IT (owner ruling after live-verify): beside "One size fits
+     one." the fingerprint is the tagline drawn next to the tagline written. The only
+     content that ever reaches under the mark is the two FULL-WIDTH CARD ROWS (the
+     students, the plans); every paragraph's TEXT ends well left of it, though its
+     block box spans the container. So "is-quiet" is set when a card row enters the
+     mark's band — see the effect. It is only ever set after the page has scrolled,
+     so nothing scroll-derived exists at scroll 0, where a capture runs.
+     aspect-ratio = the mark file's 555x768, so the box (and the band the effect
+     reads from it) is right before the image has loaded. */
+  .lt-landing-bgmark{right:max(0px,calc((100vw - 1040px)/2 - 110px));top:185px;
+    width:27vw;max-width:370px;aspect-ratio:555/768;opacity:.6;transition:opacity .45s ease;
+    -webkit-mask-image:linear-gradient(to bottom,#000 70%,transparent 96%);
+    mask-image:linear-gradient(to bottom,#000 70%,transparent 96%)}
+  .lt-landing-bgmark.is-quiet{opacity:.075}
+}
+/* Reduced motion: no scroll-driven change at any width — just the faint fixed mark. */
+@media(min-width:1000px) and (prefers-reduced-motion:reduce){
+  .lt-landing-bgmark{opacity:.075;transition:none}
+}
+</style><picture><source media="(min-width: 1000px)" srcset="/app/brand/lazytopper-fingerprint-mark.png"><img class="lt-landing-bgmark" alt="" aria-hidden="true" src="/app/brand/lazytopper-fingerprint.png"></picture><div class="lt-landing-wrap"><div class="lt-landing-top"><div class="lt-landing-brand"><img class="fp" alt="" aria-hidden="true" src="/app/brand/lazytopper-fingerprint.png"><span class="col"><img class="word" alt="LazyTopper" src="/app/brand/lazytopper-wordmark.png"><img class="tag" alt="One Size Fits One." src="/app/brand/lazytopper-tagline.png"></span></div></div><div class="lt-landing-cls" role="tablist" aria-label="Class"><button type="button" role="tab" aria-selected="true">Class 10</button><button type="button" role="tab" aria-selected="false" disabled="">Class 11 · soon</button><button type="button" role="tab" aria-selected="false" disabled="">Class 12 · soon</button></div><section class="lt-landing-hero"><h1>Full marks<em>milenge kya?</em></h1><p class="lt-landing-sub">Upload your answer. We mark it <b>the way a CBSE examiner does</b> — step by step.</p><div class="lt-landing-hcta"><a class="btn solid" href="/app/check-improve" data-discover="true">Check my answer</a></div><p class="lt-landing-hnote">Free to start. One-tap sign-up, no card.</p><p class="lt-landing-peek"><a href="/app/notes/trigonometry?tab=questions&amp;returnTo=%2F&amp;backLabel=Back+to+LazyTopper" data-discover="true">See real competency-based questions, marked step by step →</a><a href="/app/cbse/class-10?returnTo=%2F&amp;backLabel=Back+to+LazyTopper" data-discover="true">CBSE 2027 — dates, rules and official papers →</a></p></section><section class="lt-landing-proof"><div class="lt-landing-ph"><h2>Lost marks tell different stories.</h2><p class="lt-landing-q">One question · Trigonometry · 3 marks</p></div><div class="lt-landing-rail"><div class="lt-landing-kid lt-landing-kid--concept"><div class="lt-landing-kid-h"><span class="lt-landing-kid-n">Aarav</span><span class="lt-landing-kid-s">1/3</span></div><span class="lt-landing-kid-w">CONCEPT GAP</span><p class="lt-landing-kid-q"><b>Opposite aur adjacent swap</b> ho gaye. Confident tha, samajh nahi.</p><p class="lt-landing-kid-f">→ Notes pe wapas jaana hai</p></div><div class="lt-landing-kid lt-landing-kid--step"><div class="lt-landing-kid-h"><span class="lt-landing-kid-n">Diya</span><span class="lt-landing-kid-s">2½/3</span></div><span class="lt-landing-kid-w">STEP SKIPPED</span><p class="lt-landing-kid-q">Sab sahi. Bas <b>Pythagoras dimaag mein</b> kar liya, copy mein nahi.</p><p class="lt-landing-kid-f">→ Concept solid. Likhna hai, bas</p></div><div class="lt-landing-kid lt-landing-kid--calc"><div class="lt-landing-kid-h"><span class="lt-landing-kid-n">Kabir</span><span class="lt-landing-kid-s">2/3</span></div><span class="lt-landing-kid-w">CALCULATION SLIP</span><p class="lt-landing-kid-q">Method perfect. <b>√25k² = 5k, likha 4k.</b> Ek digit.</p><p class="lt-landing-kid-f">→ Padhna nahi. Dheere karna hai</p></div></div><p class="lt-landing-swipe">Swipe →</p></section><section class="lt-landing-payoff"><h2>Three stories. Three fixes.<em>One size fits one.</em></h2><p>The marking scheme gives you a score. <b>Your mistake pattern gives you the reason</b> — and no two students have the same one.</p></section><section class="lt-landing-close"><h2 data-testid="boards-heading">Your boards are closer than you think.</h2><p>Find out which mistake is costing you marks — and <b>fix it now</b>, not in the exam hall.</p><a class="btn solid" href="/app/check-improve" data-discover="true">Check my answer</a><p class="lt-landing-hnote">Free to start. One-tap sign-up, no card.</p><div class="lt-landing-plans"><a class="lt-landing-plan" href="/app/pricing" data-discover="true"><div class="pt"><span class="pn">FREE</span><span class="pp">₹0</span></div><p class="pd">Practice, notes, board questions and official CBSE papers. Forever.</p><p class="go">See what's included →</p></a><a class="lt-landing-plan pay" href="/app/pricing" data-discover="true"><div class="pt"><span class="pn">WITH MARKING</span><span class="pp" data-testid="landing-paid-price">₹599<span class="per"> for a month</span> <s class="was">₹999</s></span></div><p class="fl">Founding member price</p><p class="pd">AI marking for Maths and Science, plus your mistake pattern.</p><p class="go">See plans →</p></a></div></section><div class="lt-landing-fineprint"><p class="lt-landing-fn">LazyTopper — CBSE Class 10 Maths and Science. Not affiliated with CBSE. Class 11 and 12 coming.</p></div><footer class="lt-public-legal" aria-label="Legal"><style>
+  .lt-public-legal {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px 16px;
+    padding: 18px 20px 26px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    line-height: 1.5;
+    color: hsl(220, 12%, 52%);
+    text-align: center;
+  }
+  .lt-public-legal a {
+    color: inherit;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 2px 0;
+  }
+  .lt-public-legal a:hover,
+  .lt-public-legal a:focus-visible {
+    color: hsl(222, 47%, 24%);
+    text-decoration: underline;
+  }
+  @media (max-width: 389px) {
+    .lt-public-legal {
+      gap: 4px 12px;
+      padding: 14px 14px 20px;
+      font-size: 11.5px;
+    }
+  }
+</style><span>© 2026 LazyTopper</span><a href="/app/exam-trends" data-discover="true">Chapters</a><a href="/app/cbse/class-10?returnTo=%2F" data-discover="true">CBSE 2027</a><a href="/app/legal/privacy" data-discover="true">Privacy</a><a href="/app/legal/terms" data-discover="true">Terms</a><a href="/app/legal/refund" data-discover="true">Refunds</a></footer></div><div class="lt-landing-sticky"><a class="btn solid" href="/app/check-improve" data-discover="true">Check my answer — free</a></div></main></div>
