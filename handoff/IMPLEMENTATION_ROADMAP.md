@@ -1,5 +1,16 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-27 — MONEY: **WAVE B-1 — STORED-RATE-1 (PASS STORED, PRICED, DATED, UNFORGEABLE) + METER-1 (AI COST PER STUDENT, RECORDS ONLY)** — `#841` + `#842` MERGED — trunk `91d7d1a8`
+
+- ✅ **STORED-RATE-1** (`#841` `ceb93c81`): R1 pass fields · R2 rules deny client writes of any pass field · R3 transactional, idempotent `grantPass` with server-only pricing · R4 `POST /api/admin/grant-pass` (`PASS_ADMIN_SECRET`) · R5 expiry on server and client, legacy premium grandfathered · R6 tests (25 + 18 rules + 7 + 38 parity).
+- ✅ **METER-1** (`#842` `91d7d1a8`): M1 ALS request context with the verified uid, paid endpoints only · M2 price table · M3 fire-and-forget IST-day ledger · M4 `usageLedger` is student data, erased and exported · M5 tests (14 + erasure/export).
+- ✅ **Docs:** this handoff.
+- ⬜ **Owner:** the rules mutation proof → `deploy:firestore-rules` → `PASS_ADMIN_SECRET` on Railway → METER-1 live-verify.
+- ⬜ **Owner rulings:** `[FU-PASS-TRIAL-AFTER-EXPIRY]`; admin-tool Gemini spend unmetered.
+- ⬜ **Final wave audit** (`audit-request-wave-b1-final-2026-09-27.md`).
+- ⬜ **Next:** FAIR-USE-1 (wave B-2, reads the ledger) · the Razorpay go-live (calls `grantPass`).
+- ⬜ `[FU-STORED-RATE-RULES-MUTATION-PROOF]` · `[FU-SERVER-CBSEEXAMDATE-DAY-DRIFT]` · `[FU-PASS-TRIAL-AFTER-EXPIRY]` · `[FU-METER-STREAM-UNMETERED]` · `[FU-METER-PRICE-TABLE-SINGLE-MODEL]`.
+
 ## 2026-09-27 — INFRA: **CHUNK-RESILIENCE-1 — ASSETS PINNED TO THE PAGE'S DEPLOYMENT + ROUTE-CHUNK RETRY** — `#839` MERGED — trunk `b031caac`
 
 - ✅ **K1** root `middleware.ts`: `__vdpl` cookie on `/app` documents only, `Path=/app/assets`, fail-open, nodejs runtime.

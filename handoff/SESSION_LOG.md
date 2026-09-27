@@ -1,5 +1,22 @@
 ---
 
+## 2026-09-27 — WAVE B-1 (MONEY) — **STORED-RATE-1: A PASS IS STORED, PRICED, DATED AND UNFORGEABLE · METER-1: EVERY PAID AI CALL'S COST RECORDED PER STUDENT** — `#841` + `#842` MERGED — trunk `91d7d1a8`
+
+★ **PROVENANCE.**
+- Controller B (Money), one session. There was one builder per PR (`claude-opus-5-5`). The controller wrote this docs PR (OR-16).
+- *(subagent-reported)* = from builder reports; *(controller-verified)* = re-measured.
+
+**Timeline.**
+- Both specs were hash-verified on receipt (`D42E47252620`, `BC5D8F456B0B`). Trunk had moved from the specs' base `a86130c2` to `b031caac` (`#839`), so both §0c premise gates were re-run on the new tip: PASS, EXIT=0 *(controller-verified)*.
+- Both builders were dispatched at once. METER-1 built in two phases (build and push the branch, **no PR**; then rebase and open the PR), because both lanes edit `server/index.cjs` and `lane-overlap` is exact-path.
+- STORED-RATE-1 → `#841`. The first CI run, on `76e1d668`, was red on rules tests 42/43. The cause was a test-seed bug (a seeded pass already equal to the forgery), not the rules; it was fixed in `61781616` *(subagent-reported)*. The rules mutation was blocked (see below). The controller updated the branch with the docs-only `#840`, and the lane code stayed byte-identical. CI was green on `c93dd8f2`, and the PR was merged → `ceb93c81`.
+- METER-1 rebased onto `ceb93c81`. The only conflict was `package.json` (both suites are kept in the chain) → `#842`. CI was green on `4b008fe3`, and the PR was merged → `91d7d1a8`.
+
+### ★ What this wave teaches
+- **A PERMISSION CLASSIFIER CAN BLOCK A MUTATION, AND THE ANSWER IS TO SAY SO, NOT ROUTE AROUND IT.** Proving that a rules test fires means weakening the rules. With no local Java, the only route was CI, and that meant pushing a security-weakening commit, which the classifier refused. The builder stopped, and the controller did not relaunder the push. Merging was still safe, **because merging rules does not deploy them**: the owner's deploy step is the real gate, and the mutation proof goes in front of it.
+- **ALS CONTEXT FOLLOWS THE WORK, NOT THE REQUEST** *(subagent-reported)*. `AsyncLocalStorage` propagates through timers and promises started inside a request, so "calls that escape the request chain record nothing" is not something ALS gives you. METER-1 enforces it with a paid-path condition at bind time. A future paid route that detaches background Gemini work would be charged to the student who triggered it.
+- **A RED CI RUN CAN BE THE TEST'S FAULT, AND THE FIX IS TO ASSERT THE PRECONDITION.** Rules tests 42/43 "failed" because the seeded document already held the forged value, so the write changed nothing and the rules rightly allowed it. The fix asserts that each forgery differs from the stored value before it asserts the denial.
+
 ## 2026-09-27 — CHUNK-RESILIENCE-1 — **ASSETS PINNED TO THE PAGE'S DEPLOYMENT + A FAILED ROUTE CHUNK RETRIED; SKEW PROTECTION ON** — `#839` MERGED — trunk `b031caac`
 
 ★ **PROVENANCE.**
