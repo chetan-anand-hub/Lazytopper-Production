@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   FOUNDING_COHORT_COPY,
   FOUNDING_LABEL,
@@ -8,6 +8,7 @@ import {
   PRICE_MONTHLY_LIST_DISPLAY,
   TILL_BOARDS_INLINE,
 } from "../../config/pricing";
+import { safeSigninRedirect, withSigninRedirect } from "../../services/freeCheckClient";
 
 /**
  * OfferStrip — what the student is actually joining, stated on the auth surface.
@@ -311,6 +312,14 @@ export function AfterTrialLine({ variant }: { variant: "panel" | "mobile" }) {
 export default function OfferStrip({
   variant = "panel",
 }: { variant?: "panel" | "mobile" } = {}) {
+  // FREECHECK-2 · F3 — the door's own `?redirect=` rides along to /pricing, which hands
+  // it back to /login, so a student who checks the plans mid-sign-in still lands where
+  // they were going (FU-SIGNIN-REDIRECT-EXITS). Only a safe internal path is carried.
+  const [searchParams] = useSearchParams();
+  const pricingTo = withSigninRedirect(
+    "/pricing?source=login",
+    safeSigninRedirect(searchParams.get("redirect")),
+  );
   if (variant === "mobile") {
     return (
       <div
@@ -321,7 +330,7 @@ export default function OfferStrip({
         <style dangerouslySetInnerHTML={{ __html: OFFER_STRIP_CSS }} />
         <p className="lt-offer-strip-lead">7-day full trial, then free Basic</p>
         <AfterTrialLine variant="mobile" />
-        <Link className="lt-offer-strip-link" to="/pricing?source=login">
+        <Link className="lt-offer-strip-link" to={pricingTo}>
           {"See plans and founding-member price →"}
         </Link>
       </div>
@@ -372,7 +381,7 @@ export default function OfferStrip({
         </p>
       )}
 
-      <Link className="lt-offer-strip-link" to="/pricing?source=login">
+      <Link className="lt-offer-strip-link" to={pricingTo}>
         {"See plans →"}
       </Link>
     </div>

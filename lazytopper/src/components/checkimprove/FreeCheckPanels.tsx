@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { Link } from "react-router-dom";
 import { trackNamedEvent } from "../../analytics/analytics";
 import {
@@ -8,6 +8,11 @@ import {
   refusalCopy,
   type FreeCheckRefusalReason,
 } from "../../services/freeCheckClient";
+import {
+  getFreeCheckSaveStatus,
+  retryFreeCheckSave,
+  subscribeFreeCheckSaveStatus,
+} from "../../services/freeCheckReplay";
 
 /**
  * FREE-CHECK-1b — the student-visible pieces of the signed-out free check. Every one of
@@ -165,8 +170,41 @@ export function FreeCheckRefusalPanel({ reason }: { reason: FreeCheckRefusalReas
   );
 }
 
-/** R8 — the waiting result is being written into the new account. */
+/**
+ * R8 — the waiting result is being written into the new account.
+ *
+ * FREECHECK-2 · F2 — never an endless "Saving…": offline, it says so and waits for the
+ * network (the return hook resumes on `online`); any other failure says so and offers
+ * "Try again". The state comes from freeCheckReplay's save status, which the return hook
+ * sets — the page renders this panel with no props.
+ */
 export function FreeCheckSavingPanel() {
+  const status = useSyncExternalStore(
+    subscribeFreeCheckSaveStatus,
+    getFreeCheckSaveStatus,
+    getFreeCheckSaveStatus,
+  );
+  if (status === "offline") {
+    return (
+      <div className="lt-fc" data-testid="free-check-save-offline" role="status">
+        <style>{FC_CSS}</style>
+        <p className="lt-fc__lead">{FREE_CHECK_COPY.saveOffline}</p>
+      </div>
+    );
+  }
+  if (status === "failed") {
+    return (
+      <div className="lt-fc" data-testid="free-check-save-failed" role="alert">
+        <style>{FC_CSS}</style>
+        <p className="lt-fc__lead">{FREE_CHECK_COPY.saveFailed}</p>
+        <div className="lt-fc__actions">
+          <button type="button" className="lt-fc__btn lt-fc__btn--primary" onClick={retryFreeCheckSave}>
+            {FREE_CHECK_COPY.saveRetry}
+          </button>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="lt-fc" data-testid="free-check-saving" role="status" aria-busy="true">
       <style>{FC_CSS}</style>

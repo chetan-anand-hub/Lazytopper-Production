@@ -256,7 +256,7 @@ describe("exactly once, under concurrency and failure", () => {
     H.activeUid = USER.uid;
     H.recordMistake.mockRejectedValueOnce(new Error("offline"));
     vi.spyOn(console, "warn").mockImplementation(() => {});
-    expect(await replayPendingFreeCheck(USER)).toEqual({ kind: "failed" });
+    expect(await replayPendingFreeCheck(USER)).toMatchObject({ kind: "failed", offline: false });
     expect(window.localStorage.getItem(FREE_CHECK_PENDING_KEY)).not.toBeNull();
     expect(H.track).not.toHaveBeenCalled();
   });
@@ -324,7 +324,7 @@ describe("OR-18 — replay only with the sign-in marker", () => {
     H.recordMistake.mockRejectedValueOnce(new Error("offline"));
     vi.spyOn(console, "warn").mockImplementation(() => {});
 
-    expect(await replayPendingFreeCheck(USER)).toEqual({ kind: "failed" });
+    expect(await replayPendingFreeCheck(USER)).toMatchObject({ kind: "failed", offline: false });
     expect(window.sessionStorage.getItem(FREE_CHECK_SIGNIN_INTENT_KEY)).toBeNull();
     // Put back on the device, but a later sign-in without a fresh click saves nothing.
     expect(hasPendingFreeCheck()).toBe(true);
