@@ -1,3 +1,65 @@
+## 2026-09-28 — WAVE A-3 (CONTROLLER A) FINAL — **ROOTENTRY-1: FIRST LOAD NO LONGER BLANKS · SEARCHPING-3: SEARCH-PING ON EVERY TRUNK PUSH, GOOGLE INCLUDED · PERF-CLS-2 STOPPED (THE GRANTED FIX MADE ANDROID WORSE) · ★ THE 0.0771 EXPLANATION `#868` RECORDED WAS WRONG** — `#867` + `#869` MERGED — trunk `069dfdeb` · `#871` draft
+
+★ **PROVENANCE.**
+- Controller A, the same session as `#862` and `#868`, reopened by the owner's answers to the revised final audit (Q1–Q5). One builder per PR (`claude-opus-5-5`): ROOTENTRY-1 resumed in `C:/Projects/LT-worktrees/rootentry-1`; `…/searchping-3`; `…/perf-cls-2`. This docs PR was written by a docs builder in `…/docs-wave-a3-3` from `WAVE_STATE_A3.md`, the lane reports and the controller's final-values message (OR-16).
+- *(subagent-reported)* = from builder reports; *(controller-verified)* = re-measured by the controller; *(cofounder-measured)* = relayed in the owner's ruling.
+
+**Timeline.**
+- The owner answered five questions:
+  - Q1: grant `App.tsx:340`.
+  - Q2: the 0.0771 is the font environment (no Georgia / Arial on Linux or Android), **not** a pre-`#859` measurement; new lane PERF-CLS-2.
+  - Q3: a push trigger for search-ping.
+  - Q4: the owner adds `GSC_SERVICE_ACCOUNT`.
+  - Q5: P2-CYCLE, SP-DISPATCH, ruling 5 and PERF-CLS-1 R1–R3 ratified.
+  - New STANDING rule: every CLS gate carries a content-absent control and a font-environment matrix.
+- **ROOTENTRY-1** `#867` resumed with the grant.
+  - Pre-merge: head `57a67781` (14 tests, 2 mutations), CI green; preview 20 runs, landing-absent 0 ms, final `/app/`.
+  - Merged ALONE → `7b94ae00` at 14:05:08Z *(controller-verified)*.
+  - Live: COMPLETE 100% at 14:23:07Z. On www, 10× `/app/` + 10× the bare domain gave landing-absent 0 ms ×20, final `/app/` ×20, BottomNav 0 ×20 *(subagent-reported)*.
+- During the preview proofs, www began answering this machine with a Vercel challenge (`403`). The controller found it transient and IP-scoped at 14:04:21Z, and the paced post-merge runs saw no challenge → `[FU-PROD-VERCEL-CHALLENGE-403]`.
+- The DOCS-2 rollout (`2068c306`) reached 100% at 14:04:25Z. Its search-ping runs were skipped (the `deployment_status` gap) *(subagent-reported)*.
+- B's docs `#870` landed → `6f55c66e`, which unblocked DOCS-3.
+- **SEARCHPING-3** `#869` was MERGE-READY on `a8e6279a` (`Tests 3153 passed (3153)`).
+  - It was held until ROOTENTRY-1's www check was done (the ALONE window).
+  - `gh pr update-branch` → `c00f23ea` (lane files byte-identical), then merged → `069dfdeb` at 14:37:57Z *(controller-verified)*.
+  - First push run `36437445722`: SUCCESS; 5/5 at read 77 after 19 m 13 s; `changed=0` (no IndexNow request); Search Console `sitemaps.submit` HTTP 204. The same-SHA `deployment_status` run was skipped via concurrency *(subagent-reported)*.
+- **PERF-CLS-2** `#871`: the granted Noto Serif / Roboto fallback faces were built exactly as ruled, and CI was green (`Tests 3157 passed (3157)`).
+  - The Android-like proof FAILED: preview 0.1193–0.1197 ×10 vs www 0.0638 ×10 *(subagent-reported)*.
+  - Root cause: the `ch`-sized serif headings plus Fraunces' latin-ext segment arriving first; the fix is `Welcome.tsx` 271 / 284 / 306 / 312, outside the grant.
+  - STOPPED; set back to DRAFT; owner decision owed.
+
+### ★ What this wave teaches
+- **A HARNESS PROVES NOTHING OUTSIDE ITS OWN FONT ENVIRONMENT.**
+  - The PERF-CLS-1 harness ran on Windows, which has Georgia and Arial, and read CLS 0 × 10 on www. The owner's Linux run on the same www read 0.0771. A proven Android-like set read 0.0638, and other Linux sets read 0.002–0.286 *(subagent-reported)*.
+  - `#868` explained the difference with "consistent with a pre-`#859` measurement". That matched in shape and timing, never in magnitude, and nobody asked where the owner measured.
+  - **Get the other measurer's environment before explaining their number, and record `fc-list` with every CLS figure.**
+- **A FIX DERIVED FROM A PLAUSIBLE CAUSE CAN MAKE THINGS WORSE.**
+  - "No Georgia / Arial on Android, so add Noto Serif / Roboto faces" was plausible, owner-ruled and CI-green, and it doubled the Android shift.
+  - The binding font-environment proof caught it before merge. Without the new standing rule it would have shipped.
+  - The real cause was a `ch` unit: it resolves against whichever font segment loaded first.
+- **A CORRECTION IS A NEW DATED ENTRY, AND IT CARRIES THE REASON.** `#868`'s text is left as written (board rule 3). The correction in `CURRENT_STATE.md` names every place the explanation appeared and why it was wrong, because the next lane needs the reason, not only the outcome.
+- **THE RIGHT CONTROL FOR A BLANK IS "HOW LONG WAS IT ABSENT", NOT CLS.** ROOTENTRY-1 was gated on landing-absent ms + final URL + no BottomNav. That control fails on the old code (1159–1666 ms, `/app/welcome`) and passes on the fix (0 ms ×20).
+- **LOAD TESTING PRODUCTION FROM ONE MACHINE CAN TRIP THE PLATFORM'S BOT PROTECTION.** Pace cold loads, and poll the rollout with `vercel rolling-release fetch`, not a tight curl loop.
+
+## 2026-09-28 — WAVE B-4 (MONEY, CONTROLLER B) — **FAIR-USE-3: LAZY PAPER REFUND · ONE-TRANSACTION MINT · LIMITS FROM THE SERVER · SOLUTIONCHECKER LIMIT PANEL — STILL DARK** — `#866` MERGED — trunk `7b94ae00`
+
+★ **PROVENANCE.**
+- Controller B, one session. One builder (`claude-opus-5-5`), in worktree `C:/Projects/LT-worktrees/fair-use-3`. This docs PR was written by a docs builder in `…/b4-docs` from the controller's state file `WAVE_STATE_B4.md` and the lane report `report-fair-use-3-2026-09-28.md` (OR-16).
+- *(subagent-reported)* = from the builder report; *(controller-verified)* = re-measured by the controller.
+
+**Timeline.**
+- Spec `FAIR-USE-3.md` hash-verified on receipt (`8AA4E3AE07EF`), staged from `controller-b4/ops/.specs/` (D0). Trunk at dispatch `0e2af785` (A3 `#859` PERF-CLS-1); the only open PR was A3's `#865` `lane/searchping-2b`, exact-path disjoint from FAIR-USE-3. Owner state at dispatch: `FAIR_USE_PAPER_SECRET` SET (`/api/usage/paper` → 401 unsigned); `FAIR_USE_ENFORCE`, `PAYMENTS_ENABLED`, `VITE_PAYMENTS_ENABLED` unset and stay unset.
+- **FAIR-USE-3** → `#866`. Trunk moved to `69229cc5` (A3 `#865`, disjoint) and was merged in. CI `36427071349` green on `b9439474`: `Tests 3136 passed (3136)`, `Test Files 213 passed (213)`, 23× `# fail 0` / 23× `# skipped 0`, the R1–R3 test names and `SolutionChecker.fairUse.test.tsx` (5 tests) in the log *(controller-grepped)*. 3 mutations red → restored *(builder-reported)*. `lazytopper/package.json` untouched (D2 held). Controller accepted D6 (SolutionChecker +4 additive lines outside the catch block), D7 (two page test fixtures +2 lines each) and D8 (legacy docs via counters), all flagged for the final audit.
+- D5 held pre-merge (rolling release COMPLETE, www serving the trunk head's deployment, Railway `69229cc5` success). Merged `--match-head-commit b9439474` → `b6da0c6f`, trees equal `0354c481` *(controller-verified)*. Canary `ojt462uph` smoke PASS; the canary bundle ships `SolutionChecker-BZRFBP8r.js` containing `FairUseLimitError` *(controller-verified)*.
+- ROLLOUT: #866 merged 13:22:03Z as b6da0c6f and rolled out alone. Vercel production ojt462uph reached 100% at 13:39:25Z (canary smoke then www smoke: app pages 200, /api/usage/me 401, /api/usage/paper 401, /api/check-solution 402, identical to the pre-merge baseline; the canary bundle carries SolutionChecker with FairUseLimitError). Railway created no backend deployment for b6da0c6f itself; the server code first went live in Railway deployment 6711416623 for 2068c306 (A3 docs #868, which touches no lazytopper/ files), success 13:54:38Z, and a server smoke through the deployment URLs matched the baseline. From about 13:56Z www answers non-browser clients with a Vercel Security Checkpoint (403, X-Vercel-Mitigated: challenge), a platform firewall setting that no B-4 file touches; it is flagged for the owner. FAIR_USE_ENFORCE is still unset.
+- Controller A3's docs PR `#868` (`2068c306`) merged before this one; this PR brought trunk in with `git merge` (never rebase / force-push) and sits on top of it (controller decision D9).
+- While the rollout ran, `#867` `lane/rootentry-1` (not Controller B's) was open; it later merged as `7b94ae00` (A3's; details owed by A3), and this PR merged trunk `7b94ae00` in.
+
+### ★ What this wave teaches
+- **A SCOPE QUALIFIER CAN CONTRADICT THE REQUIREMENT IT SITS ON.** The spec said "the catch block ONLY" and also "render the existing FairUseLimitPanel"; a catch block cannot render JSX or call a hook. The builder kept the requirement, added 4 lines outside the catch with no existing line changed, and recorded it as a finding (D6) *(subagent-reported)*.
+- **CHANGING A PERSISTED SHAPE MEANS TESTING THE MIGRATION FROM THE OLD SHAPE.** The old paper spend lived only in mint-time counters, so old ledger docs must keep reading through them; reading only the new map would have lost or double-counted a legacy spend (D8) *(subagent-reported)*.
+- **"DARK" IS A PROPERTY OF EACH SWITCH, NOT OF THE FEATURE.** With `FAIR_USE_PAPER_SECRET` set, minting is live while enforcement is dark — so the new transaction had to add no refusal and no new failure mode with `FAIR_USE_ENFORCE` unset (D3).
+
 ## 2026-09-28 — WAVE A-3 (CONTROLLER A) CONTINUED — **SEARCHPING-2 + 2b · PHASE2-DATE-1 · PERF-CLS-1 — EVERY HELD LANE LANDED; SEARCH-PING NEEDS A DISPATCH UNDER ROLLING RELEASES; ROOTENTRY-1 STOPPED** — `#857` + `#863` + `#859` + `#865` MERGED — trunk `b6da0c6f` · `#867` draft
 
 ★ **PROVENANCE.**

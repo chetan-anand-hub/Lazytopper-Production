@@ -1,3 +1,53 @@
+## ★★★ 2026-09-28 — WAVE A-3 (CONTROLLER A) FINAL — CLOSED (docs, third PR) — THIS BLOCK SUPERSEDES THE WAVE B-4 BLOCK BELOW ON TRUNK SHA ONLY
+*(It does not supersede the owner items of the WAVE B-4, B-3, B-2, A-2 or B-1 blocks below, which stand unchanged. From the WAVE A-3 (CONTINUED) block below (`#868`), items 0–2 are DONE and items 3–6 still stand:
+- item 0: the owner granted `App.tsx:340`, and ROOTENTRY-1 `#867` merged;
+- item 1: the owner chose the push trigger, and SEARCHPING-3 `#869` merged;
+- item 2: the owner added `GSC_SERVICE_ACCOUNT`.
+★ That block's explanation of the owner's CLS 0.0771 ("a measurement taken before `#859` reached 100%") is WRONG. See the dated CORRECTION in `CURRENT_STATE.md`.)*
+
+**TRUNK IS `069dfdeb716582aca6ebf43c1cdb08af514ead89`**, measured 2026-09-28 (`git fetch origin` + `git rev-parse origin/base/approved-thru-437`):
+- `069dfdeb` = `#869` (SEARCHPING-3: search-ping runs on every trunk push) — **this wave**
+- `6f55c66e` = `#870` (docs: wave B-4 — Controller B)
+- `7b94ae00` = `#867` (ROOTENTRY-1: RootEntry renders the landing while auth loads; no BottomNav on `/`; rolled out ALONE) — **this wave**
+- `2068c306` = `#868` (docs: wave A-3 continued)
+
+Open at the time of writing, besides this docs PR: `#871` PERF-CLS-2 (**DRAFT, STOPPED — must not merge as it stands**).
+
+### NEXT — OWNER (none of these was run by the controller or a builder)
+1. **Decide the landing's `ch`-sized headings** (`[FU-LANDING-CH-MAXWIDTH-PRIMARY-SEGMENT]`). PERF-CLS-2's granted Android fallback faces made Android CLS worse: 0.0638 → ~0.1195 *(subagent-reported)*. The builder traced the cause to `Welcome.tsx:271` (h1 `max-width:11ch`) and the h2s at `:284` / `:306` / `:312`. While Fraunces' latin-ext segment has loaded and latin has not, `ch` resolves to 0.5em and the h1 re-wraps. Grant those four lines `ch` → `em` (`7.32em` / `10.05em` / `10.77em` / `10.81em`, subject to a wrap check at 360–1280). The builder measured the `ch` fix alone on www at 0.0049–0.0053, and with `#871` at 0.0015–0.0019. **Controller recommends:** its own lane, merged ALONE, with the font-environment matrix and the content-absent control; then re-measure `#871` on top and merge it only if it helps both environments, else close it.
+2. **Live-verify ROOTENTRY-1's signed-in path** (CLAUDE.md §6): signed in, open `https://www.lazytopper.com/app/` on a phone → it lands on `/browse`; on desktop → the home. The signed-out path is proven on www (landing-absent 0 ms ×20, final `/app/` ×20, BottomNav 0 ×20); the signed-in path is only unit-tested (no test account) *(subagent-reported)*.
+3. **Live-verify the landing on a real Android phone** once the `ch` fix is live: on a cold first load over mobile data, the headline and hero text do not jump when the fonts arrive.
+4. *(optional)* **Check the Vercel firewall / Attack Challenge Mode** (`[FU-PROD-VERCEL-CHALLENGE-403]`). After many automated loads, www challenged this machine (`403`, `X-Vercel-Mitigated: challenge`). When the controller checked, the challenge was transient and IP-scoped. Whether real students are ever challenged is unverified.
+5. **Watch the push runs** (`[FU-SEARCHPING-PUSH-WAIT-BUDGET]`, watch-only). The first push run waited 19 m 13 s of its 30-min budget, because it started 16 min behind the previous rollout *(subagent-reported)*. A red run pings nothing; the next push, or `gh workflow run search-ping.yml -f sha=<trunk sha>`, recovers it.
+6. **Standing for every future CLS gate (owner, 2026-09-28):** a content-absent control (how long the page content is absent, and the final URL) AND a font-environment matrix: Windows-like (Georgia / Arial present) + Android-like (Linux, no Georgia / Arial, Roboto + Noto Serif). Record the font set (`fc-list`) with every CLS number (`[FU-CLS-HARNESS-FONT-ENV-PINNED]`). This adds to `#868`'s standing rules (sitemap + lastmod in page-regenerating allowlists; slow-4G + throttled CPU binding).
+7. **The WAVE B-4, B-3, B-2, A-2 and B-1 owner steps, and `#868`'s items 3–6, still stand** (the blocks below). This docs lane did not re-check whether any has since been done.
+
+## ★★★ 2026-09-28 — WAVE B-4 (MONEY, CONTROLLER B) CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-3 (CONTINUED) BLOCK BELOW ON TRUNK SHA ONLY
+*(It does not supersede the owner items of the WAVE A-3 (CONTINUED), B-3, A-3, B-2, A-2 or B-1 blocks below, which stand unchanged — except that the WAVE B-3 block's fair-use steps are replaced by steps 1–3 below: its step 1 (`FAIR_USE_PAPER_SECRET`) is DONE by the owner (`POST /api/usage/paper` answers 401 unsigned, per the B-4 dispatch); its step 3 (decide `[FU-FAIR-USE-MINT-NO-REFUND]` + fix `[FU-FAIR-USE-SOLUTIONCHECKER-PANEL]`) is DONE by `#866`; and its step 2 (signed-in page-level screenshots) is replaced, per the B-3 audit, by the live test in step 3 below. `[FU-FAIR-USE-UI-PREVIEW-SHOTS]` itself stays open on the board.)*
+
+**TRUNK IS `7b94ae00782914db698bdd6f1e77c3b7ee73b063`**, measured 2026-09-28 (`git ls-remote origin refs/heads/base/approved-thru-437`):
+- `7b94ae00` = `#867` (ROOTENTRY-1 — merged 7b94ae00 (A3's; details owed by A3))
+- `2068c306` = `#868` (docs: wave A-3 continued — Controller A; records `#857`, `#863`, `#859`, `#865` and ROOTENTRY-1 `#867` stopped; not restated here)
+- `b6da0c6f` = `#866` (FAIR-USE-3: lazy paper refund, one-transaction mint, limits from the server, SolutionChecker limit panel — dark until `FAIR_USE_ENFORCE=1`) — **this wave**; rolled out alone, see ROLLOUT in `CURRENT_STATE.md`
+- `39059fd6` = `#864` (docs: wave B-3)
+
+Open at the time of writing, besides this docs PR: `#869` `lane/searchping-3` (Controller A's product PR; not docs). `#867` has since merged (`7b94ae00`, above).
+
+### NEXT — OWNER, FAIR USE — IN THIS ORDER (none of these was run by the controller or a builder)
+1. *(optional)* **Tune the `FAIR_USE_TRIAL_*` limits on Railway.** Since `#866`, `/api/usage/me` returns `trial.limits` and every fair-use sentence takes its number from there, so the student copy follows automatically *(subagent-reported)*.
+2. **Live-verify as a trial student** (CLAUDE.md §6 — static gates are not sufficient): mint a paper → confirm the new Firestore `paperPasses` entry `{issuedAtMs, surface}`; grade that paper → confirm `gradedAtMs` appears; confirm `/api/usage/me` shows `trial.limits` *(subagent-reported)*.
+3. **Then set `FAIR_USE_ENFORCE=1` (exactly `1`) on Railway and live-test.** Per the B-3 audit, this live test replaces the D6 signed-in screenshots.
+
+### NEXT — OWNER, PAYMENTS
+4. **The wave B-2 RAZORPAY-1 owner test is still owed before production payments:** Railway `PAYMENTS_ENABLED=1`, Vercel **Preview-only** `VITE_PAYMENTS_ENABLED=1`, a test-card pass on a preview, confirm premium + `passEnd` (detail in the WAVE B-2 block below). Live keys and switching production on are the owner's call.
+
+### Still owed from earlier waves
+5. **The wave B-1 owner steps** (the rules mutation proof → `deploy:firestore-rules` → `PASS_ADMIN_SECRET` on Railway → METER-1 live-verify; rulings `[FU-PASS-TRIAL-AFTER-EXPIRY]` and admin-tool Gemini spend; the wave B-1 final audit) and the **wave B-2** live-verify of FAIR-USE-1 and owner call `[FU-FAIR-USE-TRIAL-COUNT-ON-UNREADABLE]`. This docs lane did not re-check whether any of them has since been done.
+6. **The WAVE A-3 (CONTINUED) owner items** (the block below, `#868`) stand unchanged.
+
+### FLAGGED FOR THE OWNER (controller-reported in ROLLOUT, `CURRENT_STATE.md`)
+7. **From about 13:56Z www answers non-browser clients with a Vercel Security Checkpoint** (403, `X-Vercel-Mitigated: challenge`) — a platform firewall setting that no B-4 file touches. Not investigated by this docs lane.
+
 ## ★★★ 2026-09-28 — WAVE A-3 (CONTROLLER A) CONTINUED — CLOSED (docs, second PR) — THIS BLOCK SUPERSEDES THE WAVE B-3 BLOCK BELOW ON TRUNK SHA ONLY
 *(It does not supersede the WAVE B-3 block's owner items (fair use, payments), nor the WAVE B-2, A-2 or B-1 blocks' owner items, which stand unchanged. From the WAVE A-3 block below (`#862`): items 1–4 are DONE or RULED — 1 the owner allowed `sitemap.xml` + `lastmod.json`, and `#859` merged; 2 `#855` merged, and `#857` merged; 3 phase 2 was ruled and fixed by `#863`; 4 the 31ch line was granted and fixed inside `#859`. Its item 5 (live-verify BOARD-DATE-1) and item 6 still stand.)*
 

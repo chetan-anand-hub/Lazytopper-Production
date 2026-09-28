@@ -34,11 +34,28 @@
 #   github.event.deployment.sha (deployment_status) || inputs.sha || github.sha (dispatch).
 # `run-name` carries it, because a dispatched run's headSha is the ref's HEAD, not the
 # input — S3 reads the pinged SHA from the run title (searchPing.ts pingRunSha).
+#
+# SEARCHPING-3 — EVERY TRUNK PUSH (owner ruling Q3, 2026-09-28). Rolling Releases post no
+# GitHub Production deployment_status (FU-SEARCHPING-NO-PROD-DEPLOYMENT-EVENT, closed here),
+# so `push` on base/approved-thru-437 is now the automatic trigger. It runs the SAME job for
+# `github.sha` (the pushed commit — the resolution order above falls through to it): the same
+# 5-in-a-row version.json wait, 30-minute cap, descendant -> clean exit, timeout -> red, and
+# the same S3 diff from the last successful ping.
+#   · NO path filter: docs-only pushes (handoff commits) deploy too, so they are pinged and
+#     are expected to report changed=0 (no IndexNow request). A path filter would also skip
+#     the wait for a commit that DOES go live and can supersede the previous one.
+#   · deployment_status is kept exactly as is. If Vercel ever posts one again, its run shares
+#     this SHA's concurrency group, so it QUEUES behind the push run (never pings at the same
+#     time), and then either diffs from the push run's ping (changed=0) or, if www has moved
+#     on to a descendant, exits superseded.
 name: search-ping
 run-name: search-ping ${{ github.event.deployment.sha || inputs.sha || github.sha }}
 
 on:
   deployment_status:
+  # SEARCHPING-3 — the automatic trigger. Trunk only; no paths filter (see above).
+  push:
+    branches: [base/approved-thru-437]
   workflow_dispatch:
     inputs:
       sha:
@@ -51,16 +68,17 @@ permissions:
   # `gh run list` / `gh run view` — finding the last run that actually pinged (S3).
   actions: read
 
-# Keyed by the SHA being pinged, so a dispatched run and an event run for the same commit
-# can never ping at once (the second waits; cancel-in-progress stays false).
+# Keyed by the SHA being pinged, so a push run, a dispatched run and an event run for the
+# same commit can never ping at once (the second waits; cancel-in-progress stays false).
 concurrency:
   group: search-ping-${{ github.event.deployment.sha || inputs.sha || github.sha }}
   cancel-in-progress: false
 
 jobs:
   ping:
-    # A dispatch always runs; a deployment_status runs ONLY on Production success (unchanged).
-    if: github.event_name == 'workflow_dispatch' || (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production')
+    # A trunk push or a dispatch always runs (the push branch filter is in `on:`); a
+    # deployment_status runs ONLY on Production success (unchanged).
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production')
     runs-on: ubuntu-latest
     # The rollout wait alone may take 30 minutes (S2).
     timeout-minutes: 50

@@ -23,6 +23,149 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-28 — WAVE A-3 (CONTROLLER A) FINAL: ROOTENTRY-1 (`#867` MERGED as `7b94ae00`) + SEARCHPING-3 (`#869` as `069dfdeb`), squash, `--match-head-commit`, no `--admin`; PERF-CLS-2 (`#871`) STOPPED, draft — five new follow-ups, four closed or resolved, one correction
+
+*(Board rule 3: the WAVE A-3 (CONTINUED) (`#868`) and WAVE A-3 (`#862`) entries below are not rewritten. Their new status is recorded here, and each points at its original body. ★ One of them, `[FU-OWNER-CLS-0771-UNREPRODUCED]`, carried a wrong explanation; the correction is recorded here and in `CURRENT_STATE.md`.)*
+
+### ✅ CLOSED — `[FU-ROOTENTRY-BOTTOMNAV-AT-ROOT]` (signed-out mobile kept on `/` would show the BottomNav over the landing)
+**Closed by ROOTENTRY-1 (`#867` `7b94ae00`)** under the owner's Q1 grant of `App.tsx:340`: `current === "/" ||` was added before `current === "/welcome" ||` in `BottomNav`'s hide-list.
+- Tests: signed-out mobile at `/` and loading mobile at `/` → 0 BottomNav tabs; CONTROL: signed-in mobile on `/browse` → all 5 tabs.
+- Mutation M1 (remove the line) → `2 failed | 12 passed (14)`.
+- On www after 100%: BottomNav 0 on all 20 cold loads; screenshots at 375 / 768 / 1280 *(subagent-reported; merge controller-verified)*.
+
+Original body: the WAVE A-3 (CONTINUED) section below.
+
+### ✅ CLOSED — `[FU-SEARCHPING-NO-PROD-DEPLOYMENT-EVENT]` (Vercel Rolling Releases post no GitHub `Production` deployment, so search-ping never fired)
+**Closed by SEARCHPING-3 (`#869` `069dfdeb`)**, on the owner's Q3 ruling. `search-ping.yml` now also runs on every push to `base/approved-thru-437`, with the same wait-then-ping and concurrency by SHA; `workflow_dispatch` is kept.
+
+First push-triggered run, `36437445722` (event `push`), **SUCCESS** for `069dfdeb`:
+- Wait: read 1 saw `7b94ae00`; reads 10–72 saw `6f55c66e` (an ancestor), so the wait continued; read 77 saw `069dfdeb` 5/5 → live. It took 19 m 13 s.
+- `before=69229cc5 … changed=0`, so no IndexNow request was sent.
+- Search Console `sitemaps.submit` → HTTP 204.
+- The same-SHA `deployment_status` run `36437455469` was skipped via concurrency; no second ping *(subagent-reported)*.
+
+Original body: the WAVE A-3 (CONTINUED) section below.
+
+### ✅ CLOSED — `[FU-SEARCHPING-GSC-NOT-CONFIGURED]` (Google was not being told)
+**Closed by the owner (Q4):** `GSC_SERVICE_ACCOUNT` is configured. The first push run logged "Search Console — PUT sitemaps.submit(sc-domain:lazytopper.com) → HTTP 204" *(subagent-reported)*. Original body: the WAVE A-3 (CONTINUED) section below.
+
+### ✅ RESOLVED — `[FU-OWNER-CLS-0771-UNREPRODUCED]` — ★ CORRECTION: the explanation recorded below was WRONG
+**Resolved by the owner's Q2 ruling (2026-09-28): the number depends on the font environment.**
+
+**What was recorded.** The WAVE A-3 (CONTINUED) entry below says the pre-`#859` font-swap shift was *"consistent with the owner measuring before `#859` reached 100%"*. **That was the controller's hypothesis, and it was wrong.**
+
+**What the re-runs showed.**
+- The cofounder re-ran on current www, after `#859` was at 100%, and got **0.0771, 4/4 runs, on both entry URLs**. Setup: Playwright headless Chromium on Linux, 390×844, DPR 2, 4× CPU, ~1.6 Mbps / 150 ms, cache off *(cofounder-measured)*.
+- That machine has no Georgia and no Arial, and neither does Android. The Windows harness used by PERF-CLS-1 and ROOTENTRY-1 has both fonts, which is why it read 0.
+- PERF-CLS-2 refined this *(subagent-reported)*. The exact figure depends on the font set: a proven Android-like set reads 0.0638 deterministically, and other Linux sets read 0.0020 / 0.0062 / 0.2862.
+- The mechanism is mainly the `ch`-sized serif headings plus Fraunces' segmented loading (`[FU-LANDING-CH-MAXWIDTH-PRIMARY-SEGMENT]`), not only the missing Georgia / Arial overrides.
+
+**What changes.** **PERF-CLS-1's www "CLS 0 × 10" is valid only for a Windows-like font environment.**
+
+**Why it matters beyond the outcome.** "Consistent with" in shape and timing stood in for an explanation, and no one asked where the other number was measured. Get the measurer's environment first. → The owner's STANDING rule: every CLS gate carries a font-environment matrix (Windows-like + Android-like) and a content-absent control.
+
+### `[FU-ANDROID-NO-GEORGIA-ARIAL]` — ★ OPEN, SEVERITY CORRECTED: a LIVE defect for most students; PERF-CLS-2 did not close it
+**Earlier status.** `#862` logged this as "OPEN *(subagent-reported, UNVERIFIED by the controller)*". `#868` kept it among "font FUs, not owner-blocking".
+
+**Now.** The correction above makes it the owner's 0.0771 on current www. On Android, the landing shifts when fonts arrive: 0.0638 in the proven Android-like environment.
+
+**PERF-CLS-2 (`#871`) did not close it** *(subagent-reported)*.
+- The lane added the owner-ruled faces, "Fraunces Fallback Android" on Noto Serif and "Inter Fallback Android" on Roboto, with derived metrics.
+- They made Android **worse**: preview 0.1193–0.1197 ×10 vs www 0.0638.
+- `#871` is STOPPED and in DRAFT.
+
+**Next.** The fix depends on `[FU-LANDING-CH-MAXWIDTH-PRIMARY-SEGMENT]`. Once the `ch` fix is live, re-measure `#871` on top of it. Merge `#871` only if it helps in both environments; otherwise close it.
+
+Original body: the WAVE A-3 section below.
+
+### `[FU-LANDING-CH-MAXWIDTH-PRIMARY-SEGMENT]` — ★ OPEN, **OWNER DECISION** (the landing's serif headings are sized in `ch`)
+*(subagent-reported, PERF-CLS-2 builder)*
+
+**Where.** `Welcome.tsx:271` `.lt-landing h1{…max-width:11ch}`, and the h2s at `:284` / `:306` / `:312` (14ch / 15ch / 15ch). `ch` is the "0" advance of the element's PRIMARY font.
+
+**Mechanism.**
+- Google serves Fraunces as unicode-range segments.
+- The serif text contains "₹" (U+20B9), so the latin-ext segment downloads too. In the owner profile it lands ~30 ms BEFORE the latin segment.
+- In that window, Chrome takes the loaded latin-ext segment as the primary font, although the text paints in the fallback. That segment has no "0" glyph, so 1ch = 0.5em.
+- The h1's max-width drops from 374.7 px to 261.69 px, and "milenge kya?" wraps to 3 lines. It goes back to 2 lines 32 ms later.
+- Windows is exposed to the same mechanism; its 10 runs miss it only because of arrival order.
+
+**Fix.** `ch` → font-independent `em`, the method `#859` used for `.lt-landing-sub`: `11ch → 7.32em`, `14ch → 10.05em`, `15ch → 10.77em`, `15ch → 10.81em` (desktop-exact, the narrower values), subject to a wrap check at 360–1280 and a no-visual-change screenshot check.
+
+**Measured with injected CSS (Android-like, owner profile):**
+
+| setup | CLS |
+|---|---|
+| www + the four lines | 0.0049–0.0053 ×3 |
+| `#871` + the four lines | 0.0015–0.0019 ×5 |
+| `#871` + the h1 line only | 0.0194–0.0199 ×5 |
+
+**Owner decision:** grant `Welcome.tsx` 271 / 284 / 306 / 312. The controller recommends its own lane, merged ALONE, with the font-environment matrix and the content-absent control.
+
+### `[FU-PERF-CLS-1-SANS-SAMPLE-HAD-CSS]` — OPEN, low *(subagent-reported, PERF-CLS-2 builder)*
+`#859`'s P5 derivation sample (`landing-text.json`) swept the landing's `<style>` CSS text into the "sans" text. So `"Inter Fallback"`'s `size-adjust` (107.77% vs Arial) was derived partly over CSS source, not rendered text.
+
+Re-derived over clean text (with `<style>` / `<script>` excluded), Inter vs Roboto is 107.64%. Arial was not re-derived, because Windows was out of PERF-CLS-2's scope.
+
+Fix: re-derive the Arial face over clean rendered text in the next landing-font lane.
+
+### `[FU-CLS-HARNESS-FONT-ENV-PINNED]` — OPEN, process *(subagent-reported, PERF-CLS-2 builder)*
+A CLS number is meaningless without the font set it was measured in. The same www read 0 (Windows), 0.0020, 0.0062, 0.0638, 0.0771 and 0.2862, depending only on the installed fonts.
+
+Rule for every CLS harness: record `fc-list` (or the OS font inventory) and `fc-match` for the stack's families with every CLS figure, and name the environment in every report. This extends the owner's standing font-environment matrix rule.
+
+### `[FU-PROD-VERCEL-CHALLENGE-403]` — OPEN, **OWNER MAY CHECK** (production challenged an automated client)
+*(subagent-reported)*
+
+**What happened.**
+- During the ROOTENTRY-1 preview proofs, www answered this machine with `403` + `X-Vercel-Mitigated: challenge` ("Vercel Security Checkpoint — Failed to verify your browser — Code 21").
+- It happened in curl and in headless and headed Chrome, after many automated cold loads earlier the same day.
+- The DOCS-2 builder's 15 s curl poll on www tripped it too, and the WAVE B-4 handoff records the same from ~13:56Z.
+
+**Controller's check at 14:04:21Z.** HTTP 200 and no mitigation header on `/app/`, `/app/version.json` and `/api/cbse-exam-date` → transient, IP-scoped, volume-triggered. The paced post-merge runs (≥ 6 s apart, fresh context, no parallel runs) saw no challenge.
+
+**Whether real students are ever challenged is UNVERIFIED.**
+- Owner: check the Vercel firewall / Attack Challenge Mode settings.
+- Lanes: pace production cold loads, and poll rollouts with `vercel rolling-release fetch`, not a tight curl loop.
+
+### `[FU-SEARCHPING-PUSH-WAIT-BUDGET]` — OPEN, watch-only *(subagent-reported)*
+The push trigger fires at merge. search-ping's 30-min wait (35-min step cap) must therefore now cover the Vercel **build** as well as the ~15-min rolling release.
+
+The first push run (`36437445722`) waited **19 m 13 s of 30**, because it started 16 min behind the previous rollout (B's `#870`).
+
+If build + rollout exceed ~30 min, the run goes red visibly and nothing is pinged. The next push, or a `workflow_dispatch` for that SHA, recovers it. Raise the cap only if runs actually time out.
+
+### Status of the other WAVE A-3 (`#862`) and WAVE A-3 (CONTINUED) (`#868`) follow-ups — unchanged, still OPEN
+`[FU-PROMPTGRIND-STALE-2026-DATES]` · `[FU-PHASE2-CONST-FROZEN-PER-LOAD]` · `[FU-ONBOARDING-2025-26-HEADING]` · `[FU-CLIENT-OFFICIAL-TABLE-2025-26]` · `[FU-CBSE-SCRAPE-CLASS12-NOTICE]` · `[FU-CBSE2027-FONT-STACK-NO-FALLBACK]` · `[FU-STYLES-CSS-SPACEGROTESK-IMPORT]` · `[FU-MOB-FONT-DISPLAY-STACK]` (PERF-CLS-2 left `--mob-font-display` alone: adding the fallback there would also change iOS / Windows) · `[FU-SEARCHPING-DOCKER-NO-MARKER]` · `[FU-SEARCHPING-GH-RUN-LIMIT]`. Bodies: the sections below.
+
+## 2026-09-28 — WAVE B-4 (MONEY, CONTROLLER B): FAIR-USE-3 (`#866` MERGED as `b6da0c6f`, squash, `--match-head-commit b9439474`, no `--admin`) — three new follow-ups, four closed, thirteen kept open
+
+### ✅ CLOSED — `[FU-FAIR-USE-MINT-NO-REFUND]` (a minted-but-never-graded trial paper stayed spent)
+**Closed by FAIR-USE-3 (`#866`).** Trial paper allowances are now computed from the ledger's `paperPasses` map: a pass counts only while it is under 24 h old or once a grade has landed on it (`gradedAtMs`, marked by fairUse on the paper grade's 2xx) *(subagent-reported; merge controller-verified)*. Passes minted before the deploy are not refunded lazily — see `[FU-FAIR-USE-LEGACY-PASS-NO-LAZY-REFUND]`. The original entry in the WAVE B-3 section below stands as written (board rule 3).
+
+### ✅ CLOSED — `[FU-FAIR-USE-MINT-RACE]` (two concurrent first mints could each spend once)
+**Closed by FAIR-USE-3 (`#866`).** The mint's read-decide-write runs in one Firestore transaction; a concurrent-mint test races two mints against a transaction-honouring fake and proves one spend, and the "mint without the transaction" mutation turned it red *(subagent-reported; R2 test names in CI `36427071349` controller-grepped)*. The original entry in the WAVE B-3 section below stands as written.
+
+### ✅ CLOSED — `[FU-FAIR-USE-UI-LIMIT-NUMBER]` (the trial copy hard-coded "5 answer checks")
+**Closed by FAIR-USE-3 (`#866`).** `/api/usage/me` returns `trial.limits` (`checksPerDay`, `chapterTestsPerDay`, `mocksPerWeek`, `worksheetsPerWeek`) and every fair-use sentence uses them; if a limit is missing the number is omitted, never guessed *(subagent-reported)*. The original entry in the WAVE B-3 section below stands as written.
+
+### ✅ CLOSED — `[FU-FAIR-USE-SOLUTIONCHECKER-PANEL]` (SolutionChecker showed the generic error on a refusal)
+**Closed by FAIR-USE-3 (`#866`).** SolutionChecker renders `FairUseLimitPanel` on a `FairUseLimitError` when enforced; every other error path is byte-identical (`SolutionChecker.fairUse.test.tsx`, 5 tests, in CI `36427071349`) *(subagent-reported; controller-grepped)*. Built with +4 additive lines outside the catch block (controller decision D6). The original entry in the WAVE B-3 section below stands as written.
+
+### `[FU-FAIR-USE-GRADED-ON-UNREADABLE-SCAN]` — OPEN, low impact *(subagent-reported)*
+A `{ ok:false }` 200 from `/api/grade-worksheet` (unreadable scan) marks the pass graded, because fairUse sees the status, not the body. It is low impact: the same paper re-graded within 24 h reuses the pass, so it only matters for a paper the student never retries. A fix would need the handler to signal "graded" (a forbidden file for the FAIR-USE-3 lane). Related: `[FU-FAIR-USE-TRIAL-COUNT-ON-UNREADABLE]` (wave B-2 section below) — the same "2xx = graded" rule the existing trial counting uses.
+
+### `[FU-FAIR-USE-LEGACY-PASS-NO-LAZY-REFUND]` — OPEN, self-healing *(subagent-reported)*
+Passes minted before the FAIR-USE-3 deploy keep counting via their mint-time counters for the full window, even if never graded (controller decision D8: their spend lives in an aggregate counter whose per-pass surface cannot be recovered; reading only the new map would lose or double-count it). This is self-healing: the weekly allowances roll off within 7 days of deploy.
+
+### `[FU-SOLUTIONCHECKER-FAIRUSE-PANEL-STICKY]` — OPEN, cosmetic *(subagent-reported)*
+The SolutionChecker limit panel clears on "OK" but not automatically on the next successful check. Clearing it would need a line outside the catch block.
+
+### Kept open, unchanged by this wave (verified against this file on trunk `b6da0c6f` and again on `2068c306` / `7b94ae00` by the docs builder: each has an OPEN heading and no CLOSED marker)
+- From wave B-3: `[FU-FAIR-USE-PAPER-PASS-DATAMAP-HOLDS]` · `[FU-FAIR-USE-DARK-COUNTS-PAPERS-PER-QUESTION]` (the owner has since set `FAIR_USE_PAPER_SECRET`, per the B-4 dispatch; this wave does not close the entry) · `[FU-FAIR-USE-QP-CONSOLE-WARN]` · `[FU-FAIR-USE-UI-PREVIEW-SHOTS]` (per the B-3 audit, the owner's live test after `FAIR_USE_ENFORCE=1` replaces the screenshots; the entry stays open until then) — see the WAVE B-3 section below.
+- From wave B-2: `[FU-FAIR-USE-TRIAL-COUNT-ON-UNREADABLE]` · `[FU-FAIR-USE-USAGE-ME-RATE]` · `[FU-PASS-PRICE-ORDER-VS-GRANT-DRIFT]` · `[FU-PAY-BUTTON-LABEL-FOUNDING-AFTER-CLOSE]` · `[FU-STUDENTDATAMAP-HEADER-COUNT]` — see the WAVE B-2 section below.
+- From wave B-1: `[FU-STORED-RATE-RULES-MUTATION-PROOF]` · `[FU-PASS-TRIAL-AFTER-EXPIRY]` · `[FU-METER-STREAM-UNMETERED]` · `[FU-METER-PRICE-TABLE-SINGLE-MODEL]` — see the WAVE B-1 section below.
+
 ## 2026-09-28 — WAVE A-3 (CONTROLLER A) CONTINUED: SEARCHPING-2 (`#857` MERGED as `2346b802`) + PHASE2-DATE-1 (`#863` as `ae52a5ad`) + PERF-CLS-1 (`#859` as `0e2af785`) + SEARCHPING-2b (`#865` as `69229cc5`), squash, `--match-head-commit`, no `--admin`; ROOTENTRY-1 (`#867` draft) STOPPED — seven new follow-ups, five closed
 
 *(Board rule 3: the WAVE A-3 entries below (`#862`) are not rewritten. Their new status is recorded here; each points at its original body instead of duplicating it.)*
