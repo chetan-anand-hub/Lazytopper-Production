@@ -29,6 +29,42 @@
   line-gap-override: 0%;
 }
 
+/* PERF-CLS-2 — the same fallbacks for devices WITHOUT Georgia / Arial (Android; most Linux).
+   There local("Georgia") / local("Arial") never match, the two faces above are skipped, and the
+   stack used to fall straight to the generic serif / system-ui (Noto Serif / Roboto) with no
+   overrides: the hero h1 wrapped to 3 lines, then 2 on the swap (CLS 0.064 in an Android-like
+   env). These faces sit AFTER the Georgia/Arial ones in every stack, so iOS / Windows / macOS
+   keep matching Georgia / Arial first and are unchanged.
+   Same method as PERF-CLS-1 (fontkit, the landing's own rendered text; <style> text excluded):
+     Fraunces (UPM 2000, hhea 1956/-510/0; wght 900) avg advance 0.50588em
+       vs Noto Serif Regular (UPM 1000) 0.46582em -> size-adjust 108.60%
+       ascent 1956/2000/1.0860 = 90.06%, descent 510/2000/1.0860 = 23.48%, line-gap 0
+     Inter (UPM 2048, hhea 1984/-494/0; wght 400) avg advance 0.49061em
+       vs Roboto Regular (UPM 2048) 0.45579em       -> size-adjust 107.64%
+       ascent 1984/2048/1.0764 = 90.00%, descent 494/2048/1.0764 = 22.41%, line-gap 0
+   Noto Serif REGULAR, not Bold: the landing's serif is Fraunces 900, but a Noto Serif Bold face
+   (size-adjust 102.40%) still wraps the hero h1 to 3 lines (45px shift @390); Regular leaves
+   every above-the-fold box where the real fonts put it.
+   local() names: full name AND PostScript name, since versions differ ("Noto Serif" vs
+   "Noto Serif Regular"; Roboto's Regular full name is "Roboto"); the PostScript names
+   NotoSerif-Regular / Roboto-Regular are stable across Android releases. */
+@font-face {
+  font-family: "Fraunces Fallback Android";
+  src: local("Noto Serif"), local("Noto Serif Regular"), local("NotoSerif-Regular");
+  size-adjust: 108.60%;
+  ascent-override: 90.06%;
+  descent-override: 23.48%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Inter Fallback Android";
+  src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular");
+  size-adjust: 107.64%;
+  ascent-override: 90.00%;
+  descent-override: 22.41%;
+  line-gap-override: 0%;
+}
+
 /* Reset */
 *,
 *::before,
@@ -82,7 +118,7 @@
   --shadow: none;
   --lt-page-padding: 24px 16px 40px;
   --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Fraunces", "Fraunces Fallback", Georgia, serif;
+  --font-display: "Fraunces", "Fraunces Fallback", "Fraunces Fallback Android", Georgia, serif;
   --lt-ux-return-back-padding: 6px 12px;
   --lt-ux-return-back-font-size: 0.84rem;
   --lt-ux-chip-padding: 4px 10px;

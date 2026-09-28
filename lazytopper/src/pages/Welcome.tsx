@@ -228,7 +228,7 @@ const CSS = `
   --line:#dde6f0; --g:hsl(152,55%,45%); --gd:hsl(152,60%,30%); --gw:hsl(152,50%,96%); --gl:hsl(152,40%,84%);
   --navy:#0a1a30; --blue:#2f7fd4; --bluew:#eaf2fc; --amber:#c98a1e; --amberw:#fdf4e5;
   --violet:#7a5fb0; --violetw:#f2eefa; --urg:#b4451f; --urgw:#fdf0ea;
-  --serif:Fraunces,"Fraunces Fallback",Georgia,serif; --sans:Inter,"Inter Fallback",system-ui,sans-serif;
+  --serif:Fraunces,"Fraunces Fallback","Fraunces Fallback Android",Georgia,serif; --sans:Inter,"Inter Fallback","Inter Fallback Android",system-ui,sans-serif;
   --sh:0 1px 2px rgba(11,28,51,.04),0 10px 28px rgba(11,28,51,.06);
   --pad:20px;
   display:block;background:var(--bg);color:var(--ink);font-family:var(--sans);
