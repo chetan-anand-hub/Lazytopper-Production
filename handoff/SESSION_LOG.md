@@ -1,3 +1,26 @@
+## 2026-09-28 — WAVE A-3 (CONTROLLER A) CONTINUED — **SEARCHPING-2 + 2b · PHASE2-DATE-1 · PERF-CLS-1 — EVERY HELD LANE LANDED; SEARCH-PING NEEDS A DISPATCH UNDER ROLLING RELEASES; ROOTENTRY-1 STOPPED** — `#857` + `#863` + `#859` + `#865` MERGED — trunk `b6da0c6f` · `#867` draft
+
+★ **PROVENANCE.**
+- Controller A, the same session as the first A-3 docs (`#862`), reopened by the owner's second message, an addendum (ruling 5) and a further addendum (ROOTENTRY-1). One builder per PR (`claude-opus-5-5`), in worktrees `C:/Projects/LT-worktrees/searchping-2`, `…/phase2-date-1`, `…/perf-cls-1`, `…/searchping-2b`, `…/rootentry-1`. This docs PR was written by a docs builder in `…/docs-wave-a3-2` from `WAVE_STATE_A3.md` and the lane reports (OR-16).
+- *(subagent-reported)* = from builder reports; *(controller-verified)* = re-measured by the controller.
+
+**Timeline.**
+- The owner ruled on all four questions `#862` left: allow `sitemap.xml` + `lastmod.json` for `#859` (standing for every page-regenerating spec); fold the 31ch line into `#859`; merge/close `#855`; fix phase 2 now. Ratified slow-4G + throttled CPU as the binding layout-shift profile. The addendum (ruling 5) asked that every predicted exact day say "expected"; a scout built an independent exact-date inventory on trunk `53065a54`.
+- `#855` (Dependabot) merged by the owner at 10:20:26Z → **SEARCHPING-2** `#857` brought trunk in, CI green, merged → `2346b802` *(controller-verified)*; `version.json` live on www at 10:54:33Z *(subagent-reported)*.
+- **PHASE2-DATE-1** → `#863`. First MERGE-READY on `cac865e1`; sent back for the cycle window (OR-AUTO P2-CYCLE); merged → `ae52a5ad` on head `7cb2a2aa` (`Tests 3062 passed (3062)`, 3 mutations) *(controller-verified merge; builder-quoted CI)*.
+- B3's `#861` FAIR-USE-UI-1 and docs `#864` landed in between; `#859` re-synced to trunk three times (522b7bc8 → dfbf1269 → 381ae00e), CI green each time.
+- **SEARCHPING-2 post-merge — HELD:** every search-ping run today concluded `skipped`, because Vercel posts no GitHub `Production` deployment under Rolling Releases (none since `7152ef06`) *(subagent-reported)*. OR-AUTO SP-DISPATCH → SEARCHPING-2b.
+- **PERF-CLS-1** `#859` merged ALONE → `0e2af785` at 12:31:22Z (no ACTIVE rollout, checked in the same command) *(controller-verified)*; canary smoke → COMPLETE 100% at 12:48:58Z → www slow-4G CLS 0 × 10 on the builder's harness *(subagent-reported)*.
+- **SEARCHPING-2b** `#865` merged → `69229cc5` at 12:54:41Z *(controller-verified)*; the controller dispatched one search-ping run for `69229cc5`: run `36424972014` SUCCESS 13:13:17Z — www served `69229cc5` 5/5 at 13:13:02Z, `before=7152ef06 … changed=1`, IndexNow HTTP 200, GSC skipped (`GSC_SERVICE_ACCOUNT` not configured) *(subagent-reported)*.
+- **ROOTENTRY-1** (owner addendum): the owner measured CLS 0.0771 on every production run (390 px, 4× CPU, 1.6 Mbps / 150 ms) and traced it to `App.tsx` `RootEntry` returning `null` while auth loads and redirecting mobile to `/welcome`. Grant: `RootEntry` only. The builder fixed the blank inside the grant (`#867`, CI green, 11 tests, 1 mutation) but **STOPPED**: signed-out mobile kept on `/` shows the BottomNav over the landing, and hiding it needs `App.tsx:340` — owner decision *(subagent-reported)*. Not merged.
+- `#866` FAIR-USE-3 (the B controller) landed → `b6da0c6f`; covered by that controller's handoff.
+
+### ★ What this wave teaches
+- **A BLANK IS NOT A LAYOUT SHIFT.** The Layout Instability API never scores removed or inserted nodes, so `RootEntry`'s unmount/remount — the landing absent for 1.2–1.7 s — reads CLS 0 on every harness *(subagent-reported)*. A first-load control must also record how long the content is absent and where the URL ends. And a number a person reports must be re-measured against the deployment that was live when they measured it: the owner's 0.0771 matches the pre-`#859` font swap, not today's www.
+- **A TRIGGER THAT NEVER FIRES LOOKS EXACTLY LIKE A QUIET DAY.** search-ping's runs were all `skipped` — the same status a preview or a Railway event gets — so nothing went red. The event the workflow waits on had stopped arriving the day before (`7152ef06`). Check that an event-driven job has actually RUN recently, not only that it has not failed.
+- **A LITERAL DATE RULE CAN BE WRONG FOR PART OF THE YEAR.** "15 May of the predicted board year" was right in September and wrong from the day after the board day until 15 May. The builder's CONTROL test exposed it; the fix pins a 21-date table across three years plus IST edges.
+- **A STANDING RULE REMOVES A CLASS OF STOPS.** The owner made `sitemap.xml` + `lastmod.json` part of every page-regenerating allowlist, so the one-generated-line STOP that held `#859` cannot recur.
+
 ## 2026-09-28 — WAVE B-3 (MONEY, CONTROLLER B) — **FAIR-USE-2: PAPER PASSES ARE SERVER-ISSUED · FAIR-USE-UI-1: STUDENTS CAN SEE THEIR LIMITS · PAYCOPY-1: PRICING COPY READY FOR PAYMENTS — ALL DARK** — `#858` + `#860` + `#861` MERGED
 
 ★ **PROVENANCE.**
