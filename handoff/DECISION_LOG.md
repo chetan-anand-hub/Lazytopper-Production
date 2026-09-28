@@ -1,4 +1,4 @@
-## 2026-09-28 — WAVE B-4 (MONEY, CONTROLLER B): FAIR-USE-3 — PR `#866` merged — trunk `b6da0c6f`
+## 2026-09-28 — WAVE B-4 (MONEY, CONTROLLER B): FAIR-USE-3 — PR `#866` merged — trunk `2068c306`
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (D3, D6, D7, D8, OR-LIVE, OR-AUTO), not `DECISION N`.
 
@@ -15,10 +15,46 @@
 - **D7 — two page test fixtures ACCEPTED as tests.** `PracticePage.fairUse.test.tsx` and `DesktopCheckImprovePage.fairUse.test.tsx`, +2 lines each (`vi.mock` completeness after `usageClient` gained fields). Test-only; no product page file touched. FLAGGED for the final audit.
 - **D8 — legacy ledger docs count through their counters.** Docs with plain `issuedAtMs` numbers (pre-FU-3) keep counting through their mint-time counters, not the map — otherwise a legacy spend is double-counted or lost *(subagent-reported)*. Consequence: passes minted before this merge get no lazy refund (`[FU-FAIR-USE-LEGACY-PASS-NO-LAZY-REFUND]`). Within "existing docs keep working"; conservative; dark (ENFORCE unset); washes out within a week (weekly mocks / worksheets). Not STOP-class. FLAGGED for the final audit.
 
+- **D9 — this docs PR lands on top of Controller A's docs `#868`.** Trunk moved to `2068c306` (`#868`, wave A-3 continued) after this PR's phase 1. The branch brought trunk in with `git merge` (never rebase / force-push) and keeps BOTH blocks, newest first: the B-4 `[CURRENT]` on top, A-3 (CONTINUED)'s `[CURRENT]` demoted by a supersede note in the B-4 block, 0 deletions of trunk lines. The phase-1 "Controller A3 lane — details owed by A3" lines for `#859` / `#865` were removed (they were this branch's own lines, never trunk content; `#868` records both). Before: phase-1 branch on `b6da0c6f` → after: on `2068c306`.
+
 ### Docs-builder choices (this PR, OR-AUTO)
-- `#859` PERF-CLS-1 and `#865` SEARCHPING-2b (Controller A3) are not recorded as merged anywhere in `handoff/` on trunk (the WAVE A-3 sections record `#859` as a STOPPED draft; `#865` does not appear). Before: unrecorded → after: one factual line each (PR, merge SHA, title) in `CURRENT_STATE.md`, `NEXT_ACTION.md` and `IMPLEMENTATION_ROADMAP.md`, marked "Controller A3 lane — details owed by A3". Why: the brief's rule; nothing further is described.
-- The state file's kept-open FU list (13 ids) was checked against trunk's `OPEN_QUESTIONS_AND_FOLLOWUPS.md`: every id has an OPEN heading and no CLOSED marker. No correction needed.
+- The state file's kept-open FU list (13 ids) was checked against `OPEN_QUESTIONS_AND_FOLLOWUPS.md` on trunk `b6da0c6f` and again on `2068c306`: every id has an OPEN heading and no CLOSED marker. No correction needed.
 - The WAVE B-3 `NEXT_ACTION` step 2 (signed-in screenshots) is recorded as replaced by the owner's live test after `FAIR_USE_ENFORCE=1`, per the B-3 audit as the state file records it; `[FU-FAIR-USE-UI-PREVIEW-SHOTS]` is left open (trunk's board has no CLOSED marker for it, and this lane was not told to close it).
+
+## 2026-09-28 — WAVE A-3 (CONTROLLER A) CONTINUED: SEARCHPING-2 + PHASE2-DATE-1 + PERF-CLS-1 + SEARCHPING-2b (merged) + ROOTENTRY-1 (stopped) — PRs `#857`, `#863`, `#859`, `#865` merged; `#867` draft
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (P2-CYCLE, SP-DISPATCH, OR-LIVE, OR-AUTO), not `DECISION N`.
+
+### Owner rulings (second message, 2026-09-28) — reopened the wave
+- **PERF-CLS-1 `#859`:** allowlist + `lazytopper/public/sitemap.xml` and `lazytopper/prerendered/lastmod.json`, regenerated from CI's artifact only, never hand-edited. ★ **STANDING: every spec that regenerates pages allows them.**
+- **PERF-CLS-1:** a one-line owner grant — the single `Welcome.tsx` line that makes the hero sub-heading wrap differently while fonts load (31ch). Folded into `#859` (same PR); record the exact line and why; re-run slow-4G. Still rolls out ALONE (canary smoke → 100% → www check).
+- **SEARCHPING-2 `#857`:** the owner merges or closes `#855`. When lane-overlap clears: bring to trunk, re-run CI, merge. The first live search-ping log after its rollout is REQUIRED in the final audit.
+- **Phase 2: FIX NOW.** Phase 2 = 15 May of the predicted board year (2027-05-15 today). A small PR within BOARD-DATE-1's allowlist (`cbseDates.ts`, `cbseExamDate.ts` + tests), a parity test covering phase 2 + one mutation; self-merge on §3 proof.
+- ★ **STANDING — RATIFIED for all future specs: layout-shift measurements use slow-4G + throttled CPU as binding.**
+- When all merged: a second small docs PR (this one), revise the final audit, STOP.
+
+### Owner addendum (ruling 5, 2026-09-28) — predicted dates say "expected"
+- Every exact predicted day (board + phase 2) a student sees says expected ("Boards expected from 17 Feb 2027" / "(expected)"). Only when predicted: an official notice / admin override → no label (source-aware where the screen has the source; sync-predictor-only screens always "expected"). Month-only strings unchanged (pricing "(Feb 2027)").
+- Placement: non-landing screens → the PHASE2-DATE-1 PR, allowlist extended to those screens' date-label lines + tests. Landing countdown (`Welcome.tsx`) → `#859`, owner grant: the countdown date-label line(s) only. The static page still carries no clock-derived figure; the word "expected" may be static.
+- Tests in each PR: predicted renders "expected"; official/override renders without. Mutation: drop the label → red.
+
+### Owner addendum (2026-09-28) — ROOTENTRY-1
+- The owner measured CLS 0.0771 on every production run (390 px, 4× CPU, 1.6 Mbps / 150 ms, cache off, cold; `www…/app/` and the bare domain) and traced it to `App.tsx` `RootEntry` returning `null` while auth loads (and redirecting mobile to `/welcome`). **Grant: `lazytopper/src/App.tsx`, the `RootEntry` function only.** Rulings: render the landing while auth loads, never `null`; a signed-out mobile visitor stays on `/` (`/welcome` keeps working); a signed-in student goes home exactly as today. Student-visible → rolls out ALONE, before this docs PR merges. **Outcome: STOPPED** (`#867` draft) — the owner's standing STOP rule: an out-of-allowlist line (`App.tsx:340`, the BottomNav's hide-list) is truly needed; the controller recommends granting it. The builder must first reproduce 0.0771 and explain why PERF-CLS-1's harness read 0 (brief `BRIEF_ROOTENTRY-1.md`, controller-authored from the addendum).
+
+### Controller decisions, with reasons (what, why, before → after)
+- **OR-AUTO P2-CYCLE (PHASE2-DATE-1).** The builder found that the literal rule shows NEXT year's phase 2 from the day after the board day until 15 May (2027-03-01 → 2028-05-15) while that cycle's phase 2 is still ahead. Before: phase-2 year = the predictor's board year (rolls the day after the board day). After: phase-2 year = the board cycle's year — rolls only after 15 May IST; the end date follows. Today's value unchanged (2027-05-15). Why: phase 2 belongs to the boards it follows; a 2028 date in March 2027 is wrong for students; the reading is within the ruling's words. `#863` was sent back once for this (first MERGE-READY `cac865e1`, merged `7cb2a2aa`).
+- **OR-AUTO SP-DISPATCH.** Before: search-ping triggers only on `deployment_status` (which never fires under Rolling Releases). After: a follow-up PR SEARCHPING-2b (`#865`; `search-ping.yml` + `searchPing.ts` + the guard test) adds `workflow_dispatch` running the identical wait → diff → ping; the event trigger is unchanged. Why: the smallest in-allowlist change that lets the owner-required live log be produced, and announces the pages unannounced since `7152ef06`. The permanent trigger (fix the Vercel integration vs a push trigger) → owner, final audit. Sequence: after PERF-CLS-1 reached 100%; then one dispatched run for the then-current trunk SHA.
+- **Ruling-5 disposition.** The landing shows no exact date (only the relative countdown figure; 0 × `boards-countdown` in the prerendered page) → no label, the `#859` countdown grant unused. `/onboarding` and the retired SprintDashboard rows → labelled in `#863`. Month-only strings unchanged. Why: the ruling is about exact predicted days; the exact-date inventory (in `CURRENT_STATE.md`) found no other exact predicted day on a rendered screen.
+- **Merge order (OR-LIVE).** `#857` and `#863` back-to-back as ready; `#859` merged ALONE (no ACTIVE rollout, checked in the same command) after re-syncing to trunk three times; `#865` only after `#859`'s post-merge proof was DONE; ROOTENTRY-1 would merge ALONE after the search-ping dispatch completed — it STOPPED instead, so this docs PR does not wait for it.
+- **Branch updates by `git merge origin/base/approved-thru-437`** — no rebase, no force-push.
+
+### Builder choices worth keeping *(subagent-reported)*
+- PHASE2-DATE-1: `CBSE_PHASE2_DATE` kept as an exported module-load value (its readers were outside the original allowlist) → `[FU-PHASE2-CONST-FROZEN-PER-LOAD]`; the Onboarding Phase 1 row follows the fetched date + source so it can never disagree with the headline; the headline's own label was already correct and was not duplicated.
+- PERF-CLS-1: `19.56em` = Inter's 31ch, so the box is identical once Inter has loaded and independent of the fallback font while it has not.
+- SEARCHPING-2b: the concurrency group is keyed by the pinged SHA, not global (a global group would also capture skipped preview / Railway events and could cancel a real run); runs from before 2b fall back to `headSha`.
+
+### Docs-builder choices (this PR, OR-AUTO)
+- `#862`'s FU entries are not rewritten (board rule 3): their new status is recorded in this wave's section of `OPEN_QUESTIONS_AND_FOLLOWUPS.md`, pointing at the original body. Before: status only in the dated `#862` entries → after: a status entry in the current section. Why: rule 3, and a prepend-only diff with zero deletions.
 
 ## 2026-09-28 — WAVE B-3 (MONEY, CONTROLLER B): PAYCOPY-1 + FAIR-USE-2 + FAIR-USE-UI-1 — PRs `#858`, `#860`, `#861` merged
 
