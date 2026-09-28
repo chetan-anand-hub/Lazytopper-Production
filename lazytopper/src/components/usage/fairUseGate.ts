@@ -17,6 +17,12 @@ export interface LimitState {
   scope: LimitScope;
   resetAt: string | null;
   window: PremiumWindow | null;
+  /**
+   * FAIR-USE-3 R3 — the size of the spent trial allowance, from /api/usage/me's own
+   * `trial.limits` (so it follows the server's env). Null / absent when the server did
+   * not say: the copy then omits the number. Never a client-side default.
+   */
+  allowance?: number | null;
 }
 
 /* ── <time>: the server's resetAt, in IST ─────────────────────────────────── */
@@ -54,14 +60,31 @@ export const PREMIUM_WINDOW_LABEL: Record<PremiumWindow, string> = {
   week: "week",
 };
 
-/** The first sentence of the trial panel, per allowance. `checks` is the spec's copy
- *  verbatim; the three paper lines follow its shape (the spec names no paper copy). */
-export const TRIAL_USED_LINE: Record<LimitScope, string> = {
-  checks: "You've used today's 5 answer checks.",
-  "chapter-test": "You've used today's chapter test.",
-  "full-mock": "You've used this week's full mock.",
-  worksheet: "You've used this week's worksheet.",
+const PAPER_NOUN: Record<Exclude<LimitScope, "checks">, { when: string; one: string; many: string }> = {
+  "chapter-test": { when: "today's", one: "chapter test", many: "chapter tests" },
+  "full-mock": { when: "this week's", one: "full mock", many: "full mocks" },
+  worksheet: { when: "this week's", one: "worksheet", many: "worksheets" },
 };
+
+/**
+ * PURE. The first sentence of the trial panel, per allowance. FAIR-USE-3 R3: the number
+ * is the SERVER'S (`allowance`, from /api/usage/me `trial.limits`) — never hard-coded.
+ * Unknown -> the number is omitted, never guessed:
+ *   checks  N: "You've used today's N answer checks."   unknown: "You've used today's answer checks."
+ *   paper   1 or unknown: "You've used today's chapter test."   N > 1: "...today's N chapter tests."
+ *
+ * MUTATION FU3-MUT-3 target ("hard-code 5" -> the changed-limit copy tests go RED).
+ */
+export function trialUsedLine(scope: LimitScope, allowance: number | null | undefined): string {
+  const n = typeof allowance === "number" && Number.isInteger(allowance) && allowance > 0 ? allowance : null;
+  if (scope === "checks") {
+    if (n === null) return "You've used today's answer checks.";
+    return `You've used today's ${n} answer ${n === 1 ? "check" : "checks"}.`;
+  }
+  const noun = PAPER_NOUN[scope];
+  if (n === null || n === 1) return `You've used ${noun.when} ${noun.one}.`;
+  return `You've used ${noun.when} ${n} ${noun.many}.`;
+}
 
 const TRIAL_PREMIUM_LINE: Record<LimitScope, string> = {
   checks: "Premium removes the daily limit.",
@@ -94,7 +117,7 @@ export function limitCopy(limit: LimitState): LimitCopy {
     };
   }
   return {
-    lead: TRIAL_USED_LINE[limit.scope],
+    lead: trialUsedLine(limit.scope, limit.allowance),
     resetPrefix: limit.resetAt ? (limit.scope === "checks" ? "They reset at" : "It resets at") : null,
     tail: TRIAL_PREMIUM_LINE[limit.scope],
     showPlans: true,
@@ -122,18 +145,24 @@ export function fullPremiumWindow(snapshot: UsageSnapshot): PremiumWindow | null
   return null;
 }
 
-function trialScopeState(snapshot: UsageSnapshot, scope: LimitScope): { left: number; resetAt: string | null } | null {
+function trialScopeState(
+  snapshot: UsageSnapshot,
+  scope: LimitScope,
+): { left: number; resetAt: string | null; allowance: number | null } | null {
   const t = snapshot.trial;
   if (!t) return null;
+  // FAIR-USE-3 R3: the allowance is the server's own number; a snapshot without limits
+  // (an older server) gives null, and the copy omits the number.
+  const limits = t.limits ?? { checksPerDay: null, chapterTestsPerDay: null, mocksPerWeek: null, worksheetsPerWeek: null };
   switch (scope) {
     case "checks":
-      return { left: t.checksLeftToday, resetAt: t.resets.checks };
+      return { left: t.checksLeftToday, resetAt: t.resets.checks, allowance: limits.checksPerDay };
     case "chapter-test":
-      return { left: t.chapterTestsLeftToday, resetAt: t.resets.chapterTests };
+      return { left: t.chapterTestsLeftToday, resetAt: t.resets.chapterTests, allowance: limits.chapterTestsPerDay };
     case "full-mock":
-      return { left: t.mocksLeft, resetAt: t.resets.mocks };
+      return { left: t.mocksLeft, resetAt: t.resets.mocks, allowance: limits.mocksPerWeek };
     case "worksheet":
-      return { left: t.worksheetsLeft, resetAt: t.resets.worksheets };
+      return { left: t.worksheetsLeft, resetAt: t.resets.worksheets, allowance: limits.worksheetsPerWeek };
   }
 }
 
@@ -157,7 +186,7 @@ export function planPerQuestionGrade(snapshot: UsageSnapshot | null, n: number, 
   if (!st || st.left >= n) return { action: "proceed" };
   if (!inFuture(st.resetAt, nowMs)) return { action: "proceed" };
   if (st.left <= 0) {
-    return { action: "blocked", limit: { tier: "trial", scope: "checks", resetAt: st.resetAt, window: null } };
+    return { action: "blocked", limit: { tier: "trial", scope: "checks", resetAt: st.resetAt, window: null, allowance: st.allowance } };
   }
   return { action: "confirm", remaining: Math.floor(st.left) };
 }
@@ -178,7 +207,7 @@ export function paperStartBlock(
   // A spent rolling allowance always carries its reset time; without one (or with one
   // already past) the snapshot is not a positive read, so the paper starts.
   if (!inFuture(st.resetAt, nowMs)) return null;
-  return { tier: "trial", scope, resetAt: st.resetAt, window: null };
+  return { tier: "trial", scope, resetAt: st.resetAt, window: null, allowance: st.allowance };
 }
 
 /**
@@ -200,7 +229,7 @@ export function limitFromRefusal(
   if (!tier) return null;
   if (tier === "trial") {
     const st = trialScopeState(snapshot, scope);
-    return { tier, scope, resetAt: info.resetAt ?? st?.resetAt ?? null, window: null };
+    return { tier, scope, resetAt: info.resetAt ?? st?.resetAt ?? null, window: null, allowance: st?.allowance ?? null };
   }
   const window = info.window ?? fullPremiumWindow(snapshot);
   if (!window) return null; // cannot name the window honestly -> existing error path

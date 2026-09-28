@@ -43,9 +43,27 @@
  *       Anything else is counted per question as check-improve. The bare surface
  *       header no longer buys a paper allowance; it stays telemetry.
  *   The idempotency record lives on the EXISTING ledger day document
- *   (usageLedger/{uid}/days/{istDayKey}, field `paperPasses`: { <sha256 id>: issuedAtMs })
- *   — numbers under a HASHED key, never the paper id itself, and no new location for
- *   DPDP erasure / export to miss.
+ *   (usageLedger/{uid}/days/{istDayKey}, field `paperPasses`, keyed by a HASHED id, never
+ *   the paper id itself) — no new location for DPDP erasure / export to miss.
+ *
+ * FAIR-USE-3 — LAZY REFUND, ONE-TRANSACTION MINT, LIMITS FROM THE SERVER
+ * ----------------------------------------------------------------------
+ *   R1  A minted pass counts against its paper allowance ONLY while it is < 24 h old, or
+ *       once a grade has landed on it. No refund job: an ungraded pass simply stops
+ *       counting at issuedAt + 24 h. The allowance is COMPUTED FROM THE MAP, never from a
+ *       counter bumped at mint. A mint now writes
+ *           paperPasses.<id> = { issuedAtMs, surface }
+ *       and the first 2xx grade that carries the verified pass adds `gradedAtMs` to it.
+ *       ★ OLD DOCS KEEP WORKING: a legacy entry is a plain issuedAtMs NUMBER, and its
+ *       mint bumped trialChapterTests / trialMocks / trialWorksheets at the time. Those
+ *       counters are still read exactly as before (so a legacy spend still counts, as it
+ *       did), and a legacy number is never counted from the map as well (no double count)
+ *       and never rewritten by the graded mark.
+ *   R2  The mint reads the window and writes today's entry in ONE Firestore transaction,
+ *       so two tabs minting at once spend once (FU-FAIR-USE-MINT-RACE).
+ *   R3  GET /api/usage/me carries trial.limits { checksPerDay, chapterTestsPerDay,
+ *       mocksPerWeek, worksheetsPerWeek } — the env-resolved numbers, so the client's
+ *       limit copy never hard-codes one.
  *
  * ★ FAILS OPEN. A tier that cannot be read, or a ledger that cannot be read, serves
  * the request (and is counted). A refusal needs a POSITIVE read — the same doctrine
@@ -113,8 +131,19 @@ const PAPER_PASS_SKEW_MS = 5 * 60 * 1000;
 const PAPER_KEY_MAX = 200;
 const PAPER_TOKEN_MAX = 1024;
 const PAPER_MINT_MAX_BYTES = 4 * 1024;
-/** The ledger-day map holding { <paperPassId>: issuedAtMs } — the re-mint record. */
+/**
+ * The ledger-day map of minted passes — the re-mint record AND (FAIR-USE-3 R1) the paper
+ * allowance itself. An entry is `{ issuedAtMs, surface, gradedAtMs? }`, or, written before
+ * FAIR-USE-3, a plain issuedAtMs number (a LEGACY entry — see readPassEntry).
+ */
 const PAPER_PASSES_FIELD = 'paperPasses';
+
+/** The trial counter a legacy (pre-FAIR-USE-3) mint of each paper surface bumped. */
+const PAPER_COUNTER_BY_SURFACE = Object.freeze({
+  [SURFACES.CHAPTER_TEST]: TRIAL_COUNTER_FIELDS.chapterTests,
+  [SURFACES.FULL_MOCK]: TRIAL_COUNTER_FIELDS.mocks,
+  [SURFACES.WORKSHEET]: TRIAL_COUNTER_FIELDS.worksheets,
+});
 
 /**
  * Which surfaces each grading endpoint can really serve. /api/check-solution grades
@@ -259,16 +288,55 @@ function paperPassId(surface, paperKey) {
   return crypto.createHash('sha256').update(`${surface}|${paperKey}`).digest('hex').slice(0, 32);
 }
 
-/** The issuedAt of this paper's pass if one was minted < 24 h ago (the latest), else null. */
+/**
+ * One `paperPasses` entry, either shape, or null when it is not a usable entry.
+ *   legacy (pre-FAIR-USE-3): a plain issuedAtMs number -> { legacy: true, issuedAtMs }
+ *     Its spend lives in the trial counter its mint bumped; the map never counts it.
+ *   current: { issuedAtMs, surface, gradedAtMs? } -> { legacy: false, issuedAtMs,
+ *     surface (a paper surface, or null), gradedAtMs (a number, or null) }
+ */
+function readPassEntry(value) {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) && Number.isInteger(value) ? { legacy: true, issuedAtMs: value, surface: null, gradedAtMs: null } : null;
+  }
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const issuedAtMs = Number(value.issuedAtMs);
+  if (!Number.isFinite(issuedAtMs) || !Number.isInteger(issuedAtMs)) return null;
+  const graded = value.gradedAtMs === undefined || value.gradedAtMs === null ? NaN : Number(value.gradedAtMs);
+  return {
+    legacy: false,
+    issuedAtMs,
+    surface: PAPER_SURFACES.has(value.surface) ? value.surface : null,
+    gradedAtMs: Number.isFinite(graded) ? graded : null,
+  };
+}
+
+function passesOf(data) {
+  const passes = data && data[PAPER_PASSES_FIELD];
+  return passes && typeof passes === 'object' && !Array.isArray(passes) ? passes : null;
+}
+
+/**
+ * R1 — does this (current-shape) pass still count against its allowance? Only if a grade
+ * landed on it, or it is < 24 h old. A legacy entry is never counted HERE (its counter is).
+ *
+ * MUTATION FU3-MUT-1 target ("count ungraded passes forever" -> the R1 tests go RED).
+ */
+function passCounts(entry, nowMs) {
+  if (!entry || entry.legacy) return false;
+  if (entry.gradedAtMs !== null) return true;
+  return nowMs - entry.issuedAtMs < PAPER_PASS_TTL_MS;
+}
+
+/** The issuedAt of this paper's pass if one was minted < 24 h ago (the latest), else null. Either entry shape. */
 function priorPaperPassIssuedAt(days, passId, nowMs) {
   let best = null;
   for (const data of days.values()) {
-    const passes = data && data[PAPER_PASSES_FIELD] && typeof data[PAPER_PASSES_FIELD] === 'object'
-      ? data[PAPER_PASSES_FIELD]
-      : null;
+    const passes = passesOf(data);
     if (!passes) continue;
-    const v = Number(passes[passId]);
-    if (!Number.isFinite(v) || !Number.isInteger(v)) continue;
+    const entry = readPassEntry(passes[passId]);
+    if (!entry) continue;
+    const v = entry.issuedAtMs;
     const age = nowMs - v;
     if (age >= -PAPER_PASS_SKEW_MS && age < PAPER_PASS_TTL_MS && (best === null || v > best)) best = v;
   }
@@ -405,24 +473,77 @@ function pct(used, cap) {
 
 /* ── State ─────────────────────────────────────────────────────────────────── */
 
+/**
+ * R1 — every use of one PAPER allowance still counting inside the last `spanDays` IST
+ * days, as { n, expiresMs }: when that use stops counting.
+ *   - a legacy counter on a day document (pre-FAIR-USE-3 mint, or FAIR-USE-1 grade):
+ *     counts until its day leaves the window — exactly as before;
+ *   - a GRADED pass: the same;
+ *   - an UNGRADED pass < 24 h old: until issuedAt + 24 h (or the window edge, if sooner);
+ *   - an ungraded pass >= 24 h old, or a legacy map number: nothing.
+ */
+function paperUses(days, nowMs, surface, spanDays) {
+  const field = PAPER_COUNTER_BY_SURFACE[surface];
+  const uses = [];
+  for (let k = spanDays - 1; k >= 0; k -= 1) {
+    const t = nowMs - k * DAY_MS;
+    const data = days.get(istDayKey(t)) || {};
+    const leavesWindowMs = istBucketStartMs(t, DAY_MS) + spanDays * DAY_MS;
+    const legacy = num(data[field]);
+    if (legacy > 0) uses.push({ n: legacy, expiresMs: leavesWindowMs });
+    const passes = passesOf(data);
+    if (!passes) continue;
+    for (const value of Object.values(passes)) {
+      const entry = readPassEntry(value);
+      if (!entry || entry.legacy || entry.surface !== surface || !passCounts(entry, nowMs)) continue;
+      const expiresMs = entry.gradedAtMs !== null
+        ? leavesWindowMs
+        : Math.min(leavesWindowMs, entry.issuedAtMs + PAPER_PASS_TTL_MS);
+      uses.push({ n: 1, expiresMs });
+    }
+  }
+  return uses;
+}
+
+/** When a rolling paper allowance next frees room — rollingResetAt's rule, over uses ordered by when each stops counting. */
+function paperResetAt(uses, limit) {
+  const ordered = [...uses].sort((a, b) => a.expiresMs - b.expiresMs);
+  let total = ordered.reduce((s, u) => s + u.n, 0);
+  if (total <= 0) return null;
+  const atLimit = total >= limit;
+  for (const u of ordered) {
+    total -= u.n;
+    if (!atLimit || total < limit) return new Date(u.expiresMs).toISOString();
+  }
+  return null;
+}
+
 function trialState(days, nowMs, limits) {
   const t = limits.trial;
   const today = days.get(istDayKey(nowMs)) || {};
   const checksUsed = num(today[TRIAL_COUNTER_FIELDS.checks]);
-  const chapterTestsUsed = num(today[TRIAL_COUNTER_FIELDS.chapterTests]);
-  const mocks = dayBuckets(days, nowMs, TRIAL_COUNTER_FIELDS.mocks);
-  const worksheets = dayBuckets(days, nowMs, TRIAL_COUNTER_FIELDS.worksheets);
+  const chapterTests = paperUses(days, nowMs, SURFACES.CHAPTER_TEST, 1);
+  const mocks = paperUses(days, nowMs, SURFACES.FULL_MOCK, WEEK_DAYS);
+  const worksheets = paperUses(days, nowMs, SURFACES.WORKSHEET, WEEK_DAYS);
+  const used = (uses) => uses.reduce((s, u) => s + u.n, 0);
   const midnight = nextIstMidnightIso(nowMs);
   return {
     checksLeftToday: Math.max(0, t.checksPerDay - checksUsed),
-    chapterTestsLeftToday: Math.max(0, t.chapterTestsPerDay - chapterTestsUsed),
-    mocksLeft: Math.max(0, t.mocksPerWeek - sum(mocks)),
-    worksheetsLeft: Math.max(0, t.worksheetsPerWeek - sum(worksheets)),
+    chapterTestsLeftToday: Math.max(0, t.chapterTestsPerDay - used(chapterTests)),
+    mocksLeft: Math.max(0, t.mocksPerWeek - used(mocks)),
+    worksheetsLeft: Math.max(0, t.worksheetsPerWeek - used(worksheets)),
     resets: {
       checks: midnight,
       chapterTests: midnight,
-      mocks: rollingResetAt(mocks, t.mocksPerWeek, WEEK_DAYS * DAY_MS),
-      worksheets: rollingResetAt(worksheets, t.worksheetsPerWeek, WEEK_DAYS * DAY_MS),
+      mocks: paperResetAt(mocks, t.mocksPerWeek),
+      worksheets: paperResetAt(worksheets, t.worksheetsPerWeek),
+    },
+    // R3: the limits in force, from env — so no client copy ever hard-codes a number.
+    limits: {
+      checksPerDay: t.checksPerDay,
+      chapterTestsPerDay: t.chapterTestsPerDay,
+      mocksPerWeek: t.mocksPerWeek,
+      worksheetsPerWeek: t.worksheetsPerWeek,
     },
   };
 }
@@ -536,39 +657,27 @@ function defaultResolveFirestore() {
   }
 }
 
-/**
- * F1: write one mint to TODAY's ledger day document, in ONE merge: the re-mint record
- * `paperPasses.<id> = issuedAtMs` AND the trial paper counter it spends. One write, so
- * a mint can never be recorded as spent without its re-mint record (or the reverse).
- * Resolves true / false; never rejects.
- */
-function createPaperPassRecorder(resolveFirestore) {
-  return async function recordPaperPass(uid, { passId, issuedAtMs, counts }) {
-    const fs = resolveFirestore();
-    if (!fs || !fs.db || !fs.FieldValue) return false;
-    const data = { [PAPER_PASSES_FIELD]: { [passId]: issuedAtMs } };
-    for (const [key, field] of Object.entries(TRIAL_COUNTER_FIELDS)) {
-      const n = Math.floor(Number(counts && counts[key]) || 0);
-      if (n > 0) data[field] = fs.FieldValue.increment(n);
-    }
-    await fs.db
-      .collection(USAGE_LEDGER_COLLECTION)
-      .doc(uid)
-      .collection(LEDGER_SEGMENTS.days)
-      .doc(istDayKey(issuedAtMs))
-      .set(data, { merge: true });
-    return true;
-  };
+/** usageLedger/{uid}/days/{dayKey} — the SAME document METER-1 and FAIR-USE-1 write. */
+function ledgerDayRef(db, uid, dayKey) {
+  return db.collection(USAGE_LEDGER_COLLECTION).doc(uid).collection(LEDGER_SEGMENTS.days).doc(dayKey);
+}
+
+/** A snapshot's data, {} for a missing document. THROWS on something that is not a snapshot (-> fail open). */
+function snapshotData(snap) {
+  if (!snap || typeof snap.exists === 'undefined') throw new Error('fairUse: no snapshot');
+  const data = snap.exists && typeof snap.data === 'function' ? snap.data() : null;
+  return data && typeof data === 'object' ? data : {};
 }
 
 /**
- * @param deps.adminFirestore  firebase-admin Firestore (tier reads), or null.
- * @param deps.tierOf          (uid, req) => Promise<tier|null> — overrides the tier read (tests).
- * @param deps.ledger          { readDays, recordTrialUse } — defaults to METER-1's ledger.
- * @param deps.verifiedCaller  { resolveVerifiedUid(req) } — for GET /api/usage/me.
- * @param deps.readJson        the RAW readJson (httpUtils) used for the one pre-read.
- * @param deps.recordPaperPass (uid, { passId, issuedAtMs, counts }) => Promise<boolean> —
- *                             the F1 mint write; defaults to the ledger day document.
+ * @param deps.adminFirestore   firebase-admin Firestore (tier reads), or null.
+ * @param deps.tierOf           (uid, req) => Promise<tier|null> — overrides the tier read (tests).
+ * @param deps.ledger           { readDays, recordTrialUse } — defaults to METER-1's ledger.
+ * @param deps.verifiedCaller   { resolveVerifiedUid(req) } — for GET /api/usage/me.
+ * @param deps.readJson         the RAW readJson (httpUtils) used for the one pre-read.
+ * @param deps.resolveFirestore () => ({ db } | null) — the ledger Firestore the F1 mint
+ *                              transaction (R2) and the R1 graded mark run on; defaults to
+ *                              firebase-admin, the same resolution usageLedger.cjs uses.
  * @param deps.sendJson, deps.telemetry, deps.now, deps.env
  */
 function createFairUse(deps = {}) {
@@ -582,9 +691,16 @@ function createFairUse(deps = {}) {
   } = deps;
   const ledger = deps.ledger || createUsageLedger();
   const readJson = deps.readJson || defaultReadJson();
-  const recordPaperPass = typeof deps.recordPaperPass === 'function'
-    ? deps.recordPaperPass
-    : createPaperPassRecorder(defaultResolveFirestore);
+  const resolveFirestore = typeof deps.resolveFirestore === 'function' ? deps.resolveFirestore : defaultResolveFirestore;
+
+  function ledgerDb() {
+    try {
+      const fs = resolveFirestore();
+      return fs && fs.db ? fs.db : null;
+    } catch {
+      return null;
+    }
+  }
 
   let tierOf = deps.tierOf;
   if (typeof tierOf !== 'function') {
@@ -674,9 +790,18 @@ function createFairUse(deps = {}) {
     const surface = resolveSurface(req, reqPath, body, pass);
     emit(`fair_use.surface.${surface}`);
 
-    // F1/F2: a TRIAL paper with a verified pass was already paid for when the pass was
+    // F1/F2: a TRIAL paper with a verified pass was already counted when the pass was
     // minted. Grading it (or re-grading it inside the pass's 24 h) spends nothing more.
-    if (tier === 'trial' && PAPER_SURFACES.has(surface)) return false;
+    // FAIR-USE-3 R1 (P7): this is where a grade lands ON a pass — the first 2xx marks the
+    // pass graded, so it keeps counting after its 24 h instead of lapsing.
+    if (tier === 'trial' && PAPER_SURFACES.has(surface)) {
+      if (res && typeof res.once === 'function') {
+        res.once('finish', () => {
+          if (res.statusCode >= 200 && res.statusCode < 300) void markPaperGraded(uid, pass);
+        });
+      }
+      return false;
+    }
 
     let days;
     try {
@@ -766,12 +891,14 @@ function createFairUse(deps = {}) {
    *   no verified uid         -> 401 sign_in_required (never a header uid)
    *   not a paper surface / bad paperKey / bad body -> 400 invalid_paper_pass_request
    *   TRIAL, same paperKey minted < 24 h ago -> that SAME pass again; nothing spent
-   *   TRIAL, allowance left   -> pass; the paper allowance is spent NOW (one write)
+   *   TRIAL, allowance left   -> pass; today's `paperPasses` entry is written, which
+   *                              counts for 24 h, and for good once graded (R1)
    *   TRIAL, allowance spent  -> FAIR_USE_ENFORCE=1: 409 trial_limit, nothing written;
    *                              otherwise served + `fair_use.would_refuse.<rule>`, and
    *                              the honest count still moves (U8)
+   *   (R2: the read, the decision and the write are ONE Firestore transaction)
    *   premium / free / unknown tier -> pass; nothing spent (premium is metered by cost)
-   *   ledger unreadable       -> FAIL OPEN: pass, and the spend is still recorded
+   *   ledger / transaction error -> FAIL OPEN: pass, and the spend is still recorded
    */
   async function handlePaperPass(req, res) {
     const secret = paperPassSecret(env);
@@ -814,31 +941,64 @@ function createFairUse(deps = {}) {
     }
 
     const passId = paperPassId(surface, paperKey);
-    let days = null;
-    try {
-      days = await ledger.readDays(uid, windowDayKeys(nowMs));
-    } catch {
-      emit('fair_use.ledger_unreadable');
-    }
-    if (days) {
+    const enforced = isEnforced(env);
+    const limits = resolveLimits(env);
+    const entry = { issuedAtMs: nowMs, surface };
+    const db = ledgerDb();
+
+    /**
+     * R2 — the whole mint decision, run INSIDE one transaction: read the window, then
+     * reuse / refuse / write today's entry. Pure apart from `tx`, so a transaction retry
+     * re-runs it cleanly; telemetry is emitted once, after it settles.
+     */
+    async function mintBody(tx) {
+      const refs = windowDayKeys(nowMs).map((key) => ledgerDayRef(db, uid, key));
+      const snaps = typeof tx.getAll === 'function' ? await tx.getAll(...refs) : await Promise.all(refs.map((r) => tx.get(r)));
+      const days = new Map();
+      windowDayKeys(nowMs).forEach((key, i) => days.set(key, snapshotData(snaps[i])));
       const prior = priorPaperPassIssuedAt(days, passId, nowMs);
-      if (prior !== null) {
-        emit('fair_use.paper_pass.reused');
-        return issue(prior, true);
-      }
-      const decision = decide({ tier, surface, questionCount: 0, days, nowMs, limits: resolveLimits(env) });
-      if (!decision.allowed) {
-        if (isEnforced(env)) {
-          emit(`fair_use.refused.${decision.rule}`);
-          return sendJson(res, decision.status, decision.body);
-        }
-        emit(`fair_use.would_refuse.${decision.rule}`);
+      if (prior !== null) return { kind: 'reused', issuedAt: prior };
+      const decision = decide({ tier, surface, questionCount: 0, days, nowMs, limits });
+      if (!decision.allowed && enforced) return { kind: 'refused', decision };
+      tx.set(ledgerDayRef(db, uid, istDayKey(nowMs)), { [PAPER_PASSES_FIELD]: { [passId]: entry } }, { merge: true });
+      return { kind: 'minted', wouldRefuse: decision.allowed ? null : decision.rule };
+    }
+
+    let outcome = null;
+    if (db && typeof db.runTransaction === 'function') {
+      try {
+        // MUTATION FU3-MUT-2 target ("mint without the transaction" -> the race tests go RED).
+        outcome = await db.runTransaction((tx) => mintBody(tx));
+      } catch {
+        outcome = null;
       }
     }
 
+    if (outcome && outcome.kind === 'reused') {
+      emit('fair_use.paper_pass.reused');
+      return issue(outcome.issuedAt, true);
+    }
+    if (outcome && outcome.kind === 'refused') {
+      emit(`fair_use.refused.${outcome.decision.rule}`);
+      return sendJson(res, outcome.decision.status, outcome.decision.body);
+    }
+    if (outcome) {
+      if (outcome.wouldRefuse) emit(`fair_use.would_refuse.${outcome.wouldRefuse}`);
+      emit('fair_use.paper_pass.minted');
+      return issue(nowMs, false);
+    }
+
+    // FAIL OPEN — exactly today's (FAIR-USE-2) behaviour on a Firestore error: the ledger
+    // could not be read, so nothing is refused; the pass is issued and the spend is still
+    // recorded (one plain merge, outside any transaction). A write that fails too is
+    // counted, and the pass is STILL issued — the graded mark records it if it is graded.
+    emit('fair_use.ledger_unreadable');
     let recorded = false;
     try {
-      recorded = await recordPaperPass(uid, { passId, issuedAtMs: nowMs, counts: trialCommitFor(surface, 0) });
+      if (db) {
+        await ledgerDayRef(db, uid, istDayKey(nowMs)).set({ [PAPER_PASSES_FIELD]: { [passId]: entry } }, { merge: true });
+        recorded = true;
+      }
     } catch {
       recorded = false;
     }
@@ -847,7 +1007,42 @@ function createFairUse(deps = {}) {
     return issue(nowMs, false);
   }
 
-  return { applyToRequest, handleUsageMe, handlePaperPass, isPremium };
+  /**
+   * R1 (P7) — a 2xx grade landed on this VERIFIED trial pass: mark it graded, so it keeps
+   * counting after its 24 h. One transaction on the pass's own day document:
+   *   current entry, not yet graded -> gradedAtMs added (issuedAtMs / surface kept)
+   *   already graded                 -> nothing (the FIRST grade is the one recorded)
+   *   legacy number                  -> nothing: its mint bumped the counter, which still
+   *                                     counts it; rewriting it would count it twice
+   *   no entry (its mint's record failed) -> the whole entry, graded: a graded paper counts
+   * Fire-and-forget from the response's `finish`: never awaited by a request, never rejects.
+   */
+  async function markPaperGraded(uid, pass) {
+    try {
+      const db = ledgerDb();
+      if (!db || typeof db.runTransaction !== 'function' || !pass) throw new Error('fairUse: ledger unavailable');
+      const passId = paperPassId(pass.surface, pass.paperKey);
+      const ref = ledgerDayRef(db, uid, istDayKey(pass.issuedAt));
+      const gradedAtMs = now();
+      const result = await db.runTransaction(async (tx) => {
+        const data = snapshotData(await tx.get(ref));
+        const passes = passesOf(data);
+        const entry = readPassEntry(passes ? passes[passId] : undefined);
+        if (entry && entry.legacy) return 'legacy';
+        if (entry && entry.gradedAtMs !== null) return 'already';
+        const issuedAtMs = entry ? entry.issuedAtMs : pass.issuedAt;
+        tx.set(ref, { [PAPER_PASSES_FIELD]: { [passId]: { issuedAtMs, surface: pass.surface, gradedAtMs } } }, { merge: true });
+        return 'graded';
+      });
+      emit(`fair_use.paper_pass.graded_${result}`);
+      return result;
+    } catch {
+      emit('fair_use.paper_pass.graded_record_failed');
+      return null;
+    }
+  }
+
+  return { applyToRequest, handleUsageMe, handlePaperPass, isPremium, markPaperGraded };
 }
 
 module.exports = {
@@ -865,6 +1060,7 @@ module.exports = {
   trialState,
   premiumState,
   windowDayKeys,
+  readPassEntry,
   SURFACES,
   SURFACE_HEADER,
   FALLBACK_SURFACE,

@@ -63,6 +63,8 @@ const trialBody = (over: Record<string, unknown> = {}, enforced: unknown = true)
     mocksLeft: 1,
     worksheetsLeft: 0,
     resets: { checks: MIDNIGHT, chapterTests: MIDNIGHT, mocks: null, worksheets: IN_3_DAYS },
+    // FAIR-USE-3 R3: the limits the server resolved from its env (here its defaults).
+    limits: { checksPerDay: 5, chapterTestsPerDay: 1, mocksPerWeek: 1, worksheetsPerWeek: 1 },
     ...over,
   },
   premium: null,
@@ -218,7 +220,7 @@ describe("4 · UI2 / UI3 decisions", () => {
     expect(planPerQuestionGrade(s, 3, NOW)).toEqual({ action: "confirm", remaining: 2 });
     expect(planPerQuestionGrade(s, 2, NOW)).toEqual({ action: "proceed" });
     const zero = planPerQuestionGrade(snap(trialBody({ checksLeftToday: 0 })), 1, NOW);
-    expect(zero).toEqual({ action: "blocked", limit: { tier: "trial", scope: "checks", resetAt: MIDNIGHT, window: null } });
+    expect(zero).toEqual({ action: "blocked", limit: { tier: "trial", scope: "checks", resetAt: MIDNIGHT, window: null, allowance: 5 } });
   });
   it("★★ dark (null snapshot) always proceeds", () => {
     expect(planPerQuestionGrade(parseUsageMe(trialBody({ checksLeftToday: 0 }, false)), 5, NOW)).toEqual({ action: "proceed" });
@@ -232,7 +234,7 @@ describe("4 · UI2 / UI3 decisions", () => {
   });
   it("★★ UI3: a spent trial paper allowance blocks; one left starts", () => {
     const s = snap(trialBody());
-    expect(paperStartBlock(s, "chapter-test", NOW)).toEqual({ tier: "trial", scope: "chapter-test", resetAt: MIDNIGHT, window: null });
+    expect(paperStartBlock(s, "chapter-test", NOW)).toEqual({ tier: "trial", scope: "chapter-test", resetAt: MIDNIGHT, window: null, allowance: 1 });
     expect(paperStartBlock(s, "worksheet", NOW)?.resetAt).toBe(IN_3_DAYS);
     expect(paperStartBlock(s, "full-mock", NOW)).toBeNull();
     expect(paperStartBlock(parseUsageMe(trialBody({}, false)), "chapter-test", NOW)).toBeNull();
@@ -241,7 +243,7 @@ describe("4 · UI2 / UI3 decisions", () => {
   it("★ UI1: a refusal with no enforced snapshot is NOT a panel (existing error path)", () => {
     const info = { kind: "trial_limit" as const, remaining: 0, resetAt: MIDNIGHT, window: null };
     expect(limitFromRefusal(info, null, "checks")).toBeNull();
-    expect(limitFromRefusal(info, snap(trialBody()), "checks")).toEqual({ tier: "trial", scope: "checks", resetAt: MIDNIGHT, window: null });
+    expect(limitFromRefusal(info, snap(trialBody()), "checks")).toEqual({ tier: "trial", scope: "checks", resetAt: MIDNIGHT, window: null, allowance: 5 });
     // Name only: the premium window is the full one, from the server's own percentages.
     expect(limitFromRefusal({ kind: null, remaining: null, resetAt: null, window: null }, snap(premiumBody()), "checks"))
       .toEqual({ tier: "premium", scope: "checks", resetAt: MIDNIGHT, window: "day" });
@@ -257,7 +259,7 @@ describe("5 · copy (owner rulings, word for word)", () => {
     expect(formatResetIst(IN_3_DAYS, NOW)).toBe("2:00 pm on Thu 1 Oct");
   });
   it("★★ UI1 trial and premium sentences", () => {
-    const trial = limitCopy({ tier: "trial", scope: "checks", resetAt: MIDNIGHT, window: null });
+    const trial = limitCopy({ tier: "trial", scope: "checks", resetAt: MIDNIGHT, window: null, allowance: 5 });
     expect(trial.lead).toBe("You've used today's 5 answer checks.");
     expect(trial.resetPrefix).toBe("They reset at");
     expect(trial.tail).toBe("Premium removes the daily limit.");
@@ -281,7 +283,7 @@ describe("6 · UI1 panel", () => {
   it("★★ trial: the whole sentence, a <time>, and See plans -> the internal pricing route", () => {
     render(
       <MemoryRouter>
-        <FairUseLimitPanel limit={{ tier: "trial", scope: "checks", resetAt: MIDNIGHT, window: null }} />
+        <FairUseLimitPanel limit={{ tier: "trial", scope: "checks", resetAt: MIDNIGHT, window: null, allowance: 5 }} />
       </MemoryRouter>,
     );
     const panel = screen.getByTestId("fair-use-limit-panel");
@@ -415,5 +417,69 @@ describe("7 · useFairUse", () => {
     fireEvent.click(screen.getByText("refuse"));
     await waitFor(() => expect(document.body.dataset.refusal).toBe("true"));
     expect(screen.getByTestId("fair-use-limit-panel").textContent).toContain("You've used today's 5 answer checks.");
+  });
+});
+
+/* ── 8 · FAIR-USE-3 R3 — every limit number comes from the server ─────────── */
+
+// MUTATION FU3-MUT-3 target (hard-code 5 in fairUseGate.trialUsedLine -> RED).
+describe("8 · R3 limit copy follows the server's (env-tunable) limits", () => {
+  it("★★ a CHANGED env limit reaches the copy: checksPerDay 7 -> \"today's 7 answer checks\"", async () => {
+    stubFetch(trialBody({ checksLeftToday: 0, limits: { checksPerDay: 7, chapterTestsPerDay: 2, mocksPerWeek: 3, worksheetsPerWeek: 4 } }));
+    const err = Object.assign(new Error("x"), { name: "FairUseLimitError", kind: "trial_limit", resetAt: MIDNIGHT });
+    render(<Harness scope="checks" err={err} />);
+    await waitFor(() => expect(screen.getByTestId("snap").textContent).toBe("enforced"));
+    fireEvent.click(screen.getByText("refuse"));
+    await waitFor(() => expect(document.body.dataset.refusal).toBe("true"));
+    const lead = screen.getByTestId("fair-use-limit-panel").querySelector("p")?.textContent ?? "";
+    expect(lead).toMatch(/^You've used today's 7 answer checks\. They reset at /);
+    expect(lead).not.toMatch(/\b5\b/);
+    delete document.body.dataset.refusal;
+  });
+  it("★★ every allowance takes the server's number (and 1 reads naturally)", () => {
+    const s = snap(trialBody({ limits: { checksPerDay: 7, chapterTestsPerDay: 2, mocksPerWeek: 3, worksheetsPerWeek: 4 } }));
+    const lead = (scope: "checks" | "chapter-test" | "full-mock" | "worksheet") =>
+      limitCopy(limitFromRefusal({ kind: "trial_limit", remaining: 0, resetAt: MIDNIGHT, window: null }, s, scope)!).lead;
+    expect(lead("checks")).toBe("You've used today's 7 answer checks.");
+    expect(lead("chapter-test")).toBe("You've used today's 2 chapter tests.");
+    expect(lead("full-mock")).toBe("You've used this week's 3 full mocks.");
+    expect(lead("worksheet")).toBe("You've used this week's 4 worksheets.");
+    expect(limitCopy({ tier: "trial", scope: "checks", resetAt: null, window: null, allowance: 1 }).lead)
+      .toBe("You've used today's 1 answer check.");
+    expect(limitCopy({ tier: "trial", scope: "chapter-test", resetAt: null, window: null, allowance: 1 }).lead)
+      .toBe("You've used today's chapter test.");
+    // UI2's R = 0 panel and UI3's paper block carry the server's number too.
+    const zero = snap(trialBody({ checksLeftToday: 0, limits: { checksPerDay: 9, chapterTestsPerDay: 1, mocksPerWeek: 1, worksheetsPerWeek: 1 } }));
+    const blocked = planPerQuestionGrade(zero, 1, NOW);
+    expect(blocked.action === "blocked" && limitCopy(blocked.limit).lead).toBe("You've used today's 9 answer checks.");
+    const paper = paperStartBlock(snap(trialBody({ limits: { checksPerDay: 5, chapterTestsPerDay: 3, mocksPerWeek: 1, worksheetsPerWeek: 1 } })), "chapter-test", NOW);
+    expect(limitCopy(paper!).lead).toBe("You've used today's 3 chapter tests.");
+  });
+  it("★★ limits MISSING (an older server) -> the number is OMITTED, never guessed", () => {
+    const { limits: _omit, ...trialNoLimits } = trialBody().trial as Record<string, unknown>;
+    const s = snap({ ...trialBody(), trial: trialNoLimits });
+    expect(s.trial?.limits).toEqual({ checksPerDay: null, chapterTestsPerDay: null, mocksPerWeek: null, worksheetsPerWeek: null });
+    const info = { kind: "trial_limit" as const, remaining: 0, resetAt: MIDNIGHT, window: null };
+    const checks = limitCopy(limitFromRefusal(info, s, "checks")!).lead;
+    expect(checks).toBe("You've used today's answer checks.");
+    expect(checks).not.toMatch(/\d/);
+    expect(limitCopy(limitFromRefusal(info, s, "full-mock")!).lead).toBe("You've used this week's full mock.");
+    expect(limitCopy({ tier: "trial", scope: "checks", resetAt: null, window: null }).lead).toBe("You've used today's answer checks.");
+  });
+  it("★ malformed limits are unknown (null), never repaired into a number", () => {
+    const s = snap(trialBody({ limits: { checksPerDay: "7", chapterTestsPerDay: 0, mocksPerWeek: 1.5, worksheetsPerWeek: -2 } }));
+    expect(s.trial?.limits).toEqual({ checksPerDay: null, chapterTestsPerDay: null, mocksPerWeek: null, worksheetsPerWeek: null });
+    expect(s.trial?.checksLeftToday).toBe(2); // the rest of the snapshot still parses
+  });
+  it("★ static pin: no digit is hard-coded in the trial limit copy", async () => {
+    const fs = await import("node:fs");
+    const path = await import("node:path");
+    const src = fs.readFileSync(path.resolve(__dirname, "fairUseGate.ts"), "utf8");
+    const start = src.indexOf("export function trialUsedLine(");
+    const body = src.slice(start, src.indexOf("\n}\n", start));
+    const literals = body.match(/`[^`]*`|"[^"]*"/g) ?? [];
+    expect(literals.length).toBeGreaterThan(3);
+    // Interpolations (the ${n} slot, and the `n === 1` plural test inside one) are code, not copy.
+    for (const lit of literals) expect(lit.replace(/\$\{[^}]*\}/g, "")).not.toMatch(/\d/);
   });
 });
