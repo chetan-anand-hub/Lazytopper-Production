@@ -39,6 +39,18 @@ export const USAGE_CACHE_MS_DARK = 10 * 60_000;
 /** = aiClient's `FairUseLimitWindow` (FAIR-USE-2 F4), the same three windows /api/usage/me uses. */
 export type PremiumWindow = FairUseLimitWindow;
 
+/**
+ * FAIR-USE-3 R3 — the trial limits in force, from the server's env. Each is a whole
+ * number, or null when the server did not send it (an older server, or a malformed
+ * field): the copy then OMITS the number rather than guess one.
+ */
+export interface TrialLimits {
+  checksPerDay: number | null;
+  chapterTestsPerDay: number | null;
+  mocksPerWeek: number | null;
+  worksheetsPerWeek: number | null;
+}
+
 export interface TrialUsage {
   checksLeftToday: number;
   chapterTestsLeftToday: number;
@@ -50,6 +62,7 @@ export interface TrialUsage {
     mocks: string | null;
     worksheets: string | null;
   };
+  limits: TrialLimits;
 }
 
 export interface PremiumUsage {
@@ -70,6 +83,9 @@ export interface UsageSnapshot {
 
 const isCount = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v) && v >= 0;
 const isPct = (v: unknown): v is number => isCount(v) && v <= 100;
+/** A limit is a positive whole number; anything else is unknown (null), never repaired. */
+const limitOrNull = (v: unknown): number | null =>
+  typeof v === "number" && Number.isInteger(v) && v > 0 ? v : null;
 const isoOrNull = (v: unknown): string | null =>
   typeof v === "string" && v.trim() !== "" && !Number.isNaN(Date.parse(v)) ? v : null;
 const obj = (v: unknown): Record<string, unknown> | null =>
@@ -83,6 +99,7 @@ function parseTrial(raw: unknown): TrialUsage | null {
     return null;
   }
   const r = obj(t.resets) ?? {};
+  const l = obj(t.limits) ?? {};
   return {
     checksLeftToday,
     chapterTestsLeftToday,
@@ -93,6 +110,12 @@ function parseTrial(raw: unknown): TrialUsage | null {
       chapterTests: isoOrNull(r.chapterTests),
       mocks: isoOrNull(r.mocks),
       worksheets: isoOrNull(r.worksheets),
+    },
+    limits: {
+      checksPerDay: limitOrNull(l.checksPerDay),
+      chapterTestsPerDay: limitOrNull(l.chapterTestsPerDay),
+      mocksPerWeek: limitOrNull(l.mocksPerWeek),
+      worksheetsPerWeek: limitOrNull(l.worksheetsPerWeek),
     },
   };
 }
