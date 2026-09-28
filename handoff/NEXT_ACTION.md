@@ -1,3 +1,29 @@
+## ★★★ 2026-09-28 — WAVE B-3 (MONEY, CONTROLLER B) CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-3 BLOCK BELOW ON TRUNK SHA ONLY
+*(It does not supersede that block's owner items, nor the WAVE B-2, A-2 or B-1 blocks' owner items, which stand unchanged — except that the WAVE B-2 block's item 4 (`[FU-PRICING-COPY-WHEN-PAYMENTS-ON]`) is now DONE by `#858`, and its item 1 ("leave `FAIR_USE_ENFORCE` unset until FAIR-USE-2 ships and the surface-forgery FU is decided") is replaced by the ordered steps 1–4 below.)*
+
+**TRUNK IS `66f17eb3c29773ccd8a86b7dce7ef9953c45464d`** at the time of writing (`git ls-remote origin refs/heads/base/approved-thru-437`; updated when `#861` merges):
+- `#861` (FAIR-USE-UI-1: students can see their fair-use limits — dark until `FAIR_USE_ENFORCE=1`) — **this wave**; see MERGE-861 in `CURRENT_STATE.md`
+- `66f17eb3` = `#862` (docs: wave A-3 — Controller A)
+- `cfe88001` = `#860` (FAIR-USE-2: paper passes are server-issued; dark) — **this wave**
+- `42733aa6` = `#858` (PAYCOPY-1: pricing copy ready for payments; flag-off byte-identical) — **this wave**
+- `15ae5047` = `#856` (BOARD-DATE-1 — Controller A, wave A-3)
+- `7152ef06` = `#854` (docs: wave B-2)
+
+A-3's SEARCHPING-2 `#857` and PERF-CLS-1 `#859` are A-3's items (the WAVE A-3 block below), not restated here. `#855` (Dependabot) is not ours.
+
+### NEXT — OWNER, FAIR USE — IN THIS ORDER (none of these was run by the controller or a builder)
+1. **Set `FAIR_USE_PAPER_SECRET` on Railway — early.** A long random string (e.g. `openssl rand -base64 48`); server-only, never on Vercel. Rotating it invalidates outstanding passes (at most 24 h of re-mints). **Until it is set, paper grades are metered per question** (`trialChecks += N` instead of 1 paper) — nothing is refused while dark, but `would_refuse.trial_checks` and `/api/usage/me` `checksLeftToday` read off (`[FU-FAIR-USE-DARK-COUNTS-PAPERS-PER-QUESTION]`) *(subagent-reported)*. An owner live-verify of the paper round trip is owed once the secret is set (CLAUDE.md §6).
+2. **Capture the owed signed-in page-level screenshots** on a preview (`[FU-FAIR-USE-UI-PREVIEW-SHOTS]`): signed in, with `page.route("**/api/usage/me")` interception, at 375 and 1280, each with `enforced:true` and again with `enforced:false` — UI1 trial and premium (the QP confirm step after a refusal, C&I single / whole paper, the chapter test / full mock upload panel, the worksheet grade panel); UI2 (the QP confirm step with 3 answers and 2 checks left, and a C&I whole paper); UI3 (chapter test / mock start and the worksheet Generate button with the allowance at 0); UI4 trial and premium (the `/me` card). The full list is in `report-fair-use-ui-1-2026-09-28.md` (D6) *(subagent-reported)*.
+3. **Decide `[FU-FAIR-USE-MINT-NO-REFUND]`** (a minted-but-never-graded trial paper stays spent — spec-literal; controller recommendation: refund if no grade lands within 24 h, before ENFORCE) **and fix `[FU-FAIR-USE-SOLUTIONCHECKER-PANEL]`** (SolutionChecker on Topic Hub / HPQ would show the generic error on a refusal, not the panel).
+4. **Only then set `FAIR_USE_ENFORCE=1` (exactly `1`) on Railway.** That single switch lights every FAIR-USE-UI-1 piece via `/api/usage/me` `enforced:true`; no Vercel / VITE variable is involved. Enforcing without the secret would count every paper per question and refuse a trial chapter test (5 checks/day) *(subagent-reported)*.
+
+### NEXT — OWNER, PAYMENTS
+5. **PAYCOPY-1 removed the copy blocker** (`[FU-PRICING-COPY-WHEN-PAYMENTS-ON]` closed by `#858`). The copy turns on together with the P7 buy area when `VITE_PAYMENTS_ENABLED=1` — no separate switch *(subagent-reported)*.
+6. **The wave B-2 RAZORPAY-1 owner test is still owed before production payments:** Railway `PAYMENTS_ENABLED=1`, Vercel **Preview-only** `VITE_PAYMENTS_ENABLED=1`, a test-card pass on a preview, confirm premium + `passEnd` (detail in the WAVE B-2 block below). Live keys and switching production on are the owner's call.
+
+### Still owed from earlier waves
+7. **The wave B-1 owner steps** (the rules mutation proof → `deploy:firestore-rules` → `PASS_ADMIN_SECRET` on Railway → METER-1 live-verify; rulings `[FU-PASS-TRIAL-AFTER-EXPIRY]` and admin-tool Gemini spend; the wave B-1 final audit) and the **wave B-2** live-verify of FAIR-USE-1 and owner call `[FU-FAIR-USE-TRIAL-COUNT-ON-UNREADABLE]`. This docs lane did not re-check whether any of them has since been done.
+
 ## ★★★ 2026-09-28 — WAVE A-3 (CONTROLLER A) CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE B-2 BLOCK BELOW ON TRUNK SHA ONLY
 *(It does not supersede that block's owner items, nor the WAVE A-2 or WAVE B-1 blocks' owner items, which stand unchanged.)*
 

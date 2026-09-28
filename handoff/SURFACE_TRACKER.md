@@ -1,5 +1,18 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-28 — WAVE B-3 (MONEY, CONTROLLER B): PAYCOPY-1 (`#858` `42733aa6`) + FAIR-USE-2 (`#860` `cfe88001`) + FAIR-USE-UI-1 (`#861`).**
+> ★ **BUILT AND DARK: the fair-use surfaces exist but render nothing until `FAIR_USE_ENFORCE=1`; the payments-on pricing copy exists but renders nothing until `VITE_PAYMENTS_ENABLED=1`.** These status lines supersede the WAVE B-2 "Fair use" and "Pricing" lines below on status only; those lines stand as written.
+
+### ⬜ Fair use — paper passes (Chapter Test, Full Mock, Worksheet grading) — **SERVER-ISSUED, DARK.** A paper counts as one allowance only with a server-minted HMAC pass (`POST /api/usage/paper`); without one, the grade is counted per question. Nothing is refused until `FAIR_USE_ENFORCE=1`, and with `FAIR_USE_PAPER_SECRET` unset the mint answers 503 and every paper is counted per question (`[FU-FAIR-USE-DARK-COUNTS-PAPERS-PER-QUESTION]`) *(subagent-reported)*. Supersedes the B-2 line's "surface header" basis.
+### ⬜ Fair use — limits UI (limit panel on the grading surfaces · "mark the first R" confirm · paper-start block · usage card on Me / Progress) — **BUILT, DARK UNTIL `FAIR_USE_ENFORCE=1`.** Renders only when `/api/usage/me` says `enforced: true`; with it false, the endpoint failing, or signed out, every page is as before (signed-out preview: zero usage calls, zero fair-use nodes) *(subagent-reported)*. Signed-in page-level screenshots are OWED (`[FU-FAIR-USE-UI-PREVIEW-SHOTS]`); SolutionChecker (Topic Hub / HPQ) shows the generic error, not the panel (`[FU-FAIR-USE-SOLUTIONCHECKER-PANEL]`).
+### ⬜ Pricing (`/pricing`) — payments-on copy — **BUILT, DARK.** The subtitle, the "Can I pay here?" FAQ and the fine print switch to the Razorpay wording only with `VITE_PAYMENTS_ENABLED` on; off (production today) they and the prerendered page are byte-identical *(subagent-reported)*. `[FU-PRICING-COPY-WHEN-PAYMENTS-ON]` is closed; the RAZORPAY-1 owner test is still owed before production payments.
+
+### ⬜ NO MATRIX CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- The §2 matrix has no fair-use or payments row, and nothing a student sees changed: every FAIR-USE-UI-1 piece is dark until `FAIR_USE_ENFORCE=1`, and the PAYCOPY-1 strings are dark until `VITE_PAYMENTS_ENABLED=1`. The Check & Improve, Quick Practice, Chapter Test, Full Mock, Worksheet, Me / Progress and Pricing rows therefore keep their cells. Verified cells are not re-claimed: the enforced panels were never seen signed in on a real page.
+- FAIR-USE-2 changes how the server counts grades (dark), not any surface's content or status.
+
+### 📋 Scope discovered? — **NO surface scope set to Settling.** Eight follow-ups are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`. `[FU-FAIR-USE-SOLUTIONCHECKER-PANEL]` is a grading surface (SolutionChecker on Topic Hub / HPQ) that FAIR-USE-UI-1's spec did not list; it must be fixed before enforcement, but this wave does not change the Topic Hub or HPQ Scope cells.
+
 > **2026-09-28 — WAVE A-3 (CONTROLLER A): BOARD-DATE-1 (`#856` `15ae5047`), trunk `cfe88001`. SEARCHPING-2 (`#857`) and PERF-CLS-1 (`#859`) are NOT merged and move nothing.**
 > ★ **A VALUE CORRECTION, NOT A STATUS CHANGE: every board-date reader now shows the same predicted date, 17 Feb 2027.**
 

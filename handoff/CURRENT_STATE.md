@@ -1,5 +1,85 @@
 # LazyTopper — Current State
 
+## [CURRENT · MONEY] WAVE B-3 — **PAPER PASSES ARE SERVER-ISSUED (FAIR-USE-2) · STUDENTS CAN SEE THEIR LIMITS (FAIR-USE-UI-1) · PRICING COPY IS READY FOR PAYMENTS (PAYCOPY-1) — ALL DARK** — `#858` + `#860` + `#861` MERGED
+
+★ **PROVENANCE.**
+- Controller B, wave B-3, one controller session. There was one builder per PR (Agent model `opus` = `claude-opus-5-5`; effort "high" stated in each brief — the Agent tool exposes no effort parameter, D1), each in its own worktree (`C:/Projects/LT-worktrees/fair-use-2`, `…/fair-use-ui-1`, `…/paycopy-1`). This docs PR was written by a docs builder in `…/b3-docs` from the controller's state file `WAVE_STATE_B3.md` and the three lane reports (OR-16).
+- Specs are owner-authored and hash-verified by the controller against the owner's prefix: `FAIR-USE-2.md` `F8D3812D356B`, `FAIR-USE-UI-1.md` `D4116DE72125`, `PAYCOPY-1.md` `D345F3B077C2`. They were taken from `C:/Projects/LT-worktrees/controller-b3/ops/.specs/` (the shared checkout's `ops/.specs/` has no copy; content proven by sha256 — D0, the A-2/A-3/B-2 precedent).
+- Merges *(controller-verified)*, each squash with `--match-head-commit`, no `--admin`; for each, the merge commit is on trunk and **trunk tree == head tree**:
+  - `#858` PAYCOPY-1 — `--match-head-commit a093fe81` → **`42733aa6`** (parent `15ae5047`), tree `d8196d0e`.
+  - `#860` FAIR-USE-2 — `--match-head-commit 6ad09e57` → **`cfe88001`** (parent `42733aa6`), tree `9a7da98b`.
+  - `#861` FAIR-USE-UI-1 — see MERGE-861 below.
+- *(subagent-reported)* = from `report-fair-use-2-2026-09-28.md`, `report-fair-use-ui-1-2026-09-28.md`, `report-paycopy-1-2026-09-28.md`, not re-measured by the controller. *(controller-verified)* = re-measured by the controller with `gh`/`git`.
+
+**Trunk `66f17eb3c29773ccd8a86b7dce7ef9953c45464d`** at the time of writing (`#862`, the wave A-3 docs; `#861` not yet merged — this line is updated when it is). The commits since the wave B-2 docs (`7152ef06`, `#854`):
+- `42733aa6` = `#858` PAYCOPY-1 — **this wave**;
+- `cfe88001` = `#860` FAIR-USE-2 — **this wave**;
+- `#861` FAIR-USE-UI-1 — **this wave** (MERGE-861 below);
+- `15ae5047` = `#856` BOARD-DATE-1 and `66f17eb3` = `#862` (A-3 docs) — **Controller A's wave A-3, recorded by `#862`, not by this block.** A-3's SEARCHPING-2 `#857` and PERF-CLS-1 `#859` are A-3's (as `#862` recorded them); they are not restated here.
+
+*(This block supersedes the WAVE A-3 (DATES + REACH) block below on trunk SHA only — that block is demoted to previous on trunk SHA; its content otherwise stands as written. In the Controller B line it follows the WAVE B-2 (MONEY) block below, whose content stands as written.)*
+
+### In one paragraph
+The money arc's fair-use half is now complete in code and still **dark**. FAIR-USE-2 (`#860`) makes the **server** decide what a paper is: a chapter test, full mock or worksheet counts as one paper allowance only when the grading request carries a server-signed paper pass; everything else is counted per question. FAIR-USE-UI-1 (`#861`) gives students a calm, honest view of their limits — a limit panel instead of a generic error, a "we'll mark the first R" confirm, a paper-start block and a usage card on Me / Progress — rendered **only** when `/api/usage/me` says `enforced: true`, which cannot happen until the owner sets `FAIR_USE_ENFORCE=1`. PAYCOPY-1 (`#858`) rewrites the three pricing-page strings that would have gone stale when payments switch on; with `VITE_PAYMENTS_ENABLED` off (production today) the page and its prerender are byte-identical. `FAIR_USE_ENFORCE`, `FAIR_USE_PAPER_SECRET`, `PAYMENTS_ENABLED` and `VITE_PAYMENTS_ENABLED` are all **unset**; no Railway, Vercel or Razorpay setting was changed by the controller or any builder.
+
+### What shipped — FAIR-USE-2 (`#860` `cfe88001`, 11 files)
+- `POST /api/usage/paper` mints an HMAC-SHA256 pass over `uid|surface|paperKey|issuedAt` keyed by `FAIR_USE_PAPER_SECRET`; secret unset → **503** and paper grades fall back to per-question counting. Minting consumes the trial paper allowance **once**; a re-mint of the same paper within 24 h is free and returns the same pass *(subagent-reported)*.
+- Grading counts as a paper **only** with a valid `X-Lazytopper-Paper` token: timing-safe compare, same uid, same surface, same `paperKey` as `body.worksheetId`, less than 24 h old. Otherwise it is counted per question as check-improve, so a forged `X-Lazytopper-Surface` header no longer moves a grade into a paper allowance *(subagent-reported)*.
+- The three paper services (chapter test, full mock, worksheet) mint once per paper; Quick Practice, C&I and SolutionChecker send their true surface header (SolutionChecker = `quick-practice`; both per-question surfaces spend the same checks counter, so this only affects telemetry) *(subagent-reported)*.
+- `aiClient` throws a typed `FairUseLimitError` for `409 trial_limit` / `429 usage_limit`; `GET /api/usage/me` adds `enforced` (true only when `FAIR_USE_ENFORCE=1`) *(subagent-reported)*.
+- The re-mint record is a hashed `paperPasses` map on the EXISTING ledger day doc `usageLedger/{uid}/days/{istDayKey}` — no new collection, so DPDP erasure and export already reach it; the paper id is never stored *(subagent-reported, OR-AUTO choice 1)*.
+- **Disproved** *(subagent-reported)*: F2's literal checks would have let one pass serve unlimited DIFFERENT papers for 24 h — the lane also binds the pass to `body.worksheetId` (a mismatch falls back to per-question). It also showed a behavioural signature test cannot catch a non-timing-safe compare (MUT-B stayed green behaviourally), which is why a static pin exists. `lazytopper/package.json` untouched (D2 held): the server tests went into the already-wired fair-use suite, plus a `src/**` vitest.
+
+### What shipped — FAIR-USE-UI-1 (`#861`, 18 files)
+- Only when `/api/usage/me` says `enforced: true` (dark until `FAIR_USE_ENFORCE=1`) *(subagent-reported)*:
+  - **UI1** a calm limit panel instead of a generic error on the grading surfaces — trial: today's 5 answer checks + reset time + See plans; premium: which 5-hour / day / week limit and when it resets; never rupees.
+  - **UI2** a "You have R checks left today — we'll mark the first R" confirm that sends exactly R.
+  - **UI3** a paper-start block before a spent trial chapter test / full mock / worksheet begins (a full-mock RESUME is never blocked; a stale snapshot never blocks).
+  - **UI4** a usage card on Me / Progress (trial allowances with resets; premium three % bars).
+- With `enforced` false, the endpoint failing, or signed out, every page is as before. Darkness rests on one line: `parseUsageMe` returns a snapshot only for `enforced === true` (boolean) *(subagent-reported)*.
+- Fetch policy: once per page mount, module-memory cache keyed by uid (60 s enforced / 10 min dark), in-flight dedup, 4 s timeout; signed-out → no request; no browser storage *(subagent-reported)* — a client-side response to `[FU-FAIR-USE-USAGE-ME-RATE]`, which stays open (no server-side cap was added).
+- **Disproved** *(subagent-reported)*: the assumption that every surface receives the refusal's fields — the Quick Practice service passes on only the error's name, so its panel reads the `/api/usage/me` snapshot. Signed-out pages make zero `/api/usage/me` calls (preview-verified).
+
+### What shipped — PAYCOPY-1 (`#858` `42733aa6`, 2 files)
+- With `VITE_PAYMENTS_ENABLED` on, the pricing subtitle, the "Can I pay here?" FAQ answer and the fine print say payment is by Razorpay (UPI / card / netbanking), Premium turns on straight away, and passes never renew. With the flag off (production today) all three strings and the prerendered page are byte-identical *(subagent-reported; prerender-capture "committed artifact matches a fresh capture")*.
+- **Disproved** *(subagent-reported)*: the pricing page has no FAQPage JSON-LD, so the FAQ copy reaches only rendered / prerendered HTML. The P3 sentence also appears inside the P7 paragraph that RAZORPAY-1 already gates, so it was left alone.
+
+### Closed by this wave
+- `[FU-FAIR-USE-SURFACE-UNVERIFIABLE]` and `[FU-FAIR-USE-QP-SURFACE-HEADER]` — by FAIR-USE-2 (`#860`).
+- `[FU-PRICING-COPY-WHEN-PAYMENTS-ON]` — by PAYCOPY-1 (`#858`).
+
+### Evidence
+- **`#858`** on head `a093fe81` (trunk `15ae5047` merged in) *(controller-verified: `gh` files == diff (2), head contains trunk, all checks pass)*: quality-gate `36402046723` `Tests 2932 passed (2932)`, 46 `# fail 0` / `# skipped 0` lines, 0 non-zero *(builder-quoted)*; prerender-capture `36402046795` "committed artifact matches a fresh capture". 1 mutation *(subagent-reported)*.
+- **`#860`** on head `6ad09e57` *(controller-verified: `gh` files == diff (11), head contains trunk `42733aa6`, all 6 runs on the head success)*: quality-gate `36402960397` — fair-use `# tests 42 # pass 42 # fail 0 # skipped 0`, 23 node suites 0 fail / 0 skip, vitest `Tests 2943 passed (2943)`, 13 of 13 F5/F6 names in the log *(builder-quoted)*. 2 mutations: MUT-A (trust the surface header) → `not ok 1 - F6 · a forged paper surface WITHOUT a pass is counted per question as check-improve`; MUT-B (non-timing-safe compare) → the static pin red; both restored byte-identical *(subagent-reported)*.
+- **`#861`** phase 2 on head `205bdedb` (trunk `cfe88001` merged in, no conflicts): quality-gate `36404345232` `Tests 2993 passed (2993)`, 23 node suites 0 fail / 0 skip *(builder-quoted)*; P5 contract matches the spec. 1 mutation: `parseUsageMe` ignores `enforced` → 7 red, restored *(subagent-reported)*. Screenshots: 22 component-harness PNGs + 20 signed-out preview shots (zero usage calls, zero fair-use nodes, with `enforced` true AND false); **signed-in page-level shots OWED** (the builder could not sign in on the preview — D6). The final head and run are in MERGE-861.
+
+### Rollout so far *(controller-verified, from the state file)*
+- `#858` and `#860` were not alone-lanes; each merged while an earlier rolling release was ACTIVE (back-to-back is allowed by OR-LIVE). At 10:14Z the rolling release was COMPLETE and www served `dpl_GuVdL9wyv5` (created 09:45:32Z = `#862`'s deployment, which is after `#858` and `#860` on trunk).
+- `#861` rolls out **ALONE** (D4): before merge, no ACTIVE rolling release AND www serving the trunk head's deployment; after merge nothing of Controller B's merges until 100% + smoke.
+
+MERGE-861: <pending controller>
+
+ROLLOUT: <pending controller>
+
+### ★ Decisions made this wave (full text, D0–D6, in `DECISION_LOG.md`)
+- **D2** `lazytopper/package.json` avoided (open `#855` would have blocked any edit on lane-overlap) — **held**: no B-3 lane edited it.
+- **D3** FAIR-USE-UI-1 brought trunk in with `git merge`, not the spec's "rebased" — no force-push; the squash tree is the same.
+- **D5** `[FU-FAIR-USE-MINT-NO-REFUND]` is not STOP-class: spec F1 says "Minting consumes"; shipped spec-literal, dark; owner decision owed before enforcement.
+- **D6** `#861` merged without the signed-in page-level screenshots — every piece renders only with `enforced: true`; the owed shots gate the owner's `FAIR_USE_ENFORCE=1` step, not this merge.
+
+### ★ OWNER STEPS — IN THIS ORDER (none run by the controller or any builder) — detail in `NEXT_ACTION.md`
+1. **Set `FAIR_USE_PAPER_SECRET` on Railway** — early. Until then, paper grades are metered per question (`[FU-FAIR-USE-DARK-COUNTS-PAPERS-PER-QUESTION]`).
+2. **Capture the owed signed-in page-level screenshots** on a preview (`[FU-FAIR-USE-UI-PREVIEW-SHOTS]`; the D6 list in `report-fair-use-ui-1-2026-09-28.md`).
+3. **Decide `[FU-FAIR-USE-MINT-NO-REFUND]`** and **fix `[FU-FAIR-USE-SOLUTIONCHECKER-PANEL]`**.
+4. **Only then set `FAIR_USE_ENFORCE=1` on Railway.**
+- Payments: PAYCOPY-1 removed the copy blocker; the wave B-2 RAZORPAY-1 owner test (Railway `PAYMENTS_ENABLED=1`, Vercel Preview-only `VITE_PAYMENTS_ENABLED=1`, a test-card pass) is still owed before production payments. The wave B-1 owner steps still stand.
+
+### New follow-ups (bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`)
+`[FU-FAIR-USE-MINT-NO-REFUND]` · `[FU-FAIR-USE-MINT-RACE]` · `[FU-FAIR-USE-PAPER-PASS-DATAMAP-HOLDS]` · `[FU-FAIR-USE-DARK-COUNTS-PAPERS-PER-QUESTION]` · `[FU-FAIR-USE-UI-LIMIT-NUMBER]` · `[FU-FAIR-USE-QP-CONSOLE-WARN]` · `[FU-FAIR-USE-SOLUTIONCHECKER-PANEL]` · `[FU-FAIR-USE-UI-PREVIEW-SHOTS]`.
+
+### Carried forward — ★ THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this wave
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.** **Wave B-3 moved NO dormancy in that trio.** The full block, including the `#647`/`#655` resolution and every subsequent amendment, is preserved verbatim in its section (`### 8 - ★ THE WIRE-2 QUESTION` and `### 9`) and the demoted `[CURRENT]` sections below, and must be read there before any lane acts on it.
+
 ## [CURRENT · DATES + REACH] WAVE A-3 — **ONE BOARD DATE EVERYWHERE: 17 FEB 2027 ON THE CLIENT, THE SERVER FALLBACK AND PASS PRICING (BOARD-DATE-1)** — `#856` MERGED — trunk `cfe88001` · SEARCHPING-2 `#857` and PERF-CLS-1 `#859` **HELD, NOT MERGED**
 
 ★ **PROVENANCE.**
