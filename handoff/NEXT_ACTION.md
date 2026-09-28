@@ -1,3 +1,20 @@
+## ★★★ 2026-09-28 — WAVE A-4 (CONTROLLER A) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-3 (FINAL) BLOCK BELOW ON TRUNK SHA AND ITS ITEMS 1 AND 3 ONLY
+*(The owner items of the WAVE A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged, except as stated here.)*
+
+**TRUNK IS `7be9bdd590aaac3b96ece6e76d1b8a2082e06b32`**, measured 2026-09-28 (`git ls-remote origin base/approved-thru-437`):
+- `7be9bdd5` = `#873` (PERF-CLS-3: the landing's serif headings are sized in `em`, not `ch`; rolled out ALONE) — **this wave**
+- `2956c40f` = `#872` (docs: wave A-3 final)
+
+Open at the time of writing, besides this docs PR: none. `#871` PERF-CLS-2 is **CLOSED** under spec C3; its branch `lane/perf-cls-2` is kept.
+
+### NEXT — OWNER (none of these was run by the controller or a builder)
+1. **Live-verify the landing on a real Android phone.** Open `https://www.lazytopper.com/app/` on a first load over mobile data. The headline and hero text should not jump when the fonts arrive. The harness reads Android-like CLS 0.0053 on www *(subagent-reported)*.
+2. *(optional)* **Decide whether to keep `#871`'s Android-only gain** (0.0053 → 0.0019). C3 requires a drop in both font environments, and Windows is already 0. The controller recommends **no**: both are far under 0.05, and `#871` adds two font faces and a stack change for 0.0034.
+3. A-3 (final) item 1 (decide the `ch` headings) is **DONE** (`#873`). Its item 3 is replaced by item 1 here. Its items 2 and 4 still stand: live-verify ROOTENTRY-1's signed-in path, and (optional) check the Vercel firewall.
+
+### NEXT — LANES
+- None dispatched. `[FU-LANDING-RESIDUAL-0046]` and `[FU-LANDING-CH-BODY-WIDTHS]` are watch-only.
+
 ## ★★★ 2026-09-28 — WAVE A-3 (CONTROLLER A) FINAL — CLOSED (docs, third PR) — THIS BLOCK SUPERSEDES THE WAVE B-4 BLOCK BELOW ON TRUNK SHA ONLY
 *(It does not supersede the owner items of the WAVE B-4, B-3, B-2, A-2 or B-1 blocks below, which stand unchanged. From the WAVE A-3 (CONTINUED) block below (`#868`), items 0–2 are DONE and items 3–6 still stand:
 - item 0: the owner granted `App.tsx:340`, and ROOTENTRY-1 `#867` merged;

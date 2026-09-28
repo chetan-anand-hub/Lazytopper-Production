@@ -23,6 +23,23 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-28 — WAVE A-4 (CONTROLLER A): PERF-CLS-3 (`#873` MERGED as `7be9bdd5`, squash, `--match-head-commit d5075581`, no `--admin`, rolled out ALONE) · PERF-CLS-2 (`#871`) CLOSED under C3 — three closed, two new
+
+### `[FU-LANDING-CH-MAXWIDTH-PRIMARY-SEGMENT]` — ✅ CLOSED by `#873`
+The four `.lt-landing` serif headings (`Welcome.tsx` 271 / 284 / 306 / 312) now take `max-width` in `em` (`7.9 / 10.14 / 10.86 / 10.87em`). The values were derived from Fraunces' "0" advance at wght 900, with line breaks identical to www from 360 to 1280. On www, Android-like CLS is max 0.0053 on `/app/` and the bare domain (was 0.0700 / 0.0642) *(subagent-reported)*. Pinned by `Welcome.chMaxWidth.test.ts`; the mutation back to `11ch` goes red.
+
+### `[FU-ANDROID-NO-GEORGIA-ARIAL]` — ✅ CLOSED as a CLS defect by `#873`
+Devices without Georgia / Arial still have no metric-matched fallback. The shift that mattered was the `ch` re-wrap (45 px), and it is gone. The rest is `[FU-LANDING-RESIDUAL-0046]`. `#871`'s Noto Serif / Roboto faces were measured on top of `#873` and closed under C3 (see below).
+
+### `[FU-CLS-HARNESS-FONT-ENV-PINNED]` — ✅ CLOSED (applied)
+PERF-CLS-3 recorded the `fc-list` summary with every CLS table, in both font environments. Standing: every CLS number carries its font environment.
+
+### `[FU-LANDING-CH-BODY-WIDTHS]` — OPEN, watch *(subagent-reported)*
+`Welcome.tsx` 308 / 314 / 356 (body-copy `max-width`) are still in `ch`. In PERF-CLS-3's Android-like and Windows-like measurements, their elements were **not** shift sources, so the conditional owner grant was not used. Convert them only if a future measurement names them.
+
+### `[FU-LANDING-RESIDUAL-0046]` — OPEN, watch *(subagent-reported)*
+After `#873`, the Android-like landing still shifts about 0.0046 (`#text` / `BUTTON`) when Inter replaces Roboto during the font swap. That is far under 0.05. `#871`'s "Inter Fallback Android" face cut it to 0.0015 (max 0.0019), but `#871` was **closed** under spec C3 (it did not lower Windows, which is already 0). The branch `lane/perf-cls-2` is kept. An owner question is in the wave A-4 final audit.
+
 ## 2026-09-28 — WAVE A-3 (CONTROLLER A) FINAL: ROOTENTRY-1 (`#867` MERGED as `7b94ae00`) + SEARCHPING-3 (`#869` as `069dfdeb`), squash, `--match-head-commit`, no `--admin`; PERF-CLS-2 (`#871`) STOPPED, draft — five new follow-ups, four closed or resolved, one correction
 
 *(Board rule 3: the WAVE A-3 (CONTINUED) (`#868`) and WAVE A-3 (`#862`) entries below are not rewritten. Their new status is recorded here, and each points at its original body. ★ One of them, `[FU-OWNER-CLS-0771-UNREPRODUCED]`, carried a wrong explanation; the correction is recorded here and in `CURRENT_STATE.md`.)*

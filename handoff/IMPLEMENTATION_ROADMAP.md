@@ -1,5 +1,13 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-28 — DATES + REACH: **WAVE A-4 — PERF-CLS-3** — `#873` MERGED — trunk `7be9bdd5` · `#871` CLOSED
+
+- ✅ **PERF-CLS-3** (`#873` `7be9bdd5`, rolled out ALONE): the landing's four serif headings take `max-width` in `em` (`7.9 / 10.14 / 10.86 / 10.87em`), not `ch`. On www, Android-like CLS is max 0.0053 (was 0.0700 / 0.0642) and Windows 0. The landing was never absent and every run ended on `/app/`, ×40 *(subagent-reported)*.
+- ✅ **C3:** PERF-CLS-2 `#871` was **closed**. It lowered Android only (0.0019 vs 0.0053); Windows was 0 vs 0, and the spec requires both.
+- ✅ **Closed:** `[FU-LANDING-CH-MAXWIDTH-PRIMARY-SEGMENT]` · `[FU-ANDROID-NO-GEORGIA-ARIAL]` (as a CLS defect) · `[FU-CLS-HARNESS-FONT-ENV-PINNED]` (applied).
+- ✅ **Docs:** this handoff.
+- ⬜ **Owner:** a live Android-phone check of the landing; (optional) the `#871` Android-only gain.
+
 ## 2026-09-28 — DATES + REACH: **WAVE A-3 (FINAL) — ROOTENTRY-1 · SEARCHPING-3 · PERF-CLS-2 (STOPPED)** — `#867` + `#869` MERGED — trunk `069dfdeb` · `#871` draft
 
 - ✅ **ROOTENTRY-1** (`#867` `7b94ae00`, rolled out ALONE): `RootEntry` renders the landing while auth loads (never `null`); signed-out mobile stays on `/`; BottomNav hidden at `/` (owner grant `App.tsx:340`) · www: landing-absent 0 ms ×20, final `/app/` ×20, BottomNav 0 ×20 *(subagent-reported)*.

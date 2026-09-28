@@ -1,5 +1,61 @@
 # LazyTopper — Current State
 
+## [CURRENT · DATES + REACH] WAVE A-4 — **THE LANDING NO LONGER JUMPS ON ANDROID: THE SERIF HEADINGS ARE SIZED IN `em`, NOT `ch` (PERF-CLS-3) · PERF-CLS-2 (`#871`) CLOSED UNDER C3** — `#873` MERGED — trunk `7be9bdd5`
+*(Supersedes the WAVE A-3 (FINAL) block below on the landing's Android font-swap shift and on `#871` only. Everything else in that block, and the owner items of every block below, stands.)*
+
+★ **PROVENANCE.**
+- Controller A, wave A-4, one controller session, from the owner spec `PERF-CLS-3` v1.0 (staged at `LT-worktrees/controller-a4/ops/.specs/PERF-CLS-3.md`, sha256 `E6F8D111C64B…`, hash-verified by the controller against the owner copy). One builder (Agent model `opus` = `claude-opus-5-5`, effort "high" stated in the brief) in `C:/Projects/LT-worktrees/perf-cls-3`; brief `Desktop/diff/BRIEF_PERF-CLS-3.md` (controller-authored). The controller wrote this docs PR itself, from `Desktop/diff/WAVE_STATE_A4.md` and `Desktop/diff/report-perf-cls-3-2026-09-28.md` (OR-16).
+- *(subagent-reported)* = from the builder's report; *(controller-verified)* = re-checked by the controller.
+
+### What landed
+- **`#873` PERF-CLS-3 → `7be9bdd5`**, squash, `--match-head-commit d5075581`, no `--admin`, **merged ALONE**. In the same command as the merge, the controller checked that trunk was still `2956c40f` and that the rolling release was COMPLETE. The merge commit is an ancestor of trunk, and **trunk tree == head tree `47b97c10`** *(controller-verified)*.
+- `lazytopper/src/pages/Welcome.tsx`, owner grant P1–P4 only (`git diff -U0`: hunks at 271 / 284 / 306 / 312 only) *(controller-verified)*:
+  - `.lt-landing h1` `max-width:11ch` → `7.9em`
+  - `.lt-landing h2` `14ch` → `10.14em`
+  - `.lt-landing-payoff h2` `15ch` → `10.86em`
+  - `.lt-landing-close h2` `15ch` → `10.87em`
+- New `Welcome.chMaxWidth.test.ts` (3 tests): no `.lt-landing` heading uses `ch` for `max-width`. Mutation: P1 back to `11ch` → 2 failed; restored, `cmp` identical *(subagent-reported)*.
+- `prerendered/index.html` + `lastmod.json` come from the PR's own CI artifact. `sitemap.xml` was unchanged.
+- Lines 308 / 314 / 356 (body `ch` widths) were **not** touched: the Android-like measurement did not name them as shift sources (`[FU-LANDING-CH-BODY-WIDTHS]`).
+- **P5, the derivation** *(subagent-reported)*: the em values come from Fraunces' own "0" advance at wght 900 and the opsz the browser picks at each phone font size. They are chosen so that every line break matches www at every width from 360 to 1280. The close h2 uses 10.87em, not 15ch = 10.806em: on www it sat 0.2 px from a re-wrap at ≥600 px, and the builder moved it off that edge.
+
+### Evidence
+- **CI** on head `d5075581`: quality-gate `36456167538` `Tests 3156 passed (3156)`, root `# pass 293 # fail 0 # skipped 0`; capture `36456167503` "committed artifact matches a fresh capture"; lane-overlap `36456167767` failed only on draft `#871`. After the controller closed `#871` (decision D2), the rerun **PASSED**.
+- **C2, the binding measurement.** Owner profile: 390×844, DPR 2, slow-4G ~1.6 Mbps / 150 ms, 4× CPU, cache off, cold loads, run one after another with pauses; 0 Vercel challenges *(subagent-reported)*. Font environments: Android-like (a Codespace with an isolated fontconfig — Roboto + Noto Serif, no Georgia / Arial; `fc-list` recorded with every table) and Windows-like (the Windows box).
+
+  | env | target | before (www, `2956c40f`) | preview `d5075581` | www after 100% (`7be9bdd5`) |
+  |---|---|---|---|---|
+  | Android-like | `/app/` | max 0.0700 | max 0.0053 | max 0.0053 |
+  | Android-like | bare domain | max 0.0642 | max 0.0053 | max 0.0053 |
+  | Windows-like | both | 0 | max 0.0004 | 0 |
+
+  - Landing-absent was **0 ms**, and the final URL `/app/`, on every run (80 preview + 40 www).
+  - The 45 px headline re-wrap is gone from every Android run. What remains on Android is 0.0046 (`#text` / `BUTTON` during the font swap), `[FU-LANDING-RESIDUAL-0046]`.
+- **C1:** screenshots at 375 and 1280 after fonts load are byte-identical to www, except Windows at 1280: 1245 px of anti-aliasing noise and no geometry change. A control with the `ch` rules re-injected brings it back to 0 px against www *(subagent-reported)*.
+- **Live (OR-LIVE, rolled out ALONE).** Canary `dpl_C47hL5NUgk4permFmKkAApk56uBF`: HTTP 200, 0 ErrorBoundary, 1 Android-like run 0.0051. Rollout 10% → 50% → COMPLETE 100% at 17:54:33Z *(subagent-reported)*. The controller then re-checked: www `/app/version.json` = `7be9bdd5`, and `rolling-release fetch` state COMPLETE *(controller-verified)*.
+
+### C3 — `#871` (PERF-CLS-2) CLOSED
+- The builder merged trunk `7be9bdd5` into `lane/perf-cls-2` (head `99534bf7`, `lastmod` from its own artifact). CI `36463496363`: `Tests 3163 passed (3163)`; capture and lane-overlap green.
+- Its preview was measured with the same C2 protocol *(subagent-reported)*:
+  - Android-like: **max 0.0019** (www after `#873`: 0.0053) — lowered.
+  - Windows-like: **0** (www: 0) — **not** lowered.
+- The spec says merge ONLY if CLS drops in BOTH environments, so the controller **closed `#871`** with the numbers in a PR comment *(controller-verified)*. Windows is already at 0, so no change could meet the rule there; that is recorded as an owner question. The branch `lane/perf-cls-2` is kept.
+
+### Follow-ups (bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`)
+- **Closed:**
+  - `[FU-LANDING-CH-MAXWIDTH-PRIMARY-SEGMENT]` — by `#873`.
+  - `[FU-ANDROID-NO-GEORGIA-ARIAL]` — as a CLS defect, by `#873`: Android-like www 0.0053.
+  - `[FU-CLS-HARNESS-FONT-ENV-PINNED]` — applied in this lane.
+- **New:** `[FU-LANDING-CH-BODY-WIDTHS]` (watch) · `[FU-LANDING-RESIDUAL-0046]` (watch; `#871` cut it to 0.0015 but was closed under C3).
+
+### ★ Owner items (none run by the controller or a builder)
+1. *(optional)* Keep `#871`'s Android-only gain (0.0053 → 0.0019)? This needs an owner ruling that overrides C3's "both environments". The controller recommends **no**.
+2. **Live-verify the landing on a real Android phone**, first load over mobile data: the headline and hero text do not jump when the fonts arrive. This carries forward A-3 (final) item 3, now that the fix is live.
+3. The owner items of the WAVE A-3 (FINAL) block below still stand, except its item 1 (decide the `ch` headings — DONE by `#873`) and item 3 (replaced by item 2 here).
+
+### Carried forward — ★ THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this block
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.** **Wave A-4 moved NO dormancy in that trio.** The full block, including the `#647`/`#655` resolution and every subsequent amendment, is preserved verbatim in its section (`### 8 - ★ THE WIRE-2 QUESTION` and `### 9`) and the demoted `[CURRENT]` sections below, and must be read there before any lane acts on it.
+
 ## [CURRENT · DATES + REACH] WAVE A-3 (FINAL) — **FIRST LOAD NO LONGER BLANKS (ROOTENTRY-1) · SEARCH ENGINES — GOOGLE INCLUDED — ARE TOLD ON EVERY TRUNK PUSH (SEARCHPING-3) · ★ CORRECTION: THE OWNER'S 0.0771 DEPENDS ON THE FONT ENVIRONMENT, NOT ON A PRE-`#859` DEPLOYMENT · PERF-CLS-2 STOPPED: THE GRANTED FIX MADE ANDROID WORSE; THE CAUSE IS THE LANDING'S `ch`-SIZED HEADINGS** — `#867` + `#869` MERGED — trunk `069dfdeb` · `#871` DRAFT, NOT MERGED
 
 ★ **PROVENANCE.**

@@ -1,3 +1,22 @@
+## 2026-09-28 — WAVE A-4 (CONTROLLER A): PERF-CLS-3 (merged) + PERF-CLS-2 `#871` (closed under C3) — PR `#873` merged
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (C1–C4, D1–D5, OR-LIVE, OR-AUTO), not `DECISION N`.
+
+### Owner rulings (dispatch + spec `PERF-CLS-3` v1.0, 2026-09-28)
+- **Grant:** `Welcome.tsx` P1–P4 (271 / 284 / 306 / 312 at `2956c40f`); 308 / 314 / 356 only if the Android-like measurement names them. It did not, so they were not used.
+- **C1:** P1–P4 `max-width` in `em`, with the layout after fonts load unchanged.
+- **C2:** binding measurement in BOTH font environments (Android-like + Windows-like). 10 cold loads each on `/app/` and the bare domain; every run < 0.05; landing-absent 0 ms; final `/app/`.
+- **C3:** re-measure `#871` on top; merge only if it lowers CLS in both environments, else close it with the numbers.
+- **C4:** a pin test plus one mutation.
+- **OR-LIVE:** rolls out ALONE; poll with `vercel rolling-release fetch`, not rapid curls.
+
+### Controller decisions (OR-AUTO), with the reason
+- **D1:** the spec was taken from `controller-a4/ops/.specs` (hash-verified), not the shared checkout. **Why:** it is absent there; the content is proven by sha256.
+- **D2:** close draft `#871` temporarily so `#873`'s REQUIRED lane-overlap can pass, then reopen it for C3. **Before:** `#871` (a draft, which lane-overlap counts) blocked `#873`. **After:** closed → rerun PASS → `#873` merged ALONE → `#871` reopened. **Why:** C3 orders PERF-CLS-3 first; waiting would never clear; close/reopen is reversible and bypasses no check.
+- **D3:** the builder stops at MERGE-READY; the controller merges (`--squash --match-head-commit`) with a same-command guard (trunk unchanged + rollout COMPLETE), then proves it on trunk. **Why:** A-1 to A-3 precedent — keep the irreversible step apart from the producer of the evidence.
+- **D4** *(builder)*: the close h2 uses `10.87em`, not the exact `15ch` = `10.806em`. **Why:** www's close h2 sat 0.2 px from a re-wrap at ≥600 px; `10.87em` keeps www's breaks and moves off that edge.
+- **D5:** C3 was applied literally and `#871` was **closed**. **Why:** the owner's words are "only if it lowers CLS in both"; Windows is 0 and cannot drop. Overriding that is the owner's call → an optional question in the final audit (controller recommends no).
+
 ## 2026-09-28 — WAVE A-3 (CONTROLLER A) FINAL: ROOTENTRY-1 + SEARCHPING-3 (merged) + PERF-CLS-2 (stopped) — PRs `#867`, `#869` merged; `#871` draft
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (Q1–Q5, OR-LIVE, OR-AUTO), not `DECISION N`.
