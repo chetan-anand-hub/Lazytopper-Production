@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { getHighlyProbableQuestions } from "../../data/highlyProbableQuestions";
 import { SPRINT_FORMULAS } from "./dashboardUtils";
-import { cbseDates, formatCbseDate } from "../../config/cbseDates";
+import { cbseDates, formatExpectedCbseDate } from "../../config/cbseDates";
 import { CBSE_PHASE2_DATE, daysLeftFromIsoDate } from "../../services/cbseExamDate";
 
 export function SprintDashboard({ daysLeft, navigate, gradeNum }: {
@@ -72,12 +72,12 @@ export function SprintDashboard({ daysLeft, navigate, gradeNum }: {
         <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
           <div style={{ flex: 1, padding: "8px 10px", borderRadius: 8, background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)" }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: "#22c55e" }}>Phase 1</div>
-            <div style={{ fontSize: 12, color: "var(--text)", fontWeight: 600 }}>{formatCbseDate(cbseDates.class10.phase1)}</div>
+            <div style={{ fontSize: 12, color: "var(--text)", fontWeight: 600 }}>{formatExpectedCbseDate(cbseDates.class10.phase1)}</div>
             <div style={{ fontSize: 10, color: "var(--text-muted)" }}>Compulsory</div>
           </div>
           <div style={{ flex: 1, padding: "8px 10px", borderRadius: 8, background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)" }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: "#c084fc" }}>Phase 2</div>
-            <div style={{ fontSize: 12, color: "var(--text)", fontWeight: 600 }}>{formatCbseDate(CBSE_PHASE2_DATE)}</div>
+            <div style={{ fontSize: 12, color: "var(--text)", fontWeight: 600 }}>{formatExpectedCbseDate(CBSE_PHASE2_DATE)}</div>
             <div style={{ fontSize: 10, color: "var(--text-muted)" }}>{phase2DaysLeft} days left</div>
           </div>
         </div>
