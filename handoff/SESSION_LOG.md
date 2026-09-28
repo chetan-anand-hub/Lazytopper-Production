@@ -1,23 +1,45 @@
-## 2026-09-28 — WAVE A-3 (CONTROLLER A) FINAL — **ROOTENTRY-1: FIRST LOAD NO LONGER BLANKS · SEARCHPING-3: SEARCH-PING ON EVERY TRUNK PUSH · PERF-CLS-2: ANDROID FONT FALLBACK · ★ THE 0.0771 EXPLANATION `#868` RECORDED WAS WRONG** — `#867` + `#869` MERGED — trunk `069dfdeb` · `#871` PERF_CLS_2_RESULT
+## 2026-09-28 — WAVE A-3 (CONTROLLER A) FINAL — **ROOTENTRY-1: FIRST LOAD NO LONGER BLANKS · SEARCHPING-3: SEARCH-PING ON EVERY TRUNK PUSH, GOOGLE INCLUDED · PERF-CLS-2 STOPPED (THE GRANTED FIX MADE ANDROID WORSE) · ★ THE 0.0771 EXPLANATION `#868` RECORDED WAS WRONG** — `#867` + `#869` MERGED — trunk `069dfdeb` · `#871` draft
 
 ★ **PROVENANCE.**
-- Controller A, the same session as `#862` and `#868`, reopened by the owner's answers to the revised final audit (Q1–Q5). One builder per PR (`claude-opus-5-5`): ROOTENTRY-1 resumed in `C:/Projects/LT-worktrees/rootentry-1`; `…/searchping-3`; `…/perf-cls-2`. This docs PR was written by a docs builder in `…/docs-wave-a3-3` from `WAVE_STATE_A3.md` and the lane reports (OR-16).
+- Controller A, the same session as `#862` and `#868`, reopened by the owner's answers to the revised final audit (Q1–Q5). One builder per PR (`claude-opus-5-5`): ROOTENTRY-1 resumed in `C:/Projects/LT-worktrees/rootentry-1`; `…/searchping-3`; `…/perf-cls-2`. This docs PR was written by a docs builder in `…/docs-wave-a3-3` from `WAVE_STATE_A3.md`, the lane reports and the controller's final-values message (OR-16).
 - *(subagent-reported)* = from builder reports; *(controller-verified)* = re-measured by the controller; *(cofounder-measured)* = relayed in the owner's ruling.
 
 **Timeline.**
-- The owner answered five questions: grant `App.tsx:340` (Q1); the 0.0771 is the font environment — no Georgia / Arial on Linux or Android — **not** a pre-`#859` measurement, and a new lane PERF-CLS-2 (Q2); a push trigger for search-ping (Q3); the owner adds `GSC_SERVICE_ACCOUNT` (Q4); P2-CYCLE, SP-DISPATCH, ruling 5 and PERF-CLS-1 R1–R3 ratified (Q5). New STANDING rule: every CLS gate carries a content-absent control and a font-environment matrix.
-- **ROOTENTRY-1** `#867` resumed with the grant: head `57a67781` (14 tests, 2 mutations), CI green; preview 20 runs landing-absent 0 ms, final `/app/`. Merged ALONE → `7b94ae00` at 14:05:08Z *(controller-verified)*; COMPLETE 100% at 14:23:07Z; www 10× `/app/` + 10× the bare domain: landing-absent 0 ms ×20, final `/app/` ×20, BottomNav 0 ×20 *(subagent-reported)*.
-- During the preview proofs www began answering this machine with a Vercel challenge (`403`); the controller found it transient and IP-scoped at 14:04:21Z; the post-merge runs were paced and saw no challenge → `[FU-PROD-VERCEL-CHALLENGE-403]`.
-- The DOCS-2 rollout (`2068c306`) reached 100% at 14:04:25Z; its search-ping runs were skipped (the `deployment_status` gap) *(subagent-reported)*.
-- B's docs `#870` landed → `6f55c66e`; DOCS-3 unblocked.
-- **SEARCHPING-3** `#869` MERGE-READY on `a8e6279a` (`Tests 3153 passed (3153)`); held until ROOTENTRY-1's www check was done (the ALONE window); `gh pr update-branch` → `c00f23ea` (lane files byte-identical); merged → `069dfdeb` at 14:37:57Z *(controller-verified)*. First push run: PUSH_RUN_RESULT.
-- **PERF-CLS-2** `#871`: PERF_CLS_2_RESULT
+- The owner answered five questions:
+  - Q1: grant `App.tsx:340`.
+  - Q2: the 0.0771 is the font environment (no Georgia / Arial on Linux or Android), **not** a pre-`#859` measurement; new lane PERF-CLS-2.
+  - Q3: a push trigger for search-ping.
+  - Q4: the owner adds `GSC_SERVICE_ACCOUNT`.
+  - Q5: P2-CYCLE, SP-DISPATCH, ruling 5 and PERF-CLS-1 R1–R3 ratified.
+  - New STANDING rule: every CLS gate carries a content-absent control and a font-environment matrix.
+- **ROOTENTRY-1** `#867` resumed with the grant.
+  - Pre-merge: head `57a67781` (14 tests, 2 mutations), CI green; preview 20 runs, landing-absent 0 ms, final `/app/`.
+  - Merged ALONE → `7b94ae00` at 14:05:08Z *(controller-verified)*.
+  - Live: COMPLETE 100% at 14:23:07Z. On www, 10× `/app/` + 10× the bare domain gave landing-absent 0 ms ×20, final `/app/` ×20, BottomNav 0 ×20 *(subagent-reported)*.
+- During the preview proofs, www began answering this machine with a Vercel challenge (`403`). The controller found it transient and IP-scoped at 14:04:21Z, and the paced post-merge runs saw no challenge → `[FU-PROD-VERCEL-CHALLENGE-403]`.
+- The DOCS-2 rollout (`2068c306`) reached 100% at 14:04:25Z. Its search-ping runs were skipped (the `deployment_status` gap) *(subagent-reported)*.
+- B's docs `#870` landed → `6f55c66e`, which unblocked DOCS-3.
+- **SEARCHPING-3** `#869` was MERGE-READY on `a8e6279a` (`Tests 3153 passed (3153)`).
+  - It was held until ROOTENTRY-1's www check was done (the ALONE window).
+  - `gh pr update-branch` → `c00f23ea` (lane files byte-identical), then merged → `069dfdeb` at 14:37:57Z *(controller-verified)*.
+  - First push run `36437445722`: SUCCESS; 5/5 at read 77 after 19 m 13 s; `changed=0` (no IndexNow request); Search Console `sitemaps.submit` HTTP 204. The same-SHA `deployment_status` run was skipped via concurrency *(subagent-reported)*.
+- **PERF-CLS-2** `#871`: the granted Noto Serif / Roboto fallback faces were built exactly as ruled, and CI was green (`Tests 3157 passed (3157)`).
+  - The Android-like proof FAILED: preview 0.1193–0.1197 ×10 vs www 0.0638 ×10 *(subagent-reported)*.
+  - Root cause: the `ch`-sized serif headings plus Fraunces' latin-ext segment arriving first; the fix is `Welcome.tsx` 271 / 284 / 306 / 312, outside the grant.
+  - STOPPED; set back to DRAFT; owner decision owed.
 
 ### ★ What this wave teaches
-- **A HARNESS PROVES NOTHING OUTSIDE ITS OWN FONT ENVIRONMENT.** PERF-CLS-1 read CLS 0 × 10 on www on a Windows machine that has Georgia and Arial; the owner's Linux run (no Georgia / Arial — like Android) read 0.0771 on the same www. Both were right about their own machines. `#868` explained the difference with "consistent with a pre-`#859` measurement" — matching in shape and timing, never in magnitude — without asking where the owner measured. **Get the other measurer's environment before explaining their number.** The owner made it standing: every CLS gate runs a Windows-like + Android-like matrix.
-- **A CORRECTION IS A NEW DATED ENTRY, AND IT CARRIES THE REASON.** `#868`'s text is left as written (board rule 3); the correction in `CURRENT_STATE.md` names every place it appeared and why it was wrong, because the reason ("a harness in one font environment") is what the next lane needs, not only the outcome.
-- **THE RIGHT CONTROL FOR A BLANK IS "HOW LONG WAS IT ABSENT", NOT CLS.** ROOTENTRY-1 was gated on landing-absent ms + final URL + no BottomNav, which fail on the old code (1159–1666 ms, `/app/welcome`) and pass on the fix (0 ms ×20) — a control that can fail.
-- **LOAD TESTING PRODUCTION FROM ONE MACHINE CAN TRIP THE PLATFORM'S BOT PROTECTION.** Pace cold loads and poll the rollout with `vercel rolling-release fetch`, not a tight curl loop.
+- **A HARNESS PROVES NOTHING OUTSIDE ITS OWN FONT ENVIRONMENT.**
+  - The PERF-CLS-1 harness ran on Windows, which has Georgia and Arial, and read CLS 0 × 10 on www. The owner's Linux run on the same www read 0.0771. A proven Android-like set read 0.0638, and other Linux sets read 0.002–0.286 *(subagent-reported)*.
+  - `#868` explained the difference with "consistent with a pre-`#859` measurement". That matched in shape and timing, never in magnitude, and nobody asked where the owner measured.
+  - **Get the other measurer's environment before explaining their number, and record `fc-list` with every CLS figure.**
+- **A FIX DERIVED FROM A PLAUSIBLE CAUSE CAN MAKE THINGS WORSE.**
+  - "No Georgia / Arial on Android, so add Noto Serif / Roboto faces" was plausible, owner-ruled and CI-green, and it doubled the Android shift.
+  - The binding font-environment proof caught it before merge. Without the new standing rule it would have shipped.
+  - The real cause was a `ch` unit: it resolves against whichever font segment loaded first.
+- **A CORRECTION IS A NEW DATED ENTRY, AND IT CARRIES THE REASON.** `#868`'s text is left as written (board rule 3). The correction in `CURRENT_STATE.md` names every place the explanation appeared and why it was wrong, because the next lane needs the reason, not only the outcome.
+- **THE RIGHT CONTROL FOR A BLANK IS "HOW LONG WAS IT ABSENT", NOT CLS.** ROOTENTRY-1 was gated on landing-absent ms + final URL + no BottomNav. That control fails on the old code (1159–1666 ms, `/app/welcome`) and passes on the fix (0 ms ×20).
+- **LOAD TESTING PRODUCTION FROM ONE MACHINE CAN TRIP THE PLATFORM'S BOT PROTECTION.** Pace cold loads, and poll the rollout with `vercel rolling-release fetch`, not a tight curl loop.
 
 ## 2026-09-28 — WAVE B-4 (MONEY, CONTROLLER B) — **FAIR-USE-3: LAZY PAPER REFUND · ONE-TRANSACTION MINT · LIMITS FROM THE SERVER · SOLUTIONCHECKER LIMIT PANEL — STILL DARK** — `#866` MERGED — trunk `7b94ae00`
 

@@ -1,15 +1,22 @@
 # LazyTopper Implementation Roadmap
 
-## 2026-09-28 — DATES + REACH: **WAVE A-3 (FINAL) — ROOTENTRY-1 · SEARCHPING-3 · PERF-CLS-2** — `#867` + `#869` MERGED — trunk `069dfdeb` · `#871` PERF_CLS_2_RESULT
+## 2026-09-28 — DATES + REACH: **WAVE A-3 (FINAL) — ROOTENTRY-1 · SEARCHPING-3 · PERF-CLS-2 (STOPPED)** — `#867` + `#869` MERGED — trunk `069dfdeb` · `#871` draft
 
 - ✅ **ROOTENTRY-1** (`#867` `7b94ae00`, rolled out ALONE): `RootEntry` renders the landing while auth loads (never `null`); signed-out mobile stays on `/`; BottomNav hidden at `/` (owner grant `App.tsx:340`) · www: landing-absent 0 ms ×20, final `/app/` ×20, BottomNav 0 ×20 *(subagent-reported)*.
-- ✅ **SEARCHPING-3** (`#869` `069dfdeb`): search-ping on every push to `base/approved-thru-437` (same wait-then-ping, concurrency by SHA, `workflow_dispatch` kept) · first push run: PUSH_RUN_RESULT.
-- **PERF-CLS-2** (`#871`): fallback faces on `Noto Serif` / `Roboto` for devices without Georgia / Arial (Android) — PERF_CLS_2_RESULT
-- ✅ **Closed:** `[FU-ROOTENTRY-BOTTOMNAV-AT-ROOT]` · `[FU-SEARCHPING-NO-PROD-DEPLOYMENT-EVENT]` · `[FU-OWNER-CLS-0771-UNREPRODUCED]` (resolved: font environment) · `[FU-ANDROID-NO-GEORGIA-ARIAL]` — PERF_CLS_2_RESULT
-- ★ **Correction:** `#868`'s "0.0771 = a pre-`#859` measurement" was wrong — it is the font environment (no Georgia / Arial on Linux / Android); PERF-CLS-1's www "CLS 0 × 10" holds only for a Windows-like font environment. Standing: every CLS gate carries a content-absent control + a font-environment matrix.
+- ✅ **SEARCHPING-3** (`#869` `069dfdeb`): search-ping on every push to `base/approved-thru-437` (same wait-then-ping, concurrency by SHA, `workflow_dispatch` kept) · first push run `36437445722` SUCCESS: `changed=0`, Search Console HTTP 204 *(subagent-reported)*.
+- ⬜ **PERF-CLS-2** (`#871`, DRAFT, STOPPED): the granted Noto Serif / Roboto fallback faces made Android worse (0.0638 → ~0.1195); the cause is the `ch`-sized serif headings (`Welcome.tsx` 271 / 284 / 306 / 312) → owner decision *(subagent-reported)*.
+- ✅ **Closed:** `[FU-ROOTENTRY-BOTTOMNAV-AT-ROOT]` · `[FU-SEARCHPING-NO-PROD-DEPLOYMENT-EVENT]` · `[FU-SEARCHPING-GSC-NOT-CONFIGURED]` (owner) · `[FU-OWNER-CLS-0771-UNREPRODUCED]` (resolved: font-environment-dependent).
+- ★ **Correction:** `#868`'s "0.0771 = a pre-`#859` measurement" was wrong. The number depends on the font environment; PERF-CLS-1's www "CLS 0 × 10" holds only for a Windows-like font environment. Standing: every CLS gate carries a content-absent control + a font-environment matrix.
 - ✅ **Docs:** this handoff (the third A-3 docs PR).
-- ⬜ **Owner:** `GSC_SERVICE_ACCOUNT` (`[FU-SEARCHPING-GSC-NOT-CONFIGURED]`) · live-verify ROOTENTRY-1 signed-in on a phone (`/app/` → `/browse`) · live-verify the landing on a real Android phone after PERF-CLS-2 · *(optional)* the Vercel firewall (`[FU-PROD-VERCEL-CHALLENGE-403]`).
-- ⬜ New: `[FU-PROD-VERCEL-CHALLENGE-403]` · `[FU-SEARCHPING-PUSH-WAIT-BUDGET]` (watch-only). `#862`'s and `#868`'s other open FUs unchanged.
+- ⬜ **Owner:**
+  - grant `Welcome.tsx` 271 / 284 / 306 / 312 `ch` → `em` (`[FU-LANDING-CH-MAXWIDTH-PRIMARY-SEGMENT]`; controller: its own lane, then re-measure `#871`);
+  - live-verify ROOTENTRY-1 signed-in on a phone (`/app/` → `/browse`);
+  - live-verify the landing on a real Android phone after the `ch` fix;
+  - *(optional)* the Vercel firewall (`[FU-PROD-VERCEL-CHALLENGE-403]`).
+- ⬜ Open:
+  - `[FU-ANDROID-NO-GEORGIA-ARIAL]` (severity corrected);
+  - new: `[FU-LANDING-CH-MAXWIDTH-PRIMARY-SEGMENT]` · `[FU-PERF-CLS-1-SANS-SAMPLE-HAD-CSS]` · `[FU-CLS-HARNESS-FONT-ENV-PINNED]` · `[FU-PROD-VERCEL-CHALLENGE-403]` · `[FU-SEARCHPING-PUSH-WAIT-BUDGET]` (watch-only);
+  - `#862`'s and `#868`'s other open FUs are unchanged.
 - ↔ In parallel, Controller B landed its docs `#870` (`6f55c66e`) — covered by that handoff.
 
 ## 2026-09-28 — MONEY: **WAVE B-4 — FAIR-USE-3 (LAZY PAPER REFUND · ONE-TRANSACTION MINT · LIMITS FROM THE SERVER · SOLUTIONCHECKER LIMIT PANEL — DARK)** — `#866` MERGED — trunk `7b94ae00`
