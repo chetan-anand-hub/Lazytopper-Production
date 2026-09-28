@@ -1,3 +1,23 @@
+## ★★★ 2026-09-28 — WAVE A-3 (CONTROLLER A) CONTINUED — CLOSED (docs, second PR) — THIS BLOCK SUPERSEDES THE WAVE B-3 BLOCK BELOW ON TRUNK SHA ONLY
+*(It does not supersede the WAVE B-3 block's owner items (fair use, payments), nor the WAVE B-2, A-2 or B-1 blocks' owner items, which stand unchanged. From the WAVE A-3 block below (`#862`): items 1–4 are DONE or RULED — 1 the owner allowed `sitemap.xml` + `lastmod.json`, and `#859` merged; 2 `#855` merged, and `#857` merged; 3 phase 2 was ruled and fixed by `#863`; 4 the 31ch line was granted and fixed inside `#859`. Its item 5 (live-verify BOARD-DATE-1) and item 6 still stand.)*
+
+**TRUNK IS `69229cc5fa7689da814e668b898bb0f5979226d2`**, measured 2026-09-28 (`git fetch origin` + `git rev-parse origin/base/approved-thru-437`) before ROOTENTRY-1 merged; ROOTENTRY-1's merge SHA is in `CURRENT_STATE.md`:
+- `69229cc5` = `#865` (SEARCHPING-2b: search-ping can be dispatched for a SHA) — **this wave**
+- `0e2af785` = `#859` (PERF-CLS-1: the landing text stops jumping when fonts arrive; rolled out ALONE) — **this wave**
+- `39059fd6` = `#864` (docs: wave B-3 — Controller B3)
+- `4dd175d9` = `#861` (FAIR-USE-UI-1 — Controller B3; covered by B3's handoff)
+- `ae52a5ad` = `#863` (PHASE2-DATE-1: phase 2 = 15 May 2027; predicted exact days say "(expected)") — **this wave**
+- `2346b802` = `#857` (SEARCHPING-2: ping only once a release is live on www) — **this wave**
+- `53065a54` = `#855` (Dependabot npm-minor-and-patch — merged by the owner)
+- `66f17eb3` = `#862` (docs: wave A-3, first PR)
+
+### NEXT — OWNER (none of these was run by the controller or a builder)
+1. **Decide the permanent search-ping trigger** (`[FU-SEARCHPING-NO-PROD-DEPLOYMENT-EVENT]`). Vercel Rolling Releases post no GitHub `Production` deployment event, so `search-ping.yml`'s `deployment_status` trigger has not fired since `7152ef06` *(subagent-reported)*. Options: fix the Vercel GitHub integration so Production deployments post again, or add a push-to-trunk trigger that runs the same wait + ping. **Until then, after each release reaches 100%, dispatch one run by hand:** `gh workflow run search-ping.yml -f sha=<trunk sha>` (`#865`). The first dispatched run's result is in `CURRENT_STATE.md`.
+2. **Live-verify** (CLAUDE.md §6): signed in, the root entry goes straight to the student's home with no landing flash (ROOTENTRY-1 changed the auth-loading path), and `/onboarding` shows Phase 2 as 15 May 2027 (expected) with a labelled Phase 1 row (`#863`). BOARD-DATE-1's live-verify (`#862` item 5) still stands.
+3. **Not owner-blocking, next lanes when convenient:** `[FU-PROMPTGRIND-STALE-2026-DATES]` (stale 2026 phase dates in an LLM prompt with no live caller), `[FU-PHASE2-CONST-FROZEN-PER-LOAD]`, `[FU-ONBOARDING-2025-26-HEADING]`, and the PERF-CLS-1 font FUs (`[FU-CBSE2027-FONT-STACK-NO-FALLBACK]`, `[FU-STYLES-CSS-SPACEGROTESK-IMPORT]`, `[FU-MOB-FONT-DISPLAY-STACK]`, `[FU-ANDROID-NO-GEORGIA-ARIAL]`).
+4. **Standing for every future spec (owner, 2026-09-28):** a spec that regenerates pages allows `lazytopper/public/sitemap.xml` + `lazytopper/prerendered/lastmod.json` (CI artifact only); layout-shift measurement is bound to slow-4G + throttled CPU — and, after ROOTENTRY-1, to a harness proven able to see the owner's 0.0771.
+5. **The WAVE B-3, B-2, A-2 and B-1 owner steps still stand** (the blocks below). This docs lane did not re-check whether any has since been done.
+
 ## ★★★ 2026-09-28 — WAVE B-3 (MONEY, CONTROLLER B) CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-3 BLOCK BELOW ON TRUNK SHA ONLY
 *(It does not supersede that block's owner items, nor the WAVE B-2, A-2 or B-1 blocks' owner items, which stand unchanged — except that the WAVE B-2 block's item 4 (`[FU-PRICING-COPY-WHEN-PAYMENTS-ON]`) is now DONE by `#858`, and its item 1 ("leave `FAIR_USE_ENFORCE` unset until FAIR-USE-2 ships and the surface-forgery FU is decided") is replaced by the ordered steps 1–4 below.)*
 

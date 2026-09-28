@@ -1,5 +1,18 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-28 — WAVE A-3 (CONTROLLER A) CONTINUED: PHASE2-DATE-1 (`#863` `ae52a5ad`) + PERF-CLS-1 (`#859` `0e2af785`) + ROOTENTRY-1 (merge SHA in `CURRENT_STATE.md`); SEARCHPING-2 (`#857`) + 2b (`#865`) are not student surfaces.**
+> ★ **THE LANDING / ROOT ENTRY IS STEADIER ON FIRST LOAD, AND `/onboarding` STOPS SHOWING A PAST PHASE-2 DATE.** These lines supersede the WAVE A-3 "Board date" line below on the phase-2 point only; that line otherwise stands as written.
+
+### ✅ Landing (`/`, `/app/`, the bare domain) — font-swap shift — **LIVE (`#859`, rolled out ALONE).** Metric-matched `Fraunces Fallback` / `Inter Fallback` faces, the Fraunces `@import` removed, and the hero sub-line's `max-width` 31ch → 19.56em (font-independent). On www: 375 → H 2027, 1280 → H 1989, 32 element rects identical to pre-merge production; the builder's slow-4G harness read CLS 0 × 10 (baseline median 0.0982) *(subagent-reported)*. ⚠ That harness did not see the owner's 0.0771 — see the next line.
+### ✅ Landing / root entry (`RootEntry` in `App.tsx`) — first-load blank flash + mobile redirect to `/welcome` — **ROOTENTRY-1, rolled out ALONE.** While auth loads, the landing renders instead of `null`; a signed-out mobile visitor stays on `/` (`/welcome` still routes); a signed-in student still goes home. Result (PR, merge SHA, www CLS on `/app/` and the bare domain) and the harness explanation: `CURRENT_STATE.md`. Signed-in live-verify owed.
+### ✅ `/onboarding` — board and phase dates — **LIVE (`#863`).** Phase 2 shows 15 May 2027 (was 15 May 2026, past) with "(expected)"; the Phase 1 row follows the fetched date and its source ("(expected)" only when predicted); the headline was already labelled *(subagent-reported)*. `/onboarding` is still reachable only by direct URL (see the Login row). Signed-in live-verify owed.
+
+### ⬜ NO OTHER MATRIX CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- `#863` also labels the retired SprintDashboard (not rendered). Pricing ("(Feb 2027)", month-only) and `/cbse/class-10` (month windows) are unchanged by ruling 5. SEARCHPING-2 / 2b change when search engines are told about pages, not any page.
+- Verified cells are not re-claimed: the signed-in paths of ROOTENTRY-1 and `/onboarding` were not live-verified by the owner.
+
+### 📋 Scope discovered? — **NO surface scope set to Settling.** ROOTENTRY-1 is a new lane on an existing surface (the Landing row), added by the owner's addendum, not discovered scope. Four new follow-ups are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
 > **2026-09-28 — WAVE B-3 (MONEY, CONTROLLER B): PAYCOPY-1 (`#858` `42733aa6`) + FAIR-USE-2 (`#860` `cfe88001`) + FAIR-USE-UI-1 (`#861` `4dd175d9`), trunk `4dd175d9`.**
 > ★ **BUILT AND DARK: the fair-use surfaces exist but render nothing until `FAIR_USE_ENFORCE=1`; the payments-on pricing copy exists but renders nothing until `VITE_PAYMENTS_ENABLED=1`.** These status lines supersede the WAVE B-2 "Fair use" and "Pricing" lines below on status only; those lines stand as written.
 

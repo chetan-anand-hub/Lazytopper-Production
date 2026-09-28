@@ -1,5 +1,128 @@
 # LazyTopper — Current State
 
+## [CURRENT · DATES + REACH] WAVE A-3 (CONTINUED) — **SEARCH ENGINES ARE TOLD ONLY ONCE A RELEASE IS LIVE (SEARCHPING-2 + 2b) · PHASE 2 IS 15 MAY 2027 AND EVERY PREDICTED EXACT DAY SAYS "EXPECTED" (PHASE2-DATE-1) · THE LANDING TEXT NO LONGER JUMPS WHEN FONTS ARRIVE (PERF-CLS-1) · THE ROOT ENTRY STOPS FLASHING BLANK ON FIRST LOAD (ROOTENTRY-1)** — `#857` + `#863` + `#859` + `#865` + ROOTENTRY-1 MERGED
+
+★ **PROVENANCE.**
+- Controller A, wave A-3, reopened on 2026-09-28 by the owner's second message (plus an addendum, ruling 5). One builder per PR (Agent model `opus` = `claude-opus-5-5`; effort "high" stated in each brief), each in its own worktree (`C:/Projects/LT-worktrees/searchping-2`, `…/phase2-date-1`, `…/perf-cls-1`, `…/searchping-2b`). This docs PR was written by a docs builder in `…/docs-wave-a3-2` from the controller's state file `WAVE_STATE_A3.md` (everything after "OWNER RULINGS 2026-09-28 (second message)") and the lane reports `report-{searchping-2,phase2-date-1,perf-cls-1}-2026-09-28.md` (OR-16).
+- PHASE2-DATE-1, SEARCHPING-2b and ROOTENTRY-1 had no owner spec file: their briefs were controller-authored from the owner's rulings (`BRIEF_PHASE2-DATE-1.md`; SEARCHPING-2b = the controller's OR-AUTO SP-DISPATCH below; `BRIEF_ROOTENTRY-1.md` from the owner addendum of 2026-09-28, worktree `…/rootentry-1`).
+- Merges *(controller-verified)*, each squash with `--match-head-commit`, no `--admin`; for each, the merge commit is an ancestor of trunk and **trunk tree == head tree**:
+  - `#857` SEARCHPING-2 — `--match-head-commit 9f19a7f5` → **`2346b802`**, tree `0db6363c`.
+  - `#863` PHASE2-DATE-1 — `--match-head-commit 7cb2a2aa` → **`ae52a5ad`**, tree `a50fcfff`.
+  - `#859` PERF-CLS-1 — `--match-head-commit 381ae00e` → **`0e2af785`** at 12:31:22Z, **merged ALONE** (trunk `39059fd6` unchanged and no ACTIVE rolling release, checked in the same command), tree `abb302a7`.
+  - `#865` SEARCHPING-2b — `--match-head-commit 3915ab0e` → **`69229cc5`** at 12:54:41Z (no ACTIVE rolling release), tree `3b97bd05`.
+- *(subagent-reported)* = from the lane reports, not re-measured by the controller ("AT BUILDER CONFIDENCE" / "AT SCOUT CONFIDENCE" in the state file means the same). *(controller-verified)* = re-measured by the controller with `gh` / `git` / `vercel`.
+
+**Trunk `69229cc5fa7689da814e668b898bb0f5979226d2`** at the time of writing (`#865`). The commits since the first A-3 docs (`66f17eb3`, `#862`):
+- `53065a54` = `#855` (Dependabot npm-minor-and-patch — merged by the owner; it unblocked `#857`);
+- `2346b802` = `#857` SEARCHPING-2 — **this block**;
+- `ae52a5ad` = `#863` PHASE2-DATE-1 — **this block**;
+- `4dd175d9` = `#861` FAIR-USE-UI-1 and `39059fd6` = `#864` (docs: wave B-3) — **Controller B3's, covered by B3's handoff, not by this block**;
+- `0e2af785` = `#859` PERF-CLS-1 — **this block**;
+- `69229cc5` = `#865` SEARCHPING-2b — **this block**;
+- ROOTENTRY-1 — **this block**; merged and rolled out ALONE before this docs PR (PR number and merge SHA in the ROOTENTRY-1 section below).
+
+*(This block supersedes the WAVE B-3 (MONEY) block below on trunk SHA only — that block is demoted to previous on trunk SHA; its content otherwise stands as written. In the Controller A line it follows the WAVE A-3 (DATES + REACH) block below (`#862`): that block's "Not landed — HELD" section and its four "Owner decisions owed" are **resolved by this block** (the owner ruled on all four); it otherwise stands as written. Exactly one un-superseded `[CURRENT]` remains: this one.)*
+
+### In one paragraph
+Every lane the first A-3 handoff left held is now on trunk and live. **SEARCHPING-2** (`#857`) writes `/app/version.json` at build time, and the search-ping workflow waits until www serves the release SHA before it pings. But Vercel Rolling Releases post no GitHub `Production` deployment event, so the event trigger has not fired since `7152ef06` *(subagent-reported)*. **SEARCHPING-2b** (`#865`) adds a `workflow_dispatch` that runs the identical wait → diff → ping; the permanent trigger is an owner decision. **PHASE2-DATE-1** (`#863`) replaces the hard-coded 15 May 2026 with 15 May of the board cycle's year (2027-05-15 today), rolling over only after 15 May IST, and every predicted exact day a student sees now says "(expected)". **PERF-CLS-1** (`#859`) gives the landing metric-matched fallback fonts and a font-independent hero width: on www, the builder's slow-4G harness read the layout shift fall from a median of 0.0982 to **0 on all 10 runs** *(subagent-reported)* — but the owner measured **0.0771 on every run** on production (390 px, both entry URLs), which that harness did not see. **ROOTENTRY-1** fixes the cause the owner found: `App.tsx` `RootEntry` rendered `null` while auth loaded (a blank flash of the prerendered landing) and then, on mobile, redirected to `/welcome`.
+
+### Owner rulings (2026-09-28, second message + addendum ruling 5) — briefly (full text in `DECISION_LOG.md`)
+- PERF-CLS-1 `#859`: allowlist + `lazytopper/public/sitemap.xml` and `lazytopper/prerendered/lastmod.json`, CI-artifact only; plus a one-line `Welcome.tsx` grant for the 31ch hero line, folded into `#859`; still rolls out ALONE.
+- SEARCHPING-2 `#857`: the owner merges/closes `#855`; then trunk in, CI, merge; the first live search-ping log is required.
+- Phase 2: **fix now** — 15 May of the predicted board year, within BOARD-DATE-1's allowlist, parity test + one mutation, self-merge on §3.
+- Ruling 5: every predicted exact day (board + phase 2) says "expected"; an official notice / admin override shows no label; month-only strings unchanged.
+- **Owner addendum (2026-09-28) — ROOTENTRY-1:** grant `lazytopper/src/App.tsx`, the `RootEntry` function ONLY; while auth loads, render the landing (never `null`); a signed-out mobile visitor stays on `/` (no redirect to `/welcome`, which keeps working as a route); a signed-in student still goes home exactly as today; rolls out ALONE.
+- ★ **STANDING — (a)** every spec that regenerates pages allows `lazytopper/public/sitemap.xml` + `lazytopper/prerendered/lastmod.json` (CI-artifact regenerated only, never hand-edited). **(b)** the binding profile for layout-shift measurement is **slow-4G + throttled CPU**.
+
+### Lanes
+| lane | PR | merge SHA | what it changed | what it disproved / found |
+|---|---|---|---|---|
+| SEARCHPING-2 | `#857` | `2346b802` | `/app/version.json` build marker; search-ping waits until www serves the release SHA | the `deployment_status` trigger no longer fires under Vercel Rolling Releases *(builder)* |
+| PHASE2-DATE-1 | `#863` | `ae52a5ad` | phase 2 = 15 May of the board cycle's year (2027-05-15); "(expected)" on predicted exact days | the literal rule showed next year's phase 2 between the board day and 15 May *(builder)* → OR-AUTO P2-CYCLE |
+| PERF-CLS-1 | `#859` | `0e2af785` | metric-matched fallback faces; `@import` removed; hero `max-width` 31ch → 19.56em | the spec's CPU-only profile cannot fail (baseline 0 × 10) *(builder)*; its own slow-4G harness later missed the owner's 0.0771 (see ROOTENTRY-1) |
+| SEARCHPING-2b | `#865` | `69229cc5` | `workflow_dispatch` for search-ping, one pinged SHA everywhere | a dispatched run's `headSha` is not the pinged SHA *(builder)* → `pingRunSha()` |
+| ROOTENTRY-1 | see the ROOTENTRY-1 section | see there | `App.tsx` `RootEntry` only: render the landing while auth loads; no mobile redirect to `/welcome` | the blank flash + redirect behind the owner's 0.0771 |
+
+### What shipped — SEARCHPING-2 (`#857` `2346b802`, 6 files)
+- A new build step writes `/app/version.json` = `{"sha":"<commit>"}` from `VERCEL_GIT_COMMIT_SHA` (fallback `git rev-parse HEAD`); with no SHA (the Railway Docker image) it writes no marker and warns — the OR-AUTO fix after container-boot failed on the first push *(subagent-reported)*.
+- `search-ping.yml` has two steps: wait until www serves the release SHA (5/5 reads), then ping, gated on `steps.rollout.outputs.live == 'true'`. The "last successful ping" counts only runs whose exact ping step succeeded and whose SHA is an ancestor *(subagent-reported)*.
+- The build wiring is one line in `lazytopper/package.json` (the build chain lives only there); `#855`'s bumps and this line coexist, no lockfile change *(subagent-reported)*.
+
+### What shipped — PHASE2-DATE-1 (`#863` `ae52a5ad`, 6 files)
+- `cbseExamDate.ts`: `predictCbsePhase2Date()` = 15 May of the **board cycle's** year. The year comes from the IST calendar date and rolls over only **after 15 May** (OR-AUTO P2-CYCLE below). `predictCbsePhase2End()` = 1 June of the same year. `CBSE_PHASE2_DATE` / `CBSE_PHASE2_END` are module-load values of those (were the literals `2026-05-15` / `2026-06-01`) *(subagent-reported)*. Today's value: **2027-05-15**.
+- `cbseDates.ts`: a `phase2` getter; new `formatExpectedCbseDate(date, source)` — "(expected)" only when the source is predicted.
+- `/onboarding`: the Phase 1 row follows the fetched date + source (bare when official; predictor + "(expected)" while loading or for a custom date); the Phase 2 row says "(expected)"; the headline was already source-aware ("Expected exam date" / "Official exam date") — verified and now tested. `SprintDashboard.tsx` (not rendered — only the retired `Dashboard.tsx` mounts it) is labelled because the owner named it *(subagent-reported)*.
+- Tests: `phase2Date.parity.test.ts` (91) + `expectedDateLabel.test.tsx` (7). No `package.json` edit.
+
+### What shipped — PERF-CLS-1 (`#859` `0e2af785`, 6 files)
+- `styles.css`: `Fraunces Fallback` (`local("Georgia")` 115.15% / 84.94% / 22.15% / 0%) and `Inter Fallback` (`local("Arial")` 107.77% / 89.89% / 22.38% / 0%) faces + the P4 stack *(subagent-reported)*.
+- `Welcome.tsx`, exactly 3 hunks: P2 the Fraunces `@import` removed; P3 `--serif:Fraunces,"Fraunces Fallback",Georgia,serif; --sans:Inter,"Inter Fallback",system-ui,sans-serif;`; and the owner's one-line grant, `.lt-landing-sub{… max-width:31ch …}` → `max-width:19.56em`. Why: `ch` is the "0" advance of whichever font is painting, so the box shrank under the fallback and the line wrapped 3 vs 2; `em` does not change on a font swap, and 19.56em = Inter's 31ch (0.63086em × 31), so nothing moves once Inter has loaded *(subagent-reported)*.
+- `prerendered/index.html`, `prerendered/lastmod.json`, `public/sitemap.xml` — from the PR's own CI `prerender-capture` artifact (never hand-edited), per the owner's ruling. `Welcome.fontFallback.test.ts` (8 tests).
+- Ruling 5: **no label change on the landing** — its only board-date output is the relative countdown figure ("N days" / "N months"), and the prerendered page carries no countdown node (0 × `boards-countdown`) *(subagent-reported; the scout's inventory concurs)*.
+
+### What shipped — SEARCHPING-2b (`#865` `69229cc5`, 3 files)
+- `search-ping.yml`: `on: workflow_dispatch` with an optional `sha` input; the job runs on a dispatch **or** the unchanged Production-success condition. One pinged SHA everywhere (`github.event.deployment.sha || inputs.sha || github.sha`) — checkout, wait, ping, concurrency group, `run-name: search-ping <sha>`. The ping stays gated on the wait's `live == 'true'` for both triggers *(subagent-reported)*.
+- `searchPing.ts`: a new pure `pingRunSha()` reads the pinged SHA from the run title (a dispatched run's `headSha` is the dispatched ref, not the input), so "last successful ping" stays correct *(subagent-reported)*.
+
+### Evidence
+- **`#857`** on head `9f19a7f5` (trunk `53065a54` merged in after `#855` merged at 10:20:26Z) *(builder-quoted; controller-verified CLEAN, 6 files in the allowlist)*: quality-gate `36409510811` `Tests 2964 passed (2964)`, root `# pass 293 … # skipped 0`, ops `# pass 42 … # skipped 0`; lane-overlap `36409510633` PASS; capture `36409510637` "committed artifact matches a fresh capture"; the preview serves `version.json` with the head SHA. Mutation (drop the ping step's `live` gate) → guard test RED, restored.
+- **`#857` live** *(subagent-reported)*: 10:54:33Z www `/app/version.json` = `{"sha":"2346b802…"}`; superseded by `4dd175d9`, COMPLETE 100% at 11:36:32Z, 5/5 reads `4dd175d9`; canary + www smoke 200, 0 ErrorBoundary.
+- **`#863`** on head `7cb2a2aa` *(builder-quoted; controller-verified CLEAN)*: quality-gate `36411945922` `Tests 3062 passed (3062)`, `✓ src/config/phase2Date.parity.test.ts (91 tests)`, `✓ src/config/expectedDateLabel.test.tsx (7 tests)`, root `# pass 293 # fail 0 # skipped 0`; capture `36411946183` matches; lane-overlap PASS. Three mutations, each restored byte-identical: M1 phase 2 returns `2026-05-15` → `38 failed | 53 passed (91)`; M3 roll over at the board day → `19 failed | 72 passed (91)`; M2 label dropped → `5 failed | 2 passed (7)`. Live: at 11:17:13Z www = `dpl_Dtrddg…` (`#863`) *(controller-reported, state file)*.
+- **`#859`** on head `381ae00e` *(builder-quoted; controller-verified CLEAN, 6 files)*: quality-gate `36421487537` `Tests 3120 passed (3120)`, node --test pass 1054 / fail 0 / skipped 0; capture `36421487760` matches; lane-overlap, container-boot PASS. Mutation: drop "Fraunces Fallback" → `1 failed | 7 passed (8)`, restored.
+- **`#859` live, rolled out ALONE** *(subagent-reported)*: `dpl_2nV5dehB1XkRqs86gQGNinVkB3Vi`. Canary 50% smoke 12:42:42–12:43:08Z: 200, 0 ErrorBoundary, 0 font `@import`, both fallback faces registered. COMPLETE 100% at 12:48:58Z, and www = that deployment. www 12:49:19–12:52:44Z: 375 → H 2027, 1280 → H 1989, 32 element rects identical to pre-merge production, hero sub-line 2 lines. **www slow-4G + CPU 4× CLS: 0 on all 10 runs (median 0, max 0) vs baseline median 0.0982, max 0.1387, 7/10 ≥ 0.05**; spec profile 0 × 10; Google Fonts CSS requests per load 4 → 2. ⚠ The same harness did not see the owner's 0.0771 — see the ROOTENTRY-1 section.
+- **`#865`** on head `3915ab0e` (trunk `0e2af785` merged in) *(builder-quoted; controller-verified)*: quality-gate `36423792438` `Tests 3126 passed (3126)`, root `# pass 293`, all `# skipped 0`; capture `36423792466` matches; lane-overlap `36423792498` PASS. Mutation (the dispatch path skips the wait) → `AssertionError: workflow_dispatch: pings a superseded release` RED, restored.
+
+### ROOTENTRY-1 — the root entry stops flashing blank on first load (owner addendum, 2026-09-28)
+- **Why** (owner measurement, production): 390 px, 4× CPU, ~1.6 Mbps / 150 ms RTT, cache off, 6 cold loads (3 on `https://www.lazytopper.com/app/`, 3 on the bare domain `https://lazytopper.com`): **CLS 0.0771 on every run** at ~2.5 s; sources `#text` / `BUTTON` / `.lt-landing-hero`; both entry URLs ended at `/app/welcome`. Cause (owner): `App.tsx` `RootEntry` returned `null` while `useAuth().loading`, which unmounted the prerendered landing, and on mobile then `<Navigate to="/welcome">`, rendering the landing again on another route.
+- **Scope:** owner grant `lazytopper/src/App.tsx`, the `RootEntry` function ONLY; its new tests; `prerendered/**` + `lastmod.json` + `public/sitemap.xml` from its own CI artifact (standing ruling a). Rolls out ALONE, after the search-ping dispatch for `69229cc5` completed.
+- **Result (PR, merge SHA, www CLS on both entry URLs):**
+ROOTENTRY_RESULT
+- ★ **The harness contradiction.** PERF-CLS-1's harness read **0 on all 10 www runs** after `#859` (375 px, `/app/`, slow-4G + CPU 4×) *(subagent-reported)*, while the owner measured **0.0771 on every run** on the same production. A harness that cannot see this shift is not a control; the ROOTENTRY-1 brief required the builder to reproduce 0.0771, explain the difference and fix the harness before its own runs. The PERF-CLS-1 numbers above stand as what that harness measured, not as proof that the landing had no shift. **Explanation:**
+HARNESS_EXPLANATION
+
+### ★ The search-ping finding — `[FU-SEARCHPING-NO-PROD-DEPLOYMENT-EVENT]` (mitigated, not fixed)
+- *(subagent-reported)* Every search-ping run from 10:30Z to 12:28Z concluded `skipped` (e.g. `36410442287` for `2346b802`, `36415509402` for `4dd175d9`). Vercel has posted **no GitHub `Production` deployment** for any release since `7152ef06` (2026-09-27T19:45:42Z); the Vercel commit status stays "pending" even after a rolling release reaches 100%. This is pre-existing (`15ae5047`, before `#857`, shows the same thing), and `#857` did not change the trigger condition. On `7152ef06` the event arrived at rollout completion (~28 min after "ready").
+- **Mitigation:** `#865` adds `workflow_dispatch` (OR-AUTO SP-DISPATCH). The controller dispatches ONE run for `69229cc5`. Expected: `before=7152ef06… (last successful ping, run 36345534179)`, so every page changed since then is announced.
+- **The permanent trigger is an owner decision:** fix the Vercel GitHub integration so Production deployments post again, or add a push-to-trunk trigger that runs the same wait + ping.
+- **Dispatched run result:**
+SEARCHPING_DISPATCH_RESULT
+
+### ★ Controller OR-AUTO decisions (what, why, before → after; full text in `DECISION_LOG.md`)
+- **P2-CYCLE** (PHASE2-DATE-1): the literal rule "15 May of the predicted board year" would show NEXT year's phase 2 from the day after the board day until 15 May (on 2027-03-01: 2028-05-15, while the 2027 phase 2 is still ahead). Before: phase-2 year = the predictor's board year. After: phase-2 year = the board cycle's year, rolling over only after 15 May IST; the end date follows. Today's value is unchanged (2027-05-15). Why: phase 2 belongs to the boards it follows. → `[FU-PHASE2-AFTER-BOARD-DAY]` closed.
+- **SP-DISPATCH**: Before: search-ping ran only on `deployment_status` (which never fires under Rolling Releases). After: `#865` adds `workflow_dispatch` running the identical wait → diff → ping; the event trigger is unchanged. Why: the smallest in-allowlist change that lets the owner-required live log exist and announces the pages unannounced since `7152ef06`.
+- **Ruling-5 disposition**: the landing shows no exact date (relative countdown only) → no label; the `/onboarding` rows and the retired SprintDashboard rows are labelled; month-only strings (pricing "(Feb 2027)", the `/cbse/class-10` windows) are unchanged. Why: the rule is about exact predicted days.
+
+### EXACT-DATE INVENTORY (ruling 5) — so the audit can confirm none was missed
+Scout inventory on trunk `53065a54`, git objects only — *AT SCOUT CONFIDENCE*. The PHASE2-DATE-1 builder ran an independent grep on the same trunk *(subagent-reported)*; its two extra rows are b1–b2. "Outcome" = what landed.
+
+| # | file:line | what | exact / month | source | surface | disposition | outcome |
+|---|---|---|---|---|---|---|---|
+| 1 | `src/pages/Onboarding.tsx:178` (label `:139-140`) | `formatIsoDate(examDate)` + N days left | EXACT | source-aware (`fetchCbseExamDate`) | `/onboarding` (routed, RequireAuth, direct URL only) | PHASE2-DATE-1: verify the existing label | `#863`: already "Expected / Official exam date" — unchanged, now tested both ways |
+| 2 | `src/pages/Onboarding.tsx:220` | Phase 1 (Compulsory) | EXACT | was sync predictor only | `/onboarding` | PHASE2-DATE-1: label, or follow #1's source | `#863`: follows the fetched date + source; "(expected)" when predicted |
+| 3 | `src/pages/Onboarding.tsx:224` | Phase 2 (Optional) — showed 15 May 2026 (past) | EXACT | hard-coded `cbseExamDate.ts:119` | `/onboarding` | PHASE2-DATE-1: 2027-05-15 + "expected" | `#863`: 2027-05-15 (expected) |
+| 4 | `src/components/dashboard/SprintDashboard.tsx:75` | Phase 1 | EXACT | sync predictor | NOT RENDERED (only the retired `Dashboard.tsx:561`) | PHASE2-DATE-1: label (owner named it) | `#863`: labelled |
+| 5 | `src/components/dashboard/SprintDashboard.tsx:80` | Phase 2 (`CBSE_PHASE2_DATE`) | EXACT | hard-coded | NOT RENDERED | PHASE2-DATE-1: label | `#863`: labelled, 2027-05-15 |
+| 6 | `src/pages/Dashboard.tsx:163-165,424` | day count only | none | source-aware | NOT RENDERED (retired) | no change | unchanged |
+| 7 | `src/pages/Welcome.tsx:471,706` | countdown figure "5 months" / "N days" / "Tomorrow" | RELATIVE, no date | sync predictor | `/`, `/welcome` LIVE | `#859`: no exact day → no label | `#859`: builder confirmed; no change |
+| 8 | `PricingPage.tsx:919` via `config/pricing.ts:356` | "till your boards (Feb 2027)" | MONTH | sync predictor | `/pricing` LIVE | unchanged (owner) | unchanged |
+| 9–12 | `Cbse2027Page.tsx:388-392`, `cbse2027Sources.ts:235,248,316-340`, `prerendered/cbse/class-10.html:191` | "February 2027" / "May 2027" windows; CBSE circular dates ("14 Feb" etc.) | MONTH (exam); EXACT only for CBSE notice dates | hard-coded | `/cbse/class-10` LIVE | unchanged: month-only; notice dates are not predicted exam dates | unchanged |
+| 13 | `server/prompts/promptGrind.cjs:247-248` | LLM prompt "Phase 1 (Feb 17 – Mar 11, 2026)", "Phase 2 (May 15 – Jun 1, 2026)" | EXACT, stale | hard-coded | not rendered; the coach / mindset modes have no live caller (scout) | out of both allowlists | `[FU-PROMPTGRIND-STALE-2026-DATES]` OPEN |
+| b1 | `src/components/pricing/PassCheckout.tsx:62,75` via `checkout.ts:59` | pass end date (server-issued `passEnd`) | EXACT | server fact | payments dark | builder: not a board / phase date — it is the purchased pass's expiry | unchanged; flagged for reconciliation |
+| b2 | `lazytopper/prerendered/**` | regex for exact Feb / May days in 2026 / 2027 | — | — | — | builder: 0 hits | — |
+
+Non-displaying readers (scout): `paceProfileService.ts:212-213`, `cbseExamDate.ts:168/178/186`, `server/index.cjs:585`, `passPricing.cjs:36,85` (pass end, never shown), `prerendered/manifest.json:4`. `prerendered/index.html` and `pricing.html` carry no exam date. The scout's risk (on `/onboarding`, #1 was source-aware but #2 always the sync predictor, so they could disagree once CBSE publishes) is closed by row 2's outcome.
+
+### Follow-ups (bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`)
+- **Closed:** `[FU-PHASE2-DATE-STALE]` (`#863`) · `[FU-PHASE2-AFTER-BOARD-DAY]` (`#863`, OR-AUTO P2-CYCLE) · `[FU-PERF-CLS-HERO-SUB-CH-WRAP]` (`#859`, verified on www) · `[FU-PERF-CLS-SPEC-ALLOWLIST-SITEMAP]` (standing ruling a) · `[FU-C4-PROFILE-SLOW4G]` (standing ruling b).
+- **New / open:** `[FU-SEARCHPING-NO-PROD-DEPLOYMENT-EVENT]` (mitigated by `#865`; permanent trigger = owner) · `[FU-PROMPTGRIND-STALE-2026-DATES]` · `[FU-PHASE2-CONST-FROZEN-PER-LOAD]` · `[FU-ONBOARDING-2025-26-HEADING]`. `#862`'s other open FUs keep their status.
+
+### ★ Owner decisions owed (from this block)
+1. **The permanent search-ping trigger** (`[FU-SEARCHPING-NO-PROD-DEPLOYMENT-EVENT]`): fix the Vercel GitHub integration's Production deployment event, or add a push-to-trunk trigger. Until then, a run must be dispatched by hand after a release reaches 100%.
+2. **Live-verify** (CLAUDE.md §6): signed in, the root entry goes straight to the student's home (ROOTENTRY-1 touched the auth-loading path); `/onboarding` shows "Phase 2 (Optional)" as 15 May 2027 (expected) and a labelled Phase 1 row. BOARD-DATE-1's live-verify (`#862`) still stands.
+
+### Carried forward — ★ THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this block
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.** **Wave A-3 (continued) moved NO dormancy in that trio.** The full block, including the `#647`/`#655` resolution and every subsequent amendment, is preserved verbatim in its section (`### 8 - ★ THE WIRE-2 QUESTION` and `### 9`) and the demoted `[CURRENT]` sections below, and must be read there before any lane acts on it.
+
 ## [CURRENT · MONEY] WAVE B-3 — **PAPER PASSES ARE SERVER-ISSUED (FAIR-USE-2) · STUDENTS CAN SEE THEIR LIMITS (FAIR-USE-UI-1) · PRICING COPY IS READY FOR PAYMENTS (PAYCOPY-1) — ALL DARK** — `#858` + `#860` + `#861` MERGED
 
 ★ **PROVENANCE.**

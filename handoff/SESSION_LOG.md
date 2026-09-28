@@ -1,3 +1,25 @@
+## 2026-09-28 — WAVE A-3 (CONTROLLER A) CONTINUED — **SEARCHPING-2 + 2b · PHASE2-DATE-1 · PERF-CLS-1 · ROOTENTRY-1 — EVERY HELD LANE LANDED; SEARCH-PING NEEDS A DISPATCH UNDER ROLLING RELEASES** — `#857` + `#863` + `#859` + `#865` + ROOTENTRY-1 MERGED
+
+★ **PROVENANCE.**
+- Controller A, the same session as the first A-3 docs (`#862`), reopened by the owner's second message, an addendum (ruling 5) and a further addendum (ROOTENTRY-1). One builder per PR (`claude-opus-5-5`), in worktrees `C:/Projects/LT-worktrees/searchping-2`, `…/phase2-date-1`, `…/perf-cls-1`, `…/searchping-2b`, `…/rootentry-1`. This docs PR was written by a docs builder in `…/docs-wave-a3-2` from `WAVE_STATE_A3.md` and the lane reports (OR-16).
+- *(subagent-reported)* = from builder reports; *(controller-verified)* = re-measured by the controller.
+
+**Timeline.**
+- The owner ruled on all four questions `#862` left: allow `sitemap.xml` + `lastmod.json` for `#859` (standing for every page-regenerating spec); fold the 31ch line into `#859`; merge/close `#855`; fix phase 2 now. Ratified slow-4G + throttled CPU as the binding layout-shift profile. The addendum (ruling 5) asked that every predicted exact day say "expected"; a scout built an independent exact-date inventory on trunk `53065a54`.
+- `#855` (Dependabot) merged by the owner at 10:20:26Z → **SEARCHPING-2** `#857` brought trunk in, CI green, merged → `2346b802` *(controller-verified)*; `version.json` live on www at 10:54:33Z *(subagent-reported)*.
+- **PHASE2-DATE-1** → `#863`. First MERGE-READY on `cac865e1`; sent back for the cycle window (OR-AUTO P2-CYCLE); merged → `ae52a5ad` on head `7cb2a2aa` (`Tests 3062 passed (3062)`, 3 mutations) *(controller-verified merge; builder-quoted CI)*.
+- B3's `#861` FAIR-USE-UI-1 and docs `#864` landed in between; `#859` re-synced to trunk three times (522b7bc8 → dfbf1269 → 381ae00e), CI green each time.
+- **SEARCHPING-2 post-merge — HELD:** every search-ping run today concluded `skipped`, because Vercel posts no GitHub `Production` deployment under Rolling Releases (none since `7152ef06`) *(subagent-reported)*. OR-AUTO SP-DISPATCH → SEARCHPING-2b.
+- **PERF-CLS-1** `#859` merged ALONE → `0e2af785` at 12:31:22Z (no ACTIVE rollout, checked in the same command) *(controller-verified)*; canary smoke → COMPLETE 100% at 12:48:58Z → www slow-4G CLS 0 × 10 on the builder's harness *(subagent-reported)*.
+- **SEARCHPING-2b** `#865` merged → `69229cc5` at 12:54:41Z *(controller-verified)*; the controller dispatched one search-ping run for `69229cc5` (result in `CURRENT_STATE.md`).
+- **ROOTENTRY-1** (owner addendum): the owner measured CLS 0.0771 on every production run (390 px, 4× CPU, 1.6 Mbps / 150 ms), from `App.tsx` `RootEntry` returning `null` while auth loads and redirecting mobile to `/welcome`. Grant: `RootEntry` only. Built, merged and rolled out ALONE before this docs PR (result in `CURRENT_STATE.md`).
+
+### ★ What this wave teaches
+- **A GREEN HARNESS ON WWW IS NOT A GREEN PAGE.** PERF-CLS-1's own slow-4G harness read 0 on ten www runs, and the owner measured 0.0771 on every run on production. The explanation is in `CURRENT_STATE.md` (ROOTENTRY-1). A layout-shift control must first reproduce the shift a real visitor gets, on the real entry URLs, before its zero means anything.
+- **A TRIGGER THAT NEVER FIRES LOOKS EXACTLY LIKE A QUIET DAY.** search-ping's runs were all `skipped` — the same status a preview or a Railway event gets — so nothing went red. The event the workflow waits on had stopped arriving the day before (`7152ef06`). Check that an event-driven job has actually RUN recently, not only that it has not failed.
+- **A LITERAL DATE RULE CAN BE WRONG FOR PART OF THE YEAR.** "15 May of the predicted board year" was right in September and wrong from the day after the board day until 15 May. The builder's CONTROL test exposed it; the fix pins a 21-date table across three years plus IST edges.
+- **A STANDING RULE REMOVES A CLASS OF STOPS.** The owner made `sitemap.xml` + `lastmod.json` part of every page-regenerating allowlist, so the one-generated-line STOP that held `#859` cannot recur.
+
 ## 2026-09-28 — WAVE B-3 (MONEY, CONTROLLER B) — **FAIR-USE-2: PAPER PASSES ARE SERVER-ISSUED · FAIR-USE-UI-1: STUDENTS CAN SEE THEIR LIMITS · PAYCOPY-1: PRICING COPY READY FOR PAYMENTS — ALL DARK** — `#858` + `#860` + `#861` MERGED
 
 ★ **PROVENANCE.**
