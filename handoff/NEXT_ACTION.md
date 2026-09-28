@@ -1,7 +1,8 @@
 ## ★★★ 2026-09-28 — WAVE A-3 (CONTROLLER A) CONTINUED — CLOSED (docs, second PR) — THIS BLOCK SUPERSEDES THE WAVE B-3 BLOCK BELOW ON TRUNK SHA ONLY
 *(It does not supersede the WAVE B-3 block's owner items (fair use, payments), nor the WAVE B-2, A-2 or B-1 blocks' owner items, which stand unchanged. From the WAVE A-3 block below (`#862`): items 1–4 are DONE or RULED — 1 the owner allowed `sitemap.xml` + `lastmod.json`, and `#859` merged; 2 `#855` merged, and `#857` merged; 3 phase 2 was ruled and fixed by `#863`; 4 the 31ch line was granted and fixed inside `#859`. Its item 5 (live-verify BOARD-DATE-1) and item 6 still stand.)*
 
-**TRUNK IS `69229cc5fa7689da814e668b898bb0f5979226d2`**, measured 2026-09-28 (`git fetch origin` + `git rev-parse origin/base/approved-thru-437`) before ROOTENTRY-1 merged; ROOTENTRY-1's merge SHA is in `CURRENT_STATE.md`:
+**TRUNK IS `b6da0c6f46ffaf4aa285cef7267fc982b27966e8`**, measured 2026-09-28 (`git fetch origin` + `git rev-parse origin/base/approved-thru-437`):
+- `b6da0c6f` = `#866` (FAIR-USE-3 — the B controller; covered by that controller's handoff)
 - `69229cc5` = `#865` (SEARCHPING-2b: search-ping can be dispatched for a SHA) — **this wave**
 - `0e2af785` = `#859` (PERF-CLS-1: the landing text stops jumping when fonts arrive; rolled out ALONE) — **this wave**
 - `39059fd6` = `#864` (docs: wave B-3 — Controller B3)
@@ -11,12 +12,15 @@
 - `53065a54` = `#855` (Dependabot npm-minor-and-patch — merged by the owner)
 - `66f17eb3` = `#862` (docs: wave A-3, first PR)
 
+Open at the time of writing, besides this docs PR: `#867` ROOTENTRY-1 (draft, STOPPED on `App.tsx:340`).
+
 ### NEXT — OWNER (none of these was run by the controller or a builder)
+0. **ROOTENTRY-1 `#867` — decide the BottomNav at `/`** (`[FU-ROOTENTRY-BOTTOMNAV-AT-ROOT]`). The fix (render the landing while auth loads) works inside the `RootEntry` grant, but a signed-out mobile visitor kept on `/` sees the 5-tab BottomNav over the public landing (fully visible 700–1023 px) *(subagent-reported)*. Either grant `App.tsx:340` — add `current === "/" ||` before `current === "/welcome" ||` (controller recommends) — or rule that signed-out mobile goes to `/welcome` after auth resolves. Until then production shows the landing absent from `#root` for 1159–1666 ms on every first load. Runbook: `report-rootentry-1-2026-09-28.md`.
 1. **Decide the permanent search-ping trigger** (`[FU-SEARCHPING-NO-PROD-DEPLOYMENT-EVENT]`). Vercel Rolling Releases post no GitHub `Production` deployment event, so `search-ping.yml`'s `deployment_status` trigger has not fired since `7152ef06` *(subagent-reported)*. Options: fix the Vercel GitHub integration so Production deployments post again, or add a push-to-trunk trigger that runs the same wait + ping. **Until then, after each release reaches 100%, dispatch one run by hand:** `gh workflow run search-ping.yml -f sha=<trunk sha>` (`#865`). The first dispatched run's result is in `CURRENT_STATE.md`.
 2. **Tell Google — add the `GSC_SERVICE_ACCOUNT` secret** (`[FU-SEARCHPING-GSC-NOT-CONFIGURED]`; + `vars.GSC_SITE_URL` if the property is not `https://www.lazytopper.com/`). The first dispatched run (`36424972014`, SUCCESS) pinged IndexNow (HTTP 200, `changed=1`) but logged "GSC skipped — GSC_SERVICE_ACCOUNT not configured" *(subagent-reported)*: Bing / IndexNow engines are told, Google is not. This was the WAVE A-1 block's "optional" item; it is no longer optional if Google should hear about changes.
-3. **Live-verify** (CLAUDE.md §6): signed in, the root entry goes straight to the student's home with no landing flash (ROOTENTRY-1 changed the auth-loading path), and `/onboarding` shows Phase 2 as 15 May 2027 (expected) with a labelled Phase 1 row (`#863`). BOARD-DATE-1's live-verify (`#862` item 5) still stands.
+3. **Live-verify** (CLAUDE.md §6): signed in, `/onboarding` shows Phase 2 as 15 May 2027 (expected) with a labelled Phase 1 row (`#863`). BOARD-DATE-1's live-verify (`#862` item 5) still stands; ROOTENTRY-1's signed-in path once `#867` merges.
 4. **Not owner-blocking, next lanes when convenient:** `[FU-PROMPTGRIND-STALE-2026-DATES]` (stale 2026 phase dates in an LLM prompt with no live caller), `[FU-PHASE2-CONST-FROZEN-PER-LOAD]`, `[FU-ONBOARDING-2025-26-HEADING]`, and the PERF-CLS-1 font FUs (`[FU-CBSE2027-FONT-STACK-NO-FALLBACK]`, `[FU-STYLES-CSS-SPACEGROTESK-IMPORT]`, `[FU-MOB-FONT-DISPLAY-STACK]`, `[FU-ANDROID-NO-GEORGIA-ARIAL]`).
-5. **Standing for every future spec (owner, 2026-09-28):** a spec that regenerates pages allows `lazytopper/public/sitemap.xml` + `lazytopper/prerendered/lastmod.json` (CI artifact only); layout-shift measurement is bound to slow-4G + throttled CPU — and, after ROOTENTRY-1, to a harness proven able to see the owner's 0.0771.
+5. **Standing for every future spec (owner, 2026-09-28):** a spec that regenerates pages allows `lazytopper/public/sitemap.xml` + `lazytopper/prerendered/lastmod.json` (CI artifact only); layout-shift measurement is bound to slow-4G + throttled CPU — and a CLS number alone cannot see a blank (an unmount/remount is never scored), so a first-load measurement also records how long the page content is absent and the final URL.
 6. **The WAVE B-3, B-2, A-2 and B-1 owner steps still stand** (the blocks below). This docs lane did not re-check whether any has since been done.
 
 ## ★★★ 2026-09-28 — WAVE B-3 (MONEY, CONTROLLER B) CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-3 BLOCK BELOW ON TRUNK SHA ONLY
