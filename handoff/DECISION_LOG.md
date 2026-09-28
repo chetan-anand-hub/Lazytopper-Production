@@ -1,3 +1,30 @@
+## 2026-09-28 — WAVE A-3 (CONTROLLER A): BOARD-DATE-1 (merged) + SEARCHPING-2 (held) + PERF-CLS-1 (stopped) — trunk `cfe88001`, PR `#856` merged; `#857`, `#859` open
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (R1–R3, OR-LIVE, OR-AUTO), not `DECISION N`.
+
+### Owner rulings for the wave (dispatch message, 2026-09-28)
+- One builder per PR (`claude-opus-5-5`, effort high), named; §0c on the current tip in its own fresh worktree, spec copied in. Three file-disjoint lanes, all dispatched at once.
+- **Owner grant:** `lazytopper/src/pages/Welcome.tsx` for PERF-CLS-1 only, lines P2 (`@import`) and P3 (font stack) only. `lazytopper/package.json` (test/build wiring) only where a spec says so.
+- Controller B3 runs FAIR-USE-2, FAIR-USE-UI-1 and PAYCOPY-1 in parallel. Lane-overlap decides shared files; **if blocked, wait.** One docs PR open at a time.
+- **OR-LIVE:** back-to-back merges are OK; after the last merge confirm production serves the latest trunk. **PERF-CLS-1 rolls out ALONE** (no rollout in progress before merge; wait 100% + smoke canary then www). Failure → abort/roll back first, then STOP.
+- **OR-AUTO:** no questions; the safest in-scope choice, recorded (what / why / before → after); a protected-file refusal → exact text in the report, continue. STOP only for an out-of-allowlist need, student-data deletion, or a production failure.
+- End: one docs PR (OR-16), one final audit, STOP. OR-15 (fast local gates; CI runs the full suites).
+
+### Controller decisions, with reasons (what, why, before → after)
+- **Spec staging location.** The specs were taken from `C:/Projects/LT-worktrees/controller-a3/ops/.specs/`, not the shared checkout's `ops/.specs/` (absent there). Why: content proven identical to the owner's copies by sha256 prefix (`E1A484F002F5`, `FD71E323853F`, `D5FA7650D035`) — the A-2 precedent.
+- **Builders stop at MERGE-READY; the controller merges** (`--squash --match-head-commit`) and proves it on trunk (ancestor + trunk tree == head tree). Why: keep the irreversible step apart from the evidence producer (A-1/A-2 precedent).
+- **PERF-CLS-1 R1 (OR-AUTO) — the C4 gate.** The spec profile (4× CPU, no network throttle) cannot fail: baseline 0 × 10. Before: spec profile only. After: the spec profile stays the formal §3 gate (the owner's written criterion); slow-4G (150 ms RTT, 1.5 Mbps, 4× CPU) is reported and must not regress (after-median ≤ 0.0982, no run > 0.1387). Why: a control that cannot fail is not a control, but rewriting the owner's gate is not in scope.
+- **PERF-CLS-1 R2 (OR-AUTO) — accept the residual 31ch hero-wrap shift; do not widen the grant.** Why: the grant is explicitly P2/P3 only; widening it is the owner's call → `[FU-PERF-CLS-HERO-SUB-CH-WRAP]`.
+- **PERF-CLS-1 R3 — keep the builder's single `local("Georgia")` 115.15% face.** Why: measured best — 23 px page-height drift vs 75 px for the Georgia Bold and two-face alternatives *(subagent-reported)*.
+- **PERF-CLS-1 sitemap — STOP.** The builder asked to commit `lazytopper/public/sitemap.xml`. Before: allowlist `prerendered/**` only. After: NOT committed; lane STOPPED, draft `#859`. Why: the owner's standing STOP condition "an out-of-allowlist file the fix truly needs" — a controller may not widen an allowlist. Recommendation to the owner: allow (same generated unit; the A-2 HUB-REVERT-1 allowlist carried `sitemap.xml` as artifact).
+- **SEARCHPING-2 — wait on `#855`.** The controller does not merge or close a bot PR (not in scope); the owner rule is "if blocked, wait".
+- **Branch updates by `git merge origin/base/approved-thru-437`** — no rebase, no force-push.
+
+### Builder choices worth keeping *(subagent-reported)*
+- BOARD-DATE-1: `cbseDates` as read-time getters, not module-load values; the server predictor uses the IST calendar date (matches `passPricing`); no `package.json` edit (the suite is under the existing vitest include).
+- SEARCHPING-2: two workflow steps (wait, then ping gated on `steps.rollout.outputs.live == 'true'`); the "last pinged" run counts only if its exact ping step succeeded and its SHA is an ancestor; a `gh` failure throws instead of silently falling back; no SHA in the Railway Docker build → no marker + warning (container-boot was red on the first push).
+- PERF-CLS-1: no `package.json` edit (the test is under the existing vitest include); only the P4 stack in `styles.css` changed, `--mob-font-display` left alone → FU.
+
 ## 2026-09-27 — WAVE B-2 (MONEY): FAIR-USE-1 + RAZORPAY-1 (build + docs) — trunk `fecbbe08`, PRs `#852` + `#853`
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (D0–D7, OR-LIVE), not `DECISION N`.
