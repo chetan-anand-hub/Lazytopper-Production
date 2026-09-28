@@ -27,7 +27,7 @@ function classDates(studentClass: "10" | "12"): CbseClassDates {
       return predictCbseExamDate(studentClass);
     },
     get phase2() {
-      return predictCbsePhase2Date();
+      return predictCbsePhase2Date(studentClass);
     },
     get boardExam() {
       return predictCbseExamDate(studentClass);
@@ -57,6 +57,21 @@ export function formatCbseDate(dateStr?: string | null): string {
   }
 
   return dateFormatter.format(parsed);
+}
+
+/**
+ * Owner ruling 5 (2026-09-28) — an exact board / phase-2 day that is PREDICTED must say
+ * so: "17 Feb 2027 (expected)". A date from CBSE's notice or the admin override
+ * (`source: "official"`) shows bare, so the label disappears once CBSE announces.
+ * A screen that only has the synchronous predictor passes nothing — always "expected".
+ */
+export function formatExpectedCbseDate(
+  dateStr?: string | null,
+  source: "official" | "predicted" = "predicted",
+): string {
+  const text = formatCbseDate(dateStr);
+  if (text === 'TBD' || source === 'official') return text;
+  return `${text} (expected)`;
 }
 
 export function formatCbseDateRange(start?: string | null, end?: string | null): string {

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProfile } from "../context/ProfileContext";
 import { daysLeftFromIsoDate, fetchCbseExamDate, CBSE_PHASE2_DATE } from "../services/cbseExamDate";
-import { cbseDates, formatCbseDate } from "../config/cbseDates";
+import { cbseDates, formatExpectedCbseDate } from "../config/cbseDates";
 import { checkAndUpdateProfile, detectProfileFromDays, getProfileSummary, getProfileConfig } from "../services/paceProfileService";
 import { trackUxEvent } from "../services/uxTelemetry";
 
@@ -217,11 +217,11 @@ export default function Onboarding() {
               <div style={{ display: "flex", gap: 8, marginBottom: 6 }}>
                 <div style={{ flex: 1, padding: "8px 10px", borderRadius: 8, background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)" }}>
                   <div style={{ fontSize: 10, fontWeight: 700, color: "#22c55e", marginBottom: 2 }}>Phase 1 (Compulsory)</div>
-                  <div style={{ fontSize: 12, color: "var(--text)", fontWeight: 600 }}>{formatCbseDate(cbseDates.class10.phase1)}</div>
+                  <div style={{ fontSize: 12, color: "var(--text)", fontWeight: 600 }}>{isCustomDate || !examDate ? formatExpectedCbseDate(cbseDates.class10.phase1) : formatExpectedCbseDate(examDate, examDateSource)}</div>
                 </div>
                 <div style={{ flex: 1, padding: "8px 10px", borderRadius: 8, background: "rgba(168,85,247,0.08)", border: "1px solid rgba(168,85,247,0.2)" }}>
                   <div style={{ fontSize: 10, fontWeight: 700, color: "#c084fc", marginBottom: 2 }}>Phase 2 (Optional)</div>
-                  <div style={{ fontSize: 12, color: "var(--text)", fontWeight: 600 }}>{formatCbseDate(CBSE_PHASE2_DATE)}</div>
+                  <div style={{ fontSize: 12, color: "var(--text)", fontWeight: 600 }}>{formatExpectedCbseDate(CBSE_PHASE2_DATE)}</div>
                 </div>
               </div>
               <p style={{ fontSize: 11, color: "var(--text-muted)", lineHeight: 1.5, margin: 0 }}>

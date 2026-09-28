@@ -116,12 +116,33 @@ export function predictCbseExamDate(studentClass: "10" | "12"): string {
   return new Date(examUtc).toISOString().slice(0, 10);
 }
 
-export const CBSE_PHASE2_DATE = "2026-05-15";
-export const CBSE_PHASE2_END = "2026-06-01";
+/**
+ * PHASE2-DATE-1 (owner ruling 2026-09-28) — the phase-2 date is 15 May of the PREDICTED
+ * BOARD YEAR: the year of `predictCbseExamDate()` at the same instant. No hard-coded year.
+ * The phase-2 end keeps its old offset (1 June), with the same year.
+ */
+const PHASE2_MONTH_DAY = "05-15";
+const PHASE2_END_MONTH_DAY = "06-01";
 
-export function predictCbsePhase2Date(): string {
-  return CBSE_PHASE2_DATE;
+function predictedBoardYear(studentClass: "10" | "12"): string {
+  return predictCbseExamDate(studentClass).slice(0, 4);
 }
+
+export function predictCbsePhase2Date(studentClass: "10" | "12" = "10"): string {
+  return `${predictedBoardYear(studentClass)}-${PHASE2_MONTH_DAY}`;
+}
+
+export function predictCbsePhase2End(studentClass: "10" | "12" = "10"): string {
+  return `${predictedBoardYear(studentClass)}-${PHASE2_END_MONTH_DAY}`;
+}
+
+/**
+ * Module-load snapshots, kept for existing importers. They are evaluated once per page
+ * load; code that must stay right in a tab left open across a board day should call
+ * `predictCbsePhase2Date()` / read `cbseDates.*.phase2` instead.
+ */
+export const CBSE_PHASE2_DATE = predictCbsePhase2Date();
+export const CBSE_PHASE2_END = predictCbsePhase2End();
 
 export function daysLeftFromIsoDate(isoDate: string): number {
   const today = new Date();
@@ -175,7 +196,7 @@ export function fetchCbsePhase1Date(studentClass: "10" | "12"): CbseExamDateResu
 export function fetchCbsePhase2Date(studentClass: "10" | "12"): CbseExamDateResult {
   return {
     studentClass,
-    examDate: CBSE_PHASE2_DATE,
+    examDate: predictCbsePhase2Date(studentClass),
     source: "predicted",
     note: "Phase 2 — optional re-attempt for up to 3 subjects. Best score counts. Full syllabus covered.",
     phase: "phase2",
@@ -183,5 +204,5 @@ export function fetchCbsePhase2Date(studentClass: "10" | "12"): CbseExamDateResu
 }
 
 export function getPhaseDeadline(phase: "phase1" | "phase2", studentClass: "10" | "12"): string {
-  return phase === "phase2" ? CBSE_PHASE2_DATE : predictCbseExamDate(studentClass);
+  return phase === "phase2" ? predictCbsePhase2Date(studentClass) : predictCbseExamDate(studentClass);
 }
