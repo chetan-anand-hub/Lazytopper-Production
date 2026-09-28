@@ -1,3 +1,26 @@
+## 2026-09-28 — WAVE B-4 (MONEY, CONTROLLER B): FAIR-USE-3 — PR `#866` merged — trunk `7b94ae00`
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (D3, D6, D7, D8, OR-LIVE, OR-AUTO), not `DECISION N`.
+
+### Owner rulings for the wave (dispatch message, 2026-09-28)
+- `FAIR_USE_PAPER_SECRET` is SET (`/api/usage/paper` → 401 unsigned). `FAIR_USE_ENFORCE`, `PAYMENTS_ENABLED`, `VITE_PAYMENTS_ENABLED` UNSET and stay unset. Change NO Railway / Vercel / Razorpay setting.
+- One builder, `claude-opus-5-5` effort high, named; §0c first on the current tip, own fresh worktree, spec copied in. `lazytopper/package.json` (test wiring only) ratified.
+- **OR-LIVE:** this lane rolls out ALONE (no rollout in progress before merge; wait 100%); smoke canary then www; failure → abort / roll back first, STOP; after the docs PR confirm production serves the latest trunk.
+- **OR-AUTO:** no questions; merge on spec §3 (`--match-head-commit`, trunk tree == head tree); the safest in-scope choice, recorded. STOP only for an out-of-allowlist need, a money-or-entitlement meaning not in the spec, student-data deletion, or a production failure (revert first).
+- End: one docs PR (OR-16, self-merge on green), one final audit, STOP. OR-15.
+
+### Controller decisions, with reasons (what, why, before → after)
+- **D3 — dark semantics with the paper secret set.** Minting is live now (counts recorded, nothing refused). The R2 transaction must not add a refusal or a new failure mode when `FAIR_USE_ENFORCE` is unset; mint behaviour on a Firestore error must be no worse than before. Outcome *(subagent-reported)*: on a Firestore / transaction error the mint keeps the prior fail-open behaviour — the pass is issued, nothing is refused even when enforcing, and the spend is recorded with one plain merge.
+- **D6 — SolutionChecker lines outside the catch block ACCEPTED.** R4 (render the existing `FairUseLimitPanel`) cannot be built in a catch block alone. The builder added 2 imports + 1 hook line `useFairUse("checks", false)` (no mount fetch) + 1 render line; +19/-0, no existing line changed, the non-fair-use path byte-identical *(subagent-reported)*. Why: the file IS allowlisted and R4 is a fixed owner ruling; the "catch block ONLY" qualifier conflicts with it; dropping R4 would leave the B-3-audit defect before ENFORCE. Not money meaning. Before: catch block only → after: catch + 4 additive lines. FLAGGED for the final audit.
+- **D7 — two page test fixtures ACCEPTED as tests.** `PracticePage.fairUse.test.tsx` and `DesktopCheckImprovePage.fairUse.test.tsx`, +2 lines each (`vi.mock` completeness after `usageClient` gained fields). Test-only; no product page file touched. FLAGGED for the final audit.
+- **D8 — legacy ledger docs count through their counters.** Docs with plain `issuedAtMs` numbers (pre-FU-3) keep counting through their mint-time counters, not the map — otherwise a legacy spend is double-counted or lost *(subagent-reported)*. Consequence: passes minted before this merge get no lazy refund (`[FU-FAIR-USE-LEGACY-PASS-NO-LAZY-REFUND]`). Within "existing docs keep working"; conservative; dark (ENFORCE unset); washes out within a week (weekly mocks / worksheets). Not STOP-class. FLAGGED for the final audit.
+
+- **D9 — this docs PR lands on top of Controller A's docs `#868`.** Trunk moved to `2068c306` (`#868`, wave A-3 continued) after this PR's phase 1. The branch brought trunk in with `git merge` (never rebase / force-push) and keeps BOTH blocks, newest first: the B-4 `[CURRENT]` on top, A-3 (CONTINUED)'s `[CURRENT]` demoted by a supersede note in the B-4 block, 0 deletions of trunk lines. The phase-1 "Controller A3 lane — details owed by A3" lines for `#859` / `#865` were removed (they were this branch's own lines, never trunk content; `#868` records both). Before: phase-1 branch on `b6da0c6f` → after: on `2068c306`. Refresh (controller request): trunk then moved to `7b94ae00` (`#867` ROOTENTRY-1, A3's; touches only `App.tsx` + its test) and was merged in the same way; the trunk SHA and the `#867` lines in the B-4 blocks were updated to "merged 7b94ae00 (A3's; details owed by A3)".
+
+### Docs-builder choices (this PR, OR-AUTO)
+- The state file's kept-open FU list (13 ids) was checked against `OPEN_QUESTIONS_AND_FOLLOWUPS.md` on trunk `b6da0c6f` and again on `2068c306` / `7b94ae00`: every id has an OPEN heading and no CLOSED marker. No correction needed.
+- The WAVE B-3 `NEXT_ACTION` step 2 (signed-in screenshots) is recorded as replaced by the owner's live test after `FAIR_USE_ENFORCE=1`, per the B-3 audit as the state file records it; `[FU-FAIR-USE-UI-PREVIEW-SHOTS]` is left open (trunk's board has no CLOSED marker for it, and this lane was not told to close it).
+
 ## 2026-09-28 — WAVE A-3 (CONTROLLER A) CONTINUED: SEARCHPING-2 + PHASE2-DATE-1 + PERF-CLS-1 + SEARCHPING-2b (merged) + ROOTENTRY-1 (stopped) — PRs `#857`, `#863`, `#859`, `#865` merged; `#867` draft
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (P2-CYCLE, SP-DISPATCH, OR-LIVE, OR-AUTO), not `DECISION N`.
