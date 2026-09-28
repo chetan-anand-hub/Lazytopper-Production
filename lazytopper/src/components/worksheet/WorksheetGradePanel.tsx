@@ -8,6 +8,9 @@ import { exportGradedWorksheetPdf } from "./worksheetPdfExport";
 import ResultsScorecard from "../results/ResultsScorecard";
 import { worksheetScorecardVariant } from "../results/scorecardVariants";
 import QrAnswerHandoff from "../qr/QrAnswerHandoff";
+// FAIR-USE-UI-1 (UI1) — dark unless /api/usage/me says `enforced: true`.
+import FairUseLimitPanel from "../usage/FairUseLimitPanel";
+import { useFairUse } from "../usage/useFairUse";
 import {
   MAX_UPLOAD_IMAGE_BYTES,
   MAX_UPLOAD_PDF_BYTES,
@@ -192,6 +195,7 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
   const { user } = useAuth();
   const navigate = useNavigate();
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
+  const fairUse = useFairUse("worksheet", isSignedIn);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -325,6 +329,7 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
     if (!imageBase64 || grading) return;
     setGrading(true);
     setError(null);
+    fairUse.clearLimit();
     try {
       const result = await gradeWorksheetAndRecord(user, ws, { imageBase64, imageMimeType });
       if (!result.response.ok) {
@@ -346,13 +351,16 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
         setOutcome(result);
         setFromCache(false);
         setScorecardOpen(true); // auto scorecard popup on grade-complete (§A2)
+        fairUse.noteGraded();
       }
     } catch (err) {
+      // FAIR-USE-UI-1 (UI1): a fair-use refusal shows the calm panel instead of the error.
+      if (await fairUse.handleRefusal(err)) return;
       setError(err instanceof Error ? err.message : "Failed to grade the worksheet.");
     } finally {
       setGrading(false);
     }
-  }, [imageBase64, imageMimeType, grading, user, ws]);
+  }, [imageBase64, imageMimeType, grading, user, ws, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal]);
 
   const handleReset = useCallback(() => {
     setFileName(null);
@@ -430,6 +438,7 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
             <p className="lt-wg__progress">Reading each answer and marking it against the scheme. Please keep this page open.</p>
           )}
           {error && <div className="lt-wg__err" role="alert">{error}</div>}
+          {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} /> : null}
           <p className="lt-wg__tip">
             Tip: a clear, upright scan of each page grades best. If a page is blurry we’ll tell you which question to re-upload — we never guess a mark.
           </p>

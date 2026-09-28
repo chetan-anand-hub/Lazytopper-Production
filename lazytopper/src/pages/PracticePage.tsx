@@ -452,6 +452,11 @@ import {
  *  mock" in any suite that loads this page. */
 import { MAX_BATCH_UPLOADS } from "../config/gradingLimits";
 import { toSessionSubject } from "../services/checkImproveGradeService";
+// FAIR-USE-UI-1 - UI1 (the limit panel) and UI2 (confirm, then mark only the first R) on
+// the ONE batched grade. Dark unless /api/usage/me says `enforced: true`.
+import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
+import FairUseConfirm from "../components/usage/FairUseConfirm";
+import { useFairUse } from "../components/usage/useFairUse";
 import { useAuth } from "../context/AuthContext";
 import {
   type SubjectKey,
@@ -1187,6 +1192,10 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
    *  `premiumBlock`, never the same state: one needs an upgrade, the other needs the door
    *  and may be fully entitled once through it. */
   const [signInToGrade, setSignInToGrade] = useState(false);
+  /** FAIR-USE-UI-1 - fair limits on the batched grade (dark unless enforced). */
+  const fairUse = useFairUse("checks", !!authUserForJourney?.uid && !authUserForJourney?.isLocalSession);
+  /** UI2 - R, while the student is being asked "we'll mark the first R". */
+  const [fairUseConfirm, setFairUseConfirm] = useState<number | null>(null);
   // Which session identity has already been written. A one-shot latch: the scorecard
   // re-renders, and `allDone` can raise it without any click, so without this the
   // write would fire on every render.
@@ -2189,7 +2198,7 @@ const packTopicKey = useMemo(() => {
    * by nothing else \u2014 not by Finish, not by a mount, not by an effect. `batchGrading`
    * guards a double tap, so one confirmed session issues EXACTLY ONE call.
    */
-  const handleGradeBatch = useCallback(async () => {
+  const runGradeBatch = useCallback(async (limitTo: number | null) => {
     // BUGFIX-1 (B1): only a GRADED result ends the flow. A `skipped-error` result is kept
     // (its free MCQ marks still feed the session record below) but it must NOT block the
     // retry its own copy promises: the button stays enabled after a failure, and before
@@ -2198,10 +2207,22 @@ const packTopicKey = useMemo(() => {
     if (batchSelection.batch.length === 0) return;
     setBatchGrading(true);
     setBatchError(null);
+    fairUse.clearLimit();
+    // FAIR-USE-UI-1 (UI2): the student agreed to "we'll mark the first R" - so EXACTLY the
+    // first R batched answers, in their displayed order, keep their working. Every other
+    // answer is sent without it, so the service's own selection (by working) batches
+    // those R and nothing else; the grading service itself is untouched.
+    let answersToSend = sessionAnswers;
+    if (limitTo !== null) {
+      const keep = new Set(batchSelection.batch.slice(0, limitTo).map((a) => a.qNumber));
+      answersToSend = sessionAnswers.map((a) =>
+        keep.has(a.qNumber) ? a : { ...a, imageBase64: null, imageMimeType: null, textAnswer: null },
+      );
+    }
     const result = await gradeQuickPracticeBatch({
       worksheetId: quickPracticeBatchId(filterSignature, sessionStartedAt),
       subject: subjectKey,
-      answers: sessionAnswers,
+      answers: answersToSend,
       user: authUserForJourney,
     });
     setBatchGrading(false);
@@ -2219,7 +2240,11 @@ const packTopicKey = useMemo(() => {
       return;
     }
     setBatchResult(result);
+    if (result.outcome === "graded") fairUse.noteGraded();
     if (result.outcome === "skipped-error") {
+      // FAIR-USE-UI-1 (UI1): a fair-use refusal (carried through the service by NAME) shows
+      // the calm limit panel instead of the error box. Dark -> today's path, unchanged.
+      if (result.errorName === "FairUseLimitError" && (await fairUse.handleRefusal({ name: result.errorName }))) return;
       // BUGFIX-1 (B2, P3): a SignInAgainError (by NAME, carried through the service as
       // `errorName`) shows its own sign-in-again message; every other failure keeps
       // today's copy.
@@ -2229,7 +2254,24 @@ const packTopicKey = useMemo(() => {
           : "We could not grade your answers just now. Your MCQ marks are safe \u2014 try grading again in a moment.",
       );
     }
-  }, [batchGrading, batchResult, batchSelection.batch.length, filterSignature, sessionStartedAt, subjectKey, sessionAnswers, authUserForJourney]);
+  }, [batchGrading, batchResult, batchSelection.batch, filterSignature, sessionStartedAt, subjectKey, sessionAnswers, authUserForJourney, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal]);
+
+  /** The student's "Grade my N answers" tap. FAIR-USE-UI-1 (UI2): with fewer checks left
+   *  than answers, ask first; with none left, show the limit panel and send nothing.
+   *  Reads the snapshot already on the page - never waits on the usage endpoint. */
+  const handleGradeBatch = useCallback(async () => {
+    if (batchGrading || batchResult?.outcome === "graded") return;
+    const plan = fairUse.planGrade(batchSelection.batch.length);
+    if (plan.action === "blocked") {
+      fairUse.showLimit(plan.limit);
+      return;
+    }
+    if (plan.action === "confirm") {
+      setFairUseConfirm(plan.remaining);
+      return;
+    }
+    await runGradeBatch(null);
+  }, [batchGrading, batchResult, batchSelection.batch.length, fairUse.planGrade, fairUse.showLimit, runGradeBatch]);
 
   // \u2500\u2500 The QP session record (LOCKED \u00a71a as amended \u2014 NON-COUNTING) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
   // Written when the scorecard FIRST appears, not on the "Finish session" click alone:
@@ -2907,6 +2949,18 @@ const packTopicKey = useMemo(() => {
             </p>
           )}
           {batchError && <div className="qp-cf__err" role="alert">{batchError}</div>}
+          {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} /> : null}
+          {fairUseConfirm !== null ? (
+            <FairUseConfirm
+              remaining={fairUseConfirm}
+              onConfirm={() => {
+                const r = fairUseConfirm;
+                setFairUseConfirm(null);
+                void runGradeBatch(r);
+              }}
+              onCancel={() => setFairUseConfirm(null)}
+            />
+          ) : null}
           <button
             type="button"
             className="qp-cf__cta"

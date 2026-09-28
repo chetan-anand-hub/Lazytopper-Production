@@ -83,6 +83,10 @@ import ChapterTestUploadPanel from "../components/chaptertest/ChapterTestUploadP
 import PreSubmitConfirm from "../components/chaptertest/PreSubmitConfirm";
 import FullMockHistoryPanel from "../components/fullmock/FullMockHistoryPanel";
 import FullMockPendingBanner from "../components/fullmock/FullMockPendingBanner";
+// FAIR-USE-UI-1 — the fair-use panel (UI1 at grading, UI3 before the mock starts).
+// Dark unless /api/usage/me says `enforced: true`: with it off this page is unchanged.
+import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
+import { useFairUse } from "../components/usage/useFairUse";
 
 type Phase = "setup" | "taking" | "results";
 
@@ -144,6 +148,7 @@ export default function FullMockPage() {
   const subject = subjectFromParam(params.subject || sp.get("subject") || "Maths");
   const sessionSubject: SessionSubject = subject === "Science" ? "science" : "maths";
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
+  const fairUse = useFairUse("full-mock", isSignedIn);
   const sessionUid = user?.uid ?? null;
   const backTo = "/practice-hub";
 
@@ -458,6 +463,9 @@ export default function FullMockPage() {
   // ── Start / resume ───────────────────────────────────────────────────────────
   const startTest = useCallback(() => {
     if (!draw || !nomen || !draw.enoughQuestions) return;
+    // FAIR-USE-UI-1 (UI3): this week's mock already used -> the panel, not the paper.
+    // A RESUME is not a start and is never blocked.
+    if (fairUse.blockPaperStart()) return;
     submittedRef.current = false;
     const a: ActiveMock = {
       paper: draw.paper,
@@ -477,7 +485,7 @@ export default function FullMockPage() {
     focusRef.current = { ...EMPTY_FOCUS };
     setPhase("taking");
     trackUxEvent("full_mock_start", "FullMockPage", { subject, code: nomen.code });
-  }, [draw, nomen, subject]);
+  }, [draw, nomen, subject, fairUse.blockPaperStart]);
 
   const resumeMock = useCallback(() => {
     const s = inProgress ?? findInProgressSession(sessionUid);
@@ -530,6 +538,7 @@ export default function FullMockPage() {
       if (!a || !objective || grading) return;
       setGrading(true);
       setGradeError(null);
+      fairUse.clearLimit();
       try {
         const outcome = await gradeFullMockUpload({
           user,
@@ -547,6 +556,7 @@ export default function FullMockPage() {
           setFullResponse(outcome.response);
           setResultsPhase("full");
           setScorecardOpen(true);
+          fairUse.noteGraded();
           clearFullMockSession(sessionUid, a.code);
           // Fully graded — the durable record + perQuestion payload exist; the
           // cross-device paper snapshot has done its job.
@@ -558,12 +568,14 @@ export default function FullMockPage() {
           void loadRecords();
         }
       } catch (err) {
+        // FAIR-USE-UI-1 (UI1): a fair-use refusal shows the calm panel instead of the error.
+        if (await fairUse.handleRefusal(err)) return;
         setGradeError(err instanceof Error ? err.message : "Failed to grade your answers.");
       } finally {
         setGrading(false);
       }
     },
-    [objective, grading, user, sessionSubject, sessionUid, subject, loadRecords],
+    [objective, grading, user, sessionSubject, sessionUid, subject, loadRecords, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal],
   );
 
   // ── Pending deep-link (banner / panel): attach to the EXISTING record ────────
@@ -924,6 +936,7 @@ export default function FullMockPage() {
                       LazyTopper bank.
                     </div>
 
+                    {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} /> : null}
                     <div className="lt-ct__startrow">
                       <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={startTest}>
                         Start the mock →
@@ -1191,6 +1204,7 @@ export default function FullMockPage() {
             <span className="lt-ct__pagetitle">Mock · Result</span>
           </div>
 
+          {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} /> : null}
           {resultsPhase === "partial" ? (
             <ChapterTestUploadPanel
               eyebrow="Full Mock · Result"

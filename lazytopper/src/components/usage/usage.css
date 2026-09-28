@@ -1,0 +1,98 @@
+/* FAIR-USE-UI-1 — the fair-use panel, confirm and usage card.
+   Calm, not red: a limit is expected operation, never a fault the student made.
+   Deep navy text, soft white card, green accent (the product's visual grammar). */
+
+.lt-usage {
+  --lt-usage-navy: hsl(220, 45%, 14%);
+  --lt-usage-muted: hsl(220, 15%, 42%);
+  --lt-usage-soft: hsl(210, 33%, 98%);
+  --lt-usage-border: hsl(215, 25%, 88%);
+  --lt-usage-green: hsl(152, 55%, 38%);
+  --lt-usage-green-soft: hsl(152, 45%, 94%);
+  --lt-usage-track: hsl(215, 25%, 90%);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 640px;
+  margin: 12px auto;
+  padding: 16px 18px;
+  border-radius: 14px;
+  border: 1px solid var(--lt-usage-border);
+  background: var(--lt-usage-soft);
+  color: var(--lt-usage-navy);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.lt-usage__eyebrow {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lt-usage-green);
+}
+
+.lt-usage__lead { margin: 0; font-size: 15px; font-weight: 700; }
+.lt-usage__body { margin: 0; color: var(--lt-usage-muted); }
+
+.lt-usage__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.lt-usage__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid var(--lt-usage-green);
+  background: var(--lt-usage-green);
+  color: #fff;
+}
+.lt-usage__btn--ghost {
+  background: transparent;
+  color: var(--lt-usage-navy);
+  border-color: var(--lt-usage-border);
+}
+
+/* UI2 confirm: a small in-place sheet beside the Grade button, not a modal. */
+.lt-usage--confirm { border-color: var(--lt-usage-green); background: var(--lt-usage-green-soft); }
+
+/* UI4 card */
+.lt-usage--card { max-width: none; margin: 0; }
+.lt-usage__rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.lt-usage__row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px 12px;
+  min-width: 0;
+}
+.lt-usage__row-name { font-weight: 600; }
+.lt-usage__row-value { font-weight: 700; }
+.lt-usage__row-note { flex-basis: 100%; font-size: 12.5px; color: var(--lt-usage-muted); }
+
+.lt-usage__bar {
+  flex-basis: 100%;
+  width: 100%;
+  height: 10px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  border-radius: 999px;
+  background: var(--lt-usage-track);
+  overflow: hidden;
+}
+.lt-usage__bar::-webkit-progress-bar { background: var(--lt-usage-track); border-radius: 999px; }
+.lt-usage__bar::-webkit-progress-value { background: var(--lt-usage-green); border-radius: 999px; }
+.lt-usage__bar::-moz-progress-bar { background: var(--lt-usage-green); border-radius: 999px; }

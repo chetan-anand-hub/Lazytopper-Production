@@ -95,6 +95,11 @@ import { useSubscription } from "../../hooks/useSubscription";
 import { useFreeCheckReturn } from "../../hooks/useFreeCheckReturn";
 import { trackNamedEvent } from "../../analytics/analytics";
 import { TRIAL_DAYS } from "../../services/subscriptionService";
+// FAIR-USE-UI-1 - UI1 (the limit panel) and UI2 (confirm, then mark only the first R).
+// Dark unless /api/usage/me says `enforced: true`; never asked in free-check mode.
+import FairUseLimitPanel from "../../components/usage/FairUseLimitPanel";
+import FairUseConfirm from "../../components/usage/FairUseConfirm";
+import { useFairUse } from "../../components/usage/useFairUse";
 
 /**
  * DesktopCheckImprovePage — real desktop Check & Improve workflow.
@@ -790,6 +795,10 @@ const DesktopCheckImprovePageInner: React.FC<{
 
   // ── FREE-CHECK-1b: the signed-out free check (inert unless the wrapper says so) ──
   const isFreeMode = freeCheck?.mode === "free";
+  // FAIR-USE-UI-1 - fair limits for a signed-in student (the free check is not metered).
+  const fairUse = useFairUse("checks", !!user?.uid && !user?.isLocalSession && !isFreeMode);
+  /** UI2 - R, while the student is being asked "we'll mark the first R". */
+  const [fairUseConfirm, setFairUseConfirm] = useState<number | null>(null);
   // Passed to the three C&I calls. Undefined on every other visit → the calls are the
   // same as before (paid identity headers, no marker, no App Check).
   const freeCallOpts: PaidCallOptions | undefined = isFreeMode ? FREE_CHECK_CALL : undefined;
@@ -1443,11 +1452,15 @@ const DesktopCheckImprovePageInner: React.FC<{
   // Multi-question grade: grade the WHOLE detected paper in one structured call
   // (the surface-agnostic worksheet grader), then fan each legible result through
   // Mistake Intelligence exactly as the worksheet grade loop does.
-  async function gradeMultiQuestion() {
+  async function gradeMultiQuestion(limitTo: number | null = null) {
     if (!confirmed || !detectedQuestions || !imageBase64) return;
     setErrorMessage(null);
+    fairUse.clearLimit();
     setStatus("loading");
     setSaveStatus("idle");
+    // FAIR-USE-UI-1 (UI2): the student agreed to "we'll mark the first R" - EXACTLY the
+    // first R questions of the paper, in its own order, are sent. Null = all, as before.
+    const questionsToGrade = limitTo !== null ? detectedQuestions.slice(0, limitTo) : detectedQuestions;
 
     // One code per session; reuse it if this session was already graded once so a
     // re-grade reuses the same stable MI ids (dedup) instead of double-counting.
@@ -1473,7 +1486,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       const response = await gradeWorksheet({
         worksheetId: `ci:${sessionCode}`,
         subject: confirmed.subject,
-        questions: detectedQuestions.map((q) => ({
+        questions: questionsToGrade.map((q) => ({
           qNumber: q.questionNumber,
           marks: q.marks,
           topic: confirmed.topicName || undefined,
@@ -1500,7 +1513,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       // detect miss leaves that question's topic empty and NEVER blocks the shown grade.
       try {
         const perQTopics = await resolvePerQuestionGradeTopics(
-          detectedQuestions.map((q) => ({
+          questionsToGrade.map((q) => ({
             questionNumber: q.questionNumber,
             questionText: q.questionText,
           })),
@@ -1541,6 +1554,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       setWsResult(response);
       setStatus("ready");
       setSaveStatus("saving");
+      fairUse.noteGraded();
 
       // C&I PR-1 — the session record (idempotent by id = the frozen code): every
       // graded session persists; a session where NOTHING was read writes no record
@@ -1613,6 +1627,11 @@ const DesktopCheckImprovePageInner: React.FC<{
         setStatus("idle");
         return;
       }
+      // FAIR-USE-UI-1 (UI1): a fair-use refusal shows the calm limit panel, not the error.
+      if (await fairUse.handleRefusal(e)) {
+        setStatus("idle");
+        return;
+      }
       // FREECHECK-2 · F4 — a signed-in student whose sign-in could not be confirmed is
       // told so, in the error's own words (paidCallHeaders' SignInAgainError).
       if (e instanceof Error && e.name === "SignInAgainError") {
@@ -1627,12 +1646,24 @@ const DesktopCheckImprovePageInner: React.FC<{
 
   async function handleGrade() {
     if (!canGrade || !confirmed) return;
+    // FAIR-USE-UI-1 (UI2): fewer checks left than questions -> ask first; none left ->
+    // the limit panel, and nothing is sent. Reads the snapshot already on the page.
+    const plan = fairUse.planGrade(isMultiQuestion && detectedQuestions ? detectedQuestions.length : 1);
+    if (plan.action === "blocked") {
+      fairUse.showLimit(plan.limit);
+      return;
+    }
+    if (plan.action === "confirm") {
+      setFairUseConfirm(plan.remaining);
+      return;
+    }
     // Multi-question paper → grade the whole set via the structured grader.
     if (isMultiQuestion) {
       void gradeMultiQuestion();
       return;
     }
     setErrorMessage(null);
+    fairUse.clearLimit();
     setStatus("loading");
     setSaveStatus("idle");
 
@@ -1740,6 +1771,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       setResult(graded);
       setResultCtx(ctx);
       setStatus("ready");
+      fairUse.noteGraded();
       void persistMistakeLog(ctx, graded);
 
       // The session record — the single grade adapted into the same unified
@@ -1762,6 +1794,11 @@ const DesktopCheckImprovePageInner: React.FC<{
       const refused = freeRefusalFor(e);
       if (refused) {
         setFreeRefusal(refused);
+        setStatus("idle");
+        return;
+      }
+      // FAIR-USE-UI-1 (UI1): a fair-use refusal shows the calm limit panel, not the error.
+      if (await fairUse.handleRefusal(e)) {
         setStatus("idle");
         return;
       }
@@ -2727,6 +2764,18 @@ const DesktopCheckImprovePageInner: React.FC<{
             </div>
           </div>
         )}
+        {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} /> : null}
+        {fairUseConfirm !== null ? (
+          <FairUseConfirm
+            remaining={fairUseConfirm}
+            onConfirm={() => {
+              const r = fairUseConfirm;
+              setFairUseConfirm(null);
+              void gradeMultiQuestion(r);
+            }}
+            onCancel={() => setFairUseConfirm(null)}
+          />
+        ) : null}
       </div>,
       "Board-style examiner grading",
     );

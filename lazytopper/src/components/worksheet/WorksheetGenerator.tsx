@@ -39,6 +39,9 @@ import { exportWorksheetPdf } from "./worksheetPdfExport";
 import WorksheetGradePanel from "./WorksheetGradePanel";
 import WorksheetHistoryPanel from "./WorksheetHistoryPanel";
 import WorksheetPendingBanner from "./WorksheetPendingBanner";
+// FAIR-USE-UI-1 (UI3) — dark unless /api/usage/me says `enforced: true`.
+import FairUseLimitPanel from "../usage/FairUseLimitPanel";
+import { useFairUse } from "../usage/useFairUse";
 
 /**
  * WorksheetGenerator — the ONE responsive worksheet builder. Redesigned to the
@@ -197,6 +200,7 @@ function parseEntryContext(search: string): EntryContext {
 
 function WorksheetGeneratorInner() {
   const { user } = useAuth();
+  const fairUse = useFairUse("worksheet", !!user?.uid && !user?.isLocalSession);
   const ctx = useSubjectContext();
   const location = useLocation();
   const navigate = useNavigate();
@@ -682,6 +686,8 @@ function WorksheetGeneratorInner() {
       setError(blocker ?? "No questions to generate. Change the settings and try again.");
       return;
     }
+    // FAIR-USE-UI-1 (UI3): this week's worksheet already used -> the panel, not the paper.
+    if (fairUse.blockPaperStart()) return;
     setGenerating(true);
     try {
       const questions = candidate;
@@ -1178,6 +1184,7 @@ function WorksheetGeneratorInner() {
             <button type="button" className="lt-ws__btnt" onClick={handleShuffle}>⟳ Shuffle questions</button>
           </div>
           {error && <div className="lt-ws__note lt-ws__note--err" role="alert">{error}</div>}
+          {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} /> : null}
         </>
       )}
 
