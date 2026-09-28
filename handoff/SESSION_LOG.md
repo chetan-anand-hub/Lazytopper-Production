@@ -1,3 +1,19 @@
+## 2026-09-28 — WAVE A-4 (CONTROLLER A) — **PERF-CLS-3: THE LANDING'S SERIF HEADINGS ARE SIZED IN `em`, NOT `ch` — THE ANDROID RE-WRAP IS GONE · PERF-CLS-2 (`#871`) CLOSED UNDER C3** — `#873` MERGED — trunk `7be9bdd5`
+
+★ **PROVENANCE.** Controller A, wave A-4 (a fresh controller, per the addendum's §1). The owner spec `PERF-CLS-3` v1.0 was hash-verified (`E6F8D111C64B`). One builder (`claude-opus-5-5`) worked in `C:/Projects/LT-worktrees/perf-cls-3`. The controller wrote this docs PR from `WAVE_STATE_A4.md` and `report-perf-cls-3-2026-09-28.md`. *(subagent-reported)* / *(controller-verified)* as in `CURRENT_STATE.md`.
+
+**Timeline.**
+- Dispatch at trunk `2956c40f`, no rolling release in progress. §0c premise gate `--strict-anchor` EXIT 0 on the tip.
+- The builder derived P5 (Fraunces "0" advance at wght 900, per phone font size) and chose `7.9 / 10.14 / 10.86 / 10.87em`, with line breaks identical to www from 360 to 1280. Preview C2, 10 + 10 cold loads per font environment: Android-like max 0.0053 (www 0.0700), Windows max 0.0004; landing-absent 0 ms and final `/app/` on all 80 runs *(subagent-reported)*.
+- `#873` head `d5075581`: CI green. Lane-overlap failed only on draft `#871`. **Decision D2:** the controller closed `#871` temporarily, the rerun passed, and `#873` merged ALONE → `7be9bdd5` (ancestor OK, trunk tree == head tree) *(controller-verified)*.
+- Canary `dpl_C47hL5NUgk4permFmKkAApk56uBF` smoke passed; COMPLETE 100%. www C2, ×40: Android max 0.0053 on both `/app/` and the bare domain (before: 0.0700 / 0.0642), Windows 0 *(subagent-reported)*. www `version.json` = `7be9bdd5` *(controller-verified)*.
+- `#871` reopened for **C3**. The builder merged trunk into it (head `99534bf7`, CI green) and measured its preview: Android 0.0019 vs 0.0053, Windows 0 vs 0. The spec requires a drop in BOTH environments, so the controller **CLOSED `#871`** with the numbers in its comment. The branch is kept.
+- This docs PR (OR-16), then the final audit `Desktop/diff/audit-request-wave-a4-final-2026-09-28.md`, then STOP.
+
+**Lessons.**
+- **A `ch` width follows the font that is PRIMARY at that moment, not the font that PAINTS.** Under segmented web fonts, that can be a subset with no "0". Size layout boxes in `em` when the font can swap.
+- **A "must improve in BOTH environments" rule cannot be met once either environment is already at 0.** Write such gates as "no regression in either, improvement in at least one", or state the floor.
+
 ## 2026-09-28 — WAVE A-3 (CONTROLLER A) FINAL — **ROOTENTRY-1: FIRST LOAD NO LONGER BLANKS · SEARCHPING-3: SEARCH-PING ON EVERY TRUNK PUSH, GOOGLE INCLUDED · PERF-CLS-2 STOPPED (THE GRANTED FIX MADE ANDROID WORSE) · ★ THE 0.0771 EXPLANATION `#868` RECORDED WAS WRONG** — `#867` + `#869` MERGED — trunk `069dfdeb` · `#871` draft
 
 ★ **PROVENANCE.**

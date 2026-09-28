@@ -1,5 +1,17 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-28 — WAVE A-4 (CONTROLLER A): PERF-CLS-3 (`#873` `7be9bdd5`), trunk `7be9bdd5`. PERF-CLS-2 (`#871`) CLOSED under C3; it moves nothing.**
+> ★ **THE LANDING NO LONGER JUMPS ON FIRST LOAD ON ANDROID.** This line supersedes, on status only, the WAVE A-3 (FINAL) line "Landing (`/`, `/app/`) — font-swap shift on Android" below; that line stands as written.
+
+### ✅ Landing (`/`, `/app/`) — font-swap shift on Android (devices without Georgia / Arial) — **LIVE (`#873`, rolled out ALONE).**
+- The serif headings are sized in `em`, not `ch`. On www, 10 × `/app/` + 10 × the bare domain per font environment *(subagent-reported)*:
+  - Android-like: max 0.0053 (was 0.0700 / 0.0642)
+  - Windows-like: 0
+  - landing-absent 0 ms and final `/app/` ×40
+- Screenshots after fonts load are identical to www at 375 / 1280.
+- **Owner live-verify owed** on a real Android phone.
+- No scope was discovered; nothing goes in `DECISION_LOG` §2a.
+
 > **2026-09-28 — WAVE A-3 (CONTROLLER A) FINAL: ROOTENTRY-1 (`#867` `7b94ae00`) + SEARCHPING-3 (`#869` `069dfdeb`), trunk `069dfdeb`. PERF-CLS-2 (`#871`) is STOPPED (draft) and moves nothing. SEARCHPING-3 is not a student surface.**
 > ★ **A SIGNED-OUT VISITOR'S FIRST LOAD NO LONGER BLANKS OR BOUNCES TO `/welcome`. The landing still shifts on first load on Android (~0.064): `#859`'s font-swap result holds only in a Windows-like font environment (the CORRECTION in `CURRENT_STATE.md`).** These lines supersede the WAVE A-3 (CONTINUED) "Landing — font-swap shift" and "Landing / root entry" lines below on status only; those lines stand as written.
 
