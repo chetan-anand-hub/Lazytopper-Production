@@ -2,6 +2,33 @@
 /* THEME: DARK PREMIUM ------------------------------------------------ */
 @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap");
 
+/* PERF-CLS-1 — metric-matched LOCAL fallbacks for the two web fonts.
+   Until Fraunces / Inter arrive (display=swap), text paints in these faces; the overrides
+   make the fallback occupy the web font's box, so the swap does not move the page.
+   Derived from the fonts' own metrics (fontkit, over the landing's own text):
+     Fraunces (UPM 2000, hhea 1956/-510/0; wght 900) avg advance 0.50588em
+       vs Georgia (UPM 2048) 0.43934em  -> size-adjust 115.15%
+       ascent 1956/2000/1.1515 = 84.94%, descent 510/2000/1.1515 = 22.15%, line-gap 0
+     Inter (UPM 2048, hhea 1984/-494/0; wght 400) avg advance 0.47516em
+       vs Arial (UPM 2048) 0.44090em    -> size-adjust 107.77%
+       ascent 1984/2048/1.0777 = 89.89%, descent 494/2048/1.0777 = 22.38%, line-gap 0 */
+@font-face {
+  font-family: "Fraunces Fallback";
+  src: local("Georgia");
+  size-adjust: 115.15%;
+  ascent-override: 84.94%;
+  descent-override: 22.15%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "Inter Fallback";
+  src: local("Arial");
+  size-adjust: 107.77%;
+  ascent-override: 89.89%;
+  descent-override: 22.38%;
+  line-gap-override: 0%;
+}
+
 /* Reset */
 *,
 *::before,
@@ -55,7 +82,7 @@
   --shadow: none;
   --lt-page-padding: 24px 16px 40px;
   --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Fraunces", Georgia, serif;
+  --font-display: "Fraunces", "Fraunces Fallback", Georgia, serif;
   --lt-ux-return-back-padding: 6px 12px;
   --lt-ux-return-back-font-size: 0.84rem;
   --lt-ux-chip-padding: 4px 10px;
