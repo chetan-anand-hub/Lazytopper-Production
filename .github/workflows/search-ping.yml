@@ -25,23 +25,42 @@
 #     other than 200/202 fails this job, visibly;
 #   · if the GSC_SERVICE_ACCOUNT secret exists, resubmits the sitemap to Google Search
 #     Console (sitemaps.submit); if not, logs a notice and succeeds. No other Google call.
+#
+# SEARCHPING-2b — MANUAL DISPATCH. Vercel has at times posted NO `Production`
+# deployment_status after a Rolling Release completes (FU-SEARCHPING-NO-PROD-DEPLOYMENT-EVENT),
+# so nothing fires. `workflow_dispatch` runs the SAME job for one SHA (input `sha`, default
+# the dispatched ref's HEAD): the same wait, the same last-ping diff, the same IndexNow/GSC.
+# The pinged SHA is resolved ONCE, in this order, everywhere below:
+#   github.event.deployment.sha (deployment_status) || inputs.sha || github.sha (dispatch).
+# `run-name` carries it, because a dispatched run's headSha is the ref's HEAD, not the
+# input — S3 reads the pinged SHA from the run title (searchPing.ts pingRunSha).
 name: search-ping
+run-name: search-ping ${{ github.event.deployment.sha || inputs.sha || github.sha }}
 
 on:
   deployment_status:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: "Commit to wait for and ping (default: the dispatched ref's HEAD)"
+        required: false
+        default: ""
 
 permissions:
   contents: read
   # `gh run list` / `gh run view` — finding the last run that actually pinged (S3).
   actions: read
 
+# Keyed by the SHA being pinged, so a dispatched run and an event run for the same commit
+# can never ping at once (the second waits; cancel-in-progress stays false).
 concurrency:
-  group: search-ping-${{ github.event.deployment.sha }}
+  group: search-ping-${{ github.event.deployment.sha || inputs.sha || github.sha }}
   cancel-in-progress: false
 
 jobs:
   ping:
-    if: github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production'
+    # A dispatch always runs; a deployment_status runs ONLY on Production success (unchanged).
+    if: github.event_name == 'workflow_dispatch' || (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production')
     runs-on: ubuntu-latest
     # The rollout wait alone may take 30 minutes (S2).
     timeout-minutes: 50
@@ -54,7 +73,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ github.event.deployment.sha }}
+          ref: ${{ github.event.deployment.sha || inputs.sha || github.sha }}
           # Full history: the sitemap is diffed against the last PINGED release, which may be
           # several commits back, and the wait checks whether a newer served commit descends
           # from this one.
@@ -73,7 +92,7 @@ jobs:
         id: rollout
         timeout-minutes: 35
         env:
-          DEPLOY_SHA: ${{ github.event.deployment.sha }}
+          DEPLOY_SHA: ${{ github.event.deployment.sha || inputs.sha || github.sha }}
         run: pnpm --filter lazytopper exec tsx scripts/seo/searchPing.ts --sha="$DEPLOY_SHA" --wait
 
       # ⚠ This step's NAME is load-bearing: a later run treats a past run as "pinged" only if
@@ -82,7 +101,7 @@ jobs:
         if: steps.rollout.outputs.live == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
-          DEPLOY_SHA: ${{ github.event.deployment.sha }}
+          DEPLOY_SHA: ${{ github.event.deployment.sha || inputs.sha || github.sha }}
           GSC_SERVICE_ACCOUNT: ${{ secrets.GSC_SERVICE_ACCOUNT }}
           GSC_SITE_URL: ${{ vars.GSC_SITE_URL }}
         run: |

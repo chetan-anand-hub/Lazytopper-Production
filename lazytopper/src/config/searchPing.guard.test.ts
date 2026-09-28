@@ -14,6 +14,7 @@ import {
   indexNowAccepted,
   indexNowBody,
   parseSitemap,
+  pingRunSha,
   resolveBefore,
   waitForRollout,
   type PingRun,
@@ -142,33 +143,67 @@ describe("search-ping — the IndexNow request body", () => {
 
 // ── The workflow's trigger filter ──────────────────────────────────────────────────────
 
-interface DeploymentEvent {
-  deployment_status: { state: string };
-  deployment: { environment: string };
+/** The slice of the Actions expression context the conditions read. */
+interface IfContext {
+  github: { event_name: string; event: Record<string, unknown> };
+  steps?: Record<string, { outputs: Record<string, string> }>;
 }
 
 /**
- * Evaluate the job's `if:` against an event. Supports exactly the grammar the condition
- * needs — `a == 'b'` clauses joined by `&&` over `github.event.*` — and THROWS on anything
- * else, so a condition this cannot read fails loudly instead of being judged permissive.
+ * Evaluate a workflow `if:` against a context. Supports exactly the grammar these conditions
+ * use — `path == 'lit'` operands over `github.*` / `steps.*`, joined by `&&` / `||`, with
+ * parentheses — and THROWS on anything else, so a condition this cannot read fails loudly
+ * instead of being judged permissive. An ABSENT `if:` is `true` (GitHub's default).
  */
-function evaluateCondition(condition: string, event: DeploymentEvent): boolean {
-  const clauses = condition.replace(/^\s*\$\{\{\s*|\s*\}\}\s*$/g, "").split("&&");
-  return clauses.every((clause) => {
-    const match = /^\s*github\.event\.([\w.]+)\s*==\s*'([^']*)'\s*$/.exec(clause);
-    if (!match) throw new Error(`unsupported clause in search-ping's if: "${clause.trim()}"`);
-    const value = match[1].split(".").reduce<unknown>(
+function evaluateIf(condition: string | undefined, context: IfContext): boolean {
+  if (condition === undefined) return true;
+  const source = condition.replace(/^\s*\$\{\{\s*|\s*\}\}\s*$/g, "");
+  const tokens = source.match(/\(|\)|&&|\|\||[\w.-]+\s*==\s*'[^']*'|\S+/g) ?? [];
+  let at = 0;
+  const lookup = (path: string): unknown =>
+    path.split(".").reduce<unknown>(
       (node, key) => (node && typeof node === "object" ? (node as Record<string, unknown>)[key] : undefined),
-      event,
+      context,
     );
-    return value === match[2];
-  });
+  const operand = (): boolean => {
+    const token = tokens[at++];
+    if (token === "(") {
+      const value = orExpr();
+      if (tokens[at++] !== ")") throw new Error(`unbalanced ( in if: "${source}"`);
+      return value;
+    }
+    const match = /^((?:github|steps)\.[\w.-]+)\s*==\s*'([^']*)'$/.exec(token ?? "");
+    if (!match) throw new Error(`unsupported token "${token}" in if: "${source}"`);
+    return lookup(match[1]) === match[2];
+  };
+  const andExpr = (): boolean => {
+    let value = operand();
+    while (tokens[at] === "&&") {
+      at += 1;
+      value = operand() && value;
+    }
+    return value;
+  };
+  const orExpr = (): boolean => {
+    let value = andExpr();
+    while (tokens[at] === "||") {
+      at += 1;
+      value = andExpr() || value;
+    }
+    return value;
+  };
+  const result = orExpr();
+  if (at !== tokens.length) throw new Error(`trailing tokens in if: "${source}"`);
+  return result;
 }
 
-const event = (environment: string, state: string): DeploymentEvent => ({
-  deployment: { environment },
-  deployment_status: { state },
+const deploymentEvent = (environment: string, state: string): IfContext => ({
+  github: {
+    event_name: "deployment_status",
+    event: { deployment: { environment }, deployment_status: { state } },
+  },
 });
+const dispatchEvent: IfContext = { github: { event_name: "workflow_dispatch", event: { inputs: {} } } };
 
 describe("search-ping.yml — the trigger filter", () => {
   const workflow = parseYaml(readFileSync(WORKFLOW, "utf8")) as {
@@ -177,8 +212,8 @@ describe("search-ping.yml — the trigger filter", () => {
   };
   const jobs = Object.values(workflow.jobs);
 
-  it("is triggered by deployment_status ONLY — never a pull request or a push", () => {
-    expect(Object.keys(workflow.on)).toEqual(["deployment_status"]);
+  it("is triggered by deployment_status and a manual dispatch ONLY — never a pull request or a push", () => {
+    expect(Object.keys(workflow.on)).toEqual(["deployment_status", "workflow_dispatch"]);
   });
 
   it("every job is gated (an ungated job would run on every deployment event)", () => {
@@ -187,22 +222,26 @@ describe("search-ping.yml — the trigger filter", () => {
   });
 
   it("fires on a SUCCESSFUL PRODUCTION Vercel deployment", () => {
-    for (const job of jobs) expect(evaluateCondition(job.if as string, event("Production", "success"))).toBe(true);
+    for (const job of jobs) expect(evaluateIf(job.if, deploymentEvent("Production", "success"))).toBe(true);
+  });
+
+  it("SEARCHPING-2b — fires on a manual dispatch", () => {
+    for (const job of jobs) expect(evaluateIf(job.if, dispatchEvent)).toBe(true);
   });
 
   it("★ does NOT fire on a preview deployment, a failed/pending one, or Railway's backend", () => {
     const refused = [
-      event("Preview", "success"),
-      event("Production", "failure"),
-      event("Production", "pending"),
-      event("Production", "in_progress"),
-      event("lazytopper-backend / production", "success"),
-      event("production", "success"),
+      deploymentEvent("Preview", "success"),
+      deploymentEvent("Production", "failure"),
+      deploymentEvent("Production", "pending"),
+      deploymentEvent("Production", "in_progress"),
+      deploymentEvent("lazytopper-backend / production", "success"),
+      deploymentEvent("production", "success"),
     ];
     for (const job of jobs) {
       for (const candidate of refused) {
         expect(
-          evaluateCondition(job.if as string, candidate),
+          evaluateIf(job.if, candidate),
           `search-ping would fire on ${JSON.stringify(candidate)}`,
         ).toBe(false);
       }
@@ -333,23 +372,32 @@ interface WorkflowStep {
   id?: string;
   if?: string;
   run?: string;
+  uses?: string;
+  with?: Record<string, unknown>;
   env?: Record<string, string>;
 }
 
-/**
- * Evaluate a STEP's `if:` given step outputs. Supports exactly
- * `steps.<id>.outputs.<key> == '<v>'`. An ABSENT `if:` means the step always runs (GitHub's
- * default); anything else throws rather than being judged safe.
- */
-function stepRuns(step: WorkflowStep, outputs: Record<string, Record<string, string>>): boolean {
-  if (step.if === undefined) return true;
-  const match = /^\s*(?:\$\{\{\s*)?steps\.([\w-]+)\.outputs\.([\w-]+)\s*==\s*'([^']*)'\s*(?:\}\}\s*)?$/.exec(step.if);
-  if (!match) throw new Error(`unsupported step if: "${step.if}"`);
-  return outputs[match[1]]?.[match[2]] === match[3];
+/** Whether a step runs, for BOTH triggers, given the wait step's outputs. */
+function stepRunsFor(
+  step: WorkflowStep,
+  trigger: IfContext,
+  outputs: Record<string, Record<string, string>>,
+): boolean {
+  const steps = Object.fromEntries(Object.entries(outputs).map(([id, out]) => [id, { outputs: out }]));
+  return evaluateIf(step.if, { ...trigger, steps });
 }
+const TRIGGERS: Array<[string, IfContext]> = [
+  ["deployment_status", deploymentEvent("Production", "success")],
+  ["workflow_dispatch", dispatchEvent],
+];
+
+const PINGED_SHA = "${{ github.event.deployment.sha || inputs.sha || github.sha }}";
 
 describe("search-ping.yml — S2 gate: no ping until the release is live", () => {
   const workflow = parseYaml(readFileSync(WORKFLOW, "utf8")) as {
+    "run-name"?: string;
+    on: { workflow_dispatch?: { inputs?: Record<string, { required?: boolean; default?: string }> } };
+    concurrency?: { group?: string; "cancel-in-progress"?: boolean };
     jobs: Record<string, { steps: WorkflowStep[] }>;
   };
   const steps = Object.values(workflow.jobs).flatMap((job) => job.steps);
@@ -366,18 +414,55 @@ describe("search-ping.yml — S2 gate: no ping until the release is live", () =>
     expect(steps.indexOf(wait as WorkflowStep)).toBeLessThan(steps.indexOf(ping as WorkflowStep));
   });
 
-  it("★ the ping step runs ONLY when the wait step's output live == 'true'", () => {
+  it("★ the ping step runs ONLY when the wait step's output live == 'true' — for BOTH triggers", () => {
     const id = wait?.id as string;
-    expect(stepRuns(ping as WorkflowStep, { [id]: { live: "true" } })).toBe(true);
-    expect(stepRuns(ping as WorkflowStep, { [id]: { live: "false" } }), "pings a superseded release").toBe(false);
-    expect(stepRuns(ping as WorkflowStep, {}), "pings without waiting").toBe(false);
+    for (const [name, trigger] of TRIGGERS) {
+      expect(stepRunsFor(ping as WorkflowStep, trigger, { [id]: { live: "true" } }), name).toBe(true);
+      expect(
+        stepRunsFor(ping as WorkflowStep, trigger, { [id]: { live: "false" } }),
+        `${name}: pings a superseded release`,
+      ).toBe(false);
+      expect(stepRunsFor(ping as WorkflowStep, trigger, {}), `${name}: pings without waiting`).toBe(false);
+    }
   });
 
-  it("S4 — the ping step still carries the GSC secret/variable and the deployed SHA, unchanged", () => {
+  it("the wait step itself runs for BOTH triggers", () => {
+    for (const [name, trigger] of TRIGGERS) expect(stepRunsFor(wait as WorkflowStep, trigger, {}), name).toBe(true);
+  });
+
+  it("S4 — the ping step still carries the GSC secret/variable, unchanged", () => {
     expect(ping?.env?.GSC_SERVICE_ACCOUNT).toBe("${{ secrets.GSC_SERVICE_ACCOUNT }}");
     expect(ping?.env?.GSC_SITE_URL).toBe("${{ vars.GSC_SITE_URL }}");
-    expect(ping?.env?.DEPLOY_SHA).toBe("${{ github.event.deployment.sha }}");
     expect(ping?.run).toContain('scripts/seo/searchPing.ts --sha="$DEPLOY_SHA"');
     expect(ping?.run).not.toContain("--wait");
+  });
+
+  it("SEARCHPING-2b — ONE pinged SHA everywhere: deployment sha, else the dispatch input, else the ref's HEAD", () => {
+    expect(workflow.on.workflow_dispatch?.inputs?.sha?.required).toBe(false);
+    expect(wait?.env?.DEPLOY_SHA).toBe(PINGED_SHA);
+    expect(ping?.env?.DEPLOY_SHA).toBe(PINGED_SHA);
+    const checkout = steps.find((step) => String(step.uses).startsWith("actions/checkout"));
+    expect(checkout?.with?.ref).toBe(PINGED_SHA);
+    // S3 reads the pinged SHA from the run title (a dispatched run's headSha is the ref's HEAD).
+    expect(workflow["run-name"]).toBe(`search-ping ${PINGED_SHA}`);
+  });
+
+  it("SEARCHPING-2b — a dispatched and an event run for the same SHA share one concurrency group", () => {
+    expect(workflow.concurrency?.group).toBe(`search-ping-${PINGED_SHA}`);
+    expect(workflow.concurrency?.["cancel-in-progress"]).toBe(false);
+  });
+});
+
+describe("search-ping — S3 reads the pinged SHA of a past run (SEARCHPING-2b)", () => {
+  const HEAD = "7777777777777777777777777777777777777777";
+  const INPUT = "8888888888888888888888888888888888888888";
+
+  it("a titled run ('search-ping <sha>') pinged the SHA in its title, not its headSha", () => {
+    expect(pingRunSha({ headSha: HEAD, displayTitle: `search-ping ${INPUT}` })).toBe(INPUT);
+  });
+
+  it("an untitled (pre-2b) run pinged its headSha", () => {
+    expect(pingRunSha({ headSha: HEAD, displayTitle: "search-ping" })).toBe(HEAD);
+    expect(pingRunSha({ headSha: HEAD })).toBe(HEAD);
   });
 });
