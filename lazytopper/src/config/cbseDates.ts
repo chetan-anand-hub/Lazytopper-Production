@@ -1,3 +1,5 @@
+import { predictCbseExamDate, predictCbsePhase2Date } from "../services/cbseExamDate";
+
 export type CbseExamPhase = "phase1" | "phase2";
 
 export type CbseClassDates = {
@@ -11,17 +13,31 @@ export type CbseDates = {
   class12: CbseClassDates;
 };
 
+/**
+ * BOARD-DATE-1 (D2) — no hard-coded year. Every field is a GETTER that asks the one
+ * client predictor at READ time, so SprintDashboard and Onboarding show the same board
+ * date as the landing countdown (`predictCbseExamDate("10")` in Welcome.tsx), and a tab
+ * left open across a board day never keeps last year's date. (Evaluating the predictor
+ * once at module load would freeze the date for the life of the tab — the trap
+ * Welcome.tsx documents for its own anchor.)
+ */
+function classDates(studentClass: "10" | "12"): CbseClassDates {
+  return {
+    get phase1() {
+      return predictCbseExamDate(studentClass);
+    },
+    get phase2() {
+      return predictCbsePhase2Date();
+    },
+    get boardExam() {
+      return predictCbseExamDate(studentClass);
+    },
+  };
+}
+
 export const cbseDates: CbseDates = {
-  class10: {
-    phase1: "2026-02-17",
-    phase2: "2026-05-15",
-    boardExam: "2026-02-17",
-  },
-  class12: {
-    phase1: "2026-02-17",
-    phase2: "2026-05-15",
-    boardExam: "2026-02-17",
-  },
+  class10: classDates("10"),
+  class12: classDates("12"),
 };
 
 const dateFormatter = new Intl.DateTimeFormat('en-IN', {
