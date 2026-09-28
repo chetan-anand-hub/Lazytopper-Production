@@ -1,3 +1,27 @@
+## ★★★ 2026-09-28 — WAVE A-3 (CONTROLLER A) FINAL — CLOSED (docs, third PR) — THIS BLOCK SUPERSEDES THE WAVE B-4 BLOCK BELOW ON TRUNK SHA ONLY
+*(It does not supersede the owner items of the WAVE B-4, B-3, B-2, A-2 or B-1 blocks below, which stand unchanged. From the WAVE A-3 (CONTINUED) block below (`#868`), items 0–2 are DONE and items 3–6 still stand:
+- item 0: the owner granted `App.tsx:340`, and ROOTENTRY-1 `#867` merged;
+- item 1: the owner chose the push trigger, and SEARCHPING-3 `#869` merged;
+- item 2: the owner added `GSC_SERVICE_ACCOUNT`.
+★ That block's explanation of the owner's CLS 0.0771 ("a measurement taken before `#859` reached 100%") is WRONG. See the dated CORRECTION in `CURRENT_STATE.md`.)*
+
+**TRUNK IS `069dfdeb716582aca6ebf43c1cdb08af514ead89`**, measured 2026-09-28 (`git fetch origin` + `git rev-parse origin/base/approved-thru-437`):
+- `069dfdeb` = `#869` (SEARCHPING-3: search-ping runs on every trunk push) — **this wave**
+- `6f55c66e` = `#870` (docs: wave B-4 — Controller B)
+- `7b94ae00` = `#867` (ROOTENTRY-1: RootEntry renders the landing while auth loads; no BottomNav on `/`; rolled out ALONE) — **this wave**
+- `2068c306` = `#868` (docs: wave A-3 continued)
+
+Open at the time of writing, besides this docs PR: `#871` PERF-CLS-2 (**DRAFT, STOPPED — must not merge as it stands**).
+
+### NEXT — OWNER (none of these was run by the controller or a builder)
+1. **Decide the landing's `ch`-sized headings** (`[FU-LANDING-CH-MAXWIDTH-PRIMARY-SEGMENT]`). PERF-CLS-2's granted Android fallback faces made Android CLS worse: 0.0638 → ~0.1195 *(subagent-reported)*. The builder traced the cause to `Welcome.tsx:271` (h1 `max-width:11ch`) and the h2s at `:284` / `:306` / `:312`. While Fraunces' latin-ext segment has loaded and latin has not, `ch` resolves to 0.5em and the h1 re-wraps. Grant those four lines `ch` → `em` (`7.32em` / `10.05em` / `10.77em` / `10.81em`, subject to a wrap check at 360–1280). The builder measured the `ch` fix alone on www at 0.0049–0.0053, and with `#871` at 0.0015–0.0019. **Controller recommends:** its own lane, merged ALONE, with the font-environment matrix and the content-absent control; then re-measure `#871` on top and merge it only if it helps both environments, else close it.
+2. **Live-verify ROOTENTRY-1's signed-in path** (CLAUDE.md §6): signed in, open `https://www.lazytopper.com/app/` on a phone → it lands on `/browse`; on desktop → the home. The signed-out path is proven on www (landing-absent 0 ms ×20, final `/app/` ×20, BottomNav 0 ×20); the signed-in path is only unit-tested (no test account) *(subagent-reported)*.
+3. **Live-verify the landing on a real Android phone** once the `ch` fix is live: on a cold first load over mobile data, the headline and hero text do not jump when the fonts arrive.
+4. *(optional)* **Check the Vercel firewall / Attack Challenge Mode** (`[FU-PROD-VERCEL-CHALLENGE-403]`). After many automated loads, www challenged this machine (`403`, `X-Vercel-Mitigated: challenge`). When the controller checked, the challenge was transient and IP-scoped. Whether real students are ever challenged is unverified.
+5. **Watch the push runs** (`[FU-SEARCHPING-PUSH-WAIT-BUDGET]`, watch-only). The first push run waited 19 m 13 s of its 30-min budget, because it started 16 min behind the previous rollout *(subagent-reported)*. A red run pings nothing; the next push, or `gh workflow run search-ping.yml -f sha=<trunk sha>`, recovers it.
+6. **Standing for every future CLS gate (owner, 2026-09-28):** a content-absent control (how long the page content is absent, and the final URL) AND a font-environment matrix: Windows-like (Georgia / Arial present) + Android-like (Linux, no Georgia / Arial, Roboto + Noto Serif). Record the font set (`fc-list`) with every CLS number (`[FU-CLS-HARNESS-FONT-ENV-PINNED]`). This adds to `#868`'s standing rules (sitemap + lastmod in page-regenerating allowlists; slow-4G + throttled CPU binding).
+7. **The WAVE B-4, B-3, B-2, A-2 and B-1 owner steps, and `#868`'s items 3–6, still stand** (the blocks below). This docs lane did not re-check whether any has since been done.
+
 ## ★★★ 2026-09-28 — WAVE B-4 (MONEY, CONTROLLER B) CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-3 (CONTINUED) BLOCK BELOW ON TRUNK SHA ONLY
 *(It does not supersede the owner items of the WAVE A-3 (CONTINUED), B-3, A-3, B-2, A-2 or B-1 blocks below, which stand unchanged — except that the WAVE B-3 block's fair-use steps are replaced by steps 1–3 below: its step 1 (`FAIR_USE_PAPER_SECRET`) is DONE by the owner (`POST /api/usage/paper` answers 401 unsigned, per the B-4 dispatch); its step 3 (decide `[FU-FAIR-USE-MINT-NO-REFUND]` + fix `[FU-FAIR-USE-SOLUTIONCHECKER-PANEL]`) is DONE by `#866`; and its step 2 (signed-in page-level screenshots) is replaced, per the B-3 audit, by the live test in step 3 below. `[FU-FAIR-USE-UI-PREVIEW-SHOTS]` itself stays open on the board.)*
 
