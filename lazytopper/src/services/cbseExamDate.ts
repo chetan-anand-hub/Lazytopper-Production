@@ -117,23 +117,39 @@ export function predictCbseExamDate(studentClass: "10" | "12"): string {
 }
 
 /**
- * PHASE2-DATE-1 (owner ruling 2026-09-28) — the phase-2 date is 15 May of the PREDICTED
- * BOARD YEAR: the year of `predictCbseExamDate()` at the same instant. No hard-coded year.
- * The phase-2 end keeps its old offset (1 June), with the same year.
+ * PHASE2-DATE-1 (owner ruling 2026-09-28 + controller OR-AUTO on FU-PHASE2-AFTER-BOARD-DAY) —
+ * the phase-2 date is 15 May of the BOARD CYCLE it follows. Phase 2 belongs to the boards
+ * before it, so from the board day up to and including 15 May it stays 15 May of the
+ * CURRENT year, and it rolls to next year only AFTER 15 May (IST calendar date). From
+ * 16 May to the board day that is also the predicted board year (e.g. 2027-05-15 on
+ * 2026-09-28). No hard-coded year. The phase-2 end (1 June) follows phase 2's year.
  */
 const PHASE2_MONTH_DAY = "05-15";
 const PHASE2_END_MONTH_DAY = "06-01";
 
-function predictedBoardYear(studentClass: "10" | "12"): string {
-  return predictCbseExamDate(studentClass).slice(0, 4);
+/** Today's calendar date in India as "YYYY-MM-DD" (the IST date, whatever the device zone). */
+function istIsoDate(now: Date): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(now);
 }
 
-export function predictCbsePhase2Date(studentClass: "10" | "12" = "10"): string {
-  return `${predictedBoardYear(studentClass)}-${PHASE2_MONTH_DAY}`;
+function phase2CycleYear(now: Date = new Date()): number {
+  const today = istIsoDate(now);
+  const year = Number(today.slice(0, 4));
+  return today.slice(5) <= PHASE2_MONTH_DAY ? year : year + 1;
 }
 
-export function predictCbsePhase2End(studentClass: "10" | "12" = "10"): string {
-  return `${predictedBoardYear(studentClass)}-${PHASE2_END_MONTH_DAY}`;
+/** Both classes share the phase-2 window; the class argument is kept for callers. */
+export function predictCbsePhase2Date(_studentClass: "10" | "12" = "10"): string {
+  return `${phase2CycleYear()}-${PHASE2_MONTH_DAY}`;
+}
+
+export function predictCbsePhase2End(_studentClass: "10" | "12" = "10"): string {
+  return `${phase2CycleYear()}-${PHASE2_END_MONTH_DAY}`;
 }
 
 /**
