@@ -45,6 +45,9 @@ const {
   createFairUse,
   cachedReadJson,
   resolveSurface,
+  verifyPaperPass,
+  encodePaperPass,
+  paperPassId,
   resolveLimits,
   isEnforced,
   windowDayKeys,
@@ -52,6 +55,9 @@ const {
   SURFACE_HEADER,
   CHECK_SOLUTION_PATH,
   GRADE_WORKSHEET_PATH,
+  USAGE_PAPER_PATH,
+  PAPER_HEADER,
+  PAPER_PASS_TTL_MS,
 } = require('./fairUse.cjs');
 const { createRateLimiter, istDayKey } = require('./rateLimiter.cjs');
 
@@ -77,9 +83,21 @@ function recorder() {
 function fakeLedger(days = {}, { failRead = false } = {}) {
   const trialWrites = [];
   const reads = [];
+  const passWrites = [];
   return {
     trialWrites,
     reads,
+    passWrites,
+    /** F1's one merged write, applied to the SAME day objects readDays serves. */
+    async recordPaperPass(uid, { passId, issuedAtMs, counts }) {
+      passWrites.push({ uid, passId, issuedAtMs, counts });
+      const key = istDayKey(issuedAtMs);
+      const day = (days[key] = days[key] || {});
+      day.paperPasses = { ...(day.paperPasses || {}), [passId]: issuedAtMs };
+      const FIELDS = { checks: 'trialChecks', chapterTests: 'trialChapterTests', mocks: 'trialMocks', worksheets: 'trialWorksheets' };
+      for (const [k, f] of Object.entries(FIELDS)) if (counts && counts[k] > 0) day[f] = (day[f] || 0) + counts[k];
+      return true;
+    },
     async readDays(uid, keys) {
       reads.push({ uid, keys });
       if (failRead) throw new Error('ledger down');
@@ -115,6 +133,7 @@ const rawReadJson = async (req) => req.__body || {};
 
 /** A fair-use gate over an injected tier, ledger and clock. */
 function rig({ tier = 'trial', days = {}, env = { FAIR_USE_ENFORCE: '1' }, now = NOW, failRead = false, tierOf } = {}) {
+  const clock = { now };
   const ledger = fakeLedger(days, { failRead });
   const telemetry = recorder();
   const sent = [];
@@ -124,15 +143,16 @@ function rig({ tier = 'trial', days = {}, env = { FAIR_USE_ENFORCE: '1' }, now =
     ledger,
     telemetry,
     env,
-    now: () => now,
+    now: () => clock.now,
     readJson: rawReadJson,
+    recordPaperPass: (...a) => ledger.recordPaperPass(...a),
     sendJson: (res, status, body) => {
       sent.push({ status, body });
       res.sent = { status, body };
     },
     verifiedCaller: { resolveVerifiedUid: async (req) => (req.headers.authorization === 'Bearer ok' ? 'stu-1' : '') },
   });
-  return { gate, ledger, telemetry, sent, tierReads: () => tierReads };
+  return { gate, ledger, telemetry, sent, clock, days, tierReads: () => tierReads };
 }
 
 function questions(n) {
@@ -150,6 +170,27 @@ async function run(r, { path: reqPath = CHECK_SOLUTION_PATH, surface, body, head
 }
 
 const dayOf = (offsetDays) => istDayKey(NOW - offsetDays * 86400000);
+
+/* ── Paper passes (FAIR-USE-2) ────────────────────────────────────────────── */
+
+const SECRET = 'test-paper-secret';
+/** Enforcing, with passes configured. */
+const PASS_ENV = Object.freeze({ FAIR_USE_ENFORCE: '1', FAIR_USE_PAPER_SECRET: SECRET });
+/** The ship state: dark, but with passes configured. */
+const PASS_ENV_DARK = Object.freeze({ FAIR_USE_PAPER_SECRET: SECRET });
+
+/** POST /api/usage/paper through the gate. Returns { status, body }. */
+async function mint(r, { surface = 'chapter-test', paperKey = 'ct-1', headers = { authorization: 'Bearer ok' }, body } = {}) {
+  const res = fakeRes();
+  const req = { headers: { ...headers }, __body: body !== undefined ? body : { surface, paperKey } };
+  await r.gate.handlePaperPass(req, res);
+  return res.sent;
+}
+
+/** A grading request carrying a paper pass. */
+function paperHeaders(token) {
+  return { [PAPER_HEADER]: token };
+}
 
 /* ══════════════════════════════════════════════════════════════════════════
    U2 · TRIAL — 5 answer checks per IST day, counted PER QUESTION
@@ -222,21 +263,24 @@ test('U2 · trial checks reset on the IST day boundary, not the UTC one', async 
 
 /* ── 1 chapter test per IST day ───────────────────────────────────────────── */
 
-test('U2 · chapter test: 1 per IST day — at the limit 409, next IST day served, counted as ONE paper', async () => {
+test('U2 · chapter test: 1 per IST day — at the limit the MINT is 409, next IST day served, counted as ONE paper', async () => {
   const days = { [TODAY]: { trialChapterTests: 1 } };
   const body = { worksheetId: 'ct-1', questions: questions(8) };
-  const at = rig({ days });
-  const refused = await run(at, { path: GRADE_WORKSHEET_PATH, surface: 'chapter-test', body });
-  assert.deepEqual(refused.res.sent, {
+  const at = rig({ days, env: PASS_ENV });
+  assert.deepEqual(await mint(at, { surface: 'chapter-test', paperKey: 'ct-1' }), {
     status: 409,
     body: { error: 'trial_limit', remaining: 0, resetAt: NEXT_IST_MIDNIGHT },
   });
+  assert.equal(at.ledger.passWrites.length, 0, 'a refused mint spends nothing');
 
-  const next = rig({ days, now: Date.UTC(2026, 8, 27, 18, 30, 0) });
-  const served = await run(next, { path: GRADE_WORKSHEET_PATH, surface: 'chapter-test', body });
+  const next = rig({ days, env: PASS_ENV, now: Date.UTC(2026, 8, 27, 18, 30, 0) });
+  const minted = await mint(next, { surface: 'chapter-test', paperKey: 'ct-1' });
+  assert.equal(minted.status, 200);
+  assert.deepEqual(next.ledger.passWrites.map((w) => w.counts), [{ chapterTests: 1 }]);
+  const served = await run(next, { path: GRADE_WORKSHEET_PATH, surface: 'chapter-test', body, headers: paperHeaders(minted.body.token) });
   assert.equal(served.answered, false);
-  assert.deepEqual(next.ledger.trialWrites, [{ uid: 'stu-1', counts: { chapterTests: 1 } }],
-    'an 8-question chapter test is one chapter test, and spends no answer checks');
+  assert.deepEqual(next.ledger.trialWrites, [],
+    'an 8-question chapter test is one chapter test (spent at the mint), and spends no answer checks');
 });
 
 /* ── 1 full mock and 1 worksheet grading per ROLLING 7 IST days ────────────── */
@@ -246,24 +290,23 @@ for (const [surface, field, counterKey] of [
   ['worksheet', 'trialWorksheets', 'worksheets'],
 ]) {
   test(`U2 · ${surface}: 1 per rolling 7 IST days — 6 days ago refused (reset when it leaves), 7 days ago served`, async () => {
-    const body = { worksheetId: `${surface}-1`, questions: questions(5) };
+    const paperKey = `${surface}-1`;
     // Used 6 IST days ago (2026-09-21): still inside [09-21 .. 09-27].
-    const inside = rig({ days: { [dayOf(6)]: { [field]: 1 } } });
-    const refused = await run(inside, { path: GRADE_WORKSHEET_PATH, surface, body });
-    assert.equal(refused.res.sent.status, 409);
+    const inside = rig({ env: PASS_ENV, days: { [dayOf(6)]: { [field]: 1 } } });
+    const refused = await mint(inside, { surface, paperKey });
+    assert.equal(refused.status, 409);
     // It leaves the window at the start of 09-28 IST = 2026-09-27T18:30Z.
-    assert.deepEqual(refused.res.sent.body, { error: 'trial_limit', remaining: 0, resetAt: '2026-09-27T18:30:00.000Z' });
+    assert.deepEqual(refused.body, { error: 'trial_limit', remaining: 0, resetAt: '2026-09-27T18:30:00.000Z' });
 
     // Used 4 days ago: leaves at the start of 2026-09-30 IST.
-    const mid = rig({ days: { [dayOf(4)]: { [field]: 1 } } });
-    assert.equal((await run(mid, { path: GRADE_WORKSHEET_PATH, surface, body })).res.sent.body.resetAt,
-      '2026-09-29T18:30:00.000Z');
+    const mid = rig({ env: PASS_ENV, days: { [dayOf(4)]: { [field]: 1 } } });
+    assert.equal((await mint(mid, { surface, paperKey })).body.resetAt, '2026-09-29T18:30:00.000Z');
 
     // Used 7 IST days ago (2026-09-20): outside the window.
-    const outside = rig({ days: { [dayOf(7)]: { [field]: 1 } } });
-    const served = await run(outside, { path: GRADE_WORKSHEET_PATH, surface, body });
-    assert.equal(served.answered, false);
-    assert.deepEqual(outside.ledger.trialWrites, [{ uid: 'stu-1', counts: { [counterKey]: 1 } }]);
+    const outside = rig({ env: PASS_ENV, days: { [dayOf(7)]: { [field]: 1 } } });
+    const served = await mint(outside, { surface, paperKey });
+    assert.equal(served.status, 200);
+    assert.deepEqual(outside.ledger.passWrites.map((w) => w.counts), [{ [counterKey]: 1 }]);
     assert.deepEqual(outside.ledger.reads[0].keys, windowDayKeys(NOW));
     assert.equal(outside.ledger.reads[0].keys.length, 7);
     assert.ok(!outside.ledger.reads[0].keys.includes(dayOf(7)));
@@ -295,7 +338,11 @@ test('U1 · a forged surface never buys a cheaper allowance than the fallback', 
     assert.equal(out.res.sent.body.remaining, 0);
   }
   assert.equal(resolveSurface({ headers: { [SURFACE_HEADER]: 'full-mock' } }, CHECK_SOLUTION_PATH, null), 'check-improve');
-  assert.equal(resolveSurface({ headers: { [SURFACE_HEADER]: ' Full-Mock ' } }, GRADE_WORKSHEET_PATH, { worksheetId: 'fm-1' }), 'full-mock');
+  // FAIR-USE-2: the header alone no longer makes a paper; with a verified pass for it, it does.
+  assert.equal(resolveSurface({ headers: { [SURFACE_HEADER]: ' Full-Mock ' } }, GRADE_WORKSHEET_PATH, { worksheetId: 'fm-1' }), 'check-improve');
+  assert.equal(resolveSurface({ headers: { [SURFACE_HEADER]: ' Full-Mock ' } }, GRADE_WORKSHEET_PATH, { worksheetId: 'fm-1' }, { surface: 'full-mock' }), 'full-mock');
+  assert.equal(resolveSurface({ headers: { [SURFACE_HEADER]: 'full-mock' } }, GRADE_WORKSHEET_PATH, { worksheetId: 'fm-1' }, { surface: 'worksheet' }), 'check-improve',
+    'a pass for ANOTHER paper surface does not make this one');
 });
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -575,6 +622,7 @@ test('U5 · /api/usage/me — trial shape', async () => {
       },
     },
     premium: null,
+    enforced: true,
   });
   assert.doesNotMatch(JSON.stringify(out.body), NO_RUPEES);
 });
@@ -589,7 +637,7 @@ test('U5 · /api/usage/me — premium shape: whole percentages, clamped at 100, 
   });
   const out = await usageMe(r);
   assert.equal(out.status, 200);
-  assert.deepEqual(Object.keys(out.body).sort(), ['premium', 'tier', 'trial']);
+  assert.deepEqual(Object.keys(out.body).sort(), ['enforced', 'premium', 'tier', 'trial']);
   assert.equal(out.body.tier, 'premium');
   assert.equal(out.body.trial, null);
   assert.deepEqual(out.body.premium, {
@@ -613,9 +661,260 @@ test('U5 · /api/usage/me — premium shape: whole percentages, clamped at 100, 
 test('U5 · /api/usage/me — verified uid required; free / unknown tier are honest, never invented', async () => {
   assert.deepEqual(await usageMe(rig(), {}), { status: 401, body: { error: 'sign_in_required' } });
   assert.deepEqual(await usageMe(rig(), { 'x-lazytopper-uid': 'stu-1' }), { status: 401, body: { error: 'sign_in_required' } });
-  assert.deepEqual(await usageMe(rig({ tier: 'free' })), { status: 200, body: { tier: 'free', trial: null, premium: null } });
+  assert.deepEqual(await usageMe(rig({ tier: 'free' })), { status: 200, body: { tier: 'free', trial: null, premium: null, enforced: true } });
   assert.deepEqual(await usageMe(rig({ tier: null })), { status: 503, body: { error: 'usage_unavailable' } });
   assert.deepEqual(await usageMe(rig({ failRead: true })), { status: 503, body: { error: 'usage_unavailable' } });
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   F6 · FAIR-USE-2 — ONLY A SERVER-ISSUED PASS MAKES A PAPER
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const PAPER_BODY = (worksheetId, n = 3) => ({ worksheetId, questions: questions(n) });
+
+// MUTATION MUT-A target (trust the surface header again -> RED).
+test('F6 · a forged paper surface WITHOUT a pass is counted per question as check-improve', async () => {
+  for (const surface of ['chapter-test', 'full-mock', 'worksheet']) {
+    // Room for the questions: served, and the grade spends CHECKS, not a paper.
+    const r = rig({ env: PASS_ENV, days: {} });
+    const out = await run(r, { path: GRADE_WORKSHEET_PATH, surface, body: PAPER_BODY('paper-1', 3) });
+    assert.equal(out.answered, false, surface);
+    assert.deepEqual(r.ledger.trialWrites, [{ uid: 'stu-1', counts: { checks: 3 } }], `${surface}: per question`);
+    assert.equal(r.telemetry.count('fair_use.surface.check-improve'), 1, surface);
+    assert.equal(r.telemetry.count(`fair_use.surface.${surface}`), 0, `${surface}: the header alone is not believed`);
+
+    // No checks left: the forged paper meets the per-question refusal, not a paper allowance.
+    const spent = rig({ env: PASS_ENV, days: { [TODAY]: { trialChecks: 5 } } });
+    const refused = await run(spent, { path: GRADE_WORKSHEET_PATH, surface, body: PAPER_BODY('paper-1', 3) });
+    assert.equal(refused.answered, true, surface);
+    assert.deepEqual(refused.res.sent, { status: 409, body: { error: 'trial_limit', remaining: 0, resetAt: NEXT_IST_MIDNIGHT } });
+  }
+});
+
+test('F6 · a valid pass makes a paper: graded as that paper, and nothing more is spent', async () => {
+  const r = rig({ env: PASS_ENV, days: { [TODAY]: { trialChecks: 5 } } });
+  const minted = await mint(r, { surface: 'chapter-test', paperKey: 'ct-7' });
+  assert.equal(minted.status, 200);
+  assert.equal(typeof minted.body.token, 'string');
+  assert.equal(minted.body.surface, 'chapter-test');
+  assert.equal(minted.body.reused, false);
+  assert.equal(minted.body.issuedAt, new Date(NOW).toISOString());
+  assert.equal(minted.body.expiresAt, new Date(NOW + PAPER_PASS_TTL_MS).toISOString());
+
+  const out = await run(r, {
+    path: GRADE_WORKSHEET_PATH,
+    surface: 'chapter-test',
+    body: PAPER_BODY('ct-7', 8),
+    headers: paperHeaders(minted.body.token),
+  });
+  assert.equal(out.answered, false, 'no checks left, but this is a paid-for paper — it must be served');
+  assert.deepEqual(r.ledger.trialWrites, [], 'grading a minted paper spends nothing more');
+  assert.equal(r.telemetry.count('fair_use.surface.chapter-test'), 1);
+  assert.equal(r.telemetry.count('fair_use.paper_pass.accepted'), 1);
+
+  // Re-grading the same paper (a re-upload) inside the 24 h is still that paper.
+  await run(r, { path: GRADE_WORKSHEET_PATH, surface: 'chapter-test', body: PAPER_BODY('ct-7', 8), headers: paperHeaders(minted.body.token) });
+  assert.deepEqual(r.ledger.trialWrites, []);
+  assert.deepEqual(r.ledger.passWrites.map((w) => w.counts), [{ chapterTests: 1 }], 'spent exactly once, at the mint');
+});
+
+test('F6 · a pass for another uid / another surface / another paper, or expired -> per question', async () => {
+  const minter = rig({ env: PASS_ENV, days: {} });
+  const { token } = (await mint(minter, { surface: 'full-mock', paperKey: 'fm-1' })).body;
+
+  const cases = [
+    ['another uid', { uid: 'stu-2', surface: 'full-mock', body: PAPER_BODY('fm-1') }],
+    ['another surface', { surface: 'worksheet', body: PAPER_BODY('fm-1') }],
+    ['another paper', { surface: 'full-mock', body: PAPER_BODY('fm-2') }],
+    ['expired (exactly 24 h)', { surface: 'full-mock', body: PAPER_BODY('fm-1'), now: NOW + PAPER_PASS_TTL_MS }],
+  ];
+  for (const [name, c] of cases) {
+    const r = rig({ env: PASS_ENV, days: {}, now: c.now || NOW });
+    await run(r, { path: GRADE_WORKSHEET_PATH, surface: c.surface, body: c.body, uid: c.uid, headers: paperHeaders(token) });
+    const uid = c.uid || 'stu-1';
+    assert.deepEqual(r.ledger.trialWrites, [{ uid, counts: { checks: 3 } }], `${name}: must be counted per question`);
+    assert.equal(r.telemetry.count('fair_use.paper_pass.rejected'), 1, name);
+  }
+
+  // CONTROL: the same pass one millisecond inside its 24 h IS the paper.
+  const inside = rig({ env: PASS_ENV, days: {}, now: NOW + PAPER_PASS_TTL_MS - 1 });
+  await run(inside, { path: GRADE_WORKSHEET_PATH, surface: 'full-mock', body: PAPER_BODY('fm-1'), headers: paperHeaders(token) });
+  assert.deepEqual(inside.ledger.trialWrites, [], 'CONTROL: a valid pass must be believed, or every case above proves nothing');
+  assert.equal(inside.telemetry.count('fair_use.surface.full-mock'), 1);
+});
+
+test('F6 · a forged or malformed pass is per question — and never throws (no 500)', async () => {
+  const minter = rig({ env: PASS_ENV, days: {} });
+  const { token } = (await mint(minter, { surface: 'worksheet', paperKey: 'ws-1' })).body;
+  const parts = token.split('.');
+  const flip = (c) => (c === 'A' ? 'B' : 'A');
+  const forged = [
+    [...parts.slice(0, 4), parts[4].slice(0, -1) + flip(parts[4].slice(-1))].join('.'), // same length, one char off
+    [parts[0], String(NOW - 1), ...parts.slice(2)].join('.'), // issuedAt edited
+    encodePaperPass('another-secret', 'stu-1', 'worksheet', 'ws-1', NOW), // signed with the wrong key
+  ];
+  const malformed = ['', 'garbage', 'v1....', 'v2.' + parts.slice(1).join('.'), `${token}.extra`,
+    'v1.notanumber.worksheet.d3MtMQ.sig', 'v1.1.worksheet.!!!.sig', 'x'.repeat(5000), `${parts.slice(0, 4).join('.')}.`];
+  for (const bad of [...forged, ...malformed]) {
+    const r = rig({ env: PASS_ENV, days: {} });
+    const out = await run(r, { path: GRADE_WORKSHEET_PATH, surface: 'worksheet', body: PAPER_BODY('ws-1'), headers: paperHeaders(bad) });
+    assert.equal(out.answered, false, `${bad.slice(0, 40)}: must be served`);
+    assert.deepEqual(r.ledger.trialWrites, [{ uid: 'stu-1', counts: { checks: 3 } }], `${bad.slice(0, 40)}: per question`);
+  }
+  for (const weird of [undefined, null, 42, {}, [], 'v1.1.2.3.4']) {
+    assert.equal(verifyPaperPass(weird, { uid: 'stu-1', surface: 'worksheet', nowMs: NOW, secret: SECRET }), null);
+  }
+  assert.equal(verifyPaperPass(token, { uid: 'stu-1', surface: 'worksheet', nowMs: NOW, secret: '' }), null, 'no secret, no pass');
+  assert.deepEqual(verifyPaperPass(token, { uid: 'stu-1', surface: 'worksheet', nowMs: NOW, secret: SECRET }),
+    { surface: 'worksheet', paperKey: 'ws-1', issuedAt: NOW }, 'CONTROL: the genuine pass verifies');
+});
+
+test('F6 · the mint consumes ONCE; a re-mint of the same paper within 24 h is free and returns the SAME pass', async () => {
+  const r = rig({ env: PASS_ENV, days: {} });
+  const first = await mint(r, { surface: 'full-mock', paperKey: 'fm-9' });
+  r.clock.now = NOW + 60 * 60 * 1000; // an hour later, e.g. after a page reload
+  const again = await mint(r, { surface: 'full-mock', paperKey: 'fm-9' });
+  assert.equal(first.status, 200);
+  assert.equal(again.status, 200);
+  assert.equal(again.body.token, first.body.token, 'the same paper gets the same pass');
+  assert.equal(again.body.reused, true);
+  assert.equal(r.ledger.passWrites.length, 1, 'no double charge');
+  assert.deepEqual(r.ledger.passWrites[0].counts, { mocks: 1 });
+  assert.equal(r.ledger.passWrites[0].passId, paperPassId('full-mock', 'fm-9'));
+  assert.doesNotMatch(JSON.stringify(r.days), /fm-9/, 'the ledger holds a hash, never the paper id');
+
+  // A DIFFERENT paper is a different mock: 1 per rolling week is already spent -> 409.
+  const other = await mint(r, { surface: 'full-mock', paperKey: 'fm-10' });
+  assert.equal(other.status, 409);
+  assert.equal(other.body.error, 'trial_limit');
+  assert.equal(r.ledger.passWrites.length, 1);
+
+  // 24 h after the first mint the pass has lapsed: minting it again is a new paper.
+  const cr = rig({ env: PASS_ENV, days: {} });
+  const ct = await mint(cr, { surface: 'chapter-test', paperKey: 'ct-1' });
+  cr.clock.now = NOW + PAPER_PASS_TTL_MS;
+  const later = await mint(cr, { surface: 'chapter-test', paperKey: 'ct-1' });
+  assert.equal(later.status, 200);
+  assert.equal(later.body.reused, false);
+  assert.notEqual(later.body.token, ct.body.token);
+  assert.equal(cr.ledger.passWrites.length, 2);
+});
+
+test('F6 · premium and the free check are unaffected by minting', async () => {
+  const p = rig({ tier: 'premium', env: PASS_ENV, days: { [TODAY]: { costMicroInr: 40 * INR } } });
+  const minted = await mint(p, { surface: 'full-mock', paperKey: 'fm-1' });
+  assert.equal(minted.status, 200);
+  assert.equal(p.ledger.passWrites.length, 0, 'premium spends no trial allowance');
+  assert.equal(p.ledger.reads.length, 0, 'premium minting reads no ledger');
+  // Premium grading with the pass is still metered by COST, exactly as before.
+  const graded = await run(p, { path: GRADE_WORKSHEET_PATH, surface: 'full-mock', body: PAPER_BODY('fm-1'), headers: paperHeaders(minted.body.token) });
+  assert.equal(graded.res.sent.status, 429);
+  assert.equal(graded.res.sent.body.error, 'usage_limit');
+
+  const free = rig({ env: PASS_ENV, days: { [TODAY]: { trialChecks: 99 } } });
+  const out = await run(free, { path: GRADE_WORKSHEET_PATH, surface: 'chapter-test', body: PAPER_BODY('ct-1'),
+    headers: paperHeaders('v1.1.chapter-test.Y3QtMQ.x'), options: { freeCheck: true } });
+  assert.equal(out.answered, false);
+  assert.equal(free.tierReads(), 0, 'an admitted free check is not fair-use metered, pass or no pass');
+});
+
+test('F6 · FAIR_USE_PAPER_SECRET unset -> the mint is 503 and paper grades fall back to per-question counting', async () => {
+  const r = rig({ env: { FAIR_USE_ENFORCE: '1' }, days: {} });
+  assert.deepEqual(await mint(r, { surface: 'chapter-test', paperKey: 'ct-1' }), { status: 503, body: { error: 'paper_pass_unavailable' } });
+  assert.equal(r.ledger.passWrites.length, 0);
+  assert.equal(r.telemetry.count('fair_use.paper_pass.unavailable'), 1);
+
+  // A pass minted while the secret WAS set is not believed once it is gone.
+  const minter = rig({ env: PASS_ENV, days: {} });
+  const { token } = (await mint(minter, { surface: 'chapter-test', paperKey: 'ct-1' })).body;
+  const out = await run(r, { path: GRADE_WORKSHEET_PATH, surface: 'chapter-test', body: PAPER_BODY('ct-1'), headers: paperHeaders(token) });
+  assert.equal(out.answered, false);
+  assert.deepEqual(r.ledger.trialWrites, [{ uid: 'stu-1', counts: { checks: 3 } }]);
+});
+
+test('F6 · DARK (FAIR_USE_ENFORCE unset): nobody is refused anything new — old clients, spent allowances, missing secret', async () => {
+  // OR-LIVE: a client from before FAIR-USE-2 sends only the surface header. It is GRADED.
+  for (const env of [{}, PASS_ENV_DARK]) {
+    const old = rig({ env, days: { [TODAY]: { trialChecks: 5, trialChapterTests: 1 } } });
+    const out = await run(old, { path: GRADE_WORKSHEET_PATH, surface: 'chapter-test', body: PAPER_BODY('ct-1', 8) });
+    assert.equal(out.answered, false, 'dark: served');
+    assert.equal(out.res.sent, null);
+    assert.equal(old.telemetry.count('fair_use.would_refuse.trial_checks'), 1);
+    assert.deepEqual(old.ledger.trialWrites, [{ uid: 'stu-1', counts: { checks: 8 } }], 'the honest count still moves');
+  }
+  // The mint 503s with no secret — and the paper is still graded.
+  assert.equal((await mint(rig({ env: {} }))).status, 503);
+
+  // A mint over the allowance is SERVED while dark, and the honest count still moves.
+  const spent = rig({ env: PASS_ENV_DARK, days: { [TODAY]: { trialChapterTests: 1 } } });
+  const minted = await mint(spent, { surface: 'chapter-test', paperKey: 'ct-2' });
+  assert.equal(minted.status, 200);
+  assert.equal(spent.telemetry.count('fair_use.would_refuse.trial_chapter_test'), 1);
+  assert.deepEqual(spent.telemetry.startingWith('fair_use.refused.'), []);
+  assert.deepEqual(spent.ledger.passWrites.map((w) => w.counts), [{ chapterTests: 1 }]);
+});
+
+test('F6 · the mint takes a VERIFIED uid, a paper surface and a paperKey — anything else 401 / 400, never a 500', async () => {
+  const r = rig({ env: PASS_ENV, days: {} });
+  assert.deepEqual(await mint(r, { headers: {} }), { status: 401, body: { error: 'sign_in_required' } });
+  assert.deepEqual(await mint(r, { headers: { 'x-lazytopper-uid': 'stu-1' } }), { status: 401, body: { error: 'sign_in_required' } },
+    'a header uid is never an identity');
+  const bad = { status: 400, body: { error: 'invalid_paper_pass_request' } };
+  for (const surface of ['check-improve', 'quick-practice', 'banana', '', undefined, 7]) {
+    assert.deepEqual(await mint(r, { body: { surface, paperKey: 'p-1' } }), bad, `surface=${surface}`);
+  }
+  for (const paperKey of ['', '   ', undefined, 42, 'k'.repeat(201)]) {
+    assert.deepEqual(await mint(r, { body: { surface: 'worksheet', paperKey } }), bad, `paperKey=${String(paperKey).slice(0, 10)}`);
+  }
+  assert.deepEqual(await mint(r, { body: null }), bad);
+  const unreadable = createFairUse({
+    tierOf: async () => 'trial',
+    ledger: fakeLedger(),
+    env: PASS_ENV,
+    readJson: async () => { throw new Error('Unexpected token'); },
+    sendJson: (res, status, body) => { res.sent = { status, body }; },
+    verifiedCaller: { resolveVerifiedUid: async () => 'stu-1' },
+    recordPaperPass: async () => assert.fail('nothing may be written for a bad body'),
+  });
+  const res = fakeRes();
+  await unreadable.handlePaperPass({ headers: {} }, res);
+  assert.deepEqual(res.sent, bad);
+  assert.equal(r.ledger.passWrites.length, 0);
+});
+
+test('F6 · FAIL-OPEN mint: an unreadable ledger still issues the pass and records the spend', async () => {
+  const r = rig({ env: PASS_ENV, failRead: true });
+  const out = await mint(r, { surface: 'worksheet', paperKey: 'ws-3' });
+  assert.equal(out.status, 200);
+  assert.equal(r.telemetry.count('fair_use.ledger_unreadable'), 1);
+  assert.deepEqual(r.ledger.passWrites.map((w) => w.counts), [{ worksheets: 1 }]);
+});
+
+test('F5 · /api/usage/me `enforced` is true ONLY when FAIR_USE_ENFORCE=1', async () => {
+  for (const [env, want] of [[{ FAIR_USE_ENFORCE: '1' }, true], [{}, false], [{ FAIR_USE_ENFORCE: 'true' }, false], [PASS_ENV_DARK, false]]) {
+    for (const tier of ['trial', 'premium', 'free']) {
+      const out = await usageMe(rig({ tier, env }));
+      assert.equal(out.status, 200);
+      assert.equal(out.body.enforced, want, `tier=${tier} env=${JSON.stringify(env)}`);
+    }
+  }
+});
+
+// MUTATION MUT-B target (non-timing-safe compare -> RED). A STATIC pin: timing is not
+// observable in a unit test, so the source of verifyPaperPass is read and checked.
+test('F6 · static pin: the pass signature is compared with crypto.timingSafeEqual, never === / !==', () => {
+  const src = require('node:fs').readFileSync(path.join(__dirname, 'fairUse.cjs'), 'utf8');
+  const start = src.indexOf('function verifyPaperPass(');
+  assert.ok(start > 0, 'verifyPaperPass must exist');
+  const fnSrc = src.slice(start, src.indexOf('\n}\n', start));
+  assert.match(fnSrc, /crypto\.timingSafeEqual\(\s*given\s*,\s*expected\s*\)/, 'the signature compare must be timingSafeEqual');
+  // The one permitted equality is the LENGTH pre-check that timingSafeEqual itself requires.
+  const rest = fnSrc
+    .split('\n')
+    .filter((l) => !/^\s*if \(given\.length !== expected\.length\) return null;\s*$/.test(l))
+    .join('\n');
+  assert.doesNotMatch(rest, /\b(sig|given|expected)\b[^;\n]*[!=]==|[!=]==[^;\n]*\b(sig|given|expected)\b/,
+    'the signature must never be compared with === or !==');
 });
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -833,13 +1132,21 @@ test('WIRING · REAL index.cjs, FAIR_USE_ENFORCE UNSET (the ship state): an over
     t.after(() => srv.child.kill());
     await srv.ready;
 
+    // FAIR-USE-2: FAIR_USE_PAPER_SECRET is unset here too (the ship state) — the mint is 503.
+    let res = await request(port, 'POST', USAGE_PAPER_PATH, { surface: 'chapter-test', paperKey: 'w-1' }, TRIAL);
+    assert.equal(res.status, 503, res.text);
+    assert.equal(JSON.parse(res.text).error, 'paper_pass_unavailable');
+
+    // ...and a chapter test sent without a pass (every client, old or new, in this state) is
+    // SERVED, counted per question — the honest count still moves, nothing is refused.
     let before = srv.log();
-    let res = await request(port, 'POST', GRADE_WORKSHEET_PATH, typedBatch(3), { ...TRIAL, 'x-lazytopper-surface': 'chapter-test' });
-    for (let i = 0; i < 40 && !/trialChapterTests/.test(srv.log().slice(before.length)); i++) await wait(50);
+    res = await request(port, 'POST', GRADE_WORKSHEET_PATH, typedBatch(3), { ...TRIAL, 'x-lazytopper-surface': 'chapter-test' });
+    for (let i = 0; i < 40 && !/trialChecks/.test(srv.log().slice(before.length)); i++) await wait(50);
     let delta = srv.log().slice(before.length);
     assert.equal(res.status, 200, `dark enforcement must not refuse: ${res.text}\n${delta}`);
     assert.ok(count(delta, /GEMINI_FETCH/g) >= 1, `the over-limit grade must be SERVED\n${delta}`);
-    assert.ok(delta.includes('{"trialChapterTests":{"increment":1}}'), `the honest count still moves\n${delta}`);
+    assert.ok(delta.includes('{"trialChecks":{"increment":3}}'), `the honest count still moves, per question\n${delta}`);
+    assert.ok(!delta.includes('trialChapterTests'), `a bare surface header must not spend a paper allowance\n${delta}`);
 
     before = srv.log();
     res = await request(port, 'POST', CHECK_SOLUTION_PATH, { question: 'Solve x + 1 = 2', marks: 1, textAnswer: 'x = 1' }, PREMIUM);
@@ -847,4 +1154,63 @@ test('WIRING · REAL index.cjs, FAIR_USE_ENFORCE UNSET (the ship state): an over
     delta = srv.log().slice(before.length);
     assert.notEqual(res.status, 429, res.text);
     assert.ok(count(delta, /GEMINI_FETCH/g) >= 1, `an over-cap premium check must be SERVED while dark\n${delta}`);
+  });
+
+test('WIRING · REAL index.cjs, FAIR_USE_PAPER_SECRET set, enforcement dark: mint -> pass -> graded as the paper; a bare header is per question',
+  { timeout: 120000 }, async (t) => {
+    const today = istDayKey(Date.now());
+    const port = await freePort();
+    const srv = bootServer(port, { FAIR_USE_PAPER_SECRET: 'wiring-secret' }, {
+      [`usageLedger/trial-student/days/${today}`]: { trialChecks: 0 },
+    });
+    t.after(() => srv.child.kill());
+    await srv.ready;
+
+    // ── (0) CORS: the mint is preflight-allowed and the pass header is an allowed header. ──
+    const pre = await request(port, 'OPTIONS', USAGE_PAPER_PATH, undefined, { origin: 'http://x', 'access-control-request-headers': 'x-lazytopper-paper' });
+    assert.equal(pre.status, 204);
+    assert.match(String(pre.headers['access-control-allow-headers']), /X-Lazytopper-Paper/);
+
+    // ── (1) The mint needs a VERIFIED caller. ──
+    assert.equal((await request(port, 'POST', USAGE_PAPER_PATH, { surface: 'chapter-test', paperKey: 'ct-w' }, {})).status, 401);
+    assert.equal((await request(port, 'POST', USAGE_PAPER_PATH, { surface: 'quick-practice', paperKey: 'ct-w' }, TRIAL)).status, 400);
+
+    // ── (2) Mint: a pass, and ONE ledger write holding the re-mint record + the paper spent. ──
+    let before = srv.log();
+    let res = await request(port, 'POST', USAGE_PAPER_PATH, { surface: 'chapter-test', paperKey: 'ct-w' }, TRIAL);
+    for (let i = 0; i < 40 && !/paperPasses/.test(srv.log().slice(before.length)); i++) await wait(50);
+    let delta = srv.log().slice(before.length);
+    assert.equal(res.status, 200, `${res.text}\n${delta}`);
+    const pass = JSON.parse(res.text);
+    assert.equal(pass.surface, 'chapter-test');
+    assert.match(pass.token, /^v1\.\d+\.chapter-test\./);
+    const mintWrite = delta.split('\n').find((l) => l.startsWith(`LEDGER_SET usageLedger/trial-student/days/${today} `) && l.includes('paperPasses'));
+    assert.ok(mintWrite, `the mint must be recorded on the ledger day document\n${delta}`);
+    assert.match(mintWrite, /"paperPasses":\{"[0-9a-f]{32}":\d+\}/);
+    assert.match(mintWrite, /"trialChapterTests":\{"increment":1\}/);
+    assert.doesNotMatch(mintWrite, /ct-w/, 'the ledger holds a hash, never the paper id');
+    assert.equal(count(delta, /GEMINI_FETCH/g), 0, 'minting is not grading');
+
+    // ── (3) Grade the paper WITH its pass -> served as the paper; no answer checks spent. ──
+    before = srv.log();
+    res = await request(port, 'POST', GRADE_WORKSHEET_PATH, typedBatch(3, 'ct-w'),
+      { ...TRIAL, 'x-lazytopper-surface': 'chapter-test', 'x-lazytopper-paper': pass.token });
+    await wait(400);
+    delta = srv.log().slice(before.length);
+    assert.equal(res.status, 200, `${res.text}\n${delta}`);
+    assert.ok(count(delta, /GEMINI_FETCH/g) >= 1, `CONTROL: the paper must reach the grader\n${delta}`);
+    assert.ok(!/trialChecks|trialChapterTests/.test(delta), `a minted paper must spend nothing more\n${delta}`);
+
+    // ── (4) The same request with the bare header and NO pass -> per question. ──
+    before = srv.log();
+    res = await request(port, 'POST', GRADE_WORKSHEET_PATH, typedBatch(3, 'ct-w'), { ...TRIAL, 'x-lazytopper-surface': 'chapter-test' });
+    for (let i = 0; i < 40 && !/trialChecks/.test(srv.log().slice(before.length)); i++) await wait(50);
+    delta = srv.log().slice(before.length);
+    assert.equal(res.status, 200, res.text);
+    assert.ok(delta.includes('{"trialChecks":{"increment":3}}'), `a forged / old-client paper is counted per question\n${delta}`);
+
+    // ── (5) A malformed pass is never a 500. ──
+    res = await request(port, 'POST', GRADE_WORKSHEET_PATH, typedBatch(1, 'ct-w'),
+      { ...TRIAL, 'x-lazytopper-surface': 'chapter-test', 'x-lazytopper-paper': 'v1.garbage' });
+    assert.equal(res.status, 200, res.text);
   });
