@@ -46,7 +46,7 @@ Passes minted before the FAIR-USE-3 deploy keep counting via their mint-time cou
 ### `[FU-SOLUTIONCHECKER-FAIRUSE-PANEL-STICKY]` — OPEN, cosmetic *(subagent-reported)*
 The SolutionChecker limit panel clears on "OK" but not automatically on the next successful check. Clearing it would need a line outside the catch block.
 
-### Kept open, unchanged by this wave (verified against this file on trunk `b6da0c6f` and again on `2068c306` by the docs builder: each has an OPEN heading and no CLOSED marker)
+### Kept open, unchanged by this wave (verified against this file on trunk `b6da0c6f` and again on `2068c306` / `7b94ae00` by the docs builder: each has an OPEN heading and no CLOSED marker)
 - From wave B-3: `[FU-FAIR-USE-PAPER-PASS-DATAMAP-HOLDS]` · `[FU-FAIR-USE-DARK-COUNTS-PAPERS-PER-QUESTION]` (the owner has since set `FAIR_USE_PAPER_SECRET`, per the B-4 dispatch; this wave does not close the entry) · `[FU-FAIR-USE-QP-CONSOLE-WARN]` · `[FU-FAIR-USE-UI-PREVIEW-SHOTS]` (per the B-3 audit, the owner's live test after `FAIR_USE_ENFORCE=1` replaces the screenshots; the entry stays open until then) — see the WAVE B-3 section below.
 - From wave B-2: `[FU-FAIR-USE-TRIAL-COUNT-ON-UNREADABLE]` · `[FU-FAIR-USE-USAGE-ME-RATE]` · `[FU-PASS-PRICE-ORDER-VS-GRANT-DRIFT]` · `[FU-PAY-BUTTON-LABEL-FOUNDING-AFTER-CLOSE]` · `[FU-STUDENTDATAMAP-HEADER-COUNT]` — see the WAVE B-2 section below.
 - From wave B-1: `[FU-STORED-RATE-RULES-MUTATION-PROOF]` · `[FU-PASS-TRIAL-AFTER-EXPIRY]` · `[FU-METER-STREAM-UNMETERED]` · `[FU-METER-PRICE-TABLE-SINGLE-MODEL]` — see the WAVE B-1 section below.

@@ -1,6 +1,6 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
-> **2026-09-28 — WAVE B-4 (MONEY, CONTROLLER B): FAIR-USE-3 (`#866` `b6da0c6f`), trunk `2068c306`.**
+> **2026-09-28 — WAVE B-4 (MONEY, CONTROLLER B): FAIR-USE-3 (`#866` `b6da0c6f`), trunk `7b94ae00`.**
 > ★ **STILL DARK: nothing a student sees changes until `FAIR_USE_ENFORCE=1`.** These status lines supersede the WAVE B-3 "Fair use — paper passes" and "Fair use — limits UI" lines below on status only; those lines stand as written.
 
 ### ⬜ Fair use — paper passes (Chapter Test, Full Mock, Worksheet grading) — **SERVER-ISSUED, LAZY REFUND + TRANSACTIONAL MINT, DARK.** A trial paper allowance is computed from the ledger's `paperPasses` map: a pass counts only while < 24 h old or once graded (`gradedAtMs` on the paper grade's 2xx); the mint's read-decide-write runs in one Firestore transaction *(subagent-reported)*. `FAIR_USE_PAPER_SECRET` is now set, so minting is live and counts are recorded; nothing is refused until `FAIR_USE_ENFORCE=1`. Passes minted before `#866` count via their counters (`[FU-FAIR-USE-LEGACY-PASS-NO-LAZY-REFUND]`).

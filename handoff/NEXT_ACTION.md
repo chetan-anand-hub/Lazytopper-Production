@@ -1,12 +1,13 @@
 ## ★★★ 2026-09-28 — WAVE B-4 (MONEY, CONTROLLER B) CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-3 (CONTINUED) BLOCK BELOW ON TRUNK SHA ONLY
 *(It does not supersede the owner items of the WAVE A-3 (CONTINUED), B-3, A-3, B-2, A-2 or B-1 blocks below, which stand unchanged — except that the WAVE B-3 block's fair-use steps are replaced by steps 1–3 below: its step 1 (`FAIR_USE_PAPER_SECRET`) is DONE by the owner (`POST /api/usage/paper` answers 401 unsigned, per the B-4 dispatch); its step 3 (decide `[FU-FAIR-USE-MINT-NO-REFUND]` + fix `[FU-FAIR-USE-SOLUTIONCHECKER-PANEL]`) is DONE by `#866`; and its step 2 (signed-in page-level screenshots) is replaced, per the B-3 audit, by the live test in step 3 below. `[FU-FAIR-USE-UI-PREVIEW-SHOTS]` itself stays open on the board.)*
 
-**TRUNK IS `2068c3069e2f18a3794c3e8e44791f4898e1aa41`**, measured 2026-09-28 (`git ls-remote origin refs/heads/base/approved-thru-437`):
+**TRUNK IS `7b94ae00782914db698bdd6f1e77c3b7ee73b063`**, measured 2026-09-28 (`git ls-remote origin refs/heads/base/approved-thru-437`):
+- `7b94ae00` = `#867` (ROOTENTRY-1 — merged 7b94ae00 (A3's; details owed by A3))
 - `2068c306` = `#868` (docs: wave A-3 continued — Controller A; records `#857`, `#863`, `#859`, `#865` and ROOTENTRY-1 `#867` stopped; not restated here)
 - `b6da0c6f` = `#866` (FAIR-USE-3: lazy paper refund, one-transaction mint, limits from the server, SolutionChecker limit panel — dark until `FAIR_USE_ENFORCE=1`) — **this wave**; rolled out alone, see ROLLOUT in `CURRENT_STATE.md`
 - `39059fd6` = `#864` (docs: wave B-3)
 
-Open at the time of writing, besides this docs PR: `#867` `lane/rootentry-1` (Controller A's product PR, STOPPED; not docs).
+Open at the time of writing, besides this docs PR: `#869` `lane/searchping-3` (Controller A's product PR; not docs). `#867` has since merged (`7b94ae00`, above).
 
 ### NEXT — OWNER, FAIR USE — IN THIS ORDER (none of these was run by the controller or a builder)
 1. *(optional)* **Tune the `FAIR_USE_TRIAL_*` limits on Railway.** Since `#866`, `/api/usage/me` returns `trial.limits` and every fair-use sentence takes its number from there, so the student copy follows automatically *(subagent-reported)*.

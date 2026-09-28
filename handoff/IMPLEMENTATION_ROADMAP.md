@@ -1,6 +1,6 @@
 # LazyTopper Implementation Roadmap
 
-## 2026-09-28 — MONEY: **WAVE B-4 — FAIR-USE-3 (LAZY PAPER REFUND · ONE-TRANSACTION MINT · LIMITS FROM THE SERVER · SOLUTIONCHECKER LIMIT PANEL — DARK)** — `#866` MERGED — trunk `2068c306`
+## 2026-09-28 — MONEY: **WAVE B-4 — FAIR-USE-3 (LAZY PAPER REFUND · ONE-TRANSACTION MINT · LIMITS FROM THE SERVER · SOLUTIONCHECKER LIMIT PANEL — DARK)** — `#866` MERGED — trunk `7b94ae00`
 
 - ✅ **FAIR-USE-3** (`#866` `b6da0c6f`): trial paper allowances computed from the `paperPasses` map (a pass counts while < 24 h old or once graded — `gradedAtMs` on the paper grade's 2xx) · mint read-decide-write in one Firestore transaction · `/api/usage/me` `trial.limits` and every fair-use sentence takes its number from it (none guessed) · SolutionChecker renders `FairUseLimitPanel` on a `FairUseLimitError` when enforced *(subagent-reported; CI controller-verified)*. ROLLOUT in `CURRENT_STATE.md`.
 - ✅ **Closed:** `[FU-FAIR-USE-MINT-NO-REFUND]` · `[FU-FAIR-USE-MINT-RACE]` · `[FU-FAIR-USE-UI-LIMIT-NUMBER]` · `[FU-FAIR-USE-SOLUTIONCHECKER-PANEL]` (by `#866`).
@@ -9,7 +9,7 @@
 - ⬜ **Owner, in order:** *(optional)* tune `FAIR_USE_TRIAL_*` → live-verify mint / `gradedAtMs` / `trial.limits` as a trial student → then `FAIR_USE_ENFORCE=1` on Railway + live test.
 - ⬜ **Owner, payments:** the wave B-2 RAZORPAY-1 §3 test before production payments · the wave B-1 / B-2 carried owner steps.
 - ⬜ `[FU-FAIR-USE-GRADED-ON-UNREADABLE-SCAN]` · `[FU-FAIR-USE-LEGACY-PASS-NO-LAZY-REFUND]` · `[FU-SOLUTIONCHECKER-FAIRUSE-PANEL-STICKY]`.
-- ↔ In parallel, Controller A's docs `#868` (`2068c306`) recorded `#857`, `#863`, `#859`, `#865` and ROOTENTRY-1 `#867` (stopped) — the WAVE A-3 (CONTINUED) section below; not restated here.
+- ↔ In parallel, Controller A's docs `#868` (`2068c306`) recorded `#857`, `#863`, `#859`, `#865` and ROOTENTRY-1 `#867` (then stopped) — the WAVE A-3 (CONTINUED) section below; not restated here. `#867` then merged 7b94ae00 (A3's; details owed by A3).
 
 ## 2026-09-28 — DATES + REACH: **WAVE A-3 (CONTINUED) — SEARCHPING-2 + 2b · PHASE2-DATE-1 · PERF-CLS-1 · ROOTENTRY-1 (STOPPED)** — `#857` + `#863` + `#859` + `#865` MERGED — trunk `b6da0c6f`
 

@@ -1,4 +1,4 @@
-## 2026-09-28 — WAVE B-4 (MONEY, CONTROLLER B) — **FAIR-USE-3: LAZY PAPER REFUND · ONE-TRANSACTION MINT · LIMITS FROM THE SERVER · SOLUTIONCHECKER LIMIT PANEL — STILL DARK** — `#866` MERGED — trunk `2068c306`
+## 2026-09-28 — WAVE B-4 (MONEY, CONTROLLER B) — **FAIR-USE-3: LAZY PAPER REFUND · ONE-TRANSACTION MINT · LIMITS FROM THE SERVER · SOLUTIONCHECKER LIMIT PANEL — STILL DARK** — `#866` MERGED — trunk `7b94ae00`
 
 ★ **PROVENANCE.**
 - Controller B, one session. One builder (`claude-opus-5-5`), in worktree `C:/Projects/LT-worktrees/fair-use-3`. This docs PR was written by a docs builder in `…/b4-docs` from the controller's state file `WAVE_STATE_B4.md` and the lane report `report-fair-use-3-2026-09-28.md` (OR-16).
@@ -10,7 +10,7 @@
 - D5 held pre-merge (rolling release COMPLETE, www serving the trunk head's deployment, Railway `69229cc5` success). Merged `--match-head-commit b9439474` → `b6da0c6f`, trees equal `0354c481` *(controller-verified)*. Canary `ojt462uph` smoke PASS; the canary bundle ships `SolutionChecker-BZRFBP8r.js` containing `FairUseLimitError` *(controller-verified)*.
 - ROLLOUT: #866 merged 13:22:03Z as b6da0c6f and rolled out alone. Vercel production ojt462uph reached 100% at 13:39:25Z (canary smoke then www smoke: app pages 200, /api/usage/me 401, /api/usage/paper 401, /api/check-solution 402, identical to the pre-merge baseline; the canary bundle carries SolutionChecker with FairUseLimitError). Railway created no backend deployment for b6da0c6f itself; the server code first went live in Railway deployment 6711416623 for 2068c306 (A3 docs #868, which touches no lazytopper/ files), success 13:54:38Z, and a server smoke through the deployment URLs matched the baseline. From about 13:56Z www answers non-browser clients with a Vercel Security Checkpoint (403, X-Vercel-Mitigated: challenge), a platform firewall setting that no B-4 file touches; it is flagged for the owner. FAIR_USE_ENFORCE is still unset.
 - Controller A3's docs PR `#868` (`2068c306`) merged before this one; this PR brought trunk in with `git merge` (never rebase / force-push) and sits on top of it (controller decision D9).
-- While the rollout ran, `#867` `lane/rootentry-1` (not Controller B's) was open.
+- While the rollout ran, `#867` `lane/rootentry-1` (not Controller B's) was open; it later merged as `7b94ae00` (A3's; details owed by A3), and this PR merged trunk `7b94ae00` in.
 
 ### ★ What this wave teaches
 - **A SCOPE QUALIFIER CAN CONTRADICT THE REQUIREMENT IT SITS ON.** The spec said "the catch block ONLY" and also "render the existing FairUseLimitPanel"; a catch block cannot render JSX or call a hook. The builder kept the requirement, added 4 lines outside the catch with no existing line changed, and recorded it as a finding (D6) *(subagent-reported)*.

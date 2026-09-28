@@ -1,6 +1,6 @@
 # LazyTopper — Current State
 
-## [CURRENT · MONEY] WAVE B-4 — **THE LAST FAIR-USE FIXES BEFORE ENFORCEMENT ARE ON TRUNK (FAIR-USE-3) — STILL DARK** — `#866` MERGED — trunk `2068c306`
+## [CURRENT · MONEY] WAVE B-4 — **THE LAST FAIR-USE FIXES BEFORE ENFORCEMENT ARE ON TRUNK (FAIR-USE-3) — STILL DARK** — `#866` MERGED — trunk `7b94ae00`
 
 ★ **PROVENANCE.**
 - Controller B, wave B-4, one controller session. One builder (Agent model `opus` = `claude-opus-5-5`; effort "high" stated in the brief — the Agent tool exposes no effort parameter, D1), in its own worktree `C:/Projects/LT-worktrees/fair-use-3`, branch `lane/fair-use-3`. This docs PR was written by a docs builder in `C:/Projects/LT-worktrees/b4-docs` from the controller's state file `WAVE_STATE_B4.md` and the lane report `report-fair-use-3-2026-09-28.md` (OR-16).
@@ -8,9 +8,10 @@
 - Merge *(controller-verified; re-checked by the docs builder with `git rev-parse`)*: `#866` FAIR-USE-3 — squash, `--match-head-commit b9439474` → **`b6da0c6f`** (parent `69229cc5`), no `--admin`; **trunk tree == head tree `0354c481`**. 9 files (`gh pr view 866 --json files`).
 - *(subagent-reported)* = from `report-fair-use-3-2026-09-28.md`, not re-measured by the controller. *(controller-verified)* = re-measured by the controller with `gh`/`git`.
 
-**Trunk `2068c3069e2f18a3794c3e8e44791f4898e1aa41`** (`#868`, `git ls-remote` at phase 2). The commits since the wave B-3 docs (`39059fd6`, `#864`):
+**Trunk `7b94ae00782914db698bdd6f1e77c3b7ee73b063`** (`#867`, `git ls-remote` at the phase-2 refresh). The commits since the wave B-3 docs (`39059fd6`, `#864`):
 - `b6da0c6f` = `#866` FAIR-USE-3 — **this wave**;
-- `2068c306` = `#868` (docs: wave A-3 continued), which records `#857`, `#863`, `#859` and `#865` and ROOTENTRY-1 `#867` (stopped) — **Controller A's wave A-3, recorded by `#868` (the WAVE A-3 (CONTINUED) block below), not restated here.**
+- `2068c306` = `#868` (docs: wave A-3 continued), which records `#857`, `#863`, `#859` and `#865` and ROOTENTRY-1 `#867` (then stopped) — **Controller A's wave A-3, recorded by `#868` (the WAVE A-3 (CONTINUED) block below), not restated here.**
+- `7b94ae00` = `#867` ROOTENTRY-1 "fix(landing): RootEntry renders the landing while auth loads; no BottomNav on / (ROOTENTRY-1)" — merged 7b94ae00 (A3's; details owed by A3). (The WAVE A-3 (CONTINUED) block below records `#867` as a STOPPED draft; it was written before the merge and stands as written.)
 
 *(This block supersedes the WAVE A-3 (CONTINUED) (DATES + REACH) block below on trunk SHA only — that block is demoted to previous on trunk SHA; its content and owner items otherwise stand as written. In the Controller B line it follows the WAVE B-3 (MONEY) block below, whose content stands as written, except that the four FUs it listed as new that this block names as closed are now closed. Exactly one un-superseded `[CURRENT]` remains: this one.)*
 
