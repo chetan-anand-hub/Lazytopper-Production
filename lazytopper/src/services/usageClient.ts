@@ -23,6 +23,9 @@
  */
 
 import { paidCallHeaders, UID_HEADER } from "../ai/paidCallHeaders";
+// FAIR-USE-2 (#860) — the merged F4 contract. TYPE-ONLY on purpose: erased at build, so
+// no runtime edge to aiClient (several suites mock it with a partial factory).
+import type { FairUseLimitKind, FairUseLimitWindow } from "../ai/aiClient";
 
 export const USAGE_ME_ENDPOINT = "/api/usage/me";
 
@@ -33,7 +36,8 @@ export const USAGE_CACHE_MS_ENFORCED = 60_000;
 /** A DARK answer is kept longer: the switch flips rarely and the read is not free. */
 export const USAGE_CACHE_MS_DARK = 10 * 60_000;
 
-export type PremiumWindow = "fiveHour" | "day" | "week";
+/** = aiClient's `FairUseLimitWindow` (FAIR-USE-2 F4), the same three windows /api/usage/me uses. */
+export type PremiumWindow = FairUseLimitWindow;
 
 export interface TrialUsage {
   checksLeftToday: number;
@@ -212,8 +216,8 @@ export async function fetchUsageMe(opts: { force?: boolean } = {}): Promise<Usag
 /* ── Recognising a fair-use refusal (FAIR-USE-2 F4) ────────────────────────── */
 
 /**
- * The fields of FAIR-USE-2's `FairUseLimitError` (spec F4: `name`, `kind`,
- * `remaining`, `resetAt`, `window`).
+ * The fields of FAIR-USE-2's merged `FairUseLimitError` (src/ai/aiClient.ts, #860:
+ * `kind`, `remaining`, `resetAt`, `window`, `name === "FairUseLimitError"`).
  *
  * ⚠ READ BY `name`, NEVER BY `instanceof` — the convention every grading surface in
  * this app already follows for PremiumRequiredError / SignInAgainError: several suites
@@ -221,7 +225,7 @@ export async function fetchUsageMe(opts: { force?: boolean } = {}): Promise<Usag
  * suite that loads these pages. `name` needs no import.
  */
 export interface FairUseLimitInfo {
-  kind: "trial_limit" | "usage_limit" | null;
+  kind: FairUseLimitKind | null;
   remaining: number | null;
   resetAt: string | null;
   window: PremiumWindow | null;

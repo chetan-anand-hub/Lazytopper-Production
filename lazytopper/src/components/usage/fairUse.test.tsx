@@ -15,8 +15,8 @@ const { headersState } = vi.hoisted(() => ({
     throws: false,
   },
 }));
-vi.mock("../../ai/paidCallHeaders", () => ({
-  UID_HEADER: "X-Lazytopper-Uid",
+vi.mock("../../ai/paidCallHeaders", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../../ai/paidCallHeaders")>()),
   paidCallHeaders: async () => {
     if (headersState.throws) throw Object.assign(new Error("sign in again"), { name: "SignInAgainError" });
     return headersState.value;
@@ -41,6 +41,8 @@ import {
   planPerQuestionGrade,
 } from "./fairUseGate";
 import FairUseLimitPanel from "./FairUseLimitPanel";
+// FAIR-USE-2 (#860): the REAL merged error class — pins that the reader matches the contract.
+import { FairUseLimitError } from "../../ai/aiClient";
 import FairUseConfirm from "./FairUseConfirm";
 import UsageCard, { UsageCardView } from "./UsageCard";
 import { useFairUse } from "./useFairUse";
@@ -191,6 +193,12 @@ describe("3 · readFairUseLimit — by NAME, never instanceof", () => {
       name: "FairUseLimitError", kind: "usage_limit", remaining: 0, resetAt: MIDNIGHT, window: "day",
     });
     expect(readFairUseLimit(err)).toEqual({ kind: "usage_limit", remaining: 0, resetAt: MIDNIGHT, window: "day" });
+  });
+  it("★★ the MERGED FairUseLimitError (aiClient, #860) is read field for field", () => {
+    expect(readFairUseLimit(new FairUseLimitError("trial_limit", 0, MIDNIGHT, null)))
+      .toEqual({ kind: "trial_limit", remaining: 0, resetAt: MIDNIGHT, window: null });
+    expect(readFairUseLimit(new FairUseLimitError("usage_limit", null, IN_3_DAYS, "fiveHour")))
+      .toEqual({ kind: "usage_limit", remaining: null, resetAt: IN_3_DAYS, window: "fiveHour" });
   });
   it("★ a name-only record (a service that kept only the name) still counts", () => {
     expect(readFairUseLimit({ name: "FairUseLimitError" })).toEqual({ kind: null, remaining: null, resetAt: null, window: null });
