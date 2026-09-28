@@ -268,7 +268,7 @@ const CSS = `
 .lt-landing-cls button[disabled]{opacity:.45;cursor:default}
 
 .lt-landing-hero{padding:14px var(--pad) 0}
-.lt-landing h1{font-size:clamp(42px,12.2vw,92px);line-height:.94;max-width:11ch}
+.lt-landing h1{font-size:clamp(42px,12.2vw,92px);line-height:.94;max-width:7.9em}
 .lt-landing h1 em{font-style:normal;display:block;color:var(--g)}
 .lt-landing-sub{font-size:clamp(16.5px,4.3vw,20px);color:var(--ink2);margin:18px 0 0;max-width:19.56em;line-height:1.4}
 .lt-landing-sub b{color:var(--ink);font-weight:700}
@@ -281,7 +281,7 @@ const CSS = `
 
 .lt-landing-proof{padding:52px 0 0}
 .lt-landing-ph{padding:0 var(--pad);margin-bottom:14px}
-.lt-landing h2{font-size:clamp(26px,6.8vw,44px);line-height:1.04;max-width:14ch}
+.lt-landing h2{font-size:clamp(26px,6.8vw,44px);line-height:1.04;max-width:10.14em}
 .lt-landing-q{font-size:12.5px;color:var(--ink3);margin:11px 0 0;padding-left:13px;border-left:3px solid var(--line)}
 .lt-landing-rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
   padding:4px var(--pad) 12px;scrollbar-width:none}
@@ -303,13 +303,13 @@ const CSS = `
 .lt-landing-swipe{font-size:11.5px;color:var(--ink3);padding:0 var(--pad);margin:0}
 
 .lt-landing-payoff{padding:36px var(--pad) 0}
-.lt-landing-payoff h2{max-width:15ch}
+.lt-landing-payoff h2{max-width:10.86em}
 .lt-landing-payoff h2 em{font-style:normal;color:var(--g)}
 .lt-landing-payoff p{font-size:15.5px;color:var(--ink2);margin:14px 0 0;max-width:36ch}
 .lt-landing-payoff p b{color:var(--ink);font-weight:700}
 
 .lt-landing-close{padding:46px var(--pad) 0}
-.lt-landing-close h2{font-size:clamp(24px,6vw,36px);max-width:15ch;margin-bottom:9px}
+.lt-landing-close h2{font-size:clamp(24px,6vw,36px);max-width:10.87em;margin-bottom:9px}
 .lt-landing-close h2 em{font-style:normal;color:var(--urg)}
 .lt-landing-close p{font-size:15px;color:var(--ink2);margin:0 0 20px;max-width:33ch}
 .lt-landing-close p b{color:var(--ink);font-weight:700}
