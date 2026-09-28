@@ -32,6 +32,9 @@ import { UpgradeSheet } from "../components/subscription/UpgradeSheet";
 // redirects here - so the student's export and erasure rights live on the one routed
 // page a signed-in student can already reach from the nav.
 import AccountDataControls from "../components/account/AccountDataControls";
+// FAIR-USE-UI-1 (UI4) - the student's fair-use limits. Renders NOTHING unless
+// /api/usage/me says `enforced: true`, so the page is unchanged while enforcement is off.
+import UsageCard from "../components/usage/UsageCard";
 
 /**
  * MeProgressPage - ONE responsive Me / Progress surface for every width.
@@ -1384,6 +1387,8 @@ export default function MeProgressPage() {
           and must not sit above the student's work. It renders in EVERY signed-in
           state, first-run included - a student's export and erasure rights do not
           depend on how much work they have done. */}
+      <UsageCard />
+
       <AccountDataControls />
 
       <p className="lt-me__footer">

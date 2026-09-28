@@ -6,11 +6,18 @@ import { parse as parseYaml } from "yaml";
 
 import {
   INDEXNOW_KEY,
+  PING_STEP_NAME,
+  REQUIRED_CONSECUTIVE_READS,
+  ROLLOUT_TIMEOUT_MS,
   changedUrls,
   gscSubmitUrl,
   indexNowAccepted,
   indexNowBody,
   parseSitemap,
+  resolveBefore,
+  waitForRollout,
+  type PingRun,
+  type RolloutDeps,
 } from "../../scripts/seo/searchPing";
 
 /**
@@ -200,5 +207,177 @@ describe("search-ping.yml — the trigger filter", () => {
         ).toBe(false);
       }
     }
+  });
+});
+
+// ── SEARCHPING-2 — S2: wait for the rollout before pinging ─────────────────────────────
+
+const NEW = "1111111111111111111111111111111111111111";
+const OLD = "0000000000000000000000000000000000000000";
+const NEWER = "2222222222222222222222222222222222222222";
+const INTERVAL = 15_000;
+
+/** A fake www: serves `reads` in order (the last one repeats), on a fake clock. */
+function fakeWww(reads: Array<string | null>, descendants: string[] = []) {
+  let clock = 0;
+  let index = 0;
+  const lines: string[] = [];
+  const deps: RolloutDeps = {
+    readServedSha: async () => reads[Math.min(index++, reads.length - 1)],
+    isDescendant: (served) => descendants.includes(served),
+    sleep: async (ms) => {
+      clock += ms;
+    },
+    now: () => clock,
+    log: (line) => lines.push(line),
+  };
+  return { deps, lines, readCount: () => index };
+}
+
+describe("search-ping — S2 the rollout wait", () => {
+  it("the owner-fixed thresholds: 5 consecutive reads, 30 minutes", () => {
+    expect(REQUIRED_CONSECUTIVE_READS).toBe(5);
+    expect(ROLLOUT_TIMEOUT_MS).toBe(30 * 60 * 1000);
+  });
+
+  it("5 consecutive reads of this commit → live, and every read is logged with its SHA", async () => {
+    const www = fakeWww([OLD, OLD, NEW, NEW, NEW, NEW, NEW]);
+    await expect(waitForRollout(NEW, www.deps, { intervalMs: INTERVAL })).resolves.toEqual({
+      outcome: "live",
+      reads: 7,
+    });
+    expect(www.lines).toHaveLength(7);
+    expect(www.lines[6]).toContain(`www serves sha=${NEW}`);
+    expect(www.lines[6]).toContain("streak=5/5");
+  });
+
+  it("★ FLAPPING reads (a rolling release mid-way) reset the streak — 4 in a row is not live", async () => {
+    // 4 new, old, 4 new, unreadable, then finally 5 new.
+    const flap = [NEW, NEW, NEW, NEW, OLD, NEW, NEW, NEW, NEW, null, NEW, NEW, NEW, NEW, NEW];
+    const www = fakeWww(flap);
+    await expect(waitForRollout(NEW, www.deps, { intervalMs: INTERVAL })).resolves.toEqual({
+      outcome: "live",
+      reads: flap.length,
+    });
+    expect(www.lines[4]).toContain("streak=0/5");
+    expect(www.lines[9]).toContain("sha=(none) ");
+  });
+
+  it("www serving a NEWER commit that descends from this one → clean 'superseded' exit", async () => {
+    const www = fakeWww([OLD, NEW, NEW, NEWER], [NEWER]);
+    await expect(waitForRollout(NEW, www.deps, { intervalMs: INTERVAL })).resolves.toEqual({
+      outcome: "superseded",
+      servedSha: NEWER,
+      reads: 4,
+    });
+  });
+
+  it("CONTROL — a different commit that is NOT a descendant (the old release) keeps it waiting", async () => {
+    const www = fakeWww([OLD, OLD, NEW, NEW, NEW, NEW, NEW], [NEWER]);
+    await expect(waitForRollout(NEW, www.deps, { intervalMs: INTERVAL })).resolves.toMatchObject({
+      outcome: "live",
+    });
+  });
+
+  it("★ timeout → throws (the job fails visibly), after polling for the whole 30 minutes", async () => {
+    const www = fakeWww([OLD, NEW, NEW, NEW, NEW, OLD]); // never 5 in a row
+    await expect(waitForRollout(NEW, www.deps, { intervalMs: INTERVAL })).rejects.toThrow(
+      /did not reach www .* within 30 minutes .*Nothing was pinged/,
+    );
+    expect(www.readCount()).toBe(ROLLOUT_TIMEOUT_MS / INTERVAL + 1);
+  });
+});
+
+// ── SEARCHPING-2 — S3: "before" is the last release that was pinged ─────────────────────
+
+describe("search-ping — S3 diff from the last successful ping", () => {
+  const SHA = "3333333333333333333333333333333333333333";
+  const LAST_PING = "4444444444444444444444444444444444444444";
+  const SUPERSEDED = "5555555555555555555555555555555555555555";
+  const UNRELATED = "6666666666666666666666666666666666666666";
+  const runs: PingRun[] = [
+    { id: 30, headSha: UNRELATED }, // newest — not an ancestor of SHA
+    { id: 20, headSha: SUPERSEDED }, // success, but its ping step was skipped
+    { id: 10, headSha: LAST_PING }, // success AND pinged
+  ];
+  const ancestors = new Set([SUPERSEDED, LAST_PING]);
+  const deps = {
+    successfulRuns: () => runs,
+    pinged: (run: PingRun) => run.headSha !== SUPERSEDED,
+    isAncestorOrSelf: (candidate: string) => ancestors.has(candidate),
+  };
+
+  it("★ uses the newest run that PINGED and that this release descends from", () => {
+    expect(resolveBefore(SHA, deps)).toEqual({ ref: LAST_PING, source: "last-ping", runId: 10 });
+  });
+
+  it("so a superseded deploy's restamped page is still announced when the next release lands", () => {
+    // LAST_PING carried SITEMAP_BEFORE; SUPERSEDED restamped /app/pricing; SHA carries SITEMAP_AFTER.
+    // Against the parent (= SUPERSEDED, already restamped) pricing would look unchanged.
+    expect(resolveBefore(SHA, deps).ref).toBe(LAST_PING);
+    expect(changedUrls(SITEMAP_BEFORE, SITEMAP_AFTER)).toContain("https://www.lazytopper.com/app/pricing");
+  });
+
+  it("falls back to the parent ONLY when no pinged ancestor run exists", () => {
+    expect(resolveBefore(SHA, { ...deps, pinged: () => false })).toEqual({ ref: `${SHA}^`, source: "parent" });
+    expect(
+      resolveBefore(SHA, { successfulRuns: () => [], pinged: () => true, isAncestorOrSelf: () => true }),
+    ).toEqual({ ref: `${SHA}^`, source: "parent" });
+  });
+});
+
+// ── SEARCHPING-2 — the workflow never pings before the wait says live ─────────────────
+
+interface WorkflowStep {
+  name?: string;
+  id?: string;
+  if?: string;
+  run?: string;
+  env?: Record<string, string>;
+}
+
+/**
+ * Evaluate a STEP's `if:` given step outputs. Supports exactly
+ * `steps.<id>.outputs.<key> == '<v>'`. An ABSENT `if:` means the step always runs (GitHub's
+ * default); anything else throws rather than being judged safe.
+ */
+function stepRuns(step: WorkflowStep, outputs: Record<string, Record<string, string>>): boolean {
+  if (step.if === undefined) return true;
+  const match = /^\s*(?:\$\{\{\s*)?steps\.([\w-]+)\.outputs\.([\w-]+)\s*==\s*'([^']*)'\s*(?:\}\}\s*)?$/.exec(step.if);
+  if (!match) throw new Error(`unsupported step if: "${step.if}"`);
+  return outputs[match[1]]?.[match[2]] === match[3];
+}
+
+describe("search-ping.yml — S2 gate: no ping until the release is live", () => {
+  const workflow = parseYaml(readFileSync(WORKFLOW, "utf8")) as {
+    jobs: Record<string, { steps: WorkflowStep[] }>;
+  };
+  const steps = Object.values(workflow.jobs).flatMap((job) => job.steps);
+  const ping = steps.find((step) => step.name === PING_STEP_NAME);
+  const wait = steps.find((step) => typeof step.run === "string" && /searchPing\.ts\b.*--wait\b/.test(step.run));
+
+  it("the ping step exists under the exact name S3 looks for", () => {
+    expect(ping, `no step named "${PING_STEP_NAME}"`).toBeDefined();
+  });
+
+  it("a wait step (with an id) runs searchPing.ts --wait BEFORE the ping step", () => {
+    expect(wait, "no step runs searchPing.ts --wait").toBeDefined();
+    expect(wait?.id).toBeTruthy();
+    expect(steps.indexOf(wait as WorkflowStep)).toBeLessThan(steps.indexOf(ping as WorkflowStep));
+  });
+
+  it("★ the ping step runs ONLY when the wait step's output live == 'true'", () => {
+    const id = wait?.id as string;
+    expect(stepRuns(ping as WorkflowStep, { [id]: { live: "true" } })).toBe(true);
+    expect(stepRuns(ping as WorkflowStep, { [id]: { live: "false" } }), "pings a superseded release").toBe(false);
+    expect(stepRuns(ping as WorkflowStep, {}), "pings without waiting").toBe(false);
+  });
+
+  it("S4 — the ping step still carries the GSC secret/variable and the deployed SHA, unchanged", () => {
+    expect(ping?.env?.GSC_SERVICE_ACCOUNT).toBe("${{ secrets.GSC_SERVICE_ACCOUNT }}");
+    expect(ping?.env?.GSC_SITE_URL).toBe("${{ vars.GSC_SITE_URL }}");
+    expect(ping?.env?.DEPLOY_SHA).toBe("${{ github.event.deployment.sha }}");
+    expect(ping?.run).toContain('scripts/seo/searchPing.ts --sha="$DEPLOY_SHA"');
+    expect(ping?.run).not.toContain("--wait");
   });
 });
