@@ -173,6 +173,36 @@ describe("RootEntry — a signed-out visitor stays on '/' with the landing", () 
   }
 });
 
+/* The mobile BottomNav must not sit over the public landing now that signed-out mobile stays on
+   "/" (owner grant, App.tsx BottomNav gate). Identified by its five tab labels. The CONTROL proves
+   the probe can see a BottomNav at all: it renders on an app route for a signed-in student. */
+const TABS = ["Home", "Exam Trends", "Practice", "Check", "Me"];
+const bottomNavTabs = () =>
+  screen.queryAllByRole("button").filter((b) => TABS.includes((b.textContent ?? "").trim()));
+
+describe("BottomNav — absent over the landing on '/'", () => {
+  it("signed-out mobile at '/': the landing, and no BottomNav", () => {
+    auth.state = { user: null, loading: false };
+    render(tree("/"));
+    expect(landing()).toBeInTheDocument();
+    expect(loc()).toBe("/");
+    expect(bottomNavTabs()).toHaveLength(0);
+  });
+
+  it("mobile at '/' while auth is loading: no BottomNav either", () => {
+    render(tree("/"));
+    expect(landing()).toBeInTheDocument();
+    expect(bottomNavTabs()).toHaveLength(0);
+  });
+
+  it("★ CONTROL: signed-in mobile on an app route (/browse) DOES render the BottomNav", async () => {
+    auth.state = { user: STUDENT, loading: false };
+    render(tree("/browse"));
+    expect(await screen.findByTestId("probe-mobile-home")).toBeInTheDocument();
+    expect(bottomNavTabs().map((b) => (b.textContent ?? "").trim())).toEqual(TABS);
+  });
+});
+
 describe("RootEntry — harness control", () => {
   it("★ CONTROL: a SECOND Router in the same tree throws — the outer router is real", () => {
     expect(() => render(tree("/", true))).toThrow(/cannot render a <Router> inside another <Router>/i);

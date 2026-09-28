@@ -337,6 +337,7 @@ export function BottomNav() {
   }
 
   if (
+    current === "/" ||
     current === "/welcome" ||
     current === "/pricing" ||
     current.startsWith("/intent") ||
