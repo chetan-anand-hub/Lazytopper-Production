@@ -23,6 +23,45 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-28 — WAVE B-3 (MONEY, CONTROLLER B): PAYCOPY-1 (`#858` MERGED as `42733aa6`) + FAIR-USE-2 (`#860` MERGED as `cfe88001`) + FAIR-USE-UI-1 (`#861` MERGED as `4dd175d9`), squash, `--match-head-commit`, no `--admin` — eight new follow-ups, three closed, nine kept open
+
+### ✅ CLOSED — `[FU-FAIR-USE-SURFACE-UNVERIFIABLE]` (a caller could forge a paper surface and move a multi-question grade into a paper allowance)
+**Closed by FAIR-USE-2 (`#860`).** The server now decides what a paper is: `POST /api/usage/paper` mints an HMAC-SHA256 pass over `uid|surface|paperKey|issuedAt`, and a grade counts as a paper only with a valid `X-Lazytopper-Paper` token (timing-safe, same uid, same surface, same paperKey as `body.worksheetId`, < 24 h). A forged surface header without a pass is counted per question as check-improve. CI names: `ok 28 - F6 · a forged paper surface WITHOUT a pass is counted per question as check-improve`, `ok 30 - F6 · a pass for another uid / another surface / another paper, or expired -> per question`; MUT-A (trust the header again) turned the first red *(subagent-reported, log-quoted; merge controller-verified)*. The original entry in the WAVE B-2 section below stands as written (board rule 3).
+
+### ✅ CLOSED — `[FU-FAIR-USE-QP-SURFACE-HEADER]` (Quick Practice sent no surface header)
+**Closed by FAIR-USE-2 (`#860`).** Quick Practice, C&I and SolutionChecker now send their true surface header (SolutionChecker as `quick-practice`) *(subagent-reported)*; `quickPracticeSessionService.ts` is among `#860`'s 11 files *(checked with `gh pr view 860 --json files` by the docs builder)*. The original entry in the WAVE B-2 section below stands as written.
+
+### ✅ CLOSED — `[FU-PRICING-COPY-WHEN-PAYMENTS-ON]` (three pricing strings go stale when payments switch on)
+**Closed by PAYCOPY-1 (`#858`).** With `VITE_PAYMENTS_ENABLED` on, the subtitle, the FAQ "Can I pay here?" and the fine print read the owner's wording (Razorpay — UPI / card / netbanking; Premium turns on straight away; passes never renew). With it off, all three strings and the prerendered page are byte-identical (prerender-capture `36402046795`: "committed artifact matches a fresh capture") *(subagent-reported; merge controller-verified)*. The original entry in the WAVE B-2 section below stands as written.
+
+### `[FU-FAIR-USE-MINT-NO-REFUND]` — ★ OPEN, **OWNER DECISION BEFORE `FAIR_USE_ENFORCE=1`** *(subagent-reported)*
+A trial paper is charged at mint (spec F1: "Minting consumes"). If the grade then fails (bad scan, model error), the allowance stays spent. A re-mint of the same paper within 24 h is free, so re-uploading costs nothing. Owner decision: whether a paper that never produced a 2xx grade should be refunded — that needs a per-pass "graded" flag on the ledger day doc. Shipped spec-literal and dark (D5, not STOP-class). Controller recommendation: refund if no grade lands within 24 h, before ENFORCE.
+
+### `[FU-FAIR-USE-MINT-RACE]` — OPEN *(subagent-reported)*
+Two concurrent first mints of the same paperKey can both miss the re-mint record and each spend once. The window is one round-trip and the client mints once per paper, so this only happens with parallel tabs. Fix: a Firestore transaction on the day doc.
+
+### `[FU-FAIR-USE-PAPER-PASS-DATAMAP-HOLDS]` — OPEN, comment-only *(subagent-reported)*
+The `usageLedger.days` entry in `src/services/studentDataMap.ts` (not in FAIR-USE-2's allowlist) should mention the `paperPasses` map (hashed keys → issue times) and the trial counters in its `holds` text. The path and the erasure / export coverage are unchanged.
+
+### `[FU-FAIR-USE-DARK-COUNTS-PAPERS-PER-QUESTION]` — ★ OPEN, **SET THE SECRET EARLY** *(subagent-reported)*
+While `FAIR_USE_PAPER_SECRET` is unset, paper grades are counted per question (`trialChecks += N`) where they used to count as 1 paper. Nothing is refused (dark), but the owner-read `would_refuse.trial_checks` counter and `/api/usage/me` `checksLeftToday` will read off until the secret is set. Owner step 1 in `NEXT_ACTION.md`.
+
+### `[FU-FAIR-USE-UI-LIMIT-NUMBER]` — OPEN *(subagent-reported)*
+The trial copy hard-codes "5 answer checks" (spec word for word) while the server limit is env-tunable (`FAIR_USE_TRIAL_CHECKS_PER_DAY`) and `/api/usage/me` does not expose the limit. If the owner tunes it, the copy is wrong. Fix: expose `limits.checksPerDay` on `/api/usage/me` and render it.
+
+### `[FU-FAIR-USE-QP-CONSOLE-WARN]` — OPEN *(subagent-reported)*
+`quickPracticeSessionService.ts` logs `console.warn("… batched grade failed", error)` for a FairUseLimitError (an expected operation, not a fault). The service was FAIR-USE-2's and forbidden to FAIR-USE-UI-1; a name check there would silence it and could carry F4's fields out.
+
+### `[FU-FAIR-USE-SOLUTIONCHECKER-PANEL]` — ★ OPEN, **FIX BEFORE `FAIR_USE_ENFORCE=1`** *(subagent-reported)*
+`components/question/SolutionChecker.tsx` (Topic Hub / HPQ per-question checks) is a check-improve grading surface not in FAIR-USE-UI-1's P4 list; a refusal there shows its existing generic error path, not the limit panel. It was outside the lane's allowlist. Owner step 3 in `NEXT_ACTION.md`.
+
+### `[FU-FAIR-USE-UI-PREVIEW-SHOTS]` — ★ OPEN, **OWNER, BEFORE `FAIR_USE_ENFORCE=1`** *(subagent-reported)*
+Signed-in full-page screenshots (trial + premium; `enforced` true and false) are owed on a preview. The builder could not sign in on the Vercel preview (`/me` and `/check-improve` redirect to login), so it captured 22 component-harness shots and 20 signed-out preview shots (zero `/api/usage/me` calls, zero fair-use nodes). The exact list of owed shots is in `report-fair-use-ui-1-2026-09-28.md` and `NEXT_ACTION.md` owner step 2. `#861` merged without them by controller decision D6.
+
+### Kept open, unchanged by this wave
+- From wave B-2: `[FU-FAIR-USE-TRIAL-COUNT-ON-UNREADABLE]` · `[FU-FAIR-USE-USAGE-ME-RATE]` (FAIR-USE-UI-1 reads `/api/usage/me` once per page mount with a uid-keyed cache — a client-side mitigation; no server cap was added) · `[FU-PASS-PRICE-ORDER-VS-GRANT-DRIFT]` · `[FU-PAY-BUTTON-LABEL-FOUNDING-AFTER-CLOSE]` · `[FU-STUDENTDATAMAP-HEADER-COUNT]` — see the WAVE B-2 section below.
+- From wave B-1: `[FU-STORED-RATE-RULES-MUTATION-PROOF]` · `[FU-PASS-TRIAL-AFTER-EXPIRY]` · `[FU-METER-STREAM-UNMETERED]` · `[FU-METER-PRICE-TABLE-SINGLE-MODEL]` — see the WAVE B-1 section below. (`[FU-SERVER-CBSEEXAMDATE-DAY-DRIFT]` was closed by wave A-3's `#856`, recorded in the WAVE A-3 section below.)
+
 ## 2026-09-28 — WAVE A-3 (CONTROLLER A): BOARD-DATE-1 (`#856` MERGED as `15ae5047`, squash, `--match-head-commit`, no `--admin`) · SEARCHPING-2 (`#857` HELD) · PERF-CLS-1 (`#859` draft, STOPPED) — eleven new follow-ups, one closed
 
 ### ✅ CLOSED — `[FU-SERVER-CBSEEXAMDATE-DAY-DRIFT]` (the server's board-day predictor said Feb 15, the client's Feb 17)

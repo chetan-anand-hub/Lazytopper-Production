@@ -1,3 +1,24 @@
+## 2026-09-28 — WAVE B-3 (MONEY, CONTROLLER B) — **FAIR-USE-2: PAPER PASSES ARE SERVER-ISSUED · FAIR-USE-UI-1: STUDENTS CAN SEE THEIR LIMITS · PAYCOPY-1: PRICING COPY READY FOR PAYMENTS — ALL DARK** — `#858` + `#860` + `#861` MERGED
+
+★ **PROVENANCE.**
+- Controller B, one session. One builder per PR (`claude-opus-5-5`), in worktrees `C:/Projects/LT-worktrees/fair-use-2`, `…/fair-use-ui-1`, `…/paycopy-1`. This docs PR was written by a docs builder in `…/b3-docs` from the controller's state file `WAVE_STATE_B3.md` and the three lane reports (OR-16).
+- *(subagent-reported)* = from builder reports; *(controller-verified)* = re-measured by the controller.
+
+**Timeline.**
+- Three specs hash-verified on receipt (`F8D3812D356B`, `D4116DE72125`, `D345F3B077C2`), staged from `controller-b3/ops/.specs/` (D0). Trunk at dispatch `7152ef06`; the only open PR was Dependabot `#855` (`lazytopper/package.json`, `package.json`, `pnpm-lock.yaml`). Controller A ran BOARD-DATE-1, SEARCHPING-2 and PERF-CLS-1 in parallel. All three builders dispatched in parallel; FAIR-USE-UI-1 was told to open no PR (not even a draft) until FAIR-USE-2 merged, because both touch grading call sites.
+- **PAYCOPY-1** → `#858`. CI green on `d929b7ea`; trunk then moved to `15ae5047` (A-3 `#856`, disjoint), so the builder merged trunk in and re-proved on `a093fe81` (quality-gate `36402046723` `Tests 2932 passed (2932)`; prerender-capture "matches a fresh capture"). Merged `--match-head-commit` → `42733aa6`, trunk tree == head tree `d8196d0e` *(controller-verified)*. DONE.
+- **FAIR-USE-2** → `#860`. Trunk moved twice during the lane (both disjoint), merged in each time. CI green on `6ad09e57` (quality-gate `36402960397`: fair-use `# tests 42 # pass 42 # fail 0 # skipped 0`, `Tests 2943 passed (2943)`) *(builder-quoted)*; 2 mutations. Merged → `cfe88001`, trees equal `9a7da98b` *(controller-verified)*. `lazytopper/package.json` untouched (D2 held). DONE.
+- **FAIR-USE-UI-1** → `#861`. Phase 1 built on `7152ef06` (head `487eec02`, own tests 49/49, 1 mutation: `parseUsageMe` ignores `enforced` → 7 red). Phase 2 after `#860`: merged trunk `cfe88001` (no conflicts), P5 contract matched, CI green on `205bdedb` (`36404345232`, `Tests 2993 passed (2993)`) *(builder-quoted)*. The builder could not sign in on the Vercel preview: 22 component-harness + 20 signed-out preview shots; the signed-in page-level shots are OWED (D6). It waited for the rolling release of `#860` (alone rule, D4); at 10:14Z the rollout was COMPLETE, trunk was `66f17eb3` (A-3 docs `#862`), and the builder was asked to merge trunk and re-prove.
+- MERGE-861: FAIR-USE-UI-1 #861 merged 4dd175d9 (squash, --match-head-commit 11c159fa; trunk tree == head tree 7528a0d2), CI 36413631206 Tests 3112 passed (3112).
+- ROLLOUT: #861 rolled out alone — canary moei4mpuo smoke PASS (pages 200, /api/usage/me 401; the bundle ships FairUseConfirm + usageClient chunks), then 100% on www at 11:34Z with www smoke PASS. Everything stays dark: FAIR_USE_ENFORCE, FAIR_USE_PAPER_SECRET, PAYMENTS_ENABLED and VITE_PAYMENTS_ENABLED are unset, and POST /api/usage/paper answers 503 by design until the secret is set.
+- The session scratchpad was shared between builders: FAIR-USE-UI-1's scratch `report.txt` overwrote FAIR-USE-2's; both on-disk Desktop reports are intact *(subagent-reported)*. Later briefs require uniquely prefixed scratch files.
+
+### ★ What this wave teaches
+- **A HEADER IS A CLAIM, NOT A FACT; A SIGNED PASS IS A FACT.** FAIR-USE-1 had to trust `X-Lazytopper-Surface`. FAIR-USE-2 replaced trust with a server-minted HMAC pass, and found that the spec's own check list, read literally, would still have let one pass serve unlimited different papers — the pass is bound to `body.worksheetId` too *(subagent-reported)*.
+- **A BEHAVIOURAL TEST CANNOT SEE A TIMING LEAK.** Swapping `crypto.timingSafeEqual` for `!==` left every behavioural test green (the mutant is functionally equivalent); only the static pin went red *(subagent-reported)*. Some properties can only be pinned by reading the code.
+- **DARK MUST REST ON ONE LINE THAT A MUTATION CAN BREAK.** FAIR-USE-UI-1's whole surface hangs on `parseUsageMe` accepting only `enforced === true`; ignoring it turned 7 tests red *(subagent-reported)*. That is what made merging without the signed-in shots (D6) defensible.
+- **A SHARED MANIFEST SERIALISES LANES — SO DESIGN AROUND IT.** With Dependabot `#855` open on `lazytopper/package.json`, any edit there would have held a lane on lane-overlap (A-3's SEARCHPING-2 was held exactly so). All three B-3 lanes avoided the file (D2).
+
 ## 2026-09-28 — WAVE A-3 (CONTROLLER A) — **BOARD-DATE-1: ONE BOARD DATE EVERYWHERE (17 FEB 2027), LIVE · SEARCHPING-2 HELD ON DEPENDABOT · PERF-CLS-1 STOPPED ON ONE GENERATED LINE** — `#856` MERGED — trunk `cfe88001`
 
 ★ **PROVENANCE.**

@@ -1,3 +1,34 @@
+## 2026-09-28 — WAVE B-3 (MONEY, CONTROLLER B): PAYCOPY-1 + FAIR-USE-2 + FAIR-USE-UI-1 — PRs `#858`, `#860`, `#861` merged
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (D0–D6, OR-LIVE, OR-AUTO), not `DECISION N`.
+
+### Owner rulings for the wave (dispatch message, 2026-09-28)
+- One builder per PR (`claude-opus-5-5`, effort high), named; §0c on the current tip in its own fresh worktree, spec copied in. All three dispatched at once.
+- **PR order:** FAIR-USE-2 first. FAIR-USE-UI-1 builds in parallel but opens its PR only after FAIR-USE-2 merges, confirming the merged contract (P5). PAYCOPY-1 is independent.
+- `lazytopper/package.json` (test wiring only) ratified and allowed.
+- **DARK:** `FAIR_USE_ENFORCE`, `FAIR_USE_PAPER_SECRET`, `PAYMENTS_ENABLED`, `VITE_PAYMENTS_ENABLED` stay unset. No Railway / Vercel / Razorpay setting changed; owner steps listed.
+- Lane-overlap decides shared files; if blocked, wait. One docs PR open at a time.
+- **OR-LIVE:** back-to-back merges OK; after the last merge confirm production serves the latest trunk; **FAIR-USE-UI-1 rolls out ALONE** (no rollout in progress before merge; wait 100% + smoke canary then www); failure → abort / roll back first, then STOP.
+- **OR-AUTO:** no questions; merge on spec §3 (`--match-head-commit`, trunk tree == head tree); the safest in-scope choice, recorded. STOP only for an out-of-allowlist need, a money-or-entitlement meaning not in the spec, student-data deletion, or a production failure.
+- End: one docs PR (OR-16, self-merge on green), one final audit, STOP. OR-15 (fast local gates; CI runs the full suites).
+
+### Controller decisions, with reasons (what, why, before → after)
+- **D0 — spec staging location.** The specs were taken from `C:/Projects/LT-worktrees/controller-b3/ops/.specs/`, not the shared checkout's `ops/.specs/` (absent there). Why: content proven by sha256 prefix (`F8D3812D356B`, `D4116DE72125`, `D345F3B077C2`). Before: the path as stated → after: the controller-b3 path.
+- **D1 — builder model.** Agent tool model `opus` (= `claude-opus-5-5`); names `builder-fair-use-2`, `builder-fair-use-ui-1`, `builder-paycopy-1`. Effort "high" is stated in each brief; the Agent tool exposes no effort parameter (as B-1 / B-2) — flagged.
+- **D2 — `lazytopper/package.json` avoided — HELD.** Ratified for test wiring, but open Dependabot `#855` touches it and lane-overlap compares exact paths including bot PRs, so any edit would have blocked the PR while `#855` is open. Safest: put new server tests in ALREADY-WIRED test files (FAIR-USE-1 wired the fair-use suite). Before: wiring allowed freely → after: avoid unless necessary. **Outcome: no B-3 lane edited the file** (FAIR-USE-2 used the wired fair-use suite + a `src/**` vitest) *(subagent-reported; `#860`'s file list controller-verified)*.
+- **D3 — FAIR-USE-UI-1 merges trunk in, not rebase.** Spec §3 says "Rebased"; the lane used `git merge origin/base/approved-thru-437`. Why: no force-push ever; the squash merge makes history irrelevant and the tree equals a rebase's. Before: rebase → after: merge.
+- **D4 — rollout-alone coordination with A-3's PERF-CLS-1.** Before merging FAIR-USE-UI-1, `vercel rolling-release fetch` must show no ACTIVE release AND www must serve the current trunk head's deployment; after the merge nothing of Controller B's merges until 100% + smoke. Why: two controllers checking "idle" independently can race; the trunk-head check narrows it.
+- **D5 — `[FU-FAIR-USE-MINT-NO-REFUND]` is NOT STOP-class.** Spec F1 states "Minting consumes", so a minted-but-never-graded trial paper stays spent; FAIR-USE-2 shipped it spec-literal and dark. Raised for the owner in the final audit. Controller recommendation: refund if no grade lands within 24 h, before ENFORCE.
+- **D6 — merge `#861` without the signed-in page-level screenshots.** Why: every piece renders only with `enforced: true`, which cannot happen until the owner sets `FAIR_USE_ENFORCE=1`; tests + a mutation prove absence when `enforced` is false; the signed-out preview proves no request and no node. The owed shots gate the owner's `FAIR_USE_ENFORCE=1` step, not this merge. Before: spec §3 screenshots of UI1–UI4 → after: component-level + signed-out preview now, signed-in page-level owed by the owner BEFORE enforcement (`[FU-FAIR-USE-UI-PREVIEW-SHOTS]`). FLAGGED in the final audit.
+
+### Builder choices worth keeping *(subagent-reported)*
+- FAIR-USE-2: the re-mint record is a hashed `paperPasses` map on the existing ledger day doc (no new collection; erasure / export already cover it); the pass is bound to `body.worksheetId`; a trial grade with a valid pass spends nothing (the mint already charged it); an unreadable ledger fails OPEN on mint (pass issued, spend recorded); token `v1.<issuedAt>.<surface>.<base64url(paperKey)>.<base64url(HMAC)>`, 5 min clock skew allowed.
+- FAIR-USE-UI-1: darkness on ONE line (`parseUsageMe` accepts only `enforced === true`); `/api/usage/me` read once per mount with a uid-keyed memory cache and a 4 s timeout, never in front of a grade; UI2 with R = 0 shows the UI1 panel and sends nothing; a null `resetAt` drops the reset sentence (never an invented time); "See plans" is an internal `<Link to="/pricing">`; styles in `usage.css`, no inline `style={{}}`.
+- PAYCOPY-1: strings as module constants + a render-time ternary on `isPaymentsClientEnabled()`, so `FAQ_ITEMS` stays byte-identical; the test hard-codes the owner's wording; the RAZORPAY-1 line-1020 call was left untouched.
+
+### Docs-builder choices (this PR, OR-AUTO)
+- The state file's B-1 "kept open" list includes `[FU-SERVER-CBSEEXAMDATE-DAY-DRIFT]`, but wave A-3's `#856` closed it (recorded by `#862`). Before: listed as kept open → after: listed as closed by A-3, not kept open. Why: board rule 3 and the trunk record.
+
 ## 2026-09-28 — WAVE A-3 (CONTROLLER A): BOARD-DATE-1 (merged) + SEARCHPING-2 (held) + PERF-CLS-1 (stopped) — trunk `cfe88001`, PR `#856` merged; `#857`, `#859` open
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (R1–R3, OR-LIVE, OR-AUTO), not `DECISION N`.

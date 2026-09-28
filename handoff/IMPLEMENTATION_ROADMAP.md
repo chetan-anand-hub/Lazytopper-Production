@@ -1,5 +1,17 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-28 — MONEY: **WAVE B-3 — FAIR-USE-2 (PAPER PASSES SERVER-ISSUED, DARK) · FAIR-USE-UI-1 (STUDENTS SEE THEIR LIMITS, DARK) · PAYCOPY-1 (PRICING COPY READY FOR PAYMENTS, FLAG-OFF IDENTICAL)** — `#858` + `#860` + `#861` MERGED
+
+- ✅ **PAYCOPY-1** (`#858` `42733aa6`): the pricing subtitle, the "Can I pay here?" FAQ and the fine print follow `VITE_PAYMENTS_ENABLED` — on: Razorpay (UPI / card / netbanking), Premium straight away, passes never renew; off: byte-identical, prerender unchanged *(subagent-reported)*.
+- ✅ **FAIR-USE-2** (`#860` `cfe88001`): `POST /api/usage/paper` mints an HMAC paper pass (`FAIR_USE_PAPER_SECRET`; unset → 503, per-question fallback) · mint consumes the trial paper allowance once, re-mint within 24 h free · a grade is a paper only with a valid `X-Lazytopper-Paper` (timing-safe, same uid / surface / paperKey = `worksheetId`, < 24 h) · true surface headers from QP, C&I, SolutionChecker · typed `FairUseLimitError` · `/api/usage/me` `enforced` *(subagent-reported)*.
+- ✅ **FAIR-USE-UI-1** (`#861` `4dd175d9`): UI1 limit panel · UI2 "we'll mark the first R" confirm · UI3 paper-start block · UI4 usage card on Me / Progress — all only when `/api/usage/me` says `enforced: true` *(subagent-reported)*. MERGE-861 and ROLLOUT in `CURRENT_STATE.md`.
+- ✅ **Closed:** `[FU-FAIR-USE-SURFACE-UNVERIFIABLE]` + `[FU-FAIR-USE-QP-SURFACE-HEADER]` (by `#860`) · `[FU-PRICING-COPY-WHEN-PAYMENTS-ON]` (by `#858`).
+- ✅ **Docs:** this handoff.
+- ⬜ **Owner, in order:** `FAIR_USE_PAPER_SECRET` on Railway (early) → signed-in page-level screenshots on a preview → decide `[FU-FAIR-USE-MINT-NO-REFUND]` + fix `[FU-FAIR-USE-SOLUTIONCHECKER-PANEL]` → only then `FAIR_USE_ENFORCE=1` on Railway.
+- ⬜ **Owner, payments:** the wave B-2 RAZORPAY-1 §3 test (Railway `PAYMENTS_ENABLED=1`, Vercel Preview-only `VITE_PAYMENTS_ENABLED=1`, test card) before production payments · the wave B-1 owner steps.
+- ⬜ `[FU-FAIR-USE-MINT-NO-REFUND]` · `[FU-FAIR-USE-MINT-RACE]` · `[FU-FAIR-USE-PAPER-PASS-DATAMAP-HOLDS]` · `[FU-FAIR-USE-DARK-COUNTS-PAPERS-PER-QUESTION]` · `[FU-FAIR-USE-UI-LIMIT-NUMBER]` · `[FU-FAIR-USE-QP-CONSOLE-WARN]` · `[FU-FAIR-USE-SOLUTIONCHECKER-PANEL]` · `[FU-FAIR-USE-UI-PREVIEW-SHOTS]`.
+- ↔ In parallel, Controller A landed `#856` BOARD-DATE-1 (`15ae5047`) and its docs `#862` (`66f17eb3`) — covered by A-3's handoff; `#857` SEARCHPING-2 (`2346b802`), `#863` PHASE2-DATE-1 (`ae52a5ad`) and Dependabot `#855` (`53065a54`) also landed, not written up here.
+
 ## 2026-09-28 — DATES + REACH: **WAVE A-3 — BOARD-DATE-1 (ONE BOARD DATE EVERYWHERE, LIVE) · SEARCHPING-2 (HELD) · PERF-CLS-1 (STOPPED)** — `#856` MERGED — trunk `cfe88001`
 
 - ✅ **BOARD-DATE-1** (`#856` `15ae5047`): `/api/cbse-exam-date` fallback 17 Feb for both classes on the IST calendar date · `cbseDates.ts` read-time getters over the client predictor · parity suite (71 tests: client predictor, server fallback, `passPricing`) · production www returns `2027-02-17` for class 10 and 12 *(subagent-reported)*.
