@@ -59,6 +59,8 @@ function usageBody(enforced: boolean, checksLeftToday: number) {
     trial: {
       checksLeftToday, chapterTestsLeftToday: 1, mocksLeft: 1, worksheetsLeft: 1,
       resets: { checks: MIDNIGHT, chapterTests: MIDNIGHT, mocks: null, worksheets: null },
+      // FAIR-USE-3 R3: the server now sends its limits; the copy's "5" below is read from here.
+      limits: { checksPerDay: 5, chapterTestsPerDay: 1, mocksPerWeek: 1, worksheetsPerWeek: 1 },
     },
     premium: null,
   };
