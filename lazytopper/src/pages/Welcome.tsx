@@ -270,7 +270,7 @@ const CSS = `
 .lt-landing-hero{padding:14px var(--pad) 0}
 .lt-landing h1{font-size:clamp(42px,12.2vw,92px);line-height:.94;max-width:11ch}
 .lt-landing h1 em{font-style:normal;display:block;color:var(--g)}
-.lt-landing-sub{font-size:clamp(16.5px,4.3vw,20px);color:var(--ink2);margin:18px 0 0;max-width:31ch;line-height:1.4}
+.lt-landing-sub{font-size:clamp(16.5px,4.3vw,20px);color:var(--ink2);margin:18px 0 0;max-width:19.56em;line-height:1.4}
 .lt-landing-sub b{color:var(--ink);font-weight:700}
 .lt-landing-hcta{margin-top:24px}
 .lt-landing-hnote{font-size:13px;color:var(--ink3);margin:12px 0 0}

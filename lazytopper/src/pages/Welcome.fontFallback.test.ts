@@ -97,6 +97,17 @@ describe("PERF-CLS-1 — landing fonts: one request, metric-matched fallbacks", 
     ]);
   });
 
+  it("the hero sub-line's max-width is font-independent (em, not ch)", () => {
+    // `ch` is the width of "0" in whichever font is PAINTING, so a ch box resizes when the
+    // fallback swaps to Inter and the line re-wraps (23px shift @375). 19.56em is Inter's
+    // 31ch (0 advance 1292/2048 × 31 = 19.557em): same box once Inter has loaded, and the
+    // same box before it has.
+    const m = landingCss().match(/\.lt-landing-sub\{([^}]*)\}/);
+    expect(m, ".lt-landing-sub rule must exist").not.toBeNull();
+    expect(m![1]).toMatch(/max-width:19\.56em/);
+    expect(m![1]).not.toMatch(/max-width:[\d.]+ch/);
+  });
+
   it("the app-wide --font-display stack carries \"Fraunces Fallback\" right after Fraunces", () => {
     expect(families(customProp(STYLES, "--font-display"))).toEqual([
       "Fraunces",
