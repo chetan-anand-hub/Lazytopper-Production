@@ -154,23 +154,23 @@ function RootEntry() {
   const { user, loading } = useAuth();
   const isDesktop = useIsDesktop();
 
-  if (loading) return null;
-
-  if (!isDesktop) {
+  // Signed-in (auth resolved): the student's home, exactly as before.
+  if (!loading && user) {
     // SEVER PR: mobile "/" for a signed-in student is the live MobileHome at
     // /browse — NOT the retired old Dashboard. (Was the two-contradictory-homes
     // bug: this landed on /dashboard while the BottomNav Home tab went to /browse.)
-    if (user) return <Navigate to="/browse" replace />;
-    return <Navigate to="/welcome" replace />;
+    if (!isDesktop) return <Navigate to="/browse" replace />;
+    return withRouteSuspense(<DesktopHome />);
   }
 
-  // Desktop: signed-in users see the DesktopHome cockpit,
-  // signed-out users see the Welcome landing page.
-  if (user) {
-    return withRouteSuspense(<DesktopHome />);
-  } else {
-    return withRouteSuspense(<Welcome />);
-  }
+  // ROOTENTRY-1 — the landing, at EVERY width, both while auth is loading and
+  // once it resolves signed-out. This used to `return null` while loading, which
+  // unmounted the prerendered landing served at /app/ (a blank flash of ~1.5 s on
+  // a slow phone), then sent mobile to /welcome, re-rendering the landing on a
+  // second route. ONE return for both states is load-bearing: the element is
+  // identical, so React keeps the same Welcome instance when auth resolves
+  // signed-out — no remount. /welcome remains a route of its own.
+  return withRouteSuspense(<Welcome />);
 }
 
 /**
