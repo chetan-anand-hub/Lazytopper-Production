@@ -204,6 +204,9 @@ const deploymentEvent = (environment: string, state: string): IfContext => ({
   },
 });
 const dispatchEvent: IfContext = { github: { event_name: "workflow_dispatch", event: { inputs: {} } } };
+const pushEvent: IfContext = {
+  github: { event_name: "push", event: { ref: "refs/heads/base/approved-thru-437" } },
+};
 
 describe("search-ping.yml — the trigger filter", () => {
   const workflow = parseYaml(readFileSync(WORKFLOW, "utf8")) as {
@@ -212,8 +215,15 @@ describe("search-ping.yml — the trigger filter", () => {
   };
   const jobs = Object.values(workflow.jobs);
 
-  it("is triggered by deployment_status and a manual dispatch ONLY — never a pull request or a push", () => {
-    expect(Object.keys(workflow.on)).toEqual(["deployment_status", "workflow_dispatch"]);
+  it("is triggered by deployment_status, a TRUNK push and a manual dispatch ONLY — never a pull request", () => {
+    expect(Object.keys(workflow.on).sort()).toEqual(["deployment_status", "push", "workflow_dispatch"]);
+  });
+
+  it("SEARCHPING-3 — the push trigger is base/approved-thru-437 ONLY, with no path filter", () => {
+    const push = workflow.on.push as Record<string, unknown>;
+    expect(push.branches).toEqual(["base/approved-thru-437"]);
+    // Docs-only pushes deploy too (changed=0 expected); a path filter would skip a live release.
+    for (const key of ["paths", "paths-ignore", "branches-ignore", "tags"]) expect(push[key], key).toBeUndefined();
   });
 
   it("every job is gated (an ungated job would run on every deployment event)", () => {
@@ -227,6 +237,15 @@ describe("search-ping.yml — the trigger filter", () => {
 
   it("SEARCHPING-2b — fires on a manual dispatch", () => {
     for (const job of jobs) expect(evaluateIf(job.if, dispatchEvent)).toBe(true);
+  });
+
+  it("SEARCHPING-3 — fires on a trunk push", () => {
+    for (const job of jobs) expect(evaluateIf(job.if, pushEvent)).toBe(true);
+  });
+
+  it("CONTROL — does NOT fire on a pull_request-shaped event", () => {
+    const pr: IfContext = { github: { event_name: "pull_request", event: {} } };
+    for (const job of jobs) expect(evaluateIf(job.if, pr)).toBe(false);
   });
 
   it("★ does NOT fire on a preview deployment, a failed/pending one, or Railway's backend", () => {
@@ -389,6 +408,7 @@ function stepRunsFor(
 const TRIGGERS: Array<[string, IfContext]> = [
   ["deployment_status", deploymentEvent("Production", "success")],
   ["workflow_dispatch", dispatchEvent],
+  ["push", pushEvent],
 ];
 
 const PINGED_SHA = "${{ github.event.deployment.sha || inputs.sha || github.sha }}";
@@ -414,7 +434,7 @@ describe("search-ping.yml — S2 gate: no ping until the release is live", () =>
     expect(steps.indexOf(wait as WorkflowStep)).toBeLessThan(steps.indexOf(ping as WorkflowStep));
   });
 
-  it("★ the ping step runs ONLY when the wait step's output live == 'true' — for BOTH triggers", () => {
+  it("★ the ping step runs ONLY when the wait step's output live == 'true' — for EVERY trigger", () => {
     const id = wait?.id as string;
     for (const [name, trigger] of TRIGGERS) {
       expect(stepRunsFor(ping as WorkflowStep, trigger, { [id]: { live: "true" } }), name).toBe(true);
@@ -426,7 +446,7 @@ describe("search-ping.yml — S2 gate: no ping until the release is live", () =>
     }
   });
 
-  it("the wait step itself runs for BOTH triggers", () => {
+  it("★ SEARCHPING-3 — the wait step itself runs for EVERY trigger, push included (no ping skips the wait)", () => {
     for (const [name, trigger] of TRIGGERS) expect(stepRunsFor(wait as WorkflowStep, trigger, {}), name).toBe(true);
   });
 
@@ -447,7 +467,7 @@ describe("search-ping.yml — S2 gate: no ping until the release is live", () =>
     expect(workflow["run-name"]).toBe(`search-ping ${PINGED_SHA}`);
   });
 
-  it("SEARCHPING-2b — a dispatched and an event run for the same SHA share one concurrency group", () => {
+  it("SEARCHPING-2b/3 — push, dispatched and event runs for the same SHA share one concurrency group", () => {
     expect(workflow.concurrency?.group).toBe(`search-ping-${PINGED_SHA}`);
     expect(workflow.concurrency?.["cancel-in-progress"]).toBe(false);
   });
