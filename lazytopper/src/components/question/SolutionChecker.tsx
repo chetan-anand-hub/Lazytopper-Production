@@ -13,6 +13,8 @@ import { recordMistake, isSavedOutcome, type RecordMistakeOutcome } from "../../
 import { recordAttempt } from "../../services/practiceInsights";
 import { EquationInput, EquationRender } from "../equation";
 import QrAnswerHandoff from "../qr/QrAnswerHandoff";
+import FairUseLimitPanel from "../usage/FairUseLimitPanel";
+import { useFairUse } from "../usage/useFairUse";
 import {
   MAX_UPLOAD_IMAGE_BYTES,
   MAX_UPLOAD_PDF_BYTES,
@@ -532,6 +534,15 @@ export function SolutionChecker({
   const [premiumBlock, setPremiumBlock] = useState<
     Pick<PremiumRequiredError, "feature" | "trialEndedAt"> | null
   >(null);
+  /**
+   * FAIR-USE-3 R4 — the fair-use refusal, shown as the SAME panel every other grading
+   * surface shows. enabled=false: NO usage read on mount (this component mounts once per
+   * question); the one read happens inside handleRefusal, only after the server has
+   * already refused — and a refusal only exists while FAIR_USE_ENFORCE=1. A panel needs
+   * an ENFORCED snapshot, so while dark this is inert and the catch below falls through
+   * to the existing error path, byte-for-byte.
+   */
+  const { limit: fairUseLimit, clearLimit: clearFairUseLimit, handleRefusal: handleFairUseRefusal } = useFairUse("checks", false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const backfilledRef = useRef<string | null>(null);
 
@@ -689,6 +700,11 @@ export function SolutionChecker({
       if (err instanceof Error && err.name === "PremiumRequiredError") {
         const premium = err as PremiumRequiredError;
         setPremiumBlock({ feature: premium.feature, trialEndedAt: premium.trialEndedAt });
+      } else if (err instanceof Error && err.name === "FairUseLimitError" && (await handleFairUseRefusal(err))) {
+        // FAIR-USE-3 R4 — a fair-use limit is not a fault either: the calm limit panel is
+        // showing (enforced only), so no red error string. Read by NAME, like the branch
+        // above: the contract suite mocks aiClient as a complete replacement. When the
+        // hook declines (dark / no enforced read) the else below runs, exactly as before.
       } else {
         setError(err instanceof Error ? err.message : "Failed to check solution");
       }
@@ -1164,6 +1180,9 @@ export function SolutionChecker({
           onClose={() => setPremiumBlock(null)}
         />
       )}
+
+      {/* FAIR-USE-3 R4 — the fair-use limit panel (enforced refusals only). */}
+      {fairUseLimit ? <FairUseLimitPanel limit={fairUseLimit} onDismiss={clearFairUseLimit} /> : null}
 
       {/* ── Error ────────────────── */}
       {error && (

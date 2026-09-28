@@ -29,6 +29,18 @@
  *   MUT-3  fairUse.cjs applyToRequest(): merge caps supplied by the request into the limits
  *          -> "U3 · the caps come from env ONLY" RED.
  *
+ * FAIR-USE-3 (R5), each test named for its ruling:
+ *   R1  an ungraded pass counts < 24 h and not at 24 h; a graded pass always counts; only
+ *       a 2xx grade marks; OLD-FORMAT docs (plain issuedAtMs numbers + counters) keep
+ *       counting exactly once and are never rewritten.
+ *   R2  two tabs minting at once spend once — a REAL race against fakeFirestore, whose
+ *       transactions are version-checked and re-run like Firestore's; a Firestore error
+ *       in the mint is no worse than before (fail open, pass issued, spend recorded).
+ *   R3  /api/usage/me carries the limits in force and they follow a changed env limit.
+ *   FU3-MUT-1  fairUse.cjs passCounts(): count an ungraded pass forever -> R1 RED.
+ *   FU3-MUT-2  fairUse.cjs handlePaperPass(): run mintBody on plain get/set instead of
+ *              db.runTransaction -> both R2 race tests RED.
+ *
  * No network, no Firestore: the ledger and the tier are injected in-process; the HTTP
  * tests boot index.cjs with firebase-admin and fetch swapped before it loads.
  */
@@ -83,21 +95,9 @@ function recorder() {
 function fakeLedger(days = {}, { failRead = false } = {}) {
   const trialWrites = [];
   const reads = [];
-  const passWrites = [];
   return {
     trialWrites,
     reads,
-    passWrites,
-    /** F1's one merged write, applied to the SAME day objects readDays serves. */
-    async recordPaperPass(uid, { passId, issuedAtMs, counts }) {
-      passWrites.push({ uid, passId, issuedAtMs, counts });
-      const key = istDayKey(issuedAtMs);
-      const day = (days[key] = days[key] || {});
-      day.paperPasses = { ...(day.paperPasses || {}), [passId]: issuedAtMs };
-      const FIELDS = { checks: 'trialChecks', chapterTests: 'trialChapterTests', mocks: 'trialMocks', worksheets: 'trialWorksheets' };
-      for (const [k, f] of Object.entries(FIELDS)) if (counts && counts[k] > 0) day[f] = (day[f] || 0) + counts[k];
-      return true;
-    },
     async readDays(uid, keys) {
       reads.push({ uid, keys });
       if (failRead) throw new Error('ledger down');
@@ -107,6 +107,123 @@ function fakeLedger(days = {}, { failRead = false } = {}) {
       trialWrites.push({ uid, counts });
       return Promise.resolve(true);
     },
+  };
+}
+
+/**
+ * FAIR-USE-3 — a Firestore over the SAME `days` object the fake ledger reads, honouring
+ * TRANSACTIONS the way Firestore does: a transaction's reads are version-checked at commit
+ * and, if any document it read was written meanwhile, the whole function is re-run on the
+ * new data. Every get / set / commit yields (setImmediate), so two operations started
+ * together really do interleave — a race here is a race.
+ *
+ * Plain `ref.get()` / `ref.set()` outside a transaction are applied with no check at all
+ * (which is what the "mint without the transaction" mutation falls back to).
+ */
+function fakeFirestore(days, { failTx = false } = {}) {
+  const versions = new Map();
+  const writes = [];
+  const txReads = [];
+  let commits = 0;
+  let retries = 0;
+  const tick = () => new Promise((resolve) => setImmediate(resolve));
+  const clone = (v) => (v === undefined ? undefined : JSON.parse(JSON.stringify(v)));
+  const isMap = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+  function deepMerge(target, src) {
+    for (const [k, v] of Object.entries(src)) {
+      if (isMap(v)) {
+        if (!isMap(target[k])) target[k] = {};
+        deepMerge(target[k], v);
+      } else {
+        target[k] = v;
+      }
+    }
+  }
+  function snapshotOf(dayKey) {
+    const data = days[dayKey];
+    return { exists: data !== undefined, data: () => clone(data) };
+  }
+  function apply(ref, data, opts) {
+    writes.push({ uid: ref.uid, dayKey: ref.dayKey, data: clone(data), merge: !!(opts && opts.merge) });
+    if (opts && opts.merge) {
+      days[ref.dayKey] = days[ref.dayKey] || {};
+      deepMerge(days[ref.dayKey], clone(data));
+    } else {
+      days[ref.dayKey] = clone(data);
+    }
+    versions.set(ref.dayKey, (versions.get(ref.dayKey) || 0) + 1);
+  }
+  function docRef(parts) {
+    const ref = {
+      path: parts.join('/'),
+      uid: parts[1],
+      dayKey: parts[3],
+      collection: (name) => ({ doc: (id) => docRef([...parts, name, id]) }),
+      async get() {
+        await tick();
+        return snapshotOf(ref.dayKey);
+      },
+      async set(data, opts) {
+        await tick();
+        apply(ref, data, opts);
+      },
+    };
+    return ref;
+  }
+  const db = {
+    collection: (name) => ({ doc: (id) => docRef([name, id]) }),
+    async runTransaction(fn) {
+      if (failTx) throw new Error('firestore unavailable');
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        const seen = new Map();
+        const queued = [];
+        const read = [];
+        const tx = {
+          async get(ref) {
+            await tick();
+            seen.set(ref.dayKey, versions.get(ref.dayKey) || 0);
+            read.push(ref.dayKey);
+            return snapshotOf(ref.dayKey);
+          },
+          getAll(...refs) {
+            return Promise.all(refs.map((r) => tx.get(r)));
+          },
+          set(ref, data, opts) {
+            queued.push([ref, data, opts]);
+            return tx;
+          },
+        };
+        const result = await fn(tx);
+        txReads.push(read);
+        await tick();
+        // Commit: atomic from here (no await) — check every read, then apply every write.
+        const stale = [...seen].some(([key, v]) => (versions.get(key) || 0) !== v);
+        if (stale) {
+          retries += 1;
+          continue;
+        }
+        for (const [ref, data, opts] of queued) apply(ref, data, opts);
+        commits += 1;
+        return result;
+      }
+      throw new Error('transaction contention');
+    },
+  };
+  return {
+    db,
+    writes,
+    txReads,
+    stats: () => ({ commits, retries }),
+    /** Every paperPasses entry written by a MINT (no gradedAtMs), in write order. */
+    mintWrites: () => writes.flatMap((w) => Object.entries((w.data && w.data.paperPasses) || {})
+      .filter(([, e]) => e && typeof e === 'object' && e.gradedAtMs === undefined)
+      .map(([passId, e]) => ({ uid: w.uid, dayKey: w.dayKey, passId, issuedAtMs: e.issuedAtMs, surface: e.surface }))),
+    /** Every graded mark written, in write order. */
+    gradedWrites: () => writes.flatMap((w) => Object.entries((w.data && w.data.paperPasses) || {})
+      .filter(([, e]) => e && typeof e === 'object' && e.gradedAtMs !== undefined)
+      .map(([passId, e]) => ({ uid: w.uid, dayKey: w.dayKey, passId, ...e }))),
+    /** Any write that touched a trial counter (FAIR-USE-3: a mint never does). */
+    counterWrites: () => writes.filter((w) => Object.keys(w.data || {}).some((k) => /^trial/.test(k))),
   };
 }
 
@@ -135,6 +252,8 @@ const rawReadJson = async (req) => req.__body || {};
 function rig({ tier = 'trial', days = {}, env = { FAIR_USE_ENFORCE: '1' }, now = NOW, failRead = false, tierOf } = {}) {
   const clock = { now };
   const ledger = fakeLedger(days, { failRead });
+  // The mint transaction and the graded mark run on the SAME day objects the ledger reads.
+  const fs = fakeFirestore(days, { failTx: failRead });
   const telemetry = recorder();
   const sent = [];
   let tierReads = 0;
@@ -145,15 +264,18 @@ function rig({ tier = 'trial', days = {}, env = { FAIR_USE_ENFORCE: '1' }, now =
     env,
     now: () => clock.now,
     readJson: rawReadJson,
-    recordPaperPass: (...a) => ledger.recordPaperPass(...a),
+    resolveFirestore: () => ({ db: fs.db }),
     sendJson: (res, status, body) => {
       sent.push({ status, body });
       res.sent = { status, body };
     },
     verifiedCaller: { resolveVerifiedUid: async (req) => (req.headers.authorization === 'Bearer ok' ? 'stu-1' : '') },
   });
-  return { gate, ledger, telemetry, sent, clock, days, tierReads: () => tierReads };
+  return { gate, ledger, fs, telemetry, sent, clock, days, tierReads: () => tierReads };
 }
+
+/** The surfaces of every mint write, in order. */
+const mintedSurfaces = (r) => r.fs.mintWrites().map((w) => w.surface);
 
 function questions(n) {
   return Array.from({ length: n }, (_, i) => ({ qNumber: i + 1, marks: 2, questionText: `Question ${i + 1}` }));
@@ -271,12 +393,13 @@ test('U2 · chapter test: 1 per IST day — at the limit the MINT is 409, next I
     status: 409,
     body: { error: 'trial_limit', remaining: 0, resetAt: NEXT_IST_MIDNIGHT },
   });
-  assert.equal(at.ledger.passWrites.length, 0, 'a refused mint spends nothing');
+  assert.equal(at.fs.mintWrites().length, 0, 'a refused mint spends nothing');
 
   const next = rig({ days, env: PASS_ENV, now: Date.UTC(2026, 8, 27, 18, 30, 0) });
   const minted = await mint(next, { surface: 'chapter-test', paperKey: 'ct-1' });
   assert.equal(minted.status, 200);
-  assert.deepEqual(next.ledger.passWrites.map((w) => w.counts), [{ chapterTests: 1 }]);
+  assert.deepEqual(mintedSurfaces(next), ['chapter-test']);
+  assert.deepEqual(next.fs.counterWrites(), [], 'FAIR-USE-3 R1: the mint bumps no counter — the entry IS the spend');
   const served = await run(next, { path: GRADE_WORKSHEET_PATH, surface: 'chapter-test', body, headers: paperHeaders(minted.body.token) });
   assert.equal(served.answered, false);
   assert.deepEqual(next.ledger.trialWrites, [],
@@ -306,10 +429,10 @@ for (const [surface, field, counterKey] of [
     const outside = rig({ env: PASS_ENV, days: { [dayOf(7)]: { [field]: 1 } } });
     const served = await mint(outside, { surface, paperKey });
     assert.equal(served.status, 200);
-    assert.deepEqual(outside.ledger.passWrites.map((w) => w.counts), [{ [counterKey]: 1 }]);
-    assert.deepEqual(outside.ledger.reads[0].keys, windowDayKeys(NOW));
-    assert.equal(outside.ledger.reads[0].keys.length, 7);
-    assert.ok(!outside.ledger.reads[0].keys.includes(dayOf(7)));
+    assert.deepEqual(mintedSurfaces(outside), [surface]);
+    assert.deepEqual(outside.fs.txReads[0], windowDayKeys(NOW));
+    assert.equal(outside.fs.txReads[0].length, 7);
+    assert.ok(!outside.fs.txReads[0].includes(dayOf(7)));
   });
 }
 
@@ -620,6 +743,8 @@ test('U5 · /api/usage/me — trial shape', async () => {
         mocks: '2026-10-01T18:30:00.000Z',
         worksheets: null,
       },
+      // FAIR-USE-3 R3: the limits in force (here the env defaults).
+      limits: { checksPerDay: 5, chapterTestsPerDay: 1, mocksPerWeek: 1, worksheetsPerWeek: 1 },
     },
     premium: null,
     enforced: true,
@@ -715,7 +840,7 @@ test('F6 · a valid pass makes a paper: graded as that paper, and nothing more i
   // Re-grading the same paper (a re-upload) inside the 24 h is still that paper.
   await run(r, { path: GRADE_WORKSHEET_PATH, surface: 'chapter-test', body: PAPER_BODY('ct-7', 8), headers: paperHeaders(minted.body.token) });
   assert.deepEqual(r.ledger.trialWrites, []);
-  assert.deepEqual(r.ledger.passWrites.map((w) => w.counts), [{ chapterTests: 1 }], 'spent exactly once, at the mint');
+  assert.deepEqual(mintedSurfaces(r), ['chapter-test'], 'spent exactly once, at the mint');
 });
 
 test('F6 · a pass for another uid / another surface / another paper, or expired -> per question', async () => {
@@ -778,16 +903,16 @@ test('F6 · the mint consumes ONCE; a re-mint of the same paper within 24 h is f
   assert.equal(again.status, 200);
   assert.equal(again.body.token, first.body.token, 'the same paper gets the same pass');
   assert.equal(again.body.reused, true);
-  assert.equal(r.ledger.passWrites.length, 1, 'no double charge');
-  assert.deepEqual(r.ledger.passWrites[0].counts, { mocks: 1 });
-  assert.equal(r.ledger.passWrites[0].passId, paperPassId('full-mock', 'fm-9'));
+  assert.equal(r.fs.mintWrites().length, 1, 'no double charge');
+  assert.equal(r.fs.mintWrites()[0].surface, 'full-mock');
+  assert.equal(r.fs.mintWrites()[0].passId, paperPassId('full-mock', 'fm-9'));
   assert.doesNotMatch(JSON.stringify(r.days), /fm-9/, 'the ledger holds a hash, never the paper id');
 
   // A DIFFERENT paper is a different mock: 1 per rolling week is already spent -> 409.
   const other = await mint(r, { surface: 'full-mock', paperKey: 'fm-10' });
   assert.equal(other.status, 409);
   assert.equal(other.body.error, 'trial_limit');
-  assert.equal(r.ledger.passWrites.length, 1);
+  assert.equal(r.fs.mintWrites().length, 1);
 
   // 24 h after the first mint the pass has lapsed: minting it again is a new paper.
   const cr = rig({ env: PASS_ENV, days: {} });
@@ -797,14 +922,14 @@ test('F6 · the mint consumes ONCE; a re-mint of the same paper within 24 h is f
   assert.equal(later.status, 200);
   assert.equal(later.body.reused, false);
   assert.notEqual(later.body.token, ct.body.token);
-  assert.equal(cr.ledger.passWrites.length, 2);
+  assert.equal(cr.fs.mintWrites().length, 2);
 });
 
 test('F6 · premium and the free check are unaffected by minting', async () => {
   const p = rig({ tier: 'premium', env: PASS_ENV, days: { [TODAY]: { costMicroInr: 40 * INR } } });
   const minted = await mint(p, { surface: 'full-mock', paperKey: 'fm-1' });
   assert.equal(minted.status, 200);
-  assert.equal(p.ledger.passWrites.length, 0, 'premium spends no trial allowance');
+  assert.equal(p.fs.writes.length, 0, 'premium spends no trial allowance');
   assert.equal(p.ledger.reads.length, 0, 'premium minting reads no ledger');
   // Premium grading with the pass is still metered by COST, exactly as before.
   const graded = await run(p, { path: GRADE_WORKSHEET_PATH, surface: 'full-mock', body: PAPER_BODY('fm-1'), headers: paperHeaders(minted.body.token) });
@@ -821,7 +946,7 @@ test('F6 · premium and the free check are unaffected by minting', async () => {
 test('F6 · FAIR_USE_PAPER_SECRET unset -> the mint is 503 and paper grades fall back to per-question counting', async () => {
   const r = rig({ env: { FAIR_USE_ENFORCE: '1' }, days: {} });
   assert.deepEqual(await mint(r, { surface: 'chapter-test', paperKey: 'ct-1' }), { status: 503, body: { error: 'paper_pass_unavailable' } });
-  assert.equal(r.ledger.passWrites.length, 0);
+  assert.equal(r.fs.writes.length, 0);
   assert.equal(r.telemetry.count('fair_use.paper_pass.unavailable'), 1);
 
   // A pass minted while the secret WAS set is not believed once it is gone.
@@ -851,7 +976,7 @@ test('F6 · DARK (FAIR_USE_ENFORCE unset): nobody is refused anything new — ol
   assert.equal(minted.status, 200);
   assert.equal(spent.telemetry.count('fair_use.would_refuse.trial_chapter_test'), 1);
   assert.deepEqual(spent.telemetry.startingWith('fair_use.refused.'), []);
-  assert.deepEqual(spent.ledger.passWrites.map((w) => w.counts), [{ chapterTests: 1 }]);
+  assert.deepEqual(mintedSurfaces(spent), ['chapter-test']);
 });
 
 test('F6 · the mint takes a VERIFIED uid, a paper surface and a paperKey — anything else 401 / 400, never a 500', async () => {
@@ -867,6 +992,7 @@ test('F6 · the mint takes a VERIFIED uid, a paper surface and a paperKey — an
     assert.deepEqual(await mint(r, { body: { surface: 'worksheet', paperKey } }), bad, `paperKey=${String(paperKey).slice(0, 10)}`);
   }
   assert.deepEqual(await mint(r, { body: null }), bad);
+  let firestoreTouched = 0;
   const unreadable = createFairUse({
     tierOf: async () => 'trial',
     ledger: fakeLedger(),
@@ -874,12 +1000,13 @@ test('F6 · the mint takes a VERIFIED uid, a paper surface and a paperKey — an
     readJson: async () => { throw new Error('Unexpected token'); },
     sendJson: (res, status, body) => { res.sent = { status, body }; },
     verifiedCaller: { resolveVerifiedUid: async () => 'stu-1' },
-    recordPaperPass: async () => assert.fail('nothing may be written for a bad body'),
+    resolveFirestore: () => { firestoreTouched += 1; return null; },
   });
   const res = fakeRes();
   await unreadable.handlePaperPass({ headers: {} }, res);
   assert.deepEqual(res.sent, bad);
-  assert.equal(r.ledger.passWrites.length, 0);
+  assert.equal(r.fs.writes.length, 0);
+  assert.equal(firestoreTouched, 0, 'nothing may be read or written for a bad body');
 });
 
 test('F6 · FAIL-OPEN mint: an unreadable ledger still issues the pass and records the spend', async () => {
@@ -887,7 +1014,7 @@ test('F6 · FAIL-OPEN mint: an unreadable ledger still issues the pass and recor
   const out = await mint(r, { surface: 'worksheet', paperKey: 'ws-3' });
   assert.equal(out.status, 200);
   assert.equal(r.telemetry.count('fair_use.ledger_unreadable'), 1);
-  assert.deepEqual(r.ledger.passWrites.map((w) => w.counts), [{ worksheets: 1 }]);
+  assert.deepEqual(mintedSurfaces(r), ['worksheet'], 'the fail-open plain write still records the spend');
 });
 
 test('F5 · /api/usage/me `enforced` is true ONLY when FAIR_USE_ENFORCE=1', async () => {
@@ -915,6 +1042,238 @@ test('F6 · static pin: the pass signature is compared with crypto.timingSafeEqu
     .join('\n');
   assert.doesNotMatch(rest, /\b(sig|given|expected)\b[^;\n]*[!=]==|[!=]==[^;\n]*\b(sig|given|expected)\b/,
     'the signature must never be compared with === or !==');
+});
+
+/* ══════════════════════════════════════════════════════════════════════════
+   FAIR-USE-3 · R1 LAZY REFUND · R2 ONE-TRANSACTION MINT · R3 LIMITS FROM THE SERVER
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/** Let fire-and-forget work (the graded mark's transaction) land. */
+async function settle(n = 30) {
+  for (let i = 0; i < n; i += 1) await new Promise((resolve) => setImmediate(resolve));
+}
+
+const HOUR = 60 * 60 * 1000;
+
+/** Grade a paper WITH its pass through the gate; the handler answers `serve`. */
+async function gradePaper(r, surface, paperKey, token, serve = 200) {
+  const out = await run(r, { path: GRADE_WORKSHEET_PATH, surface, body: PAPER_BODY(paperKey), headers: paperHeaders(token), serve });
+  await settle();
+  return out;
+}
+
+// MUTATION FU3-MUT-1 target ("count ungraded passes forever" -> RED).
+test('R1 · an UNGRADED pass counts while < 24 h old and stops counting at 24 h; a GRADED pass always counts', async () => {
+  // ── Ungraded: counts at 23 h 59 m, lapses at exactly 24 h. ──
+  const u = rig({ env: PASS_ENV, days: {} });
+  const a = await mint(u, { surface: 'full-mock', paperKey: 'fm-a' });
+  assert.equal(a.status, 200);
+  u.clock.now = NOW + 24 * HOUR - 60 * 1000;
+  const early = await mint(u, { surface: 'full-mock', paperKey: 'fm-b' });
+  assert.equal(early.status, 409, 'an ungraded pass < 24 h old still counts');
+  // The reset shown is when that ungraded pass lapses, not when its day leaves the week.
+  assert.equal(early.body.resetAt, new Date(NOW + PAPER_PASS_TTL_MS).toISOString());
+  const meEarly = await usageMe(u);
+  assert.equal(meEarly.body.trial.mocksLeft, 0);
+  assert.equal(meEarly.body.trial.resets.mocks, new Date(NOW + PAPER_PASS_TTL_MS).toISOString());
+  u.clock.now = NOW + PAPER_PASS_TTL_MS;
+  assert.equal((await usageMe(u)).body.trial.mocksLeft, 1, 'an ungraded pass >= 24 h old no longer counts');
+  const lapsed = await mint(u, { surface: 'full-mock', paperKey: 'fm-b' });
+  assert.equal(lapsed.status, 200, 'the lazy refund: no job ran, the allowance is simply back');
+  assert.equal(u.telemetry.count('fair_use.refused.trial_full_mock'), 1);
+
+  // ── Graded: the same timeline, but a grade landed on the first pass -> still counts. ──
+  const g = rig({ env: PASS_ENV, days: {} });
+  const ga = await mint(g, { surface: 'full-mock', paperKey: 'fm-a' });
+  g.clock.now = NOW + 2 * HOUR;
+  const graded = await gradePaper(g, 'full-mock', 'fm-a', ga.body.token);
+  assert.equal(graded.answered, false);
+  assert.equal(g.fs.gradedWrites().length, 1, 'the served grade marked the pass');
+  assert.equal(g.fs.gradedWrites()[0].gradedAtMs, NOW + 2 * HOUR);
+  assert.equal(g.fs.gradedWrites()[0].issuedAtMs, NOW);
+  assert.equal(g.fs.gradedWrites()[0].dayKey, TODAY, 'marked on the pass\'s OWN day document');
+  g.clock.now = NOW + PAPER_PASS_TTL_MS;
+  const after = await mint(g, { surface: 'full-mock', paperKey: 'fm-b' });
+  assert.equal(after.status, 409, 'a GRADED pass keeps counting after 24 h');
+  g.clock.now = NOW + 6 * 24 * HOUR;
+  assert.equal((await usageMe(g)).body.trial.mocksLeft, 0, 'graded: counted for the whole rolling week');
+  assert.equal((await usageMe(g)).body.trial.resets.mocks, '2026-10-03T18:30:00.000Z', 'graded: resets when its IST day leaves the week');
+  g.clock.now = NOW + 7 * 24 * HOUR;
+  assert.equal((await usageMe(g)).body.trial.mocksLeft, 1, 'CONTROL: and leaves the window like any other use');
+
+  // ── Only a SERVED (2xx) grade marks the pass; a failed grade leaves it to lapse. ──
+  const f = rig({ env: PASS_ENV, days: {} });
+  const fa = await mint(f, { surface: 'worksheet', paperKey: 'ws-a' });
+  await gradePaper(f, 'worksheet', 'ws-a', fa.body.token, 500);
+  assert.equal(f.fs.gradedWrites().length, 0, 'a 500 is not a grade that landed');
+  f.clock.now = NOW + PAPER_PASS_TTL_MS;
+  assert.equal((await mint(f, { surface: 'worksheet', paperKey: 'ws-b' })).status, 200);
+
+  // ── The chapter test (per IST day) is unchanged by R1: an ungraded pass minted today
+  //    always counts for the rest of today (it cannot reach 24 h before midnight). ──
+  const c = rig({ env: PASS_ENV, days: {} });
+  await mint(c, { surface: 'chapter-test', paperKey: 'ct-a' });
+  c.clock.now = Date.UTC(2026, 8, 27, 18, 29, 0); // 23:59 IST, same day
+  assert.equal((await mint(c, { surface: 'chapter-test', paperKey: 'ct-b' })).status, 409);
+  c.clock.now = Date.UTC(2026, 8, 27, 18, 30, 0); // 00:00 IST, next day
+  assert.equal((await mint(c, { surface: 'chapter-test', paperKey: 'ct-b' })).status, 200);
+});
+
+test('R1 · the graded mark: first grade kept, re-grades write nothing, a lost mint record is recorded graded', async () => {
+  const r = rig({ env: PASS_ENV, days: {} });
+  const m = await mint(r, { surface: 'full-mock', paperKey: 'fm-1' });
+  r.clock.now = NOW + HOUR;
+  await gradePaper(r, 'full-mock', 'fm-1', m.body.token);
+  r.clock.now = NOW + 2 * HOUR;
+  await gradePaper(r, 'full-mock', 'fm-1', m.body.token); // a re-upload
+  assert.equal(r.fs.gradedWrites().length, 1, 'the re-grade writes nothing');
+  const entry = r.days[TODAY].paperPasses[paperPassId('full-mock', 'fm-1')];
+  assert.deepEqual(entry, { issuedAtMs: NOW, surface: 'full-mock', gradedAtMs: NOW + HOUR });
+  assert.equal(r.telemetry.count('fair_use.paper_pass.graded_already'), 1);
+  assert.deepEqual(r.ledger.trialWrites, [], 'grading a paper still spends no answer checks');
+
+  // The mint's own record was lost (e.g. a failed fail-open write): the graded paper is
+  // recorded whole, so a paper that was actually graded is never free.
+  const lost = rig({ env: PASS_ENV, days: {} });
+  const token = encodePaperPass(SECRET, 'stu-1', 'worksheet', 'ws-9', NOW);
+  lost.clock.now = NOW + HOUR;
+  await gradePaper(lost, 'worksheet', 'ws-9', token);
+  assert.deepEqual(lost.days[TODAY].paperPasses[paperPassId('worksheet', 'ws-9')],
+    { issuedAtMs: NOW, surface: 'worksheet', gradedAtMs: NOW + HOUR });
+  assert.equal((await usageMe(lost)).body.trial.worksheetsLeft, 0);
+
+  // A Firestore error on the mark is counted and swallowed — the grade was already served.
+  const down = rig({ env: PASS_ENV, days: {}, failRead: true });
+  const out = await gradePaper(down, 'worksheet', 'ws-9', token);
+  assert.equal(out.answered, false);
+  assert.equal(down.telemetry.count('fair_use.paper_pass.graded_record_failed'), 1);
+});
+
+test('R1 · OLD-FORMAT ledger docs keep working: legacy numbers + counters count as before, never twice, never rewritten', async () => {
+  // A pre-FAIR-USE-3 mint two days ago: the plain issuedAtMs number AND the counter it bumped.
+  const legacyIssued = NOW - 2 * 24 * HOUR;
+  const legacyId = paperPassId('full-mock', 'fm-old');
+  const env = { ...PASS_ENV, FAIR_USE_TRIAL_MOCKS_PER_WEEK: '2' }; // room for 2, so a double count is visible
+  const r = rig({ env, days: { [dayOf(2)]: { trialMocks: 1, paperPasses: { [legacyId]: legacyIssued } } } });
+  const me = await usageMe(r);
+  assert.equal(me.body.trial.mocksLeft, 1, 'the legacy spend still counts — once (its counter), not also from the map');
+  assert.equal(me.body.trial.resets.mocks, '2026-10-01T18:30:00.000Z', 'a legacy spend leaves with its day, as before');
+
+  // A NEW-shape pass alongside it: 1 legacy + 1 new = the allowance of 2 spent.
+  const fresh = await mint(r, { surface: 'full-mock', paperKey: 'fm-new' });
+  assert.equal(fresh.status, 200);
+  assert.equal((await usageMe(r)).body.trial.mocksLeft, 0, 'legacy and new uses add up');
+  assert.equal((await mint(r, { surface: 'full-mock', paperKey: 'fm-third' })).status, 409);
+
+  // Grading WITH a legacy pass (minted before this deploy, still < 24 h old) never rewrites
+  // the legacy number — rewriting it into the new shape would count it a second time.
+  const recent = NOW - 3 * HOUR;
+  const recentId = paperPassId('worksheet', 'ws-old');
+  const r2 = rig({ env: { ...PASS_ENV, FAIR_USE_TRIAL_WORKSHEETS_PER_WEEK: '2' }, days: { [TODAY]: { trialWorksheets: 1, paperPasses: { [recentId]: recent } } } });
+  const reused = await mint(r2, { surface: 'worksheet', paperKey: 'ws-old' });
+  assert.equal(reused.status, 200);
+  assert.equal(reused.body.reused, true, 'a legacy pass < 24 h old is re-issued, not re-spent');
+  assert.equal(reused.body.issuedAt, new Date(recent).toISOString());
+  await gradePaper(r2, 'worksheet', 'ws-old', reused.body.token);
+  assert.equal(r2.days[TODAY].paperPasses[recentId], recent, 'the legacy number is left exactly as it was');
+  assert.equal(r2.fs.writes.length, 0, 'nothing written for a legacy pass — its counter already holds the spend');
+  assert.equal(r2.telemetry.count('fair_use.paper_pass.graded_legacy'), 1);
+  assert.equal((await usageMe(r2)).body.trial.worksheetsLeft, 1, 'still exactly one worksheet spent');
+
+  // Malformed entries are ignored, never a crash and never a count.
+  const junk = rig({ env: PASS_ENV, days: { [TODAY]: { paperPasses: { a: 'x', b: null, c: [], d: { surface: 'full-mock' }, e: 1.5 } } } });
+  assert.equal((await usageMe(junk)).body.trial.mocksLeft, 1);
+  assert.equal((await mint(junk, { surface: 'full-mock', paperKey: 'fm-1' })).status, 200);
+});
+
+// MUTATION FU3-MUT-2 target ("mint without the transaction" -> RED).
+test('R2 · two tabs minting the SAME paper at once spend ONCE — one pass, one entry (a real race)', async () => {
+  const r = rig({ env: PASS_ENV, days: {} });
+  // Both requests are in flight together: their reads interleave before either commits.
+  const [a, b] = await Promise.all([
+    mint(r, { surface: 'full-mock', paperKey: 'fm-race' }),
+    mint(r, { surface: 'full-mock', paperKey: 'fm-race' }),
+  ]);
+  assert.equal(a.status, 200);
+  assert.equal(b.status, 200);
+  assert.deepEqual([a.body.reused, b.body.reused].sort(), [false, true], 'exactly one fresh mint; the other tab is handed the SAME pass');
+  assert.equal(a.body.token, b.body.token, 'both tabs hold one and the same pass');
+  assert.equal(r.fs.mintWrites().length, 1, 'one entry written — spent once');
+  assert.equal(r.telemetry.count('fair_use.paper_pass.reused'), 1);
+  assert.equal(r.fs.stats().retries >= 1, true, 'CONTROL: the two transactions really collided (one was re-run)');
+});
+
+test('R2 · two tabs minting DIFFERENT papers at once with ONE allowance left: enforced -> one 200 + one 409; dark -> both served, honestly counted', async () => {
+  const r = rig({ env: PASS_ENV, days: {} });
+  const [a, b] = await Promise.all([
+    mint(r, { surface: 'worksheet', paperKey: 'ws-1' }),
+    mint(r, { surface: 'worksheet', paperKey: 'ws-2' }),
+  ]);
+  assert.deepEqual([a.status, b.status].sort(), [200, 409], 'the transaction saw the other tab\'s spend');
+  assert.equal(r.fs.mintWrites().length, 1);
+  assert.ok(r.fs.stats().retries >= 1, 'CONTROL: the two transactions really collided');
+
+  // Dark (the ship state): nobody is refused, and the second is counted as a would-refuse.
+  const d = rig({ env: PASS_ENV_DARK, days: {} });
+  const [x, y] = await Promise.all([
+    mint(d, { surface: 'worksheet', paperKey: 'ws-1' }),
+    mint(d, { surface: 'worksheet', paperKey: 'ws-2' }),
+  ]);
+  assert.deepEqual([x.status, y.status], [200, 200]);
+  assert.equal(d.telemetry.count('fair_use.would_refuse.trial_worksheet'), 1);
+  assert.deepEqual(d.telemetry.startingWith('fair_use.refused.'), []);
+  assert.equal(d.fs.mintWrites().length, 2, 'dark: both served papers are counted');
+});
+
+test('R2 · a Firestore error in the mint transaction is NO WORSE than before: the pass is issued, nothing refused — even when enforcing', async () => {
+  for (const env of [PASS_ENV_DARK, PASS_ENV]) {
+    const r = rig({ env, days: { [TODAY]: { trialChapterTests: 1 } }, failRead: true });
+    const out = await mint(r, { surface: 'chapter-test', paperKey: 'ct-9' });
+    assert.equal(out.status, 200, `fail open (${JSON.stringify(env)}): a refusal needs a positive read`);
+    assert.equal(out.body.reused, false);
+    assert.equal(r.telemetry.count('fair_use.ledger_unreadable'), 1);
+    assert.deepEqual(r.telemetry.startingWith('fair_use.refused.'), []);
+    assert.deepEqual(mintedSurfaces(r), ['chapter-test'], 'the spend is still recorded (plain write), as before');
+  }
+  // No Firestore at all: the pass is still issued and the failed record is counted.
+  const none = createFairUse({
+    tierOf: async () => 'trial', ledger: fakeLedger(), env: PASS_ENV, now: () => NOW, readJson: rawReadJson,
+    resolveFirestore: () => null, telemetry: recorder(),
+    sendJson: (res, status, body) => { res.sent = { status, body }; },
+    verifiedCaller: { resolveVerifiedUid: async () => 'stu-1' },
+  });
+  const res = fakeRes();
+  await none.handlePaperPass({ headers: {}, __body: { surface: 'worksheet', paperKey: 'w' } }, res);
+  assert.equal(res.sent.status, 200);
+});
+
+test('R3 · /api/usage/me returns the limits in force, and they follow a CHANGED env limit', async () => {
+  const env = {
+    FAIR_USE_ENFORCE: '1',
+    FAIR_USE_TRIAL_CHECKS_PER_DAY: '7',
+    FAIR_USE_TRIAL_CHAPTER_TESTS_PER_DAY: '2',
+    FAIR_USE_TRIAL_MOCKS_PER_WEEK: '3',
+    FAIR_USE_TRIAL_WORKSHEETS_PER_WEEK: '4',
+  };
+  const out = await usageMe(rig({ env, days: { [TODAY]: { trialChecks: 3 } } }));
+  assert.equal(out.status, 200);
+  assert.deepEqual(out.body.trial.limits, { checksPerDay: 7, chapterTestsPerDay: 2, mocksPerWeek: 3, worksheetsPerWeek: 4 });
+  assert.equal(out.body.trial.checksLeftToday, 4);
+  // CONTROL: the defaults when unset — the numbers are env's, never the client's.
+  assert.deepEqual((await usageMe(rig())).body.trial.limits, { checksPerDay: 5, chapterTestsPerDay: 1, mocksPerWeek: 1, worksheetsPerWeek: 1 });
+  // Premium never receives trial limits (and never rupees); free receives nothing.
+  const p = await usageMe(rig({ tier: 'premium' }));
+  assert.equal(p.body.trial, null);
+  assert.doesNotMatch(JSON.stringify(p.body), /limits|Per(Day|Week)/);
+});
+
+test('R1 · static pin: the mint writes no trial counter (the entry is the spend)', () => {
+  const src = require('node:fs').readFileSync(path.join(__dirname, 'fairUse.cjs'), 'utf8');
+  const start = src.indexOf('async function handlePaperPass(');
+  assert.ok(start > 0);
+  const fnSrc = src.slice(start, src.indexOf('\n  }\n', start));
+  assert.doesNotMatch(fnSrc, /FieldValue|increment|TRIAL_COUNTER_FIELDS|recordTrialUse/);
+  assert.match(fnSrc, /db\.runTransaction\(/, 'the mint runs in a Firestore transaction');
 });
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -964,7 +1323,12 @@ function bootServer(port, extraEnv, seed) {
     const collRef = (p) => ({ doc: (id) => docRef(p + '/' + id) });
     const firestore = () => ({
       collection: (n) => collRef(n),
-      runTransaction: async (fn) => fn({ get: async () => ({ exists: false }), set() {} }),
+      // FAIR-USE-3: a transaction runs on the same fake documents (its writes are logged too).
+      runTransaction: async (fn) => fn({
+        get: (ref) => ref.get(),
+        getAll: (...refs) => Promise.all(refs.map((r) => r.get())),
+        set(ref, data, opts) { ref.set(data, opts); return this; },
+      }),
     });
     firestore.FieldValue = { increment: (n) => ({ increment: n }) };
     const fake = {
@@ -1098,7 +1462,8 @@ test('WIRING · REAL index.cjs, FAIR_USE_ENFORCE=1: 409 before Gemini, counted p
     const me = JSON.parse(res.text);
     assert.equal(me.tier, 'trial');
     assert.equal(me.premium, null);
-    assert.deepEqual(Object.keys(me.trial).sort(), ['chapterTestsLeftToday', 'checksLeftToday', 'mocksLeft', 'resets', 'worksheetsLeft']);
+    assert.deepEqual(Object.keys(me.trial).sort(), ['chapterTestsLeftToday', 'checksLeftToday', 'limits', 'mocksLeft', 'resets', 'worksheetsLeft']);
+    assert.deepEqual(me.trial.limits, { checksPerDay: 5, chapterTestsPerDay: 1, mocksPerWeek: 1, worksheetsPerWeek: 1 }, 'R3: the limits in force reach the client');
     assert.doesNotMatch(res.text, NO_RUPEES);
     assert.equal((await request(port, 'GET', '/api/usage/me', undefined, {})).status, 401);
 
@@ -1175,7 +1540,8 @@ test('WIRING · REAL index.cjs, FAIR_USE_PAPER_SECRET set, enforcement dark: min
     assert.equal((await request(port, 'POST', USAGE_PAPER_PATH, { surface: 'chapter-test', paperKey: 'ct-w' }, {})).status, 401);
     assert.equal((await request(port, 'POST', USAGE_PAPER_PATH, { surface: 'quick-practice', paperKey: 'ct-w' }, TRIAL)).status, 400);
 
-    // ── (2) Mint: a pass, and ONE ledger write holding the re-mint record + the paper spent. ──
+    // ── (2) Mint: a pass, and ONE ledger write (inside the R2 transaction) holding the
+    //        pass entry { issuedAtMs, surface } — FAIR-USE-3 R1: that entry IS the spend. ──
     let before = srv.log();
     let res = await request(port, 'POST', USAGE_PAPER_PATH, { surface: 'chapter-test', paperKey: 'ct-w' }, TRIAL);
     for (let i = 0; i < 40 && !/paperPasses/.test(srv.log().slice(before.length)); i++) await wait(50);
@@ -1186,20 +1552,24 @@ test('WIRING · REAL index.cjs, FAIR_USE_PAPER_SECRET set, enforcement dark: min
     assert.match(pass.token, /^v1\.\d+\.chapter-test\./);
     const mintWrite = delta.split('\n').find((l) => l.startsWith(`LEDGER_SET usageLedger/trial-student/days/${today} `) && l.includes('paperPasses'));
     assert.ok(mintWrite, `the mint must be recorded on the ledger day document\n${delta}`);
-    assert.match(mintWrite, /"paperPasses":\{"[0-9a-f]{32}":\d+\}/);
-    assert.match(mintWrite, /"trialChapterTests":\{"increment":1\}/);
+    assert.match(mintWrite, /"paperPasses":\{"[0-9a-f]{32}":\{"issuedAtMs":\d+,"surface":"chapter-test"\}\}/);
+    assert.doesNotMatch(mintWrite, /trialChapterTests|increment/, 'FAIR-USE-3: the mint bumps no counter');
     assert.doesNotMatch(mintWrite, /ct-w/, 'the ledger holds a hash, never the paper id');
     assert.equal(count(delta, /GEMINI_FETCH/g), 0, 'minting is not grading');
 
-    // ── (3) Grade the paper WITH its pass -> served as the paper; no answer checks spent. ──
+    // ── (3) Grade the paper WITH its pass -> served as the paper; no answer checks spent,
+    //        and (R1, P7) the served grade marks the pass graded on its own day document. ──
     before = srv.log();
     res = await request(port, 'POST', GRADE_WORKSHEET_PATH, typedBatch(3, 'ct-w'),
       { ...TRIAL, 'x-lazytopper-surface': 'chapter-test', 'x-lazytopper-paper': pass.token });
-    await wait(400);
+    for (let i = 0; i < 40 && !/gradedAtMs/.test(srv.log().slice(before.length)); i++) await wait(50);
     delta = srv.log().slice(before.length);
     assert.equal(res.status, 200, `${res.text}\n${delta}`);
     assert.ok(count(delta, /GEMINI_FETCH/g) >= 1, `CONTROL: the paper must reach the grader\n${delta}`);
     assert.ok(!/trialChecks|trialChapterTests/.test(delta), `a minted paper must spend nothing more\n${delta}`);
+    const gradedWrite = delta.split('\n').find((l) => l.startsWith(`LEDGER_SET usageLedger/trial-student/days/${today} `) && l.includes('gradedAtMs'));
+    assert.ok(gradedWrite, `R1: the served paper grade must mark its pass graded\n${delta}`);
+    assert.match(gradedWrite, /"paperPasses":\{"[0-9a-f]{32}":\{"issuedAtMs":\d+,"surface":"chapter-test","gradedAtMs":\d+\}\}/);
 
     // ── (4) The same request with the bare header and NO pass -> per question. ──
     before = srv.log();
