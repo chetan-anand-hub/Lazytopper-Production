@@ -162,7 +162,7 @@ export async function gradeFullMockUpload(args: {
     })),
     imageBase64: upload.imageBase64,
     imageMimeType: upload.imageMimeType,
-  }, { surface: "full-mock" });
+  }, { surface: "full-mock", paperKey: paper.worksheetId });
 
   if (!subjectiveResponse.ok) return { ok: false, response: subjectiveResponse, miOutcomes: [] };
 
