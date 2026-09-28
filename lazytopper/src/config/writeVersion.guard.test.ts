@@ -45,8 +45,9 @@ describe("writeVersion — where the SHA comes from", () => {
     expect(resolveCommitSha({ VERCEL_GIT_COMMIT_SHA: "  " }, () => SHA)).toBe(SHA);
   });
 
-  it("★ with neither, the build FAILS rather than publish a marker it cannot back", () => {
-    expect(() => resolveCommitSha({}, () => null)).toThrow(/no commit SHA/);
+  it("★ with neither (the Railway Docker build has no .git), there is NO SHA — never a guessed one", () => {
+    expect(resolveCommitSha({}, () => null)).toBeNull();
+    expect(resolveCommitSha({ VERCEL_GIT_COMMIT_SHA: "" }, () => "  ")).toBeNull();
   });
 });
 

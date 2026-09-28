@@ -12,9 +12,11 @@
  *
  * ★ WHERE THE SHA COMES FROM. Vercel exposes the deployed commit to the build as the system
  * environment variable `VERCEL_GIT_COMMIT_SHA`. Anywhere else (CI, a dev box) the checkout's
- * own `git rev-parse HEAD` is the commit. No SHA at all FAILS the build, visibly: a marker
- * that names the wrong commit, or none, would make search-ping wait for a release it can
- * never see — or announce one that is not live.
+ * own `git rev-parse HEAD` is the commit. With NEITHER — the Railway backend image is built
+ * from a Docker context with no `.git` — NO marker is written and a warning is logged. The
+ * build is not failed (that would break the backend deploy, which never serves www), and a
+ * guessed marker is never written: a missing marker can only make search-ping time out
+ * visibly, while a wrong one could announce a release that is not live.
  */
 
 import { execFileSync } from "node:child_process";
@@ -40,20 +42,17 @@ export function versionMarker(sha: string): string {
 
 /**
  * The commit this build was made from: Vercel's `VERCEL_GIT_COMMIT_SHA` first, then the
- * checkout's HEAD. `gitHead` is injected so the order is testable without a repository.
+ * checkout's HEAD; null when neither exists. `gitHead` is injected so the order is testable
+ * without a repository.
  */
 export function resolveCommitSha(
   env: Record<string, string | undefined>,
   gitHead: () => string | null,
-): string {
+): string | null {
   const fromVercel = (env.VERCEL_GIT_COMMIT_SHA ?? "").trim();
   if (fromVercel !== "") return fromVercel;
   const fromGit = (gitHead() ?? "").trim();
-  if (fromGit !== "") return fromGit;
-  throw new Error(
-    "writeVersion: no commit SHA — VERCEL_GIT_COMMIT_SHA is unset and `git rev-parse HEAD` failed. " +
-      "The release marker cannot be written honestly, so the build stops here.",
-  );
+  return fromGit !== "" ? fromGit : null;
 }
 
 function gitHead(): string | null {
@@ -93,7 +92,16 @@ async function main(): Promise<void> {
         `pass --out=<dir> if the build wrote somewhere else.`,
     );
   }
-  const marker = versionMarker(resolveCommitSha(process.env, gitHead));
+  const sha = resolveCommitSha(process.env, gitHead);
+  if (sha === null) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      "writeVersion: WARNING — no commit SHA (VERCEL_GIT_COMMIT_SHA unset, `git rev-parse HEAD` " +
+        `failed). No ${VERSION_FILE} written; search-ping cannot see this build as live.`,
+    );
+    return;
+  }
+  const marker = versionMarker(sha);
   writeFileSync(join(outDir, VERSION_FILE), marker, "utf8");
   // eslint-disable-next-line no-console
   console.log(`writeVersion: ${join(outDir, VERSION_FILE)} = ${marker.trim()}`);
