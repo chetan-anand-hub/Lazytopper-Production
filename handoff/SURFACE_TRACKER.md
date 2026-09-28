@@ -1,5 +1,17 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-28 — WAVE B-4 (MONEY, CONTROLLER B): FAIR-USE-3 (`#866` `b6da0c6f`), trunk `b6da0c6f`.**
+> ★ **STILL DARK: nothing a student sees changes until `FAIR_USE_ENFORCE=1`.** These status lines supersede the WAVE B-3 "Fair use — paper passes" and "Fair use — limits UI" lines below on status only; those lines stand as written.
+
+### ⬜ Fair use — paper passes (Chapter Test, Full Mock, Worksheet grading) — **SERVER-ISSUED, LAZY REFUND + TRANSACTIONAL MINT, DARK.** A trial paper allowance is computed from the ledger's `paperPasses` map: a pass counts only while < 24 h old or once graded (`gradedAtMs` on the paper grade's 2xx); the mint's read-decide-write runs in one Firestore transaction *(subagent-reported)*. `FAIR_USE_PAPER_SECRET` is now set, so minting is live and counts are recorded; nothing is refused until `FAIR_USE_ENFORCE=1`. Passes minted before `#866` count via their counters (`[FU-FAIR-USE-LEGACY-PASS-NO-LAZY-REFUND]`).
+### ⬜ Fair use — limits UI — **LIMIT COPY IS SERVER-SOURCED; BUILT, DARK UNTIL `FAIR_USE_ENFORCE=1`.** Every fair-use sentence takes its number from `/api/usage/me` `trial.limits`; a missing limit omits the number *(subagent-reported)*. Supersedes the B-3 line's hard-coded-5 caveat (`[FU-FAIR-USE-UI-LIMIT-NUMBER]` closed).
+### ⬜ Fair use — SolutionChecker limit panel (Topic Hub / HPQ per-question checks) — **BUILT, DARK UNTIL `FAIR_USE_ENFORCE=1`.** On a `FairUseLimitError` when enforced, SolutionChecker renders `FairUseLimitPanel`; every other error path is byte-identical *(subagent-reported)*. Supersedes the B-3 line's "SolutionChecker shows the generic error" caveat (`[FU-FAIR-USE-SOLUTIONCHECKER-PANEL]` closed).
+
+### ⬜ NO MATRIX CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- The §2 matrix has no fair-use row, and nothing a student sees changed: every FAIR-USE-3 change is either server-side counting (dark — nothing refused) or UI that renders only with `/api/usage/me` `enforced: true`. The Check & Improve, Quick Practice, Chapter Test, Full Mock, Worksheet, Topic Hub, HPQ and Me / Progress rows therefore keep their cells. Verified cells are not re-claimed: the enforced panels have not been seen live.
+
+### 📋 Scope discovered? — **NO surface scope set to Settling.** Three follow-ups are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`; none changes a surface's scope.
+
 > **2026-09-28 — WAVE B-3 (MONEY, CONTROLLER B): PAYCOPY-1 (`#858` `42733aa6`) + FAIR-USE-2 (`#860` `cfe88001`) + FAIR-USE-UI-1 (`#861` `4dd175d9`), trunk `4dd175d9`.**
 > ★ **BUILT AND DARK: the fair-use surfaces exist but render nothing until `FAIR_USE_ENFORCE=1`; the payments-on pricing copy exists but renders nothing until `VITE_PAYMENTS_ENABLED=1`.** These status lines supersede the WAVE B-2 "Fair use" and "Pricing" lines below on status only; those lines stand as written.
 

@@ -23,6 +23,34 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-28 — WAVE B-4 (MONEY, CONTROLLER B): FAIR-USE-3 (`#866` MERGED as `b6da0c6f`, squash, `--match-head-commit b9439474`, no `--admin`) — three new follow-ups, four closed, thirteen kept open
+
+### ✅ CLOSED — `[FU-FAIR-USE-MINT-NO-REFUND]` (a minted-but-never-graded trial paper stayed spent)
+**Closed by FAIR-USE-3 (`#866`).** Trial paper allowances are now computed from the ledger's `paperPasses` map: a pass counts only while it is under 24 h old or once a grade has landed on it (`gradedAtMs`, marked by fairUse on the paper grade's 2xx) *(subagent-reported; merge controller-verified)*. Passes minted before the deploy are not refunded lazily — see `[FU-FAIR-USE-LEGACY-PASS-NO-LAZY-REFUND]`. The original entry in the WAVE B-3 section below stands as written (board rule 3).
+
+### ✅ CLOSED — `[FU-FAIR-USE-MINT-RACE]` (two concurrent first mints could each spend once)
+**Closed by FAIR-USE-3 (`#866`).** The mint's read-decide-write runs in one Firestore transaction; a concurrent-mint test races two mints against a transaction-honouring fake and proves one spend, and the "mint without the transaction" mutation turned it red *(subagent-reported; R2 test names in CI `36427071349` controller-grepped)*. The original entry in the WAVE B-3 section below stands as written.
+
+### ✅ CLOSED — `[FU-FAIR-USE-UI-LIMIT-NUMBER]` (the trial copy hard-coded "5 answer checks")
+**Closed by FAIR-USE-3 (`#866`).** `/api/usage/me` returns `trial.limits` (`checksPerDay`, `chapterTestsPerDay`, `mocksPerWeek`, `worksheetsPerWeek`) and every fair-use sentence uses them; if a limit is missing the number is omitted, never guessed *(subagent-reported)*. The original entry in the WAVE B-3 section below stands as written.
+
+### ✅ CLOSED — `[FU-FAIR-USE-SOLUTIONCHECKER-PANEL]` (SolutionChecker showed the generic error on a refusal)
+**Closed by FAIR-USE-3 (`#866`).** SolutionChecker renders `FairUseLimitPanel` on a `FairUseLimitError` when enforced; every other error path is byte-identical (`SolutionChecker.fairUse.test.tsx`, 5 tests, in CI `36427071349`) *(subagent-reported; controller-grepped)*. Built with +4 additive lines outside the catch block (controller decision D6). The original entry in the WAVE B-3 section below stands as written.
+
+### `[FU-FAIR-USE-GRADED-ON-UNREADABLE-SCAN]` — OPEN, low impact *(subagent-reported)*
+A `{ ok:false }` 200 from `/api/grade-worksheet` (unreadable scan) marks the pass graded, because fairUse sees the status, not the body. It is low impact: the same paper re-graded within 24 h reuses the pass, so it only matters for a paper the student never retries. A fix would need the handler to signal "graded" (a forbidden file for the FAIR-USE-3 lane). Related: `[FU-FAIR-USE-TRIAL-COUNT-ON-UNREADABLE]` (wave B-2 section below) — the same "2xx = graded" rule the existing trial counting uses.
+
+### `[FU-FAIR-USE-LEGACY-PASS-NO-LAZY-REFUND]` — OPEN, self-healing *(subagent-reported)*
+Passes minted before the FAIR-USE-3 deploy keep counting via their mint-time counters for the full window, even if never graded (controller decision D8: their spend lives in an aggregate counter whose per-pass surface cannot be recovered; reading only the new map would lose or double-count it). This is self-healing: the weekly allowances roll off within 7 days of deploy.
+
+### `[FU-SOLUTIONCHECKER-FAIRUSE-PANEL-STICKY]` — OPEN, cosmetic *(subagent-reported)*
+The SolutionChecker limit panel clears on "OK" but not automatically on the next successful check. Clearing it would need a line outside the catch block.
+
+### Kept open, unchanged by this wave (verified against this file on trunk `b6da0c6f` by the docs builder: each has an OPEN heading and no CLOSED marker)
+- From wave B-3: `[FU-FAIR-USE-PAPER-PASS-DATAMAP-HOLDS]` · `[FU-FAIR-USE-DARK-COUNTS-PAPERS-PER-QUESTION]` (the owner has since set `FAIR_USE_PAPER_SECRET`, per the B-4 dispatch; this wave does not close the entry) · `[FU-FAIR-USE-QP-CONSOLE-WARN]` · `[FU-FAIR-USE-UI-PREVIEW-SHOTS]` (per the B-3 audit, the owner's live test after `FAIR_USE_ENFORCE=1` replaces the screenshots; the entry stays open until then) — see the WAVE B-3 section below.
+- From wave B-2: `[FU-FAIR-USE-TRIAL-COUNT-ON-UNREADABLE]` · `[FU-FAIR-USE-USAGE-ME-RATE]` · `[FU-PASS-PRICE-ORDER-VS-GRANT-DRIFT]` · `[FU-PAY-BUTTON-LABEL-FOUNDING-AFTER-CLOSE]` · `[FU-STUDENTDATAMAP-HEADER-COUNT]` — see the WAVE B-2 section below.
+- From wave B-1: `[FU-STORED-RATE-RULES-MUTATION-PROOF]` · `[FU-PASS-TRIAL-AFTER-EXPIRY]` · `[FU-METER-STREAM-UNMETERED]` · `[FU-METER-PRICE-TABLE-SINGLE-MODEL]` — see the WAVE B-1 section below.
+
 ## 2026-09-28 — WAVE B-3 (MONEY, CONTROLLER B): PAYCOPY-1 (`#858` MERGED as `42733aa6`) + FAIR-USE-2 (`#860` MERGED as `cfe88001`) + FAIR-USE-UI-1 (`#861` MERGED as `4dd175d9`), squash, `--match-head-commit`, no `--admin` — eight new follow-ups, three closed, nine kept open
 
 ### ✅ CLOSED — `[FU-FAIR-USE-SURFACE-UNVERIFIABLE]` (a caller could forge a paper surface and move a multi-question grade into a paper allowance)

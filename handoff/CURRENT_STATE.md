@@ -1,5 +1,63 @@
 # LazyTopper — Current State
 
+## [CURRENT · MONEY] WAVE B-4 — **THE LAST FAIR-USE FIXES BEFORE ENFORCEMENT ARE ON TRUNK (FAIR-USE-3) — STILL DARK** — `#866` MERGED — trunk `b6da0c6f`
+
+★ **PROVENANCE.**
+- Controller B, wave B-4, one controller session. One builder (Agent model `opus` = `claude-opus-5-5`; effort "high" stated in the brief — the Agent tool exposes no effort parameter, D1), in its own worktree `C:/Projects/LT-worktrees/fair-use-3`, branch `lane/fair-use-3`. This docs PR was written by a docs builder in `C:/Projects/LT-worktrees/b4-docs` from the controller's state file `WAVE_STATE_B4.md` and the lane report `report-fair-use-3-2026-09-28.md` (OR-16).
+- Spec owner-authored and hash-verified by the controller: `FAIR-USE-3.md` `8AA4E3AE07EF`, taken from `C:/Projects/LT-worktrees/controller-b4/ops/.specs/` (the shared checkout's `ops/.specs/` has no copy; content proven by sha256 — D0, the B-3 precedent).
+- Merge *(controller-verified; re-checked by the docs builder with `git rev-parse`)*: `#866` FAIR-USE-3 — squash, `--match-head-commit b9439474` → **`b6da0c6f`** (parent `69229cc5`), no `--admin`; **trunk tree == head tree `0354c481`**. 9 files (`gh pr view 866 --json files`).
+- *(subagent-reported)* = from `report-fair-use-3-2026-09-28.md`, not re-measured by the controller. *(controller-verified)* = re-measured by the controller with `gh`/`git`.
+
+**Trunk `b6da0c6f46ffaf4aa285cef7267fc982b27966e8`** (`#866`, `git ls-remote` at dispatch). The commits since the wave B-3 docs (`39059fd6`, `#864`):
+- `b6da0c6f` = `#866` FAIR-USE-3 — **this wave**;
+- also landed since the last handoff:
+  - `69229cc5` = `#865` "feat(seo): search-ping can be dispatched for a SHA (SEARCHPING-2b)" — **Controller A3 lane — details owed by A3.**
+  - `0e2af785` = `#859` "perf(landing): stop the landing text jumping when fonts arrive (PERF-CLS-1)" — **Controller A3 lane — details owed by A3.** (The WAVE A-3 block below records `#859` as a STOPPED draft; it has since merged. That block is left as written.)
+
+*(This block supersedes the WAVE B-3 (MONEY) block below on trunk SHA only — that block is demoted to previous on trunk SHA; its content otherwise stands as written, except that the four FUs it listed as new that this block names as closed are now closed.)*
+
+### In one paragraph
+FAIR-USE-3 (`#866`, `b6da0c6f`) removes the four blockers the B-3 audit named before `FAIR_USE_ENFORCE=1`: a trial paper pass that is minted but never graded stops counting after 24 h, two tabs minting at once spend once, every limit sentence takes its number from the server, and SolutionChecker shows the calm limit panel instead of a generic error. For a student nothing changes until the owner sets `FAIR_USE_ENFORCE=1` (still unset); then the limits they see match the server's env-tuned limits and an abandoned paper does not cost them an allowance. `FAIR_USE_PAPER_SECRET` is now **set** by the owner (`POST /api/usage/paper` answers 401 unsigned), so paper minting is live in production today — counts are recorded, nothing is refused. `FAIR_USE_ENFORCE`, `PAYMENTS_ENABLED` and `VITE_PAYMENTS_ENABLED` stay **unset**; no Railway, Vercel or Razorpay setting was changed by the controller or the builder.
+
+### What shipped — FAIR-USE-3 (`#866` `b6da0c6f`, 9 files) *(builder-reported, CI-verified by the controller)*
+- **Lazy paper refund (R1).** Trial paper allowances are computed from the ledger's `paperPasses` map: a pass counts only while it is under 24 h old or once a grade has landed on it (`gradedAtMs`, marked by fairUse on the paper grade's 2xx). Entry shape before → after: `paperPasses.<id> = issuedAtMs` plus a counter increment → `paperPasses.<id> = {issuedAtMs, surface[, gradedAtMs]}` and no counter. Closes `[FU-FAIR-USE-MINT-NO-REFUND]`.
+- **One-transaction mint (R2).** The mint's read-decide-write runs in one Firestore transaction; a concurrent-mint test races two mints against a transaction-honouring fake and proves one spend. On a Firestore / transaction error the mint keeps today's fail-open behaviour (pass issued, nothing refused, spend recorded with one plain merge) — D3. Closes `[FU-FAIR-USE-MINT-RACE]`.
+- **Limits from the server (R3).** `/api/usage/me` returns `trial.limits` (`checksPerDay`, `chapterTestsPerDay`, `mocksPerWeek`, `worksheetsPerWeek`) and every fair-use sentence uses them — no hard-coded 5; the number is omitted if missing. Limits sit under `trial`, so premium and free responses never carry them. Closes `[FU-FAIR-USE-UI-LIMIT-NUMBER]`.
+- **SolutionChecker limit panel (R4).** SolutionChecker renders `FairUseLimitPanel` on a `FairUseLimitError` when enforced; every other error path is byte-identical. Closes `[FU-FAIR-USE-SOLUTIONCHECKER-PANEL]`.
+- **Disproved** *(builder-reported)*: R4 could not be built inside SolutionChecker's catch block alone — a catch block cannot render JSX or call a hook (+4 additive lines outside it, D6). And the paper counters were only ever bumped at mint, so pre-FU-3 ledger docs keep counting through those counters — otherwise a legacy spend would vanish or be counted twice (no lazy refund for passes minted before the deploy; rolls off within 7 days, D8).
+
+### Closed by this wave
+- `[FU-FAIR-USE-MINT-NO-REFUND]` · `[FU-FAIR-USE-MINT-RACE]` · `[FU-FAIR-USE-UI-LIMIT-NUMBER]` · `[FU-FAIR-USE-SOLUTIONCHECKER-PANEL]` — all by FAIR-USE-3 (`#866`). The WAVE B-3 block below lists them as new; they are now closed.
+
+### Evidence *(controller-verified, from the state file)*
+- `#866` on head `b9439474` (trunk `69229cc5` = A3 `#865` merged in, disjoint): `gh` files == diff (9), all in allowlist-or-tests, head contains trunk; 8 checks pass + `ping` skipping (A3's search-ping workflow, trunk-only; expected).
+- CI `36427071349` on `b9439474`, controller-grepped: `Tests 3136 passed (3136)`, `Test Files 213 passed (213)`, 23× `# fail 0` / 23× `# skipped 0`; the R1 (ok 40–42, 47), R2 (43–45) and R3 (46) test names; `SolutionChecker.fairUse.test.tsx` (5 tests); the WIRING test `FAIR_USE_ENFORCE UNSET (the ship state)`.
+- 3 mutations red → restored *(builder-reported)*.
+
+### Rollout so far *(controller-verified, from the state file)*
+- D5 held pre-merge: rolling release COMPLETE; www → `r5p33ky9x` (`dpl_9UEkft1C`, created 12:54:44Z = `#865` `69229cc5` = trunk head); Railway deployment `6710388953` (`69229cc5`) success 13:16:26Z; open PRs [`#866` only]. Baseline www: `/app/` `/app/practice` `/app/me` `/app/pricing` `/app/chapter-test` `/app/full-mock` 200; `GET /api/usage/me` 401; `POST /api/usage/paper` 401; `POST /api/check-solution` 402.
+- `#866` Vercel prod `ojt462uph` (`dpl_AGp1MsEK`), rolling release ACTIVE. Canary smoke PASS: the same six pages 200; `GET /api/usage/me` 401; `POST /api/usage/paper` 401. Chunk proof: canary `index-CHq2hcJ3.js` → `assets/SolutionChecker-BZRFBP8r.js` (contains `FairUseLimitError` ×1), `usageClient-CstWGFCB.js`, `FairUseConfirm-CWazbI3g.js`.
+
+ROLLOUT: <pending controller>
+
+### ★ Decisions made this wave (full text in `DECISION_LOG.md`)
+- **D3** dark semantics with the paper secret set: the R2 transaction adds no refusal and no new failure mode when `FAIR_USE_ENFORCE` is unset; mint on a Firestore error is no worse than before.
+- **D6** SolutionChecker: +4 additive lines outside the catch block (2 imports, 1 hook line `useFairUse("checks", false)` — no mount fetch — and 1 render line); R4 is impossible in a catch block alone. FLAGGED for the final audit.
+- **D7** two page test fixtures, +2 lines each (`vi.mock` completeness after `usageClient` gained fields). Test-only. FLAGGED.
+- **D8** legacy ledger docs keep counting through their mint-time counters, not the map. FLAGGED.
+
+### ★ OWNER STEPS — IN THIS ORDER (none run by the controller or any builder) — detail in `NEXT_ACTION.md`
+1. *(optional)* tune `FAIR_USE_TRIAL_*` limits — the copy follows automatically.
+2. Live-verify as a trial student: mint a paper → Firestore `paperPasses` entry `{issuedAtMs}`; grade it → `gradedAtMs`; `/api/usage/me` shows `trial.limits`.
+3. Then `FAIR_USE_ENFORCE=1` on Railway + a live test (B-3 audit: the live test replaces the D6 screenshots).
+- Payments: the wave B-2 RAZORPAY-1 owner test is still owed before production payments. The wave B-1 and B-2 carried owner steps still stand.
+
+### New follow-ups (bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`) *(subagent-reported)*
+`[FU-FAIR-USE-GRADED-ON-UNREADABLE-SCAN]` · `[FU-FAIR-USE-LEGACY-PASS-NO-LAZY-REFUND]` · `[FU-SOLUTIONCHECKER-FAIRUSE-PANEL-STICKY]`.
+
+### Carried forward — ★ THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this wave
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.** **Wave B-4 moved NO dormancy in that trio.** The full block, including the `#647`/`#655` resolution and every subsequent amendment, is preserved verbatim in its section (`### 8 - ★ THE WIRE-2 QUESTION` and `### 9`) and the demoted `[CURRENT]` sections below, and must be read there before any lane acts on it.
+
 ## [CURRENT · MONEY] WAVE B-3 — **PAPER PASSES ARE SERVER-ISSUED (FAIR-USE-2) · STUDENTS CAN SEE THEIR LIMITS (FAIR-USE-UI-1) · PRICING COPY IS READY FOR PAYMENTS (PAYCOPY-1) — ALL DARK** — `#858` + `#860` + `#861` MERGED
 
 ★ **PROVENANCE.**

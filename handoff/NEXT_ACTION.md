@@ -1,3 +1,25 @@
+## ★★★ 2026-09-28 — WAVE B-4 (MONEY, CONTROLLER B) CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE B-3 BLOCK BELOW ON TRUNK SHA ONLY
+*(It does not supersede the owner items of the WAVE B-3, A-3, B-2, A-2 or B-1 blocks below, which stand unchanged — except that the WAVE B-3 block's fair-use steps are replaced by steps 1–3 below: its step 1 (`FAIR_USE_PAPER_SECRET`) is DONE by the owner (`POST /api/usage/paper` answers 401 unsigned, per the B-4 dispatch); its step 3 (decide `[FU-FAIR-USE-MINT-NO-REFUND]` + fix `[FU-FAIR-USE-SOLUTIONCHECKER-PANEL]`) is DONE by `#866`; and its step 2 (signed-in page-level screenshots) is replaced, per the B-3 audit, by the live test in step 3 below. `[FU-FAIR-USE-UI-PREVIEW-SHOTS]` itself stays open on the board.)*
+
+**TRUNK IS `b6da0c6f46ffaf4aa285cef7267fc982b27966e8`**, measured 2026-09-28 (`git ls-remote origin refs/heads/base/approved-thru-437`):
+- `b6da0c6f` = `#866` (FAIR-USE-3: lazy paper refund, one-transaction mint, limits from the server, SolutionChecker limit panel — dark until `FAIR_USE_ENFORCE=1`) — **this wave**; rolls out alone, see ROLLOUT in `CURRENT_STATE.md`
+- `69229cc5` = `#865` (SEARCHPING-2b — Controller A3 lane — details owed by A3)
+- `0e2af785` = `#859` (PERF-CLS-1 — Controller A3 lane — details owed by A3)
+- `39059fd6` = `#864` (docs: wave B-3)
+
+Open at the time of writing, besides this docs PR: `#867` `lane/rootentry-1` (not Controller B's; not docs).
+
+### NEXT — OWNER, FAIR USE — IN THIS ORDER (none of these was run by the controller or a builder)
+1. *(optional)* **Tune the `FAIR_USE_TRIAL_*` limits on Railway.** Since `#866`, `/api/usage/me` returns `trial.limits` and every fair-use sentence takes its number from there, so the student copy follows automatically *(subagent-reported)*.
+2. **Live-verify as a trial student** (CLAUDE.md §6 — static gates are not sufficient): mint a paper → confirm the new Firestore `paperPasses` entry `{issuedAtMs, surface}`; grade that paper → confirm `gradedAtMs` appears; confirm `/api/usage/me` shows `trial.limits` *(subagent-reported)*.
+3. **Then set `FAIR_USE_ENFORCE=1` (exactly `1`) on Railway and live-test.** Per the B-3 audit, this live test replaces the D6 signed-in screenshots.
+
+### NEXT — OWNER, PAYMENTS
+4. **The wave B-2 RAZORPAY-1 owner test is still owed before production payments:** Railway `PAYMENTS_ENABLED=1`, Vercel **Preview-only** `VITE_PAYMENTS_ENABLED=1`, a test-card pass on a preview, confirm premium + `passEnd` (detail in the WAVE B-2 block below). Live keys and switching production on are the owner's call.
+
+### Still owed from earlier waves
+5. **The wave B-1 owner steps** (the rules mutation proof → `deploy:firestore-rules` → `PASS_ADMIN_SECRET` on Railway → METER-1 live-verify; rulings `[FU-PASS-TRIAL-AFTER-EXPIRY]` and admin-tool Gemini spend; the wave B-1 final audit) and the **wave B-2** live-verify of FAIR-USE-1 and owner call `[FU-FAIR-USE-TRIAL-COUNT-ON-UNREADABLE]`. This docs lane did not re-check whether any of them has since been done.
+
 ## ★★★ 2026-09-28 — WAVE B-3 (MONEY, CONTROLLER B) CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-3 BLOCK BELOW ON TRUNK SHA ONLY
 *(It does not supersede that block's owner items, nor the WAVE B-2, A-2 or B-1 blocks' owner items, which stand unchanged — except that the WAVE B-2 block's item 4 (`[FU-PRICING-COPY-WHEN-PAYMENTS-ON]`) is now DONE by `#858`, and its item 1 ("leave `FAIR_USE_ENFORCE` unset until FAIR-USE-2 ships and the surface-forgery FU is decided") is replaced by the ordered steps 1–4 below.)*
 

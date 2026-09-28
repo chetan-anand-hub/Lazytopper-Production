@@ -1,5 +1,16 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-28 — MONEY: **WAVE B-4 — FAIR-USE-3 (LAZY PAPER REFUND · ONE-TRANSACTION MINT · LIMITS FROM THE SERVER · SOLUTIONCHECKER LIMIT PANEL — DARK)** — `#866` MERGED — trunk `b6da0c6f`
+
+- ✅ **FAIR-USE-3** (`#866` `b6da0c6f`): trial paper allowances computed from the `paperPasses` map (a pass counts while < 24 h old or once graded — `gradedAtMs` on the paper grade's 2xx) · mint read-decide-write in one Firestore transaction · `/api/usage/me` `trial.limits` and every fair-use sentence takes its number from it (none guessed) · SolutionChecker renders `FairUseLimitPanel` on a `FairUseLimitError` when enforced *(subagent-reported; CI controller-verified)*. ROLLOUT in `CURRENT_STATE.md`.
+- ✅ **Closed:** `[FU-FAIR-USE-MINT-NO-REFUND]` · `[FU-FAIR-USE-MINT-RACE]` · `[FU-FAIR-USE-UI-LIMIT-NUMBER]` · `[FU-FAIR-USE-SOLUTIONCHECKER-PANEL]` (by `#866`).
+- ✅ **Owner:** `FAIR_USE_PAPER_SECRET` set (per the B-4 dispatch; `/api/usage/paper` → 401 unsigned).
+- ✅ **Docs:** this handoff.
+- ⬜ **Owner, in order:** *(optional)* tune `FAIR_USE_TRIAL_*` → live-verify mint / `gradedAtMs` / `trial.limits` as a trial student → then `FAIR_USE_ENFORCE=1` on Railway + live test.
+- ⬜ **Owner, payments:** the wave B-2 RAZORPAY-1 §3 test before production payments · the wave B-1 / B-2 carried owner steps.
+- ⬜ `[FU-FAIR-USE-GRADED-ON-UNREADABLE-SCAN]` · `[FU-FAIR-USE-LEGACY-PASS-NO-LAZY-REFUND]` · `[FU-SOLUTIONCHECKER-FAIRUSE-PANEL-STICKY]`.
+- ↔ Also landed since the last handoff: `#859` PERF-CLS-1 (`0e2af785`) and `#865` SEARCHPING-2b (`69229cc5`) — Controller A3 lane — details owed by A3.
+
 ## 2026-09-28 — MONEY: **WAVE B-3 — FAIR-USE-2 (PAPER PASSES SERVER-ISSUED, DARK) · FAIR-USE-UI-1 (STUDENTS SEE THEIR LIMITS, DARK) · PAYCOPY-1 (PRICING COPY READY FOR PAYMENTS, FLAG-OFF IDENTICAL)** — `#858` + `#860` + `#861` MERGED
 
 - ✅ **PAYCOPY-1** (`#858` `42733aa6`): the pricing subtitle, the "Can I pay here?" FAQ and the fine print follow `VITE_PAYMENTS_ENABLED` — on: Razorpay (UPI / card / netbanking), Premium straight away, passes never renew; off: byte-identical, prerender unchanged *(subagent-reported)*.

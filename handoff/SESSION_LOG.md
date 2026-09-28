@@ -1,3 +1,21 @@
+## 2026-09-28 — WAVE B-4 (MONEY, CONTROLLER B) — **FAIR-USE-3: LAZY PAPER REFUND · ONE-TRANSACTION MINT · LIMITS FROM THE SERVER · SOLUTIONCHECKER LIMIT PANEL — STILL DARK** — `#866` MERGED — trunk `b6da0c6f`
+
+★ **PROVENANCE.**
+- Controller B, one session. One builder (`claude-opus-5-5`), in worktree `C:/Projects/LT-worktrees/fair-use-3`. This docs PR was written by a docs builder in `…/b4-docs` from the controller's state file `WAVE_STATE_B4.md` and the lane report `report-fair-use-3-2026-09-28.md` (OR-16).
+- *(subagent-reported)* = from the builder report; *(controller-verified)* = re-measured by the controller.
+
+**Timeline.**
+- Spec `FAIR-USE-3.md` hash-verified on receipt (`8AA4E3AE07EF`), staged from `controller-b4/ops/.specs/` (D0). Trunk at dispatch `0e2af785` (A3 `#859` PERF-CLS-1); the only open PR was A3's `#865` `lane/searchping-2b`, exact-path disjoint from FAIR-USE-3. Owner state at dispatch: `FAIR_USE_PAPER_SECRET` SET (`/api/usage/paper` → 401 unsigned); `FAIR_USE_ENFORCE`, `PAYMENTS_ENABLED`, `VITE_PAYMENTS_ENABLED` unset and stay unset.
+- **FAIR-USE-3** → `#866`. Trunk moved to `69229cc5` (A3 `#865`, disjoint) and was merged in. CI `36427071349` green on `b9439474`: `Tests 3136 passed (3136)`, `Test Files 213 passed (213)`, 23× `# fail 0` / 23× `# skipped 0`, the R1–R3 test names and `SolutionChecker.fairUse.test.tsx` (5 tests) in the log *(controller-grepped)*. 3 mutations red → restored *(builder-reported)*. `lazytopper/package.json` untouched (D2 held). Controller accepted D6 (SolutionChecker +4 additive lines outside the catch block), D7 (two page test fixtures +2 lines each) and D8 (legacy docs via counters), all flagged for the final audit.
+- D5 held pre-merge (rolling release COMPLETE, www serving the trunk head's deployment, Railway `69229cc5` success). Merged `--match-head-commit b9439474` → `b6da0c6f`, trees equal `0354c481` *(controller-verified)*. Canary `ojt462uph` smoke PASS; the canary bundle ships `SolutionChecker-BZRFBP8r.js` containing `FairUseLimitError` *(controller-verified)*.
+- ROLLOUT: <pending controller>
+- While the rollout ran, `#867` `lane/rootentry-1` (not Controller B's) was open.
+
+### ★ What this wave teaches
+- **A SCOPE QUALIFIER CAN CONTRADICT THE REQUIREMENT IT SITS ON.** The spec said "the catch block ONLY" and also "render the existing FairUseLimitPanel"; a catch block cannot render JSX or call a hook. The builder kept the requirement, added 4 lines outside the catch with no existing line changed, and recorded it as a finding (D6) *(subagent-reported)*.
+- **CHANGING A PERSISTED SHAPE MEANS TESTING THE MIGRATION FROM THE OLD SHAPE.** The old paper spend lived only in mint-time counters, so old ledger docs must keep reading through them; reading only the new map would have lost or double-counted a legacy spend (D8) *(subagent-reported)*.
+- **"DARK" IS A PROPERTY OF EACH SWITCH, NOT OF THE FEATURE.** With `FAIR_USE_PAPER_SECRET` set, minting is live while enforcement is dark — so the new transaction had to add no refusal and no new failure mode with `FAIR_USE_ENFORCE` unset (D3).
+
 ## 2026-09-28 — WAVE B-3 (MONEY, CONTROLLER B) — **FAIR-USE-2: PAPER PASSES ARE SERVER-ISSUED · FAIR-USE-UI-1: STUDENTS CAN SEE THEIR LIMITS · PAYCOPY-1: PRICING COPY READY FOR PAYMENTS — ALL DARK** — `#858` + `#860` + `#861` MERGED
 
 ★ **PROVENANCE.**
