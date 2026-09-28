@@ -812,6 +812,31 @@ const FAQ_ITEMS = [
   },
 ];
 
+// PAYCOPY-1 (owner rulings K1-K3, 2026-09-28) — the three strings outside the P7 buy
+// area that would go stale once payments are on. Payments dark (isPaymentsClientEnabled()
+// false — VITE_PAYMENTS_ENABLED unset, the production state) -> each *_PAYMENTS_OFF
+// string, byte-identical to the copy this page shipped before; the prerendered page
+// is captured in that state. Payments on -> the owner's K wording, word for word.
+const PRICING_SUBTITLE_PAYMENTS_OFF =
+  "Browse first. Sign in for a 7-day trial. Choose Premium when you need checked answers, Mistake Intelligence, and full mock workflows. Payment checkout is not automated yet.";
+const PRICING_SUBTITLE_PAYMENTS_ON =
+  "Browse first. Sign in for a 7-day trial. Choose Premium when you need checked answers, Mistake Intelligence, and full mock workflows — pay securely with UPI, card or netbanking.";
+const FAQ_CAN_I_PAY_Q = "Can I pay here?";
+const FAQ_CAN_I_PAY_ANSWER_PAYMENTS_ON =
+  "Yes. Tap Pay, finish in Razorpay's secure checkout (UPI, card or netbanking), and Premium turns on straight away.";
+const PRICING_FINE_PRINT_PAYMENTS_OFF =
+  "No credit card required. Premium is not activated automatically.";
+const PRICING_FINE_PRINT_PAYMENTS_ON =
+  "No credit card needed for the trial. Passes are one-time payments and never renew automatically.";
+
+/** The FAQ as rendered: only the "Can I pay here?" answer follows the payments switch. */
+function faqItemsFor(paymentsOn: boolean): ReadonlyArray<{ q: string; a: string }> {
+  if (!paymentsOn) return FAQ_ITEMS;
+  return FAQ_ITEMS.map(item =>
+    item.q === FAQ_CAN_I_PAY_Q ? { q: item.q, a: FAQ_CAN_I_PAY_ANSWER_PAYMENTS_ON } : item,
+  );
+}
+
 /**
  * BACKNAV-1 — where "back" goes when the student arrived from the sign-in door.
  *
@@ -902,6 +927,8 @@ export function TillBoardsOffer({ offerOpen }: { offerOpen: boolean }) {
 
 export default function PricingPage() {
   const navigate = useNavigate();
+  // PAYCOPY-1 — read once per render; drives the subtitle, the pay FAQ and the fine print.
+  const paymentsOn = isPaymentsClientEnabled();
   const [searchParams] = useSearchParams();
   const returnTarget =
     RETURN_TARGETS[(searchParams.get("source") || "").trim().toLowerCase()] ?? DEFAULT_RETURN;
@@ -957,9 +984,7 @@ export default function PricingPage() {
         <section className="lt-pricing-header">
           <h1 className="lt-pricing-title">Simple, Student-Friendly Plans</h1>
           <p className="lt-pricing-subtitle">
-            Browse first. Sign in for a 7-day trial. Choose Premium when you
-            need checked answers, Mistake Intelligence, and full mock workflows.
-            Payment checkout is not automated yet.
+            {paymentsOn ? PRICING_SUBTITLE_PAYMENTS_ON : PRICING_SUBTITLE_PAYMENTS_OFF}
           </p>
         </section>
 
@@ -1044,7 +1069,7 @@ export default function PricingPage() {
               Start 7-day trial
             </button>
             <p className="lt-pricing-fine-print">
-              No credit card required. Premium is not activated automatically.
+              {paymentsOn ? PRICING_FINE_PRINT_PAYMENTS_ON : PRICING_FINE_PRINT_PAYMENTS_OFF}
             </p>
           </div>
         </div>
@@ -1052,7 +1077,7 @@ export default function PricingPage() {
         <section className="lt-pricing-faq" aria-label="Pricing frequently asked questions">
           <h2 className="lt-pricing-faq-title">Frequently Asked Questions</h2>
           <div className="lt-pricing-faq-list">
-            {FAQ_ITEMS.map(item => (
+            {faqItemsFor(paymentsOn).map(item => (
               <div key={item.q} className="lt-pricing-faq-item">
                 <div className="lt-pricing-faq-q">{item.q}</div>
                 <div className="lt-pricing-faq-a">{item.a}</div>

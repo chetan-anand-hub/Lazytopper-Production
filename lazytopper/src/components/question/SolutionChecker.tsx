@@ -647,7 +647,7 @@ export function SolutionChecker({
         ...(format ? { format } : {}),
         ...(options && options.length > 0 ? { options } : {}),
         ...(answer ? { answer } : {}),
-      });
+      }, { surface: "quick-practice" });
 
       if (response.ok) {
         setResult(response);

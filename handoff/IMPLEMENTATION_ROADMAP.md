@@ -1,5 +1,16 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-28 — DATES + REACH: **WAVE A-3 — BOARD-DATE-1 (ONE BOARD DATE EVERYWHERE, LIVE) · SEARCHPING-2 (HELD) · PERF-CLS-1 (STOPPED)** — `#856` MERGED — trunk `cfe88001`
+
+- ✅ **BOARD-DATE-1** (`#856` `15ae5047`): `/api/cbse-exam-date` fallback 17 Feb for both classes on the IST calendar date · `cbseDates.ts` read-time getters over the client predictor · parity suite (71 tests: client predictor, server fallback, `passPricing`) · production www returns `2027-02-17` for class 10 and 12 *(subagent-reported)*.
+- ✅ **Closed:** `[FU-SERVER-CBSEEXAMDATE-DAY-DRIFT]` — by `#856`.
+- ✅ **Docs:** this handoff.
+- ⬜ **SEARCHPING-2** (`#857`, HELD): ping only once a release is live on www (`/app/version.json`); blocked by lane-overlap with Dependabot `#855` on `lazytopper/package.json`.
+- ⬜ **PERF-CLS-1** (`#859`, draft, STOPPED): metric-matched fallback fonts on the landing; needs an owner decision on the one-line `public/sitemap.xml` commit; rolls out ALONE.
+- ⬜ **Owner:** the `sitemap.xml` decision · unblock `#855` · the phase-2 date rule · the PERF-CLS-2 grant · live-verify BOARD-DATE-1.
+- ⬜ `[FU-PHASE2-DATE-STALE]` · `[FU-CLIENT-OFFICIAL-TABLE-2025-26]` · `[FU-CBSE-SCRAPE-CLASS12-NOTICE]` · `[FU-SEARCHPING-DOCKER-NO-MARKER]` · `[FU-SEARCHPING-GH-RUN-LIMIT]` · `[FU-PERF-CLS-HERO-SUB-CH-WRAP]` · `[FU-CBSE2027-FONT-STACK-NO-FALLBACK]` · `[FU-STYLES-CSS-SPACEGROTESK-IMPORT]` · `[FU-MOB-FONT-DISPLAY-STACK]` · `[FU-ANDROID-NO-GEORGIA-ARIAL]` · `[FU-PERF-CLS-SPEC-ALLOWLIST-SITEMAP]`.
+- ↔ In parallel, Controller B3 landed `#858` PAYCOPY-1 (`42733aa6`) and `#860` FAIR-USE-2 (`cfe88001`) — covered by B3's handoff.
+
 ## 2026-09-27 — MONEY: **WAVE B-2 — FAIR-USE-1 (FAIR LIMITS METERED, DARK; PREMIUM NEVER SHED, LIVE) + RAZORPAY-1 (BUY A PASS, DARK)** — `#852` + `#853` MERGED — trunk `fecbbe08`
 
 - ✅ **FAIR-USE-1** (`#852` `4984655e`): U1/U2 trial allowances (5 checks/IST day per question, 1 chapter test/day, 1 mock + 1 worksheet per rolling 7 days) · U3 premium real-cost caps (₹84/7d, ₹38/day, ₹25/5h, ledger hour buckets) · U4 premium exempt from the 80% vision shed (LIVE) · U5 `GET /api/usage/me` · U8 refusals only with `FAIR_USE_ENFORCE=1`, else `fair_use.would_refuse.<rule>` · surface header from chapter test, full mock, worksheet.

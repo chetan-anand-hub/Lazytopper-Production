@@ -1,3 +1,22 @@
+## ★★★ 2026-09-28 — WAVE A-3 (CONTROLLER A) CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE B-2 BLOCK BELOW ON TRUNK SHA ONLY
+*(It does not supersede that block's owner items, nor the WAVE A-2 or WAVE B-1 blocks' owner items, which stand unchanged.)*
+
+**TRUNK IS `cfe8800107fdaf29eb2ed1a7aafdfbc62621b801`**, measured 2026-09-28 (`git fetch origin` + `git rev-parse origin/base/approved-thru-437`):
+- `cfe88001` = `#860` (FAIR-USE-2 — Controller B3; covered by B3's handoff)
+- `42733aa6` = `#858` (PAYCOPY-1 — Controller B3; covered by B3's handoff)
+- `15ae5047` = `#856` (BOARD-DATE-1: one board date everywhere — 17 Feb on client, `/api/cbse-exam-date` fallback and pass pricing) — **this wave**
+- `7152ef06` = `#854` (docs: wave B-2)
+
+Open at the time of writing, besides this docs PR: `#857` SEARCHPING-2 (HELD on lane-overlap vs `#855`), `#859` PERF-CLS-1 (draft, STOPPED on `sitemap.xml`), `#855` Dependabot (not ours).
+
+### NEXT — OWNER (none of these was run by the controller or a builder)
+1. **PERF-CLS-1 `#859` — decide `lazytopper/public/sitemap.xml`.** CI fails only because the capture artifact is `prerendered/**` **plus** `public/sitemap.xml`, and the spec §1 allowlist named only the first. The change is ONE generated line (`<lastmod>` of `https://www.lazytopper.com/app/`, 2026-09-27 → 2026-09-28) from the PR's own CI artifact `prerendered-859`. Controller recommendation: **ALLOW**. The exact commit command is in `report-perf-cls-1-2026-09-28.md`. After that: merge trunk in, re-download the artifact (the lastmod date will move again), CI green, and roll out **ALONE** per OR-LIVE.
+2. **SEARCHPING-2 `#857` — unblock lane-overlap.** Merge or close Dependabot `#855` (or merge `#857` first and let Dependabot rebase). Then `#857` merges trunk in (no rebase) and re-runs lane-overlap. Its post-merge proof is the first search-ping run log: `release … is live on www`, then `IndexNow — POST … HTTP 200` or `changed=0` *(subagent-reported)*.
+3. **`[FU-PHASE2-DATE-STALE]` — owner ruling** on the phase-2 date. `CBSE_PHASE2_DATE` / `CBSE_PHASE2_END` / `predictCbsePhase2Date()` still return `2026-05-15` / `2026-06-01` (past); the dashboard and onboarding phase-2 row show 15 May 2026 *(subagent-reported)*. Controller recommendation: 15 May of the predicted board year, as a small follow-up lane.
+4. **`[FU-PERF-CLS-HERO-SUB-CH-WRAP]` — owner call:** widen the `Welcome.tsx` grant (one `max-width` line) for a PERF-CLS-2 lane? Controller recommendation: yes.
+5. **Live-verify BOARD-DATE-1** (CLAUDE.md §6, a live round trip): signed in, the dashboard and the landing countdown both show 17 Feb 2027. The builder proved the server route on www and the landing page's 200; the client-rendered countdown text is not in the static HTML, so it was not read *(subagent-reported)*.
+6. **The WAVE B-2, A-2 and B-1 owner steps still stand** (the blocks below). This lane did not re-check whether any has since been done.
+
 ## ★★★ 2026-09-27 — WAVE B-2 (MONEY) CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-2 BLOCK BELOW ON TRUNK SHA ONLY
 *(It does not supersede that block's owner items (the FREECHECK-2 and BUGFIX-1 live-verifies), nor the WAVE B-1 (MONEY) block's owner items, which stand unchanged.)*
 

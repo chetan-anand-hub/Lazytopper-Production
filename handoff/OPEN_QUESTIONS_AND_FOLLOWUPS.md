@@ -23,6 +23,47 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-28 — WAVE A-3 (CONTROLLER A): BOARD-DATE-1 (`#856` MERGED as `15ae5047`, squash, `--match-head-commit`, no `--admin`) · SEARCHPING-2 (`#857` HELD) · PERF-CLS-1 (`#859` draft, STOPPED) — eleven new follow-ups, one closed
+
+### ✅ CLOSED — `[FU-SERVER-CBSEEXAMDATE-DAY-DRIFT]` (the server's board-day predictor said Feb 15, the client's Feb 17)
+**Closed by BOARD-DATE-1 (`#856`).** `lazytopper/server/services/cbseExamDate.cjs` now falls back to day 17 for both classes on the IST calendar date, and `src/config/boardDate.parity.test.ts` (71 tests) pins the client predictor, the server fallback and `passPricing` to the same date. A mutation of the server day 17 → 15 turned 50 of 71 red. Production www returns `2027-02-17` for class 10 and 12 *(subagent-reported; merge controller-verified)*. The original entry in the WAVE B-1 section below stands as written (board rule 3).
+
+### `[FU-PHASE2-DATE-STALE]` — ★ OPEN, **OWNER RULING** *(subagent-reported)*
+`CBSE_PHASE2_DATE`, `CBSE_PHASE2_END` and `predictCbsePhase2Date()` are still hard-coded to `"2026-05-15"` / `"2026-06-01"` (past). After `#856`, `cbseDates.phase2` follows `predictCbsePhase2Date()` (spec D2), but that function itself returns last year's phase-2 date, so the SprintDashboard / Onboarding phase-2 row shows 15 May 2026. Outside the wave's owner rulings. Controller recommendation: 15 May of the predicted board year, as a small follow-up lane.
+
+### `[FU-CLIENT-OFFICIAL-TABLE-2025-26]` — OPEN, record only *(subagent-reported)*
+The client predictor's `officialDates` table holds only 2025-26 (mirrored in `passPricing`). Harmless — it equals day 17 — but it is dead after 2026-02-17. A later lane can add the official 2026-27 date when CBSE publishes it, or remove the table.
+
+### `[FU-CBSE-SCRAPE-CLASS12-NOTICE]` — OPEN *(subagent-reported)*
+`/api/cbse-exam-date?class=12` returns a `noticeUrl` pointing at a Class X PDF (`…Post_Result_declaration_Facilities_Class_X_05082026.pdf`). Pre-existing: the scrape's class matcher; spec D4 kept it unchanged. The served date is unaffected today (the notice has no machine-readable date, so the predicted fallback is used), but a class-12 student could be shown a class-10 notice link.
+
+### `[FU-SEARCHPING-DOCKER-NO-MARKER]` — OPEN, low *(subagent-reported)*
+The Railway backend Docker image runs the same `pnpm run build` with no `.git` and no Vercel env, so SEARCHPING-2's `writeVersion` writes no `/app/version.json` there and warns (the OR-AUTO fix after container-boot failed on the first push). Harmless — Railway never serves www. A Dockerfile `ARG` for the SHA would make it complete. Applies only once `#857` merges.
+
+### `[FU-SEARCHPING-GH-RUN-LIMIT]` — OPEN, low *(subagent-reported)*
+SEARCHPING-2's "last successful ping" lookup (S3) scans the newest 30 successful search-ping runs. If more than 30 successful non-pinging or non-ancestor runs accumulate, it falls back to the parent commit and can miss pages changed in between. Fine at the current cadence. Applies only once `#857` merges.
+
+### `[FU-PERF-CLS-HERO-SUB-CH-WRAP]` — ★ OPEN, **OWNER CALL** (accepted residual, R2) *(subagent-reported)*
+`.lt-landing-sub{max-width:31ch}` wraps to 2 lines in Inter but 3 in the Arial fallback, so a 23 px (375) / 28 px (1280) shift remains at font swap. `ch` scales with the fallback font, so the wrap count does not change with `size-adjust` (sweep 1.00 / 1.04 / 1.0777 → all 23 px; 1.12 → 44 px; a real Arial Bold face → 73 px). The fix needs a `Welcome.tsx` line outside the P2/P3 grant (e.g. a px- or %-based `max-width`). Controller recommendation: yes, as a separate lane PERF-CLS-2.
+
+### `[FU-CBSE2027-FONT-STACK-NO-FALLBACK]` — OPEN *(subagent-reported, UNVERIFIED by the controller)*
+`Cbse2027Page.tsx:117` sets `--serif:Fraunces,Georgia,serif; --sans:Inter,system-ui,…` with no metric-matched fallback faces, so that page keeps the font-swap shift PERF-CLS-1 removes from the landing.
+
+### `[FU-STYLES-CSS-SPACEGROTESK-IMPORT]` — OPEN *(subagent-reported, UNVERIFIED by the controller)*
+`styles.css:3` (and `dashboardUtils.ts:139`) `@import` Google Fonts (Space Grotesk + Inter) — a render-blocking second font CSS request.
+
+### `[FU-MOB-FONT-DISPLAY-STACK]` — OPEN *(subagent-reported, UNVERIFIED by the controller)*
+`styles.css:6808` `--mob-font-display: "Fraunces", Georgia, serif` lacks `"Fraunces Fallback"`. Left alone by PERF-CLS-1 because the spec named only the P4 stack.
+
+### `[FU-ANDROID-NO-GEORGIA-ARIAL]` — OPEN *(subagent-reported, UNVERIFIED by the controller)*
+Android ships neither Georgia nor Arial, so PERF-CLS-1's `local()` fallback faces fail there and text falls to the next stack entry (`serif` / `system-ui`) without metric overrides. The gain is on iOS and desktop. Consider Noto Serif / Roboto faces with their own metrics.
+
+### `[FU-PERF-CLS-SPEC-ALLOWLIST-SITEMAP]` — ★ OPEN, **SPEC AUTHORING + OWNER DECISION FOR `#859`**
+A spec allowlist that includes `lazytopper/prerendered/**` must also include `lazytopper/public/sitemap.xml`: the prerender-capture artifact holds both, and any landing-content change restamps `/` in `prerendered/lastmod.json`, which `sitemapUrls.guard` and prerender-capture then require `sitemap.xml` to match. PERF-CLS-1 (`#859`) is STOPPED on exactly this — one generated `<lastmod>` line (quality-gate `36402943853`: `Tests 1 failed | 2938 passed (2939)`; capture `36402943614`: ` M lazytopper/public/sitemap.xml`) *(subagent-reported)*. Controller recommendation: allow it for `#859`, and write both paths into future specs.
+
+### Kept open, unchanged by this wave
+The WAVE B-2 follow-ups and the other WAVE B-1 follow-ups (`[FU-STORED-RATE-RULES-MUTATION-PROOF]` · `[FU-PASS-TRIAL-AFTER-EXPIRY]` · `[FU-METER-STREAM-UNMETERED]` · `[FU-METER-PRICE-TABLE-SINGLE-MODEL]`) — see their sections below.
+
 ## 2026-09-27 — WAVE B-2 (MONEY): FAIR-USE-1 (`#852` MERGED as `4984655e`) + RAZORPAY-1 (`#853` MERGED as `fecbbe08`), squash, `--match-head-commit`, no `--admin` — eight new follow-ups, one audit finding closed, five kept open
 
 ### ✅ CLOSED — the wave B-1 audit finding: `grantPass` replayed only on `lastPaymentRef`
