@@ -1,5 +1,16 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-28 — WAVE A-3 (CONTROLLER A): BOARD-DATE-1 (`#856` `15ae5047`), trunk `cfe88001`. SEARCHPING-2 (`#857`) and PERF-CLS-1 (`#859`) are NOT merged and move nothing.**
+> ★ **A VALUE CORRECTION, NOT A STATUS CHANGE: every board-date reader now shows the same predicted date, 17 Feb 2027.**
+
+### ✅ Board date (landing countdown · pricing · dashboard · onboarding · `/api/cbse-exam-date`) — **CONSISTENT, LIVE.** The server fallback moved 15 Feb (class 12: 16 Feb) → 17 Feb; `cbseDates.ts` stopped hard-coding 2026 and reads the client predictor. The landing countdown and pricing already used the client predictor (day 17), so their shown date does not change; the SprintDashboard and onboarding reads and the API now agree with them *(subagent-reported; production API answer on www builder-reported)*. Checked on trunk `cfe88001` by the docs builder: `Welcome.tsx`, `PricingPage.tsx` and `config/pricing.ts` import `predictCbseExamDate` directly; only `SprintDashboard.tsx` and `Onboarding.tsx` import `cbseDates`. The phase-2 date is still last year's — `[FU-PHASE2-DATE-STALE]`.
+
+### ⬜ NO MATRIX CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- `#856` corrected a value that several surfaces read; it did not change any surface's layout, reachability or status. The Landing, Pricing and Home rows keep their cells. `/onboarding` stays inert on disk (see the Login row). Verified cells are not re-claimed: the client-rendered countdown text was not read on production *(subagent-reported)*.
+- SEARCHPING-2 (search-engine pings) is not a student surface. PERF-CLS-1 would change the Landing row's rendering, but it is not merged.
+
+### 📋 Scope discovered? — **NO.** No surface's Scope is set to Settling by this wave. Eleven follow-ups are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+
 > **2026-09-27 — WAVE B-2 (MONEY): FAIR-USE-1 (`#852` `4984655e`) + RAZORPAY-1 (`#853` `fecbbe08`), trunk `fecbbe08`.**
 > ★ **SERVER-FIRST, AND DARK EXCEPT ONE LINE: fair limits are metered but not enforced; payments are built but switched off; paying students are never shed (live).**
 

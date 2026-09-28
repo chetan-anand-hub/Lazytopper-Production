@@ -1,5 +1,56 @@
 # LazyTopper — Current State
 
+## [CURRENT · DATES + REACH] WAVE A-3 — **ONE BOARD DATE EVERYWHERE: 17 FEB 2027 ON THE CLIENT, THE SERVER FALLBACK AND PASS PRICING (BOARD-DATE-1)** — `#856` MERGED — trunk `cfe88001` · SEARCHPING-2 `#857` and PERF-CLS-1 `#859` **HELD, NOT MERGED**
+
+★ **PROVENANCE.**
+- Controller A, wave A-3, one controller session. There was one builder per PR (Agent model `opus` = `claude-opus-5-5`; effort "high" stated in each brief), each in its own worktree (`C:/Projects/LT-worktrees/board-date-1`, `…/searchping-2`, `…/perf-cls-1`). This docs PR was written by a docs builder in `…/docs-wave-a3` from the controller's state file `WAVE_STATE_A3.md` and the three lane reports (OR-16).
+- Specs are owner-authored and hash-verified by the controller against the owner's prefix: `BOARD-DATE-1.md` `E1A484F002F5`, `SEARCHPING-2.md` `FD71E323853F`, `PERF-CLS-1.md` `D5FA7650D035`. They were taken from `C:/Projects/LT-worktrees/controller-a3/ops/.specs/` (the shared checkout's `ops/.specs/` has no copy; content proven identical by sha256 — same as the A-2 precedent). Each builder re-ran its §0c premise gate (`--strict-anchor`) in its own fresh worktree on trunk `7152ef06`: PASS, EXIT=0 for all three *(subagent-reported, output pasted in each lane report)*.
+- `#856` was squash-merged with `--match-head-commit 2bb0e564`, no `--admin` → **`15ae5047`**; the merge commit is an ancestor of trunk and **trunk tree == head tree `281f163c`** *(controller-verified)*.
+- *(subagent-reported)* = from `report-board-date-1-2026-09-28.md`, `report-searchping-2-2026-09-28.md`, `report-perf-cls-1-2026-09-28.md`, not re-measured by the controller. "AT BUILDER CONFIDENCE" in the controller's state file means the same thing.
+
+**Trunk `cfe8800107fdaf29eb2ed1a7aafdfbc62621b801`** at the time of writing (`#860`). The commits since the wave B-2 docs (`7152ef06`, `#854`):
+- `15ae5047` = `#856` BOARD-DATE-1 — **this wave**;
+- `42733aa6` = `#858` PAYCOPY-1 and `cfe88001` = `#860` FAIR-USE-2 — **landed in parallel by Controller B3, covered by B3's handoff, not by this block.**
+
+*(This block supersedes the WAVE B-2 (MONEY) block below on trunk SHA only — that block is demoted to previous on trunk SHA; its content otherwise stands as written. In the Controller A line it follows the WAVE A-2 block below, whose content stands as written.)*
+
+### In one paragraph
+BOARD-DATE-1 (`#856`) is on trunk and live: one board date everywhere. The `/api/cbse-exam-date` fallback moves from 15 Feb (class 12: 16 Feb) to **17 Feb for both classes**, computed on the IST calendar date; the env override and the CBSE circular scrape keep precedence. `cbseDates.ts` no longer hard-codes 2026 — it derives from the client predictor at read time — so the landing countdown, pricing, dashboard and onboarding read the same predicted date (2027-02-17). Production www returns `2027-02-17` for class 10 and class 12 (the predicted fallback: CBSE's latest notice has no machine-readable date) *(subagent-reported)*. Phase 2 is still hard-coded to last year (`[FU-PHASE2-DATE-STALE]`, owner question). The other two lanes of the wave are built but **held, not merged**: SEARCHPING-2 (`#857`) waits on Dependabot `#855`, and PERF-CLS-1 (`#859`, draft) is STOPPED on an out-of-allowlist generated file.
+
+### What shipped — BOARD-DATE-1 (`#856` `15ae5047`)
+- `lazytopper/server/services/cbseExamDate.cjs` — fallback day **17 for both classes**, on the **IST calendar date** (was host-local; Railway runs UTC), with an injectable `now` *(subagent-reported)*.
+- `lazytopper/src/config/cbseDates.ts` — read-time **getters** over `predictCbseExamDate` / `predictCbsePhase2Date` instead of a literal `"2026-02-17"` (a module-load value would freeze the anchor — the trap `Welcome.tsx` documents) *(subagent-reported, OR-AUTO choice 1)*.
+- `lazytopper/src/config/boardDate.parity.test.ts` (new, 71 tests) — client predictor, server fallback and `passPricing` agree at 20 instants + 8 IST-midnight edges; also green under `TZ=UTC` and `TZ=America/Los_Angeles` *(subagent-reported)*.
+- **Disproved** *(subagent-reported, AT BUILDER CONFIDENCE)*: the spec implied `cbseExamDate.ts`, `SprintDashboard.tsx` and `Onboarding.tsx` needed edits — none did. `cbseExamDate.ts` already used day 17, and the other two read through the new getters. No `lazytopper/package.json` edit (the new suite is under the existing vitest include `src/**/*.test.{ts,tsx}`).
+
+### Evidence — BOARD-DATE-1
+- **CI on head `2bb0e564`** *(subagent-reported, log lines quoted)*: quality-gate `36400458536` PASS — `Tests 2920 passed (2920)`, `Test Files 202 passed (202)`, `✓ src/config/boardDate.parity.test.ts (71 tests)`; root matrix `# pass 293 # fail 0 # skipped 0`; ops matrix `# fail 0 # skipped 0`; prerender-capture `36400458520` "PRERENDER: committed artifact matches a fresh capture."; lane-overlap, container-boot, CodeQL, Vercel preview PASS.
+- **Pre-merge PR state** *(controller-verified)*: CLEAN, all checks pass; 3 files, inside the allowlist.
+- **Mutation** *(subagent-reported)*: server `TENTATIVE_BOARD_DAY` 17 → 15 ⇒ 50 of 71 red; restored, `git diff` byte-identical (cmp).
+- **Production** *(subagent-reported)*:
+  - Railway deployment `6706294123` in_progress 09:07:18Z → success 09:15:48Z (2026-09-28).
+  - 09:15:58Z `GET https://www.lazytopper.com/api/cbse-exam-date?class=10` → HTTP 200 `{"ok":true,"class":"10","source":"predicted","examDate":"2027-02-17",…,"note":"CBSE notice found, but exact exam start date was not machine-readable; predicted date used."}`; `class=12` → same body with `"class":"12"`, `examDate` `2027-02-17` (was 16 Feb). Re-run 09:27:43Z identical.
+  - Vercel `dpl_FTyyrorWv9mB3FDneeaunD7fReWu`: canary smoke `/app/` 200; `currentDeployment` by 09:27:20Z; www `/app/` 200, 0 ErrorBoundary matches.
+
+### Not landed — HELD (recorded as they stand; neither is on trunk)
+- **SEARCHPING-2 — `#857`** (open, not draft, head `49e67f65`, now behind trunk). Search-engine pings wait until a release is live on www: a new build step writes `/app/version.json` (`{"sha":…}`), and `search-ping.yml` waits until www serves the release SHA before pinging.
+  - CI on `49e67f65` *(subagent-reported)*: quality-gate `36402440046` PASS `Tests 2941 passed (2941)`, root `# pass 293 # fail 0 # skipped 0`; capture "matches a fresh capture"; container-boot, CodeQL, Vercel PASS. The preview `dpl_GTdCHo6meMbME3z9fstpXigKmdgS` serves `/app/version.json` → `{"sha":"49e67f659acf604b8162a0717a935a3b49158296"}` (HTTP 200) — **pre-merge evidence, not live**.
+  - **Blocked by `lane-overlap`** (a required check) against Dependabot `#855` on `lazytopper/package.json` — `Lane overlap with PR #855 … shares 1 path(s) -- lazytopper/package.json`. The `package.json` edit is unavoidable: the build chain lives only at `lazytopper/package.json:16` (`vite.config.ts` / `vercel.json` forbidden) *(subagent-reported)*. **Owner rule: wait.**
+  - **Unblocks when:** `#855` is merged or closed by the owner (or Dependabot rebases after `#857` merges); then `#857` merges trunk in (`git merge`, no rebase) and re-runs lane-overlap. The controller does not merge or close a bot PR.
+- **PERF-CLS-1 — `#859`** (DRAFT, head `5c46c61f`). Stops the landing text jumping when fonts arrive: metric-matched `Fraunces Fallback` (`local("Georgia")` 115.15% / 84.94% / 22.15% / 0%) and `Inter Fallback` (`local("Arial")` 107.77% / 89.89% / 22.38% / 0%) faces in `styles.css`, and `Welcome.tsx` P2 (`@import` removed) + P3 (font stack) under the owner's line-level grant *(subagent-reported)*.
+  - **STOPPED** (owner STOP rule: an out-of-allowlist file the fix truly needs). CI on `5c46c61f` fails only on `lazytopper/public/sitemap.xml`: prerender-capture `36402943614` reports ` M lazytopper/public/sitemap.xml`; quality-gate `36402943853` `Tests 1 failed | 2938 passed (2939)` — `sitemapUrls.guard` "/: sitemap date ≠ ledger date … '2026-09-27' to be '2026-09-28'". The needed change is ONE generated line (`<lastmod>` of the `/app/` entry) from the PR's own CI artifact `prerendered-859`. `sitemap.xml` is outside spec §1, and a controller may not widen an allowlist. **Owner decision owed** (controller recommendation: ALLOW — the same generated unit as `prerendered/**`).
+  - **Builder-measured result on the Vercel preview** — **PRE-MERGE evidence, not live** *(subagent-reported)*: slow-4G profile (CPU 4× + 150 ms RTT / 1.47 Mbps, 375×812) CLS **median 0.0982 → 0.0000**, max 0.1387 → 0.0341, runs ≥ 0.05: 7/10 → 0/10; the spec profile (CPU 4× only) stays < 0.05 on every run, but its baseline was 0 × 10, so it cannot fail (R1). 32 element rects and page heights match production at 375 and 1280.
+  - **Unblocks when:** the owner allows `sitemap.xml`; then merge trunk in, re-download the artifact, CI green, and roll out **ALONE** (OR-LIVE: no active rolling release before merge; wait 100% + smoke canary then www; C4 10 runs on www).
+
+### ★ Owner decisions owed (from this wave)
+1. **PERF-CLS-1 `#859`:** allow the one-line `lazytopper/public/sitemap.xml` commit from the PR's own CI artifact? (rec: allow — `[FU-PERF-CLS-SPEC-ALLOWLIST-SITEMAP]`).
+2. **SEARCHPING-2 `#857`:** merge or close Dependabot `#855` (or let it rebase) so `#857` can clear lane-overlap. The workflow path also raised a CODEOWNERS "gated path" warning; the controller checked that there is no CODEOWNERS file on trunk and required approvals are 0 *(controller-verified)*.
+3. **`[FU-PHASE2-DATE-STALE]`:** the phase-2 rule (rec: 15 May of the predicted board year, as a small follow-up lane). Not blocking.
+4. **`[FU-PERF-CLS-HERO-SUB-CH-WRAP]`:** widen the `Welcome.tsx` grant to fix the 31ch hero wrap? (rec: yes, as a separate lane PERF-CLS-2). Not blocking.
+
+### Carried forward — ★ THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this wave
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.** **Wave A-3 moved NO dormancy in that trio.** The full block, including the `#647`/`#655` resolution and every subsequent amendment, is preserved verbatim in its section (`### 8 - ★ THE WIRE-2 QUESTION` and `### 9`) and the demoted `[CURRENT]` sections below, and must be read there before any lane acts on it.
+
 ## [CURRENT · MONEY] WAVE B-2 — **FAIR LIMITS ARE METERED ON THE SERVER (FAIR-USE-1) · STUDENTS CAN BUY A PASS THROUGH RAZORPAY (RAZORPAY-1) — BOTH DARK; PREMIUM IS NEVER SHED (LIVE)** — `#852` + `#853` MERGED — trunk `fecbbe08`
 
 ★ **PROVENANCE.**
