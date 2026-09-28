@@ -11,7 +11,14 @@
 # `searchPing.guard.test.ts` evaluates this condition against those real event shapes.
 #
 # What it does (lazytopper/scripts/seo/searchPing.ts):
-#   · diffs public/sitemap.xml between the deployed commit and its parent — `gen:sitemap`
+#   · SEARCHPING-2 — WAITS FOR THE RELEASE TO BE LIVE FIRST. Vercel Rolling Releases shifts
+#     traffic 10% -> 50% -> 100% over ~15 minutes after this event fires. Step "Wait for the
+#     rollout" polls https://www.lazytopper.com/app/version.json (every build writes the
+#     commit SHA there) until 5 CONSECUTIVE reads return this commit, for at most 30
+#     minutes. Live -> the ping step runs. www serving a newer commit that descends from this
+#     one -> clean exit, NO ping (that release's run pings). Timeout -> the job fails, no ping;
+#   · diffs public/sitemap.xml between the head commit of the last search-ping run whose
+#     ping step succeeded (parent only if there is none) and the deployed commit — `gen:sitemap`
 #     restamps a URL only when its prerendered page changed, so the new/restamped <loc>s
 #     ARE the changed pages;
 #   · POSTs them to IndexNow (Bing & friends). No changed URLs → no request. Any status
@@ -25,6 +32,8 @@ on:
 
 permissions:
   contents: read
+  # `gh run list` / `gh run view` — finding the last run that actually pinged (S3).
+  actions: read
 
 concurrency:
   group: search-ping-${{ github.event.deployment.sha }}
@@ -34,7 +43,8 @@ jobs:
   ping:
     if: github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'Production'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # The rollout wait alone may take 30 minutes (S2).
+    timeout-minutes: 50
 
     # ⚠ `secrets` is NOT available in a step-level `if`; resolve presence here (the same
     # pattern prerender-capture.yml documents).
@@ -45,8 +55,10 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.deployment.sha }}
-          # The deployed commit AND its parent — the sitemap is diffed between the two.
-          fetch-depth: 2
+          # Full history: the sitemap is diffed against the last PINGED release, which may be
+          # several commits back, and the wait checks whether a newer served commit descends
+          # from this one.
+          fetch-depth: 0
 
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
@@ -57,8 +69,19 @@ jobs:
       - name: Install workspace (frozen lockfile)
         run: pnpm install --frozen-lockfile
 
-      - name: Ping IndexNow (and Search Console when configured)
+      - name: Wait for the rollout to reach www
+        id: rollout
+        timeout-minutes: 35
         env:
+          DEPLOY_SHA: ${{ github.event.deployment.sha }}
+        run: pnpm --filter lazytopper exec tsx scripts/seo/searchPing.ts --sha="$DEPLOY_SHA" --wait
+
+      # ⚠ This step's NAME is load-bearing: a later run treats a past run as "pinged" only if
+      # a step with exactly this name concluded success in it (searchPing.ts PING_STEP_NAME).
+      - name: Ping IndexNow (and Search Console when configured)
+        if: steps.rollout.outputs.live == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
           DEPLOY_SHA: ${{ github.event.deployment.sha }}
           GSC_SERVICE_ACCOUNT: ${{ secrets.GSC_SERVICE_ACCOUNT }}
           GSC_SITE_URL: ${{ vars.GSC_SITE_URL }}
