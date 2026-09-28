@@ -89,7 +89,14 @@ function stubFetch(body: unknown, status = 200) {
   return fn;
 }
 
+// TEST-CLOCK-1: the fixtures above are fixed instants, and the product reads the real
+// clock wherever a caller omits `nowMs` (FairUseLimitPanel -> formatResetIst,
+// useFairUse -> planPerQuestionGrade / paperStartBlock). Unpinned, every block/"on Tue
+// 29 Sep" expectation turned red once the wall clock passed MIDNIGHT. Pin the clock to
+// the fixtures' own NOW for every test. Only `Date` is faked: real timers keep
+// waitFor / findBy / setTimeout working. afterEach's vi.useRealTimers() releases it.
 beforeEach(() => {
+  vi.useFakeTimers({ now: NOW, toFake: ["Date"] });
   __resetUsageClientForTests();
   headersState.value = { "X-Lazytopper-Uid": "student-1", Authorization: "Bearer tok" };
   headersState.throws = false;
@@ -144,7 +151,11 @@ describe("2 · fetchUsageMe — every failure is dark", () => {
     expect(await fetchUsageMe()).toBeNull();
   });
   it("★ a SLOW endpoint is abandoned at the timeout -> null", async () => {
-    vi.useFakeTimers();
+    // TEST-CLOCK-1: vi.useFakeTimers() is a NO-OP while the Date-only pin is installed
+    // (vitest skips install when already faking), which would leave setTimeout REAL
+    // and make this test wait the full 4 s. Release the pin, then fake ALL timers.
+    vi.useRealTimers();
+    vi.useFakeTimers({ now: NOW });
     vi.stubGlobal("fetch", vi.fn((_url: string, init?: RequestInit) =>
       new Promise((_resolve, reject) => {
         init?.signal?.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")));
