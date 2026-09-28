@@ -1,3 +1,22 @@
+## 2026-09-28 — WAVE A-3 (CONTROLLER A) — **BOARD-DATE-1: ONE BOARD DATE EVERYWHERE (17 FEB 2027), LIVE · SEARCHPING-2 HELD ON DEPENDABOT · PERF-CLS-1 STOPPED ON ONE GENERATED LINE** — `#856` MERGED — trunk `cfe88001`
+
+★ **PROVENANCE.**
+- Controller A, one session. One builder per PR (`claude-opus-5-5`), in worktrees `C:/Projects/LT-worktrees/board-date-1`, `…/searchping-2`, `…/perf-cls-1`. This docs PR was written by a docs builder in `…/docs-wave-a3` from the controller's state file `WAVE_STATE_A3.md` (OR-16).
+- *(subagent-reported)* = from builder reports; *(controller-verified)* = re-measured by the controller.
+
+**Timeline.**
+- Three specs hash-verified on receipt (`E1A484F002F5`, `FD71E323853F`, `D5FA7650D035`), staged from `controller-a3/ops/.specs/`. Trunk at dispatch `7152ef06`; the only open PR was Dependabot `#855` (`lazytopper/package.json`, `package.json`, `pnpm-lock.yaml`); no rolling release in progress. All three builders dispatched in parallel at 08:47Z — the lanes are file-disjoint by spec §1, except the optional shared `lazytopper/package.json`. Controller B3 ran FAIR-USE-2, FAIR-USE-UI-1 and PAYCOPY-1 in parallel.
+- **BOARD-DATE-1** → `#856`. §0c PASS on `7152ef06`; CI green on `2bb0e564` (quality-gate `36400458536`, `Tests 2920 passed (2920)`); merged `--match-head-commit` → `15ae5047`, trunk tree == head tree `281f163c` *(controller-verified)*. Railway success 09:15:48Z; www `/api/cbse-exam-date` class 10 and 12 → `2027-02-17` (predicted) at 09:15:58Z *(subagent-reported)*. DONE.
+- `#858` PAYCOPY-1 (B3) merged → `42733aa6`; later `#860` FAIR-USE-2 (B3) → `cfe88001`. Both are B3's, covered by B3's handoff.
+- **SEARCHPING-2** → `#857`. The first push failed container-boot: the Railway Docker image runs the same build with no `.git` and no Vercel env, so `writeVersion` found no SHA. OR-AUTO fix: no SHA → write no marker and warn *(subagent-reported)*. CI green on `49e67f65`, preview serves `/app/version.json` with the head SHA; **lane-overlap FAILS against `#855`** on `lazytopper/package.json`. Owner rule: wait. HELD.
+- **PERF-CLS-1** → `#859` (draft). The first return was HELD without a push (shell calls got no permission verdict). The controller resumed it with R1–R3. It merged trunk in, committed `prerendered/**` from its own CI artifact, and then CI failed on `public/sitemap.xml` (one generated `lastmod` line) — outside spec §1. The controller did not widen the allowlist: **STOPPED**, owner decision owed.
+
+### ★ What this wave teaches
+- **A CONTROL THAT CANNOT FAIL IS NOT A CONTROL — AGAIN.** PERF-CLS-1's spec gate (4× CPU, no network throttle) measured CLS 0 on all 10 production baseline runs, so the fix could not have failed it. The builder added a slow-4G profile that reproduces the reported shifts (median 0.0982). The controller kept the owner's criterion as the formal gate and made slow-4G a must-not-regress bar (R1), instead of rewriting the owner's gate *(subagent-reported numbers)*.
+- **A GENERATED UNIT IS WHAT THE GATE CHECKS, NOT WHAT THE SPEC NAMES.** The capture gate treats `prerendered/**` and `public/sitemap.xml` as one artifact. An allowlist naming only the first strands any landing-content change on one generated line → `[FU-PERF-CLS-SPEC-ALLOWLIST-SITEMAP]`.
+- **A SHARED MANIFEST SERIALISES LANES THAT LOOK DISJOINT.** SEARCHPING-2's build step can only be wired in `lazytopper/package.json`, which a Dependabot PR also touched; lane-overlap (exact path, counts drafts) held it. Design lanes so that no `package.json` edit is needed wherever possible — BOARD-DATE-1 and PERF-CLS-1 both did.
+- **A BUILD STEP RUNS IN EVERY IMAGE THAT RUNS THE BUILD.** A build step that assumed Vercel's env broke the Railway Docker build, and container-boot caught it on the first push *(subagent-reported)*.
+
 ## 2026-09-27 — WAVE B-2 (MONEY) — **FAIR-USE-1: FAIR LIMITS METERED ON THE SERVER (DARK), PREMIUM NEVER SHED (LIVE) · RAZORPAY-1: STUDENTS CAN BUY A PASS (DARK)** — `#852` + `#853` MERGED — trunk `fecbbe08`
 
 ★ **PROVENANCE.**
