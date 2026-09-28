@@ -250,14 +250,24 @@ function gh(args: string[]): string {
   });
 }
 
+/**
+ * The commit a past run PINGED. SEARCHPING-2b: the workflow's `run-name` is
+ * `search-ping <sha>`, because a `workflow_dispatch` run's headSha is the dispatched ref's
+ * HEAD, not its `sha` input. Runs from before that title existed (plain "search-ping") were
+ * all deployment_status runs, whose headSha IS the deployed commit — so that is the fallback.
+ */
+export function pingRunSha(row: { headSha: string; displayTitle?: string }): string {
+  return /^search-ping ([0-9a-f]{7,40})$/i.exec((row.displayTitle ?? "").trim())?.[1] ?? row.headSha;
+}
+
 function successfulPingRuns(): PingRun[] {
   const rows = JSON.parse(
     gh([
       "run", "list", "--workflow", "search-ping", "--status", "success",
-      "--limit", "30", "--json", "databaseId,headSha",
+      "--limit", "30", "--json", "databaseId,headSha,displayTitle",
     ]),
-  ) as Array<{ databaseId: number; headSha: string }>;
-  return rows.map((row) => ({ id: row.databaseId, headSha: row.headSha }));
+  ) as Array<{ databaseId: number; headSha: string; displayTitle?: string }>;
+  return rows.map((row) => ({ id: row.databaseId, headSha: pingRunSha(row) }));
 }
 
 function runPinged(run: PingRun): boolean {
