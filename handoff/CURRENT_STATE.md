@@ -8,14 +8,15 @@
 - Merges *(controller-verified)*, each squash with `--match-head-commit`, no `--admin`; for each, the merge commit is on trunk and **trunk tree == head tree**:
   - `#858` PAYCOPY-1 — `--match-head-commit a093fe81` → **`42733aa6`** (parent `15ae5047`), tree `d8196d0e`.
   - `#860` FAIR-USE-2 — `--match-head-commit 6ad09e57` → **`cfe88001`** (parent `42733aa6`), tree `9a7da98b`.
-  - `#861` FAIR-USE-UI-1 — see MERGE-861 below.
+  - `#861` FAIR-USE-UI-1 — `--match-head-commit 11c159fa` → **`4dd175d9`**, tree `7528a0d2` (MERGE-861 below).
 - *(subagent-reported)* = from `report-fair-use-2-2026-09-28.md`, `report-fair-use-ui-1-2026-09-28.md`, `report-paycopy-1-2026-09-28.md`, not re-measured by the controller. *(controller-verified)* = re-measured by the controller with `gh`/`git`.
 
-**Trunk `66f17eb3c29773ccd8a86b7dce7ef9953c45464d`** at the time of writing (`#862`, the wave A-3 docs; `#861` not yet merged — this line is updated when it is). The commits since the wave B-2 docs (`7152ef06`, `#854`):
+**Trunk `4dd175d9c193242e5c51a764d06991a9a5eca6b6`** (`#861`). The commits since the wave B-2 docs (`7152ef06`, `#854`):
 - `42733aa6` = `#858` PAYCOPY-1 — **this wave**;
 - `cfe88001` = `#860` FAIR-USE-2 — **this wave**;
-- `#861` FAIR-USE-UI-1 — **this wave** (MERGE-861 below);
+- `4dd175d9` = `#861` FAIR-USE-UI-1 — **this wave** (MERGE-861 below);
 - `15ae5047` = `#856` BOARD-DATE-1 and `66f17eb3` = `#862` (A-3 docs) — **Controller A's wave A-3, recorded by `#862`, not by this block.** A-3's SEARCHPING-2 `#857` and PERF-CLS-1 `#859` are A-3's (as `#862` recorded them); they are not restated here.
+- `53065a54` = `#855` (Dependabot npm-minor-and-patch), `2346b802` = `#857` SEARCHPING-2 and `ae52a5ad` = `#863` PHASE2-DATE-1 — **landed by Controller A (wave A-3) / Dependabot; not this wave, and not written up here.**
 
 *(This block supersedes the WAVE A-3 (DATES + REACH) block below on trunk SHA only — that block is demoted to previous on trunk SHA; its content otherwise stands as written. In the Controller B line it follows the WAVE B-2 (MONEY) block below, whose content stands as written.)*
 
@@ -51,15 +52,15 @@ The money arc's fair-use half is now complete in code and still **dark**. FAIR-U
 ### Evidence
 - **`#858`** on head `a093fe81` (trunk `15ae5047` merged in) *(controller-verified: `gh` files == diff (2), head contains trunk, all checks pass)*: quality-gate `36402046723` `Tests 2932 passed (2932)`, 46 `# fail 0` / `# skipped 0` lines, 0 non-zero *(builder-quoted)*; prerender-capture `36402046795` "committed artifact matches a fresh capture". 1 mutation *(subagent-reported)*.
 - **`#860`** on head `6ad09e57` *(controller-verified: `gh` files == diff (11), head contains trunk `42733aa6`, all 6 runs on the head success)*: quality-gate `36402960397` — fair-use `# tests 42 # pass 42 # fail 0 # skipped 0`, 23 node suites 0 fail / 0 skip, vitest `Tests 2943 passed (2943)`, 13 of 13 F5/F6 names in the log *(builder-quoted)*. 2 mutations: MUT-A (trust the surface header) → `not ok 1 - F6 · a forged paper surface WITHOUT a pass is counted per question as check-improve`; MUT-B (non-timing-safe compare) → the static pin red; both restored byte-identical *(subagent-reported)*.
-- **`#861`** phase 2 on head `205bdedb` (trunk `cfe88001` merged in, no conflicts): quality-gate `36404345232` `Tests 2993 passed (2993)`, 23 node suites 0 fail / 0 skip *(builder-quoted)*; P5 contract matches the spec. 1 mutation: `parseUsageMe` ignores `enforced` → 7 red, restored *(subagent-reported)*. Screenshots: 22 component-harness PNGs + 20 signed-out preview shots (zero usage calls, zero fair-use nodes, with `enforced` true AND false); **signed-in page-level shots OWED** (the builder could not sign in on the preview — D6). The final head and run are in MERGE-861.
+- **`#861`** phase 2 on head `205bdedb` (trunk `cfe88001` merged in, no conflicts): quality-gate `36404345232` `Tests 2993 passed (2993)`, 23 node suites 0 fail / 0 skip *(builder-quoted)*; P5 contract matches the spec. 1 mutation: `parseUsageMe` ignores `enforced` → 7 red, restored *(subagent-reported)*. Screenshots: 22 component-harness PNGs + 20 signed-out preview shots (zero usage calls, zero fair-use nodes, with `enforced` true AND false); **signed-in page-level shots OWED** (the builder could not sign in on the preview — D6). The final head (`11c159fa`) and run are in MERGE-861.
 
 ### Rollout so far *(controller-verified, from the state file)*
 - `#858` and `#860` were not alone-lanes; each merged while an earlier rolling release was ACTIVE (back-to-back is allowed by OR-LIVE). At 10:14Z the rolling release was COMPLETE and www served `dpl_GuVdL9wyv5` (created 09:45:32Z = `#862`'s deployment, which is after `#858` and `#860` on trunk).
 - `#861` rolls out **ALONE** (D4): before merge, no ACTIVE rolling release AND www serving the trunk head's deployment; after merge nothing of Controller B's merges until 100% + smoke.
 
-MERGE-861: <pending controller>
+MERGE-861: FAIR-USE-UI-1 #861 merged 4dd175d9 (squash, --match-head-commit 11c159fa; trunk tree == head tree 7528a0d2), CI 36413631206 Tests 3112 passed (3112).
 
-ROLLOUT: <pending controller>
+ROLLOUT: #861 rolled out alone — canary moei4mpuo smoke PASS (pages 200, /api/usage/me 401; the bundle ships FairUseConfirm + usageClient chunks), then 100% on www at 11:34Z with www smoke PASS. Everything stays dark: FAIR_USE_ENFORCE, FAIR_USE_PAPER_SECRET, PAYMENTS_ENABLED and VITE_PAYMENTS_ENABLED are unset, and POST /api/usage/paper answers 503 by design until the secret is set.
 
 ### ★ Decisions made this wave (full text, D0–D6, in `DECISION_LOG.md`)
 - **D2** `lazytopper/package.json` avoided (open `#855` would have blocked any edit on lane-overlap) — **held**: no B-3 lane edited it.

@@ -1,15 +1,18 @@
 ## ★★★ 2026-09-28 — WAVE B-3 (MONEY, CONTROLLER B) CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-3 BLOCK BELOW ON TRUNK SHA ONLY
 *(It does not supersede that block's owner items, nor the WAVE B-2, A-2 or B-1 blocks' owner items, which stand unchanged — except that the WAVE B-2 block's item 4 (`[FU-PRICING-COPY-WHEN-PAYMENTS-ON]`) is now DONE by `#858`, and its item 1 ("leave `FAIR_USE_ENFORCE` unset until FAIR-USE-2 ships and the surface-forgery FU is decided") is replaced by the ordered steps 1–4 below.)*
 
-**TRUNK IS `66f17eb3c29773ccd8a86b7dce7ef9953c45464d`** at the time of writing (`git ls-remote origin refs/heads/base/approved-thru-437`; updated when `#861` merges):
-- `#861` (FAIR-USE-UI-1: students can see their fair-use limits — dark until `FAIR_USE_ENFORCE=1`) — **this wave**; see MERGE-861 in `CURRENT_STATE.md`
+**TRUNK IS `4dd175d9c193242e5c51a764d06991a9a5eca6b6`**, measured 2026-09-28 (`git fetch origin` + `git rev-parse origin/base/approved-thru-437`):
+- `4dd175d9` = `#861` (FAIR-USE-UI-1: students can see their fair-use limits — dark until `FAIR_USE_ENFORCE=1`) — **this wave**; rolled out alone, see MERGE-861 / ROLLOUT in `CURRENT_STATE.md`
+- `ae52a5ad` = `#863` (PHASE2-DATE-1 — landed by Controller A, wave A-3; not written up here)
+- `2346b802` = `#857` (SEARCHPING-2 — landed by Controller A, wave A-3; not written up here)
+- `53065a54` = `#855` (Dependabot npm-minor-and-patch)
 - `66f17eb3` = `#862` (docs: wave A-3 — Controller A)
 - `cfe88001` = `#860` (FAIR-USE-2: paper passes are server-issued; dark) — **this wave**
 - `42733aa6` = `#858` (PAYCOPY-1: pricing copy ready for payments; flag-off byte-identical) — **this wave**
 - `15ae5047` = `#856` (BOARD-DATE-1 — Controller A, wave A-3)
 - `7152ef06` = `#854` (docs: wave B-2)
 
-A-3's SEARCHPING-2 `#857` and PERF-CLS-1 `#859` are A-3's items (the WAVE A-3 block below), not restated here. `#855` (Dependabot) is not ours.
+A-3's SEARCHPING-2 `#857`, PHASE2-DATE-1 `#863` and PERF-CLS-1 `#859` are A-3's items, not restated here. `#855` (Dependabot) is not ours.
 
 ### NEXT — OWNER, FAIR USE — IN THIS ORDER (none of these was run by the controller or a builder)
 1. **Set `FAIR_USE_PAPER_SECRET` on Railway — early.** A long random string (e.g. `openssl rand -base64 48`); server-only, never on Vercel. Rotating it invalidates outstanding passes (at most 24 h of re-mints). **Until it is set, paper grades are metered per question** (`trialChecks += N` instead of 1 paper) — nothing is refused while dark, but `would_refuse.trial_checks` and `/api/usage/me` `checksLeftToday` read off (`[FU-FAIR-USE-DARK-COUNTS-PAPERS-PER-QUESTION]`) *(subagent-reported)*. An owner live-verify of the paper round trip is owed once the secret is set (CLAUDE.md §6).

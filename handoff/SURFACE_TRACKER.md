@@ -1,6 +1,6 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
-> **2026-09-28 — WAVE B-3 (MONEY, CONTROLLER B): PAYCOPY-1 (`#858` `42733aa6`) + FAIR-USE-2 (`#860` `cfe88001`) + FAIR-USE-UI-1 (`#861`).**
+> **2026-09-28 — WAVE B-3 (MONEY, CONTROLLER B): PAYCOPY-1 (`#858` `42733aa6`) + FAIR-USE-2 (`#860` `cfe88001`) + FAIR-USE-UI-1 (`#861` `4dd175d9`), trunk `4dd175d9`.**
 > ★ **BUILT AND DARK: the fair-use surfaces exist but render nothing until `FAIR_USE_ENFORCE=1`; the payments-on pricing copy exists but renders nothing until `VITE_PAYMENTS_ENABLED=1`.** These status lines supersede the WAVE B-2 "Fair use" and "Pricing" lines below on status only; those lines stand as written.
 
 ### ⬜ Fair use — paper passes (Chapter Test, Full Mock, Worksheet grading) — **SERVER-ISSUED, DARK.** A paper counts as one allowance only with a server-minted HMAC pass (`POST /api/usage/paper`); without one, the grade is counted per question. Nothing is refused until `FAIR_USE_ENFORCE=1`, and with `FAIR_USE_PAPER_SECRET` unset the mint answers 503 and every paper is counted per question (`[FU-FAIR-USE-DARK-COUNTS-PAPERS-PER-QUESTION]`) *(subagent-reported)*. Supersedes the B-2 line's "surface header" basis.
