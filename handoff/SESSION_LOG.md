@@ -1,3 +1,24 @@
+## 2026-09-28 — WAVE A-3 (CONTROLLER A) FINAL — **ROOTENTRY-1: FIRST LOAD NO LONGER BLANKS · SEARCHPING-3: SEARCH-PING ON EVERY TRUNK PUSH · PERF-CLS-2: ANDROID FONT FALLBACK · ★ THE 0.0771 EXPLANATION `#868` RECORDED WAS WRONG** — `#867` + `#869` MERGED — trunk `069dfdeb` · `#871` PERF_CLS_2_RESULT
+
+★ **PROVENANCE.**
+- Controller A, the same session as `#862` and `#868`, reopened by the owner's answers to the revised final audit (Q1–Q5). One builder per PR (`claude-opus-5-5`): ROOTENTRY-1 resumed in `C:/Projects/LT-worktrees/rootentry-1`; `…/searchping-3`; `…/perf-cls-2`. This docs PR was written by a docs builder in `…/docs-wave-a3-3` from `WAVE_STATE_A3.md` and the lane reports (OR-16).
+- *(subagent-reported)* = from builder reports; *(controller-verified)* = re-measured by the controller; *(cofounder-measured)* = relayed in the owner's ruling.
+
+**Timeline.**
+- The owner answered five questions: grant `App.tsx:340` (Q1); the 0.0771 is the font environment — no Georgia / Arial on Linux or Android — **not** a pre-`#859` measurement, and a new lane PERF-CLS-2 (Q2); a push trigger for search-ping (Q3); the owner adds `GSC_SERVICE_ACCOUNT` (Q4); P2-CYCLE, SP-DISPATCH, ruling 5 and PERF-CLS-1 R1–R3 ratified (Q5). New STANDING rule: every CLS gate carries a content-absent control and a font-environment matrix.
+- **ROOTENTRY-1** `#867` resumed with the grant: head `57a67781` (14 tests, 2 mutations), CI green; preview 20 runs landing-absent 0 ms, final `/app/`. Merged ALONE → `7b94ae00` at 14:05:08Z *(controller-verified)*; COMPLETE 100% at 14:23:07Z; www 10× `/app/` + 10× the bare domain: landing-absent 0 ms ×20, final `/app/` ×20, BottomNav 0 ×20 *(subagent-reported)*.
+- During the preview proofs www began answering this machine with a Vercel challenge (`403`); the controller found it transient and IP-scoped at 14:04:21Z; the post-merge runs were paced and saw no challenge → `[FU-PROD-VERCEL-CHALLENGE-403]`.
+- The DOCS-2 rollout (`2068c306`) reached 100% at 14:04:25Z; its search-ping runs were skipped (the `deployment_status` gap) *(subagent-reported)*.
+- B's docs `#870` landed → `6f55c66e`; DOCS-3 unblocked.
+- **SEARCHPING-3** `#869` MERGE-READY on `a8e6279a` (`Tests 3153 passed (3153)`); held until ROOTENTRY-1's www check was done (the ALONE window); `gh pr update-branch` → `c00f23ea` (lane files byte-identical); merged → `069dfdeb` at 14:37:57Z *(controller-verified)*. First push run: PUSH_RUN_RESULT.
+- **PERF-CLS-2** `#871`: PERF_CLS_2_RESULT
+
+### ★ What this wave teaches
+- **A HARNESS PROVES NOTHING OUTSIDE ITS OWN FONT ENVIRONMENT.** PERF-CLS-1 read CLS 0 × 10 on www on a Windows machine that has Georgia and Arial; the owner's Linux run (no Georgia / Arial — like Android) read 0.0771 on the same www. Both were right about their own machines. `#868` explained the difference with "consistent with a pre-`#859` measurement" — matching in shape and timing, never in magnitude — without asking where the owner measured. **Get the other measurer's environment before explaining their number.** The owner made it standing: every CLS gate runs a Windows-like + Android-like matrix.
+- **A CORRECTION IS A NEW DATED ENTRY, AND IT CARRIES THE REASON.** `#868`'s text is left as written (board rule 3); the correction in `CURRENT_STATE.md` names every place it appeared and why it was wrong, because the reason ("a harness in one font environment") is what the next lane needs, not only the outcome.
+- **THE RIGHT CONTROL FOR A BLANK IS "HOW LONG WAS IT ABSENT", NOT CLS.** ROOTENTRY-1 was gated on landing-absent ms + final URL + no BottomNav, which fail on the old code (1159–1666 ms, `/app/welcome`) and pass on the fix (0 ms ×20) — a control that can fail.
+- **LOAD TESTING PRODUCTION FROM ONE MACHINE CAN TRIP THE PLATFORM'S BOT PROTECTION.** Pace cold loads and poll the rollout with `vercel rolling-release fetch`, not a tight curl loop.
+
 ## 2026-09-28 — WAVE B-4 (MONEY, CONTROLLER B) — **FAIR-USE-3: LAZY PAPER REFUND · ONE-TRANSACTION MINT · LIMITS FROM THE SERVER · SOLUTIONCHECKER LIMIT PANEL — STILL DARK** — `#866` MERGED — trunk `7b94ae00`
 
 ★ **PROVENANCE.**

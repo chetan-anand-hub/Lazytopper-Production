@@ -1,5 +1,17 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-28 — WAVE A-3 (CONTROLLER A) FINAL: ROOTENTRY-1 (`#867` `7b94ae00`) + SEARCHPING-3 (`#869` `069dfdeb`), trunk `069dfdeb`; PERF-CLS-2 (`#871`): PERF_CLS_2_RESULT. SEARCHPING-3 is not a student surface.**
+> ★ **A SIGNED-OUT VISITOR'S FIRST LOAD NO LONGER BLANKS OR BOUNCES TO `/welcome`. The landing's font-swap result from `#859` holds only where Georgia / Arial exist (Windows, iOS / macOS) — not on Android (the CORRECTION in `CURRENT_STATE.md`).** These lines supersede the WAVE A-3 (CONTINUED) "Landing — font-swap shift" and "Landing / root entry" lines below on status only; those lines stand as written.
+
+### ✅ Landing / root entry (`RootEntry` in `App.tsx`; `/app/` and the bare domain) — **LIVE (`#867`, rolled out ALONE).** While auth loads and once it resolves signed-out, `RootEntry` renders the landing (never `null`); signed-out mobile stays on `/`; the BottomNav is hidden at `/` (owner grant `App.tsx:340`). www, 10 × `/app/` + 10 × `https://lazytopper.com`: landing-absent 0 ms ×20, final `/app/` ×20, BottomNav 0 ×20 (before: blank 1159–1666 ms, final `/app/welcome`) *(subagent-reported)*. Signed-in path (phone → `/browse`) only unit-tested — **owner live-verify owed**.
+### Landing (`/`, `/app/`) — font-swap shift on Android (devices without Georgia / Arial) — PERF-CLS-2 (`#871`): PERF_CLS_2_RESULT. Before it: `#859`'s `local("Georgia")` / `local("Arial")` faces never match on Android, so the swap shift returns there (cofounder-measured 0.0771 on current www, Linux, 4/4). Real-Android-phone live-verify owed after it is live.
+
+### ⬜ NO OTHER MATRIX CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- SEARCHPING-3 changes when search engines are told about pages, not any page. `/welcome` still routes; its content is unchanged.
+- Verified cells are not re-claimed: ROOTENTRY-1's signed-in path and the Android landing were not live-verified by the owner.
+
+### 📋 Scope discovered? — **NO surface scope set to Settling.** PERF-CLS-2 is a new lane on an existing surface (the Landing row), ordered by the owner's Q2 ruling; the Android font defect was already logged (`[FU-ANDROID-NO-GEORGIA-ARIAL]`, `#862`) — its severity was corrected, no new scope. `[FU-PROD-VERCEL-CHALLENGE-403]` is a platform setting, not a surface.
+
 > **2026-09-28 — WAVE B-4 (MONEY, CONTROLLER B): FAIR-USE-3 (`#866` `b6da0c6f`), trunk `7b94ae00`.**
 > ★ **STILL DARK: nothing a student sees changes until `FAIR_USE_ENFORCE=1`.** These status lines supersede the WAVE B-3 "Fair use — paper passes" and "Fair use — limits UI" lines below on status only; those lines stand as written.
 

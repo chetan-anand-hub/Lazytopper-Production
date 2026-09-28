@@ -1,3 +1,34 @@
+## 2026-09-28 — WAVE A-3 (CONTROLLER A) FINAL: ROOTENTRY-1 + SEARCHPING-3 (merged) + PERF-CLS-2 — PRs `#867`, `#869` merged; `#871` PERF_CLS_2_RESULT
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (Q1–Q5, OR-LIVE, OR-AUTO), not `DECISION N`.
+
+### Owner rulings (revised-audit answers, 2026-09-28) — reopened the wave again
+- **Q1 ROOTENTRY-1:** GRANT `lazytopper/src/App.tsx:340`, one line: `current === "/" ||` before `current === "/welcome" ||`. Resume the runbook: the line + test + mutation; preview with landing-absent ms + final URL; merge ALONE; www 10× each on `/app/` and the bare domain: landing-absent 0 ms, URL stays `/app/`. (CLS does not gate this lane — the owner's Q2 puts the font defect in PERF-CLS-2.)
+- **Q2 the 0.0771 — RESOLVED; NOT the pre-`#859` deployment (the controller's hypothesis was WRONG).** The cofounder re-ran on current www after `#859` at 100%: 0.0771, 4/4, both entry URLs (Playwright headless Chromium on Linux, 390×844, DPR 2, 4× CPU, ~1.6 Mbps / 150 ms, cache off). Cause: no Georgia / Arial on that machine (nor on Android) → the `styles.css` `local()` faces never match → the swap shift returns; the builder's Windows harness has both fonts → 0. `[FU-ANDROID-NO-GEORGIA-ARIAL]` is a LIVE defect for most students. → **New lane PERF-CLS-2:** `"Fraunces Fallback"` on `local("Noto Serif")` + `"Inter Fallback"` on `local("Roboto")` as SEPARATE `@font-face` families with their own derived metrics, after the Georgia / Arial ones in the stacks; iOS / Windows keep Georgia / Arial. Grant: `styles.css` fallback faces + stacks, the `Welcome.tsx` P3 stack line. Binding: an Android-like font environment (Linux, no Georgia / Arial, Roboto + Noto Serif), 10 cold loads slow-4G + 4× CPU, each < 0.05; + a Windows-like run; + the landing-absent control. Mutation: drop the Noto Serif face → red. Rolls out ALONE.
+- **Q3 search-ping:** APPROVED — a push-to-`base/approved-thru-437` trigger, the same wait-then-ping, concurrency by SHA; keep `workflow_dispatch`; close `[FU-SEARCHPING-NO-PROD-DEPLOYMENT-EVENT]`. Merge normally (lane SEARCHPING-3).
+- **Q4 GSC:** the owner adds the secret; no code.
+- **Q5 RATIFIED:** OR-AUTO P2-CYCLE, SP-DISPATCH, the ruling-5 disposition, PERF-CLS-1 R1–R3 (all recorded in the sections below).
+- ★ **STANDING RULE: every CLS gate carries a content-absent control AND a font-environment matrix (Windows-like + Android-like).**
+- Merge ROOTENTRY-1 and PERF-CLS-2 each ALONE; SEARCHPING-3 normally, but never inside an ALONE window. Then docs-3 (this PR), revise the final audit, STOP.
+
+### ★ Correction of a recorded controller conclusion (dated 2026-09-28)
+- **What:** the WAVE A-3 (CONTINUED) section below (`#868`) records the owner addendum's 0.0771 and, in `CURRENT_STATE.md` / `OPEN_QUESTIONS_AND_FOLLOWUPS.md` / `SESSION_LOG.md`, the controller hypothesis that it was "consistent with the owner measuring before `#859` reached 100%". **Before:** that hypothesis recorded as the most likely explanation. **After:** WRONG — the cause is the font environment (Q2). The `#868` text is left as written (board rule 3); the correction lives in `CURRENT_STATE.md` (the WAVE A-3 (FINAL) block) and `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+- **Why it was recorded wrongly:** the hypothesis matched in shape and timing (a hero / `#text` swap shift at ~2.5 s on the pre-`#859` deployment) and was tested only on the same Windows harness that had read 0; nobody asked what environment the owner's number came from. The magnitude never matched (0.0269 / 0.1443 vs 0.0771).
+- **Why record the reason, not just the outcome:** the next CLS lane needs "a harness is only valid in its own font environment", which the outcome alone ("the 0.0771 is fixed by PERF-CLS-2") does not carry. The owner's standing font-environment rule is the durable form.
+
+### Controller decisions, with reasons (what, why, before → after)
+- **Merge order (OR-LIVE).** ROOTENTRY-1 `#867` merged ALONE (trunk unchanged + no ACTIVE rollout, checked in the same command) → 100% → www 10×2 done before anything else merged. SEARCHPING-3 `#869` was MERGE-READY first but held until ROOTENTRY-1's www check was done (not inside an ALONE window), then merged in the gap. PERF-CLS-2 `#871` merges ALONE after that. This docs PR opens only after PERF-CLS-2 and the first push run have results.
+- **`gh pr update-branch` on `#869`** (heads-up given): the branch was behind after B's docs `#870`. Before: head `a8e6279a`. After: head `c00f23ea`, lane files a 0-line diff against `a8e6279a`, all checks re-run and pass. Why: `update-branch` only merges trunk in (no rebase, no force-push); the byte-identity check proves the lane code did not change.
+- **DOCS-3 waited for B's `#870`** (one docs PR open at a time).
+
+### Builder choices worth keeping *(subagent-reported)*
+- ROOTENTRY-1: the binding controls are landing-absent ms (MutationObserver on `#root`) + final URL + BottomNav count — a control that fails on the old code (1159–1666 ms, `/app/welcome`) and passes on the fix; CLS is recorded but not binding. Signed-in flash: none added (the prerendered `/app/` already shows the landing before JS).
+- SEARCHPING-3: no path filter (docs-only pushes roll out too and log `changed=0`); `searchPing.ts` untouched (the S3 query has no event filter; the pinged SHA falls through to `github.sha`); the existing per-SHA concurrency group means a second run for one SHA queues and ends `changed=0` or superseded — never a double ping.
+- Production load: pace cold loads (≥ 6 s, fresh context, no parallel runs) and poll rollouts with `vercel rolling-release fetch` → `[FU-PROD-VERCEL-CHALLENGE-403]`.
+
+### Docs-builder choices (this PR, OR-AUTO)
+- The correction is a NEW dated entry that names every place `#868` stated the hypothesis; none of `#868`'s lines is edited. Before: `#868`'s explanation stood uncorrected. After: a correction entry in `CURRENT_STATE.md`, a RESOLVED entry with the correction in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`, this section, and a lesson in `SESSION_LOG.md`. Why: board rule 3 and a prepend-only diff with zero deletions.
+
 ## 2026-09-28 — WAVE B-4 (MONEY, CONTROLLER B): FAIR-USE-3 — PR `#866` merged — trunk `7b94ae00`
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (D3, D6, D7, D8, OR-LIVE, OR-AUTO), not `DECISION N`.
