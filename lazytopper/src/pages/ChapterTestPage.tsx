@@ -55,6 +55,10 @@ import ChapterTestNavigator from "../components/chaptertest/ChapterTestNavigator
 import ChapterTestHistoryRail from "../components/chaptertest/ChapterTestHistoryRail";
 import ChapterTestUploadPanel from "../components/chaptertest/ChapterTestUploadPanel";
 import PreSubmitConfirm from "../components/chaptertest/PreSubmitConfirm";
+// FAIR-USE-UI-1 — the fair-use panel (UI1 at grading, UI3 before the test starts).
+// Dark unless /api/usage/me says `enforced: true`: with it off this page is unchanged.
+import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
+import { useFairUse } from "../components/usage/useFairUse";
 
 type Phase = "setup" | "taking" | "results";
 type SubjectKey = "Maths" | "Science";
@@ -116,6 +120,7 @@ export default function ChapterTestPage() {
   const topicKey = normalizeTopicKey(rawTopicKey) || rawTopicKey;
   const topicName = resolveTopicDisplayName(subject, topicKey);
   const isSignedIn = !!user?.uid && !user?.isLocalSession;
+  const fairUse = useFairUse("chapter-test", isSignedIn);
 
   const navState = (location.state as { back?: string; backLabel?: string } | null) || null;
   const backTo = navState?.back || `/topic-hub/${grade}/${subject.toLowerCase()}/${topicKey}`;
@@ -299,10 +304,12 @@ export default function ChapterTestPage() {
   }, [phase, timerEnabled, timeLimitSeconds]);
 
   const startTest = useCallback(() => {
+    // FAIR-USE-UI-1 (UI3): today's chapter test already used -> the panel, not the paper.
+    if (fairUse.blockPaperStart()) return;
     setPhase("taking");
     setCurrentQNumber(1);
     trackUxEvent("chapter_test_start", "ChapterTestPage", { topicKey, subject });
-  }, [topicKey, subject]);
+  }, [topicKey, subject, fairUse.blockPaperStart]);
 
   const pickOption = useCallback((qNumber: number, optionText: string) => {
     setAnswers((prev) => ({ ...prev, [qNumber]: optionText }));
@@ -322,6 +329,7 @@ export default function ChapterTestPage() {
       if (!paper || !nomen || !objective || grading) return;
       setGrading(true);
       setGradeError(null);
+      fairUse.clearLimit();
       try {
         const outcome = await gradeChapterTestUpload({
           user,
@@ -339,6 +347,7 @@ export default function ChapterTestPage() {
           setFullResponse(outcome.response);
           setResultsPhase("full");
           setScorecardOpen(true);
+          fairUse.noteGraded();
           trackUxEvent("chapter_test_complete", "ChapterTestPage", {
             topicKey,
             score: `${outcome.response.gradedMarksAwarded}/${outcome.response.gradedMarksTotal}`,
@@ -346,12 +355,14 @@ export default function ChapterTestPage() {
           void loadRecords();
         }
       } catch (err) {
+        // FAIR-USE-UI-1 (UI1): a fair-use refusal shows the calm panel instead of the error.
+        if (await fairUse.handleRefusal(err)) return;
         setGradeError(err instanceof Error ? err.message : "Failed to grade your answers.");
       } finally {
         setGrading(false);
       }
     },
-    [paper, nomen, objective, grading, user, sessionSubject, topicKey, subjectiveQs, loadRecords],
+    [paper, nomen, objective, grading, user, sessionSubject, topicKey, subjectiveQs, loadRecords, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal],
   );
 
   // ── Downloads ────────────────────────────────────────────────────────────────
@@ -525,6 +536,7 @@ export default function ChapterTestPage() {
                       />
                     </div>
 
+                    {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} /> : null}
                     <div className="lt-ct__startrow">
                       <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={startTest}>
                         Start the test →
@@ -734,6 +746,7 @@ export default function ChapterTestPage() {
             <span className="lt-ct__pagetitle">Chapter Test · Result</span>
           </div>
 
+          {resultsPhase === "partial" && fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} /> : null}
           {resultsPhase === "partial" ? (
             <ChapterTestUploadPanel
               name={nomen.name}
