@@ -11,7 +11,7 @@
 - `#863` also labels the retired SprintDashboard (not rendered). Pricing ("(Feb 2027)", month-only) and `/cbse/class-10` (month windows) are unchanged by ruling 5. SEARCHPING-2 / 2b change when search engines are told about pages, not any page.
 - Verified cells are not re-claimed: the signed-in paths of ROOTENTRY-1 and `/onboarding` were not live-verified by the owner.
 
-### 📋 Scope discovered? — **NO surface scope set to Settling.** ROOTENTRY-1 is a new lane on an existing surface (the Landing row), added by the owner's addendum, not discovered scope. Four new follow-ups are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
+### 📋 Scope discovered? — **NO surface scope set to Settling.** ROOTENTRY-1 is a new lane on an existing surface (the Landing row), added by the owner's addendum, not discovered scope. Five new follow-ups are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`.
 
 > **2026-09-28 — WAVE B-3 (MONEY, CONTROLLER B): PAYCOPY-1 (`#858` `42733aa6`) + FAIR-USE-2 (`#860` `cfe88001`) + FAIR-USE-UI-1 (`#861` `4dd175d9`), trunk `4dd175d9`.**
 > ★ **BUILT AND DARK: the fair-use surfaces exist but render nothing until `FAIR_USE_ENFORCE=1`; the payments-on pricing copy exists but renders nothing until `VITE_PAYMENTS_ENABLED=1`.** These status lines supersede the WAVE B-2 "Fair use" and "Pricing" lines below on status only; those lines stand as written.

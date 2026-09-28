@@ -11,7 +11,7 @@
 - B3's `#861` FAIR-USE-UI-1 and docs `#864` landed in between; `#859` re-synced to trunk three times (522b7bc8 → dfbf1269 → 381ae00e), CI green each time.
 - **SEARCHPING-2 post-merge — HELD:** every search-ping run today concluded `skipped`, because Vercel posts no GitHub `Production` deployment under Rolling Releases (none since `7152ef06`) *(subagent-reported)*. OR-AUTO SP-DISPATCH → SEARCHPING-2b.
 - **PERF-CLS-1** `#859` merged ALONE → `0e2af785` at 12:31:22Z (no ACTIVE rollout, checked in the same command) *(controller-verified)*; canary smoke → COMPLETE 100% at 12:48:58Z → www slow-4G CLS 0 × 10 on the builder's harness *(subagent-reported)*.
-- **SEARCHPING-2b** `#865` merged → `69229cc5` at 12:54:41Z *(controller-verified)*; the controller dispatched one search-ping run for `69229cc5` (result in `CURRENT_STATE.md`).
+- **SEARCHPING-2b** `#865` merged → `69229cc5` at 12:54:41Z *(controller-verified)*; the controller dispatched one search-ping run for `69229cc5`: run `36424972014` SUCCESS 13:13:17Z — www served `69229cc5` 5/5 at 13:13:02Z, `before=7152ef06 … changed=1`, IndexNow HTTP 200, GSC skipped (`GSC_SERVICE_ACCOUNT` not configured) *(subagent-reported)*.
 - **ROOTENTRY-1** (owner addendum): the owner measured CLS 0.0771 on every production run (390 px, 4× CPU, 1.6 Mbps / 150 ms), from `App.tsx` `RootEntry` returning `null` while auth loads and redirecting mobile to `/welcome`. Grant: `RootEntry` only. Built, merged and rolled out ALONE before this docs PR (result in `CURRENT_STATE.md`).
 
 ### ★ What this wave teaches

@@ -58,6 +58,7 @@ Every lane the first A-3 handoff left held is now on trunk and live. **SEARCHPIN
 - `styles.css`: `Fraunces Fallback` (`local("Georgia")` 115.15% / 84.94% / 22.15% / 0%) and `Inter Fallback` (`local("Arial")` 107.77% / 89.89% / 22.38% / 0%) faces + the P4 stack *(subagent-reported)*.
 - `Welcome.tsx`, exactly 3 hunks: P2 the Fraunces `@import` removed; P3 `--serif:Fraunces,"Fraunces Fallback",Georgia,serif; --sans:Inter,"Inter Fallback",system-ui,sans-serif;`; and the owner's one-line grant, `.lt-landing-sub{… max-width:31ch …}` → `max-width:19.56em`. Why: `ch` is the "0" advance of whichever font is painting, so the box shrank under the fallback and the line wrapped 3 vs 2; `em` does not change on a font swap, and 19.56em = Inter's 31ch (0.63086em × 31), so nothing moves once Inter has loaded *(subagent-reported)*.
 - `prerendered/index.html`, `prerendered/lastmod.json`, `public/sitemap.xml` — from the PR's own CI `prerender-capture` artifact (never hand-edited), per the owner's ruling. `Welcome.fontFallback.test.ts` (8 tests).
+- ⚠ **UNVERIFIED as a whole-page measure:** the www "slow-4G CLS 0 × 10" below is what PERF-CLS-1's harness read. The owner measured **0.0771 on every run** on production (390 px, 4× CPU, 1.6 Mbps / 150 ms, cache off) from the `RootEntry` null-while-loading flash; the explanation of the difference is in the ROOTENTRY-1 section.
 - Ruling 5: **no label change on the landing** — its only board-date output is the relative countdown figure ("N days" / "N months"), and the prerendered page carries no countdown node (0 × `boards-countdown`) *(subagent-reported; the scout's inventory concurs)*.
 
 ### What shipped — SEARCHPING-2b (`#865` `69229cc5`, 3 files)
@@ -85,7 +86,12 @@ HARNESS_EXPLANATION
 - **Mitigation:** `#865` adds `workflow_dispatch` (OR-AUTO SP-DISPATCH). The controller dispatches ONE run for `69229cc5`. Expected: `before=7152ef06… (last successful ping, run 36345534179)`, so every page changed since then is announced.
 - **The permanent trigger is an owner decision:** fix the Vercel GitHub integration so Production deployments post again, or add a push-to-trunk trigger that runs the same wait + ping.
 - **Dispatched run result:**
-SEARCHPING_DISPATCH_RESULT
+  - *(subagent-reported, quoted from the run log)* Dispatched run `36424972014` "search-ping 69229cc5fa7689da814e668b898bb0f5979226d2" at 2026-09-28T12:55:16Z → **SUCCESS** at 13:13:17Z.
+  - Wait: reads 1–64 saw www `sha=0e2af785` (streak 0/5); read 65 at 13:12:01Z saw `69229cc5` (1/5) … read 69 at 13:13:02Z 5/5 → "release … is live on www — 5 consecutive reads".
+  - 13:13:06Z `before=7152ef06 (last successful ping, run 36345534179) sitemap_urls=60 changed=1` (`https://www.lazytopper.com/app/`); "IndexNow … HTTP 200".
+  - **Google was not told:** "GSC skipped — `GSC_SERVICE_ACCOUNT` not configured" → `[FU-SEARCHPING-GSC-NOT-CONFIGURED]`, a new owner item.
+  - www `/app/version.json` = `69229cc5` at 13:14:13Z.
+  - `[FU-SEARCHPING-NO-PROD-DEPLOYMENT-EVENT]` stays **OPEN** (mitigated by dispatch): this run proves the dispatch path, not the event trigger.
 
 ### ★ Controller OR-AUTO decisions (what, why, before → after; full text in `DECISION_LOG.md`)
 - **P2-CYCLE** (PHASE2-DATE-1): the literal rule "15 May of the predicted board year" would show NEXT year's phase 2 from the day after the board day until 15 May (on 2027-03-01: 2028-05-15, while the 2027 phase 2 is still ahead). Before: phase-2 year = the predictor's board year. After: phase-2 year = the board cycle's year, rolling over only after 15 May IST; the end date follows. Today's value is unchanged (2027-05-15). Why: phase 2 belongs to the boards it follows. → `[FU-PHASE2-AFTER-BOARD-DAY]` closed.
@@ -114,11 +120,12 @@ Non-displaying readers (scout): `paceProfileService.ts:212-213`, `cbseExamDate.t
 
 ### Follow-ups (bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`)
 - **Closed:** `[FU-PHASE2-DATE-STALE]` (`#863`) · `[FU-PHASE2-AFTER-BOARD-DAY]` (`#863`, OR-AUTO P2-CYCLE) · `[FU-PERF-CLS-HERO-SUB-CH-WRAP]` (`#859`, verified on www) · `[FU-PERF-CLS-SPEC-ALLOWLIST-SITEMAP]` (standing ruling a) · `[FU-C4-PROFILE-SLOW4G]` (standing ruling b).
-- **New / open:** `[FU-SEARCHPING-NO-PROD-DEPLOYMENT-EVENT]` (mitigated by `#865`; permanent trigger = owner) · `[FU-PROMPTGRIND-STALE-2026-DATES]` · `[FU-PHASE2-CONST-FROZEN-PER-LOAD]` · `[FU-ONBOARDING-2025-26-HEADING]`. `#862`'s other open FUs keep their status.
+- **New / open:** `[FU-SEARCHPING-NO-PROD-DEPLOYMENT-EVENT]` (mitigated by `#865`; permanent trigger = owner) · `[FU-SEARCHPING-GSC-NOT-CONFIGURED]` (owner) · `[FU-PROMPTGRIND-STALE-2026-DATES]` · `[FU-PHASE2-CONST-FROZEN-PER-LOAD]` · `[FU-ONBOARDING-2025-26-HEADING]`. `#862`'s other open FUs keep their status.
 
 ### ★ Owner decisions owed (from this block)
 1. **The permanent search-ping trigger** (`[FU-SEARCHPING-NO-PROD-DEPLOYMENT-EVENT]`): fix the Vercel GitHub integration's Production deployment event, or add a push-to-trunk trigger. Until then, a run must be dispatched by hand after a release reaches 100%.
-2. **Live-verify** (CLAUDE.md §6): signed in, the root entry goes straight to the student's home (ROOTENTRY-1 touched the auth-loading path); `/onboarding` shows "Phase 2 (Optional)" as 15 May 2027 (expected) and a labelled Phase 1 row. BOARD-DATE-1's live-verify (`#862`) still stands.
+2. **Tell Google too** (`[FU-SEARCHPING-GSC-NOT-CONFIGURED]`): the first dispatched run pinged IndexNow (HTTP 200) but skipped Google Search Console because the `GSC_SERVICE_ACCOUNT` secret is not configured.
+3. **Live-verify** (CLAUDE.md §6): signed in, the root entry goes straight to the student's home (ROOTENTRY-1 touched the auth-loading path); `/onboarding` shows "Phase 2 (Optional)" as 15 May 2027 (expected) and a labelled Phase 1 row. BOARD-DATE-1's live-verify (`#862`) still stands.
 
 ### Carried forward — ★ THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this block
 `WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.** **Wave A-3 (continued) moved NO dormancy in that trio.** The full block, including the `#647`/`#655` resolution and every subsequent amendment, is preserved verbatim in its section (`### 8 - ★ THE WIRE-2 QUESTION` and `### 9`) and the demoted `[CURRENT]` sections below, and must be read there before any lane acts on it.

@@ -5,11 +5,11 @@
 - ✅ **SEARCHPING-2** (`#857` `2346b802`): `/app/version.json` build marker · search-ping waits until www serves the release SHA, then pings.
 - ✅ **PHASE2-DATE-1** (`#863` `ae52a5ad`): phase 2 = 15 May of the board cycle's year (2027-05-15), rolling over after 15 May IST · "(expected)" on every predicted exact day (`/onboarding`, the retired SprintDashboard).
 - ✅ **PERF-CLS-1** (`#859` `0e2af785`, rolled out ALONE): metric-matched fallback faces · Fraunces `@import` removed · hero `max-width` 31ch → 19.56em · www slow-4G CLS 0 × 10 on the builder's harness *(subagent-reported; see ROOTENTRY-1)*.
-- ✅ **SEARCHPING-2b** (`#865` `69229cc5`): `workflow_dispatch` for search-ping — the mitigation for `[FU-SEARCHPING-NO-PROD-DEPLOYMENT-EVENT]`.
+- ✅ **SEARCHPING-2b** (`#865` `69229cc5`): `workflow_dispatch` for search-ping — the mitigation for `[FU-SEARCHPING-NO-PROD-DEPLOYMENT-EVENT]`; first dispatched run `36424972014` SUCCESS (IndexNow HTTP 200, `changed=1`; GSC skipped) *(subagent-reported)*.
 - ✅ **ROOTENTRY-1** (owner addendum, `App.tsx` `RootEntry` only, rolled out ALONE): the landing renders while auth loads; no mobile redirect to `/welcome`. PR, merge SHA and www CLS in `CURRENT_STATE.md`.
 - ✅ **Closed:** `[FU-PHASE2-DATE-STALE]` · `[FU-PHASE2-AFTER-BOARD-DAY]` · `[FU-PERF-CLS-HERO-SUB-CH-WRAP]` · `[FU-PERF-CLS-SPEC-ALLOWLIST-SITEMAP]` · `[FU-C4-PROFILE-SLOW4G]`.
 - ✅ **Docs:** this handoff (the second A-3 docs PR).
-- ⬜ **Owner:** the permanent search-ping trigger · live-verify ROOTENTRY-1 signed in, `/onboarding` dates, BOARD-DATE-1.
+- ⬜ **Owner:** the permanent search-ping trigger · `GSC_SERVICE_ACCOUNT` (Google is not told — `[FU-SEARCHPING-GSC-NOT-CONFIGURED]`) · live-verify ROOTENTRY-1 signed in, `/onboarding` dates, BOARD-DATE-1.
 - ⬜ `[FU-SEARCHPING-NO-PROD-DEPLOYMENT-EVENT]` (mitigated) · `[FU-PROMPTGRIND-STALE-2026-DATES]` · `[FU-PHASE2-CONST-FROZEN-PER-LOAD]` · `[FU-ONBOARDING-2025-26-HEADING]`; still open from `#862`: `[FU-CLIENT-OFFICIAL-TABLE-2025-26]` · `[FU-CBSE-SCRAPE-CLASS12-NOTICE]` · `[FU-SEARCHPING-DOCKER-NO-MARKER]` · `[FU-SEARCHPING-GH-RUN-LIMIT]` · `[FU-CBSE2027-FONT-STACK-NO-FALLBACK]` · `[FU-STYLES-CSS-SPACEGROTESK-IMPORT]` · `[FU-MOB-FONT-DISPLAY-STACK]` · `[FU-ANDROID-NO-GEORGIA-ARIAL]`.
 - ↔ In parallel, Controller B3 landed `#861` FAIR-USE-UI-1 (`4dd175d9`) and its docs `#864` (`39059fd6`) — covered by B3's handoff.
 
