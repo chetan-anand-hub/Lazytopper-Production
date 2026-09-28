@@ -84,7 +84,7 @@ export interface MoreLikeThisResponse {
   error?: string;
 }
 
-import { paidJsonHeaders } from "./paidCallHeaders";
+import { paidJsonHeaders, UID_HEADER } from "./paidCallHeaders";
 
 /**
  * FREE-CHECK-1b — per-call options for the three Check & Improve endpoints.
@@ -103,6 +103,11 @@ export interface PaidCallOptions {
   freeCheck?: boolean;
   /** FAIR-USE-1 (U1): the grading surface, sent as X-Lazytopper-Surface. Omitted -> the server counts check-improve. */
   surface?: "quick-practice" | "check-improve" | "chapter-test" | "full-mock" | "worksheet";
+  /** FAIR-USE-2 (F3): the paper's EXISTING id (its worksheetId). With a paper surface
+   *  (chapter-test / full-mock / worksheet) the grade call mints a server-issued pass for
+   *  this paper — once, cached in memory — and sends it as X-Lazytopper-Paper. Without a
+   *  pass the server counts the grade per question as check-improve. */
+  paperKey?: string;
 }
 
 async function freeCheckJsonHeaders(): Promise<Record<string, string>> {
@@ -111,6 +116,98 @@ async function freeCheckJsonHeaders(): Promise<Record<string, string>> {
 }
 
 const API_BASE = "/api"; // Vite dev proxy or same origin in production
+
+/* ── FAIR-USE-2 (F3): server-issued paper passes ─────────────────────────────── */
+
+/** The header a paper grade carries its pass in (server/services/fairUse.cjs PAPER_HEADER). */
+export const PAPER_PASS_HEADER = "X-Lazytopper-Paper";
+export const PAPER_PASS_ENDPOINT = `${API_BASE}/usage/paper`;
+const PAPER_SURFACES: ReadonlySet<string> = new Set(["chapter-test", "full-mock", "worksheet"]);
+/** The server honours a pass for 24 h; the client re-mints an hour early (a re-mint of the
+ *  same paper inside the server's 24 h hands back the same pass and spends nothing). */
+const PAPER_PASS_CLIENT_TTL_MS = 23 * 60 * 60 * 1000;
+/** After a 503 (FAIR_USE_PAPER_SECRET unset — the dark state) the client stops asking for
+ *  a while: one mint attempt per 10 minutes, never one per grade, never a retry loop. */
+const PAPER_PASS_UNAVAILABLE_BACKOFF_MS = 10 * 60 * 1000;
+
+const paperPassCache = new Map<string, { token: string; mintedAt: number }>();
+let paperPassUnavailableUntil = 0;
+
+/** Test seam: forget every cached pass and the 503 back-off. */
+export function resetPaperPassCacheForTests(): void {
+  paperPassCache.clear();
+  paperPassUnavailableUntil = 0;
+}
+
+/**
+ * Mint (or reuse) the server's pass for ONE paper. Returns the pass, or null when there is
+ * none to send — signed out, a 503 (passes not configured), a network fault, any other
+ * failure. Null is NOT an error: the grade goes ahead without a pass, exactly as before,
+ * and the server counts it per question. The ONE thing that throws is a fair-use limit
+ * (409 trial_limit / 429 usage_limit, enforcement on): that is the student's answer.
+ *
+ * Cached per (signed-in uid, surface, paperKey), so one paper is minted once however many
+ * times it is graded, and a different account in the same tab never reuses another's pass.
+ */
+async function paperPassFor(
+  identity: Record<string, string>,
+  surface: string,
+  paperKey: string,
+): Promise<string | null> {
+  const uid = identity[UID_HEADER];
+  if (!uid) return null;
+  const cacheKey = `${uid}|${surface}|${paperKey}`;
+  const now = Date.now();
+  const cached = paperPassCache.get(cacheKey);
+  if (cached && now - cached.mintedAt < PAPER_PASS_CLIENT_TTL_MS) return cached.token;
+  if (now < paperPassUnavailableUntil) return null;
+
+  let res: Response;
+  try {
+    res = await fetch(PAPER_PASS_ENDPOINT, {
+      method: "POST",
+      headers: identity,
+      body: JSON.stringify({ surface, paperKey }),
+    });
+  } catch {
+    return null;
+  }
+  if (res.status === 503) {
+    paperPassUnavailableUntil = now + PAPER_PASS_UNAVAILABLE_BACKOFF_MS;
+    return null;
+  }
+  if (!res.ok) {
+    if (res.status === 409 || res.status === 429) {
+      // Throws FairUseLimitError for a fair-use body; any other 409/429 falls through.
+      try {
+        await handleJsonResponse<unknown>(res);
+      } catch (err) {
+        if (isFairUseLimitError(err)) throw err;
+      }
+    }
+    return null;
+  }
+  try {
+    const body = JSON.parse(await res.text()) as { token?: unknown };
+    if (typeof body?.token !== "string" || !body.token) return null;
+    paperPassCache.set(cacheKey, { token: body.token, mintedAt: now });
+    return body.token;
+  } catch {
+    return null;
+  }
+}
+
+/** The X-Lazytopper-Paper header for this grade call, or {} (not a paper / no pass). */
+async function paperPassHeaders(
+  identity: Record<string, string>,
+  opts?: PaidCallOptions,
+): Promise<Record<string, string>> {
+  if (!opts || opts.freeCheck || !opts.surface || !PAPER_SURFACES.has(opts.surface)) return {};
+  const paperKey = typeof opts.paperKey === "string" ? opts.paperKey.trim() : "";
+  if (!paperKey) return {};
+  const token = await paperPassFor(identity, opts.surface, paperKey);
+  return token ? { [PAPER_PASS_HEADER]: token } : {};
+}
 export const MENTOR_ENDPOINT = `${API_BASE}/mentor`;
 
 /**
@@ -185,6 +282,51 @@ export function isPremiumRequiredError(err: unknown): err is PremiumRequiredErro
   return err instanceof PremiumRequiredError;
 }
 
+/** FAIR-USE-2 (F4): which fair-use refusal this is. */
+export type FairUseLimitKind = "trial_limit" | "usage_limit";
+/** The premium cost window that was reached (usage_limit only). */
+export type FairUseLimitWindow = "fiveHour" | "day" | "week";
+
+/**
+ * A fair-use limit was reached (server fairUse.cjs, only when FAIR_USE_ENFORCE=1):
+ *   409 { error: "trial_limit", remaining, resetAt }  -> kind "trial_limit", window null
+ *   429 { error: "usage_limit", window, resetAt }     -> kind "usage_limit", remaining null
+ * NOT a fault — nothing was graded and nothing was charged. The fields are the contract
+ * FAIR-USE-UI-1 renders; `message` is plain English, never the error code.
+ * (No Object.setPrototypeOf — ES2022 target, see DailyLimitError.)
+ */
+export class FairUseLimitError extends Error {
+  readonly kind: FairUseLimitKind;
+  readonly remaining: number | null;
+  readonly resetAt: string | null;
+  readonly window: FairUseLimitWindow | null;
+
+  constructor(
+    kind: FairUseLimitKind,
+    remaining: number | null,
+    resetAt: string | null,
+    window: FairUseLimitWindow | null,
+  ) {
+    super(
+      kind === "trial_limit"
+        ? "You've used this part of your trial for now. It opens again soon."
+        : "You've reached your fair-use limit for now. It opens again soon.",
+    );
+    this.name = "FairUseLimitError";
+    this.kind = kind;
+    this.remaining = remaining;
+    this.resetAt = resetAt;
+    this.window = window;
+  }
+}
+
+/** Narrow an unknown caught value to a fair-use limit. */
+export function isFairUseLimitError(err: unknown): err is FairUseLimitError {
+  return err instanceof FairUseLimitError;
+}
+
+const FAIR_USE_WINDOWS: ReadonlySet<string> = new Set(["fiveHour", "day", "week"]);
+
 async function handleJsonResponse<T>(res: Response): Promise<T> {
   const text = await res.text();
 
@@ -192,6 +334,7 @@ async function handleJsonResponse<T>(res: Response): Promise<T> {
     let details: {
       error?: string; message?: string; raw?: string; class?: string; resetAt?: string;
       feature?: string; tier?: string; trialEndedAt?: string; reason?: string;
+      remaining?: unknown; window?: unknown;
     };
     try {
       details = JSON.parse(text);
@@ -208,6 +351,29 @@ async function handleJsonResponse<T>(res: Response): Promise<T> {
         details.message || "You've hit today's limit for this. It resets tomorrow.",
         details.class || "unknown",
         details.resetAt || null,
+      );
+    }
+
+    // ── Fair use (FAIR-USE-2 F4). Beside the daily cap, for the same reason: an expected
+    //    refusal, not a fault — no console.error, a typed throw carrying the server's
+    //    numbers. The daily_limit branch above is untouched: a 429 is a fair-use limit
+    //    only when its body says `usage_limit`.
+    if (res.status === 409 && details?.error === "trial_limit") {
+      throw new FairUseLimitError(
+        "trial_limit",
+        typeof details.remaining === "number" && Number.isFinite(details.remaining) ? details.remaining : null,
+        details.resetAt || null,
+        null,
+      );
+    }
+    if (res.status === 429 && details?.error === "usage_limit") {
+      throw new FairUseLimitError(
+        "usage_limit",
+        null,
+        details.resetAt || null,
+        typeof details.window === "string" && FAIR_USE_WINDOWS.has(details.window)
+          ? (details.window as FairUseLimitWindow)
+          : null,
       );
     }
 
@@ -662,9 +828,13 @@ export async function gradeWorksheet(req: {
   imageMimeType?: string;
   uploads?: WorksheetGradeUpload[];
 }, opts?: PaidCallOptions): Promise<WorksheetGradeResponse> {
+  const identity = opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders();
+  // FAIR-USE-2 (F3): a paper (surface + paperKey) carries its server-issued pass. No pass
+  // (signed out, passes not configured, mint failed) -> sent without one, graded as before.
+  const paperPass = await paperPassHeaders(identity, opts);
   const res = await fetch(`${API_BASE}/grade-worksheet`, {
     method: "POST",
-    headers: { ...(opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders()), ...(opts?.surface ? { "X-Lazytopper-Surface": opts.surface } : {}) },
+    headers: { ...identity, ...(opts?.surface ? { "X-Lazytopper-Surface": opts.surface } : {}), ...paperPass },
     body: JSON.stringify(req),
   });
   return handleJsonResponse<WorksheetGradeResponse>(res);

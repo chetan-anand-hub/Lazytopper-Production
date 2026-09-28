@@ -30,6 +30,7 @@ import type { AuthUser } from "../context/AuthContext";
 import {
   gradeWorksheet,
   type CheckSolutionResponse,
+  type PaidCallOptions,
   type WorksheetGradeQuestionInput,
   type WorksheetGradeResponse,
   type WorksheetGradeUpload,
@@ -584,7 +585,7 @@ export type QuickPracticeBatchGrader = (req: {
   subject?: string;
   questions: WorksheetGradeQuestionInput[];
   uploads?: WorksheetGradeUpload[];
-}) => Promise<WorksheetGradeResponse>;
+}, opts?: PaidCallOptions) => Promise<WorksheetGradeResponse>;
 
 export type QuickPracticeBatchOutcome =
   | "graded"
@@ -748,7 +749,7 @@ export async function gradeQuickPracticeBatch(args: {
 
   let response: WorksheetGradeResponse;
   try {
-    response = await grade({ worksheetId, subject, questions, uploads });
+    response = await grade({ worksheetId, subject, questions, uploads }, { surface: "quick-practice" });
   } catch (error) {
     // ★★ §4b · THE 402 IS NOT AN ERROR AND MUST NOT BE SWALLOWED HERE. The catch used
     // to be unconditional, so a free-past-trial student pressing Finish got

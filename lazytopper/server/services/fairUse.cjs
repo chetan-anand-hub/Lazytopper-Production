@@ -25,8 +25,27 @@
  * before any route handler runs.
  *
  * ★ EVERY NUMBER COMES FROM THE ENVIRONMENT, never from the request. The request
- * contributes exactly two things: the surface header (untrusted, see resolveSurface)
- * and, for /api/grade-worksheet, the question count the grader will grade.
+ * contributes exactly three things: the surface header (untrusted, see resolveSurface),
+ * a paper pass (X-Lazytopper-Paper, believed only when it VERIFIES — see below) and,
+ * for /api/grade-worksheet, the question count the grader will grade.
+ *
+ * FAIR-USE-2 — SERVER-ISSUED PAPER PASSES (closes FU-FAIR-USE-SURFACE-UNVERIFIABLE)
+ * ---------------------------------------------------------------------------------
+ *   F1  POST /api/usage/paper { surface, paperKey } — for the VERIFIED uid, a paper
+ *       surface only — returns a pass signed with HMAC-SHA256 over
+ *       `uid|surface|paperKey|issuedAt` (env FAIR_USE_PAPER_SECRET; unset -> 503, and
+ *       every paper grade falls back to per-question counting). For a TRIAL caller the
+ *       mint is what spends the paper allowance; re-minting the same paperKey within
+ *       24 h hands back the SAME pass and spends nothing. Premium / free check: no spend.
+ *   F2  A grading request is a paper ONLY with a pass that verifies (timing-safe),
+ *       was minted for this caller's uid and the surface it claims, is < 24 h old and,
+ *       where the body is read, names the same paper (paperKey === worksheetId).
+ *       Anything else is counted per question as check-improve. The bare surface
+ *       header no longer buys a paper allowance; it stays telemetry.
+ *   The idempotency record lives on the EXISTING ledger day document
+ *   (usageLedger/{uid}/days/{istDayKey}, field `paperPasses`: { <sha256 id>: issuedAtMs })
+ *   — numbers under a HASHED key, never the paper id itself, and no new location for
+ *   DPDP erasure / export to miss.
  *
  * ★ FAILS OPEN. A tier that cannot be read, or a ledger that cannot be read, serves
  * the request (and is counted). A refusal needs a POSITIVE read — the same doctrine
@@ -39,12 +58,15 @@
  * `entitlement.allow` / `entitlement.deny` counters the owner reads.
  */
 
+const crypto = require('node:crypto');
 const { istDayKey, nextIstMidnightIso } = require('./rateLimiter.cjs');
 const {
   createUsageLedger,
   istHourKey,
   LEDGER_HOUR_FIELD,
+  LEDGER_SEGMENTS,
   TRIAL_COUNTER_FIELDS,
+  USAGE_LEDGER_COLLECTION,
 } = require('./usageLedger.cjs');
 
 const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
@@ -69,9 +91,30 @@ const FALLBACK_SURFACE = SURFACES.CHECK_IMPROVE;
 const PER_QUESTION_SURFACES = new Set([SURFACES.QUICK_PRACTICE, SURFACES.CHECK_IMPROVE]);
 const ALL_SURFACES = new Set(Object.values(SURFACES));
 
+const PAPER_SURFACES = new Set([SURFACES.CHAPTER_TEST, SURFACES.FULL_MOCK, SURFACES.WORKSHEET]);
+
 const CHECK_SOLUTION_PATH = '/api/check-solution';
 const GRADE_WORKSHEET_PATH = '/api/grade-worksheet';
 const USAGE_ME_PATH = '/api/usage/me';
+/** FAIR-USE-2 (F1): the paper-pass mint. */
+const USAGE_PAPER_PATH = '/api/usage/paper';
+
+/* ── Paper passes (FAIR-USE-2) ─────────────────────────────────────────────── */
+
+/** F2: the header a paper grade carries its pass in. */
+const PAPER_HEADER = 'x-lazytopper-paper';
+/** F1: the HMAC key. Unset -> no pass is ever minted or believed. */
+const PAPER_SECRET_ENV = 'FAIR_USE_PAPER_SECRET';
+const PAPER_PASS_VERSION = 'v1';
+/** A pass is good for 24 h from issue; a re-mint inside that window is free. */
+const PAPER_PASS_TTL_MS = 24 * 60 * 60 * 1000;
+/** Tolerated server clock skew for an issuedAt slightly in the future (multi-instance). */
+const PAPER_PASS_SKEW_MS = 5 * 60 * 1000;
+const PAPER_KEY_MAX = 200;
+const PAPER_TOKEN_MAX = 1024;
+const PAPER_MINT_MAX_BYTES = 4 * 1024;
+/** The ledger-day map holding { <paperPassId>: issuedAtMs } — the re-mint record. */
+const PAPER_PASSES_FIELD = 'paperPasses';
 
 /**
  * Which surfaces each grading endpoint can really serve. /api/check-solution grades
@@ -143,6 +186,95 @@ function isEnforced(env) {
   return String((env && env[ENFORCE_ENV]) || '').trim() === '1';
 }
 
+/* ── Paper-pass crypto (F1 / F2) ───────────────────────────────────────────── */
+
+/** The pass secret from `env`, or '' (the dark / unconfigured state). */
+function paperPassSecret(env) {
+  return String((env && env[PAPER_SECRET_ENV]) || '').trim();
+}
+
+function toBase64Url(buf) {
+  return Buffer.from(buf).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function fromBase64Url(text) {
+  const b64 = String(text).replace(/-/g, '+').replace(/_/g, '/');
+  return Buffer.from(b64 + '='.repeat((4 - (b64.length % 4)) % 4), 'base64');
+}
+
+/** F1: HMAC-SHA256 over `uid|surface|paperKey|issuedAt`, base64url. */
+function signPaperPass(secret, uid, surface, paperKey, issuedAt) {
+  return toBase64Url(
+    crypto.createHmac('sha256', secret).update(`${uid}|${surface}|${paperKey}|${issuedAt}`).digest()
+  );
+}
+
+/** The pass a client carries: `v1.<issuedAt>.<surface>.<base64url paperKey>.<sig>`. */
+function encodePaperPass(secret, uid, surface, paperKey, issuedAt) {
+  return [
+    PAPER_PASS_VERSION,
+    String(issuedAt),
+    surface,
+    toBase64Url(Buffer.from(paperKey, 'utf8')),
+    signPaperPass(secret, uid, surface, paperKey, issuedAt),
+  ].join('.');
+}
+
+/**
+ * F2: the pass, if and only if it verifies for THIS uid and THIS claimed surface and is
+ * under 24 h old. Returns { surface, paperKey, issuedAt } or null. NEVER THROWS — a
+ * malformed pass is simply not a pass (per-question counting), never a 500.
+ *
+ * ★ The signature compare is crypto.timingSafeEqual, and nothing else. A `===` on the
+ * signature would leak, byte by byte, how much of a forged signature is right.
+ */
+function verifyPaperPass(token, { uid, surface, nowMs, secret }) {
+  try {
+    if (!secret || typeof token !== 'string' || !uid) return null;
+    const raw = token.trim();
+    if (!raw || raw.length > PAPER_TOKEN_MAX) return null;
+    const parts = raw.split('.');
+    if (parts.length !== 5 || parts[0] !== PAPER_PASS_VERSION) return null;
+    const [, issuedRaw, passSurface, keyB64, sig] = parts;
+    if (!PAPER_SURFACES.has(passSurface) || passSurface !== surface) return null;
+    if (!/^\d{1,16}$/.test(issuedRaw)) return null;
+    const issuedAt = Number(issuedRaw);
+    const age = nowMs - issuedAt;
+    if (!(age >= -PAPER_PASS_SKEW_MS && age < PAPER_PASS_TTL_MS)) return null;
+    if (!/^[A-Za-z0-9_-]+$/.test(keyB64) || !/^[A-Za-z0-9_-]+$/.test(sig)) return null;
+    const paperKey = fromBase64Url(keyB64).toString('utf8');
+    if (!paperKey || paperKey.length > PAPER_KEY_MAX) return null;
+    const expected = Buffer.from(signPaperPass(secret, uid, passSurface, paperKey, issuedAt), 'utf8');
+    const given = Buffer.from(sig, 'utf8');
+    if (given.length !== expected.length) return null;
+    if (!crypto.timingSafeEqual(given, expected)) return null;
+    return { surface: passSurface, paperKey, issuedAt };
+  } catch {
+    return null;
+  }
+}
+
+/** The re-mint record key: a hash, so the ledger never holds the paper id itself. */
+function paperPassId(surface, paperKey) {
+  return crypto.createHash('sha256').update(`${surface}|${paperKey}`).digest('hex').slice(0, 32);
+}
+
+/** The issuedAt of this paper's pass if one was minted < 24 h ago (the latest), else null. */
+function priorPaperPassIssuedAt(days, passId, nowMs) {
+  let best = null;
+  for (const data of days.values()) {
+    const passes = data && data[PAPER_PASSES_FIELD] && typeof data[PAPER_PASSES_FIELD] === 'object'
+      ? data[PAPER_PASSES_FIELD]
+      : null;
+    if (!passes) continue;
+    const v = Number(passes[passId]);
+    if (!Number.isFinite(v) || !Number.isInteger(v)) continue;
+    const age = nowMs - v;
+    if (age >= -PAPER_PASS_SKEW_MS && age < PAPER_PASS_TTL_MS && (best === null || v > best)) best = v;
+  }
+  return best;
+}
+
 /* ── Reading the request ───────────────────────────────────────────────────── */
 
 /**
@@ -152,16 +284,20 @@ function isEnforced(env) {
  * really serves; anything else — missing, unknown, mis-cased junk, a paper surface on
  * the single-question endpoint — is `check-improve`, counted per question. And a
  * request carrying the C&I / Quick Practice worksheet id shape (`ci:` / `qp:`, minted
- * by those two surfaces only) is never believed to be a paper. A caller who forges
- * BOTH a paper surface and a paper-shaped id can still move a grade between trial
- * allowances; the server holds no record of which paper a request is for, so that
- * residual is recorded as [FU-FAIR-USE-SURFACE-UNVERIFIABLE] and watched through
- * `fair_use.surface.<surface>`.
+ * by those two surfaces only) is never believed to be a paper.
+ *
+ * ★★ FAIR-USE-2 (F2): a PAPER surface is believed ONLY when `pass` — a paper pass that
+ * already VERIFIED for this uid (readPaperPass) — was minted for that same surface. A
+ * header alone, however well-formed, is counted per question. This closed
+ * [FU-FAIR-USE-SURFACE-UNVERIFIABLE]; `fair_use.surface.<surface>` still watches it.
+ * Callers from before FAIR-USE-2 send the header and no pass: they are GRADED, as
+ * check-improve (OR-LIVE: never a 4xx for a missing pass).
  */
-function resolveSurface(req, reqPath, body) {
+function resolveSurface(req, reqPath, body, pass) {
   const allowed = SURFACES_BY_PATH[reqPath] || PER_QUESTION_SURFACES;
   const raw = String((req && req.headers && req.headers[SURFACE_HEADER]) || '').trim().toLowerCase();
   let surface = allowed.has(raw) ? raw : FALLBACK_SURFACE;
+  if (!PER_QUESTION_SURFACES.has(surface) && !(pass && pass.surface === surface)) surface = FALLBACK_SURFACE;
   const worksheetId = body && typeof body === 'object' ? String(body.worksheetId || '').trim() : '';
   if (!PER_QUESTION_SURFACES.has(surface) && /^(ci|qp):/i.test(worksheetId)) surface = FALLBACK_SURFACE;
   return surface;
@@ -387,12 +523,52 @@ function decide({ tier, surface, questionCount, days, nowMs, limits }) {
 
 const SILENT_LOGGER = Object.freeze({ warn() {}, info() {}, log() {}, error() {} });
 
+/** firebase-admin's Firestore + FieldValue, or null — the same resolution usageLedger.cjs uses. */
+function defaultResolveFirestore() {
+  try {
+    const admin = require('firebase-admin');
+    if (!admin || !Array.isArray(admin.apps) || admin.apps.length === 0) return null;
+    const FieldValue = admin.firestore && admin.firestore.FieldValue;
+    if (!FieldValue || typeof FieldValue.increment !== 'function') return null;
+    return { db: admin.firestore(), FieldValue };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * F1: write one mint to TODAY's ledger day document, in ONE merge: the re-mint record
+ * `paperPasses.<id> = issuedAtMs` AND the trial paper counter it spends. One write, so
+ * a mint can never be recorded as spent without its re-mint record (or the reverse).
+ * Resolves true / false; never rejects.
+ */
+function createPaperPassRecorder(resolveFirestore) {
+  return async function recordPaperPass(uid, { passId, issuedAtMs, counts }) {
+    const fs = resolveFirestore();
+    if (!fs || !fs.db || !fs.FieldValue) return false;
+    const data = { [PAPER_PASSES_FIELD]: { [passId]: issuedAtMs } };
+    for (const [key, field] of Object.entries(TRIAL_COUNTER_FIELDS)) {
+      const n = Math.floor(Number(counts && counts[key]) || 0);
+      if (n > 0) data[field] = fs.FieldValue.increment(n);
+    }
+    await fs.db
+      .collection(USAGE_LEDGER_COLLECTION)
+      .doc(uid)
+      .collection(LEDGER_SEGMENTS.days)
+      .doc(istDayKey(issuedAtMs))
+      .set(data, { merge: true });
+    return true;
+  };
+}
+
 /**
  * @param deps.adminFirestore  firebase-admin Firestore (tier reads), or null.
  * @param deps.tierOf          (uid, req) => Promise<tier|null> — overrides the tier read (tests).
  * @param deps.ledger          { readDays, recordTrialUse } — defaults to METER-1's ledger.
  * @param deps.verifiedCaller  { resolveVerifiedUid(req) } — for GET /api/usage/me.
  * @param deps.readJson        the RAW readJson (httpUtils) used for the one pre-read.
+ * @param deps.recordPaperPass (uid, { passId, issuedAtMs, counts }) => Promise<boolean> —
+ *                             the F1 mint write; defaults to the ledger day document.
  * @param deps.sendJson, deps.telemetry, deps.now, deps.env
  */
 function createFairUse(deps = {}) {
@@ -406,6 +582,9 @@ function createFairUse(deps = {}) {
   } = deps;
   const ledger = deps.ledger || createUsageLedger();
   const readJson = deps.readJson || defaultReadJson();
+  const recordPaperPass = typeof deps.recordPaperPass === 'function'
+    ? deps.recordPaperPass
+    : createPaperPassRecorder(defaultResolveFirestore);
 
   let tierOf = deps.tierOf;
   if (typeof tierOf !== 'function') {
@@ -441,6 +620,26 @@ function createFairUse(deps = {}) {
   }
 
   /**
+   * F2: the verified paper pass on this grading request, or null. Absent header -> null
+   * silently (every per-question grade, and every pre-FAIR-USE-2 client). A header that
+   * does not verify — wrong uid, wrong surface, expired, forged, malformed, secret unset,
+   * or (where the body was read) a pass for a DIFFERENT paper — is counted, then ignored.
+   */
+  function readPaperPass(req, uid, body, nowMs) {
+    const token = req && req.headers ? req.headers[PAPER_HEADER] : undefined;
+    if (typeof token !== 'string' || !token.trim()) return null;
+    const claimed = String((req.headers && req.headers[SURFACE_HEADER]) || '').trim().toLowerCase();
+    const pass = verifyPaperPass(token, { uid, surface: claimed, nowMs, secret: paperPassSecret(env) });
+    const worksheetId = body && typeof body === 'object' ? String(body.worksheetId || '').trim() : null;
+    if (!pass || (worksheetId !== null && pass.paperKey !== worksheetId)) {
+      emit('fair_use.paper_pass.rejected');
+      return null;
+    }
+    emit('fair_use.paper_pass.accepted');
+    return pass;
+  }
+
+  /**
    * The route-boundary check for the two grading endpoints. Call once per POST, after
    * entitlement. Returns true only when it has already answered (enforced refusal).
    */
@@ -470,9 +669,14 @@ function createFairUse(deps = {}) {
       }
     }
 
-    const surface = resolveSurface(req, reqPath, body);
-    emit(`fair_use.surface.${surface}`);
     const nowMs = now();
+    const pass = readPaperPass(req, uid, body, nowMs);
+    const surface = resolveSurface(req, reqPath, body, pass);
+    emit(`fair_use.surface.${surface}`);
+
+    // F1/F2: a TRIAL paper with a verified pass was already paid for when the pass was
+    // minted. Grading it (or re-grading it inside the pass's 24 h) spends nothing more.
+    if (tier === 'trial' && PAPER_SURFACES.has(surface)) return false;
 
     let days;
     try {
@@ -520,14 +724,15 @@ function createFairUse(deps = {}) {
 
   /** U5: GET /api/usage/me — the VERIFIED caller's own allowances. Percentages only, never rupees. */
   async function handleUsageMe(req, res) {
-    const uid = verifiedCaller && typeof verifiedCaller.resolveVerifiedUid === 'function'
-      ? String((await verifiedCaller.resolveVerifiedUid(req)) || '').trim()
-      : '';
+    const uid = await verifiedUidOf(req);
     if (!uid) return sendJson(res, 401, { error: 'sign_in_required' });
 
+    // F5: whether limits are actually refused right now — additive, so the UI stays
+    // dark exactly as long as the server does.
+    const enforced = isEnforced(env);
     const tier = await tierFor(uid, req);
     if (tier === null) return sendJson(res, 503, { error: 'usage_unavailable' });
-    if (tier !== 'trial' && tier !== 'premium') return sendJson(res, 200, { tier, trial: null, premium: null });
+    if (tier !== 'trial' && tier !== 'premium') return sendJson(res, 200, { tier, trial: null, premium: null, enforced });
 
     const nowMs = now();
     let days;
@@ -542,10 +747,107 @@ function createFairUse(deps = {}) {
       tier,
       trial: tier === 'trial' ? trialState(days, nowMs, limits) : null,
       premium: tier === 'premium' ? premiumState(days, nowMs, limits).view : null,
+      enforced,
     });
   }
 
-  return { applyToRequest, handleUsageMe, isPremium };
+  async function verifiedUidOf(req) {
+    return verifiedCaller && typeof verifiedCaller.resolveVerifiedUid === 'function'
+      ? String((await verifiedCaller.resolveVerifiedUid(req)) || '').trim()
+      : '';
+  }
+
+  /**
+   * F1: POST /api/usage/paper { surface, paperKey } — mint (or re-issue) the VERIFIED
+   * caller's pass for one paper.
+   *
+   *   secret unset            -> 503 paper_pass_unavailable (the client grades without
+   *                              a pass: per-question counting, and dark refuses nothing)
+   *   no verified uid         -> 401 sign_in_required (never a header uid)
+   *   not a paper surface / bad paperKey / bad body -> 400 invalid_paper_pass_request
+   *   TRIAL, same paperKey minted < 24 h ago -> that SAME pass again; nothing spent
+   *   TRIAL, allowance left   -> pass; the paper allowance is spent NOW (one write)
+   *   TRIAL, allowance spent  -> FAIR_USE_ENFORCE=1: 409 trial_limit, nothing written;
+   *                              otherwise served + `fair_use.would_refuse.<rule>`, and
+   *                              the honest count still moves (U8)
+   *   premium / free / unknown tier -> pass; nothing spent (premium is metered by cost)
+   *   ledger unreadable       -> FAIL OPEN: pass, and the spend is still recorded
+   */
+  async function handlePaperPass(req, res) {
+    const secret = paperPassSecret(env);
+    if (!secret) {
+      emit('fair_use.paper_pass.unavailable');
+      return sendJson(res, 503, { error: 'paper_pass_unavailable' });
+    }
+    const uid = await verifiedUidOf(req);
+    if (!uid) return sendJson(res, 401, { error: 'sign_in_required' });
+
+    let body;
+    try {
+      body = await readJson(req, PAPER_MINT_MAX_BYTES);
+    } catch {
+      return sendJson(res, 400, { error: 'invalid_paper_pass_request' });
+    }
+    const surface = body && typeof body === 'object' && typeof body.surface === 'string'
+      ? body.surface.trim().toLowerCase()
+      : '';
+    const paperKey = body && typeof body === 'object' && typeof body.paperKey === 'string'
+      ? body.paperKey.trim()
+      : '';
+    if (!PAPER_SURFACES.has(surface) || !paperKey || paperKey.length > PAPER_KEY_MAX) {
+      return sendJson(res, 400, { error: 'invalid_paper_pass_request' });
+    }
+
+    const nowMs = now();
+    const issue = (issuedAt, reused) => sendJson(res, 200, {
+      token: encodePaperPass(secret, uid, surface, paperKey, issuedAt),
+      surface,
+      issuedAt: new Date(issuedAt).toISOString(),
+      expiresAt: new Date(issuedAt + PAPER_PASS_TTL_MS).toISOString(),
+      reused,
+    });
+
+    const tier = await tierFor(uid, req);
+    if (tier !== 'trial') {
+      emit('fair_use.paper_pass.minted');
+      return issue(nowMs, false);
+    }
+
+    const passId = paperPassId(surface, paperKey);
+    let days = null;
+    try {
+      days = await ledger.readDays(uid, windowDayKeys(nowMs));
+    } catch {
+      emit('fair_use.ledger_unreadable');
+    }
+    if (days) {
+      const prior = priorPaperPassIssuedAt(days, passId, nowMs);
+      if (prior !== null) {
+        emit('fair_use.paper_pass.reused');
+        return issue(prior, true);
+      }
+      const decision = decide({ tier, surface, questionCount: 0, days, nowMs, limits: resolveLimits(env) });
+      if (!decision.allowed) {
+        if (isEnforced(env)) {
+          emit(`fair_use.refused.${decision.rule}`);
+          return sendJson(res, decision.status, decision.body);
+        }
+        emit(`fair_use.would_refuse.${decision.rule}`);
+      }
+    }
+
+    let recorded = false;
+    try {
+      recorded = await recordPaperPass(uid, { passId, issuedAtMs: nowMs, counts: trialCommitFor(surface, 0) });
+    } catch {
+      recorded = false;
+    }
+    if (!recorded) emit('fair_use.paper_pass.record_failed');
+    emit('fair_use.paper_pass.minted');
+    return issue(nowMs, false);
+  }
+
+  return { applyToRequest, handleUsageMe, handlePaperPass, isPremium };
 }
 
 module.exports = {
@@ -553,6 +855,10 @@ module.exports = {
   cachedReadJson,
   decide,
   resolveSurface,
+  verifyPaperPass,
+  encodePaperPass,
+  signPaperPass,
+  paperPassId,
   countQuestions,
   resolveLimits,
   isEnforced,
@@ -569,4 +875,9 @@ module.exports = {
   GRADE_WORKSHEET_PATH,
   GRADE_WORKSHEET_MAX_BYTES,
   USAGE_ME_PATH,
+  USAGE_PAPER_PATH,
+  PAPER_HEADER,
+  PAPER_SECRET_ENV,
+  PAPER_PASS_TTL_MS,
+  PAPER_PASSES_FIELD,
 };

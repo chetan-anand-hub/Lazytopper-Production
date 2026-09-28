@@ -17,7 +17,7 @@
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.2",
     "firebase": "^12.19.0",
-    "firebase-tools": "^15.30.2",
+    "firebase-tools": "^15.31.0",
     "prettier": "^3.9.9",
     "typescript": "~5.9.2"
   },

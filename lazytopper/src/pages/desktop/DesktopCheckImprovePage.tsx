@@ -771,6 +771,8 @@ type FreeCheckInnerMode =
 
 /** The per-call opt-in that makes aiClient send the marker + a fresh App Check token. */
 const FREE_CHECK_CALL: PaidCallOptions = { freeCheck: true };
+// FAIR-USE-2 (F3): a signed-in C&I grade names its true surface (counted per question).
+const CI_GRADE_CALL: PaidCallOptions = { surface: "check-improve" };
 
 const DesktopCheckImprovePageInner: React.FC<{
   overlay?: CheckImproveOverlayProps;
@@ -1485,7 +1487,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         })),
         imageBase64,
         imageMimeType: imageMime,
-      }, freeCallOpts);
+      }, freeCallOpts ?? CI_GRADE_CALL);
       if (!response || response.ok === false) {
         setErrorMessage("Grading unavailable — please try a clearer scan, or try again.");
         setStatus("error");
@@ -1659,7 +1661,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         // fraction). Omitted (non-objective) → grading is byte-identical to before.
         ...(detectedQuestions?.[0]?.objective === true ? { objective: true } : {}),
         ...answerPart,
-      }, freeCallOpts);
+      }, freeCallOpts ?? CI_GRADE_CALL);
       if (!graded || graded.ok === false) {
         setErrorMessage(
           graded?.error

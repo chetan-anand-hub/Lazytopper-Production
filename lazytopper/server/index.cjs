@@ -204,7 +204,7 @@ const { createPaymentRoutes, PAY_ORDER_PATH, PAY_VERIFY_PATH, PAY_WEBHOOK_PATH }
 // premium exemption from the 80% vision shed (U4), and GET /api/usage/me. Refusals are
 // DARK unless FAIR_USE_ENFORCE=1 (U8). cachedReadJson lets a grade-worksheet body that
 // fair use had to read (to count its questions) reach the handler as the same parse.
-const { createFairUse, cachedReadJson, USAGE_ME_PATH } = require('./services/fairUse.cjs');
+const { createFairUse, cachedReadJson, USAGE_ME_PATH, USAGE_PAPER_PATH } = require('./services/fairUse.cjs');
 
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
 
@@ -390,6 +390,8 @@ async function handleRequest(req, res) {
       reqPath === ACCOUNT_EXPORT_PATH ||
       // FAIR-USE-1 (U5): a credentialed GET, preflighted for the same reason.
       reqPath === USAGE_ME_PATH ||
+      // FAIR-USE-2 (F1): the paper-pass mint — a credentialed POST.
+      reqPath === USAGE_PAPER_PATH ||
       /^\/api\/qr-upload\/pickup\/[^/]+$/.test(reqPath) ||
       /^\/api\/qr-upload\/[^/]+\/status$/.test(reqPath) ||
       /^\/api\/qr-upload\/[^/]+$/.test(reqPath) ||
@@ -400,7 +402,7 @@ async function handleRequest(req, res) {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': config.CORS_ORIGIN,
       'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Lazytopper-Uid, X-Admin-Key, X-User-ID, X-Firebase-AppCheck, X-Lazytopper-Free-Check, X-Lazytopper-Surface',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Lazytopper-Uid, X-Admin-Key, X-User-ID, X-Firebase-AppCheck, X-Lazytopper-Free-Check, X-Lazytopper-Surface, X-Lazytopper-Paper',
       'Access-Control-Max-Age': '86400',
     });
     return res.end();
@@ -476,6 +478,12 @@ async function handleRequest(req, res) {
   // FAIR-USE-1 (U5): the verified caller's own allowances — percentages, never rupees.
   if (req.method === 'GET' && reqPath === USAGE_ME_PATH) {
     return fairUse.handleUsageMe(req, res);
+  }
+
+  // FAIR-USE-2 (F1): mint the verified caller's pass for one paper. 503 while
+  // FAIR_USE_PAPER_SECRET is unset — the client then grades without a pass.
+  if (req.method === 'POST' && reqPath === USAGE_PAPER_PATH) {
+    return fairUse.handlePaperPass(req, res);
   }
 
   const SHARE_SECRET = process.env.SESSION_SECRET;
