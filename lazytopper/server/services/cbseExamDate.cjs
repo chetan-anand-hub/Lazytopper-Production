@@ -23,18 +23,37 @@ function normalizeDateToIso(raw) {
   return `${yyyy}-${mm}-${dd}`;
 }
 
-function predictCbseExamDate(studentClass) {
-  const now = new Date();
-  const currentMonth = now.getMonth() + 1;
-  let year = currentMonth >= 8 ? now.getFullYear() + 1 : now.getFullYear();
-  const dayNum = studentClass === '12' ? 16 : 15;
-  const todayUtc = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
-  let examUtc = Date.UTC(year, 1, dayNum);
+// BOARD-DATE-1 (D1) — ONE tentative board day: 17 February, for class 10 AND class 12,
+// on client and server alike, until CBSE publishes a date (the env override and the
+// circular scrape in getCbseExamDateInfo keep precedence over this fallback).
+// It must agree with `src/services/cbseExamDate.ts` predictCbseExamDate() (the landing
+// countdown) and `passPricing.cjs` predictBoardDateIso() (the pass grant);
+// `src/config/boardDate.parity.test.ts` proves all three return the same ISO date.
+const TENTATIVE_BOARD_DAY = 17;
+const IST_OFFSET_MS = (5 * 60 + 30) * 60 * 1000;
+
+/**
+ * The predicted board start date at `now`, on the Asia/Kolkata calendar date (fixed
+ * UTC+05:30) so the answer does not depend on the host's timezone — the same
+ * convention as passPricing.cjs. Never returns a past date.
+ * @param {string} _studentClass kept for the call signature; both classes share day 17
+ * @param {Date|number} [now]
+ */
+function predictCbseExamDate(_studentClass, now = new Date()) {
+  const nowMs = now instanceof Date ? now.getTime() : Number(now);
+  const ist = new Date(nowMs + IST_OFFSET_MS);
+  const todayY = ist.getUTCFullYear();
+  const todayM = ist.getUTCMonth();
+  const todayD = ist.getUTCDate();
+  const currentMonth = todayM + 1;
+  let year = currentMonth >= 8 ? todayY + 1 : todayY;
+  const todayUtc = Date.UTC(todayY, todayM, todayD);
+  let examUtc = Date.UTC(year, 1, TENTATIVE_BOARD_DAY);
   if (examUtc < todayUtc) {
     year += 1;
-    examUtc = Date.UTC(year, 1, dayNum);
+    examUtc = Date.UTC(year, 1, TENTATIVE_BOARD_DAY);
   }
-  const day = String(dayNum).padStart(2, '0');
+  const day = String(TENTATIVE_BOARD_DAY).padStart(2, '0');
   return `${year}-02-${day}`;
 }
 
