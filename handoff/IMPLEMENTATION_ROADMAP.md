@@ -1,5 +1,14 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-29 — DATES + REACH: **WAVE A-5 — TEST-CLOCK-SWEEP** — `#877` MERGED — trunk `d049a4f9`
+
+- ✅ **TEST-CLOCK-1** (`#875` `d793d903`, wave A-4): the fair-use tests pin their clock. This ended the 29 Sep red CI on every PR.
+- ✅ **TEST-CLOCK-SWEEP** (`#877` `d049a4f9`): `LT_TEST_CLOCK` switch (vitest + node preload, with a self-check). A blocking CI step runs vitest + the ops matrix at 2030. Two server harnesses were fixed. No product time-bombs.
+- ✅ **Recorded:** Q1 (`#871` stays closed) · Q2 (CLS wording ratified) · the no-time-bombs standing rule.
+- ✅ **Closed:** `[FU-TEST-CLOCK-SWEEP]` · `[FU-FAKE-TIMERS-SILENT-NOOP]` (for the clock purpose).
+- ✅ **Docs:** this handoff.
+- ⬜ **Owner:** decide a second CI clock instant (`[FU-TEST-CLOCK-SECOND-INSTANT]`); the A-4 Android live check.
+
 ## 2026-09-28 — DATES + REACH: **WAVE A-4 — PERF-CLS-3** — `#873` MERGED — trunk `7be9bdd5` · `#871` CLOSED
 
 - ✅ **PERF-CLS-3** (`#873` `7be9bdd5`, rolled out ALONE): the landing's four serif headings take `max-width` in `em` (`7.9 / 10.14 / 10.86 / 10.87em`), not `ch`. On www, Android-like CLS is max 0.0053 (was 0.0700 / 0.0642) and Windows 0. The landing was never absent and every run ended on `/app/`, ×40 *(subagent-reported)*.

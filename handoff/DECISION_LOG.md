@@ -1,3 +1,24 @@
+## 2026-09-29 — WAVE A-5 (CONTROLLER A): TEST-CLOCK-SWEEP — PR `#877` merged · plus the wave A-4 final-audit rulings `#874` could not record
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (Q0–Q2, T1–T6, D1–D3, OR-LIVE, OR-AUTO), not `DECISION N`.
+
+### Owner rulings on the wave A-4 final audit (2026-09-29)
+- **Q0:** the 29 Sep red CI was a **test time-bomb, not a product defect** (cofounder-verified). → Lane TEST-CLOCK-1 (`#875`): pin the clock in `fairUse.test.tsx`; no product code.
+- **Q1:** `#871` PERF-CLS-2 **stays CLOSED**.
+- **Q2 — RATIFIED for future specs:** CLS gates read "no regression in either font environment, and an improvement in at least one, or below the floor 0.01".
+- **STANDING — NO TIME-BOMBS:** any test comparing against "now" pins the clock. Future spec §3 adds "the lane's test files pass with the system clock set to 2030". **Enforced by CI since `#877`.**
+
+### Owner rulings (dispatch + spec `TEST-CLOCK-SWEEP` v1.0, 2026-09-29)
+- **Grant:** `quality-gate.yml` (one new step only); `lazytopper/src/test/setup.ts`; a new `lazytopper/scripts/testClock/`; test files only under `lazytopper/`; `lazytopper/package.json` (test wiring; **not used**).
+- **T1–T6** as in the spec. The P6 table comes before any fix. Product date bugs are reported, never fixed in the lane (none found).
+- **OR-LIVE:** deploys normally; after the last merge, confirm www serves latest trunk (poll `vercel rolling-release fetch`).
+
+### Controller decisions (OR-AUTO), with the reason
+- **D1:** the spec was taken from `controller-a5/ops/.specs` (hash-verified), not the shared checkout. **Why:** it is absent there; the content is proven by sha256.
+- **D2:** the builder stops at MERGE-READY; the controller merges (`--squash --match-head-commit`) with a same-command guard (trunk unchanged), then proves it on trunk. **Why:** A-1 to A-4 precedent.
+- **D3:** the T5 mutation is proven by running the EXACT CI step command locally; no mutated commit is pushed. **Why:** it is the same command CI runs, and it keeps the PR history clean.
+- *(builder)* T1 is a shifted global `Date`, not fake timers. **Why:** vitest's `useFakeTimers` no-ops over installed fake timers, so a global fake timer would stop a test's own pin from winning. A shared anchor env gives spawned servers the same clock.
+
 ## 2026-09-28 — WAVE A-4 (CONTROLLER A): PERF-CLS-3 (merged) + PERF-CLS-2 `#871` (closed under C3) — PR `#873` merged
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (C1–C4, D1–D5, OR-LIVE, OR-AUTO), not `DECISION N`.

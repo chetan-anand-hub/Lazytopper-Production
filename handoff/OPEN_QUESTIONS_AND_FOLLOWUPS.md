@@ -23,6 +23,17 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-29 — WAVE A-5 (CONTROLLER A): TEST-CLOCK-SWEEP (`#877` MERGED as `d049a4f9`, squash, `--match-head-commit 230c29ab`, no `--admin`) · TEST-CLOCK-1 (`#875` `d793d903`) recorded — two closed, one new
+
+### `[FU-TEST-CLOCK-SWEEP]` — ✅ CLOSED by `#877`
+At `efca7daf`, 38 test files contained fixed `202x` dates, and 27 never pinned the clock. `#877` adds the `LT_TEST_CLOCK` switch and a **blocking** quality-gate step that runs vitest + the lazytopper ops matrix at `2030-06-15T06:30:00.000Z`. At that instant vitest had 0 failures. The 3 ops-matrix failures were `usageLedger.test.cjs` / `fairUse.test.cjs` harnesses that stripped `LT_TEST_CLOCK` from the spawned server; they are fixed in the test files. No product time-bombs *(subagent-reported)*. The rule is now enforced per PR.
+
+### `[FU-FAKE-TIMERS-SILENT-NOOP]` — ✅ CLOSED for the clock purpose
+TEST-CLOCK-1 found that vitest 3.2.6 `vi.useFakeTimers()` silently no-ops when fake timers are already installed *(subagent-reported)*. T1 avoids the trap: it is a shifted global `Date`, **not** a fake timer, so a test's own `useFakeTimers({ now })` installs over it and wins (`src/test/testClock.test.ts`). It also self-checks: the switch set but not in effect → red. The vitest behaviour itself is unchanged; any test that nests `useFakeTimers` must still call `useRealTimers()` first.
+
+### `[FU-TEST-CLOCK-SECOND-INSTANT]` — OPEN, owner decision *(builder-raised)*
+The 2030 step runs at ONE instant, 06:30Z on 15 Jun (noon IST, mid-year). A test that fails only across IST midnight (18:30Z; `#875`'s bomb was this shape) or only in board season (Feb–Mar) passes there. Proposal: run a second instant, e.g. `2030-02-14T18:45:00.000Z` (just after IST midnight, in board season), with the same step shape. CI cost: one more vitest + ops-matrix pass. The controller recommends yes.
+
 ## 2026-09-28 — WAVE A-4 (CONTROLLER A): PERF-CLS-3 (`#873` MERGED as `7be9bdd5`, squash, `--match-head-commit d5075581`, no `--admin`, rolled out ALONE) · PERF-CLS-2 (`#871`) CLOSED under C3 — three closed, two new
 
 ### `[FU-LANDING-CH-MAXWIDTH-PRIMARY-SEGMENT]` — ✅ CLOSED by `#873`
