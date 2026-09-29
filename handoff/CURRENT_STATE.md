@@ -1,5 +1,39 @@
 # LazyTopper — Current State
 
+## [CURRENT · DATES + REACH] WAVE A-6 — **A SECOND CI CLOCK: EVERY PR NOW ALSO RUNS AT 00:15 IST ON 15 FEB 2030 — THE IST DAY BOUNDARY, IN BOARD SEASON (TEST-CLOCK-2)** — `#881` MERGED — trunk `605f98c0`
+*(Supersedes the WAVE C-1 and WAVE A-5 blocks below on trunk SHA and on test-clock status only. Everything else in those blocks, and the owner items of every block below, stands.)*
+
+★ **PROVENANCE.**
+- Controller A, wave A-6, one controller session, from the owner spec `TEST-CLOCK-2` v1.0 (staged at `LT-worktrees/controller-a6/ops/.specs/TEST-CLOCK-2.md`, sha256 `8B2128F6CFD2…`, hash-verified by the controller against the owner copy). One builder (`claude-opus-5-5`, effort high) in its own worktree `LT-worktrees/test-clock-2`.
+- *(subagent-reported)* = from the builder's report `Desktop/diff/report-test-clock-2-2026-09-29.md`; *(controller-verified)* = re-checked by the controller.
+- The spec's base was `b50d5dce`; trunk had moved to `6d61a6e1` (`#879` GA4-1) at dispatch and to `146de2b7` (`#880`, the wave C-1 docs) before merge. The §0c premise gate ran on the current tip, EXIT 0 *(subagent-reported)*.
+
+### What landed
+- **`#881` TEST-CLOCK-2 → `605f98c0`**, squash, `--match-head-commit f89c5a61`, no `--admin`. In the same command as the merge, the controller checked that trunk was still `146de2b7`. The merge commit is an ancestor of trunk, and **trunk tree == head tree `a7cd3019`** *(controller-verified)*.
+  - **C1, the step.** `.github/workflows/quality-gate.yml` gains ONE blocking step, "Test clock at IST midnight, board season": a copy of the 2030 step with `LT_TEST_CLOCK: "2030-02-14T18:45:00.000Z"` (+12/−0; the only file in the PR) *(controller-verified)*. It reuses the `#877` switch (`scripts/testClock/**`, `setup.ts`) unchanged.
+  - **Why this instant.** 18:45Z on 14 Feb is 00:15 IST on 15 Feb: the UTC and IST calendar dates differ, and it is board season. The 2030-06 step runs at noon IST in June, where the two dates agree. `#875`'s bomb fired at 00:00 IST.
+
+### P3 — every test that failed at the new instant, with its cause *(subagent-reported; run before any fix)*
+- **EMPTY.** Zero failures at `2030-02-14T18:45:00.000Z`: vitest `3191 passed (3191)`, and the lazytopper ops matrix 20 × `# fail 0`. Both were run in the box's IST zone and under `TZ=UTC`.
+- **PRODUCT date bugs found: NONE.** No test file changed.
+
+### Evidence
+- **CI** on head `f89c5a61`, Quality Gate `36525942037`, all checks green (quality-gate, lane-overlap, capture, container-boot, CodeQL, Vercel). From the log *(controller-verified)*:
+  - Vitest suites: `Tests  3191 passed (3191)`
+  - Test clock at 2030: `Tests  3191 passed (3191)` · `SELF-CHECK OK: LT_TEST_CLOCK=2030-06-15T06:30:00.000Z … (preload in effect)`
+  - **Test clock at IST midnight, board season:** `Tests  3191 passed (3191)` · `SELF-CHECK OK: LT_TEST_CLOCK=2030-02-14T18:45:00.000Z effective now=2030-02-14T18:45:00.001Z (preload in effect)`
+- **Mutation (C4, named file only; local, not pushed)** *(subagent-reported)*: in `lazytopper/server/services/usageLedger.test.cjs` the test's "today" was changed to the UTC date (`toISOString().slice(0,10)`). **The new step's exact command went RED** (`not ok 14 - M1 · REAL index.cjs`, expected `2030-02-14`, actual `2030-02-15`). **The 2030-06 step's command stayed GREEN on the same mutant.** That contrast is why this lane exists. Restored; `cmp` identical.
+- P3 was empty, so the mutation target is a test that derives "today" from the shifted clock, not a pinned-NOW test. A pinned test fails at both instants and shows no contrast (OR-AUTO choice, recorded).
+
+### Follow-ups (bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`)
+- **Closed:** `[FU-TEST-CLOCK-SECOND-INSTANT]` (by `#881`). **New:** none.
+
+### ★ Owner items (none run by the controller or a builder)
+1. WAVE A-5 item 1 (the second CI clock instant) is **DONE** by this block. The owner items of the WAVE C-1 block (legal review before Google Ads; GA4 admin; the optional smoke-view filter) and WAVE A-4 item 1 (the Android live check) still stand.
+
+### Carried forward — ★ THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this block
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.** **Wave A-6 moved NO dormancy in that trio.** The full block, including the `#647`/`#655` resolution and every subsequent amendment, is preserved verbatim in its section (`### 8 - ★ THE WIRE-2 QUESTION` and `### 9`) and the demoted `[CURRENT]` sections below, and must be read there before any lane acts on it.
+
 ## [CURRENT · ANALYTICS] WAVE C-1 — **GOOGLE ANALYTICS 4 IS LIVE FOR AD CONVERSIONS: REDACTED PAGE ADDRESSES ONLY, AND NO GOOGLE TAG AT ALL ON `/u/` HAND-OFF LINKS (GA4-1) · GOOGLE SIGNALS + AD PERSONALISATION ON BY OWNER RULING 2** — `#879` MERGED — trunk `6d61a6e1`
 *(Supersedes the WAVE A-5 block below on trunk SHA and on analytics only — that block is demoted to previous on trunk SHA; its content, its standing rule and its owner items otherwise stand as written. It also supersedes, for the GA4 tag ONLY, the no-identifier analytics rule of the ANALYTICS-1 block below and of `DECISION_LOG` 2026-09-21 DECISION 1; that rule stands for everything else. Exactly one un-superseded `[CURRENT]` remains: this one.)*
 

@@ -1,3 +1,22 @@
+## ★★★ 2026-09-29 — WAVE A-6 (CONTROLLER A) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE C-1 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged, except as stated here.)*
+
+**TRUNK IS `605f98c012976aec9e4e3d8202b4244da71d0c93`**, measured 2026-09-29 (`git ls-remote origin base/approved-thru-437`):
+- `605f98c0` = `#881` (TEST-CLOCK-2: a second CI clock at 00:15 IST, 15 Feb 2030) — **this wave**
+- `146de2b7` = `#880` (docs: wave C-1)
+- `6d61a6e1` = `#879` (GA4-1)
+
+Open at the time of writing, besides this docs PR: `#876` (Dependabot, `actions/setup-node` 4 → 7; `prerender-capture.yml`, `search-ping.yml`).
+
+### ★ STANDING — NO TIME-BOMBS
+Any test that compares against "now" pins its clock. CI now enforces it at TWO instants: "Test clock at 2030" (`2030-06-15T06:30Z`, `#877`) and "Test clock at IST midnight, board season" (`2030-02-14T18:45Z`, `#881`). A test that takes "today" as the UTC date fails the second.
+
+### NEXT — OWNER (none of these was run by the controller or a builder)
+1. WAVE C-1 item 4's first half (a second CI clock instant) is **DONE** (`#881`). Everything else in the WAVE C-1 owner list stands: the legal review before Google Ads, GA4 admin, the optional smoke-view filter, and the A-4 Android live check.
+
+### NEXT — LANES
+- None dispatched by wave A-6. The WAVE C-1 candidates stand.
+
 ## ★★★ 2026-09-29 — WAVE C-1 (CONTROLLER C) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-5 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged, except as stated here.)*
 
