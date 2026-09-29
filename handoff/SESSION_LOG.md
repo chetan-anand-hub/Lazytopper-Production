@@ -10,7 +10,7 @@
 - D5 held before merge (rolling-release COMPLETE 100%, trunk unchanged). **14:13:18Z MERGED `#883` → `12b8a985`** (`--squash --match-head-commit 32324065`, parent `d7444171`); trunk tree == head tree `6e2b414f` *(controller-verified)*.
 - This docs PR, then the final audit `Desktop/diff/audit-request-wave-b5-final-<date>.md`, then STOP.
 
-ROLLOUT: <pending controller>
+ROLLOUT: #883 rolled out ALONE. Pre-merge the rolling release was COMPLETE and www served trunk d7444171's deployment. Merged 14:13:18Z (--match-head-commit 32324065; trunk tree == head tree 6e2b414f). The canary fx7571xdi went ACTIVE at 10% at 14:14:55Z. CANARY SMOKE PASS: /app/ /app/pricing /app/practice /app/me /app/login 200. The signed-out /app/pricing HTML is unchanged except the entry script hash. CHUNK: assets/PricingPage-4uBkgT0j.js carries trial_start and the three state messages. COMPLETE 100% at 14:31:02Z; www -> fx7571xdi (dpl_F7zv7bFzzufwzi7YcpkhpdBXk6P4). WWW SMOKE PASS (same paths 200, Pricing HTML == canary). No server file changed, so there is no Railway leg. Controller-verified.
 
 **Lessons.**
 - **A button that shows is not an eligibility check.** `startTrial()` reads the LOCAL cache, so before hydration on a fresh device it can "start" a trial the account already used; the cloud write is denied and the error swallowed. Every call site now waits for hydration *(subagent-reported)*.
