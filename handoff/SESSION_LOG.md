@@ -1,3 +1,19 @@
+## 2026-09-29 — WAVE A-5 (CONTROLLER A) — **TEST-CLOCK-SWEEP: EVERY PR NOW ALSO RUNS AT A 2030 CLOCK — NO TEST MAY DEPEND ON TODAY'S DATE** — `#877` MERGED — trunk `d049a4f9`
+
+★ **PROVENANCE.** Controller A, wave A-5 (a fresh controller, per the addendum's §1). The owner spec `TEST-CLOCK-SWEEP` v1.0 was hash-verified (`181FA7FBA22F`). One builder (`claude-opus-5-5`) worked in `C:/Projects/LT-worktrees/test-clock-sweep`. The controller wrote this docs PR from `WAVE_STATE_A5.md` and `report-test-clock-sweep-2026-09-29.md`. *(subagent-reported)* / *(controller-verified)* as in `CURRENT_STATE.md`.
+
+**Timeline.**
+- Before this wave (A-4, after `#874` was written): at 00:00 IST on 29 Sep, `fairUse.test.tsx` turned every PR red. Lane TEST-CLOCK-1 pinned its clock (`#875`, `d793d903`), and `#874` then merged as `efca7daf`.
+- Dispatch at trunk `efca7daf`. The only open PR was `#876` (Dependabot, disjoint). §0c premise gate `--strict-anchor` EXIT 0 *(subagent-reported)*.
+- T1 built first. Then both suites ran at `2030-06-15T06:30:00.000Z` with no fixes, and the P6 table was written: vitest 0 failures; ops matrix 3 failures, all in two server harnesses that strip `LT_*` from the spawned real server. No product time-bombs *(subagent-reported)*.
+- `#877` head `230c29ab`: all checks green. Both vitest steps `Tests 3167 passed (3167)` *(controller-verified)*. Merged → `d049a4f9` (trunk-guarded, `--match-head-commit`, ancestor OK, trunk tree == head tree) *(controller-verified)*.
+- This docs PR (OR-16), a live check that www serves latest trunk, then the final audit `Desktop/diff/audit-request-wave-a5-final-2026-09-29.md`, then STOP.
+
+**Lessons.**
+- **A test harness that scrubs the environment scrubs the test clock too.** Any "strip `LT_*`" or "clean env" loop around a spawned process must keep `LT_TEST_CLOCK*`, or the child runs on the real clock while the parent runs at 2030.
+- **"Fixed dates in a test file" is not "a time-bomb".** Of 27 unpinned fixed-date files, none failed at 2030. Only the step that actually runs the suite at another date tells the two apart.
+- **A clock switch must prove it is on.** Without the self-check, a missing preload is a silent no-op that passes green on the real clock.
+
 ## 2026-09-28 — WAVE A-4 (CONTROLLER A) — **PERF-CLS-3: THE LANDING'S SERIF HEADINGS ARE SIZED IN `em`, NOT `ch` — THE ANDROID RE-WRAP IS GONE · PERF-CLS-2 (`#871`) CLOSED UNDER C3** — `#873` MERGED — trunk `7be9bdd5`
 
 ★ **PROVENANCE.** Controller A, wave A-4 (a fresh controller, per the addendum's §1). The owner spec `PERF-CLS-3` v1.0 was hash-verified (`E6F8D111C64B`). One builder (`claude-opus-5-5`) worked in `C:/Projects/LT-worktrees/perf-cls-3`. The controller wrote this docs PR from `WAVE_STATE_A4.md` and `report-perf-cls-3-2026-09-28.md`. *(subagent-reported)* / *(controller-verified)* as in `CURRENT_STATE.md`.
