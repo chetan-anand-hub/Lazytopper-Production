@@ -1,5 +1,8 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-29 — WAVE A-5 (CONTROLLER A): TEST-CLOCK-SWEEP (`#877` `d049a4f9`), trunk `d049a4f9`. Test and CI only; it moves NO student-facing surface.**
+> No surface cell changes. No scope was discovered; nothing goes in `DECISION_LOG` §2a. (CI now also runs every PR's vitest + ops matrix at a 2030 clock; see `CURRENT_STATE.md`.)
+
 > **2026-09-28 — WAVE A-4 (CONTROLLER A): PERF-CLS-3 (`#873` `7be9bdd5`), trunk `7be9bdd5`. PERF-CLS-2 (`#871`) CLOSED under C3; it moves nothing.**
 > ★ **THE LANDING NO LONGER JUMPS ON FIRST LOAD ON ANDROID.** This line supersedes, on status only, the WAVE A-3 (FINAL) line "Landing (`/`, `/app/`) — font-swap shift on Android" below; that line stands as written.
 

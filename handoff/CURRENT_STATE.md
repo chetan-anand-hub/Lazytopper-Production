@@ -1,5 +1,54 @@
 # LazyTopper — Current State
 
+## [CURRENT · DATES + REACH] WAVE A-5 — **NO TEST MAY DEPEND ON TODAY'S DATE: EVERY PR NOW ALSO RUNS AT A 2030 CLOCK (TEST-CLOCK-SWEEP) · TEST-CLOCK-1 (`#875`) RECORDED** — `#877` MERGED — trunk `d049a4f9`
+*(Supersedes the WAVE A-4 block below on trunk SHA and on test-clock status only. Everything else in that block, and the owner items of every block below, stands.)*
+
+★ **PROVENANCE.**
+- Controller A, wave A-5, one controller session, from the owner spec `TEST-CLOCK-SWEEP` v1.0 (staged at `LT-worktrees/controller-a5/ops/.specs/TEST-CLOCK-SWEEP.md`, sha256 `181FA7FBA22F…`, hash-verified by the controller against the owner copy). One builder (Agent model `opus` = `claude-opus-5-5`, effort "high" stated in the brief) in `C:/Projects/LT-worktrees/test-clock-sweep`; brief `Desktop/diff/BRIEF_TEST-CLOCK-SWEEP.md` (controller-authored). The controller wrote this docs PR itself, from `Desktop/diff/WAVE_STATE_A5.md`, `WAVE_STATE_A4.md` (its "OWNER RULINGS 2026-09-29") and `Desktop/diff/report-test-clock-sweep-2026-09-29.md` (OR-16).
+- *(subagent-reported)* = from the builder's report; *(controller-verified)* = re-checked by the controller.
+- This block also records what the wave A-4 docs PR (`#874`) could not: `#875` TEST-CLOCK-1, the owner's Q1 and Q2 rulings, and the no-time-bombs standing rule.
+
+### What landed
+- **`#875` TEST-CLOCK-1 → `d793d903`** (wave A-4, after `#874` was written). At 00:00 IST on 29 Sep (18:30Z on 28 Sep), `fairUse.test.tsx` turned every PR's quality-gate red. Its fixtures hard-coded `MIDNIGHT = "2026-09-28T18:30:00.000Z"` while sections 6–7 ran on the real clock. The cofounder verified it was a test time-bomb, not a product defect. Fix: Date-only fake timers pinned at `2026-09-28T12:00:00.000Z` (`vi.useFakeTimers({ now: NOW, toFake: ["Date"] })`); 1 file, +12/−1. It passed 42/42 today and at 2030; with the pin removed it went red *(subagent-reported)*. CI `36470274087` `Tests 3156 passed (3156)`; trunk tree == head tree *(controller-verified)*.
+- **`#877` TEST-CLOCK-SWEEP → `d049a4f9`**, squash, `--match-head-commit 230c29ab`, no `--admin`. In the same command as the merge, the controller checked that trunk was still `efca7daf`. The merge commit is an ancestor of trunk, and **trunk tree == head tree `c0a350bc`** *(controller-verified)*. 8 files, all inside the owner grant *(controller-verified)*:
+  - **T1, the switch.** `lazytopper/scripts/testClock/{testClock,preload,selfCheck}.mjs` + `lazytopper/src/test/setup.ts`. With env `LT_TEST_CLOCK=<ISO>`, every test process reads that time as "now": vitest through `setup.ts`, node suites through `NODE_OPTIONS=--import …/preload.mjs`. It is a **shifted global `Date`, not a fake timer**: it ticks, and a test's own `vi.useFakeTimers({ now })` still wins. A shared `LT_TEST_CLOCK_ANCHOR` gives a parent and the servers it spawns one clock. Unset → nothing is installed. `setup.ts` and `selfCheck.mjs` **fail loudly** if the switch is set but not in effect *(subagent-reported)*. Pinned by the new `src/test/testClock.test.ts` (11 tests).
+  - **T2, the CI step.** `.github/workflows/quality-gate.yml` gains ONE blocking step, "Test clock at 2030 (vitest + ops matrix, LT_TEST_CLOCK)". It runs the vitest suites AND the lazytopper ops matrix at `2030-06-15T06:30:00.000Z` (+23/−0; one `- name:` added) *(controller-verified)*.
+  - **T3, the sweep.** `server/services/usageLedger.test.cjs` and `server/services/fairUse.test.cjs` now keep `LT_TEST_CLOCK*` when they strip `LT_*` from the spawned real server (+4 each; no assertion changed).
+
+### P6 — every test that failed at 2030, with its cause *(subagent-reported; the table was written before any fix)*
+| file : test | cause | class |
+|---|---|---|
+| `usageLedger.test.cjs` : `M1 · REAL index.cjs: verified charged, unverified header uid NOT, free check NOT` | the harness strips every `LT_*` var from the spawned server, so the child ran on the real clock | TEST-FIXTURE |
+| `fairUse.test.cjs` : `WIRING · REAL index.cjs, FAIR_USE_ENFORCE=1: 409 before Gemini, …` | same strip | TEST-FIXTURE |
+| `fairUse.test.cjs` : `WIRING · REAL index.cjs, FAIR_USE_PAPER_SECRET set, enforcement dark: …` | same strip | TEST-FIXTURE |
+
+- **Vitest had ZERO failures at 2030** (216 files, 3166 tests). The spec counted 38 files with fixed `202x` dates, 27 of them unpinned. None of them fail at this instant: they pass an explicit "now" or compare dates with each other.
+- **PRODUCT time-bombs found: NONE.**
+
+### Evidence
+- **CI** on head `230c29ab`, quality-gate `36514632927`: existing Vitest step `Tests 3167 passed (3167)`; new 2030 step `Tests 3167 passed (3167)` with the self-check line "… (preload in effect)" *(controller-verified from the log)*; 20/20 node blocks `# fail 0` / `# skipped 0` *(subagent-reported)*. capture, lane-overlap, container-boot and CodeQL passed.
+- **Self-check proven:** env set with the preload removed → `SELF-CHECK FAILED`, exit 1 *(subagent-reported)*.
+- **Mutation (named file only):** `#875`'s pin removed from `fairUse.test.tsx`, then the exact command of the 2030 step → `Tests 1 failed | 3166 passed (3167)`, exit 1. It was restored, and `cmp` plus `git diff` confirmed the file was back. It was not pushed (controller decision D3) *(subagent-reported)*.
+
+### ★ STANDING RULE — NO TIME-BOMBS (owner, 2026-09-29), NOW ENFORCED BY CI
+Any test that compares against "now" pins the clock (`vi.useFakeTimers({ now, toFake: ["Date"] })`, or fixtures derived from a pinned `NOW`). Every future spec §3 adds: **"the lane's test files pass with the system clock set to 2030."** Since `#877`, CI enforces this for every PR: a date-dependent test goes red on the PR that adds it. To reproduce locally, set `LT_TEST_CLOCK=2030-06-15T06:30:00.000Z` and `NODE_OPTIONS=--import file:///<abs>/lazytopper/scripts/testClock/preload.mjs`.
+- ⚠ **One instant is not every instant.** A mid-year 06:30Z clock cannot catch a bomb that only fires at IST midnight or in board season (`#875`'s was an IST-midnight bomb) → `[FU-TEST-CLOCK-SECOND-INSTANT]`, an owner question in the wave A-5 final audit.
+
+### Owner rulings recorded here (from the wave A-4 final audit, 2026-09-29)
+- **Q1:** `#871` PERF-CLS-2 **stays CLOSED** (agreed).
+- **Q2 — RATIFIED for future specs:** CLS gates read **"no regression in either font environment, and an improvement in at least one, or below the floor 0.01"**. This replaces "must lower CLS in BOTH environments", which cannot be met once an environment is already at 0.
+
+### Follow-ups (bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`)
+- **Closed:** `[FU-TEST-CLOCK-SWEEP]` (by `#877`) · `[FU-FAKE-TIMERS-SILENT-NOOP]` (for the clock purpose: T1 installs no fake timers).
+- **New:** `[FU-TEST-CLOCK-SECOND-INSTANT]`.
+
+### ★ Owner items (none run by the controller or a builder)
+1. *(decision)* Add a second CI clock instant, for IST midnight and/or board season? The controller recommends **yes**, as a small follow-up lane.
+2. The owner items of the WAVE A-4 block below still stand: live-verify the landing on a real Android phone. The A-3 (final) items 2 and 4 also stand.
+
+### Carried forward — ★ THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this block
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.** **Wave A-5 moved NO dormancy in that trio.** The full block, including the `#647`/`#655` resolution and every subsequent amendment, is preserved verbatim in its section (`### 8 - ★ THE WIRE-2 QUESTION` and `### 9`) and the demoted `[CURRENT]` sections below, and must be read there before any lane acts on it.
+
 ## [CURRENT · DATES + REACH] WAVE A-4 — **THE LANDING NO LONGER JUMPS ON ANDROID: THE SERIF HEADINGS ARE SIZED IN `em`, NOT `ch` (PERF-CLS-3) · PERF-CLS-2 (`#871`) CLOSED UNDER C3** — `#873` MERGED — trunk `7be9bdd5`
 *(Supersedes the WAVE A-3 (FINAL) block below on the landing's Android font-swap shift and on `#871` only. Everything else in that block, and the owner items of every block below, stands.)*
 

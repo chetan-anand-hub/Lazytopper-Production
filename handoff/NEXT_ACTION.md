@@ -1,3 +1,23 @@
+## ★★★ 2026-09-29 — WAVE A-5 (CONTROLLER A) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-4 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged, except as stated here.)*
+
+**TRUNK IS `d049a4f922abf5ed952cfbc825b5ad1e9610d940`**, measured 2026-09-29 (`git ls-remote origin base/approved-thru-437`):
+- `d049a4f9` = `#877` (TEST-CLOCK-SWEEP: every PR also runs vitest + the ops matrix at a 2030 clock) — **this wave**
+- `efca7daf` = `#874` (docs: wave A-4)
+- `d793d903` = `#875` (TEST-CLOCK-1: the fair-use tests pin their clock)
+
+Open at the time of writing, besides this docs PR: `#876` (Dependabot, `actions/setup-node` 4 → 7; `prerender-capture.yml`, `search-ping.yml`).
+
+### ★ STANDING — NO TIME-BOMBS
+Any test that compares against "now" pins its clock. Every spec §3 adds "the lane's test files pass with the system clock set to 2030". CI enforces it since `#877` (the step "Test clock at 2030").
+
+### NEXT — OWNER (none of these was run by the controller or a builder)
+1. *(decision)* **A second CI clock instant?** One mid-year 06:30Z instant cannot catch an IST-midnight or board-season bomb, and `#875`'s was an IST-midnight bomb. The controller recommends yes, as a small lane (`[FU-TEST-CLOCK-SECOND-INSTANT]`).
+2. WAVE A-4 item 1 still stands: live-verify the landing on a real Android phone.
+
+### NEXT — LANES
+- None dispatched. Candidate: TEST-CLOCK-SECOND-INSTANT, if the owner rules yes on item 1.
+
 ## ★★★ 2026-09-28 — WAVE A-4 (CONTROLLER A) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-3 (FINAL) BLOCK BELOW ON TRUNK SHA AND ITS ITEMS 1 AND 3 ONLY
 *(The owner items of the WAVE A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged, except as stated here.)*
 
