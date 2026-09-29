@@ -17,11 +17,12 @@ import { getAdditionalUserInfo, type UserCredential } from "firebase/auth";
  * different legal posture, and it belongs to a lane with a consent design.
  *
  * ★★ ONE OWNER-APPROVED EXCEPTION — GOOGLE ANALYTICS 4 (GA4-1, owner ruling 2026-09-29).
- * The owner chose GA4 to measure ad conversions, knowing it sets a persistent cookie id.
- * The ruling supersedes the cookieless rule FOR THAT TAG ONLY, and only with every
- * mitigation below: the tag is loaded by an inline block in index.html that does nothing
- * on a `/u/` hand-off link; Google Signals and ad personalisation are off; automatic page
- * views are off; and every address and referrer Google receives is redacted
+ * The owner chose GA4 to measure ad conversions, knowing it sets a persistent cookie id,
+ * and by a second ruling the same day turned Google Signals and ad personalisation ON
+ * (Google Ads remarketing). The rulings supersede the cookieless rule FOR THAT TAG ONLY,
+ * and only with every security mitigation below: the tag is loaded by an inline block in
+ * index.html that does nothing on a `/u/` hand-off link; automatic page views are off;
+ * and every address and referrer Google receives is redacted
  * (`ga4PageLocation` / `ga4PageReferrer` below — the snippet mirrors them, and
  * indexHtml.guard.test.ts proves the two agree). What is sent is exactly what the Vercel
  * binding already sends — a redacted page view, or an event NAME — and nothing else: no

@@ -65,6 +65,10 @@ describe("index.html — the analytics script tag", () => {
  *
  * ★ Mutations (GA4-1 §2 G5), run against THIS file: `send_page_view: true` -> red;
  * the `/u/` skip removed -> red; `gclid` no longer kept -> red.
+ *
+ * Owner ruling 2 (2026-09-29, BRIEF_GA4-1_ADDENDUM_OWNER_RULING_2.md) superseded spec G1's
+ * two flags: Google Signals and ad personalisation are ON, and are pinned ON below — a
+ * silent flip either way is a change to what the Privacy Policy tells students.
  */
 const GA4_ID = "G-1T8Q12H4RQ";
 const GTAG_SRC = `https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`;
@@ -130,17 +134,17 @@ describe("index.html — the GA4 block (GA4-1)", () => {
     expect(html).not.toMatch(/<script[^>]*\ssrc="https:\/\/www\.googletagmanager\.com/i);
   });
 
-  it("★ pins the config: automatic page views OFF, Google Signals OFF, ad personalisation OFF", () => {
+  it("★ pins the config: automatic page views OFF; Google Signals + ad personalisation ON (owner ruling 2)", () => {
     const [block] = ga4Blocks();
     expect(block.body).toContain("send_page_view: false");
-    expect(block.body).toContain("allow_google_signals: false");
-    expect(block.body).toContain("allow_ad_personalization_signals: false");
+    expect(block.body).toContain("allow_google_signals: true");
+    expect(block.body).toContain("allow_ad_personalization_signals: true");
     // …and the block, when run, hands gtag exactly those values.
     const run = runGa4Block("https://www.lazytopper.com/app/");
     expect(run.config).toMatchObject({
       send_page_view: false,
-      allow_google_signals: false,
-      allow_ad_personalization_signals: false,
+      allow_google_signals: true,
+      allow_ad_personalization_signals: true,
     });
   });
 
