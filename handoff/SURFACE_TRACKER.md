@@ -1,5 +1,21 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-29 — WAVE B-5 (MONEY, CONTROLLER B): TRIAL-CTA-1 (`#883` `12b8a985`), trunk `12b8a985`. LIVE on merge (no flag); rollout recorded in `CURRENT_STATE.md`.**
+> ★ **TWO STATUS LINES MOVE: Pricing's Premium trial CTA now starts the trial, and Login honours the trial intent.** These lines supersede the Pricing and Login rows below on the trial-CTA point only; those rows stand as written.
+
+### ✅ Pricing (`/pricing`) — the Premium card's "Start 7-day trial" — **STARTS THE TRIAL (`#883`).**
+- Signed out: the same label and element (the prerendered signed-out `/pricing` is unchanged — prerender-capture "committed artifact matches a fresh capture") and the intent is kept through sign-in.
+- Signed in and eligible: one click calls the existing `startTrial()` once and shows the end date. Trial active, trial used and premium show honest messages instead of a button. Preview live cases (b) and (c) PASS *(subagent-reported)*.
+
+### ✅ Login — the trial intent (`reason=start-trial`) — **HONOURED ONCE AFTER A SUCCESSFUL SIGN-IN OR SIGN-UP (`#883`).**
+- At the single successful-auth exit (Google, email sign-in / sign-up, phone, the `/sign-up` door, the post-verify re-run), the door waits for subscription hydration, starts the trial once if eligible, then replace-navigates to the safe redirect; a refresh or back-navigation cannot start it twice. MobileHome's existing "Start free" chip now ends in a started trial through this step.
+- ⚠ **Live case (a) is PARTIAL** (the email-verification gate cannot be passed with a test address); the owner finishes it with a real inbox. Verified cells are not re-claimed.
+
+### ⬜ NO OTHER CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- RequirePremium's trial button and the C&I free-check offer keep their behaviour for eligible students; they gain only the hydration guard and the `trial_start` event. `trial_start` is a new analytics event, not a surface.
+
+### 📋 Scope discovered? — **NO surface scope set to Settling.** Four follow-ups are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`; none changes a surface's scope. Nothing goes in `DECISION_LOG` §2a.
+
 > **2026-09-29 — WAVE A-6 (CONTROLLER A): TEST-CLOCK-2 (`#881` `605f98c0`), trunk `605f98c0`. CI only; it moves NO student-facing surface.**
 > No surface cell changes. No scope was discovered; nothing goes in `DECISION_LOG` §2a. (CI now also runs every PR's vitest + ops matrix at 00:15 IST on 15 Feb 2030; see `CURRENT_STATE.md`.)
 

@@ -1,5 +1,12 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-29 — MONEY: **WAVE B-5 — TRIAL-CTA-1** — `#883` MERGED — trunk `12b8a985`
+
+- ✅ **TRIAL-CTA-1** (`#883` `12b8a985`, LIVE on merge, no flag; rollout in `CURRENT_STATE.md`): Pricing's Premium "Start 7-day trial" is state-aware and starts the trial for an eligible signed-in student; signed out it keeps the intent through sign-in and Login honours it once, after hydration. RequireAuth and the C&I offer gain the same hydration guard. New GA4 event `trial_start`. Eligibility and the subscription write logic unchanged.
+- ✅ **New FUs:** `[FU-TRIAL-OVERWRITES-ENDED-PASS-PLAN]` · `[FU-TRIAL-UNVERIFIED-EMAIL-CAN-START]` · `[FU-TRIAL-ELIGIBILITY-SINGLE-SOURCE]` · `[FU-UPGRADEMODAL-TRIAL-COPY]`. Closed: none.
+- ✅ **Docs:** this handoff.
+- ⬜ **Owner:** delete the 3 acceptance accounts; finish live case (a) with a real inbox; rule on the two owner-ruling FUs; GA4 `trial_start` key event (controller suggestion). Carried: the B-4 fair-use steps, the B-2 RAZORPAY-1 test.
+
 ## 2026-09-29 — DATES + REACH: **WAVE A-6 — TEST-CLOCK-2** — `#881` MERGED — trunk `605f98c0`
 
 - ✅ **TEST-CLOCK-2** (`#881` `605f98c0`): a second blocking CI clock step at `2030-02-14T18:45:00.000Z` (00:15 IST, 15 Feb: the IST day boundary, in board season). P3 empty; no product date bugs; the mutation goes red only on the new step.

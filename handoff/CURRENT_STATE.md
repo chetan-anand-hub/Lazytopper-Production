@@ -1,5 +1,48 @@
 # LazyTopper — Current State
 
+## [CURRENT · MONEY] WAVE B-5 — **"START 7-DAY TRIAL" STARTS THE TRIAL: PRICING'S PREMIUM BUTTON IS STATE-AWARE, AND LOGIN HONOURS THE TRIAL INTENT ONCE (TRIAL-CTA-1)** — `#883` MERGED — trunk `12b8a985`
+*(Supersedes the WAVE A-6 block below on trunk SHA only. That block is demoted to previous on trunk SHA; its content, and the owner items of every block below, stand as written. Exactly one un-superseded `[CURRENT]` remains: this one.)*
+
+★ **PROVENANCE.**
+- Controller B, wave B-5, from the owner spec `TRIAL-CTA-1` v1.0 (staged at `LT-worktrees/controller-b5/ops/.specs/TRIAL-CTA-1.md`, sha256 `87C8A75519AA`, hash-verified by the controller against the owner copy; D0). One builder (`claude-opus-5-5`, effort high) in its own worktree `LT-worktrees/trial-cta-1`, branch `lane/trial-cta-1`.
+- *(subagent-reported)* = from the builder's report `Desktop/diff/report-trial-cta-1-2026-09-29.md`; *(controller-verified)* = re-checked by the controller (`Desktop/diff/WAVE_STATE_B5.md`).
+- Dispatch at trunk `d7444171` (`#882`, the wave A-6 docs), which was also the spec's base. The only other open PR was `#876` (Dependabot, workflows only, disjoint). The §0c premise gate ran `--strict-anchor` on that tip: PASS, 11 premises, EXIT 0, no anchor moved *(subagent-reported)*.
+
+### What landed
+TRIAL-CTA-1 (`#883`, `12b8a985`) makes every "start trial" entry point actually start the trial. Pricing's Premium button is state-aware: signed out it still reads "Start 7-day trial" (prerendered HTML unchanged) and keeps the intent through sign-in. Signed in and eligible, it calls the existing `startTrial()` once and shows the end date. Trial active, trial used and premium get honest messages instead of a button. Login honours the kept intent once, right after a successful sign-in or sign-up, and a refresh or back-navigation cannot start it twice. Every user-initiated start fires the new GA4 event `trial_start` (the ads conversion). Trial eligibility and the subscription write logic are unchanged: the lane only calls `startTrial()`, after the account's cloud state has loaded. For a student arriving from a paid ad, the button they tap now gives them the trial it promises.
+
+ROLLOUT: <pending controller>
+
+- **`#883` TRIAL-CTA-1 → `12b8a985`**, squash, `--match-head-commit 32324065`, parent `d7444171`. On trunk; **trunk tree == head tree `6e2b414f`**; 14 files *(controller-verified)*.
+- **The 14 files** *(controller-verified: `gh` files == diff, all within the spec's allowlist)*. Product (5): `PricingPage.tsx` (the trial handler + the Premium card's button area), `Login.tsx` (the post-auth trial-intent step), `RequireAuth.tsx` (+12/−2) and `DesktopCheckImprovePage.tsx` (+5) — the P11 handler lines only, per D2 — and `analytics.ts` (+6/−1, one new event `trial_start`). Tests (9). No `useSubscription.ts`, no `prerendered/**`, no `App.tsx`; `MobileHome.tsx` untouched — its existing `loginUrl("start-trial")` chip is honoured by T1.
+- **What changed, per surface** *(builder-reported, CI-verified by controller)*: PricingPage Premium button: 5 states (T2). Login: a post-auth trial-intent step at the single successful-auth exit (Google, email sign-in / sign-up, phone, the `/sign-up` door, the post-verify re-run); it waits for subscription hydration, calls `startTrial()` once if eligible, then replace-navigates to the safe redirect. RequireAuth + the C&I free-check offer: the same hydration guard + `trial_start` (C&I keeps `free_check_trial_start`). Analytics: the new `trial_start` event via `send()`.
+
+### What it disproved *(subagent-reported)*
+- **`startTrial()` is not safe to call just because a button shows.** It reads the LOCAL cache, so before hydration on a fresh device it can locally "start" an already-used trial (the cloud write is denied by `trialStartImmutable` and swallowed). Every call site now waits for hydration.
+- **It also rewrites an ENDED pass's plan to `trial_7day` when that account never trialled** (the rules allow it). This is pre-existing write logic, latent while payments are dark → `[FU-TRIAL-OVERWRITES-ENDED-PASS-PLAN]` (owner ruling).
+
+### Evidence
+- **CI** on head `32324065`, Quality Gate `36578828893`, controller-grepped from the log (ANSI-stripped) *(controller-verified)*: 3 × `Tests  3210 passed (3210)` and 3 × `Test Files  219 passed (219)` (the vitest step and the two test-clock steps); 63 × `# fail 0` / 63 × `# skipped 0`; `RequireAuth.trialCta` (5), `Login.trialIntent` (9) and `PricingPage.trialCta` (7) each ran. prerender-capture `36578829202`: `PRERENDER: committed artifact matches a fresh capture.` (the signed-out `/pricing` is unchanged) *(subagent-reported)*.
+- **Mutations** (spec-named, one at a time, re-fired on the D6 tree) *(subagent-reported)*: M1 `PricingPage.tsx` `if (!user) {` → `if (true) {` went RED in `PricingPage.trialCta` (`Tests 2 failed | 5 passed (7)`); M2 `Login.tsx` `if (isStartTrial && ...)` → `if (false && isStartTrial && ...)` went RED in `Login.trialIntent` (`Tests 4 failed | 5 passed (9)`). Both restored; sha256 identical; green again.
+- **Preview live test** on the head's immutable preview (`…-j1fi3oycs.vercel.app`), fresh email/password accounts, trial fields read from `subscriptions/{uid}` with the account's own ID token *(subagent-reported)*: **(a) PARTIAL** — the email-verification gate cannot be passed with a test address; the intent was kept to the door and nothing started before verification. **(b) PASS** — one click, `"Your 7-day trial has started. It ends on 6 October 2026."`, record `tier:"trial"`, `plan:"trial_7day"`; a reload started nothing again and left the start date unchanged. **(c) PASS** — revisiting shows `"Your trial is active — 7 days left."` and no button. D7 accepts (a) as not merge-blocking.
+- **Pre-merge baseline** (`Desktop/diff/b5-baseline/`): www `/app/pricing` 200, 34147 B (the prerendered signed-out render to keep); rolling-release COMPLETE 100% before the merge *(controller-verified)*.
+
+### Decisions (full text in `DECISION_LOG.md`)
+- **D2** `useSubscription.ts` is not edited; `trial_start` fires at the call sites. **D3** `trial_start` fires exactly when the eligibility guard held and `startTrial()` was called. **D6** (a controller self-correction) the builder's `pass_*` guard and "Your pass has ended." copy were REMOVED because they narrowed trial eligibility; the hydration guard was kept. **D7** live case (a) PARTIAL accepted.
+
+### Follow-ups (bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`)
+- **New:** `[FU-TRIAL-OVERWRITES-ENDED-PASS-PLAN]` (owner ruling), `[FU-TRIAL-UNVERIFIED-EMAIL-CAN-START]` (owner ruling), `[FU-TRIAL-ELIGIBILITY-SINGLE-SOURCE]`, `[FU-UPGRADEMODAL-TRIAL-COPY]`. **Closed:** none. `[FU-TRIAL-PROMISE-SWEEP]` stays open (see its note in the wave B-5 section of the FU board).
+
+### ★ Owner items (none run by the controller or a builder)
+1. **Delete the 3 acceptance accounts on production Firebase** (Auth user + `subscriptions/{uid}` where present): `T5iwfPC4A3NQh9KViMnc9twFv7K2`, `6lIycz2MIndMmq4GAmwvo3Ik4zG2`, `PuXMbQwrJQaGFYay520DXd3Z0SE2` (emails in the builder's report).
+2. **Finish live case (a) with a real inbox:** signed out → Pricing → Start 7-day trial → sign up → verify → expect "Your trial is active" and the `subscriptions/{uid}` trial fields.
+3. **Rule on** `[FU-TRIAL-OVERWRITES-ENDED-PASS-PLAN]` and `[FU-TRIAL-UNVERIFIED-EMAIL-CAN-START]`.
+4. *(controller suggestion, not in the spec)* **GA4:** mark `trial_start` as a key event and import it as the Ads conversion (no code needed).
+- Carried: the WAVE B-4 steps (FAIR_USE live-verify, then `FAIR_USE_ENFORCE=1`) and the WAVE B-2 RAZORPAY-1 owner test. The owner items of the WAVE A-6 and C-1 blocks below stand.
+
+### Carried forward — ★ THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this block
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.** **Wave B-5 moved NO dormancy in that trio.** The full block, including the `#647`/`#655` resolution and every subsequent amendment, is preserved verbatim in its section (`### 8 - ★ THE WIRE-2 QUESTION` and `### 9`) and the demoted `[CURRENT]` sections below, and must be read there before any lane acts on it.
+
 ## [CURRENT · DATES + REACH] WAVE A-6 — **A SECOND CI CLOCK: EVERY PR NOW ALSO RUNS AT 00:15 IST ON 15 FEB 2030 — THE IST DAY BOUNDARY, IN BOARD SEASON (TEST-CLOCK-2)** — `#881` MERGED — trunk `605f98c0`
 *(Supersedes the WAVE C-1 and WAVE A-5 blocks below on trunk SHA and on test-clock status only. Everything else in those blocks, and the owner items of every block below, stands.)*
 

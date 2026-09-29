@@ -1,3 +1,21 @@
+## 2026-09-29 — WAVE B-5 (MONEY, CONTROLLER B) — **TRIAL-CTA-1: "START 7-DAY TRIAL" STARTS THE TRIAL — PRICING'S PREMIUM BUTTON IS STATE-AWARE, LOGIN HONOURS THE TRIAL INTENT ONCE, `trial_start` FIRES** — `#883` MERGED — trunk `12b8a985`
+
+★ **PROVENANCE.** Controller B, wave B-5. The owner spec `TRIAL-CTA-1` v1.0 was hash-verified (`87C8A75519AA`), sourced from `controller-b5/ops/.specs` (D0). One builder (`claude-opus-5-5`, effort high) worked in `C:/Projects/LT-worktrees/trial-cta-1`. A docs builder wrote this docs PR in `C:/Projects/LT-worktrees/b5-docs` from `WAVE_STATE_B5.md` and `report-trial-cta-1-2026-09-29.md`. *(subagent-reported)* / *(controller-verified)* as in `CURRENT_STATE.md`.
+
+**Timeline.**
+- Dispatch at trunk `d7444171` (re-derived immediately before dispatch); the only open PR was `#876` (Dependabot, disjoint). §0c `--strict-anchor` EXIT 0; §0b P10/P11 answered before any code *(subagent-reported)*.
+- First head `15132067`: PR `#883` open, CI green. Live test on the preview: (a) PARTIAL (VerifyEmailGate blocks `@example.com`; intent kept to the door; nothing started before verification), (b) PASS, (c) PASS *(subagent-reported)*.
+- **D6, a controller self-correction.** The builder had added a `pass_*` guard at all 4 call sites plus the new copy "Your pass has ended.", because the controller's own brief told it to. That narrowed trial eligibility (the owner's STOP-class). The controller sent the fix back to the same builder: remove the pass guard and the new state, keep the hydration guard.
+- Head `32324065` (contains `d7444171`): 14 files, all in the allowlist; 0 added lines with `pass_` or `Your pass has ended`. Quality Gate `36578828893`: 3 × `Tests  3210 passed (3210)`, 63 × `# fail 0` / 63 × `# skipped 0` *(controller-verified)*. Live (b) re-run on the new preview PASS, (c) PASS *(subagent-reported)*. D7: (a) PARTIAL accepted as not merge-blocking.
+- D5 held before merge (rolling-release COMPLETE 100%, trunk unchanged). **14:13:18Z MERGED `#883` → `12b8a985`** (`--squash --match-head-commit 32324065`, parent `d7444171`); trunk tree == head tree `6e2b414f` *(controller-verified)*.
+- This docs PR, then the final audit `Desktop/diff/audit-request-wave-b5-final-<date>.md`, then STOP.
+
+ROLLOUT: <pending controller>
+
+**Lessons.**
+- **A button that shows is not an eligibility check.** `startTrial()` reads the LOCAL cache, so before hydration on a fresh device it can "start" a trial the account already used; the cloud write is denied and the error swallowed. Every call site now waits for hydration *(subagent-reported)*.
+- **A controller's brief can itself be the scope defect (D6).** "If startTrial would change a pass account, the UI must not call it" read as a UI guard, but it narrowed who may trial — a change to eligibility meaning. The fix removed the guard and sent the pre-existing write behaviour to the owner as `[FU-TRIAL-OVERWRITES-ENDED-PASS-PLAN]`.
+
 ## 2026-09-29 — WAVE A-6 (CONTROLLER A) — **TEST-CLOCK-2: A SECOND CI CLOCK AT 00:15 IST ON 15 FEB 2030 — THE IST DAY BOUNDARY, IN BOARD SEASON** — `#881` MERGED — trunk `605f98c0`
 
 ★ **PROVENANCE.** Controller A, wave A-6 (a fresh controller, per the addendum's §1). The owner spec `TEST-CLOCK-2` v1.0 was hash-verified (`8B2128F6CFD2`). One builder (`claude-opus-5-5`, effort high) worked in `C:/Projects/LT-worktrees/test-clock-2`. The controller merged and wrote this docs PR (OR-16).
