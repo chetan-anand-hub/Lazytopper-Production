@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent, waitFor, act } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 // [FU-TRIAL-HAS-NO-ACTIVATION-PATH] — the premium paywall (RequirePremium) now carries the
@@ -21,12 +21,20 @@ vi.mock("../../services/subscriptionService", async (importOriginal) => {
   };
 });
 
+vi.mock("../../analytics/analytics", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../../analytics/analytics")>();
+  return { ...actual, trackNamedEvent: vi.fn() };
+});
+
 import { RequirePremium } from "./RequireAuth";
+import * as analytics from "../../analytics/analytics";
 import * as svc from "../../services/subscriptionService";
 import type { SubscriptionStatus } from "../../services/subscriptionService";
 
 const hydrate = svc.hydrateSubscriptionFromCloud as unknown as ReturnType<typeof vi.fn>;
 const activate = svc.activateTrial as unknown as ReturnType<typeof vi.fn>;
+const track = analytics.trackNamedEvent as unknown as ReturnType<typeof vi.fn>;
+const trialStarts = () => track.mock.calls.filter(([name]) => name === "trial_start").length;
 
 const DAY = 24 * 60 * 60 * 1000;
 const FREE: SubscriptionStatus = { tier: "free", plan: "none", trialStartDate: null, trialEndDate: null, premiumSince: null };
@@ -48,6 +56,7 @@ beforeEach(() => {
   localStorage.clear();
   hydrate.mockReset();
   activate.mockClear();
+  track.mockClear();
 });
 afterEach(() => cleanup());
 
@@ -58,10 +67,35 @@ describe("RequirePremium — trial CTA + eligibility", () => {
     const cta = await screen.findByText("Start my free 7-day trial");
     expect(screen.getByText(/then free Basic, upgrade anytime/i)).toBeInTheDocument();
     expect(activate).not.toHaveBeenCalled();
+    // TRIAL-CTA-1: the handler acts only on this uid's HYDRATED record.
+    await waitFor(() => expect(hydrate).toHaveBeenCalled());
+    await act(async () => {});
     fireEvent.click(cta);
     expect(activate).toHaveBeenCalledTimes(1);
+    // TRIAL-CTA-1 · T3: a start that takes effect is counted once as trial_start.
+    expect(trialStarts()).toBe(1);
     // The cascade: startTrial flips isPremium → the gated child renders, no navigation.
     await waitFor(() => expect(screen.getByText("UNLOCKED_CHILD")).toBeInTheDocument());
+  });
+
+  it("TRIAL-CTA-1 — a tap BEFORE the record has hydrated starts nothing and counts nothing", async () => {
+    hydrate.mockImplementation(() => new Promise<SubscriptionStatus>(() => {}));
+    renderGate();
+    fireEvent.click(await screen.findByText("Start my free 7-day trial"));
+    expect(activate).not.toHaveBeenCalled();
+    expect(trialStarts()).toBe(0);
+  });
+
+  it("TRIAL-CTA-1 — a pass that has ended (never trialled) is not rewritten to a trial", async () => {
+    const passEnded: SubscriptionStatus = { ...FREE, plan: "pass_month", passEnd: new Date(Date.now() - DAY).toISOString() };
+    hydrate.mockResolvedValue(passEnded);
+    renderGate();
+    const cta = await screen.findByText("Start my free 7-day trial");
+    await waitFor(() => expect(hydrate).toHaveBeenCalled());
+    await act(async () => {});
+    fireEvent.click(cta);
+    expect(activate).not.toHaveBeenCalled();
+    expect(trialStarts()).toBe(0);
   });
 
   it("EXPIRED-trial user does NOT see the trial CTA — only the plans path", async () => {

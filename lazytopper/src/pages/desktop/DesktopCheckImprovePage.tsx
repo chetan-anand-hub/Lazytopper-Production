@@ -3587,7 +3587,14 @@ const FreeCheckCheckImprovePage: React.FC = () => {
           step: "offer",
           endsOn: trialEndsOnLabel(Date.now()),
           onStartTrial: () => {
-            subscription.startTrial();
+            // TRIAL-CTA-1 — the existing rule, guarded at the call site: the offer is
+            // already hydrated / not premium / never trialled; a pass account is
+            // excluded too (the rules would let startTrial rewrite its plan).
+            // free_check_trial_start still counts the TAP; trial_start counts a start.
+            if (!subscription.status.plan.startsWith("pass_")) {
+              subscription.startTrial();
+              trackNamedEvent("trial_start");
+            }
             trackNamedEvent("free_check_trial_start");
             setOfferClosed(true);
           },

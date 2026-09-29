@@ -164,7 +164,7 @@ describe("GA4 — events (G3)", () => {
     expect(events().map((e) => e[1])).toEqual(["sign_up"]);
   });
 
-  it.each(["free_check_used_block", "free_check_signup", "free_check_trial_start"] as const)(
+  it.each(["free_check_used_block", "free_check_signup", "free_check_trial_start", "trial_start"] as const)(
     "named event %s is forwarded by name, with only the redacted address",
     (name) => {
       trackNamedEvent(name);
