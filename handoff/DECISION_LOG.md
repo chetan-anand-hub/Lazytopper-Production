@@ -1,3 +1,32 @@
+## 2026-09-29 — WAVE C-1 (CONTROLLER C): GA4-1 — PR `#879` merged (by the owner) — trunk `6d61a6e1`
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name ((a)–(d), D1–D4, OR-LIVE, OR-AUTO), not `DECISION N`.
+> The seven handoff files updated this cycle: `CURRENT_STATE.md`, `NEXT_ACTION.md`, `SESSION_LOG.md`, `IMPLEMENTATION_ROADMAP.md`, `OPEN_QUESTIONS_AND_FOLLOWUPS.md`, `SURFACE_TRACKER.md`, `DECISION_LOG.md` — enumerated, not counted.
+
+### Owner rulings (spec `GA4-1` v1.0, dispatch, ruling 2 and after merge — 2026-09-29)
+- **(a) GA4 (Option C) APPROVED, with the spec's mitigations**, over offline conversion import, knowing the cofounder's advice that GA4's persistent id and behavioural data conflict with the standing DPDP §9(3) rule for a mostly-minor audience. **It supersedes the DPDP §9(3) analytics rule for THIS tag only; the rule stands for everything else.** Concretely, for the GA4 tag only, it supersedes the 2026-09-21 ANALYTICS-1 section's DECISION 1 (no cookie, no persistent identifier) and DECISION 2's rejection of GA4. Measurement id `G-1T8Q12H4RQ`.
+- **(b) RULING 2 — Google Signals + ad personalisation ON** (`allow_google_signals: true`, `allow_ad_personalization_signals: true`), and the new Privacy Policy sentence: "We use Google Analytics and Google Ads to understand how LazyTopper is used, to measure our advertising, and to show our ads to people who have visited. It uses cookies. We remove private links from the page addresses it receives." **Unchanged and still required — these are security, not advertising:** `send_page_view: false` with manual, redacted page views; no Google tag at all on `/u/` hand-off links; `page_location` redacted, keeping `gclid` / `utm_*`. It supersedes the spec's §2 G1 flags, its G4 sentence and the matching G5 pins. The spec file was NOT edited (it is hash-pinned owner source).
+- **(c) Enhanced measurement is already OFF in GA4 admin** — set by the owner before the rollout. This resolves the builder's pre-merge "turn it off before or at rollout" item.
+- **(d) Google Signals follows ruling 2 (ON).** The spec's §4 owner step "Google Signals off" is superseded. This resolves the builder's pre-merge "reconcile §4 with ruling 2" item.
+- **Dispatch:** one builder (`claude-opus-5-5`, effort high); §0c on the current tip; its own fresh worktree; spec copied in; hash mismatch = STOP. **Grant:** `lazytopper/index.html`, ONE snippet block between P1 and P3 only. Only ONE docs PR open at a time. **OR-LIVE:** GA4-1 rolls out ALONE; confirm no rollout is in progress before the merge; smoke the canary, then www (the snippet in a built chapter file; no Google request on `/app/u/test`); on failure, abort or roll back first. **OR-AUTO:** the safest in-scope choice, recorded.
+- **Spec corrections, recorded at the owner's request:** P9 — `writeStaticHeads.ts` is at `lazytopper/scripts/seo/writeStaticHeads.ts` (not `scripts/seo/…`) with **8** substitution patterns (not four); the snippet collides with none *(subagent-reported)*. Spec §4 "Google Signals off" — superseded by ruling 2.
+
+### ⚠ Recorded risk — NOT a block (the controller's DPDP risk note)
+Remarketing a mostly-under-18 audience is squarely what DPDP Act §9(3) names (tracking or behavioural monitoring of children, and targeted advertising directed at children). **Recommendation: a legal review before the ads campaign starts**; consider an age-gate or consent before relying on Signals. **Google's own under-18 ad-personalisation policy was not verified by the controller.**
+
+### Controller decisions (OR-AUTO), with the reason
+- **D1:** the spec was taken from `controller-c1/ops/.specs` (hash-verified), not the shared checkout. **Why:** the shared checkout lacks it; its content is proven by sha256 (A-2 to A-4 precedent).
+- **D2:** the builder stops at MERGE-READY; the controller merges (`--squash --match-head-commit`), guarded on trunk unchanged and the rollout COMPLETE, then proves it on trunk; the builder is resumed for the post-merge OR-LIVE proofs. **Why:** A-1 to A-4 precedent. ⚠ The controller's merge was **denied once by the auto-mode classifier**; per the standing rule it did not work around the denial, and **the owner merged `#879`** with the same `--match-head-commit 45a71014`.
+- **D3:** the docs PR waited until `#878` (the A-5 docs) was merged. **Why:** only one handoff PR may be open at a time (the seven handoff files are one lock).
+- **D4:** owner ruling 2 was relayed to the builder by message and by `Desktop/diff/BRIEF_GA4-1_ADDENDUM_OWNER_RULING_2.md` (controller-authored, quoting the owner verbatim). The spec was not edited; the supersession is recorded in the report and the PR body. **Why:** the ruling postdates the hash-pinned spec.
+
+### Builder decisions (OR-AUTO), with the reason *(subagent-reported)*
+- **Event-level params as well as `set`.** `gtag('set', {page_location, page_referrer})` fires first, as the spec says, and the same values also ride on each event. **Why:** gtag's precedence is event > config > set, so without them every later page view would be filed against the landing address on `config` → `[FU-GA4-SET-PRECEDENCE]`.
+- **The basename is put back** into `page_location` (`/app/notes/x`, not `/notes/x`). **Why:** GA then records the real, working URL.
+- **No tag in automated contexts** (loopback, `*.local`, `navigator.webdriver`), the same rule as `analyticsEnabled()`. **Why:** the SEO capture's headless Chromium must not load Google or set cookies. Consequence: a headless proof must hide `navigator.webdriver`.
+- **A hardcoded `"/app"` literal in the snippet**, tied to `vite.config.ts` `base` by the guard test. **Why:** `%BASE_URL%` substitution fails OPEN — left unsubstituted, the `/u/` skip would miss.
+- **`gtag/js` injected dynamically**, not as a static tag. **Why:** a static tag cannot be skipped on `/u/`.
+
 ## 2026-09-29 — WAVE A-5 (CONTROLLER A): TEST-CLOCK-SWEEP — PR `#877` merged · plus the wave A-4 final-audit rulings `#874` could not record
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (Q0–Q2, T1–T6, D1–D3, OR-LIVE, OR-AUTO), not `DECISION N`.

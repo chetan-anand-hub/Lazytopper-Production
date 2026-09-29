@@ -1,5 +1,14 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-09-29 — ANALYTICS: **WAVE C-1 — GA4-1** — `#879` MERGED — trunk `6d61a6e1`
+
+- ✅ **GA4-1** (`#879` `6d61a6e1`, owner-merged, rolled out ALONE, LIVE at 100%): GA4 `G-1T8Q12H4RQ` on every page except `/u/` hand-off links and automated contexts; redacted page views + named events only (`sign_up` = the Google Ads conversion); `page_location` keeps only `gclid` / `utm_*`. Production smoke passed on the canary and www *(subagent-reported)*.
+- ✅ **Owner ruling 2:** Google Signals + ad personalisation ON; the Privacy Policy discloses GA, Google Ads and cookies.
+- ✅ **Recorded:** owner rulings (a)–(d); the spec corrections (P9 path + 8 patterns; §4 "Signals off" superseded); the controller's DPDP risk note (not a block).
+- ✅ **Docs:** this handoff.
+- ⬜ **Owner:** legal review before the ads campaign; the GA4 admin steps (retention, Ads link, `sign_up` key event + primary conversion).
+- ⬜ **Follow-ups:** `[FU-GA4-PRIVACY-LAST-UPDATED]` · `[FU-GA4-DATAMAP-ENTRY]` · `[FU-GA4-ENHANCED-MEASUREMENT-VERIFY]` · `[FU-GA4-SET-PRECEDENCE]`.
+
 ## 2026-09-29 — DATES + REACH: **WAVE A-5 — TEST-CLOCK-SWEEP** — `#877` MERGED — trunk `d049a4f9`
 
 - ✅ **TEST-CLOCK-1** (`#875` `d793d903`, wave A-4): the fair-use tests pin their clock. This ended the 29 Sep red CI on every PR.

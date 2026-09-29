@@ -1,3 +1,25 @@
+## ★★★ 2026-09-29 — WAVE C-1 (CONTROLLER C) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-5 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged, except as stated here.)*
+
+**TRUNK IS `6d61a6e15f1e3758267eb89d7a0d2fa28e195710`**, measured 2026-09-29 (`git fetch origin` + `git rev-parse origin/base/approved-thru-437`):
+- `6d61a6e1` = `#879` (GA4-1: Google Analytics 4 for ad conversions, redacted addresses, no tag on `/u/` links) — **this wave**; LIVE at 100% on www
+- `b50d5dce` = `#878` (docs: wave A-5)
+- `d049a4f9` = `#877` (TEST-CLOCK-SWEEP)
+
+Open at the time of writing, besides this docs PR: `#876` (Dependabot, `actions/setup-node` 4 → 7).
+
+### ★ STANDING — GA4 IS THE ONE ANALYTICS EXCEPTION
+Owner ruling (a), 2026-09-29: GA4 (`G-1T8Q12H4RQ`) supersedes the DPDP §9(3) analytics rule **for that tag only**; the rule stands for everything else. Its security properties are owner-required and pinned by tests: `send_page_view: false` with manual redacted page views; **no Google tag at all on `/u/`**; `page_location` keeps only `gclid` / `utm_*`. A lane that adds a route with a secret in its path must handle it in `analytics.ts`, the Vercel `beforeSend` regex AND the GA4 snippet (see `OPEN_QUESTIONS` 2026-09-29).
+
+### NEXT — OWNER (none of these was run by the controller or a builder)
+1. **A legal review before the Google Ads campaign starts.** The controller's recorded DPDP risk: remarketing a mostly-under-18 audience is what DPDP Act §9(3) names; Google's under-18 ad-personalisation policy was not verified.
+2. **GA4 admin** (spec §4, as amended by rulings (c) and (d)): data retention **2 months**; link GA4 ↔ Google Ads; mark **`sign_up`** as a key event; import it into Google Ads as the **primary** conversion. (Enhanced measurement OFF: DONE. Signals: ON, per ruling 2.)
+3. *(optional)* Filter the two smoke page views (`gclid=TESTGCLID123`, `utm_source=t`) out of the GA4 property.
+4. WAVE A-5 item 1 (a second CI clock instant) and WAVE A-4 item 1 (the Android live check) still stand.
+
+### NEXT — LANES
+- None dispatched. Candidates: `[FU-GA4-ENHANCED-MEASUREMENT-VERIFY]` (a headless re-proof, no code) · `[FU-GA4-PRIVACY-LAST-UPDATED]` (one line + CI regeneration) · `[FU-GA4-DATAMAP-ENTRY]` (the DPDP data map row).
+
 ## ★★★ 2026-09-29 — WAVE A-5 (CONTROLLER A) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-4 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged, except as stated here.)*
 
