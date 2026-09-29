@@ -1,3 +1,18 @@
+## 2026-09-29 — WAVE B-5 (MONEY, CONTROLLER B): TRIAL-CTA-1 — PR `#883` merged — trunk `12b8a985`
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (D2, D3, D6, D7, OR-LIVE, OR-AUTO), not `DECISION N`.
+
+### Owner rulings (dispatch message 2026-09-29)
+- **Grant = exactly spec §1 ALLOWED.** Subscription write logic and eligibility rules MUST NOT change; the lane only CALLS the existing `startTrial()`.
+- **OR-LIVE:** the lane rolls out ALONE; poll `vercel rolling-release fetch` capturing stderr (`2>&1`); smoke the canary, then www; on a failure, abort / roll back FIRST.
+- **OR-AUTO:** no questions; the safest in-scope choice, recorded. STOP only for an out-of-allowlist file truly needed, a change to trial eligibility meaning, or a production failure (revert first).
+
+### Controller decisions, with the reason
+- **D2:** `useSubscription.ts` is NOT edited at all; `trial_start` fires at the CALL SITES. RequireAuth and the C&I free-check offer are P11 "start trial" entry points, so their handler lines only are in scope. **Why:** the safest reading of spec §1 FORBIDDEN and of the owner grant ("only calling `startTrial()`").
+- **D3:** `trial_start` fires exactly when the eligibility guard held and `startTrial()` was called. **Why:** `startTrial()` returns void, so the cloud result is not observable to the caller; never on an ineligible or repeated call.
+- **D6 — a CONTROLLER SELF-CORRECTION.** The builder added `!plan.startsWith("pass_")` at all 4 call sites and new copy "Your pass has ended.", because the controller's own brief said "if startTrial would change a pass account, the UI must not call it". That NARROWS eligibility: an ended-pass, never-trialled account is eligible under the existing rule, and RequireAuth / the C&I offer already granted it a trial. That is the owner's STOP-class "change to trial eligibility meaning", and it contradicts spec T1 "eligible (per P10's existing rules)". **Decision:** REMOVE the pass guard and the new state everywhere; KEEP the hydration guard (it only aligns the call with server truth — no eligible account loses a trial; only a false local start is prevented). The ended-pass plan rewrite is pre-existing write logic (forbidden to change), latent while payments are dark → `[FU-TRIAL-OVERWRITES-ENDED-PASS-PLAN]` (replaces the builder's `FU-PASS-ENDED-TRIAL-COPY`), flagged for an owner ruling. **Before:** guard + new state → **after:** the existing rule + hydration only.
+- **D7:** live case (a) PARTIAL is accepted as not merge-blocking. **Why:** the post-verify leg is the same user-effect exit (unit-tested "signs in on the door" + the post-verify re-run), and case (b) proves the live `startTrial` path. Owner step: finish (a) with a real inbox. `[FU-TRIAL-UNVERIFIED-EMAIL-CAN-START]` is pre-existing (RequirePremium has the same property) → owner ruling; not done here, because it would change eligibility meaning.
+
 ## 2026-09-29 — WAVE A-6 (CONTROLLER A): TEST-CLOCK-2 — PR `#881` merged — trunk `605f98c0`
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (Q1, C1–C4, D1–D3, OR-LIVE, OR-AUTO), not `DECISION N`.

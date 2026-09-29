@@ -1,3 +1,26 @@
+## ★★★ 2026-09-29 — WAVE B-5 (MONEY, CONTROLLER B) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-6 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged, except as stated here.)*
+
+**TRUNK IS `12b8a9853918bbc9828b1740074765e340a741f2`**, measured 2026-09-29 (`git ls-remote origin refs/heads/base/approved-thru-437`):
+- `12b8a985` = `#883` (TRIAL-CTA-1: "Start 7-day trial" actually starts the trial) — **this wave**; LIVE on merge (no flag), see ROLLOUT in `CURRENT_STATE.md`
+- `d7444171` = `#882` (docs: wave A-6)
+- `605f98c0` = `#881` (TEST-CLOCK-2)
+
+Open at the time of writing, besides this docs PR: `#876` (Dependabot, `actions/setup-node` 4 → 7; `prerender-capture.yml`, `search-ping.yml`).
+
+### NEXT — OWNER, TRIAL — IN THIS ORDER (none of these was run by the controller or a builder)
+1. **Delete the 3 acceptance accounts on production Firebase** (Auth user + `subscriptions/{uid}` where present): `T5iwfPC4A3NQh9KViMnc9twFv7K2`, `6lIycz2MIndMmq4GAmwvo3Ik4zG2`, `PuXMbQwrJQaGFYay520DXd3Z0SE2` (emails in `Desktop/diff/report-trial-cta-1-2026-09-29.md`).
+2. **Finish live case (a) with a real inbox** (CLAUDE.md §6 — a live round trip): signed out → Pricing → Start 7-day trial → sign up → verify → expect "Your trial is active" and the `subscriptions/{uid}` trial fields.
+3. **Rule on `[FU-TRIAL-OVERWRITES-ENDED-PASS-PLAN]` and `[FU-TRIAL-UNVERIFIED-EMAIL-CAN-START]`** (both change trial eligibility or write meaning, so neither was done in `#883`).
+4. *(controller suggestion, not in the spec)* **GA4:** mark `trial_start` as a key event and import it as the Ads conversion (no code needed).
+
+### Carried — still owed
+5. **The WAVE B-4 fair-use steps** (the WAVE B-4 block below, items 1–3): live-verify FAIR_USE as a trial student, **then** set `FAIR_USE_ENFORCE=1` (exactly `1`) on Railway and live-test.
+6. **The WAVE B-2 RAZORPAY-1 owner test** before production payments (the WAVE B-4 block below, item 4).
+
+### NEXT — LANES
+- None dispatched by wave B-5 beyond `#883`. The four new FUs are candidates; two of them wait on the owner rulings in item 3.
+
 ## ★★★ 2026-09-29 — WAVE A-6 (CONTROLLER A) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE C-1 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged, except as stated here.)*
 

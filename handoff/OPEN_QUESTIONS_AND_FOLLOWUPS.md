@@ -23,6 +23,26 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-29 — WAVE B-5 (CONTROLLER B): TRIAL-CTA-1 (`#883` MERGED as `12b8a985`, squash, `--match-head-commit 32324065`) — four new, none closed
+
+Bodies are the builder's current (post-D6) text from `Desktop/diff/report-trial-cta-1-2026-09-29.md` *(subagent-reported)*.
+
+### `[FU-TRIAL-OVERWRITES-ENDED-PASS-PLAN]` — OPEN, **OWNER RULING** *(renamed from FU-PASS-ENDED-TRIAL-COPY by controller D6)*
+For an account whose pass has ended and which never trialled, `startTrial()` -> `activateTrial` (`subscriptionService.ts:389-412`) -> `saveCloud` rewrites the `subscriptions/{uid}` record's `plan` from `pass_*` to `trial_7day` and `tier` to "trial". `firestore.rules` allow this because tier and plan are not pass fields (rules :169-179); the pass fields themselves (passType, passStart, passEnd, pricePaidInr, offerKey, foundingMember, lastPaymentRef) are left untouched. This is PRE-EXISTING write logic, reachable today from RequirePremium and the C&I offer, and this lane must not change it. It stays latent while payments are dark (no pass has been sold, so no ended-pass record exists). Owner to decide before payments go live whether the trial write should preserve `plan`, or whether an ended-pass account should be offered a trial at all.
+- Related (docs-builder cross-reference): `[FU-PASS-TRIAL-AFTER-EXPIRY]` (wave B-1) asks the same "should an expired, never-trialled pass holder get a trial" question; this entry adds what the write does to `plan`.
+
+### `[FU-TRIAL-UNVERIFIED-EMAIL-CAN-START]` — OPEN, **OWNER RULING**
+Only the sign-in door enforces email verification. An unverified email account can open /pricing or a RequirePremium page directly and start its trial. The owner should rule whether a trial requires a verified address, and if so gate it at the call sites or in the service. That is an eligibility-meaning change and was NOT done here. (Pre-existing: RequirePremium has the same property; found while running live case (b).)
+
+### `[FU-TRIAL-ELIGIBILITY-SINGLE-SOURCE]` — OPEN
+The call-site guard (hydrated, not premium, no trialStartDate) is repeated at 4 sites because a shared helper would have needed a file outside the allowlist. Consolidate it into one exported predicate, e.g. in useSubscription, in a lane that owns that file.
+
+### `[FU-UPGRADEMODAL-TRIAL-COPY]` — OPEN
+`UpgradeModal.tsx:127` tells a SIGNED-IN free student "Your 7-day trial starts when you sign in." They are already signed in and nothing starts on sign-in. Reword it (for example "Start your free 7-day trial from the plans page.") or link it to startTrial. It is outside this lane's allowlist.
+
+### Kept open — `[FU-TRIAL-PROMISE-SWEEP]` (not closed by `#883`)
+Its ⚠ note — `PricingPage.tsx` navigating with `reason=start-trial`, "a CTA named 'start trial' that starts no trial" — is what `#883` fixes: the Pricing button now starts the trial when signed in, and Login honours `reason=start-trial` once after sign-in. The sweep itself (every rendered trial claim across the product, checked against what the account receives) was not run by this lane, so the entry stays open. `[FU-UPGRADEMODAL-TRIAL-COPY]` above is one instance of it.
+
 ## 2026-09-29 — WAVE A-6 (CONTROLLER A): TEST-CLOCK-2 (`#881` MERGED as `605f98c0`, squash, `--match-head-commit f89c5a61`, no `--admin`) — one closed, none new
 
 ### `[FU-TEST-CLOCK-SECOND-INSTANT]` — ✅ CLOSED by `#881`
