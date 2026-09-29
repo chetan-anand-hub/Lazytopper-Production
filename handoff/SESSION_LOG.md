@@ -1,3 +1,18 @@
+## 2026-09-29 — WAVE A-6 (CONTROLLER A) — **TEST-CLOCK-2: A SECOND CI CLOCK AT 00:15 IST ON 15 FEB 2030 — THE IST DAY BOUNDARY, IN BOARD SEASON** — `#881` MERGED — trunk `605f98c0`
+
+★ **PROVENANCE.** Controller A, wave A-6 (a fresh controller, per the addendum's §1). The owner spec `TEST-CLOCK-2` v1.0 was hash-verified (`8B2128F6CFD2`). One builder (`claude-opus-5-5`, effort high) worked in `C:/Projects/LT-worktrees/test-clock-2`. The controller merged and wrote this docs PR (OR-16).
+
+**Timeline.**
+- Dispatch at trunk `6d61a6e1` (`#879` GA4-1; the spec's base `b50d5dce` was stale). The only open PR was `#876` (Dependabot, disjoint). §0c premise gate `--strict-anchor` EXIT 0 *(subagent-reported)*.
+- Both suites ran at `2030-02-14T18:45:00.000Z` with no fixes, in IST and UTC zones: vitest `3191 passed (3191)`, ops matrix 20 × `# fail 0`. P3 table empty; no product date bugs *(subagent-reported)*.
+- `#880` (wave C-1 docs) landed as `146de2b7` while the lane ran; the builder merged it into the branch.
+- `#881` head `f89c5a61`: all checks green; all three vitest steps `Tests 3191 passed (3191)` *(controller-verified)*. Merged → `605f98c0` (trunk-guarded, `--match-head-commit`, ancestor OK, trunk tree == head tree) *(controller-verified)*.
+- This docs PR, a live check that www serves latest trunk, then the final audit `Desktop/diff/audit-request-wave-a6-final-2026-09-29.md`, then STOP.
+
+**Lessons.**
+- **An empty sweep still needs a mutation that separates the two instants.** Mutating a pinned-NOW test would go red at every instant and prove only that the step can fail. A UTC-"today" regression goes red at IST midnight and green at noon: that shows what the second step adds.
+- **"Today" has two answers between 18:30Z and 00:00Z.** Any test or code that takes the date from `toISOString()` is on UTC, and the product's day is IST.
+
 ## 2026-09-29 — WAVE C-1 (CONTROLLER C) — **GA4-1: GOOGLE ANALYTICS 4 IS LIVE FOR AD CONVERSIONS — REDACTED ADDRESSES, NO TAG ON `/u/` LINKS; SIGNALS + AD PERSONALISATION ON BY OWNER RULING 2** — `#879` MERGED — trunk `6d61a6e1`
 
 ★ **PROVENANCE.** Controller C, wave C-1. The owner spec `GA4-1` v1.0 was hash-verified (`686394257A8F`). One builder (`claude-opus-5-5`, effort high) worked in `C:/Projects/LT-worktrees/ga4-1`. A docs builder wrote this docs PR in `C:/Projects/LT-worktrees/docs-wave-c1` from `WAVE_STATE_C1.md`, `report-ga4-1-2026-09-29.md`, the spec and the ruling-2 addendum. *(subagent-reported)* / *(controller-verified)* as in `CURRENT_STATE.md`.

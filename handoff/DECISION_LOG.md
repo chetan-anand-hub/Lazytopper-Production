@@ -1,3 +1,19 @@
+## 2026-09-29 — WAVE A-6 (CONTROLLER A): TEST-CLOCK-2 — PR `#881` merged — trunk `605f98c0`
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (Q1, C1–C4, D1–D3, OR-LIVE, OR-AUTO), not `DECISION N`.
+
+### Owner rulings
+- **Q1 (wave A-5 final audit), APPROVED:** add a second CI clock instant → lane TEST-CLOCK-2.
+- **Grant (dispatch + spec `TEST-CLOCK-2` v1.0):** `.github/workflows/quality-gate.yml` (one new step only); test files only under `lazytopper/`. `scripts/testClock/**` is reused as is.
+- **C1–C4** as in the spec: a blocking step at `2030-02-14T18:45:00.000Z`; P3 fixes in test files only; product date bugs reported, never fixed (none found); proof = both clock steps green + one mutation.
+- **OR-LIVE:** deploys normally; after the last merge, confirm www serves latest trunk (poll `vercel rolling-release fetch`, capturing stderr).
+
+### Controller decisions (OR-AUTO), with the reason
+- **D1:** the spec was taken from `controller-a6/ops/.specs` (hash-verified), not the shared checkout. **Why:** it is absent there; the content is proven by sha256.
+- **D2:** the builder stops at MERGE-READY; the controller merges (`--squash --match-head-commit`) with a same-command guard (trunk unchanged), then proves it on trunk. **Why:** A-1 to A-5 precedent.
+- **D3:** the C4 mutation is proven by running the EXACT CI step command locally; no mutated commit is pushed. **Why:** it is the same command CI runs, and it keeps the PR history clean.
+- *(builder)* P3 was empty, so the mutation is a UTC-"today" regression in a test that reads the shifted clock. **Why:** mutating a pinned-NOW test breaks it at both instants and shows no contrast between the two steps.
+
 ## 2026-09-29 — WAVE C-1 (CONTROLLER C): GA4-1 — PR `#879` merged (by the owner) — trunk `6d61a6e1`
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name ((a)–(d), D1–D4, OR-LIVE, OR-AUTO), not `DECISION N`.

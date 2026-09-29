@@ -1,5 +1,8 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-29 — WAVE A-6 (CONTROLLER A): TEST-CLOCK-2 (`#881` `605f98c0`), trunk `605f98c0`. CI only; it moves NO student-facing surface.**
+> No surface cell changes. No scope was discovered; nothing goes in `DECISION_LOG` §2a. (CI now also runs every PR's vitest + ops matrix at 00:15 IST on 15 Feb 2030; see `CURRENT_STATE.md`.)
+
 > **2026-09-29 — WAVE C-1 (CONTROLLER C): GA4-1 (`#879` `6d61a6e1`), trunk `6d61a6e1`. Rolled out ALONE; LIVE at 100%.**
 > ★ **ONE SURFACE CELL MOVES LIVE: the Privacy Policy.** Every page's head gains the GA4 tag, a new capability rather than a surface cell (as ANALYTICS-1 was recorded). No page's visible content changes.
 

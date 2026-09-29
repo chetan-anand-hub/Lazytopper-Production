@@ -23,6 +23,11 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-29 — WAVE A-6 (CONTROLLER A): TEST-CLOCK-2 (`#881` MERGED as `605f98c0`, squash, `--match-head-commit f89c5a61`, no `--admin`) — one closed, none new
+
+### `[FU-TEST-CLOCK-SECOND-INSTANT]` — ✅ CLOSED by `#881`
+`quality-gate.yml` now has a second blocking clock step, "Test clock at IST midnight, board season", at `2030-02-14T18:45:00.000Z` (00:15 IST on 15 Feb). CI on head `f89c5a61` (run `36525942037`): `Tests 3191 passed (3191)` at both clock instants, with each step's self-check line printing its own instant *(controller-verified)*. P3 was empty: no test failed at the new instant, and no product date bug was found *(subagent-reported)*. Mutation: a UTC-"today" regression in `usageLedger.test.cjs` goes red on the new step and stays green on the 2030-06 step *(subagent-reported)*.
+
 ## 2026-09-29 — WAVE C-1 (CONTROLLER C): GA4-1 (`#879` MERGED as `6d61a6e1`, squash, `--match-head-commit 45a71014`, merged by the owner, rolled out ALONE) — four new, none closed
 
 ### `[FU-GA4-PRIVACY-LAST-UPDATED]` — OPEN *(builder-raised)*
