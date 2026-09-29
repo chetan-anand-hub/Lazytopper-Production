@@ -15,6 +15,17 @@ import { getAdditionalUserInfo, type UserCredential } from "firebase/auth";
  * localStorage key, no persistent id, no uid, nothing that links one visit to the next.
  * ⚠ DO NOT add an `identify()` call here. That is not a feature request, it is a
  * different legal posture, and it belongs to a lane with a consent design.
+ *
+ * ★★ ONE OWNER-APPROVED EXCEPTION — GOOGLE ANALYTICS 4 (GA4-1, owner ruling 2026-09-29).
+ * The owner chose GA4 to measure ad conversions, knowing it sets a persistent cookie id.
+ * The ruling supersedes the cookieless rule FOR THAT TAG ONLY, and only with every
+ * mitigation below: the tag is loaded by an inline block in index.html that does nothing
+ * on a `/u/` hand-off link; Google Signals and ad personalisation are off; automatic page
+ * views are off; and every address and referrer Google receives is redacted
+ * (`ga4PageLocation` / `ga4PageReferrer` below — the snippet mirrors them, and
+ * indexHtml.guard.test.ts proves the two agree). What is sent is exactly what the Vercel
+ * binding already sends — a redacted page view, or an event NAME — and nothing else: no
+ * uid, no email, no question content, no other parameter. The Vercel binding is untouched.
  */
 
 /**
@@ -108,7 +119,7 @@ export function normalisePath(rawPath: string): string {
 }
 
 /**
- * THE VENDOR BINDING — the only vendor-aware lines in the app.
+ * THE VERCEL BINDING — with the GA4 binding below, the only vendor-aware lines in the app.
  *
  * Vercel Web Analytics, installed as a plain `<script>` tag in index.html: cookieless,
  * no npm dependency, and no new data processor — Vercel already serves every request, so
@@ -126,7 +137,8 @@ export function normalisePath(rawPath: string): string {
  * allowance. It would have looked like it worked.
  *
  * If `window.va` is absent — blocked by an ad blocker, failed to load, or simply not on
- * a Vercel deployment — this returns null and every call below is a no-op. That is §2.6.
+ * a Vercel deployment — this returns null and the Vercel half of every call below is a
+ * no-op. That is §2.6.
  */
 type VendorSend = (kind: "pageview" | "event", payload: Record<string, unknown>) => void;
 
@@ -149,11 +161,119 @@ function send(kind: "pageview" | "event", payload: Record<string, unknown>): voi
   if (!analyticsEnabled()) return;
   try {
     const vendor = resolveVendor();
-    if (!vendor) return;
-    vendor(kind, payload);
+    if (vendor) vendor(kind, payload);
   } catch {
     /* analytics must never break the page */
   }
+  // A separate guard, so one vendor failing can never cost the other its hit.
+  try {
+    sendToGa4(kind, payload);
+  } catch {
+    /* analytics must never break the page */
+  }
+}
+
+/* ------------------------------------------------------------------------- *
+ * GOOGLE ANALYTICS 4 — the second vendor binding (GA4-1).
+ *
+ * `window.gtag` is defined ONLY by the inline block in index.html, and that block
+ * does nothing on a `/u/` hand-off link or in an automated context. So on those pages
+ * — and wherever an ad blocker stopped the tag — `resolveGtag()` is null and GA4 is a
+ * silent no-op, exactly like a blocked Vercel script.
+ * ------------------------------------------------------------------------- */
+
+type Gtag = (...args: unknown[]) => void;
+
+function resolveGtag(): Gtag | null {
+  const w = window as unknown as { gtag?: Gtag };
+  return typeof w.gtag === "function" ? w.gtag : null;
+}
+
+/** The router's basename (`/app`), from the same value main.tsx hands BrowserRouter. */
+function appBasename(): string {
+  return String(import.meta.env.BASE_URL || "/").replace(/\/$/, "");
+}
+
+/**
+ * The ONLY query parameters GA4 ever receives: `gclid` (the Google Ads click id — the
+ * conversion cannot be attributed without it) and `utm_*` (campaign tags). Everything
+ * else — Firebase's `oobCode` / `continueUrl`, a search, anything a link carried — is
+ * dropped. Kept parameters are passed through byte-for-byte, never re-encoded, so the
+ * index.html snippet (which has no URLSearchParams guarantee to lean on) produces the
+ * identical string.
+ */
+export function ga4AdParams(search: string): string {
+  const kept: string[] = [];
+  for (const part of String(search || "").replace(/^\?/, "").split("&")) {
+    const key = part.split("=")[0];
+    if (key === "gclid" || key.indexOf("utm_") === 0) kept.push(part);
+  }
+  return kept.length ? `?${kept.join("&")}` : "";
+}
+
+/**
+ * ★ `page_location` FOR EVERY GA4 HIT: origin + basename + `normalisePath(routerPath)` +
+ * only `gclid` / `utm_*`. `normalisePath` is what turns `/u/<token>` into `/u/:token`,
+ * so the path handed in must be ROUTER-relative (basename stripped): `/app/u/<token>`
+ * does not match its `^/u/` rule. The basename is put back afterwards so the address
+ * Google records is the real, working URL.
+ */
+export function ga4PageLocation(
+  routerPath: string,
+  search: string,
+  origin: string,
+  basename: string = appBasename(),
+): string {
+  return `${origin}${basename}${normalisePath(routerPath)}${ga4AdParams(search)}`;
+}
+
+/** A full browser pathname (`/app/notes/x`) as the router sees it (`/notes/x`). */
+export function routerPathOf(pathname: string, basename: string = appBasename()): string {
+  const full = String(pathname || "/");
+  if (basename && (full === basename || full.indexOf(`${basename}/`) === 0)) {
+    return full.slice(basename.length) || "/";
+  }
+  return full;
+}
+
+/**
+ * `page_referrer`: the referring ORIGIN only (`https://www.google.com/`). A referrer's
+ * path and query can carry anything — including our own `/app/u/<token>` when a student
+ * leaves the hand-off page — and the origin is all source attribution needs.
+ * Credentials in the authority are dropped; anything that is not http(s) becomes "".
+ */
+const REFERRER_ORIGIN = /^(https?:\/\/)(?:[^/?#@]*@)?([^/?#@]+)/i;
+
+export function ga4PageReferrer(referrer: string): string {
+  const match = REFERRER_ORIGIN.exec(String(referrer || ""));
+  return match ? `${match[1]}${match[2]}/` : "";
+}
+
+/**
+ * ★ G2 — THE REDACTED ADDRESS GOES ON EVERY HIT, TWICE.
+ *
+ * `gtag('set', …)` first, as the ruling specifies. It is ALSO passed on the event itself,
+ * because gtag's documented precedence is event > config > set: the `page_location` the
+ * index.html snippet put on `config` (the LANDING address) would otherwise outrank the
+ * `set` on every later hit, and every page view would be filed against the landing page.
+ * Both values are the same redacted string; nothing new is sent.
+ */
+function sendToGa4(kind: "pageview" | "event", payload: Record<string, unknown>): void {
+  const gtag = resolveGtag();
+  if (!gtag) return;
+  const name = kind === "pageview" ? "page_view" : payload.name;
+  if (typeof name !== "string" || !name) return;
+  const loc = window.location;
+  const routerPath =
+    kind === "pageview" && typeof payload.path === "string"
+      ? payload.path
+      : routerPathOf(loc.pathname);
+  const page = {
+    page_location: ga4PageLocation(routerPath, loc.search, loc.origin),
+    page_referrer: ga4PageReferrer(document.referrer),
+  };
+  gtag("set", page);
+  gtag("event", name, { ...page });
 }
 
 /**
