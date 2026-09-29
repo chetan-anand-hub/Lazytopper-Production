@@ -1,12 +1,17 @@
-import { type CSSProperties, type FormEvent, useEffect, useMemo, useState } from "react";
+import { type CSSProperties, type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth, type AuthUser } from "../context/AuthContext";
+import { useSubscription } from "../hooks/useSubscription";
+import { trackNamedEvent } from "../analytics/analytics";
 import OfferStrip from "../components/auth/OfferStrip";
 import VerifyEmailGate from "../components/auth/VerifyEmailGate";
 import { trackUxEvent } from "../services/uxTelemetry";
 import { creditPendingReferral } from "../services/referralService";
 
 type LocationState = { from?: string };
+
+/** TRIAL-CTA-1 — how long the trial-intent step waits for hydration before moving on. */
+export const TRIAL_INTENT_HYDRATION_WAIT_MS = 8000;
 
 function isSafeInternalPath(path: string | null | undefined): path is string {
   if (!path) return false;
@@ -1590,8 +1595,36 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     });
   }, [reason]);
 
+  // TRIAL-CTA-1 · T1 — the trial intent (`reason=start-trial`) is honoured ONCE, at the
+  // one successful-auth exit below (Google, email sign-in and sign-up, phone OTP, the
+  // /sign-up door and the post-verification re-run all land in that effect).
+  //
+  // ★ Eligibility is the EXISTING rule, guarded here (useSubscription.ts untouched):
+  // activateTrial reads the LOCAL cache, so the step waits for this uid's cloud
+  // hydration; then it starts only a status that is not premium and has no
+  // trialStartDate.
+  // An ineligible account is not changed and trial_start does not fire.
+  //
+  // ★ ONCE: the ref stops a re-run of the effect on this mount; the `replace`
+  // navigation drops this /login entry from history, so Back cannot return to it;
+  // and a refresh re-reads a status that now carries a trialStartDate, so it is no
+  // longer eligible. The hydration wait is bounded — a cloud read that never
+  // answers must not strand the student on the door.
+  const subscription = useSubscription();
+  const trialIntentConsumed = useRef(false);
+  const [trialWaitExpired, setTrialWaitExpired] = useState(false);
+  const awaitingTrialHydration =
+    isStartTrial && Boolean(user) && !subscription.hydrated && !trialWaitExpired;
+
+  useEffect(() => {
+    if (!awaitingTrialHydration) return;
+    const timer = window.setTimeout(() => setTrialWaitExpired(true), TRIAL_INTENT_HYDRATION_WAIT_MS);
+    return () => window.clearTimeout(timer);
+  }, [awaitingTrialHydration]);
+
   useEffect(() => {
     if (!user) return;
+    if (awaitingTrialHydration) return;
     trackUxEvent("login_complete", "login", {
       reason: reason ?? "unspecified",
     });
@@ -1612,8 +1645,23 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
     // stable identifier the `addReferralToCode` dedup can actually match (the old
     // `user_${Date.now()}` was fresh on every call and defeated that dedup).
     creditPendingReferral(user.uid);
+    if (isStartTrial && !trialIntentConsumed.current) {
+      trialIntentConsumed.current = true;
+      const status = subscription.status;
+      const eligible =
+        subscription.hydrated &&
+        status.tier !== "premium" &&
+        !status.trialStartDate;
+      if (eligible) {
+        subscription.startTrial();
+        trackNamedEvent("trial_start");
+      }
+    }
     navigate(nextPath, { replace: true });
-  }, [user, nextPath, navigate, reason, verificationCleared]);
+    // `subscription` is read when the effect runs; `awaitingTrialHydration` flipping
+    // is what re-runs it once this uid's record has hydrated.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, nextPath, navigate, reason, verificationCleared, awaitingTrialHydration]);
 
   /**
    * True whenever this submit will CREATE. The `/sign-up` door forces it; the

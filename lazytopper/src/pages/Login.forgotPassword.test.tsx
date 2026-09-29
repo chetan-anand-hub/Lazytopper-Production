@@ -82,6 +82,11 @@ vi.mock("../services/mistakeLogService", () => ({
 vi.mock("../services/subscriptionService", () => ({
   hydrateSubscriptionFromCloud: vi.fn(async () => ({})),
   activateTrial: vi.fn(),
+  // TRIAL-CTA-1: the door now mounts useSubscription (its trial-intent step), which
+  // reads these on every render. A signed-out door never reaches the step.
+  loadSubscription: vi.fn(() => ({ tier: "free", plan: "none", trialStartDate: null, trialEndDate: null, premiumSince: null })),
+  getDaysLeftInTrial: vi.fn(() => 0),
+  isPremiumAccess: vi.fn(() => false),
 }));
 vi.mock("../services/uxTelemetry", () => ({ trackUxEvent: vi.fn() }));
 vi.mock("../services/referralService", () => ({ creditPendingReferral: vi.fn() }));

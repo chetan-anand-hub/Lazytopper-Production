@@ -19,6 +19,9 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
  * `/login` — which would strand every student arriving from anywhere else.
  */
 vi.mock("../services/uxTelemetry", () => ({ trackUxEvent: vi.fn() }));
+// TRIAL-CTA-1: the page reads the session for its state-aware trial button; these
+// round trips are the signed-out page's, which is what `user: null` renders.
+vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: null, loading: false }) }));
 
 import PricingPage from "./PricingPage";
 import OfferStrip from "../components/auth/OfferStrip";

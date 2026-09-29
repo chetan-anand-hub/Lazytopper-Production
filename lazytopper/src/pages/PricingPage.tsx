@@ -1,5 +1,9 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useSubscription } from "../hooks/useSubscription";
+import { TRIAL_DAYS } from "../services/subscriptionService";
+import { trackNamedEvent } from "../analytics/analytics";
 import ReturnContextBar from "../components/ux/ReturnContextBar";
 import PublicLegalFooter from "../components/ux/PublicLegalFooter";
 import {
@@ -925,6 +929,37 @@ export function TillBoardsOffer({ offerOpen }: { offerOpen: boolean }) {
   );
 }
 
+/**
+ * TRIAL-CTA-1 — the Premium card's signed-in trial states. Rendered ONLY inside a
+ * signed-in state (a sibling <style>, never PRICING_CSS), so the signed-out page —
+ * and so prerendered/pricing.html — is byte-for-byte what it was.
+ */
+const PRICING_TRIAL_STATE_CSS = `
+  .lt-pricing-trial-state .lt-pricing-trial-state-msg {
+    margin: 0 0 12px;
+    color: var(--lt-ink);
+    font-weight: 700;
+  }
+  .lt-pricing-trial-state .lt-pricing-cta {
+    text-decoration: none;
+  }
+`;
+
+/**
+ * "<d Month yyyy>" — the trial's end, DERIVED from the stored start plus the
+ * TRIAL_DAYS constant (the end is never stored; see subscriptionService). Read at
+ * render, never at module scope, so nothing is baked into a build.
+ */
+function trialEndsOn(trialStartDate: string | null): string | null {
+  const startMs = trialStartDate ? new Date(trialStartDate).getTime() : NaN;
+  if (!Number.isFinite(startMs)) return null;
+  return new Date(startMs + TRIAL_DAYS * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
 export default function PricingPage() {
   const navigate = useNavigate();
   // PAYCOPY-1 — read once per render; drives the subtitle, the pay FAQ and the fine print.
@@ -950,9 +985,84 @@ export default function PricingPage() {
   const [waitlistBoard, setWaitlistBoard] = useState("");
   const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
 
+  // TRIAL-CTA-1 — the Premium button is state-aware. Signed out it is exactly the old
+  // button (the prerendered page must not change): it carries the trial intent to the
+  // sign-in door, which honours it once (Login.tsx). Signed in, it starts the trial
+  // HERE through the one existing API, useSubscription().startTrial().
+  //
+  // ★ ELIGIBILITY IS THE EXISTING RULE, GUARDED AT THE CALL SITE (useSubscription.ts
+  // is not touched). activateTrial writes only for a status that is not premium and
+  // has no trialStartDate — but it reads the LOCAL cache, so the call waits for
+  // `hydrated` (a fresh device's empty cache would otherwise "start" a used trial the
+  // rules then refuse). The eligibility MEANING is unchanged. startTrial() returns
+  // nothing, so this guard is the whole evidence that the call takes effect, and so
+  // it is what gates trial_start.
+  const { user } = useAuth();
+  const subscription = useSubscription();
+  const [trialStartedHere, setTrialStartedHere] = useState(false);
+  const trialStartFired = useRef(false);
+  const trialEligible =
+    subscription.hydrated &&
+    subscription.status.tier !== "premium" &&
+    !subscription.status.trialStartDate;
+
   const handleStartTrial = () => {
-    toLogin(`/login?reason=start-trial&redirect=${encodeURIComponent(carriedRedirect ?? "/pricing")}`);
+    if (!user) {
+      toLogin(`/login?reason=start-trial&redirect=${encodeURIComponent(carriedRedirect ?? "/pricing")}`);
+      return;
+    }
+    if (!trialEligible || trialStartFired.current) return;
+    trialStartFired.current = true;
+    subscription.startTrial();
+    trackNamedEvent("trial_start");
+    setTrialStartedHere(true);
   };
+
+  const startTrialButton = (
+    <button
+      type="button"
+      className="lt-pricing-cta lt-pricing-cta--primary"
+      onClick={handleStartTrial}
+      disabled={Boolean(user) && !subscription.hydrated}
+    >
+      Start 7-day trial
+    </button>
+  );
+  const trialState = (message: string, practiseLink: boolean): ReactNode => (
+    <div className="lt-pricing-trial-state" data-testid="pricing-trial-state">
+      <style dangerouslySetInnerHTML={{ __html: PRICING_TRIAL_STATE_CSS }} />
+      <p className="lt-pricing-plan-desc lt-pricing-trial-state-msg" role="status">
+        {message}
+      </p>
+      {practiseLink && (
+        <Link className="lt-pricing-cta lt-pricing-cta--primary" to="/practice-hub">
+          Start practising
+        </Link>
+      )}
+    </div>
+  );
+  let premiumTrialAction: ReactNode;
+  if (!user || (!subscription.hydrated && !trialStartedHere)) {
+    // Signed out (and while the session resolves): the unchanged button. Signed in
+    // but not yet hydrated: the same button, disabled until the record is known.
+    premiumTrialAction = startTrialButton;
+  } else if (trialStartedHere) {
+    const endsOn = trialEndsOn(subscription.status.trialStartDate);
+    premiumTrialAction = trialState(
+      endsOn ? `Your 7-day trial has started. It ends on ${endsOn}.` : "Your 7-day trial has started.",
+      true,
+    );
+  } else if (subscription.status.tier === "premium") {
+    premiumTrialAction = trialState("Premium is active.", false);
+  } else if (subscription.isTrialActive) {
+    const n = subscription.daysLeftInTrial;
+    premiumTrialAction = trialState(`Your trial is active — ${n} ${n === 1 ? "day" : "days"} left.`, true);
+  } else if (trialEligible) {
+    premiumTrialAction = startTrialButton;
+  } else {
+    // Hydrated, not premium, not in a trial, not eligible => a trialStartDate exists.
+    premiumTrialAction = trialState("You've used your free trial.", false);
+  }
 
   const handleWaitlistSubmit = () => {
     if (!waitlistContact.trim()) return;
@@ -1061,13 +1171,7 @@ export default function PricingPage() {
                 </li>
               ))}
             </ul>
-            <button
-              type="button"
-              className="lt-pricing-cta lt-pricing-cta--primary"
-              onClick={handleStartTrial}
-            >
-              Start 7-day trial
-            </button>
+            {premiumTrialAction}
             <p className="lt-pricing-fine-print">
               {paymentsOn ? PRICING_FINE_PRINT_PAYMENTS_ON : PRICING_FINE_PRINT_PAYMENTS_OFF}
             </p>

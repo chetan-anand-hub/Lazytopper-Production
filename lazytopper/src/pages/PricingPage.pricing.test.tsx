@@ -5,6 +5,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
+// TRIAL-CTA-1: the page reads the session for its state-aware trial button. These pins
+// are about the PUBLIC (signed-out) page, which is exactly what `user: null` renders.
+vi.mock("../context/AuthContext", () => ({ useAuth: () => ({ user: null, loading: false }) }));
+
 import PricingPage, { PremiumPriceHead, TillBoardsOffer } from "./PricingPage";
 import {
   PRICE_FREE_DISPLAY,

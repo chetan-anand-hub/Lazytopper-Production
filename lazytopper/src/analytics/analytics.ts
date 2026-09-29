@@ -326,11 +326,16 @@ export function trackSignUp(): void {
  *   free_check_used_block   a browser that already used its free check was shown "used"
  *   free_check_signup       a free result was saved to a new sign-in (the R8 replay)
  *   free_check_trial_start  the student tapped "Start my free trial" in the R9 offer
+ *   trial_start             TRIAL-CTA-1 — a user action started the 7-day trial (Pricing, the
+ *                           sign-in door's trial intent, the RequirePremium lock, the C&I
+ *                           offer). Fired ONLY where the call site's eligibility guard held, so
+ *                           a repeated or ineligible tap is never counted. The ads conversion.
  */
 export type NamedAnalyticsEvent =
   | "free_check_used_block"
   | "free_check_signup"
-  | "free_check_trial_start";
+  | "free_check_trial_start"
+  | "trial_start";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });

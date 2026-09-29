@@ -142,7 +142,7 @@ describe("the Vercel binding", () => {
    * object — fails it. (The sign_up test's `name":"[^s]` regex is deliberately not
    * reused: every one of these names starts with "f", which that pattern would flag.)
    */
-  it.each(["free_check_used_block", "free_check_signup", "free_check_trial_start"] as const)(
+  it.each(["free_check_used_block", "free_check_signup", "free_check_trial_start", "trial_start"] as const)(
     "R10: %s is sent as a bare name — no identifier of any kind",
     (name) => {
       trackNamedEvent(name);

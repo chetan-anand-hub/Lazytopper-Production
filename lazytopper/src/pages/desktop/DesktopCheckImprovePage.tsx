@@ -3587,7 +3587,12 @@ const FreeCheckCheckImprovePage: React.FC = () => {
           step: "offer",
           endsOn: trialEndsOnLabel(Date.now()),
           onStartTrial: () => {
+            // TRIAL-CTA-1 — the offer renders only when hydrated, not premium and never
+            // trialled (the condition above), which is the existing eligibility rule, so
+            // this call takes effect. free_check_trial_start still counts the TAP;
+            // trial_start counts the start.
             subscription.startTrial();
+            trackNamedEvent("trial_start");
             trackNamedEvent("free_check_trial_start");
             setOfferClosed(true);
           },

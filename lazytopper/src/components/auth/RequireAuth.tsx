@@ -3,6 +3,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { UpgradeModal } from "../UpgradeModal";
+import { trackNamedEvent } from "../../analytics/analytics";
 
 export function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -28,7 +29,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
 
 export function RequirePremium({ children, featureLabel }: { children: ReactNode; featureLabel?: string }) {
   const { user, loading } = useAuth();
-  const { isPremium, isTrialExpired, startTrial } = useSubscription();
+  const { isPremium, isTrialExpired, startTrial, hydrated, status } = useSubscription();
   const location = useLocation();
   const [showUpgrade, setShowUpgrade] = useState(false);
 
@@ -71,7 +72,16 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
           <>
             <button
               type="button"
-              onClick={() => startTrial()}
+              onClick={() => {
+                // TRIAL-CTA-1 — the existing rule, guarded at the call site (see
+                // PricingPage): hydrated, not premium, never trialled.
+                // Only a call that takes effect is counted as trial_start.
+                if (!hydrated || status.tier === "premium" || status.trialStartDate) {
+                  return;
+                }
+                startTrial();
+                trackNamedEvent("trial_start");
+              }}
               style={{
                 border: "none", borderRadius: 12, padding: "14px 28px",
                 background: "var(--primary)", color: "#fff",
