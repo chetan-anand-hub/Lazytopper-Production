@@ -518,6 +518,10 @@ function bootServer(port) {
   `;
   const env = { ...process.env, PORT: String(port) };
   for (const k of Object.keys(env)) {
+    // TEST-CLOCK-SWEEP: keep the test clock (LT_TEST_CLOCK, LT_TEST_CLOCK_ANCHOR). The LT_ strip
+    // drops app config; dropping the clock put this child on the REAL clock while the test
+    // computed `today` on the switched one (red at LT_TEST_CLOCK=2030-...).
+    if (k.startsWith('LT_TEST_CLOCK')) continue;
     if (/^(AI_INTEGRATIONS_|GEMINI_|WARM_POOL_|LT_)/.test(k)) delete env[k];
   }
   delete env.DATABASE_URL;

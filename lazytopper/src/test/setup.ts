@@ -1,5 +1,20 @@
 import "@testing-library/jest-dom";
-import { afterEach } from "vitest";
+import { afterEach, beforeEach } from "vitest";
+// Test clock (TEST-CLOCK-SWEEP): with LT_TEST_CLOCK=<ISO> set, "now" reads that instant and
+// ticks from there, in every test. Unset -> nothing is installed. See the module for the design.
+import { ensureTestClock, installTestClockFromEnv } from "../../scripts/testClock/testClock.mjs";
+
+// Installs (idempotent: the node preload may already have) and SELF-CHECKS: throws, failing
+// every test file loudly, if the switch is set but "now" does not read it.
+installTestClockFromEnv();
+
+// vitest captured the NATIVE Date before this file ran, and `vi.useRealTimers()` after a bare
+// `vi.setSystemTime()` restores that capture. Put the shifted clock back before each test so
+// one test's pin cannot leak the real clock into the next. A test's own fake timers, installed
+// in its own beforeEach, run AFTER this hook, so its pin still wins.
+beforeEach(() => {
+  ensureTestClock();
+});
 
 /**
  * Vitest global setup.
