@@ -318,6 +318,18 @@ jobs:
           NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run
           NODE_OPTIONS="$PRELOAD" pnpm --filter lazytopper run test:matrix:all
 
+      - name: Test clock at IST midnight, board season
+        if: steps.classify.outputs.docs_only != 'true'
+        timeout-minutes: 35
+        env:
+          LT_TEST_CLOCK: "2030-02-14T18:45:00.000Z"
+        run: |
+          set -euo pipefail
+          PRELOAD="--import file://${GITHUB_WORKSPACE}/lazytopper/scripts/testClock/preload.mjs"
+          NODE_OPTIONS="$PRELOAD" node lazytopper/scripts/testClock/selfCheck.mjs
+          NODE_OPTIONS="--max-old-space-size=2048 $PRELOAD" pnpm --filter lazytopper exec vitest run
+          NODE_OPTIONS="$PRELOAD" pnpm --filter lazytopper run test:matrix:all
+
       # ★ SAY WHICH PATH THIS RUN TOOK, IN THE RUN. Without this, "CI was green" is ambiguous
       # between "everything passed" and "almost nothing ran" — and those are the two outcomes a
       # reader most needs to tell apart. Ungated, so it is present on both paths.
