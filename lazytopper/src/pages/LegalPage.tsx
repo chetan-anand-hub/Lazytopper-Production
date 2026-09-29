@@ -282,6 +282,7 @@ const PAGES: Record<LegalSlug, PageDef> = {
           <li>To generate performance analytics</li>
           <li>To improve our prediction algorithms</li>
         </ul>
+        <p>We use Google Analytics and Google Ads to understand how LazyTopper is used, to measure our advertising, and to show our ads to people who have visited. It uses cookies. We remove private links from the page addresses it receives.</p>
         <h2>Data Storage</h2>
         <p>Your data is stored securely using Firebase (Google Cloud Platform). Learning progress is stored locally on your device and optionally synced to the cloud for cross-device access.</p>
         <h2>Third-Party Services</h2>

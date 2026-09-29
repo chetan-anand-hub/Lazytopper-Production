@@ -117,6 +117,68 @@
       });
     </script>
     <script defer src="/_vercel/insights/script.js" data-disable-auto-track="1"></script>
+    <!-- GOOGLE ANALYTICS 4 (GA4-1, owner rulings 2026-09-29). Measures ad conversions
+         (sign_up) and, by the owner's second ruling, feeds Google Ads remarketing: Google
+         Signals and ad personalisation are ON. It sets cookies; the Privacy Policy says so.
+
+         ★ ON A /u/ HAND-OFF LINK (/u/... or /app/u/...) THIS DOES NOTHING AT ALL: no
+         Google script is requested and no gtag / dataLayer exists, because that path IS
+         a live single-use capability token. The same holds for the loopback / webdriver
+         contexts that src/analytics/analytics.ts already treats as automated.
+
+         What is NOT negotiable (security, not advertising): send_page_view is false
+         (page views are sent by src/analytics/, after normalisePath), and the address
+         and referrer handed to Google are redacted here, by the same rule analytics.ts
+         applies to every later hit: origin + app path (no trailing slash, capped at
+         200) + ONLY gclid and utm_* query parameters, no hash; the referrer is reduced
+         to its origin.
+         src/analytics/indexHtml.guard.test.ts runs this block and pins all of it. -->
+    <script>
+      (function () {
+        var loc = window.location;
+        var full = loc.pathname || "/";
+        if (/^(?:\/app)?\/u(?:\/|$)/.test(full)) return;
+        var host = loc.hostname;
+        if (
+          host === "127.0.0.1" ||
+          host === "localhost" ||
+          host === "::1" ||
+          host === "[::1]" ||
+          host === "0.0.0.0" ||
+          /\.local$/.test(host) ||
+          window.navigator.webdriver === true
+        )
+          return;
+        var BASE = "/app";
+        var path = full === BASE || full.indexOf(BASE + "/") === 0 ? full.slice(BASE.length) : full;
+        if (path.charAt(0) !== "/") path = "/" + path;
+        if (path.length > 1 && path.charAt(path.length - 1) === "/") path = path.slice(0, -1);
+        if (path.length > 200) path = path.slice(0, 200);
+        var kept = [];
+        var parts = String(loc.search || "").replace(/^\?/, "").split("&");
+        for (var i = 0; i < parts.length; i++) {
+          var key = parts[i].split("=")[0];
+          if (key === "gclid" || key.indexOf("utm_") === 0) kept.push(parts[i]);
+        }
+        var ref = /^(https?:\/\/)(?:[^\/?#@]*@)?([^\/?#@]+)/i.exec(String(document.referrer || ""));
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function () {
+          window.dataLayer.push(arguments);
+        };
+        window.gtag("js", new Date());
+        window.gtag("config", "G-1T8Q12H4RQ", {
+          send_page_view: false,
+          allow_google_signals: true,
+          allow_ad_personalization_signals: true,
+          page_location: loc.origin + BASE + path + (kept.length ? "?" + kept.join("&") : ""),
+          page_referrer: ref ? ref[1] + ref[2] + "/" : ""
+        });
+        var tag = document.createElement("script");
+        tag.async = true;
+        tag.src = "https://www.googletagmanager.com/gtag/js?id=G-1T8Q12H4RQ";
+        document.head.appendChild(tag);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
