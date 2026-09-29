@@ -1,5 +1,24 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-09-29 — WAVE C-1 (CONTROLLER C): GA4-1 (`#879` `6d61a6e1`), trunk `6d61a6e1`. Rolled out ALONE; LIVE at 100%.**
+> ★ **ONE SURFACE CELL MOVES LIVE: the Privacy Policy.** Every page's head gains the GA4 tag, a new capability rather than a surface cell (as ANALYTICS-1 was recorded). No page's visible content changes.
+
+### ✅ Privacy policy (`/legal/privacy`) — Google Analytics + Google Ads disclosure — **LIVE (`#879`)**
+- The ruling-2 sentence follows P8's list: "We use Google Analytics and Google Ads to understand how LazyTopper is used, to measure our advertising, and to show our ads to people who have visited. It uses cookies. We remove private links from the page addresses it receives."
+- The prerendered page was regenerated from the PR's own CI artifact.
+- ⚠ "Last updated: April 2026" was not bumped → `[FU-GA4-PRIVACY-LAST-UPDATED]`.
+
+### ✅ NEW CAPABILITY (not a surface) — GA4 FOR AD CONVERSIONS — **VERCEL COOKIELESS COUNTS ONLY → + GA4 (`G-1T8Q12H4RQ`), REDACTED**
+- Every page's head (the SPA shell and every prerendered page, e.g. `/app/notes/trigonometry`) carries the snippet. It is absent on `/u/` hand-off links and in automated contexts.
+- Production smoke on canary and www: redacted `page_view` (`gclid` / `utm_*` kept, other params dropped); `/app/u/test` sends 0 Google requests; no ErrorBoundary *(subagent-reported)*.
+- It sets cookies (`_ga`, `_ga_1T8Q12H4RQ`) and, by owner ruling 2, sends Signals / remarketing hits. This is recorded as a capability because it changes what the owner and Google Ads can see, not what a student sees.
+
+### ⬜ NO OTHER CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- The Vercel analytics call is byte-for-byte unchanged. `/u/` hand-off links load no Google tag. No other page's text changed (the only prerendered body that changed is `legal/privacy.html`).
+
+### 📋 Scope discovered? — **NO surface scope set to Settling.**
+- The DPDP data-map gap (`[FU-GA4-DATAMAP-ENTRY]`) and the controller's DPDP risk note (legal review before ads) are compliance follow-ups on a capability, not scope on a surface. Nothing goes in `DECISION_LOG` §2a.
+
 > **2026-09-29 — WAVE A-5 (CONTROLLER A): TEST-CLOCK-SWEEP (`#877` `d049a4f9`), trunk `d049a4f9`. Test and CI only; it moves NO student-facing surface.**
 > No surface cell changes. No scope was discovered; nothing goes in `DECISION_LOG` §2a. (CI now also runs every PR's vitest + ops matrix at a 2030 clock; see `CURRENT_STATE.md`.)
 
