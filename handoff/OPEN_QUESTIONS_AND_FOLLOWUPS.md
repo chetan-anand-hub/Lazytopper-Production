@@ -23,6 +23,26 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-09-29 — WAVE C-1 (CONTROLLER C): GA4-1 (`#879` MERGED as `6d61a6e1`, squash, `--match-head-commit 45a71014`, merged by the owner, rolled out ALONE) — four new, none closed
+
+### `[FU-GA4-PRIVACY-LAST-UPDATED]` — OPEN *(builder-raised)*
+The Privacy Policy still says "Last updated: April 2026" although its content changed in `#879` (the GA / Google Ads / cookies sentence). GA4-1's scope was "the analytics lines only", so the date was not bumped. **Owner:** a one-line follow-up, with the prerendered privacy page regenerated from CI.
+
+### `[FU-GA4-DATAMAP-ENTRY]` — OPEN *(builder-raised)*
+`studentDataMap.ts` (the DPDP data map) has no entry for the GA4 `_ga` / `_ga_1T8Q12H4RQ` cookies or the Google-held identifier. **DPDP export and erasure cannot reach Google's copy.** It is outside GA4-1's allowlist, so it was not touched. Needs a lane that adds the row (and decides how an erasure request reaches Google's data, if at all).
+
+### `[FU-GA4-ENHANCED-MEASUREMENT-VERIFY]` — OPEN *(builder-raised)*
+The owner has turned GA4 Enhanced measurement OFF (ruling (c), before the rollout). **Verify it end to end:** re-run the headless proof (webdriver hidden) with an SPA navigation, a `?q=` query and an outbound click, and confirm that the only GA hits are ours — the redacted `page_view` and named events. Until this runs, "no raw-URL hits from Enhanced measurement" rests on the admin setting, not on a measurement: the preview proof saw only our redacted `page_view`, but ran on a stream whose admin settings the builder could not see.
+
+### `[FU-GA4-SET-PRECEDENCE]` — OPEN, standing caution *(builder-raised)*
+`gtag('set')` is spec-mandated but is outranked by `config` (gtag precedence: event > config > set). **The event-level `page_location` / `page_referrer` params are what actually carry the address.** If a later lane drops them, every page view would be filed against the landing address that `config` carries. `analytics.ts` documents this; `analytics.ga4.test.ts` asserts that both `set` and each event carry the redacted address.
+
+### Note on `[FU-ANALYTICS-NEW-CREDENTIAL-ROUTE]` (2026-09-21) — that entry stands as written; this adds to it *(docs-builder reading of the GA4-1 report)*
+That standing constraint names **two** places that hold the `/u/` redaction rule (`REDACTIONS` in `analytics.ts`; the Vercel `beforeSend` regex in `index.html`). Since `#879` there is a **third**: the GA4 snippet in `index.html` has its own inline `/u/` skip (`/^(?:\/app)?\/u(?:\/|$)/`) and its own inline copy of the path normalisation, because an inline script cannot import `normalisePath` *(subagent-reported)*. `indexHtml.guard.test.ts` pins the snippet's output to `analytics.ts` byte for byte over 8 addresses, but, like the existing guard, it cannot know about a route that does not exist yet. **A future route with a secret in its path must be handled in all three places.**
+
+### Note on `[FU-ANALYTICS-CONVERSION-NEEDS-CONSENT]` (2026-09-21) — that entry stands as written, for everything except the GA4 tag
+By owner ruling (a) of 2026-09-29, the GA4 tag carries a persistent identifier (`_ga` cookies) and `sign_up` is its Google Ads conversion. For THAT tag only, the no-identifier rule behind this entry is superseded. It still holds for `src/analytics/`'s own payloads: GA4-1 sends no uid, email or content *(subagent-reported)*.
+
 ## 2026-09-29 — WAVE A-5 (CONTROLLER A): TEST-CLOCK-SWEEP (`#877` MERGED as `d049a4f9`, squash, `--match-head-commit 230c29ab`, no `--admin`) · TEST-CLOCK-1 (`#875` `d793d903`) recorded — two closed, one new
 
 ### `[FU-TEST-CLOCK-SWEEP]` — ✅ CLOSED by `#877`

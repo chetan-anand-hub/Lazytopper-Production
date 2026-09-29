@@ -1,5 +1,69 @@
 # LazyTopper — Current State
 
+## [CURRENT · ANALYTICS] WAVE C-1 — **GOOGLE ANALYTICS 4 IS LIVE FOR AD CONVERSIONS: REDACTED PAGE ADDRESSES ONLY, AND NO GOOGLE TAG AT ALL ON `/u/` HAND-OFF LINKS (GA4-1) · GOOGLE SIGNALS + AD PERSONALISATION ON BY OWNER RULING 2** — `#879` MERGED — trunk `6d61a6e1`
+*(Supersedes the WAVE A-5 block below on trunk SHA and on analytics only — that block is demoted to previous on trunk SHA; its content, its standing rule and its owner items otherwise stand as written. It also supersedes, for the GA4 tag ONLY, the no-identifier analytics rule of the ANALYTICS-1 block below and of `DECISION_LOG` 2026-09-21 DECISION 1; that rule stands for everything else. Exactly one un-superseded `[CURRENT]` remains: this one.)*
+
+★ **PROVENANCE.**
+- Controller C, wave C-1, one controller session, from the owner spec `GA4-1` v1.0 (staged at `LT-worktrees/controller-c1/ops/.specs/GA4-1.md`, sha256 `686394257a8f…`, hash-verified by the controller against the owner prefix `686394257A8F`). The spec file was NOT edited; owner ruling 2 supersedes parts of it (below). One builder (`claude-opus-5-5`, effort high) in `C:/Projects/LT-worktrees/ga4-1`; brief `Desktop/diff/BRIEF_GA4-1.md` + addendum `BRIEF_GA4-1_ADDENDUM_OWNER_RULING_2.md` (both controller-authored; the addendum quotes the owner verbatim).
+- This docs PR was written by a docs builder in `C:/Projects/LT-worktrees/docs-wave-c1` from `Desktop/diff/WAVE_STATE_C1.md`, the lane report `Desktop/diff/report-ga4-1-2026-09-29.md`, the spec and the addendum (OR-16).
+- *(subagent-reported)* = from the builder's report; *(controller-verified)* = re-checked by the controller (or, where marked, by the docs builder with `gh` / `git`).
+
+**Trunk `6d61a6e15f1e3758267eb89d7a0d2fa28e195710`** at the time of writing (`git fetch origin` + `git rev-parse origin/base/approved-thru-437`). The commits since the wave A-5 docs:
+- `b50d5dce` = `#878` (docs: wave A-5) — Controller A's, covered by that handoff;
+- `6d61a6e1` = `#879` GA4-1 — **this block**.
+
+### What landed
+- **`#879` GA4-1 → `6d61a6e1`**, squash, `--match-head-commit 45a71014`, **merged by the OWNER** (the controller's merge attempt was denied once by the auto-mode classifier; see `DECISION_LOG`). The merge commit is an ancestor of trunk, and **trunk tree == head tree `f0ca93b8`** *(controller-verified; re-checked by the docs builder: `6d61a6e1^{tree}` == `45a71014^{tree}` == `f0ca93b8…`; `gh pr view 879` mergedBy `chetan-anand-hub` at 04:22:29Z)*.
+- 8 files, all inside the owner grant *(controller-verified)*:
+  - `lazytopper/index.html` — ONE hunk, additions only (`@@ -119,0 +120,62 @@`), after the Vercel tag and before the `main.tsx` module script (owner grant: one block between P1 and P3).
+  - `lazytopper/src/analytics/analytics.ts` + new `analytics.ga4.test.ts` (16 tests) + `indexHtml.guard.test.ts` (12 tests: 4 existing + 8 GA4).
+  - `lazytopper/src/pages/LegalPage.tsx` — ONE line added, the ruling-2 privacy sentence.
+  - `prerendered/legal/privacy.html`, `prerendered/lastmod.json`, `public/sitemap.xml` — from the PR's own CI artifact only.
+- **The snippet** (`index.html`, one inline script) *(subagent-reported)*: returns at once on `/u/` and `/app/u/` paths (no script, no `gtag`, no `dataLayer`) and in automated contexts (loopback, `*.local`, `navigator.webdriver`). Otherwise it sets up `gtag`, calls `gtag('config','G-1T8Q12H4RQ', {send_page_view:false, allow_google_signals:true, allow_ad_personalization_signals:true, page_location, page_referrer})` and injects `gtag/js` dynamically (a static tag could not be skipped on `/u/`).
+- **Redaction** *(subagent-reported)*: `page_location` = origin + `/app` + the normalised router path + ONLY `gclid` / `utm_*` params, no hash; `page_referrer` = the referring origin only. `analytics.ts` sends every page view and named event (`sign_up` = the Google Ads conversion; `free_check_*` by name) as `gtag('set', …)` then `gtag('event', …)`, both carrying the same two redacted values. No uid, email or content. The Vercel call is byte-for-byte unchanged, in its own try/catch.
+- **Privacy Policy** (`/legal/privacy`), the ruling-2 sentence verbatim: "We use Google Analytics and Google Ads to understand how LazyTopper is used, to measure our advertising, and to show our ads to people who have visited. It uses cookies. We remove private links from the page addresses it receives."
+
+### ★ OWNER RULINGS 2026-09-29 (recorded verbatim in substance)
+- **(a) GA4 (Option C) APPROVED, with the spec's mitigations**, over offline conversion import — knowing the cofounder's advice that GA4's persistent id and behavioural data conflict with the standing DPDP §9(3) rule for a mostly-minor audience. It **supersedes the DPDP §9(3) analytics rule for THIS tag only; the rule stands for everything else.**
+- **(b) RULING 2 — Google Signals + ad personalisation ON** (`allow_google_signals: true`, `allow_ad_personalization_signals: true`), with the new Privacy Policy sentence above. **Unchanged and still required, as security, not advertising:** `send_page_view: false` with manual, redacted page views; **no Google tag at all on `/u/` hand-off links**; `page_location` redacted, keeping `gclid` / `utm_*`. This supersedes the spec's §2 G1 flags (both `false`), its G4 sentence and the matching G5 pins.
+- **(c) Enhanced measurement is already OFF in GA4 admin** — set by the owner before the rollout.
+- **(d) Google Signals follows ruling 2 (ON).** The spec's §4 owner step "Google Signals **off**" is superseded.
+
+### ★ SPEC CORRECTIONS (recorded at the owner's request)
+- **P9:** `writeStaticHeads.ts` is at **`lazytopper/scripts/seo/writeStaticHeads.ts`** (the spec said `scripts/seo/…`, which does not exist at the repo root), and it has **8** substitution patterns (the spec said four): canonical, `og:url`, `title`, description, `og:title`, `og:description`, `twitter:title`, `twitter:description` (lines 215–218 and 225–228), each through `replaceExactlyOnce()`. The snippet contains no `<link`, `<meta` or `<title`, so **it collides with none** *(subagent-reported)*. Build proof: `STATIC_HEADS: … advertised=60 pages=59 files=118 no_honest_description=0`.
+- **Spec §4 "Google Signals off"** — superseded by ruling 2 (item (d) above).
+
+### ⚠ RECORDED RISK — NOT A BLOCK (the controller's DPDP risk note)
+Remarketing a mostly-under-18 audience is squarely what DPDP Act §9(3) names (tracking or behavioural monitoring of children, and targeted advertising directed at children). **Recommendation: a legal review before the ads campaign starts** (the controller also suggested considering an age-gate or consent before relying on Signals). **Google's own under-18 ad-personalisation policy was NOT verified by the controller.** Ruling 2 makes the tag send remarketing hits to `stats.g.doubleclick.net` and `www.google.co.in` as well as GA's collect; in the preview and production smokes they carried no secret *(subagent-reported)*.
+
+### Evidence
+- **CI** on head `45a71014`, quality-gate `36518926491` success: `Tests  3191 passed (3191)`; root guard matrix `# tests 293 # pass 293 # fail 0 # skipped 0 # todo 0`; the 2030-clock step `Tests  3191 passed (3191)` with its self-check line. prerender-capture `36518926534` (the committed artifact matches a fresh capture), lane-overlap, container-boot, CodeQL and the Vercel preview are green *(subagent-reported; the controller verified the quality-gate success on that head before the merge attempt)*.
+- **Mutations** (one at a time, named file, restored with `cmp`) *(subagent-reported)*: `send_page_view` → `true` → 1 failed; delete the `/u/` skip → 2 failed; `ga4AdParams` drops `gclid` → 3 failed; `allow_google_signals` → `false` (the ruling-2 pin) → 1 failed.
+- **Preview** (head `45a71014`, headless Chromium with webdriver hidden) *(subagent-reported)*: `/app/?gclid=…&utm_source=…&oobCode=SECRETCODE#frag` → one `page_view` hit whose `dl` keeps `gclid` + `utm_source`; `SECRETCODE` and `frag` are in no Google request. `/app/u/test` → 0 Google requests, `dataLayer` undefined, only Vercel's `__vdpl` cookie.
+
+### ★ LIVE PROOF (OR-LIVE — rolled out ALONE)
+- **Rolling release** (8 polls of `vercel rolling-release fetch`, stderr captured) *(subagent-reported)*: 10% from 04:24:04 → 50% from 04:29:30 → **COMPLETE 100% at 04:40:04**, canary **`dpl_CccqvsjQinHDLvaKQjdSWVAzq4C8`**. `vercel inspect https://www.lazytopper.com` → that same dpl, `target production`, Ready.
+- **Smoke — canary first, then www** *(subagent-reported)*:
+  - `/app/?gclid=TESTGCLID123&utm_source=t&foo=secret` → 200, no ErrorBoundary, one `gtag/js` request, one `page_view` hit whose `dl` keeps `gclid` + `utm_source` and drops `foo`; "secret" / "foo=" in no Google request. **PASS on both hosts.**
+  - `/app/u/test` → 200, **0 Google / doubleclick requests, `window.dataLayer` undefined. PASS on both hosts.**
+  - `curl /app/notes/trigonometry` (a built chapter file) → 200, with `gtag("config", "G-1T8Q12H4RQ"` and the `gtag/js` src. **PASS on both hosts.**
+  - 0 ErrorBoundary, no 403.
+- *(controller-verified)*: www `/app/version.json` = `6d61a6e15f1e…`, and `rolling-release` state COMPLETE 100%.
+- ⚠ **Two smoke page views went into the real GA4 property** (one canary, one www), both with `gclid=TESTGCLID123&utm_source=t`. The owner may filter them out. The fake gclid is not a real Google Ads click and attributes no conversion.
+
+### Follow-ups (bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`)
+- **New:** `[FU-GA4-PRIVACY-LAST-UPDATED]` · `[FU-GA4-DATAMAP-ENTRY]` · `[FU-GA4-ENHANCED-MEASUREMENT-VERIFY]` · `[FU-GA4-SET-PRECEDENCE]`.
+- **Closed:** none.
+
+### ★ Owner items (none run by the controller or a builder)
+1. **A legal review before the Google Ads campaign starts** (the recorded risk above).
+2. The remaining spec §4 GA4 admin steps are the owner's (Enhanced measurement OFF is DONE, ruling (c); Signals follows ruling 2, ruling (d)): data retention **2 months**; link GA4 ↔ Google Ads; mark **`sign_up`** as a key event; import it into Google Ads as the **primary** conversion.
+3. *(optional)* Filter the two smoke page views (`gclid=TESTGCLID123`, `utm_source=t`) out of the GA4 property.
+4. The owner items of the WAVE A-5 block below still stand.
+
+### Carried forward — ★ THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this block
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.** **Wave C-1 moved NO dormancy in that trio.** The full block, including the `#647`/`#655` resolution and every subsequent amendment, is preserved verbatim in its section (`### 8 - ★ THE WIRE-2 QUESTION` and `### 9`) and the demoted `[CURRENT]` sections below, and must be read there before any lane acts on it.
+
 ## [CURRENT · DATES + REACH] WAVE A-5 — **NO TEST MAY DEPEND ON TODAY'S DATE: EVERY PR NOW ALSO RUNS AT A 2030 CLOCK (TEST-CLOCK-SWEEP) · TEST-CLOCK-1 (`#875`) RECORDED** — `#877` MERGED — trunk `d049a4f9`
 *(Supersedes the WAVE A-4 block below on trunk SHA and on test-clock status only. Everything else in that block, and the owner items of every block below, stands.)*
 

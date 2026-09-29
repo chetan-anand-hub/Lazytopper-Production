@@ -1,3 +1,23 @@
+## 2026-09-29 — WAVE C-1 (CONTROLLER C) — **GA4-1: GOOGLE ANALYTICS 4 IS LIVE FOR AD CONVERSIONS — REDACTED ADDRESSES, NO TAG ON `/u/` LINKS; SIGNALS + AD PERSONALISATION ON BY OWNER RULING 2** — `#879` MERGED — trunk `6d61a6e1`
+
+★ **PROVENANCE.** Controller C, wave C-1. The owner spec `GA4-1` v1.0 was hash-verified (`686394257A8F`). One builder (`claude-opus-5-5`, effort high) worked in `C:/Projects/LT-worktrees/ga4-1`. A docs builder wrote this docs PR in `C:/Projects/LT-worktrees/docs-wave-c1` from `WAVE_STATE_C1.md`, `report-ga4-1-2026-09-29.md`, the spec and the ruling-2 addendum. *(subagent-reported)* / *(controller-verified)* as in `CURRENT_STATE.md`.
+
+**Timeline.**
+- Dispatch at trunk `d049a4f9` (`#877`). Open: `#878` (the A-5 docs — so this wave's docs had to wait) and `#876` (Dependabot, disjoint). A rolling release was ACTIVE, so GA4-1 had to wait for it to COMPLETE before merging. §0c premise gate EXIT 0, 9 premises *(subagent-reported)*.
+- The builder built ruling 1 (Signals and ad personalisation OFF). **Owner ruling 2 then turned both ON** with a new privacy sentence; it was relayed by addendum and landed as a NEW commit, not an amend. The spec was not edited.
+- `#879` head `45a71014`: all checks green, CI `Tests 3191 passed (3191)`, root `# skipped 0`. The builder returned MERGE-READY, with two owner questions: reconcile spec §4 "Signals off" with ruling 2, and turn Enhanced measurement off before rollout.
+- The controller's merge was **denied once by the auto-mode classifier**; it did not work around it. **The owner merged `#879` → `6d61a6e1`** (04:22:29Z). The controller verified ancestor + trunk tree == head tree `f0ca93b8`.
+- The owner answered both questions: Enhanced measurement was already OFF; Signals follows ruling 2.
+- GA4-1 rolled out ALONE: 10% → 50% → COMPLETE 100% at 04:40:04 (`dpl_CccqvsjQinHDLvaKQjdSWVAzq4C8`). The builder's canary and www smoke passed: redaction held, `/u/` sent zero Google requests, and the snippet was in a built chapter file. The controller verified www `version.json` = `6d61a6e1` and the rollout COMPLETE.
+- This docs PR (OR-16), then the final audit `Desktop/diff/audit-request-wave-c1-final-2026-09-29.md`, then STOP.
+
+**Lessons.**
+- **A spec's path and count are premises, not facts.** P9 named `scripts/seo/writeStaticHeads.ts` with four patterns; the file is `lazytopper/scripts/seo/…` with eight. The builder read the file rather than the spec's summary of it.
+- **An owner ruling that postdates a hash-pinned spec is recorded beside it, never written into it.** The addendum quoted the owner, and the report and PR body recorded the supersession; the spec's hash still proves what was approved first.
+- **A tag that must be absent on some routes cannot be static.** GA4-1 injects `gtag/js` from an inline script that returns first on `/u/`, and proves absence with a headless run that counts Google requests (0), not with a grep.
+- **A headless proof of an analytics tag must hide `navigator.webdriver`**, because the tag correctly refuses to run in automated contexts. A proof that forgets this sees "no hits" and proves nothing.
+- **Smoke tests against production write into production analytics.** Two test page views (`gclid=TESTGCLID123`) are now in the GA4 property.
+
 ## 2026-09-29 — WAVE A-5 (CONTROLLER A) — **TEST-CLOCK-SWEEP: EVERY PR NOW ALSO RUNS AT A 2030 CLOCK — NO TEST MAY DEPEND ON TODAY'S DATE** — `#877` MERGED — trunk `d049a4f9`
 
 ★ **PROVENANCE.** Controller A, wave A-5 (a fresh controller, per the addendum's §1). The owner spec `TEST-CLOCK-SWEEP` v1.0 was hash-verified (`181FA7FBA22F`). One builder (`claude-opus-5-5`) worked in `C:/Projects/LT-worktrees/test-clock-sweep`. The controller wrote this docs PR from `WAVE_STATE_A5.md` and `report-test-clock-sweep-2026-09-29.md`. *(subagent-reported)* / *(controller-verified)* as in `CURRENT_STATE.md`.
