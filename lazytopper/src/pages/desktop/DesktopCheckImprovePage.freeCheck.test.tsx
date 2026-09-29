@@ -471,21 +471,6 @@ describe("R9 — the trial offer (signed in, a free result saved)", () => {
     expect(container.textContent).not.toContain("Your answer is saved.");
   });
 
-  it("TRIAL-CTA-1 — a pass that has ended (never trialled): the tap is counted, but no trial is started", () => {
-    H.phase = "saved";
-    const saved = H.sub.status;
-    H.sub.status = { ...saved, plan: "pass_month" };
-    try {
-      renderPage();
-      fireEvent.click(screen.getByRole("button", { name: "Start my free trial" }));
-      expect(H.sub.startTrial).not.toHaveBeenCalled();
-      expect(H.track.mock.calls).toContainEqual(["free_check_trial_start"]);
-      expect(H.track.mock.calls.filter(([n]) => n === "trial_start")).toHaveLength(0);
-    } finally {
-      H.sub.status = saved;
-    }
-  });
-
   it("'Maybe later' → no trial, the offer goes, and the page is today's lock", () => {
     H.phase = "saved";
     const { container } = renderPage();

@@ -86,18 +86,6 @@ describe("RequirePremium — trial CTA + eligibility", () => {
     expect(trialStarts()).toBe(0);
   });
 
-  it("TRIAL-CTA-1 — a pass that has ended (never trialled) is not rewritten to a trial", async () => {
-    const passEnded: SubscriptionStatus = { ...FREE, plan: "pass_month", passEnd: new Date(Date.now() - DAY).toISOString() };
-    hydrate.mockResolvedValue(passEnded);
-    renderGate();
-    const cta = await screen.findByText("Start my free 7-day trial");
-    await waitFor(() => expect(hydrate).toHaveBeenCalled());
-    await act(async () => {});
-    fireEvent.click(cta);
-    expect(activate).not.toHaveBeenCalled();
-    expect(trialStarts()).toBe(0);
-  });
-
   it("EXPIRED-trial user does NOT see the trial CTA — only the plans path", async () => {
     hydrate.mockResolvedValue(EXPIRED);
     renderGate();

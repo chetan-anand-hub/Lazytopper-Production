@@ -74,14 +74,9 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
               type="button"
               onClick={() => {
                 // TRIAL-CTA-1 — the existing rule, guarded at the call site (see
-                // PricingPage): hydrated, not premium, never trialled, not a pass.
+                // PricingPage): hydrated, not premium, never trialled.
                 // Only a call that takes effect is counted as trial_start.
-                if (
-                  !hydrated ||
-                  status.tier === "premium" ||
-                  status.trialStartDate ||
-                  status.plan.startsWith("pass_")
-                ) {
+                if (!hydrated || status.tier === "premium" || status.trialStartDate) {
                   return;
                 }
                 startTrial();

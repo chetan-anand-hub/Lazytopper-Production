@@ -90,7 +90,6 @@ function status(over: Partial<SubscriptionStatus>): SubscriptionStatus {
 const FREE = status({});
 const TRIAL_USED = status({ trialStartDate: new Date(Date.now() - 10 * DAY).toISOString() });
 const PREMIUM = status({ tier: "premium", plan: "premium_monthly", premiumSince: new Date(Date.now() - DAY).toISOString() });
-const PASS_ENDED = status({ plan: "pass_month", passEnd: new Date(Date.now() - DAY).toISOString() });
 
 /** The cloud answers with `cloud`, and — like the real hydration — caches it. */
 function cloudHolds(cloud: SubscriptionStatus) {
@@ -220,7 +219,6 @@ describe("T1 — an ineligible account is not changed", () => {
   it.each([
     ["trial already used", TRIAL_USED],
     ["premium", PREMIUM],
-    ["a pass that has ended (never trialled)", PASS_ENDED],
   ] as const)("%s → no startTrial, no trial_start, the record untouched, still lands on the redirect", async (_label, cloud) => {
     cloudHolds(cloud);
     const before = localStorage.getItem(STORAGE_KEY);

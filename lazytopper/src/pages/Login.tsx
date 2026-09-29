@@ -1601,8 +1601,8 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
   //
   // ★ Eligibility is the EXISTING rule, guarded here (useSubscription.ts untouched):
   // activateTrial reads the LOCAL cache, so the step waits for this uid's cloud
-  // hydration; then it starts only a status that is not premium, has no
-  // trialStartDate and is not a pass (a pass record the rules would let it rewrite).
+  // hydration; then it starts only a status that is not premium and has no
+  // trialStartDate.
   // An ineligible account is not changed and trial_start does not fire.
   //
   // ★ ONCE: the ref stops a re-run of the effect on this mount; the `replace`
@@ -1651,8 +1651,7 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
       const eligible =
         subscription.hydrated &&
         status.tier !== "premium" &&
-        !status.trialStartDate &&
-        !status.plan.startsWith("pass_");
+        !status.trialStartDate;
       if (eligible) {
         subscription.startTrial();
         trackNamedEvent("trial_start");

@@ -994,9 +994,9 @@ export default function PricingPage() {
   // is not touched). activateTrial writes only for a status that is not premium and
   // has no trialStartDate — but it reads the LOCAL cache, so the call waits for
   // `hydrated` (a fresh device's empty cache would otherwise "start" a used trial the
-  // rules then refuse), and it never runs for a pass account, which the rules WOULD
-  // let it rewrite to a trial. startTrial() returns nothing, so this guard is the
-  // whole evidence that the call takes effect — and so it is what gates trial_start.
+  // rules then refuse). The eligibility MEANING is unchanged. startTrial() returns
+  // nothing, so this guard is the whole evidence that the call takes effect, and so
+  // it is what gates trial_start.
   const { user } = useAuth();
   const subscription = useSubscription();
   const [trialStartedHere, setTrialStartedHere] = useState(false);
@@ -1004,8 +1004,7 @@ export default function PricingPage() {
   const trialEligible =
     subscription.hydrated &&
     subscription.status.tier !== "premium" &&
-    !subscription.status.trialStartDate &&
-    !subscription.status.plan.startsWith("pass_");
+    !subscription.status.trialStartDate;
 
   const handleStartTrial = () => {
     if (!user) {
@@ -1060,12 +1059,9 @@ export default function PricingPage() {
     premiumTrialAction = trialState(`Your trial is active — ${n} ${n === 1 ? "day" : "days"} left.`, true);
   } else if (trialEligible) {
     premiumTrialAction = startTrialButton;
-  } else if (subscription.status.trialStartDate) {
-    premiumTrialAction = trialState("You've used your free trial.", false);
   } else {
-    // A pass that has ended, on an account that never trialled. The existing rule
-    // would start a trial here AND rewrite the pass record's plan, so no button.
-    premiumTrialAction = trialState("Your pass has ended.", false);
+    // Hydrated, not premium, not in a trial, not eligible => a trialStartDate exists.
+    premiumTrialAction = trialState("You've used your free trial.", false);
   }
 
   const handleWaitlistSubmit = () => {

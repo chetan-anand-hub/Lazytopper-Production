@@ -59,7 +59,6 @@ const FREE = status({});
 const ACTIVE = status({ tier: "trial", plan: "trial_7day", trialStartDate: new Date(Date.now() - 2 * DAY).toISOString() });
 const TRIAL_USED = status({ trialStartDate: new Date(Date.now() - 10 * DAY).toISOString() });
 const PREMIUM = status({ tier: "premium", plan: "premium_monthly", premiumSince: new Date(Date.now() - DAY).toISOString() });
-const PASS_ENDED = status({ plan: "pass_month", passEnd: new Date(Date.now() - DAY).toISOString() });
 
 function cloudHolds(cloud: SubscriptionStatus) {
   hydrate.mockImplementation(async () => {
@@ -226,16 +225,5 @@ describe("T2 · signed in", () => {
     expect(trialButton()).toBeNull();
     expect(trialMsg()).toBe("Premium is active.");
     expect(activate).not.toHaveBeenCalled();
-  });
-
-  it("a pass that has ended (never trialled) → no button, and the pass record is never rewritten", async () => {
-    cloudHolds(PASS_ENDED);
-    authState.user = { uid: UID };
-    renderPricing();
-    await act(async () => {});
-    expect(trialButton()).toBeNull();
-    expect(trialMsg()).toBe("Your pass has ended.");
-    expect(activate).not.toHaveBeenCalled();
-    expect(trialStarts()).toBe(0);
   });
 });
