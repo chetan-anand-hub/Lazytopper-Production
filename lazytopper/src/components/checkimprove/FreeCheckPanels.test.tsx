@@ -116,9 +116,9 @@ describe("the copy is the spec's, verbatim", () => {
 
   it("R1 'used' — and it counts free_check_used_block with the name only", () => {
     const { container } = mount(<FreeCheckUsedPanel />);
-    expect(container.textContent).toContain(
-      "You've used your free check. Sign up free to save it and start your 7-day free trial — no card needed.",
-    );
+    // SIGNUP-NUDGE-1 — the S1 copy (the full copy set is pinned in the signupNudge suite).
+    expect(container.textContent).toContain("Your free check is done ✅");
+    expect(container.textContent).toContain("Sign up in one tap to keep this result and keep checking answers.");
     expect(track.mock.calls).toEqual([["free_check_used_block"]]);
   });
 
