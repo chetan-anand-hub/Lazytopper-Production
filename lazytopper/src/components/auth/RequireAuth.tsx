@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { UpgradeModal } from "../UpgradeModal";
 import { trackNamedEvent } from "../../analytics/analytics";
+import { BasicFreeList } from "../pricing/BasicFreeList";
 
 export function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -68,6 +69,9 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
             </>
           ) : null}
         </p>
+        {/* TRIAL-ON-SIGNUP-1 · T4 — under the lock's message: what stays free on Basic,
+            from the one list Pricing renders. */}
+        <BasicFreeList />
         {neverTrialled ? (
           <>
             <button

@@ -88,9 +88,11 @@ import {
   FreeCheckRefusalPanel,
   FreeCheckSavePrompt,
   FreeCheckSavingPanel,
+  FreeCheckTrialConfirmation,
   FreeCheckTrialOffer,
   FreeCheckUsedPanel,
 } from "../../components/checkimprove/FreeCheckPanels";
+import { wasTrialStartedAtSignUp } from "../../services/newAccountTrial";
 import { useSubscription } from "../../hooks/useSubscription";
 import { useFreeCheckReturn } from "../../hooks/useFreeCheckReturn";
 import { trackNamedEvent, type NamedAnalyticsEvent } from "../../analytics/analytics";
@@ -772,6 +774,13 @@ type FreeCheckInnerMode =
       endsOn: string;
       onStartTrial: () => void;
       onMaybeLater: () => void;
+    }
+  | {
+      // TRIAL-ON-SIGNUP-1 · T2 — a NEW account: its trial started at sign-up.
+      mode: "return";
+      step: "confirmed";
+      endsOn: string;
+      onContinue: () => void;
     };
 
 /** The per-call opt-in that makes aiClient send the marker + a fresh App Check token. */
@@ -1950,7 +1959,9 @@ const DesktopCheckImprovePageInner: React.FC<{
 
   if (freeCheck?.mode === "return") {
     return withChrome(
-      freeCheck.step === "offer" ? (
+      freeCheck.step === "confirmed" ? (
+        <FreeCheckTrialConfirmation endsOn={freeCheck.endsOn} onContinue={freeCheck.onContinue} />
+      ) : freeCheck.step === "offer" ? (
         <FreeCheckTrialOffer
           endsOn={freeCheck.endsOn}
           onStartTrial={freeCheck.onStartTrial}
@@ -3567,9 +3578,13 @@ const DesktopCheckImprovePage: React.FC<{ overlay?: CheckImproveOverlayProps }> 
 
 const FREE_CHECK_MODE: FreeCheckInnerMode = { mode: "free" };
 
-/** "Ends <date>" for the R9 offer: the trial window the one tap would start now. */
-function trialEndsOnLabel(nowMs: number): string {
-  return new Date(nowMs + TRIAL_DAYS * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", {
+/**
+ * "Ends <date>" ("8 October 2026"): the end of a trial window that starts at `startMs`.
+ * The R9 offer passes now (the window the tap would start); the T2 confirmation passes
+ * the stored start of the trial that already began.
+ */
+function trialEndsOnLabel(startMs: number): string {
+  return new Date(startMs + TRIAL_DAYS * 24 * 60 * 60 * 1000).toLocaleDateString("en-IN", {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -3597,6 +3612,7 @@ function trialEndsOnLabel(nowMs: number): string {
 const FreeCheckCheckImprovePage: React.FC = () => {
   const { user, loading } = useAuth();
   const subscription = useSubscription();
+  const navigate = useNavigate();
   const phase = useFreeCheckReturn(loading ? null : user, true);
   const [offerClosed, setOfferClosed] = useState(false);
 
@@ -3610,6 +3626,32 @@ const FreeCheckCheckImprovePage: React.FC = () => {
   if (!user) return <DesktopCheckImprovePageInner freeCheck={FREE_CHECK_MODE} />;
   if (phase === "saving" || (phase === "saved" && !offerClosed && !subscription.hydrated)) {
     return <DesktopCheckImprovePageInner freeCheck={{ mode: "return", step: "saving" }} />;
+  }
+  // TRIAL-ON-SIGNUP-1 · T2 — a NEW account whose trial THIS session started at sign-up
+  // gets the confirmation instead of the offer. The date is the trial's REAL end, derived
+  // from the hydrated record's stored start (start + TRIAL_DAYS), never from today.
+  // "Check my next answer" closes it: the gate remounts fresh, open (the trial is cached).
+  const trialStartMsForLabel = subscription.status.trialStartDate
+    ? Date.parse(subscription.status.trialStartDate)
+    : NaN;
+  if (
+    phase === "saved" &&
+    !offerClosed &&
+    subscription.hydrated &&
+    subscription.isTrialActive &&
+    Number.isFinite(trialStartMsForLabel) &&
+    wasTrialStartedAtSignUp(user.uid)
+  ) {
+    return (
+      <DesktopCheckImprovePageInner
+        freeCheck={{
+          mode: "return",
+          step: "confirmed",
+          endsOn: trialEndsOnLabel(trialStartMsForLabel),
+          onContinue: () => setOfferClosed(true),
+        }}
+      />
+    );
   }
   if (
     phase === "saved" &&
@@ -3634,7 +3676,12 @@ const FreeCheckCheckImprovePage: React.FC = () => {
             trackNamedEvent("free_check_trial_start");
             setOfferClosed(true);
           },
-          onMaybeLater: () => setOfferClosed(true),
+          // TRIAL-ON-SIGNUP-1 · T2 — an existing account that declines goes HOME, never
+          // to a locked page (it used to fall through to the Premium lock).
+          onMaybeLater: () => {
+            setOfferClosed(true);
+            navigate("/");
+          },
         }}
       />
     );

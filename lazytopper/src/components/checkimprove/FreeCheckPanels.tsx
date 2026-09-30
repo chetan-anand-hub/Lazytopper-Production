@@ -244,3 +244,30 @@ export function FreeCheckTrialOffer({
     </div>
   );
 }
+
+/**
+ * TRIAL-ON-SIGNUP-1 · T2 — replaces the R9 offer for a NEW account: its trial already
+ * started at sign-up. Starts nothing; `endsOn` is the trial's real end date, derived by
+ * the caller from the stored start. "Check my next answer" goes back to Check & Improve,
+ * fresh.
+ */
+export function FreeCheckTrialConfirmation({
+  endsOn,
+  onContinue,
+}: {
+  endsOn: string;
+  onContinue: () => void;
+}) {
+  return (
+    <div className="lt-fc" data-testid="free-check-trial-confirmation" role="status">
+      <style>{FC_CSS}</style>
+      <h2 className="lt-fc__title">{FREE_CHECK_COPY.confirmTitle}</h2>
+      <p className="lt-fc__lead">{FREE_CHECK_COPY.confirmBody(endsOn)}</p>
+      <div className="lt-fc__actions">
+        <button type="button" className="lt-fc__btn lt-fc__btn--primary" onClick={onContinue}>
+          {FREE_CHECK_COPY.confirmCta}
+        </button>
+      </div>
+    </div>
+  );
+}

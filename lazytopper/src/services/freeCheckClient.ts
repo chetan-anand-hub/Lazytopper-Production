@@ -186,6 +186,16 @@ export const FREE_CHECK_COPY = {
   offerPattern: "Every answer you check helps build your mistake pattern.",
   offerStart: "Start my free trial",
   offerLater: "Maybe later",
+  /**
+   * TRIAL-ON-SIGNUP-1 · T2 — a NEW account's trial already started at sign-up, so the
+   * offer is replaced by this confirmation. Owner copy, word for word:
+   * "Your 7-day trial is on ✅ Ends <date>. No card, nothing to cancel. After that you
+   * keep free Basic." — <date> is the trial's real end date ("8 October 2026").
+   */
+  confirmTitle: "Your 7-day trial is on ✅",
+  confirmBody: (endsOn: string) =>
+    `Ends ${endsOn}. No card, nothing to cancel. After that you keep free Basic.`,
+  confirmCta: "Check my next answer",
   /** The one sign-in link label every free-check prompt uses. */
   signUpCta: "Sign up free",
   /** FREECHECK-2 · F2 — the save could not reach the network. Retried on `online`. */

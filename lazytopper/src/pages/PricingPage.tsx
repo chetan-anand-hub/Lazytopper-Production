@@ -30,6 +30,7 @@ import {
 } from "../config/pricing";
 import { predictCbseExamDate } from "../services/cbseExamDate";
 import PassCheckout from "../components/pricing/PassCheckout";
+import { FREE_FEATURES } from "../components/pricing/BasicFreeList";
 import { isPaymentsClientEnabled } from "../services/checkout";
 
 const WAITLIST_KEY = "lazytopper.waitlist.v1";
@@ -49,16 +50,8 @@ function saveWaitlistEntry(entry: WaitlistEntry): void {
   } catch {}
 }
 
-const FREE_FEATURES = [
-  { label: "Browse Home, Exam Trends, and topic surfaces", included: true },
-  { label: "Practice picker and limited practice", included: true },
-  { label: "Limited worksheet generation", included: true },
-  { label: "Basic topic insights", included: true },
-  { label: "Solution Checker / Check & Improve", included: false },
-  { label: "Deep Mistake Intelligence", included: false },
-  { label: "Full mocks and predicted-question execution", included: false },
-  { label: "Richer Me / Progress recommendations", included: false },
-];
+// TRIAL-ON-SIGNUP-1 · T4 — FREE_FEATURES moved VERBATIM to BasicFreeList.tsx, the one
+// source every Premium lock's "Free on Basic:" list reads. Rendered here exactly as before.
 
 // Ordering is deliberate and owner-ruled.
 //   - "Everything in Basic" stays FIRST and unchanged: it is load-bearing
