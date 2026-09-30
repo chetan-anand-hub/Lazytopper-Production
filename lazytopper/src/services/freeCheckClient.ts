@@ -536,14 +536,17 @@ export function hasPendingFreeCheck(): boolean {
 export const FREE_CHECK_SUMMARY_MAX_TAGS = 3;
 
 /**
- * The MI four-type labels, in the order a tie is broken — the same words Check &
- * Improve and the scorecard's "Where your marks went" block use for these types.
+ * The tag vocabulary — the owner's example wording ("Knowledge gap ×1", spec §2 S1b):
+ * Check & Improve's GROUPED labels (the page's per-question chips). Knowledge gap =
+ * conceptual + calculation; Careless = silly + presentation. Listed in the order a tie
+ * is broken. With two groups the cap of 3 cannot bind today; it is kept on purpose.
  */
-const FREE_CHECK_TAG_LABELS: ReadonlyArray<readonly [keyof CheckSolutionMistakeSummary, string]> = [
-  ["conceptual", "Conceptual"],
-  ["calculation", "Calculation"],
-  ["silly", "Silly"],
-  ["presentation", "Presentation"],
+const FREE_CHECK_TAG_GROUPS: ReadonlyArray<{
+  label: string;
+  types: ReadonlyArray<keyof CheckSolutionMistakeSummary>;
+}> = [
+  { label: "Knowledge gap", types: ["conceptual", "calculation"] },
+  { label: "Careless", types: ["silly", "presentation"] },
 ];
 
 export interface FreeCheckSummaryTag {
@@ -596,7 +599,9 @@ export function summarizePendingFreeCheck(): FreeCheckResultSummary | null {
   };
   const add = (ms: Partial<CheckSolutionMistakeSummary> | null | undefined) => {
     if (!ms) return;
-    for (const [key] of FREE_CHECK_TAG_LABELS) counts[key] += wholeCount(ms[key]);
+    for (const key of Object.keys(counts) as Array<keyof CheckSolutionMistakeSummary>) {
+      counts[key] += wholeCount(ms[key]);
+    }
   };
 
   if (pending.kind === "single") {
@@ -609,9 +614,12 @@ export function summarizePendingFreeCheck(): FreeCheckResultSummary | null {
     }
   }
 
-  const tags = FREE_CHECK_TAG_LABELS.map(([key, label]) => ({ label, count: counts[key] }))
+  const tags = FREE_CHECK_TAG_GROUPS.map(({ label, types }) => ({
+    label,
+    count: types.reduce((n, key) => n + counts[key], 0),
+  }))
     .filter((t) => t.count > 0)
-    // Array.prototype.sort is stable: equal counts keep the four-type order above.
+    // Array.prototype.sort is stable: equal counts keep the group order above.
     .sort((a, b) => b.count - a.count)
     .slice(0, FREE_CHECK_SUMMARY_MAX_TAGS);
 

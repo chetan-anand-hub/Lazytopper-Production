@@ -125,6 +125,7 @@ import {
   __setFreeCheckClockForTests,
   recordFreeCheckSuccess,
   summarizePendingFreeCheck,
+  FREE_CHECK_SUMMARY_MAX_TAGS,
   type PendingMultiFreeCheck,
   type PendingSingleFreeCheck,
 } from "../../services/freeCheckClient";
@@ -243,7 +244,7 @@ describe("S1 — the used block, WITH a waiting result", () => {
     expect(screen.getByRole("heading", { name: HEADLINE })).toBeInTheDocument();
     const summary = screen.getByTestId("free-check-summary");
     expect(summary).toHaveTextContent("2/3 marks");
-    expect(summary).toHaveTextContent("Conceptual ×1");
+    expect(summary).toHaveTextContent("Knowledge gap ×1");
     expect(container.textContent).not.toContain(PLAIN);
     expect(container.textContent).toContain(BODY);
     expect(container.textContent).toContain(TRIAL);
@@ -259,7 +260,7 @@ describe("S1 — the used block, WITH a waiting result", () => {
     const summary = screen.getByTestId("free-check-summary");
     expect(summary).toHaveTextContent("3/5 marks");
     const tags = Array.from(summary.querySelectorAll(".lt-fc__tag")).map((t) => t.textContent);
-    expect(tags).toEqual(["Calculation ×2", "Silly ×1"]);
+    expect(tags).toEqual(["Knowledge gap ×2", "Careless ×1"]);
   });
 
   it("at exactly two hours old the result is still waiting (the boundary is 'older than')", () => {
@@ -312,13 +313,13 @@ describe("S1 — the used block, WITHOUT a waiting result → the plain line", (
     __setFreeCheckClockForTests(() => NOW);
     seedWaiting(single(NOW - 60_000, { totalMarks: 0 }));
     const { container } = mount(<FreeCheckUsedPanel />);
-    expect(screen.getByTestId("free-check-summary")).toHaveTextContent("Conceptual ×1");
+    expect(screen.getByTestId("free-check-summary")).toHaveTextContent("Knowledge gap ×1");
     expect(container.textContent).not.toMatch(/marks/);
   });
 });
 
 describe("S1b — the tags are capped at 3", () => {
-  it("four mistake types → the three largest, largest first, as '<Tag> ×<n>'", () => {
+  it("every mistake type present → never more than 3 tags, largest first, the owner's grouped wording", () => {
     __setFreeCheckClockForTests(() => NOW);
     seedWaiting(
       single(NOW - 60_000, {
@@ -331,8 +332,10 @@ describe("S1b — the tags are capped at 3", () => {
     const tags = Array.from(screen.getByTestId("free-check-summary").querySelectorAll(".lt-fc__tag")).map(
       (t) => t.textContent,
     );
-    expect(tags).toEqual(["Silly ×4", "Presentation ×3", "Conceptual ×2"]);
-    expect(summarizePendingFreeCheck()?.tags).toHaveLength(3);
+    expect(tags).toEqual(["Careless ×7", "Knowledge gap ×3"]);
+    expect(summarizePendingFreeCheck()?.tags.length).toBeLessThanOrEqual(FREE_CHECK_SUMMARY_MAX_TAGS);
+    // The four MI type names are never shown — only the approved grouped labels.
+    expect(tags.join(" ")).not.toMatch(/Conceptual|Calculation|Silly|Presentation/);
   });
 });
 
@@ -395,7 +398,7 @@ describe("S2 — the bar (component)", () => {
     mount(<FreeCheckResultBar />);
     const bar = screen.getByTestId("free-check-result-bar");
     expect(bar).toHaveTextContent("2/3 marks");
-    expect(bar).toHaveTextContent("Conceptual ×1");
+    expect(bar).toHaveTextContent("Knowledge gap ×1");
     expect(bar).toHaveTextContent(BAR_CTA);
   });
 
@@ -521,7 +524,7 @@ describe("S2 — the page, FREE mode (signed out, flag on): the bar tops the res
     await gradeTypedAnswer();
     const bar = await screen.findByTestId("free-check-result-bar");
     expect(bar).toHaveTextContent("2/3 marks");
-    expect(bar).toHaveTextContent("Presentation ×1");
+    expect(bar).toHaveTextContent("Careless ×1");
     expect(bar.querySelector("a")).toHaveAttribute("href", FREE_CHECK_SIGNIN_PATH);
     expect(bar).toHaveTextContent(BAR_CTA);
     expectBarAtTop(bar);
@@ -542,7 +545,7 @@ describe("S2 — the page, FREE mode (signed out, flag on): the bar tops the res
     await gradeUploadedPaper(container);
     const bar = await screen.findByTestId("free-check-result-bar");
     expect(bar).toHaveTextContent("4/5 marks");
-    expect(bar).toHaveTextContent("Conceptual ×1");
+    expect(bar).toHaveTextContent("Knowledge gap ×1");
     expectBarAtTop(bar);
     expect(screen.getAllByTestId("free-check-result-bar")).toHaveLength(1);
   });
