@@ -94,7 +94,7 @@ import {
 } from "../../components/checkimprove/FreeCheckPanels";
 import { useSubscription } from "../../hooks/useSubscription";
 import { useFreeCheckReturn } from "../../hooks/useFreeCheckReturn";
-import { trackNamedEvent } from "../../analytics/analytics";
+import { trackNamedEvent, type NamedAnalyticsEvent } from "../../analytics/analytics";
 import { TRIAL_DAYS } from "../../services/subscriptionService";
 // FAIR-USE-UI-1 - UI1 (the limit panel) and UI2 (confirm, then mark only the first R).
 // Dark unless /api/usage/me says `enforced: true`; never asked in free-check mode.
@@ -925,6 +925,36 @@ const DesktopCheckImprovePageInner: React.FC<{
   const [confirmed, setConfirmed] = useState<ConfirmedDetection | null>(null);
   const [editing, setEditing] = useState<boolean>(false);
 
+  // ── FUNNEL-EVENTS-1: three Check & Improve funnel counts, names only ──────────
+  // check_question_read → check_answer_added → check_graded, each sent AT MOST ONCE per
+  // question attempt. An attempt is the exact input a successful read sent to
+  // detectQuestion (question tab + typed text + question file): a successful read of
+  // DIFFERENT input starts a new attempt and resets all three; re-reading the same input,
+  // re-typing, re-grading or re-rendering sends nothing new. The bare name is the whole
+  // payload (no question, answer, subject, marks or uid — the trackSignUp rule). Direct
+  // visits only: the tutor overlay is another surface and sends nothing.
+  const funnelRef = useRef<{
+    attempt: { tab: string; text: string; image: string | null } | null;
+    sent: Set<NamedAnalyticsEvent>;
+  }>({ attempt: null, sent: new Set() });
+  const funnelOff = Boolean(overlay);
+  const trackFunnelStep = useCallback(
+    (name: NamedAnalyticsEvent) => {
+      if (funnelOff || funnelRef.current.sent.has(name)) return;
+      funnelRef.current.sent.add(name);
+      trackNamedEvent(name);
+    },
+    [funnelOff],
+  );
+  // An answer is added by an accepted file (handleFileChosen sets imageBase64 only after
+  // checkUploadFile passed and the file was read) or a typed answer becoming non-empty.
+  // It counts once a question has been read, so an answer given BEFORE the read counts
+  // at the read and each attempt's steps arrive in order.
+  const hasAnswerContent = Boolean(imageBase64) || textAnswer.trim().length > 0;
+  useEffect(() => {
+    if (confirmed && hasAnswerContent) trackFunnelStep("check_answer_added");
+  }, [confirmed, hasAnswerContent, trackFunnelStep]);
+
   // ── grading + result state ───────────────────────────────────────
   const [status, setStatus] = useState<GradeStatus>("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -1229,6 +1259,12 @@ const DesktopCheckImprovePageInner: React.FC<{
       const cd = buildConfirmedDetection(d);
       setDetected(cd);
       setConfirmed(cd);
+      const image = questionTab === "upload" ? qImageBase64 : null;
+      const prev = funnelRef.current.attempt;
+      if (!prev || prev.tab !== questionTab || prev.text !== q || prev.image !== image) {
+        funnelRef.current = { attempt: { tab: questionTab, text: q, image }, sent: new Set() };
+      }
+      trackFunnelStep("check_question_read");
       setEditing(false);
       // A fresh read = a fresh, untouched detection (provenance starts "inferred").
       setTopicTouched(false);
@@ -1555,6 +1591,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       }
 
       setWsResult(response);
+      trackFunnelStep("check_graded");
       setStatus("ready");
       setSaveStatus("saving");
       fairUse.noteGraded();
@@ -1772,6 +1809,7 @@ const DesktopCheckImprovePageInner: React.FC<{
       }
 
       setResult(graded);
+      trackFunnelStep("check_graded");
       setResultCtx(ctx);
       setStatus("ready");
       fairUse.noteGraded();

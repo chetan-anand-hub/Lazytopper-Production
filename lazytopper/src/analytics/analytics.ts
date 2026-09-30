@@ -335,7 +335,10 @@ export type NamedAnalyticsEvent =
   | "free_check_used_block"
   | "free_check_signup"
   | "free_check_trial_start"
-  | "trial_start";
+  | "trial_start"
+  | "check_question_read"
+  | "check_answer_added"
+  | "check_graded";
 
 export function trackNamedEvent(name: NamedAnalyticsEvent): void {
   send("event", { name });
