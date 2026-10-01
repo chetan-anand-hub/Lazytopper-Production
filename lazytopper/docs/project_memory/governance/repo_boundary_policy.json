@@ -82,6 +82,7 @@
     "docs": [
       "handoff/",
       "CLAUDE.md",
+      "AGENTS.md",
       "notes/",
       "cofounder-skill/",
       "ops/",
