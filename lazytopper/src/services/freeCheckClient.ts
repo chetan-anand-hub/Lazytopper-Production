@@ -29,6 +29,7 @@
  * `firebaseClient` + `firebase/app-check` are imported LAZILY, inside the call.
  */
 import type {
+  CheckSolutionMistakeSummary,
   CheckSolutionResponse,
   WorksheetGradeResponse,
 } from "../ai/aiClient";
@@ -166,8 +167,18 @@ export function isFreeCheckRefusedError(err: unknown): err is FreeCheckRefusedEr
 export const FREE_CHECK_COPY = {
   /** After a free result. */
   afterResult: "Sign up free to save this and build your mistake pattern.",
-  /** R1 — the browser has already used its free check. */
-  used: "You've used your free check. Sign up free to save it and start your 7-day free trial — no card needed.",
+  /**
+   * R1 — the browser has already used its free check. SIGNUP-NUDGE-1 (owner spec §2 S1,
+   * word for word): a headline, then either the waiting result's summary line or
+   * `usedChecked`, then the body and the trial line. "No card needed." has NO dash.
+   */
+  usedTitle: "Your free check is done ✅",
+  /** S1b — shown when no result is waiting on this device (none, expired, or unreadable). */
+  usedChecked: "Your answer was checked like a CBSE examiner.",
+  usedBody: "Sign up in one tap to keep this result and keep checking answers.",
+  usedTrial: "7-day Premium trial, then free Basic, upgrade anytime. No card needed.",
+  /** S2 — the sign-in link label on the free result's top bar. */
+  keepThis: "Sign up free to keep this",
   /** R3 / R5 — `ceiling_reached` and `budget`. */
   quota:
     "Today's free checks are all used up. Come back tomorrow — or sign up free now and start your 7-day trial to check today.",
@@ -517,6 +528,103 @@ export function hasReplayablePendingFreeCheck(): boolean {
 
 export function hasPendingFreeCheck(): boolean {
   return peekPendingFreeCheck() !== null;
+}
+
+/* ─────────── SIGNUP-NUDGE-1 — what the waiting result says, for the student only ─────────── */
+
+/** S1b / S2 — at most this many mistake tags are shown. */
+export const FREE_CHECK_SUMMARY_MAX_TAGS = 3;
+
+/**
+ * The tag vocabulary — the owner's example wording ("Knowledge gap ×1", spec §2 S1b):
+ * Check & Improve's GROUPED labels (the page's per-question chips). Knowledge gap =
+ * conceptual + calculation; Careless = silly + presentation. Listed in the order a tie
+ * is broken. With two groups the cap of 3 cannot bind today; it is kept on purpose.
+ */
+const FREE_CHECK_TAG_GROUPS: ReadonlyArray<{
+  label: string;
+  types: ReadonlyArray<keyof CheckSolutionMistakeSummary>;
+}> = [
+  { label: "Knowledge gap", types: ["conceptual", "calculation"] },
+  { label: "Careless", types: ["silly", "presentation"] },
+];
+
+export interface FreeCheckSummaryTag {
+  label: string;
+  count: number;
+}
+
+export interface FreeCheckResultSummary {
+  /** Null when the waiting result has no usable score / max — never a made-up number. */
+  marks: { score: number; max: number } | null;
+  /** Largest count first, at most FREE_CHECK_SUMMARY_MAX_TAGS, only counts > 0. */
+  tags: FreeCheckSummaryTag[];
+}
+
+function wholeCount(v: unknown): number {
+  const n = Number(v);
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+}
+
+function usableMarks(score: unknown, max: unknown): { score: number; max: number } | null {
+  const s = Number(score);
+  const m = Number(max);
+  if (!Number.isFinite(s) || !Number.isFinite(m) || m <= 0 || s < 0 || s > m) return null;
+  return { score: s, max: m };
+}
+
+/**
+ * SIGNUP-NUDGE-1 — a READ-ONLY summary of the result waiting on this device, for the
+ * used block and the free result's top bar (spec §2 S1b / S2). It reads ONLY
+ * `peekPendingFreeCheck()` — so an expired result (OR-18, two hours) is absent here too —
+ * and writes nothing of its own. Nothing it returns is sent anywhere (S3).
+ *
+ *   single  → `graded.marksAwarded` / `graded.totalMarks`, tags from `graded.mistakeSummary`
+ *   multi   → `response.gradedMarksAwarded` / `response.gradedMarksTotal` (the honest graded
+ *             subtotal, pending pages excluded), tags summed over the READ questions only
+ *
+ * Null when nothing is waiting, or when the waiting result has neither a usable score nor
+ * a single tag (the caller then shows its plain line).
+ */
+export function summarizePendingFreeCheck(): FreeCheckResultSummary | null {
+  const pending = peekPendingFreeCheck();
+  if (!pending) return null;
+
+  let marks: FreeCheckResultSummary["marks"];
+  const counts: Record<keyof CheckSolutionMistakeSummary, number> = {
+    conceptual: 0,
+    calculation: 0,
+    silly: 0,
+    presentation: 0,
+  };
+  const add = (ms: Partial<CheckSolutionMistakeSummary> | null | undefined) => {
+    if (!ms) return;
+    for (const key of Object.keys(counts) as Array<keyof CheckSolutionMistakeSummary>) {
+      counts[key] += wholeCount(ms[key]);
+    }
+  };
+
+  if (pending.kind === "single") {
+    marks = usableMarks(pending.graded.marksAwarded, pending.graded.totalMarks);
+    add(pending.graded.mistakeSummary);
+  } else {
+    marks = usableMarks(pending.response.gradedMarksAwarded, pending.response.gradedMarksTotal);
+    for (const g of pending.response.results ?? []) {
+      if (!g.couldNotRead) add(g.mistakeSummary);
+    }
+  }
+
+  const tags = FREE_CHECK_TAG_GROUPS.map(({ label, types }) => ({
+    label,
+    count: types.reduce((n, key) => n + counts[key], 0),
+  }))
+    .filter((t) => t.count > 0)
+    // Array.prototype.sort is stable: equal counts keep the group order above.
+    .sort((a, b) => b.count - a.count)
+    .slice(0, FREE_CHECK_SUMMARY_MAX_TAGS);
+
+  if (!marks && tags.length === 0) return null;
+  return { marks, tags };
 }
 
 /**

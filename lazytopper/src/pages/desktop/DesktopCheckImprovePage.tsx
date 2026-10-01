@@ -86,6 +86,7 @@ import {
 } from "../../services/freeCheckClient";
 import {
   FreeCheckRefusalPanel,
+  FreeCheckResultBar,
   FreeCheckSavePrompt,
   FreeCheckSavingPanel,
   FreeCheckTrialOffer,
@@ -2835,6 +2836,7 @@ const DesktopCheckImprovePageInner: React.FC<{
           minWidth: 0,
         }}
       >
+        {isFreeMode && <FreeCheckResultBar />}
         <PageHeader
           showBack
           onBack={resetToInput}
@@ -3099,6 +3101,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         minWidth: 0,
       }}
     >
+      {isFreeMode && <FreeCheckResultBar />}
       <PageHeader
         showBack
         onBack={resetToInput}

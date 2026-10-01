@@ -240,9 +240,12 @@ describe("refusal reason → copy (the spec's lines, verbatim)", () => {
 
   it("the other spec lines are verbatim", () => {
     expect(FREE_CHECK_COPY.afterResult).toBe("Sign up free to save this and build your mistake pattern.");
-    expect(FREE_CHECK_COPY.used).toBe(
-      "You've used your free check. Sign up free to save it and start your 7-day free trial — no card needed.",
-    );
+    // SIGNUP-NUDGE-1 (owner spec §2 S1/S2, word for word — "No card needed." has no dash).
+    expect(FREE_CHECK_COPY.usedTitle).toBe("Your free check is done ✅");
+    expect(FREE_CHECK_COPY.usedChecked).toBe("Your answer was checked like a CBSE examiner.");
+    expect(FREE_CHECK_COPY.usedBody).toBe("Sign up in one tap to keep this result and keep checking answers.");
+    expect(FREE_CHECK_COPY.usedTrial).toBe("7-day Premium trial, then free Basic, upgrade anytime. No card needed.");
+    expect(FREE_CHECK_COPY.keepThis).toBe("Sign up free to keep this");
     expect(FREE_CHECK_COPY.offerTitle).toBe("Your answer is saved.");
     expect(FREE_CHECK_COPY.offerBody("2 October 2026")).toBe(
       "Start your 7-day free trial to check more answers and see your mistake pattern. No card needed. Ends 2 October 2026.",

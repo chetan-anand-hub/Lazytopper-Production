@@ -1,4 +1,4 @@
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { Link } from "react-router-dom";
 import { trackNamedEvent } from "../../analytics/analytics";
 import {
@@ -6,7 +6,9 @@ import {
   FREE_CHECK_SIGNIN_PATH,
   markFreeCheckSigninIntent,
   refusalCopy,
+  summarizePendingFreeCheck,
   type FreeCheckRefusalReason,
+  type FreeCheckResultSummary,
 } from "../../services/freeCheckClient";
 import {
   getFreeCheckSaveStatus,
@@ -108,6 +110,47 @@ const FC_CSS = `
   .lt-fc__actions { flex-direction: column; }
   .lt-fc__cta, .lt-fc__btn { width: 100%; }
 }
+.lt-fc__summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+.lt-fc__score {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: hsl(220, 45%, 18%);
+}
+.lt-fc__tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  background: hsl(220, 30%, 95%);
+  color: hsl(220, 35%, 28%);
+  border: 1px solid hsl(220, 20%, 88%);
+}
+.lt-fc.lt-fc--bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: none;
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: hsl(150, 35%, 96%);
+  border-color: hsl(150, 40%, 86%);
+}
+.lt-fc--bar .lt-fc__summary { margin: 0; }
+@media (max-width: 480px) {
+  .lt-fc.lt-fc--bar { margin: 0 0 16px; }
+  .lt-fc--bar .lt-fc__cta { width: 100%; }
+}
 `;
 
 /**
@@ -115,7 +158,7 @@ const FC_CSS = `
  * result) BEFORE the router navigates, so the result is saved only for whoever signs in
  * from here.
  */
-function SignInLink() {
+function SignInLink({ label = FREE_CHECK_COPY.signUpCta }: { label?: string }) {
   return (
     <Link
       className="lt-fc__cta"
@@ -123,8 +166,44 @@ function SignInLink() {
       onClick={markFreeCheckSigninIntent}
       data-testid="free-check-signin"
     >
-      {FREE_CHECK_COPY.signUpCta}
+      {label}
     </Link>
+  );
+}
+
+/**
+ * SIGNUP-NUDGE-1 — "<score>/<max> marks" and up to three "<Tag> ×<n>" chips, from the
+ * result waiting on this device (never from anywhere else, and never sent anywhere).
+ * A part the waiting result cannot honestly fill is left out, never invented.
+ */
+function FreeCheckSummaryLine({ summary }: { summary: FreeCheckResultSummary }) {
+  return (
+    <p className="lt-fc__summary" data-testid="free-check-summary">
+      {summary.marks && (
+        <span className="lt-fc__score">{`${summary.marks.score}/${summary.marks.max} marks`}</span>
+      )}
+      {summary.tags.map((t) => (
+        <span key={t.label} className="lt-fc__tag">{`${t.label} ×${t.count}`}</span>
+      ))}
+    </p>
+  );
+}
+
+/**
+ * SIGNUP-NUDGE-1 · S2 — the bar at the TOP of a free-mode result: what the student got,
+ * and the same one sign-in link (same path, same OR-18 marker on click). It reads the
+ * waiting result once, on mount; with nothing waiting there is nothing to keep, so it
+ * renders nothing (the bottom save prompt, P3, is unchanged either way).
+ */
+export function FreeCheckResultBar() {
+  const [summary] = useState(summarizePendingFreeCheck);
+  if (!summary) return null;
+  return (
+    <div className="lt-fc lt-fc--bar" data-testid="free-check-result-bar">
+      <style>{FC_CSS}</style>
+      <FreeCheckSummaryLine summary={summary} />
+      <SignInLink label={FREE_CHECK_COPY.keepThis} />
+    </div>
   );
 }
 
@@ -141,15 +220,29 @@ export function FreeCheckSavePrompt({ inline = false }: { inline?: boolean }) {
   );
 }
 
-/** R1 — this browser already used its free check. Counted once per showing (R10). */
+/**
+ * R1 — this browser already used its free check. Counted once per showing (R10).
+ * SIGNUP-NUDGE-1 · S1 — it shows what the student got (the waiting result, read once on
+ * mount) before asking them to sign up. The "Practice CBQs free" link (S1d) is OMITTED:
+ * P9 found a signed-out student cannot get a CBQ answer checked (the preview's
+ * "Grade my 1 answer" ends in "Sign in to check your answers").
+ */
 export function FreeCheckUsedPanel() {
   useEffect(() => {
     trackNamedEvent("free_check_used_block");
   }, []);
+  const [summary] = useState(summarizePendingFreeCheck);
   return (
     <div className="lt-fc" data-testid="free-check-used" role="status">
       <style>{FC_CSS}</style>
-      <p className="lt-fc__lead">{FREE_CHECK_COPY.used}</p>
+      <h2 className="lt-fc__title">{FREE_CHECK_COPY.usedTitle}</h2>
+      {summary ? (
+        <FreeCheckSummaryLine summary={summary} />
+      ) : (
+        <p className="lt-fc__lead">{FREE_CHECK_COPY.usedChecked}</p>
+      )}
+      <p className="lt-fc__lead">{FREE_CHECK_COPY.usedBody}</p>
+      <p className="lt-fc__note">{FREE_CHECK_COPY.usedTrial}</p>
       <div className="lt-fc__actions">
         <SignInLink />
       </div>
