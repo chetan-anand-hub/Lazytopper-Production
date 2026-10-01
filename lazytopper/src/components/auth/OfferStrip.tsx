@@ -9,6 +9,7 @@ import {
   TILL_BOARDS_INLINE,
 } from "../../config/pricing";
 import { safeSigninRedirect, withSigninRedirect } from "../../services/freeCheckClient";
+import { TRIAL_WORDING } from "../pricing/BasicFreeList";
 
 /**
  * OfferStrip — what the student is actually joining, stated on the auth surface.
@@ -50,16 +51,16 @@ import { safeSigninRedirect, withSigninRedirect } from "../../services/freeCheck
  * "Free trial" reads to a parent as "a card will be charged in seven days".
  * Naming what happens next removes the single most common reason a sign-up is
  * abandoned. Monetisation copy is frozen product-wide on this point: never
- * "then paid", always "then free Basic, upgrade anytime".
+ * "then paid". TRIAL-ON-SIGNUP-1b (owner addendum): the line is the shared general
+ * line (`TRIAL_WORDING`) — keep free Basic, or upgrade to Premium at its real price.
  *
  * Exported as data because the auth surface renders it TWICE — once in the dark
  * brand panel (>=1024px) and once inside the gate card (<1024px, where the brand
  * panel is `display: none`). One constant, two mounts, so the two copies cannot
  * drift apart.
  */
-export const AFTER_TRIAL_LEAD = "After 7 days you keep free Basic";
-export const AFTER_TRIAL_REST =
-  " — practice, exam trends and topic insights — for as long as you like. Upgrade only if you want to.";
+export const AFTER_TRIAL_LEAD = TRIAL_WORDING.tryLine;
+export const AFTER_TRIAL_REST = ` ${TRIAL_WORDING.afterLine}`;
 
 const OFFER_STRIP_CSS = `
   .lt-offer-strip {
