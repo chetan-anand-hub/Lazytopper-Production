@@ -522,6 +522,7 @@ async function handleRequest(req, res) {
   if (req.method === 'GET' && reqPath === ACCOUNT_EXPORT_PATH) {
     return accountExportRoutes.handleExport(req, res);
   }
+  if (req.method === 'POST' && reqPath === '/api/activity') return require('./routes/studentActivity.cjs').handleStudentActivity(req, res, { sendJson, firebaseAdmin, adminFirestore }); // STUDENT-ACTIVITY-1: signed-in students' section/event counts (first-party, admin-only; see the module)
 
   // ── Payments (RAZORPAY-1) ────────────────────────────────────────────────────
   // Self-gating: each handler answers 404 while PAYMENTS_ENABLED is off, resolves the

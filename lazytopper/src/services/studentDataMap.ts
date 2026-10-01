@@ -427,6 +427,41 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "Student data: erased with the account and included in the export.",
   },
 
+  // ── Firestore: per-student activity log (server-only, STUDENT-ACTIVITY-1) ──────────
+  {
+    id: "activityLog",
+    kind: "firestore-collection",
+    path: "activityLog/{uid}",
+    holds:
+      "Parent of the per-day activity records below. Never written itself; it exists " +
+      "only as the path its day records live under.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "★ server/routes/studentActivity.cjs writes ONLY the `activityDays` subcollection, " +
+      "so this document is a Firestore 'missing' parent — mapped anyway so erasure sweeps " +
+      "the whole tree (the usageLedger pattern). NOT declared in firestore.rules: browsers " +
+      "fall through to the deny-all catch-all; only the Admin SDK reaches it.",
+  },
+  {
+    id: "activityLog.activityDays",
+    kind: "firestore-subcollection",
+    parentId: "activityLog",
+    path: "activityLog/{uid}/activityDays/{dayKey}",
+    holds:
+      "Which parts of LazyTopper the student used each day (IST): first and last time " +
+      "seen that day, a count per section (for example practice or notes) and a count " +
+      "per named action (for example an answer check). Names and counts only — no " +
+      "question, answer or other text. Kept for 90 days.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "★★ Keyed on the VERIFIED uid of a signed-in student (studentActivity.cjs, " +
+      "verifyIdToken with checkRevoked) — never a body field, never an anonymous visitor. " +
+      "`expireAt` is a Firestore Timestamp (day start IST + 90 days) for the TTL policy on " +
+      "collection group `activityDays`. Erased with the account and included in the export.",
+  },
+
   // ── Firestore: QR upload slots (server-only) ─────────────────────────────────────
   {
     id: "qrUploadSlots",

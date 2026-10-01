@@ -269,7 +269,12 @@ describe("studentDataMap — drift guard", () => {
     // server/routes/payments.cjs and passGrant.cjs through the Admin SDK; no client may
     // read or write a payment order, so it is undeclared on purpose (deny-all catch-all).
     // It IS student data (a `uid` field) — mapped, anonymised on erasure (Z7).
-    expect(undeclared).toEqual(["freeCheckDaily", "payOrders", "qrUploadSlots", "usageLedger"]);
+    //
+    // ★ `activityLog` JOINED this set with STUDENT-ACTIVITY-1. Written only by
+    // server/routes/studentActivity.cjs through the Admin SDK; the owner ruling makes it
+    // ADMIN-ONLY, so no client rule may match it (deny-all catch-all). It IS student data
+    // (uid-keyed) — in the map, erased and exported, not exempted.
+    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "payOrders", "qrUploadSlots", "usageLedger"]);
   });
 
   it("★★ the map still declares `users` even though no code writes it (OWNER RULING)", () => {
@@ -333,6 +338,54 @@ describe("studentDataMap — the AI usage ledger is STUDENT data (METER-1, M4)",
   });
 });
 
+describe("studentDataMap — the activity log is STUDENT data (STUDENT-ACTIVITY-1, R3)", () => {
+  const parent = STUDENT_DATA_MAP.find((l) => l.id === "activityLog");
+  const days = STUDENT_DATA_MAP.find((l) => l.id === "activityLog.activityDays");
+
+  it("★★ activityLog is mapped, uid-keyed, exportable, admin-only and NOT exempted", () => {
+    expect(parent, "activityLog missing from STUDENT_DATA_MAP").toBeDefined();
+    expect(days, "activityLog.activityDays missing from STUDENT_DATA_MAP").toBeDefined();
+    expect(parent!.path).toBe("activityLog/{uid}");
+    expect(days!.path).toBe("activityLog/{uid}/activityDays/{dayKey}");
+    expect(days!.kind).toBe("firestore-subcollection");
+    expect(days!.parentId).toBe("activityLog");
+    expect(parent!.exportable).toBe(true);
+    expect(days!.exportable).toBe(true);
+    expect(parent!.mechanism).toBe("admin-sdk-required");
+    expect(days!.mechanism).toBe("admin-sdk-required");
+    expect(parent!.onErase ?? "delete").toBe("delete");
+    expect(days!.onErase ?? "delete").toBe("delete");
+    expect(NON_STUDENT_COLLECTIONS).not.toContain("activityLog");
+    expect(subcollectionsOf("activityLog").map((l) => l.id)).toEqual(["activityLog.activityDays"]);
+  });
+
+  it("★ CONTROL: the source scan really finds activityLog (the writer is live), and no phantom top-level activityDays", () => {
+    expect(scanCollectionsFromSource().has("activityLog")).toBe(true);
+    expect(scanCollectionsFromSource().has("activityDays")).toBe(false);
+  });
+
+  it("★★ D6 ADMIN-ONLY: firestore.rules never names activityLog, and the ONLY top-level recursive match is the deny-all", () => {
+    const rules = readFileSync(RULES, "utf8");
+    expect(rules).not.toMatch(/activityLog|activityDays/);
+    expect(scanCollectionsFromRules().has("activityLog")).toBe(false);
+    // Every `match /{document=**}` must be NESTED under a named collection, except one
+    // top-level catch-all that denies everything. A top-level recursive wildcard that
+    // allowed anything would expose activityLog/** — this is that check.
+    const lines = rules.split(/\r?\n/);
+    const topLevelRecursive: string[] = [];
+    let depth = 0;
+    for (let i = 0; i < lines.length; i += 1) {
+      const line = lines[i].replace(/\/\/.*$/, "");
+      if (/match\s+\/\{document=\*\*\}/.test(line) && depth === 2) {
+        topLevelRecursive.push(lines.slice(i, i + 3).join(" "));
+      }
+      depth += (line.match(/\{/g) || []).length - (line.match(/\}/g) || []).length;
+    }
+    expect(topLevelRecursive).toHaveLength(1);
+    expect(topLevelRecursive[0]).toMatch(/allow read, write: if false;/);
+  });
+});
+
 describe("studentDataMap — per-location properties", () => {
   // ★★ PER-LOCATION, not one blanket assertion. A single "everything is mapped" check
   // passes while a collection is missing — which is exactly how this fails in production.
@@ -366,6 +419,8 @@ describe("studentDataMap — per-location properties", () => {
     "payOrders",
     "usageLedger",
     "usageLedger.days",
+    "activityLog",
+    "activityLog.activityDays",
     "qrUploadSlots",
     "storage.qr-uploads",
     "local-storage",

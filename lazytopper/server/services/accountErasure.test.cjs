@@ -499,6 +499,51 @@ test('★ METER-1: erasure deletes the usage ledger — every day, under a paren
   assert.equal(store.docs.has(`usageLedger/${OTHER}/days/2026-09-27`), true);
 });
 
+/* STUDENT-ACTIVITY-1 (R3, controller decision D5) — the activity log is erased with the
+   account: EVERY day document (Firestore does not cascade, so deleting activityLog/{uid}
+   alone would leave them readable), and the parent too when one exists. Another
+   student's days must survive.
+   MUTATION: drop the `activityLog.activityDays` entry from studentDataMap.ts => RED. */
+test('★ STUDENT-ACTIVITY-1: erasure deletes EVERY activity day — under a missing parent', async () => {
+  const seed = {
+    [`activityLog/${UID}/activityDays/2026-09-25`]: { sections: { home: 1 } },
+    [`activityLog/${UID}/activityDays/2026-09-26`]: { sections: { practice: 2 } },
+    [`activityLog/${UID}/activityDays/2026-09-27`]: { events: { check_graded: 1 } },
+    [`activityLog/${OTHER}/activityDays/2026-09-27`]: { sections: { notes: 9 } },
+  };
+  const { service, store } = makeService({ seed, files: [], users: [] });
+  const result = await service.eraseAccount(UID);
+
+  for (const d of ['2026-09-25', '2026-09-26', '2026-09-27']) {
+    const p = `activityLog/${UID}/activityDays/${d}`;
+    assert.ok(store.deleted.includes(p), `activity day never targeted: ${p}`);
+    assert.equal(store.docs.has(p), false, `activity day still readable after erasure: ${p}`);
+  }
+  const days = byId(result, 'activityLog.activityDays');
+  assert.equal(days.status, STATUS.DELETED);
+  assert.equal(days.deleted, 3);
+  assert.equal(byId(result, 'activityLog').status, STATUS.NOT_FOUND);
+  assert.equal(store.docs.has(`activityLog/${OTHER}/activityDays/2026-09-27`), true);
+  assert.deepEqual([...store.docs.keys()].filter((p) => p.startsWith(`activityLog/${UID}`)), []);
+});
+
+test('★ STUDENT-ACTIVITY-1: a WRITTEN activityLog parent is deleted too, AFTER its days', async () => {
+  const seed = {
+    [`activityLog/${UID}`]: { note: 'a parent some future writer created' },
+    [`activityLog/${UID}/activityDays/2026-09-26`]: { sections: { practice: 2 } },
+    [`activityLog/${UID}/activityDays/2026-09-27`]: { sections: { notes: 1 } },
+  };
+  const { service, store } = makeService({ seed, files: [], users: [] });
+  const result = await service.eraseAccount(UID);
+  assert.equal(byId(result, 'activityLog').status, STATUS.DELETED);
+  assert.equal(byId(result, 'activityLog.activityDays').deleted, 2);
+  const parentAt = store.deleted.indexOf(`activityLog/${UID}`);
+  for (const d of ['2026-09-26', '2026-09-27']) {
+    assert.ok(store.deleted.indexOf(`activityLog/${UID}/activityDays/${d}`) < parentAt, 'a day outlived its parent');
+  }
+  assert.deepEqual([...store.docs.keys()].filter((p) => p.startsWith('activityLog/')), []);
+});
+
 test('★ a two-level-deep subcollection is reached, and reached BEFORE its parent', async () => {
   const { service, store } = makeService();
   await service.eraseAccount(UID);
