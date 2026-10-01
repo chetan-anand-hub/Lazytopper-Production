@@ -1,3 +1,22 @@
+## ★★★ 2026-10-01 — WAVE A-7 (OPS, CONTROLLER A) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE B-6 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
+
+**TRUNK IS `640eb4cb72e957107b4687609fbf6bdb85cd3fb3`**, measured 2026-10-01 (`git ls-remote origin refs/heads/base/approved-thru-437`):
+- `640eb4cb` = `#891` (AGENTS-MD-1: tool-neutral `AGENTS.md` + two corrected `CLAUDE.md` §5 lines) — **this wave**; deployed normally, see ROLLOUT in `CURRENT_STATE.md`
+- `55762e37` = `#890` (docs: wave B-6, Controller B)
+
+Open at the time of writing, besides this docs PR: `#876` (Dependabot, `actions/setup-node` 4 → 7; `prerender-capture.yml`, `search-ping.yml`).
+
+### NEXT — OWNER
+1. **Rule on `[FU-CLAUDE-MD-S4-STALE-PATHS]`.** `CLAUDE.md` §4 protects `lazytopper/src/components/DesktopShell.tsx` and `vite.config.ts`, and neither path exists. The real files are `lazytopper/src/components/desktop/DesktopShell.tsx` and `lazytopper/vite.config.ts`. A fix must change `CLAUDE.md` §4 and `AGENTS.md` in ONE PR, because the guard keeps the lists equal.
+2. **Give the Razorpay consultant `AGENTS.md`** (repo root) before their first PR. Test-mode keys go in `lazytopper/.env` only, because a root `.env` is NOT git-ignored (`[FU-ROOT-ENV-NOT-GITIGNORED]`).
+
+### Carried — still owed
+3. **The WAVE B-6 owner items** (the B-6 block below, items 1–4) and everything it carries (C-2, B-5, B-4 fair-use, B-2 RAZORPAY-1 owner test).
+
+### NEXT — LANES
+- None dispatched by wave A-7 beyond `#891`. The four new FUs are candidates. `[FU-ROOT-ENV-NOT-GITIGNORED]` is a one-line `.gitignore` lane and protects the consultant's keys.
+
 ## ★★★ 2026-10-01 — WAVE B-6 (MONEY, CONTROLLER B) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE C-2 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged, except as stated here.)*
 
