@@ -1,5 +1,12 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-01 — OPS: **WAVE A-7 — AGENTS-MD-1** — `#891` MERGED — trunk `640eb4cb`
+
+- ✅ **AGENTS-MD-1** (`#891` `640eb4cb`; docs/config/test only, no flag): a tool-neutral root `AGENTS.md` for contractors and non-Claude agents, guarded against drift from `CLAUDE.md` §4 by `agentsMd.guard.test.ts`; two stale `CLAUDE.md` §5 lines (payment, trial) now match RAZORPAY-1 and TRIAL-ON-SIGNUP-1. `CLAUDE.md` does not import `AGENTS.md`.
+- ✅ **New FUs:** `[FU-CLAUDE-MD-S4-STALE-PATHS]` · `[FU-ROOT-ENV-NOT-GITIGNORED]` · `[FU-MOJIBAKE-UNTRACKED-BLIND]` · `[FU-OR15-UNDEFINED]`.
+- ✅ **Docs:** this handoff.
+- ⬜ **Owner:** rule on `[FU-CLAUDE-MD-S4-STALE-PATHS]`; hand `AGENTS.md` to the Razorpay consultant.
+
 ## 2026-10-01 — MONEY: **WAVE B-6 — TRIAL-ON-SIGNUP-1 + TRIAL-ON-SIGNUP-1b** — `#887` + `#889` MERGED — trunk `5eeaf916`
 
 - ✅ **TRIAL-ON-SIGNUP-1** (`#887` `1229d465`, LIVE on merge, no flag; rollout in `CURRENT_STATE.md`): a brand-new account's 7-day trial starts at sign-up, once, on all three new-account doors (Google popup, email create, phone OTP) through the existing `activateTrial`; logins and existing accounts never start one; `trial_start` fires only on a real start. The free-check return shows "Your 7-day trial is on" with the real end date; an existing account's "Maybe later" goes Home. Every Premium lock lists what stays free on Basic (the Pricing list, wording unchanged). `subscriptionService.ts`, `useSubscription.ts` and `analytics.ts` unchanged.

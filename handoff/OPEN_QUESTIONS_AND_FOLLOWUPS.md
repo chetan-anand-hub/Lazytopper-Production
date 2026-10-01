@@ -23,6 +23,22 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-01 — WAVE A-7 (CONTROLLER A): AGENTS-MD-1 (`#891` MERGED as `640eb4cb`, squash, `--match-head-commit e6b7041f`) — four new, none closed
+
+Bodies are the builder's text from `Desktop/diff/report-agents-md-1-2026-10-01.md` ("FINDINGS" / "FU IDS"); where the controller re-checked, it says so.
+
+### `[FU-CLAUDE-MD-S4-STALE-PATHS]` — OPEN, **OWNER RULING**
+`CLAUDE.md` §4 lists `lazytopper/src/components/DesktopShell.tsx` and `vite.config.ts` as globally forbidden; neither exists on trunk. The real files are `lazytopper/src/components/desktop/DesktopShell.tsx` and `lazytopper/vite.config.ts` *(controller-verified, `git cat-file -e` @ `640eb4cb`)*. A protected entry that matches no file protects nothing. `AGENTS.md` copies the list exactly (spec A1, controller D3), and `agentsMd.guard.test.ts` asserts the two lists are equal, so the fix is ONE PR that changes both, with a grant for `CLAUDE.md` §4.
+
+### `[FU-ROOT-ENV-NOT-GITIGNORED]` — OPEN
+Only `lazytopper/**/.env` is ignored (`lazytopper/.gitignore:45`); a repo-root `.env` is not (`git check-ignore .env` → exit 1) *(controller-verified)*. A contractor who puts test-mode keys in a root `.env` can commit them. `AGENTS.md` directs keys to `lazytopper/.env`. Body: add `.env` (and `.env.*` except examples) to the root `.gitignore`.
+
+### `[FU-MOJIBAKE-UNTRACKED-BLIND]` — OPEN
+*(builder-reported)* `check:mojibake` scans tracked files only, so a NEW file is not checked locally until it is staged; CI checks it. The builder proved the injection control on both new files after `git add`. Body: scan untracked files too, or document "stage first".
+
+### `[FU-OR15-UNDEFINED]` — OPEN
+Specs cite "OR-15 fast gates", but no file under `ops/` on trunk defines OR-15 *(controller-verified: `grep -rn "OR-15" ops/` → 0 hits @ `640eb4cb`)*. The builder used the dispatch file's gate list. Body: define OR-15 in `ops/AGENT_STANDING_RULES.md` (or stop citing it).
+
 ## 2026-10-01 — WAVE B-6 (CONTROLLER B): TRIAL-ON-SIGNUP-1 (`#887` MERGED as `1229d465`, squash, `--match-head-commit d72c5193`) + TRIAL-ON-SIGNUP-1b (`#889` MERGED as `5eeaf916`, squash, `--match-head-commit 1d9aab25`) — eight new, none closed
 
 Bodies are the builders’ text from `Desktop/diff/report-trial-on-signup-1-2026-10-01.md` and `Desktop/diff/report-trial-on-signup-1b-2026-10-01.md` (‘FU’ sections), with the controller’s later status where `WAVE_STATE_B6.md` gives one *(builder-reported)*.
