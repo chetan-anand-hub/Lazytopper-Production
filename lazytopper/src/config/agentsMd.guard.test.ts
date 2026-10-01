@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 
 /**
@@ -98,5 +99,108 @@ describe("CLAUDE.md — the two stale §5 lines are gone (AGENTS-MD-1 A2)", () =
 
   it("does not import AGENTS.md (Claude behaviour unchanged, A5)", () => {
     expect(read(CLAUDE_PATH)).not.toMatch(/@AGENTS\.md/);
+  });
+});
+
+/**
+ * AGENTS-MD-2 — the protected list names REAL files, and a `.env` anywhere in the repo is git-ignored.
+ *
+ * Runs `git` with cwd = the repo root (ROOT), never the vitest cwd (`lazytopper/` in CI). A git spawn
+ * error or an unexpected exit status THROWS, so a missing git can never read as a pass. Nothing here
+ * reads the clock, so it passes identically at both CI test-clock instants.
+ */
+function git(args: string[]): { status: number; stdout: string } {
+  try {
+    const stdout = execFileSync("git", args, { cwd: ROOT, encoding: "utf-8", stdio: ["ignore", "pipe", "pipe"] });
+    return { status: 0, stdout };
+  } catch (e) {
+    const err = e as { status?: number | null; stdout?: string };
+    if (typeof err.status !== "number") throw e; // spawn failure (no git) — fail loudly
+    return { status: err.status, stdout: err.stdout ?? "" };
+  }
+}
+
+/** A §4 bullet is either a tracked FILE, or "Any file under `<dir>/`" — a directory glob that must match ≥1 tracked file. */
+function protectedEntryMatches(bullet: string): boolean {
+  const m = bullet.match(/`([^`]+)`/);
+  if (!m) return false;
+  const path = m[1];
+  if (/^- Any file under /.test(bullet)) {
+    const r = git(["ls-files", "--", path]);
+    return r.status === 0 && r.stdout.trim().length > 0;
+  }
+  return git(["ls-files", "--error-unmatch", "--", path]).status === 0;
+}
+
+/** true = ignored. `--no-index` judges a TRACKED path by the patterns too. NO `-v`: with -v a negation match exits 0. */
+function isIgnored(path: string): boolean {
+  const r = git(["check-ignore", "--no-index", "-q", path]);
+  if (r.status !== 0 && r.status !== 1) throw new Error(`git check-ignore ${path} exited ${r.status}`);
+  return r.status === 0;
+}
+
+const SECRETS_BLOCK = [
+  "# Secrets — never commit (AGENTS-MD-2)",
+  ".env",
+  ".env.*",
+  "**/.env",
+  "**/.env.*",
+  "!**/.env.example",
+].join("\n");
+
+describe("AGENTS-MD-2 — CLAUDE.md §4 protects real paths (G4a)", () => {
+  it("CONTROL — git runs at the repo root", () => {
+    const top = git(["rev-parse", "--show-toplevel"]);
+    expect(top.status).toBe(0);
+    expect(resolve(top.stdout.trim())).toBe(ROOT);
+  });
+
+  it("CONTROL — the existence check can fail (a missing file, an empty directory glob)", () => {
+    expect(protectedEntryMatches("- `lazytopper/src/components/DesktopShell.tsx`")).toBe(false);
+    expect(protectedEntryMatches("- `vite.config.ts`")).toBe(false);
+    expect(protectedEntryMatches("- Any file under `lazytopper/src/no-such-dir/`")).toBe(false);
+    expect(protectedEntryMatches("- no path here")).toBe(false);
+    expect(protectedEntryMatches("- `lazytopper/src/App.tsx`")).toBe(true);
+  });
+
+  it("★ every path in CLAUDE.md §4's protected list exists in the repo (or is a directory glob that matches something)", () => {
+    const claudeList = bulletsAfter(read(CLAUDE_PATH), /^Globally forbidden across all PRs unless explicitly scoped:/);
+    expect(claudeList.length).toBeGreaterThanOrEqual(8);
+    expect(claudeList).toContain("- Any file under `lazytopper/src/data/`");
+    const missing = claudeList.filter((b) => !protectedEntryMatches(b));
+    expect(missing).toEqual([]);
+  });
+
+  it("names the real DesktopShell and vite.config paths (G1)", () => {
+    for (const p of [CLAUDE_PATH, AGENTS_PATH]) {
+      const text = read(p);
+      expect(text).toContain("- `lazytopper/src/components/desktop/DesktopShell.tsx`");
+      expect(text).toContain("- `lazytopper/vite.config.ts`");
+    }
+  });
+});
+
+describe("AGENTS-MD-2 — a .env anywhere in the repo is git-ignored (G2/G4b)", () => {
+  it("★ the root .gitignore carries the exact secrets block", () => {
+    // `**/.env` also matches a ROOT .env, so check-ignore alone cannot see a deleted `.env` line.
+    expect(read(resolve(ROOT, ".gitignore"))).toContain(SECRETS_BLOCK + "\n");
+  });
+
+  it.each([".env", ".env.local", ".env.production", "scripts/.env", "lazytopper/.env", "lazytopper/server/.env", "scripts/sub/.env.local"])(
+    "★ ignores %s",
+    (p) => {
+      expect(isIgnored(p)).toBe(true);
+    }
+  );
+
+  it.each(["lazytopper/server/.env.example", ".env.example", "scripts/.env.example"])("does NOT ignore %s", (p) => {
+    expect(isIgnored(p)).toBe(false);
+  });
+
+  it("AGENTS.md carries the G3 payment-keys sentence word for word", () => {
+    expect(read(AGENTS_PATH)).toContain(
+      "- Payment keys: test-mode keys only, and only on your own machine. Keep them in `lazytopper/.env` (any `.env` file anywhere in this repo is git-ignored). Never paste keys into code, tests, commits, PR text or chat."
+    );
+    expect(read(AGENTS_PATH)).not.toContain("at the repo root is NOT");
   });
 });

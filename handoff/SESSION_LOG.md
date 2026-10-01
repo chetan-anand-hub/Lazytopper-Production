@@ -1,3 +1,28 @@
+## 2026-10-01 — WAVE A-8 (OPS, CONTROLLER A) — **AGENTS-MD-2: THE PROTECTED LIST NAMES REAL FILES, A `.env` ANYWHERE IS GIT-IGNORED, AND GUARDS KEEP BOTH TRUE** — `#894` → `abb7c055`
+
+★ **PROVENANCE.** Controller A, wave A-8. The owner spec `AGENTS-MD-2` v1.0 was hash-verified (`3B46E3D96CFB`), sourced from `controller-a7/ops/.specs`. *(builder-reported)* = `Desktop/diff/report-agents-md-2-2026-10-01.md`; *(controller-verified)* = re-checked with `gh`/`git`.
+
+**Timeline.**
+- Owner: **A-7 AUDIT PASS**. Both A-7 findings were confirmed by the cofounder, and D5 was accepted. Wave A-8 was dispatched from those findings.
+- Dispatch at trunk `0d6c38f9` (== the spec base). Open PRs then: `#893` (STUDENT-ACTIVITY-1, 14 files, none in this allowlist) and `#876` (Dependabot), both disjoint. State: `Desktop/diff/WAVE_STATE_A8.md`; dispatch file `Desktop/diff/dispatch-agents-md-2-2026-10-01.md`.
+- Builder (claude-opus-5-5, effort high) *(builder-reported)*:
+  - §0c premise gate EXIT 0, 6/6.
+  - P7 was written first: the only tracked `.env*` is `lazytopper/server/.env.example`, and the block goes at the end of the root `.gitignore`.
+  - It built 4 files; the guard went from 8 to 24 tests. M1/M2 went RED and the control fired.
+  - It opened PR `#894`, and CI went green on head `5423cad7`.
+- Controller §3 check *(controller-verified)*:
+  - Quality Gate `36901198355` headSha == `5423cad7`, success.
+  - The PR files == the grant, and the diffs were read.
+  - `git check-ignore -q --no-index` was re-run on the PR head: G2 holds.
+  - Pre-merge, the rolling release was COMPLETE 100% on `qiam6poza` and www served `0d6c38f9`.
+  - **MERGED `#894` → `abb7c055`** (`--squash --match-head-commit 5423cad7`).
+- OR-LIVE: `#894` deployed normally (docs/config/test only; no student-facing change). Pre-merge: rolling release COMPLETE 100% on `qiam6poza`, www `0d6c38f9`. New deployment `nkw8lpt03` appeared at 18:02:34Z (canary 10%) and reached `COMPLETE` 100% at 18:18:45Z; then www `/app/version.json` read `abb7c055` on 5/5 paced reads *(controller-verified; `vercel rolling-release fetch` polled with stderr captured; the watcher keyed on a canary different from `qiam6poza` (D4); log `Desktop/diff/orlive-a8-poll.log`)*.
+- This docs PR (it also records the A-7 audit rulings), then the final audit `Desktop/diff/audit-request-wave-a8-final-2026-10-01.md`, then STOP.
+
+**Lessons.**
+- **A guard can be correct and still unable to catch the mutation you care about.** `**/.env` already ignores a root `.env`, so `git check-ignore` stays green when the root `.env` line is deleted. The builder added an exact-text check so that mutation M2 could go red *(builder-reported)*. When a mutation will not go red, ask whether the property is redundant before assuming the guard is weak.
+- **`git check-ignore -v`'s exit code means "a pattern matched", not "ignored".** A negation match exits 0. Test ignore status with `-q` *(builder-reported; `[FU-CHECK-IGNORE-V-NEGATION-EXIT]`)*.
+
 ## 2026-10-01 — WAVE A-7 (OPS, CONTROLLER A) — **AGENTS-MD-1: A TOOL-NEUTRAL `AGENTS.md` FOR CONTRACTORS AND NON-CLAUDE AGENTS; TWO STALE CLAUDE.md §5 LINES CORRECTED** — `#891` → `640eb4cb`
 
 ★ **PROVENANCE.** Controller A, wave A-7. The owner spec `AGENTS-MD-1` v1.0 was hash-verified (`4B5DB338728D`), sourced from `controller-a7/ops/.specs`. *(builder-reported)* = `Desktop/diff/report-agents-md-1-2026-10-01.md`; *(controller-verified)* = re-checked with `gh`/`git` metadata.

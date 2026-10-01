@@ -1,5 +1,72 @@
 # LazyTopper — Current State
 
+## [CURRENT · OPS] WAVE A-8 — **THE PROTECTED-FILES LIST NAMES REAL FILES AGAIN · A `.env` ANYWHERE IN THE REPO IS GIT-IGNORED · GUARDS SO NEITHER CAN COME BACK (AGENTS-MD-2)** — `#894` MERGED — trunk `abb7c055`
+*(Supersedes the WAVE A-7 block below on trunk SHA only. That block is demoted to previous on trunk SHA. Its content, and the owner items of every block below, stand as written, except that this block settles A-7's owner items 1 and 2. Exactly one un-superseded `[CURRENT]` remains: this one.)*
+
+★ **PROVENANCE.**
+- Controller A, wave A-8, from the owner spec `AGENTS-MD-2` v1.0 (staged at `LT-worktrees/controller-a7/ops/.specs/AGENTS-MD-2.md`, sha256 `3B46E3D96CFB…`, hash-verified by the controller and again by the builder after `cp`).
+- *(builder-reported)* = from `Desktop/diff/report-agents-md-2-2026-10-01.md`; *(controller-verified)* = re-checked by the controller with `gh` / `git` metadata or a direct `git check-ignore` run.
+- **Trunk history since the last handoff:** `0d6c38f9` (`#892`, wave A-7 docs) → `abb7c055` (`#894`). Nothing else merged in between.
+- **The A-7 audit (owner, 2026-10-01): PASS.** The cofounder confirmed both A-7 findings on trunk `0d6c38f9`. The two §4 paths do not exist, and `git check-ignore` showed root `.env`, `.env.local`, `.env.production` and `scripts/.env` NOT ignored. Wave A-7's D5 (the early OR-LIVE watcher, self-corrected) was ACCEPTED. Full text in `DECISION_LOG.md`.
+
+### What landed
+AGENTS-MD-2 (#894, abb7c055) closes the two gaps wave A-7 found:
+- **G1, real paths.** `CLAUDE.md` §4 and its copy in `AGENTS.md` now protect `lazytopper/src/components/desktop/DesktopShell.tsx` and `lazytopper/vite.config.ts`. The two non-existent paths are gone.
+- **G2, secrets.** The root `.gitignore` gains `# Secrets — never commit (AGENTS-MD-2)` with `.env`, `.env.*`, `**/.env`, `**/.env.*`, `!**/.env.example`.
+- **G3.** `AGENTS.md` now tells contractors that any `.env` anywhere is ignored, and never to paste keys into code, tests, commits, PR text or chat.
+- **G4.** The guard (`agentsMd.guard.test.ts`, 8 → 24 tests) adds two checks. Every §4 path must exist, or be a directory glob that matches something. Every G2 case must pass `git check-ignore`. The AGENTS.md ↔ CLAUDE.md equality stays.
+
+No student-facing change; no flag.
+
+- **`#894` AGENTS-MD-2 → `abb7c055`**, squash, `--match-head-commit 5423cad7`, parent `0d6c38f9` *(controller-verified)*.
+- **4 files** *(controller-verified; the diff was read by the controller)*:
+  - `CLAUDE.md` +2/−2: exactly P1/P2.
+  - `AGENTS.md` +3/−5: P3/P4, and P5 as the G3 sentence verbatim.
+  - root `.gitignore` +6: the G2 block exactly.
+  - `lazytopper/src/config/agentsMd.guard.test.ts` +104.
+
+**G2 proof** *(controller-verified: `git check-ignore -q --no-index` on the PR head `5423cad7`)*:
+- `.env`, `.env.local`, `.env.production`, `scripts/.env`, `lazytopper/.env` and `lazytopper/server/.env` exit 0 (ignored).
+- `lazytopper/server/.env.example` exits 1 (not ignored).
+- Before the change, the first four exited 1 (cofounder- and builder-verified).
+- The only tracked `.env*` file is `lazytopper/server/.env.example` *(builder-reported, P7)*.
+
+ROLLOUT: `#894` deployed normally (docs/config/test only; no student-facing change). Pre-merge: rolling release COMPLETE 100% on `qiam6poza`, www `0d6c38f9`. New deployment `nkw8lpt03` appeared at 18:02:34Z (canary 10%) and reached `COMPLETE` 100% at 18:18:45Z; then www `/app/version.json` read `abb7c055` on 5/5 paced reads *(controller-verified; `vercel rolling-release fetch` polled with stderr captured; the watcher keyed on a canary different from `qiam6poza` (D4); log `Desktop/diff/orlive-a8-poll.log`)*.
+
+### What it disproved *(builder-reported)*
+- **`git check-ignore` cannot catch the loss of the root `.env` line**, because `**/.env` also matches a root `.env` (likewise `.env.*` / `**/.env.*`). The guard also pins the exact block text, and that check is what turns M2 red → owner G2 wording kept verbatim. The redundancy is harmless.
+- **`git check-ignore -v` exits 0 on a NEGATION match**, so a guard built on `-v` would report re-included files (`.env.example`) as ignored. The guard uses `-q --no-index` → `[FU-CHECK-IGNORE-V-NEGATION-EXIT]`.
+- **`check:mojibake` does not scan `.gitignore`.** The block's em dash was byte-checked instead → `[FU-MOJIBAKE-SKIPS-GITIGNORE]`.
+
+### Evidence
+- **Premise gate** `--strict-anchor --worktree=.` at `0d6c38f9` (== spec base): EXIT 0, 6/6 anchors *(builder-reported)*.
+- **CI** on head `5423cad7`, Quality Gate `36901198355`, success, full bar *(run head controller-verified)*: 3 × `Tests 3305 passed (3305)` / `Test Files 226 passed (226)` (the vitest step and both test-clock steps), each with `agentsMd.guard.test.ts (24 tests)`; root matrix `# tests 293 / # fail 0 / # skipped 0` *(builder-reported)*.
+- **Mutations** (one at a time, restore verified) *(builder-reported)*:
+  - M1, the old DesktopShell path back in both files → RED (2 failed, incl. `every path in CLAUDE.md §4's protected list exists`).
+  - M2, `.env` removed from the root block → RED (1 failed, `the root .gitignore carries the exact secrets block`).
+  - Control: the existence check returns false for a missing path and for an empty glob → FIRES.
+- **Repo boundary** `unknown=0`, 11/11 *(builder-reported)*.
+
+### Decisions (full text in `DECISION_LOG.md`)
+- **A-7 audit rulings** recorded.
+- **D1** the same model as A-7: one named builder, P7 first; the controller merges.
+- **D2** the controller merged on the §3 proof.
+- **D3** the redundant `.env` / `.env.*` lines were kept, because the owner's G2 wording is fixed.
+- **D4** OR-LIVE keyed on the NEW canary (≠ the pre-merge `qiam6poza`) reaching `COMPLETE` 100%, then 5/5 www reads.
+
+### Follow-ups (bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`)
+- **Closed:** `[FU-CLAUDE-MD-S4-STALE-PATHS]`, `[FU-ROOT-ENV-NOT-GITIGNORED]`.
+- **New:** `[FU-CHECK-IGNORE-V-NEGATION-EXIT]`, `[FU-MOJIBAKE-SKIPS-GITIGNORE]`.
+- **Still open from A-7:** `[FU-MOJIBAKE-UNTRACKED-BLIND]`, `[FU-OR15-UNDEFINED]`.
+
+### ★ Owner items
+1. **GitHub → repo Settings → Code security → enable Secret scanning and Push protection** if offered for this repository. This blocks a push that contains a recognised key, such as a Razorpay secret (spec owner step).
+2. **Hand `AGENTS.md` to the Razorpay consultant** (carried from A-7; the `.env` guidance is now accurate for the whole repo).
+- Carried: the owner items of the WAVE B-6 block and every block below it stand as written.
+
+### Carried forward — ★ THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this block
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.** **Wave A-8 moved NO dormancy in that trio** (docs/config/test only). The full block, including the `#647`/`#655` resolution and every subsequent restatement, is in the blocks below and is unchanged.
+
 ## [CURRENT · OPS] WAVE A-7 — **A TOOL-NEUTRAL `AGENTS.md` FOR CONTRACTORS AND NON-CLAUDE AGENTS · TWO STALE CLAUDE.md §5 LINES NOW MATCH THE RAZORPAY-1 AND TRIAL-ON-SIGNUP-1 RULINGS (AGENTS-MD-1)** — `#891` MERGED — trunk `640eb4cb`
 *(Supersedes the WAVE B-6 block below on trunk SHA only. That block is demoted to previous on trunk SHA; its content, and the owner items of every block below, stand as written. Exactly one un-superseded `[CURRENT]` remains: this one.)*
 

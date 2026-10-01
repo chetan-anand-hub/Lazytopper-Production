@@ -23,6 +23,22 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-01 — WAVE A-8 (CONTROLLER A): AGENTS-MD-2 (`#894` MERGED as `abb7c055`, squash, `--match-head-commit 5423cad7`) — two new, two closed
+
+Bodies are the builder's text from `Desktop/diff/report-agents-md-2-2026-10-01.md`; where the controller re-checked, it says so. Closures are recorded here; the dated A-7 entries below are left as written (standing rule 3).
+
+### `[FU-CHECK-IGNORE-V-NEGATION-EXIT]` — OPEN
+*(builder-reported)* `git check-ignore -v` exits 0 when the deciding pattern is a NEGATION (`!…`), so a guard that tests "ignored?" by `-v`'s exit code reports a re-included file (e.g. `lazytopper/server/.env.example`) as ignored. `agentsMd.guard.test.ts` uses `git check-ignore -q --no-index` instead (exit 1 for the re-included file — controller-verified on `5423cad7`). Body: note this in `ops/AGENT_STANDING_RULES.md` next to the other "a control that cannot fail" entries.
+
+### `[FU-MOJIBAKE-SKIPS-GITIGNORE]` — OPEN
+*(builder-reported)* `check:mojibake` does not scan `.gitignore`; the injection control did not fire there, so the new block's em dash was byte-checked by hand. Body: extend the scanner's file set to dotfiles such as `.gitignore`, or record that they are out of scope. Pairs with `[FU-MOJIBAKE-UNTRACKED-BLIND]` (A-7).
+
+### Note — `[FU-CLAUDE-MD-S4-STALE-PATHS]` (wave A-7, below) — **CLOSED by `#894` (`abb7c055`)**
+`CLAUDE.md` §4 and `AGENTS.md` now name `lazytopper/src/components/desktop/DesktopShell.tsx` and `lazytopper/vite.config.ts` *(controller-verified, diff read)*. The guard now asserts that every §4 path exists, or is a directory glob that matches something (mutation M1 RED, builder-reported).
+
+### Note — `[FU-ROOT-ENV-NOT-GITIGNORED]` (wave A-7, below) — **CLOSED by `#894` (`abb7c055`)**
+The root `.gitignore` carries the G2 block. `git check-ignore -q --no-index`: `.env`, `.env.local`, `.env.production`, `scripts/.env`, `lazytopper/.env` and `lazytopper/server/.env` → ignored; `lazytopper/server/.env.example` → not ignored *(controller-verified on `5423cad7`)*. The cofounder had confirmed the original gap on `0d6c38f9`.
+
 ## 2026-10-01 — WAVE A-7 (CONTROLLER A): AGENTS-MD-1 (`#891` MERGED as `640eb4cb`, squash, `--match-head-commit e6b7041f`) — four new, none closed
 
 Bodies are the builder's text from `Desktop/diff/report-agents-md-1-2026-10-01.md` ("FINDINGS" / "FU IDS"); where the controller re-checked, it says so.
