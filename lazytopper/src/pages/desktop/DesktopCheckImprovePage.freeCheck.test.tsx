@@ -287,11 +287,9 @@ describe("the free check, end to end (single question)", () => {
     await gradeTypedAnswer();
     await waitFor(() => expect(window.localStorage.getItem(FREE_CHECK_USED_KEY)).not.toBeNull());
     fireEvent.click(screen.getAllByRole("button", { name: /Grade another/ })[0]);
-    await waitFor(() =>
-      expect(container.textContent).toContain(
-        "You've used your free check. Sign up free to save it and start your 7-day free trial — no card needed.",
-      ),
-    );
+    await waitFor(() => expect(container.textContent).toContain("Your free check is done ✅"));
+    // SIGNUP-NUDGE-1 — the result graded a moment ago is waiting, so the block shows it.
+    expect(screen.getByTestId("free-check-summary")).toHaveTextContent("2/3 marks");
     expect(screen.queryByRole("button", { name: /Read the question/ })).toBeNull();
     expect(H.track.mock.calls).toContainEqual(["free_check_used_block"]);
     for (const c of H.track.mock.calls) expect(c).toHaveLength(1);
@@ -301,7 +299,7 @@ describe("the free check, end to end (single question)", () => {
     flagOn();
     window.localStorage.setItem(FREE_CHECK_USED_KEY, "1");
     const { container } = renderPage();
-    expect(container.textContent).toContain("You've used your free check.");
+    expect(container.textContent).toContain("Your free check is done ✅");
     expect(screen.queryByRole("button", { name: /Read the question/ })).toBeNull();
     expect(H.detectQuestion).not.toHaveBeenCalled();
   });
