@@ -1,3 +1,27 @@
+## 2026-10-01 — WAVE A-8 (OPS, CONTROLLER A): AGENTS-MD-2 — PR `#894` merged — trunk `abb7c055`; and the WAVE A-7 AUDIT RULINGS
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (A-7 audit, owner grant, OR-LIVE, OR-AUTO, D1–D4), not `DECISION N`.
+
+### Owner rulings — WAVE A-7 AUDIT (2026-10-01)
+- **AUDIT PASS: wave A-7** (`#891` `640eb4cb`, docs `#892` `0d6c38f9`).
+- **Both A-7 findings confirmed by the cofounder** on trunk. The two CLAUDE.md §4 paths do not exist (`[FU-CLAUDE-MD-S4-STALE-PATHS]`), and `git check-ignore` showed root `.env`, `.env.local`, `.env.production` and `scripts/.env` NOT ignored (`[FU-ROOT-ENV-NOT-GITIGNORED]`). Both were fixed by wave A-8.
+- **Wave A-7 D5 ACCEPTED.** The early OR-LIVE watcher exited on one 10%-canary sample and was self-corrected before anything was recorded as live.
+
+### Owner rulings — WAVE A-8 dispatch (2026-10-01)
+- **Grant:** `CLAUDE.md` lines P1 and P2 only; `AGENTS.md` P3/P4/P5; the root `.gitignore`, one block; the guard test.
+- **G1–G4 fixed wording** per spec §2 (real paths word for word; the G2 block; the G3 sentence; the G4 guards).
+- **OR-LIVE:** 5/5 reads on www before calling it live. **OR-AUTO**, **OR-15** unchanged; a classifier-blocked merge means the exact command for the owner.
+
+### Controller decisions, with the reason
+- **D1:** the same model as A-7. One builder, named explicitly (claude-opus-5-5, effort high), ran §0c on the re-derived tip in a fresh worktree with the spec copied in by `cp`. P7 went to its report before any repo write, and it did not merge. **Why:** the owner model, re-stated for A-8.
+- **D2:** the controller merged `#894` (`--squash --match-head-commit 5423cad7`). **Why:** §3 was met and controller-checked:
+  - Quality Gate `36901198355`'s `headSha` == the PR head, success.
+  - The PR files == the grant.
+  - The diffs were read: CLAUDE.md = P1/P2 only; AGENTS.md = P3/P4/P5 with G3 verbatim; `.gitignore` = the G2 block exactly.
+  - `git check-ignore -q --no-index` was re-run by the controller on the PR head, and every G2 case matched.
+- **D3:** the redundant `.env` and `.env.*` lines were KEPT. **Why:** `**/.env` and `**/.env.*` already match at the root, so the two lines are harmless. The owner's G2 wording is fixed and removing them is a wording change the grant does not make. The builder raised it as optional.
+- **D4:** the OR-LIVE watcher keyed on the end state, per the A-7 D5 lesson. It recorded the pre-merge canary (`qiam6poza`, COMPLETE 100%, www `0d6c38f9`), then waited for a DIFFERENT canary at `COMPLETE` 100%, then 5/5 www reads on `abb7c055`. **Why:** a canary-time www sample proves nothing about www.
+
 ## 2026-10-01 — WAVE A-7 (OPS, CONTROLLER A): AGENTS-MD-1 — PR `#891` merged — trunk `640eb4cb`
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (owner grant, OR-LIVE, OR-AUTO, D1–D5), not `DECISION N`.
