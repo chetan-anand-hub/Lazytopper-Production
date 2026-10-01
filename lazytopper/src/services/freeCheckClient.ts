@@ -34,6 +34,9 @@ import type {
   WorksheetGradeResponse,
 } from "../ai/aiClient";
 import type { DetectionOverrideLog } from "./practiceInsights";
+// TRIAL-ON-SIGNUP-1b — the shared after-trial wording lives in a ZERO-IMPORT module (it
+// imports only config/pricing, itself import-free), so this file stays node-safe.
+import { TRIAL_WORDING } from "../components/pricing/BasicFreeList";
 
 /* ─────────────────────────── flag + env ─────────────────────────── */
 
@@ -170,13 +173,14 @@ export const FREE_CHECK_COPY = {
   /**
    * R1 — the browser has already used its free check. SIGNUP-NUDGE-1 (owner spec §2 S1,
    * word for word): a headline, then either the waiting result's summary line or
-   * `usedChecked`, then the body and the trial line. "No card needed." has NO dash.
+   * `usedChecked`, then the body and the trial line. TRIAL-ON-SIGNUP-1b: the trial line is
+   * the shared general line (`TRIAL_WORDING`).
    */
   usedTitle: "Your free check is done ✅",
   /** S1b — shown when no result is waiting on this device (none, expired, or unreadable). */
   usedChecked: "Your answer was checked like a CBSE examiner.",
   usedBody: "Sign up in one tap to keep this result and keep checking answers.",
-  usedTrial: "7-day Premium trial, then free Basic, upgrade anytime. No card needed.",
+  usedTrial: TRIAL_WORDING.generalLine,
   /** S2 — the sign-in link label on the free result's top bar. */
   keepThis: "Sign up free to keep this",
   /** R3 / R5 — `ceiling_reached` and `budget`. */
@@ -189,23 +193,27 @@ export const FREE_CHECK_COPY = {
    * to (the client flag on, the server's free check off), so it must not blame the browser.
    */
   unavailable: "Free checks aren't available right now. Sign up free and your 7-day trial covers it.",
-  /** R9 — the trial offer after a saved free result. */
+  /**
+   * R9 — the trial offer after a saved free result. TRIAL-ON-SIGNUP-1b: the general line's
+   * two sentences, with the trial's end date between them (the T2 confirmation's order).
+   */
   offerTitle: "Your answer is saved.",
   offerBody: (endsOn: string) =>
-    `Start your 7-day free trial to check more answers and see your mistake pattern. No card needed. Ends ${endsOn}.`,
+    `${TRIAL_WORDING.tryLine} Ends ${endsOn}. ${TRIAL_WORDING.afterLine}`,
   /** OR-7 — replaces the "<3 − n> more checks…" line. Promises no threshold. */
   offerPattern: "Every answer you check helps build your mistake pattern.",
   offerStart: "Start my free trial",
   offerLater: "Maybe later",
   /**
    * TRIAL-ON-SIGNUP-1 · T2 — a NEW account's trial already started at sign-up, so the
-   * offer is replaced by this confirmation. Owner copy, word for word:
-   * "Your 7-day trial is on ✅ Ends <date>. No card, nothing to cancel. After that you
-   * keep free Basic." — <date> is the trial's real end date ("8 October 2026").
+   * offer is replaced by this confirmation. Owner copy, word for word (TRIAL-ON-SIGNUP-1b
+   * addendum): "Your 7-day trial is on ✅ Ends <date>. No card, nothing to cancel. After
+   * that, keep free Basic or upgrade to Premium at {MONTHLY_INLINE}." — <date> is the
+   * trial's real end date ("8 October 2026").
    */
   confirmTitle: "Your 7-day trial is on ✅",
   confirmBody: (endsOn: string) =>
-    `Ends ${endsOn}. No card, nothing to cancel. After that you keep free Basic.`,
+    `Ends ${endsOn}. No card, nothing to cancel. ${TRIAL_WORDING.afterLine}`,
   confirmCta: "Check my next answer",
   /** The one sign-in link label every free-check prompt uses. */
   signUpCta: "Sign up free",

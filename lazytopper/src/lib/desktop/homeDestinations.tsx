@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import type { DesktopSubject } from "./navigation";
 import { desktopTopicsBySubject } from "./topics";
 import { buildTutorPath } from "../../pages/tutor/tutorPath";
+import { TRIAL_WORDING } from "../../components/pricing/BasicFreeList";
 
 /**
  * homeDestinations — the single, firebase-free source of truth for the Home
@@ -18,6 +19,7 @@ import { buildTutorPath } from "../../pages/tutor/tutorPath";
  *   ./navigation      — types only, zero imports
  *   ./topics          — ./navigation + ../../data/syllabus/topicAliasMap (zero imports)
  *   ../../pages/tutor/tutorPath — zero imports
+ *   ../../components/pricing/BasicFreeList — ../../config/pricing (zero imports)
  * That is what lets a NON-Home surface mount the tutor picker. PR-B mounts
  * <TutorPickerModal> from DesktopShell for the rail's Tutor entry; if this file
  * ever gains a data-layer import (mistakeLogService, AuthContext, firebaseClient),
@@ -195,7 +197,7 @@ export function composeTutorEntry(input: {
 /** Pop-card footer note — SPEC §3. Trial framing is frozen: never "then paid". */
 export function tutorGateNote(isSignedIn: boolean): string {
   return isSignedIn
-    ? "Premium · part of the 7-day trial — then free Basic, upgrade anytime."
+    ? `Premium · part of the 7-day trial — ${TRIAL_WORDING.shortFragment}`
     : "Log in to open your tutor. We'll bring you straight back to this chapter.";
 }
 

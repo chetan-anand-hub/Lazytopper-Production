@@ -4,7 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { UpgradeModal } from "../UpgradeModal";
 import { trackNamedEvent } from "../../analytics/analytics";
-import { BasicFreeList } from "../pricing/BasicFreeList";
+import { BasicFreeList, TRIAL_WORDING } from "../pricing/BasicFreeList";
 
 export function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -96,7 +96,7 @@ export function RequirePremium({ children, featureLabel }: { children: ReactNode
               Start my free 7-day trial
             </button>
             <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 9 }}>
-              then free Basic, upgrade anytime
+              {TRIAL_WORDING.shortFragment}
             </div>
             <button
               type="button"
