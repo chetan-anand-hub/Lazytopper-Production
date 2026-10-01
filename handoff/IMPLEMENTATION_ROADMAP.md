@@ -1,5 +1,13 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-01 — OPS: **WAVE A-8 — AGENTS-MD-2** — `#894` MERGED — trunk `abb7c055`
+
+- ✅ **WAVE A-7 AUDIT PASS** (owner, 2026-10-01): both A-7 findings confirmed; D5 accepted.
+- ✅ **AGENTS-MD-2** (`#894` `abb7c055`; docs/config/test only, no flag): `CLAUDE.md` §4 and `AGENTS.md` protect the real `components/desktop/DesktopShell.tsx` and `lazytopper/vite.config.ts`. The root `.gitignore` ignores `.env` / `.env.*` anywhere except `*.env.example`. `agentsMd.guard.test.ts` (24 tests) fails if a §4 path stops existing or a G2 `.env` case stops being ignored.
+- ✅ **FUs:** closed `[FU-CLAUDE-MD-S4-STALE-PATHS]` · `[FU-ROOT-ENV-NOT-GITIGNORED]`; new `[FU-CHECK-IGNORE-V-NEGATION-EXIT]` · `[FU-MOJIBAKE-SKIPS-GITIGNORE]`.
+- ✅ **Docs:** this handoff (also records the A-7 audit rulings).
+- ⬜ **Owner:** enable GitHub Secret scanning + Push protection; hand `AGENTS.md` to the Razorpay consultant.
+
 ## 2026-10-01 — OPS: **WAVE A-7 — AGENTS-MD-1** — `#891` MERGED — trunk `640eb4cb`
 
 - ✅ **AGENTS-MD-1** (`#891` `640eb4cb`; docs/config/test only, no flag): a tool-neutral root `AGENTS.md` for contractors and non-Claude agents, guarded against drift from `CLAUDE.md` §4 by `agentsMd.guard.test.ts`; two stale `CLAUDE.md` §5 lines (payment, trial) now match RAZORPAY-1 and TRIAL-ON-SIGNUP-1. `CLAUDE.md` does not import `AGENTS.md`.

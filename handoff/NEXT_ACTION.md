@@ -1,3 +1,22 @@
+## ★★★ 2026-10-01 — WAVE A-8 (OPS, CONTROLLER A) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-7 BLOCK BELOW ON TRUNK SHA ONLY
+*(A-7's owner item 1 (rule on the stale §4 paths) is SETTLED by `#894`. A-7's item 2 (hand `AGENTS.md` to the Razorpay consultant) is carried as item 2 below. The owner items of the WAVE B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
+
+**TRUNK IS `abb7c055ef84e8d4df57c330bc80b8a6a6f5107c`**, measured 2026-10-01 (`git ls-remote origin refs/heads/base/approved-thru-437`):
+- `abb7c055` = `#894` (AGENTS-MD-2: real §4 paths, root `.env` ignored, guards) — **this wave**; deployed normally, see ROLLOUT in `CURRENT_STATE.md`
+- `0d6c38f9` = `#892` (docs: wave A-7, Controller A) — **A-7 AUDIT PASS**
+
+Open at the time of writing, besides this docs PR: `#893` (STUDENT-ACTIVITY-1 PR-1, `lane/student-activity-1`; not this controller's lane) and `#876` (Dependabot, `actions/setup-node` 4 → 7).
+
+### NEXT — OWNER
+1. **GitHub → repo Settings → Code security → enable Secret scanning and Push protection** if offered for this repository. This is the server-side backstop to the new `.gitignore` block: it blocks a push that contains a recognised key, such as a Razorpay secret.
+2. **Give the Razorpay consultant `AGENTS.md`** (repo root) before their first PR. Its `.env` guidance is now true for the whole repo.
+
+### Carried — still owed
+3. **The WAVE B-6 owner items** (the B-6 block below, items 1–4) and everything it carries (C-2, B-5, B-4 fair-use, B-2 RAZORPAY-1 owner test).
+
+### NEXT — LANES
+- None dispatched by wave A-8 beyond `#894`. Open ops FUs: `[FU-MOJIBAKE-UNTRACKED-BLIND]`, `[FU-MOJIBAKE-SKIPS-GITIGNORE]` (one scanner lane could take both), `[FU-OR15-UNDEFINED]`, `[FU-CHECK-IGNORE-V-NEGATION-EXIT]` (documentation only).
+
 ## ★★★ 2026-10-01 — WAVE A-7 (OPS, CONTROLLER A) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE B-6 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
 

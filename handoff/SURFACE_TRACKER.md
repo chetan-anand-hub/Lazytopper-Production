@@ -1,5 +1,9 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-01 — WAVE A-8 (OPS, CONTROLLER A): AGENTS-MD-2 (`#894` `abb7c055`), trunk `abb7c055`. Docs/config/test only.**
+> **NO SURFACE MOVES.** `#894` corrects two protected paths in `CLAUDE.md` §4 / `AGENTS.md`, git-ignores `.env` files repo-wide and extends a guard test. No student-facing surface changed.
+> 📋 Scope discovered? — **NO surface scope set to Settling.** Two follow-ups are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`, and two A-7 follow-ups are closed; none changes a surface's scope. Nothing goes in `DECISION_LOG` §2a.
+
 > **2026-10-01 — WAVE A-7 (OPS, CONTROLLER A): AGENTS-MD-1 (`#891` `640eb4cb`), trunk `640eb4cb`. Docs/config/test only.**
 > **NO SURFACE MOVES.** `#891` adds a repo-root `AGENTS.md` for contractors, corrects two `CLAUDE.md` §5 lines and adds a guard test; no student-facing surface changed.
 > 📋 Scope discovered? — **NO surface scope set to Settling.** Four follow-ups are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`; none changes a surface's scope. Nothing goes in `DECISION_LOG` §2a.
