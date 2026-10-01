@@ -1,3 +1,29 @@
+## ★★★ 2026-10-01 — WAVE B-6 (MONEY, CONTROLLER B) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE C-2 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged, except as stated here.)*
+
+**TRUNK IS `5eeaf916668ad137d9218bfe3418d111668dce91`**, measured 2026-10-01 (`git ls-remote origin refs/heads/base/approved-thru-437`):
+- `5eeaf916` = `#889` (TRIAL-ON-SIGNUP-1b: honest after-trial wording — keep free Basic or upgrade to Premium) — **this wave**; LIVE on merge (no flag), see ROLLOUT in `CURRENT_STATE.md`
+- `ef4115b3` = `#888` (docs: wave C-2, Controller C)
+- `1229d465` = `#887` (TRIAL-ON-SIGNUP-1: a new account's 7-day trial starts at sign-up, once; locks list what is free on Basic) — **this wave**; LIVE on merge (no flag)
+- `5f021139` = `#886` and `97f48dcb` = `#885` — #885 (97f48dcb) and #886 (5f021139) merged before #887 — their handoff landed in #888 (ef4115b3), Controller C's wave C-2 docs.
+
+Open at the time of writing, besides this docs PR: `#876` (Dependabot, `actions/setup-node` 4 → 7; `prerender-capture.yml`, `search-ping.yml`).
+
+### NEXT — OWNER, TRIAL ON SIGN-UP — IN THIS ORDER (none of these was run by the controller or a builder)
+1. **Real browser, signed out** (CLAUDE.md §6 — a live round trip; production App Check refuses headless browsers): `/app/check-improve` free check → Google or phone sign-up → expect "Your 7-day trial is on ✅ Ends <date>" → "Check my next answer" → a graded check. This closes `[FU-TRIAL-ON-SIGNUP-C-CANARY]` and `[FU-TRIAL-ON-SIGNUP-A-GOOGLE-LIVE]` (for the Google leg, also confirm `subscriptions/{uid}` has the trial at creation and exactly one `trial_start`; steps in the builder's report). While there, read the confirmation's after-trial line and its "See plans →" link (`#889`).
+2. **Delete 3 prod Firebase test accounts** (Auth user + `subscriptions/{uid}`; the third also has one graded C&I attempt): `cVk72VqGObVgkgpEJZe3QPH0WPV2`, `GCjDRKc4OOgVTVsi2Jc4pr51YnP2`, `UgMRv95h2DROdWAChJytyLeDIZl1` (emails in `Desktop/diff/report-trial-on-signup-1-2026-10-01.md`).
+3. **Rule on `[FU-TRIAL-UNVERIFIED-EMAIL-CAN-START]`** — `#887` now starts the trial at email sign-up, before verification (owner ruling A, controller D4).
+4. **Delete the `#889` test accounts in production Firebase Auth** (plus any matching `subscriptions/{uid}`): search by the prefix `trial-on-signup-1b.acceptance+` — one is known, up to 2 more exist (builder-reported error: it exceeded its one-account limit).
+
+### Carried — still owed
+5. **The WAVE C-2 owner items** (the C-2 block below, items 1–4).
+6. **The WAVE B-5 owner steps** (the B-5 block below, items 1–4): delete its 3 acceptance accounts; finish its live case (a) with a real inbox; rule on `[FU-TRIAL-OVERWRITES-ENDED-PASS-PLAN]` (and `[FU-TRIAL-UNVERIFIED-EMAIL-CAN-START]`, item 3 above); GA4 `trial_start` key event (controller suggestion).
+7. **The WAVE B-4 fair-use steps**: live-verify FAIR_USE as a trial student, **then** set `FAIR_USE_ENFORCE=1` (exactly `1`) on Railway and live-test.
+8. **The WAVE B-2 RAZORPAY-1 owner test** before production payments.
+
+### NEXT — LANES
+- None dispatched by wave B-6 beyond `#887` and `#889`. The eight new FUs are candidates; two are owner live runs. `[FU-TRIAL-WORDING-SEE-PLANS-FREECHECK]` is the small copy-and-link follow-up to `#889`.
+
 ## ★★★ 2026-10-01 — WAVE C-2 (ANALYTICS + FREE CHECK, CONTROLLER C) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE B-5 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged, except as stated here.)*
 

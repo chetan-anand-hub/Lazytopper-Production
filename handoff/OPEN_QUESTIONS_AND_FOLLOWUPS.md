@@ -23,6 +23,40 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-01 — WAVE B-6 (CONTROLLER B): TRIAL-ON-SIGNUP-1 (`#887` MERGED as `1229d465`, squash, `--match-head-commit d72c5193`) + TRIAL-ON-SIGNUP-1b (`#889` MERGED as `5eeaf916`, squash, `--match-head-commit 1d9aab25`) — eight new, none closed
+
+Bodies are the builders’ text from `Desktop/diff/report-trial-on-signup-1-2026-10-01.md` and `Desktop/diff/report-trial-on-signup-1b-2026-10-01.md` (‘FU’ sections), with the controller’s later status where `WAVE_STATE_B6.md` gives one *(builder-reported)*.
+
+### `[FU-TRIAL-START-EVENT-DOC-STALE]` — OPEN
+The `analytics.ts` `NamedAnalyticsEvent` comment says `trial_start` = "a user action started the 7-day trial"; it now also counts the automatic start at sign-up. Docs-only; controller D3 kept `analytics.ts` untouched.
+
+### `[FU-SIGNUP-CONFIRMATION-SESSION-ONLY]` — OPEN
+The T2 confirmation relies on an in-memory marker; a reload between sign-up and the free-check return (e.g. verifying the email in another tab) shows the page (trial active) without the confirmation. Harmless; a persistent marker would need a non-entitlement storage decision.
+
+### `[FU-TRIAL-ON-SIGNUP-C-CANARY]` — OPEN, **OWNER LIVE RUN**
+Live case (c) (free check → sign-up → "Your 7-day trial is on" confirmation → a graded check) was owed on the canary because the preview's free-check flag is OFF. **Status 2026-10-01 (controller D10):** run on production post-merge, it was PARTIAL — App Check returned 403 to the headless free check, so no free result was saved and the confirmation was unreachable; the sign-up, the trial written at creation, exactly one `trial_start`, and a graded check on the new trial all PASSED. **Now owed:** the owner, in a real browser (App Check passes), runs free check → Google or phone sign-up (no email-verify step), or email + verify in the same tab → the confirmation → "Check my next answer" → a graded check.
+
+### `[FU-TRIAL-ON-SIGNUP-A-GOOGLE-LIVE]` — OPEN, **OWNER LIVE RUN**
+Live case (a), a NEW Google sign-up, is owner-owed: an agent cannot create a Google account (unit-tested). Steps: a private window → `/app/sign-up` → "Continue with Google" with a Google account that has never signed in to LazyTopper → Local Storage `lazytopper.subscription.v1:<uid>` shows `tier:"trial"`; Firestore `subscriptions/<uid>` has `tier trial / plan trial_7day / trialStartDate` (a timestamp at sign-up); GA4 DebugView (or Vercel) shows one `trial_start`. Then sign out and "Continue with Google" again with the same account → no new `trial_start`, `trialStartDate` unchanged.
+
+### `[FU-BASIC-LIST-DARK-THEME]` — OPEN
+The Basic list card uses a fixed light palette (the FreeCheckPanels convention); in the dark theme it renders as a light card. Cosmetic.
+
+### `[FU-TRIAL-WORDING-SEE-PLANS-FREECHECK]` — OPEN *(from `#889`)*
+The R1 used panel and the R9 offer render the general trial line but have no "See plans →" link, because FreeCheckPanels was allowlisted for the T2 confirmation only. Body: add a router Link to /pricing in the FreeCheckUsedPanel and FreeCheckTrialOffer actions.
+
+### `[FU-MONTHLY-INLINE-SWITCH-CONSUMERS]` — OPEN *(from `#889`)*
+The config/pricing.ts comment on MONTHLY_INLINE says "the two gates" and "those two files import nothing else". MONTHLY_INLINE now also feeds TRIAL_WORDING (sign-in strip, lock, Home card, free-check panels). Closing the founding cohort is still that one line, but the comment undercounts its consumers. Not fixable in `#889`: pricing.ts was import-only for that lane.
+
+### `[FU-OFFERSTRIP-MOBILE-PRICE-COMMENT]` — OPEN *(from `#889`)*
+OfferStrip.tsx’s NAME-1 v2 doc comment says the mobile variant "DROPS THE PRICE". After the addendum, the after-trial line carries MONTHLY_INLINE on mobile too. The copy-only lane left the comment as is.
+
+### Note — `[FU-TRIAL-UNVERIFIED-EMAIL-CAN-START]` (wave B-5, defined in the wave B-5 section below) — KEPT OPEN, **OWNER RULING**
+**2026-10-01:** `#887` now starts the trial at email sign-up, before verification (owner ruling A, controller D4): the verify gate blocks entry, not the trial. No email-verified guard was added, because the ruling says "at sign-up" on every new-account door and a guard would narrow it. The owner ruling is still owed. The entry in the wave B-5 section stands as written.
+
+### Note — `[FU-SUBSCRIPTION-AUTOTRIAL-ONMOUNT]` (tombstoned by `#535`, 2026-07-25) — stays CLOSED
+**2026-10-01:** per the controller (wave B-6 docs brief), the TRIAL-ON-SIGNUP-1 spec says owner ruling A supersedes this entry ONLY for new-account creation. `#887` does not reintroduce a mount-time activation: the trial starts once at a creating door (Google and phone gated on Firebase `isNewUser`; email create always creates), and mounting a component, a login, a reload or an existing account starts nothing (unit-tested; live (b)/(d)). The trunk entry is already closed ("Both write sites removed"), so it is not reopened; the doctrine it records still holds for every path other than new-account creation.
+
 ## 2026-10-01 — WAVE C-2 (CONTROLLER C): FUNNEL-EVENTS-1 (`#885` MERGED as `97f48dcb`) + SIGNUP-NUDGE-1 (`#886` MERGED as `5f021139`) — six new, none closed
 
 Bodies are from the builders' reports `Desktop/diff/report-funnel-events-1-2026-09-30.md` and `Desktop/diff/report-signup-nudge-1-2026-10-01.md` *(subagent-reported)*, with the controller's status from `Desktop/diff/WAVE_STATE_C2.md`.

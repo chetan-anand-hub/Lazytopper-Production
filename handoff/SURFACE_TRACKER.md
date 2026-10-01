@@ -1,5 +1,25 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-01 — WAVE B-6 (MONEY, CONTROLLER B): TRIAL-ON-SIGNUP-1 (`#887` `1229d465`) + TRIAL-ON-SIGNUP-1b (`#889` `5eeaf916`), trunk `5eeaf916`. LIVE on merge (no flag); rollouts recorded in `CURRENT_STATE.md`.**
+> ★ **FOUR STATUS LINES MOVE: sign-up starts the trial; the C&I free-check return shows a confirmation for a new account; every Premium lock lists what stays free on Basic; every trial line says what happens after the trial.** These lines supersede the Login door, Check & Improve free check, RequirePremium and trial-copy points below (including the wave C-2 lines) on these points only; those rows stand as written.
+
+### ✅ Sign-up (every new-account door: Google popup, email create, phone OTP) — **STARTS THE 7-DAY TRIAL, ONCE (`#887`).**
+- A brand-new account gets its trial at creation through the existing `activateTrial`; logins, reloads and existing accounts start nothing; `trial_start` fires only on a real start. Preview (b) email sign-up and (d) existing-account login PASS; production email sign-up PASS *(builder-reported)*.
+- ⚠ The Google leg is owner-owed (`[FU-TRIAL-ON-SIGNUP-A-GOOGLE-LIVE]`). Verified cells are not re-claimed.
+
+### ✅ Check & Improve — free-check return, signed in — **NEW ACCOUNT: OFFER → "YOUR 7-DAY TRIAL IS ON" CONFIRMATION (`#887`), WITH "SEE PLANS →" (`#889`).**
+- A new account whose trial this session started sees "Your 7-day trial is on ✅", "Ends <date>" from the stored trial start, the after-trial line, "Check my next answer" back to the page, and "See plans →". An existing account keeps the offer; its "Maybe later" now goes Home instead of the Premium lock.
+- ⚠ **Live PARTIAL:** production App Check refuses the headless free check, so the confirmation itself is owner-owed in a real browser (`[FU-TRIAL-ON-SIGNUP-C-CANARY]`); it is render-tested and screenshotted *(builder-reported)*.
+
+### ✅ Premium locks (`RequirePremium`: Check & Improve, Tutor, Exam Simulation, Weak Area, Chapter Hub, Worksheet marking) — **LIST WHAT STAYS FREE ON BASIC (`#887`).**
+- "Free on Basic:" plus the included rows of the same list Pricing renders (moved verbatim to `components/pricing/BasicFreeList.tsx`; Pricing's wording and signed-out render unchanged). ⚠ In the dark theme the list renders as a light card (`[FU-BASIC-LIST-DARK-THEME]`).
+
+### ✅ Trial copy (free-check used panel and offer, T2 confirmation, Login sign-in strip desktop + mobile, Premium lock, Home tutor card) — **SAYS WHAT HAPPENS AFTER THE TRIAL (`#889`).**
+- "Try Premium free for 7 days — no card needed. After that, keep free Basic or upgrade to Premium at ₹599 for a month." (short form on the lock and Home card: "then free Basic, or Premium at ₹599 for a month."), from one constant that imports `MONTHLY_INLINE`. "upgrade anytime" / "No card needed" are gone from student copy; the live chunk has 0 of each *(controller-verified)*.
+- ⚠ Live: the sign-in strip PASS on the preview (desktop + mobile); the lock and Home card were not reachable live (email verification; and since `#887` no new account sees the lock's never-trialled fragment) — harness screenshots *(builder-reported)*. The free-check used panel and offer have the line but no "See plans →" link (`[FU-TRIAL-WORDING-SEE-PLANS-FREECHECK]`).
+
+### 📋 Scope discovered? — **NO surface scope set to Settling.** Eight follow-ups are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`; none changes a surface's scope. Nothing goes in `DECISION_LOG` §2a.
+
 > **2026-10-01 — WAVE C-2 (CONTROLLER C): FUNNEL-EVENTS-1 (`#885` `97f48dcb`) + SIGNUP-NUDGE-1 (`#886` `5f021139`), trunk `5f021139`. Both LIVE at 100% and proven by owner private-window runs on www.**
 > ★ **TWO STATUS LINES MOVE on Check & Improve's free check: the used block, and the free result.** One analytics capability is added (not a surface). These lines supersede the Check & Improve free-check rows below on these points only; those rows stand as written.
 
