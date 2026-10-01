@@ -1,5 +1,49 @@
 # LazyTopper — Current State
 
+## [CURRENT · OPS] WAVE A-7 — **A TOOL-NEUTRAL `AGENTS.md` FOR CONTRACTORS AND NON-CLAUDE AGENTS · TWO STALE CLAUDE.md §5 LINES NOW MATCH THE RAZORPAY-1 AND TRIAL-ON-SIGNUP-1 RULINGS (AGENTS-MD-1)** — `#891` MERGED — trunk `640eb4cb`
+*(Supersedes the WAVE B-6 block below on trunk SHA only. That block is demoted to previous on trunk SHA; its content, and the owner items of every block below, stand as written. Exactly one un-superseded `[CURRENT]` remains: this one.)*
+
+★ **PROVENANCE.**
+- Controller A, wave A-7, from the owner spec `AGENTS-MD-1` v1.0 (staged at `LT-worktrees/controller-a7/ops/.specs/AGENTS-MD-1.md`, sha256 `4B5DB338728D…`, hash-verified by the controller and again by the builder after `cp`).
+- *(builder-reported)* = from `Desktop/diff/report-agents-md-1-2026-10-01.md`; *(controller-verified)* = re-checked by the controller with `gh` / `git` metadata.
+- **Trunk history since the last handoff:** `55762e37` (`#890`, wave B-6 docs) → `640eb4cb` (`#891`). Nothing else merged in between.
+
+### What landed
+AGENTS-MD-1 (#891, 640eb4cb) adds a root `AGENTS.md` (92 lines). It gives Cursor, Codex, Copilot and human contractors (the Razorpay consultant first) the rules they used to miss. `CLAUDE.md` wins on any conflict. Branch from `base/approved-thru-437`, open PRs only, and never push to trunk. The file copies the §4 protected list exactly. It forbids secrets and `console.log`. The production switches `PAYMENTS_ENABLED`, `VITE_PAYMENTS_ENABLED` and `FAIR_USE_ENFORCE` are the owner's to change. Premium is one-time, and prices come only from `src/config/pricing.ts` (`MONTHLY_INLINE`). It also lists the §6 test commands. **Claude behaviour is unchanged:** `CLAUDE.md` does not import `AGENTS.md`, so controllers keep reading `CLAUDE.md` only. Two stale `CLAUDE.md` §5 lines were replaced word for word (owner grant, spec §2 A2):
+- payment → `` - No fake payment — Premium comes only from a server-verified Razorpay payment (`grantPass`) or an admin grant; never from client UI ``
+- trial → `` - Trials — a new account's 7-day trial starts once at sign-up via `activateTrial` (owner ruling 2026-09-30, TRIAL-ON-SIGNUP-1) or by an explicit student tap; never on login, reload or mount ``
+
+No student-facing change; no flag.
+
+- **`#891` AGENTS-MD-1 → `640eb4cb`**, squash, `--match-head-commit e6b7041f`, parent `55762e37`. `merge-base --is-ancestor` OK *(controller-verified)*.
+- **4 files** *(controller-verified: `gh pr view --json files` == the grant)*: NEW `AGENTS.md` (+92), `CLAUDE.md` (+2/−2 — the diff is exactly the A2 lines, read by the controller), `lazytopper/docs/project_memory/governance/repo_boundary_policy.json` (+1, `"AGENTS.md"` in the docs lane next to `"CLAUDE.md"`), NEW `lazytopper/src/config/agentsMd.guard.test.ts` (+102). No `package.json` wiring: `vitest.config.ts` `include: ["src/**/*.test.{ts,tsx}"]` sweeps it *(builder-reported, P7)*.
+
+ROLLOUT: `#891` deployed normally (docs/config/test only; no student-facing change). Rolling release: new deployment `dv2ig4sev` (`dpl_EjjpCeA9S8CEjTcAmqsEPsNSz714`) went canary 10% → 50% → `COMPLETE` 100% at 16:47:28Z, replacing `qs2tz3n6w`; then www `/app/version.json` read `640eb4cb` on 5/5 paced samples *(controller-verified; `vercel rolling-release fetch` polled with stderr captured, log `Desktop/diff/orlive-a7-poll.log`)*. The first watcher exited early on one 10%-canary sample; see D5.
+
+### What it disproved
+- **CLAUDE.md §4 names two protected files at paths that do not exist** *(controller-verified, `git cat-file -e` @ `640eb4cb`)*: `lazytopper/src/components/DesktopShell.tsx` (real: `lazytopper/src/components/desktop/DesktopShell.tsx`) and root `vite.config.ts` (real: `lazytopper/vite.config.ts`). `AGENTS.md` copies them exactly, as spec A1 requires, and the guard keeps the two lists equal. A fix must change both files in ONE PR → `[FU-CLAUDE-MD-S4-STALE-PATHS]`.
+- **The spec's "`.env` is git-ignored" holds only under `lazytopper/`** *(controller-verified: `git check-ignore .env` exit 1; `lazytopper/.env` ignored by `lazytopper/.gitignore:45`)*. `AGENTS.md` sends keys to `lazytopper/.env` → `[FU-ROOT-ENV-NOT-GITIGNORED]`.
+
+### Evidence
+- **Premise gate** `--strict-anchor` at `55762e37` (== spec base): exit 0, 6/6 anchors *(builder-reported)*.
+- **CI** on head `e6b7041f`, Quality Gate `36889920027`, success, full bar *(run head controller-verified)*: 3 × `Tests 3289 passed (3289)` / `Test Files 226 passed (226)` (the vitest step and both test-clock steps), each with `✓ src/config/agentsMd.guard.test.ts (8 tests)`; root matrix `# tests 293 / # fail 0 / # skipped 0` *(builder-reported)*.
+- **Mutations** (named file only, one at a time, restore verified) *(builder-reported)*: M1 drop `firebase.json` from `AGENTS.md` → RED (`expected [ …(7) ] to deeply equal [ …(8) ]`); M2 put the old P3 line back in `CLAUDE.md` → RED (2 failed).
+- **Repo boundary**: acceptance 11/11, `unknown=0`; with the entry removed `unknown=1` FAIL *(builder-reported)*.
+
+### Decisions (full text in `DECISION_LOG.md`)
+- **D1** the builder was named explicitly (claude-opus-5-5, effort high), answered P7 before writing and did not merge. **D2** the controller merged on the §3 proof. **D3** the stale §4 paths were copied as written, not fixed (outside the grant). **D4** no single `scope:guard` mode covers this allowlist, so complementary `mixed` + `docs` runs were accepted. **D5** OR-LIVE watcher self-correction: one canary sample is not "www serves trunk".
+
+### Follow-ups (bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`)
+- **New:** `[FU-CLAUDE-MD-S4-STALE-PATHS]` (owner ruling), `[FU-ROOT-ENV-NOT-GITIGNORED]`, `[FU-MOJIBAKE-UNTRACKED-BLIND]`, `[FU-OR15-UNDEFINED]`. None closed.
+
+### ★ Owner items
+1. **Rule on `[FU-CLAUDE-MD-S4-STALE-PATHS]`** — correct the two §4 paths? It needs a grant for `CLAUDE.md` §4 + `AGENTS.md` together.
+2. **Hand `AGENTS.md` to the Razorpay consultant** before they open a PR.
+- Carried: the owner items of the WAVE B-6 block below and every block below it stand as written.
+
+### Carried forward — ★ THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this block
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.** **Wave A-7 moved NO dormancy in that trio** (docs/config/test only). The full block, including the `#647`/`#655` resolution and every subsequent restatement, is in the blocks below and is unchanged.
+
 ## [CURRENT · MONEY] WAVE B-6 — **A NEW ACCOUNT'S 7-DAY TRIAL STARTS AT SIGN-UP, ONCE; EVERY PREMIUM LOCK LISTS WHAT STAYS FREE ON BASIC (TRIAL-ON-SIGNUP-1) · EVERY TRIAL LINE SAYS WHAT HAPPENS AFTER THE TRIAL (TRIAL-ON-SIGNUP-1b)** — `#887` + `#889` MERGED — trunk `5eeaf916`
 *(Supersedes the WAVE C-2 block below on trunk SHA only. That block is demoted to previous on trunk SHA; its content, and the owner items of every block below, stand as written. Exactly one un-superseded `[CURRENT]` remains: this one.)*
 

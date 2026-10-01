@@ -1,3 +1,20 @@
+## 2026-10-01 — WAVE A-7 (OPS, CONTROLLER A): AGENTS-MD-1 — PR `#891` merged — trunk `640eb4cb`
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (owner grant, OR-LIVE, OR-AUTO, D1–D5), not `DECISION N`.
+
+### Owner rulings (dispatch message 2026-10-01)
+- **Grant:** new `AGENTS.md`; `CLAUDE.md` lines P2 and P3 ONLY, worded exactly as spec §2 A2; `repo_boundary_policy.json` — add `"AGENTS.md"` to the docs lane only; one guard test (+ `package.json` wiring if needed).
+- **Do not import `AGENTS.md` into `CLAUDE.md`.** Controllers keep reading `CLAUDE.md` only.
+- **OR-LIVE:** deploys normally; confirm www serves the latest trunk afterwards (poll `vercel rolling-release fetch`, capturing stderr).
+- **OR-AUTO:** no questions; the safest in-scope choice, recorded. STOP only for an out-of-allowlist file the change truly needs.
+
+### Controller decisions, with the reason
+- **D1:** one builder, named explicitly (claude-opus-5-5, effort high). It ran §0c on the re-derived tip in its own fresh worktree, with the spec copied in by `cp` and re-hashed. It wrote the P7 answer to its report before writing any repo file, and did not merge. **Why:** the owner model; the controller merges on the §3 proof.
+- **D2:** the controller merged `#891` (`--squash --match-head-commit e6b7041f`). **Why:** §3 was met and checked by the controller from metadata. Quality Gate `36889920027`'s `headSha` == the PR head. The PR file list == the grant. The `CLAUDE.md` diff is exactly the two A2 lines.
+- **D3:** the stale `CLAUDE.md` §4 paths (`components/DesktopShell.tsx`, root `vite.config.ts`) were copied into `AGENTS.md` as written, not corrected. **Why:** spec A1 says "copied exactly", and correcting them needs a §4 edit outside the grant. The finding goes to the owner (`[FU-CLAUDE-MD-S4-STALE-PATHS]`), not around the spec.
+- **D4:** no single `scope:guard` mode covers product test + tracked tooling + docs. Complementary `--mode mixed` and `--mode docs` runs were accepted as the scope proof, together with the remote `gh pr view --json files` reconciliation. **Why:** the safest in-scope proof available (OR-AUTO).
+- **D5 — a CONTROLLER SELF-CORRECTION (watcher defect).** The first OR-LIVE watcher exited on the first www sample that read `640eb4cb`. That sample came at `currentCanaryPercentage: 10`, so it was one request that hit the canary. It did not show that www serves trunk. The replacement watcher requires the new deployment (`dv2ig4sev`) at `COMPLETE` 100% and then 5/5 www samples on `640eb4cb`. **Why:** the same class as wave B-6 D9: key a rollout watcher on the end state, never on a proxy.
+
 ## 2026-10-01 — WAVE B-6 (MONEY, CONTROLLER B): TRIAL-ON-SIGNUP-1 + TRIAL-ON-SIGNUP-1b — PRs `#887` + `#889` merged — trunk `5eeaf916`
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (Option A, D2, D4, D6, D9, D9 addendum, D10, D11, D12, OR-LIVE, OR-AUTO), not `DECISION N`.

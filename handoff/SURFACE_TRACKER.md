@@ -1,5 +1,9 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-01 — WAVE A-7 (OPS, CONTROLLER A): AGENTS-MD-1 (`#891` `640eb4cb`), trunk `640eb4cb`. Docs/config/test only.**
+> **NO SURFACE MOVES.** `#891` adds a repo-root `AGENTS.md` for contractors, corrects two `CLAUDE.md` §5 lines and adds a guard test; no student-facing surface changed.
+> 📋 Scope discovered? — **NO surface scope set to Settling.** Four follow-ups are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`; none changes a surface's scope. Nothing goes in `DECISION_LOG` §2a.
+
 > **2026-10-01 — WAVE B-6 (MONEY, CONTROLLER B): TRIAL-ON-SIGNUP-1 (`#887` `1229d465`) + TRIAL-ON-SIGNUP-1b (`#889` `5eeaf916`), trunk `5eeaf916`. LIVE on merge (no flag); rollouts recorded in `CURRENT_STATE.md`.**
 > ★ **FOUR STATUS LINES MOVE: sign-up starts the trial; the C&I free-check return shows a confirmation for a new account; every Premium lock lists what stays free on Basic; every trial line says what happens after the trial.** These lines supersede the Login door, Check & Improve free check, RequirePremium and trial-copy points below (including the wave C-2 lines) on these points only; those rows stand as written.
 

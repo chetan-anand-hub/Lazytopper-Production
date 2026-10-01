@@ -1,3 +1,18 @@
+## 2026-10-01 — WAVE A-7 (OPS, CONTROLLER A) — **AGENTS-MD-1: A TOOL-NEUTRAL `AGENTS.md` FOR CONTRACTORS AND NON-CLAUDE AGENTS; TWO STALE CLAUDE.md §5 LINES CORRECTED** — `#891` → `640eb4cb`
+
+★ **PROVENANCE.** Controller A, wave A-7. The owner spec `AGENTS-MD-1` v1.0 was hash-verified (`4B5DB338728D`), sourced from `controller-a7/ops/.specs`. *(builder-reported)* = `Desktop/diff/report-agents-md-1-2026-10-01.md`; *(controller-verified)* = re-checked with `gh`/`git` metadata.
+
+**Timeline.**
+- Dispatch at trunk `55762e37` (== the spec's base). Open PRs then: `#876` (Dependabot; two workflow files, disjoint). No earlier attempt existed (no `lane/agents-md-1` ref, no PR). State: `Desktop/diff/WAVE_STATE_A7.md`; dispatch file `Desktop/diff/dispatch-agents-md-1-2026-10-01.md`.
+- Builder (claude-opus-5-5, effort high) *(builder-reported)*: §0c premise gate `--strict-anchor` exit 0, 6/6. The P7 answer was written first: the guard goes in `lazytopper/src/config/agentsMd.guard.test.ts`, which vitest already includes, so no `package.json` wiring. It built 4 files and ran M1/M2 RED then restored, opened PR `#891` ready, and CI went green on head `e6b7041f`.
+- Controller §3 check *(controller-verified)*: Quality Gate `36889920027` headSha == `e6b7041f`, success; PR files == the grant; `CLAUDE.md` diff == the two A2 lines exactly. **MERGED `#891` → `640eb4cb`** (`--squash --match-head-commit e6b7041f`); ancestor of trunk.
+- OR-LIVE: `#891` deployed normally (docs/config/test only; no student-facing change). Rolling release: new deployment `dv2ig4sev` (`dpl_EjjpCeA9S8CEjTcAmqsEPsNSz714`) went canary 10% → 50% → `COMPLETE` 100% at 16:47:28Z, replacing `qs2tz3n6w`; then www `/app/version.json` read `640eb4cb` on 5/5 paced samples *(controller-verified; `vercel rolling-release fetch` polled with stderr captured, log `Desktop/diff/orlive-a7-poll.log`)*. The first watcher exited early on one 10%-canary sample; see D5.
+- This docs PR, then the final audit `Desktop/diff/audit-request-wave-a7-final-2026-10-01.md`, then STOP.
+
+**Lessons.**
+- **A protected-files list can protect files that do not exist.** `CLAUDE.md` §4 has named two non-existent paths for an unknown time; nothing checked them. Copying the list into a second file and guarding equality made the drift visible. Fixing it needs one PR for both files (`[FU-CLAUDE-MD-S4-STALE-PATHS]`).
+- **One canary sample is not "www serves trunk" (D5, a controller self-correction).** During a rolling release at 10%, a single www request can hit the canary. Wait for `COMPLETE` 100% on the new deployment, then sample www repeatedly.
+
 ## 2026-10-01 — WAVE B-6 (MONEY, CONTROLLER B) — **TRIAL-ON-SIGNUP-1: A NEW ACCOUNT'S 7-DAY TRIAL STARTS AT SIGN-UP, ONCE — THE FREE-CHECK RETURN CONFIRMS IT, AND EVERY PREMIUM LOCK LISTS WHAT STAYS FREE ON BASIC · TRIAL-ON-SIGNUP-1b: EVERY TRIAL LINE SAYS WHAT HAPPENS AFTER THE TRIAL** — `#887` + `#889` MERGED — trunk `5eeaf916`
 
 ★ **PROVENANCE.** Controller B, wave B-6. The owner spec `TRIAL-ON-SIGNUP-1` was hash-verified (`12E811EF6436`), sourced from `controller-b6/ops/.specs` (D0); the owner's wording addendum was transcribed verbatim by the controller (`2AD4456263EF`). One builder per PR (`claude-opus-5-5`, effort high): `C:/Projects/LT-worktrees/trial-on-signup-1` and `C:/Projects/LT-worktrees/trial-on-signup-1b`. A docs builder wrote this docs PR in `C:/Projects/LT-worktrees/b6-docs` from `WAVE_STATE_B6.md` and the two builder reports. *(builder-reported)* / *(controller-verified)* as in `CURRENT_STATE.md`.
