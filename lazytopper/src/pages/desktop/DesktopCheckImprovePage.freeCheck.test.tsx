@@ -115,6 +115,7 @@ function renderPage(props: { overlay?: { onClose: () => void } } = {}) {
       <Routes>
         <Route path="/check-improve" element={<DesktopCheckImprovePage {...props} />} />
         <Route path="/login" element={<LoginProbe />} />
+        <Route path="/" element={<div data-testid="home-probe">HOME</div>} />
       </Routes>
     </MemoryRouter>,
   );
@@ -469,13 +470,14 @@ describe("R9 — the trial offer (signed in, a free result saved)", () => {
     expect(container.textContent).not.toContain("Your answer is saved.");
   });
 
-  it("'Maybe later' → no trial, the offer goes, and the page is today's lock", () => {
+  it("'Maybe later' → no trial, the offer goes, and the student lands HOME (TRIAL-ON-SIGNUP-1 T2: never a lock)", async () => {
     H.phase = "saved";
     const { container } = renderPage();
     fireEvent.click(screen.getByRole("button", { name: "Maybe later" }));
     expect(H.sub.startTrial).not.toHaveBeenCalled();
+    expect(await screen.findByTestId("home-probe")).toBeInTheDocument();
     expect(container.textContent).not.toContain("Your answer is saved.");
-    expect(container.textContent).toContain("Premium Feature");
+    expect(container.textContent).not.toContain("Premium Feature");
   });
 
   it("a PREMIUM student is never offered a trial", () => {

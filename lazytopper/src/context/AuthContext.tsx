@@ -34,6 +34,7 @@ import { hydrateMistakeLogsFromCloud } from "../services/mistakeLogService";
 import { authClient, firebaseConfigured } from "../services/firebaseClient";
 import { restoreFromDB } from "../services/dbSyncService";
 import { trackSignUp, trackSignUpIfNew } from "../analytics/analytics";
+import { startTrialForNewAccount, startTrialIfNewAccount } from "../services/newAccountTrial";
 
 export type AuthUser = {
   uid: string;
@@ -350,6 +351,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // are the same call, so this counts only when `isNewUser`. The gate lives inside
     // trackSignUpIfNew, wrapped, so it can never throw out of a login. See analytics.ts.
     trackSignUpIfNew(credential);
+    // TRIAL-ON-SIGNUP-1 — a NEW account's 7-day trial starts here, once (same isNewUser
+    // gate, inside the helper). Synchronous and before any await: see newAccountTrial.ts.
+    startTrialIfNewAccount(credential);
   }, []);
 
   const signInWithEmailPassword = useCallback(async (email: string, password: string) => {
@@ -364,6 +368,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // No `isNewUser` gate here, and none is needed: this call CREATES the account or
       // throws `auth/email-already-in-use`. Reaching this line is itself the signup.
       trackSignUp();
+      // TRIAL-ON-SIGNUP-1 — this call created the account, so the trial starts here, once,
+      // BEFORE the updateProfile await below (ordering matters — see newAccountTrial.ts).
+      startTrialForNewAccount(credential?.user?.uid);
       const trimmedName = (displayName || "").trim();
       if (trimmedName && credential.user) {
         try {
@@ -483,6 +490,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // `linkWithPhoneNumber().confirm()` path below: that attaches a phone to an account
     // that already exists, which is not a signup and must not be counted as one.
     trackSignUpIfNew(credential);
+    // TRIAL-ON-SIGNUP-1 — a NEW phone account's trial starts here, once. ⚠ Not on the
+    // link path below (confirmLinkPhoneOtp): linking is not a sign-up.
+    startTrialIfNewAccount(credential);
 
     // ── THE NAME ────────────────────────────────────────────────────────────
     // `mapFirebaseUser` only ever READS `displayName`. Google supplies one and
