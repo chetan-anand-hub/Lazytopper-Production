@@ -11,6 +11,7 @@
  * Spec mutations that turn THIS file red (one at a time):
  *   M1  take the uid from the body instead of the token  -> "the uid comes from the TOKEN"
  *   M2  record an unknown name                            -> "an unknown name refuses the WHOLE batch"
+ *   D10 remove the post-write account re-check            -> "D10 ERASURE RACE"
  * (M3, "record for a signed-out visitor", is a CLIENT mutation: src/services/activityClient.test.ts.
  *  The server's own refusal of a token-less request is pinned here as well.)
  */
@@ -31,6 +32,7 @@ const {
   MAX_COUNT_PER_NAME,
   MAX_BATCHES_PER_WINDOW,
   RETENTION_DAYS,
+  ACTIVITY_DAYS_PATH_TEMPLATE,
 } = require('./studentActivity.cjs');
 
 const MID_DAY = Date.parse('2030-06-15T06:30:00.000Z'); // 12:00 IST, 2030-06-15
@@ -40,12 +42,24 @@ const IST_MIDNIGHT = Date.parse('2030-02-14T18:45:00.000Z'); // 00:15 IST, 2030-
 
 function makeAdmin(opts = {}) {
   const verifyCalls = [];
+  const getUserCalls = [];
+  // uids whose Auth account the "erasure" has deleted.
+  const erased = new Set();
   const tokens = {
     'tok-u1': { uid: 'u1', firebase: { sign_in_provider: 'google.com' } },
     'tok-u2': { uid: 'u2', firebase: { sign_in_provider: 'password' } },
     'tok-anon': { uid: 'anon1', firebase: { sign_in_provider: 'anonymous' } },
   };
   const auth = {
+    async getUser(uid) {
+      getUserCalls.push(uid);
+      if (erased.has(uid)) {
+        const e = new Error('There is no user record corresponding to the provided identifier.');
+        e.code = 'auth/user-not-found';
+        throw e;
+      }
+      return { uid, disabled: false };
+    },
     async verifyIdToken(token, checkRevoked) {
       verifyCalls.push({ token, checkRevoked });
       // A token for an account that has since been ERASED: still signature-valid, so
@@ -67,6 +81,12 @@ function makeAdmin(opts = {}) {
         }
         return { uid: 'disabled-student', firebase: { sign_in_provider: 'google.com' } };
       }
+      // D10: the token verifies (the account still exists at verify time), and the
+      // erasure then completes, Auth account included, before the write lands.
+      if (token === 'tok-race') {
+        erased.add('racer');
+        return { uid: 'racer', firebase: { sign_in_provider: 'google.com' } };
+      }
       if (tokens[token]) return tokens[token];
       const e = new Error('Decoding Firebase ID token failed.');
       e.code = 'auth/argument-error';
@@ -82,7 +102,7 @@ function makeAdmin(opts = {}) {
       return { __timestamp: ms, toMillis: () => ms };
     },
   };
-  return { admin: { auth: () => auth, firestore }, verifyCalls, tsCalls };
+  return { admin: { auth: () => auth, firestore }, verifyCalls, tsCalls, getUserCalls, erased };
 }
 
 function applyMerge(prev, data) {
@@ -102,8 +122,17 @@ function applyMerge(prev, data) {
 function makeFirestore() {
   const docs = new Map();
   const sets = [];
+  const deleted = [];
   function docRef(p) {
-    return { path: p, id: p.split('/').pop(), collection: (n) => collRef(`${p}/${n}`) };
+    return {
+      path: p,
+      id: p.split('/').pop(),
+      collection: (n) => collRef(`${p}/${n}`),
+      async delete() {
+        deleted.push(p);
+        docs.delete(p);
+      },
+    };
   }
   function collRef(p) {
     return { path: p, doc: (id) => docRef(`${p}/${id}`) };
@@ -111,6 +140,7 @@ function makeFirestore() {
   return {
     docs,
     sets,
+    deleted,
     collection: (n) => collRef(n),
     async runTransaction(fn) {
       const tx = {
@@ -149,7 +179,7 @@ function makeReq({ token, body, raw, contentLength } = {}) {
 }
 
 function makeRoutes(opts = {}) {
-  const { admin, verifyCalls, tsCalls } = makeAdmin();
+  const { admin, verifyCalls, tsCalls, getUserCalls } = makeAdmin();
   const db = makeFirestore();
   let nowMs = opts.now === undefined ? MID_DAY : opts.now;
   const sent = [];
@@ -170,7 +200,7 @@ function makeRoutes(opts = {}) {
     await routes.handleActivity(req, res);
     return { status: res.status, body: res.body, req };
   }
-  return { post, db, verifyCalls, tsCalls, setNow: (v) => { nowMs = v; } };
+  return { post, db, verifyCalls, tsCalls, getUserCalls, setNow: (v) => { nowMs = v; } };
 }
 
 const dayPath = (uid, day) => `activityLog/${uid}/activityDays/${day}`;
@@ -240,6 +270,38 @@ test('503 (never a write) when firebase-admin is not initialised', async () => {
   const t = makeRoutes({ noAdmin: true });
   const r = await t.post({ token: 'tok-u1', body: { sections: { home: 1 } } });
   assert.equal(r.status, 503);
+});
+
+test('★★ D10 ERASURE RACE: erasure completes between verify and write — the write is undone, no activity doc survives', async () => {
+  const t = makeRoutes();
+  const r = await t.post({ token: 'tok-race', body: { sections: { practice: 2 }, events: { check_graded: 1 } } });
+  // CONTROL: the write really happened (the race was reproduced, not avoided)...
+  assert.deepEqual(t.db.sets.map((s) => s.path), [dayPath('racer', '2030-06-15')]);
+  // ...and was then removed by the post-write account re-check.
+  assert.deepEqual(t.getUserCalls, ['racer']);
+  assert.deepEqual(
+    [...t.db.docs.keys()].filter((p) => p.startsWith('activityLog/racer')),
+    [],
+    'an activity document survived an erasure that landed between verify and write'
+  );
+  assert.deepEqual(t.db.deleted, [dayPath('racer', '2030-06-15')]);
+  assert.equal(r.status, 401);
+});
+
+test('D10: a live account keeps its write (the re-check runs, and deletes nothing)', async () => {
+  const t = makeRoutes();
+  const r = await t.post({ token: 'tok-u1', body: { sections: { home: 1 } } });
+  assert.equal(r.status, 200);
+  assert.deepEqual(t.getUserCalls, ['u1']);
+  assert.deepEqual(t.db.deleted, []);
+  assert.ok(t.db.docs.has(dayPath('u1', '2030-06-15')));
+});
+
+test('D10: ACTIVITY_DAYS_PATH_TEMPLATE is the exact STUDENT_DATA_MAP path the erasure re-sweeps', () => {
+  const { loadStudentDataMap } = require('../services/accountErasure.cjs');
+  const days = loadStudentDataMap().find((l) => l.id === 'activityLog.activityDays');
+  assert.ok(days, 'activityLog.activityDays missing from the map');
+  assert.equal(days.path, ACTIVITY_DAYS_PATH_TEMPLATE);
 });
 
 /* ── the allowlist ─────────────────────────────────────────────────────────── */

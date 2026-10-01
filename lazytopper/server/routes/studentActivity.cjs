@@ -30,6 +30,22 @@
  * (`auth/user-disabled`) or a revoked session (`auth/id-token-revoked`) is refused
  * with 401 before anything is read or written.
  *
+ * ★★ THE ERASURE RACE (controller decision D10). checkRevoked closes every batch that
+ * ARRIVES after the erasure, but not one verified a moment BEFORE it whose write lands
+ * after erasure has already swept activityDays. Two halves close it together:
+ *   1. HERE: after the write commits, the Auth account is looked up again
+ *      (`getUser`). If it no longer exists, the document just written is deleted
+ *      and the request answers 401. This catches every write whose re-check runs
+ *      AFTER the erasure deleted the Auth account.
+ *   2. accountErasure.cjs sweeps ACTIVITY_DAYS_PATH_TEMPLATE a SECOND time, AFTER it
+ *      has deleted the Auth account. This catches every write whose re-check ran
+ *      BEFORE that deletion: such a write committed before the re-check, so before
+ *      the Auth deletion, so before the second sweep.
+ * For any batch, the re-check runs either after the Auth deletion (half 1 removes
+ * the write) or before it (then the write precedes the second sweep and half 2
+ * removes it). No marker or tombstone is kept, so nothing about the erased child
+ * survives the erasure.
+ *
  * ★ Fire-and-forget from the student's side: the client ignores every response, so a
  * failure here can never affect a student. Every path below answers; none throws.
  */
@@ -43,6 +59,9 @@ const ACTIVITY_COLLECTION = 'activityLog';
 // studentDataMap drift scanner — which reads every `.collection(NAME)` as a TOP-LEVEL
 // collection — sees `activityLog` and not a phantom top-level `activityDays`.
 const ACTIVITY_SEGMENTS = Object.freeze({ days: 'activityDays' });
+/** The STUDENT_DATA_MAP path of the day documents. accountErasure.cjs reads this to
+ *  sweep it again after the Auth account is gone (D10, see the header). */
+const ACTIVITY_DAYS_PATH_TEMPLATE = 'activityLog/{uid}/activityDays/{dayKey}';
 
 /**
  * ★ THE ALLOWLISTS. Mirrored in src/services/activityClient.ts; the vitest file
@@ -239,7 +258,24 @@ function createStudentActivityRoutes(deps = {}) {
       const write = snap && snap.exists ? data : { ...data, firstSeenMs: nowMs };
       tx.set(ref, write, { merge: true });
     });
-    return dayKey;
+    return ref;
+  }
+
+  /**
+   * D10, half 1: is the Auth account still there AFTER the write? If it was erased
+   * while this batch was in flight, delete what was just written. Returns true when
+   * the account is gone. Any other lookup failure leaves the write alone (it cannot
+   * tell "erased" from "network blip"); half 2, in accountErasure.cjs, covers that case.
+   */
+  async function undoIfAccountErased(uid, ref) {
+    try {
+      await firebaseAdmin.auth().getUser(uid);
+      return false;
+    } catch (e) {
+      if (!e || e.code !== 'auth/user-not-found') return false;
+      await ref.delete();
+      return true;
+    }
   }
 
   async function handleActivity(req, res) {
@@ -274,7 +310,10 @@ function createStudentActivityRoutes(deps = {}) {
       const batch = validateBatch(read.body);
       if (!batch.ok) return sendJson(res, 400, { ok: false, error: batch.error });
 
-      await writeBatch(uid, batch, nowMs);
+      const ref = await writeBatch(uid, batch, nowMs);
+      if (await undoIfAccountErased(uid, ref)) {
+        return sendJson(res, 401, { ok: false, error: 'Unauthorized: account no longer exists' });
+      }
       return sendJson(res, 200, { ok: true });
     } catch {
       return sendJson(res, 500, { ok: false, error: 'activity not recorded' });
@@ -302,6 +341,7 @@ module.exports = {
   STUDENT_ACTIVITY_PATH,
   ACTIVITY_COLLECTION,
   ACTIVITY_SEGMENTS,
+  ACTIVITY_DAYS_PATH_TEMPLATE,
   ACTIVITY_SECTIONS,
   ACTIVITY_EVENTS,
   MAX_BODY_BYTES,
