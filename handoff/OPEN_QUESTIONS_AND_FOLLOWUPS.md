@@ -23,6 +23,28 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-01 — WAVE C-2 (CONTROLLER C): FUNNEL-EVENTS-1 (`#885` MERGED as `97f48dcb`) + SIGNUP-NUDGE-1 (`#886` MERGED as `5f021139`) — six new, none closed
+
+Bodies are from the builders' reports `Desktop/diff/report-funnel-events-1-2026-09-30.md` and `Desktop/diff/report-signup-nudge-1-2026-10-01.md` *(subagent-reported)*, with the controller's status from `Desktop/diff/WAVE_STATE_C2.md`.
+
+### `[FU-FUNNEL-PREVIEW-FREECHECK-FLAG]` — CLOSED AS A POINTER — **NOT a new question**
+The FUNNEL builder found that Vercel Preview builds lack `VITE_FREE_CHECK_ENABLED`, so no free-check flow can be verified pre-merge on a preview (a signed-out `/app/check-improve` on a preview redirects to `/app/login`); the SIGNUP builder confirmed it independently (D12). This is already decided: it is a POINTER to the existing owner ruling `[FU-PREVIEW-FREECHECK-FLAG]` (CLOSED, DECIDED, won't do — App Check is domain-restricted). The builder withdrew it as a new question after merge. Final audit: pointer only.
+
+### `[FU-GA4-PREVIEW-HITS-PROD-PROPERTY]` — OPEN
+Preview deployments send GA4 hits (`page_view`, and now the funnel events) to the production property `G-1T8Q12H4RQ` (pre-existing, from C-1; seen on the `#885` preview: `POST https://analytics.google.com/g/collect?v=2&tid=G-1T8Q12H4RQ...`). Consider a GA4 hostname filter, or skipping the tag on `*.vercel.app`.
+
+### `[FU-FUNNEL-OVERLAY-EVENTS]` — OPEN
+The tutor overlay (`TutorCheckImproveOverlay.tsx`) mounts the same `DesktopCheckImprovePage` component; `#885` sends NO funnel events from it (`funnelOff = Boolean(overlay)`, pinned by a test) so tutor users do not pollute the `/check-improve` funnel. If tutor-overlay C&I usage should be counted, it needs its own event names, so the `/check-improve` funnel stays clean.
+
+### `[FU-FUNNEL-LIVE-PROOF-HEADLESS-APPCHECK]` — OPEN (standing constraint)
+A headless free check cannot pass App Check on canary or www: one attempt per host per lane was refused at the READ step ("We couldn't start a free check in this browser. Sign up free and your 7-day trial covers it."), client-side, before any API call; no free check was spent. So an agent-run live proof of any free-check flow needs an owner browser run (private window, signed out). Both C-2 lanes were proven that way *(owner-verified)*; a real visitor is not refused.
+
+### `[FU-PRACTICE-CARD-LITERAL-U2192]` — OPEN
+`lazytopper/src/components/practice/PracticeQuestionCard.tsx:807` renders the literal text `Ask the tutor about this concept →` in production (a JSX-text escape that is never unescaped). Found by the SIGNUP builder during P9; out of scope; not fixed.
+
+### `[FU-SIGNUP-NUDGE-S1D-REVISIT]` — OPEN, **OWNER QUESTION** (wave C-2 final audit)
+P9: a signed-out student can open a CBQ, write and save working and read the marking steps, but "Grade my 1 answer" ends at "Sign in to check your answers" (no API call). By the owner's rule ("If it doesn't work signed out, omit the link") S1d "Not now? Practice CBQs free →" to `/practice-hub` was OMITTED, with an absence test (D11). Question: does seeing + writing + reading marking steps, without checking, count as "Practice CBQs free"? If yes, S1d can be added in a follow-up.
+
 ## 2026-09-29 — WAVE B-5 (CONTROLLER B): TRIAL-CTA-1 (`#883` MERGED as `12b8a985`, squash, `--match-head-commit 32324065`) — four new, none closed
 
 Bodies are the builder's current (post-D6) text from `Desktop/diff/report-trial-cta-1-2026-09-29.md` *(subagent-reported)*.

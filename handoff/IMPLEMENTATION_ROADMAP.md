@@ -1,5 +1,14 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-01 — ANALYTICS + FREE CHECK: **WAVE C-2 — FUNNEL-EVENTS-1 + SIGNUP-NUDGE-1** — `#885` + `#886` MERGED — trunk `5f021139`
+
+- ✅ **FUNNEL-EVENTS-1** (`#885` `97f48dcb`, owner-merged, LIVE at 100%; owner-proven on www): three count-only Check & Improve events `check_question_read` → `check_answer_added` → `check_graded`, names only, at most once per question attempt, via the existing redacted `trackNamedEvent` path (Vercel + GA4). The tutor overlay sends none. No student-visible change.
+- ✅ **SIGNUP-NUDGE-1** (`#886` `5f021139`, owner-merged, rolled out ALONE, LIVE at 100%; owner-proven on www): the used block shows "Your free check is done ✅" + the local result summary + the sign-up ask; a summary bar with "Sign up free to keep this" at the top of both free result views (single + whole paper). Free mode only; nothing new leaves the device; S1d omitted.
+- ✅ **Recorded:** owner approval of D6 (canary proof, not preview); the spec corrections (FUNNEL §3 preview proof infeasible; App Check refuses automated browsers; SIGNUP §1 one mount → two (D9); two-value tag vocabulary (D10); P9 → S1d omitted (D11)); D15 (the trial line → SUPERSEDED BY B-6, not a C-2 defect).
+- ✅ **New FUs:** `[FU-FUNNEL-PREVIEW-FREECHECK-FLAG]` (pointer) · `[FU-GA4-PREVIEW-HITS-PROD-PROPERTY]` · `[FU-FUNNEL-OVERLAY-EVENTS]` · `[FU-FUNNEL-LIVE-PROOF-HEADLESS-APPCHECK]` · `[FU-PRACTICE-CARD-LITERAL-U2192]` · `[FU-SIGNUP-NUDGE-S1D-REVISIT]`. Closed: none.
+- ✅ **Docs:** this handoff.
+- ⬜ **Owner:** GA4 Recent events (do NOT star the three); the FUNNEL signed-in live check; confirm D9–D11 + the S1d question in the final audit; rule on `[FU-GA4-PREVIEW-HITS-PROD-PROPERTY]`.
+
 ## 2026-09-29 — MONEY: **WAVE B-5 — TRIAL-CTA-1** — `#883` MERGED — trunk `12b8a985`
 
 - ✅ **TRIAL-CTA-1** (`#883` `12b8a985`, LIVE on merge, no flag; rollout in `CURRENT_STATE.md`): Pricing's Premium "Start 7-day trial" is state-aware and starts the trial for an eligible signed-in student; signed out it keeps the intent through sign-in and Login honours it once, after hydration. RequireAuth and the C&I offer gain the same hydration guard. New GA4 event `trial_start`. Eligibility and the subscription write logic unchanged.
