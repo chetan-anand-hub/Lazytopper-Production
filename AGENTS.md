@@ -25,9 +25,9 @@ Do not change these unless your task explicitly allows that exact file:
 
 - `lazytopper/src/pages/Welcome.tsx`
 - `lazytopper/src/App.tsx`
-- `lazytopper/src/components/DesktopShell.tsx`
+- `lazytopper/src/components/desktop/DesktopShell.tsx`
 - `lazytopper/src/main.tsx`
-- `vite.config.ts`
+- `lazytopper/vite.config.ts`
 - `firebase.json`
 - `firestore.rules`
 - Any file under `lazytopper/src/data/`
@@ -37,9 +37,7 @@ Do not change these unless your task explicitly allows that exact file:
 
 - Never put secrets, API keys or tokens in code or in commits.
 - Never leave `console.log` in production code.
-- Payment keys: test-mode keys only, and only on your own machine. Keep them in `lazytopper/.env`,
-  which is git-ignored (`lazytopper/.gitignore` has `**/.env`). A `.env` at the repo root is NOT
-  git-ignored — do not create one.
+- Payment keys: test-mode keys only, and only on your own machine. Keep them in `lazytopper/.env` (any `.env` file anywhere in this repo is git-ignored). Never paste keys into code, tests, commits, PR text or chat.
 
 ## 5. Live-product rules
 
