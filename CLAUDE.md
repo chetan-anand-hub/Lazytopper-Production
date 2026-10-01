@@ -66,9 +66,9 @@ If a required change needs a forbidden file, STOP and report — do not proceed.
 Globally forbidden across all PRs unless explicitly scoped:
 - `lazytopper/src/pages/Welcome.tsx`
 - `lazytopper/src/App.tsx`
-- `lazytopper/src/components/DesktopShell.tsx`
+- `lazytopper/src/components/desktop/DesktopShell.tsx`
 - `lazytopper/src/main.tsx`
-- `vite.config.ts`
+- `lazytopper/vite.config.ts`
 - `firebase.json`
 - `firestore.rules`
 - Any file under `lazytopper/src/data/`

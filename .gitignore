@@ -106,3 +106,9 @@ body.json
 # Agent instruction files saved by lanes for the premise gate. Never committed.
 ops/.specs/
 
+# Secrets — never commit (AGENTS-MD-2)
+.env
+.env.*
+**/.env
+**/.env.*
+!**/.env.example
