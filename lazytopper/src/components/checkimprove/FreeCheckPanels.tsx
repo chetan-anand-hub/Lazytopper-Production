@@ -15,6 +15,7 @@ import {
   retryFreeCheckSave,
   subscribeFreeCheckSaveStatus,
 } from "../../services/freeCheckReplay";
+import { TRIAL_WORDING } from "../pricing/BasicFreeList";
 
 /**
  * FREE-CHECK-1b — the student-visible pieces of the signed-out free check. Every one of
@@ -360,6 +361,10 @@ export function FreeCheckTrialConfirmation({
         <button type="button" className="lt-fc__btn lt-fc__btn--primary" onClick={onContinue}>
           {FREE_CHECK_COPY.confirmCta}
         </button>
+        {/* TRIAL-ON-SIGNUP-1b — "See plans →" to /pricing, wherever the UI is clickable. */}
+        <Link className="lt-fc__btn lt-fc__btn--ghost" to="/pricing" data-testid="free-check-see-plans">
+          {TRIAL_WORDING.seePlans}
+        </Link>
       </div>
     </div>
   );

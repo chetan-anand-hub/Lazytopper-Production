@@ -7,6 +7,7 @@ import { resolve } from "node:path";
 import {
   FOUNDING_COHORT_COPY,
   FOUNDING_LABEL,
+  MONTHLY_INLINE,
   PERIOD_MONTHLY_LABEL,
   PRICE_MONTHLY_FOUNDING_DISPLAY,
   PRICE_MONTHLY_LIST_DISPLAY,
@@ -60,7 +61,18 @@ async function loadWithOffer(open: boolean) {
   vi.doMock("../../config/pricing", async () => {
     const actual =
       await vi.importActual<typeof import("../../config/pricing")>("../../config/pricing");
-    return { ...actual, FOUNDING_OFFER_OPEN: open };
+    // TRIAL-ON-SIGNUP-1b — the after-trial line now quotes MONTHLY_INLINE, which
+    // config/pricing.ts binds to the FOUNDING rate and says "must move to
+    // PRICE_MONTHLY_LIST_DISPLAY" when the cohort closes. A CLOSED render therefore
+    // models that documented two-line switch (flag + MONTHLY_INLINE), still from the
+    // REAL published figures — never a hand-written price.
+    return open
+      ? { ...actual, FOUNDING_OFFER_OPEN: open }
+      : {
+          ...actual,
+          FOUNDING_OFFER_OPEN: open,
+          MONTHLY_INLINE: `${actual.PRICE_MONTHLY_LIST_DISPLAY} ${actual.PERIOD_MONTHLY_LABEL}`,
+        };
   });
   const { default: OfferStrip } = await import("./OfferStrip");
   const { default: Login } = await import("../../pages/Login");
@@ -200,8 +212,9 @@ describe("offer CLOSED", () => {
     for (const retired of ["₹5,999", "₹8,999", "₹1,189", "board year"]) {
       expect(text, `retired board-year copy on the sign-in strip: ${retired}`).not.toContain(retired);
     }
-    // The only figure left is the monthly list price.
-    expect(text.match(/₹[\d,]+/g)).toEqual([PRICE_MONTHLY_LIST_DISPLAY]);
+    // The only figure left is the monthly list price (the body's, and — TRIAL-ON-SIGNUP-1b —
+    // the after-trial line's MONTHLY_INLINE, which the closure switch moves to the list rate).
+    expect([...new Set(text.match(/₹[\d,]+/g))]).toEqual([PRICE_MONTHLY_LIST_DISPLAY]);
 
     expect(screen.queryByTestId("lt-offer-founding-badge")).toBeNull();
     expect(text).not.toContain(PRICE_MONTHLY_FOUNDING_DISPLAY);
@@ -356,11 +369,13 @@ describe("the after-trial line", () => {
     await renderLogin(true);
 
     const panel = screen.getByTestId("lt-after-trial-panel");
+    // TRIAL-ON-SIGNUP-1b (owner addendum, wave B-6): the shared general line, word for word,
+    // its price imported from config/pricing (MONTHLY_INLINE), never typed.
     expect(flat(panel)).toBe(
-      "After 7 days you keep free Basic — practice, exam trends and topic insights — " +
-        "for as long as you like. Upgrade only if you want to.",
+      `Try Premium free for 7 days — no card needed. After that, keep free Basic or upgrade to Premium at ${MONTHLY_INLINE}.`,
     );
     expect(flat(panel).toLowerCase()).not.toContain("then paid");
+    expect(flat(panel).toLowerCase()).not.toContain("upgrade anytime");
   });
 
   it("also reaches PHONE students, whose brand panel is display:none below 1024px", async () => {
@@ -445,10 +460,16 @@ describe("mounted on the auth surface", () => {
       "the compact offer must render after the primary action",
     ).toBeTruthy();
 
-    // ★ AND IT CARRIES NO PRICE. The free-Basic line reduces the anxiety that
+    // ★ IT CARRIES NO FOUNDING OFFER. The free-Basic line reduces the anxiety that
     // makes a student abandon signup; the founding rate sells. On a phone, where
     // the offer competes with the form itself, only the first earns its space.
-    expect(flat(mobile)).not.toMatch(/₹/);
+    // TRIAL-ON-SIGNUP-1b (owner addendum, wave B-6) — the after-trial line now names
+    // the price a student pays after the trial (MONTHLY_INLINE), so that is the ONE
+    // figure the mirror may carry: no badge, no struck list price, nothing else.
+    expect([...new Set(flat(mobile).match(/₹[\d,]+/g))]).toEqual([
+      MONTHLY_INLINE.match(/₹[\d,]+/)![0],
+    ]);
+    expect(mobile.querySelector("s")).toBeNull();
     expect(within(mobile).queryByTestId("lt-offer-founding-badge")).toBeNull();
     // CONTROL — the full block DOES carry both, so the absences mean something.
     expect(flat(screen.getByTestId("lt-offer-strip"))).toMatch(/₹/);

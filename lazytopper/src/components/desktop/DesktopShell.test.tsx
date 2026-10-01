@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+import { MONTHLY_INLINE } from "../../config/pricing";
 
 /**
  * DesktopShell — rail contents + header stacking contract (PR-B2).
@@ -216,6 +217,8 @@ describe("DesktopShell rail — the Tutor entry (PR-B2)", () => {
     const note = screen.getByTestId("tutor-picker-gate-note");
     expect(note).not.toHaveTextContent(/Log in to open your tutor/i);
     expect(note).toHaveTextContent(/7-day trial/i);
+    // TRIAL-ON-SIGNUP-1b — the price on the shell's picker is MONTHLY_INLINE.
+    expect(note.textContent).toContain(`then free Basic, or Premium at ${MONTHLY_INLINE}.`);
   });
 });
 

@@ -23,9 +23,9 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
-## 2026-10-01 — WAVE B-6 (CONTROLLER B): TRIAL-ON-SIGNUP-1 (`#887` MERGED as `1229d465`, squash, `--match-head-commit d72c5193`) — five new, none closed
+## 2026-10-01 — WAVE B-6 (CONTROLLER B): TRIAL-ON-SIGNUP-1 (`#887` MERGED as `1229d465`, squash, `--match-head-commit d72c5193`) + TRIAL-ON-SIGNUP-1b (`#889` MERGED as `5eeaf916`, squash, `--match-head-commit 1d9aab25`) — eight new, none closed
 
-Bodies are the builder's text from `Desktop/diff/report-trial-on-signup-1-2026-10-01.md` ('FU entries'), with the controller's later status where `WAVE_STATE_B6.md` gives one *(builder-reported)*.
+Bodies are the builders’ text from `Desktop/diff/report-trial-on-signup-1-2026-10-01.md` and `Desktop/diff/report-trial-on-signup-1b-2026-10-01.md` (‘FU’ sections), with the controller’s later status where `WAVE_STATE_B6.md` gives one *(builder-reported)*.
 
 ### `[FU-TRIAL-START-EVENT-DOC-STALE]` — OPEN
 The `analytics.ts` `NamedAnalyticsEvent` comment says `trial_start` = "a user action started the 7-day trial"; it now also counts the automatic start at sign-up. Docs-only; controller D3 kept `analytics.ts` untouched.
@@ -42,11 +42,42 @@ Live case (a), a NEW Google sign-up, is owner-owed: an agent cannot create a Goo
 ### `[FU-BASIC-LIST-DARK-THEME]` — OPEN
 The Basic list card uses a fixed light palette (the FreeCheckPanels convention); in the dark theme it renders as a light card. Cosmetic.
 
-### Note — `[FU-TRIAL-UNVERIFIED-EMAIL-CAN-START]` (wave B-5, defined in the section below) — KEPT OPEN, **OWNER RULING**
+### `[FU-TRIAL-WORDING-SEE-PLANS-FREECHECK]` — OPEN *(from `#889`)*
+The R1 used panel and the R9 offer render the general trial line but have no "See plans →" link, because FreeCheckPanels was allowlisted for the T2 confirmation only. Body: add a router Link to /pricing in the FreeCheckUsedPanel and FreeCheckTrialOffer actions.
+
+### `[FU-MONTHLY-INLINE-SWITCH-CONSUMERS]` — OPEN *(from `#889`)*
+The config/pricing.ts comment on MONTHLY_INLINE says "the two gates" and "those two files import nothing else". MONTHLY_INLINE now also feeds TRIAL_WORDING (sign-in strip, lock, Home card, free-check panels). Closing the founding cohort is still that one line, but the comment undercounts its consumers. Not fixable in `#889`: pricing.ts was import-only for that lane.
+
+### `[FU-OFFERSTRIP-MOBILE-PRICE-COMMENT]` — OPEN *(from `#889`)*
+OfferStrip.tsx’s NAME-1 v2 doc comment says the mobile variant "DROPS THE PRICE". After the addendum, the after-trial line carries MONTHLY_INLINE on mobile too. The copy-only lane left the comment as is.
+
+### Note — `[FU-TRIAL-UNVERIFIED-EMAIL-CAN-START]` (wave B-5, defined in the wave B-5 section below) — KEPT OPEN, **OWNER RULING**
 **2026-10-01:** `#887` now starts the trial at email sign-up, before verification (owner ruling A, controller D4): the verify gate blocks entry, not the trial. No email-verified guard was added, because the ruling says "at sign-up" on every new-account door and a guard would narrow it. The owner ruling is still owed. The entry in the wave B-5 section stands as written.
 
 ### Note — `[FU-SUBSCRIPTION-AUTOTRIAL-ONMOUNT]` (tombstoned by `#535`, 2026-07-25) — stays CLOSED
 **2026-10-01:** per the controller (wave B-6 docs brief), the TRIAL-ON-SIGNUP-1 spec says owner ruling A supersedes this entry ONLY for new-account creation. `#887` does not reintroduce a mount-time activation: the trial starts once at a creating door (Google and phone gated on Firebase `isNewUser`; email create always creates), and mounting a component, a login, a reload or an existing account starts nothing (unit-tested; live (b)/(d)). The trunk entry is already closed ("Both write sites removed"), so it is not reopened; the doctrine it records still holds for every path other than new-account creation.
+
+## 2026-10-01 — WAVE C-2 (CONTROLLER C): FUNNEL-EVENTS-1 (`#885` MERGED as `97f48dcb`) + SIGNUP-NUDGE-1 (`#886` MERGED as `5f021139`) — six new, none closed
+
+Bodies are from the builders' reports `Desktop/diff/report-funnel-events-1-2026-09-30.md` and `Desktop/diff/report-signup-nudge-1-2026-10-01.md` *(subagent-reported)*, with the controller's status from `Desktop/diff/WAVE_STATE_C2.md`.
+
+### `[FU-FUNNEL-PREVIEW-FREECHECK-FLAG]` — CLOSED AS A POINTER — **NOT a new question**
+The FUNNEL builder found that Vercel Preview builds lack `VITE_FREE_CHECK_ENABLED`, so no free-check flow can be verified pre-merge on a preview (a signed-out `/app/check-improve` on a preview redirects to `/app/login`); the SIGNUP builder confirmed it independently (D12). This is already decided: it is a POINTER to the existing owner ruling `[FU-PREVIEW-FREECHECK-FLAG]` (CLOSED, DECIDED, won't do — App Check is domain-restricted). The builder withdrew it as a new question after merge. Final audit: pointer only.
+
+### `[FU-GA4-PREVIEW-HITS-PROD-PROPERTY]` — OPEN
+Preview deployments send GA4 hits (`page_view`, and now the funnel events) to the production property `G-1T8Q12H4RQ` (pre-existing, from C-1; seen on the `#885` preview: `POST https://analytics.google.com/g/collect?v=2&tid=G-1T8Q12H4RQ...`). Consider a GA4 hostname filter, or skipping the tag on `*.vercel.app`.
+
+### `[FU-FUNNEL-OVERLAY-EVENTS]` — OPEN
+The tutor overlay (`TutorCheckImproveOverlay.tsx`) mounts the same `DesktopCheckImprovePage` component; `#885` sends NO funnel events from it (`funnelOff = Boolean(overlay)`, pinned by a test) so tutor users do not pollute the `/check-improve` funnel. If tutor-overlay C&I usage should be counted, it needs its own event names, so the `/check-improve` funnel stays clean.
+
+### `[FU-FUNNEL-LIVE-PROOF-HEADLESS-APPCHECK]` — OPEN (standing constraint)
+A headless free check cannot pass App Check on canary or www: one attempt per host per lane was refused at the READ step ("We couldn't start a free check in this browser. Sign up free and your 7-day trial covers it."), client-side, before any API call; no free check was spent. So an agent-run live proof of any free-check flow needs an owner browser run (private window, signed out). Both C-2 lanes were proven that way *(owner-verified)*; a real visitor is not refused.
+
+### `[FU-PRACTICE-CARD-LITERAL-U2192]` — OPEN
+`lazytopper/src/components/practice/PracticeQuestionCard.tsx:807` renders the literal text `Ask the tutor about this concept →` in production (a JSX-text escape that is never unescaped). Found by the SIGNUP builder during P9; out of scope; not fixed.
+
+### `[FU-SIGNUP-NUDGE-S1D-REVISIT]` — OPEN, **OWNER QUESTION** (wave C-2 final audit)
+P9: a signed-out student can open a CBQ, write and save working and read the marking steps, but "Grade my 1 answer" ends at "Sign in to check your answers" (no API call). By the owner's rule ("If it doesn't work signed out, omit the link") S1d "Not now? Practice CBQs free →" to `/practice-hub` was OMITTED, with an absence test (D11). Question: does seeing + writing + reading marking steps, without checking, count as "Practice CBQs free"? If yes, S1d can be added in a follow-up.
 
 ## 2026-09-29 — WAVE B-5 (CONTROLLER B): TRIAL-CTA-1 (`#883` MERGED as `12b8a985`, squash, `--match-head-commit 32324065`) — four new, none closed
 

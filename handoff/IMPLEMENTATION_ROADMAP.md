@@ -1,11 +1,21 @@
 # LazyTopper Implementation Roadmap
 
-## 2026-10-01 — MONEY: **WAVE B-6 — TRIAL-ON-SIGNUP-1** — `#887` MERGED — trunk `1229d465`
+## 2026-10-01 — MONEY: **WAVE B-6 — TRIAL-ON-SIGNUP-1 + TRIAL-ON-SIGNUP-1b** — `#887` + `#889` MERGED — trunk `5eeaf916`
 
 - ✅ **TRIAL-ON-SIGNUP-1** (`#887` `1229d465`, LIVE on merge, no flag; rollout in `CURRENT_STATE.md`): a brand-new account's 7-day trial starts at sign-up, once, on all three new-account doors (Google popup, email create, phone OTP) through the existing `activateTrial`; logins and existing accounts never start one; `trial_start` fires only on a real start. The free-check return shows "Your 7-day trial is on" with the real end date; an existing account's "Maybe later" goes Home. Every Premium lock lists what stays free on Basic (the Pricing list, wording unchanged). `subscriptionService.ts`, `useSubscription.ts` and `analytics.ts` unchanged.
-- ✅ **New FUs:** `[FU-TRIAL-START-EVENT-DOC-STALE]` · `[FU-SIGNUP-CONFIRMATION-SESSION-ONLY]` · `[FU-TRIAL-ON-SIGNUP-C-CANARY]` · `[FU-TRIAL-ON-SIGNUP-A-GOOGLE-LIVE]` · `[FU-BASIC-LIST-DARK-THEME]`. Closed: none.
-- ✅ **Docs:** this handoff (covers `#887` only). #885 (97f48dcb) and #886 (5f021139) merged before #887 — handoff owed by Controller C (wave C-2).
-- ⬜ **Owner:** the real-browser free-check → Google/phone sign-up → confirmation → graded-check run; delete the 3 test accounts; rule on `[FU-TRIAL-UNVERIFIED-EMAIL-CAN-START]`. Carried: the B-5 steps, the B-4 fair-use steps, the B-2 RAZORPAY-1 test.
+- ✅ **TRIAL-ON-SIGNUP-1b** (`#889` `5eeaf916`, owner wording addendum, LIVE on merge, no flag): every trial line says what happens after the trial ("…keep free Basic or upgrade to Premium at ₹599 for a month."), built from one `TRIAL_WORDING` constant that imports `MONTHLY_INLINE`; "See plans →" on the trial confirmation; "upgrade anytime" / "No card needed" gone from student copy (6 hits fixed).
+- ✅ **New FUs:** `[FU-TRIAL-START-EVENT-DOC-STALE]` · `[FU-SIGNUP-CONFIRMATION-SESSION-ONLY]` · `[FU-TRIAL-ON-SIGNUP-C-CANARY]` · `[FU-TRIAL-ON-SIGNUP-A-GOOGLE-LIVE]` · `[FU-BASIC-LIST-DARK-THEME]` · `[FU-TRIAL-WORDING-SEE-PLANS-FREECHECK]` · `[FU-MONTHLY-INLINE-SWITCH-CONSUMERS]` · `[FU-OFFERSTRIP-MOBILE-PRICE-COMMENT]`. Closed: none.
+- ✅ **Docs:** this handoff (covers `#887` and `#889`). #885 (97f48dcb) and #886 (5f021139) merged before #887 — their handoff landed in #888 (ef4115b3), Controller C's wave C-2 docs.
+- ⬜ **Owner:** the real-browser free-check → Google/phone sign-up → confirmation → graded-check run; delete the 3 `#887` test accounts and the `trial-on-signup-1b.acceptance+` prefix accounts; rule on `[FU-TRIAL-UNVERIFIED-EMAIL-CAN-START]`. Carried: the C-2 items, the B-5 steps, the B-4 fair-use steps, the B-2 RAZORPAY-1 test.
+
+## 2026-10-01 — ANALYTICS + FREE CHECK: **WAVE C-2 — FUNNEL-EVENTS-1 + SIGNUP-NUDGE-1** — `#885` + `#886` MERGED — trunk `5f021139`
+
+- ✅ **FUNNEL-EVENTS-1** (`#885` `97f48dcb`, owner-merged, LIVE at 100%; owner-proven on www): three count-only Check & Improve events `check_question_read` → `check_answer_added` → `check_graded`, names only, at most once per question attempt, via the existing redacted `trackNamedEvent` path (Vercel + GA4). The tutor overlay sends none. No student-visible change.
+- ✅ **SIGNUP-NUDGE-1** (`#886` `5f021139`, owner-merged, rolled out ALONE, LIVE at 100%; owner-proven on www): the used block shows "Your free check is done ✅" + the local result summary + the sign-up ask; a summary bar with "Sign up free to keep this" at the top of both free result views (single + whole paper). Free mode only; nothing new leaves the device; S1d omitted.
+- ✅ **Recorded:** owner approval of D6 (canary proof, not preview); the spec corrections (FUNNEL §3 preview proof infeasible; App Check refuses automated browsers; SIGNUP §1 one mount → two (D9); two-value tag vocabulary (D10); P9 → S1d omitted (D11)); D15 (the trial line → SUPERSEDED BY B-6, not a C-2 defect).
+- ✅ **New FUs:** `[FU-FUNNEL-PREVIEW-FREECHECK-FLAG]` (pointer) · `[FU-GA4-PREVIEW-HITS-PROD-PROPERTY]` · `[FU-FUNNEL-OVERLAY-EVENTS]` · `[FU-FUNNEL-LIVE-PROOF-HEADLESS-APPCHECK]` · `[FU-PRACTICE-CARD-LITERAL-U2192]` · `[FU-SIGNUP-NUDGE-S1D-REVISIT]`. Closed: none.
+- ✅ **Docs:** this handoff.
+- ⬜ **Owner:** GA4 Recent events (do NOT star the three); the FUNNEL signed-in live check; confirm D9–D11 + the S1d question in the final audit; rule on `[FU-GA4-PREVIEW-HITS-PROD-PROPERTY]`.
 
 ## 2026-09-29 — MONEY: **WAVE B-5 — TRIAL-CTA-1** — `#883` MERGED — trunk `12b8a985`
 
