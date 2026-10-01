@@ -1,5 +1,47 @@
 # LazyTopper — Current State
 
+## [CURRENT · MONEY] WAVE B-6 — **A NEW ACCOUNT'S 7-DAY TRIAL STARTS AT SIGN-UP, ONCE; EVERY PREMIUM LOCK LISTS WHAT STAYS FREE ON BASIC (TRIAL-ON-SIGNUP-1)** — `#887` MERGED — trunk `1229d465`
+*(Supersedes the WAVE B-5 block below on trunk SHA only. That block is demoted to previous on trunk SHA; its content, and the owner items of every block below, stand as written. Exactly one un-superseded `[CURRENT]` remains: this one.)*
+
+★ **PROVENANCE.**
+- Controller B, wave B-6, from the owner spec `TRIAL-ON-SIGNUP-1` (staged at `LT-worktrees/controller-b6/ops/.specs/TRIAL-ON-SIGNUP-1.md`, sha256 `12E811EF6436`, hash-verified by the controller; D0). One builder (`claude-opus-5-5`, effort high) in its own worktree `LT-worktrees/trial-on-signup-1`, branch `lane/trial-on-signup-1`.
+- *(builder-reported)* = from the builder's report `Desktop/diff/report-trial-on-signup-1-2026-10-01.md`; *(controller-verified)* = re-checked by the controller (`Desktop/diff/WAVE_STATE_B6.md`).
+- **Trunk history since the last handoff:** `2a287a30` (`#884`, wave B-5 docs) → `97f48dcb` (`#885`) → `5f021139` (`#886`) → `1229d465` (`#887`).
+- #885 (97f48dcb) and #886 (5f021139) merged before #887 — handoff owed by Controller C (wave C-2).
+- This block covers `#887` only (controller D11).
+
+### What landed
+TRIAL-ON-SIGNUP-1 (#887, 1229d465) starts a brand-new account's 7-day trial at sign-up, once, on all three new-account doors (Google popup, email create, phone OTP), by calling the existing activateTrial(uid) only when Firebase reports isNewUser; logins, reloads, re-renders and existing accounts never start one, and trial_start fires only when activateTrial actually started a trial. A student arriving from the free check now sees "Your 7-day trial is on" with the real end date and a button back to Check & Improve; an existing account keeps the offer, and "Maybe later" goes Home instead of a locked page. Every Premium lock now lists what stays free on Basic, from the same list Pricing shows (wording unchanged).
+
+ROLLOUT: #887 rolled out alone (after #886 reached COMPLETE); production deployment fs0syef0p = 1229d465; rolling release COMPLETE 100%; canary + www smoke PASS (6 routes 200, sizes == baseline; signed-out /pricing render unchanged except the entry script hash). The canary was smoked after promotion, not during the partial stage (controller watcher defect, D9). Live on production (builder): email sign-up writes the trial at creation with one trial_start; a later login starts nothing; a graded check works. The free-check -> sign-up -> confirmation leg could not be run headless (production App Check refuses headless browsers) and is owed to the owner in a real browser.
+
+- **`#887` TRIAL-ON-SIGNUP-1 → `1229d465`**, squash, `--match-head-commit d72c5193`, parent `5f021139`, merged 2026-10-01T01:53:19Z. On trunk; **trunk tree == head tree `362376c6`**; 12 files *(controller-verified)*.
+- **The 12 files** *(controller-verified: branch diff == the spec §1 allowlist)*. Product (8): NEW `services/newAccountTrial.ts`, `context/AuthContext.tsx` (three calls at the creating doors), NEW `components/pricing/BasicFreeList.tsx` (`FREE_FEATURES` moved verbatim from `PricingPage.tsx`; D7), `pages/PricingPage.tsx` (imports the moved list; render untouched), `components/auth/RequireAuth.tsx` (the lock copy area), `components/checkimprove/FreeCheckPanels.tsx` (`FreeCheckTrialConfirmation`), `services/freeCheckClient.ts` (confirmation copy), `pages/desktop/DesktopCheckImprovePage.tsx` (the confirmation mount + "Maybe later" → Home). Tests (4): `AuthContext.trialOnSignup.test.tsx` (16), `DesktopCheckImprovePage.trialOnSignup.test.tsx` (15), `BasicFreeList.test.tsx` (8), `DesktopCheckImprovePage.freeCheck.test.tsx` (edited: "Maybe later" asserts Home). **Not touched:** `subscriptionService.ts`, `useSubscription.ts`, `analytics.ts` (D3 — `trial_start` exists since `#883`), `Login.tsx`, server, rules, `App.tsx`, `package.json` *(builder-reported)*.
+
+### What it disproved *(builder-reported)*
+- **The A′-style hydration race does not occur for a NEW uid** (D6): the trial write is queued on the Firestore client before the first cloud read of that uid, so every hydration reads the trial and no subscription code change was needed. Proven by a pessimistic fake-Firestore test with a control (a read issued before the write returns FREE) on all three doors, and live: a cloud trial at creation, one `trial_start`, a reload unchanged, a later login writes nothing.
+
+### Evidence
+- **CI** on head `d72c5193`, Quality Gate `36801892591`, success *(controller-verified)*: 3 × `Tests 3277 passed (3277)` and 3 × `Test Files 224 passed (224)` (the vitest step and the two test-clock steps); zero non-zero `# fail` / `# skipped` lines. The three new test files ran in all three vitest steps; prerender-capture: `PRERENDER: committed artifact matches a fresh capture.` (`/pricing` unchanged) *(builder-reported)*.
+- **Mutations** (spec T5, one at a time, on `AuthContext.trialOnSignup.test.tsx`) *(builder-reported)*: M1 drop the `isNewUser` gate → RED (`Tests 2 failed | 14 passed (16)`); M2 call `activateTrial` twice → RED (`Tests 7 failed | 9 passed (16)`). Both restored (`cmp` identical), green again.
+- **Preview live** (`…-cg28sjq0k` for `85df709f`, then `…-mu74wmz4u` for `d72c5193`; fields read from `subscriptions/{uid}` with the account's own ID token) *(builder-reported)*: **(b) email sign-up PASS** — `tier:"trial"`, `plan:"trial_7day"`, server `trialStartDate` at creation, exactly one `trial_start`; a reload wrote nothing. **(d) existing-account login PASS** — no `trial_start`, cloud doc unchanged. **(a) Google sign-up OWNER-OWED** (an agent cannot create a Google account; unit-tested). **(c) PARTIAL** (the preview's free-check flag is OFF).
+- **Production live** (post-merge) *(builder-reported)*: the live entry chunk `index-0GF2HqPk.js` carries "Your 7-day trial is on", "Check my next answer", "Free on Basic:" and the `newAccountTrial` path. (c) PARTIAL: App Check returned 403 to the headless free check, so the confirmation was unreachable; the refusal's "Sign up free" → email sign-up wrote the trial at creation with one `trial_start`; a later login started nothing; Check & Improve opened unlocked and a graded check returned 3 / 3. D10 accepts the PARTIAL.
+
+### Decisions (full text in `DECISION_LOG.md`)
+- **D2** serialise behind C-2 via lane-overlap (branch-only Phase A). **D3** `analytics.ts` untouched. **D4** no email-verified guard (the ruling says "at sign-up"). **D6** the hydration race had to be proven absent; the builder proved it. **D7** `components/pricing/BasicFreeList.tsx` accepted as the spec's "shared module". **D9** (a controller self-correction) the canary was smoked after promotion: the watcher keyed on the old deployment's absence. **D10** live (c) PARTIAL accepted. **D11** this docs PR covers `#887` only.
+
+### Follow-ups (bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`)
+- **New:** `[FU-TRIAL-START-EVENT-DOC-STALE]`, `[FU-SIGNUP-CONFIRMATION-SESSION-ONLY]`, `[FU-TRIAL-ON-SIGNUP-C-CANARY]` (now: the owner's real-browser run), `[FU-TRIAL-ON-SIGNUP-A-GOOGLE-LIVE]`, `[FU-BASIC-LIST-DARK-THEME]`. **Closed:** none. **Kept open:** `[FU-TRIAL-UNVERIFIED-EMAIL-CAN-START]` (D4; a dated note added) and everything open on trunk.
+
+### ★ Owner items (none run by the controller or a builder)
+1. **Real browser, signed out:** `/app/check-improve` free check → Google or phone sign-up → expect "Your 7-day trial is on ✅ Ends <date>" → "Check my next answer" → a graded check (`[FU-TRIAL-ON-SIGNUP-C-CANARY]` + `[FU-TRIAL-ON-SIGNUP-A-GOOGLE-LIVE]`).
+2. **Delete 3 prod Firebase test accounts** (Auth user + `subscriptions/{uid}`; the third also has one graded C&I attempt): `cVk72VqGObVgkgpEJZe3QPH0WPV2`, `GCjDRKc4OOgVTVsi2Jc4pr51YnP2`, `UgMRv95h2DROdWAChJytyLeDIZl1` (emails in the builder's report).
+3. **Rule on** `[FU-TRIAL-UNVERIFIED-EMAIL-CAN-START]`.
+- Carried: the WAVE B-5 owner steps (the B-5 block below), which carry the WAVE B-4 fair-use steps and the WAVE B-2 RAZORPAY-1 owner test. The owner items of every block below stand.
+
+### Carried forward — ★ THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this block
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.** **Wave B-6 moved NO dormancy in that trio.** The full block, including the `#647`/`#655` resolution and every subsequent amendment, is preserved verbatim in its section (`### 8 - ★ THE WIRE-2 QUESTION` and `### 9`) and the demoted `[CURRENT]` sections below, and must be read there before any lane acts on it.
+
 ## [CURRENT · MONEY] WAVE B-5 — **"START 7-DAY TRIAL" STARTS THE TRIAL: PRICING'S PREMIUM BUTTON IS STATE-AWARE, AND LOGIN HONOURS THE TRIAL INTENT ONCE (TRIAL-CTA-1)** — `#883` MERGED — trunk `12b8a985`
 *(Supersedes the WAVE A-6 block below on trunk SHA only. That block is demoted to previous on trunk SHA; its content, and the owner items of every block below, stand as written. Exactly one un-superseded `[CURRENT]` remains: this one.)*
 

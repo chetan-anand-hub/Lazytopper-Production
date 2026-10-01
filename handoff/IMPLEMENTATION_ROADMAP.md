@@ -1,5 +1,12 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-01 — MONEY: **WAVE B-6 — TRIAL-ON-SIGNUP-1** — `#887` MERGED — trunk `1229d465`
+
+- ✅ **TRIAL-ON-SIGNUP-1** (`#887` `1229d465`, LIVE on merge, no flag; rollout in `CURRENT_STATE.md`): a brand-new account's 7-day trial starts at sign-up, once, on all three new-account doors (Google popup, email create, phone OTP) through the existing `activateTrial`; logins and existing accounts never start one; `trial_start` fires only on a real start. The free-check return shows "Your 7-day trial is on" with the real end date; an existing account's "Maybe later" goes Home. Every Premium lock lists what stays free on Basic (the Pricing list, wording unchanged). `subscriptionService.ts`, `useSubscription.ts` and `analytics.ts` unchanged.
+- ✅ **New FUs:** `[FU-TRIAL-START-EVENT-DOC-STALE]` · `[FU-SIGNUP-CONFIRMATION-SESSION-ONLY]` · `[FU-TRIAL-ON-SIGNUP-C-CANARY]` · `[FU-TRIAL-ON-SIGNUP-A-GOOGLE-LIVE]` · `[FU-BASIC-LIST-DARK-THEME]`. Closed: none.
+- ✅ **Docs:** this handoff (covers `#887` only). #885 (97f48dcb) and #886 (5f021139) merged before #887 — handoff owed by Controller C (wave C-2).
+- ⬜ **Owner:** the real-browser free-check → Google/phone sign-up → confirmation → graded-check run; delete the 3 test accounts; rule on `[FU-TRIAL-UNVERIFIED-EMAIL-CAN-START]`. Carried: the B-5 steps, the B-4 fair-use steps, the B-2 RAZORPAY-1 test.
+
 ## 2026-09-29 — MONEY: **WAVE B-5 — TRIAL-CTA-1** — `#883` MERGED — trunk `12b8a985`
 
 - ✅ **TRIAL-CTA-1** (`#883` `12b8a985`, LIVE on merge, no flag; rollout in `CURRENT_STATE.md`): Pricing's Premium "Start 7-day trial" is state-aware and starts the trial for an eligible signed-in student; signed out it keeps the intent through sign-in and Login honours it once, after hydration. RequireAuth and the C&I offer gain the same hydration guard. New GA4 event `trial_start`. Eligibility and the subscription write logic unchanged.

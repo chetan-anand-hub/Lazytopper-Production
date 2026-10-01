@@ -1,5 +1,21 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-01 — WAVE B-6 (MONEY, CONTROLLER B): TRIAL-ON-SIGNUP-1 (`#887` `1229d465`), trunk `1229d465`. LIVE on merge (no flag); rollout recorded in `CURRENT_STATE.md`.**
+> ★ **THREE STATUS LINES MOVE: sign-up starts the trial; the C&I free-check return shows a confirmation for a new account; every Premium lock lists what stays free on Basic.** These lines supersede the Login door, Check & Improve free check and RequirePremium points below on these points only; those rows stand as written.
+
+### ✅ Sign-up (every new-account door: Google popup, email create, phone OTP) — **STARTS THE 7-DAY TRIAL, ONCE (`#887`).**
+- A brand-new account gets its trial at creation through the existing `activateTrial`; logins, reloads and existing accounts start nothing; `trial_start` fires only on a real start. Preview (b) email sign-up and (d) existing-account login PASS; production email sign-up PASS *(builder-reported)*.
+- ⚠ The Google leg is owner-owed (`[FU-TRIAL-ON-SIGNUP-A-GOOGLE-LIVE]`). Verified cells are not re-claimed.
+
+### ✅ Check & Improve — free-check return, signed in — **NEW ACCOUNT: OFFER → "YOUR 7-DAY TRIAL IS ON" CONFIRMATION (`#887`).**
+- A new account whose trial this session started sees "Your 7-day trial is on ✅", "Ends <date>" from the stored trial start, and "Check my next answer" back to the page. An existing account keeps the offer; its "Maybe later" now goes Home instead of the Premium lock.
+- ⚠ **Live PARTIAL:** production App Check refuses the headless free check, so the confirmation itself is owner-owed in a real browser (`[FU-TRIAL-ON-SIGNUP-C-CANARY]`); it is render-tested and screenshotted *(builder-reported)*.
+
+### ✅ Premium locks (`RequirePremium`: Check & Improve, Tutor, Exam Simulation, Weak Area, Chapter Hub, Worksheet marking) — **LIST WHAT STAYS FREE ON BASIC (`#887`).**
+- "Free on Basic:" plus the included rows of the same list Pricing renders (moved verbatim to `components/pricing/BasicFreeList.tsx`; Pricing's wording and signed-out render unchanged). ⚠ In the dark theme the list renders as a light card (`[FU-BASIC-LIST-DARK-THEME]`).
+
+### 📋 Scope discovered? — **NO surface scope set to Settling.** Five follow-ups are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`; none changes a surface's scope. Nothing goes in `DECISION_LOG` §2a.
+
 > **2026-09-29 — WAVE B-5 (MONEY, CONTROLLER B): TRIAL-CTA-1 (`#883` `12b8a985`), trunk `12b8a985`. LIVE on merge (no flag); rollout recorded in `CURRENT_STATE.md`.**
 > ★ **TWO STATUS LINES MOVE: Pricing's Premium trial CTA now starts the trial, and Login honours the trial intent.** These lines supersede the Pricing and Login rows below on the trial-CTA point only; those rows stand as written.
 

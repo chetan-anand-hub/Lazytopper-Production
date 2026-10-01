@@ -1,3 +1,22 @@
+## 2026-10-01 — WAVE B-6 (MONEY, CONTROLLER B): TRIAL-ON-SIGNUP-1 — PR `#887` merged — trunk `1229d465`
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (Option A, D2, D4, D6, D9, D10, D11, OR-LIVE, OR-AUTO), not `DECISION N`.
+
+### Owner rulings (dispatch message 2026-10-01)
+- **Option A:** the trial starts at sign-up for NEW accounts only, once; existing accounts and logins never start a trial.
+- **Grant = exactly spec §1 ALLOWED.** `subscriptionService.ts`, `useSubscription.ts`, server and rules FORBIDDEN; the lane only CALLS the existing `activateTrial`.
+- **Overlap with C-2:** lane-overlap decides; if blocked, wait, then merge trunk into the branch and re-run CI. Only ONE docs PR open at a time.
+- **OR-LIVE:** the lane rolls out ALONE; poll `vercel rolling-release fetch` capturing stderr; smoke the canary, then www; on a failure, abort / roll back FIRST.
+- **OR-AUTO:** no questions; the safest in-scope choice, recorded.
+
+### Controller decisions, with the reason
+- **D2:** serialise behind C-2 via lane-overlap. Phase A = build + local gates + push the BRANCH only (a Vercel branch preview) + preview live proofs, NO PR; Phase B (controller-triggered) = open the PR when no open PR shares an exact path, merge trunk in (other lanes' code byte-for-byte), CI, re-prove. **Why:** lane-overlap counts drafts, so an early PR would have blocked `#885` / SIGNUP-NUDGE-1 and ours; the owner said "lane-overlap decides; if blocked, wait".
+- **D4:** no email-verified guard and no wait-for-verification added. **Why:** the ruling says "at sign-up" on every new-account door; a guard would NARROW the ruling (STOP-class the other way). `[FU-TRIAL-UNVERIFIED-EMAIL-CAN-START]` stays OPEN for an owner ruling.
+- **D6:** the builder had to prove the auto-started trial survives the first `useSubscription` hydration (the reason option A′ was rejected: a fire-and-forget cloud write vs a server read), or STOP if that needed `useSubscription` / `subscriptionService`. **Builder finding** *(builder-reported)*: **no race for a new uid** — `activateTrial` saves the cache and queues `setDoc` synchronously, before any await at the door, while every hydration read runs in an effect after React's next render, so the write precedes the first read of that uid. Proven by a pessimistic fake-Firestore test with a control, and live. No subscription code changed.
+- **D9 — a CONTROLLER SELF-CORRECTION (watcher defect).** The canary watcher's exit test was "the old canary `50fb8tpm9` is absent". Once `#887`'s release started, `50fb8tpm9` became CURRENT and stayed in the output, so the test could not fire; the loop ran to TIMEOUT, the ACTIVE window was missed, and the canary smoke ran AFTER promotion (against the same immutable deployment `fs0syef0p`). A second slip: the smoke loop overwrote the www baseline files, caught before any conclusion was drawn; the pre-merge render was re-fetched from immutable `50fb8tpm9` and hash-matched. **Rule:** key a rollout watch on the NEW deployment's identity (`deployments?sha=<merge>` → its URL), never on the absence of the old one.
+- **D10:** live (c) PARTIAL accepted. **Why:** production App Check refuses headless browsers, so the free check produced no result and the confirmation was unreachable; none of the failure triggers fired (sign-up OK, trial written at creation, exactly one `trial_start`, a graded check on the new trial PASS). Owed to the owner in a real browser.
+- **D11:** this docs PR covers `#887` only. **Why:** `#885` / `#886` are Controller C's wave C-2, whose own docs PR is pending; only one docs PR is open at a time.
+
 ## 2026-09-29 — WAVE B-5 (MONEY, CONTROLLER B): TRIAL-CTA-1 — PR `#883` merged — trunk `12b8a985`
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (D2, D3, D6, D7, OR-LIVE, OR-AUTO), not `DECISION N`.
