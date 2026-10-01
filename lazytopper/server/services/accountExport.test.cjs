@@ -187,6 +187,13 @@ function realSeed(uid = UID) {
     [`usageLedger/${uid}/days/2026-09-27`]: {
       calls: 3, promptTokens: 4200, outputTokens: 610, thoughtsTokens: 2900, costMicroInr: 883520,
     },
+    // STUDENT-ACTIVITY-1. As with the ledger, the parent is seeded only so the map-driven
+    // test has a row to find; production writes only the day documents.
+    [`activityLog/${uid}`]: {},
+    [`activityLog/${uid}/activityDays/2026-09-27`]: {
+      firstSeenMs: 1790000000000, lastSeenMs: 1790000600000,
+      sections: { practice: 2 }, events: { check_graded: 1 },
+    },
     // ★ FIELD-KEYED. The doc id is sha256(uploadToken); the student is a `uid` FIELD.
     'qrUploadSlots/sha-aaa': { uid, storagePath: `qr-uploads/${uid}/sha-aaa.jpg` },
     'qrUploadSlots/sha-bbb': { uid, storagePath: `qr-uploads/${uid}/sha-bbb.jpg` },
@@ -658,6 +665,48 @@ test('★ a two-level-deep subcollection is reached by its OWN path, not inferre
   // The parent is its own row, addressed by its own path — asserting the parent
   // proves nothing about the orphan underneath it.
   assert.equal(byId(result, 'learnerProfiles.sessions').records[0].path, `learnerProfiles/${UID}/sessions/s1`);
+});
+
+/* STUDENT-ACTIVITY-1 (R3, controller decision D5) — the activity log is student data,
+   so EVERY day of it is IN the export. Seeded the way production writes it: three day
+   documents under a MISSING parent (`activityLog/{uid}` is never written), plus another
+   student's day that must not appear. `expireAt` is seeded as a Firestore-Timestamp-like
+   value and must come out as a readable ISO date.
+   MUTATION: drop the `activityLog.activityDays` entry from studentDataMap.ts => RED. */
+test('★ STUDENT-ACTIVITY-1: the activity log is exported — EVERY day, under a parent that was never written', async () => {
+  const ts = (iso) => ({ toDate: () => new Date(iso) });
+  const day = (sections, events) => ({
+    firstSeenMs: 1790000000000, lastSeenMs: 1790000600000, sections, events,
+    expireAt: ts('2026-12-25T18:30:00.000Z'),
+  });
+  const seed = {
+    [`activityLog/${UID}/activityDays/2026-09-25`]: day({ home: 1 }, {}),
+    [`activityLog/${UID}/activityDays/2026-09-26`]: day({ practice: 3, notes: 1 }, { check_graded: 2 }),
+    [`activityLog/${UID}/activityDays/2026-09-27`]: day({ 'check-improve': 4 }, { check_question_read: 1 }),
+    [`activityLog/${OTHER}/activityDays/2026-09-27`]: day({ pricing: 9 }, {}),
+  };
+  const { service } = makeService({ seed, files: [], users: {} });
+  const result = await service.exportAccount(UID);
+
+  const days = byId(result, 'activityLog.activityDays');
+  assert.ok(days, 'activityLog.activityDays is missing from the export entirely');
+  assert.equal(days.status, EXPORT_STATUS.EXPORTED);
+  assert.deepEqual(
+    days.records.map((r) => r.path).sort(),
+    [
+      `activityLog/${UID}/activityDays/2026-09-25`,
+      `activityLog/${UID}/activityDays/2026-09-26`,
+      `activityLog/${UID}/activityDays/2026-09-27`,
+    ],
+    "every one of this student's days, never another student's"
+  );
+  const mid = days.records.find((r) => r.path.endsWith('2026-09-26')).data;
+  assert.deepEqual(mid, {
+    firstSeenMs: 1790000000000, lastSeenMs: 1790000600000,
+    sections: { practice: 3, notes: 1 }, events: { check_graded: 2 },
+    expireAt: '2026-12-25T18:30:00.000Z',
+  });
+  assert.ok(!JSON.stringify(result).includes(OTHER), "another student's activity leaked into this export");
 });
 
 /* METER-1 (M4/M5) — the usage ledger is student data, so it is IN the export.

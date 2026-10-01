@@ -139,13 +139,14 @@ function makeBucket(names = []) {
   };
 }
 
-function makeAdmin(bucket, existingUsers = []) {
+function makeAdmin(bucket, existingUsers = [], onDeleteUser = null) {
   const users = new Set(existingUsers);
   const authDeleted = [];
   return {
     authDeleted,
     auth: () => ({
       async deleteUser(uid) {
+        if (onDeleteUser) onDeleteUser(uid);
         if (!users.has(uid)) {
           const e = new Error('There is no user record corresponding to the provided identifier.');
           e.code = 'auth/user-not-found';
@@ -212,7 +213,7 @@ function makeService(opts = {}) {
   const bucket = makeBucket(
     opts.files || [`qr-uploads/${UID}/sha-aaa.jpg`, `qr-uploads/${UID}/sha-bbb.jpg`, `qr-uploads/${OTHER}/sha-zzz.jpg`]
   );
-  const admin = makeAdmin(bucket, opts.users === undefined ? [UID, OTHER] : opts.users);
+  const admin = makeAdmin(bucket, opts.users === undefined ? [UID, OTHER] : opts.users, opts.onDeleteUser || null);
   const service = createAccountErasureService({
     firebaseAdmin: admin,
     adminFirestore: store.db,
@@ -497,6 +498,98 @@ test('★ METER-1: erasure deletes the usage ledger — every day, under a paren
   assert.equal(byId(result, 'usageLedger').status, STATUS.NOT_FOUND);
   // Another student's ledger is untouched.
   assert.equal(store.docs.has(`usageLedger/${OTHER}/days/2026-09-27`), true);
+});
+
+/* STUDENT-ACTIVITY-1 (R3, controller decision D5) — the activity log is erased with the
+   account: EVERY day document (Firestore does not cascade, so deleting activityLog/{uid}
+   alone would leave them readable), and the parent too when one exists. Another
+   student's days must survive.
+   MUTATION: drop the `activityLog.activityDays` entry from studentDataMap.ts => RED. */
+test('★ STUDENT-ACTIVITY-1: erasure deletes EVERY activity day — under a missing parent', async () => {
+  const seed = {
+    [`activityLog/${UID}/activityDays/2026-09-25`]: { sections: { home: 1 } },
+    [`activityLog/${UID}/activityDays/2026-09-26`]: { sections: { practice: 2 } },
+    [`activityLog/${UID}/activityDays/2026-09-27`]: { events: { check_graded: 1 } },
+    [`activityLog/${OTHER}/activityDays/2026-09-27`]: { sections: { notes: 9 } },
+  };
+  const { service, store } = makeService({ seed, files: [], users: [] });
+  const result = await service.eraseAccount(UID);
+
+  for (const d of ['2026-09-25', '2026-09-26', '2026-09-27']) {
+    const p = `activityLog/${UID}/activityDays/${d}`;
+    assert.ok(store.deleted.includes(p), `activity day never targeted: ${p}`);
+    assert.equal(store.docs.has(p), false, `activity day still readable after erasure: ${p}`);
+  }
+  const days = byId(result, 'activityLog.activityDays');
+  assert.equal(days.status, STATUS.DELETED);
+  assert.equal(days.deleted, 3);
+  assert.equal(byId(result, 'activityLog').status, STATUS.NOT_FOUND);
+  assert.equal(store.docs.has(`activityLog/${OTHER}/activityDays/2026-09-27`), true);
+  assert.deepEqual([...store.docs.keys()].filter((p) => p.startsWith(`activityLog/${UID}`)), []);
+});
+
+test('★ STUDENT-ACTIVITY-1: a WRITTEN activityLog parent is deleted too, AFTER its days', async () => {
+  const seed = {
+    [`activityLog/${UID}`]: { note: 'a parent some future writer created' },
+    [`activityLog/${UID}/activityDays/2026-09-26`]: { sections: { practice: 2 } },
+    [`activityLog/${UID}/activityDays/2026-09-27`]: { sections: { notes: 1 } },
+  };
+  const { service, store } = makeService({ seed, files: [], users: [] });
+  const result = await service.eraseAccount(UID);
+  assert.equal(byId(result, 'activityLog').status, STATUS.DELETED);
+  assert.equal(byId(result, 'activityLog.activityDays').deleted, 2);
+  const parentAt = store.deleted.indexOf(`activityLog/${UID}`);
+  for (const d of ['2026-09-26', '2026-09-27']) {
+    assert.ok(store.deleted.indexOf(`activityLog/${UID}/activityDays/${d}`) < parentAt, 'a day outlived its parent');
+  }
+  assert.deepEqual([...store.docs.keys()].filter((p) => p.startsWith('activityLog/')), []);
+});
+
+/* STUDENT-ACTIVITY-1 · controller decision D10 — the erasure race, erasure side.
+   A batch verified just before this erasure commits AFTER the first sweep of
+   activityDays but BEFORE the Auth account is deleted. Its route-side re-check then
+   still finds the account, so the route keeps it. The second sweep, run after the
+   Auth deletion, must remove it.
+   MUTATION: delete the second-sweep block in accountErasure.cjs => RED. */
+test('★★ D10 ERASURE RACE: an activity day written AFTER the first sweep, before Auth deletion, is removed by the second sweep', async () => {
+  const late = `activityLog/${UID}/activityDays/2026-09-28`;
+  const first = `activityLog/${UID}/activityDays/2026-09-27`;
+  const ctx = {};
+  const made = makeService({
+    seed: { [first]: { sections: { home: 1 } } },
+    files: [],
+    users: [UID],
+    onDeleteUser: () => {
+      // The in-flight /api/activity write lands now: after the Firestore sweep, before
+      // deleteUser. CONTROL: the first sweep had already removed the earlier day.
+      assert.ok(ctx.store.deleted.includes(first), 'first sweep had not run yet');
+      ctx.store.docs.set(late, { sections: { practice: 2 } });
+    },
+  });
+  ctx.store = made.store;
+  const result = await made.service.eraseAccount(UID);
+  assert.equal(made.store.docs.has(late), false, 'a racing activity write survived the erasure');
+  assert.deepEqual([...made.store.docs.keys()].filter((p) => p.startsWith(`activityLog/${UID}`)), []);
+  const days = byId(result, 'activityLog.activityDays');
+  assert.equal(days.status, STATUS.DELETED);
+  assert.equal(days.resweptAfterAuth, 1);
+  assert.equal(days.deleted, 2);
+  assert.equal(result.ok, true);
+});
+
+test('D10: the second sweep touches only the activity path', async () => {
+  const { service, store } = makeService({
+    seed: {
+      [`usageLedger/${UID}/days/2026-09-27`]: { calls: 1 },
+      [`activityLog/${UID}/activityDays/2026-09-27`]: { sections: { home: 1 } },
+    },
+    files: [],
+    users: [UID],
+  });
+  const result = await service.eraseAccount(UID);
+  const swept = result.locations.filter((r) => 'resweptAfterAuth' in r).map((r) => r.id);
+  assert.deepEqual(swept, ['activityLog.activityDays']);
+  assert.equal(store.deleted.filter((p) => p.startsWith('usageLedger/')).length, 1);
 });
 
 test('★ a two-level-deep subcollection is reached, and reached BEFORE its parent', async () => {

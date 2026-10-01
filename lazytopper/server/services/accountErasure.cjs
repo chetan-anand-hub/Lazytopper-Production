@@ -52,6 +52,10 @@ const vm = require('vm');
 const { createRequire } = require('module');
 
 const { __internals: qrInternals } = require('./qrUploadChannel.cjs');
+// STUDENT-ACTIVITY-1 (D10): the one live writer that can race an erasure names its
+// own path, so this walker stays free of ids. See resweepAfterAuth below.
+const { ACTIVITY_DAYS_PATH_TEMPLATE } = require('../routes/studentActivity.cjs');
+const RESWEEP_AFTER_AUTH_PATHS = new Set([ACTIVITY_DAYS_PATH_TEMPLATE]);
 
 /**
  * ★ The field `qrUploadSlots` keys the student by. Named once, here, because the
@@ -555,6 +559,33 @@ function createAccountErasureService(deps = {}) {
 
       statuses.set(step.id, row.status);
       results.push(row);
+    }
+
+    // ★ STUDENT-ACTIVITY-1 (controller decision D10): THE SECOND SWEEP. /api/activity
+    // keeps writing until the Auth account is gone. A batch verified just before this
+    // erasure can still commit after the first sweep of its day documents above. So
+    // once the Auth account is confirmed gone, those paths are swept AGAIN. Any write
+    // that lands later is undone by the route itself, because its post-write re-check
+    // finds no account (studentActivity.cjs header). Runs only when the account
+    // really is gone; otherwise the student still exists and nothing has changed.
+    const authRow = results.find((r) => r.strategy === STRATEGY.AUTH_ACCOUNT);
+    const authGone = authRow && (authRow.status === STATUS.DELETED || authRow.status === STATUS.NOT_FOUND);
+    if (authGone) {
+      for (const row of results) {
+        if (!RESWEEP_AFTER_AUTH_PATHS.has(row.path) || row.strategy !== STRATEGY.FIRESTORE_DOC_TREE) continue;
+        if (row.status !== STATUS.DELETED && row.status !== STATUS.NOT_FOUND) continue;
+        try {
+          const late = await deleteFirestoreDocTree(adminFirestore, row.path, trimmed);
+          row.resweptAfterAuth = late;
+          if (late > 0) {
+            row.deleted += late;
+            row.status = STATUS.DELETED;
+          }
+        } catch (e) {
+          row.status = STATUS.FAILED;
+          row.error = `second sweep after auth deletion failed: ${e && e.message ? e.message : String(e)}`;
+        }
+      }
     }
 
     const summary = {

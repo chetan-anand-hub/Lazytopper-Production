@@ -282,6 +282,7 @@ const PAGES: Record<LegalSlug, PageDef> = {
           <li>To generate performance analytics</li>
           <li>To improve our prediction algorithms</li>
         </ul>
+        <p>We keep a record of which parts of LazyTopper you use and when (for example, answer checks and practice sessions), to support you and improve the product. It contains no answers or questions, is visible only to the LazyTopper team, is kept for 90 days, and is deleted with your account.</p>
         <p>We use Google Analytics and Google Ads to understand how LazyTopper is used, to measure our advertising, and to show our ads to people who have visited. It uses cookies. We remove private links from the page addresses it receives.</p>
         <h2>Data Storage</h2>
         <p>Your data is stored securely using Firebase (Google Cloud Platform). Learning progress is stored locally on your device and optionally synced to the cloud for cross-device access.</p>

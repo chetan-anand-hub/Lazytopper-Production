@@ -1,4 +1,5 @@
 import { getAdditionalUserInfo, type UserCredential } from "firebase/auth";
+import { recordActivity } from "../services/activityClient";
 
 /**
  * THE ONE ANALYTICS ENTRY POINT. Nothing else initialises a vendor, and nothing else
@@ -169,6 +170,18 @@ function send(kind: "pageview" | "event", payload: Record<string, unknown>): voi
   // A separate guard, so one vendor failing can never cost the other its hit.
   try {
     sendToGa4(kind, payload);
+  } catch {
+    /* analytics must never break the page */
+  }
+  // ★ STUDENT-ACTIVITY-1 (owner ruling 2026-10-01) — the FIRST-PARTY activity log, and
+  // the one place this module deals with a signed-in student. It is NOT a vendor and
+  // NOT an identify(): nothing is added to what GA4 or Vercel receive (above, unchanged).
+  // activityClient counts a section/event NAME for a signed-in student only and posts
+  // it to our own server, which takes the uid from a verified token; a signed-out
+  // visitor is never recorded and never linked to an account. Runs last, in its own
+  // guard, so it can never cost either vendor its hit.
+  try {
+    recordActivity(kind, payload);
   } catch {
     /* analytics must never break the page */
   }
