@@ -107,8 +107,8 @@ while its PR is green.
 
 - No fake data — no invented progress, accuracy, MI insights, weak areas, or premium status
 - No guest mode — /browse is inspection only; no fake learner session
-- No fake payment — payment is deferred; no client-side premium activation
-- No fake trial activation — trial state must come from server/admin, never client UI
+- No fake payment — Premium comes only from a server-verified Razorpay payment (`grantPass`) or an admin grant; never from client UI
+- Trials — a new account's 7-day trial starts once at sign-up via `activateTrial` (owner ruling 2026-09-30, TRIAL-ON-SIGNUP-1) or by an explicit student tap; never on login, reload or mount
 - Auth is Firebase-only (Google + Email/Password + Phone). Clerk was fully removed in the auth migration (PR-1..PR-3). Firestore is keyed on Firebase uid; admin routes authorize via ADMIN_FIREBASE_UIDS.
 - Safe redirects always — reject any external URL in redirect params
 - Visual grammar — deep navy, soft white, green accent, calm premium CBSE cockpit feel
