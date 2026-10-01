@@ -1,3 +1,28 @@
+## 2026-10-01 — WAVE C-2 (ANALYTICS + FREE CHECK, CONTROLLER C) — **FUNNEL-EVENTS-1: THREE COUNT-ONLY CHECK & IMPROVE FUNNEL EVENTS · SIGNUP-NUDGE-1: A FREE CHECK THAT ENDS IN A SIGN-UP ASK SHOWING WHAT THE STUDENT GOT** — `#885` + `#886` MERGED — trunk `5f021139`
+
+★ **PROVENANCE.** Controller C, wave C-2. Owner specs `FUNNEL-EVENTS-1` v1.0 (`64C71397B81F`) and `SIGNUP-NUDGE-1` v1.0 (`44AB69552B52`), hash-verified, sourced from `controller-c2/ops/.specs` (D1). One builder per lane (`claude-opus-5-5`, effort high; D3: the Agent tool has no effort knob, so effort was stated in the brief). A docs builder wrote this docs PR in `C:/Projects/LT-worktrees/docs-wave-c2` from `WAVE_STATE_C2.md`, the two lane reports and the two specs. *(subagent-reported)* / *(controller-verified)* / *(owner-verified)* as in `CURRENT_STATE.md`.
+
+**Timeline.**
+- 2026-09-30: dispatch at trunk `2a287a30` (== spec base); only `#876` open (Dependabot, disjoint). FUNNEL §0c `--strict-anchor` PASS, 8 premises, EXIT 0 *(subagent-reported)*.
+- FUNNEL builder: head `4e32034a`, 3 files, 9 tests, 2 mutations RED; CI `36759852549` `Tests 3219 passed (3219)` ×3 clocks, root `# skipped 0`. It HELD: the spec §3 preview proof cannot run — the preview has the free-check flag off *(subagent-reported)*. **D6** (OR-AUTO): merge on CI + tests + mutations + chunk; prove (a) on CANARY after merge; failure → revert. The controller's `gh pr merge` was classifier-denied once; the **OWNER merged `#885` → `97f48dcb`** (`--match-head-commit 4e32034a`); trunk tree == head tree `1947a056` *(controller-verified)*.
+- `#885` live: rollout 10 → 50 → COMPLETE 100 at 19:15:16Z; www `97f48dcb`; the served chunk carries the three names. Headless proof refused by App Check on canary and www at the read step (0 free checks spent, 0 `check_` events — a live negative control) *(subagent-reported)*. **D13: no revert** (no product failure). Positive proof → owner browser run.
+- 2026-10-01: owner ADDENDUM dispatches lane 2 SIGNUP-NUDGE-1 (open its PR only after `#885` merges; rolls out alone). §0c PASS, 9 premises *(subagent-reported)*. P8 answered; **P9 = does not work** signed out → S1d omitted (D11). Branch pushed for a preview only, no PR (D4). Preview flag-off finding confirmed independently (D12); screenshots from a local dev build, flag via env, grader stubbed, labelled.
+- **D6 APPROVED by the owner** (canary proof is the right test).
+- Controller rulings R1–R3 → **D9** two mounts, **D10** grouped tags (the builder's four MI labels reversed; commit `783f5b50`), **D11** S1d omitted. Trunk merged in (`cb1f158e`, no conflicts, FUNNEL code byte-for-byte unchanged) *(subagent-reported)*.
+- PR `#886` opened (head `cb1f158e`); CI `36765693176` `Tests 3238 passed (3238)` ×3 clocks, root `# skipped 0`; 7 files in the allowlist *(controller-verified)*. **D14:** its merge was gated on an owner browser run proving the free check works for a real visitor on www.
+- **OWNER BROWSER RUN on www — PASSED** *(owner-verified)*, before the `#886` merge: signed-out free check completed; GA4 `collect`: `page_view`, then exactly one each of `check_question_read`, `check_answer_added`, `check_graded`, in order. FUNNEL-EVENTS-1 PROVEN LIVE; the free check works for real visitors.
+- **OWNER merged `#886` → `5f021139`** (`--match-head-commit cb1f158e`); trunk tree == head tree `26dfb66e` *(controller-verified)*.
+- `#886` rolled out ALONE: 01:31:19Z ACTIVE 10 → 01:35:41Z ACTIVE 50 → 01:47:46Z COMPLETE 100; www `5f021139`; headless free check refused by App Check (D14, expected) *(subagent-reported; COMPLETE + www SHA controller-verified)*.
+- **OWNER PRIVATE-WINDOW RUN #2 on www — PASSED** *(owner-verified)*: green summary bar at the top of the free result; used block "Your free check is done ✅", 3/5 marks, body, trial line, Sign up free, NO practice link; no chips (no tagged mistakes on that answer). SIGNUP-NUDGE-1 PROVEN LIVE.
+- **D15:** an owner addendum headed "wave B-6" reached Controller C; it did not act. The owner confirmed it is Controller B's. The `#886` trial line is SUPERSEDED BY B-6 — not a C-2 defect.
+- Trunk then moved to `1229d465` (`#887`, wave B-6) before this docs PR; `#887` is not recorded here.
+- This docs PR, then ONE final audit `Desktop/diff/audit-request-wave-c2-final-<date>.md`, then STOP.
+
+**Lessons.**
+- **A spec's preview proof can be impossible by an existing ruling.** The preview free-check flag is off on purpose (App Check is domain-restricted), so the proof moved to canary — a stronger test (D6).
+- **"Headless was refused" is not "the product is broken".** App Check refuses automated browsers at the read step; the owner's private-window run proved real visitors pass. A refused read that sends 0 events is itself a live negative control.
+- **"One mount" in a spec can under-count the surface.** The page has two free result views; counting by reachability (both call `recordFreeCheckSuccess`) found the second (D9).
+
 ## 2026-09-29 — WAVE B-5 (MONEY, CONTROLLER B) — **TRIAL-CTA-1: "START 7-DAY TRIAL" STARTS THE TRIAL — PRICING'S PREMIUM BUTTON IS STATE-AWARE, LOGIN HONOURS THE TRIAL INTENT ONCE, `trial_start` FIRES** — `#883` MERGED — trunk `12b8a985`
 
 ★ **PROVENANCE.** Controller B, wave B-5. The owner spec `TRIAL-CTA-1` v1.0 was hash-verified (`87C8A75519AA`), sourced from `controller-b5/ops/.specs` (D0). One builder (`claude-opus-5-5`, effort high) worked in `C:/Projects/LT-worktrees/trial-cta-1`. A docs builder wrote this docs PR in `C:/Projects/LT-worktrees/b5-docs` from `WAVE_STATE_B5.md` and `report-trial-cta-1-2026-09-29.md`. *(subagent-reported)* / *(controller-verified)* as in `CURRENT_STATE.md`.

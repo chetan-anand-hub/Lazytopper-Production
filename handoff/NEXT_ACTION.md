@@ -1,3 +1,30 @@
+## ★★★ 2026-10-01 — WAVE C-2 (ANALYTICS + FREE CHECK, CONTROLLER C) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE B-5 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged, except as stated here.)*
+
+**TRUNK IS `1229d4659fea4c1bdf0a7035e917da2853e9e86e`**, measured 2026-10-01 (`git fetch origin` + `git rev-parse origin/base/approved-thru-437`):
+- `1229d465` = `#887` (TRIAL-ON-SIGNUP-1, Controller B, wave B-6) — **NOT this wave; not recorded here** (its handoff belongs to Controller B)
+- `5f021139` = `#886` (SIGNUP-NUDGE-1: a free check that ends in a sign-up) — **this wave**; LIVE, owner-proven on www
+- `97f48dcb` = `#885` (FUNNEL-EVENTS-1: three Check & Improve funnel events, names only) — **this wave**; LIVE, owner-proven on www
+- `2a287a30` = `#884` (docs: wave B-5)
+
+Open at the time of writing, besides this docs PR: `#876` (Dependabot, `actions/setup-node` 4 → 7; `.github` only).
+
+### ★ STANDING — A FREE-CHECK LIVE PROOF NEEDS AN OWNER BROWSER
+App Check refuses automated (headless) browsers on canary AND www, at the read step, before any API call; Vercel previews have the free-check flag off by ruling (`[FU-PREVIEW-FREECHECK-FLAG]`, DECIDED). So an agent cannot prove a free-check flow live: the proof is an owner private-window run on www (`[FU-FUNNEL-LIVE-PROOF-HEADLESS-APPCHECK]`).
+
+### NEXT — OWNER, IN THIS ORDER (none of these was run by the controller or a builder)
+1. **GA4 → Admin → Events → Recent events:** `check_question_read`, `check_answer_added`, `check_graded` appear. **Do NOT star them** (funnel steps, not conversions). The ads session builds the GA4 **Funnel exploration**: `page_view` on /check-improve → read → added → graded → `sign_up` / `trial_start`.
+2. **OWNER-OWED — the FUNNEL-EVENTS-1 signed-in live check** (spec §3 b; CLAUDE.md §6 live round trip): signed in as a premium/trial student on www, DevTools → Network filtered on `collect` → read a question (one `en=check_question_read`), type an answer (one `en=check_answer_added`), grade (one `en=check_graded`); re-read + re-grade send nothing new; each hit carries only the name.
+3. **Wave C-2 final audit** (`Desktop/diff/audit-request-wave-c2-final-<date>.md`): confirm or reverse **D9** (two bar mounts), **D10** (grouped tags Knowledge gap / Careless), **D11** (S1d omitted), and answer `[FU-SIGNUP-NUDGE-S1D-REVISIT]`.
+4. **Rule on `[FU-GA4-PREVIEW-HITS-PROD-PROPERTY]`** (preview deployments send GA4 hits to the production property).
+- **D15, for wave B-6 (Controller B), not C-2:** the `#886` trial line is being rewritten there; this wave changes no copy.
+
+### Carried — still owed
+5. The WAVE B-5 owner items (the 3 acceptance accounts, live case (a), the two owner-ruling FUs, the `trial_start` key event) and the WAVE B-4 / B-2 steps stand.
+
+### NEXT — LANES
+- None dispatched by wave C-2 beyond `#885` and `#886`. Candidates: `[FU-FUNNEL-OVERLAY-EVENTS]`, `[FU-PRACTICE-CARD-LITERAL-U2192]`, and the S1d link if the owner rules for it.
+
 ## ★★★ 2026-09-29 — WAVE B-5 (MONEY, CONTROLLER B) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-6 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged, except as stated here.)*
 

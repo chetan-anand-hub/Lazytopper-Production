@@ -1,5 +1,26 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-01 — WAVE C-2 (CONTROLLER C): FUNNEL-EVENTS-1 (`#885` `97f48dcb`) + SIGNUP-NUDGE-1 (`#886` `5f021139`), trunk `5f021139`. Both LIVE at 100% and proven by owner private-window runs on www.**
+> ★ **TWO STATUS LINES MOVE on Check & Improve's free check: the used block, and the free result.** One analytics capability is added (not a surface). These lines supersede the Check & Improve free-check rows below on these points only; those rows stand as written.
+
+### ✅ Check & Improve (`/check-improve`) — free check, the "used" block — **SHOWS WHAT THE STUDENT GOT, THEN ASKS FOR SIGN-UP (`#886`) — LIVE, owner-verified**
+- "Your free check is done ✅", then the local result ("<score>/<max> marks" + up to 3 "<Tag> ×<n>" chips, grouped Knowledge gap / Careless — D10) or "Your answer was checked like a CBSE examiner." when nothing is waiting; the body; the trial line; the existing **Sign up free** link and intent. No "Practice CBQs free" link (D11).
+- Owner run #2 on www: headline, 3/5 marks, body, trial line, Sign up free, no practice link; no chips (no tagged mistakes) *(owner-verified)*.
+- ⚠ The trial line is SUPERSEDED BY wave B-6 (D15) — the cell's copy will change there; not a C-2 defect.
+
+### ✅ Check & Improve (`/check-improve`) — free check, the result — **A SUMMARY BAR WITH "SIGN UP FREE TO KEEP THIS" AT THE TOP (`#886`) — LIVE, owner-verified**
+- In BOTH free result views, single question and whole paper (D9). Never in paid mode; the bottom save prompt is unchanged; the summary reads only the local pending result.
+- Owner run #2 on www: the green summary bar at the top of the free result *(owner-verified)*.
+
+### ✅ NEW CAPABILITY (not a surface) — CHECK & IMPROVE FUNNEL EVENTS — **`check_question_read` / `check_answer_added` / `check_graded`, NAMES ONLY (`#885`) — LIVE, owner-verified (signed out)**
+- Once per question attempt, via the existing redacted `trackNamedEvent` (Vercel + GA4). Direct visits only; the tutor overlay sends none. Students see no change.
+- Owner run on www: `page_view`, then exactly one of each, in order *(owner-verified)*. The signed-in live check is OWNER-OWED.
+
+### ⬜ NO OTHER CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- The paid Check & Improve flow, grading, App Check, quota and the sign-in flow are unchanged.
+
+### 📋 Scope discovered? — **NO surface scope set to Settling.** D9 (two result views, not one) corrects the spec's wording inside the same surface; it does not change the surface's scope. Six follow-ups are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`; nothing goes in `DECISION_LOG` §2a.
+
 > **2026-09-29 — WAVE B-5 (MONEY, CONTROLLER B): TRIAL-CTA-1 (`#883` `12b8a985`), trunk `12b8a985`. LIVE on merge (no flag); rollout recorded in `CURRENT_STATE.md`.**
 > ★ **TWO STATUS LINES MOVE: Pricing's Premium trial CTA now starts the trial, and Login honours the trial intent.** These lines supersede the Pricing and Login rows below on the trial-CTA point only; those rows stand as written.
 
