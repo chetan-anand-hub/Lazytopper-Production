@@ -1,5 +1,99 @@
 # LazyTopper — Current State
 
+## [CURRENT · STUDENT DATA + ADMIN] WAVE B-7 — **A FIRST-PARTY, ADMIN-ONLY RECORD OF WHICH SECTIONS A SIGNED-IN STUDENT OPENS AND WHICH NAMED ACTIONS THEY TAKE, PER IST DAY, KEPT 90 DAYS (STUDENT-ACTIVITY-1) · ITS PAGE-LOAD HOLD BOUNDED (STUDENT-ACTIVITY-1B) · A READ-ONLY ADMIN "STUDENTS" PAGE (ADMIN-STUDENTS-1)** — `#893` + `#897` + `#896` MERGED — trunk `a9ae2efc`
+*(Supersedes the WAVE A-8 block below on trunk SHA only. That block is demoted to previous on trunk SHA. Its content, and the owner items of every block below, stand as written. Exactly one un-superseded `[CURRENT]` remains: this one. ⚠ Controller A's `#898` (DEPS-SEC-1) merged inside this wave's window. It is Controller A's and is recorded by Controller A's own handoff, not here; this block does not describe it.)*
+
+★ **PROVENANCE.**
+- Controller B, wave B-7, from the owner spec `STUDENT-ACTIVITY-1` (staged at `LT-worktrees/controller-b7/ops/.specs/STUDENT-ACTIVITY-1.md`, sha256 `C20A0C0577C8…`, hash-verified by the controller; D0). One builder per PR (`claude-opus-5-5`, effort high), each in its own worktree: `LT-worktrees/student-activity-1` (`lane/student-activity-1`), `LT-worktrees/student-activity-1b` (`lane/student-activity-1b`), `LT-worktrees/admin-students-1` (`lane/admin-students-1`).
+- *(builder-reported)* = from `Desktop/diff/report-student-activity-1-2026-10-01.md`, `Desktop/diff/report-student-activity-1b-2026-10-02.md` and `Desktop/diff/report-admin-students-1-2026-10-02.md`; *(controller-verified)* = re-checked by the controller (`Desktop/diff/WAVE_STATE_B7.md`); *(owner)* = the owner's own account.
+- **Trunk history since the last handoff** (`85c19692`, `#895`): `85c19692` → `441a9274` (`#893`) → `8c718fcc` (`#897`) → `59a93989` (`#898`, Controller A) → `a9ae2efc` (`#896`).
+- This block covers `#893`, `#897` and `#896` only.
+
+### What landed
+`#893` (`441a9274`) is live. For signed-in students only, the app now keeps a first-party count of which sections they open and which named actions they take, per IST day, in `activityLog/{uid}/activityDays/{day}`. Each day doc has a 90-day `expireAt` Timestamp. It holds no answers, questions or device data, only the server writes it, it is exported and erased with the account, and the Privacy Policy says so. GA4 and Vercel behaviour is unchanged. `#897` (`8c718fcc`) bounds the client's page-load hold in time and releases held hits only with a token in hand. `#896` (`a9ae2efc`) adds the read-only admin "Students" page at `/app/admin/students`.
+
+**The owner's safeguards (none dropped):**
+- **First-party only.** The counts go to our own server (`POST /api/activity`) and our own Firestore. The GA4 and Vercel calls are unchanged.
+- **Admin-only.** Only the server (Admin SDK) writes `activityLog`. No client rule grants read or write on `activityLog/**`; this was proved from the current `firestore.rules`, read only (D6) *(builder-reported)*. The only reader is the admin page, behind the shared `ADMIN_FIREBASE_UIDS` gate.
+- **Names only.** 12 section names and 8 event names, each an allowlist on both client and server, with a count per name plus `firstSeenMs` / `lastSeenMs`. No question, answer or other text *(builder-reported)*.
+- **90-day TTL** on `activityDays.expireAt`, a Firestore Timestamp (the IST day start + 90 days). The TTL policy itself is an owner step (below).
+- **Privacy Policy sentence**, live on `/legal/privacy` (text read from `LegalPage.tsx` on trunk): "We keep a record of which parts of LazyTopper you use and when (for example, answer checks and practice sessions), to support you and improve the product. It contains no answers or questions, is visible only to the LazyTopper team, is kept for 90 days, and is deleted with your account."
+- **Export + erasure.** `studentDataMap.ts` gains two rows (the `activityLog` parent and `activityLog.activityDays`), and the existing map-driven export and erasure cover them. Erasure deletes every day doc and runs a second sweep after the auth deletion (D10).
+
+**Per PR:**
+- **`#893` STUDENT-ACTIVITY-1 PR-1 → `441a9274`**, merged 2026-10-01T21:39:42Z from head `9435a557`, 18 files *(controller-verified)*.
+  - `analytics.ts` `send()` forwards each hit to `activityClient.ts`. The client batches every 30 s and on `pagehide`, using `fetch` keepalive with `Authorization: Bearer`.
+  - The batches go to `POST /api/activity` (`studentActivity.cjs`): `verifyIdToken` with checkRevoked, the allowlist, caps, one merge write per batch, and a post-write account re-check.
+  - Also: `accountErasure.cjs` +31 (the D10 second sweep); the privacy sentence in `LegalPage.tsx`; the three prerender files committed from the PR's own CI artifact (owner D8/D11); `lazytopper/package.json` test wiring.
+- **`#897` STUDENT-ACTIVITY-1B → `8c718fcc`**, merged 2026-10-02T00:27:58Z from head `a7c5ea68` *(controller-verified)*.
+  - 2 files: `activityClient.ts` (+38/−5) and the new `activityClient.hardLoad.test.ts`.
+  - The page-load hold is bounded in time (15 s) as well as in count (50), and the restored student's token is in hand before held hits are released. Held hits from a signed-out first resolution are dropped, never handed to a later sign-in *(builder-reported)*.
+- **`#896` ADMIN-STUDENTS-1 (PR-2) → `a9ae2efc`**, merged 2026-10-02T01:35:22Z from head `6aeaef5f`, 9 files *(controller-verified)*.
+  - `GET /api/admin/students` (+ `/:uid`) sits behind the shared gate, `adminTelemetryRoutes.requireFirebaseAdmin` (reused, not copied; 401/403/503).
+  - The list is newest-first and paged at 50, with filters, summary cards, a masked email with a per-row reveal, and coverage labels.
+  - The detail is a day timeline from `activityLog`, `usageLedger`, `sessionRecords`, `practiceInsights`, `mockScoreHistory`, subscription timestamps and payments.
+  - Also: `App.tsx` +2 lines (the owner-granted route and its lazy import, D20); one GET-only mount line in `index.cjs`. `adminStudents.cjs` makes no Firestore writes (a grep finds only `Object.create`) *(controller-verified)*.
+
+ROLLOUT *(controller-verified; one line per PR)*:
+- **`#893`** rolled out ALONE — canary `p44k2m08u` caught ACTIVE 10% at 21:40:33Z, smoke PASS (`version.json` `441a9274`; 7 routes 200; sizes == baseline except `/legal/privacy` +293 bytes, the sentence), www PASS; **Railway SKIPPED the merge commit** (three Dependabot security-update jobs failed on it; owner manual redeploy; route live 23:28:33Z, `POST /api/activity` → 401; root cause → DEPS-SEC-1, Controller A).
+- **`#897`** alone — canary `j8g8w1ppt` at 10%, smoke PASS, www PASS 00:45:31Z; client-only (no Railway leg).
+- **`#896`** — canary `9c3y7o0dh` at 10%, smoke PASS (`/app/admin/students` 200 SPA shell); Vercel COMPLETE; **Railway deployed after the owner's manual redeploy at 01:56:55Z; the delay was search-ping waiting for the Vercel rollout by design** (owner, D33; amends D30). Server smoke: `GET /api/admin/students` and `/:uid` → 401 with no token or a bad token; `POST` → 404 (GET-only mount). **The page loads for the owner** *(owner, D33)*.
+- **Railway "Wait for CI" is now OFF** (owner ruling D33): Railway deploys each merge directly.
+
+### What it disproved
+- **`#893`** *(builder-reported)*:
+  - Erasure and export needed no source change for the new data, because they walk `STUDENT_DATA_MAP`.
+  - "One map entry" is in fact two rows.
+  - A Vercel preview cannot prove a server route (preview `/api` = production Railway), so the server proof ran post-merge in production.
+  - The privacy sentence was a four-file change, not one (it adds three prerender artifacts).
+- **`#897`** *(builder-reported; it overturned a finding the controller had amplified, D23)*: the "hard loads undercount" finding was a measurement artefact. Playwright / CDP cannot see keepalive POSTs sent at `pagehide`, and the production export showed every section of three hard loads recorded. The only real loss is a page that unloads inside Firebase's ~0.4–2.4 s auth-restore window, which the no-linking rule requires to stay unrecorded.
+- **`#896`** *(builder-reported)*:
+  - No plan-change history exists. The subscription doc holds only current-plan timestamps, so the timeline shows those plus payments.
+  - "Answer checks" has a better pre-existing source than the one-day-old `activityLog`: `sessionRecords` C&I sessions, since 6 Jul 2026.
+
+### Evidence
+- **`#893` CI** on head `9435a557` *(controller-verified)*. The head came from `gh pr update-branch`, and the 18 lane files are byte-identical to `f694c1c6`.
+  - Quality Gate `36928485704` success: `Tests 3354 passed (3354)` ×3, `Test Files 229` ×3, `# tests 24` ×4 for the activity server suite, and 132 zero `# fail` / `# skipped` lines (none non-zero).
+  - prerender-capture `36928485842`: "committed artifact matches a fresh capture."
+- **`#893` production live proof** *(builder-reported)*:
+  - The live chunk has `/api/activity`, 30 s, cap 50 and keepalive.
+  - Signed out → 401, and nothing was written.
+  - A signed-in SPA browse wrote sections `{notes, practice, pricing, check-improve: 1}` → 200. An unknown name → 400.
+  - Erase → `activityDays` deleted 1, parent notFound. The old token after erasure → 401 (checkRevoked).
+  - LIVE PARTIAL: three legs are owner-owed (below).
+- **`#897` CI** on head `a7c5ea68` *(controller-verified)*: Quality Gate `36944536312` success, `3362/3362` ×3, the hard-load suite (8 tests) ×3, 0 non-zero. Preview live: 3/3 hard-load sections recorded, and signed-out sent no POST *(builder-reported)*.
+- **`#896` CI** on head `6aeaef5f` *(controller-verified)*. The head came from two `update-branch` steps, and the 9 lane files are byte-identical to `1f5c23d6`. Quality Gate `36950099992` success: `Tests 3438 passed (3438)` ×3, `StudentsAdminPage` 10 ×3, `adminStudents.server` 66 ×3, 0 non-zero.
+- **`#896` production live proof** *(builder-reported)*:
+  - Chunk `assets/StudentsAdminPage-B8cTWRkE.js` returns 200 (16 908 B) and is referenced from `index-Bo_F1LOj.js`.
+  - No token → 401 on all 3 endpoints.
+  - A non-admin uid → 403 `{ok:false, error:'Forbidden: not an admin uid'}`, no-store, on 6 calls.
+  - The page as a non-admin shows "Not authorised", with no table and no `@`, on desktop and mobile.
+  - The browser-side 403 bodies were taken by curl (Playwright hung).
+- **Test accounts:** every account created this wave is erased: `LPyTGx4ymGgFPiahbAIXdSNFxYp2`, `rLlqhHv6BZV5XCCy63vuowZDNV52`, `ntojFXzWgVdJbz1vNXHwKnuSPlG3`.
+
+### Decisions (full text in `DECISION_LOG.md`)
+- **Owner D8 → D11** (standing): the prerender files are granted automatically and committed from the PR's own CI artifact, never hand-edited.
+- **D10:** the erasure race was fixed in the PR.
+- **D19:** why Railway skipped `441a9274`.
+- **D20:** the `App.tsx` grant = the route line + its import.
+- **D23** (a controller self-correction): the controller amplified a wrong finding.
+- **D30** (a controller self-correction): the controller called a slow Railway deploy stalled.
+- **D33** (owner): D30 amended; Railway "Wait for CI" OFF.
+
+### Follow-ups (bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`)
+- **New:** `[FU-ANALYTICS-HEADER-FIRST-PARTY-EXCEPTION]`, `[FU-PRIVACY-LAST-UPDATED]`, `[FU-LIVE-PROOF-KEEPALIVE-BLIND]`, `[FU-ACTIVITY-RESTORE-WINDOW-METRIC]` (optional), `[FU-ADMIN-STUDENTS-SCALE]`, `[FU-ADMIN-STUDENTS-CHECKS-SOURCE]`, `[FU-ADMIN-GATE-NO-REVOKE-CHECK]`.
+- **Kept / re-noted:** `[FU-ADMIN-GATE-TWO-COPIES]` (pre-existing; the same issue as `[FU-ADMIN-GATE-DUPLICATED]`, `#549`).
+- **Closed:** `[FU-ACTIVITY-ERASURE-RACE]` (D10, `#893`); `[FU-ACTIVITY-HARD-NAV-UNDERCOUNT]` (re-scoped / resolved by `#897`).
+
+### ★ Owner items (none run by the controller or a builder)
+1. **Firestore TTL policy:** collection group `activityDays`, field `expireAt`. *(The owner is creating it and will confirm, D33.)*
+2. **Open `/app/admin/students` as admin** (list + detail). *(It loads for the owner, D33. The list and detail checks are step 3 of `report-admin-students-1-2026-10-02.md`.)*
+3. **Real browser:** use a verifiable account to open 3 sections and run one answer check. The console doc `activityLog/<uid>/activityDays/<IST day>` should have exactly the keys `events`, `expireAt`, `firstSeenMs`, `lastSeenMs` and `sections`. Then erase the account and confirm nothing remains.
+- Carried: the owner items of the WAVE A-8 block and every block below it stand as written.
+
+### Carried forward — ★ THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this block
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.** **Wave B-7 moved NO dormancy in that trio.** The full block, including the `#647`/`#655` resolution and every subsequent restatement, stands as written in the blocks below.
+
 ## [CURRENT · OPS] WAVE A-8 — **THE PROTECTED-FILES LIST NAMES REAL FILES AGAIN · A `.env` ANYWHERE IN THE REPO IS GIT-IGNORED · GUARDS SO NEITHER CAN COME BACK (AGENTS-MD-2)** — `#894` MERGED — trunk `abb7c055`
 *(Supersedes the WAVE A-7 block below on trunk SHA only. That block is demoted to previous on trunk SHA. Its content, and the owner items of every block below, stand as written, except that this block settles A-7's owner items 1 and 2. Exactly one un-superseded `[CURRENT]` remains: this one.)*
 

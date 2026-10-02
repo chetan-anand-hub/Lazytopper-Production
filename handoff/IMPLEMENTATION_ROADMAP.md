@@ -1,5 +1,15 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-02 — STUDENT DATA + ADMIN: **WAVE B-7 — STUDENT-ACTIVITY-1 + 1B + ADMIN-STUDENTS-1** — `#893` + `#897` + `#896` MERGED — trunk `a9ae2efc`
+
+- ✅ **STUDENT-ACTIVITY-1 PR-1** (`#893` `441a9274`, LIVE, no flag): a first-party, admin-only count of which sections a signed-in student opens and which named actions they take, per IST day, in `activityLog/{uid}/activityDays/{day}`. It has a 90-day `expireAt` Timestamp, holds names and counts only, and is written only by the server. It is exported and erased with the account, and the Privacy Policy says so. GA4 / Vercel are unchanged.
+- ✅ **STUDENT-ACTIVITY-1B** (`#897` `8c718fcc`, LIVE, client-only): the page-load hold is bounded in time, held hits are released only with a token in hand, and no-linking is preserved.
+- ✅ **ADMIN-STUDENTS-1** (`#896` `a9ae2efc`, LIVE): the read-only admin "Students" page at `/app/admin/students`, behind the shared `ADMIN_FIREBASE_UIDS` gate. It has a list, summary cards and a per-student day timeline, with honest coverage labels. It loads for the owner (D33).
+- ✅ **Railway "Wait for CI" OFF** (owner ruling D33): Railway deploys each merge directly.
+- ✅ **FUs:** new `[FU-ANALYTICS-HEADER-FIRST-PARTY-EXCEPTION]` · `[FU-PRIVACY-LAST-UPDATED]` · `[FU-LIVE-PROOF-KEEPALIVE-BLIND]` · `[FU-ACTIVITY-RESTORE-WINDOW-METRIC]` · `[FU-ADMIN-STUDENTS-SCALE]` · `[FU-ADMIN-STUDENTS-CHECKS-SOURCE]` · `[FU-ADMIN-GATE-NO-REVOKE-CHECK]`; re-noted `[FU-ADMIN-GATE-TWO-COPIES]`; closed `[FU-ACTIVITY-ERASURE-RACE]` · `[FU-ACTIVITY-HARD-NAV-UNDERCOUNT]`.
+- ✅ **Docs:** this handoff (covers `#893`, `#897`, `#896`; `#898` is Controller A's).
+- ⬜ **Owner:** the Firestore TTL policy (`activityDays` / `expireAt`); the admin page's list + detail checks; a real-browser record check + erasure check.
+
 ## 2026-10-01 — OPS: **WAVE A-8 — AGENTS-MD-2** — `#894` MERGED — trunk `abb7c055`
 
 - ✅ **WAVE A-7 AUDIT PASS** (owner, 2026-10-01): both A-7 findings confirmed; D5 accepted.

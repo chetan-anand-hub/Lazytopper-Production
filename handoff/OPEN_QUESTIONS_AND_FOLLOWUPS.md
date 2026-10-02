@@ -23,6 +23,53 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-02 — WAVE B-7 (CONTROLLER B): STUDENT-ACTIVITY-1 (`#893` `441a9274`) + STUDENT-ACTIVITY-1B (`#897` `8c718fcc`) + ADMIN-STUDENTS-1 (`#896` `a9ae2efc`) — seven new, one re-noted, two closed
+
+Bodies are the builders' text from `Desktop/diff/report-student-activity-1-2026-10-01.md`, `Desktop/diff/report-student-activity-1b-2026-10-02.md` and `Desktop/diff/report-admin-students-1-2026-10-02.md` ("FU entries"). Where the controller re-checked, it says so. The two closed FUs were never on this board before, so each is added here with its closure (standing rule 1).
+
+### `[FU-ANALYTICS-HEADER-FIRST-PARTY-EXCEPTION]` — OPEN *(builder-reported, `#893`)*
+Add one line to the `analytics.ts` top-of-file comment noting the owner-approved first-party activity log (STUDENT-ACTIVITY-1, ruling 2026-10-01). Otherwise a future reader following "no uid / DO NOT add identify()" may "fix" the forwarder away. This was outside the lane's "forwarder only" scope.
+
+### `[FU-PRIVACY-LAST-UPDATED]` — OPEN *(builder-reported, `#893`)*
+The privacy page header still reads "Last updated: April 2026" after two additions (GA4-1 and STUDENT-ACTIVITY-1). The same header is `[FU-GA4-PRIVACY-LAST-UPDATED]` (wave C-1), which is still open; one lane can close both.
+
+### `[FU-LIVE-PROOF-KEEPALIVE-BLIND]` — OPEN *(builder-reported, `#897`)*
+- Playwright request events and page CDP sessions do not observe a keepalive fetch issued in `pagehide`.
+- Any live proof of the activity client must use server ground truth (`/api/account/export`, capped per account) or an in-page fetch tap (Chromium PNA checks disabled for a 127.0.0.1 sink).
+- `#893`'s LIVE section reading "pricing:1 only" should be read in that light.
+
+### `[FU-ACTIVITY-RESTORE-WINDOW-METRIC]` — OPEN, optional *(builder-reported, `#897`)*
+If the owner wants to know how many signed-in loads close inside the auth-restore window, it can only be estimated anonymously (GA4 / Vercel already count those pageviews). It must never be per student.
+
+### `[FU-ADMIN-STUDENTS-SCALE]` — OPEN *(builder-reported, `#896`)*
+- The page caps its scans: `listUsers` at 10 × 1000 accounts, the plan filter at 1000 and the summary at 500. Each cap is disclosed in the UI.
+- Beyond roughly 1k sign-ups per period, a server-written daily rollup would be cheaper than per-student `count()` queries.
+
+### `[FU-ADMIN-STUDENTS-CHECKS-SOURCE]` — OPEN *(builder-reported, `#896`)*
+- Once `activityLog` has history, consider switching the list's "Answer checks" from C&I sessions to `activityLog` `check_graded` totals, using a `sum()` aggregation on a map subfield.
+- It was not done now, because coverage is about 1 day and that aggregation is unproven in this repo.
+
+### `[FU-ADMIN-GATE-NO-REVOKE-CHECK]` — OPEN *(builder-reported, `#896` production live proof)*
+- The shared admin gate's `verifyIdToken` does not use checkRevoked. An erased account's old token, cryptographically valid for up to 1 h, gets 403 instead of 401.
+- Nothing leaks: for a non-admin uid the answer can only ever be 403.
+- An admin removed from `ADMIN_FIREBASE_UIDS` is cut off immediately, because the env var is re-read on every request.
+
+### `[FU-ADMIN-GATE-TWO-COPIES]` — OPEN, pre-existing, re-noted 2026-10-02 *(builder-reported, `#896`)*
+- The `ADMIN_FIREBASE_UIDS` gate still exists as two copies: `adminTelemetry.cjs` and `adminSolutionCache.cjs`.
+- `#896` added no third copy; it reuses the `adminTelemetry` instance (`adminTelemetryRoutes.requireFirebaseAdmin`) *(controller-verified: the `index.cjs` mount line)*.
+- This is the issue recorded on this board as `[FU-ADMIN-GATE-DUPLICATED]` (from `#549`). That entry is left as written (standing rule 3); this dated re-note records that it is still true at `a9ae2efc`. A fix for `[FU-ADMIN-GATE-NO-REVOKE-CHECK]` would touch the same gate.
+
+### `[FU-ACTIVITY-ERASURE-RACE]` — **CLOSED by `#893` (`441a9274`), controller D10**
+- **Body** *(builder-reported)*: a batch verified just before an erasure can be written just after it. Options were an erasure-side tombstone, or an Auth existence re-check read inside the activity transaction.
+- **Closure:** fixed in the PR at `0f77b8ae`, with a post-write account re-check in `studentActivity.cjs` plus a second sweep in `accountErasure.cjs`, for the new collection only and with no tombstone. Mutations D10-A / D10-B went red and were restored *(builder-reported)*. Quality Gate `36901159579` passed (server 24/24) *(controller-verified, D12)*.
+- In production, an erasure reported `resweptAfterAuth:0`, and the old token was refused with 401 afterwards *(builder-reported)*.
+
+### `[FU-ACTIVITY-HARD-NAV-UNDERCOUNT]` — **RE-SCOPED / RESOLVED by `#897` (`8c718fcc`)**
+- **Body as raised** *(builder-reported, `#893` live proof)*: on a FULL page load per section, the unloading page's hits could be lost. The page-hide flush used a token cached asynchronously after the first counted hit. In production, 3 hard loads (notes, practice-hub, pricing) recorded only `pricing:1`. Possible fix: a sessionStorage carry-over.
+- **Resolution** *(builder-reported, `#897`)*: hard loads that outlive Firebase's restore (about 0.4–2.4 s after load on desktop) are recorded; this was proven live by export. The measured "undercount" was a Playwright blind spot (`[FU-LIVE-PROOF-KEEPALIVE-BLIND]`).
+- The residual is that a load which ends before its own restore loses its hits. That is by design under the no-linking rule, bounded and documented in `activityClient.ts`.
+- No sessionStorage carry-over was built (no-linking).
+
 ## 2026-10-01 — WAVE A-8 (CONTROLLER A): AGENTS-MD-2 (`#894` MERGED as `abb7c055`, squash, `--match-head-commit 5423cad7`) — two new, two closed
 
 Bodies are the builder's text from `Desktop/diff/report-agents-md-2-2026-10-01.md`; where the controller re-checked, it says so. Closures are recorded here; the dated A-7 entries below are left as written (standing rule 3).
