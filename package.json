@@ -17,12 +17,12 @@
   "devDependencies": {
     "@firebase/rules-unit-testing": "^5.0.2",
     "firebase": "^12.19.0",
-    "firebase-tools": "^15.31.0",
+    "firebase-tools": "^15.32.0",
     "prettier": "^3.9.9",
     "typescript": "~5.9.2"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.128.0",
+    "@anthropic-ai/sdk": "^0.129.0",
     "@vercel/functions": "^3.9.9"
   }
 }
