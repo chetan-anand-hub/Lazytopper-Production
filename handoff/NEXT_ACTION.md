@@ -1,3 +1,21 @@
+## ★★★ 2026-10-02 — WAVE A-9 (SEO, CONTROLLER A) — LLMS-1 CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE B-8 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
+
+**TRUNK IS `087678321fa418add419b3a08ab6987b582261ea`**, measured 2026-10-02 (`git ls-remote origin base/approved-thru-437`):
+- `08767832` = `#904` (LLMS-1: an accurate `llms.txt` listing the 60 sitemap pages, pinned to the sitemap) — **this wave**; LIVE on www and `/app/llms.txt` since 10:34:33 IST (see `CURRENT_STATE.md`)
+- `edc2563c` = `#903` (docs: wave B-8)
+
+No other PR was open at dispatch or when this docs PR was opened (`gh pr list --state open` → `[]`).
+
+### NEXT — OWNER
+- **None new from wave A-9.** `llms.txt` was owner-approved in the spec and is verified live; nothing in it waits on the owner.
+
+### Carried — still owed
+1. **The WAVE B-8 owner items** (the B-8 block below), then the WAVE B-7 and DEPS items and everything they carry.
+
+### NEXT — LANES
+- None dispatched by wave A-9 beyond `#904`. No new FU. From now on, any page added to or removed from the sitemap must be reflected in `llms.txt`, or `llmsTxt.guard.test.ts` goes red (arm (b) for an added `llms.txt` URL; the sitemap side is not pinned the other way — a new sitemap page simply will not be listed until `llms.txt` is edited).
+
 ## ★★★ 2026-10-02 — WAVE B-8 (STUDENT DATA + ADMIN, CONTROLLER B) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE B-7 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
 

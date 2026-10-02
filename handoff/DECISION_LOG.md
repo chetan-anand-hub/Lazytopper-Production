@@ -1,3 +1,16 @@
+## 2026-10-02 — WAVE A-9 (SEO, CONTROLLER A): LLMS-1 — PR `#904` merged — trunk `08767832`
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (owner rulings L1, L2, L4 of the spec `LLMS-1`, and the controller decisions of `WAVE_STATE_A9.md`), not `DECISION N`.
+
+### Owner rulings (spec `LLMS-1`, sha256 `5760488F64E7…`; payload §4 owner-approved)
+- **L1 — the payload is written byte-exact, only by the spec's own command.** The builder ran the spec's node command verbatim and never hand-edited the file; sha256 `0888eaf344e7…`, 9522 bytes, before and after commit *(builder-reported; on trunk, controller-verified)*.
+- **L2 — a new pin, not an edit to an existing guard.** `lazytopper/src/config/llmsTxt.guard.test.ts` is new; `crawlerReachability.guard.test.ts`, `domain.guard.test.ts` and `sitemapUrls.guard.test.ts` are unchanged and green with the new payload *(builder-reported)*.
+- **L4 — Predicted Questions, Check & Improve and Full Mock are left out of `llms.txt`.** **Why:** they are not in the sitemap, and a crawler gets the empty app shell there, so listing them would point an AI crawler at a page with no readable content.
+
+### Controller decisions, with the reason
+- **Built on the current tip `edc2563c`, not the spec base `59a93989`.** **Why:** the owner said "current tip". `git diff --name-only 59a93989 edc2563c -- lazytopper/public/llms.txt lazytopper/src/config/ vercel.json` was empty *(controller-verified)*, and the builder confirmed all 8 anchors on their exact cited lines at `edc2563c` *(builder-reported)*.
+- **The rulings above were applied without asking the owner again.** **Why:** they were already owner rulings in the spec. The only STOP was P9 finding a writer of `llms.txt`; it found none.
+
 ## 2026-10-02 — WAVE B-8 (STUDENT DATA + ADMIN, CONTROLLER B): ACTIVITY-DETAIL-1 — PR `#902` merged — trunk `ac2208fa`
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (owner rulings, D1, D3, D4, D8, D9, D10 of `WAVE_STATE_B8.md`), not `DECISION N`.

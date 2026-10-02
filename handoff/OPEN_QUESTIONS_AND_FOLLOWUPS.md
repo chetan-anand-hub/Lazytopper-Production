@@ -23,6 +23,10 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-02 — WAVE A-9 (CONTROLLER A): LLMS-1 (`#904` `08767832`) — none new, none closed
+
+The builder's report (`Desktop/diff/report-llms-1-2026-10-02.md`) and the controller's state file (`Desktop/diff/WAVE_STATE_A9.md`, "FU ENTRIES COLLECTED: none") record no follow-up. The docs builder found none while re-checking `#904` on trunk. No open FU on this board is plainly closed by `#904`.
+
 ## 2026-10-02 — WAVE B-8 (CONTROLLER B): ACTIVITY-DETAIL-1 (`#902` `ac2208fa`) — three new, none closed
 
 Bodies are the builder's text from `Desktop/diff/report-activity-detail-1-2026-10-02.md` ("FU entries" and "OWNER DECISION"). Where the controller decided, it says so. No open FU on this board is plainly closed by `#902`.
