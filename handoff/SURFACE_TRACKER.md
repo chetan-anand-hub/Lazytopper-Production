@@ -1,5 +1,24 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-02 — WAVE B-8 (STUDENT DATA + ADMIN, CONTROLLER B): ACTIVITY-DETAIL-1 (`#902` `ac2208fa`), trunk `ac2208fa`. LIVE on merge (no flag); the rollout is recorded in `CURRENT_STATE.md`.**
+> ★ **ONE ADMIN-ONLY CELL MOVES (Students — the student detail) and ONE CAPABILITY grows (the first-party activity record gains `pages` + `feed`).** No student-facing page's visible content changes.
+
+### ✅ ADMIN-ONLY SURFACE — Students (`/app/admin/students`) — student detail gains **"Pages visited" + "Activity"** — **LIVE (`#902`)**
+- The detail shows a "Pages visited" table and an "Activity" timeline in IST, in plain words. A B-7-shaped day (before the rollout) shows "— (not recorded)" *(builder-reported; tested and screenshotted)*.
+- Production chunk `StudentsAdminPage-RvaW9EDG.js` carries "Pages visited" and "(not recorded)" *(builder-reported)*. `GET /api/admin/students` → 401 without a token on www *(controller-verified)*.
+- ⚠ The owner's admin view of a student detail is still owed. Response size → `[FU-ACTIVITY-DETAIL-ADMIN-SIZE]`.
+- Not a student surface: no student can reach it.
+
+### ✅ CAPABILITY (not a surface) — FIRST-PARTY ACTIVITY RECORD gains `pages` + `feed` — **LIVE (`#902`)**
+- Per signed-in student per IST day: a `pages` count over a fixed 145-name allowlist (keys `/`→`~`) and an ordered `feed` of `{t,k,n}`, capped at 300 a day on the server.
+- The same `activityDays` / `expireAt` TTL; export + erasure cover the new fields with no change. The allowlist, not `normalisePath`, is the privacy boundary.
+- Legacy topic aliases record as `<prefix>/other` → `[FU-ACTIVITY-DETAIL-TOPIC-ALIASES]`. The export's "holds" description → `[FU-ACTIVITY-DETAIL-MAP-HOLDS]` (owner choice).
+
+### ⬜ NO OTHER CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- No student-facing page changed; www smoke: 8 routes, sizes == baseline *(controller-verified)*.
+
+### 📋 Scope discovered? — **NO surface scope set to Settling.** Three new follow-ups are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`; none changes a student surface's scope. Nothing goes in `DECISION_LOG` §2a.
+
 > **2026-10-02 — WAVE B-7 (STUDENT DATA + ADMIN, CONTROLLER B): STUDENT-ACTIVITY-1 (`#893` `441a9274`) + STUDENT-ACTIVITY-1B (`#897` `8c718fcc`) + ADMIN-STUDENTS-1 (`#896` `a9ae2efc`), trunk `a9ae2efc`. LIVE on merge (no flag); rollouts recorded in `CURRENT_STATE.md`.**
 > ★ **ONE STUDENT-FACING CELL MOVES (the Privacy Policy), ONE ADMIN-ONLY SURFACE IS ADDED (Students), and ONE CAPABILITY is added (a first-party activity record, not a surface; recorded the way GA4-1 was).** No other page's visible content changes.
 

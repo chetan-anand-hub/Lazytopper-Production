@@ -1,3 +1,25 @@
+## ★★★ 2026-10-02 — WAVE B-8 (STUDENT DATA + ADMIN, CONTROLLER B) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE B-7 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
+
+**TRUNK IS `ac2208fa975d62bd8f9a9cb75d73def8a323a392`**, measured 2026-10-02 (`git ls-remote origin refs/heads/base/approved-thru-437`):
+- `ac2208fa` = `#902` (ACTIVITY-DETAIL-1: pages visited + an ordered daily activity feed) — **this wave**; see ROLLOUT in `CURRENT_STATE.md`
+- `40c45073` = `#901` (docs: wave B-7)
+
+### ★ RAILWAY DEPLOYED THE MERGE COMMIT ITSELF (D9)
+`#902` was the first deploy with Railway's "Wait for CI" OFF (owner ruling D33, wave B-7). GitHub deployment `6800717839` went `in_progress` → SUCCESS by 03:41:21Z, about 2.5 min after the merge *(controller-verified)*. The ruling works.
+
+### NEXT — OWNER, ACTIVITY DETAIL — IN THIS ORDER (none of these was run by the controller or a builder)
+1. **Admin:** open a student detail on `/app/admin/students` → the "Pages visited" table and the "Activity" feed in IST; a pre-rollout B-7 day shows "— (not recorded)".
+2. **Rule on `[FU-ACTIVITY-DETAIL-MAP-HOLDS]`**: a 1-line `studentDataMap` description edit, or leave it.
+3. **(carried from B-7)** confirm the Firestore TTL policy `activityDays` / `expireAt`; the B-7 audit §8 steps.
+- The wave's test account `zERbxRKaO8MJK21McFlzUO5eLV23` is already erased *(builder-reported)*.
+
+### Carried — still owed
+4. **The WAVE B-7 owner items** (the B-7 block below), then the WAVE DEPS items and everything they carry.
+
+### NEXT — LANES
+- None dispatched by wave B-8 beyond `#902`. The new FUs are candidates: `[FU-ACTIVITY-DETAIL-MAP-HOLDS]` waits on the owner; `[FU-ACTIVITY-DETAIL-TOPIC-ALIASES]` and `[FU-ACTIVITY-DETAIL-ADMIN-SIZE]` are act-if-seen.
+
 ## ★★★ 2026-10-02 — WAVE B-7 (STUDENT DATA + ADMIN, CONTROLLER B) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE DEPS BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
 

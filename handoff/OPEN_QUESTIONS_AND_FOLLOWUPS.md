@@ -23,6 +23,22 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-02 — WAVE B-8 (CONTROLLER B): ACTIVITY-DETAIL-1 (`#902` `ac2208fa`) — three new, none closed
+
+Bodies are the builder's text from `Desktop/diff/report-activity-detail-1-2026-10-02.md` ("FU entries" and "OWNER DECISION"). Where the controller decided, it says so. No open FU on this board is plainly closed by `#902`.
+
+### `[FU-ACTIVITY-DETAIL-MAP-HOLDS]` — OPEN, **owner choice pending** *(builder-reported, `#902`; controller D8)*
+- The `studentDataMap` `holds` sentence for `activityDays` (`studentDataMap.ts:452-455`, the one the export shows a parent) still reads "first and last time seen that day, a count per section … and a count per named action … Names and counts only". It does not mention pages visited or the timed feed.
+- It does NOT affect erasure or export coverage.
+- It was not changed in `#902`, because `studentDataMap` was forbidden for B-8 and is ask-first (D8).
+- Owner choice: approve a one-line docs edit, e.g. "…, the pages visited (chapter-level names only) and an ordered list of times when a page was opened or an action taken (at most 300 a day)…", or leave it.
+
+### `[FU-ACTIVITY-DETAIL-TOPIC-ALIASES]` — OPEN *(builder-reported, `#902`)*
+Legacy topic spellings in a URL (`introduction-to-trigonometry`, PascalCase science keys) record as `<prefix>/other`. If the owner sees many `other` rows, map the known aliases on the server side of the list (still allowlisted).
+
+### `[FU-ACTIVITY-DETAIL-ADMIN-SIZE]` — OPEN *(builder-reported, `#902`)*
+The detail response can carry up to 36,000 feed entries (120 days × 300). If it is ever slow, page the feed per day.
+
 ## 2026-10-02 — WAVE B-7 (CONTROLLER B): STUDENT-ACTIVITY-1 (`#893` `441a9274`) + STUDENT-ACTIVITY-1B (`#897` `8c718fcc`) + ADMIN-STUDENTS-1 (`#896` `a9ae2efc`) — seven new, one re-noted, two closed
 
 Bodies are the builders' text from `Desktop/diff/report-student-activity-1-2026-10-01.md`, `Desktop/diff/report-student-activity-1b-2026-10-02.md` and `Desktop/diff/report-admin-students-1-2026-10-02.md` ("FU entries"). Where the controller re-checked, it says so. The two closed FUs were never on this board before, so each is added here with its closure (standing rule 1).

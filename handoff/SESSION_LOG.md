@@ -1,3 +1,27 @@
+## 2026-10-02 — WAVE B-8 (STUDENT DATA + ADMIN, CONTROLLER B) — **ACTIVITY-DETAIL-1: PAGES VISITED + AN ORDERED DAILY ACTIVITY FEED PER SIGNED-IN STUDENT, ON THE ADMIN STUDENT DETAIL** — `#902` MERGED — trunk `ac2208fa`
+
+★ **PROVENANCE.** Controller B, wave B-8. The owner spec `ACTIVITY-DETAIL-1` was hash-verified (`06FECF7883DC`), sourced from `controller-b7/ops/.specs` (D0). One builder (`claude-opus-5-5`, effort high) in its own worktree. A docs builder wrote this docs PR in `C:/Projects/LT-worktrees/b8-docs` from `WAVE_STATE_B8.md` and `report-activity-detail-1-2026-10-02.md`. *(builder-reported)* / *(controller-verified)* / *(owner)* as in `CURRENT_STATE.md`.
+
+**Timeline.**
+- **B-7 closed first** (owner order, D6): docs `#901` merged `40c45073`; `audit-request-wave-b7-final-2026-10-02.md` written.
+- **Dispatch** at trunk `40c45073` (`#901`), no open PRs. Owner rulings: pages visited + an ordered daily feed; B-7 safeguards unchanged; one builder; P7 (route patterns, page-name scheme, map-key encoding) first; OR-LIVE ALONE; Railway "Wait for CI" OFF. Controller B took B-8 because the owner assigned it (D1).
+- **Builder** *(builder-reported; report-verified by the controller, D7)*:
+  - P7: 52 routes; 18 params (12 content slugs kept, 6 collapsed); keys `/`→`~`, charset `[a-z0-9-~]`; a FIXED 145-name allowlist from `App.tsx`'s route table.
+  - Finding: `normalisePath` redacts only `/u/<token>`; every other segment passes RAW (email / uid), so the allowlist is the privacy boundary. The `F1 RAW PATH` mutation covers id/token/email names.
+  - `studentDataMap`'s "holds" text omits pages / feed; the file is forbidden for B-8 and coverage is proven, so it was left → `[FU-ACTIVITY-DETAIL-MAP-HOLDS]` (D8).
+- **`#902` gates** *(controller-verified)*: 15 files reconciled, NO forbidden file, CLEAN; Quality Gate `36959648533` `Tests 3525 passed (3525)` ×3, `# tests 39` ×3, 0 non-zero.
+- **`#902` MERGED `ac2208fa`** 03:38:49Z (`--match-head-commit fc9e7e6f`).
+- **OR-LIVE** (D9): see ROLLOUT below.
+- **Production proof** (D10) *(builder-reported)*: the day doc read through the student's own export has exactly `events`, `expireAt`, `feed`, `firstSeenMs`, `lastSeenMs`, `pages`, `sections`; four live refusals; erasure 200. C&I is premium-gated for a fresh account, so the answer check used the API fallback. The admin view is OWNER-OWED (D5).
+- This docs PR (D11), then the final audit `Desktop/diff/audit-request-wave-b8-final-<date>.md`, then STOP.
+
+ROLLOUT *(controller-verified)*: `#902` rolled out ALONE. Canary `7rk9cg9bb` caught ACTIVE 10% at 03:40:13Z, smoke PASS. Railway deployed the merge commit ITSELF (deployment `6800717839` SUCCESS by 03:41:21Z; first deploy with Wait-for-CI OFF). Vercel COMPLETE 03:56:34Z. www smoke PASS.
+
+**Lessons.**
+- **A path normaliser is not a privacy boundary unless it is proven to be one.** `normalisePath` only redacts `/u/<token>`; a fixed allowlist, with a mutation that goes red on a raw path, is what keeps personal segments out *(builder-reported)*.
+- **Whole-document erasure and export cover new fields by construction**, and a test against the real services with the real map proves it, with no change to those files *(builder-reported)*.
+- **Railway "Wait for CI" OFF works:** the merge commit deployed itself in about 2.5 min (D9).
+
 ## 2026-10-02 — WAVE B-7 (STUDENT DATA + ADMIN, CONTROLLER B) — **STUDENT-ACTIVITY-1: A FIRST-PARTY, ADMIN-ONLY RECORD OF WHAT A SIGNED-IN STUDENT USES, PER DAY, KEPT 90 DAYS · 1B: ITS PAGE-LOAD HOLD BOUNDED · ADMIN-STUDENTS-1: A READ-ONLY ADMIN "STUDENTS" PAGE** — `#893` + `#897` + `#896` MERGED — trunk `a9ae2efc`
 
 ★ **PROVENANCE.** Controller B, wave B-7. The owner spec `STUDENT-ACTIVITY-1` was hash-verified (`C20A0C0577C8`), sourced from `controller-b7/ops/.specs` (D0). One builder per PR (`claude-opus-5-5`, effort high), each in its own worktree. A docs builder wrote this docs PR in `C:/Projects/LT-worktrees/b7-docs` from `WAVE_STATE_B7.md` and the three builder reports. *(builder-reported)* / *(controller-verified)* / *(owner)* as in `CURRENT_STATE.md`.
