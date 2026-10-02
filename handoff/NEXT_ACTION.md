@@ -2,21 +2,21 @@
 *(The owner items of the WAVE A-8 block and every block below stand unchanged. Wave B-7's merges (`#893`, `#897`, `#896`) belong to B-7's own handoff.)*
 
 **TRUNK IS `a9ae2efcaf83d7bdadbf40151620f00b1a4200e0`**, measured 2026-10-02 (`git ls-remote origin refs/heads/base/approved-thru-437`):
-- `a9ae2efc` = `#896` (B-7, STUDENT-ACTIVITY-1 PR-2), which carried `#898`'s dependencies onto Railway (self-deploy `6799193524`)
-- `59a93989` = `#898` (DEPS-SEC-1) — **this lane**; Vercel COMPLETE 100%; Railway skipped this commit (see `CURRENT_STATE.md`)
+- `a9ae2efc` = `#896` (B-7, STUDENT-ACTIVITY-1 PR-2), which carried `#898`'s dependencies onto Railway (owner manual redeploy, `6799193524`; Railway Wait-for-CI is now OFF)
+- `59a93989` = `#898` (DEPS-SEC-1) — **this lane**; Vercel COMPLETE 100%; Railway skipped this commit under the old Wait-for-CI setting (see `CURRENT_STATE.md`)
 - `8c718fcc` = `#897`, `441a9274` = `#893` (B-7)
 
 Open at the time of writing, besides this docs PR: `#899` (Dependabot npm minor/patch group, 18 updates).
 
 ### NEXT — OWNER
 1. **Review `#899`.** It touches `pnpm-workspace.yaml`; confirm the 83 overrides (79 platform strips + `esbuild: 0.27.3` + esm-loader + the two DEPS-SEC-1 lines) and `minimumReleaseAge` survive.
-2. **Rule on `[FU-DEPENDABOT-VERSION-NOCHANGE-SKIPS-RAILWAY]`**: either add `ignore` entries for override-pinned deps to the npm entry in `dependabot.yml`, or stop Railway from waiting on Dependabot checks. Until then, a red Dependabot run can skip a deploy, and the fix is a manual Railway Redeploy.
+2. *(Settled by the owner, 2026-10-02.)* Railway's "Wait for CI" is OFF, so a red Dependabot run can no longer skip a deploy. Optional: `ignore` entries for override-pinned packages to stop the red runs.
 
 ### Carried — still owed
 3. **The WAVE A-8 owner items** and everything they carry.
 
 ### NEXT — LANES
-- None dispatched by this lane beyond `#898`. Candidate lanes: `[FU-DEPENDABOT-VERSION-NOCHANGE-SKIPS-RAILWAY]` (one-file `dependabot.yml` change, owner ruling first), `[FU-DEPENDABOT-ACTIONS-ENTRY-PURPOSE]` (comment-only), `[FU-RAILWAY-WAITS-ON-SEARCH-PING]`.
+- None dispatched by this lane beyond `#898`. Candidate lanes: `[FU-DEPENDABOT-VERSION-NOCHANGE-SKIPS-RAILWAY]` (optional, noise only now), `[FU-DEPENDABOT-ACTIONS-ENTRY-PURPOSE]` (comment-only).
 
 ## ★★★ 2026-10-01 — WAVE A-8 (OPS, CONTROLLER A) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-7 BLOCK BELOW ON TRUNK SHA ONLY
 *(A-7's owner item 1 (rule on the stale §4 paths) is SETTLED by `#894`. A-7's item 2 (hand `AGENTS.md` to the Razorpay consultant) is carried as item 2 below. The owner items of the WAVE B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*

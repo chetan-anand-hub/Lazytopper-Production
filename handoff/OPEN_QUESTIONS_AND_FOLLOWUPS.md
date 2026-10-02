@@ -23,15 +23,15 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
-## 2026-10-02 — WAVE DEPS (CONTROLLER A): DEPS-SEC-1 (`#898` MERGED as `59a93989`, squash, `--match-head-commit 2411bf1d`) — five new, none closed
+## 2026-10-02 — WAVE DEPS (CONTROLLER A): DEPS-SEC-1 (`#898` MERGED as `59a93989`, squash, `--match-head-commit 2411bf1d`) — four new, none closed
 
 Bodies marked *(builder-reported)* are from `Desktop/diff/report-deps-sec-1*-2026-10-02.md`; the rest are controller-verified from metadata or CI logs.
 
 ### `[FU-DEPS-OVERRIDES-LOCATION]` — OPEN (standing rule; owner noted)
 *(builder-reported, v1 experiment reverted)* Under pnpm 10.32.1, adding a `pnpm.overrides` block to the root `package.json` REPLACES the `overrides:` block in `pnpm-workspace.yaml`. The lockfile overrides went 81 → 3: all 79 platform-strip entries, the `esbuild: 0.27.3` pin and the `@esbuild-kit/esm-loader` alias were lost, and non-linux binaries and esbuild 0.28.2 came back. **Rule: overrides live ONLY in `pnpm-workspace.yaml`**, and every dependency PR proves the existing override count is preserved. A guard asserting that root `package.json` has no `pnpm.overrides` key would make this mechanical.
 
-### `[FU-DEPENDABOT-VERSION-NOCHANGE-SKIPS-RAILWAY]` — OPEN (owner ruling needed)
-*(controller-verified from run `36948681009`)* Merging the `dependabot.yml` change made Dependabot run VERSION updates on the merge commit `59a93989`. The npm job failed with `Error processing esbuild / react / react-dom (Dependabot::NpmAndYarn::FileUpdater::NoChangeError)` and `No files were updated! Package manager: pnpm`. Railway's "Wait for CI" then skipped that deploy (`6798723436` → inactive). `esbuild` is pinned by the workspace override; why `react`/`react-dom` failed is unverified (likely a pin). Each monthly npm run can repeat this on whatever trunk HEAD is current. Options: add `ignore` entries for override-pinned packages to the npm entry, or stop Railway from waiting on Dependabot checks. Fallback until then: a manual Railway Redeploy (safe when Quality Gate is green).
+### `[FU-DEPENDABOT-VERSION-NOCHANGE-SKIPS-RAILWAY]` — OPEN (deploy impact RESOLVED by the owner's ruling; noise remains)
+*(controller-verified from run `36948681009`)* Merging the `dependabot.yml` change made Dependabot run VERSION updates on the merge commit `59a93989`. The npm job failed with `Error processing esbuild / react / react-dom (Dependabot::NpmAndYarn::FileUpdater::NoChangeError)` and `No files were updated! Package manager: pnpm`. Railway's "Wait for CI" then skipped that deploy (`6798723436` → inactive). `esbuild` is pinned by the workspace override; why `react`/`react-dom` failed is unverified (likely a pin). Each monthly npm run can repeat this on whatever trunk HEAD is current. **Owner ruling, 2026-10-02: Railway's "Wait for CI" is OFF**, so Railway deploys each merge directly and this can no longer skip a deploy. What remains is a red Dependabot run each month. Optional fix: `ignore` entries for override-pinned packages in the npm entry.
 
 ### `[FU-DEPS-LOCK-REGEN-FROM-BASELINE]` — OPEN
 *(builder-reported)* A first lockfile regeneration made with leftover local install state also moved `protobufjs` 7.6.5 → 7.6.6 under google-gax. The builder rebuilt the lockfile from the trunk baseline, and the committed lockfile does not contain that bump. Rule for dependency lanes: regenerate from a clean checkout of trunk's lockfile, then diff the package list.
@@ -39,8 +39,8 @@ Bodies marked *(builder-reported)* are from `Desktop/diff/report-deps-sec-1*-202
 ### `[FU-DEPENDABOT-ACTIONS-ENTRY-PURPOSE]` — OPEN
 *(builder-reported, unverified by the controller)* With majors ignored (D6), the github-actions entry's own comment, which says it exists to surface major action bumps, no longer describes what it does, and the `codeql.yml` comment about "Dependabot windows" is stale. Comment-only fix; `codeql.yml` was outside this lane's grant.
 
-### `[FU-RAILWAY-WAITS-ON-SEARCH-PING]` — OPEN (owner's call)
-*(controller-verified)* On `a9ae2efc` Railway's deployment stayed `in_progress` 01:35:27Z → 01:56:55Z. All gating checks were done by 01:46:59Z, but `ping` (search-ping) took 01:35:35Z → 01:54:43Z. `8c718fcc` showed the same ~20 min pattern. If faster server deploys matter, exclude `ping` from what Railway waits on, or speed it up.
+### Note — not opened: a proposed `[FU-RAILWAY-WAITS-ON-SEARCH-PING]`
+The controller had read the ~21 min Railway wait (`ping` 01:35:35Z → 01:54:43Z) as a slow check worth speeding up. **The owner says `search-ping` waits for the Vercel rollout by design**, and the owner has since turned Wait-for-CI OFF, so there is nothing to fix.
 
 ## 2026-10-01 — WAVE A-8 (CONTROLLER A): AGENTS-MD-2 (`#894` MERGED as `abb7c055`, squash, `--match-head-commit 5423cad7`) — two new, two closed
 

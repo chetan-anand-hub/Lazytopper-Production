@@ -9,6 +9,7 @@
 - **D4b:** never change `minimumReleaseAge` or add to its exclude list; a fix under 24 h old waits.
 - **D6 (Dependabot):** monthly, `day:` dropped, majors ignored for `*`, a dated header note, every comment kept.
 - **Dependabot security updates OFF** in Settings (alerts ON); verified `dependabot_security_updates: disabled`.
+- **Railway "Wait for CI" OFF** (owner, 2026-10-02; relayed by Controller B), so Railway deploys each merge directly. The owner also stated that `a9ae2efc` was a MANUAL redeploy, and that `search-ping` waits for the Vercel rollout by design.
 - **Cofounder:** a live server Firestore round-trip after canary and www (roll back first on failure).
 
 ### Controller decisions, with the reason
@@ -17,7 +18,7 @@
 - **D7:** reuse grpc-js 1.14.5 rather than pin 1.13.6. **Why:** still major 1, adds no package, and is already exercised on the server path. **D8:** range form with the lowest fixed version as the floor. **Why:** it is the spec's own example form, blocks majors and lets patches flow.
 - **D15:** `gh pr update-branch 898` (no force, no `--admin`) after `#897` landed. **Why:** trunk protection requires an up-to-date head. The 3 lane files were proven byte-identical (0 diff lines), and the head delta == `#897`'s 2 files.
 - **D16/D19:** held the merge until `#897`'s Vercel release was COMPLETE and its Railway deploy was a success. **Why:** "rolls out alone".
-- **D23:** Railway skipped `59a93989`, so the owner was told at once (chat + push). **No rollback. Why:** www served the new frontend and the backend stayed on the healthy previous build; nothing had failed. **D28:** `a9ae2efc` (`#896`, dependency files identical) self-deployed, so no manual redeploy was needed. D5 is recorded as PARTIAL for `59a93989` itself.
+- **D23:** Railway skipped `59a93989`, so the owner was told at once (chat + push). **No rollback. Why:** www served the new frontend and the backend stayed on the healthy previous build; nothing had failed. **D28 (CORRECTED):** the controller first recorded `a9ae2efc` (`#896`, dependency files identical) as a self-deploy. The owner says it was a MANUAL redeploy. **D5 was NOT met** under the old setting, and the owner's Wait-for-CI-OFF ruling supersedes it.
 - **D30:** `#899` (Dependabot npm group) left untouched. **Why:** not in the grant; owner review.
 
 ## 2026-10-01 — WAVE A-8 (OPS, CONTROLLER A): AGENTS-MD-2 — PR `#894` merged — trunk `abb7c055`; and the WAVE A-7 AUDIT RULINGS
