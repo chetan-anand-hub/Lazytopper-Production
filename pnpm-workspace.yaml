@@ -144,6 +144,11 @@ overrides:
   "@expo/ngrok-bin>@expo/ngrok-bin-sunos-x64": "-"
   "@expo/ngrok-bin>@expo/ngrok-bin-win32-ia32": "-"
   "@expo/ngrok-bin>@expo/ngrok-bin-win32-x64": "-"
+  # DEPS-SEC-1, 2026-10-02: security floors for transitive deps whose parent pins below the fix.
+  # Scoped to the pinning parent, same major only. Overrides live HERE, never in root package.json
+  # pnpm.overrides (that block REPLACES this one under pnpm 10.32.1 - FU-DEPS-OVERRIDES-LOCATION).
+  "@firebase/firestore>@grpc/grpc-js": ">=1.14.5 <2"
+  "@scalar/json-magic>undici": ">=7.29.1 <8"
   # drizzle-kit uses esbuild internally on an older version that's vulnerable, this overrides it
   "@esbuild-kit/esm-loader": "npm:tsx@^4.21.0"
   esbuild: "0.27.3"
