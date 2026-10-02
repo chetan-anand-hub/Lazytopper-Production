@@ -706,6 +706,7 @@ async function handleRequest(req, res) {
   if (req.method === 'GET' && reqPath === '/api/admin/token-telemetry') {
     return adminTelemetryRoutes.handleGetTokenTelemetry(req, res);
   }
+  if (req.method === 'GET' && (reqPath === '/api/admin/students' || reqPath.startsWith('/api/admin/students/'))) return require('./routes/adminStudents.cjs').handleAdminStudents(req, res, { sendJson, sendJsonWithHeaders, firebaseAdmin, adminFirestore, requireAdmin: adminTelemetryRoutes.requireFirebaseAdmin }); // STUDENT-ACTIVITY-1 PR-2: admin "Students" page, READ-ONLY, behind the shared ADMIN_FIREBASE_UIDS gate (see the module)
 
   if (req.method === 'POST' && reqPath === '/api/admin/warm-question-pool') {
     const adminSecret = process.env.WARM_POOL_ADMIN_SECRET;
