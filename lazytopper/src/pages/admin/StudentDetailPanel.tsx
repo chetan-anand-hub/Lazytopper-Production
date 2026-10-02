@@ -19,8 +19,10 @@ import {
   surfaceLabel,
   type DetailResponse,
   type Refusal,
+  type ActivityFeedItem,
   type TimelineDay,
 } from "./studentsAdminModel";
+import { feedItemLabel, orderedFeed, pageRows } from "./activityDetailModel";
 
 type State =
   | { status: "loading" }
@@ -38,6 +40,59 @@ function Counts({ counts }: { counts: Record<string, number> }) {
         </span>
       ))}
     </span>
+  );
+}
+
+/** "—" for a day recorded before pages/feed existed: honest "not recorded", never "none". */
+function NotRecorded() {
+  return <span className="sa-muted">— (not recorded)</span>;
+}
+
+/** ACTIVITY-DETAIL-1 F3 — page, visits; most visits first. */
+function PagesVisited({ pages }: { pages: Record<string, number> | null | undefined }) {
+  if (!pages) return <NotRecorded />;
+  const rows = pageRows(pages);
+  if (rows.length === 0) return <span className="sa-muted">none</span>;
+  return (
+    <table className="sa-pages" data-testid="sa-pages">
+      <thead>
+        <tr>
+          <th scope="col">Page</th>
+          <th scope="col">Visits</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((r) => (
+          <tr key={r.key}>
+            <td>{r.label}</td>
+            <td className="sa-num">{r.visits}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+/** ACTIVITY-DETAIL-1 F3 — the day's feed in time order, IST clock times, plain words. */
+function ActivityFeed({ feed, truncated }: { feed: ActivityFeedItem[] | null | undefined; truncated: boolean }) {
+  if (!feed) return <NotRecorded />;
+  if (feed.length === 0) return <span className="sa-muted">none</span>;
+  return (
+    <>
+      <ol className="sa-feed" data-testid="sa-feed">
+        {orderedFeed(feed).map((item, i) => (
+          <li key={i} className="sa-feed-item">
+            <span className="sa-feed-time">{formatIstTime(item.t)}</span>
+            <span>{feedItemLabel(item)}</span>
+          </li>
+        ))}
+      </ol>
+      {truncated && (
+        <p className="sa-muted sa-feed-note">
+          Only the first {feed.length} entries of this day are listed; the counts above are complete.
+        </p>
+      )}
+    </>
   );
 }
 
@@ -76,6 +131,18 @@ function DayCard({ day }: { day: TimelineDay }) {
               <dt>Actions</dt>
               <dd>
                 <Counts counts={day.activity.events} />
+              </dd>
+            </div>
+            <div className="sa-day-row">
+              <dt>Pages visited</dt>
+              <dd>
+                <PagesVisited pages={day.activity.pages} />
+              </dd>
+            </div>
+            <div className="sa-day-row">
+              <dt>Activity</dt>
+              <dd>
+                <ActivityFeed feed={day.activity.feed} truncated={day.activity.feedTruncated === true} />
               </dd>
             </div>
           </>
@@ -209,7 +276,8 @@ export default function StudentDetailPanel({
             Sections and actions are recorded since {formatDayKey(state.data.sources.activityLog.since)}; AI usage since{" "}
             {formatDayKey(state.data.sources.usageLedger.since)}; sessions since {formatDayKey(state.data.sources.sessionRecords.since)};
             practice and mock scores since {formatDayKey(state.data.sources.practiceAttempts.since)}. Plan history is not stored, so
-            plan changes show only the dates the stored plan record keeps. Days with nothing recorded are not shown.
+            plan changes show only the dates the stored plan record keeps. Days with nothing recorded are not shown. Pages
+            visited and the activity feed began later than sections; a day from before then shows &ldquo;— (not recorded)&rdquo;.
           </p>
           {Object.entries(state.data.reads)
             .filter(([, v]) => v !== "complete")

@@ -118,7 +118,9 @@ describe("sectionOf — the section is derived from the REDACTED router path", (
   });
 
   it("hitFor reads only `path` / `name`: unknown events and malformed payloads give nothing", () => {
-    expect(hitFor("pageview", { route: "/notes/x", path: "/notes/x" })).toEqual({ kind: "section", name: "notes" });
+    // ACTIVITY-DETAIL-1: a page view also carries its allowlisted page key ("x" is no chapter).
+    expect(hitFor("pageview", { route: "/notes/x", path: "/notes/x" })).toEqual({ kind: "section", name: "notes", page: "notes~other" });
+    expect(hitFor("pageview", { path: "/u/:token" })).toEqual({ kind: "section", name: "other", page: null });
     expect(hitFor("event", { name: "check_graded" })).toEqual({ kind: "event", name: "check_graded" });
     expect(hitFor("event", { name: "page_view" })).toBeNull();
     expect(hitFor("event", { name: "made_up" })).toBeNull();
@@ -241,17 +243,31 @@ describe("batching (R2)", () => {
     expect(init.method).toBe("POST");
     expect(init.keepalive).toBe(true);
     expect((init.headers as Record<string, string>).Authorization).toBe("Bearer token-for-u1");
-    expect(h.bodies()[0]).toEqual({ sections: { home: 1, practice: 2 }, events: { check_graded: 1 } });
+    // ACTIVITY-DETAIL-1: the same batch also carries the allowlisted pages and the ordered feed.
+    expect(h.bodies()[0]).toEqual({
+      sections: { home: 1, practice: 2 },
+      events: { check_graded: 1 },
+      pages: { home: 1, "practice~science": 1, "practice-hub": 1 },
+      feed: [
+        { t: 1_000_000, k: "page", n: "home" },
+        { t: 1_000_000, k: "page", n: "practice~science" },
+        { t: 1_000_000, k: "page", n: "practice-hub" },
+        { t: 1_000_000, k: "event", n: "check_graded" },
+      ],
+    });
   });
 
-  it("★ the body carries no uid, path, URL or anything but the two count maps", async () => {
+  it("★ the body carries no uid, raw path, URL or anything but the count maps and the {t,k,n} feed", async () => {
     const h = harness(user("u1"));
     h.client.recordActivity("pageview", { route: "/notes/ohms-law", path: "/notes/ohms-law" });
     await settle();
     await h.fireTimers();
     const raw = String(h.posts[0].init.body);
-    expect(Object.keys(JSON.parse(raw))).toEqual(["sections"]);
-    expect(raw).not.toMatch(/u1|ohms|notes\/|http/);
+    const body = JSON.parse(raw);
+    expect(Object.keys(body)).toEqual(["sections", "pages", "feed"]);
+    expect(body.pages).toEqual({ "notes~other": 1 }); // not a chapter -> collapsed, never the value
+    for (const e of body.feed) expect(Object.keys(e).sort()).toEqual(["k", "n", "t"]);
+    expect(raw).not.toMatch(/u1|ohms|\/|http/);
   });
 
   it("★ at most one timed POST per 30 s", async () => {

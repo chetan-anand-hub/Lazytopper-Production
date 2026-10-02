@@ -99,7 +99,7 @@ function makeAdmin(opts = {}) {
   firestore.Timestamp = {
     fromMillis: (ms) => {
       tsCalls.push(ms);
-      return { __timestamp: ms, toMillis: () => ms };
+      return { __timestamp: ms, toMillis: () => ms, toDate: () => new Date(ms) };
     },
   };
   return { admin: { auth: () => auth, firestore }, verifyCalls, tsCalls, getUserCalls, erased };
@@ -108,7 +108,9 @@ function makeAdmin(opts = {}) {
 function applyMerge(prev, data) {
   const out = { ...(prev || {}) };
   for (const [k, v] of Object.entries(data)) {
-    if (v && typeof v === 'object' && '__increment' in v) {
+    if (Array.isArray(v)) {
+      out[k] = v; // a merge REPLACES an array (Firestore semantics)
+    } else if (v && typeof v === 'object' && '__increment' in v) {
       out[k] = (typeof out[k] === 'number' ? out[k] : 0) + v.__increment;
     } else if (v && typeof v === 'object' && !('__timestamp' in v)) {
       out[k] = applyMerge(out[k], v);
@@ -356,7 +358,9 @@ test('★ D7: an empty batch, a non-object body, or non-object sections/events a
 });
 
 test('★ D7: a body over MAX_BODY_BYTES is refused (413) and nothing is written', async () => {
-  assert.equal(MAX_BODY_BYTES, 2048);
+  // ACTIVITY-DETAIL-1 raised this from 2048: a batch now also carries page counts and up
+  // to MAX_FEED_PER_BATCH feed entries (the largest legal body is under 10 KB).
+  assert.equal(MAX_BODY_BYTES, 16384);
   const t = makeRoutes();
   const big = JSON.stringify({ sections: { home: 1 }, pad: 'x'.repeat(MAX_BODY_BYTES) });
   const declared = await t.post({ token: 'tok-u1', raw: big, contentLength: Buffer.byteLength(big) });
@@ -451,7 +455,415 @@ test('★★ R1: expireAt is a Firestore TIMESTAMP of the IST day start + 90 day
 
 test('validateBatch reads only sections/events (pure)', () => {
   const v = validateBatch({ uid: 'x', sections: { home: 2 }, events: { sign_up: 1 }, other: 1 });
-  assert.deepEqual(v, { ok: true, sections: { home: 2 }, events: { sign_up: 1 } });
+  assert.deepEqual(v, { ok: true, sections: { home: 2 }, events: { sign_up: 1 }, pages: {}, feed: [], feedTruncated: false });
+});
+
+/* ══ ACTIVITY-DETAIL-1 — pages visited + the ordered daily feed ═══════════════
+   Spec mutations that turn THIS file red (one at a time):
+     MUT-RAW  store a raw path (skip the page allowlist)  -> "★★ F1 RAW PATH"
+     MUT-CAP  drop the 300-entry day cap                  -> "★★ F2 DAY CAP"
+   Every test below runs at BOTH pinned instants (mid-day IST and 00:15 IST). */
+
+const {
+  ACTIVITY_PAGE_KEYS,
+  ACTIVITY_PAGE_NAMES,
+  encodePageKey,
+  decodePageKey,
+  MAX_FEED_PER_DAY,
+  MAX_FEED_PER_BATCH,
+} = require('./studentActivity.cjs');
+
+const INSTANTS = [
+  [MID_DAY, '2030-06-15'],
+  [IST_MIDNIGHT, '2030-02-15'],
+];
+const dayStartOf = (day) => Date.parse(`${day}T00:00:00.000+05:30`);
+const feedOf = (n, base, name = 'notes~trigonometry') =>
+  Array.from({ length: n }, (_, i) => ({ t: base + i, k: 'page', n: name }));
+
+test('F1: the page allowlist is the encoded name list, strict charset, and round-trips', () => {
+  assert.equal(ACTIVITY_PAGE_KEYS.length, ACTIVITY_PAGE_NAMES.length);
+  assert.equal(new Set(ACTIVITY_PAGE_KEYS).size, ACTIVITY_PAGE_KEYS.length, 'duplicate page key');
+  for (const name of ACTIVITY_PAGE_NAMES) {
+    const key = encodePageKey(name);
+    assert.match(key, /^[a-z0-9-]+(~[a-z0-9-]+)*$/, `unsafe map key ${key}`);
+    assert.ok(!key.includes('/') && !key.includes('.'), `${key} is not a safe Firestore map key`);
+    assert.equal(decodePageKey(key), name, `round trip failed for ${name}`);
+  }
+  // The examples the owner named are on it.
+  for (const n of ['notes/trigonometry', 'topic-hub/electricity', 'practice-hub', 'check-improve', 'pricing']) {
+    assert.ok(ACTIVITY_PAGE_NAMES.includes(n), `${n} missing`);
+  }
+});
+
+test('★★ F1 RAW PATH: a raw path, an unknown page, an id/token/email in a name, or a bad feed name refuses the WHOLE batch', async () => {
+  for (const [nowMs] of INSTANTS) {
+    const t = makeRoutes({ now: nowMs });
+    const bad = [
+      { sections: { notes: 1 }, pages: { '/notes/trigonometry': 1 } }, // a raw path
+      { sections: { notes: 1 }, pages: { 'notes/trigonometry': 1 } }, // unencoded
+      { sections: { notes: 1 }, pages: { 'notes~ohms-law': 1 } }, // not a chapter
+      { sections: { notes: 1 }, pages: { 'notes~student@example.com': 1 } },
+      { sections: { other: 1 }, pages: { 'u~3f9a0c1b2d4e5f60718293a4b5c6d7e8': 1 } }, // a QR token
+      { sections: { 'me-progress': 1 }, pages: { 'me~Ab3dEf9GhIjKlMnOpQrStUvWxYz1': 1 } }, // a uid
+      { sections: { practice: 1 }, pages: { 'practice~maths?topic=real-numbers': 1 } }, // a query string
+      { sections: { notes: 1 }, pages: { 'notes.trigonometry': 1 } },
+      { sections: { notes: 1 }, pages: { home: 1, 'secret-page': 1 } }, // one bad among good
+      { sections: { notes: 1 }, feed: [{ t: nowMs, k: 'page', n: '/notes/trigonometry' }] },
+      { sections: { notes: 1 }, feed: [{ t: nowMs, k: 'page', n: 'notes~trigonometry' }, { t: nowMs, k: 'event', n: 'what is ohms law?' }] },
+      { sections: { notes: 1 }, feed: [{ t: nowMs, k: 'question', n: 'home' }] },
+    ];
+    for (const body of bad) {
+      const r = await t.post({ token: 'tok-u1', body });
+      assert.equal(r.status, 400, `accepted ${JSON.stringify(body)}`);
+    }
+    assert.equal(t.db.sets.length, 0, 'a raw or unknown page name was recorded');
+    assert.equal(t.db.docs.size, 0);
+  }
+});
+
+test('F1: EVERY allowlisted page key is accepted and stored as a pages count (the allowlist is not dead)', async () => {
+  const t = makeRoutes();
+  for (let i = 0; i < ACTIVITY_PAGE_KEYS.length; i += 50) {
+    const chunk = ACTIVITY_PAGE_KEYS.slice(i, i + 50);
+    const r = await t.post({ token: 'tok-u1', body: { sections: { home: 1 }, pages: Object.fromEntries(chunk.map((k) => [k, 1])) } });
+    assert.equal(r.status, 200);
+  }
+  const doc = t.db.docs.get(dayPath('u1', '2030-06-15'));
+  assert.deepEqual(Object.keys(doc.pages).sort(), [...ACTIVITY_PAGE_KEYS].sort());
+});
+
+test('★★ F1: nothing but {t,k,n} and allowlisted names is stored — extra fields on a feed entry and in the body never reach Firestore', async () => {
+  for (const [nowMs, day] of INSTANTS) {
+    const t = makeRoutes({ now: nowMs });
+    const r = await t.post({
+      token: 'tok-u1',
+      body: {
+        sections: { notes: 1 },
+        events: { check_graded: 1 },
+        pages: { 'notes~trigonometry': 1 },
+        feed: [
+          { t: nowMs - 2000, k: 'page', n: 'notes~trigonometry', path: '/notes/trigonometry?oobCode=SECRET', uid: 'victim' },
+          { t: nowMs - 1000, k: 'event', n: 'check_graded', question: 'What is the SI unit of power?', answer: 'watt' },
+        ],
+        path: '/u/3f9a0c1b2d4e5f60',
+        userAgent: 'Mozilla/5.0',
+      },
+    });
+    assert.equal(r.status, 200);
+    const doc = t.db.docs.get(dayPath('u1', day));
+    assert.deepEqual(Object.keys(doc).sort(), ['events', 'expireAt', 'feed', 'firstSeenMs', 'lastSeenMs', 'pages', 'sections']);
+    assert.deepEqual(doc.feed, [
+      { t: nowMs - 2000, k: 'page', n: 'notes~trigonometry' },
+      { t: nowMs - 1000, k: 'event', n: 'check_graded' },
+    ]);
+    for (const e of doc.feed) assert.deepEqual(Object.keys(e).sort(), ['k', 'n', 't']);
+    const stored = JSON.stringify(doc);
+    for (const leak of ['oobCode', 'SECRET', 'victim', 'SI unit', 'watt', '3f9a0c1b', 'Mozilla', '/notes', '?']) {
+      assert.ok(!stored.includes(leak), `${leak} reached Firestore`);
+    }
+  }
+});
+
+test('★ F2: the feed keeps ORDER and DUPLICATES across batches (one transactional write per batch)', async () => {
+  for (const [nowMs, day] of INSTANTS) {
+    const t = makeRoutes({ now: nowMs });
+    const a = [
+      { t: nowMs - 3000, k: 'page', n: 'home' },
+      { t: nowMs - 2000, k: 'page', n: 'notes~trigonometry' },
+      { t: nowMs - 2000, k: 'page', n: 'notes~trigonometry' }, // an exact duplicate: kept
+    ];
+    await t.post({ token: 'tok-u1', body: { sections: { home: 1, notes: 2 }, pages: { home: 1, 'notes~trigonometry': 2 }, feed: a } });
+    t.setNow(nowMs + 30_000);
+    const b = [
+      { t: nowMs + 10_000, k: 'page', n: 'check-improve' },
+      { t: nowMs + 20_000, k: 'event', n: 'check_graded' },
+    ];
+    await t.post({ token: 'tok-u1', body: { sections: { 'check-improve': 1 }, events: { check_graded: 1 }, pages: { 'check-improve': 1 }, feed: b } });
+    assert.equal(t.db.sets.length, 2, 'one write per batch');
+    for (const s of t.db.sets) assert.deepEqual(s.options, { merge: true });
+    const doc = t.db.docs.get(dayPath('u1', day));
+    assert.deepEqual(doc.feed, [...a, ...b]);
+    assert.deepEqual(doc.pages, { home: 1, 'notes~trigonometry': 2, 'check-improve': 1 });
+    assert.equal(doc.feedTruncated, undefined, 'not truncated below the cap');
+  }
+});
+
+test('★ F2: a feed time is clamped into the batch\'s server-day window — never trusted as is', async () => {
+  for (const [nowMs, day] of INSTANTS) {
+    const t = makeRoutes({ now: nowMs });
+    const r = await t.post({
+      token: 'tok-u1',
+      body: {
+        sections: { home: 3 },
+        feed: [
+          { t: 1, k: 'page', n: 'home' }, // far past -> the IST day's start
+          { t: nowMs - 5, k: 'page', n: 'home' }, // inside -> kept
+          { t: nowMs + 365 * 86_400_000, k: 'page', n: 'home' }, // far future -> server now
+        ],
+      },
+    });
+    assert.equal(r.status, 200);
+    const doc = t.db.docs.get(dayPath('u1', day));
+    assert.deepEqual(doc.feed.map((e) => e.t), [dayStartOf(day), nowMs - 5, nowMs]);
+  }
+});
+
+test('★ F2: a malformed feed refuses the whole batch (non-array, too long, bad time)', async () => {
+  const t = makeRoutes();
+  assert.equal(MAX_FEED_PER_BATCH, 100);
+  for (const feed of [
+    'home',
+    { 0: { t: MID_DAY, k: 'page', n: 'home' } },
+    feedOf(MAX_FEED_PER_BATCH + 1, MID_DAY - 500, 'home'),
+    [{ t: '1790000000000', k: 'page', n: 'home' }],
+    [{ t: -5, k: 'page', n: 'home' }],
+    [{ t: 1.5, k: 'page', n: 'home' }],
+    [{ k: 'page', n: 'home' }],
+    ['home'],
+  ]) {
+    const r = await t.post({ token: 'tok-u1', body: { sections: { home: 1 }, feed } });
+    assert.equal(r.status, 400, `accepted feed ${JSON.stringify(feed).slice(0, 80)}`);
+  }
+  assert.equal(t.db.sets.length, 0);
+  // A feed with nothing counted is an empty batch.
+  assert.equal((await t.post({ token: 'tok-u1', body: { feed: [{ t: MID_DAY, k: 'page', n: 'home' }] } })).status, 400);
+});
+
+test('★★ F2 DAY CAP: the feed stops at 300 entries per student per day — SERVER-side — with feedTruncated: true, and counts stay exact', async () => {
+  assert.equal(MAX_FEED_PER_DAY, 300);
+  for (const [nowMs, day] of INSTANTS) {
+    const t = makeRoutes({ now: nowMs });
+    // Four batches of 90 = 360 entries offered; each batch counts 90 page views.
+    for (let b = 0; b < 4; b += 1) {
+      t.setNow(nowMs + b * 30_000);
+      const r = await t.post({
+        token: 'tok-u1',
+        body: {
+          sections: { notes: 45, practice: 45 },
+          pages: { 'notes~trigonometry': 45, 'practice~maths': 45 },
+          feed: feedOf(90, nowMs - 1000 + b, b % 2 ? 'practice~maths' : 'notes~trigonometry'),
+        },
+      });
+      assert.equal(r.status, 200);
+    }
+    const doc = t.db.docs.get(dayPath('u1', day));
+    assert.equal(doc.feed.length, MAX_FEED_PER_DAY, 'the day feed exceeded its cap');
+    assert.equal(doc.feedTruncated, true);
+    // The first 300 offered entries, in order: batches 0..2 whole, then 30 of batch 3.
+    assert.deepEqual(doc.feed.slice(270).map((e) => e.n), Array(30).fill('practice~maths'));
+    // Counts are EXACT beyond the cap.
+    assert.deepEqual(doc.sections, { notes: 180, practice: 180 });
+    assert.deepEqual(doc.pages, { 'notes~trigonometry': 180, 'practice~maths': 180 });
+    // A further batch on a full day changes no entry and still counts.
+    const before = JSON.stringify(doc.feed);
+    await t.post({ token: 'tok-u1', body: { sections: { home: 1 }, pages: { home: 1 }, feed: feedOf(1, nowMs, 'home') } });
+    const after = t.db.docs.get(dayPath('u1', day));
+    assert.equal(JSON.stringify(after.feed), before);
+    assert.equal(after.pages.home, 1);
+    assert.equal(after.feedTruncated, true);
+  }
+});
+
+test('F2: a client that dropped feed entries (feedTruncated: true) marks the day truncated; anything else in that field is ignored', async () => {
+  const t = makeRoutes();
+  await t.post({ token: 'tok-u1', body: { sections: { home: 1 }, feedTruncated: 'yes' } });
+  assert.equal(t.db.docs.get(dayPath('u1', '2030-06-15')).feedTruncated, undefined);
+  await t.post({ token: 'tok-u1', body: { sections: { home: 1 }, feed: feedOf(1, MID_DAY, 'home'), feedTruncated: true } });
+  assert.equal(t.db.docs.get(dayPath('u1', '2030-06-15')).feedTruncated, true);
+});
+
+test('★★ OLD SHAPE: a day written by B-7 (no pages, no feed) merges correctly when a new batch arrives', async () => {
+  for (const [nowMs, day] of INSTANTS) {
+    const t = makeRoutes({ now: nowMs });
+    const path0 = dayPath('u1', day);
+    const oldExpire = { __timestamp: expireAtMsForDay(day), toMillis: () => expireAtMsForDay(day) };
+    // Exactly what STUDENT-ACTIVITY-1 wrote: no pages, no feed, no feedTruncated.
+    t.db.docs.set(path0, {
+      firstSeenMs: nowMs - 60_000,
+      lastSeenMs: nowMs - 30_000,
+      sections: { home: 2, practice: 1 },
+      events: { check_graded: 1 },
+      expireAt: oldExpire,
+    });
+    const r = await t.post({
+      token: 'tok-u1',
+      body: {
+        sections: { home: 1, notes: 1 },
+        events: { check_graded: 1 },
+        pages: { home: 1, 'notes~electricity': 1 },
+        feed: [
+          { t: nowMs - 2000, k: 'page', n: 'home' },
+          { t: nowMs - 1000, k: 'page', n: 'notes~electricity' },
+          { t: nowMs - 500, k: 'event', n: 'check_graded' },
+        ],
+      },
+    });
+    assert.equal(r.status, 200);
+    const doc = t.db.docs.get(path0);
+    assert.equal(doc.firstSeenMs, nowMs - 60_000, 'firstSeenMs of an old-shape day was overwritten');
+    assert.equal(doc.lastSeenMs, nowMs);
+    assert.deepEqual(doc.sections, { home: 3, practice: 1, notes: 1 });
+    assert.deepEqual(doc.events, { check_graded: 2 });
+    assert.deepEqual(doc.pages, { home: 1, 'notes~electricity': 1 });
+    assert.deepEqual(doc.feed.map((e) => e.n), ['home', 'notes~electricity', 'check_graded']);
+    // TTL unchanged: the same Timestamp value, IST day start + 90 days.
+    assert.equal(doc.expireAt.toMillis(), expireAtMsForDay(day));
+  }
+});
+
+test('F4: a B-7-shaped batch (sections/events only) still writes exactly the B-7 fields — no pages, no feed', async () => {
+  const t = makeRoutes();
+  await t.post({ token: 'tok-u1', body: { sections: { practice: 1 }, events: { check_graded: 1 } } });
+  const doc = t.db.docs.get(dayPath('u1', '2030-06-15'));
+  assert.deepEqual(Object.keys(doc).sort(), ['events', 'expireAt', 'firstSeenMs', 'lastSeenMs', 'sections']);
+});
+
+test('D10 still holds with the feed: an erasure racing a detail batch leaves no day document', async () => {
+  const t = makeRoutes();
+  const r = await t.post({
+    token: 'tok-race',
+    body: { sections: { notes: 1 }, pages: { 'notes~trigonometry': 1 }, feed: feedOf(1, MID_DAY, 'notes~trigonometry') },
+  });
+  assert.equal(r.status, 401);
+  assert.deepEqual([...t.db.docs.keys()].filter((p) => p.startsWith('activityLog/racer')), []);
+});
+
+/* ── ERASURE + EXPORT, unchanged, cover the new fields (proof, not a change) ────
+   The day document produced by THIS route (pages + feed) is handed to the REAL
+   map-driven erasure and export services, loaded from the REAL studentDataMap.ts.
+   Neither file is modified by ACTIVITY-DETAIL-1. */
+
+function makeServiceFirestore(seed) {
+  const docs = new Map(Object.entries(seed));
+  const deleted = [];
+  function docRef(p) {
+    return {
+      path: p,
+      id: p.split('/').pop(),
+      collection: (n) => collRef(`${p}/${n}`),
+      async get() {
+        return { exists: docs.has(p), id: p.split('/').pop(), ref: this, data: () => docs.get(p) };
+      },
+      async delete() {
+        deleted.push(p);
+        docs.delete(p);
+      },
+      async update(fields) {
+        if (!docs.has(p)) throw new Error('NOT_FOUND');
+        docs.set(p, { ...docs.get(p), ...fields });
+      },
+    };
+  }
+  function children(collPath) {
+    const prefix = `${collPath}/`;
+    const out = [];
+    for (const p of docs.keys()) {
+      if (!p.startsWith(prefix)) continue;
+      const child = prefix + p.slice(prefix.length).split('/')[0];
+      if (!out.includes(child)) out.push(child);
+    }
+    return out;
+  }
+  function snap(paths) {
+    return { empty: paths.length === 0, size: paths.length, docs: paths.map((p) => ({ id: p.split('/').pop(), ref: docRef(p), data: () => docs.get(p) })) };
+  }
+  function collRef(p) {
+    return {
+      path: p,
+      doc: (id) => docRef(`${p}/${id}`),
+      async listDocuments() {
+        return children(p).map(docRef);
+      },
+      async get() {
+        return snap(children(p).filter((c) => docs.has(c)));
+      },
+      where(field, op, value) {
+        return { async get() { return snap(children(p).filter((c) => docs.has(c) && op === '==' && docs.get(c)[field] === value)); } };
+      },
+    };
+  }
+  return { db: { collection: collRef }, docs, deleted };
+}
+
+async function detailDayFromRoute() {
+  const t = makeRoutes();
+  const r = await t.post({
+    token: 'tok-u1',
+    body: {
+      sections: { notes: 1 },
+      events: { check_graded: 1 },
+      pages: { 'notes~trigonometry': 1 },
+      feed: [
+        { t: MID_DAY - 2000, k: 'page', n: 'notes~trigonometry' },
+        { t: MID_DAY - 1000, k: 'event', n: 'check_graded' },
+      ],
+    },
+  });
+  assert.equal(r.status, 200);
+  const p = dayPath('u1', '2030-06-15');
+  const doc = t.db.docs.get(p);
+  assert.ok(Array.isArray(doc.feed) && doc.pages, 'CONTROL: the day really carries pages + feed');
+  return { path: p, doc };
+}
+
+test('★★ ERASURE (unchanged) deletes a day carrying pages + feed', async () => {
+  const { createAccountErasureService, STATUS } = require('../services/accountErasure.cjs');
+  const { path: p, doc } = await detailDayFromRoute();
+  const other = 'activityLog/u2/activityDays/2030-06-15';
+  const store = makeServiceFirestore({ [p]: doc, [other]: { sections: { home: 1 }, pages: { home: 1 } } });
+  const users = new Set(['u1', 'u2']);
+  const admin = {
+    auth: () => ({
+      async deleteUser(uid) {
+        if (!users.has(uid)) {
+          const e = new Error('no user');
+          e.code = 'auth/user-not-found';
+          throw e;
+        }
+        users.delete(uid);
+      },
+    }),
+    storage: () => ({ bucket: () => ({ async getFiles() { return [[]]; } }) }),
+  };
+  const service = createAccountErasureService({ firebaseAdmin: admin, adminFirestore: store.db, resolveBucketName: () => 'b' });
+  const result = await service.eraseAccount('u1');
+  const row = result.locations.find((l) => l.id === 'activityLog.activityDays');
+  assert.equal(row.status, STATUS.DELETED);
+  assert.ok(store.deleted.includes(p));
+  assert.equal(store.docs.has(p), false, 'a day with pages + feed survived erasure');
+  assert.equal(store.docs.has(other), true, "another student's day was erased");
+});
+
+test('★★ EXPORT (unchanged) includes a day carrying pages + feed, every field', async () => {
+  const { createAccountExportService, EXPORT_STATUS } = require('../services/accountExport.cjs');
+  const { path: p, doc } = await detailDayFromRoute();
+  const store = makeServiceFirestore({ [p]: doc });
+  const admin = {
+    auth: () => ({ async getUser(uid) { return { uid }; } }),
+    storage: () => ({ bucket: () => ({ async getFiles() { return [[]]; } }) }),
+  };
+  const service = createAccountExportService({ firebaseAdmin: admin, adminFirestore: store.db, resolveBucketName: () => 'b' });
+  const result = await service.exportAccount('u1');
+  const row = result.locations.find((l) => l.id === 'activityLog.activityDays');
+  assert.equal(row.status, EXPORT_STATUS.EXPORTED);
+  assert.equal(row.records.length, 1);
+  const data = row.records[0].data;
+  assert.deepEqual(data.pages, { 'notes~trigonometry': 1 });
+  assert.deepEqual(data.feed, [
+    { t: MID_DAY - 2000, k: 'page', n: 'notes~trigonometry' },
+    { t: MID_DAY - 1000, k: 'event', n: 'check_graded' },
+  ]);
+  assert.deepEqual(data.sections, { notes: 1 });
+  assert.equal(data.expireAt, new Date(expireAtMsForDay('2030-06-15')).toISOString());
+});
+
+test('the erasure/export services and the data map are NOT modified by this change (byte-pinned by git, asserted here by path)', () => {
+  // The map entry that drives both is unchanged in path; the sweep template matches.
+  const { loadStudentDataMap } = require('../services/accountErasure.cjs');
+  const days = loadStudentDataMap().find((l) => l.id === 'activityLog.activityDays');
+  assert.equal(days.path, ACTIVITY_DAYS_PATH_TEMPLATE);
+  assert.equal(days.exportable, true);
 });
 
 /* ── mount + first-party ───────────────────────────────────────────────────── */

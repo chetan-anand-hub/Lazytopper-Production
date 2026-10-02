@@ -6,10 +6,14 @@
  * for a SIGNED-IN student, counts it into a batch that is POSTed to our own server
  * (`/api/activity`) at most once every 30 seconds, plus once when the page is hidden.
  *
- * ★★ WHAT LEAVES THE BROWSER: `{ sections: { name: count }, events: { name: count } }`
- * and the student's Firebase ID token in the Authorization header. No path, no URL, no
- * question, answer, score, uid field, device or timestamp. The server takes the uid from
- * the verified token and stores only allowlisted names (server/routes/studentActivity.cjs).
+ * ★★ WHAT LEAVES THE BROWSER: `{ sections: { name: count }, events: { name: count },
+ * pages: { pageKey: count }, feed: [{ t, k, n }] }` and the student's Firebase ID token in
+ * the Authorization header. A page key is an ALLOWLISTED page name (activityPages.ts —
+ * a route pattern plus a chapter/subject slug from a fixed list, never an id, token or
+ * query string); a feed entry is the time of one page view or named action, its kind and
+ * that same name — nothing else (ACTIVITY-DETAIL-1, owner ruling 2026-10-02). No raw
+ * path, no URL, no question, answer, score, uid field or device. The server takes the uid
+ * from the verified token and stores only allowlisted names (server/routes/studentActivity.cjs).
  *
  * ★★ SIGNED-IN STUDENTS ONLY, AND NEVER A LINK FROM A VISITOR TO A STUDENT.
  * A name is counted only if a non-anonymous Firebase user is signed in AT THE MOMENT
@@ -54,6 +58,8 @@
  * cannot carry an Authorization header, and the uid must come from a verified token.
  */
 
+import { pageKeyOf } from "./activityPages";
+
 /** Mirrored by server/routes/studentActivity.cjs ACTIVITY_SECTIONS — activityClient.test.ts fails on drift. */
 export const ACTIVITY_SECTIONS = [
   "home",
@@ -97,6 +103,12 @@ export const MAX_COUNT_PER_NAME = 50;
 export const MAX_EARLY_HITS = 50;
 /** The longest a hit is held for that restore; an older held hit is dropped, never attributed. */
 export const HOLD_MAX_MS = 15_000;
+/**
+ * Feed entries in one batch (ACTIVITY-DETAIL-1). A batch covers ~30 s, so a student
+ * never reaches this; beyond it the batch says `feedTruncated: true` and the counts stay
+ * exact. The server refuses a longer feed, and caps the DAY at 300 entries on its own.
+ */
+export const MAX_FEED_PER_BATCH = 100;
 
 /**
  * The section a REDACTED, router-relative path belongs to (analytics.ts `trackPageview`
@@ -139,12 +151,20 @@ export function sectionOf(routerPath: string): ActivitySection {
   }
 }
 
-type Hit = { kind: "section"; name: ActivitySection } | { kind: "event"; name: ActivityEvent };
+type Hit =
+  | { kind: "section"; name: ActivitySection; page: string | null }
+  | { kind: "event"; name: ActivityEvent };
 
-/** The ONE name a `send()` hit maps to, or null. Reads `path` / `name` and nothing else. */
+/**
+ * The name(s) a `send()` hit maps to, or null. Reads `path` / `name` and nothing else.
+ * A page view carries its section AND its encoded page key — null when the route
+ * records no page (activityPages.ts).
+ */
 export function hitFor(kind: "pageview" | "event", payload: Record<string, unknown>): Hit | null {
   if (kind === "pageview") {
-    return typeof payload.path === "string" ? { kind: "section", name: sectionOf(payload.path) } : null;
+    return typeof payload.path === "string"
+      ? { kind: "section", name: sectionOf(payload.path), page: pageKeyOf(payload.path) }
+      : null;
   }
   const name = payload.name;
   if (typeof name === "string" && (ACTIVITY_EVENTS as readonly string[]).includes(name)) {
@@ -179,6 +199,19 @@ export interface ActivitySnapshot {
   events: Record<string, number>;
 }
 
+/** One entry of the ordered feed: when (client ms), which kind, and the allowlisted name. */
+export interface ActivityFeedEntry {
+  t: number;
+  k: "page" | "event";
+  n: string;
+}
+
+export interface ActivityDetailSnapshot {
+  pages: Record<string, number>;
+  feed: ActivityFeedEntry[];
+  feedTruncated: boolean;
+}
+
 export function createActivityClient(deps: ActivityClientDeps) {
   const fetchImpl = deps.fetchImpl ?? ((url: string, init: RequestInit) => fetch(url, init));
   const now = deps.now ?? (() => Date.now());
@@ -192,6 +225,9 @@ export function createActivityClient(deps: ActivityClientDeps) {
   let queueUid: string | null = null;
   let sections: Record<string, number> = {};
   let events: Record<string, number> = {};
+  let pages: Record<string, number> = {};
+  let feed: ActivityFeedEntry[] = [];
+  let feedTruncated = false;
   let cachedToken: { uid: string; token: string } | null = null;
   let timer: unknown = null;
   let lastPostAt = -Infinity;
@@ -209,6 +245,9 @@ export function createActivityClient(deps: ActivityClientDeps) {
   function reset(): void {
     sections = {};
     events = {};
+    pages = {};
+    feed = [];
+    feedTruncated = false;
     queueUid = null;
     if (timer !== null) {
       clearTimer(timer);
@@ -225,11 +264,24 @@ export function createActivityClient(deps: ActivityClientDeps) {
     }, wait);
   }
 
-  function count(user: ActivityUser, hit: Hit): void {
+  /** `at` is when the hit HAPPENED — a held hit keeps its own time. */
+  function count(user: ActivityUser, hit: Hit, at: number): void {
     if (queueUid !== null && queueUid !== user.uid) reset(); // never send uid A's batch as uid B
     queueUid = user.uid;
     const bucket = hit.kind === "section" ? sections : events;
     bucket[hit.name] = Math.min(MAX_COUNT_PER_NAME, (bucket[hit.name] ?? 0) + 1);
+    // ACTIVITY-DETAIL-1: the page visited, and one ordered feed entry. Allowlisted names only.
+    const feedName = hit.kind === "section" ? hit.page : hit.name;
+    if (hit.kind === "section" && hit.page !== null) {
+      pages[hit.page] = Math.min(MAX_COUNT_PER_NAME, (pages[hit.page] ?? 0) + 1);
+    }
+    if (feedName !== null) {
+      if (feed.length < MAX_FEED_PER_BATCH) {
+        feed.push({ t: Math.round(at), k: hit.kind === "section" ? "page" : "event", n: feedName });
+      } else {
+        feedTruncated = true;
+      }
+    }
     // Keep a token ready so a page-hide flush can go out synchronously.
     user
       .getIdToken()
@@ -267,7 +319,7 @@ export function createActivityClient(deps: ActivityClientDeps) {
         // Signed out at resolution (or changed while the token was fetched): DROPPED.
         if (!resolved || !user || user.uid !== resolved.uid) return;
         const t = now();
-        for (const h of held) if (t - h.at <= HOLD_MAX_MS) count(user, h.hit);
+        for (const h of held) if (t - h.at <= HOLD_MAX_MS) count(user, h.hit, h.at);
       } catch {
         authState = "unavailable";
         early = [];
@@ -290,7 +342,7 @@ export function createActivityClient(deps: ActivityClientDeps) {
       if (authState !== "ready") return;
       const user = signedInUser();
       if (!user) return; // a signed-out visitor: dropped here, never counted
-      count(user, hit);
+      count(user, hit, now());
     } catch {
       /* recording must never affect the student */
     }
@@ -322,9 +374,18 @@ export function createActivityClient(deps: ActivityClientDeps) {
         if (token) cachedToken = { uid: still.uid, token }; // keep the page-hide token fresh
       }
       if (!token) return; // keep the batch; a later flush may have a token
-      const body: { sections?: Record<string, number>; events?: Record<string, number> } = {};
+      const body: {
+        sections?: Record<string, number>;
+        events?: Record<string, number>;
+        pages?: Record<string, number>;
+        feed?: ActivityFeedEntry[];
+        feedTruncated?: true;
+      } = {};
       if (Object.keys(sections).length) body.sections = sections;
       if (Object.keys(events).length) body.events = events;
+      if (Object.keys(pages).length) body.pages = pages;
+      if (feed.length) body.feed = feed;
+      if (feedTruncated) body.feedTruncated = true;
       reset();
       lastPostAt = now();
       await fetchImpl(ACTIVITY_ENDPOINT, {
@@ -343,7 +404,12 @@ export function createActivityClient(deps: ActivityClientDeps) {
     return { uid: queueUid, sections: { ...sections }, events: { ...events } };
   }
 
-  return { recordActivity, flush, snapshot };
+  /** The unsent page counts and feed (ACTIVITY-DETAIL-1) — a test seam, like snapshot(). */
+  function detailSnapshot(): ActivityDetailSnapshot {
+    return { pages: { ...pages }, feed: feed.map((e) => ({ ...e })), feedTruncated };
+  }
+
+  return { recordActivity, flush, snapshot, detailSnapshot };
 }
 
 /* ── the app's single instance ─────────────────────────────────────────────── */

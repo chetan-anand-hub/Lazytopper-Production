@@ -593,6 +593,10 @@ describe.each(INSTANTS)("adminStudents @ now=%s", (NOW) => {
         lastSeenMs: mod.istDayStartMs(d2) + 9 * 3600_000,
         sections: { "check-improve": 3, practice: 1 },
         events: { check_question_read: 1, check_graded: 1 },
+        // ACTIVITY-DETAIL-1: a B-7-shaped day (no pages / feed) is "not recorded" (null), never "none".
+        pages: null,
+        feed: null,
+        feedTruncated: false,
       });
       expect(day2.ai).toEqual({ calls: 4, costInr: 1.23, checks: 1, chapterTests: 0, mocks: 0, worksheets: 0 });
 
@@ -614,6 +618,41 @@ describe.each(INSTANTS)("adminStudents @ now=%s", (NOW) => {
       expect(r.status).toBe(200);
       expect(r.raw).not.toMatch(/POISON/);
       expect(r.raw).not.toMatch(/questionIds|perQuestionRef|title|answerText|expireAt|hourCostMicroInr/);
+    });
+
+    it("★ ACTIVITY-DETAIL-1: returns pages + the ordered feed copied field by field — allowlisted names only, nothing else from an entry", async () => {
+      const world = detailWorld();
+      const uid = STUDENT_TOKEN_UID;
+      const created = NOW - 5 * DAY;
+      const d4 = mod.addIstDays(istDayKey(created), 3);
+      const t0 = mod.istDayStartMs(d4) + 10 * 3600_000;
+      world.store[`activityLog/${uid}/activityDays/${d4}`] = {
+        firstSeenMs: t0,
+        lastSeenMs: t0 + 60_000,
+        sections: { notes: 2 },
+        events: { check_graded: 1 },
+        pages: { "notes~trigonometry": 2, "POISON~raw~path": 7, "/notes/x": 1 },
+        feed: [
+          { t: t0, k: "page", n: "notes~trigonometry", path: "/notes/trigonometry?POISON-QUERY", uid: "POISON-UID" },
+          { t: t0 + 1000, k: "event", n: "check_graded", answer: "POISON-ANSWER" },
+          { t: t0 + 2000, k: "page", n: "POISON-PAGE" },
+          { t: "not-a-time", k: "page", n: "home" },
+          { t: t0 + 3000, k: "question", n: "home" },
+        ],
+        feedTruncated: true,
+        expireAt: ts(mod.istDayStartMs(d4) + 90 * DAY),
+      };
+      const w = buildRoutes(world);
+      const r = await w.get(`/api/admin/students/${uid}`, "admin-token");
+      expect(r.status).toBe(200);
+      const day = (r.body.timeline as Array<{ day: string; activity: Data }>).find((d) => d.day === d4)!;
+      expect(day.activity.pages).toEqual({ "notes~trigonometry": 2 });
+      expect(day.activity.feed).toEqual([
+        { t: t0, k: "page", n: "notes~trigonometry" },
+        { t: t0 + 1000, k: "event", n: "check_graded" },
+      ]);
+      expect(day.activity.feedTruncated).toBe(true);
+      expect(r.raw).not.toMatch(/POISON/);
     });
 
     it("404 for an unknown uid; 400 for a malformed one", async () => {

@@ -75,10 +75,30 @@ export interface PlanEvent {
   pricePaidInr?: number | null;
 }
 
+/** One feed entry as the admin API returns it: time (ms), kind, allowlisted name. */
+export interface ActivityFeedItem {
+  t: number;
+  k: "page" | "event";
+  n: string;
+}
+
 export interface TimelineDay {
   day: string;
   dayNumber: number | null;
-  activity: { firstSeenMs: number | null; lastSeenMs: number | null; sections: Record<string, number>; events: Record<string, number> } | null;
+  activity: {
+    firstSeenMs: number | null;
+    lastSeenMs: number | null;
+    sections: Record<string, number>;
+    events: Record<string, number>;
+    /**
+     * ACTIVITY-DETAIL-1. Page key ("~"-encoded, allowlisted) -> visits. null or absent =
+     * not recorded that day (a day from before the change, or a server not yet rolled out).
+     */
+    pages?: Record<string, number> | null;
+    /** The day's ordered feed; null or absent = not recorded that day. */
+    feed?: ActivityFeedItem[] | null;
+    feedTruncated?: boolean;
+  } | null;
   ai: { calls: number; costInr: number; checks: number; chapterTests: number; mocks: number; worksheets: number } | null;
   sessions: { surface: string; subject: string | null; topics: string[]; marksAwarded: number | null; marksTotal: number | null; status: string | null; atMs: number | null }[];
   practice: { attempts: number; correct: number; marksScored: number; marksAvailable: number } | null;
