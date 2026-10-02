@@ -1,3 +1,14 @@
+# ===========================================================================
+# DATED NOTE — 2026-10-02, lane DEPS-SEC-1. Prepended; every comment below is unchanged.
+# ===========================================================================
+# 2026-10-02, DEPS-SEC-1: monthly, majors excluded (planned lanes); Dependabot
+# SECURITY updates switched OFF by the owner in Settings — they always fail for
+# pnpm transitive deps and their red runs made Railway skip deploys; alerts stay
+# ON and are fixed by lanes.
+#
+#   Verified 2026-10-02: .security_and_analysis.dependabot_security_updates.status
+#   -> "disabled". The SUPPLY-2 "enabled" reading below is therefore history.
+#
 # Dependabot VERSION updates for LazyTopper.
 # Lane SUPPLY-1, 2026-08-03. Companion file: .github/workflows/codeql.yml
 #
@@ -61,6 +72,7 @@
 # ---------------------------------------------------------------------------
 # WHY WEEKLY AND WHY THE LIMITS ARE LOW
 # ---------------------------------------------------------------------------
+# 2026-10-02, DEPS-SEC-1: the cadence is now MONTHLY (no day: key) and semver-major updates are IGNORED (majors are planned lanes); the weekly/stagger/major-PR text below is the SUPPLY-1 history.
 # Two independent costs, both real in this repo:
 #
 #  1. CI weight. Every PR runs quality-gate.yml: a Firestore emulator (Java), a
@@ -124,11 +136,13 @@ updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: "monthly"
       time: "06:00"
       timezone: "Asia/Kolkata"
     open-pull-requests-limit: 1
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     commit-message:
       prefix: "chore(deps)"
       prefix-development: "chore(deps-dev)"
@@ -149,11 +163,13 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "tuesday"
+      interval: "monthly"
       time: "06:00"
       timezone: "Asia/Kolkata"
     open-pull-requests-limit: 1
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     commit-message:
       prefix: "chore(deps)"
     groups:
@@ -171,10 +187,12 @@ updates:
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "tuesday"
+      interval: "monthly"
       time: "06:00"
       timezone: "Asia/Kolkata"
     open-pull-requests-limit: 1
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     commit-message:
       prefix: "chore(deps)"
