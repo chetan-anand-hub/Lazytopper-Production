@@ -1,3 +1,22 @@
+## 2026-10-02 — WAVE B-8 (STUDENT DATA + ADMIN, CONTROLLER B): ACTIVITY-DETAIL-1 — PR `#902` merged — trunk `ac2208fa`
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (owner rulings, D1, D3, D4, D8, D9, D10 of `WAVE_STATE_B8.md`), not `DECISION N`.
+
+### Owner rulings (dispatch message 2026-10-02)
+- **Order:** finish B-7 first (docs PR + final audit with the Railway "Wait for CI" OFF ruling), then start B-8.
+- **Scope:** pages visited + an ordered daily feed; B-7 safeguards unchanged (names/paths only, admin-only, the same `activityDays`/`expireAt` TTL, export + erasure).
+- **Builder:** one, `claude-opus-5-5`, effort high, in its own fresh worktree; P7 (route patterns, page-name scheme, map-key encoding) first.
+- **Grant:** exactly the spec's §1 ALLOWED; `analytics.ts` read/import only. If erasure or export would need a change → STOP and ASK.
+- **OR-LIVE:** rolls out alone; canary by the rolling-release URL, then www. With Railway "Wait for CI" OFF, confirm Railway deployed the merge commit itself; if not, tell the owner immediately.
+
+### Controller decisions, with the reason
+- **D1 — Controller B takes B-8.** The context addendum §1 says a controller that finishes a wave stands down. **Why it did not:** the owner explicitly assigned B-8 to this controller, and an owner instruction governs over the addendum's rule. A separate state file was kept (`WAVE_STATE_B8.md`).
+- **D3 — the feed's order needs a transactional read-modify-write.** `arrayUnion` can keep neither order nor duplicates, so the server appends the feed in a transaction, still with at most one write per batch. The builder recorded the mechanism and the cap: one `tx.set` per batch (tested), and the 300-a-day cap enforced on the server inside the transaction, with exact counts beyond it and `feedTruncated: true` *(builder-reported)*.
+- **D4 — the page-name allowlist.** Route patterns from `App.tsx` (read only) plus a strict charset. A param segment (e.g. a chapter slug) must match a defined source or pattern the builder records. ANY segment that could hold an id / token / uid / email is collapsed to the pattern name, never its value. An unknown or raw path refuses the whole batch. **Why:** no value outside a fixed list can be stored. Outcome: a 145-name allowlist (D7).
+- **D8 — the `studentDataMap` "holds" text is left as is.** The builder's owner-decision item (the `holds` sentence omits pages / feed) was NOT taken. **Why:** `studentDataMap` is FORBIDDEN for B-8, and coverage is proven unaffected, so leaving it is the safest in-scope choice. → `[FU-ACTIVITY-DETAIL-MAP-HOLDS]`, for the owner.
+- **D9 — Railway's self-deploy confirms the Wait-for-CI OFF ruling.** GitHub deployment `6800717839` went `in_progress` → SUCCESS by 03:41:21Z (about 2.5 min) for the merge commit `ac2208fa`. It was the first deploy with Wait-for-CI OFF, and the owner ruling (D33, wave B-7) works *(controller-verified)*.
+- **D10 — C&I is premium-gated for a fresh account; the answer check was proven via the API fallback.** The fresh test account could not reach Check & Improve because it is premium-gated (not because of email verification), so the builder posted `check_graded` through the API fallback (200), as the recipe allows. The day doc then showed the feed ending `check_graded` *(builder-reported)*.
+
 ## 2026-10-02 — WAVE B-7 (STUDENT DATA + ADMIN, CONTROLLER B): STUDENT-ACTIVITY-1 + 1B + ADMIN-STUDENTS-1 — PRs `#893` + `#897` + `#896` merged — trunk `a9ae2efc`
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (owner rulings, D8/D11, D10, D19, D20, D23, D30, D33), not `DECISION N`.

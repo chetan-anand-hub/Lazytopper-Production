@@ -1,5 +1,70 @@
 # LazyTopper — Current State
 
+## [CURRENT · STUDENT DATA + ADMIN] WAVE B-8 — **PAGES VISITED + AN ORDERED DAILY ACTIVITY FEED PER SIGNED-IN STUDENT, SHOWN ON THE ADMIN STUDENT DETAIL (ACTIVITY-DETAIL-1)** — `#902` MERGED — trunk `ac2208fa`
+*(Supersedes the WAVE B-7 block below on trunk SHA only. That block is demoted to previous on trunk SHA. Its content, and the owner items of every block below, stand as written. Exactly one un-superseded `[CURRENT]` remains: this one.)*
+
+★ **PROVENANCE.**
+- Controller B, wave B-8, from the owner spec `ACTIVITY-DETAIL-1` (staged at `LT-worktrees/controller-b7/ops/.specs/ACTIVITY-DETAIL-1.md`, sha256 `06FECF7883DC…`, hash-verified by the controller; D0). One builder (`claude-opus-5-5`, effort high, `builder-activity-detail-1`) in its own worktree `LT-worktrees/activity-detail-1` (`lane/activity-detail-1`).
+- *(builder-reported)* = from `Desktop/diff/report-activity-detail-1-2026-10-02.md`; *(controller-verified)* = re-checked by the controller (`Desktop/diff/WAVE_STATE_B8.md`); *(owner)* = the owner's own account.
+- **Trunk history since the last handoff** (`40c45073`, `#901`): `40c45073` → `ac2208fa` (`#902`).
+- This block covers `#902` only.
+
+### What landed
+`#902` (`ac2208fa`) is live. For each signed-in student and IST day, the activity log now also keeps a `pages` count per page name. Page names come from a fixed 145-name allowlist derived from `App.tsx`'s routes; content slugs are kept, ids/tokens/emails/uids are collapsed, and keys are encoded `/`→`~`. It also keeps an ordered `feed` of `{t, k: page|event, n}`, capped server-side at 300 per day with `feedTruncated`. The admin student detail shows "Pages visited" and an "Activity" timeline in IST, in plain words. B-7's safeguards are unchanged (names/paths only, admin-only, same `activityDays`/`expireAt` TTL, map-driven export + erasure proven to cover the new fields). `normalisePath` is NOT a privacy boundary (it redacts only `/u/<token>`); the allowlist is. Railway deployed the merge itself (Wait for CI OFF).
+
+**The privacy boundary (D7, builder finding, report-verified by the controller).** `normalisePath` redacts only `/u/<token>`; every other path segment passes RAW, including an email or a uid typed into a path. **The 145-name page allowlist is the privacy boundary**, not `normalisePath`. An unknown or raw path refuses the WHOLE batch; the `F1 RAW PATH` mutation covers id/token/email names.
+
+**B-7's safeguards — unchanged** *(builder-reported; controller-verified that no erasure / export / map / rules file is in the diff)*:
+- **Names/paths only:** the allowlist plus the rebuilt `{t,k,n}`; nothing else is stored.
+- **Admin-only:** the same gated admin route; no rules change.
+- **TTL:** the same `activityDays` / `expireAt`; the old-shape test asserts it.
+- **Export + erasure:** the files are unchanged; two tests run a day doc carrying `pages` + `feed` through the REAL erasure and export services with the REAL map.
+
+**`#902` ACTIVITY-DETAIL-1 → `ac2208fa`**, merged 2026-10-02T03:38:49Z (`--match-head-commit fc9e7e6f`), 15 files *(controller-verified)*:
+- `activityPages.ts` (new): the route-derived 145-name allowlist and the key encoding. P7: 52 routes; 18 params, 12 content slugs kept, 6 collapsed; keys `/`→`~`, charset `[a-z0-9-~]` *(controller-verified, D7)*.
+- `activityClient.ts`: sends page names and feed entries.
+- `studentActivity.cjs`: validates both, and appends the feed in a transactional read-modify-write (still one write per batch) with the 300-a-day cap enforced on the server (D3).
+- `adminStudents.cjs` + `StudentDetailPanel.tsx` (with `activityDetailModel.ts`, `studentsAdminModel.ts`, `studentsAdmin.css`): render "Pages visited" and "Activity". A B-7-shaped day shows "— (not recorded)" *(builder-reported)*.
+- Forbidden files absent: `analytics.ts`, `App.tsx`, `index.html`, rules, erasure / export / `studentDataMap`, `handoff/**` *(controller-verified)*.
+
+ROLLOUT *(controller-verified, D9)*: `#902` rolled out ALONE. Canary `7rk9cg9bb` caught ACTIVE 10% at 03:40:13Z, smoke PASS. Railway deployed the merge commit ITSELF (deployment `6800717839` SUCCESS by 03:41:21Z; the first deploy with Wait-for-CI OFF). Vercel COMPLETE 03:56:34Z. www smoke PASS.
+
+### What it disproved
+- That `normalisePath` redacts personal path segments: it redacts only `/u/<token>` *(builder-reported; controller report-verified)*.
+- That erasure / export need a change for the new fields: they do not *(builder-reported, proven by two tests)*.
+
+### Evidence
+- **CI** on head `fc9e7e6f` *(controller-verified)*: Quality Gate `36959648533` — `Tests 3525 passed (3525)` ×3, `# tests 39` ×3, 0 non-zero; all checks green.
+- **Pre-merge** *(controller-verified)*: trunk `40c45073`, rollout COMPLETE on current `pm73ekojw`, www `40c45073`; baseline 8 routes 200.
+- **Smoke** *(controller-verified, D9)*: canary `version.json` `ac2208fa`, 8 routes 200, sizes == baseline. www: 8 routes == baseline; `POST /api/activity` 401; `GET /api/admin/students` 401; `/api/health` 200.
+- **Production proof** *(builder-reported, D10)*: test uid `zERbxRKaO8MJK21McFlzUO5eLV23` browsed `/app/notes/trigonometry`, `/app/practice-hub`, `/app/pricing` and `/app/check-improve`. The answer check went through the API fallback (`check_graded` 200), because C&I is PREMIUM-GATED for a fresh account (not email verification).
+  - The day doc, read through the student's own export (200), has keys exactly `events`, `expireAt`, `feed`, `firstSeenMs`, `lastSeenMs`, `pages`, `sections`. `pages` = `{notes~trigonometry, practice-hub, pricing, check-improve: 1 each}`; `feed` = 5 `{t,k,n}` in time order ending `check_graded`; `expireAt` 2026-12-30T18:30:00Z; no `/`, `?`, `@`, uid or email in the data.
+  - Live refusals: signed out 401; raw path key 400; unknown page 400; raw feed name 400.
+  - Chunk `index-C5whtYB3.js` → `StudentsAdminPage-RvaW9EDG.js` carries "Pages visited" and "(not recorded)".
+  - Erasure 200: `activityDays` deleted 1, auth deleted; the old token → 401. One void first attempt (Git-bash path conversion; nothing recorded) was re-run.
+  - LIVE PARTIAL: the admin view of a student detail is OWNER-OWED (no admin credential, D5).
+
+### Decisions (full text in `DECISION_LOG.md`)
+- **D1:** the owner assigned B-8 to the same controller; the owner instruction governs over the addendum's stand-down rule.
+- **D3:** the feed's order needs a transactional read-modify-write.
+- **D4:** the page-name allowlist rule.
+- **D8:** the `studentDataMap` "holds" text is left as is (forbidden for B-8; coverage proven) → owner choice.
+- **D9:** Railway's self-deploy confirms the Wait-for-CI OFF ruling.
+- **D10:** C&I is premium-gated for a fresh account; the answer check was proven via the API fallback.
+
+### Follow-ups (bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`)
+- **New:** `[FU-ACTIVITY-DETAIL-MAP-HOLDS]` (owner choice pending), `[FU-ACTIVITY-DETAIL-TOPIC-ALIASES]`, `[FU-ACTIVITY-DETAIL-ADMIN-SIZE]`.
+- **Closed:** none.
+
+### ★ Owner items (none run by the controller or a builder)
+1. **Admin:** open a student detail on `/app/admin/students` → the "Pages visited" table and the "Activity" feed in IST; a pre-rollout B-7 day shows "— (not recorded)".
+2. **Rule on `[FU-ACTIVITY-DETAIL-MAP-HOLDS]`** (a 1-line `studentDataMap` description edit, or leave).
+3. **(carried from B-7)** confirm the Firestore TTL policy `activityDays` / `expireAt`; the B-7 audit §8 steps.
+- Carried: the owner items of the WAVE B-7 block and every block below it stand as written.
+
+### Carried forward — ★ THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this block
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.** **Wave B-8 moved NO dormancy in that trio.** The full block, including the `#647`/`#655` resolution and every subsequent restatement, stands as written in the blocks below.
+
 ## [CURRENT · STUDENT DATA + ADMIN] WAVE B-7 — **A FIRST-PARTY, ADMIN-ONLY RECORD OF WHICH SECTIONS A SIGNED-IN STUDENT OPENS AND WHICH NAMED ACTIONS THEY TAKE, PER IST DAY, KEPT 90 DAYS (STUDENT-ACTIVITY-1) · ITS PAGE-LOAD HOLD BOUNDED (STUDENT-ACTIVITY-1B) · A READ-ONLY ADMIN "STUDENTS" PAGE (ADMIN-STUDENTS-1)** — `#893` + `#897` + `#896` MERGED — trunk `a9ae2efc`
 *(Supersedes the WAVE DEPS block below on trunk SHA only. That block is demoted to previous on trunk SHA. Its content, and the owner items of every block below, stand as written. Exactly one un-superseded `[CURRENT]` remains: this one. ⚠ Controller A's `#898` (DEPS-SEC-1) merged inside this wave's window. It is Controller A's and is recorded by Controller A's own handoff (`#900`, `2b70eda1`, the WAVE DEPS block below); this block does not describe it.)*
 

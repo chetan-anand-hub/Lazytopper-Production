@@ -1,5 +1,13 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-02 — STUDENT DATA + ADMIN: **WAVE B-8 — ACTIVITY-DETAIL-1** — `#902` MERGED — trunk `ac2208fa`
+
+- ✅ **ACTIVITY-DETAIL-1** (`#902` `ac2208fa`, LIVE, no flag): per signed-in student per IST day, a `pages` count over a fixed 145-name allowlist derived from `App.tsx`'s routes (keys `/`→`~`), and an ordered `feed` of `{t, k: page|event, n}` capped server-side at 300 a day with `feedTruncated`. The admin student detail shows "Pages visited" and an "Activity" timeline in IST. B-7's safeguards are unchanged; export + erasure cover the new fields with no change.
+- ✅ **Railway "Wait for CI" OFF confirmed** (D9): Railway deployed the merge commit itself.
+- ✅ **FUs:** new `[FU-ACTIVITY-DETAIL-MAP-HOLDS]` · `[FU-ACTIVITY-DETAIL-TOPIC-ALIASES]` · `[FU-ACTIVITY-DETAIL-ADMIN-SIZE]`; none closed.
+- ✅ **Docs:** this handoff (covers `#902`).
+- ⬜ **Owner:** the admin view of a student detail (Pages visited + Activity); a ruling on `[FU-ACTIVITY-DETAIL-MAP-HOLDS]`; (carried from B-7) the Firestore TTL policy and the B-7 audit §8 steps.
+
 ## 2026-10-02 — STUDENT DATA + ADMIN: **WAVE B-7 — STUDENT-ACTIVITY-1 + 1B + ADMIN-STUDENTS-1** — `#893` + `#897` + `#896` MERGED — trunk `a9ae2efc`
 
 - ✅ **STUDENT-ACTIVITY-1 PR-1** (`#893` `441a9274`, LIVE, no flag): a first-party, admin-only count of which sections a signed-in student opens and which named actions they take, per IST day, in `activityLog/{uid}/activityDays/{day}`. It has a 90-day `expireAt` Timestamp, holds names and counts only, and is written only by the server. It is exported and erased with the account, and the Privacy Policy says so. GA4 / Vercel are unchanged.
