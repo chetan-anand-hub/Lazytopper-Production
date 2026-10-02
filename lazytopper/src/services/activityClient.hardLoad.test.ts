@@ -64,7 +64,31 @@ async function hardLoad() {
   };
 }
 
-const bodies = () => posts.map((p) => JSON.parse(String(p.init.body)));
+/**
+ * ACTIVITY-DETAIL-1: a batch now also carries `pages` and the ordered `feed`, whose times
+ * come from the real clock in a hard load. These suites pin WHO is recorded, so they read
+ * the COUNT maps; `countsOf` first asserts the body holds nothing but the four ruled
+ * fields, and that every page key / feed name is one of the hits these tests made — so a
+ * visitor's hit cannot ride along in the detail fields unseen. (The raw-text NO-LINKING
+ * checks below still read the WHOLE body.)
+ */
+function countsOf(raw: string): Record<string, unknown> {
+  const b = JSON.parse(raw) as Record<string, unknown>;
+  for (const k of Object.keys(b)) expect(["sections", "events", "pages", "feed", "feedTruncated"]).toContain(k);
+  const out: Record<string, unknown> = {};
+  if (b.sections) out.sections = b.sections;
+  if (b.events) out.events = b.events;
+  // Every page counted is a page the counts saw, and the feed is exactly those hits.
+  const pages = (b.pages ?? {}) as Record<string, number>;
+  const feed = (b.feed ?? []) as Array<{ t: number; k: string; n: string }>;
+  const sectionTotal = Object.values((b.sections ?? {}) as Record<string, number>).reduce((a, n) => a + n, 0);
+  const eventTotal = Object.values((b.events ?? {}) as Record<string, number>).reduce((a, n) => a + n, 0);
+  expect(Object.values(pages).reduce((a, n) => a + n, 0)).toBeLessThanOrEqual(sectionTotal);
+  expect(feed.filter((e) => e.k === "event").length).toBe(eventTotal);
+  expect(feed.filter((e) => e.k === "page").length).toBe(Object.values(pages).reduce((a, n) => a + n, 0));
+  return out;
+}
+const bodies = () => posts.map((p) => countsOf(String(p.init.body)));
 
 beforeEach(() => {
   posts = [];
@@ -233,7 +257,7 @@ describe("the hold is bounded, and a queued batch always has a token", () => {
     await settle();
     expect(h.c.snapshot()).toEqual({ uid: "u6", sections: { notes: 1 }, events: {} });
     await h.c.flush(true); // the pagehide path: synchronous, cached token
-    expect(h.sent).toEqual([JSON.stringify({ sections: { notes: 1 } })]);
+    expect(h.sent.map(countsOf)).toEqual([{ sections: { notes: 1 } }]);
   });
 
   it("PIN: a timed flush whose token arrives AFTER a pagehide flush sent the batch posts nothing (no empty `{}` batch — the server answers 400)", async () => {
@@ -256,9 +280,9 @@ describe("the hold is bounded, and a queued batch always has a token", () => {
     deferNext = true;
     const timed = h.c.flush(false); // awaiting a fresh token
     await h.c.flush(true); // the page goes away meanwhile: sent with the cached token
-    expect(h.sent).toEqual([JSON.stringify({ sections: { pricing: 1 } })]); // control: sent AT pagehide
+    expect(h.sent.map(countsOf)).toEqual([{ sections: { pricing: 1 } }]); // control: sent AT pagehide
     giveToken("tok-u8-fresh");
     await timed;
-    expect(h.sent).toEqual([JSON.stringify({ sections: { pricing: 1 } })]);
+    expect(h.sent.map(countsOf)).toEqual([{ sections: { pricing: 1 } }]);
   });
 });

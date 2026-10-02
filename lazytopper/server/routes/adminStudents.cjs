@@ -43,7 +43,13 @@
 
 const { deriveEffectiveTier, toMillis } = require('../services/entitlement.cjs');
 const { istDayKey } = require('../services/rateLimiter.cjs');
-const { ACTIVITY_COLLECTION, ACTIVITY_SEGMENTS } = require('./studentActivity.cjs');
+const {
+  ACTIVITY_COLLECTION,
+  ACTIVITY_SEGMENTS,
+  ACTIVITY_EVENTS,
+  MAX_FEED_PER_DAY,
+  isPageKey,
+} = require('./studentActivity.cjs');
 const {
   USAGE_LEDGER_COLLECTION,
   LEDGER_SEGMENTS,
@@ -132,6 +138,39 @@ function finiteOrNull(value) {
 function countOf(value) {
   const n = Number(value);
   return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+}
+
+/**
+ * ACTIVITY-DETAIL-1 — a day's `pages` map, copied key by key: ONLY a key in the server's
+ * page allowlist (studentActivity.cjs isPageKey) survives, still in its stored "~" form
+ * (the admin view decodes it). `null` when the day has no `pages` field — a day recorded
+ * before this change — so the view can say "not recorded", never "none".
+ */
+function activityPagesOf(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const pages = {};
+  for (const [k, n] of Object.entries(value)) {
+    if (isPageKey(k)) pages[k] = countOf(n);
+  }
+  return pages;
+}
+
+/**
+ * ACTIVITY-DETAIL-1 — a day's ordered `feed`, rebuilt entry by entry as `{ t, k, n }`
+ * with an allowlisted name only; anything else on an entry is never returned. At most
+ * MAX_FEED_PER_DAY entries (the writer's own cap). `null` when the day has no feed.
+ */
+function activityFeedOf(value) {
+  if (!Array.isArray(value)) return null;
+  const feed = [];
+  for (const e of value.slice(0, MAX_FEED_PER_DAY)) {
+    if (!e || typeof e !== 'object') continue;
+    const t = finiteOrNull(e.t);
+    if (t === null) continue;
+    if (e.k === 'page' && isPageKey(e.n)) feed.push({ t, k: 'page', n: e.n });
+    else if (e.k === 'event' && ACTIVITY_EVENTS.includes(e.n)) feed.push({ t, k: 'event', n: e.n });
+  }
+  return feed;
 }
 
 function parseAuthTime(value) {
@@ -504,7 +543,7 @@ function createAdminStudentsRoutes(deps = {}) {
       safeDocs(studentDoc(SUBSCRIPTIONS_COLLECTION).collection(READ_SEGMENTS.payments)
         .orderBy('grantedAt', 'desc').limit(DETAIL_LIMITS.payments).select('passType', 'pricePaidInr', 'grantedAt')),
       safeDocs(activityDays(uid).orderBy('firstSeenMs', 'desc').limit(DETAIL_LIMITS.activityDays)
-        .select('firstSeenMs', 'lastSeenMs', 'sections', 'events')),
+        .select('firstSeenMs', 'lastSeenMs', 'sections', 'events', 'pages', 'feed', 'feedTruncated')),
       safeDocs(
         (docId
           ? studentDoc(USAGE_LEDGER_COLLECTION).collection(LEDGER_SEGMENTS.days).orderBy(docId, 'desc')
@@ -556,6 +595,10 @@ function createAdminStudentsRoutes(deps = {}) {
         lastSeenMs: finiteOrNull(v.lastSeenMs),
         sections,
         events,
+        // ACTIVITY-DETAIL-1: pages visited + the ordered feed (null = not recorded that day).
+        pages: activityPagesOf(v.pages),
+        feed: activityFeedOf(v.feed),
+        feedTruncated: v.feedTruncated === true,
       };
     }
 

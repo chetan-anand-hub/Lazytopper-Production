@@ -12,9 +12,13 @@
  *     Only the Admin SDK (this file, erasure, export, and PR-2's admin page) reaches it.
  *   - NAMES ONLY. A day document holds exactly: `firstSeenMs`, `lastSeenMs`,
  *     `sections` (count per section name), `events` (count per event name) and
- *     `expireAt`. The request body may carry ONLY allowlisted names and small integer
- *     counts; every other byte of it is ignored. No question text, answer, image, free
- *     text, question id, score, device, IP, user agent or URL is ever stored.
+ *     `expireAt` — and, since ACTIVITY-DETAIL-1 (owner ruling 2026-10-02), `pages`
+ *     (count per ALLOWLISTED page name, encoded "/"->"~"), `feed` (an ordered list of
+ *     `{ t, k, n }`: a time, "page"|"event", and an allowlisted name; at most
+ *     MAX_FEED_PER_DAY per day, enforced here) and `feedTruncated` (true once capped).
+ *     The request body may carry ONLY allowlisted names, small integer counts and feed
+ *     times; every other byte of it is ignored. No question text, answer, image, free
+ *     text, question id, score, device, IP, user agent, raw path or URL is ever stored.
  *   - 90-DAY RETENTION. `expireAt` is a Firestore TIMESTAMP (a TTL policy ignores a
  *     number): the instant the IST day began, plus 90 days.
  *   - SIGNED-IN STUDENTS ONLY. The uid comes from a VERIFIED Firebase ID token and from
@@ -95,9 +99,114 @@ const ACTIVITY_EVENTS = Object.freeze([
   'check_graded',
 ]);
 
+/**
+ * ★★ THE PAGE ALLOWLIST (ACTIVITY-DETAIL-1, owner ruling 2026-10-02, F1). Built from the
+ * same parts, in the same order, as src/services/activityPages.ts ACTIVITY_PAGE_NAMES —
+ * src/services/activityPages.test.ts requires THIS module and fails if the two lists
+ * differ, and fails if App.tsx gains a route the client has not classified.
+ *
+ * A page name is a route pattern plus, where the route has one, a CONTENT slug from a
+ * fixed list (a chapter of the app's topic registry, a subject, a legal page) — or the
+ * literal `other`. Never an id, token, uid, email, attempt or query string: no list can
+ * hold one, and a name outside the list refuses the WHOLE batch.
+ *
+ * ★ STORED ENCODED: "/" becomes "~" so a name is a safe Firestore map key (`pages`), over
+ * the strict charset [a-z0-9-~]. The feed's `n` carries the same encoded key. Only the
+ * admin view decodes it.
+ */
+const ACTIVITY_TOPIC_SLUGS = Object.freeze([
+  'real-numbers',
+  'polynomials',
+  'pair-of-linear-equations',
+  'quadratic-equations',
+  'arithmetic-progression',
+  'triangles',
+  'coordinate-geometry',
+  'trigonometry',
+  'circles',
+  'areas-related-to-circles',
+  'surface-areas-and-volumes',
+  'statistics',
+  'probability',
+  'chemical-reactions-and-equations',
+  'acids-bases-and-salts',
+  'metals-and-non-metals',
+  'carbon-and-its-compounds',
+  'light-reflection-and-refraction',
+  'human-eye-and-colourful-world',
+  'electricity',
+  'magnetic-effects-of-electric-current',
+  'life-processes',
+  'control-and-coordination',
+  'how-do-organisms-reproduce',
+  'heredity',
+  'our-environment',
+]);
+const ACTIVITY_SUBJECTS = Object.freeze(['maths', 'science']);
+const ACTIVITY_LEGAL_SLUGS = Object.freeze(['privacy', 'terms', 'refund']);
+const OTHER_VALUE = 'other';
+const ACTIVITY_STATIC_PAGES = Object.freeze([
+  'home',
+  'welcome',
+  'browse',
+  'intent',
+  'pricing',
+  'cbse/class-10',
+  'teacher',
+  'onboarding',
+  'topic-hub',
+  'highly-probable',
+  'exam-simulation',
+  'practice-hub',
+  'practice/worksheets',
+  'practice/worksheets/ready',
+  'weak-area-practice',
+  'check-improve',
+  'exam-trends',
+  'me',
+  'mock-paper/other',
+]);
+const TOPIC_VALUES = [...ACTIVITY_TOPIC_SLUGS, OTHER_VALUE];
+const SUBJECT_VALUES = [...ACTIVITY_SUBJECTS, OTHER_VALUE];
+const ACTIVITY_PAGE_NAMES = Object.freeze([
+  ...ACTIVITY_STATIC_PAGES,
+  ...[...ACTIVITY_LEGAL_SLUGS, OTHER_VALUE].map((v) => `legal/${v}`),
+  ...[...ACTIVITY_SUBJECTS, ...TOPIC_VALUES].map((v) => `topic-hub/${v}`),
+  ...TOPIC_VALUES.map((v) => `notes/${v}`),
+  ...TOPIC_VALUES.map((v) => `chapter-test/${v}`),
+  ...[...ACTIVITY_SUBJECTS, ...TOPIC_VALUES].map((v) => `tutor/${v}`),
+  ...SUBJECT_VALUES.map((v) => `full-mock/${v}`),
+  ...SUBJECT_VALUES.map((v) => `highly-probable/${v}`),
+  ...SUBJECT_VALUES.map((v) => `practice/${v}`),
+]);
+/** "/" -> "~" (the one stored form) and back. */
+const encodePageKey = (name) => String(name).split('/').join('~');
+const decodePageKey = (key) => String(key).split('~').join('/');
+const ACTIVITY_PAGE_KEYS = Object.freeze(ACTIVITY_PAGE_NAMES.map(encodePageKey));
+/** Belt and braces on top of the list: the only characters a stored key may hold. */
+const PAGE_KEY_CHARSET = /^[a-z0-9-]+(~[a-z0-9-]+)*$/;
+function isPageKey(key) {
+  return typeof key === 'string' && PAGE_KEY_CHARSET.test(key) && ACTIVITY_PAGE_KEYS.includes(key);
+}
+
+/* ── The ordered feed (ACTIVITY-DETAIL-1, F2). ───────────────────────────────── */
+/** ★★ The day's feed holds at most this many entries — enforced HERE, never trusted to the
+ *  client. Counts (`sections` / `events` / `pages`) stay exact beyond it; the day is then
+ *  marked `feedTruncated: true`. */
+const MAX_FEED_PER_DAY = 300;
+/** Entries in one batch; the client sends at most this many (a batch covers ~30 s). */
+const MAX_FEED_PER_BATCH = 100;
+const FEED_KINDS = Object.freeze(['page', 'event']);
+
 /* ── Abuse bounds (D7). Conservative; each is pinned by a test. ─────────────── */
-/** The largest legal body is ~600 bytes (20 names at the max count). */
-const MAX_BODY_BYTES = 2048;
+/**
+ * B-7's batch was ~600 bytes (20 names). ACTIVITY-DETAIL-1 adds up to MAX_PAGE_NAMES_PER_BATCH
+ * page counts (~35 bytes each) and MAX_FEED_PER_BATCH feed entries (~65 bytes each), so
+ * the largest legal body is under 10 KB; 16 KB leaves room and still refuses a flood.
+ */
+const MAX_BODY_BYTES = 16384;
+/** Distinct page names in one batch (a batch covers ~30 s). */
+const MAX_PAGE_NAMES_PER_BATCH = 60;
 /** Every allowlisted name at once is 12 + 8 = 20. */
 const MAX_NAMES_PER_BATCH = ACTIVITY_SECTIONS.length + ACTIVITY_EVENTS.length;
 /** The client clamps to the same value; a batch covers at most ~30 seconds. */
@@ -128,14 +237,17 @@ function isPlainObject(v) {
 }
 
 /**
- * Validate a batch. Reads ONLY `sections` and `events`; anything else in the body
- * (a `uid`, a path, a question) is never looked at, so it can never be stored.
- * One unknown name, or one out-of-range count, refuses the WHOLE batch.
+ * Validate a batch. Reads ONLY `sections`, `events`, `pages`, `feed` and `feedTruncated`;
+ * anything else in the body (a `uid`, a raw path, a question) is never looked at, so it
+ * can never be stored. One unknown name, one out-of-range count or one malformed feed
+ * entry refuses the WHOLE batch. A feed entry is REBUILT as `{ t, k, n }` — any other
+ * field on it is dropped, never stored.
  */
 function validateBatch(body) {
   if (!isPlainObject(body)) return { ok: false, error: 'body must be a JSON object' };
-  const out = { sections: {}, events: {} };
+  const out = { sections: {}, events: {}, pages: {}, feed: [], feedTruncated: body.feedTruncated === true };
   let names = 0;
+  let pageNames = 0;
   for (const [field, allow] of [['sections', ACTIVITY_SECTIONS], ['events', ACTIVITY_EVENTS]]) {
     const value = body[field];
     if (value === undefined) continue;
@@ -150,8 +262,49 @@ function validateBatch(body) {
       out[field][name] = count;
     }
   }
+  if (body.pages !== undefined) {
+    if (!isPlainObject(body.pages)) return { ok: false, error: 'pages must be an object' };
+    for (const [key, count] of Object.entries(body.pages)) {
+      if (!isPageKey(key)) return { ok: false, error: 'unknown page name' };
+      if (!Number.isInteger(count) || count < 1 || count > MAX_COUNT_PER_NAME) {
+        return { ok: false, error: `count out of range` };
+      }
+      pageNames += 1;
+      if (pageNames > MAX_PAGE_NAMES_PER_BATCH) return { ok: false, error: 'too many page names in one batch' };
+      out.pages[key] = count;
+    }
+  }
+  if (body.feed !== undefined) {
+    if (!Array.isArray(body.feed)) return { ok: false, error: 'feed must be an array' };
+    if (body.feed.length > MAX_FEED_PER_BATCH) return { ok: false, error: 'feed too long for one batch' };
+    for (const entry of body.feed) {
+      if (!isPlainObject(entry)) return { ok: false, error: 'feed entry must be an object' };
+      const { t, k, n } = entry;
+      if (!Number.isSafeInteger(t) || t <= 0) return { ok: false, error: 'feed time out of range' };
+      if (!FEED_KINDS.includes(k)) return { ok: false, error: 'unknown feed kind' };
+      if (k === 'page' ? !isPageKey(n) : !ACTIVITY_EVENTS.includes(n)) {
+        return { ok: false, error: 'unknown feed name' };
+      }
+      out.feed.push({ t, k, n });
+    }
+  }
   if (names === 0) return { ok: false, error: 'empty batch' };
   return { ok: true, ...out };
+}
+
+/** The UTC instant at which the IST day `dayKey` began. */
+function istDayStartMs(dayKey) {
+  return Date.parse(`${dayKey}T00:00:00.000+05:30`);
+}
+
+/**
+ * ★ A feed time is the CLIENT's clock, so it is never trusted as is: it is clamped into
+ * the batch's server-day window — [start of the IST day the batch is filed under, server
+ * now]. A far-future or far-past `t` (a wrong device clock, a forged body) becomes the
+ * window's edge; it can never place an entry on another day or after the write.
+ */
+function clampFeedTime(t, dayStart, nowMs) {
+  return Math.min(Math.max(t, dayStart), nowMs);
 }
 
 function extractBearerToken(req) {
@@ -249,13 +402,31 @@ function createStudentActivityRoutes(deps = {}) {
     if (events.length) {
       data.events = Object.fromEntries(events.map(([k, n]) => [k, FieldValue.increment(n)]));
     }
+    const pages = Object.entries(batch.pages || {});
+    if (pages.length) {
+      data.pages = Object.fromEntries(pages.map(([k, n]) => [k, FieldValue.increment(n)]));
+    }
+    const dayStart = istDayStartMs(dayKey);
+    const incoming = (batch.feed || []).map((e) => ({ t: clampFeedTime(e.t, dayStart, nowMs), k: e.k, n: e.n }));
 
-    // ONE merge write per batch. The read inside the transaction exists only so
-    // `firstSeenMs` is set once, on the day's first batch, and never overwritten by a
-    // concurrent second tab.
+    // ONE merge write per batch, inside a transaction. The read exists so `firstSeenMs`
+    // is set once, on the day's first batch, and — ACTIVITY-DETAIL-1 — so the ordered
+    // feed is a read-modify-write: arrayUnion would drop a repeated `{t,k,n}` and cannot
+    // enforce the day cap. A concurrent second tab retries the transaction, so neither
+    // batch's entries are lost and the cap holds across both.
     await adminFirestore.runTransaction(async (tx) => {
       const snap = await tx.get(ref);
-      const write = snap && snap.exists ? data : { ...data, firstSeenMs: nowMs };
+      const exists = Boolean(snap && snap.exists);
+      const write = exists ? { ...data } : { ...data, firstSeenMs: nowMs };
+      if (incoming.length || batch.feedTruncated) {
+        // A day written before this change (B-7 shape) has no `feed`: it starts empty.
+        const prev = exists ? snap.data() || {} : {};
+        const prevFeed = Array.isArray(prev.feed) ? prev.feed : [];
+        const room = Math.max(0, MAX_FEED_PER_DAY - prevFeed.length);
+        const added = incoming.slice(0, room);
+        if (added.length) write.feed = [...prevFeed, ...added];
+        if (incoming.length > room || batch.feedTruncated) write.feedTruncated = true;
+      }
       tx.set(ref, write, { merge: true });
     });
     return ref;
@@ -344,6 +515,19 @@ module.exports = {
   ACTIVITY_DAYS_PATH_TEMPLATE,
   ACTIVITY_SECTIONS,
   ACTIVITY_EVENTS,
+  ACTIVITY_TOPIC_SLUGS,
+  ACTIVITY_SUBJECTS,
+  ACTIVITY_LEGAL_SLUGS,
+  ACTIVITY_STATIC_PAGES,
+  ACTIVITY_PAGE_NAMES,
+  ACTIVITY_PAGE_KEYS,
+  encodePageKey,
+  decodePageKey,
+  isPageKey,
+  clampFeedTime,
+  MAX_FEED_PER_DAY,
+  MAX_FEED_PER_BATCH,
+  MAX_PAGE_NAMES_PER_BATCH,
   MAX_BODY_BYTES,
   MAX_NAMES_PER_BATCH,
   MAX_COUNT_PER_NAME,
