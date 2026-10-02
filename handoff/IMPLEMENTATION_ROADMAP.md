@@ -1,5 +1,14 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-02 — OPS: **WAVE DEPS — DEPS-SEC-1** — `#898` MERGED — `59a93989`
+
+- ✅ **DEPS-SEC-1** (`#898` `59a93989`; dependencies + Dependabot config, no flag): dompurify 3.4.16 (lockfile), @grpc/grpc-js 1.14.5 and undici 7.30.0 through two scoped `pnpm-workspace.yaml` overrides; all 81 existing overrides kept. Target alerts: 0 open.
+- ✅ **Dependabot:** version updates monthly, majors ignored (all three ecosystems); security updates OFF (owner, Settings).
+- ⚠ **Railway:** skipped `59a93989` (red config-triggered npm version job); `a9ae2efc` self-deployed the same dependencies.
+- ✅ **Live:** canary + www smoke PASS. Authenticated server Firestore round-trip: owner step (no test credential on disk).
+- ✅ **FUs:** new `[FU-DEPS-OVERRIDES-LOCATION]` · `[FU-DEPENDABOT-VERSION-NOCHANGE-SKIPS-RAILWAY]` · `[FU-DEPS-LOCK-REGEN-FROM-BASELINE]` · `[FU-DEPENDABOT-ACTIONS-ENTRY-PURPOSE]` · `[FU-RAILWAY-WAITS-ON-SEARCH-PING]`.
+- ⬜ **Owner:** review `#899`; rule on the Dependabot-skips-Railway FU.
+
 ## 2026-10-01 — OPS: **WAVE A-8 — AGENTS-MD-2** — `#894` MERGED — trunk `abb7c055`
 
 - ✅ **WAVE A-7 AUDIT PASS** (owner, 2026-10-01): both A-7 findings confirmed; D5 accepted.

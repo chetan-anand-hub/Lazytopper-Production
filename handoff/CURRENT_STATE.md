@@ -1,5 +1,63 @@
 # LazyTopper — Current State
 
+## [CURRENT · OPS] WAVE DEPS — **THE THREE BLOCKED SECURITY UPDATES ARE APPLIED (`@grpc/grpc-js`, `dompurify`, `undici`) · DEPENDABOT VERSION UPDATES GO MONTHLY WITH MAJORS IGNORED · DEPENDABOT SECURITY UPDATES ARE OFF (DEPS-SEC-1)** — `#898` MERGED — `59a93989`
+*(Supersedes the WAVE A-8 block below on trunk SHA only. That block is demoted to previous on trunk SHA. Its content, and the owner items of every block below, stand as written. Exactly one un-superseded `[CURRENT]` remains: this one. ⚠ Wave B-7 (Controller B) merged `#893`, `#897` and `#896` in the same window. **Those are recorded by wave B-7's own handoff, not here.** This block does not describe them.)*
+
+★ **PROVENANCE.**
+- Controller A, lane DEPS-SEC-1. Owner spec `DEPS-SEC-1` v1.0 (`4A43A8C6349C`), then v1.1 (`12551CD98599`) after the owner granted `pnpm-workspace.yaml`. Both were hash-verified by the controller and again by the builder after `cp`.
+- *(builder-reported)* = from `Desktop/diff/report-deps-sec-1-2026-10-02.md` (v1, BLOCKED) and `Desktop/diff/report-deps-sec-1-v2-2026-10-02.md` (v2, PASS). *(controller-verified)* = re-checked by the controller with `gh` / `git` metadata, CI logs, curl, or the Vercel CLI.
+- **Trunk history since the last handoff** (`85c19692`, `#895`): `441a9274` (`#893`, B-7) → `8c718fcc` (`#897`, B-7) → **`59a93989` (`#898`, this lane)** → `a9ae2efc` (`#896`, B-7).
+
+### What landed
+`#898` (`59a93989`) fixes the three vulnerable packages whose failing Dependabot security-update jobs made Railway's "Wait for CI" skip deploys (`#866`, `#893`):
+- **`dompurify` 3.4.13 → 3.4.16** by lockfile regeneration only. Its parent `jspdf` declares `^3.3.1`, which already admits the fix, so no override was needed.
+- **`@grpc/grpc-js` 1.9.16 → 1.14.5** via `"@firebase/firestore>@grpc/grpc-js": ">=1.14.5 <2"` in `pnpm-workspace.yaml`. `@firebase/firestore` declares `~1.9.0`, and no 1.9.x fix exists. 1.14.5 was already in the lockfile through `firebase-admin`, so no new package entered.
+- **`undici` 7.24.4 → 7.30.0** via `"@scalar/json-magic>undici": ">=7.29.1 <8"`. `@scalar/json-magic` pins 7.24.4 exactly.
+- **`.github/dependabot.yml` (owner ruling D6):** npm, github-actions and docker go `weekly` → `monthly`. The `day:` keys are dropped; `time`/`timezone`, the groups and `open-pull-requests-limit: 1` are kept. Each ecosystem gains an `ignore` for `version-update:semver-major` on `*`. A dated header note is prepended and every existing comment is kept.
+- **Repo settings (owner, not in git):** Dependabot **security updates OFF**; alerts stay ON and are fixed by lanes. *(controller-verified)* `gh api repos/…/Lazytopper-Production --jq .security_and_analysis` → `dependabot_security_updates: disabled`, `secret_scanning: enabled`, `secret_scanning_push_protection: enabled`.
+
+No student-facing change; no flag. The PDF sanitizer and the server's HTTP/gRPC stack are on patched versions.
+
+- **`#898` → `59a93989`**, squash, `--match-head-commit 2411bf1d`, parent `8c718fcc` *(controller-verified)*.
+- **3 files** *(controller-verified)*: `pnpm-workspace.yaml` (+5/−0; no existing line touched), `pnpm-lock.yaml` (+12/−19; only the three targets move), `.github/dependabot.yml` (D6). Root `package.json` untouched.
+- **All 81 existing workspace overrides survive** in the lockfile (79 platform strips, `esbuild: 0.27.3`, `@esbuild-kit/esm-loader`): 81 → 83, before − after = ∅ *(builder-reported)*. `minimumReleaseAge` and its exclude list untouched (D4b); the youngest resolved version was ~161 h old.
+- **Spec D3 met** *(controller-verified)*: open Dependabot alerts for the three = **0**. Fixed: `#281` (dompurify), `#279`/`#280` (grpc-js), `#176–182`, `#228–232`, `#270–278` (undici, 21).
+
+ROLLOUT *(controller-verified)*. It rolled out alone. Before the merge, `#897`'s release was COMPLETE 100% and its Railway deploy was a success.
+- Canary `nw5cmfbmo` was seen ACTIVE at 10% at 00:59:47Z. Canary smoke PASS: `version.json` `59a93989`; `/app/`, `/app/browse`, `/app/pricing`, `/app/legal/privacy` and `/app/sign-in` returned 200 with byte-identical sizes to the previous release; `/api/health` 200; `GET /api/usage/me` 401; `POST /api/activity` 401.
+- The release was COMPLETE 100% at 01:15:44Z. www served `59a93989` on 5 of 5 reads, and the same smoke passed.
+- **RAILWAY — partial D5.** Railway **skipped `59a93989`**: deployment `6798723436` went `in_progress` → `inactive` with no success. Cause: the `dependabot.yml` change made Dependabot re-run VERSION updates at once against trunk HEAD. The npm job (`36948681009`, `"command":"version"`, not a security update) failed with `NoChangeError` on `esbuild`, `react` and `react-dom` → `[FU-DEPENDABOT-VERSION-NOCHANGE-SKIPS-RAILWAY]`. The next trunk commit `a9ae2efc` (`#896`; dependency files byte-identical to `#898`) **self-deployed** with no manual redeploy: deployment `6799193524`, success at 01:56:55Z, and no Dependabot job on that commit. The ~21 min wait was Railway waiting on `search-ping` (19 min).
+- **Live server Firestore round-trip:** **PENDING — OWNER STEP.** The builder found no test-student credential on disk: B-7's test student was erased on 2026-10-01, there is no Admin key, and the owner's firebase-tools login was correctly not opened. It created nothing and wrote nothing. Unauthenticated controls passed: `GET /api/usage/me` 401 `sign_in_required` and `POST /api/activity` 401 (controller smokes at 00:59:47Z, 01:15:45Z and 01:57:14Z). ⚠ The server reaches Firestore through `firebase-admin` → `google-gax` → grpc-js, which was **already 1.14.5 before `#898`**. The copy that moved is the client SDK's (`@firebase/firestore`), covered by the CI rules suite (47/47). So the server round-trip proves deploy health, not `#898`'s change *(builder-reported; matches the controller's D17)*. Owner: sign in on www, then check that `GET /api/usage/me` returns 200 in DevTools.
+
+### What it disproved
+- **A root `package.json` `pnpm.overrides` block does not ADD to the workspace overrides under pnpm 10.32.1 — it REPLACES them** *(builder-reported, v1 experiment, reverted)*. The lockfile's `overrides:` went 81 → 3: the 79 platform strips, the esbuild pin and the esm-loader alias were lost, and non-linux binaries plus esbuild 0.28.2 came back. The original spec and grant pointed at exactly that location. **Overrides live only in `pnpm-workspace.yaml`** → `[FU-DEPS-OVERRIDES-LOCATION]`.
+- **"Security updates off" did not by itself make the merge commit deploy.** A change to `dependabot.yml` triggers an immediate VERSION run, and its red npm job skipped Railway the same way.
+- **dompurify was never parent-blocked**, despite Dependabot's `security_update_not_possible`. Its range already admitted the fix (Dependabot's pnpm path does not update transitive deps; SUPPLY-2 background in the `dependabot.yml` header).
+
+### Evidence
+- **Premise gate** `--strict-anchor` on the current tip: EXIT 0 (v1 and v2) *(builder-reported)*.
+- **CI on head `2411bf1d`** (after `gh pr update-branch` merged `#897`; the 3 lane files byte-identical to the builder head `4b5d9572`) *(controller-verified from the log)*: Quality Gate `36947126468` success. 3 × `Tests 3362 passed (3362)` / `Test Files 230 passed (230)` (the vitest step and both test-clock steps). 66 × `# fail 0` and 66 × `# skipped 0`, none non-zero. Root matrix `# pass 293`. Container Boot `36947126501`: `[PASS] …/shared-api/healthz -> 200`, `CONTAINER BOOT GATE: the image built, booted, and served its healthcheck.` CodeQL, prerender-capture and Lane Overlap succeeded.
+- **The merge commit `59a93989`'s own runs:** Quality Gate `36948673419`, Container Boot `36948673409`, CodeQL and State Board all succeeded.
+- **`pnpm audit --prod`:** 0 of the three advisories remain; 13 unrelated advisories remain *(builder-reported)*.
+- **Controls** (one at a time, restores sha-verified) *(builder-reported)*: removing either override line brings back grpc-js 1.9.16 / undici 7.24.4.
+
+### Decisions (full text in `DECISION_LOG.md`)
+- The v1 STOP (out-of-grant file truly needed) → owner GRANT of `pnpm-workspace.yaml`, additions only.
+- **D6–D8 accepted:** dompurify by regeneration; grpc-js `>=1.14.5 <2`, reusing the locked copy; range-form overrides within the major.
+- D4b supply-chain guard held. The controller ran `gh pr update-branch` (no force, no `--admin`) and merged on the §3 proof.
+
+### Follow-ups (bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`)
+- **New:** `[FU-DEPS-OVERRIDES-LOCATION]`, `[FU-DEPENDABOT-VERSION-NOCHANGE-SKIPS-RAILWAY]`, `[FU-DEPS-LOCK-REGEN-FROM-BASELINE]`, `[FU-DEPENDABOT-ACTIONS-ENTRY-PURPOSE]`, `[FU-RAILWAY-WAITS-ON-SEARCH-PING]`.
+
+### ★ Owner items
+1. **Review Dependabot `#899`** (npm minor/patch group, 18 updates), opened by the config-triggered run. It edits `pnpm-workspace.yaml`, so confirm the 83 overrides and `minimumReleaseAge` survive before merging.
+2. **Rule on `[FU-DEPENDABOT-VERSION-NOCHANGE-SKIPS-RAILWAY]`.** Each monthly npm run that hits an override-pinned package (`esbuild`, and apparently `react`/`react-dom`) can go red on whatever trunk HEAD is then and skip that deploy. The fallback is a manual Railway Redeploy, safe whenever Quality Gate is green.
+- `#876` (setup-node 4 → 7) was closed by Dependabot itself when majors became ignored; nothing is owed.
+- Carried: the owner items of the WAVE A-8 block and every block below it stand as written.
+
+### Carried forward — ★ THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this block
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.** **Wave DEPS moved NO dormancy in that trio** (dependencies and Dependabot config only). The full block, including the `#647`/`#655` resolution and every subsequent restatement, stands as written in the blocks below.
+
 ## [CURRENT · OPS] WAVE A-8 — **THE PROTECTED-FILES LIST NAMES REAL FILES AGAIN · A `.env` ANYWHERE IN THE REPO IS GIT-IGNORED · GUARDS SO NEITHER CAN COME BACK (AGENTS-MD-2)** — `#894` MERGED — trunk `abb7c055`
 *(Supersedes the WAVE A-7 block below on trunk SHA only. That block is demoted to previous on trunk SHA. Its content, and the owner items of every block below, stand as written, except that this block settles A-7's owner items 1 and 2. Exactly one un-superseded `[CURRENT]` remains: this one.)*
 

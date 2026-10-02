@@ -1,5 +1,9 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-02 — WAVE DEPS (OPS, CONTROLLER A): DEPS-SEC-1 (`#898` `59a93989`). Dependencies and Dependabot config only.**
+> **NO SURFACE MOVES.** `#898` patches three libraries (the PDF sanitizer, gRPC and undici) and changes the Dependabot schedule. No student-facing surface changed; canary and www smoke tests returned identical page sizes.
+> 📋 Scope discovered? — **NO surface scope set to Settling.** Five follow-ups are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`; none changes a surface's scope. Nothing goes in `DECISION_LOG` §2a.
+
 > **2026-10-01 — WAVE A-8 (OPS, CONTROLLER A): AGENTS-MD-2 (`#894` `abb7c055`), trunk `abb7c055`. Docs/config/test only.**
 > **NO SURFACE MOVES.** `#894` corrects two protected paths in `CLAUDE.md` §4 / `AGENTS.md`, git-ignores `.env` files repo-wide and extends a guard test. No student-facing surface changed.
 > 📋 Scope discovered? — **NO surface scope set to Settling.** Two follow-ups are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`, and two A-7 follow-ups are closed; none changes a surface's scope. Nothing goes in `DECISION_LOG` §2a.
