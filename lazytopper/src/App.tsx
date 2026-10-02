@@ -70,6 +70,7 @@ const VisualAuditPage = lazy(() => import("./pages/VisualAuditPage"));
 const CacheStatsPage = lazy(() => import("./pages/CacheStatsPage"));
 const DifficultyBreakdownPage = lazy(() => import("./pages/DifficultyBreakdownPage"));
 const QuestionReportsPage = lazy(() => import("./pages/QuestionReportsPage"));
+const StudentsAdminPage = lazy(() => import("./pages/admin/StudentsAdminPage"));
 
 // Mobile baseline pages (#437 — real implementations)
 const Intent            = lazy(() => import("./pages/app/Intent"));
@@ -904,6 +905,7 @@ export default function App() {
           <Route path="/admin/cache-stats" element={<RequireAuth>{withRouteSuspense(<CacheStatsPage />)}</RequireAuth>} />
           <Route path="/admin/difficulty-breakdown" element={<RequireAuth>{withRouteSuspense(<DifficultyBreakdownPage />)}</RequireAuth>} />
           <Route path="/admin/question-reports" element={<RequireAuth>{withRouteSuspense(<QuestionReportsPage />)}</RequireAuth>} />
+          <Route path="/admin/students" element={<RequireAuth>{withRouteSuspense(<StudentsAdminPage />)}</RequireAuth>} />
           {/* SEVER PR: /methodology RETIRED (prediction method changed; content now
               wrong). Only inbound was the retired old /trends. Page file marked
               LEGACY-RETIRED. */}
