@@ -1,3 +1,48 @@
+## 2026-10-02 — WAVE B-7 (STUDENT DATA + ADMIN, CONTROLLER B) — **STUDENT-ACTIVITY-1: A FIRST-PARTY, ADMIN-ONLY RECORD OF WHAT A SIGNED-IN STUDENT USES, PER DAY, KEPT 90 DAYS · 1B: ITS PAGE-LOAD HOLD BOUNDED · ADMIN-STUDENTS-1: A READ-ONLY ADMIN "STUDENTS" PAGE** — `#893` + `#897` + `#896` MERGED — trunk `a9ae2efc`
+
+★ **PROVENANCE.** Controller B, wave B-7. The owner spec `STUDENT-ACTIVITY-1` was hash-verified (`C20A0C0577C8`), sourced from `controller-b7/ops/.specs` (D0). One builder per PR (`claude-opus-5-5`, effort high), each in its own worktree. A docs builder wrote this docs PR in `C:/Projects/LT-worktrees/b7-docs` from `WAVE_STATE_B7.md` and the three builder reports. *(builder-reported)* / *(controller-verified)* / *(owner)* as in `CURRENT_STATE.md`.
+
+**Timeline.**
+- **Dispatch** at trunk `640eb4cb` (`#891`). Owner rulings: two PRs in order (recording, then the admin page); six safeguards; OR-LIVE with PR-1 ALONE.
+- **PR-1 builder** *(builder-reported)*:
+  - It built `#893` (14 files at first).
+  - It raised a STOP-class item (D8): the privacy sentence makes three prerender files stale, and they were outside the allowlist. **The owner granted them (D11)**, to be committed from the PR's own CI artifact.
+  - The erasure race was fixed in the PR (D10, head `0f77b8ae`).
+  - The harness classifier refused the builder's commit of the artifact. The controller did not re-run a refused action, and **the owner committed the three files** (`f694c1c6`).
+- **`#893` merge:**
+  - `gh pr update-branch` → `9435a557`, with the lane files byte-identical (D14).
+  - Quality Gate `36928485704` success; prerender-capture matched.
+  - **MERGED `441a9274`** 21:39:42Z *(controller-verified)*.
+- **`#893` OR-LIVE:**
+  - Canary `p44k2m08u` ACTIVE 10% at 21:40:33Z, smoke PASS; www PASS.
+  - **Railway SKIPPED the merge commit** (D17–D19): three Dependabot security-update jobs failed on it. The owner redeployed manually, and the route went live 23:28:33Z.
+  - The production live proof PASSED its agent legs; three legs are owner-owed *(builder-reported)*.
+- **PR-1b** (D22–D23): the builder disproved the "hard loads undercount" finding, which the controller had amplified (D23). The real narrow loss was fixed.
+  - `#897`: Quality Gate `36944536312` success. **MERGED `8c718fcc`** 00:27:58Z.
+  - Canary `j8g8w1ppt` smoke PASS; www PASS 00:45:31Z.
+- **PR-2** (D21, D24–D27):
+  - `#896`: the `App.tsx` diff is exactly the 2 granted lines (D20); no Firestore writes.
+  - Two `update-branch` steps, after `#897` and after Controller A's `#898`, with the merge held until `#898`'s rollout was COMPLETE.
+  - Quality Gate `36950099992` success. **MERGED `a9ae2efc`** 01:35:22Z.
+- **`#896` OR-LIVE** (D28–D31, D33):
+  - Canary `9c3y7o0dh` smoke PASS; Vercel COMPLETE.
+  - Railway deployed after the owner's manual redeploy at 01:56:55Z; the delay was search-ping waiting for the Vercel rollout by design.
+  - Server smoke PASS; non-admin 403 proven in production *(builder-reported)*.
+  - **The page loads for the owner (D33).**
+- **Owner ruling D33:** Railway "Wait for CI" OFF.
+- `#900` (Controller A's wave DEPS docs) merged as `2b70eda1` and released the one-docs-PR lock; this branch merged trunk (`git merge`, no rebase) with A's content kept byte-for-byte.
+- This docs PR, then the final audit `Desktop/diff/audit-request-wave-b7-final-<date>.md`, then STOP.
+
+ROLLOUT *(controller-verified)*:
+- `#893` rolled out ALONE — canary `p44k2m08u` caught ACTIVE 10% 21:40:33Z, smoke PASS, www PASS; Railway SKIPPED the merge commit (Dependabot security-update jobs failed; owner manual redeploy; route live 23:28:33Z; root cause → DEPS-SEC-1, Controller A).
+- `#897` alone — canary `j8g8w1ppt` at 10%, smoke PASS, www PASS 00:45:31Z, client-only.
+- `#896` — canary `9c3y7o0dh` at 10%, smoke PASS; Vercel COMPLETE; Railway deployed after the owner's manual redeploy at 01:56:55Z; the delay was search-ping waiting for the Vercel rollout by design.
+
+**Lessons.**
+- **Pass a finding on at the confidence it arrives with (D23, a controller self-correction).** The builder marked the undercount's cause UNVERIFIED; the controller relayed it as a likely defect. A keepalive POST at `pagehide` is invisible to Playwright / CDP, so server ground truth (the student's own export) is the only valid proof for the activity client (`[FU-LIVE-PROOF-KEEPALIVE-BLIND]`).
+- **Elapsed time is not a deploy alarm (D30 → D33).** Key a Railway alarm on a deployment going INACTIVE without success. A GitHub deployment record going `in_progress` → `success` does not show WHO deployed. Ask the owner, or read Railway itself, before calling a deploy a self-deploy.
+- **A server route cannot be proved on a Vercel preview** here, because preview `/api` = production Railway. The server half is proved post-merge in production *(builder-reported)*.
+
 ## 2026-10-02 — WAVE DEPS (OPS, CONTROLLER A) — **DEPS-SEC-1: THREE BLOCKED SECURITY UPDATES APPLIED THROUGH THE WORKSPACE OVERRIDES; DEPENDABOT MONTHLY, NO MAJORS; SECURITY UPDATES OFF** — `#898` → `59a93989`
 
 ★ **PROVENANCE.** Controller A. The owner spec `DEPS-SEC-1` was hash-verified at v1.0 (`4A43A8C6349C`) and at v1.1 (`12551CD98599`). *(builder-reported)* = `Desktop/diff/report-deps-sec-1-2026-10-02.md` / `report-deps-sec-1-v2-2026-10-02.md`; *(controller-verified)* = gh/git metadata, CI log lines, curl, the Vercel CLI. State: `Desktop/diff/WAVE_STATE_DEPS.md`.

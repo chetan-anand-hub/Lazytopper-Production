@@ -1,3 +1,32 @@
+## ★★★ 2026-10-02 — WAVE B-7 (STUDENT DATA + ADMIN, CONTROLLER B) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE DEPS BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
+
+**TRUNK IS `2b70eda142053affb1ecd3ffb3e1085f72cbbf2d`**, measured 2026-10-02 (`git ls-remote origin refs/heads/base/approved-thru-437`):
+- `2b70eda1` = `#900` (docs: wave DEPS, Controller A)
+- `a9ae2efc` = `#896` (ADMIN-STUDENTS-1: the read-only admin "Students" page) — **this wave**; see ROLLOUT in `CURRENT_STATE.md`
+- `59a93989` = `#898` (DEPS-SEC-1) — **Controller A's**; recorded by Controller A's own handoff (`#900`)
+- `8c718fcc` = `#897` (STUDENT-ACTIVITY-1B: bounded page-load hold) — **this wave**
+- `441a9274` = `#893` (STUDENT-ACTIVITY-1 PR-1: the first-party activity record) — **this wave**
+
+### ★ RAILWAY NOW DEPLOYS EACH MERGE DIRECTLY (owner ruling D33)
+Railway's "Wait for CI" is OFF. It had skipped `#893`'s server half (failing Dependabot jobs) and delayed `#896`'s (search-ping waits for the Vercel rollout by design). Every merge already needs green PR CI with the trunk tree == the PR head tree.
+
+### NEXT — OWNER, STUDENT ACTIVITY — IN THIS ORDER (none of these was run by the controller or a builder)
+1. **Firestore TTL policy:** collection group `activityDays`, field `expireAt`. Without it, day docs are not deleted at 90 days. *(The owner is creating it and will confirm, D33.)*
+2. **Open `/app/admin/students` as admin** (list + detail). *(It loads for the owner, D33.)* The full list and detail checks are step 3 of `Desktop/diff/report-admin-students-1-2026-10-02.md`: summary cards, newest-first order, masked emails with reveal, coverage labels (never a bare 0 for a student who predates the data), filters, the detail timeline, and no question or answer text anywhere.
+3. **Real-browser record check + erasure check:**
+   - Use a verifiable account to open 3 sections and run one answer check.
+   - In the console, `activityLog/<uid>/activityDays/<IST day>` should have exactly the keys `events`, `expireAt`, `firstSeenMs`, `lastSeenMs` and `sections`.
+   - Then erase the account and confirm nothing remains.
+   - Every test account created this wave is already erased (`LPyTGx4ymGgFPiahbAIXdSNFxYp2`, `rLlqhHv6BZV5XCCy63vuowZDNV52`, `ntojFXzWgVdJbz1vNXHwKnuSPlG3`).
+- ⚠ A Railway deploy can take ~20 min (measured while "Wait for CI" was still on, D30). Alarm only on a deployment going INACTIVE without success, never on elapsed time.
+
+### Carried — still owed
+4. **The WAVE DEPS owner items** (the DEPS block below: review `#899`, the authenticated live round-trip), then **the WAVE A-8 owner items** and everything they carry (B-6, C-2, B-5, B-4 fair-use, B-2 RAZORPAY-1 owner test).
+
+### NEXT — LANES
+- None dispatched by wave B-7 beyond `#893`, `#897` and `#896`. The new FUs are candidates. `[FU-ANALYTICS-HEADER-FIRST-PARTY-EXCEPTION]` and `[FU-PRIVACY-LAST-UPDATED]` are one-line follow-ups; `[FU-ADMIN-GATE-NO-REVOKE-CHECK]` and `[FU-ADMIN-GATE-TWO-COPIES]` touch the same shared admin gate.
+
 ## ★★★ 2026-10-02 — WAVE DEPS (OPS, CONTROLLER A) — DEPS-SEC-1 CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-8 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE A-8 block and every block below stand unchanged. Wave B-7's merges (`#893`, `#897`, `#896`) belong to B-7's own handoff.)*
 

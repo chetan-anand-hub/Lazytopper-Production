@@ -1,5 +1,29 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-02 — WAVE B-7 (STUDENT DATA + ADMIN, CONTROLLER B): STUDENT-ACTIVITY-1 (`#893` `441a9274`) + STUDENT-ACTIVITY-1B (`#897` `8c718fcc`) + ADMIN-STUDENTS-1 (`#896` `a9ae2efc`), trunk `a9ae2efc`. LIVE on merge (no flag); rollouts recorded in `CURRENT_STATE.md`.**
+> ★ **ONE STUDENT-FACING CELL MOVES (the Privacy Policy), ONE ADMIN-ONLY SURFACE IS ADDED (Students), and ONE CAPABILITY is added (a first-party activity record, not a surface; recorded the way GA4-1 was).** No other page's visible content changes.
+
+### ✅ Privacy policy (`/legal/privacy`) — first-party activity record disclosure — **LIVE (`#893`)**
+- The sentence: "We keep a record of which parts of LazyTopper you use and when (for example, answer checks and practice sessions), to support you and improve the product. It contains no answers or questions, is visible only to the LazyTopper team, is kept for 90 days, and is deleted with your account."
+- The prerendered page, `lastmod.json` and `sitemap.xml` were committed from the PR's own CI artifact (owner D8/D11). The canary and www `/legal/privacy` grew by +293 bytes, the sentence ×1 *(controller-verified)*.
+- ⚠ "Last updated: April 2026" was still not bumped → `[FU-PRIVACY-LAST-UPDATED]` (with `[FU-GA4-PRIVACY-LAST-UPDATED]`).
+
+### ✅ NEW ADMIN-ONLY SURFACE — Students (`/app/admin/students`) — **LIVE (`#896`); loads for the owner (D33)**
+- It is read-only and sits behind the shared `ADMIN_FIREBASE_UIDS` gate. No token → 401, a non-admin → 403 and "Not authorised" on desktop and mobile, proven in production *(builder-reported)*.
+- The list is newest-first and paged at 50, with filters, summary cards, a masked email with a per-row reveal, and coverage labels ("—", never 0, before the data existed). The detail is a day timeline from six existing collections. It shows names and counts only.
+- ⚠ The owner's list and detail checks are still owed (step 3 of `report-admin-students-1-2026-10-02.md`). Scale caps → `[FU-ADMIN-STUDENTS-SCALE]`.
+- Not a student surface: no student can reach it.
+
+### ✅ NEW CAPABILITY (not a surface) — FIRST-PARTY ACTIVITY RECORD — **LIVE (`#893`, `#897`)**
+- For signed-in students only, section and action names are counted per IST day in `activityLog/{uid}/activityDays/{day}`. It is written only by the server, has a 90-day `expireAt`, and is exported and erased with the account.
+- GA4 and Vercel calls are unchanged. A signed-out visitor sends nothing.
+- ⚠ The Firestore TTL policy is an owner step.
+
+### ⬜ NO OTHER CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- No other page's text changed; the only prerendered body that changed is `legal/privacy.html`.
+
+### 📋 Scope discovered? — **NO surface scope set to Settling.** Seven new follow-ups and one re-note are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`; none changes a student surface's scope. Nothing goes in `DECISION_LOG` §2a.
+
 > **2026-10-02 — WAVE DEPS (OPS, CONTROLLER A): DEPS-SEC-1 (`#898` `59a93989`). Dependencies and Dependabot config only.**
 > **NO SURFACE MOVES.** `#898` patches three libraries (the PDF sanitizer, gRPC and undici) and changes the Dependabot schedule. No student-facing surface changed; canary and www smoke tests returned identical page sizes.
 > 📋 Scope discovered? — **NO surface scope set to Settling.** Four follow-ups are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`; none changes a surface's scope. Nothing goes in `DECISION_LOG` §2a.

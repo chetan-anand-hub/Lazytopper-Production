@@ -1,3 +1,34 @@
+## 2026-10-02 — WAVE B-7 (STUDENT DATA + ADMIN, CONTROLLER B): STUDENT-ACTIVITY-1 + 1B + ADMIN-STUDENTS-1 — PRs `#893` + `#897` + `#896` merged — trunk `a9ae2efc`
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (owner rulings, D8/D11, D10, D19, D20, D23, D30, D33), not `DECISION N`.
+
+### Owner rulings (dispatch message 2026-10-01, and later)
+- **Two PRs in order:** PR-1 (recording) rolls out ALONE; PR-2 (the admin page) starts after PR-1 merges. One builder each (`claude-opus-5-5`, effort high), each in its own fresh worktree.
+- **Safeguards (none may be dropped):** first-party only; admin-only; section and action names only; a 90-day TTL on `activityDays.expireAt` as a Timestamp; a Privacy Policy sentence; export + erasure.
+- **Grants:** exactly the PR-1 and PR-2 ALLOWED lists, including ONE `App.tsx` route line for `/admin/students` (PR-2).
+- **OR-LIVE / OR-AUTO** as in earlier waves; only one docs PR open at a time.
+- **D8 → D11 (owner ruling, 2026-10-01) — STANDING.** The prerender files `lazytopper/prerendered/legal/privacy.html`, `lazytopper/prerendered/lastmod.json` and `lazytopper/public/sitemap.xml` were granted for `#893`. They were committed from `#893`'s own prerender CI artifact (run on the FINAL head) and never hand-edited. **Owner:** the omission was a spec gap that standing rules cover (A-3 sitemap / lastmod as CI artifacts; GA4-1 `#879` and PERF-CLS-1 `prerendered/**` precedent). **Future specs that change any prerendered page include these three files automatically.**
+- **D10 approved (owner):** the erasure-race fix went into `#893`, not an FU.
+- **D19 — RAILWAY SKIP CAUSE (owner, 2026-10-02).** Railway's "Wait for CI" skipped `441a9274` because three Dependabot security-update jobs failed on that commit (`@grpc/grpc-js`, `dompurify`, `undici`: `security_update_not_possible`). Our own checks were all green (Quality Gate, CodeQL, Container Boot, State Board, search-ping). The owner redeployed by hand; `/api/activity` → 401 was confirmed by the owner and the controller (23:28:33Z). The root cause went to a separate lane, DEPS-SEC-1 (Controller A). Standing order for PR-2: if Railway skips the server half again, tell the owner at once; a manual Redeploy is safe whenever the Quality Gate is green.
+- **D33 (owner, 2026-10-02) — amends D30.**
+  - The owner redeployed `#896` on Railway MANUALLY. `/app/admin/students` is live and LOADS FOR THE OWNER (owner-verified).
+  - GitHub showed ONE deployment record (`6799193524`) reaching success at 01:56:55Z. The controller (and Controller A) read that as a self-deploy; the owner's account (manual redeploy) governs.
+  - The delay was search-ping, which waits for the Vercel rollout BY DESIGN. So the controller's D28 inference was right in substance, and the "stalled" call stands as premature but correct to raise.
+  - **OWNER RULING: Railway "Wait for CI" is OFF.** It blocked or delayed server deploys behind non-code checks (Dependabot jobs on `#893`; search-ping on `a9ae2efc`). Every merge already requires green PR CI with the trunk tree == the PR head tree, so **Railway now deploys each merge directly.**
+
+### Controller decisions, with the reason
+- **D10:** the erasure race (a batch verified just before an account erasure could land after it and live for up to 90 days) was fixed IN `#893`, not left as an FU. **Why:** the "erased with the account" safeguard, and fixing in the PR is preferred. The fix is a post-write account re-check in `studentActivity.cjs` plus a second sweep in `accountErasure.cjs`, for the new collection only, with no tombstone. Mutations D10-A / D10-B went red and were restored (builder-reported). `[FU-ACTIVITY-ERASURE-RACE]` CLOSED.
+- **D20:** the owner granted ONE `<Route>` line in `App.tsx`. A lazy route needs its import declaration, so the controller read the grant as the route line + that ONE import line, nothing else. **Why:** the minimum that makes the granted route work, with no safeguard involved. Controller-verified on `#896`: the `App.tsx` diff is exactly those 2 lines.
+- **D23 — A CONTROLLER SELF-CORRECTION: THE CONTROLLER AMPLIFIED A WRONG FINDING.**
+  - The controller relayed `#893`'s "hard loads undercount (pricing:1 only)" to the owner as a likely defect ("a student who opens/reloads would lose the first pageview").
+  - The PR-1b builder disproved it: it was a measurement artefact. Playwright / CDP cannot see keepalive POSTs sent at `pagehide`, and the production export showed all 3 hard-load sections recorded.
+  - **Lesson: pass a finding on at the confidence it arrives with.** The builder had marked the cause UNVERIFIED.
+- **D30 — A CONTROLLER SELF-CORRECTION: A SLOW RAILWAY DEPLOY CALLED "STALLED".**
+  - D28 called Railway "STALLED" at ~18 min and asked the owner to redeploy, citing search-ping as the cause, which was an unverified inference.
+  - GitHub deployment `6799193524` (`a9ae2efc`) went `in_progress` at 01:35:27Z → success at 01:56:55Z.
+  - **Lesson:** a 15-min Railway alarm is too short (an earlier deploy took ~20 min). Key the alarm on the deployment going INACTIVE without success, not on elapsed time.
+  - *(Amended by D33 above: the owner did redeploy manually, and search-ping was the delay, by design.)*
+
 ## 2026-10-02 — WAVE DEPS (OPS, CONTROLLER A): DEPS-SEC-1 — PR `#898` merged — `59a93989`
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (owner grant, D-numbers of this lane), not `DECISION N`.
