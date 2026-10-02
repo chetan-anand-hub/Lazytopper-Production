@@ -1,9 +1,10 @@
-## ★★★ 2026-10-02 — WAVE B-7 (STUDENT DATA + ADMIN, CONTROLLER B) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-8 BLOCK BELOW ON TRUNK SHA ONLY
-*(The owner items of the WAVE A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
+## ★★★ 2026-10-02 — WAVE B-7 (STUDENT DATA + ADMIN, CONTROLLER B) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE DEPS BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
 
-**TRUNK IS `a9ae2efcaf83d7bdadbf40151620f00b1a4200e0`**, measured 2026-10-02 (`git ls-remote origin refs/heads/base/approved-thru-437`):
+**TRUNK IS `2b70eda142053affb1ecd3ffb3e1085f72cbbf2d`**, measured 2026-10-02 (`git ls-remote origin refs/heads/base/approved-thru-437`):
+- `2b70eda1` = `#900` (docs: wave DEPS, Controller A)
 - `a9ae2efc` = `#896` (ADMIN-STUDENTS-1: the read-only admin "Students" page) — **this wave**; see ROLLOUT in `CURRENT_STATE.md`
-- `59a93989` = `#898` (DEPS-SEC-1) — **Controller A's**; recorded by Controller A's own handoff
+- `59a93989` = `#898` (DEPS-SEC-1) — **Controller A's**; recorded by Controller A's own handoff (`#900`)
 - `8c718fcc` = `#897` (STUDENT-ACTIVITY-1B: bounded page-load hold) — **this wave**
 - `441a9274` = `#893` (STUDENT-ACTIVITY-1 PR-1: the first-party activity record) — **this wave**
 
@@ -21,10 +22,30 @@ Railway's "Wait for CI" is OFF. It had skipped `#893`'s server half (failing Dep
 - ⚠ A Railway deploy can take ~20 min (measured while "Wait for CI" was still on, D30). Alarm only on a deployment going INACTIVE without success, never on elapsed time.
 
 ### Carried — still owed
-4. **The WAVE A-8 owner items** (the A-8 block below) and everything it carries (B-6, C-2, B-5, B-4 fair-use, B-2 RAZORPAY-1 owner test).
+4. **The WAVE DEPS owner items** (the DEPS block below: review `#899`, the authenticated live round-trip), then **the WAVE A-8 owner items** and everything they carry (B-6, C-2, B-5, B-4 fair-use, B-2 RAZORPAY-1 owner test).
 
 ### NEXT — LANES
 - None dispatched by wave B-7 beyond `#893`, `#897` and `#896`. The new FUs are candidates. `[FU-ANALYTICS-HEADER-FIRST-PARTY-EXCEPTION]` and `[FU-PRIVACY-LAST-UPDATED]` are one-line follow-ups; `[FU-ADMIN-GATE-NO-REVOKE-CHECK]` and `[FU-ADMIN-GATE-TWO-COPIES]` touch the same shared admin gate.
+
+## ★★★ 2026-10-02 — WAVE DEPS (OPS, CONTROLLER A) — DEPS-SEC-1 CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-8 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE A-8 block and every block below stand unchanged. Wave B-7's merges (`#893`, `#897`, `#896`) belong to B-7's own handoff.)*
+
+**TRUNK IS `a9ae2efcaf83d7bdadbf40151620f00b1a4200e0`**, measured 2026-10-02 (`git ls-remote origin refs/heads/base/approved-thru-437`):
+- `a9ae2efc` = `#896` (B-7, STUDENT-ACTIVITY-1 PR-2), which carried `#898`'s dependencies onto Railway (owner manual redeploy, `6799193524`; Railway Wait-for-CI is now OFF)
+- `59a93989` = `#898` (DEPS-SEC-1) — **this lane**; Vercel COMPLETE 100%; Railway skipped this commit under the old Wait-for-CI setting (see `CURRENT_STATE.md`)
+- `8c718fcc` = `#897`, `441a9274` = `#893` (B-7)
+
+Open at the time of writing, besides this docs PR: `#899` (Dependabot npm minor/patch group, 18 updates).
+
+### NEXT — OWNER
+1. **Review `#899`.** It touches `pnpm-workspace.yaml`; confirm the 83 overrides (79 platform strips + `esbuild: 0.27.3` + esm-loader + the two DEPS-SEC-1 lines) and `minimumReleaseAge` survive.
+2. *(Settled by the owner, 2026-10-02.)* Railway's "Wait for CI" is OFF, so a red Dependabot run can no longer skip a deploy. Optional: `ignore` entries for override-pinned packages to stop the red runs.
+
+### Carried — still owed
+3. **The WAVE A-8 owner items** and everything they carry.
+
+### NEXT — LANES
+- None dispatched by this lane beyond `#898`. Candidate lanes: `[FU-DEPENDABOT-VERSION-NOCHANGE-SKIPS-RAILWAY]` (optional, noise only now), `[FU-DEPENDABOT-ACTIONS-ENTRY-PURPOSE]` (comment-only).
 
 ## ★★★ 2026-10-01 — WAVE A-8 (OPS, CONTROLLER A) — CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-7 BLOCK BELOW ON TRUNK SHA ONLY
 *(A-7's owner item 1 (rule on the stale §4 paths) is SETTLED by `#894`. A-7's item 2 (hand `AGENTS.md` to the Razorpay consultant) is carried as item 2 below. The owner items of the WAVE B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*

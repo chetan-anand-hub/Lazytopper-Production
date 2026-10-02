@@ -29,6 +29,29 @@
   - **Lesson:** a 15-min Railway alarm is too short (an earlier deploy took ~20 min). Key the alarm on the deployment going INACTIVE without success, not on elapsed time.
   - *(Amended by D33 above: the owner did redeploy manually, and search-ping was the delay, by design.)*
 
+## 2026-10-02 — WAVE DEPS (OPS, CONTROLLER A): DEPS-SEC-1 — PR `#898` merged — `59a93989`
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (owner grant, D-numbers of this lane), not `DECISION N`.
+
+### Owner rulings (2026-10-02)
+- **Dispatch (spec v1.0):** one builder; grant = root `package.json` `pnpm.overrides`, one `lazytopper/package.json` range if cleaner, regenerated `pnpm-lock.yaml`; no unrelated upgrades, no majors (STOP); rolls out alone; OR-LIVE, OR-AUTO, OR-15, OR-16.
+- **GRANT after the v1 STOP (spec v1.1):** `pnpm-workspace.yaml` `overrides:` ADDITIONS ONLY (all 81 entries, `minimumReleaseAge` and its exclude list untouched); NO root `package.json` overrides; `.github/dependabot.yml` D6 only.
+- **D6–D8 accepted:** dompurify via lockfile regeneration (`jspdf ^3.3.1` admits 3.4.16); grpc-js `>=1.14.5 <2` (the copy already locked via firebase-admin, so no new package); range-form overrides within the major (undici → 7.30.0).
+- **D4b:** never change `minimumReleaseAge` or add to its exclude list; a fix under 24 h old waits.
+- **D6 (Dependabot):** monthly, `day:` dropped, majors ignored for `*`, a dated header note, every comment kept.
+- **Dependabot security updates OFF** in Settings (alerts ON); verified `dependabot_security_updates: disabled`.
+- **Railway "Wait for CI" OFF** (owner, 2026-10-02; relayed by Controller B), so Railway deploys each merge directly. The owner also stated that `a9ae2efc` was a MANUAL redeploy, and that `search-ping` waits for the Vercel rollout by design.
+- **Cofounder:** a live server Firestore round-trip after canary and www (roll back first on failure).
+
+### Controller decisions, with the reason
+- **D2:** prefer an override to editing `lazytopper/package.json`. **Why:** B-7's next PR could touch that file, and lane-overlap compares exact paths.
+- **D3 → v1 STOP.** **Why:** the builder proved the granted location displaces the workspace overrides (81 → 3); the only working location was outside the grant. That is a STOP-class out-of-allowlist need, so the controller asked rather than building around it. The controller's own count ("74") was corrected to 79 strip entries.
+- **D7:** reuse grpc-js 1.14.5 rather than pin 1.13.6. **Why:** still major 1, adds no package, and is already exercised on the server path. **D8:** range form with the lowest fixed version as the floor. **Why:** it is the spec's own example form, blocks majors and lets patches flow.
+- **D15:** `gh pr update-branch 898` (no force, no `--admin`) after `#897` landed. **Why:** trunk protection requires an up-to-date head. The 3 lane files were proven byte-identical (0 diff lines), and the head delta == `#897`'s 2 files.
+- **D16/D19:** held the merge until `#897`'s Vercel release was COMPLETE and its Railway deploy was a success. **Why:** "rolls out alone".
+- **D23:** Railway skipped `59a93989`, so the owner was told at once (chat + push). **No rollback. Why:** www served the new frontend and the backend stayed on the healthy previous build; nothing had failed. **D28 (CORRECTED):** the controller first recorded `a9ae2efc` (`#896`, dependency files identical) as a self-deploy. The owner says it was a MANUAL redeploy. **D5 was NOT met** under the old setting, and the owner's Wait-for-CI-OFF ruling supersedes it.
+- **D30:** `#899` (Dependabot npm group) left untouched. **Why:** not in the grant; owner review.
+
 ## 2026-10-01 — WAVE A-8 (OPS, CONTROLLER A): AGENTS-MD-2 — PR `#894` merged — trunk `abb7c055`; and the WAVE A-7 AUDIT RULINGS
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (A-7 audit, owner grant, OR-LIVE, OR-AUTO, D1–D4), not `DECISION N`.

@@ -30,6 +30,7 @@
   - Server smoke PASS; non-admin 403 proven in production *(builder-reported)*.
   - **The page loads for the owner (D33).**
 - **Owner ruling D33:** Railway "Wait for CI" OFF.
+- `#900` (Controller A's wave DEPS docs) merged as `2b70eda1` and released the one-docs-PR lock; this branch merged trunk (`git merge`, no rebase) with A's content kept byte-for-byte.
 - This docs PR, then the final audit `Desktop/diff/audit-request-wave-b7-final-<date>.md`, then STOP.
 
 ROLLOUT *(controller-verified)*:
@@ -41,6 +42,24 @@ ROLLOUT *(controller-verified)*:
 - **Pass a finding on at the confidence it arrives with (D23, a controller self-correction).** The builder marked the undercount's cause UNVERIFIED; the controller relayed it as a likely defect. A keepalive POST at `pagehide` is invisible to Playwright / CDP, so server ground truth (the student's own export) is the only valid proof for the activity client (`[FU-LIVE-PROOF-KEEPALIVE-BLIND]`).
 - **Elapsed time is not a deploy alarm (D30 → D33).** Key a Railway alarm on a deployment going INACTIVE without success. A GitHub deployment record going `in_progress` → `success` does not show WHO deployed. Ask the owner, or read Railway itself, before calling a deploy a self-deploy.
 - **A server route cannot be proved on a Vercel preview** here, because preview `/api` = production Railway. The server half is proved post-merge in production *(builder-reported)*.
+
+## 2026-10-02 — WAVE DEPS (OPS, CONTROLLER A) — **DEPS-SEC-1: THREE BLOCKED SECURITY UPDATES APPLIED THROUGH THE WORKSPACE OVERRIDES; DEPENDABOT MONTHLY, NO MAJORS; SECURITY UPDATES OFF** — `#898` → `59a93989`
+
+★ **PROVENANCE.** Controller A. The owner spec `DEPS-SEC-1` was hash-verified at v1.0 (`4A43A8C6349C`) and at v1.1 (`12551CD98599`). *(builder-reported)* = `Desktop/diff/report-deps-sec-1-2026-10-02.md` / `report-deps-sec-1-v2-2026-10-02.md`; *(controller-verified)* = gh/git metadata, CI log lines, curl, the Vercel CLI. State: `Desktop/diff/WAVE_STATE_DEPS.md`.
+
+**Timeline.**
+- Dispatch at trunk `441a9274` (== the spec base). The v1 builder ran §0c (EXIT 0) and the P4 table first, then **STOPPED**: the granted location (root `package.json` `pnpm.overrides`) replaces the 81 workspace overrides *(builder-reported; experiment reverted)*.
+- Owner: GRANT `pnpm-workspace.yaml` (additions only); spec v1.1 adds D4b and D6; D6–D8 accepted; security updates switched off in Settings *(controller-verified via `gh api`)*.
+- The v2 builder (fresh, claude-opus-5-5, effort high) built 3 files and opened `#898`; CI went green on `4b5d9572`.
+- Controller: trunk had moved to `8c718fcc` (`#897`, disjoint), so it ran `gh pr update-branch` → `2411bf1d` (lane files byte-identical). It waited for `#897`'s Vercel and Railway rollout to finish, re-verified CI from the log, and **MERGED `#898` → `59a93989`** (`--squash --match-head-commit 2411bf1d`) at 00:58:38Z.
+- OR-LIVE: the canary `nw5cmfbmo` passed at 10%, and www passed 5/5. Railway SKIPPED `59a93989` (a red Dependabot npm VERSION job); the owner was told at once. `a9ae2efc` (`#896`, same dependencies) went live at 01:56:55Z through an owner MANUAL redeploy *(owner, relayed by Controller B; both controllers had first read the GitHub record as a self-deploy)*. Owner ruling: Railway Wait-for-CI is now OFF. Spec D3: the target alerts are 0 open.
+- Live proof: authenticated server Firestore round-trip PENDING (owner step; no test credential on disk; server path's grpc-js was unchanged by `#898`).
+- This docs PR, then the final audit `Desktop/diff/audit-request-deps-sec-1-final-2026-10-02.md`, then STOP.
+
+**Lessons.**
+- **A config location can be valid and still silently delete another one.** Under pnpm 10.32.1, `package.json` `pnpm.overrides` displaced `pnpm-workspace.yaml`'s block, and the three target fixes still took, so a "fix took effect" check alone would have passed. Only counting the OTHER overrides before and after caught it.
+- **Changing `dependabot.yml` is itself a trigger.** Dependabot re-ran version updates on the merge commit, and that red run skipped Railway exactly as the security runs had. Turning security updates off was necessary but not sufficient.
+- **A deployment record does not say who deployed.** `in_progress` → `success` on GitHub was a manual owner redeploy, not a self-deploy. Read it as "it went live", never as "it deployed itself".
 
 ## 2026-10-01 — WAVE A-8 (OPS, CONTROLLER A) — **AGENTS-MD-2: THE PROTECTED LIST NAMES REAL FILES, A `.env` ANYWHERE IS GIT-IGNORED, AND GUARDS KEEP BOTH TRUE** — `#894` → `abb7c055`
 
