@@ -21,6 +21,24 @@
  * signed-in uid changes, the unsent batch of the previous uid is discarded, never sent
  * under the new one.
  *
+ * ★★ THE HOLD IS BOUNDED AND NEVER OUTLIVES ITS PAGE LOAD (STUDENT-ACTIVITY-1B).
+ * At most MAX_EARLY_HITS hits, each for at most HOLD_MAX_MS; a held hit older than that
+ * is dropped, not attributed. Held hits live in memory only: a page that unloads before
+ * its OWN first auth resolution loses them, and they are never carried into the next
+ * load — that load's sign-in state is not the state they happened in (a sign-in in
+ * another tab, or a sign-in redirect, lands in between), so carrying them would be
+ * exactly the visitor-to-student link the owner ruled out. Measured on production
+ * (2026-10-02): Firebase's restore finishes 0.4-2.4 s after the load event (it reloads
+ * the user over the network before `authStateReady()` resolves); a load that lives
+ * past that has every hit recorded.
+ *
+ * ★★ THE TOKEN IS IN HAND BEFORE THE HELD HITS ARE QUEUED. A page-hide flush cannot
+ * await, so it sends with a token cached EARLIER: the restored student's ID token is
+ * fetched BEFORE the held hits are released into the batch (they stay held meanwhile),
+ * and the cache is refreshed on every counted hit (a microtask away for an in-memory
+ * token, so before any page-hide task can run) and every timed flush. If no token can be
+ * had (offline), the batch waits for a timed flush; it is never sent without one.
+ *
  * ★ FIRST-PARTY ONLY: one same-origin `fetch` to `/api/activity`. Nothing goes to
  * Google, Vercel or anyone else from here.
  *
@@ -76,7 +94,9 @@ export const FLUSH_INTERVAL_MS = 30_000;
 /** Per-name count cap in one batch — the server refuses anything above it. */
 export const MAX_COUNT_PER_NAME = 50;
 /** Hits held while the persisted session is being restored at page load. */
-const MAX_EARLY_HITS = 50;
+export const MAX_EARLY_HITS = 50;
+/** The longest a hit is held for that restore; an older held hit is dropped, never attributed. */
+export const HOLD_MAX_MS = 15_000;
 
 /**
  * The section a REDACTED, router-relative path belongs to (analytics.ts `trackPageview`
@@ -167,7 +187,7 @@ export function createActivityClient(deps: ActivityClientDeps) {
 
   let auth: ActivityAuth | null = null;
   let authState: "idle" | "loading" | "ready" | "unavailable" = "idle";
-  let early: Hit[] = [];
+  let early: Array<{ hit: Hit; at: number }> = [];
 
   let queueUid: string | null = null;
   let sections: Record<string, number> = {};
@@ -233,11 +253,21 @@ export function createActivityClient(deps: ActivityClientDeps) {
         }
         if (typeof loaded.authStateReady === "function") await loaded.authStateReady();
         auth = loaded;
+        // The FIRST resolution decides who the held hits belong to.
+        const resolved = signedInUser();
+        if (resolved) {
+          // Token in hand BEFORE anything is queued, so a page-hide can always send.
+          const token = await resolved.getIdToken().catch(() => null);
+          if (typeof token === "string" && token) cachedToken = { uid: resolved.uid, token };
+        }
         authState = "ready";
-        const user = signedInUser();
         const held = early;
         early = [];
-        if (user) for (const hit of held) count(user, hit);
+        const user = signedInUser();
+        // Signed out at resolution (or changed while the token was fetched): DROPPED.
+        if (!resolved || !user || user.uid !== resolved.uid) return;
+        const t = now();
+        for (const h of held) if (t - h.at <= HOLD_MAX_MS) count(user, h.hit);
       } catch {
         authState = "unavailable";
         early = [];
@@ -252,7 +282,9 @@ export function createActivityClient(deps: ActivityClientDeps) {
       if (!hit) return;
       if (authState === "idle" || authState === "loading") {
         ensureAuth();
-        if (early.length < MAX_EARLY_HITS) early.push(hit);
+        const t = now();
+        early = early.filter((h) => t - h.at <= HOLD_MAX_MS);
+        if (early.length < MAX_EARLY_HITS) early.push({ hit, at: t });
         return;
       }
       if (authState !== "ready") return;
@@ -287,6 +319,7 @@ export function createActivityClient(deps: ActivityClientDeps) {
           reset();
           return;
         }
+        if (token) cachedToken = { uid: still.uid, token }; // keep the page-hide token fresh
       }
       if (!token) return; // keep the batch; a later flush may have a token
       const body: { sections?: Record<string, number>; events?: Record<string, number> } = {};
