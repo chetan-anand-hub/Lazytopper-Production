@@ -209,7 +209,7 @@ export default function StudentDetailPanel({
             Sections and actions are recorded since {formatDayKey(state.data.sources.activityLog.since)}; AI usage since{" "}
             {formatDayKey(state.data.sources.usageLedger.since)}; sessions since {formatDayKey(state.data.sources.sessionRecords.since)};
             practice and mock scores since {formatDayKey(state.data.sources.practiceAttempts.since)}. Plan history is not stored, so
-            plan changes show only the dates the subscription record keeps. Days with nothing recorded are not shown.
+            plan changes show only the dates the stored plan record keeps. Days with nothing recorded are not shown.
           </p>
           {Object.entries(state.data.reads)
             .filter(([, v]) => v !== "complete")
