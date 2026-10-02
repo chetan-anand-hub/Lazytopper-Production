@@ -1,5 +1,13 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-02 — SEO: **WAVE A-9 — LLMS-1** — `#904` MERGED — trunk `08767832`
+
+- ✅ **LLMS-1** (`#904` `08767832`, LIVE, no flag): `lazytopper/public/llms.txt` replaced by the owner-approved payload. It lists exactly the 60 sitemap pages (26 notes, 26 chapter pages, 5 start-here, 3 legal) with accurate key facts and no "AI tutor". Live on `/llms.txt` and `/app/llms.txt` since 10:34:33 IST (sha256 `0888eaf344e7`, 9522 B).
+- ✅ **New pin** `lazytopper/src/config/llmsTxt.guard.test.ts`: red if `llms.txt` names a non-sitemap URL, repeats a URL, yields fewer than 50 URLs, or mentions `lazytopper.app`. All four arms mutation-proven.
+- ✅ **FUs:** none new, none closed.
+- ✅ **Docs:** this handoff (covers `#904`).
+- ⬜ **Owner:** nothing new from wave A-9.
+
 ## 2026-10-02 — STUDENT DATA + ADMIN: **WAVE B-8 — ACTIVITY-DETAIL-1** — `#902` MERGED — trunk `ac2208fa`
 
 - ✅ **ACTIVITY-DETAIL-1** (`#902` `ac2208fa`, LIVE, no flag): per signed-in student per IST day, a `pages` count over a fixed 145-name allowlist derived from `App.tsx`'s routes (keys `/`→`~`), and an ordered `feed` of `{t, k: page|event, n}` capped server-side at 300 a day with `feedTruncated`. The admin student detail shows "Pages visited" and an "Activity" timeline in IST. B-7's safeguards are unchanged; export + erasure cover the new fields with no change.

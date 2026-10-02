@@ -1,5 +1,58 @@
 # LazyTopper — Current State
 
+## [CURRENT · SEO] WAVE A-9 — **`llms.txt` LISTS EXACTLY THE 60 SITEMAP PAGES WITH ACCURATE KEY FACTS, AND A NEW PIN KEEPS EVERY URL IT NAMES INSIDE THE SITEMAP (LLMS-1)** — `#904` MERGED — trunk `08767832`
+*(Supersedes the WAVE B-8 block below on trunk SHA only. That block is demoted to previous on trunk SHA. Its content, and the owner items of every block below, stand as written. Exactly one un-superseded `[CURRENT]` remains: this one.)*
+
+★ **PROVENANCE.**
+- Controller A, wave A-9, from the owner spec `LLMS-1` (staged at `LT-worktrees/controller-seo/ops/.specs/LLMS-1.md`, sha256 `5760488F64E7…`, 15424 bytes, hash-verified by the controller). The spec and its §4 payload are owner-authored and owner-approved. One builder (`claude-opus-5-5`, effort high) in its own worktree `LT-worktrees/llms-1` (`lane/llms-1`).
+- *(builder-reported)* = from `Desktop/diff/report-llms-1-2026-10-02.md`; *(controller-verified)* = re-checked by the controller (`Desktop/diff/WAVE_STATE_A9.md`); *(docs-builder-verified)* = re-checked from the repo or the CI log by the docs builder that wrote this PR.
+- **Trunk history since the last handoff** (`edc2563c`, `#903`): `edc2563c` → `08767832` (`#904`).
+- This block covers `#904` only.
+
+### What landed
+`#904` (`08767832`) is live. `lazytopper/public/llms.txt`, the file AI crawlers read, was replaced by the owner-approved payload. It now lists exactly the 60 sitemap pages: 26 chapter notes, 26 chapter pages (Topic Hub), 5 "Start here" pages (Home, Exam Trends, CBSE Class 10, Practice hub, Pricing) and 3 legal pages. Its key facts are accurate: Maths and Science only, Check & Improve with one free check without an account, the 7-day trial at sign-up, and no claim to know any upcoming exam's questions. It no longer calls the AI a tutor and no longer describes the old Learn → Grind → Practice → Master loop. A new pin, `lazytopper/src/config/llmsTxt.guard.test.ts`, turns CI red if `llms.txt` names any URL the sitemap does not, lists a URL twice, yields fewer than 50 URLs, or mentions `lazytopper.app`.
+
+**Re-checked on trunk `08767832`** *(docs-builder-verified)*: `git show 08767832:lazytopper/public/llms.txt | sha256sum` = `0888eaf344e7…`, 9522 bytes; the 60 URLs in it are set-equal to the 60 `<loc>` entries of `lazytopper/public/sitemap.xml` (`diff` empty); "tutor" 0 hits and `lazytopper.app` 0 hits (case-insensitive). The file it replaced (`edc2563c`, sha256 `3ecf16f78188…`) opened with "Human-grade AI tutor for CBSE Class 10 Maths and Science." and listed a "Guided Learn -> Grind -> Practice -> Master loop".
+
+**`#904` LLMS-1 → `08767832`**, merged 2026-10-02T04:57:38Z (`--match-head-commit 52648be7…`), 2 files *(controller-verified; merge time and head re-read via `gh pr view 904`, docs-builder-verified)*:
+- `lazytopper/public/llms.txt`: replaced by the §4 payload, byte-exact via L1 (never hand-edited); sha256 `0888eaf344e7…`, 9522 bytes, LF only, ASCII only *(builder-reported)*.
+- `lazytopper/src/config/llmsTxt.guard.test.ts` (new, the L2 pin): `// @vitest-environment node`; the URL regex copied verbatim from `advertisedFromLlms` in `crawlerReachability.guard.test.ts` (it is not exported); exact string equality against `sitemapUrls("/app")`, no normalisation. Four arms: (a) at least 50 URLs, (b) every URL in the sitemap set, (c) no duplicates, (d) no `lazytopper.app`. It prints `LLMS_PIN: urls=<n> sitemap=<m>` on every run *(builder-reported)*.
+- Forbidden files absent: `App.tsx`, `Welcome.tsx`, `DesktopShell.tsx`, `main.tsx`, `vite.config.ts`, `firebase.json`, `firestore.rules`, `src/data/**`, `sitemap.xml`, `sitemapUrls.ts`, `crawlerReachability.guard`, `domain.guard`, `vercel.json`, `handoff/**` *(builder-reported; PR file list = the two files above, controller-verified)*.
+
+OR-LIVE *(controller-verified)*: polled from 10:27:54 IST (old `3ecf16f78188`) until 10:34:33 IST, when `https://www.lazytopper.com/llms.txt` and `https://www.lazytopper.com/app/llms.txt` both served `0888eaf344e7`, 9522 B, 200 `text/plain`. No rollback needed.
+
+### What it disproved
+- **P9 — that something writes `public/llms.txt`:** nothing does *(builder-reported)*. A repo-wide `git grep -n -i llms` found only readers: `crawlerReachability.guard.test.ts` (`advertisedFromLlms` and the scope line), `domain.guard.test.ts:149` (scan list), and the `vercel.json:27` rewrite `/llms.txt` → `/app/llms.txt`. There were zero hits in `.github/`, either `package.json` or `lazytopper/vite.config.ts`. The build chain writes only into `dist`, and `generateSitemap.ts` writes only `sitemap.xml` and `lastmod.json`. P9 was the wave's only STOP condition; it did not fire.
+
+### Evidence
+- **§0c premise gate** *(builder-reported)*: `premise_ledger_check.mjs --strict-anchor` PASS, 8/8 anchors resolved; independently, `sed -n <line>p` printed each of P1–P8 on exactly its cited line at `edc2563c`.
+- **L3 mutations** *(builder-reported)*, one at a time; after each the file was restored from a byte copy, sha256 re-verified `0888eaf344e7…`, and the control re-run GREEN 5/5:
+
+| Mutation | Result | Failing assertion |
+|---|---|---|
+| control (real file) | GREEN — `Tests 5 passed (5)`; `LLMS_PIN: urls=60 sitemap=60` | none |
+| M1 append a non-sitemap URL (`/app/highly-probable/10/Maths`) | RED (b) — urls=61 | `llms.txt advertises URLs the sitemap does not: https://www.lazytopper.com/app/highly-probable/10/Maths` |
+| M2 empty file | RED (a) — urls=0 | `llms.txt yielded 0 URLs, expected >= 50` |
+| M3 duplicate Home link | RED (c) | `llms.txt lists duplicate URLs: https://www.lazytopper.com/app/` |
+| M4 append `See lazytopper.app` | RED (d) | `llms.txt contains lazytopper.app: expected true to be false` |
+
+  M3 and M4 go beyond the spec's M1/M2 so that no arm of the pin is an unproven no-op.
+- **CI** on head `52648be7` *(builder-reported; re-read from the run log, docs-builder-verified)*: Quality Gate `36965332430` `success`. In each of the three vitest steps (normal clock, the 2030 clock, the IST-midnight board-season clock): `LLMS_PIN: urls=60 sitemap=60`, `✓ src/config/llmsTxt.guard.test.ts (5 tests)`, `Tests  3530 passed (3530)`. Also `CRAWLER_REACHABILITY_SCOPE: advertised=125 served_files=534 quarantined=0 sources=index.html,robots.txt,sitemap.xml,llms.txt` *(builder-reported)*.
+- **Merge** *(controller-verified)*: `gh pr merge 904 --squash --match-head-commit 52648be7…` → trunk `08767832`; `git show 08767832:lazytopper/public/llms.txt | sha256sum` = `0888eaf344e7`, 9522 B; `llmsTxt.guard.test.ts` present on trunk.
+
+### Decisions (full text in `DECISION_LOG.md`)
+- Built on trunk `edc2563c`, not the spec base `59a93989` (owner: "current tip").
+- Owner rulings L1 (payload byte-exact via the spec's command only), L2 (a new pin), L4 (Predicted Questions, Check & Improve and Full Mock are left out of `llms.txt`).
+
+### Follow-ups (bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`)
+- **New:** none. **Closed:** none.
+
+### ★ Owner items
+- **None new from wave A-9.** Carried: the owner items of the WAVE B-8 block and every block below it stand as written.
+
+### Carried forward — ★ THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this block
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.** **Wave A-9 moved NO dormancy in that trio.** The full block, including the `#647`/`#655` resolution and every subsequent restatement, stands as written in the blocks below.
+
 ## [CURRENT · STUDENT DATA + ADMIN] WAVE B-8 — **PAGES VISITED + AN ORDERED DAILY ACTIVITY FEED PER SIGNED-IN STUDENT, SHOWN ON THE ADMIN STUDENT DETAIL (ACTIVITY-DETAIL-1)** — `#902` MERGED — trunk `ac2208fa`
 *(Supersedes the WAVE B-7 block below on trunk SHA only. That block is demoted to previous on trunk SHA. Its content, and the owner items of every block below, stand as written. Exactly one un-superseded `[CURRENT]` remains: this one.)*
 

@@ -1,3 +1,24 @@
+## 2026-10-02 — WAVE A-9 (SEO, CONTROLLER A) — **LLMS-1: `llms.txt` LISTS EXACTLY THE 60 SITEMAP PAGES WITH ACCURATE KEY FACTS, PINNED TO THE SITEMAP** — `#904` MERGED — trunk `08767832`
+
+★ **PROVENANCE.** Controller A, wave A-9. The owner spec `LLMS-1` was hash-verified (`5760488F64E7`, 15424 bytes) at `controller-seo/ops/.specs`; its §4 payload is owner-approved. One builder (`claude-opus-5-5`, effort high) in its own worktree. A docs builder wrote this docs PR in `C:/Projects/LT-worktrees/llms-1-docs` from `WAVE_STATE_A9.md` and `report-llms-1-2026-10-02.md`. *(builder-reported)* / *(controller-verified)* / *(docs-builder-verified)* as in `CURRENT_STATE.md`.
+
+**Timeline.**
+- **Dispatch** at trunk `edc2563c` (`#903`), no open PRs. The spec base was `59a93989`; the owner said build on the current tip. `git diff --name-only 59a93989 edc2563c -- lazytopper/public/llms.txt lazytopper/src/config/ vercel.json` was empty *(controller-verified)*. Owner rulings L1 (payload byte-exact via the spec's command), L2 (a new pin), L4 (PQ / C&I / Full Mock left out). The only STOP: P9 finds a writer of `llms.txt`.
+- **Builder** *(builder-reported)*:
+  - §0c premise gate PASS, 8/8 anchors on their exact cited lines at `edc2563c`.
+  - P9: no writer. Every `llms` hit is a reader (`crawlerReachability.guard`, `domain.guard`, the `vercel.json:27` rewrite).
+  - L1: the payload is sha256 `0888eaf344e7…`, 9522 bytes, LF and ASCII only.
+  - L2: the new pin `llmsTxt.guard.test.ts` prints `LLMS_PIN: urls=60 sitemap=60`.
+  - L3: M1 RED (b), M2 RED (a), plus M3 RED (c) and M4 RED (d) so that every arm is proven; control GREEN; the file was restored and re-hashed after each.
+- **`#904` gates**: Quality Gate `36965332430` on head `52648be7` `success`; `Tests  3530 passed (3530)` and `LLMS_PIN: urls=60 sitemap=60` in each of the three vitest steps *(builder-reported; re-read from the log, docs-builder-verified)*.
+- **`#904` MERGED `08767832`** at 04:57:38Z (10:27:38 IST), `--match-head-commit 52648be7…` *(controller-verified)*.
+- **OR-LIVE** *(controller-verified)*: polled from 10:27:54 IST (old `3ecf16f78188`) to 10:34:33 IST, when `https://www.lazytopper.com/llms.txt` and `/app/llms.txt` both served `0888eaf344e7`, 9522 B, 200 `text/plain`. No rollback.
+- This docs PR, then the final audit request, then STOP.
+
+**Lessons.**
+- **A file nobody generates still needs a pin.** `llms.txt` is hand-kept, so nothing tied it to the sitemap; it had drifted to describe a product ("Human-grade AI tutor", "Learn -> Grind -> Practice -> Master") that no longer exists *(docs-builder-verified on `edc2563c`)*. The new pin ties its URLs to `sitemapUrls()`.
+- **Prove every arm of a guard, not only the ones the spec names.** The spec asked for M1/M2; M3/M4 were added so that the duplicate and `lazytopper.app` arms are not silent no-ops *(builder-reported)*.
+
 ## 2026-10-02 — WAVE B-8 (STUDENT DATA + ADMIN, CONTROLLER B) — **ACTIVITY-DETAIL-1: PAGES VISITED + AN ORDERED DAILY ACTIVITY FEED PER SIGNED-IN STUDENT, ON THE ADMIN STUDENT DETAIL** — `#902` MERGED — trunk `ac2208fa`
 
 ★ **PROVENANCE.** Controller B, wave B-8. The owner spec `ACTIVITY-DETAIL-1` was hash-verified (`06FECF7883DC`), sourced from `controller-b7/ops/.specs` (D0). One builder (`claude-opus-5-5`, effort high) in its own worktree. A docs builder wrote this docs PR in `C:/Projects/LT-worktrees/b8-docs` from `WAVE_STATE_B8.md` and `report-activity-detail-1-2026-10-02.md`. *(builder-reported)* / *(controller-verified)* / *(owner)* as in `CURRENT_STATE.md`.

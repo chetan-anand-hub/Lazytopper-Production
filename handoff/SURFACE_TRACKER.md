@@ -1,5 +1,19 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-02 — WAVE A-9 (SEO, CONTROLLER A): LLMS-1 (`#904` `08767832`), trunk `08767832`. LIVE on merge (no flag); the rollout is recorded in `CURRENT_STATE.md`.**
+> ★ **ONE CRAWLER-FACING FILE MOVES, ON THE AXIS "WHAT A CRAWLER CAN ACTUALLY READ": `llms.txt`.** It is not a student surface; no student-facing page's visible content changes.
+
+### ✅ CRAWLER FILE — `llms.txt` (`/llms.txt`, `/app/llms.txt`) — **STALE "AI TUTOR" PITCH → EXACTLY THE 60 SITEMAP PAGES WITH ACCURATE KEY FACTS — LIVE (`#904`)**
+- Lists 26 chapter notes, 26 chapter pages, 5 start-here pages and 3 legal pages — set-equal to the 60 `<loc>` entries of `sitemap.xml` *(docs-builder-verified on `08767832`)*. Key facts: Maths and Science only, Check & Improve with a free first check, the 7-day trial at sign-up, no claim to know upcoming questions, not affiliated with CBSE. No "tutor", no `lazytopper.app`.
+- Live: both URLs served sha256 `0888eaf344e7`, 9522 B, 200 `text/plain` at 10:34:33 IST *(controller-verified)*.
+- Pinned by `llmsTxt.guard.test.ts`: every URL must be a sitemap URL, no duplicates, at least 50, no `lazytopper.app`.
+- Predicted Questions, Check & Improve and Full Mock are deliberately not listed (owner ruling L4: not in the sitemap; a crawler gets the empty app shell there).
+
+### ⬜ NO OTHER CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- `#904` changed `llms.txt` and added one test; `sitemap.xml`, `robots.txt`, `vercel.json` and every prerendered page are unchanged.
+
+### 📋 Scope discovered? — **NO surface scope set to Settling.** No follow-up is logged; nothing goes in `DECISION_LOG` §2a.
+
 > **2026-10-02 — WAVE B-8 (STUDENT DATA + ADMIN, CONTROLLER B): ACTIVITY-DETAIL-1 (`#902` `ac2208fa`), trunk `ac2208fa`. LIVE on merge (no flag); the rollout is recorded in `CURRENT_STATE.md`.**
 > ★ **ONE ADMIN-ONLY CELL MOVES (Students — the student detail) and ONE CAPABILITY grows (the first-party activity record gains `pages` + `feed`).** No student-facing page's visible content changes.
 
