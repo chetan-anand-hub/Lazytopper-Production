@@ -1,0 +1,81 @@
+// @vitest-environment node
+import { describe, it, expect } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+import { sitemapUrls } from "./sitemapUrls";
+
+/**
+ * GUARD — every URL `public/llms.txt` advertises is a URL the sitemap advertises.
+ *
+ * WHY THIS EXISTS
+ * `llms.txt` is what AI crawlers read to understand the site, and it is a
+ * HAND-WRITTEN list. The sitemap is DERIVED from the route registry
+ * (`sitemapUrls.ts`). A hand-written list agrees with the registry on the day it
+ * is written and drifts silently afterwards: a page dropped from the sitemap would
+ * leave llms.txt pointing AI tools at it, and nothing would turn red, because the
+ * SPA shell answers HTTP 200 for every path. This pin makes the sitemap the
+ * authority: llms.txt may advertise a SUBSET of the sitemap, never anything else.
+ *
+ * WHAT `crawlerReachability.guard.test.ts` ALREADY COVERS, AND WHY THIS IS NOT IT
+ * That guard resolves each llms.txt URL against the route table and the Vercel
+ * rewrites, and fails on a foreign host. A routed page that is NOT in the sitemap
+ * (deliberately absent because a crawler gets an empty app shell there) passes it.
+ * This guard fails on exactly that case.
+ *
+ * ★ THE URL PATTERN IS THE SIBLING'S, VERBATIM — `advertisedFromLlms` in
+ * `crawlerReachability.guard.test.ts`. Two guards that extract different URL sets
+ * from the same file would disagree in silence.
+ *
+ * ★ COMPARISON IS EXACT STRING EQUALITY against `sitemapUrls("/app")`, which
+ * returns ABSOLUTE canonical URLs. No trailing-slash, host or case normalisation:
+ * any of those would let a URL the sitemap does not carry pass as one it does.
+ * `/app` is the production basename — `sitemapUrls.guard.test.ts` pins
+ * `PROD_BASENAME` to `"/app"` from `vite.config.ts`.
+ */
+
+const ROOT = process.cwd(); // vitest runs with cwd = lazytopper/
+const LLMS_TXT = resolve(ROOT, "public", "llms.txt");
+const BASENAME = "/app";
+
+/** Floor for (a). The payload lists 60; a near-empty file must not pass vacuously. */
+const MIN_URLS = 50;
+
+/** Same pattern and trailing-punctuation trim as `advertisedFromLlms`. */
+function urlsFromLlms(): string[] {
+  const txt = readFileSync(LLMS_TXT, "utf8");
+  return [...txt.matchAll(/https?:\/\/[^\s<>")]+/gi)].map((m) => m[0].replace(/[.,]$/, ""));
+}
+
+describe("llms.txt — every advertised URL is a sitemap URL", () => {
+  const urls = urlsFromLlms();
+  const sitemap = sitemapUrls(BASENAME);
+  const inSitemap = new Set(sitemap);
+
+  it("names its subject — the scope line is printed on every run, green included", () => {
+    // eslint-disable-next-line no-console
+    console.log(`LLMS_PIN: urls=${urls.length} sitemap=${sitemap.length}`);
+    expect(sitemap.length, "sitemapUrls('/app') returned nothing").toBeGreaterThan(0);
+  });
+
+  it(`(a) llms.txt lists at least ${MIN_URLS} URLs`, () => {
+    expect(urls.length, `llms.txt yielded ${urls.length} URLs, expected >= ${MIN_URLS}`).toBeGreaterThanOrEqual(
+      MIN_URLS,
+    );
+  });
+
+  it("(b) every llms.txt URL is in the sitemap", () => {
+    const notInSitemap = urls.filter((u) => !inSitemap.has(u));
+    expect(notInSitemap, `llms.txt advertises URLs the sitemap does not: ${notInSitemap.join(", ")}`).toEqual([]);
+  });
+
+  it("(c) no URL is listed twice", () => {
+    const seen = new Set<string>();
+    const dupes = urls.filter((u) => (seen.has(u) ? true : (seen.add(u), false)));
+    expect(dupes, `llms.txt lists duplicate URLs: ${dupes.join(", ")}`).toEqual([]);
+  });
+
+  it("(d) llms.txt does not contain lazytopper.app", () => {
+    expect(readFileSync(LLMS_TXT, "utf8").includes("lazytopper.app"), "llms.txt contains lazytopper.app").toBe(false);
+  });
+});
