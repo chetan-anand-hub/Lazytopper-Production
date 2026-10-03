@@ -1,5 +1,21 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-03 — WAVE B-9 (SEO, CONTROLLER B): SEO-3 (`#906` `3cf75853`), trunk `3cf75853`. LIVE on deploy (no flag); the rollout is recorded in `CURRENT_STATE.md`.**
+> ★ **TWO SURFACES MOVE ON THE AXIS "WHAT A CRAWLER CAN READ AND IS TOLD ABOUT": HPQ / Predicted (now indexed and advertised) and Notes (head title).** The §2 matrix has no column for indexing, advertising or head titles, and the Built / Redesigned / Desktop / Mobile / Verified cells of both rows are already ✅, so **no matrix cell flips**; the moves are recorded here as status lines.
+
+### ✅ HPQ / Predicted (`/app/highly-probable/10/Maths`, `/app/highly-probable/10/Science`) — **NOT INDEXED (canonical folded to the home page) → SELF-CANONICAL, OWN TITLE AND DESCRIPTION, PRERENDERED WITH 70 QUESTIONS EACH, IN `sitemap.xml` AND `llms.txt` — LIVE (`#906`)**
+- Production, Googlebot UA: own S2 title, canonical = self, the D2 description; `data-hpq-question` = 70 each, 70/70 with real stem text *(controller-verified)*.
+- `sitemap.xml` 60 → 62 `<loc>`; `llms.txt` +2 lines *(docs-builder-verified on `3cf75853`)*.
+- Pinned by `canonicalUrl.guard.test.tsx` (S6), `sitemapUrls.guard.test.ts` (62), `staticHeads.guard.test.ts` (the 155 cap) and `llmsTxt.guard.test.ts` (arms (b) and (e)).
+
+### ✅ Notes (content track) — **HEAD TITLE "<Topic> — Class 10 Notes" → "<Topic> — Class 10 Notes & Board Questions" — LIVE (`#906`)**
+- Production: `/app/notes/real-numbers` title "Real Numbers — Class 10 Notes &amp; Board Questions | LazyTopper" *(controller-verified)*. The visible h1 is unchanged.
+
+### ⬜ NO OTHER CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- No page's visible content changed. `#906` touched no `src/pages/**` file.
+
+### 📋 Scope discovered? — **NO surface scope set to Settling.** HPQ / Predicted stays `Locked` and Notes keeps `Settling` as recorded; the moves are inside known scope. One new follow-up (`[FU-QG-BUILD-MASKS-VITEST]`, CI tooling) changes no surface's scope. Nothing goes in `DECISION_LOG` §2a.
+
 > **2026-10-03 — WAVE A-10 (PERF + PREDICTED QUESTIONS, CONTROLLER A): BANK-LEAN-1 (`#907` `4f51da9f`), trunk `4f51da9f`. LIVE on merge (no flag); the rollout is recorded in `CURRENT_STATE.md`.**
 > ★ **ONE STUDENT-FACING SURFACE MOVES IN ITS CONTENT (HPQ / Predicted) AND FIVE SURFACES MOVE ON FIRST-LOAD WEIGHT ONLY (Check & Improve, Topic Hub, Home signed in, HPQ / Predicted, Practice Hub).** The §2 matrix has no column for first-load weight or for DOM completeness, and the Built / Redesigned / Desktop / Mobile / Verified cells of these five rows are already ✅ (their MI cells are unaffected), so **no matrix cell flips**; the moves are recorded here as status lines.
 

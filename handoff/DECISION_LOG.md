@@ -1,3 +1,20 @@
+## 2026-10-03 — WAVE B-9 (SEO, CONTROLLER B): SEO-3 — PR `#906` merged — trunk `3cf75853`
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (owner rulings S1–S7 of the spec `SEO-3`, and the decisions D1, D2 of `WAVE_STATE_B9.md`), not `DECISION N`.
+
+### Owner rulings (spec `SEO-3`, sha256 prefix `6F144584A2E3`)
+- **S1–S7 were fixed by the owner in the spec and not asked again.** The `llms.txt` target was sha256 `57E869074477`, 9,870 bytes; trunk `3cf75853` matches *(docs-builder-verified)*.
+
+### Decisions, with the reason
+- **D1 (controller, OR-AUTO, 2026-10-03) — SUPERSEDED by D2.**
+  - **What:** the HPQ descriptions were over the 155 cap (161 / 163). Keep the owner text VERBATIM and add a named two-path exception (`DESCRIPTION_CAP_EXCEPTIONS`, 165) in `staticHeads.guard.test.ts`; mutation-proven that a third path over 155 stays red (M3) and that removing an entry turns red (M4) *(builder-reported)*.
+  - **Why:** the owner ruled "exact descriptions"; altering the text would override an explicit ruling, while a named exception changes only an allowlisted test and stays reversible. Flagged for owner override.
+- **D2 (owner, reverses D1).**
+  - **What:** HPQ descriptions → "Question patterns that recur most in CBSE Class 10 {Maths|Science} boards, chapter by chapter, from 10 years of papers. Patterns to practise, not the 2027 paper." (151 / 153). `DESCRIPTION_CAP_EXCEPTIONS` and its comment deleted; a uniform 155 cap. Titles unchanged. Proof: M5 (pad a description over 155 → red; restore → green) *(builder-reported)*.
+  - **Why (owner):** Google truncates at about 155 characters and would cut the "not the 2027 paper" hedge; a uniform cap beats a named exception.
+  - Closes `[FU-SEO3-HPQ-DESC-OVER-CAP]`.
+- **The branch was brought current with `gh pr update-branch`** (merge commit `1f3689e0`) after Controller A's docs PR `#908` landed and the merge was refused "not up to date". **Why:** a merge, not a rebase or force-push; `lazytopper/` was byte-identical to the green head `6c142775` before merge *(controller-verified)*.
+
 ## 2026-10-03 — WAVE A-10 (PERF + PREDICTED QUESTIONS, CONTROLLER A): BANK-LEAN-1 — PR `#907` merged — trunk `4f51da9f`
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (owner rulings C1–C4, H1–H4, G1–G2 of the spec `BANK-LEAN-1`, and the controller decisions of `WAVE_STATE_A10.md`), not `DECISION N`.

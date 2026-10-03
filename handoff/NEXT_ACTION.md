@@ -1,3 +1,23 @@
+## ★★★ 2026-10-03 — WAVE B-9 (SEO, CONTROLLER B) — SEO-3 CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-10 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
+
+**TRUNK IS `3cf75853349dd895eb9ca28d1fe680d30a1b33ed`**, measured 2026-10-03 (`git ls-remote origin base/approved-thru-437`):
+- `3cf75853` = `#906` (SEO-3: the two Predicted Questions pages indexed and advertised; notes titles name board questions; `llms.txt` pinned both ways) — **this wave**; LIVE since 11:57:40 IST, Railway deployment `6824101624` (see `CURRENT_STATE.md`)
+- `c64f471e` = `#908` (docs: wave A-10)
+
+No other PR was open when this docs PR was opened (`gh pr list --state open` → `[]`).
+
+### NEXT — OWNER
+- **None new from wave B-9.** The one open call (the HPQ description length) was ruled by the owner (D2) before merge.
+
+### Carried — still owed
+1. **The WAVE A-10 owner item** (audit the `sessionRecords.ts` overlay-gate narrowing), then the WAVE A-9 and B-8 owner items and everything they carry.
+
+### NEXT — LANES
+- None dispatched by wave B-9 beyond `#906`. One new FU, not dispatched: `[FU-QG-BUILD-MASKS-VITEST]` (owner: worth fixing later).
+- **The `llms.txt` pin now runs both ways.** A page added to the sitemap but not to `llms.txt` turns `llmsTxt.guard.test.ts` arm (e) red; a URL added to `llms.txt` but not to the sitemap turns arm (b) red. This supersedes the one-way note in the WAVE A-9 block below.
+- A new advertised page needs its prerendered fragment in the same PR: until the capture artifact is committed, Quality Gate's Build fails and its vitest steps are skipped (see `[FU-QG-BUILD-MASKS-VITEST]`).
+
 ## ★★★ 2026-10-03 — WAVE A-10 (PERF + PREDICTED QUESTIONS, CONTROLLER A) — BANK-LEAN-1 CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-9 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
 

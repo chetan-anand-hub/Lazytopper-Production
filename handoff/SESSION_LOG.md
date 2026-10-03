@@ -1,3 +1,24 @@
+## 2026-10-03 — WAVE B-9 (SEO, CONTROLLER B) — **SEO-3: THE TWO FREE PREDICTED QUESTIONS PAGES ARE INDEXABLE AND ADVERTISED; NOTES TITLES NAME BOARD QUESTIONS; `llms.txt` PINNED BOTH WAYS** — `#906` MERGED — trunk `3cf75853`
+
+★ **PROVENANCE.** Controller B, wave B-9. The owner spec `SEO-3` was hash-verified (`6F144584A2E3`, the owner addendum that supersedes `1BBC02843DC1`) at `controller-b9/ops/.specs`. One builder (`claude-opus-5-5`, effort high) in its own worktree, resumed for step 2. A docs builder wrote this docs PR in `C:/Projects/LT-worktrees/seo-3-docs` from `WAVE_STATE_B9.md` and `report-seo-3-step1-2026-10-03.md`. *(builder-reported)* / *(controller-verified)* / *(docs-builder-verified)* as in `CURRENT_STATE.md`.
+
+**Timeline.**
+- **Dispatch** at trunk `d96c18c9`, the spec base; no open PRs. S1–S7 fixed by the owner. Disjoint from Controller A's BANK-LEAN-1 except `prerendered/**`, so SEO-3 committed its capture artifact only after syncing to post-BANK-LEAN-1 trunk.
+- **Step 1** *(builder-reported)*: §0c PASS (13 premises, exit 0); S1, S2, S4–S7 done, 8 files; M1 and M2 mutation-proven. S3 could not run (`gen:sitemap` refuses without fragments). The S2 descriptions were 161 / 163 characters, over the 155 cap → `[FU-SEO3-HPQ-DESC-OVER-CAP]`. CI on `0f4bef4e`: capture failed only as STALE; Quality Gate `37092664662` failed at Build and skipped the vitest steps → `[FU-QG-BUILD-MASKS-VITEST]`.
+- **Step 1b** *(controller decision D1 under OR-AUTO)*: owner text kept verbatim with a named two-path exception (`46647a47`, fast-forward push); M3, M4 proven.
+- **Owner relay**: "BANK-LEAN-1 merged as 4f51da9f6c7e73266922186d05aea6835d334a6d — proceed with §3 step 2."; `ls-remote` = `4f51da9f`.
+- **Owner ruling D2 (reverses D1)**: shorter descriptions (151 / 153), exception deleted, uniform 155 cap; M5 proven.
+- **Step 2** *(builder-reported)*: merged trunk into the lane (merge commit `3993da3b`, no force); D2 at `fd1ee67c`; capture `37099872807` artifact applied exactly as supplied at `6c142775`; all CI green on `6c142775` (Quality Gate `37100080354`); `Tests 3546 passed (3546)` ×3.
+- **Trunk moved** to `c64f471e` (`#908`); the merge was refused "not up to date"; the controller ran `gh pr update-branch` → `1f3689e0`, `lazytopper/` byte-identical to `6c142775` *(controller-verified)*.
+- **`#906` MERGED `3cf75853`** at 06:09:42Z (11:39:42 IST) *(docs-builder-verified)*; Quality Gate `37101168843` success on `1f3689e0`; capture `37101168831` success *(controller-verified)*.
+- **OR-LIVE PASS** *(controller-verified)*: Railway deployment `6824101624`, new build live 11:57:40 IST; Googlebot UA, 10 identical samples; HPQ pages self-canonical with 70 `data-hpq-question` each. No rollback.
+- This docs PR, then the controller merges.
+
+**Lessons.**
+- **A build that fails early hides the tests behind it.** Quality Gate skips vitest when Build fails, so a guard failure in the same PR showed only in the builder's local run → `[FU-QG-BUILD-MASKS-VITEST]`.
+- **An advertised path cannot be generated before its fragment exists.** `gen:sitemap` refuses without the prerendered fragment, so a new sitemap page and its capture artifact land in the same PR.
+- **An owner text and a guard cap can conflict; the owner rules.** The controller's named exception (D1) was reversible and was reversed (D2) in favour of a uniform cap.
+
 ## 2026-10-03 — WAVE A-10 (PERF + PREDICTED QUESTIONS, CONTROLLER A) — **BANK-LEAN-1: FIVE PAGES THAT SERVE NO QUESTIONS STOP DOWNLOADING THE ~8.6 MB QUESTION BANK; PREDICTED QUESTIONS FIXES** — `#907` MERGED — trunk `4f51da9f`
 
 ★ **PROVENANCE.** Controller A, wave A-10. The owner spec `BANK-LEAN-1` was hash-verified (`4E37ED300919`) at `controller-a10/ops/.specs`, byte-identical to the owner's file. One builder (`claude-opus-5-5`, effort high) in its own worktree. A docs builder wrote this docs PR in `C:/Projects/LT-worktrees/a10-docs` from `WAVE_STATE_A10.md` and `report-bank-lean-1-2026-10-03.md`. *(builder-reported)* / *(controller-verified)* / *(docs-builder-verified)* as in `CURRENT_STATE.md`.
