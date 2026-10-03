@@ -1,4 +1,4 @@
-## 2026-10-03 — WAVE B-10 (CLEANUP + FRICTION, CONTROLLER B) — **FRICTION-FIX-1: RETIRED CODE DELETED BEHIND A NO-ORPHANS GUARD; ONBOARDING, BASIC LIST, UPGRADE EXIT, SEE PLANS, PATH PII AND THE CI BUILD MASK FIXED** — `#910` + `#912` MERGED — trunk `8ff2203e`
+## 2026-10-03 — WAVE B-10 (CLEANUP + FRICTION, CONTROLLER B) — **FRICTION-FIX-1: RETIRED CODE DELETED BEHIND A NO-ORPHANS GUARD; ONBOARDING, BASIC LIST, UPGRADE EXIT, SEE PLANS, PATH PII AND THE CI BUILD MASK FIXED** — `#910` + `#912` MERGED — trunk `ffc586c0` (with Controller A's `#911`)
 
 ★ **PROVENANCE.** Controller B, wave B-10. The owner + cofounder spec `FRICTION-FIX-1` was hash-verified (`1D5C6AD63316`, MATCH) at `controller-b10/ops/.specs`; owner rulings R1–R7 arrived mid-wave (`BRIEF_B10_RULINGS_ADDENDUM_1.md`). Two builders (`claude-opus-5-5`, effort high), one per PR, each in its own worktree; two read-only OR-LIVE verifiers. A docs builder wrote this docs PR in `C:/Projects/LT-worktrees/docs-b10` from `WAVE_STATE_B10.md`, the four reports and the rulings addendum. *(builder-reported)* / *(verifier-reported)* / *(controller-verified)* / *(docs-builder-verified)* as in `CURRENT_STATE.md`.
 
@@ -13,6 +13,7 @@
 - **`#912` MERGED `8ff2203e`** at 14:29:39Z (19:59:39 IST) on head `7be3bfc2` (`--match-head-commit`), after PR-1's OR-LIVE passed *(controller-verified; time docs-builder-verified)*.
 - **OR-LIVE PARTIAL** *(verifier-reported)*: Vercel COMPLETE 100% 14:46:46Z, 12/12; Railway `6828817116`; the pricing mock line correct prerendered and hydrated (0 "undefined"); 7/7 regression surfaces OK; app `page_view` paths redacted. The PARTIAL: GA4's automatic `user_engagement` sends the raw landing URL from `index.html`. Controller: **no rollback** (pre-existing, outside `#912`, owner-ruled LOW; evidence added to `[FU-INDEXHTML-PATH-PII-VERCEL-BEFORESEND]`).
 - **Owner, recorded in this docs PR:** `[FU-TRIAL-UNVERIFIED-EMAIL-CAN-START]` → KEEP; the wave A-10 gate narrowing owner-approved 2026-10-03; TOPIC-FIX-1 deferred to a later session with the grader anomalies; the study planner retired.
+- **Trunk moved** to `ffc586c0` (Controller A's `#911`, merged 15:01:41Z — *recorded by Controller B from PR metadata; Controller A's close-out is authoritative*) while this docs PR was being written; the docs builder merged it into the branch (no force-push).
 - This docs PR; the controller merges.
 
 **Lessons.**

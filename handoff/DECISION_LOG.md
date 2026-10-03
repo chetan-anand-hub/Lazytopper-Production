@@ -1,4 +1,4 @@
-## 2026-10-03 — WAVE B-10 (CLEANUP + FRICTION, CONTROLLER B): FRICTION-FIX-1 — PRs `#910` + `#912` merged — trunk `8ff2203e`
+## 2026-10-03 — WAVE B-10 (CLEANUP + FRICTION, CONTROLLER B): FRICTION-FIX-1 — PRs `#910` + `#912` merged — trunk `8ff2203e` (now `ffc586c0` with Controller A's `#911`)
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (the owner rulings of the spec `FRICTION-FIX-1`, owner rulings R1–R7 of `BRIEF_B10_RULINGS_ADDENDUM_1.md`, and the controller decisions of `WAVE_STATE_B10.md`), not `DECISION N`.
 

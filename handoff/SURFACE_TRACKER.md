@@ -1,6 +1,6 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
-> **2026-10-03 — WAVE B-10 (CLEANUP + FRICTION, CONTROLLER B): FRICTION-FIX-1 (`#910` `94f3d4eb` + `#912` `8ff2203e`), trunk `8ff2203e`. LIVE on deploy (no flag); the rollout is recorded in `CURRENT_STATE.md`.**
+> **2026-10-03 — WAVE B-10 (CLEANUP + FRICTION, CONTROLLER B): FRICTION-FIX-1 (`#910` `94f3d4eb` + `#912` `8ff2203e`), trunk `ffc586c0` (with Controller A's `#911`, not recorded here). LIVE on deploy (no flag); the rollout is recorded in `CURRENT_STATE.md`.**
 > ★ **SIX AREAS MOVE; NO §2 MATRIX CELL FLIPS.** Pricing's Verified cell stays 🟡 because the signed-in and dark-theme checks of the Basic list are owner-owed; Check & Improve's cells are already ✅; Onboarding, the upgrade modal, analytics and the retired surfaces have no row in §2. Each move is recorded below as a status line.
 
 ### ✅ Onboarding (`/app/onboarding`, no §2 row) — **"your entire study plan" / "Build My Study Plan" / "CBSE 2025-26" → "We'll pace your preparation from this." / "Start preparing" / "CBSE 2026-27: Two-Exam System" (session derived from the board-date config) — LIVE (`#912`)**

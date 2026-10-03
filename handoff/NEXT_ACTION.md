@@ -1,12 +1,13 @@
 ## ★★★ 2026-10-03 — WAVE B-10 (CLEANUP + FRICTION, CONTROLLER B) — FRICTION-FIX-1 CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE B-9 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged — except the WAVE A-10 item "audit the overlay-gate narrowing", which the owner APPROVED on 2026-10-03.)*
 
-**TRUNK IS `8ff2203e8b299b931cd31f6534f755eaa009cb1b`**, measured 2026-10-03 (`git ls-remote origin base/approved-thru-437`):
+**TRUNK IS `ffc586c093d55f5933e029952b63bf3e65faf57a`**, measured 2026-10-03 (`git ls-remote origin base/approved-thru-437`):
+- `ffc586c0` = `#911` (Controller A, wave A-11: "feat(bank): BANK-SPLIT-1 PR-1 - withhold 30 true duplicate rows; no set repeats a question") — *recorded by Controller B from PR metadata; Controller A's close-out is authoritative*
 - `8ff2203e` = `#912` (FRICTION-FIX-1 PR-2: Onboarding without the retired plan, honest mock limits, a Basic exit, See plans links, path PII, CI vitest runs past a broken Build) — **this wave**; Vercel COMPLETE at 100% 14:46:46Z (20:16:46 IST), Railway `6828817116` (see `CURRENT_STATE.md`)
 - `94f3d4eb` = `#910` (FRICTION-FIX-1 PR-1: retired orphan code deleted behind a no-orphans guard; the dead mentor server modules dropped) — **this wave**; Vercel COMPLETE at 100% 13:37:36Z (19:07:36 IST), Railway `6828079890`
 - `ad22089e` = `#909` (docs: wave B-9)
 
-Open when this docs PR was opened: only `#911` (Controller A, BANK-SPLIT-1 PR-1, `lane/bank-dedup-1`), a product PR that touches no `handoff/**` file — so this is the only docs PR open (OR-16).
+When this docs PR was written, only `#911` (Controller A, BANK-SPLIT-1 PR-1, a product PR touching no `handoff/**` file) was open; it merged as `ffc586c0` before this PR opened, and this PR merged that trunk into its branch. This is the only docs PR open (OR-16).
 
 ### NEXT — OWNER
 1. **Run the OWNER-OWED signed-in live checks** of both PRs (the list is in `CURRENT_STATE.md` → WAVE B-10 → ★ Owner items). Most exposed: signed-in Home `/app/` after `#910`'s deletions, a tutor round-trip, and — after `#912` — `/app/onboarding` signed in, "Keep using Basic" in a locked feature's modal, the C&I confirmation surviving a reload, and GA4 Realtime with in-app navigation AND a reload (a raw uid on `user_engagement` after the reload is the known LOW `[FU-INDEXHTML-PATH-PII-VERCEL-BEFORESEND]`, not a regression).
@@ -18,7 +19,7 @@ Open when this docs PR was opened: only `#911` (Controller A, BANK-SPLIT-1 PR-1,
 1. **The WAVE B-9 owner items** (none new there), then the WAVE A-9 and B-8 owner items and everything they carry. The WAVE A-10 owner item is DONE (approved 2026-10-03; see `DECISION_LOG.md`).
 
 ### NEXT — LANES
-- None dispatched by wave B-10 beyond `#910` and `#912`. Controller A's `#911` (BANK-SPLIT-1) is in flight; its close-out is authoritative for it.
+- None dispatched by wave B-10 beyond `#910` and `#912`. Controller A's `#911` (BANK-SPLIT-1 PR-1) merged as `ffc586c0`; Controller A's close-out is authoritative for it.
 - **★ DOCTRINE NOW ENFORCED BY CI — the no-orphans guard.** `lazytopper/src/config/noOrphans.guard.test.ts` runs in the vitest step of every PR (`NO_ORPHANS: files=<n> orphans=13` at trunk). A file nothing live imports turns it RED, naming the file. A new module must be imported from a live root in the same PR; an `ALLOWED_ORPHANS` entry needs a one-line reason. The walker follows `require(path.join(__dirname, …))` from `server/**` — a walker that does not is how the cofounder audit nearly deleted 5 boot-loaded files. It binds Controller A's PRs too (R7).
 - **Quality Gate now runs the tests when Build fails** (C1): a red Build no longer hides a red guard in the same PR; the job still fails.
 - **The planner is retired and its code is gone.** Do not re-introduce "study plan" copy; Onboarding is pinned against it (`Onboarding.friction.test.tsx`).

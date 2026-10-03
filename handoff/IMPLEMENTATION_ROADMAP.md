@@ -1,6 +1,6 @@
 # LazyTopper Implementation Roadmap
 
-## 2026-10-03 — CLEANUP + FRICTION: **WAVE B-10 — FRICTION-FIX-1** — `#910` + `#912` MERGED — trunk `8ff2203e`
+## 2026-10-03 — CLEANUP + FRICTION: **WAVE B-10 — FRICTION-FIX-1** — `#910` + `#912` MERGED — trunk `ffc586c0` (with Controller A's `#911`)
 
 - ✅ **PR-1 RETIRED-DELETE-1** (`#910` `94f3d4eb`, LIVE, OR-LIVE PASS): 94 retired, unimported client files deleted (old Dashboard, Daily Mix, Weekly Wrapped, Parent Dashboard, the study planner, old Trends, mobile Topic Hub…) plus the 7 unrequired mentor server modules (coach/mindset modes went with them); +236 / −20,381. Full list in `Desktop/diff/report-friction-fix-1-pr1-2026-10-03.md`.
 - ✅ **No-orphans guard** `src/config/noOrphans.guard.test.ts` gates every PR (`NO_ORPHANS: files=298 orphans=13` at trunk; the 13 `ALLOWED_ORPHANS` are bank consumers, Controller A scope); mutation-proven M1–M4.
