@@ -23,6 +23,51 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-03 — WAVE A-11 (CONTROLLER A): BANK-SPLIT-1 (`#911` `ffc586c0` + `#914` `86451e1a`) — nine new, none closed; four owner live verifications owed
+
+Sources: the spec `BANK-SPLIT-1` (v1.0 WHY: the deferral), the scout report (`Desktop/diff/report-bank-split-scout-1-2026-10-03.md`), the builders' reports (`report-bank-split-1-pr1-2026-10-03.md` §8–§9, §11; `report-bank-split-1-pr2-2026-10-03.md` "Findings that contradict the spec" and the follow-ups of the loading-state fix), the PR-2 OR-LIVE report (`live-after-pr2-bank-split-1-2026-10-03.md`, incl. CONTROL — APP CHECK 403) and the controller's state file (`WAVE_STATE_A11.md`). **Bodies come from those sources; nothing is invented.** `grep` of `handoff/` at `86451e1a` *(docs-builder-verified)* found no prior entry for any of the nine ids. `[FU-BANK-CONSUMER-ORPHANS-FOR-CONTROLLER-A]` (wave B-10) stays OPEN: this wave did not touch the 13 `ALLOWED_ORPHANS`.
+
+### New — deferred by the spec
+
+### `[FU-ENTRY-FIRESTORE-LAZY]` — OPEN · deferred by the cofounder spec · touches auth
+Move Firestore out of the entry bundle. The spec `BANK-SPLIT-1` WHY defers it: "Firestore out of the entry bundle (touches auth; separate lane later)". The scout flagged that the trim touches `AuthContext.tsx` / `subscriptionService.ts`, which were forbidden to this wave. Not started. A separate lane, with a live auth round-trip before "done".
+
+### New — from PR-1 (`#911`)
+
+### `[FU-DEDUP-MIXED-GROUP-PAIRS]` — OPEN
+Two pairwise true duplicates sit inside mixed groups (groups whose rows are not all equal in marks / options / answer), so the N1 group rule does not withhold them: `CIR-M10` → `CIRC-N-NCERT-10-SA-005` and `ABS2-053` → `ABS-E04` (`CIR-M10` and `ABS2-053` are AI rows). Not withheld by `#911`; they cannot repeat within a set either way (`questionKey`) *(builder-reported)*. Owner / cofounder call: withhold them or leave them.
+
+### `[FU-QP-OVERLAY-GATE-FREEZES-P6]` — OPEN
+The spec's §1 allowed "the P6 dedupe line" in `practiceSetGenerator.ts`, but the lazytopper ops gate `quick_practice_overlay_additive_acceptance.mjs` (lines 436 / 462) freezes that file at zero diff. `#911`'s CI run 1 failed on it (the gate is commit-scoped, so it passed locally pre-commit); P6 was reverted and Practice's no-repeat guarantee rests on P5 (`practiceQuestionBuilder.ts`), proven by the guard and its CONTROL. `generatePracticeSet` has no other live caller since `#910` (builder claim). If P6 is wanted, that gate must first be narrowed in its own scoped change *(builder-reported)*.
+
+### New — from PR-2 (`#914`)
+
+### `[FU-PRACTICE-STATIC-PACK-EDGE]` — OPEN
+Practice still reaches `triangles.pack1` and `trigonometry.pack1` (~96 KB source) statically through `questionTypeFirstResolver` → `contentStrategy` tag indexes (e.g. `contentStrategy/trigonometry/trigonometryQuestionTagIndex.ts` imports `trigonometry.pack1`). The edge predates `#914` and was outside it; L7 is checked against the aggregator and the chapter modules, as the spec words it *(builder-reported)*. Live: Practice (triangles) also loads `trigonometry.pack1` 46,567 / 10,562 B *(agent-reported)*.
+
+### `[FU-IDINDEX-ON-CT-FM]` — OPEN
+Chapter Test and Full Mock load the generated id index (`progressBankIndex-*`, 289.6 kB / 53.8 kB gzip) through `scorecardBankLenses` *(builder-reported)*. Live: 51,972 B of CT's 188,222 B question data is the id index (136,250 B without it) *(agent-reported)*. Possible direction (not measured): load the index lazily on the scorecard path.
+
+### `[FU-CURATEDINLINE-CROSS-SUBJECT]` — OPEN
+The 26 rows moved by Option A sit in ONE shared pack, `questionBanks/class10/curatedInline.ts` (Maths and Science, 23 chapters). Live, the Maths Full Mock loads its chunk (`curatedInline-*.js` 25,513 / 8,457 B), whose bytes include 14 Science rows; `defineChapter` filters rows by slug, so they are not served, but they ship *(agent-reported)*. Option A required ONE new pack; splitting it per subject would need a new owner grant.
+
+### `[FU-APPCHECK-NO-LEAD-TIME]` — OPEN
+After `#914` (T1), App Check warms on answer-box focus or the file picker. Focusing the QUESTION box does not warm it, so a visitor who types a question and clicks "Read the question" first gets App Check initialised and a token requested in the same moment, with no lead time. Whether that lowers real-browser reCAPTCHA scores is NOT ESTABLISHED; the owner's one real-browser free check settles it *(agent-reported, the CONTROL — APP CHECK 403 section)*.
+
+### New — process (from the scout and PR-2 attempt 1)
+
+### `[FU-PREMISE-GATE-ANCHOR-TOLERANCE]` — OPEN (lesson)
+The scout's §0c gate (`premise_ledger_check --strict-anchor`) PASSED with P4 pointing at the wrong line: P4 cited `progressBankIndex.ts:21`, which is a comment; the anchored import is on `:23`. The checker's anchor tolerance hid it — a green gate concealing a defect *(scout-reported)*. v1.1 re-anchored P4 to `:75` on PR-1's tree. Tightening the tolerance (or reporting the resolved line) would make the gate fail on it.
+
+### `[FU-SPEC-LEDGER-PINS-PRIOR-PR-LINES]` — OPEN (lesson)
+The v1.0 spec's PR-2 premise ledger pinned PR-1's pre-change lines (P2, P3, P5, P7 — lines `#911` rewrote on purpose), so PR-2 attempt 1 stopped correctly at §0c (`premise_ledger_check` EXIT=1) with nothing built. Fixed by the v1.1 re-anchor (7 lines; owner-approved). A two-PR spec should anchor PR-2's premises against PR-1's merged tree, or mark them re-anchor-after-PR-1 *(controller-verified, `WAVE_STATE_A11.md`)*.
+
+### Owner live verifications owed (from `#914`'s OR-LIVE "Not established"; not FUs)
+1. **One real free check in a normal browser on www** (`/app/check-improve`, signed out) reaches a graded result. The automation got App Check 403 "App attestation failed" (headless and headed); the control (old load-time warm-up, 15 s lead, same 403; `freeCheckClient.ts` 0-line diff) says environmental, but it is not a full control.
+2. **Signed-in `/app/me` loads no bank chunk.**
+3. **PDF export loads on click** (it needs a graded result first; absence on load IS established).
+4. **Tutor demo question and Exam Simulation generation** work signed in (both redirect to login signed out).
+
 ## 2026-10-03 — WAVE B-10 (CONTROLLER B): FRICTION-FIX-1 (`#910` `94f3d4eb` + `#912` `8ff2203e`) — thirteen new, seven closed (+ two builder candidates opened and closed under R2), one kept open by owner ruling
 
 Sources: the builders' reports (`Desktop/diff/report-friction-fix-1-pr1-2026-10-03.md` "FU candidates"; `report-friction-fix-1-pr2-2026-10-03.md` "FU IDs" and the phase-A resume), the PR-2 OR-LIVE report (`report-friction-fix-1-pr2-orlive-2026-10-03.md` §5), the owner rulings (`BRIEF_B10_RULINGS_ADDENDUM_1.md`) and the controller's state file (`WAVE_STATE_B10.md`). **Bodies are the builders' text; nothing is invented.** For the closed ids, `grep` of `handoff/` at `8ff2203e` *(docs-builder-verified)* found entries for `[FU-BASIC-LIST-DARK-THEME]`, `[FU-UPGRADE-MODAL-NO-BASIC-EXIT]`, `[FU-TRIAL-WORDING-SEE-PLANS-FREECHECK]`, `[FU-SIGNUP-CONFIRMATION-SESSION-ONLY]` and `[FU-QG-BUILD-MASKS-VITEST]`; **`[FU-BSRE-GATE-PINS-DEAD-EVALUATOR]`, `[FU-F2-MOCK-LIMITS-ZERO-IMPORT-MODULE]` and the builder candidates `[FU-MENTOR-SERVER-MODULES-ORPHANED]`, `[FU-MODE-ALIASES-COACH-DEAD]` had no entry** (all were raised and closed inside this wave) and are recorded here as opened and closed. No dated entry is edited (standing rule 3).

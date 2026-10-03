@@ -1,3 +1,34 @@
+## 2026-10-03 — WAVE A-11 (BANK + PERF, CONTROLLER A) — **BANK-SPLIT-1: NO SET REPEATS A QUESTION; PRACTICE, CHAPTER TEST AND FULL MOCK LOAD ONLY THEIR CHAPTERS; CHECK & IMPROVE DEFERS reCAPTCHA TO FIRST INTENT; EXACT-SLUG TOPICS** — `#911` + `#914` MERGED — trunk `86451e1a`
+
+★ **PROVENANCE.** Controller A, wave A-11. Phase 1 scout `BANK-SPLIT-SCOUT-1` (report only); phase 2 the cofounder spec `BANK-SPLIT-1` v1.0 (`b36bbcde1622`) and, for PR-2, v1.1 (`26699C267B9C`, owner-approved re-anchor). One builder per PR (`claude-opus-5-5`, effort high), each in its own worktree; read-only OR-LIVE measurement agents. A docs builder wrote this docs PR in `C:/Projects/LT-worktrees/docs-bank-split-1` from `WAVE_STATE_A11.md`, the specs, the three lane reports and the four live reports. *(builder-reported)* / *(scout-reported)* / *(agent-reported)* / *(controller-verified)* / *(docs-builder-verified)* as in `CURRENT_STATE.md`.
+
+**Lanes.**
+
+| lane | PR | what it changed | what it disproved |
+|---|---|---|---|
+| BANK-SPLIT-SCOUT-1 | none (report only) | Nothing tracked; design evidence for per-chapter loading and de-duplication. | The spec WHY's duplicate count (97 / 117; N1 gives 103 / 123, only 31 true duplicates), the "~2.4 MB" bank (1.93 MB transferred) and "3.3 MB" Check & Improve (2.69 MB) figures, the P4 line (`:23`, not `:21`; hidden by the gate's anchor tolerance), and the claim that the set builders already prevent repeats (CT 30 / 2,600, worksheets 6 / 560 seeded sets repeated) *(scout-reported)*. |
+| PR-1 de-dup | `#911` `ffc586c0` | 30 true-duplicate rows withheld (keeper: past paper → authentic over AI → oldest; cross-chapter kept); `questionKey` in every set builder; `noRepeatInSet.guard.test.ts` (`NO_REPEAT: sets=4624 repeats=0`). | That the CT and worksheet builders already prevented repeats; the spec's P6 line was gate-frozen (reverted; Practice rests on P5) *(builder-reported)*. |
+| PR-2 per-chapter loading | `#914` `86451e1a` | Generated chapter modules + loader with one await per route; id index; bank-free `isPYQQuestion`; exact slug; the 26 inline rows moved byte-identical into `class10/curatedInline.ts`; App Check on first intent; PDF export and history panel lazy; the loading-state fix. | Attempt 1 blocked at §0c on stale anchors (the v1.0 ledger pinned PR-1's pre-change lines); attempt 2 blocked on the 26 inline rows (unreachable by a chapter module without the aggregator) *(builder-reported; the 26 controller-verified)*. |
+
+**Timeline.**
+- **Scout** at trunk `ad22089e`: PASS-WITH-FOLLOW-UP, with its open questions listed for the cofounder *(scout-reported)*. The cofounder wrote v1.0 with rulings on all of them.
+- **OR-LIVE baseline** (live `94f3d4eb`): Practice / CT / FM JS ≈ 2.53–2.57 MB transferred each, the bank 1.93 MB of it; C&I 0.87 MB; 0 repeats in a small sample *(agent-reported)*.
+- **PR-1** built: P14 = 30; CI run 1 failed on the ops gate that freezes `practiceSetGenerator.ts` → P6 reverted; green on run 2. Trunk moved twice (`#910`, `#912`); `gh pr update-branch` twice, the lane diff hash `79e7ae4f` unchanged *(controller-verified)*.
+- **`#911` MERGED `ffc586c0`** at 15:01:41Z on head `fe408695` after CI `37130433926` (`Tests 3586 passed (3586)`) *(controller-verified; time docs-builder-verified)*. **OR-LIVE PR-1 MATCH** (23 / 23 samples; 0 repeats in 10 CT papers, both FMs, Practice and a worksheet) *(agent-reported)*; owner + cofounder accepted; the reCAPTCHA-frame console error noted for T1.
+- **PR-2 attempt 1 BLOCKED at §0c** (P2 / P3 / P5 / P7 pinned lines `#911` rewrote). Controller drafted v1.1 (7 lines changed; gate PASS 16 premises, 13 / 13); **owner approved v1.1** with the frozen-files ruling.
+- **PR-2 attempt 2 BLOCKED** (a required change in a forbidden file): 26 served rows inline in `canonicalQuestionBank.ts`. **Owner + cofounder ruled Option A** with a 4-part proof set and the T1 after-check criteria. **OR-LIVE before PR-2** (live `ffc586c0`, scripts hash-frozen) accepted as the baseline.
+- **PR-2 attempt 3** built on `0adbf44b` (`#913` had merged, the docs lock free): `#914` draft, CI `37137901713` green; R4 proofs equal; P16 25 / 486 all circles / areas. Controller accepted two in-scope files and the R4(3) substitute; **sent back** the Practice "0 available" flash → fix `e7bd92d8`.
+- **`#914` MERGED `86451e1a`** at 17:40:49Z on head `e7bd92d8` after CI `37140153172` (`Tests 3633 passed (3633)`) *(controller-verified; time docs-builder-verified)*.
+- **OR-LIVE PR-2: measured criteria MATCH** (23 / 23 samples; CT bank 188 KB, FM Maths only, C&I −377 KB transferred, reCAPTCHA absent on load) *(agent-reported)*. The real free check NOT ESTABLISHED (App Check 403 to automation). **Control**: the old load-time warm-up gets the same 403 → environmental (not a full control). **Controller: no rollback**; owner verifications owed.
+- This docs PR; the controller merges, then the final audit request.
+
+**Lessons.**
+- **A green premise gate can point at the wrong line.** The gate passed with P4 two lines off (its anchor tolerance resolved to a nearby comment) → `[FU-PREMISE-GATE-ANCHOR-TOLERANCE]`.
+- **A two-PR spec must not pin, for PR-2, lines PR-1 rewrites on purpose.** The gate did its job and stopped attempt 1; the fix was a re-anchor, not a waiver → `[FU-SPEC-LEDGER-PINS-PRIOR-PR-LINES]`.
+- **"The bank lives in pack files" was not true.** 26 served rows were inline in the aggregator; measuring before building (controller `grep`: 0 of 26 in any pack) turned a silent row loss into an owner ruling.
+- **A loading state is a state.** The per-chapter await made Practice flash "0 available" while the chapter loaded — a false empty state that every suite passed; only a cold-cache test asserting the pending state catches it.
+- **When automation cannot attest, a control decides the rollback question, not the 403.** The same 403 with the old warm-up separated "environmental" from "regression"; the real-browser check stays with the owner.
+
 ## 2026-10-03 — WAVE B-10 (CLEANUP + FRICTION, CONTROLLER B) — **FRICTION-FIX-1: RETIRED CODE DELETED BEHIND A NO-ORPHANS GUARD; ONBOARDING, BASIC LIST, UPGRADE EXIT, SEE PLANS, PATH PII AND THE CI BUILD MASK FIXED** — `#910` + `#912` MERGED — trunk `ffc586c0` (with Controller A's `#911`)
 
 ★ **PROVENANCE.** Controller B, wave B-10. The owner + cofounder spec `FRICTION-FIX-1` was hash-verified (`1D5C6AD63316`, MATCH) at `controller-b10/ops/.specs`; owner rulings R1–R7 arrived mid-wave (`BRIEF_B10_RULINGS_ADDENDUM_1.md`). Two builders (`claude-opus-5-5`, effort high), one per PR, each in its own worktree; two read-only OR-LIVE verifiers. A docs builder wrote this docs PR in `C:/Projects/LT-worktrees/docs-b10` from `WAVE_STATE_B10.md`, the four reports and the rulings addendum. *(builder-reported)* / *(verifier-reported)* / *(controller-verified)* / *(docs-builder-verified)* as in `CURRENT_STATE.md`.

@@ -1,5 +1,27 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-03 — WAVE A-11 (BANK + PERF, CONTROLLER A): BANK-SPLIT-1 (`#911` `ffc586c0` + `#914` `86451e1a`), trunk `86451e1a`. LIVE on deploy (no flag); the rollout is recorded in `CURRENT_STATE.md`.**
+> ★ **FIVE SURFACES MOVE ON TWO AXES THE MATRIX HAS NO COLUMN FOR — "NO QUESTION REPEATS IN A SET" (Chapter Test, Full Mock, Practice Hub, Worksheet) AND FIRST-LOAD WEIGHT (Practice Hub, Chapter Test, Full Mock, Check & Improve).** Their Built / Redesigned / Desktop / Mobile cells are already ✅ and their MI cells are unaffected, so **no matrix cell flips**. Full Mock's Verified cell stays ⬜ and the others stay as recorded: the signed-in checks of this wave are owner-owed. The moves are recorded here as status lines.
+
+### ✅ Chapter Test · Full Mock · Practice Hub · Worksheet — **THE SAME QUESTION COULD APPEAR TWICE IN ONE SET (CT 30 / 2,600, worksheets 6 / 560 seeded sets) → NEVER; 30 TRUE-DUPLICATE ROWS WITHHELD — LIVE (`#911`)**
+- Set identity is `questionKey` (N1 stem + N1 sorted options); keeper past paper → authentic over AI → oldest; cross-chapter duplicates kept in each chapter *(builder-reported)*.
+- Production: 10 CT papers, FM Maths and FM Science (38 q each), Practice 10 q and a 25 q worksheet — 0 repeats after `#911`; after `#914`, CT 15 q, FM 38 q, worksheet 25 q — 0 repeats *(agent-reported)*.
+- Pinned by `noRepeatInSet.guard.test.ts` (`NO_REPEAT: sets=4624 repeats=0`), with a CONTROL per builder.
+
+### ✅ FIRST-LOAD WEIGHT (not a matrix column) — Practice Hub · Chapter Test · Full Mock — **THE WHOLE BANK → ONLY THE CHAPTERS THE PAGE NEEDS — LIVE (`#914`)**
+- Production, cold, signed out *(agent-reported)*: Chapter Test (triangles) JS 2.53 MB → 0.70 MB transferred, question data 1.93 MB → 188 KB (target ≤ 300 KB); Practice (triangles) 2.57 → 0.79 MB; Full Mock Maths 2.54 → 1.43 MB, 13 Maths chapter modules and 0 of 11 Science.
+- While a chapter loads: Practice shows "Preparing your questions...", Worksheets "Loading questions…", CT / FM "Building your test… / mock…" — never "0 available".
+- Topic matching is exact slug: Circles no longer serves Areas Related to Circles rows (Practice circles 10 / 10 circles rows, live).
+- Pinned by `bankReach.guard.test.ts` (L7: Practice, CT and FM reach the loader, not the aggregator or a chapter module), `bankChapters.guard.test.ts` and one cold-cache route test per page.
+
+### ✅ Check & Improve (row **Check & Improve**, cells already ✅) — **reCAPTCHA + APP CHECK ON PAGE LOAD → ON FIRST INTENT; PDF EXPORT AND HISTORY PANEL ON DEMAND — LIVE (`#914`)**
+- Production *(agent-reported)*: JS 868 KB → 491 KB transferred; 0 reCAPTCHA requests and an empty console on load (5 / 5); the warm-up loads on answer-box focus, the file picker or "Read the question". **One real free check is owner-owed** (automation got App Check 403; the control says environmental, not a full control).
+
+### ⬜ NO OTHER CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- Tutor and Exam Simulation changed only by the route await (both redirect to login signed out; their signed-in checks are owner-owed). Me / Progress now reads a generated id index instead of the bank; its signed-in check (no bank chunk) is owner-owed. No prerendered page, `sitemap.xml` or `llms.txt` changed.
+
+### 📋 Scope discovered? — **NO surface scope set to Settling.** The moves are inside each surface's known scope. Nine follow-ups are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`; none changes a surface's scope. Nothing goes in `DECISION_LOG` §2a.
+
 > **2026-10-03 — WAVE B-10 (CLEANUP + FRICTION, CONTROLLER B): FRICTION-FIX-1 (`#910` `94f3d4eb` + `#912` `8ff2203e`), trunk `ffc586c0` (with Controller A's `#911`, not recorded here). LIVE on deploy (no flag); the rollout is recorded in `CURRENT_STATE.md`.**
 > ★ **SIX AREAS MOVE; NO §2 MATRIX CELL FLIPS.** Pricing's Verified cell stays 🟡 because the signed-in and dark-theme checks of the Basic list are owner-owed; Check & Improve's cells are already ✅; Onboarding, the upgrade modal, analytics and the retired surfaces have no row in §2. Each move is recorded below as a status line.
 
