@@ -1,3 +1,28 @@
+## ★★★ 2026-10-04 — WAVE B-11 (CLEANUP, CONTROLLER B) — CLEANUP-2 CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-11 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE A-11, B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
+
+**TRUNK IS `e36c9c1df6699ee771f8d6dae8b2c34fc6bbe935`**, measured 2026-10-04 (`git ls-remote origin base/approved-thru-437`):
+- `e36c9c1d` = `#916` (CLEANUP-2: Onboarding retired, the last 13 orphan files + `cbseDates.ts` deleted, Practice loads the strategy resolver only behind its flag) — **this wave**; rollout 10 / 10 samples, OR-LIVE **PARTIAL**, no rollback (see `CURRENT_STATE.md`)
+- `046c3238` = `#915` (docs: wave A-11)
+
+When this docs PR was opened the only other open PR was Controller A's product PR `#917` (`lane/root-url-1`, ROOT-URL-1), which touches no `handoff/**` file. This is the only docs PR open (OR-16).
+
+### NEXT — OWNER
+1. **Decide the three owner items of `#916`:**
+   - **Ratify or overrule NO-ROLLBACK on OR-LIVE PARTIAL.** The trig pack1 chunk is gone (−13.5 KB / Practice visit, same text); `triangles.pack1` is still requested through a pre-existing path `#916` did not touch. The spec's letter was "roll back first on any mismatch".
+   - **Approve `[FU-CLEANUP2-TRIANGLES-BARREL]` as a follow-up lane** (one import line in `components/practice/practiceQuestionBuilder.ts`, outside CLEANUP-2 §1).
+   - **Note the builder-scope deletion of `config/cbseDates.ts`** and its tests (not named by the spec; not independently verified by the controller).
+2. **Run the OWNER LIVE VERIFICATIONS OWED for `#916`** (the automation was signed out): `/app/onboarding` signed in → Home on desktop, `/browse` on mobile; signed-in sign-up and login completion; signed-in Practice (no `trigonometry.pack1` in DevTools Network).
+3. **Pick the next wave — it is the owner's call; this docs PR does not invent a lane.** On the table: the five new FUs (none dispatched), notably `[FU-CLEANUP2-TRIANGLES-BARREL]`; `[FU-ONBOARDING-ROOT-LIVE]` falls due when ROOT-URL-1 lands.
+
+### Carried — still owed
+1. **The WAVE A-11 owner items** (one real free check in a normal browser; signed-in `/app/me` with no bank chunk; PDF export on click; Tutor demo / Exam Simulation signed in), then the WAVE B-10 owner items and everything they carry.
+
+### NEXT — LANES
+- None dispatched by wave B-11 beyond `#916`. The final audit request goes to the cofounder after this docs PR merges.
+- **★ DOCTRINE NOW ENFORCED BY CI — no orphan file, with an EMPTY allow-list.** `noOrphans.guard.test.ts` prints `NO_ORPHANS: files=285 orphans=0` with `ALLOWED_ORPHANS = {}`. A new file must be imported by something live in the same PR; deleting a file's last importer means deleting the file too (as `#916` had to with `cbseDates.ts`).
+- **★ A flag-off feature stays out of the static graph.** Practice reaches `questionTypeFirstResolver` only by `import()` behind `QTYPE_FIRST_TRIG` (`PracticePage.strategyLazy.test.tsx`). Before claiming a chunk is gone, check EVERY static edge to it — `#916`'s spec missed the `contentStrategy/triangles` barrel in `practiceQuestionBuilder.ts:18`.
+
 ## ★★★ 2026-10-03 — WAVE A-11 (BANK + PERF, CONTROLLER A) — BANK-SPLIT-1 CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE B-10 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
 
