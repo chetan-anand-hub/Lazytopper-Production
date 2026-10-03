@@ -2,7 +2,7 @@
 //
 // The phone half of the QR answer handoff: route /u/:token
 //
-// ONE JOB: open -> camera/gallery -> send -> "head back to your laptop." No shell,
+// ONE JOB: open -> camera/gallery -> (crop) -> send -> "head back to your laptop." No shell,
 // no navigation, no chrome, nothing to explore. The student is mid-flow on their
 // laptop; this page exists for about fifteen seconds.
 //
@@ -22,24 +22,21 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
-  FULL_FRAME_CROP,
-  isFullFrameCrop,
-  moveCropFraction,
   peekQrSlot,
-  prepareQrImage,
-  readQrPreviewUrl,
-  resizeCropFraction,
   sendQrImage,
-  type CropFraction,
-  type CropHandle,
   type QrHandoffMode,
 } from "../services/qrUploadService";
-import { MAX_UPLOAD_PDF_BYTES, formatUploadLimit } from "../services/uploadLimits";
+import {
+  MAX_UPLOAD_PAGES,
+  MAX_UPLOAD_PDF_BYTES,
+  checkUploadFile,
+  formatUploadLimit,
+} from "../services/uploadLimits";
+import PageTray, { usePageTray, type TrayPayload } from "../components/upload/PageTray";
 
 type Phase =
   | "checking"
   | "ready"
-  | "cropping"
   | "sending"
   | "sent"
   | "expired"
@@ -52,32 +49,32 @@ type Phase =
  * reached by token alone and cannot otherwise know which surface minted it.
  *
  * This is where getting it wrong actually costs a student marks: for a Chapter Test or
- * Full Mock the paper is MULTI-PAGE, one photo is ONE page, and "Take a photo" sends
- * them away believing a 20-question mock is submitted. So in "document" mode the PDF
- * leads, and the one-photo-is-one-page consequence is stated outright rather than
- * implied.
+ * Full Mock the paper is MULTI-PAGE. Since UPLOAD-2 (R8) a student can photograph every
+ * page here — "Add another page" — and the pages travel together as ONE PDF, so the hint
+ * now says so instead of warning that one photo sends only one page.
  */
+const MULTI_PAGE_HINT = `Several pages? Photograph each one and tap "Add another page" — up to ${MAX_UPLOAD_PAGES}, sent together as one PDF. Or pick a PDF up to ${formatUploadLimit(MAX_UPLOAD_PDF_BYTES)}.`;
+
 const COPY: Record<QrHandoffMode, { head: string; lead: string; cta: string; hint: string }> = {
   document: {
     head: "Send your answers",
     lead: "Pick the PDF of your answers — or photograph them. It goes straight to your laptop, with no need to email it to yourself.",
     cta: "Choose PDF or photo",
-    hint: `You can send ONE file. For a full paper, send a single PDF with every page — one photo sends only one page. PDF up to ${formatUploadLimit(MAX_UPLOAD_PDF_BYTES)}.`,
+    hint: MULTI_PAGE_HINT,
   },
   photo: {
     head: "Send your answer",
     lead: "Photograph your written answer. It goes straight to your laptop — no need to email it to yourself.",
     cta: "Take a photo",
-    hint: "Fit the whole page in the frame, with the writing in focus.",
+    hint: "Fit the whole page in the frame, with the writing in focus. Runs over a page? Add the next page after this one.",
   },
   // The C&I QUESTION-side handoff: a saved or screenshotted QUESTION paper. Same file
-  // types as "document" (PDF or photo), question-voice words. The one-photo-is-one-page
-  // warning still applies — a question paper can be multi-page too — so the hint is kept.
+  // types as "document" (PDF or photo), question-voice words.
   question: {
     head: "Send the question paper",
     lead: "Pick the PDF of the question paper — or photograph it. It goes straight to your laptop, with no need to email it to yourself.",
     cta: "Choose PDF or photo",
-    hint: `You can send ONE file. For a full paper, send a single PDF with every page — one photo sends only one page. PDF up to ${formatUploadLimit(MAX_UPLOAD_PDF_BYTES)}.`,
+    hint: MULTI_PAGE_HINT,
   },
 };
 
@@ -86,26 +83,9 @@ export default function QrAnswerUploadPage() {
   const [phase, setPhase] = useState<Phase>("checking");
   const [mode, setMode] = useState<QrHandoffMode>("document");
   const [error, setError] = useState<string | null>(null);
+  const [payload, setPayload] = useState<TrayPayload | null>(null);
+  const [sendFailed, setSendFailed] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  // ── THE CROP STEP ───────────────────────────────────────────────────────────────
-  // A student photographs a page carrying two or three worked solutions and only one
-  // of them answers the question on the laptop. Before this step the grader received
-  // the whole page and had to INFER which working to mark; now the student says so
-  // directly. That is a grading-accuracy fix wearing a UI hat.
-  //
-  // The picked file is held here, un-sent, while the student chooses. It is the only
-  // reason this page now has a state between "ready" and "sending".
-  const [pendingFile, setPendingFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [crop, setCrop] = useState<CropFraction>(FULL_FRAME_CROP);
-  const frameRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<{
-    mode: "move" | CropHandle;
-    startX: number;
-    startY: number;
-    startRect: CropFraction;
-  } | null>(null);
 
   // Check the code is still alive BEFORE the student photographs several MB only
   // to be told it expired.
@@ -129,29 +109,19 @@ export default function QrAnswerUploadPage() {
     };
   }, [token]);
 
-  // Everything from "we have the bytes" onwards. Unchanged from before the crop step
-  // except for the optional `selection` — which is `undefined` on every path that
-  // existed previously, so the skip path is the old path exactly.
-  const sendPrepared = useCallback(
-    async (file: File, selection?: CropFraction) => {
+  // Everything from "we have the bytes" onwards: ONE file into ONE slot through the
+  // EXISTING channel. A multi-page set arrives here already assembled into one PDF
+  // (application/pdf — the channel has stored PDFs since it was built).
+  const send = useCallback(
+    async (p: TrayPayload) => {
       if (!token) return;
       setError(null);
+      setSendFailed(false);
       setPhase("sending");
-
-      let payload;
-      try {
-        // Required, not cosmetic: a full-res phone photo (2-8MB) exceeds the 3MB cap,
-        // so IMAGES are downscaled to fit. A PDF cannot be downscaled — there is no
-        // canvas for it — so it passes through untouched and an over-limit one is
-        // refused HERE, on the phone, while the student can still act on it.
-        payload = await prepareQrImage(file, selection);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Could not read that file.");
-        setPhase("failed");
-        return;
-      }
-
-      const result = await sendQrImage(token, payload);
+      const result = await sendQrImage(token, {
+        imageBase64: p.imageBase64,
+        imageMimeType: p.imageMimeType,
+      });
       if (result.ok) {
         setPhase("sent");
         return;
@@ -159,139 +129,39 @@ export default function QrAnswerUploadPage() {
       if (result.reason === "used") setPhase("used");
       else if (result.reason === "expired") setPhase("expired");
       else if (result.reason === "unavailable") setPhase("unavailable");
-      else {
-        setError(result.error || "That photo could not be sent.");
+      else if (result.reason === "offline") {
+        setError("You seem to be offline. Your pages are kept — check your connection and tap Try again.");
+        setSendFailed(true);
+        setPhase("failed");
+      } else {
+        // ★ The tray is NOT cleared: a failed send keeps every page, so "Try again"
+        // never means photographing them all over again.
+        setError(result.error || "That could not be sent. Check your connection and try again.");
+        setSendFailed(true);
         setPhase("failed");
       }
     },
     [token],
   );
 
-  const handleFile = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      // Let the same file be re-picked after a failure.
-      e.target.value = "";
-      if (!file || !token) return;
-
-      setError(null);
-
-      // Only an IMAGE can be cropped. A PDF has no canvas, so it goes straight out on
-      // the pre-crop path — showing a student a crop box they cannot use would be a
-      // dead end, not a feature.
-      if (file.type === "image/jpeg" || file.type === "image/png") {
-        try {
-          const url = await readQrPreviewUrl(file);
-          setPendingFile(file);
-          setPreviewUrl(url);
-          setCrop(FULL_FRAME_CROP);
-          setPhase("cropping");
-          return;
-        } catch {
-          // If the preview cannot be read we do NOT dead-end the student on a crop
-          // screen with no image. Fall through and let prepareQrImage report the real
-          // problem in its own words — the crop step is a convenience, never a gate.
-        }
-      }
-
-      await sendPrepared(file);
+  const tray = usePageTray({
+    // The ONE guard, on what will actually be sent. "question" names the question paper.
+    check: (file) => checkUploadFile(file, mode === "question" ? "question" : "answers"),
+    onPayload: (p) => {
+      setPayload(p);
+      // A picked PDF (or a photo this device could not open) has nothing to crop and no
+      // tray to build: it goes straight out, exactly as the pre-crop page sent it.
+      if (p && p.pageCount === 0) void send(p);
     },
-    [token, sendPrepared],
-  );
-
-  // ★ Q2 — THE WHOLE FRAME IS THE DEFAULT AND IT IS NOT A CROP. When the student has
-  // not moved the box we pass `undefined` rather than a full-frame rectangle, so the
-  // skip path runs the identical code it ran before this feature existed instead of
-  // a no-op round-trip through the crop maths.
-  const confirmCrop = useCallback(() => {
-    const file = pendingFile;
-    if (!file) return;
-    const selection = isFullFrameCrop(crop) ? undefined : crop;
-    setPendingFile(null);
-    setPreviewUrl(null);
-    void sendPrepared(file, selection);
-  }, [pendingFile, crop, sendPrepared]);
-
-  /** Reversible: back to the whole page, without re-picking the photo. */
-  const resetCrop = useCallback(() => setCrop(FULL_FRAME_CROP), []);
-
-  const pointToFraction = useCallback((clientX: number, clientY: number) => {
-    const el = frameRef.current;
-    if (!el) return null;
-    const r = el.getBoundingClientRect();
-    return {
-      x: (clientX - r.left) / Math.max(1, r.width),
-      y: (clientY - r.top) / Math.max(1, r.height),
-    };
-  }, []);
-
-  const capture = useCallback((pointerId: number) => {
-    // jsdom and older mobile browsers may not implement pointer capture; losing it
-    // degrades a drag that leaves the frame, which is not worth a crash.
-    try {
-      frameRef.current?.setPointerCapture?.(pointerId);
-    } catch {
-      /* no capture available — dragging still works inside the frame */
-    }
-  }, []);
-
-  const startMove = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>) => {
-      const p = pointToFraction(e.clientX, e.clientY);
-      if (!p) return;
-      dragRef.current = { mode: "move", startX: p.x, startY: p.y, startRect: crop };
-      capture(e.pointerId);
+    onError: (message) => {
+      setError(message);
+      if (message) setPhase("failed");
     },
-    [crop, pointToFraction, capture],
-  );
-
-  const startResize = useCallback(
-    (e: React.PointerEvent<HTMLSpanElement>) => {
-      // Without this the corner drag would also start a whole-box move underneath it.
-      e.stopPropagation();
-      const handle = e.currentTarget.dataset.handle as CropHandle | undefined;
-      if (!handle) return;
-      const p = pointToFraction(e.clientX, e.clientY);
-      if (!p) return;
-      dragRef.current = { mode: handle, startX: p.x, startY: p.y, startRect: crop };
-      capture(e.pointerId);
-    },
-    [crop, pointToFraction, capture],
-  );
-
-  const onPointerMove = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>) => {
-      const drag = dragRef.current;
-      if (!drag) return;
-      const p = pointToFraction(e.clientX, e.clientY);
-      if (!p) return;
-      if (drag.mode === "move") {
-        setCrop(moveCropFraction(drag.startRect, p.x - drag.startX, p.y - drag.startY));
-      } else {
-        setCrop(resizeCropFraction(drag.startRect, drag.mode, p.x, p.y));
-      }
-    },
-    [pointToFraction],
-  );
-
-  const endDrag = useCallback(() => {
-    dragRef.current = null;
-  }, []);
-
-  // Geometry is written as CSS CUSTOM PROPERTIES rather than a JSX `style={{}}` object:
-  // the rectangle is the one genuinely dynamic thing on this page, and CLAUDE.md §7
-  // forbids inline style objects. This keeps every rule in the stylesheet and leaves
-  // only four numbers crossing the boundary.
-  useEffect(() => {
-    const el = frameRef.current;
-    if (!el) return;
-    el.style.setProperty("--crop-l", `${crop.left * 100}%`);
-    el.style.setProperty("--crop-t", `${crop.top * 100}%`);
-    el.style.setProperty("--crop-w", `${(crop.right - crop.left) * 100}%`);
-    el.style.setProperty("--crop-h", `${(crop.bottom - crop.top) * 100}%`);
-  }, [crop, phase]);
+    allowMultiPage: true,
+  });
 
   const pick = useCallback(() => fileInputRef.current?.click(), []);
+  const inTray = tray.pages.length > 0 || tray.cropSession !== null;
 
   return (
     <div className="lt-qru">
@@ -303,108 +173,72 @@ export default function QrAnswerUploadPage() {
 
         {(phase === "ready" || phase === "failed") && (
           <>
-            <h1 className="lt-qru__h">{COPY[mode].head}</h1>
-            <p className="lt-qru__d">{COPY[mode].lead}</p>
-            {phase === "failed" && error && <p className="lt-qru__err">{error}</p>}
-            <button type="button" className="lt-qru__cta" onClick={pick}>
-              {phase === "failed" ? "Try again" : COPY[mode].cta}
-            </button>
-            <p className="lt-qru__hint">{COPY[mode].hint}</p>
+            {!inTray && (
+              <>
+                <h1 className="lt-qru__h">{COPY[mode].head}</h1>
+                <p className="lt-qru__d">{COPY[mode].lead}</p>
+                {phase === "failed" && error && <p className="lt-qru__err">{error}</p>}
+                <button type="button" className="lt-qru__cta" onClick={pick} disabled={tray.busy}>
+                  {tray.busy ? "Opening your photo…" : phase === "failed" ? "Try again" : COPY[mode].cta}
+                </button>
+                <p className="lt-qru__hint">{COPY[mode].hint}</p>
+              </>
+            )}
+
+            {/* The crop step renders INLINE here (this page is already one full-screen
+             *  card), and the tray below it once a page exists. */}
+            <PageTray tray={tray} inlineCrop />
+
+            {tray.pages.length > 0 && !tray.cropSession && (
+              <>
+                {phase === "failed" && error && <p className="lt-qru__err">{error}</p>}
+                <button
+                  type="button"
+                  className="lt-qru__cta lt-qru__cta--send"
+                  onClick={() => {
+                    if (payload) void send(payload);
+                  }}
+                  disabled={!payload || tray.busy}
+                  data-testid="qru-send"
+                >
+                  {sendFailed
+                    ? "Try again"
+                    : tray.pages.length === 1
+                      ? "Send to your laptop"
+                      : `Send ${tray.pages.length} pages to your laptop`}
+                </button>
+              </>
+            )}
+
             {/* DO NOT "SIMPLIFY" THIS INPUT.
              *
              *  `accept` is deliberately BROAD: this one picker is how a student sends a
              *  camera shot, an existing gallery image, OR a PDF from Files / a scanner
-             *  app. Narrowing it to images would silently remove the only way to send a
-             *  multi-page paper.
+             *  app. Narrowing it to images would silently remove the PDF route.
              *
              *  `capture` does NOT restrict the picker — it only asks the browser to
              *  DEFAULT to the camera. That default is right for a single handwritten
              *  answer ("photo") and wrong for a whole paper ("document"), where the
              *  student needs Files to be a first-class choice rather than something to
              *  hunt for behind the camera. So it is omitted in document mode — on
-             *  purpose, not by oversight. */}
+             *  purpose, not by oversight. `multiple` lets a gallery hand over several
+             *  pages at once; each becomes a page in the tray. */}
             <input
               ref={fileInputRef}
               className="lt-qru__file"
               type="file"
               accept="image/jpeg,image/png,application/pdf"
+              multiple
               {...(mode === "photo" ? { capture: "environment" as const } : {})}
-              onChange={handleFile}
+              onChange={(e) => {
+                const files = e.target.files ? Array.from(e.target.files) : [];
+                // Let the same file be re-picked after a failure.
+                e.target.value = "";
+                setError(null);
+                if (phase === "failed") setPhase("ready");
+                tray.addFiles(files, { replace: true });
+              }}
             />
-          </>
-        )}
-
-        {phase === "cropping" && previewUrl && (
-          <>
-            <h1 className="lt-qru__h">Choose what to send</h1>
-            <p className="lt-qru__d">
-              Drag the corners to just the answer you want checked — or send the whole page
-              as it is.
-            </p>
-            <div
-              ref={frameRef}
-              className="lt-qru__crop"
-              onPointerMove={onPointerMove}
-              onPointerUp={endDrag}
-              onPointerCancel={endDrag}
-            >
-              <img className="lt-qru__cropimg" src={previewUrl} alt="The photo you just took" />
-              {/* The dim lives in its OWN clipped layer. Everything that needs clipping is
-               *  in here; nothing that needs to be SEEN is. The first build put the dim and
-               *  the handles inside one `overflow: hidden` box, and at the DEFAULT full-page
-               *  selection that clipped all four handles away — a student opened the crop
-               *  step and saw no corners to grab, which is the very complaint this feature
-               *  exists to answer. Screenshots caught it; no assertion did, and none could. */}
-              <div className="lt-qru__cropclip" aria-hidden="true">
-                <div className="lt-qru__cropdim" />
-              </div>
-              <div className="lt-qru__cropbox" data-testid="qru-crop-box" onPointerDown={startMove}>
-                {/* Corners only, and deliberately larger than they look: the visible dot is
-                 *  small enough not to hide the handwriting underneath, while the touch
-                 *  target around it is thumb-sized. See .lt-qru__grab::before. */}
-                <span
-                  className="lt-qru__grab lt-qru__grab--nw"
-                  data-handle="nw"
-                  data-testid="qru-grab-nw"
-                  onPointerDown={startResize}
-                />
-                <span
-                  className="lt-qru__grab lt-qru__grab--ne"
-                  data-handle="ne"
-                  data-testid="qru-grab-ne"
-                  onPointerDown={startResize}
-                />
-                <span
-                  className="lt-qru__grab lt-qru__grab--sw"
-                  data-handle="sw"
-                  data-testid="qru-grab-sw"
-                  onPointerDown={startResize}
-                />
-                <span
-                  className="lt-qru__grab lt-qru__grab--se"
-                  data-handle="se"
-                  data-testid="qru-grab-se"
-                  onPointerDown={startResize}
-                />
-              </div>
-            </div>
-            {/* The button SAYS which of the two it is about to do, so a student never has
-             *  to work out whether their drag counted. */}
-            <button type="button" className="lt-qru__cta" onClick={confirmCrop}>
-              {isFullFrameCrop(crop) ? "Send the whole page" : "Send this part"}
-            </button>
-            <button
-              type="button"
-              className="lt-qru__ghost"
-              onClick={resetCrop}
-              disabled={isFullFrameCrop(crop)}
-            >
-              Reset to the whole page
-            </button>
-            <p className="lt-qru__hint">
-              Cropping is optional. Sending only the answer you want checked helps the
-              checker mark the right working.
-            </p>
           </>
         )}
 
@@ -528,57 +362,6 @@ const QRU_CSS = `
 }
 .lt-qru__ghost:disabled { opacity: 0.45; cursor: default; }
 
-/* ── CROP SURFACE ────────────────────────────────────────────────────────────────
-   touch-action: none is LOAD-BEARING, not tidiness. Without it the browser claims the
-   drag as a page scroll and the corners simply do not move on a real phone — the exact
-   failure this feature exists to remove. */
-.lt-qru__crop {
-  position: relative; width: 100%; margin: 0 0 18px;
-  background: #0f172a;
-  touch-action: none; user-select: none; -webkit-user-select: none;
-}
-.lt-qru__cropimg {
-  display: block; width: 100%; height: auto; pointer-events: none;
-  border-radius: 12px;
-}
-
-/* THE ONLY CLIPPING LAYER. It holds the dim and nothing else, so the handles — which
-   sit half outside the selection — can never be clipped by it. */
-.lt-qru__cropclip {
-  position: absolute; inset: 0;
-  border-radius: 12px; overflow: hidden; pointer-events: none;
-}
-.lt-qru__cropdim {
-  position: absolute;
-  left: var(--crop-l, 0%); top: var(--crop-t, 0%);
-  width: var(--crop-w, 100%); height: var(--crop-h, 100%);
-  /* One giant spread shadow rather than four overlay divs: one element, and it can
-     never leave a seam between the pieces. */
-  box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.55);
-}
-
-.lt-qru__cropbox {
-  position: absolute;
-  left: var(--crop-l, 0%); top: var(--crop-t, 0%);
-  width: var(--crop-w, 100%); height: var(--crop-h, 100%);
-  border: 2px solid var(--qru-green);
-  cursor: move;
-}
-
-.lt-qru__grab {
-  position: absolute; width: 18px; height: 18px;
-  background: #fff; border: 2px solid var(--qru-green); border-radius: 50%;
-  box-sizing: border-box;
-}
-/* THE TOUCH TARGET, not the dot. 44px is the smallest reliably thumb-hittable target;
-   the visible dot stays 18px so it does not cover the handwriting being selected. */
-.lt-qru__grab::before {
-  content: ""; position: absolute;
-  left: 50%; top: 50%; width: 44px; height: 44px;
-  transform: translate(-50%, -50%);
-}
-.lt-qru__grab--nw { left: -10px; top: -10px; }
-.lt-qru__grab--ne { right: -10px; top: -10px; }
-.lt-qru__grab--sw { left: -10px; bottom: -10px; }
-.lt-qru__grab--se { right: -10px; bottom: -10px; }
+.lt-qru__cta--send { margin-top: 14px; }
+.lt-qru__cta:disabled { opacity: 0.6; cursor: default; }
 `;

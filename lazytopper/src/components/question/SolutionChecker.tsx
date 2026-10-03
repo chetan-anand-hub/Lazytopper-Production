@@ -15,12 +15,8 @@ import { EquationInput, EquationRender } from "../equation";
 import QrAnswerHandoff from "../qr/QrAnswerHandoff";
 import FairUseLimitPanel from "../usage/FairUseLimitPanel";
 import { useFairUse } from "../usage/useFairUse";
-import {
-  MAX_UPLOAD_IMAGE_BYTES,
-  MAX_UPLOAD_PDF_BYTES,
-  UPLOAD_LIMIT_SENTENCE,
-  formatUploadLimit,
-} from "../../services/uploadLimits";
+import { UPLOAD_LIMIT_SENTENCE, checkUploadFile } from "../../services/uploadLimits";
+import PageTray, { usePageTray, type TrayPayload } from "../upload/PageTray";
 
 const CHECK_RESULT_KEY_PREFIX = "lazytopper.checkResult.v1.";
 
@@ -589,45 +585,46 @@ export function SolutionChecker({
   }, [result, isFromCache, user, questionId, subject, topic, question]);
 
 
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const isFilePdf = file.type === "application/pdf";
-    const isImage = file.type === "image/jpeg" || file.type === "image/png";
-
-    if (!isFilePdf && !isImage) {
-      setError("Please select a JPG, PNG, or PDF file");
+  // UPLOAD-2 — the shared upload step. A photo is cropped (optional), turned upright,
+  // compressed and only THEN checked, so a phone photo never meets a size error; the
+  // old inline wall here ("File must be under 3 MB" on a raw 6 MB camera shot) is gone,
+  // converged into the one guard (`checkUploadFile`). Several photos become ONE PDF —
+  // except in COLLECT mode, whose answers ride a shared Quick Practice batch body with
+  // up to 12 others, where a 3.5 MB PDF per question cannot be guaranteed to fit.
+  const applyUpload = useCallback((p: TrayPayload | null) => {
+    if (!p) {
+      setImagePreview(null);
+      setImageBase64(null);
+      setFileName(null);
+      setIsPdf(false);
       return;
     }
-
-    const maxSize = isFilePdf ? MAX_UPLOAD_PDF_BYTES : MAX_UPLOAD_IMAGE_BYTES;
-    const maxLabel = formatUploadLimit(maxSize);
-    if (file.size > maxSize) {
-      setError(`File must be under ${maxLabel}`);
-      return;
-    }
-
+    const pdf = p.imageMimeType === "application/pdf";
     setError(null);
     setResult(null);
-    setFileName(file.name);
-    setIsPdf(isFilePdf);
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      const base64 = dataUrl.split(",")[1];
-      setImageBase64(base64);
-      if (isFilePdf) {
-        setImagePreview(null);
-        setImageMimeType("application/pdf");
-      } else {
-        setImagePreview(dataUrl);
-        setImageMimeType(file.type === "image/png" ? "image/png" : "image/jpeg");
-      }
-    };
-    reader.readAsDataURL(file);
+    setFileName(p.name);
+    setIsPdf(pdf);
+    setImageMimeType(p.imageMimeType);
+    setImagePreview(pdf ? null : `data:${p.imageMimeType};base64,${p.imageBase64}`);
+    setImageBase64(p.imageBase64);
   }, []);
+
+  const tray = usePageTray({
+    check: (file) => checkUploadFile(file, "answers"),
+    onPayload: applyUpload,
+    onError: setError,
+    allowMultiPage: !collectMode,
+  });
+
+  const handleFileSelect = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files ? Array.from(e.target.files) : [];
+      // Let the same file be re-picked after a refusal.
+      e.target.value = "";
+      tray.addFiles(files, { replace: true });
+    },
+    [tray.addFiles],
+  );
 
   const handleCheck = useCallback(async () => {
     // Send what the ACTIVE tab shows. The grader route is image-XOR-text (it ignores
@@ -748,6 +745,7 @@ export function SolutionChecker({
   }, []);
 
   const handleClear = useCallback(() => {
+    tray.clear();
     setImagePreview(null);
     setImageBase64(null);
     setFileName(null);
@@ -759,9 +757,10 @@ export function SolutionChecker({
     setTextAnswer("");
     setAnswerTab("upload");
     if (fileInputRef.current) fileInputRef.current.value = "";
-  }, []);
+  }, [tray.clear]);
 
   const handleRecheck = useCallback(() => {
+    tray.clear();
     setResult(null);
     setIsFromCache(false);
     setError(null);
@@ -773,7 +772,7 @@ export function SolutionChecker({
     setTextAnswer("");
     setAnswerTab("upload");
     if (fileInputRef.current) fileInputRef.current.value = "";
-  }, []);
+  }, [tray.clear]);
 
   const hasFile = imageBase64 !== null;
   const hasText = textAnswer.trim().length > 0;
@@ -826,6 +825,8 @@ export function SolutionChecker({
         ref={fileInputRef}
         type="file"
         accept="image/jpeg,image/png,application/pdf"
+        // Several photos at once land in the tray as pages (R7) — not in collect mode.
+        multiple={!collectMode}
         onChange={handleFileSelect}
         style={{ display: "none" }}
       />
@@ -882,7 +883,7 @@ export function SolutionChecker({
       )}
 
       {/* ── Upload zone ────────────────── */}
-      {answerTab === "upload" && !hasFile && inputPhaseOpen && (
+      {answerTab === "upload" && !hasFile && tray.pages.length === 0 && inputPhaseOpen && (
         <>
         <button
           type="button"
@@ -948,8 +949,12 @@ export function SolutionChecker({
         </>
       )}
 
+      {/* ── The crop step + page tray (UPLOAD-2). Renders nothing until a photo is
+             picked; once one is, the tray's thumbnails replace the single preview. ── */}
+      {answerTab === "upload" && inputPhaseOpen && <PageTray tray={tray} disabled={loading} />}
+
       {/* ── Image preview ────────────────── */}
-      {answerTab === "upload" && imagePreview && !isPdf && inputPhaseOpen && (
+      {answerTab === "upload" && imagePreview && !isPdf && tray.pages.length === 0 && inputPhaseOpen && (
         <div style={{ marginBottom: 10 }}>
           <div style={{ position: "relative", display: "inline-block", maxWidth: "100%" }}>
             <img

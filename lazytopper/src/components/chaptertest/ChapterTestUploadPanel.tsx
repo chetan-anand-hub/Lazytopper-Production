@@ -9,12 +9,8 @@
 
 import { useCallback, useRef, useState } from "react";
 import QrAnswerHandoff from "../qr/QrAnswerHandoff";
-import {
-  MAX_UPLOAD_IMAGE_BYTES,
-  MAX_UPLOAD_PDF_BYTES,
-  UPLOAD_LIMIT_SENTENCE,
-  formatUploadLimit,
-} from "../../services/uploadLimits";
+import { UPLOAD_LIMIT_SENTENCE, checkUploadFile } from "../../services/uploadLimits";
+import PageTray, { usePageTray } from "../upload/PageTray";
 
 export default function ChapterTestUploadPanel({
   name,
@@ -47,41 +43,43 @@ export default function ChapterTestUploadPanel({
   const [imageMimeType, setImageMimeType] = useState<string>("application/pdf");
   const [localError, setLocalError] = useState<string | null>(null);
 
-  const handleFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const isPdf = file.type === "application/pdf";
-    const isImage = file.type === "image/jpeg" || file.type === "image/png";
-    if (!isPdf && !isImage) {
-      setLocalError("Upload a PDF (recommended) or a JPG/PNG photo of your answers.");
-      return;
-    }
-    // The limit is the REAL one (uploadLimits.ts), not the old unspendable "5 MB":
-    // base64 inflates ~4/3, so a 5 MB PDF became 6.67 MB on the wire and blew the
-    // backend's 5 MB body cap — the student passed this check and then died at the
-    // grader. Refuse it here, honestly, while they can still act on it.
-    if (file.size > (isPdf ? MAX_UPLOAD_PDF_BYTES : MAX_UPLOAD_IMAGE_BYTES)) {
-      const limit = formatUploadLimit(isPdf ? MAX_UPLOAD_PDF_BYTES : MAX_UPLOAD_IMAGE_BYTES);
-      setLocalError(
-        `That file is ${formatUploadLimit(file.size)} — the limit is ${limit}. ` +
-          `Try scanning at a lower quality, or split it into two.`,
-      );
-      return;
-    }
-    setLocalError(null);
-    setFileName(file.name);
-    setImageMimeType(isPdf ? "application/pdf" : file.type === "image/png" ? "image/png" : "image/jpeg");
-    const reader = new FileReader();
-    reader.onload = () => setImageBase64((reader.result as string).split(",")[1] ?? null);
-    reader.readAsDataURL(file);
-  }, []);
+  // UPLOAD-2 — the shared upload step. Its inline size wall (which refused every raw
+  // phone photo over 3 MB) is gone: a photo is cropped (optional), turned upright and
+  // compressed BEFORE the one guard (`checkUploadFile`), and a photo of each page is
+  // assembled on the device into the ONE PDF this step asks for. A picked PDF meets the
+  // same hard limit as before — base64 inflates ~4/3, so the wall is the honest one.
+  const tray = usePageTray({
+    check: (file) => checkUploadFile(file, "answers"),
+    onPayload: (p) => {
+      if (!p) {
+        setFileName(null);
+        setImageBase64(null);
+        return;
+      }
+      setLocalError(null);
+      setFileName(p.name);
+      setImageMimeType(p.imageMimeType);
+      setImageBase64(p.imageBase64);
+    },
+    onError: setLocalError,
+  });
+
+  const handleFile = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files ? Array.from(e.target.files) : [];
+      e.target.value = "";
+      tray.addFiles(files, { replace: true });
+    },
+    [tray.addFiles],
+  );
 
   const reset = useCallback(() => {
+    tray.clear();
     setFileName(null);
     setImageBase64(null);
     setLocalError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
-  }, []);
+  }, [tray.clear]);
 
   return (
     <div className="lt-ct__upload">
@@ -98,20 +96,21 @@ export default function ChapterTestUploadPanel({
           ref={fileInputRef}
           type="file"
           accept="image/jpeg,image/png,application/pdf"
+          multiple
           onChange={handleFile}
           className="lt-ct__file"
         />
 
-        {!imageBase64 ? (
+        {!imageBase64 && tray.pages.length === 0 ? (
           <button type="button" className="lt-ct__drop" onClick={() => fileInputRef.current?.click()}>
-            <span className="lt-ct__dropt">Upload your written answers (one PDF)</span>
+            <span className="lt-ct__dropt">Upload your written answers — one PDF, or a photo of each page</span>
             <span className="lt-ct__dropd">
               {UPLOAD_LIMIT_SENTENCE} · label each answer with its question number
             </span>
           </button>
         ) : (
           <div className="lt-ct__filerow">
-            <span className="lt-ct__filenm">{fileName}</span>
+            <span className="lt-ct__filenm">{fileName ?? "Preparing your pages…"}</span>
             <button type="button" className="lt-ct__filex" onClick={reset} aria-label="Remove file">
               ✕
             </button>
@@ -123,7 +122,10 @@ export default function ChapterTestUploadPanel({
             otherwise, so the upload path above is untouched when QR is unused.
             It fills the SAME state the file input fills, so the grade call below
             runs exactly as it always has. */}
-        {!imageBase64 && (
+        {/* The crop step + page tray (UPLOAD-2): one photo per page, sent as ONE PDF. */}
+        <PageTray tray={tray} disabled={grading} />
+
+        {!imageBase64 && tray.pages.length === 0 && (
           <QrAnswerHandoff
             // "document": this paper is MULTI-PAGE, so the phone must lead with the
             // PDF. Camera-first copy here would have a student photograph page 1 of a
