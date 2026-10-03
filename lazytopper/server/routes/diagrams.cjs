@@ -1,6 +1,26 @@
 const fs = require('fs');
 const path = require('path');
 
+/**
+ * The public URL prefix the Vite build serves `public/` under — read from vite.config.ts's
+ * `base` (ROOT-URL-1 M5), never restated as a literal here. The backend image ships the whole
+ * workspace (Dockerfile: COPY . .), so the config is on disk next to this file. If it cannot be
+ * read or carries no `base`, the Vite default "/" is used.
+ */
+let cachedPublicBase = null;
+function publicBase() {
+  if (cachedPublicBase !== null) return cachedPublicBase;
+  let base = '/';
+  try {
+    const config = fs.readFileSync(path.resolve(__dirname, '..', '..', 'vite.config.ts'), 'utf8');
+    const match = /^\s*base:\s*["']([^"']+)["']/m.exec(config);
+    if (match) base = match[1];
+  } catch (_) {}
+  if (!base.endsWith('/')) base += '/';
+  cachedPublicBase = base;
+  return base;
+}
+
 function createDiagramRoutes(deps) {
   const {
     sendJson,
@@ -49,7 +69,7 @@ function createDiagramRoutes(deps) {
       const fsPath = path.resolve(safeRoot, subjectSlug, topicSlug, `${conceptSlug}.html`);
 
       const relFromVisuals = path.relative(safeRoot, fsPath);
-      const filePathUrl = '/app/visuals/' + relFromVisuals.split(path.sep).join('/');
+      const filePathUrl = publicBase() + 'visuals/' + relFromVisuals.split(path.sep).join('/');
       const parts = relFromVisuals.replace('.html', '').split(path.sep);
       const slug = parts[parts.length - 1] || 'concept';
       const chapterSlug = parts.length > 1 ? parts[1] : '';
@@ -356,4 +376,4 @@ The visual should help a student understand this concept deeply and remember it 
   return { handleGenerateDiagram, handleGenerateVisual };
 }
 
-module.exports = { createDiagramRoutes };
+module.exports = { createDiagramRoutes, publicBase };

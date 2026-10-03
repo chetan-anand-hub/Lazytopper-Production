@@ -28,16 +28,16 @@ import { sitemapUrls } from "./sitemapUrls";
  * `crawlerReachability.guard.test.ts`. Two guards that extract different URL sets
  * from the same file would disagree in silence.
  *
- * ★ COMPARISON IS EXACT STRING EQUALITY against `sitemapUrls("/app")`, which
+ * ★ COMPARISON IS EXACT STRING EQUALITY against `sitemapUrls("")`, which
  * returns ABSOLUTE canonical URLs. No trailing-slash, host or case normalisation:
  * any of those would let a URL the sitemap does not carry pass as one it does.
- * `/app` is the production basename — `sitemapUrls.guard.test.ts` pins
- * `PROD_BASENAME` to `"/app"` from `vite.config.ts`.
+ * The production basename is EMPTY since ROOT-URL-1 — `sitemapUrls.guard.test.ts` pins
+ * `PROD_BASENAME` to `""` from `vite.config.ts` (`base: "/"`).
  */
 
 const ROOT = process.cwd(); // vitest runs with cwd = lazytopper/
 const LLMS_TXT = resolve(ROOT, "public", "llms.txt");
-const BASENAME = "/app";
+const BASENAME = "";
 
 /** Floor for (a). The payload lists 62 (SEO-3); a near-empty file must not pass vacuously. */
 const MIN_URLS = 50;
@@ -56,7 +56,7 @@ describe("llms.txt — lists exactly the sitemap URLs, pinned both ways", () => 
   it("names its subject — the scope line is printed on every run, green included", () => {
     // eslint-disable-next-line no-console
     console.log(`LLMS_PIN: urls=${urls.length} sitemap=${sitemap.length}`);
-    expect(sitemap.length, "sitemapUrls('/app') returned nothing").toBeGreaterThan(0);
+    expect(sitemap.length, "sitemapUrls('') returned nothing").toBeGreaterThan(0);
   });
 
   it(`(a) llms.txt lists at least ${MIN_URLS} URLs`, () => {

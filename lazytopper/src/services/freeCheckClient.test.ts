@@ -298,9 +298,10 @@ describe("OR-8 + N17 — the one sign-in target, and its redirect hygiene", () =
     expect(redirect).toBe("/check-improve");
     // Login.tsx isSafeInternalPath: a letter-led `x:` token is rejected.
     expect(/[a-zA-Z][a-zA-Z0-9+.-]*:/.test(redirect ?? "")).toBe(false);
-    // The router basename adds /app/ — a redirect carrying it would double it.
-    expect(redirect).not.toContain("/app/");
-    expect(FREE_CHECK_SIGNIN_PATH).not.toContain("/app/");
+    // The router basename (empty since ROOT-URL-1) is added by the router — a redirect
+    // carrying the retired base would send the student through an extra 308 hop.
+    expect(redirect).not.toMatch(/^\/app(\/|$)/);
+    expect(FREE_CHECK_SIGNIN_PATH).not.toMatch(/^\/app(\/|$)/);
   });
 });
 

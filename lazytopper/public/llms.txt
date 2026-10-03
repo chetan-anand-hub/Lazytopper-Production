@@ -12,71 +12,71 @@ Key facts:
 - LazyTopper is an independent platform and is not affiliated with CBSE.
 
 ## Start here
-- [Home](https://www.lazytopper.com/app/): what LazyTopper does, and a free answer check
-- [Exam Trends](https://www.lazytopper.com/app/exam-trends): every Class 10 chapter ranked by exam weightage, from ten years of CBSE board papers
-- [CBSE Class 10 Boards 2027](https://www.lazytopper.com/app/cbse/class-10): official CBSE papers for Class 10 Maths and Science, unit-wise marks, dates and exam rules
-- [Practice hub](https://www.lazytopper.com/app/practice-hub): choose a subject and chapter, then practise questions, worksheets or mock papers
-- [Class 10 Maths predicted questions](https://www.lazytopper.com/app/highly-probable/10/Maths): high-probability question patterns for the 2027 boards, chapter by chapter
-- [Class 10 Science predicted questions](https://www.lazytopper.com/app/highly-probable/10/Science): high-probability question patterns for the 2027 boards, chapter by chapter
-- [Pricing](https://www.lazytopper.com/app/pricing): what the free plan includes and what Premium adds
+- [Home](https://www.lazytopper.com/): what LazyTopper does, and a free answer check
+- [Exam Trends](https://www.lazytopper.com/exam-trends): every Class 10 chapter ranked by exam weightage, from ten years of CBSE board papers
+- [CBSE Class 10 Boards 2027](https://www.lazytopper.com/cbse/class-10): official CBSE papers for Class 10 Maths and Science, unit-wise marks, dates and exam rules
+- [Practice hub](https://www.lazytopper.com/practice-hub): choose a subject and chapter, then practise questions, worksheets or mock papers
+- [Class 10 Maths predicted questions](https://www.lazytopper.com/highly-probable/10/Maths): high-probability question patterns for the 2027 boards, chapter by chapter
+- [Class 10 Science predicted questions](https://www.lazytopper.com/highly-probable/10/Science): high-probability question patterns for the 2027 boards, chapter by chapter
+- [Pricing](https://www.lazytopper.com/pricing): what the free plan includes and what Premium adds
 
 ## Class 10 Maths chapters
-- [Real Numbers notes](https://www.lazytopper.com/app/notes/real-numbers): chapter notes, key formulas and competency-based questions
-- [Real Numbers chapter page](https://www.lazytopper.com/app/topic-hub/real-numbers): exam weightage and what to practise
-- [Polynomials notes](https://www.lazytopper.com/app/notes/polynomials): chapter notes, key formulas and competency-based questions
-- [Polynomials chapter page](https://www.lazytopper.com/app/topic-hub/polynomials): exam weightage and what to practise
-- [Pair of Linear Equations notes](https://www.lazytopper.com/app/notes/pair-of-linear-equations): chapter notes, key formulas and competency-based questions
-- [Pair of Linear Equations chapter page](https://www.lazytopper.com/app/topic-hub/pair-of-linear-equations): exam weightage and what to practise
-- [Quadratic Equations notes](https://www.lazytopper.com/app/notes/quadratic-equations): chapter notes, key formulas and competency-based questions
-- [Quadratic Equations chapter page](https://www.lazytopper.com/app/topic-hub/quadratic-equations): exam weightage and what to practise
-- [Arithmetic Progression notes](https://www.lazytopper.com/app/notes/arithmetic-progression): chapter notes, key formulas and competency-based questions
-- [Arithmetic Progression chapter page](https://www.lazytopper.com/app/topic-hub/arithmetic-progression): exam weightage and what to practise
-- [Triangles notes](https://www.lazytopper.com/app/notes/triangles): chapter notes, key formulas and competency-based questions
-- [Triangles chapter page](https://www.lazytopper.com/app/topic-hub/triangles): exam weightage and what to practise
-- [Coordinate Geometry notes](https://www.lazytopper.com/app/notes/coordinate-geometry): chapter notes, key formulas and competency-based questions
-- [Coordinate Geometry chapter page](https://www.lazytopper.com/app/topic-hub/coordinate-geometry): exam weightage and what to practise
-- [Trigonometry notes](https://www.lazytopper.com/app/notes/trigonometry): chapter notes, key formulas and competency-based questions
-- [Trigonometry chapter page](https://www.lazytopper.com/app/topic-hub/trigonometry): exam weightage and what to practise
-- [Circles notes](https://www.lazytopper.com/app/notes/circles): chapter notes, key formulas and competency-based questions
-- [Circles chapter page](https://www.lazytopper.com/app/topic-hub/circles): exam weightage and what to practise
-- [Areas Related to Circles notes](https://www.lazytopper.com/app/notes/areas-related-to-circles): chapter notes, key formulas and competency-based questions
-- [Areas Related to Circles chapter page](https://www.lazytopper.com/app/topic-hub/areas-related-to-circles): exam weightage and what to practise
-- [Surface Areas and Volumes notes](https://www.lazytopper.com/app/notes/surface-areas-and-volumes): chapter notes, key formulas and competency-based questions
-- [Surface Areas and Volumes chapter page](https://www.lazytopper.com/app/topic-hub/surface-areas-and-volumes): exam weightage and what to practise
-- [Statistics notes](https://www.lazytopper.com/app/notes/statistics): chapter notes, key formulas and competency-based questions
-- [Statistics chapter page](https://www.lazytopper.com/app/topic-hub/statistics): exam weightage and what to practise
-- [Probability notes](https://www.lazytopper.com/app/notes/probability): chapter notes, key formulas and competency-based questions
-- [Probability chapter page](https://www.lazytopper.com/app/topic-hub/probability): exam weightage and what to practise
+- [Real Numbers notes](https://www.lazytopper.com/notes/real-numbers): chapter notes, key formulas and competency-based questions
+- [Real Numbers chapter page](https://www.lazytopper.com/topic-hub/real-numbers): exam weightage and what to practise
+- [Polynomials notes](https://www.lazytopper.com/notes/polynomials): chapter notes, key formulas and competency-based questions
+- [Polynomials chapter page](https://www.lazytopper.com/topic-hub/polynomials): exam weightage and what to practise
+- [Pair of Linear Equations notes](https://www.lazytopper.com/notes/pair-of-linear-equations): chapter notes, key formulas and competency-based questions
+- [Pair of Linear Equations chapter page](https://www.lazytopper.com/topic-hub/pair-of-linear-equations): exam weightage and what to practise
+- [Quadratic Equations notes](https://www.lazytopper.com/notes/quadratic-equations): chapter notes, key formulas and competency-based questions
+- [Quadratic Equations chapter page](https://www.lazytopper.com/topic-hub/quadratic-equations): exam weightage and what to practise
+- [Arithmetic Progression notes](https://www.lazytopper.com/notes/arithmetic-progression): chapter notes, key formulas and competency-based questions
+- [Arithmetic Progression chapter page](https://www.lazytopper.com/topic-hub/arithmetic-progression): exam weightage and what to practise
+- [Triangles notes](https://www.lazytopper.com/notes/triangles): chapter notes, key formulas and competency-based questions
+- [Triangles chapter page](https://www.lazytopper.com/topic-hub/triangles): exam weightage and what to practise
+- [Coordinate Geometry notes](https://www.lazytopper.com/notes/coordinate-geometry): chapter notes, key formulas and competency-based questions
+- [Coordinate Geometry chapter page](https://www.lazytopper.com/topic-hub/coordinate-geometry): exam weightage and what to practise
+- [Trigonometry notes](https://www.lazytopper.com/notes/trigonometry): chapter notes, key formulas and competency-based questions
+- [Trigonometry chapter page](https://www.lazytopper.com/topic-hub/trigonometry): exam weightage and what to practise
+- [Circles notes](https://www.lazytopper.com/notes/circles): chapter notes, key formulas and competency-based questions
+- [Circles chapter page](https://www.lazytopper.com/topic-hub/circles): exam weightage and what to practise
+- [Areas Related to Circles notes](https://www.lazytopper.com/notes/areas-related-to-circles): chapter notes, key formulas and competency-based questions
+- [Areas Related to Circles chapter page](https://www.lazytopper.com/topic-hub/areas-related-to-circles): exam weightage and what to practise
+- [Surface Areas and Volumes notes](https://www.lazytopper.com/notes/surface-areas-and-volumes): chapter notes, key formulas and competency-based questions
+- [Surface Areas and Volumes chapter page](https://www.lazytopper.com/topic-hub/surface-areas-and-volumes): exam weightage and what to practise
+- [Statistics notes](https://www.lazytopper.com/notes/statistics): chapter notes, key formulas and competency-based questions
+- [Statistics chapter page](https://www.lazytopper.com/topic-hub/statistics): exam weightage and what to practise
+- [Probability notes](https://www.lazytopper.com/notes/probability): chapter notes, key formulas and competency-based questions
+- [Probability chapter page](https://www.lazytopper.com/topic-hub/probability): exam weightage and what to practise
 
 ## Class 10 Science chapters
-- [Chemical Reactions & Equations notes](https://www.lazytopper.com/app/notes/chemical-reactions-and-equations): chapter notes, key formulas and competency-based questions
-- [Chemical Reactions & Equations chapter page](https://www.lazytopper.com/app/topic-hub/chemical-reactions-and-equations): exam weightage and what to practise
-- [Acids Bases & Salts notes](https://www.lazytopper.com/app/notes/acids-bases-and-salts): chapter notes, key formulas and competency-based questions
-- [Acids Bases & Salts chapter page](https://www.lazytopper.com/app/topic-hub/acids-bases-and-salts): exam weightage and what to practise
-- [Metals & Non-metals notes](https://www.lazytopper.com/app/notes/metals-and-non-metals): chapter notes, key formulas and competency-based questions
-- [Metals & Non-metals chapter page](https://www.lazytopper.com/app/topic-hub/metals-and-non-metals): exam weightage and what to practise
-- [Carbon & its Compounds notes](https://www.lazytopper.com/app/notes/carbon-and-its-compounds): chapter notes, key formulas and competency-based questions
-- [Carbon & its Compounds chapter page](https://www.lazytopper.com/app/topic-hub/carbon-and-its-compounds): exam weightage and what to practise
-- [Light - Reflection & Refraction notes](https://www.lazytopper.com/app/notes/light-reflection-and-refraction): chapter notes, key formulas and competency-based questions
-- [Light - Reflection & Refraction chapter page](https://www.lazytopper.com/app/topic-hub/light-reflection-and-refraction): exam weightage and what to practise
-- [Human Eye & Colourful World notes](https://www.lazytopper.com/app/notes/human-eye-and-colourful-world): chapter notes, key formulas and competency-based questions
-- [Human Eye & Colourful World chapter page](https://www.lazytopper.com/app/topic-hub/human-eye-and-colourful-world): exam weightage and what to practise
-- [Electricity notes](https://www.lazytopper.com/app/notes/electricity): chapter notes, key formulas and competency-based questions
-- [Electricity chapter page](https://www.lazytopper.com/app/topic-hub/electricity): exam weightage and what to practise
-- [Magnetic Effects of Electric Current notes](https://www.lazytopper.com/app/notes/magnetic-effects-of-electric-current): chapter notes, key formulas and competency-based questions
-- [Magnetic Effects of Electric Current chapter page](https://www.lazytopper.com/app/topic-hub/magnetic-effects-of-electric-current): exam weightage and what to practise
-- [Life Processes notes](https://www.lazytopper.com/app/notes/life-processes): chapter notes, key formulas and competency-based questions
-- [Life Processes chapter page](https://www.lazytopper.com/app/topic-hub/life-processes): exam weightage and what to practise
-- [Control & Coordination notes](https://www.lazytopper.com/app/notes/control-and-coordination): chapter notes, key formulas and competency-based questions
-- [Control & Coordination chapter page](https://www.lazytopper.com/app/topic-hub/control-and-coordination): exam weightage and what to practise
-- [How do Organisms Reproduce notes](https://www.lazytopper.com/app/notes/how-do-organisms-reproduce): chapter notes, key formulas and competency-based questions
-- [How do Organisms Reproduce chapter page](https://www.lazytopper.com/app/topic-hub/how-do-organisms-reproduce): exam weightage and what to practise
-- [Heredity notes](https://www.lazytopper.com/app/notes/heredity): chapter notes, key formulas and competency-based questions
-- [Heredity chapter page](https://www.lazytopper.com/app/topic-hub/heredity): exam weightage and what to practise
-- [Our Environment notes](https://www.lazytopper.com/app/notes/our-environment): chapter notes, key formulas and competency-based questions
-- [Our Environment chapter page](https://www.lazytopper.com/app/topic-hub/our-environment): exam weightage and what to practise
+- [Chemical Reactions & Equations notes](https://www.lazytopper.com/notes/chemical-reactions-and-equations): chapter notes, key formulas and competency-based questions
+- [Chemical Reactions & Equations chapter page](https://www.lazytopper.com/topic-hub/chemical-reactions-and-equations): exam weightage and what to practise
+- [Acids Bases & Salts notes](https://www.lazytopper.com/notes/acids-bases-and-salts): chapter notes, key formulas and competency-based questions
+- [Acids Bases & Salts chapter page](https://www.lazytopper.com/topic-hub/acids-bases-and-salts): exam weightage and what to practise
+- [Metals & Non-metals notes](https://www.lazytopper.com/notes/metals-and-non-metals): chapter notes, key formulas and competency-based questions
+- [Metals & Non-metals chapter page](https://www.lazytopper.com/topic-hub/metals-and-non-metals): exam weightage and what to practise
+- [Carbon & its Compounds notes](https://www.lazytopper.com/notes/carbon-and-its-compounds): chapter notes, key formulas and competency-based questions
+- [Carbon & its Compounds chapter page](https://www.lazytopper.com/topic-hub/carbon-and-its-compounds): exam weightage and what to practise
+- [Light - Reflection & Refraction notes](https://www.lazytopper.com/notes/light-reflection-and-refraction): chapter notes, key formulas and competency-based questions
+- [Light - Reflection & Refraction chapter page](https://www.lazytopper.com/topic-hub/light-reflection-and-refraction): exam weightage and what to practise
+- [Human Eye & Colourful World notes](https://www.lazytopper.com/notes/human-eye-and-colourful-world): chapter notes, key formulas and competency-based questions
+- [Human Eye & Colourful World chapter page](https://www.lazytopper.com/topic-hub/human-eye-and-colourful-world): exam weightage and what to practise
+- [Electricity notes](https://www.lazytopper.com/notes/electricity): chapter notes, key formulas and competency-based questions
+- [Electricity chapter page](https://www.lazytopper.com/topic-hub/electricity): exam weightage and what to practise
+- [Magnetic Effects of Electric Current notes](https://www.lazytopper.com/notes/magnetic-effects-of-electric-current): chapter notes, key formulas and competency-based questions
+- [Magnetic Effects of Electric Current chapter page](https://www.lazytopper.com/topic-hub/magnetic-effects-of-electric-current): exam weightage and what to practise
+- [Life Processes notes](https://www.lazytopper.com/notes/life-processes): chapter notes, key formulas and competency-based questions
+- [Life Processes chapter page](https://www.lazytopper.com/topic-hub/life-processes): exam weightage and what to practise
+- [Control & Coordination notes](https://www.lazytopper.com/notes/control-and-coordination): chapter notes, key formulas and competency-based questions
+- [Control & Coordination chapter page](https://www.lazytopper.com/topic-hub/control-and-coordination): exam weightage and what to practise
+- [How do Organisms Reproduce notes](https://www.lazytopper.com/notes/how-do-organisms-reproduce): chapter notes, key formulas and competency-based questions
+- [How do Organisms Reproduce chapter page](https://www.lazytopper.com/topic-hub/how-do-organisms-reproduce): exam weightage and what to practise
+- [Heredity notes](https://www.lazytopper.com/notes/heredity): chapter notes, key formulas and competency-based questions
+- [Heredity chapter page](https://www.lazytopper.com/topic-hub/heredity): exam weightage and what to practise
+- [Our Environment notes](https://www.lazytopper.com/notes/our-environment): chapter notes, key formulas and competency-based questions
+- [Our Environment chapter page](https://www.lazytopper.com/topic-hub/our-environment): exam weightage and what to practise
 
 ## Optional
-- [Privacy policy](https://www.lazytopper.com/app/legal/privacy)
-- [Terms of use](https://www.lazytopper.com/app/legal/terms)
-- [Cancellation and refund policy](https://www.lazytopper.com/app/legal/refund)
+- [Privacy policy](https://www.lazytopper.com/legal/privacy)
+- [Terms of use](https://www.lazytopper.com/legal/terms)
+- [Cancellation and refund policy](https://www.lazytopper.com/legal/refund)

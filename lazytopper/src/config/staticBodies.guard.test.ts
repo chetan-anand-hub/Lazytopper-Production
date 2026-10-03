@@ -37,8 +37,8 @@ describe("the committed landing capture (prerendered/index.html)", () => {
     const html = landing();
     const ctas = [...html.matchAll(/<a[^>]*href="([^"]*)"[^>]*>Check my answer/g)].map((m) => m[1]);
     expect(ctas.length, "no 'Check my answer' CTA in the committed landing").toBeGreaterThan(0);
-    for (const href of ctas) expect(href).toBe("/app/check-improve");
-    expect(html).not.toContain('href="/app/sign-up');
+    for (const href of ctas) expect(href).toBe("/check-improve");
+    expect(html).not.toContain('href="/sign-up');
   });
 });
 
@@ -145,7 +145,7 @@ describe("stripAuthChrome removes NODES, never text", () => {
     root.innerHTML =
       '<aside><div><span>Mistake Intel</span></div>' +
       "<p>Sign in to see mistake patterns from your checked answers.</p>" +
-      '<a href="/app/login?reason=mistake-aware&redirect=/me">Sign in →</a></aside>';
+      '<a href="/login?reason=mistake-aware&redirect=/me">Sign in →</a></aside>';
 
     stripAuthChrome(root);
 
@@ -159,7 +159,7 @@ describe("stripAuthChrome removes NODES, never text", () => {
     root.innerHTML =
       "<main><section><h3>Mistake-aware practice</h3>" +
       "<p>Mistake-aware practice needs saved attempts. Start a free trial to unlock drills.</p>" +
-      '<a href="/app/login?reason=mistake-aware&redirect=%2Fpractice-hub">Start free trial</a>' +
+      '<a href="/login?reason=mistake-aware&redirect=%2Fpractice-hub">Start free trial</a>' +
       "</section><section><p>Quick Practice</p></section></main>";
 
     stripAuthChrome(root);

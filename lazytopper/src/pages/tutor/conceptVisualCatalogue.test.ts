@@ -67,7 +67,7 @@ describe("★ base-path — the #448 live bug: registry paths must be browser-lo
     });
     expect(v?.body.kind).toBe("image");
     if (v?.body.kind === "image") {
-      expect(v.body.url).not.toContain("/app/app/");
+      expect(v.body.url).not.toMatch(/\/app\/app\//);
       if (BASE) expect(v.body.url.startsWith(`${BASE}${BASE}`)).toBe(false);
     }
   });

@@ -128,8 +128,8 @@ describe("normalisePath — F6: an email or an opaque id in a segment never leav
   });
 
   it("WHERE ELSE — the GA4 page_location is built through the same cleaner", () => {
-    const loc = ga4PageLocation(`/admin/students/${UID}`, "?utm_source=x&email=a@b.c", "https://www.example.com", "/app");
-    expect(loc).toBe("https://www.example.com/app/admin/students/:id?utm_source=x");
+    const loc = ga4PageLocation(`/admin/students/${UID}`, "?utm_source=x&email=a@b.c", "https://www.example.com", "/base");
+    expect(loc).toBe("https://www.example.com/base/admin/students/:id?utm_source=x");
     expect(loc).not.toContain(UID);
   });
 });

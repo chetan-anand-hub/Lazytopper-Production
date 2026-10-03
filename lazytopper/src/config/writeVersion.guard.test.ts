@@ -30,7 +30,7 @@ describe("writeVersion — the release marker", () => {
     }
   });
 
-  it("is served at /app/version.json (the file name inside the /app/ build)", () => {
+  it("is served at /version.json (the file name at the root of the build)", () => {
     expect(VERSION_FILE).toBe("version.json");
   });
 });

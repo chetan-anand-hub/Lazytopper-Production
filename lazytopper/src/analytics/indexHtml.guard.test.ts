@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { ga4PageLocation, ga4PageReferrer, routerPathOf } from "./analytics";
+import { ga4PageLocation, ga4PageReferrer, normalisePath, routerPathOf } from "./analytics";
 
 /**
  * Pins the two properties of the analytics script tag that fail SILENTLY if someone
@@ -15,6 +15,39 @@ import { ga4PageLocation, ga4PageReferrer, routerPathOf } from "./analytics";
  * which redacting our `path` argument does not touch.
  */
 const html = readFileSync(resolve(__dirname, "../../index.html"), "utf-8");
+
+/**
+ * ROOT-URL-1 — the app is served at the domain root. The retired base (still carried by
+ * old hand-off links until the edge redirects them) is read from vercel.json's redirect to
+ * the root rather than restated, so this file holds no literal of it.
+ */
+const RETIRED_BASE: string = (
+  JSON.parse(readFileSync(resolve(__dirname, "../../../vercel.json"), "utf-8")) as {
+    redirects: Array<{ source: string; destination: string }>;
+  }
+).redirects.find((r) => r.destination === "/")!.source;
+
+type BeforeSend = (event: unknown) => unknown;
+
+/** Run the Vercel block from index.html as written and hand back the `beforeSend` it registers. */
+function loadBeforeSend(): BeforeSend {
+  const block = [...html.matchAll(/<script>([\s\S]*?)<\/script>/gi)]
+    .map((m) => m[1])
+    .find((b) => b.includes('window.va("beforeSend"'));
+  if (!block) throw new Error("index.html has no inline block registering beforeSend");
+  let captured: BeforeSend | null = null;
+  const win: Record<string, unknown> = {
+    va: (kind: string, fn: BeforeSend) => {
+      if (kind === "beforeSend") captured = fn;
+    },
+  };
+  new Function("window", block)(win);
+  if (!captured) throw new Error("the Vercel block ran but registered no beforeSend");
+  return captured;
+}
+
+const runBeforeSend = (event: unknown): unknown => loadBeforeSend()(event);
+const beforeSendUrl = (url: string): string => (runBeforeSend({ url }) as { url: string }).url;
 
 describe("index.html — the analytics script tag", () => {
   it("loads the first-party Vercel script, deferred", () => {
@@ -31,27 +64,31 @@ describe("index.html — the analytics script tag", () => {
     expect(html).toContain('"/u/:token"');
   });
 
-  it("★ CONTROL — the redaction in this file actually redacts, and only what it should", () => {
-    // Extract the live regex + replacement from the file itself rather than restating
-    // it here: a copy in the test would pass forever after the real one was edited.
-    const match = html.match(/event\.url = url\.replace\((\/.*?\/), "(.*?)"\)/);
-    expect(match).not.toBeNull();
-    const [, pattern, replacement] = match!;
-    const body = pattern.slice(1, pattern.lastIndexOf("/"));
-    const redact = (u: string) => u.split("?")[0].split("#")[0].replace(new RegExp(body), replacement);
-
+  it("★ CONTROL — the beforeSend in this file actually redacts, and only what it should", () => {
+    // RUN the block from the file rather than restating its rule here: a copy in the test
+    // would pass forever after the real one was edited.
     const token = "b".repeat(64);
-    expect(redact(`https://www.lazytopper.com/u/${token}`)).toBe(
-      "https://www.lazytopper.com/u/:token",
-    );
-    expect(redact(`https://www.lazytopper.com/u/${token}`)).not.toContain(token);
-    expect(redact("https://www.lazytopper.com/login?oobCode=SECRET")).toBe(
+    expect(beforeSendUrl(`https://www.lazytopper.com/u/${token}`)).toBe("https://www.lazytopper.com/u/:token");
+    expect(beforeSendUrl(`https://www.lazytopper.com/u/${token}`)).not.toContain(token);
+    expect(beforeSendUrl("https://www.lazytopper.com/login?oobCode=SECRET")).toBe(
       "https://www.lazytopper.com/login",
     );
-    // …and leaves ordinary content alone, or it would answer nothing while looking safe.
-    expect(redact("https://www.lazytopper.com/app/notes/electricity")).toBe(
-      "https://www.lazytopper.com/app/notes/electricity",
+    // ROOT-URL-1 M4 — the personal-data rules normalisePath applies (FU-INDEXHTML-PATH-PII-VERCEL-BEFORESEND).
+    expect(beforeSendUrl("https://www.lazytopper.com/admin/students/AbCdEfGhIjKlMnOpQrStUvWxYz12")).toBe(
+      "https://www.lazytopper.com/admin/students/:id",
     );
+    expect(beforeSendUrl("https://www.lazytopper.com/parent/a%40b.c/report")).toBe(
+      "https://www.lazytopper.com/parent/:email/report",
+    );
+    // …and leaves ordinary content alone, or it would answer nothing while looking safe.
+    expect(beforeSendUrl("https://www.lazytopper.com/notes/electricity")).toBe(
+      "https://www.lazytopper.com/notes/electricity",
+    );
+    expect(beforeSendUrl("https://www.lazytopper.com/notes/chemical-reactions-and-equations")).toBe(
+      "https://www.lazytopper.com/notes/chemical-reactions-and-equations",
+    );
+    // A non-string url or a missing event passes through untouched.
+    expect(runBeforeSend({ url: 42 })).toEqual({ url: 42 });
   });
 });
 
@@ -140,7 +177,7 @@ describe("index.html — the GA4 block (GA4-1)", () => {
     expect(block.body).toContain("allow_google_signals: true");
     expect(block.body).toContain("allow_ad_personalization_signals: true");
     // …and the block, when run, hands gtag exactly those values.
-    const run = runGa4Block("https://www.lazytopper.com/app/");
+    const run = runGa4Block("https://www.lazytopper.com/");
     expect(run.config).toMatchObject({
       send_page_view: false,
       allow_google_signals: true,
@@ -149,18 +186,18 @@ describe("index.html — the GA4 block (GA4-1)", () => {
   });
 
   it("on an ordinary page, requests gtag.js async and configures G-1T8Q12H4RQ (CONTROL for the skips below)", () => {
-    const run = runGa4Block("https://www.lazytopper.com/app/notes/trigonometry");
+    const run = runGa4Block("https://www.lazytopper.com/notes/trigonometry");
     expect(run.appended).toEqual([{ tagName: "script", async: true, src: GTAG_SRC }]);
     expect(run.gtagDefined).toBe(true);
     expect(run.dataLayer?.map((e) => e[0])).toEqual(["js", "config"]);
     expect(run.dataLayer?.[1][1]).toBe(GA4_ID);
     // Paths that merely START with "u" are not hand-off links.
-    expect(runGa4Block("https://www.lazytopper.com/app/upload").appended).toHaveLength(1);
+    expect(runGa4Block("https://www.lazytopper.com/upload").appended).toHaveLength(1);
   });
 
   it.each([
     ["/u/<token>", "https://www.lazytopper.com/u/"],
-    ["/app/u/<token>", "https://www.lazytopper.com/app/u/"],
+    ["<retired base>/u/<token>", `https://www.lazytopper.com${RETIRED_BASE}/u/`],
   ])("★★ on a hand-off link %s it does NOTHING — no script, no gtag, no dataLayer", (_label, prefix) => {
     const token = "d".repeat(64);
     const run = runGa4Block(`${prefix}${token}?gclid=G1`, { referrer: `${prefix}${token}` });
@@ -171,18 +208,18 @@ describe("index.html — the GA4 block (GA4-1)", () => {
   });
 
   it("does nothing in the automated contexts analytics.ts already excludes (loopback, webdriver)", () => {
-    expect(runGa4Block("http://127.0.0.1:4173/app/").appended).toEqual([]);
-    expect(runGa4Block("http://localhost:5173/app/").dataLayer).toBeUndefined();
-    expect(runGa4Block("https://www.lazytopper.com/app/", { webdriver: true }).gtagDefined).toBe(false);
+    expect(runGa4Block("http://127.0.0.1:4173/").appended).toEqual([]);
+    expect(runGa4Block("http://localhost:5173/").dataLayer).toBeUndefined();
+    expect(runGa4Block("https://www.lazytopper.com/", { webdriver: true }).gtagDefined).toBe(false);
   });
 
   it("★ the config address is redacted — keeps gclid and utm_*, drops every other parameter and the hash", () => {
     const run = runGa4Block(
-      "https://www.lazytopper.com/app/?gclid=Cj0KCQ-abc&utm_source=google&utm_medium=cpc&oobCode=SECRET&email=a%40b.c#frag",
+      "https://www.lazytopper.com/?gclid=Cj0KCQ-abc&utm_source=google&utm_medium=cpc&oobCode=SECRET&email=a%40b.c#frag",
       { referrer: "https://www.google.com/search?q=private+words" },
     );
     expect(run.config?.page_location).toBe(
-      "https://www.lazytopper.com/app/?gclid=Cj0KCQ-abc&utm_source=google&utm_medium=cpc",
+      "https://www.lazytopper.com/?gclid=Cj0KCQ-abc&utm_source=google&utm_medium=cpc",
     );
     expect(run.config?.page_referrer).toBe("https://www.google.com/");
     const sent = JSON.stringify(run.dataLayer);
@@ -193,22 +230,28 @@ describe("index.html — the GA4 block (GA4-1)", () => {
    * ★★ G2 — THE SNIPPET CANNOT IMPORT normalisePath, SO IT IS PROVEN EQUAL TO IT.
    * For every address below, what the block hands `config` must be byte-identical to what
    * analytics.ts sends on every later hit (ga4PageLocation over normalisePath). The
-   * production basename is `/app` (vite.config.ts `base: "/app/"`), asserted first so the
-   * comparison cannot drift from what ships.
+   * production basename is EMPTY since ROOT-URL-1 (vite.config.ts `base: "/"`), asserted
+   * first so the comparison cannot drift from what ships.
    */
   it("★★ agrees byte-for-byte with analytics.ts's redaction (page_location AND page_referrer)", () => {
     const viteConfig = readFileSync(resolve(__dirname, "../../vite.config.ts"), "utf-8");
-    expect(viteConfig).toMatch(/base:\s*"\/app\/"/);
-    const base = "/app";
+    expect(viteConfig).toMatch(/^\s*base:\s*"\/"/m);
+    const base = "";
+    const [block] = ga4Blocks();
+    expect(block.body).toContain('var BASE = "";');
     const cases: Array<[string, string]> = [
-      ["https://www.lazytopper.com/app/", ""],
-      ["https://www.lazytopper.com/app", "https://www.google.com/"],
-      ["https://www.lazytopper.com/app/notes/trigonometry/", "https://www.lazytopper.com/app/u/abc123"],
-      ["https://www.lazytopper.com/app/?gclid=G1&utm_source=google&x=1#h", "https://user:pw@evil.example:8443/p?q=1"],
-      ["https://www.lazytopper.com/app/login?oobCode=SECRET&continueUrl=https%3A%2F%2Fx", "android-app://com.google.android.gm/"],
-      ["https://www.lazytopper.com/app/pricing?utm_campaign=board%20prep&utm_term=a+b&gclid=", "http://m.facebook.com"],
-      [`https://www.lazytopper.com/app/${"x".repeat(300)}/`, "https://www.bing.com/search?q=lazytopper"],
-      ["https://lazytopper-git-lane.vercel.app/app/cbse/class-10?utm_=1&gclidx=2", ""],
+      ["https://www.lazytopper.com/", ""],
+      ["https://www.lazytopper.com", "https://www.google.com/"],
+      ["https://www.lazytopper.com/notes/trigonometry/", "https://www.lazytopper.com/u/abc123"],
+      ["https://www.lazytopper.com/?gclid=G1&utm_source=google&x=1#h", "https://user:pw@evil.example:8443/p?q=1"],
+      ["https://www.lazytopper.com/login?oobCode=SECRET&continueUrl=https%3A%2F%2Fx", "android-app://com.google.android.gm/"],
+      ["https://www.lazytopper.com/pricing?utm_campaign=board%20prep&utm_term=a+b&gclid=", "http://m.facebook.com"],
+      [`https://www.lazytopper.com/${"x".repeat(300)}/`, "https://www.bing.com/search?q=lazytopper"],
+      ["https://lazytopper-git-lane.vercel.app/cbse/class-10?utm_=1&gclidx=2", ""],
+      // ROOT-URL-1 M4 — the personal-data segments normalisePath redacts.
+      ["https://www.lazytopper.com/admin/students/AbCdEfGhIjKlMnOpQrStUvWxYz12", ""],
+      ["https://www.lazytopper.com/parent/a%40b.c/report?gclid=G3", ""],
+      ["https://www.lazytopper.com/notes/chemical-reactions-and-equations", ""],
     ];
     for (const [href, referrer] of cases) {
       const url = new URL(href);
@@ -219,7 +262,44 @@ describe("index.html — the GA4 block (GA4-1)", () => {
       expect(run.config?.page_referrer, referrer).toBe(ga4PageReferrer(referrer));
     }
     // CONTROL — the comparison is not vacuous: the two sides are real, redacted strings.
-    const control = runGa4Block("https://www.lazytopper.com/app/login?oobCode=SECRET&gclid=G9");
-    expect(control.config?.page_location).toBe("https://www.lazytopper.com/app/login?gclid=G9");
+    const control = runGa4Block("https://www.lazytopper.com/admin/students/AbCdEfGhIjKlMnOpQrStUvWxYz12?oobCode=SECRET&gclid=G9");
+    expect(control.config?.page_location).toBe("https://www.lazytopper.com/admin/students/:id?gclid=G9");
+  });
+
+  /**
+   * ★★ ROOT-URL-1 M4 — PARITY BETWEEN BOTH SENDERS AND normalisePath, ON THE SAME CASES.
+   * Closes FU-INDEXHTML-PATH-PII-VERCEL-BEFORESEND: the Vercel `beforeSend` used to scrub
+   * only `/u/<token>`, so an email or a uid in a path reached Vercel in the vendor's own
+   * `url` while GA4 and our page views carried the redacted form. Both inline copies of the
+   * rule are RUN here against the same paths, and each must equal normalisePath().
+   */
+  it("★★ the Vercel beforeSend and the GA4 block apply normalisePath's rules to the same cases", () => {
+    const origin = "https://www.lazytopper.com";
+    const paths = [
+      "/",
+      "/notes/electricity",
+      "/notes/chemical-reactions-and-equations",
+      "/notes/areas-related-to-circles/",
+      "/admin/students/AbCdEfGhIjKlMnOpQrStUvWxYz12",
+      "/admin/students/0123456789abcdef0123",
+      "/parent/a@b.c",
+      "/parent/a%40b.c/report",
+      "/topic-hub/10/Maths",
+      `/${"y".repeat(250)}`,
+      "/pricing/",
+      "/upload",
+    ];
+    for (const path of paths) {
+      const expected = normalisePath(path);
+      expect(beforeSendUrl(`${origin}${path}?oobCode=SECRET#frag`), `beforeSend ${path}`).toBe(origin + expected);
+      expect(runGa4Block(`${origin}${path}`).config?.page_location, `GA4 ${path}`).toBe(origin + expected);
+    }
+    // The /u/ hand-off: beforeSend redacts it; the GA4 block never runs at all.
+    const token = "e".repeat(64);
+    expect(beforeSendUrl(`${origin}/u/${token}`)).toBe(`${origin}${normalisePath(`/u/${token}`)}`);
+    expect(runGa4Block(`${origin}/u/${token}`).dataLayer).toBeUndefined();
+    // CONTROL — the rule really fires (a no-op on both sides would also be "equal").
+    expect(normalisePath("/admin/students/AbCdEfGhIjKlMnOpQrStUvWxYz12")).toBe("/admin/students/:id");
+    expect(normalisePath("/parent/a@b.c")).toBe("/parent/:email");
   });
 });

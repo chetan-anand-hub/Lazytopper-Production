@@ -17,7 +17,7 @@ import {
  * The error messages below are the ones MEASURED in Chromium 153, Firefox 155 and
  * WebKit 26.6 (§0b P10), not paraphrases.
  */
-const CHUNK_URL = "https://www.lazytopper.com/app/assets/DesktopNotesPage-AbC123.js";
+const CHUNK_URL = "https://www.lazytopper.com/assets/DesktopNotesPage-AbC123.js";
 const chromiumError = (url = CHUNK_URL) =>
   new TypeError(`Failed to fetch dynamically imported module: ${url}`);
 const firefoxError = (url = CHUNK_URL) =>

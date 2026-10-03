@@ -39,19 +39,19 @@ const WORKFLOW = resolve(REPO_ROOT, ".github", "workflows", "search-ping.yml");
 const SITEMAP_BEFORE = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://www.lazytopper.com/app/</loc>
+    <loc>https://www.lazytopper.com/</loc>
     <lastmod>2026-09-01</lastmod>
   </url>
   <url>
-    <loc>https://www.lazytopper.com/app/pricing</loc>
+    <loc>https://www.lazytopper.com/pricing</loc>
     <lastmod>2026-09-01</lastmod>
   </url>
   <url>
-    <loc>https://www.lazytopper.com/app/notes/electricity</loc>
+    <loc>https://www.lazytopper.com/notes/electricity</loc>
     <lastmod>2026-09-01</lastmod>
   </url>
   <url>
-    <loc>https://www.lazytopper.com/app/legal/retired</loc>
+    <loc>https://www.lazytopper.com/legal/retired</loc>
     <lastmod>2026-09-01</lastmod>
   </url>
 </urlset>
@@ -61,19 +61,19 @@ const SITEMAP_BEFORE = `<?xml version="1.0" encoding="UTF-8"?>
 const SITEMAP_AFTER = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://www.lazytopper.com/app/</loc>
+    <loc>https://www.lazytopper.com/</loc>
     <lastmod>2026-09-01</lastmod>
   </url>
   <url>
-    <loc>https://www.lazytopper.com/app/pricing</loc>
+    <loc>https://www.lazytopper.com/pricing</loc>
     <lastmod>2026-09-27</lastmod>
   </url>
   <url>
-    <loc>https://www.lazytopper.com/app/notes/electricity</loc>
+    <loc>https://www.lazytopper.com/notes/electricity</loc>
     <lastmod>2026-09-01</lastmod>
   </url>
   <url>
-    <loc>https://www.lazytopper.com/app/notes/light-reflection-and-refraction</loc>
+    <loc>https://www.lazytopper.com/notes/light-reflection-and-refraction</loc>
     <lastmod>2026-09-27</lastmod>
   </url>
 </urlset>
@@ -82,13 +82,13 @@ const SITEMAP_AFTER = `<?xml version="1.0" encoding="UTF-8"?>
 describe("search-ping — the changed-URL diff", () => {
   it("parses every <url> of a sitemap", () => {
     expect(parseSitemap(SITEMAP_AFTER).size).toBe(4);
-    expect(parseSitemap(SITEMAP_AFTER).get("https://www.lazytopper.com/app/pricing")).toBe("2026-09-27");
+    expect(parseSitemap(SITEMAP_AFTER).get("https://www.lazytopper.com/pricing")).toBe("2026-09-27");
   });
 
   it("announces exactly the new and restamped URLs, in sitemap order", () => {
     expect(changedUrls(SITEMAP_BEFORE, SITEMAP_AFTER)).toEqual([
-      "https://www.lazytopper.com/app/pricing",
-      "https://www.lazytopper.com/app/notes/light-reflection-and-refraction",
+      "https://www.lazytopper.com/pricing",
+      "https://www.lazytopper.com/notes/light-reflection-and-refraction",
     ]);
   });
 
@@ -120,7 +120,7 @@ describe("search-ping — the IndexNow request body", () => {
 
   it("refuses a URL list that spans hosts, and an empty one", () => {
     expect(() =>
-      indexNowBody(["https://www.lazytopper.com/app/", "https://evil.example/app/"]),
+      indexNowBody(["https://www.lazytopper.com/", "https://evil.example/x/"]),
     ).toThrow(/2 hosts/);
     expect(() => indexNowBody([])).toThrow(/no URLs/);
   });
@@ -373,7 +373,7 @@ describe("search-ping — S3 diff from the last successful ping", () => {
     // LAST_PING carried SITEMAP_BEFORE; SUPERSEDED restamped /app/pricing; SHA carries SITEMAP_AFTER.
     // Against the parent (= SUPERSEDED, already restamped) pricing would look unchanged.
     expect(resolveBefore(SHA, deps).ref).toBe(LAST_PING);
-    expect(changedUrls(SITEMAP_BEFORE, SITEMAP_AFTER)).toContain("https://www.lazytopper.com/app/pricing");
+    expect(changedUrls(SITEMAP_BEFORE, SITEMAP_AFTER)).toContain("https://www.lazytopper.com/pricing");
   });
 
   it("falls back to the parent ONLY when no pinged ancestor run exists", () => {

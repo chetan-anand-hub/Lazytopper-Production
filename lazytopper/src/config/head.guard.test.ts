@@ -190,8 +190,8 @@ describe("head guard — the detectors are not dead", () => {
   });
 
   it("canonicalHref() reads the href, and reports its absence", () => {
-    expect(canonicalHref('<link rel="canonical" href="https://www.x.com/app/" />')).toBe(
-      "https://www.x.com/app/",
+    expect(canonicalHref('<link rel="canonical" href="https://www.x.com/base/" />')).toBe(
+      "https://www.x.com/base/",
     );
     expect(canonicalHref("<head></head>")).toBeNull();
   });

@@ -18,7 +18,7 @@ import { applicablePaths, fragmentPathFor } from "../../../scripts/seo/applyPrer
  *   - it carries NO "chapter at a glance" node (no `chapter-at-a-glance` test id, no
  *     `lt-glance` markup or CSS);
  *   - it carries EXACTLY ONE link to the notes pages, and that link is to its own
- *     /app/notes/<slug> (the Notes button — SEO-NOTES-AND-LINKS-1).
+ *     /notes/<slug> (the Notes button — SEO-NOTES-AND-LINKS-1).
  *
  * The file list is DERIVED from `applicablePaths()` (the sitemap), never hand-written, and
  * its size is asserted, so a hub dropped from the artifact fails here instead of being
@@ -34,7 +34,7 @@ import { applicablePaths, fragmentPathFor } from "../../../scripts/seo/applyPrer
  */
 
 const NOTES_BUTTON =
-  '<a href="/app/notes/fixture-chapter" class="lt-spine__notes-btn" aria-expanded="false" ' +
+  '<a href="/notes/fixture-chapter" class="lt-spine__notes-btn" aria-expanded="false" ' +
   'aria-haspopup="dialog"><span aria-hidden="true">▤</span><span>Notes</span></a>';
 
 const OVERVIEW =
@@ -42,7 +42,7 @@ const OVERVIEW =
   '<section class="lt-glance" aria-labelledby="lt-glance-title" data-testid="chapter-at-a-glance">' +
   '<h2 id="lt-glance-title" class="lt-glance__title">Chapter at a glance</h2>' +
   "<p>A short fixture overview.</p>" +
-  '<a class="lt-glance__notes-link" href="/app/notes/fixture-chapter" data-discover="true">' +
+  '<a class="lt-glance__notes-link" href="/notes/fixture-chapter" data-discover="true">' +
   "Read the full Fixture Chapter notes</a></section>";
 
 const HEAD =
@@ -55,7 +55,7 @@ const WITH_OVERVIEW = HEAD + OVERVIEW + SPINE;
 
 /** Every `href` into the notes pages, whichever slug it names. */
 function notesHrefs(html: string): string[] {
-  return [...html.matchAll(/href="(\/app\/notes\/[^"]*)"/g)].map((m) => m[1]);
+  return [...html.matchAll(/href="(\/notes\/[^"]*)"/g)].map((m) => m[1]);
 }
 
 function hubFailures(html: string, slug: string): string[] {
@@ -63,8 +63,8 @@ function hubFailures(html: string, slug: string): string[] {
   if (html.includes("chapter-at-a-glance")) failures.push("has a chapter-at-a-glance node");
   if (/\blt-glance/.test(html)) failures.push("has lt-glance markup or CSS");
   const hrefs = notesHrefs(html);
-  if (hrefs.length !== 1 || hrefs[0] !== `/app/notes/${slug}`) {
-    failures.push(`notes hrefs ${JSON.stringify(hrefs)} != exactly one /app/notes/${slug}`);
+  if (hrefs.length !== 1 || hrefs[0] !== `/notes/${slug}`) {
+    failures.push(`notes hrefs ${JSON.stringify(hrefs)} != exactly one /notes/${slug}`);
   }
   return failures;
 }
@@ -79,7 +79,7 @@ describe("HUB-REVERT-1 R3 — CONTROL: the pin can fail", () => {
     expect(hubFailures(WITH_OVERVIEW, "fixture-chapter")).toEqual([
       "has a chapter-at-a-glance node",
       "has lt-glance markup or CSS",
-      'notes hrefs ["/app/notes/fixture-chapter","/app/notes/fixture-chapter"] != exactly one /app/notes/fixture-chapter',
+      'notes hrefs ["/notes/fixture-chapter","/notes/fixture-chapter"] != exactly one /notes/fixture-chapter',
     ]);
   });
 
@@ -90,7 +90,7 @@ describe("HUB-REVERT-1 R3 — CONTROL: the pin can fail", () => {
   it("rejects a notes link to another chapter, and a missing notes link", () => {
     expect(hubFailures(WITHOUT_OVERVIEW, "another-chapter")).toHaveLength(1);
     expect(hubFailures(SPINE, "fixture-chapter")).toEqual([
-      "notes hrefs [] != exactly one /app/notes/fixture-chapter",
+      "notes hrefs [] != exactly one /notes/fixture-chapter",
     ]);
   });
 });

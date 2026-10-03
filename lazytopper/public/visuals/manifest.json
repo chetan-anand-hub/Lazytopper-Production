@@ -8,7 +8,7 @@
       "chapterName": "Quadratic Equations",
       "conceptName": "Quadratic Formula",
       "slug": "quadratic-formula",
-      "filePath": "/app/visuals/maths/quadratic-equations/quadratic-formula.html",
+      "filePath": "/visuals/maths/quadratic-equations/quadratic-formula.html",
       "sizeKB": 21.3,
       "generatedAt": "2026-04-11T01:32:49.784Z",
       "topicKey": "Quadratic Equations"
@@ -19,7 +19,7 @@
       "chapterName": "Real Numbers",
       "conceptName": "Irrational Numbers Proof",
       "slug": "irrational-numbers-proof",
-      "filePath": "/app/visuals/maths/real-numbers/irrational-numbers-proof.html",
+      "filePath": "/visuals/maths/real-numbers/irrational-numbers-proof.html",
       "sizeKB": 21.2,
       "generatedAt": "2026-04-11T01:50:11.039Z",
       "topicKey": "Real Numbers"
@@ -30,7 +30,7 @@
       "chapterName": "Pair of Linear Equations in Two Variables",
       "conceptName": "Elimination Method",
       "slug": "elimination-method",
-      "filePath": "/app/visuals/maths/linear-equations/elimination-method.html",
+      "filePath": "/visuals/maths/linear-equations/elimination-method.html",
       "sizeKB": 20.7,
       "generatedAt": "2026-04-11T02:04:00.344Z",
       "topicKey": "Pair of Linear Equations"
@@ -41,7 +41,7 @@
       "chapterName": "Pair of Linear Equations in Two Variables",
       "conceptName": "Cross Multiplication Method",
       "slug": "cross-multiplication-method",
-      "filePath": "/app/visuals/maths/linear-equations/cross-multiplication-method.html",
+      "filePath": "/visuals/maths/linear-equations/cross-multiplication-method.html",
       "sizeKB": 21,
       "generatedAt": "2026-04-11T02:05:53.202Z",
       "topicKey": "Pair of Linear Equations"
@@ -52,7 +52,7 @@
       "chapterName": "Triangles",
       "conceptName": "Similar Triangles and Criteria",
       "slug": "similar-triangles-and-criteria",
-      "filePath": "/app/visuals/maths/triangles/similar-triangles-and-criteria.html",
+      "filePath": "/visuals/maths/triangles/similar-triangles-and-criteria.html",
       "sizeKB": 19.5,
       "generatedAt": "2026-04-11T02:22:24.228Z",
       "topicKey": "Triangles"
@@ -63,7 +63,7 @@
       "chapterName": "Coordinate Geometry",
       "conceptName": "Area of Triangle using Coordinates",
       "slug": "area-of-triangle-using-coordinates",
-      "filePath": "/app/visuals/maths/coordinate-geometry/area-of-triangle-using-coordinates.html",
+      "filePath": "/visuals/maths/coordinate-geometry/area-of-triangle-using-coordinates.html",
       "sizeKB": 18.2,
       "generatedAt": "2026-04-11T02:29:52.784Z",
       "topicKey": "Coordinate Geometry"
@@ -74,7 +74,7 @@
       "chapterName": "Introduction to Trigonometry",
       "conceptName": "Height and Distance Problems",
       "slug": "height-and-distance-problems",
-      "filePath": "/app/visuals/maths/trigonometry/height-and-distance-problems.html",
+      "filePath": "/visuals/maths/trigonometry/height-and-distance-problems.html",
       "sizeKB": 20.1,
       "generatedAt": "2026-04-11T02:38:53.592Z",
       "topicKey": "Trigonometry"
@@ -85,7 +85,7 @@
       "chapterName": "Chemical Reactions and Equations",
       "conceptName": "Types of Chemical Reactions",
       "slug": "types-of-chemical-reactions",
-      "filePath": "/app/visuals/science/chemical-reactions/types-of-chemical-reactions.html",
+      "filePath": "/visuals/science/chemical-reactions/types-of-chemical-reactions.html",
       "sizeKB": 21.7,
       "generatedAt": "2026-04-11T03:09:17.994Z",
       "topicKey": "Chemical Reactions and Equations"
@@ -96,7 +96,7 @@
       "chapterName": "Chemical Reactions and Equations",
       "conceptName": "Oxidation and Reduction",
       "slug": "oxidation-and-reduction",
-      "filePath": "/app/visuals/science/chemical-reactions/oxidation-and-reduction.html",
+      "filePath": "/visuals/science/chemical-reactions/oxidation-and-reduction.html",
       "sizeKB": 20.4,
       "generatedAt": "2026-04-11T03:13:18.025Z",
       "topicKey": "Chemical Reactions and Equations"
@@ -107,7 +107,7 @@
       "chapterName": "Chemical Reactions and Equations",
       "conceptName": "Corrosion and Rancidity",
       "slug": "corrosion-and-rancidity",
-      "filePath": "/app/visuals/science/chemical-reactions/corrosion-and-rancidity.html",
+      "filePath": "/visuals/science/chemical-reactions/corrosion-and-rancidity.html",
       "sizeKB": 20.7,
       "generatedAt": "2026-04-11T03:15:11.542Z",
       "topicKey": "Chemical Reactions and Equations"
@@ -118,7 +118,7 @@
       "chapterName": "Acids, Bases and Salts",
       "conceptName": "Common Salt and its Products",
       "slug": "common-salt-and-its-products",
-      "filePath": "/app/visuals/science/acids-bases-salts/common-salt-and-its-products.html",
+      "filePath": "/visuals/science/acids-bases-salts/common-salt-and-its-products.html",
       "sizeKB": 20,
       "generatedAt": "2026-04-11T03:20:43.584Z",
       "topicKey": "Acids Bases and Salts"
@@ -129,7 +129,7 @@
       "chapterName": "Metals and Non-Metals",
       "conceptName": "Physical Properties of Metals",
       "slug": "physical-properties-of-metals",
-      "filePath": "/app/visuals/science/metals-nonmetals/physical-properties-of-metals.html",
+      "filePath": "/visuals/science/metals-nonmetals/physical-properties-of-metals.html",
       "sizeKB": 20.8,
       "generatedAt": "2026-04-11T03:22:24.953Z",
       "topicKey": "Metals and Non-Metals"
@@ -140,7 +140,7 @@
       "chapterName": "Metals and Non-Metals",
       "conceptName": "Ionic Bonding",
       "slug": "ionic-bonding",
-      "filePath": "/app/visuals/science/metals-nonmetals/ionic-bonding.html",
+      "filePath": "/visuals/science/metals-nonmetals/ionic-bonding.html",
       "sizeKB": 20.4,
       "generatedAt": "2026-04-11T03:26:11.707Z",
       "topicKey": "Metals and Non-Metals"
@@ -151,7 +151,7 @@
       "chapterName": "Carbon and its Compounds",
       "conceptName": "Homologous Series",
       "slug": "homologous-series",
-      "filePath": "/app/visuals/science/carbon-compounds/homologous-series.html",
+      "filePath": "/visuals/science/carbon-compounds/homologous-series.html",
       "sizeKB": 20.2,
       "generatedAt": "2026-04-11T03:31:38.312Z",
       "topicKey": "Carbon and its Compounds"
@@ -162,7 +162,7 @@
       "chapterName": "Life Processes",
       "conceptName": "Photosynthesis",
       "slug": "photosynthesis",
-      "filePath": "/app/visuals/science/life-processes/photosynthesis.html",
+      "filePath": "/visuals/science/life-processes/photosynthesis.html",
       "sizeKB": 20.9,
       "generatedAt": "2026-04-11T03:39:20.640Z",
       "topicKey": "Life Processes"
@@ -173,7 +173,7 @@
       "chapterName": "Life Processes",
       "conceptName": "Human Heart and Blood Circulation",
       "slug": "human-heart-and-blood-circulation",
-      "filePath": "/app/visuals/science/life-processes/human-heart-and-blood-circulation.html",
+      "filePath": "/visuals/science/life-processes/human-heart-and-blood-circulation.html",
       "sizeKB": 21.2,
       "generatedAt": "2026-04-11T03:41:07.899Z",
       "topicKey": "Life Processes"
@@ -184,7 +184,7 @@
       "chapterName": "Life Processes",
       "conceptName": "Respiration and Excretion",
       "slug": "respiration-and-excretion",
-      "filePath": "/app/visuals/science/life-processes/respiration-and-excretion.html",
+      "filePath": "/visuals/science/life-processes/respiration-and-excretion.html",
       "sizeKB": 20.8,
       "generatedAt": "2026-04-11T03:43:02.668Z",
       "topicKey": "Life Processes"
@@ -195,7 +195,7 @@
       "chapterName": "Control and Coordination",
       "conceptName": "Nervous System",
       "slug": "nervous-system",
-      "filePath": "/app/visuals/science/control-coordination/nervous-system.html",
+      "filePath": "/visuals/science/control-coordination/nervous-system.html",
       "sizeKB": 19.8,
       "generatedAt": "2026-04-11T03:44:42.250Z",
       "topicKey": "Control and Coordination"
@@ -206,7 +206,7 @@
       "chapterName": "How do Organisms Reproduce?",
       "conceptName": "Types of Asexual Reproduction",
       "slug": "types-of-asexual-reproduction",
-      "filePath": "/app/visuals/science/reproduction/types-of-asexual-reproduction.html",
+      "filePath": "/visuals/science/reproduction/types-of-asexual-reproduction.html",
       "sizeKB": 21.2,
       "generatedAt": "2026-04-11T03:50:24.074Z",
       "topicKey": "How do Organisms Reproduce"
@@ -217,7 +217,7 @@
       "chapterName": "How do Organisms Reproduce?",
       "conceptName": "Human Reproductive System",
       "slug": "human-reproductive-system",
-      "filePath": "/app/visuals/science/reproduction/human-reproductive-system.html",
+      "filePath": "/visuals/science/reproduction/human-reproductive-system.html",
       "sizeKB": 20.5,
       "generatedAt": "2026-04-11T03:52:20.040Z",
       "topicKey": "How do Organisms Reproduce"
@@ -228,7 +228,7 @@
       "chapterName": "How do Organisms Reproduce?",
       "conceptName": "Flower Structure and Pollination",
       "slug": "flower-structure-and-pollination",
-      "filePath": "/app/visuals/science/reproduction/flower-structure-and-pollination.html",
+      "filePath": "/visuals/science/reproduction/flower-structure-and-pollination.html",
       "sizeKB": 20,
       "generatedAt": "2026-04-11T03:54:11.154Z",
       "topicKey": "How do Organisms Reproduce"
@@ -239,7 +239,7 @@
       "chapterName": "Heredity and Evolution",
       "conceptName": "Mendels Laws of Inheritance",
       "slug": "mendels-laws-of-inheritance",
-      "filePath": "/app/visuals/science/heredity-evolution/mendels-laws-of-inheritance.html",
+      "filePath": "/visuals/science/heredity-evolution/mendels-laws-of-inheritance.html",
       "sizeKB": 20.7,
       "generatedAt": "2026-04-11T03:55:58.758Z",
       "topicKey": "Heredity and Evolution"
@@ -250,7 +250,7 @@
       "chapterName": "Heredity and Evolution",
       "conceptName": "Sex Determination",
       "slug": "sex-determination",
-      "filePath": "/app/visuals/science/heredity-evolution/sex-determination.html",
+      "filePath": "/visuals/science/heredity-evolution/sex-determination.html",
       "sizeKB": 21.1,
       "generatedAt": "2026-04-11T03:57:47.264Z",
       "topicKey": "Heredity and Evolution"
@@ -261,7 +261,7 @@
       "chapterName": "Heredity and Evolution",
       "conceptName": "Evolution and Speciation",
       "slug": "evolution-and-speciation",
-      "filePath": "/app/visuals/science/heredity-evolution/evolution-and-speciation.html",
+      "filePath": "/visuals/science/heredity-evolution/evolution-and-speciation.html",
       "sizeKB": 21.3,
       "generatedAt": "2026-04-11T03:59:43.911Z",
       "topicKey": "Heredity and Evolution"
@@ -272,7 +272,7 @@
       "chapterName": "The Human Eye and the Colourful World",
       "conceptName": "Structure of Human Eye",
       "slug": "structure-of-human-eye",
-      "filePath": "/app/visuals/science/human-eye/structure-of-human-eye.html",
+      "filePath": "/visuals/science/human-eye/structure-of-human-eye.html",
       "sizeKB": 20.1,
       "generatedAt": "2026-04-11T04:11:51.524Z",
       "topicKey": "Human Eye and Colourful World"
@@ -283,7 +283,7 @@
       "chapterName": "The Human Eye and the Colourful World",
       "conceptName": "Defects of Vision and Correction",
       "slug": "defects-of-vision-and-correction",
-      "filePath": "/app/visuals/science/human-eye/defects-of-vision-and-correction.html",
+      "filePath": "/visuals/science/human-eye/defects-of-vision-and-correction.html",
       "sizeKB": 19.7,
       "generatedAt": "2026-04-11T04:13:44.242Z",
       "topicKey": "Human Eye and Colourful World"
@@ -294,7 +294,7 @@
       "chapterName": "Magnetic Effects of Electric Current",
       "conceptName": "Magnetic Field Lines",
       "slug": "magnetic-field-lines",
-      "filePath": "/app/visuals/science/magnetic-effects/magnetic-field-lines.html",
+      "filePath": "/visuals/science/magnetic-effects/magnetic-field-lines.html",
       "sizeKB": 20.9,
       "generatedAt": "2026-04-11T04:27:50.432Z",
       "topicKey": "Magnetic Effects of Electric Current"
@@ -305,7 +305,7 @@
       "chapterName": "Magnetic Effects of Electric Current",
       "conceptName": "Flemings Left Hand Rule",
       "slug": "flemings-left-hand-rule",
-      "filePath": "/app/visuals/science/magnetic-effects/flemings-left-hand-rule.html",
+      "filePath": "/visuals/science/magnetic-effects/flemings-left-hand-rule.html",
       "sizeKB": 21.1,
       "generatedAt": "2026-04-11T04:31:42.586Z",
       "topicKey": "Magnetic Effects of Electric Current"
@@ -316,7 +316,7 @@
       "chapterName": "Our Environment",
       "conceptName": "Food Chain and Food Web",
       "slug": "food-chain-and-food-web",
-      "filePath": "/app/visuals/science/environment/food-chain-and-food-web.html",
+      "filePath": "/visuals/science/environment/food-chain-and-food-web.html",
       "sizeKB": 20.9,
       "generatedAt": "2026-04-11T04:35:13.764Z",
       "topicKey": "Our Environment"
@@ -327,7 +327,7 @@
       "chapterName": "Our Environment",
       "conceptName": "Ozone Layer and Biodegradability",
       "slug": "ozone-layer-and-biodegradability",
-      "filePath": "/app/visuals/science/environment/ozone-layer-and-biodegradability.html",
+      "filePath": "/visuals/science/environment/ozone-layer-and-biodegradability.html",
       "sizeKB": 20.5,
       "generatedAt": "2026-04-11T04:39:06.695Z",
       "topicKey": "Our Environment"
@@ -338,7 +338,7 @@
       "chapterName": "Real Numbers",
       "conceptName": "Fundamental Theorem of Arithmetic",
       "slug": "fundamental-theorem-of-arithmetic",
-      "filePath": "/app/visuals/maths/real-numbers/fundamental-theorem-of-arithmetic.html",
+      "filePath": "/visuals/maths/real-numbers/fundamental-theorem-of-arithmetic.html",
       "sizeKB": 20.3,
       "generatedAt": "2026-04-11T04:57:57.722Z",
       "topicKey": "Real Numbers"
@@ -349,7 +349,7 @@
       "chapterName": "Triangles",
       "conceptName": "Basic Proportionality Theorem",
       "slug": "basic-proportionality-theorem",
-      "filePath": "/app/visuals/maths/triangles/basic-proportionality-theorem.html",
+      "filePath": "/visuals/maths/triangles/basic-proportionality-theorem.html",
       "sizeKB": 17.5,
       "generatedAt": "2026-04-11T05:02:06.066Z",
       "topicKey": "Triangles"
@@ -360,7 +360,7 @@
       "chapterName": "Introduction to Trigonometry",
       "conceptName": "Trigonometric Ratios",
       "slug": "trigonometric-ratios",
-      "filePath": "/app/visuals/maths/trigonometry/trigonometric-ratios.html",
+      "filePath": "/visuals/maths/trigonometry/trigonometric-ratios.html",
       "sizeKB": 18.5,
       "generatedAt": "2026-04-11T05:08:49.968Z",
       "topicKey": "Trigonometry"
@@ -371,7 +371,7 @@
       "chapterName": "Chemical Reactions and Equations",
       "conceptName": "Balancing Chemical Equations",
       "slug": "balancing-chemical-equations",
-      "filePath": "/app/visuals/science/chemical-reactions/balancing-chemical-equations.html",
+      "filePath": "/visuals/science/chemical-reactions/balancing-chemical-equations.html",
       "sizeKB": 24.1,
       "generatedAt": "2026-04-11T05:19:28.516Z",
       "topicKey": "Chemical Reactions and Equations"
@@ -382,7 +382,7 @@
       "chapterName": "Pair of Linear Equations in Two Variables",
       "conceptName": "Graphical Method",
       "slug": "graphical-method",
-      "filePath": "/app/visuals/maths/linear-equations/graphical-method.html",
+      "filePath": "/visuals/maths/linear-equations/graphical-method.html",
       "sizeKB": 19.8,
       "generatedAt": "2026-04-11T05:23:42.426Z",
       "topicKey": "Pair of Linear Equations"
@@ -393,7 +393,7 @@
       "chapterName": "Coordinate Geometry",
       "conceptName": "Distance Formula",
       "slug": "distance-formula",
-      "filePath": "/app/visuals/maths/coordinate-geometry/distance-formula.html",
+      "filePath": "/visuals/maths/coordinate-geometry/distance-formula.html",
       "sizeKB": 21.6,
       "generatedAt": "2026-04-11T05:25:50.451Z",
       "topicKey": "Coordinate Geometry"
@@ -404,7 +404,7 @@
       "chapterName": "Coordinate Geometry",
       "conceptName": "Section Formula",
       "slug": "section-formula",
-      "filePath": "/app/visuals/maths/coordinate-geometry/section-formula.html",
+      "filePath": "/visuals/maths/coordinate-geometry/section-formula.html",
       "sizeKB": 23.5,
       "generatedAt": "2026-04-11T05:28:11.458Z",
       "topicKey": "Coordinate Geometry"
@@ -415,7 +415,7 @@
       "chapterName": "Polynomials",
       "conceptName": "Zeroes of a Polynomial",
       "slug": "zeroes-of-a-polynomial",
-      "filePath": "/app/visuals/maths/polynomials/zeroes-of-a-polynomial.html",
+      "filePath": "/visuals/maths/polynomials/zeroes-of-a-polynomial.html",
       "sizeKB": 21,
       "generatedAt": "2026-04-11T05:32:12.345Z",
       "topicKey": "Polynomials"
@@ -426,7 +426,7 @@
       "chapterName": "Arithmetic Progressions",
       "conceptName": "AP Definition and Common Difference",
       "slug": "ap-definition-and-common-difference",
-      "filePath": "/app/visuals/maths/arithmetic-progression/ap-definition-and-common-difference.html",
+      "filePath": "/visuals/maths/arithmetic-progression/ap-definition-and-common-difference.html",
       "sizeKB": 20.6,
       "generatedAt": "2026-04-11T05:44:22.309Z",
       "topicKey": "Arithmetic Progression"
@@ -437,7 +437,7 @@
       "chapterName": "Surface Areas and Volumes",
       "conceptName": "Combination of Solids",
       "slug": "combination-of-solids",
-      "filePath": "/app/visuals/maths/surface-areas-volumes/combination-of-solids.html",
+      "filePath": "/visuals/maths/surface-areas-volumes/combination-of-solids.html",
       "sizeKB": 21.2,
       "generatedAt": "2026-04-11T06:02:59.498Z",
       "topicKey": "Surface Areas and Volumes"
@@ -448,7 +448,7 @@
       "chapterName": "Areas Related to Circles",
       "conceptName": "Sector and Segment",
       "slug": "sector-and-segment",
-      "filePath": "/app/visuals/maths/areas-circles/sector-and-segment.html",
+      "filePath": "/visuals/maths/areas-circles/sector-and-segment.html",
       "sizeKB": 22,
       "generatedAt": "2026-04-11T06:05:51.949Z",
       "topicKey": "Areas Related to Circles"
@@ -459,7 +459,7 @@
       "chapterName": "Coordinate Geometry",
       "conceptName": "Coordinate Plane Plotter",
       "slug": "coordinate-plane-plotter",
-      "filePath": "/app/visuals/maths/coordinate-geometry/coordinate-plane-plotter.html",
+      "filePath": "/visuals/maths/coordinate-geometry/coordinate-plane-plotter.html",
       "sizeKB": 21.3,
       "generatedAt": "2026-04-11T06:14:54.940Z",
       "topicKey": "Coordinate Geometry"
@@ -470,7 +470,7 @@
       "chapterName": "Electricity",
       "conceptName": "Ohms Law",
       "slug": "ohms-law",
-      "filePath": "/app/visuals/science/electricity/ohms-law.html",
+      "filePath": "/visuals/science/electricity/ohms-law.html",
       "sizeKB": 22.1,
       "generatedAt": "2026-04-11T06:21:48.663Z",
       "topicKey": "Electricity"
@@ -481,7 +481,7 @@
       "chapterName": "Statistics",
       "conceptName": "Mean of Grouped Data",
       "slug": "mean-of-grouped-data",
-      "filePath": "/app/visuals/maths/statistics/mean-of-grouped-data.html",
+      "filePath": "/visuals/maths/statistics/mean-of-grouped-data.html",
       "sizeKB": 22.5,
       "generatedAt": "2026-04-11T06:45:06.709Z",
       "topicKey": "Statistics"
@@ -492,7 +492,7 @@
       "chapterName": "Circles",
       "conceptName": "Tangent to a Circle",
       "slug": "tangent-to-a-circle",
-      "filePath": "/app/visuals/maths/circles/tangent-to-a-circle.html",
+      "filePath": "/visuals/maths/circles/tangent-to-a-circle.html",
       "sizeKB": 18.7,
       "generatedAt": "2026-04-11T06:50:20.009Z",
       "topicKey": "Circles"
@@ -503,7 +503,7 @@
       "chapterName": "Probability",
       "conceptName": "Classical Probability",
       "slug": "classical-probability",
-      "filePath": "/app/visuals/maths/probability/classical-probability.html",
+      "filePath": "/visuals/maths/probability/classical-probability.html",
       "sizeKB": 23.8,
       "generatedAt": "2026-04-11T07:06:42.356Z",
       "topicKey": "Probability"
@@ -514,7 +514,7 @@
       "chapterName": "Polynomials",
       "conceptName": "Relationship between Zeroes and Coefficients",
       "slug": "relationship-between-zeroes-and-coefficients",
-      "filePath": "/app/visuals/maths/polynomials/relationship-between-zeroes-and-coefficients.html",
+      "filePath": "/visuals/maths/polynomials/relationship-between-zeroes-and-coefficients.html",
       "sizeKB": 23.6,
       "generatedAt": "2026-04-11T07:29:19.676Z",
       "topicKey": "Polynomials"
@@ -525,7 +525,7 @@
       "chapterName": "Electricity",
       "conceptName": "Series and Parallel Circuits",
       "slug": "series-and-parallel-circuits",
-      "filePath": "/app/visuals/science/electricity/series-and-parallel-circuits.html",
+      "filePath": "/visuals/science/electricity/series-and-parallel-circuits.html",
       "sizeKB": 23.8,
       "generatedAt": "2026-04-11T07:36:47.071Z",
       "topicKey": "Electricity"
@@ -536,7 +536,7 @@
       "chapterName": "Real Numbers",
       "conceptName": "HCF and LCM using Prime Factorisation",
       "slug": "hcf-and-lcm-using-prime-factorisation",
-      "filePath": "/app/visuals/maths/real-numbers/hcf-and-lcm-using-prime-factorisation.html",
+      "filePath": "/visuals/maths/real-numbers/hcf-and-lcm-using-prime-factorisation.html",
       "sizeKB": 20.7,
       "generatedAt": "2026-04-11T07:46:50.048Z",
       "topicKey": "Real Numbers"
@@ -547,7 +547,7 @@
       "chapterName": "Triangles",
       "conceptName": "Pythagoras Theorem Visual Proof",
       "slug": "pythagoras-theorem-visual-proof",
-      "filePath": "/app/visuals/maths/triangles/pythagoras-theorem-visual-proof.html",
+      "filePath": "/visuals/maths/triangles/pythagoras-theorem-visual-proof.html",
       "sizeKB": 18.6,
       "generatedAt": "2026-04-11T07:50:21.790Z",
       "topicKey": "Triangles"
@@ -558,7 +558,7 @@
       "chapterName": "Arithmetic Progressions",
       "conceptName": "nth Term Formula",
       "slug": "nth-term-formula",
-      "filePath": "/app/visuals/maths/arithmetic-progression/nth-term-formula.html",
+      "filePath": "/visuals/maths/arithmetic-progression/nth-term-formula.html",
       "sizeKB": 21.9,
       "generatedAt": "2026-04-11T07:54:47.980Z",
       "topicKey": "Arithmetic Progression"
@@ -569,7 +569,7 @@
       "chapterName": "Arithmetic Progressions",
       "conceptName": "Sum of n Terms",
       "slug": "sum-of-n-terms",
-      "filePath": "/app/visuals/maths/arithmetic-progression/sum-of-n-terms.html",
+      "filePath": "/visuals/maths/arithmetic-progression/sum-of-n-terms.html",
       "sizeKB": 23.1,
       "generatedAt": "2026-04-11T07:57:32.644Z",
       "topicKey": "Arithmetic Progression"
@@ -580,7 +580,7 @@
       "chapterName": "Circles",
       "conceptName": "Number of Tangents from External Point",
       "slug": "number-of-tangents-from-external-point",
-      "filePath": "/app/visuals/maths/circles/number-of-tangents-from-external-point.html",
+      "filePath": "/visuals/maths/circles/number-of-tangents-from-external-point.html",
       "sizeKB": 24.7,
       "generatedAt": "2026-04-11T08:14:22.171Z",
       "topicKey": "Circles"
@@ -591,7 +591,7 @@
       "chapterName": "Surface Areas and Volumes",
       "conceptName": "Conversion of Solids",
       "slug": "conversion-of-solids",
-      "filePath": "/app/visuals/maths/surface-areas-volumes/conversion-of-solids.html",
+      "filePath": "/visuals/maths/surface-areas-volumes/conversion-of-solids.html",
       "sizeKB": 20.5,
       "generatedAt": "2026-04-11T08:20:59.245Z",
       "topicKey": "Surface Areas and Volumes"
@@ -602,7 +602,7 @@
       "chapterName": "Pair of Linear Equations in Two Variables",
       "conceptName": "Substitution Method",
       "slug": "substitution-method",
-      "filePath": "/app/visuals/maths/linear-equations/substitution-method.html",
+      "filePath": "/visuals/maths/linear-equations/substitution-method.html",
       "sizeKB": 23.1,
       "generatedAt": "2026-04-11T08:27:41.011Z",
       "topicKey": "Pair of Linear Equations"
@@ -613,7 +613,7 @@
       "chapterName": "Arithmetic Progressions",
       "conceptName": "AP Number Line Visualization",
       "slug": "ap-number-line-visualization",
-      "filePath": "/app/visuals/maths/arithmetic-progression/ap-number-line-visualization.html",
+      "filePath": "/visuals/maths/arithmetic-progression/ap-number-line-visualization.html",
       "sizeKB": 21,
       "generatedAt": "2026-04-11T08:32:47.811Z",
       "topicKey": "Arithmetic Progression"
@@ -624,7 +624,7 @@
       "chapterName": "Introduction to Trigonometry",
       "conceptName": "Trigonometric Ratios of Standard Angles",
       "slug": "trigonometric-ratios-of-standard-angles",
-      "filePath": "/app/visuals/maths/trigonometry/trigonometric-ratios-of-standard-angles.html",
+      "filePath": "/visuals/maths/trigonometry/trigonometric-ratios-of-standard-angles.html",
       "sizeKB": 23.1,
       "generatedAt": "2026-04-11T08:37:33.298Z",
       "topicKey": "Trigonometry"
@@ -635,7 +635,7 @@
       "chapterName": "Statistics",
       "conceptName": "Median of Grouped Data",
       "slug": "median-of-grouped-data",
-      "filePath": "/app/visuals/maths/statistics/median-of-grouped-data.html",
+      "filePath": "/visuals/maths/statistics/median-of-grouped-data.html",
       "sizeKB": 23.7,
       "generatedAt": "2026-04-11T08:39:24.471Z",
       "topicKey": "Statistics"
@@ -646,7 +646,7 @@
       "chapterName": "Probability",
       "conceptName": "Complementary Events",
       "slug": "complementary-events",
-      "filePath": "/app/visuals/maths/probability/complementary-events.html",
+      "filePath": "/visuals/maths/probability/complementary-events.html",
       "sizeKB": 22.1,
       "generatedAt": "2026-04-11T08:41:20.985Z",
       "topicKey": "Probability"
@@ -657,7 +657,7 @@
       "chapterName": "Triangles",
       "conceptName": "Areas of Similar Triangles",
       "slug": "areas-of-similar-triangles",
-      "filePath": "/app/visuals/maths/triangles/areas-of-similar-triangles.html",
+      "filePath": "/visuals/maths/triangles/areas-of-similar-triangles.html",
       "sizeKB": 20.7,
       "generatedAt": "2026-04-11T08:53:30.595Z",
       "topicKey": "Triangles"
@@ -668,7 +668,7 @@
       "chapterName": "Areas Related to Circles",
       "conceptName": "Area of Sector Formula",
       "slug": "area-of-sector-formula",
-      "filePath": "/app/visuals/maths/areas-circles/area-of-sector-formula.html",
+      "filePath": "/visuals/maths/areas-circles/area-of-sector-formula.html",
       "sizeKB": 19.9,
       "generatedAt": "2026-04-11T08:58:31.210Z",
       "topicKey": "Areas Related to Circles"
@@ -679,7 +679,7 @@
       "chapterName": "Surface Areas and Volumes",
       "conceptName": "Frustum of a Cone",
       "slug": "frustum-of-a-cone",
-      "filePath": "/app/visuals/maths/surface-areas-volumes/frustum-of-a-cone.html",
+      "filePath": "/visuals/maths/surface-areas-volumes/frustum-of-a-cone.html",
       "sizeKB": 22.9,
       "generatedAt": "2026-04-11T09:00:39.638Z",
       "topicKey": "Surface Areas and Volumes"
@@ -690,7 +690,7 @@
       "chapterName": "Statistics",
       "conceptName": "Mode of Grouped Data",
       "slug": "mode-of-grouped-data",
-      "filePath": "/app/visuals/maths/statistics/mode-of-grouped-data.html",
+      "filePath": "/visuals/maths/statistics/mode-of-grouped-data.html",
       "sizeKB": 19.5,
       "generatedAt": "2026-04-11T09:10:24.587Z",
       "topicKey": "Statistics"
@@ -701,7 +701,7 @@
       "chapterName": "Metals and Non-Metals",
       "conceptName": "Reactivity Series",
       "slug": "reactivity-series",
-      "filePath": "/app/visuals/science/metals-nonmetals/reactivity-series.html",
+      "filePath": "/visuals/science/metals-nonmetals/reactivity-series.html",
       "sizeKB": 20.7,
       "generatedAt": "2026-04-11T09:14:03.679Z",
       "topicKey": "Metals and Non-Metals"
@@ -712,7 +712,7 @@
       "chapterName": "Pair of Linear Equations in Two Variables",
       "conceptName": "Consistency of Equations",
       "slug": "consistency-of-equations",
-      "filePath": "/app/visuals/maths/linear-equations/consistency-of-equations.html",
+      "filePath": "/visuals/maths/linear-equations/consistency-of-equations.html",
       "sizeKB": 22.2,
       "generatedAt": "2026-04-11T09:29:26.604Z",
       "topicKey": "Pair of Linear Equations"
@@ -723,7 +723,7 @@
       "chapterName": "Quadratic Equations",
       "conceptName": "Standard Form and Roots",
       "slug": "standard-form-and-roots",
-      "filePath": "/app/visuals/maths/quadratic-equations/standard-form-and-roots.html",
+      "filePath": "/visuals/maths/quadratic-equations/standard-form-and-roots.html",
       "sizeKB": 20.6,
       "generatedAt": "2026-04-11T09:41:00.939Z",
       "topicKey": "Quadratic Equations"
@@ -734,7 +734,7 @@
       "chapterName": "Acids, Bases and Salts",
       "conceptName": "pH Scale",
       "slug": "ph-scale",
-      "filePath": "/app/visuals/science/acids-bases-salts/ph-scale.html",
+      "filePath": "/visuals/science/acids-bases-salts/ph-scale.html",
       "sizeKB": 22.6,
       "generatedAt": "2026-04-11T09:44:46.735Z",
       "topicKey": "Acids Bases and Salts"
@@ -745,7 +745,7 @@
       "chapterName": "Life Processes",
       "conceptName": "Nutrition in Humans",
       "slug": "nutrition-in-humans",
-      "filePath": "/app/visuals/science/life-processes/nutrition-in-humans.html",
+      "filePath": "/visuals/science/life-processes/nutrition-in-humans.html",
       "sizeKB": 22.3,
       "generatedAt": "2026-04-11T09:53:10.023Z",
       "topicKey": "Life Processes"
@@ -756,7 +756,7 @@
       "chapterName": "Introduction to Trigonometry",
       "conceptName": "Trigonometric Identities",
       "slug": "trigonometric-identities",
-      "filePath": "/app/visuals/maths/trigonometry/trigonometric-identities.html",
+      "filePath": "/visuals/maths/trigonometry/trigonometric-identities.html",
       "sizeKB": 20.5,
       "generatedAt": "2026-04-11T10:06:40.392Z",
       "topicKey": "Trigonometry"
@@ -767,7 +767,7 @@
       "chapterName": "Probability",
       "conceptName": "Dice and Cards Sample Space",
       "slug": "dice-and-cards-sample-space",
-      "filePath": "/app/visuals/maths/probability/dice-and-cards-sample-space.html",
+      "filePath": "/visuals/maths/probability/dice-and-cards-sample-space.html",
       "sizeKB": 23.3,
       "generatedAt": "2026-04-11T10:14:00.973Z",
       "topicKey": "Probability"
@@ -778,7 +778,7 @@
       "chapterName": "Polynomials",
       "conceptName": "Graphical Meaning of Zeroes",
       "slug": "graphical-meaning-of-zeroes",
-      "filePath": "/app/visuals/maths/polynomials/graphical-meaning-of-zeroes.html",
+      "filePath": "/visuals/maths/polynomials/graphical-meaning-of-zeroes.html",
       "sizeKB": 21.9,
       "generatedAt": "2026-04-11T10:31:53.528Z",
       "topicKey": "Polynomials"
@@ -789,7 +789,7 @@
       "chapterName": "Areas Related to Circles",
       "conceptName": "Combined Figures Area",
       "slug": "combined-figures-area",
-      "filePath": "/app/visuals/maths/areas-circles/combined-figures-area.html",
+      "filePath": "/visuals/maths/areas-circles/combined-figures-area.html",
       "sizeKB": 20.7,
       "generatedAt": "2026-04-11T11:30:22.395Z",
       "topicKey": "Areas Related to Circles"
@@ -800,7 +800,7 @@
       "chapterName": "Quadratic Equations",
       "conceptName": "Factorisation Method",
       "slug": "factorisation-method",
-      "filePath": "/app/visuals/maths/quadratic-equations/factorisation-method.html",
+      "filePath": "/visuals/maths/quadratic-equations/factorisation-method.html",
       "sizeKB": 22.6,
       "generatedAt": "2026-04-11T11:40:20.979Z",
       "topicKey": "Quadratic Equations"
@@ -811,7 +811,7 @@
       "chapterName": "Real Numbers",
       "conceptName": "Decimal Expansions",
       "slug": "decimal-expansions",
-      "filePath": "/app/visuals/maths/real-numbers/decimal-expansions.html",
+      "filePath": "/visuals/maths/real-numbers/decimal-expansions.html",
       "sizeKB": 19.4,
       "generatedAt": "2026-04-11T11:43:42.345Z",
       "topicKey": "Real Numbers"
@@ -822,7 +822,7 @@
       "chapterName": "Polynomials",
       "conceptName": "Division Algorithm for Polynomials",
       "slug": "division-algorithm-for-polynomials",
-      "filePath": "/app/visuals/maths/polynomials/division-algorithm-for-polynomials.html",
+      "filePath": "/visuals/maths/polynomials/division-algorithm-for-polynomials.html",
       "sizeKB": 21.6,
       "generatedAt": "2026-04-11T11:49:18.851Z",
       "topicKey": "Polynomials"
@@ -833,7 +833,7 @@
       "chapterName": "Circles",
       "conceptName": "Tangent Properties",
       "slug": "tangent-properties",
-      "filePath": "/app/visuals/maths/circles/tangent-properties.html",
+      "filePath": "/visuals/maths/circles/tangent-properties.html",
       "sizeKB": 23.3,
       "generatedAt": "2026-04-11T12:11:13.083Z",
       "topicKey": "Circles"
@@ -844,7 +844,7 @@
       "chapterName": "Quadratic Equations",
       "conceptName": "Nature of Roots using Discriminant",
       "slug": "nature-of-roots-using-discriminant",
-      "filePath": "/app/visuals/maths/quadratic-equations/nature-of-roots-using-discriminant.html",
+      "filePath": "/visuals/maths/quadratic-equations/nature-of-roots-using-discriminant.html",
       "sizeKB": 21.7,
       "generatedAt": "2026-04-11T12:13:54.368Z",
       "topicKey": "Quadratic Equations"
@@ -855,7 +855,7 @@
       "chapterName": "statistics",
       "conceptName": "ogive-curve",
       "slug": "ogive-curve",
-      "filePath": "/app/visuals/maths/statistics/ogive-curve.html",
+      "filePath": "/visuals/maths/statistics/ogive-curve.html",
       "sizeKB": 23.1,
       "generatedAt": "2026-04-11T14:47:20.454Z",
       "topicKey": "Statistics"
@@ -866,7 +866,7 @@
       "chapterName": "acids-bases-salts",
       "conceptName": "acid-base-reactions",
       "slug": "acid-base-reactions",
-      "filePath": "/app/visuals/science/acids-bases-salts/acid-base-reactions.html",
+      "filePath": "/visuals/science/acids-bases-salts/acid-base-reactions.html",
       "sizeKB": 20.1,
       "generatedAt": "2026-04-11T14:47:20.464Z",
       "topicKey": "Acids Bases and Salts"
@@ -877,7 +877,7 @@
       "chapterName": "carbon-compounds",
       "conceptName": "carbon-chain-structures",
       "slug": "carbon-chain-structures",
-      "filePath": "/app/visuals/science/carbon-compounds/carbon-chain-structures.html",
+      "filePath": "/visuals/science/carbon-compounds/carbon-chain-structures.html",
       "sizeKB": 19.8,
       "generatedAt": "2026-04-11T14:47:20.465Z",
       "topicKey": "Carbon and its Compounds"
@@ -888,7 +888,7 @@
       "chapterName": "carbon-compounds",
       "conceptName": "covalent-bonding-in-carbon",
       "slug": "covalent-bonding-in-carbon",
-      "filePath": "/app/visuals/science/carbon-compounds/covalent-bonding-in-carbon.html",
+      "filePath": "/visuals/science/carbon-compounds/covalent-bonding-in-carbon.html",
       "sizeKB": 15.8,
       "generatedAt": "2026-04-11T14:47:20.465Z",
       "topicKey": "Carbon and its Compounds"
@@ -899,7 +899,7 @@
       "chapterName": "carbon-compounds",
       "conceptName": "functional-groups",
       "slug": "functional-groups",
-      "filePath": "/app/visuals/science/carbon-compounds/functional-groups.html",
+      "filePath": "/visuals/science/carbon-compounds/functional-groups.html",
       "sizeKB": 19.9,
       "generatedAt": "2026-04-11T14:47:20.465Z",
       "topicKey": "Carbon and its Compounds"
@@ -910,7 +910,7 @@
       "chapterName": "control-coordination",
       "conceptName": "plant-hormones-and-tropisms",
       "slug": "plant-hormones-and-tropisms",
-      "filePath": "/app/visuals/science/control-coordination/plant-hormones-and-tropisms.html",
+      "filePath": "/visuals/science/control-coordination/plant-hormones-and-tropisms.html",
       "sizeKB": 21.1,
       "generatedAt": "2026-04-11T14:47:20.466Z",
       "topicKey": "Control and Coordination"
@@ -921,7 +921,7 @@
       "chapterName": "control-coordination",
       "conceptName": "reflex-arc",
       "slug": "reflex-arc",
-      "filePath": "/app/visuals/science/control-coordination/reflex-arc.html",
+      "filePath": "/visuals/science/control-coordination/reflex-arc.html",
       "sizeKB": 21.3,
       "generatedAt": "2026-04-11T14:47:20.466Z",
       "topicKey": "Control and Coordination"
@@ -932,7 +932,7 @@
       "chapterName": "electricity",
       "conceptName": "circuit-diagram-builder",
       "slug": "circuit-diagram-builder",
-      "filePath": "/app/visuals/science/electricity/circuit-diagram-builder.html",
+      "filePath": "/visuals/science/electricity/circuit-diagram-builder.html",
       "sizeKB": 17.4,
       "generatedAt": "2026-04-11T14:47:20.467Z",
       "topicKey": "Electricity"
@@ -943,7 +943,7 @@
       "chapterName": "electricity",
       "conceptName": "electric-power-and-energy",
       "slug": "electric-power-and-energy",
-      "filePath": "/app/visuals/science/electricity/electric-power-and-energy.html",
+      "filePath": "/visuals/science/electricity/electric-power-and-energy.html",
       "sizeKB": 17.8,
       "generatedAt": "2026-04-11T14:47:20.467Z",
       "topicKey": "Electricity"
@@ -954,7 +954,7 @@
       "chapterName": "environment",
       "conceptName": "ecosystem-and-energy-flow",
       "slug": "ecosystem-and-energy-flow",
-      "filePath": "/app/visuals/science/environment/ecosystem-and-energy-flow.html",
+      "filePath": "/visuals/science/environment/ecosystem-and-energy-flow.html",
       "sizeKB": 18.5,
       "generatedAt": "2026-04-11T14:47:20.468Z",
       "topicKey": "Our Environment"
@@ -965,7 +965,7 @@
       "chapterName": "human-eye",
       "conceptName": "dispersion-of-light-and-rainbow",
       "slug": "dispersion-of-light-and-rainbow",
-      "filePath": "/app/visuals/science/human-eye/dispersion-of-light-and-rainbow.html",
+      "filePath": "/visuals/science/human-eye/dispersion-of-light-and-rainbow.html",
       "sizeKB": 18.1,
       "generatedAt": "2026-04-11T14:47:20.469Z",
       "topicKey": "Human Eye and Colourful World"
@@ -976,7 +976,7 @@
       "chapterName": "light",
       "conceptName": "lens-formula-and-ray-diagrams",
       "slug": "lens-formula-and-ray-diagrams",
-      "filePath": "/app/visuals/science/light/lens-formula-and-ray-diagrams.html",
+      "filePath": "/visuals/science/light/lens-formula-and-ray-diagrams.html",
       "sizeKB": 11.4,
       "generatedAt": "2026-04-11T14:47:20.470Z",
       "topicKey": "Light Reflection and Refraction"
@@ -987,7 +987,7 @@
       "chapterName": "light",
       "conceptName": "mirror-formula-and-magnification",
       "slug": "mirror-formula-and-magnification",
-      "filePath": "/app/visuals/science/light/mirror-formula-and-magnification.html",
+      "filePath": "/visuals/science/light/mirror-formula-and-magnification.html",
       "sizeKB": 14.9,
       "generatedAt": "2026-04-11T14:47:20.471Z",
       "topicKey": "Light Reflection and Refraction"
@@ -998,7 +998,7 @@
       "chapterName": "light",
       "conceptName": "reflection-of-light",
       "slug": "reflection-of-light",
-      "filePath": "/app/visuals/science/light/reflection-of-light.html",
+      "filePath": "/visuals/science/light/reflection-of-light.html",
       "sizeKB": 22.9,
       "generatedAt": "2026-04-11T14:47:20.471Z",
       "topicKey": "Light Reflection and Refraction"
@@ -1009,7 +1009,7 @@
       "chapterName": "light",
       "conceptName": "refraction-of-light",
       "slug": "refraction-of-light",
-      "filePath": "/app/visuals/science/light/refraction-of-light.html",
+      "filePath": "/visuals/science/light/refraction-of-light.html",
       "sizeKB": 13.5,
       "generatedAt": "2026-04-11T14:47:20.471Z",
       "topicKey": "Light Reflection and Refraction"
@@ -1020,7 +1020,7 @@
       "chapterName": "magnetic-effects",
       "conceptName": "electric-motor-and-generator",
       "slug": "electric-motor-and-generator",
-      "filePath": "/app/visuals/science/magnetic-effects/electric-motor-and-generator.html",
+      "filePath": "/visuals/science/magnetic-effects/electric-motor-and-generator.html",
       "sizeKB": 19.9,
       "generatedAt": "2026-04-11T14:47:20.472Z",
       "topicKey": "Magnetic Effects of Electric Current"
@@ -1031,7 +1031,7 @@
       "chapterName": "magnetic-effects",
       "conceptName": "electromagnet-and-solenoid",
       "slug": "electromagnet-and-solenoid",
-      "filePath": "/app/visuals/science/magnetic-effects/electromagnet-and-solenoid.html",
+      "filePath": "/visuals/science/magnetic-effects/electromagnet-and-solenoid.html",
       "sizeKB": 18.2,
       "generatedAt": "2026-04-11T14:47:20.472Z",
       "topicKey": "Magnetic Effects of Electric Current"
@@ -1042,7 +1042,7 @@
       "chapterName": "metals-nonmetals",
       "conceptName": "extraction-of-metals",
       "slug": "extraction-of-metals",
-      "filePath": "/app/visuals/science/metals-nonmetals/extraction-of-metals.html",
+      "filePath": "/visuals/science/metals-nonmetals/extraction-of-metals.html",
       "sizeKB": 16.9,
       "generatedAt": "2026-04-11T14:47:20.473Z",
       "topicKey": "Metals and Non-Metals"
@@ -1052,7 +1052,7 @@
       "chapter": "triangles",
       "conceptName": "Pythagoras Theorem",
       "slug": "pythagoras-theorem",
-      "filePath": "/app/visuals/maths/triangles/pythagoras-theorem.html",
+      "filePath": "/visuals/maths/triangles/pythagoras-theorem.html",
       "sizeBytes": 11995,
       "generatedAt": "2026-04-14T10:03:30.606Z",
       "topic": "Triangles",

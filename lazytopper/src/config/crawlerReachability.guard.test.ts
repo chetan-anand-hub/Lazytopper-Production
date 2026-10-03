@@ -55,20 +55,25 @@ const APP_TSX = resolve(ROOT, "src", "App.tsx");
 const PRODUCT_HOST = "lazytopper.com";
 
 /**
- * ★ THE BUILD MAPPING, AND WHY IT IS THE WHOLE BUG.
+ * ★ THE BUILD MAPPING, AND WHY IT WAS ONCE THE WHOLE BUG.
  *
- * `lazytopper/vite.config.ts` sets `base: "/app/"` and, in production,
- * `outDir: "../artifacts/lazytopper-app/dist/public/app"`. The deployment's
- * static root is `dist/public/`. Therefore:
+ * Until ROOT-URL-1 Vite built with a `/app/` base into a `dist/public/app` sub-folder
+ * of the deployment's static root, so every `public/` file shipped under `/app/` and
+ * NOTHING sat at the root — the four crawler files needed root rewrites to exist at all.
  *
- *     lazytopper/public/robots.txt   ->  /app/robots.txt
- *     lazytopper/index.html          ->  /app/index.html
- *     (deployment root)              ->  contains ONLY app/
+ * ROOT-URL-1 (M1): `lazytopper/vite.config.ts` sets `base: "/"` and, in production,
+ * `outDir: "../artifacts/lazytopper-app/dist/public"` — the Vercel project's Output
+ * Directory itself. Therefore:
  *
- * If that ever changes, this constant is the single line to change, and every
- * assertion below moves with it.
+ *     lazytopper/public/robots.txt   ->  /robots.txt
+ *     lazytopper/index.html          ->  /index.html
+ *
+ * Derived from `vite.config.ts` (and pinned to the root below), so the model cannot
+ * drift from what the build does. Every old `/app/...` URL is a permanent redirect in
+ * vercel.json; RETIRED_BASE reads that prefix from the redirect rule itself.
  */
-const SERVED_PREFIX = "/app";
+const VITE_BASE = /^\s*base:\s*"([^"]*)"/m.exec(readFileSync(resolve(ROOT, "vite.config.ts"), "utf8"))?.[1];
+const SERVED_PREFIX = (VITE_BASE ?? "MISSING-BASE").replace(/\/$/, "");
 
 /**
  * ★ SEO-FRESH-1 (owner ruling OR-A1-1) — THE SPA FALLBACK IS `__shell.html`, NOT
@@ -132,6 +137,17 @@ function readVercelConfig(): { redirects: Rule[]; rewrites: Rule[] } {
 }
 
 /**
+ * ROOT-URL-1 — the retired base, read from the permanent redirect whose job it is (the
+ * rule whose destination is the root), never restated as a literal here. Every probe of
+ * an old URL below is built from it.
+ */
+const RETIRED_BASE: string = (() => {
+  const rule = readVercelConfig().redirects.find((r) => r.destination === "/");
+  if (!rule) throw new Error("vercel.json has no redirect to the root — the retired base is unknown");
+  return rule.source;
+})();
+
+/**
  * Match a Vercel `source` pattern against a path.
  *
  * Supports the two forms this repo uses: a literal path, and a `:name*`
@@ -161,46 +177,65 @@ function matchSource(source: string, path: string): Record<string, string> | nul
   if (!source.startsWith("/")) {
     throw new Error(`unsupported vercel source (must start with "/"): ${source}`);
   }
-  // `:name(pattern)` is a supported construct, so its regex characters are
-  // removed before the unsupported-construct sweep rather than tripping it.
-  const residue = source.replace(/:[A-Za-z0-9_]+\([^()]*\)/g, "");
-  if (/[()^$?+]/.test(residue)) {
-    throw new Error(
-      `unsupported vercel source construct (regex) in "${source}" — this guard ` +
-        `models literal, :param, :param* and :param(pattern) only. Extend ` +
-        `matchSource() or the guard will mis-report reachability.`,
-    );
-  }
+  // ROOT-URL-1: a small tokenizer, not a split on "/". A `:name(pattern)` group may now
+  // carry a lookahead that itself contains "/" and parentheses — the retired-base redirect
+  // `/app/:path((?!assets/).*)` and the root catch-all
+  // `/:path((?!_vercel/|__asset-not-found__).*)` — so the group is read by balancing its
+  // parentheses. Anything outside a group that is regex syntax still THROWS.
   const names: string[] = [];
-  const regexSrc = source
-    .split("/")
-    .map((seg) => {
-      if (seg === "") return "";
-      const custom = seg.match(/^:([A-Za-z0-9_]+)\(([^()]*)\)$/);
-      if (custom) {
-        names.push(custom[1]);
-        return `(${custom[2]})`;
-      }
-      const star = seg.match(/^:([A-Za-z0-9_]+)\*$/);
-      if (star) {
-        names.push(star[1]);
+  let regexSrc = "";
+  let i = 0;
+  while (i < source.length) {
+    const c = source[i];
+    if (c === ":") {
+      const name = /^:([A-Za-z0-9_]+)/.exec(source.slice(i));
+      if (!name) throw new Error(`unsupported vercel source construct ":" in "${source}"`);
+      names.push(name[1]);
+      i += name[0].length;
+      if (source[i] === "(") {
+        let depth = 0;
+        let j = i;
+        for (; j < source.length; j++) {
+          if (source[j] === "\\") {
+            j++;
+            continue;
+          }
+          if (source[j] === "(") depth++;
+          else if (source[j] === ")" && --depth === 0) break;
+        }
+        if (depth !== 0) throw new Error(`unbalanced :param(pattern) group in "${source}"`);
+        const pattern = source.slice(i + 1, j);
+        // A capturing group inside the pattern would shift every param index below.
+        if (/\((?!\?)/.test(pattern)) {
+          throw new Error(`capturing group inside :param(pattern) in "${source}" — use (?:...)`);
+        }
+        regexSrc += `(${pattern})`;
+        i = j + 1;
+      } else if (source[i] === "*") {
         // ★ SEGMENTS, AND NEVER A TRAILING SLASH — see the divergence note above.
-        return "((?:[^/]+(?:/[^/]+)*)?)";
+        regexSrc += "((?:[^/]+(?:/[^/]+)*)?)";
+        i++;
+      } else {
+        regexSrc += "([^/]+)";
       }
-      const one = seg.match(/^:([A-Za-z0-9_]+)$/);
-      if (one) {
-        names.push(one[1]);
-        return "([^/]+)";
-      }
-      return seg.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    })
-    .join("/");
+      continue;
+    }
+    if (/[()^$?+*[\]{}|\\]/.test(c)) {
+      throw new Error(
+        `unsupported vercel source construct (regex) in "${source}" — this guard ` +
+          `models literal, :param, :param* and :param(pattern) only. Extend ` +
+          `matchSource() or the guard will mis-report reachability.`,
+      );
+    }
+    regexSrc += c === "." ? "\\." : c;
+    i++;
+  }
 
   const m = new RegExp(`^${regexSrc}$`).exec(path);
   if (!m) return null;
   const params: Record<string, string> = {};
-  names.forEach((n, i) => {
-    params[n] = m[i + 1];
+  names.forEach((n, idx) => {
+    params[n] = m[idx + 1];
   });
   return params;
 }
@@ -453,10 +488,10 @@ const QUARANTINE = new Map<string, string>([]);
 
 /**
  * ★ main.tsx: `<BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>`,
- * and `vite.config.ts` sets `base: "/app/"`. So the router's basename is `/app`
- * and every `<Route path>` in App.tsx is relative to it: the URL
- * `/app/exam-trends` is the route `/exam-trends`. This mirrors SERVED_PREFIX and
- * is derived from the same vite `base` — they move together or both are wrong.
+ * and `vite.config.ts` sets `base: "/"` (ROOT-URL-1). So the router's basename is
+ * empty and every `<Route path>` in App.tsx IS the URL path: `/exam-trends` is the
+ * route `/exam-trends`. This mirrors SERVED_PREFIX and is derived from the same vite
+ * `base` — they move together or both are wrong.
  */
 const ROUTER_BASENAME = SERVED_PREFIX;
 
@@ -472,6 +507,9 @@ const ROUTER_BASENAME = SERVED_PREFIX;
  *     https://lazytopper.com/         200, 2 redirects -> www.lazytopper.com/app/
  *     https://www.lazytopper.com/     200, 1 redirect  -> www.lazytopper.com/app/
  *     https://www.lazytopper.com/app/ 200, 0 redirects
+ *
+ * (Those are the PRE-ROOT-URL-1 measurements, kept as the record they are. After it,
+ * the www host is unchanged and `/` serves with 0 redirects; `/app/` is one 308 to `/`.)
  */
 const CANONICAL_HOST = `www.${PRODUCT_HOST}`;
 
@@ -633,22 +671,30 @@ describe("crawler reachability — every URL the app advertises resolves to some
     // ★ A CONTROL. Without this, a resolver that returned "reachable" for
     // everything would sit green forever and this whole file would assert nothing.
 
-    // Known-served: a real file under the served prefix.
-    expect(resolvePath("/app/robots.txt").kind).toBe("file");
+    // ROOT-URL-1: the model reads the root base from vite.config.ts — pin it, so a
+    // config the model mis-parses cannot quietly re-introduce a prefix.
+    expect(VITE_BASE, "vite.config.ts base").toBe("/");
+    expect(SERVED_PREFIX).toBe("");
 
-    // ★ FILESYSTEM BEATS REWRITE. `/app/:path(.*) -> /app/index.html` would swallow
-    // this if rewrites ran first. It resolves to the real file, matching the live
-    // deployment, which returns text/plain robots content at that URL.
-    const robots = resolvePath("/app/robots.txt");
-    expect(robots.kind === "file" && robots.path).toBe("/app/robots.txt");
+    // Known-served: a real file at the served root.
+    expect(resolvePath("/robots.txt").kind).toBe("file");
+
+    // ★ FILESYSTEM BEATS REWRITE. The root catch-all `/:path(...) -> /__shell.html`
+    // would swallow this if rewrites ran first. It resolves to the real file.
+    const robots = resolvePath("/robots.txt");
+    expect(robots.kind === "file" && robots.path).toBe("/robots.txt");
 
     // The SPA catch-all still works for a route with no file behind it.
-    const spa = resolvePath("/app/some-client-route");
+    const spa = resolvePath("/some-client-route");
     expect(spa.kind === "file" && spa.path).toBe(SPA_SHELL_SERVED);
 
-    // Known-UNSERVED: proves the resolver can actually say no.
-    expect(resolvePath("/definitely-not-a-real-path").kind).toBe("unreachable");
-    expect(isReachable(resolvePath("/definitely-not-a-real-path"))).toBe(false);
+    // Known-UNSERVED: proves the resolver can actually say no. With a root catch-all
+    // almost every path reaches the shell; a missing hashed asset is the one class
+    // that must NOT, and the 404 sentinel itself is served by nothing.
+    for (const unserved of ["/assets/definitely-not-a-real-chunk.js", "/__asset-not-found__"]) {
+      expect(resolvePath(unserved).kind, unserved).toBe("unreachable");
+      expect(isReachable(resolvePath(unserved)), unserved).toBe(false);
+    }
 
     // The external proxies resolve as proxies, not as files or 404s.
     expect(resolvePath("/api/health").kind).toBe("proxy");
@@ -679,16 +725,20 @@ describe("crawler reachability — every URL the app advertises resolves to some
   });
 
   it("★ THE POINT — the four crawler-facing files resolve AT THE ROOT, where crawlers look", () => {
-    // Crawlers fetch these from `/` by protocol and never look under `/app/`.
-    // Before this lane all four were 404 at the root while their `/app/` twins
+    // Crawlers fetch these from `/` by protocol and never look under a sub-path.
+    // Before CRAWL-1 all four were 404 at the root while their prefixed twins
     // returned 200 — correct files on an unreachable path.
+    //
+    // ★ ROOT-URL-1: "reachable" is no longer enough. With the catch-all at the root, a
+    // MISSING robots.txt would still be "reachable" — as the HTML shell, with 200. Each
+    // must resolve to ITS OWN FILE.
     for (const p of ["/robots.txt", "/sitemap.xml", "/llms.txt", "/favicon.svg"]) {
       const r = resolvePath(p);
       expect(
-        isReachable(r),
-        `${p} does not resolve — crawlers fetch this from the site ROOT and will ` +
-          `never look under ${SERVED_PREFIX}/. Resolution: ${describeResolution(r)}`,
-      ).toBe(true);
+        r.kind === "file" && r.path,
+        `${p} does not resolve to its own file — crawlers fetch this from the site ROOT. ` +
+          `Resolution: ${describeResolution(r)}`,
+      ).toBe(p);
     }
   });
 
@@ -754,7 +804,7 @@ describe("crawler reachability — every URL the app advertises resolves to some
     }
   });
 
-  it("★★ the /app/ catch-all matches a TRAILING SLASH — the (.*) form, not :path*", () => {
+  it("★★ the root catch-all matches a TRAILING SLASH — the (.*) form, not :path*", () => {
     // SLASH-1. `/app/:path*` compiles to SEGMENTS and does not match a path ending
     // in "/", so every SPA deep link 404d when written with a trailing slash.
     // Measured live 2026-08-31 on www.lazytopper.com: /app/pricing/ and
@@ -762,21 +812,29 @@ describe("crawler reachability — every URL the app advertises resolves to some
     // while their slashless twins returned 200. The cure is the SAME construction
     // first proven live by the `/questions/:path(.*)` rewrite shipped in #714. That
     // rewrite has since been removed with the static arc (RETIRE-1), but the `(.*)`
-    // form it validated is exactly what the `/app/` catch-all below still relies on.
+    // form it validated is exactly what the root catch-all below still relies on.
     //
-    // ★ The destination could not have been at fault: `/app/index.html` is a
-    // LITERAL, always-present file that cannot fail to resolve. If the destination
-    // cannot fail and the request still 404s, the SOURCE is what failed to match.
+    // ★ The destination could not have been at fault: the shell is a LITERAL,
+    // always-present file that cannot fail to resolve. If the destination cannot fail
+    // and the request still 404s, the SOURCE is what failed to match.
+    //
+    // ROOT-URL-1: the catch-all moved to the root. Its `(.*)` carries a lookahead that
+    // keeps it off Vercel's own `/_vercel/*` paths and off the asset-404 sentinel
+    // (Vercel CONTINUES through the rewrites when a destination has no file, so a
+    // catch-all that matched the sentinel would turn every missing chunk into the shell).
     const { rewrites } = readVercelConfig();
     const appRule = rewrites.find((w) => w.destination === SPA_SHELL_SERVED);
-    expect(appRule, "the /app/ catch-all rewrite is gone").toBeDefined();
+    expect(appRule, "the root catch-all rewrite is gone").toBeDefined();
     expect(
       (appRule as Rule).source,
-      "the /app/ catch-all must use the (.*) form — `:path*` does not match a trailing slash",
-    ).toBe("/app/:path(.*)");
+      "the root catch-all must use the (.*) form — `:path*` does not match a trailing slash",
+    ).toBe("/:path((?!_vercel/|__asset-not-found__).*)");
+    for (const excluded of ["/_vercel/insights/script.js", "/__asset-not-found__"]) {
+      expect(matchSource((appRule as Rule).source, excluded), excluded).toBeNull();
+    }
 
     // ★ RED/GREEN: with `:path*` these three resolve nowhere at all.
-    for (const probe of ["/app/pricing/", "/app/exam-trends/", "/app/practice/"]) {
+    for (const probe of ["/pricing/", "/exam-trends/", "/practice/"]) {
       const r = resolvePath(probe);
       expect(
         r.kind === "file" && r.path,
@@ -787,11 +845,75 @@ describe("crawler reachability — every URL the app advertises resolves to some
     // ★ CONTROL — the slashless twins already worked and must NOT regress. Without
     // this, a rule that matched nothing would still fail the loop above for the
     // wrong reason, and a rule that matched everything would look like a fix.
-    for (const probe of ["/app/pricing", "/app/exam-trends", "/app/practice"]) {
+    for (const probe of ["/pricing", "/exam-trends", "/practice"]) {
       const r = resolvePath(probe);
       expect(r.kind === "file" && r.path, `CONTROL ${probe} regressed`).toBe(
         SPA_SHELL_SERVED,
       );
+    }
+  });
+});
+
+/**
+ * ★★ ROOT-URL-1 (M2) — EVERY OLD `/app/...` URL IS ONE PERMANENT REDIRECT TO ITS ROOT TWIN.
+ *
+ * Ads, sitelinks, Google's index, QR hand-offs, emails and Razorpay URLs all carry the old
+ * base, so these redirects must keep working forever. Exactly ONE hop (no chain through
+ * the shell), permanent (308), and the old hashed-asset URLs are the ONE exception: they
+ * must 404 into chunk recovery, never redirect — an old tab that asked for an old chunk
+ * and got a redirect to a missing root chunk would loop rather than recover.
+ *
+ * The query string is not modelled here (Vercel passes it through a redirect); that half
+ * is proven on the Vercel preview with a `gclid` probe.
+ */
+describe("ROOT-URL-1 — the retired base redirects, once, permanently", () => {
+  const raw = JSON.parse(readFileSync(VERCEL_JSON, "utf8")) as {
+    redirects: Array<Rule & { permanent?: boolean; statusCode?: number }>;
+  };
+
+  it("exactly two redirects, both permanent, both from the retired base", () => {
+    expect(RETIRED_BASE, "the retired base is a single path segment").toMatch(/^\/[a-z]+$/);
+    expect(raw.redirects.map((r) => [r.source, r.destination, r.permanent])).toEqual([
+      [RETIRED_BASE, "/", true],
+      [`${RETIRED_BASE}/:path((?!assets/).*)`, "/:path", true],
+    ]);
+    for (const r of raw.redirects) expect(r.statusCode, "a statusCode would override the 308").toBeUndefined();
+  });
+
+  it("★ each old page URL resolves in ONE hop to its root twin, which is then served", () => {
+    const cases: Array<[string, string]> = [
+      [RETIRED_BASE, "/"],
+      [`${RETIRED_BASE}/`, "/"],
+      [`${RETIRED_BASE}/pricing`, "/pricing"],
+      [`${RETIRED_BASE}/pricing/`, "/pricing/"],
+      [`${RETIRED_BASE}/check-improve`, "/check-improve"],
+      [`${RETIRED_BASE}/notes/trigonometry`, "/notes/trigonometry"],
+      [`${RETIRED_BASE}/legal/terms`, "/legal/terms"],
+      [`${RETIRED_BASE}/u/abc123`, "/u/abc123"],
+      [`${RETIRED_BASE}/robots.txt`, "/robots.txt"],
+      [`${RETIRED_BASE}/sitemap.xml`, "/sitemap.xml"],
+      [`${RETIRED_BASE}/version.json`, "/version.json"],
+      [`${RETIRED_BASE}/visuals/maths/x.html`, "/visuals/maths/x.html"],
+    ];
+    for (const [from, to] of cases) {
+      const r = resolvePath(from);
+      expect(r.kind, `${from} must redirect`).toBe("redirect");
+      if (r.kind !== "redirect") continue;
+      expect(r.to, from).toBe(to);
+      expect(r.then.kind, `${from} -> ${to} must not redirect AGAIN (one hop)`).not.toBe("redirect");
+    }
+    // ★ CONTROL — paths that merely start with the same letters are not the retired base.
+    for (const notRetired of [`${RETIRED_BASE}lication`, `${RETIRED_BASE}s/x`]) {
+      expect(resolvePath(notRetired).kind, notRetired).not.toBe("redirect");
+    }
+  });
+
+  it("★★ an old hashed-asset URL is NOT redirected — it dead-ends in a 404", () => {
+    for (const probe of [`${RETIRED_BASE}/assets/index-Bsujrqdi.js`, `${RETIRED_BASE}/assets/x.css`]) {
+      const r = resolvePath(probe);
+      expect(r.kind, `${probe} must never redirect: ${describeResolution(r)}`).toBe("unreachable");
+      const claimed = readVercelConfig().rewrites.find((w) => matchSource(w.source, probe) !== null);
+      expect(claimed?.destination, probe).toBe("/__asset-not-found__");
     }
   });
 });
@@ -816,7 +938,7 @@ describe("route reachability — every advertised URL names a REAL route, not ju
 
     // ★ THE RESOLVER SAYS NO. Without the exclusion this would be `true`, and
     // this file would repeat the HTTP-200 blindness one layer up.
-    const nonsense = resolveAgainstRouteTable("/app/complete-nonsense-no-route-exists");
+    const nonsense = resolveAgainstRouteTable("/complete-nonsense-no-route-exists");
     expect(
       nonsense.ok,
       `a path with no <Route> behind it must NOT resolve. It returns HTTP 200 in ` +
@@ -825,14 +947,18 @@ describe("route reachability — every advertised URL names a REAL route, not ju
 
     // ★ AND IT SAYS YES to real ones, or "no" would be a resolver that rejects
     // everything — the mirror-image dead test.
-    expect(resolveAgainstRouteTable("/app/").ok, "/app/ is the router's own /").toBe(true);
-    expect(resolveAgainstRouteTable("/app/pricing").ok).toBe(true);
-    expect(resolveAgainstRouteTable("/app/exam-trends").ok).toBe(true);
+    expect(resolveAgainstRouteTable("/").ok, "/ is the router's own /").toBe(true);
+    expect(resolveAgainstRouteTable("/pricing").ok).toBe(true);
+    expect(resolveAgainstRouteTable("/exam-trends").ok).toBe(true);
     // A parameterised route matches through its params, not by literal spelling.
-    expect(resolveAgainstRouteTable("/app/highly-probable/10/Maths").ok).toBe(true);
+    expect(resolveAgainstRouteTable("/highly-probable/10/Maths").ok).toBe(true);
 
-    // Outside the basename nothing can match, whatever the CDN does with it.
-    expect(resolveAgainstRouteTable("/exam-trends").ok, "root paths are not routes").toBe(false);
+    // ROOT-URL-1: a path under the retired base is NOT a route (vercel.json redirects it
+    // before the router could ever see it), so it must not be advertised.
+    expect(
+      resolveAgainstRouteTable(`${RETIRED_BASE}/exam-trends`).ok,
+      "retired-base paths are not routes",
+    ).toBe(false);
   });
 
   it("the route-table PARSER is not dead — it reads elements and rejects prose", () => {
@@ -978,8 +1104,8 @@ describe("route reachability — every advertised URL names a REAL route, not ju
         `destination, not the doorway.`,
     ).toBe(CANONICAL_HOST);
 
-    // Path: `/` is a 307 to `/app/` in vercel.json, so the redirect half of this
-    // IS derivable from the repo — assert it from the model rather than pinning
+    // Path: whether the canonical redirects (the retired base does) IS derivable from
+    // the repo — assert it from the model rather than pinning
     // a string, so a routing change moves the verdict with it.
     const r = resolvePath(c.path);
     expect(
@@ -1053,21 +1179,21 @@ describe("crawl control — the sitemap's freshness signal and the IndexNow key 
     ).toBe(stem);
   });
 
-  it("★★ the IndexNow key file RESOLVES AT THE ROOT — public/ ships under /app/, so this needs a rewrite", () => {
-    // THE DEFECT THIS FILE EXISTS FOR, one more time. Vite's base is "/app/", so a
-    // file dropped in public/ is served at /app/<name> and is 404 at the root.
-    // IndexNow fetches the key from the ROOT by protocol and never looks under
-    // /app/ — so without a vercel.json rewrite the key is correct and unreachable.
+  it("★★ the IndexNow key file RESOLVES AT THE ROOT — where IndexNow fetches it", () => {
+    // THE DEFECT THIS FILE EXISTS FOR, one more time. Before ROOT-URL-1 Vite's base was
+    // the retired prefix, so a file dropped in public/ was 404 at the root and needed a
+    // rewrite. Since ROOT-URL-1 public/ ships AT the root, so it resolves as a file.
+    // IndexNow fetches the key from the ROOT by protocol and never looks anywhere else.
     const keys = readdirSync(PUBLIC_ROOT).filter((f) => KEY_FILE.test(f));
     expect(keys.length, "no IndexNow key file — the check below would be vacuous").toBe(1);
 
     const r = resolvePath(`/${keys[0]}`);
     expect(
-      isReachable(r),
-      `/${keys[0]} does not resolve at the site root. IndexNow fetches the key ` +
-        `from the root and will never look under ${SERVED_PREFIX}/. ` +
+      r.kind === "file" && r.path,
+      `/${keys[0]} does not resolve to the key FILE at the site root (the shell would ` +
+        `answer 200 with HTML and Bing would reject the key). ` +
         `Resolution: ${describeResolution(r)}`,
-    ).toBe(true);
+    ).toBe(`/${keys[0]}`);
   });
 
   it("★ every sitemap <loc> carries a <lastmod>, and no <changefreq> or <priority>", () => {
@@ -1085,10 +1211,15 @@ describe("crawl control — the sitemap's freshness signal and the IndexNow key 
         `crawler no reason to revisit.`,
     ).toBe(locCount);
 
+    // ★ "THE FUTURE" IS JUDGED IN IST, THE DAY THE GENERATOR STAMPS (generateSitemap.ts
+    // todayIst). Comparing an IST date against UTC midnight called every page captured
+    // between 00:00 and 05:30 IST "in the future" — measured on ROOT-URL-1's capture
+    // (stamped 2026-10-04 IST at 2026-10-03T19:44Z), a false red for 5.5 hours a day.
+    const todayIstDate = new Date(Date.now() + 330 * 60_000).toISOString().slice(0, 10);
     for (const d of lastmods) {
       expect(d, `<lastmod> "${d}" is not a W3C date (YYYY-MM-DD)`).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect(
-        Date.parse(d) <= Date.now(),
+        d <= todayIstDate,
         `<lastmod> "${d}" is in the future — a fabricated freshness signal is worse ` +
           `than none, and Google discounts the whole sitemap for it.`,
       ).toBe(true);
@@ -1167,68 +1298,72 @@ describe("asset 404 — a missing chunk must fail as a missing chunk, not impers
    * take the real chunk down with it.
    */
 
-  const ASSETS_RULE_SOURCE = "/app/assets/:path(.*)";
+  // ROOT-URL-1: TWO asset rules now. The root `/assets/` rule is the live one; the
+  // retired-base rule keeps OLD tabs (an index.html from before the move asks for chunks
+  // under the old base) on the 404 -> chunk-recovery path instead of a redirect.
+  const ASSETS_RULE_SOURCES = ["/assets/:path(.*)", `${RETIRED_BASE}/assets/:path(.*)`];
+  const isAssetsRule = (source: string) => ASSETS_RULE_SOURCES.includes(source);
 
-  it("★★★ the assets rule's destination DEAD-ENDS — matched by no rule, served by no file", () => {
+  it("★★★ each assets rule's destination DEAD-ENDS — matched by no rule, served by no file", () => {
     const { rewrites } = readVercelConfig();
-    const rule = rewrites.find((w) => w.source === ASSETS_RULE_SOURCE);
-    expect(
-      rule,
-      `the /app/assets/ rewrite is gone — a missing chunk is falling through to ` +
-        `the SPA shell again and will return 200 text/html`,
-    ).toBeDefined();
+    for (const source of ASSETS_RULE_SOURCES) {
+      const rule = rewrites.find((w) => w.source === source);
+      expect(
+        rule,
+        `the ${source} rewrite is gone — a missing chunk is falling through to ` +
+          `the SPA shell again and will return 200 text/html`,
+      ).toBeDefined();
 
-    const dest = (rule as Rule).destination;
+      const dest = (rule as Rule).destination;
 
-    // ★ THE MECHANISM, ASSERTED — NOT THE STRING. Vercel continues through the
-    // rule list when a rewrite destination has no file, so the ONLY thing that
-    // produces a 404 is a destination that (a) is not a served file and (b) is
-    // claimed by no other rewrite. Assert both. A self-rewrite satisfies neither
-    // and silently hands the path back to the catch-all — which is exactly how the
-    // first attempt at this fix shipped green and changed nothing.
-    expect(
-      servedFiles().has(dest),
-      `the assets rule's destination "${dest}" IS a served file, so a missing ` +
-        `asset would resolve to it with 200 instead of 404`,
-    ).toBe(false);
+      // ★ THE MECHANISM, ASSERTED — NOT THE STRING. Vercel continues through the
+      // rule list when a rewrite destination has no file, so the ONLY thing that
+      // produces a 404 is a destination that (a) is not a served file and (b) is
+      // claimed by no other rewrite. Assert both. A self-rewrite satisfies neither
+      // and silently hands the path back to the catch-all — which is exactly how the
+      // first attempt at this fix shipped green and changed nothing. ROOT-URL-1: the
+      // catch-all now lives at the ROOT, so (b) is only true because its lookahead
+      // excludes the sentinel — this assertion is what holds that exclusion in place.
+      expect(
+        servedFiles().has(dest),
+        `the assets rule's destination "${dest}" IS a served file, so a missing ` +
+          `asset would resolve to it with 200 instead of 404`,
+      ).toBe(false);
 
-    const claimedBy = rewrites.filter((w) => matchSource(w.source, dest) !== null);
-    expect(
-      claimedBy.map((w) => `${w.source} -> ${w.destination}`),
-      `the assets rule's destination "${dest}" is claimed by another rewrite, so ` +
-        `Vercel will follow it onward instead of 404ing. The dead-end is gone.`,
-    ).toEqual([]);
+      const claimedBy = rewrites.filter((w) => matchSource(w.source, dest) !== null);
+      expect(
+        claimedBy.map((w) => `${w.source} -> ${w.destination}`),
+        `the assets rule's destination "${dest}" is claimed by another rewrite, so ` +
+          `Vercel will follow it onward instead of 404ing. The dead-end is gone.`,
+      ).toEqual([]);
 
-    // ★ And most dangerously of all: never the SPA shell.
-    expect(
-      dest,
-      `the assets rule points at the SPA shell — this IS the original defect`,
-    ).not.toBe("/app/index.html");
-    expect(dest, "the assets rule points at the SPA fallback shell").not.toBe(SPA_SHELL_SERVED);
-
-    // SLASH-1's lesson, reused: `:path*` compiles to SEGMENTS and does not match a
-    // trailing slash, so the `(.*)` form is required for full coverage.
-    expect((rule as Rule).source).toBe(ASSETS_RULE_SOURCE);
+      // ★ And most dangerously of all: never the SPA shell.
+      expect(dest, `the assets rule points at the SPA shell — this IS the original defect`).not.toBe(
+        `${SERVED_PREFIX}/index.html`,
+      );
+      expect(dest, "the assets rule points at the SPA fallback shell").not.toBe(SPA_SHELL_SERVED);
+    }
   });
 
-  it("★★ the assets rule is ordered BEFORE the SPA catch-all", () => {
+  it("★★ the assets rules are ordered BEFORE the SPA catch-all", () => {
     // Vercel processes rewrites in array order, first match wins. Placed AFTER the
-    // catch-all this rule would be dead code that still reads as a fix.
+    // catch-all a rule would be dead code that still reads as a fix.
     const { rewrites } = readVercelConfig();
-    const assetsIdx = rewrites.findIndex((w) => w.source === ASSETS_RULE_SOURCE);
     const catchAllIdx = rewrites.findIndex((w) => w.destination === SPA_SHELL_SERVED);
-
-    expect(assetsIdx, "the assets rule is missing").toBeGreaterThanOrEqual(0);
     expect(catchAllIdx, "the SPA catch-all is missing").toBeGreaterThanOrEqual(0);
-    expect(
-      assetsIdx,
-      `the assets rule sits at index ${assetsIdx}, at or after the catch-all at ` +
-        `${catchAllIdx}. The catch-all would claim every asset path first and this ` +
-        `rule would never fire.`,
-    ).toBeLessThan(catchAllIdx);
+    for (const source of ASSETS_RULE_SOURCES) {
+      const assetsIdx = rewrites.findIndex((w) => w.source === source);
+      expect(assetsIdx, `the ${source} rule is missing`).toBeGreaterThanOrEqual(0);
+      expect(
+        assetsIdx,
+        `the ${source} rule sits at index ${assetsIdx}, at or after the catch-all at ` +
+          `${catchAllIdx}. The catch-all would claim every asset path first and this ` +
+          `rule would never fire.`,
+      ).toBeLessThan(catchAllIdx);
+    }
   });
 
-  it("★★★ an asset path is claimed by the assets rule — and the CONTROL, a page path, is still claimed by the catch-all", () => {
+  it("★★★ an asset path is claimed by an assets rule — and the CONTROL, a page path, is still claimed by the catch-all", () => {
     // ★ THIS IS THE LOAD-BEARING ASSERTION. The two halves must BOTH hold: without
     // the control, a rule that matched EVERYTHING would satisfy the first loop and
     // look like a fix while having broken every SPA deep link.
@@ -1237,34 +1372,31 @@ describe("asset 404 — a missing chunk must fail as a missing chunk, not impers
       rewrites.find((w) => matchSource(w.source, probe) !== null);
 
     for (const probe of [
-      "/app/assets/DoesNotExist-XXXX.js",
-      "/app/assets/index-Bsujrqdi.js",
-      "/app/assets/some-figure-a1b2c3d4.webp",
-      "/app/assets/index-CpxjRxM6.css",
+      "/assets/DoesNotExist-XXXX.js",
+      "/assets/index-Bsujrqdi.js",
+      "/assets/some-figure-a1b2c3d4.webp",
+      "/assets/index-CpxjRxM6.css",
+      `${RETIRED_BASE}/assets/DoesNotExist-XXXX.js`,
+      `${RETIRED_BASE}/assets/index-CpxjRxM6.css`,
     ]) {
       const m = firstMatch(probe);
       expect(m, `no rewrite matches ${probe}`).toBeDefined();
       expect(
-        (m as Rule).source,
+        isAssetsRule((m as Rule).source),
         `${probe} is claimed by "${(m as Rule).source}" -> ` +
-          `"${(m as Rule).destination}" instead of the assets rule. If that is the ` +
+          `"${(m as Rule).destination}" instead of an assets rule. If that is the ` +
           `SPA catch-all, a missing asset is serving HTML again.`,
-      ).toBe(ASSETS_RULE_SOURCE);
+      ).toBe(true);
     }
 
     // ★ CONTROL — ordinary SPA routes, including the trailing-slash forms SLASH-1
     // fixed, must STILL reach the catch-all and render the shell.
-    for (const probe of [
-      "/app/pricing",
-      "/app/pricing/",
-      "/app/notes/trigonometry",
-      "/app/topic-hub/trigonometry",
-    ]) {
+    for (const probe of ["/pricing", "/pricing/", "/notes/trigonometry", "/topic-hub/trigonometry"]) {
       const m = firstMatch(probe);
       expect(m, `no rewrite matches CONTROL ${probe}`).toBeDefined();
       expect(
         (m as Rule).destination,
-        `CONTROL ${probe} is no longer claimed by the SPA catch-all — the assets ` +
+        `CONTROL ${probe} is no longer claimed by the SPA catch-all — an assets ` +
           `rule has widened and is swallowing page routes`,
       ).toBe(SPA_SHELL_SERVED);
       const r = resolvePath(probe);
@@ -1274,42 +1406,31 @@ describe("asset 404 — a missing chunk must fail as a missing chunk, not impers
     }
   });
 
-  it("★★ the assets rule shadows NONE of the protected rewrites", () => {
-    // The API proxies, and the four crawler files plus the IndexNow key, are all
-    // claimed by rules ABOVE this one. The IndexNow key in particular is live and
-    // verified: breaking it silently disables Bing submission, with no error
-    // anywhere to notice.
+  it("★★ the assets rules shadow NONE of the protected paths", () => {
+    // The API proxies are claimed by rules ABOVE the assets rules; the four crawler
+    // files and the IndexNow key are real FILES at the root (ROOT-URL-1), which beat
+    // every rewrite. The IndexNow key in particular is live and verified: breaking it
+    // silently disables Bing submission, with no error anywhere to notice.
     const { rewrites } = readVercelConfig();
-    const protectedProbes: Array<[string, string]> = [
-      // NB: `destination` is the RAW pattern, not the substituted URL.
-      ["/api/health", "https://lazytopper-production-production.up.railway.app/api/:path*"],
-      ["/robots.txt", "/app/robots.txt"],
-      ["/sitemap.xml", "/app/sitemap.xml"],
-      ["/llms.txt", "/app/llms.txt"],
-      ["/favicon.svg", "/app/favicon.svg"],
-      [
-        "/a6c1861da61f4d36898e5e27a71c36d6.txt",
-        "/app/a6c1861da61f4d36898e5e27a71c36d6.txt",
-      ],
-    ];
-
-    for (const [probe, expectedDestination] of protectedProbes) {
-      const m = rewrites.find((w) => matchSource(w.source, probe) !== null);
-      expect(m, `no rewrite matches ${probe}`).toBeDefined();
-      expect(
-        (m as Rule).destination,
-        `${probe} is now claimed by "${(m as Rule).source}". A rule was reordered ` +
-          `above it.`,
-      ).toBe(expectedDestination);
+    const apiRule = rewrites.find((w) => matchSource(w.source, "/api/health") !== null);
+    expect(apiRule?.destination).toBe(
+      "https://lazytopper-production-production.up.railway.app/api/:path*",
+    );
+    const files = ["/robots.txt", "/sitemap.xml", "/llms.txt", "/favicon.svg", "/a6c1861da61f4d36898e5e27a71c36d6.txt"];
+    for (const probe of files) {
+      const r = resolvePath(probe);
+      expect(r.kind === "file" && r.path, `${probe} must be served as its own file`).toBe(probe);
     }
 
-    // ★ CONTROL — the assets pattern genuinely does NOT match any of them, which is
+    // ★ CONTROL — the assets patterns genuinely do NOT match any of them, which is
     // why ordering alone is not what saves them.
-    for (const [probe] of protectedProbes) {
-      expect(
-        matchSource(ASSETS_RULE_SOURCE, probe),
-        `the assets pattern matches ${probe} — it is far too broad`,
-      ).toBeNull();
+    for (const probe of ["/api/health", ...files]) {
+      for (const source of ASSETS_RULE_SOURCES) {
+        expect(
+          matchSource(source, probe),
+          `the assets pattern ${source} matches ${probe} — it is far too broad`,
+        ).toBeNull();
+      }
     }
   });
 });
@@ -1393,44 +1514,56 @@ describe("asset 404 — a missing chunk must fail as a missing chunk, not impers
  * ------------------------------------------------------------------------- */
 
 /**
- * ★★ OR-A1-1 — THE vercel.json PINS (SEO-FRESH-1). The owner granted exactly two edits:
- * the catch-all's destination moves to `/app/__shell.html`, and that file gets
- * `X-Robots-Tag: noindex` (it is a duplicate of the root's head and must never be indexed
- * under its own URL). The ASSET-404 rule stays where it is: BEFORE the catch-all.
+ * ★★ OR-A1-1 — THE vercel.json PINS (SEO-FRESH-1), moved to the root by ROOT-URL-1. The
+ * catch-all's destination is `/__shell.html`, and that file gets `X-Robots-Tag: noindex`
+ * (it is a duplicate of the root's head and must never be indexed under its own URL). The
+ * ASSET-404 rules stay BEFORE the catch-all, and the catch-all comes AFTER the two API
+ * proxies, so it can never swallow the backend.
  */
 describe("vercel.json — the SPA fallback is the clean shell (OR-A1-1)", () => {
   const raw = JSON.parse(readFileSync(VERCEL_JSON, "utf8")) as {
     rewrites: Rule[];
     headers?: Array<{ source: string; headers: Array<{ key: string; value: string }> }>;
   };
+  const CATCH_ALL_SOURCE = "/:path((?!_vercel/|__asset-not-found__).*)";
 
-  it("the /app/ catch-all's destination is /app/__shell.html — and nothing rewrites to index.html", () => {
-    const catchAll = raw.rewrites.find((w) => w.source === "/app/:path(.*)");
-    expect(catchAll, "the /app/ catch-all is gone").toBeDefined();
-    expect((catchAll as Rule).destination).toBe("/app/__shell.html");
-    expect(raw.rewrites.filter((w) => w.destination === "/app/index.html")).toEqual([]);
+  it("the root catch-all's destination is /__shell.html — and nothing rewrites to index.html", () => {
+    const catchAll = raw.rewrites.find((w) => w.source === CATCH_ALL_SOURCE);
+    expect(catchAll, "the root catch-all is gone").toBeDefined();
+    expect((catchAll as Rule).destination).toBe("/__shell.html");
+    expect(raw.rewrites.filter((w) => w.destination === "/index.html")).toEqual([]);
+    // It is the LAST rewrite: anything after it would be dead code.
+    expect(raw.rewrites[raw.rewrites.length - 1]).toEqual(catchAll);
   });
 
-  it("the ASSET-404 rule precedes the catch-all", () => {
-    const assetsIdx = raw.rewrites.findIndex((w) => w.source === "/app/assets/:path(.*)");
-    const catchAllIdx = raw.rewrites.findIndex((w) => w.source === "/app/:path(.*)");
-    expect(assetsIdx).toBeGreaterThanOrEqual(0);
-    expect(raw.rewrites[assetsIdx].destination).toBe("/__asset-not-found__");
-    expect(assetsIdx).toBeLessThan(catchAllIdx);
+  it("the ASSET-404 rules and BOTH API proxies precede the catch-all", () => {
+    const catchAllIdx = raw.rewrites.findIndex((w) => w.source === CATCH_ALL_SOURCE);
+    for (const source of ["/api/:path*", "/shared-api/:path*", "/assets/:path(.*)", `${RETIRED_BASE}/assets/:path(.*)`]) {
+      const idx = raw.rewrites.findIndex((w) => w.source === source);
+      expect(idx, source).toBeGreaterThanOrEqual(0);
+      expect(idx, `${source} must come before the catch-all`).toBeLessThan(catchAllIdx);
+    }
+    for (const source of ["/assets/:path(.*)", `${RETIRED_BASE}/assets/:path(.*)`]) {
+      expect(raw.rewrites.find((w) => w.source === source)?.destination).toBe("/__asset-not-found__");
+    }
   });
 
-  it("/app/__shell.html is served with X-Robots-Tag: noindex", () => {
-    const entry = (raw.headers ?? []).find((h) => h.source === "/app/__shell.html");
-    expect(entry, "no headers entry for /app/__shell.html").toBeDefined();
+  it("/__shell.html is served with X-Robots-Tag: noindex; /assets/* is immutable", () => {
+    const entry = (raw.headers ?? []).find((h) => h.source === "/__shell.html");
+    expect(entry, "no headers entry for /__shell.html").toBeDefined();
     expect(
       (entry as { headers: Array<{ key: string; value: string }> }).headers,
     ).toContainEqual({ key: "X-Robots-Tag", value: "noindex" });
+    const assets = (raw.headers ?? []).find((h) => h.source === "/assets/:path(.*)");
+    expect(assets?.headers).toContainEqual({ key: "Cache-Control", value: "public, max-age=31536000, immutable" });
+    // No header rule still names the retired base: it would match nothing that is served.
+    expect((raw.headers ?? []).filter((h) => h.source.startsWith(`${RETIRED_BASE}/`))).toEqual([]);
   });
 
-  it("CONTROL — /app/ itself is the prerendered root file, and a deep link is the shell", () => {
-    const root = resolvePath("/app/");
-    expect(root.kind === "file" && root.path).toBe("/app/index.html");
-    for (const probe of ["/app/login", "/app/me", "/app/tutor/10/Maths", "/app/notes/does-not-exist"]) {
+  it("CONTROL — / itself is the prerendered root file, and a deep link is the shell", () => {
+    const root = resolvePath("/");
+    expect(root.kind === "file" && root.path).toBe("/index.html");
+    for (const probe of ["/login", "/me", "/tutor/10/Maths", "/notes/does-not-exist"]) {
       const r = resolvePath(probe);
       expect(r.kind === "file" && r.path, `${probe} must fall back to the clean shell`).toBe(SPA_SHELL_SERVED);
     }

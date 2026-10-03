@@ -174,25 +174,25 @@ describe("domain guard — the never-owned lazytopper.app appears nowhere in the
     // the authoritative copy of this page.
     //
     // ★ META-3: the pinned value moved from `https://lazytopper.com/` to
-    // `https://www.lazytopper.com/app/`. BOTH halves were wrong, and both were
+    // `https://www.lazytopper.com/app/` (ROOT-URL-1 later moved it to the root). BOTH halves were wrong, and both were
     // measured live rather than reasoned about (2026-08-05, curl -L -o /dev/null):
     //
     //     https://lazytopper.com/        -> 200 after 2 redirects, landing on
     //                                       https://www.lazytopper.com/app/
     //     https://www.lazytopper.com/    -> 200 after 1 redirect  (-> /app/)
-    //     https://www.lazytopper.com/app/ -> 200, ZERO redirects
+    //     https://www.lazytopper.com/app/ -> 200, ZERO redirects   (pre-ROOT-URL-1)
     //
     // A canonical is a DIRECTIVE, not a fetch: naming a URL that 308s tells every
     // search engine the authoritative copy lives at an address that then says "no,
     // over there". The `www` half is the apex-to-www redirect the CDN performs; the
-    // `/app/` half is where Vite's `base: "/app/"` actually puts the document.
+    // path half is the domain root, where Vite's `base: "/"` puts the document (ROOT-URL-1).
     //
     // ⚠ NOTHING BELOW WAS RELAXED. The `lazytopper.app` sweep above is untouched,
     // and `lazytopper.com/app/` does not contain the literal `lazytopper.app` — the
     // assertion at the top of this file still fails on the never-owned domain.
     const html = readFileSync(INDEX_HTML, "utf8");
     expect(html).toMatch(
-      /<link\s+rel="canonical"\s+href="https:\/\/www\.lazytopper\.com\/app\/"\s*\/>/,
+      /<link\s+rel="canonical"\s+href="https:\/\/www\.lazytopper\.com\/"\s*\/>/,
     );
 
     // ★ AND THE TWO FORMS THAT WERE WRONG ARE PINNED OUT BY NAME. An exact-match
@@ -207,10 +207,10 @@ describe("domain guard — the never-owned lazytopper.app appears nowhere in the
         "apex canonical names a URL that redirects.",
     ).toBe("www.lazytopper.com");
     expect(
-      new URL(canonical as string).pathname.startsWith("/app/"),
-      `the app is served under /app/ (vite base). Canonical path was ` +
-        `"${new URL(canonical as string).pathname}", which 30x-es before it resolves.`,
-    ).toBe(true);
+      new URL(canonical as string).pathname,
+      `the app is served at the domain root (ROOT-URL-1, vite base "/"). Canonical path was ` +
+        `"${new URL(canonical as string).pathname}"; anything under the retired base 308s.`,
+    ).toBe("/");
 
     // The share-image URLs must resolve too, or every WhatsApp / X card is blank.
     // ★ MOVED TO www BY OG-1, SUPERSEDING #612's apex form. #612's reasoning was
@@ -220,8 +220,8 @@ describe("domain guard — the never-owned lazytopper.app appears nowhere in the
     // fetch. Removing the hop is cheap insurance, so the pin now expects www and
     // [FU-OG-IMAGE-WWW-HOST] is CLOSED. A future apex form is a regression, not a
     // deliberate choice, and this assertion is what will say so.
-    expect(html).toContain('property="og:image" content="https://www.lazytopper.com/app/og-image.png"');
-    expect(html).toContain('name="twitter:image" content="https://www.lazytopper.com/app/og-image.png"');
+    expect(html).toContain('property="og:image" content="https://www.lazytopper.com/og-image.png"');
+    expect(html).toContain('name="twitter:image" content="https://www.lazytopper.com/og-image.png"');
   });
 });
 

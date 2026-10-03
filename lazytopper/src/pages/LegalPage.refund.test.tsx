@@ -267,7 +267,7 @@ describe("OR-P5 — the /legal/refund head and the refund tab label", () => {
         /&amp;/g,
         "&",
       );
-      expect(html, slug).toContain(`href="/app/legal/refund" data-discover="true">${TAB_LABEL}</a>`);
+      expect(html, slug).toContain(`href="/legal/refund" data-discover="true">${TAB_LABEL}</a>`);
       expect(html, slug).not.toContain(">Refund Policy</a>");
     }
   });

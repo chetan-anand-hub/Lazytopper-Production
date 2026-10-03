@@ -92,9 +92,11 @@ function publishedLastmods(): Map<string, string> {
 
 describe("sitemap.xml — derived from the registry, not hand-listed", () => {
   it("the basename came from vite.config.ts, not from a literal and not from BASE_URL", () => {
-    // Name the subject. Were this ever the empty string the whole suite would
-    // stay green while asserting things about URLs with no /app in them.
-    expect(PROD_BASENAME).toBe("/app");
+    // Name the subject. ROOT-URL-1: the app is served at the domain root, so the
+    // basename derived from vite.config.ts's `base: "/"` IS the empty string — pinned,
+    // so a base that came back would be a deliberate, visible change here.
+    expect((viteConfig as { base?: string }).base).toBe("/");
+    expect(PROD_BASENAME).toBe("");
     // eslint-disable-next-line no-console
     console.log(
       `SITEMAP_DERIVATION: basename=${PROD_BASENAME} ` +
@@ -229,7 +231,7 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
       .not.toContain("/topic-hub");
     expect(canonicalPathFor("/topic-hub")).toBe("/exam-trends");
     expect(canonicalFor("/topic-hub", PROD_BASENAME)).toBe(
-      "https://www.lazytopper.com/app/exam-trends",
+      "https://www.lazytopper.com/exam-trends",
     );
 
     // CONTROL — SURGICAL, not a prefix sweep. The 26 topic pages live under the
@@ -387,7 +389,7 @@ describe("sitemap lastmod — restamped only when the page changed (F1)", () => 
     const fragment = readFileSync(fragmentPathFor("/notes/trigonometry"), "utf8");
     expect(fragment).not.toMatch(/rel="canonical"/);
     const canonical = canonicalFor("/notes/trigonometry?tab=competency#q3", PROD_BASENAME);
-    expect(canonical).toBe("https://www.lazytopper.com/app/notes/trigonometry");
+    expect(canonical).toBe("https://www.lazytopper.com/notes/trigonometry");
     expect(locsOnDisk()).toContain(canonical);
     for (const loc of locsOnDisk()) expect(loc, `${loc} carries a query string`).not.toMatch(/[?#]/);
   });

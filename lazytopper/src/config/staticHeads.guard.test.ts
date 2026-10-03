@@ -82,7 +82,7 @@ const TWITTER_DESCRIPTION_BLOCK = fourLineTag(
  * flagging every tag they are pointed at.
  */
 const SHARED_TAGS = [
-  '    <meta property="og:image" content="https://lazytopper.com/app/og-image.png" />',
+  '    <meta property="og:image" content="https://lazytopper.com/og-image.png" />',
   '    <meta property="og:image:width" content="1200" />',
   '    <meta property="og:image:height" content="630" />',
   '    <meta name="twitter:card" content="summary_large_image" />',
@@ -92,12 +92,12 @@ const SHELL = [
   "<!doctype html>",
   '<html lang="en-IN">',
   "  <head>",
-  '    <link rel="canonical" href="https://www.lazytopper.com/app/" />',
+  '    <link rel="canonical" href="https://www.lazytopper.com/" />',
   "    <meta",
   '      name="description"',
   '      content="Free CBSE Class 10 Maths &amp; Science prep."',
   "    />",
-  '    <meta property="og:url" content="https://www.lazytopper.com/app/" />',
+  '    <meta property="og:url" content="https://www.lazytopper.com/" />',
   OG_TITLE_BLOCK,
   OG_DESCRIPTION_BLOCK,
   ...SHARED_TAGS,
@@ -153,7 +153,7 @@ function renderedLength(value: string): number {
     .replace(/&amp;/g, "&").length;
 }
 
-const BASENAME = "/app";
+const BASENAME = ""; // ROOT-URL-1: the app is served at the domain root
 
 describe("static heads — every advertised URL is stamped with its OWN address", () => {
   it("names its subject on every run, green included", () => {
@@ -195,7 +195,7 @@ describe("static heads — every advertised URL is stamped with its OWN address"
       expect(
         canonicalOf(html),
         `${path} still declares the home page as its canonical — the defect`,
-      ).not.toBe("https://www.lazytopper.com/app/");
+      ).not.toBe("https://www.lazytopper.com/");
 
       // ★ BYTE-IDENTICAL, not merely equivalent — the same assertion
       // `head.guard.test.ts` makes about `index.html`, made about every page it
@@ -309,7 +309,7 @@ describe("static heads — every advertised URL is stamped with its OWN address"
 describe("static heads — the writer refuses to no-op silently", () => {
   const page = {
     path: "/pricing",
-    url: "https://www.lazytopper.com/app/pricing",
+    url: "https://www.lazytopper.com/pricing",
     title: "T",
     description: "D",
   };
@@ -355,9 +355,9 @@ describe("static heads — the writer refuses to no-op silently", () => {
 
   it("THROWS on a DUPLICATE tag, where replacing all would be as wrong as replacing none", () => {
     const twoCanonicals = SHELL.replace(
-      '<link rel="canonical" href="https://www.lazytopper.com/app/" />',
-      '<link rel="canonical" href="https://www.lazytopper.com/app/" />\n' +
-        '    <link rel="canonical" href="https://www.lazytopper.com/app/pricing" />',
+      '<link rel="canonical" href="https://www.lazytopper.com/" />',
+      '<link rel="canonical" href="https://www.lazytopper.com/" />\n' +
+        '    <link rel="canonical" href="https://www.lazytopper.com/pricing" />',
     );
     expect(() => applyHead(twoCanonicals, page)).toThrow(/found 2/);
 
@@ -460,7 +460,7 @@ describe("static heads — the writer refuses to no-op silently", () => {
         ...(head as { title: string; description: string }),
       });
       expect(html).toContain(
-        `<link rel="canonical" href="https://www.lazytopper.com/app/notes/${slug}" />`,
+        `<link rel="canonical" href="https://www.lazytopper.com/notes/${slug}" />`,
       );
     }
     // CONTROL — an unknown chapter gets no invented head.
