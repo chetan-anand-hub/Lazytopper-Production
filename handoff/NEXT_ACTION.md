@@ -1,3 +1,31 @@
+## ★★★ 2026-10-04 — WAVE A-12 (ROUTING + SEO, CONTROLLER A) — ROOT-URL-1 CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE B-11 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE B-11, A-11, B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
+
+**TRUNK IS `2492bb6782a677b513858014efe71f7e5b894f26`**, measured 2026-10-04 (`git ls-remote origin base/approved-thru-437`):
+- #920 UPLOAD-2 (`2492bb67`) merged in parallel — Controller B wave B-12; its handoff follows in B's docs PR.
+- `db4862a2` = `#919` (ROOT-URL-1 PR-2, SEO-4: the shell says `noindex` in the file; notes heads name their NCERT chapter) — **this wave**; rolling release 100 % at 22:21:05Z 2026-10-03 UTC, OR-LIVE **121 / 121 PASS**
+- `5f168207` = `#917` (ROOT-URL-1 PR-1: the app at the domain root; every old `/app/…` one 308) — **this wave**; rolling release 100 % at 21:12:30Z 2026-10-03 UTC, OR-LIVE **115 / 115 PASS**
+- `ff68e34f` = `#918` (docs: wave B-11)
+
+When this docs PR was opened no other PR was open (`gh pr list --state open` empty). This is the only docs PR open (OR-16). Controller B's wave B-12 docs PR follows this one.
+
+### NEXT — OWNER
+1. **Audit the controller's OR-AUTO decisions D1, D2, D3, D4, D5 and D7** (reasons in `DECISION_LOG.md`, 2026-10-04, wave A-12; all PENDING OWNER AUDIT). D7: accept the two shortened notes descriptions or supply wording.
+2. **The post-move owner steps (spec §3), safe since 21:12:30Z 2026-10-03 UTC (02:42:30 IST, 4 Oct):** update Google Ads final URLs and sitelinks; update the YouTube, LinkedIn, Instagram and ManyChat links; tell the Razorpay consultant the date. The old `/app/…` links keep working through one 308, so this is hygiene, not an outage.
+3. **View GA4 Realtime** and confirm root paths (the agent proved GA4 `dl` from the network log only).
+4. **Decide `[FU-ADS-CONVERSION-ON-PRICING-VIEW]`** (owner flag): an `ads_conversion_Begin_checkout_1` event fires on a plain `/pricing` view and may inflate Ads conversion counts.
+5. **Pick the next wave — it is the owner's call; this docs PR does not invent a lane.** On the table: the eight new FUs (none dispatched).
+- ✅ **Done — Google sign-in at the root** (owner-verified 4 Oct: lands in the app, sign-out works). Not owed.
+
+### Carried — still owed
+1. **The WAVE B-11 owner items** (ratify NO-ROLLBACK on its PARTIAL; approve `[FU-CLEANUP2-TRIANGLES-BARREL]`; note the `cbseDates.ts` scope call; the signed-in `/onboarding`, sign-up / login and Practice checks — the paths are now at the root, e.g. `/onboarding`), then the WAVE A-11 owner items and everything they carry.
+
+### NEXT — LANES
+- None dispatched by wave A-12 beyond `#917` and `#919`. The final audit request goes to the cofounder after this docs PR merges.
+- **★ DOCTRINE NOW ENFORCED BY CI — no `/app` literal.** The app's base is `/`; `noAppPrefix.guard.test.ts` prints `NO_APP_PREFIX: files=… hits=0` and fails on any URL-shaped `/app/` literal outside the allowlisted redirect rules. Derive URLs from `import.meta.env.BASE_URL`.
+- **★ The shell's `noindex` lives in the file.** `shellNoindex.guard.test.ts` (`SHELL_NOINDEX`, `SITEMAP_INDEX: paths=62 files=123`) pins the shell `noindex` and every sitemap page `index`. A Vercel header rule on `/__shell.html` does not reach rewritten routes.
+- **★ OR-LIVE rollout method.** 100 % = no `_vcrr` cookie on cold responses AND forced buckets 0.51 / 0.75 / 0.9 / 0.99 on the expected SHA; cold `version.json` reads alone are bucket-blind (`[FU-ORLIVE-ROLLING-RELEASE-BUCKET-BLIND]`).
+
 ## ★★★ 2026-10-04 — WAVE B-11 (CLEANUP, CONTROLLER B) — CLEANUP-2 CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-11 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE A-11, B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
 

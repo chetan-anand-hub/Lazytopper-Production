@@ -23,6 +23,52 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-04 — WAVE A-12 (CONTROLLER A): ROOT-URL-1 (`#917` `5f168207` + `#919` `db4862a2`) — eight new open, one opened and closed in-wave, one older closed; owner items owed
+
+Sources: the builders' reports (`Desktop/diff/report-root-url-1-pr1-2026-10-04.md` "Findings" + "FU IDs"; `report-root-url-1-pr2-2026-10-04.md` "Findings" + "FU IDs"), the OR-LIVE reports (`live-before-root-url-1-2026-10-04.md`, `live-after-pr1-root-url-1-2026-10-04.md`, `live-after-pr2-root-url-1-2026-10-04.md`) and the controller's state file (`WAVE_STATE_A12.md`). **Bodies come from those sources; nothing is invented.** `grep` of `handoff/` at `2492bb67` *(docs-builder-verified)* found no prior entry for any of the nine new ids; `[FU-INDEXHTML-PATH-PII-VERCEL-BEFORESEND]` has its entry in the 2026-10-03 wave B-10 section. No dated entry is edited (standing rule 3): the closures below are recorded here, and the old entries stand as written.
+
+### New — from `#917` / `#919` and their OR-LIVE runs
+
+### `[FU-SHELL-NOINDEX-HEADER-NEVER-APPLIED]` — ✅ CLOSED by `#919` (opened by PR-1, closed in the same wave)
+The `vercel.json` `X-Robots-Tag: noindex` rule on the shell has never applied to rewritten deep links: Vercel matches header rules on the REQUEST path, not the rewrite destination. Before the move `curl -sI https://www.lazytopper.com/app/tutor/10/Maths` returned no `X-Robots-Tag`, and the shell HTML said `index,follow` *(builder-reported; controller-verified live with a Googlebot curl on `/some-unknown-path` and `/me`)*. PR-1 kept the rule (moved to `/__shell.html`), behaviour unchanged (D4). **Closed by `#919` S1:** the robots meta inside `__shell.html` now says `noindex,follow,max-image-preview:large`; live on `/me`, `/some-unknown-path`, `/tutor/10/Maths`, `/login` (one meta each) *(agent-reported, OR-LIVE after PR-2 S.1)*. The now-redundant header rule is `[FU-VERCEL-SHELL-HEADER-DEAD-RULE]`.
+
+### `[FU-SEARCHPING-YML-COMMENT-APP-VERSION]` — OPEN · LOW (comment only)
+`.github/workflows/search-ping.yml:16` still says the "rollout" poll reads `https://www.lazytopper.com/app/version.json`. The real reader, `scripts/seo/searchPing.ts` `VERSION_URL`, was moved to `https://www.lazytopper.com/version.json` by `#917`, and `/app/version.json` 308s to `/version.json` anyway. `.github/**` is outside ROOT-URL-1 §1, so it was left alone *(builder-reported; the line docs-builder-verified on `2492bb67`)*.
+
+### `[FU-DIAGRAMS-SAVEDPATH-RAILWAY-DISK]` — OPEN · pre-existing
+`lazytopper/server/routes/diagrams.cjs` (the visual route, `/api/generate-visual`) writes a manifest `filePath` and returns `savedPath`, but the files it writes live on Railway's disk, which Vercel never serves. This predates ROOT-URL-1; `#917` only changed the URL prefix (`publicBase() + 'visuals/'`, `:72`) *(builder-reported)*. Related: OR-LIVE row 7.7 (a live `/api/generate-visual` round trip) was NOT RUN in any of the three runs (AI spend and server-disk writes), and Railway's deployed SHA cannot be read from `/api/health` (no sha field), so whether Railway runs the new `diagrams.cjs` is unproven live *(agent-reported)*. The 96 committed visuals are served by Vercel at `/visuals/…` (200) and old `/app/visuals/…` 308 there *(agent-reported)*.
+
+### `[FU-ORLIVE-ROLLING-RELEASE-BUCKET-BLIND]` — OPEN · process (the OR-LIVE brief method)
+"≥ 5 consecutive cold reads of `/version.json`" cannot detect a Vercel rolling release from one client: the `_vcrr_…` bucket is sticky per client even without a cookie. After `#917` the cold reads sat in bucket 0.08 and said 100 % while buckets ≥ 0.51 stayed on the old `ff68e34f` until 21:12:30Z (2026-10-03 UTC) — about half of visitors got root URLs 404 in that window. **Fixed method** (used for PR-2): 100 % = no `_vcrr` Set-Cookie on cold responses AND forced buckets 0.51 / 0.75 / 0.9 / 0.99 on the expected SHA. It caught a second hidden rolling release after `#919` (100 % only at 22:21:05Z) *(agent-reported)*. Open until the method is written into the standing OR-LIVE brief / `ops/` rules (not done by this docs PR — `ops/**` is outside its seven files).
+
+### `[FU-TRIG-NOTES-BLURB-CH9-SCOPE]` — OPEN · ⚠ UNVERIFIED (report only)
+The trigonometry notes blurb, now in its head after `#919` ("NCERT Ch. 8 · Introduction to Trigonometry — Trigonometric ratios and identities together with heights and distances applications."), mentions heights and distances, which is NCERT Ch. 9 content, while the head names Ch. 8. The blurb was not changed *(builder-reported; the live description agent-reported, S.3a)*. Nobody has checked whether the notes page itself covers Ch. 9 content or only the blurb says so.
+
+### `[FU-SHELL-CANONICAL-POINTS-AT-HOME]` — OPEN · LOW (pre-existing)
+The shell `__shell.html` keeps `<link rel="canonical" href="https://www.lazytopper.com/">` and the home `<title>` on every noindex route (`/me`, `/tutor/…`, `/login`, unknown URLs). Pairing `noindex` with a canonical to home is a mixed signal; `noindex` wins, so it is harmless, but a self or absent canonical on the shell would be cleaner *(builder-reported; agent-reported live, S.1)*.
+
+### `[FU-VERCEL-SHELL-HEADER-DEAD-RULE]` — OPEN · LOW
+The `/__shell.html` `X-Robots-Tag: noindex` rule in `vercel.json` (`:38`, docs-builder-verified on `2492bb67`) is now redundant and never matches a rewritten request (it applies only when `/__shell.html` is fetched directly). Left alone by `#919`: §1 allowed only shell-header edits and none was needed *(builder-reported)*.
+
+### `[FU-API-USER-PROGRESS-404]` — OPEN · pre-existing (not ROOT-URL-1)
+`GET /api/user/progress` returns 404 on every signed-in page load — in the BEFORE baseline on `046c3238` and unchanged after both PRs *(agent-reported)*. The client constant is `lazytopper/src/services/dbSyncService.ts:12` `const BASE = "/api/user/progress";` *(docs-builder-verified)*. No user-visible error was observed; the cause (a removed server route or a dead client call) is not investigated.
+
+### `[FU-ADS-CONVERSION-ON-PRICING-VIEW]` — OPEN · pre-existing · ★ OWNER FLAG
+A GA4 event `ads_conversion_Begin_checkout_1` fires on a plain `/pricing` page view (no checkout started), which may inflate Google Ads conversion counts *(agent-reported, BEFORE row 8.2; a similar second hit seen after)*. The string `ads_conversion` does not appear in `lazytopper/index.html` or `lazytopper/src` *(docs-builder-verified grep)*, so it is probably configured in the Google tag / GA4 / Ads console rather than in code. Owner to decide.
+
+### Closed (the original entries stand as written)
+- **`[FU-INDEXHTML-PATH-PII-VERCEL-BEFORESEND]` — CLOSED by `#917` M4.** Both senders in `index.html` (Vercel `beforeSend`, GA4 `page_location`) now apply the same redactions as `normalisePath` (email → `:email`, 20+-char id → `:id`, kebab slugs kept, `/u/` token), with a parity test over both rule sets *(builder-reported)*. Live: `/share/someone@example.com` and `/x/AbCdEfGhIjKlMnOpQrStUv12` arrive as `/share/:email` and `/x/:id` in GA4 `dl` and Vercel `o` / `dp` *(agent-reported, row 8.6, after both PRs)*.
+- **`[FU-SHELL-NOINDEX-HEADER-NEVER-APPLIED]`** — opened and closed in this wave (entry above).
+
+### Note on an older FU (status unchanged)
+- `[FU-ONBOARDING-ROOT-LIVE]` (wave B-11) was due "when ROOT-URL-1 lands". ROOT-URL-1 has landed; none of the three A-12 OR-LIVE runs checked `/onboarding`. It stays OPEN for Controller B.
+
+### Owner items owed (not FUs)
+1. **Audit D1–D5 and D7** (`DECISION_LOG.md`, 2026-10-04, wave A-12).
+2. **GA4 Realtime** — confirm root paths.
+3. **Update Google Ads final URLs and sitelinks; YouTube, LinkedIn, Instagram and ManyChat links; tell the Razorpay consultant** — safe since 21:12:30Z 2026-10-03 UTC.
+- **Closed:** Google sign-in at the root (owner-verified 4 Oct).
+
 ## 2026-10-04 — WAVE B-11 (CONTROLLER B): CLEANUP-2 (`#916` `e36c9c1d`) — five new, two closed, one partly closed; three owner decisions and three owner live verifications owed
 
 Sources: the builder's report (`Desktop/diff/report-cleanup-2-2026-10-04.md` §1, §6, §7 "Findings that contradict the spec", §8 "Proposed follow-ups") and the controller's state file (`WAVE_STATE_B11.md`). **Bodies are the builder's text; nothing is invented.** `grep` of `handoff/` at `e36c9c1d` *(docs-builder-verified)* found no prior entry for any of the five new ids. No dated entry is edited (standing rule 3): the closures below are recorded here, and the old entries stand as written.
