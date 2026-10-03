@@ -116,19 +116,20 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
       "Pick a subject, scope and topic, then choose how to practise — questions, " +
       "worksheets, or predicted-question mocks.",
   },
-  // SEO-3 (owner ruling, 2026-10-02) — exact owner text; "predicted" is said
-  // honestly in the description: patterns to practise, not the 2027 paper.
+  // SEO-3 — owner text (titles: SEO-3 §2 S2; descriptions: owner ruling D2, which
+  // fits them inside the 155 cap). "Predicted" is said honestly in the
+  // description: patterns to practise, not the 2027 paper.
   "/highly-probable/10/Maths": {
     title: "Class 10 Maths Predicted Questions for Boards 2027 | LazyTopper",
     description:
-      "The question patterns that recur most on CBSE Class 10 Maths boards, chapter by " +
-      "chapter, from 10 years of papers. Patterns to practise, not the exact 2027 paper.",
+      "Question patterns that recur most in CBSE Class 10 Maths boards, chapter by " +
+      "chapter, from 10 years of papers. Patterns to practise, not the 2027 paper.",
   },
   "/highly-probable/10/Science": {
     title: "Class 10 Science Predicted Questions for Boards 2027 | LazyTopper",
     description:
-      "The question patterns that recur most on CBSE Class 10 Science boards, chapter by " +
-      "chapter, from 10 years of papers. Patterns to practise, not the exact 2027 paper.",
+      "Question patterns that recur most in CBSE Class 10 Science boards, chapter by " +
+      "chapter, from 10 years of papers. Patterns to practise, not the 2027 paper.",
   },
   "/legal/privacy": {
     title: "Privacy Policy | LazyTopper",

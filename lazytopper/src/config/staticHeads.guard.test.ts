@@ -155,22 +155,6 @@ function renderedLength(value: string): number {
 
 const BASENAME = "/app";
 
-/** The per-page description cap, in RENDERED characters (same as the shell's). */
-const DESCRIPTION_CAP = 155;
-
-/**
- * ⚠ NAMED EXCEPTIONS TO THE 155 CAP — exactly these paths, nothing prefix-shaped.
- * OWNER RULING (SEO-3 §2 S2, exact text; controller decision D1, wave B-9): the
- * two Predicted Questions descriptions ship WORD FOR WORD as the owner wrote them
- * (161 / 163 rendered characters) rather than paraphrased to fit.
- * [FU-SEO3-HPQ-DESC-OVER-CAP]. Each is still held to a TIGHT cap of 165, so the
- * exception cannot quietly grow; every other advertised path keeps 155.
- */
-const DESCRIPTION_CAP_EXCEPTIONS: Readonly<Record<string, number>> = {
-  "/highly-probable/10/Maths": 165,
-  "/highly-probable/10/Science": 165,
-};
-
 describe("static heads — every advertised URL is stamped with its OWN address", () => {
   it("names its subject on every run, green included", () => {
     const paths = sitemapPaths();
@@ -243,13 +227,10 @@ describe("static heads — every advertised URL is stamped with its OWN address"
       // `src/config/domain.guard.test.ts` caps the shell's description at 155
       // RENDERED characters. A page-specific one is no different to a search
       // engine, so it is held to the same cap here, decoded the same way.
-      // The ONLY exceptions are the named paths in DESCRIPTION_CAP_EXCEPTIONS, each
-      // with its own tight cap.
-      const cap = DESCRIPTION_CAP_EXCEPTIONS[path] ?? DESCRIPTION_CAP;
       expect(
         renderedLength(descriptionOf(html) as string),
-        `${path} description exceeds ${cap} rendered characters`,
-      ).toBeLessThanOrEqual(cap);
+        `${path} description exceeds 155 rendered characters`,
+      ).toBeLessThanOrEqual(155);
 
       // ★ THE LINK PREVIEW READS THESE FOUR, AND A SCRAPER RUNS NO JAVASCRIPT.
       // Whatever is stamped here is what WhatsApp shows. Before this lane all 32
