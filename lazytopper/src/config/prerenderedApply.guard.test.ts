@@ -65,7 +65,11 @@ describe("fragmentPathFor", () => {
  * over a synthetic build and prove the split.
  */
 describe("applyArtifact — the landing fills index.html, __shell.html stays clean", () => {
-  const SHELL = '<!doctype html><html><head><title>t</title></head><body><div id="root"></div></body></html>';
+  // ROOT-URL-1 PR-2 (S1): the built shell carries index.html's robots meta, which the
+  // apply step flips to noindex in the __shell.html copy only.
+  const SHELL =
+    '<!doctype html><html><head><title>t</title><meta name="robots" content="index,follow,max-image-preview:large" /></head><body><div id="root"></div></body></html>';
+  const NOINDEX_SHELL = SHELL.replace('content="index,', 'content="noindex,');
   const LANDING = "<main><h1>Full marks<em>milenge kya?</em></h1><p>Upload your answer.</p></main>";
 
   function syntheticBuild(): { out: string; art: string; cleanup: () => void } {
@@ -99,7 +103,7 @@ describe("applyArtifact — the landing fills index.html, __shell.html stays cle
       const shell = readFileSync(join(out, SPA_SHELL), "utf8");
       const index = readFileSync(join(out, "index.html"), "utf8");
 
-      expect(shell).toBe(SHELL);
+      expect(shell).toBe(NOINDEX_SHELL);
       expect(shell).toContain('<div id="root"></div>');
       expect(shell).not.toContain("Full marks");
       expect(index).toContain("<h1>Full marks<em>milenge kya?</em></h1>");
@@ -118,7 +122,7 @@ describe("applyArtifact — the landing fills index.html, __shell.html stays cle
     try {
       rmSync(art, { recursive: true, force: true });
       expect(applyArtifact(out, art, ["/", "/pricing"]).applied).toBe(0);
-      expect(readFileSync(join(out, SPA_SHELL), "utf8")).toBe(SHELL);
+      expect(readFileSync(join(out, SPA_SHELL), "utf8")).toBe(NOINDEX_SHELL);
     } finally {
       cleanup();
     }

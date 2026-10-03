@@ -2,17 +2,22 @@
 import { describe, it, expect } from "vitest";
 
 import {
+  NOTES_BLURB_SHORTENED,
+  NOTE_SPECS_DIR,
   STATIC_PAGE_HEADS,
   applyHead,
   escapeAttr,
   escapeText,
   headForPath,
+  ncertLabel,
   templateDescription,
   templateTitle,
 } from "../../scripts/seo/writeStaticHeads";
 import { canonicalFor } from "./canonicalUrl";
 import { sitemapPaths } from "./sitemapUrls";
 import { allDesktopTopics } from "../lib/desktop/topics";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 /**
  * GUARD — the post-build static-head writer, `scripts/seo/writeStaticHeads.ts`.
@@ -449,8 +454,19 @@ describe("static heads — the writer refuses to no-op silently", () => {
       const topic = allDesktopTopics().find((t) => t.slug === slug);
       const head = headForPath(path);
       expect(head, `${path} has no head`).not.toBeNull();
-      expect(head?.title).toBe(`${topic?.name} — Class 10 Notes & Board Questions | LazyTopper`);
-      expect(head?.description).toBe(topic?.blurb);
+      expect(head?.title).toBe(
+        `${ncertLabel(slug)} — Class 10 Notes & Board Questions | LazyTopper`,
+      );
+      // Two blurbs are shortened for the 155 cap (NOTES_BLURB_SHORTENED); each shortened
+      // text must be the original with words DELETED, never added (checked below).
+      const shortened = NOTES_BLURB_SHORTENED[slug];
+      expect(head?.description).toBe(`${ncertLabel(slug)} — ${shortened ?? topic?.blurb}`);
+      if (shortened) {
+        const original = (topic?.blurb ?? "").toLowerCase().replace(/[.,]/g, "").split(/\s+/);
+        for (const word of shortened.toLowerCase().replace(/[.,]/g, "").split(/\s+/)) {
+          expect(original, `${slug}: shortened text adds "${word}"`).toContain(word);
+        }
+      }
       expect(head?.title, `${path} shares its topic hub's title`).not.toBe(
         headForPath(`/topic-hub/${slug}`)?.title,
       );
@@ -472,5 +488,93 @@ describe("static heads — the writer refuses to no-op silently", () => {
     expect(templateDescription(SHELL)).toBe("Free CBSE Class 10 Maths &amp; Science prep.");
     expect(templateTitle("<head></head>")).toBe("");
     expect(templateDescription("<head></head>")).toBe("");
+  });
+});
+
+/**
+ * ROOT-URL-1 PR-2 (SEO-4, S2) — EVERY NOTES PAGE NAMES ITS NCERT CHAPTER.
+ *
+ * Two witnesses, so neither a writer bug nor a spec typo can pass:
+ *   1. the note's own spec, `notes/specs/<slug>.json` `meta.chapter_no` + `meta.title`,
+ *      read HERE independently of `ncertLabel` (the writer's reader);
+ *   2. a pinned table of the NCERT 2026-27 chapter numbers (rationalised Class 10
+ *      Mathematics and Science textbooks), which the spec must agree with.
+ */
+const NCERT_CHAPTER_PIN: Readonly<Record<string, number>> = {
+  "real-numbers": 1,
+  polynomials: 2,
+  "pair-of-linear-equations": 3,
+  "quadratic-equations": 4,
+  "arithmetic-progression": 5,
+  triangles: 6,
+  "coordinate-geometry": 7,
+  trigonometry: 8,
+  circles: 10,
+  "areas-related-to-circles": 11,
+  "surface-areas-and-volumes": 12,
+  statistics: 13,
+  probability: 14,
+  "chemical-reactions-and-equations": 1,
+  "acids-bases-and-salts": 2,
+  "metals-and-non-metals": 3,
+  "carbon-and-its-compounds": 4,
+  "life-processes": 5,
+  "control-and-coordination": 6,
+  "how-do-organisms-reproduce": 7,
+  heredity: 8,
+  "light-reflection-and-refraction": 9,
+  "human-eye-and-colourful-world": 10,
+  electricity: 11,
+  "magnetic-effects-of-electric-current": 12,
+  "our-environment": 13,
+};
+
+describe("SEO-4 S2 — every notes page title and description names its NCERT chapter", () => {
+  const notes = sitemapPaths().filter((p) => p.startsWith("/notes/"));
+
+  it("names its subject on every run, green included", () => {
+    // eslint-disable-next-line no-console
+    console.log(`NOTES_NCERT_GUARD_SCOPE: notes=${notes.length} pinned=${Object.keys(NCERT_CHAPTER_PIN).length}`);
+    expect(notes.length).toBe(26);
+    expect(Object.keys(NCERT_CHAPTER_PIN).sort()).toEqual(notes.map((p) => p.slice(7)).sort());
+  });
+
+  it("each title and description carries the correct NCERT Ch. N · <chapter name>, description ≤155", () => {
+    for (const path of notes) {
+      const slug = path.slice("/notes/".length);
+      const spec = JSON.parse(readFileSync(join(NOTE_SPECS_DIR, `${slug}.json`), "utf8")) as {
+        meta: { chapter_no: number; title: string };
+      };
+      expect(spec.meta.chapter_no, `${slug}: spec disagrees with the NCERT pin`).toBe(
+        NCERT_CHAPTER_PIN[slug],
+      );
+      const expected = `NCERT Ch. ${NCERT_CHAPTER_PIN[slug]} · ${spec.meta.title}`;
+      const head = headForPath(path);
+      expect(head, `${path} has no head`).not.toBeNull();
+      expect(head?.title.startsWith(`${expected} — `), `${path} title: ${head?.title}`).toBe(true);
+      expect(head?.description.startsWith(`${expected} — `), `${path} desc: ${head?.description}`).toBe(true);
+
+      const html = applyHead(SHELL, {
+        path,
+        url: canonicalFor(path, BASENAME),
+        ...(head as { title: string; description: string }),
+      });
+      expect(titleOf(html), `${path} stamped title`).toBe(escapeText(head?.title ?? ""));
+      expect(descriptionOf(html), `${path} stamped description`).toBe(escapeAttr(head?.description ?? ""));
+      expect(
+        renderedLength(descriptionOf(html) as string),
+        `${path} description exceeds 155 rendered characters`,
+      ).toBeLessThanOrEqual(155);
+    }
+  });
+
+  it("CONTROL — a wrong chapter number is caught", () => {
+    const head = headForPath("/notes/trigonometry");
+    expect(head?.title.startsWith("NCERT Ch. 9 · ")).toBe(false);
+    expect(head?.title.startsWith("NCERT Ch. 8 · Introduction to Trigonometry — ")).toBe(true);
+  });
+
+  it("ncertLabel throws for a slug with no spec, rather than dropping the chapter", () => {
+    expect(() => ncertLabel("does-not-exist")).toThrow(/no note spec/);
   });
 });
