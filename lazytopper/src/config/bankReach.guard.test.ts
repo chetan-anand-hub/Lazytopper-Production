@@ -158,11 +158,13 @@ describe("BANK-LEAN-1 · pages that serve no bank questions do not reach canonic
 
   it("every protected module is the one App.tsx actually lazy-loads under that name", () => {
     // A route re-pointed at a different file would leave this guard walking a dead one.
-    const app = readFileSync(resolve(SRC, "App.tsx"), "utf8");
+    // Plain substring match on whitespace-collapsed source (no regex built from data).
+    const collapse = (s: string) => s.replace(/\s+/g, " ");
+    const app = collapse(readFileSync(resolve(SRC, "App.tsx"), "utf8"));
     for (const [name, file] of Object.entries(PROTECTED)) {
       const spec = `./${file.replace(/\.tsx?$/, "")}`;
-      const re = new RegExp(`const ${name}\\s*=\\s*lazy\\(\\s*\\(\\)\\s*=>\\s*import\\("${spec.replace(/[./]/g, "\\$&")}"\\)`);
-      expect(app, `App.tsx no longer lazy-loads ${name} from ${spec}`).toMatch(re);
+      const expected = collapse(`const ${name} = lazy(() => import("${spec}"))`);
+      expect(app.includes(expected), `App.tsx no longer lazy-loads ${name} from ${spec}`).toBe(true);
       expect(existsSync(resolve(SRC, file)), `${file} does not exist`).toBe(true);
     }
   });
