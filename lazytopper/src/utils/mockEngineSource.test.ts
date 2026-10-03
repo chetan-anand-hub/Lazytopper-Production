@@ -1,18 +1,19 @@
 // src/utils/mockEngineSource.test.ts
 //
 // AI-tier FU-RANK-MOCKS-HPQ — proves the soft AI-lower ranking PR2a added to the
-// practice paths now also governs the MOCK selection primitives:
+// practice paths now also governs the MOCK selection primitive:
 //   - Full Mock   -> unlimitedPaperEngine.weightedSelect
-//   - Topic Mock  -> topicMockEngine.weightedShuffleByScore
-// Both reuse PR2a's single SOURCE_MULTIPLIER via getSourceMultiplier (no fork).
+// It reuses PR2a's single SOURCE_MULTIPLIER via getSourceMultiplier (no fork).
+// (CLEANUP-2: the Topic Mock half — topicMockEngine.weightedShuffleByScore — was deleted
+// with topicMockEngine.ts, an orphan nothing live imported.)
 //
-// The two engine primitives are pure given their rng (no DOM/localStorage), so
+// The engine primitive is pure given their rng (no DOM/localStorage), so
 // this runs DOM-free. (CI's quality-gate does NOT run vitest — run in Codespaces:
 //   node node_modules/vitest/vitest.mjs run src/utils/mockEngineSource.test.ts )
 //
 // What it proves:
 //   1. Tier order is soft: authentic 1.0 > predicted 0.6 > ai-generated 0.3, none 0.
-//   2. Per slot, authentic is PREFERRED over equal-base AI (both engines).
+//   2. Per slot, authentic is PREFERRED over equal-base AI.
 //   3. SOFT: an authentic-thin / all-AI slot still fills with AI (never empty).
 //   4. Count/structure integrity: selection only reorders — the candidate that
 //      fills a slot is always returned while candidates remain.
@@ -25,7 +26,6 @@ import {
   type QuestionSource,
 } from "../data/predictionCore";
 import { weightedSelect } from "./unlimitedPaperEngine";
-import { weightedShuffleByScore } from "./topicMockEngine";
 
 // Minimal valid CanonicalQuestion carrying the runtime `_source` stamp that
 // getAllQuestions() attaches at ingest.
@@ -70,39 +70,6 @@ describe("SOURCE_MULTIPLIER tier order (reused by mocks)", () => {
     expect(a).toBeGreaterThan(p);
     expect(p).toBeGreaterThan(ai);
     expect(ai).toBeGreaterThan(0); // soft — never excluded
-  });
-});
-
-describe("Topic Mock — weightedShuffleByScore per-slot demotion", () => {
-  it("ranks authentic ahead of predicted ahead of AI at equal base score", () => {
-    // Constant rng removes the shuffle jitter so the source term is decisive.
-    const rng = () => 0.5;
-    const pool = [mk("ai", "ai-generated"), mk("pred", "predicted"), mk("auth", "authentic")];
-    const ranked = weightedShuffleByScore(pool, rng);
-    expect(ranked.map(sourceOf)).toEqual(["authentic", "predicted", "ai-generated"]);
-  });
-
-  it("SOFT: an all-AI section pool still ranks (and fills) every slot", () => {
-    const rng = lcg(7);
-    const pool = [mk("ai1", "ai-generated"), mk("ai2", "ai-generated"), mk("ai3", "ai-generated")];
-    const ranked = weightedShuffleByScore(pool, rng);
-    // No question dropped — structure/count preserved; the slot still fills.
-    expect(ranked).toHaveLength(3);
-    expect(ranked.every((q) => sourceOf(q) === "ai-generated")).toBe(true);
-  });
-
-  it("authentic-thin: the lone authentic leads, AI still present to fill the rest", () => {
-    const rng = () => 0.5;
-    const pool = [
-      mk("ai1", "ai-generated"),
-      mk("ai2", "ai-generated"),
-      mk("auth", "authentic"),
-      mk("ai3", "ai-generated"),
-    ];
-    const ranked = weightedShuffleByScore(pool, rng);
-    expect(sourceOf(ranked[0])).toBe("authentic"); // preferred for slot 1
-    expect(ranked).toHaveLength(4); // remaining slots still fillable by AI
-    expect(ranked.slice(1).every((q) => sourceOf(q) === "ai-generated")).toBe(true);
   });
 });
 

@@ -20,7 +20,6 @@ import {
   predictCbsePhase2Date,
   predictCbsePhase2End,
 } from "../services/cbseExamDate";
-import { cbseDates } from "./cbseDates";
 
 /** Noon IST on the given calendar date. */
 function istNoon(isoDate: string): Date {
@@ -117,15 +116,6 @@ describe("PHASE2-DATE-1 — phase 2 is 15 May of the board cycle; rolls over aft
     expect(at(new Date(instant), () => predictCbsePhase2Date())).toBe(expected);
   });
 
-  it.each(DATES)("%s — cbseDates.*.phase2 (SprintDashboard / Onboarding) == predictCbsePhase2Date()", (date) => {
-    const now = istNoon(date);
-    at(now, () => {
-      expect(cbseDates.class10.phase2).toBe(predictCbsePhase2Date("10"));
-      expect(cbseDates.class12.phase2).toBe(predictCbsePhase2Date("12"));
-      expect(cbseDates.class10.phase2).toBe(predictCbsePhase2Date());
-    });
-  });
-
   it.each(DATES)("%s — fetchCbsePhase2Date / getPhaseDeadline follow the predictor", (date) => {
     const now = istNoon(date);
     at(now, () => {
@@ -138,7 +128,6 @@ describe("PHASE2-DATE-1 — phase 2 is 15 May of the board cycle; rolls over aft
     const now = istNoon("2026-09-28");
     expect(at(now, () => predictCbseExamDate("10"))).toBe("2027-02-17");
     expect(at(now, () => predictCbsePhase2Date())).toBe("2027-05-15");
-    expect(at(now, () => cbseDates.class10.phase2)).toBe("2027-05-15");
     expect(at(now, () => predictCbsePhase2End())).toBe("2027-06-01");
   });
 
@@ -158,7 +147,6 @@ describe("PHASE2-DATE-1 — phase 2 is 15 May of the board cycle; rolls over aft
   it("rollover — 18 Feb and 1 Mar keep this year's 15 May (was next year's under a board-day rollover)", () => {
     expect(at(istNoon("2027-02-18"), () => predictCbsePhase2Date())).toBe("2027-05-15");
     expect(at(istNoon("2027-03-01"), () => predictCbsePhase2Date())).toBe("2027-05-15");
-    expect(at(istNoon("2027-03-01"), () => cbseDates.class10.phase2)).toBe("2027-05-15");
   });
 
   it("CONTROL — the comparison can fail: 15 May and 16 May predict different years", () => {

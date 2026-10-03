@@ -4,13 +4,14 @@
 // CBSE board start date, and before this lane they disagreed (17 / 17 / 15-or-16 Feb):
 //
 //   client  `src/services/cbseExamDate.ts`      predictCbseExamDate(cls)   — landing countdown,
-//                                                                            pricing page, cbseDates
+//                                                                            pricing page
 //   server  `server/services/cbseExamDate.cjs`  predictCbseExamDate(cls, now) — `/api/cbse-exam-date`
 //                                                                            fallback
 //   pricing `server/services/passPricing.cjs`   predictBoardDateIso(now)    — pass grant (class 10)
 //
 // This suite asserts all three return the SAME ISO date at every dated instant, for class 10
-// and class 12, and that `cbseDates` (SprintDashboard / Onboarding) reads the same value.
+// and class 12. (CLEANUP-2: the `cbseDates` case left with `src/config/cbseDates.ts`, deleted
+// with its only consumer, the retired Onboarding page.)
 // Move the server fallback day off 17 and this file turns red.
 //
 // ★ Every client-comparable `now` is NOON IST (06:30Z) on the named calendar date, so the
@@ -23,7 +24,6 @@ import { createRequire } from "node:module";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { predictCbseExamDate } from "../services/cbseExamDate";
-import { cbseDates } from "./cbseDates";
 
 const require = createRequire(import.meta.url);
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -117,20 +117,6 @@ describe("BOARD-DATE-1 D3 — client, /api/cbse-exam-date fallback and pass pric
   it.each(IST_EDGE_INSTANTS)("D3 IST edge %s — server fallback = passPricing", (instant) => {
     const now = new Date(instant);
     expect(serverRoute.predictCbseExamDate("10", now)).toBe(passPricing.predictBoardDateIso(now));
-  });
-
-  it.each(DATES)("D2 %s — cbseDates (SprintDashboard / Onboarding) reads the client predictor", (date) => {
-    const now = istNoon(date);
-    vi.useFakeTimers({ toFake: ["Date"] });
-    vi.setSystemTime(now);
-    try {
-      const expected = predictCbseExamDate("10");
-      expect(cbseDates.class10.boardExam).toBe(expected);
-      expect(cbseDates.class10.phase1).toBe(expected);
-      expect(cbseDates.class12.boardExam).toBe(predictCbseExamDate("12"));
-    } finally {
-      vi.useRealTimers();
-    }
   });
 
   it("anchor — on 2026-09-28 IST every predictor says 2027-02-17 (17 February, both classes)", () => {

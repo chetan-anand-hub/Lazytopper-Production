@@ -32,24 +32,11 @@ const DATA = resolve(SRC, "data");
 const TEST_DIR = resolve(SRC, "test");
 
 /** An entry needs a one-line reason. Paths relative to lazytopper/. */
-export const ALLOWED_ORPHANS: Record<string, string> = {
-  // Bank consumers (import canonicalQuestionBank / predictionDataService / predictionCore):
-  // kept for Controller A's BANK-SPLIT-1, which owns every bank consumer. Delete them there.
-  "src/services/dailyMixService.ts": "bank consumer — Controller A scope",
-  "src/pages/app/Worksheets.tsx": "bank consumer — Controller A scope",
-  "src/pages/desktop/DesktopWorksheetsPage.tsx": "bank consumer — Controller A scope",
-  "src/prediction/difficultyAwarePractice.ts": "bank consumer — Controller A scope",
-  "src/utils/topicMockEngine.ts": "bank consumer — Controller A scope",
-  // Imported by a kept bank consumer above; deleting it would break that file's compile.
-  "src/components/desktop/l2/BackToParent.tsx": "imported by a kept bank consumer — Controller A scope",
-  "src/components/desktop/l2/ContextBar.tsx": "imported by a kept bank consumer — Controller A scope",
-  "src/components/desktop/l2/MistakeIntelligencePanel.tsx": "imported by a kept bank consumer — Controller A scope",
-  "src/lib/desktop/mistakeData.ts": "imported by a kept bank consumer — Controller A scope",
-  "src/lib/desktop/savedWorksheets.ts": "imported by a kept bank consumer — Controller A scope",
-  "src/services/dailyMixGenerator.ts": "imported by a kept bank consumer — Controller A scope",
-  "src/services/dailyMixPlayback.ts": "imported by a kept bank consumer — Controller A scope",
-  "src/services/worksheetProfileService.ts": "imported by a kept bank consumer — Controller A scope",
-};
+// CLEANUP-2 (wave B-11): EMPTY. The 13 bank-consumer files FRICTION-FIX-1 kept here while
+// BANK-SPLIT-1 ran (Daily Mix, the old Worksheets pages and their helpers) were deleted once
+// that lane closed, by owner ruling. Every src file must now be reachable from a live root.
+// The reason-required rule below still applies to any entry a future lane adds.
+export const ALLOWED_ORPHANS: Record<string, string> = {};
 
 const SKIP_DIRS = new Set(["node_modules", "dist", ".git"]);
 const CODE = /\.(ts|tsx|js|jsx|mjs|cjs|mts|cts)$/;
