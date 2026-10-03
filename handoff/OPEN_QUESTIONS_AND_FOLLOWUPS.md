@@ -23,6 +23,22 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-03 — WAVE B-9 (CONTROLLER B): SEO-3 (`#906` `3cf75853`) — one new, two closed
+
+Sources: the builder's report (`Desktop/diff/report-seo-3-step1-2026-10-03.md`, "FU IDS") and the controller's state file (`Desktop/diff/WAVE_STATE_B9.md`, "FU ENTRIES COLLECTED" and "HANDOFF DRAFT (filled)"). **Neither closed id had an entry on this board** (`grep` of `handoff/` at `3cf75853` *(docs-builder-verified)*): `[FU-SEO3-HPQ-DESC-OVER-CAP]` was raised and closed inside this wave, and `[FU-LLMS-PIN-ONE-WAY]` was named in the owner's audit of `#904` and in spec `SEO-3` (it is the "the sitemap side is not pinned the other way" note in the WAVE A-9 block of `NEXT_ACTION.md`). Each is recorded here as opened and closed, so no dated entry is edited (standing rule 3).
+
+### `[FU-QG-BUILD-MASKS-VITEST]` — OPEN *(builder-reported, `#906` step 1; owner wording)*
+- Owner: "When Build fails, Quality Gate skips the tests, so a guard failure in the same PR becomes invisible. Worth fixing later."
+- Provenance: seen on `#906` step 1, quality-gate run `37092664662` (head `0f4bef4e`, conclusion `failure` *(docs-builder-verified)*). It failed at "Build (lazytopper)" (`applyPrerendered` refused the partial artifact), and the Ops matrix, Typecheck test files, Vitest suites and Test clock ×2 steps were skipped. The `staticHeads.guard` 155-cap failure in the same PR showed only in the builder's local run.
+
+### `[FU-SEO3-HPQ-DESC-OVER-CAP]` — CLOSED by owner ruling D2 *(builder-reported / controller-verified)*
+- Opened in `#906` step 1: the owner's S2 HPQ descriptions rendered at 161 (Maths) / 163 (Science) characters against the 155 cap in `staticHeads.guard.test.ts`.
+- D1 (controller, OR-AUTO) kept the text with a named two-path exception; the owner reversed it (D2): shorter descriptions (151 / 153), the exception deleted, a uniform 155 cap. M5 proved the cap still bites (padding the Maths description → 159 → red). On trunk `3cf75853` the D2 text is in `writeStaticHeads.ts:122-133` *(docs-builder-verified)*.
+
+### `[FU-LLMS-PIN-ONE-WAY]` — CLOSED by `#906` arm (e) *(builder-reported / controller-verified)*
+- From the owner's audit of `#904`: the `llms.txt` pin was one-way, so a sitemap page missing from `llms.txt` passed.
+- `#906` added `llmsTxt.guard.test.ts` arm (e) "every sitemap URL is in llms.txt" (`:87` on trunk *(docs-builder-verified)*). M1 (delete the Real Numbers notes line) turned only arm (e) red. CI on `1f3689e0`: `LLMS_PIN: urls=62 sitemap=62` *(controller-verified)*.
+
 ## 2026-10-03 — WAVE A-10 (CONTROLLER A): BANK-LEAN-1 (`#907` `4f51da9f`) — three new, none closed
 
 Bodies are the builder's text from `Desktop/diff/report-bank-lean-1-2026-10-03.md` §10; the controller's state file (`Desktop/diff/WAVE_STATE_A10.md`, "FU ENTRIES COLLECTED") lists the same three ids. No open FU on this board is plainly closed by `#907`.

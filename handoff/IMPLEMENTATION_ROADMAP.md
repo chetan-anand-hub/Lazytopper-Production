@@ -1,5 +1,14 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-03 — SEO: **WAVE B-9 — SEO-3** — `#906` MERGED — trunk `3cf75853`
+
+- ✅ **SEO-3** (`#906` `3cf75853`, LIVE since 11:57:40 IST, no flag): `/app/highly-probable/10/Maths` and `/Science` are self-canonical with their own titles and descriptions, prerendered with all 70 questions each, and advertised in `sitemap.xml` (60 → 62) and `llms.txt` (sha256 `57E869074477`, 9,870 B).
+- ✅ **Notes titles:** every notes page is titled "<Topic> — Class 10 Notes & Board Questions | LazyTopper".
+- ✅ **`llms.txt` ⇄ sitemap pinned both ways:** `llmsTxt.guard.test.ts` arm (e) "every sitemap URL is in llms.txt" (`LLMS_PIN: urls=62 sitemap=62`), mutation-proven (M1).
+- ✅ **Owner ruling D2:** HPQ descriptions 151 / 153 characters inside the uniform 155 cap; the D1 exception deleted.
+- ✅ **FUs:** one new (`[FU-QG-BUILD-MASKS-VITEST]`), two closed (`[FU-SEO3-HPQ-DESC-OVER-CAP]`, `[FU-LLMS-PIN-ONE-WAY]`).
+- ✅ **Docs:** this handoff (covers `#906`).
+
 ## 2026-10-03 — PERF + PREDICTED QUESTIONS: **WAVE A-10 — BANK-LEAN-1** — `#907` MERGED — trunk `4f51da9f`
 
 - ✅ **BANK-LEAN-1** (`#907` `4f51da9f`, LIVE, no flag): Check & Improve, Topic Hub, signed-in Home, Predicted Questions and Practice Hub no longer load the ~8.6 MB (decoded) question bank on first load. Production: bank on first load 5/5 → 0/5; first loads about 10–12 MB → about 1.2–1.9 MB decoded (3.3 MB for signed-out Check & Improve).
