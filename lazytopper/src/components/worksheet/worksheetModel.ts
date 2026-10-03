@@ -40,6 +40,7 @@ import {
 import type { LTSubjectKey } from "../../data/predictionTypes";
 import { class10TopicByName } from "../../data/class10MathTopicWeights";
 import { class10ScienceTopicTrends } from "../../data/class10ScienceTopicTrends";
+import { questionKey } from "../../utils/questionKey";
 
 export type PaperScope = "topic" | "multi-topic" | "full-subject";
 export type ScienceStream = "All" | "Physics" | "Chemistry" | "Biology";
@@ -601,6 +602,9 @@ function orderPoolBySectionBoost(
  */
 export function generateFromPlan(plan: WorksheetPlan): PracticeQuestion[] {
   const seen = new Set<string>();
+  // NO REPEATS IN A SET (BANK-SPLIT-1): the id check stays; the questionKey check
+  // catches the same question filed under two ids.
+  const seenKeys = new Set<string>();
   const collected: PracticeQuestion[] = [];
   for (const row of plan.rows) {
     if (row.allocated <= 0) continue;
@@ -612,8 +616,10 @@ export function generateFromPlan(plan: WorksheetPlan): PracticeQuestion[] {
     let taken = 0;
     for (const q of ordered) {
       if (taken >= row.allocated) break;
-      if (seen.has(q.id)) continue;
+      const key = questionKey(q);
+      if (seen.has(q.id) || seenKeys.has(key)) continue;
       seen.add(q.id);
+      seenKeys.add(key);
       collected.push(q);
       taken += 1;
     }
