@@ -22,8 +22,8 @@ import {
  *
  * `window.gtag` is stubbed exactly as the index.html block defines it — every call is
  * pushed onto `window.dataLayer` — so what these tests read IS the dataLayer gtag.js
- * would consume. The basename is stubbed to the production value (`/app/`, vite.config.ts)
- * because the redaction depends on it: `/app/u/<token>` only matches normalisePath's
+ * would consume. The basename is stubbed to the production value (`/base/`, vite.config.ts)
+ * because the redaction depends on it: `/base/u/<token>` only matches normalisePath's
  * `^/u/` rule once the basename is stripped.
  *
  * ★ Mutation M3 (optional) — stop keeping `gclid` in ga4AdParams -> this file goes red.
@@ -65,7 +65,9 @@ function events(): unknown[][] {
 let vercel: Array<[string, Record<string, unknown>]>;
 
 beforeEach(() => {
-  vi.stubEnv("BASE_URL", "/app/");
+  // A stubbed, NON-EMPTY base exercises the basename stripping; production's base is "/"
+  // (empty basename) since ROOT-URL-1, where routerPathOf is the identity.
+  vi.stubEnv("BASE_URL", "/base/");
   w.dataLayer = [];
   w.gtag = function gtag() {
     // eslint-disable-next-line prefer-rest-params
@@ -74,7 +76,7 @@ beforeEach(() => {
   vercel = [];
   w.va = (kind: string, payload: Record<string, unknown>) => vercel.push([kind, payload]);
   Object.defineProperty(window.navigator, "webdriver", { configurable: true, value: false });
-  setLocation("/app/notes/electricity?gclid=Cj0-G1&utm_source=google&oobCode=SECRET&email=a%40b.c");
+  setLocation("/base/notes/electricity?gclid=Cj0-G1&utm_source=google&oobCode=SECRET&email=a%40b.c");
   setReferrer("https://www.google.com/search?q=private+words");
 });
 
@@ -90,9 +92,9 @@ afterEach(() => {
 
 describe("GA4 — the precondition these tests stand on", () => {
   it("the stubbed basename is the one routerPathOf/ga4PageLocation read", () => {
-    expect(import.meta.env.BASE_URL).toBe("/app/");
-    expect(routerPathOf("/app/u/abc")).toBe("/u/abc");
-    expect(ga4PageLocation("/", "", ORIGIN)).toBe(`${ORIGIN}/app/`);
+    expect(import.meta.env.BASE_URL).toBe("/base/");
+    expect(routerPathOf("/base/u/abc")).toBe("/u/abc");
+    expect(ga4PageLocation("/", "", ORIGIN)).toBe(`${ORIGIN}/base/`);
   });
 });
 
@@ -102,7 +104,7 @@ describe("GA4 — page views (G2 + G3)", () => {
     const layer = dataLayer();
     expect(layer.map((e) => e[0])).toEqual(["set", "event"]);
     const expected = {
-      page_location: `${ORIGIN}/app/notes/electricity?gclid=Cj0-G1&utm_source=google`,
+      page_location: `${ORIGIN}/base/notes/electricity?gclid=Cj0-G1&utm_source=google`,
       page_referrer: "https://www.google.com/",
     };
     expect(layer[0]).toEqual(["set", expected]);
@@ -110,14 +112,14 @@ describe("GA4 — page views (G2 + G3)", () => {
   });
 
   it("★ every hit keeps gclid and utm_*, and nothing else from the query or the hash", () => {
-    setLocation("/app/pricing?utm_medium=cpc&oobCode=SECRET&gclid=G2&continueUrl=x#frag");
+    setLocation("/base/pricing?utm_medium=cpc&oobCode=SECRET&gclid=G2&continueUrl=x#frag");
     trackPageview("/pricing");
     trackSignUp();
     const hits = dataLayer();
     expect(hits.length).toBeGreaterThan(0);
     for (const hit of hits) {
       const params = hit[hit.length - 1] as Record<string, string>;
-      expect(params.page_location).toBe(`${ORIGIN}/app/pricing?utm_medium=cpc&gclid=G2`);
+      expect(params.page_location).toBe(`${ORIGIN}/base/pricing?utm_medium=cpc&gclid=G2`);
       expect(params.page_location).toContain("gclid=G2");
     }
     const sent = JSON.stringify(hits);
@@ -128,15 +130,15 @@ describe("GA4 — page views (G2 + G3)", () => {
 
   it("★★ a navigation to /u/<token> produces NO dataLayer entry containing the token", () => {
     const token = "e".repeat(64);
-    setLocation(`/app/u/${token}`);
-    setReferrer(`${ORIGIN}/app/u/${token}`);
+    setLocation(`/base/u/${token}`);
+    setReferrer(`${ORIGIN}/base/u/${token}`);
     trackPageview(`/u/${token}`);
     trackSignUp();
     const sent = JSON.stringify(dataLayer());
     expect(sent).not.toContain(token);
     // CONTROL — hits WERE sent, so the absence of the token is not the absence of data.
     expect(events()).toHaveLength(2);
-    expect(sent).toContain(`${ORIGIN}/app/u/:token`);
+    expect(sent).toContain(`${ORIGIN}/base/u/:token`);
   });
 
   it("the Vercel binding is unchanged by GA4 (same call, same payload)", () => {
@@ -193,7 +195,7 @@ describe("GA4 — never breaks the page, never runs where it must not", () => {
   });
 
   it("CONTROL — the loopback capture origin sends GA4 nothing", () => {
-    setLocation("/app/", "127.0.0.1");
+    setLocation("/base/", "127.0.0.1");
     trackPageview("/");
     trackSignUp();
     expect(dataLayer()).toEqual([]);
@@ -212,15 +214,15 @@ describe("GA4 — the pure redaction functions", () => {
   it("ga4PageReferrer keeps the origin only, drops credentials, and blanks non-http referrers", () => {
     expect(ga4PageReferrer("https://www.google.com/search?q=x")).toBe("https://www.google.com/");
     expect(ga4PageReferrer("https://user:pw@evil.example:8443/p")).toBe("https://evil.example:8443/");
-    expect(ga4PageReferrer(`${ORIGIN}/app/u/${"f".repeat(64)}`)).toBe(`${ORIGIN}/`);
+    expect(ga4PageReferrer(`${ORIGIN}/base/u/${"f".repeat(64)}`)).toBe(`${ORIGIN}/`);
     expect(ga4PageReferrer("android-app://com.google.android.gm/")).toBe("");
     expect(ga4PageReferrer("")).toBe("");
   });
 
   it("routerPathOf strips only a real basename segment", () => {
-    expect(routerPathOf("/app", "/app")).toBe("/");
-    expect(routerPathOf("/app/", "/app")).toBe("/");
-    expect(routerPathOf("/apple/x", "/app")).toBe("/apple/x");
-    expect(routerPathOf("/u/tok", "/app")).toBe("/u/tok");
+    expect(routerPathOf("/base", "/base")).toBe("/");
+    expect(routerPathOf("/base/", "/base")).toBe("/");
+    expect(routerPathOf("/basement/x", "/base")).toBe("/basement/x");
+    expect(routerPathOf("/u/tok", "/base")).toBe("/u/tok");
   });
 });

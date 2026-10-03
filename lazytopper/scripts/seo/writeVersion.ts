@@ -1,5 +1,5 @@
 /**
- * THE RELEASE MARKER (SEARCHPING-2, S1). Every build publishes `/app/version.json`:
+ * THE RELEASE MARKER (SEARCHPING-2, S1). Every build publishes `/version.json`:
  *
  *   { "sha": "<the commit this build was made from>" }
  *
@@ -26,7 +26,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const LAZYTOPPER_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
-/** The marker's file name inside the built app (served at `/app/version.json`). */
+/** The marker's file name inside the built app (served at `/version.json`). */
 export const VERSION_FILE = "version.json";
 
 const FULL_SHA = /^[0-9a-f]{40}$/;

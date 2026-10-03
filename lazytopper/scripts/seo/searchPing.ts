@@ -8,7 +8,7 @@
  * ★ WAIT FOR THE RELEASE TO BE LIVE (SEARCHPING-2, S2). Vercel Rolling Releases moves traffic
  * 10% → 50% → 100% over ~15 minutes AFTER the deployment is "ready" — the moment the
  * `deployment_status` event fires. Pinging then sends crawlers to pages most of them still
- * get the old release of. So `--wait` polls `https://www.lazytopper.com/app/version.json`
+ * get the old release of. So `--wait` polls `https://www.lazytopper.com/version.json`
  * (written by `writeVersion.ts` in every build; cache-busted) until FIVE CONSECUTIVE reads
  * return this commit, for at most 30 minutes:
  *   · 5 in a row → `live=true`; the ping step runs.
@@ -55,11 +55,11 @@ export const SITEMAP_REPO_PATH = "lazytopper/public/sitemap.xml";
 /** The site's IndexNow key. Its proof file is `public/<key>.txt`, containing the key. */
 export const INDEXNOW_KEY = "a6c1861da61f4d36898e5e27a71c36d6";
 export const INDEXNOW_ENDPOINT = "https://api.indexnow.org/indexnow";
-/** The sitemap URL Google is asked to re-read (root rewrite → /app/sitemap.xml). */
+/** The sitemap URL Google is asked to re-read (served from the build root). */
 export const SITEMAP_PUBLIC_URL = "https://www.lazytopper.com/sitemap.xml";
 
 /** The release marker `writeVersion.ts` publishes in every build (S1). */
-export const VERSION_URL = "https://www.lazytopper.com/app/version.json";
+export const VERSION_URL = "https://www.lazytopper.com/version.json";
 /** S2 — consecutive reads of this commit that make the release count as live. */
 export const REQUIRED_CONSECUTIVE_READS = 5;
 /** S2 — how long to wait for them before failing, visibly. */

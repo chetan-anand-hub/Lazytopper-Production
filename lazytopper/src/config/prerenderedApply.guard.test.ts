@@ -187,18 +187,25 @@ describe("assetRefsIn — the staleness check that runs on every platform", () =
    */
   it("finds the hashed figures a captured body points at", () => {
     const fragment =
-      '<main><img src="/app/assets/fig_11_6-CXBI_RXR.webp" alt="">' +
-      '<img src="/app/assets/fig_eye-DPGK2y3-.webp" alt=""></main>';
+      '<main><img src="/assets/fig_11_6-CXBI_RXR.webp" alt="">' +
+      '<img src="/assets/fig_eye-DPGK2y3-.webp" alt=""></main>';
 
     expect(assetRefsIn(fragment).sort()).toEqual([
-      "/app/assets/fig_11_6-CXBI_RXR.webp",
-      "/app/assets/fig_eye-DPGK2y3-.webp",
+      "/assets/fig_11_6-CXBI_RXR.webp",
+      "/assets/fig_eye-DPGK2y3-.webp",
     ]);
   });
 
+  it("★ ROOT-URL-1 — a ROOT asset path is found (the old pattern demanded a base segment and found nothing)", () => {
+    // Before ROOT-URL-1 the pattern required a segment before /assets/, so at the root
+    // it matched NOTHING and the staleness check passed vacuously. Both shapes now match.
+    expect(assetRefsIn('<img src="/assets/x-AAAAAAAA.webp">')).toEqual(["/assets/x-AAAAAAAA.webp"]);
+    expect(assetRefsIn('<img src="/base/assets/x-AAAAAAAA.webp">')).toEqual(["/base/assets/x-AAAAAAAA.webp"]);
+  });
+
   it("strips a query string, so the same asset is not reported twice", () => {
-    expect(assetRefsIn('<img src="/app/assets/f-AAAAAAAA.webp?v=2">')).toEqual([
-      "/app/assets/f-AAAAAAAA.webp",
+    expect(assetRefsIn('<img src="/assets/f-AAAAAAAA.webp?v=2">')).toEqual([
+      "/assets/f-AAAAAAAA.webp",
     ]);
   });
 
@@ -210,9 +217,9 @@ describe("assetRefsIn — the staleness check that runs on every platform", () =
    */
   it("ignores in-app navigation links, which are routes and not files", () => {
     const fragment =
-      '<a href="/app/browse">Browse</a>' +
-      '<a href="/app/chapter-test/10/Maths/trigonometry?source=topicHub">Test</a>' +
-      '<a href="/app/notes/electricity">Notes</a>';
+      '<a href="/browse">Browse</a>' +
+      '<a href="/chapter-test/10/Maths/trigonometry?source=topicHub">Test</a>' +
+      '<a href="/notes/electricity">Notes</a>';
 
     expect(assetRefsIn(fragment)).toEqual([]);
   });

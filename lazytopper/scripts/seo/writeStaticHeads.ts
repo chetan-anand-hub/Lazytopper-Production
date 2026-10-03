@@ -19,12 +19,12 @@
  * head tags substituted. Nothing executes at request time, no React renders at
  * build time, there is no hydration boundary, and THE BUNDLE IS NOT TOUCHED —
  * so product behaviour cannot change. Vercel checks the filesystem BEFORE
- * applying `rewrites`, so these files win over the `/app/:path(.*)` fallback in
+ * applying `rewrites`, so these files win over the `/:path(...)` shell fallback in
  * `vercel.json` and that rewrite keeps serving everything else.
  *
- * ⚠ BOTH FILE SHAPES ARE WRITTEN, ON PURPOSE. A request for `/app/pricing` is
- * resolved by a static host as either `app/pricing.html` or
- * `app/pricing/index.html` depending on whether clean-URL rewriting is on, and
+ * ⚠ BOTH FILE SHAPES ARE WRITTEN, ON PURPOSE. A request for `/pricing` is
+ * resolved by a static host as either `pricing.html` or
+ * `pricing/index.html` depending on whether clean-URL rewriting is on, and
  * that setting lives in Vercel project config rather than in this repo. Writing
  * one shape and guessing wrong fails SILENTLY — the rewrite serves the unmodified
  * shell and the canonical is wrong again, with a green build. Both shapes are
@@ -367,7 +367,7 @@ async function resolveOutDir(): Promise<string> {
 
   // ⚠ `vite build` SETS `NODE_ENV=production` INSIDE ITS OWN PROCESS, and
   // `vite.config.ts` branches `build.outDir` on exactly that value: production
-  // writes to `artifacts/lazytopper-app/dist/public/app`, anything else to
+  // writes to `artifacts/lazytopper-app/dist/public`, anything else to
   // `dist`. THIS SCRIPT IS A SEPARATE PROCESS in the build chain, where NODE_ENV
   // is whatever the shell happened to have — unset, in CI and on a dev box. So
   // importing the config without this line resolves `dist` while the build wrote
@@ -385,7 +385,7 @@ async function resolveOutDir(): Promise<string> {
   return resolve(LAZYTOPPER_ROOT, outDir);
 }
 
-/** `/app/` -> `/app`, matching how `main.tsx` feeds `<BrowserRouter basename>`. */
+/** `/` -> `` (a based `/x/` -> `/x`), matching how `main.tsx` feeds `<BrowserRouter basename>`. */
 async function resolveBasename(): Promise<string> {
   const viteConfig = (await import("../../vite.config")).default;
   const base = (viteConfig as { base?: string }).base;

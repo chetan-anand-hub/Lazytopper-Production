@@ -1,8 +1,13 @@
 {
   "redirects": [
     {
-      "source": "/",
-      "destination": "/app/",
+      "source": "/app",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/app/:path((?!assets/).*)",
+      "destination": "/:path",
       "permanent": true
     }
   ],
@@ -16,37 +21,21 @@
       "destination": "https://lazytopper-production-production.up.railway.app/shared-api/:path*"
     },
     {
-      "source": "/robots.txt",
-      "destination": "/app/robots.txt"
-    },
-    {
-      "source": "/sitemap.xml",
-      "destination": "/app/sitemap.xml"
-    },
-    {
-      "source": "/llms.txt",
-      "destination": "/app/llms.txt"
-    },
-    {
-      "source": "/favicon.svg",
-      "destination": "/app/favicon.svg"
-    },
-    {
-      "source": "/a6c1861da61f4d36898e5e27a71c36d6.txt",
-      "destination": "/app/a6c1861da61f4d36898e5e27a71c36d6.txt"
-    },
-    {
       "source": "/app/assets/:path(.*)",
       "destination": "/__asset-not-found__"
     },
     {
-      "source": "/app/:path(.*)",
-      "destination": "/app/__shell.html"
+      "source": "/assets/:path(.*)",
+      "destination": "/__asset-not-found__"
+    },
+    {
+      "source": "/:path((?!_vercel/|__asset-not-found__).*)",
+      "destination": "/__shell.html"
     }
   ],
   "headers": [
     {
-      "source": "/app/__shell.html",
+      "source": "/__shell.html",
       "headers": [
         {
           "key": "X-Robots-Tag",
@@ -55,7 +44,7 @@
       ]
     },
     {
-      "source": "/app/assets/:path(.*)",
+      "source": "/assets/:path(.*)",
       "headers": [
         {
           "key": "Cache-Control",

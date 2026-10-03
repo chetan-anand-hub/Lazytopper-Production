@@ -48,13 +48,13 @@ function journey(): void {
 }
 
 beforeEach(() => {
-  vi.stubEnv("BASE_URL", "/app/");
+  vi.stubEnv("BASE_URL", "/base/");
   vercel = [];
   ga4 = [];
   w.va = (kind, payload) => vercel.push([kind, payload]);
   w.gtag = (...args: unknown[]) => ga4.push(args);
   Object.defineProperty(window.navigator, "webdriver", { configurable: true, value: false });
-  setLocation("/app/notes/electricity");
+  setLocation("/base/notes/electricity");
   recordActivity.mockReset();
 });
 
@@ -74,7 +74,7 @@ describe("the activity forwarder in send()", () => {
       ["event", { name: "check_graded" }],
       ["event", { name: "sign_up" }],
     ]);
-    const page = (p: string) => ({ page_location: `${ORIGIN}/app${p}`, page_referrer: "" });
+    const page = (p: string) => ({ page_location: `${ORIGIN}/base${p}`, page_referrer: "" });
     expect(ga4).toEqual([
       ["set", page("/notes/electricity")],
       ["event", "page_view", page("/notes/electricity")],
@@ -126,7 +126,7 @@ describe("the activity forwarder in send()", () => {
   });
 
   it("in an automated/loopback context nothing is sent to anyone, the forwarder included", () => {
-    setLocation("/app/notes/electricity", "127.0.0.1");
+    setLocation("/base/notes/electricity", "127.0.0.1");
     journey();
     expect(vercel).toEqual([]);
     expect(ga4).toEqual([]);

@@ -11,7 +11,7 @@
          removing them fails that guard, and a page with no canonical at all is
          worse than one with a wrong one. Convention: the root keeps its trailing
          slash, every other path has none — matching public/sitemap.xml. -->
-    <link rel="canonical" href="https://www.lazytopper.com/app/" />
+    <link rel="canonical" href="https://www.lazytopper.com/" />
     <meta name="application-name" content="LazyTopper" />
     <meta name="theme-color" content="#0f1b33" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -27,7 +27,7 @@
     <meta name="robots" content="index,follow,max-image-preview:large" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="LazyTopper" />
-    <meta property="og:url" content="https://www.lazytopper.com/app/" />
+    <meta property="og:url" content="https://www.lazytopper.com/" />
     <meta
       property="og:title"
       content="The CBSE Class 10 tutor that already knows your mistakes"
@@ -36,7 +36,7 @@
       property="og:description"
       content="Check any answer and see exactly where the marks went. 10 years of exam trends, predicted questions, and a tutor that knows your weak spots. Start free."
     />
-    <meta property="og:image" content="https://www.lazytopper.com/app/og-image.png" />
+    <meta property="og:image" content="https://www.lazytopper.com/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -48,7 +48,7 @@
       name="twitter:description"
       content="See exactly where your marks went. An AI tutor that knows your weak spots, exam trends and predicted questions. Start free."
     />
-    <meta name="twitter:image" content="https://www.lazytopper.com/app/og-image.png" />
+    <meta name="twitter:image" content="https://www.lazytopper.com/og-image.png" />
     <title>LazyTopper — CBSE Class 10 Prep That Finds Lost Marks</title>
     <script type="application/ld+json">
       {
@@ -58,7 +58,7 @@
             "@type": "Organization",
             "name": "LazyTopper",
             "url": "https://www.lazytopper.com/",
-            "logo": "https://www.lazytopper.com/app/og-image.png"
+            "logo": "https://www.lazytopper.com/og-image.png"
           },
           {
             "@type": "WebSite",
@@ -101,20 +101,43 @@
 
          `beforeSend` is the second line of defence: the vendor stamps its own `url` on
          every event it sends, which our redaction of the `path` argument does not touch.
-         This scrubs that too. src/analytics/indexHtml.guard.test.ts reads this file from
-         disk and pins both, the way head.guard.test.ts pins the canonical tags above. -->
+         This scrubs that too, with the SAME rules as normalisePath() in
+         src/analytics/analytics.ts: query and hash dropped, /u/<token> -> /u/:token, a
+         segment carrying an email -> :email, an opaque 20+-character id -> :id (lowercase
+         kebab-case content slugs kept), no trailing slash, capped at 200. The GA4 block
+         below carries the same function, because each inline block must stand alone.
+         src/analytics/indexHtml.guard.test.ts reads this file from disk, pins both
+         properties, and RUNS both copies against normalisePath() on the same cases. -->
     <script>
       window.va =
         window.va ||
         function () {
           (window.vaq = window.vaq || []).push(arguments);
         };
-      window.va("beforeSend", function (event) {
-        if (!event || typeof event.url !== "string") return event;
-        var url = event.url.split("?")[0].split("#")[0];
-        event.url = url.replace(/\/u\/[^/]+/, "/u/:token");
-        return event;
-      });
+      (function () {
+        function ltRedactPath(p) {
+          p = String(p || "/").split("?")[0].split("#")[0];
+          if (p.charAt(0) !== "/") p = "/" + p;
+          if (/^\/u\/[^/]+.*$/.test(p)) p = "/u/:token";
+          p = p
+            .split("/")
+            .map(function (s) {
+              if (/@|%40/i.test(s)) return ":email";
+              if (/^[A-Za-z0-9_-]{20,}$/.test(s) && !/^[a-z]+(?:-[a-z0-9]+)*$/.test(s)) return ":id";
+              return s;
+            })
+            .join("/");
+          if (p.length > 1 && p.charAt(p.length - 1) === "/") p = p.slice(0, -1);
+          if (p.length > 200) p = p.slice(0, 200);
+          return p;
+        }
+        window.va("beforeSend", function (event) {
+          if (!event || typeof event.url !== "string") return event;
+          var m = /^([a-z][a-z0-9+.-]*:\/\/[^\/?#]*)?(.*)$/i.exec(event.url);
+          event.url = (m[1] || "") + ltRedactPath(m[2]);
+          return event;
+        });
+      })();
     </script>
     <script defer src="/_vercel/insights/script.js" data-disable-auto-track="1"></script>
     <!-- GOOGLE ANALYTICS 4 (GA4-1, owner rulings 2026-09-29). Measures ad conversions
@@ -129,9 +152,10 @@
          What is NOT negotiable (security, not advertising): send_page_view is false
          (page views are sent by src/analytics/, after normalisePath), and the address
          and referrer handed to Google are redacted here, by the same rule analytics.ts
-         applies to every later hit: origin + app path (no trailing slash, capped at
-         200) + ONLY gclid and utm_* query parameters, no hash; the referrer is reduced
-         to its origin.
+         applies to every later hit: origin + normalisePath(app path) (/u/:token, :email,
+         :id, no trailing slash, capped at 200) + ONLY gclid and utm_* query parameters,
+         no hash; the referrer is reduced to its origin. The app is served at the domain
+         root (ROOT-URL-1), so BASE is empty.
          src/analytics/indexHtml.guard.test.ts runs this block and pins all of it. -->
     <script>
       (function () {
@@ -149,11 +173,24 @@
           window.navigator.webdriver === true
         )
           return;
-        var BASE = "/app";
-        var path = full === BASE || full.indexOf(BASE + "/") === 0 ? full.slice(BASE.length) : full;
-        if (path.charAt(0) !== "/") path = "/" + path;
-        if (path.length > 1 && path.charAt(path.length - 1) === "/") path = path.slice(0, -1);
-        if (path.length > 200) path = path.slice(0, 200);
+        function ltRedactPath(p) {
+          p = String(p || "/").split("?")[0].split("#")[0];
+          if (p.charAt(0) !== "/") p = "/" + p;
+          if (/^\/u\/[^/]+.*$/.test(p)) p = "/u/:token";
+          p = p
+            .split("/")
+            .map(function (s) {
+              if (/@|%40/i.test(s)) return ":email";
+              if (/^[A-Za-z0-9_-]{20,}$/.test(s) && !/^[a-z]+(?:-[a-z0-9]+)*$/.test(s)) return ":id";
+              return s;
+            })
+            .join("/");
+          if (p.length > 1 && p.charAt(p.length - 1) === "/") p = p.slice(0, -1);
+          if (p.length > 200) p = p.slice(0, 200);
+          return p;
+        }
+        var BASE = "";
+        var path = ltRedactPath(full === BASE || full.indexOf(BASE + "/") === 0 ? full.slice(BASE.length) : full);
         var kept = [];
         var parts = String(loc.search || "").replace(/^\?/, "").split("&");
         for (var i = 0; i < parts.length; i++) {

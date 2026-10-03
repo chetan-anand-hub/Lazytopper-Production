@@ -61,7 +61,7 @@ const LAZYTOPPER_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../.."
  * Where the captured artifact is written, and then COMMITTED.
  *
  * Deliberately not the build output: root `.gitignore` carries a bare `dist`, which
- * matches `artifacts/lazytopper-app/dist/public/app/**`, so the emitted directory
+ * matches `artifacts/lazytopper-app/dist/public/**`, so the emitted directory
  * cannot be committed at all. And deliberately not `public/`: `writeStaticHeads`
  * stamps all 116 files AFTER vite copies `public/`, so anything staged there is
  * silently overwritten.
@@ -197,7 +197,7 @@ async function resolveOutDir(): Promise<string> {
   // ⚠ SAME TRAP AS `writeStaticHeads`, AND IT CAUGHT THIS SCRIPT TOO. `vite build`
   // sets `NODE_ENV=production` INSIDE ITS OWN PROCESS, and `vite.config.ts` branches
   // `build.outDir` on exactly that: production writes to
-  // `artifacts/lazytopper-app/dist/public/app`, anything else to `dist`. This is a
+  // `artifacts/lazytopper-app/dist/public`, anything else to `dist`. This is a
   // SEPARATE process in the build chain, where NODE_ENV is whatever the shell had —
   // unset, in CI and on a dev box. Without this line the script resolves `dist`, finds
   // no shell there, and FAILS THE BUILD while the real output sits untouched in
@@ -215,7 +215,7 @@ async function resolveOutDir(): Promise<string> {
   return resolve(LAZYTOPPER_ROOT, outDir);
 }
 
-/** `/app/` -> `/app`, matching how `main.tsx` feeds `<BrowserRouter basename>`. */
+/** `/` -> `` (a based `/x/` -> `/x`), matching how `main.tsx` feeds `<BrowserRouter basename>`. */
 async function resolveBasename(): Promise<string> {
   const viteConfig = (await import("../../vite.config")).default;
   const base = (viteConfig as { base?: string }).base;

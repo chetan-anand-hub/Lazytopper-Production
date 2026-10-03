@@ -23,7 +23,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DIST = path.join(__dirname, "../artifacts/lazytopper-app/dist/public/app");
+const DIST = path.join(__dirname, "../artifacts/lazytopper-app/dist/public");
 const ASSETS = path.join(DIST, "assets");
 const SRC_DIR = path.join(__dirname, "../lazytopper/src");
 

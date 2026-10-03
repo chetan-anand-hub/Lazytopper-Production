@@ -21,7 +21,6 @@ const DIST_ASSETS = path.resolve(
   "lazytopper-app",
   "dist",
   "public",
-  "app",
   "assets"
 );
 

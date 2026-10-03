@@ -73,7 +73,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const SITEMAP = join(here, "..", "public", "sitemap.xml");
 export const LASTMOD_LEDGER = join(PRERENDERED_DIR, "lastmod.json");
 
-/** `/app/` -> `/app`, matching how `main.tsx` feeds `<BrowserRouter basename>`. */
+/** `/` -> `` (a based `/x/` -> `/x`), matching how `main.tsx` feeds `<BrowserRouter basename>`. */
 function basenameFromViteConfig(): string {
   const base = (viteConfig as { base?: string }).base;
   if (typeof base !== "string" || base.length === 0) {

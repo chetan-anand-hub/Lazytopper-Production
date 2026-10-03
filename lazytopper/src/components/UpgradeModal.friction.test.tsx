@@ -20,9 +20,9 @@ import { getPremiumFeatureList } from "../services/featureGates";
 import { BASIC_FREE_LABELS } from "./pricing/BasicFreeList";
 
 function mount(onClose = vi.fn()) {
-  window.history.pushState({}, "", "/app/practice");
+  window.history.pushState({}, "", "/base/practice");
   const utils = render(
-    <BrowserRouter basename="/app">
+    <BrowserRouter basename="/base">
       <Routes>
         <Route path="/practice" element={<UpgradeModal open onClose={onClose} featureLabel="Exam Simulation" />} />
         <Route path="/pricing" element={<p>PRICING PAGE</p>} />
@@ -44,7 +44,7 @@ describe("F3 — 'Keep using Basic'", () => {
     const keep = screen.getByRole("button", { name: "Keep using Basic" });
     fireEvent.click(keep);
     expect(onClose).toHaveBeenCalledTimes(1);
-    expect(window.location.pathname).toBe("/app/practice");
+    expect(window.location.pathname).toBe("/base/practice");
     expect(screen.queryByText("PRICING PAGE")).toBeNull();
   });
 
@@ -52,7 +52,7 @@ describe("F3 — 'Keep using Basic'", () => {
     const { onClose } = mount();
     fireEvent.click(screen.getByRole("button", { name: "View Plans" }));
     expect(onClose).toHaveBeenCalledTimes(1);
-    expect(window.location.pathname).toBe("/app/pricing");
+    expect(window.location.pathname).toBe("/base/pricing");
   });
 
   it("an expired trial still sees 'Choose Plan' AND 'Keep using Basic'", () => {

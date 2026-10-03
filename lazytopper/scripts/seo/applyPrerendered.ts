@@ -72,7 +72,7 @@ export function applicablePaths(): string[] {
 }
 
 /**
- * The clean SPA shell every unmatched `/app/*` URL is served (`vercel.json` catch-all).
+ * The clean SPA shell every unmatched URL is served (`vercel.json` catch-all).
  * Written by this step as a byte copy of the built `index.html` BEFORE the root is
  * filled, so it can never carry the landing body. `X-Robots-Tag: noindex` is set on it
  * in `vercel.json`, and it is never advertised.
@@ -123,7 +123,10 @@ function fragmentsPresent(dir: string): string[] {
  */
 export function assetRefsIn(fragment: string): string[] {
   const refs = new Set<string>();
-  for (const match of fragment.matchAll(/(?:src|href)="(\/[^"]*\/assets\/[^"]+)"/g)) {
+  // ROOT-URL-1: the optional `[^"]*\/` is what lets a ROOT asset (`/assets/x.webp`) match.
+  // The old pattern demanded a segment before `/assets/` (the retired `/app` base), so at
+  // the root it matched NOTHING and this staleness check would have passed vacuously.
+  for (const match of fragment.matchAll(/(?:src|href)="(\/(?:[^"]*\/)?assets\/[^"]+)"/g)) {
     refs.add(match[1].split("?")[0]);
   }
   return [...refs];
@@ -157,7 +160,7 @@ async function resolveOutDir(): Promise<string> {
   // ⚠ SAME TRAP `writeStaticHeads` DOCUMENTS AT ITS OWN `resolveOutDir`. `vite build`
   // sets NODE_ENV=production inside its OWN process, and `vite.config.ts` branches
   // `build.outDir` on exactly that: production writes to
-  // `artifacts/lazytopper-app/dist/public/app`, anything else to `dist`. This is a
+  // `artifacts/lazytopper-app/dist/public`, anything else to `dist`. This is a
   // separate process in the build chain, where NODE_ENV is whatever the shell had —
   // unset, in CI and on a dev box. Without this line the step resolves `dist`, finds
   // no shell, and fails the build while the real output sits untouched elsewhere.
@@ -182,7 +185,7 @@ export interface ApplyResult {
  * Fill the built shells in `outDir` from the fragments in `prerenderedDir`.
  *
  * ★★ THE CLEAN SHELL IS WRITTEN FIRST AND UNCONDITIONALLY. `vercel.json` rewrites every
- * unmatched `/app/*` URL to `/app/__shell.html`, so a build without that file would 404
+ * unmatched URL to `/__shell.html`, so a build without that file would 404
  * every deep link on the site — including in the pre-capture state below, where nothing
  * else is written. It is a byte copy of the built `index.html` taken BEFORE the root is
  * filled, and the copy is refused if `index.html` has already lost its empty mount point
@@ -243,8 +246,8 @@ export function applyArtifact(
     const fragment = readFileSync(fragmentPathFor(path, prerenderedDir), "utf8");
     fragments.set(path, fragment);
     for (const ref of assetRefsIn(fragment)) {
-      // `/app/assets/x.webp` -> `<outDir>/assets/x.webp`
-      const relative = ref.replace(/^\/[^/]*\/assets\//, "assets/");
+      // `/assets/x.webp` (or a based `/<base>/assets/x.webp`) -> `<outDir>/assets/x.webp`
+      const relative = ref.replace(/^\/(?:[^/]*\/)?assets\//, "assets/");
       const absolute = join(outDir, relative);
       if (!existsSync(absolute) || !statSync(absolute).isFile()) {
         assetFailures.push(

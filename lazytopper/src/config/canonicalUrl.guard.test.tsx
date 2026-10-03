@@ -1,5 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach } from "vitest";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { render, cleanup } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import RouteCanonical from "../components/seo/RouteCanonical";
@@ -37,7 +39,8 @@ import {
  * describe it, as the paragraph above now does.
  */
 
-const PROD_BASENAME = "/app";
+/** ROOT-URL-1: the app is served at the domain root, so the production basename is empty. */
+const PROD_BASENAME = "";
 
 function canonicalInDom(): string | null {
   return document.head.querySelector('link[rel="canonical"]')?.getAttribute("href") ?? null;
@@ -69,27 +72,31 @@ beforeEach(() => {
 
 describe("canonicalFor — the production URL shape, with the basename", () => {
   it("names each self-canonical route as its own absolute URL", () => {
-    expect(canonicalFor("/", PROD_BASENAME)).toBe("https://www.lazytopper.com/app/");
-    expect(canonicalFor("/pricing", PROD_BASENAME)).toBe("https://www.lazytopper.com/app/pricing");
-    expect(canonicalFor("/exam-trends", PROD_BASENAME)).toBe("https://www.lazytopper.com/app/exam-trends");
-    expect(canonicalFor("/topic-hub/light", PROD_BASENAME)).toBe("https://www.lazytopper.com/app/topic-hub/light");
-    expect(canonicalFor("/legal/privacy", PROD_BASENAME)).toBe("https://www.lazytopper.com/app/legal/privacy");
-    expect(canonicalFor("/practice-hub", PROD_BASENAME)).toBe("https://www.lazytopper.com/app/practice-hub");
+    expect(canonicalFor("/", PROD_BASENAME)).toBe("https://www.lazytopper.com/");
+    expect(canonicalFor("/pricing", PROD_BASENAME)).toBe("https://www.lazytopper.com/pricing");
+    expect(canonicalFor("/exam-trends", PROD_BASENAME)).toBe("https://www.lazytopper.com/exam-trends");
+    expect(canonicalFor("/topic-hub/light", PROD_BASENAME)).toBe("https://www.lazytopper.com/topic-hub/light");
+    expect(canonicalFor("/legal/privacy", PROD_BASENAME)).toBe("https://www.lazytopper.com/legal/privacy");
+    expect(canonicalFor("/practice-hub", PROD_BASENAME)).toBe("https://www.lazytopper.com/practice-hub");
   });
 
   it("★ INCLUDES THE BASENAME — without it every canonical would name a 404", () => {
-    // The router's basename is /app, so useLocation().pathname EXCLUDES it.
-    // This is the assertion that catches a canonical built from the route path
-    // alone, which is the single most damaging way to get this wrong: it would
-    // point every page at a URL the site does not serve.
-    const url = canonicalFor("/exam-trends", PROD_BASENAME);
-    expect(url).toContain("/app/exam-trends");
-    expect(url).not.toBe("https://www.lazytopper.com/exam-trends");
-    expect(url.startsWith(SITE_ORIGIN + "/app/")).toBe(true);
+    // useLocation().pathname EXCLUDES the router's basename. The production basename is
+    // empty since ROOT-URL-1, so the guard runs on a non-empty one too: a canonical built
+    // from the route path alone would point every page at a URL the site does not serve
+    // the day a base comes back.
+    const url = canonicalFor("/exam-trends", "/base");
+    expect(url).toBe(SITE_ORIGIN + "/base/exam-trends");
+    expect(canonicalFor("/", "/base")).toBe(SITE_ORIGIN + "/base/");
+    // …and the production basename matches vite.config.ts, so the root URL has no prefix.
+    const viteBase = /^\s*base:\s*"([^"]*)"/m.exec(readFileSync(resolve(__dirname, "../../vite.config.ts"), "utf8"))?.[1];
+    expect(viteBase).toBe("/");
+    expect(PROD_BASENAME).toBe(viteBase!.replace(/\/$/, ""));
+    expect(canonicalFor("/exam-trends", PROD_BASENAME)).toBe("https://www.lazytopper.com/exam-trends");
   });
 
   it("keeps the trailing slash on the root and on nothing else — the sitemap's convention", () => {
-    expect(canonicalFor("/", PROD_BASENAME).endsWith("/app/")).toBe(true);
+    expect(canonicalFor("/", PROD_BASENAME)).toBe(SITE_ORIGIN + "/");
     expect(canonicalFor("/pricing", PROD_BASENAME).endsWith("/")).toBe(false);
     // A trailing slash arriving in the URL is normalised away, not doubled.
     expect(canonicalFor("/pricing/", PROD_BASENAME)).toBe(canonicalFor("/pricing", PROD_BASENAME));
@@ -97,10 +104,10 @@ describe("canonicalFor — the production URL shape, with the basename", () => {
 
   it("ignores query string and hash — the same page, not another one", () => {
     expect(canonicalFor("/exam-trends?source=trends", PROD_BASENAME)).toBe(
-      "https://www.lazytopper.com/app/exam-trends",
+      "https://www.lazytopper.com/exam-trends",
     );
     expect(canonicalFor("/exam-trends#top", PROD_BASENAME)).toBe(
-      "https://www.lazytopper.com/app/exam-trends",
+      "https://www.lazytopper.com/exam-trends",
     );
   });
 });
@@ -133,7 +140,7 @@ describe("canonicalPathFor — the ruled set, and everything outside it", () => 
     expect(canonicalPathFor("/topic-hub")).not.toBe("/");
     expect(canonicalPathFor("/topic-hub")).not.toBe("/topic-hub");
     expect(canonicalFor("/topic-hub", PROD_BASENAME)).toBe(
-      "https://www.lazytopper.com/app/exam-trends",
+      "https://www.lazytopper.com/exam-trends",
     );
     // Query and hash are normalised away before the alias lookup, so a shared
     // link with tracking params canonicalises to the destination too.
@@ -171,7 +178,7 @@ describe("canonicalPathFor — the ruled set, and everything outside it", () => 
     // A self-canonical here would invite Google to index user tokens. This one
     // matters beyond SEO.
     expect(canonicalPathFor("/u/abc123def456")).toBe("/");
-    expect(canonicalFor("/u/abc123def456", PROD_BASENAME)).toBe("https://www.lazytopper.com/app/");
+    expect(canonicalFor("/u/abc123def456", PROD_BASENAME)).toBe("https://www.lazytopper.com/");
   });
 
   it("★ SELF-CANONICALISES /practice-hub — OWNER RULING, corrected from the LIVE PAGE", () => {
@@ -187,7 +194,7 @@ describe("canonicalPathFor — the ruled set, and everything outside it", () => 
     // component name and quietly drop it back out of the set.
     expect(canonicalPathFor("/practice-hub")).toBe("/practice-hub");
     expect(canonicalFor("/practice-hub", PROD_BASENAME)).toBe(
-      "https://www.lazytopper.com/app/practice-hub",
+      "https://www.lazytopper.com/practice-hub",
     );
   });
 
@@ -230,7 +237,7 @@ describe("canonicalPathFor — the ruled set, and everything outside it", () => 
     expect(canonicalPathFor("/highly-probable/10/Maths")).toBe("/highly-probable/10/Maths");
     expect(canonicalPathFor("/highly-probable/10/Science")).toBe("/highly-probable/10/Science");
     expect(canonicalFor("/highly-probable/10/Maths", PROD_BASENAME)).toBe(
-      "https://www.lazytopper.com/app/highly-probable/10/Maths",
+      "https://www.lazytopper.com/highly-probable/10/Maths",
     );
     // CONTROLS — not every highly-probable path.
     expect(canonicalPathFor("/highly-probable/9/Maths")).toBe("/");
@@ -255,12 +262,12 @@ describe("★★ THE ACCEPTANCE — two routes, two different canonicals", () =>
     const pricing = canonicalAfterRenderingAt("/pricing");
 
     // Each names ITSELF...
-    expect(trends.canonical).toBe("https://www.lazytopper.com/app/exam-trends");
-    expect(pricing.canonical).toBe("https://www.lazytopper.com/app/pricing");
+    expect(trends.canonical).toBe("https://www.lazytopper.com/exam-trends");
+    expect(pricing.canonical).toBe("https://www.lazytopper.com/pricing");
 
     // ...and they are NOT the same string. This is the assertion the old guard
     // could not make: before this lane BOTH of these were
-    // "https://www.lazytopper.com/app/" and every FORM assertion still passed.
+    // "https://www.lazytopper.com/" and every FORM assertion still passed.
     expect(trends.canonical).not.toBe(pricing.canonical);
   });
 
@@ -276,7 +283,7 @@ describe("★★ THE ACCEPTANCE — two routes, two different canonicals", () =>
     // Without this, every assertion above would still pass if the component
     // simply echoed the pathname back. It must CONSOLIDATE, not mirror.
     const me = canonicalAfterRenderingAt("/me");
-    expect(me.canonical).toBe("https://www.lazytopper.com/app/");
+    expect(me.canonical).toBe("https://www.lazytopper.com/");
     expect(me.canonical).not.toContain("/me");
   });
 
@@ -291,7 +298,7 @@ describe("★★ THE ACCEPTANCE — two routes, two different canonicals", () =>
         <RouteCanonical basename={PROD_BASENAME} />
       </MemoryRouter>,
     );
-    expect(canonicalInDom()).toBe("https://www.lazytopper.com/app/pricing");
+    expect(canonicalInDom()).toBe("https://www.lazytopper.com/pricing");
     // Exactly one of each — a second tag would let a scraper pick either.
     expect(document.head.querySelectorAll('link[rel="canonical"]')).toHaveLength(1);
     expect(document.head.querySelectorAll('meta[property="og:url"]')).toHaveLength(1);
