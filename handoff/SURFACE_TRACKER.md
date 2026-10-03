@@ -1,5 +1,25 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-03 — WAVE A-10 (PERF + PREDICTED QUESTIONS, CONTROLLER A): BANK-LEAN-1 (`#907` `4f51da9f`), trunk `4f51da9f`. LIVE on merge (no flag); the rollout is recorded in `CURRENT_STATE.md`.**
+> ★ **ONE STUDENT-FACING SURFACE MOVES IN ITS CONTENT (HPQ / Predicted) AND FIVE SURFACES MOVE ON FIRST-LOAD WEIGHT ONLY (Check & Improve, Topic Hub, Home signed in, HPQ / Predicted, Practice Hub).** The §2 matrix has no column for first-load weight or for DOM completeness, and the Built / Redesigned / Desktop / Mobile / Verified cells of these five rows are already ✅ (their MI cells are unaffected), so **no matrix cell flips**; the moves are recorded here as status lines.
+
+### ✅ HPQ / Predicted (`/highly-probable/10/Maths`, `/highly-probable/10/Science`) — **6 / 3 QUESTIONS IN THE PAGE → ALL 70 / 70; CANONICAL REDIRECT; LAZY ANSWER CHECKER; TWO CONTENT FIXES — LIVE (`#907`)**
+- **DOM completeness:** production before had Maths 6 / Science 3 cards in the page *(builder-reported)*; after, 70 / 70, with 12 of 13 chapters `hidden` *(controller-verified on production)*. Pinned by `HighlyProbableQuestions.seo.test.tsx` (`HPQ_PAGE_PIN: maths=70 science=70`).
+- **Canonical redirect:** a non-canonical path redirects to `/highly-probable/10/{Maths,Science}` (3/3 on production; the canonical path unchanged) *(controller-verified)*. Before, none of these redirected *(builder-reported)*.
+- **Lazy checker:** the answer checker loads on open, with "Loading checker…" shown meanwhile; a check on production graded 200 and saved to mistake history *(controller-verified)*. A failed checker chunk is not retried on Chromium / Firefox → `[FU-LAZY-RETRY-NAMED-EXPORT]`.
+- **Content fixes:** `rn-hpq-4` is Section C, 3 marks; the `sci-repr-comp-01` stem no longer cites a missing diagram *(docs-builder-verified on `4f51da9f`)*.
+- Not prerendered on trunk, so no prerendered body changed (P19; prerender-capture matches).
+
+### ✅ FIRST-LOAD WEIGHT (not a matrix column) — Check & Improve · Topic Hub · Home (signed in) · HPQ / Predicted · Practice Hub — **THE ~8.6 MB QUESTION BANK NO LONGER LOADS ON FIRST LOAD — LIVE (`#907`)**
+- Production, bank on first load 5/5 → 0/5; decoded bytes about 10–12 MB → about 1.2–1.9 MB, and 3.3 MB for signed-out Check & Improve (production renders the free-check page there) *(controller-verified; BEFORE builder-measured)*.
+- What each page shows is unchanged: Chapter Test re-open text, signed-in Topic Hub trend and `/me` text identical before and after *(controller-verified / builder-reported)*.
+- Pinned by `bankReach.guard.test.ts` (`BANK_REACH: protected=11 clean=11`), with a CONTROL that Practice, Chapter Test and Full Mock DO still reach the bank.
+
+### ⬜ NO OTHER CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- Quick Practice, Chapter Test, Full Mock, Worksheet and Me / Progress keep their cells. Their code changed only by moving modules (C1 naming helpers, C3 scorecard bank lenses, C4 a lazy lookup), and the outputs checked live (the Chapter Test re-open, `/me`) are identical *(controller-verified / builder-reported)*. `sitemap.xml`, `llms.txt` and every prerendered page are unchanged (`#907` touched no `public/**` or `prerendered/**` file).
+
+### 📋 Scope discovered? — **NO surface scope set to Settling.** HPQ / Predicted stays `Locked`: the fixes are inside its known scope. Three follow-ups are logged in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`; none changes a surface's scope. Nothing goes in `DECISION_LOG` §2a.
+
 > **2026-10-02 — WAVE A-9 (SEO, CONTROLLER A): LLMS-1 (`#904` `08767832`), trunk `08767832`. LIVE on merge (no flag); the rollout is recorded in `CURRENT_STATE.md`.**
 > ★ **ONE CRAWLER-FACING FILE MOVES, ON THE AXIS "WHAT A CRAWLER CAN ACTUALLY READ": `llms.txt`.** It is not a student surface; no student-facing page's visible content changes.
 
