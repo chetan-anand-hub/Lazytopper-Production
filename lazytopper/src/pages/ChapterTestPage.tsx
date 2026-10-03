@@ -44,10 +44,12 @@ import {
   gradeChapterTestUpload,
   type ObjectiveScore,
 } from "../services/chapterTestGradeService";
+// BANK-LEAN-1 (C3): the chapter-test variants join to the question bank (by-concept
+// lens), so they live in scorecardBankLenses — scorecardVariants stays bank-free.
 import {
   chapterTestScorecardVariant,
   storedChapterTestScorecardVariant,
-} from "../components/results/scorecardVariants";
+} from "../components/results/scorecardBankLenses";
 import ResultsScorecard, { revealGradedSheet } from "../components/results/ResultsScorecard";
 import { exportWorksheetPdf, exportGradedWorksheetPdf } from "../components/worksheet/worksheetPdfExport";
 import { CT_CSS } from "../components/chaptertest/chapterTestStyles";

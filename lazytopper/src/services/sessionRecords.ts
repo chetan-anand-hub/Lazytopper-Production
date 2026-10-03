@@ -46,12 +46,15 @@ import { getActiveProgressUser } from "./studentProgressStore";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import type { AuthUser } from "../context/AuthContext";
 import type { WorksheetGradeResponse } from "../ai/aiClient";
+// BANK-LEAN-1 (C1): from the bank-free naming module, NOT worksheetModel — worksheetModel
+// imports the bank-backed generator, and this one import put the question bank on every
+// page that reads a session record (signed-in Home, Check & Improve, Topic Hub).
 import {
   worksheetNomenclature,
   topicAbbr,
   type StoredWorksheetLite,
   type WorksheetNomenclature,
-} from "../components/worksheet/worksheetModel";
+} from "../components/worksheet/worksheetNaming";
 import {
   updateStoredWorksheetCode,
   getWorksheetSession,

@@ -552,6 +552,53 @@ function resolveForbiddenBase() {
   return null;
 }
 
+// ★★ BANK-LEAN-1 (owner ruling C1, wave A-10) — sessionRecords.ts is still guarded, but
+// it may change in its IMPORT DECLARATIONS (and comment-only lines), and nowhere else. The
+// owner ruled that `worksheetNomenclature` / `topicAbbr` move to the bank-free
+// `components/worksheet/worksheetNaming.ts` and that sessionRecords.ts import them FROM
+// THERE. Before that, its one import of worksheetModel put the ~8.6 MB question bank on
+// every page that reads a session record. This entry exists to protect "the SessionRecord
+// shape / read", and an import path cannot touch either. So the protection CHANGES FORM and
+// does not disappear: the file must be byte-identical to its merge-base once import
+// declarations and `//` comment lines are removed. Any edit to code, to the shape or to the
+// read still turns this red. The entry stays in FORBIDDEN, so the membership assertions above
+// are unchanged. Mirrored in LOCK-STEP in check_improve_overlay_additive_acceptance.mjs (same
+// entry, same rule): a lift in only one gate is the PR-C1 / FORBIDDEN-4 trap. The rule is
+// self-tested below with fixtures. A matcher nobody proved can fire is not a guard.
+const IMPORT_ONLY_ENTRIES = new Set(["lazytopper/src/services/sessionRecords.ts"]);
+function codeWithoutImports(src) {
+  return String(src)
+    .replace(/\r\n/g, "\n")
+    .replace(/^import\s*["'][^"']+["'];?[ \t]*$/gm, "")
+    .replace(/^import\s[^;]*?\sfrom\s*["'][^"']+["'];?[ \t]*$/gm, "")
+    .split("\n")
+    .filter((l) => l.trim() !== "" && !/^\s*\/\//.test(l))
+    .join("\n");
+}
+function onlyImportsChanged(base, f) {
+  try {
+    const mb = execFileSync("git", ["merge-base", base, "HEAD"], { cwd: ROOT }).toString().trim();
+    const show = (ref) =>
+      execFileSync("git", ["show", `${ref}:${f}`], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 }).toString();
+    return codeWithoutImports(show(mb)) === codeWithoutImports(show("HEAD"));
+  } catch {
+    return false;
+  }
+}
+{
+  const fx = 'import { a } from "./x";\n// note\nexport interface R {\n  id: string;\n}\n';
+  check("FORBIDDEN(import-only): an import-path + comment change is NOT a shape change",
+    codeWithoutImports(fx) === codeWithoutImports('// moved\nimport {\n  a,\n} from "./y";\n' + fx.split("\n").slice(1).join("\n")),
+    "the import-only rule rejects the very change it exists to allow");
+  check("FORBIDDEN(import-only): CONTROL — a shape change IS caught",
+    codeWithoutImports(fx) !== codeWithoutImports(fx.replace("id: string;", "id: string;\n  extra: number;")),
+    "the import-only rule would let a SessionRecord shape change through");
+  for (const f of IMPORT_ONLY_ENTRIES) {
+    check(`FORBIDDEN(import-only): ${f} is still in the guarded set`, FORBIDDEN.includes(f),
+      "the import-only rule narrows an entry; it must never stand in for a removed one");
+  }
+}
+
 const forbiddenBase = resolveForbiddenBase();
 if (forbiddenBase) {
   const changed = execFileSync("git", ["diff", "--name-only", `${forbiddenBase}...HEAD`], { cwd: ROOT })
@@ -560,8 +607,11 @@ if (forbiddenBase) {
     .map((s) => s.trim())
     .filter(Boolean);
   for (const f of FORBIDDEN) {
-    check(`FORBIDDEN: ${f} shows zero changes (vs ${forbiddenBase})`, !changed.includes(f),
-      changed.includes(f) ? "THIS FILE WAS MODIFIED" : "");
+    const touched = changed.includes(f);
+    const importOnly = IMPORT_ONLY_ENTRIES.has(f);
+    const ok = !touched || (importOnly && onlyImportsChanged(forbiddenBase, f));
+    check(`FORBIDDEN: ${f} shows zero changes${importOnly ? " outside its import declarations" : ""} (vs ${forbiddenBase})`, ok,
+      ok ? "" : "THIS FILE WAS MODIFIED");
   }
 } else if (EVENT === "push") {
   console.log("  --  N/A: push-to-trunk run — no PR to scope a forbidden-path diff to.");

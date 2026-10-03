@@ -674,7 +674,7 @@ export const hpqCompetencyAdditions: HPQTopicBucket[] = [
         tier: "must-crack",
         bloomSkill: "Applying",
         question:
-          "The diagram below shows the longitudinal section of a flower.\n(a) Name the male and female reproductive parts of the flower.\n(b) What is pollination? Differentiate between self-pollination and cross-pollination.\n(c) What happens after fertilisation in a flower? Name the parts that develop into fruit and seed.\n(d) How is the process of reproduction in humans different from plants?",
+          "A student examines the longitudinal section of a flower.\n(a) Name the male and female reproductive parts of the flower.\n(b) What is pollination? Differentiate between self-pollination and cross-pollination.\n(c) What happens after fertilisation in a flower? Name the parts that develop into fruit and seed.\n(d) How is the process of reproduction in humans different from plants?",
         answer:
           "(a) Male: stamen (anther + filament); Female: pistil (stigma + style + ovary). (b) Transfer of pollen from anther to stigma. Self: within same flower; Cross: between different flowers. (c) Ovary → fruit, ovule → seed. (d) Humans have internal fertilisation with specialised organs; plants can reproduce both sexually and asexually.",
         explanation:

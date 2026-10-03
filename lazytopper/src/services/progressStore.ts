@@ -49,7 +49,12 @@ import {
 } from "./sessionRecords";
 import { getMistakeLogs, type MistakeLogEntry } from "./mistakeLogService";
 import { getActiveProgressUser } from "./studentProgressStore";
-import { conceptForQuestionId, isChapterEchoSubtopic, normalizeSection, type BankConcept } from "./progressBankIndex";
+// BANK-LEAN-1 (C4): the pure shape + predicates come from the bank-free module. The
+// bank-backed `conceptForQuestionId` is NOT imported statically — it is loaded with
+// `await import("./progressBankIndex")` inside the two async reads below (see
+// `loadBankLookup`), so a page that only renders a trend (Topic Hub) no longer ships
+// the question bank on first load. Every number is unchanged: the same function runs.
+import { isChapterEchoSubtopic, normalizeSection, type BankConcept } from "./progressBankShape";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 
 // ── Per-surface history (§3a) ────────────────────────────────────────────────
@@ -552,6 +557,48 @@ const PROGRESS_COUNTING_SURFACES: SessionSurface[] = [
   "check-improve",
 ];
 
+/** The bank-backed id → concept lookup, passed into the two builders that need it. */
+type BankLookup = (id: string | null | undefined) => BankConcept | null;
+
+/** Stands in for the bank when NEITHER builder can reach a lookup (see the two
+ *  predicates below) — so it is never actually called, and no number can differ. */
+const NO_BANK_LOOKUP: BankLookup = () => null;
+
+/** True when `buildUnifiedGradedPoints` CAN call the bank lookup: only for a record on
+ *  a SURFACE_QID_PREFIX surface that carries questionIds. A SUPERSET of its real call
+ *  condition (it also needs an aligned payload), so it can only load the bank too often,
+ *  never too rarely. */
+function unifiedNeedsBank(records: SessionRecord[]): boolean {
+  return records.some(
+    (r) => !!SURFACE_QID_PREFIX[r.surface] && Array.isArray(r.questionIds) && r.questionIds.length > 0,
+  );
+}
+
+/** True when `buildConceptSectionRungs` CAN call the bank lookup: for ANY attempt, or a
+ *  non-C&I record that carries questionIds. Mirrors its two loops; a superset, as above. */
+function conceptNeedsBank(attempts: PracticeAttempt[], records: SessionRecord[]): boolean {
+  return (
+    attempts.length > 0 ||
+    records.some(
+      (r) => r.surface !== "check-improve" && Array.isArray(r.questionIds) && r.questionIds.length > 0,
+    )
+  );
+}
+
+/**
+ * BANK-LEAN-1 (C4) — load the bank-backed concept lookup ON DEMAND. Only the two async
+ * reads call this, and only after the signed-out / no-uid early return, so a signed-out
+ * Topic Hub never requests the bank chunk at all. When `needed` is false the builders
+ * provably never call the lookup, so the stub cannot change a number. A failed chunk
+ * load REJECTS (it is not swallowed into a null lookup, which would silently move the
+ * topic/concept rungs); every caller already catches and degrades to its honest empty.
+ */
+async function loadBankLookup(needed: boolean): Promise<BankLookup> {
+  if (!needed) return NO_BANK_LOOKUP;
+  const { conceptForQuestionId } = await import("./progressBankIndex");
+  return conceptForQuestionId;
+}
+
 /**
  * Union the attempts stream with the per-question marks stored in sessionRecords
  * payloads, deduped DETERMINISTICALLY: a record-derived question is added only when
@@ -566,6 +613,7 @@ function buildUnifiedGradedPoints(
   attempts: PracticeAttempt[],
   records: SessionRecord[],
   payloads: SessionPerQuestionPayload[],
+  conceptForQuestionId: BankLookup,
   topicFilter?: string,
 ): GradedPoint[] {
   const points: GradedPoint[] = [];
@@ -665,6 +713,7 @@ function buildConceptSectionRungs(
   attempts: PracticeAttempt[],
   records: SessionRecord[],
   payloads: SessionPerQuestionPayload[],
+  conceptForQuestionId: BankLookup,
   topicFilter?: string,
 ): { concepts: RungTrend[]; sections: RungTrend[] } {
   const conceptPts = new Map<string, MarkPoint[]>();
@@ -888,8 +937,17 @@ export async function getWindowedProgress(
       (!subjFilter || r.subject === subjFilter),
   );
 
-  const unified = buildUnifiedGradedPoints(winAttempts, winRecords, payloads, topicFilter);
-  const { concepts, sections } = buildConceptSectionRungs(winAttempts, winRecords, payloads, topicFilter);
+  const bankLookup = await loadBankLookup(
+    unifiedNeedsBank(winRecords) || conceptNeedsBank(winAttempts, winRecords),
+  );
+  const unified = buildUnifiedGradedPoints(winAttempts, winRecords, payloads, bankLookup, topicFilter);
+  const { concepts, sections } = buildConceptSectionRungs(
+    winAttempts,
+    winRecords,
+    payloads,
+    bankLookup,
+    topicFilter,
+  );
 
   return {
     window,
@@ -966,7 +1024,8 @@ export async function getTopicTrendFromCloud(
     (r) => PROGRESS_COUNTING_SURFACES.includes(r.surface) && r.gradedAt >= start && r.gradedAt <= now,
   );
 
-  const unified = buildUnifiedGradedPoints(winAttempts, winRecords, payloads, key);
+  const bankLookup = await loadBankLookup(unifiedNeedsBank(winRecords));
+  const unified = buildUnifiedGradedPoints(winAttempts, winRecords, payloads, bankLookup, key);
   const t = splitTrendOf(unified);
 
   const measurable = unified

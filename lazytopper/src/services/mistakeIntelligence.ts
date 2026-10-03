@@ -37,7 +37,11 @@ import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 // `mistakeIntelligence` is vi.mock'd as a COMPLETE replacement by several suites
 // (worksheetGradeService.test.ts, SolutionChecker.contract/entitlement.test.tsx), so
 // an export added here would be missing in every module those suites exercise.
-import { conceptForBankQuestionId } from "./mistakeConcept";
+//
+// BANK-LEAN-1 (C2) — and it is loaded with `await import("./mistakeConcept")` inside
+// `recordMistake`, NOT imported statically: mistakeConcept wraps progressBankIndex,
+// which IS the question bank, and this module sits in the static graph of Check &
+// Improve and of every page that mounts SolutionChecker. See `resolveConcept` below.
 
 export interface RecordMistakeContext {
   subject: string;
@@ -137,10 +141,42 @@ function hasMistakeSignal(result: CheckSolutionResponse): boolean {
   return lostMarks || typedStep;
 }
 
+/**
+ * BANK-LEAN-1 (C2) — the concept for a log entry, resolved ASYNC so the bank loads only
+ * when a mistake is actually being recorded. SAME RESULT as the old inline expression
+ * `ctx.concept?.trim() ? ctx.concept : conceptForBankQuestionId(questionId)`:
+ *   - a call-site concept wins, verbatim (no import at all);
+ *   - no questionId → `conceptForBankQuestionId(undefined)` was always `undefined`, so the
+ *     bank is not loaded for it (free-typed Check & Improve passes no id — the common case);
+ *   - otherwise the SAME function resolves it.
+ * If the chunk itself fails to load, the entry is logged WITHOUT a concept rather than the
+ * mistake being lost — the absent-is-honest rule mistakeConcept documents, and recoverable:
+ * the entry still persists `questionId`, so a reader can always re-resolve.
+ */
+async function resolveConcept(
+  ctx: RecordMistakeContext,
+  questionId: string | undefined,
+): Promise<string | undefined> {
+  if (ctx.concept?.trim()) return ctx.concept;
+  if (!questionId) return undefined;
+  try {
+    const { conceptForBankQuestionId } = await import("./mistakeConcept");
+    return conceptForBankQuestionId(questionId);
+  } catch {
+    return undefined;
+  }
+}
+
+/** The questionId a log entry carries (trimmed; absent when blank). */
+function entryQuestionId(ctx: RecordMistakeContext): string | undefined {
+  return ctx.questionId && ctx.questionId.trim() ? ctx.questionId.trim() : undefined;
+}
+
 function buildEntry(
   ctx: RecordMistakeContext,
   result: CheckSolutionResponse,
   counts: ReconciledCounts,
+  concept: string | undefined,
 ): Omit<MistakeLogEntry, "id"> {
   const marksLost = Math.max(0, (Number(result.totalMarks) || 0) - (Number(result.marksAwarded) || 0));
   // ── MI-INTAKE-FILTER — a diagnosis enters MI on its TYPE, not on whether it
@@ -173,14 +209,13 @@ function buildEntry(
   // ── MI-CONCEPT-1 — questionId write-through + concept resolution ──────────
   // `questionId` already reached this function (dedup + the weak-area bridge read
   // it); it was simply never written onto the entry. Write it through.
-  const questionId = ctx.questionId && ctx.questionId.trim() ? ctx.questionId.trim() : undefined;
-  // Prefer a concept the call site resolved from the BANK id (worksheet /
-  // full-mock / chapter-test, whose ctx.questionId is a synthetic attempt id).
-  // Otherwise resolve centrally — correct for Quick Practice and SolutionChecker,
-  // which pass the bare bank id, and correctly a no-op for free-typed Check &
-  // Improve, which passes no id at all.
+  const questionId = entryQuestionId(ctx);
+  // `concept` is resolved by the caller (resolveConcept — BANK-LEAN-1 C2): a concept
+  // the call site resolved from the BANK id (worksheet / full-mock / chapter-test,
+  // whose ctx.questionId is a synthetic attempt id) wins; otherwise it is resolved
+  // centrally — correct for Quick Practice and SolutionChecker, which pass the bare
+  // bank id, and correctly a no-op for free-typed Check & Improve, which passes no id.
   // ★ VERBATIM. Nothing here re-derives, slugifies or case-folds the value.
-  const concept = ctx.concept?.trim() ? ctx.concept : conceptForBankQuestionId(questionId);
   // Both keys are OMITTED when absent rather than written as `undefined`, so an
   // entry with no bank identity is byte-identical in shape to a pre-MI-CONCEPT-1
   // entry — absent, not "present and empty".
@@ -271,7 +306,8 @@ export async function recordMistake(
   if (seen.includes(key)) return { outcome: "duplicate", bridged: false };
 
   // ── Builder + safety gate ─────────────────────────────────────────────
-  const entry = buildEntry(context, gradeResult, counts);
+  const concept = await resolveConcept(context, entryQuestionId(context));
+  const entry = buildEntry(context, gradeResult, counts, concept);
   if (!isSafeEntry({ id: "pending", ...entry })) {
     return { outcome: "error", bridged: false };
   }
