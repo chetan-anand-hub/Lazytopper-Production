@@ -1,3 +1,29 @@
+## ★★★ 2026-10-03 — WAVE B-10 (CLEANUP + FRICTION, CONTROLLER B) — FRICTION-FIX-1 CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE B-9 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged — except the WAVE A-10 item "audit the overlay-gate narrowing", which the owner APPROVED on 2026-10-03.)*
+
+**TRUNK IS `8ff2203e8b299b931cd31f6534f755eaa009cb1b`**, measured 2026-10-03 (`git ls-remote origin base/approved-thru-437`):
+- `8ff2203e` = `#912` (FRICTION-FIX-1 PR-2: Onboarding without the retired plan, honest mock limits, a Basic exit, See plans links, path PII, CI vitest runs past a broken Build) — **this wave**; Vercel COMPLETE at 100% 14:46:46Z (20:16:46 IST), Railway `6828817116` (see `CURRENT_STATE.md`)
+- `94f3d4eb` = `#910` (FRICTION-FIX-1 PR-1: retired orphan code deleted behind a no-orphans guard; the dead mentor server modules dropped) — **this wave**; Vercel COMPLETE at 100% 13:37:36Z (19:07:36 IST), Railway `6828079890`
+- `ad22089e` = `#909` (docs: wave B-9)
+
+Open when this docs PR was opened: only `#911` (Controller A, BANK-SPLIT-1 PR-1, `lane/bank-dedup-1`), a product PR that touches no `handoff/**` file — so this is the only docs PR open (OR-16).
+
+### NEXT — OWNER
+1. **Run the OWNER-OWED signed-in live checks** of both PRs (the list is in `CURRENT_STATE.md` → WAVE B-10 → ★ Owner items). Most exposed: signed-in Home `/app/` after `#910`'s deletions, a tutor round-trip, and — after `#912` — `/app/onboarding` signed in, "Keep using Basic" in a locked feature's modal, the C&I confirmation surviving a reload, and GA4 Realtime with in-app navigation AND a reload (a raw uid on `user_engagement` after the reload is the known LOW `[FU-INDEXHTML-PATH-PII-VERCEL-BEFORESEND]`, not a regression).
+2. **Pick the next wave — it is the owner's call; this docs PR does not invent a lane.** On the table:
+   - **TOPIC-FIX-1 — deferred by the owner** to a later session together with the grader anomalies.
+   - The thirteen new FUs (none dispatched; bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`), notably `[FU-BANK-CONSUMER-ORPHANS-FOR-CONTROLLER-A]` (Controller A's scope, with BANK-SPLIT-1), `[FU-SERVER-PROMPT-MODULES-NOW-UNREQUIRED]` + `[FU-NO-ORPHANS-GUARD-SCOPE]` (a server-side orphan walk), `[FU-LEGACY-OPS-GATES-RED-AT-TRUNK]`, and the LOW `[FU-INDEXHTML-PATH-PII-VERCEL-BEFORESEND]`.
+
+### Carried — still owed
+1. **The WAVE B-9 owner items** (none new there), then the WAVE A-9 and B-8 owner items and everything they carry. The WAVE A-10 owner item is DONE (approved 2026-10-03; see `DECISION_LOG.md`).
+
+### NEXT — LANES
+- None dispatched by wave B-10 beyond `#910` and `#912`. Controller A's `#911` (BANK-SPLIT-1) is in flight; its close-out is authoritative for it.
+- **★ DOCTRINE NOW ENFORCED BY CI — the no-orphans guard.** `lazytopper/src/config/noOrphans.guard.test.ts` runs in the vitest step of every PR (`NO_ORPHANS: files=<n> orphans=13` at trunk). A file nothing live imports turns it RED, naming the file. A new module must be imported from a live root in the same PR; an `ALLOWED_ORPHANS` entry needs a one-line reason. The walker follows `require(path.join(__dirname, …))` from `server/**` — a walker that does not is how the cofounder audit nearly deleted 5 boot-loaded files. It binds Controller A's PRs too (R7).
+- **Quality Gate now runs the tests when Build fails** (C1): a red Build no longer hides a red guard in the same PR; the job still fails.
+- **The planner is retired and its code is gone.** Do not re-introduce "study plan" copy; Onboarding is pinned against it (`Onboarding.friction.test.tsx`).
+- **Mock limits live in one import-free module**, `src/config/mockViewLimits.ts`. Never import them from `MockViewGate` (the cycle renders "undefined"; `BasicFreeList.mockLimits.test.tsx` pins it).
+
 ## ★★★ 2026-10-03 — WAVE B-9 (SEO, CONTROLLER B) — SEO-3 CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-10 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
 
@@ -28,7 +54,7 @@ No other PR was open when this docs PR was opened (`gh pr list --state open` →
 Open when this docs PR was opened: only `#906` (SEO-3, Controller B, draft), which touches no `handoff/**` file.
 
 ### NEXT — OWNER
-1. **Audit the overlay-gate narrowing (new from wave A-10).** In `check_improve_overlay_additive_acceptance.mjs` and `quick_practice_overlay_additive_acceptance.mjs`, the `sessionRecords.ts` freeze was narrowed from "zero diff" to "zero diff outside import declarations and `//` comment lines", in lock-step in both gates. The entry stays in FORBIDDEN. **This is a controller decision under OR-AUTO, PENDING OWNER AUDIT — not owner-approved.** Accept it, or reject it (the alternative the builder named: move the generator out of `worksheetModel` instead, which contradicts C1's wording and moves live generator code). Reason and evidence in `DECISION_LOG.md`.
+1. **Audit the overlay-gate narrowing (new from wave A-10).** In `check_improve_overlay_additive_acceptance.mjs` and `quick_practice_overlay_additive_acceptance.mjs`, the `sessionRecords.ts` freeze was narrowed from "zero diff" to "zero diff outside import declarations and `//` comment lines", in lock-step in both gates. The entry stays in FORBIDDEN. **This is a controller decision under OR-AUTO, PENDING OWNER AUDIT — not owner-approved.** → ✅ **OWNER-APPROVED 2026-10-03** (recorded by the wave B-10 docs PR; see `DECISION_LOG.md` 2026-10-03 WAVE B-10). Accept it, or reject it (the alternative the builder named: move the generator out of `worksheetModel` instead, which contradicts C1's wording and moves live generator code). Reason and evidence in `DECISION_LOG.md`.
 
 ### Carried — still owed
 1. **The WAVE A-9 owner items** (none new there), then the WAVE B-8 owner items (the B-8 block below), the WAVE B-7 and DEPS items and everything they carry.
