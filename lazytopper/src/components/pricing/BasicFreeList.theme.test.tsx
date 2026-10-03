@@ -23,7 +23,8 @@ function block(selector: string): string {
   return STYLES.slice(at, STYLES.indexOf("}", at));
 }
 function token(css: string, name: string): string {
-  const m = new RegExp(`${name}:\s*([^;]+);`).exec(css);
+  // `\\s` in the template literal so the RegExp receives `\s` (CodeQL js/useless-regexp-character-escape).
+  const m = new RegExp(`${name}:\\s*([^;]+);`).exec(css);
   expect(m, `${name} declared`).not.toBeNull();
   return m![1].trim();
 }
