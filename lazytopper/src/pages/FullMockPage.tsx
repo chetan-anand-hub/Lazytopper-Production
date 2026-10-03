@@ -68,11 +68,15 @@ import {
 } from "../components/fullmock/useFocusAggregates";
 import {
   fullMockScorecardVariant,
-  storedFullMockScorecardVariant,
   deriveFullMockChapterLens,
-  deriveStoredFullMockChapterLens,
   fullMockFocusLine,
 } from "../components/results/scorecardVariants";
+// BANK-LEAN-1 (C3): the stored re-open chapter join reads the question bank, so it
+// lives in scorecardBankLenses — scorecardVariants stays bank-free.
+import {
+  storedFullMockScorecardVariant,
+  deriveStoredFullMockChapterLens,
+} from "../components/results/scorecardBankLenses";
 import ResultsScorecard, { revealGradedSheet } from "../components/results/ResultsScorecard";
 import { exportWorksheetPdf, exportGradedWorksheetPdf } from "../components/worksheet/worksheetPdfExport";
 import { buildDesktopWorksheetPath } from "../lib/desktop/navigation";

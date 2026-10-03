@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/pages/HighlyProbableQuestions.tsx
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import {
+  Navigate,
   useNavigate,
   useSearchParams,
   useLocation,
@@ -27,7 +28,7 @@ import { buildTopicHubUrl } from "../utils/buildUrl";
 
 import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
 import { MathText } from "../components/question/MathText";
-import { SolutionChecker } from "../components/question/SolutionChecker";
+import { lazyWithRetry } from "../lib/lazyWithRetry";
 
 import {
   fetchStepSolution,
@@ -36,6 +37,18 @@ import {
 import ReturnContextBar from "../components/ux/ReturnContextBar";
 import { useIsDesktop } from "../hooks/useIsDesktop";
 import { trackUxEvent } from "../services/uxTelemetry";
+
+// BANK-LEAN-1 (H1) — the answer checker loads ON DEMAND. It mounts only when a student
+// opens "Check my answer" on one card, yet its static import put the checker (and, via
+// mistakeIntelligence, the question bank) in this page's first load. The JSX name stays
+// `SolutionChecker` on purpose: SolutionChecker.entitlement.test.tsx enumerates every
+// `<SolutionChecker` render site, and this is still one of them.
+// ⚠ lazyWithRetry's URL retry needs a DEFAULT export and SolutionChecker has only a named
+// one, so on Chromium/Firefox a failed chunk is rethrown after one short wait (the WebKit
+// path re-calls this factory). Recorded as a follow-up; the checker file is out of scope.
+const SolutionChecker = lazyWithRetry(() =>
+  import("../components/question/SolutionChecker").then((m) => ({ default: m.SolutionChecker })),
+);
 
 // ---------- Local types / helpers ----------
 
@@ -434,7 +447,15 @@ type CompetencyFilter = "all" | "competency";
 
 // ---------- Component ----------
 
-const HighlyProbableQuestions: React.FC = () => {
+/** BANK-LEAN-1 (H3) — the ONE grade this page serves. */
+const HPQ_CANONICAL_GRADE = "10";
+
+/** The canonical path for a subject: `/highly-probable/10/Maths` or `/highly-probable/10/Science`. */
+function hpqCanonicalPath(subject: HPQSubject): string {
+  return `/highly-probable/${HPQ_CANONICAL_GRADE}/${subject}`;
+}
+
+const HighlyProbableQuestionsPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isDesktop = useIsDesktop();
@@ -1539,14 +1560,20 @@ const HighlyProbableQuestions: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Question list */}
-                    {expanded && (
-                      <div
+                    {/* Question list — BANK-LEAN-1 (H2): ALWAYS rendered; a collapsed
+                        chapter carries the `hidden` attribute instead of being absent, so
+                        every predicted question is in the DOM (a crawler reads it) while
+                        the look and the default (first chapter open) are unchanged.
+                        ⚠ `display` is set ONLY when expanded: an inline `display: flex`
+                        would override the UA `[hidden] { display: none }` rule. */}
+                    <div
+                        hidden={!expanded}
+                        data-hpq-chapter={bucket.topic}
                         style={{
                           marginTop: 10,
                           paddingTop: 12,
                           borderTop: "1px solid hsl(220, 18%, 90%)",
-                          display: "flex",
+                          display: expanded ? "flex" : undefined,
                           flexDirection: "column",
                           gap: 10,
                         }}
@@ -1568,6 +1595,7 @@ const HighlyProbableQuestions: React.FC = () => {
                         return (
                         <div
                           key={q.id}
+                          data-hpq-question={q.id}
                           style={{
                             borderRadius: 12,
                             padding: "16px",
@@ -1816,15 +1844,17 @@ const HighlyProbableQuestions: React.FC = () => {
                                   marginTop: 10,
                                 }}
                               >
-                                <SolutionChecker
-                                  question={q.question}
-                                  marks={q.marks ?? 0}
-                                  subject={bucket.subject ?? subjectKey}
-                                  topic={bucket.topic}
-                                  questionId={q.id ? String(q.id) : undefined}
-                                  solutionSteps={q.solutionSteps}
-                                  finalAnswer={q.finalAnswer}
-                                />
+                                <Suspense fallback={<p role="status">Loading checker…</p>}>
+                                  <SolutionChecker
+                                    question={q.question}
+                                    marks={q.marks ?? 0}
+                                    subject={bucket.subject ?? subjectKey}
+                                    topic={bucket.topic}
+                                    questionId={q.id ? String(q.id) : undefined}
+                                    solutionSteps={q.solutionSteps}
+                                    finalAnswer={q.finalAnswer}
+                                  />
+                                </Suspense>
                               </div>
                             )}
 
@@ -2074,7 +2104,6 @@ const HighlyProbableQuestions: React.FC = () => {
                       );
                       })}
                     </div>
-                    )}
 
                   </div>
                 );
@@ -2085,6 +2114,34 @@ const HighlyProbableQuestions: React.FC = () => {
       </div>
     </div>
   );
+};
+
+/**
+ * BANK-LEAN-1 (H3) — ONE URL per subject. The page used to render the same content at
+ * every grade (`grade` only labels it), every subject spelling (`normaliseSubject` folds
+ * anything non-science to Maths) and the bare legacy `/highly-probable` route: duplicate
+ * URLs for one page. Any pathname other than EXACTLY the canonical one for the resolved
+ * subject now redirects there, `replace`, keeping the query string, hash and history
+ * state (back-navigation context). The subject resolves exactly as the page always did:
+ * the path segment, else `?subject=`, through `normaliseSubject`. Done here, not in
+ * App.tsx (out of scope): both routes mount this component.
+ * The redirect target is itself canonical, so it cannot loop inside the app's routes.
+ */
+const HighlyProbableQuestions: React.FC = () => {
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const { subject } = useParams<"grade" | "subject">();
+  const canonical = hpqCanonicalPath(normaliseSubject(subject || searchParams.get("subject")));
+  if (location.pathname !== canonical) {
+    return (
+      <Navigate
+        replace
+        to={{ pathname: canonical, search: location.search, hash: location.hash }}
+        state={location.state}
+      />
+    );
+  }
+  return <HighlyProbableQuestionsPage />;
 };
 
 export default HighlyProbableQuestions;

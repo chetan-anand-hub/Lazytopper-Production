@@ -26,7 +26,12 @@ import {
   getMistakeLogs,
   type MistakeLogEntry,
 } from "../../services/mistakeLogService";
-import { type PracticeQuestion } from "../../data/predictionDataService";
+// BANK-LEAN-1 (P18): `import type`, NOT `import { type … }`. Under this repo's
+// `verbatimModuleSyntax`, the inline form is emitted as `import {} from "…"` — a
+// side-effect import that kept predictionDataService → predictionCore →
+// canonicalQuestionBank in this page's static graph, so /practice-hub downloaded the
+// whole question bank for a TYPE. The declaration form is erased completely.
+import type { PracticeQuestion } from "../../data/predictionDataService";
 import {
   LEARNING_SIGNAL_HONESTY_RULES,
   assertLearningSignalKindForMode,

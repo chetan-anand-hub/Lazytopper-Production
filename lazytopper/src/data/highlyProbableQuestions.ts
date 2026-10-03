@@ -1299,10 +1299,10 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         topic: "Real Numbers",
         subtopic: "Irrational Numbers Proofs",
         concept: "Proving irrationality using contradiction",
-        section: "D",
-        type: "Long",
+        section: "C",
+        type: "Short",
         difficulty: "Medium",
-        marks: 4,
+        marks: 3,
         likelihood: "Medium-High",
         tier: "must-crack",
         bloomSkill: "Analysing",
@@ -1310,14 +1310,13 @@ export const highlyProbableQuestionsSeed: HPQTopicBucket[] = [
         answer:
           "Assume √2 is rational, i.e., √2 = p/q in lowest terms. Squaring gives 2 = p²/q² ⇒ p² = 2q², so p² is even and hence p is even. Let p = 2k. Then 2q² = 4k² ⇒ q² = 2k², so q is also even. This contradicts the assumption that p/q is in lowest terms. Hence √2 is irrational.",
         solutionSteps: [
-          "Assume √2 is rational, so √2 = p/q where p and q are coprime integers, q ≠ 0.; Squaring both sides: 2 = p²/q² ⇒ p² = 2q². [1]",
-          "So p² is even, which implies p is even. Let p = 2k. [1]",
-          "Substitute back: 2q² = (2k)² = 4k² ⇒ q² = 2k², so q² is even and q is also even. [1]",
-          "If both p and q are even, they have a common factor 2, contradicting that p/q was in lowest terms. Therefore our assumption is wrong and √2 is irrational. [1]",
+          "Assume √2 is rational, so √2 = p/q where p and q are coprime integers, q ≠ 0.; Squaring both sides: 2 = p²/q². [1]",
+          "So p² = 2q², hence p² is even and p is even. Let p = 2k; then 2q² = (2k)² = 4k² ⇒ q² = 2k², so q² is even and q is also even. [1]",
+          "Then p and q have a common factor 2, which contradicts that p and q are coprime. Therefore our assumption is wrong and √2 is irrational. [1]",
         ],
         finalAnswer: "Hence √2 is irrational",
         explanation:
-          "This is the classic 4–5 mark proof-by-contradiction question on irrational numbers. Boards often ask for √2, √3 or similar proofs.",
+          "This is the classic 3-mark proof-by-contradiction question on irrational numbers. Boards often ask for √2, √3 or similar proofs.",
         policyTag: "RN-irrationality-proof",
       },
       {

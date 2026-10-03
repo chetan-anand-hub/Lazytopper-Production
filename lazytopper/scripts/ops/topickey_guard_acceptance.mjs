@@ -110,7 +110,10 @@ if (zero.length) {
 // genuinely-safe compare to the allowlist WITH a one-line justification. Test files excluded.
 // Allowlist = audited same-provenance / registry / self-consistent-normalised sites (2026-07-11):
 const B_ALLOW = new Set([
-  "components/worksheet/worksheetModel.ts",     // :586 same-provenance label lookup (key ∈ ws.questions)
+  // BANK-LEAN-1 (C1): the audited worksheetModel.ts:586 site MOVED verbatim, with
+  // worksheetNomenclature, to the bank-free worksheetNaming.ts. Same compare, same
+  // justification; worksheetModel.ts no longer holds a raw .topicKey compare.
+  "components/worksheet/worksheetNaming.ts",    // same-provenance label lookup (key ∈ ws.questions)
   "data/class10TopicRegistry.ts",               // :110 registry self-lookup (both sides registry keys)
   "services/learningPathGenerator.ts",          // :72/:367 learning-path area self-match (one vocabulary)
   "services/topicHubMastery.ts",                // :166 persistence guard vs its own normalizeTopicKeyForStorage
