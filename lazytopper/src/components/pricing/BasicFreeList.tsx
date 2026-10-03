@@ -1,4 +1,5 @@
 import { MONTHLY_INLINE } from "../../config/pricing";
+import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
 
 /**
  * TRIAL-ON-SIGNUP-1 · T4 — the Basic (free) plan's feature list, ONE source.
@@ -24,8 +25,9 @@ import { MONTHLY_INLINE } from "../../config/pricing";
  * (the free-check panels, the sign-in strip, the Premium lock, the Home tutor card) builds
  * its line from these fields, so the price and the wording cannot drift between them.
  *
- * WHY HERE: this module has no other import, so homeDestinations (whose import graph must
- * stay firebase-free) and freeCheckClient (node-safe) can both import it.
+ * WHY HERE: this module imports only config/pricing and config/mockViewLimits (both
+ * import-free), so homeDestinations (whose import graph must stay firebase-free) and
+ * freeCheckClient (node-safe) can both import it. Never import a component from here.
  */
 const TRIAL_TRY_LINE = "Try Premium free for 7 days — no card needed.";
 const TRIAL_AFTER_LINE = `After that, keep free Basic or upgrade to Premium at ${MONTHLY_INLINE}.`;
@@ -50,7 +52,12 @@ export const FREE_FEATURES = [
   { label: "Basic topic insights", included: true },
   { label: "Solution Checker / Check & Improve", included: false },
   { label: "Deep Mistake Intelligence", included: false },
-  { label: "Full mocks and predicted-question execution", included: false },
+  // FRICTION-FIX-1 · F2 (P7) — mock papers ARE free, within MockViewGate's daily limits,
+  // which are imported (config/mockViewLimits.ts), never typed here.
+  {
+    label: `Mock papers: ${ANON_DAILY_MOCK_LIMIT} a day signed out, ${SIGNED_IN_DAILY_MOCK_LIMIT} a day with a free account`,
+    included: true,
+  },
   { label: "Richer Me / Progress recommendations", included: false },
 ];
 

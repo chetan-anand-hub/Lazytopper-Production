@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useSubscription } from "../../hooks/useSubscription";
 import { UpgradeModal } from "../UpgradeModal";
 import { MONTHLY_INLINE } from "../../config/pricing";
+import { ANON_DAILY_MOCK_LIMIT, SIGNED_IN_DAILY_MOCK_LIMIT } from "../../config/mockViewLimits";
 
 /**
  * Per-DAY paper views (AUTH-GATE-MOVE-1). This gate used to allow 1 per WEEK while the
@@ -24,10 +25,9 @@ import { MONTHLY_INLINE } from "../../config/pricing";
  * that is the correct trade: see the crawler note on `getDayStamp`.
  */
 const MOCK_VIEW_KEY = "lazytopper.dailyMockViews";
-/** Anonymous visitor: one paper a day, download included. */
-const ANON_DAILY_MOCK_LIMIT = 1;
-/** Signed-in, non-premium — including a student whose 7-day trial has ended. */
-const SIGNED_IN_DAILY_MOCK_LIMIT = 3;
+// FRICTION-FIX-1 · F2 (R3) — the two limits (anonymous 1/day, signed-in free 3/day) live
+// in the import-free config/mockViewLimits.ts, so the Basic plan list can state them
+// without importing this module (see that file for the cycle it avoids).
 const GUEST_SESSION_KEY = "lazytopper.guestSessionId";
 
 function getGuestSessionId(): string {
