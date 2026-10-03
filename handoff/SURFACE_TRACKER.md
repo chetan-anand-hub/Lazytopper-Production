@@ -1,5 +1,31 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-03 — WAVE B-10 (CLEANUP + FRICTION, CONTROLLER B): FRICTION-FIX-1 (`#910` `94f3d4eb` + `#912` `8ff2203e`), trunk `ffc586c0` (with Controller A's `#911`, not recorded here). LIVE on deploy (no flag); the rollout is recorded in `CURRENT_STATE.md`.**
+> ★ **SIX AREAS MOVE; NO §2 MATRIX CELL FLIPS.** Pricing's Verified cell stays 🟡 because the signed-in and dark-theme checks of the Basic list are owner-owed; Check & Improve's cells are already ✅; Onboarding, the upgrade modal, analytics and the retired surfaces have no row in §2. Each move is recorded below as a status line.
+
+### ✅ Onboarding (`/app/onboarding`, no §2 row) — **"your entire study plan" / "Build My Study Plan" / "CBSE 2025-26" → "We'll pace your preparation from this." / "Start preparing" / "CBSE 2026-27: Two-Exam System" (session derived from the board-date config) — LIVE (`#912`)**
+- Pinned: no `/20\d\d[-–]\d\d/` literal and no "study plan" on the page (`Onboarding.friction.test.tsx`, mutations M1, M2). Signed-in live check owner-owed. **Not reachable from sign-up** (`[FU-ONBOARDING-UNREACHABLE-FROM-SIGNUP]`).
+
+### 🟡 Pricing — Basic list (row **Pricing**, Verified stays 🟡) — **mock row "Full mocks … not included" → "Mock papers: 1 a day signed out, 3 a day with a free account" (included), theme tokens — LIVE (`#912`)**
+- Production, signed out: the line is in the prerendered HTML and the hydrated page, 0 "undefined" *(verifier-reported)*. The prerender came from the CI artifact. Light/dark and in-modal checks owner-owed (dark is test-verified only, `[FU-THEME-DARK-UNREACHABLE]`).
+
+### ✅ Upgrade modal (no §2 row) — **one exit ("Choose Plan") → "Keep using Basic" + the Basic list under the Premium list — LIVE (`#912`)**
+- Every render site needs a signed-in user, so the live check is owner-owed.
+
+### ✅ Check & Improve — free-check panels (row **Check & Improve**, cells already ✅) — **"See plans →" on the used panel and the trial offer; the sign-up confirmation survives a reload — LIVE (`#912`)**
+- Production: the seeded used panel's link is `/app/pricing` and navigates there *(verifier-reported)*. The trial offer and the reload check are signed-in, owner-owed.
+
+### ✅ Analytics (no §2 row) — **paths redact `:email` / `:id`, kebab slugs kept — LIVE (`#912`), with a known LOW gap**
+- App `page_view` hits (GA4 and Vercel) are redacted. GA4's automatic `user_engagement` hit still carries the raw landing URL from `index.html` (`[FU-INDEXHTML-PATH-PII-VERCEL-BEFORESEND]`, LOW; controller: no rollback).
+
+### ✅ Retired surfaces (no §2 rows) — **old Dashboard, Daily Mix, Weekly Wrapped, Parent Dashboard, the study planner, old Trends, the mobile Topic Hub and the rest: unreachable → DELETED (`#910`)**
+- 94 client files and the 7 mentor server modules. A no-orphans guard keeps them from coming back. The 7 signed-out regression surfaces loaded clean after both deploys *(verifier-reported)*.
+
+### ⬜ NO OTHER CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- Home, Practice Hub, Topic Hub, Notes, Exam Trends and Me were regression-checked only (signed out, clean after both deploys); their content did not change. Signed-in checks owner-owed.
+
+### 📋 Scope discovered? — **YES, recorded in §2a below; no row's Scope changes.** Onboarding is unreachable from sign-up, the dark theme is unreachable live, and analytics has a second path sender in `index.html`. None of these has a §2 row except Pricing (dark theme), whose Scope is already `Settling`. Logged in `DECISION_LOG.md` (2026-10-03, wave B-10) and as FUs.
+
 > **2026-10-03 — WAVE B-9 (SEO, CONTROLLER B): SEO-3 (`#906` `3cf75853`), trunk `3cf75853`. LIVE on deploy (no flag); the rollout is recorded in `CURRENT_STATE.md`.**
 > ★ **TWO SURFACES MOVE ON THE AXIS "WHAT A CRAWLER CAN READ AND IS TOLD ABOUT": HPQ / Predicted (now indexed and advertised) and Notes (head title).** The §2 matrix has no column for indexing, advertising or head titles, and the Built / Redesigned / Desktop / Mobile / Verified cells of both rows are already ✅, so **no matrix cell flips**; the moves are recorded here as status lines.
 
@@ -1969,6 +1995,14 @@ Cells are read against each surface's CURRENTLY-KNOWN scope (see the Scope colum
 | **Notes** (content track) | Settling | ✅ | — | ✅ | ✅ | — | ✅ | **v1.3 MERGED (#356, `629457e`) — template COMPLETE, owner live-verified.** v1.3 made the mindmap read as a **VISIBLE TREE** by default (per-branch `--mm-accent` rail + connector elbows + root › branch › leaf weight; open-state PRESERVED — the brief's "collapsed" premise was wrong: all specs are depth-2, already fully expanded at `useState(depth <= 1)`) and the note modal **near-full-screen** (92vw×92vh capped 1280px; mobile full-screen); kept the v1.2 ≤380px no-overlap win. Owner live-verified the tree + full-screen modal + **360px on a real device** → **Mobile + Verified flipped ✅**. v1.2 (#345): collapsible mindmap + per-step marks (schema 1.2, validator Rule 10) + note-as-popup + clickable NCERT page refs, proven across physics/maths/biology (light/quadratic/life-processes). **NOTES FAN-OUT COMPLETE (2026-07-12) — all 26 canonical topics specced + independently audited** (batches #365/#368/#370/#371/#372; Chemical Reactions = LOCKED chemistry exemplar; syllabus trims held — Heredity evolution-trimmed, Magnetic Effects motor/generator-trimmed). Clickable NCERT page-cites are **LIVE + owner-verified** (#375 `ncertPdfOffsets.ts` + owner-hosted `ncert/{subject}/ch{N}.pdf` + public-read rule + CORS; Trig p.114 / Heredity p.129 land exactly). Source-ledger `p.N` cites made clickable too via [FU-LEDGER-CLICKABLE-CITES] (PR #376, in review). **Surface ✅ COMPLETE.** |
 
 ## 2a · DISCOVERED-SCOPE LOG (scope that emerged AFTER a surface was first planned)
+
+### 2026-10-03 - Wave B-10 (`#910` · `#912`) - a page every sign-up was said to see is reachable by none, a theme the tokens serve is never shown, and a path redaction has a second sender
+
+**Surfaces: Onboarding, Pricing (Basic list), analytics.** Only Pricing has a §2 row, and its `Scope` already reads **Settling**, so no cell changes.
+
+- ⚠ **DISCOVERED: Onboarding is not on the sign-up path.** No live code navigates to `/onboarding`; `Login.tsx` lands a new sign-up on `/`, and the only `navigate("/onboarding")` was in the retired Dashboard (deleted by `#910`). The F1 copy fix is correct but reaches only a direct visit. `[FU-ONBOARDING-UNREACHABLE-FROM-SIGNUP]`
+- ⚠ **DISCOVERED: the dark theme is unreachable live.** `ThemeContext.tsx` pins `data-theme="light"`; the Basic list's dark tokens are AA but test-verified only. `[FU-THEME-DARK-UNREACHABLE]`
+- ⚠ **DISCOVERED: analytics has a path sender outside the app's redaction.** GA4's automatic `user_engagement` reads `page_location` from the `gtag('config')` snippet in `index.html`. `[FU-INDEXHTML-PATH-PII-VERCEL-BEFORESEND]` (LOW)
 
 ### 2026-08-09 - Wave ME-B (`#647` · `#649`, both DRAFT) - a reader shipped without its producer, and the concept row turned out to have no key
 

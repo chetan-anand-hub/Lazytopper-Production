@@ -23,6 +23,90 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-03 — WAVE B-10 (CONTROLLER B): FRICTION-FIX-1 (`#910` `94f3d4eb` + `#912` `8ff2203e`) — thirteen new, seven closed (+ two builder candidates opened and closed under R2), one kept open by owner ruling
+
+Sources: the builders' reports (`Desktop/diff/report-friction-fix-1-pr1-2026-10-03.md` "FU candidates"; `report-friction-fix-1-pr2-2026-10-03.md` "FU IDs" and the phase-A resume), the PR-2 OR-LIVE report (`report-friction-fix-1-pr2-orlive-2026-10-03.md` §5), the owner rulings (`BRIEF_B10_RULINGS_ADDENDUM_1.md`) and the controller's state file (`WAVE_STATE_B10.md`). **Bodies are the builders' text; nothing is invented.** For the closed ids, `grep` of `handoff/` at `8ff2203e` *(docs-builder-verified)* found entries for `[FU-BASIC-LIST-DARK-THEME]`, `[FU-UPGRADE-MODAL-NO-BASIC-EXIT]`, `[FU-TRIAL-WORDING-SEE-PLANS-FREECHECK]`, `[FU-SIGNUP-CONFIRMATION-SESSION-ONLY]` and `[FU-QG-BUILD-MASKS-VITEST]`; **`[FU-BSRE-GATE-PINS-DEAD-EVALUATOR]`, `[FU-F2-MOCK-LIMITS-ZERO-IMPORT-MODULE]` and the builder candidates `[FU-MENTOR-SERVER-MODULES-ORPHANED]`, `[FU-MODE-ALIASES-COACH-DEAD]` had no entry** (all were raised and closed inside this wave) and are recorded here as opened and closed. No dated entry is edited (standing rule 3).
+
+### New — from PR-1 (`#910`)
+
+### `[FU-SPEC-WALKER-MISSES-PATHJOIN-REQUIRE]` — OPEN · **a cofounder error** (owner ruling R1)
+The audit walker's rules (static, type-only, re-export and string-literal `import()`; no `require`) omit `require(path.join(__dirname, …))` and literal `require`. Under them, 5 live server-loaded `src` modules read as orphans — `server/index.cjs:81,95,104,107,110` load `trianglesGrindContract`, `tutorContracts`, `trianglesRetriever`, `diagramTemplates` and `topicTeachContracts` at top level, so deleting any one crashes the server at boot — and 7 if literal `require` is also dropped (`server/tutorOrchestrator.cjs:1-2` and `index.cjs:98,101` load `hintLadder` and `rubricScore`). That is why the audit's 114-file set (`786AE2D979E9`) was never reproduced; that variant's hash is `55b001ffedaa` *(builder-reported)*. Body: an audit walker must follow every edge the runtime follows.
+
+### `[FU-BUILDER-WALKER-INDEX-PATH-NORMALISATION]` — OPEN (lesson)
+The builder's first report gave 109 / sha256 `e4005c134075`. On Windows, `<dir>` + `"/index.ts"` is a mixed-separator path that never equalled the walk key of the same file, so every directory import counted as "not reached". It wrongly listed two LIVE files, `src/components/celebrations/index.ts` and `src/components/equation/index.ts`; `tsc` caught it after deletion and both were restored before any commit. The guard now normalises with `resolve()`; the corrected set is 107 (`6446ebc347b9…`). Lesson: a set that matches the ruling's count can still contain live files; `tsc` is the backstop *(builder-reported)*.
+
+### `[FU-BANK-CONSUMER-ORPHANS-FOR-CONTROLLER-A]` — OPEN · Controller A scope
+13 `ALLOWED_ORPHANS` (5 bank consumers — `services/dailyMixService.ts`, `pages/app/Worksheets.tsx`, `pages/desktop/DesktopWorksheetsPage.tsx`, `prediction/difficultyAwarePractice.ts`, `utils/topicMockEngine.ts` — plus the 8 files of their closure: `l2/BackToParent`, `l2/ContextBar`, `l2/MistakeIntelligencePanel`, `lib/desktop/mistakeData`, `lib/desktop/savedWorksheets`, `services/dailyMixGenerator`, `services/dailyMixPlayback`, `services/worksheetProfileService`) to delete in or after BANK-SPLIT-1. Empty `ALLOWED_ORPHANS` when done *(builder-reported)*.
+
+### `[FU-SERVER-PROMPT-MODULES-NOW-UNREQUIRED]` — OPEN
+`server/prompts/promptData.cjs`, `promptCore.cjs`, `promptTeachContract.cjs` and `promptValidation.cjs` have no requirer once `mentorPrompts` / `mentorClassifiers` / `mentorTeachHelpers` are gone (control-walk result). They were outside the R2 grant, so they were left *(builder-reported)*.
+
+### `[FU-LEGACY-OPS-GATES-RED-AT-TRUNK]` — OPEN
+12 unwired ops gates (in no `package.json` matrix and not in CI) are RED at trunk for unrelated reasons (no `node_modules`, missing `.project_memory` inputs, the deleted `Home.tsx`, the server not starting), and some read deleted files: `agent3_uiux_guard.mjs`, `backlog_1_19_acceptance.mjs`, `half_built_impact_analysis.mjs`, `planner_mentor_realism_acceptance.mjs`, `pro_tips_product_acceptance.mjs`, `step2_refactor_connectivity_acceptance.mjs`, `student_progress_acceptance.mjs`, `styles_change_impact_acceptance.mjs`, `topichub_intended_functionality_acceptance.mjs`, `ux_focus_acceptance.mjs`, `ux_priority_pack_acceptance.mjs`, `ux_priority_step_acceptance.mjs` (plus the report generators `repo_deep_audit.mjs`, `feature_file_matrix.mjs`, `content_strategy_export/export_repo_details.ps1`). Left untouched by `#910`. Retire them as a set *(builder-reported)*.
+
+### `[FU-TOOLS-BSRE-RUNFIXTURES-DANGLES]` — OPEN
+`lazytopper/tools/bsre/runFixtures.ts:4-5` imports the deleted `bsre/evaluator.ts` and `bsre/types.ts`. `tools/**` is not a walker root and nothing references `runFixtures`, so it is a dangling dev tool *(builder-reported)*.
+
+### `[FU-TOOLS-CODEX-TEST-MATRIX-STALE]` — OPEN
+`tools/codex/test_matrix.json:15,113,114,197` lists 4 deleted paths. A data listing; nothing runs it; untouched *(builder-reported)*.
+
+### `[FU-QP-BATCH-CONTROL-60S-WINDOWS]` — OPEN
+The `quickPracticeSessionService.batch.test.ts` "CONTROL — the SAME spy IS called once…" test takes 55–60 s on Windows against its 60 s timeout (one local timeout; passed alone twice at 55.5 s and 59.8 s, and at trunk). A Windows timing flake, not a regression; CI on linux is green *(builder-reported)*.
+
+### `[FU-NO-ORPHANS-GUARD-SCOPE]` — OPEN
+The guard covers `src/` only. Server-side orphans (see `[FU-SERVER-PROMPT-MODULES-NOW-UNREQUIRED]`) need their own walk *(builder-reported)*.
+
+### New — from PR-2 (`#912`) and its OR-LIVE
+
+### `[FU-INDEXHTML-PATH-PII-VERCEL-BEFORESEND]` — OPEN · **LOW (owner ruling R6: only the owner visits admin pages)**
+`lazytopper/index.html` (outside `#912`'s allowlist) has two path senders that do not use the new F6 rules *(builder-reported)*: (a) the Vercel `beforeSend` rewrites `event.url` with only the `/u/` rule, and Vercel stamps `window.location` on every event, so `/app/admin/students/<uid>` can still reach Vercel in `event.url`; (b) the GA4 `config` `page_location` is the landing address with only `/u/` excluded. Every in-app sender goes through `normalisePath`.
+- **Evidence added 2026-10-03 from the PR-2 live check** *(verifier-reported, `report-friction-fix-1-pr2-orlive-2026-10-03.md` §5; intercepted locally, no test hit reached GA4 or Vercel)*: **in-app `page_view` paths ARE redacted** (GA4 and Vercel; the kebab slug is kept). **GA4's automatic `user_engagement` hit sends the raw LANDING URL** — the `gtag('config')` `page_location` in `lazytopper/index.html` (`:173` on trunk *(docs-builder-verified)*) — so a session that lands directly on `/app/admin/students/<uid>` (a reload, a new tab, a bookmark) leaks the uid. Measured with a 28-char mixed-case id on the public `/app/topic-hub/:topicName` and `/app/notes/:topicSlug` routes: `page_view` `…/:id`, `user_engagement` RAW. Sessions that reach an id URL by in-app navigation do not leak (the engagement hit carries the landing page). Vercel analytics was fully redacted in every case. Admin routes were not visited.
+- **Controller ruling: no rollback** — pre-existing, outside `#912`; reverting `#912` would not fix it.
+- Suggested body: make the `index.html` snippet apply the same segment redaction (`@` / `%40` → `:email`, a 20+ `[A-Za-z0-9_-]` non-kebab segment → `:id`) to the `page_location` it puts on `config` (and the Vercel `beforeSend`), and pin it with a test.
+
+### `[FU-ONBOARDING-UNREACHABLE-FROM-SIGNUP]` — OPEN (owner ruling R6, no work now)
+`/onboarding` is routed (`App.tsx`), but no live code navigates there. `Login.tsx`'s fallback is unconditionally `/` ("The /onboarding page is retired — a new signup lands on the homepage"), `MobileHome` re-points to `/` too, and the only `navigate("/onboarding")` was in the retired `Dashboard.tsx`, deleted by `#910`. F1 is still correct and harmless; the spec premise "Onboarding (every new sign-up)" is false. Owner live-verify is by opening `/app/onboarding` signed in (R5) *(builder-reported)*.
+
+### `[FU-THEME-DARK-UNREACHABLE]` — OPEN (owner ruling R6, no work now)
+`context/ThemeContext.tsx` pins `data-theme="light"` on mount, and `toggleTheme` / `setTheme` are no-ops. The F2 token change is correct and AA in both themes (dark: text 18.83:1, tick 10.81:1; light: text 14.63:1, tick 5.02:1, computed in `BasicFreeList.theme.test.tsx`), but production can only show light. Dark is verified by tests only (R5) *(builder-reported)*.
+
+### `[FU-HOMEDESTINATIONS-FIREBASE-FREE-COMMENT-DRIFT]` — OPEN (doc drift; id assigned by the docs builder — the builder and controller logged it as "the homeDestinations.tsx comment drift, FU candidate, no action")
+`lib/desktop/homeDestinations.tsx`'s FIREBASE-FREE comment says `BasicFreeList` imports `"../../config/pricing (zero imports)"`. After R3 it also imports `config/mockViewLimits` (also zero imports), so the rule still holds; only the comment undercounts. Outside `#912`'s allowlist; not edited *(builder-reported; controller noted)*.
+
+### Closed
+
+### `[FU-BASIC-LIST-DARK-THEME]` (wave B-6) — CLOSED by `#912` F2
+The Basic list card now uses the theme tokens, not the fixed light palette; AA in both themes, pinned by `BasicFreeList.theme.test.tsx` (mutation M3, fixed palette → RED). Dark is not reachable live (`[FU-THEME-DARK-UNREACHABLE]`). The wave B-6 entry stands as written.
+
+### `[FU-UPGRADE-MODAL-NO-BASIC-EXIT]` — CLOSED by `#912` F3
+The modal now has a secondary "Keep using Basic" button that closes it, and shows the shared Basic list under the Premium list; "Choose Plan" is unchanged (mutations M9, M10). Signed-in live check owner-owed. The original entry stands as written.
+
+### `[FU-TRIAL-WORDING-SEE-PLANS-FREECHECK]` (wave B-6) — CLOSED by `#912` F4
+A router Link "See plans →" to `/pricing` in `FreeCheckUsedPanel` and `FreeCheckTrialOffer` (mutation M8, `/app` prefix → RED). Live: the seeded used panel links `/app/pricing` with one prefix and navigates there *(verifier-reported)*; the trial offer is signed-in only.
+
+### `[FU-SIGNUP-CONFIRMATION-SESSION-ONLY]` (wave B-6) — CLOSED by `#912` F5
+The sign-up marker is mirrored to `sessionStorage` keyed by uid, read on mount and cleared when the student continues; display-only, entitlement untouched (mutation M7). The reload check is owner-owed.
+
+### `[FU-QG-BUILD-MASKS-VITEST]` (wave B-9) — CLOSED by `#912` C1
+Every Quality Gate step after Build that does not need its output (P15: Ops matrix, Typecheck test files, Vitest suites, both test clocks) now runs `if: ${{ !cancelled() && steps.classify.outputs.docs_only != 'true' }}`; a failed Build still fails the job. Proof: run `37126679962` (Build red, vitest ran `Tests 3569 passed (3569)`), reverted by `cb9a1de8` *(builder-reported; step conclusions docs-builder-verified)*.
+
+### `[FU-BSRE-GATE-PINS-DEAD-EVALUATOR]` — OPENED and CLOSED this wave (no prior entry) · handled under P14 (R6)
+`lazytopper/scripts/ops/bsre_spike_acceptance.mjs:44` asserted the presence of `src/engine/bsre/evaluator.ts`, an unreachable file (its only loader was the orphaned `mentorBsre.cjs`). `#910` removed `bsre_types_present` and `bsre_evaluator_present` and the now-unused `fileMissing()`; the live check `bsre_runtime_refs_present` stays *(builder-reported)*.
+
+### `[FU-F2-MOCK-LIMITS-ZERO-IMPORT-MODULE]` — OPENED and CLOSED this wave (no prior entry) · done by R3
+Raised when F2's specified import created the cycle `MockViewGate → UpgradeModal → BasicFreeList → MockViewGate` ("undefined a day"). Owner ruling R3 granted option A: the import-free `src/config/mockViewLimits.ts`, imported by both; the cycle pin `BasicFreeList.mockLimits.test.tsx` (mutation M11 → RED) *(builder-reported)*.
+
+### Kept open
+
+### Note — `[FU-TRIAL-UNVERIFIED-EMAIL-CAN-START]` (wave B-5) — KEPT OPEN, **OWNER RULING 2026-10-03: KEEP**
+The trial keeps starting at sign-up, before email verification; no verified-email guard is added. The wave B-5 entry and the wave B-6 note stand as written; the ruling is in `DECISION_LOG.md` (2026-10-03, wave B-10).
+
+### `[FU-MENTOR-SERVER-MODULES-ORPHANED]` — OPENED and CLOSED this wave (no prior entry) · done by R2
+The builder's PR-1 phase-1 candidate: `mentorModeHandler`, `mentorClassifiers`, `mentorPrompts`, `promptGrind`, `mentorBsre`, `mentorTeachHelpers` and `mentorDiagramHelpers` had no requirer, so delete them whole rather than trim coach/mindset (needed a scope grant). Owner ruling R2 granted it; `#910` deleted all 7 after the require-walk *(builder-reported)*.
+
+### `[FU-MODE-ALIASES-COACH-DEAD]` — OPENED and CLOSED this wave (no prior entry) · done by R2
+The builder's PR-1 phase-1 candidate: the coach entries in `mentorClassifiers.cjs` `MODE_ALIASES` (outside the original allowlist). `#910` deleted `mentorClassifiers.cjs` whole under R2, so nothing remains *(builder-reported)*.
+
 ## 2026-10-03 — WAVE B-9 (CONTROLLER B): SEO-3 (`#906` `3cf75853`) — one new, two closed
 
 Sources: the builder's report (`Desktop/diff/report-seo-3-step1-2026-10-03.md`, "FU IDS") and the controller's state file (`Desktop/diff/WAVE_STATE_B9.md`, "FU ENTRIES COLLECTED" and "HANDOFF DRAFT (filled)"). **Neither closed id had an entry on this board** (`grep` of `handoff/` at `3cf75853` *(docs-builder-verified)*): `[FU-SEO3-HPQ-DESC-OVER-CAP]` was raised and closed inside this wave, and `[FU-LLMS-PIN-ONE-WAY]` was named in the owner's audit of `#904` and in spec `SEO-3` (it is the "the sitemap side is not pinned the other way" note in the WAVE A-9 block of `NEXT_ACTION.md`). Each is recorded here as opened and closed, so no dated entry is edited (standing rule 3).

@@ -1,5 +1,15 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-03 — CLEANUP + FRICTION: **WAVE B-10 — FRICTION-FIX-1** — `#910` + `#912` MERGED — trunk `ffc586c0` (with Controller A's `#911`)
+
+- ✅ **PR-1 RETIRED-DELETE-1** (`#910` `94f3d4eb`, LIVE, OR-LIVE PASS): 94 retired, unimported client files deleted (old Dashboard, Daily Mix, Weekly Wrapped, Parent Dashboard, the study planner, old Trends, mobile Topic Hub…) plus the 7 unrequired mentor server modules (coach/mindset modes went with them); +236 / −20,381. Full list in `Desktop/diff/report-friction-fix-1-pr1-2026-10-03.md`.
+- ✅ **No-orphans guard** `src/config/noOrphans.guard.test.ts` gates every PR (`NO_ORPHANS: files=298 orphans=13` at trunk; the 13 `ALLOWED_ORPHANS` are bank consumers, Controller A scope); mutation-proven M1–M4.
+- ✅ **PR-2 FRICTION-FIX-1** (`#912` `8ff2203e`, LIVE, OR-LIVE PARTIAL — no rollback): Onboarding without the retired plan (session derived, 2026-27); the Basic list says mocks are free (1/day signed out, 3/day signed in, from `config/mockViewLimits.ts`) and uses theme tokens; "Keep using Basic" + the Basic list in the upgrade modal; "See plans →" on the free-check panels; the sign-up confirmation survives a reload; analytics paths redact `:email` / `:id` (kebab slugs kept); Quality Gate runs tests past a broken Build (C1, proof run `37126679962`). Pricing prerender regenerated from the CI artifact.
+- ✅ **Owner rulings recorded:** R1–R7; `[FU-TRIAL-UNVERIFIED-EMAIL-CAN-START]` → KEEP; the study planner retired; the wave A-10 gate narrowing owner-approved 2026-10-03; TOPIC-FIX-1 deferred by the owner (with the grader anomalies).
+- ✅ **FUs:** thirteen new, seven closed (`[FU-BASIC-LIST-DARK-THEME]`, `[FU-UPGRADE-MODAL-NO-BASIC-EXIT]`, `[FU-TRIAL-WORDING-SEE-PLANS-FREECHECK]`, `[FU-SIGNUP-CONFIRMATION-SESSION-ONLY]`, `[FU-QG-BUILD-MASKS-VITEST]`, `[FU-BSRE-GATE-PINS-DEAD-EVALUATOR]`, `[FU-F2-MOCK-LIMITS-ZERO-IMPORT-MODULE]`).
+- ✅ **Docs:** this handoff (covers `#910` and `#912`).
+- ⬜ **Owner:** the signed-in OR-LIVE checks of both PRs (list in `CURRENT_STATE.md`); the next wave (TOPIC-FIX-1 is deferred).
+
 ## 2026-10-03 — SEO: **WAVE B-9 — SEO-3** — `#906` MERGED — trunk `3cf75853`
 
 - ✅ **SEO-3** (`#906` `3cf75853`, LIVE since 11:57:40 IST, no flag): `/app/highly-probable/10/Maths` and `/Science` are self-canonical with their own titles and descriptions, prerendered with all 70 questions each, and advertised in `sitemap.xml` (60 → 62) and `llms.txt` (sha256 `57E869074477`, 9,870 B).
@@ -16,7 +26,7 @@
 - ✅ **New pins:** `bankReach.guard.test.ts` (`BANK_REACH: protected=11 clean=11`) and `HighlyProbableQuestions.seo.test.tsx` (`HPQ_PAGE_PIN: maths=70 science=70`); mutation-proven by G1 (bank import re-added → `clean=10`), G2-a (collapsed chapters left out → DOM != accessor rows) and G2-b (redirect disabled → three redirect tests red).
 - ✅ **FUs:** three new (`[FU-LAZY-RETRY-NAMED-EXPORT]`, `[FU-CI-SYNTHETIC-ID-BANK-LOAD]`, `[FU-HPQ-CARD-ID-ON-MEASURE]`), none closed.
 - ✅ **Docs:** this handoff (covers `#907`).
-- ⬜ **Owner:** audit the overlay-gate narrowing for `sessionRecords.ts` (controller decision under OR-AUTO, pending owner audit).
+- ✅ **Owner:** audit the overlay-gate narrowing for `sessionRecords.ts` (controller decision under OR-AUTO, pending owner audit). → ✅ **OWNER-APPROVED 2026-10-03** (recorded by the wave B-10 docs PR; see `DECISION_LOG.md` 2026-10-03 WAVE B-10). *(Marker flipped ⬜ → ✅ by that PR.)*
 
 ## 2026-10-02 — SEO: **WAVE A-9 — LLMS-1** — `#904` MERGED — trunk `08767832`
 
