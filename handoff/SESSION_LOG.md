@@ -1,3 +1,27 @@
+## 2026-10-03 — WAVE A-10 (PERF + PREDICTED QUESTIONS, CONTROLLER A) — **BANK-LEAN-1: FIVE PAGES THAT SERVE NO QUESTIONS STOP DOWNLOADING THE ~8.6 MB QUESTION BANK; PREDICTED QUESTIONS FIXES** — `#907` MERGED — trunk `4f51da9f`
+
+★ **PROVENANCE.** Controller A, wave A-10. The owner spec `BANK-LEAN-1` was hash-verified (`4E37ED300919`) at `controller-a10/ops/.specs`, byte-identical to the owner's file. One builder (`claude-opus-5-5`, effort high) in its own worktree. A docs builder wrote this docs PR in `C:/Projects/LT-worktrees/a10-docs` from `WAVE_STATE_A10.md` and `report-bank-lean-1-2026-10-03.md`. *(builder-reported)* / *(controller-verified)* / *(docs-builder-verified)* as in `CURRENT_STATE.md`.
+
+**Timeline.**
+- **Dispatch** at trunk `d96c18c9` (`#905`), the spec base. Owner rulings C1–C4, H1–H4, G1–G2 fixed in the spec; the owner granted only the two HPQ data rows in H4. Disjoint from Controller B's SEO-3 (`#906`). The only STOP: P19 finds an advertised page's prerendered content changes and the cause cannot be removed. It did not fire.
+- **Builder** *(builder-reported)*:
+  - §0c premise gate PASS (20 premises, exit 0), no drift.
+  - P16 NO (no C&I / worksheet / quick-practice scorecard variant calls a bank lookup); P17 → C4 option 1; P18 found a static path to the bank from `/practice-hub` through `import { type X }`; P19 NO (prerender-capture matches, captured=60); P20 two test pins updated.
+  - First CI head `de4fc238` RED in the ops matrix (`Guard B FAIL … worksheetNaming.ts:121`), fixed in `03162743`; a CodeQL high in `bankReach.guard.test.ts` fixed in `260f0e52`.
+  - Spec contradiction: §1 allowed `sessionRecords.ts` and C1 ordered an edit, but two required overlay gates froze it. The builder narrowed both gates to import-only; the controller accepted it under OR-AUTO, pending owner audit.
+- **Controller sent the builder back before merge** *(controller-verified)*: GAP1, the C2 concept-present path (the live C&I and HPQ checks had the concept absent on both sides, so they could not fail); GAP2, the signed-in C4 numbers (Topic Hub and `/me`), production vs preview. Both closed with no code change *(builder-reported)*: GAP1 concept "HCF and LCM by Prime Factorisation" (`RNSD-003`) on both sides, and its test mutation-proven; GAP2 Topic Hub trend and `/me` text identical.
+- **`#907` gates** *(controller-verified; re-read from the log, docs-builder-verified)*: Quality Gate `37095597702` on head `260f0e52` `success`; `Tests  3544 passed (3544)`, `BANK_REACH: protected=11 clean=11` and `HPQ_PAGE_PIN: maths=70 science=70` in each of the three vitest steps; prerender-capture `37095597691` `PRERENDER: committed artifact matches a fresh capture.`.
+- **`#907` MERGED `4f51da9f`** at 04:50:34Z (10:20:34 IST), `--match-head-commit 260f0e52…`; `git diff 260f0e52 4f51da9f` empty; 22 files *(controller-verified)*.
+- **ROLLOUT** *(controller-verified)*: www `/app/version.json` first served `4f51da9f` at 05:07:30Z; 20/20 consecutive paced samples by 05:12:24Z. Production OR-LIVE: bank chunk on first load 5/5 → 0/5; behaviour checks identical (numbers in `CURRENT_STATE.md`). No rollback.
+- **Three throwaway students** were used for the signed-in checks and **erased** in-app: `POST /api/account/erase` 200 `ok:true` for each, and sign-in afterwards returned `INVALID_LOGIN_CREDENTIALS` *(controller-verified)*.
+- Controller B's SEO-3 (`#906`) was told to proceed on `4f51da9f`.
+- This docs PR, then the final audit request, then STOP.
+
+**Lessons.**
+- **`import { type X } from "…"` is not a type-only import under `verbatimModuleSyntax`.** It is emitted as `import {} from "…"`, a side-effect import that keeps the module in the graph; only `import type { X }` is erased *(builder-reported; carried forward verbatim in `CURRENT_STATE.md`)*.
+- **A live check where the value is absent on both sides cannot fail.** The first C&I and HPQ live checks compared concept-absent to concept-absent; the controller sent the builder back for a path where the concept resolves *(controller-verified)*.
+- **A spec's allowlist does not lift a gate's freeze.** The spec allowed `sessionRecords.ts`, but two required CI gates froze it; the conflict surfaced only in the builder's run *(builder-reported)*.
+
 ## 2026-10-02 — WAVE A-9 (SEO, CONTROLLER A) — **LLMS-1: `llms.txt` LISTS EXACTLY THE 60 SITEMAP PAGES WITH ACCURATE KEY FACTS, PINNED TO THE SITEMAP** — `#904` MERGED — trunk `08767832`
 
 ★ **PROVENANCE.** Controller A, wave A-9. The owner spec `LLMS-1` was hash-verified (`5760488F64E7`, 15424 bytes) at `controller-seo/ops/.specs`; its §4 payload is owner-approved. One builder (`claude-opus-5-5`, effort high) in its own worktree. A docs builder wrote this docs PR in `C:/Projects/LT-worktrees/llms-1-docs` from `WAVE_STATE_A9.md` and `report-llms-1-2026-10-02.md`. *(builder-reported)* / *(controller-verified)* / *(docs-builder-verified)* as in `CURRENT_STATE.md`.

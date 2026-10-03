@@ -1,3 +1,23 @@
+## ★★★ 2026-10-03 — WAVE A-10 (PERF + PREDICTED QUESTIONS, CONTROLLER A) — BANK-LEAN-1 CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-9 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
+
+**TRUNK IS `4f51da9f6c7e73266922186d05aea6835d334a6d`**, measured 2026-10-03 (`git ls-remote origin base/approved-thru-437`):
+- `4f51da9f` = `#907` (BANK-LEAN-1: five non-question pages stop loading the question bank on first load; Predicted Questions fixes) — **this wave**; LIVE on www since 05:07:30Z, 20/20 paced samples by 05:12:24Z (see `CURRENT_STATE.md`)
+- `d96c18c9` = `#905` (docs: wave A-9)
+
+Open when this docs PR was opened: only `#906` (SEO-3, Controller B, draft), which touches no `handoff/**` file.
+
+### NEXT — OWNER
+1. **Audit the overlay-gate narrowing (new from wave A-10).** In `check_improve_overlay_additive_acceptance.mjs` and `quick_practice_overlay_additive_acceptance.mjs`, the `sessionRecords.ts` freeze was narrowed from "zero diff" to "zero diff outside import declarations and `//` comment lines", in lock-step in both gates. The entry stays in FORBIDDEN. **This is a controller decision under OR-AUTO, PENDING OWNER AUDIT — not owner-approved.** Accept it, or reject it (the alternative the builder named: move the generator out of `worksheetModel` instead, which contradicts C1's wording and moves live generator code). Reason and evidence in `DECISION_LOG.md`.
+
+### Carried — still owed
+1. **The WAVE A-9 owner items** (none new there), then the WAVE B-8 owner items (the B-8 block below), the WAVE B-7 and DEPS items and everything they carry.
+
+### NEXT — LANES
+- **SEO-3 (`#906`, Controller B) proceeds on `4f51da9f`** — Controller B was told to proceed (relay line "BANK-LEAN-1 merged as 4f51da9f6c7e73266922186d05aea6835d334a6d — proceed with §3 step 2."). Per the wave's disjointness note, B commits its prerender capture only after syncing to post-BANK-LEAN-1 trunk.
+- **Three new follow-ups, none dispatched** (bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`): `[FU-LAZY-RETRY-NAMED-EXPORT]` (a default export on `SolutionChecker.tsx` so the lazy retry can work), `[FU-CI-SYNTHETIC-ID-BANK-LOAD]` (skip the bank load for `ci:` synthetic ids), `[FU-HPQ-CARD-ID-ON-MEASURE]` (low; tooling — the out-of-repo OR-LIVE script's card locator).
+- From now on, a non-question page that gains a static path to the bank turns `bankReach.guard.test.ts` red (`BANK_REACH: protected=11 clean=<11`), and a Predicted Questions page that drops a question from the DOM turns `HighlyProbableQuestions.seo.test.tsx` red.
+
 ## ★★★ 2026-10-02 — WAVE A-9 (SEO, CONTROLLER A) — LLMS-1 CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE B-8 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
 
