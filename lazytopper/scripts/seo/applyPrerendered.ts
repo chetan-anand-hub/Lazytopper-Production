@@ -79,6 +79,54 @@ export function applicablePaths(): string[] {
  */
 export const SPA_SHELL = "__shell.html";
 
+/**
+ * Every robots meta, whatever its attribute order or quoting — used to COUNT, so a
+ * second or reordered tag cannot hide from the exactly-once rule below.
+ */
+const ANY_ROBOTS_META = /<meta\b[^>]*\bname\s*=\s*["']robots["'][^>]*>/gi;
+/** The one shape `index.html` ships, which is the only shape this step rewrites. */
+const ROBOTS_META = /<meta\s+name="robots"\s+content="([^"]*)"\s*\/?>/gi;
+
+/**
+ * ROOT-URL-1 PR-2 (SEO-4, S1) — the shell says `noindex`, IN THE FILE.
+ *
+ * ★ WHY THE FILE AND NOT THE HEADER. `vercel.json` sets `X-Robots-Tag: noindex` on
+ * `/__shell.html`, but Vercel matches header rules against the REQUEST path, not the
+ * rewrite destination — so `/me`, `/tutor/...` and every unknown URL were served the
+ * shell with no header at all, and with `index.html`'s own
+ * `<meta name="robots" content="index,...">` copied into it (verified in production,
+ * 2026-10-04). A meta inside the file travels with the file, whatever URL served it.
+ *
+ * ★ ONLY THE `index` DIRECTIVE CHANGES (owner condition 1). `index` becomes `noindex`;
+ * every other directive (`follow`, `max-image-preview:large`) is kept as it is, so links
+ * on the shell are still followed. Exactly one robots meta, carrying exactly one
+ * `index`, or this THROWS — a shell that silently kept `index` is the defect itself.
+ *
+ * ⚠ ONLY `__shell.html` IS PASSED THROUGH THIS. `index.html` (the root, a sitemap URL)
+ * and every stamped sitemap page keep the template's `index`.
+ */
+export function noindexShell(html: string): string {
+  const found = html.match(ANY_ROBOTS_META)?.length ?? 0;
+  const parsed = [...html.matchAll(ROBOTS_META)];
+  if (found !== 1 || parsed.length !== 1) {
+    throw new Error(
+      `applyPrerendered: expected exactly ONE <meta name="robots" content="..."> in the ` +
+        `built index.html to rewrite for ${SPA_SHELL}, found ${found} (${parsed.length} in the ` +
+        `expected shape). Without it every non-sitemap URL is served an indexable shell.`,
+    );
+  }
+  const directives = parsed[0][1].split(",").map((d) => d.trim());
+  const indexAt = directives.map((d) => d.toLowerCase()).filter((d) => d === "index");
+  if (indexAt.length !== 1) {
+    throw new Error(
+      `applyPrerendered: the robots meta "${parsed[0][1]}" does not carry exactly one ` +
+        `"index" directive, so ${SPA_SHELL} cannot be flipped to noindex.`,
+    );
+  }
+  const rewritten = directives.map((d) => (d.toLowerCase() === "index" ? "noindex" : d));
+  return html.replace(ROBOTS_META, () => `<meta name="robots" content="${rewritten.join(",")}" />`);
+}
+
 /** The root's fragment is `index.html`; every other path is `<path>.html`. */
 function fragmentStem(path: string): string {
   return path === "/" ? "index" : path.replace(/^\//, "");
@@ -211,7 +259,7 @@ export function applyArtifact(
         `and cannot be copied to ${SPA_SHELL}. The shell changed shape, or this step ran twice.`,
     );
   }
-  writeFileSync(join(outDir, SPA_SHELL), cleanShell, "utf8");
+  writeFileSync(join(outDir, SPA_SHELL), noindexShell(cleanShell), "utf8");
 
   // ★ THE UN-BOOTSTRAPPED STATE IS ANNOUNCED, NOT SKIPPED. Until the capture job has
   // committed its first artifact there is nothing to apply, and the site keeps the
