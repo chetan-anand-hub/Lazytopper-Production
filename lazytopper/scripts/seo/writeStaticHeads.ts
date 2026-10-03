@@ -204,15 +204,76 @@ export function headForPath(path: string): PageHead | null {
     const slug = path.slice(notesPrefix.length);
     const topic = allDesktopTopics().find((candidate) => candidate.slug === slug);
     if (!topic || topic.blurb.trim().length === 0) return null;
+    // ROOT-URL-1 PR-2 (SEO-4, S2) — the title and description both lead with the
+    // NCERT chapter the note covers, read from the note's own spec (see ncertLabel).
+    const label = ncertLabel(slug);
+    const description = `${label} — ${NOTES_BLURB_SHORTENED[slug] ?? topic.blurb}`;
+    if (description.length > NOTES_DESCRIPTION_CAP) {
+      throw new Error(
+        `writeStaticHeads: ${path} description is ${description.length} characters, over the ` +
+          `${NOTES_DESCRIPTION_CAP} cap. Shorten its text in NOTES_BLURB_SHORTENED (owner: shorter ` +
+          `text, never a cap exception).`,
+      );
+    }
     return {
       // SEO-3 — the notes pages carry step-marked board questions (CBQ-TAB-1), so
       // the title says so. The visible h1 in DesktopNotesPage is unchanged.
-      title: `${topic.name} — Class 10 Notes & Board Questions | LazyTopper`,
-      description: topic.blurb,
+      title: `${label} — Class 10 Notes & Board Questions | LazyTopper`,
+      description,
     };
   }
 
   return null;
+}
+
+/** The description cap `domain.guard` / `staticHeads.guard` hold every page to. */
+const NOTES_DESCRIPTION_CAP = 155;
+
+/**
+ * ROOT-URL-1 PR-2 (SEO-4, S2) — the TWO notes pages whose `NCERT Ch. N · <title> — <blurb>`
+ * would exceed the 155 cap (163 and 175 characters). The owner's ruling is shorter text,
+ * never a cap exception, so the topic blurb (`src/lib/desktop/topics.ts`) is COMPRESSED
+ * here by DELETING words from it ("Structure of"; "in a magnetic field"): nothing is
+ * added. Used for the head only; the blurb is unchanged everywhere else it renders.
+ */
+export const NOTES_BLURB_SHORTENED: Readonly<Record<string, string>> = {
+  "human-eye-and-colourful-world":
+    "The human eye, defects of vision and their correction, plus dispersion and scattering of light.",
+  "magnetic-effects-of-electric-current":
+    "Magnetic field due to current-carrying conductors, the right-hand rule, and the force on a conductor.",
+};
+
+/** Where the note specs live: `<repo>/notes/specs/<slug>.json`. */
+export const NOTE_SPECS_DIR = resolve(LAZYTOPPER_ROOT, "..", "notes", "specs");
+
+/**
+ * ROOT-URL-1 PR-2 (SEO-4, S2) — "NCERT Ch. 8 · Introduction to Trigonometry".
+ *
+ * ★ THE SOURCE OF TRUTH IS THE NOTE'S OWN SPEC, `notes/specs/<slug>.json`
+ * (`meta.chapter_no`, `meta.title`). It is the file the notes page itself is built
+ * from (`src/components/notes/noteSpecRegistry.ts` globs the same directory) and
+ * that page already prints `Ch {meta.chapter_no}` (`Note.tsx`), so the head and the
+ * page cannot name different chapters. Nothing is restated here.
+ *
+ * ⚠ A MISSING OR MALFORMED SPEC THROWS. Every advertised notes page has a spec; a
+ * page whose head silently lost its chapter would be the quiet regression this
+ * script refuses everywhere else.
+ */
+export function ncertLabel(slug: string, specsDir: string = NOTE_SPECS_DIR): string {
+  const file = join(specsDir, `${slug}.json`);
+  if (!existsSync(file)) {
+    throw new Error(`writeStaticHeads: no note spec at ${file} for /notes/${slug}`);
+  }
+  const meta = (JSON.parse(readFileSync(file, "utf8")) as { meta?: Record<string, unknown> }).meta;
+  const chapter = meta?.chapter_no;
+  const title = meta?.title;
+  if (meta?.topic_key !== slug || !Number.isInteger(chapter) || (chapter as number) < 1) {
+    throw new Error(`writeStaticHeads: ${file} has no valid meta.topic_key/chapter_no for ${slug}`);
+  }
+  if (typeof title !== "string" || title.trim().length === 0) {
+    throw new Error(`writeStaticHeads: ${file} has no meta.title`);
+  }
+  return `NCERT Ch. ${chapter} · ${title.trim()}`;
 }
 
 /* ------------------------------------------------------------------------- *
