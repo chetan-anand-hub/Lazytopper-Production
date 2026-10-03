@@ -28,7 +28,12 @@ import { BASIC_FREE_LABELS, FREE_FEATURES } from "./BasicFreeList";
 import { RequirePremium } from "../auth/RequireAuth";
 import PricingPage from "../../pages/PricingPage";
 
-/** Pricing's Basic card as it rendered BEFORE the move — the wording must not drift. */
+/**
+ * Pricing's Basic card as it rendered BEFORE the move — the wording must not drift — with ONE
+ * owner-ruled change (FRICTION-FIX-1 · F2 / P7, ruling R3): the "Full mocks…" row (not
+ * included) became the mock-papers row (included), whose numbers come from
+ * config/mockViewLimits.ts. Typed out here on purpose: this is what a student reads.
+ */
 const PRICING_BASIC_ROWS_BEFORE_THE_MOVE = [
   "✓Browse Home, Exam Trends, and topic surfaces",
   "✓Practice picker and limited practice",
@@ -36,7 +41,7 @@ const PRICING_BASIC_ROWS_BEFORE_THE_MOVE = [
   "✓Basic topic insights",
   "—Solution Checker / Check & Improve",
   "—Deep Mistake Intelligence",
-  "—Full mocks and predicted-question execution",
+  "✓Mock papers: 1 a day signed out, 3 a day with a free account",
   "—Richer Me / Progress recommendations",
 ];
 
@@ -57,7 +62,7 @@ describe("one source", () => {
 
   it("the lock list is exactly Pricing's INCLUDED rows, in order", () => {
     expect(BASIC_FREE_LABELS).toEqual(FREE_FEATURES.filter((f) => f.included).map((f) => f.label));
-    expect(BASIC_FREE_LABELS).toHaveLength(4);
+    expect(BASIC_FREE_LABELS).toHaveLength(5);
   });
 });
 

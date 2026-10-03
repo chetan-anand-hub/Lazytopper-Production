@@ -102,6 +102,35 @@ const REDACTIONS: ReadonlyArray<readonly [RegExp, string]> = [
   [/^\/u\/[^/]+.*$/, "/u/:token"],
 ];
 
+/**
+ * FRICTION-FIX-1 · F6 — PERSONAL DATA IN A PATH SEGMENT.
+ *
+ * Two kinds of segment are an identifier, not content, and never leave the page:
+ *   - any segment containing `@` (or its percent-encoded form `%40`)  -> `:email`
+ *   - any segment of 20+ characters of [A-Za-z0-9_-]                  -> `:id`
+ *     (a Firebase uid is 28 such characters: `/admin/students/<uid>` -> `/admin/students/:id`)
+ *
+ * ★ THE ONE CARVE-OUT, AND WHY. A lowercase kebab-case word slug (`areas-related-to-circles`,
+ * `chemical-reactions-and-equations`) is also 20+ characters of that set — several of the
+ * app's own chapter slugs are. Those are CONTENT ("which pages are they using"), and the
+ * first-party activity log reads its page names out of this function's output
+ * (activityPages.ts), so redacting them would file every long chapter under `other`. A
+ * slug is lowercase words joined by single hyphens, starting with a letter; an opaque id
+ * has capitals and digits (a 28-character base-62 uid with neither is a ~1-in-10^10
+ * event). Pinned both ways by analytics.test.ts.
+ *
+ * Applied per segment, after the `/u/:token` rule, which is unchanged.
+ */
+const EMAIL_SEGMENT = /@|%40/i;
+const OPAQUE_ID_SEGMENT = /^[A-Za-z0-9_-]{20,}$/;
+const CONTENT_SLUG_SEGMENT = /^[a-z]+(?:-[a-z0-9]+)*$/;
+
+function redactSegment(segment: string): string {
+  if (EMAIL_SEGMENT.test(segment)) return ":email";
+  if (OPAQUE_ID_SEGMENT.test(segment) && !CONTENT_SLUG_SEGMENT.test(segment)) return ":id";
+  return segment;
+}
+
 const MAX_PATH_LENGTH = 200;
 
 export function normalisePath(rawPath: string): string {
@@ -113,6 +142,7 @@ export function normalisePath(rawPath: string): string {
       break;
     }
   }
+  path = path.split("/").map(redactSegment).join("/");
   // Trailing slashes make `/pricing` and `/pricing/` two rows in the dashboard for one
   // page. The root keeps its slash.
   if (path.length > 1 && path.endsWith("/")) path = path.slice(0, -1);

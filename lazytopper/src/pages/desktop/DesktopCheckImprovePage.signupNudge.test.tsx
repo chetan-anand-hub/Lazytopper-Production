@@ -345,11 +345,11 @@ describe("S1d — the 'Practice CBQs free' link is OMITTED (P9: does not work si
   it.each([
     ["with a waiting result", true],
     ["without one", false],
-  ])("%s: the ONE link is the sign-in link; no /practice-hub link, no S1d copy", (_l, withResult) => {
+  ])("%s: the sign-in link plus (FRICTION-FIX-1 · F4) the one 'See plans' link; no /practice-hub link, no S1d copy", (_l, withResult) => {
     __setFreeCheckClockForTests(() => NOW);
     if (withResult) seedWaiting(single(NOW - 60_000));
     const { container } = mount(<FreeCheckUsedPanel />);
-    expect(hrefs(container)).toEqual([FREE_CHECK_SIGNIN_PATH]);
+    expect(hrefs(container)).toEqual([FREE_CHECK_SIGNIN_PATH, "/pricing"]);
     expect(container.textContent).not.toContain(S1D_LINK);
     expect(container.querySelector('a[href*="practice-hub"]')).toBeNull();
   });

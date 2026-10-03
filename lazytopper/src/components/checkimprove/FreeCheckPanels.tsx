@@ -16,6 +16,7 @@ import {
   subscribeFreeCheckSaveStatus,
 } from "../../services/freeCheckReplay";
 import { TRIAL_WORDING } from "../pricing/BasicFreeList";
+import { clearTrialStartedAtSignUp } from "../../services/newAccountTrial";
 
 /**
  * FREE-CHECK-1b — the student-visible pieces of the signed-out free check. Every one of
@@ -173,6 +174,20 @@ function SignInLink({ label = FREE_CHECK_COPY.signUpCta }: { label?: string }) {
 }
 
 /**
+ * FRICTION-FIX-1 · F4 (FU-TRIAL-WORDING-SEE-PLANS-FREECHECK) — "See plans →" to /pricing.
+ * A router <Link> with a ROUTER-relative `to`: the app's BrowserRouter carries the `/app`
+ * basename, so a typed app-prefix here would double it. Same label and target as the
+ * T2 confirmation's link (TRIAL_WORDING.seePlans).
+ */
+function SeePlansLink({ testId }: { testId: string }) {
+  return (
+    <Link className="lt-fc__btn lt-fc__btn--ghost" to="/pricing" data-testid={testId}>
+      {TRIAL_WORDING.seePlans}
+    </Link>
+  );
+}
+
+/**
  * SIGNUP-NUDGE-1 — "<score>/<max> marks" and up to three "<Tag> ×<n>" chips, from the
  * result waiting on this device (never from anywhere else, and never sent anywhere).
  * A part the waiting result cannot honestly fill is left out, never invented.
@@ -246,6 +261,7 @@ export function FreeCheckUsedPanel() {
       <p className="lt-fc__note">{FREE_CHECK_COPY.usedTrial}</p>
       <div className="lt-fc__actions">
         <SignInLink />
+        <SeePlansLink testId="free-check-used-see-plans" />
       </div>
     </div>
   );
@@ -334,6 +350,7 @@ export function FreeCheckTrialOffer({
         <button type="button" className="lt-fc__btn lt-fc__btn--ghost" onClick={onMaybeLater}>
           {FREE_CHECK_COPY.offerLater}
         </button>
+        <SeePlansLink testId="free-check-offer-see-plans" />
       </div>
     </div>
   );
@@ -358,7 +375,15 @@ export function FreeCheckTrialConfirmation({
       <h2 className="lt-fc__title">{FREE_CHECK_COPY.confirmTitle}</h2>
       <p className="lt-fc__lead">{FREE_CHECK_COPY.confirmBody(endsOn)}</p>
       <div className="lt-fc__actions">
-        <button type="button" className="lt-fc__btn lt-fc__btn--primary" onClick={onContinue}>
+        <button
+          type="button"
+          className="lt-fc__btn lt-fc__btn--primary"
+          onClick={() => {
+            // F5 — the student continues: the sign-up marker (and its reload mirror) goes.
+            clearTrialStartedAtSignUp();
+            onContinue();
+          }}
+        >
           {FREE_CHECK_COPY.confirmCta}
         </button>
         {/* TRIAL-ON-SIGNUP-1b — "See plans →" to /pricing, wherever the UI is clickable. */}

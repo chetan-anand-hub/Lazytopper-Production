@@ -45,8 +45,11 @@ vi.mock("../../hooks/useSubscription", () => ({ useSubscription: () => H.sub }))
 vi.mock("../../hooks/useFreeCheckReturn", () => ({
   useFreeCheckReturn: (user: unknown, enabled: boolean) => (user && enabled ? H.phase : "none"),
 }));
+// vi.mock is a COMPLETE replacement: FRICTION-FIX-1 · F5 added clearTrialStartedAtSignUp,
+// which the confirmation's "Check my next answer" now calls, so the mock carries it too.
 vi.mock("../../services/newAccountTrial", () => ({
   wasTrialStartedAtSignUp: (uid: string | null | undefined) => Boolean(uid) && H.startedAtSignUp.has(uid as string),
+  clearTrialStartedAtSignUp: () => H.startedAtSignUp.clear(),
 }));
 vi.mock("../../analytics/analytics", async (importOriginal) => {
   const actual = await importOriginal<typeof import("../../analytics/analytics")>();
@@ -152,6 +155,8 @@ describe("T2 — a NEW account: the confirmation replaces the offer", () => {
     await waitFor(() => expect(screen.getByRole("button", { name: /Read the question/ })).toBeInTheDocument());
     expect(container.textContent).not.toContain("Your 7-day trial is on");
     expect(H.sub.startTrial).not.toHaveBeenCalled();
+    // F5 — continuing forgets the sign-up marker (display-only: nothing was started above)
+    expect(H.startedAtSignUp.size).toBe(0);
   });
 
   it("MOBILE width: the same confirmation", () => {

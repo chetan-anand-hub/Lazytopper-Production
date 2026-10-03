@@ -216,12 +216,21 @@ jobs:
       - name: Mojibake check (lazytopper)
         run: pnpm --filter lazytopper run check:mojibake
 
+      # ★ FRICTION-FIX-1 · C1 (FU-QG-BUILD-MASKS-VITEST). A red Build used to SKIP every step
+      # below it (the default `success()` condition), so a broken build hid the vitest result
+      # (wave B-9: a partial prerender artifact broke Build and masked vitest). None of the
+      # steps below reads Build's output — dist/ (the vite outDir), the static heads, the
+      # applied prerendered fragments or version.json; `prerendered/` and `notes/assets/` are
+      # committed source, not build output — so each runs after a failed Build too:
+      # `!cancelled() && <its existing condition>`. The JOB STILL FAILS when Build fails: a
+      # failed step fails the job whatever runs after it. A step that ever needs Build's
+      # output must keep the plain condition (skipped when Build failed).
       - name: Build (lazytopper)
         if: steps.classify.outputs.docs_only != 'true'
         run: pnpm --filter lazytopper run build
 
       - name: Ops matrix (lazytopper test:matrix:all)
-        if: steps.classify.outputs.docs_only != 'true'
+        if: ${{ !cancelled() && steps.classify.outputs.docs_only != 'true' }}
         run: pnpm --filter lazytopper run test:matrix:all
 
       # --- Typecheck of the TEST files ---
@@ -233,7 +242,7 @@ jobs:
       # and how the untyped server `.cjs` imports are handled. Unlike vitest this
       # step also runs on Windows dev boxes (no rollup binary involved).
       - name: Typecheck test files (lazytopper)
-        if: steps.classify.outputs.docs_only != 'true'
+        if: ${{ !cancelled() && steps.classify.outputs.docs_only != 'true' }}
         run: pnpm --filter lazytopper run typecheck:test
 
       # --- Vitest render/unit suites (the .test.tsx / .test.ts files) ---
@@ -289,7 +298,7 @@ jobs:
       # of inference and feeding the durable fix in [FU-VITEST-CI-HEAP-CEILING].
       # Remove it once those suites are identified.
       - name: Vitest suites (lazytopper)
-        if: steps.classify.outputs.docs_only != 'true'
+        if: ${{ !cancelled() && steps.classify.outputs.docs_only != 'true' }}
         timeout-minutes: 20
         run: pnpm --filter lazytopper exec vitest run
         env:
@@ -307,7 +316,7 @@ jobs:
       # "[test-clock] vitest ... effective now=2030-...". A test fixed here pins its own clock
       # (vi.useFakeTimers({ now, toFake: ["Date"] })) or derives its fixtures from its own NOW.
       - name: Test clock at 2030 (vitest + ops matrix, LT_TEST_CLOCK)
-        if: steps.classify.outputs.docs_only != 'true'
+        if: ${{ !cancelled() && steps.classify.outputs.docs_only != 'true' }}
         timeout-minutes: 35
         env:
           LT_TEST_CLOCK: "2030-06-15T06:30:00.000Z"
@@ -319,7 +328,7 @@ jobs:
           NODE_OPTIONS="$PRELOAD" pnpm --filter lazytopper run test:matrix:all
 
       - name: Test clock at IST midnight, board season
-        if: steps.classify.outputs.docs_only != 'true'
+        if: ${{ !cancelled() && steps.classify.outputs.docs_only != 'true' }}
         timeout-minutes: 35
         env:
           LT_TEST_CLOCK: "2030-02-14T18:45:00.000Z"
