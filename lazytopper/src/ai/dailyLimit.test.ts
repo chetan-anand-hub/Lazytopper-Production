@@ -17,7 +17,6 @@
 
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { DailyLimitError, isDailyLimitError, detectQuestion } from "./aiClient";
-import { formatResetAt } from "../components/auth/DailyLimitNotice";
 
 const RESET_AT = "2026-07-28T18:30:00.000Z"; // next IST midnight
 
@@ -127,16 +126,5 @@ describe("a 429 daily_limit becomes a typed limit, never a generic error", () =>
     expect(e instanceof Error).toBe(true);
     expect(isDailyLimitError(e)).toBe(true);
     expect(isDailyLimitError(new Error("m"))).toBe(false);
-  });
-});
-
-describe("formatResetAt renders something a student can act on", () => {
-  it("falls back to 'tomorrow' when resetAt is missing or unparseable", () => {
-    expect(formatResetAt(null)).toBe("tomorrow");
-    expect(formatResetAt("not-a-date")).toBe("tomorrow");
-  });
-
-  it("renders a time for a real timestamp", () => {
-    expect(formatResetAt(RESET_AT)).toMatch(/\d/);
   });
 });

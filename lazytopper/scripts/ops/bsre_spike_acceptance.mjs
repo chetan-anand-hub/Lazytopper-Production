@@ -10,10 +10,6 @@ function check(name, ok, details = "") {
   return { name, ok: Boolean(ok), details: String(details || "") };
 }
 
-function fileMissing(rel) {
-  return !existsSync(path.join(repoRoot, rel));
-}
-
 function rg(query) {
   const res = spawnSync("rg", ["-n", "-e", query, "src", "scripts", "server"], {
     cwd: repoRoot,
@@ -31,20 +27,9 @@ function rg(query) {
 function run() {
   const checks = [];
 
-  checks.push(
-    check(
-      "bsre_types_present",
-      !fileMissing("src/engine/bsre/types.ts"),
-      "BSRE type contracts must remain present for server-side evaluator path"
-    )
-  );
-  checks.push(
-    check(
-      "bsre_evaluator_present",
-      !fileMissing("src/engine/bsre/evaluator.ts"),
-      "BSRE evaluator must remain present while TRIANGLES_BSRE path exists"
-    )
-  );
+  // FRICTION-FIX-1 PR-1 (P14): the "bsre_types_present" and "bsre_evaluator_present" checks
+  // were removed with their files. src/engine/bsre/{types,evaluator}.ts had no live importer;
+  // the only loader, server/routes/mentorBsre.cjs, was itself unrequired and was deleted (R2).
 
   const refs = rg("engine/bsre|BsreEvaluator|triangles_bsre_rubrics_v1");
   // Match both path separators: rg emits `server\index.cjs` on Windows, `server/index.cjs` on Linux CI.

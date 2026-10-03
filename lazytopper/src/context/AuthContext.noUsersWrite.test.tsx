@@ -10,12 +10,12 @@
  *
  *   1. the effect still runs and the other hydration work is untouched  (CONTROL)
  *   2. sign-in completes and the context exposes the signed-in user     (the risk)
- *   3. ensureLearnerAccountMetadata is never invoked                    (the unwiring)
+ *   3. (removed by FRICTION-FIX-1 PR-1: learnerAccountService itself was deleted as an
+ *      orphan, so "never invoked" is now structural and kept by noOrphans.guard.test.ts)
  *   4. nothing in the effect touches a `users` Firestore path           (the invariant)
  *
- * ★ Assertion 1 is load-bearing. Without it, 3 and 4 pass on a tree where the effect
+ * ★ Assertion 1 is load-bearing. Without it, 4 passes on a tree where the effect
  * never fired at all, which is the classic way this kind of test asserts nothing.
- * Restoring the call site turns assertion 3 RED — mutation-verified.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, waitFor, cleanup } from "@testing-library/react";
@@ -51,7 +51,7 @@ vi.mock("firebase/auth", () => ({
 // Firestore spied at the SDK boundary: any `users` access from anything still in the
 // post-login graph is observable here.
 //
-// ★ `vi.hoisted` for the same reason as learnerAccountService.noUsersWrite.test.ts:
+// ★ `vi.hoisted` (the reason the deleted learnerAccountService.noUsersWrite.test.ts gave):
 // `vi.mock` hoists above plain `const`, so once anything in the graph really imports
 // `firebase/firestore` the factory would read these bindings in their temporal dead zone.
 const { doc, setDoc, getDoc } = vi.hoisted(() => ({
@@ -74,9 +74,6 @@ vi.mock("../services/firebaseClient", () => ({
 
 // Post-login cloud hydration stubbed to resolve — no real firestore / IndexedDB.
 vi.mock("../services/dbSyncService", () => ({ restoreFromDB: vi.fn(async () => {}) }));
-vi.mock("../services/learnerAccountService", () => ({
-  ensureLearnerAccountMetadata: vi.fn(async () => {}),
-}));
 vi.mock("../services/studentCloudStore", () => ({ ensureLearnerCloudBaseline: vi.fn(async () => {}) }));
 vi.mock("../services/studentProgressStore", () => ({
   hydrateLocalProgressFromCloud: vi.fn(async () => {}),
@@ -96,11 +93,9 @@ vi.mock("../services/subscriptionService", () => ({
 }));
 
 import { AuthProvider, useAuth } from "./AuthContext";
-import * as accountSvc from "../services/learnerAccountService";
 import * as dbSync from "../services/dbSyncService";
 import * as cloudStore from "../services/studentCloudStore";
 
-const ensureMeta = accountSvc.ensureLearnerAccountMetadata as unknown as ReturnType<typeof vi.fn>;
 const restore = dbSync.restoreFromDB as unknown as ReturnType<typeof vi.fn>;
 const baseline = cloudStore.ensureLearnerCloudBaseline as unknown as ReturnType<typeof vi.fn>;
 
@@ -111,7 +106,6 @@ function Probe() {
 
 beforeEach(() => {
   localStorage.clear();
-  ensureMeta.mockClear();
   restore.mockClear();
   baseline.mockClear();
   doc.mockClear();
@@ -121,7 +115,7 @@ beforeEach(() => {
 afterEach(() => cleanup());
 
 describe("AuthContext — post-login hydration writes no `users` document", () => {
-  it("★★ signs in, runs the hydration effect, and never syncs account metadata", async () => {
+  it("★★ signs in, runs the hydration effect, and writes no `users` document", async () => {
     render(
       <AuthProvider>
         <Probe />
@@ -139,9 +133,8 @@ describe("AuthContext — post-login hydration writes no `users` document", () =
     // Give any restored call a real chance to run rather than racing past it.
     await new Promise((r) => setTimeout(r, 30));
 
-    // 3. THE UNWIRING — the retired account-metadata sync is not invoked at all.
-    expect(ensureMeta).not.toHaveBeenCalled();
-
+    // 3. THE UNWIRING is now structural: learnerAccountService was deleted by
+    //    FRICTION-FIX-1 PR-1 (nothing live imported it; noOrphans.guard.test.ts keeps it so).
     // 4. THE INVARIANT — no Firestore path named `users` was touched, and nothing was
     //    written, by anything still in the post-login graph.
     const touched = doc.mock.calls.flat().map((a) => String(a));
