@@ -11,12 +11,8 @@ import QrAnswerHandoff from "../qr/QrAnswerHandoff";
 // FAIR-USE-UI-1 (UI1) — dark unless /api/usage/me says `enforced: true`.
 import FairUseLimitPanel from "../usage/FairUseLimitPanel";
 import { useFairUse } from "../usage/useFairUse";
-import {
-  MAX_UPLOAD_IMAGE_BYTES,
-  MAX_UPLOAD_PDF_BYTES,
-  UPLOAD_LIMIT_SENTENCE,
-  formatUploadLimit,
-} from "../../services/uploadLimits";
+import { UPLOAD_LIMIT_SENTENCE, checkUploadFile } from "../../services/uploadLimits";
+import PageTray, { usePageTray } from "../upload/PageTray";
 import {
   gradeWorksheetAndRecord,
   type WorksheetGradeOutcome,
@@ -292,38 +288,36 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
     }
   }, [navigate, ws]);
 
-  const handleFile = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const isPdf = file.type === "application/pdf";
-    const isImage = file.type === "image/jpeg" || file.type === "image/png";
-    if (!isPdf && !isImage) {
-      setError("Upload a PDF (recommended) or a JPG/PNG photo of your answers.");
-      return;
-    }
-    // The REAL limit (uploadLimits.ts), not the old unspendable "5 MB": base64 inflates
-    // ~4/3, so a 5 MB PDF became 6.67 MB on the wire and blew the backend's 5 MB body
-    // cap — the student passed this check and then died at the grader. Refuse it here.
-    const max = isPdf ? MAX_UPLOAD_PDF_BYTES : MAX_UPLOAD_IMAGE_BYTES;
-    if (file.size > max) {
-      setError(
-        `That file is ${formatUploadLimit(file.size)} — the limit is ${formatUploadLimit(max)}. ` +
-          `Try scanning at a lower quality, or split it into two.`,
-      );
-      return;
-    }
-    setError(null);
-    setOutcome(null);
-    setFromCache(false);
-    setFileName(file.name);
-    setImageMimeType(isPdf ? "application/pdf" : file.type === "image/png" ? "image/png" : "image/jpeg");
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      setImageBase64(dataUrl.split(",")[1] ?? null);
-    };
-    reader.readAsDataURL(file);
-  }, []);
+  // UPLOAD-2 — the shared upload step replaces this panel's inline size wall: a photo
+  // is cropped (optional), turned upright and compressed BEFORE the one guard
+  // (`checkUploadFile`) runs, and several photos — one per page — are assembled on the
+  // device into the ONE PDF this panel has always asked for.
+  const tray = usePageTray({
+    check: (file) => checkUploadFile(file, "answers"),
+    onPayload: (p) => {
+      if (!p) {
+        setFileName(null);
+        setImageBase64(null);
+        return;
+      }
+      setError(null);
+      setOutcome(null);
+      setFromCache(false);
+      setFileName(p.name);
+      setImageMimeType(p.imageMimeType);
+      setImageBase64(p.imageBase64);
+    },
+    onError: setError,
+  });
+
+  const handleFile = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files ? Array.from(e.target.files) : [];
+      e.target.value = "";
+      tray.addFiles(files, { replace: true });
+    },
+    [tray.addFiles],
+  );
 
   const handleGrade = useCallback(async () => {
     if (!imageBase64 || grading) return;
@@ -363,6 +357,7 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
   }, [imageBase64, imageMimeType, grading, user, ws, fairUse.clearLimit, fairUse.noteGraded, fairUse.handleRefusal]);
 
   const handleReset = useCallback(() => {
+    tray.clear();
     setFileName(null);
     setImageBase64(null);
     setOutcome(null);
@@ -371,7 +366,7 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
     setScorecardOpen(false);
     setDownloadError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
-  }, []);
+  }, [tray.clear]);
 
   const hasFile = !!imageBase64;
 
@@ -390,6 +385,7 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
         ref={fileInputRef}
         type="file"
         accept="image/jpeg,image/png,application/pdf"
+        multiple
         onChange={handleFile}
         className="lt-wg__file"
       />
@@ -397,14 +393,14 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
       {/* ── Upload + grade controls (hidden once results show) ── */}
       {!response && (
         <>
-          {!hasFile ? (
+          {!hasFile && tray.pages.length === 0 ? (
             <button type="button" className="lt-wg__drop" onClick={() => fileInputRef.current?.click()}>
-              <span className="lt-wg__dropt">Upload your answers (one PDF)</span>
+              <span className="lt-wg__dropt">Upload your answers — one PDF, or a photo of each page</span>
               <span className="lt-wg__dropd">{UPLOAD_LIMIT_SENTENCE} · label each answer Q1, Q2 …</span>
             </button>
           ) : (
             <div className="lt-wg__filerow">
-              <span className="lt-wg__filenm">{fileName}</span>
+              <span className="lt-wg__filenm">{fileName ?? "Preparing your pages…"}</span>
               <button type="button" className="lt-wg__filex" onClick={handleReset} aria-label="Remove file">✕</button>
             </div>
           )}
@@ -414,7 +410,10 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
               yourself. Desktop-only + signed-in-only; renders nothing otherwise,
               so the upload path above behaves exactly as before when QR is unused.
               It fills the SAME state the file input fills — handleGrade is untouched. */}
-          {!hasFile && (
+          {/* The crop step + page tray (UPLOAD-2): one photo per page, sent as ONE PDF. */}
+          <PageTray tray={tray} disabled={grading} />
+
+          {!hasFile && tray.pages.length === 0 && (
             <QrAnswerHandoff
               // "document": the lead above asks for ONE PDF of all answers, so the phone
               // must lead with the PDF too — a single photo would send one page of it.

@@ -25,92 +25,86 @@ import {
 } from "./qrUploadService";
 
 // ── Test doubles ────────────────────────────────────────────────────────────────
-// jsdom has no canvas 2D context: the real `getContext("2d")` returns null and
-// prepareQrImage would throw "Could not process that photo on this device." before any
-// crop maths ran. Stubbing the canvas is not a convenience here, it is the only way to
-// observe drawImage's SOURCE RECTANGLE — which is the whole assertion.
+// jsdom has no canvas 2D context and decodes no images. Since UPLOAD-2 `prepareQrImage`
+// is a thin call into the shared step (`preparePhoto`), which decodes ONCE from an
+// object URL and draws upright + crop + scale as ONE transform. The fake records the
+// canvas size, the transform and the qualities tried; the source rectangle is read by
+// inverting that transform — which is the whole assertion.
 
-let drawArgs: number[] | null = null;
 let canvasSize: { width: number; height: number } | null = null;
+let transform: number[] | null = null;
 let qualitiesTried: number[] = [];
 let encodedFor: (quality: number) => string = () => "AAAA";
 let imageSize = { width: 4000, height: 3000 };
 
-class FakeFileReader {
-  result: string | null = null;
-  onload: (() => void) | null = null;
-  onerror: (() => void) | null = null;
-  readAsDataURL() {
-    this.result = "data:image/jpeg;base64,SOURCE";
-    queueMicrotask(() => this.onload?.());
-  }
-}
-
 class FakeImage {
   onload: (() => void) | null = null;
   onerror: (() => void) | null = null;
+  naturalWidth = 0;
+  naturalHeight = 0;
   width = 0;
   height = 0;
+  decoding = "auto";
   set src(_value: string) {
-    this.width = imageSize.width;
-    this.height = imageSize.height;
+    this.naturalWidth = this.width = imageSize.width;
+    this.naturalHeight = this.height = imageSize.height;
     queueMicrotask(() => this.onload?.());
   }
 }
 
-let restoreCreateElement: (() => void) | null = null;
+/** Which source rectangle the canvas shows: invert the transform at its corners. */
+function drawnSource(): number[] | null {
+  if (!transform || !canvasSize) return null;
+  const [a, b, c, d, e, f] = transform;
+  const det = a * d - b * c;
+  const inv = (x: number, y: number) => [(d * (x - e) - c * (y - f)) / det, (-b * (x - e) + a * (y - f)) / det];
+  const [x0, y0] = inv(0, 0);
+  const [x1, y1] = inv(canvasSize.width, canvasSize.height);
+  return [Math.round(x0) + 0, Math.round(y0) + 0, Math.round(x1 - x0) + 0, Math.round(y1 - y0) + 0];
+}
 
-/** Clearing through a function, not an inline `drawArgs = null`, on purpose: an inline
- *  assignment lets TypeScript's control-flow analysis narrow `drawArgs` to `null` for
- *  the rest of the test, and the next read then fails `typecheck:test` — which the app
- *  tsconfig does not even look at. */
 function resetDraw() {
-  drawArgs = null;
+  transform = null;
+  canvasSize = null;
 }
 
 beforeEach(() => {
-  drawArgs = null;
-  canvasSize = null;
+  resetDraw();
   qualitiesTried = [];
   encodedFor = () => "AAAA";
   imageSize = { width: 4000, height: 3000 };
 
-  vi.stubGlobal("FileReader", FakeFileReader);
   vi.stubGlobal("Image", FakeImage);
-
-  const original = document.createElement.bind(document);
-  const spy = vi
-    .spyOn(document, "createElement")
-    .mockImplementation(((tag: string, ...rest: unknown[]) => {
-      if (tag !== "canvas") return original(tag, ...(rest as []));
-      const canvas = {
-        width: 0,
-        height: 0,
-        getContext: (kind: string) =>
-          kind === "2d"
-            ? {
-                drawImage: (_img: unknown, ...args: number[]) => {
-                  drawArgs = args;
-                  canvasSize = { width: canvas.width, height: canvas.height };
-                },
-              }
-            : null,
-        toDataURL: (_type: string, quality: number) => {
-          qualitiesTried.push(quality);
-          return `data:image/jpeg;base64,${encodedFor(quality)}`;
-        },
-      };
-      return canvas as unknown as HTMLElement;
-    }) as typeof document.createElement);
-  restoreCreateElement = () => spy.mockRestore();
+  URL.createObjectURL = vi.fn(() => "blob:qr");
+  URL.revokeObjectURL = vi.fn();
+  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(function (this: HTMLCanvasElement) {
+    const canvas = this;
+    return {
+      fillStyle: "",
+      imageSmoothingEnabled: true,
+      imageSmoothingQuality: "low",
+      fillRect: () => {},
+      setTransform: (...m: number[]) => {
+        if (m.join(",") !== "1,0,0,1,0,0") transform = m;
+      },
+      drawImage: () => {
+        canvasSize = { width: canvas.width, height: canvas.height };
+      },
+    } as unknown as CanvasRenderingContext2D;
+  } as never);
+  vi.spyOn(HTMLCanvasElement.prototype, "toDataURL").mockImplementation(function (_t?: string, q?: number) {
+    qualitiesTried.push(q ?? 0);
+    return `data:image/jpeg;base64,${encodedFor(q ?? 0)}`;
+  } as never);
 });
 
 afterEach(() => {
-  restoreCreateElement?.();
+  vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
 
-const jpeg = () => new File(["x"], "answer.jpg", { type: "image/jpeg" });
+// A real-sized phone photo: big enough that the shared step must re-encode it.
+const jpeg = () => new File([new Uint8Array(6 * 1024 * 1024)], "answer.jpg", { type: "image/jpeg" });
 
 // ── Geometry ────────────────────────────────────────────────────────────────────
 
@@ -176,54 +170,54 @@ describe("crop geometry", () => {
 
 // ── The plumbing: does the chosen region reach the encoder? ──────────────────────
 
-describe("prepareQrImage — crop reaches the encoder", () => {
+describe("prepareQrImage — a thin call into the shared step; the crop reaches the encoder", () => {
   it("CONTROL: with NO crop, the whole image is the source rectangle", async () => {
     await prepareQrImage(jpeg());
-    expect(drawArgs?.slice(0, 4)).toEqual([0, 0, 4000, 3000]);
+    expect(drawnSource()).toEqual([0, 0, 4000, 3000]);
   });
 
   it("with a crop, ONLY the chosen region is drawn", async () => {
     await prepareQrImage(jpeg(), { left: 0.25, top: 0.5, right: 0.75, bottom: 1 });
-    expect(drawArgs?.slice(0, 4)).toEqual([1000, 1500, 2000, 1500]);
+    expect(drawnSource()).toEqual([1000, 1500, 2000, 1500]);
   });
 
   it("★ CROP BEFORE COMPRESS — the canvas is sized from the CROP's long edge (Q3)", async () => {
-    // Uncropped, a 4000px long edge scales to the 1600px target. A half-width crop has a
-    // 2000px long edge, so it scales to 1600 as well — but its HEIGHT must follow the
+    // Since UPLOAD-2 R1 the long edge is 2,000 px (never below 1,600). A half-width crop
+    // has a 2,000 px long edge, so it is kept at full size — its HEIGHT follows the
     // crop's aspect, not the photo's. If compression ran first this could not hold.
     await prepareQrImage(jpeg(), { left: 0.25, top: 0.5, right: 0.75, bottom: 1 });
-    expect(canvasSize).toEqual({ width: 1600, height: 1200 });
+    expect(canvasSize).toEqual({ width: 2000, height: 1500 });
 
     resetDraw();
     await prepareQrImage(jpeg());
-    expect(canvasSize).toEqual({ width: 1600, height: 1200 });
-    expect(drawArgs?.slice(0, 4)).toEqual([0, 0, 4000, 3000]);
+    expect(canvasSize).toEqual({ width: 2000, height: 1500 });
+    expect(drawnSource()).toEqual([0, 0, 4000, 3000]);
   });
 
   it("a small crop is NOT upscaled past its own pixels", async () => {
     await prepareQrImage(jpeg(), { left: 0, top: 0, right: 0.2, bottom: 0.2 });
-    // 20% of 4000 = 800px long edge, already under the 1600 target.
+    // 20% of 4000 = 800px long edge, already under the target.
     expect(canvasSize).toEqual({ width: 800, height: 600 });
   });
 
-  it("the quality ladder still returns on the FIRST rung that fits", async () => {
+  it("the quality ladder still returns on the FIRST rung that fits (0.85 since R1)", async () => {
     await prepareQrImage(jpeg(), { left: 0.1, top: 0.1, right: 0.9, bottom: 0.9 });
-    expect(qualitiesTried).toEqual([0.82]);
+    expect(qualitiesTried).toEqual([0.85]);
   });
 
   it("steps down the ladder when the first rung is too big, and still crops", async () => {
-    const tooBig = "A".repeat(4_200_000); // > 3MB decoded
-    encodedFor = (q) => (q === 0.82 ? tooBig : "AAAA");
+    const tooBig = "A".repeat(4_200_000); // > the photo target decoded
+    encodedFor = (q) => (q === 0.85 ? tooBig : "AAAA");
     await prepareQrImage(jpeg(), { left: 0.5, top: 0, right: 1, bottom: 0.5 });
-    expect(qualitiesTried).toEqual([0.82, 0.7]);
-    expect(drawArgs?.slice(0, 4)).toEqual([2000, 0, 2000, 1500]);
+    expect(qualitiesTried).toEqual([0.85, 0.75]);
+    expect(drawnSource()).toEqual([2000, 0, 2000, 1500]);
   });
 
   it("a PDF is untouched by the crop step — no canvas is ever created", async () => {
     const pdf = new File(["x"], "answers.pdf", { type: "application/pdf" });
     const payload = await prepareQrImage(pdf, { left: 0.2, top: 0.2, right: 0.5, bottom: 0.5 });
     expect(payload.imageMimeType).toBe("application/pdf");
-    expect(drawArgs).toBeNull();
+    expect(transform).toBeNull();
   });
 });
 
@@ -240,6 +234,6 @@ describe("[FU-QR-UPLOAD-REFUSAL-UNREPRODUCED] current type-check behaviour (pinn
     const heic = new File(["x"], "IMG_0001.HEIC", { type: "image/heic" });
     await expect(prepareQrImage(heic)).rejects.toThrow("Please send a photo (JPG or PNG) or a PDF.");
     // The refusal happens ahead of any compression, so no crop or downscale can rescue it.
-    expect(drawArgs).toBeNull();
+    expect(transform).toBeNull();
   });
 });

@@ -21,6 +21,7 @@ import { RequirePremium } from "../../components/auth/RequireAuth";
 import { EquationInput, EquationRender } from "../../components/equation";
 import { checkUploadFile, UPLOAD_LIMIT_SENTENCE } from "../../services/uploadLimits";
 import QrAnswerHandoff from "../../components/qr/QrAnswerHandoff";
+import PageTray, { usePageTray } from "../../components/upload/PageTray";
 import MobileShell from "../../components/mobile/MobileShell";
 import { useIsDesktop } from "../../hooks/useIsDesktop";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
@@ -1148,35 +1149,40 @@ const DesktopCheckImprovePageInner: React.FC<{
     (isMultiQuestion ? Boolean(imageBase64) : hasAnswer) &&
     status !== "loading";
 
-  function handleFileChosen(file: File) {
-    // Refuse what the grader would refuse anyway, HERE, while the student can still
-    // act on it. Before this guard there was NO ceiling at all on this input: a 10 MB
-    // PDF base64'd fine, travelled, and died at the grader ("Request body too large")
-    // after the student believed they were done.
-    const check = checkUploadFile(file, "answers");
-    if (!check.ok) {
-      setAnswerFileError(check.message);
-      return;
-    }
-    setAnswerFileError(null);
+  // UPLOAD-2 — the shared upload step for the ANSWER. A photo is cropped (optional),
+  // turned upright and compressed BEFORE the guard, so a phone photo never meets a size
+  // error; several photos (one per page) are assembled on the device into ONE PDF, which
+  // /check-solution and /grade-worksheet both read natively. A PDF still meets the hard
+  // wall. The guard itself is unchanged and still the ONE refusal on this input — it
+  // just runs on what will actually be sent.
+  const answerTray = usePageTray({
+    check: (file) => checkUploadFile(file, "answers"),
+    onPayload: (p) => {
+      if (!p) {
+        setImageBase64(null);
+        setImageName("");
+        return;
+      }
+      setAnswerFileError(null);
+      setImageBase64(p.imageBase64);
+      setImageMime(p.imageMimeType);
+      setImageName(p.name);
+    },
+    onError: setAnswerFileError,
+  });
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const data = reader.result as string;
-      const [, b64] = data.split(",");
-      setImageBase64(b64 || null);
-      setImageMime(check.mimeType);
-      setImageName(file.name);
-    };
-    reader.onerror = () => {
-      setImageBase64(null);
-      setImageName("");
-      setAnswerFileError("We couldn't read that file — please try another.");
-    };
-    reader.readAsDataURL(file);
+  function handleFilesChosen(files: FileList | File[] | null) {
+    // The answer's own picker / paste / camera starts over ("choose a different file");
+    // the tray's "Add another page" is what appends.
+    answerTray.addFiles(files, { replace: true });
+  }
+
+  function handleFileChosen(file: File) {
+    handleFilesChosen([file]);
   }
 
   function clearImage() {
+    answerTray.clear();
     setImageBase64(null);
     setImageName("");
     setAnswerFileError(null);
@@ -1207,32 +1213,32 @@ const DesktopCheckImprovePageInner: React.FC<{
   }
 
   // Question photo → base64. Reading a new question invalidates any prior detection.
-  function handleQuestionFile(file: File) {
-    // The question photo is as capable of killing a submission as the answer file —
-    // it rides the SAME request to the SAME body cap — so it gets the same guard.
-    // "question" (not "answers"): the copy must name what THIS input actually wants.
-    const check = checkUploadFile(file, "question");
-    if (!check.ok) {
-      setQuestionFileError(check.message);
-      return;
-    }
-    setQuestionFileError(null);
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const data = reader.result as string;
-      const [, b64] = data.split(",");
-      setQImageBase64(b64 || null);
-      setQImageMime(check.mimeType);
-      setQImageName(file.name);
+  // UPLOAD-2: through the same shared step as the answer — crop, upright, compress, then
+  // the guard. "question" (not "answers"): the copy must name what THIS input wants.
+  const questionTray = usePageTray({
+    check: (file) => checkUploadFile(file, "question"),
+    onPayload: (p) => {
+      if (!p) {
+        setQImageBase64(null);
+        setQImageName("");
+        clearDetection();
+        return;
+      }
+      setQuestionFileError(null);
+      setQImageBase64(p.imageBase64);
+      setQImageMime(p.imageMimeType);
+      setQImageName(p.name);
       clearDetection();
-    };
-    reader.onerror = () => {
-      setQImageBase64(null);
-      setQImageName("");
-      setQuestionFileError("We couldn't read that file — please try another.");
-    };
-    reader.readAsDataURL(file);
+    },
+    onError: setQuestionFileError,
+  });
+
+  function handleQuestionFiles(files: FileList | File[] | null) {
+    questionTray.addFiles(files, { replace: true });
+  }
+
+  function handleQuestionFile(file: File) {
+    handleQuestionFiles([file]);
   }
 
   function clearDetection() {
@@ -2209,11 +2215,13 @@ const DesktopCheckImprovePageInner: React.FC<{
                        our own hint. accept is a HINT, not a guard: checkUploadFile below
                        is unchanged and still refuses type AND size at the picker (§2.5). */
                     accept="image/jpeg,image/png,application/pdf"
+                    multiple
                     style={{ display: "none" }}
                     onClick={warmAppCheck}
                     onChange={(e) => {
-                      const f = e.target.files?.[0];
-                      if (f) handleQuestionFile(f);
+                      const files = e.target.files ? Array.from(e.target.files) : [];
+                      e.target.value = "";
+                      handleQuestionFiles(files);
                     }}
                   />
                   <button type="button" style={buttonOutline} onClick={() => qFileInputRef.current?.click()}>
@@ -2233,7 +2241,10 @@ const DesktopCheckImprovePageInner: React.FC<{
                       (qrUploadChannel accepts "question"), so the phone reads question copy.
                       Desktop-AND-signed-in gating is inherited free (QrAnswerHandoff:192)
                       — NO useIsDesktop branch here. Retires once the file lands. */}
-                  {!qImageBase64 && (
+                  {/* UPLOAD-2 — the crop step + page tray for the question. */}
+                  <PageTray tray={questionTray} disabled={detecting} />
+
+                  {!qImageBase64 && questionTray.pages.length === 0 && (
                     <QrAnswerHandoff
                       mode="question"
                       label="Question paper on your phone?"
@@ -2256,7 +2267,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                       capture="environment" on the EXISTING hidden qFileInputRef input —
                       no second file input. Device-gated (!isDesktop), hidden once a file
                       exists, so it never competes with the chosen-file state. */}
-                  {!isDesktop && !qImageBase64 && (
+                  {!isDesktop && !qImageBase64 && questionTray.pages.length === 0 && (
                     <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
                       {([
                         { label: "Camera", capture: true },
@@ -2508,11 +2519,13 @@ const DesktopCheckImprovePageInner: React.FC<{
                        /check-solution reads a PDF natively (same as SolutionChecker).
                        Tight accept per §2.5 — see the question input above. */
                     accept="image/jpeg,image/png,application/pdf"
+                    multiple
                     style={{ display: "none" }}
                     onClick={warmAppCheck}
                     onChange={(e) => {
-                      const f = e.target.files?.[0];
-                      if (f) handleFileChosen(f);
+                      const files = e.target.files ? Array.from(e.target.files) : [];
+                      e.target.value = "";
+                      handleFilesChosen(files);
                     }}
                   />
                   <button
@@ -2587,7 +2600,11 @@ const DesktopCheckImprovePageInner: React.FC<{
                       once a file exists, so the QR session cannot outlive its own
                       purpose: delivery unmounts it (its cleanup cancels polling) and
                       `clearImage` remounts a fresh idle instance. */}
-                  {!imageBase64 && (
+                  {/* UPLOAD-2 — the crop step + page tray for the answer: "Add another
+                      page" builds ONE PDF on the device. */}
+                  <PageTray tray={answerTray} disabled={status === "loading"} />
+
+                  {!imageBase64 && answerTray.pages.length === 0 && (
                     <QrAnswerHandoff
                       /* ★ C&I IS BIMODAL — the ONE host so far that is not a single
                          shape, so a fixed mode would misdescribe one of its two real
@@ -2634,7 +2651,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                       input, the same handleFileChosen, the same guard — `capture` only
                       changes which picker the OS opens. Hidden once a file exists, so
                       it cannot compete with "Remove image". */}
-                  {!isDesktop && !imageBase64 && (
+                  {!isDesktop && !imageBase64 && answerTray.pages.length === 0 && (
                     <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
                       {([
                         { label: "Camera", capture: true },

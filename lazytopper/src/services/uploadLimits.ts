@@ -35,13 +35,36 @@
 // client never reaches. The limits below are what the product promises, and what the
 // copy must say.
 
-/** Images are downscaled to fit this, so it is a target, not a wall the student hits. */
+/** The image ceiling the SERVER enforces (mentorImageSupport.cjs, 3 MB decoded).
+ *
+ *  UPLOAD-2 made the old comment here true. It used to claim images "are downscaled to
+ *  fit this" — false on every direct path (Check & Improve, SolutionChecker, worksheet
+ *  and Chapter Test / Full Mock grading), which checked the size FIRST and refused any
+ *  phone photo over 3 MB. Now every photo goes through `preparePhoto` (the one shared
+ *  step: upright, crop, rotate, downscale to a 2,000 px long edge, JPEG ladder) BEFORE
+ *  `checkUploadFile` runs, so a photo is compressed to PHOTO_TARGET_BYTES and a student
+ *  never meets this number. [FU-UPLOAD-LIMIT-COMMENT-FALSE] */
 export const MAX_UPLOAD_IMAGE_BYTES = 3 * 1024 * 1024;
+
+/** What `preparePhoto` compresses a photo to: the image ceiling less 0.5 MB of
+ *  headroom, so a compressed photo is never the thing that brushes the server cap. */
+export const PHOTO_TARGET_BYTES = 2.5 * 1024 * 1024;
 
 /** A PDF CANNOT be downscaled the way an image can (there is no canvas for it), so this
  *  IS a wall — and it must therefore be enforced early and refused honestly, in the
  *  picker or on the phone, never after the student believes they are done. */
 export const MAX_UPLOAD_PDF_BYTES = 3.5 * 1024 * 1024;
+
+/** Several photos of one answer are assembled ON THE DEVICE into one PDF (UPLOAD-2 R6).
+ *  The assembled PDF aims under this — the PDF ceiling less 0.3 MB of headroom — so a
+ *  photo-built PDF never lands on the wall that a scanned PDF is refused at. */
+export const PAGES_PDF_TARGET_BYTES = 3.2 * 1024 * 1024;
+
+/** At most this many photos make one upload (R6). */
+export const MAX_UPLOAD_PAGES = 8;
+
+/** What a student reads when they try to add a 9th page. */
+export const TOO_MANY_PAGES_MESSAGE = "That's a lot — check these 8 first, then the rest";
 
 /** Copy helper — so every surface says the same number as the constant it enforces.
  *  Whole numbers stay whole ("3 MB"), halves keep one decimal ("3.5 MB"). */
@@ -74,11 +97,10 @@ export const UPLOAD_LIMIT_SENTENCE = `PDF up to ${formatUploadLimit(MAX_UPLOAD_P
 // A guard copy-pasted per surface is exactly how they drift. (The repo already
 // carries [FU-STEPMARKCHIP-EXTRACTION] as the standing lament for that pattern.)
 //
-// NOTE — ChapterTestUploadPanel + WorksheetGradePanel still inline their own
-// byte-identical copies of this logic. Converging them is behaviour-neutral and
-// deliberately NOT done here: this is a bug-fix PR for Check & Improve, and
-// rewriting two working panels would widen it for no student-visible gain.
-// See [FU-UPLOAD-GUARD-CONVERGE].
+// UPLOAD-2 converged the copies: ChapterTestUploadPanel, WorksheetGradePanel and
+// SolutionChecker used to inline their own walls. Every picker now runs a photo
+// through `preparePhoto` FIRST and then this ONE guard on what will actually be sent
+// (components/upload/PageTray.tsx `usePageTray`). [FU-UPLOAD-GUARD-CONVERGE]
 
 /** What the student is being asked for. **REQUIRED, no default** — deliberately
  *  mirroring `QrAnswerHandoff`'s `mode` contract, and for the same reason: a host
@@ -117,11 +139,15 @@ export function checkUploadFile(file: File, subject: UploadSubject): UploadCheck
 
   const max = isPdf ? MAX_UPLOAD_PDF_BYTES : MAX_UPLOAD_IMAGE_BYTES;
   if (file.size > max) {
+    // A photo reaches this only when the device could not compress it (preparePhoto
+    // runs first everywhere) — so say what to DO with a camera, not with a scanner.
     return {
       ok: false,
-      message:
-        `That file is ${formatUploadLimit(file.size)} — the limit is ${formatUploadLimit(max)}. ` +
-        `Try scanning at a lower quality, or split it into two.`,
+      message: isPdf
+        ? `That file is ${formatUploadLimit(file.size)} — the limit is ${formatUploadLimit(max)}. ` +
+          `Try scanning at a lower quality, or split it into two.`
+        : `That photo is ${formatUploadLimit(file.size)} and couldn't be shrunk on this device. ` +
+          `Try a closer photo of just your answer.`,
     };
   }
 
