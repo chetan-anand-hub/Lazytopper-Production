@@ -410,12 +410,14 @@ export const shouldResetBuiltOnPop = (
   arrivedTargeted: boolean,
   builtParamPresent: boolean,
 ): boolean => isBuilt && !arrivedTargeted && !builtParamPresent;
-import {
-  getQuestionMeta,
-  getStrategyPackForTopic,
-  isStrategyEnabledForTopic,
-  resolveCanonicalTopicForStrategy,
-} from "../services/questionTypeFirstResolver";
+// CLEANUP-2 (C3): the question-type-first resolver is NOT imported statically. A static
+// import pulled the Triangles + Trigonometry pack1 strategy data into EVERY Practice visit,
+// although the "Why this question" panel it feeds renders only when
+// VITE_QTYPE_FIRST_TRIGONOMETRY === "true" (unset in Production). It is loaded with a dynamic
+// import() inside an effect that returns first when the flag is off, so with the flag off
+// nothing imports it. This TYPE query is erased by the compiler. Pinned by
+// PracticePage.strategyLazy.test.tsx.
+type StrategyResolver = typeof import("../services/questionTypeFirstResolver");
 import { trackUxEvent } from "../services/uxTelemetry";
 import {
   MISTAKE_KIND_LABEL,
@@ -1296,21 +1298,39 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
     const explicitFromState = navState.topicKey;
     return canonicalTopicKey || topicKeyParam || explicitFromState || topicParam || "";
   }, [canonicalTopicKey, topicKeyParam, navState, topicParam]);
+  // CLEANUP-2 (C3): loaded on demand, and only when the flag is on (see the type above).
+  const [strategyResolver, setStrategyResolver] = useState<StrategyResolver | null>(null);
+  useEffect(() => {
+    if (!QTYPE_FIRST_TRIG) return;
+    let cancelled = false;
+    import("../services/questionTypeFirstResolver")
+      .then((mod) => {
+        if (!cancelled) setStrategyResolver(mod);
+      })
+      .catch(() => {
+        // A failed chunk load leaves the panel hidden: the page renders as with the flag off.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const strategyCanonicalTopicKey = useMemo(
-    () => resolveCanonicalTopicForStrategy(strategyTopicSeed),
-    [strategyTopicSeed]
+    () => (strategyResolver ? strategyResolver.resolveCanonicalTopicForStrategy(strategyTopicSeed) : ""),
+    [strategyResolver, strategyTopicSeed]
   );
   const isWhyThisQuestionEnabled =
-    QTYPE_FIRST_TRIG && isStrategyEnabledForTopic(strategyCanonicalTopicKey);
+    QTYPE_FIRST_TRIG &&
+    strategyResolver !== null &&
+    strategyResolver.isStrategyEnabledForTopic(strategyCanonicalTopicKey);
   const strategyPack = useMemo(() => {
-    if (!isWhyThisQuestionEnabled) return null;
-    return getStrategyPackForTopic(strategyCanonicalTopicKey);
-  }, [isWhyThisQuestionEnabled, strategyCanonicalTopicKey]);
+    if (!isWhyThisQuestionEnabled || !strategyResolver) return null;
+    return strategyResolver.getStrategyPackForTopic(strategyCanonicalTopicKey);
+  }, [isWhyThisQuestionEnabled, strategyResolver, strategyCanonicalTopicKey]);
 
   const getQuestionStrategyDetails = useCallback(
     (question: PracticeQuestion | null): QuestionStrategyDetails | null => {
-      if (!isWhyThisQuestionEnabled || !strategyPack || !question) return null;
-      const meta = getQuestionMeta(String(question.id), strategyCanonicalTopicKey);
+      if (!isWhyThisQuestionEnabled || !strategyResolver || !strategyPack || !question) return null;
+      const meta = strategyResolver.getQuestionMeta(String(question.id), strategyCanonicalTopicKey);
       if (!meta) return null;
       const loSet = new Set(meta.loIds || []);
       const learningObjects = strategyPack.learningObjects.filter((lo) => loSet.has(lo.loId));
@@ -1334,7 +1354,7 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
         boardWritingTip,
       };
     },
-    [isWhyThisQuestionEnabled, strategyPack, strategyCanonicalTopicKey]
+    [isWhyThisQuestionEnabled, strategyResolver, strategyPack, strategyCanonicalTopicKey]
   );
 
   // Two topic identifiers are used:

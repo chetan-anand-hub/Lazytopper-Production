@@ -117,22 +117,9 @@ async function run() {
     "scopePolicy.ts must define chapter policy and scope guard behavior."
   );
 
-  const onboardingText = await readText("src/pages/Onboarding.tsx");
-  addCheck(
-    checks,
-    "3",
-    "CUR-03 class coverage truth alignment",
-    !onboardingText.includes('option value="12"'),
-    "Onboarding should not expose Class 12 while flow is Class 10-first."
-  );
-  addCheck(
-    checks,
-    "4",
-    "CUR-04 diagnostic placeholder removal",
-    !onboardingText.includes("Quick Diagnostic Test") &&
-      !onboardingText.includes("For now, we use target + hours/day"),
-    "Diagnostic placeholder UI should be removed from onboarding."
-  );
+  // CUR-03 / CUR-04 (class coverage + diagnostic placeholder on Onboarding) were retired
+  // with the page itself: CLEANUP-2 deleted src/pages/Onboarding.tsx and /onboarding now
+  // redirects to "/". There is no surface left for either check to read.
 
 
   const sessionTypesText = await readText("src/services/sessionTypes.ts");

@@ -2,7 +2,6 @@ import type React from "react";
 import { Routes, Route, useLocation, useNavigate, Navigate, useParams } from "react-router-dom";
 import Login from "./pages/Login";
 import SignUpPage from "./pages/SignUpPage";
-import Onboarding from "./pages/Onboarding";
 import Welcome from "./pages/Welcome";
 
 // Import the new Vibe toggle and command palette components.
@@ -910,7 +909,7 @@ export default function App() {
               wrong). Only inbound was the retired old /trends. Page file marked
               LEGACY-RETIRED. */}
           <Route path="/teacher" element={<RequireAuth><SectionErrorBoundary>{withRouteSuspense(<TeacherDashboardPage />)}</SectionErrorBoundary></RequireAuth>} />
-          <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
+          <Route path="/onboarding" element={<Navigate to="/" replace />} />
           {/* SEVER PR: /dashboard (old Dashboard) RETIRED — it was the mobile "/"
               + catch-all + command-palette landing (now all re-pointed to the live
               MobileHome / "/"). Its components/dashboard/* cluster (imported only by
