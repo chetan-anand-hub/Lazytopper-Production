@@ -16,6 +16,8 @@ Key facts:
 - [Exam Trends](https://www.lazytopper.com/app/exam-trends): every Class 10 chapter ranked by exam weightage, from ten years of CBSE board papers
 - [CBSE Class 10 Boards 2027](https://www.lazytopper.com/app/cbse/class-10): official CBSE papers for Class 10 Maths and Science, unit-wise marks, dates and exam rules
 - [Practice hub](https://www.lazytopper.com/app/practice-hub): choose a subject and chapter, then practise questions, worksheets or mock papers
+- [Class 10 Maths predicted questions](https://www.lazytopper.com/app/highly-probable/10/Maths): high-probability question patterns for the 2027 boards, chapter by chapter
+- [Class 10 Science predicted questions](https://www.lazytopper.com/app/highly-probable/10/Science): high-probability question patterns for the 2027 boards, chapter by chapter
 - [Pricing](https://www.lazytopper.com/app/pricing): what the free plan includes and what Premium adds
 
 ## Class 10 Maths chapters

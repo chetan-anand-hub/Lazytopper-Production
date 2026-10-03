@@ -79,6 +79,11 @@ export const SELF_CANONICAL_EXACT: readonly string[] = [
   "/exam-trends",
   "/practice-hub",
   "/cbse/class-10",
+  // SEO-3 (owner ruling, 2026-10-02) — the two free Predicted Questions pages.
+  // Public (no RequirePremium in App.tsx) and stable per load; exact paths only,
+  // so `/highly-probable/9/Maths` and a lower-cased subject still fall to the root.
+  "/highly-probable/10/Maths",
+  "/highly-probable/10/Science",
 ];
 
 /**
