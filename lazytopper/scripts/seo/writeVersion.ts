@@ -108,6 +108,9 @@ async function main(): Promise<void> {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  // TEMPORARY — FRICTION-FIX-1 C1 proof: break Build on purpose. Reverted before review.
+  console.error("C1_PROOF: deliberate Build break");
+  process.exit(1);
   main().catch((error: unknown) => {
     // eslint-disable-next-line no-console
     console.error(error);
