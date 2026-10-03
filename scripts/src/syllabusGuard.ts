@@ -300,6 +300,9 @@ export const SURFACE_BANNED_PHRASES: string[] = [
 // added here (the SEQUENCING NOTE in the task asks for periodic re-grep).
 const LAZYTOPPER_SRC = join(import.meta.dirname, "../../lazytopper/src");
 
+// CLEANUP-2: five entries left with their files - topicMockEngine.ts, worksheetProfileService.ts,
+// savedWorksheets.ts, dailyMixGenerator.ts, dailyMixService.ts were orphans (nothing live imported
+// them), deleted by owner ruling. A missing surface is a hard ERROR below, so the entry goes too.
 const BOARD_PREP_SURFACES: string[] = [
   // HPQ / predicted-questions
   "data/highlyProbableQuestions.ts",
@@ -309,18 +312,13 @@ const BOARD_PREP_SURFACES: string[] = [
   "data/hpqCompetencyAdditions.ts",
   "prediction/hpqConfidence.ts",
   // Mocks / full-length / chapter-test engines
-  "utils/topicMockEngine.ts",
   "utils/mockBlueprint.ts",
   "utils/mockPaperEngine.ts",
   "utils/mockPaperEngineScience.ts",
   // Worksheet generator
   "components/practice/worksheetGenerator.ts",
-  "services/worksheetProfileService.ts",
-  "lib/desktop/savedWorksheets.ts",
   // Practice / daily-mix
   "data/practiceSetGenerator.ts",
-  "services/dailyMixGenerator.ts",
-  "services/dailyMixService.ts",
   // Exam Trends / topic metadata
   "lib/desktop/topics.ts",
   "lib/desktop/topicHubContent.ts",

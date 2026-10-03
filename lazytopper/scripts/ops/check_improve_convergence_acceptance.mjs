@@ -548,7 +548,12 @@ const FORBIDDEN = [
   'lazytopper/src/services/practiceInsights.ts',
   'lazytopper/src/services/checkImproveGradeService.ts',
   'lazytopper/src/components/desktop/MistakeIntelCard.tsx',
-  'lazytopper/src/components/desktop/l2/MistakeIntelligencePanel.tsx',
+  // ★ l2/MistakeIntelligencePanel.tsx — entry REMOVED with the FILE (CLEANUP-2, wave B-11,
+  // owner ruling). It was an ORPHAN: its only importer was DesktopWorksheetsPage.tsx, itself
+  // unreachable from any live root (noOrphans.guard.test.ts ALLOWED_ORPHANS). The owner ruled
+  // all 13 such files deleted and gate assertions naming them removed. A FORBIDDEN entry for a
+  // deleted path fails FORBIDDEN(path) below and guards nothing, so it leaves this list AND the
+  // membership loop together; the deletion is pinned by the inverse check after that loop.
   // DesktopShell.tsx - blanket ban LIFTED (owner decision, PR-B1). The file now has
   // legitimate, owner-approved reasons to change: the rail's nav items, and the header
   // stacking context that traps the avatar dropdown. Protection moves from "nobody may
@@ -687,12 +692,19 @@ for (const f of [
   'lazytopper/src/services/practiceInsights.ts',
   'lazytopper/src/services/checkImproveGradeService.ts',
   'lazytopper/src/components/desktop/MistakeIntelCard.tsx',
-  'lazytopper/src/components/desktop/l2/MistakeIntelligencePanel.tsx',
 ]) {
-  check(`FORBIDDEN(wired): ${f} is still in the guarded set (FORBID-1 lifted SolutionChecker.tsx; FORBID-6 lifted ResultsScorecard.tsx; OPS-LIFT-1 lifted mistakeIntelligence.ts — nothing else)`,
+  check(`FORBIDDEN(wired): ${f} is still in the guarded set (FORBID-1 lifted SolutionChecker.tsx; FORBID-6 lifted ResultsScorecard.tsx; OPS-LIFT-1 lifted mistakeIntelligence.ts; CLEANUP-2 deleted l2/MistakeIntelligencePanel.tsx — nothing else)`,
     FORBIDDEN.includes(f),
     'all three lifts were deliberate ONE-FILE amendments — this entry must survive them');
 }
+
+// ★ THE INVERSE ASSERTION for CLEANUP-2 — the orphan l2/MistakeIntelligencePanel.tsx left the
+// repo, so its entry left BOTH lists. Checked in both directions: the file is gone AND it is not
+// guarded (a re-added entry would fail FORBIDDEN(path) anyway; a re-added FILE needs a live importer).
+check('FORBIDDEN(deleted): l2/MistakeIntelligencePanel.tsx is gone and NOT in the guarded set (CLEANUP-2 orphan deletion)',
+  !existsSync(path.join(ROOT, 'lazytopper/src/components/desktop/l2/MistakeIntelligencePanel.tsx'))
+    && !FORBIDDEN.includes('lazytopper/src/components/desktop/l2/MistakeIntelligencePanel.tsx'),
+  'the orphan was deleted by owner ruling (CLEANUP-2); restoring it needs a live importer first');
 
 // ★ THE INVERSE ASSERTION for FORBID-6 — what makes the scorecard lift itself OBSERVABLE.
 // A silent re-add turns this red and forces a deliberate owner decision instead of quietly
@@ -1097,4 +1109,4 @@ console.log('  QR "question" mode threaded (client type + both COPY maps + serve
 console.log('  bans LIFTED, protection re-formed: SolutionChecker → SolutionChecker.contract.test.tsx (FORBID-1) ·');
 console.log('  ResultsScorecard → ResultsScorecard.contract.test.tsx (FORBID-6) ·');
 console.log('  mistakeIntelligence → mistakeIntelligence.contract.test.ts (OPS-LIFT-1) — presence, CI execution,');
-console.log('  collection and SUBJECT asserted for each; FOUR MI/persist entries still guarded\n');
+console.log('  collection and SUBJECT asserted for each; THREE MI/persist entries still guarded (CLEANUP-2 deleted the orphan l2 panel)\n');
