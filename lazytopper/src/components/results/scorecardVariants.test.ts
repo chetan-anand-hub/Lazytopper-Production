@@ -9,20 +9,24 @@ import {
   storedWorksheetScorecardVariant,
   chapterTestScorecardVariantStub,
   fullMockScorecardVariantStub,
-  chapterTestScorecardVariant,
-  deriveChapterTestConceptLens,
   deriveFullMockSectionLens,
   deriveFullMockChapterLens,
   fullMockChapterLensNote,
   fullMockFocusLine,
   fullMockScorecardVariant,
-  storedFullMockScorecardVariant,
   checkImproveScorecardVariant,
   storedCheckImproveScorecardVariant,
   storedQuickPracticeScorecardVariant,
   quickPracticeGradedScorecardVariant,
   ObjectiveMarkNotBinaryError,
 } from "./scorecardVariants";
+// BANK-LEAN-1 (C3): the bank-backed lookups and their dependents moved to their own
+// module so scorecardVariants stays bank-free; same functions, same assertions.
+import {
+  chapterTestScorecardVariant,
+  deriveChapterTestConceptLens,
+  storedFullMockScorecardVariant,
+} from "./scorecardBankLenses";
 
 // A minimal grade-response fixture. `couldNotRead` questions carry NO grade and must
 // never be folded into the four-type or a 0 (honest-failure contract).

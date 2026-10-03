@@ -22,11 +22,12 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import ResultsScorecard, { GRADED_SHEET_ANCHOR_ID, revealGradedSheet } from "./ResultsScorecard";
 import {
-  chapterTestScorecardVariant,
   fullMockScorecardVariant,
   type ScorecardGradedAnswer,
   type ScorecardVariant,
 } from "./scorecardVariants";
+// BANK-LEAN-1 (C3): moved to the bank-backed module (scorecardVariants stays bank-free).
+import { chapterTestScorecardVariant } from "./scorecardBankLenses";
 import type { CheckSolutionAnnotatedStep, WorksheetGradeResponse } from "../../ai/aiClient";
 
 const step = (over: Partial<CheckSolutionAnnotatedStep> = {}): CheckSolutionAnnotatedStep => ({
