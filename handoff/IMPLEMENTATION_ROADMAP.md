@@ -1,5 +1,16 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-03 — BANK + PERF: **WAVE A-11 — BANK-SPLIT-1** — `#911` + `#914` MERGED — trunk `86451e1a` — ✅ COMPLETE
+
+- ✅ **BANK-SPLIT-SCOUT-1** (report only, no PR): design evidence for per-chapter loading and de-duplication; disproved the spec's 97 / 117 duplicate count, the 2.4 MB / 3.3 MB figures, the P4 line and "the builders already prevent repeats".
+- ✅ **PR-1 de-dup + no repeats** (`#911` `ffc586c0`, LIVE, OR-LIVE MATCH): 30 true-duplicate rows withheld (keeper: past paper → authentic over AI → oldest; cross-chapter kept); `questionKey` in every set builder; `noRepeatInSet.guard.test.ts` (`NO_REPEAT: sets=4624 repeats=0`).
+- ✅ **PR-2 per-chapter loading + Check & Improve trims** (`#914` `86451e1a`, LIVE, OR-LIVE measured criteria MATCH): Chapter Test JS 2.53 → 0.70 MB transferred (its question data 1.93 MB → 188 KB); Practice 2.57 → 0.79 MB; Full Mock Maths loads Maths chapters only; Check & Improve 868 → 491 KB (reCAPTCHA on first intent); exact-slug topics; the 26 inline rows moved byte-identical into `class10/curatedInline.ts`.
+- ✅ **Rulings recorded:** the cofounder rulings (N1, keeper order, cross-chapter, `questionKey`, exact slug, C1 + C2, no row-data copy), the owner rulings (v1.1, frozen files byte-identical, Option A, T1) and the controller's OR-AUTO decisions (`DECISION_LOG.md`).
+- ✅ **FUs:** nine new (`OPEN_QUESTIONS_AND_FOLLOWUPS.md`), including `[FU-ENTRY-FIRESTORE-LAZY]` (deferred by the spec).
+- ✅ **Docs:** this handoff (covers the scout, `#911` and `#914`).
+- ⬜ **Owner:** one real free check in a normal browser; signed-in `/app/me` with no bank chunk; PDF export on click; Tutor demo / Exam Simulation signed in.
+- ⬜ **Deferred:** Firestore out of the entry bundle (`[FU-ENTRY-FIRESTORE-LAZY]`, touches auth, a separate lane).
+
 ## 2026-10-03 — CLEANUP + FRICTION: **WAVE B-10 — FRICTION-FIX-1** — `#910` + `#912` MERGED — trunk `ffc586c0` (with Controller A's `#911`)
 
 - ✅ **PR-1 RETIRED-DELETE-1** (`#910` `94f3d4eb`, LIVE, OR-LIVE PASS): 94 retired, unimported client files deleted (old Dashboard, Daily Mix, Weekly Wrapped, Parent Dashboard, the study planner, old Trends, mobile Topic Hub…) plus the 7 unrequired mentor server modules (coach/mindset modes went with them); +236 / −20,381. Full list in `Desktop/diff/report-friction-fix-1-pr1-2026-10-03.md`.

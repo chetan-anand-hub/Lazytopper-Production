@@ -1,5 +1,73 @@
 # LazyTopper — Current State
 
+## [CURRENT · BANK + PERF] WAVE A-11 — **NO CHAPTER TEST, FULL MOCK, PRACTICE OR WORKSHEET SET REPEATS A QUESTION (30 TRUE-DUPLICATE ROWS WITHHELD); PRACTICE, CHAPTER TEST AND FULL MOCK LOAD ONLY THE CHAPTERS THEY NEED; CHECK & IMPROVE NO LONGER LOADS reCAPTCHA ON PAGE LOAD; TOPIC MATCHING IS EXACT (BANK-SPLIT-1)** — `#911` + `#914` MERGED — trunk `86451e1a`
+*(Supersedes the WAVE B-10 block below on trunk SHA only. That block is demoted to previous on trunk SHA. Its content, and the owner items of every block below, stand as written. Exactly one un-superseded `[CURRENT]` remains: this one.)*
+
+★ **PROVENANCE.**
+- Controller A, wave A-11. Phase 1: `BANK-SPLIT-SCOUT-1` (report only, no PR; `Desktop/diff/report-bank-split-scout-1-2026-10-03.md`, sha256 prefix `303354fe6b90`). Phase 2: the cofounder spec `BANK-SPLIT-1` v1.0 (`controller-a11/ops/.specs/BANK-SPLIT-1.md`, sha256 prefix `b36bbcde1622`; the cofounder rulings on the scout's questions are in its WHY), then **v1.1** for PR-2 (`Desktop/diff/BANK-SPLIT-1-v1.1-PROPOSED.md`, sha256 prefix `26699C267B9C`, owner-approved; it re-anchors 5 premise lines and the base SHA, nothing else). One builder per PR (`claude-opus-5-5`, effort high), each in its own worktree; read-only OR-LIVE measurement agents before and after each PR.
+- *(builder-reported)* = from `Desktop/diff/report-bank-split-1-pr1-2026-10-03.md` / `report-bank-split-1-pr2-2026-10-03.md`; *(scout-reported)* = from the scout report; *(agent-reported)* = from the OR-LIVE reports `live-baseline-…`, `live-after-pr1-…`, `live-before-pr2-…` and `live-after-pr2-bank-split-1-2026-10-03.md` (including its CONTROL — APP CHECK 403 section); *(controller-verified)* = re-checked by the controller (`Desktop/diff/WAVE_STATE_A11.md`); *(docs-builder-verified)* = re-checked from the repo or `gh` by the docs builder that wrote this PR.
+- **Trunk history since the last handoff** (`0adbf44b`, `#913`, the wave B-10 docs): `ffc586c0` (`#911`, merged 2026-10-03T15:01:41Z, before `#913`) → `0adbf44b` (`#913`, 15:30:37Z) → `86451e1a` (`#914`, merged 2026-10-03T17:40:49Z) *(docs-builder-verified, `git log` + `gh pr view`)*. No bot commit landed.
+
+### What a student gets
+- **No set repeats a question.** No Chapter Test, Full Mock, Practice set or worksheet can contain the same question twice. 30 true-duplicate rows are withheld (same chapter, same marks, same options, same answer); the copy kept is the past-paper row first, then the authentic row over an AI row, then the oldest. A duplicate that sits in two different chapters is kept in both (the set check still stops it repeating inside one set).
+- **Pages load only the chapters they need** (live, cold, signed out *(agent-reported)*): Chapter Test (triangles) JS 2.53 MB → 0.70 MB transferred, its question data 1.93 MB → 188 KB; Practice (triangles) 2.57 MB → 0.79 MB; Full Mock Maths 2.54 MB → 1.43 MB, loading Maths chapters only (13 Maths chapter modules, 0 of 11 Science).
+- **Check & Improve no longer loads reCAPTCHA on page load**: JS 868 KB → 491 KB transferred. reCAPTCHA and App Check start on first intent (focusing the answer box, opening the file picker, or "Read the question"); the PDF export and the history panel load on demand *(agent-reported)*.
+- **Topic matching is exact**: Circles no longer serves Areas Related to Circles questions and vice versa (circles pool 466 → 237, areas 466 → 229; no other chapter changed) *(builder-reported; live: Practice circles 10 / 10 circles rows, agent-reported)*.
+- While a chapter loads, Practice shows its existing "Preparing your questions..." card and Worksheets show "Loading questions…" — never "0 available" *(agent-reported, live)*.
+
+**Re-checked on trunk `86451e1a`** *(docs-builder-verified)*:
+- `gh pr view 911` → merged 2026-10-03T15:01:41Z, merge commit `ffc586c0…`, head `fe408695`, 9 files, +488 / −25. `gh pr view 914` → merged 2026-10-03T17:40:49Z, merge commit `86451e1a…`, head `e7bd92d8`, 75 files, +14,781 / −806.
+
+### The lanes
+
+| lane | PR | what it changed | what it disproved |
+|---|---|---|---|
+| BANK-SPLIT-SCOUT-1 | none (report only) | Nothing tracked; design evidence for per-chapter loading and de-duplication. | The spec WHY's duplicate count (97 groups / 117 rows: not reproduced by any of 15 normalisations; N1 gives 103 / 123, of which 31 rows are true duplicates), the "~2.4 MB" bank figure (1.93 MB transferred), the "3.3 MB" Check & Improve figure (2.69 MB by the scout's method), the P4 line (`progressBankIndex.ts:23`, not `:21`; the premise gate's anchor tolerance hid it), and the claim that the set builders already prevent repeats (Chapter Test 30 / 2,600 and worksheets 6 / 560 seeded sets repeated a question) *(scout-reported)*. |
+| PR-1 de-dup + no repeats | `#911` `ffc586c0` | 30 true-duplicate rows added to `WITHHELD_QUESTION_IDS` (24 authentic, 6 AI; publishability floor 5593 → 5569); new bank-free `utils/questionKey.ts` (N1(stem) + N1(sorted options)) applied in `drawBalancedSet` (CT + FM), the CT used-set, Practice, worksheets and the FM pool dedupe (keeper order); new `noRepeatInSet.guard.test.ts` (`NO_REPEAT: sets=4624 repeats=0`). | The claim that the Chapter Test and worksheet builders already prevented repeats. The P6 line the spec allowed in `practiceSetGenerator.ts` is frozen by an ops gate, so P6 was reverted and Practice rests on P5 (`[FU-QP-OVERLAY-GATE-FREEZES-P6]`) *(builder-reported)*. |
+| PR-2 per-chapter loading + C&I trims | `#914` `86451e1a` | Generated chapter modules `src/data/bankChapters/**` (import lists of pack files + filters, no row data) behind `ensureBankChapters` / `useBankChapters`; each route awaits once (Practice, Chapter Test, Full Mock, Worksheets, Tutor, Exam Simulation); a generated id index for `/me` and the scorecards; bank-free `isPYQQuestion`; exact-slug topic matching; the 26 inline rows moved byte-identical into `questionBanks/class10/curatedInline.ts`; App Check warm-up on first intent, PDF export and history panel lazy. | Attempt 1 BLOCKED at §0c: the v1.0 PR-2 ledger pinned lines `#911` had rewritten on purpose (`[FU-SPEC-LEDGER-PINS-PRIOR-PR-LINES]`) → the v1.1 re-anchor. Attempt 2 BLOCKED: 26 served rows were inline literals in `canonicalQuestionBank.ts` (0 found under `questionBanks/`, controller-verified), unreachable by a chapter module without the aggregator → owner Option A *(builder-reported)*. |
+
+**`#911` PR-1 → `ffc586c0`** *(builder-reported; files, CI ticks and diff hash controller-verified)*:
+- **P14 withheld = 30** (24 non-AI, 6 AI); the 4 AI-over-authentic keeper flips came out as the spec predicted (`TRIG2-H09`, `AP-E12`, `CIR-M17`, `ARC-M15` withheld, their NCERT / Exemplar partners kept); the cross-chapter pair `CBE-S-CHEM-C-003` / `CBE-S-CARB-C-003` is NOT withheld.
+- Deviations accepted by the controller as within §1 or in the spec's favour: the `publishability.guard.test.ts:127` AI identity now subtracts withheld ids (a test that pins a changed count); P6 reverted (ops-gate freeze); the same 120-char prefix key also replaced at `practiceQuestionBuilder.ts:577` (the AI top-up merge); the scout's N1 regex typo has no effect (same 30 rows).
+- Merged at head `fe408695` after two `gh pr update-branch` runs (trunk moved under it twice: `#910`, `#912`); the lane diff sha256 `79e7ae4f` stayed identical *(controller-verified)*. CI `37130433926`: `NO_REPEAT: sets=4624 repeats=0`, `BANK_REACH: protected=11 clean=11`, `NO_ORPHANS: files=299 orphans=13`, `Tests 3586 passed (3586)`.
+
+**`#914` PR-2 → `86451e1a`** *(builder-reported; files, forbidden-pattern scan and merge state controller-verified)*:
+- **R4 proofs (Option A):** RAW 8,748 ids, sha256(JSON.stringify(RAW)) `11cda6b9…da89` before == after; served 8,515 ids, sha256 `50066ecd…a54a6` equal; per-row hash 26 / 26 equal; one new file under `questionBanks/**` (`class10/curatedInline.ts`) and no other pack touched. The two ops gates `topickey_count_invariant.mjs` / `topickey_guard_acceptance.mjs` change their parsed path only.
+- **P16 (exact slug):** 25 / 486 seeded outputs differ, all circles / areas-related-to-circles; trunk with ONLY exact-slug matching switched on == the branch on 486 / 486.
+- **Frozen files byte-identical:** `practiceSetGenerator.ts`, `predictionDataService.ts`, `sessionRecords.ts`, `tutorRoundTrip.ts`; **no gate narrowing**.
+- **Loading-state fix `e7bd92d8`** (sent back by the controller before merge): Practice shows its existing "Preparing your questions..." card during the load (no counts, no gated preset); Worksheets hide the count chip and show "Loading questions…"; CT / FM were already honest (tests added). Mutations h, i RED → restored.
+- CI `37140153172` on `e7bd92d8` (headSha controller-verified): `BANK_REACH: protected=11 clean=11`, `NO_REPEAT: sets=4624 repeats=0`, `NO_ORPHANS: files=300 orphans=13`, `Tests 3633 passed (3633)`.
+- Controller rulings for the audit (OR-AUTO): `utils/balancedMockDraw.ts` (import line) and `pages/tutor/useTutorSession.ts` (the tutor await) accepted as in scope; the R4(3) substitute mutation (a bad topicKey in the new pack → `topickey_guard_acceptance` RED) accepted. Full text in `DECISION_LOG.md`.
+
+### ROLLOUT
+- **PR-1** *(agent-reported)*: rollout 23 / 23 samples `ffc586c0`. Repeats: 10 CT papers 0, FM Maths 38 q 0, FM Science 38 q 0, Practice 10 q 0, worksheet 25 q 0. Weight within +0.2% of the baseline (the bank chunk +503 B: withheld rows are filtered by id, not removed). **Verdict MATCH.** No rollback (owner + cofounder accepted).
+- **PR-2** *(agent-reported)*: rollout 23 / 23 samples `86451e1a`; the measurement-script hashes verified OK. All measured criteria MATCH: CT bank data 188,222 B transferred (≤ 300 KB; 136,250 B without the id index); FM Maths only; C&I −926 KB decoded / −377 KB transferred; reCAPTCHA 0 requests and an empty console on load (5 / 5); CT 15 q / FM 38 q / worksheet 25 q with 0 repeats.
+- **NOT ESTABLISHED live:** the real free check — Google App Check returned 403 "App attestation failed" to the automated browser (headless and headed), so no check call was sent. **CONTROL** *(agent-reported)*: with App Check warmed the old way (at page load, 15 s lead) on the same origin, the same 403; `freeCheckClient.ts` has a 0-line diff and the site key is unchanged; only the timing moved. Environmental, strong but not a full control (the pre-PR-2 deployment could not be reached; previews run with free mode off). **Controller: no rollback.**
+
+### Decisions (full text in `DECISION_LOG.md`)
+- Cofounder rulings: N1 true duplicates only; keeper order; cross-chapter not withheld; set identity = `questionKey`; exact slug; C1 + C2; no copy of row data; Firestore-out-of-entry deferred.
+- Owner rulings: PR-1 live accepted; v1.1 approved; frozen files byte-identical (the L1 / L4 approach); Option A for the 26 inline rows with its proof set; the T1 criteria.
+- Controller (OR-AUTO, for the audit): `balancedMockDraw.ts` + `useTutorSession.ts` in scope; the R4(3) substitute mutation; the loading-flash fix required before merge; no rollback on the App Check 403.
+
+### Follow-ups (bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`)
+- **New (9):** `[FU-ENTRY-FIRESTORE-LAZY]`, `[FU-PRACTICE-STATIC-PACK-EDGE]`, `[FU-IDINDEX-ON-CT-FM]`, `[FU-DEDUP-MIXED-GROUP-PAIRS]`, `[FU-QP-OVERLAY-GATE-FREEZES-P6]`, `[FU-APPCHECK-NO-LEAD-TIME]`, `[FU-CURATEDINLINE-CROSS-SUBJECT]`, `[FU-PREMISE-GATE-ANCHOR-TOLERANCE]`, `[FU-SPEC-LEDGER-PINS-PRIOR-PR-LINES]`.
+- **Still open:** `[FU-BANK-CONSUMER-ORPHANS-FOR-CONTROLLER-A]` — this wave did not touch the 13 `ALLOWED_ORPHANS` (`NO_ORPHANS: files=300 orphans=13` on `#914`'s CI).
+
+### ★ Owner items
+- **OWNER LIVE VERIFICATIONS OWED** (the automated parts MATCHED as above):
+  1. **One real free check in a normal browser on www** (`/app/check-improve`, signed out) reaches a graded result. The automation got App Check 403 "App attestation failed"; the control says environmental, but it is not a full control.
+  2. **Signed-in `/app/me` loads no bank chunk** (DevTools Network: no `bankChapters` or question-pack chunk).
+  3. **PDF export loads on click** after a graded Check & Improve result.
+  4. **Tutor demo question and Exam Simulation generation work while signed in** (both redirect to login signed out, so the automation could not reach them).
+- Carried: the owner items of the WAVE B-10 block and every block below it stand as written.
+
+### ★ CARRY FORWARD VERBATIM
+- **The no-orphans guard is the authority on what is dead.** `src/config/noOrphans.guard.test.ts` walks from every live root (App.tsx and its lazy routes, main.tsx, `lazytopper/scripts/**`, repo `scripts/**`, `server/**` incl. `require(path.join(__dirname, …))`, `vite.config.ts`; type-only imports count) and fails CI on any orphan not in `ALLOWED_ORPHANS`. A new file must be imported by something live in the same PR. An `ALLOWED_ORPHANS` entry needs a one-line reason.
+- **New in wave A-11 — bank rows are read only after the route's await.** A sync bank API reading an unloaded chapter throws `BankChapterNotLoadedError`; a new reader needs its route to call `ensureBankChapters` / `useBankChapters` first, with the page's existing loading treatment (never a "0 available" flash). Practice, Chapter Test and Full Mock must not statically import the aggregator or a chapter module (`bankReach.guard.test.ts`, L7).
+
+### Carried forward — ★ THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this block
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.** **Wave A-11 moved NO dormancy in that trio.** The full block, including the `#647`/`#655` resolution and every subsequent restatement, stands as written in the blocks below.
+
 ## [CURRENT · CLEANUP + FRICTION] WAVE B-10 — **94 RETIRED, UNIMPORTED CLIENT FILES AND THE 7 UNREQUIRED MENTOR SERVER MODULES ARE DELETED BEHIND A NO-ORPHANS GUARD THAT NOW GATES EVERY PR; ONBOARDING STOPS PROMISING THE RETIRED STUDY PLAN; THE BASIC LIST SAYS MOCKS ARE FREE; THE UPGRADE MODAL GETS A BASIC EXIT; ANALYTICS PATHS REDACT EMAILS AND IDS; QUALITY GATE RUNS VITEST PAST A BROKEN BUILD (FRICTION-FIX-1)** — `#910` + `#912` MERGED — trunk `ffc586c0` (`8ff2203e` + Controller A's `#911`)
 *(Supersedes the WAVE B-9 block below on trunk SHA only. That block is demoted to previous on trunk SHA. Its content, and the owner items of every block below, stand as written. Exactly one un-superseded `[CURRENT]` remains: this one.)*
 

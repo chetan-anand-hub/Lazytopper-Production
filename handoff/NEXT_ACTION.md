@@ -1,3 +1,31 @@
+## ★★★ 2026-10-03 — WAVE A-11 (BANK + PERF, CONTROLLER A) — BANK-SPLIT-1 CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE B-10 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
+
+**TRUNK IS `86451e1ab906fd1e92cf93835f63ff317f695490`**, measured 2026-10-03 (`git ls-remote origin base/approved-thru-437`):
+- `86451e1a` = `#914` (BANK-SPLIT-1 PR-2: per-chapter bank loading, exact-slug topics, Check & Improve trims) — **this wave**; rollout 23 / 23 samples, OR-LIVE measured criteria MATCH (see `CURRENT_STATE.md`)
+- `0adbf44b` = `#913` (docs: wave B-10)
+- `ffc586c0` = `#911` (BANK-SPLIT-1 PR-1: 30 true-duplicate rows withheld; no set repeats a question) — **this wave**; rollout 23 / 23 samples, OR-LIVE MATCH
+
+No other PR was open when this docs PR was opened (`gh pr list --state open` → empty). This is the only docs PR open (OR-16).
+
+### NEXT — OWNER
+1. **Run the OWNER LIVE VERIFICATIONS OWED for `#914`** (the automated OR-LIVE could not establish them):
+   - **One real free check in a normal browser on www** (`/app/check-improve`, signed out) reaches a graded result. The automated browser got Google App Check 403 "App attestation failed" (headless and headed); the control (App Check warmed the old way, 15 s lead, same 403; `freeCheckClient.ts` unchanged) says environmental, but it is not a full control. If a real browser is also refused, `#914`'s T1 change (warm-up on first intent) is the first suspect — see `[FU-APPCHECK-NO-LEAD-TIME]`.
+   - **Signed-in `/app/me` loads no bank chunk** (DevTools Network).
+   - **PDF export loads on click** after a graded Check & Improve result.
+   - **Tutor demo question and Exam Simulation generation** work while signed in.
+2. **Pick the next wave — it is the owner's call; this docs PR does not invent a lane.** On the table: the nine new FUs (none dispatched), notably `[FU-ENTRY-FIRESTORE-LAZY]` (deferred by the spec; touches auth, so a separate lane), `[FU-IDINDEX-ON-CT-FM]` and `[FU-PRACTICE-STATIC-PACK-EDGE]` (further weight on CT / FM / Practice), and `[FU-BANK-CONSUMER-ORPHANS-FOR-CONTROLLER-A]` (still open). TOPIC-FIX-1 stays deferred by the owner.
+
+### Carried — still owed
+1. **The WAVE B-10 owner items** (the signed-in live checks of `#910` and `#912`), then the WAVE B-9 owner items and everything they carry.
+
+### NEXT — LANES
+- None dispatched by wave A-11 beyond the scout, `#911` and `#914`. The final audit request goes to the cofounder after this docs PR merges.
+- **★ DOCTRINE NOW ENFORCED BY CI — no question repeats inside a set.** `src/config/noRepeatInSet.guard.test.ts` runs the real builders on seeded sets (`NO_REPEAT: sets=4624 repeats=0`). Set identity is `questionKey` (N1 stem + N1 sorted options, `src/utils/questionKey.ts`); a new set builder must use it, never an id or a stem prefix.
+- **★ DOCTRINE NOW ENFORCED BY CI — read bank rows only after the route's await.** Practice, Chapter Test and Full Mock reach the bank only through `ensureBankChapters` / `useBankChapters` (`bankReach.guard.test.ts`, L7); a sync read of an unloaded chapter throws `BankChapterNotLoadedError`. Show the page's existing loading treatment during the load — never a "0 available" count or a gated card. Chapter modules are generated (`gen:bank-chapters`, `bankChapters.guard.test.ts`); do not hand-edit them.
+- **Topic matching is exact slug.** Do not reintroduce substring matching (`circles` ≠ `areas-related-to-circles`).
+- **A spec for a second PR must not pin lines the first PR rewrites** (`[FU-SPEC-LEDGER-PINS-PRIOR-PR-LINES]`): PR-2's attempt 1 stopped at §0c for exactly that.
+
 ## ★★★ 2026-10-03 — WAVE B-10 (CLEANUP + FRICTION, CONTROLLER B) — FRICTION-FIX-1 CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE B-9 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged — except the WAVE A-10 item "audit the overlay-gate narrowing", which the owner APPROVED on 2026-10-03.)*
 
