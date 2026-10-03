@@ -1,5 +1,23 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-04 — WAVE B-11 (CLEANUP, CONTROLLER B): CLEANUP-2 (`#916` `e36c9c1d`), trunk `e36c9c1d`. LIVE on deploy (no flag change); the rollout is recorded in `CURRENT_STATE.md`.**
+> ★ **ONBOARDING IS RETIRED (DELETED); QUICK PRACTICE MOVES ON FIRST-LOAD WEIGHT. NO §2 MATRIX CELL FLIPS.** Onboarding has no §2 row; Quick Practice's cells are already ✅ and first-load weight has no column. Each move is recorded below as a status line.
+
+### ⛔ Onboarding (`/app/onboarding`, no §2 row) — **RETIRED · DELETED — LIVE (`#916`)**
+- `pages/Onboarding.tsx` and its test are deleted; the route is `<Navigate to="/" replace />` (Home: the landing signed out, the app signed in). Supersedes the WAVE B-10 "✅ Onboarding" status line below; that line stands as written for its date.
+- Production signed out: `/app/onboarding` → `/app` (landing) (was → `/app/login`) *(builder-reported)*. **Signed-in check owner-owed** (Home on desktop, `/browse` on mobile). Root `/onboarding` → `[FU-ONBOARDING-ROOT-LIVE]` (after ROOT-URL-1).
+- Pinned by `App.onboardingRedirect.test.tsx` (6 tests, incl. "no src file imports `pages/Onboarding`"). Activity-page labels for past visits kept for the admin dashboard.
+
+### 🟡 FIRST-LOAD WEIGHT (not a matrix column) — Quick Practice (row **Quick Practice**, cells already ✅) — **THE OFF "WHY THIS QUESTION" STRATEGY DATA: BOTH PACK1 CHUNKS → TRIANGLES ONLY — LIVE (`#916`)**
+- Production, signed out *(builder-reported)*: Practice Triangles 35 req / 787,605 B → 34 / 774,038 B; Electricity 37 / 767,065 B → 36 / 753,528 B; the `trigonometry.pack1` chunk is no longer requested; page text identical.
+- 🟡 because `triangles.pack1` is still requested on every visit via `practiceQuestionBuilder.ts:18` → `[FU-CLEANUP2-TRIANGLES-BARREL]`. Signed-in Practice check owner-owed.
+- Pinned by `PracticePage.strategyLazy.test.tsx` (no static resolver import; flag ON panel shown; flag OFF identical DOM, 0 resolver loads, with a CONTROL).
+
+### ⬜ NO OTHER CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- The 13 deleted files were orphans (unreachable from any route), so no live surface lost anything. Worksheet Generator and Chapter Test rendered with 0 page errors after the merge; sign-up and login code is unchanged. No prerendered page, `sitemap.xml` or `llms.txt` changed.
+
+### 📋 Scope discovered? — **NO surface scope set to Settling.** The Triangles barrel edge is a defect in the spec's premise, logged as an FU; Onboarding is retired, not re-scoped. Logged in `DECISION_LOG.md` (2026-10-04, wave B-11); nothing goes in §2a.
+
 > **2026-10-03 — WAVE A-11 (BANK + PERF, CONTROLLER A): BANK-SPLIT-1 (`#911` `ffc586c0` + `#914` `86451e1a`), trunk `86451e1a`. LIVE on deploy (no flag); the rollout is recorded in `CURRENT_STATE.md`.**
 > ★ **FIVE SURFACES MOVE ON TWO AXES THE MATRIX HAS NO COLUMN FOR — "NO QUESTION REPEATS IN A SET" (Chapter Test, Full Mock, Practice Hub, Worksheet) AND FIRST-LOAD WEIGHT (Practice Hub, Chapter Test, Full Mock, Check & Improve).** Their Built / Redesigned / Desktop / Mobile cells are already ✅ and their MI cells are unaffected, so **no matrix cell flips**. Full Mock's Verified cell stays ⬜ and the others stay as recorded: the signed-in checks of this wave are owner-owed. The moves are recorded here as status lines.
 

@@ -1,5 +1,80 @@
 # LazyTopper — Current State
 
+## [CURRENT · CLEANUP] WAVE B-11 — **ONBOARDING RETIRED (`/onboarding` NOW GOES TO HOME); THE LAST 13 ALLOW-LISTED ORPHAN FILES (AND `cbseDates.ts`) DELETED, SO NO ORPHAN FILE IS LEFT; PRACTICE STOPS LOADING THE OFF TRIGONOMETRY STRATEGY DATA (CLEANUP-2)** — `#916` MERGED — trunk `e36c9c1d`
+*(Supersedes the WAVE A-11 block below on trunk SHA only. That block is demoted to previous on trunk SHA. Its content, and the owner items of every block below, stand as written. Exactly one un-superseded `[CURRENT]` remains: this one.)*
+
+★ **PROVENANCE.**
+- Controller B, wave B-11, lane CLEANUP-2. The cofounder spec `CLEANUP-2` v1.0 (`controller-b11/ops/.specs/CLEANUP-2.md`, sha256 prefix `b18f881aa99a`, MATCH; durable copy `Desktop/diff/SPEC_CLEANUP-2_B18F881AA99A.md`; the owner rulings of 3–4 Oct are its WHY). One builder (`claude-opus-5-5`, effort high) in its own worktree carried the PR through merge and OR-LIVE before / after; this docs PR was written by a separate docs builder in `C:/Projects/LT-worktrees/docs-b11`.
+- *(builder-reported)* = from `Desktop/diff/report-cleanup-2-2026-10-04.md`; *(controller-verified)* = re-checked by the controller (`Desktop/diff/WAVE_STATE_B11.md`); *(docs-builder-verified)* = re-checked from the repo or `gh` by the docs builder that wrote this PR.
+- **Trunk history since the last handoff** (`046c3238`, `#915`, the wave A-11 docs): `e36c9c1d` (`#916`, merged 2026-10-03T19:56:50Z = 2026-10-04 01:26 IST) only *(docs-builder-verified, `git log 046c3238..origin/base/approved-thru-437` + `gh pr view 916`)*. No bot commit and no Controller A commit landed. Controller A's ROOT-URL-1 (`#917`) is OPEN, not merged, and is not recorded here.
+
+### What a student gets
+- **Onboarding is gone.** The post-sign-up screen of the study-planner era (exam date + pace profile) is deleted; nothing live linked to it (`[FU-ONBOARDING-UNREACHABLE-FROM-SIGNUP]`). `/app/onboarding` now redirects to Home (`/`): the landing for a signed-out visitor, the app for a signed-in one. Sign-up and login are unchanged.
+- **The same Practice questions, with less to download.** Practice now loads the "Why this question" strategy resolver only when `VITE_QTYPE_FIRST_TRIGONOMETRY` is `"true"` (not set in Vercel Production, owner screenshot 4 Oct). With the flag off the page text is identical, and the Trigonometry pack1 strategy chunk is no longer requested: −13.5 KB transferred per Practice visit *(builder-reported, live)*. The 170 pack1 questions stay served (owner).
+- **★ Not yet: the Triangles pack1 strategy chunk is still downloaded on every Practice visit** (7.9 KB), through a second static import the spec did not know about → `[FU-CLEANUP2-TRIANGLES-BARREL]`.
+- **No orphan file is left in the client.** `ALLOWED_ORPHANS` is `{}`; CI prints `NO_ORPHANS: files=285 orphans=0` (was `files=300 orphans=13` on `#914`).
+
+**Re-checked on trunk `e36c9c1d`** *(docs-builder-verified)*:
+- `gh pr view 916` → merged 2026-10-03T19:56:50Z, head `2378bb00…`, 28 files; `git show --stat e36c9c1d` → 28 files, +419 / −6,272.
+- `App.tsx:912` is `<Route path="/onboarding" element={<Navigate to="/" replace />} />`; `src/config/cbseDates.ts` is absent; `noOrphans.guard.test.ts:39` is `export const ALLOWED_ORPHANS: Record<string, string> = {};`; `PracticePage.tsx:420` is a type-only `typeof import(...)` of the resolver and `:1304` / `:1306` are `if (!QTYPE_FIRST_TRIG) return;` then `import("../services/questionTypeFirstResolver")`; `practiceQuestionBuilder.ts:18` still imports `getTrianglesRubric` from the `contentStrategy/triangles` barrel.
+
+### The lanes
+
+| lane | PR | what it changed | what it disproved |
+|---|---|---|---|
+| CLEANUP-2 | `#916` `e36c9c1d` | Onboarding route + page deleted (route → `<Navigate to="/" replace />`, App.tsx P1/P2 only); the 13 P4 orphan files deleted, plus `config/cbseDates.ts` (its only importer was Onboarding) and the now-orphaned tests; `ALLOWED_ORPHANS = {}` (the reason-required rule kept); `PracticePage` loads `questionTypeFirstResolver` by dynamic `import()` only when the flag is on; gate entries naming deleted files removed (`syllabusGuard.ts` BOARD_PREP_SURFACES 23 → 18, the convergence gate's FORBIDDEN list + an inverse check, 122 / 122); two new pin files. | Spec WHY-3 / P5 assumed the resolver was Practice's only path to the pack1 strategy data: `practiceQuestionBuilder.ts:18` also pulls `triangles.pack1` through the `contentStrategy/triangles` barrel *(builder-reported; the line docs-builder-verified)*. The spec also did not name `cbseDates.ts`, without whose deletion C2's `{}` was impossible. |
+
+**`#916` → `e36c9c1d`** *(builder-reported; CI head SHA and ancestry controller-verified)*:
+- **§0c premise gate** PASS (9 premises; 6 / 6 claim anchors resolved; 3 open by design). **P7–P9** answered with `file:line` in the report §1; activity-page labels and telemetry for past Onboarding visits KEPT (owner).
+- **Files 28**: 17 deleted, 9 modified, 2 added (`App.onboardingRedirect.test.tsx` 6 tests, `PracticePage.strategyLazy.test.tsx` 4 tests). `gh pr view --json files` (28) == `git diff --name-only <merge-base>..HEAD` (28). No forbidden file touched (no ROOT-URL-1 file, no `src/data/**`, no `handoff/**`).
+- **Mutations** M1 (an unimported file → `NO_ORPHANS: files=286 orphans=1` RED), M2 (static resolver import → pins (a) and (c) RED), M3 (redirect wrapped in RequireAuth → signed-out pin RED), M4b (a new file importing `pages/Onboarding` → RED); each restored with a tree-hash check. ★ The builder caught a silent no-op in its own pin (c): a hoisted `vi.mock` factory runs once per file, so "0 loads with the flag off" could not fail after a flag-on mount; fixed with per-mount `vi.doMock` + a CONTROL `expect(loads.resolver).toBe(1)`.
+- **CI** Quality Gate `37148426682` on head `2378bb00` (headSha verified): `NO_ORPHANS: files=285 orphans=0`, `Test Files 252 passed (252)` / `Tests 3588 passed (3588)`, root matrix `# pass 293 # fail 0 # skipped 0`, convergence `122/122`. Merged `gh pr merge 916 --squash --match-head-commit 2378bb00…` (no `--admin`); `git merge-base --is-ancestor e36c9c1d origin/base/approved-thru-437` → YES.
+
+### OR-LIVE (Playwright chromium, signed out, desktop 1366×900, www) — **PARTIAL; NO ROLLBACK; RATIFICATION OWED BY THE OWNER**
+*(builder-reported; before = production at `046c3238`, captured before merge; after = production once 10 / 10 samples served the new index `index-DgY9FDix.js`)*
+
+| check | before | after | verdict |
+|---|---|---|---|
+| `/app/onboarding`, signed out | → `/app/login` | → `/app` (landing) | PASS |
+| `/onboarding` (root) | 404 | 404 | N/A (ROOT-URL-1 not landed → `[FU-ONBOARDING-ROOT-LIVE]`) |
+| Practice Triangles, page text | baseline | identical | PASS |
+| Practice Triangles, JS | 35 req / 787,605 B (triangles.pack1 7,903 B + trigonometry.pack1 10,562 B) | 34 req / 774,038 B (triangles.pack1 7,881 B) | trig chunk GONE; ★ triangles.pack1 STILL REQUESTED |
+| Practice Electricity, page text | baseline | identical | PASS |
+| Practice Electricity, JS | 37 req / 767,065 B (both pack1 chunks) | 36 req / 753,528 B (triangles.pack1 only) | trig chunk GONE; ★ triangles.pack1 STILL REQUESTED |
+| Worksheet Generator (triangles) / no context | — | renders, 0 page errors / → `/practice-hub` (pre-existing) | PASS |
+| Chapter Test `/chapter-test/10/Maths/triangles` | — | renders, 0 page errors | PASS |
+| `/sign-up`, `/login` | — | render, 0 page errors (code unchanged) | PASS |
+
+- **Why PARTIAL:** the spec's §3 criterion "the resolver / pack1 strategy chunk NOT requested" holds for Trigonometry, not for Triangles. The Vercel preview of `2378bb00` showed the same picture before merge.
+- **Why no rollback (builder + controller), against the spec's letter "roll back first on any mismatch":** the mismatch is against the spec's prediction, not against pre-change production. After ⊂ before — one chunk fewer (−13.5 KB / visit), the same questions and page text. `triangles.pack1` still loads through a PRE-EXISTING path that `#916` did not touch; a rollback would re-add the trig chunk and undo C1 / C2 without removing it. **The owner may overrule** (★ Owner items).
+
+### Decisions (full text in `DECISION_LOG.md`)
+- Owner rulings (3–4 Oct, the spec WHY + `WAVE_STATE_B11.md`): Onboarding retired, `/onboarding` → Home; the 13 deleted and `ALLOWED_ORPHANS` emptied (BANK-SPLIT-1 closed); Practice loads the resolver only behind its flag; the 170 pack1 questions stay served; activity-page labels for past Onboarding visits kept; App.tsx granted for P1 / P2 only.
+- Controller (OR-AUTO): one builder through merge + OR-LIVE + rollback-if-needed, a separate docs subagent; NO ROLLBACK on OR-LIVE PARTIAL (owner ratification owed).
+
+### Follow-ups (bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`)
+- **New (5):** `[FU-CLEANUP2-TRIANGLES-BARREL]`, `[FU-BANKREACH-STALE-COMMENT]`, `[FU-STALE-ORPHAN-COMMENTS]`, `[FU-DEAD-OPS-SCRIPTS]`, `[FU-ONBOARDING-ROOT-LIVE]`.
+- **Closed by `#916`:** `[FU-BANK-CONSUMER-ORPHANS-FOR-CONTROLLER-A]` (the 13 are deleted, `ALLOWED_ORPHANS = {}`), `[FU-ONBOARDING-UNREACHABLE-FROM-SIGNUP]` (the page is retired; nothing left to reach). **Partly closed:** `[FU-PRACTICE-STATIC-PACK-EDGE]` — the Trigonometry half is gone; the Triangles half continues as `[FU-CLEANUP2-TRIANGLES-BARREL]`.
+
+### ★ Owner items
+- **OWNER DECISIONS OWED:**
+  1. **Ratify (or overrule) NO-ROLLBACK on OR-LIVE PARTIAL.** Reason above; the spec letter says "roll back first on any mismatch".
+  2. **Approve `[FU-CLEANUP2-TRIANGLES-BARREL]` as a follow-up lane** — a one-line import change in `components/practice/practiceQuestionBuilder.ts`, a file outside CLEANUP-2 §1.
+  3. **Note the builder-scope deletion of `config/cbseDates.ts`** (+ `expectedDateLabel.test.tsx` deleted, and its cases in `boardDate.parity.test.ts` and `phase2Date.parity.test.ts`). The spec did not name it; Onboarding was its only non-test importer, and keeping it would leave one orphan against C2's `{}`. The controller has NOT independently verified this scope call; the docs builder confirmed only that the file is absent on trunk and the guard is green.
+- **OWNER LIVE VERIFICATIONS OWED (signed in — the automation is signed out):**
+  1. `/app/onboarding` while signed in → Home on desktop, `/browse` on mobile.
+  2. Signed-in sign-up and login completion.
+  3. Signed-in Practice (same questions; no `trigonometry.pack1` chunk in DevTools Network).
+- Carried: the owner items of the WAVE A-11 block and every block below it stand as written.
+
+### ★ CARRY FORWARD VERBATIM
+- **The no-orphans guard is the authority on what is dead.** `src/config/noOrphans.guard.test.ts` walks from every live root (App.tsx and its lazy routes, main.tsx, `lazytopper/scripts/**`, repo `scripts/**`, `server/**` incl. `require(path.join(__dirname, …))`, `vite.config.ts`; type-only imports count) and fails CI on any orphan not in `ALLOWED_ORPHANS`. A new file must be imported by something live in the same PR. An `ALLOWED_ORPHANS` entry needs a one-line reason. **New in wave B-11: `ALLOWED_ORPHANS` is EMPTY (`{}`).**
+- **Bank rows are read only after the route's await** (wave A-11) — stands as written in the WAVE A-11 block below.
+- **New in wave B-11 — a flag-gated feature stays out of the page's static graph.** Practice's strategy resolver is reached only through `import()` behind `if (!QTYPE_FIRST_TRIG) return;`, pinned by `PracticePage.strategyLazy.test.tsx` (no static import; 0 resolver loads with the flag off, with a CONTROL).
+
+### Carried forward — ★ THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this block
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.** **Wave B-11 moved NO dormancy in that trio.** The full block, including the `#647`/`#655` resolution and every subsequent restatement, stands as written in the blocks below.
+
 ## [CURRENT · BANK + PERF] WAVE A-11 — **NO CHAPTER TEST, FULL MOCK, PRACTICE OR WORKSHEET SET REPEATS A QUESTION (30 TRUE-DUPLICATE ROWS WITHHELD); PRACTICE, CHAPTER TEST AND FULL MOCK LOAD ONLY THE CHAPTERS THEY NEED; CHECK & IMPROVE NO LONGER LOADS reCAPTCHA ON PAGE LOAD; TOPIC MATCHING IS EXACT (BANK-SPLIT-1)** — `#911` + `#914` MERGED — trunk `86451e1a`
 *(Supersedes the WAVE B-10 block below on trunk SHA only. That block is demoted to previous on trunk SHA. Its content, and the owner items of every block below, stand as written. Exactly one un-superseded `[CURRENT]` remains: this one.)*
 

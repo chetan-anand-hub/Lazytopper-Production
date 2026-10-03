@@ -23,6 +23,42 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-04 — WAVE B-11 (CONTROLLER B): CLEANUP-2 (`#916` `e36c9c1d`) — five new, two closed, one partly closed; three owner decisions and three owner live verifications owed
+
+Sources: the builder's report (`Desktop/diff/report-cleanup-2-2026-10-04.md` §1, §6, §7 "Findings that contradict the spec", §8 "Proposed follow-ups") and the controller's state file (`WAVE_STATE_B11.md`). **Bodies are the builder's text; nothing is invented.** `grep` of `handoff/` at `e36c9c1d` *(docs-builder-verified)* found no prior entry for any of the five new ids. No dated entry is edited (standing rule 3): the closures below are recorded here, and the old entries stand as written.
+
+### New — from `#916`
+
+### `[FU-CLEANUP2-TRIANGLES-BARREL]` — OPEN · ★ OWNER DECISION OWED (approve as a follow-up lane; the file is outside CLEANUP-2 §1)
+C3 premise P5 / WHY 3 was incomplete. Practice has a SECOND static edge to the Triangles strategy data: `src/components/practice/practiceQuestionBuilder.ts:18` imports `getTrianglesRubric` from the BARREL `data/contentStrategy/triangles` (`index.ts`), which re-exports `trianglesQuestionTagIndex`, which imports `questionBanks/class10/maths/triangles.pack1`. Proof from the shipped bundle: preview `PracticePage-DAtZR0Ax.js` contains `import{T as jo}from"./triangles.pack1-DJU7QZje.js"`. Effect: after C3, `trigonometry.pack1` (10.6 KB) is gone, but `triangles.pack1` plus the Triangles strategy data (7.9 KB) is still fetched on every Practice visit. Fix: one line, the same as `:17` already does for trig — import `getTrianglesRubric` from `.../triangles/trianglesRubrics` directly. Pin it with a static-walk assertion that PracticePage reaches no `contentStrategy/*QuestionTagIndex` *(builder-reported; `:18` docs-builder-verified on trunk)*. Continues the Triangles half of `[FU-PRACTICE-STATIC-PACK-EDGE]`.
+
+### `[FU-BANKREACH-STALE-COMMENT]` — OPEN
+`config/bankReach.guard.test.ts:200-203` says Practice reaches both pack files (`triangles.pack1`, `trigonometry.pack1`) "through services/questionTypeFirstResolver". That is now false: the remaining path is the `[FU-CLEANUP2-TRIANGLES-BARREL]` barrel, and it covers triangles only *(builder-reported; the comment docs-builder-verified at `:200-203` on trunk)*.
+
+### `[FU-STALE-ORPHAN-COMMENTS]` — OPEN
+Comments still cite files `#916` deleted: `DesktopHome.tsx:44-45,138` and `MobileHome.tsx:96`; `DesktopShell.tsx:423` (globally forbidden) and `DesktopShell.test.tsx:249`; `App.tsx:99`; `Login.tsx` and `cbseExamDate.ts:158` (both mention `cbseDates`). Comments only; no behaviour *(builder-reported)*.
+
+### `[FU-DEAD-OPS-SCRIPTS]` — OPEN
+`scripts/ops/pro_tips_product_acceptance.mjs` and `scripts/ops/backlog_1_19_acceptance.mjs` crash on trunk on long-deleted files (`src/pages/Dashboard.tsx`; `src/services/sessionTypes.ts` at `:138`) — they crashed BEFORE `#916` too. They are in no matrix. `#916` removed `backlog_1_19`'s CUR-03 / CUR-04 Onboarding checks (`:120-135`) and left a comment. Delete or repair them *(builder-reported)*. Both are already in the set of `[FU-LEGACY-OPS-GATES-RED-AT-TRUNK]` (wave B-10) — do not duplicate the work; retire them with that set.
+
+### `[FU-ONBOARDING-ROOT-LIVE]` — OPEN · due when ROOT-URL-1 lands
+After Controller A's ROOT-URL-1 (`#917`, open at the time of writing) lands, re-verify `/onboarding` (root) → Home. On `#916`'s OR-LIVE the root `/onboarding` was 404 before and after (N/A, ROOT-URL-1 not landed); `/app/onboarding` signed out → landing PASSED *(builder-reported)*.
+
+### Closed / partly closed by `#916` (the original entries stand as written)
+- **`[FU-BANK-CONSUMER-ORPHANS-FOR-CONTROLLER-A]` — CLOSED by `#916`.** The 13 files are deleted and `ALLOWED_ORPHANS = {}` (`noOrphans.guard.test.ts:39`, docs-builder-verified); CI `NO_ORPHANS: files=285 orphans=0`. Done by Controller B under the owner ruling, not Controller A.
+- **`[FU-ONBOARDING-UNREACHABLE-FROM-SIGNUP]` — CLOSED by `#916`.** The page is retired (owner ruling); `/onboarding` → Home.
+- **`[FU-PRACTICE-STATIC-PACK-EDGE]` — PARTLY CLOSED by `#916`.** The resolver edge is lazy behind the flag and `trigonometry.pack1` is no longer requested by Practice (live). The `triangles.pack1` half remains via a different edge → `[FU-CLEANUP2-TRIANGLES-BARREL]`.
+
+### Owner decisions owed (not FUs)
+1. **Ratify (or overrule) NO-ROLLBACK on OR-LIVE PARTIAL** (reason in `DECISION_LOG.md`, 2026-10-04).
+2. **Approve `[FU-CLEANUP2-TRIANGLES-BARREL]`** as a follow-up lane.
+3. **Note the builder-scope deletion of `config/cbseDates.ts`** and its tests (not named by the spec; UNVERIFIED by the controller).
+
+### Owner live verifications owed (signed in; not FUs)
+1. `/app/onboarding` signed in → Home on desktop, `/browse` on mobile.
+2. Signed-in sign-up and login completion.
+3. Signed-in Practice.
+
 ## 2026-10-03 — WAVE A-11 (CONTROLLER A): BANK-SPLIT-1 (`#911` `ffc586c0` + `#914` `86451e1a`) — nine new, none closed; four owner live verifications owed
 
 Sources: the spec `BANK-SPLIT-1` (v1.0 WHY: the deferral), the scout report (`Desktop/diff/report-bank-split-scout-1-2026-10-03.md`), the builders' reports (`report-bank-split-1-pr1-2026-10-03.md` §8–§9, §11; `report-bank-split-1-pr2-2026-10-03.md` "Findings that contradict the spec" and the follow-ups of the loading-state fix), the PR-2 OR-LIVE report (`live-after-pr2-bank-split-1-2026-10-03.md`, incl. CONTROL — APP CHECK 403) and the controller's state file (`WAVE_STATE_A11.md`). **Bodies come from those sources; nothing is invented.** `grep` of `handoff/` at `86451e1a` *(docs-builder-verified)* found no prior entry for any of the nine ids. `[FU-BANK-CONSUMER-ORPHANS-FOR-CONTROLLER-A]` (wave B-10) stays OPEN: this wave did not touch the 13 `ALLOWED_ORPHANS`.

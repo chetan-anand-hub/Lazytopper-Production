@@ -1,3 +1,27 @@
+## 2026-10-04 — WAVE B-11 (CLEANUP, CONTROLLER B): CLEANUP-2 — PR `#916` merged — trunk `e36c9c1d`
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (the owner rulings in the WHY of the spec `CLEANUP-2`, the owner decisions recorded in `WAVE_STATE_B11.md`, and the controller's OR-AUTO decisions), not `DECISION N`.
+
+### Owner rulings in the spec WHY (`CLEANUP-2` v1.0, sha256 prefix `b18f881aa99a`), fixed, dated 3–4 Oct 2026
+- **Onboarding is retired: delete the route and the page; sign-up and login stay exactly as they are; `/onboarding` redirects to Home (`/`).** **Why:** it was the post-sign-up screen of the study-planner era (exam date + pace profile); nothing live links to it (FRICTION-FIX-1 finding, `[FU-ONBOARDING-UNREACHABLE-FROM-SIGNUP]`), and the pace profile is already set at start-up from the exam date. Home shows the landing to signed-out visitors and the app to signed-in ones.
+- **Delete the 13 `ALLOWED_ORPHANS`; the orphan list becomes EMPTY.** **Why:** FRICTION-FIX-1 kept them only because they read the question bank while BANK-SPLIT-1 ran (Daily Mix, the old Worksheets pages and their helpers). BANK-SPLIT-1 is closed.
+- **Practice loads `questionTypeFirstResolver` only when `VITE_QTYPE_FIRST_TRIGONOMETRY === "true"`; the 170 pack1 questions themselves stay served** (until the bank expansion / correction task). **Why:** `PracticePage` imported the resolver statically, pulling the Triangles and Trigonometry pack1 strategy data (~96 KB source) on every Practice page, although its "Why this question" panel shows only with that flag — which is not set in Vercel Production (owner screenshot, 4 Oct).
+
+### Owner decisions recorded in `WAVE_STATE_B11.md` (fixed, not asked)
+- **C1–C3 exactly as written; App.tsx granted for P1 / P2 only.** **Why:** App.tsx is globally forbidden (`CLAUDE.md` §4); the grant is the narrowest that lets the route be replaced.
+- **Activity-page labels for past Onboarding visits STAY.** **Why:** the admin dashboard still names historical visits (`activityPages.ts`, `activityDetailModel.ts`, `studentActivity.cjs`).
+- **STOP only if** one of the 13 has a live importer, or a required change is in a forbidden file. **Why:** the two conditions under which the rulings could not be carried out as written. Neither occurred *(builder-reported: no live importer; `NO_ORPHANS ... orphans=0`)*.
+- **OR-AUTO** (work to the end), `gh pr merge` owner-granted, **OR-LIVE §3 before + after, roll back first on mismatch**, OR-15 fast local gates only.
+
+### Controller decisions (OR-AUTO), with the reason — for the audit
+- **One builder carries the PR through merge + OR-LIVE (before / after) + rollback if needed; the docs PR by a separate fresh subagent.** **Why:** the rollback decision needs the builder's own before-capture; the docs PR is a separate lock (OR-16) and a separate context.
+- **NO ROLLBACK on OR-LIVE PARTIAL — owner ratification owed.** **Why:** after ⊂ before — the trigonometry pack1 chunk is gone (−13.5 KB / visit), the Practice text is identical; `triangles.pack1` is still loaded through a PRE-EXISTING path (`practiceQuestionBuilder.ts:18`, the `contentStrategy/triangles` barrel) not touched by `#916`. A rollback would revert the Onboarding and orphan deletes and would not fix it. The spec's letter says "roll back first on any mismatch"; the owner may overrule.
+- **Builder-scope deletion of `config/cbseDates.ts` and its tests — recorded, UNVERIFIED by the controller.** **Why (builder):** its only non-test importer was `Onboarding.tsx:5`; keeping it would leave one orphan against C2's `{}`. The spec did not name it.
+- **Spec §3's docs PR and audit-request file were not produced by the builder.** **Why:** the brief gave the builder ONE PR and forbade `handoff/**`; this docs PR and the controller's audit request carry them.
+
+### Scope discovered (§10, `SURFACE_TRACKER.md` §2a)
+- **None that changes a surface's scope.** The Triangles barrel edge is a defect in C3's premise, tracked as `[FU-CLEANUP2-TRIANGLES-BARREL]`; Onboarding has no §2 row.
+
 ## 2026-10-03 — WAVE A-11 (BANK + PERF, CONTROLLER A): BANK-SPLIT-1 — PRs `#911` + `#914` merged — trunk `86451e1a`
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (the owner rulings and cofounder rulings in the WHY of the spec `BANK-SPLIT-1`, the owner rulings recorded in `WAVE_STATE_A11.md`, and the controller's OR-AUTO decisions), not `DECISION N`.
