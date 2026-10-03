@@ -2,6 +2,7 @@ import { type PracticeQuestion } from "../../data/predictionDataService";
 import type { BloomLevel, DifficultyLevel, LTSubjectKey } from "../../data/predictionTypes";
 import { generatePracticeSet, inferBoardPatternFromQuestion, normalizeBoardPattern } from "../../data/practiceSetGenerator";
 import { generateUnifiedPracticeQuestions } from "../../data/questionGenerator";
+import { questionKey } from "../../utils/questionKey";
 import { promptDPracticePacks, type TopicPracticePack } from "../../data/promptDPracticePacks";
 import {
   resolveTopicKey as resolveCanonicalTopicKey,
@@ -235,9 +236,9 @@ export function buildPracticeQuestionsFromEngine(args: {
   const seenTexts = new Set<string>();
   const deduped: RawQuestion[] = [];
   for (const q of candidates) {
-    const key = String(q.questionText ?? q.text ?? "").trim().toLowerCase().slice(0, 120);
-    if (key && seenTexts.has(key)) continue;
-    if (key) seenTexts.add(key);
+    const key = questionKey(q);
+    if (seenTexts.has(key)) continue;
+    seenTexts.add(key);
     deduped.push(q);
     if (deduped.length >= safeCount) break;
   }
@@ -575,9 +576,9 @@ export async function buildPracticeQuestionsWithAiTopup(
   const mergeSeenTexts = new Set<string>();
   const mergedUnique: PracticeQuestion[] = [];
   for (const q of [...baseQuestions, ...canonicalFallback]) {
-    const key = String(q.questionText || "").trim().toLowerCase().slice(0, 120);
-    if (key && mergeSeenTexts.has(key)) continue;
-    if (key) mergeSeenTexts.add(key);
+    const key = questionKey(q);
+    if (mergeSeenTexts.has(key)) continue;
+    mergeSeenTexts.add(key);
     mergedUnique.push(q);
   }
   const mergedWithCanonical = mergedUnique.slice(0, safeCount);

@@ -22,6 +22,7 @@
 // mutated.
 
 import { isPYQQuestion } from "../data/practiceSetGenerator";
+import { questionKey, type QuestionKeyInput } from "./questionKey";
 
 export interface BalancedDrawArgs<T> {
   pool: readonly T[];
@@ -80,8 +81,19 @@ export function drawBalancedSet<T>(args: BalancedDrawArgs<T>): BalancedDrawResul
   const fresh: T[] = [];
   for (const q of args.pool) (isPYQQuestion(q) ? pyq : fresh).push(q);
 
-  const pyqShuffled = seededShuffle(pyq, rand);
-  const freshShuffled = seededShuffle(fresh, rand);
+  // NO REPEATS IN A SET (BANK-SPLIT-1): one candidate per questionKey, first in
+  // shuffled order wins, and the PYQ class claims a key before the fresh class. With
+  // no shared keys this is the identity, so the draw is unchanged for the same seed.
+  const seenKeys = new Set<string>();
+  const firstPerKey = (arr: T[]): T[] =>
+    arr.filter((q) => {
+      const key = questionKey(q as QuestionKeyInput);
+      if (seenKeys.has(key)) return false;
+      seenKeys.add(key);
+      return true;
+    });
+  const pyqShuffled = firstPerKey(seededShuffle(pyq, rand));
+  const freshShuffled = firstPerKey(seededShuffle(fresh, rand));
 
   // Aim for the target share; every shortfall in one class is honestly filled from
   // the other. The total is clamped to what the pool really holds — never padded.

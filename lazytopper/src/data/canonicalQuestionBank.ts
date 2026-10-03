@@ -1979,6 +1979,39 @@ export const WITHHELD_QUESTION_IDS: ReadonlySet<string> = new Set<string>([
   "PYQ-M-2025-STAT-004",         // garbled — stem drops the last class frequency; unsolvable from the stem
   "PYQ-M-2025-STAT-005",         // garbled — stem drops the last class frequency; unsolvable from the stem
   "SCO-S-HERED-005",             // out-of-syllabus — origin of life / earliest organisms = Evolution (formative-only, 2026-27)
+  // -- BANK-SPLIT-1 PR-1 (2026-10-03): true duplicates within one chapter, scout N1 normalisation (equal marks,
+  //    option set and answer). Keeper = pyqYear row, else a row NOT in AI_GENERATED_QUESTION_IDS, else the oldest id.
+  //    Cross-chapter true duplicates are NOT withheld (each chapter keeps its copy).
+  "TRIG2-E12",                // duplicate-of TRIG2-E04
+  "TRIG2-H09",                // duplicate-of TRIG-N-NCERT-9-LA-005
+  "AP-E12",                   // duplicate-of AP-N-NCERT-5-VSA-003
+  "CIR-M17",                  // duplicate-of CIRC-N-NCERT-10-SA-003
+  "ARC-M15",                  // duplicate-of ARC-N-EXEM2-11-SA-006
+  "EL2-002",                  // duplicate-of EL-E01
+  "SCO-S-ACID-005",           // duplicate-of ACID-NCERT-2-MCQ-002
+  "SCO-S-ACID-015",           // duplicate-of ACID-EXMPLR-2-MCQ-002
+  "ACID-EXMPLR-2-MCQ-015",    // duplicate-of PYQ-S-2026-ACID-001
+  "SCO-S-METAL-016",          // duplicate-of METAL-NCERT-3-MCQ-002
+  "SCO-S-METAL-002",          // duplicate-of METAL-NCERT-3-MCQ-004
+  "SCO-S-CARB-005",           // duplicate-of CARB-EXMPLR-4-MCQ-001
+  "SCO-S-CARB-004",           // duplicate-of CARB-EXMPLR-4-MCQ-007
+  "SCO-S-CARB-018",           // duplicate-of CARB-EXMPLR-4-MCQ-013
+  "SCO-S-LIGHT-002",          // duplicate-of LIGHT-NCERT-9-MCQ-003
+  "SCO-S-LIGHT-009",          // duplicate-of LIGHT-NCERT-9-MCQ-004
+  "SCO-S-LIGHT-010",          // duplicate-of LIGHT-NCERT-9-MCQ-006
+  "SCO-S-EYE-001",            // duplicate-of EYE-NCERT-10-MCQ-002
+  "SCO-S-EYE-006",            // duplicate-of EYE-NCERT-10-MCQ-003
+  "SCO-S-EYE-002",            // duplicate-of EYE-NCERT-10-MCQ-004
+  "SCO-S-ELEC-003",           // duplicate-of ELEC-NCERT-11-MCQ-001
+  "SCO-S-ELEC-014",           // duplicate-of ELEC-EXMPLR-11-MCQ-016
+  "SCO-S-MAG-007",            // duplicate-of MAG-NCERT-12-MCQ-003
+  "SCO-S-MAG-005",            // duplicate-of MAG-NCERT-12-MCQ-005
+  "PLE-N-EXMPLR-3-MCQ-001",   // duplicate-of PLE-N-NCERT-3-MCQ-005
+  "APQ-M-PLE-002",            // duplicate-of PLE-N-NCERT-3-MCQ-005
+  "PLE-N-EXMPLR-3-MCQ-005",   // duplicate-of PYQ-M-PLE-001
+  "CG-N-EXMPLR-7-EX-010",     // duplicate-of PYQ-M-2024-CG-002
+  "AP-N-EXEM2-5-MCQ-006",     // duplicate-of APQ-M-AP-002
+  "PYQ-M-QE-007",             // duplicate-of PYQ-M-QE-006
 ]);
 
 /**
