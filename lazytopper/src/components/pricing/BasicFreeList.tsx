@@ -59,6 +59,14 @@ export const BASIC_FREE_LABELS: readonly string[] = FREE_FEATURES.filter(f => f.
 
 export const BASIC_FREE_HEADING = "Free on Basic:";
 
+/**
+ * FRICTION-FIX-1 · F2 (FU-BASIC-LIST-DARK-THEME) — the card takes the THEME TOKENS
+ * (styles.css `:root` = dark, `[data-theme="light"]` = light), not a fixed light palette:
+ * in the dark theme the old pale-green card with near-black text sat on a near-black page.
+ * Text is `--text` on `--bg-card`; the tick is `--color-light-green` (#4ade80 dark,
+ * #15803d light). A surface that is light in both themes (UpgradeModal) re-declares the
+ * light tokens around this list.
+ */
 const BASIC_FREE_CSS = `
 .lt-basic-free {
   box-sizing: border-box;
@@ -66,10 +74,10 @@ const BASIC_FREE_CSS = `
   margin: 0 auto 20px;
   padding: 12px 16px;
   text-align: left;
-  border: 1px solid hsl(150, 40%, 86%);
+  border: 1px solid var(--bg-card-border);
   border-radius: 12px;
-  background: hsl(150, 35%, 96%);
-  color: hsl(220, 25%, 12%);
+  background: var(--bg-card);
+  color: var(--text);
 }
 .lt-basic-free__title {
   margin: 0 0 6px;
@@ -88,7 +96,7 @@ const BASIC_FREE_CSS = `
 }
 .lt-basic-free__tick {
   margin-right: 6px;
-  color: hsl(152, 55%, 32%);
+  color: var(--color-light-green);
   font-weight: 700;
 }
 @media (max-width: 480px) {
