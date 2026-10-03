@@ -1211,10 +1211,15 @@ describe("crawl control — the sitemap's freshness signal and the IndexNow key 
         `crawler no reason to revisit.`,
     ).toBe(locCount);
 
+    // ★ "THE FUTURE" IS JUDGED IN IST, THE DAY THE GENERATOR STAMPS (generateSitemap.ts
+    // todayIst). Comparing an IST date against UTC midnight called every page captured
+    // between 00:00 and 05:30 IST "in the future" — measured on ROOT-URL-1's capture
+    // (stamped 2026-10-04 IST at 2026-10-03T19:44Z), a false red for 5.5 hours a day.
+    const todayIstDate = new Date(Date.now() + 330 * 60_000).toISOString().slice(0, 10);
     for (const d of lastmods) {
       expect(d, `<lastmod> "${d}" is not a W3C date (YYYY-MM-DD)`).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       expect(
-        Date.parse(d) <= Date.now(),
+        d <= todayIstDate,
         `<lastmod> "${d}" is in the future — a fabricated freshness signal is worse ` +
           `than none, and Google discounts the whole sitemap for it.`,
       ).toBe(true);
