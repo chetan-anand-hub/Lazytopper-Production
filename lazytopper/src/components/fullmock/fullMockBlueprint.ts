@@ -33,7 +33,7 @@
 // identity (FM-…), never WS-/CT-.
 
 import type { CanonicalQuestion } from "../../data/predictionTypes";
-import { canonicalQuestionBank } from "../../data/canonicalQuestionBank";
+import { canonicalQuestionBank, AI_GENERATED_QUESTION_IDS } from "../../data/canonicalQuestionBank";
 import { predictedQuestions, type PredictedQuestion } from "../../data/predictedQuestions";
 import {
   sciencePredictedQuestions,
@@ -46,6 +46,7 @@ import { desktopTopicBySlug } from "../../lib/desktop/topics";
 import { resolveTopicDisplayName } from "../../utils/topicResolver";
 import { allocateByPercent } from "../../utils/mockBlueprint";
 import { drawBalancedSet } from "../../utils/balancedMockDraw";
+import { questionKey } from "../../utils/questionKey";
 import { isPYQQuestion } from "../../data/practiceSetGenerator";
 import type {
   PersistedWorksheet,
@@ -132,7 +133,6 @@ export interface FMPoolQuestion {
 }
 
 const norm = (s: string): string => String(s || "").trim().toLowerCase();
-const normText = (s: string): string => norm(s).replace(/\s+/g, " ");
 
 function fromCanonical(q: CanonicalQuestion): FMPoolQuestion {
   return {
@@ -239,8 +239,8 @@ export function sectionPool(pool: FMPoolQuestion[], section: FMSection): FMPoolQ
 
 /**
  * Build the union pool for a subject: canonical + the live predicted bank,
- * restricted to the subject's canonical chapters, deduped by id and by
- * normalised question text (canonical wins — it carries the richer metadata).
+ * restricted to the subject's canonical chapters, deduped by id and by questionKey
+ * (keeper: pyqYear, then non-AI, then bank order — canonical before predicted).
  */
 export function buildUnionPool(subject: FMSubject, chapterSlugs: Set<string>): FMPoolQuestion[] {
   const canonical = canonicalQuestionBank
@@ -250,16 +250,27 @@ export function buildUnionPool(subject: FMSubject, chapterSlugs: Set<string>): F
     subject === "Science" ? sciencePredictedQuestions : predictedQuestions
   ).map(fromPredicted);
 
+  // NO REPEATS IN A SET (BANK-SPLIT-1): dedupe by id and by questionKey (stem AND
+  // option set, so different MCQs sharing a generic stem both stay). When rows share
+  // a key the keeper follows the ruling: a pyqYear row, else a row NOT in
+  // AI_GENERATED_QUESTION_IDS, else the earlier row in bank order (canonical first).
+  // Survivors keep their bank order.
+  const candidates = [...canonical, ...predicted]
+    .filter((q) => chapterSlugs.has(q.topicSlug))
+    .map((q) => ({ q, key: questionKey(q) }));
+  const keeperRank = (q: FMPoolQuestion) =>
+    (q.pyqYear ? 0 : 2) + (AI_GENERATED_QUESTION_IDS.has(q.id) ? 1 : 0);
+  const keeperByKey = new Map<string, FMPoolQuestion>();
+  for (const { q, key } of candidates) {
+    const current = keeperByKey.get(key);
+    if (!current || keeperRank(q) < keeperRank(current)) keeperByKey.set(key, q);
+  }
   const out: FMPoolQuestion[] = [];
   const seenIds = new Set<string>();
-  const seenText = new Set<string>();
-  for (const q of [...canonical, ...predicted]) {
-    if (!chapterSlugs.has(q.topicSlug)) continue;
+  for (const { q, key } of candidates) {
     const idKey = q.id || q.questionText;
-    const textKey = normText(q.questionText);
-    if (seenIds.has(idKey) || (textKey && seenText.has(textKey))) continue;
+    if (seenIds.has(idKey) || keeperByKey.get(key) !== q) continue;
     seenIds.add(idKey);
-    if (textKey) seenText.add(textKey);
     out.push(q);
   }
   return out;

@@ -70,6 +70,7 @@ import {
   canonicalQuestionBank,
   RAW_CANONICAL_QUESTION_BANK,
   AI_GENERATED_QUESTION_IDS,
+  WITHHELD_QUESTION_IDS,
 } from "../data/canonicalQuestionBank";
 
 const AI = AI_GENERATED_QUESTION_IDS;
@@ -123,8 +124,13 @@ describe("RULE 1 — provenance is an id-set, not a `sources` field", () => {
     });
     const human = canonicalQuestionBank.filter((q) => !AI.has(q.id));
 
-    // IDENTITY — every AI id is in the bank and Rule 1 rejects each one.
-    expect(rejected).toHaveLength(AI.size);
+    // IDENTITY — every AI id is in the bank and Rule 1 rejects each SERVED one.
+    // BANK-SPLIT-1 PR-1 (2026-10-03): the first withheld AI rows (6 true duplicates of an
+    // authentic row). A withheld row is not served, so the identity counts AI ids minus the
+    // withheld ones, and every AI id must still name a row in the RAW bank.
+    const rawIds = new Set(RAW_CANONICAL_QUESTION_BANK.map((q) => q.id));
+    expect([...AI].filter((id) => !rawIds.has(id))).toEqual([]);
+    expect(rejected).toHaveLength([...AI].filter((id) => !WITHHELD_QUESTION_IDS.has(id)).length);
     // CEILING — AI rows are retired, never added. 2,952 at PR-3 (2026-09-11).
     expect(AI.size).toBeLessThanOrEqual(2952);
     // FLOOR — human rows are authored and wired, never lost. 5,710 at PR-3.
@@ -142,7 +148,10 @@ describe("RULE 1 — provenance is an id-set, not a `sources` field", () => {
     // 1 answer-mismatch) — see the "CLEAN-1" block of WITHHELD_QUESTION_IDS.
     // 5,597 -> 5,593: -4. CLEAN-1 stage 4 (2026-09-11, skeptic pass): PYQ-S-METAL-003, PYQ-M-2025-STAT-004,
     // PYQ-M-2025-STAT-005 (garbled) and SCO-S-HERED-005 (out-of-syllabus) withheld.
-    expect(human.length).toBeGreaterThanOrEqual(5593);
+    // 5,593 -> 5,569: -24. BANK-SPLIT-1 PR-1 (2026-10-03) withheld 30 true duplicate rows within one
+    // chapter (24 authentic + 6 AI; the AI rows do not count here) — see the "BANK-SPLIT-1" block of
+    // WITHHELD_QUESTION_IDS. Each keeps one copy: pyqYear row, else non-AI, else the oldest id.
+    expect(human.length).toBeGreaterThanOrEqual(5569);
     // IDENTITY — AI-rejected and human rows partition the bank.
     expect(rejected.length + human.length).toBe(canonicalQuestionBank.length);
     // 8,543 -> 8,673: #721 wired the ten .cfpq.ts files into the assembly array.

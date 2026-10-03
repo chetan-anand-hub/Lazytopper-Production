@@ -22,6 +22,7 @@ import { selectBankQuestions, resolveCanonicalSlug } from "../../data/bankQuery"
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
 import { isAutoGradeableObjective, isMcqShaped } from "../practice/autoGradeableObjective";
 import { drawBalancedSet, type BalancedDrawResult } from "../../utils/balancedMockDraw";
+import { questionKey } from "../../utils/questionKey";
 import type {
   PersistedWorksheet,
   PersistedWorksheetQuestion,
@@ -194,12 +195,13 @@ export function drawChapterTest(args: {
   };
   // Balanced per-section draw (the Full Mock pass-1 pattern): each section pulls
   // from its not-yet-used candidates through the shared helper, seeded per
-  // section off the paper seed. The used-set dedupe is retained across sections.
+  // section off the paper seed. The used-set dedupe is retained across sections and
+  // keys on questionKey (BANK-SPLIT-1): the same proof at 3 and 5 marks is one question.
   for (const spec of CT_BLUEPRINT) {
-    const cell = pools[spec.section].filter((q) => !used.has(q.id || q.questionText));
+    const cell = pools[spec.section].filter((q) => !used.has(questionKey(q)));
     const r = drawCTSection(cell, spec.targetCount, seed ^ hashCell(`CT:${spec.section}`));
     for (const q of r.drawn) {
-      used.add(q.id || q.questionText);
+      used.add(questionKey(q));
       chosen.push({ q, section: spec.section });
     }
   }
