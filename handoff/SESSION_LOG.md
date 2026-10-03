@@ -1,3 +1,35 @@
+## 2026-10-04 — WAVE A-12 (ROUTING + SEO, CONTROLLER A) — **ROOT-URL-1: THE APP LIVES AT THE DOMAIN ROOT; EVERY OLD `/app` LINK IS ONE 308; NON-SITEMAP PAGES SAY `noindex` IN THE SHELL FILE; NOTES HEADS NAME THEIR NCERT CHAPTER** — `#917` + `#919` MERGED — trunk `db4862a2`
+
+★ **PROVENANCE.** Controller A, wave A-12. The cofounder spec `ROOT-URL-1` v1.0 (`B2E4B51E6FE3`) and, for PR-2, v1.1 (`5AF1A221205A`, a ledger-only re-anchor), both MATCH, with the owner rulings of 3–4 Oct as their WHY. One builder per PR (`claude-opus-5-5`, effort high), each in its own worktree; a re-anchor scout; three read-only OR-LIVE agents. A separate docs builder wrote this docs PR in `C:/Projects/LT-worktrees/a12-docs` from `WAVE_STATE_A12.md`, the specs, the three lane reports and the three live reports. *(builder-reported)* / *(scout-reported)* / *(agent-reported)* / *(controller-verified)* / *(owner-verified)* / *(docs-builder-verified)* as in `CURRENT_STATE.md`.
+- #920 UPLOAD-2 (`2492bb67`) merged in parallel — Controller B wave B-12; its handoff follows in B's docs PR.
+
+**Lanes.**
+
+| lane | PR | what it changed | what it disproved |
+|---|---|---|---|
+| ROOT-URL-1 PR-1 | `#917` `5f168207` | The app at the root (Vite base `/`, outDir without `/app`); every old `/app/…` one 308 with the query kept; `/app/assets/…` 404; sitemap, `llms.txt` (62), canonicals, the 62 prerendered pages, the 96 visual paths + `diagrams.cjs` and the analytics senders (with redaction parity) moved; NEW `NO_APP_PREFIX` guard. 103 files. | The spec's bare catch-all rewrite (it would have served the shell for missing chunks); an exact-literal M6 allowlist; that the shell noindex header ever reached deep links *(builder-reported)*. |
+| ROOT-URL-1 PR-2 SEO-4 | `#919` `db4862a2` | `noindexShell()` in `applyPrerendered.ts` (the shell says `noindex,follow`); `ncertLabel()` in `writeStaticHeads.ts` (notes heads name the NCERT chapter, 155 cap kept); NEW `shellNoindex.guard.test.ts`. 5 files. | That S1 fit the spec's PR-2 allowlist; that the `vercel.json` `X-Robots-Tag` on `/__shell.html` ever reached a rewritten request — production had served `index,follow` on every non-sitemap route *(builder-reported; controller-verified live before the fix)*. |
+
+**Timeline.**
+- **P14 answered by the owner** from the Vercel dashboard: Output Directory `artifacts/lazytopper-app/dist/public`, Build `pnpm --filter lazytopper run build`, Install `pnpm install --frozen-lockfile`, Root Directory `./` with files outside the root included *(owner-verified)*.
+- **OR-LIVE BEFORE** on production `046c3238`: BASELINE-RECORDED, 48 / 48; signed-in baseline on a throwaway account (erased) *(agent-reported)*.
+- **PR-1** §0c PASS on v1.0; 103 files; M6 mutation RED → restored; preview 21 / 21; CI `37149341430` on `975135a6`, then two `update-branch` passes (lane diff hash `59be5cc1763c` unchanged) → quality-gate `37152059972` success on `a2c5f4ab` (`Tests 3607 passed (3607)`). D1–D4 recorded.
+- **`#917` MERGED `5f168207`** at 2026-10-03T20:54:19Z (02:24 IST, 4 Oct), `--squash --match-head-commit a2c5f4ab` *(controller-verified; time docs-builder-verified)*. Instant-rollback path verified (`vercel whoami` → `chetan-anand-hub`).
+- **Re-anchor (D5)**: the v1.0 gate fails at `5f168207` on P1, P2, P4–P10 (as predicted); spec v1.1 (`5AF1A221205A`) re-anchors only those rows + the Base SHA; gate exit 0 *(scout-reported; hash + diff scope controller-verified)*.
+- **OR-LIVE AFTER PR-1** on `5f168207`: **115 / 115 PASS**, no rollback. ★ A hidden 50 % rolling release: cold reads sat in a sticky 0.08 bucket; buckets ≥ 0.51 stayed on the old `ff68e34f` until **21:12:30Z (2026-10-03 UTC)**. The rollout method was fixed for PR-2 *(agent-reported)*.
+- **PR-2 BLOCKED** before any edit: S1 needed `applyPrerendered.ts`, outside the allowlist. The controller's allowlist extension (D6) was WITHDRAWN after a classifier denial. **OWNER + COFOUNDER ruling:** PR-2's allowlist adds `applyPrerendered.ts` + its guard tests, for S1 only, under five conditions. Builder resumed.
+- **Owner check:** Google sign-in on `https://www.lazytopper.com/login` lands in the app and sign-out works — **the PR-1 owner-owed check is CLOSED** *(owner-verified, 4 Oct)*.
+- **PR-2** §0c PASS on v1.1; mutations A / B / C RED → restored; capture `SITEMAP BODIES CHANGED: 0`; preview 9 / 9; quality-gate `37155963533` success on `0733f5a1` (`Tests 3618 passed (3618)`). D7 recorded.
+- **`#919` MERGED `db4862a2`** at 2026-10-03T22:02:49Z (03:32 IST, 4 Oct), `--squash --match-head-commit 0733f5a1`.
+- **OR-LIVE AFTER PR-2** on `db4862a2`: **121 / 121 PASS**, no rollback. The corrected method caught a **second hidden rolling release** — 100 % only at **22:21:05Z (2026-10-03 UTC)**; every measurement after that *(agent-reported)*.
+- This docs PR; the controller then sends the final audit request.
+
+**Lessons.**
+- **A rolling release is invisible to cold reads from one client.** The `_vcrr` bucket is sticky per client even without a cookie; "≥ 5 cold `version.json` reads" said 100 % while half of visitors were on the old build. Check that `_vcrr` is no longer set, and force several buckets.
+- **A header on a rewrite destination is not a header on the request.** Vercel matches header rules on the request path, so the `X-Robots-Tag` on `/__shell.html` never reached `/me`. Put the directive in the file.
+- **A literal spec rule can break the spec's own ruling.** The bare catch-all `/:path(.*)` would have turned the `/app/assets` 404 into a 200 shell (Vercel falls through when a destination file is missing). The intent was kept; the literal changed (D1, pending audit).
+- **A spec whose ledger pins PR-1's pre-change lines fails its own gate for PR-2** (the A-11 precedent, again) — re-anchor the ledger only, and diff-prove §1–§3 untouched.
+
 ## 2026-10-04 — WAVE B-11 (CLEANUP, CONTROLLER B) — **CLEANUP-2: ONBOARDING RETIRED; NO ORPHAN FILE LEFT; PRACTICE STOPS LOADING THE OFF TRIGONOMETRY STRATEGY DATA** — `#916` MERGED — trunk `e36c9c1d`
 
 ★ **PROVENANCE.** Controller B, wave B-11. The cofounder spec `CLEANUP-2` v1.0 (`b18f881aa99a`, MATCH) with the owner rulings of 3–4 Oct as its WHY. One builder (`claude-opus-5-5`, effort high) in `C:/Projects/LT-worktrees/cleanup-2` carried the PR through merge and OR-LIVE before / after. A separate docs builder wrote this docs PR in `C:/Projects/LT-worktrees/docs-b11` from `WAVE_STATE_B11.md`, the spec and the builder's report. *(builder-reported)* / *(controller-verified)* / *(docs-builder-verified)* as in `CURRENT_STATE.md`.

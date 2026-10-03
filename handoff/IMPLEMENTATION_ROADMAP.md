@@ -1,5 +1,17 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-04 — ROUTING + SEO: **WAVE A-12 — ROOT-URL-1** — `#917` + `#919` MERGED — trunk `db4862a2` — ✅ COMPLETE (OR-LIVE 115 / 115 and 121 / 121, no rollback; D1–D5, D7 pending owner audit)
+
+- ✅ **P14 answered by the owner** (Vercel dashboard): the output directory is `artifacts/lazytopper-app/dist/public`; no dashboard change.
+- ✅ **PR-1 — the move, M1–M6** (`#917` `5f168207`, LIVE): the app at the domain root; every old `/app/…` one 308 with the query kept; `/app/assets/…` 404; sitemap, `llms.txt`, canonicals, 62 prerendered pages, visual paths and analytics senders at the root; `NO_APP_PREFIX` guard. Closes `[FU-INDEXHTML-PATH-PII-VERCEL-BEFORESEND]`.
+- ✅ **PR-2 — SEO-4, S1–S2** (`#919` `db4862a2`, LIVE): non-sitemap routes `noindex,follow` from the shell file; notes heads name their NCERT chapter. Closes `[FU-SHELL-NOINDEX-HEADER-NEVER-APPLIED]`.
+- ✅ **OR-LIVE** before (48 / 48 baseline), after PR-1 (115 / 115), after PR-2 (121 / 121); signed-in checks by the agent on erased throwaway accounts; two hidden rolling releases found, the rollout method fixed.
+- ✅ **Google sign-in at the root** — owner-verified 4 Oct (CLOSED).
+- ✅ **Rulings recorded:** owner rulings, P14, the OWNER ADDENDUM, the OWNER + COFOUNDER allowlist ruling, controller D1–D7 (`DECISION_LOG.md`).
+- ✅ **FUs:** eight new open, two closed (`OPEN_QUESTIONS_AND_FOLLOWUPS.md`).
+- ✅ **Docs:** this handoff.
+- ⬜ **Owner:** audit D1–D5 and D7; GA4 Realtime; Ads final URLs / sitelinks, YouTube / LinkedIn / Instagram / ManyChat links; tell the Razorpay consultant.
+
 ## 2026-10-04 — CLEANUP: **WAVE B-11 — CLEANUP-2** — `#916` MERGED — trunk `e36c9c1d` — ✅ COMPLETE (OR-LIVE PARTIAL, no rollback, owner ratification owed)
 
 - ✅ **C1 Onboarding retired** (`#916`, LIVE): route and page deleted; `/app/onboarding` → Home (signed out verified live; signed in owner-owed).

@@ -1,5 +1,24 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-04 — WAVE A-12 (ROUTING + SEO, CONTROLLER A): ROOT-URL-1 (`#917` `5f168207` + `#919` `db4862a2`), trunk `db4862a2`. LIVE on deploy (no flag); both rollouts, each a hidden rolling release, are recorded in `CURRENT_STATE.md`.**
+> ★ **EVERY SURFACE MOVES ON THE URL AXIS (now at the domain root; old `/app/…` URLs 308 there) AND THE NON-SITEMAP SURFACES MOVE ON THE CRAWLER AXIS (now `noindex,follow`); NOTES MOVES ON ITS HEAD.** The §2 matrix has no column for URL, indexing or head text, and no page's visible content changed, so **no matrix cell flips**; the moves are recorded here as status lines.
+
+### ✅ ALL SURFACES (URL axis, not a matrix column) — **`/app/<path>` → `/<path>`; EVERY OLD `/app/…` URL ONE 308 WITH THE QUERY KEPT — LIVE (`#917`)**
+- Production after both PRs: 20 / 20 sampled old URLs one 308 → 200 at the root, query kept; 20 / 20 root equivalents 200; `/app/assets/*` 404 with no redirect; signed-out pages (Home, Notes, Topic Hub, Exam Trends, Practice, Chapter Test, Full Mock, Pricing, Check & Improve, Practice Hub) 0 console / page errors on desktop and mobile; signed-in `/me`, Practice, Chapter Test, Tutor, PDF export and a graded check PASS on a throwaway account *(agent-reported)*. Google sign-in at the root owner-verified 4 Oct.
+- Surface paths elsewhere in this tracker that read `/app/…` are as written for their dates; the live path is now the same path without `/app`.
+- Pinned by `noAppPrefix.guard.test.ts` (`NO_APP_PREFIX hits=0`), `crawlerReachability.guard.test.ts` (the retired base redirects once, permanently), `sitemapUrls.guard.test.ts` and `llmsTxt.guard.test.ts` (62 = 62).
+
+### ✅ NON-SITEMAP SURFACES (`/me`, Tutor, `/login`, unknown URLs; crawler axis) — **SHELL `index,follow` → `noindex,follow` (in the file) — LIVE (`#919`)**
+- Production, Googlebot UA: `/me`, `/some-unknown-path`, `/tutor/10/Maths`, `/login` → one robots meta `noindex,follow,max-image-preview:large`; Home, `/notes/trigonometry`, `/notes/real-numbers`, `/pricing`, `/topic-hub/trigonometry` → `index` + self canonical + prerendered body *(agent-reported)*. Pinned by `shellNoindex.guard.test.ts`.
+
+### ✅ Notes (content track) — **HEAD "<Topic> — Class 10 Notes & Board Questions" → "NCERT Ch. N · <NCERT title> — Class 10 Notes & Board Questions"; DESCRIPTION LEADS WITH THE CHAPTER — LIVE (`#919`)**
+- Production: 26 / 26 notes heads lead `NCERT Ch. N ·`; no description over 155 (magnetic-effects exactly 155) *(agent-reported)*. The visible page is unchanged. Pinned by `staticHeads.guard.test.ts` (`NOTES_NCERT_GUARD_SCOPE: notes=26 pinned=26`). Two blurbs shortened for the head only (D7, pending owner audit).
+
+### ⬜ NO OTHER CELL MOVES — stated plainly, per `CLAUDE.md` §10
+- No page component changed in either PR (under `src/pages/**` only two test files moved to root URLs in `#917`: `LegalPage.refund.test.tsx`, `tutor/conceptVisualCatalogue.test.ts`), and no page's visible content changed. The sitemap page bodies are unchanged by `#919` (SITEMAP BODIES CHANGED: 0); `#917` re-captured them at the root.
+
+### 📋 Scope discovered? — **NO surface scope set to Settling.** The moves are inside known scope (owner-ruled URL move + SEO-4). Logged in `DECISION_LOG.md` (2026-10-04, wave A-12); nothing goes in §2a.
+
 > **2026-10-04 — WAVE B-11 (CLEANUP, CONTROLLER B): CLEANUP-2 (`#916` `e36c9c1d`), trunk `e36c9c1d`. LIVE on deploy (no flag change); the rollout is recorded in `CURRENT_STATE.md`.**
 > ★ **ONBOARDING IS RETIRED (DELETED); QUICK PRACTICE MOVES ON FIRST-LOAD WEIGHT. NO §2 MATRIX CELL FLIPS.** Onboarding has no §2 row; Quick Practice's cells are already ✅ and first-load weight has no column. Each move is recorded below as a status line.
 
