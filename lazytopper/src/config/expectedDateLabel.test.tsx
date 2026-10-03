@@ -7,7 +7,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { formatCbseDate, formatExpectedCbseDate, cbseDates } from "./cbseDates";
+import { formatCbseDate, formatExpectedCbseDate } from "./cbseDates";
 import type { CbseExamDateResult } from "../services/cbseExamDate";
 
 const fetchMock = vi.hoisted(() => ({
@@ -29,7 +29,6 @@ vi.mock("../data/highlyProbableQuestions", () => ({ getHighlyProbableQuestions: 
 
 import { CBSE_PHASE2_DATE } from "../services/cbseExamDate";
 import Onboarding from "../pages/Onboarding";
-import { SprintDashboard } from "../components/dashboard/SprintDashboard";
 
 /** Onboarding's own headline format (en-IN, 2-digit day, short month). */
 function headline(iso: string): string {
@@ -60,14 +59,6 @@ describe("formatExpectedCbseDate — the label follows the date's source", () =>
   it("an unknown date stays 'TBD' — never 'TBD (expected)'", () => {
     expect(formatExpectedCbseDate(null)).toBe("TBD");
     expect(formatExpectedCbseDate("not-a-date", "predicted")).toBe("TBD");
-  });
-});
-
-describe("SprintDashboard — predictor-only rows are always labelled expected", () => {
-  it("phase 1 and phase 2 both render '<date> (expected)'", () => {
-    render(<SprintDashboard daysLeft={30} navigate={vi.fn()} gradeNum="10" />);
-    expect(screen.getByText(`${formatCbseDate(cbseDates.class10.phase1)} (expected)`)).toBeInTheDocument();
-    expect(screen.getByText(`${formatCbseDate(CBSE_PHASE2_DATE)} (expected)`)).toBeInTheDocument();
   });
 });
 

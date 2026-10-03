@@ -218,7 +218,8 @@ describe("every PAID endpoint's client call site attaches identity", () => {
       "/api/generate-visual",
     ],
     "src/ai/tutorClient.ts": ["/api/tutor"],
-    "src/components/VisualExplainer.tsx": ["/api/generate-visual"],
+    // src/components/VisualExplainer.tsx left with its file (deleted by FRICTION-FIX-1 PR-1 —
+    // no live importer). /api/generate-visual stays covered by aiClient.ts above.
     "src/components/question/QuestionVisualAid.tsx": ["/api/generate-diagram"],
     "src/pages/DiagramComparePage.tsx": ["/api/generate-diagram"],
     "src/pages/DiagramQualityPage.tsx": ["/api/generate-diagram"],
