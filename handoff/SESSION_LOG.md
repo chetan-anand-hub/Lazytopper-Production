@@ -1,3 +1,26 @@
+## 2026-10-04 — WAVE B-11 (CLEANUP, CONTROLLER B) — **CLEANUP-2: ONBOARDING RETIRED; NO ORPHAN FILE LEFT; PRACTICE STOPS LOADING THE OFF TRIGONOMETRY STRATEGY DATA** — `#916` MERGED — trunk `e36c9c1d`
+
+★ **PROVENANCE.** Controller B, wave B-11. The cofounder spec `CLEANUP-2` v1.0 (`b18f881aa99a`, MATCH) with the owner rulings of 3–4 Oct as its WHY. One builder (`claude-opus-5-5`, effort high) in `C:/Projects/LT-worktrees/cleanup-2` carried the PR through merge and OR-LIVE before / after. A separate docs builder wrote this docs PR in `C:/Projects/LT-worktrees/docs-b11` from `WAVE_STATE_B11.md`, the spec and the builder's report. *(builder-reported)* / *(controller-verified)* / *(docs-builder-verified)* as in `CURRENT_STATE.md`.
+
+**Lanes.**
+
+| lane | PR | what it changed | what it disproved |
+|---|---|---|---|
+| CLEANUP-2 | `#916` `e36c9c1d` | Onboarding route → `<Navigate to="/" replace />` and the page deleted; 13 orphans + `cbseDates.ts` deleted; `ALLOWED_ORPHANS = {}`; `PracticePage` dynamic-imports the resolver behind the flag; gate entries naming deleted files removed; two pin files. | Spec WHY-3 / P5: the resolver was not Practice's only path to the pack1 strategy data — `practiceQuestionBuilder.ts:18` pulls `triangles.pack1` through a barrel *(builder-reported)*. |
+
+**Timeline.**
+- **§0c premise gate PASS** at base `046c3238` (9 premises, 6 / 6 anchors resolved). P7–P9 answered: no live importer of the 13; `cbseDates.ts` had Onboarding as its only importer → deleted with its tests; activity labels / telemetry kept *(builder-reported)*.
+- **OR-LIVE before** captured on production `046c3238`; the Vercel preview of `2378bb00` probed pre-merge (texts equal, trig chunk gone, `triangles.pack1` still present).
+- **CI** `37148426682` on head `2378bb00`: `NO_ORPHANS: files=285 orphans=0`, `Tests 3588 passed (3588)`, root matrix `# pass 293 # fail 0 # skipped 0`.
+- **`#916` MERGED `e36c9c1d`** at 2026-10-03T19:56:50Z (`--squash --match-head-commit`, no `--admin`); ancestor-proven *(controller-verified; time docs-builder-verified)*.
+- **OR-LIVE after** (10 / 10 samples on `index-DgY9FDix.js`): `/app/onboarding` signed out → landing; Practice text identical; trig pack1 chunk gone (−13.5 KB); `triangles.pack1` still requested → **PARTIAL**. **No rollback** (after ⊂ before; a rollback would not remove `triangles.pack1`); owner ratification owed.
+- This docs PR; the controller then sends the final audit request.
+
+**Lessons.**
+- **A spec's "the only path" claim needs a reachability check, not one import line.** P5 anchored the resolver import correctly, and the premise gate passed; the second static edge (a barrel re-export) was invisible to it. The bundle (`PracticePage-*.js` importing `triangles.pack1-*.js`) showed it.
+- **A pin can be a silent no-op.** A hoisted `vi.mock` factory runs once per file and survives `vi.resetModules`, so a "0 loads" assertion after a flag-on mount could not fail; the builder's own mutation M2 exposed it, and a CONTROL fixed it.
+- **Deleting a file's last importer creates a new orphan.** `cbseDates.ts` went with Onboarding; with an empty allow-list the guard leaves no other choice.
+
 ## 2026-10-03 — WAVE A-11 (BANK + PERF, CONTROLLER A) — **BANK-SPLIT-1: NO SET REPEATS A QUESTION; PRACTICE, CHAPTER TEST AND FULL MOCK LOAD ONLY THEIR CHAPTERS; CHECK & IMPROVE DEFERS reCAPTCHA TO FIRST INTENT; EXACT-SLUG TOPICS** — `#911` + `#914` MERGED — trunk `86451e1a`
 
 ★ **PROVENANCE.** Controller A, wave A-11. Phase 1 scout `BANK-SPLIT-SCOUT-1` (report only); phase 2 the cofounder spec `BANK-SPLIT-1` v1.0 (`b36bbcde1622`) and, for PR-2, v1.1 (`26699C267B9C`, owner-approved re-anchor). One builder per PR (`claude-opus-5-5`, effort high), each in its own worktree; read-only OR-LIVE measurement agents. A docs builder wrote this docs PR in `C:/Projects/LT-worktrees/docs-bank-split-1` from `WAVE_STATE_A11.md`, the specs, the three lane reports and the four live reports. *(builder-reported)* / *(scout-reported)* / *(agent-reported)* / *(controller-verified)* / *(docs-builder-verified)* as in `CURRENT_STATE.md`.

@@ -1,5 +1,15 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-04 — CLEANUP: **WAVE B-11 — CLEANUP-2** — `#916` MERGED — trunk `e36c9c1d` — ✅ COMPLETE (OR-LIVE PARTIAL, no rollback, owner ratification owed)
+
+- ✅ **C1 Onboarding retired** (`#916`, LIVE): route and page deleted; `/app/onboarding` → Home (signed out verified live; signed in owner-owed).
+- ✅ **C2 no orphans** (`#916`): the 13 allow-listed orphans + `config/cbseDates.ts` deleted; `ALLOWED_ORPHANS = {}`; CI `NO_ORPHANS: files=285 orphans=0`. Closes `[FU-BANK-CONSUMER-ORPHANS-FOR-CONTROLLER-A]`.
+- 🟡 **C3 Practice off-flag strategy data** (`#916`, LIVE): the resolver loads only when `VITE_QTYPE_FIRST_TRIGONOMETRY` is on; the trigonometry pack1 chunk is gone (−13.5 KB / visit); `triangles.pack1` still loads via a barrel → `[FU-CLEANUP2-TRIANGLES-BARREL]`.
+- ✅ **Rulings recorded:** owner rulings of 3–4 Oct and the controller's OR-AUTO decisions (`DECISION_LOG.md`).
+- ✅ **FUs:** five new (`OPEN_QUESTIONS_AND_FOLLOWUPS.md`).
+- ✅ **Docs:** this handoff.
+- ⬜ **Owner:** ratify NO-ROLLBACK; approve `[FU-CLEANUP2-TRIANGLES-BARREL]`; note the `cbseDates.ts` scope call; signed-in `/app/onboarding`, sign-up / login and Practice.
+
 ## 2026-10-03 — BANK + PERF: **WAVE A-11 — BANK-SPLIT-1** — `#911` + `#914` MERGED — trunk `86451e1a` — ✅ COMPLETE
 
 - ✅ **BANK-SPLIT-SCOUT-1** (report only, no PR): design evidence for per-chapter loading and de-duplication; disproved the spec's 97 / 117 duplicate count, the 2.4 MB / 3.3 MB figures, the P4 line and "the builders already prevent repeats".
