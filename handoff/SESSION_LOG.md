@@ -1,3 +1,26 @@
+## 2026-10-04 — WAVE B-12 (UPLOAD, CONTROLLER B) — **UPLOAD-2: PHONE PHOTOS JUST WORK ON EVERY GRADING UPLOAD — CROP, ROTATE, COMPRESS BEFORE THE GUARD; SEVERAL PAGES AS ONE PDF, INCLUDING THROUGH QR** — `#920` MERGED — trunk `2492bb67`
+
+★ **PROVENANCE.** Controller B, wave B-12. The spec `UPLOAD-2` v1.2 (`472BB22605B5`) is owner-authored (cofounder), with the owner's 4 Oct reports as its WHY. One builder (`claude-opus-5-5`) in `C:/Projects/LT-worktrees/upload-2` carried the PR through merge and OR-LIVE. A separate docs builder wrote this docs PR in `C:/Projects/LT-worktrees/docs-b12` from `WAVE_STATE_B12.md`, the spec and the builder's report. *(builder-reported)* / *(controller-verified)* / *(docs-builder-verified)* as in `CURRENT_STATE.md`. Controller-verified: `2492bb67` is an ancestor of `633f77dc`; 18 files; 0 forbidden.
+
+**Lane.**
+
+| lane | PR | what it changed | what it disproved |
+|---|---|---|---|
+| UPLOAD-2 | `#920` `2492bb67` | Shared `preparePhoto` + `PhotoCropStep` (crop, Rotate, EXIF, compress before `checkUploadFile`) and `PageTray` + `assemblePagesPdf` (lazy jspdf, max 8 pages) on every P14 upload surface; QR multi-page as `application/pdf`; inline guards converged. 18 files. | The `uploadLimits.ts` "downscaled to fit" comment (false on four direct paths); spec R6 "every path" (Quick Practice collect mode cannot take multi-page under the shared 8 MB batch body) *(builder-reported)*. |
+
+**Timeline.**
+- **Dispatch** on tip `ff68e34f` (spec base `046c3238`; only CLEANUP-2 between, no allowlist file touched — controller-verified). §0c PASS, 14 premises, 9 / 9 resolved, no shifts *(builder-reported)*.
+- **Build:** pins (a)–(m) PASS; mutations M1–M7 RED → restored; layout at 360 / 768 / 1440 on five surfaces (the tray ✕ badge fixed before commit); local gates green; `#917` merged in, then `gh pr update-branch 920` over `#919` (lane files byte-identical).
+- **CI** quality-gate `37157654905` PASS on `023e34ac`: `Tests  3676 passed (3676)`, root matrix `# pass 293` / `# skipped 0`, jspdf its own 385.95 kB lazy chunk *(builder-reported)*.
+- **`#920` MERGED `2492bb67`** at 2026-10-03T22:32:34Z (04:02:34 IST, 4 Oct), squash content == head `023e34ac` *(docs-builder-verified via `gh pr view`)*.
+- **OR-LIVE** on production: C&I and HPQ refused 6 MB / EXIF photos before, accept them through the crop step after, at 360 and 1440; PDF / type refusals intact; QR desktop → phone 3 photos → one 3-page `application/pdf` (1.31 MB) → graded 2 / 3. Rollback NONE. Throwaway accounts 6 / 6 erased *(builder-reported)*.
+- Controller A's wave A-12 docs `#921` merged `633f77dc` (with a pointer line to `#920`); this docs PR follows.
+
+**Lessons.**
+- **A spec's "every path" can be false for a reason outside the lane.** Quick Practice collect mode sends up to 12 answers in one 8 MB body, so a per-answer PDF cannot be guaranteed to fit; the client lane cannot fix that, so multi-page was withheld there and the server budget became a follow-up.
+- **A comment that describes one site is not true of its siblings.** "Images are downscaled to fit" was true at one of five sites; the fix was to make it true everywhere (compress before the guard), not to reword it.
+- **A deploy status is not a deploy.** The GitHub "Vercel" status stayed `pending` while production served the build; the deploy was proven from the served chunk's content.
+
 ## 2026-10-04 — WAVE A-12 (ROUTING + SEO, CONTROLLER A) — **ROOT-URL-1: THE APP LIVES AT THE DOMAIN ROOT; EVERY OLD `/app` LINK IS ONE 308; NON-SITEMAP PAGES SAY `noindex` IN THE SHELL FILE; NOTES HEADS NAME THEIR NCERT CHAPTER** — `#917` + `#919` MERGED — trunk `db4862a2`
 
 ★ **PROVENANCE.** Controller A, wave A-12. The cofounder spec `ROOT-URL-1` v1.0 (`B2E4B51E6FE3`) and, for PR-2, v1.1 (`5AF1A221205A`, a ledger-only re-anchor), both MATCH, with the owner rulings of 3–4 Oct as their WHY. One builder per PR (`claude-opus-5-5`, effort high), each in its own worktree; a re-anchor scout; three read-only OR-LIVE agents. A separate docs builder wrote this docs PR in `C:/Projects/LT-worktrees/a12-docs` from `WAVE_STATE_A12.md`, the specs, the three lane reports and the three live reports. *(builder-reported)* / *(scout-reported)* / *(agent-reported)* / *(controller-verified)* / *(owner-verified)* / *(docs-builder-verified)* as in `CURRENT_STATE.md`.

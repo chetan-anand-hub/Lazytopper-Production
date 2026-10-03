@@ -23,6 +23,53 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-04 — WAVE B-12 (CONTROLLER B): UPLOAD-2 (`#920` `2492bb67`) — five closed, eight new open, one older id noted; owner acceptance owed
+
+Sources: the builder's report (`Desktop/diff/report-upload-2-2026-10-04.md` "Spec FUs closed by evidence", "Proposed new FUs", P9–P14, OR-LIVE), the spec `UPLOAD-2` v1.2 (`472BB22605B5`) and the controller's state file (`WAVE_STATE_B12.md`). **Bodies come from those sources; nothing is invented.** `grep` of `handoff/` at `633f77dc` *(docs-builder-verified)* found no prior entry for any of the eight new ids. Of the ids closed below, `[FU-UPLOAD-LIMIT-COMMENT-FALSE]`, `[FU-QR-CROP-EXIF-ORIENTATION]`, `[FU-QR-CROP-NO-ROTATION]` and `[FU-QR-CROP-DOUBLE-READ]` have their entries in the 2026-08-15 WAVE QR-UPLOAD section of this file, and `[FU-UPLOAD-GUARD-CONVERGE]` has its RESTATED entry there too (its original body is in `CURRENT_STATE.md`, "Shared helper, NOT four more inline copies"). No dated entry is edited (standing rule 3): the closures are recorded here, and the old entries stand as written.
+
+### Closed by `#920` (the original entries stand as written)
+- **`[FU-UPLOAD-LIMIT-COMMENT-FALSE]` — CLOSED.** The comment is now true: on every path, compression precedes the guard. `uploadLimits.ts:40` now opens "UPLOAD-2 made the old comment here true" *(builder-reported; the line docs-builder-verified on `633f77dc`)*.
+- **`[FU-UPLOAD-GUARD-CONVERGE]` — CLOSED.** The three inline walls (`SolutionChecker`, `WorksheetGradePanel`, `ChapterTestUploadPanel`) are gone; each host's `usePageTray` check is `checkUploadFile(file, "answers")` (`SolutionChecker.tsx:613`, `WorksheetGradePanel.tsx:296`, `ChapterTestUploadPanel.tsx:52`) *(builder-reported; the lines docs-builder-verified)*. Live: HPQ's old "File must be under 3.5 MB" / "Please select a JPG, PNG, or PDF file" became the converged copy *(builder-reported, OR-LIVE)*.
+- **`[FU-QR-CROP-EXIF-ORIENTATION]` — CLOSED.** `decodePhoto` reads the EXIF tag, measures whether the engine already turned the photo, and applies only the rest; pin (e), mutation M2 (drop EXIF → RED), real Chromium + live (EXIF-6 → 1500×2000 portrait) *(builder-reported)*.
+- **`[FU-QR-CROP-NO-ROTATION]` — CLOSED.** The shared `PhotoCropStep` has a Rotate control; pin (f), mutation M7 (user rotation ignored → RED) *(builder-reported)*.
+- **`[FU-QR-CROP-DOUBLE-READ]` — CLOSED.** One object-URL decode; the `readQrPreviewUrl` data-URL read is removed (`grep readQrPreviewUrl lazytopper/src` → 0 hits on `633f77dc`, docs-builder-verified) *(builder-reported)*.
+
+### Note — `[FU-CI-MULTIPAGE-CAPTURE]` (checked, not re-closed)
+- **It has no body in `handoff/`.** Its only `handoff/` mention is the 2026-07-18 section's line "**[FU-CI-MULTIPAGE-CAPTURE], [FU-CI-UPLOAD-COPY-CANONICAL] — closed earlier in the arc.**" (`git log -S` shows the id entered `handoff/` in `#471` with that line) *(docs-builder-verified)*.
+- **Its only definition is in code:** `DesktopCheckImprovePage.tsx:2723-2725` — "PDF is the multi-page path, and a phone's own scan feature is how a student makes one. Building an image→PDF merge is [FU-CI-MULTIPAGE-CAPTURE] and is deliberately NOT built here." (`check_improve_convergence_acceptance.mjs:435` cites it for the single-string answer state.) So the 2026-07-18 "closed" line recorded a deferral as a close.
+- **That definition is now satisfied on Check & Improve:** `#920` builds the image→PDF merge on the device (`PageTray` → `assemblePagesPdf`), answer and question side, and the answer state stays ONE string (a PDF) *(builder-reported; the hooks docs-builder-verified at `:1159` / `:1219`)*. ⇒ **Satisfied; no further action under this id.** The comment at `:2723-2725` and the tip at `:2741` are now stale → `[FU-CI-MULTIPAGE-TIP-COPY]`.
+
+### New — from `#920` and its OR-LIVE run (bodies from the builder report)
+
+### `[FU-UPLOAD-COLLECT-MULTIPAGE]` — OPEN · needs a server change
+Quick Practice collect mode stays single-photo: the shared batch body (8 MB, ≤ 12 uploads) cannot guarantee a multi-page PDF per answer; needs a per-batch byte budget. In collect mode the per-question `uploads` share one 8 MB body across up to 12 answers (`server/routes/checkSolution.cjs:52` `MAX_BATCH_UPLOADS = 12`, `:2738-2785`), so a 3.2 MiB PDF per answer cannot be guaranteed to fit; multi-page is NOT offered there (single compressed photo + crop) *(builder-reported; `:52` docs-builder-verified)*. The withholding is a CONTROLLER DECISION UNDER OR-AUTO, PENDING OWNER AUDIT (`DECISION_LOG.md`, wave B-12).
+
+### `[FU-UPLOAD-BATCH-BODY-BUDGET]` — OPEN · pre-existing, now far less likely
+Even compressed photos (≤ 2.5 MiB) × 12 can exceed the 8 MB batch body; there is no client aggregate check (pre-existing, now far less likely) *(builder-reported)*.
+
+### `[FU-CI-MULTIPAGE-TIP-COPY]` — OPEN · LOW (copy)
+The Check & Improve tip still says "use your phone's scan feature to send it as one PDF"; add "or Add another page". The copy is outside UPLOAD-2's C&I scope (handlers + tray mounts only), and the convergence gate pins the phrase *(builder-reported)*. On `633f77dc` the tip is `DesktopCheckImprovePage.tsx:2741` and the comment above it (`:2723-2725`) still says the image→PDF merge "is deliberately NOT built here" *(docs-builder-verified)*.
+
+### `[FU-UPLOAD-REPLACE-CANCEL]` — OPEN · LOW
+A new pick from a host's main picker replaces the tray immediately; cancelling the crop step then leaves nothing *(builder-reported)*.
+
+### `[FU-UPLOAD-ASSEMBLY-FLASH]` — OPEN · LOW
+While 2+ pages assemble (~1 s) hosts briefly show their empty dropzone / QR link. The payload is null by design during assembly, so a stale fewer-page PDF can never be graded *(builder-reported)*.
+
+### `[FU-UPLOAD-HEIC]` — OPEN · report-only
+HEIC is still refused by type (unchanged). Carried from `[FU-QR-UPLOAD-REFUSAL-UNREPRODUCED]`, whose entry (2026-08-15) says "HEIC is report-only, no lane" *(builder-reported)*.
+
+### `[FU-VERCEL-STATUS-STALE]` — OPEN · process
+The GitHub "Vercel" commit status on `2492bb67` stayed `pending` while production served the build. The deploy was proven instead by the new PageTray chunk on production containing "Use whole photo" / "Add another page" and 6 / 6 sampled index fetches serving `index-2p8BZZNJ` *(builder-reported)*. Note: the report does not say the wave A-12 rollout method (no `_vcrr` cookie AND forced buckets) was used — see `[FU-ORLIVE-ROLLING-RELEASE-BUCKET-BLIND]` *(docs-builder observation)*.
+
+### `[FU-PRACTICE-BATCH-FLAKE]` — OPEN · LOW (test)
+`PracticePage.batchGrading` "saving an answer…" failed once under heavy local parallel load; it passed alone ×3 and in CI *(builder-reported)*.
+
+### Owner items owed (not FUs)
+1. **Owner acceptance on Android** (spec §3): C&I photo → crop → rotate → check → grader reads it; the same in Practice "Check my answer"; one 3-page C&I answer graded across all three; desktop C&I → QR → 3 pages on the phone → desktop grades all three. Roll back first on any failure.
+2. **Live drive** of Worksheet, Chapter Test, Full Mock and Quick Practice collect mode on production; **iPhone Safari** and real touch.
+3. **Audit** the collect-mode multi-page withholding (`DECISION_LOG.md`, wave B-12).
+
 ## 2026-10-04 — WAVE A-12 (CONTROLLER A): ROOT-URL-1 (`#917` `5f168207` + `#919` `db4862a2`) — eight new open, one opened and closed in-wave, one older closed; owner items owed
 
 Sources: the builders' reports (`Desktop/diff/report-root-url-1-pr1-2026-10-04.md` "Findings" + "FU IDs"; `report-root-url-1-pr2-2026-10-04.md` "Findings" + "FU IDs"), the OR-LIVE reports (`live-before-root-url-1-2026-10-04.md`, `live-after-pr1-root-url-1-2026-10-04.md`, `live-after-pr2-root-url-1-2026-10-04.md`) and the controller's state file (`WAVE_STATE_A12.md`). **Bodies come from those sources; nothing is invented.** `grep` of `handoff/` at `2492bb67` *(docs-builder-verified)* found no prior entry for any of the nine new ids; `[FU-INDEXHTML-PATH-PII-VERCEL-BEFORESEND]` has its entry in the 2026-10-03 wave B-10 section. No dated entry is edited (standing rule 3): the closures below are recorded here, and the old entries stand as written.
