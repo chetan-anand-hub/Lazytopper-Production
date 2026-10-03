@@ -42,6 +42,36 @@ const attempted = new Set<string>();
 const startedAtSignUp = new Set<string>();
 
 /**
+ * FRICTION-FIX-1 · F5 (FU-SIGNUP-CONFIRMATION-SESSION-ONLY) — the "started at sign-up"
+ * marker is MIRRORED to this tab's sessionStorage, keyed by uid, so the Check & Improve
+ * confirmation survives a reload of the page the student lands on after signing up. It
+ * is cleared when the student continues past the confirmation.
+ *
+ * ★ DISPLAY-ONLY. The marker decides which PANEL Check & Improve shows (the T2
+ * confirmation instead of the R9 offer) and nothing else: it never starts, grants or
+ * extends a trial, and no entitlement code reads it — the confirmation still requires the
+ * HYDRATED subscription record to say the trial is active. Every storage access is inside
+ * try/catch: a blocked or full storage simply means the marker is in-memory only, as before.
+ */
+export const SIGNUP_TRIAL_MARKER_PREFIX = "lazytopper.trialStartedAtSignUp:";
+
+function writeSignUpMarker(uid: string): void {
+  try {
+    window.sessionStorage.setItem(`${SIGNUP_TRIAL_MARKER_PREFIX}${uid}`, "1");
+  } catch {
+    /* storage unavailable — the in-memory marker still serves this page session */
+  }
+}
+
+function readSignUpMarker(uid: string): boolean {
+  try {
+    return window.sessionStorage.getItem(`${SIGNUP_TRIAL_MARKER_PREFIX}${uid}`) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Start the trial for a uid that has JUST been created. Returns true only when
  * `activateTrial` actually started one.
  *
@@ -64,6 +94,7 @@ export function startTrialForNewAccount(uid: string | null | undefined): boolean
       Boolean(after.trialStartDate);
     if (!started) return false;
     startedAtSignUp.add(uid);
+    writeSignUpMarker(uid);
     trackNamedEvent("trial_start");
     return true;
   } catch {
@@ -83,10 +114,34 @@ export function startTrialIfNewAccount(credential: UserCredential): boolean {
 }
 
 /**
- * True when THIS page session started `uid`'s trial at sign-up. Check & Improve reads it
- * to show the confirmation instead of the offer (T2). In-memory on purpose: it is a UI
- * hint, never entitlement — entitlement is only ever the hydrated subscription record.
+ * True when THIS tab started `uid`'s trial at sign-up — in memory, or (F5) from the
+ * sessionStorage mirror, read when Check & Improve mounts, so a reload keeps the
+ * confirmation. Check & Improve reads it to show the confirmation instead of the offer
+ * (T2). A UI hint, never entitlement — entitlement is only ever the hydrated subscription
+ * record.
  */
 export function wasTrialStartedAtSignUp(uid: string | null | undefined): boolean {
-  return Boolean(uid) && startedAtSignUp.has(uid as string);
+  if (!uid) return false;
+  return startedAtSignUp.has(uid) || readSignUpMarker(uid);
+}
+
+/**
+ * F5 — the student continued past the confirmation: forget the marker, in memory and in
+ * this tab's sessionStorage, so a later reload shows Check & Improve fresh. The
+ * confirmation panel has no uid (one tab holds one signed-in student), so every marker
+ * this tab holds is cleared. Never throws.
+ */
+export function clearTrialStartedAtSignUp(): void {
+  startedAtSignUp.clear();
+  try {
+    const store = window.sessionStorage;
+    const keys: string[] = [];
+    for (let i = 0; i < store.length; i += 1) {
+      const key = store.key(i);
+      if (key && key.startsWith(SIGNUP_TRIAL_MARKER_PREFIX)) keys.push(key);
+    }
+    for (const key of keys) store.removeItem(key);
+  } catch {
+    /* storage unavailable — nothing persisted to clear */
+  }
 }

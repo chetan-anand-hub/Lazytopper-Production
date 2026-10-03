@@ -74,7 +74,7 @@ describe("Onboarding — the headline date and Phase 1 row are source-aware; Pha
     expect(screen.getByText("Expected exam date")).toBeInTheDocument();
     expect(screen.queryByText("Official exam date")).toBeNull();
 
-    fireEvent.click(screen.getByText("CBSE 2025-26: Two-Exam System"));
+    fireEvent.click(screen.getByText(/^CBSE .*Two-Exam System$/));
     expect(screen.getByText(`${formatCbseDate("2027-02-17")} (expected)`)).toBeInTheDocument();
     expect(screen.getByText(`${formatCbseDate(CBSE_PHASE2_DATE)} (expected)`)).toBeInTheDocument();
   });
@@ -92,7 +92,7 @@ describe("Onboarding — the headline date and Phase 1 row are source-aware; Pha
     expect(screen.queryByText("Expected exam date")).toBeNull();
 
     // the Phase 1 row follows the fetched official date, bare; Phase 2 is still predicted
-    fireEvent.click(screen.getByText("CBSE 2025-26: Two-Exam System"));
+    fireEvent.click(screen.getByText(/^CBSE .*Two-Exam System$/));
     // headline + Phase 1 row: the same bare date twice (both formatters print "20 Feb 2027")
     expect(screen.getAllByText(formatCbseDate("2027-02-20"))).toHaveLength(2);
     expect(screen.queryByText(`${formatCbseDate("2027-02-20")} (expected)`)).toBeNull();

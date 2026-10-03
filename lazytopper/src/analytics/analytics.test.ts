@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isAutomatedContext, normalisePath } from "./analytics";
+import { ga4PageLocation, isAutomatedContext, normalisePath } from "./analytics";
 
 /**
  * Guards for the two properties that, if they broke, would break silently: the capture
@@ -65,5 +65,71 @@ describe("normalisePath — no credential and no personal data leaves the page",
 
   it("caps length", () => {
     expect(normalisePath(`/topic-hub/${"x".repeat(500)}`).length).toBeLessThanOrEqual(200);
+  });
+});
+
+/**
+ * FRICTION-FIX-1 · F6 — personal data in a path segment. Mutations this block turns RED:
+ * drop the `@` rule (the email cases); drop the 20+ rule (the uid cases); drop the slug
+ * carve-out (the long-chapter control).
+ */
+describe("normalisePath — F6: an email or an opaque id in a segment never leaves the page", () => {
+  const UID = "aB3dE5gH7jK9mN1pQ3sT5vX7yZ9b"; // 28 chars, the shape of a Firebase uid
+
+  it("the fixture really is a 28-character uid shape", () => {
+    expect(UID).toHaveLength(28);
+    expect(UID).toMatch(/^[A-Za-z0-9]+$/);
+  });
+
+  it("★ /admin/students/<28-char uid> -> /admin/students/:id", () => {
+    expect(normalisePath(`/admin/students/${UID}`)).toBe("/admin/students/:id");
+    expect(normalisePath(`/admin/students/${UID}/`)).toBe("/admin/students/:id");
+    expect(normalisePath(`/admin/students/${UID}?tab=feed#x`)).toBe("/admin/students/:id");
+  });
+
+  it("any 20+ character [A-Za-z0-9_-] id segment -> :id, wherever it sits", () => {
+    expect(normalisePath(`/${UID}`)).toBe("/:id");
+    expect(normalisePath(`/x/${UID}/y`)).toBe("/x/:id/y");
+    expect(normalisePath("/s/Ab_Cd-Ef_Gh-Ij_Kl-Mn01")).toBe("/s/:id"); // 20 chars, _ and -
+  });
+
+  it("the boundary: 19 characters is kept, 20 is redacted", () => {
+    const nineteen = "Ab1Cd2Ef3Gh4Ij5Kl6M";
+    const twenty = `${nineteen}n`;
+    expect(nineteen).toHaveLength(19);
+    expect(twenty).toHaveLength(20);
+    expect(normalisePath(`/s/${nineteen}`)).toBe(`/s/${nineteen}`);
+    expect(normalisePath(`/s/${twenty}`)).toBe("/s/:id");
+  });
+
+  it("★ any segment containing @ -> :email (raw or percent-encoded)", () => {
+    expect(normalisePath("/admin/students/student@example.com")).toBe("/admin/students/:email");
+    expect(normalisePath("/a@b")).toBe("/:email");
+    expect(normalisePath("/admin/students/student%40example.com/feed")).toBe("/admin/students/:email/feed");
+  });
+
+  it("/u/:token is unchanged", () => {
+    expect(normalisePath(`/u/${"a".repeat(64)}`)).toBe("/u/:token");
+    expect(normalisePath(`/u/${UID}`)).toBe("/u/:token");
+  });
+
+  it("★ CONTROL — /notes/trigonometry and the long chapter slugs are content, kept as-is", () => {
+    expect(normalisePath("/notes/trigonometry")).toBe("/notes/trigonometry");
+    // 20+ characters of the same set, but lowercase kebab-case words: content, not an id.
+    for (const slug of [
+      "areas-related-to-circles",
+      "chemical-reactions-and-equations",
+      "light-reflection-and-refraction",
+      "acids-bases-and-salts",
+    ]) {
+      expect(slug.length).toBeGreaterThanOrEqual(20);
+      expect(normalisePath(`/notes/${slug}`)).toBe(`/notes/${slug}`);
+    }
+  });
+
+  it("WHERE ELSE — the GA4 page_location is built through the same cleaner", () => {
+    const loc = ga4PageLocation(`/admin/students/${UID}`, "?utm_source=x&email=a@b.c", "https://www.example.com", "/app");
+    expect(loc).toBe("https://www.example.com/app/admin/students/:id?utm_source=x");
+    expect(loc).not.toContain(UID);
   });
 });

@@ -16,6 +16,19 @@ function formatIsoDate(iso: string): string {
   }).format(date);
 }
 
+/**
+ * FRICTION-FIX-1 · F1 — the CBSE session, DERIVED, never typed. A board exam held in
+ * February of year Y belongs to the session that started in April of Y-1, so the session
+ * label is `${Y-1}-${last two digits of Y}`. Y comes from the board-date config
+ * (`cbseDates.class10.boardExam`, the one client predictor), so the label rolls over by
+ * itself. No year literal may appear on this page (pinned by Onboarding.friction.test.tsx).
+ * Returns null when the config yields no usable date — the title then names no session.
+ */
+function cbseSessionOfBoardExam(iso: string | null | undefined): string | null {
+  const year = Number(String(iso || "").slice(0, 4));
+  if (!Number.isInteger(year) || year < 1000) return null;
+  return `${year - 1}-${String(year).slice(-2)}`;
+}
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -122,6 +135,7 @@ export default function Onboarding() {
   const summary = getProfileSummary(profileType, autoDaysLeft);
   const profileColors: Record<string, string> = { marathon: "#3b82f6", sprint: "#f97316", crash: "#22c55e" };
   const profileColor = profileColors[profileType] || "#3b82f6";
+  const cbseSession = cbseSessionOfBoardExam(cbseDates.class10.boardExam);
 
   return (
     <div className="dark-page">
@@ -131,7 +145,7 @@ export default function Onboarding() {
           One quick question
         </h2>
         <p style={{ fontSize: 14, color: "var(--text-muted)", textAlign: "center", marginBottom: 28, lineHeight: 1.5 }}>
-          We'll build your entire study plan from this.
+          We'll pace your preparation from this.
         </p>
 
         <div className="glass-card" style={{ padding: 24, marginBottom: 20 }}>
@@ -206,7 +220,7 @@ export default function Onboarding() {
               display: "flex", alignItems: "center", justifyContent: "space-between",
             }}
           >
-            <span>CBSE 2025-26: Two-Exam System</span>
+            <span>{cbseSession ? `CBSE ${cbseSession}: Two-Exam System` : "CBSE Two-Exam System"}</span>
             <span style={{ fontSize: 10 }}>{showCbseDetails ? "\u25B2" : "\u25BC"}</span>
           </button>
           {showCbseDetails && (
@@ -308,7 +322,7 @@ export default function Onboarding() {
             boxShadow: "0 0 24px rgba(34,197,94,0.3)",
           }}
         >
-          Build My Study Plan
+          Start preparing
         </button>
 
         <p style={{ fontSize: 11, color: "var(--text-muted)", textAlign: "center", marginTop: 12 }}>

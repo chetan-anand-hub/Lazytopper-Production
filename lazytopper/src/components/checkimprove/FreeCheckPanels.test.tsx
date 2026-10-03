@@ -46,8 +46,15 @@ afterEach(() => {
 
 const mount = (ui: React.ReactElement) => render(<MemoryRouter>{ui}</MemoryRouter>);
 
+/**
+ * Every link in the panel EXCEPT the one plans link (FRICTION-FIX-1 · F4 added "See plans →"
+ * to /pricing in the 'used' panel). Only that exact href is set aside, so any other link —
+ * a second sign-in target, a /sign-up — still lands in the list and still fails OR-8.
+ */
 function signInHrefs(container: HTMLElement): string[] {
-  return Array.from(container.querySelectorAll("a")).map((a) => a.getAttribute("href") ?? "");
+  return Array.from(container.querySelectorAll("a"))
+    .map((a) => a.getAttribute("href") ?? "")
+    .filter((h) => h !== "/pricing");
 }
 
 describe("OR-8 — every free-check sign-in prompt links to /login?redirect=%2Fcheck-improve", () => {
