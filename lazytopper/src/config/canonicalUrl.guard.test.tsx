@@ -219,6 +219,23 @@ describe("canonicalPathFor — the ruled set, and everything outside it", () => 
       expect(canonicalPathFor(path), path + " should consolidate to the root").toBe("/");
     }
   });
+
+  /**
+   * ★ SEO-3 (owner ruling, 2026-10-02) — THE TWO PREDICTED QUESTIONS PAGES NAME
+   * THEMSELVES. They are EXACT entries, so the CONTROLS matter as much as the two
+   * positives: another grade, or a lower-cased subject, must still fall to the root
+   * rather than be swept in by anything prefix-shaped.
+   */
+  it("★ SELF-CANONICALISES exactly the two Class 10 Predicted Questions pages", () => {
+    expect(canonicalPathFor("/highly-probable/10/Maths")).toBe("/highly-probable/10/Maths");
+    expect(canonicalPathFor("/highly-probable/10/Science")).toBe("/highly-probable/10/Science");
+    expect(canonicalFor("/highly-probable/10/Maths", PROD_BASENAME)).toBe(
+      "https://www.lazytopper.com/app/highly-probable/10/Maths",
+    );
+    // CONTROLS — not every highly-probable path.
+    expect(canonicalPathFor("/highly-probable/9/Maths")).toBe("/");
+    expect(canonicalPathFor("/highly-probable/10/maths")).toBe("/");
+  });
 });
 
 describe("appBasename — the same source of truth the router uses", () => {

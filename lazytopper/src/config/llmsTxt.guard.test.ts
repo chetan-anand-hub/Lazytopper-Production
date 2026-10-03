@@ -15,7 +15,8 @@ import { sitemapUrls } from "./sitemapUrls";
  * is written and drifts silently afterwards: a page dropped from the sitemap would
  * leave llms.txt pointing AI tools at it, and nothing would turn red, because the
  * SPA shell answers HTTP 200 for every path. This pin makes the sitemap the
- * authority: llms.txt may advertise a SUBSET of the sitemap, never anything else.
+ * authority: llms.txt may advertise nothing the sitemap does not (b) and, from
+ * SEO-3, must advertise everything it does (e) — the two URL sets are EQUAL.
  *
  * WHAT `crawlerReachability.guard.test.ts` ALREADY COVERS, AND WHY THIS IS NOT IT
  * That guard resolves each llms.txt URL against the route table and the Vercel
@@ -38,7 +39,7 @@ const ROOT = process.cwd(); // vitest runs with cwd = lazytopper/
 const LLMS_TXT = resolve(ROOT, "public", "llms.txt");
 const BASENAME = "/app";
 
-/** Floor for (a). The payload lists 60; a near-empty file must not pass vacuously. */
+/** Floor for (a). The payload lists 62 (SEO-3); a near-empty file must not pass vacuously. */
 const MIN_URLS = 50;
 
 /** Same pattern and trailing-punctuation trim as `advertisedFromLlms`. */
@@ -47,7 +48,7 @@ function urlsFromLlms(): string[] {
   return [...txt.matchAll(/https?:\/\/[^\s<>")]+/gi)].map((m) => m[0].replace(/[.,]$/, ""));
 }
 
-describe("llms.txt — every advertised URL is a sitemap URL", () => {
+describe("llms.txt — lists exactly the sitemap URLs, pinned both ways", () => {
   const urls = urlsFromLlms();
   const sitemap = sitemapUrls(BASENAME);
   const inSitemap = new Set(sitemap);
@@ -77,5 +78,15 @@ describe("llms.txt — every advertised URL is a sitemap URL", () => {
 
   it("(d) llms.txt does not contain lazytopper.app", () => {
     expect(readFileSync(LLMS_TXT, "utf8").includes("lazytopper.app"), "llms.txt contains lazytopper.app").toBe(false);
+  });
+
+  // ★ SEO-3 — THE PIN RUNS BOTH WAYS (closes FU-LLMS-PIN-ONE-WAY, audit of #904).
+  // (b) alone let a page the sitemap advertises be MISSING from llms.txt and stay
+  // green, so an AI crawler would never be told about a page Google is. Together
+  // with (b) and (c), this makes the two URL sets EQUAL.
+  it("(e) every sitemap URL is in llms.txt", () => {
+    const inLlms = new Set(urls);
+    const notInLlms = sitemap.filter((u) => !inLlms.has(u));
+    expect(notInLlms, `the sitemap advertises URLs llms.txt does not list: ${notInLlms.join(", ")}`).toEqual([]);
   });
 });

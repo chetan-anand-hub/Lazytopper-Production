@@ -11,6 +11,14 @@
     "sha256": "166c80124e510aba27a533953222f9a77d81cab986a74287a43d45dab61fd528",
     "lastmod": "2026-09-27"
   },
+  "/highly-probable/10/Maths": {
+    "sha256": "712692cc854211d2d72db2cb03227920df6a9cdf0678b57f8884a92726d65df8",
+    "lastmod": "2026-10-03"
+  },
+  "/highly-probable/10/Science": {
+    "sha256": "d392085f8e969fe3560cbc8e1ce0e0945ce41a31ca5e8791188cbeaf75944980",
+    "lastmod": "2026-10-03"
+  },
   "/legal/privacy": {
     "sha256": "409808f36b7c437006cf30e253432724cabd008d93116368af0c8db4413aa9ab",
     "lastmod": "2026-10-01"

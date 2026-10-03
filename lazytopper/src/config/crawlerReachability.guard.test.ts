@@ -1354,10 +1354,12 @@ describe("asset 404 — a missing chunk must fail as a missing chunk, not impers
  *
  * 7. IT CANNOT JUDGE SEMANTICS. A canonical pointing at the wrong-but-existing
  *    page, or a sitemap listing a real page nobody should index, resolves fine
- *    and passes. ⚠ In particular NOTHING HERE CHECKS GATING: `/highly-probable/
- *    :grade/:subject` is a real route wrapped in `RequirePremium`, so it would
- *    satisfy every assertion in this file while showing a crawler a paywall. Which
- *    routes belong in a sitemap remains the owner's ruling, not a guard's.
+ *    and passes. ⚠ In particular NOTHING HERE CHECKS GATING: a real route wrapped
+ *    in `RequirePremium` would satisfy every assertion in this file while showing
+ *    a crawler a paywall. (`/highly-probable/:grade/:subject` is NOT such a route:
+ *    it is public — App.tsx mounts it with no premium wrapper — and from SEO-3 its
+ *    two Class 10 pages are advertised.) Which routes belong in a sitemap remains
+ *    the owner's ruling, not a guard's.
  *
  * 8. ★★ CLOSED BY META-3 — THE SPA CATCH-ALL NO LONGER HIDES A DEAD ROUTE.
  *    This entry previously read: `/app/:path* -> /app/index.html` means a typo'd

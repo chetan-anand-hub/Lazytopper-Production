@@ -449,7 +449,7 @@ describe("static heads — the writer refuses to no-op silently", () => {
       const topic = allDesktopTopics().find((t) => t.slug === slug);
       const head = headForPath(path);
       expect(head, `${path} has no head`).not.toBeNull();
-      expect(head?.title).toBe(`${topic?.name} — Class 10 Notes | LazyTopper`);
+      expect(head?.title).toBe(`${topic?.name} — Class 10 Notes & Board Questions | LazyTopper`);
       expect(head?.description).toBe(topic?.blurb);
       expect(head?.title, `${path} shares its topic hub's title`).not.toBe(
         headForPath(`/topic-hub/${slug}`)?.title,
