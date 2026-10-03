@@ -1,5 +1,16 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-04 — UPLOAD: **WAVE B-12 — UPLOAD-2** — `#920` MERGED — trunk `2492bb67` — ✅ COMPLETE (OR-LIVE PASS on agent-reachable paths, no rollback; owner Android acceptance OWED; collect-mode withholding pending owner audit)
+
+- ✅ **Compress before the guard** (`#920`, LIVE): a picked photo is EXIF-corrected, optionally cropped / rotated and compressed to 2.5 MiB on the device before `checkUploadFile`, on every P14 upload surface. Closes `[FU-UPLOAD-LIMIT-COMMENT-FALSE]`, `[FU-UPLOAD-GUARD-CONVERGE]`.
+- ✅ **Crop step: EXIF + Rotate** (`#920`, LIVE). Closes `[FU-QR-CROP-EXIF-ORIENTATION]`, `[FU-QR-CROP-NO-ROTATION]`, `[FU-QR-CROP-DOUBLE-READ]`.
+- ✅ **Several pages → one PDF on the device** (max 8; lazy jspdf) on Check & Improve, HPQ / Practice "Check my answer", Worksheets, Chapter Test, Full Mock and the QR phone page (`#920`; live through QR → C&I, the rest by vitest + harness). `[FU-CI-MULTIPAGE-CAPTURE]`'s code-comment definition (image→PDF merge) satisfied.
+- 🟡 **Quick Practice collect mode:** single compressed photo + crop only; multi-page withheld (shared 8 MB batch body) → `[FU-UPLOAD-COLLECT-MULTIPAGE]`, `[FU-UPLOAD-BATCH-BODY-BUDGET]`.
+- ✅ **Rulings recorded:** owner R1–R8; controller OR-AUTO (collect-mode withholding, PENDING OWNER AUDIT; dispatch on `ff68e34f`) (`DECISION_LOG.md`).
+- ✅ **FUs:** five closed, eight new open (`OPEN_QUESTIONS_AND_FOLLOWUPS.md`).
+- ✅ **Docs:** this handoff.
+- ⬜ **Owner:** Android acceptance (C&I crop / rotate / grade; Practice "Check my answer"; 3-page C&I; desktop → QR → 3 pages); live Worksheet / Chapter Test / Full Mock / collect mode; iPhone Safari + real touch; audit the collect-mode decision.
+
 ## 2026-10-04 — ROUTING + SEO: **WAVE A-12 — ROOT-URL-1** — `#917` + `#919` MERGED — trunk `db4862a2` — ✅ COMPLETE (OR-LIVE 115 / 115 and 121 / 121, no rollback; D1–D5, D7 pending owner audit)
 
 - ✅ **P14 answered by the owner** (Vercel dashboard): the output directory is `artifacts/lazytopper-app/dist/public`; no dashboard change.

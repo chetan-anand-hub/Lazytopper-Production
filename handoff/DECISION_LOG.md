@@ -1,3 +1,21 @@
+## 2026-10-04 — WAVE B-12 (UPLOAD, CONTROLLER B): UPLOAD-2 — PR `#920` merged — trunk `2492bb67`
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (the owner rulings in the WHY and §2 of the spec `UPLOAD-2`, and the controller's OR-AUTO decisions recorded in `WAVE_STATE_B12.md`), not `DECISION N`.
+
+### Owner rulings in the spec (`UPLOAD-2` v1.2, sha256 prefix `472BB22605B5`, owner-authored with the cofounder), fixed, dated 4 Oct 2026
+- **Phone photos must just work: compress before the size check, on every surface where a student uploads a photo or PDF, mobile and desktop, at every width.** **Why:** the owner, on his Android phone on Check & Improve, had a camera photo over 5 MB and no way to crop it; phone cameras produce 3–8 MB, and four of the five enforcement sites refused on raw `file.size` despite a comment saying images "are downscaled to fit".
+- **R1–R8 as written** (optional crop defaulting to the whole image, EXIF + Rotate, several pages → one PDF on the device with a page limit, QR multi-page, server / grader / request shape / App Check unchanged). **Why:** a solution often runs to several pages (one long answer, or a whole paper's answers).
+- **STOP only on** a forbidden-file need, or a P10 cap a compressed photo cannot fit under. A PDF-incapable path is NOT a STOP: multi-page is offered only where it works, and reported. **Neither STOP fired** *(builder-reported)*.
+- **Owner acceptance on his Android phone is the real test (spec §3)** — OWED, not blocking this docs PR.
+
+### Controller decisions (OR-AUTO), with the reason
+- **CONTROLLER DECISION UNDER OR-AUTO, PENDING OWNER AUDIT — multi-page is WITHHELD in Quick Practice collect mode** (a single compressed photo + crop per answer there). **Why:** in collect mode the per-question uploads share ONE 8 MB batch body across up to 12 answers (`server/routes/checkSolution.cjs:52` `MAX_BATCH_UPLOADS = 12`, `:2738-2785`; subagent-reported, `:52` docs-builder-verified), so a 3.2 MiB PDF per answer cannot be guaranteed to fit; the server is forbidden in this lane, and the spec makes a PDF-incapable path "offer multi-page only where it works", not a STOP. Follow-ups: `[FU-UPLOAD-COLLECT-MULTIPAGE]` (a per-batch byte budget) and `[FU-UPLOAD-BATCH-BODY-BUDGET]` (no client aggregate check, pre-existing).
+- **Dispatched on tip `ff68e34f`, not on the spec base `046c3238`.** **Why:** trunk moved only by CLEANUP-2 (`#916` `e36c9c1d` + docs `#918` `ff68e34f`), and no UPLOAD-2 allowlist file was touched (controller-verified with `git diff --name-only`); the §0c gate decides anchors, and a re-anchor would be the cofounder's call only if the gate failed on a shifted line. It passed with no shift *(builder-reported)*.
+- **Process, not audited as a decision:** one builder through merge + OR-LIVE + rollback-if-needed; a separate docs builder. Open PR `#917` (Controller A) was verified file-disjoint from the UPLOAD-2 allowlist at dispatch. No rollback was needed.
+
+### Scope discovered (§10, `SURFACE_TRACKER.md` §2a)
+- **Quick Practice: multi-page in collect mode needs a server-side batch budget** — logged in `SURFACE_TRACKER.md` §2a (2026-10-04, wave B-12). Quick Practice's `Scope` already reads **Settling**, so no cell changes.
+
 ## 2026-10-04 — WAVE A-12 (ROUTING + SEO, CONTROLLER A): ROOT-URL-1 — PRs `#917` + `#919` merged — trunk `db4862a2`
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (the owner rulings in the WHY of the spec `ROOT-URL-1`, the owner answers and rulings recorded in `WAVE_STATE_A12.md`, the OWNER + COFOUNDER ruling, and the controller's OR-AUTO decisions D1–D7), not `DECISION N`. D1–D7 are the controller's own labels in `WAVE_STATE_A12.md`.

@@ -1,5 +1,31 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-04 — WAVE B-12 (UPLOAD, CONTROLLER B): UPLOAD-2 (`#920` `2492bb67`), trunk `2492bb67`. LIVE on deploy (no flag); the rollout is recorded in `CURRENT_STATE.md`.**
+> ★ **EVERY P14 UPLOAD SURFACE MOVES ON THE UPLOAD AXIS: A PHONE PHOTO IS CROPPED (OPTIONAL), ROTATED IF NEEDED AND COMPRESSED BEFORE THE SIZE CHECK; SEVERAL PAGES BECOME ONE PDF ON THE DEVICE (MAX 8) — EXCEPT QUICK PRACTICE COLLECT MODE (SINGLE PHOTO).** The moved surfaces' §2 cells (Built / Redesigned / Desktop / Mobile / MI / Verified) already read ✅ — except Full Mock `Verified` ⬜, which stays ⬜ because Full Mock was not driven live this wave — and the matrix has no upload column, so **no matrix cell value changes**; each move is recorded below as a status line, per surface, from the builder's P14 list *(builder-reported)*.
+
+### ✅ Check & Improve — **6 MB / EXIF photo REFUSED → CROP + ROTATE + COMPRESS → ACCEPTED; ANSWER AND QUESTION SIDES TAKE SEVERAL PAGES AS ONE PDF; QR → 3 PAGES → GRADED — LIVE (`#920`)**
+- Production, 360 and 1440: before, "That file is 6.0 MB — the limit is 3 MB."; after, crop → "Image loaded, tray 1"; EXIF-6 upright; PDF / type refusals intact. QR: desktop 1440 C&I → phone 360, 3 photos → one 3-page `application/pdf` (1,307,476 B) → graded 2 / 3 *(builder-reported)*. Also inside the tutor overlay (same page component). Owner Android acceptance OWED.
+
+### ✅ HPQ / Predicted — "Check my answer" — **6 MB / EXIF photo REFUSED → ACCEPTED VIA THE CROP STEP; MULTI-PAGE — LIVE (`#920`)**
+- Production, 360 and 1440: before "File must be under 3 MB"; after crop → "1 page · sent as a photo"; refusals in the converged copy *(builder-reported)*. Multi-page by vitest (SolutionChecker 3-page PDF) + harness screenshots.
+
+### 🟡 Quick Practice — "Check my answer" (SolutionChecker, collect mode) — **COMPRESS + CROP ON (single photo); MULTI-PAGE WITHHELD — vitest + harness only (`#920`)**
+- One compressed, croppable photo per answer; multi-page is withheld because the batch shares one 8 MB body across up to 12 answers (CONTROLLER DECISION UNDER OR-AUTO, PENDING OWNER AUDIT; `[FU-UPLOAD-COLLECT-MULTIPAGE]`). Not driven live on production; owner "Check my answer" acceptance OWED. → §2a (2026-10-04).
+
+### ✅ Worksheet — grading upload (WorksheetGradePanel) — **COMPRESS BEFORE THE GUARD + MULTI-PAGE — vitest + harness only (`#920`)**
+- `checkUploadFile(file, "answers")` via `usePageTray` (`WorksheetGradePanel.tsx:296`, docs-builder-verified); 3-page real-jspdf PDF in vitest; harness screenshots at 360 / 768 / 1440 *(builder-reported)*. Live drive OWNER-OWED.
+
+### ✅ Chapter Test + Full Mock — paper upload (ChapterTestUploadPanel) — **COMPRESS BEFORE THE GUARD + MULTI-PAGE — vitest + harness only (`#920`)**
+- `checkUploadFile(file, "answers")` via `usePageTray` (`ChapterTestUploadPanel.tsx:52`, docs-builder-verified); 3-page PDF in vitest; harness screenshots *(builder-reported)*. Live drive OWNER-OWED; Full Mock `Verified` stays ⬜.
+
+### ✅ QR answer upload (phone page `/u/:token`) — **SAME CROP STEP (EXIF + ROTATE, ONE DECODE) + PAGE TRAY; 2+ PAGES SENT AS ONE `application/pdf` — LIVE (`#920`)**
+- Live end to end as above; `QrAnswerUploadPage.crop.test.tsx` (real jspdf, 3 pages, pickup `application/pdf`) *(builder-reported)*. Closes `[FU-QR-CROP-EXIF-ORIENTATION]`, `[FU-QR-CROP-NO-ROTATION]`, `[FU-QR-CROP-DOUBLE-READ]`.
+
+### ⬜ NO OTHER SURFACE MOVES — stated plainly, per `CLAUDE.md` §10
+- `/exam-simulation`, `/tutor/*` (other than the C&I overlay), `/mock-paper/:slug` and `/weak-area-practice` have no file input or drop / paste handler *(builder-reported, src grep)*. No other page changed.
+
+### 📋 Scope discovered? — **YES, one item, Quick Practice** (multi-page in collect mode needs a server-side batch budget). Logged in `DECISION_LOG.md` (2026-10-04, wave B-12) and in §2a below. Quick Practice's `Scope` already reads **Settling**, so no cell changes.
+
 > **2026-10-04 — WAVE A-12 (ROUTING + SEO, CONTROLLER A): ROOT-URL-1 (`#917` `5f168207` + `#919` `db4862a2`), trunk `db4862a2`. LIVE on deploy (no flag); both rollouts, each a hidden rolling release, are recorded in `CURRENT_STATE.md`.**
 > ★ **EVERY SURFACE MOVES ON THE URL AXIS (now at the domain root; old `/app/…` URLs 308 there) AND THE NON-SITEMAP SURFACES MOVE ON THE CRAWLER AXIS (now `noindex,follow`); NOTES MOVES ON ITS HEAD.** The §2 matrix has no column for URL, indexing or head text, and no page's visible content changed, so **no matrix cell flips**; the moves are recorded here as status lines.
 
@@ -2054,6 +2080,12 @@ Cells are read against each surface's CURRENTLY-KNOWN scope (see the Scope colum
 | **Notes** (content track) | Settling | ✅ | — | ✅ | ✅ | — | ✅ | **v1.3 MERGED (#356, `629457e`) — template COMPLETE, owner live-verified.** v1.3 made the mindmap read as a **VISIBLE TREE** by default (per-branch `--mm-accent` rail + connector elbows + root › branch › leaf weight; open-state PRESERVED — the brief's "collapsed" premise was wrong: all specs are depth-2, already fully expanded at `useState(depth <= 1)`) and the note modal **near-full-screen** (92vw×92vh capped 1280px; mobile full-screen); kept the v1.2 ≤380px no-overlap win. Owner live-verified the tree + full-screen modal + **360px on a real device** → **Mobile + Verified flipped ✅**. v1.2 (#345): collapsible mindmap + per-step marks (schema 1.2, validator Rule 10) + note-as-popup + clickable NCERT page refs, proven across physics/maths/biology (light/quadratic/life-processes). **NOTES FAN-OUT COMPLETE (2026-07-12) — all 26 canonical topics specced + independently audited** (batches #365/#368/#370/#371/#372; Chemical Reactions = LOCKED chemistry exemplar; syllabus trims held — Heredity evolution-trimmed, Magnetic Effects motor/generator-trimmed). Clickable NCERT page-cites are **LIVE + owner-verified** (#375 `ncertPdfOffsets.ts` + owner-hosted `ncert/{subject}/ch{N}.pdf` + public-read rule + CORS; Trig p.114 / Heredity p.129 land exactly). Source-ledger `p.N` cites made clickable too via [FU-LEDGER-CLICKABLE-CITES] (PR #376, in review). **Surface ✅ COMPLETE.** |
 
 ## 2a · DISCOVERED-SCOPE LOG (scope that emerged AFTER a surface was first planned)
+
+### 2026-10-04 - Wave B-12 (`#920`) - "several pages, every path" stops at a batch body the client lane cannot change
+
+**Surface: Quick Practice.** `Scope` already reads **Settling**, so no cell changes.
+
+- ⚠ **DISCOVERED: Quick Practice collect mode cannot take multi-page.** Its per-question uploads share ONE 8 MB batch body across up to 12 answers (`server/routes/checkSolution.cjs:52`, `:2738-2785`), so a 3.2 MiB PDF per answer cannot be guaranteed to fit; the server was forbidden in UPLOAD-2, so collect mode gets a single compressed, croppable photo (CONTROLLER DECISION UNDER OR-AUTO, PENDING OWNER AUDIT). Spec R6 "every path" is disproved for this one path *(builder-reported)*. `[FU-UPLOAD-COLLECT-MULTIPAGE]`, `[FU-UPLOAD-BATCH-BODY-BUDGET]`
 
 ### 2026-10-03 - Wave B-10 (`#910` · `#912`) - a page every sign-up was said to see is reachable by none, a theme the tokens serve is never shown, and a path redaction has a second sender
 

@@ -1,3 +1,31 @@
+## ★★★ 2026-10-04 — WAVE B-12 (UPLOAD, CONTROLLER B) — UPLOAD-2 CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-12 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE A-12, B-11, A-11, B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
+
+**TRUNK IS `633f77dc4e0d0b9de65bb04d43fce33788b5d378`**, measured 2026-10-04 (`git ls-remote origin base/approved-thru-437`):
+- `633f77dc` = `#921` (docs: wave A-12, Controller A)
+- `2492bb67` = `#920` (UPLOAD-2: phone photos cropped, rotated and compressed before the guard; several pages as one PDF on every grading upload) — **this wave**; merged 2026-10-03T22:32:34Z; OR-LIVE PASS on the agent-reachable paths, no rollback *(builder-reported)*
+- `db4862a2` = `#919`, `5f168207` = `#917` (ROOT-URL-1, Controller A)
+
+When this docs PR was opened no other PR was open (`gh pr list --state open` empty). This is the only docs PR open (OR-16).
+
+### NEXT — OWNER
+1. **OWNER ACCEPTANCE OWED for UPLOAD-2 (not blocking). Roll back first on any failure** (Vercel instant rollback of `#920`):
+   1. Android phone, Check & Improve: photo → crop → rotate → check → the grader reads it.
+   2. The same once in Practice "Check my answer".
+   3. One 3-page answer on Check & Improve → graded across all three pages.
+   4. Desktop Check & Improve → QR → 3 pages on the phone → desktop grades all three.
+2. **Also owner-owed (builder report):** a live drive of Worksheet, Chapter Test, Full Mock and Quick Practice collect mode on production (the agent covered them with vitest + harness screenshots only); iPhone Safari and real touch (the agent used emulated touch). Roll back first on any failure.
+3. **Audit the controller's OR-AUTO decision** to withhold multi-page in Quick Practice collect mode (shared 8 MB batch body; the server was forbidden in the lane) — `DECISION_LOG.md`, 2026-10-04, wave B-12, PENDING OWNER AUDIT.
+4. **Pick the next wave — it is the owner's call; this docs PR does not invent a lane.** On the table: the eight new FUs (none dispatched); `[FU-UPLOAD-COLLECT-MULTIPAGE]` + `[FU-UPLOAD-BATCH-BODY-BUDGET]` need a server change.
+
+### Carried — still owed
+1. **The WAVE A-12 owner items** (audit D1–D5 and D7; the post-move link updates; GA4 Realtime; `[FU-ADS-CONVERSION-ON-PRICING-VIEW]`), then the WAVE B-11 owner items and everything they carry.
+
+### NEXT — LANES
+- None dispatched by wave B-12 beyond `#920`. The final audit request goes to the cofounder after this docs PR merges.
+- **★ Compress before the guard.** A new upload surface takes `usePageTray({ check: (file) => checkUploadFile(file, …) })` from `components/upload/PageTray.tsx`; `preparePhoto` runs before the guard, never after. Do not add a raw `file.size` wall.
+- **★ jspdf stays lazy.** It is reached only through `import("jspdf")` in `assemblePagesPdf.ts`; a static import would put 385.95 kB on every upload page.
+
 ## ★★★ 2026-10-04 — WAVE A-12 (ROUTING + SEO, CONTROLLER A) — ROOT-URL-1 CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE B-11 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE B-11, A-11, B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
 
