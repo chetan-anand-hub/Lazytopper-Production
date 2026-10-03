@@ -58,7 +58,12 @@ describe("L4 route await — Chapter Test", () => {
         </Routes>
       </MemoryRouter>,
     );
+    // Loading state: the existing "Building your test…", no "not enough questions" and no counts.
+    expect(screen.getByText("Building your test…")).toBeInTheDocument();
+    expect(screen.queryByText(/enough .* questions in the bank/)).toBeNull();
+    expect(document.querySelector(".lt-ct__metarow")).toBeNull();
     expect(await screen.findByRole("button", { name: /Start the test/ }, { timeout: 60000 })).toBeInTheDocument();
+    expect(document.querySelector(".lt-ct__metarow")).not.toBeNull();
     expect(isBankChapterLoaded("triangles")).toBe(true);
     // Only the chapter it needs.
     expect(isBankChapterLoaded("circles")).toBe(false);
@@ -74,6 +79,8 @@ describe("L4 route await — Full Mock", () => {
         </Routes>
       </MemoryRouter>,
     );
+    expect(screen.getByText("Building your mock…")).toBeInTheDocument();
+    expect(screen.queryByText(/enough .* questions in the bank/)).toBeNull();
     expect(await screen.findByRole("button", { name: /Start the mock/ }, { timeout: 60000 })).toBeInTheDocument();
     expect(bankChaptersForSubject("Maths").every(isBankChapterLoaded)).toBe(true);
     // Maths only.

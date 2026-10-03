@@ -38,11 +38,18 @@ describe("L4 route await — Worksheets", () => {
     );
     expect(isBankChapterLoaded("real-numbers")).toBe(false);
     expect(screen.getByText("Loading questions…")).toBeInTheDocument();
+    // Loading state: no count (not even "0 questions"), no "No questions match".
+    expect(document.querySelector(".lt-ws__pvchip--count")).toBeNull();
+    expect(screen.queryByText(/No questions match/)).toBeNull();
     await waitFor(() => expect(screen.queryByText("Loading questions…")).toBeNull(), { timeout: 60000 });
     expect(isBankChapterLoaded("real-numbers")).toBe(true);
     expect(isBankChapterLoaded("polynomials")).toBe(false);
     const preview = screen.getAllByRole("button", { name: /Preview worksheet/i })[0];
     expect(preview).not.toBeDisabled();
     expect(screen.queryByText(/No questions match/)).toBeNull();
+    // Loaded: the real count renders.
+    const chip = document.querySelector(".lt-ws__pvchip--count");
+    expect(chip).not.toBeNull();
+    expect(Number(/^(\d+)/.exec(chip!.textContent || "")?.[1])).toBeGreaterThan(0);
   }, 90000);
 });

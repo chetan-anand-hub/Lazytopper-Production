@@ -8,7 +8,7 @@
 // gate and the render throws. Either is RED.
 
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { setMatchMediaMatches } from "../test/setup";
 
@@ -64,5 +64,35 @@ describe("L4 route await — Practice", () => {
     expect(isBankChapterLoaded("triangles")).toBe(true);
     // Exact slug + per-chapter: only the chapter the topic names.
     expect(isBankChapterLoaded("trigonometry")).toBe(false);
+  }, 90000);
+});
+
+describe("L4 loading state — Practice shows no count or gated state while its chapter loads", () => {
+  it("★ preset entry: during the load only the existing loading card; after it, the real presets and count", async () => {
+    setMatchMediaMatches(true);
+    render(
+      <MemoryRouter initialEntries={["/practice/10/maths?source=practice&topic=triangles"]}>
+        <Routes>
+          <Route path="/practice/:grade/:subject" element={<PracticePage />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    // Pending: the cache is cold, so the chapter is still loading right now.
+    expect(isBankChapterLoaded("triangles")).toBe(false);
+    expect(screen.getByText("Preparing your questions...")).toBeInTheDocument();
+    expect(screen.queryByText(/coming soon for this chapter/)).toBeNull();
+    expect(screen.queryByText(/\d+ available/)).toBeNull();
+    expect(screen.queryByRole("button", { name: /Customise/ })).toBeNull();
+
+    // Loaded: the real preset picker, Competency live (triangles has case-based rows),
+    // and the real, non-zero "N available" in the custom drawer.
+    const customise = await screen.findByRole("button", { name: /Customise/ }, { timeout: 60000 });
+    expect(isBankChapterLoaded("triangles")).toBe(true);
+    expect(screen.queryByText("Preparing your questions...")).toBeNull();
+    expect(screen.queryByText(/coming soon for this chapter/)).toBeNull();
+    fireEvent.click(customise);
+    await waitFor(() => expect(screen.getByText(/\d+ available/)).toBeInTheDocument());
+    const n = Number(/(\d+) available/.exec(screen.getByText(/\d+ available/).textContent || "")?.[1]);
+    expect(n).toBeGreaterThan(0);
   }, 90000);
 });

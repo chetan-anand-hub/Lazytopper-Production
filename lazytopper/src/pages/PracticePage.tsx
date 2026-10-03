@@ -2550,7 +2550,32 @@ const packTopicKey = useMemo(() => {
             behind "Customise" (entryMode "custom"). A targeted/tutor entry (arrivedTargeted)
             or an already-built set falls straight through to PracticeControls — its
             auto-build path is byte-identical (§3). */}
-        {shouldShowPresetEntry(isBuilt, arrivedTargeted, entryMode) ? (
+        {/* BANK-SPLIT-1 PR-2 (L4): until the topic's chapter has loaded, no count, preset
+            gate or "N available" is shown — those would be untrue. A built set already
+            shows the list's own "Preparing your questions..." (the build awaits the same
+            load); the preset entry shows that same existing loading card. */}
+        {!bank.ready ? (
+          isBuilt ? null : (
+            <PracticeQuestionList
+              isLoading={!bank.error}
+              error={bank.error ? "We couldn’t load the questions. Check your connection and reload the page." : null}
+              questions={[]}
+              filteredQuestions={[]}
+              subjectKey={subjectKey}
+              topicLabel={topicLabel}
+              expandedAnswers={{}}
+              mcqSelections={{}}
+              mcqResults={{}}
+              practiceSolutionLoading={{}}
+              practiceSolutionError={{}}
+              practiceSolutionData={{}}
+              onSetActiveQuestion={() => {}}
+              onToggleAnswer={() => {}}
+              onMcqSelect={() => {}}
+              onMcqResult={() => {}}
+            />
+          )
+        ) : shouldShowPresetEntry(isBuilt, arrivedTargeted, entryMode) ? (
           <QuickPracticePresets
             presets={QP_PRESETS}
             selectedKey={selectedPresetKey}

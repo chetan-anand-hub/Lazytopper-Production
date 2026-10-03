@@ -854,7 +854,8 @@ function WorksheetGeneratorInner() {
               <h2 className="lt-ws__heroh">{modeLabel} · {scopeLabel}</h2>
               <p className="lt-ws__herosub">The default most students want — a full board-pattern set across every section.</p>
               <div className="lt-ws__herochips">
-                <span className="lt-ws__pvchip lt-ws__pvchip--count">{totalCount}<span className="lt-ws__u-full"> question{totalCount === 1 ? "" : "s"}</span><span className="lt-ws__u-abbr"> Q</span></span>
+                {/* BANK-SPLIT-1 PR-2: no count until the in-scope chapters have loaded. */}
+                {bank.ready && <span className="lt-ws__pvchip lt-ws__pvchip--count">{totalCount}<span className="lt-ws__u-full"> question{totalCount === 1 ? "" : "s"}</span><span className="lt-ws__u-abbr"> Q</span></span>}
                 <span className="lt-ws__pvchip">{sectionScopeLabel(effSections)}</span>
                 <span className="lt-ws__pvchip">{effDifficulty === "All" ? "All difficulty" : effDifficulty}</span>
                 {totalMarks > 0 && <span className="lt-ws__pvchip lt-ws__pvchip--n">{totalMarks} marks</span>}
@@ -876,7 +877,7 @@ function WorksheetGeneratorInner() {
               is the weak area / enrich here) and, where the weak area sits outside the
               chosen scope, offers a one-tap remedy. The toggle only appears when there
               is something real to weight toward — never a no-op. */}
-          <div className={`lt-ws__mi${canEnrich ? "" : " locked"}`} data-testid="mi-enrich-box">
+          <div className={`lt-ws__mi${canEnrich || !bank.ready ? "" : " locked"}`} data-testid="mi-enrich-box">
             <div className="lt-ws__mi-title"><span aria-hidden="true">⚡</span> Personalise this worksheet</div>
             {!isSignedIn ? (
               <>
@@ -891,6 +892,10 @@ function WorksheetGeneratorInner() {
               <p className="lt-ws__mi-hint">
                 Grade a {subject} worksheet or use Check &amp; Improve first — then this focuses the worksheet on the {subject} topics &amp; sections you&rsquo;ve lost the most marks on.
               </p>
+            ) : !bank.ready && scope === "topic" ? (
+              // BANK-SPLIT-1 PR-2: the section-skew signal reads the chapter's pool; until it
+              // has loaded, say so instead of showing a locked/"already targets it" state.
+              <p className="lt-ws__mi-hint">Loading questions…</p>
             ) : scope === "topic" ? (
               canSectionSkew ? (
                 // (2a) The chosen topic is a weak area with skewable sections → section-skew toggle.
