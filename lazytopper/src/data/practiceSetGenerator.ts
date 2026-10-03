@@ -12,7 +12,6 @@
 // appropriate config.
 
 import { PredictionCore } from "./predictionCore";
-import { questionKey } from "../utils/questionKey";
 import { suggestDifficulty } from "../prediction/difficultyAutoSuggest";
 import type {
   CanonicalQuestion,
@@ -262,11 +261,11 @@ function takeFromBucket<T>(
       const id = getId(item);
       if (alreadyTaken.has(id)) continue;
       if (skipSet && skipSet.has(id)) continue; // pass 1 only: unseen first
-      const qText = questionKey(item as any);
-      if (texts.has(qText)) continue;
+      const qText = String((item as any).questionText ?? (item as any).text ?? "").trim().toLowerCase().slice(0, 120);
+      if (qText && texts.has(qText)) continue;
       result.push(item);
       alreadyTaken.add(id);
-      texts.add(qText);
+      if (qText) texts.add(qText);
       if (result.length >= targetCount) break;
     }
     if (result.length >= targetCount) break;

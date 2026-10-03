@@ -19,7 +19,7 @@ import { questionKey } from "../utils/questionKey";
  * WHY A SEEDED RUN OF THE REAL BUILDERS. The scout measured the defect with exactly this
  * method (30 / 2,600 Chapter Tests and 6 / 560 worksheets repeated a question). Each
  * builder dedupes at its own point (drawBalancedSet, the Chapter Test used-set, the
- * practice generator and builder, the worksheet plan, the Full Mock pool), so the guard
+ * practice builder, the worksheet plan, the Full Mock pool), so the guard
  * drives the builders the pages call, over the real bank, and counts repeated keys in
  * what comes out. A unit test of `questionKey` alone would pass with every builder still
  * keying on the old id / 120-char prefix / stem-only text.
@@ -305,7 +305,10 @@ describe("CONTROL — the key check is what prevents the repeat", () => {
       await freshGraph(disabled);
       const synthetic = [
         row("pr-1", { ...DUP_MCQ, marks: 1, section: "A", difficulty: "Easy" }),
-        row("pr-2", { ...DUP_MCQ, marks: 1, section: "A", difficulty: "Easy" }),
+        // Same question, extra inner space: the practice generator's legacy 120-char prefix
+        // key (practiceSetGenerator.ts, frozen by the QP-overlay ops gate) does NOT catch it,
+        // so only the builder's questionKey check stands between it and a repeat.
+        row("pr-2", { ...DUP_MCQ, questionText: DUP_MCQ.questionText.replace("value of", "value  of"), marks: 1, section: "A", difficulty: "Easy" }),
         row("pr-3", { difficulty: "Medium" }),
         row("pr-4", { difficulty: "Hard" }),
       ];
