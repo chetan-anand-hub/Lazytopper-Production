@@ -22,6 +22,8 @@ vi.mock("../auth/RequireAuth", () => ({
 }));
 
 import WorksheetGenerator from "./WorksheetGenerator";
+// BANK-SPLIT-1 PR-2: this suite calls the bank's sync APIs directly, so it preloads every chapter.
+import "../../test/preloadBankChapters";
 
 const MISTAKE_KEY = "lazytopper.mistakeLogs.v1:u1";
 const signedIn = { user: { uid: "u1", isLocalSession: false } };

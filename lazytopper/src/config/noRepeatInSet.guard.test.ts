@@ -1,5 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect, vi, afterEach } from "vitest";
+// BANK-SPLIT-1 PR-2: this suite calls the bank's sync APIs directly, so it preloads every chapter.
+import "../test/preloadBankChapters";
 
 import { drawChapterTest } from "../components/chaptertest/chapterTestBlueprint";
 import { drawFullMock } from "../components/fullmock/fullMockBlueprint";
@@ -233,6 +235,7 @@ afterEach(() => {
   vi.doUnmock(KEY_MODULE);
   vi.doUnmock("../data/bankQuery");
   vi.doUnmock("../data/canonicalQuestionBank");
+  vi.doUnmock("../data/bankChapters/loader");
   vi.doUnmock("../data/predictedQuestions");
   vi.doUnmock("../data/predictedQuestionsScience");
   vi.doUnmock("../data/predictionCore");
@@ -283,9 +286,12 @@ describe("CONTROL — the key check is what prevents the repeat", () => {
         row("fm-1", { questionText: DUP_STEM, marks: 3 }),
         row("fm-2", { questionText: DUP_STEM, marks: 3 }),
       ];
-      vi.doMock("../data/canonicalQuestionBank", async (importOriginal) => ({
-        ...(await importOriginal<typeof import("../data/canonicalQuestionBank")>()),
-        canonicalQuestionBank: synthetic,
+      // BANK-SPLIT-1 PR-2: buildUnionPool reads the subject's rows from the per-chapter
+      // loader (no longer canonicalQuestionBank), so the synthetic pool is served there.
+      vi.doMock("../data/bankChapters/loader", async (importOriginal) => ({
+        ...(await importOriginal<typeof import("../data/bankChapters/loader")>()),
+        getBankRowsForSubject: () => synthetic,
+        isAiGeneratedBankId: () => false,
       }));
       vi.doMock("../data/predictedQuestions", async (importOriginal) => ({
         ...(await importOriginal<typeof import("../data/predictedQuestions")>()),

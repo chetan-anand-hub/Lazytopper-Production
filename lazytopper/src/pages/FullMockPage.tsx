@@ -91,6 +91,7 @@ import FullMockPendingBanner from "../components/fullmock/FullMockPendingBanner"
 // Dark unless /api/usage/me says `enforced: true`: with it off this page is unchanged.
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
 import { useFairUse } from "../components/usage/useFairUse";
+import { useBankSubject } from "../data/bankChapters/useBankChapters";
 
 type Phase = "setup" | "taking" | "results";
 
@@ -200,8 +201,11 @@ export default function FullMockPage() {
   );
 
   // ── The fresh draw (only for a NEW mock; resume restores its own paper) ─────
+  // BANK-SPLIT-1 PR-2 (L4): the draw reads every chapter of this subject from the
+  // per-chapter cache, so it waits until they have loaded ("Building your mock…").
+  const bank = useBankSubject(subject);
   const draw: DrawnFullMock | null = useMemo(() => {
-    if (!nomen) return null;
+    if (!nomen || !bank.ready) return null;
     return drawFullMock({
       subject,
       grade,
@@ -213,7 +217,7 @@ export default function FullMockPage() {
       seed: (Math.random() * 0xffffffff) >>> 0,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nomen, subject, grade, drawNonce]);
+  }, [nomen, bank.ready, subject, grade, drawNonce]);
 
   // ── Test-taking state ────────────────────────────────────────────────────────
   const [phase, setPhase] = useState<Phase>("setup");
@@ -867,7 +871,11 @@ export default function FullMockPage() {
                   scored the moment you submit; write the rest on paper and upload for the full result.
                 </div>
 
-                {!draw ? (
+                {!draw && bank.error ? (
+                  <div className="lt-ct__empty">
+                    We couldn’t load the {subject} questions. Check your connection and reload the page.
+                  </div>
+                ) : !draw ? (
                   <div className="lt-ct__empty">Building your mock…</div>
                 ) : !draw.enoughQuestions ? (
                   <div className="lt-ct__empty">

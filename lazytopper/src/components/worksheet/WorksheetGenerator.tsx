@@ -27,6 +27,7 @@ import {
 import { ensureWorksheetSessionCode, type SessionRecord } from "../../services/sessionRecords";
 import { canonicalSlugMatches, resolveCanonicalSlug, resolveCanonicalSlugSet } from "../../data/syllabus/canonicalTopicSlug";
 import { getSurfaceHistory } from "../../services/progressStore";
+import { useBankChapters } from "../../data/bankChapters/useBankChapters";
 import {
   readWorksheetMi,
   weakestTopic,
@@ -354,6 +355,10 @@ function WorksheetGeneratorInner() {
     return topics;
   }, [scope, topics, singleTopic, multiTopics]);
 
+  // BANK-SPLIT-1 PR-2 (L4): the live plan preview reads the in-scope chapters from the
+  // per-chapter cache, so it waits until they have loaded (full-subject = every chapter).
+  const bank = useBankChapters(inScopeTopics.map((t) => t.key));
+
   // ── FIX A — SCOPE-RELATIVE Mistake-Intelligence ─────────────────────────────
   // Read the student's real mistake log once against the whole subject, then resolve
   // weakness RELATIVE to what they picked — never one global hotspot compared to the
@@ -406,7 +411,7 @@ function WorksheetGeneratorInner() {
 
   // Live plan (honest counts + distribution) — recomputed as inputs change.
   const plan = useMemo(() => {
-    if (blocker) return null;
+    if (blocker || !bank.ready) return null;
     return planWorksheet({
       subject,
       scope,
@@ -419,7 +424,7 @@ function WorksheetGeneratorInner() {
       focus, // ADDITIVE (Stage-2 P-A) — undefined for every non-tutor entry → no-op
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subject, scope, inScopeTopics, JSON.stringify(sectionsArg), effDifficulty, effCount, JSON.stringify(miTopicWeights), miCapFraction, focus, blocker]);
+  }, [subject, scope, inScopeTopics, JSON.stringify(sectionsArg), effDifficulty, effCount, JSON.stringify(miTopicWeights), miCapFraction, focus, blocker, bank.ready]);
 
   // ── FIX A — WITHIN-topic section skew, GATED ON THE REAL DRAWABLE POOL ───────
   // Section weighting is only honest when the topic's filtered pool actually holds
@@ -538,7 +543,7 @@ function WorksheetGeneratorInner() {
   const totalCount = candidate.length;
   const totalMarks = useMemo(() => candidate.reduce((s, q) => s + q.marks, 0), [candidate]);
   const shortfall = totalCount > 0 && totalCount < effCount;
-  const noQuestions = !blocker && totalCount === 0;
+  const noQuestions = !blocker && bank.ready && totalCount === 0;
 
   // Per-section breakdown of the candidate (real counts + marks).
   const previewSections = useMemo(() => {
@@ -849,14 +854,15 @@ function WorksheetGeneratorInner() {
               <h2 className="lt-ws__heroh">{modeLabel} · {scopeLabel}</h2>
               <p className="lt-ws__herosub">The default most students want — a full board-pattern set across every section.</p>
               <div className="lt-ws__herochips">
-                <span className="lt-ws__pvchip lt-ws__pvchip--count">{totalCount}<span className="lt-ws__u-full"> question{totalCount === 1 ? "" : "s"}</span><span className="lt-ws__u-abbr"> Q</span></span>
+                {/* BANK-SPLIT-1 PR-2: no count until the in-scope chapters have loaded. */}
+                {bank.ready && <span className="lt-ws__pvchip lt-ws__pvchip--count">{totalCount}<span className="lt-ws__u-full"> question{totalCount === 1 ? "" : "s"}</span><span className="lt-ws__u-abbr"> Q</span></span>}
                 <span className="lt-ws__pvchip">{sectionScopeLabel(effSections)}</span>
                 <span className="lt-ws__pvchip">{effDifficulty === "All" ? "All difficulty" : effDifficulty}</span>
                 {totalMarks > 0 && <span className="lt-ws__pvchip lt-ws__pvchip--n">{totalMarks} marks</span>}
               </div>
             </div>
             <div className="lt-ws__herobot">
-              <button type="button" className="lt-ws__gen" onClick={handlePreview} disabled={!!blocker || noQuestions}>
+              <button type="button" className="lt-ws__gen" onClick={handlePreview} disabled={!!blocker || noQuestions || !bank.ready}>
                 Preview worksheet →
               </button>
               <button type="button" className="lt-ws__btnt" onClick={() => setCustomiseOpen((o) => !o)} aria-expanded={customiseOpen}>
@@ -871,7 +877,7 @@ function WorksheetGeneratorInner() {
               is the weak area / enrich here) and, where the weak area sits outside the
               chosen scope, offers a one-tap remedy. The toggle only appears when there
               is something real to weight toward — never a no-op. */}
-          <div className={`lt-ws__mi${canEnrich ? "" : " locked"}`} data-testid="mi-enrich-box">
+          <div className={`lt-ws__mi${canEnrich || !bank.ready ? "" : " locked"}`} data-testid="mi-enrich-box">
             <div className="lt-ws__mi-title"><span aria-hidden="true">⚡</span> Personalise this worksheet</div>
             {!isSignedIn ? (
               <>
@@ -886,6 +892,10 @@ function WorksheetGeneratorInner() {
               <p className="lt-ws__mi-hint">
                 Grade a {subject} worksheet or use Check &amp; Improve first — then this focuses the worksheet on the {subject} topics &amp; sections you&rsquo;ve lost the most marks on.
               </p>
+            ) : !bank.ready && scope === "topic" ? (
+              // BANK-SPLIT-1 PR-2: the section-skew signal reads the chapter's pool; until it
+              // has loaded, say so instead of showing a locked/"already targets it" state.
+              <p className="lt-ws__mi-hint">Loading questions…</p>
             ) : scope === "topic" ? (
               canSectionSkew ? (
                 // (2a) The chosen topic is a weak area with skewable sections → section-skew toggle.
@@ -1067,7 +1077,7 @@ function WorksheetGeneratorInner() {
                   customising", so the next step sits where the student finishes editing
                   (no scroll back up to the hero). Same handler + disabled logic as the hero. */}
               <div className="lt-ws__drawerfoot">
-                <button type="button" className="lt-ws__gen" onClick={handlePreview} disabled={!!blocker || noQuestions}>
+                <button type="button" className="lt-ws__gen" onClick={handlePreview} disabled={!!blocker || noQuestions || !bank.ready}>
                   Preview worksheet →
                 </button>
                 <button type="button" className="lt-ws__btnt" onClick={() => setCustomiseOpen(false)}>
@@ -1083,6 +1093,13 @@ function WorksheetGeneratorInner() {
             </div>
           )}
           {blocker && <div className="lt-ws__note">{blocker}</div>}
+          {!blocker && !bank.ready && (
+            <div className={bank.error ? "lt-ws__note lt-ws__note--err" : "lt-ws__note"} role="status">
+              {bank.error
+                ? "We couldn’t load the questions. Check your connection and reload the page."
+                : "Loading questions…"}
+            </div>
+          )}
           {error && <div className="lt-ws__note lt-ws__note--err" role="alert">{error}</div>}
         </>
       )}

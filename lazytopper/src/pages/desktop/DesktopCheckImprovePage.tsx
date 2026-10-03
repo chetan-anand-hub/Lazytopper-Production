@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ReturnTicketStrip, useReturnTicket } from "../../components/navigation/ReturnTicket";
 import {
@@ -40,7 +40,7 @@ import {
   type DesktopRouteContext,
   type DesktopSubject,
 } from "../../lib/desktop/navigation";
-import { exportGradedCheckImprovePdf } from "../../components/worksheet/worksheetPdfExport";
+// BANK-SPLIT-1 PR-2 (T2): the PDF export is imported on click (downloadGraded), not on load.
 import {
   CheckImproveGradedPrintDoc,
   buildCiCoaching,
@@ -69,7 +69,6 @@ import {
   checkImproveScorecardVariant,
   storedCheckImproveScorecardVariant,
 } from "../../components/results/scorecardVariants";
-import CheckImproveHistoryPanel from "../../components/checkimprove/CheckImproveHistoryPanel";
 // FREE-CHECK-1b — one free marked upload for a signed-out visitor. Every import below is
 // reached only when VITE_FREE_CHECK_ENABLED is on and nobody is signed in (or a signed-in
 // student has a free result waiting to be saved); with the flag off none of it renders.
@@ -103,6 +102,10 @@ import { TRIAL_DAYS } from "../../services/subscriptionService";
 import FairUseLimitPanel from "../../components/usage/FairUseLimitPanel";
 import FairUseConfirm from "../../components/usage/FairUseConfirm";
 import { useFairUse } from "../../components/usage/useFairUse";
+
+// BANK-SPLIT-1 PR-2 (T3): the "Your checked papers" panel is its own chunk, fetched the
+// first time the student opens it (it renders only while `panelOpen`).
+const CheckImproveHistoryPanel = lazy(() => import("../../components/checkimprove/CheckImproveHistoryPanel"));
 
 /**
  * DesktopCheckImprovePage — real desktop Check & Improve workflow.
@@ -816,8 +819,13 @@ const DesktopCheckImprovePageInner: React.FC<{
   const freeCallOpts: PaidCallOptions | undefined = isFreeMode ? FREE_CHECK_CALL : undefined;
   const [freeRefusal, setFreeRefusal] = useState<FreeCheckRefusalReason | null>(null);
   // App Check loads HERE — on /check-improve, for a signed-out visitor — and nowhere
-  // else (R4). Warmed on mount so reCAPTCHA has signals before the first request.
-  useEffect(() => {
+  // else (R4). BANK-SPLIT-1 PR-2 (T1): warmed on the visitor's FIRST INTENT — focusing the
+  // answer box, or opening the camera / file picker — instead of on mount, so a visitor
+  // who only reads the page never downloads reCAPTCHA (~1 MB decoded). reCAPTCHA still
+  // gets signals before the first request in the normal flow, and a request made with
+  // no intent at all is still attested: every free-check request mints its token through
+  // freshLimitedUseToken(), which awaits ensureFreeCheckAppCheck() first.
+  const warmAppCheck = useCallback(() => {
     if (isFreeMode) void ensureFreeCheckAppCheck();
   }, [isFreeMode]);
   // A refusal the free check must SHOW (its own copy), rather than the generic error the
@@ -1429,6 +1437,7 @@ const DesktopCheckImprovePageInner: React.FC<{
     setDownloadError(null);
     setDownloading(true);
     try {
+      const { exportGradedCheckImprovePdf } = await import("../../components/worksheet/worksheetPdfExport");
       await exportGradedCheckImprovePdf(props);
     } catch {
       setDownloadError("Couldn't build the PDF — please try again.");
@@ -2019,13 +2028,15 @@ const DesktopCheckImprovePageInner: React.FC<{
             volume rule) + the read-only stored-scorecard reopen. Fixed-inset
             overlays — DOM placement here is presentation-neutral. */}
         {panelOpen && (
-          <CheckImproveHistoryPanel
-            records={ciRecords}
-            loading={ciRecordsLoading}
-            defaultSubject={ciRecords[0]?.subject ?? "maths"}
-            onOpen={(r) => void openReopen(r)}
-            onClose={() => setPanelOpen(false)}
-          />
+          <Suspense fallback={null}>
+            <CheckImproveHistoryPanel
+              records={ciRecords}
+              loading={ciRecordsLoading}
+              defaultSubject={ciRecords[0]?.subject ?? "maths"}
+              onOpen={(r) => void openReopen(r)}
+              onClose={() => setPanelOpen(false)}
+            />
+          </Suspense>
         )}
         {reopen && (
           <ResultsScorecard
@@ -2199,6 +2210,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                        is unchanged and still refuses type AND size at the picker (§2.5). */
                     accept="image/jpeg,image/png,application/pdf"
                     style={{ display: "none" }}
+                    onClick={warmAppCheck}
                     onChange={(e) => {
                       const f = e.target.files?.[0];
                       if (f) handleQuestionFile(f);
@@ -2497,6 +2509,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                        Tight accept per §2.5 — see the question input above. */
                     accept="image/jpeg,image/png,application/pdf"
                     style={{ display: "none" }}
+                    onClick={warmAppCheck}
                     onChange={(e) => {
                       const f = e.target.files?.[0];
                       if (f) handleFileChosen(f);
@@ -2659,6 +2672,8 @@ const DesktopCheckImprovePageInner: React.FC<{
                   )}
                 </div>
               ) : (
+                // T1: focus anywhere in the answer box is a first intent (warms App Check).
+                <div onFocus={warmAppCheck}>
                 <EquationInput
                   value={textAnswer}
                   onChange={setTextAnswer}
@@ -2672,6 +2687,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                   maxRows={14}
                   ariaLabel="Type your answer"
                 />
+                </div>
               )}
 
               {/* Picker refusal for the ANSWER file. Sits ABOVE the grade-failure box

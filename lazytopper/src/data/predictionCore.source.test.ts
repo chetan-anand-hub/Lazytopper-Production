@@ -10,6 +10,8 @@
 //      share is materially below parity (drift guard for the AI-pack id list).
 
 import { describe, it, expect } from "vitest";
+// BANK-SPLIT-1 PR-2: this suite calls the bank's sync APIs directly, so it preloads every chapter.
+import "../test/preloadBankChapters";
 import {
   getAdjustedScore,
   PredictionCore,

@@ -379,7 +379,9 @@ export function weightedSelect(
 }
 
 export function generateUnlimitedPaper(subject: LTSubjectKey, seed?: number): ExamPaper {
-  const all = PredictionCore.getAllQuestions().filter(q => q.subject === subject);
+  // BANK-SPLIT-1 PR-2: same rows as getAllQuestions().filter(subject); needs only this
+  // subject's chapters (ExamSimulationPage awaits ensureBankSubject before generating).
+  const all = PredictionCore.getQuestionsForSubject(subject);
   const history = loadRecentPaperIds(subject);
   const actualSeed = seed ?? (Date.now() ^ Math.floor(Math.random() * 0xffffffff));
   const archetypes = getGuaranteedArchetypes(subject);

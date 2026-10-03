@@ -29,7 +29,7 @@ const BANK_DIRS = [
   ["Maths", join(SRC, "data/questionBanks/class10/maths")],
   ["Science", join(SRC, "data/questionBanks/class10/science")],
 ];
-const AGGREGATOR = ["Aggregator", join(SRC, "data/canonicalQuestionBank.ts")];
+const AGGREGATOR = ["Aggregator", join(SRC, "data/questionBanks/class10/curatedInline.ts")]; // the 26 curated rows, moved out of canonicalQuestionBank.ts by BANK-SPLIT-1 PR-2
 
 // ── comment/string-aware top-level {…} object splitter ───────────────────────
 function splitObjects(src) {
