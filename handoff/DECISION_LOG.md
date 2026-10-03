@@ -1,3 +1,27 @@
+## 2026-10-03 — WAVE A-10 (PERF + PREDICTED QUESTIONS, CONTROLLER A): BANK-LEAN-1 — PR `#907` merged — trunk `4f51da9f`
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (owner rulings C1–C4, H1–H4, G1–G2 of the spec `BANK-LEAN-1`, and the controller decisions of `WAVE_STATE_A10.md`), not `DECISION N`.
+
+### Owner rulings (spec `BANK-LEAN-1`, sha256 `4E37ED300919…`)
+- **C1–C4, H1–H4, G1–G2 were fixed by the owner in the spec and not asked again.** The owner granted only the two HPQ data rows in H4 (`rn-hpq-4`, `sci-repr-comp-01`). No per-question provenance for HPQ (owner ruling).
+- **C4 left the choice to the builder:** whichever option keeps every signed-in number identical, with the reason recorded (below).
+
+### Controller decisions, with the reason
+- **The `sessionRecords.ts` freeze in the C&I and Quick-Practice overlay gates was narrowed — a controller decision under OR-AUTO, PENDING OWNER AUDIT. It is not owner-approved.**
+  - **What:** in `check_improve_overlay_additive_acceptance.mjs` and `quick_practice_overlay_additive_acceptance.mjs`, the rule for `sessionRecords.ts` went from "zero diff" to "zero diff outside import declarations and `//` comment lines", in lock-step in both gates. The entry stays in FORBIDDEN, and the membership assertions are unchanged *(builder-reported)*.
+  - **Why:** owner ruling C1 orders the `sessionRecords.ts` import edit, and spec §1 allows the file, but the two REQUIRED gates froze it at zero diff; the spec did not know. The controller read the gate diff (self-test + CONTROL) *(controller-verified)*. Builder-reported mutation: a `SessionRecord` shape change turns both gates RED. The alternative the builder named — moving the generator out of `worksheetModel` instead — contradicts C1's wording and moves live generator code.
+  - **Precedent:** earlier lifts in those gates (`#519`, PR-C1, `#581`, `#601`, `#606`) were each treated as an owner decision *(builder-reported)*, which is why this one goes to owner audit.
+- **Four files beyond §1's named list were accepted (none forbidden):**
+  - `pages/desktop/DesktopPracticePage.tsx` — the P18 fix; the spec authorises the fix, and G1 protects that page.
+  - the two overlay gates — the narrowing above.
+  - `scripts/ops/topickey_guard_acceptance.mjs` — a Guard B allowlist entry moved with C1's moved code.
+  - `ChapterTestPage.tsx` and `FullMockPage.tsx` are C3 importers and were allowed.
+- **C4 = option 1** — `conceptForQuestionId` is loaded with `await import("./progressBankIndex")` inside both async reads; `TopicProgressTrend` was not lazy-loaded. **Why (builder P17):** the same function on the same inputs, so every signed-in number is identical by construction; signed out, the read returns before any import; the bank loads only when a builder can call the lookup (the `NO_BANK_LOOKUP` stub is provably never called); a failed chunk rejects rather than silently moving a rung, and every caller already degrades to an honest empty state on rejection. Option 2 would only have fixed the Topic Hub and needed a signed-out output proof *(builder-reported)*. Signed-in Topic Hub trend and `/me` text were then shown identical, production vs preview (GAP2) *(builder-reported)*.
+- **P18 finding, recorded as a standing fact:** `import { type X } from "…"` (an inline `type` modifier) under `verbatimModuleSyntax: true` still emits a side-effect import (`import {} from "…"`, measured with esbuild 0.27.3); only `import type { X }` is erased. That is how `/practice-hub` reached the bank *(builder-reported)*. G1's walker follows that form on purpose and checks that `tsconfig` still sets `verbatimModuleSyntax`.
+- **Signed-out `/check-improve` measured 3.3 MB on production vs 1.6 MB on the preview — both bank-free.** **Why they differ:** Vercel previews lack `VITE_FREE_CHECK_ENABLED`, so a signed-out `/check-improve` redirects to sign-in there, while production renders the free-check page *(builder-reported; production figure 3,329,747 decoded bytes, controller-verified)*. The bank was absent on both.
+- **Three throwaway students were used for the signed-in checks and ERASED.** The builder created two (the first had used its 5 daily checks before GAP1), and the controller created a third for the production Predicted Questions check after the second hit the fair-use cap. All three were erased in-app (`POST /api/account/erase` 200 `ok:true` each; sign-in afterwards `INVALID_LOGIN_CREDENTIALS`), and the local credential files were deleted *(controller-verified)*.
+- **The controller sent the builder back before merge (GAP1, GAP2).** **Why:** the first live C&I and HPQ checks had the concept absent on both sides, so they could not fail; and C4's signed-in numbers had not been compared. Both closed with no code change *(builder-reported)*.
+
 ## 2026-10-02 — WAVE A-9 (SEO, CONTROLLER A): LLMS-1 — PR `#904` merged — trunk `08767832`
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (owner rulings L1, L2, L4 of the spec `LLMS-1`, and the controller decisions of `WAVE_STATE_A9.md`), not `DECISION N`.

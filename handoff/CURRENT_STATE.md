@@ -1,5 +1,91 @@
 # LazyTopper — Current State
 
+## [CURRENT · PERF + PREDICTED QUESTIONS] WAVE A-10 — **FIVE PAGES THAT SERVE NO QUESTIONS STOP DOWNLOADING THE ~8.6 MB QUESTION BANK ON FIRST LOAD; PREDICTED QUESTIONS PUTS ALL 70 + 70 QUESTIONS IN THE PAGE, REDIRECTS TO ITS CANONICAL PATH, LAZY-LOADS THE ANSWER CHECKER AND FIXES TWO QUESTIONS (BANK-LEAN-1)** — `#907` MERGED — trunk `4f51da9f`
+*(Supersedes the WAVE A-9 block below on trunk SHA only. That block is demoted to previous on trunk SHA. Its content, and the owner items of every block below, stand as written. Exactly one un-superseded `[CURRENT]` remains: this one.)*
+
+★ **PROVENANCE.**
+- Controller A, wave A-10, from the owner spec `BANK-LEAN-1` (staged at `LT-worktrees/controller-a10/ops/.specs/BANK-LEAN-1.md`, sha256 `4E37ED300919…`, hash-verified by the controller and byte-identical to the owner's `LazyTopper_BANK-LEAN-1_v1.0_2026-10-02.md`). Owner rulings C1–C4, H1–H4 and G1–G2 are fixed in the spec. One builder (`claude-opus-5-5`, effort high) in its own worktree `LT-worktrees/bank-lean-1` (`lane/bank-lean-1`).
+- *(builder-reported)* = from `Desktop/diff/report-bank-lean-1-2026-10-03.md`; *(controller-verified)* = re-checked by the controller (`Desktop/diff/WAVE_STATE_A10.md`); *(docs-builder-verified)* = re-checked from the repo or the CI log by the docs builder that wrote this PR.
+- **Trunk history since the last handoff** (`d96c18c9`, `#905`): `d96c18c9` → `4f51da9f` (`#907`).
+- This block covers `#907` only.
+
+### What a student gets
+- **Five pages that serve no questions no longer download the question bank on first load:** Check & Improve, Topic Hub, signed-in Home, Predicted Questions and Practice Hub. The bank is the `canonicalQuestionBank` chunk (6,293.27 kB) plus the `ourEnvironment.pack2` chunk (2,316.33 kB), about 8.6 MB decoded *(chunk sizes from the CI build log, builder-reported)*. It now loads only when a question-serving path needs it. On production those first loads went from about 10–12 MB decoded to about 1.2–1.9 MB, and 3.3 MB for signed-out Check & Improve (table below).
+- **Predicted Questions** (`/highly-probable/10/Maths`, `/highly-probable/10/Science`):
+  - all 70 Maths and 70 Science questions are now in the page; collapsed chapters use `hidden` instead of being left out of the page;
+  - a non-canonical path (for example `/highly-probable/9/Maths` or `/highly-probable/10/science`) redirects to `/highly-probable/10/{Maths,Science}`;
+  - the answer checker loads only when it is opened, with "Loading checker…" shown meanwhile;
+  - two content fixes: `rn-hpq-4` is now Section C, 3 marks (it was tagged Section D, 4 marks), and the `sci-repr-comp-01` stem no longer cites a missing diagram (it now opens "A student examines the longitudinal section of a flower.").
+- Nothing else a student sees changed. The signed-in Topic Hub trend and the whole `/me` page read identical text before and after *(builder-reported, preview vs production)*.
+
+**Re-checked on trunk `4f51da9f`** *(docs-builder-verified)*: `git show 4f51da9f --stat` = 22 files, +1352/−602. `rn-hpq-4` carries `section: "C"`, `type: "Short"`, `marks: 3`. The `sci-repr-comp-01` question opens "A student examines the longitudinal section of a flower.". `DesktopPracticePage.tsx:34` reads `import type { PracticeQuestion } from "../../data/predictionDataService";`, and `tsconfig.app.json:14` still sets `"verbatimModuleSyntax": true`.
+
+**`#907` BANK-LEAN-1 → `4f51da9f`**, merged 2026-10-03T04:50:34Z (`--match-head-commit 260f0e52…`), 22 files *(controller-verified; merge time and head re-read via `gh pr view 907`, docs-builder-verified)*:
+- **C1** `components/worksheet/worksheetNaming.ts` (new): the bank-free worksheet naming helpers, moved verbatim out of `worksheetModel.ts`, which re-exports them. `services/sessionRecords.ts` changes one import path.
+- **C2** `services/mistakeIntelligence.ts`: `recordMistake` resolves the concept through a lazy `import("./mistakeConcept")`. A call-site concept wins with no import; with no questionId there is no import; a chunk-load failure logs the mistake without a concept rather than losing it *(builder-reported)*.
+- **C3** `components/results/scorecardBankLenses.ts` (new): the bank lookups and their dependents, moved verbatim out of `scorecardVariants.ts`. `ChapterTestPage.tsx` and `FullMockPage.tsx` import the moved symbols.
+- **C4** `services/progressBankShape.ts` (new), `progressBankIndex.ts` (re-exports), `progressStore.ts`: `conceptForQuestionId` is loaded lazily inside the two async reads (option 1; see Decisions).
+- **P18** `pages/desktop/DesktopPracticePage.tsx`: `import { type PracticeQuestion }` → `import type { PracticeQuestion }`.
+- **H1–H4** `pages/HighlyProbableQuestions.tsx` (lazy `SolutionChecker` in `<Suspense>`, `hidden` collapsed chapters, the canonical redirect, `data-hpq-question` / `data-hpq-chapter` attributes) and the two HPQ data rows (owner grant: only those two rows; no per-question provenance for HPQ, owner ruling).
+- **Pins:** `config/bankReach.guard.test.ts` (G1: a TypeScript-AST walker over the 11 protected modules, with a CONTROL that PracticePage, ChapterTestPage and FullMockPage DO reach the bank and a check that `main.tsx` does not; prints `BANK_REACH`) and `pages/HighlyProbableQuestions.seo.test.tsx` (G2: DOM == accessor rows for both subjects, `hidden` on collapsed chapters, three redirect cases plus a no-redirect control, the H4 rows; prints `HPQ_PAGE_PIN`).
+- **Tests updated (P20):** `scorecardVariants.test.ts` and `ResultsScorecard.stepBlock.test.tsx` import the moved symbols from `./scorecardBankLenses`.
+- **Tooling, outside §1's named list, none forbidden:** the two overlay gates `check_improve_overlay_additive_acceptance.mjs` / `quick_practice_overlay_additive_acceptance.mjs` (narrowed; see Decisions) and `topickey_guard_acceptance.mjs` (a Guard B allowlist entry moved with C1's code).
+- Forbidden files absent: `App.tsx`, the bank and pack files, `SolutionChecker.tsx`, `canonicalUrl.ts`, `sitemapUrls.ts`, `scripts/seo/**`, `public/**`, `prerendered/**`, the existing `*.guard.test.ts`, `server/**`, `handoff/**`. In `src/data/**` only the two H4 rows changed *(builder-reported)*.
+
+### ROLLOUT *(controller-verified)*
+www `/app/version.json` first served `4f51da9f` at 05:07:30Z (10:37:30 IST); 20/20 consecutive paced samples by 05:12:24Z (10:42:24 IST), with no mixed reads after. No rollback.
+
+**Production OR-LIVE: bank chunk on first load 5/5 → 0/5.**
+
+| URL | BEFORE, prod `d96c18c9`, decoded *(builder-measured)* | AFTER, prod `4f51da9f`, decoded / transferred bytes *(controller-run)* | bank AFTER |
+|---|---|---|---|
+| `/app/check-improve` (signed out) | 12.3M | 3,329,747 / 1,223,298 | no |
+| `/app/topic-hub/trigonometry` | 10.9M | 1,949,002 / 575,060 | no |
+| `/app/highly-probable/10/Maths` | 10.4M | 1,683,238 / 495,145 | no |
+| `/app/practice-hub` | 10.1M | 1,158,492 / 360,961 | no |
+| `/app/` (signed in) | 10.1M | 1,150,678 / 361,420 | no |
+
+Behaviour checks on production after the rollout, identical to before *(controller-verified)*:
+- Predicted Questions DOM 70/70 (Maths / Science), 12 of 13 chapters `hidden`.
+- The H3 redirects 3/3; the canonical path unchanged.
+- The Chapter Test CT-M-RN-02 re-open text is identical to production-before and to the preview (same hash).
+- The C&I grade: concept absent as before; the bank was not loaded even after the grade.
+- Mistakes on bank question ids carry concepts (`RNSD-003` "HCF and LCM by Prime Factorisation").
+- The Predicted Questions check: the first try hit the fair-use 409 (the second throwaway student had used its 5 daily checks, and the app rendered the cap notice). A third throwaway student then graded `rn-hpq-2`: 200, "1/2 50% Partly correct", "Checked and saved to mistake history"; the mistake entry is identical to before.
+- No mismatch, so no rollback.
+
+### What it disproved
+- **P18 — that `/practice-hub` had no static path to the bank** *(builder-reported)*. It did: `DesktopPracticePage.tsx` imported `{ type PracticeQuestion }`. Under `verbatimModuleSyntax: true` the inline-type form is emitted as `import {} from "…"`, a side-effect import (measured with the repo's esbuild 0.27.3), which kept `predictionDataService → predictionCore → canonicalQuestionBank` in the page's graph. The scout's walk had treated it as type-only.
+- **That `sessionRecords.ts` was editable as spec §1 assumed** *(builder-reported)*. C1 orders an edit to it, but two REQUIRED CI overlay gates froze it at zero diff. Resolved by the gate narrowing below, pending owner audit.
+- C1's move tripped topickey Guard B (the moved file was not on its allowlist); the audited entry moved with the code *(builder-reported)*.
+
+### Evidence
+- **§0c premise gate** *(builder-reported)*: PASS, 20 premises, 15/15 claim anchors resolved, 5 UNVERIFIED by design, exit 0; no drift at `d96c18c9`.
+- **Mutations** *(builder-reported)*, one at a time, each restored by hash and re-run green: G1 (re-add the bank import to `scorecardVariants.ts` → `BANK_REACH: protected=11 clean=10`); G2-a (revert H2 → DOM cards != accessor rows); G2-b (disable H3 → three redirect tests red); GATE (a `SessionRecord` shape change on a detached HEAD, never pushed → both overlay gates red); GAP1 (`resolveConcept` returns undefined → `mistakeIntelligence.concept.test.ts:63` red).
+- **CI** on head `260f0e52` *(controller-verified; re-read from the run log, docs-builder-verified)*: Quality Gate `37095597702` `success`. In each of the three vitest steps: `Test Files  238 passed (238)`, `Tests  3544 passed (3544)`, `BANK_REACH: protected=11 clean=11`, `HPQ_PAGE_PIN: maths=70 science=70`. Root guard matrix `# tests 293 # pass 293 # fail 0 # skipped 0 # todo 0` *(builder-reported)*. prerender-capture `37095597691`: `PRERENDER: committed artifact matches a fresh capture.` (captured=60), so no advertised page's body changed (P19).
+- **Preview OR-LIVE** *(builder-reported)*: bank on first load 5/5 → 0/5. GAP1: the C2 concept is "HCF and LCM by Prime Factorisation" (`RNSD-003`) on both production and the preview. GAP2: the signed-in Topic Hub trend and `/me` text are identical.
+- **Merge** *(controller-verified)*: `gh pr merge 907 --squash --match-head-commit 260f0e52…` → `4f51da9f`; is-ancestor OK; `git diff 260f0e52 4f51da9f` empty; 22 files; lane-overlap pass vs `#906`.
+
+### Decisions (full text in `DECISION_LOG.md`)
+- **The overlay-gate narrowing for `sessionRecords.ts` is a controller decision under OR-AUTO, PENDING OWNER AUDIT.** It is not owner-approved.
+- Four files beyond §1's named list (none forbidden); C4 = option 1; the preview vs production Check & Improve size difference; three throwaway students used and erased.
+
+### Parallel
+- Controller B's SEO-3 (`#906`, draft) was told to proceed on `4f51da9f` (relay line: "BANK-LEAN-1 merged as 4f51da9f6c7e73266922186d05aea6835d334a6d — proceed with §3 step 2.") *(controller-verified)*. `#906` touches no `handoff/**` file *(docs-builder-verified, `gh pr view 906 --json files`)*.
+
+### Follow-ups (bodies in `OPEN_QUESTIONS_AND_FOLLOWUPS.md`)
+- **New:** `[FU-LAZY-RETRY-NAMED-EXPORT]`, `[FU-CI-SYNTHETIC-ID-BANK-LOAD]`, `[FU-HPQ-CARD-ID-ON-MEASURE]` (low; tooling). **Closed:** none.
+
+### ★ Owner items
+- **New from wave A-10:** accept or reject the narrowing of the `sessionRecords.ts` freeze in the two overlay gates (already applied under OR-AUTO).
+- Carried: the owner items of the WAVE A-9 block and every block below it stand as written.
+
+### ★ CARRY FORWARD VERBATIM
+- `import { type X } from "…"` (inline type modifier) under verbatimModuleSyntax still emits a side-effect import; only `import type { X }` is erased.
+
+### Carried forward — ★ THE WIRE-2 DORMANCY BLOCK, RESTATED AS REQUIRED — unchanged by this block
+`WIRE-2` (`#621`) ENDED the `#578`/`#611`/`#617` dormancy. **Do not restate that trio as dormant.** **Wave A-10 moved NO dormancy in that trio.** The full block, including the `#647`/`#655` resolution and every subsequent restatement, stands as written in the blocks below.
+
 ## [CURRENT · SEO] WAVE A-9 — **`llms.txt` LISTS EXACTLY THE 60 SITEMAP PAGES WITH ACCURATE KEY FACTS, AND A NEW PIN KEEPS EVERY URL IT NAMES INSIDE THE SITEMAP (LLMS-1)** — `#904` MERGED — trunk `08767832`
 *(Supersedes the WAVE B-8 block below on trunk SHA only. That block is demoted to previous on trunk SHA. Its content, and the owner items of every block below, stand as written. Exactly one un-superseded `[CURRENT]` remains: this one.)*
 

@@ -23,6 +23,28 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-03 — WAVE A-10 (CONTROLLER A): BANK-LEAN-1 (`#907` `4f51da9f`) — three new, none closed
+
+Bodies are the builder's text from `Desktop/diff/report-bank-lean-1-2026-10-03.md` §10; the controller's state file (`Desktop/diff/WAVE_STATE_A10.md`, "FU ENTRIES COLLECTED") lists the same three ids. No open FU on this board is plainly closed by `#907`.
+
+*(Noted, not closed: item 3 of the 2026-06-05 entry "OPEN — HPQ PHASE 2: content authoring [D36]" — the `rn-hpq-4` Section-D / 4-mark mislabel — is addressed by `#907` H4: on trunk `4f51da9f` `rn-hpq-4` is Section C, type Short, 3 marks *(docs-builder-verified)*. That entry stays OPEN, because its items 1, 2 and 4 are untouched; per standing rule 3 the dated entry is not edited.)*
+
+### `[FU-LAZY-RETRY-NAMED-EXPORT]` — OPEN *(builder-reported, `#907`)*
+- `lazyWithRetry`'s URL retry needs a default export. `SolutionChecker` has only a named one, so on Chromium / Firefox a failed checker chunk is rethrown after one short wait; WebKit re-calls the factory.
+- A click-time failure lands in the route error boundary.
+- Fixing it means adding a default export to `SolutionChecker.tsx`, which was out of scope for `#907` (forbidden there).
+
+### `[FU-CI-SYNTHETIC-ID-BANK-LOAD]` — OPEN *(builder-reported, `#907`)*
+- Multi-question Check & Improve passes `ci:` synthetic ids, so C2 loads the bank at grade time only to learn the id cannot resolve.
+- The result is the same, but the payload is wasted after interaction.
+- A provable synthetic-prefix short-circuit would avoid it.
+
+### `[FU-HPQ-CARD-ID-ON-MEASURE]` — OPEN, **low; tooling** *(builder-reported, `#907`)*
+- The out-of-repo OR-LIVE script `measure.mjs` (`Desktop/diff/bank-lean-1-orlive/`) did not pick up `data-hpq-question` in its card locator (the XPath ancestor is an inner div).
+- Cosmetic: the questionId comes from the export. It is about the measuring script, not the product.
+
+*(Noted by the builder, not owned and not an FU here: the SEO-3 (`#906`) preview was a failed Vercel deployment at the time.)*
+
 ## 2026-10-02 — WAVE A-9 (CONTROLLER A): LLMS-1 (`#904` `08767832`) — none new, none closed
 
 The builder's report (`Desktop/diff/report-llms-1-2026-10-02.md`) and the controller's state file (`Desktop/diff/WAVE_STATE_A9.md`, "FU ENTRIES COLLECTED: none") record no follow-up. The docs builder found none while re-checking `#904` on trunk. No open FU on this board is plainly closed by `#904`.

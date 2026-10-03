@@ -1,5 +1,14 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-03 — PERF + PREDICTED QUESTIONS: **WAVE A-10 — BANK-LEAN-1** — `#907` MERGED — trunk `4f51da9f`
+
+- ✅ **BANK-LEAN-1** (`#907` `4f51da9f`, LIVE, no flag): Check & Improve, Topic Hub, signed-in Home, Predicted Questions and Practice Hub no longer load the ~8.6 MB (decoded) question bank on first load. Production: bank on first load 5/5 → 0/5; first loads about 10–12 MB → about 1.2–1.9 MB decoded (3.3 MB for signed-out Check & Improve).
+- ✅ **Predicted Questions:** all 70 + 70 questions in the page (`hidden` collapsed chapters); non-canonical paths redirect to `/highly-probable/10/{Maths,Science}`; the answer checker lazy-loads; `rn-hpq-4` now Section C / 3 marks; the `sci-repr-comp-01` stem no longer cites a missing diagram.
+- ✅ **New pins:** `bankReach.guard.test.ts` (`BANK_REACH: protected=11 clean=11`) and `HighlyProbableQuestions.seo.test.tsx` (`HPQ_PAGE_PIN: maths=70 science=70`); mutation-proven by G1 (bank import re-added → `clean=10`), G2-a (collapsed chapters left out → DOM != accessor rows) and G2-b (redirect disabled → three redirect tests red).
+- ✅ **FUs:** three new (`[FU-LAZY-RETRY-NAMED-EXPORT]`, `[FU-CI-SYNTHETIC-ID-BANK-LOAD]`, `[FU-HPQ-CARD-ID-ON-MEASURE]`), none closed.
+- ✅ **Docs:** this handoff (covers `#907`).
+- ⬜ **Owner:** audit the overlay-gate narrowing for `sessionRecords.ts` (controller decision under OR-AUTO, pending owner audit).
+
 ## 2026-10-02 — SEO: **WAVE A-9 — LLMS-1** — `#904` MERGED — trunk `08767832`
 
 - ✅ **LLMS-1** (`#904` `08767832`, LIVE, no flag): `lazytopper/public/llms.txt` replaced by the owner-approved payload. It lists exactly the 60 sitemap pages (26 notes, 26 chapter pages, 5 start-here, 3 legal) with accurate key facts and no "AI tutor". Live on `/llms.txt` and `/app/llms.txt` since 10:34:33 IST (sha256 `0888eaf344e7`, 9522 B).
