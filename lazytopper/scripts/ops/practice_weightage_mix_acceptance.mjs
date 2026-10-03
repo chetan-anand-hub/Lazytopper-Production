@@ -15,24 +15,10 @@ function check(name, ok, details = "") {
 
 function run() {
   const checks = [];
-  const trends = text("src/pages/TrendsPage.tsx");
   const weights = text("src/data/class10MathTopicWeights.ts");
 
-  checks.push(
-    check(
-      "trends_imports_weightage_registry",
-      /from "\.\.\/data\/class10MathTopicWeights"/.test(trends),
-      "Trends should import class10 weight registry for deterministic fallback"
-    )
-  );
-
-  checks.push(
-    check(
-      "trends_uses_weightage_fallback",
-      /class10TopicByName/.test(trends) && /\?\? class10TopicByName\[topicName\]/.test(trends),
-      "Trends should use class10TopicByName fallback when weight is absent"
-    )
-  );
+  // FRICTION-FIX-1 PR-1 (P14): the two "trends_*" checks were removed with
+  // src/pages/TrendsPage.tsx (retired, no live importer, deleted). The registry check stays.
 
   checks.push(
     check(
