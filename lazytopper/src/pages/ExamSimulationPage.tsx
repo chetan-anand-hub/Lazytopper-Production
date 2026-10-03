@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
+import { ensureBankSubject } from "../data/bankChapters/loader";
 import {
   generateUnlimitedPaper,
   computeExamAnalytics,
@@ -57,6 +58,10 @@ export default function ExamSimulationPage() {
 
   const [phase, setPhase] = useState<Phase>("setup");
   const [paper, setPaper] = useState<ExamPaper | null>(null);
+  // BANK-SPLIT-1 PR-2 (L4): generation reads every chapter of the subject from the
+  // per-chapter cache; generatePaper awaits them first (warmed on mount below).
+  const [preparing, setPreparing] = useState(false);
+  const [bankError, setBankError] = useState(false);
   const [currentSectionIdx, setCurrentSectionIdx] = useState(0);
   const [remainingTime, setRemainingTime] = useState(TOTAL_TIME_SECONDS);
   const [answers, setAnswers] = useState<Record<string, ExamAnswer>>({});
@@ -88,7 +93,23 @@ export default function ExamSimulationPage() {
     trackUxEvent("exam_simulation_start", "ExamSimulationPage", { subject });
   }, [subject]);
 
-  const generatePaper = useCallback(() => {
+  useEffect(() => {
+    void ensureBankSubject(subject).catch(() => {
+      /* generatePaper retries and shows the error */
+    });
+  }, [subject]);
+
+  const generatePaper = useCallback(async () => {
+    setPreparing(true);
+    setBankError(false);
+    try {
+      await ensureBankSubject(subject);
+    } catch {
+      setBankError(true);
+      return;
+    } finally {
+      setPreparing(false);
+    }
     const p = generateUnlimitedPaper(subject);
     setPaper(p);
     setPhase("breathing");
@@ -231,14 +252,18 @@ export default function ExamSimulationPage() {
 
             <button
               onClick={generatePaper}
+              disabled={preparing}
               style={{
                 padding: "14px 36px", borderRadius: 16, border: "none", cursor: "pointer",
                 background: "#58cc02", color: "var(--text)", fontWeight: 700, fontSize: "1rem",
                 boxShadow: "0 4px 0 #46a302",
               }}
             >
-              Generate & Start Exam
+              {preparing ? "Preparing paper…" : "Generate & Start Exam"}
             </button>
+            {bankError && (
+              <p role="alert">We couldn’t load the questions. Check your connection and try again.</p>
+            )}
           </div>
 
           <ExamStrategyTips onDismiss={() => {}} />

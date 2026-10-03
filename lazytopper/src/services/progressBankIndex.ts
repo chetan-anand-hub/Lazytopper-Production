@@ -1,6 +1,6 @@
 // src/services/progressBankIndex.ts
 //
-// PR-B — a PURE, READ-ONLY index over canonicalQuestionBank that resolves a bank
+// PR-B — a PURE, READ-ONLY index over the served bank that resolves a bank
 // questionId to its concept (subtopic) + CBSE section. This is the ONLY concept
 // source for the progress concept/section rungs (progressStore.getWindowedProgress).
 //
@@ -15,12 +15,13 @@
 //     bucket as a distinct "concept" (that would fabricate granularity the data lacks).
 //     Section is unaffected (A–E is always a real datum on a bank row).
 //
-// ★ BANK-LEAN-1: this module IS the bank (it statically imports canonicalQuestionBank),
-// so pages that serve no bank questions must not import it statically. progressStore
-// loads it with `await import()` inside its two async reads; mistakeIntelligence loads
-// mistakeConcept (which wraps it) the same way. The id→concept Map is built lazily.
+// ★ BANK-SPLIT-1 PR-2 (L2): this module no longer imports the bank. It reads the generated
+// id index (data/bankChapters/bankIdIndex — ids and tags of every SERVED row, no question
+// content), so it stays synchronous and leaves the bank graph. progressStore and
+// mistakeIntelligence still load it with `await import()` (BANK-LEAN-1); that is now a
+// small chunk instead of the bank. The id→concept Map is built lazily.
 
-import { canonicalQuestionBank } from "../data/canonicalQuestionBank";
+import { bankIndexEntries } from "../data/bankChapters/bankIdIndex";
 
 // BANK-LEAN-1 (C4): the pure shape + predicates live in ./progressBankShape (bank-free),
 // re-exported here so every existing importer and vi.mock of this module is unchanged.
@@ -31,15 +32,16 @@ let _index: Map<string, BankConcept> | null = null;
 
 function buildIndex(): Map<string, BankConcept> {
   const map = new Map<string, BankConcept>();
-  for (const q of canonicalQuestionBank) {
-    if (!q || typeof q.id !== "string" || !q.id) continue;
+  for (const [id, q] of bankIndexEntries()) {
     // `q.topicKey` is already a canonical topics.ts slug (Guard A enforces this on the
     // served bank); read it raw + lowercase for stable topic-scoped matching. Read via
     // String(...) so we never do a raw `.topicKey ===` compare (Guard B / bank-vs-chosen
     // matching is not what this is — it is a display/index build, not a topic decision).
-    map.set(q.id, {
-      subtopic: typeof q.subtopic === "string" ? q.subtopic.trim() : "",
-      section: typeof q.section === "string" ? q.section.trim() : "",
+    // The index stores a non-string subtopic/section as "", so the trims below give the
+    // same values the bank rows gave.
+    map.set(id, {
+      subtopic: q.subtopic.trim(),
+      section: q.section.trim(),
       topicKey: String(q.topicKey || "").trim().toLowerCase(),
     });
   }

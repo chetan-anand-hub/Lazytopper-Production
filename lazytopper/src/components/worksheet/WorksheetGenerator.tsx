@@ -27,6 +27,7 @@ import {
 import { ensureWorksheetSessionCode, type SessionRecord } from "../../services/sessionRecords";
 import { canonicalSlugMatches, resolveCanonicalSlug, resolveCanonicalSlugSet } from "../../data/syllabus/canonicalTopicSlug";
 import { getSurfaceHistory } from "../../services/progressStore";
+import { useBankChapters } from "../../data/bankChapters/useBankChapters";
 import {
   readWorksheetMi,
   weakestTopic,
@@ -354,6 +355,10 @@ function WorksheetGeneratorInner() {
     return topics;
   }, [scope, topics, singleTopic, multiTopics]);
 
+  // BANK-SPLIT-1 PR-2 (L4): the live plan preview reads the in-scope chapters from the
+  // per-chapter cache, so it waits until they have loaded (full-subject = every chapter).
+  const bank = useBankChapters(inScopeTopics.map((t) => t.key));
+
   // ── FIX A — SCOPE-RELATIVE Mistake-Intelligence ─────────────────────────────
   // Read the student's real mistake log once against the whole subject, then resolve
   // weakness RELATIVE to what they picked — never one global hotspot compared to the
@@ -406,7 +411,7 @@ function WorksheetGeneratorInner() {
 
   // Live plan (honest counts + distribution) — recomputed as inputs change.
   const plan = useMemo(() => {
-    if (blocker) return null;
+    if (blocker || !bank.ready) return null;
     return planWorksheet({
       subject,
       scope,
@@ -419,7 +424,7 @@ function WorksheetGeneratorInner() {
       focus, // ADDITIVE (Stage-2 P-A) — undefined for every non-tutor entry → no-op
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subject, scope, inScopeTopics, JSON.stringify(sectionsArg), effDifficulty, effCount, JSON.stringify(miTopicWeights), miCapFraction, focus, blocker]);
+  }, [subject, scope, inScopeTopics, JSON.stringify(sectionsArg), effDifficulty, effCount, JSON.stringify(miTopicWeights), miCapFraction, focus, blocker, bank.ready]);
 
   // ── FIX A — WITHIN-topic section skew, GATED ON THE REAL DRAWABLE POOL ───────
   // Section weighting is only honest when the topic's filtered pool actually holds
@@ -538,7 +543,7 @@ function WorksheetGeneratorInner() {
   const totalCount = candidate.length;
   const totalMarks = useMemo(() => candidate.reduce((s, q) => s + q.marks, 0), [candidate]);
   const shortfall = totalCount > 0 && totalCount < effCount;
-  const noQuestions = !blocker && totalCount === 0;
+  const noQuestions = !blocker && bank.ready && totalCount === 0;
 
   // Per-section breakdown of the candidate (real counts + marks).
   const previewSections = useMemo(() => {
@@ -856,7 +861,7 @@ function WorksheetGeneratorInner() {
               </div>
             </div>
             <div className="lt-ws__herobot">
-              <button type="button" className="lt-ws__gen" onClick={handlePreview} disabled={!!blocker || noQuestions}>
+              <button type="button" className="lt-ws__gen" onClick={handlePreview} disabled={!!blocker || noQuestions || !bank.ready}>
                 Preview worksheet →
               </button>
               <button type="button" className="lt-ws__btnt" onClick={() => setCustomiseOpen((o) => !o)} aria-expanded={customiseOpen}>
@@ -1067,7 +1072,7 @@ function WorksheetGeneratorInner() {
                   customising", so the next step sits where the student finishes editing
                   (no scroll back up to the hero). Same handler + disabled logic as the hero. */}
               <div className="lt-ws__drawerfoot">
-                <button type="button" className="lt-ws__gen" onClick={handlePreview} disabled={!!blocker || noQuestions}>
+                <button type="button" className="lt-ws__gen" onClick={handlePreview} disabled={!!blocker || noQuestions || !bank.ready}>
                   Preview worksheet →
                 </button>
                 <button type="button" className="lt-ws__btnt" onClick={() => setCustomiseOpen(false)}>
@@ -1083,6 +1088,13 @@ function WorksheetGeneratorInner() {
             </div>
           )}
           {blocker && <div className="lt-ws__note">{blocker}</div>}
+          {!blocker && !bank.ready && (
+            <div className={bank.error ? "lt-ws__note lt-ws__note--err" : "lt-ws__note"} role="status">
+              {bank.error
+                ? "We couldn’t load the questions. Check your connection and reload the page."
+                : "Loading questions…"}
+            </div>
+          )}
           {error && <div className="lt-ws__note lt-ws__note--err" role="alert">{error}</div>}
         </>
       )}

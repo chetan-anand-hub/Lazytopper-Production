@@ -483,6 +483,8 @@ import {
   MULTI_TOPIC_MIN_TOPICS,
 } from "../components/practice/multiTopicPractice";
 import { buildTutorPath } from "./tutor/tutorPath";
+import { ensureBankChapters } from "../data/bankChapters/loader";
+import { useBankChapters } from "../data/bankChapters/useBankChapters";
 import { PracticeControls } from "../components/practice/PracticeControls";
 import { QuickPracticePresets, QP_PRESETS } from "../components/practice/QuickPracticePresets";
 import { QP_ENTRY_CSS } from "../components/practice/quickPracticeEntryStyles";
@@ -1356,7 +1358,18 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   // Multi-topic: competency is live if ANY chosen topic has real Section-E competency
   // questions (the merged pool can draw them from any topic — anti-fabrication holds per
   // topic). Single-topic: the one topic, exactly as before.
+  // BANK-SPLIT-1 PR-2 (L4): Practice reads the chosen topic's chapter(s) from the
+  // per-chapter cache. These are the exact keys every engine call below passes as its
+  // topic. The two render-time previews wait for `bank.ready`; the build effect awaits
+  // ensureBankChapters itself, before it draws.
+  const bankTopicKeys = useMemo(
+    () => (isMultiTopic ? multiTopics.map((t) => t.label) : [topicLabel]),
+    [isMultiTopic, multiTopics, topicLabel],
+  );
+  const bank = useBankChapters(bankTopicKeys);
+
   const competencyAvailable = useMemo(() => {
+    if (!bank.ready) return false;
     const labels = isMultiTopic ? multiTopics.map((t) => t.label) : [topicLabel];
     for (const label of labels) {
       if (!label || label.toLowerCase() === "generic") continue;
@@ -1370,7 +1383,7 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
       if (drawn.some((q) => questionMatchesFilters(q, "4", "case", "all", "all", null))) return true;
     }
     return false;
-  }, [subjectKey, topicLabel, isMultiTopic, multiTopics]);
+  }, [subjectKey, topicLabel, isMultiTopic, multiTopics, bank.ready]);
 
   useEffect(() => {
     const slug = canonicalTopicKey || topicParam;
@@ -1406,6 +1419,7 @@ const packTopicKey = useMemo(() => {
   // preview over the PENDING filters (live "N available" as the student tunes
   // filters on the builder, before the first Build).
   const preBuildAvailableCount = useMemo(() => {
+    if (!bank.ready) return 0;
     const sectionForMarks = uiMarksToSectionScope(pendingMarks);
     // ⚠ DELIBERATELY NO `seenQuestionIds` HERE — do not "complete" this call by adding it.
     // "N available" is a faithful count of the POOL, not of what is left FOR YOU. Passing
@@ -1430,7 +1444,7 @@ const packTopicKey = useMemo(() => {
       ).length;
     }
     return total;
-  }, [subjectKey, topicLabel, isMultiTopic, multiTopics, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, pendingMarksRange]);
+  }, [subjectKey, topicLabel, isMultiTopic, multiTopics, pendingMarks, pendingStyle, pendingSource, pendingDifficulty, pendingMarksRange, bank.ready]);
 
   const bankAvailableCount = isBuilt
     ? committedPoolSelection.available
@@ -1466,6 +1480,11 @@ const packTopicKey = useMemo(() => {
       );
 
       try {
+        // BANK-SPLIT-1 PR-2 (L4): the boundary await. Every engine call below reads these
+        // chapters synchronously from the per-chapter cache.
+        await ensureBankChapters(isMultiTopic ? multiTopics.map((t) => t.label) : [topicLabel]);
+        if (cancelled) return;
+
         const adaptiveMix = difficulty === "All"
           ? computeAdaptiveDifficultyMix(canonicalTopicKey || topicParam)
           : undefined;

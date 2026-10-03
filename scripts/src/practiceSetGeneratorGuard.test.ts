@@ -39,9 +39,15 @@ import {
   generatePracticeSet,
 } from "../../lazytopper/src/data/practiceSetGenerator.js";
 import { PredictionCore } from "../../lazytopper/src/data/predictionCore.js";
+import { ensureAllBankChapters } from "../../lazytopper/src/data/bankChapters/loader.js";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+
+// BANK-SPLIT-1 PR-2: the engine reads the bank from the per-chapter cache (a route awaits
+// its chapters before drawing). This guard drives the real engine across chapters, so it
+// loads every chapter once, up front.
+await ensureAllBankChapters();
 
 // ── Unit tests on the pure isPYQQuestion helper ───────────────────────────
 

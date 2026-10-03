@@ -6,6 +6,8 @@
 // deterministic draw per seed, no duplicate questions on a paper.
 
 import { describe, it, expect } from "vitest";
+// BANK-SPLIT-1 PR-2: this suite calls the bank's sync APIs directly, so it preloads every chapter.
+import "../../test/preloadBankChapters";
 import {
   FM_BLUEPRINT,
   buildUnionPool,

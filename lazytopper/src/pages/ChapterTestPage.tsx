@@ -57,6 +57,7 @@ import ChapterTestNavigator from "../components/chaptertest/ChapterTestNavigator
 import ChapterTestHistoryRail from "../components/chaptertest/ChapterTestHistoryRail";
 import ChapterTestUploadPanel from "../components/chaptertest/ChapterTestUploadPanel";
 import PreSubmitConfirm from "../components/chaptertest/PreSubmitConfirm";
+import { useBankChapters } from "../data/bankChapters/useBankChapters";
 // FAIR-USE-UI-1 — the fair-use panel (UI1 at grading, UI3 before the test starts).
 // Dark unless /api/usage/me says `enforced: true`: with it off this page is unchanged.
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
@@ -164,8 +165,12 @@ export default function ChapterTestPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.uid, topicKey, sessionSubject]);
 
+  // BANK-SPLIT-1 PR-2 (L4): the draw reads this chapter from the per-chapter cache, so it
+  // waits until the chapter chunk has loaded (the "Building your test…" state covers it).
+  const bank = useBankChapters([topicKey]);
+
   const draw: DrawnChapterTest | null = useMemo(() => {
-    if (!nomen) return null;
+    if (!nomen || !bank.ready) return null;
     return drawChapterTest({
       subject,
       topicKey,
@@ -176,7 +181,7 @@ export default function ChapterTestPage() {
       name: nomen.name,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nomen, subject, topicKey, grade, drawNonce]);
+  }, [nomen, bank.ready, subject, topicKey, grade, drawNonce]);
 
   const topicRecords = useMemo(() => {
     const slug = resolveCanonicalSlug(topicKey);
@@ -479,7 +484,11 @@ export default function ChapterTestPage() {
                   get your full graded result with a mistake breakdown.
                 </div>
 
-                {!draw ? (
+                {!draw && bank.error ? (
+                  <div className="lt-ct__empty">
+                    We couldn’t load the {topicName} questions. Check your connection and reload the page.
+                  </div>
+                ) : !draw ? (
                   <div className="lt-ct__empty">Building your test…</div>
                 ) : !draw.enoughQuestions ? (
                   <div className="lt-ct__empty">

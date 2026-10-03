@@ -1,19 +1,21 @@
 // @vitest-environment node
 //
-// PR-B — the pure bank-index concept/section resolver. The heavy canonicalQuestionBank
+// PR-B — the pure bank-index concept/section resolver. The generated id index
 // is mocked with a tiny fixture so the resolver's honesty rules (unknown id → null,
 // chapter-echo suppression, section normalization) are asserted in isolation.
 
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
-vi.mock("../data/canonicalQuestionBank", () => ({
-  canonicalQuestionBank: [
-    { id: "rn-1", subtopic: "HCF and LCM", section: "A", topicKey: "real-numbers" },
-    { id: "rn-2", subtopic: "  Irrationality Proofs  ", section: "Section D", topicKey: "Real-Numbers" },
-    { id: "lp-1", subtopic: "Chapter Practice — Life Processes", section: "B", topicKey: "life-processes" },
-    { id: "pyq-1", subtopic: "General", section: "C", topicKey: "polynomials" },
-    { id: "blank", subtopic: "", section: "", topicKey: "" },
-  ],
+// BANK-SPLIT-1 PR-2: the resolver reads the generated id index, not the bank, so the
+// fixture replaces the index (raw row tags, exactly as the index stores them).
+vi.mock("../data/bankChapters/bankIdIndex", () => ({
+  *bankIndexEntries() {
+    yield ["rn-1", { subtopic: "HCF and LCM", section: "A", topicKey: "real-numbers" }];
+    yield ["rn-2", { subtopic: "  Irrationality Proofs  ", section: "Section D", topicKey: "Real-Numbers" }];
+    yield ["lp-1", { subtopic: "Chapter Practice — Life Processes", section: "B", topicKey: "life-processes" }];
+    yield ["pyq-1", { subtopic: "General", section: "C", topicKey: "polynomials" }];
+    yield ["blank", { subtopic: "", section: "", topicKey: "" }];
+  },
 }));
 
 import {

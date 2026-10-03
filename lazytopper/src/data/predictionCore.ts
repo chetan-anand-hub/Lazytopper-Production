@@ -6,7 +6,19 @@
 // functions will incorporate policy weighting, recency and other factors.
 
 import type { BloomLevel, CanonicalQuestion, DifficultyLevel, QuestionFormat } from "./predictionTypes";
-import { canonicalQuestionBank, AI_GENERATED_QUESTION_IDS } from "./canonicalQuestionBank";
+// BANK-SPLIT-1 PR-2 (L4): canonical rows come from the per-chapter cache, never the
+// aggregator. The route awaits ensureBankChapters / ensureBankSubject first; every read
+// below is synchronous and throws BankChapterNotLoadedError for a chapter not loaded.
+import {
+  BANK_CHAPTER_SLUGS,
+  BankChapterNotLoadedError,
+  getBankRows,
+  getBankRowsForSubject,
+  isAiGeneratedBankId,
+  isBankChapterLoaded,
+  isBankChapterSlug,
+} from "./bankChapters/loader";
+import { resolveCanonicalSlug } from "./syllabus/canonicalTopicSlug";
 import { predictedQuestions } from "./predictedQuestions";
 import { predictedQuestionsScience } from "./predictedQuestionsScience";
 import { class10ScienceTopicTrends } from "./class10ScienceTopicTrends";
@@ -175,17 +187,34 @@ function isScienceDeletedQuestion(q: CanonicalQuestion, targetYear: number): boo
   return isScienceDeletedFor2026_27(q.topicKey, q.subtopic);
 }
 
-function buildUnifiedQuestionBank(): CanonicalQuestionWithScore[] {
+// The predicted layer, converted once (maths first, then science — the merge order).
+let predictedMemo: CanonicalQuestionWithScore[] | null = null;
+function getPredictedQuestions(): CanonicalQuestionWithScore[] {
+  if (predictedMemo === null) {
+    predictedMemo = [...toCanonicalFromMathPredicted(), ...toCanonicalFromSciencePredicted()];
+  }
+  return predictedMemo;
+}
+
+// The unified-bank pipeline over ANY slice of the canonical rows (in aggregator order)
+// plus the matching slice of the predicted layer. Over the whole bank this is exactly
+// the pre-split buildUnifiedQuestionBank; over one chapter or one subject it equals the
+// whole-bank result filtered to that chapter or subject (bankChapters.guard.test.ts
+// proves it row for row, scores included, for every chapter and both subjects).
+function buildUnified(
+  canonicalRows: readonly CanonicalQuestion[],
+  predicted: readonly CanonicalQuestionWithScore[],
+): CanonicalQuestionWithScore[] {
   const targetYear = predictionTargetYear();
 
   // Stamp tier provenance at the point the source-of-origin is still known.
-  // canonicalQuestionBank carries no `_source`; classify each item by its
-  // membership in the AI-pack id set captured at ingest. The predicted layer
-  // already carries `_source: "predicted"` from its converters above.
-  const stampedCanonical: CanonicalQuestionWithScore[] = canonicalQuestionBank.map(
+  // Canonical rows carry no `_source`; classify each item by its membership in the
+  // AI-pack id set captured at ingest (AI_GENERATED_QUESTION_IDS, carried per chapter).
+  // The predicted layer already carries `_source: "predicted"` from its converters above.
+  const stampedCanonical: CanonicalQuestionWithScore[] = canonicalRows.map(
     (q) => ({
       ...q,
-      _source: AI_GENERATED_QUESTION_IDS.has(q.id)
+      _source: isAiGeneratedBankId(q.id)
         ? ("ai-generated" as const)
         : ("authentic" as const),
     })
@@ -193,8 +222,7 @@ function buildUnifiedQuestionBank(): CanonicalQuestionWithScore[] {
 
   const merged = dedupeById([
     ...stampedCanonical,
-    ...toCanonicalFromMathPredicted(),
-    ...toCanonicalFromSciencePredicted(),
+    ...predicted,
   ]).filter((q) => !isScienceDeletedQuestion(q, targetYear));
 
   return merged.map((q) => {
@@ -202,6 +230,15 @@ function buildUnifiedQuestionBank(): CanonicalQuestionWithScore[] {
     const adjustedBase = explicit > 0 ? explicit : computePredictionScore(q);
     return { ...q, _adjustedScore: adjustedBase };
   });
+}
+
+function assertLoaded(slugs: readonly string[]): void {
+  const missing = slugs.filter((s) => isBankChapterSlug(s) && !isBankChapterLoaded(s));
+  if (missing.length) throw new BankChapterNotLoadedError(missing);
+}
+
+function buildUnifiedQuestionBank(): CanonicalQuestionWithScore[] {
+  return buildUnified(getBankRows(BANK_CHAPTER_SLUGS), getPredictedQuestions());
 }
 
 // ★ BUILT ON FIRST USE, NOT AT IMPORT — PERF-1.
@@ -226,10 +263,45 @@ function buildUnifiedQuestionBank(): CanonicalQuestionWithScore[] {
 // into a large one — there is none.
 let unifiedQuestionBankMemo: CanonicalQuestionWithScore[] | null = null;
 function getUnifiedQuestionBank(): CanonicalQuestionWithScore[] {
+  assertLoaded(BANK_CHAPTER_SLUGS);
   if (unifiedQuestionBankMemo === null) {
     unifiedQuestionBankMemo = buildUnifiedQuestionBank();
   }
   return unifiedQuestionBankMemo;
+}
+
+// BANK-SPLIT-1 PR-2: the same unified bank, built per canonical chapter slug (a route
+// loads one chapter) and per subject (Full Mock / Exam Simulation load one subject).
+// Same first-use memo as above, keyed. The loaded check runs on EVERY call, so a memo
+// can never stand in for a chapter the route did not load.
+const unifiedBySlugMemo = new Map<string, CanonicalQuestionWithScore[]>();
+function getUnifiedForSlug(slug: string): CanonicalQuestionWithScore[] {
+  assertLoaded([slug]);
+  let rows = unifiedBySlugMemo.get(slug);
+  if (!rows) {
+    rows = buildUnified(
+      isBankChapterSlug(slug) ? getBankRows([slug]) : [],
+      getPredictedQuestions().filter((q) => topicMatches(q.topicKey, slug)),
+    );
+    unifiedBySlugMemo.set(slug, rows);
+  }
+  return rows;
+}
+
+const unifiedBySubjectMemo = new Map<string, CanonicalQuestionWithScore[]>();
+function getUnifiedForSubject(subject: string): CanonicalQuestionWithScore[] {
+  // getBankRowsForSubject throws when a chapter of the subject is not loaded. The exact
+  // subject filter keeps the old `getAllQuestions().filter(q => q.subject === subject)`.
+  const canonicalRows = getBankRowsForSubject(subject).filter((q) => q.subject === subject);
+  let rows = unifiedBySubjectMemo.get(subject);
+  if (!rows) {
+    rows = buildUnified(
+      canonicalRows,
+      getPredictedQuestions().filter((q) => q.subject === subject),
+    );
+    unifiedBySubjectMemo.set(subject, rows);
+  }
+  return rows;
 }
 
 let historicalItemsMemo: ReturnType<typeof getCanonicalHistoricalDataset>["items"] | null = null;
@@ -285,9 +357,21 @@ function getBayesianMultiplier(q: CanonicalQuestionWithScore): number {
   return multiplier;
 }
 
+// BANK-SPLIT-1 PR-2 (L5): topic matching is EXACT canonical slug (cofounder ruling).
+// It was a two-way substring test on normaliseTopic, so "circles" also returned every
+// areas-related-to-circles row and vice versa — the only cross-match among the 26
+// chapters. Both sides now resolve to their one topics.ts slug and must be equal.
 function topicMatches(questionTopic: string, requestedTopic: string): boolean {
-  const q = normaliseTopic(questionTopic);
-  const r = normaliseTopic(requestedTopic);
+  const q = resolveCanonicalSlug(questionTopic);
+  const r = resolveCanonicalSlug(requestedTopic);
+  if (!q || !r) return false;
+  return q === r;
+}
+
+// The concept (subtopic) filter keeps the original two-way substring rule unchanged.
+function subtopicMatches(questionSubtopic: string, requestedConcept: string): boolean {
+  const q = normaliseTopic(questionSubtopic);
+  const r = normaliseTopic(requestedConcept);
   if (!q || !r) return false;
   if (q === r) return true;
   return q.includes(r) || r.includes(q);
@@ -354,10 +438,19 @@ export function getAdjustedScore(q: CanonicalQuestionWithScore): number {
 
 export const PredictionCore = {
   /**
-   * Return all canonical questions (Maths + Science).
+   * Return all canonical questions (Maths + Science). Needs every chapter loaded
+   * (ensureAllBankChapters); live routes use getQuestionsForSubject instead.
    */
   getAllQuestions(): CanonicalQuestion[] {
     return getUnifiedQuestionBank();
+  },
+
+  /**
+   * All questions of one subject: identical to getAllQuestions() filtered by subject.
+   * Needs that subject's chapters loaded (ensureBankSubject).
+   */
+  getQuestionsForSubject(subject: string): CanonicalQuestion[] {
+    return getUnifiedForSubject(subject);
   },
 
   /**
@@ -376,9 +469,13 @@ export const PredictionCore = {
     topicKey: string,
     conceptKey?: string
   ): CanonicalQuestion[] {
-    return getUnifiedQuestionBank()
-      .filter((q) => topicMatches(q.topicKey, topicKey))
-      .filter((q) => (conceptKey ? topicMatches(q.subtopic, conceptKey) : true))
+    // Exact slug: the chapter's unified rows are exactly the whole-bank rows whose
+    // topicKey resolves to the requested slug (see getUnifiedForSlug). Needs that
+    // chapter loaded (ensureBankChapters([topicKey])).
+    const slug = resolveCanonicalSlug(topicKey);
+    if (!slug) return [];
+    return getUnifiedForSlug(slug)
+      .filter((q) => (conceptKey ? subtopicMatches(q.subtopic, conceptKey) : true))
       .sort((a, b) => getAdjustedScore(b) - getAdjustedScore(a));
   },
 };

@@ -43,6 +43,7 @@ import {
   RETURNED_WORK_DIGEST_ENABLED,
 } from "./tutorRoundTrip";
 import { selectTutorDemoQuestion } from "./tutorDemoQuestion";
+import { ensureBankChapters } from "../../data/bankChapters/loader";
 import { catalogueFiguresForTopic } from "./conceptVisualCatalogue";
 
 export type TutorStatus = "idle" | "sending" | "error";
@@ -190,12 +191,16 @@ export function useTutorSession({
   }, []);
 
   // Fix 4: the verified bank question the tutor solves on a "see how it's solved"
-  // demonstration (bank-over-self-invented). Selected once per (subject, topic, concept);
-  // null when the bank has nothing usable → the server prompt self-gens a railed example.
-  const demoQuestion = useMemo(
-    () => selectTutorDemoQuestion({ subject, topicKey, concept }),
-    [subject, topicKey, concept],
-  );
+  // demonstration (bank-over-self-invented). Selected in runModel below, per turn, for
+  // (subject, topic, concept) — deterministic, so the same question every turn; null when
+  // the bank has nothing usable → the server prompt self-gens a railed example.
+  // BANK-SPLIT-1 PR-2 (L4): it reads this chapter from the per-chapter cache, so runModel
+  // awaits the chapter first. Warm it on mount so the first turn does not wait for it.
+  useEffect(() => {
+    void ensureBankChapters([topicKey]).catch(() => {
+      /* runModel retries the load; a failure there falls back to the null path */
+    });
+  }, [topicKey]);
 
   // Stage 3: the closed set of concepts in this topic that have a curated diagram — passed to
   // the model so it can signal one via [[figure:<key>]] (the panel then shows the real asset).
@@ -366,6 +371,13 @@ export function useTutorSession({
       setStatus("sending");
       setError(null);
       try {
+        // BANK-SPLIT-1 PR-2 (L4): the boundary await for the demo question's chapter. If the
+        // chunk cannot load, the turn still goes out with no demo (the documented null path).
+        const bankReady = await ensureBankChapters([topicKey]).then(
+          () => true,
+          () => false,
+        );
+        const demoQuestion = bankReady ? selectTutorDemoQuestion({ subject, topicKey, concept }) : null;
         const res = await callTutor({
           uid: uid || "",
           topicKey,
@@ -409,7 +421,7 @@ export function useTutorSession({
         sendingRef.current = false;
       }
     },
-    [uid, topicKey, topicLabel, subject, concept, language, persist, demoQuestion, figures],
+    [uid, topicKey, topicLabel, subject, concept, language, persist, figures],
   );
 
   const send = useCallback(

@@ -33,7 +33,9 @@
 // identity (FM-…), never WS-/CT-.
 
 import type { CanonicalQuestion } from "../../data/predictionTypes";
-import { canonicalQuestionBank, AI_GENERATED_QUESTION_IDS } from "../../data/canonicalQuestionBank";
+// BANK-SPLIT-1 PR-2 (L4): the subject's rows come from the per-chapter cache. FullMockPage
+// awaits ensureBankSubject(subject) before it draws; reading an unloaded chapter throws.
+import { getBankRowsForSubject, isAiGeneratedBankId } from "../../data/bankChapters/loader";
 import { predictedQuestions, type PredictedQuestion } from "../../data/predictedQuestions";
 import {
   sciencePredictedQuestions,
@@ -47,7 +49,7 @@ import { resolveTopicDisplayName } from "../../utils/topicResolver";
 import { allocateByPercent } from "../../utils/mockBlueprint";
 import { drawBalancedSet } from "../../utils/balancedMockDraw";
 import { questionKey } from "../../utils/questionKey";
-import { isPYQQuestion } from "../../data/practiceSetGenerator";
+import { isPYQQuestion } from "../../utils/isPYQQuestion";
 import type {
   PersistedWorksheet,
   PersistedWorksheetQuestion,
@@ -243,9 +245,8 @@ export function sectionPool(pool: FMPoolQuestion[], section: FMSection): FMPoolQ
  * (keeper: pyqYear, then non-AI, then bank order — canonical before predicted).
  */
 export function buildUnionPool(subject: FMSubject, chapterSlugs: Set<string>): FMPoolQuestion[] {
-  const canonical = canonicalQuestionBank
-    .filter((q) => q.subject === subject)
-    .map(fromCanonical);
+  // Same rows, same order as `canonicalQuestionBank.filter((q) => q.subject === subject)`.
+  const canonical = getBankRowsForSubject(subject).map(fromCanonical);
   const predicted = (
     subject === "Science" ? sciencePredictedQuestions : predictedQuestions
   ).map(fromPredicted);
@@ -259,7 +260,7 @@ export function buildUnionPool(subject: FMSubject, chapterSlugs: Set<string>): F
     .filter((q) => chapterSlugs.has(q.topicSlug))
     .map((q) => ({ q, key: questionKey(q) }));
   const keeperRank = (q: FMPoolQuestion) =>
-    (q.pyqYear ? 0 : 2) + (AI_GENERATED_QUESTION_IDS.has(q.id) ? 1 : 0);
+    (q.pyqYear ? 0 : 2) + (isAiGeneratedBankId(q.id) ? 1 : 0);
   const keeperByKey = new Map<string, FMPoolQuestion>();
   for (const { q, key } of candidates) {
     const current = keeperByKey.get(key);

@@ -22,7 +22,9 @@
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 import { buildGradedAnswersFromWorksheetResponse } from "../../services/gradedAnswerAssembly";
 import type { SessionRecord } from "../../services/sessionRecords";
-import { canonicalQuestionBank } from "../../data/canonicalQuestionBank";
+// BANK-SPLIT-1 PR-2 (L2): both lookups read the generated id index (ids + tags of every
+// served row, no question content) instead of the bank, so this module leaves the bank graph.
+import { bankIndexEntries } from "../../data/bankChapters/bankIdIndex";
 import {
   aggregateFourType,
   deriveChapterTestSectionLens,
@@ -47,9 +49,9 @@ let _subtopicByQuestionId: Map<string, string> | null = null;
 function subtopicForQuestionId(id: string): string | null {
   if (!_subtopicByQuestionId) {
     const map = new Map<string, string>();
-    for (const q of canonicalQuestionBank) {
-      if (q.id && typeof q.subtopic === "string" && q.subtopic.trim()) {
-        map.set(q.id, q.subtopic.trim());
+    for (const [id, q] of bankIndexEntries()) {
+      if (id && q.subtopic.trim()) {
+        map.set(id, q.subtopic.trim());
       }
     }
     _subtopicByQuestionId = map;
@@ -315,8 +317,8 @@ let _topicKeyByQuestionId: Map<string, string> | null = null;
 function topicKeyForQuestionId(id: string): string | null {
   if (!_topicKeyByQuestionId) {
     const map = new Map<string, string>();
-    for (const q of canonicalQuestionBank) {
-      if (q.id && q.topicKey) map.set(q.id, q.topicKey);
+    for (const [id, q] of bankIndexEntries()) {
+      if (id && q.topicKey) map.set(id, q.topicKey);
     }
     _topicKeyByQuestionId = map;
   }

@@ -38,10 +38,42 @@ import ts from "typescript";
  * ON FAILURE it prints the CHAIN — every module from the route to the bank — because
  * "DesktopHome reaches the bank" is useless and "DesktopHome → FirstSession →
  * sessionRecords → worksheetModel → predictionDataService → …" is the fix.
+ *
+ * ★ BANK-SPLIT-1 PR-2 (L7): "the bank" is now every module that HOLDS question rows: the
+ * aggregator, every pack file under data/questionBanks/, and every generated chapter module
+ * under data/bankChapters/. The pages that serve questions (Practice, Chapter Test, Full
+ * Mock) reach the per-chapter LOADER statically and fetch chapters with `import()` at their
+ * boundary; none of them may reach any bank-data module statically. A static import of one
+ * chapter module from a page would pull that chapter into the page chunk — and every route
+ * that reaches it — so it is a failure here, exactly like an aggregator import.
  */
 
 const SRC = resolve(process.cwd(), "src"); // vitest runs with cwd = lazytopper/
 const BANK = resolve(SRC, "data/canonicalQuestionBank.ts");
+const PACKS_DIR = resolve(SRC, "data/questionBanks") + sep;
+const CHAPTERS_DIR = resolve(SRC, "data/bankChapters") + sep;
+const LOADER = resolve(SRC, "data/bankChapters/loader.ts");
+/** Hand-written, row-free modules in data/bankChapters/ (everything else there holds rows). */
+const CHAPTERS_ROW_FREE = new Set(
+  ["defineChapter.ts", "loader.ts", "bankIdIndex.ts", "bankIdIndex.generated.ts", "useBankChapters.ts", "chapterRegistry.generated.ts"].map(
+    (f) => resolve(CHAPTERS_DIR, f),
+  ),
+);
+
+/** True for a generated chapter module (data/bankChapters/<slug>.ts). */
+export function isChapterModule(file: string): boolean {
+  return file.startsWith(CHAPTERS_DIR) && !CHAPTERS_ROW_FREE.has(file) && !/\.test\.tsx?$/.test(file);
+}
+
+/** The aggregator or a chapter module: what a question-serving page must never import statically. */
+export function isAggregatorOrChapter(file: string): boolean {
+  return file === BANK || isChapterModule(file);
+}
+
+/** True for a module that holds bank question rows (aggregator, a pack, a chapter module). */
+export function isBankData(file: string): boolean {
+  return isAggregatorOrChapter(file) || file.startsWith(PACKS_DIR);
+}
 
 /** The route modules that must stay bank-free, by the name App.tsx lazy-loads them as. */
 const PROTECTED: Record<string, string> = {
@@ -99,13 +131,17 @@ function specifiersOf(file: string): string[] {
   return specs;
 }
 
-/** Breadth-first walk; returns the SHORTEST static chain from `root` to `target`, or null. */
-export function chainTo(root: string, target: string = BANK): string[] | null {
+/**
+ * Breadth-first walk; returns the SHORTEST static chain from `root` to the first module
+ * matching `target` (a path, or a predicate — default: any bank-data module), or null.
+ */
+export function chainTo(root: string, target: string | ((file: string) => boolean) = isBankData): string[] | null {
+  const hit = typeof target === "string" ? (f: string) => f === target : target;
   const prev = new Map<string, string | null>([[root, null]]);
   const queue = [root];
   while (queue.length > 0) {
     const file = queue.shift()!;
-    if (file === target) {
+    if (hit(file)) {
       const chain: string[] = [];
       for (let at: string | null = file; at; at = prev.get(at) ?? null) {
         chain.unshift(relative(SRC, at).split(sep).join("/"));
@@ -146,13 +182,43 @@ describe("the edge rules match the bundler (verbatimModuleSyntax)", () => {
 });
 
 describe("BANK-LEAN-1 · pages that serve no bank questions do not reach canonicalQuestionBank.ts", () => {
-  it("CONTROL: the walker CAN reach the bank — from pages that genuinely serve it", () => {
+  it("CONTROL: the walker CAN reach bank data — the aggregator, a pack, a chapter module", () => {
     // Without this, a walker that silently resolved nothing would report every page clean.
     expect(existsSync(BANK), "canonicalQuestionBank.ts moved — the guard would be vacuous").toBe(true);
+    // The dev-only visual audit page still imports the aggregator directly.
+    const visual = chainTo(resolve(SRC, "pages/VisualAuditPage.tsx"));
+    expect(visual, "VisualAuditPage should reach the aggregator").not.toBeNull();
+    expect(visual![visual!.length - 1]).toBe("data/canonicalQuestionBank.ts");
+    // A generated chapter module reaches its packs; the predicate recognises all three kinds.
+    const chapter = chainTo(resolve(SRC, "data/bankChapters/triangles.ts"), (f) => f.startsWith(PACKS_DIR));
+    expect(chapter, "a chapter module should reach a pack file").not.toBeNull();
+    expect(isBankData(resolve(SRC, "data/bankChapters/triangles.ts"))).toBe(true);
+    expect(isBankData(LOADER)).toBe(false);
+  });
+
+  it("★ L7: Practice, Chapter Test and Full Mock reach the LOADER, and neither the aggregator nor any chapter module statically", () => {
+    // Practice still reaches two factory PACK files (triangles.pack1, trigonometry.pack1)
+    // through services/questionTypeFirstResolver -> data/contentStrategy/*QuestionTagIndex.
+    // That edge predates this lane and lives in files outside it; it is neither the
+    // aggregator nor a chapter module, so it is reported (BANK-SPLIT-1 PR-2), not failed here.
+    const reached: string[] = [];
     for (const page of ["pages/PracticePage.tsx", "pages/ChapterTestPage.tsx", "pages/FullMockPage.tsx"]) {
-      const chain = chainTo(resolve(SRC, page));
-      expect(chain, `${page} should reach the bank (it serves bank questions)`).not.toBeNull();
-      expect(chain![chain!.length - 1]).toBe("data/canonicalQuestionBank.ts");
+      const toLoader = chainTo(resolve(SRC, page), LOADER);
+      expect(toLoader, `${page} should reach data/bankChapters/loader.ts (it serves bank questions)`).not.toBeNull();
+      const toBank = chainTo(resolve(SRC, page), isAggregatorOrChapter);
+      if (toBank) reached.push(`${page}:\n    ${toBank.join("\n -> ")}`);
+    }
+    expect(reached, `these pages statically reach the aggregator or a chapter module:\n${reached.join("\n")}`).toEqual([]);
+  });
+
+  it("L1: Chapter Test and Full Mock no longer reach predictionCore (isPYQQuestion moved to a bank-free module)", () => {
+    const core = resolve(SRC, "data/predictionCore.ts");
+    expect(existsSync(core)).toBe(true);
+    // CONTROL: Practice still reaches it (it ranks through PredictionCore), so the walk resolves.
+    expect(chainTo(resolve(SRC, "pages/PracticePage.tsx"), core)).not.toBeNull();
+    for (const page of ["pages/ChapterTestPage.tsx", "pages/FullMockPage.tsx"]) {
+      const chain = chainTo(resolve(SRC, page), core);
+      expect(chain, `${page} reaches predictionCore:\n    ${(chain ?? []).join("\n -> ")}`).toBeNull();
     }
   });
 
@@ -181,7 +247,7 @@ describe("BANK-LEAN-1 · pages that serve no bank questions do not reach canonic
     console.log(`BANK_REACH: protected=${Object.keys(PROTECTED).length} clean=${clean}`);
     expect(
       reached,
-      `these pages statically reach data/canonicalQuestionBank.ts:\n${reached.join("\n")}`,
+      `these pages statically reach bank data (aggregator / pack / chapter module):\n${reached.join("\n")}`,
     ).toEqual([]);
   });
 

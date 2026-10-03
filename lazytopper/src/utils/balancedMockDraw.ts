@@ -21,7 +21,7 @@
 // spec-required fresh draw. Read-only: the pool array and its items are never
 // mutated.
 
-import { isPYQQuestion } from "../data/practiceSetGenerator";
+import { isPYQQuestion } from "./isPYQQuestion";
 import { questionKey, type QuestionKeyInput } from "./questionKey";
 
 export interface BalancedDrawArgs<T> {

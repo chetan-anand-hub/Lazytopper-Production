@@ -34,7 +34,7 @@ import { fileURLToPath } from "node:url";
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SRC = join(HERE, "../../src");
 const BANK_DIRS = ["data/questionBanks/class10/maths", "data/questionBanks/class10/science"];
-const AGGREGATOR = "data/canonicalQuestionBank.ts"; // holds 26 inline served questions
+const AGGREGATOR = "data/questionBanks/class10/curatedInline.ts"; // the 26 curated served questions (moved out of canonicalQuestionBank.ts by BANK-SPLIT-1 PR-2)
 
 // ── canonical vocabulary: read topics.ts slugs (single source of truth) ──────
 function readTopicsTsSlugs() {

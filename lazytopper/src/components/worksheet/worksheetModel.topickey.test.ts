@@ -5,6 +5,8 @@
 // powers BOTH the worksheet pool and Quick Practice returns the four formerly-zero
 // chapters while a stable topic is unchanged.
 import { describe, expect, it } from "vitest";
+// BANK-SPLIT-1 PR-2: this suite calls the bank's sync APIs directly, so it preloads every chapter.
+import "../../test/preloadBankChapters";
 import { getTopics, MATHS_TOPICS } from "./worksheetModel";
 import { PredictionCore } from "../../data/predictionCore";
 

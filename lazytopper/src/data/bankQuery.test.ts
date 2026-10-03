@@ -7,6 +7,8 @@
 // now return questions via BOTH the short worksheet keys and the canonical slugs;
 // circles and areas-related-to-circles are DISJOINT pools.
 import { describe, expect, it } from "vitest";
+// BANK-SPLIT-1 PR-2: this suite calls the bank's sync APIs directly, so it preloads every chapter.
+import "../test/preloadBankChapters";
 import { canonicalQuestionBank } from "./canonicalQuestionBank";
 import { selectBankQuestions, resolveCanonicalSlug } from "./bankQuery";
 
