@@ -23,6 +23,91 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-04 — WAVE A-13 (CONTROLLER A): SEO-5 (`#925` `b6feaf32`, `#927` `965d1025`, `#928` `9651232b`, `#930` `b2b29119`) — 22 new: 17 open, 2 owner-accepted as logged, 3 closed this wave; LIVE
+
+Sources: `Desktop/diff/WAVE_STATE_A13.md` §FU ENTRIES COLLECTED, the builder reports (`report-seo-5-pr1…`, `-pr2…`, `-pr3…`, `-pr4…`, `-reanchor…`) and the OR-LIVE reports (`live-after-seo-5-pr1…`, `live-before-/live-after-/live-after-ac-seo-5-pr2…`, `live-after-seo-5-pr3…`, `live-after-seo-5-pr4…`), all 2026-10-04. **Bodies come from those sources; nothing is invented.** `grep` of `handoff/` at `d4bbea23` *(docs-builder-verified)* found no prior entry for any of the 22 ids. No dated entry is edited (standing rule 3). `#926`, `#929` and `#931` (Controller B wave B-14) are B's; their FUs follow in B's docs PR.
+
+### Older FU checked
+- **`[FU-VERCEL-STATUS-STALE]` — STAYS OPEN, related.** The same behaviour (a `Vercel pending` status left after production serves the build at 100%) was seen on all four SEO-5 merges → `[FU-SEO5-VERCEL-STATUS-PENDING-AFTER-100]`. The owner ACCEPTED the stale status as logged (4 Oct) and changed the rollout method to `version.json` + forced buckets; closing the older id is the controller's call, not this docs PR's.
+
+### New — open
+
+### `[FU-SEO5-GSC-TOKEN-DEDUP]` — OPEN · LOW (tooling)
+`googleAccessToken` exists twice: `searchPing.ts` (scope `webmasters`, not exported) and `indexStatusReport.ts` (scope `webmasters.readonly`). Export one helper that takes a scope from a shared module; both scripts import it. Needs `searchPing.ts` in scope (it was not in PR-1's §1) *(builder-reported)*.
+
+### `[FU-SEO5-INDEX-BACKLOG-61]` — OPEN · owner (SEO)
+61 of 62 sitemap URLs were not indexed at runs `37186088545` and `37187972090`; only `/` was ("Submitted and indexed", crawled 2026-10-03T21:41:23Z). The rest split between "Discovered - currently not indexed" and "URL is unknown to Google"; canonical mismatches 0 *(builder-reported; agent-reported)*. Search Console's manual "Request indexing" is capped per day per property, so the owner picks the order (builder suggestion: `/pricing`, `/exam-trends`, `/cbse/class-10`, the HPQ pages, then notes) and re-checks with the weekly report. `/check-your-answer` (the 63rd URL) is owner-owed separately.
+
+### `[FU-SEO5-INSPECT-TIMEOUT-HEADROOM]` — OPEN · LOW (tooling)
+URL Inspection takes ~6.6 s per call (Google-side), so the 20-minute job timeout covers ~150 URLs. Raise the timeout or parallelise (within 600 / min) if the sitemap grows *(builder-reported)*.
+
+### `[FU-VERIFIER-NOT-IN-CI]` — OPEN · process (CI)
+`lazytopper/scripts/verify-production-build.mjs` is listed in `CLAUDE.md` §6 but `quality-gate.yml` never runs it. PR-2's pin (d) IS in CI through the in-build `PRERENDER_DEVICE_VERIFY` line (applyPrerendered); the verifier got a matching check 5 for local runs only. Either wire the verifier after Build or record that the in-build verifiers supersede it *(builder-reported)*.
+
+### `[FU-GH-FILES-TRUNCATION]` — OPEN · process (ops docs)
+`gh pr view --json files` silently truncates at 100 files; on `#927` (139 files) it would have produced a false mismatch (or a false match on a 100-file PR). Change ops docs and controller templates to `gh api --paginate repos/<o>/<r>/pulls/<n>/files --jq '.[].filename'`. The controller now does *(builder-reported; controller-verified)*.
+
+### `[FU-SEO5-ORLIVE2-ERASE-SERVER-CONFIRM]` — OPEN · OPTIONAL (owner)
+OR-LIVE-2's throwaway `seo5.acceptance+1791107226223@example.com` was erased in-app; the agent navigated away before the `/api/account/erase` response, so the server-side Firestore erase completion is not proven from the client. The Firebase Auth user IS proven deleted (UI and REST `400 INVALID_LOGIN_CREDENTIALS`); the credentials folder holds 0 files. A Railway log line for that POST at ~09:53–09:55Z would close it; the erase also took over 9 s *(agent-reported)*. **The owner made this OPTIONAL** (4 Oct): the erasure is proven by the failed sign-in.
+
+### `[FU-SEO5-PR2-3G-LCP-LATER]` — OPEN · MEDIUM (perf)
+On profile B (3G, CPU 6x) LCP is later after `#927`: Topic Hub 2.90 → 6.51 s, Exam Trends 2.89 → 6.46 s, Notes 5.40 → 9.95 s (BEFORE bimodal there); FCP +0.4 to +1.4 s; the fonts CSS and entry JS finish later. Before, LCP was the first paint of the desktop capture on a phone (LCP == FCP); after, it is real mobile content. Candidate cause: the new route-chunk modulepreloads download before the font CSS and share the slow link — **UNVERIFIED** *(agent-reported)*. **CORROBORATED independently** by Controller B's BEFORE-2 measurer: Topic Hub 2.85 → 6.80 s, Exam Trends 2.77 → 6.54 s on `965d1025` vs `a2287b83` (`Desktop/diff/live-before2-low-end-1-2026-10-04.md` §8, B-reported). Not a rollback (D-ORLIVE2-AC).
+
+### `[FU-SEO5-PR2-NOTES-CLS]` — OPEN · LOW (perf)
+Notes CLS 0.09 on both profiles after `#927` (was 0 / 0.013), deterministic over 3 runs; under the 0.1 "good" line but new. Probably the prerendered mobile markup reflowing when the app commits *(agent-reported)*.
+
+### `[FU-SEO5-PR2-NOTES-TBT-A]` — OPEN · LOW (perf)
+Notes profile A TBT +34% (3169 → 4251 ms; per run 4649 / 4251 / 4147 vs 3313 / 3139 / 3169), long tasks > 200 ms 5 → 9, from forced style / layout right after the app's first render (~5.2–6.4 s). The largest task on every page is native layout of the prerendered HTML, not script, and the longest task is still lower *(agent-reported, Chrome trace)*.
+
+### `[FU-PREMISE-CHECKER-COVERAGE-CONTRADICTS]` — OPEN · process (gate)
+`premise_ledger_check` prints "coverage: 7/7 claim rows had their anchor RESOLVED" on a run with 3 anchor FAILs (P3, P4, P6 at `965d1025`). The summary line contradicts its own failures — the "a green line can conceal" class *(scout-reported, `report-seo-5-reanchor-2026-10-04.md`)*.
+
+### `[FU-SPEC-LEDGER-DISCHARGED-STATUS]` — OPEN · process (spec format)
+The premise ledger has no status for a premise that an earlier PR of the same lane deliberately discharged: the checker accepts only VERIFIED / UNVERIFIED, so SEO-5's P3 / P4 (rewritten on purpose by `#927`) had to be kept verbatim and PR-3's §0c had to pass on "exit 1 with EXACTLY {P3, P4}" (D-REANCHOR). Multi-PR specs need a "discharged" status, or per-PR ledgers *(controller)*.
+
+### `[FU-BANK-LIGHT-007-TRUNCATED-MARKS]` — OPEN · content (question bank)
+`lazytopper/src/data/questionBanks/class10/science/lightReflection.pyq2024.ts:57-63` (`PYQ-S-2024-LIGHT-007`, CBSE 2024 31/5/3 Q25): the answer / solutionSteps end "½ ½ ½ +" — the final ½ of part (c) is lost in extraction (CBSE's published scheme: (a) ½ (b) ½ (c) ½ + ½). For the owner's question-bank correction task; `src/data` was NOT edited in SEO-5; the guide page uses the published PDF *(builder-reported)*.
+
+### `[FU-SEO5-PR3-SYLLABUS-SURFACE]` — OPEN · LOW (guard)
+Add the guide page to `syllabusGuard` `BOARD_PREP_SURFACES`. The page test already re-reads the banned list from `scripts/src/syllabusGuard.ts` at run time (0 hits) *(builder-reported)*.
+
+### `[FU-SEO5-PR3-ACTIVITY-PAGE-NAME]` — OPEN · LOW (needs `server/**`)
+The activity log has no name for `/check-your-answer`: `activityPages.test.ts` classifies the route as `null` (the PR-3 scope extension). Naming it needs the server's drift-tested page list, so it belongs in a lane that may touch `server/**` (client list + server list) *(builder-reported)*.
+
+### `[FU-SEO5-PR4-CI-LINK-STYLE]` — OPEN · LOW (visual)
+The Check & Improve guide link ("How marks are given →") uses the browser-default link style (blue, underlined) inside the Tip box: `DesktopCheckImprovePage` has no link class and new inline styles are forbidden. Accepted by the controller (D-PR4-CI-LINK-STYLE); giving it the accent colour needs a class *(builder-reported; controller-viewed)*.
+
+### `[FU-SEO5-PR4-SIGNED-IN-HOME-LINK]` — OPEN · LOW (signed-in surface)
+The signed-in `DesktopHome` / `MobileHome` have no guide link: they use only inline `style={{}}` near their Check & Improve entries, so a link needs an inline style (`CLAUDE.md` §7) or new design (D-PR4-HOME). They are signed-in, uncrawled surfaces *(builder-reported)*.
+
+### `[FU-SPA-TITLE-ON-NAV]` — OPEN · LOW (pre-existing)
+After a client-side navigation `document.title` keeps the previous page's title for at least 5 s (e.g. "LazyTopper — CBSE Class 10 Prep That Finds Lost Marks" after clicking from `/` to the guide); the canonical and the h1 do update. A control showed the same on navigations `#930` did not add (`/` → `/pricing`, `/` → `/notes/trigonometry`, `/check-your-answer` → `/cbse/class-10`). A direct load (and a crawler) gets the right title. Fix: an SPA route-change title update *(agent-reported, OR-LIVE-4)*.
+
+### New — owner-accepted as logged (4 Oct; no action planned)
+
+### `[FU-SEO5-VERCEL-STATUS-PENDING-AFTER-100]` — OWNER-ACCEPTED · process
+The `Vercel pending` commit status on each SEO-5 merge (`b6feaf32` 08:07:27Z, `965d1025` 09:23:45Z, `9651232b` 15:09:09Z, `b2b29119` 17:19:42Z) stayed `pending` after production served the build at 100% (e.g. still pending at 08:26:15Z, 10:35Z, 15:30Z, 17:41Z) *(agent-reported)*. Not a redeploy trigger: a status was posted each time. **The owner accepted it as logged and made the standing method change: rollout checks use `version.json` + forced buckets, not the commit status.** Related: `[FU-VERCEL-STATUS-STALE]`.
+
+### `[FU-CHECKIMPROVE-LOADING-FLASH]` — OWNER-ACCEPTED · LOW (pre-existing)
+`/check-improve` (the target of both guide CTAs) shows "Loading..." for ~40 ms on first load (seen ~255–326 ms after start). Pre-existing and by design: the page is `noindex` and not prerendered, and D3 covers prerendered first routes only *(agent-reported, OR-LIVE-3)*. **The owner accepted it as logged.**
+
+### New — closed this wave
+
+### `[FU-SEO5-PR2-ORLIVE-NOINDEX]` — CLOSED (OR-LIVE-2)
+The `X-Robots-Tag: noindex` on a direct `/__desktop/*` URL could only be checked on production (the Vercel preview sends noindex on every response) *(builder-reported)*. **Closed by OR-LIVE-2 row V:** Googlebot desktop → `/__desktop/notes/trigonometry.html` 200 with `X-Robots-Tag: noindex`; the same UA → `/notes/trigonometry` 200, no x-robots-tag, `Vary: User-Agent, Sec-CH-UA-Mobile`, the desktop variant *(agent-reported)*.
+
+### `[FU-SEO5-PR2-RERECAPTURE-AFTER-926]` — CLOSED (not triggered)
+If `#926` had merged before `#927`, `#927` would have needed an update onto trunk and a re-committed capture artifact *(builder-reported)*. **Not triggered:** `#927` merged at 09:23:41Z, before `#926` (13:35:08Z) *(docs-builder-verified, `gh pr view`)*.
+
+### `[FU-SEO5-PR3-INBOUND-LINKS]` — CLOSED (`#930`)
+Add links to `/check-your-answer` from Home and Exam Trends (spec G2: deliberately not in PR-3) *(controller)*. **Done by `#930`**, plus Check & Improve, the footer and all 26 notes pages; live in OR-LIVE-4 *(agent-reported)*.
+
+### Owner items owed (not FUs)
+1. Request indexing for `/check-your-answer` in Search Console; add it to Bing Webmaster Tools.
+2. Choose the order for the 61 unindexed URLs (`[FU-SEO5-INDEX-BACKLOG-61]`).
+3. Google sign-in on Android (the desktop production check is Controller B's, by owner delegation).
+4. OPTIONAL: the Railway erase log check (`[FU-SEO5-ORLIVE2-ERASE-SERVER-CONFIRM]`).
+
 ## 2026-10-04 — WAVE B-13 (CONTROLLER B): UPLOAD-2-FIX-1 (`#923` `c29c81cb`) — four new open, none closed, older upload FUs checked; merged but NOT live when written
 
 Sources: the builder's report (`Desktop/diff/report-upload-2-fix-1-2026-10-04.md` "Proposed FUs", "Findings that contradict the spec", P5, OR-LIVE), the spec `UPLOAD-2-FIX-1` v1.0 (`F9871549F72B`) and the controller's state file (`WAVE_STATE_B13.md`). **Bodies come from those sources; nothing is invented.** `grep` of `handoff/` at `c29c81cb` *(docs-builder-verified)* found no prior entry for any of the four new ids. No dated entry is edited (standing rule 3).

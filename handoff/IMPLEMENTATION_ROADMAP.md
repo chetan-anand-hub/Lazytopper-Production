@@ -1,5 +1,17 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-04 — SEO: **WAVE A-13 — SEO-5** — `#925` + `#927` + `#928` + `#930` MERGED — trunk `b2b29119` (then `d4bbea23`, B's `#931`) — ✅ COMPLETE (OR-LIVE-1..4 PASS, no rollback; owner-owed: Search Console + Bing for `/check-your-answer`, the 61-URL request order, Android Google sign-in)
+
+- ✅ **Weekly read-only index report for every sitemap URL** (`#925`, LIVE): Mondays 06:00 IST + manual; 61 / 62 URLs were not indexed at the first run.
+- ✅ **Phones see the phone layout from the first paint; no "Loading..." on the first route** (`#927`, LIVE): 390 + 1280 captures served by device with `Vary`; build-time modulepreloads; `/__desktop/*` noindex.
+- ✅ **`/check-your-answer` — "How CBSE examiners mark Class 10 answers"** (`#928`, LIVE): indexed, self-canonical, in sitemap / llms (63); three examples matched to published CBSE marking-scheme PDFs; owner-approved text.
+- ✅ **Guide links from Home, Check & Improve, Exam Trends, the footer and all 26 notes pages; Unicode subscripts; "often marked separately"** (`#930`, LIVE).
+- ✅ **Rulings recorded:** owner (App.tsx shared-file rule, PR-3 text v1 → v5, the standing ruling, the Chrome grant, the final message incl. the rollout-check method change); controller (D3 route region, D-ORLIVE2, D-ORLIVE2-AC, D-REANCHOR, D-CONFIDENTIAL, the PR-3 scope extension, D-PR4-QTEXT / CI-LINK-STYLE / HOME) (`DECISION_LOG.md`).
+- ✅ **FUs:** 22 new — 17 open, 2 owner-accepted as logged, 3 closed this wave (`OPEN_QUESTIONS_AND_FOLLOWUPS.md`).
+- ✅ **Docs:** this handoff.
+- ⬜ **Controller:** tell B this docs PR merged; one final audit request; STOP.
+- ⬜ **Owner:** Search Console request + Bing for `/check-your-answer`; pick the order for the 61 unindexed URLs; Android Google sign-in; optional Railway erase log check; audit the pending controller decisions.
+
 ## 2026-10-04 — UPLOAD: **WAVE B-13 — UPLOAD-2-FIX-1** — `#923` MERGED — trunk `c29c81cb` — 🟡 MERGED, NOT LIVE (Vercel did not build `c29c81cb`; OR-LIVE pending the build this docs merge is expected to trigger; owner Android acceptance OWED)
 
 - 🟡 **"Take photo" + "Choose from gallery" on a phone** for the page tray's "Add another page" (`#923`, merged, NOT live when written): "Take photo" is its own input (`image/*`, `capture="environment"`, never `multiple`); desktop unchanged.

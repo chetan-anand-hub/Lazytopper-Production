@@ -1,3 +1,43 @@
+## ★★★ 2026-10-04 — WAVE A-13 (SEO, CONTROLLER A) — SEO-5 CLOSED, LIVE (docs) — THIS BLOCK SUPERSEDES THE WAVE B-13 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE B-13, B-12, A-12, B-11, A-11, B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
+
+**TRUNK IS `d4bbea23b0ee5734b5f2c98602d1495f6cebfe58`**, measured 2026-10-04 (`git ls-remote origin base/approved-thru-437`):
+- `d4bbea23` = `#931` (CT-KATEX-2, Controller B) — merged 17:40:09Z.
+- `b2b29119` = `#930` (SEO-5 PR-4: guide links + subscripts) — **this wave**; merged 17:19:38Z.
+- `c9621114` = `#929` (UPLOAD-RESILIENCE-1 / LOW-END-1 PR-2, Controller B).
+- `9651232b` = `#928` (SEO-5 PR-3: `/check-your-answer`) — **this wave**; merged 15:09:06Z.
+- `b97f119f` = `#926` (LOW-END-1 PR-1, Controller B).
+- `965d1025` = `#927` (SEO-5 PR-2: device prerender, first paint) — **this wave**; merged 09:23:41Z.
+- `b6feaf32` = `#925` (SEO-5 PR-1: weekly index report) — **this wave**; merged 08:07:23Z.
+- `a2287b83` = `#924` (docs: wave B-13)
+*(merge times from `gh pr view`, docs-builder-verified)*
+
+`#926` (`b97f119f`), `#929` (`c9621114`) and `#931` (`d4bbea23`) merged in parallel — Controller B wave B-14; its handoff follows in B's docs PR, which prepends on top of this one.
+
+When this docs PR was opened the only other open PR was `#932` (Controller B's product PR, `lane/authgate-fix-1`, no `handoff/` file). This is the only docs PR open (OR-16). **All four SEO-5 PRs are LIVE** (OR-LIVE-1..4 PASS; OR-LIVE-4 measured on `b2b29119` and again on `d4bbea23`) *(agent-reported)*.
+
+### NEXT — CONTROLLER (after this docs PR merges)
+1. **Tell Controller B this docs PR is MERGED.** B's docs PR (wave B-14) prepends on top of this one — merge only; this `[CURRENT]` is demoted, not deleted.
+2. **Write ONE final audit request** `Desktop/diff/audit-request-seo-5-final-<date>.md`: each PR with its merge SHA and CI run; the live results; the guide's example table (paper · question · official marks · source link); every Chrome action from the log (0); every standing-ruling decision with its reason. **Then STOP** (owner's final message).
+
+### NEXT — OWNER
+1. **Request indexing for `https://www.lazytopper.com/check-your-answer` in Search Console, and add it to Bing Webmaster Tools.**
+2. **Choose which of the 61 unindexed URLs to request first** (Search Console caps manual requests per day; the builder suggests `/pricing`, `/exam-trends`, `/cbse/class-10`, the HPQ pages, then notes) → `[FU-SEO5-INDEX-BACKLOG-61]`. The weekly report (Mondays 06:00 IST) shows the progress.
+3. **Google sign-in on Android.** The desktop production Google sign-in check belongs to Controller B (owner delegation); B's evidence so far is B-reported (signed in on live `b97f119f` from `/login`, not yet from a cold prerendered entry).
+4. **OPTIONAL:** the Railway log line for the server-side erase of `seo5.acceptance+1791107226223@example.com` (~09:53–09:55Z). The erasure is already proven by the failed sign-in → `[FU-SEO5-ORLIVE2-ERASE-SERVER-CONFIRM]`.
+5. **Audit (non-blocking):** the controller decisions PENDING OWNER AUDIT — PR-2 D3 (route region only), D-ORLIVE2, D-ORLIVE2-AC, D-REANCHOR (`DECISION_LOG.md`, 2026-10-04, wave A-13).
+6. **Pick the next wave — the owner's call; this docs PR does not invent a lane.** On the table: the 17 open SEO-5 FUs (none dispatched), notably `[FU-SEO5-PR2-3G-LCP-LATER]`.
+
+### Carried — still owed
+1. **The WAVE B-13 owner items** (the block below), then the WAVE B-12 owner items and everything they carry.
+
+### NEXT — LANES
+- None dispatched by wave A-13 beyond `#925`, `#927`, `#928`, `#930`.
+- **★ STANDING METHOD CHANGE (owner, 4 Oct): a rollout check uses `/version.json` + forced buckets (`_vcrr_<id>=<dpl>|0.51 / 0.75 / 0.9 / 0.99`), plus 5 cold reads and no `_vcrr` cookie — NOT Vercel's commit status.** The status stayed `pending` after every 100% rollout this wave. Still in force: if NO Vercel status appears within 15 minutes of a trunk merge, ask the owner to redeploy.
+- **★ A new advertised page** needs its `ROUTE_CHUNK_MODULES` entry (`writeStaticHeads.ts`) and its prerendered files from the PR's own capture artifact at both widths (390 + `__desktop/` 1280); the build fails loudly otherwise.
+- **★ A guide or content page that quotes marks:** every mark matches a published CBSE / NCERT marking-scheme PDF; cite the document's real title without "official"; never claim LazyTopper uses CBSE's marking scheme.
+- **★ Reconcile a PR's files with `gh api --paginate repos/<o>/<r>/pulls/<n>/files`**, never `gh pr view --json files` (truncates at 100) → `[FU-GH-FILES-TRUNCATION]`.
+
 ## ★★★ 2026-10-04 — WAVE B-13 (UPLOAD, CONTROLLER B) — UPLOAD-2-FIX-1 MERGED, NOT YET LIVE (docs) — THIS BLOCK SUPERSEDES THE WAVE B-12 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE B-12, A-12, B-11, A-11, B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
 

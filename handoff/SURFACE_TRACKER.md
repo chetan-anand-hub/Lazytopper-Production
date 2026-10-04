@@ -1,5 +1,25 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-04 — WAVE A-13 (SEO, CONTROLLER A): SEO-5 (`#925` `b6feaf32`, `#927` `965d1025`, `#928` `9651232b`, `#930` `b2b29119`), trunk `b2b29119` (then `d4bbea23`, B's `#931`). LIVE on deploy (no flag); every rollout is recorded in `CURRENT_STATE.md`.**
+> ★ **THE PRERENDERED SEO PAGES MOVE ON THE FIRST-PAINT AXIS (a phone now gets the phone capture), INDEX MONITORING IS NEW, AND A NEW PUBLIC PAGE `/check-your-answer` IS LIVE AND LINKED FROM FIVE PLACES.** The §2 matrix has no column for first paint, indexing or inbound links, and `/check-your-answer` has no matrix row (a public guide page, not a study surface), so **no matrix cell value changes**; the moves are recorded here as status lines *(builder-reported; live evidence agent-reported)*.
+
+### ✅ PRERENDERED SEO PAGES — first screen on phones (every advertised page; first-paint axis) — **ONE 1280 px CAPTURE FOR EVERY CLIENT (DESKTOP SIDEBAR ON A PHONE, THEN A "Loading..." SWAP) → 390 + 1280 CAPTURES SERVED BY DEVICE, NO "Loading..." ON THE FIRST ROUTE — LIVE (`#927`)**
+- Production, 360 px Android, cache off: "Loading..." Notes 2835 → 0 ms (A) / 9225 → 0 ms (B), Topic Hub 1756 / 7231 → 0, Exam Trends 562 / 2074 → 0; layout at first paint desktop sidebar → mobile 18 / 18; Ready earlier on every cell; variants right for 7 client classes; `/__desktop/*` `X-Robots-Tag: noindex` *(agent-reported)*. Open: profile-B LCP later (`[FU-SEO5-PR2-3G-LCP-LATER]`), Notes CLS 0.09, Notes A TBT +34%. Pinned by `PRERENDER_DEVICE_VERIFY` (CI build), `vercelMiddleware.test.ts`, `routeChunks.guard.test.ts`, `App.firstPaint.test.tsx`.
+
+### ✅ INDEX MONITORING (new capability, not a page) — **NONE → A WEEKLY READ-ONLY URL INSPECTION REPORT FOR EVERY SITEMAP URL — LIVE (`#925`)**
+- Mondays 06:00 IST + manual; run `37187972090` → 62 rows == 62 sitemap URLs; only `/` indexed, 61 need a manual request *(agent-reported)*. It cannot request indexing. Pinned by `indexStatusReport.guard.test.ts` (11 tests).
+
+### ✅ `/check-your-answer` — "How CBSE examiners mark Class 10 answers" (NEW public page) — **NONE → INDEXED, SELF-CANONICAL, IN SITEMAP + llms (63), PRERENDERED AT BOTH WIDTHS; OWNER-APPROVED TEXT; SUBSCRIPTS + "often" — LIVE (`#928`, `#930`)**
+- Production: 200, `index,follow`, canonical self, two device variants, text == the owner-approved text, 11 links 200; Unicode subscripts and "often marked separately" live *(agent-reported)*. Every example matches CBSE's published marking-scheme PDF (2024 Maths 30/5/1 Q21(a), 2024 Science 31/5/3 Q25, 2025 Science 31/1/3 Q26) *(builder-reported; owner-approved)*. Owner-owed: Search Console request + Bing.
+
+### ✅ Landing, Check & Improve, Exam Trends, Pricing (footer), Notes (26 pages) — inbound-link axis — **NO LINK TO THE GUIDE → ONE PLAIN LINK EACH — LIVE (`#930`)**
+- 390 and 1440: each present once, `href="/check-your-answer"`, the click reaches the guide; links in the prerendered HTML for both UAs except `/check-improve` (not prerendered, by design) *(agent-reported)*. The signed-in Home has no link (`[FU-SEO5-PR4-SIGNED-IN-HOME-LINK]`); the C&I link uses the browser-default style (`[FU-SEO5-PR4-CI-LINK-STYLE]`).
+
+### ⬜ NO OTHER SURFACE MOVES — stated plainly, per `CLAUDE.md` §10
+- No study surface's behaviour changed beyond the first paint and the added links. `/check-improve` is not prerendered and still `noindex` (its ~40 ms "Loading…" is pre-existing, owner-accepted).
+
+### 📋 Scope discovered? — **NO surface scope set to Settling.** `/check-your-answer` was planned by the spec (G1–G2). The activity-log name and the signed-in Home link are limits logged as FUs. Logged in `DECISION_LOG.md` (2026-10-04, wave A-13); nothing goes in §2a.
+
 > **2026-10-04 — WAVE B-13 (UPLOAD, CONTROLLER B): UPLOAD-2-FIX-1 (`#923` `c29c81cb`), trunk `c29c81cb`. ⚠ MERGED BUT NOT LIVE when written — Vercel did not build `c29c81cb`; the rollout is recorded in `CURRENT_STATE.md` once it happens.**
 > ★ **EVERY P5 PHOTO HOST MOVES ON THE UPLOAD AXIS: ON A PHONE (COARSE POINTER) THE FIRST PHOTO AND "ADD ANOTHER PAGE" OFFER "📷 TAKE PHOTO" (REAR CAMERA, ONE FILE) AND "🖼 CHOOSE FROM GALLERY" (SEVERAL); DESKTOP UNCHANGED.** The moved surfaces' §2 cells already read ✅ — except Full Mock `Verified` ⬜, which stays ⬜ — and the matrix has no upload column, so **no matrix cell value changes**; each move is recorded below as a status line, per host, from the builder's P5 list *(builder-reported)*. None is live yet, so none is marked LIVE.
 
