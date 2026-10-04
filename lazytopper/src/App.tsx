@@ -62,6 +62,7 @@ const TeacherDashboardPage = lazy(() => import("./pages/TeacherDashboardPage"));
 import { captureIncomingReferral } from "./services/referralService";
 const PricingPage = lazy(() => import("./pages/PricingPage"));
 const Cbse2027Page = lazy(() => import("./pages/Cbse2027Page"));
+const CheckYourAnswerPage = lazy(() => import("./pages/CheckYourAnswerPage"));
 const FunnelPage = lazy(() => import("./pages/FunnelPage"));
 const DiagramComparePage = lazy(() => import("./pages/DiagramComparePage"));
 const DiagramQualityPage = lazy(() => import("./pages/DiagramQualityPage"));
@@ -1011,6 +1012,7 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
               auth-gated: it exists to be crawled and to be read by someone who has
               never signed in. */}
           <Route path="/cbse/class-10" element={withRouteSuspense(<Cbse2027Page />)} />
+          <Route path="/check-your-answer" element={withRouteSuspense(<CheckYourAnswerPage />)} />
           <Route path="/admin/funnel" element={<RequireAuth>{withRouteSuspense(<FunnelPage />)}</RequireAuth>} />
           <Route path="/admin/diagram-compare" element={withRouteSuspense(<DiagramComparePage />)} />
           <Route path="/admin/diagram-quality" element={withRouteSuspense(<DiagramQualityPage />)} />

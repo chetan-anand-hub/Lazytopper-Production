@@ -1,0 +1,249 @@
+/*
+ * CheckYourAnswerPage (`/check-your-answer`, SEO-5 PR-3) — mobile-first, responsive by
+ * CSS alone. EVERY selector is scoped under `.lt-cya`: a stylesheet imported by a lazy
+ * route is global once loaded, so a bare `h2` or `a` here would restyle the whole app.
+ * House visual grammar: deep navy hero, soft white page, green accent (the same token
+ * values as `.lt-cbse` in Cbse2027Page, scoped under their own names).
+ */
+.lt-cya {
+  --cya-bg: #f4f7fb;
+  --cya-card: #fff;
+  --cya-ink: #0f2038;
+  --cya-ink2: #4d647e;
+  --cya-ink3: #71879f;
+  --cya-line: #dde5ef;
+  --cya-g: #0b8f50;
+  --cya-gt: #06663a;
+  --cya-gw: #e6f4ec;
+  --cya-navy: #132c4d;
+  --cya-serif: Fraunces, Georgia, serif;
+  --cya-sans: Inter, system-ui, -apple-system, sans-serif;
+  --cya-sh: 0 1px 2px rgba(15, 32, 56, 0.05), 0 6px 18px rgba(15, 32, 56, 0.045);
+  display: block;
+  background: var(--cya-bg);
+  color: var(--cya-ink);
+  font-family: var(--cya-sans);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.lt-cya * {
+  box-sizing: border-box;
+}
+.lt-cya h1,
+.lt-cya h2,
+.lt-cya h3 {
+  font-family: var(--cya-serif);
+  letter-spacing: -0.015em;
+  margin: 0;
+}
+.lt-cya a {
+  color: var(--cya-gt);
+}
+.lt-cya :focus-visible {
+  outline: 2px solid var(--cya-g);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.lt-cya q {
+  quotes: "\201C" "\201D";
+}
+
+/* Column: 16px gutter on a phone, a readable measure on desktop. */
+.lt-cya__w {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+/* HERO — deep navy band */
+.lt-cya__hero {
+  background: var(--cya-navy);
+  color: #eaf2fb;
+  padding: 28px 0 26px;
+}
+.lt-cya__eyebrow {
+  font-size: 12px;
+  color: #8fb3d9;
+  margin: 0 0 10px;
+}
+.lt-cya__hero h1 {
+  font-size: clamp(26px, 7vw, 40px);
+  line-height: 1.12;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 12px;
+  max-width: 18ch;
+}
+.lt-cya__sub {
+  color: #b9d0e8;
+  font-size: 15px;
+  margin: 0 0 20px;
+  max-width: 56ch;
+}
+
+/* CTA — the green accent; a full-width tap target on a phone */
+.lt-cya .lt-cya__cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 12px 20px;
+  border-radius: 12px;
+  background: var(--cya-g);
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+}
+.lt-cya .lt-cya__cta:hover {
+  background: var(--cya-gt);
+}
+
+/* BODY */
+.lt-cya__body {
+  padding-top: 30px;
+  padding-bottom: 40px;
+}
+.lt-cya section {
+  margin-bottom: 38px;
+}
+.lt-cya h2 {
+  font-size: clamp(21px, 5vw, 26px);
+  font-weight: 600;
+  line-height: 1.2;
+  margin-bottom: 12px;
+}
+.lt-cya section > p {
+  margin: 0 0 12px;
+  color: var(--cya-ink);
+}
+.lt-cya__lede {
+  color: var(--cya-ink2);
+}
+
+/* WHERE MARKS ARE LOST */
+.lt-cya__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+.lt-cya__list li {
+  background: var(--cya-card);
+  border: 1px solid var(--cya-line);
+  border-left: 4px solid var(--cya-g);
+  border-radius: 10px;
+  padding: 12px 14px;
+  box-shadow: var(--cya-sh);
+}
+.lt-cya__list b {
+  color: var(--cya-ink);
+}
+
+/* WORKED EXAMPLES */
+.lt-cya__ex {
+  background: var(--cya-card);
+  border: 1px solid var(--cya-line);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: var(--cya-sh);
+}
+.lt-cya__tag {
+  display: inline-block;
+  margin: 0 0 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--cya-gw);
+  color: var(--cya-gt);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.lt-cya__q {
+  margin: 0 0 14px;
+  font-weight: 500;
+}
+.lt-cya__ex h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.lt-cya__steps {
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--cya-line);
+}
+.lt-cya__steps li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--cya-line);
+}
+.lt-cya__step {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.lt-cya__marks {
+  flex: 0 0 auto;
+  font-weight: 700;
+  color: var(--cya-gt);
+  white-space: nowrap;
+}
+.lt-cya__src {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: var(--cya-ink3);
+}
+.lt-cya__note {
+  margin: 0 0 10px;
+  font-size: 14px;
+  color: var(--cya-ink2);
+}
+.lt-cya__take {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--cya-bg);
+  font-size: 14.5px;
+}
+
+/* THE CHECK — the closing call to action */
+.lt-cya__check {
+  background: var(--cya-navy);
+  color: #eaf2fb;
+  border-radius: 16px;
+  padding: 22px 18px;
+}
+.lt-cya__check h2 {
+  color: #fff;
+}
+.lt-cya .lt-cya__check > p {
+  color: #b9d0e8;
+  margin-bottom: 16px;
+}
+.lt-cya__fine {
+  font-size: 13px;
+  color: var(--cya-ink3);
+  margin: 0;
+}
+
+/* Tablet and up: the CTA sizes to its label instead of spanning the column. */
+@media (min-width: 760px) {
+  .lt-cya__hero {
+    padding: 44px 0 40px;
+  }
+  .lt-cya .lt-cya__cta {
+    display: inline-flex;
+  }
+  .lt-cya__ex {
+    padding: 20px 22px;
+  }
+  .lt-cya__check {
+    padding: 28px 30px;
+  }
+}

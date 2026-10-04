@@ -131,6 +131,14 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
       "Question patterns that recur most in CBSE Class 10 Science boards, chapter by " +
       "chapter, from 10 years of papers. Patterns to practise, not the 2027 paper.",
   },
+  // SEO-5 PR-3 — the answer-writing guide. Both strings restate the page's own h1 and
+  // section headings (src/pages/CheckYourAnswerPage.tsx); nothing is added.
+  "/check-your-answer": {
+    title: "How CBSE Examiners Mark Class 10 Answers | LazyTopper",
+    description:
+      "How CBSE examiners mark Class 10 Maths and Science answers: step marks, where marks " +
+      "are lost, and worked examples from past board papers.",
+  },
   "/legal/privacy": {
     title: "Privacy Policy | LazyTopper",
     description:
@@ -183,6 +191,7 @@ export const ROUTE_CHUNK_MODULES: readonly RouteChunkEntry[] = [
   { prefix: "/exam-trends", exact: true, modules: ["ExamTrendsRanked"] },
   { prefix: "/practice-hub", exact: true, modules: ["DesktopPracticePage"] },
   { prefix: "/cbse/class-10", exact: true, modules: ["Cbse2027Page"] },
+  { prefix: "/check-your-answer", exact: true, modules: ["CheckYourAnswerPage"] },
   { prefix: "/highly-probable/", exact: false, modules: ["HighlyProbableQuestions"] },
   { prefix: "/legal/", exact: false, modules: ["LegalPage"] },
   { prefix: "/topic-hub/", exact: false, modules: ["DesktopTopicHubPage"] },
