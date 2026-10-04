@@ -16,7 +16,7 @@ import QrAnswerHandoff from "../qr/QrAnswerHandoff";
 import FairUseLimitPanel from "../usage/FairUseLimitPanel";
 import { useFairUse } from "../usage/useFairUse";
 import { UPLOAD_LIMIT_SENTENCE, checkUploadFile } from "../../services/uploadLimits";
-import PageTray, { usePageTray, type TrayPayload } from "../upload/PageTray";
+import PageTray, { PhotoSourceButtons, useCoarsePointer, usePageTray, type TrayPayload } from "../upload/PageTray";
 
 const CHECK_RESULT_KEY_PREFIX = "lazytopper.checkResult.v1.";
 
@@ -615,6 +615,9 @@ export function SolutionChecker({
     onError: setError,
     allowMultiPage: !collectMode,
   });
+  // A phone gets "Take photo" + "Choose from gallery": the input below carries
+  // `multiple`, and on Android `multiple` takes the camera away (UPLOAD-2-FIX-1).
+  const coarsePointer = useCoarsePointer();
 
   const handleFileSelect = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -885,6 +888,14 @@ export function SolutionChecker({
       {/* ── Upload zone ────────────────── */}
       {answerTab === "upload" && !hasFile && tray.pages.length === 0 && inputPhaseOpen && (
         <>
+        {coarsePointer ? (
+          <PhotoSourceButtons
+            onCameraChange={handleFileSelect}
+            onGallery={() => fileInputRef.current?.click()}
+            hint={UPLOAD_LIMIT_SENTENCE}
+            testIdPrefix="sc-photo"
+          />
+        ) : (
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
@@ -909,6 +920,7 @@ export function SolutionChecker({
             {UPLOAD_LIMIT_SENTENCE}
           </span>
         </button>
+        )}
 
         {/* Solved it on paper? Send it straight from your phone instead of emailing it
             to yourself. A QR handoff produces a FILE — the same tuple handleFileSelect

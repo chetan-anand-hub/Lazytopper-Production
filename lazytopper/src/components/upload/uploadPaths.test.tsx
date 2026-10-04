@@ -299,3 +299,138 @@ describe("(a) WorksheetGradePanel — worksheet grading", () => {
     expect(pdfPages(req.imageBase64)).toBe(2);
   }, 60_000);
 });
+
+// ── UPLOAD-2-FIX-1 (F4) — the FIRST photo on a phone can reach the camera ─────────────
+//
+// Each host's own picker carries `multiple` (and a PDF in `accept`); on Android Chrome
+// either one keeps the camera away. A coarse pointer therefore gets "Take photo" (its own
+// image/*, capture=environment input, never `multiple`) beside "Choose from gallery" (the
+// host's input, unchanged). A fine pointer keeps the single dropzone.
+
+function stubPointer(coarse: boolean) {
+  vi.stubGlobal("matchMedia", (query: string) => ({
+    matches: query === "(pointer: coarse)" ? coarse : false,
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  }));
+}
+
+function expectCameraInput(prefix: string) {
+  const camera = screen.getByTestId(`${prefix}-camera-input`) as HTMLInputElement;
+  expect(camera.getAttribute("accept")).toBe("image/*");
+  expect(camera.getAttribute("capture")).toBe("environment");
+  expect(camera.multiple).toBe(false);
+  return camera;
+}
+
+/** "Choose from gallery" opens the host's OWN input — the one without `capture`. */
+function expectGalleryOpensHostInput(prefix: string, container: HTMLElement, multiple: boolean) {
+  const hostInput = Array.from(container.querySelectorAll('input[type="file"]')).find(
+    (i) => !i.hasAttribute("capture"),
+  ) as HTMLInputElement;
+  expect(hostInput.multiple).toBe(multiple);
+  expect(hostInput.getAttribute("accept")).toBe("image/jpeg,image/png,application/pdf");
+  const spy = vi.spyOn(hostInput, "click").mockImplementation(() => {});
+  fireEvent.click(screen.getByTestId(`${prefix}-gallery`));
+  expect(spy).toHaveBeenCalledTimes(1);
+}
+
+describe("(F4) the first photo on a phone — Take photo / Choose from gallery", () => {
+  it("★ SolutionChecker ('Check my answer'): a camera photo goes through the crop step to the grader", async () => {
+    stubPointer(true);
+    const { container } = render(<MemoryRouter><SolutionChecker {...SC_PROPS} /></MemoryRouter>);
+    fireEvent.click(screen.getByRole("tab", { name: "Upload a photo" }));
+    expect(screen.getByRole("button", { name: "Take photo" })).toBeTruthy();
+    expectGalleryOpensHostInput("sc-photo", container, true);
+    choose(expectCameraInput("sc-photo"), [sixMbPhoto()]);
+    fireEvent.click(await screen.findByRole("button", { name: "Use whole photo" }));
+    await waitFor(() => expect(screen.getAllByTestId("page-tray-item")).toHaveLength(1));
+    fireEvent.click(await screen.findByRole("button", { name: /Check my answer|Check answer|Check/ }));
+    await waitFor(() => expect(checkSolutionImage).toHaveBeenCalledTimes(1));
+    expectPhotoUnderCap(checkSolutionImage.mock.calls[0][0]);
+  });
+
+  it("SolutionChecker collect mode (Practice): the same two choices; the gallery stays single-file", async () => {
+    stubPointer(true);
+    const { container } = render(
+      <MemoryRouter>
+        <SolutionChecker {...SC_PROPS} collectMode onSaveAnswer={() => {}} />
+      </MemoryRouter>,
+    );
+    fireEvent.click(screen.getByRole("tab", { name: "Upload a photo" }));
+    expectGalleryOpensHostInput("sc-photo", container, false);
+    choose(expectCameraInput("sc-photo"), [sixMbPhoto()]);
+    fireEvent.click(await screen.findByRole("button", { name: "Use whole photo" }));
+    await screen.findByTestId("page-tray");
+    // Collect mode still takes one photo per answer.
+    expect(screen.queryByTestId("page-tray-camera")).toBeNull();
+    expect(screen.queryByTestId("page-tray-add")).toBeNull();
+  });
+
+  it("★ ChapterTestUploadPanel (Chapter Test / Full Mock): a camera photo reaches the grade", async () => {
+    stubPointer(true);
+    const onGrade = vi.fn();
+    const { container } = render(
+      <ChapterTestUploadPanel
+        name="Real Numbers"
+        code="CT-1"
+        objective={{ awarded: 3, total: 5 }}
+        grading={false}
+        error={null}
+        isSignedIn
+        onGrade={onGrade}
+        onSkip={() => {}}
+      />,
+    );
+    expectGalleryOpensHostInput("ct-photo", container, true);
+    choose(expectCameraInput("ct-photo"), [sixMbPhoto()]);
+    fireEvent.click(await screen.findByRole("button", { name: "Use whole photo" }));
+    // The next page offers the camera too.
+    expect(await screen.findByTestId("page-tray-camera")).toBeTruthy();
+    fireEvent.click(await screen.findByRole("button", { name: /Grade my written answers/ }));
+    expect(onGrade).toHaveBeenCalledTimes(1);
+    expectPhotoUnderCap(onGrade.mock.calls[0][0]);
+  });
+
+  it("★ WorksheetGradePanel: a camera photo reaches the grade", async () => {
+    stubPointer(true);
+    const { container } = render(<MemoryRouter><WorksheetGradePanel ws={WS} /></MemoryRouter>);
+    expectGalleryOpensHostInput("wg-photo", container, true);
+    choose(expectCameraInput("wg-photo"), [sixMbPhoto()]);
+    fireEvent.click(await screen.findByRole("button", { name: "Use whole photo" }));
+    fireEvent.click(await screen.findByRole("button", { name: /Grade my answers/ }));
+    await waitFor(() => expect(gradeWorksheetAndRecord).toHaveBeenCalledTimes(1));
+    expectPhotoUnderCap(gradeWorksheetAndRecord.mock.calls[0][2]);
+  });
+
+  it("CONTROL: a fine pointer (desktop) keeps each host's single dropzone and no camera input", () => {
+    stubPointer(false);
+    render(<MemoryRouter><SolutionChecker {...SC_PROPS} /></MemoryRouter>);
+    fireEvent.click(screen.getByRole("tab", { name: "Upload a photo" }));
+    expect(screen.getByRole("button", { name: /Upload a photo or PDF of your answer/ })).toBeTruthy();
+    cleanup();
+    render(<MemoryRouter><WorksheetGradePanel ws={WS} /></MemoryRouter>);
+    expect(screen.getByRole("button", { name: /Upload your answers/ })).toBeTruthy();
+    cleanup();
+    render(
+      <ChapterTestUploadPanel
+        name="Real Numbers"
+        code="CT-1"
+        objective={{ awarded: 3, total: 5 }}
+        grading={false}
+        error={null}
+        isSignedIn
+        onGrade={vi.fn()}
+        onSkip={() => {}}
+      />,
+    );
+    expect(screen.getByRole("button", { name: /Upload your written answers/ })).toBeTruthy();
+    expect(document.querySelector("input[capture]")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Take photo" })).toBeNull();
+  });
+});

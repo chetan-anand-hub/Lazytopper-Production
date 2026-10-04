@@ -22,7 +22,7 @@
 // file), a single photo falls back to the pre-UPLOAD-2 path — the original file through
 // the same guard — rather than dead-ending the student on a crop screen with no image.
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import PhotoCropStep, { type PhotoCropSelection } from "./PhotoCropStep";
 import {
@@ -482,6 +482,129 @@ export function usePageTray(options: UsePageTrayOptions): PageTrayApi {
   };
 }
 
+// ── Camera OR gallery on a phone (UPLOAD-2-FIX-1) ──────────────────────────────────
+//
+// ★ ON ANDROID CHROME, `multiple` REMOVES THE CAMERA. An input that allows several files
+// opens a gallery / files picker with no "Camera" entry, and `capture` is only honoured
+// when `accept` is images alone. So "one input that offers camera OR gallery" does not
+// exist on the phone a student actually holds. A touch device gets TWO inputs, one job each:
+//   📷 Take photo          — accept="image/*", capture="environment", NEVER `multiple`
+//   🖼 Choose from gallery — the host's own input (it keeps its `accept` and `multiple`)
+// A fine pointer (a desktop) is unchanged: one button, one input, `multiple`.
+
+const COARSE_POINTER_QUERY = "(pointer: coarse)";
+
+/** True on a touch device (`(pointer: coarse)`). False where matchMedia is absent. */
+export function useCoarsePointer(): boolean {
+  const [coarse, setCoarse] = useState<boolean>(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return false;
+    return window.matchMedia(COARSE_POINTER_QUERY).matches;
+  });
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia(COARSE_POINTER_QUERY);
+    const handler = (e: MediaQueryListEvent) => setCoarse(e.matches);
+    setCoarse(mq.matches);
+    if (mq.addEventListener) mq.addEventListener("change", handler);
+    else mq.addListener(handler);
+    return () => {
+      if (mq.removeEventListener) mq.removeEventListener("change", handler);
+      else mq.removeListener(handler);
+    };
+  }, []);
+  return coarse;
+}
+
+export interface PhotoSourceButtonsProps {
+  /** The camera input's change event. Hosts pass the SAME handler their own input uses,
+   *  so a camera photo takes exactly the path a picked one does (crop step, limits). */
+  onCameraChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  /** Open the host's own gallery / files input. */
+  onGallery: () => void;
+  /** Runs before either picker opens; false keeps it shut (the tray's 8-page cap). */
+  beforeOpen?: () => boolean;
+  /** Runs as the camera input is clicked (Check & Improve warms App Check here). */
+  onCameraClick?: () => void;
+  disabled?: boolean;
+  /** A small line above the two buttons. */
+  label?: ReactNode;
+  /** A small line under the two buttons. */
+  hint?: ReactNode;
+  testIdPrefix?: string;
+}
+
+/** The two phone choices. Render it only on a coarse pointer (`useCoarsePointer`). */
+export function PhotoSourceButtons({
+  onCameraChange,
+  onGallery,
+  beforeOpen,
+  onCameraClick,
+  disabled = false,
+  label,
+  hint,
+  testIdPrefix = "photo-source",
+}: PhotoSourceButtonsProps) {
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const open = (which: "camera" | "gallery") => {
+    if (beforeOpen && !beforeOpen()) return;
+    if (which === "camera") cameraRef.current?.click();
+    else onGallery();
+  };
+  return (
+    <div className="lt-psb" data-testid={`${testIdPrefix}-sources`}>
+      <style>{PSB_CSS}</style>
+      {label && <p className="lt-psb__label">{label}</p>}
+      <div className="lt-psb__row">
+        <button
+          type="button"
+          className="lt-psb__btn"
+          onClick={() => open("camera")}
+          disabled={disabled}
+          data-testid={`${testIdPrefix}-camera`}
+        >
+          <span aria-hidden="true">📷</span> Take photo
+        </button>
+        <button
+          type="button"
+          className="lt-psb__btn"
+          onClick={() => open("gallery")}
+          disabled={disabled}
+          data-testid={`${testIdPrefix}-gallery`}
+        >
+          <span aria-hidden="true">🖼️</span> Choose from gallery
+        </button>
+      </div>
+      {hint && <p className="lt-psb__hint">{hint}</p>}
+      {/* NEVER add `multiple` here: on Android it takes the camera away (see above). */}
+      <input
+        ref={cameraRef}
+        className="lt-psb__file"
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onClick={onCameraClick}
+        onChange={onCameraChange}
+        data-testid={`${testIdPrefix}-camera-input`}
+      />
+    </div>
+  );
+}
+
+const PSB_CSS = `
+.lt-psb { margin-top: 4px; min-width: 0; font-family: "Inter", system-ui, sans-serif; }
+.lt-psb__label { font-size: 12.5px; font-weight: 700; color: #15233a; margin: 0 0 6px; text-align: left; }
+.lt-psb__row { display: flex; gap: 8px; }
+.lt-psb__btn {
+  flex: 1 1 0; min-width: 0; min-height: 44px; padding: 8px 10px; border-radius: 10px;
+  border: 1px solid hsl(152, 55%, 45%); background: #f0fdf4; color: hsl(152, 55%, 30%);
+  font: 700 14px "Inter", system-ui, sans-serif; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 6px; text-align: center;
+}
+.lt-psb__btn:disabled { opacity: 0.5; cursor: default; }
+.lt-psb__hint { font-size: 12px; color: #64748b; margin: 6px 0 0; line-height: 1.45; text-align: left; }
+.lt-psb__file { display: none; }
+`;
+
 // ── The tray UI ─────────────────────────────────────────────────────────────────
 
 export interface PageTrayProps {
@@ -499,6 +622,7 @@ export interface PageTrayProps {
  */
 export default function PageTray({ tray, disabled = false, inlineCrop = false }: PageTrayProps) {
   const addInputRef = useRef<HTMLInputElement>(null);
+  const coarse = useCoarsePointer();
   const { pages, cropSession, busy, notice, allowMultiPage } = tray;
 
   const cropStep = cropSession ? (
@@ -527,6 +651,11 @@ export default function PageTray({ tray, disabled = false, inlineCrop = false }:
 
   const onAdd = () => {
     if (tray.canAddPage()) addInputRef.current?.click();
+  };
+  const onPicked = (e: ChangeEvent<HTMLInputElement>) => {
+    const picked = e.target.files ? Array.from(e.target.files) : [];
+    e.target.value = "";
+    tray.addFiles(picked);
   };
 
   return (
@@ -601,35 +730,44 @@ export default function PageTray({ tray, disabled = false, inlineCrop = false }:
               </li>
             ))}
           </ol>
-          {allowMultiPage && (
-            <button
-              type="button"
-              className="lt-pt__add"
-              onClick={onAdd}
-              disabled={disabled || busy}
-              data-testid="page-tray-add"
-            >
-              + Add another page
-            </button>
-          )}
+          {allowMultiPage &&
+            (coarse ? (
+              // A phone: the camera and the gallery are two separate choices.
+              <PhotoSourceButtons
+                label="Add another page"
+                onCameraChange={onPicked}
+                onGallery={() => addInputRef.current?.click()}
+                beforeOpen={tray.canAddPage}
+                disabled={disabled || busy}
+                testIdPrefix="page-tray"
+              />
+            ) : (
+              <button
+                type="button"
+                className="lt-pt__add"
+                onClick={onAdd}
+                disabled={disabled || busy}
+                data-testid="page-tray-add"
+              >
+                + Add another page
+              </button>
+            ))}
           {notice && (
             <p className="lt-pt__status" role="status">
               {notice}
             </p>
           )}
-          {/* Its own input, without `capture`: on a phone each tap offers the camera OR
-           *  the gallery; on a desktop several images can be picked at once. */}
+          {/* The gallery / desktop input: `multiple`, so several images can be picked at
+           *  once. On Android Chrome `multiple` REMOVES the camera from the picker — so a
+           *  phone also gets its own camera input ("Take photo", above). */}
           <input
             ref={addInputRef}
             className="lt-pt__file"
             type="file"
             accept="image/jpeg,image/png"
             multiple
-            onChange={(e) => {
-              const picked = e.target.files ? Array.from(e.target.files) : [];
-              e.target.value = "";
-              tray.addFiles(picked);
-            }}
+            onChange={onPicked}
+            data-testid="page-tray-add-input"
           />
         </div>
       )}

@@ -8,7 +8,7 @@
 // real `checkUploadFile`, so "compress BEFORE the size check" is asserted against the
 // real 3 MB wall, not a stub of it.
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useState } from "react";
 import PageTray, { usePageTray, type TrayPayload, type UsePageTrayOptions } from "./PageTray";
@@ -342,4 +342,135 @@ describe("(m) the crop step and the tray render at 360 and 1440 px", () => {
       expect(css).toMatch(/@media \(max-width: 480px\)/);
     });
   }
+});
+
+// ── UPLOAD-2-FIX-1 — "Add another page" must offer the camera on a phone ─────────────
+//
+// On Android Chrome an input with `multiple` opens a picker with NO camera. So a coarse
+// pointer gets TWO inputs, one job each; a fine pointer keeps the one `multiple` input.
+// jsdom has no matchMedia, so each case stubs the pointer it is about.
+
+function stubPointer(coarse: boolean) {
+  vi.stubGlobal("matchMedia", (query: string) => ({
+    matches: query === "(pointer: coarse)" ? coarse : false,
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  }));
+}
+
+function feed(input: HTMLInputElement, files: File[]) {
+  Object.defineProperty(input, "files", { value: files, configurable: true });
+  fireEvent.change(input);
+}
+
+async function onePage() {
+  pick([photo("p1.jpg")]);
+  await confirmWhole();
+  await screen.findByTestId("page-tray");
+  await waitFor(() => expect(screen.queryByTestId("photo-crop-step")).toBeNull());
+}
+
+describe("UPLOAD-2-FIX-1 — camera OR gallery for the next page", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it("★ (a) coarse pointer: a camera input (capture=environment, NO multiple) AND a gallery input WITH multiple", async () => {
+    stubPointer(true);
+    render(<Host />);
+    await onePage();
+
+    expect(screen.queryByTestId("page-tray-add")).toBeNull();
+    expect(screen.getByRole("button", { name: "Take photo" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Choose from gallery" })).toBeTruthy();
+
+    const camera = screen.getByTestId("page-tray-camera-input") as HTMLInputElement;
+    expect(camera.getAttribute("type")).toBe("file");
+    expect(camera.getAttribute("accept")).toBe("image/*");
+    expect(camera.getAttribute("capture")).toBe("environment");
+    expect(camera.hasAttribute("multiple")).toBe(false);
+    expect(camera.multiple).toBe(false);
+
+    const gallery = screen.getByTestId("page-tray-add-input") as HTMLInputElement;
+    expect(gallery.getAttribute("accept")).toBe("image/jpeg,image/png");
+    expect(gallery.multiple).toBe(true);
+    expect(gallery.hasAttribute("capture")).toBe(false);
+
+    // Each button opens ITS input — never the other one.
+    const clicked: string[] = [];
+    vi.spyOn(HTMLInputElement.prototype, "click").mockImplementation(function (this: HTMLInputElement) {
+      clicked.push(this.getAttribute("data-testid") ?? "?");
+    });
+    fireEvent.click(screen.getByTestId("page-tray-camera"));
+    fireEvent.click(screen.getByTestId("page-tray-gallery"));
+    expect(clicked).toEqual(["page-tray-camera-input", "page-tray-add-input"]);
+  });
+
+  it("★ (b) fine pointer (desktop) is unchanged: ONE button, ONE input, multiple, no capture", async () => {
+    stubPointer(false);
+    render(<Host />);
+    await onePage();
+
+    expect(screen.getByTestId("page-tray-add").textContent).toBe("+ Add another page");
+    expect(screen.queryByTestId("page-tray-camera")).toBeNull();
+    expect(screen.queryByTestId("page-tray-gallery")).toBeNull();
+    expect(screen.queryByTestId("page-tray-camera-input")).toBeNull();
+    const tray = screen.getByTestId("page-tray");
+    const inputs = tray.querySelectorAll('input[type="file"]');
+    expect(inputs).toHaveLength(1);
+    const only = inputs[0] as HTMLInputElement;
+    expect(only.multiple).toBe(true);
+    expect(only.hasAttribute("capture")).toBe(false);
+  });
+
+  it("★ (c) a photo from EITHER input lands in the tray through the crop step", async () => {
+    stubPointer(true);
+    render(<Host />);
+    await onePage();
+
+    feed(screen.getByTestId("page-tray-camera-input") as HTMLInputElement, [photo("cam.jpg")]);
+    expect(await screen.findByTestId("photo-crop-step")).toBeTruthy();
+    await confirmWhole();
+    await waitFor(() => expect(screen.getAllByTestId("page-tray-item")).toHaveLength(2));
+
+    feed(screen.getByTestId("page-tray-add-input") as HTMLInputElement, [photo("gal.jpg")]);
+    expect(await screen.findByTestId("photo-crop-step")).toBeTruthy();
+    await confirmWhole();
+    await waitFor(() => expect(screen.getAllByTestId("page-tray-item")).toHaveLength(3));
+
+    await waitFor(() =>
+      expect(assembled[assembled.length - 1].map((p) => sourceName(p.base64))).toEqual(["p1.jpg", "cam.jpg", "gal.jpg"]),
+    );
+  });
+
+  it("★ (d) the 8-page cap holds on BOTH choices", async () => {
+    stubPointer(true);
+    render(<Host />);
+    await act(async () => {
+      pick(Array.from({ length: 8 }, (_, i) => photo(`p${i + 1}.jpg`)));
+    });
+    await waitFor(() => expect(screen.getAllByTestId("page-tray-item")).toHaveLength(8));
+
+    const clicked: string[] = [];
+    vi.spyOn(HTMLInputElement.prototype, "click").mockImplementation(function (this: HTMLInputElement) {
+      clicked.push(this.getAttribute("data-testid") ?? "?");
+    });
+    fireEvent.click(screen.getByTestId("page-tray-camera"));
+    expect(await screen.findByText(TOO_MANY_PAGES_MESSAGE)).toBeTruthy();
+    fireEvent.click(screen.getByTestId("page-tray-gallery"));
+    expect(clicked).toEqual([]); // neither picker opened at the cap
+
+    // And a file that arrives anyway (either input) is refused, the 8 kept.
+    feed(screen.getByTestId("page-tray-camera-input") as HTMLInputElement, [photo("ninth.jpg")]);
+    feed(screen.getByTestId("page-tray-add-input") as HTMLInputElement, [photo("tenth.jpg")]);
+    expect(screen.queryByTestId("photo-crop-step")).toBeNull();
+    expect(screen.getAllByTestId("page-tray-item")).toHaveLength(8);
+    expect(screen.getByText(TOO_MANY_PAGES_MESSAGE)).toBeTruthy();
+  });
 });

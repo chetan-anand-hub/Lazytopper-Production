@@ -21,7 +21,7 @@ import { RequirePremium } from "../../components/auth/RequireAuth";
 import { EquationInput, EquationRender } from "../../components/equation";
 import { checkUploadFile, UPLOAD_LIMIT_SENTENCE } from "../../services/uploadLimits";
 import QrAnswerHandoff from "../../components/qr/QrAnswerHandoff";
-import PageTray, { usePageTray } from "../../components/upload/PageTray";
+import PageTray, { PhotoSourceButtons, useCoarsePointer, usePageTray } from "../../components/upload/PageTray";
 import MobileShell from "../../components/mobile/MobileShell";
 import { useIsDesktop } from "../../hooks/useIsDesktop";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
@@ -862,6 +862,9 @@ const DesktopCheckImprovePageInner: React.FC<{
   // affordance and DesktopShell. Both are true regardless of how wide the render
   // box happens to be — which is exactly what makes them legitimate.
   const isDesktop = useIsDesktop();
+  // UPLOAD-2-FIX-1: the camera choice is gated on the POINTER, not the width — a touch
+  // device gets "Take photo" + "Choose from gallery" (see PhotoSourceButtons).
+  const coarsePointer = useCoarsePointer();
 
   // CHROME OWNERSHIP — the same convention ExamTrendsRanked established when it
   // converged (pages/ExamTrendsRanked.tsx:1274-1282), and the reason App.tsx needs
@@ -2262,38 +2265,24 @@ const DesktopCheckImprovePageInner: React.FC<{
                     />
                   )}
 
-                  {/* MIRROR 3 — Camera / Files for the QUESTION on a touch device,
-                      mirroring the answer's (:2114). Same two buttons toggling
-                      capture="environment" on the EXISTING hidden qFileInputRef input —
-                      no second file input. Device-gated (!isDesktop), hidden once a file
-                      exists, so it never competes with the chosen-file state. */}
-                  {!isDesktop && !qImageBase64 && questionTray.pages.length === 0 && (
-                    <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-                      {([
-                        { label: "Camera", capture: true },
-                        { label: "Files", capture: false },
-                      ] as const).map(({ label, capture }) => (
-                        <button
-                          key={label}
-                          type="button"
-                          onClick={() => {
-                            const el = qFileInputRef.current;
-                            if (!el) return;
-                            if (capture) el.setAttribute("capture", "environment");
-                            else el.removeAttribute("capture");
-                            el.click();
-                          }}
-                          style={{
-                            ...buttonOutline,
-                            flex: 1,
-                            height: 40,
-                            justifyContent: "center",
-                          }}
-                        >
-                          {label}
-                        </button>
-                      ))}
-                    </div>
+                  {/* MIRROR 3 — Take photo / Choose from gallery for the QUESTION on a
+                      touch device, mirroring the answer's. UPLOAD-2-FIX-1: the old
+                      "Camera" button set `capture` on qFileInputRef, but that input
+                      carries `multiple` and a PDF in `accept` — on Android Chrome either
+                      one keeps the camera away. "Take photo" now opens its OWN input
+                      (image/*, capture, never `multiple`); "Choose from gallery" opens
+                      qFileInputRef unchanged. Hidden once a file exists. */}
+                  {coarsePointer && !qImageBase64 && questionTray.pages.length === 0 && (
+                    <PhotoSourceButtons
+                      onCameraClick={warmAppCheck}
+                      onCameraChange={(e) => {
+                        const files = e.target.files ? Array.from(e.target.files) : [];
+                        e.target.value = "";
+                        handleQuestionFiles(files);
+                      }}
+                      onGallery={() => qFileInputRef.current?.click()}
+                      testIdPrefix="ci-question-photo"
+                    />
                   )}
                 </div>
               )}
@@ -2642,42 +2631,27 @@ const DesktopCheckImprovePageInner: React.FC<{
                     />
                   )}
 
-                  {/* CAMERA / FILES — absorbed from the retired mobile twin (which
-                      owned this and the desktop twin never had it). This is the ONE
-                      legitimate use of useIsDesktop in this file's answer path: it
-                      asks "does this DEVICE have a camera worth offering?", which is
-                      a question about the device, not about how wide this box is.
-                      A touch student taps Camera and shoots their working; the same
-                      input, the same handleFileChosen, the same guard — `capture` only
-                      changes which picker the OS opens. Hidden once a file exists, so
-                      it cannot compete with "Remove image". */}
-                  {!isDesktop && !imageBase64 && answerTray.pages.length === 0 && (
-                    <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-                      {([
-                        { label: "Camera", capture: true },
-                        { label: "Files", capture: false },
-                      ] as const).map(({ label, capture }) => (
-                        <button
-                          key={label}
-                          type="button"
-                          onClick={() => {
-                            const el = fileInputRef.current;
-                            if (!el) return;
-                            if (capture) el.setAttribute("capture", "environment");
-                            else el.removeAttribute("capture");
-                            el.click();
-                          }}
-                          style={{
-                            ...buttonOutline,
-                            flex: 1,
-                            height: 40,
-                            justifyContent: "center",
-                          }}
-                        >
-                          {label}
-                        </button>
-                      ))}
-                    </div>
+                  {/* TAKE PHOTO / CHOOSE FROM GALLERY — absorbed from the retired mobile
+                      twin. It asks "does this DEVICE have a camera worth offering?" — a
+                      question about the device (a coarse pointer), not about how wide
+                      this box is. UPLOAD-2-FIX-1: the old "Camera" button set `capture`
+                      on fileInputRef, but that input carries `multiple` and a PDF in
+                      `accept`, and on Android Chrome either one keeps the camera away.
+                      "Take photo" now opens its OWN input (image/*, capture, never
+                      `multiple`) into the same handleFilesChosen and the same guard;
+                      "Choose from gallery" opens fileInputRef unchanged. Hidden once a
+                      file exists, so it cannot compete with "Remove image". */}
+                  {coarsePointer && !imageBase64 && answerTray.pages.length === 0 && (
+                    <PhotoSourceButtons
+                      onCameraClick={warmAppCheck}
+                      onCameraChange={(e) => {
+                        const files = e.target.files ? Array.from(e.target.files) : [];
+                        e.target.value = "";
+                        handleFilesChosen(files);
+                      }}
+                      onGallery={() => fileInputRef.current?.click()}
+                      testIdPrefix="ci-answer-photo"
+                    />
                   )}
 
                   {imageBase64 && (

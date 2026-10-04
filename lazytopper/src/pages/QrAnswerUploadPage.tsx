@@ -19,7 +19,7 @@
 // Honest states throughout: checking / ready / sending / sent / expired / failed.
 // Never a fake success.
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ChangeEvent } from "react";
 import { useParams } from "react-router-dom";
 import {
   peekQrSlot,
@@ -32,7 +32,12 @@ import {
   checkUploadFile,
   formatUploadLimit,
 } from "../services/uploadLimits";
-import PageTray, { usePageTray, type TrayPayload } from "../components/upload/PageTray";
+import PageTray, {
+  PhotoSourceButtons,
+  useCoarsePointer,
+  usePageTray,
+  type TrayPayload,
+} from "../components/upload/PageTray";
 
 type Phase =
   | "checking"
@@ -161,6 +166,21 @@ export default function QrAnswerUploadPage() {
   });
 
   const pick = useCallback(() => fileInputRef.current?.click(), []);
+  // A phone (this page's whole audience) gets "Take photo" + "Choose from gallery"
+  // (UPLOAD-2-FIX-1): the picker below carries `multiple` and a PDF in `accept`, and on
+  // Android Chrome either one keeps the camera away even with `capture` set.
+  const coarsePointer = useCoarsePointer();
+  const onPicked = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files ? Array.from(e.target.files) : [];
+      // Let the same file be re-picked after a failure.
+      e.target.value = "";
+      setError(null);
+      if (phase === "failed") setPhase("ready");
+      tray.addFiles(files, { replace: true });
+    },
+    [phase, tray.addFiles],
+  );
   const inTray = tray.pages.length > 0 || tray.cropSession !== null;
 
   return (
@@ -178,9 +198,21 @@ export default function QrAnswerUploadPage() {
                 <h1 className="lt-qru__h">{COPY[mode].head}</h1>
                 <p className="lt-qru__d">{COPY[mode].lead}</p>
                 {phase === "failed" && error && <p className="lt-qru__err">{error}</p>}
-                <button type="button" className="lt-qru__cta" onClick={pick} disabled={tray.busy}>
-                  {tray.busy ? "Opening your photo…" : phase === "failed" ? "Try again" : COPY[mode].cta}
-                </button>
+                {coarsePointer ? (
+                  tray.busy ? (
+                    <p className="lt-qru__note">Opening your photo…</p>
+                  ) : (
+                    <PhotoSourceButtons
+                      onCameraChange={onPicked}
+                      onGallery={pick}
+                      testIdPrefix="qru-photo"
+                    />
+                  )
+                ) : (
+                  <button type="button" className="lt-qru__cta" onClick={pick} disabled={tray.busy}>
+                    {tray.busy ? "Opening your photo…" : phase === "failed" ? "Try again" : COPY[mode].cta}
+                  </button>
+                )}
                 <p className="lt-qru__hint">{COPY[mode].hint}</p>
               </>
             )}
@@ -222,22 +254,20 @@ export default function QrAnswerUploadPage() {
              *  student needs Files to be a first-class choice rather than something to
              *  hunt for behind the camera. So it is omitted in document mode — on
              *  purpose, not by oversight. `multiple` lets a gallery hand over several
-             *  pages at once; each becomes a page in the tray. */}
+             *  pages at once; each becomes a page in the tray.
+             *
+             *  UPLOAD-2-FIX-1: on a touch device the camera is its OWN input ("Take
+             *  photo", above) — on Android Chrome `multiple` and a PDF in `accept` each
+             *  keep the camera away from THIS one, `capture` or not. So on a touch device
+             *  this input is the gallery / files choice and carries no `capture`. */}
             <input
               ref={fileInputRef}
               className="lt-qru__file"
               type="file"
               accept="image/jpeg,image/png,application/pdf"
               multiple
-              {...(mode === "photo" ? { capture: "environment" as const } : {})}
-              onChange={(e) => {
-                const files = e.target.files ? Array.from(e.target.files) : [];
-                // Let the same file be re-picked after a failure.
-                e.target.value = "";
-                setError(null);
-                if (phase === "failed") setPhase("ready");
-                tray.addFiles(files, { replace: true });
-              }}
+              {...(mode === "photo" && !coarsePointer ? { capture: "environment" as const } : {})}
+              onChange={onPicked}
             />
           </>
         )}
