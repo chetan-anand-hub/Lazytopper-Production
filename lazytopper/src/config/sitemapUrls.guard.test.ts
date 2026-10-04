@@ -21,7 +21,10 @@ import {
 } from "./canonicalUrl";
 import { allDesktopTopics } from "../lib/desktop/topics";
 import { LEGAL_SLUGS } from "../pages/legalSlugs";
-import { getNoteSpecForTopic } from "../components/notes/noteSpecRegistry";
+import { ensureAllNoteSpecs, getNoteSpecForTopic } from "../components/notes/noteSpecRegistry";
+
+// LOW-END-1 (L4): specs are per-chapter chunks now; this suite reads them synchronously.
+await ensureAllNoteSpecs();
 
 /**
  * GUARD — `public/sitemap.xml` IS DERIVED FROM THE ROUTE REGISTRY, AND STAYS DERIVED.

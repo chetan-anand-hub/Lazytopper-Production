@@ -20,7 +20,7 @@ import { resolveTopicDisplayName, normalizeTopicKey } from "../utils/topicResolv
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import { useAuth } from "../context/AuthContext";
 import { trackUxEvent } from "../services/uxTelemetry";
-import { MathText } from "../components/question/MathText";
+import { MathText, loadKatex } from "../components/question/MathText";
 import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
 import type { WorksheetGradeResponse } from "../ai/aiClient";
 import {
@@ -145,6 +145,15 @@ export default function ChapterTestPage() {
       return [] as SessionRecord[];
     }
   }, [user?.uid]);
+
+  // LOW-END-1 (owner ruling 1): the start screen shows no maths, so KaTeX is not in this
+  // page's static graph — but it is fetched as soon as the page has mounted, so the first
+  // question renders KaTeX at once when the student starts. Best effort; MathText retries.
+  useEffect(() => {
+    loadKatex().catch(() => {
+      /* MathText fetches it again when a question needs it */
+    });
+  }, []);
 
   // On mount: read the cross-device records ONCE, mint the durable CT code/#NN from
   // them (mint-once, BEFORE any record is written), and populate the history rail.

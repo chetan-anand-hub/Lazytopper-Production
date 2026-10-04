@@ -15,7 +15,7 @@ import {
   type CachedAiQuestion,
 } from "../../ai/aiClient";
 import { getTrigRubric } from "../../data/contentStrategy/trigonometry/trigonometryRubrics";
-import { getTrianglesRubric } from "../../data/contentStrategy/triangles";
+import { getTrianglesRubric } from "../../data/contentStrategy/triangles/trianglesRubrics";
 import type {
   LearningObject,
   QuestionMeta,

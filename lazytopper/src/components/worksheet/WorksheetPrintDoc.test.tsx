@@ -1,6 +1,10 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { render, cleanup } from "@testing-library/react";
 import { WorksheetPrintDoc } from "./WorksheetPrintDoc";
+import { loadKatex } from "../question/MathText";
+
+// LOW-END-1 (L6): KaTeX is fetched on demand; this suite pins the rendered print doc.
+await loadKatex();
 import type { PersistedWorksheet } from "../../services/worksheetSessionStore";
 
 // PR-E2a.1/.2 — the worksheet doc must render REAL math symbols (MathText/KaTeX),

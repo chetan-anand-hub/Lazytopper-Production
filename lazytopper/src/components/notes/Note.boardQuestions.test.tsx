@@ -13,7 +13,10 @@ import { render, screen, cleanup, within, fireEvent } from "@testing-library/rea
 import { MemoryRouter } from "react-router-dom";
 
 import { Note } from "./Note";
-import { getNoteSpecForTopic } from "./noteSpecRegistry";
+import { ensureAllNoteSpecs, getNoteSpecForTopic } from "./noteSpecRegistry";
+
+// LOW-END-1 (L4): specs are per-chapter chunks now; this suite reads them synchronously.
+await ensureAllNoteSpecs();
 import { BOARD_QUESTIONS } from "../../lib/boardQuestions/boardQuestions";
 
 afterEach(cleanup);

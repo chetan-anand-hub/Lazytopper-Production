@@ -6,7 +6,10 @@ import { ConceptSpine } from "./ConceptSpine";
 import { desktopTopicBySlug, type DesktopTopicSummary } from "../../lib/desktop/topics";
 import { buildActionableDesktopTopicHubContent } from "../../lib/desktop/topicHubContent";
 import { findVisualForConcept } from "../../data/visualConceptRegistry";
-import { getNoteSpecForTopic } from "../notes/noteSpecRegistry";
+import { ensureAllNoteSpecs, getNoteSpecForTopic } from "../notes/noteSpecRegistry";
+
+// LOW-END-1 (L4): specs are per-chapter chunks now; this suite reads them synchronously.
+await ensureAllNoteSpecs();
 
 // RETIREMENT PR-1: the old "Teach me" side-drawer (ConceptTeachDrawer → TeachFlow →
 // /api/mentor `concept_teach`) is retired — the new /tutor route supersedes it. The

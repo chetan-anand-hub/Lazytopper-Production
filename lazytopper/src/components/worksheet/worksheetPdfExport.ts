@@ -19,6 +19,7 @@ import { createElement, type ReactElement } from "react";
 import { createRoot } from "react-dom/client";
 import { WorksheetPrintDoc } from "./WorksheetPrintDoc";
 import { WorksheetGradedPrintDoc } from "./WorksheetGradedPrintDoc";
+import { loadKatex } from "../question/MathText";
 import {
   CheckImproveGradedPrintDoc,
   type CheckImproveGradedPrintDocProps,
@@ -107,6 +108,10 @@ async function renderElementToPdf(element: ReactElement, filename: string): Prom
 
   const root = createRoot(host);
   try {
+    // LOW-END-1 (owner ruling 2): MathText fetches KaTeX on demand, and this capture runs
+    // only ~2 frames after rendering — so the export ALWAYS waits for KaTeX first. Without
+    // it a PDF could rasterise MathText's plain-text stand-in instead of the maths.
+    await loadKatex();
     root.render(element);
     await waitForRenderReady();
 

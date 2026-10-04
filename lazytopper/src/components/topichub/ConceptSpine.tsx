@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, useHref } from "react-router-dom";
 import { Card } from "../grammar/Card";
-import { getNoteSpecForTopic } from "../notes/noteSpecRegistry";
+import { hasNoteSpec, useNoteSpec } from "../notes/noteSpecRegistry";
 import { lazyWithRetry } from "../../lib/lazyWithRetry";
 import { findVisualForConcept } from "../../data/visualConceptRegistry";
 import type { DesktopTopicSummary } from "../../lib/desktop/topics";
@@ -503,7 +503,11 @@ export function ConceptSpine({
   // PR-F — the pre-authored note-spec for this topic (notes/specs/<slug>.json),
   // or null → the honest "coming soon" empty state below. Content arrives only
   // via validated specs; nothing is generated or invented here.
-  const noteSpec = getNoteSpecForTopic(topic.slug);
+  // LOW-END-1 (L4): whether a spec EXISTS is known from the file list (no download), which
+  // is all the Notes button needs; the spec itself — its own chunk — is fetched on the
+  // first Notes click, alongside NoteModal's, and the modal mounts once both have landed.
+  const hasSpec = hasNoteSpec(topic.slug);
+  const { spec: noteSpec } = useNoteSpec(hasSpec && notesRequested ? topic.slug : null);
   // SEO-NOTES-AND-LINKS-1 — the note's own page. Resolved through the router so the
   // basename is applied here, never hardcoded. Only meaningful when a spec exists.
   const notesHref = useHref(`/notes/${topic.slug}`);
@@ -612,7 +616,7 @@ export function ConceptSpine({
         {/* Notes — ONE unified toggle. When a note exists it opens as a POPUP over
             the hub (NoteModal); otherwise an inline honest "coming soon". */}
         <div className="lt-spine__notes-row">
-          {noteSpec ? (
+          {hasSpec ? (
             /* SEO-NOTES-AND-LINKS-1 — a REAL anchor so crawlers can follow it to
                /notes/:topicSlug, while a plain click still opens the popup exactly as
                before. A modified or non-primary click is left to the browser, so
@@ -649,15 +653,17 @@ export function ConceptSpine({
           )}
           <span className="lt-spine__notes-hint">formulae · proofs · mind-map — one view</span>
         </div>
-        {noteSpec ? (
+        {hasSpec ? (
           notesRequested && (
             <Suspense fallback={null}>
-              <NoteModal
-                open={notesOpen}
-                onClose={() => setNotesOpen(false)}
-                spec={noteSpec}
-                title={topic.name}
-              />
+              {noteSpec && (
+                <NoteModal
+                  open={notesOpen}
+                  onClose={() => setNotesOpen(false)}
+                  spec={noteSpec}
+                  title={topic.name}
+                />
+              )}
             </Suspense>
           )
         ) : (

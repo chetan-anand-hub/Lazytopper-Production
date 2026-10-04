@@ -124,6 +124,8 @@ vi.mock("../services/firebaseClient", () => ({
   authClient: H.AUTH_CLIENT,
   firebaseConfigured: true,
   firestoreDb: { __fake: "firestore" },
+  // LOW-END-1 (L5): signInWithGoogle hands signInWithPopup the on-demand resolver.
+  getPopupRedirectResolver: () => ({ __fake: "popup-resolver" }),
 }));
 vi.mock("../services/dbSyncService", () => ({ restoreFromDB: vi.fn(async () => {}) }));
 vi.mock("../services/studentCloudStore", () => ({ ensureLearnerCloudBaseline: vi.fn(async () => {}) }));

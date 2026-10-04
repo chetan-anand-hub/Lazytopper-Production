@@ -119,7 +119,7 @@ function RouteFallback() {
         background: "var(--bg-card)", backdropFilter: "blur(16px)",
         border: "1px solid var(--bg-card-border)", borderRadius: 16, padding: 24,
       }}>
-        <h3 style={{ fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, fontSize: 16, color: "var(--text)" }}>Loading...</h3>
+        <h3 style={{ fontFamily: "'Fraunces', 'Fraunces Fallback', Georgia, serif", fontWeight: 700, fontSize: 16, color: "var(--text)" }}>Loading...</h3>
       </div>
     </div>
   );
@@ -858,7 +858,7 @@ export default function App({ prerenderedRoute = null }: { prerenderedRoute?: Pr
             background: "linear-gradient(135deg, #22c55e, #3b82f6)", display: "flex", alignItems: "center", justifyContent: "center",
             color: "var(--text)", fontWeight: 900, fontSize: 14,
           }}>LT</div>
-          <span style={{ fontWeight: 800, fontSize: "1.1rem", color: "var(--text)", fontFamily: "'Space Grotesk', sans-serif" }}>LazyTopper</span>
+          <span style={{ fontWeight: 800, fontSize: "1.1rem", color: "var(--text)", fontFamily: "'Fraunces', 'Fraunces Fallback', Georgia, serif" }}>LazyTopper</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {user && isTrialActive && (

@@ -28,6 +28,8 @@ import { buildTopicHubUrl } from "../utils/buildUrl";
 
 import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
 import { MathText } from "../components/question/MathText";
+// LOW-END-1: maths on the first screen — KaTeX up front, never a plain-text stand-in.
+import "../components/question/katexEager";
 import { lazyWithRetry } from "../lib/lazyWithRetry";
 
 import {

@@ -3,7 +3,7 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { Card } from "../../components/grammar/Card";
 import { useReturnTicket } from "../../components/navigation/ReturnTicket";
 import { Note, type NoteInitialTab } from "../../components/notes/Note";
-import { getNoteSpecForTopic } from "../../components/notes/noteSpecRegistry";
+import { useNoteSpec } from "../../components/notes/noteSpecRegistry";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
 
 /**
@@ -27,6 +27,12 @@ import { desktopTopicBySlug } from "../../lib/desktop/topics";
  *
  * Honest resolution: a slug with no topic or no authored spec renders a not-found
  * card — never a blank page and never invented note content.
+ *
+ * LOW-END-1 (L4) — the spec is this chapter's own chunk, awaited here (useNoteSpec,
+ * BANK-SPLIT-1's await-at-the-boundary pattern). While it is in flight the page shows its
+ * header (back link, title, CBSE link) and no note; it never flashes "not found" for a
+ * chapter that has one. Once loaded the page is exactly what it was — the prerender
+ * capture waits for the body to stop changing, so the captured body is unchanged.
  */
 
 const NOTES_PAGE_CSS = `
@@ -96,9 +102,9 @@ export default function DesktopNotesPage() {
   // Hub link, unchanged.
   const ticket = useReturnTicket();
   const topic = topicSlug ? desktopTopicBySlug(topicSlug) : undefined;
-  const spec = topic ? getNoteSpecForTopic(topic.slug) : null;
+  const { spec, ready, error } = useNoteSpec(topic?.slug);
 
-  if (!topic || !spec) {
+  if (!topic || (ready && !spec)) {
     return (
       <div className="lt-notes-page">
         <style>{NOTES_PAGE_CSS}</style>
@@ -132,7 +138,15 @@ export default function DesktopNotesPage() {
       >
         CBSE 2027 — dates, rules and official papers →
       </Link>
-      <Note spec={spec} initialTab={noteTabFromParam(params.get("tab"))} />
+      {spec ? (
+        <Note spec={spec} initialTab={noteTabFromParam(params.get("tab"))} />
+      ) : error ? (
+        <Card padding={24}>
+          <p className="lt-notes-page__nf-body" role="alert">
+            These notes didn&rsquo;t load. Check your connection and reload the page.
+          </p>
+        </Card>
+      ) : null}
     </div>
   );
 }

@@ -317,7 +317,7 @@ const cardStyle: CSSProperties = {
 
 const titleStyle: CSSProperties = {
   margin: "0 0 6px",
-  fontFamily: "'Space Grotesk', sans-serif",
+  fontFamily: "'Fraunces', 'Fraunces Fallback', Georgia, serif",
   fontSize: "1.25rem",
   fontWeight: 800,
   color: "var(--text)",
