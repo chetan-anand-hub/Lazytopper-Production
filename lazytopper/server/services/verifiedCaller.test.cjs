@@ -245,3 +245,58 @@ test("the uid-source events carry no PII", () => {
   assert.ok(!serialised.includes("alice@example.com"), "a uid reached telemetry");
   for (const e of telemetry.events) assert.match(e.event, /^[a-z0-9._]+$/);
 });
+
+/* ── 6 · AUTHGATE-FIX-1 — the REASON there is no uid ──────────────────────── */
+
+const {
+  REASON_VERIFIED,
+  REASON_NO_TOKEN,
+  REASON_INVALID,
+  REASON_UNAVAILABLE,
+  INVALID_EVENT,
+  UNAVAILABLE_EVENT,
+} = require("./verifiedCaller.cjs");
+
+test("resolveVerifiedCaller reports WHY: verified / no-token / invalid / unavailable", async () => {
+  const telemetry = recorder();
+  const { resolveVerifiedCaller } = createVerifiedCaller({ firebaseAdmin: fakeAdmin(GOOD), telemetry });
+  assert.deepEqual(await resolveVerifiedCaller(bearer("good-token")), { uid: "firebase-uid-42", reason: REASON_VERIFIED });
+  assert.deepEqual(await resolveVerifiedCaller(req({ "x-lazytopper-uid": "u1" })), { uid: "", reason: REASON_NO_TOKEN });
+  assert.deepEqual(await resolveVerifiedCaller(bearer("forged")), { uid: "", reason: REASON_INVALID });
+  assert.equal(telemetry.count(INVALID_EVENT), 1);
+  assert.equal(telemetry.count(UNAVAILABLE_EVENT), 0);
+
+  const t2 = recorder();
+  const none = createVerifiedCaller({ firebaseAdmin: null, telemetry: t2 });
+  assert.deepEqual(await none.resolveVerifiedCaller(bearer("good-token")), { uid: "", reason: REASON_UNAVAILABLE });
+  assert.equal(t2.count(UNAVAILABLE_EVENT), 1);
+  assert.equal(t2.count(INVALID_EVENT), 0);
+});
+
+test("a verifier that is not configured (auth/invalid-credential) is UNAVAILABLE; any other rejection is INVALID", async () => {
+  const thrower = (code) => ({
+    auth: () => ({ verifyIdToken: async () => { const e = new Error("x"); if (code) e.code = code; throw e; } }),
+  });
+  const notConfigured = createVerifiedCaller({ firebaseAdmin: thrower("auth/invalid-credential") });
+  assert.equal((await notConfigured.resolveVerifiedCaller(bearer("t"))).reason, REASON_UNAVAILABLE);
+  for (const code of ["auth/argument-error", "auth/id-token-expired", "auth/id-token-revoked", undefined]) {
+    const c = createVerifiedCaller({ firebaseAdmin: thrower(code) });
+    assert.equal((await c.resolveVerifiedCaller(bearer("t"))).reason, REASON_INVALID, String(code));
+  }
+  const noUid = createVerifiedCaller({ firebaseAdmin: { auth: () => ({ verifyIdToken: async () => ({}) }) } });
+  assert.equal((await noUid.resolveVerifiedCaller(bearer("t"))).reason, REASON_INVALID);
+});
+
+test("resolveVerifiedUid is still the uid alone", async () => {
+  const { resolveVerifiedUid } = createVerifiedCaller({ firebaseAdmin: fakeAdmin(GOOD) });
+  assert.equal(await resolveVerifiedUid(bearer("good-token")), "firebase-uid-42");
+  assert.equal(await resolveVerifiedUid(bearer("forged")), "");
+});
+
+test("resolveCaller with tokenRejected ignores the uid header and keys on the IP — CONTROL: without it the header is used", () => {
+  const r = req({ "x-lazytopper-uid": "u1", "x-forwarded-for": "203.0.113.5" });
+  assert.deepEqual(resolveCaller(r, "", { tokenRejected: true }), { id: "ip:203.0.113.5", anonymous: true, verified: false });
+  assert.deepEqual(resolveCaller(r, ""), { id: "u1", anonymous: false, verified: false });
+  // A verified uid always wins, whatever the flag says.
+  assert.deepEqual(resolveCaller(r, "real", { tokenRejected: true }), { id: "real", anonymous: false, verified: true });
+});

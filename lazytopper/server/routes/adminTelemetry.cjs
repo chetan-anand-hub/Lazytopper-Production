@@ -90,7 +90,11 @@ const {
 } = require('../services/geminiClient.cjs');
 // Required, not restated, for the same reason: the name this endpoint reads must be
 // the name entitlement.cjs emits.
-const { DENY_UID_HEADER_NO_TOKEN } = require('../services/entitlement.cjs');
+const {
+  DENY_UID_HEADER_NO_TOKEN,
+  DENY_REAUTH_REQUIRED,
+  FAIL_OPEN_VERIFIER_UNAVAILABLE,
+} = require('../services/entitlement.cjs');
 
 const REPORTED_WORKLOAD_CLASSES = Object.freeze([
   ...WORKLOAD_CLASSES,
@@ -438,10 +442,15 @@ function createAdminTelemetryRoutes(deps) {
       },
       // ★ UID-HEADER-CLOSE-1 — a uid header that arrived with no bearer token, now
       // DENIED. Until that lane it was served and counted with a failed token under
-      // one name, so the two could not be told apart. This is the only entitlement
-      // counter the endpoint reports; the rest are [FU-ENTITLEMENT-COUNTERS-NO-READER].
+      // one name, so the two could not be told apart. The other entitlement counters
+      // not listed here are [FU-ENTITLEMENT-COUNTERS-NO-READER].
       entitlement: {
         denyUidHeaderNoToken: toNumber(counters[DENY_UID_HEADER_NO_TOKEN]),
+        // AUTHGATE-FIX-1: a bearer token that did not verify, refused 401.
+        denyReauthRequired: toNumber(counters[DENY_REAUTH_REQUIRED]),
+        // AUTHGATE-FIX-1: served without a check because this deploy could not verify
+        // any token. Should read 0; anything else is a server configuration fault.
+        failOpenVerifierUnavailable: toNumber(counters[FAIL_OPEN_VERIFIER_UNAVAILABLE]),
       },
       recentSampleSize,
     };

@@ -604,18 +604,36 @@ test('M1 · REAL index.cjs: verified charged, unverified header uid NOT, free ch
     });
 
     // ── (2) MUTATION M-C target: a FAILED token plus a forged uid HEADER. ──
-    // Entitlement fails OPEN for a failed-bearer caller, so the model IS called —
-    // which is exactly why the charge must not follow the header.
+    // AUTHGATE-FIX-1: on an entitlement route (the tutor) such a call is refused 401
+    // before anything runs — no model call, no charge.
     before = srv.log();
     res = await post(port, '/api/tutor', TUTOR_BODY, {
+      authorization: 'Bearer forged-token',
+      'x-lazytopper-uid': 'forged-header-uid',
+    });
+    assert.equal(res.status, 401, `a token that does not verify is refused on the tutor
+${res.status} ${res.text}`);
+    await wait(400);
+    delta = srv.log().slice(before.length);
+    assert.equal(count(delta, /GEMINI_FETCH/g), 0, `a refused call must not reach Gemini
+${delta}`);
+    assert.equal(count(delta, /LEDGER_SET/g), 0, `a refused call was charged
+${delta}`);
+    // On an UNGATED paid route the same caller still reaches the model (keyed on its IP
+    // by the limiter) — which is exactly why the charge must not follow the header.
+    before = srv.log();
+    res = await post(port, '/api/detect-question', { question: 'Find the resistance of a 2 m wire.' }, {
       authorization: 'Bearer forged-token',
       'x-lazytopper-uid': 'forged-header-uid',
     });
     await wait(400);
     delta = srv.log().slice(before.length);
     assert.equal(count(delta, /GEMINI_FETCH/g), 1,
-      `CONTROL: the unverified caller must really reach Gemini, or this proves nothing\n${res.status} ${res.text}\n${delta}`);
-    assert.equal(count(delta, /LEDGER_SET/g), 0, `an UNVERIFIED header uid was charged\n${delta}`);
+      `CONTROL: the unverified caller must really reach Gemini, or this proves nothing
+${res.status} ${res.text}
+${delta}`);
+    assert.equal(count(delta, /LEDGER_SET/g), 0, `an UNVERIFIED header uid was charged
+${delta}`);
     assert.ok(!delta.includes('forged-header-uid'), 'the header uid reached the ledger');
 
     // ── (3) An ADMITTED free check (signed-out visitor) is charged to nobody. ──
