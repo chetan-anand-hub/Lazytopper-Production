@@ -70,13 +70,21 @@ export const SIGN_IN_AGAIN_MESSAGE =
   "We couldn't confirm you're signed in. Please sign in again, then try once more.";
 
 /**
- * Thrown when a SIGNED-IN student's ID token could not be fetched after every retry.
- * Nothing about it is the student's fault, so the message is plain English and asks
- * for the one thing that fixes it. Callers render `err.message`; detect by `name`.
+ * AUTHGATE-FIX-1 — what a student reads when the server refused their token, a fresh
+ * token was fetched and sent once more, and that was refused too. Only then: a token
+ * that had simply expired is refreshed and retried silently, with no message at all.
+ */
+export const REAUTH_MESSAGE = "Please sign in again to continue.";
+
+/**
+ * Thrown when a SIGNED-IN student's ID token could not be fetched after every retry, or
+ * (with REAUTH_MESSAGE) when the server refused a freshly refreshed token. Nothing about
+ * it is the student's fault, so the message is plain English and asks for the one thing
+ * that fixes it. Callers render `err.message`; detect by `name`.
  */
 export class SignInAgainError extends Error {
-  constructor() {
-    super(SIGN_IN_AGAIN_MESSAGE);
+  constructor(message: string = SIGN_IN_AGAIN_MESSAGE) {
+    super(message);
     this.name = "SignInAgainError";
   }
 }
@@ -95,11 +103,14 @@ export const TOKEN_RETRY_DELAYS_MS: readonly number[] = [300, 1000];
 
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
-async function fetchIdToken(user: { getIdToken: (forceRefresh?: boolean) => Promise<string> }) {
+async function fetchIdToken(
+  user: { getIdToken: (forceRefresh?: boolean) => Promise<string> },
+  forceRefresh = false,
+) {
   for (let attempt = 0; attempt <= TOKEN_RETRY_DELAYS_MS.length; attempt += 1) {
     if (attempt > 0) await sleep(TOKEN_RETRY_DELAYS_MS[attempt - 1]);
     try {
-      const token = attempt === 0 ? await user.getIdToken() : await user.getIdToken(true);
+      const token = attempt === 0 && !forceRefresh ? await user.getIdToken() : await user.getIdToken(true);
       if (token) return token;
     } catch {
       /* retried below; exhaustion is handled by the caller */
@@ -123,17 +134,22 @@ async function fetchIdToken(user: { getIdToken: (forceRefresh?: boolean) => Prom
  * every paid call, ungated ones included, so a student meets the same "sign in
  * again" everywhere rather than being served on some surfaces and refused on others.
  */
-export async function paidCallHeaders(): Promise<Record<string, string>> {
+export interface PaidCallHeaderOptions {
+  /** AUTHGATE-FIX-1: the server refused the last token — skip the cache and force a fresh one. */
+  forceRefresh?: boolean;
+}
+
+export async function paidCallHeaders(opts?: PaidCallHeaderOptions): Promise<Record<string, string>> {
   const current = await currentFirebaseUser();
   if (!current?.uid) return {};
 
-  const token = await fetchIdToken(current);
+  const token = await fetchIdToken(current, opts?.forceRefresh === true);
   if (!token) throw new SignInAgainError();
 
   return { [UID_HEADER]: current.uid, Authorization: `Bearer ${token}` };
 }
 
 /** Convenience: JSON content type plus caller identity, the shape most sites need. */
-export async function paidJsonHeaders(): Promise<Record<string, string>> {
-  return { "Content-Type": "application/json", ...(await paidCallHeaders()) };
+export async function paidJsonHeaders(opts?: PaidCallHeaderOptions): Promise<Record<string, string>> {
+  return { "Content-Type": "application/json", ...(await paidCallHeaders(opts)) };
 }

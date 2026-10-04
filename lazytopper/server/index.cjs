@@ -174,6 +174,8 @@ const { createVerifiedCaller } = require('./services/verifiedCaller.cjs');
 // and applyToRequest for why (64 existing grader tests call the handlers directly).
 // ★ Fails OPEN with a warning AND a counter: a student who paid must never be
 // locked out by an infrastructure blip. Watch `entitlement.fail_open`.
+// ★ A bearer token that did not verify is NOT an infrastructure blip: it gets 401
+// `reauth_required` and the client refreshes and retries (AUTHGATE-FIX-1).
 const { createEntitlementGate } = require('./services/entitlement.cjs');
 // FREE-CHECK-1a: one free marked upload for a signed-out visitor. DARK unless the
 // server env FREE_CHECK_ENABLED is on. Fails CLOSED (the opposite of entitlement):
@@ -426,9 +428,18 @@ async function handleRequest(req, res) {
     // synchronous pure function with 27 tests calling check() directly. Keeping
     // check() synchronous confines the async concern to the one place already
     // inside an async handler, and leaves every existing caller and test
-    // untouched. Returns "" — never throws, never blocks — so a verification
-    // fault degrades to the previous header-based behaviour.
-    const verifiedUid = await verifiedCaller.resolveVerifiedUid(req);
+    // untouched. Never throws, never blocks. `verification.reason` says why there is
+    // no uid ("no-token" | "invalid" | "unavailable") so the steps below can tell a
+    // server fault from a credential that is simply wrong.
+    const verification = await verifiedCaller.resolveVerifiedCaller(req);
+    const verifiedUid = verification.uid;
+    const tokenRejected = verification.reason === 'invalid';
+
+    // ── A token that did not verify (AUTHGATE-FIX-1) ─────────────────────────
+    // On an entitlement route it is answered 401 `reauth_required` HERE, before
+    // idempotency, the free check and the limiter, so it spends nothing; the client
+    // refreshes its token and retries once. Other paid routes carry on, keyed on IP.
+    if (entitlementGate.rejectUnverifiedToken(req, res, reqPath, verification)) return;
 
     // ── Idempotent grading (LOW-END-1 R4) ─────────────────────────────────────
     // FIRST, before the free check, the limiter, entitlement and fair use: a retry of a
@@ -463,7 +474,7 @@ async function handleRequest(req, res) {
       ? rateLimiter.check(req, reqPath, verifiedUid, { freeCheck: true })
       : premiumShedExempt
         ? rateLimiter.check(req, reqPath, verifiedUid, { premium: true })
-        : rateLimiter.check(req, reqPath, verifiedUid);
+        : rateLimiter.check(req, reqPath, verifiedUid, { tokenRejected });
     if (!verdict.allowed) {
       return sendJson(res, verdict.status, verdict.body);
     }
@@ -477,7 +488,7 @@ async function handleRequest(req, res) {
     //
     // An ADMITTED free check bypasses this gate and only it; entitlement.cjs is
     // byte-identical, so every non-free-check caller is decided exactly as before.
-    if (!freeCheckAdmitted && await entitlementGate.applyToRequest(req, res, reqPath, verifiedUid)) return;
+    if (!freeCheckAdmitted && await entitlementGate.applyToRequest(req, res, reqPath, verifiedUid, verification)) return;
 
     // METER-1 (M1): charge this request's model calls to the VERIFIED uid — the one the
     // limiter was handed above — and to nobody for a free check. Records only.

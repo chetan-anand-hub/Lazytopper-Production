@@ -391,8 +391,20 @@ test("uidSource reads as zeros before any traffic, never undefined", () => {
    ──────────────────────────────────────────────────────────────────────────── */
 
 test("entitlement.denyUidHeaderNoToken is surfaced, and reads 0 before any traffic", () => {
-  assert.deepEqual(payloadFor({ "entitlement.deny.uid_header_no_token": 5 }).entitlement, { denyUidHeaderNoToken: 5 });
-  assert.deepEqual(payloadFor({}).entitlement, { denyUidHeaderNoToken: 0 });
+  assert.deepEqual(payloadFor({ "entitlement.deny.uid_header_no_token": 5 }).entitlement,
+    { denyUidHeaderNoToken: 5, denyReauthRequired: 0, failOpenVerifierUnavailable: 0 });
+  assert.deepEqual(payloadFor({}).entitlement,
+    { denyUidHeaderNoToken: 0, denyReauthRequired: 0, failOpenVerifierUnavailable: 0 });
+});
+
+test("AUTHGATE-FIX-1: the reauth denial and the verifier-unavailable fail-open are surfaced under their own names", () => {
+  const e = payloadFor({
+    "entitlement.deny.reauth_required": 7,
+    "entitlement.fail_open.verifier_unavailable": 2,
+  }).entitlement;
+  assert.equal(e.denyReauthRequired, 7);
+  assert.equal(e.failOpenVerifierUnavailable, 2);
+  assert.equal(e.denyUidHeaderNoToken, 0);
 });
 
 test("★ a REAL uid-header denial from the REAL gate is visible in the payload — CONTROL: a failed token (P2) is not counted there", async () => {
