@@ -58,7 +58,7 @@ export function BreathingMoment({ onComplete }: Props) {
 
       <h2 style={{
         fontSize: 22, fontWeight: 800, color: "var(--text)", margin: "0 0 8px",
-        fontFamily: "'Space Grotesk', sans-serif",
+        fontFamily: "'Fraunces', 'Fraunces Fallback', Georgia, serif",
       }}>
         Take a deep breath
       </h2>
@@ -70,7 +70,7 @@ export function BreathingMoment({ onComplete }: Props) {
 
       <div style={{
         fontSize: 32, fontWeight: 900, color: "#22c55e",
-        fontFamily: "'Space Grotesk', sans-serif", marginBottom: 24,
+        fontFamily: "'Fraunces', 'Fraunces Fallback', Georgia, serif", marginBottom: 24,
       }}>
         {secondsLeft}
       </div>

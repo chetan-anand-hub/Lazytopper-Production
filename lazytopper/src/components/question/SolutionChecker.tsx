@@ -12,6 +12,8 @@ import { useSubscription } from "../../hooks/useSubscription";
 import { recordMistake, isSavedOutcome, type RecordMistakeOutcome } from "../../services/mistakeIntelligence";
 import { recordAttempt } from "../../services/practiceInsights";
 import { EquationInput, EquationRender } from "../equation";
+// LOW-END-1: maths on the first screen — KaTeX up front, never a plain-text stand-in.
+import "./katexEager";
 import QrAnswerHandoff from "../qr/QrAnswerHandoff";
 import FairUseLimitPanel from "../usage/FairUseLimitPanel";
 import { useFairUse } from "../usage/useFairUse";

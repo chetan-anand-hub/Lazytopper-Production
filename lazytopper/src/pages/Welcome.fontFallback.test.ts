@@ -67,16 +67,24 @@ describe("PERF-CLS-1 — landing fonts: one request, metric-matched fallbacks", 
     expect(withImport).toMatch(/fonts\.googleapis\.com/);
   });
 
-  it.each([
-    ["Fraunces Fallback", "Georgia"],
-    ["Inter Fallback", "Arial"],
-  ])("styles.css declares %s on local(%s) with all four metric overrides", (family, local) => {
-    const face = fontFace(STYLES, family);
-    expect(face, `@font-face for "${family}" must exist in styles.css`).not.toBeNull();
-    expect(face).toMatch(new RegExp(`src:\\s*local\\(["']${local}["']\\)`));
+  // LOW-END-1 (L1): headings are Fraunces 700, so the fallback is Georgia BOLD (no
+  // synthetic emboldening during the swap); the metrics were re-derived for 700.
+  it("styles.css declares Fraunces Fallback on local(Georgia Bold) with all four metric overrides", () => {
+    const face = fontFace(STYLES, "Fraunces Fallback");
+    expect(face, '@font-face for "Fraunces Fallback" must exist in styles.css').not.toBeNull();
+    expect(face).toMatch(/src:\s*local\(["']Georgia Bold["']\)/);
     for (const d of ["size-adjust", "ascent-override", "descent-override", "line-gap-override"]) {
-      expect(face, `${family} must set ${d}`).toMatch(new RegExp(`${d}:\\s*[\\d.]+%`));
+      expect(face, `Fraunces Fallback must set ${d}`).toMatch(new RegExp(`${d}:\\s*[\\d.]+%`));
     }
+  });
+
+  // LOW-END-1 (L1): Inter is no longer loaded, so a metric-matched "Inter Fallback" (Arial
+  // scaled to Inter's box) would no longer be a stand-in for a font that arrives — it would
+  // BE the landing's body font, an enlarged Arial instead of the system font the owner
+  // ruled. The landing's --sans stack (unchanged) then falls through to system-ui.
+  it("styles.css no longer declares an Inter Fallback face (Inter is not loaded)", () => {
+    expect(fontFace(STYLES, "Fraunces Fallback"), "precondition: the finder finds a face that exists").not.toBeNull();
+    expect(fontFace(STYLES, "Inter Fallback")).toBeNull();
   });
 
   it("the landing's --serif stack is Fraunces, \"Fraunces Fallback\", Georgia, serif", () => {

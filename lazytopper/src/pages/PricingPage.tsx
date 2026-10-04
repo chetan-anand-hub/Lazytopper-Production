@@ -131,7 +131,7 @@ const PRICING_CSS = `
 
   .lt-pricing-title {
     margin: 0 0 16px;
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
     font-size: 3.2rem;
     line-height: 1.1;
     font-weight: 800;
@@ -206,7 +206,7 @@ const PRICING_CSS = `
   }
 
   .lt-pricing-amount {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
     font-size: 2.8rem;
     font-weight: 800;
     color: #ffffff;
@@ -271,7 +271,7 @@ const PRICING_CSS = `
   }
 
   .lt-pricing-tillboards-amount {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
     font-size: 1.6rem;
     font-weight: 800;
     color: #ffffff;
@@ -440,7 +440,7 @@ const PRICING_CSS = `
 
   .lt-pricing-faq-title {
     margin: 0 0 24px;
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
     font-size: 1.6rem;
     line-height: 1.2;
     font-weight: 800;
@@ -489,7 +489,7 @@ const PRICING_CSS = `
 
   .lt-pricing-coming-title {
     margin: 0 0 8px;
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
     font-size: 1.6rem;
     line-height: 1.2;
     font-weight: 800;
@@ -538,7 +538,7 @@ const PRICING_CSS = `
 
   .lt-pricing-waitlist-title {
     margin: 0 0 8px;
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
     font-size: 1.6rem;
     line-height: 1.2;
     font-weight: 800;

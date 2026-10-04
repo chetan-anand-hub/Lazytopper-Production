@@ -1,6 +1,13 @@
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
-import { MathText } from "../question/MathText";
+import { MathText, loadKatex } from "../question/MathText";
 import "./equation.css";
+
+/** LOW-END-1 (L6): start fetching KaTeX (on demand) — best effort, never throws. */
+function prewarmKatex(): void {
+  loadKatex().catch(() => {
+    /* MathText retries when it actually needs KaTeX */
+  });
+}
 
 /**
  * <EquationInput> — the shared answer-entry control for typed subjective solutions.
@@ -248,6 +255,9 @@ export function EquationInput({
         className={autoGrow ? "lt-eq__textarea lt-eq__textarea--grow" : "lt-eq__textarea"}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        // LOW-END-1 (L6): KaTeX is fetched on demand; start it when the student reaches the
+        // answer box, so the preview is ready by the time they type maths.
+        onFocus={prewarmKatex}
         placeholder={placeholder}
         disabled={disabled}
         rows={rows}
@@ -258,7 +268,10 @@ export function EquationInput({
         <button
           type="button"
           className="lt-eq__toggle"
-          onClick={() => setPaletteOpen((v) => !v)}
+          onClick={() => {
+            prewarmKatex();
+            setPaletteOpen((v) => !v);
+          }}
           disabled={disabled}
           aria-expanded={paletteOpen}
           aria-controls="lt-eq-palette"

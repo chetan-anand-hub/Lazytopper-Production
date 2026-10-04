@@ -14,12 +14,10 @@
     <link rel="canonical" href="https://www.lazytopper.com/" />
     <meta name="application-name" content="LazyTopper" />
     <meta name="theme-color" content="#0f1b33" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,700&display=swap"
-      rel="stylesheet"
-    />
+    <!-- LOW-END-1 (L1): the one web font — Fraunces 700, self-hosted (public/fonts/), declared
+         in src/styles.css — preloaded so headings do not wait for the stylesheet to find it.
+         Body text uses the system font. No font request leaves this origin. -->
+    <link rel="preload" href="/fonts/fraunces-700-latin.woff2" as="font" type="font/woff2" crossorigin />
     <meta
       name="description"
       content="Free CBSE Class 10 Maths &amp; Science prep. Every answer is diagnosed — conceptual, calculation or careless — and your AI tutor knows them before it teaches."
@@ -156,6 +154,13 @@
          :id, no trailing slash, capped at 200) + ONLY gclid and utm_* query parameters,
          no hash; the referrer is reduced to its origin. The app is served at the domain
          root (ROOT-URL-1), so BASE is empty.
+
+         LOW-END-1 (L2, owner ruling 3): the dataLayer queue, gtag() and the config above
+         run AT ONCE, so the landing address (with gclid) is captured before anything else.
+         Only the 175 KB library waits: it is requested on the first interaction, or once the
+         page has loaded and the main thread is idle — never later than 4 s after load.
+         Everything pushed meanwhile (page views, sign_up) sits in dataLayer and the library
+         processes it when it arrives.
          src/analytics/indexHtml.guard.test.ts runs this block and pins all of it. -->
     <script>
       (function () {
@@ -210,10 +215,24 @@
           page_location: loc.origin + BASE + path + (kept.length ? "?" + kept.join("&") : ""),
           page_referrer: ref ? ref[1] + ref[2] + "/" : ""
         });
-        var tag = document.createElement("script");
-        tag.async = true;
-        tag.src = "https://www.googletagmanager.com/gtag/js?id=G-1T8Q12H4RQ";
-        document.head.appendChild(tag);
+        var loaded = false;
+        var cues = ["pointerdown", "keydown", "touchstart", "scroll"];
+        function loadGtag() {
+          if (loaded) return;
+          loaded = true;
+          for (var c = 0; c < cues.length; c++) window.removeEventListener(cues[c], loadGtag, true);
+          var tag = document.createElement("script");
+          tag.async = true;
+          tag.src = "https://www.googletagmanager.com/gtag/js?id=G-1T8Q12H4RQ";
+          document.head.appendChild(tag);
+        }
+        function afterLoad() {
+          window.setTimeout(loadGtag, 4000);
+          if (typeof window.requestIdleCallback === "function") window.requestIdleCallback(loadGtag, { timeout: 4000 });
+        }
+        for (var e = 0; e < cues.length; e++) window.addEventListener(cues[e], loadGtag, { capture: true, passive: true });
+        if (document.readyState === "complete") afterLoad();
+        else window.addEventListener("load", afterLoad);
       })();
     </script>
   </head>

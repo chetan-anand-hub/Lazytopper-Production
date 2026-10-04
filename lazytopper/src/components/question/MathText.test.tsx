@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { render } from "@testing-library/react";
-import { MathText, preprocessBarePatterns } from "./MathText";
+import { MathText, loadKatex, preprocessBarePatterns } from "./MathText";
+
+// LOW-END-1 (L6): KaTeX is fetched on demand now. Everything in this file pins the RENDER
+// once it is available, so it is loaded first; the in-flight path is pinned in
+// MathText.katexOnDemand.test.tsx.
+await loadKatex();
 
 // [FU-MATHTEXT-COMMAND-CORRUPTION]
 //

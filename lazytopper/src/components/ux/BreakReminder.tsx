@@ -73,7 +73,7 @@ export function BreakReminder() {
         <div style={{ fontSize: 48, marginBottom: 16 }}>🧘</div>
         <h2 style={{
           fontSize: 20, fontWeight: 800, color: "var(--text)", margin: "0 0 8px",
-          fontFamily: "'Space Grotesk', sans-serif",
+          fontFamily: "'Fraunces', 'Fraunces Fallback', Georgia, serif",
         }}>
           Time for a break!
         </h2>
@@ -88,7 +88,7 @@ export function BreakReminder() {
             width: "100%", padding: "14px 0", borderRadius: 12, border: "none",
             background: "#22c55e", color: "#000", fontWeight: 800, fontSize: 15,
             cursor: "pointer", marginBottom: 10,
-            fontFamily: "'Space Grotesk', sans-serif",
+            fontFamily: "'Fraunces', 'Fraunces Fallback', Georgia, serif",
           }}
         >
           Got it, taking a break!

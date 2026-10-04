@@ -4,6 +4,11 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 import DesktopNotesPage from "./DesktopNotesPage";
 import { sitemapPaths } from "../../config/sitemapUrls";
+import { ensureAllNoteSpecs } from "../../components/notes/noteSpecRegistry";
+
+// LOW-END-1 (L4): each spec is its own chunk now. These cases assert the LOADED page, so
+// the specs are loaded first; the in-flight state is pinned in noteSpecRegistry.test.tsx.
+await ensureAllNoteSpecs();
 
 /**
  * SEO-NOTES-AND-LINKS-1 — `/notes/:topicSlug` renders the chapter note with no

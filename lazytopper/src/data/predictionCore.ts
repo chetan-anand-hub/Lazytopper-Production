@@ -27,6 +27,7 @@ import { computePredictionScore } from "./predictionScoring";
 import { getCanonicalHistoricalDataset } from "../prediction/historicalDataset";
 import { scoreTopicRecurrenceConfidence } from "../prediction/probabilisticScoring";
 import {
+  isMathsDeletedForYear,
   isScienceDeletedFor2026_27,
   SCIENCE_DELETED_CHAPTERS_2026_27,
 } from "../prediction/cbseHistoricalArchetypes";
@@ -326,10 +327,49 @@ function policyRegimeForYear(targetYear: number) {
   return "nep_pre_2020" as const;
 }
 
-function getBayesianMultiplier(q: CanonicalQuestionWithScore): number {
-  const cached = bayesianScoreCache.get(q.id);
-  if (cached != null) return cached;
+// LOW-END-1 (L3) — THE RECURRENCE SCORE IS SHARED BY EVERY QUESTION WITH THE SAME INPUTS.
+//
+// scoreTopicRecurrenceConfidence (prediction/probabilisticScoring.ts) is a pure function.
+// It reads `subject`, `topic`, `format` and `bloom` from its input, and `subtopic` ONLY inside
+// its two syllabus-deletion guards; `marks`, `policyTag` and `sourceYearHint` are passed but
+// never read. The rest is the memoised historical dataset and the target year. So every
+// question with the same (year, subject, topic, format, bloom) — and, for a deleted
+// sub-topic, the same sub-topic — gets the same multiplier. A chapter of ~400 rows has a few
+// dozen such combinations; scanning the historical dataset once PER ROW was Practice's
+// first-open freeze (LOW-END-SCOUT-1 P6: 2,054 of a 2,174 ms task on profile A).
+//
+// ⚠ If probabilisticScoring.ts ever reads another input field, this key must grow with it.
+// predictionCore.l3Memo.test.ts recomputes EVERY bank row without the memo and requires the
+// memoised value to be identical, so a stale key fails there, not silently in production.
+// The per-id cache above stays the first lookup, exactly as before.
+const bayesianByInputs = new Map<string, number>();
 
+function isDeletedForScoring(q: CanonicalQuestionWithScore, targetYear: number): boolean {
+  // The two guards at the top of scoreTopicRecurrenceConfidence, verbatim in condition.
+  if (
+    q.subject === "Science" &&
+    targetYear >= SCIENCE_DELETED_CHAPTERS_2026_27.effectiveFromYear &&
+    isScienceDeletedFor2026_27(q.topicKey, q.subtopic)
+  ) {
+    return true;
+  }
+  return q.subject === "Maths" && isMathsDeletedForYear(q.topicKey, q.subtopic, targetYear);
+}
+
+function bayesianInputKey(q: CanonicalQuestionWithScore, targetYear: number): string {
+  const subtopic = isDeletedForScoring(q, targetYear) ? q.subtopic : "";
+  // typeof-prefixed so undefined, null, 2 and "2" can never share a key.
+  return [targetYear, q.subject, q.topicKey, q.format, q.bloomSkill, subtopic]
+    .map((v) => `${typeof v}:${String(v)}`)
+    .join("\u0001");
+}
+
+/**
+ * The multiplier computed from scratch — no cache of any kind. Exported for
+ * predictionCore.l3Memo.test.ts ONLY, which proves the memoised path equals it for every
+ * bank row. Not a page-facing API.
+ */
+export function computeBayesianMultiplierUncached(q: CanonicalQuestionWithScore): number {
   const targetYear = predictionTargetYear();
   const scored = scoreTopicRecurrenceConfidence({
     input: {
@@ -352,7 +392,20 @@ function getBayesianMultiplier(q: CanonicalQuestionWithScore): number {
     historicalItems: getHistoricalItems(),
   });
 
-  const multiplier = 0.85 + scored.posterior * 1.15 + scored.confidence * 0.6;
+  return 0.85 + scored.posterior * 1.15 + scored.confidence * 0.6;
+}
+
+/** Exported for predictionCore.l3Memo.test.ts ONLY (the memoised path it compares). */
+export function getBayesianMultiplier(q: CanonicalQuestionWithScore): number {
+  const cached = bayesianScoreCache.get(q.id);
+  if (cached != null) return cached;
+
+  const inputKey = bayesianInputKey(q, predictionTargetYear());
+  let multiplier = bayesianByInputs.get(inputKey);
+  if (multiplier === undefined) {
+    multiplier = computeBayesianMultiplierUncached(q);
+    bayesianByInputs.set(inputKey, multiplier);
+  }
   bayesianScoreCache.set(q.id, multiplier);
   return multiplier;
 }
@@ -474,8 +527,12 @@ export const PredictionCore = {
     // chapter loaded (ensureBankChapters([topicKey])).
     const slug = resolveCanonicalSlug(topicKey);
     if (!slug) return [];
+    // LOW-END-1 (L3) — decorate-sort: each adjusted score is computed ONCE, not on both
+    // sides of every comparison. Same comparator values, same stable sort, same order.
     return getUnifiedForSlug(slug)
       .filter((q) => (conceptKey ? subtopicMatches(q.subtopic, conceptKey) : true))
-      .sort((a, b) => getAdjustedScore(b) - getAdjustedScore(a));
+      .map((q) => ({ q, score: getAdjustedScore(q) }))
+      .sort((a, b) => b.score - a.score)
+      .map((d) => d.q);
   },
 };

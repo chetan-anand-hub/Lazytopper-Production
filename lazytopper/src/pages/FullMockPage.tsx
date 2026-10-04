@@ -22,6 +22,8 @@ import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { useAuth } from "../context/AuthContext";
 import { trackUxEvent } from "../services/uxTelemetry";
 import { MathText } from "../components/question/MathText";
+// LOW-END-1: maths on the first screen — KaTeX up front, never a plain-text stand-in.
+import "../components/question/katexEager";
 import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
 import type { WorksheetGradeResponse } from "../ai/aiClient";
 import type { PersistedWorksheet } from "../services/worksheetSessionStore";
