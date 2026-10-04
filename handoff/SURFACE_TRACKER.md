@@ -1,5 +1,36 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-04 — WAVE B-14 (LOW-END, CONTROLLER B): LOW-END-1 (`#926` `b97f119f`, `#929` `c9621114`, `#931` `d4bbea23`) + AUTHGATE-FIX-1 (`#932` `1165dacf`), trunk `1165dacf` (then `d0c522ba`, A's docs `#933`). LIVE on deploy (no flag); every rollout is recorded in `CURRENT_STATE.md`.**
+> ★ **FONTS, FIRST-LOAD WEIGHT, KATEX LOADING AND THE GRADING TRANSPORT MOVE ACROSS THE PRODUCT; CHAPTER TEST AND CHECK & IMPROVE MOVE ON THEIR KATEX AND UPLOAD AXES.** The §2 matrix has no column for load weight, fonts, KaTeX timing or upload transport, so **no matrix cell value changes**; the moves are recorded here as status lines *(builder-reported; live evidence agent-reported)*.
+
+### ✅ EVERY PAGE — fonts (site-wide) — **THREE GOOGLE FONT FAMILIES (114–255 KB / PAGE) → ONE SELF-HOSTED FRAUNCES 700 HEADING FONT + SYSTEM BODY FONT (~35 KB / PAGE) — LIVE (`#926`)**
+- Every Space Grotesk heading is Fraunces 700 (incl. Pricing and the `App.tsx` Loading + brand literals); 8 prerender fragments changed font stack only (owner-accepted). Live: one `woff2`, 0 Google Fonts requests *(agent-reported; controller-verified on `/me`)*. Open: `[FU-LOWEND-FONT-CACHE]`, `[FU-LOWEND-ANDROID-FALLBACK]`.
+
+### ✅ EVERY PAGE — start-up work — **GA4 AND THE GOOGLE SIGN-IN FRAME AT START-UP → GA4 AFTER USABLE, SIGN-IN FRAME ONLY ON `/login` (PRE-WARMED) — LIVE (`#926`)**
+- Profile C faster on 9 / 9 pages; A / B faster everywhere except `/login` (+0.09 / +0.38 s Ready, pre-warm by design); transfer −22–40% *(agent-reported)*.
+
+### ✅ Practice — ordering performance — **ADJUSTED-SCORE SORT RECOMPUTED PER COMPARISON → DECORATED ONCE; ORDERING IDENTICAL — LIVE (`#926`)**
+- Parity kept exactly (26 chapters / 2,167 concepts / 78 seeded sets); longest task −59% (DEV, CPU 4x); Practice profile B Ready 29.2 → 22.1 s live *(builder-reported; agent-reported)*. 300 ms not met → `[FU-LOWEND-L3-5SIGNAL]`. Triangles rubric now imported directly (`[FU-CLEANUP2-TRIANGLES-BARREL]` closed).
+
+### ✅ Notes — per chapter — **EVERY CHAPTER'S SPEC LOADED → ONE CHAPTER'S SPEC — LIVE (`#926`)**
+- Live R5 PASS *(agent-reported)*.
+
+### ✅ KaTeX loading (maths rendering, site-wide) — **KATEX IN THE STATIC GRAPH OF EVERY PAGE USING `MathText` (INCL. THE C&I AND CHAPTER TEST FIRST SCREENS, WHICH SHOW NO MATHS) → EAGER (`katexEager.ts`) ONLY WHERE MATHS IS ON THE FIRST SCREEN; C&I IDLE PREFETCH; CHAPTER TEST ON FIRST INTERACTION; PDF EXPORT AWAITS — LIVE (`#926`, `#929`, `#931`)**
+- Live: Chapter Test no KaTeX before the first interaction 8 / 8, the first tap fetches it 7 / 7; Check & Improve timing unchanged *(agent-reported)*. Open: `[FU-LOWEND-PRACTICE-PDF-GLYPHS]` (Practice PDF exporter, not touched by this wave).
+
+### ✅ Uploads / grading transport (every grading surface) — **ONE ATTEMPT, NO TIMEOUT, RAW ERRORS → 90 s TIMEOUT, ≤ 2 RETRIES WITH ONE IDEMPOTENCY KEY, STAGES, OFFLINE WAIT, PLAIN ERRORS; GRADED AND CHARGED ONCE — LIVE (`#929`)**
+- Live: lost reply → same grade on 3 / 3 surfaces, quota −1; same key → ~1 s replay, byte-identical, one charge; offline, stages, plain errors PASS *(agent-reported)*. Stages UI on C&I, Worksheet, SolutionChecker / Practice / HPQ; Chapter Test / Full Mock / Practice batch get retries + plain errors only → `[FU-UPLOAD-STAGES-PAPER-SURFACES]`. The free check: timeout + stages + offline, no auto-retry.
+
+### ✅ Chapter Test — KaTeX axis — **KATEX FETCHED ON MOUNT (BEFORE THE START SCREEN WAS USABLE) → ON FIRST INTERACTION, AWAITED ON START — LIVE (`#929`, `#931`)**
+
+### ✅ Check & Improve — copy axis — **"Choose from gallery" / "Use your phone's scan feature" / "Click to choose a different file" → "Gallery or files" / "Tap Add another page after your first photo." / "Tap to choose a different file" (touch) — LIVE (`#929`)**
+- Live D7 PASS; the tip seen on the owner's account on `1165dacf` *(agent-reported; controller-verified)*. `[FU-PICKER-LABEL-PDF]` and `[FU-CI-MULTIPAGE-TIP-COPY]` closed.
+
+### ✅ Paid AI endpoints — entitlement checks — **TIGHTENED (owner-ordered security hotfix; details: private audit request) — LIVE (`#932`)**
+- Signed-in students get one silent sign-in refresh before any message; signed-out behaviour and the free check unchanged *(agent-reported, OR-LIVE-3; the signed-out free check row is owner-owed)*.
+
+### 📋 Scope discovered? — **NO surface scope set to Settling.** The scope extensions this wave (`studentDataMap.ts` for the new store, `ChapterTestPage.tsx` / `MathText.tsx` / the C&I call site for KaTeX timing, `worksheetPdfExport.ts` and the heading files for the owner's PR-1 rulings) are same-intent extensions recorded in `DECISION_LOG.md` (2026-10-04, wave B-14), not new surface scope; nothing goes in §2a.
+
 > **2026-10-04 — WAVE A-13 (SEO, CONTROLLER A): SEO-5 (`#925` `b6feaf32`, `#927` `965d1025`, `#928` `9651232b`, `#930` `b2b29119`), trunk `b2b29119` (then `d4bbea23`, B's `#931`). LIVE on deploy (no flag); every rollout is recorded in `CURRENT_STATE.md`.**
 > ★ **THE PRERENDERED SEO PAGES MOVE ON THE FIRST-PAINT AXIS (a phone now gets the phone capture), INDEX MONITORING IS NEW, AND A NEW PUBLIC PAGE `/check-your-answer` IS LIVE AND LINKED FROM FIVE PLACES.** The §2 matrix has no column for first paint, indexing or inbound links, and `/check-your-answer` has no matrix row (a public guide page, not a study surface), so **no matrix cell value changes**; the moves are recorded here as status lines *(builder-reported; live evidence agent-reported)*.
 

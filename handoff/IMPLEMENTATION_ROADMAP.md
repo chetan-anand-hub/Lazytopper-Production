@@ -1,5 +1,17 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-04 — LOW-END: **WAVE B-14 — LOW-END-1 + AUTHGATE-FIX-1** — `#926` + `#929` + `#931` + `#932` MERGED — trunk `1165dacf` (then `d0c522ba`, A's docs `#933`) — ✅ COMPLETE (OR-LIVE-1 / -2 / -3 PARTIAL, no rollback; owner-owed: Android Google sign-in, the cold-prerendered Google account pick, a signed-out free check, GA4 + Ads `sign_up`, Firestore TTL policy, owner uid confirmation, 24 h auth watch until 2026-10-05 18:20Z)
+
+- ✅ **Lighter first load** (`#926`, LIVE): system body font + self-hosted Fraunces 700 headings (fonts ~35 KB / page from 114–255 KB); GA4 after usable; Google sign-in machinery only on the login page; Notes per chapter; KaTeX eager only on maths-first pages; profile C faster on 9 / 9 pages.
+- ✅ **Grading uploads that survive bad networks** (`#929`, LIVE): 90 s timeout, ≤ 2 retries with one `Idempotency-Key`, stages, offline wait, plain errors; graded and charged once (live: same grade, quota −1); owner copy addendum.
+- ✅ **Chapter Test KaTeX on first interaction** (`#931`, LIVE): no KaTeX before the first interaction (8 / 8), C&I timing unchanged.
+- ✅ **Tighter entitlement checks on paid AI endpoints** (`#932`, LIVE; owner-ordered security hotfix; details: private audit request).
+- ✅ **Rulings recorded:** owner (L1–L7 / R1–R4, the standing decision policy, the Chrome grant + extension, the PR-1 rework rulings + font screenshot approval, the PR-2 copy addendum, the AUTHGATE conditions); controller decisions with reasons (`DECISION_LOG.md`).
+- ✅ **FUs:** 18 new open, 3 withdrawn before opening, 3 older closed (`[FU-PICKER-LABEL-PDF]`, `[FU-CI-MULTIPAGE-TIP-COPY]`, `[FU-CLEANUP2-TRIANGLES-BARREL]`) (`OPEN_QUESTIONS_AND_FOLLOWUPS.md`).
+- ✅ **Docs:** this handoff (after A's `#933`, OR-16).
+- ⬜ **Controller:** the end-of-lane owner message + one final audit request; STOP.
+- ⬜ **Owner:** the owner-owed list in `NEXT_ACTION.md`; audit the pending controller decisions.
+
 ## 2026-10-04 — SEO: **WAVE A-13 — SEO-5** — `#925` + `#927` + `#928` + `#930` MERGED — trunk `b2b29119` (then `d4bbea23`, B's `#931`) — ✅ COMPLETE (OR-LIVE-1..4 PASS, no rollback; owner-owed: Search Console + Bing for `/check-your-answer`, the 61-URL request order, Android Google sign-in)
 
 - ✅ **Weekly read-only index report for every sitemap URL** (`#925`, LIVE): Mondays 06:00 IST + manual; 61 / 62 URLs were not indexed at the first run.

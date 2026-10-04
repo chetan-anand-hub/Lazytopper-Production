@@ -23,6 +23,87 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-04 — WAVE B-14 (CONTROLLER B): LOW-END-1 (`#926` `b97f119f`, `#929` `c9621114`, `#931` `d4bbea23`) + AUTHGATE-FIX-1 (`#932` `1165dacf`) — 18 new open, 3 withdrawn before opening, 3 older closed; LIVE
+
+Sources: `Desktop/diff/WAVE_STATE_B14.md` §FU ENTRIES COLLECTED and §DECISIONS, the builder reports (`report-low-end-load-1…`, `report-upload-resilience-1…`, `report-ct-katex-2…`, `report-authgate-fix-1…`) and the OR-LIVE reports (`live-after1-…`, `live-after2-…`, `live-after3-b14-…`), all 2026-10-04. **Bodies come from those sources; nothing is invented.** No dated entry is edited (standing rule 3). **PUBLIC REPO:** the four auth hardening follow-ups are written in neutral words; their full bodies are in the private audit request. Two of them carry neutral ids here (`[FU-AUTHGATE-ROUTE-COVERAGE]`, `[FU-AUTHGATE-STALE-CLIENT-COMMENT]`); the mapping to the builder's working ids is in the private docs report.
+
+### Older FUs closed this wave
+- **`[FU-PICKER-LABEL-PDF]` — CLOSED by `#929`.** PDF-accepting first-photo hosts (SolutionChecker, WorksheetGradePanel, QrAnswerUploadPage, C&I question + answer) now read "🖼 Gallery or files"; the image-only page-tray input keeps "Choose from gallery" (`PageTray.tsx:579`, docs-builder-verified on `d0c522ba`). Owner copy addendum. Live D7 PASS *(agent-reported)*.
+- **`[FU-CI-MULTIPAGE-TIP-COPY]` — CLOSED by `#929`.** The tip now reads "More than one page? Tap Add another page after your first photo." (`DesktopCheckImprovePage.tsx:2747`) and the comment above it (`:2729`) now says the page tray takes the pages (docs-builder-verified on `d0c522ba`). Live: seen on the owner's account on `1165dacf` *(controller-verified)*.
+- **`[FU-CLEANUP2-TRIANGLES-BARREL]` — CLOSED by `#926`.** `practiceQuestionBuilder.ts:18` imports `getTrianglesRubric` directly from `contentStrategy/triangles/trianglesRubrics` (docs-builder-verified on `d0c522ba`), pinned by `practiceQuestionBuilder.trianglesImport.test.ts` *(builder-reported)*. The owner decision this FU asked for is moot: the owner's LOW-END-1 spec carried it.
+
+### Older FUs checked, still open
+- **`[FU-SEO5-PR2-3G-LCP-LATER]` — STAYS OPEN (Controller A's).** B's BEFORE-2 corroborated it (Topic Hub 2.85 → 6.80 s, Exam Trends 2.77 → 6.54 s on `965d1025` vs `a2287b83`). `#926` did not target it.
+- **`[FU-UPLOAD-2-FIX-1-OWNER-ACCEPT]` — STAYS OPEN** (owner Android acceptance).
+- **`[FU-VERCEL-STATUS-STALE]` — STAYS OPEN, unchanged.**
+
+### Withdrawn before opening (owner ruling — fixed inside `#926`)
+
+### `[FU-LOWEND-PDF-AWAIT-KATEX]` — WITHDRAWN (fixed in `#926`)
+With KaTeX on demand, `worksheetPdfExport.ts` rasterised after about 2 frames and relied on the idle prefetch. The owner ruled it fixed in PR-1: `await loadKatex()` before `root.render` *(builder-reported)*.
+
+### `[FU-LOWEND-PRACTICE-KATEX-STATIC]` — WITHDRAWN (fixed in `#926`)
+Practice (and the Topic Hub modal, HPQ, Tutor) briefly showed unicode maths before KaTeX after mount. The owner ruled KaTeX up front on every maths-first page: `katexEager.ts` imported from those pages *(builder-reported)*.
+
+### `[FU-LOWEND-SPACE-GROTESK-STACKS]` — WITHDRAWN (fixed in `#926`)
+Space Grotesk headings (e.g. the Pricing title) fell back to the platform sans once Google Fonts were removed. The owner ruled every one → Fraunces 700, incl. the two `App.tsx` literals *(builder-reported)*.
+
+### New — open
+
+### `[FU-LOWEND-L3-5SIGNAL]` — OPEN · MEDIUM (perf)
+Practice's longest task fell 59% (1195–1511 → 517–570 ms, DEV, CPU 4x) with ordering parity kept, but the 300 ms target was not met. The rest of the cost is in `predictionScoring.ts` / `cbse5SignalScoring.ts` / `probabilisticScoring.ts`, outside PR-1's allowlist *(builder-reported)*.
+
+### `[FU-LOWEND-FONT-CACHE]` — OPEN · LOW (perf; needs `vercel.json`)
+`/fonts/*` (the Fraunces `woff2`) is served `max-age=0, must-revalidate`, not immutable — confirmed live in OR-LIVE-1 *(builder-reported; agent-reported)*. The fix needs a header rule in `vercel.json` (Controller A's SEO-5 file set during this wave).
+
+### `[FU-LOWEND-ANDROID-FALLBACK]` — OPEN · LOW (fonts)
+The size-adjusted fallback face is built on Georgia, which Android does not ship, so on Android the fallback adjustment does not apply before Fraunces loads *(builder-reported)*.
+
+### `[FU-LOWEND-PREVIEW-FREECHECK]` — OPEN · LOW (tooling)
+Check & Improve cannot be screenshotted signed-out on Vercel previews (the free check's App Check does not work there), so builder screens of that page need a local dev server with a mock API *(builder-reported)*.
+
+### `[FU-LOWEND-PRACTICE-PDF-GLYPHS]` — OPEN · LOW (Practice PDF; not touched by this wave)
+The Practice "Download PDF" exporter garbles `<=` and triangle glyphs; the Chapter Test PDF renders the maths correctly *(agent-reported, OR-LIVE-1; not controller-verified)*.
+
+### `[FU-IDEMPOTENCY-TTL-POLICY]` — OPEN · ★ OWNER PLATFORM ACTION
+Enable a Firestore TTL policy on collection group `attempts`, field `expiresAt`, so stored grading results (`gradingResults/{uid}/attempts/*`) are deleted after expiry. The server already ignores expired entries itself (`expiresAtMs` read path) *(builder-reported)*.
+
+### `[FU-GRADE-OKFALSE-IS-CHARGED]` — OPEN · LOW (pre-existing billing semantics)
+A 200 `{ok:false}` reply ("couldn't read") counts as a charged trial check, because fair use records on any 2xx `finish`. Kept as is by `#929` *(builder-reported)*.
+
+### `[FU-IDEMPOTENCY-ABORTED-FIRST-UNCHARGED]` — OPEN · LOW
+When the client socket dies before the reply finishes, the grade is stored and returned on the retry but the trial counter is charged zero times (Node emits no `finish` on the first request) *(builder-reported)*.
+
+### `[FU-FREE-CHECK-NO-AUTO-RETRY]` — OPEN · LOW (by design, revisit)
+The signed-out free check gets the timeout, stages and offline wait but no automatic retry: its App Check token is single-use, it has no uid for dedupe, and it is counted on admission. A safe retry would need a server-side design change *(builder-reported; controller-accepted)*.
+
+### `[FU-UPLOAD-STAGES-PAPER-SURFACES]` — OPEN · LOW (UX)
+Chapter Test, Full Mock and the Practice batch get the retries and plain errors, but no stage UI ("Uploading NN%" → "Done") *(builder-reported)*.
+
+### `[FU-IDEMPOTENCY-ERASURE-RACE]` — OPEN · LOW (DPDP edge)
+An in-flight grade may write its stored result after an account erasure has run; the new store is not in the erasure re-sweep list *(builder-reported)*.
+
+### `[FU-DETECT-QUESTION-NO-TIMEOUT]` — OPEN · LOW
+The detect-question call (not a grading call) did not get the grading transport's timeout *(builder-reported)*.
+
+### `[FU-WORKSHEET-NETFAIL-SPENDS-ALLOWANCE]` — OPEN · LOW (pre-existing)
+A worksheet whose grade fails on the network still spends the weekly allowance, because papers are charged at paper-pass mint (existing P17 behaviour) *(agent-reported, OR-LIVE-2)*.
+
+### `[FU-WORKSHEET-GRADER-500-ONCE]` — OPEN · LOW (watch)
+One 500 "Failed to grade the worksheet" on a stall retry during OR-LIVE-2; not reproduced, not attributed to `#929` *(agent-reported)*.
+
+### `[FU-AUTHGATE-LIVE-VERIFY]` — OPEN · auth hardening follow-up (owner-owed parts)
+The after-merge live verification of `#932`. Done in OR-LIVE-3: the paid-endpoint rows as ordered, the silent-refresh rows, normal grading charged once *(agent-reported)*; one real signed-in grading on the owner's account (2 / 2, no message) *(controller-verified)*. Still owed: a signed-out free check in a real browser, and the admin telemetry read during the 24 h watch (until 2026-10-05 18:20Z). Details: private audit request.
+
+### `[FU-AUTHGATE-CERT-OUTAGE-CLASSIFICATION]` — OPEN · auth hardening follow-up
+During an outage of the verifier's key source, signed-in students would get the sign-in-again message rather than being served; accepted as the safer side. Revisit if the telemetry shows such spikes. Details: private audit request.
+
+### `[FU-AUTHGATE-ROUTE-COVERAGE]` — OPEN · auth hardening follow-up
+Extend the same tightening to the remaining AI routes it does not yet cover. Details (route list): private audit request.
+
+### `[FU-AUTHGATE-STALE-CLIENT-COMMENT]` — OPEN · LOW · auth hardening follow-up (comment-only)
+Two client-side comments still describe the server behaviour from before `#932`; comment-only, outside `#932`'s allowlist. Details: private audit request.
+
 ## 2026-10-04 — WAVE A-13 (CONTROLLER A): SEO-5 (`#925` `b6feaf32`, `#927` `965d1025`, `#928` `9651232b`, `#930` `b2b29119`) — 22 new: 17 open, 2 owner-accepted as logged, 3 closed this wave; LIVE
 
 Sources: `Desktop/diff/WAVE_STATE_A13.md` §FU ENTRIES COLLECTED, the builder reports (`report-seo-5-pr1…`, `-pr2…`, `-pr3…`, `-pr4…`, `-reanchor…`) and the OR-LIVE reports (`live-after-seo-5-pr1…`, `live-before-/live-after-/live-after-ac-seo-5-pr2…`, `live-after-seo-5-pr3…`, `live-after-seo-5-pr4…`), all 2026-10-04. **Bodies come from those sources; nothing is invented.** `grep` of `handoff/` at `d4bbea23` *(docs-builder-verified)* found no prior entry for any of the 22 ids. No dated entry is edited (standing rule 3). `#926`, `#929` and `#931` (Controller B wave B-14) are B's; their FUs follow in B's docs PR.
