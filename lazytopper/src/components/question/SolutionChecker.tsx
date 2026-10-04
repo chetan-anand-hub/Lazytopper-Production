@@ -19,6 +19,8 @@ import FairUseLimitPanel from "../usage/FairUseLimitPanel";
 import { useFairUse } from "../usage/useFairUse";
 import { UPLOAD_LIMIT_SENTENCE, checkUploadFile } from "../../services/uploadLimits";
 import PageTray, { PhotoSourceButtons, useCoarsePointer, usePageTray, type TrayPayload } from "../upload/PageTray";
+// LOW-END-1 R2 — a NEW module, not aiClient (which the contract suite mocks whole).
+import { gradingErrorMessage, gradingStageLabel, type GradingStage } from "../../ai/gradingTransport";
 
 const CHECK_RESULT_KEY_PREFIX = "lazytopper.checkResult.v1.";
 
@@ -508,6 +510,8 @@ export function SolutionChecker({
   // always-visible peer; the old default hid it behind a disclosure.)
   const [answerTab, setAnswerTab] = useState<AnswerTab>("upload");
   const [loading, setLoading] = useState(false);
+  // LOW-END-1 R2: Uploading NN% -> Sent ✓ -> Grading… -> Done (or offline), while checking.
+  const [stage, setStage] = useState<GradingStage | null>(null);
   const [result, setResult] = useState<CheckSolutionResponse | null>(null);
   const [isFromCache, setIsFromCache] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -640,6 +644,7 @@ export function SolutionChecker({
     if (!hasImage && !hasText) return;
 
     setLoading(true);
+    setStage(null);
     setError(null);
     setLogStatus("pending");
 
@@ -660,7 +665,7 @@ export function SolutionChecker({
         ...(format ? { format } : {}),
         ...(options && options.length > 0 ? { options } : {}),
         ...(answer ? { answer } : {}),
-      }, { surface: "quick-practice" });
+      }, { surface: "quick-practice", onStage: setStage });
 
       if (response.ok) {
         setResult(response);
@@ -708,7 +713,8 @@ export function SolutionChecker({
         // above: the contract suite mocks aiClient as a complete replacement. When the
         // hook declines (dark / no enforced read) the else below runs, exactly as before.
       } else {
-        setError(err instanceof Error ? err.message : "Failed to check solution");
+        // LOW-END-1 R2: never a raw platform message ("Failed to fetch") — a plain sentence.
+        setError(gradingErrorMessage(err, "We couldn't check your answer just now. Your answer is still here — please try again."));
       }
       setLogStatus("unavailable");
     } finally {
@@ -896,6 +902,7 @@ export function SolutionChecker({
             onGallery={() => fileInputRef.current?.click()}
             hint={UPLOAD_LIMIT_SENTENCE}
             testIdPrefix="sc-photo"
+            acceptsFiles
           />
         ) : (
         <button
@@ -1095,7 +1102,7 @@ export function SolutionChecker({
             opacity: loading ? 0.8 : 1,
           }}
         >
-          {loading ? "Checking your answer..." : "Check my answer"}
+          {loading ? (stage ? gradingStageLabel(stage) : "Checking your answer...") : "Check my answer"}
         </button>
       )}
 

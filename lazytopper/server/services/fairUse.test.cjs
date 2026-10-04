@@ -70,6 +70,13 @@ const {
   USAGE_PAPER_PATH,
   PAPER_HEADER,
   PAPER_PASS_TTL_MS,
+  createGradingIdempotency,
+  classifyIdempotencyRecord,
+  IDEMPOTENCY_HEADER,
+  IDEMPOTENCY_TTL_MS,
+  IDEMPOTENCY_PENDING_STALE_MS,
+  IDEMPOTENCY_WAIT_MS,
+  GRADING_IN_PROGRESS_BODY,
 } = require('./fairUse.cjs');
 const { createRateLimiter, istDayKey } = require('./rateLimiter.cjs');
 
@@ -1318,6 +1325,15 @@ function bootServer(port, extraEnv, seed) {
       },
       set: async (data) => {
         if (p.startsWith('usageLedger/')) console.log('LEDGER_SET ' + p + ' ' + JSON.stringify(data));
+        // LOW-END-1 R4: the idempotency store really persists (and is logged), so a retry
+        // can find what the first attempt stored.
+        if (p.startsWith('gradingResults/')) {
+          SEED[p] = JSON.parse(JSON.stringify(data));
+          console.log('IDEM_SET ' + p + ' ' + data.state);
+        }
+      },
+      delete: async () => {
+        if (p.startsWith('gradingResults/')) { delete SEED[p]; console.log('IDEM_DELETE ' + p); }
       },
     });
     const collRef = (p) => ({ doc: (id) => docRef(p + '/' + id) });
@@ -1328,6 +1344,7 @@ function bootServer(port, extraEnv, seed) {
         get: (ref) => ref.get(),
         getAll: (...refs) => Promise.all(refs.map((r) => r.get())),
         set(ref, data, opts) { ref.set(data, opts); return this; },
+        delete(ref) { ref.delete(); return this; },
       }),
     });
     firestore.FieldValue = { increment: (n) => ({ increment: n }) };
@@ -1587,4 +1604,405 @@ test('WIRING · REAL index.cjs, FAIR_USE_PAPER_SECRET set, enforcement dark: min
     res = await request(port, 'POST', GRADE_WORKSHEET_PATH, typedBatch(1, 'ct-w'),
       { ...TRIAL, 'x-lazytopper-surface': 'chapter-test', 'x-lazytopper-paper': 'v1.garbage' });
     assert.equal(res.status, 200, res.text);
+  });
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LOW-END-1 R4 · IDEMPOTENT GRADING — a retried check is never graded or charged twice
+
+   Pins (spec §2 R4): same key twice -> ONE grade, ONE charge, an IDENTICAL body;
+   different keys -> two; no key -> unchanged (nothing stored); a CONCURRENT duplicate ->
+   one grade; a stored result lapses at 24 h (the read path checks expiry itself); a failed
+   grade is neither stored nor charged. The pipeline below runs the steps in index.cjs's
+   order — idempotency FIRST, then fair use, then the handler — over a Firestore whose
+   transactions are version-checked and re-run, so a race here is a race.
+
+   MUTATIONS (each run alone, each restore verified by an empty `git diff`):
+     M1  begin(): skip the read (always claim)          -> "same key twice" + "concurrent" RED
+     M2  index.cjs: idempotency AFTER fair use           -> WIRING "same key twice" RED (a 2nd charge)
+     M6  classifyIdempotencyRecord(): ignore expiresAtMs -> "24 h" RED
+     M7  claimOrRead(): no pending marker                -> "concurrent duplicate" RED
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/** A path-keyed Firestore honouring transactions like Firestore (version check + re-run). */
+function idemFirestore({ failTx = false } = {}) {
+  const docs = new Map();
+  const versions = new Map();
+  let writes = 0;
+  const tick = () => new Promise((resolve) => setImmediate(resolve));
+  const clone = (v) => (v === undefined ? undefined : JSON.parse(JSON.stringify(v)));
+  const bump = (p) => versions.set(p, (versions.get(p) || 0) + 1);
+  function ref(parts) {
+    const p = parts.join('/');
+    return {
+      path: p,
+      collection: (name) => ({ doc: (id) => ref([...parts, name, id]) }),
+      async get() { await tick(); return { exists: docs.has(p), data: () => clone(docs.get(p)) }; },
+    };
+  }
+  const db = {
+    collection: (name) => ({ doc: (id) => ref([name, id]) }),
+    async runTransaction(fn) {
+      if (failTx) throw new Error('firestore unavailable');
+      for (let attempt = 0; attempt < 10; attempt += 1) {
+        const seen = new Map();
+        const queued = [];
+        const tx = {
+          async get(r) {
+            await tick();
+            seen.set(r.path, versions.get(r.path) || 0);
+            return { exists: docs.has(r.path), data: () => clone(docs.get(r.path)) };
+          },
+          set(r, data) { queued.push(['set', r, data]); return tx; },
+          delete(r) { queued.push(['delete', r]); return tx; },
+        };
+        const result = await fn(tx);
+        await tick();
+        if ([...seen].some(([p, v]) => (versions.get(p) || 0) !== v)) continue;
+        for (const [op, r, data] of queued) {
+          if (op === 'set') docs.set(r.path, clone(data));
+          else docs.delete(r.path);
+          bump(r.path);
+          writes += 1;
+        }
+        return result;
+      }
+      throw new Error('transaction contention');
+    },
+  };
+  return { db, docs, writes: () => writes };
+}
+
+/** A response the pipeline can hook: writeHead + end, `finish` on end (as Node's does). */
+function idemRes() {
+  const res = new EventEmitter();
+  res.statusCode = 0;
+  res.headers = {};
+  res.body = null;
+  res.writeHead = (status, headers) => { res.statusCode = status; res.headers = { ...(headers || {}) }; };
+  res.end = function end(chunk) {
+    res.body = chunk === undefined ? null : String(chunk);
+    setImmediate(() => res.emit('finish'));
+  };
+  return res;
+}
+
+const KEY_A = '7f9c2ba4-e88f-4d21-9a3b-1c2d3e4f5a6b';
+const KEY_B = '0a1b2c3d-4e5f-4a6b-8c7d-9e0f1a2b3c4d';
+
+/**
+ * index.cjs's order, in-process: idempotency -> fair use (trial, charge on a 2xx finish)
+ * -> the handler. `handler(n)` returns { status, body } for the n-th REAL grade, and may
+ * await `gate` (a promise) to hold that grade in flight.
+ */
+function idemPipeline({ now = NOW, waitMs = 75000, failTx = false } = {}) {
+  const fs = idemFirestore({ failTx });
+  const clock = { now };
+  const telemetry = recorder();
+  const ledger = fakeLedger({});
+  let grades = 0;
+  const idem = createGradingIdempotency({
+    resolveFirestore: () => ({ db: fs.db }),
+    telemetry,
+    corsOrigin: 'https://www.lazytopper.com',
+    now: () => clock.now,
+    // A poll yields to the event loop and advances the clock one poll — a real wait,
+    // compressed: the first attempt really does progress while the duplicate polls.
+    sleep: async (ms) => { await new Promise((r) => setImmediate(r)); clock.now += ms; },
+    waitMs,
+  });
+  const fairUse = createFairUse({
+    tierOf: async () => 'trial',
+    ledger,
+    env: { FAIR_USE_ENFORCE: '1' },
+    now: () => clock.now,
+    readJson: rawReadJson,
+    resolveFirestore: () => null,
+    sendJson: (res, status, body) => { res.writeHead(status, {}); res.end(JSON.stringify(body)); },
+  });
+  async function send({ key, uid = 'stu-1', path: reqPath = CHECK_SOLUTION_PATH, handler } = {}) {
+    const req = fakeReq({ surface: 'check-improve', headers: key ? { [IDEMPOTENCY_HEADER]: key } : {} });
+    const res = idemRes();
+    const step = await idem.begin(req, res, reqPath, uid);
+    if (step && step.replay) {
+      idem.replay(res, step.replay);
+    } else if (step && step.busy) {
+      res.writeHead(503, {});
+      res.end(JSON.stringify(GRADING_IN_PROGRESS_BODY));
+    } else if (!(await fairUse.applyToRequest(req, res, reqPath, uid))) {
+      grades += 1;
+      const out = await handler(grades);
+      res.writeHead(out.status, { 'Content-Type': 'application/json' });
+      res.end(out.body);
+    }
+    await new Promise((r) => setImmediate(r));
+    await new Promise((r) => setImmediate(r));
+    return res;
+  }
+  const settle = async () => { for (let i = 0; i < 20; i += 1) await new Promise((r) => setImmediate(r)); };
+  return { send, settle, fs, clock, telemetry, ledger, grades: () => grades, charges: () => ledger.trialWrites.length };
+}
+
+const gradedBody = (n) => JSON.stringify({ ok: true, totalMarks: 3, marksAwarded: n, percentage: 33 * n, annotatedSteps: [], teacherNote: `grade #${n}` });
+const okHandler = async (n) => ({ status: 200, body: gradedBody(n) });
+
+test('R4 · ★ same key twice -> ONE grade, ONE charge, and the IDENTICAL body (replayed, not regraded)', async () => {
+  const p = idemPipeline();
+  const first = await p.send({ key: KEY_A, handler: okHandler });
+  await p.settle();
+  const second = await p.send({ key: KEY_A, handler: okHandler });
+  await p.settle();
+  assert.equal(first.statusCode, 200);
+  assert.equal(second.statusCode, 200);
+  assert.equal(p.grades(), 1, 'the retry was graded a second time');
+  assert.equal(p.charges(), 1, `the retry was charged a second time: ${JSON.stringify(p.ledger.trialWrites)}`);
+  assert.deepEqual(p.ledger.trialWrites[0].counts, { checks: 1 });
+  assert.equal(second.body, first.body, 'the replay must be byte-identical to the first answer');
+  assert.equal(second.headers['Idempotent-Replayed'], 'true');
+  assert.equal(second.headers['Access-Control-Allow-Origin'], 'https://www.lazytopper.com');
+  assert.equal(p.telemetry.count('idempotency.replay'), 1);
+  // The record is uid-scoped and holds a HASH of path|key, never the key itself.
+  const paths = [...p.fs.docs.keys()];
+  assert.equal(paths.length, 1);
+  assert.match(paths[0], /^gradingResults\/stu-1\/attempts\/[0-9a-f]{40}$/);
+  assert.ok(!paths[0].includes(KEY_A));
+  const rec = p.fs.docs.get(paths[0]);
+  assert.equal(rec.state, 'done');
+  assert.equal(rec.expiresAtMs, NOW + IDEMPOTENCY_TTL_MS, 'the 24 h runs from the first attempt');
+  assert.ok(rec.expiresAt, 'a Timestamp-able expiry field for the TTL policy');
+});
+
+test('R4 · different keys -> two grades, two charges (a new attempt is a new check)', async () => {
+  const p = idemPipeline();
+  const a = await p.send({ key: KEY_A, handler: okHandler });
+  await p.settle();
+  const b = await p.send({ key: KEY_B, handler: okHandler });
+  await p.settle();
+  assert.equal(p.grades(), 2);
+  assert.equal(p.charges(), 2);
+  assert.notEqual(a.body, b.body);
+});
+
+test('R4 · NO key -> exactly as before: every request graded and charged, nothing stored, Firestore untouched', async () => {
+  const p = idemPipeline();
+  await p.send({ handler: okHandler });
+  await p.settle();
+  await p.send({ handler: okHandler });
+  await p.settle();
+  assert.equal(p.grades(), 2);
+  assert.equal(p.charges(), 2);
+  assert.equal(p.fs.writes(), 0, 'a keyless request must not touch the idempotency store');
+  assert.equal(p.telemetry.startingWith('idempotency.').length, 0);
+});
+
+test('R4 · the same key on the OTHER grading endpoint is a different record (path is part of the id)', async () => {
+  const p = idemPipeline();
+  await p.send({ key: KEY_A, path: CHECK_SOLUTION_PATH, handler: okHandler });
+  await p.settle();
+  await p.send({ key: KEY_A, path: GRADE_WORKSHEET_PATH, handler: okHandler });
+  await p.settle();
+  assert.equal(p.grades(), 2);
+  assert.equal(p.fs.docs.size, 2);
+});
+
+test('R4 · ★ CONCURRENT duplicate (the lost-reply retry while the first is still grading) -> ONE grade', async () => {
+  const p = idemPipeline();
+  let release;
+  const gate = new Promise((r) => { release = r; });
+  const slowHandler = async (n) => { await gate; return { status: 200, body: gradedBody(n) }; };
+  const first = p.send({ key: KEY_A, handler: slowHandler });
+  // Let the first claim its marker and enter the grader.
+  for (let i = 0; i < 10; i += 1) await new Promise((r) => setImmediate(r));
+  const second = p.send({ key: KEY_A, handler: slowHandler });
+  for (let i = 0; i < 30; i += 1) await new Promise((r) => setImmediate(r));
+  assert.equal(p.grades(), 1, 'the duplicate started a second grade instead of waiting');
+  release();
+  const [r1, r2] = await Promise.all([first, second]);
+  await p.settle();
+  assert.equal(p.grades(), 1, 'exactly one grade for one key');
+  assert.equal(p.charges(), 1, 'exactly one charge for one key');
+  assert.equal(r1.statusCode, 200);
+  assert.equal(r2.statusCode, 200);
+  assert.equal(r2.body, r1.body, 'the waiting duplicate returns the first result');
+  assert.equal(p.telemetry.count('idempotency.replay_after_wait'), 1);
+});
+
+test('R4 · a duplicate still waiting at the end of its bounded wait gets 503 grading_in_progress — and grades nothing', async () => {
+  const p = idemPipeline({ waitMs: 5000 });
+  const never = new Promise(() => {});
+  p.send({ key: KEY_A, handler: async () => { await never; } });
+  for (let i = 0; i < 10; i += 1) await new Promise((r) => setImmediate(r));
+  const dup = await p.send({ key: KEY_A, handler: okHandler });
+  assert.equal(dup.statusCode, 503);
+  assert.equal(JSON.parse(dup.body).code, 'grading_in_progress');
+  assert.equal(p.grades(), 1);
+  assert.equal(p.charges(), 0);
+});
+
+test('R4 · ★ 24 h: the stored result is replayed just inside 24 h and NOT at 24 h — the read path checks expiry itself', async () => {
+  const p = idemPipeline();
+  await p.send({ key: KEY_A, handler: okHandler });
+  await p.settle();
+  p.clock.now = NOW + IDEMPOTENCY_TTL_MS - 1;
+  const inside = await p.send({ key: KEY_A, handler: okHandler });
+  await p.settle();
+  assert.equal(p.grades(), 1, 'inside 24 h the result must be replayed');
+  assert.equal(inside.headers['Idempotent-Replayed'], 'true');
+  // The document is still there (no TTL policy has fired) — only the read path can lapse it.
+  p.clock.now = NOW + IDEMPOTENCY_TTL_MS;
+  assert.equal(p.fs.docs.size, 1);
+  const after = await p.send({ key: KEY_A, handler: okHandler });
+  await p.settle();
+  assert.equal(p.grades(), 2, 'at 24 h the stored result must have lapsed');
+  assert.equal(p.charges(), 2);
+  assert.equal(after.headers['Idempotent-Replayed'], undefined);
+});
+
+test('R4 · a FAILED grade is neither stored nor charged; the retry grades afresh and is charged once', async () => {
+  const p = idemPipeline();
+  const failed = await p.send({ key: KEY_A, handler: async () => ({ status: 500, body: JSON.stringify({ ok: false, error: 'Failed to evaluate solution. Please try again.' }) }) });
+  await p.settle();
+  assert.equal(failed.statusCode, 500);
+  assert.equal(p.charges(), 0, 'a failed grade must cost nothing');
+  assert.equal(p.fs.docs.size, 0, 'a failed grade must not be stored (the marker is released)');
+  assert.equal(p.telemetry.count('idempotency.released'), 1);
+  const retry = await p.send({ key: KEY_A, handler: okHandler });
+  await p.settle();
+  assert.equal(retry.statusCode, 200);
+  assert.equal(p.grades(), 2);
+  assert.equal(p.charges(), 1);
+  assert.equal(p.fs.docs.get([...p.fs.docs.keys()][0]).state, 'done');
+});
+
+test('R4 · a fair-use REFUSAL (409) is not stored: the marker is released and nothing is graded', async () => {
+  const p = idemPipeline();
+  // Spend the day's 5 checks with five distinct attempts.
+  for (const k of ['a', 'b', 'c', 'd', 'e']) {
+    await p.send({ key: `${k.repeat(8)}-0000-4000-8000-000000000000`, handler: okHandler });
+    await p.settle();
+  }
+  assert.equal(p.charges(), 5);
+  // fakeLedger reads a static object, so seed the spent day for the 6th.
+  p.ledger.readDays = async (uid, keys) => new Map(keys.map((k) => [k, k === TODAY ? { trialChecks: 5 } : {}]));
+  const refused = await p.send({ key: KEY_A, handler: okHandler });
+  await p.settle();
+  assert.equal(refused.statusCode, 409);
+  assert.equal(p.grades(), 5);
+  const recs = [...p.fs.docs.values()];
+  assert.equal(recs.length, 5, 'the refusal left no record behind');
+  assert.ok(recs.every((r) => r.state === 'done'));
+});
+
+test('R4 · a 200 { ok:false } ("couldn\'t read the grading") IS stored — it is exactly what fair use charged (2xx)', async () => {
+  const p = idemPipeline();
+  const okFalse = JSON.stringify({ ok: false, error: "We couldn't read the grading this time — please try again." });
+  await p.send({ key: KEY_A, handler: async () => ({ status: 200, body: okFalse }) });
+  await p.settle();
+  const again = await p.send({ key: KEY_A, handler: okHandler });
+  await p.settle();
+  assert.equal(p.charges(), 1, 'charged once — never twice for one attempt');
+  assert.equal(p.grades(), 1);
+  assert.equal(again.body, okFalse);
+});
+
+test('R4 · a dead attempt\'s marker (older than 5 min) may be re-claimed; a fresh one may not', async () => {
+  const p = idemPipeline({ waitMs: 1000 });
+  const never = new Promise(() => {});
+  p.send({ key: KEY_A, handler: async () => { await never; } });
+  for (let i = 0; i < 10; i += 1) await new Promise((r) => setImmediate(r));
+  p.clock.now = NOW + IDEMPOTENCY_PENDING_STALE_MS + 1;
+  const r = await p.send({ key: KEY_A, handler: okHandler });
+  await p.settle();
+  assert.equal(r.statusCode, 200);
+  assert.equal(p.grades(), 2, 'a stale marker must not block the student forever');
+});
+
+test('R4 · malformed key, no verified uid, a non-grading path, no Firestore, a Firestore error -> null (as before)', async () => {
+  const fs = idemFirestore();
+  const mk = (extra = {}) => createGradingIdempotency({ resolveFirestore: () => ({ db: fs.db }), ...extra });
+  const req = (key) => fakeReq({ headers: key === undefined ? {} : { [IDEMPOTENCY_HEADER]: key } });
+  assert.equal(await mk().begin(req('short'), idemRes(), CHECK_SOLUTION_PATH, 'stu-1'), null);
+  assert.equal(await mk().begin(req('has spaces in it, nope!!'), idemRes(), CHECK_SOLUTION_PATH, 'stu-1'), null);
+  assert.equal(await mk().begin(req(KEY_A), idemRes(), CHECK_SOLUTION_PATH, ''), null, 'the free check / anonymous');
+  assert.equal(await mk().begin(req(KEY_A), idemRes(), '/api/detect-question', 'stu-1'), null);
+  assert.equal(await mk().begin(req(undefined), idemRes(), CHECK_SOLUTION_PATH, 'stu-1'), null);
+  assert.equal(await createGradingIdempotency({ resolveFirestore: () => null }).begin(req(KEY_A), idemRes(), CHECK_SOLUTION_PATH, 'stu-1'), null);
+  const broken = idemFirestore({ failTx: true });
+  assert.equal(await createGradingIdempotency({ resolveFirestore: () => ({ db: broken.db }) }).begin(req(KEY_A), idemRes(), CHECK_SOLUTION_PATH, 'stu-1'), null, 'fail OPEN');
+  assert.equal(fs.writes(), 0);
+  // CONTROL: the same rig with a valid key and uid DOES claim.
+  assert.deepEqual(await mk().begin(req(KEY_A), idemRes(), CHECK_SOLUTION_PATH, 'stu-1'), { claimed: true });
+});
+
+test('R4 · classifyIdempotencyRecord: expiry, staleness and malformed records', () => {
+  const t = NOW;
+  const live = t + 1000;
+  assert.equal(classifyIdempotencyRecord(null, t), 'free');
+  assert.equal(classifyIdempotencyRecord({ state: 'done', status: 200, body: '{}', expiresAtMs: live }, t), 'done');
+  assert.equal(classifyIdempotencyRecord({ state: 'done', status: 200, body: '{}', expiresAtMs: t }, t), 'free');
+  assert.equal(classifyIdempotencyRecord({ state: 'done', status: 200, expiresAtMs: live }, t), 'free', 'no body');
+  assert.equal(classifyIdempotencyRecord({ state: 'pending', claimedAtMs: t - 1000, expiresAtMs: live }, t), 'pending');
+  assert.equal(classifyIdempotencyRecord({ state: 'pending', claimedAtMs: t - IDEMPOTENCY_PENDING_STALE_MS, expiresAtMs: live }, t), 'free');
+  assert.equal(classifyIdempotencyRecord({ state: 'done', status: 200, body: '{}' }, t), 'free', 'no expiry is no record');
+});
+
+test('R4 · the duplicate wait stays inside the client\'s 90 s timeout', () => {
+  assert.ok(IDEMPOTENCY_WAIT_MS < 90000, `wait ${IDEMPOTENCY_WAIT_MS} ms must be < the client's 90 s`);
+  assert.ok(IDEMPOTENCY_PENDING_STALE_MS > 90000 * 3, 'a live grade (up to 3 client attempts) must never look dead');
+});
+
+test('WIRING · REAL index.cjs, R4: same Idempotency-Key twice -> one Gemini grade, one charge, identical body; no key -> two of each',
+  { timeout: 180000 }, async (t) => {
+    const today = istDayKey(Date.now());
+    const port = await freePort();
+    const srv = bootServer(port, {}, {});
+    t.after(() => srv.child.kill());
+    await srv.ready;
+
+    // ── (0) CORS: the key is preflight-allowed. ──
+    const pre = await request(port, 'OPTIONS', CHECK_SOLUTION_PATH, undefined, { origin: 'http://x', 'access-control-request-headers': 'idempotency-key' });
+    assert.equal(pre.status, 204);
+    assert.match(String(pre.headers['access-control-allow-headers']), /Idempotency-Key/);
+
+    const body = { question: 'Solve x + 1 = 2', marks: 1, textAnswer: 'x = 1' };
+    const keyed = { ...TRIAL, 'x-lazytopper-surface': 'check-improve', 'idempotency-key': KEY_A };
+    const settleLedger = async (from) => {
+      for (let i = 0; i < 40 && !/trialChecks/.test(srv.log().slice(from)); i++) await wait(50);
+      await wait(200);
+    };
+
+    // ── (1) First attempt: graded and charged once. ──
+    let before = srv.log().length;
+    const first = await request(port, 'POST', CHECK_SOLUTION_PATH, body, keyed);
+    await settleLedger(before);
+    let delta = srv.log().slice(before);
+    assert.equal(first.status, 200, `${first.text}\n${delta}`);
+    assert.ok(count(delta, /GEMINI_FETCH/g) >= 1, `CONTROL: the first attempt must reach the model\n${delta}`);
+    assert.equal(count(delta, /trialChecks/g), 1, `the first attempt is charged once\n${delta}`);
+    assert.ok(delta.includes('IDEM_SET gradingResults/trial-student/attempts/'), `the served grade must be stored\n${delta}`);
+
+    // ── (2) The retry with the SAME key: not graded, not charged, the same bytes. ──
+    before = srv.log().length;
+    const retry = await request(port, 'POST', CHECK_SOLUTION_PATH, body, keyed);
+    await wait(600);
+    delta = srv.log().slice(before);
+    assert.equal(retry.status, 200, retry.text);
+    assert.equal(retry.text, first.text, 'the retry must return the identical body');
+    assert.equal(retry.headers['idempotent-replayed'], 'true');
+    assert.equal(count(delta, /GEMINI_FETCH/g), 0, `the retry reached the model\n${delta}`);
+    assert.equal(count(delta, /trialChecks/g), 0, `the retry was charged again\n${delta}`);
+
+    // ── (3) No key, twice: exactly as before — graded and charged each time. ──
+    const plain = { ...TRIAL, 'x-lazytopper-surface': 'check-improve' };
+    for (let i = 0; i < 2; i += 1) {
+      before = srv.log().length;
+      const r = await request(port, 'POST', CHECK_SOLUTION_PATH, body, plain);
+      await settleLedger(before);
+      delta = srv.log().slice(before);
+      assert.equal(r.status, 200, r.text);
+      assert.ok(count(delta, /GEMINI_FETCH/g) >= 1, `keyless request ${i} must be graded\n${delta}`);
+      assert.equal(count(delta, /trialChecks/g), 1, `keyless request ${i} must be charged\n${delta}`);
+      assert.equal(count(delta, /IDEM_SET/g), 0, `a keyless request must store nothing\n${delta}`);
+      assert.ok(!r.headers['idempotent-replayed']);
+    }
+    assert.ok(today);
   });

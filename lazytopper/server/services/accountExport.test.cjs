@@ -194,6 +194,13 @@ function realSeed(uid = UID) {
       firstSeenMs: 1790000000000, lastSeenMs: 1790000600000,
       sections: { practice: 2 }, events: { check_graded: 1 },
     },
+    // LOW-END-1 R4. The parent is seeded only so the map-driven test has a row to find;
+    // production writes only the attempt documents (a stored grade, kept 24 h).
+    [`gradingResults/${uid}`]: {},
+    [`gradingResults/${uid}/attempts/0123456789abcdef0123456789abcdef01234567`]: {
+      state: 'done', status: 200, body: '{"ok":true,"marksAwarded":2,"totalMarks":3}',
+      completedAtMs: 1790000000000, expiresAtMs: 1790086400000,
+    },
     // ★ FIELD-KEYED. The doc id is sha256(uploadToken); the student is a `uid` FIELD.
     'qrUploadSlots/sha-aaa': { uid, storagePath: `qr-uploads/${uid}/sha-aaa.jpg` },
     'qrUploadSlots/sha-bbb': { uid, storagePath: `qr-uploads/${uid}/sha-bbb.jpg` },

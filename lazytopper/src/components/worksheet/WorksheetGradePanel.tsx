@@ -13,6 +13,7 @@ import FairUseLimitPanel from "../usage/FairUseLimitPanel";
 import { useFairUse } from "../usage/useFairUse";
 import { UPLOAD_LIMIT_SENTENCE, checkUploadFile } from "../../services/uploadLimits";
 import PageTray, { PhotoSourceButtons, useCoarsePointer, usePageTray } from "../upload/PageTray";
+import { gradingErrorMessage, gradingStageLabel, type GradingStage } from "../../ai/gradingTransport";
 import {
   gradeWorksheetAndRecord,
   type WorksheetGradeOutcome,
@@ -198,6 +199,8 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [imageMimeType, setImageMimeType] = useState<string>("application/pdf");
   const [grading, setGrading] = useState(false);
+  // LOW-END-1 R2: Uploading NN% -> Sent ✓ -> Grading… -> Done (or offline).
+  const [stage, setStage] = useState<GradingStage | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [outcome, setOutcome] = useState<WorksheetGradeOutcome | null>(null);
   const [fromCache, setFromCache] = useState(false);
@@ -323,10 +326,11 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
   const handleGrade = useCallback(async () => {
     if (!imageBase64 || grading) return;
     setGrading(true);
+    setStage(null);
     setError(null);
     fairUse.clearLimit();
     try {
-      const result = await gradeWorksheetAndRecord(user, ws, { imageBase64, imageMimeType });
+      const result = await gradeWorksheetAndRecord(user, ws, { imageBase64, imageMimeType }, { onStage: setStage });
       if (!result.response.ok) {
         // The grader REFUSES rather than guessing a mark — correct, and never to be
         // softened. But "couldn't grade it" leaves a student with nothing to act on, so
@@ -351,7 +355,9 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
     } catch (err) {
       // FAIR-USE-UI-1 (UI1): a fair-use refusal shows the calm panel instead of the error.
       if (await fairUse.handleRefusal(err)) return;
-      setError(err instanceof Error ? err.message : "Failed to grade the worksheet.");
+      // LOW-END-1 R2: never the raw message ("Failed to fetch") — a plain sentence.
+      setStage(null);
+      setError(gradingErrorMessage(err, "We couldn’t grade your worksheet just now. Your file is still here — please try again."));
     } finally {
       setGrading(false);
     }
@@ -363,6 +369,7 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
     setImageBase64(null);
     setOutcome(null);
     setFromCache(false);
+    setStage(null);
     setError(null);
     setScorecardOpen(false);
     setDownloadError(null);
@@ -403,6 +410,7 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
                 onGallery={() => fileInputRef.current?.click()}
                 hint={`${UPLOAD_LIMIT_SENTENCE} · label each answer Q1, Q2 …`}
                 testIdPrefix="wg-photo"
+                acceptsFiles
               />
             ) : (
               <button type="button" className="lt-wg__drop" onClick={() => fileInputRef.current?.click()}>
@@ -442,7 +450,7 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
 
           {hasFile && (
             <button type="button" className="lt-wg__grade" onClick={handleGrade} disabled={grading}>
-              {grading ? "Grading your worksheet… ~30–60s" : "Grade my answers →"}
+              {grading ? (stage ? gradingStageLabel(stage) : "Grading your worksheet… ~30–60s") : "Grade my answers →"}
             </button>
           )}
           {grading && (
@@ -478,6 +486,10 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
       {/* ── The graded sheet (behind the popup; revealed on dismiss) ── */}
       {response && response.ok && (
         <div className="lt-wg__results">
+          {/* LOW-END-1 R2: the last stage — the grade came back. */}
+          {!fromCache && stage?.kind === "done" && (
+            <p className="lt-wg__done" role="status">✓ {gradingStageLabel(stage)}</p>
+          )}
           {fromCache && (
             <div className="lt-wg__cache">
               Showing your last graded result for this worksheet.
@@ -624,6 +636,7 @@ const WG_CSS = `
 }
 .lt-wg__grade:disabled { background: hsl(152, 25%, 72%); cursor: not-allowed; }
 .lt-wg__progress { font-size: 12px; color: var(--wg-muted); margin: 8px 0 0; line-height: 1.5; }
+.lt-wg__done { font-size: 12px; font-weight: 700; color: hsl(152, 55%, 32%); margin: 0 0 8px; }
 .lt-wg__tip { font-size: 11.5px; color: hsl(220, 12%, 58%); margin: 10px 0 0; line-height: 1.5; }
 .lt-wg__signin { font-size: 11.5px; color: hsl(220, 12%, 58%); margin: 10px 0 0; line-height: 1.5; }
 

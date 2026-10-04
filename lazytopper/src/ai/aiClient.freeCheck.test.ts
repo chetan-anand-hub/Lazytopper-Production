@@ -167,13 +167,18 @@ describe("free-check requests carry a FRESH limited-use App Check token, every c
 });
 
 describe("the free-check headers are OPT-IN and scoped to the C&I calls (N13)", () => {
-  it("without the opt-in, a signed-out C&I call is byte-identical to before: JSON only", async () => {
+  it("without the opt-in, a signed-out C&I call is byte-identical to before: JSON only (+ the grade's Idempotency-Key)", async () => {
     await detectQuestion({ question: "Q" });
     await checkSolutionImage({ question: "Q" });
     await gradeWorksheet({ worksheetId: "w", questions: [] });
     await resolvePerQuestionGradeTopics([{ questionNumber: 1, questionText: "q" }], []);
     for (const c of calls) {
-      expect(c.headers).toEqual({ "Content-Type": "application/json" });
+      // LOW-END-1 R3: the two GRADING calls add exactly one header, the attempt's key.
+      const grading = c.url === "/api/check-solution" || c.url === "/api/grade-worksheet";
+      expect(c.headers).toEqual({
+        "Content-Type": "application/json",
+        ...(grading ? { "Idempotency-Key": expect.stringMatching(/^[0-9a-f-]{36}$/) } : {}),
+      });
     }
     expect(H.getLimitedUseToken).not.toHaveBeenCalled();
     expect(H.initializeAppCheck).not.toHaveBeenCalled();
@@ -195,6 +200,7 @@ describe("the free-check headers are OPT-IN and scoped to the C&I calls (N13)", 
       "Content-Type": "application/json",
       "X-Lazytopper-Uid": "u1",
       Authorization: "Bearer id-token",
+      "Idempotency-Key": expect.stringMatching(/^[0-9a-f-]{36}$/),
     });
   });
 });
@@ -226,5 +232,31 @@ describe("a 403 free_check_refused is a typed refusal the page can map (1a wire 
     const err = await detectQuestion({ question: "Q" }).catch((e: unknown) => e);
     expect(err).not.toBeInstanceOf(FreeCheckRefusedError);
     expect((err as Error).message).toBe("forbidden");
+  });
+});
+
+describe("LOW-END-1 R1 · a free check is NEVER re-sent automatically", () => {
+  // Its App Check token is limited-use (one request) and, with no uid, the server cannot
+  // recognise a retry — a re-send would be refused or spend the one free check twice.
+  // MUTATION: drop `maxRetries: 0` for freeCheck in aiClient postGrading -> RED (3 sends).
+  it("a dropped connection on a free check is ONE send and a plain-sentence error", async () => {
+    vi.stubGlobal("fetch", async (url: string, init: { headers: Record<string, string> }) => {
+      calls.push({ url, headers: { ...init.headers } });
+      throw new TypeError("Failed to fetch");
+    });
+    const err = await checkSolutionImage({ question: "Q", textAnswer: "a" }, FREE).catch((e: unknown) => e);
+    expect(calls).toHaveLength(1);
+    expect((err as Error).name).toBe("GradingNetworkError");
+    expect((err as Error).message).not.toMatch(/failed to fetch/i);
+    // CONTROL: the same drop on a SIGNED-IN (non-free) grade IS retried.
+    calls = [];
+    const { __setGradingSleepForTests } = await import("./gradingTransport");
+    __setGradingSleepForTests(async () => {});
+    try {
+      await checkSolutionImage({ question: "Q", textAnswer: "a" }).catch(() => {});
+    } finally {
+      __setGradingSleepForTests(null);
+    }
+    expect(calls).toHaveLength(3);
   });
 });
