@@ -93,19 +93,11 @@ export const WORKED_EXAMPLES: readonly WorkedExample[] = [
     stepsHeading: "The marking scheme",
     steps: [
       {
-        text: (
-          <>
-            (a) 2HNO<sub>3</sub> + Ca(OH)<sub>2</sub> → Ca(NO<sub>3</sub>)<sub>2</sub> + 2H<sub>2</sub>O
-          </>
-        ),
+        text: "(a) 2HNO₃ + Ca(OH)₂ → Ca(NO₃)₂ + 2H₂O",
         marks: "1",
       },
       {
-        text: (
-          <>
-            (b) NaCl + AgNO<sub>3</sub> → AgCl + NaNO<sub>3</sub>
-          </>
-        ),
+        text: "(b) NaCl + AgNO₃ → AgCl + NaNO₃",
         marks: "1",
       },
     ],
@@ -135,7 +127,7 @@ const PRINCIPLES: ReadonlyArray<{ title: string; body: ReactNode }> = [
   },
   {
     title: "Diagrams",
-    body: "The drawing and its labels are marked separately, so a diagram with missing labels or missing arrows can lose marks.",
+    body: "The drawing and its labels are often marked separately, so a diagram with missing labels or missing arrows can lose marks.",
   },
   {
     title: "Chemical equations",

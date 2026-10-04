@@ -986,6 +986,11 @@ function PageHero({ children, subject }: { children: React.ReactNode; subject: D
       >
         CBSE’s official unit weightage →
       </Link>
+      {/* SEO-5 PR-4 — the answer-marking guide, in the same link style. */}
+      <br />
+      <Link className="lt-et-cbse" to="/check-your-answer">
+        How are these marks awarded? → Marking guide
+      </Link>
       {children}
     </header>
   );

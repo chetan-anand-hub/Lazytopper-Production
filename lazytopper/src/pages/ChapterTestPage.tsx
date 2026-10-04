@@ -147,13 +147,6 @@ export default function ChapterTestPage() {
     }
   }, [user?.uid]);
 
-  // LOW-END-1 (owner ruling 1, R6 follow-through — PR-2 controller-granted extension): the
-  // start screen shows no maths, so KaTeX is NOT fetched at mount. It used to be, and on a
-  // budget phone (profile A) that fetch landed at 4.26 s, before the start screen was usable
-  // at 5.62 s. It now arrives the way it does on Check & Improve — MathText's own
-  // post-usable idle prefetch (load + idle) — and `startTest` below AWAITS it, so the first
-  // question paints with KaTeX, never a plain-text swap.
-
   // On mount: read the cross-device records ONCE, mint the durable CT code/#NN from
   // them (mint-once, BEFORE any record is written), and populate the history rail.
   useEffect(() => {
@@ -318,12 +311,37 @@ export default function ChapterTestPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, timerEnabled, timeLimitSeconds]);
 
+  // CT-KATEX-2 (LOW-END-1 L6/R6): the start screen shows no maths, so KaTeX is fetched on
+  // the student's FIRST INTERACTION with it (pointerdown / touchstart / keydown / scroll —
+  // passive, once), never by load, idle or a timer. On a budget phone (profile A) both a
+  // mount-time fetch and a load+idle prefetch landed before the start screen was usable.
+  // `startTest` below AWAITS it (starting it if no interaction did), so the first question
+  // paints with KaTeX, never a plain-text swap.
+  const katexAskedRef = useRef(false);
+  useEffect(() => {
+    if (phase !== "setup" || katexAskedRef.current || typeof window === "undefined") return;
+    const events = ["pointerdown", "touchstart", "keydown", "scroll"] as const;
+    const opts: AddEventListenerOptions = { capture: true, passive: true };
+    const disarm = () => events.forEach((e) => window.removeEventListener(e, onFirst, opts));
+    function onFirst() {
+      disarm();
+      if (katexAskedRef.current) return;
+      katexAskedRef.current = true;
+      loadKatex().catch(() => {
+        /* Start (or MathText) fetches it again */
+      });
+    }
+    events.forEach((e) => window.addEventListener(e, onFirst, opts));
+    return disarm;
+  }, [phase]);
+
   const [starting, setStarting] = useState(false);
   const startTest = useCallback(async () => {
     // FAIR-USE-UI-1 (UI3): today's chapter test already used -> the panel, not the paper.
     if (fairUse.blockPaperStart()) return;
-    // LOW-END-1 R6: the first question renders KaTeX on its FIRST paint. Usually already
-    // prefetched (idle); a failed fetch still starts the paper — MathText then retries.
+    // LOW-END-1 R6 / CT-KATEX-2: the first question renders KaTeX on its FIRST paint. Usually
+    // already in flight (the first interaction started it — pressing Start is one); if not,
+    // this starts it. A failed fetch still starts the paper — MathText then retries.
     setStarting(true);
     try {
       await loadKatex();

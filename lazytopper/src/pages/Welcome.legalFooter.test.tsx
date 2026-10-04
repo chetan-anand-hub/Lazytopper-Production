@@ -232,9 +232,11 @@ describe("every slug the landing's legal links point at renders real policy cont
     // Query stripped: the CBSE link carries a return ticket. The property defended
     // here is that no THIRD non-legal link appeared; the ticket gets its own assertion
     // below so stripping cannot conceal its removal.
+    // SEO-5 PR-4 added the third, How CBSE marks answers → /check-your-answer.
     expect(allHrefs.map((h) => h.split("?")[0])).toEqual([
       "/exam-trends",
       "/cbse/class-10",
+      "/check-your-answer",
       ...hrefs,
     ]);
     expect(allHrefs.find((h) => h.startsWith("/cbse/class-10"))).toContain("returnTo=");

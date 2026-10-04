@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ReturnTicketStrip, useReturnTicket } from "../../components/navigation/ReturnTicket";
 import {
   checkSolutionImage,
@@ -104,6 +104,13 @@ import { TRIAL_DAYS } from "../../services/subscriptionService";
 import FairUseLimitPanel from "../../components/usage/FairUseLimitPanel";
 import FairUseConfirm from "../../components/usage/FairUseConfirm";
 import { useFairUse } from "../../components/usage/useFairUse";
+import { prefetchKatexWhenIdle } from "../../components/question/MathText";
+
+// CT-KATEX-2: KaTeX's background idle prefetch is no longer armed by MathText for every
+// importer; Check & Improve arms it itself, here at module evaluation — the same moment it
+// was armed before (when this page's graph first evaluated MathText), so the first maths a
+// student meets here still renders without a wait.
+prefetchKatexWhenIdle();
 
 // BANK-SPLIT-1 PR-2 (T3): the "Your checked papers" panel is its own chunk, fetched the
 // first time the student opens it (it renders only while `panelOpen`).
@@ -2738,6 +2745,9 @@ const DesktopCheckImprovePageInner: React.FC<{
                 not just the final answer — examiners reward method.
                 <br />
                 More than one page? Tap Add another page after your first photo.
+                <br />
+                {/* SEO-5 PR-4 — under the upload box: how the marks are given. */}
+                <Link to="/check-your-answer">How marks are given →</Link>
               </div>
           </section>
         </div>

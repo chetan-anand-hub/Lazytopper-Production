@@ -139,7 +139,13 @@ export default function DesktopNotesPage() {
         CBSE 2027 — dates, rules and official papers →
       </Link>
       {spec ? (
-        <Note spec={spec} initialTab={noteTabFromParam(params.get("tab"))} />
+        <>
+          <Note spec={spec} initialTab={noteTabFromParam(params.get("tab"))} />
+          {/* SEO-5 PR-4 — the end of every notes page links to the answer-marking guide. */}
+          <Link to="/check-your-answer" className="lt-notes-page__cbse">
+            Practise writing answers the way examiners mark them → Guide
+          </Link>
+        </>
       ) : error ? (
         <Card padding={24}>
           <p className="lt-notes-page__nf-body" role="alert">
