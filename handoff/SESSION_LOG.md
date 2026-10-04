@@ -1,3 +1,25 @@
+## 2026-10-04 — WAVE B-13 (UPLOAD, CONTROLLER B) — **UPLOAD-2-FIX-1: ON A PHONE, "TAKE PHOTO" OPENS THE CAMERA ON EVERY GRADING UPLOAD AND ON "ADD ANOTHER PAGE"** — `#923` MERGED — trunk `c29c81cb` — NOT LIVE when written (Vercel did not build it)
+
+★ **PROVENANCE.** Controller B, wave B-13. The spec `UPLOAD-2-FIX-1` v1.0 (`F9871549F72B`) is owner-authored (cofounder), with the owner's 4 Oct Android report as its WHY. One builder (`claude-opus-5-5`) in `C:/Projects/LT-worktrees/upload-2-fix-1` carried the PR to merge. A separate docs builder wrote this docs PR in `C:/Projects/LT-worktrees/docs-b13` from `WAVE_STATE_B13.md`, the spec and the builder's report. *(builder-reported)* / *(controller-verified)* / *(docs-builder-verified)* as in `CURRENT_STATE.md`. Controller-verified: `c29c81cb` is an ancestor of trunk; 11 files; 0 forbidden; the GitHub statuses for `c29c81cb` show only Railway.
+
+**Lane.**
+
+| lane | PR | what it changed | what it disproved |
+|---|---|---|---|
+| UPLOAD-2-FIX-1 | `#923` `c29c81cb` | PageTray + 6 first-photo hosts: coarse pointer → "Take photo" (own input, `capture="environment"`, no `multiple`) + "Choose from gallery" (`multiple`); fine pointer unchanged; the P2 comment corrected; ops gate §4.10 / PARITY-3 rewritten. 11 files. | UPLOAD-2's comment that a phone "offers the camera OR gallery" with `multiple` set; the ops gate that required `capture` on a `multiple` input, which pinned the defect *(builder-reported)*. |
+
+**Timeline.**
+- **Dispatch** on `b59a7673` (= the spec base). §0c PASS, 5 premises, 4 / 4 resolved, P5 open by design *(builder-reported)*.
+- **Build:** P5 found six first-photo hosts that could not reach the camera on Android; all got F4. Pins (a)–(d) + host pins PASS; mutations M1–M4 + G1 RED → restored (`cmp`). The first push went RED in CI (`37173120174`) on the convergence gate §4.10 / PARITY-3, which required `capture` on the `multiple` input — the gate pinned the defect; rewritten, with a base-SHA control that fails both *(builder-reported)*.
+- **CI** quality-gate `37174122658` PASS on `37f1b20`: `Tests  3693 passed (3693)` ×3, matrices `# skipped 0` *(builder-reported)*.
+- **`#923` MERGED `c29c81cb`** at 2026-10-04T03:48:13Z (09:18:13 IST), squash content == head `37f1b20` *(docs-builder-verified via `gh pr view`)*.
+- **No Vercel build of `c29c81cb`:** rollout samples 03:48:56Z → 04:20:23Z+ all served `b59a7673`; no Vercel deployment or status for `c29c81cb` *(builder-reported; statuses controller-verified and docs-builder-verified; the `search-ping` run `37175109732` timed out after 121 reads of `b59a7673`)*. OR-LIVE NOT STARTED. No out-of-band redeploy (controller decision under OR-AUTO). This docs PR follows, and its merge is the expected trigger.
+
+**Lessons.**
+- **A gate can pin the defect.** The convergence gate required `setAttribute("capture")` on the C&I answer input — an input that also carries `multiple` and a PDF accept, where Android ignores `capture`. The gate passed only while the camera was unreachable. It went RED the moment the fix landed, and was rewritten with a base-SHA control.
+- **An attribute present is not a behaviour present.** `capture` on an input with `multiple` or a non-image `accept` is ignored by Android Chrome; the P5 rubric "capture = camera-reachable" was false for C&I (inferred from Chromium behaviour, not a device test).
+- **A merge is not a deploy, and a missing status is a signal.** `b59a7673` got a "Vercel pending" status at push; `c29c81cb` got none. Check the statuses of the merge commit before starting OR-LIVE.
+
 ## 2026-10-04 — WAVE B-12 (UPLOAD, CONTROLLER B) — **UPLOAD-2: PHONE PHOTOS JUST WORK ON EVERY GRADING UPLOAD — CROP, ROTATE, COMPRESS BEFORE THE GUARD; SEVERAL PAGES AS ONE PDF, INCLUDING THROUGH QR** — `#920` MERGED — trunk `2492bb67`
 
 ★ **PROVENANCE.** Controller B, wave B-12. The spec `UPLOAD-2` v1.2 (`472BB22605B5`) is owner-authored (cofounder), with the owner's 4 Oct reports as its WHY. One builder (`claude-opus-5-5`) in `C:/Projects/LT-worktrees/upload-2` carried the PR through merge and OR-LIVE. A separate docs builder wrote this docs PR in `C:/Projects/LT-worktrees/docs-b12` from `WAVE_STATE_B12.md`, the spec and the builder's report. *(builder-reported)* / *(controller-verified)* / *(docs-builder-verified)* as in `CURRENT_STATE.md`. Controller-verified: `2492bb67` is an ancestor of `633f77dc`; 18 files; 0 forbidden.

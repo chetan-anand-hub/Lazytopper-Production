@@ -1,5 +1,31 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-04 — WAVE B-13 (UPLOAD, CONTROLLER B): UPLOAD-2-FIX-1 (`#923` `c29c81cb`), trunk `c29c81cb`. ⚠ MERGED BUT NOT LIVE when written — Vercel did not build `c29c81cb`; the rollout is recorded in `CURRENT_STATE.md` once it happens.**
+> ★ **EVERY P5 PHOTO HOST MOVES ON THE UPLOAD AXIS: ON A PHONE (COARSE POINTER) THE FIRST PHOTO AND "ADD ANOTHER PAGE" OFFER "📷 TAKE PHOTO" (REAR CAMERA, ONE FILE) AND "🖼 CHOOSE FROM GALLERY" (SEVERAL); DESKTOP UNCHANGED.** The moved surfaces' §2 cells already read ✅ — except Full Mock `Verified` ⬜, which stays ⬜ — and the matrix has no upload column, so **no matrix cell value changes**; each move is recorded below as a status line, per host, from the builder's P5 list *(builder-reported)*. None is live yet, so none is marked LIVE.
+
+### 🟡 Page tray — "Add another page" (PageTray, every multi-page host) — **GALLERY ONLY ON ANDROID → "TAKE PHOTO" + "CHOOSE FROM GALLERY" — merged, NOT live (`#923`)**
+- Before (production `b59a7673`, 390 touch): ONE input, `image/jpeg,image/png`, `capture` null, `multiple` true — the owner's bug reproduced live. After: coarse pointer → camera input `capture="environment"`, no `multiple` + gallery input `multiple`; fine pointer → unchanged "+ Add another page" *(builder-reported; pins (a)–(d), harness screenshots)*. Owner Android acceptance OWED.
+
+### 🟡 Check & Improve — question AND answer first photo — **"CAMERA / FILES" TOGGLE (capture on a `multiple` + PDF input) → "TAKE PHOTO" + "CHOOSE FROM GALLERY" — merged, NOT live (`#923`)**
+- Given F4 although the P5 rubric counted it reachable: Chrome on Android ignores `capture` on a PDF-accepting `multiple` input (an inference, not a device test). Gated on `coarsePointer` instead of `!isDesktop`; also inside the tutor overlay (same page component). `DesktopCheckImprovePage.upload2.test.tsx` (answer, question, fine CONTROL) *(builder-reported)*.
+
+### 🟡 HPQ / Practice — "Check my answer" (SolutionChecker, incl. collect mode) — **NO CAMERA ON ANDROID → "TAKE PHOTO" + "CHOOSE FROM GALLERY" — merged, NOT live (`#923`)**
+- `multiple={!collectMode}` took the camera away outside collect mode; collect mode (no `multiple`) gets the same two buttons as the same component. `uploadPaths.test.tsx` (SC, SC collect, fine CONTROL) *(builder-reported)*.
+
+### 🟡 Chapter Test + Full Mock — paper upload (ChapterTestUploadPanel) — **NO CAMERA ON ANDROID → TWO CHOICES — merged, NOT live (`#923`)**
+- `uploadPaths.test.tsx` (CT) + harness screenshots *(builder-reported)*. Full Mock `Verified` stays ⬜.
+
+### 🟡 Worksheet — grading upload (WorksheetGradePanel) — **NO CAMERA ON ANDROID → TWO CHOICES — merged, NOT live (`#923`)**
+- `uploadPaths.test.tsx` (WG) + harness screenshots *(builder-reported)*.
+
+### 🟡 QR answer upload (phone page `/u/:token`) — **NO CAMERA IN ANY MODE → TWO CHOICES IN ALL MODES — merged, NOT live (`#923`)**
+- Photo / document / question modes; the input drops `capture` on a coarse pointer (the camera is its own input). `QrAnswerUploadPage.crop.test.tsx` (3 modes, camera → crop, fine CONTROL) *(builder-reported)*.
+
+### ⬜ NO OTHER SURFACE MOVES — stated plainly, per `CLAUDE.md` §10
+- No other `type="file"` exists under `lazytopper/src` *(builder-reported, src grep)*. No other page changed.
+
+### 📋 Scope discovered? — **NO.** P5 was an open premise the spec planned for, and F4 pre-decided the treatment. Nothing logged in §2a.
+
 > **2026-10-04 — WAVE B-12 (UPLOAD, CONTROLLER B): UPLOAD-2 (`#920` `2492bb67`), trunk `2492bb67`. LIVE on deploy (no flag); the rollout is recorded in `CURRENT_STATE.md`.**
 > ★ **EVERY P14 UPLOAD SURFACE MOVES ON THE UPLOAD AXIS: A PHONE PHOTO IS CROPPED (OPTIONAL), ROTATED IF NEEDED AND COMPRESSED BEFORE THE SIZE CHECK; SEVERAL PAGES BECOME ONE PDF ON THE DEVICE (MAX 8) — EXCEPT QUICK PRACTICE COLLECT MODE (SINGLE PHOTO).** The moved surfaces' §2 cells (Built / Redesigned / Desktop / Mobile / MI / Verified) already read ✅ — except Full Mock `Verified` ⬜, which stays ⬜ because Full Mock was not driven live this wave — and the matrix has no upload column, so **no matrix cell value changes**; each move is recorded below as a status line, per surface, from the builder's P14 list *(builder-reported)*.
 
