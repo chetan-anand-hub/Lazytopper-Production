@@ -24,7 +24,18 @@
  * for the landing's `<h1>` reaching crawlers. What was NOT acceptable — the root's file
  * doubling as the SPA fallback for every other `/app/*` URL — is closed by
  * `applyPrerendered.ts` writing a clean `__shell.html` that `vercel.json`'s catch-all
- * now targets. The capture viewport is desktop-width, so the root renders `Welcome`.
+ * now targets. `RootEntry` renders `Welcome` signed-out at EVERY width, so both captures
+ * of the root carry the landing.
+ *
+ * ★ TWO WIDTHS — SEO-5 PR-2 (D1, owner ruling 2026-10-04). Every advertised page is captured
+ * at 390 px (MOBILE — the default file at the page's own path) AND at 1280 px (DESKTOP — the
+ * variant under `/__desktop/`, served to desktop clients by `middleware.ts`). Until this, the
+ * only capture was 1280 px, so a phone painted the desktop layout until React mounted. Every
+ * validator below runs on BOTH sets, each as a set of its own: coverage, the strip, the
+ * floor, the error-boundary and auth bans, the data-dependence control, pairwise-distinct and
+ * the substring-trap witnesses. A page whose two widths render the same DOM is allowed (a
+ * page responsive by CSS alone does exactly that); two PATHS sharing a body within one width
+ * is not.
  *
  * ★ AUTH-DEPENDENT CHROME IS REMOVED AS **DOM NODES**, NEVER AS TEXT, and that
  * distinction is not stylistic — it is the difference between a correct page and
@@ -53,7 +64,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import type { AddressInfo } from "node:net";
 import { chromium, type Browser, type Page } from "@playwright/test";
 import { sitemapPaths } from "../../src/config/sitemapUrls";
-import { fragmentPathFor } from "./applyPrerendered";
+import { DESKTOP_PREFIX, desktopFragmentPathFor, fragmentPathFor } from "./applyPrerendered";
 
 const LAZYTOPPER_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -90,6 +101,22 @@ export function entryChunkOf(outDir: string): string {
 
 /** The mount point in the built shell, replaced with the captured DOM. */
 const EMPTY_ROOT = '<div id="root"></div>';
+
+/** The two widths every advertised page is captured at (SEO-5 PR-2, D1). */
+export type CaptureVariant = "mobile" | "desktop";
+
+/**
+ * ★ 390 IS A PHONE, 1280 IS A LAPTOP — and `useIsDesktop`'s 1024-px query sits between them,
+ * so each capture renders the chrome its own device class gets (MobileSelfChrome + BottomNav
+ * on the phone; DesktopShell on the laptop). The mobile context is a touch device with
+ * `isMobile`, so `(pointer: coarse)` and the meta viewport behave as on a phone.
+ */
+export const CAPTURE_VIEWPORTS: Readonly<
+  Record<CaptureVariant, { width: number; height: number; isMobile: boolean; hasTouch: boolean }>
+> = {
+  mobile: { width: 390, height: 844, isMobile: true, hasTouch: true },
+  desktop: { width: 1280, height: 900, isMobile: false, hasTouch: false },
+};
 
 /**
  * Minimum captured body size, in bytes of serialized HTML.
@@ -498,6 +525,7 @@ async function capturePath(
   basename: string,
   path: string,
   blockApis: boolean,
+  variant: CaptureVariant,
 ): Promise<Capture> {
   // ★ A FRESH CONTEXT PER PATH. Contexts do not share storage, and these pages DO
   // write it while rendering (a daily-check key, a last-subject key, the local auth
@@ -505,7 +533,8 @@ async function capturePath(
   // render. Measured: 58 paths captured concurrently are byte-identical to the same
   // 58 captured serially, with a control proving the comparison detects a real
   // difference. Correctness is not what the concurrency is for.
-  const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  const { width, height, isMobile, hasTouch } = CAPTURE_VIEWPORTS[variant];
+  const context = await browser.newContext({ viewport: { width, height }, isMobile, hasTouch });
   try {
     const page = await context.newPage();
     const apiCalls = new Set<string>();
@@ -602,6 +631,27 @@ export function validateCoverage(captures: readonly Capture[]): string[] {
     }
   }
   return failures;
+}
+
+/**
+ * SEO-5 PR-2 (D1) — every validator, on EACH width's set, each failure tagged with its width.
+ *
+ * ★ PER SET, NEVER POOLED. Pooling the two sets would make PAIRWISE-DISTINCT fail on every
+ * page responsive by CSS alone (its two widths can render the same DOM, which is correct),
+ * and would let coverage pass with a page captured at one width only — the partial artifact
+ * that breaks the build downstream. So each set must independently cover every advertised
+ * path and pass every check.
+ */
+export function validateBothWidths(
+  mobile: readonly Capture[],
+  desktop: readonly Capture[],
+): string[] {
+  const tagged = (variant: CaptureVariant, failures: string[]): string[] =>
+    failures.map((failure) => `[${variant}] ${failure}`);
+  return [
+    ...tagged("mobile", [...validateCoverage(mobile), ...validateCaptures(mobile)]),
+    ...tagged("desktop", [...validateCoverage(desktop), ...validateCaptures(desktop)]),
+  ];
 }
 
 /** Every failure this step can detect, collected so the build reports ALL of them. */
@@ -721,6 +771,7 @@ async function main(): Promise<void> {
   const origin = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
 
   const captures: Capture[] = [];
+  const desktopCaptures: Capture[] = [];
   // ⚠ THE SERVER IS CLOSED ON EVERY PATH OUT OF HERE, INCLUDING A FAILED BROWSER
   // LAUNCH, AND THAT OUTER `try` IS NOT TIDINESS. `chromium.launch()` used to sit
   // OUTSIDE it: on a machine with no browser downloaded the launch threw in ONE
@@ -742,15 +793,21 @@ async function main(): Promise<void> {
               // cannot contain runtime data. The second run, with them reachable, is the
               // control: if the two DOMs differ, this page's rendered output depends on
               // something no source fingerprint can cover, and the capture fails.
-              const blocked = await capturePath(browser, origin, basename, path, true);
-              const live = await capturePath(browser, origin, basename, path, false);
-              return { ...blocked, htmlWithApis: live.html };
+              // SEO-5 PR-2 (D1): the same pair, at each width.
+              const variants = {} as Record<CaptureVariant, Capture>;
+              for (const variant of ["mobile", "desktop"] as const) {
+                const blocked = await capturePath(browser, origin, basename, path, true, variant);
+                const live = await capturePath(browser, origin, basename, path, false, variant);
+                variants[variant] = { ...blocked, htmlWithApis: live.html };
+              }
+              return variants;
             } catch (error: unknown) {
               throw new Error(`captureStaticBodies: ${path} failed to render — ${String(error)}`);
             }
           }),
         );
-        captures.push(...settled);
+        captures.push(...settled.map((pair) => pair.mobile));
+        desktopCaptures.push(...settled.map((pair) => pair.desktop));
       }
     } finally {
       await browser.close();
@@ -759,7 +816,7 @@ async function main(): Promise<void> {
     await new Promise<void>((done) => server.close(() => done()));
   }
 
-  const failures = [...validateCoverage(captures), ...validateCaptures(captures)];
+  const failures = validateBothWidths(captures, desktopCaptures);
   if (failures.length > 0) {
     throw new Error(
       `captureStaticBodies: ${failures.length} page(s) failed validation. NOTHING WAS ` +
@@ -801,6 +858,13 @@ async function main(): Promise<void> {
     writeFileSync(file, capture.html, "utf8");
     filesWritten += 1;
   }
+  // SEO-5 PR-2 (D1): the 1280-px set, under the non-public prefix.
+  for (const capture of desktopCaptures) {
+    const file = desktopFragmentPathFor(capture.path);
+    mkdirSync(dirname(file), { recursive: true });
+    writeFileSync(file, capture.html, "utf8");
+    filesWritten += 1;
+  }
 
   // ★ THE MANIFEST RECORDS WHAT IS PLATFORM-STABLE, AND NOTHING ELSE.
   //
@@ -835,8 +899,13 @@ async function main(): Promise<void> {
         // up as a diff line in the committed artifact, rather than passing unnoticed
         // because it happened not to change any rendering.
         appApiCallsObserved: [
-          ...new Set(captures.flatMap((capture) => capture.apiCalls ?? [])),
+          ...new Set([...captures, ...desktopCaptures].flatMap((capture) => capture.apiCalls ?? [])),
         ].sort(),
+        // ★ LOAD-BEARING SINCE SEO-5 PR-2: `middleware.ts` imports `paths` as the set of pages
+        // that HAVE a desktop variant; `applyPrerendered` fails the build unless it equals the
+        // advertised set. The viewports are recorded so a width change is a reviewed diff line.
+        desktopPrefix: DESKTOP_PREFIX,
+        viewports: CAPTURE_VIEWPORTS,
         paths: captures.map((capture) => capture.path).sort(),
       },
       null,
@@ -847,14 +916,15 @@ async function main(): Promise<void> {
   );
   filesWritten += 1;
 
-  const bytes = captures.map((capture) => Buffer.byteLength(capture.html, "utf8"));
-  const removed = captures.reduce((total, capture) => total + capture.removed, 0);
+  const bytes = [...captures, ...desktopCaptures].map((capture) => Buffer.byteLength(capture.html, "utf8"));
+  const removed = [...captures, ...desktopCaptures].reduce((total, capture) => total + capture.removed, 0);
   // ★ Names its subject on every run, green included: a run that silently captured
   // nothing must be visible in the build log rather than reading as success.
   // eslint-disable-next-line no-console
   console.log(
     `STATIC_BODIES_CAPTURE: artifact=${PRERENDERED_DIR} ` +
-      `advertised=${sitemapPaths().length} captured=${captures.length} (root included) ` +
+      `advertised=${sitemapPaths().length} captured_mobile=${captures.length} ` +
+      `captured_desktop=${desktopCaptures.length} (root included) ` +
       `files=${filesWritten} auth_nodes_removed=${removed} ` +
       `body_bytes_min=${Math.min(...bytes)} body_bytes_max=${Math.max(...bytes)} ` +
       `entry=${entryChunkOf(outDir)}`,
