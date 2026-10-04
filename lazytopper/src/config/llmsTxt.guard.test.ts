@@ -39,7 +39,7 @@ const ROOT = process.cwd(); // vitest runs with cwd = lazytopper/
 const LLMS_TXT = resolve(ROOT, "public", "llms.txt");
 const BASENAME = "";
 
-/** Floor for (a). The payload lists 62 (SEO-3); a near-empty file must not pass vacuously. */
+/** Floor for (a). The payload lists 63 (SEO-5 PR-3); a near-empty file must not pass vacuously. */
 const MIN_URLS = 50;
 
 /** Same pattern and trailing-punctuation trim as `advertisedFromLlms`. */

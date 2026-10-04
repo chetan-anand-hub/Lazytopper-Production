@@ -92,6 +92,9 @@ const ROUTES: Record<string, Array<[string, string | null]>> = {
   "/legal/:slug": [["/legal/privacy", "legal/privacy"], ["/legal/refunds", "legal/other"]],
   "/pricing": [["/pricing", "pricing"], ["/pricing/", "pricing"]],
   "/cbse/class-10": [["/cbse/class-10", "cbse/class-10"]],
+  // SEO-5 PR-3 — the public answer-writing guide. Records no page name (null): naming it
+  // would need the server's drift-tested page list (server/** is out of that lane's scope).
+  "/check-your-answer": [["/check-your-answer", null]],
   "/admin/funnel": [["/admin/funnel", null]],
   "/admin/diagram-compare": [["/admin/diagram-compare", null]],
   "/admin/diagram-quality": [["/admin/diagram-quality", null]],

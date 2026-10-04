@@ -243,6 +243,22 @@ describe("canonicalPathFor — the ruled set, and everything outside it", () => 
     expect(canonicalPathFor("/highly-probable/9/Maths")).toBe("/");
     expect(canonicalPathFor("/highly-probable/10/maths")).toBe("/");
   });
+
+  /**
+   * ★ SEO-5 PR-3 (owner ruling, 2026-10-04) — THE ANSWER-WRITING GUIDE NAMES ITSELF, AND THE
+   * FREE CHECK IT LINKS TO DOES NOT. `/check-improve` stays noindex (a thin upload page and the
+   * ad landing), so it must keep consolidating to the root; that control is the half of this
+   * pin a careless prefix match would break.
+   */
+  it("★ SELF-CANONICALISES /check-your-answer, and /check-improve still falls to the root", () => {
+    expect(canonicalPathFor("/check-your-answer")).toBe("/check-your-answer");
+    expect(canonicalFor("/check-your-answer", PROD_BASENAME)).toBe(
+      "https://www.lazytopper.com/check-your-answer",
+    );
+    // CONTROLS — the free check and a near-miss path.
+    expect(canonicalPathFor("/check-improve")).toBe("/");
+    expect(canonicalPathFor("/check-your-answer/extra")).toBe("/");
+  });
 });
 
 describe("appBasename — the same source of truth the router uses", () => {

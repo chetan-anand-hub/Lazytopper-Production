@@ -15,6 +15,7 @@ Key facts:
 - [Home](https://www.lazytopper.com/): what LazyTopper does, and a free answer check
 - [Exam Trends](https://www.lazytopper.com/exam-trends): every Class 10 chapter ranked by exam weightage, from ten years of CBSE board papers
 - [CBSE Class 10 Boards 2027](https://www.lazytopper.com/cbse/class-10): official CBSE papers for Class 10 Maths and Science, unit-wise marks, dates and exam rules
+- [How CBSE examiners mark answers](https://www.lazytopper.com/check-your-answer): step marking, where marks are lost, and worked examples from past Class 10 board papers
 - [Practice hub](https://www.lazytopper.com/practice-hub): choose a subject and chapter, then practise questions, worksheets or mock papers
 - [Class 10 Maths predicted questions](https://www.lazytopper.com/highly-probable/10/Maths): high-probability question patterns for the 2027 boards, chapter by chapter
 - [Class 10 Science predicted questions](https://www.lazytopper.com/highly-probable/10/Science): high-probability question patterns for the 2027 boards, chapter by chapter
