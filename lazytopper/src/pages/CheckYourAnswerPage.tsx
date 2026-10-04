@@ -58,7 +58,7 @@ export const WORKED_EXAMPLES: readonly WorkedExample[] = [
     question:
       "If two tangents inclined at an angle of 60° are drawn to a circle of radius 3 cm, then find the length of each tangent.",
     stepsHeading: "The marking scheme",
-    source: "Source: CBSE Marking Scheme 2024, Mathematics Standard (041), paper 30/5/1, Q21(a)",
+    source: "Source: CBSE Marking Scheme 2024, Mathematics (041), paper 30/5/1, Q21(a)",
     steps: [
       { text: "Correct figure", marks: "½" },
       { text: "∠APO = 30°", marks: "½" },
