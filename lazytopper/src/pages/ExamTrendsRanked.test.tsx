@@ -413,3 +413,13 @@ describe("ExamTrendsRanked — sanity", () => {
     expect(document.querySelectorAll("[data-topic-slug]").length).toBeGreaterThan(0);
   });
 });
+
+describe("ExamTrendsRanked — SEO-5 PR-4 guide link", () => {
+  it("the hero links to the answer-marking guide, in the existing hero link style", async () => {
+    await renderPage();
+    const link = screen.getByRole("link", { name: "How are these marks awarded? → Marking guide" });
+    expect(link).toHaveAttribute("href", "/check-your-answer");
+    expect(link.className).toBe("lt-et-cbse");
+    expect(link.closest(".lt-et-hero")).not.toBeNull();
+  });
+});
