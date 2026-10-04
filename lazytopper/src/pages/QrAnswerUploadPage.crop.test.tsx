@@ -9,7 +9,7 @@
 // The page is always mounted inside the app's router (App.tsx registers /u/:token), and
 // `useParams` is how it gets its token, so the test mounts a real router.
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
@@ -292,4 +292,70 @@ describe("(k) QR multi-page — 3 photos leave the phone as ONE application/pdf"
     expect(vi.mocked(sendQrImage).mock.calls[1][1]).toEqual(vi.mocked(sendQrImage).mock.calls[0][1]);
     expect(await screen.findByText("Sent")).toBeTruthy();
   }, 60_000);
+});
+
+// ── UPLOAD-2-FIX-1 (F4) — the phone page: "Take photo" is its OWN input ──────────────
+// The page's picker carries `multiple` and a PDF in `accept`; on Android Chrome either one
+// keeps the camera away even with `capture` set. A coarse pointer (this page's audience)
+// gets "Take photo" (image/*, capture=environment, never `multiple`) beside "Choose from
+// gallery" (the page's own input, which then carries no `capture`).
+
+function stubPointer(coarse: boolean) {
+  vi.stubGlobal("matchMedia", (query: string) => ({
+    matches: query === "(pointer: coarse)" ? coarse : false,
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  }));
+}
+
+describe("(F4) QR phone page on a touch device — Take photo / Choose from gallery", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  for (const mode of ["photo", "document", "question"] as const) {
+    it(`★ ${mode} mode: a camera input with capture and NO multiple; the gallery input keeps multiple, no capture`, async () => {
+      stubPointer(true);
+      vi.mocked(peekQrSlot).mockResolvedValue({ state: "pending", mode });
+      const { container } = renderPage();
+      await screen.findByRole("button", { name: "Take photo" });
+      expect(screen.getByRole("button", { name: "Choose from gallery" })).toBeTruthy();
+      const camera = screen.getByTestId("qru-photo-camera-input") as HTMLInputElement;
+      expect(camera.getAttribute("accept")).toBe("image/*");
+      expect(camera.getAttribute("capture")).toBe("environment");
+      expect(camera.multiple).toBe(false);
+      const gallery = container.querySelector("input.lt-qru__file") as HTMLInputElement;
+      expect(gallery.multiple).toBe(true);
+      expect(gallery.getAttribute("accept")).toBe("image/jpeg,image/png,application/pdf");
+      expect(gallery.hasAttribute("capture")).toBe(false);
+    });
+  }
+
+  it("★ a camera photo opens the crop step, and the next page offers the camera again", async () => {
+    stubPointer(true);
+    renderPage();
+    await screen.findByRole("button", { name: "Take photo" });
+    const camera = screen.getByTestId("qru-photo-camera-input") as HTMLInputElement;
+    Object.defineProperty(camera, "files", { value: [jpeg("cam.jpg")], configurable: true });
+    fireEvent.change(camera);
+    await screen.findByText("Choose what to send");
+    fireEvent.click(screen.getByRole("button", { name: "Use whole photo" }));
+    expect(await screen.findByTestId("page-tray-camera")).toBeTruthy();
+    expect((screen.getByTestId("page-tray-camera-input") as HTMLInputElement).multiple).toBe(false);
+  });
+
+  it("CONTROL: a fine pointer keeps the single CTA (photo mode still asks for the camera)", async () => {
+    stubPointer(false);
+    const { container } = renderPage();
+    expect(await screen.findByRole("button", { name: "Take a photo" })).toBeTruthy();
+    expect(screen.queryByTestId("qru-photo-camera-input")).toBeNull();
+    expect((container.querySelector("input.lt-qru__file") as HTMLInputElement).getAttribute("capture")).toBe(
+      "environment",
+    );
+  });
 });

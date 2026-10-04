@@ -12,7 +12,7 @@ import QrAnswerHandoff from "../qr/QrAnswerHandoff";
 import FairUseLimitPanel from "../usage/FairUseLimitPanel";
 import { useFairUse } from "../usage/useFairUse";
 import { UPLOAD_LIMIT_SENTENCE, checkUploadFile } from "../../services/uploadLimits";
-import PageTray, { usePageTray } from "../upload/PageTray";
+import PageTray, { PhotoSourceButtons, useCoarsePointer, usePageTray } from "../upload/PageTray";
 import {
   gradeWorksheetAndRecord,
   type WorksheetGradeOutcome,
@@ -292,6 +292,7 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
   // is cropped (optional), turned upright and compressed BEFORE the one guard
   // (`checkUploadFile`) runs, and several photos — one per page — are assembled on the
   // device into the ONE PDF this panel has always asked for.
+  const coarsePointer = useCoarsePointer();
   const tray = usePageTray({
     check: (file) => checkUploadFile(file, "answers"),
     onPayload: (p) => {
@@ -394,10 +395,21 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
       {!response && (
         <>
           {!hasFile && tray.pages.length === 0 ? (
-            <button type="button" className="lt-wg__drop" onClick={() => fileInputRef.current?.click()}>
-              <span className="lt-wg__dropt">Upload your answers — one PDF, or a photo of each page</span>
-              <span className="lt-wg__dropd">{UPLOAD_LIMIT_SENTENCE} · label each answer Q1, Q2 …</span>
-            </button>
+            coarsePointer ? (
+              // A phone: camera and gallery are two choices — the input above carries
+              // `multiple`, which on Android takes the camera away (UPLOAD-2-FIX-1).
+              <PhotoSourceButtons
+                onCameraChange={handleFile}
+                onGallery={() => fileInputRef.current?.click()}
+                hint={`${UPLOAD_LIMIT_SENTENCE} · label each answer Q1, Q2 …`}
+                testIdPrefix="wg-photo"
+              />
+            ) : (
+              <button type="button" className="lt-wg__drop" onClick={() => fileInputRef.current?.click()}>
+                <span className="lt-wg__dropt">Upload your answers — one PDF, or a photo of each page</span>
+                <span className="lt-wg__dropd">{UPLOAD_LIMIT_SENTENCE} · label each answer Q1, Q2 …</span>
+              </button>
+            )
           ) : (
             <div className="lt-wg__filerow">
               <span className="lt-wg__filenm">{fileName ?? "Preparing your pages…"}</span>

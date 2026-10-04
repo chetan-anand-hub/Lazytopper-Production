@@ -10,7 +10,7 @@
 import { useCallback, useRef, useState } from "react";
 import QrAnswerHandoff from "../qr/QrAnswerHandoff";
 import { UPLOAD_LIMIT_SENTENCE, checkUploadFile } from "../../services/uploadLimits";
-import PageTray, { usePageTray } from "../upload/PageTray";
+import PageTray, { PhotoSourceButtons, useCoarsePointer, usePageTray } from "../upload/PageTray";
 
 export default function ChapterTestUploadPanel({
   name,
@@ -38,6 +38,7 @@ export default function ChapterTestUploadPanel({
   sectionsLabel?: string;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const coarsePointer = useCoarsePointer();
   const [fileName, setFileName] = useState<string | null>(null);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [imageMimeType, setImageMimeType] = useState<string>("application/pdf");
@@ -102,12 +103,23 @@ export default function ChapterTestUploadPanel({
         />
 
         {!imageBase64 && tray.pages.length === 0 ? (
-          <button type="button" className="lt-ct__drop" onClick={() => fileInputRef.current?.click()}>
-            <span className="lt-ct__dropt">Upload your written answers — one PDF, or a photo of each page</span>
-            <span className="lt-ct__dropd">
-              {UPLOAD_LIMIT_SENTENCE} · label each answer with its question number
-            </span>
-          </button>
+          coarsePointer ? (
+            // A phone: camera and gallery are two choices — the input above carries
+            // `multiple`, which on Android takes the camera away (UPLOAD-2-FIX-1).
+            <PhotoSourceButtons
+              onCameraChange={handleFile}
+              onGallery={() => fileInputRef.current?.click()}
+              hint={`${UPLOAD_LIMIT_SENTENCE} · label each answer with its question number`}
+              testIdPrefix="ct-photo"
+            />
+          ) : (
+            <button type="button" className="lt-ct__drop" onClick={() => fileInputRef.current?.click()}>
+              <span className="lt-ct__dropt">Upload your written answers — one PDF, or a photo of each page</span>
+              <span className="lt-ct__dropd">
+                {UPLOAD_LIMIT_SENTENCE} · label each answer with its question number
+              </span>
+            </button>
+          )
         ) : (
           <div className="lt-ct__filerow">
             <span className="lt-ct__filenm">{fileName ?? "Preparing your pages…"}</span>

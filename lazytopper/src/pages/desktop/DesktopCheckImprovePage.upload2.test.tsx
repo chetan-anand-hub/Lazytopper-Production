@@ -231,3 +231,79 @@ describe("(a) C&I QUESTION path — a 6 MB phone photo of the question", () => {
     expect(base64ByteLength(req.imageBase64)).toBeLessThanOrEqual(PHOTO_TARGET_BYTES);
   });
 });
+
+// ── UPLOAD-2-FIX-1 (F4) — on a phone, "Take photo" is its OWN input ──────────────────
+// The old "Camera" button set `capture` on an input that carries `multiple` and a PDF in
+// `accept` — on Android Chrome either one keeps the camera away. A coarse pointer now gets
+// "Take photo" (image/*, capture=environment, never `multiple`) beside "Choose from
+// gallery" (the page's own input, unchanged).
+
+function stubPointer(coarse: boolean) {
+  vi.stubGlobal("matchMedia", (query: string) => ({
+    matches: query === "(pointer: coarse)" ? coarse : false,
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  }));
+}
+
+function expectCameraInput(testId: string) {
+  const camera = screen.getByTestId(testId) as HTMLInputElement;
+  expect(camera.getAttribute("accept")).toBe("image/*");
+  expect(camera.getAttribute("capture")).toBe("environment");
+  expect(camera.multiple).toBe(false);
+  return camera;
+}
+
+describe("(F4) C&I on a phone — Take photo / Choose from gallery", () => {
+  it("★ ANSWER: a camera photo goes crop step -> grader; gallery opens the page's own input", async () => {
+    stubPointer(true);
+    const { container } = renderPage();
+    await readTypedQuestion();
+    expect(screen.getByRole("button", { name: "Take photo" })).toBeTruthy();
+    const gallery = container.querySelectorAll('input[type="file"]')[0] as HTMLInputElement;
+    expect(gallery.multiple).toBe(true);
+    const spy = vi.spyOn(gallery, "click").mockImplementation(() => {});
+    fireEvent.click(screen.getByTestId("ci-answer-photo-gallery"));
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(gallery.hasAttribute("capture")).toBe(false);
+
+    choose(expectCameraInput("ci-answer-photo-camera-input"), [sixMbPhoto("answer.jpg")]);
+    fireEvent.click(await screen.findByRole("button", { name: "Use whole photo" }));
+    // The next page offers the camera too.
+    expect(await screen.findByTestId("page-tray-camera")).toBeTruthy();
+    const grade = await screen.findByRole("button", { name: /Grade my answer/ });
+    await waitFor(() => expect(grade).not.toBeDisabled());
+    fireEvent.click(grade);
+    await waitFor(() => expect(H.checkSolutionImage).toHaveBeenCalledTimes(1));
+    const req = H.checkSolutionImage.mock.calls[0][0] as { imageBase64: string; imageMimeType: string };
+    expect(req.imageMimeType).toBe("image/jpeg");
+    expect(base64ByteLength(req.imageBase64)).toBeLessThanOrEqual(PHOTO_TARGET_BYTES);
+  });
+
+  it("★ QUESTION: a camera photo of the question is read", async () => {
+    stubPointer(true);
+    renderPage();
+    fireEvent.click(screen.getByRole("button", { name: "Upload question(s)" }));
+    choose(expectCameraInput("ci-question-photo-camera-input"), [sixMbPhoto("question.jpg")]);
+    fireEvent.click(await screen.findByRole("button", { name: "Use whole photo" }));
+    const read = await screen.findByRole("button", { name: /Read the question/ });
+    await waitFor(() => expect(read).not.toBeDisabled());
+    fireEvent.click(read);
+    await waitFor(() => expect(H.detectQuestion).toHaveBeenCalledTimes(1));
+    const req = H.detectQuestion.mock.calls[0][0] as { imageBase64: string; imageMimeType: string };
+    expect(req.imageMimeType).toBe("image/jpeg");
+  });
+
+  it("CONTROL: a fine pointer gets no camera input and no Take photo button", async () => {
+    stubPointer(false);
+    renderPage();
+    await readTypedQuestion();
+    expect(screen.queryByRole("button", { name: "Take photo" })).toBeNull();
+    expect(document.querySelector("input[capture]")).toBeNull();
+  });
+});
