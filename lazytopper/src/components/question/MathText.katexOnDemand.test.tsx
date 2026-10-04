@@ -6,15 +6,16 @@
 //   (a) SOURCE: MathText.tsx has no runtime import of katex or its stylesheet — only a
 //       type import and a dynamic import(). CONTROL: the reader sees NoteRichText's static
 //       import (the notes page, where maths IS the first screen, keeps it).
-//   (b) text that cannot contain maths renders at once, without fetching KaTeX (in the app a
-//       background prefetch follows once the page is idle; it is skipped under vitest);
+//   (b) text that cannot contain maths renders at once, without fetching KaTeX (a page that
+//       wants a background prefetch once idle calls prefetchKatexWhenIdle() — see (i)-(k);
+//       it is skipped under vitest);
 //   (c) text with maths shows a readable stand-in while KaTeX is in flight, then KaTeX;
 //   (d) ★ the cue is a SUPERSET of every path into KaTeX, proven over the whole question
 //       bank: any text it rejects is untouched by the promote pass and has no delimiters,
 //       so it renders byte-identically with or without KaTeX;
 //   (e) EquationInput starts the fetch when the answer box is focused.
 
-import { describe, it, expect, afterEach, vi } from "vitest";
+import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import { readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
@@ -238,5 +239,64 @@ describe("L6 rework — KaTeX up front on maths-first pages, lazy only on C&I an
     const { files, packages } = staticClosure(resolve(SRC, "pages/HighlyProbableQuestions.tsx"));
     expect(files.has(EAGER)).toBe(true);
     expect(packages.has("katex")).toBe(true);
+  });
+});
+
+/**
+ * CT-KATEX-2 — the idle prefetch is an explicit call, not a side effect of importing MathText.
+ *
+ * MODE is stubbed off "test" (the helper skips itself under vitest) and requestIdleCallback is
+ * captured, so what gets armed is observable.
+ *   (i) evaluating MathText arms nothing;
+ *   (j) prefetchKatexWhenIdle() arms one idle callback (5 s timeout), fetches nothing up
+ *       front, arms only once, and the callback really loads KaTeX;
+ *   (k) a maths-first page (katexEager) is unaffected: KaTeX is ready before the first
+ *       render, with no idle prefetch involved.
+ *
+ * Mutation M1 (restore MathText's module-level idle prefetch) -> (i) RED (and the Chapter
+ * Test pin in ChapterTestPage.katex.test.tsx).
+ */
+describe("CT-KATEX-2 — prefetchKatexWhenIdle is opt-in", () => {
+  let idle: Array<{ cb: () => void; opts?: { timeout: number } }> = [];
+  beforeEach(() => {
+    idle = [];
+    vi.stubEnv("MODE", "production");
+    vi.stubGlobal("requestIdleCallback", (cb: () => void, opts?: { timeout: number }) => {
+      idle.push({ cb, opts });
+      return idle.length;
+    });
+  });
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
+  it("(i) ★ evaluating MathText arms no idle prefetch", async () => {
+    const { isKatexLoaded } = await freshMathText();
+    expect(import.meta.env.MODE).toBe("production"); // CONTROL — the stub is in force
+    expect(idle).toHaveLength(0);
+    expect(isKatexLoaded()).toBe(false);
+  });
+
+  it("(j) prefetchKatexWhenIdle arms one idle fetch (5 s cap), once, and it loads KaTeX", async () => {
+    const { prefetchKatexWhenIdle, isKatexLoaded } = await freshMathText();
+    prefetchKatexWhenIdle();
+    prefetchKatexWhenIdle();
+    expect(idle).toHaveLength(1);
+    expect(idle[0].opts).toEqual({ timeout: 5000 });
+    await new Promise((r) => setTimeout(r, 20));
+    expect(isKatexLoaded()).toBe(false); // nothing fetched before the page is idle
+    idle[0].cb();
+    await waitFor(() => expect(isKatexLoaded()).toBe(true));
+  });
+
+  it("(k) ★ a maths-first page (katexEager) has KaTeX before its first render, no idle prefetch involved", async () => {
+    vi.resetModules();
+    await import("./katexEager");
+    const { MathText, isKatexLoaded } = await import("./MathText");
+    expect(isKatexLoaded()).toBe(true);
+    expect(idle).toHaveLength(0);
+    const { container } = render(<MathText text="Simplify x^2 + 3" />);
+    expect(container.querySelector(".katex")).not.toBeNull();
   });
 });

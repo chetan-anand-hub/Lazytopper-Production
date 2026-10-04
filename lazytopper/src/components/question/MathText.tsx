@@ -54,13 +54,22 @@ export function registerKatex(lib: Katex): void {
   katexPending = Promise.resolve(lib);
 }
 
-// ★ OFF THE FIRST SCREEN, NOT OFF THE PAGE. Once a page that imports MathText is idle (5 s
-// at the latest), KaTeX is fetched in the background, so the first maths a student meets on
-// Check & Improve or after the Chapter Test starts renders without a wait. (Pages with maths
-// on their first screen do not wait for this: they import katexEager.ts. The PDF exports
-// await loadKatex() themselves — worksheet/worksheetPdfExport.ts.) Skipped under vitest,
-// where a stray background import would outlive the test file.
-if (typeof window !== "undefined" && import.meta.env.MODE !== "test") {
+// ★ OFF THE FIRST SCREEN, NOT OFF THE PAGE — AND ONLY WHERE A PAGE ASKS FOR IT.
+// CT-KATEX-2: this used to run at module evaluation, so EVERY page that merely imported
+// MathText armed it — the Chapter Test included, where on a budget phone (profile A) the
+// fetch landed ~1.2 s before the start screen was usable. It is now an explicit call:
+// Check & Improve calls it at its own module evaluation (the same moment as before, so its
+// timing is unchanged); the Chapter Test instead starts the fetch on the student's first
+// interaction with the start screen and awaits it at Start. Pages with maths on their first
+// screen do not need this: they import katexEager.ts. The PDF exports await loadKatex()
+// themselves — worksheet/worksheetPdfExport.ts. Skipped under vitest, where a stray
+// background import would outlive the test file.
+let idlePrefetchArmed = false;
+
+/** Fetch KaTeX in the background once the page is idle (5 s at the latest). Arms once. */
+export function prefetchKatexWhenIdle(): void {
+  if (typeof window === "undefined" || import.meta.env.MODE === "test" || idlePrefetchArmed) return;
+  idlePrefetchArmed = true;
   const prefetch = () => {
     loadKatex().catch(() => {
       /* retried on demand */
