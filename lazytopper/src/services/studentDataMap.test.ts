@@ -274,7 +274,12 @@ describe("studentDataMap — drift guard", () => {
     // server/routes/studentActivity.cjs through the Admin SDK; the owner ruling makes it
     // ADMIN-ONLY, so no client rule may match it (deny-all catch-all). It IS student data
     // (uid-keyed) — in the map, erased and exported, not exempted.
-    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "payOrders", "qrUploadSlots", "usageLedger"]);
+    //
+    // ★ `gradingResults` JOINED this set with LOW-END-1 R4. Written only by
+    // server/services/fairUse.cjs (createGradingIdempotency) through the Admin SDK; no client
+    // reads or writes it, so it is undeclared on purpose (deny-all catch-all). It IS student
+    // data (uid-keyed graded results, 24 h) — in the map, erased and exported, not exempted.
+    expect(undeclared).toEqual(["activityLog", "freeCheckDaily", "gradingResults", "payOrders", "qrUploadSlots", "usageLedger"]);
   });
 
   it("★★ the map still declares `users` even though no code writes it (OWNER RULING)", () => {
@@ -386,6 +391,42 @@ describe("studentDataMap — the activity log is STUDENT data (STUDENT-ACTIVITY-
   });
 });
 
+describe("studentDataMap — stored grading results are STUDENT data (LOW-END-1 R4)", () => {
+  // ★★ A retried check is answered from a stored result (fairUse.cjs createGradingIdempotency).
+  // That result is the student's graded work, keyed on their uid, so it must be erased with
+  // the account and included in the export. MUTATION: drop either entry => RED here (and the
+  // drift guard above goes RED on the `gradingResults` collection the server writes).
+  const parent = STUDENT_DATA_MAP.find((l) => l.id === "gradingResults");
+  const attempts = STUDENT_DATA_MAP.find((l) => l.id === "gradingResults.attempts");
+
+  it("★★ gradingResults is mapped, uid-keyed, exportable, admin-only and NOT exempted", () => {
+    expect(parent, "gradingResults missing from STUDENT_DATA_MAP").toBeDefined();
+    expect(attempts, "gradingResults.attempts missing from STUDENT_DATA_MAP").toBeDefined();
+    expect(parent!.path).toBe("gradingResults/{uid}");
+    expect(attempts!.path).toBe("gradingResults/{uid}/attempts/{attemptId}");
+    expect(attempts!.kind).toBe("firestore-subcollection");
+    expect(attempts!.parentId).toBe("gradingResults");
+    expect(parent!.exportable).toBe(true);
+    expect(attempts!.exportable).toBe(true);
+    expect(parent!.mechanism).toBe("admin-sdk-required");
+    expect(attempts!.mechanism).toBe("admin-sdk-required");
+    expect(parent!.onErase ?? "delete").toBe("delete");
+    expect(attempts!.onErase ?? "delete").toBe("delete");
+    expect(NON_STUDENT_COLLECTIONS).not.toContain("gradingResults");
+    expect(subcollectionsOf("gradingResults").map((l) => l.id)).toEqual(["gradingResults.attempts"]);
+  });
+
+  it("★ CONTROL: the source scan really finds gradingResults (the writer is live), and no phantom top-level attempts", () => {
+    expect(scanCollectionsFromSource().has("gradingResults")).toBe(true);
+    expect(scanCollectionsFromSource().has("attempts")).toBe(false);
+  });
+
+  it("★★ firestore.rules never names gradingResults — default-deny covers it", () => {
+    expect(scanCollectionsFromRules().has("gradingResults")).toBe(false);
+    expect(readFileSync(RULES, "utf8")).not.toMatch(/gradingResults/);
+  });
+});
+
 describe("studentDataMap — per-location properties", () => {
   // ★★ PER-LOCATION, not one blanket assertion. A single "everything is mapped" check
   // passes while a collection is missing — which is exactly how this fails in production.
@@ -421,6 +462,8 @@ describe("studentDataMap — per-location properties", () => {
     "usageLedger.days",
     "activityLog",
     "activityLog.activityDays",
+    "gradingResults",
+    "gradingResults.attempts",
     "qrUploadSlots",
     "storage.qr-uploads",
     "local-storage",

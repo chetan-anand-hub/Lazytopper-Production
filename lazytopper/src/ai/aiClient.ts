@@ -85,6 +85,7 @@ export interface MoreLikeThisResponse {
 }
 
 import { paidJsonHeaders, UID_HEADER } from "./paidCallHeaders";
+import type { GradingHttpResponse, GradingStageListener } from "./gradingTransport";
 
 /**
  * FREE-CHECK-1b — per-call options for the three Check & Improve endpoints.
@@ -108,6 +109,36 @@ export interface PaidCallOptions {
    *  this paper — once, cached in memory — and sends it as X-Lazytopper-Paper. Without a
    *  pass the server counts the grade per question as check-improve. */
   paperKey?: string;
+  /** LOW-END-1 R2: stage updates for THIS grade (Uploading NN% -> Sent ✓ -> Grading… ->
+   *  Done, or offline). Grading calls only (check-solution, grade-worksheet). Passing it
+   *  sends the request by XHR so upload progress can be reported; omitted, the request
+   *  goes by fetch. Either way R1's timeout / retry / idempotency key apply. */
+  onStage?: GradingStageListener;
+}
+
+/**
+ * LOW-END-1 R1/R3 — every grading POST goes through gradingTransport: a 90 s timeout,
+ * up to 2 retries on a network failure / timeout / 502-504, and ONE idempotency key per
+ * call (= per check attempt), the same on every retry, so the server grades and charges
+ * once. Imported LAZILY for the same reason freeCheckClient is (entitlement.test.cjs A11
+ * runs this file under plain Node with only ./paidCallHeaders stubbed).
+ */
+async function postGrading(
+  url: string,
+  headers: Record<string, string>,
+  body: unknown,
+  opts?: PaidCallOptions,
+): Promise<GradingHttpResponse> {
+  const { sendGradingRequest, newIdempotencyKey } = await import("./gradingTransport");
+  return sendGradingRequest(url, headers, JSON.stringify(body), {
+    idempotencyKey: newIdempotencyKey(),
+    // ★ A FREE CHECK IS NEVER RE-SENT AUTOMATICALLY. Its App Check token is LIMITED-USE
+    // (minted for one request — the server refuses a replayed one), and with no uid the
+    // server cannot recognise the retry, so a re-send after a lost reply would be refused
+    // or spend the visitor's one free check twice. It keeps the timeout, stages and offline wait.
+    ...(opts?.freeCheck ? { maxRetries: 0 } : {}),
+    ...(opts?.onStage ? { onStage: opts.onStage } : {}),
+  });
 }
 
 async function freeCheckJsonHeaders(): Promise<Record<string, string>> {
@@ -327,7 +358,7 @@ export function isFairUseLimitError(err: unknown): err is FairUseLimitError {
 
 const FAIR_USE_WINDOWS: ReadonlySet<string> = new Set(["fiveHour", "day", "week"]);
 
-async function handleJsonResponse<T>(res: Response): Promise<T> {
+async function handleJsonResponse<T>(res: Pick<Response, "ok" | "status" | "text">): Promise<T> {
   const text = await res.text();
 
   if (!res.ok) {
@@ -621,11 +652,12 @@ export async function checkSolutionImage(req: {
   options?: string[];
   objective?: boolean;
 }, opts?: PaidCallOptions): Promise<CheckSolutionResponse> {
-  const res = await fetch(`${API_BASE}/check-solution`, {
-    method: "POST",
-    headers: { ...(opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders()), ...(opts?.surface ? { "X-Lazytopper-Surface": opts.surface } : {}) },
-    body: JSON.stringify(req),
-  });
+  const res = await postGrading(
+    `${API_BASE}/check-solution`,
+    { ...(opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders()), ...(opts?.surface ? { "X-Lazytopper-Surface": opts.surface } : {}) },
+    req,
+    opts,
+  );
   return handleJsonResponse<CheckSolutionResponse>(res);
 }
 
@@ -832,11 +864,12 @@ export async function gradeWorksheet(req: {
   // FAIR-USE-2 (F3): a paper (surface + paperKey) carries its server-issued pass. No pass
   // (signed out, passes not configured, mint failed) -> sent without one, graded as before.
   const paperPass = await paperPassHeaders(identity, opts);
-  const res = await fetch(`${API_BASE}/grade-worksheet`, {
-    method: "POST",
-    headers: { ...identity, ...(opts?.surface ? { "X-Lazytopper-Surface": opts.surface } : {}), ...paperPass },
-    body: JSON.stringify(req),
-  });
+  const res = await postGrading(
+    `${API_BASE}/grade-worksheet`,
+    { ...identity, ...(opts?.surface ? { "X-Lazytopper-Surface": opts.surface } : {}), ...paperPass },
+    req,
+    opts,
+  );
   return handleJsonResponse<WorksheetGradeResponse>(res);
 }
 

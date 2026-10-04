@@ -24,6 +24,7 @@ import type { AuthUser } from "../context/AuthContext";
 import {
   gradeWorksheet,
   type CheckSolutionResponse,
+  type PaidCallOptions,
   type WorksheetGradeResponse,
   type WorksheetQuestionGrade,
 } from "../ai/aiClient";
@@ -96,6 +97,8 @@ export async function gradeWorksheetAndRecord(
   user: AuthUser | null | undefined,
   worksheet: PersistedWorksheet,
   upload: { imageBase64: string; imageMimeType: string },
+  /** LOW-END-1 R2: the panel's stage listener (Uploading NN% -> Sent ✓ -> Grading… -> Done). */
+  opts?: { onStage?: PaidCallOptions["onStage"] },
 ): Promise<WorksheetGradeOutcome> {
   const response = await gradeWorksheet({
     worksheetId: worksheet.worksheetId,
@@ -123,7 +126,7 @@ export async function gradeWorksheetAndRecord(
     })),
     imageBase64: upload.imageBase64,
     imageMimeType: upload.imageMimeType,
-  }, { surface: "worksheet", paperKey: worksheet.worksheetId });
+  }, { surface: "worksheet", paperKey: worksheet.worksheetId, ...(opts?.onStage ? { onStage: opts.onStage } : {}) });
 
   if (!response.ok) return { response, miOutcomes: [] };
 

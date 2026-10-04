@@ -181,7 +181,10 @@ describe("R4 · SolutionChecker — a fair-use refusal renders the FairUseLimitP
     checkSolutionImage.mockRejectedValue("boom");
     renderChecker();
     await typeAndCheck();
-    expect(await screen.findByText("Failed to check solution")).toBeInTheDocument();
+    // LOW-END-1 R2: the fallback is a plain sentence now (was "Failed to check solution").
+    expect(
+      await screen.findByText("We couldn't check your answer just now. Your answer is still here — please try again."),
+    ).toBeInTheDocument();
     expect(panel()).toBeNull();
   });
 

@@ -1045,6 +1045,272 @@ function createFairUse(deps = {}) {
   return { applyToRequest, handleUsageMe, handlePaperPass, isPremium, markPaperGraded };
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   LOW-END-1 R4 · IDEMPOTENT GRADING — a retried check is never graded or charged twice
+   ══════════════════════════════════════════════════════════════════════════
+
+   The client (src/ai/gradingTransport.ts) sends ONE `Idempotency-Key` per check attempt
+   and the SAME key on every retry of it. For a VERIFIED uid on a grading endpoint:
+
+     · same uid + same endpoint + same key within 24 h, result stored -> the stored
+       status and body are returned, byte-for-byte. Nothing is graded, and nothing is
+       charged: the replay is answered BEFORE the limiter, entitlement and fair use, so
+       no allowance, cap or ledger hook ever sees it.
+     · IN FLIGHT (the lost-reply case: the client gave up at 90 s and retried while the
+       first attempt is still grading) -> a transactional PENDING marker. Exactly one
+       request can create it (runTransaction re-runs on a concurrent write), so exactly
+       one grades. A duplicate that finds it waits, re-reading every second, up to 75 s
+       (inside the client's 90 s), and returns the first result the moment it is stored.
+       Still grading at 75 s -> 503 `grading_in_progress`, which the client retries with
+       the same key. A marker older than 5 min is a dead attempt and may be re-claimed.
+     · STORED ONLY WHEN THE GRADE WAS SERVED: a 2xx — exactly the condition fair use
+       charges on (applyToRequest's `finish` hooks), so "charged" and "stored" can never
+       disagree. Any other status (a refusal, a 4xx, a 500, a 503) releases the marker:
+       not stored, not charged, and a retry grades afresh. The body is captured when the
+       handler calls res.end(), so a reply the network then loses is still stored.
+     · No key, a malformed key, no verified uid (the free check, anonymous callers), a
+       non-grading path or no Firestore -> null: the request runs EXACTLY as before.
+       A Firestore error fails OPEN to that same path (no worse than before this lane).
+
+   WHERE: gradingResults/{uid}/attempts/{sha256(path|key)} — uid-scoped, so DPDP erasure
+   and export reach it (mapped in src/services/studentDataMap.ts). Each record carries
+   `expiresAtMs` (checked by the read path ITSELF) and `expiresAt` (a Date, for a Firestore
+   TTL policy to delete the document; enabling that policy is a platform action, not code).
+*/
+
+/** R3: the request header (Node lower-cases header names). */
+const IDEMPOTENCY_HEADER = 'idempotency-key';
+/** A UUID, or any similar opaque token: 16-64 of [A-Za-z0-9-]. Anything else is ignored. */
+const IDEMPOTENCY_KEY_RE = /^[A-Za-z0-9-]{16,64}$/;
+const GRADING_RESULTS_COLLECTION = 'gradingResults';
+const GRADING_RESULTS_SEGMENTS = Object.freeze({ attempts: 'attempts' });
+const IDEMPOTENT_PATHS = new Set([CHECK_SOLUTION_PATH, GRADE_WORKSHEET_PATH]);
+/** R4: a stored result is returned for 24 h from the first attempt. */
+const IDEMPOTENCY_TTL_MS = 24 * HOUR_MS;
+/** A pending marker older than this belongs to an attempt that died; it may be re-claimed. */
+const IDEMPOTENCY_PENDING_STALE_MS = 5 * 60 * 1000;
+/** How long a duplicate waits for the first attempt — under the client's 90 s timeout. */
+const IDEMPOTENCY_WAIT_MS = 75 * 1000;
+const IDEMPOTENCY_POLL_MS = 1000;
+/** Firestore's document cap is 1 MiB; a larger body is served but not stored. */
+const IDEMPOTENCY_MAX_BODY_BYTES = 900 * 1024;
+/** The 503 a duplicate gets when the first attempt is still grading at the end of its wait. */
+const GRADING_IN_PROGRESS_BODY = Object.freeze({
+  ok: false,
+  code: 'grading_in_progress',
+  error: 'Your answer is still being graded. Please wait a moment and try again.',
+});
+
+/** The idempotency key on this request: a valid string, null (absent) or false (malformed). */
+function idempotencyKeyOf(req) {
+  const raw = req && req.headers ? req.headers[IDEMPOTENCY_HEADER] : undefined;
+  if (raw === undefined || raw === null) return null;
+  const key = String(Array.isArray(raw) ? raw[0] : raw).trim();
+  if (!key) return null;
+  return IDEMPOTENCY_KEY_RE.test(key) ? key : false;
+}
+
+/** The document id: the key never sits in a path as itself, and the endpoint is part of it. */
+function idempotencyAttemptId(reqPath, key) {
+  return crypto.createHash('sha256').update(`${reqPath}|${key}`).digest('hex').slice(0, 40);
+}
+
+/**
+ * What a stored record means at `nowMs`:
+ *   'done'    — a live stored result (replay it)
+ *   'pending' — a live, fresh marker (another attempt is grading: wait)
+ *   'free'    — absent, expired, stale or malformed (this request may claim it)
+ * ★ The expiry is checked HERE, on every read — never left to a TTL policy firing.
+ */
+function classifyIdempotencyRecord(data, nowMs, staleMs = IDEMPOTENCY_PENDING_STALE_MS) {
+  if (!data || typeof data !== 'object') return 'free';
+  const expiresAtMs = Number(data.expiresAtMs);
+  if (!Number.isFinite(expiresAtMs) || expiresAtMs <= nowMs) return 'free';
+  if (data.state === 'done' && Number.isInteger(data.status) && typeof data.body === 'string') return 'done';
+  if (data.state === 'pending') {
+    const claimedAtMs = Number(data.claimedAtMs);
+    return Number.isFinite(claimedAtMs) && nowMs - claimedAtMs < staleMs ? 'pending' : 'free';
+  }
+  return 'free';
+}
+
+/**
+ * @param deps.resolveFirestore () => ({ db } | null) — defaults to firebase-admin.
+ * @param deps.corsOrigin       the Access-Control-Allow-Origin a replay carries (as sendJson's).
+ * @param deps.telemetry, deps.now, deps.sleep, deps.waitMs, deps.pollMs, deps.staleMs
+ */
+function createGradingIdempotency(deps = {}) {
+  const {
+    telemetry = null,
+    corsOrigin = '*',
+    now = () => Date.now(),
+    sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+    waitMs = IDEMPOTENCY_WAIT_MS,
+    pollMs = IDEMPOTENCY_POLL_MS,
+    staleMs = IDEMPOTENCY_PENDING_STALE_MS,
+  } = deps;
+  const resolveFirestore = typeof deps.resolveFirestore === 'function' ? deps.resolveFirestore : defaultResolveFirestore;
+
+  function emit(event) {
+    try {
+      if (telemetry && typeof telemetry.increment === 'function') telemetry.increment(event, 1);
+    } catch {
+      /* a counter must never fail a request */
+    }
+  }
+
+  function database() {
+    try {
+      const fs = resolveFirestore();
+      return fs && fs.db ? fs.db : null;
+    } catch {
+      return null;
+    }
+  }
+
+  /** One transaction: replay a stored result, report a live marker, or claim the record. */
+  function claimOrRead(db, ref, claimId) {
+    return db.runTransaction(async (tx) => {
+      const nowMs = now();
+      const snap = await tx.get(ref);
+      const data = snap && snap.exists && typeof snap.data === 'function' ? snap.data() : null;
+      const kind = classifyIdempotencyRecord(data, nowMs, staleMs);
+      if (kind === 'done') return { kind: 'replay', status: data.status, body: data.body };
+      if (kind === 'pending') return { kind: 'wait' };
+      const expiresAtMs = nowMs + IDEMPOTENCY_TTL_MS;
+      tx.set(ref, { state: 'pending', claimId, claimedAtMs: nowMs, expiresAtMs, expiresAt: new Date(expiresAtMs) });
+      return { kind: 'claimed' };
+    });
+  }
+
+  /** Store a served (2xx) result, or release this attempt's marker. Never rejects. */
+  async function settle(db, ref, claimId, status, body) {
+    const served = status >= 200 && status < 300 && typeof body === 'string';
+    const storable = served && Buffer.byteLength(body, 'utf8') <= IDEMPOTENCY_MAX_BODY_BYTES;
+    if (served && !storable) emit('idempotency.too_large');
+    try {
+      const outcome = await db.runTransaction(async (tx) => {
+        const nowMs = now();
+        const snap = await tx.get(ref);
+        const data = snap && snap.exists && typeof snap.data === 'function' ? snap.data() : null;
+        // A result already stands (a stale-marker re-claim that finished first): keep it.
+        if (classifyIdempotencyRecord(data, nowMs, staleMs) === 'done') return 'kept';
+        const mine = !!data && data.claimId === claimId;
+        if (storable) {
+          const expiresAtMs = mine && Number.isFinite(Number(data.expiresAtMs))
+            ? Number(data.expiresAtMs)
+            : nowMs + IDEMPOTENCY_TTL_MS;
+          tx.set(ref, { state: 'done', claimId, status, body, completedAtMs: nowMs, expiresAtMs, expiresAt: new Date(expiresAtMs) });
+          return 'stored';
+        }
+        if (mine) {
+          tx.delete(ref);
+          return 'released';
+        }
+        return 'kept';
+      });
+      emit(`idempotency.${outcome}`);
+    } catch {
+      emit('idempotency.settle_failed');
+    }
+  }
+
+  /** Capture what the handler sends; settle once, when it sends it (or when it never does). */
+  function attach(res, db, ref, claimId) {
+    let settled = false;
+    const end = res.end;
+    res.end = function idempotentEnd(chunk) {
+      if (!settled) {
+        settled = true;
+        let body = null;
+        if (typeof chunk === 'string') body = chunk;
+        else if (Buffer.isBuffer(chunk)) body = chunk.toString('utf8');
+        void settle(db, ref, claimId, Number(res.statusCode) || 0, body);
+      }
+      return end.apply(this, arguments);
+    };
+    if (typeof res.once === 'function') {
+      res.once('close', () => {
+        if (settled) return;
+        settled = true;
+        void settle(db, ref, claimId, 0, null); // the handler never answered: release
+      });
+    }
+  }
+
+  /**
+   * The route-boundary step. Call once per POST, after the uid is verified and BEFORE the
+   * limiter / entitlement / fair use. Returns:
+   *   null                         — not idempotent: run the request exactly as before
+   *   { replay: { status, body } } — answer with replay() and stop
+   *   { busy: true }               — answer GRADING_IN_PROGRESS_BODY (503) and stop
+   *   { claimed: true }            — this request grades; its response has been hooked
+   */
+  async function begin(req, res, reqPath, verifiedUid) {
+    if (!IDEMPOTENT_PATHS.has(reqPath)) return null;
+    const key = idempotencyKeyOf(req);
+    if (key === null) return null;
+    if (key === false) {
+      emit('idempotency.key_invalid');
+      return null;
+    }
+    const uid = typeof verifiedUid === 'string' ? verifiedUid.trim() : '';
+    if (!uid) {
+      emit('idempotency.no_uid');
+      return null;
+    }
+    const db = database();
+    if (!db) {
+      emit('idempotency.unavailable');
+      return null;
+    }
+    const ref = db
+      .collection(GRADING_RESULTS_COLLECTION)
+      .doc(uid)
+      .collection(GRADING_RESULTS_SEGMENTS.attempts)
+      .doc(idempotencyAttemptId(reqPath, key));
+    const claimId = crypto.randomUUID();
+    const deadline = now() + waitMs;
+    let waited = false;
+    for (;;) {
+      let step;
+      try {
+        step = await claimOrRead(db, ref, claimId);
+      } catch {
+        emit('idempotency.error');
+        return null; // fail open: no worse than before this lane
+      }
+      if (step.kind === 'replay') {
+        emit(waited ? 'idempotency.replay_after_wait' : 'idempotency.replay');
+        return { replay: { status: step.status, body: step.body } };
+      }
+      if (step.kind === 'claimed') {
+        emit('idempotency.claimed');
+        attach(res, db, ref, claimId);
+        return { claimed: true };
+      }
+      waited = true;
+      if (now() >= deadline) {
+        emit('idempotency.busy');
+        return { busy: true };
+      }
+      await sleep(pollMs);
+    }
+  }
+
+  /** Send a stored result exactly as it was first sent (sendJson's headers, the same bytes). */
+  function replay(res, stored) {
+    res.writeHead(stored.status, {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': corsOrigin,
+      'Idempotent-Replayed': 'true',
+    });
+    res.end(stored.body);
+  }
+
+  return { begin, replay };
+}
+
 module.exports = {
   createFairUse,
   cachedReadJson,
@@ -1076,4 +1342,15 @@ module.exports = {
   PAPER_SECRET_ENV,
   PAPER_PASS_TTL_MS,
   PAPER_PASSES_FIELD,
+  createGradingIdempotency,
+  classifyIdempotencyRecord,
+  idempotencyKeyOf,
+  idempotencyAttemptId,
+  IDEMPOTENCY_HEADER,
+  IDEMPOTENCY_TTL_MS,
+  IDEMPOTENCY_PENDING_STALE_MS,
+  IDEMPOTENCY_WAIT_MS,
+  GRADING_RESULTS_COLLECTION,
+  GRADING_RESULTS_SEGMENTS,
+  GRADING_IN_PROGRESS_BODY,
 };

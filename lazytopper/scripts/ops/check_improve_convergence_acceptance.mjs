@@ -376,8 +376,11 @@ check('COPY: the false "PNG or JPG" promise is gone from the rendered copy',
   !/PNG or JPG/.test(converged));
 check('COPY: the answer tab says "Upload image", not "Upload photo" (D4)',
   /"Upload image"/.test(converged) && !/"Upload photo"/.test(converged));
-check('COPY: the multi-page line is present and TRUE (PDF is the multi-page path, D5/D6)',
-  /scan feature to send it as one PDF/.test(convergedRaw));
+// LOW-END-1 PR-2 (owner copy, FU-CI-MULTIPAGE-TIP-COPY): the line used to send the
+// student to their phone's scan feature; UPLOAD-2's page tray now IS the multi-page path.
+check('COPY: the multi-page line is present and TRUE (the page tray is the multi-page path)',
+  /More than one page\? Tap Add another page after your first photo\./.test(convergedRaw) &&
+    !/scan feature to send it as one PDF/.test(converged));
 
 // §2.5 — accept is a HINT, not a guard. Tightening it stops an iPhone picker OFFERING
 // a HEIC that checkUploadFile then refuses: an avoidable refusal we manufactured.

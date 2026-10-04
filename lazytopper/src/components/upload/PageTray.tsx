@@ -489,7 +489,8 @@ export function usePageTray(options: UsePageTrayOptions): PageTrayApi {
 // when `accept` is images alone. So "one input that offers camera OR gallery" does not
 // exist on the phone a student actually holds. A touch device gets TWO inputs, one job each:
 //   📷 Take photo          — accept="image/*", capture="environment", NEVER `multiple`
-//   🖼 Choose from gallery — the host's own input (it keeps its `accept` and `multiple`)
+//   🖼 Choose from gallery — the host's own input (it keeps its `accept` and `multiple`);
+//      "🖼 Gallery or files" when that input also takes a PDF (`acceptsFiles`)
 // A fine pointer (a desktop) is unchanged: one button, one input, `multiple`.
 
 const COARSE_POINTER_QUERY = "(pointer: coarse)";
@@ -531,6 +532,9 @@ export interface PhotoSourceButtonsProps {
   /** A small line under the two buttons. */
   hint?: ReactNode;
   testIdPrefix?: string;
+  /** The host's input ALSO accepts a PDF: the second button reads "Gallery or files", so a
+   *  student knows a scanned PDF can go here too. Image-only inputs keep "Choose from gallery". */
+  acceptsFiles?: boolean;
 }
 
 /** The two phone choices. Render it only on a coarse pointer (`useCoarsePointer`). */
@@ -543,6 +547,7 @@ export function PhotoSourceButtons({
   label,
   hint,
   testIdPrefix = "photo-source",
+  acceptsFiles = false,
 }: PhotoSourceButtonsProps) {
   const cameraRef = useRef<HTMLInputElement>(null);
   const open = (which: "camera" | "gallery") => {
@@ -571,7 +576,7 @@ export function PhotoSourceButtons({
           disabled={disabled}
           data-testid={`${testIdPrefix}-gallery`}
         >
-          <span aria-hidden="true">🖼️</span> Choose from gallery
+          <span aria-hidden="true">🖼️</span> {acceptsFiles ? "Gallery or files" : "Choose from gallery"}
         </button>
       </div>
       {hint && <p className="lt-psb__hint">{hint}</p>}

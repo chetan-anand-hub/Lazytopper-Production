@@ -22,6 +22,7 @@ import { EquationInput, EquationRender } from "../../components/equation";
 import { checkUploadFile, UPLOAD_LIMIT_SENTENCE } from "../../services/uploadLimits";
 import QrAnswerHandoff from "../../components/qr/QrAnswerHandoff";
 import PageTray, { PhotoSourceButtons, useCoarsePointer, usePageTray } from "../../components/upload/PageTray";
+import { gradingStageLabel, type GradingStage } from "../../ai/gradingTransport";
 import MobileShell from "../../components/mobile/MobileShell";
 import { useIsDesktop } from "../../hooks/useIsDesktop";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
@@ -978,6 +979,9 @@ const DesktopCheckImprovePageInner: React.FC<{
 
   // ── grading + result state ───────────────────────────────────────
   const [status, setStatus] = useState<GradeStatus>("idle");
+  // LOW-END-1 R2: Uploading NN% -> Sent ✓ -> Grading… -> Done (or offline), from the
+  // grade call's own transport. Null before a grade starts and after a reset / failure.
+  const [gradeStage, setGradeStage] = useState<GradingStage | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [result, setResult] = useState<CheckSolutionResponse | null>(null);
   const [resultCtx, setResultCtx] = useState<GradedContext | null>(null);
@@ -1337,6 +1341,7 @@ const DesktopCheckImprovePageInner: React.FC<{
 
   function resetToInput() {
     setStatus("idle");
+    setGradeStage(null);
     setErrorMessage(null);
     setResult(null);
     setResultCtx(null);
@@ -1523,6 +1528,7 @@ const DesktopCheckImprovePageInner: React.FC<{
     setErrorMessage(null);
     fairUse.clearLimit();
     setStatus("loading");
+    setGradeStage(null);
     setSaveStatus("idle");
     // FAIR-USE-UI-1 (UI2): the student agreed to "we'll mark the first R" - EXACTLY the
     // first R questions of the paper, in its own order, are sent. Null = all, as before.
@@ -1564,7 +1570,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         })),
         imageBase64,
         imageMimeType: imageMime,
-      }, freeCallOpts ?? CI_GRADE_CALL);
+      }, { ...(freeCallOpts ?? CI_GRADE_CALL), onStage: setGradeStage });
       if (!response || response.ok === false) {
         setErrorMessage("Grading unavailable — please try a clearer scan, or try again.");
         setStatus("error");
@@ -1706,7 +1712,14 @@ const DesktopCheckImprovePageInner: React.FC<{
         setStatus("error");
         return;
       }
-      setErrorMessage("Grading unavailable — please try again.");
+      // LOW-END-1 R2: a dropped connection / timeout (after the transport's retries) says
+      // so in a plain sentence; everything else keeps today's copy.
+      setGradeStage(null);
+      setErrorMessage(
+        e instanceof Error && e.name === "GradingNetworkError"
+          ? e.message
+          : "Grading unavailable — please try again.",
+      );
       setStatus("error");
     }
   }
@@ -1732,6 +1745,7 @@ const DesktopCheckImprovePageInner: React.FC<{
     setErrorMessage(null);
     fairUse.clearLimit();
     setStatus("loading");
+    setGradeStage(null);
     setSaveStatus("idle");
 
     const trimmedQuestion = question.trim();
@@ -1757,7 +1771,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         // fraction). Omitted (non-objective) → grading is byte-identical to before.
         ...(detectedQuestions?.[0]?.objective === true ? { objective: true } : {}),
         ...answerPart,
-      }, freeCallOpts ?? CI_GRADE_CALL);
+      }, { ...(freeCallOpts ?? CI_GRADE_CALL), onStage: setGradeStage });
       if (!graded || graded.ok === false) {
         setErrorMessage(
           graded?.error
@@ -1877,7 +1891,14 @@ const DesktopCheckImprovePageInner: React.FC<{
         setStatus("error");
         return;
       }
-      setErrorMessage("Grading unavailable — please try again.");
+      // LOW-END-1 R2: a dropped connection / timeout (after the transport's retries) says
+      // so in a plain sentence; everything else keeps today's copy.
+      setGradeStage(null);
+      setErrorMessage(
+        e instanceof Error && e.name === "GradingNetworkError"
+          ? e.message
+          : "Grading unavailable — please try again.",
+      );
       setStatus("error");
     }
   }
@@ -2282,6 +2303,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                       }}
                       onGallery={() => qFileInputRef.current?.click()}
                       testIdPrefix="ci-question-photo"
+                      acceptsFiles
                     />
                   )}
                 </div>
@@ -2556,7 +2578,9 @@ const DesktopCheckImprovePageInner: React.FC<{
                           {imageName}
                         </div>
                         <div style={{ fontSize: 11, color: TEXT_MUTED }}>
-                          Click to choose a different file
+                          {/* A phone is tapped, not clicked — the SAME coarse-pointer
+                              test the UPLOAD-2-FIX-1 pickers use (useCoarsePointer). */}
+                          {coarsePointer ? "Tap" : "Click"} to choose a different file
                         </div>
                       </>
                     ) : (
@@ -2651,6 +2675,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                       }}
                       onGallery={() => fileInputRef.current?.click()}
                       testIdPrefix="ci-answer-photo"
+                      acceptsFiles
                     />
                   )}
 
@@ -2693,10 +2718,10 @@ const DesktopCheckImprovePageInner: React.FC<{
                   this ONE detail the retired mobile twin was the northstar, because
                   advice about photographing a page belongs beside the thing that
                   takes the photo, not in a column the student's eye never reaches.
-                  Carries the multi-page line (§2.4 / D5): the honest, true promise —
-                  PDF is the multi-page path, and a phone's own scan feature is how a
-                  student makes one. Building an image→PDF merge is [FU-CI-MULTIPAGE-CAPTURE]
-                  and is deliberately NOT built here. */}
+                  Carries the multi-page line (§2.4 / D5). It used to send the student to
+                  their phone's scan feature for a PDF; UPLOAD-2's page tray now takes one
+                  photo per page and sends them as ONE PDF, so the line names that button
+                  instead (LOW-END-1 PR-2, owner copy — closes FU-CI-MULTIPAGE-TIP-COPY). */}
               <div
                 style={{
                   borderRadius: 9,
@@ -2712,7 +2737,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                 flat page give the grader the best chance. Include each working step,
                 not just the final answer — examiners reward method.
                 <br />
-                More than one page? Use your phone&rsquo;s scan feature to send it as one PDF.
+                More than one page? Tap Add another page after your first photo.
               </div>
           </section>
         </div>
@@ -2787,7 +2812,7 @@ const DesktopCheckImprovePageInner: React.FC<{
           >
             {status === "loading" ? (
               <>
-                <SpinnerGlyph color="#ffffff" /> Grading…
+                <SpinnerGlyph color="#ffffff" /> {gradeStage ? gradingStageLabel(gradeStage) : "Grading…"}
               </>
             ) : status === "error" ? (
               <>Retry grading <ChevronRightGlyph /></>
@@ -2855,6 +2880,12 @@ const DesktopCheckImprovePageInner: React.FC<{
         }}
       >
         {isFreeMode && <FreeCheckResultBar />}
+        {/* LOW-END-1 R2: the last stage — the grade came back. */}
+        {gradeStage?.kind === "done" && (
+          <div role="status" data-testid="ci-grade-stage-done" style={{ fontSize: 12, fontWeight: 700, color: PRIMARY_GREEN, margin: "0 0 6px" }}>
+            &#10003; {gradingStageLabel(gradeStage)}
+          </div>
+        )}
         <PageHeader
           showBack
           onBack={resetToInput}
@@ -3120,6 +3151,12 @@ const DesktopCheckImprovePageInner: React.FC<{
       }}
     >
       {isFreeMode && <FreeCheckResultBar />}
+      {/* LOW-END-1 R2: the last stage — the grade came back. */}
+      {gradeStage?.kind === "done" && (
+        <div role="status" data-testid="ci-grade-stage-done" style={{ fontSize: 12, fontWeight: 700, color: PRIMARY_GREEN, margin: "0 0 6px" }}>
+          &#10003; {gradingStageLabel(gradeStage)}
+        </div>
+      )}
       <PageHeader
         showBack
         onBack={resetToInput}

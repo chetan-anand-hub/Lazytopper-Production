@@ -307,3 +307,42 @@ describe("(F4) C&I on a phone — Take photo / Choose from gallery", () => {
     expect(document.querySelector("input[capture]")).toBeNull();
   });
 });
+
+// ── LOW-END-1 PR-2 — the owner's three copy fixes, on this page ─────────────────────
+// (1) a picker whose input ALSO takes a PDF says "Gallery or files" (FU-PICKER-LABEL-PDF);
+// (2) the multi-page tip names the page tray, not the phone's scan feature
+//     (FU-CI-MULTIPAGE-TIP-COPY); (3) a phone is TAPPED — "Tap to choose a different
+//     file" on a coarse pointer, "Click…" on a desktop (useCoarsePointer, UPLOAD-2-FIX-1).
+describe("LOW-END-1 PR-2 · C&I copy", () => {
+  it("★ coarse pointer: both PDF-taking pickers say 'Gallery or files'; the tip names the page tray; a loaded photo says 'Tap'", async () => {
+    stubPointer(true);
+    renderPage();
+    fireEvent.click(screen.getByRole("button", { name: "Upload question(s)" }));
+    expect(screen.getByTestId("ci-question-photo-gallery").textContent).toContain("Gallery or files");
+    cleanup();
+    stubPointer(true);
+    renderPage();
+    await readTypedQuestion();
+    expect(screen.getByTestId("ci-answer-photo-gallery").textContent).toContain("Gallery or files");
+    expect(screen.queryByText(/Choose from gallery/)).toBeNull();
+    expect(screen.getByText(/More than one page\? Tap Add another page after your first photo\./)).toBeTruthy();
+    expect(screen.queryByText(/scan feature/)).toBeNull();
+    choose(expectCameraInput("ci-answer-photo-camera-input"), [sixMbPhoto("answer.jpg")]);
+    fireEvent.click(await screen.findByRole("button", { name: "Use whole photo" }));
+    expect(await screen.findByText("Tap to choose a different file")).toBeTruthy();
+    expect(screen.queryByText("Click to choose a different file")).toBeNull();
+    // The tray's OWN "add a page" input is images only, so it keeps "Choose from gallery".
+    expect(screen.getByTestId("page-tray-gallery").textContent).toContain("Choose from gallery");
+  });
+
+  it("CONTROL: a fine pointer (desktop) keeps 'Click to choose a different file'", async () => {
+    stubPointer(false);
+    const { container } = renderPage();
+    await readTypedQuestion();
+    const answerInput = container.querySelectorAll('input[type="file"]')[0] as HTMLInputElement;
+    choose(answerInput, [sixMbPhoto("answer.jpg")]);
+    fireEvent.click(await screen.findByRole("button", { name: "Use whole photo" }));
+    expect(await screen.findByText("Click to choose a different file")).toBeTruthy();
+    expect(screen.queryByText("Tap to choose a different file")).toBeNull();
+  });
+});

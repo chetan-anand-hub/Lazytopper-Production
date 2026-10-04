@@ -93,6 +93,7 @@ import FullMockPendingBanner from "../components/fullmock/FullMockPendingBanner"
 // Dark unless /api/usage/me says `enforced: true`: with it off this page is unchanged.
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
 import { useFairUse } from "../components/usage/useFairUse";
+import { gradingErrorMessage } from "../ai/gradingTransport";
 import { useBankSubject } from "../data/bankChapters/useBankChapters";
 
 type Phase = "setup" | "taking" | "results";
@@ -580,7 +581,8 @@ export default function FullMockPage() {
       } catch (err) {
         // FAIR-USE-UI-1 (UI1): a fair-use refusal shows the calm panel instead of the error.
         if (await fairUse.handleRefusal(err)) return;
-        setGradeError(err instanceof Error ? err.message : "Failed to grade your answers.");
+        // LOW-END-1 R2: never a raw platform message ("Failed to fetch") — a plain sentence.
+        setGradeError(gradingErrorMessage(err, "We couldn't grade your answers just now. Your answers are still here — please try again."));
       } finally {
         setGrading(false);
       }

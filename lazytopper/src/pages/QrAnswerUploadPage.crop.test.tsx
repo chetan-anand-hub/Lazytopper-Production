@@ -324,7 +324,9 @@ describe("(F4) QR phone page on a touch device — Take photo / Choose from gall
       vi.mocked(peekQrSlot).mockResolvedValue({ state: "pending", mode });
       const { container } = renderPage();
       await screen.findByRole("button", { name: "Take photo" });
-      expect(screen.getByRole("button", { name: "Choose from gallery" })).toBeTruthy();
+      // LOW-END-1 PR-2: this page's input takes a PDF too, so the button says so.
+      expect(screen.getByRole("button", { name: "Gallery or files" })).toBeTruthy();
+      expect(screen.queryByRole("button", { name: "Choose from gallery" })).toBeNull();
       const camera = screen.getByTestId("qru-photo-camera-input") as HTMLInputElement;
       expect(camera.getAttribute("accept")).toBe("image/*");
       expect(camera.getAttribute("capture")).toBe("environment");

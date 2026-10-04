@@ -62,6 +62,7 @@ import { useBankChapters } from "../data/bankChapters/useBankChapters";
 // Dark unless /api/usage/me says `enforced: true`: with it off this page is unchanged.
 import FairUseLimitPanel from "../components/usage/FairUseLimitPanel";
 import { useFairUse } from "../components/usage/useFairUse";
+import { gradingErrorMessage } from "../ai/gradingTransport";
 
 type Phase = "setup" | "taking" | "results";
 type SubjectKey = "Maths" | "Science";
@@ -146,14 +147,12 @@ export default function ChapterTestPage() {
     }
   }, [user?.uid]);
 
-  // LOW-END-1 (owner ruling 1): the start screen shows no maths, so KaTeX is not in this
-  // page's static graph — but it is fetched as soon as the page has mounted, so the first
-  // question renders KaTeX at once when the student starts. Best effort; MathText retries.
-  useEffect(() => {
-    loadKatex().catch(() => {
-      /* MathText fetches it again when a question needs it */
-    });
-  }, []);
+  // LOW-END-1 (owner ruling 1, R6 follow-through — PR-2 controller-granted extension): the
+  // start screen shows no maths, so KaTeX is NOT fetched at mount. It used to be, and on a
+  // budget phone (profile A) that fetch landed at 4.26 s, before the start screen was usable
+  // at 5.62 s. It now arrives the way it does on Check & Improve — MathText's own
+  // post-usable idle prefetch (load + idle) — and `startTest` below AWAITS it, so the first
+  // question paints with KaTeX, never a plain-text swap.
 
   // On mount: read the cross-device records ONCE, mint the durable CT code/#NN from
   // them (mint-once, BEFORE any record is written), and populate the history rail.
@@ -319,9 +318,19 @@ export default function ChapterTestPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, timerEnabled, timeLimitSeconds]);
 
-  const startTest = useCallback(() => {
+  const [starting, setStarting] = useState(false);
+  const startTest = useCallback(async () => {
     // FAIR-USE-UI-1 (UI3): today's chapter test already used -> the panel, not the paper.
     if (fairUse.blockPaperStart()) return;
+    // LOW-END-1 R6: the first question renders KaTeX on its FIRST paint. Usually already
+    // prefetched (idle); a failed fetch still starts the paper — MathText then retries.
+    setStarting(true);
+    try {
+      await loadKatex();
+    } catch {
+      /* MathText fetches it again when a question needs it */
+    }
+    setStarting(false);
     setPhase("taking");
     setCurrentQNumber(1);
     trackUxEvent("chapter_test_start", "ChapterTestPage", { topicKey, subject });
@@ -373,7 +382,8 @@ export default function ChapterTestPage() {
       } catch (err) {
         // FAIR-USE-UI-1 (UI1): a fair-use refusal shows the calm panel instead of the error.
         if (await fairUse.handleRefusal(err)) return;
-        setGradeError(err instanceof Error ? err.message : "Failed to grade your answers.");
+        // LOW-END-1 R2: never a raw platform message ("Failed to fetch") — a plain sentence.
+        setGradeError(gradingErrorMessage(err, "We couldn't grade your answers just now. Your answers are still here — please try again."));
       } finally {
         setGrading(false);
       }
@@ -558,7 +568,7 @@ export default function ChapterTestPage() {
 
                     {fairUse.limit ? <FairUseLimitPanel limit={fairUse.limit} onDismiss={fairUse.clearLimit} /> : null}
                     <div className="lt-ct__startrow">
-                      <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={startTest}>
+                      <button type="button" className="lt-ct__btn lt-ct__btn--primary" onClick={() => void startTest()} disabled={starting}>
                         Start the test →
                       </button>
                       <button

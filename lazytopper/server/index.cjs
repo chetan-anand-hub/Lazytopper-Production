@@ -204,7 +204,7 @@ const { createPaymentRoutes, PAY_ORDER_PATH, PAY_VERIFY_PATH, PAY_WEBHOOK_PATH }
 // premium exemption from the 80% vision shed (U4), and GET /api/usage/me. Refusals are
 // DARK unless FAIR_USE_ENFORCE=1 (U8). cachedReadJson lets a grade-worksheet body that
 // fair use had to read (to count its questions) reach the handler as the same parse.
-const { createFairUse, cachedReadJson, USAGE_ME_PATH, USAGE_PAPER_PATH } = require('./services/fairUse.cjs');
+const { createFairUse, cachedReadJson, USAGE_ME_PATH, USAGE_PAPER_PATH, createGradingIdempotency, GRADING_IN_PROGRESS_BODY } = require('./services/fairUse.cjs');
 
 const { sendJson, sendJsonWithHeaders } = createHttpUtils(config.CORS_ORIGIN);
 
@@ -322,6 +322,9 @@ const rateLimiter = createRateLimiter({ telemetry });
 const verifiedCaller = createVerifiedCaller({ firebaseAdmin, telemetry });
 const entitlementGate = createEntitlementGate({ adminFirestore, telemetry, sendJson });
 const fairUse = createFairUse({ adminFirestore, telemetry, sendJson, verifiedCaller, readJson });
+// LOW-END-1 R4: a retried grade (same verified uid + Idempotency-Key, 24 h) is answered
+// from its stored result — never graded or charged twice. See fairUse.cjs.
+const gradingIdempotency = createGradingIdempotency({ telemetry, corsOrigin: config.CORS_ORIGIN });
 // R5 reads the limiter's all-class global:<day> count against 60% of limits.global.hard
 // through these two accessors (OR-4a) — threaded from THIS limiter instance, no new counter.
 const freeCheckGate = createFreeCheckGate({
@@ -402,7 +405,7 @@ async function handleRequest(req, res) {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': config.CORS_ORIGIN,
       'Access-Control-Allow-Methods': 'POST, OPTIONS, GET',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Lazytopper-Uid, X-Admin-Key, X-User-ID, X-Firebase-AppCheck, X-Lazytopper-Free-Check, X-Lazytopper-Surface, X-Lazytopper-Paper',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Lazytopper-Uid, X-Admin-Key, X-User-ID, X-Firebase-AppCheck, X-Lazytopper-Free-Check, X-Lazytopper-Surface, X-Lazytopper-Paper, Idempotency-Key',
       'Access-Control-Max-Age': '86400',
     });
     return res.end();
@@ -426,6 +429,16 @@ async function handleRequest(req, res) {
     // untouched. Returns "" — never throws, never blocks — so a verification
     // fault degrades to the previous header-based behaviour.
     const verifiedUid = await verifiedCaller.resolveVerifiedUid(req);
+
+    // ── Idempotent grading (LOW-END-1 R4) ─────────────────────────────────────
+    // FIRST, before the free check, the limiter, entitlement and fair use: a retry of a
+    // grade that already happened is answered from its stored result, so it can neither
+    // spend a cap nor be charged again. A duplicate of a grade still IN FLIGHT waits for
+    // it (bounded) instead of grading a second time. No Idempotency-Key, no verified uid
+    // or a non-grading path -> null, and everything below runs exactly as before.
+    const idempotent = await gradingIdempotency.begin(req, res, reqPath, verifiedUid);
+    if (idempotent && idempotent.replay) return gradingIdempotency.replay(res, idempotent.replay);
+    if (idempotent && idempotent.busy) return sendJson(res, 503, GRADING_IN_PROGRESS_BODY);
 
     // ── Free check (FREE-CHECK-1a) ───────────────────────────────────────────
     // Decided HERE, between verification and the limiter, because R6 must reach

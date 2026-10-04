@@ -462,6 +462,42 @@ export const STUDENT_DATA_MAP: readonly StudentDataLocation[] = [
       "collection group `activityDays`. Erased with the account and included in the export.",
   },
 
+  // ── Firestore: stored grading results for retries (server-only, LOW-END-1 R4) ──────
+  {
+    id: "gradingResults",
+    kind: "firestore-collection",
+    path: "gradingResults/{uid}",
+    holds:
+      "Parent of the short-lived grading results below. Never written itself; it exists " +
+      "only as the path its records live under.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "★ server/services/fairUse.cjs (createGradingIdempotency) writes ONLY the `attempts` " +
+      "subcollection, so this document is a Firestore 'missing' parent — mapped anyway so " +
+      "erasure sweeps the whole tree (the usageLedger pattern). NOT declared in " +
+      "firestore.rules: browsers fall through to the deny-all catch-all.",
+  },
+  {
+    id: "gradingResults.attempts",
+    kind: "firestore-subcollection",
+    parentId: "gradingResults",
+    path: "gradingResults/{uid}/attempts/{attemptId}",
+    holds:
+      "The result of one answer check, kept for 24 hours so that if the connection drops " +
+      "and the app sends the same check again, the student gets the same result back " +
+      "instead of being graded and charged twice: the marks and feedback the grader " +
+      "returned, and when it was graded.",
+    mechanism: "admin-sdk-required",
+    exportable: true,
+    notes:
+      "★★ Keyed on the VERIFIED uid of a signed-in student on /api/check-solution or " +
+      "/api/grade-worksheet, and a hash of the endpoint + the device's Idempotency-Key — " +
+      "never a free check. `expiresAtMs` is checked by the read path itself; `expiresAt` " +
+      "is a Timestamp for a TTL policy on collection group `attempts` (an owner platform " +
+      "action). Erased with the account and included in the export.",
+  },
+
   // ── Firestore: QR upload slots (server-only) ─────────────────────────────────────
   {
     id: "qrUploadSlots",
