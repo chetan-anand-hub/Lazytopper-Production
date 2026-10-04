@@ -16,7 +16,7 @@
 
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
-import { readFileSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import ts from "typescript";
 
@@ -122,5 +122,121 @@ describe("L6 — KaTeX on demand", () => {
     expect(isKatexLoaded()).toBe(false);
     fireEvent.focus(screen.getByLabelText("Your answer"));
     await waitFor(() => expect(isKatexLoaded()).toBe(true));
+  });
+});
+
+/**
+ * LOW-END-1 rework (owner ruling 1) — KaTeX UP FRONT where the FIRST screen shows maths.
+ *
+ * Lazy loading is allowed ONLY on Check & Improve and the Chapter Test start screen. Every
+ * page whose first screen shows maths imports `katexEager.ts`, which hands MathText a
+ * statically imported KaTeX before the page renders — so there is no plain-text-then-KaTeX
+ * swap there.
+ *
+ *   (f) each maths-first module carries the static side-effect import;
+ *   (g) once that module has been evaluated, MathText's FIRST render is KaTeX markup;
+ *   (h) neither lazy page has katexEager (or a static katex import) in its static graph.
+ *
+ * Mutations (rework): drop the import from PracticeQuestionCard -> (f) red; make
+ * registerKatex a no-op -> (g) red; import katexEager from ChapterTestPage -> (h) red.
+ */
+const SRC = resolve(__dirname, "../..");
+
+/** Static, non-type module specifiers of a file (side-effect imports included). */
+function staticSpecifiers(file: string): string[] {
+  const source = ts.createSourceFile(file, readFileSync(file, "utf8"), ts.ScriptTarget.Latest, true);
+  const out: string[] = [];
+  for (const stmt of source.statements) {
+    if (ts.isImportDeclaration(stmt) && ts.isStringLiteral(stmt.moduleSpecifier)) {
+      const clause = stmt.importClause;
+      if (clause?.isTypeOnly) continue;
+      const named = clause?.namedBindings;
+      const onlyTypes =
+        !!clause &&
+        !clause.name &&
+        !!named &&
+        ts.isNamedImports(named) &&
+        named.elements.length > 0 &&
+        named.elements.every((e) => e.isTypeOnly);
+      if (!onlyTypes) out.push(stmt.moduleSpecifier.text);
+    }
+    if (ts.isExportDeclaration(stmt) && !stmt.isTypeOnly && stmt.moduleSpecifier && ts.isStringLiteral(stmt.moduleSpecifier)) {
+      out.push(stmt.moduleSpecifier.text);
+    }
+  }
+  return out;
+}
+
+function resolveLocal(from: string, spec: string): string | null {
+  if (!spec.startsWith(".")) return null;
+  const base = resolve(from, "..", spec);
+  for (const c of [base, `${base}.ts`, `${base}.tsx`, `${base}/index.ts`, `${base}/index.tsx`]) {
+    try {
+      if (statSync(c).isFile()) return c;
+    } catch {
+      /* next candidate */
+    }
+  }
+  return null;
+}
+
+/** Every file in the static import closure of `entry`, plus every bare package it imports. */
+function staticClosure(entry: string): { files: Set<string>; packages: Set<string> } {
+  const files = new Set<string>();
+  const packages = new Set<string>();
+  const stack = [entry];
+  while (stack.length) {
+    const f = stack.pop()!;
+    if (files.has(f)) continue;
+    files.add(f);
+    for (const spec of staticSpecifiers(f)) {
+      const local = resolveLocal(f, spec);
+      if (local) stack.push(local);
+      else if (!spec.startsWith(".")) packages.add(spec);
+    }
+  }
+  return { files, packages };
+}
+
+const MATHS_FIRST = [
+  "components/practice/PracticeQuestionCard.tsx",
+  "components/question/SolutionChecker.tsx",
+  "pages/HighlyProbableQuestions.tsx",
+  "pages/tutor/TutorPage.tsx",
+  "pages/FullMockPage.tsx",
+];
+const LAZY_PAGES = ["pages/desktop/DesktopCheckImprovePage.tsx", "pages/ChapterTestPage.tsx"];
+const EAGER = resolve(SRC, "components/question/katexEager.ts");
+
+describe("L6 rework — KaTeX up front on maths-first pages, lazy only on C&I and the Chapter Test start", () => {
+  it.each(MATHS_FIRST)("(f) %s imports katexEager for its side effect", (rel) => {
+    const file = resolve(SRC, rel);
+    const resolved = staticSpecifiers(file).map((s) => resolveLocal(file, s));
+    expect(resolved).toContain(EAGER);
+  });
+
+  it("(g) ★ after katexEager has been evaluated, MathText's FIRST render is KaTeX markup — no stand-in", async () => {
+    vi.resetModules();
+    await import("./katexEager");
+    const { MathText, isKatexLoaded } = await import("./MathText");
+    expect(isKatexLoaded()).toBe(true);
+    const { container } = render(<MathText text={"Simplify x^2 + \\frac{1}{2}"} />);
+    // Synchronously, on the very first commit: KaTeX's own markup, no raw command.
+    expect(container.querySelector(".katex")).not.toBeNull();
+    expect(container.textContent).not.toContain("\\frac");
+  });
+
+  it.each(LAZY_PAGES)("(h) %s: no katexEager and no static katex in its static import graph", (rel) => {
+    const { files, packages } = staticClosure(resolve(SRC, rel));
+    expect(files.size).toBeGreaterThan(20); // the walker really walked
+    expect(files.has(resolve(SRC, "components/question/MathText.tsx"))).toBe(true); // it does reach MathText
+    expect(files.has(EAGER)).toBe(false);
+    expect([...packages].filter((p) => p === "katex" || p.startsWith("katex/"))).toEqual([]);
+  });
+
+  it("(h) CONTROL — the same walker DOES find katexEager and katex from a maths-first page", () => {
+    const { files, packages } = staticClosure(resolve(SRC, "pages/HighlyProbableQuestions.tsx"));
+    expect(files.has(EAGER)).toBe(true);
+    expect(packages.has("katex")).toBe(true);
   });
 });

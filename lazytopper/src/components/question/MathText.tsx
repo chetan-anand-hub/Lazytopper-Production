@@ -44,14 +44,22 @@ export function isKatexLoaded(): boolean {
   return katex !== null;
 }
 
-// ★ OFF THE FIRST SCREEN, NOT OFF THE PAGE. Once a page that can show maths is idle (5 s at
-// the latest), KaTeX is fetched in the background. Two reasons: the first maths a student
-// meets then renders without a wait, and — load-bearing — the PDF exports
-// (worksheet/worksheetPdfExport.ts) rasterise a freshly rendered print doc after only ~2
-// frames, so KaTeX must already be here when "Download PDF" is pressed.
-// [FU-LOWEND-PDF-AWAIT-KATEX]: that file should `await loadKatex()` before rendering; it is
-// outside LOW-END-1's allowlist. Skipped under vitest, where a stray background import would
-// outlive the test file.
+/**
+ * Hand MathText an already-imported KaTeX, so every later render is synchronous. Called by
+ * `katexEager.ts`, which pages with maths on their FIRST screen import for its side effect
+ * (owner ruling: no plain-text-then-KaTeX swap there).
+ */
+export function registerKatex(lib: Katex): void {
+  katex = lib;
+  katexPending = Promise.resolve(lib);
+}
+
+// ★ OFF THE FIRST SCREEN, NOT OFF THE PAGE. Once a page that imports MathText is idle (5 s
+// at the latest), KaTeX is fetched in the background, so the first maths a student meets on
+// Check & Improve or after the Chapter Test starts renders without a wait. (Pages with maths
+// on their first screen do not wait for this: they import katexEager.ts. The PDF exports
+// await loadKatex() themselves — worksheet/worksheetPdfExport.ts.) Skipped under vitest,
+// where a stray background import would outlive the test file.
 if (typeof window !== "undefined" && import.meta.env.MODE !== "test") {
   const prefetch = () => {
     loadKatex().catch(() => {

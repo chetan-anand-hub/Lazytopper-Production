@@ -1,6 +1,8 @@
 import { useState, useRef, useCallback } from "react";
 import { type PracticeQuestion } from "../../data/predictionDataService";
 import { MathText } from "../question/MathText";
+// LOW-END-1: maths on the first screen — KaTeX up front, never a plain-text stand-in.
+import "../question/katexEager";
 import { QuestionVisualAid } from "../question/QuestionVisualAid";
 import { SolutionChecker, type SolutionCheckerSavedWorking } from "../question/SolutionChecker";
 import { TimeGuideChip } from "../exam/ExamStrategyTips";

@@ -19,6 +19,8 @@ import { useAuth } from "../../context/AuthContext";
 import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { desktopTopicBySlug } from "../../lib/desktop/topics";
 import { MathText } from "../../components/question/MathText";
+// LOW-END-1: maths on the first screen — KaTeX up front, never a plain-text stand-in.
+import "../../components/question/katexEager";
 import NcertPageModal, { type NcertPageRef } from "../../components/notes/NcertPageModal";
 import { useTutorSession } from "./useTutorSession";
 import TutorCheckImproveOverlay from "./TutorCheckImproveOverlay";
