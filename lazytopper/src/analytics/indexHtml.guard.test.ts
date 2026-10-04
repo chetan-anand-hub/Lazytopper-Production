@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { ga4PageLocation, ga4PageReferrer, normalisePath, routerPathOf } from "./analytics";
 
@@ -520,6 +520,39 @@ describe("index.html + styles.css — fonts (LOW-END-1 L1)", () => {
     const m = styles.match(/--font-body:\s*([^;]+);/);
     expect(m).not.toBeNull();
     expect(m![1].trim()).toBe('system-ui, -apple-system, "Segoe UI", Roboto, sans-serif');
+  });
+
+  /**
+   * LOW-END-1 rework (owner ruling 3): every heading that named Space Grotesk is Fraunces 700
+   * now. Space Grotesk is no longer loaded, so a stack that still names it silently renders
+   * the platform's default sans. Walks every non-test source file under src/.
+   * Mutation (rework): put 'Space Grotesk' back on the Pricing title -> red.
+   */
+  it("★ no source file names Space Grotesk any more (its headings are Fraunces 700)", () => {
+    const srcRoot = resolve(__dirname, "..");
+    const hits: string[] = [];
+    let scanned = 0;
+    const walk = (dir: string) => {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        const full = resolve(dir, entry.name);
+        if (entry.isDirectory()) walk(full);
+        else if (/\.(tsx?|css)$/.test(entry.name) && !/\.test\./.test(entry.name)) {
+          scanned += 1;
+          readFileSync(full, "utf-8")
+            .split("\n")
+            .forEach((line, i) => {
+              // styles.css's own comment records the removal in prose; a font-family never does.
+              if (/Space Grotesk/.test(line) && /font-?family|fontFamily/i.test(line)) hits.push(`${full}:${i + 1}`);
+            });
+        }
+      }
+    };
+    walk(srcRoot);
+    expect(scanned).toBeGreaterThan(500);
+    expect(hits).toEqual([]);
+    // The Pricing title, the one the owner named, now carries the Fraunces heading stack.
+    const pricing = readFileSync(resolve(srcRoot, "pages/PricingPage.tsx"), "utf-8");
+    expect(pricing).toMatch(/\.lt-pricing-title \{[^}]*font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;/);
   });
 
   it("CONTROL — the Google Fonts detector fires on the link this lane removed", () => {

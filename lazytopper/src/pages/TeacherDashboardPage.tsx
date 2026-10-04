@@ -329,7 +329,7 @@ export default function TeacherDashboardPage() {
                   borderRadius: 12,
                   background: "rgba(139,92,246,0.15)",
                   border: "1px solid rgba(139,92,246,0.3)",
-                  fontFamily: "'Space Grotesk', monospace",
+                  fontFamily: "'Fraunces', 'Fraunces Fallback', Georgia, serif",
                   fontSize: "1.1rem",
                   fontWeight: 800,
                   color: "#a78bfa",

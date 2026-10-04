@@ -140,7 +140,7 @@ const LOGIN_CSS = `
   }
 
   .lt-login-wordmark {
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
     font-size: 1.5rem;
     font-weight: 800;
     letter-spacing: 0;
@@ -281,7 +281,7 @@ const LOGIN_CSS = `
   .lt-login-heading {
     margin: 0;
     color: var(--lt-ink);
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
     font-size: 2rem;
     line-height: 1.15;
     font-weight: 800;
@@ -313,7 +313,7 @@ const LOGIN_CSS = `
   .lt-login-stephead {
     margin: 0 0 4px;
     color: var(--lt-ink);
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
     font-size: 1.32rem;
     line-height: 1.2;
     font-weight: 800;
@@ -897,7 +897,7 @@ const LOGIN_CSS = `
   .lt-verify-heading {
     margin: 0 0 5px;
     color: var(--lt-ink);
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: "Fraunces", "Fraunces Fallback", Georgia, serif;
     font-size: 1.32rem;
     line-height: 1.2;
     font-weight: 800;
