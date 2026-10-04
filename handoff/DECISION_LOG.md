@@ -1,3 +1,24 @@
+## 2026-10-04 — WAVE B-13 (UPLOAD, CONTROLLER B): UPLOAD-2-FIX-1 — PR `#923` merged — trunk `c29c81cb` (NOT LIVE when written)
+
+> ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (the owner rulings F1–F4 in §2 of the spec `UPLOAD-2-FIX-1`, and the controller's OR-AUTO decisions and accepted subagent findings recorded in `WAVE_STATE_B13.md`), not `DECISION N`.
+
+### Owner rulings in the spec (`UPLOAD-2-FIX-1` v1.0, sha256 prefix `F9871549F72B`, owner-authored with the cofounder), fixed, dated 4 Oct 2026
+- **F1 — two clear choices on phones.** On a coarse pointer, "Add another page" offers "📷 Take photo" (`accept="image/*"`, `capture="environment"`, NO `multiple`) and "🖼 Choose from gallery" (`accept="image/jpeg,image/png"`, `multiple`), both feeding the same tray. **Why:** the owner, live on his Android phone, found "Add another page" opens only the file / gallery picker, never the camera, which breaks the multi-page flow; on Android Chrome `multiple` removes the Camera option.
+- **F2 — desktop unchanged. F3 — correct the P2 comment. F4 — every P5 host whose first photo cannot reach the camera on a phone gets the same two choices.**
+- **Owner acceptance on Android is the real test (spec §3)** — OWED, not blocking this docs PR.
+
+### Controller decisions (OR-AUTO), with the reason
+- **(a) CONTROLLER DECISION UNDER OR-AUTO, PENDING OWNER AUDIT — no out-of-band redeploy; this docs merge is the Vercel trigger.** Vercel did not build `c29c81cb` (controller-verified: the GitHub statuses for `c29c81cb` show only `lazytopper-backend` / Railway; the live `version.json` was not on `c29c81cb` per the builder, 03:48–04:22Z). **Why:** no out-of-band platform action is needed — merging this docs PR moves trunk, and that push is the normal trigger for the Vercel production build; the docs PR is owed anyway (OR-16). OR-LIVE runs after that build reaches 100%. **If Vercel also skips the docs merge, it goes to the owner as a decision (redeploy).** → `[FU-VERCEL-MISSED-TRUNK-BUILD]`.
+
+### Accepted subagent findings (provenance: the builder, NOT controller-verified)
+- **(b) Check & Improve was given F4 even though the P5 rubric counted it as camera-reachable.** Its old "Camera" toggle set `capture` on the answer / question input, but that input accepts PDF and carries `multiple`, and Chrome on Android honours `capture` only for an image-only accept. So the camera was likely unreachable. **This is an inference from Chrome behaviour, not tested on a device**; the owner's Android acceptance is the test.
+- **(c) The desktop label was kept as "+ Add another page".** F2 names the desktop button "Add pages" but also says "unchanged"; the live label is "+ Add another page", and "unchanged" wins over the name.
+- **(d) The convergence ops gate §4.10 / PARITY-3 was rewritten because it pinned the defect.** It required `setAttribute("capture")` on the `multiple` C&I input; CI run `37173120174` went RED on it once the fix landed. It now pins `PhotoSourceButtons` on a coarse pointer + the gallery opening the existing input, and forbids `setAttribute("capture")`. Control: the base-SHA C&I source FAILS both checks; head 122 / 122 *(builder-reported; the new checks at `check_improve_convergence_acceptance.mjs:458` and `:1028` docs-builder-verified)*. The file is the C&I photo-input gate, treated as the host's tests; not forbidden.
+- **(e) "Choose from gallery" on first-photo hosts still accepts PDF** — it opens the host's own input, so the PDF route is not removed. F1's `image/jpeg,image/png` gallery accept applies to the tray only. → `[FU-PICKER-LABEL-PDF]` (optional relabel).
+
+### Scope discovered (§10, `SURFACE_TRACKER.md` §2a)
+- **None.** P5 (which hosts cannot reach the camera) was an open premise the spec planned for, and F4 pre-decided the treatment; no surface's scope changed.
+
 ## 2026-10-04 — WAVE B-12 (UPLOAD, CONTROLLER B): UPLOAD-2 — PR `#920` merged — trunk `2492bb67`
 
 > ⚠ **NUMBERING.** Like the sections below, this section records rulings by name (the owner rulings in the WHY and §2 of the spec `UPLOAD-2`, and the controller's OR-AUTO decisions recorded in `WAVE_STATE_B12.md`), not `DECISION N`.

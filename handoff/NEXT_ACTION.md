@@ -1,3 +1,35 @@
+## ★★★ 2026-10-04 — WAVE B-13 (UPLOAD, CONTROLLER B) — UPLOAD-2-FIX-1 MERGED, NOT YET LIVE (docs) — THIS BLOCK SUPERSEDES THE WAVE B-12 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE B-12, A-12, B-11, A-11, B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
+
+**TRUNK IS `c29c81cb6051edfd8ca294da253da83ae2f44e55`**, measured 2026-10-04 (`git ls-remote origin base/approved-thru-437`):
+- `c29c81cb` = `#923` (UPLOAD-2-FIX-1: on a phone, "Take photo" opens the camera on every grading upload and on "Add another page") — **this wave**; merged 2026-10-04T03:48:13Z. ⚠ **MERGED BUT NOT LIVE:** Vercel never built `c29c81cb`; production served `b59a7673` when this was written *(controller-verified + docs-builder-verified: the GitHub statuses for `c29c81cb` show only Railway)*.
+- `b59a7673` = `#922` (docs: wave B-12)
+
+When this docs PR was opened no other PR was open (`gh pr list --state open` empty). This is the only docs PR open (OR-16). **This docs merge is expected to trigger the Vercel production build that carries `#923`; OR-LIVE follows it.**
+
+### NEXT — CONTROLLER (after this docs PR merges)
+1. **Watch for the Vercel build of the new trunk SHA** (GitHub statuses / deployments for the docs merge commit, and `https://www.lazytopper.com/version.json` cold). When it reaches 100% → OR-LIVE (the A-12 rollout gate: no `_vcrr` cookie AND forced buckets 0.51–0.99; then the live attribute dump at 390 touch / 1440 with the builder's `live.mjs`). Roll back first on any regression.
+2. **If Vercel skips this merge too → OWNER DECISION:** redeploy trunk from the Vercel dashboard. The controller does not redeploy out of band.
+
+### NEXT — OWNER
+1. **OWNER ACCEPTANCE OWED for UPLOAD-2-FIX-1 (not blocking; only once `#923` is live). Roll back first on any failure:** Android, Check & Improve → photo → crop → **"Take photo" opens the camera** → second page → **"Take photo"** → third page → check → all three graded. → `[FU-UPLOAD-2-FIX-1-OWNER-ACCEPT]`.
+2. **Still owed from wave B-12 (UPLOAD-2), not blocking. Roll back first on any failure:**
+   1. Android phone, Check & Improve: photo → crop → rotate → check → the grader reads it.
+   2. The same once in Practice "Check my answer".
+   3. One 3-page answer on Check & Improve → graded across all three pages.
+   4. Desktop Check & Improve → QR → 3 pages on the phone → desktop grades all three.
+   - Plus a live drive of Worksheet, Chapter Test, Full Mock and Quick Practice collect mode; iPhone Safari and real touch; the collect-mode audit.
+3. **Audit the controller's OR-AUTO decision** to use this docs merge as the Vercel trigger instead of an out-of-band redeploy — `DECISION_LOG.md`, 2026-10-04, wave B-13, PENDING OWNER AUDIT.
+4. **Optional:** relabel "Choose from gallery" → "Choose from gallery or files" on PDF-accepting hosts (`[FU-PICKER-LABEL-PDF]`).
+5. **Pick the next wave — it is the owner's call; this docs PR does not invent a lane.** On the table: the four new FUs (none dispatched) and the B-12 FUs.
+
+### Carried — still owed
+1. **The WAVE B-12 owner items** (above), then the WAVE A-12 owner items and everything they carry.
+
+### NEXT — LANES
+- None dispatched by wave B-13 beyond `#923`. OR-LIVE is pending the Vercel build. The final audit request goes to the cofounder after OR-LIVE.
+- **★ `multiple` takes the camera away on Android.** A new photo upload on a phone uses `PhotoSourceButtons` + `useCoarsePointer` from `components/upload/PageTray.tsx`: "Take photo" is its own input (`image/*`, `capture="environment"`, never `multiple`); "Choose from gallery" opens the host's input. Never set `capture` on a `multiple` input and call it the camera path.
+
 ## ★★★ 2026-10-04 — WAVE B-12 (UPLOAD, CONTROLLER B) — UPLOAD-2 CLOSED (docs) — THIS BLOCK SUPERSEDES THE WAVE A-12 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE A-12, B-11, A-11, B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
 

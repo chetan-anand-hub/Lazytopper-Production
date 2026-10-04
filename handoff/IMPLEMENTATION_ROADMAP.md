@@ -1,5 +1,16 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-04 — UPLOAD: **WAVE B-13 — UPLOAD-2-FIX-1** — `#923` MERGED — trunk `c29c81cb` — 🟡 MERGED, NOT LIVE (Vercel did not build `c29c81cb`; OR-LIVE pending the build this docs merge is expected to trigger; owner Android acceptance OWED)
+
+- 🟡 **"Take photo" + "Choose from gallery" on a phone** for the page tray's "Add another page" (`#923`, merged, NOT live when written): "Take photo" is its own input (`image/*`, `capture="environment"`, never `multiple`); desktop unchanged.
+- 🟡 **The same two choices on every first-photo picker** (`#923`, merged, NOT live): Check & Improve (answer + question), HPQ / Practice "Check my answer", Chapter Test / Full Mock, Worksheet, the QR phone page.
+- ✅ **The P2 comment corrected; the convergence gate §4.10 / PARITY-3 rewritten** (it pinned the defect).
+- ✅ **Rulings recorded:** owner F1–F4; controller OR-AUTO (no out-of-band redeploy; this docs merge is the Vercel trigger, PENDING OWNER AUDIT); accepted subagent findings (`DECISION_LOG.md`).
+- ✅ **FUs:** none closed, four new open (`OPEN_QUESTIONS_AND_FOLLOWUPS.md`).
+- ✅ **Docs:** this handoff.
+- ⬜ **Controller:** OR-LIVE once Vercel builds trunk (A-12 rollout gate + live attribute dump at 390 touch / 1440).
+- ⬜ **Owner:** Android acceptance (C&I → photo → crop → "Take photo" ×2 → 3 pages → all graded); if Vercel skips this merge too, redeploy trunk; audit the trigger decision; the wave B-12 items still owed.
+
 ## 2026-10-04 — UPLOAD: **WAVE B-12 — UPLOAD-2** — `#920` MERGED — trunk `2492bb67` — ✅ COMPLETE (OR-LIVE PASS on agent-reachable paths, no rollback; owner Android acceptance OWED; collect-mode withholding pending owner audit)
 
 - ✅ **Compress before the guard** (`#920`, LIVE): a picked photo is EXIF-corrected, optionally cropped / rotated and compressed to 2.5 MiB on the device before `checkUploadFile`, on every P14 upload surface. Closes `[FU-UPLOAD-LIMIT-COMMENT-FALSE]`, `[FU-UPLOAD-GUARD-CONVERGE]`.

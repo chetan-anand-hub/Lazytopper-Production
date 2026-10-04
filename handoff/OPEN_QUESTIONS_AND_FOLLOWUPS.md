@@ -23,6 +23,34 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-04 — WAVE B-13 (CONTROLLER B): UPLOAD-2-FIX-1 (`#923` `c29c81cb`) — four new open, none closed, older upload FUs checked; merged but NOT live when written
+
+Sources: the builder's report (`Desktop/diff/report-upload-2-fix-1-2026-10-04.md` "Proposed FUs", "Findings that contradict the spec", P5, OR-LIVE), the spec `UPLOAD-2-FIX-1` v1.0 (`F9871549F72B`) and the controller's state file (`WAVE_STATE_B13.md`). **Bodies come from those sources; nothing is invented.** `grep` of `handoff/` at `c29c81cb` *(docs-builder-verified)* found no prior entry for any of the four new ids. No dated entry is edited (standing rule 3).
+
+### Older upload FUs — checked against `#923` (none closed)
+- **`[FU-CI-MULTIPAGE-TIP-COPY]` — STAYS OPEN.** `#923` changed the C&I photo inputs only; the tip still says "More than one page? Use your phone's scan feature to send it as one PDF." (now `DesktopCheckImprovePage.tsx:2715`, was `:2741`) and the comment above it still says the image→PDF merge "is deliberately NOT built here" (now `:2697-2699`, was `:2723-2725`) *(docs-builder-verified on `c29c81cb`)*. Only the line numbers moved.
+- **`[FU-VERCEL-STATUS-STALE]` — STAYS OPEN, related.** That FU is a "Vercel" status left `pending` while production served the build (`2492bb67`); the new `[FU-VERCEL-MISSED-TRUNK-BUILD]` is a trunk commit with NO Vercel status and NO deployment at all. Both say the GitHub "Vercel" status is not a reliable deploy signal; they are not the same defect.
+- **`[FU-UPLOAD-REPLACE-CANCEL]`, `[FU-UPLOAD-ASSEMBLY-FLASH]`, `[FU-UPLOAD-COLLECT-MULTIPAGE]`, `[FU-UPLOAD-BATCH-BODY-BUDGET]`, `[FU-UPLOAD-HEIC]`, `[FU-PRACTICE-BATCH-FLAKE]` — unaffected.** `#923` changed which input a pick comes from, not what happens after the pick *(builder-reported: both inputs feed the same tray, crop step and limits)*.
+
+### New — from `#923` and its blocked OR-LIVE (bodies from the builder report)
+
+### `[FU-VERCEL-MISSED-TRUNK-BUILD]` — OPEN · process / platform
+Vercel posted no deployment for trunk `c29c81cb` (`#923`); find why the git integration skipped it *(builder-reported)*. Evidence: `npx vercel@latest ls` showed no deployment for `c29c81cb` (the PR preview built fine); the merge commit has Railway statuses only, no "Vercel" commit status, while `b59a7673` got "Vercel pending" at push time; rollout samples 03:48:56Z → 04:20:23Z+ all served `b59a7673` *(builder-reported)*. The statuses and the deployment list are controller-verified and docs-builder-verified (`commits/c29c81cb/statuses`, `deployments?sha=c29c81cb` → Railway only); the `search-ping` run `37175109732` for the push timed out after 121 reads of `b59a7673` *(docs-builder-verified)*. Mitigation chosen: this docs merge as the next trunk push (CONTROLLER DECISION UNDER OR-AUTO, PENDING OWNER AUDIT); if it is skipped too, the owner redeploys.
+
+### `[FU-CI-R6-RACE]` — OPEN · LOW (test)
+`DesktopCheckImprovePage.upload2` R6 ("two photos reach the grader as ONE PDF") intermittently clicks Grade while the 2-page PDF is still assembling (0 grader calls); wait for the assembled payload before clicking. It failed 2 of ~9 local runs under load (base 2 / 2 pass in the same scoped set); it passed in the full local run and in all 3 CI vitest runs *(builder-reported)*. Pre-existing test, not changed by the fix.
+
+### `[FU-UPLOAD-2-FIX-1-OWNER-ACCEPT]` — OPEN · owner
+The Android acceptance flow (spec §3): Check & Improve → photo → crop → "Take photo" opens the camera → second page → "Take photo" → third page → check → all three graded. Roll back first on any failure. Only after `#923` is live.
+
+### `[FU-PICKER-LABEL-PDF]` — OPEN · LOW (copy, owner's call)
+On PDF-accepting hosts "Choose from gallery" also offers Files / PDF, because it opens the host's own input (which keeps `application/pdf`); the owner may want "Choose from gallery or files" *(builder-reported)*.
+
+### Owner items owed (not FUs)
+1. **If Vercel skips this docs merge too:** redeploy trunk from the Vercel dashboard.
+2. **Audit** the OR-AUTO decision to use this docs merge as the Vercel trigger (`DECISION_LOG.md`, wave B-13).
+3. **The wave B-12 owner items** (`OPEN_QUESTIONS_AND_FOLLOWUPS.md`, wave B-12 section) stand.
+
 ## 2026-10-04 — WAVE B-12 (CONTROLLER B): UPLOAD-2 (`#920` `2492bb67`) — five closed, eight new open, one older id noted; owner acceptance owed
 
 Sources: the builder's report (`Desktop/diff/report-upload-2-2026-10-04.md` "Spec FUs closed by evidence", "Proposed new FUs", P9–P14, OR-LIVE), the spec `UPLOAD-2` v1.2 (`472BB22605B5`) and the controller's state file (`WAVE_STATE_B12.md`). **Bodies come from those sources; nothing is invented.** `grep` of `handoff/` at `633f77dc` *(docs-builder-verified)* found no prior entry for any of the eight new ids. Of the ids closed below, `[FU-UPLOAD-LIMIT-COMMENT-FALSE]`, `[FU-QR-CROP-EXIF-ORIENTATION]`, `[FU-QR-CROP-NO-ROTATION]` and `[FU-QR-CROP-DOUBLE-READ]` have their entries in the 2026-08-15 WAVE QR-UPLOAD section of this file, and `[FU-UPLOAD-GUARD-CONVERGE]` has its RESTATED entry there too (its original body is in `CURRENT_STATE.md`, "Shared helper, NOT four more inline copies"). No dated entry is edited (standing rule 3): the closures are recorded here, and the old entries stand as written.
