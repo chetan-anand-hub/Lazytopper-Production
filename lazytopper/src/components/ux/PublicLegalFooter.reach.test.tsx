@@ -144,9 +144,15 @@ describe("the footer links to Exam Trends (the chapter index) on every public su
     // ★ THE TICKET NAMES THIS SURFACE, not a constant. A footer that hardcoded one
     // origin would satisfy a bare "has a returnTo" assertion on every surface.
     expect(new URLSearchParams(href.split("?")[1] || "").get("returnTo")).toBe(origin);
+    // SEO-5 PR-4 — the answer-marking guide, on every surface that renders the footer.
+    expect(within(foot).getByRole("link", { name: "How CBSE marks answers" })).toHaveAttribute(
+      "href",
+      "/check-your-answer",
+    );
     expect(within(foot).getAllByRole("link").map((a) => a.textContent)).toEqual([
       "Chapters",
       "CBSE 2027",
+      "How CBSE marks answers",
       ...FOOTER_LINKS.map(([label]) => label),
     ]);
   });
@@ -192,9 +198,11 @@ describe("every slug a legal link points at renders real policy content", () => 
     // Query strings are stripped for this comparison — the CBSE link carries a return
     // ticket (asserted above, per surface) and the property defended here is that NO
     // THIRD non-legal link has appeared, which a query would otherwise obscure.
+    // SEO-5 PR-4 added the third, How CBSE marks answers → /check-your-answer.
     expect(allHrefs.map((h) => h.split("?")[0])).toEqual([
       "/exam-trends",
       "/cbse/class-10",
+      "/check-your-answer",
       ...hrefs,
     ]);
     // ...and the ticket really is on it, so stripping the query cannot hide its loss.

@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { ReturnTicketStrip, useReturnTicket } from "../../components/navigation/ReturnTicket";
 import {
   checkSolutionImage,
@@ -2745,6 +2745,9 @@ const DesktopCheckImprovePageInner: React.FC<{
                 not just the final answer — examiners reward method.
                 <br />
                 More than one page? Tap Add another page after your first photo.
+                <br />
+                {/* SEO-5 PR-4 — under the upload box: how the marks are given. */}
+                <Link to="/check-your-answer">How marks are given →</Link>
               </div>
           </section>
         </div>

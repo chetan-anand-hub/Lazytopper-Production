@@ -20,6 +20,19 @@ await ensureAllNoteSpecs();
 
 afterEach(cleanup);
 
+const GUIDE_TEXT = "Practise writing answers the way examiners mark them → Guide";
+
+/**
+ * SEO-5 PR-4 — the guide link sits at the END of the notes page: it points at
+ * /check-your-answer and comes after the note itself in document order.
+ */
+function expectGuideLinkAtEnd(container: HTMLElement, path: string) {
+  const link = screen.getByRole("link", { name: GUIDE_TEXT });
+  expect(link, path).toHaveAttribute("href", "/check-your-answer");
+  const note = container.querySelector(".lt-note") as Element;
+  expect(note.compareDocumentPosition(link) & Node.DOCUMENT_POSITION_FOLLOWING, `${path}: link is not after the note`).toBeTruthy();
+}
+
 function renderAt(path: string) {
   return render(
     <MemoryRouter initialEntries={[path]}>
@@ -46,6 +59,11 @@ describe("DesktopNotesPage", () => {
     errors.mockRestore();
   });
 
+  it("SEO-5 PR-4: ends with the link to the answer-marking guide", () => {
+    const { container } = renderAt("/notes/trigonometry");
+    expectGuideLinkAtEnd(container, "/notes/trigonometry");
+  });
+
   it("CONTROL: a nonsense slug renders NO note content — the not-found card", () => {
     const { container } = renderAt("/notes/does-not-exist");
     expect(screen.getByText("Notes not found")).toBeInTheDocument();
@@ -63,6 +81,8 @@ describe("DesktopNotesPage", () => {
       const { container } = renderAt(path);
       expect(container.querySelector(".lt-note"), `${path} rendered no note`).not.toBeNull();
       expect(screen.queryByText(/Notes not found/), `${path} is a soft 404`).toBeNull();
+      // SEO-5 PR-4 — EVERY notes page carries the guide link at its end.
+      expectGuideLinkAtEnd(container, path);
       cleanup();
     }
   });

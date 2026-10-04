@@ -46,6 +46,17 @@ describe("landing CTAs — flag OFF (R11: unchanged)", () => {
   });
 });
 
+describe("SEO-5 PR-4 — the guide link beside the Check my answer CTA", () => {
+  it.each(["", "true"])("flag %j: links to /check-your-answer from the hero, next to the CTA", async (flag) => {
+    const container = await renderWithFlag(flag);
+    const link = Array.from(container.querySelectorAll(".lt-landing-hero a")).find(
+      (a) => a.textContent === "How do examiners mark answers? → Read the guide",
+    );
+    expect(link, "guide link missing from the hero").toBeDefined();
+    expect(link?.getAttribute("href")).toBe("/check-your-answer");
+  });
+});
+
 describe("landing CTAs — flag ON", () => {
   it("all three CTAs go to /check-improve", async () => {
     const hrefs = ctaHrefs(await renderWithFlag("true"));
