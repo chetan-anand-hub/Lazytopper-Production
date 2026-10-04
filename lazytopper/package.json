@@ -13,6 +13,7 @@
     "scope:guard": "node scripts/scopeGuard.mjs",
     "predev": "node scripts/prebuild.cjs",
     "seo:capture": "tsx scripts/seo/captureStaticBodies.ts",
+    "seo:index-status": "tsx scripts/seo/indexStatusReport.ts",
     "build": "tsc -b && vite build && tsx scripts/seo/writeStaticHeads.ts && tsx scripts/seo/applyPrerendered.ts && tsx scripts/seo/writeVersion.ts",
     "tutor:mvp": "npm run build && npm run tutor:eval",
     "deploy:smoke": "node scripts/deploySmoke.mjs",

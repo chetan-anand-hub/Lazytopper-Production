@@ -1,0 +1,59 @@
+# index-status — a weekly, READ-ONLY report of how Google has indexed every sitemap URL.
+#
+# SEO-5 PR-1 (M2). Runs lazytopper/scripts/seo/indexStatusReport.ts, which reads the LIVE
+# sitemap and calls the Search Console URL Inspection API (`urlInspection.index.inspect`,
+# a read) once per URL. The table goes to this run's job summary and is uploaded as an
+# artifact; the log ends with a short "needs a manual request" list (not indexed, or
+# Google chose a canonical other than ours). The owner requests indexing for those BY HAND
+# in Search Console — Google's Indexing API is for job and livestream pages only, so
+# nothing here asks Google to index anything.
+#
+# · Monday 06:00 IST = 00:30 UTC Monday (cron is UTC), plus manual dispatch.
+# · No commit, no issue, no PR comment: the job summary and the artifact are the output.
+# · GSC_SERVICE_ACCOUNT absent → the script logs a ::notice:: and exits 0.
+# · GSC_SITE_URL (repo variable, shared with search-ping) names the property; unset →
+#   https://www.lazytopper.com/ (URL-prefix property).
+name: index-status
+
+on:
+  schedule:
+    - cron: "30 0 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: index-status
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install workspace (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Inspect every sitemap URL (read-only)
+        env:
+          GSC_SERVICE_ACCOUNT: ${{ secrets.GSC_SERVICE_ACCOUNT }}
+          GSC_SITE_URL: ${{ vars.GSC_SITE_URL }}
+        run: pnpm --filter lazytopper run seo:index-status -- --out="$RUNNER_TEMP/index-status.md"
+
+      - name: Upload the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: index-status-${{ github.run_id }}
+          path: ${{ runner.temp }}/index-status.md
+          if-no-files-found: ignore
+          retention-days: 90
