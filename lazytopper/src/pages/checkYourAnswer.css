@@ -194,10 +194,10 @@
   color: var(--cya-gt);
   white-space: nowrap;
 }
-.lt-cya__total {
+.lt-cya__src {
   margin: 0 0 10px;
-  font-weight: 700;
-  color: var(--cya-gt);
+  font-size: 13px;
+  color: var(--cya-ink3);
 }
 .lt-cya__note {
   margin: 0 0 10px;

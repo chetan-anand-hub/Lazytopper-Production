@@ -41,8 +41,8 @@ export interface WorkedExample {
   readonly stepsHeading: string;
   readonly steps: readonly ExampleStep[];
   readonly schemeNote?: string;
-  /** Shown when a step's mark is not stated in the bank row: the question total, never an inferred figure. */
-  readonly total?: string;
+  /** The published scheme the marks were checked against (owner ruling: cite it on the page). */
+  readonly source?: string;
   readonly takeaway: string;
 }
 
@@ -73,11 +73,11 @@ export const WORKED_EXAMPLES: readonly WorkedExample[] = [
     steps: [
       { text: "(a) Concave mirror / Converging mirror", marks: "½" },
       { text: "(b) Between pole and focus", marks: "½" },
-      { text: "(c) Any two: virtual, erect, behind the mirror", marks: "(remaining marks)" },
+      { text: "(c) Any two: virtual, erect, behind the mirror", marks: "½ + ½" },
     ],
-    total: "Total: 2 marks",
+    source: "Source: official CBSE marking scheme 2024, paper 31/5/3, Q25.",
     takeaway:
-      "Parts (a) and (b) each carry their own mark in this scheme. Answer each part separately and briefly; that is all this question asks for.",
+      "Every part has its own mark, and part (c) is split again, one mark figure per property. A short answer to each part is all this question asks for.",
   },
   {
     bankId: "PYQ-S-2026-CHEMRXN-014",
@@ -158,8 +158,9 @@ export default function CheckYourAnswerPage() {
           <h2 id="cya-steps">Marks are given for steps</h2>
           <p>
             A Class 10 board answer worth 2, 3 or 5 marks is not marked as simply right or wrong. The marking scheme
-            breaks it into value points, and each value point carries part of the marks. Writing the correct formula
-            usually earns a step mark, even if a later step goes wrong.
+            breaks it into value points, and each value point carries part of the marks. Marks are attached to specific
+            points in your answer, not shared out equally: in one 3-mark answer, one step can carry 1 mark and another
+            only ½. Writing the correct formula usually earns a step mark, even if a later step goes wrong.
           </p>
           <p>
             A mistake is charged once. CBSE’s general instructions to examiners say:{" "}
@@ -207,7 +208,7 @@ export default function CheckYourAnswerPage() {
                   </li>
                 ))}
               </ol>
-              {example.total ? <p className="lt-cya__total">{example.total}</p> : null}
+              {example.source ? <p className="lt-cya__src">{example.source}</p> : null}
               {example.schemeNote ? (
                 <p className="lt-cya__note">
                   The scheme adds: <q>{example.schemeNote}</q>
