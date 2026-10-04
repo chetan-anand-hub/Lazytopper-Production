@@ -194,6 +194,11 @@
   color: var(--cya-gt);
   white-space: nowrap;
 }
+.lt-cya__total {
+  margin: 0 0 10px;
+  font-weight: 700;
+  color: var(--cya-gt);
+}
 .lt-cya__note {
   margin: 0 0 10px;
   font-size: 14px;
