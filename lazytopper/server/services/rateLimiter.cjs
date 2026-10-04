@@ -302,11 +302,17 @@ function nextIstMidnightIso(nowMs) {
  *  `verifiedUid` is optional and second, so every existing single-argument
  *  caller keeps its exact previous behaviour.
  */
-function resolveCaller(req, verifiedUid) {
+/*  ★ A TOKEN THAT DID NOT VERIFY (AUTHGATE-FIX-1). When the caller offered a bearer
+ *  token and it was rejected (`opts.tokenRejected`, set from verifiedCaller's reason
+ *  "invalid"), the uid header is NOT trusted: the request is keyed on the client IP.
+ *  "Verifier unavailable" is not a rejection and keeps the header fallback above.
+ */
+function resolveCaller(req, verifiedUid, opts) {
   const verified = typeof verifiedUid === "string" ? verifiedUid.trim() : "";
   if (verified) return { id: verified, anonymous: false, verified: true };
 
-  const uid = String(req?.headers?.["x-lazytopper-uid"] || "").trim();
+  const tokenRejected = !!(opts && opts.tokenRejected === true);
+  const uid = tokenRejected ? "" : String(req?.headers?.["x-lazytopper-uid"] || "").trim();
   if (uid) return { id: uid, anonymous: false, verified: false };
 
   const xff = String(req?.headers?.["x-forwarded-for"] || "").split(",")[0].trim();
@@ -390,6 +396,10 @@ function createRateLimiter(options = {}) {
    * charged, because shared mobile IPs would refuse real students. The global hard
    * ceiling, the 80% vision shed and the `global:<day>` commit all still apply: an
    * admitted free check COUNTS toward the budget-derived ceiling (OR-4b).
+   *
+   * `options.tokenRejected === true` (AUTHGATE-FIX-1) is passed by index.cjs when a
+   * bearer token was offered and did not verify. The uid header is then ignored and
+   * the request is keyed on the client IP, like any caller with no identity.
    */
   /*
    * `options.premium === true` (FAIR-USE-1, U4) is passed by index.cjs ONLY when the
@@ -410,7 +420,9 @@ function createRateLimiter(options = {}) {
     if (!endpointClass) return { allowed: true, class: null };
 
     const day = rollIfNeeded(nowMs);
-    const caller = resolveCaller(req, verifiedUid);
+    const caller = resolveCaller(req, verifiedUid, {
+      tokenRejected: !!(options && options.tokenRejected === true),
+    });
     const freeCheck = !!(options && options.freeCheck === true) && caller.anonymous;
     const premiumShedExempt = !!(options && options.premium === true) && caller.verified;
 

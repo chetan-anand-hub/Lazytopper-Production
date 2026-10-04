@@ -84,8 +84,62 @@ export interface MoreLikeThisResponse {
   error?: string;
 }
 
-import { paidJsonHeaders, UID_HEADER } from "./paidCallHeaders";
+import { paidJsonHeaders, UID_HEADER, SignInAgainError, REAUTH_MESSAGE } from "./paidCallHeaders";
 import type { GradingHttpResponse, GradingStageListener } from "./gradingTransport";
+
+/* ── AUTHGATE-FIX-1: one silent token refresh ─────────────────────────────────
+   The server answers 401 `reauth_required` when the ID token a call carried did not
+   verify (most often: it had just expired). The student did nothing wrong, so the call
+   forces a fresh Firebase ID token and is sent ONCE more, automatically. Only a second
+   refusal reaches the student, as SignInAgainError("Please sign in again to continue.").
+   A call that carried no token (signed out, or a free check) is never retried. */
+
+/** The server's status and code for a token that did not verify (entitlement.cjs). */
+const REAUTH_STATUS = 401;
+const REAUTH_ERROR = "reauth_required";
+
+type HttpLike = Pick<Response, "ok" | "status" | "text">;
+
+/** True when this response is the server asking for a fresh token. Reads the body once
+ *  and returns a re-readable copy, because a fetch body can be read only once. */
+async function readReauth(res: HttpLike): Promise<{ res: HttpLike; reauth: boolean }> {
+  if (res.status !== REAUTH_STATUS) return { res, reauth: false };
+  const text = await res.text();
+  let reauth = false;
+  try {
+    reauth = (JSON.parse(text) as { error?: unknown })?.error === REAUTH_ERROR;
+  } catch {
+    reauth = false;
+  }
+  return { res: { ok: res.ok, status: res.status, text: async () => text }, reauth };
+}
+
+/**
+ * Send with `headers`; on a 401 `reauth_required` for a call that carried a token, build
+ * fresh headers (forced token refresh) and send exactly once more. The second answer is
+ * final — handleJsonResponse turns a second refusal into SignInAgainError(REAUTH_MESSAGE).
+ */
+async function sendWithTokenRefresh(
+  headers: Record<string, string>,
+  send: (headers: Record<string, string>) => Promise<HttpLike>,
+  refreshedHeaders: () => Promise<Record<string, string>>,
+): Promise<HttpLike> {
+  const first = await readReauth(await send(headers));
+  if (!first.reauth || !headers.Authorization) return first.res;
+  let retryHeaders: Record<string, string>;
+  try {
+    retryHeaders = await refreshedHeaders();
+  } catch (err) {
+    if (err instanceof Error && err.name === "SignInAgainError") throw new SignInAgainError(REAUTH_MESSAGE);
+    throw err;
+  }
+  return send(retryHeaders);
+}
+
+/** The paid JSON headers again, with a FORCED token refresh, plus any extra headers. */
+function refreshedPaidHeaders(extra: Record<string, string> = {}): () => Promise<Record<string, string>> {
+  return async () => ({ ...(await paidJsonHeaders({ forceRefresh: true })), ...extra });
+}
 
 /**
  * FREE-CHECK-1b — per-call options for the three Check & Improve endpoints.
@@ -127,18 +181,29 @@ async function postGrading(
   url: string,
   headers: Record<string, string>,
   body: unknown,
-  opts?: PaidCallOptions,
+  opts: PaidCallOptions | undefined,
+  refreshedHeaders: () => Promise<Record<string, string>>,
 ): Promise<GradingHttpResponse> {
   const { sendGradingRequest, newIdempotencyKey } = await import("./gradingTransport");
-  return sendGradingRequest(url, headers, JSON.stringify(body), {
-    idempotencyKey: newIdempotencyKey(),
+  // ONE key for this check attempt — made once, here, so the token-refresh re-send
+  // (AUTHGATE-FIX-1) carries the SAME key as the first send and as every network retry.
+  const idempotencyKey = newIdempotencyKey();
+  const payload = JSON.stringify(body);
+  const sendOpts = {
+    idempotencyKey,
     // ★ A FREE CHECK IS NEVER RE-SENT AUTOMATICALLY. Its App Check token is LIMITED-USE
     // (minted for one request — the server refuses a replayed one), and with no uid the
     // server cannot recognise the retry, so a re-send after a lost reply would be refused
     // or spend the visitor's one free check twice. It keeps the timeout, stages and offline wait.
     ...(opts?.freeCheck ? { maxRetries: 0 } : {}),
     ...(opts?.onStage ? { onStage: opts.onStage } : {}),
-  });
+  };
+  // A free check carries no token, so sendWithTokenRefresh never re-sends it.
+  return sendWithTokenRefresh(
+    headers,
+    (h) => sendGradingRequest(url, h, payload, sendOpts),
+    refreshedHeaders,
+  );
 }
 
 async function freeCheckJsonHeaders(): Promise<Record<string, string>> {
@@ -423,6 +488,13 @@ async function handleJsonResponse<T>(res: Pick<Response, "ok" | "status" | "text
       );
     }
 
+    // ── Token refused AGAIN after the silent refresh (AUTHGATE-FIX-1). The first 401
+    //    never reaches here — sendWithTokenRefresh re-sent the call with a fresh token —
+    //    so this is the one case a student is asked to sign in again. Plain English.
+    if (res.status === REAUTH_STATUS && details?.error === REAUTH_ERROR) {
+      throw new SignInAgainError(REAUTH_MESSAGE);
+    }
+
     // ── Free-check refusal (FREE-CHECK-1a wire contract). Expected operation for a
     //    signed-out visitor, not a fault: a typed throw carrying the machine reason the
     //    page maps to its own copy, and no console.error.
@@ -472,11 +544,11 @@ export async function callMentor(
 export async function generateMoreLikeThis(
   req: MoreLikeThisRequest
 ): Promise<MoreLikeThisResponse> {
-  const res = await fetch(`${API_BASE}/more-like-this`, {
-    method: "POST",
-    headers: await paidJsonHeaders(),
-    body: JSON.stringify(req),
-  });
+  const res = await sendWithTokenRefresh(
+    await paidJsonHeaders(),
+    (headers) => fetch(`${API_BASE}/more-like-this`, { method: "POST", headers, body: JSON.stringify(req) }),
+    refreshedPaidHeaders(),
+  );
 
   return handleJsonResponse<MoreLikeThisResponse>(res);
 }
@@ -561,11 +633,11 @@ export async function fetchStepSolution(req: {
     return buildLocalSolution(req.solutionSteps, req.finalAnswer, req.marks, isObjective);
   }
 
-  const res = await fetch(`${API_BASE}/step-solution`, {
-    method: "POST",
-    headers: await paidJsonHeaders(),
-    body: JSON.stringify(req),
-  });
+  const res = await sendWithTokenRefresh(
+    await paidJsonHeaders(),
+    (headers) => fetch(`${API_BASE}/step-solution`, { method: "POST", headers, body: JSON.stringify(req) }),
+    refreshedPaidHeaders(),
+  );
   return handleJsonResponse<StepSolutionResponse>(res);
 }
 
@@ -652,11 +724,13 @@ export async function checkSolutionImage(req: {
   options?: string[];
   objective?: boolean;
 }, opts?: PaidCallOptions): Promise<CheckSolutionResponse> {
+  const surface: Record<string, string> = opts?.surface ? { "X-Lazytopper-Surface": opts.surface } : {};
   const res = await postGrading(
     `${API_BASE}/check-solution`,
-    { ...(opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders()), ...(opts?.surface ? { "X-Lazytopper-Surface": opts.surface } : {}) },
+    { ...(opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders()), ...surface },
     req,
     opts,
+    refreshedPaidHeaders(surface),
   );
   return handleJsonResponse<CheckSolutionResponse>(res);
 }
@@ -698,11 +772,11 @@ export async function detectQuestion(req: {
   imageMimeType?: string;
   topicVocabulary?: CheckSolutionTopicVocab[];
 }, opts?: PaidCallOptions): Promise<DetectQuestionResponse> {
-  const res = await fetch(`${API_BASE}/detect-question`, {
-    method: "POST",
-    headers: opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders(),
-    body: JSON.stringify(req),
-  });
+  const res = await sendWithTokenRefresh(
+    opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders(),
+    (headers) => fetch(`${API_BASE}/detect-question`, { method: "POST", headers, body: JSON.stringify(req) }),
+    refreshedPaidHeaders(),
+  );
   return handleJsonResponse<DetectQuestionResponse>(res);
 }
 
@@ -864,11 +938,13 @@ export async function gradeWorksheet(req: {
   // FAIR-USE-2 (F3): a paper (surface + paperKey) carries its server-issued pass. No pass
   // (signed out, passes not configured, mint failed) -> sent without one, graded as before.
   const paperPass = await paperPassHeaders(identity, opts);
+  const extra: Record<string, string> = { ...(opts?.surface ? { "X-Lazytopper-Surface": opts.surface } : {}), ...paperPass };
   const res = await postGrading(
     `${API_BASE}/grade-worksheet`,
-    { ...identity, ...(opts?.surface ? { "X-Lazytopper-Surface": opts.surface } : {}), ...paperPass },
+    { ...identity, ...extra },
     req,
     opts,
+    refreshedPaidHeaders(extra),
   );
   return handleJsonResponse<WorksheetGradeResponse>(res);
 }
@@ -948,10 +1024,10 @@ export interface GenerateVisualResponse {
 export async function generateVisual(
   req: GenerateVisualRequest
 ): Promise<GenerateVisualResponse> {
-  const res = await fetch(`${API_BASE}/generate-visual`, {
-    method: "POST",
-    headers: await paidJsonHeaders(),
-    body: JSON.stringify(req),
-  });
+  const res = await sendWithTokenRefresh(
+    await paidJsonHeaders(),
+    (headers) => fetch(`${API_BASE}/generate-visual`, { method: "POST", headers, body: JSON.stringify(req) }),
+    refreshedPaidHeaders(),
+  );
   return handleJsonResponse<GenerateVisualResponse>(res);
 }

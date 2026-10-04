@@ -7,7 +7,7 @@
 // server-side (D-TUT-8) — persistence + round-trip are Stage 2.
 
 const API_BASE = "/api"; // Vite dev proxy or same origin in production
-import { paidJsonHeaders } from "./paidCallHeaders";
+import { paidJsonHeaders, SignInAgainError, REAUTH_MESSAGE } from "./paidCallHeaders";
 
 export const TUTOR_ENDPOINT = `${API_BASE}/tutor`;
 
@@ -164,13 +164,35 @@ export class TutorPremiumRequiredError extends Error {
  * honest, retryable error — never a fabricated reply).
  */
 export async function callTutor(req: TutorRequest): Promise<TutorReply> {
-  const res = await fetch(TUTOR_ENDPOINT, {
-    method: "POST",
-    headers: await paidJsonHeaders(),
-    body: JSON.stringify(req),
-  });
+  const send = (headers: Record<string, string>) =>
+    fetch(TUTOR_ENDPOINT, { method: "POST", headers, body: JSON.stringify(req) });
+  const isReauth = (status: number, body: string) => {
+    if (status !== 401) return false;
+    try {
+      return (JSON.parse(body) as { error?: unknown })?.error === "reauth_required";
+    } catch {
+      return false;
+    }
+  };
 
-  const text = await res.text();
+  const headers = await paidJsonHeaders();
+  let res = await send(headers);
+  let text = await res.text();
+
+  // AUTHGATE-FIX-1 — the server refused the token (usually: it had just expired). Force a
+  // fresh one and send ONCE more, silently. Only a second refusal reaches the student.
+  if (isReauth(res.status, text) && headers.Authorization) {
+    let retryHeaders: Record<string, string>;
+    try {
+      retryHeaders = await paidJsonHeaders({ forceRefresh: true });
+    } catch (err) {
+      if (err instanceof Error && err.name === "SignInAgainError") throw new SignInAgainError(REAUTH_MESSAGE);
+      throw err;
+    }
+    res = await send(retryHeaders);
+    text = await res.text();
+  }
+  if (isReauth(res.status, text)) throw new SignInAgainError(REAUTH_MESSAGE);
 
   if (!res.ok) {
     let details: {

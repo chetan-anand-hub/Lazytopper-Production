@@ -82,7 +82,7 @@
 // Reused rather than re-implemented: the bearer-token shape must not drift between
 // the module that verifies it and the module that reports why verification produced
 // nothing. Same header, one definition.
-const { extractBearerToken } = require('./verifiedCaller.cjs');
+const { extractBearerToken, REASON_INVALID, REASON_UNAVAILABLE } = require('./verifiedCaller.cjs');
 // Reused for the same reason: whether a request carries a uid header is already
 // decided by the rate limiter's trust order (verified uid -> X-Lazytopper-Uid ->
 // anonymous IP bucket). Reading the header here would be a second definition.
@@ -113,14 +113,30 @@ const FAIL_OPEN_EVENT = 'entitlement.fail_open';
 const FAIL_OPEN_NO_ADMIN = 'entitlement.fail_open.no_admin';
 const FAIL_OPEN_READ_ERROR = 'entitlement.fail_open.read_error';
 /**
- * A caller offered a bearer token and it did not verify — an expired token, a clock
- * skew, firebase-admin unable to check it. THIS IS THE CREDENTIALS-BROKEN SIGNAL — a
- * signed-in student this deploy could not verify. Still a fail-open, deliberately.
+ * resolve() was called with no request to read a credential from. Only a direct
+ * (non-HTTP) caller can reach this; every route passes its request.
  *
- * It no longer counts a uid header that arrived WITHOUT a token: that case is a
- * denial now, under its own name below, so the two can be told apart.
+ * AUTHGATE-FIX-1: a token that did not verify no longer lands here. It is a denial
+ * (DENY_REAUTH_REQUIRED below), and the one remaining token fail-open, the verifier
+ * itself being unavailable, has its own name (FAIL_OPEN_VERIFIER_UNAVAILABLE).
  */
 const FAIL_OPEN_NO_UID = 'entitlement.fail_open.no_uid';
+/**
+ * A bearer token was offered and this deploy could not check it at all
+ * (firebase-admin missing or unconfigured). A SERVER fault, so the request is served:
+ * the only fail-open left for an offered token. Logged at ERROR level.
+ */
+const FAIL_OPEN_VERIFIER_UNAVAILABLE = 'entitlement.fail_open.verifier_unavailable';
+/**
+ * A bearer token was offered and did not verify (AUTHGATE-FIX-1). A DENIAL: the route
+ * answers 401 `reauth_required`, and the client refreshes its token and retries once.
+ */
+const DENY_REAUTH_REQUIRED = 'entitlement.deny.reauth_required';
+
+/** The 401 a token that did not verify receives. `error` is for the client to branch on. */
+const REAUTH_STATUS = 401;
+const REAUTH_ERROR = 'reauth_required';
+const REAUTH_MESSAGE = 'Please sign in again to continue.';
 /**
  * A uid header with NO bearer token (UID-HEADER-CLOSE-1). A DENIAL, not a fail-open.
  *
@@ -379,6 +395,45 @@ function createEntitlementGate(deps = {}) {
   }
 
   /**
+   * Serve a request whose token this deploy could not check at all. A server fault,
+   * not the caller's: ERROR level and its own counter, so it cannot pass unnoticed.
+   */
+  function failOpenVerifierUnavailable() {
+    emit(FAIL_OPEN_EVENT);
+    emit(FAIL_OPEN_VERIFIER_UNAVAILABLE);
+    const line =
+      '[entitlement] FAIL-OPEN (token verifier unavailable) — request SERVED without an ' +
+      'entitlement check. The paywall is not being enforced for this call: firebase-admin is ' +
+      'missing or not configured on this deploy.';
+    try {
+      if (typeof logger.error === 'function') logger.error(line);
+      else if (typeof logger.warn === 'function') logger.warn(line);
+    } catch {
+      /* logging must never fail a request */
+    }
+    return {
+      entitled: true, tier: null, trialEndsAtMs: null, outcome: 'fail-open', reason: 'token verifier unavailable',
+    };
+  }
+
+  /**
+   * Refuse a token that did not verify. INFO, like the other denials: an expired token
+   * is routine, and the client recovers by refreshing it and retrying once.
+   */
+  function denyReauthRequired() {
+    emit(DENY_EVENT);
+    emit(DENY_REAUTH_REQUIRED);
+    try {
+      if (typeof logger.info === 'function') {
+        logger.info('[entitlement] DENY (a bearer token was offered and did not verify) -> 401');
+      }
+    } catch {
+      /* logging must never fail a request */
+    }
+    return { entitled: false, tier: null, trialEndsAtMs: null, outcome: 'reauth-required' };
+  }
+
+  /**
    * Refuse a request that carried no caller identity. Logged at INFO, never WARN:
    * signed-out traffic is routine, and routine lines in the warn channel would hide
    * the FAIL-OPEN warning that says the paywall is leaking.
@@ -419,24 +474,30 @@ function createEntitlementGate(deps = {}) {
    *
    * Outcomes: 'cache' | 'read' (document found) | 'absent' (read succeeded, no
    * document -> free) | 'anonymous' (no caller identity on the request) |
-   * 'uid-header-no-token' (a uid header with nothing to verify it) | 'fail-open'.
+   * 'uid-header-no-token' (a uid header with nothing to verify it) |
+   * 'reauth-required' (a bearer token that did not verify) | 'fail-open'.
+   *
+   * `verification` is verifiedCaller.resolveVerifiedCaller's result for this request
+   * ({ uid, reason }). Without it, an offered token that produced no uid is treated as
+   * not verified, never as a server fault.
    */
-  async function resolve(uid, req) {
+  async function resolve(uid, req, verification) {
     const id = typeof uid === 'string' ? uid.trim() : '';
 
-    // No verified uid. If a bearer token was OFFERED, this is NOT a positive read of
-    // a non-entitled tier: it is an expired token, a clock skew, or firebase-admin
-    // being unable to verify. So it fails OPEN, exactly as verifiedCaller.cjs refuses
-    // to conclude "anonymous" from a verification failure.
+    // No verified uid.
     //
-    // ★ A uid header WITHOUT a token is DENIED (UID-HEADER-CLOSE-1). It used to fail
-    // open to cover a client whose getIdToken() failed, but that trusted a string
-    // anyone can type: any caller who knew the endpoint got paid AI with no account.
-    // The client now retries the token and never sends the header alone.
+    // ★ A bearer token that did not verify is DENIED (AUTHGATE-FIX-1) and the route
+    // answers 401, so the client refreshes its token and retries once. The ONLY
+    // offered-token case still served is a deploy that cannot verify anything
+    // (verifiedCaller reason "unavailable"): a server fault, logged at error level.
+    //
+    // ★ A uid header WITHOUT a token is DENIED (UID-HEADER-CLOSE-1). The client
+    // retries the token and never sends the header alone.
     if (!id) {
       if (!req) return failOpen(FAIL_OPEN_NO_UID, 'no request to read a credential from');
       if (extractBearerToken(req)) {
-        return failOpen(FAIL_OPEN_NO_UID, 'a bearer token was offered and did not verify');
+        if (verification && verification.reason === REASON_UNAVAILABLE) return failOpenVerifierUnavailable();
+        return denyReauthRequired();
       }
       if (!resolveCaller(req).anonymous) return denyUidHeaderNoToken();
       return denyAnonymous();
@@ -516,6 +577,33 @@ function createEntitlementGate(deps = {}) {
     return body;
   }
 
+  /** The 401 body for a token that did not verify. Plain English for any client that shows it. */
+  function reauthBody() {
+    return { error: REAUTH_ERROR, message: REAUTH_MESSAGE };
+  }
+
+  /** Every route whose entitlement this gate decides: the three gated routes and step-solution. */
+  function isEntitlementRoute(reqPath) {
+    return reqPath === STEP_SOLUTION_PATH || Object.prototype.hasOwnProperty.call(GATED_ROUTES, reqPath);
+  }
+
+  /**
+   * AUTHGATE-FIX-1: refuse a bearer token that did not verify on an entitlement route,
+   * with 401 `reauth_required`. Called by index.cjs straight after verification, BEFORE
+   * idempotency, the free check and the rate limiter: a rejected token must not spend a
+   * limiter slot, because a real student whose token simply expired retries at once
+   * with a fresh one and must find their allowance untouched.
+   *
+   * @returns true when it has already responded (401) and the caller must return.
+   */
+  function rejectUnverifiedToken(req, res, reqPath, verification) {
+    if (!isEntitlementRoute(reqPath)) return false;
+    if (!verification || verification.reason !== REASON_INVALID) return false;
+    denyReauthRequired();
+    if (typeof sendJson === 'function') sendJson(res, REAUTH_STATUS, reauthBody());
+    return true;
+  }
+
   /**
    * The ROUTE-BOUNDARY gate. Call once per POST, before dispatch.
    *
@@ -530,14 +618,14 @@ function createEntitlementGate(deps = {}) {
    *
    * @returns true when it has already responded (402) and the caller must return.
    */
-  async function applyToRequest(req, res, reqPath, verifiedUid) {
+  async function applyToRequest(req, res, reqPath, verifiedUid, verification) {
     // /api/step-solution: attach a LAZY resolver and gate nothing here. Lazy is
     // load-bearing — the bank-backed and cache-backed paths must not pay for a
     // Firestore read they will never consult.
     if (reqPath === STEP_SOLUTION_PATH) {
       req.lazytopperEntitlement = {
         async requireForGeneration() {
-          const decision = await resolve(verifiedUid, req);
+          const decision = await resolve(verifiedUid, req, verification);
           return decision.entitled ? null : denialBody(STEP_SOLUTION_FEATURE, decision);
         },
       };
@@ -547,8 +635,15 @@ function createEntitlementGate(deps = {}) {
     const featureSpec = GATED_ROUTES[reqPath];
     if (!featureSpec) return false;
 
-    const decision = await resolve(verifiedUid, req);
+    const decision = await resolve(verifiedUid, req, verification);
     if (decision.entitled) return false;
+
+    if (decision.outcome === 'reauth-required') {
+      // A credential that did not verify is not "you have not paid": 401, so the client
+      // refreshes its token and retries instead of showing an upgrade prompt.
+      if (typeof sendJson === 'function') sendJson(res, REAUTH_STATUS, reauthBody());
+      return true;
+    }
 
     if (typeof sendJson === 'function') {
       // 402 Payment Required, NEVER 403. The client must be able to tell "you
@@ -561,6 +656,7 @@ function createEntitlementGate(deps = {}) {
   return {
     resolve,
     applyToRequest,
+    rejectUnverifiedToken,
     denialBody,
     /** test-only visibility into the positive cache */
     _cacheSize: () => positiveCache.size,
@@ -586,6 +682,11 @@ module.exports = {
   FAIL_OPEN_NO_ADMIN,
   FAIL_OPEN_NO_UID,
   FAIL_OPEN_READ_ERROR,
+  FAIL_OPEN_VERIFIER_UNAVAILABLE,
   DENY_ANONYMOUS,
   DENY_UID_HEADER_NO_TOKEN,
+  DENY_REAUTH_REQUIRED,
+  REAUTH_STATUS,
+  REAUTH_ERROR,
+  REAUTH_MESSAGE,
 };

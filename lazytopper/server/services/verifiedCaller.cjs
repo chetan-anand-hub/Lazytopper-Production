@@ -18,11 +18,16 @@
 // signed-in student into the anonymous bucket — precisely the defect #552 fixed,
 // re-introduced through the back door and visible only to whoever was unlucky.
 //
-// So this module NEVER decides that a caller is anonymous. It returns a uid or
-// it returns `""`, and `resolveCaller` falls back to the header exactly as
-// before. The change can only TIGHTEN identity, never shrink a real student's
-// allowance. Being strictly-better-or-equal is what makes it safe to ship
-// without a live rollback plan.
+// So this module NEVER decides that a caller is anonymous. It returns a uid, or
+// "" together with the REASON there is none (resolveVerifiedCaller): no token,
+// a token that did not verify, or a deploy that cannot verify anything. The
+// callers decide what each reason means (AUTHGATE-FIX-1):
+//   - a token that did not verify is answered 401 `reauth_required` on the
+//     entitlement-checked routes, and the client refreshes its token and retries
+//     once, so an expired token costs a real student nothing;
+//   - the rate limiter does not trust the uid header for such a request;
+//   - only "verifier unavailable" (a server fault) is served without a check,
+//     and that is logged at error level and counted on its own.
 //
 // ★ IT ALSO CANNOT THROW AND CANNOT BLOCK A CALL. Every path is inside one
 // try/catch. A telemetry or verification fault must never fail a student's
@@ -33,6 +38,19 @@ const BEARER_PREFIX = "Bearer ";
 
 /** Emitted when a token was PRESENT and verification failed — see below. */
 const UNVERIFIED_EVENT = "rate_limit.uid_source.unverified";
+/** Of those: the token itself did not verify. */
+const INVALID_EVENT = "auth.token.invalid";
+/** Of those: this deploy could not check any token (firebase-admin missing / unconfigured). */
+const UNAVAILABLE_EVENT = "auth.token.verifier_unavailable";
+
+/** Why resolveVerifiedCaller did or did not produce a uid. */
+const REASON_VERIFIED = "verified";
+const REASON_NO_TOKEN = "no-token";
+const REASON_INVALID = "invalid";
+const REASON_UNAVAILABLE = "unavailable";
+
+/** firebase-admin's code for "no project id / credential", raised before the token is read. */
+const ADMIN_NOT_CONFIGURED_CODE = "auth/invalid-credential";
 
 /** Pull the raw ID token out of the Authorization header. "" when absent. */
 function extractBearerToken(req) {
@@ -61,43 +79,76 @@ function createVerifiedCaller(deps = {}) {
   }
 
   /**
-   * The verified uid for this request, or "" if there isn't one.
+   * The verified uid for this request AND why there is or is not one.
    *
-   * "" is returned for BOTH "no token was offered" and "a token was offered and
-   * did not verify". Only the second emits — the first is the ordinary state for
-   * any non-browser caller and counting it would drown the signal.
+   *   { uid, reason: VERIFIED }     the token verified
+   *   { uid: "", reason: NO_TOKEN }    no bearer token on the request
+   *   { uid: "", reason: INVALID }     a token was offered and did not verify
+   *   { uid: "", reason: UNAVAILABLE } a token was offered and this deploy cannot
+   *                                    check it (firebase-admin missing or not
+   *                                    configured) — a server fault, not the caller's
+   *
+   * The reason exists so a caller can tell a server fault from a credential that is
+   * simply wrong. Only UNAVAILABLE may be treated as "serve anyway"; INVALID is a
+   * rejection the client answers by refreshing its token and retrying.
    */
-  async function resolveVerifiedUid(req) {
+  async function resolveVerifiedCaller(req) {
     try {
       const token = extractBearerToken(req);
-      if (!token) return "";
+      if (!token) return { uid: "", reason: REASON_NO_TOKEN };
       if (!firebaseAdmin || typeof firebaseAdmin.auth !== "function") {
         // A token was offered and we are structurally unable to check it. That
         // is worth seeing: it means the deploy is missing Firebase config while
         // clients are sending credentials.
         emit(UNVERIFIED_EVENT);
-        return "";
+        emit(UNAVAILABLE_EVENT);
+        return { uid: "", reason: REASON_UNAVAILABLE };
       }
-      const decoded = await firebaseAdmin.auth().verifyIdToken(token);
+      let decoded;
+      try {
+        decoded = await firebaseAdmin.auth().verifyIdToken(token);
+      } catch (e) {
+        emit(UNVERIFIED_EVENT);
+        // A project-id / credential fault is raised before the token is even read,
+        // so it says nothing about the caller: it is this deploy that cannot verify.
+        if (e && e.code === ADMIN_NOT_CONFIGURED_CODE) {
+          emit(UNAVAILABLE_EVENT);
+          return { uid: "", reason: REASON_UNAVAILABLE };
+        }
+        emit(INVALID_EVENT);
+        return { uid: "", reason: REASON_INVALID };
+      }
       const uid = decoded && typeof decoded.uid === "string" ? decoded.uid.trim() : "";
-      if (uid) return uid;
+      if (uid) return { uid, reason: REASON_VERIFIED };
       emit(UNVERIFIED_EVENT);
-      return "";
+      emit(INVALID_EVENT);
+      return { uid: "", reason: REASON_INVALID };
     } catch {
-      // Expired, forged, clock-skewed, or the network to Google is down. Return
-      // "" — this function NEVER reads the header. resolveCaller in rateLimiter.cjs
-      // is what falls back to it, so a caller that refuses "" (the DPDP erasure
-      // route) is fail-closed and the header cannot reach it.
-      emit(UNVERIFIED_EVENT);
-      return "";
+      // Defensive: nothing above should throw, but this function never may.
+      return { uid: "", reason: REASON_INVALID };
     }
   }
 
-  return { resolveVerifiedUid };
+  /**
+   * The verified uid for this request, or "" if there isn't one. Kept for every
+   * caller that only needs the uid (payments, account export/erasure, usage) and
+   * already refuses "" — those are fail-closed and unchanged.
+   */
+  async function resolveVerifiedUid(req) {
+    return (await resolveVerifiedCaller(req)).uid;
+  }
+
+  return { resolveVerifiedUid, resolveVerifiedCaller };
 }
 
 module.exports = {
   createVerifiedCaller,
   extractBearerToken,
   UNVERIFIED_EVENT,
+  INVALID_EVENT,
+  UNAVAILABLE_EVENT,
+  REASON_VERIFIED,
+  REASON_NO_TOKEN,
+  REASON_INVALID,
+  REASON_UNAVAILABLE,
 };
