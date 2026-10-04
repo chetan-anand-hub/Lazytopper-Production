@@ -59,24 +59,22 @@ export const WORKED_EXAMPLES: readonly WorkedExample[] = [
       { text: "AP = 3√3 cm", marks: "½" },
     ],
     takeaway:
-      "Four half marks. The figure and the angle earn half the marks before any trigonometry, and the unit sits in the last line.",
+      "This scheme gives each line its own half mark. The figure and the angle are worth as much as the trigonometry, and the unit sits in the last line.",
   },
   {
-    bankId: "PYQ-S-LIGHT-004",
-    bankFile: "science/light-reflection-and-refraction.pyq.ts",
-    tag: "Science · 3 marks · CBSE 2023, paper 31/2/1, Q31(a)",
+    bankId: "PYQ-S-2024-LIGHT-007",
+    bankFile: "science/lightReflection.pyq2024.ts",
+    tag: "Science · 2 marks · CBSE 2024, paper 31/5/3, Q25",
     question:
-      "A student has focussed the image of an object of height 3 cm on a white screen using a concave mirror of focal length 12 cm. If the distance of the object from the mirror is 18 cm, find the values of the following : (i) Distance of the image from the mirror (ii) Height of the image",
-    stepsHeading: "The marking scheme, part (i) and part (ii)",
+      "The linear magnification produced by a spherical mirror is + 3. Based on this statement answer the following questions : (a) What is the type of mirror ? (b) Where is the object located ? (c) List two properties of the image formed (other than the size/magnification).",
+    stepsHeading: "The marking scheme",
     steps: [
-      { text: "Data: h = 3 cm, f = −12 cm, u = −18 cm" },
-      { text: "(i) 1/f = 1/v + 1/u, so 1/v = 1/f − 1/u = 1/(−12) − 1/(−18)" },
-      { text: "v = −36 cm", marks: "(i): ½ ½ ½ ½" },
-      { text: "(ii) h′ = −(v/u) × h = −(−36/−18) × 3 cm = −6 cm" },
+      { text: "(a) Concave mirror / Converging mirror", marks: "½" },
+      { text: "(b) Between pole and focus", marks: "½" },
+      { text: "(c) Any two: virtual, erect, behind the mirror", marks: "½ + ½" },
     ],
-    schemeNote: "Award full marks if data not written but calculations are correct",
     takeaway:
-      "Part (i) alone is four separate half marks, so each line of working counts. Writing the data is good practice, but this scheme does not take marks away for leaving it out.",
+      "Every part has its own mark, and part (c) is split again, one mark figure per property. A short answer to each part is all this question asks for.",
   },
   {
     bankId: "PYQ-S-2026-CHEMRXN-014",
@@ -100,18 +98,18 @@ export const WORKED_EXAMPLES: readonly WorkedExample[] = [
     ],
     schemeNote: "deduct ½ mark if no / incorrect balancing",
     takeaway:
-      "Three answers, one mark each. The equation's mark has a condition attached: leave it unbalanced and half of that mark goes.",
+      "Three answers, one mark each. The equation's mark has a condition attached: leave it unbalanced and this scheme takes part of that mark away.",
   },
 ];
 
 const PRINCIPLES: ReadonlyArray<{ title: string; body: ReactNode }> = [
   {
     title: "The formula",
-    body: "Stating the correct formula can earn half a mark on its own. Jumping straight to numbers skips that line.",
+    body: "Writing the correct formula usually earns a step mark, even if a later step goes wrong.",
   },
   {
     title: "Units",
-    body: "A final numerical answer without its unit loses half a mark. Write cm, m or whatever the quantity needs.",
+    body: "Write the unit with your final answer. CBSE marking schemes often mark down answers that leave it out.",
   },
   {
     title: "The final answer",
@@ -123,20 +121,15 @@ const PRINCIPLES: ReadonlyArray<{ title: string; body: ReactNode }> = [
   },
   {
     title: "Diagrams",
-    body: (
-      <>
-        The drawing and its labels are marked separately. Marking schemes carry notes such as “Award ½ mark for each
-        labelling” and “Deduct ½ mark for not marking arrows”.
-      </>
-    ),
+    body: "The drawing and its labels are marked separately, so a diagram with missing labels or missing arrows can lose marks.",
   },
   {
     title: "Chemical equations",
-    body: "An unbalanced equation loses marks: “deduct ½ mark if no / incorrect balancing”.",
+    body: "An unbalanced equation loses marks, even when the chemicals in it are right.",
   },
   {
     title: "Everyday words",
-    body: "In Science the exact technical term is expected: write “oesophagus”, not “food pipe”.",
+    body: "Use the scientific term from your NCERT book (oesophagus, not 'food pipe'). Examiners look for the right terms.",
   },
 ];
 
@@ -162,8 +155,8 @@ export default function CheckYourAnswerPage() {
           <h2 id="cya-steps">Marks are given for steps</h2>
           <p>
             A Class 10 board answer worth 2, 3 or 5 marks is not marked as simply right or wrong. The marking scheme
-            breaks it into value points, and each value point carries part of the marks, often half a mark. So the
-            correct formula can earn half a mark even if a later step goes wrong.
+            breaks it into value points, and each value point carries part of the marks. Writing the correct formula
+            usually earns a step mark, even if a later step goes wrong.
           </p>
           <p>
             A mistake is charged once. CBSE’s general instructions to examiners say:{" "}
@@ -233,7 +226,8 @@ export default function CheckYourAnswerPage() {
         </section>
 
         <p className="lt-cya__fine">
-          Quotations are from the general instructions printed with CBSE’s 2023 Class 10 Science marking scheme.
+          Quotations in “Marks are given for steps” are from the general instructions printed with CBSE’s 2023 Class
+          10 Science marking scheme.
           LazyTopper is an independent platform and is not affiliated with CBSE.
         </p>
       </div>
