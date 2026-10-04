@@ -449,12 +449,16 @@ check('§4.9 re-open: the per-question payload is fetched so the by-topic lens c
   /getSessionPerQuestion\(user\?\.uid, r\.perQuestionRef\)/.test(converged) &&
   /response: reopenResponse/.test(converged));
 
-// item 10 — Camera/Files, absorbed from the retired twin. Device capability, and the
-// ONLY legitimate use of a device flag in the answer path.
-check('§4.10 camera: capture="environment" behaviour is absorbed and device-gated',
-  /setAttribute\("capture", "environment"\)/.test(converged) &&
-  /removeAttribute\("capture"\)/.test(converged) &&
-  /!isDesktop && !imageBase64/.test(converged));
+// item 10 — Camera/Files, absorbed from the retired twin. Device capability.
+// UPLOAD-2-FIX-1: the old form (setAttribute("capture") on the answer input) PINNED THE
+// DEFECT — that input carries `multiple` and a PDF in `accept`, and on Android Chrome either
+// one keeps the camera away. The camera is now its own input (PhotoSourceButtons: image/*,
+// capture, never `multiple`), gated on a coarse pointer; toggling `capture` on the multiple
+// input must NOT come back.
+check('§4.10 camera: "Take photo" is its own input (PhotoSourceButtons), device-gated on a coarse pointer',
+  /coarsePointer && !imageBase64 && answerTray\.pages\.length === 0 && \(\s*<PhotoSourceButtons/.test(converged) &&
+  /onGallery=\{\(\) => fileInputRef\.current\?\.click\(\)\}/.test(converged) &&
+  !/setAttribute\("capture"/.test(converged));
 
 // item 11 — an owner-owned launch gate. Not ours to flip.
 const detection = read(DETECTION);
@@ -1017,11 +1021,13 @@ check('PARITY-2: exactly two QrAnswerHandoff mounts now exist (answer + question
 check('PARITY-2: the question QR carries the question-voice label, not the answer default',
   /label="Question paper on your phone\?"/.test(converged));
 
-// MIRROR 3 — Camera/Files for the question, device-gated on !isDesktop && !qImageBase64,
-// toggling capture on the EXISTING qFileInputRef (no second file input, so the tight-accept
-// count in §3 stays 2). Distinct gate from the answer's !imageBase64.
-check('PARITY-3: the question camera/files pair is device-gated (!isDesktop && !qImageBase64)',
-  /!isDesktop && !qImageBase64/.test(converged) && /qFileInputRef\.current/.test(converged));
+// MIRROR 3 — Take photo / Choose from gallery for the question, device-gated on a coarse
+// pointer && !qImageBase64. UPLOAD-2-FIX-1: "Take photo" is PhotoSourceButtons' own
+// image/* input (accept="image/*", so the tight-accept count in §3 stays 2); "Choose from
+// gallery" opens the EXISTING qFileInputRef. Distinct gate from the answer's !imageBase64.
+check('PARITY-3: the question take-photo/gallery pair is device-gated (coarsePointer && !qImageBase64)',
+  /coarsePointer && !qImageBase64 && questionTray\.pages\.length === 0 && \(\s*<PhotoSourceButtons/.test(converged) &&
+  /onGallery=\{\(\) => qFileInputRef\.current\?\.click\(\)\}/.test(converged));
 
 // MIRROR 4 — paste on BOTH cards, via the EXISTING file handlers (so checkUploadFile still
 // refuses a bad pasted file) and gated on a clipboard FILE being present (so text paste is
