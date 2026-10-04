@@ -107,7 +107,8 @@ export function rowFromInspection(url: string, body: unknown): IndexStatusRow {
 }
 
 function cell(value: string): string {
-  return (value || "—").replace(/\|/g, "\\|");
+  // Markdown table cell: escape backslashes FIRST, then pipes; flatten line breaks.
+  return (value || "—").replace(/\\/g, "\\\\").replace(/\|/g, "\\|").replace(/[\r\n]+/g, " ");
 }
 
 /** The markdown report: summary line, table, "needs a manual request" list. */

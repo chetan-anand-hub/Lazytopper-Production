@@ -96,6 +96,10 @@ describe("index-status — table and the 'needs a manual request' filter", () =>
     expect(report).toContain("MISMATCH: Google https://www.lazytopper.com/c");
     expect(report).toContain("### Needs a manual request (2)");
     expect(report).toContain("- https://www.lazytopper.com/a — not indexed — Discovered - currently not indexed");
+
+    // A table cell escapes backslashes before pipes and flattens line breaks.
+    const odd = renderReport([{ ...notIndexed, coverageState: "a|b\\c\nd" }], "s", "T");
+    expect(odd).toContain("| a\\|b\\\\c d |");
   });
 });
 
