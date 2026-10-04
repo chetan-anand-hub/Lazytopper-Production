@@ -81,6 +81,47 @@ if (fs.existsSync(DIST_ASSETS)) {
       chunksWithBank.length === 0 ? "— no emitted chunk carries question data" : ""
     );
   }
+
+  // 5. SEO-5 PR-2 — pins (a) + (d) on the BUILT pages: every advertised path (the committed
+  //    manifest's `paths`, which applyPrerendered holds equal to the sitemap set) has a filled
+  //    mobile file AND a filled `__desktop/` variant, and every <link rel="modulepreload">
+  //    names a chunk this build emitted. The same rules run inside the build itself
+  //    (applyPrerendered `verifyBuiltPages`, line PRERENDER_DEVICE_VERIFY) — this re-reads
+  //    the output independently, for a local run of this verifier.
+  const DIST_ROOT = path.dirname(DIST_ASSETS);
+  const manifestFile = path.resolve(LAZYTOPPER_ROOT, "prerendered", "manifest.json");
+  if (fs.existsSync(manifestFile)) {
+    const paths = JSON.parse(fs.readFileSync(manifestFile, "utf8")).paths ?? [];
+    let files = 0;
+    let links = 0;
+    const problems = [];
+    for (const page of paths) {
+      const stem = page === "/" ? "index" : page.slice(1);
+      const targets = page === "/" ? ["index.html"] : [`${stem}.html`, path.join(stem, "index.html")];
+      for (const target of [...targets, `__desktop/${stem}.html`]) {
+        const file = path.join(DIST_ROOT, target);
+        if (!fs.existsSync(file)) {
+          problems.push(`${target} missing`);
+          continue;
+        }
+        const html = fs.readFileSync(file, "utf8");
+        if (html.includes('<div id="root"></div>')) problems.push(`${target} has an empty body`);
+        for (const tag of html.match(/<link\b[^>]*\brel="modulepreload"[^>]*>/g) ?? []) {
+          const href = (tag.match(/\bhref="([^"]+)"/) ?? [])[1] ?? "";
+          links += 1;
+          if (!fs.existsSync(path.join(DIST_ROOT, href.replace(/^\/(?:[^/]*\/)?assets\//, "assets/")))) {
+            problems.push(`${target} preloads ${href}, which was not emitted`);
+          }
+        }
+        files += 1;
+      }
+    }
+    check(
+      `prerendered device variants + modulepreloads (pins a+d): pages=${paths.length} files=${files} modulepreload_links=${links} problems=${problems.length}`,
+      paths.length > 0 && problems.length === 0,
+      problems.slice(0, 5).join("; ")
+    );
+  }
 }
 
 if (ok) {

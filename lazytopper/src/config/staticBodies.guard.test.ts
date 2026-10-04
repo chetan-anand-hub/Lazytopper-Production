@@ -3,12 +3,14 @@ import { describe, it, expect } from "vitest";
 
 import {
   BANNED_AUTH_TEXT,
+  CAPTURE_VIEWPORTS,
   MIN_BODY_BYTES,
   SUBSTRING_TRAP_WITNESSES,
   capturablePaths,
   countResidualAuthNodes,
   servableKey,
   stripAuthChrome,
+  validateBothWidths,
   validateCaptures,
   validateCoverage,
 } from "../../scripts/seo/captureStaticBodies";
@@ -528,5 +530,58 @@ describe("runtime-data dependence — the input no source fingerprint can cover"
     // coverage check is what catches a page that never ran.
     const base = capture("/notes/electricity", "Ohm's law");
     expect(validateCaptures([base])).toEqual([]);
+  });
+});
+
+/**
+ * SEO-5 PR-2 (D1) — TWO WIDTHS, EACH VALIDATED AS A SET OF ITS OWN.
+ *
+ * ★ THE PHONE IS CAPTURED AT PHONE WIDTH. Until this the only capture was 1280 px, so a
+ * phone painted the desktop layout until React mounted. The viewports are pinned here so a
+ * width change is a reviewed test diff, and `useIsDesktop`'s 1024-px query sits between them.
+ */
+describe("SEO-5 PR-2 — capture widths, and every validator on BOTH sets", () => {
+  it("captures mobile at 390 px (a touch phone) and desktop at 1280 px, either side of the 1024-px query", () => {
+    expect(CAPTURE_VIEWPORTS.mobile).toEqual({ width: 390, height: 844, isMobile: true, hasTouch: true });
+    expect(CAPTURE_VIEWPORTS.desktop).toEqual({ width: 1280, height: 900, isMobile: false, hasTouch: false });
+    expect(CAPTURE_VIEWPORTS.mobile.width).toBeLessThan(1024);
+    expect(CAPTURE_VIEWPORTS.desktop.width).toBeGreaterThanOrEqual(1024);
+  });
+
+  /** A complete, healthy set: distinct bodies, and the trap witnesses' sentences intact. */
+  const full = (suffix: string) =>
+    capturablePaths().map((path) => {
+      const witness = SUBSTRING_TRAP_WITNESSES.find((w) => w.path === path)?.sentence ?? "";
+      const text = `${path} ${suffix} ${witness}`;
+      return capture(path, text, `<main><p>${text}</p><i>${"x".repeat(MIN_BODY_BYTES)}</i></main>`);
+    });
+
+  it("passes two complete, healthy sets — a page may render the same DOM at both widths", () => {
+    const shared = full("same at both widths");
+    // Each set is distinct WITHIN itself; the two sets are identical to each other. Allowed:
+    // a page responsive by CSS alone renders one DOM at every width.
+    expect(validateBothWidths(shared, shared.map((c) => ({ ...c })))).toEqual([]);
+  });
+
+  it("REJECTS a set captured at one width only (the partial artifact), naming the width", () => {
+    const failures = validateBothWidths(full("m"), full("d").filter((c) => c.path !== "/notes/electricity"));
+    expect(failures).toEqual(["[desktop] /notes/electricity: advertised but never captured"]);
+  });
+
+  it("runs the content validators on the desktop set too (a desktop-only error boundary fails)", () => {
+    const desktop = full("d").map((c) =>
+      c.path === "/exam-trends" ? capture(c.path, "Something went wrong.") : c,
+    );
+    const failures = validateBothWidths(full("m"), desktop);
+    expect(failures.join(" ")).toContain("[desktop] /exam-trends: captured an error boundary");
+    expect(failures.every((f) => f.startsWith("[desktop]"))).toBe(true);
+  });
+
+  it("runs them on the mobile set too (surviving auth chrome at 390 px fails)", () => {
+    const mobile = full("m").map((c) =>
+      c.path === "/pricing" ? { ...c, residualAuthNodes: 1 } : c,
+    );
+    const failures = validateBothWidths(mobile, full("d"));
+    expect(failures).toEqual(["[mobile] /pricing: 1 auth-chrome node(s) survived the strip (a login link, the greeting, or a bare login button)"]);
   });
 });

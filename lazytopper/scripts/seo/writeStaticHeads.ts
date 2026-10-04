@@ -153,6 +153,53 @@ export const STATIC_PAGE_HEADS: Readonly<Record<string, PageHead>> = {
   },
 };
 
+/**
+ * SEO-5 PR-2 (D4) — the route CHUNK each advertised page needs, named by its module.
+ *
+ * ★ A NAME, NEVER A HASH. Vite names a lazy route's chunk after its module file
+ * (`lazy(() => import("./pages/desktop/DesktopNotesPage"))` emits
+ * `assets/DesktopNotesPage-<hash>.js`). This table holds only the module name; the hashed
+ * file is resolved against THE BUILD BEING STAMPED, at build time, by `applyPrerendered`
+ * (`resolveRouteChunk` / `staticImportClosure`), so no hash is ever committed and a renamed
+ * chunk can never 404 silently: a name that matches no emitted file, or more than one,
+ * FAILS THE BUILD.
+ *
+ * ★ LIVES HERE, BESIDE `STATIC_PAGE_HEADS`, SO A NEW ADVERTISED PAGE ADDS BOTH IN ONE FILE.
+ * A path with no entry also fails the build — a page that silently loses its preload is
+ * the failure this exists to prevent. The root is the ONE page with no route chunk:
+ * `Welcome` is a static import of `App.tsx`, already inside the entry chunk the shell
+ * loads. `routeChunks.guard.test.ts` ties every name here to a `lazy(() => import(...))`
+ * in `App.tsx` and to the route element that renders it.
+ */
+export interface RouteChunkEntry {
+  readonly prefix: string;
+  readonly exact: boolean;
+  readonly modules: readonly string[];
+}
+
+export const ROUTE_CHUNK_MODULES: readonly RouteChunkEntry[] = [
+  { prefix: "/", exact: true, modules: [] },
+  { prefix: "/pricing", exact: true, modules: ["PricingPage"] },
+  { prefix: "/exam-trends", exact: true, modules: ["ExamTrendsRanked"] },
+  { prefix: "/practice-hub", exact: true, modules: ["DesktopPracticePage"] },
+  { prefix: "/cbse/class-10", exact: true, modules: ["Cbse2027Page"] },
+  { prefix: "/highly-probable/", exact: false, modules: ["HighlyProbableQuestions"] },
+  { prefix: "/legal/", exact: false, modules: ["LegalPage"] },
+  { prefix: "/topic-hub/", exact: false, modules: ["DesktopTopicHubPage"] },
+  { prefix: "/notes/", exact: false, modules: ["DesktopNotesPage"] },
+];
+
+/** The route-chunk module names for one advertised path. THROWS for a path with no entry. */
+export function routeChunkModulesFor(path: string): readonly string[] {
+  for (const entry of ROUTE_CHUNK_MODULES) {
+    if (entry.exact ? path === entry.prefix : path.startsWith(entry.prefix)) return entry.modules;
+  }
+  throw new Error(
+    `writeStaticHeads: advertised path ${path} has no ROUTE_CHUNK_MODULES entry, so its ` +
+      `prerendered page cannot preload its route chunk. Add the lazy page module's name.`,
+  );
+}
+
 /** Escape a string for use as the text content of an element. */
 export function escapeText(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");

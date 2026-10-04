@@ -9,6 +9,8 @@ import {
   SPA_SHELL,
   applyArtifact,
   assetRefsIn,
+  desktopFragmentPathFor,
+  desktopVariantFile,
   fragmentPathFor,
   noindexShell,
 } from "../../scripts/seo/applyPrerendered";
@@ -74,21 +76,27 @@ function realBuild(): { out: string; cleanup: () => void } {
   // The fragments' hashed figures are emitted by `vite build`; stand them in so the
   // staleness check sees a complete build. Their bytes are irrelevant here.
   for (const path of sitemapPaths()) {
-    const fragment = readFileSync(fragmentPathFor(path), "utf8");
+    // SEO-5 PR-2: both widths' figures, since both variants are applied.
+    const fragment = readFileSync(fragmentPathFor(path), "utf8") + readFileSync(desktopFragmentPathFor(path), "utf8");
     for (const ref of assetRefsIn(fragment)) {
       const file = join(out, ref.replace(/^\/(?:[^/]*\/)?assets\//, "assets/"));
       mkdirSync(dirname(file), { recursive: true });
       writeFileSync(file, "", "utf8");
     }
   }
-  applyArtifact(out, PRERENDERED_DIR);
+  // The template here is the SOURCE index.html (no built entry chunk, no assets/), so the D4
+  // preload resolution has nothing real to resolve against; it is pinned against a built-shaped
+  // synthetic build in prerenderedApply.guard.test.ts and against the real build in CI's Build.
+  applyArtifact(out, PRERENDERED_DIR, sitemapPaths(), { preloads: false });
   return { out, cleanup: () => rmSync(out, { recursive: true, force: true }) };
 }
 
 function servedFiles(path: string): string[] {
-  if (path === "/") return ["index.html"];
+  // SEO-5 PR-2: the desktop variant is served AT THE PAGE'S OWN URL to desktop clients, so it
+  // must say `index` exactly as the mobile file does (noindex inside it would deindex the page).
+  if (path === "/") return ["index.html", desktopVariantFile("/")];
   const rel = path.slice(1);
-  return [`${rel}.html`, join(rel, "index.html")];
+  return [`${rel}.html`, join(rel, "index.html"), desktopVariantFile(path)];
 }
 
 describe("SEO-4 S1 — the shell is noindex, every sitemap page is index (real build chain)", () => {
@@ -137,7 +145,8 @@ describe("SEO-4 S1 — the shell is noindex, every sitemap page is index (real b
       // eslint-disable-next-line no-console
       console.log(`SITEMAP_INDEX: paths=${paths.length} files=${files}`);
       expect(paths).toContain("/");
-      expect(files).toBe(1 + (paths.length - 1) * 2);
+      // Root: its file + its desktop variant. Every other page: two mobile shapes + one desktop.
+      expect(files).toBe(2 + (paths.length - 1) * 3);
     } finally {
       cleanup();
     }
