@@ -37,10 +37,11 @@
  * byte-identical — verified across all 58 pairs — so one fragment fills both.)
  */
 
-import { readFileSync, writeFileSync, existsSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, readdirSync, statSync, mkdirSync } from "node:fs";
 import { join, resolve, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { sitemapPaths } from "../../src/config/sitemapUrls";
+import { routeChunkModulesFor } from "./writeStaticHeads";
 
 const LAZYTOPPER_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
@@ -133,6 +134,37 @@ function fragmentStem(path: string): string {
 }
 
 /**
+ * SEO-5 PR-2 (D1) — THE DESKTOP VARIANT'S NON-PUBLIC PREFIX.
+ *
+ * ★ TWO CAPTURES, ONE URL. Every advertised page is captured at 390 px (the MOBILE file, the
+ * default at the page's own path — what every unknown client gets) AND at 1280 px (the
+ * DESKTOP variant, under this prefix). `middleware.ts` rewrites a desktop client's request
+ * for the page's own URL to the variant, so the URL — and so the canonical — never changes.
+ *
+ * ★ NEVER ADVERTISED, NEVER INDEXABLE ON ITS OWN URL. Nothing derives a sitemap, `llms.txt`
+ * or a link from this prefix (`sitemapPaths()` is the only source of advertised URLs). A
+ * DIRECT request to `/__desktop/...` is answered with `X-Robots-Tag: noindex` by
+ * `middleware.ts` — keyed on the REQUEST path, so a rewritten request for the real URL never
+ * carries it. The variant FILE keeps the page's own `index` robots meta and canonical: it is
+ * what desktop Googlebot reads AT THE REAL URL, and a noindex inside it would deindex the page.
+ *
+ * ⚠ `middleware.ts` (repo root, no node imports) carries its own copy of this mapping as
+ * `desktopVariantPath`; `vercelMiddleware.test.ts` asserts the two agree for every advertised
+ * path, so they cannot drift apart in silence.
+ */
+export const DESKTOP_PREFIX = "__desktop";
+
+/** `/notes/x` -> `<prerendered>/__desktop/notes/x.html`; `/` -> `<prerendered>/__desktop/index.html`. */
+export function desktopFragmentPathFor(path: string, dir: string = PRERENDERED_DIR): string {
+  return join(dir, DESKTOP_PREFIX, `${fragmentStem(path)}.html`);
+}
+
+/** The built desktop variant, relative to `outDir`: `__desktop/notes/x.html`, `__desktop/index.html`. */
+export function desktopVariantFile(path: string): string {
+  return `${DESKTOP_PREFIX}/${fragmentStem(path)}.html`;
+}
+
+/**
  * `/topic-hub/trigonometry` -> `<prerendered>/topic-hub/trigonometry.html`,
  * `/` -> `<prerendered>/index.html`.
  */
@@ -140,12 +172,17 @@ export function fragmentPathFor(path: string, dir: string = PRERENDERED_DIR): st
   return join(dir, `${fragmentStem(path)}.html`);
 }
 
-/** Every `*.html` under `dir`, as advertised-style paths, for orphan detection. */
-function fragmentsPresent(dir: string): string[] {
+/**
+ * Every `*.html` under `dir`, as advertised-style paths, for orphan detection. The
+ * top-level desktop directory is NOT walked here — it is the second variant set, listed
+ * by `desktopFragmentsPresent` and validated against the same advertised set.
+ */
+function fragmentsPresent(dir: string, skipDesktop = true): string[] {
   const found: string[] = [];
   const walk = (current: string, prefix: string): void => {
     for (const entry of readdirSync(current, { withFileTypes: true })) {
       const absolute = join(current, entry.name);
+      if (skipDesktop && prefix === "" && entry.isDirectory() && entry.name === DESKTOP_PREFIX) continue;
       if (entry.isDirectory()) walk(absolute, `${prefix}/${entry.name}`);
       else if (entry.name.endsWith(".html")) {
         const path = `${prefix}/${entry.name.replace(/\.html$/, "")}`;
@@ -156,6 +193,12 @@ function fragmentsPresent(dir: string): string[] {
   };
   walk(dir, "");
   return found;
+}
+
+/** The desktop variant set, as advertised-style paths (empty when the directory is absent). */
+function desktopFragmentsPresent(dir: string): string[] {
+  const desktopDir = join(dir, DESKTOP_PREFIX);
+  return existsSync(desktopDir) ? fragmentsPresent(desktopDir, false) : [];
 }
 
 /**
@@ -184,21 +227,226 @@ export function assetRefsIn(fragment: string): string[] {
 export function validateArtifact(
   expected: readonly string[],
   present: readonly string[],
+  variant: "mobile" | "desktop" = "mobile",
 ): string[] {
   const failures: string[] = [];
   const have = new Set(present);
+  // The mobile set keeps its historical wording; the desktop set says which set it is.
+  const tag = variant === "desktop" ? " [desktop variant]" : "";
 
   for (const path of expected) {
     if (!have.has(path)) {
-      failures.push(`${path}: advertised, but no prerendered fragment exists for it`);
+      failures.push(`${path}: advertised, but no prerendered fragment exists for it${tag}`);
     }
   }
   for (const path of present) {
     if (!expected.includes(path)) {
-      failures.push(`${path}: a prerendered fragment exists for a path that is not advertised`);
+      failures.push(`${path}: a prerendered fragment exists for a path that is not advertised${tag}`);
     }
   }
   return failures;
+}
+
+/**
+ * SEO-5 PR-2 — the committed `manifest.json`'s `paths` must be EXACTLY the advertised set.
+ *
+ * ★ WHY THE MANIFEST IS LOAD-BEARING NOW. `middleware.ts` imports it as the set of paths that
+ * HAVE a desktop variant. A path in the manifest with no built variant would rewrite desktop
+ * clients to a missing file; a path missing from it would silently serve desktop the phone
+ * layout. Both variant sets are validated against the advertised set above, so holding the
+ * manifest to the same set makes the middleware's set and the built files one fact.
+ */
+export function validateManifest(expected: readonly string[], manifestJson: string | null): string[] {
+  if (manifestJson === null) {
+    return ["manifest.json: missing — middleware.ts reads its `paths` as the set of pages with a desktop variant"];
+  }
+  let paths: unknown;
+  try {
+    paths = (JSON.parse(manifestJson) as { paths?: unknown }).paths;
+  } catch (error: unknown) {
+    return [`manifest.json: not valid JSON (${String(error)})`];
+  }
+  if (!Array.isArray(paths) || !paths.every((p): p is string => typeof p === "string")) {
+    return ["manifest.json: `paths` is not an array of strings"];
+  }
+  const listed: readonly string[] = paths;
+  const failures: string[] = [];
+  for (const path of expected) {
+    if (!listed.includes(path)) failures.push(`manifest.json: advertised path ${path} is missing from its paths`);
+  }
+  for (const path of listed) {
+    if (!expected.includes(path)) failures.push(`manifest.json: its paths list ${path}, which is not advertised`);
+  }
+  return failures;
+}
+
+/**
+ * SEO-5 PR-2 (D4) — the shell's entry script: `<script type="module" crossorigin src="/assets/index-X.js">`.
+ * Returns the public base the build serves assets under (`/`) and the entry chunk's file name.
+ */
+export function entryScriptOf(shellHtml: string): { base: string; entry: string } {
+  const match = shellHtml.match(/<script\b[^>]*\btype="module"[^>]*\bsrc="([^"]*?)assets\/([^"/]+\.js)"/);
+  if (!match) {
+    throw new Error(
+      'applyPrerendered: no <script type="module" src=".../assets/*.js"> in the built shell, so the ' +
+        'route chunks cannot be resolved for <link rel="modulepreload">.',
+    );
+  }
+  return { base: match[1], entry: match[2] };
+}
+
+/**
+ * The ONE emitted chunk for a module name, from this build's `assets/` listing.
+ *
+ * ★ EXACTLY ONE, OR THE BUILD FAILS. Vite emits `<name>-<8-char hash>.js`; the pattern is
+ * anchored at both ends, so `Note` can never match `NoteModal-…` or `Note-Card-…`. Zero
+ * matches means the module was renamed or stopped being a lazy chunk; two means the name
+ * is ambiguous. Either way a preload would be wrong, and a silent wrong preload is a 404
+ * (or a wasted download) nobody notices.
+ */
+export function resolveRouteChunk(moduleName: string, assetFiles: readonly string[]): string {
+  const escaped = moduleName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(`^${escaped}-[A-Za-z0-9_-]{8}\\.js$`);
+  const hits = assetFiles.filter((file) => pattern.test(file));
+  if (hits.length !== 1) {
+    throw new Error(
+      `applyPrerendered: route module "${moduleName}" matches ${hits.length} emitted chunk(s) ` +
+        `(${hits.join(", ") || "none"}); exactly one is required to preload it. Was it renamed, ` +
+        `or did it stop being a lazy route chunk? Update ROUTE_CHUNK_MODULES in writeStaticHeads.ts.`,
+    );
+  }
+  return hits[0];
+}
+
+/**
+ * The sibling chunks an emitted ES module imports STATICALLY — `import{a}from"./x.js"`,
+ * `export*from"./x.js"`, `import"./x.js"`. A dynamic `import("./x.js")` is deliberately
+ * NOT matched (the parenthesis): that is a lazy child the page loads later, or never, not a
+ * dependency the route needs before it can render.
+ */
+export function staticImportsOf(code: string): string[] {
+  const found = new Set<string>();
+  for (const match of code.matchAll(/(?:\bfrom\s*|\bimport\s*)["']\.\/([^"'/]+\.js)["']/g)) {
+    found.add(match[1]);
+  }
+  return [...found];
+}
+
+/** `start` and every chunk it reaches through static imports, breadth-first, `start` first. */
+export function staticImportClosure(start: string, readChunk: (file: string) => string): string[] {
+  const order: string[] = [];
+  const seen = new Set<string>([start]);
+  const queue = [start];
+  while (queue.length > 0) {
+    const file = queue.shift() as string;
+    order.push(file);
+    for (const dependency of staticImportsOf(readChunk(file))) {
+      if (!seen.has(dependency)) {
+        seen.add(dependency);
+        queue.push(dependency);
+      }
+    }
+  }
+  return order;
+}
+
+/**
+ * The `<link rel="modulepreload">` hrefs for one advertised path, resolved against THIS build.
+ *
+ * ★ P9 — NO MANIFEST, NO COMMITTED HASH. The route's module name comes from
+ * `ROUTE_CHUNK_MODULES`; its hashed file from this build's `assets/` listing; its
+ * dependencies from the emitted chunk's own static imports. Chunks the entry already loads
+ * (the entry and everything IT statically imports) are left out: the shell's own
+ * `<script type="module">` already fetches them.
+ */
+export function preloadHrefsFor(
+  path: string,
+  assetsDir: string,
+  shellHtml: string,
+  assetFiles: readonly string[] = readdirSync(assetsDir),
+): string[] {
+  const { base, entry } = entryScriptOf(shellHtml);
+  const readChunk = (file: string): string => readFileSync(join(assetsDir, file), "utf8");
+  const alreadyLoading = new Set(staticImportClosure(entry, readChunk));
+  const hrefs: string[] = [];
+  for (const moduleName of routeChunkModulesFor(path)) {
+    for (const file of staticImportClosure(resolveRouteChunk(moduleName, assetFiles), readChunk)) {
+      const href = `${base}assets/${file}`;
+      if (!alreadyLoading.has(file) && !hrefs.includes(href)) hrefs.push(href);
+    }
+  }
+  return hrefs;
+}
+
+/** Insert the preload links immediately before `</head>`, which must occur exactly once. */
+export function withPreloads(html: string, hrefs: readonly string[]): string {
+  if (hrefs.length === 0) return html;
+  const closes = html.split("</head>").length - 1;
+  if (closes !== 1) {
+    throw new Error(`applyPrerendered: expected exactly one </head> to insert modulepreload links, found ${closes}`);
+  }
+  const links = hrefs.map((href) => `<link rel="modulepreload" crossorigin href="${href}">`).join("");
+  return html.replace("</head>", `${links}</head>`);
+}
+
+/** Every `<link rel="modulepreload" href>` in a built page. */
+export function modulepreloadHrefsIn(html: string): string[] {
+  const hrefs: string[] = [];
+  for (const tag of html.match(/<link\b[^>]*\brel="modulepreload"[^>]*>/g) ?? []) {
+    const href = tag.match(/\bhref="([^"]+)"/);
+    if (href) hrefs.push(href[1]);
+  }
+  return hrefs;
+}
+
+/**
+ * ★ PINS (a) AND (d), AGAINST THE REAL BUILD, ON EVERY BUILD — CI's Build step included.
+ *
+ * Re-reads what was WRITTEN, independent of how it was written: every advertised path has a
+ * filled mobile file at its own path(s) AND a filled desktop variant; every page whose route
+ * has a lazy chunk carries at least one modulepreload; and every modulepreload href names a
+ * file that exists in this build's output. A preload built from a stale or mistyped name
+ * fails HERE, in the build, instead of shipping a silent 404.
+ */
+export function verifyBuiltPages(
+  outDir: string,
+  expected: readonly string[],
+): { failures: string[]; mobileFiles: number; desktopFiles: number; preloadLinks: number } {
+  const failures: string[] = [];
+  let mobileFiles = 0;
+  let desktopFiles = 0;
+  let preloadLinks = 0;
+  for (const path of expected) {
+    const relative = path.replace(/^\//, "");
+    const mobile = path === "/" ? ["index.html"] : [`${relative}.html`, join(relative, "index.html")];
+    const files: Array<{ file: string; variant: "mobile" | "desktop" }> = [
+      ...mobile.map((file) => ({ file, variant: "mobile" as const })),
+      { file: desktopVariantFile(path), variant: "desktop" },
+    ];
+    for (const { file, variant } of files) {
+      const absolute = join(outDir, file);
+      if (!existsSync(absolute)) {
+        failures.push(`${path}: the ${variant} file ${file} was not written`);
+        continue;
+      }
+      const html = readFileSync(absolute, "utf8");
+      if (html.includes(EMPTY_ROOT)) failures.push(`${path}: the ${variant} file ${file} has an EMPTY body`);
+      const hrefs = modulepreloadHrefsIn(html);
+      if (routeChunkModulesFor(path).length > 0 && hrefs.length === 0) {
+        failures.push(`${path}: the ${variant} file ${file} carries no modulepreload for its route chunk`);
+      }
+      for (const href of hrefs) {
+        const target = join(outDir, href.replace(/^\/(?:[^/]*\/)?assets\//, "assets/"));
+        if (!/\/assets\/[^/]+\.js$/.test(href) || !existsSync(target) || !statSync(target).isFile()) {
+          failures.push(`${path}: the ${variant} file ${file} preloads ${href}, which this build did not emit`);
+        }
+      }
+      preloadLinks += hrefs.length;
+      if (variant === "mobile") mobileFiles += 1;
+      else desktopFiles += 1;
+    }
+  }
+  return { failures, mobileFiles, desktopFiles, preloadLinks };
 }
 
 async function resolveOutDir(): Promise<string> {
@@ -225,8 +473,21 @@ async function resolveOutDir(): Promise<string> {
 export interface ApplyResult {
   /** Paths filled. 0 in the pre-capture state (no artifact directory). */
   applied: number;
+  /** Mobile files: one for the root, two (both shapes) for every other path. */
   filesWritten: number;
+  /** SEO-5 PR-2 (D1): one desktop variant per path, under `__desktop/`. */
+  desktopFilesWritten: number;
   bodyBytes: number;
+  /** SEO-5 PR-2 (D4): modulepreload links resolved per path (counted once per path). */
+  preloadLinks: number;
+}
+
+export interface ApplyOptions {
+  /**
+   * Resolve and insert `<link rel="modulepreload">` (D4). Default true. Only a synthetic
+   * build with no real `assets/` passes false — the real build never does.
+   */
+  preloads?: boolean;
 }
 
 /**
@@ -244,6 +505,7 @@ export function applyArtifact(
   outDir: string,
   prerenderedDir: string = PRERENDERED_DIR,
   expected: readonly string[] = applicablePaths(),
+  options: ApplyOptions = {},
 ): ApplyResult {
   const indexHtml = join(outDir, "index.html");
   if (!existsSync(indexHtml)) {
@@ -274,11 +536,18 @@ export function applyArtifact(
         `pages keep an EMPTY BODY. This is the pre-capture state; the CI capture job has not ` +
         `committed a prerendered set yet. ${SPA_SHELL} was still written.`,
     );
-    return { applied: 0, filesWritten: 0, bodyBytes: 0 };
+    return { applied: 0, filesWritten: 0, desktopFilesWritten: 0, bodyBytes: 0, preloadLinks: 0 };
   }
 
   const present = fragmentsPresent(prerenderedDir);
-  const failures = validateArtifact(expected, present);
+  const manifestFile = join(prerenderedDir, "manifest.json");
+  const failures = [
+    ...validateArtifact(expected, present, "mobile"),
+    // SEO-5 PR-2 (D1): the desktop variant set must be complete too — a PARTIAL artifact
+    // (one width captured, or one page missing a variant) is a broken one.
+    ...validateArtifact(expected, desktopFragmentsPresent(prerenderedDir), "desktop"),
+    ...validateManifest(expected, existsSync(manifestFile) ? readFileSync(manifestFile, "utf8") : null),
+  ];
   if (failures.length > 0) {
     throw new Error(
       `applyPrerendered: the prerendered artifact does not match the advertised set ` +
@@ -289,11 +558,14 @@ export function applyArtifact(
   // Validate every fragment against THIS build before touching a single output file:
   // a half-applied artifact is the failure mode this whole area exists to prevent.
   const fragments = new Map<string, string>();
+  const desktopFragments = new Map<string, string>();
   const assetFailures: string[] = [];
   for (const path of expected) {
     const fragment = readFileSync(fragmentPathFor(path, prerenderedDir), "utf8");
+    const desktopFragment = readFileSync(desktopFragmentPathFor(path, prerenderedDir), "utf8");
     fragments.set(path, fragment);
-    for (const ref of assetRefsIn(fragment)) {
+    desktopFragments.set(path, desktopFragment);
+    for (const ref of [...new Set([...assetRefsIn(fragment), ...assetRefsIn(desktopFragment)])]) {
       // `/assets/x.webp` (or a based `/<base>/assets/x.webp`) -> `<outDir>/assets/x.webp`
       const relative = ref.replace(/^\/(?:[^/]*\/)?assets\//, "assets/");
       const absolute = join(outDir, relative);
@@ -313,13 +585,29 @@ export function applyArtifact(
     );
   }
 
+  // D4 — resolve every page's route-chunk preloads against THIS build before writing
+  // anything: a module name that resolves to no chunk (or two) fails here, with nothing
+  // half-written. `preloads` is ignored only by the synthetic-build guards that have no
+  // real `assets/` (and those assert it explicitly).
+  const assetsDir = join(outDir, "assets");
+  const preloads = new Map<string, string[]>();
+  if (options.preloads !== false) {
+    const assetFiles = readdirSync(assetsDir);
+    for (const path of expected) preloads.set(path, preloadHrefsFor(path, assetsDir, cleanShell, assetFiles));
+  }
+
   let filesWritten = 0;
+  let desktopFilesWritten = 0;
   let bodyBytes = 0;
   for (const [path, fragment] of fragments) {
     const relative = path.replace(/^\//, "");
     // The root is the one `index.html`; every other path has the two files
     // writeStaticHeads emitted for it.
     const targets = path === "/" ? ["index.html"] : [`${relative}.html`, join(relative, "index.html")];
+    const hrefs = preloads.get(path) ?? [];
+    // The stamped head for this path, read BEFORE its body is filled — the desktop variant is
+    // the same page (same head, canonical and robots) with the 1280-px body.
+    const stamped = readFileSync(join(outDir, targets[0]), "utf8");
     for (const target of targets) {
       const file = join(outDir, target);
       const shell = readFileSync(file, "utf8");
@@ -329,26 +617,59 @@ export function applyArtifact(
             `shape, or this step ran twice.`,
         );
       }
-      writeFileSync(file, shell.replace(EMPTY_ROOT, `<div id="root">${fragment}</div>`), "utf8");
+      writeFileSync(file, withPreloads(shell.replace(EMPTY_ROOT, `<div id="root">${fragment}</div>`), hrefs), "utf8");
       filesWritten += 1;
     }
-    bodyBytes += Buffer.byteLength(fragment, "utf8");
+    const desktopFile = join(outDir, desktopVariantFile(path));
+    mkdirSync(dirname(desktopFile), { recursive: true });
+    const desktopFragment = desktopFragments.get(path) as string;
+    writeFileSync(
+      desktopFile,
+      withPreloads(stamped.replace(EMPTY_ROOT, `<div id="root">${desktopFragment}</div>`), hrefs),
+      "utf8",
+    );
+    desktopFilesWritten += 1;
+    bodyBytes += Buffer.byteLength(fragment, "utf8") + Buffer.byteLength(desktopFragment, "utf8");
   }
-  return { applied: fragments.size, filesWritten, bodyBytes };
+  return {
+    applied: fragments.size,
+    filesWritten,
+    desktopFilesWritten,
+    bodyBytes,
+    preloadLinks: [...preloads.values()].reduce((total, list) => total + list.length, 0),
+  };
 }
 
 async function main(): Promise<void> {
   const outDir = await resolveOutDir();
-  const { applied, filesWritten, bodyBytes } = applyArtifact(outDir);
+  const { applied, filesWritten, desktopFilesWritten, bodyBytes, preloadLinks } = applyArtifact(outDir);
 
   // ★ Names its subject on every run, green included: a run that silently applied
   // nothing must be visible in the build log rather than reading as success.
   // eslint-disable-next-line no-console
   console.log(
     `STATIC_BODIES_APPLY: outDir=${outDir} advertised=${sitemapPaths().length} ` +
-      `applied=${applied} (root included) files=${filesWritten} shell=${SPA_SHELL} ` +
-      `body_bytes_total=${bodyBytes}`,
+      `applied=${applied} (root included) files=${filesWritten} desktop_files=${desktopFilesWritten} ` +
+      `shell=${SPA_SHELL} body_bytes_total=${bodyBytes} preload_links_per_page_total=${preloadLinks}`,
   );
+
+  // ★ PINS (a) + (d) AGAINST THIS REAL BUILD — re-read from disk, independent of the writer.
+  // Skipped only in the pre-capture state, where nothing was applied to verify.
+  if (applied > 0) {
+    const verified = verifyBuiltPages(outDir, applicablePaths());
+    // eslint-disable-next-line no-console
+    console.log(
+      `PRERENDER_DEVICE_VERIFY: pages=${applicablePaths().length} mobile_files=${verified.mobileFiles} ` +
+        `desktop_files=${verified.desktopFiles} modulepreload_links=${verified.preloadLinks} ` +
+        `failures=${verified.failures.length}`,
+    );
+    if (verified.failures.length > 0) {
+      throw new Error(
+        `applyPrerendered: ${verified.failures.length} built page(s) failed verification.\n  - ` +
+          verified.failures.join("\n  - "),
+      );
+    }
+  }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

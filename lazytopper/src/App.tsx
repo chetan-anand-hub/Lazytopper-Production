@@ -7,7 +7,7 @@ import Welcome from "./pages/Welcome";
 // Import the new Vibe toggle and command palette components.
 
 import { CommandPalette } from './ui/components/CommandPalette';
-import { useState, useEffect, Suspense } from "react"; import { lazyWithRetry as lazy } from "./lib/lazyWithRetry";
+import { useState, useEffect, Suspense, createContext, useCallback, useContext, useLayoutEffect, useMemo, useRef } from "react"; import { lazyWithRetry as lazy } from "./lib/lazyWithRetry";
 import { useVibeMode } from './context/vibeModeContext';
 import { parseCommandIntent } from "./services/commandIntent";
 import { normalizeTopicKey } from "./utils/topicResolver";
@@ -124,8 +124,115 @@ function RouteFallback() {
   );
 }
 
+/**
+ * SEO-5 PR-2 (D3) — THE FIRST ROUTE NEVER SWAPS VISIBLE CONTENT FOR "Loading...".
+ *
+ * ★ THE DEFECT. Every advertised page is served prerendered: the HTML already holds the
+ * page. `main.tsx` mounts with `createRoot` (no hydration), whose first commit replaces that
+ * HTML with React's tree — and React's tree for a lazy route is, until the route's chunk
+ * arrives, `RouteFallback`: a "Loading..." card. Measured on Notes: 3.1 s (Slow 4G) and
+ * 10.3 s (3G) of "Loading..." where the page had already been readable.
+ *
+ * ★ THE FIX, AND WHY IT IS THE ROUTE'S MARKUP AND NOT THE WHOLE PAGE'S. The chrome around a
+ * route (header, DesktopShell, MobileSelfChrome, BottomNav) is rendered by React OUTSIDE this
+ * boundary, so it is correct from React's first commit. Only the region INSIDE the boundary is
+ * missing, so the fallback renders exactly that region, as it was prerendered. The region is
+ * delimited by two `<template data-lt-route>` marks every route boundary renders (start, end);
+ * the capture serializes them with the DOM, and `main.tsx` cuts out what lies between them
+ * (`extractPrerenderedRoute`) before `createRoot` discards it.
+ *
+ *   - FIRST route only: the start mark's effect (it runs only when the boundary COMMITS its
+ *     real content) clears the markup, so every later navigation suspends to today's
+ *     `RouteFallback`, unchanged.
+ *   - Same path only: if the first route redirected (a signed-in student on `/` is sent to
+ *     `/browse`), the markup is not for this page and `RouteFallback` is shown, as today.
+ *   - No markup (a non-prerendered route, the clean `__shell.html`): `RouteFallback`, as today.
+ *
+ * `<template>` renders nothing and takes no layout. The markup is inserted as plain DOM after
+ * an anchor — not inside a wrapper element, which would change the page's box structure for
+ * the length of the fallback — and removed when the fallback unmounts.
+ */
+export interface PrerenderedRoute {
+  /** The router path the markup was served for (`window.location.pathname` minus the basename). */
+  path: string;
+  /** The route region's prerendered markup: everything between the start and end marks. */
+  html: string;
+}
+
+/** The attribute on the two marks every route boundary renders. */
+export const ROUTE_MARK_ATTR = "data-lt-route";
+
+/**
+ * The prerendered region of the FIRST route boundary under `container` — the nodes strictly
+ * between its start mark and the last end mark among the same siblings — or null when there
+ * is none (no prerendered markup, an empty region, or marks that do not pair up).
+ */
+export function extractPrerenderedRoute(container: Element | null, path: string): PrerenderedRoute | null {
+  if (!container) return null;
+  const start = container.querySelector(`template[${ROUTE_MARK_ATTR}="start"]`);
+  const parent = start?.parentNode;
+  if (!start || !parent) return null;
+  let end: Node | null = null;
+  for (let node = start.nextSibling; node; node = node.nextSibling) {
+    if (node instanceof Element && node.tagName === "TEMPLATE" && node.getAttribute(ROUTE_MARK_ATTR) === "end") end = node;
+  }
+  if (!end) return null;
+  const holder = document.createElement("div");
+  for (let node = start.nextSibling; node && node !== end; node = node.nextSibling) {
+    holder.appendChild(node.cloneNode(true));
+  }
+  const html = holder.innerHTML;
+  return html.trim() === "" ? null : { path, html };
+}
+
+interface PrerenderedRouteState {
+  route: PrerenderedRoute | null;
+  markReady: () => void;
+}
+
+const PrerenderedRouteContext = createContext<PrerenderedRouteState>({ route: null, markReady: () => {} });
+
+/** The two marks around a route's content. The start mark ends the first-route markup's life. */
+function RouteBoundaryMark({ edge }: { edge: "start" | "end" }) {
+  const { markReady } = useContext(PrerenderedRouteContext);
+  useEffect(() => {
+    if (edge === "start") markReady();
+  }, [edge, markReady]);
+  return <template data-lt-route={edge} />;
+}
+
+/** The prerendered region, inserted after an anchor before the browser paints, removed on unmount. */
+function PrerenderedRouteBody({ html }: { html: string }) {
+  const anchor = useRef<HTMLTemplateElement>(null);
+  useLayoutEffect(() => {
+    const at = anchor.current;
+    if (!at || !at.parentNode) return undefined;
+    const parsed = document.createElement("template");
+    parsed.innerHTML = html;
+    const nodes = Array.from(parsed.content.childNodes);
+    at.after(...nodes);
+    return () => {
+      for (const node of nodes) node.parentNode?.removeChild(node);
+    };
+  }, [html]);
+  return <template data-lt-route="prerendered" ref={anchor} />;
+}
+
+function RouteSuspenseFallback() {
+  const { route } = useContext(PrerenderedRouteContext);
+  const { pathname } = useLocation();
+  if (route && route.path === pathname) return <PrerenderedRouteBody html={route.html} />;
+  return <RouteFallback />;
+}
+
 function withRouteSuspense(node: React.ReactNode) {
-  return <Suspense fallback={<RouteFallback />}>{node}</Suspense>;
+  return (
+    <Suspense fallback={<RouteSuspenseFallback />}>
+      <RouteBoundaryMark edge="start" />
+      {node}
+      <RouteBoundaryMark edge="end" />
+    </Suspense>
+  );
 }
 
 function MentorRedirect() {
@@ -565,7 +672,14 @@ function isDesktopShellRoute(pathname: string, hasSession: boolean = true): bool
   return false;
 }
 
-export default function App() {
+export default function App({ prerenderedRoute = null }: { prerenderedRoute?: PrerenderedRoute | null } = {}) {
+  // SEO-5 PR-2 (D3) — the first route's prerendered markup, until that route is ready.
+  const [firstRoute, setFirstRoute] = useState<PrerenderedRoute | null>(prerenderedRoute);
+  const markFirstRouteReady = useCallback(() => setFirstRoute(null), []);
+  const prerenderedRouteState = useMemo(
+    () => ({ route: firstRoute, markReady: markFirstRouteReady }),
+    [firstRoute, markFirstRouteReady],
+  );
   const [isPaletteOpen, setPaletteOpen] = useState(false);
   const [headerStreak, setHeaderStreak] = useState(0);
   const navigate = useNavigate();
@@ -727,7 +841,7 @@ export default function App() {
   }, []);
 
   return (
-    <>
+    <PrerenderedRouteContext.Provider value={prerenderedRouteState}>
       {/* Per-route canonical + og:url. Mounted ONCE here, not per route: it reads
           useLocation() and resolves the URL itself, so it cannot be defeated by a
           duplicate <Route path> whose second registration never renders. */}
@@ -1256,6 +1370,6 @@ export default function App() {
       })()}
       </ErrorBoundary>
       <BottomNav />
-    </>
+    </PrerenderedRouteContext.Provider>
   );
 }

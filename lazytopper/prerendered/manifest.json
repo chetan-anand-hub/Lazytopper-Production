@@ -3,6 +3,21 @@
   "appApiCallsObserved": [
     "/api/cbse-exam-date"
   ],
+  "desktopPrefix": "__desktop",
+  "viewports": {
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "isMobile": true,
+      "hasTouch": true
+    },
+    "desktop": {
+      "width": 1280,
+      "height": 900,
+      "isMobile": false,
+      "hasTouch": false
+    }
+  },
   "paths": [
     "/",
     "/cbse/class-10",

@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
-import App from "./App";
+import App, { extractPrerenderedRoute } from "./App";
 import "./styles.css";
 import { AuthProvider } from "./context/AuthContext";
 import { ProfileProvider } from "./context/ProfileContext";
@@ -25,7 +25,18 @@ import RouteAnalytics from "./analytics/RouteAnalytics";
 // whispering into a browser console. Deleting the call without that test would have
 // been deleting the check.
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+// SEO-5 PR-2 (D3) — KEEP THE FIRST ROUTE'S PRERENDERED MARKUP. `createRoot` (no hydration —
+// unchanged) discards whatever the served HTML put in #root on its first commit. Cut the route
+// region out first, so the first route's Suspense fallback can show THAT instead of
+// "Loading..." until the route is ready (see `withRouteSuspense` in App.tsx). Null on any
+// page that was not prerendered, which then behaves exactly as before.
+const rootElement = document.getElementById("root") as HTMLElement;
+const prerenderedRoute = extractPrerenderedRoute(
+  rootElement,
+  window.location.pathname.slice(import.meta.env.BASE_URL.replace(/\/$/, '').length) || "/",
+);
+
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
       {/* Page views for a client-side router: one document load, then every "page" is a
@@ -38,7 +49,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
           <SmartLearningProvider>
             <VibeProvider>
               <ThemeProvider>
-                <App />
+                <App prerenderedRoute={prerenderedRoute} />
               </ThemeProvider>
             </VibeProvider>
           </SmartLearningProvider>
