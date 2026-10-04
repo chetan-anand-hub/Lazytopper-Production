@@ -19,11 +19,6 @@ on:
   schedule:
     - cron: "30 0 * * 1"
   workflow_dispatch:
-  # TEMPORARY (P8 live proof) - removed in the next commit; never on the final head.
-  pull_request:
-    paths:
-      - .github/workflows/index-status.yml
-      - lazytopper/scripts/seo/indexStatusReport.ts
 
 permissions:
   contents: read
