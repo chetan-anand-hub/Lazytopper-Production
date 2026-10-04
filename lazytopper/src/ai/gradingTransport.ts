@@ -120,11 +120,14 @@ export function newIdempotencyKey(): string {
 
 /* ── R1 · backoff ─────────────────────────────────────────────────────────── */
 
-/** A fraction in [0, 1) for jitter — Web Crypto, not Math.random (CLAUDE.md §7). */
+/**
+ * A fraction in [0, 1) for jitter. Jitter only spreads retries out in time; it is not
+ * user-facing data (CLAUDE.md §7) and not a secret, so Math.random is the right tool —
+ * scaling a Web Crypto value here was flagged by CodeQL (js/biased-cryptographic-random)
+ * for a property this value does not need.
+ */
 function jitterFraction(): number {
-  const b = randomBytes(2);
-  if (!b) return 0.5;
-  return ((b[0] << 8) | b[1]) / 65536;
+  return Math.random();
 }
 
 /** The wait before retry `n` (1-based): base * 2^(n-1) + jitter in [0, base * 2^(n-1)). */
