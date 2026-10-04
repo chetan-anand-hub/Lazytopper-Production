@@ -1,0 +1,1179 @@
+{
+ "targetYear": "2026",
+ "chapters": {
+  "real-numbers": {
+   "n": 252,
+   "sha256": "9067309b0c8569dfd7f5a52e79364600f8cc015369e4b390ada7a547deb11b22",
+   "head": [
+    "RNX2-A-003",
+    "RN-N-NCERT-1-MCQ-004",
+    "CFPQ-M-REALNUM-001"
+   ]
+  },
+  "polynomials": {
+   "n": 277,
+   "sha256": "5dea266ade4243e9a1b65ef1f09ef834c32897feba1a5c0e3dc9e2f79400d058",
+   "head": [
+    "BX-POLY-E-024",
+    "BX-POLY-E-023",
+    "BX-POLY-E-019"
+   ]
+  },
+  "pair-of-linear-equations": {
+   "n": 396,
+   "sha256": "3876cecf9e2a20e03c3ef2663c4987c4dbfc165af1c5ade8bb6e99f56e0dd4b5",
+   "head": [
+    "BX-PLE-E-022",
+    "BX-PLE-E-023",
+    "BX-PLE-E-029"
+   ]
+  },
+  "quadratic-equations": {
+   "n": 346,
+   "sha256": "e2f7d05a6892607d591ed7e8e0c3b483546501e82dd67a7fba311a9d3ff477ec",
+   "head": [
+    "QE-N-NCERT-4-AR-001",
+    "QE-N-EXMPLR-4-AR-001",
+    "QE-N-EXMPLR-4-AR-002"
+   ]
+  },
+  "arithmetic-progression": {
+   "n": 357,
+   "sha256": "8dc0b2a77f8f2597b023e2ab137492d70a07b35072f90b3e0b9ec5073af33955",
+   "head": [
+    "Z3-AP-010",
+    "BX-AP-E-022",
+    "BX-AP-E-024"
+   ]
+  },
+  "triangles": {
+   "n": 428,
+   "sha256": "d2bc29607abe0365fa9a32390933870af1057e637ea7d15ab7621bf8aa01adb3",
+   "head": [
+    "BX-TRI-E-028",
+    "BX-TRI-E-036",
+    "BX-TRI-E-012"
+   ]
+  },
+  "coordinate-geometry": {
+   "n": 305,
+   "sha256": "9898067c9a925a3676766dc0df552b2c7dbec0754d283bae79fad8d875d14413",
+   "head": [
+    "BX-COORD-E-014",
+    "BX-COORD-E-016",
+    "BX-COORD-E-020"
+   ]
+  },
+  "trigonometry": {
+   "n": 432,
+   "sha256": "916fbd028e43b21c1d9c2b468f6bcbc4b3c5f24d699633f91c7c6f866a2343a2",
+   "head": [
+    "Z3-TG-003",
+    "Z3-TG-006",
+    "Z3-TG-101"
+   ]
+  },
+  "circles": {
+   "n": 237,
+   "sha256": "753c44a88230711e0972742ec150b72d322bec18c511b8df48b182da4124f8d6",
+   "head": [
+    "CIRC-N-NCERT-10-CB-001",
+    "Z3-CI-001",
+    "CIRC-N-EXEM-10-CB-001"
+   ]
+  },
+  "areas-related-to-circles": {
+   "n": 229,
+   "sha256": "b1dbd40deb38857aa38f97a1e23cb0d05b22f0829fe09c95cbbc9d4f97df89c0",
+   "head": [
+    "Z3-ARC-001",
+    "Z3-ARC-003",
+    "CBE-M-ARC-E-001"
+   ]
+  },
+  "surface-areas-and-volumes": {
+   "n": 207,
+   "sha256": "77293caffeb8acef48cd632675fac28935d293ee2040c3c39af4b8dcc4600749",
+   "head": [
+    "SAV-N-NCERT-12-CB-002",
+    "SAV-N-NCERT-12-CB-001",
+    "SAV-N-EXMPLR-12-CB-001"
+   ]
+  },
+  "statistics": {
+   "n": 213,
+   "sha256": "9f5c26001dc803668b40f3681db9fb5d4632db5d6c954093ccdfef6d674eba10",
+   "head": [
+    "STAT-N-NCERT-13-CB-001",
+    "Z3-ST-001",
+    "Z3-ST-002"
+   ]
+  },
+  "probability": {
+   "n": 230,
+   "sha256": "b95d3af5836d168f505deb8772afa07c3feeec4b8e8863dd3d6de951be1bb6f6",
+   "head": [
+    "PROB-N-NCERT-14-CB-001",
+    "PROB-N-EXEM-14-CB-001",
+    "Z3-PR-001"
+   ]
+  },
+  "chemical-reactions-and-equations": {
+   "n": 448,
+   "sha256": "c19889eec223bf027ade86d48acbe378e4588385ab85b5622cb4c18ac9d989f7",
+   "head": [
+    "BX-CHEM-E-063",
+    "BX-CHEM-E-056",
+    "BX-CHEM-E-061"
+   ]
+  },
+  "acids-bases-and-salts": {
+   "n": 477,
+   "sha256": "396387b2b20649c838c4cf4039d6b98f6c8eb54e0b1d74f892d214dd87e06d23",
+   "head": [
+    "BX-ABS-E-002",
+    "BX-ABS-E-004",
+    "BX-ABS-E-001"
+   ]
+  },
+  "metals-and-non-metals": {
+   "n": 427,
+   "sha256": "fbfdaff3b0f82817e4e4e13302a836f16679149e3437328f90818f1ee3576fd2",
+   "head": [
+    "BX-MNM-E-014",
+    "SQP-S-2023-MNM-E-001",
+    "BX-MNM-E-017"
+   ]
+  },
+  "carbon-and-its-compounds": {
+   "n": 296,
+   "sha256": "f9982c2a9ed942ea477d826444b4ed3a15e4127076c958b936b1de3b6bf03497",
+   "head": [
+    "APQ-S-CARB-004",
+    "SQP-S-CC-002",
+    "SP-S-2023-CARB-E-001"
+   ]
+  },
+  "light-reflection-and-refraction": {
+   "n": 707,
+   "sha256": "0a542f5b0912810d8e738aa586dff2ec385969050df23d2bc1636155fad9cd02",
+   "head": [
+    "LIGHT-EXMPLR-9-MCQ-016",
+    "LIGHT-EXMPLR-9-MCQ-017",
+    "CFPQ-S-LGHT-006"
+   ]
+  },
+  "human-eye-and-colourful-world": {
+   "n": 225,
+   "sha256": "3b8f3afdfe514f4efd8d6eb84fd687a18079e48cbf49470f0e89f206dadcda6b",
+   "head": [
+    "CBE-S-HEYE-E-002",
+    "CFPQ-S-EYE-009",
+    "CBE-S-HEYE-E-001"
+   ]
+  },
+  "electricity": {
+   "n": 316,
+   "sha256": "aee06959743ba42cb80fd4548fd5828830ed26690e6e37abe200df41c338934e",
+   "head": [
+    "PYQ-S-2026-ELEC-002",
+    "CASE-SCI-EL-001",
+    "AR-EL-010"
+   ]
+  },
+  "magnetic-effects-of-electric-current": {
+   "n": 221,
+   "sha256": "7aa588049a1f5514bff140bdeeabbe087fa3d963dfab6944980181287c5efe36",
+   "head": [
+    "CBE-S-MAGN-E-001",
+    "SQP-S-2023-MAGN-A-002",
+    "SP-S-2023-MAGN-A-001"
+   ]
+  },
+  "life-processes": {
+   "n": 510,
+   "sha256": "77904ad0936feb1e6a337f4e022d9c33058bc8c610afe93b8699d0ba003b4844",
+   "head": [
+    "AR-LP-003",
+    "PYQ-S-2024-LIFEP-008",
+    "AR-LP-004"
+   ]
+  },
+  "control-and-coordination": {
+   "n": 287,
+   "sha256": "9b65a537a8bcf81be4b298a80448efc2b37dd77a961f080343c00c13d4b2874b",
+   "head": [
+    "CBE-S-CTRL-E-001",
+    "PYQ-S-2026-CTRL-010",
+    "PYQ-S-2025-CTRL-009"
+   ]
+  },
+  "how-do-organisms-reproduce": {
+   "n": 429,
+   "sha256": "8e72a6c05d3bd51520644809cd3ed5573829e0dde722fe0b3c85bb9f59f97f80",
+   "head": [
+    "BX-REP-EX-A-017",
+    "REPR-EXMPLR-7-MCQ-018",
+    "PYQ-S-2024-REPR-007"
+   ]
+  },
+  "heredity": {
+   "n": 241,
+   "sha256": "babadbcd13e84074a69bc1763236a8eb1f61f9f82ca9fe793b37c26a590c714b",
+   "head": [
+    "SQP-S-HER-003",
+    "SP-S-2023-HERD-E-001",
+    "APQ-S-HERED-004"
+   ]
+  },
+  "our-environment": {
+   "n": 255,
+   "sha256": "1b82a555aec47b8bfab068b41f57a82efa5a7b38f2d0590d1a6e29ae85b3d0fa",
+   "head": [
+    "CBE-S-ENVI-E-002",
+    "CBE-S-ENVI-E-003",
+    "CBE-S-ENVI-E-004"
+   ]
+  }
+ },
+ "concepts": {
+  "real-numbers": {
+   "n": 36,
+   "sha256": "9e14791eac722206b37dd931853cfb2be5f79b28a716cf65de6eadb86091aa5e",
+   "head": [
+    "Assertion-Reasoning\tRN2-040,RN2-041",
+    "Decimal Expansion\tRN-N-NCERT-1-CB-002,RN-N-EXMPLR-1-CB-002,RN-N-NCERT-1-AR-001,RN-N-EXMPLR-1-MCQ-005,RN-N-EXMPLR-1-SA-004,RN-N-EXMPLR-1-SA-005,RN-N-EXMPLR-1-SA-007,RN-N-NCERT-1-SA-004,RN-N-NCERT-1-MCQ-003,RN2-058,RN2-056,RN2-057",
+    "Decimal Expansions\tRN-N-NCERT-1-CB-002,RN-N-EXMPLR-1-CB-002,RN-N-NCERT-1-AR-001,RN-N-EXMPLR-1-MCQ-005,RN-N-EXMPLR-1-SA-004,RN-N-EXMPLR-1-SA-005,RN-N-EXMPLR-1-SA-007,RN-N-NCERT-1-SA-004,RN-N-NCERT-1-MCQ-003,RN2-058,RN2-056,RN2-057"
+   ]
+  },
+  "polynomials": {
+   "n": 49,
+   "sha256": "b063f2ae266d95f3c8f4175c24b3c5724fbfb0225e455629fae8226e3f479dbe",
+   "head": [
+    "Coefficient–root Relations\tCFPQ-M-POLY-008,CFPQ-M-POLY-006,CFPQ-M-POLY-010,CFPQ-M-POLY-003,2026-POLY-MCQ-05,POLY-H10,POLY-M05,POLY-M14,POLY-M12,POLY-M20,POLY-E14,POLY-H02,POLY-H04,POLY-H06,POLY-H08,POLY-H12,POLY-M01,POLY-M03,POLY-M07,POLY-M10,POLY-M16,POLY-M19,POLY-E11,POLY-E20,POLY-E02,POLY-E05,POLY-E08,POLY-E17,POLY-H15,POLY-H07-R,POLY-H13",
+    "Constructing a Polynomial\tBX-POLY-E-005,BX-POLY-E-007,BX-POLY-E-009,BX-POLY-E-021,BX-POLY-E-022,POLY-N-NCERT-2-CB-001,BX-POLY-E-008,BX-POLY-E-025,BX-POLY-E-006,BX-POLY-EX-A-007,POLY-N-EXEM-2-MCQ-002,BX-POLY-EX-C-003,POLY-N-NCERT-2-SA-003,POLY-N-NCERT-2-SA-004,POLY-N-EXEM-2-SA-004,POLY-N-NCERT-2-VSA-003,POLY-N-NCERT-2-CRE-001,POLY-N-EXEM-2-CRE-001,BX-POLY-D-017,BX-POLY-D-019,BX-POLY-D-020,BX-POLY-D-021,BX-POLY-D-022",
+    "Counting Polynomials with Given Zeroes\tPOLY-N-EXEM-2-MCQ-004"
+   ]
+  },
+  "pair-of-linear-equations": {
+   "n": 69,
+   "sha256": "6d00ac14a89f22a926ec601b01fe3f12861bb27a9b89080668b0e4c382a52ac5",
+   "head": [
+    "Algebraic Methods — Substitution\tCBE-M-PLE-B-003",
+    "Algebraic Solution\tBX-PLE-EX-A-013,BX-PLE-EX-A-011,BX-PLE-EX-C-018,2026-PLE-MCQ-01,2026-PLE-MCQ-08,PLE-M15,2026-PLE-SA-03,2026-PLE-SA-10,PLE-M13,PLE-E15,PLE-E20,PLE-M01,PLE-M03,PLE-M09,PLE-M18,PLE-H01,PLE-H03,PLE-H05,PLE-H12,PLE-M07,PLE-E05,PLE-E08,PLE-E12,PLE-E18,PLE-H07,PLE-H10,PLE-E03,PLE-E06,PLE-E10",
+    "Algebraic Solution (Symmetric Coefficients)\tBX-PLE-EX-A-013,BX-PLE-EX-A-011,BX-PLE-EX-C-018"
+   ]
+  },
+  "quadratic-equations": {
+   "n": 45,
+   "sha256": "937cdb9ca9be7d3a90ef81aea736b8af9d4ceba3f91a48f278ad34e3161642de",
+   "head": [
+    "Algebraic Solution\t2026-QE-SA-03,2026-QE-SA-09,QE-M15,QE-M10,QE-E16,QE-M18,QE-E02,QE-E05,QE-E09,QE-E12,QE-E19,QE-M01,QE-M04,QE-M07,QE-M12,QE-M16,QE-E06,QE-E10,QE-E13,QE-E17,QE-H01,QE-H04,QE-H10,QE-H13,QE-H07,QE-E01,QE-E08,QE-E15",
+    "Applications of Quadratic Equations\tBX-QUAD-E-004,BX-QUAD-E-014,BX-QUAD-E-019,BX-QUAD-E-020,BX-QUAD-E-034,BX-QUAD-E-043,BX-QUAD-E-044,BX-QUAD-E-011,BX-QUAD-E-021,BX-QUAD-E-038,BX-QUAD-E-001,BX-QUAD-E-002,BX-QUAD-E-003,BX-QUAD-E-005,BX-QUAD-E-006,BX-QUAD-E-007,BX-QUAD-E-008,BX-QUAD-E-009,BX-QUAD-E-010,BX-QUAD-E-012,BX-QUAD-E-013,BX-QUAD-E-015,BX-QUAD-E-016,BX-QUAD-E-017,BX-QUAD-E-018,BX-QUAD-E-022,BX-QUAD-E-025,BX-QUAD-E-026,BX-QUAD-E-027,BX-QUAD-E-028,BX-QUAD-E-029,BX-QUAD-E-033,BX-QUAD-E-035,BX-QUAD-E-036,BX-QUAD-E-039,2026-QE-SA-01,BX-QUAD-D-030,BX-QUAD-D-050,BX-QUAD-D-051,BX-QUAD-D-010,BX-QUAD-D-009,BX-QUAD-D-012,BX-QUAD-D-013,BX-QUAD-D-014,BX-QUAD-D-015,BX-QUAD-D-016,BX-QUAD-D-018,BX-QUAD-D-021,BX-QUAD-D-025,BX-QUAD-D-026,BX-QUAD-D-027,BX-QUAD-D-028,BX-QUAD-D-035,BX-QUAD-D-036,BX-QUAD-D-037,BX-QUAD-D-038,BX-QUAD-D-039,BX-QUAD-D-043,BX-QUAD-D-045,BX-QUAD-D-049,BX-QUAD-D-052",
+    "Assertion-Reasoning\tQE2-025,QE2-026,QE2-027,QE2-028,QE2-024"
+   ]
+  },
+  "arithmetic-progression": {
+   "n": 68,
+   "sha256": "55226aba03093b9054498d860ad0d454378baa164d6575256538806205e7b82c",
+   "head": [
+    "AP from Sum Formula\tAP-N-EXEM2-5-SA-007",
+    "AP from nth Term\tPYQ-M-2026-AP-001,PYQ-M-AP-001,PYQ-M-AP-004,AP-N-EXEM-5-VSA-003,2026-AP-MCQ-05,2026-AP-SA-07,AP-M05,AP-AR05,AP2-055,AP-E09,AP-E14,AP-E19,AP-H03,AP-H08,AP-H13,AP-M01,AP-M09,AP-M14,AP-M17,AP-E05,AP-E15,AP-E04,AP-E07,AP-E01,AP-E02,AP-E11,AP-N01,AP2-044,AP2-047,AP2-051,AP2-053",
+    "AP in History of Mathematics\tAP-N-EXEM2-5-MCQ-008"
+   ]
+  },
+  "triangles": {
+   "n": 53,
+   "sha256": "8137da335cf02cac1808d69ab3e36e94b141a2d69fc263f99d5aa482664b5c65",
+   "head": [
+    "Area Ratio\tCBE-M-TRI-C-006,2026-TRI-P1-E-001,2026-TRI-P1-A-004,2026-TRI-P1-B-006,2026-TRI-P1-C-003,2026-TRI-P1-D-002,2026-TRI-MCQ-03,TRI2-AR01,TRI2-M03,TRI2-H06,TRI2-E08,TRI2-E15,TRI2-E19",
+    "Area Ratio & Similarity\t2026-TRI-MCQ-03,TRI2-E15,TRI2-E19",
+    "Area Ratio of Similar Triangles\tCBE-M-TRI-A-002,CBE-M-TRI-C-003,CBE-M-TRI-C-007,CBE-M-TRI-C-004,CBE-M-TRI-C-005,CBE-M-TRI-C-006,2026-TRI-P1-E-001,2026-TRI-P1-A-004,2026-TRI-P1-B-006,2026-TRI-P1-C-003,2026-TRI-P1-D-002,TRI2-AR01,TRI2-M03,TRI2-H06,TRI2-E08,TRI2-E15,TRI2-E19"
+   ]
+  },
+  "coordinate-geometry": {
+   "n": 63,
+   "sha256": "c8b75c33f54eb38fbb745e72eeb6fd6dd13e264bb49885a4501bbc89b6b49d36",
+   "head": [
+    "Area of Triangle\tCG-N-NCERT-7-EX-030,CG-N-EXMPLR-7-EX-006,CG-N-NCERT-7-EX-011,CG-N-NCERT-7-EX-027,CG-N-EXMPLR-7-EX-019,CG-N-NCERT-7-EX-026,CG-N-NCERT-7-EX-029,CG-N-EXMPLR-7-EX-021,CG2-057,CG-ND02,CG-N05,CG2-052",
+    "Area of Triangle from Coordinates\tCG-N-NCERT-7-EX-030,CG-N-EXMPLR-7-EX-006,CG-N-NCERT-7-EX-011,CG-N-NCERT-7-EX-027,CG-N-EXMPLR-7-EX-019,CG-N-NCERT-7-EX-026,CG-N-NCERT-7-EX-029,CG-N-EXMPLR-7-EX-021,CG2-057,CG-ND02,CG-N05,CG2-052",
+    "Case-Based — Football Field Coordinates\tSQP-M-CG-003"
+   ]
+  },
+  "trigonometry": {
+   "n": 57,
+   "sha256": "3a63ea1449d83b340fb248327133b4df0e4c3caa4742ec0de962daf55c73744b",
+   "head": [
+    "Angle of Depression\tTRIG-N-NCERT-9-CB-002,TRIG-N-NCERT-9-CB-001,APQ-M-TRIG-009",
+    "Angle of Elevation\tTRIG-N-EXMPLR-9-MCQ-001,SQP-M-TRIG-003,TRIG-N-EXMPLR-9-SA-001,TRIG-N-EXMPLR-9-SA-002,TRIG-N-EXMPLR-9-SA-003,TRIG-N-NCERT-9-LA-003,TRIG-N-EXMPLR-9-SA-006,TRIG-N-NCERT-9-SA-004,TRIG-N-EXMPLR-9-SA-004",
+    "Application/Heights & Distances\tTRIG-N-EXMPLR-9-CB-002,TRIG-N-EXMPLR-9-CB-001,PYQ-M-2025-TRIG-004,PYQ-M-2025-TRIG-005,2026-TRIG-LA-05,2026-TRIG-CASE-14,PYQ-M-2026-TRIG-002,AR-TRIG-006,AR-TRIG-009,PYQ-M-2024-TRIG-004,PYQ-M-2024-TRIG-005,CBE-M-TRIG-B-009,CBE-M-TRIG-B-010,PB-M-1-TRIG-C-001,TRIG-N-NCERT-9-LA-001,TRIG-N-NCERT-9-LA-002,TRIG-N-NCERT-9-SA-003,TRIG-N-NCERT-9-LA-004,TRIG-N-NCERT-9-LA-005,TRIG-N-NCERT-9-LA-006,TRIG-N-EXMPLR-9-LA-003,TRIG-PRF-C-005,CBE-M-TRIG-B-008,CBE-M-TRIG-C-004,CBE-M-TRIG-C-005,TRIG-N-NCERT-9-SA-001,TRIG-N-NCERT-9-SA-002,TRIG-N-NCERT-9-SA-005,TRIG-N-EXMPLR-9-SA-005,TRIG-N-EXMPLR-9-LA-001,TRIG-N-EXMPLR-9-LA-002,TRIG-N-EXMPLR-9-LA-004,TRIG-N-EXMPLR-9-LA-005,TRIG-N-EXMPLR-9-LA-006,TRIG-PRF-D-005,CBE-M-TRIG-B-005,PB-M-1-TRIG-C-002,PB-M-2-TRIG-C-001,PB-M-2-TRIG-C-002,PYQ-M-TRIG-008,PYQ-M-TRIG-009,PYQ-M-TRIG-010,PYQ-M-2026-TRIG-001,2026-TRIG-LA-02,2026-TRIG-SA-12,2026-TRIG-LA-13,2026-TRIG-P1-A-036,2026-TRIG-P1-A-037,2026-TRIG-P1-A-038,2026-TRIG-P1-A-039,2026-TRIG-P1-A-040,TRIG2-CB01,TRIG2-H06,TRIG2-CB02,2026-TRIG-P1-B-021,2026-TRIG-P1-B-022,2026-TRIG-P1-B-023,2026-TRIG-P1-C-015,2026-TRIG-P1-C-016,2026-TRIG-P1-C-017,2026-TRIG-P1-C-018,2026-TRIG-P1-C-019,2026-TRIG-P1-C-020,2026-TRIG-P1-D-009,2026-TRIG-P1-D-010,2026-TRIG-P1-D-011,2026-TRIG-P1-D-012,2026-TRIG-P1-D-013,2026-TRIG-P1-D-014,2026-TRIG-P1-D-015,TRIG2-AR04,TRIG2-M02,TRIG2-M05,TRIG2-H01,TRIG2-H02,TRIG2-H03,TRIG2-H07,TRIG2-H11,TRIG2-H13,TG3-063,TRIG2-B06"
+   ]
+  },
+  "circles": {
+   "n": 67,
+   "sha256": "14d28c62098f4e6d6cc2b92adbfbdb71a9f13c0702de125290559548c16bcde3",
+   "head": [
+    "Angle Between Tangents\tCIRC-N-EXEM-10-AR-001,CIRC-N-EXEM-10-AR-002,CIRC-N-NCERT-10-MCQ-003,CIRC-N-NCERT-10-MCQ-004,CIRC-N-EXEM-10-MCQ-002",
+    "Angle at Centre and Tangent\tCIRC-N-EXEM-10-MCQ-006",
+    "Angle in the same segment\t2026-CIRC-AR-05"
+   ]
+  },
+  "areas-related-to-circles": {
+   "n": 96,
+   "sha256": "65f75fe66054be5c0b4024a9a51a8023c265b8fd21ac40325a9e10ff92e3520d",
+   "head": [
+    "Arc Length\tAPQ-M-ARC-001,PYQ-M-2024-ARC-005,PYQ-M-2025-ARC-002,ARC-N-NCERT-11-SA-001,ARC-N-EXEM-11-SA-006,APQ-M-ARC-009,PYQ-M-2024-ARC-006b,ARC-N-EXEM2-11-SA-006,ARC2-020,ARC2-032,ARC2-039,ARC2-006,ARC2-015,ARC2-029,ARC2-010,ARC2-043,ARC2-002,ARC2-047,ARC2-049,ARC2-051,ARC2-055",
+    "Arc Length from Area\tAPQ-M-ARC-001,PYQ-M-2024-ARC-005,PYQ-M-2025-ARC-002,PYQ-M-2024-ARC-006b,ARC2-020,ARC2-032,ARC2-039,ARC2-006,ARC2-015,ARC2-029,ARC2-010,ARC2-043,ARC2-002,ARC2-047,ARC2-049,ARC2-051,ARC2-055",
+    "Arc Length from Bent Wire\tPYQ-M-2024-ARC-005,PYQ-M-2025-ARC-002,ARC-N-EXEM-11-SA-006,PYQ-M-2024-ARC-006b,ARC2-020,ARC2-032,ARC2-039,ARC2-006,ARC2-015,ARC2-029,ARC2-010,ARC2-043,ARC2-002,ARC2-047,ARC2-049,ARC2-051,ARC2-055"
+   ]
+  },
+  "surface-areas-and-volumes": {
+   "n": 66,
+   "sha256": "26c9520ca5f6beb7520eb70148104db47fa57bf3c172d959890b550c12b536aa",
+   "head": [
+    "CSA Ratio — Cylinder and Cone\tAPQ-M-SAV-005",
+    "Combination of Solids\tSAV-N-EXMPLR-12-CB-001,SAV-N-EXMPLR-12-AR-002,SQP-M-SAV-001,CBE-M-SAV-A-002,SAV-N-EXMPLR-12-MCQ-011,CBE-M-SAV-C-001,PYQ-M-2025-SAV-002,PYQ-M-2025-SAV-003,SAV-N-EXMPLR-12-LA-004,SAV-N-EXMPLR-12-LA-006,SAV-N-EXMPLR-12-LA-008,SQP-M-SAV-002,PYQ-M-SAV-002,PYQ-M-SAV-004,PYQ-M-2024-SAV-004a,PYQ-M-2024-SAV-005,PYQ-M-2025-SAV-005,SAV-N-EXMPLR-12-SA-003,SAV-N-EXMPLR-12-MCQ-001,SAV-N-EXMPLR-12-MCQ-002,SAV-N-EXMPLR-12-MCQ-003,SAV-N-EXMPLR-12-MCQ-004,SAV-N-EXMPLR-12-MCQ-005,SAV-N-EXMPLR-12-MCQ-012,SAV-N-EXMPLR-12-MCQ-013,SAV-N-EXMPLR-12-VSA-001,SAV-N-EXMPLR-12-VSA-002,2026-SAV-SA-01b,2026-SA-LA-03",
+    "Combination of Solids — Sphere in a Cylinder\tSAV-N-EXMPLR-12-CB-001,SAV-N-EXMPLR-12-AR-002,CBE-M-SAV-A-002,SAV-N-EXMPLR-12-MCQ-011,PYQ-M-2025-SAV-002,PYQ-M-2025-SAV-003,SAV-N-EXMPLR-12-LA-004,SAV-N-EXMPLR-12-LA-006,SAV-N-EXMPLR-12-LA-008,PYQ-M-SAV-002,PYQ-M-SAV-004,PYQ-M-2024-SAV-004a,PYQ-M-2024-SAV-005,PYQ-M-2025-SAV-005,SAV-N-EXMPLR-12-SA-003,SAV-N-EXMPLR-12-MCQ-001,SAV-N-EXMPLR-12-MCQ-002,SAV-N-EXMPLR-12-MCQ-003,SAV-N-EXMPLR-12-MCQ-004,SAV-N-EXMPLR-12-MCQ-005,SAV-N-EXMPLR-12-MCQ-012,SAV-N-EXMPLR-12-MCQ-013,SAV-N-EXMPLR-12-VSA-001,SAV-N-EXMPLR-12-VSA-002,2026-SAV-SA-01b,2026-SA-LA-03"
+   ]
+  },
+  "statistics": {
+   "n": 64,
+   "sha256": "f47299d7a55a03facff99e544743e3dfda27bc38d4003c73c357444ed6c937dc",
+   "head": [
+    "Assumed Mean Choice\tPYQ-M-STAT-006,PYQ-M-2026-STAT-001,PYQ-M-2024-STAT-001,PYQ-M-2024-STAT-003,STAT-N-EXEM-13-VSA-002,STAT-N01",
+    "Assumed Mean Deviations\tPYQ-M-STAT-006,PYQ-M-2026-STAT-001,PYQ-M-2024-STAT-001,PYQ-M-2024-STAT-003,STAT-N-EXEM2-13-MCQ-001,STAT-N01",
+    "Class Frequency from Cumulative\tSTAT-N-EXEM-13-MCQ-004"
+   ]
+  },
+  "probability": {
+   "n": 67,
+   "sha256": "552b07228c0b80a37bc02e38228417f0be4d9205f865841331d2b27c4da15660",
+   "head": [
+    "Ball Probability\t2026-PROB-SA-01,PYQ-M-PROB-007,PYQ-M-2026-PROB-001,PYQ-M-2025-PROB-007,PYQ-M-2026-PROB-002",
+    "Basic Probability\t2026-PROB-SA-01,PR2-055,PROB-N01,PR2-046,PR2-047,PR2-049,PR2-050,PR2-051,PR2-052,PR2-053",
+    "Birthdays\tPROB-N-NCERT-14-LA-002"
+   ]
+  },
+  "chemical-reactions-and-equations": {
+   "n": 71,
+   "sha256": "339fbc7689cd2b5cf9d2551250cfe965d096efb5f97922dbbf202f90781346ac",
+   "head": [
+    "Action of Heat on Ferrous Sulphate - Practical\tCBE-S-CHEM-D-001",
+    "Assertion-Reasoning\tCR2-016,CR2-018,CR2-017",
+    "Balanced Chemical Equations\tCFPQ-S-CHEM-003"
+   ]
+  },
+  "acids-bases-and-salts": {
+   "n": 139,
+   "sha256": "f0596ca9923723ea7237fd9ab6b43cf740850af4da132659c779ff6e3ce8db03",
+   "head": [
+    "Acid Rain\tPYQ-S-2026-ACID-019,PYQ-S-2026-ACID-004,BX-ABS-D-016",
+    "Acid-Base Indicators (Litmus)\tBX-ABS-E-002,BX-ABS-E-004,BX-ABS-E-001,BX-ABS-E-003,BX-ABS-E-006,BX-ABS-E-005,BX-ABS-EX-A-036,PYQ-S-ACID-005,PYQ-S-2026-ACID-009,PYQ-S-2026-ACID-014,PYQ-S-2024-ACID-001,ACID-EXMPLR-2-MCQ-002,ACID-EXMPLR-2-MCQ-017,BX-ABS-EX-A-014,BX-ABS-EX-A-019,ACID-EXMPLR-2-SA-003,ACID-EXMPLR-2-SA-006,BX-ABS-EX-C-011,PYQ-S-2026-ACID-015,PYQ-S-2025-ACID-005,PYQ-S-2024-ACID-004,BX-ABS-EX-A-027,BX-ABS-EX-B-006,BX-ABS-D-018,CBE-S-ACID-A-001",
+    "Acids and Bases\tBX-ABS-E-040,BX-ABS-E-046,BX-ABS-E-051,BX-ABS-E-056,ACID-EXMPLR-2-MCQ-024,APQ-S-ACID-001,BX-ABS-EX-A-010,BX-ABS-EX-C-004,CFPQ-S-ABS-004,ACID-EXMPLR-2-MCQ-023,BX-ABS-EX-A-009,CFPQ-S-ABS-014,BX-ABS-D-019,BX-ABS-D-033,ABS2-018,ABS2-032,ABS2-013,ABS2-025,ABS2-039,ABS2-005,ABS2-010,ABS2-035,ABS2-043,ABS2-048,ABS2-001,ABS2-002,ABS2-021,ABS2-027,ABS2-045"
+   ]
+  },
+  "metals-and-non-metals": {
+   "n": 109,
+   "sha256": "39afc0c1f2bea1d1c22f4c3dd388ed2209b89e5ad7ef7b12bbce55f1fb1ce60a",
+   "head": [
+    "Acidic Oxides\tMETAL-EXMPLR-3-SA-021,METAL-NCERT-3-SA-006,METAL-NCERT-3-VSA-013",
+    "Acids with Carbonates\tMETAL-NCERT-3-VSA-014",
+    "Acids with Metals\tMETAL-NCERT-3-SA-003"
+   ]
+  },
+  "carbon-and-its-compounds": {
+   "n": 108,
+   "sha256": "09f723ab44293c91b30662406c081cdcf757868b55e1b33b88833708dab9bce6",
+   "head": [
+    "Acid Properties\tCARB-EXMPLR-4-LONG-001",
+    "Action of Soap in Hard Water\tCBE-S-CARB-C-005",
+    "Addition Reactions\tCFPQ-S-CARB-003,CARB-EXMPLR-4-MCQ-007,CARB-NCERT-4-VSA-016,CARB-NCERT-4-VSA-015,CARB-M06,CC2-054,CARB-H09,CARB-M13,CARB-H04,CARB-M02,CARB-M15,CARB-E14,CARB-H02,CARB-E10,CARB-E05,CARB-H06,CARB-M10"
+   ]
+  },
+  "light-reflection-and-refraction": {
+   "n": 168,
+   "sha256": "966cec599c1d17ca0df733d86ae7e194afe036688da8449f84ce482949c59b00",
+   "head": [
+    "Always Erect Image\tLIGHT-NCERT-9-MCQ-005",
+    "Cause of Refraction\t2026-LIGHT-MCQ-02,CBE-S-LGHT-B-008,LT-M08,LT2-042,LT2-019,LT-H04,LT-M04,LT2-035,LT-E11,LT-M10,LT-M15,LT2-034,LT2-039,LT-M13,LT2-011,LT2-013,LT-M02,LT-M06,LT-M12,LT2-046,LT-H02,LT-H09,LT2-012,LT-H07,LT-H06,LT-E03,LT-E05,LT-E07,LT-E15,LT2-033,LT2-050,LT2-054,LT2-057,LT2-010,LT2-022,LT-E13,LT-E09",
+    "Chapter Practice — Light - Reflection and Refraction\tSCO-S-LIGHT-003,SCO-S-LIGHT-004,SCO-S-LIGHT-005,SCO-S-LIGHT-006,SCO-S-LIGHT-007,SCO-S-LIGHT-012,SCO-S-LIGHT-013,SCO-S-LIGHT-014,SCO-S-LIGHT-015,SCO-S-LIGHT-016,SCO-S-LIGHT-019,SCO-S-LIGHT-020,SCQ-S-LIGHT-028,SCQ-S-LIGHT-029,SCQ-S-LIGHT-031,sci-phy-light-3m-2026-01,SCQ-S-LIGHT-035,SCQ-S-LIGHT-038,SCQ-S-LIGHT-039,SCQ-S-LIGHT-040,SCQ-S-LIGHT-041,SCQ-S-LIGHT-042,SCQ-S-LIGHT-043,SCQ-S-LIGHT-021,SCQ-S-LIGHT-023,SCQ-S-LIGHT-024,SCQ-S-LIGHT-025,SCQ-S-LIGHT-026,SCQ-S-LIGHT-027,SCQ-S-LIGHT-030,SCQ-S-LIGHT-032,2026-LIGHT-MCQ-02,SCQ-S-LIGHT-033,GDR-L-CBJ-009,GDR-L-CBJ-025,SCQ-S-LIGHT-044,LT-M08,LT2-042,LT2-019,LT-H04,LT-M04,LT-M05,LT2-035,LT-H08,LT-E11,LT-M11,LT-M10,LT-M15,LT2-034,LT-E06,LT2-039,LT-M13,LT2-011,LT2-013,LT-M02,LT-M06,LT-M12,LT2-046,LT-H02,LT-H09,LT2-012,LT-M07,LT-H07,LT-H06,LT-E03,LT-E05,LT-E07,LT-E15,LT2-033,LT2-050,LT2-054,LT2-057,LT2-010,LT2-022,LT-E13,LT-H10,LT-H01,LT-H05,LT-M01,LT-E08,LT-E14,LT-H03,LT-E09,LT-E01,LT-E02,LT-E04,LT-E10,LT-E12,LT-M03,LT-M09,LT-M14"
+   ]
+  },
+  "human-eye-and-colourful-world": {
+   "n": 50,
+   "sha256": "9a03d593d3f823da7742c047b838299086fae8868abf564f6547f321d3e390cf",
+   "head": [
+    "Accommodation of Eye\tPYQ-S-2024-EYE-004",
+    "Accommodation of the Eye\tCFPQ-S-EYE-008,CFPQ-S-EYE-002",
+    "Atmospheric Refraction\tEYE-NCERT-10-SA-011,EYE-EXMPLR-10-SA-007,EYE-EXMPLR-10-LA-006,EYE-EXMPLR-10-MCQ-006,APQ-S-EYE-004,EYE-NCERT-10-SA-010,HEC2-023,HEC2-045,HEC2-036,HEC2-016,HEC2-008,HEC2-009,HEC2-034,HEC2-035"
+   ]
+  },
+  "electricity": {
+   "n": 147,
+   "sha256": "195fd05dda063bad304d78390c878ca12471c9e98643845c34db76c2e7a40d74",
+   "head": [
+    "Advantages of Parallel Connection\tCBE-S-ELEC-C-008",
+    "Alloys in Heating Devices\tELEC-NCERT-11-SA-012",
+    "Ammeter Properties\tELEC-EXMPLR-11-SA-003"
+   ]
+  },
+  "magnetic-effects-of-electric-current": {
+   "n": 64,
+   "sha256": "10c5e8e82216715623209fd4f1010d23d325a3b80fbfd5d11a64c258dba2bd32",
+   "head": [
+    "AC and DC\tPYQ-S-2026-ACID-018,ME2-048,ME2-016,ME2-040,ME2-017,ME2-039,ME2-015,ME2-041,ME2-025",
+    "AC vs DC\tMAG-EXMPLR-12-MCQ-008,MAG-EXMPLR-12-SA-011",
+    "Advantages of AC over DC\tCBE-S-MAGN-B-006"
+   ]
+  },
+  "life-processes": {
+   "n": 136,
+   "sha256": "0fdb7e8b67af4d09f9e88998dd21bf86cbb7c563a958f203db83524453b53e9e",
+   "head": [
+    "ATP\tLIFE-EXMPLR-5-SA-026",
+    "Acidity in Stomach\tLIFE-EXMPLR-5-MCQ-006,LIFE-NCERT-5-VSA-005",
+    "Aerobic Respiration\tAR-LP-003,AR-LP-004,AR-LP-010,LPX-A-060,LPX-A-032,PYQ-S-2026-LIFEP-003,LPX-A-023,LIFE-EXMPLR-5-MCQ-025,LPX-A-047,SP-S-2023-LIFE-A-002,LIFE-NCERT-5-SA-003,LPX-B-003,LPX-B-008,LPX-C-007,LPX-C-015,PYQ-S-2024-LIFEP-006,PYQ-S-2026-LIFEP-014,LPX-A-012,LPX-A-027,LPX-A-034,LPX-C-011,LPX-B-010,LIFE-NCERT-5-SA-004,LIFE-EXMPLR-5-SA-006,LIFE-EXMPLR-5-MCQ-035,CFPQ-S-LIFE-008,LPX-A-052,LPX-A-055,LIFE-NCERT-5-VSA-008,LPX-B-011,LPX-B-021,LPX-A-048,LIFE-NCERT-5-LONG-001,CFPQ-S-LIFE-014,CFPQ-S-LIFE-005,LIFE-EXMPLR-5-MCQ-009,CBE-S-LIFE-C-002,2026-LP-MCQ-02,2026-LP-MCQ-05,LPSE-018,LPSE-022,LPSE-019,LPSE-023,LPSE-020,LPSE-021,LP-M10,LP-AR05,LP2-038,LP-H08,LPSE-024,LP2-011,LP2-014,LP2-013,LP2-010,LP-M02,LP-H02,LPSD-004,LPSD-020,LP2-037,LP2-036,LP-E04,LP-E10,LP2-008,LP2-009,LP2-033,LP2-055,LPSD-009,LPSD-016,LP2-012,LP2-035"
+   ]
+  },
+  "control-and-coordination": {
+   "n": 101,
+   "sha256": "bc6dfa840fc9bfe2dff14a4ae7f9dacbba0cf3ce08bff6410c8214ca7020617b",
+   "head": [
+    "Abscisic Acid\tCFPQ-S-CTRL-006,CTRL-EXMPLR-6-MCQ-011,CTRL-EXMPLR-6-MCQ-020,CFPQ-S-CTRL-011",
+    "Adrenaline\tCBE-S-CTRL-A-008,CFPQ-S-CTRL-010,CTRL-NCERT-6-SA-009,APQ-S-CTRL-005",
+    "Animal Hormonal Coordination\tCTRL-EXMPLR-6-LA-008"
+   ]
+  },
+  "how-do-organisms-reproduce": {
+   "n": 146,
+   "sha256": "1202edf52bd8d47407a6520d8cd141d02f5ee51d2443573b19ffb7de41c4c909",
+   "head": [
+    "Artificial Vegetative Propagation\tPYQ-S-2025-REPR-002,PYQ-S-2024-REPR-001,BX-REP-EX-A-005,CFPQ-S-REPR-008,REPR-EXMPLR-7-MCQ-013,CFPQ-S-REPR-009,BX-REP-EX-A-004,PYQ-S-REPR-004,BX-REP-EX-B-013,BX-REP-EX-C-009,BX-REP-EX-B-001,REPR-NCERT-7-SA-006,BX-REP-D-023,BX-REP-D-002",
+    "Asexual Modes\tREPR-EXMPLR-7-LA-001,REPR-EXMPLR-7-MCQ-001",
+    "Asexual Reproduction\tBX-REP-EX-A-029,BX-REP-EX-A-019,BX-REP-EX-A-001,REPR-EXMPLR-7-MCQ-007,SP-S-2023-REPR-A-001,APQ-S-REPR-003,CFPQ-S-REPR-010,2026-REP-MCQ-01,CBE-S-REPR-C-001,APQ-S-REPR-004,2026-REP-SA-02,REP-M11,REP-AR05,REP2-051,REP-H04,BX-REP-E1-014,BX-REP-E1-003,BX-REP-E1-004,BX-REP-E1-029,BX-REP-E1-001,REP-E11,BX-REP-E1-025,BX-REP-E1-005,BX-REP-E1-006,REP-M07,REP-M15,REP2-003,REP-E01,REP-E02,REP-E05,REP-E08,REP-E14,REP2-001,REP2-002,REP2-027,REP2-049,REP2-050,REP2-053,REP-M03,REP-H07,REP2-045,BX-REP-D-013,BX-REP-D-004,BX-REP-D-014,BX-REP-D-005,REP2-023,REP-B05,REP2-004,REP2-028,BX-REP-D-022"
+   ]
+  },
+  "heredity": {
+   "n": 63,
+   "sha256": "d573559891499c35fcef8822651b9b6c1f5057a4bdd9ce5351c4b0daaa53e941",
+   "head": [
+    "Alleles\tBX-HER-EX-A-002,CBE-S-HERD-A-002",
+    "Case-Based — Monohybrid Inheritance of Earlobe Type\tSQP-S-HER-003,HERED-NCERT-8-SA-007,HERED-NCERT-8-SA-005,HERED-EXMPLR-8-MCQ-011,HERED-EXMPLR-8-LA-004",
+    "Chapter Practice — Heredity\tSCO-S-HERED-001,SCO-S-HERED-002,SCO-S-HERED-003,SCO-S-HERED-004,SCO-S-HERED-006,SCO-S-HERED-007,SCO-S-HERED-008,SCO-S-HERED-009,SCO-S-HERED-010,SCO-S-HERED-011,SCO-S-HERED-012,SCO-S-HERED-013,SCO-S-HERED-014,SCO-S-HERED-015,SCO-S-HERED-016,SCO-S-HERED-017,SCO-S-HERED-018,SCO-S-HERED-019,SCO-S-HERED-020,SCQ-S-HERED-023,SCQ-S-HERED-025,SCQ-S-HERED-026,SCQ-S-HERED-029,SCQ-S-HERED-030,SCQ-S-HERED-032,sci-bio-heredity-3m-2026-01,SCQ-S-HERED-033,SCQ-S-HERED-034,SCQ-S-HERED-035,SCQ-S-HERED-036,SCQ-S-HERED-039,SCQ-S-HERED-040,SCQ-S-HERED-041,SCQ-S-HERED-043,SCQ-S-HERED-021,SCQ-S-HERED-022,SCQ-S-HERED-024,SCQ-S-HERED-027,SCQ-S-HERED-028,SCQ-S-HERED-031,SCQ-S-HERED-037,SCQ-S-HERED-038,SCQ-S-HERED-042"
+   ]
+  },
+  "our-environment": {
+   "n": 65,
+   "sha256": "73ceb933240bbdd460dd2baae45430055f65a591dbbf7eda71d76ee14a56506f",
+   "head": [
+    "Biodegradability\tOE-E01a,OE2-036,OE-M02,OE2-011,OE-M05,OE2-017,OE2-030,OE-E06,OE-E07,OE-E12,OE2-005,OE2-007,OE-D03,OE2-034,OE-B04,OE2-028,OE-B01,OE2-021",
+    "Biodegradable and Non-biodegradable\tOEX-A-033,PYQ-S-2026-ENV-005,PYQ-S-2026-ENV-007,PYQ-S-2024-ENV-001,PYQ-S-ENV-006,PYQ-S-2024-ENV-003,OEX-A-001,CFPQ-S-ENV-006,OEX-A-024,OESE-024,OESE-009,OESE-017,OESE-020",
+    "Biodegradable and Non-biodegradable Waste\tPYQ-S-2026-ENV-005,PYQ-S-2026-ENV-007,PYQ-S-2024-ENV-001,PYQ-S-ENV-006,PYQ-S-2024-ENV-003,CFPQ-S-ENV-006,OESE-024,OESE-009,OESE-017,OESE-020"
+   ]
+  }
+ },
+ "practice": {
+  "real-numbers::seed1": {
+   "n": 10,
+   "sha256": "66def4d1cb42ef8461ea543beeb9469425f8f0c00a4419135ce787b99d7f9638",
+   "head": [
+    "CFPQ-M-REALNUM-002",
+    "RNX-C-001",
+    "RN-N-NCERT-1-MCQ-005"
+   ]
+  },
+  "real-numbers::seed2": {
+   "n": 10,
+   "sha256": "d5b4a2703142c3fa014a822a71a9b6d44a526ecbaddb9e1140ae5725b6c24c8d",
+   "head": [
+    "APQ-M-RN-007",
+    "CFPQ-M-REALNUM-013",
+    "RNX2-A-003"
+   ]
+  },
+  "real-numbers::seed3": {
+   "n": 10,
+   "sha256": "3b4d32c9b5eee175e7471736b63acf07772cd72c9f5a5b62eb803647631f9c58",
+   "head": [
+    "CFPQ-M-REALNUM-013",
+    "RN-N-NCERT-1-MCQ-004",
+    "CFPQ-M-REALNUM-001"
+   ]
+  },
+  "polynomials::seed1": {
+   "n": 10,
+   "sha256": "6039d29b2010f1b12d08a0952a691428bd9e8915e51293442eddfaeeeb61b267",
+   "head": [
+    "BX-POLY-E-004",
+    "BX-POLY-E-019",
+    "POLY-N-EXEM-2-MCQ-002"
+   ]
+  },
+  "polynomials::seed2": {
+   "n": 10,
+   "sha256": "ec956172dda4965fc0618e33bd9c7f6cd8ecb9617d709d6fdb2a263e5b3f4d15",
+   "head": [
+    "POLY-N-NCERT-2-MCQ-001",
+    "BX-POLY-E-008",
+    "BX-POLY-E-024"
+   ]
+  },
+  "polynomials::seed3": {
+   "n": 10,
+   "sha256": "4e88ae83de214d2ee5ee355039db8cd76e64dbcfe8ab24dd7fcffa1bd77a57e4",
+   "head": [
+    "BX-POLY-E-008",
+    "BX-POLY-E-023",
+    "BX-POLY-E-003"
+   ]
+  },
+  "pair-of-linear-equations::seed1": {
+   "n": 10,
+   "sha256": "60d7b85ae0d68b8fb29a1cc73cc9a1352953746facfbf3d18d20e158e189a5c1",
+   "head": [
+    "BX-PLE-E-037",
+    "BX-PLE-E-021",
+    "PLE-N-NCERT-3-SA-001"
+   ]
+  },
+  "pair-of-linear-equations::seed2": {
+   "n": 10,
+   "sha256": "300e0bb3127adf3afbd3435722f1bc5f2341367cbc5a9b78496ddcb2dd5ed40a",
+   "head": [
+    "BX-PLE-EX-A-011",
+    "BX-PLE-E-025",
+    "BX-PLE-E-022"
+   ]
+  },
+  "pair-of-linear-equations::seed3": {
+   "n": 10,
+   "sha256": "f7b9150026b6bcbb2d1ab7b1ac03594d71e1e03209ec8d5549a1d21fa9accfeb",
+   "head": [
+    "BX-PLE-E-025",
+    "BX-PLE-E-023",
+    "BX-PLE-E-029"
+   ]
+  },
+  "quadratic-equations::seed1": {
+   "n": 10,
+   "sha256": "aa96fc66b79f24765f2626270d92f9f8fd2f6d26b2c53db2be842609b5453176",
+   "head": [
+    "QE-N-NCERT-4-CB-001",
+    "QE-N-NCERT-4-CB-002",
+    "CBE-M-QE-A-002"
+   ]
+  },
+  "quadratic-equations::seed2": {
+   "n": 10,
+   "sha256": "67fffd5dc872c808fabb0eb92753933a4a15e2ae9a3693ed22e496a19ecd7c51",
+   "head": [
+    "QE-N-NCERT-4-MCQ-002",
+    "QE-N-EXMPLR-4-CB-001",
+    "QE-N-NCERT-4-AR-001"
+   ]
+  },
+  "quadratic-equations::seed3": {
+   "n": 10,
+   "sha256": "371c89063dd40b0a6ba06a89c8c17d9394c398a768ed13561f88170e3e51a4eb",
+   "head": [
+    "QE-N-EXMPLR-4-CB-001",
+    "QE-N-EXMPLR-4-AR-001",
+    "QE-N-EXMPLR-4-AR-002"
+   ]
+  },
+  "arithmetic-progression::seed1": {
+   "n": 10,
+   "sha256": "f14fa8794e0e40370497a185e32d883f84fbbb432a7e6eafeb3981d5e9c4c1e8",
+   "head": [
+    "Z3-AP-001",
+    "Z3-AP-010",
+    "BX-AP-E-033"
+   ]
+  },
+  "arithmetic-progression::seed2": {
+   "n": 10,
+   "sha256": "db90459108e1954e6e2d94926639a66c715377f46b5d8e569a76b649b44a6d44",
+   "head": [
+    "CBE-M-AP-A-001",
+    "BX-AP-E-012",
+    "BX-AP-E-022"
+   ]
+  },
+  "arithmetic-progression::seed3": {
+   "n": 10,
+   "sha256": "a4ea540e5f0033669f8afb97f1f55510e293fb2ae63599ac55ee15101006e206",
+   "head": [
+    "BX-AP-E-012",
+    "BX-AP-E-024",
+    "BX-AP-E-035"
+   ]
+  },
+  "triangles::seed1": {
+   "n": 10,
+   "sha256": "393cc121dd317c5973cf04e0096b08bbe634c88db85186e3832a2a163f15c44e",
+   "head": [
+    "BX-TRI-E-029",
+    "BX-TRI-E-028",
+    "CBE-M-TRI-A-001"
+   ]
+  },
+  "triangles::seed2": {
+   "n": 10,
+   "sha256": "72794ce16ddf186437148b063f007955a86e037c9a67f054b6856a2d12192606",
+   "head": [
+    "CASE-MATHS-TRI-001",
+    "BX-TRI-E-036",
+    "BX-TRI-E-012"
+   ]
+  },
+  "triangles::seed3": {
+   "n": 10,
+   "sha256": "4a3d1af7fff557f43663b453ebcf4303c47cdf72060e97d6852a5b5eb790d8f7",
+   "head": [
+    "BX-TRI-E-036",
+    "BX-TRI-E-013",
+    "BX-TRI-E-017"
+   ]
+  },
+  "coordinate-geometry::seed1": {
+   "n": 10,
+   "sha256": "5d72722e9f7f605bedc7de1e6f52377d4299c353d8b4442d94c774ee0bc1dd84",
+   "head": [
+    "BX-COORD-E-024",
+    "BX-COORD-E-012",
+    "CG-N-EXMPLR-7-EX-004"
+   ]
+  },
+  "coordinate-geometry::seed2": {
+   "n": 10,
+   "sha256": "99680239e3b98020048c316e289ac6c1b1416e2bd68bd13b35ae40de8abbbdf2",
+   "head": [
+    "BX-COORD-EX-A-001",
+    "BX-COORD-E-013",
+    "BX-COORD-E-014"
+   ]
+  },
+  "coordinate-geometry::seed3": {
+   "n": 10,
+   "sha256": "8a2c6a5aba152b576ef17b9de801e1519ef47def3f3e514bd0408ac81f9cac11",
+   "head": [
+    "BX-COORD-E-013",
+    "BX-COORD-E-016",
+    "BX-COORD-E-020"
+   ]
+  },
+  "trigonometry::seed1": {
+   "n": 10,
+   "sha256": "447cb01f9603e1985379b243fea6fb117075124968b93b5cf16469c15e0e3b9d",
+   "head": [
+    "Z3-TG-103",
+    "TRIG-N-NCERT-9-CB-002",
+    "AR-TRIG-002"
+   ]
+  },
+  "trigonometry::seed2": {
+   "n": 10,
+   "sha256": "f890e229c73461605a7c98d74863a93bf68b3c634e953d7ac5410bc564f522a8",
+   "head": [
+    "Z3-TG-004",
+    "TRIG-N-EXMPLR-9-CB-002",
+    "Z3-TG-003"
+   ]
+  },
+  "trigonometry::seed3": {
+   "n": 10,
+   "sha256": "4650dc3d6650f8d67b04ca7f605f50e744c688f86027028a753c4fe767443b32",
+   "head": [
+    "TRIG-N-EXMPLR-9-CB-002",
+    "Z3-TG-006",
+    "Z3-TG-101"
+   ]
+  },
+  "circles::seed1": {
+   "n": 10,
+   "sha256": "b4c6bffa8643f6e81ffacc1e976f8d110af2cf428994aade47a9e27a5615ad5c",
+   "head": [
+    "CIRC-N-NCERT-10-AR-002",
+    "CIRC-N-EXEM-10-CB-001",
+    "CBE-M-CIRC-A-001"
+   ]
+  },
+  "circles::seed2": {
+   "n": 10,
+   "sha256": "c567ddc48ac7690c5e9309321e6a724141b4fad1d7d9cccdfeac6dfc5a5559cb",
+   "head": [
+    "CIRC-N-NCERT-10-MCQ-001",
+    "APQ-M-CIRC-009",
+    "CIRC-N-NCERT-10-CB-001"
+   ]
+  },
+  "circles::seed3": {
+   "n": 10,
+   "sha256": "7c7e4f92f8a27b8b6147d9b97adb26503b9f7d7428d736b0802f18856a47f3eb",
+   "head": [
+    "APQ-M-CIRC-009",
+    "Z3-CI-001",
+    "CIRC-N-NCERT-10-AR-001"
+   ]
+  },
+  "areas-related-to-circles::seed1": {
+   "n": 10,
+   "sha256": "f54f3173d6452835561981c7bffed6a67cdaa4becaf09a2e7b3eb08500fd7652",
+   "head": [
+    "SP-M-2022-ARC-E-001",
+    "Z3-ARC-003",
+    "ARC-N-NCERT-11-MCQ-005"
+   ]
+  },
+  "areas-related-to-circles::seed2": {
+   "n": 10,
+   "sha256": "1f016fea53ba7a4772295d4fe0df4b4f8e961493de4e976a8b82b7959ec105cd",
+   "head": [
+    "ARC-N-NCERT-11-MCQ-001",
+    "CBE-M-ARC-E-001",
+    "Z3-ARC-001"
+   ]
+  },
+  "areas-related-to-circles::seed3": {
+   "n": 10,
+   "sha256": "83c28b9f92eaf6a93f8cb7770f5f57f4f358c3acf8f4b5a79093a9f875b21a2c",
+   "head": [
+    "CBE-M-ARC-E-001",
+    "ARC-N-NCERT-11-CB-001",
+    "ARC-N-EXEM-11-CB-001"
+   ]
+  },
+  "surface-areas-and-volumes::seed1": {
+   "n": 10,
+   "sha256": "0a26fe5ca076a1f925c9e23f74a5859ca1a6dccae768979c0fb460b5c864238a",
+   "head": [
+    "PYQ-M-2024-SAV-001",
+    "SAV-N-NCERT-12-CB-002",
+    "APQ-M-SAV-002"
+   ]
+  },
+  "surface-areas-and-volumes::seed2": {
+   "n": 10,
+   "sha256": "9a13f806f94ccb29d2aabcb93ad2bf16ee7ff689e810d645984c22831a5b0e4b",
+   "head": [
+    "SAV-N-NCERT-12-MCQ-002",
+    "Z3-SAV-005",
+    "SAV-N-NCERT-12-CB-001"
+   ]
+  },
+  "surface-areas-and-volumes::seed3": {
+   "n": 10,
+   "sha256": "dfc5484f0febde2d9a10bf8c8fad3df90704d7e119cc7dff0fb8225c87cf37a7",
+   "head": [
+    "Z3-SAV-005",
+    "SAV-N-EXMPLR-12-CB-001",
+    "Z3-SAV-004"
+   ]
+  },
+  "statistics::seed1": {
+   "n": 10,
+   "sha256": "d9aa0e11ce716fd122d05c0fad34161bbd40742a8a0cdf1c495965f7875da6d0",
+   "head": [
+    "Z3-ST-003",
+    "PYQ-M-2026-STAT-002",
+    "STAT-N-NCERT-13-MCQ-004"
+   ]
+  },
+  "statistics::seed2": {
+   "n": 10,
+   "sha256": "8093e4cd1dbc24dfb2cc207e93a1741194a6401a42fd4c3378e3cde24e662d44",
+   "head": [
+    "STAT-N-NCERT-13-MCQ-001",
+    "PYQ-M-2024-STAT-005",
+    "STAT-N-NCERT-13-CB-001"
+   ]
+  },
+  "statistics::seed3": {
+   "n": 10,
+   "sha256": "fb4615c8bd5583f933472c12704ed1e5896b6316eafb4fb592a24443e1217f20",
+   "head": [
+    "PYQ-M-2024-STAT-005",
+    "Z3-ST-001",
+    "Z3-ST-002"
+   ]
+  },
+  "probability::seed1": {
+   "n": 10,
+   "sha256": "89da35d96c239661deaf219280ccfc60667d2b7f24e4e92594217752f17d2d62",
+   "head": [
+    "Z3-PR-002",
+    "PYQ-M-PROB-012",
+    "PROB-N-NCERT-14-MCQ-003"
+   ]
+  },
+  "probability::seed2": {
+   "n": 10,
+   "sha256": "981eb75edc095e0176710ea578796715c9649f951c4ebe7dc5c0ffcee850b96c",
+   "head": [
+    "PROB-N-NCERT-14-AR-001",
+    "PYQ-M-2026-PROB-003",
+    "PROB-N-NCERT-14-CB-001"
+   ]
+  },
+  "probability::seed3": {
+   "n": 10,
+   "sha256": "89af691b255381005cb23339daea72656f0674179f30842b6669e4c3cf7f49c9",
+   "head": [
+    "PYQ-M-2026-PROB-003",
+    "PROB-N-EXEM-14-CB-001",
+    "Z3-PR-001"
+   ]
+  },
+  "chemical-reactions-and-equations::seed1": {
+   "n": 10,
+   "sha256": "3a4aabe0b1e31a8cea2610e5de9d5694586ac6b0553cd29b26d12376f87a192b",
+   "head": [
+    "CHEM-EXMPLR-1-MCQ-002",
+    "BX-CHEM-E-056",
+    "BX-CHEM-E-018"
+   ]
+  },
+  "chemical-reactions-and-equations::seed2": {
+   "n": 10,
+   "sha256": "9084e7ea2ff5500a16e3ce22f9b50f1adf38e0fe20a13b360bb88398481a803a",
+   "head": [
+    "BX-CHEM-E-013",
+    "BX-CHEM-E-061",
+    "BX-CHEM-E-063"
+   ]
+  },
+  "chemical-reactions-and-equations::seed3": {
+   "n": 10,
+   "sha256": "5105c1c48ae185664067d819cd414d016537c7b287bca20d5c5b35c968205557",
+   "head": [
+    "BX-CHEM-E-061",
+    "BX-CHEM-E-041",
+    "BX-CHEM-E-050"
+   ]
+  },
+  "acids-bases-and-salts::seed1": {
+   "n": 10,
+   "sha256": "91afa7a1f6dee71909fc35ba0979020c46e36567c1f4a57e617350cd7d252689",
+   "head": [
+    "BX-ABS-E-003",
+    "BX-ABS-E-008",
+    "BX-ABS-EX-A-014"
+   ]
+  },
+  "acids-bases-and-salts::seed2": {
+   "n": 10,
+   "sha256": "ef94788dbc1441118424b7012e4417aae62340adc1b197a8cba475914368280f",
+   "head": [
+    "ACID-NCERT-2-MCQ-001",
+    "BX-ABS-E-019",
+    "BX-ABS-E-002"
+   ]
+  },
+  "acids-bases-and-salts::seed3": {
+   "n": 10,
+   "sha256": "359b0311ee38a02fb9279951e143ddf6551714a37acda65db994067da1e02c3b",
+   "head": [
+    "BX-ABS-E-019",
+    "BX-ABS-E-004",
+    "BX-ABS-E-001"
+   ]
+  },
+  "metals-and-non-metals::seed1": {
+   "n": 10,
+   "sha256": "be06a8894d02de6264bc379b1ec0c4ca56289e96a2320c9171b990123804e2bc",
+   "head": [
+    "BX-MNM-E-023",
+    "BX-MNM-E-017",
+    "METAL-NCERT-3-MCQ-002"
+   ]
+  },
+  "metals-and-non-metals::seed2": {
+   "n": 10,
+   "sha256": "110f08cf36677eb945bd1a19d154b10967ae1bfc122f0f50fcd43826b97a96c6",
+   "head": [
+    "BX-MNM-E-019",
+    "BX-MNM-E-048",
+    "BX-MNM-E-014"
+   ]
+  },
+  "metals-and-non-metals::seed3": {
+   "n": 10,
+   "sha256": "6d3fe7f28c972b29ddee1cdfa298dc119243b75c03e5e75334e287a77b07834d",
+   "head": [
+    "BX-MNM-E-048",
+    "SQP-S-2023-MNM-E-001",
+    "BX-MNM-E-021"
+   ]
+  },
+  "carbon-and-its-compounds::seed1": {
+   "n": 10,
+   "sha256": "ba3571c1cbe72c8e7f157a5fecc1068965429f722d6cc4ad09639fbcc4f3cdc2",
+   "head": [
+    "PYQ-S-CARB-002",
+    "SQP-S-CC-002",
+    "CARB-NCERT-4-VSA-006"
+   ]
+  },
+  "carbon-and-its-compounds::seed2": {
+   "n": 10,
+   "sha256": "e04ae6629e3dedb7a2b432b3fe991199b2c2ad49f4c931bd3b91bd3d4900d466",
+   "head": [
+    "CARB-EXMPLR-4-MCQ-025",
+    "SP-S-2023-CARB-E-001",
+    "APQ-S-CARB-004"
+   ]
+  },
+  "carbon-and-its-compounds::seed3": {
+   "n": 10,
+   "sha256": "2e722599933b6b7e3c3540df14020e4fa25ed8250605386a1c1304637a5b062b",
+   "head": [
+    "SP-S-2023-CARB-E-001",
+    "APQ-S-CARB-003",
+    "PYQ-S-CARB-001"
+   ]
+  },
+  "light-reflection-and-refraction::seed1": {
+   "n": 10,
+   "sha256": "7b319b18a66149e08b65a1ad6533ae1be8c1af71fa8c4ce551c406016f227770",
+   "head": [
+    "FND-L-SPQ-024",
+    "FND-L-SPQ-022",
+    "LIGHT-NCERT-9-MCQ-006"
+   ]
+  },
+  "light-reflection-and-refraction::seed2": {
+   "n": 10,
+   "sha256": "91c89a5fbdc0c2354c8659c5f0c686f6047c456f583b124ee871b31128bf4759",
+   "head": [
+    "CASE-SCI-LIGHT-001",
+    "PYQ-S-2024-LIGHT-010",
+    "LIGHT-EXMPLR-9-MCQ-016"
+   ]
+  },
+  "light-reflection-and-refraction::seed3": {
+   "n": 10,
+   "sha256": "b991ece9a7cbdf31b91f01ee8cd1ee35ca917811eee0f41b543e3d98b5cd7ee8",
+   "head": [
+    "PYQ-S-2024-LIGHT-010",
+    "LIGHT-EXMPLR-9-MCQ-017",
+    "CFPQ-S-LGHT-006"
+   ]
+  },
+  "human-eye-and-colourful-world::seed1": {
+   "n": 10,
+   "sha256": "151269b0ddb816f05258f94544d695e039344c080661df9a8aeff7c2b3056773",
+   "head": [
+    "EYE-EXMPLR-10-MCQ-002",
+    "CBE-S-HEYE-E-002",
+    "EYE-NCERT-10-MCQ-001"
+   ]
+  },
+  "human-eye-and-colourful-world::seed2": {
+   "n": 10,
+   "sha256": "396798908efc54873edf562b065549881995b5f431208f5ed1039234906536eb",
+   "head": [
+    "EYE-EXMPLR-10-MCQ-014",
+    "CFPQ-S-EYE-009",
+    "CBE-S-HEYE-E-001"
+   ]
+  },
+  "human-eye-and-colourful-world::seed3": {
+   "n": 10,
+   "sha256": "6ae62c67f4ef06c73dda55ba59f53e9bb4c4243aca168d64a10676aa0e20db7b",
+   "head": [
+    "CFPQ-S-EYE-009",
+    "SQP-S-2023-HEYE-E-001",
+    "CFPQ-S-EYE-004"
+   ]
+  },
+  "electricity::seed1": {
+   "n": 10,
+   "sha256": "62d3c14c0fb3ce31f394d69af44abe0814a7159bf1e841ab88aff0d6df580ea3",
+   "head": [
+    "AR-EL-004",
+    "AR-EL-010",
+    "ELEC-NCERT-11-SA-011"
+   ]
+  },
+  "electricity::seed2": {
+   "n": 10,
+   "sha256": "67fff46e0d51772361d76c9787eec070b4c959f40209c7c7fc71b1a66203d5f7",
+   "head": [
+    "CASE-SCI-EL-001",
+    "PYQ-S-2024-ELEC-002",
+    "PYQ-S-2026-ELEC-002"
+   ]
+  },
+  "electricity::seed3": {
+   "n": 10,
+   "sha256": "1545f6274ded20b3d868f651acdd2e4af204bdf1094a233913d53d5bdb23f902",
+   "head": [
+    "PYQ-S-2024-ELEC-002",
+    "SQP-S-ELEC-004",
+    "AR-EL-003"
+   ]
+  },
+  "magnetic-effects-of-electric-current::seed1": {
+   "n": 10,
+   "sha256": "27077eb238dfab7d0caec4e397208ee2a59d7986830ff0b13def669c78c46285",
+   "head": [
+    "APQ-S-MAG-003",
+    "CBE-S-MAGN-E-001",
+    "MAG-EXMPLR-12-MCQ-001"
+   ]
+  },
+  "magnetic-effects-of-electric-current::seed2": {
+   "n": 10,
+   "sha256": "d36141c66666b132d3d9b08f423cd45a5d80b888877178c26ffb33f5ac30b55d",
+   "head": [
+    "MAG-EXMPLR-12-SA-010",
+    "MAG-EXMPLR-12-MCQ-007",
+    "SQP-S-2023-MAGN-A-002"
+   ]
+  },
+  "magnetic-effects-of-electric-current::seed3": {
+   "n": 10,
+   "sha256": "477e1899b289792949eee1d9c911eebbb418e76133ff46a4492b763330e8959d",
+   "head": [
+    "MAG-EXMPLR-12-MCQ-007",
+    "SP-S-2023-MAGN-A-001",
+    "APQ-S-MAG-001"
+   ]
+  },
+  "life-processes::seed1": {
+   "n": 10,
+   "sha256": "b5923366190d6728a3fa44182abcd46673cff97eca34b3039dc9d3ec4c8c1fe6",
+   "head": [
+    "LPX-A-063",
+    "PYQ-S-2024-LIFEP-008",
+    "LPX-A-047"
+   ]
+  },
+  "life-processes::seed2": {
+   "n": 10,
+   "sha256": "069f16fc3ec6ec73434240a6c53b9589fe81c626f6433c4dd7f93eeaaef5d18c",
+   "head": [
+    "LIFE-EXMPLR-5-MCQ-025",
+    "AR-LP-004",
+    "AR-LP-003"
+   ]
+  },
+  "life-processes::seed3": {
+   "n": 10,
+   "sha256": "4296574322ec1b1a13ecac40be12a1e69497ca3c38cd6839bc9653ab3ca7dc89",
+   "head": [
+    "AR-LP-004",
+    "LPX-A-058",
+    "LPX-A-060"
+   ]
+  },
+  "control-and-coordination::seed1": {
+   "n": 10,
+   "sha256": "5030f059e395e3c3502b3c3d1d894505b925cfdb483419d50af17e83400ac8d0",
+   "head": [
+    "PYQ-S-2026-CTRL-002",
+    "CBE-S-CTRL-E-001",
+    "CTRL-NCERT-6-MCQ-003"
+   ]
+  },
+  "control-and-coordination::seed2": {
+   "n": 10,
+   "sha256": "31e01bf88436f6571b65deb76bcd5d5430edf2c2df814aed4c2ded3fd55766e3",
+   "head": [
+    "CTRL-EXMPLR-6-MCQ-012",
+    "PYQ-S-2026-CTRL-010",
+    "PYQ-S-CTRL-001"
+   ]
+  },
+  "control-and-coordination::seed3": {
+   "n": 10,
+   "sha256": "53e6e9f18c5f1e2c9cf3430a1b7b8ad5bfd84e5cbeebbda66e4db87304eda547",
+   "head": [
+    "PYQ-S-2026-CTRL-010",
+    "PYQ-S-2026-CTRL-003",
+    "PYQ-S-CTRL-002"
+   ]
+  },
+  "how-do-organisms-reproduce::seed1": {
+   "n": 10,
+   "sha256": "2227ce31dc869e21f72bd97f51960ed0ec42af9391ceca0dfaf4c10f8f65154c",
+   "head": [
+    "BX-REP-EX-A-019",
+    "PYQ-S-2024-REPR-007",
+    "SP-S-2023-REPR-A-001"
+   ]
+  },
+  "how-do-organisms-reproduce::seed2": {
+   "n": 10,
+   "sha256": "f2007a2f4f57298fded8df8acf941d5d52f43c66877a9cf97b0aa58c00d689a2",
+   "head": [
+    "BX-REP-EX-A-001",
+    "PYQ-S-REPR-006",
+    "BX-REP-EX-A-017"
+   ]
+  },
+  "how-do-organisms-reproduce::seed3": {
+   "n": 10,
+   "sha256": "4acc7d6718e0b92c9a6357079b2b9e6d06345a13d66bbd78ef6a0e21e29f20d7",
+   "head": [
+    "PYQ-S-REPR-006",
+    "REPR-EXMPLR-7-MCQ-018",
+    "BX-REP-EX-A-029"
+   ]
+  },
+  "heredity::seed1": {
+   "n": 10,
+   "sha256": "3a93b20bfd5103efc2421e5998e2012936bafeeb2053973db85492b219d36010",
+   "head": [
+    "APQ-S-HERED-002",
+    "SP-S-2023-HERD-E-001",
+    "HERED-EXMPLR-8-MCQ-008"
+   ]
+  },
+  "heredity::seed2": {
+   "n": 10,
+   "sha256": "82cc91f2437bc1fe9a0639d6b9e9f32cb150bd964cb1096b889a73b7dd908400",
+   "head": [
+    "BX-HER-EX-A-005",
+    "APQ-S-HERED-004",
+    "SQP-S-HER-003"
+   ]
+  },
+  "heredity::seed3": {
+   "n": 10,
+   "sha256": "96a0f2d5743a12089d0f3b3d73ec31b5ec4fc49278a622bb5c1b29394ed81aa8",
+   "head": [
+    "APQ-S-HERED-004",
+    "SQP-S-2023-HERD-A-001",
+    "SQP-S-2023-HERD-A-002"
+   ]
+  },
+  "our-environment::seed1": {
+   "n": 10,
+   "sha256": "0b6231ca2e684a10134a7b235b5468de3487da82cb0c1c72884eb8019262a6d7",
+   "head": [
+    "OEX-A-031",
+    "CBE-S-ENVI-E-002",
+    "OEX-B-005"
+   ]
+  },
+  "our-environment::seed2": {
+   "n": 10,
+   "sha256": "f7a47687eed0a179b688583961c2f938594e4ddac486e1a1f9e5ead9ed8d2376",
+   "head": [
+    "OEX-A-029",
+    "CBE-S-ENVI-E-003",
+    "OEX-A-037"
+   ]
+  },
+  "our-environment::seed3": {
+   "n": 10,
+   "sha256": "e772a840b2f1ab635199a3e90ce7cd93449eb1dd2981d7fab0febe0baa9f4d57",
+   "head": [
+    "CBE-S-ENVI-E-003",
+    "OEX-A-016",
+    "OEX-A-020"
+   ]
+  }
+ }
+}

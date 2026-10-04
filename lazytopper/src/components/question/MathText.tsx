@@ -1,6 +1,75 @@
-import { useMemo } from "react";
-import katex from "katex";
-import "katex/dist/katex.min.css";
+import { useEffect, useMemo, useReducer } from "react";
+import type katexModule from "katex";
+
+// ---------------------------------------------------------------------------
+// LOW-END-1 (L6) — KaTeX ON DEMAND.
+// ---------------------------------------------------------------------------
+// KaTeX (~270 KB of script + its stylesheet) used to be a STATIC import here, so it sat in
+// the entry graph of every page that merely imports <MathText> — Check & Improve and the
+// Chapter Test start screen included, whose first screen shows no maths at all
+// (LOW-END-SCOUT-1 P8). It is now its own chunk, fetched the first time a <MathText> is
+// given text that can contain maths (or an <EquationInput> is focused).
+//
+// ★ TEXT THAT CANNOT CONTAIN MATHS NEVER WAITS FOR IT. Maths reaches KaTeX only through a
+// backslash (\(...\), \[...\], \frac...) or the shorthand promotions below (sqrt, frac, a
+// digit/letter followed by ^ or _ and a digit). `textNeedsKatex` is a superset of those
+// triggers, so text it rejects renders byte-identically with or without KaTeX
+// (MathText.test.tsx proves it over the whole question bank). Text it accepts renders a
+// readable unicode stand-in for the moment the chunk is in flight, then the same KaTeX
+// output as before.
+type Katex = typeof katexModule;
+
+let katex: Katex | null = null;
+let katexPending: Promise<Katex> | null = null;
+
+/** Fetch KaTeX and its stylesheet once. A failed fetch is forgotten, so a later call retries. */
+export function loadKatex(): Promise<Katex> {
+  if (katex) return Promise.resolve(katex);
+  if (!katexPending) {
+    katexPending = Promise.all([import("katex"), import("katex/dist/katex.min.css")]).then(
+      ([mod]) => {
+        katex = mod.default;
+        return mod.default;
+      },
+      (error: unknown) => {
+        katexPending = null;
+        throw error;
+      },
+    );
+  }
+  return katexPending;
+}
+
+export function isKatexLoaded(): boolean {
+  return katex !== null;
+}
+
+// ★ OFF THE FIRST SCREEN, NOT OFF THE PAGE. Once a page that can show maths is idle (5 s at
+// the latest), KaTeX is fetched in the background. Two reasons: the first maths a student
+// meets then renders without a wait, and — load-bearing — the PDF exports
+// (worksheet/worksheetPdfExport.ts) rasterise a freshly rendered print doc after only ~2
+// frames, so KaTeX must already be here when "Download PDF" is pressed.
+// [FU-LOWEND-PDF-AWAIT-KATEX]: that file should `await loadKatex()` before rendering; it is
+// outside LOW-END-1's allowlist. Skipped under vitest, where a stray background import would
+// outlive the test file.
+if (typeof window !== "undefined" && import.meta.env.MODE !== "test") {
+  const prefetch = () => {
+    loadKatex().catch(() => {
+      /* retried on demand */
+    });
+  };
+  const idle = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number })
+    .requestIdleCallback;
+  if (typeof idle === "function") idle.call(window, prefetch, { timeout: 5000 });
+  else window.setTimeout(prefetch, 3000);
+}
+
+const MATH_CUE = /\\|sqrt|frac|[A-Za-z0-9][\^_]\d/;
+
+/** Whether `text` can produce any maths at all (a superset of every path into KaTeX). */
+export function textNeedsKatex(text: string): boolean {
+  return MATH_CUE.test(text);
+}
 
 interface MathTextProps {
   text: string;
@@ -50,6 +119,7 @@ const UNICODE_MAP: Record<string, string> = {
 type Segment = { type: "text"; content: string } | { type: "math"; html: string };
 
 function renderKatexToHtml(latex: string, displayMode: boolean): string | null {
+  if (!katex) return null;
   try {
     return katex.renderToString(latex, {
       throwOnError: false,
@@ -322,6 +392,7 @@ function findRunEnd(
  * outside that set degrades to today's behaviour instead of to a new failure.
  */
 function katexCanRender(latex: string): boolean {
+  if (!katex) return false;
   try {
     katex.renderToString(latex, { throwOnError: true, strict: "ignore", output: "html" });
     return true;
@@ -448,7 +519,30 @@ function parseTextToSegments(text: string): Segment[] {
 }
 
 export function MathText({ text, style, className }: MathTextProps) {
-  const segments = useMemo(() => parseTextToSegments(text), [text]);
+  // LOW-END-1 (L6): wait for KaTeX only when this text can contain maths.
+  const needsKatex = !!text && textNeedsKatex(text);
+  const ready = !needsKatex || katex !== null;
+  const [, rerender] = useReducer((n: number) => n + 1, 0);
+  useEffect(() => {
+    if (ready) return;
+    let live = true;
+    loadKatex().then(
+      () => {
+        if (live) rerender();
+      },
+      () => {
+        /* offline / stale deploy: the readable unicode stand-in stays */
+      },
+    );
+    return () => {
+      live = false;
+    };
+  }, [ready]);
+
+  const segments = useMemo<Segment[]>(
+    () => (ready ? parseTextToSegments(text) : [{ type: "text", content: applyUnicodeFallbacks(text) }]),
+    [text, ready],
+  );
 
   const hasMath = segments.some((s) => s.type === "math");
 

@@ -31,7 +31,7 @@ import {
 import { ensureLearnerCloudBaseline } from "../services/studentCloudStore";
 import { hydrateSubscriptionFromCloud } from "../services/subscriptionService";
 import { hydrateMistakeLogsFromCloud } from "../services/mistakeLogService";
-import { authClient, firebaseConfigured } from "../services/firebaseClient";
+import { authClient, firebaseConfigured, getPopupRedirectResolver } from "../services/firebaseClient";
 import { restoreFromDB } from "../services/dbSyncService";
 import { trackSignUp, trackSignUpIfNew } from "../analytics/analytics";
 import { startTrialForNewAccount, startTrialIfNewAccount } from "../services/newAccountTrial";
@@ -346,7 +346,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!authClient) throw new Error("Firebase Auth is not configured");
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: "select_account" });
-    const credential = await signInWithPopup(authClient, provider);
+    // LOW-END-1 (L5) — the popup resolver is no longer installed at Auth start-up (see
+    // firebaseClient.ts), so it is passed here, the one call that needs it.
+    const credential = await signInWithPopup(authClient, provider, getPopupRedirectResolver());
     // ★ `signInWithPopup` IS BOTH DOORS — a brand-new account and a returning student
     // are the same call, so this counts only when `isNewUser`. The gate lives inside
     // trackSignUpIfNew, wrapped, so it can never throw out of a login. See analytics.ts.

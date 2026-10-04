@@ -128,11 +128,25 @@ type Run = {
   dataLayer: unknown[][] | undefined;
   gtagDefined: boolean;
   config: Record<string, unknown> | undefined;
+  /** LOW-END-1 (L2) — drive the deferred library load. */
+  fire: (event: string) => void;
+  runIdle: () => void;
+  runTimers: () => void;
+  timers: number[];
+  idleTimeouts: Array<number | undefined>;
+  listeners: () => string[];
+  win: Record<string, unknown>;
 };
 
-function runGa4Block(href: string, opts: { referrer?: string; webdriver?: boolean } = {}): Run {
+function runGa4Block(
+  href: string,
+  opts: { referrer?: string; webdriver?: boolean; readyState?: string; noIdle?: boolean } = {},
+): Run {
   const url = new URL(href);
   const appended: Appended[] = [];
+  const listeners = new Map<string, Array<() => void>>();
+  const timers: Array<{ ms: number; fn: () => void }> = [];
+  const idles: Array<{ timeout?: number; fn: () => void }> = [];
   const win: Record<string, unknown> = {
     location: {
       href,
@@ -143,9 +157,26 @@ function runGa4Block(href: string, opts: { referrer?: string; webdriver?: boolea
       hash: url.hash,
     },
     navigator: { webdriver: opts.webdriver === true },
+    addEventListener: (type: string, fn: () => void) => {
+      listeners.set(type, [...(listeners.get(type) ?? []), fn]);
+    },
+    removeEventListener: (type: string, fn: () => void) => {
+      listeners.set(type, (listeners.get(type) ?? []).filter((f) => f !== fn));
+    },
+    setTimeout: (fn: () => void, ms: number) => {
+      timers.push({ ms, fn });
+      return timers.length;
+    },
   };
+  if (!opts.noIdle) {
+    win.requestIdleCallback = (fn: () => void, o?: { timeout?: number }) => {
+      idles.push({ timeout: o?.timeout, fn });
+      return idles.length;
+    };
+  }
   const doc = {
     referrer: opts.referrer ?? "",
+    readyState: opts.readyState ?? "interactive",
     createElement: (tagName: string): Appended => ({ tagName }),
     head: { appendChild: (el: Appended) => appended.push(el) },
   };
@@ -154,7 +185,23 @@ function runGa4Block(href: string, opts: { referrer?: string; webdriver?: boolea
   const raw = win.dataLayer as Array<ArrayLike<unknown>> | undefined;
   const dataLayer = raw?.map((entry) => Array.from(entry));
   const config = dataLayer?.find((e) => e[0] === "config")?.[2] as Record<string, unknown> | undefined;
-  return { appended, dataLayer, gtagDefined: typeof win.gtag === "function", config };
+  return {
+    appended,
+    dataLayer,
+    gtagDefined: typeof win.gtag === "function",
+    config,
+    fire: (event) => [...(listeners.get(event) ?? [])].forEach((fn) => fn()),
+    runIdle: () => idles.splice(0).forEach((i) => i.fn()),
+    runTimers: () => timers.splice(0).forEach((t) => t.fn()),
+    get timers() {
+      return timers.map((t) => t.ms);
+    },
+    get idleTimeouts() {
+      return idles.map((i) => i.timeout);
+    },
+    listeners: () => [...listeners.entries()].filter(([, fns]) => fns.length > 0).map(([type]) => type).sort(),
+    win,
+  };
 }
 
 describe("index.html — the GA4 block (GA4-1)", () => {
@@ -185,14 +232,18 @@ describe("index.html — the GA4 block (GA4-1)", () => {
     });
   });
 
-  it("on an ordinary page, requests gtag.js async and configures G-1T8Q12H4RQ (CONTROL for the skips below)", () => {
+  it("on an ordinary page, configures G-1T8Q12H4RQ at once and requests gtag.js async once the page is idle (CONTROL for the skips below)", () => {
     const run = runGa4Block("https://www.lazytopper.com/notes/trigonometry");
-    expect(run.appended).toEqual([{ tagName: "script", async: true, src: GTAG_SRC }]);
     expect(run.gtagDefined).toBe(true);
     expect(run.dataLayer?.map((e) => e[0])).toEqual(["js", "config"]);
     expect(run.dataLayer?.[1][1]).toBe(GA4_ID);
+    run.fire("load");
+    run.runIdle();
+    expect(run.appended).toEqual([{ tagName: "script", async: true, src: GTAG_SRC }]);
     // Paths that merely START with "u" are not hand-off links.
-    expect(runGa4Block("https://www.lazytopper.com/upload").appended).toHaveLength(1);
+    const upload = runGa4Block("https://www.lazytopper.com/upload");
+    upload.fire("pointerdown");
+    expect(upload.appended).toHaveLength(1);
   });
 
   it.each([
@@ -201,14 +252,24 @@ describe("index.html — the GA4 block (GA4-1)", () => {
   ])("★★ on a hand-off link %s it does NOTHING — no script, no gtag, no dataLayer", (_label, prefix) => {
     const token = "d".repeat(64);
     const run = runGa4Block(`${prefix}${token}?gclid=G1`, { referrer: `${prefix}${token}` });
+    // …not even after load, idle, the 4 s cap or an interaction (nothing is listening).
+    expect(run.listeners()).toEqual([]);
+    run.fire("load");
+    run.fire("pointerdown");
+    run.runIdle();
+    run.runTimers();
     expect(run.appended).toEqual([]);
     expect(run.gtagDefined).toBe(false);
     expect(run.dataLayer).toBeUndefined();
-    expect(JSON.stringify(run)).not.toContain(token);
+    expect(JSON.stringify({ appended: run.appended, dataLayer: run.dataLayer, config: run.config })).not.toContain(token);
   });
 
   it("does nothing in the automated contexts analytics.ts already excludes (loopback, webdriver)", () => {
-    expect(runGa4Block("http://127.0.0.1:4173/").appended).toEqual([]);
+    const loopback = runGa4Block("http://127.0.0.1:4173/");
+    loopback.fire("load");
+    loopback.runIdle();
+    loopback.runTimers();
+    expect(loopback.appended).toEqual([]);
     expect(runGa4Block("http://localhost:5173/").dataLayer).toBeUndefined();
     expect(runGa4Block("https://www.lazytopper.com/", { webdriver: true }).gtagDefined).toBe(false);
   });
@@ -301,5 +362,169 @@ describe("index.html — the GA4 block (GA4-1)", () => {
     // CONTROL — the rule really fires (a no-op on both sides would also be "equal").
     expect(normalisePath("/admin/students/AbCdEfGhIjKlMnOpQrStUvWxYz12")).toBe("/admin/students/:id");
     expect(normalisePath("/parent/a@b.c")).toBe("/parent/:email");
+  });
+});
+
+/**
+ * LOW-END-1 (L2, owner ruling 3) — the GA4 LIBRARY loads late; the queue does not.
+ *
+ * The 175 KB gtag.js sat on every page's critical path (LOW-END-SCOUT-1 P3). The inline queue,
+ * gtag() and the config still run at once — the landing address and gclid are captured
+ * before anything else (pinned above). Only the script request waits: first interaction, or
+ * window load + idle, and never later than 4 s after load.
+ *
+ * Mutations (LOW-END-1 section 5): drop the replay of pre-load events (empty the queue when
+ * the library is requested) -> the stub-delivery test goes red; load the library immediately
+ * -> the defer test goes red.
+ */
+describe("index.html — the GA4 library is deferred (LOW-END-1 L2)", () => {
+  it("★ requests NOTHING while the page loads — the queue and config exist, the script does not", () => {
+    const run = runGa4Block("https://www.lazytopper.com/?gclid=EARLY");
+    expect(run.appended).toEqual([]);
+    expect(run.gtagDefined).toBe(true);
+    expect(run.config?.page_location).toBe("https://www.lazytopper.com/?gclid=EARLY");
+    // Waiting on load, and on the first interaction — not on a timer started before load.
+    expect(run.listeners()).toEqual(["keydown", "load", "pointerdown", "scroll", "touchstart"]);
+    expect(run.timers).toEqual([]);
+  });
+
+  it("★ after window load: an idle callback (timeout 4 s) and a hard 4 s cap; whichever fires first loads it, ONCE", () => {
+    const run = runGa4Block("https://www.lazytopper.com/");
+    run.fire("load");
+    expect(run.appended).toEqual([]);
+    expect(run.idleTimeouts).toEqual([4000]);
+    expect(run.timers).toEqual([4000]);
+    run.runIdle();
+    expect(run.appended).toEqual([{ tagName: "script", async: true, src: GTAG_SRC }]);
+    run.runTimers();
+    run.fire("pointerdown");
+    expect(run.appended).toHaveLength(1);
+    // The interaction listeners are gone once it has loaded.
+    expect(run.listeners()).toEqual(["load"]);
+  });
+
+  it("the 4 s cap alone loads it when the main thread never goes idle (or there is no requestIdleCallback)", () => {
+    const busy = runGa4Block("https://www.lazytopper.com/");
+    busy.fire("load");
+    busy.runTimers();
+    expect(busy.appended).toHaveLength(1);
+    const noIdle = runGa4Block("https://www.lazytopper.com/", { noIdle: true });
+    noIdle.fire("load");
+    expect(noIdle.timers).toEqual([4000]);
+    noIdle.runTimers();
+    expect(noIdle.appended).toHaveLength(1);
+  });
+
+  it.each(["pointerdown", "keydown", "touchstart", "scroll"])(
+    "a first interaction (%s) before load requests it at once",
+    (cue) => {
+      const run = runGa4Block("https://www.lazytopper.com/");
+      run.fire(cue);
+      expect(run.appended).toEqual([{ tagName: "script", async: true, src: GTAG_SRC }]);
+    },
+  );
+
+  it("a block that runs after load (readyState complete) schedules the idle load straight away", () => {
+    const run = runGa4Block("https://www.lazytopper.com/", { readyState: "complete" });
+    expect(run.idleTimeouts).toEqual([4000]);
+    expect(run.timers).toEqual([4000]);
+  });
+
+  it("★★ STUB LIBRARY — every event pushed before the library loads is delivered to it after it loads, in order", () => {
+    const run = runGa4Block("https://www.lazytopper.com/pricing?gclid=G7");
+    const gtag = run.win.gtag as (...args: unknown[]) => void;
+    // What src/analytics/ sends while the library is still absent: a page view, then sign_up.
+    gtag("set", { page_location: "https://www.lazytopper.com/pricing" });
+    gtag("event", "page_view", { page_location: "https://www.lazytopper.com/pricing" });
+    gtag("event", "sign_up", { page_location: "https://www.lazytopper.com/pricing" });
+    expect(run.appended).toEqual([]);
+
+    run.fire("load");
+    run.runIdle();
+    expect(run.appended).toHaveLength(1);
+
+    // The stub is what gtag.js does on arrival: process the queue it finds on window.dataLayer,
+    // then take over push.
+    const delivered: unknown[][] = [];
+    const queue = run.win.dataLayer as Array<ArrayLike<unknown>>;
+    for (const entry of queue) delivered.push(Array.from(entry));
+    queue.push = (...entries: Array<ArrayLike<unknown>>) => {
+      for (const entry of entries) delivered.push(Array.from(entry));
+      return queue.length;
+    };
+    gtag("event", "after_load");
+
+    expect(delivered.map((e) => (e[0] === "event" ? `event:${String(e[1])}` : String(e[0])))).toEqual([
+      "js",
+      "config",
+      "set",
+      "event:page_view",
+      "event:sign_up",
+      "event:after_load",
+    ]);
+    expect(delivered[1][2]).toMatchObject({ page_location: "https://www.lazytopper.com/pricing?gclid=G7" });
+  });
+});
+
+/**
+ * LOW-END-1 (L1, owner ruling 1) — ONE web font, self-hosted, for headings; body text is the
+ * system font. Fonts were 136-295 KB per page from three families on a second origin, one of
+ * them through a chained @import (LOW-END-SCOUT-1 P1, P2).
+ *
+ * Mutation (LOW-END-1 section 5, M6): re-add the Google Fonts <link> -> red here.
+ */
+describe("index.html + styles.css — fonts (LOW-END-1 L1)", () => {
+  const styles = readFileSync(resolve(__dirname, "../styles.css"), "utf-8");
+  const fontPath = "/fonts/fraunces-700-latin.woff2";
+
+  it("★ no font request leaves this origin — no Google Fonts link, preconnect or @import anywhere", () => {
+    for (const [name, text] of [["index.html", html], ["styles.css", styles]] as const) {
+      expect(text, name).not.toMatch(/fonts\.googleapis\.com/);
+      expect(text, name).not.toMatch(/fonts\.gstatic\.com/);
+    }
+    expect(styles).not.toMatch(/@import\s+url\(\s*["']?https?:/);
+  });
+
+  it("★ index.html preloads the self-hosted Fraunces woff2 (as=font, type, crossorigin), base-relative", () => {
+    const links = [...html.matchAll(/<link\b[^>]*>/gi)].map((m) => m[0]);
+    const preload = links.filter((l) => /rel="preload"/.test(l) && /as="font"/.test(l));
+    expect(preload).toHaveLength(1);
+    expect(preload[0]).toContain(`href="${fontPath}"`);
+    expect(preload[0]).toContain('type="font/woff2"');
+    expect(preload[0]).toMatch(/\scrossorigin(\s|=|\/|>)/);
+    // CLAUDE.md section 7: no hard-coded retired-base prefix — the href starts at the root.
+    expect(preload[0]).toMatch(/href="\/fonts\//);
+  });
+
+  it("★ styles.css declares Fraunces 700 from that same file with font-display: swap", () => {
+    const faces = [...styles.matchAll(/@font-face\s*\{([^}]*)\}/g)].map((m) => m[1]);
+    const fraunces = faces.filter((f) => /font-family:\s*["']Fraunces["']/.test(f));
+    expect(fraunces).toHaveLength(1);
+    expect(fraunces[0]).toMatch(/font-weight:\s*700/);
+    expect(fraunces[0]).toMatch(/font-display:\s*swap/);
+    expect(fraunces[0]).toContain(`url("${fontPath}") format("woff2")`);
+    // Inter and Space Grotesk are not loaded in any form.
+    for (const f of faces) expect(f).not.toMatch(/Inter|Space Grotesk/);
+  });
+
+  it("the font file and its OFL licence ship from public/fonts/", () => {
+    const woff2 = readFileSync(resolve(__dirname, `../../public${fontPath}`));
+    expect(woff2.subarray(0, 4).toString("latin1")).toBe("wOF2");
+    expect(woff2.length).toBeLessThan(60 * 1024); // the scout's font budget
+    const licence = readFileSync(resolve(__dirname, "../../public/fonts/Fraunces-OFL.txt"), "utf-8");
+    expect(licence).toContain("SIL Open Font License, Version 1.1");
+    expect(licence).toContain("Fraunces Project Authors");
+  });
+
+  it("★ body text is the system font: --font-body is exactly the ruled stack", () => {
+    const m = styles.match(/--font-body:\s*([^;]+);/);
+    expect(m).not.toBeNull();
+    expect(m![1].trim()).toBe('system-ui, -apple-system, "Segoe UI", Roboto, sans-serif');
+  });
+
+  it("CONTROL — the Google Fonts detector fires on the link this lane removed", () => {
+    const removed =
+      '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />';
+    expect(removed).toMatch(/fonts\.googleapis\.com/);
   });
 });

@@ -7,6 +7,7 @@ import OfferStrip from "../components/auth/OfferStrip";
 import VerifyEmailGate from "../components/auth/VerifyEmailGate";
 import { trackUxEvent } from "../services/uxTelemetry";
 import { creditPendingReferral } from "../services/referralService";
+import { prewarmPopupRedirectResolver } from "../services/firebaseClient";
 
 type LocationState = { from?: string };
 
@@ -1479,6 +1480,17 @@ export function AuthDoor({ intent, recaptchaContainerId }: AuthDoorProps) {
   const [isLight, setIsLight] = useState(
     () => document.documentElement.getAttribute("data-theme") === "light"
   );
+
+  // LOW-END-1 (L5) — Auth start-up no longer loads the Google popup's sign-in iframe on
+  // every page (firebaseClient.ts). Warm it here, where the Google button is, so the popup
+  // opens as promptly as before. Best effort: it can never break this page.
+  useEffect(() => {
+    try {
+      prewarmPopupRedirectResolver();
+    } catch {
+      /* the popup initialises itself on tap if the warm-up is unavailable */
+    }
+  }, []);
 
   useEffect(() => {
     const observer = new MutationObserver(() => {

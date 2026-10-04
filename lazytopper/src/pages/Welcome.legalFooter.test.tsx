@@ -303,7 +303,8 @@ describe("Welcome — the questions link round-trips through the notes page", ()
     expect(screen.getByTestId("where").textContent).toBe(
       "/notes/trigonometry?tab=questions&returnTo=%2F&backLabel=Back+to+LazyTopper",
     );
-    const selected = screen.getAllByRole("tab").find((t) => t.getAttribute("aria-selected") === "true");
+    // LOW-END-1 (L4): the note arrives with its own chunk, so wait for its tabs.
+    const selected = (await screen.findAllByRole("tab")).find((t) => t.getAttribute("aria-selected") === "true");
     expect(selected).toHaveTextContent("Competency-based questions");
 
     // Hop 3 — the back-link is named for the landing and lands there.
