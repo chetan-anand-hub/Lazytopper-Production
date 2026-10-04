@@ -1,3 +1,39 @@
+## 2026-10-04 — WAVE A-13 (SEO, CONTROLLER A) — **SEO-5: PHONES SEE THEIR OWN LAYOUT FROM THE FIRST PAINT, A WEEKLY INDEX REPORT, AND A GUIDE TO HOW CBSE EXAMINERS MARK (`/check-your-answer`), LINKED FROM FIVE PLACES** — `#925` + `#927` + `#928` + `#930` MERGED — trunk `b2b29119` (then `d4bbea23`) — LIVE
+
+★ **PROVENANCE.** Controller A, wave A-13. The spec `SEO-5` v1.0 (`DCF175F8A423`) is owner-authored; v1.1 (`B740D8E0CCE1`) is a controller re-anchor; PR-4's spec is the owner's final message (`SPEC_SEO-5_PR4_OWNER.md`, `5FA1B2DD0F80`). Builders `claude-opus-5-5`, one worktree per PR; read-only OR-LIVE agents after each merge. A separate docs builder wrote this docs PR in `C:/Projects/LT-worktrees/a13-docs` from `WAVE_STATE_A13.md`, the specs, the owner's message and the lane reports. Tags as in `CURRENT_STATE.md`. Docs-builder-verified: the four merge SHAs and times (`gh pr view`), ancestry of trunk `d4bbea23`, the four quality-gate runs `success`.
+
+`#926` (`b97f119f`), `#929` (`c9621114`) and `#931` (`d4bbea23`) merged in parallel — Controller B wave B-14; its handoff follows in B's docs PR, which prepends on top of this one.
+
+**Lanes.**
+
+| lane | PR | what it changed | what it disproved |
+|---|---|---|---|
+| PR-1 SEO-MONITOR-1 | `#925` `b6feaf32` | weekly + manual read-only URL Inspection report for every sitemap URL (script, workflow, guard test; 11 mutations); CI `37187171048` `Tests 3704 passed (3704)` | P8 PERMITTED (`sc-domain:lazytopper.com`, `webmasters.readonly`, 2,000 / day, 600 / min); the "short" manual list is 61 / 62 *(builder-reported)* |
+| PR-2 PRERENDER-DEVICE-1 | `#927` `965d1025` | 390 + 1280 captures served by device with `Vary`; first route keeps its prerendered region (no "Loading..."); build-time modulepreloads; CI `37190012202` `Tests 3773 passed (3773)` | D3 taken literally doubles the chrome → route region only *(builder-reported)* |
+| PR-3 ANSWER-GUIDE-1 | `#928` `9651232b` | `/check-your-answer` (740 words, 3 examples matched to published CBSE schemes), sitemap / llms 62 → 63; CI `37207425433` `Tests 3837 passed (3837)` | `CLAUDE.md` §13 is second-hand for the unit / formula / term rules; LIGHT-007 truncates its marks; no 2026 Class X scheme is published *(builder-reported)* |
+| PR-4 ANSWER-GUIDE-2 | `#930` `b2b29119` | Unicode subscripts, "often marked separately", 5 link locations (Home, C&I, Exam Trends, footer, 26 notes pages); body diff = only those; CI `37215509262` `Tests 3882 passed (3882)` | "including in the question text" had nothing to change *(builder-reported)* |
+
+**Timeline (UTC).**
+- **08:07Z `#925` merged.** OR-LIVE-1: manual run `37187972090` → 62 rows == 62 sitemap URLs, 61 need a manual request; rollout 100% 08:25:02Z; 6 / 6 *(agent-reported)*.
+- **09:05–09:21Z OR-LIVE-2 BEFORE on `b6feaf32`** (AC until 09:20:33Z, then battery): "Loading..." 0.6–9.2 s, desktop sidebar at first paint on a 360 px phone, one variant for every client *(agent-reported)*. **09:23Z `#927` merged**; rollout 100% 09:41:40Z. AFTER on battery: behaviour all PASS, timing PARTIAL (not compared) → D-ORLIVE2, no rollback. **10:46–10:55Z AC re-run:** longest task lower 6 / 6, TBT lower 5 / 6 (Notes A +34%), Ready earlier everywhere, profile-B LCP later → D-ORLIVE2-AC, no rollback; B released 10:55Z *(agent-reported)*.
+- **~11:00–13:31Z** B's BEFORE-2 window (PR-3 builder held / PAUSED); a re-anchor scout produced v1.1 (D-REANCHOR). B's measurer independently corroborated the later profile-B LCP.
+- **~12:35–14:10Z** PR-3 text v1 → v5 under owner rulings, then the OWNER STANDING RULING; every example re-verified against CBSE's published PDFs (Desktop/diff/seo-5-pr3-official-ms/). **13:35Z `#926` (B) merged**; PR-3 synced by merge. ~13:40Z the owner's Chrome grant (0 actions used). ~13:55–14:15Z B's AFTER window (PR-3 PAUSED).
+- **~15:08Z owner APPROVED the PR-3 text; 15:09Z `#928` merged.** OR-LIVE-3: 100% 15:26:21Z, 12 / 12 *(agent-reported)*. Live link sent to the owner ~15:32Z.
+- **~15:40Z the owner's final message** (PR-4 + delegations + the rollout-check method change). **15:46Z `#929` (B) merged**; PR-4 synced by fast-forward. ~16:06–17:16Z B's window (PR-4 PAUSED).
+- **17:19Z `#930` merged**; 100% 17:37:37Z. **17:40Z `#931` (B) merged** → `d4bbea23`, 100% 17:58:19Z. OR-LIVE-4 PASS on both SHAs, C&I link re-confirmed on `d4bbea23` *(agent-reported)*.
+- ~17:30Z B asked whether A-13 logged out / cleared site data / erased an account in the owner's Chrome 15:02–17:11Z (the owner's session had vanished). Controller A answered NO, report-based: 0 controller Chrome actions; OR-LIVE-3 / 4 forbidden from the owner's Chrome; the PR-3 / PR-4 builder reports show no Claude-in-Chrome use; the only erase today was the OR-LIVE-2 throwaway ~09:53–09:55Z in Playwright. Caveat stated: not a tool-log audit.
+- **~18:05Z this docs PR dispatched** (only `#932`, a B product PR, open).
+
+**Owner-verified:** the owner's signed-out free check on 4 Oct was graded.
+
+**Lessons.**
+- **A battery run is not evidence.** OR-LIVE-2's battery timings read ~3x TBT; the AC re-run reversed it. Record the power state of every timing run, and measure before / after on the same power.
+- **A better first paint can make LCP later.** Before, LCP was the first paint of the wrong (desktop) layout on a phone; after, LCP is real mobile content painted later. A metric can improve by being wrong.
+- **A rolling release is invisible to cold reads — three more times.** For ~10 minutes per rollout, five cold reads said "100%" while forced buckets ≥ 0.51 were old. The forced-bucket method caught it each time.
+- **A green coverage line can contradict its own failures.** `premise_ledger_check` printed "7/7 claim rows had their anchor RESOLVED" on a run with 3 anchor FAILs → `[FU-PREMISE-CHECKER-COVERAGE-CONTRADICTS]`.
+- **A bank row is not the marking scheme.** LIGHT-007 truncates its last ½; the builder's reconstruction was right, but only CBSE's published PDF proved it.
+- **`gh pr view --json files` truncates at 100** — a 139-file PR would have produced a false reconciliation.
+
 ## 2026-10-04 — WAVE B-13 (UPLOAD, CONTROLLER B) — **UPLOAD-2-FIX-1: ON A PHONE, "TAKE PHOTO" OPENS THE CAMERA ON EVERY GRADING UPLOAD AND ON "ADD ANOTHER PAGE"** — `#923` MERGED — trunk `c29c81cb` — NOT LIVE when written (Vercel did not build it)
 
 ★ **PROVENANCE.** Controller B, wave B-13. The spec `UPLOAD-2-FIX-1` v1.0 (`F9871549F72B`) is owner-authored (cofounder), with the owner's 4 Oct Android report as its WHY. One builder (`claude-opus-5-5`) in `C:/Projects/LT-worktrees/upload-2-fix-1` carried the PR to merge. A separate docs builder wrote this docs PR in `C:/Projects/LT-worktrees/docs-b13` from `WAVE_STATE_B13.md`, the spec and the builder's report. *(builder-reported)* / *(controller-verified)* / *(docs-builder-verified)* as in `CURRENT_STATE.md`. Controller-verified: `c29c81cb` is an ancestor of trunk; 11 files; 0 forbidden; the GitHub statuses for `c29c81cb` show only Railway.
