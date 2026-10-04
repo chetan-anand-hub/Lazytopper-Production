@@ -84,6 +84,10 @@ export const SELF_CANONICAL_EXACT: readonly string[] = [
   // so `/highly-probable/9/Maths` and a lower-cased subject still fall to the root.
   "/highly-probable/10/Maths",
   "/highly-probable/10/Science",
+  // SEO-5 PR-3 (owner ruling, 2026-10-04) — the answer-writing guide, "How CBSE examiners
+  // mark Class 10 answers". Public and signed-out readable. `/check-improve` (the free check
+  // it links to) is deliberately NOT here: it stays noindex and falls to the root.
+  "/check-your-answer",
 ];
 
 /**

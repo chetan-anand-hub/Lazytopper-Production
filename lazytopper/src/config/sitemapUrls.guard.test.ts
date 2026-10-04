@@ -264,7 +264,7 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
    * every member must have an AUTHORED spec — advertising a note URL that renders
    * "Notes not found" would be a soft 404 at HTTP 200.
    */
-  it("★ advertises 62 URLs: the 60 before plus the two Predicted Questions pages (SEO-3)", () => {
+  it("★ advertises 63 URLs: the 62 before plus the answer-writing guide (SEO-5 PR-3)", () => {
     const paths = sitemapPaths();
     const registry = allDesktopTopics();
     const notes = paths.filter((p) => p.startsWith("/notes/"));
@@ -273,7 +273,7 @@ describe("sitemap.xml — derived from the registry, not hand-listed", () => {
     expect(paths.length).toBe(
       SELF_CANONICAL_EXACT.length + LEGAL_SLUGS.length + 2 * registry.length,
     );
-    expect(paths.length, "the owner-ruled advertised count").toBe(62);
+    expect(paths.length, "the owner-ruled advertised count").toBe(63);
 
     for (const path of notes) {
       const slug = path.slice("/notes/".length);
