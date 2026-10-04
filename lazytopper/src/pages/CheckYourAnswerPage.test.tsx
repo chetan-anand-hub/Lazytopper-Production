@@ -75,6 +75,26 @@ describe("/check-your-answer — the page renders, signed out, with one way into
   });
 });
 
+describe("/check-your-answer — SEO-5 PR-4 text edits", () => {
+  it("Example 3 writes every chemical formula with Unicode subscripts", () => {
+    const { container } = renderPage();
+    const ex3 = container.querySelector('[data-bank-id="PYQ-S-2025-CHEMRXN-006"]') as HTMLElement;
+    // The step text only — the marks column ("1") sits in its own span beside it.
+    const steps = [...ex3.querySelectorAll(".lt-cya__step")].map((n) => n.textContent || "").join(" | ");
+    expect(steps).toContain("(a) 2HNO₃ + Ca(OH)₂ → Ca(NO₃)₂ + 2H₂O");
+    expect(steps).toContain("(b) NaCl + AgNO₃ → AgCl + NaNO₃");
+    // No ASCII digit straight after an element symbol or a closing bracket ("HNO3", "(OH)2").
+    expect(steps).not.toMatch(/[A-Za-z)][0-9]/);
+    // ...and no <sub> markup: the subscripts are characters, so they survive any text copy.
+    expect(ex3.querySelector("sub")).toBeNull();
+  });
+
+  it("the Diagrams bullet says diagrams are OFTEN marked separately", () => {
+    const { container } = renderPage();
+    expect(container.textContent).toContain("The drawing and its labels are often marked separately,");
+  });
+});
+
 describe("/check-your-answer — the worked examples are the bank's rows, verbatim", () => {
   for (const example of WORKED_EXAMPLES) {
     it(`${example.bankId}: question text is the bank row's questionText, verbatim`, () => {

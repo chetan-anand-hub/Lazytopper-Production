@@ -346,3 +346,16 @@ describe("LOW-END-1 PR-2 · C&I copy", () => {
     expect(screen.queryByText("Tap to choose a different file")).toBeNull();
   });
 });
+
+// SEO-5 PR-4 — under the upload box (inside the tip that sits beneath it), a plain link to
+// the answer-marking guide. Rendered for every pointer, so both are pinned.
+describe("SEO-5 PR-4 · C&I guide link", () => {
+  it.each([true, false])("coarse pointer %s: 'How marks are given →' links to /check-your-answer", async (coarse) => {
+    stubPointer(coarse);
+    renderPage();
+    await readTypedQuestion();
+    const link = screen.getByRole("link", { name: "How marks are given →" });
+    expect(link).toHaveAttribute("href", "/check-your-answer");
+    expect(link.parentElement?.textContent).toContain("More than one page? Tap Add another page after your first photo.");
+  });
+});
