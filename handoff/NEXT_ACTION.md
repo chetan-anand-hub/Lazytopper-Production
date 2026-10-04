@@ -1,3 +1,48 @@
+## ★★★ 2026-10-04 — WAVE B-14 (LOW-END, CONTROLLER B) — LOW-END-1 + AUTHGATE-FIX-1 CLOSED, LIVE (docs) — THIS BLOCK SUPERSEDES THE WAVE A-13 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE A-13, B-13, B-12, A-12, B-11, A-11, B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
+
+**TRUNK IS `d0c522ba3ec726e521eda5a36397ab08bf7a614c`** when this docs PR was cut (`git ls-remote origin base/approved-thru-437`):
+- `d0c522ba` = `#933` (docs: wave A-13, Controller A) — merged 18:55:34Z.
+- `1165dacf` = `#932` (AUTHGATE-FIX-1: tighten entitlement checks on paid AI endpoints) — **this wave**; merged 18:20:41Z.
+- `d4bbea23` = `#931` (CT-KATEX-2) — **this wave**; merged 17:40:09Z.
+- `b2b29119` = `#930` (SEO-5 PR-4, Controller A).
+- `c9621114` = `#929` (UPLOAD-RESILIENCE-1 / LOW-END-1 PR-2) — **this wave**; merged 15:46:43Z.
+- `9651232b` = `#928` (SEO-5 PR-3, Controller A).
+- `b97f119f` = `#926` (LOW-END-LOAD-1 / LOW-END-1 PR-1) — **this wave**; merged 13:35:08Z.
+- `965d1025` = `#927`, `b6feaf32` = `#925` (Controller A); `a2287b83` = `#924` (docs: wave B-13)
+*(merge times from `gh pr view`, docs-builder-verified)*
+
+When this docs PR was opened no other PR was open (`gh pr list --state open` → empty). This is the only docs PR open (OR-16; A's `#933` merged first). **All four B-14 PRs are LIVE** (OR-LIVE-1 / -2 / -3, each PARTIAL with no rollback; the open rows are in `CURRENT_STATE.md`) *(agent-reported)*.
+
+### NEXT — CONTROLLER (after this docs PR merges)
+1. **The single end-of-lane owner message** (the owner-owed list below) and **one final audit request** — `Desktop/diff/audit-request-low-end-1-final-2026-10-05.md` (present on the Desktop when this PR was written), which also holds the full AUTHGATE security detail (never the public repo). **Then STOP.**
+2. **Keep the 24 h auth watch until 2026-10-05 18:20Z** with the owner: a rise in sign-in-again refusals (401) for real signed-in students → roll back `#932` first, then report.
+
+### NEXT — OWNER
+1. **Google sign-in on Android** (L5). Desktop Chrome Google sign-in PASSED on `b97f119f`.
+2. **The delegated A-13 check:** a cold prerendered `/pricing` → Log in → Google on `1165dacf` reached the Google popup; pick `chetan.anand.1503@gmail.com` (or close the popup).
+3. **A signed-out free check in a real, fresh browser** (App Check refuses automation; your Chrome already used its free check).
+4. **GA4 Realtime shows page views, and Google Ads `sign_up` still records** (L2).
+5. **Firebase console (platform action):** a Firestore TTL policy on collection group `attempts`, field `expiresAt` → `[FU-IDEMPOTENCY-TTL-POLICY]`.
+6. **Firebase console:** confirm your account still exists with the same uid; say whether you logged out between 15:02Z and 17:11Z on 4 Oct (session loss unexplained; no product defect reproduced).
+7. **24 h AUTH WATCH until 2026-10-05 18:20Z** (admin token telemetry or Railway logs). A spike in 401s for real signed-in students → roll back first.
+8. **Audit (non-blocking):** the controller decisions PENDING OWNER AUDIT in `DECISION_LOG.md` (2026-10-04, wave B-14).
+9. **Pick the next wave — the owner's call; this docs PR does not invent a lane.** On the table: the 18 new open FUs (none dispatched), notably `[FU-LOWEND-FONT-CACHE]` (needs `vercel.json`) and `[FU-LOWEND-L3-5SIGNAL]`.
+- Owner AI-graded checks used on your account this lane: **1 of 3**.
+
+### Carried — still owed
+1. **UPLOAD-2 (B-12) acceptance (4 checks) and UPLOAD-2-FIX-1 (B-13) Android 3-page camera flow.**
+2. **The WAVE A-13 owner items** (the block below), then the WAVE B-13 owner items and everything they carry.
+
+### NEXT — LANES
+- None dispatched by wave B-14 beyond `#926`, `#929`, `#931`, `#932`.
+- **★ A new heading uses Fraunces 700, never Space Grotesk; no Google Fonts request.**
+- **★ KaTeX:** eager only on pages with maths on their first screen; Check & Improve via `prefetchKatexWhenIdle()`; Chapter Test on first interaction, awaited on Start; PDF export awaits. No module-load prefetch.
+- **★ A new grading call goes through the grading transport** (one `Idempotency-Key` per call, timeout, retries, stages); the free check is never auto-retried.
+- **★ A new uid-keyed Firestore store needs a `STUDENT_DATA_MAP` entry** (erasure / export).
+- **★ PUBLIC REPO:** a security fix is described in neutral words only — PR text, commits, code comments, handoff. Details go in the private audit request.
+- **★ Timing runs on AC, host quiet, one measurer at a time** (CPU throttling is host-relative); record the power state.
+
 ## ★★★ 2026-10-04 — WAVE A-13 (SEO, CONTROLLER A) — SEO-5 CLOSED, LIVE (docs) — THIS BLOCK SUPERSEDES THE WAVE B-13 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE B-13, B-12, A-12, B-11, A-11, B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
 
