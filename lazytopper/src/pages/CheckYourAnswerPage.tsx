@@ -14,11 +14,12 @@ import "./checkYourAnswer.css";
  * writing" searches, with one clear way into the free check.
  *
  * ★ EVERY FACTUAL SENTENCE HAS A SOURCE (spec P11). The marking principles come from
- * the general instructions CBSE prints with its Class 10 marking schemes (carried
- * verbatim in bank row PYQ-S-ELEC-007), from CLAUDE.md §13, and from the marking
- * notes in bank rows. The three worked examples are bank PYQ rows, cited by id in
- * `WORKED_EXAMPLES` below; the page test reads each row from the bank and fails if
- * its question text drifts. A sentence with no source is deleted, never softened.
+ * the general instructions printed with the CBSE Marking Scheme 2024, Science (086),
+ * paper 31/5/3, from CLAUDE.md §13, and from owner-approved wording. The three worked
+ * examples are bank PYQ rows (cited by id in `WORKED_EXAMPLES` below) whose marks were
+ * checked against CBSE's published marking-scheme PDFs; the page test reads each row
+ * from the bank and fails if its question text drifts. No 2026 question appears until
+ * CBSE publishes that year's scheme. A sentence with no source is deleted, never softened.
  * No "official" marking-scheme wording, no invented figures, no affiliation claim.
  *
  * ★ ONE COMPONENT AT EVERY WIDTH, RESPONSIVE BY CSS ALONE (the Cbse2027Page
@@ -46,6 +47,9 @@ export interface WorkedExample {
   readonly takeaway: string;
 }
 
+/** CBSE's own marking-scheme page, where each cited scheme is published. */
+export const CBSE_MARKING_SCHEME_URL = "https://www.cbse.gov.in/cbsenew/marking-scheme.html";
+
 export const WORKED_EXAMPLES: readonly WorkedExample[] = [
   {
     bankId: "PYQ-M-2024-CIRC-008a",
@@ -54,6 +58,7 @@ export const WORKED_EXAMPLES: readonly WorkedExample[] = [
     question:
       "If two tangents inclined at an angle of 60° are drawn to a circle of radius 3 cm, then find the length of each tangent.",
     stepsHeading: "The marking scheme",
+    source: "Source: CBSE Marking Scheme 2024, Mathematics Standard (041), paper 30/5/1, Q21(a)",
     steps: [
       { text: "Correct figure", marks: "½" },
       { text: "∠APO = 30°", marks: "½" },
@@ -75,33 +80,39 @@ export const WORKED_EXAMPLES: readonly WorkedExample[] = [
       { text: "(b) Between pole and focus", marks: "½" },
       { text: "(c) Any two: virtual, erect, behind the mirror", marks: "½ + ½" },
     ],
-    source: "Source: official CBSE marking scheme 2024, paper 31/5/3, Q25.",
+    source: "Source: CBSE Marking Scheme 2024, Science (086), paper 31/5/3, Q25",
     takeaway:
       "Every part has its own mark, and part (c) is split again, one mark figure per property. A short answer to each part is all this question asks for.",
   },
   {
-    bankId: "PYQ-S-2026-CHEMRXN-014",
-    bankFile: "science/chemicalReactions.pyq2026.ts",
-    tag: "Science · 3 marks · CBSE 2026, paper 31/3/1, Q26",
+    bankId: "PYQ-S-2025-CHEMRXN-006",
+    bankFile: "science/chemicalReactions.pyq2025.ts",
+    tag: "Science · 2 marks · CBSE 2025, paper 31/1/3, Q26",
     question:
-      "2 g of green coloured crystals of ferrous sulphate are heated in a dry boiling tube. Name the type of chemical reaction taking place. Write the balanced chemical equation for the reaction. Is this an exothermic or an endothermic reaction ?",
+      "Translate the following statements into chemical equations and then balance them : (a) Nitric acid reacts with calcium hydroxide to form calcium nitrate and water. (b) Sodium chloride reacts with silver nitrate to form silver chloride and sodium nitrate.",
     stepsHeading: "The marking scheme",
     steps: [
-      { text: "Thermal decomposition reaction", marks: "1" },
       {
         text: (
           <>
-            2FeSO<sub>4</sub>(s) → (heat) Fe<sub>2</sub>O<sub>3</sub>(s) + SO<sub>2</sub>(g) + SO
-            <sub>3</sub>(g)
+            (a) 2HNO<sub>3</sub> + Ca(OH)<sub>2</sub> → Ca(NO<sub>3</sub>)<sub>2</sub> + 2H<sub>2</sub>O
           </>
         ),
         marks: "1",
       },
-      { text: "Endothermic reaction", marks: "1" },
+      {
+        text: (
+          <>
+            (b) NaCl + AgNO<sub>3</sub> → AgCl + NaNO<sub>3</sub>
+          </>
+        ),
+        marks: "1",
+      },
     ],
-    schemeNote: "deduct ½ mark if no / incorrect balancing",
+    schemeNote: "Deduct half mark if equation is not balanced",
+    source: "Source: CBSE Marking Scheme 2025, Science (086), paper 31/1/3, Q26",
     takeaway:
-      "Three answers, one mark each. The equation's mark has a condition attached: leave it unbalanced and this scheme takes part of that mark away.",
+      "One mark per equation, with a condition attached: right chemicals but unbalanced, and part of that mark goes.",
   },
 ];
 
@@ -208,7 +219,13 @@ export default function CheckYourAnswerPage() {
                   </li>
                 ))}
               </ol>
-              {example.source ? <p className="lt-cya__src">{example.source}</p> : null}
+              {example.source ? (
+                <p className="lt-cya__src">
+                  <a href={CBSE_MARKING_SCHEME_URL} target="_blank" rel="noopener noreferrer">
+                    {example.source}
+                  </a>
+                </p>
+              ) : null}
               {example.schemeNote ? (
                 <p className="lt-cya__note">
                   The scheme adds: <q>{example.schemeNote}</q>
@@ -231,8 +248,11 @@ export default function CheckYourAnswerPage() {
         </section>
 
         <p className="lt-cya__fine">
-          Quotations in “Marks are given for steps” are from the general instructions printed with CBSE’s 2023 Class
-          10 Science marking scheme.
+          Quotations in “Marks are given for steps” are from the general instructions printed with the{" "}
+          <a href={CBSE_MARKING_SCHEME_URL} target="_blank" rel="noopener noreferrer">
+            CBSE Marking Scheme 2024, Science (086), paper 31/5/3
+          </a>
+          .
           LazyTopper is an independent platform and is not affiliated with CBSE.
         </p>
       </div>
