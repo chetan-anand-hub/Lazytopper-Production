@@ -49,7 +49,7 @@ function createLiveClient(o) {
   let used = ledgerCount(o.ledgerFile);
   let sentThisProcess = 0;
   let pauseUntil = 0;
-  const stats = { http: 0, ok: 0, status429: 0, timeouts: 0, errors: 0 };
+  const stats = { http: 0, ok: 0, status429: 0, timeouts: 0, errors: 0, httpInFlight: 0, peakHttpInFlight: 0 };
   let keyFailure = null;
 
   const realFetch = globalThis.fetch;
@@ -69,6 +69,10 @@ function createLiveClient(o) {
     const model = decodeURIComponent((u.match(/models\/([^:]+):/) || [])[1] || '');
     let thinkingBudget = null;
     try { const b = JSON.parse(opts.body); thinkingBudget = b.generationConfig && b.generationConfig.thinkingConfig ? b.generationConfig.thinkingConfig.thinkingBudget : null; } catch { /* */ }
+    // Owner speed ruling 2 (2026-10-05): parallel calls ramped to the key's rate limit; the
+    // peak number of HTTP requests in flight is reported with every run.
+    stats.httpInFlight += 1;
+    if (stats.httpInFlight > stats.peakHttpInFlight) stats.peakHttpInFlight = stats.httpInFlight;
     const t0 = Date.now();
     let status = null; let usage = null; let responseId = null; let modelVersion = null; let finish = null; let errClass = null;
     try {
@@ -97,6 +101,7 @@ function createLiveClient(o) {
       if (/abort/i.test(errClass)) stats.timeouts += 1;
       throw e;
     } finally {
+      stats.httpInFlight -= 1;
       const latencyMs = Date.now() - t0;
       stats.http += 1;
       if (status && status < 400) stats.ok += 1; else stats.errors += 1;

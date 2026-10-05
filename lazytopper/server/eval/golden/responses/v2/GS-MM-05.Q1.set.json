@@ -1,0 +1,278 @@
+{
+ "ok": true,
+ "worksheetId": "golden-mm-GS-MM-05",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 2,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Evaluation of tan²60° and (sin²60° + cos²30°)",
+     "studentWork": "tan 60° ki value √3 hoti hai, toh tan²60° = (√3)² = 3. sin 60° = √3/2 aur cos 30° bhi √3/2 hota hai, toh sin²60° + cos²30° = 3/4 + 3/4 = 6/4 = 3/2.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct values substituted and simplified",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Division to obtain final value",
+     "studentWork": "Ab answer = 3 ÷ (3/2) = 3 × 2/3 = 2. Isliye value = 2.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct final calculation",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Well done! All trigonometric values were accurately substituted and simplified to get the correct answer.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Correct substitution of trigonometric values for tan 60°, sin 60°, and cos 30°",
+     "marks": 1
+    },
+    {
+     "point": "Simplification of numerator and denominator to evaluate the final value",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 2,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1.5,
+   "percentage": 75,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Assumption of rationality and rearrangement to isolate √3",
+     "studentWork": "Let 5 − 2√3 be rational. Then 5 − 2√3 = a/b, where a and b are integers and b ≠ 0. ⇒ 2√3 = 5 − a/b = (5b − a)/b ⇒ √3 = (5b − a)/(2b)",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct algebraic rearrangement to isolate √3",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Contradiction argument and final conclusion",
+     "studentWork": "Since a and b are integers, (5b − a)/(2b) is rational, but √3 is irrational. This is a contradiction.",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Identified contradiction correctly, but omitted explicit final conclusion",
+     "mistakeType": "presentation",
+     "correctedWorking": "This is a contradiction. Hence, 5 − 2√3 is an irrational number.",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 1,
+    "departure": 0
+   },
+   "teacherNote": "Good proof by contradiction. Always finish by stating the required conclusion explicitly: 'Hence, 5 − 2√3 is an irrational number'.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0.5,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Assume 5 - 2√3 is rational, express as a/b (b ≠ 0, a and b integers) and rearrange to isolate √3",
+     "marks": 1
+    },
+    {
+     "point": "Deduce contradiction and conclude that 5 - 2√3 is irrational",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 3,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 5,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "This answer does not address the question that was set, so it has not been marked — check that you uploaded your answer to this question.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": true,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": null,
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 4,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2,
+   "percentage": 67,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Establish formula and substitute known dimensions",
+     "studentWork": "Let outer radius = R cm and inner radius = r cm. R − r = 1 ...(i) Volume of metal = π(R² − r²)h 176 = (22/7) × (R² − r²) × 14",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct formula and substitution",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Simplify volume equation to find R² - r²",
+     "studentWork": "⇒ R² − r² = (176 × 7)/(22 × 14) = 1232/308 = 8",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Calculation error: 1232 / 308 equals 4, not 8",
+     "mistakeType": "calculation",
+     "correctedWorking": "R² − r² = (176 × 7)/(22 × 14) = 1232/308 = 4",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Factorize difference of squares and solve system of linear equations",
+     "studentWork": "⇒ (R − r)(R + r) = 8 ⇒ 1 × (R + r) = 8 ⇒ R + r = 8 ...(ii) Adding (i) and (ii): 2R = 9 ⇒ R = 4.5 cm, r = 3.5 cm Outer radius = 4.5 cm, inner radius = 3.5 cm.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct method followed with error carried forward from step 2",
+     "mistakeType": null,
+     "correctedWorking": "(R − r)(R + r) = 4 ⇒ 1 × (R + r) = 4 ⇒ R + r = 4. Adding with R - r = 1: 2R = 5 ⇒ R = 2.5 cm, r = 1.5 cm.",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Your algebraic method was entirely correct, but an arithmetic slip (1232/308 = 4, not 8) affected the final radii values. Marks were protected under error-carried-forward rules.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Set up volume formula for hollow cylinder π(R² - r²)h = 176 and substitute h = 14",
+     "marks": 1
+    },
+    {
+     "point": "Evaluate to find R² - r² = 4",
+     "marks": 1
+    },
+    {
+     "point": "Use algebraic identity (R - r)(R + r) = 4 and R - r = 1 to find R and r with units",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  }
+ ],
+ "totalQuestions": 4,
+ "gradedCount": 3,
+ "pendingCount": 1,
+ "gradedMarksAwarded": 5.5,
+ "gradedMarksTotal": 7,
+ "worksheetTotalMarks": 12,
+ "summary": "You demonstrated good algebraic understanding and application of formulas across trigonometry and mensuration. Take extra care during arithmetic division to avoid slips, and ensure you always match the question prompt before writing your response.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

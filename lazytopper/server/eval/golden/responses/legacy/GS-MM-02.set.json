@@ -1,0 +1,34 @@
+{
+ "ok": true,
+ "worksheetId": "golden-mm-GS-MM-02",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 5,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "This answer does not address the question that was set, so it earns no marks — check that you uploaded your answer to this question.",
+   "questionDepartureError": false,
+   "objective": false
+  }
+ ],
+ "totalQuestions": 1,
+ "gradedCount": 1,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 0,
+ "gradedMarksTotal": 5,
+ "worksheetTotalMarks": 5,
+ "summary": "Please be careful to map each solution to its corresponding question number. Working out an entirely different problem cannot be awarded credit under CBSE marking guidelines.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

@@ -1,0 +1,62 @@
+{
+ "ok": true,
+ "totalMarks": 4,
+ "marksAwarded": 2,
+ "percentage": 50,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Find distance BD in terms of h",
+   "studentWork": "(i) In △BDC, tan 45° = CD/BD ⇒ 1 = h/BD ⇒ BD = h m",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly derived BD = h m.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Find distance BC in terms of h",
+   "studentWork": "(ii) sin 45° = CD/BC ⇒ 1/√2 = h/BC ⇒ BC = √2 h m",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly derived BC = √2 h m.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Calculate height CE of the lighthouse",
+   "studentWork": "(iii) I don't know how to do this part.",
+   "status": "missing",
+   "marksAwarded": 0,
+   "marksDeducted": 2,
+   "teacherAnnotation": "Part unattempted.",
+   "mistakeType": null,
+   "correctedWorking": "In △AEC, tan 60° = CE/AE = (h + 40)/h ⇒ √3 h = h + 40 ⇒ h(√3 - 1) = 40 ⇒ h = 40/(√3 - 1) = 20(√3 + 1) = 20(1.73 + 1) = 54.6 m. Height CE = 54.6 + 40 = 94.6 m.",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: (i) Correct expression for BD in terms of h using tan 45° (1); (ii) Correct expression for BC in terms of h using sin 45° or Pythagoras theorem (1); (iii) Relation tan 60° = (h + 40)/h and solving for h (1); (iii) Calculating total height CE = h + 40 (1). Parts (i) and (ii) are completely correct and clearly written. For part (iii), relate the ground triangle △AEC using tan 60° = (h + 40)/h since AE = BD = h and DE = 40 m.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

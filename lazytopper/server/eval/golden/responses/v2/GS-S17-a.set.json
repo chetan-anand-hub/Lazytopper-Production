@@ -1,0 +1,442 @@
+{
+ "ok": true,
+ "worksheetId": "golden-parity-PARS6",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2.5,
+   "percentage": 83,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Application of 10% law to calculate energy at producer level",
+     "studentWork": "By the 10% law only 10% of energy passes to the next level.\nLarge fish (4th level) = 10 kJ ⇒ small fishes = 100 kJ ⇒ zooplankton = 1000 kJ ⇒ phytoplankton = 1000 × 10 = 1,00,000 kJ.",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Correct application of the 10% law, but an arithmetic error in the final multiplication (1000 × 10 = 10,000 kJ, not 1,00,000 kJ).",
+     "mistakeType": "calculation",
+     "correctedWorking": "Phytoplankton = 1000 × 10 = 10,000 kJ",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "A",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Feasibility of three more trophic levels with justification",
+     "studentWork": "No. At each trophic level about 90% of the energy is lost, so after three more levels very little usable energy would be left.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly stated with valid justification regarding energy loss.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "B",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Trophic level with maximum pesticide concentration and reason",
+     "studentWork": "Large fish, because pesticides are non-biodegradable and accumulate at each trophic level (biological magnification), so the highest level has the maximum concentration.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly identified large fish and accurately explained biomagnification.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "C",
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Well-reasoned answers for parts B and C. Be careful with mental math in part A: 1000 × 10 is 10,000, not 1,00,000.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0.5,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Part A: Calculation of energy at producer level using 10% law",
+     "marks": 1
+    },
+    {
+     "point": "Part B: Justification of why three more trophic levels are not possible",
+     "marks": 1
+    },
+    {
+     "point": "Part C: Identification of trophic level with maximum pesticide and justification (biomagnification)",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 2,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 4,
+   "marksAwarded": 3,
+   "percentage": 75,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Percentage of violet flowers in F1 and F2 of experiment 1 with reason",
+     "studentWork": "Experiment one: F1 — 100% violet (Vv); F2 — 75% violet (VV and Vv), because violet is the dominant trait.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct percentages and valid reason.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "A",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Fraction/percentage of tall plants with white flowers in F2 of dihybrid cross",
+     "studentWork": "Tall plants with white flowers in F2 = 9/16, because tall is dominant.",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Incorrect. 9/16 represents the recombinant dominant-dominant phenotype (tall with violet flowers). Tall with white flowers is 3/16 (18.75%).",
+     "mistakeType": "conceptual",
+     "correctedWorking": "Tall plants with white flowers (T_vv) in F2 = 3/16 (or 18.75%).",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "B",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Percentage of short plants with white flowers in F1 and F2 of dihybrid cross with reason",
+     "studentWork": "F1: 0% short plants with white flowers, since all F1 plants (VvTt) show only the dominant traits. F2: 1/16 (6.25%) plants will be short with white flowers (vvtt), as both traits are recessive.",
+     "status": "correct",
+     "marksAwarded": 2,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct percentages and genotypes with appropriate explanations.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "D",
+     "marksAvailable": 2
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Parts A and D are answered very well with correct genotypes and reasons. In part B, remember the dihybrid phenotypic ratio 9:3:3:1—tall plants with white flowers have one dominant and one recessive trait, so their frequency is 3/16.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Part A: Percentage of violet flowers in F1 and F2 generations with reason",
+     "marks": 1
+    },
+    {
+     "point": "Part B: Expected percentage/fraction of tall plants with white flowers in F2 generation",
+     "marks": 1
+    },
+    {
+     "point": "Part D: Percentage of short plants with white flowers in F1 and F2 generations with reason",
+     "marks": 2
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 3,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 2,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Statement of Snell's law",
+     "studentWork": "Snell's law: for light of a given colour and a given pair of media, the ratio of the sine of the angle of incidence to the sine of the angle of refraction is constant: sin i / sin r = constant.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Complete and precise statement of Snell's law.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "A",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Definition and mathematical expression for relative refractive index",
+     "studentWork": "The refractive index of medium 2 with respect to medium 1 is the ratio of the speed of light in medium 1 to the speed of light in medium 2: n₂₁ = v₁/v₂.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Accurate definition and correct mathematical formula.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "B",
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Excellent, precise answers adhering strictly to NCERT definitions.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Part A: Statement of Snell's Law of refraction",
+     "marks": 1
+    },
+    {
+     "point": "Part B: Definition and mathematical formula for relative refractive index",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 4,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 4,
+   "marksAwarded": 4,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Stating wire insulation colours",
+     "studentWork": "Live wire — red insulation; neutral wire — black insulation.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct colours specified for live and neutral wires.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(a)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Withdrawn erroneous working",
+     "studentWork": "P = 1 kW = 1000 W, V = 220 V.\nP = V/I ⇒ I = V/P = 220/1000 = 0.22 A.\nSo a circuit of current rating 1 A would be enough for the iron.\nWait — this is wrong: power is P = V × I, not V/I (1 watt = 1 volt × 1 ampere). Ignore the two lines above. Redoing:",
+     "status": "withdrawn",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "Withdrawn by student.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(b)",
+     "marksAvailable": 0
+    },
+    {
+     "stepNumber": 3,
+     "description": "Current calculation and circuit rating",
+     "studentWork": "P = V × I ⇒ I = P/V = 1000 W / 220 V = 4.54 A.\nSo the circuit must have a current rating of 5 A.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly calculated current and identified the standard 5 A circuit rating.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(b)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 4,
+     "description": "Function and advantage of earth wire",
+     "studentWork": "The earth wire provides a low-resistance conducting path for current, so any current leaking to the metallic body of the iron flows to the earth and the body stays at the potential of the earth. Hence the user does not get an electric shock.",
+     "status": "correct",
+     "marksAwarded": 2,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Complete explanation covering both the low-resistance path and shock prevention.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(c)(i)",
+     "marksAvailable": 2
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Great self-correction in part (b) and very clear explanation of the safety role of the earth wire in domestic appliances.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Part (a): Colours of insulation of live and neutral wires",
+     "marks": 1
+    },
+    {
+     "point": "Part (b): Calculation of electric current and stating required circuit rating",
+     "marks": 1
+    },
+    {
+     "point": "Part (c)(i): Function and safety advantage of the earth wire",
+     "marks": 2
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 5,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1.5,
+   "percentage": 75,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Identification of values and substitution into lens formula",
+     "studentWork": "u = −90 cm, f = −30 cm (concave lens)\nLens formula: 1/f = 1/v − 1/u\n1/(−30) = 1/v − 1/(−90)",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Formula stated and sign conventions applied correctly, but object distance was miscopied from the question as 90 cm instead of 60 cm.",
+     "mistakeType": "silly",
+     "correctedWorking": "u = −60 cm, f = −30 cm; 1/(−30) = 1/v − 1/(−60)",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Calculation of v and description of position (ECF applied)",
+     "studentWork": "1/v = −1/30 − 1/90 = (−3 − 1)/90 = −4/90 = −2/45\nv = −45/2 = −22.5 cm\nThe image is formed 22.5 cm from the lens, on the same side as the object.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Error Carried Forward: calculation and interpretation are fully correct based on the miscopied value.",
+     "mistakeType": null,
+     "correctedWorking": "1/v = −1/30 − 1/60 = −3/60 = −1/20 ⇒ v = −20 cm. The image is formed at 20 cm in front of the lens.",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 1,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Your physics methodology and sign conventions were completely sound. Take extra care when copying given values from the question stem (object distance was 60 cm, not 90 cm).",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0.5,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Stating lens formula and substituting given values with proper sign conventions",
+     "marks": 1
+    },
+    {
+     "point": "Solving for image distance v and stating the position/nature of the image",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  }
+ ],
+ "totalQuestions": 5,
+ "gradedCount": 5,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 13,
+ "gradedMarksTotal": 15,
+ "worksheetTotalMarks": 15,
+ "summary": "Strong grasp of fundamental concepts across Physics and Biology with excellent scientific explanations. To maximize your score, double-check numerical values copied from the question prompt and review dihybrid phenotypic ratios.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

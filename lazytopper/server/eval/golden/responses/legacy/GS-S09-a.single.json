@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2.5,
+ "percentage": 83,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Equivalent resistance of 10 Ω and 15 Ω resistors in parallel",
+   "studentWork": "10 Ω and 15 Ω are in parallel: 1/R₁ = 1/10 + 1/15 = (3 + 2)/30 = 5/30 ⇒ R₁ = 6 Ω",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly found equivalent resistance R₁ = 6 Ω",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Equivalent resistance of 60 Ω and 40 Ω resistors and total circuit resistance",
+   "studentWork": "60 Ω and 40 Ω are in parallel: 1/R₂ = 1/60 + 1/40 = 2/100 ⇒ R₂ = 50 Ω\nR₁ and R₂ are in series: R = 6 + 50 = 56 Ω",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "× Fraction addition error: 1/60 + 1/40 is not 2/100",
+   "mistakeType": "calculation",
+   "correctedWorking": "1/R₂ = 1/60 + 1/40 = (2 + 3)/120 = 5/120 ⇒ R₂ = 24 Ω\nR = R₁ + R₂ = 6 + 24 = 30 Ω",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Calculation of total current drawn from the source",
+   "studentWork": "I = V/R = 15/56 = 0.27 A",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct formula and substitution with error carried forward from (a)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 4,
+   "description": "Potential difference across the 10 Ω and 15 Ω combination",
+   "studentWork": "Potential difference across the 10 Ω–15 Ω combination: V = I R₁ = 0.27 × 6 = 1.6 V",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct method and calculation using carried forward current",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Calculation of equivalent resistance of 10 Ω and 15 Ω parallel combination (R₁ = 6 Ω) (0.5); Calculation of equivalent resistance of 60 Ω and 40 Ω combination (R₂ = 24 Ω) and total circuit resistance (R = 30 Ω) (0.5); Calculation of total current drawn from the source using I = V/R (1); Calculation of potential difference across the 10 Ω and 15 Ω combination using V₁ = I R₁ (1). Your formulas and method across all three parts are completely sound. Be very careful with fraction addition when finding parallel resistance; finding the common denominator for 60 and 40 gives 24 Ω instead of 50 Ω.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

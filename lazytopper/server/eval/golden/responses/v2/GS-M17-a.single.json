@@ -1,0 +1,98 @@
+{
+ "ok": true,
+ "totalMarks": 4,
+ "marksAwarded": 3,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Calculate fourth, fifth, and sixth terms",
+   "studentWork": "(i) a = 300, d = 50.\na₄ = 300 + 3 × 50 = 450 m, a₅ = 500 m, a₆ = 550 m.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct terms: 450 m, 500 m, 550 m",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(i)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Determine the distance of the 8th round",
+   "studentWork": "(ii)",
+   "status": "unattempted",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "Sub-part left unattempted",
+   "mistakeType": null,
+   "correctedWorking": "a₈ = a + 7d = 300 + 7 × 50 = 300 + 350 = 650 m",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(ii)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Formula, substitution, and evaluation of total distance for 10 rounds",
+   "studentWork": "(iii)(a) S₁₀ = 10/2 [2 × 300 + (10 − 1) × 50] = 5 × [600 + 450] = 5 × 1050 = 5250 m.",
+   "status": "correct",
+   "marksAwarded": 2,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Perfectly solved S₁₀ = 5250 m",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(iii)(a)",
+   "marksAvailable": 2
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Parts (i) and (iii)(a) are completely correct with clear working and proper units. Be careful not to skip sub-part (ii), which only required calculating a₈ = a + 7d = 650 m.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 1,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Finding the 4th, 5th, and 6th terms of the AP in part (i)",
+   "marks": 1
+  },
+  {
+   "point": "Applying formula and calculating distance of the 8th round in part (ii)",
+   "marks": 1
+  },
+  {
+   "point": "Formula and substitution for total distance of 10 rounds in part (iii)(a)",
+   "marks": 1
+  },
+  {
+   "point": "Calculating total distance S₁₀ = 5250 m in part (iii)(a)",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

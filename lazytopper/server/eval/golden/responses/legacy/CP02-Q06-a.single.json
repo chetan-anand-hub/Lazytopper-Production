@@ -1,0 +1,62 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 3,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Calculate sum and product of zeroes",
+   "studentWork": "α + β = - (-8)/2 = 4, αβ = 5/2",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly found α + β and αβ",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Simplify the given algebraic expression",
+   "studentWork": "(α + 1/β)(β + 1/α) = (αβ + 1)/β × (αβ + 1)/α = (αβ + 1)² / αβ",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Neat and elegant algebraic simplification",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Substitute αβ and compute the final value",
+   "studentWork": "= (5/2 + 1)² / (5/2) = (49/4) / (5/2) = 49/4 × 2/5 = 49/10",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Accurate substitution and arithmetic calculation",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Finding the sum and product of zeroes (α + β = 4 / αβ = 5/2) (1); Algebraic simplification of (α + 1/β)(β + 1/α) in terms of αβ (1); Substitution of αβ = 5/2 and evaluating the final value (1). Excellent solution! The simplification was clever, efficient, and every calculation step is completely accurate.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

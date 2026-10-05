@@ -16,7 +16,7 @@ async function evaluateRun(runDir, opts = {}) {
     const job = plan[record.jobKey];
     integrity.jobs += 1;
     if (!job) { integrity.missingFromPlan.push(record.jobKey); return; }
-    const rep = await replayJob(job, record, { callGeminiOverride: opts.callGeminiOverride });
+    const rep = await replayJob(job, record, { callGeminiOverride: opts.callGeminiOverride, config: R.manifest && R.manifest.config });
     if (!rep.requestDigestMatches) integrity.requestDigestMismatch.push(record.jobKey + '#' + run);
     if (rep.unusedCalls > 0 || rep.servedCalls !== (record.calls || []).length) integrity.replayIncomplete.push(record.jobKey + '#' + run);
     if (rep.bodyChanged) integrity.changed += 1;

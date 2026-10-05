@@ -1,0 +1,251 @@
+{
+ "ok": true,
+ "worksheetId": "golden-parity-PARM3",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 2,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Evaluation of tan²60° and denominator terms",
+     "studentWork": "tan 60° ki value √3 hoti hai, toh tan²60° = (√3)² = 3. sin 60° = √3/2 aur cos 30° bhi √3/2 hota hai, toh sin²60° + cos²30° = 3/4 + 3/4 = 6/4 = 3/2.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct trigonometric values and substitution in numerator and denominator",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Division to obtain final value",
+     "studentWork": "Ab answer = 3 ÷ (3/2) = 3 × 2/3 = 2. Isliye value = 2.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct calculation and final answer",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Correctly substituting values of tan 60° / sin 60° / and cos 30° (1); Simplification of numerator and denominator to evaluate the final value (1). Well done! All trigonometric standard values were correctly substituted and evaluated.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 2,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1.5,
+   "percentage": 75,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Ratio of corresponding sides",
+     "studentWork": "Since ΔABC ~ ΔPQR, AB/PQ = BC/QR = AC/PR",
+     "status": "correct",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct ratio of corresponding sides",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Substitution of given values into the ratio",
+     "studentWork": "6/PQ = 4/QR = 8/9",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "× PR = 6 cm was miscopied as 9",
+     "mistakeType": "silly",
+     "correctedWorking": "6/PQ = 4/QR = 8/6",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Calculation of lengths PQ and QR",
+     "studentWork": "PQ = (6 × 9)/8 = 54/8 = 6.75 cm, QR = (4 × 9)/8 = 36/8 = 4.5 cm",
+     "status": "correct",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct calculation based on carried-forward value (ECF)",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 4,
+     "description": "Evaluation of PQ + QR",
+     "studentWork": "PQ + QR = 6.75 + 4.5 = 11.25 cm",
+     "status": "correct",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct addition carried forward",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 1,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Stating the proportionality of corresponding sides for similar triangles (0.5); Correct substitution of given lengths into the ratio (0.5); Finding the individual lengths PQ and QR (0.5); Calculating the sum (PQ + QR) (0.5). Your method and subsequent calculations were completely sound, but be careful when copying given values from the question: PR was 6 cm, not 9 cm.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 3,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 2,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Stating perpendicularity at the point of contact",
+     "studentWork": "∠OAP = 90° (tangent ⊥ radius at the point of contact)",
+     "status": "correct",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct theorem cited",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Pythagoras theorem equation",
+     "studentWork": "In right ΔOAP, OP² = OA² + AP², 26² = OA² + 10²",
+     "status": "correct",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct formulation of Pythagoras theorem",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Solving for radius OA",
+     "studentWork": "OA² = 676 - 100 = 576, OA = √576 = 24, ∴ radius of the ground = 24 m",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Accurate calculation with unit",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Establishing ∠OAP = 90° using tangent-radius property and applying Pythagoras theorem (1); Solving for OA (radius) with correct units (1). Excellent solution! The geometric reason was clearly stated and the calculation was clean and accurate.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 4,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 3,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Expressing in terms of sin θ and cos θ",
+     "studentWork": "LHS = tanθ/(1 − cotθ) + cotθ/(1 − tanθ) = (sinθ/cosθ)/((sinθ − cosθ)/sinθ) + (cosθ/sinθ)/((cosθ − sinθ)/cosθ) = sin²θ/(cosθ(sinθ − cosθ)) − cos²θ/(sinθ(sinθ − cosθ))",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct conversion to sin and cos with negative sign adjustment",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Combining fractions and applying cubic difference identity",
+     "studentWork": "= (sin³θ − cos³θ)/(sinθ cosθ (sinθ − cosθ)) = (sinθ − cosθ)(sin²θ + sinθ cosθ + cos²θ)/(sinθ cosθ (sinθ − cosθ))",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct factorization using a³ - b³",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Simplifying using Pythagorean identity to obtain RHS",
+     "studentWork": "= (1 + sinθ cosθ)/(sinθ cosθ) = 1/(sinθ cosθ) + 1 = 1 + secθ cosecθ = RHS. Hence proved.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Perfectly proved with clear conclusion",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Converting tan θ and cot θ to sin θ and cos θ and simplifying fractions (1); Taking common denominator and applying the algebraic identity a³ − b³ (1); Using sin²θ + cos²θ = 1 and splitting terms to reach RHS (1). Outstanding proof! Every algebraic and trigonometric identity was used correctly with clear presentation.",
+   "questionDepartureError": false,
+   "objective": false
+  }
+ ],
+ "totalQuestions": 4,
+ "gradedCount": 4,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 8.5,
+ "gradedMarksTotal": 9,
+ "worksheetTotalMarks": 9,
+ "summary": "Overall very impressive performance demonstrating solid conceptual clarity across Trigonometry, Circles, and Similarity. Just take extra care during transcription of given numerical values from the question to avoid losing easy marks.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

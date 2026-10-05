@@ -1,0 +1,46 @@
+{
+ "ok": true,
+ "worksheetId": "golden-mm-GS-MM-01",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "This answer does not address the question that was set, so it has not been marked — check that you uploaded your answer to this question.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": true,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": null,
+   "objectiveResolved": null
+  }
+ ],
+ "totalQuestions": 1,
+ "gradedCount": 0,
+ "pendingCount": 1,
+ "gradedMarksAwarded": 0,
+ "gradedMarksTotal": 0,
+ "worksheetTotalMarks": 2,
+ "summary": "Ensure that the work typed corresponds directly to the question asked. For electric circuit questions, identify the series/parallel combination, determine the total circuit current, and apply the appropriate power formula.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

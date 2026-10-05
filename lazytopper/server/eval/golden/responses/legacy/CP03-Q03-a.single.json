@@ -1,0 +1,49 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 2,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Writing the balanced chemical equation for reaction of nitric acid and calcium hydroxide",
+   "studentWork": "(a) 2HNO3 + Ca(OH)2 -> Ca(NO3)2 + 2H2O",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct balanced equation",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Writing the balanced chemical equation for reaction of sodium chloride and silver nitrate",
+   "studentWork": "(b) NaCl + AgNO3 -> AgCl + NaNO3",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct balanced equation",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Correct balanced chemical equation for reaction (a) (1); Correct balanced chemical equation for reaction (b) (1). Both equations are correctly formulated and balanced. Clean work replacing the initial rough draft.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

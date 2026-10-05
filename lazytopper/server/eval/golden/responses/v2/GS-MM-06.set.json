@@ -1,0 +1,124 @@
+{
+ "ok": true,
+ "worksheetId": "golden-mm-GS-MM-06",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 5,
+   "marksAwarded": 3.5,
+   "percentage": 70,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Forming the equation based on speed and time difference",
+     "studentWork": "Let the speed of the train be x km/h. Reduced speed = (x − 8) km/h. Time at usual speed = 480/x, time at reduced speed = 480/(x − 8). 480/x − 480/(x − 8) = 3",
+     "status": "partial",
+     "marksAwarded": 1,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Expressions for speed and time are correct, but since reduced speed takes more time, the difference should be 480/(x − 8) − 480/x = 3.",
+     "mistakeType": "conceptual",
+     "correctedWorking": "480/(x − 8) − 480/x = 3",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1.5
+    },
+    {
+     "stepNumber": 2,
+     "description": "Simplifying to standard quadratic equation form",
+     "studentWork": "⇒ 480(x − 8) − 480x = 3x(x − 8) ⇒ −3840 = 3x² − 24x ⇒ 3x² − 24x + 3840 = 0 ⇒ x² − 8x + 1280 = 0",
+     "status": "correct",
+     "marksAwarded": 1.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly simplified the formed equation into standard quadratic form (ECF).",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1.5
+    },
+    {
+     "stepNumber": 3,
+     "description": "Factorising and solving the quadratic equation",
+     "studentWork": "⇒ (x − 40)(x + 32) = 0 ⇒ x = 40 or x = −32.",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 1,
+     "teacherAnnotation": "½ Incorrect factorisation: (x − 40)(x + 32) expands to x² − 8x − 1280, not x² − 8x + 1280. Partial credit is awarded for solving from the stated factors.",
+     "mistakeType": "calculation",
+     "correctedWorking": "For x² − 8x − 1280 = 0: (x − 40)(x + 32) = 0 ⇒ x = 40 or x = −32",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1.5
+    },
+    {
+     "stepNumber": 4,
+     "description": "Contextual rejection of negative root and stating final answer with unit",
+     "studentWork": "Speed cannot be negative. ∴ Speed of the train = 40 km/h.",
+     "status": "correct",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct contextual rejection of the negative root and correct final answer with units.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 0.5
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Good attempt with clear presentation and contextual reasoning to reject the negative root. Be careful when setting up the time difference: lower speed results in greater travel time, so 480/(x − 8) must be the first term. Also ensure constant signs are checked carefully during factorisation.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": null,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0.5,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Formulating variables, time expressions, and the time-difference equation",
+     "marks": 1.5
+    },
+    {
+     "point": "Simplifying to standard quadratic form",
+     "marks": 1.5
+    },
+    {
+     "point": "Solving the quadratic equation for roots",
+     "marks": 1.5
+    },
+    {
+     "point": "Rejecting negative root with context and stating final answer with unit",
+     "marks": 0.5
+    }
+   ],
+   "objectiveResolved": null
+  }
+ ],
+ "totalQuestions": 1,
+ "gradedCount": 1,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 3.5,
+ "gradedMarksTotal": 5,
+ "worksheetTotalMarks": 5,
+ "summary": "The student demonstrates good familiarity with word problems on quadratic equations and correctly justifies rejecting the negative root. However, errors occurred in ordering the time terms during initial setup and in the sign of the constant term when factorising. Paying close attention to which time duration is greater will ensure accurate equation formulation.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

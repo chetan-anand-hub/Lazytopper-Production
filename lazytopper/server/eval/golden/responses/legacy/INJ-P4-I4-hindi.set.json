@@ -1,0 +1,74 @@
+{
+ "ok": true,
+ "worksheetId": "qp:S5B-INJ",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2,
+   "percentage": 67,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Splitting the middle term",
+     "studentWork": "2x² − 7x + 3 = 0\n2x² − 6x − x + 3 = 0",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct splitting of the middle term.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Grouping and factorisation into two linear factors",
+     "studentWork": "2x(x − 3) + 1(x − 3) = 0\n(2x + 1)(x − 3) = 0",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Sign error in grouping: −x + 3 should factor as −1(x − 3), not +1(x − 3).",
+     "mistakeType": "calculation",
+     "correctedWorking": "2x(x − 3) − 1(x − 3) = 0\n(2x − 1)(x − 3) = 0",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Solving factors for roots (Error Carried Forward)",
+     "studentWork": "2x + 1 = 0 or x − 3 = 0\nx = −1/2 or x = 3\n∴ roots are −1/2 and 3",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Roots correctly evaluated from student's own factors (ECF).",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Splitting the middle term correctly (−6x and −x) (1); Factorising into linear factors (2x − 1)(x − 3) = 0 (1); Solving the linear factors to find the roots (x = 1/2 / x = 3) (1). You split the middle term correctly, but made an algebraic sign slip when grouping terms by taking out +1 instead of −1. Pay careful attention when factoring out negative terms so your factors retain the correct signs.",
+   "questionDepartureError": false,
+   "objective": false
+  }
+ ],
+ "totalQuestions": 1,
+ "gradedCount": 1,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 2,
+ "gradedMarksTotal": 3,
+ "worksheetTotalMarks": 3,
+ "summary": "Good overall understanding of the factorisation method for quadratic equations. Be cautious with signs when grouping terms with negative coefficients. Expanding your factored expression mentally to verify it matches the previous step is a great way to avoid such errors.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

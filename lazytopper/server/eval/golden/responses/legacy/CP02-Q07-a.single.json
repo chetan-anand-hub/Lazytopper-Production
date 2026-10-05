@@ -1,0 +1,49 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1.5,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Naming the parts of the hind-brain",
+   "studentWork": "The parts of hind-brain are pons, medulla and cerebellum.",
+   "status": "correct",
+   "marksAwarded": 1.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ All three parts correctly named (pons, medulla, cerebellum).",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Identifying the part controlling involuntary actions (blood pressure and salivation)",
+   "studentWork": "(b)",
+   "status": "missing",
+   "marksAwarded": 0,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "Unattempted.",
+   "mistakeType": null,
+   "correctedWorking": "Medulla (or medulla oblongata) controls involuntary actions such as blood pressure and salivation.",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Name the parts of hind-brain: pons / medulla / cerebellum (½ mark each) (1.5); Part of hind-brain controlling involuntary actions (medulla / medulla oblongata) (0.5). Part (a) is completely correct with all three parts of the hind-brain correctly identified. Remember to attempt all sub-questions; part (b) was left unanswered (the correct answer is medulla). independent parts carry marks that should not be missed.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

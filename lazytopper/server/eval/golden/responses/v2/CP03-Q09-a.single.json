@@ -1,0 +1,113 @@
+{
+ "ok": true,
+ "totalMarks": 4,
+ "marksAwarded": 3,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Value of ∠OAP",
+   "studentWork": "(i) ∠OAP = 60°",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× ∠OAP = 90° (radius is perpendicular to the tangent at the point of contact)",
+   "mistakeType": null,
+   "correctedWorking": "∠OAP = 90° (as the tangent at any point of a circle is perpendicular to the radius through the point of contact)",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(i)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Calculation of the tangent length PA using Pythagoras theorem",
+   "studentWork": "(ii) In right Δ OAP, OP² = OA² + AP²\n18² = 9² + AP² ⇒ AP² = 324 - 81 = 243\nAP = √243 = 9√3 m",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct calculation of AP with units",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(ii)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Determination of ∠AOP using trigonometric ratio",
+   "studentWork": "(iii) In right Δ OAP, cos θ = OA/OP = 9/18 = 1/2 = cos 60°\n⇒ θ = ∠AOP = 60°",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly found ∠AOP = 60°",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(iii)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 4,
+   "description": "Calculation of ∠AOB = 2 × ∠AOP",
+   "studentWork": "∴ ∠AOB = 2θ = 120°",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct angle ∠AOB",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(iii)",
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Well done on solving parts (ii) and (iii) with clear working and appropriate units. For part (i), remember that the radius drawn to the point of contact is always perpendicular to the tangent, making ∠OAP = 90°.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 1
+ },
+ "rubric": [
+  {
+   "point": "(i) Measure of ∠OAP = 90° (tangent is perpendicular to the radius through the point of contact)",
+   "marks": 1
+  },
+  {
+   "point": "(ii) Correct application of Pythagoras theorem to calculate PA = 9√3 m",
+   "marks": 1
+  },
+  {
+   "point": "(iii) Finding ∠AOP = 60° using trigonometry or properties of right triangle",
+   "marks": 1
+  },
+  {
+   "point": "(iii) Stating and calculating ∠AOB = 2 × ∠AOP = 120°",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

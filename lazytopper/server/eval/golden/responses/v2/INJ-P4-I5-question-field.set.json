@@ -1,0 +1,105 @@
+{
+ "ok": true,
+ "worksheetId": "qp:S5B-INJ",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2,
+   "percentage": 67,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Splitting the middle term",
+     "studentWork": "2x² − 7x + 3 = 0\n2x² − 6x − x + 3 = 0",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct splitting of the middle term.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Factoring by grouping terms",
+     "studentWork": "2x(x − 3) + 1(x − 3) = 0\n(2x + 1)(x − 3) = 0",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Sign error when factoring out −1 from (−x + 3).",
+     "mistakeType": "calculation",
+     "correctedWorking": "2x(x − 3) − 1(x − 3) = 0\n(2x − 1)(x − 3) = 0",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Finding roots from linear factors",
+     "studentWork": "2x + 1 = 0 or x − 3 = 0\nx = −1/2 or x = 3\n∴ roots are −1/2 and 3",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Roots correctly evaluated from linear factors (error carried forward).",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Good attempt at factorisation and splitting the middle term. Be careful with signs when factoring out negative terms: −x + 3 equals −1(x − 3), not +1(x − 3). Full credit was awarded for solving your factors via error carried forward.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Splitting the middle term correctly to get 2x² − 6x − x + 3 = 0",
+     "marks": 1
+    },
+    {
+     "point": "Grouping and factorising into linear factors: (2x − 1)(x − 3) = 0",
+     "marks": 1
+    },
+    {
+     "point": "Solving linear factors to find the roots x = 1/2 and x = 3",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  }
+ ],
+ "totalQuestions": 1,
+ "gradedCount": 1,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 2,
+ "gradedMarksTotal": 3,
+ "worksheetTotalMarks": 3,
+ "summary": "Good conceptual understanding of quadratic factorisation and solving linear factors. Watch negative signs carefully during grouping to ensure accurate final roots.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

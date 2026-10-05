@@ -1,0 +1,185 @@
+{
+ "ok": true,
+ "worksheetId": "golden-mm-GS-MM-05",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 2,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Substitute values of tan 60°, sin 60°, and cos 30°",
+     "studentWork": "tan 60° ki value √3 hoti hai, toh tan²60° = (√3)² = 3.\nsin 60° = √3/2 aur cos 30° bhi √3/2 hota hai, toh sin²60° + cos²30° = 3/4 + 3/4 = 6/4 = 3/2.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct trigonometric values and substitution",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Division and final evaluation",
+     "studentWork": "Ab answer = 3 ÷ (3/2) = 3 × 2/3 = 2.\nIsliye value = 2.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly evaluated to 2",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Values of trigonometric ratios tan 60° = √3 / sin 60° = √3/2 / cos 30° = √3/2 and substitution (1); Simplification of numerator and denominator to obtain the final value 2 (1). Well done. All trigonometric values and algebraic calculations are correct.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 2,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1.5,
+   "percentage": 75,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Assume rationality and express √3 in terms of a and b",
+     "studentWork": "Let 5 − 2√3 be rational. Then 5 − 2√3 = a/b, where a and b are integers and b ≠ 0.\n⇒ 2√3 = 5 − a/b = (5b − a)/b\n⇒ √3 = (5b − a)/(2b)",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct assumption and rearrangement",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Contradiction reasoning and concluding statement",
+     "studentWork": "Since a and b are integers, (5b − a)/(2b) is rational, but √3 is irrational. This is a contradiction.",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Valid contradiction noted, but explicit concluding line stating 'Hence, 5 − 2√3 is irrational' is missing",
+     "mistakeType": "presentation",
+     "correctedWorking": "Since a and b are integers, (5b − a)/(2b) is rational, but √3 is irrational. This is a contradiction. Hence, 5 − 2√3 is irrational.",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 1,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Assume 5 − 2√3 is rational / express as a/b (b ≠ 0 / integers) and rearrange to isolate √3 (1); Arrive at contradiction and write final conclusion that 5 − 2√3 is irrational (1). Good logical progression, but remember to always state the explicit conclusion 'Hence, 5 − 2√3 is irrational' to earn full presentation marks.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 3,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 5,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "This answer does not address the question that was set, so it earns no marks — check that you uploaded your answer to this question.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 4,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2,
+   "percentage": 67,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Formulate equation for difference in radii and volume of hollow cylinder",
+     "studentWork": "Let outer radius = R cm and inner radius = r cm.\nR − r = 1 ...(i)\nVolume of metal = π(R² − r²)h\n176 = (22/7) × (R² − r²) × 14",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct formula and substitution",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Simplify volume equation to find R + r",
+     "studentWork": "⇒ R² − r² = (176 × 7)/(22 × 14) = 1232/308 = 8\n⇒ (R − r)(R + r) = 8 ⇒ 1 × (R + r) = 8 ⇒ R + r = 8 ...(ii)",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Arithmetic error: 1232/308 = 4, not 8",
+     "mistakeType": "calculation",
+     "correctedWorking": "R² − r² = 176 / 44 = 4 ⇒ (R − r)(R + r) = 4 ⇒ 1 × (R + r) = 4 ⇒ R + r = 4",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Solve linear system for R and r",
+     "studentWork": "Adding (i) and (ii): 2R = 9 ⇒ R = 4.5 cm, r = 3.5 cm\nOuter radius = 4.5 cm, inner radius = 3.5 cm.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly solved consistent with previous calculation error (ECF awarded)",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Setting up equations: R − r = 1 and π(R² − r²)h = 176 (1); Evaluating R² − r² = 4 and finding R + r = 4 (1); Solving the linear equations to find R = 2.5 cm and r = 1.5 cm (1). Your method was solid and full credit was given for solving your derived linear system via error carried forward. Be careful with division: 1232/308 equals 4, which would yield R = 2.5 cm and r = 1.5 cm.",
+   "questionDepartureError": false,
+   "objective": false
+  }
+ ],
+ "totalQuestions": 4,
+ "gradedCount": 4,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 5.5,
+ "gradedMarksTotal": 12,
+ "worksheetTotalMarks": 12,
+ "summary": "Good conceptual understanding demonstrated in trigonometry and mensuration setups. Double check arithmetic divisions carefully to avoid carrying forward computational errors, ensure final conclusion statements are explicitly written in proof questions, and ensure each response matches the assigned question.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

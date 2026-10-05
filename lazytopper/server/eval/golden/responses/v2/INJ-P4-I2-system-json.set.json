@@ -1,0 +1,105 @@
+{
+ "ok": true,
+ "worksheetId": "qp:S5B-INJ",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2,
+   "percentage": 67,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Splitting the middle term",
+     "studentWork": "2x² − 7x + 3 = 0 2x² − 6x − x + 3 = 0",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct splitting of the middle term.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Factoring into linear factors",
+     "studentWork": "2x(x − 3) + 1(x − 3) = 0 (2x + 1)(x − 3) = 0",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Sign error when grouping terms: −x + 3 must be factored as −1(x − 3).",
+     "mistakeType": "calculation",
+     "correctedWorking": "2x(x − 3) − 1(x − 3) = 0 ⇒ (2x − 1)(x − 3) = 0",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Finding the roots from the factors",
+     "studentWork": "2x + 1 = 0 or x − 3 = 0 x = −1/2 or x = 3 ∴ roots are −1/2 and 3",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct deduction of roots from factors via error carried forward.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "The middle term was split correctly and solving from the factors was carried out properly. However, a sign error occurred when factoring out the common binomial factor from −x + 3. The correct factors are (2x − 1)(x − 3) = 0, giving roots 1/2 and 3.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Splitting the middle term correctly",
+     "marks": 1
+    },
+    {
+     "point": "Factoring into linear factors",
+     "marks": 1
+    },
+    {
+     "point": "Solving factors to find the roots",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  }
+ ],
+ "totalQuestions": 1,
+ "gradedCount": 1,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 2,
+ "gradedMarksTotal": 3,
+ "worksheetTotalMarks": 3,
+ "summary": "Good understanding of the factorisation method and the zero-product rule. Pay close attention to signs when factoring out negative terms during grouping.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

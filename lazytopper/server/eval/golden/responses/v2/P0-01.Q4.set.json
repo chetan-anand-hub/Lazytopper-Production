@@ -1,0 +1,265 @@
+{
+ "ok": true,
+ "worksheetId": "ct-golden-P0-01",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Answer",
+     "studentWork": "",
+     "status": "unattempted",
+     "marksAwarded": 0,
+     "marksDeducted": 3,
+     "teacherAnnotation": "",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 3
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "No answer to this question was found on your page, so it earns no marks — if you did answer it, check that the page is included and the question number is written beside it.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": null,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 3,
+    "untyped": 0
+   },
+   "rubric": null,
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 2,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Answer",
+     "studentWork": "",
+     "status": "unattempted",
+     "marksAwarded": 0,
+     "marksDeducted": 2,
+     "teacherAnnotation": "",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 2
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "No answer to this question was found on your page, so it earns no marks — if you did answer it, check that the page is included and the question number is written beside it.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": null,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 2,
+    "untyped": 0
+   },
+   "rubric": null,
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 3,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 4,
+   "marksAwarded": 4,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Naming and defining photosynthesis",
+     "studentWork": "(a) Photosynthesis - the process by which green plants make carbohydrates (glucose) from carbon dioxide and water in the presence of sunlight and chlorophyll.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly named and defined",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(a)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Chemical equation involved in photosynthesis",
+     "studentWork": "(b) 6CO₂ + 12H₂O ――sunlight, chlorophyll――> C₆H₁₂O₆ + 6O₂ + 6H₂O",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Accurately balanced chemical equation with catalysts/conditions indicated",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(b)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Effect of cloudy weather on rate of food preparation with reason",
+     "studentWork": "(c)(ii) (I) In cloudy weather less sunlight is available, so the rate of photosynthesis decreases.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct deduction and scientific reason provided",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(c)(ii)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 4,
+     "description": "Effect of blocked stomata on rate of food preparation with reason",
+     "studentWork": "(II) If stomata get blocked by dust, exchange of gases (CO₂ intake) is reduced, so the rate of photosynthesis decreases.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct deduction and role of gaseous exchange mentioned",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(c)(ii)",
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Flawless response. All parts are thoroughly answered with precise scientific explanations and a properly balanced equation.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Name and definition of photosynthesis",
+     "marks": 1
+    },
+    {
+     "point": "Balanced chemical equation for photosynthesis including essential conditions",
+     "marks": 1
+    },
+    {
+     "point": "(c)(ii)(I) Effect and explanation for cloudy weather",
+     "marks": 1
+    },
+    {
+     "point": "(c)(ii)(II) Effect and explanation for stomata blocked by dust",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 4,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Answer",
+     "studentWork": "",
+     "status": "unattempted",
+     "marksAwarded": 0,
+     "marksDeducted": 2,
+     "teacherAnnotation": "",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 2
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "No answer to this question was found on your page, so it earns no marks — if you did answer it, check that the page is included and the question number is written beside it.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": null,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 2,
+    "untyped": 0
+   },
+   "rubric": null,
+   "objectiveResolved": null
+  }
+ ],
+ "totalQuestions": 4,
+ "gradedCount": 4,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 4,
+ "gradedMarksTotal": 11,
+ "worksheetTotalMarks": 11,
+ "summary": "Question 3 was executed with perfect precision, demonstrating excellent conceptual mastery of photosynthesis and equation balancing. Ensure all assigned questions are attempted in future assessments.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

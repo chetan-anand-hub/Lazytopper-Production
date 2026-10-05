@@ -1,0 +1,62 @@
+{
+ "ok": true,
+ "totalMarks": 4,
+ "marksAwarded": 1,
+ "percentage": 25,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Find the 4th, 5th, and 6th terms of the AP",
+   "studentWork": "(i) a = 300, d = 50.\na₄ = 300 + 3 × 50 = 450 m, a₅ = 500 m, a₆ = 550 m.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly identified first term, common difference, and the three required terms with units.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Determine the distance of the 8th round",
+   "studentWork": "",
+   "status": "missing",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "Unattempted sub-part.",
+   "mistakeType": null,
+   "correctedWorking": "a₈ = a + (8 - 1)d = 300 + 7(50) = 300 + 350 = 650 m",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Find the total distance run after completing 10 rounds (or 6 rounds for OR part)",
+   "studentWork": "",
+   "status": "missing",
+   "marksAwarded": 0,
+   "marksDeducted": 2,
+   "teacherAnnotation": "Unattempted sub-part.",
+   "mistakeType": null,
+   "correctedWorking": "S₁₀ = 10/2 [2(300) + (10 - 1)50] = 5 [600 + 450] = 5(1050) = 5250 m",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Part (i): Identify a = 300 / d = 50 and write the 4th / 5th / and 6th terms (450 m /  500 m /  550 m) (1); Part (ii): Calculate distance of 8th round using a₈ = a + 7d = 650 m (1); Part (iii): Use sum formula Sₙ = n/2 [2a + (n - 1)d] to find total distance for 10 rounds (5250 m) or 6 rounds (2550 m) (2). Part (i) was solved accurately with clear working and correct units. Remember to attempt all sub-parts of the case-study question to secure full marks.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

@@ -58,7 +58,15 @@ async function replayJob(planJob, record, opts = {}) {
     err.status = next.error ? next.error.status : null;
     throw err;
   });
-  const driver = createDriver({ callGemini, model: record.model || opts.model });
+  // A run recorded under the GRADER-CORE-1 grading core (manifest config `core: true`) replays
+  // with the SAME grading configuration it ran with — the grading model, its thinking cap, and
+  // above all the MODE: a router run splits a set into per-model groups and scores known MCQ
+  // picks with no call, so replaying it in single mode would consume the wrong stored replies.
+  const cfg = opts.config || null;
+  const driver = cfg && cfg.core
+    ? createDriver({ callGemini, model: 'gemini-2.5-flash', gradingModel: cfg.model, gradingThinkingBudget: cfg.thinkingBudget ?? null,
+      gradingMode: cfg.gradingMode, gradingLightModel: cfg.lightModel })
+    : createDriver({ callGemini, model: record.model || opts.model });
   const out = await driver.run(planJob);
   return {
     ...out,

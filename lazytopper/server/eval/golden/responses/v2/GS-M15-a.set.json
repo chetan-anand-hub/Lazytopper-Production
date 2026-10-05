@@ -1,0 +1,399 @@
+{
+ "ok": true,
+ "worksheetId": "golden-parity-PARM5",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": true,
+   "totalMarks": 3,
+   "marksAwarded": 0,
+   "note": "The handwritten text consists of illegible wavy scribbles and cannot be deciphered.",
+   "answerMismatch": null,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": null,
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 2,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 5,
+   "marksAwarded": 5,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Formulating the first linear equation from annual interest",
+     "studentWork": "Let the amount invested in scheme A (8%) be ₹x and in scheme B (9%) be ₹y. Interest: 8x/100 + 9y/100 = 1860 ⇒ 8x + 9y = 186000 …(1)",
+     "status": "correct",
+     "marksAwarded": 1.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly formulated the first linear equation.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1.5
+    },
+    {
+     "stepNumber": 2,
+     "description": "Formulating the second linear equation after interchanging investments",
+     "studentWork": "After interchanging: 9x/100 + 8y/100 = 1860 + 20 = 1880 ⇒ 9x + 8y = 188000 …(2)",
+     "status": "correct",
+     "marksAwarded": 1.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly formulated the second linear equation.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1.5
+    },
+    {
+     "stepNumber": 3,
+     "description": "Solving the linear equations simultaneously by addition and subtraction",
+     "studentWork": "Adding (1) and (2): 17x + 17y = 374000 ⇒ x + y = 22000 …(3) Subtracting (1) from (2): x − y = 2000 …(4) From (3) and (4): 2x = 24000 ⇒ x = 12000, and y = 22000 − 12000 = 10000.",
+     "status": "correct",
+     "marksAwarded": 1.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly solved for x and y.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1.5
+    },
+    {
+     "stepNumber": 4,
+     "description": "Stating final investment amounts with units",
+     "studentWork": "∴ He invested ₹12000 in scheme A and ₹10000 in scheme B.",
+     "status": "correct",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct conclusion with units.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 0.5
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Excellent solution. Both equations were set up accurately and solved cleanly using the addition-subtraction method.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Formulating the first linear equation: 8x + 9y = 186000",
+     "marks": 1.5
+    },
+    {
+     "point": "Formulating the second linear equation after interchanging amounts: 9x + 8y = 188000",
+     "marks": 1.5
+    },
+    {
+     "point": "Solving the system of linear equations for x and y",
+     "marks": 1.5
+    },
+    {
+     "point": "Concluding with investment amounts in scheme A and scheme B with units",
+     "marks": 0.5
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 3,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 5,
+   "marksAwarded": 3,
+   "percentage": 60,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Defining variables and expressions for time",
+     "studentWork": "Let the speed of the train be x km/h. Reduced speed = (x − 8) km/h. Time at usual speed = 480/x, time at reduced speed = 480/(x − 8).",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct definitions and time expressions.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Forming the equation based on difference in time",
+     "studentWork": "480/x − 480/(x − 8) = 3",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Reduced speed takes more time, so the equation must be 480/(x − 8) − 480/x = 3.",
+     "mistakeType": "conceptual",
+     "correctedWorking": "480/(x − 8) − 480/x = 3",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Simplifying equation into standard quadratic form",
+     "studentWork": "⇒ 480(x − 8) − 480x = 3x(x − 8) ⇒ −3840 = 3x² − 24x ⇒ 3x² − 24x + 3840 = 0 ⇒ x² − 8x + 1280 = 0",
+     "status": "correct",
+     "marksAwarded": 1.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Algebraic simplification of the student's own equation is correct (ECF).",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1.5
+    },
+    {
+     "stepNumber": 4,
+     "description": "Factorising and solving the quadratic equation",
+     "studentWork": "⇒ (x − 40)(x + 32) = 0 ⇒ x = 40 or x = −32.",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Factorisation error: (x − 40)(x + 32) expands to x² − 8x − 1280, not x² − 8x + 1280.",
+     "mistakeType": "calculation",
+     "correctedWorking": "For x² − 8x − 1280 = 0: (x − 40)(x + 32) = 0 ⇒ x = 40 or x = −32",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 5,
+     "description": "Contextual rejection of negative speed and concluding speed",
+     "studentWork": "Speed cannot be negative. ∴ Speed of the train = 40 km/h.",
+     "status": "correct",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Negative root rejected and speed stated with unit.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 0.5
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Remember that a lower speed means a greater travel time, so 480/(x − 8) is larger than 480/x and must be written first. Double check the constant term's sign when factorising.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 1,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Defining speed variables and writing time expressions 480/x and 480/(x − 8)",
+     "marks": 1
+    },
+    {
+     "point": "Setting up the correct time difference equation: 480/(x − 8) − 480/x = 3",
+     "marks": 1
+    },
+    {
+     "point": "Simplifying the algebraic equation to standard quadratic form",
+     "marks": 1.5
+    },
+    {
+     "point": "Solving the quadratic equation to find the roots",
+     "marks": 1
+    },
+    {
+     "point": "Rejecting the negative root contextually and stating final speed with unit",
+     "marks": 0.5
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 4,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 5,
+   "marksAwarded": 5,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Calculating mid-values (xᵢ) and product values (fᵢxᵢ)",
+     "studentWork": "xᵢ: 12, 14, 16, 18, 20, 22, 24 fᵢ: 7, 6, 9, 13, f, 5, 4 fᵢxᵢ: 84, 84, 144, 234, 20f, 110, 96",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct midpoints and products.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Calculating Σf and Σfx",
+     "studentWork": "Σf = 44 + f, Σfx = 752 + 20f",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct sums.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Using mean formula to solve for missing frequency f",
+     "studentWork": "Mean = Σfx/Σf ⇒ 18 = (752 + 20f)/(44 + f) ⇒ 792 + 18f = 752 + 20f ⇒ 2f = 40 ⇒ f = 20",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly found f = 20.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 4,
+     "description": "Identifying modal class and stating parameters",
+     "studentWork": "Modal class = 19 – 21 (highest frequency 20) l = 19, f₁ = 20, f₀ = 13, f₂ = 5, h = 2",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct modal class and parameter values.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 5,
+     "description": "Substituting into mode formula and computing value",
+     "studentWork": "Mode = l + (f₁ − f₀)/(2f₁ − f₀ − f₂) × h = 19 + (20 − 13)/(40 − 13 − 5) × 2 = 19 + 7/22 × 2 = 19 + 14/22 = 19 + 0.636 = 19.64 (approx.)",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct substitution and calculation of mode.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Full marks! Excellent step-by-step working for finding both the missing frequency and the mode.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Determining class marks xᵢ and products fᵢxᵢ",
+     "marks": 1
+    },
+    {
+     "point": "Finding Σfᵢ = 44 + f and Σfᵢxᵢ = 752 + 20f",
+     "marks": 1
+    },
+    {
+     "point": "Applying mean formula to calculate f = 20",
+     "marks": 1
+    },
+    {
+     "point": "Identifying modal class (19 − 21) and stating mode formula with parameters",
+     "marks": 1
+    },
+    {
+     "point": "Calculating mode = 19.64",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  }
+ ],
+ "totalQuestions": 4,
+ "gradedCount": 3,
+ "pendingCount": 1,
+ "gradedMarksAwarded": 13,
+ "gradedMarksTotal": 15,
+ "worksheetTotalMarks": 18,
+ "summary": "Great proficiency shown in solving systems of linear equations and statistical calculations with full marks. In word problems leading to quadratics, take extra care with the order of subtraction when expressing time differences. Ensure all submitted handwritten responses are clearly legible to receive marks.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

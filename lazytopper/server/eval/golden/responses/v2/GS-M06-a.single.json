@@ -1,0 +1,94 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 2,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Evaluation of tan²60°",
+   "studentWork": "tan 60° ki value √3 hoti hai, toh tan²60° = (√3)² = 3.",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly evaluated tan²60° = 3",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 2,
+   "description": "Evaluation of denominator sin²60° + cos²30°",
+   "studentWork": "sin 60° = √3/2 aur cos 30° bhi √3/2 hota hai, toh sin²60° + cos²30° = 3/4 + 3/4 = 6/4 = 3/2.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct substitution and simplification of the denominator to 3/2",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Final division to evaluate the full expression",
+   "studentWork": "Ab answer = 3 ÷ (3/2) = 3 × 2/3 = 2.\nIsliye value = 2.",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct division giving final value 2",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Excellent work. All trigonometric values were correctly substituted and simplified step by step to reach the correct final answer.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Substitution of value for tan 60° and finding tan²60° = 3",
+   "marks": 0.5
+  },
+  {
+   "point": "Substitution of values for sin 60° and cos 30° and evaluating sin²60° + cos²30° = 3/2",
+   "marks": 1
+  },
+  {
+   "point": "Division tan²60° / (sin²60° + cos²30°) to get final answer 2",
+   "marks": 0.5
+  }
+ ],
+ "objectiveResolved": null
+}

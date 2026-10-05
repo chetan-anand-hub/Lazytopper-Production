@@ -1,0 +1,790 @@
+{
+ "ok": true,
+ "worksheetId": "ci:GOLDEN-OA-01",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 1,
+   "marksAwarded": 1,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Selection of the correct option",
+     "studentWork": "(b) 2",
+     "status": "correct",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct option",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Correct answer chosen.",
+   "questionDepartureError": false,
+   "objective": true,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Correct option (b) 2",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": true
+  },
+  {
+   "qNumber": 2,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1,
+   "percentage": 50,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Copying equation and factorisation",
+     "studentWork": "2x² − 7x + 5 = 0\n2x² − 2x − 5x + 5 = 0\n2x(x − 1) − 5(x − 1) = 0\n(2x − 5)(x − 1) = 0",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Equation copied incorrectly (+5 instead of +3)",
+     "mistakeType": "silly",
+     "correctedWorking": "2x² − 6x − x + 3 = 0\n2x(x − 3) − 1(x − 3) = 0\n(2x − 1)(x − 3) = 0",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Solving for roots from factors (ECF applied)",
+     "studentWork": "x = 5/2 , x = 1",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ ECF: Correct roots obtained from student's factorised quadratic",
+     "mistakeType": null,
+     "correctedWorking": "x = 3, x = 1/2",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 1,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Be careful when copying the question; copying +3 as +5 changed the equation. Full credit is awarded for correctly solving your resulting equation.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 1,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Splitting the middle term correctly to factorise 2x² − 7x + 3 = 0",
+     "marks": 1
+    },
+    {
+     "point": "Finding the roots of the equation",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 3,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2,
+   "percentage": 67,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Identifying parameters and stating sum formula",
+     "studentWork": "a = 3, d = 7 − 3 = 4, n = 20\nSn = n/2 [2a + (n − 1)d]",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct values and formula stated",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Substitution into sum formula",
+     "studentWork": "S20 = 20/2 [2×3 + 19×4]",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct substitution",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Evaluation of sum",
+     "studentWork": "= 10 [6 + 72]\n= 10 × 78 = 780",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Arithmetic slip: 19 × 4 = 76, not 72",
+     "mistakeType": "calculation",
+     "correctedWorking": "= 10 [6 + 76] = 10 × 82 = 820",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Method and substitution were completely correct, but an arithmetic slip (19 × 4 = 76, not 72) affected the final sum.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Identifying a = 3, d = 4 and stating formula Sn = n/2 [2a + (n − 1)d]",
+     "marks": 1
+    },
+    {
+     "point": "Substituting values correctly into formula",
+     "marks": 1
+    },
+    {
+     "point": "Calculating final sum",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 4,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 1,
+   "percentage": 33,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Finding cos A",
+     "studentWork": "sin A = 3/5\ncos A = 1 − sin A = 1 − 3/5 = 2/5",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Incorrect trigonometric identity: cos A ≠ 1 − sin A",
+     "mistakeType": "conceptual",
+     "correctedWorking": "cos A = √(1 − sin² A) = √(1 − 9/25) = 4/5",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Finding tan A using quotient relation",
+     "studentWork": "tan A = sin A / cos A = (3/5) / (2/5) = 3/2",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Correct quotient formula tan A = sin A / cos A applied to wrong cos A",
+     "mistakeType": null,
+     "correctedWorking": "tan A = sin A / cos A = (3/5) / (4/5) = 3/4",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Finding sec A using reciprocal relation",
+     "studentWork": "sec A = 1 / cos A = 5/2",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Correct reciprocal relation sec A = 1 / cos A applied to wrong cos A",
+     "mistakeType": null,
+     "correctedWorking": "sec A = 1 / cos A = 5/4",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Remember that cos² A = 1 − sin² A, not cos A = 1 − sin A. Half marks are awarded for correctly using quotient and reciprocal definitions.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 1
+   },
+   "rubric": [
+    {
+     "point": "Finding cos A using valid identity or right-angled triangle",
+     "marks": 1
+    },
+    {
+     "point": "Finding tan A",
+     "marks": 1
+    },
+    {
+     "point": "Finding sec A",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 5,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2,
+   "percentage": 67,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Parallel combination formula and calculation",
+     "studentWork": "1/R = 1/2 + 1/3 + 1/6\n= (3 + 2 + 1)/6 = 6/6 = 1",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct parallel resistance calculation",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(i)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Equivalent resistance value with SI unit",
+     "studentWork": "R = 1",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ SI unit (Ω) missing",
+     "mistakeType": "presentation",
+     "correctedWorking": "R = 1 Ω",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(i)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Calculation of current with SI unit",
+     "studentWork": "I = 6/1 = 6",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ SI unit (A) missing",
+     "mistakeType": "presentation",
+     "correctedWorking": "I = V/R = 6/1 = 6 A",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(ii)",
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 2,
+    "departure": 0
+   },
+   "teacherNote": "Your numerical calculations are completely accurate, but remember to always write the SI units (Ω for resistance and A for current).",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 1,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Formula and calculation of equivalent resistance in parallel",
+     "marks": 1
+    },
+    {
+     "point": "Value of equivalent resistance with correct unit (1 Ω)",
+     "marks": 1
+    },
+    {
+     "point": "Calculation of total current with correct unit (6 A)",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 6,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Attempt at question",
+     "studentWork": "Don't know",
+     "status": "unattempted",
+     "marksAwarded": 0,
+     "marksDeducted": 2,
+     "teacherAnnotation": "Unattempted",
+     "mistakeType": null,
+     "correctedWorking": "Using section formula P(x, y) = ((m1*x2 + m2*x1)/(m1+m2), (m1*y2 + m2*y1)/(m1+m2)): x = (2(5) + 1(2))/(2+1) = 12/3 = 4; y = (2(6) + 1(-3))/(2+1) = 9/3 = 3. Point is (4, 3).",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 2
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Revise the internal section formula: P = ((m₁x₂ + m₂x₁)/(m₁ + m₂), (m₁y₂ + m₂y₁)/(m₁ + m₂)).",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 2,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Section formula statement and substitution",
+     "marks": 1
+    },
+    {
+     "point": "Coordinates of the dividing point (4, 3)",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 7,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 2,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Initial struck-through equation attempt",
+     "studentWork": "Fe + 4H2O → Fe3O4 + 4H2",
+     "status": "withdrawn",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "Work struck through by student (not assessed)",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 0
+    },
+    {
+     "stepNumber": 2,
+     "description": "Balanced chemical equation",
+     "studentWork": "3Fe + 4H2O → Fe3O4 + 4H2",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly balanced equation",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Type of reaction",
+     "studentWork": "It is a redox reaction.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct reaction type",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Well done on correctly balancing the equation and identifying it as a redox reaction.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Correctly balanced chemical equation: 3Fe + 4H₂O → Fe₃O₄ + 4H₂",
+     "marks": 1
+    },
+    {
+     "point": "Identification of reaction type as redox reaction",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 8,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 2,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Reason for thicker left ventricular wall",
+     "studentWork": "The left ventricle pumps oxygenated blood to all parts of the body, so it has to pump with more force. The right ventricle pumps blood only to the lungs. So the left wall is thicker.",
+     "status": "correct",
+     "marksAwarded": 2,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Clear, accurate explanation addressing both ventricles",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 2
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Very good and complete explanation covering the functions of both ventricles.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Left ventricle has to pump blood to all parts of the body with greater pressure/force",
+     "marks": 1
+    },
+    {
+     "point": "Right ventricle pumps blood only to lungs which are nearby",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 9,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2,
+   "percentage": 67,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Listing favourable outcomes for sum 7",
+     "studentWork": "Total outcomes = 36\nSum 7 : (1,6) (2,5) (3,4) (4,3) (5,2)",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Incomplete list: missed favourable outcome (6,1)",
+     "mistakeType": "calculation",
+     "correctedWorking": "Favourable outcomes: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1) [6 outcomes]",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(i)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Calculating probability from student's count (ECF)",
+     "studentWork": "P(sum 7) = 5/36",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ ECF: Probability correctly evaluated from student's 5 outcomes",
+     "mistakeType": null,
+     "correctedWorking": "P(sum 7) = 6/36 = 1/6",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(i)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Probability of drawing a blue ball",
+     "studentWork": "Total balls = 5 + 3 = 8\nP(blue) = 3/8",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct probability calculation",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(ii)",
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "In part (i), you missed the outcome (6, 1) when listing outcomes with sum 7. Part (ii) is completely correct.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "(i) Total outcomes (36) and listing all 6 favourable outcomes for sum 7",
+     "marks": 1
+    },
+    {
+     "point": "(i) Correct probability of getting sum 7 = 6/36 = 1/6",
+     "marks": 1
+    },
+    {
+     "point": "(ii) Total balls (8) and probability of blue ball = 3/8",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 10,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 0.5,
+   "percentage": 17,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Mirror formula statement and sign convention",
+     "studentWork": "u = 20 cm , f = −15 cm\n1/v + 1/u = 1/f",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Mirror formula correct; wrong sign convention for object distance (u = +20 cm instead of −20 cm)",
+     "mistakeType": "conceptual",
+     "correctedWorking": "u = −20 cm, f = −15 cm, 1/v + 1/u = 1/f",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Substitution into mirror formula",
+     "studentWork": "1/v = 1/f − 1/u = −1/15 − 1/20\n= (−4 − 3)/60 = −7/60",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Evaluating incorrect conceptual substitution",
+     "mistakeType": null,
+     "correctedWorking": "1/v = 1/f − 1/u = −1/15 − (−1/20) = −1/15 + 1/20 = −1/60",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Calculation of image distance and final position",
+     "studentWork": "v = −60/7 = −8.57 cm\nImage is 8.57 cm in front of the mirror.",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Final image distance incorrect due to sign convention error",
+     "mistakeType": null,
+     "correctedWorking": "v = −60 cm; Image is formed 60 cm in front of the mirror.",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "According to the Cartesian sign convention, a real object placed in front of a mirror always has negative distance (u = −20 cm). Using u = +20 cm led to the wrong image distance.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0.5,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 2
+   },
+   "rubric": [
+    {
+     "point": "Stating mirror formula 1/f = 1/v + 1/u",
+     "marks": 0.5
+    },
+    {
+     "point": "Applying Cartesian sign convention: u = −20 cm, f = −15 cm",
+     "marks": 0.5
+    },
+    {
+     "point": "Substituting into formula to find 1/v",
+     "marks": 1
+    },
+    {
+     "point": "Solving for v = −60 cm and stating position",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  }
+ ],
+ "totalQuestions": 10,
+ "gradedCount": 10,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 13.5,
+ "gradedMarksTotal": 24,
+ "worksheetTotalMarks": 24,
+ "summary": "You demonstrated good foundational knowledge in several areas, notably in chemical equations, heart physiology, and basic probability. Focus on mastering the Cartesian sign convention in optics, standard trigonometric identities, and always write units with physical quantities.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

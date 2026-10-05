@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 4,
+ "marksAwarded": 3,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Central angle of each sector",
+   "studentWork": "Central angle of each sector = 360°/10 = 30°",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× 360°/10 = 36°, not 30°",
+   "mistakeType": "calculation",
+   "correctedWorking": "Central angle of each sector = 360°/10 = 36°",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Length of arc ACB",
+   "studentWork": "The circle is divided into 10 equal sectors, so arc ACB = 1/10 of the circumference = (1/10) × 2 × (22/7) × (35/2) = (1/10) × 110 = 11 mm",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct arc length",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Formula and substitution for area of each sector",
+   "studentWork": "Area of each sector = (1/10) × πr² = (1/10) × (22/7) × (35/2) × (35/2)",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct formula and substitution",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 4,
+   "description": "Evaluation of area of each sector",
+   "studentWork": "= (1/10) × 962.5 = 96.25 mm²",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct calculation and units",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: (i) Central angle of each sector = 360°/10 = 36° (1); (ii) Length of arc ACB = (1/10) × 2πr = 11 mm (1); (iii)(a) Correct formula and substitution for area of each sector (1); (iii)(a) Correct evaluation of area = 96.25 mm² (or 385/4 mm²) (1). Parts (ii) and (iii)(a) are completely correct and clearly solved. In part (i), 360°/10 evaluates to 36°, not 30°.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

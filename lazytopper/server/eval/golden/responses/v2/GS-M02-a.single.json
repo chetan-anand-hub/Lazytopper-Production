@@ -1,0 +1,56 @@
+{
+ "ok": true,
+ "totalMarks": 1,
+ "marksAwarded": 1,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Select correct option",
+   "studentWork": "(B) 9",
+   "status": "correct",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct option selected",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Correct option chosen. For S_m = 2m² + 3m, S₁ = 5 and S₂ = 14, giving a₂ = S₂ - S₁ = 9.",
+ "questionDepartureError": false,
+ "objective": true,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Correct option (B) / 9",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": true
+}

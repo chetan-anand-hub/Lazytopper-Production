@@ -1,0 +1,62 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2.5,
+ "percentage": 83,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Convert tan θ and cot θ into sin θ and cos θ",
+   "studentWork": "LHS = tan θ / (1 − cot θ) + cot θ / (1 − tan θ)\n= (sin θ / cos θ) / ((sin θ − cos θ)/sin θ) + (cos θ / sin θ) / ((cos θ − sin θ)/cos θ)",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct conversion into terms of sin θ and cos θ",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Simplify to fractions and combine over a common denominator",
+   "studentWork": "= sin² θ / (cos θ(sin θ − cos θ)) + cos² θ / (sin θ(sin θ − cos θ))\n= (sin³ θ − cos³ θ) / (sin θ cos θ (sin θ − cos θ))",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Sign error in intermediate line: taking out negative sign from (cos θ − sin θ) requires changing '+' to '−'",
+   "mistakeType": "calculation",
+   "correctedWorking": "= sin² θ / (cos θ(sin θ − cos θ)) − cos² θ / (sin θ(sin θ − cos θ))\n= (sin³ θ − cos³ θ) / (sin θ cos θ (sin θ − cos θ))",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Factorize numerator using a³ − b³ and simplify to RHS",
+   "studentWork": "= (sin θ − cos θ)(sin² θ + sin θ cos θ + cos² θ) / (sin θ cos θ (sin θ − cos θ))\n= (1 + sin θ cos θ) / (sin θ cos θ) = 1 + sec θ cosec θ = RHS",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct algebraic expansion, simplification and final identity proven",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Expressing tan θ and cot θ in terms of sin θ and cos θ and simplifying denominators (1); Taking LCM and forming (sin³ θ − cos³ θ) / [sin θ cos θ (sin θ − cos θ)] with correct sign (1); Using identity a³ − b³ = (a − b)(a² + ab + b²) and simplifying to RHS (1 + sec θ cosec θ) (1). Well done on structuring the proof and applying the algebraic identity correctly. Be careful with signs: changing (cos θ − sin θ) to (sin θ − cos θ) in the denominator requires changing the '+' between terms to a '−'.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

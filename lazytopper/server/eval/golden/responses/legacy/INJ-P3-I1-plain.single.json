@@ -1,0 +1,62 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2,
+ "percentage": 67,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Splitting the middle term",
+   "studentWork": "2x² − 7x + 3 = 0 2x² − 6x − x + 3 = 0",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly split the middle term −7x into −6x and −x",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Factoring by grouping common terms",
+   "studentWork": "2x(x − 3) + 1(x − 3) = 0 (2x + 1)(x − 3) = 0",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Sign error when factoring: −x + 3 equals −1(x − 3), not +1(x − 3)",
+   "mistakeType": "calculation",
+   "correctedWorking": "2x(x − 3) − 1(x − 3) = 0 ⇒ (2x − 1)(x − 3) = 0",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Solving linear factors to find the roots",
+   "studentWork": "2x + 1 = 0 or x − 3 = 0 x = −1/2 or x = 3 ∴ roots are −1/2 and 3",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Linear factors solved correctly for x (error carried forward)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Split the middle term correctly to write 2x² − 6x − x + 3 = 0 (1); Factorise by grouping to obtain (2x − 1)(x − 3) = 0 (1); Equate factors to zero to find the roots x = 1/2 and x = 3 (1). You correctly split the middle term and solved your resulting linear factors. However, be careful with signs when grouping terms: factoring out from −x + 3 gives −1(x − 3), leading to roots 1/2 and 3.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

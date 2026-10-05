@@ -1,0 +1,186 @@
+{
+ "ok": true,
+ "worksheetId": "ct-golden-P0-01",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Answer",
+     "studentWork": "",
+     "status": "missing",
+     "marksAwarded": 0,
+     "marksDeducted": 3,
+     "teacherAnnotation": "",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "No answer to this question was found on your page, so it earns no marks — if you did answer it, check that the page is included and the question number is written beside it.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 2,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Answer",
+     "studentWork": "",
+     "status": "missing",
+     "marksAwarded": 0,
+     "marksDeducted": 2,
+     "teacherAnnotation": "",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "No answer to this question was found on your page, so it earns no marks — if you did answer it, check that the page is included and the question number is written beside it.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 3,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 4,
+   "marksAwarded": 4,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Name and definition of photosynthesis",
+     "studentWork": "(a) Photosynthesis - the process by which green plants make carbohydrates (glucose) from carbon dioxide and water in the presence of sunlight and chlorophyll.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly named and defined photosynthesis",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Balanced chemical equation for photosynthesis",
+     "studentWork": "(b) 6CO2 + 12H2O --sunlight, chlorophyll--> C6H12O6 + 6O2 + 6H2O",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Accurately balanced chemical equation with essential conditions",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Reasoning for cloudy weather",
+     "studentWork": "(c)(ii) (I) In cloudy weather less sunlight is available, so the rate of photosynthesis decreases.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct effect and scientific reason",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 4,
+     "description": "Reasoning for stomata blocked by dust",
+     "studentWork": "(II) If stomata get blocked by dust, exchange of gases (CO2 intake) is reduced, so the rate of photosynthesis decreases.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct effect and scientific explanation relating to gas exchange",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Name and define the process of photosynthesis (1); Balanced chemical equation for photosynthesis with conditions (1); Effect and reason for rate of food preparation during cloudy weather (1); Effect and reason for rate of food preparation when stomata get blocked due to dust (1). Excellent, well-structured answer. The chemical equation is properly balanced and all scientific reasons are clearly stated.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 4,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Answer",
+     "studentWork": "",
+     "status": "missing",
+     "marksAwarded": 0,
+     "marksDeducted": 2,
+     "teacherAnnotation": "",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "No answer to this question was found on your page, so it earns no marks — if you did answer it, check that the page is included and the question number is written beside it.",
+   "questionDepartureError": false,
+   "objective": false
+  }
+ ],
+ "totalQuestions": 4,
+ "gradedCount": 4,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 4,
+ "gradedMarksTotal": 11,
+ "worksheetTotalMarks": 11,
+ "summary": "Great work on Question 3, where you demonstrated full mastery of concepts and provided an impeccably balanced chemical equation. Remember to attempt all questions in the examination to maximise your overall score.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

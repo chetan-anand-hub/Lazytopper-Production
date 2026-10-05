@@ -869,7 +869,13 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // cases were RESTORED to the one rulebook (rules.cjs), with only what a 2026-10-05 ruling changes
 // re-stated. Every transport's prompt moved, so this pin moved with it.
 //   PREVIOUS fcdf9d96050778233ace4280bb8c4dd3ec103706495f02c97cd8d4f8c3b3f2d5
-const NO_UPLOADS_CONTENTS_SHA256 = 'fa1f938d5ab72ac81aae4ac1210c549555b57072b0471b911b1bebfe0b558167';
+// ★ AND AGAIN — the PR-2 LIVE phase's two fix rounds (fa1f938d… → below), each grounded in the
+// examiner keys and the owner rulings: the exact CBSE technical term is presentation; a
+// single-mark PART has no method split; value points are earned or not; case law 11 (a wrong
+// concept is not a carried value) and 12 (an incomplete list is a wrong value); S5's
+// sign-convention note. Every transport's prompt moved, so this pin moved with it.
+//   PREVIOUS fa1f938d5ab72ac81aae4ac1210c549555b57072b0471b911b1bebfe0b558167
+const NO_UPLOADS_CONTENTS_SHA256 = '262e7eb40d9a675803de80868cbb1e53f85381aef89f9356dcc6c967431980c8';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',

@@ -178,8 +178,32 @@ function stripAnswerLabel(s) {
 }
 const compactText = (s) => String(s == null ? '' : s).normalize('NFKC').toLowerCase()
   .replace(/[×·∙]/g, 'x').replace(/[−–—]/g, '-').replace(/[\s"'“”‘’`]/g, '');
+/* The model may transcribe the SAME handwriting once in LaTeX and once in Unicode — live,
+   2026-10-05 (CP02-Q06, acceptance runs 2-3): inventory "\alpha + \beta = -(-8)/2 = 4, \quad
+   \alpha\beta = 5/2" vs studentWork "α + β = -(-8)/2 = 4, αβ = 5/2", which zeroed a fully correct
+   answer. Both sides are brought to one notation before they are compared. */
+const LATEX_SYMBOLS = {
+  alpha: 'α', beta: 'β', gamma: 'γ', delta: 'δ', theta: 'θ', lambda: 'λ', mu: 'μ', pi: 'π', rho: 'ρ', sigma: 'σ', phi: 'φ', omega: 'ω',
+  Delta: 'Δ', Omega: 'Ω', Sigma: 'Σ', times: '×', cdot: '·', div: '÷', pm: '±', le: '≤', leq: '≤', ge: '≥', geq: '≥', neq: '≠', ne: '≠',
+  sqrt: '√', infty: '∞', circ: '°', degree: '°', therefore: '∴', rightarrow: '→', to: '→', approx: '≈', angle: '∠', triangle: '△', perp: '⊥',
+};
+function delatex(s) {
+  let t = String(s == null ? '' : s);
+  if (!t.includes('\\')) return t;
+  for (let k = 0; k < 3; k += 1) t = t.replace(/\\[dt]?frac\s*\{([^{}]*)\}\s*\{([^{}]*)\}/g, '($1)/($2)');
+  t = t.replace(/\\(?:text|mathrm|mathbf|operatorname)\s*\{([^{}]*)\}/g, '$1');
+  t = t.replace(/\\(?:left|right|displaystyle)\b/g, '');
+  t = t.replace(/\\(?:quad|qquad|[,;:! ])/g, ' ');
+  t = t.replace(/\\([A-Za-z]+)/g, (m, name) => (Object.prototype.hasOwnProperty.call(LATEX_SYMBOLS, name) ? LATEX_SYMBOLS[name] : name));
+  t = t.replace(/\^\{([^{}]*)\}/g, '^$1').replace(/_\{([^{}]*)\}/g, '$1').replace(/[{}]/g, '');
+  return t.replace(/\(([^()\s]{1,3})\)\/\(([^()\s]{1,3})\)/g, '$1/$2');
+}
 /** Is the inventory's quoted first line in the question's own studentWork? */
-function firstLineInWork(line, work) {
+function firstLineInWork(lineRaw, workRaw) {
+  const SUPER = { '²': '^2', '³': '^3' };
+  const norm = (s) => delatex(s).replace(/[²³]/g, (c) => SUPER[c]);
+  const line = norm(lineRaw);
+  const work = norm(workRaw);
   const l = stripAnswerLabel(line);
   if (compactText(l).length < 4) return true; // nothing quotable (an option letter, a bare label)
   const w = compactText(work);
@@ -202,6 +226,67 @@ function inventoryVerdict(inventory, steps, raw) {
   return lines.some((l) => firstLineInWork(l, work)) ? null : 'firstLineNotInWork';
 }
 
+/* ── D29 (Controller B's ask (1)) — GENUINELY UNATTEMPTED WORK IS "unattempted" ───────
+   A part the student did not attempt — left blank, answered only "Don't know" / "DK", or
+   struck out with nothing in its place — is the FOURTH STATE (no type, its marks in
+   marksLostByType.unattempted). A model sometimes reports it as "missing"/"incorrect" with
+   no type, which would land those marks in `untyped`. Two deterministic rules, both
+   conservative (a real answer is never reclassified):
+     A. a step whose studentWork IS a non-attempt phrase, with no marks, is unattempted;
+     B. a PART whose steps are all "missing"/"unattempted" with no work in them (blank or a
+        non-attempt phrase only; struck work does not count) is unattempted as a whole. A part with
+        a step typed "presentation" is left alone (the model saw a format loss, i.e. work).
+        Unlabelled steps form one group only when the question has no labelled part at all.
+   A "missing" step inside ATTEMPTED work (an exam-technique loss — a conclusion, a unit, a
+   formula line) is untouched: it stays "missing", typed "presentation" by the model. */
+const NON_ATTEMPT_PHRASES = new Set([
+  'dont know', 'don t know', 'do not know', 'i dont know', 'i don t know', 'i do not know', 'didnt know', 'didn t know',
+  'dk', 'no idea', 'not attempted', 'unattempted', 'not answered', 'no answer', 'blank', 'left blank', 'skip', 'skipped', 'not done',
+  'blank page', 'nothing written', 'no work', 'no working', 'empty', 'null',
+]);
+function nonAttemptText(s) {
+  const raw = String(s == null ? '' : s).trim();
+  // Nothing written. (A bare option "(c)" or a part label is NOT nothing: it is never read as blank.)
+  if (!raw || /^\[\s*blank\s*\]$/i.test(raw) || /^[-–—?.]+$/.test(raw)) return 'empty';
+  const t = stripAnswerLabel(raw).normalize('NFKC').toLowerCase()
+    .replace(/[’‘'`"“”[\](){}.!?,:;\-–—_/\\]/g, ' ').replace(/\s+/g, ' ').trim();
+  return t && NON_ATTEMPT_PHRASES.has(t) ? 'phrase' : null;
+}
+function toUnattempted(s) {
+  s.status = 'unattempted';
+  s.marksAwarded = 0;
+  s.mistakeType = null;
+  s.isDeparture = false; s.departureKind = null; s.isReturn = false;
+  s.correctedWorking = null;
+  s.marksDeducted = half(Math.max(s._available, s.marksDeducted));
+}
+/** Reclassifies, in place, the steps of genuinely unattempted work. Returns the count. */
+function markGenuinelyUnattempted(steps) {
+  let n = 0;
+  const live = steps.filter((s) => s.status !== 'withdrawn');
+  // A — an explicit non-attempt phrase that earned nothing.
+  for (const s of live) {
+    if (s.status !== 'unattempted' && !(s.marksAwarded > 0) && s.studentWork && nonAttemptText(s.studentWork) === 'phrase') { toUnattempted(s); n += 1; }
+  }
+  // B — a part with no work in it at all.
+  const anyLabelled = live.some((s) => s.part != null);
+  const groups = new Map();
+  for (const s of live) {
+    const k = partKey(s.part);
+    if (k === '' && anyLabelled) continue;
+    (groups.get(k) || groups.set(k, []).get(k)).push(s);
+  }
+  for (const g of groups.values()) {
+    // "incorrect" is never reclassified here: the model saw something wrong (a bare wrong
+    // answer it did not quote is still an attempt — checkSolution.test.cjs §4.1).
+    const blank = g.every((s) => nonAttemptText(s.studentWork) !== null && !(s.marksAwarded > 0)
+      && ['missing', 'unattempted'].includes(s.status) && s.mistakeType !== 'presentation');
+    if (!blank) continue;
+    for (const s of g) if (s.status !== 'unattempted') { toUnattempted(s); n += 1; }
+  }
+  return n;
+}
+
 /* ── rubric (C7) ─────────────────────────────────────────────────────────── */
 
 function validRubric(raw, total) {
@@ -216,8 +301,12 @@ function validRubric(raw, total) {
   const sum = r2(items.reduce((a, b) => a + b.marks, 0));
   return Math.abs(sum - total) < 0.01 ? items : null;
 }
+/** The legacy note's rubric sentence. Each value point ends with its marks in brackets and the
+ *  points are separated by "; " — a point's own commas ("(a, b, c)") are softened to " / " so a
+ *  reader (and the golden T03 check) cannot take a number inside a point for its marks. */
 function rubricLine(items) {
-  return 'Marked against: ' + items.map((i) => i.point + ' ' + i.marks).join(', ') + '.';
+  const clean = (p) => String(p).replace(/\s*[,;]\s*(?!\d{3}(?!\d))/g, ' / ').replace(/\s*\.\s*$/, '').trim();
+  return 'Marked against: ' + items.map((i) => clean(i.point) + ' (' + i.marks + ')').join('; ') + '.';
 }
 
 /* ── departures (ruling 3, per PART) ───────────────────────────────────────── */
@@ -329,12 +418,15 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   const pending = (note, extra = {}) => {
     const out = { qNumber: q.qNumber, couldNotRead: true, totalMarks, marksAwarded: 0, note };
     if (v2) {
+      // D29 (Controller B's ask (2)): an UNREADABLE page (or a withheld grade) is couldNotRead
+      // with objectiveResolved NULL — `objectiveResolved: false` is reserved for an unread or
+      // ambiguous PICK on an otherwise readable page (see `unreadPick` below).
       Object.assign(out, {
         answerMismatch: null,
         departureKind: null,
         marksLostByType: zeroLost(),
         rubric: null,
-        objectiveResolved: questionIsObjective ? false : null,
+        objectiveResolved: null,
       }, extra.v2 || {});
     }
     Object.defineProperty(out, '_graded', { value: false });
@@ -373,8 +465,9 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   };
   if (ctx.answerInput === false) return unattempted(R.NO_ANSWER_SUBMITTED_NOTE);
 
-  // 2 · steps
+  // 2 · steps — and genuinely unattempted work reported as "unattempted", never "missing" (D29)
   const all = normaliseSteps(raw.annotatedSteps);
+  markGenuinelyUnattempted(all);
 
   // C3 · P0 (D23) — held to the page inventory the model committed to before grading (one
   // document for the whole set only; ctx.inventory is null everywhere else and when the
@@ -406,7 +499,14 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
       const wq = String(ev.work || '').trim();
       const wOk = wq.length > 0 && (!typed || contains(q.textAnswer, wq));
       const creditedStep = all.some((s) => s.status === 'correct' && s.marksAwarded > 0);
-      answerMismatch = qOk && wOk && !creditedStep;
+      // An explicit NON-ATTEMPT ("Don't know", a blank page) is UNATTEMPTED — the fourth state —
+      // never an answer to a different question (D29; live acceptance 2026-10-05: the owner's
+      // Q6 "Don't know" and GS-M24-a's blank page came back "does not address the question").
+      // The discriminator is the model's own WORK quote: a non-attempt phrase is no evidence of
+      // a different question. (Steps alone are not: a wrong PAGE of printed questions also comes
+      // back as one "unattempted" step, with a real quote of the unrelated page — GS-MM-03.)
+      const nonAttempt = nonAttemptText(ev.work) !== null;
+      answerMismatch = nonAttempt ? false : qOk && wOk && !creditedStep;
     }
   }
   if (answerMismatch === true) {
@@ -430,12 +530,26 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // 5 · OBJECTIVE: 0 or full on the option alone.
   let objectiveVerdict = null;
   if (questionIsObjective) {
+    // An objective question the student did not attempt ("Don't know", blank) is UNATTEMPTED —
+    // the fourth state — never an "unread option" (D29).
+    if (steps.length > 0 && steps.every((s) => s.status === 'unattempted')) return unattempted(R.NOT_ATTEMPTED_NOTE, 'notAttempted');
     objectiveVerdict = clampObjectiveResult(q, steps, totalMarks, raw.finalAnswerCorrect);
     if (!objectiveVerdict.resolved && v2) {
       // An unread pick is honest-UNGRADED, never a 0 (owner ruling ②) — said to a client
-      // that can render it (`objectiveResolved: false`). The legacy shape has no way to say
-      // "ungraded" for an answered question, so a legacy client keeps today's 0 (C7: opt-in).
-      return pending(R.UNREAD_OPTION_NOTE, { reason: 'objectiveUnresolved', v2: { objectiveResolved: false } });
+      // that can render it. D29 (Controller B's ask (2)): the PAGE was read (couldNotRead
+      // false), only the PICK could not be — `objectiveResolved: false`, not graded (excluded
+      // from the paper's graded totals exactly like couldNotRead). The legacy shape has no way
+      // to say "ungraded" for an answered question, so a legacy client keeps today's 0 (C7).
+      const out = {
+        qNumber: q.qNumber, couldNotRead: false, ok: true, totalMarks, marksAwarded: 0, percentage: 0,
+        annotatedSteps: [],
+        mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0, departure: 0 },
+        teacherNote: R.UNREAD_OPTION_NOTE, questionDepartureError: false, objective: true,
+        answerMismatch: null, departureKind: null, marksLostByType: zeroLost(), rubric: null, objectiveResolved: false,
+      };
+      Object.defineProperty(out, '_graded', { value: false });
+      Object.defineProperty(out, '_reason', { value: 'objectiveUnresolved' });
+      return out;
     }
   }
   applyObjectiveMistakeGuard(steps, { objective: questionIsObjective, options: q.options });
@@ -725,6 +839,8 @@ module.exports = {
   stripAnswerLabel,
   firstLineInWork,
   inventoryVerdict,
+  markGenuinelyUnattempted,
+  nonAttemptText,
   isRealQuestionText,
   acceptedDepartures,
   validRubric,

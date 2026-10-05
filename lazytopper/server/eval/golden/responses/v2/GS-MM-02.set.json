@@ -1,0 +1,46 @@
+{
+ "ok": true,
+ "worksheetId": "golden-mm-GS-MM-02",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 5,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "This answer does not address the question that was set, so it has not been marked — check that you uploaded your answer to this question.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": true,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": null,
+   "objectiveResolved": null
+  }
+ ],
+ "totalQuestions": 1,
+ "gradedCount": 0,
+ "pendingCount": 1,
+ "gradedMarksAwarded": 0,
+ "gradedMarksTotal": 0,
+ "worksheetTotalMarks": 5,
+ "summary": "Ensure you read each question carefully and solve the exact problem given in the examination paper. Attempting an unrelated question earns zero marks regardless of the correctness of that independent solution.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

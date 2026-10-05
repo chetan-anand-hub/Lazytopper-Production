@@ -1,0 +1,88 @@
+{
+ "ok": true,
+ "totalMarks": 4,
+ "marksAwarded": 3.5,
+ "percentage": 88,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Identifying the colour coding of live and neutral wires",
+   "studentWork": "(a) Live wire — red insulation; neutral wire — black insulation.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct colour coding identified for both line wires.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Calculation of the current drawn by the 1 kW electric iron",
+   "studentWork": "P = VI ⇒ I = P/V = 1000 W / 220 V = 4.54 A.",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct formula and substitution.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Specifying the standard domestic circuit current rating",
+   "studentWork": "So the current rating of the circuit should be 4.54 A.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "× Domestic circuits come in standard ratings of 5 A and 15 A. Since the appliance draws 4.54 A, a 5 A circuit rating is required.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "Since current drawn is 4.54 A, a standard 5 A circuit rating must be used.",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 4,
+   "description": "Explaining the function of the earth wire",
+   "studentWork": "(c)(i) The earth wire provides a low-resistance conducting path to the earth,",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct function stated.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 5,
+   "description": "Stating the advantage/safety role of the earth wire in appliances with metallic bodies",
+   "studentWork": "so any current leaking to the metal body of the iron flows to the earth and the body stays at earth potential. Thus the user does not get an electric shock.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Clear and accurate explanation of safety against electric shock.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: (a) Correct colours of insulation: Live wire is red and neutral wire is black (1); (b) Formula and calculation of electric current drawn: I = P/V = 1000/220 = 4.54 A (or 4.5 A) (0.5); (b) Required standard circuit rating: 5 A (0.5); (c)(i) Function of earth wire: Provides a low-resistance conducting path for electric current to the ground (1); (c)(i) Advantage in electric iron: Prevents severe electric shock to the user by keeping the metallic body at zero/earth potential in case of leakage (1). Excellent conceptual clarity on domestic wire colours and earthing function. Remember that in domestic supply systems, circuits are provided in standard ratings (5 A and 15 A), so a 4.54 A current requires a 5 A circuit rating.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

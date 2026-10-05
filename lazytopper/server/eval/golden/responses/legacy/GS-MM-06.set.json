@@ -1,0 +1,100 @@
+{
+ "ok": true,
+ "worksheetId": "golden-mm-GS-MM-06",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 5,
+   "marksAwarded": 3,
+   "percentage": 60,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Define speed variable and state expressions for time taken",
+     "studentWork": "Let the speed of the train be x km/h. Reduced speed = (x − 8) km/h.\nTime at usual speed = 480/x, time at reduced speed = 480/(x − 8).",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct assumption of speed and expressions for time.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Formulate the equation relating the two times",
+     "studentWork": "480/x − 480/(x − 8) = 3",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Reduced speed takes more time, so the equation must be 480/(x − 8) − 480/x = 3.",
+     "mistakeType": "conceptual",
+     "correctedWorking": "480/(x − 8) − 480/x = 3",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Simplify the equation to standard quadratic form",
+     "studentWork": "⇒ 480(x − 8) − 480x = 3x(x − 8)\n⇒ −3840 = 3x² − 24x\n⇒ 3x² − 24x + 3840 = 0\n⇒ x² − 8x + 1280 = 0",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct algebraic simplification of your formed equation (ECF applied).",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 4,
+     "description": "Solve the quadratic equation by factorisation",
+     "studentWork": "⇒ (x − 40)(x + 32) = 0\n⇒ x = 40 or x = −32.",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Incorrect factorisation: (x − 40)(x + 32) expands to x² − 8x − 1280, not x² − 8x + 1280.",
+     "mistakeType": "calculation",
+     "correctedWorking": "From the correct equation x² − 8x − 1280 = 0, factorisation yields (x − 40)(x + 32) = 0 ⇒ x = 40 or x = −32.",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 5,
+     "description": "Reject the negative root and state final answer with units",
+     "studentWork": "Speed cannot be negative.\n∴ Speed of the train = 40 km/h.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Negative value correctly rejected with reason and final answer stated with correct unit.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Define speed variable and state expressions for time taken at usual and reduced speeds (1); Formulate the correct equation relating the two times (1); Simplify the equation to standard quadratic form (1); Solve the quadratic equation to find the roots (1); Reject the negative value with justification and state the final speed with proper units (1). Good job stating the variable definitions, units, and rejecting the extraneous root. Be careful when setting up difference-in-time equations: since a lower speed requires more time, 480/(x − 8) is greater than 480/x. Also, ensure your factors match the sign of the constant term in your quadratic expression.",
+   "questionDepartureError": false,
+   "objective": false
+  }
+ ],
+ "totalQuestions": 1,
+ "gradedCount": 1,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 3,
+ "gradedMarksTotal": 5,
+ "worksheetTotalMarks": 5,
+ "summary": "You demonstrated a clear understanding of problem setup, algebraic manipulation, and contextual interpretation. To score full marks, always verify which quantity is larger when setting up difference equations, and check your factor signs against the constant term.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

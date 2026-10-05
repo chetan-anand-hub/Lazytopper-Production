@@ -1,0 +1,94 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 2,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Equating p(x) to 0 and forming standard quadratic equation",
+   "studentWork": "p(x) = x² + (4/3)x − 4/3. For the zeroes put p(x) = 0. Multiplying by 3: 3x² + 4x − 4 = 0",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct setup and clearing fractions to form 3x² + 4x − 4 = 0",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 2,
+   "description": "Applying the quadratic formula and simplifying discriminant",
+   "studentWork": "x = [−4 ± √(4² − 4·3·(−4))] / (2·3)   = [−4 ± √(16 + 48)] / 6   = (−4 ± √64)/6 = (−4 ± 8)/6",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct substitution and calculation of discriminant",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Calculating and stating the final zeroes",
+   "studentWork": "∴ x = 4/6 = 2/3  or  x = −12/6 = −2 Zeroes are 2/3 and −2.",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly calculated both zeroes",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Excellent work! The method used was clearly presented, accurate at each step, and led directly to the correct zeroes.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Equating p(x) to 0 and writing standard quadratic equation 3x² + 4x − 4 = 0",
+   "marks": 0.5
+  },
+  {
+   "point": "Applying quadratic formula or factoring method with correct values",
+   "marks": 1
+  },
+  {
+   "point": "Obtaining the correct zeroes x = 2/3 and x = −2",
+   "marks": 0.5
+  }
+ ],
+ "objectiveResolved": null
+}

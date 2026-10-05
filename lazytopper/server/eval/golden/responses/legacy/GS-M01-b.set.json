@@ -1,0 +1,147 @@
+{
+ "ok": true,
+ "worksheetId": "golden-parity-PARM1",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 1,
+   "marksAwarded": 1,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Select correct option",
+     "studentWork": "Answer: (D)",
+     "status": "correct",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct option (D).",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Correct option (D) 4 (1). Option (D) is correct, which earns the mark. However, note that the product of zeroes is c/a = k/3, not k; your working gave k = 4/3 and rounding to 4 was mathematically unsound.",
+   "questionDepartureError": false,
+   "objective": true
+  },
+  {
+   "qNumber": 2,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 1,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Select correct option",
+     "studentWork": "Answer: (A)",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "× Incorrect option selected. You correctly derived k = 4, but chose option (A) instead of (D).",
+     "mistakeType": "silly",
+     "correctedWorking": "Answer: (D)",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 1,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Correct option (D) 4 (1). Your algebra was completely correct and led to k = 4. However, you accidentally wrote option (A) instead of option (D), losing the mark.",
+   "questionDepartureError": false,
+   "objective": true
+  },
+  {
+   "qNumber": 3,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 1,
+   "marksAwarded": 1,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Select correct option",
+     "studentWork": "(B) 9",
+     "status": "correct",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct option (B).",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Correct option (B) 9 (1). Correct option selected. The second term is properly found via S₂ − S₁ = 14 − 5 = 9.",
+   "questionDepartureError": false,
+   "objective": true
+  },
+  {
+   "qNumber": 4,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 1,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Select correct option",
+     "studentWork": "Answer: (A)",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "× Incorrect option. Assertion (A) is true, but Reason (R) is false because the TSA of a sphere is 4πr².",
+     "mistakeType": "conceptual",
+     "correctedWorking": "Answer: (C)",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Correct option (C) A is true / but R is false (1). Total surface area of a sphere of radius r is 4πr², not 3πr² (3πr² is the TSA of a solid hemisphere). Since Reason (R) is false while Assertion (A) is true, the correct code is (C).",
+   "questionDepartureError": false,
+   "objective": true
+  }
+ ],
+ "totalQuestions": 4,
+ "gradedCount": 4,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 2,
+ "gradedMarksTotal": 4,
+ "worksheetTotalMarks": 4,
+ "summary": "Good effort overall, with strong algebraic working shown on polynomials and sequences. Be careful to match your calculated numerical answer to the corresponding option letter, and revise standard mensuration formulas such as the surface area of a sphere.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

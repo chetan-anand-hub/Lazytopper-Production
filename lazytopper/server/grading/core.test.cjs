@@ -319,7 +319,12 @@ test('§C3.5 rubric: v2 returns it only when it sums to the total; legacy leads 
   const rubric = [{ point: 'Factorises', marks: 2 }, { point: 'States roots', marks: 1 }];
   const h = harness({ replies: [REPLY(R(1, [S({ marksAwarded: 3 })], { rubric }))] });
   assert.deepEqual((await h.single(single({ acceptsV2: true }))).body.rubric, rubric);
-  assert.ok((await h.single(single())).body.teacherNote.startsWith('Marked against: Factorises 2, States roots 1.'));
+  assert.ok((await h.single(single())).body.teacherNote.startsWith('Marked against: Factorises (2); States roots (1).'));
+  // A point's own commas never read as list separators (golden T03): "(a, b, c)" is softened.
+  const commas = harness({ replies: [REPLY(R(1, [S({ marksAwarded: 3 })], { rubric: [{ point: 'Identifies a, b, c', marks: 1 }, { point: 'Roots x = 4, x = -2', marks: 2 }] }))] });
+  const note = (await commas.single(single())).body.teacherNote;
+  assert.ok(note.startsWith('Marked against: Identifies a / b / c (1); Roots x = 4 / x = -2 (2).'), note);
+  assert.equal(require('../eval/golden/lib/truth.cjs').rubricSum(note), 3, 'the golden T03 parser reads 1 + 2');
   const bad = harness({ replies: [REPLY(R(1, [S({ marksAwarded: 3 })], { rubric: [{ point: 'Factorises', marks: 2 }] }))] });
   assert.equal((await bad.single(single({ acceptsV2: true }))).body.rubric, null, 'CONTROL: a rubric summing to 2 of 3 is dropped');
 });
@@ -380,6 +385,26 @@ test('§C4.5 a correctedWorking that is itself arithmetically false is never sho
   assert.equal(r.annotatedSteps[1].correctedWorking, '19 × 4 = 76', 'CONTROL: a true correction is kept');
 });
 
+test('§C4.6 a radical quoted WITHOUT its brackets ("√196 + 110.25 = √306.25") has an unknowable scope and is never charged (live CP03-Q08)', async () => {
+  const steps = [S({ marksAwarded: 1, studentWork: 'l = √14² + 10.5² = √196 + 110.25 = √306.25 = 17.5 m' }), S({ marksAwarded: 1, studentWork: 'CSA = 770 m²' })];
+  const ok = (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: true }))] }).single(single({ marks: 2 }))).body;
+  assert.equal(ok.marksAwarded, 2);
+  assert.equal(falseEqualities('√196 + 110.25 = √306.25').length, 0);
+  // CONTROL: with its brackets the radical is evaluated, and a false value IS flagged
+  assert.equal(falseEqualities('√(196 + 110.25) = 18.5').length, 1);
+  const bad = [S({ marksAwarded: 1, studentWork: 'l = √(196 + 110.25) = 18.5' }), S({ marksAwarded: 1, studentWork: 'CSA = 770 m²' })];
+  assert.equal((await harness({ replies: [REPLY(R(1, bad, { finalAnswerCorrect: true }))] }).single(single({ marks: 2 }))).body.marksAwarded, 1);
+});
+
+test('§C4.7 a STACKED FRACTION flattened onto one line ("-8/7 - 4 / 8/7 + 1 = -36/7 / 15/7") is never charged (live CP01-Q05)', async () => {
+  const steps = [S({ marksAwarded: 1, studentWork: 'k = 8/7' }), S({ marksAwarded: 1, studentWork: 'x = -8/7 - 4 / 8/7 + 1 = -36/7 / 15/7 = -12/5' })];
+  const ok = (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: true }))] }).single(single({ marks: 2 }))).body;
+  assert.equal(ok.marksAwarded, 2);
+  // CONTROL: written WITH its brackets, the same arithmetic is evaluated and a false value is charged
+  assert.equal(falseEqualities('(-8/7 - 4)/(8/7 + 1) = 2').length, 1);
+  assert.equal(falseEqualities('1232/308 = 8').length, 1, 'CONTROL: a plain division is still checked');
+});
+
 /* ══ §C5 · OBJECTIVE SCORING ═════════════════════════════════════════════════ */
 
 test('§C5.1 the shared fixture table: the server module returns each row\'s ruled verdict', () => {
@@ -438,14 +463,70 @@ test('§C5.7 the UI-recorded pickedOption takes precedence over the model\'s rea
   assert.equal((await h.sheet(sheet([LETTER_MCQ()]))).body.results[0].marksAwarded, 0, 'CONTROL: without the recorded pick "(c)" is read');
 });
 
-test('§C5.8 an UNRESOLVED objective: legacy keeps a graded 0; v2 is not graded (couldNotRead + objectiveResolved false)', async () => {
+test('§C5.8 an UNRESOLVED objective: legacy keeps a graded 0; v2 is not graded (page read: couldNotRead false + objectiveResolved false, D29)', async () => {
   const q = LETTER_MCQ({ answer: null, textAnswer: 'I think the lines meet somewhere' });
   const raw = REPLY(R(1, [S({ studentWork: 'I think the lines meet somewhere', status: 'partial' })]));
   const legacy = (await harness({ replies: [raw] }).sheet(sheet([q]))).body;
   assert.deepEqual([legacy.results[0].couldNotRead, legacy.results[0].marksAwarded, legacy.gradedCount], [false, 0, 1]);
   const v2 = (await harness({ replies: [raw] }).sheet(sheet([q], { acceptsV2: true }))).body;
-  assert.deepEqual([v2.results[0].couldNotRead, v2.results[0].objectiveResolved, v2.gradedCount, v2.pendingCount], [true, false, 0, 1]);
-  assert.equal(v2.results[0].note, grading.UNREAD_OPTION_NOTE);
+  const r = v2.results[0];
+  assert.deepEqual([r.couldNotRead, r.objectiveResolved, r.marksAwarded, r.annotatedSteps.length, v2.gradedCount, v2.pendingCount], [false, false, 0, 0, 0, 1]);
+  assert.deepEqual(r.marksLostByType, grading.zeroLost(), 'not graded: nothing counted as lost');
+  assert.equal(r.teacherNote, grading.UNREAD_OPTION_NOTE);
+  assert.equal(v2.gradedMarksTotal, 0, 'excluded from the graded totals exactly like couldNotRead');
+  // the single endpoint, v2: top level couldNotRead false + objectiveResolved false
+  const one = (await harness({ replies: [REPLY(R(1, [S({ studentWork: 'I think the lines meet somewhere', status: 'partial' })]))] })
+    .single({ question: 'Which option? (a) Parallel (b) Intersecting (c) Coincident (d) Skew', marks: 1, subject: 'Maths', topic: TOPIC, objective: true, textAnswer: 'I think the lines meet somewhere', acceptsV2: true })).body;
+  assert.equal(one.ok, true);
+  assert.deepEqual([one.couldNotRead, one.objectiveResolved, one.marksAwarded], [false, false, 0]);
+});
+
+/* ══ D29 · CONTROLLER B'S ASKS — unattempted vs missing; objectiveResolved vs couldNotRead ═══ */
+
+test('§D29.1 genuinely UNATTEMPTED work is status "unattempted" (bucket unattempted, no type) — never "missing"/untyped; exam-technique "missing" stays', async () => {
+  const q4 = (n) => sq(n, { marks: 4 });
+  const reply = REPLY(
+    // (a) a part answered only "Don't know", reported by the model as an untyped "missing" step
+    R(1, [S({ part: '(i)', marksAwarded: 2, marksAvailable: 2 }), S({ part: '(ii)', studentWork: "(ii) Don't know.", status: 'missing', marksAwarded: 0, marksAvailable: 2 })]),
+    // (b) a part left blank, reported as two untyped "missing" value points (one typed conceptual by mistake)
+    R(2, [S({ part: '(i)', marksAwarded: 2, marksAvailable: 2 }), S({ part: '(ii)', studentWork: '', status: 'missing', marksAwarded: 0, marksAvailable: 1 }), S({ part: '(ii)', studentWork: '', status: 'missing', marksAwarded: 0, marksAvailable: 1, mistakeType: 'conceptual' })]),
+    // CONTROL (c): a missing CONCLUSION in attempted work, typed presentation — stays "missing" + presentation
+    R(3, [S({ marksAwarded: 3, marksAvailable: 3 }), S({ studentWork: '', status: 'missing', marksAwarded: 0, marksAvailable: 1, mistakeType: 'presentation' })], { finalAnswerCorrect: true }),
+    // CONTROL (d): an untyped missing intermediate step inside attempted work stays "missing" (August §13.9)
+    R(4, [S({ marksAwarded: 2, marksAvailable: 2 }), S({ studentWork: '', status: 'missing', marksAwarded: 0, marksAvailable: 1 }), S({ marksAwarded: 1, marksAvailable: 1 })], { finalAnswerCorrect: true }),
+  );
+  const b = (await harness({ replies: [reply] }).sheet(sheet([q4(1), q4(2), q4(3), q4(4)], { acceptsV2: true }))).body;
+  const [a, bl, concl, mid] = b.results;
+  assert.deepEqual(a.annotatedSteps.map((s) => s.status), ['correct', 'unattempted']);
+  assert.deepEqual([a.marksAwarded, a.marksLostByType], [2, { ...grading.zeroLost(), unattempted: 2 }]);
+  assert.deepEqual(bl.annotatedSteps.map((s) => [s.status, s.mistakeType]), [['correct', null], ['unattempted', null], ['unattempted', null]]);
+  assert.deepEqual(bl.marksLostByType, { ...grading.zeroLost(), unattempted: 2 });
+  assert.deepEqual(concl.annotatedSteps.map((s) => [s.status, s.mistakeType]), [['correct', null], ['missing', 'presentation']], 'CONTROL: exam-technique missing stays missing + presentation');
+  assert.deepEqual(concl.marksLostByType, { ...grading.zeroLost(), presentation: 1 });
+  assert.deepEqual(mid.annotatedSteps.map((s) => s.status), ['correct', 'missing', 'correct'], 'CONTROL: a missing step inside attempted work is not unattempted');
+  assert.deepEqual(mid.marksLostByType, { ...grading.zeroLost(), untyped: 1 });
+  // legacy: the same fixture maps "unattempted" to "missing", and the blank part loses its invented type
+  const lg = (await harness({ replies: [reply] }).sheet(sheet([q4(1), q4(2), q4(3), q4(4)]))).body;
+  assert.deepEqual(lg.results[1].annotatedSteps.map((s) => [s.status, s.mistakeType]), [['correct', null], ['missing', null], ['missing', null]]);
+  // an objective question answered "Don't know" is UNATTEMPTED (graded 0, no type), never an unread option
+  const mcq = (await harness({ replies: [REPLY(R(1, [S({ studentWork: "Don't know", status: 'incorrect', marksAwarded: 0, mistakeType: 'conceptual' })]))] })
+    .sheet(sheet([LETTER_MCQ({ textAnswer: "Don't know" })], { acceptsV2: true }))).body.results[0];
+  assert.deepEqual([mcq.couldNotRead, mcq.objectiveResolved, mcq.marksAwarded, mcq.annotatedSteps[0].status, mcq.annotatedSteps[0].mistakeType], [false, true, 0, 'unattempted', null]);
+  assert.deepEqual(mcq.marksLostByType, { ...grading.zeroLost(), unattempted: 1 });
+});
+
+test('§D29.2 an UNREADABLE page is couldNotRead with objectiveResolved NULL; objectiveResolved false only for an unread PICK on a read page', async () => {
+  const unreadable = (await harness({ replies: [REPLY(R(1, [], { couldNotRead: true, note: 'The page is too blurred to read.' }))] })
+    .sheet(sheet([LETTER_MCQ({ textAnswer: undefined })], { uploads: [{ qNumber: 1, ...PHOTO }], acceptsV2: true }))).body.results[0];
+  assert.deepEqual([unreadable.couldNotRead, unreadable.objectiveResolved], [true, null]);
+  // CONTROL: the page is read but the pick is not → couldNotRead false, objectiveResolved false
+  const unreadPick = (await harness({ replies: [REPLY(R(1, [S({ studentWork: 'the second one maybe', status: 'partial' })]))] })
+    .sheet(sheet([LETTER_MCQ({ textAnswer: undefined })], { uploads: [{ qNumber: 1, ...PHOTO }], acceptsV2: true }))).body.results[0];
+  assert.deepEqual([unreadPick.couldNotRead, unreadPick.objectiveResolved], [false, false]);
+  // single endpoint, v2: an unreadable photo of an objective question
+  const one = (await harness({ replies: [{ couldNotRead: true, annotatedSteps: [], note: 'blurred' }] })
+    .single({ question: 'Which option? (a) Parallel (b) Intersecting', marks: 1, subject: 'Maths', topic: TOPIC, objective: true, ...PHOTO, acceptsV2: true })).body;
+  assert.deepEqual([one.couldNotRead, one.objectiveResolved], [true, null]);
 });
 
 /* ══ §C6 · FENCES AND THE INJECTED-INSTRUCTION WITHHOLD ══════════════════════ */
@@ -730,6 +811,17 @@ test('§P0.11 router mode: each routed group is held to ITS OWN reply\'s invento
   assert.deepEqual(body.results.map((r) => r.marksAwarded), [1, 0], 'Q1 listed by its group keeps its mark; Q2 is absent from ITS group\'s inventory');
 });
 
+test('§P0.12 the inventory line and the work in DIFFERENT notations (LaTeX vs Unicode) is still the same answer (live CP02-Q06)', async () => {
+  const work = ['α + β = -(-8)/2 = 4, αβ = 5/2', '(α + 1/β)(β + 1/α) = (αβ + 1)²/(αβ) = 49/10'];
+  const steps = work.map((w) => S({ studentWork: w, marksAwarded: 1.5 }));
+  const reply = (line) => WITH_INV(INV([1, line]), R(1, steps, { finalAnswerCorrect: true }));
+  const h = harness({ replies: [reply(String.raw`\alpha + \beta = -(-8)/2 = 4, \quad \alpha\beta = 5/2`)] });
+  assert.equal((await h.sheet(sheet([sq(1, { textAnswer: undefined })], DOC))).body.results[0].marksAwarded, 3, 'a real answer is never zeroed for its notation');
+  // CONTROL: an inventory line that is genuinely not in the work still makes the question unattempted
+  const c = harness({ replies: [reply(String.raw`\sin^2 \theta + \cos^2 \theta = 1`)] });
+  assert.equal((await c.sheet(sheet([sq(1, { textAnswer: undefined })], DOC))).body.results[0].marksAwarded, 0);
+});
+
 /* ══ §C2.9–§C2.12 · THE ECF AUDIT (controller decisions D24/D26) ══════════════
    (a) an accepted departure step keeps its type even when it lost nothing itself; (b) CBSE 11
    "penalized only once" enforced wherever the schema marks the original slip; D26: an invalid
@@ -866,6 +958,24 @@ test('§C3b.4 a placeholder question (topic name, "Submitted question", short ch
   assert.deepEqual([await addr('yes'), await addr('partly'), await addr('unknown')], [false, false, null]);
 });
 
+test('§C3b.5 an explicit NON-ATTEMPT ("Don\'t know", a blank page) is unattempted, never a mismatch — even when the model says "no" with evidence (live owner Q6, GS-M24-a)', async () => {
+  const dk = { ...R(1, [S({ studentWork: "Don't know", status: 'unattempted', marksAwarded: 0, marksDeducted: 3 })]), addressesQuestion: 'no', mismatchEvidence: { question: 'x^2 - 2x - 8 = 0', work: "Don't know" } };
+  const v2 = (await harness({ replies: [REPLY(dk)] }).single(single({ textAnswer: "Don't know", acceptsV2: true }))).body;
+  assert.deepEqual([v2.answerMismatch, v2.marksAwarded, v2.annotatedSteps[0].status], [false, 0, 'unattempted']);
+  assert.deepEqual(v2.marksLostByType, { ...grading.zeroLost(), unattempted: 3 });
+  const blank = { ...R(1, [S({ studentWork: 'null', status: 'unattempted', marksAwarded: 0, marksDeducted: 3 })]), addressesQuestion: 'no', mismatchEvidence: { question: 'x^2 - 2x - 8 = 0', work: 'Blank page' } };
+  const legacy = (await harness({ replies: [REPLY(blank)] }).sheet(sheet([sq(1, { textAnswer: undefined })], { uploads: [{ qNumber: 1, ...PHOTO }] }))).body.results[0];
+  assert.ok(!/does not address/.test(legacy.teacherNote), 'legacy: no false "does not address the question" note: ' + legacy.teacherNote);
+  // CONTROL: a real unrelated answer with evidence is still a mismatch (§C3b.1's fixture)
+  const real = (await harness({ replies: [REPLY(MISMATCH_R(1))] }).single(single({ textAnswer: MISMATCH_Q(1).textAnswer, acceptsV2: true }))).body;
+  assert.equal(real.answerMismatch, true);
+  // CONTROL (live GS-MM-03): a wrong PAGE comes back as one "unattempted" step, but its evidence
+  // quotes real unrelated text — that IS a mismatch
+  const page = { ...R(1, [S({ studentWork: 'null', status: 'unattempted', marksAwarded: 0, marksDeducted: 3 })]), addressesQuestion: 'no', mismatchEvidence: { question: 'x^2 - 2x - 8 = 0', work: 'Class 10 · Practice Test (Maths and Science)' } };
+  const wrongPage = (await harness({ replies: [REPLY(page)] }).sheet(sheet([sq(1, { textAnswer: undefined })], { uploads: [{ qNumber: 1, ...PHOTO }], acceptsV2: true }))).body.results[0];
+  assert.equal(wrongPage.answerMismatch, true);
+});
+
 /* ══ §MODEL · THE GRADING MODEL, ITS BUDGET, THE COUNTED FALLBACK ════════════ */
 
 const STRONG = { GRADING_MODEL: 'strong-model', GRADING_THINKING_BUDGET: 2048 };
@@ -938,7 +1048,10 @@ test('§MODEL.3 a 403, and a 400 naming the thinking budget, also fall back; a p
 });
 
 test('§MODEL.4 resolveGradingModel reads the environment and falls back to the code defaults', () => {
-  assert.deepEqual(resolveGradingModel({}), { model: 'gemini-2.5-flash', thinkingBudget: null, mode: 'single', lightModel: 'gemini-2.5-flash' });
+  // The shipped configuration, chosen by data (PR-2 live phase): gemini-3.8-flash, dynamic
+  // thinking, every question to it (single mode); the fallback model stays gemini-2.5-flash.
+  assert.deepEqual(resolveGradingModel({}), { model: 'gemini-3.8-flash', thinkingBudget: null, mode: 'single', lightModel: 'gemini-2.5-flash' });
+  assert.equal(require('./modelConfig.cjs').GRADING_FALLBACK_MODEL, 'gemini-2.5-flash');
   assert.deepEqual(resolveGradingModel({ GRADING_MODEL: 'm', GRADING_THINKING_BUDGET: '2048', GRADING_MODE: 'ROUTER', GRADING_LIGHT_MODEL: 'l' }), { model: 'm', thinkingBudget: 2048, mode: 'router', lightModel: 'l' });
   assert.deepEqual([resolveGradingModel({ GRADING_THINKING_BUDGET: '-1' }).thinkingBudget, resolveGradingModel({ GRADING_MODE: 'fast' }).mode], [null, 'single']);
 });

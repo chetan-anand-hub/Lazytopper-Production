@@ -1,0 +1,62 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2,
+ "percentage": 67,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Forming the difference equation and substituting given values into the volume formula",
+   "studentWork": "Let outer radius = R cm and inner radius = r cm.\nR − r = 1 ...(i)\nVolume of metal = π(R² − r²)h\n176 = (22/7) × (R² − r²) × 14",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct formulation and substitution",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Simplifying the equation to find R² − r²",
+   "studentWork": "⇒ R² − r² = (176 × 7)/(22 × 14) = 1232/308 = 8",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Arithmetic error: 1232 / 308 = 4, not 8",
+   "mistakeType": "calculation",
+   "correctedWorking": "R² − r² = (176 × 7)/(22 × 14) = 1232/308 = 4",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Using algebraic identity and solving the system of linear equations",
+   "studentWork": "⇒ (R − r)(R + r) = 8 ⇒ 1 × (R + r) = 8 ⇒ R + r = 8 ...(ii)\nAdding (i) and (ii): 2R = 9 ⇒ R = 4.5 cm, r = 3.5 cm\nOuter radius = 4.5 cm, inner radius = 3.5 cm.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct method of factorisation and simultaneous solving (full credit under ECF)",
+   "mistakeType": null,
+   "correctedWorking": "(R − r)(R + r) = 4 ⇒ 1 × (R + r) = 4 ⇒ R + r = 4\nAdding R − r = 1 and R + r = 4 gives 2R = 5 ⇒ R = 2.5 cm, r = 1.5 cm",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Letting outer and inner radii be R and r / writing R − r = 1 and stating formula V = π(R² − r²)h with substitution (1); Correct evaluation to obtain R² − r² = 4 or R + r = 4 (1); Solving simultaneous linear equations to find R = 2.5 cm and r = 1.5 cm with appropriate units (1). Your algebraic method and problem set-up are excellent. Double-check your arithmetic division: 1232/308 equals 4, not 8, which led to incorrect final values.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

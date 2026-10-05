@@ -1,0 +1,56 @@
+{
+ "ok": true,
+ "totalMarks": 1,
+ "marksAwarded": 0,
+ "percentage": 0,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Identify the parental genotype combination for a 1:1 phenotypic ratio",
+   "studentWork": "50% tall and 50% short means both parents are hybrid.\nTt and Tt",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "× Incorrect. A cross between two hybrids (Tt × Tt) gives a 3:1 ratio (75% tall : 25% short). A 1:1 ratio (50% tall : 50% short) is obtained from a test cross between Tt and tt.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "(C) Tt and tt",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "A cross between two heterozygous plants (Tt × Tt) produces 75% tall and 25% short offspring. To obtain an equal 50:50 ratio of tall to short plants, the cross must be between a heterozygous plant and a homozygous recessive plant (Tt × tt).",
+ "questionDepartureError": false,
+ "objective": true,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Correct option (C) Tt and tt",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": true
+}

@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2.5,
+ "percentage": 83,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Assumption of rationality and expressing in p/q form",
+   "studentWork": "Let us assume that 2 + 3√3 is a rational number.\nThen 2 + 3√3 = a/b, where a and b are integers and b ≠ 0.",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct initial assumption and representation.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Algebraic rearrangement to isolate √3",
+   "studentWork": "⇒ 3√3 = a/b - 2 = (a - 2b)/b ⇒ √3 = (a - 2b)/(3b)",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct rearrangement to isolate √3.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Deduction that √3 is rational since a, b are integers",
+   "studentWork": "Since a and b are integers, (a - 2b)/(3b) is rational.\nSo √3 is rational.",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct deduction based on integer properties.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 4,
+   "description": "Contradiction and final conclusion statement",
+   "studentWork": "But this contradicts the given fact that √3 is irrational.",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Correctly noted the contradiction, but omitted the final conclusion stating that 2 + 3√3 is irrational.",
+   "mistakeType": "presentation",
+   "correctedWorking": "But this contradicts the given fact that √3 is irrational. Hence, our assumption is false and (2 + 3√3) is an irrational number.",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 1,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Assume 2 + 3√3 is rational / expressing it as a/b where a and b are integers / b ≠ 0 (0.5); Rearrange to isolate √3 in terms of a and b: √3 = (a - 2b)/(3b) (1); State that (a - 2b)/(3b) is rational as a / b are integers / leading to √3 being rational (0.5); State the contradiction and write the final conclusion that 2 + 3√3 is irrational (1). Your proof and algebra are clear and accurate. Make sure to always write the final conclusion statement ('Hence, 2 + 3√3 is an irrational number') to conclude the proof completely.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

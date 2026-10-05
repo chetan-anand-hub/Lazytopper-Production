@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 5,
+ "marksAwarded": 5,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Variable definition and formulation of the first equation",
+   "studentWork": "Let the amount invested in scheme A (8%) be ₹x and in scheme B (9%) be ₹y.\nInterest: 8x/100 + 9y/100 = 1860 ⇒ 8x + 9y = 186000 …(1)",
+   "status": "correct",
+   "marksAwarded": 1.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct formulation of equation (1)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Formulation of the second equation after interchange",
+   "studentWork": "After interchanging: 9x/100 + 8y/100 = 1860 + 20 = 1880 ⇒ 9x + 8y = 188000 …(2)",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct formulation of equation (2)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Simplification using addition and subtraction of equations",
+   "studentWork": "Adding (1) and (2): 17x + 17y = 374000 ⇒ x + y = 22000 …(3)\nSubtracting (1) from (2): x − y = 2000 …(4)",
+   "status": "correct",
+   "marksAwarded": 1.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Efficient and correct simplification to x + y = 22000 and x - y = 2000",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 4,
+   "description": "Solving for x and y, and concluding with proper units",
+   "studentWork": "From (3) and (4): 2x = 24000 ⇒ x = 12000, and y = 22000 − 12000 = 10000.\n∴ He invested ₹12000 in scheme A and ₹10000 in scheme B.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct values of x and y with a clear concluding statement including currency units",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Assumption of variables and formulating the first linear equation (8x + 9y = 186000) (1.5); Formulating the second linear equation after interchanging investments (9x + 8y = 188000) (1); Simplifying the system of equations by addition and subtraction to get x + y = 22000 and x - y = 2000 (1.5); Solving for x and y and stating the final investment amounts with units (1). Flawless solution! The algebraic formulation was precise and your choice to add and subtract the symmetric linear equations was mathematically elegant.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

@@ -1,0 +1,88 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2,
+ "percentage": 67,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Identify hormone 'X'",
+   "studentWork": "Hormone X is thyroxine.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "× Incorrect hormone. The emergency hormone is adrenaline.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "Hormone X is adrenaline.",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Identify the gland secreting hormone 'X'",
+   "studentWork": "It is secreted by the thyroid gland.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "× Incorrect gland. Adrenaline is secreted by the adrenal glands.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "It is secreted by the adrenal gland.",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Effect on heart and oxygen supply to muscles",
+   "studentWork": "In a scary situation this hormone acts on the heart. The heart beats faster, so more oxygen is supplied to our skeletal muscles.",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct effect on heart rate and muscle oxygenation.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 4,
+   "description": "Redirection of blood from skin/digestive organs to skeletal muscles",
+   "studentWork": "Blood supply to the digestive system and skin is reduced because the muscles around small arteries in these organs contract.",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Accurately describes vasoconstriction diverting blood to muscles.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 5,
+   "description": "Increase in breathing rate and body readiness",
+   "studentWork": "The breathing rate increases because the diaphragm and rib muscles contract. So the body is ready to deal with the emergency.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Accurately explains increased breathing rate and overall emergency response.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 2,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Identification of Hormone X as Adrenaline (0.5); Identification of Adrenal gland (0.5); Explanation of increased heart rate to supply more oxygen to muscles (0.5); Explanation of reduced blood flow to digestive system and skin / diversion to skeletal muscles (0.5); Explanation of increased breathing rate (contraction of diaphragm and rib muscles) (0.5); Conclusion that these responses ready the body to deal with the emergency (0.5). Your physiological explanation in part (b) is excellent and follows NCERT precisely. However, be careful not to confuse thyroxine with adrenaline; the emergency hormone is adrenaline, produced by the adrenal glands.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

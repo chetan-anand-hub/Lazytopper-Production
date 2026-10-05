@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1.5,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Identify given values with sign convention and state lens formula",
+   "studentWork": "u = −90 cm, f = −30 cm (concave lens) Lens formula: 1/f = 1/v − 1/u",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "× Object distance copied incorrectly as −90 cm instead of −60 cm",
+   "mistakeType": "silly",
+   "correctedWorking": "u = −60 cm, f = −30 cm (concave lens); Lens formula: 1/f = 1/v − 1/u",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Substitute values into the lens formula",
+   "studentWork": "1/(−30) = 1/v − 1/(−90)",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct substitution of values into the lens formula (ECF)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Solve for image distance v",
+   "studentWork": "1/v = −1/30 − 1/90 = (−3 − 1)/90 = −4/90 = −2/45 v = −45/2 = −22.5 cm",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct calculation of image distance following the carried-forward value (ECF)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 4,
+   "description": "Final position and interpretation of the image",
+   "studentWork": "The image is formed 22.5 cm from the lens, on the same side as the object.",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct interpretation of the position and side of the image with proper unit (ECF)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 1,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Identification of given values with correct sign convention and lens formula (0.5); Substitution into the lens formula (0.5); Calculation of image distance v (0.5); Statement of image position with correct unit and interpretation (0.5). You demonstrated solid grasp of the lens formula, sign conventions, and algebraic simplification. Take care to double-check the question statement when noting down given values, as the object distance was 60 cm rather than 90 cm.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 2,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "First observation justifying chemical change (evolution of gas)",
+   "studentWork": "1. Zinc granules के आसपास gas के bubbles बनते हैं — यानी gas का evolution होता है (H₂ gas)।",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct observation: evolution of hydrogen gas noted.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Second observation justifying chemical change (rise in temperature)",
+   "studentWork": "2. Flask को छूने पर वह गरम लगता है, मतलब temperature में rise होता है।",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct observation: rise in temperature (exothermic reaction) noted.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Both observations—evolution of gas and change in temperature—are accurately stated to justify that a chemical reaction has occurred. Excellent work!",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Observation 1: Evolution of a gas / formation of bubbles (hydrogen gas)",
+   "marks": 1
+  },
+  {
+   "point": "Observation 2: Change in temperature / flask becomes warm (rise in temperature / exothermic reaction)",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 2,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Stating that tangent is perpendicular to the radius at point of contact",
+   "studentWork": "∠OAP = 90° (tangent ⊥ radius at the point of contact)\nIn right Δ OAP,",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct geometric property and right angle identified",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Applying Pythagoras theorem correctly",
+   "studentWork": "OP² = OA² + AP²",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct Pythagoras theorem statement",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Substituting given values and computing OA",
+   "studentWork": "26² = OA² + 10²\nOA² = 676 - 100 = 576\nOA = √576 = 24",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Accurate substitution and arithmetic",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 4,
+   "description": "Writing the final answer with units",
+   "studentWork": "∴ radius of the ground = 24 m",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct final answer with proper unit",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Stating that the tangent is perpendicular to the radius at the point of contact and writing the Pythagoras theorem relation in right triangle OAP (1); Substituting known values / solving for OA / and stating the radius with appropriate units (1). Excellent solution! You correctly stated the tangent-radius theorem, self-corrected the Pythagoras relationship neatly, and concluded with the correct value and unit.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

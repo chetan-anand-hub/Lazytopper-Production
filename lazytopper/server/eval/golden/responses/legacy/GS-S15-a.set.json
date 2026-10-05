@@ -1,0 +1,290 @@
+{
+ "ok": true,
+ "worksheetId": "golden-parity-PARS5",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 4,
+   "marksAwarded": 3.5,
+   "percentage": 88,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Chemical equation for electrolysis of brine",
+     "studentWork": "NaCl + H₂O → NaOH + H₂ + Cl₂ (on passing electricity through brine)",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Correct reactants and products, but the equation is not balanced",
+     "mistakeType": "conceptual",
+     "correctedWorking": "2NaCl + 2H₂O → 2NaOH + Cl₂ + H₂",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Two uses of any one product",
+     "studentWork": "NaOH is used for making soaps and detergents, and in paper making.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct uses of sodium hydroxide",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Identification of compounds A and B",
+     "studentWork": "A is sodium hydrogen carbonate (baking soda), NaHCO₃. B is sodium carbonate, Na₂CO₃.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Both salts correctly identified",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 4,
+     "description": "Balanced chemical equation for heating salt A",
+     "studentWork": "2NaHCO₃ → Na₂CO₃ + H₂O + CO₂ (on heating)",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct balanced equation for thermal decomposition of baking soda",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Balanced chemical equation for electrolysis of brine (1); Two uses of any one product (NaOH / H2 / or Cl2) (1); Identification of salt A (NaHCO3) and compound B (Na2CO3) (1); Balanced chemical equation for heating of A (1). Well answered overall. Ensure you balance every chemical equation when a balanced equation is specifically asked for in the question.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 2,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 4,
+   "marksAwarded": 4,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Name and definition of photosynthesis",
+     "studentWork": "Photosynthesis - the process by which green plants make carbohydrates (glucose) from carbon dioxide and water in the presence of sunlight and chlorophyll.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Named and accurately defined",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Balanced chemical equation for photosynthesis",
+     "studentWork": "6CO2 + 12H2O ⎯⎯sunlight, chlorophyll⎯⎯→ C6H12O6 + 6O2 + 6H2O",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Fully correct balanced equation with reaction conditions",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Rate of photosynthesis in cloudy weather with reason",
+     "studentWork": "(I) In cloudy weather less sunlight is available, so the rate of photosynthesis decreases.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct reason and effect",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 4,
+     "description": "Rate of photosynthesis when stomata are blocked with reason",
+     "studentWork": "(II) If stomata get blocked by dust, exchange of gases (CO2 intake) is reduced, so the rate of photosynthesis decreases.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct reason and effect",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Name and definition of photosynthesis (1); Balanced chemical equation for photosynthesis (1); Effect of cloudy weather on photosynthesis rate with reason (1); Effect of blocked stomata on photosynthesis rate with reason (1). Excellent, clear, and complete presentation with all points and balanced equations properly written.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 3,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 4,
+   "marksAwarded": 3.5,
+   "percentage": 88,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Insulation colours of line wires",
+     "studentWork": "Live wire — red insulation; neutral wire — black insulation.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct insulation colours stated",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Current calculation and circuit rating",
+     "studentWork": "P = VI ⇒ I = P/V = 1000 W / 220 V = 4.54 A. So the current rating of the circuit should be 4.54 A.",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Current calculated correctly, but standard domestic circuit rating is 5 A",
+     "mistakeType": "conceptual",
+     "correctedWorking": "I = P/V = 1000 W / 220 V = 4.54 A. Since the current drawn is 4.54 A, a standard circuit rating of 5 A should be used.",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Function and advantage of the earth wire",
+     "studentWork": "The earth wire provides a low-resistance conducting path to the earth, so any current leaking to the metal body of the iron flows to the earth and the body stays at earth potential. Thus the user does not get an electric shock.",
+     "status": "correct",
+     "marksAwarded": 2,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Comprehensive explanation covering both low-resistance path and protection from shock",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Colours of insulation of live and neutral wires (1); Calculation of current and specification of standard current rating (5 A) (1); Function of the earth wire (1); Advantage of earth wire in appliances like electric iron (1). Very good understanding of domestic circuits. Note that current ratings of domestic circuits follow standard commercial values (such as 5 A or 15 A), so a device drawing 4.54 A requires a 5 A rated circuit.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 4,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 5,
+   "marksAwarded": 4.5,
+   "percentage": 90,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Lens identification and eye defect",
+     "studentWork": "Since the power is negative, X is a concave lens.\nIt is prescribed for myopia (short-sightedness).",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Concave lens and myopia correctly identified",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Determination of focal length in cm",
+     "studentWork": "P = 1/f ⇒ f = 1/P = 1/(−2.5) = −4 m = −400 cm.",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Correct formula used, but 1/(-2.5) = -0.4 m = -40 cm, not -4 m",
+     "mistakeType": "calculation",
+     "correctedWorking": "f = 1/P = 1/(−2.5 D) = −0.4 m = −40 cm",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Image characteristics for m = -2 and u = -20 cm",
+     "studentWork": "m = −2 (negative) ⇒ (I) the image is real and inverted; (II) it is twice the size of the object (magnified); (III) v = m × u = (−2) × (−20) = +40 cm, i.e. 40 cm on the other side of the lens, beyond 2F; (IV) the height of the image is negative.",
+     "status": "correct",
+     "marksAwarded": 2,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ All four characteristics correctly derived and stated",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 4,
+     "description": "Degree of convergence/divergence comparison with reason",
+     "studentWork": "Lens A (f = 10 cm), because power P = 1/f — the shorter the focal length, the greater the power, i.e. the higher the degree of convergence/divergence.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct lens selected with proper inverse relation justification",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Name of lens X and defect of vision (1); Calculation of focal length in cm (1); Properties of image for m = -2 (nature / size / position / sign of height) (2); Identification of lens with higher convergence/divergence with reason (1). Strong conceptual clarity on optics and sign conventions. Be careful with decimal arithmetic: 1/2.5 equals 0.4, not 4.",
+   "questionDepartureError": false,
+   "objective": false
+  }
+ ],
+ "totalQuestions": 4,
+ "gradedCount": 4,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 15.5,
+ "gradedMarksTotal": 17,
+ "worksheetTotalMarks": 17,
+ "summary": "Commendable performance demonstrating strong conceptual clarity across Biology, Chemistry, and Physics. Pay extra attention to balancing chemical equations when required and double-check basic decimal calculations to secure full marks.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

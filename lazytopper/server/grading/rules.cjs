@@ -41,7 +41,7 @@ const MISTAKE_TAXONOMY_PROMPT =
   '   - "silly" = COPIED WRONGLY: a value, sign or term copied wrongly from the question or from the student\'s OWN earlier line (e.g. the question\'s +3 written as +5; u = 60 copied as 90; a root read off correct factors with the wrong sign). The student\'s other work shows they know better.\n' +
   '   - "calculation" = PERFORMED WRONGLY: the method is right but an operation the student performed is wrong — arithmetic (19 × 4 written as 72), algebra or expansion, a sign lost while rearranging, an outcome missed while listing, WRONG COEFFICIENTS while genuinely attempting to balance an equation.\n' +
   '   - "conceptual" = METHOD MISUNDERSTOOD: the wrong formula, identity, law, theorem, principle, organ or process for the situation (e.g. cos A = 1 − sin A; the wrong sign convention u = +20 for a real object), a misread of what the question asks, a wrong reactant or product in a chemical equation, or AN EQUATION LEFT UNBALANCED WHEN THE QUESTION ASKED FOR A BALANCED EQUATION.\n' +
-  '   - "presentation" = CBSE FORMAT ONLY: the mathematics or science is right but a mark the CBSE scheme awards for FORMAT is missing — a required conclusion / "hence proved" line, a required labelled figure, ray arrows on a ray diagram, a required formula statement, the unit of a final numerical answer where the scheme pays it, the contextual rejection of a root in a word problem. ⚠ NEVER for missing state symbols (no deduction at all). ANYTHING THAT CHANGES WHETHER THE MATHEMATICS OR SCIENCE IS RIGHT IS NOT PRESENTATION.\n' +
+  '   - "presentation" = CBSE FORMAT ONLY: the mathematics or science is right but a mark the CBSE scheme awards for FORMAT is missing — a required conclusion / "hence proved" line, a required labelled figure, ray arrows on a ray diagram, a required formula statement, the unit of a final numerical answer where the scheme pays it, the contextual rejection of a root in a word problem, the EXACT CBSE technical term where the student shows the right concept in everyday words ("clotting cells" for platelets, "food pipe" for oesophagus — the ½ for the term is lost, and it is presentation, not conceptual). ⚠ NEVER for missing state symbols (no deduction at all). ANYTHING THAT CHANGES WHETHER THE MATHEMATICS OR SCIENCE IS RIGHT IS NOT PRESENTATION.\n' +
   '   - NO TYPE (mistakeType null): a correct step; a step that correctly carries forward an earlier error (ECF); an unattempted or withdrawn step; a wrong answer with no working shown (undiagnosable). Never invent a mistake on a right step.';
 
 const IDENTIFY_EVERY_STEP_PROMPT = 'Identify EVERY step in the student\'s work in order — don\'t skip any.';
@@ -150,7 +150,8 @@ const CBSE_GENERAL_INSTRUCTIONS_PROMPT =
   '       CBSE 15: "…if the answer is found to be totally incorrect, it should be marked as cross and awarded zero."';
 
 const FINAL_ANSWER_PROMPT =
-  'FINAL ANSWER: set "finalAnswerCorrect" true only if the student\'s final answer is actually correct for the question AS SET. A wrong or absent final answer never earns FULL marks; the method marks legitimately earned before it stand. Award marks in HALF-MARK units, allocated to the actual steps — never invented to hit a number. On a single-mark question there are no separate method marks, so a wrong answer scores 0.';
+  'FINAL ANSWER: set "finalAnswerCorrect" true only if the student\'s final answer is actually correct for the question AS SET. A wrong or absent final answer never earns FULL marks; the method marks legitimately earned before it stand. Award marks in HALF-MARK units, allocated to the actual steps — never invented to hit a number. On a single-mark question — and on a single-mark PART of a case study or multi-part question — there are no separate method marks, so a wrong answer scores 0 for it.\n' +
+  'VALUE POINTS ARE EARNED OR NOT. A step whose VALUE is wrong earns 0 for that value point even when most of it is right (five of the six outcomes listed; a correct formula with a wrong result on the same line) — never a ½ for "nearly right". Only a value point the scheme pays ON ITS OWN (a formula stated on its own, a correct substitution) is earned separately.';
 
 const NO_WORKING_PROMPT = 'NO WORKING SHOWN → mistakeType null. If the student shows NO working — only a final answer (e.g. just a chosen MCQ option such as "(d)") — and it is wrong, you CANNOT diagnose the cause: set mistakeType null for that step. Never guess "conceptual" (or any type) from a bare wrong answer. The marks are still not earned (status stays "incorrect"), only the type is null.';
 
@@ -179,7 +180,9 @@ const ECF_CASE_LAW_PROMPT =
   '       7. TWO SEPARATE SLIPS, neither carried forward ⇒ TWO ORDINARY MISTAKES and NO departure. Nothing was adopted, so nothing was left behind.\n' +
   '       8. The RIGHT ANSWER reached by an INVALID method ⇒ departureKind "invalid-method": it scores 0 for that part, the answer mark included, unless the question\'s own CBSE scheme awards the answer mark independently; classify "conceptual". ⚠⚠ AND IT FAILS SAFE: if you cannot DEMONSTRATE that the method is invalid — show that it fails IN GENERAL, not merely that it is not the scheme\'s method — treat it as a VALID ALTERNATIVE and award IN FULL. "Unfamiliar" is not "invalid", and CBSE 3 protects innovative methods.\n' +
   '       9. AN ANSWER ONLY, with no working ⇒ UNDIAGNOSABLE and NOT a departure. mistakeType null. Never fabricate a type, and never call a bare wrong answer a departure.\n' +
-  '       10. A departure after which the student RETURNS TO THE REAL QUESTION ⇒ THE DEPARTURE ENDS THERE. Later correct work on the question as set EARNS ITS MARKS. Where the student returns and the excursion left nothing behind, do not mark a departure at all — grade the excursion as an ordinary mistake.';
+  '       10. A departure after which the student RETURNS TO THE REAL QUESTION ⇒ THE DEPARTURE ENDS THERE. Later correct work on the question as set EARNS ITS MARKS. Where the student returns and the excursion left nothing behind, do not mark a departure at all — grade the excursion as an ordinary mistake.\n' +
+  '       11. A WRONG CONCEPT IS NOT A CARRIED VALUE. Where a step is wrong because the student used the WRONG FORMULA, IDENTITY, LAW or SIGN CONVENTION ("conceptual" — e.g. cos A = 1 − sin A; u = +20 cm for a real object), the work that only EVALUATES that wrong concept does not earn the marks of the concept it replaced: (a) a later step that applies a SEPARATE correct method to the wrong value (tan A = sin A / cos A with the wrong cos A) earns HALF its marks — its method, not its value; (b) the step that only computes the result of the wrong substitution, and the final answer it reaches, earn nothing; a correct formula stated BEFORE the error keeps its mark. NOT THE SAME AS case 1 (a value COPIED or performed wrongly: the later steps earn in full, ruling 2) NOR as a word problem translated into a wrongly FORMED equation that is then SOLVED correctly (ruling 3: the forming marks are lost and the solving marks are earned).\n' +
+  '       12. AN INCOMPLETE LIST OR COUNT IS A WRONG VALUE. A step that lists or counts cases and MISSES one (a favourable outcome such as (6, 1) in a dice sum, a factor, a case) earns 0 for that value point — never a ½ for "most of the list" — and is typed "calculation". The NEXT step that correctly uses the student\'s own count (P = 5/36 from five outcomes) earns its marks in full (ECF, mistakeType null): the slip is penalised once, at the list.';
 
 /** The August Science boundary cases (ECF_POLICY_V2 (l)): S1, S2, S4a/S4b, S6 and the keystroke
  *  contrast kept; S3/S5 re-stated under ruling 3, S4c removed by ruling 5 (state symbols). */
@@ -195,7 +198,7 @@ const SCIENCE_CASE_LAW_PROMPT =
   '       ⚠⚠ PRESENTATION IS CBSE\'S FORMAT — answer structure, labelled diagrams, units, conclusion lines. ANYTHING THAT CHANGES WHETHER THE CHEMISTRY OR MATHEMATICS IS RIGHT IS NOT PRESENTATION.\n' +
   '       ★ MARK-SIZE SANITY CHECK: a CBSE scheme typically pays 1 mark for the correct species and 1 for balancing, so calling an unbalanced equation "presentation" would cost the student HALF the question. Presentation deductions are never that size — if a bucket implies a deduction that large, it is the wrong bucket.\n' +
   '       ⚠⚠ S3 AND S4 ARE ONE KEYSTROKE APART IN A STUDENT\'S ANSWER AND MUST NOT BE CONFUSED. A WRONG REACTANT IS A CONCEPTUAL ERROR IN FORMING THE EQUATION, NOT A DEPARTURE. AN UNBALANCED EQUATION DOES NOT CHANGE THE QUESTION AND IS NOT A DEPARTURE — it is graded by S4a/S4b above. Check WHICH SPECIES are written before you check whether the coefficients balance.\n' +
-  '       S5. The RIGHT PRINCIPLE with a WRONG NUMERICAL SUBSTITUTION into a physics formula ⇒ formed wrongly: the substitution loses its mark, and working correctly from it earns ECF. NOT a departure.\n' +
+  '       S5. The RIGHT PRINCIPLE with a WRONG NUMERICAL SUBSTITUTION into a physics formula ⇒ formed wrongly: the substitution loses its mark, and working correctly from it earns ECF. NOT a departure. (A wrong SIGN CONVENTION — u = +20 cm for a real object — is a wrong CONCEPT, not a wrong number: case 11.)\n' +
   '       S6. A CORRECT answer with a required DIAGRAM ABSENT or UNLABELLED ⇒ NOT A DEPARTURE. PRESENTATION.';
 
 /** The August scheme-corroboration ruling (ECF_POLICY_V2 (n)); the old "say so in teacherNote"
@@ -239,6 +242,7 @@ const MISMATCH_NOTE_LEGACY = 'This answer does not address the question that was
 const INJECTION_WITHHELD_NOTE = 'We could not grade this answer reliably, so it has not been marked — please check it again.';
 const UNREAD_OPTION_NOTE = 'We could not read which option you chose, so this question has not been marked — make your final choice clear and check it again.';
 const NO_ANSWER_SUBMITTED_NOTE = 'No answer to this question was submitted, so it earns no marks.';
+const NOT_ATTEMPTED_NOTE = 'This question was not attempted, so it earns no marks.';
 const NO_ANSWER_ON_PAGE_NOTE = 'No answer to this question was found on your page, so it earns no marks — if you did answer it, check that the page is included and the question number is written beside it.';
 const SINGLE_COULD_NOT_READ_MESSAGE = "We couldn't read your answer clearly enough to mark it — please retake the photo in good light, or type your answer, and check again.";
 
@@ -288,6 +292,7 @@ module.exports = {
   INJECTION_WITHHELD_NOTE,
   UNREAD_OPTION_NOTE,
   NO_ANSWER_SUBMITTED_NOTE,
+  NOT_ATTEMPTED_NOTE,
   NO_ANSWER_ON_PAGE_NOTE,
   SINGLE_COULD_NOT_READ_MESSAGE,
 };

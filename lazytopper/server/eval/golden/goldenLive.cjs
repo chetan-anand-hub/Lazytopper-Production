@@ -12,7 +12,14 @@
 //                         C = gemini-3.1-pro-preview thinkingBudget 2048 on the grading calls
 //   --model M --thinking N --config-id ID   a custom config instead of A/B/C
 //   --runs N              repeats of the whole plan (default 3)
-//   --concurrency N       parallel jobs (default 4; the brief caps it at 4)
+//   --concurrency N       parallel jobs (default 4; capped at 4 unless --ramp is given)
+//   --ramp A,B,C          OWNER SPEED RULING 2 (2026-10-05): adaptive parallelism up to the key's
+//                         rate limit — start at A jobs in flight, step up to B, C after every
+//                         --ramp-every completed jobs while HTTP 429s stay at 0; on any 429
+//                         halve it (never stepping up again in this process). Peak in flight,
+//                         429 count and wall-clock are recorded in the manifest per invocation.
+//   --ramp-every N        completed jobs at a level before stepping up (default 8)
+//   --filter-file F       job keys (one per line, '#' comments) — exact matches, added to --filter
 //   --filter P[,P...]     only jobs whose key starts with a prefix P (P ending in '$' = exact key)
 //   --detect              also run the detect-question jobs (once, as run 1)
 //   --run-id ID           folder name under runs/ (default <date>.<config-id>)
@@ -65,6 +72,13 @@ const CONFIGS = {
   PA: { id: 'PR2-a-flash', model: 'gemini-2.5-flash', thinkingBudget: null, core: true, gradingMode: 'single', label: 'PR-2 (a): gemini-2.5-flash only, dynamic thinking' },
   PB: { id: 'PR2-b-pro2048', model: 'gemini-3.1-pro-preview', thinkingBudget: 2048, core: true, gradingMode: 'single', label: 'PR-2 (b): gemini-3.1-pro-preview only, thinking capped at 2048' },
   PC: { id: 'PR2-c-router', model: 'gemini-3.1-pro-preview', thinkingBudget: 2048, core: true, gradingMode: 'router', lightModel: 'gemini-2.5-flash', label: 'PR-2 (c): router — known MCQ picks no call; typed 1-2 mark -> gemini-2.5-flash; 3-5 mark, proofs, photos -> gemini-3.1-pro-preview capped 2048' },
+  // On 2026-10-05 (PR-2 live phase) the eval key's NEW project got HTTP 404 on gemini-2.5-flash:
+  // "This model models/gemini-2.5-flash is no longer available to new users. Please update your
+  // code to use models/gemini-3.8-flash" (36 recorded calls, unbilled). Production's older key
+  // still grades on gemini-2.5-flash. (a) and the router's light model therefore run the
+  // provider-named successor, and every label says so (as B/C did for gemini-2.5-pro).
+  PA8: { id: 'PR2-a-flash38', model: 'gemini-3.8-flash', thinkingBudget: null, core: true, gradingMode: 'single', label: 'PR-2 (a): gemini-3.8-flash only (SUBSTITUTE: gemini-2.5-flash refused to this key), dynamic thinking' },
+  PC8: { id: 'PR2-c-router38', model: 'gemini-3.1-pro-preview', thinkingBudget: 2048, core: true, gradingMode: 'router', lightModel: 'gemini-3.8-flash', label: 'PR-2 (c): router — known MCQ picks no call; typed 1-2 mark -> gemini-3.8-flash (SUBSTITUTE for gemini-2.5-flash); 3-5 mark, proofs, photos -> gemini-3.1-pro-preview capped 2048' },
 };
 
 function out(...a) { process.stdout.write(redact(a.map((x) => (typeof x === 'string' ? x : JSON.stringify(x))).join(' ')) + '\n'); }
@@ -79,11 +93,18 @@ async function main() {
   const cfg = preset || (arg('--model') ? { id: arg('--config-id', 'custom-' + arg('--model')), model: arg('--model'), thinkingBudget: arg('--thinking') != null ? Number(arg('--thinking')) : null, label: 'custom' } : null);
   if (!cfg) { out('usage: --config A|B|C (or --model M [--thinking N] --config-id ID)'); process.exit(2); }
   const runs = Number(arg('--runs', '3'));
-  const concurrency = Math.min(4, Number(arg('--concurrency', '4')));
+  const rampArg = arg('--ramp');
+  const ramp = rampArg ? String(rampArg).split(',').map((x) => Math.floor(Number(x))).filter((x) => x > 0) : [Math.min(4, Number(arg('--concurrency', '4')))];
+  const rampEvery = Math.max(1, Number(arg('--ramp-every', '8')));
+  const concurrency = Math.max(...ramp);
   // Plain matching, never a RegExp built from input: comma-separated job-key PREFIXES; a
   // pattern ending in '$' matches that exact key (e.g. --filter S.CI.GS-M0,W.CIM.OA-01$).
   const filterArg = arg('--filter');
-  const filterPats = filterArg ? String(filterArg).split(',').map((p) => p.trim()).filter(Boolean) : null;
+  let filterPats = filterArg ? String(filterArg).split(',').map((p) => p.trim()).filter(Boolean) : null;
+  if (arg('--filter-file')) {
+    const keys = fs.readFileSync(path.resolve(arg('--filter-file')), 'utf8').split('\n').map((l) => l.replace(/#.*$/, '').trim()).filter(Boolean).map((k) => k + '$');
+    filterPats = (filterPats || []).concat(keys);
+  }
   const filter = filterPats ? (key) => filterPats.some((p) => (p.endsWith('$') ? key === p.slice(0, -1) : key.startsWith(p))) : null;
   const dry = has('--dry');
   const date = new Date().toISOString().slice(0, 10);
@@ -144,14 +165,42 @@ async function main() {
     ' runs=' + runs + ' concurrency=' + concurrency + ' jobs=' + queue.length + ' ledgerBefore=' + client.used() + ' cap=' + cap + ' dir=' + runDir);
 
   let idx = 0; let finished = 0; let stopped = false;
+  // Adaptive parallelism (owner speed ruling 2): `cur` jobs may be in flight.
+  let level = 0; let cur = ramp[0]; let sinceChange = 0; let seen429 = (client.stats && client.stats.status429) || 0;
+  let halved = false; let inFlight = 0; let peakInFlight = 0;
+  const tStart = Date.now();
+  const levels = [{ atMs: 0, inFlightCap: cur, why: 'start' }];
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  function adjust() {
+    const s429 = (client.stats && client.stats.status429) || 0;
+    if (s429 > seen429) {
+      seen429 = s429; halved = true; sinceChange = 0;
+      const next = Math.max(1, Math.floor(cur / 2));
+      if (next !== cur) { cur = next; levels.push({ atMs: Date.now() - tStart, inFlightCap: cur, why: 'HTTP 429 -> halved' }); out('PARALLEL: 429 seen -> in-flight cap ' + cur); }
+      return;
+    }
+    if (!halved && sinceChange >= rampEvery && level < ramp.length - 1) {
+      level += 1; cur = ramp[level]; sinceChange = 0;
+      levels.push({ atMs: Date.now() - tStart, inFlightCap: cur, why: 'no 429 -> step up' });
+      out('PARALLEL: in-flight cap -> ' + cur);
+    }
+  }
   async function worker() {
     while (idx < queue.length && !stopped) {
+      while (inFlight >= cur && !stopped) await sleep(100);
+      if (stopped || idx >= queue.length) break;
+      inFlight += 1; if (inFlight > peakInFlight) peakInFlight = inFlight;
       const { job, run, file } = queue[idx++];
-      if (!dry && client.keyFailure && client.keyFailure()) { stopped = true; out('KEY FAILURE (HTTP ' + client.keyFailure().status + ') — stopping the run; no further requests'); break; }
-      if (!dry && client.used() >= cap) { stopped = true; out('CAP reached — stopping'); break; }
-      if (!dry && maxCalls != null && client.sentThisProcess() >= maxCalls) { stopped = true; out('--max-calls reached — stopping'); break; }
-      if (!dry && budgetInr != null && ledgerSpendInr(ledger, arg('--pr', 'PR-1')) >= budgetInr) { stopped = true; out('BUDGET Rs ' + budgetInr + ' reached — stopping'); break; }
-      const { out: res, calls } = await client.runInContext({ fn: job.handler, jobKey: job.jobKey, run }, () => driver.run(job));
+      if (!dry && client.keyFailure && client.keyFailure()) { stopped = true; inFlight -= 1; out('KEY FAILURE (HTTP ' + client.keyFailure().status + ') — stopping the run; no further requests'); break; }
+      if (!dry && client.used() >= cap) { stopped = true; inFlight -= 1; out('CAP reached — stopping'); break; }
+      if (!dry && maxCalls != null && client.sentThisProcess() >= maxCalls) { stopped = true; inFlight -= 1; out('--max-calls reached — stopping'); break; }
+      if (!dry && budgetInr != null && ledgerSpendInr(ledger, arg('--pr', 'PR-1')) >= budgetInr) { stopped = true; inFlight -= 1; out('BUDGET Rs ' + budgetInr + ' reached — stopping'); break; }
+      let res; let calls;
+      try {
+        ({ out: res, calls } = await client.runInContext({ fn: job.handler, jobKey: job.jobKey, run }, () => driver.run(job)));
+      } finally { inFlight -= 1; }
+      sinceChange += 1;
+      adjust();
       const rec = {
         jobKey: job.jobKey, run, entry: job.entry, surface: job.surface, caseIds: job.caseIds, qNumbers: job.qNumbers,
         requestDigest: job.requestDigest, model: cfg.model, thinkingBudget: cfg.thinkingBudget,
@@ -171,8 +220,15 @@ async function main() {
   await Promise.all(Array.from({ length: concurrency }, worker));
   manifest.completedAt = new Date().toISOString();
   manifest.httpStats = client.stats;
+  // One entry per invocation (a run is resumable): what owner speed ruling 2 asks to report.
+  manifest.parallel = (manifest.parallel || []).concat([{
+    startedAt: new Date(tStart).toISOString(), wallMs: Date.now() - tStart, jobs: finished, ramp, rampEvery,
+    peakJobsInFlight: peakInFlight, peakHttpInFlight: (client.stats && client.stats.peakHttpInFlight) || null,
+    status429: ((client.stats && client.stats.status429) || 0), levels, timeoutMs: client.resolvedTimeoutMs,
+  }]);
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 1) + '\n');
   out('golden live: finished ' + finished + ' jobs; ledger lines now ' + client.used() + '; stats ' + JSON.stringify(client.stats) + '; spend Rs ' + ledgerSpendInr(ledger, arg('--pr', 'PR-1')).toFixed(1) + ' (' + arg('--pr', 'PR-1') + ' ledger lines)');
+  out('PARALLEL: peak ' + peakInFlight + ' jobs in flight (' + ((client.stats && client.stats.peakHttpInFlight) || 0) + ' HTTP) · 429s ' + ((client.stats && client.stats.status429) || 0) + ' · wall ' + ((Date.now() - tStart) / 1000).toFixed(1) + ' s');
 }
 
 module.exports = { ledgerSpendInr };

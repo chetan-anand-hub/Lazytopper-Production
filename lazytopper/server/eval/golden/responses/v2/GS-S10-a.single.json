@@ -1,0 +1,113 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2,
+ "percentage": 67,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Part (i) Ray diagram for object at infinity showing parallel rays reflecting and diverging with virtual extension meeting at focus F",
+   "studentWork": "[Ray diagram showing parallel rays reflecting from convex mirror with virtual extensions meeting at F, but lacking arrows on light rays]",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Correct ray paths and focus location, but arrows showing the direction of light rays are missing.",
+   "mistakeType": "presentation",
+   "correctedWorking": "Include arrowheads indicating the direction of propagation on both incident and reflected rays.",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(i)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Part (i) Nature, position, and relative size of the image formed",
+   "studentWork": "Image at F: virtual, erect, highly diminished (point sized)",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly identified position, nature, and size.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(i)",
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 3,
+   "description": "Part (ii) Ray diagram for object between infinity and pole P showing rays forming virtual, erect, diminished image between P and F",
+   "studentWork": "[Ray diagram showing object AB, two rays reflecting from convex mirror and forming virtual image A'B' between P and F, but lacking arrows on light rays]",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Well-drawn construction of the image A'B', but arrows indicating ray directions are missing.",
+   "mistakeType": "presentation",
+   "correctedWorking": "Include arrowheads indicating the direction of propagation on both incident and reflected rays.",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(ii)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 4,
+   "description": "Part (ii) Nature, position, and relative size of the image formed",
+   "studentWork": "Image between P and F: virtual, erect, diminished",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly identified position, nature, and size.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(ii)",
+   "marksAvailable": 0.5
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 2,
+  "departure": 0
+ },
+ "teacherNote": "Neat diagrams and accurate statements of image characteristics. However, always draw arrows on light rays to indicate their direction of travel, as ray diagrams without directional arrows lose marks in CBSE examinations.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 1,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Part (i): Ray diagram for object at infinity with correct ray paths, extensions to focus, and directional arrows",
+   "marks": 1
+  },
+  {
+   "point": "Part (i): Stating the position, nature, and relative size of the image",
+   "marks": 0.5
+  },
+  {
+   "point": "Part (ii): Ray diagram for object between infinity and pole with correct ray paths, image between P and F, and directional arrows",
+   "marks": 1
+  },
+  {
+   "point": "Part (ii): Stating the position, nature, and relative size of the image",
+   "marks": 0.5
+  }
+ ],
+ "objectiveResolved": null
+}

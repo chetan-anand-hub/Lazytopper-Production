@@ -1,0 +1,105 @@
+{
+ "ok": true,
+ "worksheetId": "qp:S5B-INJ",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2,
+   "percentage": 67,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Splitting the middle term",
+     "studentWork": "2x² − 7x + 3 = 0\n2x² − 6x − x + 3 = 0",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct splitting of middle term",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Taking common factors to factorise the quadratic expression",
+     "studentWork": "2x(x − 3) + 1(x − 3) = 0\n(2x + 1)(x − 3) = 0",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Sign error when factoring out −1 from (−x + 3)",
+     "mistakeType": "calculation",
+     "correctedWorking": "2x(x − 3) − 1(x − 3) = 0\n(2x − 1)(x − 3) = 0",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Equating factors to zero and finding roots (ECF)",
+     "studentWork": "2x + 1 = 0 or x − 3 = 0\nx = −1/2 or x = 3\n∴ roots are −1/2 and 3",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly solved from carried-forward factors (ECF)",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Good attempt at splitting the middle term and solving the linear equations. Be very careful with signs when factoring out common terms from negative coefficients: −x + 3 factors as −1(x − 3), not +1(x − 3).",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Splitting the middle term correctly to 2x² − 6x − x + 3 = 0",
+     "marks": 1
+    },
+    {
+     "point": "Factoring by grouping to obtain (2x − 1)(x − 3) = 0",
+     "marks": 1
+    },
+    {
+     "point": "Solving factors to determine the roots x = 1/2 and x = 3",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  }
+ ],
+ "totalQuestions": 1,
+ "gradedCount": 1,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 2,
+ "gradedMarksTotal": 3,
+ "worksheetTotalMarks": 3,
+ "summary": "You have a solid grasp of factorisation and correctly applied the method of equating factors to zero. Pay close attention to negative signs during the grouping step to prevent sign errors in the final roots.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

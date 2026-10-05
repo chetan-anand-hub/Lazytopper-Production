@@ -1,0 +1,94 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 2,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Ray diagram through glass slab with arrows and correct bending at both interfaces",
+   "studentWork": "[Drawn ray diagram showing incident ray bending towards normal in glass, and bending away from normal upon emerging into air, parallel to original path]",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct ray path with proper arrows at both interfaces",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Labels including angle of incidence i = θ, angle of refraction r, angle of emergence e, and media",
+   "studentWork": "incident ray, normal, i = θ, AIR, GLASS, refracted ray, emergent ray, e, r",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ All required labels and angles accurately marked",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 3,
+   "description": "Marking lateral displacement between the produced incident ray and emergent ray",
+   "studentWork": "[Dotted line extending incident ray forward, perpendicular line drawn to emergent ray labelled 'lateral displacement']",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Lateral displacement correctly indicated as perpendicular distance",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Excellent, neat, and complete ray diagram. All essential elements including directional arrows, angles, and the perpendicular lateral displacement are correctly drawn and labelled.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Ray diagram showing refraction at both surfaces with correct bending and ray arrows",
+   "marks": 1
+  },
+  {
+   "point": "Labelling incident ray, refracted ray, emergent ray, normal, and angles (i = θ, r, e)",
+   "marks": 0.5
+  },
+  {
+   "point": "Correctly showing and marking lateral displacement (perpendicular distance between emergent ray and produced incident ray)",
+   "marks": 0.5
+  }
+ ],
+ "objectiveResolved": null
+}

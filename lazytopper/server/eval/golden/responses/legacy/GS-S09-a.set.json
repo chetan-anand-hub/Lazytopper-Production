@@ -1,0 +1,251 @@
+{
+ "ok": true,
+ "worksheetId": "golden-parity-PARS3",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 2,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Sign conventions and substitution into the lens formula",
+     "studentWork": "u = −60 cm, f = −30 cm\n1/(−30) = 1/v − 1/(−60)",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct sign conventions and substitution into lens formula",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Solving for v and stating position of the image",
+     "studentWork": "1/v = −1/30 − 1/60 = (−2 − 1)/60 = −3/60 = −1/20\nv = −20 cm\nThe image is formed 20 cm from the lens on the same side as the object.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Accurately calculated v and correctly stated image position",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Correct statement and substitution into lens formula with sign conventions (1); Calculation of image distance v = -20 cm and interpretation of image position (1). Excellent solution. Sign conventions, formula substitution, and physical interpretation of the negative image distance are all completely correct.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 2,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1.5,
+   "percentage": 75,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Total resistance and circuit current calculation",
+     "studentWork": "Total resistance R = 1 + 2 = 3 Ω\nCurrent I = V/R = 6/3 = 2 A",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct total resistance and current",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Power calculation in 2 Ω resistor with SI unit",
+     "studentWork": "Power in 2 Ω resistor, P = I²R = (2)² × 2 = 8",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Correct formula and numerical value, but SI unit 'W' is missing",
+     "mistakeType": "presentation",
+     "correctedWorking": "P = I²R = (2 A)² × 2 Ω = 8 W",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 1,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Calculation of total series resistance and total circuit current (1); Formula for power and final numerical value with correct SI unit (watts) (1). Method and calculation are completely correct, but always remember to state the SI unit (W or watts) with your final numerical answer.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 3,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2.5,
+   "percentage": 83,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Equivalent resistance of parallel branch 1 (10 Ω and 15 Ω)",
+     "studentWork": "10 Ω and 15 Ω are in parallel: 1/R₁ = 1/10 + 1/15 = (3 + 2)/30 = 5/30 ⇒ R₁ = 6 Ω",
+     "status": "correct",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly calculated R₁ = 6 Ω",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Equivalent resistance of parallel branch 2 and total circuit resistance",
+     "studentWork": "60 Ω and 40 Ω are in parallel: 1/R₂ = 1/60 + 1/40 = 2/100 ⇒ R₂ = 50 Ω\nR₁ and R₂ are in series: R = 6 + 50 = 56 Ω",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "× Arithmetic error adding fractions 1/60 + 1/40; LCM is 120, not 100",
+     "mistakeType": "calculation",
+     "correctedWorking": "1/R₂ = 1/60 + 1/40 = (2 + 3)/120 = 5/120 ⇒ R₂ = 24 Ω; R = 6 + 24 = 30 Ω",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Total current drawn from the source",
+     "studentWork": "I = V/R = 15/56 = 0.27 A",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct application of Ohm's law with error carried forward",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 4,
+     "description": "Potential difference across 10 Ω and 15 Ω combination",
+     "studentWork": "Potential difference across the 10 Ω–15 Ω combination: V = I R₁ = 0.27 × 6 = 1.6 V",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct formula and substitution with error carried forward",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Equivalent resistance of both parallel branches and total resistance R (1); Total current drawn from the source (I = V/R) (1); Potential difference across 10 Ω and 15 Ω parallel combination (V = I * R₁) (1). Your circuit methods in parts (b) and (c) are sound and received full error-carried-forward credit. Take extra care with fraction additions using the LCM when finding equivalent resistance in parallel branches.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 4,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 3,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Equivalent resistance of branch 1",
+     "studentWork": "1/R₁ = 1/10 + 1/15 = 5/30 ⇒ R₁ = 6 Ω",
+     "status": "correct",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly found R₁ = 6 Ω",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Corrected equivalent resistance of branch 2 and total series resistance",
+     "studentWork": "correction: LCM of 60 and 40 is 120, so 1/R₂ = 2/120 + 3/120 = 5/120 ⇒ R₂ = 24 Ω\nR = R₁ + R₂ = 6 + 24 = 30 Ω",
+     "status": "correct",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Self-corrected working is fully accurate",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Calculation of total current I",
+     "studentWork": "I = V/R = 15 V / 30 Ω = 0.5 A",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct calculation and unit for total current",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 4,
+     "description": "Calculation of voltage drop across first parallel group",
+     "studentWork": "V = I × R₁ = 0.5 A × 6 Ω = 3.0 V",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct calculation and unit for potential difference",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Calculation of total equivalent resistance R = 30 Ω (1); Calculation of total current I = 0.5 A (1); Calculation of potential difference across R₁ (V = 3.0 V) (1). Well done on catching your arithmetic mistake and correcting it cleanly. Full marks awarded across all parts.",
+   "questionDepartureError": false,
+   "objective": false
+  }
+ ],
+ "totalQuestions": 4,
+ "gradedCount": 4,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 9,
+ "gradedMarksTotal": 10,
+ "worksheetTotalMarks": 10,
+ "summary": "Strong understanding of circuit laws and lens equations across all questions. Always remember to append standard SI units to all final numerical answers, and maintain care with fractions during parallel resistance calculations.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

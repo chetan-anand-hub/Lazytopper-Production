@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1.5,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Translate statement (i) into a balanced chemical equation",
+   "studentWork": "(i) 3BaCl₂ + Al₂(SO₄)₃ → 3BaSO₄ + 2AlCl₃",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly written and balanced equation.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(i)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Translate statement (ii) into a balanced chemical equation",
+   "studentWork": "(ii) 2Al + 3H₂O → Al₂O₃ + 2H₂",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Correct formulae of reactants and products, but hydrogen atoms are not balanced (6 H on LHS vs 4 H on RHS; requires 3H₂).",
+   "mistakeType": "calculation",
+   "correctedWorking": "2Al + 3H₂O → Al₂O₃ + 3H₂",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(ii)",
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "You identified the correct chemical formulae for all reactants and products, and balanced the first reaction accurately. In the second equation, recount your hydrogen atoms: 3H₂O contains 6 hydrogen atoms, requiring 3H₂ as the product.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0.5,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "(i) Correct balanced chemical equation: 3BaCl₂ + Al₂(SO₄)₃ → 3BaSO₄ + 2AlCl₃",
+   "marks": 1
+  },
+  {
+   "point": "(ii) Correct balanced chemical equation: 2Al + 3H₂O → Al₂O₃ + 3H₂",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

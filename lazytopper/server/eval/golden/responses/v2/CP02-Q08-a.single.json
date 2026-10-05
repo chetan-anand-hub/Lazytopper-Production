@@ -1,0 +1,132 @@
+{
+ "ok": true,
+ "totalMarks": 5,
+ "marksAwarded": 5,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Assumption of uniform strip width and expressing dimensions of the pool",
+   "studentWork": "Let the uniform width of the grass strip be x m. Length of pool = (50 - 2x) m, breadth of pool = (40 - 2x) m",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct representation of dimensions in terms of x",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Formulating the equation from the given area of the strip",
+   "studentWork": "Area of park - area of pool = area of grass strip\n50 × 40 - (50 - 2x)(40 - 2x) = 1184",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct equation setup",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Expanding and reducing to standard quadratic equation",
+   "studentWork": "2000 - (2000 - 180x + 4x²) = 1184\n180x - 4x² = 1184\nx² - 45x + 296 = 0",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct reduction to standard form",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 4,
+   "description": "Factoring and solving for x",
+   "studentWork": "(x - 8)(x - 37) = 0 ⇒ x = 8 or x = 37",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct factorization and roots obtained",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 5,
+   "description": "Rejecting inappropriate root and calculating final dimensions",
+   "studentWork": "x = 37 is rejected (40 - 2x would be negative) ⇒ x = 8\nLength of pool = 50 - 16 = 36 m\nBreadth of pool = 40 - 16 = 24 m",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Proper reasoning for rejection and correct pool dimensions with units",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Excellent and structured solution. Every step, from formulating the equation to rejecting the impossible root and stating dimensions with correct units, is executed flawlessly.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Defining variable and expressions for pool dimensions in terms of strip width",
+   "marks": 1
+  },
+  {
+   "point": "Setting up the algebraic equation using area relationship",
+   "marks": 1
+  },
+  {
+   "point": "Simplifying to standard quadratic equation form",
+   "marks": 1
+  },
+  {
+   "point": "Solving the quadratic equation to find values of x",
+   "marks": 1
+  },
+  {
+   "point": "Valid contextual rejection of root and stating final dimensions of pool with units",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

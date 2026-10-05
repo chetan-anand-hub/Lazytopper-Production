@@ -122,6 +122,14 @@ function decimalsOf(text) {
   return max;
 }
 const hasOperator = (norm) => /[+\-*/^r()]/.test(norm.replace(/^[-+]/, ''));
+const ambiguousRadical = (norm) => /r(?!\s*\()/.test(norm) && /[+\-]/.test(norm.replace(/^\s*[-+]/, ''));
+// No brackets at all, and either a division beside a + or − ("a - b / c + d") or two divisions
+// in a row ("a/b / c/d"): the line is a stacked fraction flattened by the transcription.
+const flattenedFraction = (norm) => {
+  const s = norm.replace(/\s+/g, '');
+  if (/[()]/.test(s) || !s.includes('/')) return false;
+  return /[+\-]/.test(s.replace(/^[-+]/, '')) || (s.match(/\//g) || []).length >= 2;
+};
 
 /**
  * Every FALSE plain numeric equality in a line of student work.
@@ -143,6 +151,14 @@ function falseEqualities(text) {
       const nb = normaliseExpr(b.raw);
       if (!na || !nb || !PLAIN.test(na) || !PLAIN.test(nb)) continue;
       if (!hasOperator(na) && !hasOperator(nb)) continue; // "8 = 8" — nothing computed
+      // A RADICAL WITHOUT BRACKETS beside a + or − has an unknowable scope: the student's
+      // vinculum over "196 + 110.25" is quoted as "√196 + 110.25" (live, 2026-10-05, CP03-Q08).
+      // It is skipped, never read as (√196) + 110.25 and charged.
+      if (ambiguousRadical(na) || ambiguousRadical(nb)) continue;
+      // A STACKED FRACTION FLATTENED onto one line has an unknowable grouping too: the
+      // student's (−8/7 − 4) over (8/7 + 1) is quoted "-8/7 - 4 / 8/7 + 1" (live, CP01-Q05,
+      // 5 of 6 acceptance gradings charged a correct ECF step). Skipped, never charged.
+      if (flattenedFraction(na) || flattenedFraction(nb)) continue;
       const va = evaluate(na);
       const vb = evaluate(nb);
       if (va === null || vb === null) continue;

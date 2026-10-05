@@ -1,0 +1,94 @@
+{
+ "ok": true,
+ "totalMarks": 4,
+ "marksAwarded": 3,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "F1 and F2 percentages of violet flowers in Experiment 1 and reason",
+   "studentWork": "A. Experiment one: F1 — 100% violet (Vv); F2 — 75% violet (VV and Vv), because violet is the dominant trait.",
+   "status": "correct",
+   "marksAwarded": 1.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct percentages (100% in F1, 75% in F2) and valid reason.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "A",
+   "marksAvailable": 1.5
+  },
+  {
+   "stepNumber": 2,
+   "description": "F2 fraction/percentage of tall plants with white flowers in Experiment 2 and reason",
+   "studentWork": "B. Tall plants with white flowers in F2 = 9/16, because tall is dominant.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Incorrect proportion. In a dihybrid cross (9:3:3:1 ratio), tall with white flowers is a recombinant phenotype with a probability of 3/16 (18.75%), not 9/16.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "Tall plants with white flowers in F2 = 3/16 (18.75%), as this is a recombinant combination resulting from independent assortment of genes.",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "B",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "F1 and F2 percentages of short plants with white flowers in Experiment 2 and reason",
+   "studentWork": "D. F1: 0% short plants with white flowers, since all F1 plants (VvTt) show only the dominant traits. F2: 1/16 (6.25%) plants will be short with white flowers (vvtt), as both traits are recessive.",
+   "status": "correct",
+   "marksAwarded": 1.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct percentages (0% in F1, 6.25% or 1/16 in F2) and clear reasoning.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "D",
+   "marksAvailable": 1.5
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Parts A and D are answered very clearly with accurate genetics reasoning. Be careful with dihybrid cross ratios in Part B: 9/16 represents individuals dominant for both traits (tall and violet), while tall with white flowers is 3/16.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Part A: Percentage of violet flowers in F1 (100%) and F2 (75%) with valid reason",
+   "marks": 1.5
+  },
+  {
+   "point": "Part B: Expected percentage/fraction of tall plants with white flowers in F2 (3/16 or 18.75%) with reason",
+   "marks": 1
+  },
+  {
+   "point": "Part D: Expected percentage of short plants with white flowers in F1 (0%) and F2 (1/16 or 6.25%) with reason",
+   "marks": 1.5
+  }
+ ],
+ "objectiveResolved": null
+}

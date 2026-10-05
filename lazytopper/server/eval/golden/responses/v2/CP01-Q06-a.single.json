@@ -1,0 +1,109 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 3,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Initial struck-through attempt",
+   "studentWork": "(a) Woman FF x Man ff -> all children Ff, so all have free earlobes",
+   "status": "withdrawn",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "Struck-through working (not assessed)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(a)",
+   "marksAvailable": 0
+  },
+  {
+   "stepNumber": 2,
+   "description": "Explanation of inheritance and genetic cross",
+   "studentWork": "(a) Free earlobe (F) is dominant, attached earlobe (f) is recessive.\nMan (attached) is ff. Woman (free) must be Ff because half the children are attached.\nParents: Ff x ff\nGametes: F, f   f, f\nF1: Ff, Ff, ff, ff",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Clear reasoning and correct genetic cross",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(a)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Trait combinations of the progeny",
+   "studentWork": "Progeny: Ff (free) : ff (attached) = 1 : 1, i.e. 50% : 50%",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct progeny genotypes, phenotypes, and ratio",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(a)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 4,
+   "description": "Gene combinations of parents",
+   "studentWork": "(b) Father - ff, Mother - Ff",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct parental genotypes",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(b)",
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Excellent response. The inheritance mechanism is clearly justified, the cross and progeny proportions are accurately depicted, and the parental genotypes are correctly identified.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Explanation of inheritance with cross (heterozygous mother Ff and homozygous recessive father ff)",
+   "marks": 1
+  },
+  {
+   "point": "Trait combinations and ratio of the progeny (Ff free earlobe and ff attached earlobe, 1:1)",
+   "marks": 1
+  },
+  {
+   "point": "Gene combinations (genotypes) of father (ff) and mother (Ff)",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

@@ -1,0 +1,94 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2,
+ "percentage": 67,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Splitting the middle term",
+   "studentWork": "2x² − 7x + 3 = 0\n2x² − 6x − x + 3 = 0",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct splitting of the middle term",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Factoring by grouping",
+   "studentWork": "2x(x − 3) + 1(x − 3) = 0\n(2x + 1)(x − 3) = 0",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Sign error when factoring: −x + 3 equals −1(x − 3), not +1(x − 3)",
+   "mistakeType": "calculation",
+   "correctedWorking": "2x(x − 3) − 1(x − 3) = 0\n(2x − 1)(x − 3) = 0",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Equating factors to zero to find the roots",
+   "studentWork": "2x + 1 = 0 or x − 3 = 0\nx = −1/2 or x = 3\n∴ roots are −1/2 and 3",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly solved linear equations from obtained factors (error carried forward)",
+   "mistakeType": null,
+   "correctedWorking": "2x − 1 = 0 or x − 3 = 0\nx = 1/2 or x = 3\n∴ roots are 1/2 and 3",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Good understanding of the factorisation method and correct middle-term splitting. Be careful when factoring out negative signs: taking common from −x + 3 yields −1(x − 3), which gives the root x = 1/2 instead of −1/2.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Splitting the middle term −7x as −6x − x",
+   "marks": 1
+  },
+  {
+   "point": "Factoring by grouping to obtain (2x − 1)(x − 3) = 0",
+   "marks": 1
+  },
+  {
+   "point": "Solving factors to determine roots x = 1/2 and x = 3",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

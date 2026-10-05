@@ -1,0 +1,163 @@
+{
+ "ok": true,
+ "totalMarks": 5,
+ "marksAwarded": 4.5,
+ "percentage": 90,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Identify the type of lens from the sign of power",
+   "studentWork": "Since the power is negative, X is a concave lens.",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly identified as concave lens",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(i)",
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 2,
+   "description": "Calculate focal length in cm using f = 1/P",
+   "studentWork": "P = 1/f ⇒ f = 1/P = 1/(−2.5) = −4 m = −400 cm.",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Correct formula, but 1/(-2.5) equals -0.4 m (-40 cm), not -4 m",
+   "mistakeType": "calculation",
+   "correctedWorking": "f = 1/P = 1/(-2.5 D) = -0.4 m = -40 cm",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(i)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Name the eye defect corrected by this lens",
+   "studentWork": "It is prescribed for myopia (short-sightedness).",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct defect of vision",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(i)",
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 4,
+   "description": "State nature and size of the image",
+   "studentWork": "m = −2 (negative) ⇒ (I) the image is real and inverted; (II) it is twice the size of the object (magnified);",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Both nature and size correctly deduced from magnification",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(ii)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 5,
+   "description": "Determine image position and sign of image height",
+   "studentWork": "(III) v = m × u = (−2) × (−20) = +40 cm, i.e. 40 cm on the other side of the lens, beyond 2F; (IV) the height of the image is negative.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct position and sign of height",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(ii)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 6,
+   "description": "Identify lens with higher convergence/divergence and provide reason",
+   "studentWork": "Lens A (f = 10 cm), because power P = 1/f — the shorter the focal length, the greater the power, i.e. the higher the degree of convergence/divergence.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Lens A correctly chosen with proper reasoning",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(iii)",
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Very well-structured answers across all subparts with clear reasoning and correct sign conventions. Be careful with decimal division: 1/2.5 is 0.4, not 4, which led to an incorrect focal length of -400 cm instead of -40 cm.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0.5,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "(i) Identification of lens X as concave lens",
+   "marks": 0.5
+  },
+  {
+   "point": "(i) Calculation of focal length in cm (f = -40 cm)",
+   "marks": 1
+  },
+  {
+   "point": "(i) Name of defect of vision (myopia / short-sightedness)",
+   "marks": 0.5
+  },
+  {
+   "point": "(ii)(I) Nature of the image (real and inverted)",
+   "marks": 0.5
+  },
+  {
+   "point": "(ii)(II) Size of the image (magnified / twice the size of object)",
+   "marks": 0.5
+  },
+  {
+   "point": "(ii)(III) Position of the image (v = +40 cm / 40 cm on the opposite side)",
+   "marks": 0.5
+  },
+  {
+   "point": "(ii)(IV) Sign of the height of the image (negative)",
+   "marks": 0.5
+  },
+  {
+   "point": "(iii) Identification of Lens A",
+   "marks": 0.5
+  },
+  {
+   "point": "(iii) Justification relating power inversely to focal length (P = 1/f)",
+   "marks": 0.5
+  }
+ ],
+ "objectiveResolved": null
+}

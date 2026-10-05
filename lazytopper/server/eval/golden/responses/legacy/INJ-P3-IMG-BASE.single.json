@@ -1,0 +1,62 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2,
+ "percentage": 67,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Splitting the middle term correctly",
+   "studentWork": "2x² - 7x + 3 = 0\n2x² - 6x - x + 3 = 0",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly split the middle term -7x into -6x - x",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Factorisation by grouping terms",
+   "studentWork": "2x(x - 3) + 1(x - 3) = 0\n(2x + 1)(x - 3) = 0",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Sign error when taking common factor from -x + 3; it should be -1(x - 3)",
+   "mistakeType": "calculation",
+   "correctedWorking": "2x(x - 3) - 1(x - 3) = 0\n(2x - 1)(x - 3) = 0",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Equating factors to zero to determine roots",
+   "studentWork": "2x + 1 = 0 or x - 3 = 0\nx = -1/2 or x = 3\nSo the roots are -1/2 and 3",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly solved for x from the written factors (error carried forward)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Splitting the middle term correctly (1); Factorising into two linear factors (1); Equating linear factors to zero to find the roots (1). Good job splitting the middle term and solving the linear factors. Be careful with signs when factoring out negatives: -x + 3 = -1(x - 3), which gives roots 1/2 and 3.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

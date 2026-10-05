@@ -1,0 +1,94 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1.5,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Reason for plugging the leak",
+   "studentWork": "If a leak in a blood vessel is not plugged, the blood pressure in the system falls and the heart cannot pump blood efficiently.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct: identifies loss of blood pressure and reduced pumping efficiency of the heart.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(a)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Name of the blood component",
+   "studentWork": "The component is the clotting cells present in the blood.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "× Used everyday phrasing 'clotting cells' instead of the required biological term 'platelets'.",
+   "mistakeType": "presentation",
+   "correctedWorking": "Blood platelets (or platelets)",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(a)",
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 3,
+   "description": "How the component performs this function",
+   "studentWork": "They collect at the cut and form a clot which seals the leak.",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct: describes accumulation at the injury site to form a clot.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(a)",
+   "marksAvailable": 0.5
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 1,
+  "departure": 0
+ },
+ "teacherNote": "Your explanation of blood pressure maintenance and the clotting action is precise and well understood. Make sure to use the exact scientific term 'platelets' rather than 'clotting cells' to secure full marks.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0.5,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Reason: To prevent loss of blood pressure / maintain efficiency of pumping system (heart)",
+   "marks": 1
+  },
+  {
+   "point": "Name of component: Platelets / Blood platelets",
+   "marks": 0.5
+  },
+  {
+   "point": "Function mechanism: Platelets form a clot at the site of injury to plug the leak",
+   "marks": 0.5
+  }
+ ],
+ "objectiveResolved": null
+}

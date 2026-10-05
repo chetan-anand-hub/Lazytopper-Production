@@ -27,6 +27,9 @@ const PRICES = { // USD per 1M tokens (prompts <= 200k), thinking billed at the 
   'gemini-2.5-flash': { in: 0.30, out: 2.50 },
   'gemini-2.5-pro': { in: 1.25, out: 10.00 },
   'gemini-3.1-pro-preview': { in: 2.00, out: 12.00 },
+  // GRADER-CORE-1 PR-2 (fetched 2026-10-05): the price through 2026-12-31. From 2027-01-01 the
+  // page lists $1.50 in / $7.50 out (double) — reports state both.
+  'gemini-3.8-flash': { in: 0.75, out: 3.75 },
 };
 
 const pct = (n, d) => (d ? Math.round((1000 * n) / d) / 10 : null);
@@ -316,8 +319,12 @@ function score(input) {
     const a = golden.filter((r) => r.caseId === c.caseId && r.surface === 'CI-SINGLE');
     const b = golden.filter((r) => r.caseId === c.caseId && r.surface === 'PARITY');
     if (!a.length || !b.length) continue;
-    const va = modal(a.map((r) => (r.status === 'graded' ? String(r.awarded) : r.status)));
-    const vb = modal(b.map((r) => (r.status === 'graded' ? String(r.awarded) : r.status)));
+    // GRADER-CORE-1 PR-2: the legacy single grader's ONLY way to say "not marked" is its existing
+    // { ok:false } shape (PR-2 decision 3, audit GA-04), while the set grader says couldNotRead.
+    // Both are the same honest DECLINE, so they agree (GS-M13-a: declined by both on every run).
+    const declineAware = (r) => (r.status === 'graded' ? String(r.awarded) : r.status === 'okfalse' || r.status === 'couldNotRead' ? 'declined' : r.status);
+    const va = modal(a.map(declineAware));
+    const vb = modal(b.map(declineAware));
     svs.push({ caseId: c.caseId, single: va, set: vb, agree: va === vb, expected: c.expected.totalMarks });
   }
   result.singleVsSet = { n: svs.length, pass: svs.filter((x) => x.agree).length, pct: pct(svs.filter((x) => x.agree).length, svs.length), disagreements: svs.filter((x) => !x.agree) };
@@ -451,6 +458,10 @@ function headline(res) {
     wrong_step: c.wrong_step.pct,
     type: c.type.pct,
     comments_det: c.comments_det.pct,
+    // GRADER-CORE-1 PR-2: "comments 100% true" = the deterministic rules AND the stored judge
+    // verdicts (a stale or missing verdict counts as no verdict, never as a pass of the judge).
+    comments_judge: c.comments_judge.pct,
+    comments: c.comments.pct,
     consistency: c.consistency.pct,
     run_to_run: res.runToRun.combined.pct,
     single_vs_set: res.singleVsSet.pct,
