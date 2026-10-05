@@ -92,7 +92,8 @@ export interface PerQuestionTopic {
   topicSlug: string;
   /** Canonical display name, or "" when unresolved. */
   topicName: string;
-  /** SCORECARD-MI-1 (B2) — the subject of the RESOLVED topic; "" when unresolved. */
+  /** SCORECARD-MI-1 (B2) — the subject of the RESOLVED topic. When the topic did not resolve,
+   *  the subject this question's own detect named explicitly (W4); "" when it named none. */
   subject: DesktopSubject | "";
 }
 
@@ -135,9 +136,13 @@ export async function resolvePerQuestionGradeTopics(
           detectedTopic: d.detectedTopic ?? null,
           detectedSubject: d.detectedSubject ?? null,
         });
-        // The subject is only KNOWN when the topic resolved (it comes from topics.ts);
-        // an unresolved question stays honestly unknown rather than inheriting a guess.
-        return { qNumber: q.questionNumber, topicSlug, topicName, subject: topicSlug ? subject : "" };
+        // The subject is KNOWN when the topic resolved (it comes from topics.ts). When it did
+        // not, only a subject this question's own detect NAMED is kept (W4) — never the
+        // resolver's "Maths" fallback — so an unresolved question stays honestly unknown
+        // unless the detector said which subject it is.
+        const named: DesktopSubject | "" =
+          d.detectedSubject === "Science" || d.detectedSubject === "Maths" ? d.detectedSubject : "";
+        return { qNumber: q.questionNumber, topicSlug, topicName, subject: topicSlug ? subject : named };
       } catch (error) {
         console.warn("[checkImproveDetection] per-question topic detect failed", error);
         return { qNumber: q.questionNumber, topicSlug: "", topicName: "", subject: "" };
@@ -219,6 +224,7 @@ export function isMixedPaper(results: ReadonlyArray<{ topicSlug?: string | null;
  * chapter: the per-question topic resolved after grading. A question whose topic did not
  * resolve inherits the paper's topic ONLY when the paper is single-topic; on a mixed paper it
  * stays unfiled (topic "", honest unknown) rather than taking the first question's chapter.
+ * Its subject there is the one its own detect named (W4), else the paper's (unchanged).
  */
 export function perQuestionFiling(
   g: { topicSlug?: string | null; topicLabel?: string | null; topicSubject?: "Maths" | "Science" | null },
@@ -234,7 +240,8 @@ export function perQuestionFiling(
     };
   }
   if (!paperIsMixed) return paper;
-  return { subject: paper.subject, topicName: "", topicSlug: "" };
+  const named = g.topicSubject === "Science" || g.topicSubject === "Maths" ? g.topicSubject : null;
+  return { subject: named ?? paper.subject, topicName: "", topicSlug: "" };
 }
 
 /**

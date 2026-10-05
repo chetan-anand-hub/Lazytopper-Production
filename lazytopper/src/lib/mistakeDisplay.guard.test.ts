@@ -87,6 +87,21 @@ export function scanSource(file: string, raw: string): Violation[] {
       if (re.test(t)) out.push({ file, rule: `LEGACY:${name}`, line: t });
     }
   }
+  // G-MAP, OBJECT FORM (W2) — `{ key: "<type>", …, label: "Display" }`: a stored type given its
+  // own display name inside an object literal, keys in either order, even split across lines.
+  // Scanned over the whole comment-stripped file, so a line break cannot hide it; reported on
+  // the line that holds the display string.
+  const keyRe = new RegExp(`\\b(?:key|type|mistakeType)\\s*:\\s*["'\`](${TYPE_ALT})["'\`]`);
+  const labelRe = /\b(?:label|name|title)\s*:\s*["'`]([A-Z][^"'`\n]*)["'`]/;
+  for (const m of code.matchAll(/\{[^{}]*\}/g)) {
+    const body = m[0];
+    if (!keyRe.test(body)) continue;
+    const lab = labelRe.exec(body);
+    if (!lab) continue;
+    const at = (m.index ?? 0) + (lab.index ?? 0);
+    const lineNo = code.slice(0, at).split(/\r?\n/).length - 1;
+    out.push({ file, rule: "G-MAP", line: (lines[lineNo] ?? "").trim() });
+  }
   return out;
 }
 
@@ -179,11 +194,18 @@ describe("G4 · one display module — no other hard-coded grouping or legacy la
     expect(rejected("const k = ms.conceptual + ms.calculation;")).toContain("G-SUM");
     expect(rejected('if (t === "conceptual" || t === "calculation") bridge();')).toContain("G-EQ");
     expect(rejected('const L = { silly: "Silly", x: 1 };')).toContain("G-MAP");
+    // W2 — the OBJECT form, on one line and split across lines (DesktopHome / MobileHome shape).
+    expect(rejected('const B = [{ key: "silly", bg: "hsl(0, 75%, 96%)", label: "Silly mistake" }];')).toContain("G-MAP");
+    expect(rejected('const B = [{\n  key: "conceptual",\n  fg: "#123",\n  label: "Conceptual",\n}];')).toContain("G-MAP");
+    expect(rejected('const B = [{ label: "Calc", key: "calculation" }];')).toContain("G-MAP");
     expect(rejected("<div>Careless mark-loss — not a weakness</div>")).toContain("LEGACY:Careless mark-loss");
     expect(rejected('const t = "Where your marks went";')).toContain("LEGACY:Where your marks went");
     // CONTROLS — a total of all four, a comment, and the module's own vocabulary are allowed.
     expect(rejected("const total = c.conceptual + c.calculation + c.silly + c.presentation;")).toEqual([]);
     expect(rejected("// silly and presentation were careless (pre-ruling)\nconst x = 1;")).toEqual([]);
     expect(rejected("const label = mistakeTypeLabel(type);")).toEqual([]);
+    // CONTROLS (W2) — the module's own label, and a non-type key, are allowed.
+    expect(rejected('const B = [{ key: "silly", label: MISTAKE_TYPE_LABEL.silly }];')).toEqual([]);
+    expect(rejected('const T = [{ key: "maths", label: "Maths" }];')).toEqual([]);
   });
 });

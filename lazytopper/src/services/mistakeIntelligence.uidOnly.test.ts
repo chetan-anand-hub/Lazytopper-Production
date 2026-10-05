@@ -37,7 +37,10 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 // resolver (mocked to keep the 10.7 MB syllabus data graph out of this suite).
 const logMistakes = vi.fn(async () => {});
 const recordWrongAnswer = vi.fn(() => {});
-vi.mock("./mistakeLogService", () => ({ logMistakes: (...a: unknown[]) => logMistakes(...(a as [])) }));
+vi.mock("./mistakeLogService", () => ({
+  logMistakes: (...a: unknown[]) => logMistakes(...(a as [])),
+  removeStableMistakeLog: async () => false,
+}));
 vi.mock("./mistakeInsightsService", () => ({ isSafeEntry: () => true }));
 vi.mock("./adaptivePracticeEngine", () => ({
   recordWrongAnswer: (...a: unknown[]) => recordWrongAnswer(...(a as [])),

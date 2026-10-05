@@ -57,6 +57,9 @@ const recordWrongAnswerMock = vi.fn();
 
 vi.mock("./mistakeLogService", () => ({
   logMistakes: (...a: unknown[]) => logMistakesMock(...a),
+  // SCORECARD-MI-1 W1: a clean re-grade asks the store to remove a stable entry. This suite
+  // never asserts on it; the store answers "nothing removed".
+  removeStableMistakeLog: async () => false,
 }));
 vi.mock("./mistakeInsightsService", () => ({
   // The real predicate only checks `timestamp` is a string and `mistakeCounts` is an

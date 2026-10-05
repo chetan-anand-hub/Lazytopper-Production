@@ -10,8 +10,19 @@ import path from "node:path";
 
 const logMistakesMock = vi.fn(async (..._a: unknown[]) => {});
 const recordWrongAnswerMock = vi.fn();
-vi.mock("./mistakeLogService", () => ({ logMistakes: (...a: unknown[]) => logMistakesMock(...a) }));
+// W1 — the store's answer to "remove this stable entry": it acts only on evidence (`known`).
+const removeStableMock = vi.fn(async (_uid: string, _id: string, o?: { known?: boolean }) => !!o?.known);
+vi.mock("./mistakeLogService", () => ({
+  logMistakes: (...a: unknown[]) => logMistakesMock(...a),
+  removeStableMistakeLog: (...a: unknown[]) => removeStableMock(...(a as [string, string, { known?: boolean }])),
+}));
 vi.mock("./mistakeInsightsService", () => ({ isSafeEntry: () => true }));
+// W4 — the per-question detect, so the subject it names can be observed end to end.
+const detectQuestionMock = vi.fn();
+vi.mock("../ai/aiClient", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../ai/aiClient")>();
+  return { ...actual, detectQuestion: (...a: unknown[]) => detectQuestionMock(...a) };
+});
 vi.mock("./adaptivePracticeEngine", async (importOriginal) => {
   const actual = await importOriginal<typeof import("./adaptivePracticeEngine")>();
   return { ...actual, recordWrongAnswer: (...a: unknown[]) => recordWrongAnswerMock(...a) };
@@ -23,6 +34,7 @@ import {
   ciQuestionIds,
   isMixedPaper,
   perQuestionFiling,
+  resolvePerQuestionGradeTopics,
   resolveCiQuestionText,
   withObjectiveEcho,
 } from "../utils/checkImproveDetection";
@@ -47,6 +59,7 @@ beforeEach(() => {
   logMistakesMock.mockReset();
   logMistakesMock.mockResolvedValue(undefined);
   recordWrongAnswerMock.mockReset();
+  removeStableMock.mockClear();
   window.localStorage.clear();
 });
 
@@ -70,6 +83,25 @@ describe("B2 / D7 / GA-16 — each question under ITS OWN subject and chapter", 
   });
   it("an UNRESOLVED question on a mixed paper stays unfiled (honest unknown), never the first chapter", () => {
     expect(perQuestionFiling({ topicSlug: "" }, paper, true)).toEqual({ subject: "Maths", topicName: "", topicSlug: "" });
+  });
+  it("W4 — an UNRESOLVED question on a mixed paper takes the subject ITS OWN detect named, never the paper's", () => {
+    expect(perQuestionFiling({ topicSlug: "", topicSubject: "Science" }, paper, true)).toEqual({ subject: "Science", topicName: "", topicSlug: "" });
+  });
+  it("W4 — the per-question detect keeps a NAMED subject when no chapter resolves, and invents none", async () => {
+    detectQuestionMock.mockReset();
+    detectQuestionMock
+      .mockResolvedValueOnce({ ok: true, detectedTopic: "something no chapter matches", detectedSubject: "Science" })
+      .mockResolvedValueOnce({ ok: true, detectedTopic: null, detectedSubject: null });
+    const out = await resolvePerQuestionGradeTopics(
+      [
+        { questionNumber: 1, questionText: "Why does a ray of light bend?" },
+        { questionNumber: 2, questionText: "An unreadable fragment" },
+      ],
+      [],
+    );
+    expect(out[0]).toEqual({ qNumber: 1, topicSlug: "", topicName: "", subject: "Science" });
+    // CONTROL — no subject named → still unknown (never the resolver's "Maths" fallback).
+    expect(out[1]).toEqual({ qNumber: 2, topicSlug: "", topicName: "", subject: "" });
   });
   it("CONTROL — on a single-topic paper an unresolved question inherits the paper's topic", () => {
     expect(perQuestionFiling({ topicSlug: null }, paper, false)).toEqual(paper);
@@ -121,6 +153,58 @@ describe("B5 / D5 / GA-17 — a re-grade REPLACES, never duplicates (MI identity
     await recordMistake(USER, graded(3, 1, [{ type: "conceptual" }]), ctx);
     await recordMistake(USER, graded(3, 2, [{ type: "conceptual" }]), ctx);
     expect(recordWrongAnswerMock).toHaveBeenCalledTimes(1);
+  });
+
+  /* W1 (FU-B15-MI-CLEAN-REGRADE-STALE) — MI never keeps a mistake the scorecard no longer shows. */
+  const flipCtx = (q: string) => ({ subject: "Maths", topic: "Real Numbers", topicKey: "real-numbers", question: "Q", questionId: `ci:C:${q}`, surface: "check-improve", submissionId: "C" });
+  it("W1 — mistake → clean → mistake: the clean re-grade REMOVES the entry, the mistake re-writes it, the gap bridges ONCE", async () => {
+    const ctx = flipCtx("q7");
+    const first = await recordMistake(USER, graded(3, 1, [{ type: "conceptual" }]), ctx);
+    expect(first.outcome).toBe("logged");
+    const id = (logMistakesMock.mock.calls[0][2] as { id: string }).id;
+    const clean = await recordMistake(USER, graded(3, 3, [{ type: null, status: "correct" }]), ctx);
+    expect(clean.outcome).toBe("skipped-clean");
+    expect(clean.cleared).toBe(true);
+    expect(removeStableMock).toHaveBeenCalledWith("u-items", id, { known: true });
+    const again = await recordMistake(USER, graded(3, 1, [{ type: "conceptual" }]), ctx);
+    expect(again.outcome).toBe("logged");
+    expect(logMistakesMock).toHaveBeenCalledTimes(2);
+    expect((logMistakesMock.mock.calls[1][2] as { id: string }).id).toBe(id);
+    expect(recordWrongAnswerMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("W1 — a NOT-ATTEMPTED re-grade removes the entry too", async () => {
+    const ctx = flipCtx("q8");
+    await recordMistake(USER, graded(3, 1, [{ type: "silly" }]), ctx);
+    const id = (logMistakesMock.mock.calls[0][2] as { id: string }).id;
+    const na = await recordMistake(USER, graded(3, 0, [{ type: null, status: "missing" }]), ctx);
+    expect(na.outcome).toBe("skipped-not-attempted");
+    expect(na.cleared).toBe(true);
+    expect(removeStableMock).toHaveBeenCalledWith("u-items", id, { known: true });
+  });
+
+  it("W1 CONTROL — a FIRST clean grade has no evidence of an entry (known:false), and a repeat clean grade removes nothing more", async () => {
+    const ctx = flipCtx("q9");
+    const r = await recordMistake(USER, graded(3, 3, [{ type: null, status: "correct" }]), ctx);
+    expect(r).toEqual({ outcome: "skipped-clean", bridged: false });
+    expect(removeStableMock).toHaveBeenLastCalledWith("u-items", expect.any(String), { known: false });
+    await recordMistake(USER, graded(3, 1, [{ type: "calculation" }]), ctx);
+    await recordMistake(USER, graded(3, 3, [{ type: null, status: "correct" }]), ctx);
+    const repeat = await recordMistake(USER, graded(3, 3, [{ type: null, status: "correct" }]), ctx);
+    expect(repeat.cleared).toBeUndefined();
+    expect(removeStableMock).toHaveBeenLastCalledWith("u-items", expect.any(String), { known: false });
+  });
+
+  it("W1 — a cache-restore of the SAME result is still a duplicate (dedup is the latest outcome, not any past one)", async () => {
+    const ctx = flipCtx("q10");
+    await recordMistake(USER, graded(3, 1, [{ type: "calculation" }]), ctx);
+    const restore = await recordMistake(USER, graded(3, 1, [{ type: "calculation" }]), ctx);
+    expect(restore.outcome).toBe("duplicate");
+    // A → B → A writes A again: the entry (replaced by B) must show A once more.
+    await recordMistake(USER, graded(3, 2, [{ type: "calculation" }]), ctx);
+    const back = await recordMistake(USER, graded(3, 1, [{ type: "calculation" }]), ctx);
+    expect(back.outcome).toBe("logged");
+    expect(logMistakesMock).toHaveBeenCalledTimes(3);
   });
 
   it("a not-attempted question is its own state — no MI entry, never a type (D3)", async () => {

@@ -16,6 +16,7 @@ import {
   PRIMARY_CARDS,
   useTutorPicker,
 } from "../../lib/desktop/homeDestinations";
+import { MISTAKE_TYPE_LABEL } from "../../lib/mistakeDisplay";
 import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import FirstSession from "../../components/home/FirstSession";
 import CbseBanner from "../../components/cbse/CbseBanner";
@@ -145,10 +146,10 @@ type BucketKey = "conceptual" | "calculation" | "silly" | "presentation";
 const MI_BUCKETS: {
   key: BucketKey; bg: string; fg: string; border: string; label: string;
 }[] = [
-  { key: "conceptual", bg: "hsl(215, 75%, 95%)", fg: "hsl(215, 65%, 32%)", border: "hsl(215, 60%, 88%)", label: "Conceptual" },
-  { key: "calculation", bg: "hsl(38, 92%, 95%)", fg: "hsl(38, 65%, 32%)", border: "hsl(38, 70%, 85%)", label: "Calculation" },
-  { key: "silly", bg: "hsl(0, 75%, 96%)", fg: "hsl(0, 60%, 38%)", border: "hsl(0, 60%, 89%)", label: "Silly mistake" },
-  { key: "presentation", bg: "hsl(280, 60%, 96%)", fg: "hsl(280, 50%, 35%)", border: "hsl(280, 45%, 89%)", label: "Presentation" },
+  { key: "conceptual", bg: "hsl(215, 75%, 95%)", fg: "hsl(215, 65%, 32%)", border: "hsl(215, 60%, 88%)", label: MISTAKE_TYPE_LABEL.conceptual },
+  { key: "calculation", bg: "hsl(38, 92%, 95%)", fg: "hsl(38, 65%, 32%)", border: "hsl(38, 70%, 85%)", label: MISTAKE_TYPE_LABEL.calculation },
+  { key: "silly", bg: "hsl(0, 75%, 96%)", fg: "hsl(0, 60%, 38%)", border: "hsl(0, 60%, 89%)", label: MISTAKE_TYPE_LABEL.silly },
+  { key: "presentation", bg: "hsl(280, 60%, 96%)", fg: "hsl(280, 50%, 35%)", border: "hsl(280, 45%, 89%)", label: MISTAKE_TYPE_LABEL.presentation },
 ];
 
 interface BucketTotals {
@@ -608,7 +609,7 @@ export default function DesktopHome() {
               {buckets.topLabel ? (
                 <>
                   <div style={{ fontSize: 13, color: TEXT }}>
-                    <span style={{ fontWeight: 600 }}>Most-common slip this week:</span>{" "}
+                    <span style={{ fontWeight: 600 }}>Most common mistake this week:</span>{" "}
                     <span style={{ color: "hsl(220, 30%, 28%)" }}>{buckets.topLabel}</span>
                   </div>
                   <div
@@ -829,7 +830,7 @@ function MistakeIntelligenceCard({ buckets }: { buckets: BucketTotals }) {
         }}
       >
         {hasData
-          ? `${buckets.topLabel} slips are costing you most`
+          ? `Most common this week: ${buckets.topLabel}`
           : "Your mistake patterns will show here"}
       </h3>
       <p style={{ margin: "0 0 14px", fontSize: 12, color: TEXT_MUTED }}>

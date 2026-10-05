@@ -33,7 +33,7 @@
 
 import type { CheckSolutionResponse } from "../ai/aiClient";
 import type { AuthUser } from "../context/AuthContext";
-import { logMistakes, type MistakeLogEntry } from "./mistakeLogService";
+import { logMistakes, removeStableMistakeLog, type MistakeLogEntry } from "./mistakeLogService";
 import { isSafeEntry } from "./mistakeInsightsService";
 import { recordWrongAnswer } from "./adaptivePracticeEngine";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
@@ -111,6 +111,9 @@ export interface RecordMistakeResult {
   outcome: RecordMistakeOutcome;
   /** Whether a weak-area (Stream 3) signal was written for this check. */
   bridged: boolean;
+  /** SCORECARD-MI-1 (W1): a clean / not-attempted re-grade removed this submission's earlier
+   *  entry. Present only when it did. */
+  cleared?: true;
 }
 
 type ReconciledCounts = MistakeTypeCounts;
@@ -272,19 +275,80 @@ function writeDedup(keys: string[]): void {
   }
 }
 
+/** SCORECARD-MI-1 (W1) — the ring's outcome tail for a submission whose latest grade had no
+ *  mistake (full marks, or not attempted): its entry was removed. */
+const CLEAN_OUTCOME = "clean";
+
+function cleanRingKey(identity: string, result: CheckSolutionResponse): string {
+  return [identity, `${Number(result.marksAwarded) || 0}/${Number(result.totalMarks) || 0}`, CLEAN_OUTCOME].join("::");
+}
+
+/** The identity a ring key was written for: the key minus its two outcome segments (score,
+ *  counts). Exact, so one identity can never match another that merely starts with it. */
+function ringIdentity(k: string): string {
+  const parts = k.split("::");
+  return parts.length > 2 ? parts.slice(0, -2).join("::") : "";
+}
+
+/** The LATEST outcome logged for this identity on this device (the ring is newest-first). */
+function latestRingKeyFor(seen: string[], identity: string): string | undefined {
+  return seen.find((k) => ringIdentity(k) === identity);
+}
+
 /**
  * SCORECARD-MI-1 — has an EARLIER outcome of this same submission already been logged with a
  * knowledge gap (and so already reached the weak-area bridge)? Read from the dedup ring this
- * module already keeps — no second store: each ring key ends "<conceptual>-<calc>-<silly>-<pres>".
- * A re-grade of the same answer therefore never counts the same gap twice.
+ * module already keeps — no second store: each ring key ends "<conceptual>-<calc>-<silly>-<pres>"
+ * (or "clean"). A re-grade of the same answer therefore never counts the same gap twice — not
+ * even after a clean re-grade in between (W1).
  */
 function knowledgeGapAlreadyBridged(seen: string[], identity: string): boolean {
-  const prefix = `${identity}::`;
   return seen.some((k) => {
-    if (!k.startsWith(prefix)) return false;
+    if (ringIdentity(k) !== identity) return false;
     const counts = k.slice(k.lastIndexOf("::") + 2).split("-");
     return (Number(counts[0]) || 0) > 0;
   });
+}
+
+/** The ONE identity context every path of the front door builds (ruling A2). */
+function identityContextOf(context: RecordMistakeContext) {
+  return {
+    surface: context.surface,
+    submissionId: context.submissionId,
+    questionId: context.questionId,
+    question: context.question,
+    answerKey: context.answerKey,
+  };
+}
+
+/**
+ * SCORECARD-MI-1 (W1) — a re-grade of the same submission came back with no mistake: remove
+ * that submission's stable-identity entry, so MI never keeps a mistake the scorecard no longer
+ * shows. The evidence that an entry exists is this module's own dedup ring (its latest outcome
+ * for the identity was a logged one) or a copy on the device. A clean marker then goes into the
+ * ring, so mistake → clean → mistake writes the entry again, and the bridge still fires once.
+ */
+async function clearSupersededEntry(
+  uid: string,
+  context: RecordMistakeContext,
+  result: CheckSolutionResponse,
+): Promise<boolean> {
+  const identityCtx = identityContextOf(context);
+  const identity = gradeIdentityKey(uid, identityCtx);
+  const seen = readDedup();
+  const latest = latestRingKeyFor(seen, identity);
+  const known = latest !== undefined && !latest.endsWith(`::${CLEAN_OUTCOME}`);
+  let cleared = false;
+  try {
+    cleared = await removeStableMistakeLog(uid, gradeIdentityDocId(uid, identityCtx), { known });
+  } catch {
+    cleared = false;
+  }
+  if (cleared) {
+    const marker = cleanRingKey(identity, result);
+    writeDedup([marker, ...seen.filter((k) => k !== marker)]);
+  }
+  return cleared;
 }
 
 /**
@@ -301,24 +365,29 @@ export async function recordMistake(
   if (user.isLocalSession) return { outcome: "skipped-local", bridged: false };
   if (!gradeResult || gradeResult.ok === false) return { outcome: "error", bridged: false };
   // Not attempted is its own state — never a mistake, never an MI entry (owner ruling).
-  if (isQuestionNotAttempted(gradeResult)) return { outcome: "skipped-not-attempted", bridged: false };
-  if (!hasMistakeSignal(gradeResult)) return { outcome: "skipped-clean", bridged: false };
+  // Neither it nor a clean grade is logged; a RE-grade that comes back that way removes the
+  // submission's earlier entry (W1).
+  const notAttempted = isQuestionNotAttempted(gradeResult);
+  if (notAttempted || !hasMistakeSignal(gradeResult)) {
+    const cleared = await clearSupersededEntry(user.uid, context, gradeResult);
+    return {
+      outcome: notAttempted ? "skipped-not-attempted" : "skipped-clean",
+      bridged: false,
+      ...(cleared ? { cleared: true as const } : {}),
+    };
+  }
 
   const counts = reconcileCounts(gradeResult);
 
   // ── Identity + dedup ──────────────────────────────────────────────────
-  const identityCtx = {
-    surface: context.surface,
-    submissionId: context.submissionId,
-    questionId: context.questionId,
-    question: context.question,
-    answerKey: context.answerKey,
-  };
+  const identityCtx = identityContextOf(context);
   const identity = gradeIdentityKey(user.uid, identityCtx);
   const entryId = gradeIdentityDocId(user.uid, identityCtx);
   const key = dedupKey(identity, gradeResult, counts);
   const seen = readDedup();
-  if (seen.includes(key)) return { outcome: "duplicate", bridged: false };
+  // A duplicate is the SAME outcome as this submission's LATEST one: a cache-restore writes
+  // nothing, while mistake → clean → the same mistake writes the entry again (W1).
+  if (latestRingKeyFor(seen, identity) === key) return { outcome: "duplicate", bridged: false };
 
   // ── Builder + safety gate ─────────────────────────────────────────────
   const concept = await resolveConcept(context, entryQuestionId(context));

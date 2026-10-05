@@ -164,6 +164,7 @@ import { setActiveProgressUser } from "./studentProgressStore";
 import { aggregateFourType } from "../components/results/scorecardVariants";
 import { WorksheetGradedPrintDoc } from "../components/worksheet/WorksheetGradedPrintDoc";
 import { hashAttemptString } from "./attemptDedupKey";
+import { removeStableMistakeLog } from "./mistakeLogService";
 import { desktopTopicBySlug } from "../lib/desktop/topics";
 import type { PersistedWorksheet } from "./worksheetSessionStore";
 import type { WorksheetGradeResponse } from "../ai/aiClient";
@@ -422,6 +423,23 @@ describe("G3 · Check & Improve, whole paper (rendered)", () => {
 });
 
 /* ── C&I SINGLE — rendered ─────────────────────────────────────────────────── */
+describe("G3 · Check & Improve, whole paper — the question line's maths (W3)", () => {
+  it("every question line with maths renders through the maths renderer (no raw x^2 left on the page)", async () => {
+    const S = "ci-multi-qline:owner-anomaly-01-shape";
+    const { qs } = await runCiMulti("owner-anomaly-01-shape");
+    await waitFor(() => expect(records()).toHaveLength(1));
+    for (const b of screen.getAllByRole("button", { name: /Show step-by-step working/ })) fireEvent.click(b);
+    const MATH = /[A-Za-z0-9][\^_]\d/;
+    const withMaths = qs.filter((q) => MATH.test(q.questionText));
+    expect(withMaths.length).toBeGreaterThan(0); // liveness: the fixture carries maths in a question
+    await waitFor(() => expect(document.querySelectorAll('[data-testid="ci-q-text"] .katex').length).toBeGreaterThanOrEqual(withMaths.length));
+    const lines = Array.from(document.querySelectorAll('[data-testid="ci-q-text"]'));
+    // KaTeX renders HTML only (MathText: output "html"), so a rendered "2x^2" no longer reads "x^2".
+    const raw = lines.filter((l) => MATH.test(l.textContent || ""));
+    check(S, "ciList.qText.mathsRendered", lines.filter((l) => l.querySelector(".katex")).length >= withMaths.length && raw.length === 0, `${lines.length} lines, ${raw.length} raw`);
+  }, 30000);
+});
+
 describe("G3 · Check & Improve, single question (rendered)", () => {
   async function runSingle(name: string) {
     const fx = FIX(name);
@@ -485,8 +503,25 @@ describe("G3 · Check & Improve, single question (rendered)", () => {
       await waitFor(() => expect(H.checkSolutionImage).toHaveBeenCalledTimes(2));
       await waitFor(() => expect(miEntries()[0]?.marksLost).toBe(Number(again.totalMarks) - Number(again.marksAwarded)));
       check(S, "regrade.oneMiEntry", miEntries().length === 1, `${miEntries().length} entries`);
+      // W1 — the same answer re-graded to FULL MARKS removes the entry; the mistake back re-writes it.
+      const clean = clone(fx.body);
+      clean.marksAwarded = Number(clean.totalMarks);
+      H.checkSolutionImage.mockResolvedValue(clean);
+      fireEvent.click(screen.getAllByRole("button", { name: "Back" })[0]);
+      await pressGrade();
+      await waitFor(() => expect(H.checkSolutionImage).toHaveBeenCalledTimes(3));
+      await waitFor(() => expect(miEntries()).toHaveLength(0));
+      check(S, "flip.clean.entryRemoved", miEntries().length === 0, `${miEntries().length} entries`);
+      H.checkSolutionImage.mockResolvedValue(clone(fx.body));
+      fireEvent.click(screen.getAllByRole("button", { name: "Back" })[0]);
+      await pressGrade();
+      await waitFor(() => expect(H.checkSolutionImage).toHaveBeenCalledTimes(4));
+      await waitFor(() => expect(miEntries()).toHaveLength(1));
+      const back = miEntries()[0];
+      check(S, "flip.mistakeAgain.entryBack", miEntries().length === 1 && back.marksLost === f.lost, `${miEntries().length} entries, lost ${back?.marksLost}`);
+      check(S, "flip.mistakeAgain.counts=shown", TYPES.every((t) => (Number(back.mistakeCounts?.[t]) || 0) === f.shown[t]), JSON.stringify(back.mistakeCounts));
     }
-  }, 30000);
+  }, 45000);
 
   it("B1 — a photo with NO readable question text: grading is not offered; the student is asked to type it", async () => {
     const S = "ci-single:photo-question-no-text";
@@ -598,6 +633,64 @@ describe("G3 · Worksheet and Chapter Test (real grade services)", () => {
     H.gradeWorksheet.mockResolvedValue(regraded);
     await gradeWorksheetAndRecord(USER as never, ws, { imageBase64: "AAAA", imageMimeType: "application/pdf" });
     check(S, "reupload.oneMiEntryPerQuestion", miEntries().length === want, `${miEntries().length} vs ${want}`);
+  });
+
+  it("W1 — a re-upload that comes back CLEAN removes that question's entry (cloud + device); the mistake back re-writes it; a legacy random-id entry is never touched", async () => {
+    const S = "worksheet-flip:p4-bs1-worksheet";
+    const fx = FIX("p4-bs1-worksheet");
+    const ws = paperFrom(fx, "ws-g3-flip");
+    const upload = { imageBase64: "AAAA", imageMimeType: "application/pdf" };
+    // A pre-SCORECARD-MI-1 entry (random id) for the same student, in the cloud and on the device.
+    const LEGACY_ID = "1727000000000-abc123";
+    const legacyPath = `learnerProfiles/${UID}/mistakeLogs/${LEGACY_ID}`;
+    const legacy = { id: LEGACY_ID, timestamp: "2026-09-01T00:00:00.000Z", questionText: "old", topic: "Real Numbers", subject: "maths", totalMarks: 3, marksLost: 1, mistakeCounts: { conceptual: 1, calculation: 0, silly: 0, presentation: 0 }, stepDetails: [] };
+    H.store.set(legacyPath, clone(legacy));
+    window.localStorage.setItem(`lazytopper.mistakeLogs.v1:${UID}`, JSON.stringify([legacy]));
+    const stable = () => miEntries().filter((e) => e.path !== legacyPath);
+    const deviceIds = () => (JSON.parse(window.localStorage.getItem(`lazytopper.mistakeLogs.v1:${UID}`) || "[]") as Array<{ id: string }>).map((e) => e.id);
+
+    H.gradeWorksheet.mockResolvedValue(clone(fx.body));
+    await gradeWorksheetAndRecord(USER as never, ws, upload);
+    const fs: Facts[] = fx.body.results.map((r: Any) => facts(r));
+    const want = fs.filter((f) => !f.couldNotRead && f.lost > 0 && !f.notAttempted).length;
+    const firstPaths = stable().map((e) => e.path).sort();
+    check(S, "flip.first.entries", firstPaths.length === want, `${firstPaths.length} vs ${want}`);
+
+    // RE-UPLOAD: one losing question now earns full marks.
+    const ti = fs.findIndex((f) => !f.couldNotRead && f.lost > 0 && !f.notAttempted);
+    const cleanBody = clone(fx.body);
+    cleanBody.results[ti].marksAwarded = Number(cleanBody.results[ti].totalMarks);
+    H.gradeWorksheet.mockResolvedValue(cleanBody);
+    await gradeWorksheetAndRecord(USER as never, ws, upload);
+    const afterClean = stable().map((e) => e.path).sort();
+    const removed = firstPaths.filter((p) => !afterClean.includes(p));
+    check(S, "flip.clean.entryRemoved", afterClean.length === want - 1 && removed.length === 1, `${afterClean.length} vs ${want - 1}`);
+    check(S, "flip.clean.deviceCopyRemoved", !deviceIds().includes(removed[0]?.split("/").pop() ?? "?"), JSON.stringify(deviceIds()).slice(0, 120));
+    check(S, "flip.clean.legacyUntouched", H.store.has(legacyPath) && deviceIds().includes(LEGACY_ID), "");
+
+    // RE-UPLOAD again: the mistake is back → the SAME entry is written again.
+    H.gradeWorksheet.mockResolvedValue(clone(fx.body));
+    await gradeWorksheetAndRecord(USER as never, ws, upload);
+    const afterBack = stable().map((e) => e.path).sort();
+    check(S, "flip.mistakeAgain.entryBack", JSON.stringify(afterBack) === JSON.stringify(firstPaths), `${afterBack.length} vs ${firstPaths.length}`);
+    const backEntry = stable().find((e) => e.path === removed[0]);
+    check(S, "flip.mistakeAgain.counts=shown", !!backEntry && TYPES.every((t) => (Number(backEntry.mistakeCounts?.[t]) || 0) === fs[ti].shown[t]), JSON.stringify(backEntry?.mistakeCounts));
+    check(S, "flip.end.legacyUntouched", H.store.has(legacyPath), "");
+  });
+
+  it("W1 — the store refuses to remove a LEGACY random-id entry, even when told it is known", async () => {
+    const LEGACY_ID = "1727000000001-zz9zz9";
+    const legacyPath = `learnerProfiles/${UID}/mistakeLogs/${LEGACY_ID}`;
+    H.store.set(legacyPath, { id: LEGACY_ID, timestamp: "2026-09-01T00:00:00.000Z" });
+    window.localStorage.setItem(`lazytopper.mistakeLogs.v1:${UID}`, JSON.stringify([{ id: LEGACY_ID, timestamp: "2026-09-01T00:00:00.000Z" }]));
+    expect(await removeStableMistakeLog(UID, LEGACY_ID, { known: true })).toBe(false);
+    expect(H.store.has(legacyPath)).toBe(true);
+    expect(window.localStorage.getItem(`lazytopper.mistakeLogs.v1:${UID}`)).toContain(LEGACY_ID);
+    // CONTROL — a stable identity id IS removed.
+    const STABLE_ID = "worksheet::ws-x::g3-nonbank-1";
+    H.store.set(`learnerProfiles/${UID}/mistakeLogs/${STABLE_ID}`, { id: STABLE_ID });
+    expect(await removeStableMistakeLog(UID, STABLE_ID, { known: true })).toBe(true);
+    expect(H.store.has(`learnerProfiles/${UID}/mistakeLogs/${STABLE_ID}`)).toBe(false);
   });
 
   it("chapter test re-upload REPLACES each question's MI entry", async () => {

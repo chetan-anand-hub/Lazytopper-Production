@@ -1654,6 +1654,9 @@ const DesktopCheckImprovePageInner: React.FC<{
             // SCORECARD-MI-1 (B2) — the question's OWN subject, so a mixed paper is filed and
             // titled per question, never under the first question's subject.
             if (t.subject) r.topicSubject = t.subject;
+          } else if (t && t.subject) {
+            // W4 — no chapter resolved, but this question's own detect named its subject.
+            r.topicSubject = t.subject;
           }
         }
       } catch (e) {
@@ -3177,8 +3180,9 @@ const DesktopCheckImprovePageInner: React.FC<{
                 {canExpand && open && (
                   <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 10 }}>
                     {qText && (
-                      <div style={{ fontSize: 13, color: TEXT_FG, lineHeight: 1.5, fontFamily: FONT_SERIF }}>
-                        {qText}
+                      <div style={{ fontSize: 13, color: TEXT_FG, lineHeight: 1.5, fontFamily: FONT_SERIF }} data-testid="ci-q-text">
+                        {/* SCORECARD-MI-1 W3 — the question's maths renders like its steps (GA-40). */}
+                        <EquationRender text={qText} />
                       </div>
                     )}
                     {steps.map((step) => (
