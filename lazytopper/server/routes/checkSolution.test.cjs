@@ -1001,12 +1001,13 @@ test('§7.7 N uploads still cost exactly ONE model call — this is a batch, not
   assert.equal(h.body().results.length, 4);
 });
 
-test('§7.7b above 10 questions, N uploads cost ⌈N/3⌉ model calls (C8 chunks of ≤ 3) — never one call per photo, never a photo in the wrong chunk', async () => {
+// ★ AMENDED by HOTFIX-2: chunks of ≈ 8 (11 questions → 6 + 5).
+test('§7.7b above 10 questions, N uploads cost one call per chunk of ≈ 8 (HOTFIX-2) — never one call per photo, never a photo in the wrong chunk', async () => {
   const nums = Array.from({ length: 11 }, (_, i) => i + 1);
   const h = buildImageRoute({ replies: [WS_OK(nums)] });
   await h.route.handleGradeWorksheet(
     { ...WORKSHEET_REQ(nums.map((n) => Q(n))), uploads: nums.map((n) => UP(n)) }, {});
-  assert.equal(h.calls.length, 4, '11 questions → 4 chunks (3+3+3+2), in parallel');
+  assert.equal(h.calls.length, 2, '11 questions → 2 chunks (6+5), in parallel');
   const imagesOf = (c) => c.contents[0].parts.filter(isImage).map((p) => p.inline_data.data).sort();
   const textOf = (c) => c.contents[0].parts.filter((p) => typeof p.text === 'string').map((p) => p.text).join('');
   const seen = [];

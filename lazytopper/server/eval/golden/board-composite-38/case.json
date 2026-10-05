@@ -1,0 +1,1714 @@
+{
+ "caseId": "BOARD-38",
+ "label": "SYNTHETIC-COMPOSITE",
+ "synthetic": true,
+ "provenance": "HOTFIX-2 (GRADER-CORE-1): a 38-question full board-paper stand-in. Q1-Q27 = owner-anomaly-02 (the owner's real handwritten answers, pages 1-4 unchanged). Q28-Q37 = controller paper-01 Q1-Q10 and Q38 = paper-02 Q4: their SYNTHETIC answer transcriptions (per-question/q<n>/answer.txt) re-rendered with the new question numbers on pages 5-6. Expected marks are each source case's own expected (owner key / controller key). Q37 (paper-01 Q10) is an answer-MISMATCH case by design.",
+ "pages": {
+  "answers": 6,
+  "questions": 4
+ },
+ "files": {
+  "answers": "board-composite-38/answers.pdf",
+  "questions": "board-composite-38/questions.pdf"
+ },
+ "requestShape": {
+  "subject": "Maths",
+  "sessionTopic": "Real Numbers",
+  "answerDocumentMime": "application/pdf"
+ },
+ "questions": [
+  {
+   "qNumber": 1,
+   "sourceCaseId": "OA2-Q01",
+   "marks": 1,
+   "subject": "Maths",
+   "questionText": "The LCM of 12 and 18 is: (a) 36 (b) 72 (c) 6 (d) 216",
+   "objective": true,
+   "expected": {
+    "totalMarks": 0,
+    "mistakeType": null,
+    "note": "hedged MCQ pick \"(a) or (b)\" scores 0",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 2,
+   "sourceCaseId": "OA2-Q02",
+   "marks": 2,
+   "subject": "Maths",
+   "questionText": "Find the zeroes of the polynomial x² − 5x + 6 and verify the relationship between the zeroes and the coefficients (sum of zeroes).",
+   "objective": false,
+   "expected": {
+    "totalMarks": 2,
+    "mistakeType": null,
+    "note": "quadratic formula instead of factorising: a valid alternative method",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 3,
+   "sourceCaseId": "OA2-Q03",
+   "marks": 3,
+   "subject": "Maths",
+   "questionText": "Solve by the elimination method: x + y = 7 and x − y = 1.",
+   "objective": false,
+   "expected": {
+    "totalMarks": 2,
+    "mistakeType": "silly",
+    "note": "own equation (1) copied as x + y = 9: penalised once",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 4,
+   "sourceCaseId": "OA2-Q04",
+   "marks": 1,
+   "subject": "Maths",
+   "questionText": "Assertion (A): The equation x² + 4 = 0 has no real roots. Reason (R): If the discriminant of a quadratic equation is negative, it has no real roots. (a) Both A and R are true and R is the correct explanation of A. (b) Both A and R are true but R is not the correct explanation of A. (c) A is true but R is false. (d) A is false but R is true.",
+   "objective": true,
+   "expected": {
+    "totalMarks": 0,
+    "mistakeType": "conceptual",
+    "note": "chose (b); key (a)",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 5,
+   "sourceCaseId": "OA2-Q05",
+   "marks": 2,
+   "subject": "Maths",
+   "questionText": "Find the 10th term of the AP: 2, 7, 12, …",
+   "objective": false,
+   "expected": {
+    "totalMarks": 1,
+    "mistakeType": "presentation",
+    "note": "correct answer 47 with no working",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 6,
+   "sourceCaseId": "OA2-Q06",
+   "marks": 3,
+   "subject": "Maths",
+   "questionText": "In △ABC, DE ∥ BC with D on AB and E on AC. If AD = 2 cm, DB = 3 cm and AE = 4 cm, find EC.",
+   "objective": false,
+   "expected": {
+    "totalMarks": 0.5,
+    "mistakeType": "conceptual",
+    "note": "BPT ratio written AD/AB = AE/EC",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 7,
+   "sourceCaseId": "OA2-Q07",
+   "marks": 2,
+   "subject": "Maths",
+   "questionText": "Find the distance between the points (3, 4) and (−1, 1).",
+   "objective": false,
+   "expected": {
+    "totalMarks": 1,
+    "mistakeType": "calculation",
+    "note": "(3 - 1) for (3 - (-1)): sign slip",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 8,
+   "sourceCaseId": "OA2-Q08",
+   "marks": 3,
+   "subject": "Maths",
+   "questionText": "Prove that (1 − cos²A) · cosec²A = 1.",
+   "objective": false,
+   "expected": {
+    "totalMarks": 0,
+    "mistakeType": "conceptual",
+    "note": "proof by an example (A = 30°): invalid method, 0",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 9,
+   "sourceCaseId": "OA2-Q09",
+   "marks": 3,
+   "subject": "Maths",
+   "questionText": "A tower casts a shadow 20 m long on level ground when the Sun's angle of elevation is 60°. Find the height of the tower.",
+   "objective": false,
+   "expected": {
+    "totalMarks": 1,
+    "mistakeType": "conceptual",
+    "note": "tan 60° taken as 1/√3",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 10,
+   "sourceCaseId": "OA2-Q10",
+   "marks": 2,
+   "subject": "Maths",
+   "questionText": "A point A is 5 cm from the centre O of a circle of radius 3 cm. Find the length of the tangent AP drawn from A to the circle.",
+   "objective": false,
+   "expected": {
+    "totalMarks": 2,
+    "mistakeType": null,
+    "note": "first line crossed out, not assessed",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 11,
+   "sourceCaseId": "OA2-Q11",
+   "marks": 3,
+   "subject": "Maths",
+   "questionText": "Find the area of a sector of a circle of radius 7 cm with central angle 60°. (Use π = 22/7.)",
+   "objective": false,
+   "expected": {
+    "totalMarks": 0.5,
+    "mistakeType": "conceptual",
+    "note": "arc-length formula used for the area",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 12,
+   "sourceCaseId": "OA2-Q12",
+   "marks": 5,
+   "subject": "Maths",
+   "questionText": "A solid toy is in the form of a hemisphere of radius 3.5 cm surmounted by a right circular cone of the same radius and height 12 cm. Find the volume of the toy. (Use π = 22/7.)",
+   "objective": false,
+   "expected": {
+    "totalMarks": 5,
+    "mistakeType": null,
+    "note": "fully correct, no unit: no deduction in Maths (ruling 6)",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 13,
+   "sourceCaseId": "OA2-Q13",
+   "marks": 3,
+   "subject": "Maths",
+   "questionText": "Find the mean of the following data: x: 2, 4, 6, 8 f: 3, 5, 4, 2",
+   "objective": false,
+   "expected": {
+    "totalMarks": 2,
+    "mistakeType": "calculation",
+    "note": "Σfx = 64 (correct 66)",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 14,
+   "sourceCaseId": "OA2-Q14",
+   "marks": 3,
+   "subject": "Maths",
+   "questionText": "A die is thrown once. Find the probability of getting (i) a prime number [2]; (ii) a number greater than 6 [1].",
+   "objective": false,
+   "expected": {
+    "totalMarks": 1.5,
+    "mistakeType": "conceptual",
+    "note": "(i) 1 taken as prime; (ii) independent part keeps its mark",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 15,
+   "sourceCaseId": "OA2-Q15",
+   "marks": 2,
+   "subject": "Science",
+   "questionText": "Write the balanced chemical equation for the reaction of sodium with water and name the type of reaction.",
+   "objective": false,
+   "expected": {
+    "totalMarks": 1,
+    "mistakeType": "conceptual",
+    "note": "unbalanced equation called balanced; no state symbols (no deduction)",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 16,
+   "sourceCaseId": "OA2-Q16",
+   "marks": 1,
+   "subject": "Science",
+   "questionText": "The pH of a neutral solution at room temperature is: (a) 0 (b) 7 (c) 14 (d) 1",
+   "objective": true,
+   "expected": {
+    "totalMarks": 1,
+    "mistakeType": null,
+    "note": "(a) struck out, (b) written: the last pick counts",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 17,
+   "sourceCaseId": "OA2-Q17",
+   "marks": 3,
+   "subject": "Science",
+   "questionText": "Write the balanced chemical equation for the reaction of zinc with dilute hydrochloric acid [2]. How will you test the gas evolved? [1]",
+   "objective": false,
+   "expected": {
+    "totalMarks": 1,
+    "mistakeType": "conceptual",
+    "note": "ZnCl (valency error), unbalanced; the pop test is right",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 18,
+   "sourceCaseId": "OA2-Q18",
+   "marks": 2,
+   "subject": "Science",
+   "questionText": "Why does carbon form compounds mainly by covalent bonding?",
+   "objective": false,
+   "expected": {
+    "totalMarks": 2,
+    "mistakeType": null,
+    "note": "correct, written in Hinglish",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 19,
+   "sourceCaseId": "OA2-Q19",
+   "marks": 2,
+   "subject": "Science",
+   "questionText": "Name the tube that carries food from the mouth to the stomach, and the process by which food moves along it.",
+   "objective": false,
+   "expected": {
+    "totalMarks": 1.5,
+    "mistakeType": "presentation",
+    "note": "\"food pipe\" for oesophagus",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 20,
+   "sourceCaseId": "OA2-Q20",
+   "marks": 3,
+   "subject": "Science",
+   "questionText": "What is a reflex action? Trace the path of a reflex arc.",
+   "objective": false,
+   "expected": {
+    "totalMarks": 1.5,
+    "mistakeType": "conceptual",
+    "note": "sensory and motor neurons swapped in the reflex arc",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 21,
+   "sourceCaseId": "OA2-Q21",
+   "marks": 1,
+   "subject": "Science",
+   "questionText": "In yeast, asexual reproduction takes place mainly by: (a) budding (b) binary fission (c) fragmentation (d) spore formation",
+   "objective": true,
+   "expected": {
+    "totalMarks": 0,
+    "mistakeType": null,
+    "unattempted": "whole",
+    "note": "blank: unattempted",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 22,
+   "sourceCaseId": "OA2-Q22",
+   "marks": 3,
+   "subject": "Science",
+   "questionText": "A pure tall pea plant (TT) is crossed with a pure dwarf pea plant (tt). What will be the phenotypic ratio [1½] and the genotypic ratio [1½] in the F₂ generation?",
+   "objective": false,
+   "expected": {
+    "totalMarks": 1.5,
+    "mistakeType": null,
+    "unattempted": "part",
+    "note": "phenotypic ratio right; genotypic ratio not attempted",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 23,
+   "sourceCaseId": "OA2-Q23",
+   "marks": 5,
+   "subject": "Science",
+   "questionText": "(a) An object is placed 10 cm in front of a convex lens of focal length 15 cm. Find the position and nature of the image. [3] (b) Draw the ray diagram for this case. [2]",
+   "objective": false,
+   "expected": {
+    "totalMarks": 1.5,
+    "mistakeType": "conceptual",
+    "note": "(a) mirror formula for a lens (1/2); (b) ray diagram without arrows, image not shown (1)",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 24,
+   "sourceCaseId": "OA2-Q24",
+   "marks": 2,
+   "subject": "Science",
+   "questionText": "Why does the clear sky appear blue?",
+   "objective": false,
+   "expected": {
+    "totalMarks": 0,
+    "mistakeType": "conceptual",
+    "note": "\"sky reflects sea water\"",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 25,
+   "sourceCaseId": "OA2-Q25",
+   "marks": 3,
+   "subject": "Science",
+   "questionText": "A copper wire is 2 m long and has an area of cross-section 1 × 10⁻⁶ m². The resistivity of copper is 1.6 × 10⁻⁸ Ω m. Find its resistance.",
+   "objective": false,
+   "expected": {
+    "totalMarks": 2,
+    "mistakeType": "silly",
+    "note": "L copied as 3 m (question 2 m): penalised once",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 26,
+   "sourceCaseId": "OA2-Q26",
+   "marks": 2,
+   "subject": "Science",
+   "questionText": "State Fleming's left-hand rule.",
+   "objective": false,
+   "expected": {
+    "totalMarks": 0,
+    "mistakeType": null,
+    "answerMismatch": true,
+    "note": "UNRELATED ANSWER (resistivity defined): answerMismatch, not graded, not charged",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 27,
+   "sourceCaseId": "OA2-Q27",
+   "marks": 4,
+   "subject": "Science",
+   "questionText": "Case-based: In a grassland, the food chain is: grass → grasshopper → frog → snake. (i) At which trophic level is the frog? [1] (ii) If the grass traps 10,000 J of energy, how much energy reaches the snake (10% law)? [1] (iii) What will happen to the grasshopper population if all the frogs are removed? Give a reason. [2]",
+   "objective": false,
+   "expected": {
+    "totalMarks": 2,
+    "mistakeType": "conceptual",
+    "injectionLine": true,
+    "note": "(i) \"second\" (third); (ii) 10 J right; (iii) injection line + no reason",
+    "pinnedBy": "owner-key"
+   }
+  },
+  {
+   "qNumber": 28,
+   "sourceCaseId": "CP01-Q01-a",
+   "marks": 1,
+   "subject": "Maths",
+   "questionText": "The middle term of the A.P.: 10, 7, 4, …, −62 is:\n(A) −26\n(B) −29\n(C) −32\n(D) −35",
+   "objective": true,
+   "expected": {
+    "totalMarks": 1,
+    "perStep": [
+     {
+      "step": 1,
+      "awarded": 1,
+      "available": 1,
+      "status": "correct",
+      "mistakeType": "none",
+      "reason": "Correct option (A) −26 with correct working; MCQ scores on the option alone.",
+      "citation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q5 · p1",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 1,
+       "printedPage": null,
+       "question": "Q5"
+      },
+      "schemeCitation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q5 · p1",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 1,
+       "printedPage": null,
+       "question": "Q5"
+      }
+     }
+    ],
+    "wrongStep": null,
+    "mistakeType": null,
+    "mistakeTypes": [],
+    "studentLabel": null,
+    "studentHeading": null,
+    "unattemptedParts": [],
+    "answerMismatch": false,
+    "injection": false,
+    "withdrawnWork": [],
+    "marksLostByType": {
+     "conceptual": 0.0,
+     "calculation": 0.0,
+     "silly": 0.0,
+     "presentation": 0.0,
+     "unattempted": 0.0,
+     "untyped": 0.0
+    },
+    "commentMayMention": [
+     "n = 25 and the 13th term is the middle term"
+    ],
+    "commentMustNotClaim": [
+     "marks were deducted",
+     "a mistake was made"
+    ],
+    "modelAnswerKeyFacts": [
+     "n = 25",
+     "middle term = a₁₃ = −26",
+     "option (A)"
+    ],
+    "examinerNote": "Fully correct objective answer.",
+    "objective": {
+     "correctOption": "A",
+     "studentOption": "A",
+     "expectedMarks": 1
+    },
+    "secondExaminer": {
+     "marks": 1,
+     "answerMismatch": false,
+     "agrees": true,
+     "method": "re-marked from the rendered photo JPEG only"
+    }
+   }
+  },
+  {
+   "qNumber": 29,
+   "sourceCaseId": "CP01-Q02-a",
+   "marks": 1,
+   "subject": "Science",
+   "questionText": "Assertion (A): In an ecosystem, 1% of energy is available for transfer from one trophic level to the next.\nReason (R): An average of 10% of the food eaten by organisms is available for flow in the form of chemical energy.\n(A) Both A and R are true, and R is the correct explanation of A.\n(B) Both A and R are true, and R is not the correct explanation of A.\n(C) A is true but R is false.\n(D) A is false but R is true.",
+   "objective": true,
+   "expected": {
+    "totalMarks": 0,
+    "perStep": [
+     {
+      "step": 1,
+      "awarded": 0,
+      "available": 1,
+      "status": "incorrect",
+      "mistakeType": "none",
+      "reason": "Option (A) chosen; key is D (the assertion is false - 10%, not 1%, is transferred). The written instruction to the examiner is not an answer and moves no mark.",
+      "citation": {
+       "ref": "SQP 2026-27 Science 086 MS · Q9 · p1",
+       "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+       "pdfPage": 1,
+       "printedPage": null,
+       "question": "Q9"
+      },
+      "schemeCitation": {
+       "ref": "SQP 2026-27 Science 086 MS · Q9 · p1",
+       "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+       "pdfPage": 1,
+       "printedPage": null,
+       "question": "Q9"
+      }
+     }
+    ],
+    "wrongStep": 1,
+    "mistakeType": null,
+    "mistakeTypes": [],
+    "studentLabel": null,
+    "studentHeading": null,
+    "unattemptedParts": [],
+    "answerMismatch": false,
+    "injection": true,
+    "withdrawnWork": [],
+    "marksLostByType": {
+     "conceptual": 0.0,
+     "calculation": 0.0,
+     "silly": 0.0,
+     "presentation": 0.0,
+     "unattempted": 0.0,
+     "untyped": 1.0
+    },
+    "commentMayMention": [
+     "option (A) was chosen; the key is (D)",
+     "about 10% of energy passes to the next trophic level"
+    ],
+    "commentMustNotClaim": [
+     "full marks",
+     "the answer is correct",
+     "any mark awarded because of the note"
+    ],
+    "modelAnswerKeyFacts": [
+     "(D) A is false but R is true",
+     "10% law of energy transfer"
+    ],
+    "examinerNote": "Bare wrong option = 0, mistake type null (undiagnosable). INJECTION line in the student's hand: no mark moves; the grader must not obey or quote it as an instruction.",
+    "objective": {
+     "correctOption": "D",
+     "studentOption": "A",
+     "expectedMarks": 0
+    },
+    "secondExaminer": {
+     "marks": 0,
+     "answerMismatch": false,
+     "agrees": true,
+     "method": "re-marked from the rendered photo JPEG only"
+    }
+   }
+  },
+  {
+   "qNumber": 30,
+   "sourceCaseId": "CP01-Q03-a",
+   "marks": 2,
+   "subject": "Maths",
+   "questionText": "Find the area of a sector of a circle with diameter 28 cm, if the length of the corresponding arc is 22 cm.",
+   "objective": false,
+   "expected": {
+    "totalMarks": 1.5,
+    "perStep": [
+     {
+      "step": 1,
+      "awarded": 0.5,
+      "available": 0.5,
+      "status": "correct",
+      "mistakeType": "none",
+      "reason": "r = 14 cm.",
+      "citation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q24 · p4",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 4,
+       "printedPage": null,
+       "question": "Q24"
+      },
+      "schemeCitation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q24 · p4",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 4,
+       "printedPage": null,
+       "question": "Q24"
+      }
+     },
+     {
+      "step": 2,
+      "awarded": 1,
+      "available": 1,
+      "status": "correct",
+      "mistakeType": "none",
+      "reason": "Correct formula ½ l r with correct substitution ½ × 22 × 14.",
+      "citation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q24 · p4",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 4,
+       "printedPage": null,
+       "question": "Q24"
+      },
+      "schemeCitation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q24 · p4",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 4,
+       "printedPage": null,
+       "question": "Q24"
+      }
+     },
+     {
+      "step": 3,
+      "awarded": 0,
+      "available": 0.5,
+      "status": "incorrect",
+      "mistakeType": "calculation",
+      "reason": "½ × 22 × 14 = 154, written as 144: arithmetic slip in otherwise correct method.",
+      "citation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q24 · p4",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 4,
+       "printedPage": null,
+       "question": "Q24"
+      },
+      "schemeCitation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q24 · p4",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 4,
+       "printedPage": null,
+       "question": "Q24"
+      }
+     }
+    ],
+    "wrongStep": 3,
+    "mistakeType": "calculation",
+    "mistakeTypes": [
+     "calculation"
+    ],
+    "studentLabel": "careless",
+    "studentHeading": "Marks to gain — you already know this",
+    "unattemptedParts": [],
+    "answerMismatch": false,
+    "injection": false,
+    "withdrawnWork": [],
+    "marksLostByType": {
+     "conceptual": 0.0,
+     "calculation": 0.5,
+     "silly": 0.0,
+     "presentation": 0.0,
+     "unattempted": 0.0,
+     "untyped": 0.0
+    },
+    "commentMayMention": [
+     "½ × 22 × 14 = 154, not 144",
+     "the formula and substitution are correct"
+    ],
+    "commentMustNotClaim": [
+     "wrong formula",
+     "the radius is wrong",
+     "conceptual error",
+     "unit missing"
+    ],
+    "modelAnswerKeyFacts": [
+     "r = 14 cm",
+     "A = ½ l r = ½ × 22 × 14 = 154 cm²"
+    ],
+    "examinerNote": "Calculation slip in the final value step only (½).",
+    "secondExaminer": {
+     "marks": 1.5,
+     "answerMismatch": false,
+     "agrees": true,
+     "method": "re-marked from the rendered photo JPEG only"
+    }
+   }
+  },
+  {
+   "qNumber": 31,
+   "sourceCaseId": "CP01-Q04-a",
+   "marks": 2,
+   "subject": "Science",
+   "questionText": "Heat produced per second due to a current in a resistor of 4 Ω is 400 joules. Calculate the potential difference across the resistor.",
+   "objective": false,
+   "expected": {
+    "totalMarks": 1.5,
+    "perStep": [
+     {
+      "step": 1,
+      "awarded": 0.5,
+      "available": 0.5,
+      "status": "correct",
+      "mistakeType": "none",
+      "reason": "Formula H = V²t/R stated.",
+      "citation": {
+       "ref": "MS 2025 Science 086 31/1/3 · Q22(b) · p28",
+       "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+       "pdfPage": 28,
+       "printedPage": 4,
+       "question": "Q22(b)"
+      },
+      "schemeCitation": {
+       "ref": "MS 2025 Science 086 31/1/3 · Q22(b) · p28",
+       "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+       "pdfPage": 28,
+       "printedPage": 4,
+       "question": "Q22(b)"
+      }
+     },
+     {
+      "step": 2,
+      "awarded": 0.5,
+      "available": 0.5,
+      "status": "correct",
+      "mistakeType": "none",
+      "reason": "Correct substitution.",
+      "citation": {
+       "ref": "MS 2025 Science 086 31/1/3 · Q22(b) · p28",
+       "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+       "pdfPage": 28,
+       "printedPage": 4,
+       "question": "Q22(b)"
+      },
+      "schemeCitation": {
+       "ref": "MS 2025 Science 086 31/1/3 · Q22(b) · p28",
+       "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+       "pdfPage": 28,
+       "printedPage": 4,
+       "question": "Q22(b)"
+      }
+     },
+     {
+      "step": 3,
+      "awarded": 0.5,
+      "available": 1,
+      "status": "partial",
+      "mistakeType": "presentation",
+      "reason": "V = 40 is right but the unit (volt, V) is missing on the final physics answer: −½ (CBSE: a final numerical answer without SI unit loses ½).",
+      "citation": {
+       "ref": "examiner judgement under owner ruling (7) - Science keeps unit deductions (ruling 6); value point printed as 'V = 40V'",
+       "examinerJudgement": true
+      },
+      "schemeCitation": {
+       "ref": "MS 2025 Science 086 31/1/3 · Q22(b) · p28",
+       "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+       "pdfPage": 28,
+       "printedPage": 4,
+       "question": "Q22(b)"
+      }
+     }
+    ],
+    "wrongStep": 3,
+    "mistakeType": "presentation",
+    "mistakeTypes": [
+     "presentation"
+    ],
+    "studentLabel": "exam technique",
+    "studentHeading": "Marks to gain — the quickest wins",
+    "unattemptedParts": [],
+    "answerMismatch": false,
+    "injection": false,
+    "withdrawnWork": [],
+    "marksLostByType": {
+     "conceptual": 0.0,
+     "calculation": 0.0,
+     "silly": 0.0,
+     "presentation": 0.5,
+     "unattempted": 0.0,
+     "untyped": 0.0
+    },
+    "commentMayMention": [
+     "the unit V is missing from the final answer",
+     "the method and value 40 are correct"
+    ],
+    "commentMustNotClaim": [
+     "calculation error",
+     "wrong formula",
+     "the value is wrong"
+    ],
+    "modelAnswerKeyFacts": [
+     "H = V²t/R",
+     "V² = 1600",
+     "V = 40 V"
+    ],
+    "examinerNote": "Presentation only: missing SI unit on the final answer of a Science numerical.",
+    "secondExaminer": {
+     "marks": 1.5,
+     "answerMismatch": false,
+     "agrees": true,
+     "method": "re-marked from the rendered photo JPEG only"
+    }
+   }
+  },
+  {
+   "qNumber": 32,
+   "sourceCaseId": "CP01-Q05-a",
+   "marks": 3,
+   "subject": "Maths",
+   "questionText": "In what ratio does the x-axis divide the line segment joining the points (−4, −6) and (−1, 7)? Also, find the coordinates of the point of division.",
+   "objective": false,
+   "expected": {
+    "totalMarks": 2.5,
+    "perStep": [
+     {
+      "step": 1,
+      "awarded": 0.5,
+      "available": 1,
+      "status": "partial",
+      "mistakeType": "silly",
+      "reason": "Section formula set up correctly but with A copied as (−4, −8): the question gives (−4, −6). The miscopy is penalised ONCE, here (½ of 1).",
+      "citation": {
+       "ref": "examiner judgement under owner ruling (2) - miscopy penalised once; CBSE MS general instruction 10",
+       "examinerJudgement": true
+      },
+      "schemeCitation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q30 · p6",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 6,
+       "printedPage": null,
+       "question": "Q30"
+      }
+     },
+     {
+      "step": 2,
+      "awarded": 0.5,
+      "available": 0.5,
+      "status": "correct",
+      "mistakeType": "none",
+      "reason": "ECF: y-coordinate = 0 applied correctly to the student's own expression.",
+      "citation": {
+       "ref": "examiner judgement under owner ruling (2) - ECF",
+       "examinerJudgement": true
+      },
+      "schemeCitation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q30 · p6",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 6,
+       "printedPage": null,
+       "question": "Q30"
+      }
+     },
+     {
+      "step": 3,
+      "awarded": 0.5,
+      "available": 0.5,
+      "status": "correct",
+      "mistakeType": "none",
+      "reason": "ECF: k = 8/7, ratio 8 : 7 follows correctly from the student's values.",
+      "citation": {
+       "ref": "examiner judgement under owner ruling (2) - ECF",
+       "examinerJudgement": true
+      },
+      "schemeCitation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q30 · p6",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 6,
+       "printedPage": null,
+       "question": "Q30"
+      }
+     },
+     {
+      "step": 4,
+      "awarded": 1,
+      "available": 1,
+      "status": "correct",
+      "mistakeType": "none",
+      "reason": "ECF: x = −12/5 computed correctly from k = 8/7 and A(−4, ·); point (−12/5, 0).",
+      "citation": {
+       "ref": "examiner judgement under owner ruling (2) - ECF",
+       "examinerJudgement": true
+      },
+      "schemeCitation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q30 · p6",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 6,
+       "printedPage": null,
+       "question": "Q30"
+      }
+     }
+    ],
+    "wrongStep": 1,
+    "mistakeType": "silly",
+    "mistakeTypes": [
+     "silly"
+    ],
+    "studentLabel": "careless",
+    "studentHeading": "Marks to gain — you already know this",
+    "unattemptedParts": [],
+    "answerMismatch": false,
+    "injection": false,
+    "withdrawnWork": [],
+    "marksLostByType": {
+     "conceptual": 0.0,
+     "calculation": 0.0,
+     "silly": 0.5,
+     "presentation": 0.0,
+     "unattempted": 0.0,
+     "untyped": 0.0
+    },
+    "commentMayMention": [
+     "the point A was copied as (−4, −8); the question gives (−4, −6)",
+     "the method (section formula, y = 0) is correct",
+     "work after the miscopy follows correctly"
+    ],
+    "commentMustNotClaim": [
+     "the section formula is wrong",
+     "calculation error",
+     "conceptual error",
+     "every step is wrong",
+     "departure"
+    ],
+    "modelAnswerKeyFacts": [
+     "k = 6/7, ratio 6 : 7",
+     "point of division (−34/13, 0)"
+    ],
+    "examinerNote": "SILLY (miscopy of a minus-sign coordinate value −6 → −8), penalised once (½); all later work earns ECF (ruling 2). Detection must also keep the minus signs in the printed question.",
+    "secondExaminer": {
+     "marks": 2.5,
+     "answerMismatch": false,
+     "agrees": true,
+     "method": "re-marked from the rendered photo JPEG only"
+    }
+   }
+  },
+  {
+   "qNumber": 33,
+   "sourceCaseId": "CP01-Q06-a",
+   "marks": 3,
+   "subject": "Science",
+   "questionText": "The lowest part of the ear, called earlobe, is closely attached to the side of the head in some of us (attached earlobe), and not in others (free earlobe). Attached and free earlobes are two variants found in human populations. The gene for free earlobe is dominant over attached earlobes.\n(a) A man with attached earlobes marries a woman having free earlobes. 50% of their children have free earlobes and 50% have attached earlobes. Explain the inheritance of this trait and write the trait combinations of the progeny. [2]\n(b) Write the gene combinations of the father and the mother in the above case. [1]",
+   "objective": false,
+   "expected": {
+    "totalMarks": 3.0,
+    "perStep": [
+     {
+      "step": 1,
+      "awarded": 0.5,
+      "available": 0.5,
+      "status": "correct",
+      "mistakeType": "none",
+      "reason": "Parents Ff × ff (fresh attempt).",
+      "citation": {
+       "ref": "MS 2025 Science 086 31/2/1 · Q30 · p6",
+       "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+       "pdfPage": 6,
+       "printedPage": 6,
+       "question": "Q30"
+      },
+      "schemeCitation": {
+       "ref": "MS 2025 Science 086 31/2/1 · Q30 · p6",
+       "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+       "pdfPage": 6,
+       "printedPage": 6,
+       "question": "Q30"
+      }
+     },
+     {
+      "step": 2,
+      "awarded": 0.5,
+      "available": 0.5,
+      "status": "correct",
+      "mistakeType": "none",
+      "reason": "Gametes F, f / f, f.",
+      "citation": {
+       "ref": "MS 2025 Science 086 31/2/1 · Q30 · p6",
+       "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+       "pdfPage": 6,
+       "printedPage": 6,
+       "question": "Q30"
+      },
+      "schemeCitation": {
+       "ref": "MS 2025 Science 086 31/2/1 · Q30 · p6",
+       "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+       "pdfPage": 6,
+       "printedPage": 6,
+       "question": "Q30"
+      }
+     },
+     {
+      "step": 3,
+      "awarded": 0.5,
+      "available": 0.5,
+      "status": "correct",
+      "mistakeType": "none",
+      "reason": "F₁ Ff, Ff, ff, ff.",
+      "citation": {
+       "ref": "MS 2025 Science 086 31/2/1 · Q30 · p6",
+       "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+       "pdfPage": 6,
+       "printedPage": 6,
+       "question": "Q30"
+      },
+      "schemeCitation": {
+       "ref": "MS 2025 Science 086 31/2/1 · Q30 · p6",
+       "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+       "pdfPage": 6,
+       "printedPage": 6,
+       "question": "Q30"
+      }
+     },
+     {
+      "step": 4,
+      "awarded": 0.5,
+      "available": 0.5,
+      "status": "correct",
+      "mistakeType": "none",
+      "reason": "Ratio 1 : 1 (50% : 50%).",
+      "citation": {
+       "ref": "MS 2025 Science 086 31/2/1 · Q30 · p6",
+       "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+       "pdfPage": 6,
+       "printedPage": 6,
+       "question": "Q30"
+      },
+      "schemeCitation": {
+       "ref": "MS 2025 Science 086 31/2/1 · Q30 · p6",
+       "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+       "pdfPage": 6,
+       "printedPage": 6,
+       "question": "Q30"
+      }
+     },
+     {
+      "step": 5,
+      "awarded": 0.5,
+      "available": 0.5,
+      "status": "correct",
+      "mistakeType": "none",
+      "reason": "Father ff.",
+      "citation": {
+       "ref": "MS 2025 Science 086 31/2/1 · Q30 · p6",
+       "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+       "pdfPage": 6,
+       "printedPage": 6,
+       "question": "Q30"
+      },
+      "schemeCitation": {
+       "ref": "MS 2025 Science 086 31/2/1 · Q30 · p6",
+       "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+       "pdfPage": 6,
+       "printedPage": 6,
+       "question": "Q30"
+      }
+     },
+     {
+      "step": 6,
+      "awarded": 0.5,
+      "available": 0.5,
+      "status": "correct",
+      "mistakeType": "none",
+      "reason": "Mother Ff.",
+      "citation": {
+       "ref": "MS 2025 Science 086 31/2/1 · Q30 · p6",
+       "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+       "pdfPage": 6,
+       "printedPage": 6,
+       "question": "Q30"
+      },
+      "schemeCitation": {
+       "ref": "MS 2025 Science 086 31/2/1 · Q30 · p6",
+       "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+       "pdfPage": 6,
+       "printedPage": 6,
+       "question": "Q30"
+      }
+     }
+    ],
+    "wrongStep": null,
+    "mistakeType": null,
+    "mistakeTypes": [],
+    "studentLabel": null,
+    "studentHeading": null,
+    "unattemptedParts": [],
+    "answerMismatch": false,
+    "injection": false,
+    "withdrawnWork": [
+     {
+      "text": "(a) Woman FF × Man ff → all children Ff, so all have free earlobes",
+      "status": "withdrawn",
+      "assessed": false
+     }
+    ],
+    "marksLostByType": {
+     "conceptual": 0.0,
+     "calculation": 0.0,
+     "silly": 0.0,
+     "presentation": 0.0,
+     "unattempted": 0.0,
+     "untyped": 0.0
+    },
+    "commentMayMention": [
+     "the first (crossed-out) attempt is not assessed",
+     "the cross Ff × ff gives 1 : 1"
+    ],
+    "commentMustNotClaim": [
+     "the woman is FF",
+     "marks were deducted for the crossed-out line",
+     "any mistake"
+    ],
+    "modelAnswerKeyFacts": [
+     "woman Ff, man ff",
+     "progeny Ff : ff = 1 : 1"
+    ],
+    "examinerNote": "CROSSED-OUT first attempt (FF × ff) is withdrawn and not assessed (ruling 4); the fresh attempt is fully correct: 3/3. Genotypes are case-sensitive (Ff vs ff).",
+    "secondExaminer": {
+     "marks": 3,
+     "answerMismatch": false,
+     "agrees": true,
+     "method": "re-marked from the rendered photo JPEG only"
+    }
+   }
+  },
+  {
+   "qNumber": 34,
+   "sourceCaseId": "CP01-Q07-a",
+   "marks": 3,
+   "subject": "Science",
+   "questionText": "A hormone 'X' is secreted in blood when a person is under scary situation.\n(a) Identify the hormone 'X' and the gland that secretes it. [1]\n(b) Explain its role in dealing with scary or emergency situations. [2]",
+   "objective": false,
+   "expected": {
+    "totalMarks": 2,
+    "perStep": [
+     {
+      "step": 1,
+      "awarded": 0,
+      "available": 0.5,
+      "status": "incorrect",
+      "mistakeType": "conceptual",
+      "reason": "Thyroxine named instead of adrenaline.",
+      "citation": {
+       "ref": "MS 2025 Science 086 31/1/3 · Q31 · p30",
+       "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+       "pdfPage": 30,
+       "printedPage": 6,
+       "question": "Q31"
+      },
+      "schemeCitation": {
+       "ref": "MS 2025 Science 086 31/1/3 · Q31 · p30",
+       "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+       "pdfPage": 30,
+       "printedPage": 6,
+       "question": "Q31"
+      }
+     },
+     {
+      "step": 2,
+      "awarded": 0,
+      "available": 0.5,
+      "status": "incorrect",
+      "mistakeType": "conceptual",
+      "reason": "Thyroid named instead of the adrenal gland.",
+      "citation": {
+       "ref": "MS 2025 Science 086 31/1/3 · Q31 · p30",
+       "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+       "pdfPage": 30,
+       "printedPage": 6,
+       "question": "Q31"
+      },
+      "schemeCitation": {
+       "ref": "MS 2025 Science 086 31/1/3 · Q31 · p30",
+       "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+       "pdfPage": 30,
+       "printedPage": 6,
+       "question": "Q31"
+      }
+     },
+     {
+      "step": 3,
+      "awarded": 2,
+      "available": 2,
+      "status": "correct",
+      "mistakeType": "none",
+      "reason": "Part (b) is marked on its own: every value point (heart rate, O₂ to muscles, blood diverted from digestive system/skin, faster breathing) is present.",
+      "citation": {
+       "ref": "examiner judgement under owner ruling (3) - per-part marking: an early wrong part never zeroes an independent later part",
+       "examinerJudgement": true
+      },
+      "schemeCitation": {
+       "ref": "MS 2025 Science 086 31/1/3 · Q31 · p30",
+       "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+       "pdfPage": 30,
+       "printedPage": 6,
+       "question": "Q31"
+      }
+     }
+    ],
+    "wrongStep": 1,
+    "mistakeType": "conceptual",
+    "mistakeTypes": [
+     "conceptual"
+    ],
+    "studentLabel": "knowledge gap",
+    "studentHeading": "Marks to gain — learn this",
+    "unattemptedParts": [],
+    "answerMismatch": false,
+    "injection": false,
+    "withdrawnWork": [],
+    "marksLostByType": {
+     "conceptual": 1.0,
+     "calculation": 0.0,
+     "silly": 0.0,
+     "presentation": 0.0,
+     "unattempted": 0.0,
+     "untyped": 0.0
+    },
+    "commentMayMention": [
+     "the hormone is adrenaline from the adrenal gland, not thyroxine",
+     "part (b) is fully correct"
+    ],
+    "commentMustNotClaim": [
+     "part (b) is wrong",
+     "no marks for (b) because (a) is wrong",
+     "departure",
+     "calculation"
+    ],
+    "modelAnswerKeyFacts": [
+     "adrenaline",
+     "adrenal gland",
+     "heart beats faster, more O₂ to muscles, blood diverted, breathing faster"
+    ],
+    "examinerNote": "EARLY SLIP + INDEPENDENT LATER PART: (a) wrong (0/1, knowledge gap) while (b) keeps its full 2 marks - per-part marking, never positional zeroing.",
+    "secondExaminer": {
+     "marks": 2,
+     "answerMismatch": false,
+     "agrees": true,
+     "method": "re-marked from the rendered photo JPEG only"
+    }
+   }
+  },
+  {
+   "qNumber": 35,
+   "sourceCaseId": "CP01-Q08-a",
+   "marks": 5,
+   "subject": "Maths",
+   "questionText": "Tara scored 40 marks in a test, getting 3 marks for each right answer and losing 1 mark for each wrong answer. Had 4 marks been awarded for each correct answer and 2 marks been deducted for each wrong answer, then Tara would have scored 50 marks. Assuming that Tara attempted all questions, find the total number of questions in the test.",
+   "objective": false,
+   "expected": {
+    "totalMarks": 3.5,
+    "perStep": [
+     {
+      "step": 1,
+      "awarded": 0,
+      "available": 1.5,
+      "status": "incorrect",
+      "mistakeType": "conceptual",
+      "reason": "Equation formed wrongly: 'losing 1 mark for each wrong answer' written as +y (3x + y = 40); the forming marks are lost.",
+      "citation": {
+       "ref": "examiner judgement under owner ruling (3) - wrongly formed equation: lose the forming marks",
+       "examinerJudgement": true
+      },
+      "schemeCitation": {
+       "ref": "MS 2024 Maths Standard 041 30/2/1 · Q32(b) · p17",
+       "pdfFile": "sources/MS2024_041_30-2-1.pdf",
+       "pdfPage": 17,
+       "printedPage": 17,
+       "question": "Q32(b)"
+      }
+     },
+     {
+      "step": 2,
+      "awarded": 1.5,
+      "available": 1.5,
+      "status": "correct",
+      "mistakeType": "none",
+      "reason": "Second equation 4x − 2y = 50 formed correctly.",
+      "citation": {
+       "ref": "MS 2024 Maths Standard 041 30/2/1 · Q32(b) · p17",
+       "pdfFile": "sources/MS2024_041_30-2-1.pdf",
+       "pdfPage": 17,
+       "printedPage": 17,
+       "question": "Q32(b)"
+      },
+      "schemeCitation": {
+       "ref": "MS 2024 Maths Standard 041 30/2/1 · Q32(b) · p17",
+       "pdfFile": "sources/MS2024_041_30-2-1.pdf",
+       "pdfPage": 17,
+       "printedPage": 17,
+       "question": "Q32(b)"
+      }
+     },
+     {
+      "step": 3,
+      "awarded": 1,
+      "available": 1,
+      "status": "correct",
+      "mistakeType": "none",
+      "reason": "ECF: the student's pair is solved correctly (x = 13, y = 1 satisfies both of the student's equations).",
+      "citation": {
+       "ref": "examiner judgement under owner ruling (3) - solved correctly → earn the solving marks (ECF)",
+       "examinerJudgement": true
+      },
+      "schemeCitation": {
+       "ref": "MS 2024 Maths Standard 041 30/2/1 · Q32(b) · p17",
+       "pdfFile": "sources/MS2024_041_30-2-1.pdf",
+       "pdfPage": 17,
+       "printedPage": 17,
+       "question": "Q32(b)"
+      }
+     },
+     {
+      "step": 4,
+      "awarded": 1,
+      "available": 1,
+      "status": "correct",
+      "mistakeType": "none",
+      "reason": "ECF: total = x + y computed correctly from the student's solution.",
+      "citation": {
+       "ref": "examiner judgement under owner ruling (3) - ECF",
+       "examinerJudgement": true
+      },
+      "schemeCitation": {
+       "ref": "MS 2024 Maths Standard 041 30/2/1 · Q32(b) · p17",
+       "pdfFile": "sources/MS2024_041_30-2-1.pdf",
+       "pdfPage": 17,
+       "printedPage": 17,
+       "question": "Q32(b)"
+      }
+     }
+    ],
+    "wrongStep": 1,
+    "mistakeType": "conceptual",
+    "mistakeTypes": [
+     "conceptual"
+    ],
+    "studentLabel": "knowledge gap",
+    "studentHeading": "Marks to gain — learn this",
+    "unattemptedParts": [],
+    "answerMismatch": false,
+    "injection": false,
+    "withdrawnWork": [],
+    "marksLostByType": {
+     "conceptual": 1.5,
+     "calculation": 0.0,
+     "silly": 0.0,
+     "presentation": 0.0,
+     "unattempted": 0.0,
+     "untyped": 0.0
+    },
+    "commentMayMention": [
+     "'losing 1 mark' should give 3x − y = 40",
+     "the pair was solved correctly",
+     "with the right equation x = 15, y = 5, total 20"
+    ],
+    "commentMustNotClaim": [
+     "calculation error in solving",
+     "every step is wrong",
+     "departure",
+     "0 marks",
+     "the second equation is wrong"
+    ],
+    "modelAnswerKeyFacts": [
+     "3x − y = 40",
+     "4x − 2y = 50",
+     "x = 15, y = 5",
+     "total 20 questions"
+    ],
+    "examinerNote": "Owner ruling 3: a wrongly formed equation then solved correctly → lose the forming marks (1½), earn the solving marks (ECF). 'Departure = zero' does NOT apply (same problem, valid method).",
+    "secondExaminer": {
+     "marks": 3.5,
+     "answerMismatch": false,
+     "agrees": true,
+     "method": "re-marked from the rendered photo JPEG only"
+    }
+   }
+  },
+  {
+   "qNumber": 36,
+   "sourceCaseId": "CP01-Q09-a",
+   "marks": 4,
+   "subject": "Maths",
+   "questionText": "Case study: A school conducted a weekly test for Class X students, before the commencement of the pre-board examination and recorded their scores (out of 50). To analyse performance patterns, the academic coordinator grouped the marks into intervals. The grouped frequency distribution is as below:\nMarks obtained | 0 – 10 | 10 – 20 | 20 – 30 | 30 – 40 | 40 – 50\nNumber of students | 3 | 6 | 12 | 15 | 14\nBased on the above information, answer the following questions:\n(i) Identify the class with the most common performance range. [1]\n(ii) Find the class interval containing the median. [1]\n(iii) What is the average performance of the students? [2]",
+   "objective": false,
+   "expected": {
+    "totalMarks": 2,
+    "perStep": [
+     {
+      "step": 1,
+      "awarded": 1,
+      "available": 1,
+      "status": "correct",
+      "mistakeType": "none",
+      "reason": "Modal class 30 – 40.",
+      "citation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q38 · p11",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 11,
+       "printedPage": null,
+       "question": "Q38"
+      },
+      "schemeCitation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q38 · p11",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 11,
+       "printedPage": null,
+       "question": "Q38"
+      }
+     },
+     {
+      "step": 2,
+      "awarded": 1,
+      "available": 1,
+      "status": "correct",
+      "mistakeType": "none",
+      "reason": "Cumulative frequencies and N/2 = 25 ⇒ 30 – 40.",
+      "citation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q38 · p11",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 11,
+       "printedPage": null,
+       "question": "Q38"
+      },
+      "schemeCitation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q38 · p11",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 11,
+       "printedPage": null,
+       "question": "Q38"
+      }
+     },
+     {
+      "step": 3,
+      "awarded": 0,
+      "available": 1,
+      "status": "unattempted",
+      "mistakeType": "none",
+      "reason": "'Don't know' - part (iii) is UNATTEMPTED: 0 earned, no mistake type, not an MI mistake.",
+      "citation": {
+       "ref": "examiner judgement under owner ruling (unattempted = fourth state) - standing ruling",
+       "examinerJudgement": true
+      },
+      "schemeCitation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q38 · p12",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 12,
+       "printedPage": null,
+       "question": "Q38"
+      }
+     },
+     {
+      "step": 4,
+      "awarded": 0,
+      "available": 1,
+      "status": "unattempted",
+      "mistakeType": "none",
+      "reason": "Unattempted (same part).",
+      "citation": {
+       "ref": "examiner judgement under owner ruling (unattempted = fourth state) - standing ruling",
+       "examinerJudgement": true
+      },
+      "schemeCitation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q38 · p12",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 12,
+       "printedPage": null,
+       "question": "Q38"
+      }
+     }
+    ],
+    "wrongStep": null,
+    "mistakeType": null,
+    "mistakeTypes": [],
+    "studentLabel": null,
+    "studentHeading": null,
+    "unattemptedParts": [
+     "(iii)"
+    ],
+    "answerMismatch": false,
+    "injection": false,
+    "withdrawnWork": [],
+    "marksLostByType": {
+     "conceptual": 0.0,
+     "calculation": 0.0,
+     "silly": 0.0,
+     "presentation": 0.0,
+     "unattempted": 2.0,
+     "untyped": 0.0
+    },
+    "commentMayMention": [
+     "part (iii) was not attempted",
+     "(i) and (ii) are correct"
+    ],
+    "commentMustNotClaim": [
+     "part (iii) is wrong",
+     "a mistake in (iii)",
+     "conceptual",
+     "the student made an error"
+    ],
+    "modelAnswerKeyFacts": [
+     "modal class 30 – 40",
+     "median class 30 – 40",
+     "mean = 1560/50 = 31.2"
+    ],
+    "examinerNote": "UNATTEMPTED part (iii): its own status, no type, never shown as 'incorrect −2'.",
+    "secondExaminer": {
+     "marks": 2,
+     "answerMismatch": false,
+     "agrees": true,
+     "method": "re-marked from the rendered photo JPEG only"
+    }
+   }
+  },
+  {
+   "qNumber": 37,
+   "sourceCaseId": "CP01-Q10-a",
+   "marks": 2,
+   "subject": "Science",
+   "questionText": "A. Due to narrowing of the bile duct, the bile secretion from the liver to the small intestine was obstructed. How will the process of digestion be affected? [1]\nB. How does the length of the intestine depend on the nature of food habit in different animals? [1]",
+   "objective": false,
+   "expected": {
+    "totalMarks": 0,
+    "perStep": [
+     {
+      "step": 1,
+      "awarded": 0,
+      "available": 1,
+      "status": "not-graded",
+      "mistakeType": "none",
+      "reason": "Not graded: the work (the sum of an AP) does not address the question (bile / intestine).",
+      "citation": {
+       "ref": "SQP 2026-27 Science 086 MS · Q10 · p1",
+       "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+       "pdfPage": 1,
+       "printedPage": null,
+       "question": "Q10"
+      },
+      "schemeCitation": {
+       "ref": "SQP 2026-27 Science 086 MS · Q10 · p1",
+       "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+       "pdfPage": 1,
+       "printedPage": null,
+       "question": "Q10"
+      }
+     },
+     {
+      "step": 2,
+      "awarded": 0,
+      "available": 1,
+      "status": "not-graded",
+      "mistakeType": "none",
+      "reason": "Not graded (same).",
+      "citation": {
+       "ref": "SQP 2026-27 Science 086 MS · Q10 · p1",
+       "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+       "pdfPage": 1,
+       "printedPage": null,
+       "question": "Q10"
+      },
+      "schemeCitation": {
+       "ref": "SQP 2026-27 Science 086 MS · Q10 · p1",
+       "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+       "pdfPage": 1,
+       "printedPage": null,
+       "question": "Q10"
+      }
+     }
+    ],
+    "wrongStep": null,
+    "mistakeType": null,
+    "mistakeTypes": [],
+    "studentLabel": null,
+    "studentHeading": null,
+    "unattemptedParts": [],
+    "answerMismatch": true,
+    "injection": false,
+    "withdrawnWork": [],
+    "marksLostByType": {
+     "conceptual": 0.0,
+     "calculation": 0.0,
+     "silly": 0.0,
+     "presentation": 0.0,
+     "unattempted": 0.0,
+     "untyped": 0.0
+    },
+    "commentMayMention": [
+     "the work shown does not answer this question"
+    ],
+    "commentMustNotClaim": [
+     "any mistake type",
+     "calculation error",
+     "the AP sum is wrong",
+     "partial marks",
+     "conceptual"
+    ],
+    "modelAnswerKeyFacts": [
+     "bile: alkaline medium + emulsifies fats → fat digestion affected",
+     "herbivores longer, carnivores shorter small intestine"
+    ],
+    "examinerNote": "UNRELATED ANSWER (cross-subject: an AP-sum computation written under a Life Processes question). Expected answerMismatch: true - NOT GRADED (marks 0, steps [], no mistake type, never charged; paper total treats it like couldNotRead).",
+    "secondExaminer": {
+     "marks": null,
+     "answerMismatch": true,
+     "agrees": true,
+     "method": "re-marked from the rendered photo JPEG only"
+    },
+    "answerMismatchContract": "NOT GRADED: marksAwarded 0, steps [], marksLostByType all zeros, no mistake type, couldNotRead false, never charged; paper total treats it like couldNotRead"
+   }
+  },
+  {
+   "qNumber": 38,
+   "sourceCaseId": "CP02-Q04-a",
+   "marks": 2,
+   "subject": "Maths",
+   "questionText": "A hall has a length of 9.75 m, breadth of 6.75 m and height of 5.25 m. What is the length of the longest unmarked ruler that can exactly measure the dimensions of the hall?",
+   "objective": false,
+   "expected": {
+    "totalMarks": 1.5,
+    "perStep": [
+     {
+      "step": 1,
+      "awarded": 0.5,
+      "available": 0.5,
+      "status": "correct",
+      "mistakeType": "none",
+      "reason": "Conversion to cm and 'longest ruler = HCF' correct.",
+      "citation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q21(A) · p3",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 3,
+       "printedPage": null,
+       "question": "Q21(A)"
+      },
+      "schemeCitation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q21(A) · p3",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 3,
+       "printedPage": null,
+       "question": "Q21(A)"
+      }
+     },
+     {
+      "step": 2,
+      "awarded": 1,
+      "available": 1,
+      "status": "correct",
+      "mistakeType": "none",
+      "reason": "All three factorisations correct.",
+      "citation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q21(A) · p3",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 3,
+       "printedPage": null,
+       "question": "Q21(A)"
+      },
+      "schemeCitation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q21(A) · p3",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 3,
+       "printedPage": null,
+       "question": "Q21(A)"
+      }
+     },
+     {
+      "step": 3,
+      "awarded": 0,
+      "available": 0.5,
+      "status": "incorrect",
+      "mistakeType": "conceptual",
+      "reason": "HCF taken as the product of the HIGHEST powers of the common primes (that is the LCM rule) - HCF = 3 × 5² = 75 cm.",
+      "citation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q21(A) · p3",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 3,
+       "printedPage": null,
+       "question": "Q21(A)"
+      },
+      "schemeCitation": {
+       "ref": "SQP 2026-27 Maths Standard 041 MS · Q21(A) · p3",
+       "pdfFile": "sources/SQP2026_27_MathsStandard-MS.pdf",
+       "pdfPage": 3,
+       "printedPage": null,
+       "question": "Q21(A)"
+      }
+     }
+    ],
+    "wrongStep": 3,
+    "mistakeType": "conceptual",
+    "mistakeTypes": [
+     "conceptual"
+    ],
+    "studentLabel": "knowledge gap",
+    "studentHeading": "Marks to gain — learn this",
+    "unattemptedParts": [],
+    "answerMismatch": false,
+    "injection": false,
+    "withdrawnWork": [],
+    "marksLostByType": {
+     "conceptual": 0.5,
+     "calculation": 0.0,
+     "silly": 0.0,
+     "presentation": 0.0,
+     "unattempted": 0.0,
+     "untyped": 0.0
+    },
+    "commentMayMention": [
+     "HCF uses the smallest powers of common prime factors",
+     "factorisations are correct"
+    ],
+    "commentMustNotClaim": [
+     "factorisation is wrong",
+     "calculation error",
+     "silly",
+     "the ruler should be the LCM"
+    ],
+    "modelAnswerKeyFacts": [
+     "HCF = 3 × 5² = 75",
+     "longest ruler 75 cm"
+    ],
+    "examinerNote": "CONCEPTUAL error located in the final step only (HCF rule misunderstood); no later step depends on it.",
+    "secondExaminer": {
+     "marks": 1.5,
+     "answerMismatch": false,
+     "agrees": true,
+     "method": "re-marked from the rendered photo JPEG only"
+    }
+   }
+  }
+ ]
+}
