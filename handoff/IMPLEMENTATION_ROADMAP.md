@@ -1,5 +1,20 @@
 # LazyTopper Implementation Roadmap
 
+## 2026-10-05 — RESULTS + GRADER: **WAVE B-15 — SCORECARD-MI-1 + CBQ-ENTRY-1** (`#935` + `#938` + `#939` + `#940`) **and WAVE A-15's merged GRADER-CORE-1 PRs** (`#936` + `#937` + `#941`, Controller A) — trunk `834fea7c` — ✅ COMPLETE for B (OR-LIVE-1 PARTIAL 9 / 15, OR-LIVE-CBQ 10 / 10, OR-LIVE-CBQFIX 7 / 7, OR-LIVE-2 PARTIAL 10 / 12, no rollback; owner-owed: the practice-card retry ruling, an optional Tutor message, disk, re-enabling Rolling Releases, the carried UPLOAD-2 / UPLOAD-2-FIX-1 acceptances); A's PR-3 + PR-2b in flight (`#942`, A's docs)
+
+- ✅ **One display module for mistakes** (`#935`, LIVE): the owner's taxonomy and wording on every surface; "Not attempted" its own state; old records never converted; G4 one-module guard.
+- ✅ **The real question, per-question chapters, re-grades replace** (`#935`, LIVE): C&I grades against the typed / detected question; each question of a mixed paper filed under its own subject + chapter; stable MI identity, a clean re-grade deletes the stale entry.
+- ✅ **"Where your marks went" in marks + honest not-graded states** (`#940`, LIVE): scorecards, both PDFs, C&I chips, graded sheets, Me / Progress, the sidebar MI widget, SurfaceHistory, the Tutor brief; couldn't read / not attempted / crossed-out / unread option / rubric / the owner's mismatch sentence / "X of Y graded"; the owner's two papers sum exactly on his account.
+- ✅ **HELD H1–H11 shipped under the owner-approved amendment of 4 CI ops gates** (`#940`): counts 122→146, 47→62, 61→81, 33→43, root 293; every changed line cites its ruling; mutation-proven pins.
+- ✅ **CBQs one tap away** (`#938` + `#939`, LIVE): the Practice Hub card, `?cbq=1`, the landing "Practise CBQs" button; the chooser on screen on phones.
+- ✅ **(A) One grading core on gemini-3.8-flash + a standing golden exam at zero AI calls + the copy-check hotfix** (`#936`, `#937`, `#941`, LIVE, A-reported).
+- ✅ **Rulings recorded:** owner (taxonomy + wording, the gate approval, answerMismatch, test papers, the second paper, speed, platform, notGraded, CBQ v1.1, Chrome grant); controller decisions with reasons; A's rulings and decisions (`DECISION_LOG.md`).
+- ✅ **FUs:** the HELD group H1–H11 CLOSED; B-15 open and closed FUs; A-15's FUs (`OPEN_QUESTIONS_AND_FOLLOWUPS.md`).
+- ✅ **Docs:** this handoff (B first, OR-16; A's docs follow).
+- ⬜ **Controller B:** tell A; one final audit request; the end-of-lane owner message with screenshots; STOP.
+- ⬜ **Controller A:** `#942` (PR-3: speed, charging, detection) + the PR-2b targeted round; A's docs PR.
+- ⬜ **Owner:** the owner-owed list in `NEXT_ACTION.md`; audit the controller decisions.
+
 ## 2026-10-04 — LOW-END: **WAVE B-14 — LOW-END-1 + AUTHGATE-FIX-1** — `#926` + `#929` + `#931` + `#932` MERGED — trunk `1165dacf` (then `d0c522ba`, A's docs `#933`) — ✅ COMPLETE (OR-LIVE-1 / -2 / -3 PARTIAL, no rollback; owner-owed: Android Google sign-in, the cold-prerendered Google account pick, a signed-out free check, GA4 + Ads `sign_up`, Firestore TTL policy, owner uid confirmation, 24 h auth watch until 2026-10-05 18:20Z)
 
 - ✅ **Lighter first load** (`#926`, LIVE): system body font + self-hosted Fraunces 700 headings (fonts ~35 KB / page from 114–255 KB); GA4 after usable; Google sign-in machinery only on the login page; Notes per chapter; KaTeX eager only on maths-first pages; profile C faster on 9 / 9 pages.

@@ -1,5 +1,56 @@
 # LazyTopper — SURFACE TRACKER (the road to soft launch)
 
+> **2026-10-05 — WAVE B-15 (RESULTS, CONTROLLER B): SCORECARD-MI-1 (`#935` `dd338130`, `#940` `834fea7c`) + CBQ-ENTRY-1 (`#938` `fdfdff11`, `#939` `4de266dc`); and WAVE A-15's merged GRADER-CORE-1 PRs (`#936` `532d3635`, `#937` `9678a259`, `#941` `07936091`, Controller A), trunk `834fea7c`. LIVE on deploy (no flag); every rollout is recorded in `CURRENT_STATE.md`.**
+> ★ **EVERY SURFACE THAT SHOWS A GRADE OR A MISTAKE MOVES ON THE RESULTS AXIS (THE OWNER'S TAXONOMY AND WORDING FROM ONE MODULE; MARKS, NOT COUNTS; HONEST NOT-GRADED STATES; RE-GRADES REPLACE); PRACTICE HUB AND THE LANDING PAGE GAIN A CBQ ENTRY; THE GRADER (A) MOVES TO ONE CORE.** **No matrix cell value changes:** every moved surface's cells already read ✅ (Check & Improve, Quick Practice, Practice Hub, HPQ / Predicted, Worksheet, Chapter Test, Me / Progress); the three non-✅ cells it touches keep their recorded reasons — Tutor `MI` 🟡 (the independent Stage-3 gap, untouched), Home `MI` 🟡 (mobile renders an honest empty state by design; `[FU-B15-MOBILE-HOME-MI-CARD]` re-confirms it), Landing `Verified` 🟡 (owner both-width confirmation; the CBQ button was verified live by an agent, not the owner) — and Full Mock `Verified` ⬜ stays ⬜ (Full Mock was driven by agents only). The moves are recorded here as status lines *(builder-reported; live evidence agent-reported or controller-verified)*.
+
+### ✅ Results surfaces — scorecards (`ResultsScorecard` + variants: Quick Practice / Worksheet / Chapter Test / Full Mock / C&I) — **COUNTS UNDER THE OLD GROUPING (conceptual + calculation = "knowledge", silly + presentation = "careless") → THE OWNER'S GROUPS IN MARKS ("Marks to gain — learn this" / "— the quickest wins" / "— you already know this", then "Not attempted — not counted as a mistake" and "reason not recorded"), SUMMING TO TOTAL − AWARDED; NOT-GRADED ANSWERS LISTED, "X OF Y GRADED" — LIVE (`#935` wording, `#940` marks)**
+- Live: the owner's P01 / P02 on his account sum exactly (10.5 = 24 − 13.5; 34.5 = 67 − 32.5); T1 10 / 10 chapters *(controller-verified; agent-reported)*. G3 2833 / 2833; old count-only records keep counts with units (G5). Open: `[FU-B15-SCORECARD-WORKSHEET-WORDING]`, `[FU-B15-STEP-PART-LABELS]`, `[FU-B15-STEP-NUMBERING]`.
+
+### ✅ Graded PDFs — both (the C&I graded PDF; the Worksheet / Chapter Test / Full Mock PDF) — **COUNT CHIPS → MARKS CHIPS (`data-marks`) IN THE OWNER'S GROUPS; NOT-GRADED ROWS LISTED; CROSSED-OUT WORK APART; THE OWNER'S MISMATCH SENTENCE VERBATIM — LIVE (`#940`)**
+- OR-LIVE-2 captured 5 graded PDFs *(agent-reported)*. Open: `[FU-B15-MATHTEXT-SUBSCRIPT-TRIGGERS]` (`a_n` raw).
+
+### ✅ Check & Improve — chips + question text + filing (single, multi, QR, the tutor overlay) — **CHAPTER NAME USED AS THE QUESTION; A MIXED PAPER FILED UNDER ONE SUBJECT; RAW `x^2` ON THE QUESTION LINE → THE REAL (TYPED / DETECTED) QUESTION; EACH QUESTION UNDER ITS OWN SUBJECT + CHAPTER; "Maths + Science · N chapters"; `EquationRender`; MARKS CHIPS PER QUESTION; THE HISTORY LISTS A MIXED PAPER UNDER BOTH SUBJECTS — LIVE (`#935`, `#940`)**
+- Live: P01 10 / 10 chapters; P02 26 / 27 graded with Q26 "Not marked — This answer doesn't seem to match the question — check you uploaded the right page" *(controller-verified)*. Open: `[FU-B15-DUP-QNUMBER-TOPIC-MAP]` (a duplicate printed number), `[FU-B15-CI-PAPER-TOPIC-PER-QUESTION]`, `[FU-B15-REOPEN-MISMATCH-WORDING]`, `[FU-B15-REOPEN-SHEET-BELOW-FOLD-390]`, `[FU-B15-W4-TITLE-MIX]`. Scope discovered → §2a.
+
+### ✅ Me / Progress — **COUNTS + "NOT YET CLASSIFIED" (UNTRUE FOR NOT-ATTEMPTED MARKS) → MARKS IN THE OWNER'S GROUPS, A SEPARATE "NOT ATTEMPTED" ROW, AN HONEST "NO REASON RECORDED" SENTENCE; MATHS AND SCIENCE SEPARATE — LIVE (`#935`, `#940`)**
+- Live on the owner's account after both papers: subjects separate, numbers reconcile exactly *(agent-reported, comparison)*. Open: `[FU-B15-ME-KEEPING-LESS-THRESHOLD]`, `[FU-B15-ME-GROUP-COLOURS]`.
+
+### ✅ Sidebar Mistake Intelligence widget (`MistakeIntelCard`, desktop shell) — HELD H3 in `#935` → **OLD LABELS, "N CHECKED ANSWERS" = MI ENTRIES, "TOP PATTERN" BY RAW TYPE → LABELS FROM THE MODULE, "CHECKED ANSWERS" = GRADED ANSWERS, THE BIGGEST LOSS IN MARKS PER GROUP — LIVE (`#940`)**
+- Live (owner account): "Last 7 days: 75 checked answers, 89.5 marks lost. Biggest loss: Knowledge gap (19 marks)" *(controller-verified)*. Open: `[FU-B15-WIDGET-COUNT-RECONCILE]` (transitional).
+
+### ✅ SurfaceHistory — re-downloaded Worksheet PDF coaching — **COUNTS → MARKS (`#940`)**
+
+### ✅ Tutor — brief + return openers — **THE BRIEF'S TOP TYPE BY COUNT; OPENERS BUCKETING PRESENTATION + SILLY (TRANSITIONAL AFTER `#935`) → THE TOP LOSS IN MARKS; OPENERS IN THE OWNER'S GROUPS; A CROSSED-OUT STEP NEVER QUOTED; AN UNATTEMPTED STEP NEVER A FAULT — LIVE (`#940`)**
+- Live (throwaway): Tutor focus = the biggest marks loss *(agent-reported)*. The owner-account Tutor message was not sent (optional owner item). Open: `[FU-B15-TUTOR-BRIEF-SERVER-WORDING]` (server prompt), `[FU-TUTOR-STUDENT-BUBBLE-NESTED-SPAN]`.
+
+### ✅ Home (DesktopHome / MobileHome) — type labels — **OWN LABEL MAPS → THE MODULE'S LABELS — LIVE (`#935`)**
+- Mobile Home's MI card stays an honest empty state (the recorded reason for Home `MI` 🟡) → `[FU-B15-MOBILE-HOME-MI-CARD]`.
+
+### ✅ Weak areas + chapter accuracy — **CARELESS-ONLY LOSSES LOWERED ACCURACY; COUNT WEIGHTS → ONLY KNOWLEDGE-GAP LOSSES COUNT AGAINST A CHAPTER, WEIGHTED BY CONCEPTUAL MARKS; NO-REASON LOSSES SKIPPED — LIVE (`#940`)**
+- Owner heads-up: weak-area ranks may shift at deploy (`[FU-B15-WRONG-ANSWER-LOG-ORPHANED]`). Open: `[FU-B15-WEAKAREA-MARKS-CLEAR]`.
+
+### ✅ Admin student views — labels — **"FAMILIAR NAMES" FOR COUNT AGGREGATES → HONEST LABELS (CLIENT SIDE) — LIVE (`#935`)**
+- Server aggregation unchanged → `[FU-B15-ADMIN-COUNT-SEMANTICS]`, `[FU-B15-ADMIN-MIXED-SUBJECT]`.
+
+### ✅ HPQ / Predicted — "Check my answer" (SolutionChecker) — **MARKS + HONEST STATES + THE OWNER'S MISMATCH SENTENCE (NOT CACHED, NOT RECORDED) — LIVE (`#940`)**
+- The server still reports HPQ grades as "quick-practice" → `[FU-B15-HPQ-SURFACE-LABEL]`.
+
+### ✅ Quick Practice / the practice card — **A PRACTICE MCQ CLICK + ITS WRITTEN CHECK = TWO ATTEMPTS → ONE (LATEST WINS) — LIVE (`#940`)**
+- A later practice of the same question replaces the earlier attempt → owner ruling owed, `[FU-B15-PRACTICE-CARD-RETRY-SEMANTICS]`.
+
+### ✅ Practice Hub — CBQ entry card (owner addition) — **NONE → "Competency-based questions (CBQs)" → SUBJECT → CHAPTER → THAT CHAPTER'S SECTION-E QUESTIONS; `?cbq=1` OPENS THE CHOOSER; ON PHONES FULLY ON SCREEN — LIVE (`#938`, `#939`)**
+- Live: OR-LIVE-CBQ 10 / 10, OR-LIVE-CBQFIX 7 / 7 (390 and 360: 12 / 12 controls above the nav) *(agent-reported)*. Practice Hub stays `Locked` (owner-specified addition, not discovered scope). Open: `[FU-CBQ-CHOOSER-SUBJECT-LOAD]`, `[FU-CBQ-P4-ONE-HELPER]`, `[FU-PRACTICE-HERO-COUNT-BEFORE-BUILD]`, `[FU-CBQ-NO-KILL-SWITCH]`.
+
+### ✅ Landing — CTA — **"Check my answer" ALONE → + "Practise CBQs" (`/practice-hub?cbq=1`), PRERENDERED FROM ITS OWN CI ARTIFACT (WORD-DIFF: THAT BUTTON ONLY) — LIVE (`#938`)**
+- Landing `Verified` stays 🟡 (owner both-width confirmation pending; the CBQ screenshots in the end-of-lane message are the owner's approval).
+
+### ✅ THE GRADER (Controller A; not a matrix row) — **TWO GRADING PATHS → ONE CORE BEHIND BOTH ENDPOINTS ON gemini-3.8-flash; A STANDING GOLDEN EXAM AT ZERO AI CALLS; THE CHAPTER-TEST FABRICATION FIXED; THE COPY CHECK ONLY AGAINST STORED SCHEMES — LIVE (`#936`, `#937`, `#941`)** *(A-reported)*
+
+### ⬜ NO OTHER SURFACE MOVES — stated plainly, per `CLAUDE.md` §10
+- The free check stays v1 (counts, labelled) → `[FU-B15-FREECHECK-V2]`. Notes, Topic Hub, Exam Trends, Pricing, Login unchanged.
+
+### 📋 Scope discovered? — **YES, on surfaces whose `Scope` already reads Settling** (Check & Improve, Tutor, Quick Practice), so no cell changes. Logged in `DECISION_LOG.md` (2026-10-05, wave B-15) and in §2a below.
+
 > **2026-10-04 — WAVE B-14 (LOW-END, CONTROLLER B): LOW-END-1 (`#926` `b97f119f`, `#929` `c9621114`, `#931` `d4bbea23`) + AUTHGATE-FIX-1 (`#932` `1165dacf`), trunk `1165dacf` (then `d0c522ba`, A's docs `#933`). LIVE on deploy (no flag); every rollout is recorded in `CURRENT_STATE.md`.**
 > ★ **FONTS, FIRST-LOAD WEIGHT, KATEX LOADING AND THE GRADING TRANSPORT MOVE ACROSS THE PRODUCT; CHAPTER TEST AND CHECK & IMPROVE MOVE ON THEIR KATEX AND UPLOAD AXES.** The §2 matrix has no column for load weight, fonts, KaTeX timing or upload transport, so **no matrix cell value changes**; the moves are recorded here as status lines *(builder-reported; live evidence agent-reported)*.
 
@@ -2157,6 +2208,15 @@ Cells are read against each surface's CURRENTLY-KNOWN scope (see the Scope colum
 | **Notes** (content track) | Settling | ✅ | — | ✅ | ✅ | — | ✅ | **v1.3 MERGED (#356, `629457e`) — template COMPLETE, owner live-verified.** v1.3 made the mindmap read as a **VISIBLE TREE** by default (per-branch `--mm-accent` rail + connector elbows + root › branch › leaf weight; open-state PRESERVED — the brief's "collapsed" premise was wrong: all specs are depth-2, already fully expanded at `useState(depth <= 1)`) and the note modal **near-full-screen** (92vw×92vh capped 1280px; mobile full-screen); kept the v1.2 ≤380px no-overlap win. Owner live-verified the tree + full-screen modal + **360px on a real device** → **Mobile + Verified flipped ✅**. v1.2 (#345): collapsible mindmap + per-step marks (schema 1.2, validator Rule 10) + note-as-popup + clickable NCERT page refs, proven across physics/maths/biology (light/quadratic/life-processes). **NOTES FAN-OUT COMPLETE (2026-07-12) — all 26 canonical topics specced + independently audited** (batches #365/#368/#370/#371/#372; Chemical Reactions = LOCKED chemistry exemplar; syllabus trims held — Heredity evolution-trimmed, Magnetic Effects motor/generator-trimmed). Clickable NCERT page-cites are **LIVE + owner-verified** (#375 `ncertPdfOffsets.ts` + owner-hosted `ncert/{subject}/ch{N}.pdf` + public-read rule + CORS; Trig p.114 / Heredity p.129 land exactly). Source-ledger `p.N` cites made clickable too via [FU-LEDGER-CLICKABLE-CITES] (PR #376, in review). **Surface ✅ COMPLETE.** |
 
 ## 2a · DISCOVERED-SCOPE LOG (scope that emerged AFTER a surface was first planned)
+
+### 2026-10-05 - Wave B-15 (`#935`, `#940`) - a question's identity is not its printed number; the re-opened paper is its own state; the Tutor's server prompt and the practice card's "retry" are scope too
+
+**Surfaces: Check & Improve, Tutor / Learn, Quick Practice.** Each `Scope` already reads **Settling**, so no cell changes.
+
+- ⚠ **DISCOVERED (Check & Improve): a paper's question identity must be a per-question id, never the printed number.** With two printed "Q5" on one paper, the client topic map (keyed by `qNumber`) filed the first under the second's chapter and the server graded it on the second's answer (OR-LIVE-2 M3, pre-existing); MI identity inside one grade and per-question uploads are keyed the same way *(agent-reported; builder-reported)*. The client half waits for Controller A's detect-v2 `questionId`; the server half is A's PR-3 C8. `[FU-B15-DUP-QNUMBER-TOPIC-MAP]`, `[FU-B15-DUP-QNUMBER-IDENTITY]`, `[FU-UPLOADS-KEYED-BY-QNUMBER]`
+- ⚠ **DISCOVERED (Check & Improve / Full Mock): a paper re-opened from history is its own surface state.** Re-opened, a mismatch paper loses the owner's sentence, the C&I sheet opens below the fold at 390, and the Full Mock chapter lens drops a 1-mark item *(agent-reported, OR-LIVE-2)*. `[FU-B15-REOPEN-MISMATCH-WORDING]`, `[FU-B15-REOPEN-SHEET-BELOW-FOLD-390]`, `[FU-B15-FM-REOPEN-LENS-DROP]`
+- ⚠ **DISCOVERED (Tutor / Learn): the honest wording reaches into the server prompt.** `server/prompts/tutorSystemPrompt.cjs:211` states a count ("Most common recent slip: X mistakes."), outside both lanes' allowlists *(builder-reported)*. `[FU-B15-TUTOR-BRIEF-SERVER-WORDING]`
+- ⚠ **DISCOVERED (Quick Practice / the practice card): what counts as a retry.** Collapsing a click and its written check into one attempt (latest wins) means a later practice of the same question replaces the earlier one; the owner rules the semantics *(builder-reported; controller decision)*. `[FU-B15-PRACTICE-CARD-RETRY-SEMANTICS]`
 
 ### 2026-10-04 - Wave B-12 (`#920`) - "several pages, every path" stops at a batch body the client lane cannot change
 
