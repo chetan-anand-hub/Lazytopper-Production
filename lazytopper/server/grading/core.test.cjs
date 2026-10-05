@@ -1576,10 +1576,20 @@ test('§FIX.6 ★ never a deduction for the LANGUAGE of an answer (owner paper 0
     .single(single({ marks: 2, subject: 'Science', question: 'Why does carbon form compounds mainly by covalent bonding?', textAnswer: 'Carbon ke 4 valence electrons hote hain, isliye woh electrons share karta hai' }))).body;
   assert.deepEqual([r.marksAwarded, r.annotatedSteps[1].status, r.annotatedSteps[1].mistakeType, r.annotatedSteps[1].teacherAnnotation], [2, 'correct', null, grading.LANGUAGE_NOT_MARKED_ANNOTATION]);
   assert.ok(!/english/i.test(r.teacherNote) && /covalent bonding/.test(r.teacherNote), 'the language advice goes; the rest of the note stays');
-  // CONTROL: a presentation deduction for something else (a required technical term) stays
-  const keep = [S({ marksAwarded: 1 }), S({ status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', teacherAnnotation: '½ The term oesophagus is required, not food pipe.' })];
+  // CONTROL: a deduction for the TERM used stays — the live OA-02 Q19 annotation, which also says
+  // "colloquial" (CBSE marks the exact technical term)
+  const keep = [S({ marksAwarded: 1 }), S({ status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', teacherAnnotation: "½ Scientific terminology 'oesophagus' preferred over colloquial 'food pipe'" })];
   const k = (await harness({ replies: [REPLY(R(1, keep, { finalAnswerCorrect: false }))] }).single(single({ marks: 2, subject: 'Science', question: 'Name the tube that carries food from the mouth to the stomach.', textAnswer: 'food pipe' }))).body;
-  assert.equal(k.marksAwarded, 1.5);
+  assert.deepEqual([k.marksAwarded, k.annotatedSteps[1].mistakeType, k.annotatedSteps[1].teacherAnnotation === grading.LANGUAGE_NOT_MARKED_ANNOTATION], [1.5, 'presentation', false]);
+  // CONTROL: "standard English/Hindi scientific terminology" names the language AND the missing
+  // term (live OA-02 Q18 run 1) — the term is marked, so the deduction stays
+  const term = [S({ marksAwarded: 1 }), S({ status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', teacherAnnotation: '½ Mentioned 4 valence electrons and sharing, but use standard English/Hindi scientific terminology (noble gas configuration).' })];
+  const m = (await harness({ replies: [REPLY(R(1, term, { finalAnswerCorrect: false }))] }).single(single({ marks: 2, subject: 'Science', question: 'Why does carbon form compounds mainly by covalent bonding?', textAnswer: 'Carbon ke 4 valence electrons hote hain' }))).body;
+  assert.deepEqual([m.marksAwarded, m.annotatedSteps[1].mistakeType, m.annotatedSteps[1].teacherAnnotation === grading.LANGUAGE_NOT_MARKED_ANNOTATION], [1.5, 'presentation', false]);
+  // CONTROL: "colloquial" alone is about the WORD chosen, not the language ("food pipe" for oesophagus)
+  const word = [S({ marksAwarded: 1 }), S({ status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', teacherAnnotation: "½ 'Food pipe' is colloquial — write oesophagus." })];
+  const w = (await harness({ replies: [REPLY(R(1, word, { finalAnswerCorrect: false }))] }).single(single({ marks: 2, subject: 'Science', question: 'Name the tube that carries food from the mouth to the stomach.', textAnswer: 'food pipe' }))).body;
+  assert.deepEqual([w.annotatedSteps[1].mistakeType, w.annotatedSteps[1].teacherAnnotation === grading.LANGUAGE_NOT_MARKED_ANNOTATION], ['presentation', false]);
 });
 
 test('§D43.1 ★ a chunked paper\'s page inventory is the UNION of every chunk\'s inventory: a question its OWN chunk did not list but ANOTHER chunk saw is graded, never "not found"; a first line quoted by any chunk counts', async () => {

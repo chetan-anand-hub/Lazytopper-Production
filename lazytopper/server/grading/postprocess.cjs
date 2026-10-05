@@ -112,8 +112,11 @@ function restoreMathsUnitDeductions(steps, q) {
 // Owner rule: an answer is never marked down for the LANGUAGE it is written in — Hinglish or Hindi
 // is fine; the science is what is marked (live 2026-10-06, owner paper 02 Q18: a correct answer
 // lost ½ "written informally in Hinglish" in 5 of 9 grades, typed presentation).
-const LANGUAGE_LOSS = /\b(?:hinglish|hindi|colloquial(?:ly)?|vernacular|informal(?:ly)?\s+(?:written|worded|expressed|language|wording|english)|(?:written|worded|expressed)\s+(?:informally|colloquially)|(?:standard|formal|proper|correct)\s+english|english\s+language)\b/i;
-const LANGUAGE_ADVICE = /\b(?:hinglish|hindi|colloquial(?:ly)?|vernacular|(?:standard|formal|proper|correct)\s+english|english\s+language|informal(?:ly)?\s+(?:written|worded|expressed|language|wording|english))\b/i;
+const LANGUAGE_LOSS = /\b(?:hinglish|hindi|vernacular|informal(?:ly)?\s+(?:written|worded|expressed|language|wording|english)|(?:written|worded|expressed)\s+(?:informally|colloquially)|(?:standard|formal|proper|correct)\s+english|english\s+language)\b/i;
+const LANGUAGE_ADVICE = /\b(?:hinglish|hindi|vernacular|(?:standard|formal|proper|correct)\s+english|english\s+language|informal(?:ly)?\s+(?:written|worded|expressed|language|wording|english))\b/i;
+// A deduction for the TERM used is not a language deduction: CBSE marks the exact technical term
+// (live 2026-10-06, OA-02 Q19: "½ Scientific terminology 'oesophagus' preferred over colloquial 'food pipe'").
+const TERMINOLOGY_LOSS = /\b(?:terminolog\w*|(?:technical|scientific|exact|correct|proper|key)\s+(?:term|terms|word|words|name|names)|keywords?)\b/i;
 /**
  * A step typed "presentation" whose deduction is for the language of the answer gets that
  * deduction back (at most ½ per step — a step that ALSO lost marks for missing science keeps the
@@ -123,7 +126,8 @@ function restoreLanguageDeductions(steps) {
   let n = 0;
   for (const s of steps) {
     if (s.status === 'withdrawn' || s.status === 'unattempted' || s.mistakeType !== 'presentation' || !(s.marksDeducted > 0)) continue;
-    if (!LANGUAGE_LOSS.test([s.teacherAnnotation, s.correctedWorking, s.description].join(' . '))) continue;
+    const why = [s.teacherAnnotation, s.correctedWorking, s.description].join(' . ');
+    if (!LANGUAGE_LOSS.test(why) || TERMINOLOGY_LOSS.test(why)) continue;
     const back = Math.min(0.5, s.marksDeducted, Math.max(0, (s._available || 0) - s.marksAwarded));
     if (!(back > 0)) continue;
     s.marksAwarded = half(s.marksAwarded + back);
