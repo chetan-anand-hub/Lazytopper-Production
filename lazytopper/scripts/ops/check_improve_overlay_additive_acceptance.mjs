@@ -508,7 +508,9 @@ check("FORBIDDEN(lifted): checkImproveGradeService.ts is NOT in the guarded set 
   check("CIGS (H4/H9): an answer that was NOT graded reaches the tutor as \"nothing graded, one pending\" — never a graded 0",
     /if \(!isGradedQuestion\(result\)\) \{[\s\S]{0,200}?gradedCount: 0,\s*pendingCount: 1,/.test(cigs));
   const CIGS_CONTRACT = "lazytopper/src/services/checkImproveGradeService.contract.test.ts";
-  const cigsTests = existsSync(path.join(ROOT, CIGS_CONTRACT)) ? readFileSync(path.join(ROOT, CIGS_CONTRACT), "utf8") : "";
+  // The SUBJECT is read COMMENT-STRIPPED: a header comment naming the subject must never stand in
+  // for the test itself (proven by a mutation that deleted the test and stayed green).
+  const cigsTests = existsSync(path.join(ROOT, CIGS_CONTRACT)) ? stripComments(readFileSync(path.join(ROOT, CIGS_CONTRACT), "utf8")) : "";
   check(`CIGS-CONTRACT: ${CIGS_CONTRACT} exists (the replacement for the lifted blanket ban)`,
     existsSync(path.join(ROOT, CIGS_CONTRACT)), "the ban was lifted in favour of this suite — without it the persist seam is unguarded");
   check("CIGS-CONTRACT: it is COLLECTED by the vitest include glob (src/**/*.test.{ts,tsx})",
@@ -672,7 +674,9 @@ function additiveOnlyChange(base, f) {
   check("SR (H5): a record without the per-question breakdown answers its own subject (old records read unchanged)",
     /return own\.size > 0 \? Array\.from\(own\) : \[record\.subject\];/.test(sr));
   const SR_CONTRACT = "lazytopper/src/services/sessionRecords.additive.contract.test.ts";
-  const srTests = existsSync(path.join(ROOT, SR_CONTRACT)) ? readFileSync(path.join(ROOT, SR_CONTRACT), "utf8") : "";
+  // The SUBJECT is read COMMENT-STRIPPED: a header comment naming the subject must never stand in
+  // for the test itself (proven by a mutation that deleted the test and stayed green).
+  const srTests = existsSync(path.join(ROOT, SR_CONTRACT)) ? stripComments(readFileSync(path.join(ROOT, SR_CONTRACT), "utf8")) : "";
   check(`SR-CONTRACT: ${SR_CONTRACT} exists (owner ruling 2026-10-05: marks not counts — the additive rule's behaviour suite)`,
     existsSync(path.join(ROOT, SR_CONTRACT)), "the rule was narrowed in favour of this suite — without it the additions are unguarded");
   check("SR-CONTRACT: it is COLLECTED by the vitest include glob (src/**/*.test.{ts,tsx})",

@@ -1084,7 +1084,9 @@ for (const t of [
     why: 'taxonomy and wording; marks not counts',
     subject: [/checked answers are GRADED ANSWERS/, /comes from lib\/mistakeDisplay/, /decided in MISTAKES/, /LEGACY/] },
 ]) {
-  const src = existsSync(path.join(ROOT, t.file)) ? read(path.join(ROOT, t.file)) : '';
+  // The SUBJECT is read COMMENT-STRIPPED: a header comment naming the subject must never stand in
+  // for the test itself (proven by a mutation that deleted the test and stayed green).
+  const src = existsSync(path.join(ROOT, t.file)) ? stripComments(read(path.join(ROOT, t.file))) : '';
   check(`${t.tag}-CONTRACT: ${t.file} exists (owner ruling 2026-10-05: ${t.why} — the replacement for the lifted ban)`,
     existsSync(path.join(ROOT, t.file)), 'the ban was lifted in favour of this suite — without it the file is unguarded');
   check(`${t.tag}-CONTRACT: it RUNS — quality-gate.yml has a required lazytopper \`vitest run\` step`,
