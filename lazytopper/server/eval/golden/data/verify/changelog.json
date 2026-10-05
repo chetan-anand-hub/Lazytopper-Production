@@ -1,0 +1,466 @@
+[
+ {
+  "target": "GS-M03",
+  "field": "bankMatch",
+  "old": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "new": {
+   "inBank": true,
+   "bankId": "PYQ-M-2025-SAV-001",
+   "bankTopicKey": "surface-areas-and-volumes",
+   "note": "Missed by S2: the identical A-R item is stored from set 30/1/2 Q19 (ncertRef 'PYQ 30/1/2 Q19'): same assertion/reason text, same key (C). Bank text drops the pi ('Total Surface Area of a sphere of radius r is 3 r2'). lazytopper/src/data/questionBanks/class10/maths/surface-areas-and-volumes.pyq2025.ts:11-18 (anchor: id: \"PYQ-M-2025-SAV-001\")."
+  },
+  "reason": "Bank id exists and is the same question (S2 recorded inBank false).",
+  "citation": "lazytopper/src/data/questionBanks/class10/maths/surface-areas-and-volumes.pyq2025.ts:11-12 @53fe4d22"
+ },
+ {
+  "target": "GS-M03-a",
+  "field": "probes",
+  "old": [
+   "ar",
+   "mcq-wrong-pick-conceptual-working",
+   "conceptual",
+   "mcq-objective-invariant"
+  ],
+  "new": [
+   "ar",
+   "mcq-wrong-pick-conceptual-working",
+   "conceptual",
+   "mcq-objective-invariant",
+   "bank-match"
+  ],
+  "reason": "bank-match probe added with the corrected bankMatch.",
+  "citation": ""
+ },
+ {
+  "target": "GS-M03-b",
+  "field": "probes",
+  "old": [
+   "ar",
+   "mcq-correct-pick-flawed-working",
+   "mcq-objective-invariant"
+  ],
+  "new": [
+   "ar",
+   "mcq-correct-pick-flawed-working",
+   "mcq-objective-invariant",
+   "bank-match"
+  ],
+  "reason": "bank-match probe added with the corrected bankMatch.",
+  "citation": ""
+ },
+ {
+  "target": "GS-M05",
+  "field": "bankMatch.note",
+  "old": null,
+  "new": "Bank questionText is garbled: 'The coordinates of the centre of a circle are (2a, a 7). Find the value(s) 9) and has diameter 10 units.' - the minus of (a - 7), the clause 'of a if the circle passes through the point (11, -9)' and the sqrt2 of 10 sqrt2 are lost; a grader shown bank text grades against an unanswerable question. lazytopper/src/data/questionBanks/class10/maths/coordinate-geometry.pyq2025.ts:28",
+  "reason": "S2's bank-text-lossy finding missed this entry.",
+  "citation": "lazytopper/src/data/questionBanks/class10/maths/coordinate-geometry.pyq2025.ts:28 @53fe4d22"
+ },
+ {
+  "target": "GS-S11",
+  "field": "bankMatch.note",
+  "old": null,
+  "new": "Bank entry merges OR-alternatives 27(a) and 27(b) into one questionText (3 marks total), and its answer/finalAnswer/solutionSteps[2] carry spill-over text from Q28 ('Na O 2, 8, 1 2, 6 ... Formation of sodium oxide Na2O'). lazytopper/src/data/questionBanks/class10/science/chemicalReactions.pyq2025.ts:78-84",
+  "reason": "Bank entry is not a clean copy of Q27(b).",
+  "citation": "lazytopper/src/data/questionBanks/class10/science/chemicalReactions.pyq2025.ts:79-81 @53fe4d22"
+ },
+ {
+  "target": "GS-M07-a",
+  "field": "expected.contested",
+  "old": null,
+  "new": true,
+  "reason": "Contested on marks: App rule: QUESTION_MISCOPY_PROMPT treats a miscopy as a DEPARTURE and awards ZERO for every step below it; ECF_POLICY_V2 case law 3 'The QUESTION STEM miscopied at line 1 and then worked consistently => DEPARTURE AT LINE 1'. Steps 2-4 zeroed -> 0/2 (1/2 at most if the AB/PQ = BC/QR = AC/PR correspondence line is credited as independently earned).",
+  "citation": "lazytopper/server/routes/checkSolution.cjs @53fe4d22:1122 (anchor: const QUESTION_MISCOPY_PROMPT = 'QUESTION MISCOPY), :591 (anchor: 3. The QUESTION STEM miscopied)"
+ },
+ {
+  "target": "GS-M07-a",
+  "field": "expected.examinerNote",
+  "old": "Copied wrongly = silly (owner ruling). Marks: CBSE MS general instruction 10 ('No marks to be deducted for the cumulative effect of an error. It should be penalized only once', MS p2) -> penalise the miscopy once, ECF for the rest = 1½. CONTESTED: the app's QUESTION_MISCOPY_PROMPT (checkSolution.cjs:1122) treats a miscopy as a DEPARTURE and zeroes every step below it (would give 0 here). An owner ruling is needed on whether a miscopy is a departure; this set scores it as a slip.",
+  "new": "Copied wrongly = silly (owner ruling). Marks: CBSE MS general instruction 10 ('No marks to be deducted for the cumulative effect of an error. It should be penalized only once', MS p2) -> penalise the miscopy once, ECF for the rest = 1½. CONTESTED: the app's QUESTION_MISCOPY_PROMPT (checkSolution.cjs:1122) treats a miscopy as a DEPARTURE and zeroes every step below it (would give 0 here). An owner ruling is needed on whether a miscopy is a departure; this set scores it as a slip. | S2b: controller decision applied - golden FOLLOWS the CBSE published rule (1.5); contested=true records the app-rule view (0/2) so the merger reports the conflict as a finding.",
+  "reason": "Controller decision recorded.",
+  "citation": ""
+ },
+ {
+  "target": "GS-M09-b",
+  "field": "expected.departure",
+  "old": {
+   "atStep": 2,
+   "returnsAtStep": 3
+  },
+  "new": null,
+  "reason": "Line 2's wrong sign is never worked from: line 3 is (sin^3 - cos^3), i.e. the CORRECT trajectory, so nothing was adopted. Not a departure under README convention 3 (student stops solving the question set) nor the app's own definition ('WORKS CONSISTENTLY FROM ... ADOPTED'; case law 10 'Where the student returns and the excursion left nothing behind, do not mark a departure at all - grade the excursion as an ordinary mistake'). Marks unchanged (2/3).",
+  "citation": "lazytopper/server/routes/checkSolution.cjs @53fe4d22:513-517 (anchor: THE DEPARTURE TEST), :610-613 (anchor: 10. A departure after which the student RETURNS)"
+ },
+ {
+  "target": "GS-M09-b",
+  "field": "probes",
+  "old": [
+   "image",
+   "image-neat",
+   "departure-returns",
+   "calculation",
+   "chapter-misfile-risk",
+   "topic-fix-1"
+  ],
+  "new": [
+   "image",
+   "image-neat",
+   "calculation",
+   "chapter-misfile-risk",
+   "topic-fix-1",
+   "isolated-slip-not-carried"
+  ],
+  "reason": "Probe 'departure-returns' is not exercised by this answer (see departure). CONSEQUENCE: the set now has NO valid departure-that-returns case (spec section 2A coverage minimum) - needs a new answer text, which S2b may not author.",
+  "citation": ""
+ },
+ {
+  "target": "GS-M09-b",
+  "field": "expected.contested",
+  "old": null,
+  "new": true,
+  "reason": "Contested on mistakeType: Both app taxonomies name this exact pattern as silly ('a sign misread off their OWN correct working, a dropped negative'), and line 3 proves the student knew the right sign. The owner ruling does not say whether a dropped negative is 'copied wrongly' or 'performed wrongly'. Student-facing bucket (careless) is identical either way.",
+  "citation": "lazytopper/server/routes/checkSolution.cjs @53fe4d22:1331 and :1960 (anchor: a sign misread off their OWN correct working, a dropped negative)"
+ },
+ {
+  "target": "GS-M11-a",
+  "field": "expected.departureFlagRequired",
+  "old": null,
+  "new": false,
+  "reason": "An invalid METHOD from line 1 (decimal expansion) is equally classified as app case law 8 (invalid method => answer mark only, conceptual) with no isDeparture flag. For a proof the 'answer' value point is the contradiction line, which is absent, so the mark is 0/3 either way; a grader that does not raise isDeparture must not be scored as a departure-handling miss.",
+  "citation": "lazytopper/server/routes/checkSolution.cjs @53fe4d22:603 (anchor: 8. The RIGHT ANSWER reached by an INVALID method); MS 2025 30/1/1 p12 Q29"
+ },
+ {
+  "target": "GS-M14-a",
+  "field": "probes",
+  "old": [
+   "alternative-method",
+   "control-full-marks",
+   "5-mark"
+  ],
+  "new": [
+   "control-full-marks",
+   "5-mark",
+   "method-not-prescribed-by-ms"
+  ],
+  "reason": "The MS prints only 'On solving (i) and (ii), we get' - it prescribes no solving method, so adding/subtracting the equations is not an alternative to the scheme. The case is a full-marks control; 'alternative-method' coverage drops to 1 case (GS-M04-a).",
+  "citation": "MS 2025 041 30/1/1 p13 Q32"
+ },
+ {
+  "target": "GS-M24-a",
+  "field": "expected.acceptableOutcomes",
+  "old": null,
+  "new": [
+   "0 earned with state unattempted/blank, no mistake type, nothing logged to MI",
+   "a decline that says no answer was found on the page (no grade, no mistake type)"
+  ],
+  "reason": "Owner checklist (00_COMMON section 7): 'blank or illegible pages (it must say \"couldn't read\", never fabricate)'. A decline on a blank page is correct behaviour and must not be scored as a total-marks miss; the failure is any fabricated working, nonzero mark or mistake type.",
+  "citation": "briefs/00_COMMON.md section 7 (owner verbatim)"
+ },
+ {
+  "target": "GS-S02-a",
+  "field": "expected.commentMustNotClaim",
+  "old": [
+   "conceptual",
+   "calculation",
+   "silly",
+   "presentation",
+   "the student believes R is false"
+  ],
+  "new": [
+   "conceptual",
+   "calculation",
+   "silly",
+   "presentation"
+  ],
+  "reason": "Choosing (C) = 'A is true, but R is false' IS the student's stated position, so a comment saying the student took R to be false is TRUE, not a fabrication. Only the CAUSE is undiagnosable (type stays null).",
+  "citation": "MS 2025 086 31/1/1 p3 Q19 key (A); QP 2025 31/1/1 p13 Q19"
+ },
+ {
+  "target": "GS-S02-a",
+  "field": "expected.commentMayMention",
+  "old": [
+   "the correct option is (A)"
+  ],
+  "new": [
+   "the correct option is (A)",
+   "option (C) treats R as false; R is true and is the correct explanation of A"
+  ],
+  "reason": "Moved the true fact to the may-mention list.",
+  "citation": ""
+ },
+ {
+  "target": "GS-S10-a",
+  "field": "expected.wrongStepAcceptable",
+  "old": null,
+  "new": [
+   1,
+   2
+  ],
+  "reason": "Arrows are missing on BOTH diagrams and the MS note is one overall deduction ('Note: Deduct 1/2 mark if arrows are not drawn.', penalised once per instruction 10); which diagram carries the 1/2 is arbitrary, so locating it on (ii) is not a wrong-step miss.",
+  "citation": "MS 2025 086 31/1/1 p7 Q31 note"
+ },
+ {
+  "target": "GS-M19-a",
+  "field": "expected.unattemptedParts",
+  "old": [
+   "(iii)"
+  ],
+  "new": [
+   "(iii)(a)"
+  ],
+  "reason": "Label aligned with the item's own part label '(iii)(a)' so a label match cannot fail spuriously.",
+  "citation": ""
+ },
+ {
+  "target": "GS-M15-a",
+  "field": "expected.contested",
+  "old": null,
+  "new": true,
+  "reason": "Contested on marks: CBSE MS general instruction 10 ('penalized only once', MS 2025 30/1/1 p2): many examiners would credit step 3 (x^2 - 8x + 1280 = 0 is correctly derived from the student's own equation, 1 1/2) as ECF; steps 4-5 stay 0 because (x - 40)(x + 32) is not a factorisation of the student's quadratic (fudged). Same CBSE-vs-departure conflict the controller decided for GS-M07 in CBSE's favour; here the competing rule is an OWNER ruling, so S2b keeps 0.5 and flags it.",
+  "citation": "MS 2025 041 30/1/1 p2 instruction 10; p14-15 Q34(b)"
+ },
+ {
+  "target": "GS-M04-b",
+  "field": "expected.contested",
+  "old": null,
+  "new": true,
+  "reason": "Contested on mistakeType: The single-question grader's own worked example is this pattern: 'factors (x-4)(x+2) correctly but then writes a root as x = -4 instead of +4 - a SILLY sign-misread' (correct factors, wrong root read off them). Student-facing bucket identical.",
+  "citation": "lazytopper/server/routes/checkSolution.cjs @53fe4d22:1331 (anchor: Example: factors (x−4)(x+2) correctly)"
+ },
+ {
+  "target": "GS-S06-b",
+  "field": "expected.contested",
+  "old": null,
+  "new": true,
+  "reason": "Contested on mistakeType: The question explicitly asks to NAME the component; not knowing the name 'platelets' is missing knowledge, not a format omission. Neither app taxonomy lists a technical term under presentation (formula, units, conclusion, diagram, state symbols), and the remedy is 'learn this', not a format habit.",
+  "citation": "QP 2025 31/1/1 p13 Q23(a) 'Name the component of blood'; lazytopper/server/routes/checkSolution.cjs @53fe4d22:1332"
+ },
+ {
+  "target": "GS-S12-a",
+  "field": "expected.contested",
+  "old": null,
+  "new": true,
+  "reason": "Contested on mistakeType: By this set's own GS-M22-a logic, 'then balance them' is a requested sub-task left wholly unattempted (no coefficients written anywhere) -> fourth state, no type. The set treats an unattempted 'verify your answer' and an unattempted 'then balance them' differently with no stated principle. Marks (1/2) identical either way.",
+  "citation": "QP 2024 31/1/2 p13 Q26; lazytopper/server/routes/checkSolution.cjs @53fe4d22:645 (S4a)"
+ },
+ {
+  "target": "GS-M22-a",
+  "field": "expected.contested",
+  "old": null,
+  "new": true,
+  "reason": "Contested on mistakeType: Both app taxonomies list a missing 'verified' line as presentation (rule 3: 'no conclusion/\"verified\" line'), while rule 6 calls it missing/null - the app contradicts itself, and the owner ruling 'unattempted PART' does not say whether an instruction inside an unlabelled 2-mark question is a part. Pair with GS-S12-a.",
+  "citation": "lazytopper/server/routes/checkSolution.cjs @53fe4d22:1332 and :1335"
+ },
+ {
+  "target": "GS-S13-a",
+  "field": "expected.contested",
+  "old": null,
+  "new": true,
+  "reason": "Contested on mistakeType: Owner ruling: conceptual = METHOD misunderstood. The same answer balances 2NaHCO3 -> Na2CO3 + H2O + CO2 correctly in (c)(i), which proves the method is understood; omitting it in (a) is a slip ('their other steps prove they know better' - the app's own silly test).",
+  "citation": "lazytopper/server/routes/checkSolution.cjs @53fe4d22:1331 (anchor: Tell-tale: their other steps prove they know better)"
+ },
+ {
+  "target": "GS-M01-b",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - you already know this",
+  "new": "Marks to gain — you already know this",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-M03-a",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - learn this",
+  "new": "Marks to gain — learn this",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-M04-b",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - you already know this",
+  "new": "Marks to gain — you already know this",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-M07-a",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - you already know this",
+  "new": "Marks to gain — you already know this",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-M09-b",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - you already know this",
+  "new": "Marks to gain — you already know this",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-M10-a",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - the quickest wins",
+  "new": "Marks to gain — the quickest wins",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-M11-a",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - learn this",
+  "new": "Marks to gain — learn this",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-M12-a",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - you already know this",
+  "new": "Marks to gain — you already know this",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-M15-a",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - learn this",
+  "new": "Marks to gain — learn this",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-M18-a",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - you already know this",
+  "new": "Marks to gain — you already know this",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-M21-a",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - the quickest wins",
+  "new": "Marks to gain — the quickest wins",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-M23-a",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - learn this",
+  "new": "Marks to gain — learn this",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-S05-b",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - the quickest wins",
+  "new": "Marks to gain — the quickest wins",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-S06-b",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - the quickest wins",
+  "new": "Marks to gain — the quickest wins",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-S07-a",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - the quickest wins",
+  "new": "Marks to gain — the quickest wins",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-S08-a",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - the quickest wins",
+  "new": "Marks to gain — the quickest wins",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-S09-a",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - you already know this",
+  "new": "Marks to gain — you already know this",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-S10-a",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - the quickest wins",
+  "new": "Marks to gain — the quickest wins",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-S12-a",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - learn this",
+  "new": "Marks to gain — learn this",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-S12-b",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - you already know this",
+  "new": "Marks to gain — you already know this",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-S13-a",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - learn this",
+  "new": "Marks to gain — learn this",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-S15-a",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - learn this",
+  "new": "Marks to gain — learn this",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-S16-a",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - you already know this",
+  "new": "Marks to gain — you already know this",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-S17-a",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - you already know this",
+  "new": "Marks to gain — you already know this",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ },
+ {
+  "target": "GS-S18-a",
+  "field": "expected.studentHeading",
+  "old": "Marks to gain - learn this",
+  "new": "Marks to gain — learn this",
+  "reason": "Owner's verbatim heading uses an em dash ('Marks to gain — learn this' etc.); exact-string wording checks would fail on the ASCII hyphen.",
+  "citation": "handoff/CURRENT_STATE.md:5125-5127 @53fe4d22; briefs/00_COMMON.md section 6"
+ }
+]

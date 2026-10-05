@@ -1,0 +1,162 @@
+{
+ "GS-M08-a": {
+  "original": {
+   "width": 3000,
+   "height": 4000,
+   "bytes": 1131149,
+   "jpegQuality": 90
+  },
+  "compressed": {
+   "width": 1500,
+   "height": 2000,
+   "quality": 0.85,
+   "bytes": 262966
+  },
+  "seed": 801,
+  "synthetic": true
+ },
+ "GS-M09-b": {
+  "original": {
+   "width": 3000,
+   "height": 4000,
+   "bytes": 1129501,
+   "jpegQuality": 90
+  },
+  "compressed": {
+   "width": 1500,
+   "height": 2000,
+   "quality": 0.85,
+   "bytes": 263928
+  },
+  "seed": 802,
+  "synthetic": true
+ },
+ "GS-M20-a": {
+  "original": {
+   "width": 3000,
+   "height": 4000,
+   "bytes": 1162446,
+   "jpegQuality": 90
+  },
+  "compressed": {
+   "width": 1500,
+   "height": 2000,
+   "quality": 0.85,
+   "bytes": 276678
+  },
+  "seed": 804,
+  "synthetic": true
+ },
+ "GS-S03-a": {
+  "original": {
+   "width": 3000,
+   "height": 4000,
+   "bytes": 1064730,
+   "jpegQuality": 90
+  },
+  "compressed": {
+   "width": 1500,
+   "height": 2000,
+   "quality": 0.85,
+   "bytes": 233839
+  },
+  "seed": 806,
+  "synthetic": true
+ },
+ "GS-S06-a": {
+  "original": {
+   "width": 3000,
+   "height": 4000,
+   "bytes": 1165739,
+   "jpegQuality": 90
+  },
+  "compressed": {
+   "width": 1500,
+   "height": 2000,
+   "quality": 0.85,
+   "bytes": 274463
+  },
+  "seed": 808,
+  "synthetic": true
+ },
+ "GS-M13-a": {
+  "original": {
+   "width": 3000,
+   "height": 4000,
+   "bytes": 1256031,
+   "jpegQuality": 90
+  },
+  "compressed": {
+   "width": 1500,
+   "height": 2000,
+   "quality": 0.85,
+   "bytes": 314383
+  },
+  "seed": 803,
+  "synthetic": true
+ },
+ "GS-M24-a": {
+  "original": {
+   "width": 3000,
+   "height": 4000,
+   "bytes": 1051536,
+   "jpegQuality": 90
+  },
+  "compressed": {
+   "width": 1500,
+   "height": 2000,
+   "quality": 0.85,
+   "bytes": 227234
+  },
+  "seed": 805,
+  "synthetic": true
+ },
+ "GS-S05-a": {
+  "original": {
+   "width": 3000,
+   "height": 4000,
+   "bytes": 1129324,
+   "jpegQuality": 90
+  },
+  "compressed": {
+   "width": 1500,
+   "height": 2000,
+   "quality": 0.85,
+   "bytes": 260324
+  },
+  "seed": 807,
+  "synthetic": true
+ },
+ "GS-S10-a": {
+  "original": {
+   "width": 3000,
+   "height": 4000,
+   "bytes": 1137546,
+   "jpegQuality": 90
+  },
+  "compressed": {
+   "width": 1500,
+   "height": 2000,
+   "quality": 0.85,
+   "bytes": 264331
+  },
+  "seed": 809,
+  "synthetic": true
+ },
+ "GS-S14-a": {
+  "original": {
+   "width": 3000,
+   "height": 4000,
+   "bytes": 939877,
+   "jpegQuality": 90
+  },
+  "compressed": {
+   "width": 1500,
+   "height": 2000,
+   "quality": 0.85,
+   "bytes": 253760
+  },
+  "seed": 810,
+  "synthetic": true
+ }
+}

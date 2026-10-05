@@ -1,0 +1,94 @@
+{
+  "_about": "P15 (GRADER-CORE-1 premise ledger): every live client call site of the three grading endpoints, the request fields it SENDS and the response fields it READS, with path:line anchors READ in a clean worktree at 53fe4d22 (paths relative to lazytopper/). The G2 guard (shapes.test.cjs) runs each call site's request shape through the CURRENT server with a stubbed model and pins the response's key set, types and nesting in shapes/snapshot.json. PR-2 must keep every snapshot byte-shape identical for requests WITHOUT acceptsV2. Enumeration method and the full per-field tables are in the PR-1 report; the anchors below were re-read by the builder (13/14 spot-checked verbatim).",
+  "transport": {
+    "checkSolutionImage": "src/ai/aiClient.ts:700-735 posts the request object as-is to /check-solution and returns the raw JSON (`return handleJsonResponse<CheckSolutionResponse>(res);` :735)",
+    "gradeWorksheet": "src/ai/aiClient.ts:929-949 posts to /grade-worksheet and returns the raw JSON",
+    "detectQuestion": "src/ai/aiClient.ts:769-780 plain fetch to /detect-question (no Idempotency-Key, no retries)",
+    "errorBodyRead": "src/ai/aiClient.ts:430-507 reads error, message, class, resetAt, feature, tier, trialEndedAt, reason, remaining, window, raw on a non-2xx; never `code`"
+  },
+  "callSites": [
+    {
+      "id": "ci-single", "endpoint": "/api/check-solution", "handler": "handleCheckSolution",
+      "client": "src/pages/desktop/DesktopCheckImprovePage.tsx:1771 `const graded = await checkSolutionImage({`",
+      "requestSent": ["question (:1772 `question: trimmedQuestion || confirmed.topicName || \"Submitted question\",`)", "subject (:1773)", "topic (:1774)", "marks (:1775)", "objective only when true (:1779)", "imageBase64+imageMimeType | textAnswer (:1766-1769, :1780)", "header X-Lazytopper-Surface: check-improve (:802)"],
+      "responseRead": ["ok, error (:1782-1785)", "totalMarks, marksAwarded (:1505-1506, :1817)", "percentage (:3140-3142)", "mistakeSummary.{conceptual,calculation,silly,presentation} (:3145; mistakeIntelligence.ts:116-133)", "annotatedSteps[].{stepNumber,status,description,studentWork,marksAwarded,marksDeducted,teacherAnnotation,mistakeType,correctedWorking} (:585-708 AnnotatedStepRow)", "objective (:3321-3332)", "teacherNote (:3338)", "adapter src/services/checkImproveGradeService.ts:57-76 (drops objective)"],
+      "planJob": "S.CI.GS-M04-a"
+    },
+    {
+      "id": "ci-multi", "endpoint": "/api/grade-worksheet", "handler": "handleGradeWorksheet",
+      "client": "src/pages/desktop/DesktopCheckImprovePage.tsx:1565 `const response = await gradeWorksheet({`",
+      "requestSent": ["worksheetId ci:<code> (:1566)", "subject (:1567)", "questions[].{qNumber,marks,topic,topicLabel,questionText} (:1569-1573)", "questions[].objective always boolean (:1576 `objective: q.objective === true,`)", "imageBase64+imageMimeType ONE document (:1578-1579)"],
+      "responseRead": ["ok (:1581)", "results[].{qNumber,couldNotRead,totalMarks,marksAwarded,percentage,annotatedSteps,mistakeSummary,teacherNote,objective} (:297-302, :1669-1675, :3003-3108)", "gradedCount, totalQuestions (:2903)", "gradedMarksAwarded, gradedMarksTotal, pendingCount, summary (:2959-2972)", "worksheetTotalMarks (:1416-1449)", "client writes results[].topicSlug/topicLabel itself (:1603-1607)"],
+      "planJob": "W.CIM.CMM"
+    },
+    {
+      "id": "qr-handoff", "endpoint": "transport only (/api/qr-upload/*), then ci-single or ci-multi", "handler": "handleCheckSolution",
+      "client": "src/pages/desktop/DesktopCheckImprovePage.tsx:2279 (question) / :2628 (answer) `<QrAnswerHandoff`",
+      "requestSent": ["no request field of its own: the phone's photo becomes imageBase64/imageMimeType of the ci-single (:1767-1768) or ci-multi (:1578-1579) call; src/components/qr/QrAnswerHandoff.tsx:26-32 imports only the qr-upload service"],
+      "responseRead": ["none of its own (same as ci-single / ci-multi)"],
+      "planJob": "S.CI.GS-M09-b"
+    },
+    {
+      "id": "free-check", "endpoint": "/api/check-solution + /api/grade-worksheet + /api/detect-question", "handler": "handleCheckSolution",
+      "client": "src/pages/desktop/DesktopCheckImprovePage.tsx:3628-3629, :800 `const FREE_CHECK_CALL: PaidCallOptions = { freeCheck: true };`",
+      "requestSent": ["identical BODY to ci-single / ci-multi / detect", "headers differ only: X-Lazytopper-Free-Check + X-Firebase-AppCheck, no Authorization/Uid, no surface header, maxRetries 0 (src/services/freeCheckClient.ts:314-320; aiClient.ts:198)"],
+      "responseRead": ["as ci-single / ci-multi, plus the whole response stored on device for replay (freeCheckClient.ts:387-397, :626-631; freeCheckReplay.ts:93-183)"],
+      "planJob": "S.CI.GS-M04-a"
+    },
+    {
+      "id": "tutor-overlay", "endpoint": "as ci-single / ci-multi", "handler": "handleGradeWorksheet",
+      "client": "src/pages/tutor/TutorCheckImproveOverlay.tsx:67 `<DesktopCheckImprovePage overlay={{ onClose }} />`",
+      "requestSent": ["no extra fields (same calls with CI_GRADE_CALL)"],
+      "responseRead": ["as ci-single / ci-multi, plus tutorRoundTrip.ts:196-203, :342-343, :380, :435-441 read results[].{qNumber,couldNotRead,annotatedSteps[].{stepNumber,status,description,teacherAnnotation}}"],
+      "planJob": "W.CIM.CMS"
+    },
+    {
+      "id": "quick-practice-batch", "endpoint": "/api/grade-worksheet", "handler": "handleGradeWorksheet",
+      "client": "src/services/quickPracticeSessionService.ts:752 `response = await grade({ worksheetId, subject, questions, uploads }, { surface: \"quick-practice\" });`",
+      "requestSent": ["worksheetId, subject (PracticePage.tsx:2262-2263)", "questions[].{qNumber,marks,questionText} (:460-462)", "topicLabel, section, answer, options (:464-467)", "objective only when true (:468)", "solutionSteps, finalAnswer (:469-472)", "textAnswer (:478)", "pickedOption (:486)", "uploads[].{qNumber,imageBase64,imageMimeType} (:741-747)"],
+      "responseRead": ["ok, results, error (:803, :812)", "results[].{qNumber,couldNotRead,totalMarks,marksAwarded,percentage,annotatedSteps,mistakeSummary,teacherNote,objective} (batchGradeToCheckSolution :497-513)", "objective marks replaced by a local key compare (applyLocalObjectiveMark :551-577)", "server aggregates NOT read (recomputed client-side)"],
+      "planJob": "W.QP.QPM"
+    },
+    {
+      "id": "hpq-solution-checker", "endpoint": "/api/check-solution", "handler": "handleCheckSolution",
+      "client": "src/components/question/SolutionChecker.tsx:652 `checkSolutionImage({` under src/pages/HighlyProbableQuestions.tsx:1850 `<SolutionChecker`",
+      "requestSent": ["question, marks (`marks={q.marks ?? 0}`), subject, topic (:653-656)", "imageBase64+imageMimeType | textAnswer (:657-658)", "solutionSteps, finalAnswer (:659-660)", "section/format/options/answer only if props (HPQ passes none) (:664-667)", "surface quick-practice (:668)"],
+      "responseRead": ["ok, error (:670, :695)", "whole response cached in localStorage lazytopper.checkResult.v1.<id> (:25, :37-39, :674)", "marksAwarded, totalMarks, percentage (:690-691, :793-797, :1321-1322)", "mistakeSummary.{4} (:810-812)", "annotatedSteps[].{status,marksAwarded,marksDeducted,studentWork,teacherAnnotation,correctedWorking,stepNumber,description,mistakeType}, objective (:283-386, :1342-1354)", "teacherNote (:1360-1370)"],
+      "planJob": "S.HPQ.GS-M12-a"
+    },
+    {
+      "id": "chapter-test", "endpoint": "/api/grade-worksheet", "handler": "handleGradeWorksheet",
+      "client": "src/services/chapterTestGradeService.ts:248 `const subjectiveResponse = await gradeWorksheet({`",
+      "requestSent": ["worksheetId, subject (:249-250)", "questions[].{qNumber,marks,topic,topicLabel,questionText,section,answer,options,solutionSteps,finalAnswer} (:252-261)", "imageBase64+imageMimeType (:263-264)", "surface chapter-test + paperKey header (:265)"],
+      "responseRead": ["ok (:267)", "results passed through, totals recomputed (:149-163)", "results[].{qNumber,couldNotRead,totalMarks,marksAwarded,percentage,annotatedSteps,mistakeSummary,teacherNote,objective,note} (:174-184, scorecardBankLenses.ts:198-223, gradedAnswerAssembly.ts:226-251)", "summary copied, never rendered (:164)"],
+      "planJob": "W.CT.CT1"
+    },
+    {
+      "id": "full-mock", "endpoint": "/api/grade-worksheet", "handler": "handleGradeWorksheet",
+      "client": "src/services/fullMockGradeService.ts:148 `const subjectiveResponse = await gradeWorksheet({`",
+      "requestSent": ["identical shape to chapter-test (:149-164)", "surface full-mock + paperKey (:165)"],
+      "responseRead": ["as chapter-test (buildChapterTestResponse) (:66, :182-186, :72-87)"],
+      "planJob": "W.FM.FM1"
+    },
+    {
+      "id": "worksheets", "endpoint": "/api/grade-worksheet", "handler": "handleGradeWorksheet",
+      "client": "src/services/worksheetGradeService.ts:103 `const response = await gradeWorksheet({` (WorksheetGradePanel.tsx:333)",
+      "requestSent": ["worksheetId, subject (:104-105)", "questions[].{qNumber,marks,topic,topicLabel,questionText,section,answer,options,solutionSteps,finalAnswer} (:107-125)", "imageBase64+imageMimeType (:127-128)", "surface worksheet + paperKey (:129)"],
+      "responseRead": ["ok, error (:131; Panel :334, :346)", "results[].{qNumber,couldNotRead,note,percentage,marksAwarded,totalMarks,annotatedSteps,objective,teacherNote,mistakeSummary} (Panel :154-186)", "gradedMarksAwarded, gradedMarksTotal, gradedCount, totalQuestions, pendingCount, worksheetTotalMarks (Panel :509-519)", "summary behind isLeakySummary (Panel :536-537)"],
+      "planJob": "W.WS.WS1"
+    },
+    {
+      "id": "detect-question", "endpoint": "/api/detect-question", "handler": "handleDetectQuestion",
+      "client": "src/pages/desktop/DesktopCheckImprovePage.tsx:1285 `const d = await detectQuestion({`; src/utils/checkImproveDetection.ts:129",
+      "requestSent": ["question (:1286)", "imageBase64+imageMimeType question photo (:1287-1289)", "topicVocabulary (:1290)", "per-question: question + topicVocabulary (checkImproveDetection.ts:129-130)"],
+      "responseRead": ["ok, error (:1292-1293)", "detectedTopic, detectedSubject (checkImproveDetection.ts:75-76)", "detectedMarks (:79)", "marksSource (:83)", "questions[].{questionNumber,marks,questionText,objective} (:1310, :1569-1576)", "NOT read: detectedAnswer, detectedObjective, questions[].answer, questions[].marksSource, provider, model"],
+      "planJob": "D.ITEM.GS-M04"
+    }
+  ],
+  "returnedButUnread": {
+    "check-solution": ["provider", "model", "code", "questionDepartureError", "mistakeSummary.departure", "annotatedSteps[].isDeparture", "annotatedSteps[].isReturn", "detectedSubject/detectedTopic/marksSource (null on every live path: no client sends detectMarks)"],
+    "grade-worksheet": ["worksheetId", "provider", "model", "code", "results[].ok", "results[].questionDepartureError", "results[].mistakeSummary.departure", "results[].annotatedSteps[].isDeparture/isReturn"],
+    "detect-question": ["detectedAnswer", "detectedObjective", "questions[].answer", "questions[].marksSource", "provider", "model"]
+  },
+  "readButNeverReturned": ["results[].topicSlug / topicLabel (written by the C&I client itself, :1603-1607)", "CT/FM aggregates and QP objective marks are client-computed, not the server's"]
+}

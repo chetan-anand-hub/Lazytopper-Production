@@ -1,0 +1,62 @@
+{
+  "_about": "OWNER ADDENDUM 2026-10-05 — ANSWER-QUESTION MISMATCH. Work that does not address the question at all (an unrelated answer, the wrong page) must not be awarded a grade; PR-2 implements it as the v2 field `answerMismatch` (opt-in via acceptsV2). These cases are SYNTHETIC: each is COMPOSED from existing golden items, answers and the owner's question page — no bank content, no new answer text except M4, which is a strict SUBSET (part (i) only) of GS-M17-a's own answer. Expected values are the addendum's, verbatim in meaning: M1, M2, M3 and M5's mismatched question -> answerMismatch true, not graded (no marks, no step marks), never charged; M4, M5's other questions and EVERY other golden case -> answerMismatch false, graded normally; M6 -> answerMismatch null (no question text available). Legacy expectation (no acceptsV2) for M1-M3 (and M5's mismatched question): marks 0, no step marks, no mistake type on any step.",
+  "label": "SYNTHETIC",
+  "cases": [
+    {
+      "caseId": "GS-MM-01", "kind": "M1-cross-subject",
+      "question": { "fromItem": "GS-S08", "subject": "Science" },
+      "answer": { "fromCase": "GS-M04-a", "mode": "typed" },
+      "entries": ["single", "set"],
+      "expected": { "answerMismatch": true, "graded": false, "charged": false, "legacy": { "totalMarks": 0, "noStepMarks": true, "noMistakeType": true } },
+      "why": "A Maths answer (zeroes of a polynomial) submitted against a Science question (power in a resistor)."
+    },
+    {
+      "caseId": "GS-MM-02", "kind": "M2-same-subject-other-chapter",
+      "question": { "fromItem": "GS-M20", "subject": "Maths" },
+      "answer": { "fromCase": "GS-M15-a", "mode": "typed" },
+      "entries": ["single", "set"],
+      "expected": { "answerMismatch": true, "graded": false, "charged": false, "legacy": { "totalMarks": 0, "noStepMarks": true, "noMistakeType": true } },
+      "why": "A Quadratic Equations answer (the train word problem) submitted against an Arithmetic Progression question."
+    },
+    {
+      "caseId": "GS-MM-03", "kind": "M3-wrong-page",
+      "question": { "fromItem": "GS-M12", "subject": "Maths" },
+      "answer": { "file": "owner-anomaly-01/LazyTopper_Test_Questions.pdf", "mime": "application/pdf", "mode": "upload" },
+      "entries": ["single", "set"],
+      "expected": { "answerMismatch": true, "graded": false, "charged": false, "legacy": { "totalMarks": 0, "noStepMarks": true, "noMistakeType": true } },
+      "why": "A question-paper page (the owner's printed paper: questions only, no working) uploaded as the answer to a Surface Areas and Volumes question."
+    },
+    {
+      "caseId": "GS-MM-04", "kind": "M4-partly-relevant",
+      "question": { "fromItem": "GS-M17", "subject": "Maths" },
+      "answer": { "fromCase": "GS-M17-a", "mode": "typed", "keepLines": [0, 1], "note": "only part (i) of GS-M17-a's own answer: the first two lines" },
+      "entries": ["single", "set"],
+      "expected": {
+        "answerMismatch": false, "graded": true,
+        "totalMarks": 1, "maxMarks": 4, "mistakeType": null, "unattemptedParts": ["(ii)", "(iii)"],
+        "perStep": [ { "step": 1, "awarded": 1, "reason": "a4 = 450, a5 = 500, a6 = 550 correct (scheme step 1, 1 mark)" }, { "step": 2, "awarded": 0, "reason": "(ii) not attempted" }, { "step": 3, "awarded": 0, "reason": "(ii) not attempted" }, { "step": 4, "awarded": 0, "reason": "(iii) not attempted" }, { "step": 5, "awarded": 0, "reason": "(iii) not attempted" } ],
+        "pinnedBy": "builder from GS-M17's official scheme (MS 2025 041 30/1/1 Q36)"
+      },
+      "why": "Addresses part of the question (part (i) only): MUST be graded normally, marks per the scheme — a mismatch verdict here is a FALSE mismatch."
+    },
+    {
+      "caseId": "GS-MM-05", "kind": "M5-set-one-swapped",
+      "entries": ["set"],
+      "subject": "Maths",
+      "questions": [
+        { "qNumber": 1, "question": { "fromItem": "GS-M06" }, "answer": { "fromCase": "GS-M06-a", "mode": "typed" }, "expected": { "answerMismatch": false, "graded": true, "expectedFromCase": "GS-M06-a" } },
+        { "qNumber": 2, "question": { "fromItem": "GS-M10" }, "answer": { "fromCase": "GS-M10-a", "mode": "typed" }, "expected": { "answerMismatch": false, "graded": true, "expectedFromCase": "GS-M10-a" } },
+        { "qNumber": 3, "question": { "fromItem": "GS-M14" }, "answer": { "fromCase": "GS-M18-a", "mode": "typed" }, "expected": { "answerMismatch": true, "graded": false, "charged": false, "legacy": { "totalMarks": 0, "noStepMarks": true, "noMistakeType": true } } },
+        { "qNumber": 4, "question": { "fromItem": "GS-M12" }, "answer": { "fromCase": "GS-M12-a", "mode": "typed" }, "expected": { "answerMismatch": false, "graded": true, "expectedFromCase": "GS-M12-a" } }
+      ],
+      "why": "A 4-question paper where exactly ONE answer belongs to another question (Q3, a linear-equations word problem, carries the brooch / areas-related-to-circles answer). Only Q3 is a mismatch; Q1, Q2, Q4 grade normally (their verified expectations)."
+    },
+    {
+      "caseId": "GS-MM-06", "kind": "M6-no-question-text",
+      "question": { "placeholder": "Quadratic Equations", "subject": "Maths", "note": "the chapter name only, exactly what Check & Improve sends when the question was photographed (DesktopCheckImprovePage.tsx:1772 `question: trimmedQuestion || confirmed.topicName || \"Submitted question\",`)" },
+      "answer": { "fromCase": "GS-M15-a", "mode": "typed" },
+      "entries": ["single", "set"],
+      "expected": { "answerMismatch": null, "why": "no question text is available, so a match cannot be decided: the field must be null, never a guess" }
+    }
+  ]
+}

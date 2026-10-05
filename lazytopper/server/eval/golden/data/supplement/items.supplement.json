@@ -1,0 +1,573 @@
+[
+ {
+  "id": "GS-M17",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2025,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Math.zip#Math/041 Mathematics Standard/X_MS_041_Mathematics Standard_30-1-1_2024-25.pdf",
+   "pdfFile": "sources/MS2025_041_30-1-1.pdf",
+   "question": "Q36",
+   "pdfPage": 16,
+   "printedPage": 16
+  },
+  "chapterTrue": {
+   "name": "Arithmetic Progression",
+   "appTopicKey": "arithmetic-progression",
+   "subtopic": "nth term and sum (case study)"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "AP nth term and sum are IN."
+  },
+  "bankMatch": {
+   "inBank": true,
+   "bankId": "PYQ-M-2025-AP-002",
+   "bankTopicKey": "arithmetic-progression"
+  },
+  "question": {
+   "text": "Case Study − 1: A school is organizing a charity run to raise funds for a local hospital. The run is planned as a series of rounds around a track, with each round being 300 metres. To make the event more challenging and engaging, the organizers decide to increase the distance of each subsequent round by 50 metres. For example, the second round will be 350 metres, the third round will be 400 metres and so on. The total number of rounds planned is 10.",
+   "marks": 4,
+   "section": "E",
+   "type": "case",
+   "needsFigure": false,
+   "parts": [
+    {
+     "label": "(i)",
+     "text": "Write the fourth, fifth and sixth term of the Arithmetic Progression so formed.",
+     "marks": 1
+    },
+    {
+     "label": "(ii)",
+     "text": "Determine the distance of the 8th round.",
+     "marks": 1
+    },
+    {
+     "label": "(iii)(a)",
+     "text": "Find the total distance run after completing all 10 rounds. [OR (iii)(b): If a runner completes only the first 6 rounds, what is the total distance run by the runner?]",
+     "marks": 2
+    }
+   ]
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "part": "(i)",
+    "valuePoint": "a₄ = 450, a₅ = 500, a₆ = 550",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 16,
+     "printedPage": 16
+    }
+   },
+   {
+    "step": 2,
+    "part": "(ii)",
+    "valuePoint": "a₈ = 300 + 7 × 50",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 16,
+     "printedPage": 16
+    }
+   },
+   {
+    "step": 3,
+    "part": "(ii)",
+    "valuePoint": "= 650 m",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 16,
+     "printedPage": 16
+    }
+   },
+   {
+    "step": 4,
+    "part": "(iii)(a)",
+    "valuePoint": "S₁₀ = (10/2) × (2 × 300 + 9 × 50)",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 16,
+     "printedPage": 16
+    }
+   },
+   {
+    "step": 5,
+    "part": "(iii)(a)",
+    "valuePoint": "= 5250 m",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 16,
+     "printedPage": 16
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-SUP-01",
+    "probes": [
+     "departure-returns",
+     "departure-explicitly-abandoned",
+     "multipart-independent-later-parts",
+     "conceptual",
+     "case-based-4mark",
+     "section-E",
+     "bank-match",
+     "august-defect-9"
+    ],
+    "mode": "typed",
+    "text": "(i) a = 300, d = 50. Using aₙ = a + nd:\na₄ = 300 + 4 × 50 = 500 m, a₅ = 300 + 5 × 50 = 550 m, a₆ = 300 + 6 × 50 = 600 m.\n(ii) a₈ = 300 + 8 × 50 = 700 m.\n(iii)(a) Before finding the sum I checked my formula: with aₙ = a + nd the first round would be a₁ = 300 + 50 = 350 m, but the first round is 300 m. So aₙ = a + nd is wrong; the correct formula is aₙ = a + (n − 1)d. I will use the correct formula from here.\nS₁₀ = (10/2)[2 × 300 + (10 − 1) × 50] = 5 × [600 + 450] = 5 × 1050 = 5250 m.",
+    "expected": {
+     "totalMarks": 2,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0,
+       "reason": "DEPARTURE: wrong nth-term formula aₙ = a + nd adopted; a₄, a₅, a₆ = 500, 550, 600 (key 450, 500, 550) - 0 of 1 (MS 2025 041 30/1/1 Q36, PDF p16)."
+      },
+      {
+       "step": 2,
+       "awarded": 0,
+       "reason": "Still inside the departure: 300 + 8 × 50 uses the same wrong formula (value point is 300 + 7 × 50) - 0. Not ECF: (ii) re-applies a wrong METHOD, it does not carry a wrong VALUE."
+      },
+      {
+       "step": 3,
+       "awarded": 0,
+       "reason": "700 m (key 650 m) - 0; the student never went back to correct (i) or (ii)."
+      },
+      {
+       "step": 4,
+       "awarded": 1,
+       "reason": "RETURN: the student explicitly abandons aₙ = a + nd and resumes the correct method; S₁₀ = (10/2)[2 × 300 + 9 × 50] matches the value point - 1."
+      },
+      {
+       "step": 5,
+       "awarded": 1,
+       "reason": "5250 m correct - 1."
+      }
+     ],
+     "wrongStep": 1,
+     "mistakeType": "conceptual",
+     "studentLabel": "knowledge gap",
+     "studentHeading": "Marks to gain — learn this",
+     "departure": {
+      "atStep": 1,
+      "returnsAtStep": 4
+     },
+     "departureFlagRequired": true,
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "(i) and (ii) used aₙ = a + nd; the correct formula is aₙ = a + (n − 1)d",
+      "the student noticed the error in (iii) and used the correct formula there",
+      "(iii) is correct: 5250 m",
+      "(i) and (ii) were not corrected"
+     ],
+     "commentMustNotClaim": [
+      "(iii) is wrong",
+      "the sum formula is wrong",
+      "(i) and (ii) were corrected",
+      "calculation error",
+      "the slip in (i) makes (iii) wrong"
+     ],
+     "modelAnswerKeyFacts": [
+      "a₄ = 450 m, a₅ = 500 m, a₆ = 550 m",
+      "a₈ = 300 + 7 × 50 = 650 m",
+      "S₁₀ = 5250 m"
+     ],
+     "examinerNote": "Departure that RETURNS. The wrong formula is adopted and worked from through (i) and (ii) (owner/README convention 3; app ECF_POLICY_V2 (a)), then explicitly abandoned in (iii), where the correct method is resumed. A CBSE examiner marks each part as written: (i) 0, (ii) 0, (iii) 2 = 2/4. The departure zone (steps 1-3) earns 0; everything after the return earns normally. A grader that zeroes positionally and never releases the departure gives 0/4 (August defect 9); one that credits (i)/(ii) because the student later stated the right formula gives 3-4/4 - both wrong. Type: wrong formula = method misunderstood = conceptual (knowledge gap); the later self-check does not repair (i)/(ii). Tolerance: none expected; ECF does not apply to (ii) because (ii) repeats the wrong method rather than carrying a wrong value."
+    }
+   }
+  ],
+  "supplement": {
+   "of": "GS-M17",
+   "by": "S2b",
+   "date": "2026-10-05",
+   "merge": "append this item's cases to the item with the same id in items.json / items.verified.json"
+  }
+ },
+ {
+  "id": "GS-S15",
+  "subject": "Science",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Science 086 - Marking Scheme (31/1/1 to 31/1/3, English medium)",
+   "year": 2025,
+   "setCode": "31/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Science.zip#Science/086 Science (English Medium)/X_086_31-1-1 to 3 Science_MS.pdf",
+   "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+   "question": "Q39",
+   "pdfPage": 11,
+   "printedPage": 11,
+   "questionPaper": {
+    "url": "https://www.cbse.gov.in/cbsenew/question-paper/2025/X/086_Science.zip#086_Science/31-1-1_Science.pdf",
+    "pdfFile": "sources/QP2025_086_31-1-1.pdf",
+    "pdfPage": 27,
+    "printedPage": 27
+   }
+  },
+  "chapterTrue": {
+   "name": "Magnetic Effects of Electric Current",
+   "appTopicKey": "magnetic-effects-of-electric-current",
+   "subtopic": "Domestic electric circuits"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Domestic electric circuits are IN under Magnetic Effects of Current (only Electric Motor / Electromagnetic Induction / Electric Generator are board-excluded)."
+  },
+  "bankMatch": {
+   "inBank": true,
+   "bankId": "PYQ-S-2025-LIFEP-008",
+   "bankTopicKey": "life-processes",
+   "note": "BANK ENTRY IS CORRUPT AND MISFILED: topicKey life-processes, subtopic 'Stomata'; questionText is garbled Hindi remnants of Q39 joined to the tail of Q38 (photosynthesis), solutionSteps are Q39 (domestic circuits). lazytopper/src/data/questionBanks/class10/science/lifeProcesses.pyq2025.ts:63-69"
+  },
+  "question": {
+   "text": "In our homes, we receive the supply of electric power through a main supply also called mains, either supported through overhead electric poles or by underground cables. In our country the potential difference between the two wires (live wire and neutral wire) of this supply is 220 V.",
+   "marks": 4,
+   "section": "E",
+   "type": "case",
+   "needsFigure": false,
+   "parts": [
+    {
+     "label": "(a)",
+     "text": "Write the colours of the insulation covers of the line wires through which supply comes to our homes.",
+     "marks": 1
+    },
+    {
+     "label": "(b)",
+     "text": "What should be the current rating of the electric circuit (220 V) so that an electric iron of 1 kW power rating can be operated?",
+     "marks": 1
+    },
+    {
+     "label": "(c)(i)",
+     "text": "What is the function of the earth wire? State the advantage of the earth wire in domestic electric appliances such as electric iron. [OR (c)(ii): List two precautions to be taken to avoid electrical accidents...]",
+     "marks": 2
+    }
+   ]
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "part": "(a)",
+    "valuePoint": "Live wire - red",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 11,
+     "printedPage": 11
+    }
+   },
+   {
+    "step": 2,
+    "part": "(a)",
+    "valuePoint": "Neutral wire - black",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 11,
+     "printedPage": 11
+    }
+   },
+   {
+    "step": 3,
+    "part": "(b)",
+    "valuePoint": "P = 1000 W, V = 220 V, P = VI ⇒ I = 1000 W/220 V = 4.54 A",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 11,
+     "printedPage": 11
+    }
+   },
+   {
+    "step": 4,
+    "part": "(b)",
+    "valuePoint": "Current rating should be 5 A",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 11,
+     "printedPage": 11
+    }
+   },
+   {
+    "step": 5,
+    "part": "(c)(i)",
+    "valuePoint": "Earth wire provides a low-resistance conducting path so leakage current flows to earth; body kept at earth potential",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 11,
+     "printedPage": 11
+    }
+   },
+   {
+    "step": 6,
+    "part": "(c)(i)",
+    "valuePoint": "The user will not get an electric shock",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 11,
+     "printedPage": 11
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-SUP-02",
+    "probes": [
+     "departure-returns",
+     "departure-explicitly-abandoned",
+     "corrected-departure-full-recovery",
+     "control-full-marks",
+     "physics-units",
+     "case-based-4mark",
+     "section-E",
+     "chapter-misfile-risk",
+     "bank-chapter-wrong",
+     "bank-match"
+    ],
+    "mode": "typed",
+    "text": "(a) Live wire — red insulation; neutral wire — black insulation.\n(b) P = 1 kW = 1000 W, V = 220 V.\nP = V/I ⇒ I = V/P = 220/1000 = 0.22 A.\nSo a circuit of current rating 1 A would be enough for the iron.\nWait — this is wrong: power is P = V × I, not V/I (1 watt = 1 volt × 1 ampere). Ignore the two lines above. Redoing:\nP = V × I ⇒ I = P/V = 1000 W / 220 V = 4.54 A.\nSo the circuit must have a current rating of 5 A.\n(c)(i) The earth wire provides a low-resistance conducting path for current, so any current leaking to the metallic body of the iron flows to the earth and the body stays at the potential of the earth. Hence the user does not get an electric shock.",
+    "expected": {
+     "totalMarks": 4,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0.5,
+       "reason": "Live - red (MS 2025 086 31/1/1 Q39, PDF p11)."
+      },
+      {
+       "step": 2,
+       "awarded": 0.5,
+       "reason": "Neutral - black."
+      },
+      {
+       "step": 3,
+       "awarded": 0.5,
+       "reason": "After the RETURN: P = VI ⇒ I = 1000/220 = 4.54 A (value point). The withdrawn lines (P = V/I, I = 0.22 A) were explicitly cancelled by the student and are not assessed."
+      },
+      {
+       "step": 4,
+       "awarded": 0.5,
+       "reason": "Current rating 5 A (value point); the withdrawn '1 A' line is not assessed."
+      },
+      {
+       "step": 5,
+       "awarded": 1,
+       "reason": "Low-resistance path to earth; body kept at earth potential."
+      },
+      {
+       "step": 6,
+       "awarded": 1,
+       "reason": "No electric shock to the user."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "departure": {
+      "atStep": 3,
+      "returnsAtStep": 3,
+      "note": "Wrong law P = V/I adopted and worked from for two lines (I = 0.22 A, '1 A rating'), then explicitly withdrawn; the return redoes scheme steps 3-4, so the excursion leaves nothing behind."
+     },
+     "departureFlagRequired": false,
+     "contested": true,
+     "contestedDimension": "marks",
+     "contestedViews": [
+      {
+       "view": "golden (examiner convention: cancelled work is not assessed; as GS-M08-a, GS-S09-b)",
+       "totalMarks": 4,
+       "mistakeType": null,
+       "basis": "The student explicitly withdraws the P = V/I lines and redoes (b) correctly; no CBSE MS instruction deducts for cancelled work; owner: all types are marks to gain, and no marks are lost."
+      },
+      {
+       "view": "alternative (app rule)",
+       "totalMarks": 3.5,
+       "mistakeType": "conceptual",
+       "basis": "ECF_POLICY_V2 case law 2: 'A slip the student then CORRECTS, reaching the right answer for the question as set => NOT a departure. The marks are KEPT; deduct only for the slip itself.' -> ½ charged for the wrong law.",
+       "citation": "lazytopper/server/routes/checkSolution.cjs @53fe4d22:588-590 (anchor: 2. A slip the student then CORRECTS)"
+      }
+     ],
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "the student first used P = V/I, recognised it was wrong and redid (b) with P = VI",
+      "I = 4.54 A and a 5 A rating are correct"
+     ],
+     "commentMustNotClaim": [
+      "the current is 0.22 A",
+      "a 1 A rating was given as the answer",
+      "marks were deducted for the cancelled lines",
+      "any mistake cost marks",
+      "the wire colours are wrong"
+     ],
+     "modelAnswerKeyFacts": [
+      "red live, black neutral",
+      "I = P/V = 4.54 A, rating 5 A",
+      "earth wire: low-resistance path to earth, prevents shock"
+     ],
+     "examinerNote": "Departure that RETURNS with full recovery. A wrong law (P = V/I) is adopted and worked from (I = 0.22 A, '1 A'), then explicitly withdrawn ('Ignore the two lines above') and the correct method redone. Examiner convention (README section 4.10, cf. GS-M08-a, GS-S09-b): work the candidate has cancelled is not assessed, so 4/4, no mistake type, nothing logged to MI. Teeth: a grader that raises isDeparture on the P = V/I line and never marks the return zeroes steps 3-6 (1/4); one that charges the cancelled excursion gives 3.5/4. Departure flag optional (app case law 10: an excursion that leaves nothing behind need not be flagged). CONTESTED: the app's case law 2 ('deduct only for the slip itself', lazytopper/server/routes/checkSolution.cjs @53fe4d22:588-590) would give 3.5/4. TRUE chapter magnetic-effects-of-electric-current; the bank files this item as life-processes (LIFEP-008)."
+    }
+   }
+  ],
+  "supplement": {
+   "of": "GS-S15",
+   "by": "S2b",
+   "date": "2026-10-05",
+   "merge": "append this item's cases to the item with the same id in items.json / items.verified.json"
+  }
+ },
+ {
+  "id": "GS-S07",
+  "subject": "Science",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Science 086 - Marking Scheme (31/1/1 to 31/1/3, English medium)",
+   "year": 2025,
+   "setCode": "31/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Science.zip#Science/086 Science (English Medium)/X_086_31-1-1 to 3 Science_MS.pdf",
+   "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+   "question": "Q24",
+   "pdfPage": 4,
+   "printedPage": 4,
+   "questionPaper": {
+    "url": "https://www.cbse.gov.in/cbsenew/question-paper/2025/X/086_Science.zip#086_Science/31-1-1_Science.pdf",
+    "pdfFile": "sources/QP2025_086_31-1-1.pdf",
+    "pdfPage": 15,
+    "printedPage": 15
+   }
+  },
+  "chapterTrue": {
+   "name": "Light - Reflection & Refraction",
+   "appTopicKey": "light-reflection-and-refraction",
+   "subtopic": "Lens formula - concave lens"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Lens formula is IN."
+  },
+  "bankMatch": {
+   "inBank": true,
+   "bankId": "PYQ-S-2025-LIGHT-009",
+   "bankTopicKey": "light-reflection-and-refraction"
+  },
+  "question": {
+   "text": "An object is placed at a distance of 60 cm from a concave lens of focal length 30 cm. Use lens formula to find the position of the image formed in this case.",
+   "marks": 2,
+   "section": "B",
+   "type": "vsa",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "u = −60 cm, f = −30 cm; lens formula 1/f = 1/v − 1/u",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 4,
+     "printedPage": 4
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "1/(−30 cm) = 1/v − 1/(−60 cm)",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 4,
+     "printedPage": 4
+    }
+   },
+   {
+    "step": 3,
+    "valuePoint": "1/v = −1/30 − 1/60 = −3/60 ⇒ v = −20 cm (image 20 cm from the lens, same side as object)",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 4,
+     "printedPage": 4
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-SUP-03",
+    "probes": [
+     "silly-miscopy",
+     "ecf-carried-slip",
+     "physics-units",
+     "bank-match"
+    ],
+    "mode": "typed",
+    "text": "u = −90 cm, f = −30 cm (concave lens)\nLens formula: 1/f = 1/v − 1/u\n1/(−30) = 1/v − 1/(−90)\n1/v = −1/30 − 1/90 = (−3 − 1)/90 = −4/90 = −2/45\nv = −45/2 = −22.5 cm\nThe image is formed 22.5 cm from the lens, on the same side as the object.",
+    "expected": {
+     "totalMarks": 1.5,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0.5,
+       "reason": "Lens formula 1/f = 1/v − 1/u correctly stated - the MS's ½ on this line is for the formula (MS 2025 086 31/1/1 Q24, PDF p4); f = −30 cm correct."
+      },
+      {
+       "step": 2,
+       "awarded": 0,
+       "reason": "u copied as −90 cm (the question gives 60 cm, a 6/9 misread) and substituted - the miscopy is penalised ONCE, here."
+      },
+      {
+       "step": 3,
+       "awarded": 1,
+       "reason": "v = −22.5 cm follows correctly from the student's u (ECF: −1/30 − 1/90 = −4/90), with the correct interpretation (same side, virtual) - CBSE MS general instruction 10."
+      }
+     ],
+     "wrongStep": 2,
+     "wrongStepAcceptable": [
+      1,
+      2
+     ],
+     "mistakeType": "silly",
+     "studentLabel": "careless",
+     "studentHeading": "Marks to gain — you already know this",
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "u was copied as 90 cm; the question gives 60 cm",
+      "the lens formula and the sign convention are correct",
+      "v = −22.5 cm follows correctly from u = −90 cm"
+     ],
+     "commentMustNotClaim": [
+      "the lens formula is wrong",
+      "sign convention error",
+      "calculation error in −1/30 − 1/90",
+      "conceptual",
+      "the image is real"
+     ],
+     "modelAnswerKeyFacts": [
+      "1/f = 1/v − 1/u",
+      "u = −60 cm, f = −30 cm",
+      "v = −20 cm (20 cm from the lens on the object side)"
+     ],
+     "contested": true,
+     "contestedDimension": "marks",
+     "contestedViews": [
+      {
+       "view": "golden (CBSE published rule; controller decision as for GS-M07-a)",
+       "totalMarks": 1.5,
+       "mistakeType": "silly",
+       "basis": "CBSE MS general instruction 10 ('No marks to be deducted for the cumulative effect of an error. It should be penalized only once.' - printed in the 2025 MS general instructions) + owner ruling 'copied wrongly = silly'. The miscopy does not make the question easier (same steps, same fraction work), so app case law 4 does not apply."
+      },
+      {
+       "view": "alternative (app rule)",
+       "totalMarks": 0.5,
+       "mistakeType": "silly",
+       "basis": "QUESTION_MISCOPY_PROMPT: a miscopy is a DEPARTURE - keep what the departure step independently earned (the formula ½), award ZERO for every step below it -> step 3 = 0 -> 0.5/2; ECF_POLICY_V2 case law 3 (stem miscopied at line 1 and worked consistently => departure at line 1) gives the same.",
+       "citation": "lazytopper/server/routes/checkSolution.cjs @53fe4d22:1122 (anchor: const QUESTION_MISCOPY_PROMPT = 'QUESTION MISCOPY), :591 (anchor: 3. The QUESTION STEM miscopied)"
+      }
+     ],
+     "examinerNote": "Copied wrongly = silly (careless). Controller decision (as GS-M07-a): the CBSE published rule 'penalized only once' governs -> ½ lost at the substitution, the correct formula keeps its ½ and the correctly derived v = −22.5 cm keeps its 1 = 1.5/2. contested=true records the app-rule view (0.5/2). wrongStep 1 or 2 is acceptable: the miscopied value first appears in the u line, which the scheme groups with step 1."
+    }
+   }
+  ],
+  "supplement": {
+   "of": "GS-S07",
+   "by": "S2b",
+   "date": "2026-10-05",
+   "merge": "append this item's cases to the item with the same id in items.json / items.verified.json"
+  }
+ }
+]
