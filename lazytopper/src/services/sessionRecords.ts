@@ -409,10 +409,14 @@ export function writeSessionRecord(
   }
 
   if (firestoreDb && uid !== "anonymous") {
+    // N5 (verifier, controller fix round 2026-10-05; owner ruling "re-grade replaces") — a FULL
+    // replace, never `{ merge: true }`: a re-grade that omits an optional field (its versioned
+    // marks, its per-question topics, `notGradedAllUnread`) must not inherit the earlier write's
+    // value, or the tutor's opener and the history card read a stale grade. This is the only
+    // writer of the doc, and it always writes the whole record (the local mirror already replaces).
     void setDoc(
       doc(firestoreDb, "sessionRecords", uid, "records", sanitizeDocId(record.id)),
       stripUndefined({ ...record, updatedAt: new Date().toISOString() }),
-      { merge: true },
     ).catch((error) => console.warn("[sessionRecords] record write failed", { id: record.id, error }));
   }
   return "recorded";
@@ -457,10 +461,11 @@ export function writeSessionPerQuestion(
   }
 
   if (firestoreDb && uid !== "anonymous") {
+    // N5 — the same full replace for the payload a re-grade rewrites (Firestore merges nested maps,
+    // so a stale `response` field would otherwise survive under the new grade).
     void setDoc(
       doc(firestoreDb, "sessionRecords", uid, "perQuestion", sanitizeDocId(payload.ref)),
       stripUndefined({ ...payload, updatedAt: new Date().toISOString() }),
-      { merge: true },
     ).catch((error) => console.warn("[sessionRecords] perQuestion write failed", { ref: payload.ref, error }));
   }
 }

@@ -26,6 +26,11 @@
  *   (vii) W2         — the C&I history card says "Some pages couldn't be read" ONLY when every
  *                      not-graded question was an unreadable page; else "Some answers weren't
  *                      graded"; an older record (no field) reads exactly as before.
+ *   (viii) N1        — a RE-GRADE, through the REAL Worksheet service, of a paper recorded BEFORE
+ *                      the identity key adds no second attempt (same result: nothing; a new
+ *                      result: replaced). The cache-restore trigger: SolutionChecker.transition.
+ *   (ix)  N7         — the paper-level mismatch line on both graded sheets is the owner's
+ *                      sentence, verbatim.
  *
  * Each assertion is a DECISION: if one goes red, a ruling changed (or the code regressed).
  */
@@ -94,7 +99,9 @@ import { gradeFullMockUpload } from "./fullMockGradeService";
 import { gradeWorksheetAndRecord } from "./worksheetGradeService";
 import { gradeQuickPracticeBatch } from "./quickPracticeSessionService";
 import { singleCheckToWorksheetResponse } from "./checkImproveGradeService";
-import { getAttempts } from "./practiceInsights";
+import { getAttempts, saveInsights } from "./practiceInsights";
+import { legacyAttemptKey } from "./attemptDedupKey";
+import { WorksheetGradedPrintDoc } from "../components/worksheet/WorksheetGradedPrintDoc";
 import { CheckImproveGradedPrintDoc } from "../components/checkimprove/CheckImproveGradedPrintDoc";
 import CheckImproveHistoryPanel from "../components/checkimprove/CheckImproveHistoryPanel";
 import { buildCheckImproveSessionRecord, type SessionRecord } from "./sessionRecords";
@@ -112,6 +119,7 @@ import {
   coachingLine,
   gradeStateCopy,
   gradeStateOf,
+  mismatchSummaryLine,
   paperGradedTotals,
   zeroMarksLost,
   type MarksLostByType,
@@ -652,5 +660,57 @@ describe("(vii) W2 — 'Some pages couldn't be read' only when EVERY not-graded 
     const old = recOf("CI-M-W2-08", [row(1, {}), row(2, { couldNotRead: true, totalMarks: 2 })]);
     delete (old as { notGradedAllUnread?: boolean }).notGradedAllUnread;
     expect(cardText([old])).toEqual(["Some pages couldn’t be read on this session — the score shows the graded portion only."]);
+  });
+});
+
+/* ══ (viii) N1 — the transition, through the REAL re-grade trigger (verifier N1, fix round 2026-10-05) ══ */
+describe("(viii) N1 — re-grading a worksheet recorded BEFORE the identity key never adds a second attempt", () => {
+  /** Turn the store into what the PRE-change code left: time-based local ids + the old score-keyed
+   *  keys in the device's `seen` list. */
+  const toPreChange = (withOldKeys: boolean) => {
+    const now = getAttempts();
+    saveInsights({ attempts: now.map((a, i) => ({ ...a, id: `${a.questionId}-real-numbers-legacy${i}` })) });
+    localStorage.setItem(
+      "lazytopper.attempt.dedup.v1",
+      JSON.stringify(withOldKeys ? now.map((a) => legacyAttemptKey("u-pr2-items", { questionId: a.questionId }, Number(a.marksScored), Number(a.marksAvailable))) : []),
+    );
+  };
+  const q1 = (awarded: number) => row(1, { marksAwarded: awarded, percentage: awarded * 25, annotatedSteps: [step(1, "partial", { marksAwarded: awarded, marksDeducted: 4 - awarded, mistakeType: "calculation" })], mistakeSummary: { conceptual: 0, calculation: 1, silly: 0, presentation: 0 }, marksLostByType: mk({ calculation: 4 - awarded }) });
+  const q2 = () => row(2, { marksAwarded: 4, percentage: 100, marksLostByType: mk() });
+
+  it("★ the SAME result re-graded → still ONE attempt per question; a CHANGED result → replaced, still ONE (latest)", async () => {
+    H.gradeWorksheet.mockResolvedValue(respOf([q1(1), q2()]));
+    await gradeWorksheetAndRecord(USER, paperOf("n1-ws"), UPLOAD);
+    expect(getAttempts()).toHaveLength(2);
+    toPreChange(true);
+    await gradeWorksheetAndRecord(USER, paperOf("n1-ws"), UPLOAD);
+    expect(getAttempts()).toHaveLength(2);
+    H.gradeWorksheet.mockResolvedValue(respOf([q1(3), q2()]));
+    await gradeWorksheetAndRecord(USER, paperOf("n1-ws"), UPLOAD);
+    const all = getAttempts();
+    expect(all).toHaveLength(2);
+    expect(all.map((a) => a.marksScored).sort()).toEqual([3, 4]);
+  });
+
+  it("CONTROL — the same re-grade WITHOUT the old keys doubles every question (the transition guard is what holds it at one)", async () => {
+    H.gradeWorksheet.mockResolvedValue(respOf([q1(1), q2()]));
+    await gradeWorksheetAndRecord(USER, paperOf("n1-ctl"), UPLOAD);
+    toPreChange(false);
+    await gradeWorksheetAndRecord(USER, paperOf("n1-ctl"), UPLOAD);
+    expect(getAttempts()).toHaveLength(4);
+  });
+});
+
+/* ══ (ix) N7 — the paper-level mismatch line is the owner's sentence, verbatim ══════════════════ */
+describe("(ix) N7 — both graded sheets name a mismatched answer in the owner's words, never a paraphrase", () => {
+  const mism = row(2, { totalMarks: 3, marksAwarded: 0, percentage: 0, answerMismatch: true, marksLostByType: mk() });
+  it("★ the worksheet sheet, the C&I sheet and the panel's line all carry ANSWER_MISMATCH_COPY verbatim", () => {
+    const response: WorksheetGradeResponse = { ok: true, results: [row(1, { totalMarks: 4, marksAwarded: 3 }), mism], totalQuestions: 2, gradedCount: 1, pendingCount: 1, gradedMarksAwarded: 3, gradedMarksTotal: 4, worksheetTotalMarks: 7 };
+    const ws = render(createElement(WorksheetGradedPrintDoc, { ws: paperOf("n7"), response, name: "Real Numbers · Worksheet 1", code: "WS-M-RN-01", coaching: "" }));
+    expect(ws.container.querySelector('.lt-gp__pending[data-grade-state="answer-mismatch"]')!.textContent).toContain(`1 answer not marked: ${ANSWER_MISMATCH_COPY}.`);
+    cleanup();
+    const ci = render(createElement(CheckImproveGradedPrintDoc, { code: "CI-M-RN-01", name: "Real Numbers · Check & Improve paper", questions: [row(1, { totalMarks: 4, marksAwarded: 3 }), mism], gradedMarksAwarded: 3, gradedMarksTotal: 4, pendingCount: 1, coaching: "" }));
+    expect(ci.container.querySelector('.lt-cigp__pending[data-grade-state="answer-mismatch"]')!.textContent).toContain(`1 answer not marked: ${ANSWER_MISMATCH_COPY}.`);
+    expect(mismatchSummaryLine(2)).toBe(`2 answers not marked: ${ANSWER_MISMATCH_COPY}.`);
   });
 });

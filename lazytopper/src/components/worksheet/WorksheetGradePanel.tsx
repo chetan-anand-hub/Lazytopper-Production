@@ -18,6 +18,7 @@ import {
   paperMarksLost,
   gradeStateCopy,
   isGradedQuestion,
+  mismatchSummaryLine,
   notGradedSummaryLine,
   pendingBreakdown,
   questionMarksLost,
@@ -544,7 +545,8 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
                       )}
                       {mismatch > 0 && (
                         <>
-                          {mismatch} answer{mismatch === 1 ? "" : "s"} not marked — {mismatch === 1 ? "it doesn’t" : "they don’t"} seem to match the question.{" "}
+                          {/* N7 — the owner's sentence, verbatim (never paraphrased). */}
+                          {mismatchSummaryLine(mismatch)}{" "}
                         </>
                       )}
                       {notGraded > 0 && <>{notGradedSummaryLine(notGraded)} </>}

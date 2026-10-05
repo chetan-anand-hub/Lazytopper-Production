@@ -683,6 +683,13 @@ function srBlock(src, re) {
 }
 const SR_READ_PREDICATE = /function isSessionRecord\([\s\S]*?\n\}/;
 const SR_VALID_SURFACES = /const VALID_SURFACES[\s\S]*?\];/;
+// superseded by owner ruling 2026-10-05: marks not counts — HARDENED (verifier N3, controller fix
+// round 2026-10-05): "the read unchanged" now covers the WHOLE read of an old record, not only its
+// predicate — the cloud read, its merge over the local mirror and the local read are frozen too
+// (a probe that made the cloud read drop non-graded records passed both gates GREEN before this).
+const SR_CLOUD_READ = /export async function getSessionRecordsFromCloud\([\s\S]*?\n\}/;
+const SR_MERGE_BY_ID = /function mergeById\([\s\S]*?\n\}/;
+const SR_LOCAL_READ = /export function loadLocalSessionRecords\([\s\S]*?\n\}/;
 function additiveOnlyProblems(baseSrc, headSrc) {
   const problems = [];
   for (const name of ["SessionRecord", "SessionPerQuestionPayload", "SessionFourType"]) {
@@ -697,7 +704,14 @@ function additiveOnlyProblems(baseSrc, headSrc) {
       if (!before.includes(l) && /^[A-Za-z_$][\w$]*\s*:/.test(l)) problems.push(`${name}: new member is not optional: ${l}`);
     }
   }
-  for (const [label, re] of [["isSessionRecord (the read predicate)", SR_READ_PREDICATE], ["VALID_SURFACES", SR_VALID_SURFACES]]) {
+  for (const [label, re] of [
+    ["isSessionRecord (the read predicate)", SR_READ_PREDICATE],
+    ["VALID_SURFACES", SR_VALID_SURFACES],
+    // superseded by owner ruling 2026-10-05: marks not counts — hardened (verifier N3).
+    ["getSessionRecordsFromCloud (the cloud read)", SR_CLOUD_READ],
+    ["mergeById (cloud over the local mirror)", SR_MERGE_BY_ID],
+    ["loadLocalSessionRecords (the local read)", SR_LOCAL_READ],
+  ]) {
     const b = srBlock(baseSrc, re);
     const h = srBlock(headSrc, re);
     if (!b || !h || b !== h) problems.push(`${label} changed`);
@@ -733,6 +747,17 @@ function additiveOnlyChange(base, f) {
     "function isSessionRecord(v: unknown): v is SessionRecord {",
     "  return !!v;",
     "}",
+    // superseded by owner ruling 2026-10-05: marks not counts — hardened (verifier N3): the fixture
+    // carries the three frozen read functions too.
+    "export function loadLocalSessionRecords(uid?: string | null): SessionRecord[] {",
+    "  return [];",
+    "}",
+    "function mergeById(primary: SessionRecord[], secondary: SessionRecord[]): SessionRecord[] {",
+    "  return [...secondary, ...primary];",
+    "}",
+    "export async function getSessionRecordsFromCloud(uid?: string | null): Promise<SessionRecord[]> {",
+    "  return mergeById([], loadLocalSessionRecords(uid));",
+    "}",
     "export function build() {",
     "  return 1;",
     "}",
@@ -753,6 +778,12 @@ function additiveOnlyChange(base, f) {
     additiveOnlyProblems(fx, fx.replace("return !!v;", "return !!v && false;")).length > 0
       && additiveOnlyProblems(fx, fx.replace('  "worksheet",\n', '  "worksheet",\n  "other",\n')).length > 0,
     "the additive-only rule would let the read of an old record change");
+  // superseded by owner ruling 2026-10-05: marks not counts — hardened (verifier N3): the WHOLE read.
+  check("FORBIDDEN(additive-only): CONTROL — a changed cloud read, merge or local read (old records read differently) is caught",
+    additiveOnlyProblems(fx, fx.replace("  return mergeById([], loadLocalSessionRecords(uid));", "  return mergeById([], loadLocalSessionRecords(uid)).filter((r) => r.status === \"graded\");")).length > 0
+      && additiveOnlyProblems(fx, fx.replace("  return [...secondary, ...primary];", "  return [...primary];")).length > 0
+      && additiveOnlyProblems(fx, fx.replace("  return [];\n}\nfunction mergeById", "  return [].slice(1);\n}\nfunction mergeById")).length > 0,
+    "the additive-only rule would let the cloud / merged / local read of an old record change");
   for (const f of ADDITIVE_ONLY_ENTRIES) {
     check(`FORBIDDEN(additive-only): ${f} is still in the guarded set`, FORBIDDEN.includes(f),
       "the additive-only rule narrows an entry; it must never stand in for a removed one");

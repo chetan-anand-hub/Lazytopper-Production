@@ -10,6 +10,7 @@ import type { CheckSolutionResponse, StepSolutionResponse } from "../../ai/aiCli
 import { CorrectBurst, WrongShake } from "../celebrations";
 import { useAuth } from "../../context/AuthContext";
 import { recordAttempt } from "../../services/practiceInsights";
+import { practiceCardAttemptIdentity } from "../../services/attemptDedupKey";
 import { resolveCorrectOptionIndex } from "../../lib/objectiveScoring";
 
 const REPORT_TYPES = [
@@ -305,15 +306,14 @@ export function PracticeQuestionCard({
           subject: subjectKey,
           topic: topicLabel,
           question: q.questionText,
-          questionId: qId,
           marksScored: resultStatus === "correct" ? 1 : 0,
           marksAvailable: 1,
           mode: "mcq",
-          // H1 (A2) — a practice card allows several answers to one question, so the picked
-          // option is the answer's identity: the same pick again is the same attempt, a
-          // different pick (wrong-then-right) is a new one — never keyed on the score.
-          surface: "practice-mcq",
-          answerKey: `o:${oi}`,
+          // N2 (verifier, controller fix round 2026-10-05) — superseded by owner ruling 2026-10-05:
+          // re-grade replaces. The card's ONE attempt identity, shared with its SolutionChecker
+          // below: a click and a written check of this question are ONE attempt, latest wins —
+          // never keyed on the score, never on the mode.
+          ...practiceCardAttemptIdentity(qId),
         });
       }
     };
@@ -659,6 +659,8 @@ export function PracticeQuestionCard({
           savedAnswer={savedAnswer}
           onSaveAnswer={(working) => onSaveAnswer?.(String(q.id), working)}
           onRemoveAnswer={() => onRemoveAnswer?.(String(q.id))}
+          // N2 — the SAME attempt identity the MCQ click above records under.
+          attemptIdentity={practiceCardAttemptIdentity(String(q.id))}
         />
       )}
 

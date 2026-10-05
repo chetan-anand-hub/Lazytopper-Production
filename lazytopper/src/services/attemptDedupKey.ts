@@ -62,6 +62,48 @@ export function attemptDedupKey(uid: string, ctx: AttemptDedupContext): string {
   });
 }
 
+/**
+ * N2 (verifier, controller fix round 2026-10-05) — superseded by owner ruling 2026-10-05: re-grade
+ * replaces. The practice card's ONE attempt identity. A card offers the same question two ways — an
+ * MCQ click (`mode:"mcq"`) and a graded written check through its SolutionChecker (`mode:"graded"`)
+ * — and BOTH record with this identity, so they are ONE attempt for that question, the latest
+ * outcome winning exactly as a re-grade does. (Recording them under two surfaces brought back the
+ * double count the mode-independence pin was written against.) Pinned on the live call sites by
+ * objective-dedup §4b.
+ */
+export const PRACTICE_CARD_SURFACE = "practice";
+
+export function practiceCardAttemptIdentity(questionId: string): { surface: string; questionId: string } {
+  return { surface: PRACTICE_CARD_SURFACE, questionId: String(questionId ?? "").trim() };
+}
+
+/**
+ * N1 (verifier, controller fix round 2026-10-05) — the PRE-PR-2 attempt key
+ * (`uid :: question :: scored/available`), reproduced EXACTLY so a submission recorded before the
+ * identity key existed can be RECOGNISED in the device's `seen` list. It is NEVER an identity again
+ * (the score is never in the attempt key — `attemptDedupKey` above); it is read only so the first
+ * re-record of such a submission does not add a second attempt.
+ */
+export function legacyAttemptKey(uid: string, ctx: AttemptDedupContext, scored: number, available: number): string {
+  return `${legacyAttemptKeyPrefix(uid, ctx)}${scored}/${available}`;
+}
+
+/** The legacy key up to (and including) the separator before `scored/available`. */
+export function legacyAttemptKeyPrefix(uid: string, ctx: AttemptDedupContext): string {
+  const qid =
+    ctx.questionId && ctx.questionId.trim()
+      ? ctx.questionId.trim()
+      : `t:${hashAttemptString(ctx.question || ctx.topic || "")}`;
+  return [uid, qid, ""].join("::");
+}
+
+/** A legacy key's outcome (`scored/available`), or null when `key` is not a legacy key for `prefix`. */
+export function legacyKeyOutcome(key: string, prefix: string): { scored: number; available: number } | null {
+  if (!key.startsWith(prefix)) return null;
+  const m = /^(\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/.exec(key.slice(prefix.length));
+  return m ? { scored: Number(m[1]), available: Number(m[2]) } : null;
+}
+
 /** The minimal stored-attempt shape `upsertAttempt` reads. */
 export interface UpsertableAttempt {
   id: string;

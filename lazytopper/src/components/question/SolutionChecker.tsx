@@ -136,6 +136,15 @@ interface SolutionCheckerProps {
   onSaveAnswer?: (working: SolutionCheckerSavedWorking) => void;
   /** Collect mode only. Drop the saved working for this question (Replace / Remove). */
   onRemoveAnswer?: () => void;
+  /**
+   * N2 (verifier, controller fix round 2026-10-05; owner ruling "re-grade replaces") — the
+   * ATTEMPT identity a host shares with its own answer path. The practice card passes
+   * `practiceCardAttemptIdentity(q.id)`, the same identity its MCQ click records under, so a click
+   * and a written check of that question are ONE attempt (latest wins). Omitted (every other
+   * host): the checker's own identity, unchanged — surface "solution-checker" + the answer's key.
+   * The Mistake-Intelligence entry's identity is never affected.
+   */
+  attemptIdentity?: { surface: string; questionId: string };
 }
 
 /**
@@ -490,7 +499,7 @@ function SignInToCheckCta() {
 
 export function SolutionChecker({
   question, marks, subject, topic, questionId, solutionSteps, finalAnswer, section, format, options, answer, onRequestStepSolution, onResult,
-  collectMode = false, savedAnswer = null, onSaveAnswer, onRemoveAnswer,
+  collectMode = false, savedAnswer = null, onSaveAnswer, onRemoveAnswer, attemptIdentity,
 }: SolutionCheckerProps) {
   const { user } = useAuth();
   /**
@@ -637,16 +646,16 @@ export function SolutionChecker({
     // identity as the fresh grade (surface + question + answer), so a cache-restore replaces
     // nothing new and never double-counts toward accuracy.
     recordAttempt(user, {
-      subject, topic, question, questionId,
+      subject, topic, question,
       marksScored: result.marksAwarded,
       marksAvailable: result.totalMarks,
       mode: "graded",
-      surface: "solution-checker",
-      answerKey: savedAnswerKey,
+      // N2 — a host's shared attempt identity (the practice card) wins; else the checker's own.
+      ...(attemptIdentity ?? { surface: "solution-checker", questionId, answerKey: savedAnswerKey }),
       grade: result,
     });
     return () => { cancelled = true; };
-  }, [result, isFromCache, user, questionId, subject, topic, question, savedAnswerKey]);
+  }, [result, isFromCache, user, questionId, subject, topic, question, savedAnswerKey, attemptIdentity]);
 
 
   // UPLOAD-2 — the shared upload step. A photo is cropped (optional), turned upright,
@@ -765,13 +774,13 @@ export function SolutionChecker({
         // Score-twin of the mistake door: record the graded score as an attempt
         // (every graded answer, including full marks — accuracy needs both).
         recordAttempt(user, {
-          subject, topic, question, questionId,
+          subject, topic, question,
           marksScored: response.marksAwarded,
           marksAvailable: response.totalMarks,
           mode: "graded",
           // H1 (A2) — re-checking the SAME answer replaces its attempt; a new answer is a new one.
-          surface: "solution-checker",
-          answerKey,
+          // N2 — a host's shared attempt identity (the practice card) wins: click + check = ONE.
+          ...(attemptIdentity ?? { surface: "solution-checker", questionId, answerKey }),
           grade: response,
         });
       } else {

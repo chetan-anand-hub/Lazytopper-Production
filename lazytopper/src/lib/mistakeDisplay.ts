@@ -472,6 +472,12 @@ export function pendingBreakdown(
   return { unread: Math.max(0, (Number(pendingCount) || 0) - mismatch - notGraded), mismatch, notGraded };
 }
 
+/** A paper's summary line for its questions whose answer does not match the question — the owner's
+ *  sentence VERBATIM (N7, verifier, controller fix round 2026-10-05: never paraphrased). */
+export function mismatchSummaryLine(count: number): string {
+  return `${countWithUnit(count, "answer")} not marked: ${ANSWER_MISMATCH_COPY}.`;
+}
+
 /** A paper's summary line for its `notGraded` questions (withheld / timeout / error) — the
  *  controller's wording ruling W1 (2026-10-05), verbatim, singular and plural. */
 export function notGradedSummaryLine(count: number): string {
@@ -894,7 +900,7 @@ export function coachingLine(input: CoachingInput): string {
   }
   const mismatch = Number(input.mismatchCount) || 0;
   if (mismatch > 0) {
-    parts.push(`${countWithUnit(mismatch, "answer")} not marked: ${ANSWER_MISMATCH_COPY}.`);
+    parts.push(mismatchSummaryLine(mismatch));
   }
   const notGraded = Number(input.notGradedCount) || 0;
   if (notGraded > 0) parts.push(notGradedSummaryLine(notGraded));

@@ -5,7 +5,7 @@
  * Daily Mix and Weekly Wrapped.
  */
 
-import { collection, doc, getDocs, query, setDoc, where } from "firebase/firestore";
+import { collection, deleteDoc, doc, getDocs, query, setDoc, where } from "firebase/firestore";
 import type { AuthUser } from "../context/AuthContext";
 import {
   buildProgressScopeKey,
@@ -15,7 +15,13 @@ import {
 import { clearWrongAnswer, getWrongConceptsForTopic } from "./adaptivePracticeEngine";
 import { resolveCanonicalSlug, canonicalSlugMatches } from "../data/syllabus/canonicalTopicSlug";
 import { firestoreDb } from "./firebaseClient";
-import { attemptDedupKey, upsertAttempt } from "./attemptDedupKey";
+import {
+  attemptDedupKey,
+  legacyAttemptKey,
+  legacyAttemptKeyPrefix,
+  legacyKeyOutcome,
+  upsertAttempt,
+} from "./attemptDedupKey";
 import {
   MARKS_LOST_BY_TYPE_VERSION,
   isGradedQuestion,
@@ -165,6 +171,54 @@ function storeAttempt(attempt: PracticeAttempt): { outcome: "recorded" | "replac
   const { attempts, outcome, previous } = upsertAttempt(data.attempts, attempt);
   if (outcome !== "duplicate") saveInsights({ ...data, attempts });
   return { outcome, previous };
+}
+
+/**
+ * N1 (verifier, controller fix round 2026-10-05) — THE TRANSITION. A submission recorded BEFORE
+ * the identity key (H1) is stored under the old score-keyed key, so its first re-record after the
+ * change — a re-grade, or the SolutionChecker cache-restore on a revisit — would otherwise add a
+ * SECOND attempt and drain a weakness again. It is recognised through the device's `seen` list,
+ * which holds the old keys:
+ *   - "same-outcome": the old key for THIS outcome is in `seen` → it is the attempt already
+ *     stored: nothing is written, nothing drained (exactly what the old dedup did);
+ *   - "re-graded": a different outcome, recognised ONLY where the old key was already
+ *     submission-scoped (its question id embeds the paper / session id, e.g. `ws:<paper>:q3`) —
+ *     the old attempt is REPLACED (latest wins), never joined by a second;
+ *   - "none": anything else, including a question whose old key cannot tell this submission from
+ *     an earlier one (a bank id): a genuinely new submission stays a new attempt.
+ * A submission already re-recorded under its identity is the normal latest-wins path.
+ */
+type LegacyTransition =
+  | { kind: "none" }
+  | { kind: "same-outcome" }
+  | { kind: "re-graded"; legacyKeys: string[]; previousCorrect: boolean };
+
+function legacyTransition(
+  uid: string,
+  ctx: RecordAttemptContext,
+  attemptId: string,
+  seen: readonly string[],
+  scored: number,
+  available: number,
+): LegacyTransition {
+  if (loadInsights().attempts.some((a) => a.id === attemptId)) return { kind: "none" };
+  if (seen.includes(legacyAttemptKey(uid, ctx, scored, available))) return { kind: "same-outcome" };
+  const qid = String(ctx.questionId ?? "").trim();
+  const sub = String(ctx.submissionId ?? "").trim();
+  if (!qid || !sub || !qid.includes(sub)) return { kind: "none" };
+  const prefix = legacyAttemptKeyPrefix(uid, ctx);
+  const legacyKeys = seen.filter((k) => legacyKeyOutcome(k, prefix) !== null);
+  if (legacyKeys.length === 0) return { kind: "none" };
+  const last = legacyKeyOutcome(legacyKeys[0], prefix)!; // `seen` is newest-first
+  return { kind: "re-graded", legacyKeys, previousCorrect: last.scored >= last.available };
+}
+
+/** The "re-graded" transition: the old attempt(s) of this submission leave the local store and the
+ *  new one takes their place — ONE attempt, the latest outcome. */
+function replaceLegacyAttempts(attempt: PracticeAttempt): void {
+  const data = loadInsights();
+  const kept = data.attempts.filter((a) => !(a.questionId === attempt.questionId && a.id !== attempt.id));
+  saveInsights({ ...data, attempts: [...kept, attempt] });
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
@@ -326,9 +380,19 @@ export function recordAttempt(
     ...(v2Marks ? { marksLostByType: v2Marks, marksLostByTypeVersion: MARKS_LOST_BY_TYPE_VERSION } : {}),
     timestamp: Number(ctx.timestamp) || Date.now(),
   };
-  const stored = storeAttempt(attemptDoc);
+  // N1 — a submission recorded before the identity key: recognised, never doubled (see above).
+  const transition = legacyTransition(user.uid, ctx, attemptId, seen, scored, available);
+  if (transition.kind === "same-outcome") return "duplicate";
+  let stored: { outcome: "recorded" | "replaced" | "duplicate"; previous: Pick<PracticeAttempt, "correct"> | null };
+  if (transition.kind === "re-graded") {
+    replaceLegacyAttempts(attemptDoc);
+    stored = { outcome: "replaced", previous: { correct: transition.previousCorrect } };
+  } else {
+    stored = storeAttempt(attemptDoc);
+  }
   if (stored.outcome === "duplicate") return "duplicate";
-  writeAttemptDedup([key, ...seen.filter((k) => k !== key)]);
+  const retired = transition.kind === "re-graded" ? transition.legacyKeys : [];
+  writeAttemptDedup([key, ...seen.filter((k) => k !== key && !retired.includes(k))]);
 
   // PR-B: durable per-attempt time-series. Write each recorded attempt as an
   // independently queryable Firestore document. Idempotent BY CONSTRUCTION — the doc id IS
@@ -337,6 +401,16 @@ export function recordAttempt(
   // carries (e.g. `notAttempted` after a re-grade) does not linger from the old one.
   // Fire-and-forget, mirrors the blob-write guard in saveInsights.
   if (firestoreDb && user.uid !== "anonymous") {
+    // N1 — the old score-keyed doc of a re-graded pre-change submission leaves the cloud too, so
+    // the durable time-series also holds ONE attempt for it (its id = the old key, sanitized).
+    for (const legacyKey of retired) {
+      try {
+        void deleteDoc(doc(firestoreDb, "practiceInsights", user.uid, "attempts", legacyKey.replace(/[/.#$[\]\s]/g, "_")))
+          .catch((e) => console.warn("[practiceInsights] legacy attempt delete failed", e));
+      } catch (e) {
+        console.warn("[practiceInsights] legacy attempt delete failed", e);
+      }
+    }
     void setDoc(
       doc(firestoreDb, "practiceInsights", user.uid, "attempts", attemptId),
       attemptDoc,

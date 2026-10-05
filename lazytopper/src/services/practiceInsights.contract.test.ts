@@ -19,12 +19,16 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const setDocCalls: Array<{ path: string; data: Record<string, unknown> }> = [];
+const deleteDocCalls: string[] = [];
 vi.mock("./firebaseClient", () => ({ firestoreDb: { __mock: true } }));
 vi.mock("firebase/firestore", () => ({
   doc: (_db: unknown, ...segs: string[]) => ({ __type: "doc", path: segs.join("/") }),
   collection: (_db: unknown, ...segs: string[]) => ({ __type: "collection", path: segs.join("/") }),
   setDoc: async (ref: { path: string }, data: Record<string, unknown>) => {
     setDocCalls.push({ path: ref.path, data });
+  },
+  deleteDoc: async (ref: { path: string }) => {
+    deleteDocCalls.push(ref.path);
   },
   getDoc: async () => ({ exists: () => false }),
   where: () => ({}),
@@ -40,8 +44,8 @@ vi.mock("./adaptivePracticeEngine", () => ({
   getWrongConceptsForTopic: (k: string) => getWrongConceptsForTopic(k),
 }));
 
-import { getAttempts, recordAttempt, type RecordAttemptContext } from "./practiceInsights";
-import { gradeIdentityKey } from "./attemptDedupKey";
+import { getAttempts, recordAttempt, saveInsights, type PracticeAttempt, type RecordAttemptContext } from "./practiceInsights";
+import { gradeIdentityKey, legacyAttemptKey, practiceCardAttemptIdentity } from "./attemptDedupKey";
 import { attemptWeakAreaOutcome } from "./attemptOutcome";
 import { isLossOnlyNotAttempted, type GradedQuestionLike } from "../lib/mistakeDisplay";
 import { setActiveProgressUser } from "./studentProgressStore";
@@ -72,6 +76,7 @@ const ctx = (over: Partial<RecordAttemptContext> = {}): RecordAttemptContext => 
 beforeEach(() => {
   localStorage.clear();
   setDocCalls.length = 0;
+  deleteDocCalls.length = 0;
   clearWrongAnswer.mockClear();
   setActiveProgressUser("u1");
 });
@@ -172,5 +177,96 @@ describe("GA-21 — only KNOWLEDGE-GAP marks count against a chapter (attemptWea
     expect(attemptWeakAreaOutcome({ correct: true, marksScored: 3, marksAvailable: 3 })).toBe("knows");
     // an unversioned marks field is ignored (G5: never read without the version)
     expect(attemptWeakAreaOutcome({ correct: false, marksScored: 2, marksAvailable: 3, marksLostByType: marks({ silly: 1 }) })).toBe("gap");
+  });
+});
+
+/* ── N1 (verifier, controller fix round 2026-10-05) — THE TRANSITION ─────────────────────────────
+ * A submission recorded BEFORE the identity key sits under the old score-keyed key (the device's
+ * `seen` list) and an old local attempt. Its first re-record after the change — a re-grade, or the
+ * SolutionChecker cache-restore (pinned through the real component in
+ * SolutionChecker.transition.test.tsx) — must never add a second attempt nor drain again. */
+const LEGACY_SEEN = "lazytopper.attempt.dedup.v1";
+function seedPreChange(c: RecordAttemptContext, scored: number, available: number): void {
+  localStorage.setItem(LEGACY_SEEN, JSON.stringify([legacyAttemptKey("u1", c, scored, available)]));
+  const old: PracticeAttempt = {
+    id: `${c.questionId || "q"}-real-numbers-legacy`,
+    questionId: c.questionId || "",
+    topicKey: "real-numbers",
+    subject: "maths",
+    difficulty: "Medium",
+    correct: scored >= available,
+    marksScored: scored,
+    marksAvailable: available,
+    mode: c.mode,
+    timestamp: 1,
+  } as PracticeAttempt;
+  saveInsights({ attempts: [old] });
+  setDocCalls.length = 0;
+}
+
+describe("N1 — a submission recorded BEFORE the identity key is never doubled, never drained twice", () => {
+  it("★ re-recorded with the SAME result (a re-grade, or the cache-restore): 'duplicate' — one attempt, nothing drained, no cloud write", () => {
+    seedPreChange(ctx(), 1, 3);
+    expect(recordAttempt(user, ctx({ marksScored: 1 }))).toBe("duplicate");
+    expect(getAttempts()).toHaveLength(1);
+    expect(clearWrongAnswer).not.toHaveBeenCalled();
+    expect(attemptDocs()).toHaveLength(0);
+  });
+
+  it("★ a re-grade with a DIFFERENT result of a pre-change worksheet answer REPLACES it: one attempt, the latest; its old cloud doc deleted; drained once", () => {
+    seedPreChange(ctx(), 1, 3);
+    expect(recordAttempt(user, ctx({ marksScored: 3 }))).toBe("replaced");
+    const all = getAttempts();
+    expect(all).toHaveLength(1);
+    expect(all[0].marksScored).toBe(3);
+    expect(all[0].id).toBe(gradeIdentityKey("u1", { surface: "worksheet", submissionId: "ws-1", questionId: "ws:ws-1:q1" }).replace(/[/.#$[\]\s]/g, "_"));
+    expect(deleteDocCalls).toEqual([`practiceInsights/u1/attempts/${legacyAttemptKey("u1", ctx(), 1, 3).replace(/[/.#$[\]\s]/g, "_")}`]);
+    expect(clearWrongAnswer).toHaveBeenCalledTimes(1);
+    // …and the next re-record is the normal latest-wins path: the same result writes nothing.
+    expect(recordAttempt(user, ctx({ marksScored: 3 }))).toBe("duplicate");
+    expect(getAttempts()).toHaveLength(1);
+    expect(clearWrongAnswer).toHaveBeenCalledTimes(1);
+  });
+
+  it("CONTROL — a bank question (its old key cannot tell this submission from an earlier one) with a new result is a NEW attempt", () => {
+    const bank = ctx({ questionId: "bank-q-9", surface: "quick-practice", submissionId: "qp-2", marksAvailable: 1 });
+    seedPreChange(bank, 0, 1);
+    expect(recordAttempt(user, { ...bank, marksScored: 1 })).toBe("recorded");
+    expect(getAttempts()).toHaveLength(2);
+    expect(deleteDocCalls).toEqual([]);
+  });
+
+  it("CONTROL — with no old key in `seen` (nothing recorded before the change) the attempt is recorded as usual", () => {
+    seedPreChange(ctx(), 1, 3);
+    localStorage.removeItem(LEGACY_SEEN);
+    expect(recordAttempt(user, ctx({ marksScored: 1 }))).toBe("recorded");
+    expect(getAttempts()).toHaveLength(2);
+  });
+});
+
+/* ── N2 (verifier, controller fix round 2026-10-05; owner ruling "re-grade replaces") ─────────────
+ * The practice card's MCQ click and its written check of the SAME question record under ONE identity
+ * (practiceCardAttemptIdentity — the live call sites are pinned by objective-dedup §4b). */
+describe("N2 — the practice card: a click and a written check of one question are ONE attempt, latest wins", () => {
+  const card = (over: Partial<RecordAttemptContext>): RecordAttemptContext => ({
+    subject: "Maths", topic: "Real Numbers", question: "The HCF of 96 and 404 is", marksScored: 0, marksAvailable: 1, mode: "mcq",
+    ...practiceCardAttemptIdentity("bank-q-1"), ...over,
+  });
+  it("★ a wrong click then a right written check → ONE attempt holding the check; the weakness drains once", () => {
+    expect(recordAttempt(user, card({ mode: "mcq", marksScored: 0 }))).toBe("recorded");
+    expect(recordAttempt(user, card({ mode: "graded", marksScored: 1 }))).toBe("replaced");
+    const all = getAttempts();
+    expect(all).toHaveLength(1);
+    expect([all[0].marksScored, all[0].mode]).toEqual([1, "graded"]);
+    expect(clearWrongAnswer).toHaveBeenCalledTimes(1);
+    // a right click after the right check is the SAME outcome: nothing new is written (mode is HOW, not WHAT)
+    expect(recordAttempt(user, card({ mode: "mcq", marksScored: 1 }))).toBe("duplicate");
+    expect(getAttempts()).toHaveLength(1);
+    expect(clearWrongAnswer).toHaveBeenCalledTimes(1);
+  });
+  it("CONTROL — another question on the card is another attempt", () => {
+    recordAttempt(user, card({}));
+    recordAttempt(user, { ...card({}), ...practiceCardAttemptIdentity("bank-q-2") });
+    expect(getAttempts()).toHaveLength(2);
   });
 });

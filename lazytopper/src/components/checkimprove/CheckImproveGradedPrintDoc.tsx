@@ -1,5 +1,6 @@
 import { MathText } from "../question/MathText";
 import {
+  ANSWER_MISMATCH_COPY,
   COACHING_HEADING,
   NOT_ATTEMPTED,
   UNTYPED_MARKS_LABEL,
@@ -229,8 +230,9 @@ export function CheckImproveGradedPrintDoc({
                 )}
                 {mismatchCount > 0 && (
                   <div className="lt-cigp__pending" data-grade-state="answer-mismatch">
-                    <b>{countWithUnit(mismatchCount, "answer")} not marked</b> — {mismatchCount === 1 ? "it doesn’t" : "each doesn’t"} seem to match its
-                    question. <b>Not</b> graded, <b>not</b> scored 0 and <b>not</b> saved.
+                    {/* N7 — the owner's sentence, verbatim (never paraphrased). */}
+                    <b>{countWithUnit(mismatchCount, "answer")} not marked</b>: {ANSWER_MISMATCH_COPY}.
+                    {" "}<b>Not</b> graded, <b>not</b> scored 0 and <b>not</b> saved.
                   </div>
                 )}
                 {notGradedCount > 0 && (
