@@ -29,6 +29,7 @@ here: counts and percentages written into prose go stale.
 | `truth/rules.json` | the truth rules as data: each rule, and whether it is checked deterministically (CI) or by the stored LLM-judge verdicts |
 | `truth/repins.json` | the owner rulings (2)-(7) applied on top of the verified expectations, each guarded by its old value; plus the cases the rulings leave unsettled |
 | `truth/locators.json` | the wrong-step locators (ported from the audit's S6 scorer) |
+| `truth/mismatch.json` | owner addendum (5 Oct 2026), answer-question MISMATCH: six SYNTHETIC cases GS-MM-01..06 composed from existing golden items, answers and the owner's question page (cross-subject, other chapter, wrong page, partly relevant = graded normally, a 4-question set with one swapped answer, no question text = undecidable), with the v2 `answerMismatch` expectations and the legacy (no acceptsV2) expectation. No baseline run covers them yet (the eval key's credits ran out); the planner includes them, so the next live run does |
 | `truth/topic_vocab.json` | the canonical topic vocabulary (`src/lib/desktop/topics.ts`) |
 | `fixtures/ci_detect.audit-S3.json` | the audit's recorded detect results, used to build Check & Improve request bodies so every config grades identical requests |
 | `runs/<run-id>/` | a stored run: `manifest.json`, `run<k>.jsonl` (one line per job: request digest, the RAW model text of every model call, latency and tokens, the digest of the live response), `detect.jsonl`, optional `judge.json` |

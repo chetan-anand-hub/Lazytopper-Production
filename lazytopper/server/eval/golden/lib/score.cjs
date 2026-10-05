@@ -34,6 +34,20 @@ const quant = (a, p) => { if (!a.length) return null; const s = [...a].sort((x, 
 const sumSummary = (m) => (m ? TYPES.reduce((a, k) => a + (Number(m[k]) || 0), 0) : 0);
 
 function expectationFor(caseId, G, locators, probesTruth) {
+  if (caseId.startsWith('GS-MM-')) {
+    const [base, qPart] = caseId.split('.Q');
+    const m = G.mismatch.find((x) => x.caseId === base);
+    const q = qPart ? m.resolvedQuestions.find((x) => x.qNumber === Number(qPart)) : null;
+    const e = q ? q.expected : m.expected;
+    const marks = q ? q.marks : m.resolved.marks;
+    const graded = e.graded === true;
+    return {
+      kind: 'mismatch', mismatchKind: m.kind, answerMismatch: e.answerMismatch, legacy: e.legacy || null,
+      totalMarks: graded && e.totalMarks !== undefined ? e.totalMarks : (e.legacy ? e.legacy.totalMarks : undefined),
+      maxMarks: marks, objective: false, wrongStep: e.wrongStep ?? null, mistakeType: graded ? (e.mistakeType ?? null) : null,
+      wrongStepLocator: null, departureKind: null, departureReturns: false, illegible: false, declineAcceptable: false,
+    };
+  }
   if (caseId.startsWith('GS-')) {
     const c = G.casesById[caseId];
     const e = c.expected;
@@ -87,6 +101,25 @@ function makeRow(item, caseId, result, ctx) {
   const row = { caseId, kind: exp.kind, surface: job.surface, entry: job.entry, run, jobKey: job.jobKey, max: exp.maxMarks,
     expectedTotal: exp.totalMarks, expectedType: exp.mistakeType, contested: exp.contested === true, subject: exp.subject || null };
   row.status = statusOf(item, result);
+  // v2 (acceptsV2) answer-question mismatch verdict; absent on today's responses.
+  row.answerMismatch = result && Object.prototype.hasOwnProperty.call(result, 'answerMismatch') ? result.answerMismatch : undefined;
+  if (exp.kind === 'mismatch') {
+    row.expectedAnswerMismatch = exp.answerMismatch;
+    row.mismatchKind = exp.mismatchKind;
+    const msteps = result && Array.isArray(result.annotatedSteps) ? result.annotatedSteps : [];
+    const noMarks = !(Number(result && result.marksAwarded) > 0) && msteps.every((s) => !(Number(s.marksAwarded) > 0));
+    if (exp.answerMismatch === true) row.mismatchCorrect = row.answerMismatch === true && noMarks;
+    else if (exp.answerMismatch === null) row.mismatchCorrect = row.answerMismatch === null;
+    if (exp.legacy && row.status === 'graded') {
+      const sum = result.mistakeSummary ? TYPES.reduce((a, k) => a + (Number(result.mistakeSummary[k]) || 0), 0) : 0;
+      row.legacyMismatchOk = Number(result.marksAwarded) === exp.legacy.totalMarks && msteps.every((s) => !(Number(s.marksAwarded) > 0)) && msteps.every((s) => !s.mistakeType) && sum === 0;
+    } else if (exp.legacy) {
+      row.legacyMismatchOk = false;
+    }
+  }
+  if (exp.answerMismatch !== true && exp.answerMismatch !== null && (row.status === 'graded' || row.status === 'couldNotRead')) {
+    row.noFalseMismatch = row.answerMismatch !== true;
+  }
   if (row.status === 'graded') {
     const steps = Array.isArray(result.annotatedSteps) ? result.annotatedSteps : [];
     row.scale = Number(result.totalMarks);
@@ -290,6 +323,19 @@ function score(input) {
   result.owner = { runs: ownerRuns, n: qn, pass: own.filter((r) => r.withinHalf === true).length, pct: pct(own.filter((r) => r.withinHalf === true).length, qn),
     agg: aggregate(own), runToRun: runToRun(own) };
 
+  // answer-question MISMATCH (owner addendum; truth/mismatch.json). `noFalse` is measured on
+  // EVERY answered output that is not itself a mismatch / undecidable case (golden, owner,
+  // probes, M4, M5's other questions); today's responses carry no answerMismatch field, so it
+  // is 100% by absence, and `detect` is a miss wherever a mismatch case was run ("not detected").
+  const mm = rows.filter((r) => r.kind === 'mismatch');
+  result.mismatch = {
+    detect: rate(mm, 'mismatchCorrect'),
+    legacy: rate(mm, 'legacyMismatchOk'),
+    noFalse: rate(rows, 'noFalseMismatch'),
+    gradedNormally: aggregate(mm.filter((r) => r.expectedAnswerMismatch === false)),
+    rows: mm.map((r) => ({ caseId: r.caseId, kind: r.mismatchKind, entry: r.entry, run: r.run, status: r.status, answerMismatch: r.answerMismatch, expected: r.expectedAnswerMismatch, awarded: r.awarded, legacyOk: r.legacyMismatchOk })),
+  };
+
   // chapter (detect) — stored detect outputs replayed through handleDetectQuestion
   const det = [];
   for (const d of input.detectItems || []) {
@@ -356,6 +402,9 @@ function headline(res) {
     m13_declined: res.m13.pct,
     owner_within_half: res.owner.pct,
     chapter: res.chapter.pct,
+    no_false_mismatch: res.mismatch.noFalse.pct,
+    mismatch_detect: res.mismatch.detect.pct,
+    mismatch_legacy: res.mismatch.legacy.pct,
   };
 }
 

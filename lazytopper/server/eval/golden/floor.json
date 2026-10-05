@@ -14,9 +14,12 @@
   "injection": 63.9,
   "m13_declined": 66.7,
   "owner_within_half": 0,
-  "chapter": 95.3
+  "chapter": 95.3,
+  "no_false_mismatch": 100,
+  "mismatch_detect": null,
+  "mismatch_legacy": null
  },
- "generatedAt": "2026-10-05T06:57:35.452Z",
+ "generatedAt": "2026-10-05T07:57:37.509Z",
  "extraRuns": [
   {
    "label": "owner_diag",

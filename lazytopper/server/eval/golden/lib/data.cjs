@@ -174,9 +174,54 @@ function load() {
 
   const owner = readJson('owner-anomaly-01/case.json');
   const probes = readJson('probes/injection.json');
+  const mismatch = resolveMismatch(readJson('truth/mismatch.json'), { itemsById, casesById, detect, nameBySlug });
 
-  _cache = { cases, casesById, itemsById, repins, appliedRepins, vocab, nameBySlug, owner, probes, GOLDEN_DIR };
+  _cache = { cases, casesById, itemsById, repins, appliedRepins, vocab, nameBySlug, owner, probes, mismatch, GOLDEN_DIR };
   return _cache;
+}
+
+// The answer-question MISMATCH cases (owner addendum 2026-10-05), resolved from their
+// compositions into concrete questions + answers. Every reference must resolve.
+function resolveMismatch(raw, ctx) {
+  const answerOf = (a) => {
+    if (a.file) return { mode: 'upload', file: a.file, mime: a.mime };
+    const src = ctx.casesById[a.fromCase];
+    if (!src) throw new Error('mismatch: unknown answer case ' + a.fromCase);
+    if (src.mode !== 'typed') throw new Error('mismatch: answer case ' + a.fromCase + ' is not typed');
+    let text = src.textAnswer;
+    if (Array.isArray(a.keepLines)) text = text.split('\n').filter((_, i) => a.keepLines.includes(i)).join('\n');
+    return { mode: 'typed', text, fromCase: a.fromCase };
+  };
+  const questionOf = (q, fallbackFromCase) => {
+    if (q.placeholder) {
+      const src = ctx.casesById[fallbackFromCase];
+      return { questionText: q.placeholder, subject: q.subject, marks: src.marks, topic: q.placeholder, objective: false, itemId: null };
+    }
+    const item = ctx.itemsById[q.fromItem];
+    if (!item) throw new Error('mismatch: unknown question item ' + q.fromItem);
+    const d = ctx.detect[item.id];
+    return {
+      questionText: composeQuestion(item), subject: item.subject, marks: Number(item.question.marks),
+      topic: d ? d.topicName : (ctx.nameBySlug[item.chapterTrue.appTopicKey] || item.chapterTrue.name),
+      objective: Boolean(d && d.objective === true), itemId: item.id,
+    };
+  };
+  const out = [];
+  for (const c of raw.cases) {
+    if (Array.isArray(c.questions)) {
+      out.push({ ...c, label: raw.label, resolvedQuestions: c.questions.map((q) => {
+        const exp = { ...q.expected };
+        if (exp.expectedFromCase) {
+          const e = ctx.casesById[exp.expectedFromCase].expected;
+          Object.assign(exp, { totalMarks: e.totalMarks, mistakeType: e.mistakeType, wrongStep: e.wrongStep });
+        }
+        return { qNumber: q.qNumber, ...questionOf(q.question), answer: answerOf(q.answer), expected: exp };
+      }) });
+    } else {
+      out.push({ ...c, label: raw.label, resolved: { ...questionOf(c.question, c.answer.fromCase), answer: answerOf(c.answer) } });
+    }
+  }
+  return out;
 }
 
 function goldenFile(rel) {

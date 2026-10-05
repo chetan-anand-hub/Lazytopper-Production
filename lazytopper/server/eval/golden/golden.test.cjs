@@ -150,6 +150,37 @@ test('§5 golden data — counts, sums, labels, locators', () => {
   for (const v of G.vocab) assert.ok(vocabSrc.includes('"' + v.slug + '"'), 'topic slug ' + v.slug + ' no longer in topics.ts');
 });
 
+test('§7 MISMATCH (owner addendum) — cases resolve, and the scorer\'s three checks can pass AND fail', () => {
+  const G = require('./lib/data.cjs').load();
+  const { buildPlan } = require('./lib/planner.cjs');
+  const { score } = require('./lib/score.cjs');
+  assert.deepStrictEqual(G.mismatch.map((m) => m.caseId), ['GS-MM-01', 'GS-MM-02', 'GS-MM-03', 'GS-MM-04', 'GS-MM-05', 'GS-MM-06']);
+  for (const m of G.mismatch) assert.strictEqual(m.label, 'SYNTHETIC');
+  const m5 = G.mismatch.find((m) => m.caseId === 'GS-MM-05');
+  assert.strictEqual(m5.resolvedQuestions.filter((q) => q.expected.answerMismatch === true).length, 1, 'M5: exactly ONE mismatched question');
+  assert.deepStrictEqual(m5.entries, ['set'], 'M5 is set only');
+  assert.strictEqual(G.mismatch.find((m) => m.caseId === 'GS-MM-06').expected.answerMismatch, null, 'M6 is undecidable (null)');
+  assert.strictEqual(G.mismatch.find((m) => m.caseId === 'GS-MM-04').expected.answerMismatch, false, 'M4 (partly relevant) is graded normally');
+  const job = buildPlan({ filter: (k) => k === 'W.MM.GS-MM-05' })[0];
+  assert.ok(job && job.caseIds.length === 4);
+  const step = (aw, type) => ({ stepNumber: 1, description: 'd', studentWork: 'w', status: aw > 0 ? 'correct' : 'incorrect', marksAwarded: aw, marksDeducted: 0, teacherAnnotation: '', mistakeType: type, correctedWorking: null });
+  const res = (q, aw, extra) => ({ qNumber: q, couldNotRead: false, totalMarks: 2, marksAwarded: aw, annotatedSteps: [step(aw, null)], mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 }, ...extra });
+  const run = (results) => score({ items: [{ job, run: 1, record: { calls: [], wallMs: 1 }, rep: { httpStatus: 200, body: { ok: true, results } } }], detectItems: [] }).mismatch;
+  // Legacy-shaped response (no field): Q3 scored 0 with no step marks / types -> legacy OK, detect = "not detected".
+  const legacy = run([res(1, 2), res(2, 1.5), res(3, 0), res(4, 2.5)]);
+  assert.strictEqual(legacy.legacy.pass, 1, 'legacy check must PASS on a 0-mark, untyped Q3');
+  assert.strictEqual(legacy.detect.pass, 0, 'no answerMismatch field = not detected');
+  assert.strictEqual(legacy.noFalse.pct, 100);
+  // Legacy FAIL: Q3 awarded marks.
+  assert.strictEqual(run([res(1, 2), res(2, 1.5), res(3, 1), res(4, 2.5)]).legacy.pass, 0, 'legacy check must FAIL when the mismatched answer earns marks');
+  // v2-shaped: Q3 flagged and ungraded -> detect PASS; Q1 wrongly flagged -> a FALSE mismatch.
+  const v2 = run([res(1, 2, { answerMismatch: true }), res(2, 1.5, { answerMismatch: false }), res(3, 0, { answerMismatch: true }), res(4, 2.5, { answerMismatch: false })]);
+  assert.strictEqual(v2.detect.pass, 1, 'a flagged, ungraded Q3 must count as detected');
+  assert.ok(v2.noFalse.pct < 100, 'a mismatch flag on a matching answer must count as a FALSE mismatch');
+  // Flagged but still given marks is NOT a correct mismatch verdict.
+  assert.strictEqual(run([res(1, 2), res(2, 1.5), res(3, 1, { answerMismatch: true }), res(4, 2.5)]).detect.pass, 0, 'a mismatch that still awards marks is wrong');
+});
+
 test('§6 owner rulings — applied once, guarded, and the contested cases they settle are settled', () => {
   const D = require('./lib/data.cjs');
   const G = D.load();

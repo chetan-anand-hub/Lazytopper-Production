@@ -13,7 +13,7 @@
 //   --model M --thinking N --config-id ID   a custom config instead of A/B/C
 //   --runs N              repeats of the whole plan (default 3)
 //   --concurrency N       parallel jobs (default 4; the brief caps it at 4)
-//   --filter REGEX        only jobs whose key matches (e.g. '^S\.CI\.GS-M0')
+//   --filter P[,P...]     only jobs whose key starts with a prefix P (P ending in '$' = exact key)
 //   --detect              also run the detect-question jobs (once, as run 1)
 //   --run-id ID           folder name under runs/ (default <date>.<config-id>)
 //   --out DIR             write the run somewhere else (e.g. off-repo for B/C)
@@ -55,7 +55,11 @@ async function main() {
   if (!cfg) { out('usage: --config A|B|C (or --model M [--thinking N] --config-id ID)'); process.exit(2); }
   const runs = Number(arg('--runs', '3'));
   const concurrency = Math.min(4, Number(arg('--concurrency', '4')));
-  const filter = arg('--filter') ? new RegExp(arg('--filter')) : null;
+  // Plain matching, never a RegExp built from input: comma-separated job-key PREFIXES; a
+  // pattern ending in '$' matches that exact key (e.g. --filter S.CI.GS-M0,W.CIM.OA-01$).
+  const filterArg = arg('--filter');
+  const filterPats = filterArg ? String(filterArg).split(',').map((p) => p.trim()).filter(Boolean) : null;
+  const filter = filterPats ? (key) => filterPats.some((p) => (p.endsWith('$') ? key === p.slice(0, -1) : key.startsWith(p))) : null;
   const dry = has('--dry');
   const date = new Date().toISOString().slice(0, 10);
   const runId = arg('--run-id', date + '.' + cfg.id);

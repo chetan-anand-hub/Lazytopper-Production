@@ -77,7 +77,7 @@ function docPdf(caseIds, byId) {
 }
 
 /**
- * @param {{ includeDetect?: boolean, filter?: RegExp|null }} opts
+ * @param {{ includeDetect?: boolean, filter?: ((jobKey: string) => boolean)|null }} opts
  * @returns {Array<{jobKey:string, entry:'single'|'set'|'detect', handler:string, surface:string, caseIds:string[], qNumbers:Object, request:Object, requestDigest:string}>}
  */
 function buildPlan(opts = {}) {
@@ -86,7 +86,7 @@ function buildPlan(opts = {}) {
   const jobs = [];
   const push = (job) => {
     job.requestDigest = digest(job.request);
-    if (!opts.filter || opts.filter.test(job.jobKey)) jobs.push(job);
+    if (!opts.filter || opts.filter(job.jobKey)) jobs.push(job);
   };
 
   // ── single entry: /api/check-solution (handleCheckSolution) ───────────────
@@ -202,6 +202,31 @@ function buildPlan(opts = {}) {
   for (const p of G.probes.probes.filter((x) => x.entry === 'set')) {
     push({ jobKey: 'W.INJ.' + p.probeId, entry: 'set', handler: 'handleGradeWorksheet', surface: 'INJECTION',
       caseIds: [p.probeId], qNumbers: { [p.probeId]: 1 }, request: materialiseProbe(p) });
+  }
+
+  // ── answer-question MISMATCH (owner addendum 2026-10-05; truth/mismatch.json) ─
+  // Same request shapes as CI-SINGLE (single entry) and PARITY (set entry); M5 is set only.
+  const singleAnswer = (a) => (a.mode === 'typed' ? { textAnswer: a.text } : { imageBase64: b64(a.file), imageMimeType: a.mime });
+  for (const m of G.mismatch) {
+    if (m.entries.includes('single') && m.resolved) {
+      const r = m.resolved;
+      push({ jobKey: 'S.MM.' + m.caseId, entry: 'single', handler: 'handleCheckSolution', surface: 'MISMATCH', caseIds: [m.caseId], qNumbers: { [m.caseId]: 1 },
+        request: { question: r.questionText, subject: r.subject, topic: r.topic, marks: r.marks, ...(r.objective ? { objective: true } : {}), ...singleAnswer(r.answer) } });
+    }
+    if (m.entries.includes('set')) {
+      const qs = m.resolvedQuestions || [{ qNumber: 1, ...m.resolved }];
+      const questions = []; const uploads = []; const qNumbers = {}; const caseIds = [];
+      for (const q of qs) {
+        const cid = m.resolvedQuestions ? m.caseId + '.Q' + q.qNumber : m.caseId;
+        caseIds.push(cid); qNumbers[cid] = q.qNumber;
+        const one = { qNumber: q.qNumber, marks: q.marks, questionText: q.questionText, topic: q.topic, topicLabel: q.topic, ...(q.objective ? { objective: true } : {}) };
+        if (q.answer.mode === 'typed') one.textAnswer = q.answer.text;
+        else uploads.push({ qNumber: q.qNumber, imageBase64: b64(q.answer.file), imageMimeType: q.answer.mime });
+        questions.push(one);
+      }
+      push({ jobKey: 'W.MM.' + m.caseId, entry: 'set', handler: 'handleGradeWorksheet', surface: 'MISMATCH', caseIds, qNumbers,
+        request: { worksheetId: 'golden-mm-' + m.caseId, subject: m.subject || qs[0].subject, questions, ...(uploads.length ? { uploads } : {}) } });
+    }
   }
 
   // ── detect: /api/detect-question (handleDetectQuestion) — chapter / marks / owner paper ─
