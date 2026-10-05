@@ -20,8 +20,32 @@
 const { isObjective, scoreObjective, normaliseOption, optionsDifferOnlyByCase, normaliseOptionKeepCase } = require('../routes/objectiveScoring.cjs');
 const { buildGradingContents } = require('./prompt.cjs');
 const { chooseNonce } = require('./fence.cjs');
-const { GRADING_RESPONSE_SCHEMA, GRADING_RESPONSE_SCHEMA_AUTODETECT } = require('./schema.cjs');
+const { GRADING_RESPONSE_SCHEMA, GRADING_RESPONSE_SCHEMA_AUTODETECT, GRADING_RESPONSE_SCHEMA_INVENTORY } = require('./schema.cjs');
 const { normaliseQuestionResult } = require('./postprocess.cjs');
+
+/**
+ * C3 · P0 (controller decision D23) — the page inventory the model committed to BEFORE grading,
+ * as qNumber → the first lines it quoted. Returns null when the reply carries no usable
+ * inventory (absent, not an array, or listing no question at all): the guard then fails OPEN
+ * for that reply — an absent field is not evidence that a question is unanswered. (With the
+ * inventory schema the field is required, so a schema-conforming reply always carries it.)
+ * @returns {Map<number, string[]>|null}
+ */
+function pageInventoryOf(parsed) {
+  const pages = parsed && Array.isArray(parsed.pageInventory) ? parsed.pageInventory : null;
+  if (!pages) return null;
+  const seen = new Map();
+  for (const p of pages) {
+    for (const e of (p && Array.isArray(p.questionsSeen) ? p.questionsSeen : [])) {
+      const n = Number(e && e.qNumber);
+      if (!(n > 0)) continue;
+      if (!seen.has(n)) seen.set(n, []);
+      const line = String((e && e.firstLine) || '').trim();
+      if (line) seen.get(n).push(line);
+    }
+  }
+  return seen.size > 0 ? seen : null;
+}
 const {
   DEFAULT_GRADING_MODEL, DEFAULT_GRADING_LIGHT_MODEL, GRADING_FALLBACK_MODEL, isModelUnavailable,
 } = require('./modelConfig.cjs');
@@ -138,12 +162,15 @@ function createGradingCore(deps) {
   /** One model call for a group of questions: prompt → model → parse (+1 retry). */
   async function gradeGroup({ model, questions, uploadByNumber, document, subject, single, autoDetect, label }) {
     const nonce = chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]), makeFenceNonce);
-    const { contents } = buildGradingContents({ questions, uploadByNumber, document, subject, nonce, buildGeminiImagePart, autoDetect });
+    const { contents, transport } = buildGradingContents({ questions, uploadByNumber, document, subject, nonce, buildGeminiImagePart, autoDetect });
+    // D23: ONE document for the whole set is the only transport where the server cannot know
+    // which questions were answered — there the model fills the page inventory first.
+    const inventory = transport === 'document' && !autoDetect;
     const genConfig = {
       temperature: 0,
       maxOutputTokens: single ? SINGLE_MAX_OUTPUT_TOKENS : SET_MAX_OUTPUT_TOKENS,
       responseMimeType: 'application/json',
-      responseSchema: autoDetect ? GRADING_RESPONSE_SCHEMA_AUTODETECT : GRADING_RESPONSE_SCHEMA,
+      responseSchema: autoDetect ? GRADING_RESPONSE_SCHEMA_AUTODETECT : inventory ? GRADING_RESPONSE_SCHEMA_INVENTORY : GRADING_RESPONSE_SCHEMA,
       // TELEMETRY hints only — geminiClient's buildBody reads a closed key set, so neither
       // reaches the wire. A single question carries its marks band; a set carries none.
       workloadClass: single ? 'grade-single' : uploadByNumber.size > 0 ? 'grade-batch' : 'worksheet',
@@ -171,6 +198,7 @@ function createGradingCore(deps) {
         'head:', attempt.reply && attempt.reply.text ? attempt.reply.text.slice(0, 300) : '(empty)',
         'tail:', attempt.reply && attempt.reply.text ? attempt.reply.text.slice(-200) : '(empty)');
     }
+    attempt.inventory = inventory && attempt.results ? pageInventoryOf(attempt.parsed) : null;
     return attempt;
   }
 
@@ -248,12 +276,19 @@ function createGradingCore(deps) {
       return gradeGroup({ model, questions: qs, uploadByNumber: groupUploads, document, subject: input.subject, single, autoDetect, label });
     }));
     const failedQs = new Set();
+    const inventoryByQ = new Map(); // D23: qNumber → { present, firstLines } from its group's reply
     groupList.forEach(([, qs], i) => {
       const attempt = attempts[i];
       lastModel = attempt.model;
       if (!modelsUsed.includes(attempt.model)) modelsUsed.push(attempt.model);
       if (!attempt.results) { for (const q of qs) failedQs.add(Number(q.qNumber)); return; }
       anyOk = true;
+      if (attempt.inventory) {
+        for (const q of qs) {
+          const n = Number(q.qNumber);
+          inventoryByQ.set(n, { present: attempt.inventory.has(n), firstLines: attempt.inventory.get(n) || [] });
+        }
+      }
       if (!summary) summary = String((attempt.parsed && attempt.parsed.summary) || '').trim();
       for (const r of attempt.results) {
         if (r && r.qNumber != null) byNumber.set(Number(r.qNumber), r);
@@ -293,7 +328,7 @@ function createGradingCore(deps) {
     const results = questions.map((q) => normaliseQuestionResult(
       q,
       failedQs.has(Number(q.qNumber)) ? null : byNumber.get(Number(q.qNumber)) || null,
-      { acceptsV2: input.acceptsV2 === true, answerInput: answerInputOf(q) },
+      { acceptsV2: input.acceptsV2 === true, answerInput: answerInputOf(q), inventory: inventoryByQ.get(Number(q.qNumber)) || null },
     ));
     return { ok: true, results, summary, modelUsed, detection };
   }
@@ -301,4 +336,4 @@ function createGradingCore(deps) {
   return { gradeSet, chosenModel, routerMode, lightModel, fallbackState: fallback };
 }
 
-module.exports = { createGradingCore, knownPick, SINGLE_MAX_OUTPUT_TOKENS, SET_MAX_OUTPUT_TOKENS, FALLBACK_COUNTER };
+module.exports = { createGradingCore, knownPick, pageInventoryOf, SINGLE_MAX_OUTPUT_TOKENS, SET_MAX_OUTPUT_TOKENS, FALLBACK_COUNTER };

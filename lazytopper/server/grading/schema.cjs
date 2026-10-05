@@ -73,8 +73,12 @@ function mistakeSummarySchema() {
 }
 
 /**
- * @param {{ autoDetect?: boolean }} [opts]  autoDetect adds the (optional) detection fields a
- *        set of one may carry when the caller asked the grader to determine marks/subject/topic.
+ * @param {{ autoDetect?: boolean, inventory?: boolean }} [opts]  autoDetect adds the (optional)
+ *        detection fields a set of one may carry when the caller asked the grader to determine
+ *        marks/subject/topic. inventory (ONE uploaded document for the whole set — controller
+ *        decision D23) adds a top-level "pageInventory" ordered BEFORE "results" and REQUIRED:
+ *        it is the parse gate of the P0 presence guard (postprocess.cjs), so the model commits
+ *        to what is on each page before it grades. Every other transport is unchanged.
  */
 function buildResponseSchema(opts = {}) {
   const resultProps = {
@@ -119,7 +123,7 @@ function buildResponseSchema(opts = {}) {
     });
     order.splice(1, 0, 'detectedSubject', 'detectedTopic', 'detectedMarks', 'marksSource');
   }
-  return {
+  const top = {
     type: 'OBJECT',
     properties: {
       results: {
@@ -131,9 +135,42 @@ function buildResponseSchema(opts = {}) {
     propertyOrdering: ['results', 'summary'],
     required: ['results'],
   };
+  if (opts.inventory) {
+    top.properties = {
+      pageInventory: {
+        type: 'ARRAY',
+        items: {
+          type: 'OBJECT',
+          properties: {
+            page: { type: 'INTEGER', nullable: true },
+            questionsSeen: {
+              type: 'ARRAY',
+              nullable: true,
+              items: {
+                type: 'OBJECT',
+                properties: { qNumber: { type: 'INTEGER' }, firstLine: { type: 'STRING', nullable: true } },
+                propertyOrdering: ['qNumber', 'firstLine'],
+                // an entry without a qNumber cannot be mapped to a question (pageInventoryOf drops it)
+                required: ['qNumber'],
+              },
+            },
+          },
+          propertyOrdering: ['page', 'questionsSeen'],
+        },
+      },
+      ...top.properties,
+    };
+    top.propertyOrdering = ['pageInventory', 'results', 'summary'];
+    // The ONE requirement past the parse gate, and why: the inventory IS the D23 commitment —
+    // emitted before any grade, it is what the presence guard holds the grade to. (A reply
+    // without it still parses; the guard then fails open, so nothing is zeroed by its absence.)
+    top.required = ['pageInventory', 'results'];
+  }
+  return top;
 }
 
 const GRADING_RESPONSE_SCHEMA = deepFreeze(buildResponseSchema());
 const GRADING_RESPONSE_SCHEMA_AUTODETECT = deepFreeze(buildResponseSchema({ autoDetect: true }));
+const GRADING_RESPONSE_SCHEMA_INVENTORY = deepFreeze(buildResponseSchema({ inventory: true }));
 
-module.exports = { GRADING_RESPONSE_SCHEMA, GRADING_RESPONSE_SCHEMA_AUTODETECT, buildResponseSchema, deepFreeze };
+module.exports = { GRADING_RESPONSE_SCHEMA, GRADING_RESPONSE_SCHEMA_AUTODETECT, GRADING_RESPONSE_SCHEMA_INVENTORY, buildResponseSchema, deepFreeze };

@@ -7,6 +7,7 @@
 //
 // Order of operations (each later stage sees the earlier stage's result):
 //   1. couldNotRead (honest-pending)                       — never a fabricated 0
+//      P0 (C3): no answer input / not in the page inventory (D23) / scheme copied → unattempted
 //   2. step normalisation (status, part, marks on the ½ grid)
 //   3. ANSWER–QUESTION MISMATCH guard (C3b, evidence-gated)
 //   4. withdrawn work set aside (ruling 4: not assessed)
@@ -153,6 +154,53 @@ function copiesScheme(work, q) {
   return shared.size >= 4 && gramContainment(w, schemeText) >= 0.85;
 }
 
+/* ── C3 · P0 — INVENTORY FIRST (controller decision D23) ─────────────────────────
+   On ONE uploaded document for the whole set the server cannot know which questions were
+   answered, so the model lists — BEFORE grading, in the same call — every question whose
+   answer it can see on each page, with that answer's first line quoted (core.cjs
+   pageInventoryOf). The grade is then held to that commitment: a question the inventory
+   does not list, or whose quoted first line is not in its own studentWork, is UNATTEMPTED
+   (no marks, no type). Matching is deliberately tolerant of the model's two transcriptions
+   of the same handwriting (labels "Q3." / "Ans:" / "(i)" stripped, spacing and quote marks
+   ignored, and EITHER ≥ 0.6 of the line's 4-grams OR ≥ 0.6 of its words present, so a
+   reordered transcription still matches), because the cost of a miss here is a real answer
+   zeroed; a line too short to quote (an option letter) is presence-only. */
+const ANSWER_LABEL = /^\s*(?:(?:q(?:uestion)?|que?s)\s*\.?\s*(?:no\.?\s*)?\d+[a-z]?\s*[.):\-]*|\d{1,2}[a-z]?\s*(?:\.(?!\d)|\))|\(?\s*(?:[ivx]+|[a-h])\s*\)|(?:ans(?:wer)?|sol(?:ution)?|soln)\b\s*[.:\-]*)\s*/i;
+function stripAnswerLabel(s) {
+  let t = String(s == null ? '' : s).trim();
+  for (let i = 0; i < 4; i += 1) {
+    const m = t.match(ANSWER_LABEL);
+    if (!m || !m[0]) break;
+    t = t.slice(m[0].length);
+  }
+  return t.trim();
+}
+const compactText = (s) => String(s == null ? '' : s).normalize('NFKC').toLowerCase()
+  .replace(/[×·∙]/g, 'x').replace(/[−–—]/g, '-').replace(/[\s"'“”‘’`]/g, '');
+/** Is the inventory's quoted first line in the question's own studentWork? */
+function firstLineInWork(line, work) {
+  const l = stripAnswerLabel(line);
+  if (compactText(l).length < 4) return true; // nothing quotable (an option letter, a bare label)
+  const w = compactText(work);
+  if (w.includes(compactText(l))) return true;
+  if (gramContainment(l, work) >= 0.6) return true;
+  // word bag: the line's significant words (≥ 3 letters, or carrying a digit), in any order
+  const tokens = String(l).normalize('NFKC').toLowerCase().replace(/[−–—]/g, '-')
+    .split(/[\s,;:!?()[\]{}"'“”‘’`=+]+/).map((x) => x.replace(/^[.\-]+|[.\-]+$/g, ''))
+    .filter((x) => x.length >= 3 || /\d/.test(x));
+  if (tokens.length < 2) return false;
+  return tokens.filter((x) => w.includes(compactText(x))).length / tokens.length >= 0.6;
+}
+/** 'notInInventory' | 'firstLineNotInWork' | null (the grade may stand). */
+function inventoryVerdict(inventory, steps, raw) {
+  if (!inventory || typeof inventory !== 'object') return null;
+  if (inventory.present !== true) return 'notInInventory';
+  const lines = (Array.isArray(inventory.firstLines) ? inventory.firstLines : []).filter((l) => compactText(stripAnswerLabel(l)).length >= 4);
+  if (lines.length === 0) return null;
+  const work = steps.map((s) => s.studentWork).concat([String((raw && raw.studentFinalAnswer) || '')]).join('\n');
+  return lines.some((l) => firstLineInWork(l, work)) ? null : 'firstLineNotInWork';
+}
+
 /* ── rubric (C7) ─────────────────────────────────────────────────────────── */
 
 function validRubric(raw, total) {
@@ -260,7 +308,8 @@ function takeFromEnd(steps, amount, onTake) {
 /**
  * @param {object} q     the SENT question (trusted marks/scheme/key).
  * @param {object|null} raw  the model's entry for it (null when it omitted the question).
- * @param {{ acceptsV2?: boolean, hasTypedAnswer?: boolean }} ctx
+ * @param {{ acceptsV2?: boolean, answerInput?: boolean|null,
+ *           inventory?: { present: boolean, firstLines: string[] }|null }} ctx
  * @returns {object} one per-question result in the legacy or v2 shape. Internal facts for the
  *          caller (`_graded`, `_withheld`) are non-enumerable.
  */
@@ -294,7 +343,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
 
   // C3 · P0 — a question with NO answer input is UNATTEMPTED: no marks, no type, whatever
   // the model returned (the model has nothing of the student's to grade for it).
-  const unattempted = (note) => {
+  const unattempted = (note, reason) => {
     const step = {
       stepNumber: 1, description: 'Answer', studentWork: '', status: v2 ? 'unattempted' : 'missing',
       marksAwarded: 0, marksDeducted: totalMarks, teacherAnnotation: '', mistakeType: null,
@@ -313,13 +362,21 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
       Object.assign(out, { answerMismatch: null, departureKind: null, marksLostByType: lost, rubric: null, objectiveResolved: questionIsObjective ? true : null });
     }
     Object.defineProperty(out, '_graded', { value: true });
-    Object.defineProperty(out, '_reason', { value: 'unattempted' });
+    Object.defineProperty(out, '_reason', { value: reason || 'unattempted' });
     return out;
   };
   if (ctx.answerInput === false) return unattempted(R.NO_ANSWER_SUBMITTED_NOTE);
 
   // 2 · steps
   const all = normaliseSteps(raw.annotatedSteps);
+
+  // C3 · P0 (D23) — held to the page inventory the model committed to before grading (one
+  // document for the whole set only; ctx.inventory is null everywhere else and when the
+  // reply carried no usable inventory).
+  {
+    const verdict = inventoryVerdict(ctx.inventory, all, raw);
+    if (verdict) return unattempted(R.NO_ANSWER_ON_PAGE_NOTE, verdict);
+  }
 
   // C3 · P0 — "working" that reproduces the stored scheme is not on the page. When most of
   // the credited steps do, the answer was never there: UNATTEMPTED, never marks.
@@ -616,6 +673,9 @@ module.exports = {
   normaliseQuestionResult,
   copiesScheme,
   gramContainment,
+  stripAnswerLabel,
+  firstLineInWork,
+  inventoryVerdict,
   isRealQuestionText,
   acceptedDepartures,
   validRubric,

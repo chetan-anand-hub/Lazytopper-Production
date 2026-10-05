@@ -644,6 +644,90 @@ test('§P0.6 THE STATED LIMIT: the paraphrased R5 line is NOT caught by the dete
   assert.equal(r.marksAwarded, 2);
 });
 
+/* §P0.7–§P0.11 · INVENTORY FIRST (controller decision D23). ONE document for the whole set —
+   the R5 shape: the server cannot know which questions were answered, so the model lists what
+   is on each page BEFORE grading and the grade is held to that list. The paraphrase §P0.6
+   cannot catch is caught here when the model's own inventory does not list the question. */
+const DOC = { imageBase64: 'UERG', imageMimeType: 'application/pdf' };
+const INV = (...entries) => entries.map(([qNumber, firstLine], i) => ({ page: i + 1, questionsSeen: [{ qNumber, firstLine }] }));
+const WITH_INV = (inventory, ...results) => ({ pageInventory: inventory, ...REPLY(...results) });
+const R5_SET = () => [1, 2, 3, 4].map((n) => R5_Q(n));
+const R5_FULL4 = () => [1, 2, 3, 4].map((n) => FULL(n, PARAPHRASE));
+
+test('§P0.7 ★ one document: a question ABSENT from the page inventory is UNATTEMPTED — the R5 paraphrase earns nothing (legacy and v2)', async () => {
+  const raw = WITH_INV(INV([3, 'Longest ruler = HCF of the lengths']), ...R5_FULL4());
+  for (const acceptsV2 of [false, true]) {
+    const body = (await harness({ replies: [raw] }).sheet(sheet(R5_SET(), { ...DOC, acceptsV2 }))).body;
+    assert.deepEqual(body.results.map((r) => r.marksAwarded), [0, 0, 2, 0], 'only the listed Q3 keeps its grade (acceptsV2=' + acceptsV2 + ')');
+    for (const r of body.results.filter((x) => x.qNumber !== 3)) {
+      assert.equal(r.teacherNote, grading.NO_ANSWER_ON_PAGE_NOTE);
+      assert.equal(r.annotatedSteps.length, 1);
+      assert.equal(r.annotatedSteps[0].status, acceptsV2 ? 'unattempted' : 'missing');
+      assert.ok(r.annotatedSteps.every((s) => s.mistakeType === null && s.marksAwarded === 0), 'no type, no marks');
+      if (acceptsV2) assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), unattempted: 2 });
+    }
+  }
+  // CONTROL: the same reply WITHOUT an inventory field fails OPEN — every grade stands.
+  const open = (await harness({ replies: [REPLY(...R5_FULL4())] }).sheet(sheet(R5_SET(), DOC))).body;
+  assert.deepEqual(open.results.map((r) => r.marksAwarded), [2, 2, 2, 2]);
+});
+
+test('§P0.8 a listed question whose quoted first line is NOT in its studentWork is unattempted; a tolerant match keeps the grade', async () => {
+  const fl = (line) => WITH_INV(INV([1, line]), FULL(1, PARAPHRASE));
+  const grade = async (raw) => (await harness({ replies: [raw] }).sheet(sheet([R5_Q(1)], DOC))).body.results[0];
+  // the "first line" the model saw is not anywhere in what it then graded as the work
+  const miss = await grade(fl('Mendel crossed tall pea plants with dwarf pea plants'));
+  assert.deepEqual([miss.marksAwarded, miss.teacherNote], [0, grading.NO_ANSWER_ON_PAGE_NOTE]);
+  // CONTROLS: an answer label, spacing/quote noise, and a reordered transcription all match
+  for (const line of ['Q1. Longest ruler = HCF of the lengths', 'Ans:  "longest ruler=HCF of the lengths"', 'HCF of the lengths = longest ruler', '(a)']) {
+    assert.equal((await grade(fl(line))).marksAwarded, 2, JSON.stringify(line) + ' must match');
+  }
+  // a listed question with NO quotable first line is presence-only
+  assert.equal((await grade(WITH_INV([{ page: 1, questionsSeen: [{ qNumber: 1, firstLine: null }] }], FULL(1, PARAPHRASE)))).marksAwarded, 2);
+});
+
+test('§P0.9 the inventory is asked for ONLY on the one-document transport, BEFORE the results', async () => {
+  const h = harness({ replies: [REPLY(R(1, [S()]))] });
+  await h.sheet(sheet([sq(1, { textAnswer: '' })], DOC));
+  await h.sheet(sheet([sq(1)]));
+  await h.sheet(sheet([sq(1, { textAnswer: '' })], { uploads: [{ qNumber: 1, ...PHOTO }] }));
+  await h.single(single());
+  assert.ok(h.prompt(0).includes(grading.PAGE_INVENTORY_PROMPT));
+  assert.ok(h.prompt(0).indexOf('"pageInventory"') < h.prompt(0).indexOf('"results"'), 'the inventory is shaped BEFORE the results');
+  assert.equal(h.calls[0].genConfig.responseSchema, grading.GRADING_RESPONSE_SCHEMA_INVENTORY);
+  for (let i = 1; i < 4; i += 1) {
+    assert.ok(!h.prompt(i).includes(grading.PAGE_INVENTORY_PROMPT), 'call ' + i + ' (typed / per-question photo / single) carries no inventory rule');
+    assert.ok(!h.prompt(i).includes('"pageInventory"'));
+    assert.equal(h.calls[i].genConfig.responseSchema, grading.GRADING_RESPONSE_SCHEMA);
+  }
+  // per-question photos: an inventory a model volunteers there is ignored (the server already knows)
+  const pq = (await harness({ replies: [WITH_INV(INV([2, 'x']), R(1, [S()]))] }).sheet(sheet([sq(1, { textAnswer: '' })], { uploads: [{ qNumber: 1, ...PHOTO }] }))).body.results[0];
+  assert.equal(pq.marksAwarded, 1);
+});
+
+test('§P0.10 an EMPTY inventory fails open; couldNotRead outranks the inventory (honest pending, never a graded 0)', async () => {
+  const empty = (await harness({ replies: [WITH_INV([], ...R5_FULL4())] }).sheet(sheet(R5_SET(), DOC))).body;
+  assert.deepEqual(empty.results.map((r) => r.marksAwarded), [2, 2, 2, 2], 'an inventory listing nothing is not evidence');
+  const raw = WITH_INV(INV([1, 'Longest ruler = HCF of the lengths']), FULL(1, PARAPHRASE), { qNumber: 2, couldNotRead: true, note: 'blurred' });
+  const body = (await harness({ replies: [raw] }).sheet(sheet([R5_Q(1), R5_Q(2)], { ...DOC, acceptsV2: true }))).body;
+  assert.deepEqual(body.results.map((r) => [r.couldNotRead, r.marksAwarded]), [[false, 2], [true, 0]]);
+  assert.deepEqual([body.gradedCount, body.pendingCount], [1, 1]);
+});
+
+test('§P0.11 router mode: each routed group is held to ITS OWN reply\'s inventory', async () => {
+  // On one document an unpicked MCQ routes to the light model, written work to the strong one.
+  const qs = [MCQ({ qNumber: 1, textAnswer: '' }), R5_Q(2)];
+  const h = harness({
+    deps: { GRADING_MODEL: 'strong-model', GRADING_MODE: 'router', GRADING_LIGHT_MODEL: 'light-model' },
+    reply: ({ model }) => (model === 'strong-model'
+      ? WITH_INV(INV([1, '(c) TtWW']), FULL(2, PARAPHRASE)) // its inventory does not list Q2
+      : WITH_INV(INV([1, '(c) TtWW']), R(1, [S({ studentWork: '(c) TtWW' })], { finalAnswerCorrect: true }))),
+  });
+  const body = (await h.sheet(sheet(qs, DOC))).body;
+  assert.deepEqual(h.calls.map((c) => c.model).sort(), ['light-model', 'strong-model'], 'one call per routed group');
+  assert.deepEqual(body.results.map((r) => r.marksAwarded), [1, 0], 'Q1 listed by its group keeps its mark; Q2 is absent from ITS group\'s inventory');
+});
+
 /* ══ §C3b · ANSWER–QUESTION MISMATCH ═════════════════════════════════════════ */
 
 test('§C3b.1 evidence-backed "no" → answerMismatch: 0 marks, no steps, the does-not-address note (v2 and legacy wording)', async () => {

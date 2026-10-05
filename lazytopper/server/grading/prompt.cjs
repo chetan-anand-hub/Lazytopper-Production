@@ -84,6 +84,9 @@ function detectionBlock(autoDetect) {
 function jsonShape(transport, autoDetect) {
   return 'RESPOND with this exact JSON shape:\n' +
     '{\n' +
+    (transport === 'document'
+      ? '  "pageInventory": [ { "page": 1, "questionsSeen": [ { "qNumber": 1, "firstLine": "<the first line of the student\'s own answer to Q1 on this page, verbatim>" } ] } ],\n'
+      : '') +
     '  "results": [\n' +
     '    {\n' +
     '      "qNumber": 1,\n' +
@@ -128,6 +131,7 @@ function rulesText({ transport, hasAnyTyped, anyScheme, subjectMode, nonce, docM
     'MARKS: marksAwarded (per question) = the sum of that question\'s annotatedSteps[].marksAwarded, never more than the question\'s stated marks.',
     R.MISTAKE_TAXONOMY_PROMPT,
     R.READING_FIDELITY_PROMPT,
+    ...(transport === 'document' ? [R.PAGE_INVENTORY_PROMPT] : []),
     R.ECF_RULES_PROMPT,
     R.DEPARTURE_RULES_PROMPT,
     R.PARTS_PROMPT,

@@ -485,7 +485,7 @@ const {
   DETECT_RESPONSE_SCHEMA,
   WORKSHEET_RESPONSE_SCHEMA,
 } = require('./checkSolution.cjs');
-const { GRADING_RESPONSE_SCHEMA_AUTODETECT } = require('../grading/schema.cjs');
+const { GRADING_RESPONSE_SCHEMA_AUTODETECT, GRADING_RESPONSE_SCHEMA_INVENTORY } = require('../grading/schema.cjs');
 const { MODEL_STEP_STATUSES } = require('../grading/rules.cjs');
 
 /**
@@ -623,9 +623,16 @@ test('§6.9 ★★ C1 · ONE schema: both grading endpoints send the SAME object
   const grade = buildRoute({ replies: [GOOD_GRADE] });
   await grade.route.handleCheckSolution(SUBJECTIVE_REQ(), {});
   const ws = buildRoute({ replies: [WS_GOOD] });
-  await ws.route.handleGradeWorksheet(WORKSHEET_REQ([{ qNumber: 1, marks: 1, questionText: 'Q1' }]), {});
+  await ws.route.handleGradeWorksheet(TYPED_ONLY_REQ([{ qNumber: 1, marks: 1, questionText: 'Q1', textAnswer: 'x = 4' }]), {});
   assert.equal(grade.calls[0].genConfig.responseSchema, GRADING_RESPONSE_SCHEMA);
   assert.equal(ws.calls[0].genConfig.responseSchema, GRADING_RESPONSE_SCHEMA);
+  // GRADER-CORE-1 PR-2 · D23: ONE uploaded document for the whole set sends the inventory
+  // variant — the SAME per-question schema with a page inventory ordered before it.
+  const doc = buildRoute({ replies: [WS_GOOD] });
+  await doc.route.handleGradeWorksheet(WORKSHEET_REQ([{ qNumber: 1, marks: 1, questionText: 'Q1' }]), {});
+  assert.equal(doc.calls[0].genConfig.responseSchema, GRADING_RESPONSE_SCHEMA_INVENTORY);
+  assert.deepEqual(GRADING_RESPONSE_SCHEMA_INVENTORY.properties.results, GRADING_RESPONSE_SCHEMA.properties.results, 'one per-question schema');
+  assert.deepEqual(GRADING_RESPONSE_SCHEMA_INVENTORY.propertyOrdering, ['pageInventory', 'results', 'summary'], 'the inventory comes BEFORE any grade');
   const detect = buildRoute({ replies: [{ detectedMarks: 3 }] });
   await detect.route.handleDetectQuestion({ question: 'q' }, {});
   assert.equal(detect.calls[0].genConfig.responseSchema, DETECT_RESPONSE_SCHEMA, 'detection keeps its own schema (its own parser)');
@@ -665,6 +672,13 @@ test('§6.12 ★ NO schema requires anything beyond the parser-derived gates', (
     'grading.results[].rubric[].required:marks', // a rubric item without marks is rejected whole (validRubric)
     'grading.results[].rubric[].required:point', // a rubric item without a point is rejected whole (validRubric)
   ], 'EVERY entry here must name the parser behaviour that makes it structural.');
+  // GRADER-CORE-1 PR-2 · D23: the one-document variant adds EXACTLY two, each named.
+  found.length = 0;
+  walk(GRADING_RESPONSE_SCHEMA_INVENTORY, 'inventory');
+  assert.deepEqual(found.filter((f) => !f.startsWith('inventory.results') && f !== 'inventory.required:results').sort(), [
+    'inventory.pageInventory[].questionsSeen[].required:qNumber', // pageInventoryOf drops an entry without one
+    'inventory.required:pageInventory', // the D23 commitment itself; a reply without it fails OPEN (nothing zeroed)
+  ]);
 });
 
 test('§6.13 the caps and the mime type are UNCHANGED (additive only)', async () => {
@@ -844,7 +858,13 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // renders is the new core's, with the TEST nonce `testnonce` (buildRoute's makeFenceNonce).
 // The same five tests (§7.1, §9.5, §10.5, §11.5, §17.2) moved together on one constant.
 //   OLD 6e37c236d962a3111f80d044867cad4621991c110f9b54809cef3d6cee2a72ce
-const NO_UPLOADS_CONTENTS_SHA256 = '38962ca6e9e18e95429c0a55e96ad082bdccf66c2354f5821faa7dc6a82eb65e';
+// ★ RE-PINNED AGAIN in PR-2 (controller decision D23, 38962ca6… → below): the pinned request
+// is ONE PDF for the whole set, the transport that now asks for the PAGE INVENTORY FIRST
+// (rules.cjs PAGE_INVENTORY_PROMPT + the "pageInventory" line of the JSON shape). Only the
+// document transport's text moved: the typed and per-question-photo prompts are unchanged
+// (the single-question pin in checkSolution.ecf-august.test.cjs still holds).
+//   PREVIOUS 38962ca6e9e18e95429c0a55e96ad082bdccf66c2354f5821faa7dc6a82eb65e
+const NO_UPLOADS_CONTENTS_SHA256 = 'fcdf9d96050778233ace4280bb8c4dd3ec103706495f02c97cd8d4f8c3b3f2d5';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',

@@ -101,6 +101,16 @@ const READING_FIDELITY_PROMPT =
   '   - Set "studentFinalAnswer" to a verbatim quote of the student\'s final answer (or null if there is none).\n' +
   '   - ⚠ NEVER put the stored marking scheme, its final answer or your own model solution into "studentWork". If a question\'s answer is NOT ON THE PAGE (the student did not answer it), that question is UNATTEMPTED — one "unattempted" step, no marks — never a copy of the scheme marked correct.';
 
+/** C3 · P0 (controller decision D23) — INVENTORY FIRST, for ONE uploaded document holding every
+ *  answer (the only transport where the server cannot know which questions were answered).
+ *  The model commits to what is ON THE PAGE before it grades anything; postprocess.cjs then
+ *  holds the grade to that inventory (a question not listed, or whose quoted first line is
+ *  not in its own studentWork, is unattempted). Same call, no extra cost. */
+const PAGE_INVENTORY_PROMPT =
+  'PAGE INVENTORY FIRST — before you grade anything, fill "pageInventory": for EACH page of the upload, in page order, list every question number whose ANSWER the student has actually WRITTEN on that page, each with "firstLine" = the first line of the student\'s own writing for that answer, quoted VERBATIM exactly as written (never from the question, the marking scheme or your own solution).\n' +
+  '   - Do NOT list a question whose answer is not written on any page: a printed question, a question number with nothing after it, or a blank space is not an answer.\n' +
+  '   - Then grade from that inventory: a question you did not list is UNATTEMPTED (one "unattempted" step, no marks, no type). For a question you listed, the "studentWork" of its first step begins with that same first line.';
+
 /** C3 comments truth: the deterministic half is enforced after the model too (postprocess.cjs). */
 const COMMENTS_TRUTH_PROMPT =
   'COMMENTS MUST BE TRUE:\n' +
@@ -205,6 +215,7 @@ module.exports = {
   WORD_PROBLEM_FINAL_ANSWER_PROMPT,
   OBJECTIVE_PROMPT,
   READING_FIDELITY_PROMPT,
+  PAGE_INVENTORY_PROMPT,
   COMMENTS_TRUTH_PROMPT,
   ANSWER_MISMATCH_PROMPT,
   SCHEME_ASSESSMENT_DIRECTIVES,
