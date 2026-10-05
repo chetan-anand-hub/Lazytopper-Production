@@ -1703,7 +1703,8 @@ test('§12.6 ★ the fence clause ships on EVERY transport — typed, per-questi
    different problem or an invalid method zeroes later work, per PART — and there is now
    ONE prompt builder. The behaviour that survives is pinned against the new core in
    server/grading/core.test.cjs (C1–C7), which replaces these sections one for one; the
-   retired test names and the disposition of each are listed in the PR-2 report.
+   retired test names and the disposition of each are listed in the PR-2 report. The 19 August
+   tests that still hold UNCHANGED run, verbatim, in checkSolution.ecf-august.test.cjs.
    ══════════════════════════════════════════════════════════════════════════════ */
 
 /* ══════════════════════════════════════════════════════════════════════════════
