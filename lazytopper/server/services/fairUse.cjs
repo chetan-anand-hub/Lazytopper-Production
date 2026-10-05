@@ -86,6 +86,29 @@ const {
   TRIAL_COUNTER_FIELDS,
   USAGE_LEDGER_COLLECTION,
 } = require('./usageLedger.cjs');
+// GRADER-CORE-1 PR-3 (C9): the grading handler records how many questions it actually GRADED
+// (a non-enumerable count on `res`, set before it sends). Absent → the requested count, as before.
+const { chargeableCountOf } = require('../grading/charge.cjs');
+
+/**
+ * C9 — the trial counters a SERVED (2xx) grading response actually spends. `charged` is the
+ * handler's chargeable-question count (undefined when no grading handler recorded one: every
+ * other route and every test rig keeps today's behaviour, the requested count). Nothing
+ * graded → nothing spent; a partial paper on a per-question surface → only its graded
+ * questions. The PRE-check (`decide`) still uses the requested count: nothing is known yet.
+ */
+function servedCommit(commit, charged) {
+  if (charged === undefined) return commit;
+  if (!commit || !(charged > 0)) return null;
+  if (typeof commit.checks === 'number') return { ...commit, checks: Math.min(commit.checks, charged) };
+  return commit;
+}
+
+/** C9 — whether a SERVED grading response delivered at least one grade (marks a paper pass graded). */
+function deliveredAGrade(res) {
+  const charged = chargeableCountOf(res);
+  return charged === undefined || charged > 0;
+}
 
 const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
 const HOUR_MS = 60 * 60 * 1000;
@@ -797,7 +820,9 @@ function createFairUse(deps = {}) {
     if (tier === 'trial' && PAPER_SURFACES.has(surface)) {
       if (res && typeof res.once === 'function') {
         res.once('finish', () => {
-          if (res.statusCode >= 200 && res.statusCode < 300) void markPaperGraded(uid, pass);
+          // C9: a 2xx that graded NOTHING (every question couldn't-read / timed out / failed /
+          // mismatched / unattempted) does not make the paper allowance count permanently.
+          if (res.statusCode >= 200 && res.statusCode < 300 && deliveredAGrade(res)) void markPaperGraded(uid, pass);
         });
       }
       return false;
@@ -839,9 +864,12 @@ function createFairUse(deps = {}) {
     if (decision.commit && res && typeof res.once === 'function') {
       const commit = decision.commit;
       // Counted only once the grade was actually SERVED (2xx). A request that failed,
-      // or was refused further down, costs the student nothing.
+      // or was refused further down, costs the student nothing. C9 (GRADER-CORE-1 PR-3):
+      // and a served response charges only the questions it actually GRADED.
       res.once('finish', () => {
-        if (res.statusCode >= 200 && res.statusCode < 300) ledger.recordTrialUse(uid, commit);
+        if (!(res.statusCode >= 200 && res.statusCode < 300)) return;
+        const spent = servedCommit(commit, chargeableCountOf(res));
+        if (spent) ledger.recordTrialUse(uid, spent);
       });
     }
     return false;
@@ -1063,11 +1091,16 @@ function createFairUse(deps = {}) {
        (inside the client's 90 s), and returns the first result the moment it is stored.
        Still grading at 75 s -> 503 `grading_in_progress`, which the client retries with
        the same key. A marker older than 5 min is a dead attempt and may be re-claimed.
-     · STORED ONLY WHEN THE GRADE WAS SERVED: a 2xx — exactly the condition fair use
-       charges on (applyToRequest's `finish` hooks), so "charged" and "stored" can never
-       disagree. Any other status (a refusal, a 4xx, a 500, a 503) releases the marker:
-       not stored, not charged, and a retry grades afresh. The body is captured when the
-       handler calls res.end(), so a reply the network then loses is still stored.
+     · STORED ONLY WHEN THE RESPONSE WAS SERVED: a 2xx. Any other status (a refusal, a 4xx,
+       a 500, a 503) releases the marker: not stored, not charged, and a retry grades
+       afresh. The body is captured when the handler calls res.end(), so a reply the
+       network then loses is still stored.
+       ★ GRADER-CORE-1 PR-3 (C9): STORED DOES NOT IMPLY CHARGED. A served 2xx charges only
+       the questions it actually GRADED (applyToRequest's `finish` hooks read the handler's
+       chargeable count) — a 2xx carrying nothing graded (couldn't read, timed out, failed,
+       an answer that does not match, unattempted, or `{ ok:false }`) is stored AND costs
+       nothing. Because a replay is answered here, before fair use, the stored result is
+       never charged again either way: charged once for what was graded, or never.
      · No key, a malformed key, no verified uid (the free check, anonymous callers), a
        non-grading path or no Firestore -> null: the request runs EXACTLY as before.
        A Firestore error fails OPEN to that same path (no worse than before this lane).

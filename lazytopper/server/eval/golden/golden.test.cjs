@@ -206,3 +206,148 @@ test('§6 owner rulings — applied once, guarded, and the contested cases they 
   const fake = { 'GS-X': { expected: { totalMarks: 1, perStep: [] } } };
   assert.throws(() => D.applyRepins(fake, { repins: [{ caseId: 'GS-X', kind: 'changed', field: 'totalMarks', old: 0.5, new: 2, ruling: '3' }] }), /no longer equals the recorded old value/);
 });
+
+// ── §8 GRADER-CORE-1 PR-3 (C8): stored calls are matched by CHUNK IDENTITY, not by order ──
+test('§8 replay keying — keyed records match model+chunkKey+attempt; legacy records serve the k-th attempt; nothing else', () => {
+  const { pickStoredCall } = require('./lib/replay.cjs');
+  const call = (model, extra = {}) => ({ ok: true, text: '{}', http: [{ model }], ...extra });
+  // KEYED (a PR-3 live run): parallel chunks finish in any order; each gets its own stored call.
+  const keyed = [call('m', { chunkKey: 'q2+q3', attempt: 1 }), call('m', { chunkKey: 'q0+q1', attempt: 1 }), call('m', { chunkKey: 'q0', attempt: 2 })];
+  const used = new Set();
+  assert.strictEqual(pickStoredCall(keyed, used, 'm', { chunkKey: 'q0+q1', attempt: 1 }), 1);
+  assert.strictEqual(pickStoredCall(keyed, used, 'm', { chunkKey: 'q2+q3', attempt: 1 }), 0);
+  assert.strictEqual(pickStoredCall(keyed, used, 'm', { chunkKey: 'q0', attempt: 2 }), 2);
+  assert.strictEqual(pickStoredCall(keyed, used, 'm', { chunkKey: 'q1', attempt: 2 }), -1, 'a request the live run never made finds NOTHING (honest: a new run is needed)');
+  assert.strictEqual(pickStoredCall(keyed, used, 'other-model', { chunkKey: 'q0+q1', attempt: 1 }), -1);
+  // LEGACY (PR-1/PR-2 runs, one call per group + parse-miss retry): every chunk's attempt k reads stored call k.
+  const legacy = [call('m'), call('m')];
+  assert.deepStrictEqual([1, 1, 1, 2].map((a) => pickStoredCall(legacy, new Set(), 'm', { attempt: a, chunkKey: 'q' + a })), [0, 0, 0, 1]);
+  assert.strictEqual(pickStoredCall([call('m')], new Set(), 'm', { attempt: 2 }), 0, 'fewer stored calls than attempts: the last one (a stored timeout replays as a timeout)');
+  // No hint at all: first unconsumed for the model, as before.
+  const u = new Set([0]);
+  assert.strictEqual(pickStoredCall(legacy, u, 'm', {}), 1);
+});
+
+test('§9 CONTROL — chunking is result-neutral on a LEGACY whole-paper reply: the merged paper equals the one-call grade', async () => {
+  const { replayJob } = require('./lib/replay.cjs');
+  const { buildPlan } = require('./lib/planner.cjs');
+  const job = buildPlan({ includeDetect: false }).find((j) => j.entry === 'set' && (j.request.questions || []).length >= 4 && !('acceptsV2' in j.request));
+  assert.ok(job, 'a stored-plan paper with ≥ 4 questions exists');
+  const qs = job.request.questions;
+  const text = JSON.stringify({ results: qs.map((q, i) => ({ qNumber: q.qNumber, couldNotRead: false, addressesQuestion: 'yes', marksAwarded: Math.min(1, q.marks),
+    annotatedSteps: [{ description: 's', studentWork: 'answer ' + i, status: 'correct', marksAwarded: Math.min(1, q.marks), marksDeducted: 0, teacherAnnotation: 'ok', mistakeType: null }], teacherNote: 'n' + i })), summary: 's' });
+  const record = { jobKey: job.jobKey, requestDigest: job.requestDigest, calls: [{ ok: true, text, http: [{ model: 'gemini-2.5-flash' }] }] };
+  const quiet = console.warn; console.warn = () => {};
+  let rep;
+  try { rep = await replayJob(job, record, { model: 'gemini-2.5-flash' }); } finally { console.warn = quiet; }
+  assert.strictEqual(rep.httpStatus, 200);
+  assert.strictEqual(rep.body.results.length, qs.length);
+  assert.ok(rep.body.results.every((r, i) => r.couldNotRead === false && r.teacherNote.startsWith('n' + i)), 'every chunk read ITS OWN questions from the one stored reply');
+  assert.deepStrictEqual([rep.servedCalls, rep.unusedCalls], [1, 0], 'one stored call, counted once though it served every chunk');
+});
+
+test('§10 the DUPLICATE-NUMBER paper (B\'s T2) is planned and scored by POSITION; its files are the copied originals', () => {
+  const { buildPlan } = require('./lib/planner.cjs');
+  const { load } = require('./lib/data.cjs');
+  const crypto = require('crypto');
+  const G = load();
+  assert.strictEqual(G.dupPaper.key.synthetic, true);
+  const plan = buildPlan({ includeDetect: true });
+  const job = plan.find((j) => j.jobKey === 'W.DUP.T2');
+  assert.ok(job && plan.find((j) => j.jobKey === 'V2.W.DUP.T2') && plan.find((j) => j.jobKey === 'D.PAPER.T2') && plan.find((j) => j.jobKey === 'V2.D.PAPER.OA-01'));
+  assert.deepStrictEqual(job.request.questions.map((q) => q.qNumber), [1, 2, 3, 4, 5, 5, 6, 7], 'two questions printed "Q5"');
+  assert.deepStrictEqual(Object.values(job.qIndexes), [0, 1, 2, 3, 4, 5, 6, 7]);
+  assert.ok(!('acceptsV2' in job.request), 'the legacy job is the client shape of today');
+  // scorer: a body whose two Q5 results differ is read by position, not by number
+  const { score } = require('./lib/score.cjs');
+  const results = job.request.questions.map((q, i) => ({ qNumber: q.qNumber, couldNotRead: false, totalMarks: q.marks, marksAwarded: i === 5 ? 1 : i === 4 ? 1.5 : 0, annotatedSteps: [], mistakeSummary: {}, teacherNote: 'n' }));
+  const res = score({ items: [{ job, run: 1, record: { wallMs: 1000, calls: [] }, rep: { httpStatus: 200, body: { ok: true, results } } }], detectItems: [] });
+  assert.deepStrictEqual(res.dup.q5, { n: 2, graded: 2, pct: 100 });
+  const q5 = res.dup.rows.filter((r) => /Q5/.test(r.id)).map((r) => [r.id, r.awarded, r.expected]);
+  assert.deepStrictEqual(q5, [['DUP-T2-Q5a', 1.5, 1.5], ['DUP-T2-Q5b', 1, 1]], 'each Q5 is scored against ITS OWN key');
+  // the copied files are byte-identical to the key's declared set (no edit in place)
+  for (const f of ['T2_questions.pdf', 'T2_answers.pdf', 'expected-key.md']) assert.ok(fs.existsSync(path.join(GOLDEN, 'dup-number-T2', f)), f);
+  assert.strictEqual(crypto.createHash('sha256').update(fs.readFileSync(path.join(GOLDEN, 'dup-number-T2', 'T2_answers.pdf'))).digest('hex').slice(0, 16), 'a5954695ad4a47cc');
+});
+
+test('§11 the RE-BASELINE (runs/<id>/rebaseline.json) is digest-pinned: a tampered entry counts as changed, an unused entry is stale', async () => {
+  const quiet = { warn: console.warn, error: console.error };
+  console.warn = () => {}; console.error = () => {};
+  const rbFile = path.join(GOLDEN, 'runs', floor.runId, 'rebaseline.json');
+  const original = fs.readFileSync(rbFile, 'utf8');
+  try {
+    const { evaluateRun } = require('./lib/evaluate.cjs');
+    const runDir = path.join(GOLDEN, 'runs', floor.runId);
+    const rb = JSON.parse(original);
+    const keys = Object.keys(rb.entries);
+    const DECLARED = ['v2-notGraded-field', 'detect-symbols-restored', 'd38-not-found-pending', 'd38-blank-slot-unattempted'];
+    assert.ok(keys.length > 0 && keys.every((k) => rb.entries[k].class.split('+').every((c) => DECLARED.includes(c))), 'only the declared classes');
+    // A LEGACY grading body may change only by controller decision D38 (not found → pending; a blank
+    // slot → unattempted); the v2 field and the detect restore never touch one.
+    assert.ok(keys.filter((k) => !k.startsWith('detect:') && !/:V2\./.test(k)).every((k) => /^d38-/.test(rb.entries[k].class)), 'a legacy body changes only under D38');
+    const ok = await evaluateRun(runDir);
+    assert.deepStrictEqual([ok.integrity.changed, ok.integrity.rebaselined, ok.integrity.rebaselineStale.length], [0, keys.length, 0]);
+    // CONTROL 1: one tampered `to` → that body counts as changed again.
+    const t = JSON.parse(original); t.entries[keys[0]].to = '0'.repeat(64);
+    fs.writeFileSync(rbFile, JSON.stringify(t));
+    const bad = await evaluateRun(runDir);
+    assert.strictEqual(bad.integrity.changed, 1);
+    assert.deepStrictEqual(bad.integrity.rebaselineStale, [keys[0]]);
+    // CONTROL 2: an entry for a body that did not change is STALE (the gate names it).
+    const s = JSON.parse(original); s.entries['run1:S.CI.GS-M01-a'] = { from: 'x', to: 'y', class: 'v2-notGraded-field' };
+    fs.writeFileSync(rbFile, JSON.stringify(s));
+    const stale = await evaluateRun(runDir);
+    assert.deepStrictEqual(stale.integrity.rebaselineStale, ['run1:S.CI.GS-M01-a']);
+  } finally {
+    fs.writeFileSync(rbFile, original);
+    console.warn = quiet.warn; console.error = quiet.error;
+  }
+});
+
+test('§12 replay of a PR-3 live run is faithful: a call still in flight at the request deadline replays as that TIMEOUT; detection replays on the run\'s own (proxy) detect model', async () => {
+  const { replayJob } = require('./lib/replay.cjs');
+  const { buildPlan } = require('./lib/planner.cjs');
+  const grading = require('../../grading/rules.cjs');
+  const plan = buildPlan({ includeDetect: true });
+  // D43: only a paper of MORE than 10 questions is chunked — the owner's 27-question paper (9 chunks of 3).
+  const job = plan.find((j) => j.jobKey === 'W.OA2.MULTI');
+  assert.ok(job && job.request.questions.length === 27, 'the 27-question owner paper is planned (chunks q0+q1+q2 … q24+q25+q26)');
+  const qs = job.request.questions;
+  const text = JSON.stringify({ results: qs.map((q, i) => ({ qNumber: q.qNumber, couldNotRead: false, addressesQuestion: 'yes', marksAwarded: Math.min(1, q.marks),
+    annotatedSteps: [{ description: 's', studentWork: 'answer ' + i, status: 'correct', marksAwarded: Math.min(1, q.marks), marksDeducted: 0, teacherAnnotation: 'ok', mistakeType: null }], teacherNote: 'n' + i })), summary: 's' });
+  const ok = (chunkKey, attempt) => ({ ok: true, text, chunkKey, attempt, http: [{ model: 'gemini-2.5-flash', httpStatus: 200 }] });
+  // live 2026-10-06 (V2.W.OA2.MULTI): a chunk timed out at 45 s, its single-question retries ran,
+  // and one retry was still in flight when the request deadline ended the job — stored with no
+  // outcome and no HTTP record. Live, that question came back NOT GRADED as a timeout.
+  const keys = Array.from({ length: 9 }, (_, k) => ['q' + 3 * k, 'q' + (3 * k + 1), 'q' + (3 * k + 2)].join('+'));
+  const timedOut = { ok: false, chunkKey: 'q24+q25+q26', attempt: 1, error: { status: 504, message: 'Gemini request timed out after 45000ms' }, http: [{ model: 'gemini-2.5-flash', errClass: 'AbortError' }] };
+  const inFlight = { ok: false, chunkKey: 'q26', attempt: 2, http: [] };
+  const record = (last) => ({ jobKey: job.jobKey, requestDigest: job.requestDigest, calls: [...keys.slice(0, 8).map((k) => ok(k, 1)), timedOut, ok('q24', 2), ok('q25', 2), last] });
+  const quiet = console.warn; console.warn = () => {};
+  let rep; let ctl;
+  try {
+    rep = await replayJob(job, record(inFlight), { model: 'gemini-2.5-flash' });
+    // CONTROL: the same retry stored as a real provider error replays as an ERROR, not a timeout
+    ctl = await replayJob(job, record({ ok: false, chunkKey: 'q26', attempt: 2, error: { status: 500, message: 'internal' }, http: [{ model: 'gemini-2.5-flash', httpStatus: 500 }] }), { model: 'gemini-2.5-flash' });
+  } finally { console.warn = quiet; }
+  const r = rep.body.results;
+  assert.strictEqual(r.length, 27);
+  assert.strictEqual(r[26].note, grading.NOT_GRADED_TIMEOUT_NOTE, 'the in-flight retry replays as the deadline TIMEOUT it was live');
+  assert.ok(r.slice(0, 26).every((x) => x.note !== grading.NOT_GRADED_TIMEOUT_NOTE && x.note !== grading.NOT_GRADED_ERROR_NOTE), 'every other question was graded');
+  assert.deepStrictEqual([rep.servedCalls, rep.unusedCalls], [12, 0], 'every stored call consumed — the replay is complete');
+  assert.strictEqual(ctl.body.results[26].note, grading.NOT_GRADED_ERROR_NOTE, 'CONTROL: a stored provider error stays an error');
+  // Detection: the body names the model that detected, so a --detect-model (proxy) run replays on it.
+  const dj = plan.find((j) => j.entry === 'detect' && j.jobKey.startsWith('D.ITEM.'));
+  const dtext = JSON.stringify({ detectedMarks: 2, marksSource: 'inferred', detectedSubject: 'Maths', detectedTopic: 'polynomials', detectedObjective: false, detectedAnswer: null,
+    questions: [{ questionNumber: null, questionText: 'Find the zeroes of the polynomial x² − 5x + 6.', marks: 2, marksSource: 'inferred', objective: false, answer: null }] });
+  const drec = { jobKey: dj.jobKey, requestDigest: dj.requestDigest, calls: [{ ok: true, text: dtext, attempt: 1, http: [{ model: 'gemini-3.8-flash', httpStatus: 200 }] }] };
+  const config = { core: true, model: 'gemini-3.8-flash', thinkingBudget: null, gradingMode: 'single' };
+  console.warn = () => {};
+  let proxy; let dflt;
+  try {
+    proxy = await replayJob(dj, drec, { config, detectModel: 'gemini-3.8-flash' });
+    dflt = await replayJob(dj, drec, { config });
+  } finally { console.warn = quiet; }
+  assert.ok(JSON.stringify(proxy.body).includes('gemini-3.8-flash') && !JSON.stringify(proxy.body).includes('gemini-2.5-flash'), 'the proxy run replays on its own detect model');
+  assert.ok(JSON.stringify(dflt.body).includes('gemini-2.5-flash'), 'CONTROL: without detectModel the production detect model is used (PR-1/PR-2 runs)');
+});

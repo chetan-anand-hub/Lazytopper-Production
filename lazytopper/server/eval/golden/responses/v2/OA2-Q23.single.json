@@ -1,0 +1,113 @@
+{
+ "ok": true,
+ "totalMarks": 5,
+ "marksAwarded": 0.5,
+ "percentage": 10,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Sign convention and lens formula",
+   "studentWork": "u = -10 cm , f = +15 cm\n1/v + 1/u = 1/f => 1/v = 1/f - 1/u = 1/15 + 1/10",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Correct sign conventions for u and f, but wrote mirror formula instead of lens formula (1/v - 1/u = 1/f)",
+   "mistakeType": "conceptual",
+   "correctedWorking": "u = -10 cm, f = +15 cm\nLens formula: 1/v - 1/u = 1/f => 1/v = 1/f + 1/u = 1/15 - 1/10",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(a)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Calculation of image position v",
+   "studentWork": "= (2 + 3)/30 = 5/30 => v = 6 cm",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Evaluates wrong formula concept; image position should be -30 cm",
+   "mistakeType": null,
+   "correctedWorking": "1/v = (2 - 3)/30 = -1/30 => v = -30 cm",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(a)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Nature of the image",
+   "studentWork": "Image is real and inverted.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Nature is virtual and erect",
+   "mistakeType": "conceptual",
+   "correctedWorking": "Image is virtual and erect.",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(a)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 4,
+   "description": "Ray diagram for convex lens when object is between F and optical centre",
+   "studentWork": "[Ray diagram drawn showing object between F and lens with incorrect refraction, no arrows, and no image drawn]",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 2,
+   "teacherAnnotation": "× Incorrect ray paths, directional arrows missing, and virtual image not formed/extended backwards",
+   "mistakeType": "conceptual",
+   "correctedWorking": "Draw a convex lens with optical centre O and principal focus F. Place the object between F and O (at 10 cm). Draw a ray parallel to principal axis refracting through focus on the other side, and a ray passing straight through O. Extend both refracted rays backward with dashed lines to intersect on the same side as the object to show a virtual, erect, and magnified image. Include directional arrows on all rays.",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(b)",
+   "marksAvailable": 2
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 3,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Remember to use the lens formula 1/v - 1/u = 1/f rather than the mirror formula. When an object is placed inside the focal length of a convex lens, it always produces a virtual and erect image. Ensure ray diagrams clearly include directional arrows and the completed image.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 3.5,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 1
+ },
+ "rubric": [
+  {
+   "point": "Writing the correct lens formula and substituting values with correct sign conventions",
+   "marks": 1
+  },
+  {
+   "point": "Calculating the position of the image (v = -30 cm)",
+   "marks": 1
+  },
+  {
+   "point": "Stating the nature of the image (virtual and erect)",
+   "marks": 1
+  },
+  {
+   "point": "Drawing the correct ray diagram with rays, directional arrows, and formed image",
+   "marks": 2
+  }
+ ],
+ "objectiveResolved": null
+}

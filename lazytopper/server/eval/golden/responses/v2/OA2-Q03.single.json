@@ -1,0 +1,113 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2.5,
+ "percentage": 83,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Adding the two equations to eliminate y",
+   "studentWork": "x + y = 7 ...(1) , x - y = 1 ...(2)\nAdding: 2x = 8",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly added equations to eliminate y",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Solving for x",
+   "studentWork": "x = 4",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ x = 4 is correct",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 3,
+   "description": "Substituting x = 4 into equation (1)",
+   "studentWork": "Put x = 4 in x + y = 9: 4 + y = 9",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "× Equation (1) was x + y = 7, but copied wrongly as x + y = 9",
+   "mistakeType": "silly",
+   "correctedWorking": "Put x = 4 in x + y = 7: 4 + y = 7",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 4,
+   "description": "Solving for y",
+   "studentWork": "y = 5",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly solved from carried forward equation (4 + y = 9)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 1,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Good work on applying the elimination method correctly to find x = 4. Take extra care when copying equations from your own previous steps, as writing 9 instead of 7 led to an incorrect value for y.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0.5,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Adding the given equations to eliminate y",
+   "marks": 1
+  },
+  {
+   "point": "Solving for x to find x = 4",
+   "marks": 0.5
+  },
+  {
+   "point": "Substituting x = 4 into one of the original equations",
+   "marks": 0.5
+  },
+  {
+   "point": "Solving for y to obtain the correct value",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

@@ -1,0 +1,49 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1.5,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Naming the tube carrying food from mouth to stomach",
+   "studentWork": "Food pipe.",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Use the standard scientific term 'oesophagus'.",
+   "mistakeType": "presentation",
+   "correctedWorking": "Oesophagus (or food pipe / oesophagus)",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Naming the process of movement along the tube",
+   "studentWork": "Food moves by peristalsis.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct process identified",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 1,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Name the tube carrying food from the mouth to the stomach (Oesophagus) (1); Name the process by which food moves along the tube (Peristalsis / Peristaltic movement) (1). Well done on correctly identifying peristalsis. In biology exams, always use the scientific term 'oesophagus' alongside or instead of everyday terms like 'food pipe' to secure full marks.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

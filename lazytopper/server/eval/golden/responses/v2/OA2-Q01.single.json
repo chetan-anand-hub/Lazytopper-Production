@@ -1,0 +1,56 @@
+{
+ "ok": true,
+ "totalMarks": 1,
+ "marksAwarded": 0,
+ "percentage": 0,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Selection of the correct option for LCM of 12 and 18",
+   "studentWork": "(a) or (b)",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "× Multiple options provided",
+   "mistakeType": null,
+   "correctedWorking": "(a) 36",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "In multiple-choice questions, providing two alternatives earns zero marks even if one of them is right. Always write only a single clear option: (a) 36.",
+ "questionDepartureError": false,
+ "objective": true,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 1
+ },
+ "rubric": [
+  {
+   "point": "Correct option (a) 36",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": true
+}

@@ -1,0 +1,104 @@
+{
+  "name": "T2_answers",
+  "style": "caveat",
+  "seed": 2202,
+  "page": "A4",
+  "ink": "#16245e",
+  "questions": [
+    {
+      "number": "1)",
+      "lines": [
+        "(c) ketone",
+        "Butanone is CH_{3}COCH_{2}CH_{3} - it has the C = O group in the middle of the carbon chain."
+      ]
+    },
+    {
+      "number": "2)",
+      "lines": [
+        "a = 21 ,   d = 18 − 21 = −3 ,   a_{n} = −84",
+        "a_{n} = a + (n − 1)d",
+        "−84 = 21 + (n − 1)(−3)",
+        "−105 = −3(n − 1)",
+        "n − 1 = 35",
+        "n = 36",
+        "So the 36th term is −84."
+      ]
+    },
+    {
+      "number": "3)",
+      "lines": [
+        "(1) A permanent magnet like a bar magnet or a horse-shoe magnet has a magnetic field around it.",
+        "(2) When an electric current flows through a conductor (a straight wire, a circular loop or a solenoid), a magnetic field is produced around it."
+      ]
+    },
+    {
+      "number": "4)",
+      "lines": [
+        "Plants take carbon dioxide from the air through the stomata in the leaves. Water and minerals are absorbed from the soil by the roots and carried up by the xylem. Sunlight is absorbed by the chlorophyll present in the leaves."
+      ]
+    },
+    {
+      "number": "5)",
+      "lines": [
+        "Let P divide AB in the ratio k : 1.",
+        "−4 = {{3k − 6/k + 1}}",
+        "−4k − 4 = 3k − 6",
+        "7k = 2",
+        "k = {{2/7}}"
+      ]
+    },
+    {
+      "number": "5)",
+      "lines": [
+        "Far point = 80 cm. The person cannot see far objects clearly, so a convex lens is used to correct it.",
+        "f = +80 cm = +0.8 m",
+        "P = {{1/f}} = {{1/0.8}} = +1.25 D",
+        "The lens is convex (converging) of power +1.25 D."
+      ]
+    },
+    {
+      "number": "6)",
+      "lines": [
+        "Sulphur burns to form sulphur dioxide gas (SO_{2}).",
+        "(a) (i) No change on dry litmus paper.",
+        {
+          "text": "(ii) Moist blue litmus paper turns red, because SO_{2} dissolves in water to form sulphurous acid.",
+          "indent": 1
+        },
+        {
+          "text": "SO_{2} + H_{2}O → H_{2}SO_{3}",
+          "indent": 2
+        },
+        "(b)  S + O_{2} → SO_{2}"
+      ]
+    },
+    {
+      "number": "7)",
+      "lines": [
+        "(i)  x + 10y = 105   ....(1)",
+        {
+          "text": "x + 15y = 155   ....(2)",
+          "indent": 1
+        },
+        "(ii)  (2) − (1) :   5y = 50   ⇒   y = 10",
+        {
+          "text": "x = 105 − 10 × 10 = 5",
+          "indent": 1
+        },
+        {
+          "text": "Fixed charge = ₹5 ,   rate = ₹10 per km",
+          "indent": 1
+        },
+        "(iii)  Fare for 25 km = x + 25y",
+        {
+          "text": "= 5 + 25 × 10",
+          "indent": 2
+        },
+        {
+          "text": "= 5 + 250 = ₹265",
+          "indent": 2
+        }
+      ]
+    }
+  ]
+}

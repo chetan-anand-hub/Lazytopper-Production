@@ -1,0 +1,49 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1,
+ "percentage": 50,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Substitution into distance formula",
+   "studentWork": "d = √[(3 - 1)² + (4 - 1)²]",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Sign miscopied: the coordinate is -1, so it should be (3 - (-1))² or (3 + 1)²",
+   "mistakeType": "silly",
+   "correctedWorking": "d = √[(3 - (-1))² + (4 - 1)²] = √[(3 + 1)² + (4 - 1)²]",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Evaluation and final answer",
+   "studentWork": "= √(4 + 9) = √13",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly simplified based on carried-forward values",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 1,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Correct substitution into the distance formula (1); Simplification and correct final answer (5 units) (1). You know the distance formula and executed the arithmetic cleanly. Be careful when substituting negative coordinates: subtracting -1 gives (3 - (-1))² = (3 + 1)² = 16, leading to a distance of 5 units.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

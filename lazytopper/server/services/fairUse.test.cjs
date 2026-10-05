@@ -79,6 +79,7 @@ const {
   GRADING_IN_PROGRESS_BODY,
 } = require('./fairUse.cjs');
 const { createRateLimiter, istDayKey } = require('./rateLimiter.cjs');
+const { setChargeableCount } = require('../grading/charge.cjs');
 
 /* ── Harness ─────────────────────────────────────────────────────────────── */
 
@@ -1363,12 +1364,21 @@ function bootServer(port, extraEnv, seed) {
     };
     const orig = Module._load;
     Module._load = function (r) { return r === 'firebase-admin' ? fake : orig.apply(this, arguments); };
+    // GRADER-CORE-1 PR-3 (C9): a served grade is charged only for what it actually GRADED, so
+    // the stub answers with a real, parseable grade for questions 1..12 (the tutor still reads
+    // its "reply"). FAIR_USE_TEST_GEMINI=unparseable restores the old reply — a 200 { ok:false }
+    // "couldn't read the grading" — which is now stored but never charged.
+    const GRADED_REPLY = JSON.stringify({ reply: 'ok', summary: 'ok', results: Array.from({ length: 12 }, (_, i) => ({
+      qNumber: i + 1, couldNotRead: false, addressesQuestion: 'yes', teacherNote: 'ok',
+      annotatedSteps: [{ description: 'Solves', studentWork: 'x = 1', status: 'correct', marksAwarded: 1, marksDeducted: 0, teacherAnnotation: 'ok', mistakeType: null }],
+    })) });
+    const MODEL_TEXT = process.env.FAIR_USE_TEST_GEMINI === 'unparseable' ? '{"reply":"ok"}' : GRADED_REPLY;
     globalThis.fetch = async (url) => {
       console.log('GEMINI_FETCH ' + String(url).split('?')[0].split('/').pop());
       return {
         ok: true, status: 200, statusText: 'OK', headers: { get: () => null },
         text: async () => JSON.stringify({
-          candidates: [{ content: { parts: [{ text: '{"reply":"ok"}' }] } }],
+          candidates: [{ content: { parts: [{ text: MODEL_TEXT }] } }],
           usageMetadata: { promptTokenCount: 1000, candidatesTokenCount: 200, thoughtsTokenCount: 800, totalTokenCount: 2000 },
         }),
       };
@@ -1719,8 +1729,8 @@ function idemPipeline({ now = NOW, waitMs = 75000, failTx = false } = {}) {
     resolveFirestore: () => null,
     sendJson: (res, status, body) => { res.writeHead(status, {}); res.end(JSON.stringify(body)); },
   });
-  async function send({ key, uid = 'stu-1', path: reqPath = CHECK_SOLUTION_PATH, handler } = {}) {
-    const req = fakeReq({ surface: 'check-improve', headers: key ? { [IDEMPOTENCY_HEADER]: key } : {} });
+  async function send({ key, uid = 'stu-1', path: reqPath = CHECK_SOLUTION_PATH, handler, body } = {}) {
+    const req = fakeReq({ surface: 'check-improve', headers: key ? { [IDEMPOTENCY_HEADER]: key } : {}, body });
     const res = idemRes();
     const step = await idem.begin(req, res, reqPath, uid);
     if (step && step.replay) {
@@ -1731,6 +1741,9 @@ function idemPipeline({ now = NOW, waitMs = 75000, failTx = false } = {}) {
     } else if (!(await fairUse.applyToRequest(req, res, reqPath, uid))) {
       grades += 1;
       const out = await handler(grades);
+      // GRADER-CORE-1 PR-3 (C9): like the real grading handlers, a handler may report how many
+      // questions it actually graded (the non-enumerable count fair use commits).
+      if (out.charged !== undefined) setChargeableCount(res, out.charged);
       res.writeHead(out.status, { 'Content-Type': 'application/json' });
       res.end(out.body);
     }
@@ -1892,16 +1905,72 @@ test('R4 · a fair-use REFUSAL (409) is not stored: the marker is released and n
   assert.ok(recs.every((r) => r.state === 'done'));
 });
 
-test('R4 · a 200 { ok:false } ("couldn\'t read the grading") IS stored — it is exactly what fair use charged (2xx)', async () => {
+// ★ AMENDED by GRADER-CORE-1 PR-3 (spec C9, controller decision D25). Before PR-3 this pinned
+// "a 200 { ok:false } IS stored — it is exactly what fair use charged (2xx)". A response that
+// graded nothing is still STORED (a retry of the same press gets the same answer) but is no
+// longer CHARGED: the handler reports 0 graded questions. Stored no longer implies charged.
+test('R4 · a 200 { ok:false } ("couldn\'t read the grading") IS stored — and, since C9, NOT charged (nothing was graded)', async () => {
   const p = idemPipeline();
   const okFalse = JSON.stringify({ ok: false, error: "We couldn't read the grading this time — please try again." });
-  await p.send({ key: KEY_A, handler: async () => ({ status: 200, body: okFalse }) });
+  await p.send({ key: KEY_A, handler: async () => ({ status: 200, body: okFalse, charged: 0 }) });
   await p.settle();
   const again = await p.send({ key: KEY_A, handler: okHandler });
   await p.settle();
-  assert.equal(p.charges(), 1, 'charged once — never twice for one attempt');
+  assert.equal(p.charges(), 0, 'a 2xx that graded nothing costs nothing — on the attempt or its replay');
   assert.equal(p.grades(), 1);
-  assert.equal(again.body, okFalse);
+  assert.equal(again.body, okFalse, 'still stored and replayed byte-for-byte');
+  assert.equal(again.headers['Idempotent-Replayed'], 'true');
+});
+
+/* ── C9 × R4 (GRADER-CORE-1 PR-3): idempotency keeps "charged once, for what was graded" ── */
+
+test('C9·(i) same key twice -> ONE grade, ONE charge for the graded question, the replay charges nothing', async () => {
+  const p = idemPipeline();
+  const first = await p.send({ key: KEY_A, handler: async (n) => ({ status: 200, body: gradedBody(n), charged: 1 }) });
+  await p.settle();
+  const second = await p.send({ key: KEY_A, handler: okHandler });
+  await p.settle();
+  assert.equal(p.grades(), 1);
+  assert.deepEqual(p.ledger.trialWrites.map((w) => w.counts), [{ checks: 1 }]);
+  assert.equal(second.body, first.body);
+});
+
+test('C9·(ii) same key, FIRST ATTEMPT FAILED -> no charge on either: a stored "not graded" 2xx replays free; a 500 is released and only a real grade is charged', async () => {
+  // (a) the first attempt is a served "nothing graded" (couldNotRead / timed out): stored, 0 charged, replay 0.
+  const a = idemPipeline();
+  const cnr = JSON.stringify({ ok: false, error: "We couldn't read your answer clearly enough to mark it — please retake the photo in good light, or type your answer, and check again." });
+  await a.send({ key: KEY_A, handler: async () => ({ status: 200, body: cnr, charged: 0 }) });
+  await a.settle();
+  const replay = await a.send({ key: KEY_A, handler: okHandler });
+  await a.settle();
+  assert.deepEqual([a.grades(), a.charges(), replay.body], [1, 0, cnr]);
+  // (b) the first attempt is a 500 (every chunk failed): not stored, not charged; the retry with
+  //     the same key grades afresh and is charged once — for what IT graded.
+  const b = idemPipeline();
+  const failed = await b.send({ key: KEY_A, handler: async () => ({ status: 500, body: JSON.stringify({ ok: false, error: 'Failed to evaluate solution. Please try again.' }) }) });
+  await b.settle();
+  assert.deepEqual([failed.statusCode, b.charges(), b.fs.docs.size], [500, 0, 0]);
+  await b.send({ key: KEY_A, handler: async (n) => ({ status: 200, body: gradedBody(n), charged: 1 }) });
+  await b.settle();
+  assert.deepEqual([b.grades(), b.ledger.trialWrites.map((w) => w.counts)], [2, [{ checks: 1 }]]);
+});
+
+test('C9·(iii) a PARTIAL paper replayed -> charged ONCE, for the graded questions only', async () => {
+  const p = idemPipeline();
+  const body = { worksheetId: 'ci:abc', questions: [1, 2, 3, 4].map((n) => ({ qNumber: n, questionText: 'Q' + n })) };
+  const partial = JSON.stringify({ ok: true, gradedCount: 2, pendingCount: 2 });
+  await p.send({ key: KEY_A, path: GRADE_WORKSHEET_PATH, body, handler: async () => ({ status: 200, body: partial, charged: 2 }) });
+  await p.settle();
+  const again = await p.send({ key: KEY_A, path: GRADE_WORKSHEET_PATH, body, handler: okHandler });
+  await p.settle();
+  assert.equal(p.grades(), 1);
+  assert.deepEqual(p.ledger.trialWrites.map((w) => w.counts), [{ checks: 2 }], '4 requested, 2 graded → 2 checks, once');
+  assert.equal(again.body, partial);
+  // CONTROL: a handler that reports nothing (any non-grading path) keeps the requested count.
+  const legacy = idemPipeline();
+  await legacy.send({ key: KEY_B, path: GRADE_WORKSHEET_PATH, body, handler: async () => ({ status: 200, body: partial }) });
+  await legacy.settle();
+  assert.deepEqual(legacy.ledger.trialWrites.map((w) => w.counts), [{ checks: 4 }]);
 });
 
 test('R4 · a dead attempt\'s marker (older than 5 min) may be re-claimed; a fresh one may not', async () => {
@@ -2005,4 +2074,57 @@ test('WIRING · REAL index.cjs, R4: same Idempotency-Key twice -> one Gemini gra
       assert.ok(!r.headers['idempotent-replayed']);
     }
     assert.ok(today);
+  });
+
+test('C9·(iv) a paper grade that delivered NOTHING does not mark its pass graded (it lapses at 24 h); one graded question does', async () => {
+  for (const [charged, want] of [[0, 0], [1, 1], [undefined, 1]]) {
+    const r = rig({ env: PASS_ENV, days: {} });
+    const m = await mint(r, { surface: 'worksheet', paperKey: 'ws-a' });
+    const req = fakeReq({ surface: 'worksheet', body: PAPER_BODY('ws-a'), headers: paperHeaders(m.body.token) });
+    const res = fakeRes();
+    assert.equal(await r.gate.applyToRequest(req, res, GRADE_WORKSHEET_PATH, 'stu-1'), false);
+    if (charged !== undefined) setChargeableCount(res, charged); // what the grading handler reports
+    res.serve(200);
+    await settle();
+    assert.equal(r.fs.gradedWrites().length, want, 'charged=' + charged + ' (undefined = no grading handler: as before)');
+  }
+});
+
+test('C9·(v) a per-question surface spends only the GRADED questions; nothing graded spends nothing; a non-2xx never spends', async () => {
+  for (const [charged, serve, want] of [[2, 200, [{ checks: 2 }]], [0, 200, []], [3, 200, [{ checks: 3 }]], [9, 200, [{ checks: 3 }]], [3, 500, []]]) {
+    const r = rig({ days: {} });
+    const req = fakeReq({ surface: 'check-improve', body: { worksheetId: 'ci:x', questions: questions(3) } });
+    const res = fakeRes();
+    assert.equal(await r.gate.applyToRequest(req, res, GRADE_WORKSHEET_PATH, 'stu-1'), false);
+    setChargeableCount(res, charged);
+    res.serve(serve);
+    await settle();
+    assert.deepEqual(r.ledger.trialWrites.map((w) => w.counts), want, 'charged=' + charged + ' status=' + serve);
+  }
+});
+
+test('WIRING · REAL index.cjs, C9: a 200 that graded NOTHING is stored and replayed but never charged (the graded case: the R4 WIRING test above)',
+  { timeout: 180000 }, async (t) => {
+    const port = await freePort();
+    const srv = bootServer(port, { FAIR_USE_TEST_GEMINI: 'unparseable' }, {});
+    t.after(() => srv.child.kill());
+    await srv.ready;
+    const body = { question: 'Solve x + 1 = 2', marks: 1, textAnswer: 'x = 1' };
+    const keyed = { ...TRIAL, 'x-lazytopper-surface': 'check-improve', 'idempotency-key': KEY_A };
+    let before = srv.log().length;
+    const first = await request(port, 'POST', CHECK_SOLUTION_PATH, body, keyed);
+    for (let i = 0; i < 40 && !/IDEM_SET/.test(srv.log().slice(before)); i++) await wait(50);
+    await wait(400);
+    let delta = srv.log().slice(before);
+    assert.equal(first.status, 200, `${first.text}\n${delta}`);
+    assert.equal(JSON.parse(first.text).ok, false, 'the unparseable reply is the honest 200 { ok:false }');
+    assert.ok(count(delta, /GEMINI_FETCH/g) >= 2, `CONTROL: the grade was attempted (and retried once)\n${delta}`);
+    assert.ok(delta.includes('IDEM_SET gradingResults/trial-student/attempts/'), `still STORED (a retry of this press gets the same answer)\n${delta}`);
+    assert.equal(count(delta, /trialChecks/g), 0, `C9: nothing graded, nothing charged\n${delta}`);
+    before = srv.log().length;
+    const retry = await request(port, 'POST', CHECK_SOLUTION_PATH, body, keyed);
+    await wait(600);
+    delta = srv.log().slice(before);
+    assert.deepEqual([retry.status, retry.text, retry.headers['idempotent-replayed']], [200, first.text, 'true']);
+    assert.equal(count(delta, /GEMINI_FETCH|trialChecks/g), 0, `the replay is neither graded nor charged\n${delta}`);
   });

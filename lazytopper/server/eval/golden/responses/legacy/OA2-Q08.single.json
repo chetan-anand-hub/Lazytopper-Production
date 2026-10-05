@@ -1,0 +1,62 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 0,
+ "percentage": 0,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "General algebraic proof using trigonometric identities",
+   "studentWork": "Put A = 30°. cos 30° = √3/2 , cosec 30° = 2",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Substituting a specific value (A = 30°) does not constitute a mathematical proof of an identity.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "LHS = (1 - cos²A) · cosec²A = sin²A · cosec²A",
+   "isDeparture": true,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Evaluation of LHS to RHS using identity simplification",
+   "studentWork": "LHS = (1 - 3/4) × 4 = 1/4 × 4 = 1 = RHS",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "× Numerical verification rests on an invalid proof method.",
+   "mistakeType": null,
+   "correctedWorking": "= sin²A · (1/sin²A) = 1 = RHS",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Conclusion of proof",
+   "studentWork": "Hence proved.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "× Cannot conclude proof from a single numerical case.",
+   "mistakeType": null,
+   "correctedWorking": "Hence proved.",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 1
+ },
+ "teacherNote": "Marked against: Using the Pythagorean trigonometric identity 1 - cos²A = sin²A (1); Expressing cosec²A as 1/sin²A (1); Simplifying sin²A · (1/sin²A) to obtain 1 = RHS (1). To prove a trigonometric identity, you must prove it holds for all angles A using standard trigonometric identities (such as 1 - cos²A = sin²A and cosec A = 1/sin A). Verifying the equality for an arbitrary specific angle like 30° is only a numerical check, not a valid general proof. This method does not work in general, so the working built on it cannot earn method marks — use a method that holds in every case.",
+ "questionDepartureError": true,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

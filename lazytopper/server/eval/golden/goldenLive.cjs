@@ -52,7 +52,8 @@ function ledgerSpendInr(file, pr) {
     if (pr && r.pr !== pr) continue;
     const p = PRICES[r.model];
     if (!p) continue;
-    inr += ((Number(r.promptTokens) || 0) * p.in + ((Number(r.outputTokens) || 0) + (Number(r.thinkingTokens) || 0)) * p.out) / 1e6 * USD_INR;
+    const pt = Number(r.promptTokens) || 0; const ct = Math.min(pt, Number(r.cachedTokens) || 0);
+    inr += ((pt - ct) * p.in + ct * (p.cached != null ? p.cached : p.in) + ((Number(r.outputTokens) || 0) + (Number(r.thinkingTokens) || 0)) * p.out) / 1e6 * USD_INR;
   }
   return inr;
 }
@@ -128,15 +129,17 @@ async function main() {
     client = require('./lib/live.cjs').createLiveClient({ model: cfg.model, thinkingBudget: cfg.core ? null : cfg.thinkingBudget, ledgerFile: ledger, cap, maxCalls, configId: cfg.id, pr: arg('--pr', 'PR-1') });
   }
   const driver = cfg.core
-    ? createDriver({ callGemini: client.callGemini, model: 'gemini-2.5-flash', gradingModel: cfg.model, gradingThinkingBudget: cfg.thinkingBudget, gradingMode: cfg.gradingMode, gradingLightModel: cfg.lightModel })
+    // --detect-model M (PR-3, C10): production detect runs gemini-2.5-flash, which the eval key is
+    // refused; M is a PROXY for detection only (grading keeps cfg.model), recorded in the manifest.
+    ? createDriver({ callGemini: client.callGemini, model: arg('--detect-model', 'gemini-2.5-flash'), gradingModel: cfg.model, gradingThinkingBudget: cfg.thinkingBudget, gradingMode: cfg.gradingMode, gradingLightModel: cfg.lightModel })
     : createDriver({ callGemini: client.callGemini, model: cfg.model });
 
-  const serverFiles = ['grading/rules.cjs', 'grading/prompt.cjs', 'grading/postprocess.cjs', 'grading/core.cjs', 'grading/verify.cjs', 'grading/schema.cjs', 'grading/fence.cjs', 'routes/checkSolution.cjs', 'routes/objectiveScoring.cjs', 'services/geminiClient.cjs', 'services/serverConfig.cjs', 'services/httpUtils.cjs', 'mentorImageSupport.cjs', 'services/serverUtils.cjs'];
+  const serverFiles = ['grading/rules.cjs', 'grading/prompt.cjs', 'grading/postprocess.cjs', 'grading/core.cjs', 'grading/verify.cjs', 'grading/schema.cjs', 'grading/fence.cjs', 'grading/timing.cjs', 'grading/charge.cjs', 'grading/detect.cjs', 'grading/pdfTextLayer.cjs', 'routes/checkSolution.cjs', 'routes/objectiveScoring.cjs', 'services/geminiClient.cjs', 'services/serverConfig.cjs', 'services/httpUtils.cjs', 'mentorImageSupport.cjs', 'services/serverUtils.cjs'];
   const serverDir = path.join(__dirname, '..', '..');
   const lfOnlyHash = (f) => crypto.createHash('sha256').update(fs.readFileSync(path.join(serverDir, f), 'utf8').replace(/\r\n/g, '\n')).digest('hex');
   const manifestPath = path.join(runDir, 'manifest.json');
   const manifest = fs.existsSync(manifestPath) ? JSON.parse(fs.readFileSync(manifestPath, 'utf8')) : {
-    runId, config: cfg, createdAt: new Date().toISOString(), dry,
+    runId, config: cfg, createdAt: new Date().toISOString(), dry, detectModel: arg('--detect-model', 'gemini-2.5-flash'), detectModelIsProxy: Boolean(arg('--detect-model')),
     note: cfg.core
       ? 'Runs under the GRADER-CORE-1 PR-2 grading core (one prompt builder, one post-processing path, the owner rulings of 2026-10-05).'
       : 'Runs under the CURRENT (pre-GRADER-CORE-1) prompts and post-processing: these outputs measure the model\'s reading and judgement under today\'s rules.',
@@ -206,7 +209,10 @@ async function main() {
         requestDigest: job.requestDigest, model: cfg.model, thinkingBudget: cfg.thinkingBudget,
         handlerStatus: res.httpStatus, wallMs: res.wallMs, bodyDigest: digest(res.body), cacheHookCalls: res.cacheHookCalls,
         harnessError: res.harnessError ? redact(res.harnessError).slice(0, 300) : null,
-        calls: calls.map((c) => ({ ok: c.ok === true, text: c.ok ? c.text : undefined, finishReason: c.finishReason || null, error: c.ok ? undefined : c.error, http: c.http || [] })),
+        // PR-3 (C8): each stored call carries the core's chunk identity, so the CI replay can
+        // match parallel chunk calls (and their one retry) by identity, not by finish order.
+        calls: calls.map((c) => ({ ok: c.ok === true, text: c.ok ? c.text : undefined, finishReason: c.finishReason || null, error: c.ok ? undefined : c.error, http: c.http || [],
+          ...(c.chunkKey ? { chunkKey: c.chunkKey } : {}), ...(c.attempt ? { attempt: c.attempt } : {}), ...(c.timeoutMs ? { timeoutMs: c.timeoutMs } : {}) })),
       };
       fs.appendFileSync(file, redact(JSON.stringify(rec)) + '\n');
       finished += 1;

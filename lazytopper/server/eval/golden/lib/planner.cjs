@@ -283,6 +283,50 @@ function buildPlan(opts = {}) {
     }
   }
 
+  // ── GRADER-CORE-1 PR-3 · the DUPLICATE-NUMBER paper (B's T2: two different questions printed
+  //    "Q5"), as Check & Improve MULTI sends it today (one answer PDF, the session topic on every
+  //    block), and as a v2 client that adopted per-question detect sends it (each question's own
+  //    subject and chapter). Results are matched by POSITION (`qIndexes`): two rows share qNumber 5.
+  if (G.dupPaper) {
+    const p = G.dupPaper;
+    const sessionTopic = p.questions[0].chapterName;
+    const qNumbers = {};
+    const qIndexes = {};
+    const legacyQs = p.questions.map((q) => {
+      qNumbers[q.caseId] = q.qNumber;
+      qIndexes[q.caseId] = q.position;
+      return { qNumber: q.qNumber, marks: q.marks, topic: sessionTopic, topicLabel: sessionTopic, questionText: q.questionText, objective: q.objective === true };
+    });
+    const base = { entry: 'set', handler: 'handleGradeWorksheet', caseIds: p.questions.map((q) => q.caseId), qNumbers, qIndexes };
+    const doc = { imageBase64: b64(p.dir + '/' + p.key.files.answers), imageMimeType: 'application/pdf' };
+    push({ ...base, jobKey: 'W.DUP.T2', surface: 'DUP-MULTI',
+      request: { worksheetId: 'ci:GOLDEN-DUP-T2', subject: p.questions[0].subject, questions: legacyQs, ...doc } });
+    push({ ...base, jobKey: 'V2.W.DUP.T2', surface: 'DUP-MULTI-V2',
+      request: { worksheetId: 'ci:GOLDEN-DUP-T2', subject: p.questions[0].subject, acceptsV2: true, ...doc,
+        questions: p.questions.map((q, i) => ({ ...legacyQs[i], subject: q.subject, chapter: q.chapterKey, topic: q.chapterName, topicLabel: q.chapterName })) } });
+  }
+
+  // ── GRADER-CORE-1 PR-3 · OWNER-ANOMALY-02 (27 questions): the C&I multi set as the client sends
+  //    it (one answer PDF, session topic on every block; 27 questions → 9 chunks), its v2 twin, and
+  //    every question as a C&I single with its own answer crop. ─
+  if (G.owner2) {
+    const o2 = G.owner2;
+    const qNumbers = {};
+    const questions = o2.questions.map((q) => {
+      qNumbers[q.caseId] = q.qNumber;
+      return { qNumber: q.qNumber, marks: q.marks, topic: o2.requestShape.sessionTopic, topicLabel: o2.requestShape.sessionTopic, questionText: q.questionText, objective: q.objective === true };
+    });
+    const doc = { imageBase64: b64(o2.files.answers), imageMimeType: 'application/pdf' };
+    const base = { entry: 'set', handler: 'handleGradeWorksheet', caseIds: o2.questions.map((q) => q.caseId), qNumbers };
+    push({ ...base, jobKey: 'W.OA2.MULTI', surface: 'OWNER2-MULTI', request: { worksheetId: 'ci:GOLDEN-OA-02', subject: o2.requestShape.subject, questions, ...doc } });
+    push({ ...base, jobKey: 'V2.W.OA2.MULTI', surface: 'OWNER2-MULTI-V2', request: { worksheetId: 'ci:GOLDEN-OA-02', subject: o2.requestShape.subject, questions, ...doc, acceptsV2: true } });
+    for (const q of o2.questions) {
+      push({ jobKey: 'S.OA2.' + q.caseId, entry: 'single', handler: 'handleCheckSolution', surface: 'OWNER2-SINGLE', caseIds: [q.caseId], qNumbers: { [q.caseId]: 1 },
+        request: { question: q.questionText, subject: q.subject, topic: q.chapterName, marks: q.marks, ...(q.objective ? { objective: true } : {}),
+          imageBase64: b64(q.answerImage), imageMimeType: 'image/jpeg' } });
+    }
+  }
+
   // ── v2 (acceptsV2: true) copies — a separate job key, so no stored PR-1 record is affected ─
   for (const j of all.slice()) {
     const v2Single = j.entry === 'single' && j.surface === 'CI-SINGLE' && V2_SINGLE_CASES.includes(j.caseIds[0]);
@@ -304,6 +348,24 @@ function buildPlan(opts = {}) {
     for (const q of G.owner.questions) {
       push({ jobKey: 'D.OAQ.' + q.qNumber, entry: 'detect', handler: 'handleDetectQuestion', surface: 'DETECT-PER-QUESTION', caseIds: ['OA-01.Q' + q.qNumber], qNumbers: {},
         request: { question: q.questionText, topicVocabulary: G.vocab } });
+    }
+    // GRADER-CORE-1 PR-3 (C10): the owner paper read by a v2 client (each question's own subject
+    // and chapter), and the duplicate-number paper (both "Q5"s must be detected), both ways.
+    push({ jobKey: 'V2.D.PAPER.OA-01', entry: 'detect', handler: 'handleDetectQuestion', surface: 'DETECT-PAPER-V2', caseIds: ['OA-01'], qNumbers: {},
+      request: { imageBase64: b64(G.owner.files.questions), imageMimeType: 'application/pdf', topicVocabulary: G.vocab, acceptsV2: true } });
+    if (G.owner2) {
+      const q2 = b64(G.owner2.files.questions);
+      push({ jobKey: 'D.PAPER.OA-02', entry: 'detect', handler: 'handleDetectQuestion', surface: 'DETECT-PAPER', caseIds: ['OA-02'], qNumbers: {},
+        request: { imageBase64: q2, imageMimeType: 'application/pdf', topicVocabulary: G.vocab } });
+      push({ jobKey: 'V2.D.PAPER.OA-02', entry: 'detect', handler: 'handleDetectQuestion', surface: 'DETECT-PAPER-V2', caseIds: ['OA-02'], qNumbers: {},
+        request: { imageBase64: q2, imageMimeType: 'application/pdf', topicVocabulary: G.vocab, acceptsV2: true } });
+    }
+    if (G.dupPaper) {
+      const qpdf = b64(G.dupPaper.dir + '/' + G.dupPaper.key.files.questions);
+      push({ jobKey: 'D.PAPER.T2', entry: 'detect', handler: 'handleDetectQuestion', surface: 'DETECT-PAPER', caseIds: ['DUP-T2'], qNumbers: {},
+        request: { imageBase64: qpdf, imageMimeType: 'application/pdf', topicVocabulary: G.vocab } });
+      push({ jobKey: 'V2.D.PAPER.T2', entry: 'detect', handler: 'handleDetectQuestion', surface: 'DETECT-PAPER-V2', caseIds: ['DUP-T2'], qNumbers: {},
+        request: { imageBase64: qpdf, imageMimeType: 'application/pdf', topicVocabulary: G.vocab, acceptsV2: true } });
     }
   }
   return jobs;

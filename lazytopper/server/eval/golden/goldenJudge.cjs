@@ -146,7 +146,7 @@ async function main() {
   for (const run of Object.keys(R.runs).map(Number)) {
     for (const rec of R.runs[run]) {
       const job = plan[rec.jobKey];
-      const rep = await replayJob(job, rec, { config: R.manifest.config });
+      const rep = await replayJob(job, rec, { config: R.manifest.config, detectModel: R.manifest.detectModel });
       const body = rep.body || {};
       const push = (cid, result) => { if (result && (result.annotatedSteps || result.couldNotRead)) outputs.push({ outputId: rec.jobKey + '#' + run + '#' + cid, caseId: cid, result }); };
       if (job.entry === 'single') { if (body.ok) push(job.caseIds[0], body); }

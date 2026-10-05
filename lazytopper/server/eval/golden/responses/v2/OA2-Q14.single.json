@@ -1,0 +1,94 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2,
+ "percentage": 67,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Identifying prime numbers on a die",
+   "studentWork": "Prime numbers on a die: 1, 2, 3, 5",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× 1 is neither prime nor composite; prime numbers are 2, 3, 5",
+   "mistakeType": "conceptual",
+   "correctedWorking": "Prime numbers on a die: 2, 3, 5 (Number of favorable outcomes = 3)",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(i)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Calculating probability using the ratio of favorable to total outcomes (ECF)",
+   "studentWork": "P(prime) = 4/6 = 2/3",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ ECF: formula correctly applied to carried-forward count",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(i)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Finding the probability of getting a number greater than 6",
+   "studentWork": "P(number > 6) = 0/6 = 0",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(ii)",
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Remember that 1 is neither prime nor composite, so the prime numbers on a die are only 2, 3, and 5. Part (ii) was answered correctly.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Listing prime numbers on a die (2, 3, 5) and identifying favorable outcomes as 3",
+   "marks": 1
+  },
+  {
+   "point": "Calculating probability of getting a prime number: P(prime) = 3/6 = 1/2",
+   "marks": 1
+  },
+  {
+   "point": "Finding the probability of getting a number greater than 6: P(number > 6) = 0/6 = 0",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

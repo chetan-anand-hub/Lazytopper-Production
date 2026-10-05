@@ -1,0 +1,98 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2,
+ "percentage": 67,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Calculation of ∑f and determination of fx terms",
+   "studentWork": "Σf = 3 + 5 + 4 + 2 = 14",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct sum of frequencies and products",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Addition of fx values to find ∑fx",
+   "studentWork": "Σfx = 6 + 20 + 24 + 16 = 64",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Addition error: 6 + 20 + 24 + 16 = 66, not 64",
+   "mistakeType": "calculation",
+   "correctedWorking": "Σfx = 6 + 20 + 24 + 16 = 66",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Mean formula, substitution, and evaluation",
+   "studentWork": "Mean = Σfx / Σf = 64/14 = 4.57",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "½ Correct formula and method (ECF applied), but final answer is incorrect due to earlier addition slip",
+   "mistakeType": null,
+   "correctedWorking": "Mean = Σfx / Σf = 66 / 14 = 33 / 7 ≈ 4.71",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Good job applying the direct method formula for the mean correctly. However, double-check your addition: 6 + 20 + 24 + 16 sums to 66, not 64, which led to a slightly incorrect final value.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Finding ∑f = 14 and individual products fx (6, 20, 24, 16)",
+   "marks": 1
+  },
+  {
+   "point": "Correctly finding the sum of products ∑fx = 66",
+   "marks": 1
+  },
+  {
+   "point": "Formula for Mean = ∑fx / ∑f and correct substitution",
+   "marks": 0.5
+  },
+  {
+   "point": "Correct final answer (33/7 or 4.71)",
+   "marks": 0.5
+  }
+ ],
+ "objectiveResolved": null
+}

@@ -53,6 +53,8 @@ async function main() {
   const I = { ...ev.integrity };
   for (const { ev: e } of extras) {
     I.jobs += e.integrity.jobs; I.changed += e.integrity.changed;
+    I.rebaselined = (I.rebaselined || 0) + (e.integrity.rebaselined || 0);
+    I.rebaselineStale = (I.rebaselineStale || []).concat(e.integrity.rebaselineStale || []);
     I.missingFromPlan = I.missingFromPlan.concat(e.integrity.missingFromPlan);
     I.requestDigestMismatch = I.requestDigestMismatch.concat(e.integrity.requestDigestMismatch);
     I.replayIncomplete = I.replayIncomplete.concat(e.integrity.replayIncomplete);
@@ -60,6 +62,7 @@ async function main() {
   if (I.missingFromPlan.length) reasons.push('jobs missing from plan: ' + I.missingFromPlan.slice(0, 5).join(','));
   if (I.requestDigestMismatch.length) reasons.push('request digest mismatch: ' + I.requestDigestMismatch.slice(0, 5).join(','));
   if (I.replayIncomplete.length) reasons.push('replay incomplete: ' + I.replayIncomplete.slice(0, 5).join(','));
+  if ((I.rebaselineStale || []).length) reasons.push('stale rebaseline entries: ' + I.rebaselineStale.slice(0, 5).join(','));
   const below = [];
   const check = (prefix, floorMetrics, cur) => {
     for (const [k, f] of Object.entries(floorMetrics || {})) {
@@ -83,7 +86,7 @@ async function main() {
   const rel = path.relative(path.join(__dirname, '..', '..', '..'), FLOOR).replace(/\\/g, '/');
   const jsonOut = arg('--json');
   if (jsonOut) fs.writeFileSync(jsonOut, JSON.stringify({ metrics: ev.metrics, integrity: I, reasons, res: { ...ev.res, rows: undefined } }, null, 1));
-  process.stdout.write('GOLDEN: ' + metricStr + ' jobs=' + I.jobs + ' changed=' + I.changed + ' handlerLogs=' + handlerLogs + ' calls=' + calls + ' floor=' + rel + ' verdict=' + verdict + '\n');
+  process.stdout.write('GOLDEN: ' + metricStr + ' jobs=' + I.jobs + ' changed=' + I.changed + ' rebaselined=' + (I.rebaselined || 0) + ' handlerLogs=' + handlerLogs + ' calls=' + calls + ' floor=' + rel + ' verdict=' + verdict + '\n');
   if (reasons.length) process.stdout.write('GOLDEN-FAIL-REASONS: ' + reasons.join(' | ') + '\n');
   process.exit(verdict === 'PASS' ? 0 : 1);
 }

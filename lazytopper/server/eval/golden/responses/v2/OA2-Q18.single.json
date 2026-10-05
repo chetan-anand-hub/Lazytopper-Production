@@ -1,0 +1,79 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 0.5,
+ "percentage": 25,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Scientific justification why carbon cannot form C4- or C4+ ions",
+   "studentWork": "Woh 4 electrons na gain kar sakta hai na lose karna easy hai, isliye",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Missing scientific reasons: 6 protons cannot hold 10 electrons; large amount of energy required to overcome nuclear attraction to remove 4 electrons.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "It cannot gain 4 electrons to form C4- because a nucleus with 6 protons cannot hold 10 electrons. It cannot lose 4 electrons to form C4+ because it requires a large amount of energy to remove 4 electrons.",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Sharing of valence electrons to achieve stable noble gas configuration (covalent bonding)",
+   "studentWork": "Carbon ke paas 4 valence electrons hain. ... electrons share karta hai — so it forms covalent bonds.",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Correctly noted 4 valence electrons and sharing, but written in colloquial Hinglish and missed mentioning the noble gas configuration/octet.",
+   "mistakeType": "presentation",
+   "correctedWorking": "Carbon overcomes this problem by sharing its 4 valence electrons with other atoms to achieve a stable noble gas configuration, forming covalent bonds.",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 1,
+  "departure": 0
+ },
+ "teacherNote": "You understand the basic idea that carbon shares electrons due to its 4 valence electrons. To score full marks in CBSE, you must write in formal English (or Hindi) and clearly explain the nuclear charge limitation (6 protons holding 10 electrons) and the high energy barrier for losing 4 electrons.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0.5,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Reason why carbon cannot gain 4 electrons (difficult for 6 protons to hold 10 electrons)",
+   "marks": 0.5
+  },
+  {
+   "point": "Reason why carbon cannot lose 4 electrons (requires a large amount of energy to remove 4 electrons)",
+   "marks": 0.5
+  },
+  {
+   "point": "Carbon has 4 valence electrons and attains noble gas configuration by sharing electrons (covalent bonds)",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

@@ -1,0 +1,36 @@
+{
+ "ok": true,
+ "totalMarks": 1,
+ "marksAwarded": 1,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Selected option for pH of a neutral solution",
+   "studentWork": "(b)",
+   "status": "correct",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct option",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Correct option (b) / 7 (1). Correct answer. You appropriately corrected your initial response by crossing out option (a) and selecting option (b).",
+ "questionDepartureError": false,
+ "objective": true,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

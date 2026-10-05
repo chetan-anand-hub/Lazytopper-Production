@@ -1,0 +1,49 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1.5,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Writing the balanced chemical equation for the reaction",
+   "studentWork": "Na + H2O -> NaOH + H2 (balanced)",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Correct reactants and products, but the equation is not balanced.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "2Na + 2H2O -> 2NaOH + H2",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Naming the type of reaction",
+   "studentWork": "It is a displacement reaction.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct identification of reaction type.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Writing the correct chemical equation with reactants and products (Na + H2O -> NaOH + H2) (0.5); Balancing the equation correctly (2Na + 2H2O -> 2NaOH + H2) (0.5); Naming the type of reaction as displacement reaction (1). You correctly identified the products and classified the reaction as a displacement reaction. Remember to always count atoms on both sides to balance equations, as writing '(balanced)' alone does not balance the reaction.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

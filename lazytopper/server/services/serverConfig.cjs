@@ -76,6 +76,14 @@ function resolveConfig() {
   if (process.env.GRADING_MODEL) ENV_USED.push(`GRADING_MODEL=${GRADING_MODEL}`);
   if (process.env.GRADING_THINKING_BUDGET) ENV_USED.push(`GRADING_THINKING_BUDGET=${GRADING_THINKING_BUDGET}`);
   const GEMINI_TIMEOUT_MS = Math.max(5000, Number(process.env.GEMINI_TIMEOUT_MS || 55000) || 55000);
+  // GRADER-CORE-1 PR-3 (C8, controller decision D15): GRADING has its own time budget and does
+  // NOT read GEMINI_TIMEOUT_MS (which keeps governing detect, the tutor and every other
+  // non-grading call). Code defaults in server/grading/timing.cjs are what production runs.
+  const { resolveGradingTiming } = require('../grading/timing.cjs');
+  const { deadlineMs: GRADING_DEADLINE_MS, chunkTimeoutMs: GRADING_CHUNK_TIMEOUT_MS, cacheBudgetMs: GRADING_CACHE_BUDGET_MS } = resolveGradingTiming(process.env);
+  if (process.env.GRADING_DEADLINE_MS) ENV_USED.push(`GRADING_DEADLINE_MS=${GRADING_DEADLINE_MS}`);
+  if (process.env.GRADING_CHUNK_TIMEOUT_MS) ENV_USED.push(`GRADING_CHUNK_TIMEOUT_MS=${GRADING_CHUNK_TIMEOUT_MS}`);
+  if (process.env.GRADING_CACHE_BUDGET_MS) ENV_USED.push(`GRADING_CACHE_BUDGET_MS=${GRADING_CACHE_BUDGET_MS}`);
   const IS_DEV = String(process.env.NODE_ENV || '').toLowerCase() !== 'production';
   const REPO_ROOT = process.cwd();
   const MAX_HISTORY_TURNS = 4;
@@ -100,6 +108,7 @@ function resolveConfig() {
     PORT, CORS_ORIGIN, ENV_USED,
     GEMINI_API_KEY, DIRECT_GEMINI_API_KEY, GEMINI_MODEL, GEMINI_TUTOR_MODEL, GEMINI_TIMEOUT_MS,
     GRADING_MODEL, GRADING_THINKING_BUDGET, GRADING_MODE, GRADING_LIGHT_MODEL,
+    GRADING_DEADLINE_MS, GRADING_CHUNK_TIMEOUT_MS, GRADING_CACHE_BUDGET_MS,
     HAS_REPLIT_PROXY, REPLIT_GEMINI_BASE_URL, REPLIT_GEMINI_API_KEY,
     HAS_ANTHROPIC_PROXY, REPLIT_ANTHROPIC_BASE_URL, REPLIT_ANTHROPIC_API_KEY,
     ANTHROPIC_TIMEOUT_MS,

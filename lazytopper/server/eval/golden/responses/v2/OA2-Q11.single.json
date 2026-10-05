@@ -1,0 +1,94 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 0,
+ "percentage": 0,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Statement of formula for the area of a sector",
+   "studentWork": "Area of sector = (θ/360) × 2πr",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Incorrect formula: (θ/360) × 2πr is the length of an arc, not the area of a sector",
+   "mistakeType": "conceptual",
+   "correctedWorking": "Area of sector = (θ/360) × πr²",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Substitution of values into the formula",
+   "studentWork": "= (60/360) × 2 × 22/7 × 7",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Substitution into an incorrect formula cannot earn credit",
+   "mistakeType": null,
+   "correctedWorking": "= (60/360) × (22/7) × 7 × 7",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Calculation and final answer",
+   "studentWork": "= 22/3 = 7.33 cm²",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Incorrect value resulting from using the arc length formula",
+   "mistakeType": null,
+   "correctedWorking": "= 77/3 cm² = 25.67 cm²",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "You used the formula for the length of an arc ((θ/360) × 2πr) instead of the area of a sector ((θ/360) × πr²). Make sure to distinguish clearly between linear circumference/arc formulas and area formulas.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 2
+ },
+ "rubric": [
+  {
+   "point": "Formula for the area of a sector = (θ/360°) × πr²",
+   "marks": 1
+  },
+  {
+   "point": "Substitution of given values into the area formula: (60/360) × (22/7) × 7 × 7",
+   "marks": 1
+  },
+  {
+   "point": "Calculation and correct final answer with units (77/3 cm² or 25.67 cm²)",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

@@ -1,0 +1,94 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 0,
+ "percentage": 0,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "State the Basic Proportionality Theorem ratio",
+   "studentWork": "By BPT, AD/AB = AE/EC",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Incorrect ratio for BPT; it should be AD/DB = AE/EC (or AD/AB = AE/AC).",
+   "mistakeType": "conceptual",
+   "correctedWorking": "By BPT, AD/DB = AE/EC",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Substitute values into the ratio",
+   "studentWork": "AB = 2 + 3 = 5 cm\n2/5 = 4/EC",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Substitution into an incorrect formula.",
+   "mistakeType": null,
+   "correctedWorking": "2/3 = 4/EC",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Calculate the value of EC",
+   "studentWork": "⇒ EC = 10 cm",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Incorrect value due to evaluating an incorrect ratio.",
+   "mistakeType": null,
+   "correctedWorking": "EC = (4 × 3) / 2 = 6 cm",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Basic Proportionality Theorem states that AD/DB = AE/EC, not AD/AB = AE/EC. Using the correct ratio yields 2/3 = 4/EC, giving EC = 6 cm.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 2
+ },
+ "rubric": [
+  {
+   "point": "Stating the correct Basic Proportionality Theorem ratio (AD/DB = AE/EC or AD/AB = AE/AC)",
+   "marks": 1
+  },
+  {
+   "point": "Substituting the given values into the correct ratio",
+   "marks": 1
+  },
+  {
+   "point": "Solving for EC to get EC = 6 cm",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

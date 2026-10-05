@@ -1,0 +1,49 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 1,
+ "percentage": 33,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Balanced chemical equation for zinc reacting with dilute hydrochloric acid",
+   "studentWork": "Zn + HCl → ZnCl + H2",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 2,
+   "teacherAnnotation": "× Incorrect formula for zinc chloride (should be ZnCl₂) and equation is unbalanced",
+   "mistakeType": "conceptual",
+   "correctedWorking": "Zn + 2HCl → ZnCl₂ + H₂",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Test and observation for the evolved gas",
+   "studentWork": "Test: bring a burning splinter near the gas,\nit burns with a pop sound. So gas is hydrogen.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct test and characteristic observation",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Writing correct chemical formulae of reactants and products (Zn / HCl / ZnCl₂ / H₂) (1); Balancing the chemical equation (Zn + 2HCl → ZnCl₂ + H₂) (1); Test for hydrogen gas: bringing a burning splinter near the gas (0.5); Observation: burns with a 'pop' sound (0.5). You described the test and observation for hydrogen gas accurately. However, remember that zinc has a valency of +2, forming zinc chloride with the chemical formula ZnCl₂, requiring a coefficient of 2 for HCl to balance the equation.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

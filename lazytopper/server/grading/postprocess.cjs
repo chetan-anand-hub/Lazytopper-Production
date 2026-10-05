@@ -78,6 +78,67 @@ const INJECTION_CITE = /\b(head examiner|examiner(?:'s|s)? (?:panel|instruction|
 /** C3 · internal machinery a student must never be told about (golden T09). */
 const LEAK_SENTENCE = /marking scheme (?:had|has|contained|contains|is|was) (?:an )?(?:error|wrong|garbled|incorrect)|stored (?:marking )?scheme|question text (?:was|is|appears|seems) (?:garbled|corrupt|incomplete)|derived rubric|my derivation|the provided (?:marking )?scheme/i;
 
+/* ── PR-3 · comments true + ruling 6 (deterministic) ─────────────────────── */
+// A claim about the WHOLE answer, never praise of one part or step, never advice ("to secure full
+// marks"), never a negated sentence: "Full marks…", "you got / full marks are awarded" (not "for
+// part …"), or "the calculations / working / steps / answer … are completely correct/accurate".
+const FULL_MARKS_CLAIM = /^(?!.*\b(?:not|n['’]t|never|no longer|lost|loses|missing|except|but|however|although|though|to secure|to get|to earn|for part|for (?:this|that|each) (?:step|part))\b)(?:\s*(?:excellent|well done|great)?[,!.\s]*full marks\b(?![^.]*\bfor\b)|.*\b(?:you (?:have )?(?:get|got|earn(?:ed)?|score(?:d)?|secure(?:d)?|achieve(?:d)?) full marks|full marks (?:are |were |is |have been )?(?:awarded|given|earned|scored|secured))\b(?![^.]*\bfor\b)|\s*(?:the|your|all(?: the| your)?)\s+(?:calculations|working|steps|answer|solution|work|everything)\b(?!\s+(?:of|to|for|in|on|from)\b)[^.]*\b(?:are|is|were|was)\s+(?:all\s+)?(?:completely|fully|entirely|perfectly|totally)\s+(?:correct|accurate|right|flawless)\b)/i;
+const UNIT_LOSS = /\b(?:si\s+)?units?\b[^.;]*\b(?:missing|omitted|absent|not (?:written|stated|given|included|mentioned|shown))\b|\b(?:missing|no|without|omitted|forgot(?:ten)?(?: to (?:write|give|state))?)\s+(?:the\s+|an?\s+|any\s+)?(?:si\s+)?units?\b|\b(?:cm|m|km|mm)\s*(?:\^?[23]|²|³)[^.;]*\b(?:missing|omitted|not written)\b/i;
+const QUESTION_ASKS_UNIT = /\bunits?\b|\bexpress (?:your|the) answer in\b|\bin (?:cm|m|km|mm|kg|g|s|°|degrees?)(?:\s|\.|,|$)/i;
+/**
+ * Ruling 6 (Maths units follow the question's scheme; silent → no deduction), deterministic: on a
+ * Maths question whose text and stored scheme never ask for a unit, a step typed "presentation"
+ * whose deduction is for a missing unit gets that deduction back (at most ½ per step, within
+ * what the step could earn), loses its type, and says why.
+ */
+function restoreMathsUnitDeductions(steps, q) {
+  if (QUESTION_ASKS_UNIT.test(String((q && q.questionText) || ''))) return 0;
+  if ((Array.isArray(q && q.solutionSteps) ? q.solutionSteps : []).some((t) => /\bunits?\b/i.test(String(t)))) return 0;
+  let n = 0;
+  for (const s of steps) {
+    if (s.status === 'withdrawn' || s.status === 'unattempted' || s.mistakeType !== 'presentation' || !(s.marksDeducted > 0)) continue;
+    if (!UNIT_LOSS.test([s.teacherAnnotation, s.correctedWorking, s.description].join(' . '))) continue;
+    const back = Math.min(0.5, s.marksDeducted, Math.max(0, (s._available || 0) - s.marksAwarded));
+    if (!(back > 0)) continue;
+    s.marksAwarded = half(s.marksAwarded + back);
+    s.marksDeducted = half(s.marksDeducted - back);
+    if (!(s.marksDeducted > 0)) { s.mistakeType = null; s.correctedWorking = null; if (s.marksAwarded >= s._available) s.status = 'correct'; }
+    s.teacherAnnotation = R.MATHS_UNIT_NOT_REQUIRED_ANNOTATION;
+    n += 1;
+  }
+  return n;
+}
+
+// Owner rule: an answer is never marked down for the LANGUAGE it is written in — Hinglish or Hindi
+// is fine; the science is what is marked (live 2026-10-06, owner paper 02 Q18: a correct answer
+// lost ½ "written informally in Hinglish" in 5 of 9 grades, typed presentation).
+const LANGUAGE_LOSS = /\b(?:hinglish|hindi|vernacular|informal(?:ly)?\s+(?:written|worded|expressed|language|wording|english)|(?:written|worded|expressed)\s+(?:informally|colloquially)|(?:standard|formal|proper|correct)\s+english|english\s+language)\b/i;
+const LANGUAGE_ADVICE = /\b(?:hinglish|hindi|vernacular|(?:standard|formal|proper|correct)\s+english|english\s+language|informal(?:ly)?\s+(?:written|worded|expressed|language|wording|english))\b/i;
+// A deduction for the TERM used is not a language deduction: CBSE marks the exact technical term
+// (live 2026-10-06, OA-02 Q19: "½ Scientific terminology 'oesophagus' preferred over colloquial 'food pipe'").
+const TERMINOLOGY_LOSS = /\b(?:terminolog\w*|(?:technical|scientific|exact|correct|proper|key)\s+(?:term|terms|word|words|name|names)|keywords?)\b/i;
+/**
+ * A step typed "presentation" whose deduction is for the language of the answer gets that
+ * deduction back (at most ½ per step — a step that ALSO lost marks for missing science keeps the
+ * rest), loses its type when nothing remains, and says why. Returns how many steps changed.
+ */
+function restoreLanguageDeductions(steps) {
+  let n = 0;
+  for (const s of steps) {
+    if (s.status === 'withdrawn' || s.status === 'unattempted' || s.mistakeType !== 'presentation' || !(s.marksDeducted > 0)) continue;
+    const why = [s.teacherAnnotation, s.correctedWorking, s.description].join(' . ');
+    if (!LANGUAGE_LOSS.test(why) || TERMINOLOGY_LOSS.test(why)) continue;
+    const back = Math.min(0.5, s.marksDeducted, Math.max(0, (s._available || 0) - s.marksAwarded));
+    if (!(back > 0)) continue;
+    s.marksAwarded = half(s.marksAwarded + back);
+    s.marksDeducted = half(s.marksDeducted - back);
+    if (!(s.marksDeducted > 0)) { s.mistakeType = null; s.correctedWorking = null; if (s.marksAwarded >= s._available) s.status = 'correct'; }
+    s.teacherAnnotation = R.LANGUAGE_NOT_MARKED_ANNOTATION;
+    n += 1;
+  }
+  return n;
+}
+
 function scrubSentences(text, pattern) {
   const s = String(text || '').trim();
   if (!s) return s;
@@ -225,8 +286,19 @@ function firstLineInWork(lineRaw, workRaw) {
 function inventoryVerdict(inventory, steps, raw) {
   if (!inventory || typeof inventory !== 'object') return null;
   if (inventory.present !== true) return 'notInInventory';
+  // D38: listed, but only as a BLANK answer slot ("" or a non-attempt quoted as written) — the
+  // student left it: UNATTEMPTED (ruling 7), unlike a question not found at all (not graded).
+  const all = Array.isArray(inventory.firstLines) ? inventory.firstLines : [];
+  if (all.length > 0 && all.every((l) => !String(l).trim() || nonAttemptText(l) === 'phrase')) return 'blankInInventory';
   const lines = (Array.isArray(inventory.firstLines) ? inventory.firstLines : []).filter((l) => compactText(stripAnswerLabel(l)).length >= 4);
   if (lines.length === 0) return null;
+  // PR-3 (C8 chunks): a CHUNK of a one-document paper writes the page inventory for the WHOLE
+  // document but grades only its own questions, quoting only some lines of each — so the
+  // first-line test misfires there (live 2026-10-06: 8 of 825 set results, a real 3/3 and a real
+  // 4/5 turned into "no answer found"; 0 of 615 on the single-call run). A question LISTED with a
+  // quotable first line that the model GRADED with marks keeps its grade. An absent question and a
+  // blank slot are decided above (D38); a listed question the model gave nothing keeps the test.
+  if (inventory.partial === true && steps.some((s) => (Number(s.marksAwarded) || 0) > 0)) return null;
   const work = steps.map((s) => s.studentWork).concat([String((raw && raw.studentFinalAnswer) || '')]).join('\n');
   return lines.some((l) => firstLineInWork(l, work)) ? null : 'firstLineNotInWork';
 }
@@ -443,12 +515,26 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
         marksLostByType: zeroLost(),
         rubric: null,
         objectiveResolved: null,
+        // PR-3 (C8): WHY it was not graded, for a client that can render it — "unreadable"
+        // (the answer could not be read), "withheld" (C6), "timeout" / "error" (the marking
+        // did not finish) — the four values the client knows (SCORECARD-MI). null on every graded
+        // result, and on an unread PICK (its state is objectiveResolved: false, which the client
+        // renders as "we couldn't read your option"; an unknown value would read "try again").
+        notGraded: extra.notGraded || 'unreadable',
       }, extra.v2 || {});
     }
     Object.defineProperty(out, '_graded', { value: false });
     Object.defineProperty(out, '_reason', { value: extra.reason || 'couldNotRead' });
     return out;
   };
+
+  // 0 · PR-3 (C8): the marking of this question did not FINISH (its chunk timed out, or the
+  // model call / reply failed after its one retry). Honest pending, never a 0, never charged.
+  if (ctx.notGraded === 'timeout' || ctx.notGraded === 'error') {
+    const timedOut = ctx.notGraded === 'timeout';
+    return pending(timedOut ? R.NOT_GRADED_TIMEOUT_NOTE : R.NOT_GRADED_ERROR_NOTE,
+      { reason: timedOut ? 'timeout' : 'failed', notGraded: ctx.notGraded });
+  }
 
   // 1 · Honest failure: the model could not locate/read this answer. Never a fabricated 0.
   if (!raw || raw.couldNotRead === true || raw.couldNotRead === 'true') {
@@ -473,7 +559,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
     if (v2) {
       const lost = zeroLost();
       lost.unattempted = totalMarks;
-      Object.assign(out, { answerMismatch: null, departureKind: null, marksLostByType: lost, rubric: null, objectiveResolved: questionIsObjective ? true : null });
+      Object.assign(out, { answerMismatch: null, departureKind: null, marksLostByType: lost, rubric: null, objectiveResolved: questionIsObjective ? true : null, notGraded: null });
     }
     Object.defineProperty(out, '_graded', { value: true });
     Object.defineProperty(out, '_reason', { value: reason || 'unattempted' });
@@ -490,6 +576,11 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // reply carried no usable inventory).
   {
     const verdict = inventoryVerdict(ctx.inventory, all, raw);
+    // D38: a question ABSENT from the inventory (no number or answer found on any uploaded page)
+    // is NOT GRADED — legacy couldNotRead (the pre-lane "pending, re-upload" path), v2
+    // couldNotRead + notGraded "unreadable" — never a final 0, and never charged (C9). A question
+    // that IS in the inventory but with no work / a non-attempt stays UNATTEMPTED (ruling 7).
+    if (verdict === 'notInInventory') return pending(R.NOT_FOUND_ON_PAGE_NOTE, { reason: 'notInInventory', notGraded: 'unreadable' });
     if (verdict) return unattempted(R.NO_ANSWER_ON_PAGE_NOTE, verdict);
   }
 
@@ -535,7 +626,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
       questionDepartureError: false,
       objective: questionIsObjective,
     };
-    if (v2) Object.assign(out, { answerMismatch: true, departureKind: null, marksLostByType: zeroLost(), rubric: null, objectiveResolved: questionIsObjective ? false : null });
+    if (v2) Object.assign(out, { answerMismatch: true, departureKind: null, marksLostByType: zeroLost(), rubric: null, objectiveResolved: questionIsObjective ? false : null, notGraded: null });
     Object.defineProperty(out, '_graded', { value: !v2 }); // legacy: a real examiner 0; v2: not graded
     Object.defineProperty(out, '_reason', { value: 'answerMismatch' });
     return out;
@@ -563,6 +654,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
         mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0, departure: 0 },
         teacherNote: R.UNREAD_OPTION_NOTE, questionDepartureError: false, objective: true,
         answerMismatch: null, departureKind: null, marksLostByType: zeroLost(), rubric: null, objectiveResolved: false,
+        notGraded: null, // PR-3: v2 only — the state is objectiveResolved: false, never a notGraded reason
       };
       Object.defineProperty(out, '_graded', { value: false });
       Object.defineProperty(out, '_reason', { value: 'objectiveUnresolved' });
@@ -570,6 +662,14 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
     }
   }
   applyObjectiveMistakeGuard(steps, { objective: questionIsObjective, options: q.options });
+  // Ruling 6, deterministic (PR-3): a Maths question that does not ask for a unit loses nothing
+  // for a missing one, whatever the model deducted.
+  {
+    const subj = String(ctx.subjectHint || '').trim() || String((raw && raw.subject) || '').trim();
+    if (!questionIsObjective && subj && /math/i.test(subj)) restoreMathsUnitDeductions(steps, q);
+  }
+  // Owner rule (PR-3): never a deduction for the language an answer is written in.
+  const languageRestored = restoreLanguageDeductions(steps);
 
   // 6 · SUBJECTIVE marks
   let departures = [];
@@ -729,6 +829,11 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   }
   let note = stripRubricFromNote(raw.teacherNote);
   note = scrubSentences(note, LEAK_SENTENCE);
+  // PR-3 (comments true): a note may not claim full marks / flawless work for an answer that did
+  // not get full marks (live 2026-10-05, owner-anomaly-02 Q13: "Full marks … completely accurate"
+  // beside 2/3). Such sentences go; a negated one ("not full marks") stays.
+  if (marksAwarded < totalMarks) note = scrubSentences(note, FULL_MARKS_CLAIM);
+  if (languageRestored > 0) note = scrubSentences(note, LANGUAGE_ADVICE);
   const rubric = validRubric(raw.rubric, totalMarks);
   if (primaryDeparture) {
     const line = primaryDeparture.returnIndex >= 0
@@ -742,7 +847,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // 9 · C6: a grade whose comments cite an injected instruction is withheld, never shipped.
   const commentText = [note, ...steps.map((s) => s.teacherAnnotation)].join(' \n ');
   if (INJECTION_CITE.test(commentText)) {
-    return pending(R.INJECTION_WITHHELD_NOTE, { reason: 'injectionCited' });
+    return pending(R.INJECTION_WITHHELD_NOTE, { reason: 'injectionCited', notGraded: 'withheld' });
   }
 
   // mistake counts: step types, the departure charged ONCE, zeroed steps uncounted.
@@ -828,10 +933,14 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
       marksLostByType,
       rubric,
       objectiveResolved: questionIsObjective ? true : null,
+      notGraded: null,
     });
   }
   Object.defineProperty(out, '_graded', { value: true });
   Object.defineProperty(out, '_reason', { value: 'graded' });
+  // PR-3 (C9): a legacy client keeps today's 0 for an MCQ whose pick could not be read (the
+  // honest "ungraded" is opt-in, C7) — but it is not a grade, so it is never charged.
+  Object.defineProperty(out, '_objectiveUnresolved', { value: Boolean(questionIsObjective && objectiveVerdict && objectiveVerdict.resolved === false) });
   Object.defineProperty(out, '_finalAnswerCorrect', { value: finalAnswerCorrect });
   Object.defineProperty(out, '_keyCheck', { value: keyCheck });
   Object.defineProperty(out, '_arithmeticFlags', { value: arithmeticFlags });

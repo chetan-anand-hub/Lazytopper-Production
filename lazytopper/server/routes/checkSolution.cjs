@@ -22,6 +22,15 @@ const {
 } = require('./objectiveScoring.cjs');
 const grading = require('../grading/index.cjs');
 const { createGradingCore } = require('../grading/core.cjs');
+// PR-3 (C9): what a grade CHARGES — the chargeable-question count, recorded on `res` before
+// every 2xx grading response (fair use commits exactly that; see grading/charge.cjs).
+const { chargeableCount, isChargeable, setChargeableCount } = require('../grading/charge.cjs');
+// PR-3 (C10): detection's rules + post-processing, and the typed-PDF text layer (no new deps).
+const D = require('../grading/detect.cjs');
+const { extractPdfText, usableQuestionText } = require('../grading/pdfTextLayer.cjs');
+const { chooseNonce, fence } = require('../grading/fence.cjs');
+// The most text-layer characters handed to the detect prompt (a typed paper is ~2–4k).
+const MAX_TEXT_LAYER_CHARS = 20000;
 
 // Shared with the parser's own validation (the four statuses every pre-V2 client reads).
 const STEP_STATUS_VALUES = grading.LEGACY_STEP_STATUSES.slice();
@@ -93,8 +102,12 @@ const DETECT_RESPONSE_SCHEMA = deepFreeze({
           marksSource: { type: 'STRING', enum: MARKS_SOURCE_VALUES.slice() },
           objective: { type: 'BOOLEAN', nullable: true },
           answer: { type: 'STRING', nullable: true },
+          // GRADER-CORE-1 PR-3 (C10): each question's OWN subject and chapter (a paper may mix
+          // Maths and Science). Optional and nullable; returned only to a v2 client.
+          subject: { type: 'STRING', nullable: true },
+          chapter: { type: 'STRING', nullable: true },
         },
-        propertyOrdering: ['questionNumber', 'questionText', 'marks', 'marksSource', 'objective', 'answer'],
+        propertyOrdering: ['questionNumber', 'questionText', 'marks', 'marksSource', 'objective', 'answer', 'subject', 'chapter'],
         required: ['questionText'],
       },
     },
@@ -124,6 +137,8 @@ function createCheckSolutionRoute(deps) {
   // and falls back to GEMINI_MODEL for every direct / legacy construction. The optional
   // `solutionCache` dep (C&I PR-3) reaches it through `deps` unchanged.
   const core = createGradingCore(deps);
+  // PR-3 (C8): the clock the grading deadline is measured on (a test may inject one).
+  const nowMs = typeof deps.now === 'function' ? deps.now : () => Date.now();
 
   /** OR-LIVE can verify which model graded in production without reading logs. A response
    *  HEADER sits outside every body-shape snapshot (G2). Guarded: a test double may have no
@@ -222,6 +237,9 @@ function createCheckSolutionRoute(deps) {
   }
 
   async function handleCheckSolution(req, res) {
+    // C8: the grading deadline runs from HERE — before the body is read, so a slow upload
+    // counts against the same budget the client is waiting on.
+    const startedAt = nowMs();
     let payload;
     try {
       payload = await readJson(req);
@@ -313,10 +331,12 @@ function createCheckSolutionRoute(deps) {
         single: true,
         autoDetect: autoDetect ? { topicVocabulary, fallbackMarks: marks } : null,
         label: '[check-solution]',
+        startedAt,
       });
       setGradingModelHeader(res, graded.modelUsed);
 
       if (!graded.ok) {
+        setChargeableCount(res, 0); // C9: a reply we could not use grades nothing, charges nothing
         return sendJson(res, 200, {
           ok: false,
           error: "We couldn't read the grading this time — please try again.",
@@ -324,6 +344,9 @@ function createCheckSolutionRoute(deps) {
       }
 
       const r = graded.results[0];
+      // C9: charged only when a grade was delivered (never couldNotRead, an unread option, a
+      // withheld grade, an answer that does not match the question, or an unattempted answer).
+      setChargeableCount(res, isChargeable(r) ? 1 : 0);
       const det = graded.detection || null;
       const detected = {
         detectedSubject: det ? det.detectedSubject : null,
@@ -395,8 +418,12 @@ function createCheckSolutionRoute(deps) {
     }
   }
 
-  // ── Detection-only (detect-then-confirm, Claim 2 UX) — NOT part of the grading core;
-  // GRADER-CORE-1 PR-3 owns detect. Unchanged by PR-2.
+  // ── Detection-only (detect-then-confirm, Claim 2 UX) — NOT part of the grading core (it
+  // awards nothing). ★ GRADER-CORE-1 PR-3 (C10) makes what it READS faithful: an explicit
+  // symbol rule, the typed PDF's own text layer, a deterministic restore of dropped symbols,
+  // sub-parts kept as one question, numbers de-duplicated, the question text fenced (C6), one
+  // bounded retry, and — for a client that sends `acceptsV2: true` on THIS request — each
+  // question's own `subject`, `chapter` and `questionId` (server/grading/detect.cjs).
   async function handleDetectQuestion(req, res) {
     let payload;
     try {
@@ -405,6 +432,7 @@ function createCheckSolutionRoute(deps) {
       return sendJson(res, 400, { error: 'Invalid JSON' });
     }
 
+    const acceptsV2 = payload.acceptsV2 === true;
     const question = String(payload.question || '').trim();
     const imageBase64 = String(payload.imageBase64 || '').trim();
     const imageMimeType = String(payload.imageMimeType || 'image/jpeg').trim();
@@ -453,32 +481,45 @@ function createCheckSolutionRoute(deps) {
           .join('\n') + '\n'
       : '';
 
+    // C10 · a TYPED PDF carries its exact characters: offer them to the model (copy, don't
+    // transcribe) and use them to restore any symbol the model still drops. A scanned PDF has
+    // no text layer and nothing changes for it.
+    const layer = hasImage && isPdf ? extractPdfText(imageBase64) : null;
+    const layerText = usableQuestionText(layer) ? layer.text.slice(0, MAX_TEXT_LAYER_CHARS) : '';
+    // C6 · the question text is fenced with a random per-request nonce.
+    const nonce = chooseNonce([question, layerText], deps.makeFenceNonce);
+
     const prompt =
       'You are a CBSE Class 10 examiner. Read the question below and determine ONLY its total marks, subject and topic. ' +
       'Do NOT solve or grade it. Respond ONLY with valid JSON, no markdown fences.\n\n' +
-      (question ? 'Question: ' + question + '\n' : '') +
+      D.detectFencePrompt(nonce, Boolean(layerText)) + '\n\n' +
+      (question ? 'Question:\n' + fence(D.DETECT_FENCE_KIND, question, nonce) + '\n' : '') +
       (hasImage
         ? 'The attached ' + (isPdf ? 'PDF' : 'image') + ' is a photo of the QUESTION — read the printed text, including any printed mark allocation.\n'
         : '') +
+      (layerText ? D.textLayerBlock(layerText, nonce, fence) : '') +
       '\nDETERMINE:\n' +
       '- detectedMarks: if the question prints/states a mark value (e.g. "[3]", "(2 marks)", "3 marks"), use THAT exact value and set "marksSource" to "stated". If NO mark is printed, infer a sensible CBSE mark from the question type and depth — 1 for one-line/MCQ/objective, 2 for very short, 3 for short-answer, 5 for long-answer/derivation/proof, 4 for a case-study — and set "marksSource" to "inferred". Never override a clearly-printed value, and never blindly default to 3.\n' +
       '- detectedSubject: "Maths" or "Science".\n' +
       '- detectedTopic: the canonical topic key from the list below (exact string), or null if none clearly fits.\n' +
       '- objective: true ONLY if the question is a multiple-choice question (lettered options like (a)/(b)/(c)/(d)) or an assertion-reason question; false for any question that needs written working, a derivation, a proof, or step-by-step reasoning. Apply this per question.\n' +
       '- answer: for an OBJECTIVE question ONLY, the CORRECT option - its letter ("a"/"b"/"c"/"d") or its exact printed option text. Set it ONLY when the correct option is printed in the document (an answer key, a marked answer) or is unambiguously determinable from the question itself. If you are not certain, set it to null. NEVER guess: a wrong key is worse than no key, because it is used to mark the student. Set null for every non-objective question.\n' +
+      D.DETECT_SYMBOL_RULE +
+      D.DETECT_SUBPART_RULE +
       topicListBlock +
+      D.DETECT_PER_QUESTION_RULE +
       // The multi-question instruction is placed LAST (after the topic list, right
       // before RESPOND) so the model reads it most recently — recency keeps it from
       // stopping after the first question on a multi-question paper.
       '- questions: if the document contains MULTIPLE questions (e.g. Q1, Q2, Q3 …), identify ALL of them and list each in the "questions" array with its printed question number, FULL question text exactly as printed, marks (apply the SAME stated-vs-inferred rule per question), and its objective flag. List EVERY question you find — do not stop after the first. If only ONE question is present, still include it as a single-item array. Set the top-level detectedMarks/marksSource/detectedSubject/detectedTopic/detectedObjective to the FIRST question\'s values for backward compatibility.\n' +
       '\nRESPOND with this exact JSON:\n' +
-      '{ "detectedMarks": <first question marks>, "marksSource": "stated"|"inferred", "detectedSubject": "Maths"|"Science", "detectedTopic": "<canonical key or null>", "detectedObjective": <true|false>, "detectedAnswer": "<correct option or null>", "questions": [ { "questionNumber": 1, "questionText": "<full text of Q1 exactly as printed>", "marks": <number>, "marksSource": "stated"|"inferred", "objective": <true|false>, "answer": "<correct option or null>" }, { "questionNumber": 2, "questionText": "<full text of Q2 exactly as printed>", "marks": <number>, "marksSource": "stated"|"inferred", "objective": <true|false>, "answer": "<correct option or null>" }, ... one object per question found ] }';
+      '{ "detectedMarks": <first question marks>, "marksSource": "stated"|"inferred", "detectedSubject": "Maths"|"Science", "detectedTopic": "<canonical key or null>", "detectedObjective": <true|false>, "detectedAnswer": "<correct option or null>", "questions": [ { "questionNumber": 1, "questionText": "<full text of Q1 exactly as printed>", "marks": <number>, "marksSource": "stated"|"inferred", "objective": <true|false>, "answer": "<correct option or null>", "subject": "Maths"|"Science", "chapter": "<canonical key or null>" }, { "questionNumber": 2, "questionText": "<full text of Q2 exactly as printed>", "marks": <number>, "marksSource": "stated"|"inferred", "objective": <true|false>, "answer": "<correct option or null>", "subject": "Maths"|"Science", "chapter": "<canonical key or null>" }, ... one object per question found ] }';
 
     try {
       const parts = hasImage
         ? [{ text: prompt }, buildGeminiImagePart({ mimeType: imageMimeType, base64: imageBase64 })]
         : [{ text: prompt }];
-      const reply = await callGemini(GEMINI_MODEL, [{ role: 'user', parts }], {
+      const detectConfig = {
         temperature: 0.1,
         // Multi-question detect returns the FULL text of every question in the
         // upload, so the JSON can be far larger than a single-question read. With
@@ -490,9 +531,9 @@ function createCheckSolutionRoute(deps) {
         maxOutputTokens: 4096,
         responseMimeType: 'application/json',
         // Constrained decoding (PR-C2) — DETECT_RESPONSE_SCHEMA, derived from this
-        // handler's own parser (:603 onward), which is far looser than the grader's:
-        // a bare `{}` is an accepted parse. Worth most here of the three, because
-        // detect is the ONE path with no retry (test §3.5).
+        // handler's own parser, which is far looser than the grader's: a bare `{}` is an
+        // accepted parse. (Until PR-3 detect was the one path with no retry; it now retries
+        // ONCE, bounded — see below.)
         responseSchema: DETECT_RESPONSE_SCHEMA,
         // gemini-2.5-flash is a thinking model and thinking tokens count against
         // maxOutputTokens. At a 400-token cap the thoughts (~383) ate the budget,
@@ -507,8 +548,30 @@ function createCheckSolutionRoute(deps) {
         // defaulted — a detect call attributed to a made-up band would pollute the
         // one input SERVER-2 is meant to read.
         workloadClass: 'detect-question',
-      });
-      const parsed = extractJsonObjectFromText(reply.text);
+      };
+      // C10 · ONE bounded retry: a reply that does not parse (incl. a MAX_TOKENS degeneration,
+      // golden D.ITEM.GS-S05), a 429, a 5xx other than a timeout, or a network failure — and
+      // only when the first attempt was quick (a timed-out read is not repeated; detection
+      // keeps GEMINI_TIMEOUT_MS per attempt, controller decision D15). `attempt` is a
+      // telemetry/replay hint the client never sends.
+      const t0 = nowMs();
+      let parsed = null;
+      let lastErr = null;
+      for (let attempt = 1; attempt <= 2 && !parsed; attempt += 1) {
+        if (attempt === 2) {
+          if (lastErr && !D.isDetectRetryableError(lastErr)) break;
+          if (nowMs() - t0 > D.DETECT_RETRY_WINDOW_MS) break;
+          console.warn('[detect-question] attempt 1 ' + (lastErr ? 'failed (HTTP ' + (lastErr.status || '?') + ')' : 'did not parse') + ' — retrying once.');
+        }
+        try {
+          const reply = await callGemini(GEMINI_MODEL, [{ role: 'user', parts }], { ...detectConfig, attempt });
+          parsed = extractJsonObjectFromText(reply && reply.text);
+          lastErr = null;
+        } catch (err) {
+          lastErr = err;
+        }
+      }
+      if (!parsed && lastErr) throw lastErr;
       if (!parsed) {
         return sendJson(res, 200, {
           ok: false,
@@ -560,27 +623,15 @@ function createCheckSolutionRoute(deps) {
       // trimmed. Entries without readable text are dropped (never fabricated). The
       // existing single-question fields above are UNCHANGED — a single-question read
       // simply yields a single-item array and the client's existing flow is untouched.
-      const rawQuestions = Array.isArray(parsed.questions) ? parsed.questions : [];
-      const questions = rawQuestions
-        .map((q, i) => {
-          const text = String((q && q.questionText) || '').trim();
-          const qm = Number(q && q.marks);
-          const marks = Number.isFinite(qm) && qm >= 1 && qm <= 6 ? Math.round(qm) : detectedMarks;
-          const qn = Number(q && q.questionNumber);
-          return {
-            questionNumber: Number.isFinite(qn) && qn >= 1 ? Math.round(qn) : i + 1,
-            questionText: text,
-            marks,
-            marksSource: q && q.marksSource === 'stated' ? 'stated' : 'inferred',
-            objective: q && (q.objective === true || q.objective === 'true') ? true : false,
-            answer:
-              q && q.answer != null && String(q.answer).trim() &&
-              String(q.answer).trim().toLowerCase() !== 'null'
-                ? String(q.answer).trim()
-                : null,
-          };
-        })
-        .filter((q) => q.questionText.length > 0);
+      // ★ PR-3 (C10, grading/detect.cjs): dropped symbols restored from a verbatim source
+      // (the typed question / the PDF text layer), a split-off sub-part rejoined, a repeated
+      // entry dropped, no number colliding; v2 adds questionId / subject / chapter.
+      const questions = D.normaliseDetectedQuestions(parsed.questions, {
+        detectedMarks,
+        acceptsV2,
+        vocabulary: topicVocabulary,
+        sources: [question, layerText].filter(Boolean),
+      });
 
       return sendJson(res, 200, {
         ok: true,
@@ -670,7 +721,7 @@ function createCheckSolutionRoute(deps) {
   // Returns { ok, results, summary, modelUsed } where results is one normalised entry per
   // known question (graded OR couldNotRead) — or { ok:false } on a reply that could not be
   // used, or { gradingUnavailable:true } with no provider (the caller owns the HTTP status).
-  async function gradeStructuredSet({ questions, imageBase64, imageMimeType, subject, uploads, acceptsV2 }) {
+  async function gradeStructuredSet({ questions, imageBase64, imageMimeType, subject, uploads, acceptsV2, startedAt }) {
     // STUB-503 · GRADING PATH: signalled with a flag the caller turns into the 503, kept
     // DISTINCT from `{ ok: false }` (an unparseable model reply keeps its 200 copy).
     if (isStubMode()) {
@@ -684,6 +735,7 @@ function createCheckSolutionRoute(deps) {
       acceptsV2: acceptsV2 === true,
       single: false,
       label: '[grade-worksheet]',
+      startedAt,
     });
   }
 
@@ -691,6 +743,7 @@ function createCheckSolutionRoute(deps) {
   // per-question photos / the typed answers, then delegates to the core. The question set
   // is fetched at the CLIENT and posted here — the core never reaches into a session store.
   async function handleGradeWorksheet(req, res) {
+    const startedAt = nowMs(); // C8: the deadline runs from handler entry, before the body is read
     let payload;
     try {
       // A 5 MB PDF base64-inflates to ~6.7 MB, plus the question-set JSON — raise
@@ -735,7 +788,13 @@ function createCheckSolutionRoute(deps) {
         // OBJECTIVE-ANSWER-NOT-SENT: the option the student chose in the UI (Quick Practice).
         // ★ NOT `answer` and NOT `correctOption` — those carry the bank's CORRECT key.
         pickedOption: String((q && q.pickedOption) || '').trim(),
+        // GRADER-CORE-1 PR-3 (C10): optional, from a v2 detect — THIS question's own subject (it
+        // is graded under its own subject's rules; absent → the request's subject, as before)
+        // and chapter key (a label only when the request carries no topic for it).
+        subject: String((q && q.subject) || '').trim(),
+        chapter: String((q && q.chapter) || '').trim(),
       }))
+      .map((q) => (q.topic || q.topicLabel || !q.chapter ? q : { ...q, topicLabel: q.chapter }))
       .filter((q) => q.qNumber > 0 && q.questionText);
 
     if (questions.length === 0) {
@@ -792,7 +851,7 @@ function createCheckSolutionRoute(deps) {
     }
 
     try {
-      const graded = await gradeStructuredSet({ questions, imageBase64, imageMimeType, subject, uploads, acceptsV2 });
+      const graded = await gradeStructuredSet({ questions, imageBase64, imageMimeType, subject, uploads, acceptsV2, startedAt });
       // STUB-503 — checked BEFORE `!graded.ok`: "we couldn't read this" and "we cannot grade
       // at all right now" are different truths.
       if (graded.gradingUnavailable) {
@@ -800,6 +859,7 @@ function createCheckSolutionRoute(deps) {
       }
       setGradingModelHeader(res, graded.modelUsed);
       if (!graded.ok) {
+        setChargeableCount(res, 0); // C9: nothing graded, nothing charged
         return sendJson(res, 200, {
           ok: false,
           error: "We couldn't grade this worksheet — please try a clearer scan, or try again.",
@@ -807,6 +867,8 @@ function createCheckSolutionRoute(deps) {
       }
 
       const results = graded.results;
+      // C9: a partial paper charges only the questions that were actually graded.
+      setChargeableCount(res, chargeableCount(results));
       // Honest totals: the graded subtotal is SEPARATE from the full paper total so a
       // question that was not marked never deflates a final mark presented as complete.
       // Legacy: "not marked" = couldNotRead (as before). v2: also an answer that does not
