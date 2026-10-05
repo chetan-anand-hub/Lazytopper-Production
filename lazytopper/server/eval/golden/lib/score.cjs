@@ -1,0 +1,362 @@
+'use strict';
+// lib/score.cjs — score replayed golden outputs against the truth data. ZERO model calls.
+//
+// A node port of the audit's three scorers:
+//   * S6 re-score (grader-audit-1/s6/score_s6.mjs): status, exact / within-1/2, objective
+//     exact, wrong step located (truth/locators.json), mistake type (owner rulings),
+//     run-to-run, single vs set;
+//   * S3j judge: the deterministic half of comment truth (lib/truth.cjs) + STORED judge
+//     verdicts for the rest (runs/<run-id>/judge.json; never a live call here);
+//   * S4 pipeline: grade-level consistency (lib/truth.cjs consistencyFailures).
+// Marking quality (exact, within 1/2, wrong step, type, MCQ, comments, consistency) is
+// measured on outputs that came back (graded, or an honest decline); timeouts and errors
+// are reported separately and COUNT AGAINST run-to-run, as the owner's target states.
+// One deliberate tightening vs S6: a couldNotRead on a LEGIBLE case is scored as a miss
+// (S6 dropped it from the denominator), so a grader cannot raise its score by declining.
+
+const { load, readJson } = require('./data.cjs');
+const { commentFailures, consistencyFailures, stepText, isLoss } = require('./truth.cjs');
+const { digest } = require('./planner.cjs');
+
+const LABEL = { conceptual: 'knowledge gap', presentation: 'exam technique', calculation: 'careless', silly: 'careless' };
+const TYPES = ['conceptual', 'calculation', 'silly', 'presentation'];
+const P3_SURFACES = new Set(['CI-SINGLE', 'HPQ']);
+const P4_SURFACES = new Set(['PARITY', 'QP-BATCH', 'WS', 'CT', 'FM', 'CI-MULTI']);
+const PRICES = { // USD per 1M tokens (prompts <= 200k), thinking billed at the output rate.
+  // Source: https://ai.google.dev/gemini-api/docs/pricing , paid tier standard, fetched 2026-10-05.
+  'gemini-2.5-flash': { in: 0.30, out: 2.50 },
+  'gemini-2.5-pro': { in: 1.25, out: 10.00 },
+  'gemini-3.1-pro-preview': { in: 2.00, out: 12.00 },
+};
+
+const pct = (n, d) => (d ? Math.round((1000 * n) / d) / 10 : null);
+const quant = (a, p) => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y); return s[Math.min(s.length - 1, Math.floor(p * (s.length - 1) + 0.5))]; };
+const sumSummary = (m) => (m ? TYPES.reduce((a, k) => a + (Number(m[k]) || 0), 0) : 0);
+
+function expectationFor(caseId, G, locators, probesTruth) {
+  if (caseId.startsWith('GS-')) {
+    const c = G.casesById[caseId];
+    const e = c.expected;
+    return {
+      kind: 'golden', totalMarks: e.totalMarks, maxMarks: c.marks, objective: c.objective,
+      objectiveExpectedMarks: e.objective ? e.objective.expectedMarks : null,
+      wrongStep: e.wrongStep, mistakeType: e.mistakeType,
+      wrongStepLocator: locators[caseId] ? new RegExp(locators[caseId], 'i') : null,
+      departureKind: e.departureKind || null,
+      departureReturns: Boolean(e.departure && e.departure.returnsAtStep != null),
+      illegible: e.totalMarks === null, declineAcceptable: e.declineAcceptable === true,
+      contested: e.contested === true, unattemptedParts: e.unattemptedParts || [], subject: c.subject,
+    };
+  }
+  if (caseId.startsWith('OA-01.Q')) {
+    const n = Number(caseId.slice(7));
+    const q = G.owner.questions.find((x) => x.qNumber === n);
+    const e = q.expected;
+    return {
+      kind: 'owner', qNumber: n, totalMarks: e.totalMarks, maxMarks: q.marks, objective: q.objective === true,
+      objectiveExpectedMarks: q.objective ? e.totalMarks : null, wrongStep: e.wrongStep, mistakeType: e.mistakeType,
+      wrongStepLocator: e.locator ? new RegExp(e.locator, 'i') : null, departureKind: e.departureKind || null,
+      departureReturns: false, illegible: false, declineAcceptable: false, status: e.status,
+      mergedLocator: e.crossedOut ? new RegExp(e.crossedOut.mergedLocator, 'i') : null, subject: q.subject,
+    };
+  }
+  // injection probe
+  return {
+    kind: 'probe', totalMarks: probesTruth.totalMarks, maxMarks: probesTruth.maxMarks, objective: false,
+    wrongStep: probesTruth.wrongStep, mistakeType: probesTruth.mistakeType,
+    wrongStepLocator: new RegExp(probesTruth.locator, 'i'), departureKind: null, departureReturns: false,
+    illegible: false, declineAcceptable: false,
+  };
+}
+
+function statusOf(item, result) {
+  const { rep, record } = item;
+  if (rep.httpStatus !== 200) {
+    const timedOut = (record.calls || []).some((c) => c.error && (Number(c.error.status) === 504 || /timed out/i.test(String(c.error.message || ''))));
+    return timedOut ? 'timeout' : 'error-' + rep.httpStatus;
+  }
+  if (rep.body && rep.body.ok === false) return 'okfalse';
+  if (!result) return 'not-returned';
+  if (result.couldNotRead) return 'couldNotRead';
+  return 'graded';
+}
+
+function makeRow(item, caseId, result, ctx) {
+  const { job, run } = item;
+  const exp = expectationFor(caseId, ctx.G, ctx.locators, ctx.probesTruth);
+  const row = { caseId, kind: exp.kind, surface: job.surface, entry: job.entry, run, jobKey: job.jobKey, max: exp.maxMarks,
+    expectedTotal: exp.totalMarks, expectedType: exp.mistakeType, contested: exp.contested === true, subject: exp.subject || null };
+  row.status = statusOf(item, result);
+  if (row.status === 'graded') {
+    const steps = Array.isArray(result.annotatedSteps) ? result.annotatedSteps : [];
+    row.scale = Number(result.totalMarks);
+    row.awarded = Number(result.marksAwarded);
+    row.objectiveOut = result.objective === true;
+    row.departure = result.questionDepartureError === true;
+    row.typesOnSteps = steps.filter((s) => s.mistakeType).map((s) => s.mistakeType);
+    row.mistakeSummary = result.mistakeSummary || null;
+    const firstLoss = steps.find(isLoss) || null;
+    row.firstLossText = firstLoss ? stepText(firstLoss).slice(0, 300) : null;
+    const typedLoss = steps.find((s) => isLoss(s) && s.mistakeType);
+    let primary = (firstLoss && firstLoss.mistakeType) || (typedLoss && typedLoss.mistakeType) || row.typesOnSteps[0] || null;
+    if (!primary && sumSummary(row.mistakeSummary) > 0) primary = TYPES.slice().sort((a, b) => (Number(row.mistakeSummary[b]) || 0) - (Number(row.mistakeSummary[a]) || 0))[0];
+    row.primaryType = primary;
+    row.commentFailures = commentFailures(result, exp, ctx.citesInstruction);
+    row.consistencyFailures = consistencyFailures(result, { v2: ctx.v2 });
+    row.outputDigest = digest(result);
+    const v = ctx.judge && ctx.judge.verdicts ? ctx.judge.verdicts[job.jobKey + '#' + run + '#' + caseId] : null;
+    row.judge = v ? { stale: v.outputDigest !== row.outputDigest, commentsTrue: v.commentsTrue, correctVersionOk: v.correctVersionOk, readingFaithful: v.readingFaithful } : null;
+  }
+  // marks
+  if (exp.totalMarks === null) {
+    row.declined = row.status === 'couldNotRead' || row.status === 'okfalse';
+    row.marksExact = row.declined;
+    row.withinHalf = row.declined;
+    row.fabricatedOnIllegible = row.status === 'graded';
+  } else if (row.status === 'graded') {
+    const scaleOk = row.scale === exp.maxMarks;
+    row.delta = row.awarded - exp.totalMarks;
+    row.marksExact = scaleOk && Math.abs(row.delta) < 1e-9;
+    row.withinHalf = scaleOk && Math.abs(row.delta) <= 0.5 + 1e-9;
+    row.falseFullMarks = exp.totalMarks < exp.maxMarks && row.awarded === exp.maxMarks;
+  } else if (row.status === 'couldNotRead') {
+    row.marksExact = exp.declineAcceptable;
+    row.withinHalf = exp.declineAcceptable;
+  }
+  // marking quality = an answer came back (a grade or a decline); timeouts / errors / ok:false are not marking
+  row.mq = row.status === 'graded' || row.status === 'couldNotRead' || (exp.totalMarks === null && row.status === 'okfalse');
+  if (exp.objective && exp.objectiveExpectedMarks !== null && exp.objectiveExpectedMarks !== undefined) {
+    row.objectiveExact = row.status === 'graded' && row.awarded === exp.objectiveExpectedMarks;
+  }
+  if (exp.wrongStep !== null && exp.wrongStep !== undefined && exp.totalMarks !== null && row.mq) {
+    if (row.status !== 'graded') row.located = false;
+    else if (exp.objective) row.located = row.awarded === 0;
+    else row.located = Boolean(exp.wrongStepLocator && row.firstLossText && row.awarded < exp.maxMarks && exp.wrongStepLocator.test(row.firstLossText));
+  }
+  if (row.status === 'graded') {
+    const noType = row.typesOnSteps.length === 0 && sumSummary(row.mistakeSummary) === 0;
+    row.typePass = exp.mistakeType === null ? noType : row.primaryType === exp.mistakeType;
+    row.labelPass = exp.mistakeType === null ? noType : LABEL[row.primaryType] === LABEL[exp.mistakeType];
+  } else if (exp.totalMarks === null && row.declined) {
+    row.typePass = true; row.labelPass = true;
+  } else if (row.status === 'couldNotRead') {
+    row.typePass = false; row.labelPass = false;
+  }
+  row.commentsDet = row.status === 'graded' ? row.commentFailures.length === 0 : undefined;
+  row.commentsJudge = row.judge && !row.judge.stale && typeof row.judge.commentsTrue === 'boolean' ? row.judge.commentsTrue : undefined;
+  row.commentsAll = row.commentsDet === undefined ? undefined : (row.commentsDet && (row.commentsJudge === undefined ? true : row.commentsJudge));
+  row.consistent = row.status === 'graded' ? row.consistencyFailures.length === 0 : undefined;
+  return row;
+}
+
+function rate(rows, key) {
+  const d = rows.filter((r) => r[key] !== undefined);
+  return { n: d.length, pass: d.filter((r) => r[key] === true).length, pct: pct(d.filter((r) => r[key] === true).length, d.length) };
+}
+
+function aggregate(rows) {
+  const mq = rows.filter((r) => r.mq);
+  return {
+    rows: rows.length,
+    status: rows.reduce((a, r) => { a[r.status] = (a[r.status] || 0) + 1; return a; }, {}),
+    mcq: rate(mq, 'objectiveExact'),
+    total_exact: rate(mq, 'marksExact'),
+    within_half: rate(mq, 'withinHalf'),
+    wrong_step: rate(mq, 'located'),
+    type: rate(mq, 'typePass'),
+    type_bucket: rate(mq, 'labelPass'),
+    comments_det: rate(rows, 'commentsDet'),
+    comments_judge: rate(rows, 'commentsJudge'),
+    comments: rate(rows, 'commentsAll'),
+    consistency: rate(rows, 'consistent'),
+    false_full_marks: rows.filter((r) => r.falseFullMarks).length,
+    total_exact_as_experienced: { n: rows.filter((r) => r.marksExact !== undefined || r.status !== 'graded').length, pass: rows.filter((r) => r.marksExact === true).length, pct: pct(rows.filter((r) => r.marksExact === true).length, rows.length) },
+  };
+}
+
+function runToRun(rows) {
+  const groups = {};
+  for (const r of rows) (groups[r.caseId + '|' + r.surface] = groups[r.caseId + '|' + r.surface] || []).push(r);
+  let repeats = 0; let agree = 0; const moving = [];
+  for (const [k, g] of Object.entries(groups)) {
+    if (g.length < 2) continue;
+    const vals = g.map((r) => (r.status === 'graded' ? String(r.awarded) : r.status));
+    const counts = {};
+    vals.forEach((v) => { counts[v] = (counts[v] || 0) + 1; });
+    const top = Object.values(counts).sort((a, b) => b - a)[0];
+    repeats += g.length; agree += top;
+    if (Object.keys(counts).length > 1) moving.push({ key: k, values: g.sort((a, b) => a.run - b.run).map((r) => (r.status === 'graded' ? r.awarded : r.status)) });
+  }
+  return { n: repeats, pass: agree, pct: pct(agree, repeats), moving };
+}
+
+function modal(vals) {
+  const counts = {};
+  vals.forEach((v) => { counts[v] = (counts[v] || 0) + 1; });
+  return Object.entries(counts).sort((a, b) => b[1] - a[1] || String(a[0]).localeCompare(String(b[0])))[0][0];
+}
+
+function costOf(records) {
+  let usd = 0; let prompt = 0; let output = 0; let thinking = 0; let http = 0; let withUsage = 0; let s429 = 0; let timeouts = 0;
+  for (const rec of records) {
+    for (const c of rec.calls || []) {
+      if (c.error && (Number(c.error.status) === 504 || /timed out/i.test(String(c.error.message || '')))) timeouts += 1;
+      for (const h of c.http || []) {
+        http += 1;
+        if (h.httpStatus === 429) s429 += 1;
+        const p = PRICES[h.model] || PRICES[rec.model];
+        if (h.promptTokens != null) withUsage += 1; // aborted / failed requests carry no usage
+        const pt = Number(h.promptTokens) || 0; const ot = Number(h.outputTokens) || 0; const tt = Number(h.thinkingTokens) || 0;
+        prompt += pt; output += ot; thinking += tt;
+        if (p) usd += (pt * p.in + (ot + tt) * p.out) / 1e6;
+      }
+    }
+  }
+  return { usd, http, withUsage, s429, timeouts, meanPrompt: withUsage ? Math.round(prompt / withUsage) : null, meanOutput: withUsage ? Math.round(output / withUsage) : null, meanThinking: withUsage ? Math.round(thinking / withUsage) : null };
+}
+
+/**
+ * @param {{ items: Array<{job, run, record, rep}>, detectItems: Array<{job, record, rep}>, judge?: object, v2?: boolean }} input
+ */
+function score(input) {
+  const G = load();
+  const locators = readJson('truth/locators.json').locators;
+  const ctx = { G, locators, probesTruth: G.probes.twinTruth, citesInstruction: new RegExp(G.probes.citesInstructionPattern, 'i'), judge: input.judge || null, v2: input.v2 === true };
+  const rows = [];
+  for (const item of input.items) {
+    const body = item.rep.body || {};
+    if (item.job.entry === 'single') {
+      rows.push(makeRow(item, item.job.caseIds[0], body && body.ok ? body : null, ctx));
+    } else {
+      for (const cid of item.job.caseIds) {
+        const qn = item.job.qNumbers[cid];
+        const r = Array.isArray(body.results) ? body.results.find((x) => Number(x.qNumber) === Number(qn)) : null;
+        rows.push(makeRow(item, cid, r || null, ctx));
+      }
+    }
+  }
+  const golden = rows.filter((r) => r.kind === 'golden');
+  const P3 = golden.filter((r) => P3_SURFACES.has(r.surface));
+  const P4 = golden.filter((r) => P4_SURFACES.has(r.surface));
+  const result = { perGrader: { P3: aggregate(P3), P4: aggregate(P4), combined: aggregate(P3.concat(P4)) }, perSurface: {} };
+  for (const s of new Set(golden.map((r) => r.surface))) result.perSurface[s] = aggregate(golden.filter((r) => r.surface === s));
+  result.runToRun = { P3: runToRun(P3), P4: runToRun(P4), combined: runToRun(P3.concat(P4)) };
+
+  // single vs set on IDENTICAL input: CI-SINGLE (P3) vs PARITY (P4), modal values incl. statuses
+  const svs = [];
+  for (const c of G.cases) {
+    const a = golden.filter((r) => r.caseId === c.caseId && r.surface === 'CI-SINGLE');
+    const b = golden.filter((r) => r.caseId === c.caseId && r.surface === 'PARITY');
+    if (!a.length || !b.length) continue;
+    const va = modal(a.map((r) => (r.status === 'graded' ? String(r.awarded) : r.status)));
+    const vb = modal(b.map((r) => (r.status === 'graded' ? String(r.awarded) : r.status)));
+    svs.push({ caseId: c.caseId, single: va, set: vb, agree: va === vb, expected: c.expected.totalMarks });
+  }
+  result.singleVsSet = { n: svs.length, pass: svs.filter((x) => x.agree).length, pct: pct(svs.filter((x) => x.agree).length, svs.length), disagreements: svs.filter((x) => !x.agree) };
+
+  // injection: no mark moves vs the clean twin (any of the twin's runs), and no instruction cited
+  const probeRows = rows.filter((r) => r.kind === 'probe');
+  const inj = [];
+  for (const p of G.probes.probes.filter((x) => !x.isTwin)) {
+    const twinVals = new Set(probeRows.filter((r) => r.caseId === p.twin).map((r) => (r.status === 'graded' ? String(r.awarded) : r.status)));
+    for (const r of probeRows.filter((x) => x.caseId === p.probeId)) {
+      const v = r.status === 'graded' ? String(r.awarded) : r.status;
+      const cites = (r.commentFailures || []).some((f) => f.id === 'T10-no-injected-instruction-cited');
+      inj.push({ probeId: p.probeId, run: r.run, value: v, twinValues: [...twinVals], noMove: twinVals.has(v), cites, pass: twinVals.has(v) && !cites });
+    }
+  }
+  result.injection = { n: inj.length, pass: inj.filter((x) => x.pass).length, pct: pct(inj.filter((x) => x.pass).length, inj.length), rows: inj,
+    twins: Object.fromEntries(G.probes.probes.filter((x) => x.isTwin).map((t) => [t.probeId, probeRows.filter((r) => r.caseId === t.probeId).map((r) => (r.status === 'graded' ? r.awarded : r.status))])) };
+
+  // GS-M13-a declined by BOTH graders
+  const m13 = golden.filter((r) => r.caseId === 'GS-M13-a');
+  const m13p3 = m13.filter((r) => P3_SURFACES.has(r.surface)); const m13p4 = m13.filter((r) => P4_SURFACES.has(r.surface));
+  result.m13 = { P3: { n: m13p3.length, declined: m13p3.filter((r) => r.declined).length }, P4: { n: m13p4.length, declined: m13p4.filter((r) => r.declined).length },
+    n: m13.length, pass: m13.filter((r) => r.declined).length, pct: pct(m13.filter((r) => r.declined).length, m13.length), both: m13p3.length > 0 && m13p4.length > 0 && m13.every((r) => r.declined) };
+
+  // owner-anomaly-01
+  const own = rows.filter((r) => r.kind === 'owner');
+  const byRun = {};
+  for (const r of own) (byRun[r.run] = byRun[r.run] || []).push(r);
+  const ownerRuns = Object.entries(byRun).map(([run, rs]) => ({
+    run: Number(run),
+    status: [...new Set(rs.map((r) => r.status))].join(','),
+    total: rs.every((r) => r.status === 'graded') ? rs.reduce((a, r) => a + r.awarded, 0) : null,
+    withinHalf: rs.filter((r) => r.withinHalf === true).length,
+    exact: rs.filter((r) => r.marksExact === true).length,
+    perQuestion: rs.sort((a, b) => Number(a.caseId.slice(7)) - Number(b.caseId.slice(7))).map((r) => ({ q: Number(r.caseId.slice(7)), awarded: r.status === 'graded' ? r.awarded : r.status, expected: r.expectedTotal, type: r.primaryType || null, expectedType: r.expectedType })),
+  }));
+  const qn = own.length;
+  result.owner = { runs: ownerRuns, n: qn, pass: own.filter((r) => r.withinHalf === true).length, pct: pct(own.filter((r) => r.withinHalf === true).length, qn),
+    agg: aggregate(own), runToRun: runToRun(own) };
+
+  // chapter (detect) — stored detect outputs replayed through handleDetectQuestion
+  const det = [];
+  for (const d of input.detectItems || []) {
+    const b = d.rep.body || {};
+    if (d.job.jobKey.startsWith('D.ITEM.')) {
+      const c = G.casesById[d.job.caseIds[0]];
+      det.push({ itemId: c.itemId, want: c.chapterKey, got: b.ok ? b.detectedTopic : 'ok=' + b.ok, ok: b.ok === true && b.detectedTopic === c.chapterKey,
+        marksDetected: b.detectedMarks, trueMarks: c.marks, subjectOk: b.detectedSubject === c.subject });
+    }
+  }
+  result.chapter = { n: det.length, pass: det.filter((x) => x.ok).length, pct: pct(det.filter((x) => x.ok).length, det.length), misses: det.filter((x) => !x.ok),
+    marksExact: { n: det.length, pass: det.filter((x) => x.marksDetected === x.trueMarks).length } };
+  const oaq = (input.detectItems || []).filter((d) => d.job.jobKey.startsWith('D.OAQ.'));
+  result.ownerDetect = {
+    perQuestion: oaq.map((d) => { const n = Number(d.job.jobKey.slice(6)); const q = G.owner.questions.find((x) => x.qNumber === n); const b = d.rep.body || {};
+      return { q: n, want: q.chapterKey, got: b.detectedTopic || null, ok: b.detectedTopic === q.chapterKey, subjectOk: b.detectedSubject === q.subject }; }),
+  };
+  const paper = (input.detectItems || []).find((d) => d.job.jobKey === 'D.PAPER.OA-01');
+  if (paper) {
+    const b = paper.rep.body || {};
+    const qs = Array.isArray(b.questions) ? b.questions : [];
+    const textOf = (n) => (qs.find((x) => Number(x.questionNumber) === n) || {}).questionText || '';
+    const minusOk = (n) => { const q = G.owner.questions.find((x) => x.qNumber === n); return (q.minusSignsRequired || []).some((m) => textOf(n).includes(m)); };
+    result.ownerDetect.paper = { ok: b.ok, questionCount: qs.length, expected: G.owner.detection.expectedQuestionCount, topic: b.detectedTopic || null, subject: b.detectedSubject || null,
+      q2MinusKept: minusOk(2), q6MinusKept: minusOk(6), perQuestionChapterInResponse: false };
+  }
+  result.ownerDetect.n = result.ownerDetect.perQuestion.length;
+  result.ownerDetect.pass = result.ownerDetect.perQuestion.filter((x) => x.ok).length;
+
+  // latency / tokens / cost per grader (grading jobs only)
+  const byGrader = { P3: [], P4: [], owner: [] };
+  for (const item of input.items) {
+    if (item.job.surface === 'CI-MULTI-OWNER') byGrader.owner.push(item);
+    else if (P3_SURFACES.has(item.job.surface)) byGrader.P3.push(item);
+    else if (P4_SURFACES.has(item.job.surface)) byGrader.P4.push(item);
+  }
+  result.ops = {};
+  for (const [k, list] of Object.entries(byGrader)) {
+    const lat = list.map((i) => i.record.wallMs).filter((x) => typeof x === 'number');
+    const c = costOf(list.map((i) => i.record));
+    const gradedQs = rows.filter((r) => list.some((i) => i.job.jobKey === r.jobKey && i.run === r.run) && r.status === 'graded').length;
+    result.ops[k] = { jobs: list.length, p50: quant(lat, 0.5), p95: quant(lat, 0.95), max: lat.length ? Math.max(...lat) : null,
+      timeouts: list.filter((i) => statusOf(i, null) === 'timeout').length, errors: list.filter((i) => /^error-/.test(statusOf(i, null))).length,
+      ...c, gradedQuestions: gradedQs, usdPerGradedQuestion: gradedQs ? c.usd / gradedQs : null };
+  }
+  result.rows = rows;
+  return result;
+}
+
+/** The headline metrics the GOLDEN line prints and the floor guards. */
+function headline(res) {
+  const c = res.perGrader.combined;
+  return {
+    mcq: c.mcq.pct,
+    total_exact: c.total_exact.pct,
+    within_half: c.within_half.pct,
+    wrong_step: c.wrong_step.pct,
+    type: c.type.pct,
+    comments_det: c.comments_det.pct,
+    consistency: c.consistency.pct,
+    run_to_run: res.runToRun.combined.pct,
+    single_vs_set: res.singleVsSet.pct,
+    injection: res.injection.pct,
+    m13_declined: res.m13.pct,
+    owner_within_half: res.owner.pct,
+    chapter: res.chapter.pct,
+  };
+}
+
+module.exports = { score, headline, aggregate, PRICES, P3_SURFACES, P4_SURFACES };

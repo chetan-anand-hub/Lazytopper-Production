@@ -1,210 +1,142 @@
 'use strict';
-// graderEval.parity.test.cjs — EVAL-PARITY.
+// graderEval.parity.test.cjs — P10 (GRADER-CORE-1 PR-1): the eval harness carries NO rules
+// of its own. Zero model calls.
 //
-// WHY THIS FILE EXISTS: the harness assembled EIGHT numbered rules while the shipped
-// structured path assembled SIXTEEN, so every number the harness produced measured a
-// DIFFERENT GRADER than the one students meet. A previous drift check verified three
-// NAMED clauses and returned CLEAN over that half-missing prompt.
-//
-// THE DESIGN RULE THAT FOLLOWS FROM THAT: every assertion below compares the harness's
-// assembled prompt to a string IMPORTED FROM THE SHIPPED ROUTE, never to a copy typed
-// into this file. A test comparing your copy to your copy proves nothing.
+// WHY THIS FILE CHANGED: the harness used to assemble its own copy of the grading rules
+// (`buildGradingRules`, a local mistake taxonomy, a local normaliser) and this file pinned
+// that copy clause by clause against the shipped strings. A copy pinned to its source is
+// still a copy: it carried a different rule 1, no couldNotRead head, no fence clause, no
+// isReturn and no responseSchema, so it measured a grader no student meets. The harness now
+// sends a Quick Practice typed-batch request through the REAL handleGradeWorksheet, and
+// this file proves it BYTE FOR BYTE: the prompt the harness would send equals the prompt
+// production sends for the same request, built here INDEPENDENTLY of the harness.
 
 const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
 
-const { buildGradingRules, CASES, evaluateCase } = require('./graderEval.cjs');
+const { CASES, buildRequest, renderPrompt, evaluateCase } = require('./graderEval.cjs');
+const { createCheckSolutionRoute } = require('../routes/checkSolution.cjs');
+const { createHttpUtils, extractJsonObjectFromText } = require('../services/httpUtils.cjs');
+const { buildGeminiImagePart, validateMentorImagePayload } = require('../mentorImageSupport.cjs');
 
-// THE SHIPPED STRINGS — imported from the route that sends them to the model.
-const {
-  ECF_POLICY_V2_PROMPT,
-  ECF_VERIFICATION_STEP_CLAUSE,
-  WORD_PROBLEM_FINAL_ANSWER_PROMPT,
-  QUESTION_MISCOPY_PROMPT,
-  IDENTIFY_EVERY_STEP_PROMPT,
-  presentationVsMissingPrompt,
-  CORRECTED_WORKING_PROMPT,
-  PER_STEP_ATTRIBUTION_PROMPT,
-  NO_MANUFACTURED_MISSING_STEPS_PROMPT,
-  SCHEME_ASSESSMENT_DIRECTIVES,
-  subjectChecklistBody,
-} = require('../routes/checkSolution.cjs');
+// Production's prompt for a request, captured from the shipped handler with a stub model.
+// Built from the route module directly — NOT through the harness or its driver — so the
+// comparison is harness vs product, never harness vs itself.
+async function productionPrompt(request) {
+  let captured = null;
+  const { sendJson } = createHttpUtils('*');
+  const routes = createCheckSolutionRoute({
+    sendJson,
+    readJson: async (req) => req.body,
+    callGemini: async (_m, contents) => { captured = captured || contents; return { text: '{"results":[]}', raw: {} }; },
+    GEMINI_MODEL: 'gemini-2.5-flash',
+    ACTIVE_PROVIDER: 'gemini',
+    isStubMode: () => false,
+    extractJsonObjectFromText,
+    buildGeminiImagePart,
+    validateMentorImagePayload,
+  });
+  const res = { writeHead() {}, setHeader() {}, end() {} };
+  await routes.handleGradeWorksheet({ body: JSON.parse(JSON.stringify(request)) }, res);
+  return captured;
+}
 
-const RULES = buildGradingRules();
+// The fixed input: ALL FIVE harness cases as one batch, spelled out as a Quick Practice
+// typed batch (quickPracticeSessionService.ts:458-488) — written here by hand, not by
+// calling the harness's buildRequest.
+function independentRequest() {
+  return {
+    worksheetId: 'eval-grader',
+    subject: 'Maths',
+    questions: CASES.map((c) => {
+      const q = c.question;
+      const o = { qNumber: q.qNumber, marks: q.marks, questionText: q.questionText, topicLabel: q.topic };
+      if (q.section) o.section = q.section;
+      if (q.qType) o.qType = q.qType;
+      if (q.solutionSteps) o.solutionSteps = q.solutionSteps;
+      if (q.finalAnswer) o.finalAnswer = q.finalAnswer;
+      if (q.correctOption) o.correctOption = q.correctOption;
+      o.textAnswer = q.studentWork;
+      return o;
+    }),
+  };
+}
 
-// The shipped rule strings the owner ruled IN.
-const PORTED = [
-  ['ECF_POLICY_V2_PROMPT', ECF_POLICY_V2_PROMPT],
-  ['ECF_VERIFICATION_STEP_CLAUSE', ECF_VERIFICATION_STEP_CLAUSE],
-  ['WORD_PROBLEM_FINAL_ANSWER_PROMPT', WORD_PROBLEM_FINAL_ANSWER_PROMPT],
-  ['QUESTION_MISCOPY_PROMPT', QUESTION_MISCOPY_PROMPT],
-  ['IDENTIFY_EVERY_STEP_PROMPT', IDENTIFY_EVERY_STEP_PROMPT],
-  ['presentationVsMissingPrompt(3)', presentationVsMissingPrompt(3)],
-  ['CORRECTED_WORKING_PROMPT', CORRECTED_WORKING_PROMPT],
-  ['PER_STEP_ATTRIBUTION_PROMPT', PER_STEP_ATTRIBUTION_PROMPT],
-  ['NO_MANUFACTURED_MISSING_STEPS_PROMPT', NO_MANUFACTURED_MISSING_STEPS_PROMPT],
-  ['SCHEME_ASSESSMENT_DIRECTIVES', SCHEME_ASSESSMENT_DIRECTIVES],
-  // Rule 10, owner-ruled IN with 'auto'. See §8 for the standing caveat.
-  ["subjectChecklistBody('auto')", subjectChecklistBody('auto')],
-];
+test('§1 BYTE EQUALITY — the harness renders exactly the prompt production sends (fixed input, 0 calls)', async () => {
+  const questions = CASES.map((c, i) => ({ ...c.question, qNumber: i + 1 }));
+  const req = independentRequest();
+  req.questions.forEach((q, i) => { q.qNumber = i + 1; });
+  const harness = await renderPrompt(questions, 'Maths');
+  const product = await productionPrompt(req);
+  assert.ok(Array.isArray(product) && product.length > 0, 'CONTROL: production rendered no contents — the comparison would be vacuous');
+  assert.ok(Array.isArray(harness) && harness.length > 0, 'the harness rendered no contents');
+  const a = JSON.stringify(harness);
+  const b = JSON.stringify(product);
+  if (a !== b) {
+    let i = 0;
+    while (i < a.length && a[i] === b[i]) i += 1;
+    assert.fail('harness prompt != production prompt at byte ' + i + ':\n  harness: …' + a.slice(Math.max(0, i - 60), i + 80) + '\n  product: …' + b.slice(Math.max(0, i - 60), i + 80));
+  }
+  assert.ok(b.length > 5000, 'CONTROL: the production prompt is implausibly short (' + b.length + ' bytes)');
+});
 
-// §1 — REQUIRED CASE 1. Every ruled-IN rule is present, asserted against SHIPPED text.
-test('§1 the assembled prompt carries every shipped rule the owner ruled IN', () => {
-  for (const [name, text] of PORTED) {
-    assert.ok(
-      typeof text === 'string' && text.length > 20,
-      name + ' did not import as a non-trivial string (got ' + typeof text + ') — if this ' +
-        'fails the export was dropped and every other assertion here is vacuous',
-    );
-    assert.ok(
-      RULES.includes(text),
-      'MISSING from the harness prompt: ' + name + '\n  shipped text begins: ' + text.slice(0, 90),
-    );
+test('§2 NO THIRD COPY — graderEval.cjs contains none of the grading rule text it used to copy', () => {
+  const evalSrc = fs.readFileSync(path.join(__dirname, 'graderEval.cjs'), 'utf8');
+  const routeSrc = fs.readFileSync(path.join(__dirname, '..', 'routes', 'checkSolution.cjs'), 'utf8');
+  const markers = [
+    'function buildGradingRules',
+    'STRUCTURED_MISTAKE_TAXONOMY',
+    'For each mistake choose the type by the CAUSE',
+    'GRADING RULES:',
+    'function normaliseStructuredResult',
+    'ERROR CARRIED FORWARD',
+  ];
+  for (const m of markers) {
+    if (m !== 'function buildGradingRules') {
+      assert.ok(routeSrc.includes(m), 'CONTROL: the route no longer contains "' + m + '" — the absence check below would be vacuous');
+    }
+    assert.ok(!evalSrc.includes(m), 'graderEval.cjs carries a copy of production grading text: "' + m + '"');
   }
 });
 
-// §2 — REQUIRED CASE 2. Rule 16 specifically: the rule the owner's live-verify failed on.
-test('§2 rule 16 (SCHEME_ASSESSMENT_DIRECTIVES) is present — the live-verify rule', () => {
-  assert.ok(
-    RULES.includes(SCHEME_ASSESSMENT_DIRECTIVES),
-    'The shipped source names this one explicitly: rule 16 is the one the live-verify failed ' +
-      'on — a scheme silent about balancing read as permission. Without it the harness cannot ' +
-      'measure the central fix of the arc it exists to measure.',
-  );
-  assert.ok(
-    !RULES.includes('SCHEME_ASSESSMENT_DIRECTIVES'),
-    'the constant NAME leaked into the prompt instead of its value',
-  );
+test('§3 the rendered prompt carries production-only rules the old copy never had', async () => {
+  const product = JSON.stringify(await productionPrompt(independentRequest()));
+  // TYPED-3 typed-only HONEST READ head and the FENCE-1 clause (rule 17) — both absent
+  // from the retired copy (its §4 pinned them OUT). Their presence proves this is the
+  // product's typed-batch prompt, not a reconstruction.
+  assert.ok(/couldNotRead\\" DOES NOT APPLY|couldNotRead" DOES NOT APPLY/.test(product), 'typed-only rule 6 head missing');
+  assert.ok(product.includes('STUDENT\'S OWN WORK') || product.includes('STUDENT\\\'S OWN WORK') || product.includes("STUDENT'S OWN WORK"), 'fence clause (rule 17) missing');
+  assert.ok(product.includes('isReturn'), 'the isReturn field (absent from the old copy) is missing');
 });
 
-// §3 — the ONE constant that must remain a copy, pinned to the shipped source TEXT.
-test('§3 the local taxonomy copy is content-identical to the sealed shipped one', () => {
-  const routeSrc = fs.readFileSync(path.join(__dirname, '..', 'routes', 'checkSolution.cjs'), 'utf8');
-  const evalSrc = fs.readFileSync(path.join(__dirname, 'graderEval.cjs'), 'utf8');
-  const grab = (src) => {
-    const i = src.indexOf('STRUCTURED_MISTAKE_TAXONOMY =');
-    assert.ok(i > 0, 'taxonomy definition not found');
-    const end = src.indexOf('\n\n', i);
-    return src.slice(i, end).split('\n').slice(1).map((l) => l.trim()).join('\n');
-  };
-  assert.equal(
-    grab(evalSrc),
-    grab(routeSrc),
-    'STRUCTURED_MISTAKE_TAXONOMY is sealed inside createCheckSolutionRoute and cannot be ' +
-      'imported, so the harness keeps a copy. This pin is the only thing keeping that copy ' +
-      'honest — three drifted copies of this taxonomy already shipped in this file family.',
-  );
+test('§4 CONTROL — a divergent prompt is detected (the equality check can fail)', async () => {
+  const product = await productionPrompt(independentRequest());
+  const divergent = JSON.parse(JSON.stringify(product));
+  const last = divergent[0].parts[divergent[0].parts.length - 1];
+  last.text += '\n18. An extra harness-only rule.';
+  assert.notStrictEqual(JSON.stringify(divergent), JSON.stringify(product), 'a one-rule divergence must change the bytes');
 });
 
-// §4 — THE FOUR HELD RULES ARE ABSENT, and that is deliberate.
-test('§4 the THREE still-held rules are absent — the hold is real and detectable', () => {
-  const routeSrc = fs.readFileSync(path.join(__dirname, '..', 'routes', 'checkSolution.cjs'), 'utf8');
-  assert.ok(
-    routeSrc.includes('function subjectChecklistBody'),
-    'CONTROL: shipped rule 10 still exists in the route — if this fails the hold below is vacuous',
-  );
-  // (shipped rule 10 is no longer held — owner ruled it IN with 'auto'; see §8)
-  assert.ok(
-    !RULES.includes('couldNotRead'),
-    'the rule 6 couldNotRead HEAD leaked in. Only the crossed-out-answer TAIL was ruled ' +
-      'in; the head is image-reading and cannot apply to already-transcribed text.',
-  );
-  assert.ok(
-    !RULES.includes('FENCED'),
-    'shipped rule 17 leaked in; it is HELD — the harness sends no fenced typed block',
-  );
-  assert.ok(
-    RULES.includes('grade the transcribed student answer'),
-    'the harness own rule 1 framing was lost — it has no PDF and nothing to locate',
-  );
-  assert.ok(
-    !RULES.includes('locate that numbered answer in the PDF'),
-    'the shipped PDF-locate rule 1 leaked in; the harness has no PDF',
-  );
-});
-
-// §5 — REQUIRED CASE 3, THE CONTROL. A deliberately WRONG expected value must FAIL.
-// A harness that cannot fail is not measuring anything.
 test('§5 CONTROL — a deliberately wrong expected value makes the case FAIL', () => {
   const fullMarks = {
-    qNumber: 1,
-    couldNotRead: false,
-    marksAwarded: 2,
-    totalMarks: 2,
-    annotatedSteps: [
-      { stepNumber: 1, description: 'd', status: 'correct', marksAwarded: 2, marksDeducted: 0, mistakeType: null },
-    ],
+    qNumber: 1, couldNotRead: false, marksAwarded: 2, totalMarks: 2,
+    annotatedSteps: [{ stepNumber: 1, description: 'd', status: 'correct', marksAwarded: 2, marksDeducted: 0, mistakeType: null }],
     mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
   };
-  assert.deepEqual(
-    evaluateCase({ name: 'honest', expect: { status: 'correct' } }, fullMarks),
-    [],
-    'a correct result against a correct expectation should produce no failures',
-  );
+  assert.deepEqual(evaluateCase({ name: 'honest', expect: { status: 'correct' } }, fullMarks), []);
   const failures = evaluateCase({ name: 'deliberately wrong', expect: { status: 'incorrect' } }, fullMarks);
   assert.ok(failures.length > 0, 'THE HARNESS CANNOT FAIL — it is not measuring anything');
-  const joined = failures.join(' | ');
-  assert.ok(/expected/i.test(joined), 'failure text names no EXPECTED value: ' + joined);
-  assert.ok(/2\/2|correct/.test(joined), 'failure text names no ACTUAL value: ' + joined);
+  assert.ok(/expected/i.test(failures.join(' | ')) && /2\/2|correct/.test(failures.join(' | ')), 'failure text must name expected and actual: ' + failures.join(' | '));
 });
 
-// §6 — REQUIRED CASE 4. Every miss carries expected, actual AND the case label.
-test('§6 every miss reports expected, actual and the case label', () => {
+test('§6 every case carries a label and an expectation; buildRequest sends the working as textAnswer', () => {
   for (const c of CASES) {
-    assert.ok(
-      typeof c.name === 'string' && c.name.length > 0,
-      'a case with no label cannot be reported as a miss',
-    );
-    assert.ok(
-      c.expect && Object.keys(c.expect).length > 0,
-      'case "' + c.name + '" carries no expectation, so it can never miss',
-    );
+    assert.ok(typeof c.name === 'string' && c.name.length > 0, 'a case with no label cannot be reported as a miss');
+    assert.ok(c.expect && Object.keys(c.expect).length > 0, 'case "' + c.name + '" carries no expectation');
   }
-  const wrong = evaluateCase(
-    { name: 'x', expect: { status: 'correct' } },
-    { qNumber: 1, couldNotRead: false, marksAwarded: 0, totalMarks: 2, annotatedSteps: [], mistakeSummary: {} },
-  );
-  assert.ok(
-    wrong.some((f) => /expected/i.test(f) && /got/i.test(f)),
-    'a miss must state both expected and actual; got: ' + JSON.stringify(wrong),
-  );
-});
-
-// §7 — BONUS CONTROL. Stays GREEN under the §1 mutation, proving §1 measures something
-// INDEPENDENT of it: this asserts the harness's OWN pre-existing rules, which the
-// mutation (removing a newly-PORTED rule) does not touch.
-test('§7 CONTROL (mutation-independent) — the harness keeps its own pre-existing rules', () => {
-  assert.ok(RULES.startsWith('GRADING RULES:'), 'the prompt header changed');
-  assert.ok(RULES.includes('NO WORKING SHOWN'), 'rule 5 lost');
-  assert.ok(RULES.includes('Never exceed the question'), 'rule 2 lost');
-});
-
-// §8 — THE TWO LATE PORTS, and the standing caveat on rule 10.
-test('§8 rule 6 TAIL is ported without its head, and rule 10 runs in AUTO-DETECT mode', () => {
-  // Rule 6: the crossed-out-answer GRADING RULING is in...
-  assert.ok(
-    RULES.includes('crossed out with no replacement written is a NO-ATTEMPT'),
-    'the rule 6 crossed-out-answer clause is missing — it is a grading ruling that applies ' +
-      'to typed text and was ruled IN',
-  );
-  // ...and its couldNotRead head is out. Asserted in §4 too; kept here so the split is
-  // visible as ONE decision rather than two unrelated assertions.
-  assert.ok(!RULES.includes('couldNotRead'), 'the couldNotRead head leaked in');
-
-  // ⚠⚠ STANDING CAVEAT — NOT PARITY. The shipped structured path passes ONE declared
-  // subject for the whole set. The harness has none to pass (its CASES carry `topic`),
-  // so it runs the checklist in AUTO-DETECT mode, which emits BOTH subjects. This is a
-  // KNOWN, DELIBERATE DIVERGENCE FROM PRODUCTION and must not be read as parity.
-  assert.ok(
-    RULES.includes(subjectChecklistBody('auto')),
-    'rule 10 is missing; it was ruled IN in auto-detect mode',
-  );
-  assert.notEqual(
-    subjectChecklistBody('auto'),
-    subjectChecklistBody('maths'),
-    'CONTROL: if auto and maths were the same string, asserting auto-mode would prove nothing ' +
-      'and the divergence above would be invisible',
-  );
+  const req = buildRequest([CASES[0].question]);
+  assert.strictEqual(req.questions[0].textAnswer, CASES[0].question.studentWork);
+  assert.ok(!('studentWork' in req.questions[0]), 'studentWork is not a field the server reads; it must travel as textAnswer');
 });

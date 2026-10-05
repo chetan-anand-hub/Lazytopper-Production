@@ -1,0 +1,33 @@
+{
+ "_about": "Wrong-step locators, one per golden case whose expected wrongStep is non-null: a case-insensitive regex matched against the grader's FIRST marks-losing step (studentWork + description + teacherAnnotation + correctedWorking). Ported verbatim from GRADER-AUDIT-1 s6/score_s6.mjs (LOC), which S3 derived from each case's expected per-step reason. Objective cases are located by the mark alone (awarded 0) and need no locator; the four objective entries here are informational. Owner-anomaly-01 and injection-probe locators live in their own case files.",
+ "flags": "i",
+ "locators": {
+  "GS-M01-b": "\\(A\\)|option\\s*\\(?a\\)?|−8|-8",
+  "GS-M03-a": "\\(D\\)|option|assertion|reason",
+  "GS-M04-b": "3\\s*\\/\\s*2|x\\s*=\\s*2\\s*\\/\\s*3",
+  "GS-M07-a": "8\\s*\\/\\s*9|\\bPR\\b|cop(y|ied)|9\\s*cm|miscop",
+  "GS-M09-b": "sin\\s*(²|\\^2|2)\\s*θ\\s*\\/\\s*\\(?\\s*cos\\s*θ|sign",
+  "GS-M10-a": "conclu|hence|final statement|5\\s*[−-]\\s*2\\s*√\\s*3\\s*(is)?\\s*irrational",
+  "GS-M11-a": "0\\.447|2\\.236|decimal|calculator|assum",
+  "GS-M12-a": "1232|308|=\\s*8\\b|R\\s*\\+\\s*r\\s*=\\s*8",
+  "GS-M15-a": "480\\s*\\/\\s*x\\s*[−-]\\s*480|revers|wrong order|swap|time.*(slow|reduc)|equation",
+  "GS-M18-a": "30\\s*°|360\\s*°?\\s*\\/\\s*10|central angle",
+  "GS-M21-a": "figure|diagram",
+  "GS-M23-a": "85\\s*=\\s*5|HCF\\s*\\(?\\s*85|subtract|remainder|72\\s*=\\s*2",
+  "GS-S02-a": "\\(A\\)|option|assertion|reason",
+  "GS-S05-b": "diagram",
+  "GS-S06-b": "clotting|platelet",
+  "GS-S07-a": "formula",
+  "GS-S08-a": "unit|watt|=\\s*8\\s*$|=\\s*8\\b|I\\s*(²|\\^2|2)\\s*R",
+  "GS-S09-a": "1\\s*\\/\\s*60|2\\s*\\/\\s*100|R\\s*₂|R2|50\\s*Ω|56",
+  "GS-S10-a": "arrow",
+  "GS-S12-b": "2\\s*H\\s*₂|2H2|3\\s*H\\s*₂|3H2|hydrogen|2\\s*Al|\\(ii\\)",
+  "GS-S13-a": "NaCl|brine|balanc|\\(a\\)",
+  "GS-S15-a": "4\\.54|rating|5\\s*A\\b",
+  "GS-S16-a": "[−-]?\\s*4\\s*m\\b|400|0\\.4|focal length|1\\s*\\/\\s*\\(?\\s*[−-]?\\s*2\\.5",
+  "GS-S17-a": "1,?00,?000|10,?000|phytoplankton|1000\\s*×\\s*10",
+  "GS-S18-a": "9\\s*\\/\\s*16|3\\s*\\/\\s*16|tall.{0,30}white|white.{0,30}tall",
+  "GS-SUP-01": "a\\s*\\+\\s*nd|aₙ\\s*=\\s*a\\s*\\+\\s*nd|\\b500\\b",
+  "GS-SUP-03": "90|object distance|\\bu\\s*="
+ }
+}

@@ -1,0 +1,132 @@
+[
+ {
+  "slug": "real-numbers",
+  "name": "Real Numbers",
+  "subject": "Maths"
+ },
+ {
+  "slug": "polynomials",
+  "name": "Polynomials",
+  "subject": "Maths"
+ },
+ {
+  "slug": "pair-of-linear-equations",
+  "name": "Pair of Linear Equations",
+  "subject": "Maths"
+ },
+ {
+  "slug": "quadratic-equations",
+  "name": "Quadratic Equations",
+  "subject": "Maths"
+ },
+ {
+  "slug": "arithmetic-progression",
+  "name": "Arithmetic Progression",
+  "subject": "Maths"
+ },
+ {
+  "slug": "triangles",
+  "name": "Triangles",
+  "subject": "Maths"
+ },
+ {
+  "slug": "coordinate-geometry",
+  "name": "Coordinate Geometry",
+  "subject": "Maths"
+ },
+ {
+  "slug": "trigonometry",
+  "name": "Trigonometry",
+  "subject": "Maths"
+ },
+ {
+  "slug": "circles",
+  "name": "Circles",
+  "subject": "Maths"
+ },
+ {
+  "slug": "areas-related-to-circles",
+  "name": "Areas Related to Circles",
+  "subject": "Maths"
+ },
+ {
+  "slug": "surface-areas-and-volumes",
+  "name": "Surface Areas and Volumes",
+  "subject": "Maths"
+ },
+ {
+  "slug": "statistics",
+  "name": "Statistics",
+  "subject": "Maths"
+ },
+ {
+  "slug": "probability",
+  "name": "Probability",
+  "subject": "Maths"
+ },
+ {
+  "slug": "chemical-reactions-and-equations",
+  "name": "Chemical Reactions & Equations",
+  "subject": "Science"
+ },
+ {
+  "slug": "acids-bases-and-salts",
+  "name": "Acids Bases & Salts",
+  "subject": "Science"
+ },
+ {
+  "slug": "metals-and-non-metals",
+  "name": "Metals & Non-metals",
+  "subject": "Science"
+ },
+ {
+  "slug": "carbon-and-its-compounds",
+  "name": "Carbon & its Compounds",
+  "subject": "Science"
+ },
+ {
+  "slug": "light-reflection-and-refraction",
+  "name": "Light - Reflection & Refraction",
+  "subject": "Science"
+ },
+ {
+  "slug": "human-eye-and-colourful-world",
+  "name": "Human Eye & Colourful World",
+  "subject": "Science"
+ },
+ {
+  "slug": "electricity",
+  "name": "Electricity",
+  "subject": "Science"
+ },
+ {
+  "slug": "magnetic-effects-of-electric-current",
+  "name": "Magnetic Effects of Electric Current",
+  "subject": "Science"
+ },
+ {
+  "slug": "life-processes",
+  "name": "Life Processes",
+  "subject": "Science"
+ },
+ {
+  "slug": "control-and-coordination",
+  "name": "Control & Coordination",
+  "subject": "Science"
+ },
+ {
+  "slug": "how-do-organisms-reproduce",
+  "name": "How do Organisms Reproduce",
+  "subject": "Science"
+ },
+ {
+  "slug": "heredity",
+  "name": "Heredity",
+  "subject": "Science"
+ },
+ {
+  "slug": "our-environment",
+  "name": "Our Environment",
+  "subject": "Science"
+ }
+]

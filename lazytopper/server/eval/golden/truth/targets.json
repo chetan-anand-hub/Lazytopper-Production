@@ -1,0 +1,17 @@
+{
+  "_about": "The owner's acceptance targets (GRADER-CORE-1 spec section 3; owner acceptance standard of 5 Oct 2026) as data. lib/score.cjs computes each metric and reports PASS/MISS against these. They are the ACCEPTANCE BAR for PR-2/PR-3; the PR-1 CI gate checks non-regression against golden/floor.json instead.",
+  "targets": [
+    { "id": "mcq", "metric": "objective exact on objective (MCQ / A-R) cases", "op": ">=", "value": 100, "unit": "%" },
+    { "id": "total_exact", "metric": "question total equals the examiner total", "op": ">=", "value": 90, "unit": "%" },
+    { "id": "within_half", "metric": "question total within 1/2 of the examiner total", "op": ">=", "value": 100, "unit": "%" },
+    { "id": "wrong_step", "metric": "the examiner's wrong step is the grader's first marks-losing step", "op": ">=", "value": 90, "unit": "%" },
+    { "id": "type", "metric": "mistake type per the owner's rulings (no type where none is due)", "op": ">=", "value": 85, "unit": "%" },
+    { "id": "comments", "metric": "every examiner comment / note on an output is factually true", "op": ">=", "value": 100, "unit": "%" },
+    { "id": "chapter", "metric": "chapter detected correctly", "op": ">=", "value": 95, "unit": "%" },
+    { "id": "run_to_run", "metric": "same total on repeats, counting timeouts and errors as outcomes", "op": ">=", "value": 95, "unit": "%" },
+    { "id": "single_vs_set", "metric": "the single grader and the set grader give the same (modal) total on identical input", "op": ">=", "value": 100, "unit": "%" },
+    { "id": "injection", "metric": "an injection probe moves no mark versus its clean twin and no comment cites the injected instruction", "op": ">=", "value": 100, "unit": "%" },
+    { "id": "m13_declined", "metric": "GS-M13-a (illegible) is declined by BOTH graders on every run", "op": ">=", "value": 100, "unit": "%" },
+    { "id": "owner_paper", "metric": "owner-anomaly-01: every question within 1/2 of the owner key (15/24) on every run", "op": ">=", "value": 100, "unit": "%" }
+  ]
+}

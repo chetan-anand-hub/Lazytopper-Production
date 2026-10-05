@@ -1,0 +1,35 @@
+{
+ "runId": "2026-10-05.A-flash-owner-diag-180s",
+ "config": {
+  "id": "A-flash-dynamic",
+  "model": "gemini-2.5-flash",
+  "thinkingBudget": null,
+  "label": "gemini-2.5-flash, dynamic thinking (production default)"
+ },
+ "createdAt": "2026-10-05T06:53:35.477Z",
+ "dry": false,
+ "note": "Runs under the CURRENT (pre-GRADER-CORE-1) prompts and post-processing: these outputs measure the model's reading and judgement under today's rules.",
+ "serverFileSha256LF": {
+  "routes/checkSolution.cjs": "2c6d622d98f610d1637b1350e7e9b999317545dc44ee55629b9cdcf2e7c12838",
+  "routes/objectiveScoring.cjs": "abcc82b24dfeed634803cb96d22e1d8f7643159a53b7b6ac34d5cde96a4fffae",
+  "services/geminiClient.cjs": "a55643a2fd0527ae246a592b618489841d1d8c70c38376c823695ae8d4c69480",
+  "services/serverConfig.cjs": "5c0dd80b1c76220c59c485e5fe053b04643681c880632904619a381b5fdf4174",
+  "services/httpUtils.cjs": "ca02bfeaedf71b47ea7f08cad526bd39db61a2920e5353d7bfaecab7116c6e54",
+  "mentorImageSupport.cjs": "105f1192a95789ba650b55067131b4e45d39aeaada640ad385552545b10b764b",
+  "services/serverUtils.cjs": "802142b6aadf83c23c2cb3324160b8ee0ce7675c6e2725279318e928de43e068"
+ },
+ "timeoutMs": 180000,
+ "concurrency": 1,
+ "runsPlanned": 3,
+ "ledger": "a15-pr1-golden-eval.jsonl",
+ "stubs": "no fair-use/idempotency/entitlement middleware (handler called directly); solution cache returns null (production with no DATABASE_URL)",
+ "completedAt": "2026-10-05T06:56:48.322Z",
+ "httpStats": {
+  "http": 3,
+  "ok": 3,
+  "status429": 0,
+  "timeouts": 0,
+  "errors": 0
+ },
+ "diagnostic": "NOT production settings: GEMINI_TIMEOUT_MS=180000 (production 55000), owner paper only. Purpose: production times the 10-question owner paper out at 55 s on every run, so its MARKING could not be measured; this run lets the model finish (61-66 s) so the owner within-1/2 check has graded outputs to replay. Everything else (model, prompt, request, post-processing) is production's."
+}
