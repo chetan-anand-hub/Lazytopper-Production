@@ -1,0 +1,100 @@
+{
+ "source": "Desktop/diff/grader-audit-1/s3/raw/P3/CI-SINGLE/P3CI-GS-M17-a.run1.json",
+ "grader": "P3",
+ "surface": "CI-SINGLE",
+ "caseIds": [
+  "GS-M17-a"
+ ],
+ "request": {
+  "question": "Case Study − 1: A school is organizing a charity run to raise funds for a local hospital. The run is planned as a series of rounds around a track, with each round being 300 metres. To make the event more challenging and engaging, the organizers decide to increase the distance of each subsequent round by 50 metres. For example, the second round will be 350 metres, the third round will be 400 metres and so on. The total number of rounds planned is 10.\n(i) Write the fourth, fifth and sixth term of the Arithmetic Progression so formed.\n(ii) Determine the distance of the 8th round.\n(iii)(a) Find the total distance run after completing all 10 rounds. [OR (iii)(b): If a runner completes only the first 6 rounds, what is the total distance run by the runner?]",
+  "subject": "Maths",
+  "topic": "Arithmetic Progression",
+  "marks": 4
+ },
+ "body": {
+  "ok": true,
+  "totalMarks": 4,
+  "marksAwarded": 2.5,
+  "percentage": 63,
+  "annotatedSteps": [
+   {
+    "stepNumber": 1,
+    "description": "Identifying the first term (a) and common difference (d) of the AP.",
+    "studentWork": "(i) a = 300, d = 50.",
+    "status": "correct",
+    "marksAwarded": 0.5,
+    "marksDeducted": 0,
+    "teacherAnnotation": "✓ Correctly identified 'a' and 'd'.",
+    "mistakeType": null,
+    "correctedWorking": null,
+    "isDeparture": false,
+    "isReturn": false
+   },
+   {
+    "stepNumber": 2,
+    "description": "Calculating the 4th, 5th, and 6th terms of the AP.",
+    "studentWork": "a₄ = 300 + 3 × 50 = 450 m, a₅ = 500 m, a₆ = 550 m.",
+    "status": "correct",
+    "marksAwarded": 0.5,
+    "marksDeducted": 0,
+    "teacherAnnotation": "✓ Correctly calculated the terms with units.",
+    "mistakeType": null,
+    "correctedWorking": null,
+    "isDeparture": false,
+    "isReturn": false
+   },
+   {
+    "stepNumber": 3,
+    "description": "Determining the distance of the 8th round (Part ii).",
+    "studentWork": "",
+    "status": "missing",
+    "marksAwarded": 0,
+    "marksDeducted": 1.5,
+    "teacherAnnotation": "× Part (ii) was not attempted.",
+    "mistakeType": null,
+    "correctedWorking": "a₈ = a + (n-1)d = 300 + (8-1) × 50 = 300 + 7 × 50 = 300 + 350 = 650 m.",
+    "isDeparture": false,
+    "isReturn": false
+   },
+   {
+    "stepNumber": 4,
+    "description": "Writing the formula for the sum of n terms (Sₙ) and substituting values for S₁₀.",
+    "studentWork": "(iii)(a) S₁₀ = 10/2 [2 × 300 + (10 − 1) × 50]",
+    "status": "correct",
+    "marksAwarded": 1,
+    "marksDeducted": 0,
+    "teacherAnnotation": "✓ Correct formula application and substitution.",
+    "mistakeType": null,
+    "correctedWorking": null,
+    "isDeparture": false,
+    "isReturn": false
+   },
+   {
+    "stepNumber": 5,
+    "description": "Calculating the total distance for 10 rounds.",
+    "studentWork": "= 5 × [600 + 450] = 5 × 1050 = 5250 m.",
+    "status": "correct",
+    "marksAwarded": 0.5,
+    "marksDeducted": 0,
+    "teacherAnnotation": "✓ Correct calculation with final unit.",
+    "mistakeType": null,
+    "correctedWorking": null,
+    "isDeparture": false,
+    "isReturn": false
+   }
+  ],
+  "mistakeSummary": {
+   "conceptual": 0,
+   "calculation": 0,
+   "silly": 0,
+   "presentation": 0,
+   "departure": 0
+  },
+  "teacherNote": "",
+  "questionDepartureError": false,
+  "objective": false,
+  "detectedSubject": null,
+  "detectedTopic": null,
+  "marksSource": null
+ }
+}

@@ -1,6 +1,9 @@
 import {
   collection,
   addDoc,
+  doc,
+  setDoc,
+  deleteDoc,
   query,
   where,
   orderBy,
@@ -55,6 +58,14 @@ export interface MistakeLogEntry {
   }>;
 }
 
+/** SCORECARD-MI-1 (D5) — how an entry is written. With `id` (the stable grade identity from
+ *  `gradeIdentityDocId`) the write REPLACES any earlier entry for the same submission, on the
+ *  device and in Firestore (`setDoc` on that id — firestore.rules:41-43 allow the owner to
+ *  create and update `mistakeLogs/{logId}`). Without it, the legacy append path. */
+export interface LogMistakesOptions {
+  id?: string;
+}
+
 function localKey(uid: string): string {
   return `${LOCAL_KEY_PREFIX}:${uid}`;
 }
@@ -99,24 +110,76 @@ function mergeByID(
  */
 export async function logMistakes(
   uid: string,
-  entry: Omit<MistakeLogEntry, "id">
+  entry: Omit<MistakeLogEntry, "id">,
+  options?: LogMistakesOptions
 ): Promise<void> {
-  const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const stableId = options?.id?.trim() || "";
+  const id = stableId || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const full: MistakeLogEntry = { id, ...entry };
 
-  const existing = readLocal(uid);
+  // A stable id REPLACES the earlier local copy of the same submission (never two).
+  const existing = readLocal(uid).filter((e) => e.id !== id);
   writeLocal(uid, [full, ...existing]);
 
   if (firestoreDb) {
     try {
-      await addDoc(
-        collection(firestoreDb, "learnerProfiles", uid, "mistakeLogs"),
-        full
-      );
+      if (stableId) {
+        await setDoc(doc(firestoreDb, "learnerProfiles", uid, "mistakeLogs", stableId), full);
+      } else {
+        await addDoc(
+          collection(firestoreDb, "learnerProfiles", uid, "mistakeLogs"),
+          full
+        );
+      }
     } catch {
       // Firestore write failed — localStorage copy remains the source of truth
     }
   }
+}
+
+/**
+ * SCORECARD-MI-1 (W1) — a stable grade-identity id always holds "::"
+ * (surface::submission::question — `gradeIdentityDocId`); a legacy random id
+ * (`${Date.now()}-xxxxxx`) never does. Only a stable id may ever be removed.
+ */
+export function isStableMistakeLogId(id: string): boolean {
+  return typeof id === "string" && id.includes("::");
+}
+
+/**
+ * SCORECARD-MI-1 (W1) — a re-grade of the SAME submission came back with no mistake
+ * (full marks, or not attempted). Remove that submission's stable-identity entry, on the
+ * device and in Firestore, so Mistake Intelligence never keeps a mistake the scorecard no
+ * longer shows. `firestore.rules:41-43` (`allow read, write: if isOwner(uid)`) covers delete.
+ *
+ * - Acts on a STABLE id only; a legacy random-id entry is never touched.
+ * - `known` is the caller's evidence that an entry was written (the MI dedup ring). Without
+ *   it, only a copy on this device triggers the cloud delete, so a first-time clean grade
+ *   costs no write.
+ * - Best effort, like the write: a failed cloud delete leaves the local removal in place.
+ *
+ * Returns whether it acted.
+ */
+export async function removeStableMistakeLog(
+  uid: string,
+  id: string,
+  options?: { known?: boolean }
+): Promise<boolean> {
+  const stableId = (id || "").trim();
+  if (!uid || !isStableMistakeLogId(stableId)) return false;
+  const local = readLocal(uid);
+  const kept = local.filter((e) => e.id !== stableId);
+  const hadLocal = kept.length !== local.length;
+  if (!hadLocal && !options?.known) return false;
+  if (hadLocal) writeLocal(uid, kept);
+  if (firestoreDb) {
+    try {
+      await deleteDoc(doc(firestoreDb, "learnerProfiles", uid, "mistakeLogs", stableId));
+    } catch {
+      // Firestore delete failed — the device copy is already gone; same best effort as the write
+    }
+  }
+  return true;
 }
 
 /**

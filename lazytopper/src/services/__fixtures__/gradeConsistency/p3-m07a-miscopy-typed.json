@@ -1,0 +1,100 @@
+{
+ "source": "Desktop/diff/grader-audit-1/s3/raw/P3/CI-SINGLE/P3CI-GS-M07-a.run1.json",
+ "grader": "P3",
+ "surface": "CI-SINGLE",
+ "caseIds": [
+  "GS-M07-a"
+ ],
+ "request": {
+  "question": "If ΔABC ~ ΔPQR in which AB = 6 cm, BC = 4 cm, AC = 8 cm and PR = 6 cm, then find the length of (PQ + QR).",
+  "subject": "Maths",
+  "topic": "Triangles",
+  "marks": 2
+ },
+ "body": {
+  "ok": true,
+  "totalMarks": 2,
+  "marksAwarded": 0.5,
+  "percentage": 25,
+  "annotatedSteps": [
+   {
+    "stepNumber": 1,
+    "description": "Stating the ratio of corresponding sides for similar triangles",
+    "studentWork": "Since ΔABC ~ ΔPQR, AB/PQ = BC/QR = AC/PR",
+    "status": "correct",
+    "marksAwarded": 0.5,
+    "marksDeducted": 0,
+    "teacherAnnotation": "✓ Correctly stated the property of similar triangles.",
+    "mistakeType": null,
+    "correctedWorking": null,
+    "isDeparture": false,
+    "isReturn": false
+   },
+   {
+    "stepNumber": 2,
+    "description": "Substituting given values into the ratios",
+    "studentWork": "6/PQ = 4/QR = 8/9",
+    "status": "incorrect",
+    "marksAwarded": 0,
+    "marksDeducted": 0.5,
+    "teacherAnnotation": "× Incorrect substitution for PR. The given value for PR is 6 cm, not 9 cm.",
+    "mistakeType": "calculation",
+    "correctedWorking": "6/PQ = 4/QR = 8/6",
+    "isDeparture": true,
+    "isReturn": false
+   },
+   {
+    "stepNumber": 3,
+    "description": "Calculating PQ",
+    "studentWork": "PQ = (6 × 9)/8 = 54/8 = 6.75 cm",
+    "status": "incorrect",
+    "marksAwarded": 0,
+    "marksDeducted": 0,
+    "teacherAnnotation": "× Calculation follows from the incorrect PR value (error carried forward).",
+    "mistakeType": null,
+    "correctedWorking": "From 6/PQ = 8/6, PQ = (6 × 6)/8 = 36/8 = 4.5 cm",
+    "isDeparture": false,
+    "isReturn": false
+   },
+   {
+    "stepNumber": 4,
+    "description": "Calculating QR",
+    "studentWork": "QR = (4 × 9)/8 = 36/8 = 4.5 cm",
+    "status": "incorrect",
+    "marksAwarded": 0,
+    "marksDeducted": 0,
+    "teacherAnnotation": "× Calculation follows from the incorrect PR value (error carried forward).",
+    "mistakeType": null,
+    "correctedWorking": "From 4/QR = 8/6, QR = (4 × 6)/8 = 24/8 = 3 cm",
+    "isDeparture": false,
+    "isReturn": false
+   },
+   {
+    "stepNumber": 5,
+    "description": "Calculating the sum PQ + QR",
+    "studentWork": "PQ + QR = 6.75 + 4.5 = 11.25 cm",
+    "status": "incorrect",
+    "marksAwarded": 0,
+    "marksDeducted": 0,
+    "teacherAnnotation": "× Sum follows from the incorrect PQ and QR values (error carried forward).",
+    "mistakeType": null,
+    "correctedWorking": "PQ + QR = 4.5 + 3 = 7.5 cm",
+    "isDeparture": false,
+    "isReturn": false
+   }
+  ],
+  "mistakeSummary": {
+   "conceptual": 0,
+   "calculation": 1,
+   "silly": 0,
+   "presentation": 0,
+   "departure": 1
+  },
+  "teacherNote": "From this step on you were solving a different equation from the one set — check each line against the question as you go.",
+  "questionDepartureError": true,
+  "objective": false,
+  "detectedSubject": null,
+  "detectedTopic": null,
+  "marksSource": null
+ }
+}

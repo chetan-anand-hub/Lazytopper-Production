@@ -353,7 +353,8 @@ describe("optional blocks render from their data and are absent without it", () 
     expect(screen.getByText("Trigonometry")).toBeInTheDocument();
     expect(screen.getByText("Light")).toBeInTheDocument();
     expect(screen.getByText("Light cost you 5 marks — the biggest loss.")).toBeInTheDocument();
-    expect(screen.getByText("Where your marks went")).toBeInTheDocument();
+    // SCORECARD-MI-1 (D2) — the block counts mistakes, so its heading no longer claims marks.
+    expect(screen.getByText("Mistakes the examiner found, by kind")).toBeInTheDocument();
     // The chapter bar width is class-driven (CLAUDE.md §7 — no inline style objects).
     expect(document.querySelector(".lt-sc__chfill")?.className).toContain("lt-sc__chw-50");
     expect(document.querySelector('[style]:not(style)')).toBeNull();

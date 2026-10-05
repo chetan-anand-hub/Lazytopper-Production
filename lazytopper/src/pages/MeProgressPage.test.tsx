@@ -29,6 +29,8 @@ const mockGetActivitySummary = vi.fn();
 const mockGetTopicTrendFromCloud = vi.fn();
 
 vi.mock("../services/progressStore", () => ({
+  // SCORECARD-MI-1 (GA-19) — Me reads the mistake log for the SAME window as the hero.
+  WINDOW_DAYS: { week: 7, "2wk": 14, month: 30, "4mo": 120 },
   getWindowedProgress: (...a: unknown[]) => mockGetWindowedProgress(...a),
   getRecentSessions: (...a: unknown[]) => mockGetRecentSessions(...a),
   getActivitySummary: (...a: unknown[]) => mockGetActivitySummary(...a),
@@ -42,8 +44,8 @@ vi.mock("../services/mistakeLogService", () => ({
 
 vi.mock("../services/mistakeInsightsService", () => ({
   summarizeCareless: () => ({
+    calculationCount: 0,
     sillyCount: 0,
-    presentationCount: 0,
     count: 0,
     marksLost: 0,
     hasData: false,
@@ -270,8 +272,8 @@ describe("3 · silly and presentation never appear as a topic weakness", () => {
     //   so the absence above is not a broken selector.
     expect(within(drill).getByText("Real Numbers")).toBeInTheDocument();
     // ★ AND the control that they exist on the page at all — in the mistake mix,
-    //   where careless mark-loss legitimately belongs.
-    expect(within(screen.getByTestId("me-mistake-mix")).getByText("Silly")).toBeInTheDocument();
+    //   where careless mark-loss legitimately belongs (named by lib/mistakeDisplay).
+    expect(within(screen.getByTestId("me-mistake-mix")).getByText("Silly slip")).toBeInTheDocument();
   });
 });
 

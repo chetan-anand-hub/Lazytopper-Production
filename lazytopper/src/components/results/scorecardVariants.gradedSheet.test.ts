@@ -178,11 +178,13 @@ describe("the return ticket rides the graded variant", () => {
 });
 
 describe("isCarelessMistakeKind", () => {
-  it("silly and presentation ONLY", () => {
+  // SCORECARD-MI-1 — owner ruling 5 Oct: careless = calculation + silly; presentation is exam
+  // technique, its own group; conceptual is the knowledge gap.
+  it("calculation and silly ONLY", () => {
     expect(isCarelessMistakeKind("silly")).toBe(true);
-    expect(isCarelessMistakeKind("presentation")).toBe(true);
+    expect(isCarelessMistakeKind("calculation")).toBe(true);
+    expect(isCarelessMistakeKind("presentation")).toBe(false);
     expect(isCarelessMistakeKind("conceptual")).toBe(false);
-    expect(isCarelessMistakeKind("calculation")).toBe(false);
     expect(isCarelessMistakeKind(null)).toBe(false);
     expect(isCarelessMistakeKind(undefined)).toBe(false);
   });

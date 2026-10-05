@@ -324,13 +324,14 @@ describe("a missing figure renders nothing", () => {
 /* ════════════════════════════════════════════════════════════════════════════
    7 · ★★ CARELESS IS NEVER A TOPIC WEAKNESS.
    ════════════════════════════════════════════════════════════════════════════ */
-describe("silly / presentation are careless mark-loss, never a topic weakness", () => {
+describe("careless (calculation + silly) is never a topic weakness — owner ruling 5 Oct", () => {
   it("a careless mistake type is framed as carelessness, with the honest sentence", () => {
     render(
       <ResultsScorecard
         variant={variant({
           gradedAnswers: [
             MCQ_WITH_WORKING, // silly
+            FIVE_MARK_ANSWER, // calculation
             { label: "Question 6", descriptor: "3 marks", awarded: 2, available: 3, mistakeType: "Presentation", mistakeKind: "presentation" },
           ],
         })}
@@ -341,10 +342,12 @@ describe("silly / presentation are careless mark-loss, never a topic weakness", 
     expect(chips.map((c) => c.className)).toEqual([
       expect.stringContaining("lt-sc__ga-mtype--careless"),
       expect.stringContaining("lt-sc__ga-mtype--careless"),
+      // presentation is EXAM TECHNIQUE — its own group, not careless.
+      expect.stringContaining("lt-sc__ga-mtype--technique"),
     ]);
-    expect(chips.map((c) => c.getAttribute("data-mistake-kind"))).toEqual(["silly", "presentation"]);
+    expect(chips.map((c) => c.getAttribute("data-mistake-kind"))).toEqual(["silly", "calculation", "presentation"]);
     expect(
-      screen.getByText("Slips on the final line / units — slow down, these aren’t weak topics."),
+      screen.getByText("Careless slips are not weak topics — you already know this; slow down and check each line."),
     ).toBeInTheDocument();
     // ★ THE NEGATIVE, on the CARDS' real text. Scoped to `.lt-sc__galist` deliberately:
     // the honest footnote sits OUTSIDE it and contains the words "weak topics" inside a
@@ -358,22 +361,34 @@ describe("silly / presentation are careless mark-loss, never a topic weakness", 
     expect(document.body.textContent || "").not.toMatch(/you are weak|weak at this topic/i);
   });
 
-  it("CONTROL — a KNOWLEDGE-GAP kind gets the gap chip and NO careless sentence", () => {
-    render(<ResultsScorecard variant={variant({ gradedAnswers: [FIVE_MARK_ANSWER] })} onClose={() => {}} />);
+  it("CONTROL — a KNOWLEDGE-GAP kind (conceptual) gets the gap chip and NO careless sentence", () => {
+    render(
+      <ResultsScorecard
+        variant={variant({ gradedAnswers: [{ ...FIVE_MARK_ANSWER, mistakeType: "Concept gap", mistakeKind: "conceptual" }] })}
+        onClose={() => {}}
+      />,
+    );
     expect(document.querySelector(".lt-sc__ga-mtype")?.className).toContain("lt-sc__ga-mtype--gap");
     expect(document.querySelector(".lt-sc__ga-carenote")).toBeNull();
   });
 
-  it("CONTROL — the four-type block's careless line is the SAME string (anti-drift)", () => {
+  it("the mistakes block speaks the owner's three headings verbatim, in counts with their unit", () => {
     render(
       <ResultsScorecard
-        variant={variant({ fourType: { conceptual: 0, calculation: 0, silly: 2, presentation: 1 } })}
+        variant={variant({ fourType: { conceptual: 1, calculation: 2, silly: 1, presentation: 1 } })}
         onClose={() => {}}
       />,
     );
-    expect(document.querySelector(".lt-sc__care-note")?.textContent).toBe(
-      "Slips on the final line / units — slow down, these aren’t weak topics.",
-    );
+    const heads = Array.from(document.querySelectorAll(".lt-sc__gh")).map((e) => e.textContent);
+    expect(heads).toEqual([
+      "Marks to gain — learn this",
+      "Marks to gain — the quickest wins",
+      "Marks to gain — you already know this",
+    ]);
+    const subs = Array.from(document.querySelectorAll(".lt-sc__gsub")).map((e) => e.textContent);
+    expect(subs).toEqual(["Knowledge gap · 1 mistake", "Exam technique · 1 mistake", "Careless · 3 mistakes"]);
+    // D2 — counts never claim marks until PR-2.
+    expect(document.body.textContent || "").not.toMatch(/Where your marks went/);
   });
 });
 

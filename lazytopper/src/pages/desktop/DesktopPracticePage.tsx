@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { MISTAKE_TYPE_LABEL } from "../../lib/mistakeDisplay";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useSubjectContext } from "../../hooks/useSubjectContext";
@@ -282,12 +283,8 @@ interface BucketRow {
   label: string;
   count: number;
 }
-const BUCKET_LABELS: Record<BucketKey, string> = {
-  conceptual: "Conceptual",
-  calculation: "Calculation",
-  silly: "Silly",
-  presentation: "Presentation",
-};
+/** ONE name per stored type — lib/mistakeDisplay (SCORECARD-MI-1). */
+const BUCKET_LABELS: Readonly<Record<BucketKey, string>> = MISTAKE_TYPE_LABEL;
 function aggregateBuckets(entries: MistakeLogEntry[]): {
   total: number;
   rows: BucketRow[];

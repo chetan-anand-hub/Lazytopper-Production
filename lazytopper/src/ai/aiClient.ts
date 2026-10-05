@@ -884,6 +884,11 @@ export interface WorksheetQuestionGrade {
    *  never set them; every existing reader ignores them. */
   topicSlug?: string | null;
   topicLabel?: string | null;
+  /** SCORECARD-MI-1 (B2) — the SUBJECT of this question's resolved topic, client-populated
+   *  with topicSlug from the same per-question read. Absent = unresolved (honest unknown).
+   *  Lets a mixed Maths + Science paper be titled and filed per question, never under the
+   *  first question's subject. Additive; every existing reader ignores it. */
+  topicSubject?: "Maths" | "Science" | null;
 }
 
 export interface WorksheetGradeResponse {

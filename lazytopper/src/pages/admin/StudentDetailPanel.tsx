@@ -179,10 +179,14 @@ function DayCard({ day }: { day: TimelineDay }) {
         )}
         {day.practice && (
           <div className="sa-day-row">
-            <dt>Practice</dt>
+            {/* GA-33 (SCORECARD-MI-1) — says exactly what is counted: every graded-answer
+                record from EVERY surface (practice, worksheets, tests, C&I), one per answer;
+                a re-grade with a different score is a second record until the attempt key
+                changes (held for an owner ruling). */}
+            <dt>Graded answers</dt>
             <dd>
-              {day.practice.attempts} {day.practice.attempts === 1 ? "question" : "questions"} ·{" "}
-              {day.practice.marksScored}/{day.practice.marksAvailable} marks · {day.practice.correct} fully correct
+              {day.practice.attempts} graded {day.practice.attempts === 1 ? "answer" : "answers"} (all surfaces) ·{" "}
+              {day.practice.marksScored}/{day.practice.marksAvailable} marks · {day.practice.correct} full marks
             </dd>
           </div>
         )}

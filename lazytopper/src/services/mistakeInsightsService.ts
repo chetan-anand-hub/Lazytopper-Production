@@ -1,4 +1,5 @@
 import { getMistakeLogs, type MistakeLogEntry } from "./mistakeLogService";
+import { isCarelessType } from "../lib/mistakeDisplay";
 
 export type CheckerMistakeType = "conceptual" | "calculation" | "silly" | "presentation";
 
@@ -212,42 +213,38 @@ export async function getTopicMistakeHotspots(uid: string, days: number): Promis
 }
 
 /**
- * "Careless mark-loss" view (Phase 2 — Me page insight).
- *
- * Silly + presentation mistakes are real and worth surfacing, but they are NOT
- * knowledge gaps, so they are deliberately kept OUT of weak-areas and presented
- * on Me as their own exam-technique pattern. This selector aggregates only those
- * two categories from the same Stream-1 mistake logs the rest of Me reads.
+ * The careless view (Me page "easy marks"). SCORECARD-MI-1 — owner ruling: careless =
+ * calculation + silly ("Marks to gain — you already know this"); the grouping is decided in
+ * lib/mistakeDisplay. Never a knowledge gap, so deliberately kept OUT of weak areas.
  */
 export interface CarelessInsight {
+  calculationCount: number;
   sillyCount: number;
-  presentationCount: number;
   count: number;
+  /** MARKS from the step deductions the grader wrote on careless steps. */
   marksLost: number;
   hasData: boolean;
 }
 
-const CARELESS_TYPES = new Set(["silly", "presentation"]);
-
 /** Pure aggregator — call from surfaces that already hold the entries. */
 export function summarizeCareless(entries: MistakeLogEntry[]): CarelessInsight {
+  let calculationCount = 0;
   let sillyCount = 0;
-  let presentationCount = 0;
   let marksLost = 0;
   for (const e of entries) {
     if (!isSafeEntry(e)) continue;
+    calculationCount += Number(e.mistakeCounts?.calculation) || 0;
     sillyCount += Number(e.mistakeCounts?.silly) || 0;
-    presentationCount += Number(e.mistakeCounts?.presentation) || 0;
     for (const s of e.stepDetails ?? []) {
-      if (CARELESS_TYPES.has(String(s.mistakeType))) {
+      if (isCarelessType(String(s.mistakeType))) {
         marksLost += Number(s.marksDeducted) || 0;
       }
     }
   }
-  const count = sillyCount + presentationCount;
+  const count = calculationCount + sillyCount;
   return {
+    calculationCount,
     sillyCount,
-    presentationCount,
     count,
     marksLost: Math.round(marksLost * 10) / 10,
     hasData: count > 0,
@@ -260,7 +257,7 @@ export async function getCarelessInsight(uid: string, days: number): Promise<Car
     const raw = await getMistakeLogs(uid, days);
     return summarizeCareless(raw.filter(isSafeEntry));
   } catch {
-    return { sillyCount: 0, presentationCount: 0, count: 0, marksLost: 0, hasData: false };
+    return { calculationCount: 0, sillyCount: 0, count: 0, marksLost: 0, hasData: false };
   }
 }
 

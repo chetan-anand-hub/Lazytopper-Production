@@ -37,7 +37,10 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 // resolver (mocked to keep the 10.7 MB syllabus data graph out of this suite).
 const logMistakes = vi.fn(async () => {});
 const recordWrongAnswer = vi.fn(() => {});
-vi.mock("./mistakeLogService", () => ({ logMistakes: (...a: unknown[]) => logMistakes(...(a as [])) }));
+vi.mock("./mistakeLogService", () => ({
+  logMistakes: (...a: unknown[]) => logMistakes(...(a as [])),
+  removeStableMistakeLog: async () => false,
+}));
 vi.mock("./mistakeInsightsService", () => ({ isSafeEntry: () => true }));
 vi.mock("./adaptivePracticeEngine", () => ({
   recordWrongAnswer: (...a: unknown[]) => recordWrongAnswer(...(a as [])),
@@ -138,12 +141,16 @@ const ALLOW: Allow = {
   // Declared empty on purpose: introducing an object here is itself a change
   // that must be looked at.
   payloadKeys: [],
-  // Every `::` segment permitted in a dedup signature. Mirrors `dedupKey()`:
-  //   [uid, questionId, "<awarded>/<total>", "<c>-<c>-<c>-<c>"].join("::")
+  // Every `::` segment permitted in a dedup signature. SCORECARD-MI-1 — mirrors
+  // `gradeIdentityKey` + the outcome:
+  //   [uid, surface, submissionId, questionId, ("a:<answer hash>"), "<awarded>/<total>",
+  //    "<c>-<c>-<c>-<c>"].join("::")
   atoms: [
     UID, //                      segment 1 — the pseudonymous Firebase uid
-    QID, //                      segment 2 — a question id
-    /^t:[a-z0-9]+$/, //          segment 2 variant — hashed free-typed question
+    "unknown", //                segment 2 — no surface named by this context
+    "", //                       segment 3 — no submission context named by this context
+    QID, //                      segment 4 — a question id
+    /^t:[a-z0-9]+$/, //          segment 4 variant — hashed free-typed question
     /^\d+\/\d+$/, //             segment 3 — marksAwarded / totalMarks
     /^\d+-\d+-\d+-\d+$/, //      segment 4 — the reconciled four-type counts
   ],
@@ -200,9 +207,11 @@ describe("mistakeIntelligence — only the uid reaches localStorage", () => {
     const segments = entries[0].split("::");
     // The uid IS persisted — this is the value CodeQL is complaining about.
     expect(segments[0]).toBe(UID);
-    expect(segments[1]).toBe(QID);
-    expect(segments[2]).toBe("1/3");
-    expect(segments[3]).toBe("1-0-0-0");
+    expect(segments[1]).toBe("unknown");
+    expect(segments[2]).toBe("");
+    expect(segments[3]).toBe(QID);
+    expect(segments[4]).toBe("1/3");
+    expect(segments[5]).toBe("1-0-0-0");
   });
 
   it("★ NEGATIVE CONTROL — a uid-only run is GREEN (the guard does not fail on everything)", async () => {

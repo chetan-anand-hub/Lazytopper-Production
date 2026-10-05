@@ -55,3 +55,50 @@ export function attemptDedupKey(
       : `t:${hashAttemptString(ctx.question || ctx.topic || "")}`;
   return [uid, qid, `${scored}/${available}`].join("::");
 }
+
+/* ── SCORECARD-MI-1 (wave B-15, controller ruling A2) — the ONE grade-identity function ──
+ *
+ * "Re-grading the SAME submission never adds a record; a genuinely NEW submission does."
+ * The identity of one graded answer = uid + surface + submission context (the session /
+ * paper / check id) + question identity (+ answer-content identity only where one context
+ * allows several answers to one question, e.g. a Quick Practice retry). NEVER the score or
+ * the counts — those are the OUTCOME, and a re-grade changes them.
+ *
+ * Used for the Mistake-Intelligence entry (its Firestore doc id, so a re-grade REPLACES).
+ * ⚠ NOT YET for the attempt key above: `attemptDedupKey` keeps `${scored}/${available}`
+ * because the CI gate `lazytopper/scripts/ops/objective_dedup_acceptance.mjs:94` pins
+ * "0/1 and 1/1 on the same question stay DISTINCT (score is in the key)". Changing that is an
+ * owner decision (HELD — SCORECARD-MI-1 report). When it is lifted, the attempt key should
+ * become this function.
+ */
+export interface GradeIdentityContext {
+  /** Which surface graded it ("check-improve", "worksheet", "quick-practice" …). */
+  surface?: string;
+  /** The submission context: the C&I session code, the worksheet / paper id, the QP session. */
+  submissionId?: string;
+  /** A stable question id when the surface has one. */
+  questionId?: string;
+  /** The question text — hashed when there is no stable id. */
+  question?: string;
+  /** Answer-content identity, ONLY where one context allows several answers to one question. */
+  answerKey?: string;
+}
+
+export function gradeIdentityKey(uid: string, ctx: GradeIdentityContext): string {
+  const surface = String(ctx.surface ?? "").trim() || "unknown";
+  const submission = String(ctx.submissionId ?? "").trim();
+  const question =
+    ctx.questionId && ctx.questionId.trim()
+      ? ctx.questionId.trim()
+      : `t:${hashAttemptString(ctx.question || "")}`;
+  const parts = [uid, surface, submission, question];
+  const answer = String(ctx.answerKey ?? "").trim();
+  if (answer) parts.push(`a:${answer}`);
+  return parts.join("::");
+}
+
+/** The identity as a Firestore-legal document id (no uid — the path already carries it). */
+export function gradeIdentityDocId(uid: string, ctx: GradeIdentityContext): string {
+  const key = gradeIdentityKey(uid, ctx).slice(uid.length + 2);
+  return key.replace(/[/.#$[\]\s]/g, "_").slice(0, 700) || "unknown";
+}

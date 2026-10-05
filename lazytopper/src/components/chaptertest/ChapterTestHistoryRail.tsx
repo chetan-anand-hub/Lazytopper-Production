@@ -9,6 +9,7 @@
 // come from the stored SessionRecord — nothing is invented.
 
 import type { SessionRecord } from "../../services/sessionRecords";
+import { STORED_MISTAKE_TYPES, isKnowledgeGapType, mistakeTypeLabel, toCounts } from "../../lib/mistakeDisplay";
 
 function pct(record: SessionRecord): number {
   return record.marksTotal > 0 ? Math.round((record.marksAwarded / record.marksTotal) * 100) : 0;
@@ -26,12 +27,20 @@ function relativeDate(ms: number): string {
   return new Date(ms).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
 
-/** The dominant knowledge gap (conceptual/calculation only — careless is never a
- *  weakness, MI doctrine). Returns null when there is no knowledge-gap signal. */
+/** The weak spot — a KNOWLEDGE GAP only. SCORECARD-MI-1 (owner ruling): that is
+ *  `conceptual`; calculation is careless ("you already know this"), never a weakness.
+ *  Returns null when there is no knowledge-gap signal. */
 function weakSpot(record: SessionRecord): string | null {
-  const { conceptual, calculation } = record.fourType;
-  if (conceptual <= 0 && calculation <= 0) return null;
-  return conceptual >= calculation ? "conceptual" : "calculation";
+  const ft = toCounts(record.fourType);
+  let best: string | null = null;
+  let bestN = 0;
+  for (const t of STORED_MISTAKE_TYPES) {
+    if (isKnowledgeGapType(t) && ft[t] > bestN) {
+      best = t;
+      bestN = ft[t];
+    }
+  }
+  return best;
 }
 
 /** Exported (additive, Full Mock build): the FM history panel reuses the LOCKED
@@ -138,7 +147,7 @@ export default function ChapterTestHistoryRail({
                     <DotStrip record={r} />
                     {spot && (
                       <div className="lt-ct__vs">
-                        Weak spot last time: <b>{spot}</b>
+                        Weak spot last time: <b>{mistakeTypeLabel(spot) ?? spot}</b>
                       </div>
                     )}
                   </>
