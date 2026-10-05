@@ -247,6 +247,8 @@ const CSS = `
   border:2px solid transparent;white-space:nowrap}
 .lt-landing .btn.solid{background:var(--g);color:#fff}
 .lt-landing .btn.solid:hover{background:var(--gd)}
+.lt-landing .btn.line{background:var(--card);color:var(--gd);border-color:var(--gl)}
+.lt-landing .btn.line:hover{border-color:var(--g)}
 
 .lt-landing-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px var(--pad)}
 .lt-landing-brand{display:flex;align-items:center;gap:10px}
@@ -272,7 +274,7 @@ const CSS = `
 .lt-landing h1 em{font-style:normal;display:block;color:var(--g)}
 .lt-landing-sub{font-size:clamp(16.5px,4.3vw,20px);color:var(--ink2);margin:18px 0 0;max-width:19.56em;line-height:1.4}
 .lt-landing-sub b{color:var(--ink);font-weight:700}
-.lt-landing-hcta{margin-top:24px}
+.lt-landing-hcta{margin-top:24px;display:flex;flex-wrap:wrap;gap:10px}
 .lt-landing-hnote{font-size:13px;color:var(--ink3);margin:12px 0 0}
 .lt-landing-peek{margin:14px 0 0;display:flex;flex-direction:column;gap:9px;align-items:flex-start}
 .lt-landing-peek a{font-size:13.5px;font-weight:600;color:var(--ink2);text-decoration:none;
@@ -621,6 +623,10 @@ export default function Welcome() {
           <div className="lt-landing-hcta">
             <Link className="btn solid" to={START_URL}>
               Check my answer
+            </Link>
+            {/* CBQ-ENTRY-1 (E5) — the Practice Hub's CBQ chooser, already open (E4). */}
+            <Link className="btn line" to="/practice-hub?cbq=1">
+              Practise CBQs
             </Link>
           </div>
           <p className="lt-landing-hnote">Free to start. One-tap sign-up, no card.</p>

@@ -302,6 +302,9 @@ const formatClock = (totalSeconds: number): string => {
  *      never be trapped behind a chooser (§3 edge-case 1). Absolute.
  *   2. `source=practice` (the hub CTA — the SOLE producer of that value, emitted by the
  *      responsive DesktopPracticePage on both mobile and desktop) → preset chooser.
+ *   2b. `preset=comp` (CBQ-ENTRY-1, the Practice Hub's CBQ chooser) → the preset path,
+ *      where the page itself selects the Competency preset and builds it (or, with no
+ *      real CBQs in the chapter, says so) — see `cbqLanding`.
  *   3. Otherwise: an explicit non-"generic" topic (tutor `source=tutor`, Topic Hub, the
  *      weak-area / Me / HPQ / Dashboard / Chapter-Test practice CTAs) auto-builds —
  *      BYTE-IDENTICAL to before, since none of those carry `source=practice`.
@@ -313,9 +316,11 @@ export const deriveArrivedTargeted = (
   rawTopicParam: string,
   isTargetedSession: boolean,
   sourceParam: string | null,
+  presetParam: string | null = null,
 ): boolean => {
   if (isTargetedSession) return true;
   if (sourceParam === "practice") return false;
+  if (presetParam === "comp") return false;
   return !!rawTopicParam && rawTopicParam.toLowerCase() !== "generic";
 };
 
@@ -659,6 +664,12 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
 
   const isTargetedSession = qp.get("targeted") === "1";
   const targetMistakeType = qp.get("targetMistakeType") || "";
+  // CBQ-ENTRY-1 (E3) — `preset=comp`: the Practice Hub CBQ chooser's landing. The page
+  // selects the Competency preset and builds it through `applyPreset` (its own CBQ gate
+  // included), so the set is the one the Competency card would build. No real CBQs in the
+  // chapter → an honest note and "Practise this chapter" instead, never an empty set.
+  const presetParam = qp.get("preset");
+  const cbqLanding = presetParam === "comp";
 
   const navState = (location.state as PracticeNavState) || {};
 
@@ -789,8 +800,8 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   // byte-identical there; this render-scope copy gates ONLY the entry UI (§3 additive
   // guarantee: the auto-build path is untouched).
   const arrivedTargeted = useMemo(
-    () => deriveArrivedTargeted(rawTopicParam, isTargetedSession, qpSource),
-    [rawTopicParam, isTargetedSession, qpSource],
+    () => deriveArrivedTargeted(rawTopicParam, isTargetedSession, qpSource, presetParam),
+    [rawTopicParam, isTargetedSession, qpSource, presetParam],
   );
 
   const didInitFromUrlRef = useRef(false);
@@ -859,6 +870,10 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
   // auto-builds and NEVER sees this screen (the render gate).
   const [entryMode, setEntryMode] = useState<"preset" | "custom">("preset");
   const [selectedPresetKey, setSelectedPresetKey] = useState<string>("board");
+  // CBQ-ENTRY-1 — the `preset=comp` landing is settled once it has built the Competency
+  // set, or the student took "Practise this chapter". The ref keeps the build one-shot.
+  const [cbqLandingSettled, setCbqLandingSettled] = useState<boolean>(false);
+  const cbqAutoBuiltRef = useRef(false);
   // Optional, student-toggled countdown for the runner (off by default). Reuses the
   // ChapterTest timer pattern (formatClock + 1.2 min/mark); QP never auto-submits.
   const [timerEnabled, setTimerEnabled] = useState<boolean>(false);
@@ -961,6 +976,7 @@ const PracticePage: React.FC<{ overlay?: PracticeOverlayProps }> = ({ overlay })
       rawTopicParam,
       isTargetedSession,
       qpSource,
+      presetParam,
     );
     if (arrivedTargeted) {
       setIsBuilt(true);
@@ -1901,6 +1917,17 @@ const packTopicKey = useMemo(() => {
     regenerateQuestions();
   };
 
+  // CBQ-ENTRY-1 (E3) — the `preset=comp` landing selects Competency and builds it, once,
+  // as soon as the chapter has loaded and has real CBQs. No taps; back returns to this
+  // chapter's preset chooser with Competency selected.
+  useEffect(() => {
+    if (!cbqLanding || cbqAutoBuiltRef.current || !bank.ready || !competencyAvailable) return;
+    cbqAutoBuiltRef.current = true;
+    setCbqLandingSettled(true);
+    setSelectedPresetKey("comp");
+    applyPreset("comp");
+  }, [cbqLanding, bank.ready, competencyAvailable]);
+
   // ── Optional runner timer (§2.3) — reuses the ChapterTest pattern ──────────
   // A soft, exam-realistic budget (1.2 min per mark, same formula as ChapterTest) for the
   // built set. PRESENTATION-ONLY: it never grades, never auto-submits (QP finish is
@@ -2572,7 +2599,7 @@ const packTopicKey = useMemo(() => {
             gate or "N available" is shown — those would be untrue. A built set already
             shows the list's own "Preparing your questions..." (the build awaits the same
             load); the preset entry shows that same existing loading card. */}
-        {!bank.ready ? (
+        {!bank.ready || (cbqLanding && !cbqLandingSettled && !isBuilt && competencyAvailable) ? (
           isBuilt ? null : (
             <PracticeQuestionList
               isLoading={!bank.error}
@@ -2593,6 +2620,25 @@ const packTopicKey = useMemo(() => {
               onMcqResult={() => {}}
             />
           )
+        ) : cbqLanding && !cbqLandingSettled && !isBuilt ? (
+          // CBQ-ENTRY-1 (E3) — this chapter has no real CBQs: say so, never an empty set.
+          <section className="qp-entry" aria-label="Competency-based questions">
+            <div className="qp-eyebrow">Competency-based questions</div>
+            <h2 className="qp-title">No CBQs for this chapter yet</h2>
+            <p className="qp-lede">
+              {topicLabel || rawTopicParam} has no competency-based (Section E) questions yet.
+              You can still practise the chapter.
+            </p>
+            <div className="qp-start">
+              <button
+                type="button"
+                className="qp-start-btn"
+                onClick={() => setCbqLandingSettled(true)}
+              >
+                Practise this chapter
+              </button>
+            </div>
+          </section>
         ) : shouldShowPresetEntry(isBuilt, arrivedTargeted, entryMode) ? (
           <QuickPracticePresets
             presets={QP_PRESETS}

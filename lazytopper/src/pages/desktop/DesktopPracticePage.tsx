@@ -27,6 +27,7 @@ import {
   getMistakeLogs,
   type MistakeLogEntry,
 } from "../../services/mistakeLogService";
+import { CbqChapterPicker, CBQ_HUB_PARAM } from "../../components/practice/CbqChapterPicker";
 // BANK-LEAN-1 (P18): `import type`, NOT `import { type … }`. Under this repo's
 // `verbatimModuleSyntax`, the inline form is emitted as `import {} from "…"` — a
 // side-effect import that kept predictionDataService → predictionCore →
@@ -1687,6 +1688,9 @@ export default function DesktopPracticePage() {
   const sourceParam = params.get("source");
   const focusParam = (params.get("focus") || "").trim();
   const subtopicHintParam = (params.get("subtopicHint") || "").trim();
+  // CBQ-ENTRY-1 — the "Competency-based questions" card's chooser. `?cbq=1` (the ad
+  // link, and the landing's "Practise CBQs") arrives with it already open (E4).
+  const [cbqPickerOpen, setCbqPickerOpen] = useState(() => params.get(CBQ_HUB_PARAM) === "1");
 
   // Map the legacy subject string from useSubjectContext onto the
   // L2 DesktopSubject union. Default to "Maths" when uncertain — this only
@@ -2234,6 +2238,30 @@ export default function DesktopPracticePage() {
             predicted questions, or a full paper.
           </p>
         </div>
+
+        {/* CBQ-ENTRY-1 (E1) — straight to a chapter's competency-based questions. Above
+            the scope card so it is in view without scrolling at 390px and on desktop. */}
+        <button
+          type="button"
+          className="lt-cbq-card"
+          aria-haspopup="dialog"
+          onClick={() => setCbqPickerOpen(true)}
+        >
+          <span className="lt-cbq-spine" aria-hidden />
+          <span className="lt-cbq-icon" aria-hidden>
+            <IconTarget size={20} />
+          </span>
+          <span className="lt-cbq-text">
+            <span className="lt-cbq-title">Competency-based questions (CBQs)</span>
+            <span className="lt-cbq-line">
+              Case-based questions like the board paper's Section E — pick a chapter
+            </span>
+          </span>
+          <span className="lt-cbq-go" aria-hidden>
+            <IconArrowRight size={16} />
+          </span>
+        </button>
+        <CbqChapterPicker open={cbqPickerOpen} onClose={() => setCbqPickerOpen(false)} />
 
         {topicHubFocusContext ? (
           <section
@@ -3044,6 +3072,79 @@ export default function DesktopPracticePage() {
             grid-template-columns: minmax(0, 1fr);
             gap: 20px;
             align-items: start;
+          }
+
+          /* ── CBQ-ENTRY-1 — the "Competency-based questions" card. The mode cards'
+             look (white card, 5px accent spine, 40px icon tile, Fraunces title), in the
+             page's navy, as one tappable row. ─────────────────────────────────────── */
+          .lt-cbq-card {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            text-align: left;
+            font: inherit;
+            color: inherit;
+            cursor: pointer;
+            background: linear-gradient(180deg, #ffffff, hsl(220, 25%, 99%));
+            border: 1px solid hsl(222, 35%, 84%);
+            border-radius: 16px;
+            padding: 16px 18px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px -4px hsla(220, 30%, 40%, 0.10);
+            transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+          }
+          .lt-cbq-card:hover {
+            border-color: hsl(222, 47%, 24%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(20, 40, 80, 0.09);
+          }
+          .lt-cbq-card:focus-visible {
+            outline: 2px solid hsl(152, 55%, 45%);
+            outline-offset: 2px;
+          }
+          .lt-cbq-spine {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: hsl(222, 47%, 24%);
+          }
+          .lt-cbq-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 11px;
+            background: hsl(222, 45%, 96%);
+            color: hsl(222, 47%, 24%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+          }
+          .lt-cbq-text {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+            flex: 1 1 auto;
+          }
+          .lt-cbq-title {
+            font-family: "Fraunces", "Source Serif Pro", Georgia, "Times New Roman", serif;
+            font-size: 1.06rem;
+            font-weight: 600;
+            color: hsl(222, 47%, 16%);
+          }
+          .lt-cbq-line {
+            font-size: 12.5px;
+            line-height: 1.5;
+            color: hsl(220, 15%, 42%);
+          }
+          .lt-cbq-go {
+            display: flex;
+            flex: 0 0 auto;
+            color: hsl(222, 47%, 24%);
           }
           @media (min-width: 1024px) {
             .lt-practice-main-grid {
