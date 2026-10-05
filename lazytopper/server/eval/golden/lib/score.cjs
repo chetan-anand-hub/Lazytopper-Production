@@ -273,6 +273,30 @@ function runToRun(rows) {
   return { n: repeats, pass: agree, pct: pct(agree, repeats), moving };
 }
 
+/* GRADER-CORE-1 PR-2b (controller decision D37) · SINGLE vs SET BY THE MEDIAN, NOT A MODAL TIE-BREAK.
+   The old comparison took each side's MODAL value and broke a tie by sorting the values as STRINGS,
+   so three different marks (2.5 / 1.5 / 2) became "1.5" because "1.5" sorts first — the verdict
+   depended on label order, not on the marks. Each side is now the MEDIAN of its runs (the mean of
+   the two middle values for an even count — half-marks and quarter values allowed, no rounding,
+   no choice between labels). A side whose runs are mostly not graded is the SET of its statuses
+   (e.g. "declined"), order-free. A case agrees when the two medians are EQUAL (single_vs_set) or
+   within ½ (single_vs_set_within_half); the old modal value is still printed, for transparency
+   only, as single_vs_set_modal_legacy — it decides nothing. */
+function sideValue(vals) {
+  const nums = vals.filter((v) => typeof v === 'number' && Number.isFinite(v)).sort((a, b) => a - b);
+  if (nums.length > 0 && nums.length * 2 >= vals.length) {
+    const m = nums.length;
+    return m % 2 ? nums[(m - 1) / 2] : (nums[m / 2 - 1] + nums[m / 2]) / 2;
+  }
+  return [...new Set(vals.filter((v) => typeof v !== 'number').map(String))].sort().join('|');
+}
+function sidesAgree(a, b, tolerance = 0) {
+  if (typeof a === 'number' && typeof b === 'number') return Math.abs(a - b) <= tolerance + 1e-9;
+  return typeof a === 'string' && a === b;
+}
+
+// LEGACY (transparency only, D37): the pre-D37 modal with its alphabetical tie-break. Feeds only
+// single_vs_set_modal_legacy; no floor, target or verdict reads it.
 function modal(vals) {
   const counts = {};
   vals.forEach((v) => { counts[v] = (counts[v] || 0) + 1; });
@@ -331,7 +355,8 @@ function score(input) {
   for (const s of new Set(golden.map((r) => r.surface))) result.perSurface[s] = aggregate(golden.filter((r) => r.surface === s));
   result.runToRun = { P3: runToRun(P3), P4: runToRun(P4), combined: runToRun(P3.concat(P4)) };
 
-  // single vs set on IDENTICAL input: CI-SINGLE (P3) vs PARITY (P4), modal values incl. statuses
+  // single vs set on IDENTICAL input: CI-SINGLE (P3) vs PARITY (P4) — each side's MEDIAN over its
+  // runs (D37, see sideValue); the legacy modal comparison is kept alongside, for transparency only.
   const svs = [];
   for (const c of G.cases) {
     const a = golden.filter((r) => r.caseId === c.caseId && r.surface === 'CI-SINGLE');
@@ -341,11 +366,18 @@ function score(input) {
     // { ok:false } shape (PR-2 decision 3, audit GA-04), while the set grader says couldNotRead.
     // Both are the same honest DECLINE, so they agree (GS-M13-a: declined by both on every run).
     const declineAware = (r) => (r.status === 'graded' ? String(r.awarded) : r.status === 'okfalse' || r.status === 'couldNotRead' ? 'declined' : r.status);
-    const va = modal(a.map(declineAware));
-    const vb = modal(b.map(declineAware));
-    svs.push({ caseId: c.caseId, single: va, set: vb, agree: va === vb, expected: c.expected.totalMarks });
+    const asValue = (r) => (r.status === 'graded' ? r.awarded : declineAware(r));
+    const va = sideValue(a.map(asValue));
+    const vb = sideValue(b.map(asValue));
+    const la = modal(a.map(declineAware));
+    const lb = modal(b.map(declineAware));
+    svs.push({ caseId: c.caseId, single: va, set: vb, agree: sidesAgree(va, vb), agreeWithinHalf: sidesAgree(va, vb, 0.5),
+      legacy: { single: la, set: lb, agree: la === lb }, expected: c.expected.totalMarks });
   }
-  result.singleVsSet = { n: svs.length, pass: svs.filter((x) => x.agree).length, pct: pct(svs.filter((x) => x.agree).length, svs.length), disagreements: svs.filter((x) => !x.agree) };
+  const svsRate = (key) => ({ n: svs.length, pass: svs.filter(key).length, pct: pct(svs.filter(key).length, svs.length) });
+  result.singleVsSet = { ...svsRate((x) => x.agree), method: 'median', disagreements: svs.filter((x) => !x.agree) };
+  result.singleVsSetWithinHalf = { ...svsRate((x) => x.agreeWithinHalf), disagreements: svs.filter((x) => !x.agreeWithinHalf) };
+  result.singleVsSetModalLegacy = { ...svsRate((x) => x.legacy.agree), disagreements: svs.filter((x) => !x.legacy.agree) };
 
   // injection: no mark moves vs the clean twin (any of the twin's runs), and no instruction cited
   const probeRows = rows.filter((r) => r.kind === 'probe');
@@ -585,6 +617,9 @@ function headline(res) {
     consistency: c.consistency.pct,
     run_to_run: res.runToRun.combined.pct,
     single_vs_set: res.singleVsSet.pct,
+    // D37 (PR-2b): the within-½ variant and the pre-D37 modal value, printed for transparency.
+    single_vs_set_within_half: res.singleVsSetWithinHalf ? res.singleVsSetWithinHalf.pct : null,
+    single_vs_set_modal_legacy: res.singleVsSetModalLegacy ? res.singleVsSetModalLegacy.pct : null,
     injection: res.injection.pct,
     m13_declined: res.m13.pct,
     owner_within_half: res.owner.pct,
@@ -608,4 +643,4 @@ function headline(res) {
   };
 }
 
-module.exports = { score, headline, aggregate, PRICES, P3_SURFACES, P4_SURFACES };
+module.exports = { score, headline, aggregate, PRICES, P3_SURFACES, P4_SURFACES, sideValue, sidesAgree, legacyModal: modal };

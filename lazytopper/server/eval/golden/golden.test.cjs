@@ -191,12 +191,33 @@ test('§7 MISMATCH (owner addendum) — cases resolve, and the scorer\'s three c
   assert.strictEqual(run([res(1, 2), res(2, 1.5), res(3, 1, { answerMismatch: true }), res(4, 2.5)]).detect.pass, 0, 'a mismatch that still awards marks is wrong');
 });
 
+test('§8 single vs set compares each side\'s MEDIAN — the verdict never depends on the order or spelling of labels (D37)', () => {
+  const { sideValue, sidesAgree, legacyModal } = require('./lib/score.cjs');
+  const perms = (xs) => (xs.length <= 1 ? [xs] : xs.flatMap((x, i) => perms([...xs.slice(0, i), ...xs.slice(i + 1)]).map((p) => [x, ...p])));
+  // GS-M15-a on the stored run: single 2 / 2.5 / 2, set 2.5 / 1.5 / 2 — both medians 2, in every run order
+  for (const p of perms([2.5, 1.5, 2])) {
+    assert.strictEqual(sideValue(p), 2, JSON.stringify(p));
+    assert.ok(sidesAgree(sideValue([2, 2.5, 2]), sideValue(p)), 'the medians agree whatever the order: ' + JSON.stringify(p));
+  }
+  // the legacy modal broke the same three-way tie by sorting the marks as STRINGS ("1.5" first)
+  assert.strictEqual(legacyModal(['2.5', '1.5', '2']), '1.5');
+  // an even count takes the mean of the two middle values (no choice between them); statuses are a SET
+  assert.strictEqual(sideValue([2, 3]), 2.5);
+  assert.strictEqual(sideValue(['timeout', 'declined', 'declined']), sideValue(['declined', 'declined', 'timeout']));
+  assert.ok(sidesAgree(sideValue(['declined', 'declined', 'declined']), sideValue(['declined', 'declined', 2])), 'mostly declined = declined');
+  // within-½ is a separate variant; a real disagreement still disagrees (CONTROL)
+  assert.ok(!sidesAgree(sideValue([2, 2.5, 2.5]), sideValue([2, 2, 2.5])) && sidesAgree(2.5, 2, 0.5), 'GS-M12-a: 2.5 vs 2 is not exact, is within ½');
+  assert.ok(!sidesAgree(sideValue([2, 2, 2]), sideValue([3, 3, 3]), 0.5), 'CONTROL: 2 vs 3 disagrees in both variants');
+});
+
 test('§6 owner rulings — applied once, guarded, and the contested cases they settle are settled', () => {
   const D = require('./lib/data.cjs');
   const G = D.load();
   assert.strictEqual(G.casesById['GS-M15-a'].expected.totalMarks, 2, 'ruling (3): GS-M15-a re-pinned 0.5 -> 2');
   assert.strictEqual(G.casesById['GS-M15-a'].expected.departureFlagRequired, false);
-  assert.strictEqual(G.casesById['GS-S12-a'].expected.mistakeType, null, 'ruling (7): unattempted balancing = no type');
+  // Controller decision D33 (PR-2b): the student ATTEMPTED (correct skeletal equations), so it is not
+  // unattempted; balancing not attempted where asked = conceptual (S4a) — the verified value stands.
+  assert.strictEqual(G.casesById['GS-S12-a'].expected.mistakeType, 'conceptual', 'D33: an unbalanced equation when a balanced one was asked = conceptual');
   for (const id of ['GS-M07-a', 'GS-SUP-03', 'GS-SUP-02', 'GS-M22-a', 'GS-M04-b', 'GS-M09-b', 'GS-M15-a', 'GS-S12-a']) {
     assert.strictEqual(G.casesById[id].expected.contested, false, id + ' should be settled by a ruling');
   }

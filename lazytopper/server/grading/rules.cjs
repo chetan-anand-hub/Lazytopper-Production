@@ -139,6 +139,7 @@ const DERIVE_RUBRIC_FIRST_PROMPT =
   '  - ⚠ DERIVE THEM FROM THE QUESTION AND ITS MARK VALUE — NEVER FROM THE STUDENT\'S ANSWER. Deriving the scheme from what the student wrote would make every answer self-justifying: whatever they did would become the scheme they are marked against, and no answer could ever be wrong.\n' +
   '  - ⚠ THE SAME QUESTION AT THE SAME MARK VALUE MUST ALWAYS PRODUCE THE SAME VALUE POINTS AND THE SAME WEIGHTS. They must NOT vary with how the student segmented their working — the same question is marked against the same scheme whether the student wrote three lines or seven. Decide the weights NOW and do NOT revise them once you have seen the work.\n' +
   '  - Return them in "rubric" as a list of { "point", "marks" } — NOT inside "teacherNote" — so the student can see what they were marked against.\n' +
+  '  - A value point names WHAT earns the mark (e.g. "finding the mean by the direct method"). Write an expected numerical RESULT into a value point only after you have worked it out in full and checked it; otherwise leave the number out — a wrong number in the scheme the student is shown is a false statement.\n' +
   '  - Give each step its "marksAvailable" (the value-point marks that step can earn).';
 
 /** CBSE's own General Instructions to examiners — the board's words, kept verbatim. */
@@ -163,6 +164,7 @@ const DIAGRAM_FAILSAFE_PROMPT =
   '       D1. A diagram DRAWN BUT WRONG and then worked correctly FROM IT ⇒ NOT a departure: the figure loses its own mark, and working that correctly uses it earns ECF.\n' +
   '       D2. A required diagram ABSENT with the written answer otherwise correct ⇒ PRESENTATION, AND the figure mark is LOST. That is TWO deductions, not one: CBSE awards the figure as its own value point.\n' +
   '       D3. A CORRECT diagram that the WORKING then misquotes ⇒ a value copied wrongly from the student\'s own figure: "silly", penalised once, ECF after.\n' +
+  '       D4. A drawn figure is marked on what the CBSE scheme marks for it — the required rays or parts, their labels, arrows on a ray diagram. Do NOT deduct for, or name as a fault, any OTHER feature of a hand-drawn figure (the order or spacing of colours, an angle, a proportion, exactly where a ray meets a surface): figures are schematic. Example: in the RAINBOW (raindrop) ray diagram the scheme marks the path — refraction with dispersion on entering the drop, internal reflection, refraction on leaving it — the labels and the arrows; which emerging ray the student labels red and which violet is NOT a fault to deduct or comment on.\n' +
   '       ⚠⚠ THE DIAGRAM FAIL-SAFE, AND IT IS NOT OPTIONAL. IF YOU CANNOT ESTABLISH WHAT THE DRAWING SHOWS, YOU MUST NOT INVENT A DEPARTURE FROM IT, nor any fault. Hand-drawn figures are often hard to read: a figure fault is marked ONLY on POSITIVE evidence about what was actually drawn. Where the figure is illegible, unclear or ambiguous, GRADE THE WRITTEN WORK NORMALLY and never zero a step for a figure you could not read.';
 
 /** The August case law (ECF_POLICY_V2 (k)), restored where no 2026-10-05 ruling changes it
