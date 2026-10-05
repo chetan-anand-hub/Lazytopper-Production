@@ -134,8 +134,8 @@
     {
       "id": "c2",
       "title": "Tangent ⊥ radius (Theorem 10.1)",
-      "body": "At the point of contact, the tangent is perpendicular to the radius. Two consequences NCERT flags in the Remarks: there is <b>one and only one</b> tangent at a point of a circle, and the line along that radius is called the <b>normal</b> at the point.",
-      "tested": "cited inside almost every circle proof; the $90°$ carries the mark",
+      "body": "At the point of contact, the tangent is perpendicular to the radius. Proof idea: any other point Q of the tangent lies outside the circle, so $OQ > OP$; the radius to the point of contact is therefore the shortest distance from the centre to the tangent, hence perpendicular to it (full proof in the Proof tab). Two consequences NCERT flags in the Remarks: there is <b>one and only one</b> tangent at a point of a circle, and the line along that radius is called the <b>normal</b> at the point.",
+      "tested": "the proof itself (the syllabus marks Theorem 10.1 “(Prove)”) and, cited by name, inside almost every circle proof — the $90°$ carries the mark",
       "figure_ref": null
     },
     {
@@ -374,7 +374,8 @@
         "children": [
           "⊥ at the point of contact",
           "One and only one tangent at a point",
-          "Radius line at contact = ‘normal’"
+          "Radius line at contact = ‘normal’",
+          "Proof: every other point of the tangent is outside → OP shortest → OP ⟂ XY"
         ]
       },
       {
@@ -407,11 +408,31 @@
   },
   "third_tab_content": {
     "kind": "proof",
-    "name": "Theorem 10.2 — the lengths of tangents from an external point are equal",
-    "intro": "The chapter’s workhorse result, proved by RHS congruence of the two right triangles the radii create. NCERT’s Remarks add two facts: the same result follows from the Pythagoras Theorem ($PQ^2 = OP^2 - OQ^2 = OP^2 - OR^2 = PR^2$), and since $\\angle OPQ = \\angle OPR$, the centre lies on the bisector of the angle between the two tangents.",
+    "name": "The two tangent theorems — 10.1 (tangent ⟂ radius) and 10.2 (equal tangents from an external point)",
+    "intro": "Both theorems carry a “(Prove)” tag in the 2026-27 syllabus, so either proof can be asked. Theorem 10.1 is a shortest-distance argument: every point of the tangent other than the point of contact lies outside the circle, so the radius to the point of contact is the shortest segment from the centre to the line — and the shortest segment is the perpendicular. Theorem 10.2, the chapter’s workhorse, is then proved by RHS congruence of the two right triangles the radii create. NCERT’s Remarks on 10.2 add two facts: the same result follows from the Pythagoras Theorem ($PQ^2 = OP^2 - OQ^2 = OP^2 - OR^2 = PR^2$), and since $\\angle OPQ = \\angle OPR$, the centre lies on the bisector of the angle between the two tangents.",
     "steps": [
       {
-        "claim": "Set up what is given and what to prove.",
+        "claim": "<b>Theorem 10.1.</b> Given a circle with centre O and a tangent XY touching it at P. To prove: OP ⟂ XY.",
+        "justification": "NCERT, p.146: “We are given a circle with centre O and a tangent XY to the circle at a point P. We need to prove that OP is perpendicular to XY.”",
+        "math": null
+      },
+      {
+        "claim": "Take any point Q on XY other than P and join OQ.",
+        "justification": "Q must lie outside the circle — if Q were inside, XY would meet the circle at two points and be a secant, not a tangent.",
+        "math": null
+      },
+      {
+        "claim": "So OQ is longer than the radius OP.",
+        "justification": "Every point outside the circle is farther from O than the radius.",
+        "math": "$OQ > OP$"
+      },
+      {
+        "claim": "This holds for every point of XY except P, so OP is the shortest of all distances from O to the line XY — hence OP is perpendicular to XY.",
+        "justification": "The shortest segment from a point to a line is the perpendicular (NCERT cites Theorem A1.7). Remarks: at any point of a circle there is one and only one tangent, and the line along the radius at the point of contact is the ‘normal’.",
+        "math": "$OP \\perp XY$"
+      },
+      {
+        "claim": "<b>Theorem 10.2.</b> Set up what is given and what to prove.",
         "justification": "A circle with centre O, a point P outside it, and two tangents PQ, PR from P. Required: PQ = PR.",
         "math": null
       },
@@ -442,10 +463,10 @@
       }
     ],
     "source": {
-      "ncert_page": 149,
+      "ncert_page": 146,
       "edition": "2026-27",
       "chapter": 10,
-      "note": "Theorem 10.2 with its printed RHS/CPCT proof and the two Remarks, p.149"
+      "note": "Theorem 10.1 with its printed proof and Remarks, p.146-147; Theorem 10.2 with its printed RHS/CPCT proof and the two Remarks, p.149"
     }
   },
   "figures": {
