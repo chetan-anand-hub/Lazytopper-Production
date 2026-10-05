@@ -83,6 +83,9 @@ function mistakeSummarySchema() {
 function buildResponseSchema(opts = {}) {
   const resultProps = {
     qNumber: { type: 'INTEGER' },
+    // PR-3 (ruling 6, deterministic): the subject of THIS question — a Check & Improve paper may mix
+    // Maths and Science under one request subject. Optional; used only by post-processing.
+    subject: { type: 'STRING', nullable: true, enum: ['Maths', 'Science'] },
     couldNotRead: { type: 'BOOLEAN', nullable: true },
     note: { type: 'STRING', nullable: true },
     addressesQuestion: { type: 'STRING', nullable: true, enum: ADDRESSES_VALUES.slice() },
@@ -110,7 +113,7 @@ function buildResponseSchema(opts = {}) {
     teacherNote: { type: 'STRING', nullable: true },
   };
   const order = [
-    'qNumber', 'couldNotRead', 'note', 'addressesQuestion', 'mismatchEvidence', 'rubric',
+    'qNumber', 'subject', 'couldNotRead', 'note', 'addressesQuestion', 'mismatchEvidence', 'rubric',
     'marksAwarded', 'annotatedSteps', 'mistakeSummary', 'studentFinalAnswer', 'finalAnswerCorrect',
     'teacherNote',
   ];

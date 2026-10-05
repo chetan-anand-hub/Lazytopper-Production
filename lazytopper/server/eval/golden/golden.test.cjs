@@ -280,8 +280,11 @@ test('§11 the RE-BASELINE (runs/<id>/rebaseline.json) is digest-pinned: a tampe
     const runDir = path.join(GOLDEN, 'runs', floor.runId);
     const rb = JSON.parse(original);
     const keys = Object.keys(rb.entries);
-    assert.ok(keys.length > 0 && keys.every((k) => ['v2-notGraded-field', 'detect-symbols-restored'].includes(rb.entries[k].class)), 'only the two declared classes');
-    assert.ok(keys.filter((k) => !k.startsWith('detect:')).every((k) => /:V2\./.test(k)), 'only acceptsV2 grading bodies are re-baselined — never a legacy body');
+    const DECLARED = ['v2-notGraded-field', 'detect-symbols-restored', 'd38-not-found-pending', 'd38-blank-slot-unattempted'];
+    assert.ok(keys.length > 0 && keys.every((k) => rb.entries[k].class.split('+').every((c) => DECLARED.includes(c))), 'only the declared classes');
+    // A LEGACY grading body may change only by controller decision D38 (not found → pending; a blank
+    // slot → unattempted); the v2 field and the detect restore never touch one.
+    assert.ok(keys.filter((k) => !k.startsWith('detect:') && !/:V2\./.test(k)).every((k) => /^d38-/.test(rb.entries[k].class)), 'a legacy body changes only under D38');
     const ok = await evaluateRun(runDir);
     assert.deepStrictEqual([ok.integrity.changed, ok.integrity.rebaselined, ok.integrity.rebaselineStale.length], [0, keys.length, 0]);
     // CONTROL 1: one tampered `to` → that body counts as changed again.

@@ -738,18 +738,24 @@ const WITH_INV = (inventory, ...results) => ({ pageInventory: inventory, ...REPL
 const R5_SET = () => [1, 2, 3, 4].map((n) => R5_Q(n));
 const R5_FULL4 = () => [1, 2, 3, 4].map((n) => FULL(n, PARAPHRASE));
 
-test('§P0.7 ★ one document: a question ABSENT from the page inventory is UNATTEMPTED — the R5 paraphrase earns nothing (legacy and v2)', async () => {
+// ★ AMENDED by PR-3, controller decision D38 (live AFTER-PR2 OR-LIVE): a question ABSENT from the
+// inventory was "unattempted" (a final 0, "fully graded 8/31" on the old client). It is now NOT
+// GRADED — the pre-lane couldNotRead "pending, re-upload" path — so a student who left a page out
+// can add it; no marks, no type, excluded from the graded totals, never charged (C9).
+test('§P0.7 ★ one document: a question ABSENT from the page inventory is NOT GRADED (pending) — never a 0 shown as graded, never charged (legacy and v2)', async () => {
   const raw = WITH_INV(INV([3, 'Longest ruler = HCF of the lengths']), ...R5_FULL4());
   for (const acceptsV2 of [false, true]) {
-    const body = (await harness({ replies: [raw] }).sheet(sheet(R5_SET(), { ...DOC, acceptsV2 }))).body;
-    assert.deepEqual(body.results.map((r) => r.marksAwarded), [0, 0, 2, 0], 'only the listed Q3 keeps its grade (acceptsV2=' + acceptsV2 + ')');
+    const h = harness({ replies: [raw] });
+    const body = (await h.sheet(sheet(R5_SET(), { ...DOC, acceptsV2 }))).body;
+    assert.deepEqual(body.results.map((r) => r.couldNotRead), [true, true, false, true], 'only the listed Q3 is graded (acceptsV2=' + acceptsV2 + ')');
+    assert.equal(body.results[2].marksAwarded, 2);
+    assert.deepEqual([body.gradedCount, body.pendingCount], [1, 3]);
     for (const r of body.results.filter((x) => x.qNumber !== 3)) {
-      assert.equal(r.teacherNote, grading.NO_ANSWER_ON_PAGE_NOTE);
-      assert.equal(r.annotatedSteps.length, 1);
-      assert.equal(r.annotatedSteps[0].status, acceptsV2 ? 'unattempted' : 'missing');
-      assert.ok(r.annotatedSteps.every((s) => s.mistakeType === null && s.marksAwarded === 0), 'no type, no marks');
-      if (acceptsV2) assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), unattempted: 2 });
+      assert.deepEqual([r.marksAwarded, r.note], [0, grading.NOT_FOUND_ON_PAGE_NOTE]);
+      assert.ok(!('annotatedSteps' in r), 'no steps, no type: nothing was marked');
+      if (acceptsV2) assert.equal(r.notGraded, 'unreadable');
     }
+    assert.equal(require('./charge.cjs').chargeableCountOf(h.res), 1, 'C9: only Q3 is charged');
   }
   // CONTROL: the same reply WITHOUT an inventory field fails OPEN — every grade stands.
   const open = (await harness({ replies: [REPLY(...R5_FULL4())] }).sheet(sheet(R5_SET(), DOC))).body;
@@ -1432,4 +1438,98 @@ test('§D31.1 every chunk of a paper starts with the SAME rulebook bytes and the
   assert.ok(t2.startsWith(firsts[0]), 'the same rulebook bytes lead every request');
   assert.ok(t2.slice(firsts[0].length).includes('<<<QUESTION othernonce>>>'), 'the nonce only after the rulebook');
   assert.ok(h2.calls[0].contents[0].parts[1].inlineData, 'then the document');
+});
+
+/* ══ PR-3 · the owner-anomaly-02 failing items (live AFTER-PR2), made deterministic ═════ */
+
+const VOL_Q = 'A solid toy is a hemisphere of radius 3.5 cm surmounted by a cone of height 12 cm. Find the volume of the toy.';
+const unitSteps = () => [
+  S({ description: 'Volume formula', studentWork: 'V = (2/3)πr³ + (1/3)πr²h', marksAwarded: 2 }),
+  S({ description: 'Substitution and result', studentWork: '= 243.83', status: 'partial', marksAwarded: 2.5, marksDeducted: 0.5, mistakeType: 'presentation',
+    teacherAnnotation: '½ Correct value, but the unit cm³ is missing.', correctedWorking: '243.83 cm³' }),
+];
+
+test('§FIX.1 ★ ruling 6, deterministic: a Maths question that does not ask for a unit loses NOTHING for a missing one (owner-anomaly-02 Q12/Q7)', async () => {
+  const h = harness({ replies: [REPLY(R(1, unitSteps()))] });
+  const r = (await h.sheet(sheet([sq(1, { marks: 5, questionText: VOL_Q })], { subject: 'Maths' }))).body.results[0];
+  assert.equal(r.marksAwarded, 5);
+  assert.deepEqual([r.annotatedSteps[1].marksDeducted, r.annotatedSteps[1].mistakeType, r.annotatedSteps[1].status], [0, null, 'correct']);
+  assert.equal(r.annotatedSteps[1].teacherAnnotation, grading.MATHS_UNIT_NOT_REQUIRED_ANNOTATION);
+  assert.equal(r.mistakeSummary.presentation, 0);
+  // CONTROL 1: Science keeps its unit deduction.
+  const sci = harness({ replies: [REPLY(R(1, unitSteps()))] });
+  assert.equal((await sci.sheet(sheet([sq(1, { marks: 5, questionText: VOL_Q })], { subject: 'Science' }))).body.results[0].marksAwarded, 4.5);
+  // CONTROL 2: a Maths question that ASKS for the unit keeps the deduction (the question's scheme).
+  const asks = harness({ replies: [REPLY(R(1, unitSteps()))] });
+  assert.equal((await asks.sheet(sheet([sq(1, { marks: 5, questionText: VOL_Q + ' Give your answer with its unit.' })], { subject: 'Maths' }))).body.results[0].marksAwarded, 4.5);
+  // CONTROL 3: a presentation loss that is not about units (a missing conclusion) stays.
+  const concl = unitSteps(); concl[1].teacherAnnotation = '½ The conclusion "hence proved" is missing.'; concl[1].correctedWorking = 'Hence proved.';
+  const c3 = harness({ replies: [REPLY(R(1, concl))] });
+  assert.equal((await c3.sheet(sheet([sq(1, { marks: 5, questionText: VOL_Q })], { subject: 'Maths' }))).body.results[0].marksAwarded, 4.5);
+});
+
+test('§FIX.2 ★ comments true: a note claiming full marks beside fewer than full marks loses that claim (owner-anomaly-02 Q13); a full-marks note stays', async () => {
+  const steps = [S({ description: 'Σf', studentWork: 'Σf = 14', marksAwarded: 1 }), S({ description: 'Σfx', studentWork: 'Σfx = 64', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'calculation' }),
+    S({ description: 'Mean', studentWork: '64/14 = 4.57', marksAwarded: 1 })];
+  const note = 'Full marks. The calculations are completely accurate. Recheck the sum of fx.';
+  const r = (await harness({ replies: [REPLY(R(1, steps, { teacherNote: note }))] }).sheet(sheet([sq(1, { marks: 3, questionText: 'Find the mean of the data.' })]))).body.results[0];
+  assert.ok(r.marksAwarded < 3);
+  assert.ok(!/full marks|completely accurate/i.test(r.teacherNote), r.teacherNote);
+  assert.match(r.teacherNote, /Recheck the sum of fx\./, 'the true sentence stays');
+  // CONTROL: on a full-marks answer the same praise is true and stays.
+  const full = (await harness({ replies: [REPLY(R(1, [S({ marksAwarded: 3 })], { teacherNote: 'Full marks. Completely accurate.' }))] }).sheet(sheet([sq(1, { marks: 3, questionText: 'Find the mean of the data.' })]))).body.results[0];
+  assert.equal(full.teacherNote, 'Full marks. Completely accurate.');
+  // CONTROL: a negated sentence is true and stays.
+  const neg = (await harness({ replies: [REPLY(R(1, steps, { teacherNote: 'This is not full marks because Σfx is wrong.' }))] }).sheet(sheet([sq(1, { marks: 3, questionText: 'Find the mean of the data.' })]))).body.results[0];
+  assert.match(neg.teacherNote, /not full marks/);
+});
+
+test('§FIX.3 a proof by EXAMPLE (owner-anomaly-02 Q8, key 0) is an INVALID-METHOD departure: 0 marks, GRADED and CHARGED — never confused with an answer to a different question', async () => {
+  const steps = [S({ description: 'Proof', studentWork: 'Put A = 30°, LHS = 1 = RHS. Hence proved.', status: 'incorrect', marksAwarded: 0, marksDeducted: 3, mistakeType: 'conceptual', isDeparture: true, departureKind: 'invalid-method' })];
+  for (const acceptsV2 of [false, true]) {
+    const h = harness({ replies: [REPLY(R(1, steps))] });
+    const r = (await h.sheet(sheet([sq(1, { marks: 3, questionText: 'Prove that (1 − cos²A) · cosec²A = 1.' })], { acceptsV2 }))).body.results[0];
+    assert.deepEqual([r.couldNotRead, r.marksAwarded], [false, 0]);
+    if (acceptsV2) assert.deepEqual([r.answerMismatch, r.departureKind, r.notGraded], [false, 'invalid-method', null]);
+    assert.equal(require('./charge.cjs').chargeableCountOf(h.res), 1, 'a real examiner 0 is a delivered grade');
+  }
+});
+
+test('§FIX.4 ★ ruling 6 follows each question\'s OWN subject: in a mixed paper filed under "Maths", a Science question keeps its unit deduction', async () => {
+  // A Check & Improve multi request carries ONE paper subject (its first question's). The rule uses
+  // the question's own subject: per-question in the request, or the model's per-result `subject`.
+  const twoQ = (subjects) => REPLY(R(1, unitSteps(), { subject: subjects[0] }), R(2, unitSteps(), { subject: subjects[1] }));
+  const qs = [sq(1, { marks: 5, questionText: VOL_Q }), sq(2, { marks: 5, questionText: 'Three resistors are joined in parallel. Find the current drawn.' })];
+  const mixed = (await harness({ replies: [twoQ(['Maths', 'Science'])] }).sheet(sheet(qs, { subject: 'Maths' }))).body.results;
+  assert.deepEqual(mixed.map((r) => r.marksAwarded), [5, 4.5], 'Maths restored, Science kept');
+  // CONTROL: with NO per-question subject anywhere, a multi-question request applies nothing (the
+  // paper subject is not the question's) — the model's deduction stands.
+  const unknown = (await harness({ replies: [twoQ([null, null])] }).sheet(sheet(qs, { subject: 'Maths' }))).body.results;
+  assert.deepEqual(unknown.map((r) => r.marksAwarded), [4.5, 4.5]);
+  // and a per-question subject in the REQUEST decides it, whatever the model says
+  const req = (await harness({ replies: [twoQ(['Science', 'Science'])] }).sheet(sheet([{ ...qs[0], subject: 'Maths' }, { ...qs[1], subject: 'Science' }], { subject: 'Maths' }))).body.results;
+  assert.deepEqual(req.map((r) => r.marksAwarded), [5, 4.5]);
+});
+
+test('§D38.1 ★ one document: a BLANK answer slot (listed, empty firstLine / "Don\'t know") is UNATTEMPTED; a question NOT FOUND is NOT GRADED; a listed answer is graded', async () => {
+  // Q1 written; Q2 listed with nothing after it; Q3 listed as "Don't know"; Q4 not on any page.
+  const raw = WITH_INV(INV([1, 'Longest ruler = HCF of the lengths'], [2, ''], [3, "Don't know"]), ...R5_FULL4());
+  for (const acceptsV2 of [false, true]) {
+    const h = harness({ replies: [raw] });
+    const b = (await h.sheet(sheet(R5_SET(), { ...DOC, acceptsV2 }))).body;
+    const [q1, q2, q3, q4] = b.results;
+    assert.deepEqual([q1.couldNotRead, q1.marksAwarded], [false, 2], 'the written answer is graded');
+    for (const r of [q2, q3]) {
+      assert.deepEqual([r.couldNotRead, r.marksAwarded, r.teacherNote], [false, 0, grading.NO_ANSWER_ON_PAGE_NOTE], 'blank slot: unattempted (ruling 7)');
+      assert.ok(r.annotatedSteps.every((s) => s.mistakeType === null), 'no type');
+      if (acceptsV2) assert.equal(r.annotatedSteps[0].status, 'unattempted');
+    }
+    assert.deepEqual([q4.couldNotRead, q4.note], [true, grading.NOT_FOUND_ON_PAGE_NOTE], 'not found: pending, never a 0 shown as graded (D38)');
+    if (acceptsV2) assert.equal(q4.notGraded, 'unreadable');
+    assert.deepEqual([b.gradedCount, b.pendingCount], [3, 1]);
+    assert.equal(require('./charge.cjs').chargeableCountOf(h.res), 1, 'C9: only the graded answer is charged (unattempted and not-found are not)');
+  }
+  // CONTROL: an entry with NO firstLine field says nothing — the grade stands (fails open, as before).
+  const open = (await harness({ replies: [WITH_INV([{ page: 1, questionsSeen: [{ qNumber: 1 }] }], FULL(1, PARAPHRASE))] }).sheet(sheet([R5_Q(1)], DOC))).body.results[0];
+  assert.equal(open.marksAwarded, 2);
 });

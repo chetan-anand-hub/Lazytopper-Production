@@ -90,6 +90,7 @@ function jsonShape(transport, autoDetect) {
     '  "results": [\n' +
     '    {\n' +
     '      "qNumber": 1,\n' +
+    '      "subject": "Maths" | "Science",   (the subject of THIS question — one paper may mix both)\n' +
     (autoDetect
       ? '      "detectedSubject": "Maths" | "Science",\n      "detectedTopic": "<canonical topic key from the list, or null>",\n      "detectedMarks": <the total marks you determined>,\n      "marksSource": "stated" | "inferred",\n'
       : '') +

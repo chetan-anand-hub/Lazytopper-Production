@@ -889,9 +889,12 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // rules; no nonce) leads, the answer document follows it, and the request-particular part (fence
 // declaration with the nonce, the questions, a closing reminder) comes last (a chunk of a larger paper
 // puts its shared document between the rulebook and its questions). The rules' wording is
-// unchanged except the nonce-free reminder inside the rulebook. Every transport moved together.
+// unchanged except the nonce-free reminder inside the rulebook; the JSON shape also asks each result for
+// its own "subject" (Maths | Science — ruling 6 is applied per question, PR-3), and (controller decision D38)
+// the PAGE INVENTORY lists every question number that appears, a blank slot with an empty firstLine, so a
+// blank answer (unattempted) is told apart from an answer not found (not graded). Every transport moved together.
 //   PREVIOUS 262e7eb40d9a675803de80868cbb1e53f85381aef89f9356dcc6c967431980c8
-const NO_UPLOADS_CONTENTS_SHA256 = '29e9f753678c8c79d090c2eeb744ac399d6040bdc40e772e72376e8a7afe0568';
+const NO_UPLOADS_CONTENTS_SHA256 = 'e882944e850b5c7933a24ed93af3f4d5cfa3295d5a35220a9c8bcc34d6d3d40c';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',
@@ -2516,4 +2519,22 @@ test('§20.7 printed marks are used as printed (no inflation); the detect retry 
   assert.deepEqual(await run(err(503, 'The model is overloaded.')), { calls: 2, status: 200 });
   assert.deepEqual(await run(err(400, 'bad request')), { calls: 1, status: 500 });
   assert.deepEqual(await run(err(504, 'Gemini request timed out after 55000ms')), { calls: 1, status: 500 }, 'a timed-out read is not repeated');
+});
+
+test('§20.9 ★ OWNER-ANOMALY-02 (live AFTER-PR2: detect returned "x² 5x + 6"): the 27-question typed PDF\'s text layer restores the minus signs; the chapter rule names what to file by', async () => {
+  const OA2_PDF = require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'eval', 'golden', 'owner-anomaly-02', 'LazyTopper_FullTest_Questions.pdf'));
+  const layer = extractPdfText(OA2_PDF);
+  assert.ok(layer && layer.text.includes('x² − 5x + 6') && layer.text.includes('(−1, 1)') && layer.text.includes('1 × 10⁻⁶ m²'), 'the reader decodes the owner\'s second paper exactly');
+  const reply = DREPLY([
+    DQ(2, 'Find the zeroes of the polynomial x² 5x + 6 and verify the relationship between the zeroes and the coefficients (sum of zeroes).'),
+    DQ(7, 'Find the distance between the points (3, 4) and (1, 1).'),
+    DQ(25, 'A copper wire is 2 m long and has an area of cross-section 1 × 10-6 m². The resistivity of copper is 1.6 × 10-8 Ω m. Find its resistance.', { marks: 3 }),
+  ]);
+  const h = buildRoute({ replies: [reply] });
+  await h.route.handleDetectQuestion({ imageBase64: OA2_PDF.toString('base64'), imageMimeType: 'application/pdf' }, {});
+  const qs = h.body().questions;
+  assert.equal(qs[0].questionText, 'Find the zeroes of the polynomial x² − 5x + 6 and verify the relationship between the zeroes and the coefficients (sum of zeroes).');
+  assert.equal(qs[1].questionText, 'Find the distance between the points (3, 4) and (−1, 1).');
+  assert.match(qs[2].questionText, /1 × 10⁻⁶ m²\. The resistivity of copper is 1\.6 × 10⁻⁸ Ω m\./);
+  assert.ok(detectPrompt(h).includes('the test for the gas evolved — is metals-and-non-metals'), 'the per-question chapter rule (Q17 was filed under chemical reactions live)');
 });

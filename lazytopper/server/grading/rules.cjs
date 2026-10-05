@@ -109,9 +109,9 @@ const READING_FIDELITY_PROMPT =
  *  holds the grade to that inventory (a question not listed, or whose quoted first line is
  *  not in its own studentWork, is unattempted). Same call, no extra cost. */
 const PAGE_INVENTORY_PROMPT =
-  'PAGE INVENTORY FIRST — before you grade anything, fill "pageInventory": for EACH page of the upload, in page order, list every question number whose ANSWER the student has actually WRITTEN on that page, each with "firstLine" = the first line of the student\'s own writing for that answer, quoted VERBATIM exactly as written (never from the question, the marking scheme or your own solution).\n' +
-  '   - Do NOT list a question whose answer is not written on any page: a printed question, a question number with nothing after it, or a blank space is not an answer.\n' +
-  '   - Then grade from that inventory: a question you did not list is UNATTEMPTED (one "unattempted" step, no marks, no type). For a question you listed, the "studentWork" of its first step begins with that same first line.';
+  'PAGE INVENTORY FIRST — before you grade anything, fill "pageInventory": for EACH page of the upload, in page order, list EVERY question number that appears on that page as the label of an answer (written by the student, or printed beside an answer space), each with "firstLine" = the first line of the student\'s own writing for that answer, quoted VERBATIM exactly as written (never from the question, the marking scheme or your own solution). Where the number appears with NOTHING written after it, or only a non-attempt ("Don\'t know", a blank space, an answer struck out with nothing in its place), give "firstLine": "" — or the non-attempt exactly as written.\n' +
+  '   - Do NOT list a question whose number appears on NO answer page (a question printed only on the question paper is not on the answer pages). A question you did not list was NOT FOUND: return { "qNumber": N, "couldNotRead": true, "note": "not found on the uploaded pages" } for it — never a grade, never 0.\n' +
+  '   - Then grade from that inventory: a question you listed with an empty "firstLine" (or only a non-attempt) is UNATTEMPTED (one "unattempted" step, no marks, no type). For a question you listed with an answer, the "studentWork" of its first step begins with that same first line.';
 
 /** C3 comments truth: the deterministic half is enforced after the model too (postprocess.cjs). */
 const COMMENTS_TRUTH_PROMPT =
@@ -247,6 +247,12 @@ const NO_ANSWER_ON_PAGE_NOTE = 'No answer to this question was found on your pag
 // GRADER-CORE-1 PR-3 (C8): a question whose marking did not FINISH — its time ran out, or the
 // model call / reply failed after its one retry. Not the student's fault and not "re-upload":
 // nothing was marked, nothing is charged (C9), and pressing again is the fix.
+// GRADER-CORE-1 PR-3, controller decision D38: a question of a multi-question upload that the
+// model did NOT find on any uploaded page is NOT GRADED (pending), never a final 0 — the student
+// may simply have left that page out.
+const NOT_FOUND_ON_PAGE_NOTE = "We couldn't find your answer to this question on the uploaded pages, so it has not been marked — if you answered it, add that page (with the question number beside it) and check again.";
+// Ruling 6 (Maths units follow the question's scheme; silent → no deduction), applied after the model.
+const MATHS_UNIT_NOT_REQUIRED_ANNOTATION = 'No mark is lost for the unit here: the question does not ask for one (Maths).';
 const NOT_GRADED_TIMEOUT_NOTE = "We couldn't finish marking this question in time, so it has not been marked — please check it again.";
 const NOT_GRADED_ERROR_NOTE = "We couldn't mark this question this time, so it has not been marked — please check it again.";
 const SINGLE_COULD_NOT_READ_MESSAGE = "We couldn't read your answer clearly enough to mark it — please retake the photo in good light, or type your answer, and check again.";
@@ -301,5 +307,7 @@ module.exports = {
   NO_ANSWER_ON_PAGE_NOTE,
   SINGLE_COULD_NOT_READ_MESSAGE,
   NOT_GRADED_TIMEOUT_NOTE,
+  NOT_FOUND_ON_PAGE_NOTE,
+  MATHS_UNIT_NOT_REQUIRED_ANNOTATION,
   NOT_GRADED_ERROR_NOTE,
 };

@@ -39,7 +39,7 @@ const DETECT_SUBPART_RULE =
   '- SUB-PARTS — a question with parts (i), (ii), (iii) or (a), (b), (c), including a case-study / source-based question with its sub-questions, is ONE question: list it ONCE, with the full text of every part in its questionText, and its marks = the TOTAL of the printed part-marks (e.g. "[2] … [1]" → 3). Never list a part as a separate question. Two DIFFERENT questions that happen to be printed with the same number are still two questions — list both.\n';
 
 const DETECT_PER_QUESTION_RULE =
-  '- For EACH question in "questions" also give "subject" ("Maths" or "Science" — for THAT question; a paper may mix both) and "chapter" (the canonical topic key from the list above that fits THAT question, or null if none clearly fits). Never invent a key.\n';
+  '- For EACH question in "questions" also give "subject" ("Maths" or "Science" — for THAT question; a paper may mix both) and "chapter" (the canonical topic key from the list above that fits THAT question, or null if none clearly fits). Never invent a key. Choose the chapter by what the question ASKS the student to show, not by a word it shares with another chapter: naming the TYPE of a reaction, or balancing an equation as the point of the question, is chemical-reactions-and-equations; how a metal or non-metal BEHAVES — its reaction with an acid, water or oxygen, the product formed, the test for the gas evolved — is metals-and-non-metals.\n';
 
 function textLayerBlock(text, nonce, fence) {
   return 'THE PDF\'S TEXT LAYER (read from the file itself, not from its image): these are the exact printed characters of the document. Copy each question\'s text from HERE, symbol for symbol; use the image only for layout and anything the text layer does not contain.\n' +

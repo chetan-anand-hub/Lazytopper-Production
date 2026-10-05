@@ -54,8 +54,9 @@ function pageInventoryOf(parsed) {
       const n = Number(e && e.qNumber);
       if (!(n > 0)) continue;
       if (!seen.has(n)) seen.set(n, []);
-      const line = String((e && e.firstLine) || '').trim();
-      if (line) seen.get(n).push(line);
+      // D38: an EXPLICIT empty firstLine is kept ("" = the number appears with nothing after it, a
+      // blank answer slot); a missing firstLine field says nothing and is skipped.
+      if (e && typeof e.firstLine === 'string') seen.get(n).push(e.firstLine.trim());
     }
   }
   return seen.size > 0 ? seen : null;
@@ -524,6 +525,11 @@ function createGradingCore(deps) {
       {
         acceptsV2: input.acceptsV2 === true,
         answerInput: answerInputOf(q),
+        // PR-3 (ruling 6, deterministic): this question's OWN subject when the request says it — a
+        // per-question subject, or the request subject of a ONE-question request. A multi-question
+        // request's subject is the paper's (a mixed paper is filed under its first question), so it
+        // is not used; post-processing then falls back to the model's own per-question subject.
+        subjectHint: String(q.subject || '').trim() || (questions.length === 1 ? String(input.subject || '').trim() : ''),
         inventory: inventoryById.get(i) || null,
         notGraded: notGradedById.get(i) || null,
       },

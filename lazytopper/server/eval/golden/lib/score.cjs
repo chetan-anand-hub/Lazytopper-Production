@@ -136,7 +136,11 @@ function makeRow(item, caseId, result, ctx) {
   if (exp.kind === 'p0') {
     const st = result && Array.isArray(result.annotatedSteps) ? result.annotatedSteps : [];
     const sum0 = !result || !result.mistakeSummary || TYPES.every((k) => !(Number(result.mistakeSummary[k]) > 0));
-    row.p0Pass = row.status === 'couldNotRead' || (row.status === 'graded' && Number(result.marksAwarded) === 0 && st.every((s) => !s.mistakeType && !(Number(s.marksAwarded) > 0)) && sum0);
+    // ★ GRADER-CORE-1 PR-3, controller decision D38 (live AFTER-PR2: "fully graded 8/31"): a question
+    // whose answer is on NO uploaded page passes only as NOT GRADED (pending — the student may add
+    // the page), never as a 0 shown as graded. (Before D38 a graded 0 with no type also passed.)
+    void st; void sum0;
+    row.p0Pass = row.status === 'couldNotRead' && (!row.v2 || !result || result.notGraded === undefined || result.notGraded === 'unreadable');
   }
   {
     // v2 only: a question the owner key / repins mark UNATTEMPTED must carry an "unattempted" step.
@@ -489,6 +493,39 @@ function score(input) {
         const ok = Boolean(x && x.subject === q.subject && x.chapter === q.chapterKey);
         det10.perQ.n += 1;
         if (ok) det10.perQ.ok += 1; else det10.misses.push(d.job.jobKey + ' Q' + q.qNumber + ' want ' + q.subject + '/' + q.chapterKey + ' got ' + (x ? x.subject + '/' + x.chapter : 'none'));
+      }
+    }
+  }
+  // PR-3 · owner-anomaly-02's detect (27 questions): count/numbers/printed marks, every question's
+  // minus signs as printed, and — v2 — each question's own subject and chapter (folded into the
+  // owner detect metrics above, so detect_per_question covers 37 questions per v2 run).
+  if (G.owner2) {
+    const oa2 = (input.detectItems || []).filter((d) => d.job.jobKey === 'D.PAPER.OA-02' || d.job.jobKey === 'V2.D.PAPER.OA-02');
+    for (const d of oa2) {
+      const b = d.rep.body || {};
+      const qs = b.ok && Array.isArray(b.questions) ? b.questions : [];
+      const byN = (n) => qs.find((x) => Number(x.questionNumber) === n) || null;
+      det10.jobs += 1;
+      let minusAll = true;
+      for (const q of G.owner2.questions) {
+        const want = (q.questionText.match(/[−-]\s?\d|[−-]\s?[a-z]/g) || []).filter((m) => m.startsWith('−'));
+        if (!want.length) continue;
+        det10.minusN += 1;
+        const got = String((byN(q.qNumber) || {}).questionText || '');
+        if (want.every((m) => got.includes(m) || got.includes(m.replace('−', '-')))) det10.minusKept += 1;
+        else { minusAll = false; det10.misses.push(d.job.jobKey + ' Q' + q.qNumber + ' minus lost'); }
+      }
+      const numbersOk = qs.length === 27 && G.owner2.questions.every((q) => qs.filter((x) => Number(x.questionNumber) === q.qNumber).length === 1);
+      const marksOk = numbersOk && G.owner2.questions.every((q) => Number(byN(q.qNumber).marks) === Number(q.marks));
+      if (numbersOk && marksOk && minusAll) det10.paperOk += 1;
+      else if (!numbersOk || !marksOk) det10.misses.push(d.job.jobKey + ' count/numbers/marks: ' + qs.length + ' questions');
+      if (d.job.jobKey.startsWith('V2.')) {
+        for (const q of G.owner2.questions) {
+          const x = byN(q.qNumber);
+          const ok = Boolean(x && x.subject === q.subject && x.chapter === q.chapterKey);
+          det10.perQ.n += 1;
+          if (ok) det10.perQ.ok += 1; else det10.misses.push(d.job.jobKey + ' Q' + q.qNumber + ' want ' + q.subject + '/' + q.chapterKey + ' got ' + (x ? x.subject + '/' + x.chapter : 'none'));
+        }
       }
     }
   }
