@@ -131,11 +131,50 @@ const flattenedFraction = (norm) => {
   return /[+\-]/.test(s.replace(/^[-+]/, '')) || (s.match(/\//g) || []).length >= 2;
 };
 
+/* GRADER-CORE-1 PR-2b (targeted round) · A FINAL VALUE WITH ITS UNIT IS STILL ARITHMETIC.
+   Live, 2026-10-05 (CP02-Q08, a planted slip): "Length of pool = 50 − 16 = 36 m" (50 − 16 = 34)
+   was marked correct and scored 5/5 with "executed flawlessly" — the check skipped the line
+   because "36 m" carries a letter. A unit written AFTER the last number of the LAST side of an
+   equality is set aside before that side is evaluated — only the last side, because a letter
+   with more equation after it is a VARIABLE (a quote that joined two lines, "… = −2/45 v =
+   −45/2", must never read "v" as volts). Single-letter units only as written (m, g, s, V, A, W,
+   J, N — case-sensitive) and only after a SPACE, so "2l" / "3m" (a coefficient on a variable)
+   is never read as a number with a unit. */
+const MULTI_LETTER_UNIT = new RegExp('(?<=[\\d)])\\s*(?:km\\/h|m\\/s|cm\\/s|kmph|km|cm|mm|kg|mg|ml|kj|kw|hz|ohms?|Ω|hrs?|min|sec)(?:\\s*(?:\\^\\s*\\(?[23]\\)?|[²³]))?\\s*\\.?\\s*$', 'i');
+const SINGLE_LETTER_UNIT = /(?<=[\d)])\s+(?:m|g|s|V|A|W|J|N)(?:\s*(?:\^\s*\(?[23]\)?|[²³]))?\s*\.?\s*$/;
+function withoutTrailingUnit(side) {
+  const s = String(side == null ? '' : side);
+  if (MULTI_LETTER_UNIT.test(s)) return s.replace(MULTI_LETTER_UNIT, '');
+  if (SINGLE_LETTER_UNIT.test(s)) return s.replace(SINGLE_LETTER_UNIT, '');
+  return s;
+}
+
+/* GRADER-CORE-1 PR-2b (targeted round) · A QUOTE THAT LOST A SIGN NEVER TURNS A CORRECT STEP WRONG.
+   Live, 2026-10-05 (CP01-Q05, 3 of 9 gradings): the student wrote "(−36/7)/(15/7) = −36/15 =
+   −12/5"; the model marked the step correct but QUOTED it "(-36/7)/(15/7) = 36/15 = 12/5", and
+   this check then charged the correct step "(-36/7)/(15/7) is not 36/15" — a false comment and
+   a lost mark. In a line the model QUOTED from the student, two sides that differ ONLY BY SIGN
+   (equal size, opposite sign) are not charged: the model judged the step right, so the likelier
+   story is a sign dropped while quoting. Where the student's own words are known verbatim (a
+   TYPED answer), a quote found in them is the student's real sign slip and is still charged.
+   `correctedWorking` (the model's own text) is checked without this exemption. */
+const compactExpr = (s) => normaliseExpr(withoutTrailingUnit(s)).replace(/\s+/g, '');
+function quotedInSource(leftRaw, rightRaw, source) {
+  const src = String(source == null ? '' : source);
+  if (!src.trim()) return false;
+  const hay = src.split(/\n/).map((l) => normaliseExpr(l).replace(/\s+/g, '')).join('\n');
+  return hay.includes(compactExpr(leftRaw) + '=' + compactExpr(rightRaw));
+}
+
 /**
  * Every FALSE plain numeric equality in a line of student work.
+ * @param {string} text
+ * @param {{ quoted?: boolean, source?: string }} [opts]  quoted: the text is the MODEL'S QUOTE of the
+ *   student's work (a sign-only difference is not charged unless `source`, the student's verbatim
+ *   typed answer, contains the same equality).
  * @returns {Array<{ left: string, right: string, leftValue: number, rightValue: number }>}
  */
-function falseEqualities(text) {
+function falseEqualities(text, opts = {}) {
   const out = [];
   const clauses = String(text == null ? '' : text).split(/\n|;|⇒|=>|→|∴|\bso\b|\btherefore\b|\bhence\b|\band\b/i);
   for (const clause of clauses) {
@@ -147,8 +186,9 @@ function falseEqualities(text) {
     for (let k = 0; k + 1 < parts.length; k += 1) {
       const a = parts[k];
       const b = parts[k + 1];
+      const lastSide = k + 1 === parts.length - 1;
       const na = normaliseExpr(a.raw);
-      const nb = normaliseExpr(b.raw);
+      const nb = normaliseExpr(lastSide ? withoutTrailingUnit(b.raw) : b.raw);
       if (!na || !nb || !PLAIN.test(na) || !PLAIN.test(nb)) continue;
       if (!hasOperator(na) && !hasOperator(nb)) continue; // "8 = 8" — nothing computed
       // A RADICAL WITHOUT BRACKETS beside a + or − has an unknowable scope: the student's
@@ -176,10 +216,118 @@ function falseEqualities(text) {
       const scale = Math.max(Math.abs(va), Math.abs(vb));
       let tol = rel * scale + 1e-9 * Math.max(1, scale);
       if (b.approxBefore) tol = Math.max(tol, scale * 0.01);
-      if (Math.abs(va - vb) > tol) out.push({ left: a.raw.trim(), right: b.raw.trim(), leftValue: va, rightValue: vb });
+      if (Math.abs(va - vb) > tol) {
+        const signOnly = scale > 1e-12 && Math.abs(va + vb) <= tol;
+        if (signOnly && opts.quoted === true && !quotedInSource(a.raw, b.raw, opts.source)) continue;
+        out.push({ left: a.raw.trim(), right: b.raw.trim(), leftValue: va, rightValue: vb });
+      }
     }
   }
   return out;
+}
+
+/* ── GRADER-CORE-1 PR-2b (targeted round) · NO ECF THROUGH A FUDGED STEP ─────────────────
+   Owner ruling (5 Oct): error carried forward rewards the CORRECT method applied to a carried
+   value — never work reached THROUGH an invented step. Golden GS-M15-a (4 of 6 gradings 3/5 or
+   2.5/5 against the key's 2): the student's own quadratic x² − 8x + 1280 = 0 has NO REAL ROOTS,
+   yet the next line "factorises" it as (x − 40)(x + 32) = 0 — which multiplies out to
+   x² − 8x − 1280 — and lands on the expected 40 km/h. The model flagged the factorisation
+   every time and then credited the roots and the answer by ECF anyway.
+   ★ NARROW BY CONSTRUCTION: a factorisation is FUDGED only when (1) the line is a product of
+   two linear factors set to 0, (2) the nearest earlier quadratic "… = 0" of the same part in
+   the student's own work does NOT expand to it (coefficients not proportional), AND (3) that
+   quadratic has NO REAL ROOTS (b² − 4ac < 0) — so no honest factorisation of it into real
+   factors exists. A wrong factorisation of a quadratic that HAS real roots is an ordinary slip
+   (calculation) and the roots read off it keep their ECF; anything not parsed is skipped. */
+function polyNorm(s) {
+  return String(s == null ? '' : s)
+    .replace(/[−–—]/g, '-').replace(/[×·⋅∙]/g, '*').replace(/²/g, '^2').replace(/\s+/g, '').toLowerCase();
+}
+/** Parse "ax^2 + bx + c" (one variable, no brackets) → { v, a, b, c } or null. */
+function parseQuadratic(expr) {
+  const s = polyNorm(expr);
+  if (!s || /[()]/.test(s) || !/\^2/.test(s)) return null;
+  const terms = s.replace(/-/g, '+-').split('+').filter((t) => t !== '');
+  let v = null; const co = { a: 0, b: 0, c: 0 };
+  for (const t of terms) {
+    const m = t.match(/^(-?)(\d*\.?\d*)\*?(?:([a-z])(\^2)?)?$/);
+    if (!m || (m[2] === '' && !m[3])) return null;
+    const k = (m[1] ? -1 : 1) * (m[2] === '' ? 1 : Number(m[2]));
+    if (!Number.isFinite(k)) return null;
+    if (m[3]) {
+      if (v && v !== m[3]) return null;
+      v = m[3];
+      co[m[4] ? 'a' : 'b'] += k;
+    } else co.c += k;
+  }
+  if (!v || co.a === 0) return null;
+  return { v, ...co };
+}
+/** Parse "k(px + q)(rx + s)" → { v, a, b, c } (expanded) or null. */
+function parseFactorised(expr) {
+  const s = polyNorm(expr);
+  const m = s.match(/^(-?\d*\.?\d*)\*?\(([^()]+)\)\*?\(([^()]+)\)$/);
+  if (!m) return null;
+  const k = m[1] === '' ? 1 : m[1] === '-' ? -1 : Number(m[1]);
+  const lin = (t) => {
+    const terms = t.replace(/-/g, '+-').split('+').filter((x) => x !== '');
+    let v = null; let p = 0; let q = 0;
+    for (const x of terms) {
+      const mm = x.match(/^(-?)(\d*\.?\d*)\*?([a-z])?$/);
+      if (!mm || (mm[2] === '' && !mm[3])) return null;
+      const c = (mm[1] ? -1 : 1) * (mm[2] === '' ? 1 : Number(mm[2]));
+      if (mm[3]) { if (v && v !== mm[3]) return null; v = mm[3]; p += c; } else q += c;
+    }
+    return v && p !== 0 ? { v, p, q } : null;
+  };
+  const f = lin(m[2]); const g = lin(m[3]);
+  if (!Number.isFinite(k) || k === 0 || !f || !g || f.v !== g.v) return null;
+  return { v: f.v, a: k * f.p * g.p, b: k * (f.p * g.q + f.q * g.p), c: k * f.q * g.q };
+}
+/** One side of "LHS = RHS" equal to 0 → the other side; else null. */
+function zeroEquated(clause) {
+  const sides = String(clause).split('=');
+  if (sides.length !== 2) return null;
+  const z = (x) => /^\s*0\s*$/.test(x);
+  if (z(sides[1]) && !z(sides[0])) return sides[0];
+  if (z(sides[0]) && !z(sides[1])) return sides[1];
+  return null;
+}
+const proportional = (P, Q) => {
+  const eps = 1e-9 * Math.max(1, Math.abs(P.a), Math.abs(P.b), Math.abs(P.c), Math.abs(Q.a), Math.abs(Q.b), Math.abs(Q.c)) ** 2;
+  return Math.abs(P.a * Q.b - P.b * Q.a) <= eps && Math.abs(P.a * Q.c - P.c * Q.a) <= eps && Math.abs(P.b * Q.c - P.c * Q.b) <= eps;
+};
+/**
+ * The first FUDGED factorisation in a question's steps (see above), or null.
+ * @param {Array<{ studentWork?: string, part?: string|null, status?: string }>} steps
+ * @returns {{ index: number, quadratic: string, factorised: string }|null}
+ */
+function fudgedFactorisation(steps) {
+  if (!Array.isArray(steps)) return null;
+  const partOf = (p) => (p == null ? '' : String(p).toLowerCase().replace(/[^a-z0-9]/g, ''));
+  const lastQuad = new Map(); // part -> { q, text }
+  for (let i = 0; i < steps.length; i += 1) {
+    const st = steps[i];
+    if (!st || st.status === 'withdrawn') continue;
+    const part = partOf(st.part);
+    const clauses = String(st.studentWork || '').split(/\n|;|⇒|=>|→|∴|\bor\b|,/i);
+    for (const cl of clauses) {
+      const side = zeroEquated(cl);
+      if (side === null) continue;
+      const fac = parseFactorised(side);
+      if (fac) {
+        const prev = lastQuad.get(part);
+        if (prev && prev.q.v === fac.v && !proportional(prev.q, fac)) {
+          const disc = prev.q.b * prev.q.b - 4 * prev.q.a * prev.q.c;
+          if (disc < 0) return { index: i, quadratic: prev.text.trim(), factorised: cl.trim() };
+        }
+        continue;
+      }
+      const q = parseQuadratic(side);
+      if (q) lastQuad.set(part, { q, text: cl });
+    }
+  }
+  return null;
 }
 
 /* ── final-answer comparison against a stored key ───────────────────────────── */
@@ -230,4 +378,4 @@ function compareFinalAnswer(studentText, keyText) {
   return 'skip';
 }
 
-module.exports = { normaliseExpr, evaluate, falseEqualities, compareFinalAnswer, numbersIn };
+module.exports = { normaliseExpr, evaluate, falseEqualities, compareFinalAnswer, numbersIn, fudgedFactorisation, parseQuadratic, parseFactorised };

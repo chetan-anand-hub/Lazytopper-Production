@@ -131,60 +131,12 @@
     },
     {
       "caseId": "GS-S12-a",
-      "kind": "changed",
-      "field": "mistakeType",
-      "old": "conceptual",
-      "new": null,
-      "ruling": "7",
-      "basis": "BUILDER JUDGEMENT, flagged: the question says 'translate ... and then balance them'; the student wrote correct skeletal equations and did not attempt balancing at all (no coefficient anywhere). That is a requested sub-task left wholly unattempted, exactly the principle the verified set applied to GS-M22-a ('verify your answer' not attempted -> no type). Ruling 7 'unattempted = no type' supplies the principle the verifier said was missing. Marks unchanged (1/2)."
-    },
-    {
-      "caseId": "GS-S12-a",
-      "kind": "changed",
-      "field": "studentLabel",
-      "old": "knowledge gap",
-      "new": null,
-      "ruling": "7",
-      "basis": "Follows the mistakeType re-pin."
-    },
-    {
-      "caseId": "GS-S12-a",
-      "kind": "changed",
-      "field": "studentHeading",
-      "old": "Marks to gain — learn this",
-      "new": null,
-      "ruling": "7",
-      "basis": "Follows the mistakeType re-pin."
-    },
-    {
-      "caseId": "GS-S12-a",
-      "kind": "changed",
-      "field": "wrongStep",
-      "old": 2,
-      "new": null,
-      "ruling": "7",
-      "basis": "With the only loss on unattempted sub-tasks there is no wrong step (the same convention as GS-M22-a)."
-    },
-    {
-      "caseId": "GS-S12-a",
-      "kind": "changed",
-      "field": "unattemptedParts",
-      "old": [],
-      "new": [
-        "(i) balancing",
-        "(ii) balancing"
-      ],
-      "ruling": "7",
-      "basis": "The two balancing sub-tasks are the unattempted parts."
-    },
-    {
-      "caseId": "GS-S12-a",
-      "kind": "changed",
+      "kind": "settled",
       "field": "contested",
       "old": true,
       "new": false,
       "ruling": "7",
-      "basis": "Settled by ruling 7 in favour of the verifier's recorded alternative (null)."
+      "basis": "Controller decision D33 (2026-10-05), replacing the PR-1 builder-judgement re-pin (mistakeType null / unattempted): the student ATTEMPTED the question — correct skeletal equations for both reactions — so it is not unattempted (ruling 7's fourth state is for work not attempted). Balancing was not attempted where the question asks for it, which is the restored S4a rule: an equation left UNBALANCED when a balanced equation was asked for = conceptual (attempted balancing with wrong coefficients would be calculation, S4b). The verified value (conceptual, wrong step 2) stands; marks unchanged (1/2)."
     },
     {
       "caseId": "GS-M11-a",
@@ -252,16 +204,6 @@
       "ruling": "7",
       "v2Only": true,
       "basis": "A blank page: both parts unattempted (an honest decline is also accepted, as before)."
-    },
-    {
-      "caseId": "GS-S12-a",
-      "kind": "added",
-      "field": "unattemptedStatusRequired",
-      "old": null,
-      "new": true,
-      "ruling": "7",
-      "v2Only": true,
-      "basis": "The balancing sub-tasks are unattempted."
     },
     {
       "caseId": "GS-S11-a",
