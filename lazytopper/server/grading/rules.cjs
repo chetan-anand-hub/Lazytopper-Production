@@ -253,6 +253,8 @@ const NO_ANSWER_ON_PAGE_NOTE = 'No answer to this question was found on your pag
 const NOT_FOUND_ON_PAGE_NOTE = "We couldn't find your answer to this question on the uploaded pages, so it has not been marked — if you answered it, add that page (with the question number beside it) and check again.";
 // Ruling 6 (Maths units follow the question's scheme; silent → no deduction), applied after the model.
 const MATHS_UNIT_NOT_REQUIRED_ANNOTATION = 'No mark is lost for the unit here: the question does not ask for one (Maths).';
+// Owner rule (never deduct for the language of an answer — Hinglish or Hindi is fine), applied after the model.
+const LANGUAGE_NOT_MARKED_ANNOTATION = 'No mark is lost for the language this is written in — the science in it is what is marked.';
 const NOT_GRADED_TIMEOUT_NOTE = "We couldn't finish marking this question in time, so it has not been marked — please check it again.";
 const NOT_GRADED_ERROR_NOTE = "We couldn't mark this question this time, so it has not been marked — please check it again.";
 const SINGLE_COULD_NOT_READ_MESSAGE = "We couldn't read your answer clearly enough to mark it — please retake the photo in good light, or type your answer, and check again.";
@@ -309,5 +311,6 @@ module.exports = {
   NOT_GRADED_TIMEOUT_NOTE,
   NOT_FOUND_ON_PAGE_NOTE,
   MATHS_UNIT_NOT_REQUIRED_ANNOTATION,
+  LANGUAGE_NOT_MARKED_ANNOTATION,
   NOT_GRADED_ERROR_NOTE,
 };

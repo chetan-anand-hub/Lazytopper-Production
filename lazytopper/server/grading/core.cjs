@@ -479,7 +479,9 @@ function createGradingCore(deps) {
       for (const q of part.questions) {
         const id = idOf.get(q);
         rawById.set(id, byNumber.get(Number(q.qNumber)) || null);
-        if (a.inventory) inventoryById.set(id, { present: a.inventory.has(Number(q.qNumber)), firstLines: a.inventory.get(Number(q.qNumber)) || [] });
+        // partial: this chunk is a strict subset of a one-document paper (its inventory covers the
+        // whole document, its steps only this chunk's questions — see postprocess inventoryVerdict).
+        if (a.inventory) inventoryById.set(id, { present: a.inventory.has(Number(q.qNumber)), firstLines: a.inventory.get(Number(q.qNumber)) || [], partial: Boolean(document) && part.questions.length < questions.length });
       }
       if (!summary) summary = String((a.parsed && a.parsed.summary) || '').trim();
     }

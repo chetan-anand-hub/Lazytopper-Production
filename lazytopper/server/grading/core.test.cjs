@@ -1536,3 +1536,34 @@ test('§D38.1 ★ one document: a BLANK answer slot (listed, empty firstLine / "
   const open = (await harness({ replies: [WITH_INV([{ page: 1, questionsSeen: [{ qNumber: 1 }] }], FULL(1, PARAPHRASE))] }).sheet(sheet([R5_Q(1)], DOC))).body.results[0];
   assert.equal(open.marksAwarded, 2);
 });
+
+test('§FIX.5 ★ a CHUNK of a one-document paper: a question LISTED with a first line its steps do not quote keeps the grade the model gave (live 2026-10-06: T2-Q6 3/3 and CP04-Q08 4/5 became "no answer found"); one call for the whole paper still applies the test', async () => {
+  const lineNotInWork = 'Mendel crossed tall pea plants with dwarf pea plants';
+  const RULER = 'Longest ruler = HCF of the lengths';
+  // 4 questions on one document → two chunks, each asked for the inventory of the WHOLE document
+  const inv = INV([1, RULER], [2, RULER], [3, RULER], [4, lineNotInWork]);
+  const b = (await harness({ replies: [WITH_INV(inv, ...R5_FULL4())] }).sheet(sheet(R5_SET(), DOC))).body;
+  assert.deepEqual([b.results[3].marksAwarded, b.results[3].teacherNote === grading.NO_ANSWER_ON_PAGE_NOTE], [2, false], 'the model\'s grade stands');
+  // CONTROL: 3 questions are ONE call (no chunk) — the first-line test still applies (§P0.8)
+  const inv3 = INV([1, RULER], [2, RULER], [3, lineNotInWork]);
+  const c = (await harness({ replies: [WITH_INV(inv3, ...[1, 2, 3].map((n) => FULL(n, PARAPHRASE)))] }).sheet(sheet([1, 2, 3].map((n) => R5_Q(n)), DOC))).body;
+  assert.deepEqual([c.results[2].marksAwarded, c.results[2].teacherNote], [0, grading.NO_ANSWER_ON_PAGE_NOTE]);
+  // CONTROL: in a chunk, a listed question the model gave NOTHING still fails the test
+  const nothing = R(4, [S({ studentWork: 'something else', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'conceptual' }),
+    S({ studentWork: 'more of it', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'conceptual' })]);
+  const d = (await harness({ replies: [WITH_INV(inv, ...R5_FULL4().slice(0, 3), nothing)] }).sheet(sheet(R5_SET(), DOC))).body;
+  assert.equal(d.results[3].teacherNote, grading.NO_ANSWER_ON_PAGE_NOTE);
+});
+
+test('§FIX.6 ★ never a deduction for the LANGUAGE of an answer (owner paper 02 Q18: "written informally in Hinglish" on a correct answer): the ½ comes back and the note keeps no "write in formal English"; another presentation deduction stays', async () => {
+  const steps = [S({ studentWork: 'Carbon ke 4 valence electrons hote hain', marksAwarded: 1 }),
+    S({ studentWork: 'isliye woh electrons share karta hai', status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', teacherAnnotation: '½ Correct idea of sharing electrons, but written informally in Hinglish.' })];
+  const r = (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: true, teacherNote: 'Good understanding of covalent bonding. Please write examinations in standard formal English.' }))] })
+    .single(single({ marks: 2, subject: 'Science', question: 'Why does carbon form compounds mainly by covalent bonding?', textAnswer: 'Carbon ke 4 valence electrons hote hain, isliye woh electrons share karta hai' }))).body;
+  assert.deepEqual([r.marksAwarded, r.annotatedSteps[1].status, r.annotatedSteps[1].mistakeType, r.annotatedSteps[1].teacherAnnotation], [2, 'correct', null, grading.LANGUAGE_NOT_MARKED_ANNOTATION]);
+  assert.ok(!/english/i.test(r.teacherNote) && /covalent bonding/.test(r.teacherNote), 'the language advice goes; the rest of the note stays');
+  // CONTROL: a presentation deduction for something else (a required technical term) stays
+  const keep = [S({ marksAwarded: 1 }), S({ status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', teacherAnnotation: '½ The term oesophagus is required, not food pipe.' })];
+  const k = (await harness({ replies: [REPLY(R(1, keep, { finalAnswerCorrect: false }))] }).single(single({ marks: 2, subject: 'Science', question: 'Name the tube that carries food from the mouth to the stomach.', textAnswer: 'food pipe' }))).body;
+  assert.equal(k.marksAwarded, 1.5);
+});

@@ -109,6 +109,32 @@ function restoreMathsUnitDeductions(steps, q) {
   return n;
 }
 
+// Owner rule: an answer is never marked down for the LANGUAGE it is written in — Hinglish or Hindi
+// is fine; the science is what is marked (live 2026-10-06, owner paper 02 Q18: a correct answer
+// lost ½ "written informally in Hinglish" in 5 of 9 grades, typed presentation).
+const LANGUAGE_LOSS = /\b(?:hinglish|hindi|colloquial(?:ly)?|vernacular|informal(?:ly)?\s+(?:written|worded|expressed|language|wording|english)|(?:written|worded|expressed)\s+(?:informally|colloquially)|(?:standard|formal|proper|correct)\s+english|english\s+language)\b/i;
+const LANGUAGE_ADVICE = /\b(?:hinglish|hindi|colloquial(?:ly)?|vernacular|(?:standard|formal|proper|correct)\s+english|english\s+language|informal(?:ly)?\s+(?:written|worded|expressed|language|wording|english))\b/i;
+/**
+ * A step typed "presentation" whose deduction is for the language of the answer gets that
+ * deduction back (at most ½ per step — a step that ALSO lost marks for missing science keeps the
+ * rest), loses its type when nothing remains, and says why. Returns how many steps changed.
+ */
+function restoreLanguageDeductions(steps) {
+  let n = 0;
+  for (const s of steps) {
+    if (s.status === 'withdrawn' || s.status === 'unattempted' || s.mistakeType !== 'presentation' || !(s.marksDeducted > 0)) continue;
+    if (!LANGUAGE_LOSS.test([s.teacherAnnotation, s.correctedWorking, s.description].join(' . '))) continue;
+    const back = Math.min(0.5, s.marksDeducted, Math.max(0, (s._available || 0) - s.marksAwarded));
+    if (!(back > 0)) continue;
+    s.marksAwarded = half(s.marksAwarded + back);
+    s.marksDeducted = half(s.marksDeducted - back);
+    if (!(s.marksDeducted > 0)) { s.mistakeType = null; s.correctedWorking = null; if (s.marksAwarded >= s._available) s.status = 'correct'; }
+    s.teacherAnnotation = R.LANGUAGE_NOT_MARKED_ANNOTATION;
+    n += 1;
+  }
+  return n;
+}
+
 function scrubSentences(text, pattern) {
   const s = String(text || '').trim();
   if (!s) return s;
@@ -262,6 +288,13 @@ function inventoryVerdict(inventory, steps, raw) {
   if (all.length > 0 && all.every((l) => !String(l).trim() || nonAttemptText(l) === 'phrase')) return 'blankInInventory';
   const lines = (Array.isArray(inventory.firstLines) ? inventory.firstLines : []).filter((l) => compactText(stripAnswerLabel(l)).length >= 4);
   if (lines.length === 0) return null;
+  // PR-3 (C8 chunks): a CHUNK of a one-document paper writes the page inventory for the WHOLE
+  // document but grades only its own questions, quoting only some lines of each — so the
+  // first-line test misfires there (live 2026-10-06: 8 of 825 set results, a real 3/3 and a real
+  // 4/5 turned into "no answer found"; 0 of 615 on the single-call run). A question LISTED with a
+  // quotable first line that the model GRADED with marks keeps its grade. An absent question and a
+  // blank slot are decided above (D38); a listed question the model gave nothing keeps the test.
+  if (inventory.partial === true && steps.some((s) => (Number(s.marksAwarded) || 0) > 0)) return null;
   const work = steps.map((s) => s.studentWork).concat([String((raw && raw.studentFinalAnswer) || '')]).join('\n');
   return lines.some((l) => firstLineInWork(l, work)) ? null : 'firstLineNotInWork';
 }
@@ -631,6 +664,8 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
     const subj = String(ctx.subjectHint || '').trim() || String((raw && raw.subject) || '').trim();
     if (!questionIsObjective && subj && /math/i.test(subj)) restoreMathsUnitDeductions(steps, q);
   }
+  // Owner rule (PR-3): never a deduction for the language an answer is written in.
+  const languageRestored = restoreLanguageDeductions(steps);
 
   // 6 · SUBJECTIVE marks
   let departures = [];
@@ -794,6 +829,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // not get full marks (live 2026-10-05, owner-anomaly-02 Q13: "Full marks … completely accurate"
   // beside 2/3). Such sentences go; a negated one ("not full marks") stays.
   if (marksAwarded < totalMarks) note = scrubSentences(note, FULL_MARKS_CLAIM);
+  if (languageRestored > 0) note = scrubSentences(note, LANGUAGE_ADVICE);
   const rubric = validRubric(raw.rubric, totalMarks);
   if (primaryDeparture) {
     const line = primaryDeparture.returnIndex >= 0
