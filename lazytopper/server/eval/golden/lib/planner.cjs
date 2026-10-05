@@ -283,6 +283,29 @@ function buildPlan(opts = {}) {
     }
   }
 
+  // ── GRADER-CORE-1 PR-3 · the DUPLICATE-NUMBER paper (B's T2: two different questions printed
+  //    "Q5"), as Check & Improve MULTI sends it today (one answer PDF, the session topic on every
+  //    block), and as a v2 client that adopted per-question detect sends it (each question's own
+  //    subject and chapter). Results are matched by POSITION (`qIndexes`): two rows share qNumber 5.
+  if (G.dupPaper) {
+    const p = G.dupPaper;
+    const sessionTopic = p.questions[0].chapterName;
+    const qNumbers = {};
+    const qIndexes = {};
+    const legacyQs = p.questions.map((q) => {
+      qNumbers[q.caseId] = q.qNumber;
+      qIndexes[q.caseId] = q.position;
+      return { qNumber: q.qNumber, marks: q.marks, topic: sessionTopic, topicLabel: sessionTopic, questionText: q.questionText, objective: q.objective === true };
+    });
+    const base = { entry: 'set', handler: 'handleGradeWorksheet', caseIds: p.questions.map((q) => q.caseId), qNumbers, qIndexes };
+    const doc = { imageBase64: b64(p.dir + '/' + p.key.files.answers), imageMimeType: 'application/pdf' };
+    push({ ...base, jobKey: 'W.DUP.T2', surface: 'DUP-MULTI',
+      request: { worksheetId: 'ci:GOLDEN-DUP-T2', subject: p.questions[0].subject, questions: legacyQs, ...doc } });
+    push({ ...base, jobKey: 'V2.W.DUP.T2', surface: 'DUP-MULTI-V2',
+      request: { worksheetId: 'ci:GOLDEN-DUP-T2', subject: p.questions[0].subject, acceptsV2: true, ...doc,
+        questions: p.questions.map((q, i) => ({ ...legacyQs[i], subject: q.subject, chapter: q.chapterKey, topic: q.chapterName, topicLabel: q.chapterName })) } });
+  }
+
   // ── v2 (acceptsV2: true) copies — a separate job key, so no stored PR-1 record is affected ─
   for (const j of all.slice()) {
     const v2Single = j.entry === 'single' && j.surface === 'CI-SINGLE' && V2_SINGLE_CASES.includes(j.caseIds[0]);
@@ -304,6 +327,17 @@ function buildPlan(opts = {}) {
     for (const q of G.owner.questions) {
       push({ jobKey: 'D.OAQ.' + q.qNumber, entry: 'detect', handler: 'handleDetectQuestion', surface: 'DETECT-PER-QUESTION', caseIds: ['OA-01.Q' + q.qNumber], qNumbers: {},
         request: { question: q.questionText, topicVocabulary: G.vocab } });
+    }
+    // GRADER-CORE-1 PR-3 (C10): the owner paper read by a v2 client (each question's own subject
+    // and chapter), and the duplicate-number paper (both "Q5"s must be detected), both ways.
+    push({ jobKey: 'V2.D.PAPER.OA-01', entry: 'detect', handler: 'handleDetectQuestion', surface: 'DETECT-PAPER-V2', caseIds: ['OA-01'], qNumbers: {},
+      request: { imageBase64: b64(G.owner.files.questions), imageMimeType: 'application/pdf', topicVocabulary: G.vocab, acceptsV2: true } });
+    if (G.dupPaper) {
+      const qpdf = b64(G.dupPaper.dir + '/' + G.dupPaper.key.files.questions);
+      push({ jobKey: 'D.PAPER.T2', entry: 'detect', handler: 'handleDetectQuestion', surface: 'DETECT-PAPER', caseIds: ['DUP-T2'], qNumbers: {},
+        request: { imageBase64: qpdf, imageMimeType: 'application/pdf', topicVocabulary: G.vocab } });
+      push({ jobKey: 'V2.D.PAPER.T2', entry: 'detect', handler: 'handleDetectQuestion', surface: 'DETECT-PAPER-V2', caseIds: ['DUP-T2'], qNumbers: {},
+        request: { imageBase64: qpdf, imageMimeType: 'application/pdf', topicVocabulary: G.vocab, acceptsV2: true } });
     }
   }
   return jobs;

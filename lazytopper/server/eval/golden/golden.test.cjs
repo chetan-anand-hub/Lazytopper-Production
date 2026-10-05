@@ -245,3 +245,27 @@ test('§9 CONTROL — chunking is result-neutral on a LEGACY whole-paper reply: 
   assert.ok(rep.body.results.every((r, i) => r.couldNotRead === false && r.teacherNote.startsWith('n' + i)), 'every chunk read ITS OWN questions from the one stored reply');
   assert.deepStrictEqual([rep.servedCalls, rep.unusedCalls], [1, 0], 'one stored call, counted once though it served every chunk');
 });
+
+test('§10 the DUPLICATE-NUMBER paper (B\'s T2) is planned and scored by POSITION; its files are the copied originals', () => {
+  const { buildPlan } = require('./lib/planner.cjs');
+  const { load } = require('./lib/data.cjs');
+  const crypto = require('crypto');
+  const G = load();
+  assert.strictEqual(G.dupPaper.key.synthetic, true);
+  const plan = buildPlan({ includeDetect: true });
+  const job = plan.find((j) => j.jobKey === 'W.DUP.T2');
+  assert.ok(job && plan.find((j) => j.jobKey === 'V2.W.DUP.T2') && plan.find((j) => j.jobKey === 'D.PAPER.T2') && plan.find((j) => j.jobKey === 'V2.D.PAPER.OA-01'));
+  assert.deepStrictEqual(job.request.questions.map((q) => q.qNumber), [1, 2, 3, 4, 5, 5, 6, 7], 'two questions printed "Q5"');
+  assert.deepStrictEqual(Object.values(job.qIndexes), [0, 1, 2, 3, 4, 5, 6, 7]);
+  assert.ok(!('acceptsV2' in job.request), 'the legacy job is the client shape of today');
+  // scorer: a body whose two Q5 results differ is read by position, not by number
+  const { score } = require('./lib/score.cjs');
+  const results = job.request.questions.map((q, i) => ({ qNumber: q.qNumber, couldNotRead: false, totalMarks: q.marks, marksAwarded: i === 5 ? 1 : i === 4 ? 1.5 : 0, annotatedSteps: [], mistakeSummary: {}, teacherNote: 'n' }));
+  const res = score({ items: [{ job, run: 1, record: { wallMs: 1000, calls: [] }, rep: { httpStatus: 200, body: { ok: true, results } } }], detectItems: [] });
+  assert.deepStrictEqual(res.dup.q5, { n: 2, graded: 2, pct: 100 });
+  const q5 = res.dup.rows.filter((r) => /Q5/.test(r.id)).map((r) => [r.id, r.awarded, r.expected]);
+  assert.deepStrictEqual(q5, [['DUP-T2-Q5a', 1.5, 1.5], ['DUP-T2-Q5b', 1, 1]], 'each Q5 is scored against ITS OWN key');
+  // the copied files are byte-identical to the key's declared set (no edit in place)
+  for (const f of ['T2_questions.pdf', 'T2_answers.pdf', 'expected-key.md']) assert.ok(fs.existsSync(path.join(GOLDEN, 'dup-number-T2', f)), f);
+  assert.strictEqual(crypto.createHash('sha256').update(fs.readFileSync(path.join(GOLDEN, 'dup-number-T2', 'T2_answers.pdf'))).digest('hex').slice(0, 16), 'a5954695ad4a47cc');
+});

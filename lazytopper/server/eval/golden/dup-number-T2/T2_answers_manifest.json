@@ -1,0 +1,21 @@
+{
+  "name": "T2_answers",
+  "spec": "T2_answers.json",
+  "style": "caveat",
+  "seed": 2202,
+  "illegible": false,
+  "files": [
+    "T2_answers.pdf",
+    "T2_answers_photo_p1.jpg",
+    "T2_answers_photo_p2.jpg",
+    "T2_answers_photo_p3.jpg"
+  ],
+  "strikes": 0,
+  "lines": 34,
+  "blank_questions": 0,
+  "fallback_glyphs": {
+    "→": "hand-drawn",
+    "⇒": "hand-drawn"
+  },
+  "pages": 3
+}

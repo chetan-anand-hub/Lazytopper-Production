@@ -1392,3 +1392,20 @@ test('§C9.2 a legacy MCQ whose pick could not be read keeps today\'s 0 for the 
   await r.sheet(sheet([MCQ({ textAnswer: '' })], { imageBase64: 'UERG', imageMimeType: 'application/pdf' }));
   assert.equal(charge.chargeableCountOf(r.res), 1);
 });
+
+/* ══ §C10 · per-question subject in GRADING (a v2 detect can now say it) ═══════ */
+
+test('§C10.1 a mixed paper whose questions carry their OWN subject is graded under each subject\'s rules (chunked by subject); absent → the request\'s subject, one group', async () => {
+  const h = harness({ reply: echoReply });
+  const qs = [sq(1, { subject: 'Maths' }), sq(2, { subject: 'Science', questionText: 'Why is the left ventricle thicker?' }), sq(3, { subject: 'Maths' })];
+  await h.sheet(sheet(qs, { subject: 'Maths' }));
+  assert.equal(h.calls.length, 2, 'one Maths chunk (Q1, Q3) and one Science chunk (Q2)');
+  const byQ = Object.fromEntries(h.calls.map((c, i) => [qNumsIn(h.prompt(i)).join(','), h.prompt(i)]));
+  assert.deepEqual(Object.keys(byQ).sort(), ['1,3', '2']);
+  assert.ok(byQ['2'].includes(grading.subjectChecklistBody('science')), 'the Science question gets the Science checklist');
+  assert.ok(byQ['1,3'].includes(grading.subjectChecklistBody('maths')));
+  // CONTROL: the same questions WITHOUT per-question subjects are one group under the request's subject.
+  const plain = harness({ reply: echoReply });
+  await plain.sheet(sheet(qs.map(({ subject, ...q }) => q), { subject: 'Maths' }));
+  assert.equal(plain.calls.length, 1);
+});

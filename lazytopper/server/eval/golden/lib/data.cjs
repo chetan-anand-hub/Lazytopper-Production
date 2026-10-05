@@ -194,7 +194,22 @@ function load() {
   });
   const paperCaseById = Object.fromEntries(papers.flatMap((p) => p.questions.map((q) => [q.caseId, { ...q, paperId: p.paperId }])));
 
-  _cache = { cases, casesById, itemsById, repins, appliedRepins, vocab, nameBySlug, owner, probes, mismatch, papers, paperCaseById, GOLDEN_DIR };
+  // GRADER-CORE-1 PR-3 · the DUPLICATE-NUMBER paper (Controller B's T2, copied: dup-number-T2/
+  // key.json "provenance"). SYNTHETIC answers. Two different questions are printed "Q5", so its
+  // results are matched to questions by POSITION. Graded as ONE set only (no per-question crops).
+  const dupKey = readJson('dup-number-T2/key.json');
+  if (dupKey.synthetic !== true) throw new Error('dup-number-T2 is not labelled synthetic');
+  const dupPaper = {
+    paperId: dupKey.paperId, dir: 'dup-number-T2', key: dupKey,
+    questions: dupKey.items.map((it) => ({
+      id: it.id, qNumber: it.qNumber, position: it.position, subject: it.subject, marks: it.question.marks, questionText: it.question.text,
+      objective: it.question.type === 'mcq' || it.question.type === 'ar', chapterName: (it.chapterTrue && it.chapterTrue.name) || '',
+      chapterKey: (it.chapterTrue && it.chapterTrue.appTopicKey) || null, caseId: it.cases[0].caseId, expected: it.cases[0].expected,
+    })),
+  };
+  for (const q of dupPaper.questions) paperCaseById[q.caseId] = { ...q, paperId: dupPaper.paperId };
+
+  _cache = { cases, casesById, itemsById, repins, appliedRepins, vocab, nameBySlug, owner, probes, mismatch, papers, paperCaseById, dupPaper, GOLDEN_DIR };
   return _cache;
 }
 

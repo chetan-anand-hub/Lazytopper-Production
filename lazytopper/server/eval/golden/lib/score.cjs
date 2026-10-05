@@ -17,6 +17,7 @@
 const { load, readJson } = require('./data.cjs');
 const { commentFailures, consistencyFailures, stepText, isLoss } = require('./truth.cjs');
 const { digest } = require('./planner.cjs');
+const { NOT_GRADED_TIMEOUT_NOTE, NOT_GRADED_ERROR_NOTE } = require('../../../grading/rules.cjs');
 
 const LABEL = { conceptual: 'knowledge gap', presentation: 'exam technique', calculation: 'careless', silly: 'careless' };
 const TYPES = ['conceptual', 'calculation', 'silly', 'presentation'];
@@ -51,8 +52,9 @@ function expectationFor(caseId, G, locators, probesTruth) {
       wrongStepLocator: null, departureKind: null, departureReturns: false, illegible: false, declineAcceptable: false,
     };
   }
-  if (/^CP\d\d-Q\d\d-/.test(caseId)) {
+  if (/^CP\d\d-Q\d\d-/.test(caseId) || /^DUP-/.test(caseId)) {
     // GRADER-CORE-1 PR-2 · CONTROLLER TEST PAPERS (key.json, SYNTHETIC answers, cited keys).
+    // PR-3 · and the DUPLICATE-NUMBER paper (dup-number-T2/key.json), same expected fields.
     const q = G.paperCaseById[caseId];
     const e = q.expected || {};
     const mt = e.mistakeType && e.mistakeType !== 'none' ? e.mistakeType : null;
@@ -112,6 +114,10 @@ function statusOf(item, result) {
   }
   if (rep.body && rep.body.ok === false) return 'okfalse';
   if (!result) return 'not-returned';
+  // GRADER-CORE-1 PR-3 (C8): a question whose chunk did not finish comes back inside a 200 as
+  // "not graded" — a TIMEOUT for the owner's "0 timeouts" target, never an honest couldNotRead.
+  if (result.couldNotRead && (result.notGraded === 'timeout' || result.note === NOT_GRADED_TIMEOUT_NOTE)) return 'timeout';
+  if (result.couldNotRead && (result.notGraded === 'error' || result.note === NOT_GRADED_ERROR_NOTE)) return 'error-chunk';
   if (result.couldNotRead) return 'couldNotRead';
   return 'graded';
 }
@@ -283,7 +289,7 @@ function costOf(records) {
       }
     }
   }
-  return { usd, http, withUsage, s429, timeouts, meanPrompt: withUsage ? Math.round(prompt / withUsage) : null, meanOutput: withUsage ? Math.round(output / withUsage) : null, meanThinking: withUsage ? Math.round(thinking / withUsage) : null };
+  return { usd, http, withUsage, s429, timeouts, promptTotal: prompt, meanPrompt: withUsage ? Math.round(prompt / withUsage) : null, meanOutput: withUsage ? Math.round(output / withUsage) : null, meanThinking: withUsage ? Math.round(thinking / withUsage) : null };
 }
 
 /**
@@ -301,7 +307,12 @@ function score(input) {
     } else {
       for (const cid of item.job.caseIds) {
         const qn = item.job.qNumbers[cid];
-        const r = Array.isArray(body.results) ? body.results.find((x) => Number(x.qNumber) === Number(qn)) : null;
+        // PR-3: a job whose questions share a printed number is matched by POSITION (the
+        // server returns one result per sent question, in request order).
+        const qi = item.job.qIndexes ? item.job.qIndexes[cid] : undefined;
+        const r = !Array.isArray(body.results) ? null
+          : Number.isInteger(qi) ? body.results[qi] || null
+            : body.results.find((x) => Number(x.qNumber) === Number(qn));
         rows.push(makeRow(item, cid, r || null, ctx));
       }
     }
@@ -379,7 +390,16 @@ function score(input) {
   };
 
   // GRADER-CORE-1 PR-2 · the controller papers, scored apart (legacy rows; the same targets)
-  const paperRows = rows.filter((r) => r.kind === 'paper' && !r.v2 && r.expectedAnswerMismatch !== true);
+  const paperRows = rows.filter((r) => r.kind === 'paper' && !r.v2 && r.expectedAnswerMismatch !== true && !r.caseId.startsWith('DUP-'));
+  // GRADER-CORE-1 PR-3 · the duplicate-number paper, scored apart: both "Q5"s must be GRADED
+  // (never couldNotRead from a collision), each against its own key.
+  const dupRows = rows.filter((r) => r.kind === 'paper' && r.caseId.startsWith('DUP-'));
+  const dupQ5 = dupRows.filter((r) => /^DUP-T2-Q5[ab]$/.test(r.caseId));
+  result.dup = {
+    q5: { n: dupQ5.length, graded: dupQ5.filter((r) => r.status === 'graded').length, pct: pct(dupQ5.filter((r) => r.status === 'graded').length, dupQ5.length) },
+    agg: aggregate(dupRows.filter((r) => !r.v2 && r.expectedAnswerMismatch !== true)),
+    rows: dupRows.map((r) => ({ id: r.caseId, surface: r.surface, run: r.run, status: r.status, awarded: r.status === 'graded' ? r.awarded : null, expected: r.expectedTotal, withinHalf: r.withinHalf })),
+  };
   result.papers = {
     agg: aggregate(paperRows),
     perPaper: Object.fromEntries([...new Set(paperRows.map((r) => r.caseId.slice(0, 4)))].map((pid) => {
@@ -428,21 +448,70 @@ function score(input) {
   result.ownerDetect.n = result.ownerDetect.perQuestion.length;
   result.ownerDetect.pass = result.ownerDetect.perQuestion.filter((x) => x.ok).length;
 
+  // GRADER-CORE-1 PR-3 (C10) · the owner paper's detect, every run, both ways (legacy + v2):
+  // 10 questions numbered 1–10, printed marks, both minus signs; and — v2 only — each
+  // question's own subject and chapter against the owner key. Plus the duplicate-number paper.
+  const ownerPapers = (input.detectItems || []).filter((d) => d.job.jobKey === 'D.PAPER.OA-01' || d.job.jobKey === 'V2.D.PAPER.OA-01');
+  const det10 = { jobs: 0, paperOk: 0, minusN: 0, minusKept: 0, perQ: { n: 0, ok: 0 }, misses: [] };
+  for (const d of ownerPapers) {
+    const b = d.rep.body || {};
+    const qs = b.ok && Array.isArray(b.questions) ? b.questions : [];
+    const byN = (n) => qs.find((x) => Number(x.questionNumber) === n) || null;
+    det10.jobs += 1;
+    let minusAll = true;
+    for (const n of [2, 6]) {
+      const q = G.owner.questions.find((x) => x.qNumber === n);
+      const kept = (q.minusSignsRequired || []).some((m) => String((byN(n) || {}).questionText || '').includes(m));
+      det10.minusN += 1;
+      if (kept) det10.minusKept += 1; else { minusAll = false; det10.misses.push(d.job.jobKey + ' Q' + n + ' minus lost'); }
+    }
+    const numbersOk = qs.length === 10 && G.owner.questions.every((q) => qs.filter((x) => Number(x.questionNumber) === q.qNumber).length === 1);
+    const marksOk = numbersOk && G.owner.questions.every((q) => Number(byN(q.qNumber).marks) === Number(q.marks));
+    if (numbersOk && marksOk && minusAll) det10.paperOk += 1;
+    else if (!numbersOk || !marksOk) det10.misses.push(d.job.jobKey + ' count/numbers/marks: ' + qs.map((x) => x.questionNumber + ':' + x.marks).join(','));
+    if (d.job.jobKey.startsWith('V2.')) {
+      for (const q of G.owner.questions) {
+        const x = byN(q.qNumber);
+        const ok = Boolean(x && x.subject === q.subject && x.chapter === q.chapterKey);
+        det10.perQ.n += 1;
+        if (ok) det10.perQ.ok += 1; else det10.misses.push(d.job.jobKey + ' Q' + q.qNumber + ' want ' + q.subject + '/' + q.chapterKey + ' got ' + (x ? x.subject + '/' + x.chapter : 'none'));
+      }
+    }
+  }
+  const t2 = (input.detectItems || []).filter((d) => d.job.jobKey === 'D.PAPER.T2' || d.job.jobKey === 'V2.D.PAPER.T2');
+  const t2ok = t2.filter((d) => { const qs = (d.rep.body && d.rep.body.ok && d.rep.body.questions) || []; return qs.length === 8 && qs.filter((x) => Number(x.questionNumber) === 5).length === 2; });
+  result.detectPaper = {
+    owner: { ...det10, paperPct: pct(det10.paperOk, det10.jobs), minusPct: pct(det10.minusKept, det10.minusN), perQuestionPct: pct(det10.perQ.ok, det10.perQ.n) },
+    dupT2: { jobs: t2.length, ok: t2ok.length, pct: pct(t2ok.length, t2.length) },
+  };
+
   // latency / tokens / cost per grader (grading jobs only)
-  const byGrader = { P3: [], P4: [], owner: [] };
+  const byGrader = { P3: [], P4: [], owner: [], papers: [], maths5: [] };
   for (const item of input.items) {
     if (item.job.surface === 'CI-MULTI-OWNER') byGrader.owner.push(item);
     else if (P3_SURFACES.has(item.job.surface)) byGrader.P3.push(item);
     else if (P4_SURFACES.has(item.job.surface)) byGrader.P4.push(item);
+    // GRADER-CORE-1 PR-3 (C8) acceptance samples: every set of ≥ 8 questions (the owner paper,
+    // the controller papers, the duplicate-number paper — "a 10-question mixed paper") and every
+    // 5-question Maths set (the "golden 5-question Maths sets").
+    const nq = Array.isArray(item.job.request && item.job.request.questions) ? item.job.request.questions.length : 0;
+    if (item.job.entry === 'set' && nq >= 8) byGrader.papers.push(item);
+    if (item.job.entry === 'set' && nq === 5 && /math/i.test(String((item.job.request && item.job.request.subject) || ''))) byGrader.maths5.push(item);
   }
   result.ops = {};
   for (const [k, list] of Object.entries(byGrader)) {
     const lat = list.map((i) => i.record.wallMs).filter((x) => typeof x === 'number');
     const c = costOf(list.map((i) => i.record));
-    const gradedQs = rows.filter((r) => list.some((i) => i.job.jobKey === r.jobKey && i.run === r.run) && r.status === 'graded').length;
+    const mine = (r) => list.some((i) => i.job.jobKey === r.jobKey && i.run === r.run);
+    const gradedQs = rows.filter((r) => mine(r) && r.status === 'graded').length;
     result.ops[k] = { jobs: list.length, p50: quant(lat, 0.5), p95: quant(lat, 0.95), max: lat.length ? Math.max(...lat) : null,
       timeouts: list.filter((i) => statusOf(i, null) === 'timeout').length, errors: list.filter((i) => /^error-/.test(statusOf(i, null))).length,
-      ...c, gradedQuestions: gradedQs, usdPerGradedQuestion: gradedQs ? c.usd / gradedQs : null };
+      // PR-3: questions that came back "not graded" because their chunk ran out of time
+      timedOutQuestions: rows.filter((r) => mine(r) && r.status === 'timeout').length,
+      calls: list.reduce((n, i) => n + ((i.record.calls || []).length), 0),
+      callsPerJob: list.length ? Math.round((10 * list.reduce((n, i) => n + ((i.record.calls || []).length), 0)) / list.length) / 10 : null,
+      ...c,
+      promptPerJob: list.length && c.withUsage ? Math.round(c.promptTotal / list.length) : null, gradedQuestions: gradedQs, usdPerGradedQuestion: gradedQs ? c.usd / gradedQs : null };
   }
   result.rows = rows;
   return result;
@@ -477,6 +546,12 @@ function headline(res) {
     papers_within_half: res.papers ? res.papers.agg.within_half.pct : null,
     papers_type: res.papers ? res.papers.agg.type.pct : null,
     unattempted_v2: res.unattemptedV2 ? res.unattemptedV2.pct : null,
+    // GRADER-CORE-1 PR-3 (C8/C10). null ("na") where the replayed run holds no such job.
+    dup_q5_graded: res.dup ? res.dup.q5.pct : null,
+    detect_owner_paper: res.detectPaper ? res.detectPaper.owner.paperPct : null,
+    detect_minus_kept: res.detectPaper ? res.detectPaper.owner.minusPct : null,
+    detect_per_question: res.detectPaper ? res.detectPaper.owner.perQuestionPct : null,
+    detect_dup_numbers: res.detectPaper ? res.detectPaper.dupT2.pct : null,
   };
 }
 

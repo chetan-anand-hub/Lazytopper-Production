@@ -131,7 +131,7 @@ async function main() {
     ? createDriver({ callGemini: client.callGemini, model: 'gemini-2.5-flash', gradingModel: cfg.model, gradingThinkingBudget: cfg.thinkingBudget, gradingMode: cfg.gradingMode, gradingLightModel: cfg.lightModel })
     : createDriver({ callGemini: client.callGemini, model: cfg.model });
 
-  const serverFiles = ['grading/rules.cjs', 'grading/prompt.cjs', 'grading/postprocess.cjs', 'grading/core.cjs', 'grading/verify.cjs', 'grading/schema.cjs', 'grading/fence.cjs', 'routes/checkSolution.cjs', 'routes/objectiveScoring.cjs', 'services/geminiClient.cjs', 'services/serverConfig.cjs', 'services/httpUtils.cjs', 'mentorImageSupport.cjs', 'services/serverUtils.cjs'];
+  const serverFiles = ['grading/rules.cjs', 'grading/prompt.cjs', 'grading/postprocess.cjs', 'grading/core.cjs', 'grading/verify.cjs', 'grading/schema.cjs', 'grading/fence.cjs', 'grading/timing.cjs', 'grading/charge.cjs', 'grading/detect.cjs', 'grading/pdfTextLayer.cjs', 'routes/checkSolution.cjs', 'routes/objectiveScoring.cjs', 'services/geminiClient.cjs', 'services/serverConfig.cjs', 'services/httpUtils.cjs', 'mentorImageSupport.cjs', 'services/serverUtils.cjs'];
   const serverDir = path.join(__dirname, '..', '..');
   const lfOnlyHash = (f) => crypto.createHash('sha256').update(fs.readFileSync(path.join(serverDir, f), 'utf8').replace(/\r\n/g, '\n')).digest('hex');
   const manifestPath = path.join(runDir, 'manifest.json');

@@ -788,7 +788,13 @@ function createCheckSolutionRoute(deps) {
         // OBJECTIVE-ANSWER-NOT-SENT: the option the student chose in the UI (Quick Practice).
         // ★ NOT `answer` and NOT `correctOption` — those carry the bank's CORRECT key.
         pickedOption: String((q && q.pickedOption) || '').trim(),
+        // GRADER-CORE-1 PR-3 (C10): optional, from a v2 detect — THIS question's own subject (it
+        // is graded under its own subject's rules; absent → the request's subject, as before)
+        // and chapter key (a label only when the request carries no topic for it).
+        subject: String((q && q.subject) || '').trim(),
+        chapter: String((q && q.chapter) || '').trim(),
       }))
+      .map((q) => (q.topic || q.topicLabel || !q.chapter ? q : { ...q, topicLabel: q.chapter }))
       .filter((q) => q.qNumber > 0 && q.questionText);
 
     if (questions.length === 0) {
