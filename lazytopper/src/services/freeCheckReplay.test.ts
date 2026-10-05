@@ -177,6 +177,11 @@ describe("R8 replay — a single-question result", () => {
       topic: "Real Numbers",
       topicKey: "real-numbers",
       question: SINGLE.question,
+      // SCORECARD-MI-1 — the same stable identity a signed-in grade of this session gets…
+      surface: "check-improve",
+      submissionId: "CI-M-REAL-03",
+      // …and GA-41: the MI entry carries the GRADE time, like the attempt.
+      gradedAt: GRADED_AT,
     });
     expect(H.recordAttempt).toHaveBeenCalledTimes(1);
     expect(H.recordAttempt.mock.calls[0][1]).toMatchObject({

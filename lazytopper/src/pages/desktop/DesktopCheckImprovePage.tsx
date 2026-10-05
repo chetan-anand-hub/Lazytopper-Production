@@ -28,11 +28,30 @@ import { useIsDesktop } from "../../hooks/useIsDesktop";
 import { desktopTopicsBySubject } from "../../lib/desktop/topics";
 import {
   buildConfirmedDetection,
+  ciQuestionIds,
   clampDetectedMarks,
+  isMixedPaper,
+  perQuestionFiling,
+  resolveCiQuestionText,
   resolvePerQuestionGradeTopics,
   SHOW_DETECTION_META,
+  withObjectiveEcho,
   type ConfirmedDetection,
 } from "../../utils/checkImproveDetection";
+// SCORECARD-MI-1 — every group, label, step state and count on this page comes from the ONE
+// display module (owner rulings 5 Oct 2026).
+import {
+  MISTAKE_TYPE_LABEL,
+  NOT_ATTEMPTED,
+  countWithUnit,
+  effectiveTypeCounts,
+  groupRows,
+  isQuestionNotAttempted,
+  mistakeGroupOf,
+  stepDisplay,
+  stepForDisplay,
+  withEffectiveCounts,
+} from "../../lib/mistakeDisplay";
 import {
   buildDesktopPracticePath,
   buildDesktopWorksheetPath,
@@ -69,6 +88,7 @@ import {
 import ResultsScorecard from "../../components/results/ResultsScorecard";
 import {
   checkImproveScorecardVariant,
+  ciPaperMixLabel,
   storedCheckImproveScorecardVariant,
 } from "../../components/results/scorecardVariants";
 // FREE-CHECK-1b — one free marked upload for a signed-out visitor. Every import below is
@@ -255,11 +275,21 @@ function detectionSourceLabel(
   }
 }
 
+/** A group's colour key (from lib/mistakeDisplay) on this page's palette. */
+const GROUP_TONE: Record<"gap" | "technique" | "careless", { fg: string; bg: string }> = {
+  gap: { fg: DANGER_FG, bg: DANGER_SOFT },
+  technique: { fg: INFO_FG, bg: INFO_SOFT },
+  careless: { fg: WARNING_FG, bg: WARNING_SOFT },
+};
+const typeTone = (t: MistakeType) => GROUP_TONE[mistakeGroupOf(t)?.colorKey ?? "gap"];
+
+// SCORECARD-MI-1 — names from the module; key order follows the owner's group order
+// (knowledge, exam technique, careless) so the summary card reads in that order.
 const MISTAKE_LABELS: Record<MistakeType, { label: string; fg: string; bg: string }> = {
-  conceptual: { label: "Conceptual", fg: WARNING_FG, bg: WARNING_SOFT },
-  calculation: { label: "Calculation", fg: INFO_FG, bg: INFO_SOFT },
-  silly: { label: "Silly", fg: DANGER_FG, bg: DANGER_SOFT },
-  presentation: { label: "Presentation", fg: ACCENT_FG, bg: ACCENT_SOFT },
+  conceptual: { label: MISTAKE_TYPE_LABEL.conceptual, ...typeTone("conceptual") },
+  presentation: { label: MISTAKE_TYPE_LABEL.presentation, ...typeTone("presentation") },
+  calculation: { label: MISTAKE_TYPE_LABEL.calculation, ...typeTone("calculation") },
+  silly: { label: MISTAKE_TYPE_LABEL.silly, ...typeTone("silly") },
 };
 
 type AnswerTab = "upload" | "type";
@@ -276,6 +306,8 @@ interface GradedContext {
   marksSource: "stated" | "inferred" | "fallback" | "user" | null;
   /** Non-null only when the student corrected the AI's detection. */
   detectionOverride: DetectionOverrideLog | null;
+  /** SCORECARD-MI-1 (D5) — the session code: the submission half of the stable MI identity. */
+  sessionCode?: string;
 }
 
 /* ──────────── multi-question (Check & Improve) helpers ──────────── */
@@ -578,11 +610,14 @@ const STATUS_META: Record<
   correct: { label: "Correct", fg: ACCENT_FG, bg: ACCENT_SOFT, Icon: CheckGlyph },
   partial: { label: "Partial", fg: WARNING_FG, bg: WARNING_SOFT, Icon: AlertGlyph },
   incorrect: { label: "Incorrect", fg: DANGER_FG, bg: DANGER_SOFT, Icon: XCircleGlyph },
-  missing: { label: "Missing", fg: DANGER_FG, bg: DANGER_SOFT, Icon: XCircleGlyph },
+  missing: { label: NOT_ATTEMPTED.label, fg: TEXT_MUTED, bg: MUTED_BG, Icon: AlertGlyph },
 };
+/** D4 — a status this page does not know (e.g. a future "withdrawn") renders neutrally. */
+const UNKNOWN_STATUS_META = { label: stepDisplay("unknown").label, fg: TEXT_MUTED, bg: MUTED_BG, Icon: AlertGlyph };
 
 const AnnotatedStepRow: React.FC<{ step: CheckSolutionAnnotatedStep; objective?: boolean }> = ({ step, objective }) => {
-  const meta = STATUS_META[step.status] ?? STATUS_META.incorrect;
+  const display = stepDisplay(step.status);
+  const meta = STATUS_META[step.status] ?? UNKNOWN_STATUS_META;
   const Icon = meta.Icon;
   return (
     <div
@@ -649,7 +684,7 @@ const AnnotatedStepRow: React.FC<{ step: CheckSolutionAnnotatedStep; objective?:
             <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: TEXT_MUTED }}>
               +{step.marksAwarded}
             </span>
-            {step.marksDeducted > 0 && (
+            {step.marksDeducted > 0 && display.showDeduction && (
               <span style={{ fontFamily: FONT_SANS, fontSize: 12, color: DANGER_FG }}>
                 −{step.marksDeducted}
               </span>
@@ -1155,12 +1190,16 @@ const DesktopCheckImprovePageInner: React.FC<{
   const isMultiQuestion = Boolean(detectedQuestions && detectedQuestions.length > 1);
   const hasAnswer =
     tab === "upload" ? Boolean(imageBase64) : textAnswer.trim().length >= 10;
+  // SCORECARD-MI-1 (B1/D6) — what a single-question grade will send as the question: the typed
+  // text, else the text read from the photo / PDF / QR upload. Empty → the student is asked to
+  // type the question (the grader is never handed the chapter name instead of the question).
+  const singleQuestionText = resolveCiQuestionText(question, detectedQuestions);
   // Grade only after the question has been read + confirmed AND an answer exists.
   // Multi-question grading REQUIRES an uploaded answer sheet (image or PDF) — the
   // whole-paper grader reads the answers from that one upload.
   const canGrade =
     Boolean(confirmed) &&
-    (isMultiQuestion ? Boolean(imageBase64) : hasAnswer) &&
+    (isMultiQuestion ? Boolean(imageBase64) : hasAnswer && singleQuestionText.length > 0) &&
     status !== "loading";
 
   // UPLOAD-2 — the shared upload step for the ANSWER. A photo is cropped (optional),
@@ -1378,8 +1417,7 @@ const DesktopCheckImprovePageInner: React.FC<{
     // the multi sheet uses.
     const code = ciCode ?? "CI";
     const ms = result.mistakeSummary ?? { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
-    const knowledge = ms.conceptual + ms.calculation;
-    const careless = ms.silly + ms.presentation;
+    const shownCounts = effectiveTypeCounts({ ...result, mistakeSummary: ms });
     return {
       code,
       name: `${resultCtx.topicName || resultCtx.subject} · Check & Improve`,
@@ -1402,8 +1440,8 @@ const DesktopCheckImprovePageInner: React.FC<{
       coaching: buildCiCoaching({
         gradedMarksAwarded: result.marksAwarded,
         gradedMarksTotal: result.totalMarks,
-        knowledge,
-        careless,
+        counts: shownCounts,
+        notAttemptedCount: isQuestionNotAttempted(result) ? 1 : 0,
         pendingCount: 0,
       }),
     };
@@ -1435,7 +1473,7 @@ const DesktopCheckImprovePageInner: React.FC<{
     }));
     return {
       code,
-      name: `${confirmed?.topicName || confirmed?.subject || "Check & Improve"} · Check & Improve paper`,
+      name: `${ciPaperMixLabel(ws) || confirmed?.topicName || confirmed?.subject || "Check & Improve"} · Check & Improve paper`,
       metaLine: `Check & Improve · ${ws.totalQuestions} question${ws.totalQuestions === 1 ? "" : "s"} · ${ws.worksheetTotalMarks} marks`,
       questions,
       gradedMarksAwarded: ws.gradedMarksAwarded,
@@ -1444,6 +1482,8 @@ const DesktopCheckImprovePageInner: React.FC<{
       coaching: buildCiCoaching({
         gradedMarksAwarded: ws.gradedMarksAwarded,
         gradedMarksTotal: ws.gradedMarksTotal,
+        // HELD-OWNER-GATE-RULING — `agg` (moat-pinned lines above) is the pre-ruling two-bucket
+        // split; buildCiCoaching prints only its SUM until the MI moat is re-based.
         knowledge: agg.k,
         careless: agg.c,
         pendingCount: ws.pendingCount,
@@ -1493,6 +1533,10 @@ const DesktopCheckImprovePageInner: React.FC<{
         topic: ctx.topicName,
         topicKey: ctx.topicSlug, // canonical slug → aligns the weak-area bridge
         question: ctx.question,
+        // SCORECARD-MI-1 (D5) — stable identity: this session + this question. A re-grade of
+        // the same answer replaces its entry; it never adds a second.
+        surface: "check-improve",
+        submissionId: ctx.sessionCode,
       });
       // Score-twin: persist the graded score as an attempt (feeds the Me
       // scorecard / accuracy). Every graded answer, including full marks. Carries the
@@ -1512,6 +1556,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         case "logged":
         case "duplicate":
         case "skipped-clean":
+        case "skipped-not-attempted":
           setSaveStatus("saved");
           break;
         case "skipped-no-user":
@@ -1541,8 +1586,9 @@ const DesktopCheckImprovePageInner: React.FC<{
     // first R questions of the paper, in its own order, are sent. Null = all, as before.
     const questionsToGrade = limitTo !== null ? detectedQuestions.slice(0, limitTo) : detectedQuestions;
 
-    // One code per session; reuse it if this session was already graded once so a
-    // re-grade reuses the same stable MI ids (dedup) instead of double-counting.
+    // One code per session; reuse it if this session was already graded once. The code is the
+    // submission half of each question's stable MI identity, so a re-grade REPLACES those
+    // entries (SCORECARD-MI-1, D5) instead of adding new ones.
     // Minted DURABLY (cross-device record count) — the retired device-local
     // localStorage sequence collided across devices (C&I PR-1).
     const sessionSubject = toSessionSubject(confirmed.subject);
@@ -1605,6 +1651,9 @@ const DesktopCheckImprovePageInner: React.FC<{
           if (t && t.topicSlug) {
             r.topicSlug = t.topicSlug;
             r.topicLabel = t.topicName;
+            // SCORECARD-MI-1 (B2) — the question's OWN subject, so a mixed paper is filed and
+            // titled per question, never under the first question's subject.
+            if (t.subject) r.topicSubject = t.subject;
           }
         }
       } catch (e) {
@@ -1630,7 +1679,13 @@ const DesktopCheckImprovePageInner: React.FC<{
         });
       }
 
-      setWsResult(response);
+      // SCORECARD-MI-1 — ONE set of counts for every reader of this grade (scorecard, PDF,
+      // session record, MI): no type on a full-mark question, the grader's max-reconcile.
+      const shown = withEffectiveCounts(response);
+      const paperMixed = isMixedPaper(shown.results);
+      const paperFiling = { subject: confirmed.subject, topicName: confirmed.topicName, topicSlug: confirmed.topicSlug };
+      const mixLabel = ciPaperMixLabel(shown);
+      setWsResult(shown);
       trackFunnelStep("check_graded");
       setStatus("ready");
       setSaveStatus("saving");
@@ -1641,16 +1696,18 @@ const DesktopCheckImprovePageInner: React.FC<{
       // (the service gates on gradedCount). Provenance is derived from the EXISTING
       // detect-then-confirm flow; a MIX session writes topicKeys [] — never a
       // majority-guessed topic. Decoupled from the grade AND from MI below.
-      const topicSource = deriveTopicSource(confirmed.topicSlug, topicTouched);
+      // B2 — a paper whose questions span two or more chapters is recorded as MIXED: titled with
+      // its real mix ("Maths + Science · 10 chapters") and fed to no single chapter's progress.
+      const topicSource = paperMixed ? "mixed" : deriveTopicSource(confirmed.topicSlug, topicTouched);
       setCiTopicSource(topicSource);
       const persistOutcome = persistCheckImproveSession({
         user,
         code: sessionCode,
-        title: sessionTitle ?? `Check & Improve · ${sessionCode}`,
+        title: mixLabel ? `${mixLabel} · ${sessionCode}` : sessionTitle ?? `Check & Improve · ${sessionCode}`,
         subject: sessionSubject,
-        topicSlug: confirmed.topicSlug,
+        topicSlug: paperMixed ? "" : confirmed.topicSlug,
         topicSource,
-        response,
+        response: shown,
       });
       setCiSaved(persistOutcome === "recorded");
       if (persistOutcome === "recorded") void loadCiRecords();
@@ -1666,32 +1723,43 @@ const DesktopCheckImprovePageInner: React.FC<{
         // stable, session-scoped id. couldNotRead (pending) is skipped — never a 0,
         // never a fabricated mistake.
         let anyRecorded = false;
-        for (const g of response.results) {
+        // B5 — stable per-question ids, unique even when detected numbers repeat.
+        const questionIds = ciQuestionIds(sessionCode, shown.results);
+        for (const [gi, g] of shown.results.entries()) {
           if (g.couldNotRead) continue;
           const csr = multiQuestionToCsr(g);
-          const questionId = `ci:${sessionCode}:q${g.qNumber}`;
+          const questionId = questionIds[gi];
           const qText =
             detectedQuestions.find((q) => q.questionNumber === g.qNumber)?.questionText ||
             `${sessionCode} · Q${g.qNumber}`;
+          // B2 (GA-16) — this question's OWN subject and chapter, never the first question's.
+          const filing = perQuestionFiling(g, paperFiling, paperMixed);
           // eslint-disable-next-line no-await-in-loop
           const rec = await recordMistake(user, csr, {
-            subject: confirmed.subject,
-            topic: confirmed.topicName,
-            topicKey: confirmed.topicSlug,
+            subject: filing.subject,
+            topic: filing.topicName,
+            topicKey: filing.topicSlug,
             question: qText,
             questionId,
+            surface: "check-improve",
+            submissionId: sessionCode,
           });
           recordAttempt(user, {
-            subject: confirmed.subject,
-            topic: confirmed.topicName,
-            topicKey: confirmed.topicSlug,
+            subject: filing.subject,
+            topic: filing.topicName,
+            topicKey: filing.topicSlug,
             question: qText,
             questionId,
             marksScored: csr.marksAwarded,
             marksAvailable: csr.totalMarks,
             mode: "graded",
           });
-          if (rec.outcome === "logged" || rec.outcome === "duplicate" || rec.outcome === "skipped-clean") {
+          if (
+            rec.outcome === "logged" ||
+            rec.outcome === "duplicate" ||
+            rec.outcome === "skipped-clean" ||
+            rec.outcome === "skipped-not-attempted"
+          ) {
             anyRecorded = true;
           }
         }
@@ -1755,21 +1823,22 @@ const DesktopCheckImprovePageInner: React.FC<{
     setGradeStage(null);
     setSaveStatus("idle");
 
-    const trimmedQuestion = question.trim();
+    const trimmedQuestion = singleQuestionText;
 
     try {
       // Detect-then-confirm: grade against the CONFIRMED (possibly corrected)
       // marks/subject/topic via the trusted-marks path (no re-detection at grade
-      // time). The question is sent as text when typed; when it was a photo we send
-      // its description-free label so the grader still has the question text — for a
-      // photo-only question we fall back to the answer image carrying the work.
+      // time). SCORECARD-MI-1 (B1): the question is sent as TEXT — typed text when the
+      // student typed it, otherwise the text detect-question read from the photo / PDF /
+      // QR upload. It is never the chapter name: with neither, grading is not offered
+      // (canGrade) and the student is asked to type the question.
       const answerPart =
         tab === "upload" && imageBase64
           ? { imageBase64, imageMimeType: imageMime }
           : { textAnswer: textAnswer.trim() };
 
       const graded = await checkSolutionImage({
-        question: trimmedQuestion || confirmed.topicName || "Submitted question",
+        question: trimmedQuestion,
         subject: confirmed.subject,
         topic: confirmed.topicName,
         marks: confirmed.marks,
@@ -1821,8 +1890,9 @@ const DesktopCheckImprovePageInner: React.FC<{
 
       // C&I PR-1 — mint the durable code at GRADE time (owner decision 2026-07-13:
       // the lazy export-time mint is retired — every graded session gets a record,
-      // so singles no longer vanish on close). A totally unreadable answer returns
-      // ok:false above and never reaches here — no grade, no record.
+      // so singles no longer vanish on close). NOTE (SCORECARD-MI-1): an illegible answer
+      // can still come back ok:true with a 0 from today's single-question grader — the
+      // honest "couldn't read" state arrives with GRADER-CORE-1 (GA-04).
       const sessionSubject = toSessionSubject(confirmed.subject);
       let sessionCode = ciCode;
       let sessionTitle = ciName;
@@ -1838,6 +1908,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         setCiCode(nomen.code);
         setCiName(nomen.name);
       }
+      ctx.sessionCode = sessionCode;
 
       // FREE-CHECK-1b — R1 + R8, on a SUCCESSFUL single grade only (the grader said ok).
       if (isFreeMode) {
@@ -1874,7 +1945,8 @@ const DesktopCheckImprovePageInner: React.FC<{
         subject: sessionSubject,
         topicSlug: confirmed.topicSlug,
         topicSource,
-        response: singleCheckToWorksheetResponse(graded),
+        // GA-38 — the objective flag survives into the stored payload; ONE set of counts.
+        response: withEffectiveCounts(withObjectiveEcho(singleCheckToWorksheetResponse(graded), graded)),
       });
       setCiSaved(persistOutcome === "recorded");
       if (persistOutcome === "recorded") void loadCiRecords();
@@ -2353,8 +2425,8 @@ const DesktopCheckImprovePageInner: React.FC<{
                     lineHeight: 1.5,
                   }}
                 >
-                  <strong>{detectedQuestions.length} questions detected</strong> · {confirmed.subject}
-                  {confirmed.topicName ? ` · ${confirmed.topicName}` : ""}
+                  <strong>{detectedQuestions.length} questions detected</strong> · each question&rsquo;s
+                  subject and chapter are read when it is graded
                   <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 4, display: "flex", flexWrap: "wrap", gap: "0 16px" }}>
                     {detectedQuestions.map((q) => (
                       <span key={q.questionNumber}>
@@ -2803,7 +2875,9 @@ const DesktopCheckImprovePageInner: React.FC<{
             <span style={{ fontSize: 12, color: TEXT_MUTED }}>
               {!confirmed
                 ? "Read the question first (step 1)"
-                : "Add an answer (image or text) to continue"}
+                : !isMultiQuestion && !singleQuestionText
+                  ? "We couldn't read the question's text — type it in step 1 so it can be marked against the right question"
+                  : "Add an answer (image or text) to continue"}
             </span>
           )}
           <button
@@ -2923,7 +2997,7 @@ const DesktopCheckImprovePageInner: React.FC<{
               returnTicket: overlay
                 ? { label: "Back to your tutor", onReturn: overlayReturn }
                 : returnTicketInput,
-              topicName: confirmed.topicName,
+              topicName: ciTopicSource === "mixed" ? "" : confirmed.topicName,
               code: ciCode,
               topicSource: ciTopicSource ?? deriveTopicSource(confirmed.topicSlug, topicTouched),
               response: ws,
@@ -2932,7 +3006,7 @@ const DesktopCheckImprovePageInner: React.FC<{
               downloading,
               onReadSheet: () => setScorecardOpen(false),
               onDownloadGraded: () => void downloadGraded(buildMultiPrintProps()),
-              ...(confirmed.topicSlug
+              ...(confirmed.topicSlug && ciTopicSource !== "mixed"
                 ? {
                     onPractiseTopic: () =>
                       gotoWorksheetForTopic(confirmed.subject, confirmed.topicSlug),
@@ -3002,8 +3076,9 @@ const DesktopCheckImprovePageInner: React.FC<{
         <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 16 }}>
           {ws.results.map((g, qi) => {
             const m = g.mistakeSummary ?? { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
-            const knowledge = m.conceptual + m.calculation;
-            const careless = m.silly + m.presentation;
+            // SCORECARD-MI-1 — the owner's three groups over the ONE count function.
+            const chips = groupRows(effectiveTypeCounts({ ...g, mistakeSummary: m })).filter((r) => r.count > 0);
+            const notAttemptedQ = isQuestionNotAttempted(g);
             // PART A: per-question steps (same AnnotatedStepRow as single-Q),
             // expandable so a multi-question paper isn't a wall of steps. Keyed by
             // array index (not qNumber) so a grader-mislabelled duplicate qNumber
@@ -3051,11 +3126,13 @@ const DesktopCheckImprovePageInner: React.FC<{
                     </span>
                   ) : (
                     <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                      {knowledge > 0 && (
-                        <span style={{ ...chipBase, color: DANGER_FG }}>Knowledge gap ×{knowledge}</span>
-                      )}
-                      {careless > 0 && (
-                        <span style={{ ...chipBase, color: WARNING_FG }}>Careless ×{careless}</span>
+                      {chips.map(({ group, count }) => (
+                        <span key={group.key} data-group={group.key} style={{ ...chipBase, color: GROUP_TONE[group.colorKey].fg }}>
+                          {group.label} · {countWithUnit(count)}
+                        </span>
+                      ))}
+                      {notAttemptedQ && (
+                        <span style={{ ...chipBase, color: TEXT_MUTED }}>{NOT_ATTEMPTED.label}</span>
                       )}
                       <span
                         style={{
@@ -3105,7 +3182,7 @@ const DesktopCheckImprovePageInner: React.FC<{
                       </div>
                     )}
                     {steps.map((step) => (
-                      <AnnotatedStepRow key={step.stepNumber} step={step} objective={g.objective} />
+                      <AnnotatedStepRow key={step.stepNumber} step={stepForDisplay(step, g)} objective={g.objective} />
                     ))}
                   </div>
                 )}
@@ -3148,6 +3225,9 @@ const DesktopCheckImprovePageInner: React.FC<{
     silly: 0,
     presentation: 0,
   };
+  // SCORECARD-MI-1 — what this answer may show: no type on full marks; counts, never marks.
+  const shownCounts = effectiveTypeCounts({ ...result, mistakeSummary: summary });
+  const singleNotAttempted = isQuestionNotAttempted(result);
   const lostSteps = result.annotatedSteps.filter((s) => s.status !== "correct");
 
   return withChrome(
@@ -3207,7 +3287,7 @@ const DesktopCheckImprovePageInner: React.FC<{
             topicName: resultCtx.topicName,
             code: ciCode,
             topicSource: ciTopicSource ?? deriveTopicSource(resultCtx.topicSlug, topicTouched),
-            response: singleCheckToWorksheetResponse(result),
+            response: withEffectiveCounts(withObjectiveEcho(singleCheckToWorksheetResponse(result), result)),
             saved: ciSaved,
             ...(isFreeMode ? { signUpToSave: freeSignUpToSave } : {}),
             downloading,
@@ -3329,7 +3409,7 @@ const DesktopCheckImprovePageInner: React.FC<{
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 {result.annotatedSteps.map((step) => (
-                  <AnnotatedStepRow key={step.stepNumber} step={step} objective={result.objective} />
+                  <AnnotatedStepRow key={step.stepNumber} step={stepForDisplay(step, result)} objective={result.objective} />
                 ))}
               </div>
             )}
@@ -3371,7 +3451,8 @@ const DesktopCheckImprovePageInner: React.FC<{
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {(Object.keys(MISTAKE_LABELS) as MistakeType[]).map((key) => {
                 const meta = MISTAKE_LABELS[key];
-                const count = summary[key] ?? 0;
+                const count = shownCounts[key] ?? 0;
+                const group = mistakeGroupOf(key);
                 return (
                   <div
                     key={key}
@@ -3405,9 +3486,12 @@ const DesktopCheckImprovePageInner: React.FC<{
                         {meta.label}
                       </div>
                       <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 2 }}>
+                        {group ? `${group.label} · ${group.heading}` : ""}
+                      </div>
+                      <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 2 }}>
                         {count === 0
                           ? "No mistakes of this type"
-                          : `${count} flagged on this answer`}
+                          : `${countWithUnit(count)} on this answer`}
                       </div>
                     </div>
                     <span
@@ -3424,8 +3508,13 @@ const DesktopCheckImprovePageInner: React.FC<{
                 );
               })}
             </div>
+            {singleNotAttempted && (
+              <p data-testid="ci-not-attempted" style={{ margin: "12px 0 0", fontSize: 12.5, color: TEXT_FG, lineHeight: 1.5 }}>
+                {NOT_ATTEMPTED.note}
+              </p>
+            )}
             <p style={{ margin: "12px 0 0", fontSize: 12, color: TEXT_MUTED, lineHeight: 1.5 }}>
-              Counts come straight from the grader response — no synthesised
+              These are counts of mistakes the grader named, not marks — no synthesised
               trends or invented categories.
             </p>
           </div>
@@ -3577,8 +3666,10 @@ const DesktopCheckImprovePageInner: React.FC<{
                 {lostSteps.map((s) => (
                   <li key={s.stepNumber}>
                     <strong>Step {s.stepNumber}:</strong>{" "}
-                    {s.teacherAnnotation || s.description || "Marks deducted"}
-                    {s.marksDeducted > 0 && (
+                    {stepDisplay(s.status).kind === "not-attempted"
+                      ? NOT_ATTEMPTED.label
+                      : s.teacherAnnotation || s.description || "Marks deducted"}
+                    {s.marksDeducted > 0 && stepDisplay(s.status).showDeduction && (
                       <span style={{ color: DANGER_FG }}> · −{s.marksDeducted}</span>
                     )}
                   </li>

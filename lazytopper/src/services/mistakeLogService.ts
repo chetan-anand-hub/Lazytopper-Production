@@ -1,6 +1,8 @@
 import {
   collection,
   addDoc,
+  doc,
+  setDoc,
   query,
   where,
   orderBy,
@@ -55,6 +57,14 @@ export interface MistakeLogEntry {
   }>;
 }
 
+/** SCORECARD-MI-1 (D5) — how an entry is written. With `id` (the stable grade identity from
+ *  `gradeIdentityDocId`) the write REPLACES any earlier entry for the same submission, on the
+ *  device and in Firestore (`setDoc` on that id — firestore.rules:41-43 allow the owner to
+ *  create and update `mistakeLogs/{logId}`). Without it, the legacy append path. */
+export interface LogMistakesOptions {
+  id?: string;
+}
+
 function localKey(uid: string): string {
   return `${LOCAL_KEY_PREFIX}:${uid}`;
 }
@@ -99,20 +109,27 @@ function mergeByID(
  */
 export async function logMistakes(
   uid: string,
-  entry: Omit<MistakeLogEntry, "id">
+  entry: Omit<MistakeLogEntry, "id">,
+  options?: LogMistakesOptions
 ): Promise<void> {
-  const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const stableId = options?.id?.trim() || "";
+  const id = stableId || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const full: MistakeLogEntry = { id, ...entry };
 
-  const existing = readLocal(uid);
+  // A stable id REPLACES the earlier local copy of the same submission (never two).
+  const existing = readLocal(uid).filter((e) => e.id !== id);
   writeLocal(uid, [full, ...existing]);
 
   if (firestoreDb) {
     try {
-      await addDoc(
-        collection(firestoreDb, "learnerProfiles", uid, "mistakeLogs"),
-        full
-      );
+      if (stableId) {
+        await setDoc(doc(firestoreDb, "learnerProfiles", uid, "mistakeLogs", stableId), full);
+      } else {
+        await addDoc(
+          collection(firestoreDb, "learnerProfiles", uid, "mistakeLogs"),
+          full
+        );
+      }
     } catch {
       // Firestore write failed — localStorage copy remains the source of truth
     }

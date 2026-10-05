@@ -1846,10 +1846,17 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                                   marginTop: 10,
                                 }}
                               >
+                                {/* GA-39 (SCORECARD-MI-1) — a row with no mark value is never handed to
+                                    the grader, which would mark it as a silent 1-mark question. */}
+                                {!(typeof q.marks === "number" && q.marks > 0) ? (
+                                  <p role="status" style={{ margin: 0, fontSize: 13, color: "var(--text-muted)" }}>
+                                    We can&rsquo;t mark this one yet &mdash; it has no mark value on record.
+                                  </p>
+                                ) : (
                                 <Suspense fallback={<p role="status">Loading checker…</p>}>
                                   <SolutionChecker
                                     question={q.question}
-                                    marks={q.marks ?? 0}
+                                    marks={q.marks}
                                     subject={bucket.subject ?? subjectKey}
                                     topic={bucket.topic}
                                     questionId={q.id ? String(q.id) : undefined}
@@ -1857,6 +1864,7 @@ const HighlyProbableQuestionsPage: React.FC = () => {
                                     finalAnswer={q.finalAnswer}
                                   />
                                 </Suspense>
+                                )}
                               </div>
                             )}
 

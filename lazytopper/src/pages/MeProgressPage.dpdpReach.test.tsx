@@ -30,6 +30,8 @@ import { dirname, resolve } from "node:path";
 // `sessions.map is not a function` — which is the shape of the very error this file is
 // meant to detect, so getting these wrong would have produced a FALSE reachability red.
 vi.mock("../services/progressStore", () => ({
+  // SCORECARD-MI-1 (GA-19) — Me reads the mistake log for the SAME window as the hero.
+  WINDOW_DAYS: { week: 7, "2wk": 14, month: 30, "4mo": 120 },
   // the full WindowedProgress shape — a partial one makes the page throw on
   // `data?.sections.length` and would again produce a FALSE reachability red
   getWindowedProgress: vi.fn(async () => ({
@@ -56,8 +58,8 @@ vi.mock("../services/progressStore", () => ({
 vi.mock("../services/mistakeLogService", () => ({ getMistakeLogs: vi.fn(async () => []) }));
 vi.mock("../services/mistakeInsightsService", () => ({
   summarizeCareless: () => ({
+    calculationCount: 0,
     sillyCount: 0,
-    presentationCount: 0,
     count: 0,
     marksLost: 0,
     hasData: false,

@@ -31,6 +31,7 @@ import {
 import type { PersistedWorksheet } from "./worksheetSessionStore";
 import { saveWorksheetGrade, listStoredWorksheetsLite } from "./worksheetSessionStore";
 import { recordMistake, type RecordMistakeOutcome } from "./mistakeIntelligence";
+import { withEffectiveCounts } from "../lib/mistakeDisplay";
 import { conceptForBankQuestionId } from "./mistakeConcept";
 import { recordAttempt } from "./practiceInsights";
 import {
@@ -100,7 +101,7 @@ export async function gradeWorksheetAndRecord(
   /** LOW-END-1 R2: the panel's stage listener (Uploading NN% -> Sent ✓ -> Grading… -> Done). */
   opts?: { onStage?: PaidCallOptions["onStage"] },
 ): Promise<WorksheetGradeOutcome> {
-  const response = await gradeWorksheet({
+  const rawResponse = await gradeWorksheet({
     worksheetId: worksheet.worksheetId,
     subject: worksheet.subject,
     questions: worksheet.questions.map((q) => ({
@@ -128,7 +129,10 @@ export async function gradeWorksheetAndRecord(
     imageMimeType: upload.imageMimeType,
   }, { surface: "worksheet", paperKey: worksheet.worksheetId, ...(opts?.onStage ? { onStage: opts.onStage } : {}) });
 
-  if (!response.ok) return { response, miOutcomes: [] };
+  if (!rawResponse.ok) return { response: rawResponse, miOutcomes: [] };
+  // SCORECARD-MI-1 — ONE set of counts for every reader of this grade (scorecard, PDF,
+  // session record, MI): no type on a full-mark question (owner ruling).
+  const response = withEffectiveCounts(rawResponse);
 
   // Persist so the student can revisit the grade later.
   saveWorksheetGrade(worksheet.worksheetId, response);
@@ -154,6 +158,10 @@ export async function gradeWorksheetAndRecord(
       topicKey: q.topicKey,
       question: q.questionText,
       questionId,
+      // SCORECARD-MI-1 (D5) — stable identity: a re-upload of this worksheet REPLACES its
+      // entries; it never adds a second one per question.
+      surface: "worksheet",
+      submissionId: worksheet.worksheetId,
       // MI-CONCEPT-1 — `questionId` above is the SYNTHETIC attempt id (`ws:…`), which
       // is not a bank id and cannot resolve. The BANK id is `q.id` on the persisted
       // question, so resolve here and hand the concept to the front door. Unresolvable

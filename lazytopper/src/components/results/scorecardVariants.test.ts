@@ -64,13 +64,20 @@ function response(over: Partial<WorksheetGradeResponse> = {}): WorksheetGradeRes
 const noop = () => {};
 
 describe("aggregateFourType", () => {
-  it("sums mistakeSummary over legible questions and skips couldNotRead", () => {
+  // SCORECARD-MI-1 (owner ruling 5 Oct): a type is NEVER shown on a question that lost no
+  // mark. Q2 is 5/5 yet its summary claims silly 1 + presentation 2 — that claim is not shown.
+  it("sums the shown counts over legible questions, skips couldNotRead, and shows NO type on a full-mark question", () => {
     expect(aggregateFourType(response())).toEqual({
       conceptual: 1,
       calculation: 1,
-      silly: 1,
-      presentation: 2,
+      silly: 0,
+      presentation: 0,
     });
+  });
+  it("CONTROL — the same Q2 that LOST a mark does show its types", () => {
+    const r = response();
+    r.results[1] = { ...r.results[1], marksAwarded: 4 };
+    expect(aggregateFourType(r)).toEqual({ conceptual: 1, calculation: 1, silly: 1, presentation: 2 });
   });
 });
 
@@ -87,7 +94,7 @@ describe("worksheetScorecardVariant", () => {
     expect(v.surface).toBe("worksheet");
     expect(v.subtitle).toBe("WS-M-QE-03 · graded just now");
     expect(v.score).toEqual({ kind: "marks", awarded: 8, total: 10, gradedCount: 2, totalQuestions: 3 });
-    expect(v.fourType).toEqual({ conceptual: 1, calculation: 1, silly: 1, presentation: 2 });
+    expect(v.fourType).toEqual({ conceptual: 1, calculation: 1, silly: 0, presentation: 0 });
     expect(v.pending).toEqual({ count: 1, worksheetTotalMarks: 15 });
     expect(v.allPending).toBeNull();
     // Read (ghost) + Download (primary), in that DOM order.
@@ -679,7 +686,7 @@ describe("checkImproveScorecardVariant", () => {
       "Real Numbers · CI-M-REAL-03 · graded just now · saved to your progress",
     );
     expect(v.score).toEqual({ kind: "marks", awarded: 8, total: 10, gradedCount: 2, totalQuestions: 3 });
-    expect(v.fourType).toEqual({ conceptual: 1, calculation: 1, silly: 1, presentation: 2 });
+    expect(v.fourType).toEqual({ conceptual: 1, calculation: 1, silly: 0, presentation: 0 });
     expect(v.pending).toEqual({ count: 1, worksheetTotalMarks: 15 });
     expect(v.note).toBe("Topic detected automatically"); // quiet provenance line
     expect(v.actions[0].label).toBe("Read my graded answer sheet");

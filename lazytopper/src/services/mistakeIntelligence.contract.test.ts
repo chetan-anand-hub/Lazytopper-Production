@@ -390,33 +390,41 @@ describe("T3 · marksLost accounting", () => {
 
   it("is CLAMPED AT ZERO — an over-award never becomes negative marks lost", async () => {
     // A negative would propagate into every /me and hotspot aggregate as a CREDIT,
-    // silently cancelling real mark loss on another entry.
-    await recordMistake(
+    // silently cancelling real mark loss on another entry. SCORECARD-MI-1: an over-award
+    // lost nothing, so it is not logged at all — no entry can carry a negative.
+    const r = await recordMistake(
       USER,
       graded({ total: 3, awarded: 5, steps: [{ n: 1, type: "silly", deducted: 1 }] }),
       ctx(),
     );
-    expect(loggedEntry().marksLost).toBe(0);
+    expect(r.outcome).toBe("skipped-clean");
+    expect(logMistakesMock).not.toHaveBeenCalled();
   });
 
   it("coerces a junk score to zero rather than persisting NaN", async () => {
+    // A junk TOTAL loses nothing measurable — nothing is logged, so no NaN can be written.
     const junk = graded({ total: 4, awarded: 1, steps: [{ n: 1, type: "conceptual", deducted: 1 }] }) as unknown as Record<string, unknown>;
     junk.totalMarks = "not-a-number";
     junk.marksAwarded = null;
-    await recordMistake(USER, junk as never, ctx());
-    expect(loggedEntry().marksLost).toBe(0);
-    expect(loggedEntry().totalMarks).toBe(0);
+    const r = await recordMistake(USER, junk as never, ctx());
+    expect(r.outcome).toBe("skipped-clean");
+    // …and a junk AWARD against a real total is coerced to 0 (all marks lost), never NaN.
+    const junk2 = graded({ total: 4, awarded: 1, steps: [{ n: 1, type: "conceptual", deducted: 1 }] }) as unknown as Record<string, unknown>;
+    junk2.marksAwarded = null;
+    await recordMistake(USER, junk2 as never, ctx());
+    expect(loggedEntry().marksLost).toBe(4);
+    expect(loggedEntry().totalMarks).toBe(4);
     expect(Number.isNaN(loggedEntry().marksLost)).toBe(false);
   });
 
-  it("logs a full-marks answer that still carries a typed step (mark loss is not the only signal)", async () => {
+  it("★ SCORECARD-MI-1 — a full-marks answer is NOT logged even when a step carries a type (owner ruling: no type on full marks)", async () => {
     const r = await recordMistake(
       USER,
       graded({ total: 4, awarded: 4, steps: [{ n: 1, type: "presentation", deducted: 0 }] }),
       ctx(),
     );
-    expect(r.outcome).toBe("logged");
-    expect(loggedEntry().marksLost).toBe(0);
+    expect(r.outcome).toBe("skipped-clean");
+    expect(logMistakesMock).not.toHaveBeenCalled();
   });
 
   it("a clean full-marks answer with no typed step is not logged at all", async () => {
@@ -509,8 +517,11 @@ describe("T4 · one entry per graded question", () => {
    the student back to re-learn something they already know. They are surfaced
    separately, as a careless-mark-loss insight. */
 describe("T5 · careless mistakes never become a topic weakness", () => {
+  // SCORECARD-MI-1 — owner ruling 5 Oct: careless = calculation + silly, exam technique =
+  // presentation. None of them is a knowledge gap; only `conceptual` bridges (GA-21).
   it.each([
     ["silly", { silly: 2 }],
+    ["calculation", { calculation: 2 }],
     ["presentation", { presentation: 2 }],
   ])("a %s-only mistake is LOGGED but never bridged to weak areas", async (type, summary) => {
     const r = await recordMistake(
@@ -539,7 +550,7 @@ describe("T5 · careless mistakes never become a topic weakness", () => {
     expect(recordWrongAnswerMock).not.toHaveBeenCalled();
   });
 
-  it.each(["conceptual", "calculation"])(
+  it.each(["conceptual"])(
     "CONTROL — a %s mistake DOES bridge (without this the moat could be a dead bridge)",
     async (type) => {
       const r = await recordMistake(
@@ -629,11 +640,21 @@ describe("additive-shape openness — this suite must NOT freeze the entry shape
 
    Both directions are mutation-verified. */
 describe("T6 · intake predicate — type admits, deduction does not gate", () => {
-  it("★ records a step carrying a mistakeType with marksDeducted 0 (a right answer reached by a flawed method)", async () => {
-    await recordMistake(
+  it("★ SCORECARD-MI-1 — a RIGHT answer reached by a flawed method is NOT recorded (owner ruling: no type on a right-option MCQ)", async () => {
+    const r = await recordMistake(
       USER,
       graded({ total: 1, awarded: 1, steps: [{ n: 1, type: "conceptual", deducted: 0 }] }),
       ctx({ questionId: "objective-correct-but-flawed" }),
+    );
+    expect(r.outcome).toBe("skipped-clean");
+    expect(logMistakesMock).not.toHaveBeenCalled();
+  });
+
+  it("★ records a step carrying a mistakeType with marksDeducted 0 when the answer LOST its mark (a wrong MCQ with working)", async () => {
+    await recordMistake(
+      USER,
+      graded({ total: 1, awarded: 0, steps: [{ n: 1, type: "conceptual", deducted: 0 }] }),
+      ctx({ questionId: "objective-wrong-with-working" }),
     );
     expect(logMistakesMock).toHaveBeenCalledTimes(1);
     const details = loggedEntry().stepDetails as Array<Record<string, unknown>>;
@@ -685,7 +706,7 @@ describe("T6 · intake predicate — type admits, deduction does not gate", () =
   });
 
   it("coerces a junk marksDeducted to 0 rather than persisting NaN/undefined", async () => {
-    const junk = graded({ total: 2, awarded: 2, steps: [{ n: 1, type: "silly", deducted: 0 }] }) as unknown as {
+    const junk = graded({ total: 2, awarded: 1, steps: [{ n: 1, type: "silly", deducted: 0 }] }) as unknown as {
       annotatedSteps: Array<Record<string, unknown>>;
     };
     delete junk.annotatedSteps[0].marksDeducted;

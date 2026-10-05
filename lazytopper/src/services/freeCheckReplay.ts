@@ -17,8 +17,9 @@
  *  1. TIMING. The attempt store is scoped by the ACTIVE PROGRESS uid, which AuthContext
  *     sets in an effect — and a child's effects run before its parent provider's. So
  *     the replay refuses to run (`not-ready`) until that uid equals the signed-in uid.
- *  2. GRADE TIME. `recordAttempt` keeps the grade time via its `timestamp`.
- *     (`recordMistake` stamps the replay time itself; it takes no timestamp.)
+ *  2. GRADE TIME. `recordAttempt` keeps the grade time via its `timestamp`, and
+ *     `recordMistake` via its `gradedAt` (SCORECARD-MI-1, GA-41) — both carry the
+ *     ORIGINAL grade time, so the attempt and the MI entry fall in the same Me window.
  *  3. THE SESSION CODE IS RE-MINTED. A signed-out mint reads no records, so it is
  *     always sequence 1, and record id = code. Replaying that code for a RETURNING
  *     student who already has paper #01 in the same subject/topic would OVERWRITE it and
@@ -57,6 +58,14 @@ import {
   type PendingFreeCheck,
 } from "./freeCheckClient";
 import { trackNamedEvent } from "../analytics/analytics";
+import {
+  ciQuestionIds,
+  isMixedPaper,
+  perQuestionFiling,
+  withObjectiveEcho,
+} from "../utils/checkImproveDetection";
+import { withEffectiveCounts } from "../lib/mistakeDisplay";
+import type { DesktopSubject } from "../lib/desktop/navigation";
 
 export type FreeCheckReplayOutcome =
   | { kind: "none" }
@@ -120,6 +129,10 @@ async function writePending(user: AuthUser, pending: PendingFreeCheck): Promise<
       topic: pending.topicName,
       topicKey: pending.topicSlug,
       question: pending.question,
+      // SCORECARD-MI-1 — the same stable identity a signed-in grade of this session gets.
+      surface: "check-improve",
+      submissionId: nomen.code,
+      gradedAt: pending.gradedAt, // GA-41
     });
     recordAttempt(user, {
       subject: pending.subject,
@@ -140,40 +153,53 @@ async function writePending(user: AuthUser, pending: PendingFreeCheck): Promise<
       subject: sessionSubject,
       topicSlug: pending.topicSlug,
       topicSource,
-      response: singleCheckToWorksheetResponse(graded),
+      response: withEffectiveCounts(withObjectiveEcho(singleCheckToWorksheetResponse(graded), graded)),
     });
     return nomen.code;
   }
 
-  const response = pending.response;
+  // SCORECARD-MI-1 — the replay files exactly as a signed-in grade does: ONE set of counts,
+  // each question under its OWN subject and chapter, a mixed paper recorded as mixed.
+  const response = withEffectiveCounts(pending.response);
+  const paperMixed = isMixedPaper(response.results);
+  const paperFiling = {
+    subject: (pending.subject === "Science" ? "Science" : "Maths") as DesktopSubject,
+    topicName: pending.topicName,
+    topicSlug: pending.topicSlug,
+  };
   persistCheckImproveSession({
     user,
     code: nomen.code,
     title: nomen.name,
     subject: sessionSubject,
-    topicSlug: pending.topicSlug,
-    topicSource,
+    topicSlug: paperMixed ? "" : pending.topicSlug,
+    topicSource: paperMixed ? "mixed" : topicSource,
     response,
   });
-  for (const g of response.results) {
+  const questionIds = ciQuestionIds(nomen.code, response.results);
+  for (const [gi, g] of response.results.entries()) {
     if (g.couldNotRead) continue; // pending is never a 0 and never a fabricated entry
     const csr = toCsr(g);
-    const questionId = `ci:${nomen.code}:q${g.qNumber}`;
+    const questionId = questionIds[gi];
     const qText =
       pending.questions.find((q) => q.questionNumber === g.qNumber)?.questionText ||
       `${nomen.code} · Q${g.qNumber}`;
+    const filing = perQuestionFiling(g, paperFiling, paperMixed);
     // eslint-disable-next-line no-await-in-loop
     await recordMistake(user, csr, {
-      subject: pending.subject,
-      topic: pending.topicName,
-      topicKey: pending.topicSlug,
+      subject: filing.subject,
+      topic: filing.topicName,
+      topicKey: filing.topicSlug,
       question: qText,
       questionId,
+      surface: "check-improve",
+      submissionId: nomen.code,
+      gradedAt: pending.gradedAt, // GA-41
     });
     recordAttempt(user, {
-      subject: pending.subject,
-      topic: pending.topicName,
-      topicKey: pending.topicSlug,
+      subject: filing.subject,
+      topic: filing.topicName,
+      topicKey: filing.topicSlug,
       question: qText,
       questionId,
       marksScored: csr.marksAwarded,

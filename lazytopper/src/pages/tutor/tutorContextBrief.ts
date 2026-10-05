@@ -15,6 +15,18 @@ import { getMistakeInsights } from "../../services/mistakeInsightsService";
 import { getWeakAreas } from "../../services/weakAreaAggregator";
 import { getTopicTrendFromCloud } from "../../services/progressStore";
 import type { TutorBrief } from "../../ai/tutorClient";
+import { mistakeGroupOf, mistakeTypeLabel } from "../../lib/mistakeDisplay";
+
+/**
+ * SCORECARD-MI-1 (B3) — the top type as the tutor should hear it: by its owner GROUP, so a
+ * careless slip is never framed as a knowledge gap ("careless (calculation slip)"). The stored
+ * type name never changes; only how it is described. Unknown → the raw value, unchanged.
+ */
+export function describeTopMistakeType(type: unknown): string {
+  const group = mistakeGroupOf(type);
+  const label = mistakeTypeLabel(type);
+  return group && label ? `${group.label.toLowerCase()} (${label.toLowerCase()})` : String(type ?? "");
+}
 
 const MI_WINDOW_DAYS = 14;
 const TREND_EPSILON = 2; // pct-points that count as real movement (else "stable")
@@ -74,7 +86,7 @@ export async function assembleTutorBrief({
   try {
     const mi = await getMistakeInsights(uid, MI_WINDOW_DAYS);
     if (mi && mi.hasEnoughData) {
-      if (mi.topMistakeType) brief.mistakes.topType = String(mi.topMistakeType);
+      if (mi.topMistakeType) brief.mistakes.topType = describeTopMistakeType(mi.topMistakeType);
       if (typeof mi.totalMarksLost === "number") brief.mistakes.marksLostRecent = mi.totalMarksLost;
     }
   } catch {

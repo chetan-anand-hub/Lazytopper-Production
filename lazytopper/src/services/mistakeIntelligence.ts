@@ -8,24 +8,28 @@
 // drift between surfaces again:
 //
 //   1. POLICY  — log only for a signed-in, non-local user whose graded answer
-//                actually lost marks OR carries any per-step mistakeType.
-//                (This deletes the old `mistakeCount > 0` guard that silently
-//                dropped Quick-Practice mistakes — see the diagnostic report.)
+//                actually LOST MARKS. SCORECARD-MI-1 (owner ruling 5 Oct): a type is
+//                never recorded on a question that lost nothing (a right-option MCQ,
+//                withdrawn work on a full-mark answer), and a question the student did
+//                not attempt is its own state, never an MI entry.
 //   2. BUILDER — one consolidated `MistakeLogEntry` builder: `marksLost` from
 //                the score, `stepDetails` from `annotatedSteps`, `mistakeCounts`
 //                from the reconciled summary (client mirrors the server's
 //                additive-floor reconcile so it is correct before AND after the
 //                backend redeploys).
-//   3. DEDUP   — no double-log / double-count. Covers the cache-restore path
-//                (a previously-cached result restored on mount is logged at most
-//                once across the whole device).
+//   3. IDENTITY — SCORECARD-MI-1 (D5 / ruling A2). The entry's id is the stable
+//                grade identity (uid + surface + submission + question [+ answer],
+//                `gradeIdentityKey`), NEVER the score or the counts. A re-grade of the
+//                same submission therefore REPLACES its entry (setDoc on the same id);
+//                a cache-restore of the identical result writes nothing at all.
 //
-// Phase 2 bridge: a graded KNOWLEDGE-GAP mistake (conceptual + calculation only)
+// Phase 2 bridge: a graded KNOWLEDGE-GAP mistake (owner ruling: conceptual ONLY)
 // ALSO writes ONE `WrongAnswerEntry` (Stream 3, adaptivePracticeEngine) so the
 // topic surfaces in weak-areas through the EXISTING bounded input
 // (`Math.min(wrongData.count*5, 30)` in weakAreaAggregator) — no ranking/weight
-// change. Silly + presentation do NOT bridge; they are surfaced separately as a
-// "careless mark-loss" insight on the Me page (see mistakeInsightsService).
+// change. Careless (calculation + silly) and exam technique (presentation) do NOT
+// bridge (GA-21): a student who knows the topic is never sent back to re-learn it.
+// The grouping itself lives in lib/mistakeDisplay.
 
 import type { CheckSolutionResponse } from "../ai/aiClient";
 import type { AuthUser } from "../context/AuthContext";
@@ -33,6 +37,15 @@ import { logMistakes, type MistakeLogEntry } from "./mistakeLogService";
 import { isSafeEntry } from "./mistakeInsightsService";
 import { recordWrongAnswer } from "./adaptivePracticeEngine";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
+import { gradeIdentityDocId, gradeIdentityKey } from "./attemptDedupKey";
+import {
+  effectiveTypeCounts,
+  isKnowledgeGapType,
+  isQuestionNotAttempted,
+  marksLostOn,
+  stepShowsType,
+  type MistakeTypeCounts,
+} from "../lib/mistakeDisplay";
 // MI-CONCEPT-1 — concept resolution. Lives in its own module (NOT here) on purpose:
 // `mistakeIntelligence` is vi.mock'd as a COMPLETE replacement by several suites
 // (worksheetGradeService.test.ts, SolutionChecker.contract/entitlement.test.tsx), so
@@ -70,6 +83,19 @@ export interface RecordMistakeContext {
   concept?: string;
   /** Optional difficulty for the bridged wrong-answer signal. */
   difficulty?: string;
+  /**
+   * SCORECARD-MI-1 (D5 / A2) — the submission identity. `surface` + `submissionId` (the C&I
+   * session code, the worksheet / paper / QP session id) + the question identity
+   * (`questionId`, else the hashed `question`) + `answerKey` (only where one context allows
+   * several answers to one question). Never the score. Absent fields degrade to the
+   * question identity alone.
+   */
+  surface?: string;
+  submissionId?: string;
+  answerKey?: string;
+  /** GA-41 — when the grade happened (ms or ISO). A free-check replay passes the original
+   *  `gradedAt`, so the MI entry and the attempt fall in the same Me window. Defaults to now. */
+  gradedAt?: number | string;
 }
 
 export type RecordMistakeOutcome =
@@ -77,7 +103,8 @@ export type RecordMistakeOutcome =
   | "duplicate" // already persisted (dedup) — UI should treat as saved
   | "skipped-no-user" // signed out
   | "skipped-local" // local/browse session — never persists fabricated history
-  | "skipped-clean" // full marks and no step mistakeType — nothing to log
+  | "skipped-clean" // nothing lost — nothing to log (owner ruling: no type on full marks)
+  | "skipped-not-attempted" // the student did not attempt it — its own state, never a mistake
   | "error";
 
 export interface RecordMistakeResult {
@@ -86,59 +113,27 @@ export interface RecordMistakeResult {
   bridged: boolean;
 }
 
-interface ReconciledCounts {
-  conceptual: number;
-  calculation: number;
-  silly: number;
-  presentation: number;
-}
+type ReconciledCounts = MistakeTypeCounts;
 
 const DEDUP_STORAGE_KEY = "lazytopper.mi.dedup.v1";
 const DEDUP_MAX = 400;
-const MISTAKE_TYPES = ["conceptual", "calculation", "silly", "presentation"] as const;
-
-/** Stable, dependency-free string hash for the no-questionId dedup signature. */
-function hashString(input: string): string {
-  let h = 5381;
-  for (let i = 0; i < input.length; i++) {
-    h = (h * 33) ^ input.charCodeAt(i);
-  }
-  return (h >>> 0).toString(36);
-}
+/** SCORECARD-MI-1 — identities whose knowledge gap already reached the weak-area bridge, so a
+ *  re-grade of the SAME submission never counts the same gap twice. Device-local, best-effort. */
+const BRIDGED_STORAGE_KEY = "lazytopper.mi.bridged.v1";
 
 /**
- * Additive-floor reconcile (client mirror of checkSolution.cjs): for each
- * category, take the MAX of the LLM's self-reported summary and the count of
- * `annotatedSteps` carrying that mistakeType. Never subtracts or reclassifies.
- * Makes the breakdown correct even if the backend has not yet redeployed.
+ * The four counts this entry records — `effectiveTypeCounts` from lib/mistakeDisplay, the SAME
+ * function the scorecard, both PDFs and the session record use (GA-20): per type the larger of
+ * the grader's summary and its typed steps, and nothing at all on a question that lost no mark.
  */
 function reconcileCounts(result: CheckSolutionResponse): ReconciledCounts {
-  const summary = result.mistakeSummary ?? {
-    conceptual: 0,
-    calculation: 0,
-    silly: 0,
-    presentation: 0,
-  };
-  const stepCounts: ReconciledCounts = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
-  for (const step of result.annotatedSteps ?? []) {
-    const t = step?.mistakeType;
-    if (t && (MISTAKE_TYPES as readonly string[]).includes(t)) {
-      stepCounts[t as keyof ReconciledCounts] += 1;
-    }
-  }
-  return {
-    conceptual: Math.max(Number(summary.conceptual) || 0, stepCounts.conceptual),
-    calculation: Math.max(Number(summary.calculation) || 0, stepCounts.calculation),
-    silly: Math.max(Number(summary.silly) || 0, stepCounts.silly),
-    presentation: Math.max(Number(summary.presentation) || 0, stepCounts.presentation),
-  };
+  return effectiveTypeCounts(result);
 }
 
-/** Did this graded answer actually contain a mistake worth logging? */
+/** Did this graded answer actually lose marks? (SCORECARD-MI-1: the type alone no longer
+ *  admits an entry — a full-mark answer carries no mistake, by owner ruling.) */
 function hasMistakeSignal(result: CheckSolutionResponse): boolean {
-  const lostMarks = (Number(result.totalMarks) || 0) - (Number(result.marksAwarded) || 0) > 0;
-  const typedStep = (result.annotatedSteps ?? []).some((s) => !!s?.mistakeType);
-  return lostMarks || typedStep;
+  return marksLostOn(result) > 0;
 }
 
 /**
@@ -198,7 +193,9 @@ function buildEntry(
   // from this list, so admitting a zero-deduction entry adds a DIAGNOSIS
   // without adding a lost mark.
   const stepDetails = (result.annotatedSteps ?? [])
-    .filter((s) => s.mistakeType)
+    // SCORECARD-MI-1 — the same per-step rule the screen uses: no type on a not-attempted or
+    // unknown-status step, none on a question that lost nothing.
+    .filter((s) => s.mistakeType && stepShowsType(s, result))
     .map((s) => ({
       stepNumber: s.stepNumber,
       mistakeType: String(s.mistakeType),
@@ -219,8 +216,9 @@ function buildEntry(
   // Both keys are OMITTED when absent rather than written as `undefined`, so an
   // entry with no bank identity is byte-identical in shape to a pre-MI-CONCEPT-1
   // entry — absent, not "present and empty".
+  const at = ctx.gradedAt != null ? new Date(ctx.gradedAt) : new Date();
   return {
-    timestamp: new Date().toISOString(),
+    timestamp: Number.isFinite(at.getTime()) ? at.toISOString() : new Date().toISOString(),
     questionText: ctx.question,
     ...(questionId ? { questionId } : {}),
     ...(concept ? { concept } : {}),
@@ -238,49 +236,42 @@ function buildEntry(
   };
 }
 
-function readDedup(): string[] {
+/**
+ * Cache-restore signature: the stable identity PLUS the outcome. It only decides whether a
+ * write is needed at all (an identical result restored on mount writes nothing); WHERE the
+ * entry lives is the identity alone (`gradeIdentityDocId`), so a re-grade with a different
+ * outcome overwrites the same entry instead of adding a second one (GA-17).
+ */
+function dedupKey(
+  identity: string,
+  result: CheckSolutionResponse,
+  counts: ReconciledCounts,
+): string {
+  return [
+    identity,
+    `${Number(result.marksAwarded) || 0}/${Number(result.totalMarks) || 0}`,
+    `${counts.conceptual}-${counts.calculation}-${counts.silly}-${counts.presentation}`,
+  ].join("::");
+}
+
+function readRing(key: string): string[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = window.localStorage.getItem(DEDUP_STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
+    const raw = window.localStorage.getItem(key);
+    const parsed = raw ? JSON.parse(raw) : [];
     return Array.isArray(parsed) ? parsed.map(String) : [];
   } catch {
     return [];
   }
 }
 
-function writeDedup(keys: string[]): void {
+function writeRing(key: string, values: string[]): void {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(DEDUP_STORAGE_KEY, JSON.stringify(keys.slice(0, DEDUP_MAX)));
+    window.localStorage.setItem(key, JSON.stringify(values.slice(0, DEDUP_MAX)));
   } catch {
-    /* quota / SSR — dedup is best-effort, never blocks logging */
+    /* quota / SSR — best-effort, never blocks logging */
   }
-}
-
-/**
- * Dedup signature for a graded check. Identifies "this question's graded result
- * for this user". Includes the score + reconciled counts so a genuine re-check
- * with a DIFFERENT outcome logs again, while a cache-restore of the SAME result
- * (identical score + counts) is deduped.
- */
-function dedupKey(
-  uid: string,
-  ctx: RecordMistakeContext,
-  result: CheckSolutionResponse,
-  counts: ReconciledCounts,
-): string {
-  const qid =
-    ctx.questionId && ctx.questionId.trim()
-      ? ctx.questionId.trim()
-      : `t:${hashString(ctx.question || "")}`;
-  return [
-    uid,
-    qid,
-    `${Number(result.marksAwarded) || 0}/${Number(result.totalMarks) || 0}`,
-    `${counts.conceptual}-${counts.calculation}-${counts.silly}-${counts.presentation}`,
-  ].join("::");
 }
 
 /**
@@ -296,13 +287,24 @@ export async function recordMistake(
   if (!user?.uid) return { outcome: "skipped-no-user", bridged: false };
   if (user.isLocalSession) return { outcome: "skipped-local", bridged: false };
   if (!gradeResult || gradeResult.ok === false) return { outcome: "error", bridged: false };
+  // Not attempted is its own state — never a mistake, never an MI entry (owner ruling).
+  if (isQuestionNotAttempted(gradeResult)) return { outcome: "skipped-not-attempted", bridged: false };
   if (!hasMistakeSignal(gradeResult)) return { outcome: "skipped-clean", bridged: false };
 
   const counts = reconcileCounts(gradeResult);
 
-  // ── Dedup ─────────────────────────────────────────────────────────────
-  const key = dedupKey(user.uid, context, gradeResult, counts);
-  const seen = readDedup();
+  // ── Identity + dedup ──────────────────────────────────────────────────
+  const identityCtx = {
+    surface: context.surface,
+    submissionId: context.submissionId,
+    questionId: context.questionId,
+    question: context.question,
+    answerKey: context.answerKey,
+  };
+  const identity = gradeIdentityKey(user.uid, identityCtx);
+  const entryId = gradeIdentityDocId(user.uid, identityCtx);
+  const key = dedupKey(identity, gradeResult, counts);
+  const seen = readRing(DEDUP_STORAGE_KEY);
   if (seen.includes(key)) return { outcome: "duplicate", bridged: false };
 
   // ── Builder + safety gate ─────────────────────────────────────────────
@@ -314,24 +316,24 @@ export async function recordMistake(
 
   // ── Stream 1 — mistake log ────────────────────────────────────────────
   try {
-    await logMistakes(user.uid, entry);
+    // The stable id: a re-grade of this submission REPLACES its entry (D5).
+    await logMistakes(user.uid, entry, { id: entryId });
   } catch {
     return { outcome: "error", bridged: false };
   }
   // Mark seen only AFTER a successful log, so a transient failure can retry.
-  writeDedup([key, ...seen.filter((k) => k !== key)]);
+  writeRing(DEDUP_STORAGE_KEY, [key, ...seen.filter((k) => k !== key)]);
 
   // ── Phase 2 — bridge knowledge-gap mistakes to weak-areas (Stream 3) ──
-  // Conceptual + calculation only. ONE signal per graded check per topic
-  // (not one per mistake) — the bridge runs once here, never in a loop.
+  // SCORECARD-MI-1 (GA-21): knowledge gaps ONLY (the owner's conceptual group, decided in
+  // lib/mistakeDisplay). ONE signal per graded check per topic, and ONE per submission
+  // identity — a re-grade of the same answer never counts the same gap twice.
   let bridged = false;
   const isKnowledgeGap =
-    counts.conceptual > 0 ||
-    counts.calculation > 0 ||
-    (gradeResult.annotatedSteps ?? []).some(
-      (s) => s.mistakeType === "conceptual" || s.mistakeType === "calculation",
-    );
-  if (isKnowledgeGap) {
+    (Object.keys(counts) as Array<keyof ReconciledCounts>).some((t) => counts[t] > 0 && isKnowledgeGapType(t)) ||
+    (gradeResult.annotatedSteps ?? []).some((s) => isKnowledgeGapType(s.mistakeType) && stepShowsType(s, gradeResult));
+  const bridgedRing = readRing(BRIDGED_STORAGE_KEY);
+  if (isKnowledgeGap && !bridgedRing.includes(identity)) {
     const topicKey =
       resolveCanonicalSlug(context.topicKey ?? context.topic) ||
       String(context.topicKey ?? context.topic ?? "");
@@ -346,6 +348,7 @@ export async function recordMistake(
       try {
         recordWrongAnswer(questionId, topicKey, conceptKey, context.difficulty || "Medium");
         bridged = true;
+        writeRing(BRIDGED_STORAGE_KEY, [identity, ...bridgedRing.filter((k) => k !== identity)]);
       } catch {
         bridged = false;
       }

@@ -1,0 +1,419 @@
+{
+ "source": "Desktop/diff/grader-audit-1/s3/raw/P4/CI-MULTI/P4SET-CM2.run3.json",
+ "grader": "P4",
+ "surface": "CI-MULTI",
+ "caseIds": [
+  "GS-M01-b",
+  "GS-M03-b",
+  "GS-M09-b",
+  "GS-M10-a",
+  "GS-M11-a"
+ ],
+ "request": {
+  "subject": "Maths",
+  "questions": [
+   {
+    "qNumber": 1,
+    "marks": 1,
+    "questionText": "Q1. If α and β are the zeroes of polynomial 3x² + 6x + k such that α + β + αβ = −2/3, then the value of k is :(A) −8  (B) 8  (C) −4  (D) 4 [1]",
+    "topic": "Polynomials",
+    "objective": true
+   },
+   {
+    "qNumber": 2,
+    "marks": 1,
+    "questionText": "Q2. Assertion (A): If we join two hemispheres of same radius along their bases, then we get a sphere.Reason (R): Total Surface Area of a sphere of radius r is 3πr².Codes: (A) Both A and R are true and R is the correct explanation of A. (B) Both A and R are true, but R is not the correct explanation of A. (C) A is true, but R is false. (D) A is false, but R is true. [1]",
+    "topic": "Polynomials",
+    "objective": true
+   },
+   {
+    "qNumber": 3,
+    "marks": 3,
+    "questionText": "Q3. Prove that : tan θ/(1 − cot θ) + cot θ/(1 − tan θ) = 1 + sec θ cosec θ [3]",
+    "topic": "Polynomials",
+    "objective": false
+   },
+   {
+    "qNumber": 4,
+    "marks": 2,
+    "questionText": "Q4. Prove that 5 − 2√3 is an irrational number. It is given that √3 is an irrational number. [2]",
+    "topic": "Polynomials",
+    "objective": false
+   },
+   {
+    "qNumber": 5,
+    "marks": 3,
+    "questionText": "Q5. Prove that 1/√5 is an irrational number. [3]",
+    "topic": "Polynomials",
+    "objective": false
+   }
+  ]
+ },
+ "trueChapters": {
+  "1": "polynomials",
+  "2": "surface-areas-and-volumes",
+  "3": "trigonometry",
+  "4": "real-numbers",
+  "5": "real-numbers"
+ },
+ "body": {
+  "ok": true,
+  "worksheetId": "ci:S3-CM2",
+  "results": [
+   {
+    "qNumber": 1,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 1,
+    "marksAwarded": 0,
+    "percentage": 0,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Identify sum of zeroes (α + β)",
+      "studentWork": "α + β = −6/3 = -2",
+      "status": "correct",
+      "marksAwarded": 0,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 2,
+      "description": "Identify product of zeroes (αβ)",
+      "studentWork": "αβ = k/3",
+      "status": "correct",
+      "marksAwarded": 0,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 3,
+      "description": "Substitute values into the given equation α + β + αβ = −2/3",
+      "studentWork": "-2 + k/3 = -2/3",
+      "status": "correct",
+      "marksAwarded": 0,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 4,
+      "description": "Solve for k",
+      "studentWork": "k/3 = -2/3 + 2 = 4/3\nk = 4",
+      "status": "correct",
+      "marksAwarded": 0,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 5,
+      "description": "Select the correct option",
+      "studentWork": "Answer: (A)",
+      "status": "incorrect",
+      "marksAwarded": 0,
+      "marksDeducted": 0,
+      "teacherAnnotation": "The calculated value k=4 corresponds to option (D), not (A).",
+      "mistakeType": "silly",
+      "correctedWorking": "Answer: (D)",
+      "isDeparture": false,
+      "isReturn": false
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 1,
+     "presentation": 0,
+     "departure": 0
+    },
+    "teacherNote": "",
+    "questionDepartureError": false,
+    "objective": true
+   },
+   {
+    "qNumber": 2,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 1,
+    "marksAwarded": 1,
+    "percentage": 100,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Evaluate Assertion (A)",
+      "studentWork": "A is true because two equal hemispheres joined at the bases form a sphere.",
+      "status": "correct",
+      "marksAwarded": 0,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 2,
+      "description": "Evaluate Reason (R)",
+      "studentWork": "R is false because the total surface area of a sphere is 2πr².",
+      "status": "correct",
+      "marksAwarded": 0,
+      "marksDeducted": 0,
+      "teacherAnnotation": "The student correctly identifies R as false, even though their stated TSA (2πr²) is also incorrect. The key is identifying R as false.",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 3,
+      "description": "Select the correct option based on A and R",
+      "studentWork": "Answer: (C)",
+      "status": "correct",
+      "marksAwarded": 0,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0,
+     "departure": 0
+    },
+    "teacherNote": "",
+    "questionDepartureError": false,
+    "objective": true
+   },
+   {
+    "qNumber": 3,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 3,
+    "marksAwarded": 3,
+    "percentage": 100,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Convert tan θ and cot θ to sin θ and cos θ",
+      "studentWork": "LHS = tan θ/(1 − cot θ) + cot θ/(1 − tan θ)\n= (sin θ/cos θ) / (1 - cos θ/sin θ) + (cos θ/sin θ) / (1 - sin θ/cos θ)",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 2,
+      "description": "Simplify denominators and combine fractions",
+      "studentWork": "= (sin θ/cos θ) / ((sin θ - cos θ)/sin θ) + (cos θ/sin θ) / ((cos θ - sin θ)/cos θ)\n= sin²θ / (cos θ(sin θ - cos θ)) + cos²θ / (sin θ(cos θ - sin θ))\n= sin²θ / (cos θ(sin θ - cos θ)) - cos²θ / (sin θ(sin θ - cos θ))\n= (sin³θ - cos³θ) / (sin θ cos θ (sin θ - cos θ))",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 3,
+      "description": "Apply a³-b³ identity and simplify",
+      "studentWork": "= ((sin θ - cos θ)(sin²θ + sin θ cos θ + cos²θ)) / (sin θ cos θ (sin θ - cos θ))\n= (sin²θ + cos²θ + sin θ cos θ) / (sin θ cos θ)\n= (1 + sin θ cos θ) / (sin θ cos θ)",
+      "status": "correct",
+      "marksAwarded": 0.5,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 4,
+      "description": "Separate terms and reach RHS",
+      "studentWork": "= 1/(sin θ cos θ) + (sin θ cos θ)/(sin θ cos θ)\n= 1 + sec θ cosec θ = RHS",
+      "status": "correct",
+      "marksAwarded": 0.5,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0,
+     "departure": 0
+    },
+    "teacherNote": "",
+    "questionDepartureError": false,
+    "objective": false
+   },
+   {
+    "qNumber": 4,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 2,
+    "marksAwarded": 2,
+    "percentage": 100,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Assume the number is rational and express it as a/b",
+      "studentWork": "Let 5 - 2√3 be rational. Then 5 - 2√3 = a/b, where a and b are integers and b ≠ 0.",
+      "status": "correct",
+      "marksAwarded": 0.5,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 2,
+      "description": "Rearrange the equation to isolate √3",
+      "studentWork": "⇒ 2√3 = 5 - a/b = (5b – a)/b\n⇒ √3 = (5b – a)/(2b)",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 3,
+      "description": "State the contradiction and conclude",
+      "studentWork": "Since a and b are integers, (5b – a)/(2b) is rational, but √3 is irrational. This is a contradiction.",
+      "status": "correct",
+      "marksAwarded": 0.5,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0,
+     "departure": 0
+    },
+    "teacherNote": "",
+    "questionDepartureError": false,
+    "objective": false
+   },
+   {
+    "qNumber": 5,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 3,
+    "marksAwarded": 3,
+    "percentage": 100,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Calculate/state the decimal expansion of 1/√5",
+      "studentWork": "1/√5 = 1/2.2360679... = 0.4472135...",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 2,
+      "description": "Observe and state that the decimal expansion is non-terminating and non-repeating",
+      "studentWork": "The decimal expansion of 1/√5 is non-terminating and non-repeating.",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 3,
+      "description": "State the definition of a rational number's decimal expansion",
+      "studentWork": "A rational number always has a terminating or repeating decimal expansion.",
+      "status": "correct",
+      "marksAwarded": 0.5,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 4,
+      "description": "Conclude that 1/√5 is irrational",
+      "studentWork": "∴ 1/√5 is an irrational number. Hence proved.",
+      "status": "correct",
+      "marksAwarded": 0.5,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0,
+     "departure": 0
+    },
+    "teacherNote": "",
+    "questionDepartureError": false,
+    "objective": false
+   }
+  ],
+  "totalQuestions": 5,
+  "gradedCount": 5,
+  "pendingCount": 0,
+  "gradedMarksAwarded": 9,
+  "gradedMarksTotal": 10,
+  "worksheetTotalMarks": 10,
+  "summary": "Overall, the student demonstrated a strong understanding of the concepts tested, particularly in trigonometry and irrational numbers. There was a minor silly error in selecting the MCQ option for Q1 despite correct calculation. Keep up the good work on proofs and ensure careful review of MCQ options."
+ }
+}

@@ -1,0 +1,411 @@
+{
+ "source": "Desktop/diff/grader-audit-1/s3/raw/P4/WS/P4SET-BS1.run2.json",
+ "grader": "P4",
+ "surface": "WS",
+ "caseIds": [
+  "GS-S01-a",
+  "GS-S06-a",
+  "GS-S07-a",
+  "GS-S09-a",
+  "GS-S11-a"
+ ],
+ "request": {
+  "subject": "Science",
+  "questions": [
+   {
+    "qNumber": 1,
+    "marks": 1,
+    "questionText": "If pea plants with round and green seeds (RRyy) are crossed with pea plants having wrinkled and yellow seeds (rrYY), the seeds developed by the plants of F1 generation will be :",
+    "topic": "Heredity",
+    "objective": false,
+    "section": "A"
+   },
+   {
+    "qNumber": 2,
+    "marks": 2,
+    "questionText": "(a) Besides minimising the loss of blood, why is it essential to plug any leak in a blood vessel ? Name the component of blood which helps in this process and state how this component perform this function. 2 OR (b) (i) The transport system in plants is relatively slower than in animals. Give reasons. (ii) State the role of phloem in the transport of materials in plants.",
+    "topic": "Life Processes",
+    "objective": false,
+    "section": "B"
+   },
+   {
+    "qNumber": 3,
+    "marks": 2,
+    "questionText": "An object is placed at a distance of 60 cm from a concave lens of focal length 30 cm. Use lens formula to find the position of the image formed in this case.",
+    "topic": "Light - Reflection & Refraction",
+    "objective": false,
+    "section": "B"
+   },
+   {
+    "qNumber": 4,
+    "marks": 3,
+    "questionText": "Consider the following electric circuit : Calculate the values of the following : (a) The total resistance of the circuit (b) The total current drawn from the source (c) Potential difference across the parallel combination of 10 and 15 resistors",
+    "topic": "Electricity",
+    "objective": false,
+    "section": "C"
+   },
+   {
+    "qNumber": 5,
+    "marks": 3,
+    "questionText": "(a) (i) Define the term decomposition reaction. Write one chemical equation each for decomposition reaction where energy is supplied in the form of heat, light or electricity. (ii) Decomposition of vegetable matter into compost is considered an exothermic reaction. Why ? 3 OR (b) Why are decomposition reactions called the opposite of combination reactions ? Write one chemical equation each for these two types of reactions mentioning the name of the reactant(s) and the product(s) involved in the reactions.",
+    "topic": "Chemical Reactions & Equations",
+    "objective": false,
+    "section": "C"
+   }
+  ]
+ },
+ "trueChapters": {
+  "1": "heredity",
+  "2": "life-processes",
+  "3": "light-reflection-and-refraction",
+  "4": "electricity",
+  "5": "chemical-reactions-and-equations"
+ },
+ "body": {
+  "ok": true,
+  "worksheetId": "ws-s3-BS1",
+  "results": [
+   {
+    "qNumber": 1,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 1,
+    "marksAwarded": 1,
+    "percentage": 100,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Determine F1 genotype from the cross.",
+      "studentWork": "RRyy × rrYY → all F1 plants are Rryy.",
+      "status": "incorrect",
+      "marksAwarded": 0,
+      "marksDeducted": 0,
+      "teacherAnnotation": "The F1 genotype should be RrYy, not Rryy. This is a conceptual error in determining the F1 generation.",
+      "mistakeType": "conceptual",
+      "correctedWorking": "RRyy × rrYY → all F1 plants are RrYy.",
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 2,
+      "description": "Determine F1 phenotype and state nature of traits.",
+      "studentWork": "They are round and yellow because round and yellow are recessive traits.",
+      "status": "incorrect",
+      "marksAwarded": 0,
+      "marksDeducted": 0,
+      "teacherAnnotation": "Round and yellow are dominant traits, not recessive. This is a fundamental conceptual misunderstanding.",
+      "mistakeType": "conceptual",
+      "correctedWorking": "They are round and yellow because round and yellow are dominant traits.",
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 3,
+      "description": "Select the correct option.",
+      "studentWork": "Answer: (C)",
+      "status": "correct",
+      "marksAwarded": 0,
+      "marksDeducted": 0,
+      "teacherAnnotation": "The final option chosen is correct, despite the incorrect working and reasoning.",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 2,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0,
+     "departure": 0
+    },
+    "teacherNote": "",
+    "questionDepartureError": false,
+    "objective": true
+   },
+   {
+    "qNumber": 2,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 2,
+    "marksAwarded": 2,
+    "percentage": 100,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Explain why plugging a leak in a blood vessel is essential (besides blood loss).",
+      "studentWork": "(क) रक्त वाहिका में रिसाव होने पर रक्त दाब कम हो जाता है, जिससे पंपिंग तंत्र की दक्षता घट जाती है। इसलिए रिसाव को रोकना आवश्यक है।",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "Correctly explains that a leak lowers blood pressure and reduces pumping efficiency.",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 2,
+      "description": "Name the blood component involved.",
+      "studentWork": "रुधिर का यह संघटक प्लेटलेट्स (बिंबाणु) है।",
+      "status": "correct",
+      "marksAwarded": 0.5,
+      "marksDeducted": 0,
+      "teacherAnnotation": "Correctly identifies platelets.",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 3,
+      "description": "State how the component performs its function.",
+      "studentWork": "प्लेटलेट्स चोट के स्थान पर रुधिर का थक्का बनाकर रिसाव को बंद कर देते हैं।",
+      "status": "correct",
+      "marksAwarded": 0.5,
+      "marksDeducted": 0,
+      "teacherAnnotation": "Correctly describes the function of platelets in forming a clot.",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0,
+     "departure": 0
+    },
+    "teacherNote": "",
+    "questionDepartureError": false,
+    "objective": false
+   },
+   {
+    "qNumber": 3,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 2,
+    "marksAwarded": 2,
+    "percentage": 100,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "State given values with correct sign convention.",
+      "studentWork": "u = -60 cm, f = -30 cm",
+      "status": "correct",
+      "marksAwarded": 0.5,
+      "marksDeducted": 0,
+      "teacherAnnotation": "Correctly applied sign conventions for object distance and focal length of a concave lens.",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 2,
+      "description": "Apply lens formula and substitute values.",
+      "studentWork": "1/(-30) = 1/v – 1/(-60)",
+      "status": "correct",
+      "marksAwarded": 0.5,
+      "marksDeducted": 0,
+      "teacherAnnotation": "Correct lens formula and accurate substitution of values.",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 3,
+      "description": "Calculate 1/v.",
+      "studentWork": "1/v = -1/30 – 1/60 = (−2 − 1)/60 = −3/60 = -1/20",
+      "status": "correct",
+      "marksAwarded": 0.5,
+      "marksDeducted": 0,
+      "teacherAnnotation": "Correct algebraic manipulation and calculation for 1/v.",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 4,
+      "description": "State final image position with unit and direction.",
+      "studentWork": "v = -20 cm. The image is formed 20 cm from the lens on the same side as the object.",
+      "status": "correct",
+      "marksAwarded": 0.5,
+      "marksDeducted": 0,
+      "teacherAnnotation": "Correct final value, unit, and interpretation of the image position.",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0,
+     "departure": 0
+    },
+    "teacherNote": "",
+    "questionDepartureError": false,
+    "objective": false
+   },
+   {
+    "qNumber": 4,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 3,
+    "marksAwarded": 0.5,
+    "percentage": 17,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Calculate equivalent resistance of 10Ω and 15Ω in parallel (R1).",
+      "studentWork": "10 Ω and 15 Ω are in parallel: 1/R₁ = 1/10 + 1/15 = (3 + 2)/30 = 5/30 ⇒ R₁ = 6 Ω",
+      "status": "correct",
+      "marksAwarded": 0.5,
+      "marksDeducted": 0,
+      "teacherAnnotation": "Correct calculation for R1.",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 2,
+      "description": "Calculate equivalent resistance of 60Ω and 40Ω in parallel (R2).",
+      "studentWork": "60 Ω and 40 Ω are in parallel: 1/R2 = 1/60 + 1/40 = 2/100 ⇒ R2 = 50 Ω",
+      "status": "incorrect",
+      "marksAwarded": 0,
+      "marksDeducted": 0.5,
+      "teacherAnnotation": "Incorrect calculation for R2. The sum of fractions 1/60 + 1/40 is (2+3)/120 = 5/120 = 1/24, so R2 should be 24 Ω. Adding numerators and denominators directly is a conceptual error in applying the parallel resistance formula.",
+      "mistakeType": "conceptual",
+      "correctedWorking": "1/R2 = 1/60 + 1/40 = (2+3)/120 = 5/120 ⇒ R2 = 24 Ω",
+      "isDeparture": true,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 3,
+      "description": "Calculate total resistance (R_total = R1 + R2).",
+      "studentWork": "R₁ and R2 are in series: R = 6 + 50 = 56 Ω",
+      "status": "incorrect",
+      "marksAwarded": 0,
+      "marksDeducted": 0,
+      "teacherAnnotation": "Incorrect due to error carried forward from R2 calculation. The method of adding series resistances is correct.",
+      "mistakeType": null,
+      "correctedWorking": "R = 6 + 24 = 30 Ω",
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 4,
+      "description": "Calculate total current drawn from the source (I = V/R_total).",
+      "studentWork": "(b) I = V/R = 15/56 = 0.27 A",
+      "status": "incorrect",
+      "marksAwarded": 0,
+      "marksDeducted": 0,
+      "teacherAnnotation": "Incorrect due to error carried forward from total resistance calculation. The formula is correct.",
+      "mistakeType": null,
+      "correctedWorking": "I = 15/30 = 0.5 A",
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 5,
+      "description": "Calculate potential difference across the parallel combination of 10Ω and 15Ω (V = I * R1).",
+      "studentWork": "(c) Potential difference across the 10 Ω-15 Ω combination: V = I R₁ = 0.27 × 6 = 1.6 V",
+      "status": "incorrect",
+      "marksAwarded": 0,
+      "marksDeducted": 0,
+      "teacherAnnotation": "Incorrect due to error carried forward from total current calculation. The formula is correct.",
+      "mistakeType": null,
+      "correctedWorking": "V = 0.5 × 6 = 3.0 V",
+      "isDeparture": false,
+      "isReturn": false
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 1,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0,
+     "departure": 1
+    },
+    "teacherNote": "From this step on you were solving a different equation from the one set — check each line against the question as you go.",
+    "questionDepartureError": true,
+    "objective": false
+   },
+   {
+    "qNumber": 5,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 3,
+    "marksAwarded": 3,
+    "percentage": 100,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Explain why decomposition and combination reactions are opposite.",
+      "studentWork": "In a combination reaction two or more substances combine to form a single product, whereas in a decomposition reaction a single substance breaks down into two or more simpler products. Since one joins substances and the other breaks them apart, they are opposite to each other.",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "Clear and correct explanation of the opposite nature of combination and decomposition reactions.",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 2,
+      "description": "Provide a balanced chemical equation for a combination reaction with names.",
+      "studentWork": "Combination: CaO + H2O → Ca(OH)2 (calcium oxide + water → calcium hydroxide)",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "Correctly written and balanced combination reaction with appropriate names.",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     },
+     {
+      "stepNumber": 3,
+      "description": "Provide a balanced chemical equation for a decomposition reaction with names.",
+      "studentWork": "Decomposition: CaCO3 → CaO + CO2 on heating (calcium carbonate → calcium oxide + carbon dioxide)",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "Correctly written and balanced decomposition reaction with appropriate names and condition.",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0,
+     "departure": 0
+    },
+    "teacherNote": "",
+    "questionDepartureError": false,
+    "objective": false
+   }
+  ],
+  "totalQuestions": 5,
+  "gradedCount": 5,
+  "pendingCount": 0,
+  "gradedMarksAwarded": 8.5,
+  "gradedMarksTotal": 11,
+  "worksheetTotalMarks": 11,
+  "summary": "The student demonstrates a strong grasp of concepts in Life Processes, Light, and Chemical Reactions, providing accurate explanations and calculations. However, there are some conceptual gaps in Heredity (Q1) and a significant conceptual error in applying the parallel resistance formula in Electricity (Q4). Focus on reinforcing fundamental principles in these areas to improve overall performance."
+ }
+}

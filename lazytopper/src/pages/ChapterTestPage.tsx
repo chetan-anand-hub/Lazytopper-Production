@@ -24,6 +24,11 @@ import { MathText, loadKatex } from "../components/question/MathText";
 import { QuestionVisualAid } from "../components/question/QuestionVisualAid";
 import type { WorksheetGradeResponse } from "../ai/aiClient";
 import {
+  coachingLine as sharedCoachingLine,
+  effectivePaperCounts,
+  isQuestionNotAttempted,
+} from "../lib/mistakeDisplay";
+import {
   getSessionRecordsFromCloud,
   getSessionPerQuestion,
   chapterTestSequence,
@@ -93,21 +98,16 @@ function mintChapterTestId(): string {
 /** Product-voice coaching line for the graded PDF, from the counts (never raw model
  *  prose). Honest about what was lost, forward-pointing. */
 function coachingLine(resp: WorksheetGradeResponse): string {
-  let knowledge = 0;
-  let careless = 0;
-  for (const r of resp.results) {
-    if (r.couldNotRead || !r.mistakeSummary) continue;
-    knowledge += (r.mistakeSummary.conceptual || 0) + (r.mistakeSummary.calculation || 0);
-    careless += (r.mistakeSummary.silly || 0) + (r.mistakeSummary.presentation || 0);
-  }
-  const parts: string[] = [];
-  if (careless > 0)
-    parts.push(`${careless} careless slip${careless === 1 ? "" : "s"} — your method was right, slow down on the final line and units.`);
-  if (knowledge > 0)
-    parts.push(`${knowledge} knowledge gap${knowledge === 1 ? "" : "s"} — practise this chapter to close ${knowledge === 1 ? "it" : "them"}.`);
-  if (resp.pendingCount > 0)
-    parts.push(`Re-upload the ${resp.pendingCount} pending page${resp.pendingCount === 1 ? "" : "s"} to complete your score.`);
-  return parts.length ? parts.join(" ") : "Clean sheet — every question you uploaded scored full marks. Keep this up.";
+  // SCORECARD-MI-1 — the ONE coaching function (lib/mistakeDisplay): owner's groups, counts in
+  // mistakes, and never "Clean" while marks were lost (GA-24).
+  return sharedCoachingLine({
+    marksAwarded: resp.gradedMarksAwarded,
+    marksTotal: resp.gradedMarksTotal,
+    counts: effectivePaperCounts(resp.results),
+    pendingCount: resp.pendingCount,
+    notAttemptedCount: resp.results.filter((r) => isQuestionNotAttempted(r)).length,
+    practiseWhat: "this chapter",
+  });
 }
 
 export default function ChapterTestPage() {

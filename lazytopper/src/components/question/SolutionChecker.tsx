@@ -21,22 +21,52 @@ import { UPLOAD_LIMIT_SENTENCE, checkUploadFile } from "../../services/uploadLim
 import PageTray, { PhotoSourceButtons, useCoarsePointer, usePageTray, type TrayPayload } from "../upload/PageTray";
 // LOW-END-1 R2 — a NEW module, not aiClient (which the contract suite mocks whole).
 import { gradingErrorMessage, gradingStageLabel, type GradingStage } from "../../ai/gradingTransport";
+import { hashAttemptString } from "../../services/attemptDedupKey";
+import {
+  countWithUnit,
+  effectiveTypeCounts,
+  groupRows,
+  mistakeGroupOf,
+  mistakeTypeLabel,
+  stepDisplay,
+  stepForDisplay,
+  totalCount,
+} from "../../lib/mistakeDisplay";
 
-const CHECK_RESULT_KEY_PREFIX = "lazytopper.checkResult.v1.";
+/**
+ * GA-26 (SCORECARD-MI-1) — the cached grade is keyed by the SIGNED-IN uid and a version, never
+ * by the question alone: a grade cached on a shared device is restored only for the student who
+ * earned it, so it can never back-fill another student's Mistake Intelligence. `v2` also drops
+ * every unscoped `v1` entry (those are never restored). The cache carries the answer identity
+ * so a restore files under the SAME MI entry the fresh grade wrote (no duplicate).
+ */
+const CHECK_RESULT_KEY_PREFIX = "lazytopper.checkResult.v2.";
 
-function loadSavedResult(questionId: string): CheckSolutionResponse | null {
+interface SavedCheck {
+  result: CheckSolutionResponse;
+  answerKey?: string;
+}
+
+function checkResultKey(uid: string, questionId: string): string {
+  return `${CHECK_RESULT_KEY_PREFIX}${uid}:${questionId}`;
+}
+
+function loadSavedResult(uid: string | null | undefined, questionId: string): SavedCheck | null {
+  if (!uid) return null;
   try {
-    const raw = localStorage.getItem(CHECK_RESULT_KEY_PREFIX + questionId);
+    const raw = localStorage.getItem(checkResultKey(uid, questionId));
     if (!raw) return null;
-    return JSON.parse(raw) as CheckSolutionResponse;
+    const parsed = JSON.parse(raw) as SavedCheck;
+    return parsed && parsed.result ? parsed : null;
   } catch {
     return null;
   }
 }
 
-function saveResult(questionId: string, result: CheckSolutionResponse): void {
+function saveResult(uid: string | null | undefined, questionId: string, saved: SavedCheck): void {
+  if (!uid) return;
   try {
-    localStorage.setItem(CHECK_RESULT_KEY_PREFIX + questionId, JSON.stringify(result));
+    localStorage.setItem(checkResultKey(uid, questionId), JSON.stringify(saved));
   } catch {
   }
 }
@@ -51,7 +81,7 @@ type AnswerTab = "upload" | "type";
 /** Map the single front-door outcome to the evidence-state label. */
 function statusFromOutcome(outcome: RecordMistakeOutcome): LogStatus {
   if (isSavedOutcome(outcome)) return "saved";
-  if (outcome === "skipped-clean") return "no-mistakes";
+  if (outcome === "skipped-clean" || outcome === "skipped-not-attempted") return "no-mistakes";
   if (outcome === "skipped-no-user" || outcome === "skipped-local") return "local-only";
   return "unavailable";
 }
@@ -250,22 +280,26 @@ const LOCKED_CTA_CSS = `
 `;
 
 const STATUS_STYLE: Record<string, { border: string; bg: string; badge: string; badgeBg: string }> = {
+  /* SCORECARD-MI-1 — "missing" renders as Not attempted (neutral); an unknown status uses the
+     same neutral style and never reads as a loss. */
   correct:   { border: "rgba(34,197,94,0.35)",  bg: "rgba(34,197,94,0.05)",   badge: "#22c55e", badgeBg: "rgba(34,197,94,0.12)"  },
   partial:   { border: "rgba(251,191,36,0.35)",  bg: "rgba(251,191,36,0.05)", badge: "#fbbf24", badgeBg: "rgba(251,191,36,0.12)" },
   incorrect: { border: "rgba(239,68,68,0.4)",   bg: "rgba(239,68,68,0.05)",   badge: "#ef4444", badgeBg: "rgba(239,68,68,0.12)"  },
   missing:   { border: "rgba(148,163,184,0.25)", bg: "var(--bg-card)",         badge: "#94a3b8", badgeBg: "rgba(148,163,184,0.1)" },
 };
 
-const MISTAKE_BADGE: Record<MistakeType, { label: string; color: string; bg: string }> = {
-  conceptual:   { label: "Conceptual",   color: "#ef4444", bg: "rgba(239,68,68,0.1)"   },
-  calculation:  { label: "Calculation",  color: "#f59e0b", bg: "rgba(245,158,11,0.1)"  },
-  silly:        { label: "Silly",        color: "#f97316", bg: "rgba(249,115,22,0.1)"  },
-  presentation: { label: "Presentation", color: "#3b82f6", bg: "rgba(59,130,246,0.1)"  },
+/** A group's colour key (lib/mistakeDisplay) on this component's palette. */
+const GROUP_BADGE: Record<"gap" | "technique" | "careless", { color: string; bg: string }> = {
+  gap:       { color: "#ef4444", bg: "rgba(239,68,68,0.1)"  },
+  technique: { color: "#3b82f6", bg: "rgba(59,130,246,0.1)" },
+  careless:  { color: "#f59e0b", bg: "rgba(245,158,11,0.1)" },
 };
 
 function MistakeBadge({ type }: { type: MistakeType | null }) {
-  if (!type) return null;
-  const b = MISTAKE_BADGE[type];
+  const label = mistakeTypeLabel(type);
+  const group = mistakeGroupOf(type);
+  if (!label || !group) return null;
+  const b = { label, ...GROUP_BADGE[group.colorKey] };
   return (
     <span style={{
       fontSize: "0.63rem", fontWeight: 700, padding: "2px 6px",
@@ -280,8 +314,9 @@ function MistakeBadge({ type }: { type: MistakeType | null }) {
 
 function AnnotatedStepCard({ step, objective }: { step: CheckSolutionResponse["annotatedSteps"][0]; objective?: boolean }) {
   const [showCorrected, setShowCorrected] = useState(false);
-  const ss = STATUS_STYLE[step.status] || STATUS_STYLE.partial;
-  const isNegative = step.marksAwarded === 0 && step.status !== "correct";
+  const display = stepDisplay(step.status);
+  const ss = STATUS_STYLE[step.status] || STATUS_STYLE.missing;
+  const isNegative = step.marksAwarded === 0 && step.status !== "correct" && display.showDeduction;
   const marksColor = step.marksAwarded > 0 ? "#22c55e" : "#ef4444";
   const marksBg = step.marksAwarded > 0 ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.1)";
   const marksLabel = step.marksAwarded > 0
@@ -318,10 +353,16 @@ function AnnotatedStepCard({ step, objective }: { step: CheckSolutionResponse["a
           <EquationRender text={step.description} />
         </div>
         <MistakeBadge type={step.mistakeType} />
+        {(display.kind === "not-attempted" || display.kind === "unknown") && (
+          <span style={{ fontSize: "0.63rem", fontWeight: 700, padding: "2px 6px", borderRadius: 999, color: "#64748b", background: "rgba(148,163,184,0.15)", flexShrink: 0 }}>
+            {display.label}
+          </span>
+        )}
         {/* Objective questions carry NO per-step marks by design (the whole 0-or-full
             mark is at answer level, PR-348). Showing "0 marks" per step reads as the
-            student scoring 0 — misleading. Suppress the chip; keep the annotation. */}
-        {!objective && (
+            student scoring 0 — misleading. Suppress the chip; keep the annotation. A
+            not-attempted step carries no "−N" either (SCORECARD-MI-1). */}
+        {!objective && display.showDeduction && (
           <span style={{
             fontSize: "0.72rem", fontWeight: 800,
             padding: "2px 7px", borderRadius: 999,
@@ -393,17 +434,15 @@ function AnnotatedStepCard({ step, objective }: { step: CheckSolutionResponse["a
   );
 }
 
-function MistakeSummaryLine({ summary }: { summary: CheckSolutionResponse["mistakeSummary"] }) {
-  const parts: string[] = [];
-  if (summary.conceptual > 0) parts.push(`${summary.conceptual} conceptual`);
-  if (summary.calculation > 0) parts.push(`${summary.calculation} calculation`);
-  if (summary.silly > 0) parts.push(`${summary.silly} silly`);
-  if (summary.presentation > 0) parts.push(`${summary.presentation} presentation`);
+/** SCORECARD-MI-1 — the owner's groups from lib/mistakeDisplay, each count with its unit. */
+function MistakeSummaryLine({ result }: { result: CheckSolutionResponse }) {
+  const parts = groupRows(effectiveTypeCounts(result))
+    .filter((r) => r.count > 0)
+    .map((r) => `${r.group.label} · ${countWithUnit(r.count)}`);
   if (parts.length === 0) return null;
-  const total = parts.reduce((acc, p) => acc + parseInt(p), 0);
   return (
     <div style={{ fontSize: "0.73rem", color: "var(--text-muted)", marginTop: 3 }}>
-      {parts.join(" · ")} {total === 1 ? "mistake" : "mistakes"}
+      {parts.join(" · ")}
     </div>
   );
 }
@@ -514,6 +553,8 @@ export function SolutionChecker({
   const [stage, setStage] = useState<GradingStage | null>(null);
   const [result, setResult] = useState<CheckSolutionResponse | null>(null);
   const [isFromCache, setIsFromCache] = useState(false);
+  /** SCORECARD-MI-1 — the answer identity of a RESTORED grade (from the uid-scoped cache). */
+  const [savedAnswerKey, setSavedAnswerKey] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
   const [logStatus, setLogStatus] = useState<LogStatus>("pending");
   /**
@@ -554,14 +595,15 @@ export function SolutionChecker({
     // graded once, at Finish, and a cached per-question grade from BEFORE the flip would
     // render a mark this session did not earn.
     if (collectMode) return;
-    const saved = loadSavedResult(questionId);
+    const saved = loadSavedResult(user?.uid, questionId);
     if (saved) {
-      setResult(saved);
+      setResult(saved.result);
+      setSavedAnswerKey(saved.answerKey);
       setIsFromCache(true);
       setLogStatus("cached");
-      onResult?.(saved);
+      onResult?.(saved.result);
     }
-  }, [questionId]);
+  }, [questionId, user?.uid]);
 
   // Cache short-circuit fix: a previously-cached result restored on mount used
   // to display without ever persisting the mistake. Route it through the front
@@ -576,7 +618,13 @@ export function SolutionChecker({
     backfilledRef.current = sig;
     let cancelled = false;
     setLogStatus("saving");
-    void recordMistake(user, result, { subject, topic, question, questionId }).then((res) => {
+    void recordMistake(user, result, {
+      subject, topic, question, questionId,
+      // SCORECARD-MI-1 (D5 / A2) — the same identity the fresh grade wrote, so a restore
+      // re-files under ONE entry and never adds a second.
+      surface: "solution-checker",
+      answerKey: savedAnswerKey,
+    }).then((res) => {
       if (!cancelled) setLogStatus(statusFromOutcome(res.outcome));
     });
     // Score-twin: a restored graded result is also an attempt (deduped, so a
@@ -588,7 +636,7 @@ export function SolutionChecker({
       mode: "graded",
     });
     return () => { cancelled = true; };
-  }, [result, isFromCache, user, questionId, subject, topic, question]);
+  }, [result, isFromCache, user, questionId, subject, topic, question, savedAnswerKey]);
 
 
   // UPLOAD-2 — the shared upload step. A photo is cropped (optional), turned upright,
@@ -642,6 +690,15 @@ export function SolutionChecker({
     const hasImage = answerTab === "upload" && !!imageBase64;
     const hasText = answerTab === "type" && textAnswer.trim().length > 0;
     if (!hasImage && !hasText) return;
+    // GA-39 — a question with no mark value is never graded as a silent 1-mark question
+    // (the grader would default an absent mark to 1). Say so instead.
+    if (!(Number(marks) > 0)) {
+      setError("This question has no mark value on record, so it can't be marked yet.");
+      return;
+    }
+    // A2 — answer-content identity: re-checking the SAME answer replaces its MI entry; a new
+    // answer to this question is a new entry (a genuine retry).
+    const answerKey = hasImage ? `i:${hashAttemptString(imageBase64!)}` : `t:${hashAttemptString(textAnswer.trim())}`;
 
     setLoading(true);
     setStage(null);
@@ -671,7 +728,7 @@ export function SolutionChecker({
         setResult(response);
         setIsFromCache(false);
         if (questionId) {
-          saveResult(questionId, response);
+          saveResult(user?.uid, questionId, { result: response, answerKey });
         }
         onResult?.(response);
 
@@ -681,7 +738,11 @@ export function SolutionChecker({
         // decides from the actual score + per-step mistakeType, and owns the
         // builder, dedup, and the weak-area bridge.
         setLogStatus("saving");
-        const rec = await recordMistake(user, response, { subject, topic, question, questionId });
+        const rec = await recordMistake(user, response, {
+          subject, topic, question, questionId,
+          surface: "solution-checker",
+          answerKey,
+        });
         setLogStatus(statusFromOutcome(rec.outcome));
         // Score-twin of the mistake door: record the graded score as an attempt
         // (every graded answer, including full marks — accuracy needs both).
@@ -807,10 +868,8 @@ export function SolutionChecker({
    */
   const inputPhaseOpen = collectMode ? !savedAnswer : !result;
 
-  const totalMistakes = result?.mistakeSummary
-    ? result.mistakeSummary.conceptual + result.mistakeSummary.calculation +
-      result.mistakeSummary.silly + result.mistakeSummary.presentation
-    : 0;
+  // SCORECARD-MI-1 — the ONE count function (no type on a question that lost nothing).
+  const totalMistakes = result ? totalCount(effectiveTypeCounts(result)) : 0;
 
   return (
     <div style={{
@@ -1328,7 +1387,7 @@ export function SolutionChecker({
                 {isPerfect ? "Full marks" : result.percentage >= 80 ? "Strong answer" : result.percentage >= 50 ? "Partly correct" : "Needs correction"}
               </div>
               {!isPerfect && totalMistakes > 0 && (
-                <MistakeSummaryLine summary={result.mistakeSummary} />
+                <MistakeSummaryLine result={result} />
               )}
               {isPerfect && (
                 <div style={{ fontSize: "0.74rem", color: "#22c55e", marginTop: 2 }}>
@@ -1351,7 +1410,7 @@ export function SolutionChecker({
                   question gate 1-mark items out. Suppressing the chip is the honest
                   fix; a disclaimer under a misleading chip was not. */}
               {result.annotatedSteps.map((step) => (
-                <AnnotatedStepCard key={step.stepNumber} step={step} objective={result.objective} />
+                <AnnotatedStepCard key={step.stepNumber} step={stepForDisplay(step, result)} objective={result.objective} />
               ))}
             </>
           )}

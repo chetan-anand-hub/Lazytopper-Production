@@ -26,31 +26,23 @@ import type {
   WorksheetQuestionGrade,
 } from "../ai/aiClient";
 import type { ScorecardGradedAnswer, ScorecardMistakeKind } from "../components/results/scorecardVariants";
+import {
+  MISTAKE_TYPE_LABEL,
+  questionChipType,
+  type GradedQuestionLike,
+} from "../lib/mistakeDisplay";
 
-/** The student-facing chip text for a mistake kind. */
-export const MISTAKE_KIND_LABEL: Record<ScorecardMistakeKind, string> = {
-  conceptual: "Concept gap",
-  calculation: "Calculation",
-  silly: "Silly slip",
-  presentation: "Presentation",
-};
+/** The student-facing chip text for a mistake kind — the ONE map in lib/mistakeDisplay,
+ *  re-exported under its historical name for existing importers (SCORECARD-MI-1). */
+export const MISTAKE_KIND_LABEL: Readonly<Record<ScorecardMistakeKind, string>> = MISTAKE_TYPE_LABEL;
 
-/** PURE. The single mistake kind to badge one answer with: the one the grader counted
- *  most. Ties resolve in CBSE severity order (a concept gap outranks a slip). Returns
- *  null when the grader reported NO mistakes - honest silence, never a default chip. */
+/** PURE. The single mistake kind to badge one answer with — SCORECARD-MI-1 (GA-34): the
+ *  ONE picker in lib/mistakeDisplay, the same one the graded PDF uses. Null when nothing may
+ *  be shown: no mistakes, or a question that lost no mark (owner ruling: no type on full
+ *  marks or on a right-option MCQ). */
 export const dominantMistakeKind = (
-  summary: CheckSolutionMistakeSummary | null | undefined,
-): ScorecardMistakeKind | null => {
-  if (!summary) return null;
-  const order: ScorecardMistakeKind[] = ["conceptual", "calculation", "silly", "presentation"];
-  let best: ScorecardMistakeKind | null = null;
-  let bestN = 0;
-  for (const kind of order) {
-    const n = Number(summary[kind]) || 0;
-    if (n > bestN) { best = kind; bestN = n; }
-  }
-  return best;
-};
+  q: GradedQuestionLike | null | undefined,
+): ScorecardMistakeKind | null => (q ? questionChipType(q) : null);
 
 /** PURE. The teacher's line for where the mark went: the annotation on the FIRST step
  *  that lost something. Null when every step was clean - the shell then renders no
@@ -148,7 +140,12 @@ export const marksDescriptor = (marks: number, objective: boolean): string => {
  */
 export function buildGradedAnswer(src: GradedAnswerSource): ScorecardGradedAnswer {
   const descriptor = src.descriptor ?? null;
-  const kind = dominantMistakeKind(src.mistakeSummary);
+  const kind = dominantMistakeKind({
+    totalMarks: src.totalMarks,
+    marksAwarded: src.marksAwarded,
+    mistakeSummary: src.mistakeSummary,
+    annotatedSteps: src.annotatedSteps,
+  });
   const stepDetail = firstMistakeDetail(src.annotatedSteps);
   const detail = src.lostFromStepsOnly ? stepDetail : (stepDetail || src.teacherNote || null);
   const awarded = typeof src.marksAwarded === "number" ? src.marksAwarded : null;

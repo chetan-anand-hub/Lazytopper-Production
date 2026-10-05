@@ -897,6 +897,10 @@ export async function gradeQuickPracticeBatch(args: {
       topicKey: answer.topicKey ?? undefined,
       question: String(answer.questionText || ""),
       questionId,
+      // SCORECARD-MI-1 (D5 / A2) — this practice session is the submission: re-grading the
+      // same session replaces; a new session (a genuine retry) is a new entry.
+      surface: "quick-practice",
+      submissionId: worksheetId,
     });
     recordAttempt(user ?? null, {
       subject: String(subject || ""),

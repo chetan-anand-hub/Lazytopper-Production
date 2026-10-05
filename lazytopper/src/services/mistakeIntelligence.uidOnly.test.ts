@@ -112,6 +112,8 @@ function audit(writes: readonly { key: string; value: string }[], allow: Allow):
 const UID = "uid-sentinel-9f3c4b";
 const QID = "RN-1";
 const DEDUP_KEY = "lazytopper.mi.dedup.v1";
+/** SCORECARD-MI-1 — the identities whose knowledge gap already reached the weak-area bridge. */
+const BRIDGED_KEY = "lazytopper.mi.bridged.v1";
 
 const USER = { uid: UID, isLocalSession: false } as unknown as AuthUser;
 
@@ -132,18 +134,23 @@ const GRADE: CheckSolutionResponse = {
 } as unknown as CheckSolutionResponse;
 
 const ALLOW: Allow = {
-  // The ONLY localStorage key this path is permitted to write.
-  storageKeys: [DEDUP_KEY],
+  // The ONLY localStorage keys this path is permitted to write. SCORECARD-MI-1 adds the
+  // bridge-once ring (same identity segments, no new kind of data).
+  storageKeys: [DEDUP_KEY, BRIDGED_KEY],
   // The payload is a JSON array of STRINGS — there are no object keys at all.
   // Declared empty on purpose: introducing an object here is itself a change
   // that must be looked at.
   payloadKeys: [],
-  // Every `::` segment permitted in a dedup signature. Mirrors `dedupKey()`:
-  //   [uid, questionId, "<awarded>/<total>", "<c>-<c>-<c>-<c>"].join("::")
+  // Every `::` segment permitted in a dedup signature. SCORECARD-MI-1 — mirrors
+  // `gradeIdentityKey` + the outcome:
+  //   [uid, surface, submissionId, questionId, ("a:<answer hash>"), "<awarded>/<total>",
+  //    "<c>-<c>-<c>-<c>"].join("::")
   atoms: [
     UID, //                      segment 1 — the pseudonymous Firebase uid
-    QID, //                      segment 2 — a question id
-    /^t:[a-z0-9]+$/, //          segment 2 variant — hashed free-typed question
+    "unknown", //                segment 2 — no surface named by this context
+    "", //                       segment 3 — no submission context named by this context
+    QID, //                      segment 4 — a question id
+    /^t:[a-z0-9]+$/, //          segment 4 variant — hashed free-typed question
     /^\d+\/\d+$/, //             segment 3 — marksAwarded / totalMarks
     /^\d+-\d+-\d+-\d+$/, //      segment 4 — the reconciled four-type counts
   ],
@@ -200,9 +207,11 @@ describe("mistakeIntelligence — only the uid reaches localStorage", () => {
     const segments = entries[0].split("::");
     // The uid IS persisted — this is the value CodeQL is complaining about.
     expect(segments[0]).toBe(UID);
-    expect(segments[1]).toBe(QID);
-    expect(segments[2]).toBe("1/3");
-    expect(segments[3]).toBe("1-0-0-0");
+    expect(segments[1]).toBe("unknown");
+    expect(segments[2]).toBe("");
+    expect(segments[3]).toBe(QID);
+    expect(segments[4]).toBe("1/3");
+    expect(segments[5]).toBe("1-0-0-0");
   });
 
   it("★ NEGATIVE CONTROL — a uid-only run is GREEN (the guard does not fail on everything)", async () => {

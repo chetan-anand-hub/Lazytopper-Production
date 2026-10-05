@@ -85,7 +85,9 @@ describe("CASE 1 — a graded answer carrying steps renders a per-step block", (
     expect(screen.getByText("v = u + at")).toBeInTheDocument();
     expect(screen.getByText("v = 0 + 9.8 x 3")).toBeInTheDocument();
     expect(screen.getByText("Used 3 s instead of 2 s.")).toBeInTheDocument();
-    expect(screen.getByText(/Should be: v = 0 \+ 9\.8 x 2/)).toBeInTheDocument();
+    // GA-40 — the corrected working now renders through the shared maths renderer, so the
+    // text spans two elements; assert on the step's own fix line.
+    expect(document.querySelector(".lt-sc__gst-fix")?.textContent).toMatch(/Should be: v = 0 \+ 9\.8 x 2/);
     expect(screen.getByText("+1")).toBeInTheDocument();
     expect(screen.getByText("−1")).toBeInTheDocument();
   });

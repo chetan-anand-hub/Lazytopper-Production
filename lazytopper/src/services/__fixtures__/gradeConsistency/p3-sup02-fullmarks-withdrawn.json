@@ -1,0 +1,165 @@
+{
+ "source": "Desktop/diff/grader-audit-1/s3/raw/P3/CI-SINGLE/P3CI-GS-SUP-02.run1.json",
+ "grader": "P3",
+ "surface": "CI-SINGLE",
+ "caseIds": [
+  "GS-SUP-02"
+ ],
+ "request": {
+  "question": "In our homes, we receive the supply of electric power through a main supply also called mains, either supported through overhead electric poles or by underground cables. In our country the potential difference between the two wires (live wire and neutral wire) of this supply is 220 V.\n(a) Write the colours of the insulation covers of the line wires through which supply comes to our homes.\n(b) What should be the current rating of the electric circuit (220 V) so that an electric iron of 1 kW power rating can be operated?\n(c)(i) What is the function of the earth wire? State the advantage of the earth wire in domestic electric appliances such as electric iron. [OR (c)(ii): List two precautions to be taken to avoid electrical accidents...]",
+  "subject": "Science",
+  "topic": "Electricity",
+  "marks": 4
+ },
+ "body": {
+  "ok": true,
+  "totalMarks": 4,
+  "marksAwarded": 4,
+  "percentage": 100,
+  "annotatedSteps": [
+   {
+    "stepNumber": 1,
+    "description": "Identifying colour of live wire insulation",
+    "studentWork": "Live wire — red insulation",
+    "status": "correct",
+    "marksAwarded": 0.5,
+    "marksDeducted": 0,
+    "teacherAnnotation": "✓ Correct",
+    "mistakeType": null,
+    "correctedWorking": null,
+    "isDeparture": false,
+    "isReturn": false
+   },
+   {
+    "stepNumber": 2,
+    "description": "Identifying colour of neutral wire insulation",
+    "studentWork": "neutral wire — black insulation.",
+    "status": "correct",
+    "marksAwarded": 0.5,
+    "marksDeducted": 0,
+    "teacherAnnotation": "✓ Correct",
+    "mistakeType": null,
+    "correctedWorking": null,
+    "isDeparture": false,
+    "isReturn": false
+   },
+   {
+    "stepNumber": 3,
+    "description": "Identifying given values and converting power unit",
+    "studentWork": "P = 1 kW = 1000 W, V = 220 V.",
+    "status": "correct",
+    "marksAwarded": 0.5,
+    "marksDeducted": 0,
+    "teacherAnnotation": "✓ Correct values and unit conversion",
+    "mistakeType": null,
+    "correctedWorking": null,
+    "isDeparture": false,
+    "isReturn": false
+   },
+   {
+    "stepNumber": 4,
+    "description": "Applying incorrect formula for power and calculating current",
+    "studentWork": "P = V/I ⇒ I = V/P = 220/1000 = 0.22 A.",
+    "status": "incorrect",
+    "marksAwarded": 0,
+    "marksDeducted": 0.5,
+    "teacherAnnotation": "× Incorrect formula used (P=V/I instead of P=VI)",
+    "mistakeType": "conceptual",
+    "correctedWorking": "P = V × I",
+    "isDeparture": false,
+    "isReturn": false
+   },
+   {
+    "stepNumber": 5,
+    "description": "Stating conclusion based on incorrect calculation",
+    "studentWork": "So a circuit of current rating 1 A would be enough for the iron.",
+    "status": "incorrect",
+    "marksAwarded": 0,
+    "marksDeducted": 0,
+    "teacherAnnotation": "× Conclusion based on previous incorrect calculation",
+    "mistakeType": null,
+    "correctedWorking": "I = 4.54 A, so a circuit of current rating 5 A is needed.",
+    "isDeparture": false,
+    "isReturn": false
+   },
+   {
+    "stepNumber": 6,
+    "description": "Self-correction and stating correct power formula",
+    "studentWork": "Wait — this is wrong: power is P = V × I, not V/I (1 watt = 1 volt × 1 ampere). Ignore the two lines above. Redoing: P = V × I",
+    "status": "correct",
+    "marksAwarded": 0.5,
+    "marksDeducted": 0,
+    "teacherAnnotation": "✓ Correct formula identified and stated",
+    "mistakeType": null,
+    "correctedWorking": null,
+    "isDeparture": false,
+    "isReturn": false
+   },
+   {
+    "stepNumber": 7,
+    "description": "Correct substitution and calculation of current",
+    "studentWork": "⇒ I = P/V = 1000 W / 220 V = 4.54 A.",
+    "status": "correct",
+    "marksAwarded": 0.5,
+    "marksDeducted": 0,
+    "teacherAnnotation": "✓ Correct substitution and calculation",
+    "mistakeType": null,
+    "correctedWorking": null,
+    "isDeparture": false,
+    "isReturn": false
+   },
+   {
+    "stepNumber": 8,
+    "description": "Stating appropriate current rating for the circuit",
+    "studentWork": "So the circuit must have a current rating of 5 A.",
+    "status": "correct",
+    "marksAwarded": 0.5,
+    "marksDeducted": 0,
+    "teacherAnnotation": "✓ Appropriate rating",
+    "mistakeType": null,
+    "correctedWorking": null,
+    "isDeparture": false,
+    "isReturn": false
+   },
+   {
+    "stepNumber": 9,
+    "description": "Stating the function of the earth wire",
+    "studentWork": "The earth wire provides a low-resistance conducting path for current, so any current leaking to the metallic body of the iron flows to the earth and the body stays at the potential of the earth.",
+    "status": "correct",
+    "marksAwarded": 0.5,
+    "marksDeducted": 0,
+    "teacherAnnotation": "✓ Correct function",
+    "mistakeType": null,
+    "correctedWorking": null,
+    "isDeparture": false,
+    "isReturn": false
+   },
+   {
+    "stepNumber": 10,
+    "description": "Stating the advantage of the earth wire",
+    "studentWork": "Hence the user does not get an electric shock.",
+    "status": "correct",
+    "marksAwarded": 0.5,
+    "marksDeducted": 0,
+    "teacherAnnotation": "✓ Correct advantage",
+    "mistakeType": null,
+    "correctedWorking": null,
+    "isDeparture": false,
+    "isReturn": false
+   }
+  ],
+  "mistakeSummary": {
+   "conceptual": 1,
+   "calculation": 0,
+   "silly": 0,
+   "presentation": 0,
+   "departure": 0
+  },
+  "teacherNote": "Marked against: (a) Correct colours for live and neutral wires (1 mark), (b) Correct formula, substitution, calculation, and appropriate current rating (2 marks), (c) Correct function and advantage of earth wire (1 mark). The student demonstrated good knowledge in parts (a) and (c). In part (b), an initial conceptual error was made, but the student successfully identified and corrected it, leading to the correct final answer. This self-correction shows strong understanding and problem-solving skills.",
+  "questionDepartureError": false,
+  "objective": false,
+  "detectedSubject": null,
+  "detectedTopic": null,
+  "marksSource": null
+ }
+}

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
+import { hashAttemptString } from "../../services/attemptDedupKey";
 import type { ComponentProps } from "react";
 import type { CheckSolutionResponse } from "../../ai/aiClient";
 
@@ -376,16 +377,33 @@ describe("SolutionChecker -- every rendering state still renders", () => {
   });
 
   it("STATE cached: a stored result restores under the versioned cache key with the Re-check affordance", async () => {
-    // The key prefix is a DATA CONTRACT with every student's device -- changing it
-    // silently orphans every result they have already paid a grader call for.
+    // The key prefix is a DATA CONTRACT with every student's device. SCORECARD-MI-1 (GA-26)
+    // moved it to v2 DELIBERATELY: v1 was keyed by the question alone, so a grade cached on a
+    // shared device was restored for — and back-filled into the MI of — whoever opened the
+    // question next. v2 is keyed by the signed-in uid as well.
     localStorage.setItem(
-      "lazytopper.checkResult.v1.qid-cached",
-      JSON.stringify(gradedResponse()),
+      "lazytopper.checkResult.v2.test-uid:qid-cached",
+      JSON.stringify({ result: gradedResponse(), answerKey: "t:abc" }),
     );
     render(<SolutionChecker {...BASE_PROPS} questionId="qid-cached" />);
     expect(await screen.findByText("Showing your previous check result")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Re-check" })).toBeInTheDocument();
     expect(screen.getByText("Examiner note")).toBeInTheDocument();
+  });
+
+  it("★ GA-26 — an UNSCOPED v1 grade and ANOTHER student's v2 grade are never restored", async () => {
+    localStorage.setItem("lazytopper.checkResult.v1.qid-shared", JSON.stringify(gradedResponse()));
+    localStorage.setItem(
+      "lazytopper.checkResult.v2.someone-else:qid-shared",
+      JSON.stringify({ result: gradedResponse() }),
+    );
+    render(<SolutionChecker {...BASE_PROPS} questionId="qid-shared" />);
+    // CONTROL that the component rendered in its INPUT phase (no restored result).
+    openTypeTab();
+    fireEvent.change(typePanelTextarea(), { target: { value: "x" } });
+    expect(await screen.findByRole("button", { name: "Check my answer" })).toBeInTheDocument();
+    expect(screen.queryByText("Showing your previous check result")).toBeNull();
+    expect(recordMistake).not.toHaveBeenCalled();
   });
 });
 
@@ -483,6 +501,10 @@ describe("SolutionChecker -- the post-grade persistence twins", () => {
       topic: "introduction-to-trigonometry",
       question: BASE_PROPS.question,
       questionId: "qid-1",
+      // SCORECARD-MI-1 (D5 / A2) — the stable identity: re-checking THIS answer replaces its
+      // entry; a different answer to the same question is a new one.
+      surface: "solution-checker",
+      answerKey: `t:${hashAttemptString("working")}`,
     });
 
     // The score-twin: EVERY graded answer is an attempt, including full marks --
@@ -507,8 +529,18 @@ describe("SolutionChecker -- the post-grade persistence twins", () => {
     fireEvent.change(typePanelTextarea(), { target: { value: "working" } });
     fireEvent.click(screen.getByRole("button", { name: "Check my answer" }));
     await waitFor(() =>
-      expect(localStorage.getItem("lazytopper.checkResult.v1.qid-1")).not.toBeNull(),
+      expect(localStorage.getItem("lazytopper.checkResult.v2.test-uid:qid-1")).not.toBeNull(),
     );
+  });
+
+  it("★ GA-39 — a question with NO mark value is never sent to the grader (it would grade a silent 1-marker)", async () => {
+    render(<SolutionChecker {...BASE_PROPS} marks={0} questionId="qid-nomarks" />);
+    openTypeTab();
+    fireEvent.change(typePanelTextarea(), { target: { value: "working" } });
+    fireEvent.click(screen.getByRole("button", { name: "Check my answer" }));
+    expect(await screen.findByText("This question has no mark value on record, so it can't be marked yet.")).toBeInTheDocument();
+    expect(checkSolutionImage).not.toHaveBeenCalled();
+    expect(recordMistake).not.toHaveBeenCalled();
   });
 
   it("does NOT persist anything when the caller gives no questionId", async () => {

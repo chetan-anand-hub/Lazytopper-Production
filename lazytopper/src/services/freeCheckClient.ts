@@ -29,7 +29,6 @@
  * `firebaseClient` + `firebase/app-check` are imported LAZILY, inside the call.
  */
 import type {
-  CheckSolutionMistakeSummary,
   CheckSolutionResponse,
   WorksheetGradeResponse,
 } from "../ai/aiClient";
@@ -37,6 +36,7 @@ import type { DetectionOverrideLog } from "./practiceInsights";
 // TRIAL-ON-SIGNUP-1b — the shared after-trial wording lives in a ZERO-IMPORT module (it
 // imports only config/pricing, itself import-free), so this file stays node-safe.
 import { TRIAL_WORDING } from "../components/pricing/BasicFreeList";
+import { addCounts, effectiveTypeCounts, groupRows, zeroCounts } from "../lib/mistakeDisplay";
 
 /* ─────────────────────────── flag + env ─────────────────────────── */
 
@@ -553,19 +553,9 @@ export function hasPendingFreeCheck(): boolean {
 /** S1b / S2 — at most this many mistake tags are shown. */
 export const FREE_CHECK_SUMMARY_MAX_TAGS = 3;
 
-/**
- * The tag vocabulary — the owner's example wording ("Knowledge gap ×1", spec §2 S1b):
- * Check & Improve's GROUPED labels (the page's per-question chips). Knowledge gap =
- * conceptual + calculation; Careless = silly + presentation. Listed in the order a tie
- * is broken. With two groups the cap of 3 cannot bind today; it is kept on purpose.
- */
-const FREE_CHECK_TAG_GROUPS: ReadonlyArray<{
-  label: string;
-  types: ReadonlyArray<keyof CheckSolutionMistakeSummary>;
-}> = [
-  { label: "Knowledge gap", types: ["conceptual", "calculation"] },
-  { label: "Careless", types: ["silly", "presentation"] },
-];
+/* The tag vocabulary is the owner's three groups from lib/mistakeDisplay (SCORECARD-MI-1):
+ * Knowledge gap (conceptual) · Exam technique (presentation) · Careless (calculation + silly),
+ * in that order when counts tie. The cap of 3 can bind now that there are three groups. */
 
 export interface FreeCheckSummaryTag {
   label: string;
@@ -609,32 +599,21 @@ export function summarizePendingFreeCheck(): FreeCheckResultSummary | null {
   if (!pending) return null;
 
   let marks: FreeCheckResultSummary["marks"];
-  const counts: Record<keyof CheckSolutionMistakeSummary, number> = {
-    conceptual: 0,
-    calculation: 0,
-    silly: 0,
-    presentation: 0,
-  };
-  const add = (ms: Partial<CheckSolutionMistakeSummary> | null | undefined) => {
-    if (!ms) return;
-    for (const key of Object.keys(counts) as Array<keyof CheckSolutionMistakeSummary>) {
-      counts[key] += wholeCount(ms[key]);
-    }
-  };
-
+  // SCORECARD-MI-1 — the ONE count function: no type on a question that lost no mark.
+  let counts = zeroCounts();
   if (pending.kind === "single") {
     marks = usableMarks(pending.graded.marksAwarded, pending.graded.totalMarks);
-    add(pending.graded.mistakeSummary);
+    counts = effectiveTypeCounts(pending.graded);
   } else {
     marks = usableMarks(pending.response.gradedMarksAwarded, pending.response.gradedMarksTotal);
     for (const g of pending.response.results ?? []) {
-      if (!g.couldNotRead) add(g.mistakeSummary);
+      if (!g.couldNotRead) counts = addCounts(counts, effectiveTypeCounts(g));
     }
   }
 
-  const tags = FREE_CHECK_TAG_GROUPS.map(({ label, types }) => ({
-    label,
-    count: types.reduce((n, key) => n + counts[key], 0),
+  const tags = groupRows(counts).map(({ group, count }) => ({
+    label: group.label,
+    count: wholeCount(count),
   }))
     .filter((t) => t.count > 0)
     // Array.prototype.sort is stable: equal counts keep the group order above.

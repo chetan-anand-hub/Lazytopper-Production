@@ -32,6 +32,7 @@ import {
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "./worksheetSessionStore";
 import { saveWorksheetGrade } from "./worksheetSessionStore";
 import { recordMistake, type RecordMistakeOutcome } from "./mistakeIntelligence";
+import { withEffectiveCounts } from "../lib/mistakeDisplay";
 import { conceptForBankQuestionId } from "./mistakeConcept";
 import { recordAttempt } from "./practiceInsights";
 import {
@@ -266,12 +267,14 @@ export async function gradeChapterTestUpload(args: {
 
   if (!subjectiveResponse.ok) return { ok: false, response: subjectiveResponse, miOutcomes: [] };
 
-  const response = buildChapterTestResponse({
+  // SCORECARD-MI-1 — ONE set of counts for every reader of this grade: no type on a
+  // full-mark question (owner ruling).
+  const response = withEffectiveCounts(buildChapterTestResponse({
     paper,
     objective,
     subjectiveQuestions,
     subjectiveResponse,
-  });
+  }));
 
   // Cache the unified grade device-locally (same-session re-open); the durable
   // cross-device re-open reads the sessionRecords perQuestion payload written below.
@@ -279,7 +282,7 @@ export async function gradeChapterTestUpload(args: {
 
   const qByNumber = new Map(subjectiveQuestions.map((q) => [q.qNumber, q]));
   const miOutcomes: ChapterTestMiOutcome[] = [];
-  for (const g of subjectiveResponse.results) {
+  for (const g of withEffectiveCounts(subjectiveResponse).results) {
     if (g.couldNotRead) continue; // honest pending — never feeds MI or a 0
     const q = qByNumber.get(g.qNumber);
     if (!q) continue;
@@ -293,6 +296,9 @@ export async function gradeChapterTestUpload(args: {
       topicKey: q.topicKey,
       question: q.questionText,
       questionId,
+      // SCORECARD-MI-1 (D5) — stable identity: a re-upload of this paper REPLACES its entries.
+      surface: "chapter-test",
+      submissionId: paper.worksheetId,
       // MI-CONCEPT-1 — `questionId` above is the SYNTHETIC attempt id (`ct:…`), which
       // is not a bank id and cannot resolve. The BANK id is `q.id` on the persisted
       // question, so resolve here and hand the concept to the front door. Unresolvable
