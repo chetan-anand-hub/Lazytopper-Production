@@ -196,7 +196,9 @@ test('§6 owner rulings — applied once, guarded, and the contested cases they 
   const G = D.load();
   assert.strictEqual(G.casesById['GS-M15-a'].expected.totalMarks, 2, 'ruling (3): GS-M15-a re-pinned 0.5 -> 2');
   assert.strictEqual(G.casesById['GS-M15-a'].expected.departureFlagRequired, false);
-  assert.strictEqual(G.casesById['GS-S12-a'].expected.mistakeType, null, 'ruling (7): unattempted balancing = no type');
+  // Controller decision D33 (PR-2b): the student ATTEMPTED (correct skeletal equations), so it is not
+  // unattempted; balancing not attempted where asked = conceptual (S4a) — the verified value stands.
+  assert.strictEqual(G.casesById['GS-S12-a'].expected.mistakeType, 'conceptual', 'D33: an unbalanced equation when a balanced one was asked = conceptual');
   for (const id of ['GS-M07-a', 'GS-SUP-03', 'GS-SUP-02', 'GS-M22-a', 'GS-M04-b', 'GS-M09-b', 'GS-M15-a', 'GS-S12-a']) {
     assert.strictEqual(G.casesById[id].expected.contested, false, id + ' should be settled by a ruling');
   }
