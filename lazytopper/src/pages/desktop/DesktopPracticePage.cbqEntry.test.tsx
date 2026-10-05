@@ -102,6 +102,21 @@ describe("CBQ-ENTRY-1 (E4) — the ad link", () => {
   });
 });
 
+describe("CBQ-ENTRY-1-FIX — the chooser opens on the viewport, not inside the page", () => {
+  it("★ on a phone the overlay is portalled to document.body, outside the page's transformed <main>", () => {
+    setMatchMediaMatches(false); // 390: MobileShell, whose <main class="animate-float-up"> keeps a transform
+    const { container } = renderHub("/practice-hub?cbq=1");
+    // CONTROL — the trap is present in this tree: the card lives inside the transformed main.
+    expect(card().closest("main.animate-float-up"), "the phone page no longer renders inside <main class=animate-float-up>").not.toBeNull();
+    const overlay = screen.getByTestId("cbq-picker");
+    // A position:fixed overlay inside that <main> resolves against the main, not the
+    // viewport — it opened page-tall with the chapter select and go button below the fold.
+    expect(overlay.parentElement, "the CBQ overlay is not a direct child of document.body").toBe(document.body);
+    expect(overlay.closest("main"), "the CBQ overlay is inside a <main>").toBeNull();
+    expect(container.contains(overlay)).toBe(false);
+  });
+});
+
 describe("CBQ-ENTRY-1 (E2) — the chooser", () => {
   it.each([
     ["390 (phone)", false],

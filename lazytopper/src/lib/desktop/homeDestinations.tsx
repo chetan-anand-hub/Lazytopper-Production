@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState, type ReactElement } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import type { DesktopSubject } from "./navigation";
 import { desktopTopicsBySubject } from "./topics";
@@ -364,7 +365,13 @@ export function ChapterPickerModal({
     onGo(subject, selected);
   };
 
-  return (
+  // ★ PORTALLED TO document.body (CBQ-ENTRY-1-FIX), and that is load-bearing. On a phone
+  // the Practice Hub renders inside <main class="animate-float-up">, whose `transform`
+  // (kept after the animation ends) becomes the containing block for `position: fixed`:
+  // the overlay grew as tall as the page and opened with the chapter select and the go
+  // button under the bottom nav and below the fold. A portal makes the viewport the
+  // containing block again. Same trap, same fix as AccountDataControls and MeProgressPage.
+  return createPortal(
     <div
       className="lt-tutor-ov"
       data-testid={testId}
@@ -433,7 +440,8 @@ export function ChapterPickerModal({
           </p>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
