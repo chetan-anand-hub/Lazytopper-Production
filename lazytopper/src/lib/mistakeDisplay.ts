@@ -472,9 +472,13 @@ export function pendingBreakdown(
   return { unread: Math.max(0, (Number(pendingCount) || 0) - mismatch - notGraded), mismatch, notGraded };
 }
 
-/** A paper's summary line for its `notGraded` questions (withheld / timeout / error). */
+/** A paper's summary line for its `notGraded` questions (withheld / timeout / error) — the
+ *  controller's wording ruling W1 (2026-10-05), verbatim, singular and plural. */
 export function notGradedSummaryLine(count: number): string {
-  return `${countWithUnit(count, "answer")} not graded this time — not scored 0 and not saved. Please try again.`;
+  const n = Number(count) || 0;
+  return n === 1
+    ? "1 answer couldn't be graded this time — it's not in your score. Please try again."
+    : `${n} answers couldn't be graded this time — they're not in your score. Please try again.`;
 }
 
 /** A grader's `rubric`, or null when absent / malformed. Never invented. */

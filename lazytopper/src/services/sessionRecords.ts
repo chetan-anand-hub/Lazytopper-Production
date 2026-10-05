@@ -63,6 +63,7 @@ import {
 import {
   MARKS_LOST_BY_TYPE_VERSION,
   effectiveTypeCounts,
+  gradeStateOf,
   isGradedQuestion,
   isLossOnlyNotAttempted,
   paperMarksLost,
@@ -180,6 +181,13 @@ export interface SessionRecord {
    *  both subjects (`sessionRecordSubjects`) instead of under the paper's single `subject`.
    *  Absent on every pre-PR-2 record → readers fall back to `subject`, exactly as before. */
   questionTopics?: SessionQuestionTopic[];
+  /** SCORECARD-MI-1 PR-2 (controller ruling W2) — ADDITIVE OPTIONAL. Check & Improve only, and
+   *  only on a paper with questions that were NOT graded: true when EVERY one of them was an
+   *  unreadable page (could not be read); false when any was not graded for another reason
+   *  (the answer does not match, its option could not be read, the server did not grade it).
+   *  Absent on every older record (before PR-2 an unreadable page was the only not-graded
+   *  state) → the history card reads exactly as before. */
+  notGradedAllUnread?: boolean;
 }
 
 /** One question's own subject and chapter on a Check & Improve paper (H5). `null` = the
@@ -1002,6 +1010,11 @@ export function buildCheckImproveSessionRecord(args: {
   });
   const anyQuestionTopic = questionTopics.some((q) => q.subject !== null || q.topicSlug !== null);
 
+  // W2 (controller ruling) — the history card says "Some pages couldn't be read" ONLY when every
+  // not-graded question was an unreadable page; any other not-graded state reads "Some answers
+  // weren't graded". Written only when something was not graded.
+  const notGradedStates = response.results.filter((r) => !isGradedQuestion(r)).map((r) => gradeStateOf(r));
+
   return {
     id: code,
     // The same internal anchor the multi-question grade call already uses as its
@@ -1024,6 +1037,7 @@ export function buildCheckImproveSessionRecord(args: {
     topicSource,
     ...(topicCount >= 2 ? { topicCount } : {}),
     ...(anyQuestionTopic ? { questionTopics } : {}),
+    ...(notGradedStates.length ? { notGradedAllUnread: notGradedStates.every((s) => s === "could-not-read") } : {}),
   };
 }
 

@@ -205,9 +205,13 @@ export default function CheckImproveHistoryPanel({
                     </div>
                     <DotStrip record={r} />
                     {r.status === "partial" && (
-                      <div className="lt-ct__vs">
-                        Some pages couldn’t be read on this session — the score shows the graded
-                        portion only.
+                      <div className="lt-ct__vs" data-testid="ci-hcard-partial">
+                        {/* W2 (controller ruling) — "pages couldn't be read" only when EVERY
+                            not-graded question was an unreadable page; an older record (no
+                            field — unreadable was then the only state) reads as before. */}
+                        {r.notGradedAllUnread === false
+                          ? "Some answers weren’t graded on this session — the score shows the graded portion only."
+                          : "Some pages couldn’t be read on this session — the score shows the graded portion only."}
                       </div>
                     )}
                   </button>

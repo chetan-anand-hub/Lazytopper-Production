@@ -23,6 +23,9 @@
  *   (vi)  notGraded  — A's PR-3 field (OWNER-APPROVED 2026-10-05): out of the score, "X of Y
  *                      graded", the owner's sentence per reason, no MI entry and no attempt
  *                      through the REAL CT / FM / WS / QP services; absent / null = graded.
+ *   (vii) W2         — the C&I history card says "Some pages couldn't be read" ONLY when every
+ *                      not-graded question was an unreadable page; else "Some answers weren't
+ *                      graded"; an older record (no field) reads exactly as before.
  *
  * Each assertion is a DECISION: if one goes red, a ruling changed (or the code regressed).
  */
@@ -93,6 +96,8 @@ import { gradeQuickPracticeBatch } from "./quickPracticeSessionService";
 import { singleCheckToWorksheetResponse } from "./checkImproveGradeService";
 import { getAttempts } from "./practiceInsights";
 import { CheckImproveGradedPrintDoc } from "../components/checkimprove/CheckImproveGradedPrintDoc";
+import CheckImproveHistoryPanel from "../components/checkimprove/CheckImproveHistoryPanel";
+import { buildCheckImproveSessionRecord, type SessionRecord } from "./sessionRecords";
 import { detectedTextForResult } from "../utils/checkImproveDetection";
 import { __resetFreeCheckAppCheckForTests } from "./freeCheckClient";
 import { NotGradedList } from "../components/results/GradeStateParts";
@@ -572,7 +577,8 @@ describe("(vi) notGraded — out of the score, the owner's words, nothing record
     expect(container.textContent).not.toMatch(/3 \/ (8|10)/);
     // the coaching line names them and never asks to re-upload a page that was read
     const line = coachingLine({ marksAwarded: 3, marksTotal: 4, counts: null, pendingCount: 2, notGradedCount: 2 });
-    expect(line).toContain("2 answers not graded this time — not scored 0 and not saved. Please try again.");
+    // W1 (controller wording ruling, 2026-10-05) — verbatim, plural
+    expect(line).toContain("2 answers couldn't be graded this time — they're not in your score. Please try again.");
     expect(line).not.toContain("Re-upload");
   });
 
@@ -581,7 +587,8 @@ describe("(vi) notGraded — out of the score, the owner's words, nothing record
     const { container } = render(createElement(CheckImproveGradedPrintDoc, { code: "CI-M-RN-01", name: "Real Numbers · Check & Improve paper", questions: qs, gradedMarksAwarded: 3, gradedMarksTotal: 4, pendingCount: 1, coaching: "" }));
     expect(container.textContent).not.toContain("All answers read and graded");
     expect(container.querySelector('.lt-cigp__pending[data-grade-state="not-graded"]')!.textContent).toBe(
-      "1 answer not graded this time — not scored 0 and not saved. Please try again.",
+      // W1 — verbatim, singular
+      "1 answer couldn't be graded this time — it's not in your score. Please try again.",
     );
     expect(container.textContent).not.toContain("pages pending");
   });
@@ -604,5 +611,46 @@ describe("(vi) notGraded — out of the score, the owner's words, nothing record
     const entries = (out as unknown as { entries: Array<{ graded?: unknown; notGraded?: string; notGradedReason?: string }> }).entries;
     expect([entries[0].graded, entries[0].notGraded, entries[0].notGradedReason]).toEqual([undefined, "not-graded", "withheld"]);
     expect(entries[1].notGraded).toBeUndefined();
+  });
+});
+
+/* ══ (vii) W2 — the C&I history card names what was not graded (controller ruling 2026-10-05) ══ */
+describe("(vii) W2 — 'Some pages couldn't be read' only when EVERY not-graded question was an unreadable page", () => {
+  const ciResp = (results: WorksheetQuestionGrade[]): WorksheetGradeResponse => {
+    const graded = results.filter((r) => gradeStateOf(r) === "graded");
+    return { ok: true, results, totalQuestions: results.length, gradedCount: graded.length, pendingCount: results.length - graded.length, gradedMarksAwarded: graded.reduce((a, r) => a + (Number(r.marksAwarded) || 0), 0), gradedMarksTotal: graded.reduce((a, r) => a + (Number(r.totalMarks) || 0), 0), worksheetTotalMarks: results.reduce((a, r) => a + (Number(r.totalMarks) || 0), 0) };
+  };
+  const recOf = (code: string, results: WorksheetQuestionGrade[]) =>
+    buildCheckImproveSessionRecord({ code, title: code, subject: "maths", topicSlug: "real-numbers", topicSource: "confirmed", response: ciResp(results), uid: "u-w2" });
+  const cardText = (records: SessionRecord[]) => {
+    const { container } = render(createElement(CheckImproveHistoryPanel, { records, loading: false, defaultSubject: "maths", onOpen: () => {}, onClose: () => {} }));
+    const out = Array.from(container.querySelectorAll('[data-testid="ci-hcard-partial"]')).map((e) => e.textContent);
+    cleanup();
+    return out;
+  };
+
+  it("the record carries the fact: all unreadable → true; an unreadable page beside a mismatch / a notGraded → false; fully graded → absent", () => {
+    expect(recOf("CI-M-W2-01", [row(1, {}), row(2, { couldNotRead: true, totalMarks: 2 }), notGradedRow(3, "unreadable")]).notGradedAllUnread).toBe(true);
+    expect(recOf("CI-M-W2-02", [row(1, {}), row(2, { couldNotRead: true, totalMarks: 2 }), row(3, { answerMismatch: true, marksAwarded: 0 })]).notGradedAllUnread).toBe(false);
+    expect(recOf("CI-M-W2-03", [row(1, {}), notGradedRow(2, "timeout")]).notGradedAllUnread).toBe(false);
+    expect("notGradedAllUnread" in recOf("CI-M-W2-04", [row(1, {}), row(2, {})])).toBe(false);
+  });
+
+  it("the card: a mismatch or a notGraded → 'Some answers weren't graded'; all unreadable → 'Some pages couldn't be read'", () => {
+    expect(cardText([recOf("CI-M-W2-05", [row(1, {}), row(2, { answerMismatch: true, marksAwarded: 0 })])])).toEqual([
+      "Some answers weren’t graded on this session — the score shows the graded portion only.",
+    ]);
+    expect(cardText([recOf("CI-M-W2-06", [row(1, {}), notGradedRow(2, "withheld")])])).toEqual([
+      "Some answers weren’t graded on this session — the score shows the graded portion only.",
+    ]);
+    expect(cardText([recOf("CI-M-W2-07", [row(1, {}), row(2, { couldNotRead: true, totalMarks: 2 })])])).toEqual([
+      "Some pages couldn’t be read on this session — the score shows the graded portion only.",
+    ]);
+  });
+
+  it("an OLDER record (no field: before PR-2 an unreadable page was the only not-graded state) reads exactly as before", () => {
+    const old = recOf("CI-M-W2-08", [row(1, {}), row(2, { couldNotRead: true, totalMarks: 2 })]);
+    delete (old as { notGradedAllUnread?: boolean }).notGradedAllUnread;
+    expect(cardText([old])).toEqual(["Some pages couldn’t be read on this session — the score shows the graded portion only."]);
   });
 });
