@@ -112,8 +112,6 @@ function audit(writes: readonly { key: string; value: string }[], allow: Allow):
 const UID = "uid-sentinel-9f3c4b";
 const QID = "RN-1";
 const DEDUP_KEY = "lazytopper.mi.dedup.v1";
-/** SCORECARD-MI-1 — the identities whose knowledge gap already reached the weak-area bridge. */
-const BRIDGED_KEY = "lazytopper.mi.bridged.v1";
 
 const USER = { uid: UID, isLocalSession: false } as unknown as AuthUser;
 
@@ -134,9 +132,8 @@ const GRADE: CheckSolutionResponse = {
 } as unknown as CheckSolutionResponse;
 
 const ALLOW: Allow = {
-  // The ONLY localStorage keys this path is permitted to write. SCORECARD-MI-1 adds the
-  // bridge-once ring (same identity segments, no new kind of data).
-  storageKeys: [DEDUP_KEY, BRIDGED_KEY],
+  // The ONLY localStorage key this path is permitted to write.
+  storageKeys: [DEDUP_KEY],
   // The payload is a JSON array of STRINGS — there are no object keys at all.
   // Declared empty on purpose: introducing an object here is itself a change
   // that must be looked at.

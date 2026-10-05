@@ -117,9 +117,6 @@ type ReconciledCounts = MistakeTypeCounts;
 
 const DEDUP_STORAGE_KEY = "lazytopper.mi.dedup.v1";
 const DEDUP_MAX = 400;
-/** SCORECARD-MI-1 — identities whose knowledge gap already reached the weak-area bridge, so a
- *  re-grade of the SAME submission never counts the same gap twice. Device-local, best-effort. */
-const BRIDGED_STORAGE_KEY = "lazytopper.mi.bridged.v1";
 
 /**
  * The four counts this entry records — `effectiveTypeCounts` from lib/mistakeDisplay, the SAME
@@ -254,24 +251,40 @@ function dedupKey(
   ].join("::");
 }
 
-function readRing(key: string): string[] {
+function readDedup(): string[] {
   if (typeof window === "undefined") return [];
   try {
-    const raw = window.localStorage.getItem(key);
-    const parsed = raw ? JSON.parse(raw) : [];
+    const raw = window.localStorage.getItem(DEDUP_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? parsed.map(String) : [];
   } catch {
     return [];
   }
 }
 
-function writeRing(key: string, values: string[]): void {
+function writeDedup(keys: string[]): void {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(key, JSON.stringify(values.slice(0, DEDUP_MAX)));
+    window.localStorage.setItem(DEDUP_STORAGE_KEY, JSON.stringify(keys.slice(0, DEDUP_MAX)));
   } catch {
-    /* quota / SSR — best-effort, never blocks logging */
+    /* quota / SSR — dedup is best-effort, never blocks logging */
   }
+}
+
+/**
+ * SCORECARD-MI-1 — has an EARLIER outcome of this same submission already been logged with a
+ * knowledge gap (and so already reached the weak-area bridge)? Read from the dedup ring this
+ * module already keeps — no second store: each ring key ends "<conceptual>-<calc>-<silly>-<pres>".
+ * A re-grade of the same answer therefore never counts the same gap twice.
+ */
+function knowledgeGapAlreadyBridged(seen: string[], identity: string): boolean {
+  const prefix = `${identity}::`;
+  return seen.some((k) => {
+    if (!k.startsWith(prefix)) return false;
+    const counts = k.slice(k.lastIndexOf("::") + 2).split("-");
+    return (Number(counts[0]) || 0) > 0;
+  });
 }
 
 /**
@@ -304,7 +317,7 @@ export async function recordMistake(
   const identity = gradeIdentityKey(user.uid, identityCtx);
   const entryId = gradeIdentityDocId(user.uid, identityCtx);
   const key = dedupKey(identity, gradeResult, counts);
-  const seen = readRing(DEDUP_STORAGE_KEY);
+  const seen = readDedup();
   if (seen.includes(key)) return { outcome: "duplicate", bridged: false };
 
   // ── Builder + safety gate ─────────────────────────────────────────────
@@ -322,7 +335,7 @@ export async function recordMistake(
     return { outcome: "error", bridged: false };
   }
   // Mark seen only AFTER a successful log, so a transient failure can retry.
-  writeRing(DEDUP_STORAGE_KEY, [key, ...seen.filter((k) => k !== key)]);
+  writeDedup([key, ...seen.filter((k) => k !== key)]);
 
   // ── Phase 2 — bridge knowledge-gap mistakes to weak-areas (Stream 3) ──
   // SCORECARD-MI-1 (GA-21): knowledge gaps ONLY (the owner's conceptual group, decided in
@@ -332,8 +345,7 @@ export async function recordMistake(
   const isKnowledgeGap =
     (Object.keys(counts) as Array<keyof ReconciledCounts>).some((t) => counts[t] > 0 && isKnowledgeGapType(t)) ||
     (gradeResult.annotatedSteps ?? []).some((s) => isKnowledgeGapType(s.mistakeType) && stepShowsType(s, gradeResult));
-  const bridgedRing = readRing(BRIDGED_STORAGE_KEY);
-  if (isKnowledgeGap && !bridgedRing.includes(identity)) {
+  if (isKnowledgeGap && !knowledgeGapAlreadyBridged(seen, identity)) {
     const topicKey =
       resolveCanonicalSlug(context.topicKey ?? context.topic) ||
       String(context.topicKey ?? context.topic ?? "");
@@ -348,7 +360,6 @@ export async function recordMistake(
       try {
         recordWrongAnswer(questionId, topicKey, conceptKey, context.difficulty || "Medium");
         bridged = true;
-        writeRing(BRIDGED_STORAGE_KEY, [identity, ...bridgedRing.filter((k) => k !== identity)]);
       } catch {
         bridged = false;
       }
