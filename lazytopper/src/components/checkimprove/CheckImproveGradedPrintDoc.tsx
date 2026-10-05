@@ -14,7 +14,9 @@ import {
   marksGroupRows,
   marksWithUnit,
   mistakeTypeLabel,
+  notGradedSummaryLine,
   paperMarksLost,
+  pendingBreakdown,
   splitWithdrawnSteps,
   stepDisplay,
   stepShowsType,
@@ -67,6 +69,8 @@ export interface CiGradedQuestion {
   objectiveResolved?: boolean | null;
   marksLostByType?: unknown;
   rubric?: unknown;
+  /** A's PR-3 · non-null = the server did not grade it (owner-approved 2026-10-05). */
+  notGraded?: "unreadable" | "withheld" | "timeout" | "error" | null;
 }
 
 export interface CheckImproveGradedPrintDocProps {
@@ -125,6 +129,8 @@ export function buildCiCoaching(args: {
   marks?: MarksLostByType | null;
   /** Questions not graded because the answer does not match the question (owner addendum). */
   mismatchCount?: number;
+  /** Questions the server did not grade (notGraded withheld / timeout / error). */
+  notGradedCount?: number;
   pendingCount: number;
   /** Questions not attempted (today's data: every step "missing"). Never a mistake. */
   notAttemptedCount?: number;
@@ -155,6 +161,7 @@ export function buildCiCoaching(args: {
     pendingCount,
     notAttemptedCount: args.notAttemptedCount,
     mismatchCount: args.mismatchCount,
+    notGradedCount: args.notGradedCount,
   });
   if (line) parts.push(line);
   return parts.join(" ");
@@ -178,8 +185,8 @@ export function CheckImproveGradedPrintDoc({
   // (the free check, an old payload) keeps its counts.
   const pm = paperMarksLost(questions);
   const markChips = pm ? marksGroupRows(pm.byType).filter((r) => r.marks > 0) : [];
-  const mismatchCount = questions.filter((q) => gradeStateOf(q) === "answer-mismatch").length;
-  const unreadCount = Math.max(0, pendingCount - mismatchCount);
+  // notGraded (owner-approved 2026-10-05) — never called an unreadable page, never "all read".
+  const { unread: unreadCount, mismatch: mismatchCount, notGraded: notGradedCount } = pendingBreakdown(questions, pendingCount);
 
   return (
     <div className="lt-cigp">
@@ -211,7 +218,7 @@ export function CheckImproveGradedPrintDoc({
             <div className="lt-cigp__scorel">MARKS GRADED</div>
           </div>
           <div className="lt-cigp__heroright">
-            {unreadCount > 0 || mismatchCount > 0 ? (
+            {unreadCount > 0 || mismatchCount > 0 || notGradedCount > 0 ? (
               <>
                 {unreadCount > 0 && (
                   <div className="lt-cigp__pending">
@@ -224,6 +231,11 @@ export function CheckImproveGradedPrintDoc({
                   <div className="lt-cigp__pending" data-grade-state="answer-mismatch">
                     <b>{countWithUnit(mismatchCount, "answer")} not marked</b> — {mismatchCount === 1 ? "it doesn’t" : "each doesn’t"} seem to match its
                     question. <b>Not</b> graded, <b>not</b> scored 0 and <b>not</b> saved.
+                  </div>
+                )}
+                {notGradedCount > 0 && (
+                  <div className="lt-cigp__pending" data-grade-state="not-graded">
+                    {notGradedSummaryLine(notGradedCount)}
                   </div>
                 )}
               </>

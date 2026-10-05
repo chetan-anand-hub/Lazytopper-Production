@@ -784,7 +784,10 @@ function buildConceptSectionRungs(
     // index → omit the whole record rather than mis-attribute a concept.
     if (results.length !== r.questionIds.length) continue;
     for (const res of results) {
-      if (res.couldNotRead) continue;
+      // A question that was NOT graded (could not be read, option unread, answer does not match,
+      // or the server's notGraded) is never a 0 on a concept or a section — the same one
+      // predicate as the topic rungs above.
+      if (!isGradedQuestion(res)) continue;
       const idx = Number(res.qNumber) - 1;
       if (idx < 0 || idx >= r.questionIds.length) continue;
       const c = conceptForQuestionId(r.questionIds[idx]);

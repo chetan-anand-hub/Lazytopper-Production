@@ -14,7 +14,9 @@ import {
   marksWithUnit,
   mistakeGroupOf,
   mistakeTypeLabel,
+  notGradedSummaryLine,
   paperMarksLost,
+  pendingBreakdown,
   questionChipType,
   splitWithdrawnSteps,
   stepDisplay,
@@ -126,8 +128,11 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching }: 
   // graded questions; a count-only grade (an old cached response) keeps its counts.
   const pm = paperMarksLost(response.results);
   const markChips = pm ? marksGroupRows(pm.byType).filter((r) => r.marks > 0) : [];
-  const mismatchCount = response.results.filter((r) => gradeStateOf(r) === "answer-mismatch").length;
-  const unreadCount = Math.max(0, (Number(response.pendingCount) || 0) - mismatchCount);
+  // notGraded (owner-approved 2026-10-05) — never called an unreadable page, never "all read".
+  const { unread: unreadCount, mismatch: mismatchCount, notGraded: notGradedCount } = pendingBreakdown(
+    response.results,
+    Number(response.pendingCount) || 0,
+  );
 
   // Group the per-question results by their worksheet section, A→E then other.
   const groups = new Map<string, WorksheetQuestionGrade[]>();
@@ -172,7 +177,7 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching }: 
             <div className="lt-gp__scorel">MARKS GRADED</div>
           </div>
           <div className="lt-gp__heroright">
-            {unreadCount > 0 || mismatchCount > 0 ? (
+            {unreadCount > 0 || mismatchCount > 0 || notGradedCount > 0 ? (
               <>
                 {unreadCount > 0 && (
                   <div className="lt-gp__pending">
@@ -185,6 +190,11 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching }: 
                   <div className="lt-gp__pending" data-grade-state="answer-mismatch">
                     <b>{countWithUnit(mismatchCount, "answer")} not marked</b> — {mismatchCount === 1 ? "it doesn’t" : "each doesn’t"} seem to match its question.
                     {" "}<b>Not</b> graded, <b>not</b> scored 0 and <b>not</b> saved.
+                  </div>
+                )}
+                {notGradedCount > 0 && (
+                  <div className="lt-gp__pending" data-grade-state="not-graded">
+                    {notGradedSummaryLine(notGradedCount)}
                   </div>
                 )}
               </>

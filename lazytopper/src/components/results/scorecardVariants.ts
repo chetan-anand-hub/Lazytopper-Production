@@ -33,7 +33,9 @@ import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { resolveTopicDisplayName } from "../../utils/topicResolver";
 import {
   ANSWER_MISMATCH_COPY,
+  NOT_GRADED_TRY_AGAIN_COPY,
   effectivePaperCounts,
+  gradeStateCopy,
   gradeStateOf,
   isCarelessType,
   isGradedQuestion,
@@ -100,7 +102,7 @@ export interface ScorecardPending {
   mismatch?: string[];
   /** SCORECARD-MI-1 PR-2 (controller ruling) — EVERY question that was not graded, by number,
    *  with its honest state, so the paper reads "X of Y graded" with the rest listed. */
-  items?: Array<{ label: string; state: Exclude<GradeState, "graded"> }>;
+  items?: Array<{ label: string; state: Exclude<GradeState, "graded">; copy: string }>;
 }
 
 /** All-pending honest message (worksheet, gradedCount === 0). */
@@ -326,7 +328,7 @@ export function pendingStrip(response: WorksheetGradeResponse): ScorecardPending
   const items: NonNullable<ScorecardPending["items"]> = [];
   for (const r of response.results) {
     const state = gradeStateOf(r);
-    if (state !== "graded") items.push({ label: `Q${r.qNumber}`, state });
+    if (state !== "graded") items.push({ label: `Q${r.qNumber}`, state, copy: gradeStateCopy(r) ?? "" });
   }
   return {
     count: response.pendingCount,
@@ -342,6 +344,15 @@ export function allPendingMessage(response: WorksheetGradeResponse): ScorecardAl
   const states = new Set(response.results.map((r) => gradeStateOf(r)));
   if (states.size === 1 && states.has("answer-mismatch")) {
     return { title: ANSWER_MISMATCH_COPY, detail: "Nothing has been marked, scored 0 or saved for it." };
+  }
+  // notGraded (withheld / timeout / error — owner-approved 2026-10-05): the server's own reason,
+  // never "we couldn't read any answers". Mixed reasons fall back to the try-again sentence.
+  if (states.size === 1 && states.has("not-graded")) {
+    const copies = new Set(response.results.map((r) => gradeStateCopy(r)));
+    return {
+      title: (copies.size === 1 ? [...copies][0] : null) ?? NOT_GRADED_TRY_AGAIN_COPY,
+      detail: "Nothing has been marked, scored 0 or saved for it.",
+    };
   }
   return {
     title: "We couldn’t read any answers",

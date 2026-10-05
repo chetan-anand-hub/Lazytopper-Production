@@ -2901,6 +2901,9 @@ const packTopicKey = useMemo(() => {
           couldNotRead: entry.notGraded === "could-not-read",
           answerMismatch: entry.notGraded === "answer-mismatch" ? true : null,
           objectiveResolved: entry.notGraded === "unread-option" ? false : null,
+          // notGraded (A's PR-3; owner-approved 2026-10-05) — the server's own reason decides the
+          // sentence ("please try again"), so a timeout never reads "retake the photo".
+          notGraded: entry.notGradedReason ?? (entry.notGraded === "not-graded" ? "error" : null),
         }));
         continue;
       }

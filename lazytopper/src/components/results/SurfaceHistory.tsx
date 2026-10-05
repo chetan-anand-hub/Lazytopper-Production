@@ -20,6 +20,7 @@ import {
   coachingLine,
   countWithUnit,
   gradeStateOf,
+  pendingBreakdown,
   mistakeGroupOf,
   mistakeTypeLabel,
   paperMarksLost,
@@ -110,6 +111,7 @@ export function storedCoaching(record: SessionRecord, grade?: WorksheetGradeResp
       marks: pm.byType,
       pendingCount: Number(grade.pendingCount) || 0,
       mismatchCount: grade.results.filter((r) => gradeStateOf(r) === "answer-mismatch").length,
+      notGradedCount: pendingBreakdown(grade.results, Number(grade.pendingCount) || 0).notGraded,
     });
   }
   return coachingLine({

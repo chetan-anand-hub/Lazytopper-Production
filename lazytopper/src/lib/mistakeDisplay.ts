@@ -136,6 +136,20 @@ export const UNREAD_OPTION_COPY = "We couldn't read your option";
 export const ANSWER_MISMATCH_COPY =
   "This answer doesn't seem to match the question — check you uploaded the right page";
 
+/**
+ * `notGraded` (GRADER-SPEED-1, Controller A's PR-3; OWNER-APPROVED 2026-10-05) — the server's own
+ * verdict that it did NOT grade a question, and why. Non-null = not graded and not charged: out
+ * of the score ("X of Y graded"), no mistake recorded, no attempt. Absent / null = graded
+ * normally, so this client is correct before AND after that server change ships.
+ */
+export type NotGradedReason = "unreadable" | "withheld" | "timeout" | "error";
+
+/** notGraded "timeout" / "error" — the owner-approved wording, verbatim. */
+export const NOT_GRADED_TRY_AGAIN_COPY = "We couldn't grade this question this time — please try again";
+
+/** notGraded "withheld" — the owner-approved wording, verbatim. */
+export const NOT_GRADED_WITHHELD_COPY = "We couldn't grade this answer reliably — please try again";
+
 /** `rubric` — how the question was marked; never inside the teacher note. */
 export const RUBRIC_HEADING = "How this was marked";
 
@@ -376,15 +390,32 @@ export interface GradedQuestionLike {
   marksLostByType?: unknown;
   /** v2 · validated value points; never inside the teacher note. */
   rubric?: unknown;
+  /** v2 (A's PR-3) · non-null = the server did NOT grade this question (and did not charge for
+   *  it); the value says why. Absent / null = graded normally. Read through `notGradedReasonOf`. */
+  notGraded?: NotGradedReason | null;
+}
+
+/**
+ * The server's `notGraded` reason, read tolerantly: absent, null, false or "" → null (graded
+ * normally). Any other value means NOT graded; a reason this client does not know yet is
+ * treated as "error" (try again) — never as graded, never as a 0.
+ */
+export function notGradedReasonOf(q: GradedQuestionLike | null | undefined): NotGradedReason | null {
+  const v: unknown = q ? (q as { notGraded?: unknown }).notGraded : undefined;
+  if (v === undefined || v === null || v === false || v === "") return null;
+  return v === "unreadable" || v === "withheld" || v === "timeout" || v === "error" ? v : "error";
 }
 
 /* ── grade state: was this question GRADED at all? (PR-2 B8 + owner addendum) ──── */
 
-export type GradeState = "graded" | "could-not-read" | "unread-option" | "answer-mismatch";
+export type GradeState = "graded" | "could-not-read" | "unread-option" | "answer-mismatch" | "not-graded";
 
 /**
  * The ONE grade-state decision. Branches on the FLAGS, never on the marks (an unmatched answer
  * comes back with `marksAwarded: 0`, which must never read as a graded 0):
+ *   - `notGraded` non-null → not graded, and the SERVER's reason is the one shown (a timeout
+ *     must never read "retake the photo"): "unreadable" → the could-not-read state; "withheld",
+ *     "timeout", "error" → "not-graded" (owner-approved, 2026-10-05);
  *   - `answerMismatch === true` → not graded (the owner's addendum);
  *   - `couldNotRead` → not graded, "retake the photo" — it always wins (controller R3);
  *   - `objectiveResolved === false` on an otherwise read page → not graded, the unread option;
@@ -392,6 +423,9 @@ export type GradeState = "graded" | "could-not-read" | "unread-option" | "answer
  */
 export function gradeStateOf(q: GradedQuestionLike | null | undefined): GradeState {
   if (!q) return "could-not-read";
+  const notGraded = notGradedReasonOf(q);
+  if (notGraded === "unreadable") return "could-not-read";
+  if (notGraded) return "not-graded";
   if (q.answerMismatch === true) return "answer-mismatch";
   // R3 (controller, 2026-10-05): couldNotRead ALWAYS wins ("retake the photo"); "couldn't read
   // your option" is only for an unread pick on an otherwise read page.
@@ -414,9 +448,33 @@ export function gradeStateCopy(q: GradedQuestionLike | null | undefined): string
       return UNREAD_OPTION_COPY;
     case "could-not-read":
       return COULD_NOT_READ_COPY;
+    case "not-graded":
+      return notGradedReasonOf(q) === "withheld" ? NOT_GRADED_WITHHELD_COPY : NOT_GRADED_TRY_AGAIN_COPY;
     default:
       return null;
   }
+}
+
+/** How a paper's not-graded questions split, for its summary lines. `mismatch` and `notGraded`
+ *  are counted from the questions; `unread` is the rest of `pendingCount` (the server counts
+ *  every not-graded question there), so a timeout is never called an unreadable page. */
+export function pendingBreakdown(
+  questions: ReadonlyArray<GradedQuestionLike> | null | undefined,
+  pendingCount: number,
+): { unread: number; mismatch: number; notGraded: number } {
+  let mismatch = 0;
+  let notGraded = 0;
+  for (const q of questions ?? []) {
+    const state = gradeStateOf(q);
+    if (state === "answer-mismatch") mismatch += 1;
+    else if (state === "not-graded") notGraded += 1;
+  }
+  return { unread: Math.max(0, (Number(pendingCount) || 0) - mismatch - notGraded), mismatch, notGraded };
+}
+
+/** A paper's summary line for its `notGraded` questions (withheld / timeout / error). */
+export function notGradedSummaryLine(count: number): string {
+  return `${countWithUnit(count, "answer")} not graded this time — not scored 0 and not saved. Please try again.`;
 }
 
 /** A grader's `rubric`, or null when absent / malformed. Never invented. */
@@ -440,10 +498,11 @@ export function readRubric(raw: unknown): RubricPoint[] | null {
  */
 export function v2GradeFields<G extends GradedQuestionLike>(
   g: G | null | undefined,
-): Partial<Pick<G, "couldNotRead" | "answerMismatch" | "objectiveResolved" | "marksLostByType" | "rubric">> {
-  const out: Partial<Pick<G, "couldNotRead" | "answerMismatch" | "objectiveResolved" | "marksLostByType" | "rubric">> = {};
+): Partial<Pick<G, "couldNotRead" | "answerMismatch" | "objectiveResolved" | "marksLostByType" | "rubric" | "notGraded">> {
+  const out: Partial<Pick<G, "couldNotRead" | "answerMismatch" | "objectiveResolved" | "marksLostByType" | "rubric" | "notGraded">> = {};
   if (!g) return out;
   if (g.couldNotRead === true) out.couldNotRead = g.couldNotRead;
+  if (g.notGraded !== undefined) out.notGraded = g.notGraded;
   if (g.answerMismatch !== undefined) out.answerMismatch = g.answerMismatch;
   if (g.objectiveResolved !== undefined) out.objectiveResolved = g.objectiveResolved;
   if (g.marksLostByType !== undefined) out.marksLostByType = g.marksLostByType;
@@ -775,6 +834,9 @@ export interface CoachingInput {
   /** Questions not graded because the answer did not match the question (owner addendum).
    *  They are part of `pendingCount` (the server counts them there) and are named apart. */
   mismatchCount?: number;
+  /** Questions the server did not grade (`notGraded` withheld / timeout / error — owner-approved
+   *  2026-10-05). Also part of `pendingCount`; never told to "re-upload the page". */
+  notGradedCount?: number;
   /** What to call the thing being practised ("this topic", "this chapter"). */
   practiseWhat?: string;
 }
@@ -820,7 +882,9 @@ export function coachingLine(input: CoachingInput): string {
   if (mismatch > 0) {
     parts.push(`${countWithUnit(mismatch, "answer")} not marked: ${ANSWER_MISMATCH_COPY}.`);
   }
-  const pending = Math.max(0, (Number(input.pendingCount) || 0) - mismatch);
+  const notGraded = Number(input.notGradedCount) || 0;
+  if (notGraded > 0) parts.push(notGradedSummaryLine(notGraded));
+  const pending = Math.max(0, (Number(input.pendingCount) || 0) - mismatch - notGraded);
   if (pending > 0) {
     parts.push(`Re-upload the ${countWithUnit(pending, "pending page")} to complete your score.`);
   }

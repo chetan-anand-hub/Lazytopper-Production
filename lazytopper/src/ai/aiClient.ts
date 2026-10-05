@@ -700,6 +700,10 @@ export interface GradeV2Fields {
   /** On an objective question: false = the chosen option could not be read. When `couldNotRead`
    *  is also true, the client shows "couldn't read this answer" (it always wins — R3). */
   objectiveResolved?: boolean | null;
+  /** GRADER-SPEED-1 (Controller A's PR-3) · non-null = NOT graded and NOT charged, with the
+   *  reason. Absent / null = graded normally. Read only through lib/mistakeDisplay
+   *  (`gradeStateOf`), which tolerates its absence and any reason it does not know yet. */
+  notGraded?: "unreadable" | "withheld" | "timeout" | "error" | null;
 }
 
 export interface CheckSolutionMistakeSummary {

@@ -55,6 +55,7 @@ import {
   UNTYPED_MARKS_LABEL,
   effectivePaperCounts,
   gradeStateOf,
+  pendingBreakdown,
   isGradedQuestion,
   marksGroupRows,
   marksWithUnit,
@@ -1471,6 +1472,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         marks: questionMarksLost(result),
         notAttemptedCount: isQuestionNotAttempted(result) ? 1 : 0,
         mismatchCount: gradeStateOf(result) === "answer-mismatch" ? 1 : 0,
+        notGradedCount: gradeStateOf(result) === "not-graded" ? 1 : 0,
         pendingCount: singleGraded ? 0 : 1,
       }),
     };
@@ -1514,6 +1516,7 @@ const DesktopCheckImprovePageInner: React.FC<{
         ...(pm ? { marks: pm.byType } : {}),
         notAttemptedCount: ws.results.filter((g) => isQuestionNotAttempted(g)).length,
         mismatchCount: ws.results.filter((g) => gradeStateOf(g) === "answer-mismatch").length,
+        notGradedCount: pendingBreakdown(ws.results, ws.pendingCount).notGraded,
         pendingCount: ws.pendingCount,
       }),
     };

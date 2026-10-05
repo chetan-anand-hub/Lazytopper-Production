@@ -28,6 +28,7 @@ import {
   effectivePaperCounts,
   isQuestionNotAttempted,
   gradeStateOf,
+  pendingBreakdown,
   paperMarksLost,
 } from "../lib/mistakeDisplay";
 import {
@@ -109,6 +110,7 @@ function coachingLine(resp: WorksheetGradeResponse): string {
     // SCORECARD-MI-1 PR-2 (B7) — in MARKS when the grade carries them (else counts, unit-labelled).
     marks: paperMarksLost(resp.results)?.byType ?? null,
     mismatchCount: resp.results.filter((r) => gradeStateOf(r) === "answer-mismatch").length,
+    notGradedCount: pendingBreakdown(resp.results, resp.pendingCount).notGraded,
     pendingCount: resp.pendingCount,
     notAttemptedCount: resp.results.filter((r) => isQuestionNotAttempted(r)).length,
     practiseWhat: "this chapter",

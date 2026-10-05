@@ -20,6 +20,9 @@
  *                      CONTROL: a typed mistake on the same question writes exactly one entry.
  *   (v)   X of Y     — "1 of 3 graded", every not-graded question listed with its state; the
  *                      scorecard hero never folds a not-graded question into awarded/total.
+ *   (vi)  notGraded  — A's PR-3 field (OWNER-APPROVED 2026-10-05): out of the score, "X of Y
+ *                      graded", the owner's sentence per reason, no MI entry and no attempt
+ *                      through the REAL CT / FM / WS / QP services; absent / null = graded.
  *
  * Each assertion is a DECISION: if one goes red, a ruling changed (or the code regressed).
  */
@@ -87,6 +90,9 @@ import { scoreObjectiveSection, buildChapterTestResponse, gradeChapterTestUpload
 import { gradeFullMockUpload } from "./fullMockGradeService";
 import { gradeWorksheetAndRecord } from "./worksheetGradeService";
 import { gradeQuickPracticeBatch } from "./quickPracticeSessionService";
+import { singleCheckToWorksheetResponse } from "./checkImproveGradeService";
+import { getAttempts } from "./practiceInsights";
+import { CheckImproveGradedPrintDoc } from "../components/checkimprove/CheckImproveGradedPrintDoc";
 import { detectedTextForResult } from "../utils/checkImproveDetection";
 import { __resetFreeCheckAppCheckForTests } from "./freeCheckClient";
 import { NotGradedList } from "../components/results/GradeStateParts";
@@ -95,7 +101,13 @@ import { worksheetScorecardVariant } from "../components/results/scorecardVarian
 import {
   ANSWER_MISMATCH_COPY,
   COULD_NOT_READ_COPY,
+  NOT_GRADED_TRY_AGAIN_COPY,
+  NOT_GRADED_WITHHELD_COPY,
   UNREAD_OPTION_COPY,
+  coachingLine,
+  gradeStateCopy,
+  gradeStateOf,
+  paperGradedTotals,
   zeroMarksLost,
   type MarksLostByType,
 } from "../lib/mistakeDisplay";
@@ -491,5 +503,106 @@ describe("(v) 'X of Y graded' — not-graded questions are listed, never folded 
     expect(pend[2]).toMatch(/^Q\d+: We couldn't read this answer — retake the photo$/);
     // never folded: no "2 / 6", "2 / 8" or a 0-out-of anything for the mismatch
     expect(container.textContent).not.toMatch(/2 \/ (6|8)/);
+  });
+});
+
+/* ══ (vi) notGraded — A's PR-3 field, OWNER-APPROVED 2026-10-05 ═══════════════
+ * A question the server did NOT grade (`notGraded` non-null) is out of the score ("X of Y
+ * graded"), named in the owner's words, and records nothing: no MI entry, no attempt. Absent /
+ * null is graded normally, so the order of the two merges does not matter. */
+const notGradedRow = (q: number, reason: NonNullable<WorksheetQuestionGrade["notGraded"]>, over: Partial<WorksheetQuestionGrade> = {}) =>
+  // Shaped like a REAL graded slip (marks, a typed step, a summary) so a leak would score it,
+  // log it and record an attempt — only the server's notGraded verdict says otherwise.
+  row(q, {
+    marksAwarded: 0,
+    percentage: 0,
+    annotatedSteps: [step(1, "incorrect", { marksDeducted: 4, mistakeType: "conceptual" })],
+    mistakeSummary: { conceptual: 1, calculation: 0, silly: 0, presentation: 0 },
+    marksLostByType: mk({ conceptual: 4 }),
+    notGraded: reason,
+    ...over,
+  });
+
+describe("(vi) notGraded — out of the score, the owner's words, nothing recorded", () => {
+  it("the ONE predicate: each reason is not graded with its approved sentence; absent / null is graded", () => {
+    expect(gradeStateOf(row(1, {}))).toBe("graded");
+    expect(gradeStateOf(row(1, { notGraded: null }))).toBe("graded");
+    expect(gradeStateOf(notGradedRow(1, "unreadable"))).toBe("could-not-read");
+    expect(gradeStateCopy(notGradedRow(1, "unreadable"))).toBe("We couldn't read this answer — retake the photo");
+    for (const reason of ["timeout", "error"] as const) {
+      expect(gradeStateOf(notGradedRow(1, reason))).toBe("not-graded");
+      expect(gradeStateCopy(notGradedRow(1, reason))).toBe("We couldn't grade this question this time — please try again");
+    }
+    expect(gradeStateCopy(notGradedRow(1, "withheld"))).toBe("We couldn't grade this answer reliably — please try again");
+    // a reason this client does not know yet is still NOT graded (never a 0), told to try again
+    expect(gradeStateCopy(row(1, { notGraded: "later-reason" as never }))).toBe(NOT_GRADED_TRY_AGAIN_COPY);
+    expect(NOT_GRADED_WITHHELD_COPY).toBe("We couldn't grade this answer reliably — please try again");
+  });
+
+  it("X of Y graded — Chapter Test totals exclude it, count it pending and keep it in the paper total", () => {
+    const paper = paperOf("ng-ct");
+    const subjective: WorksheetGradeResponse = respOf([notGradedRow(1, "timeout"), row(2, { totalMarks: 4, marksAwarded: 3, percentage: 75 })]);
+    const out = buildChapterTestResponse({ paper, objective: scoreObjectiveSection([], {}), subjectiveQuestions: paper.questions, subjectiveResponse: subjective });
+    expect([out.gradedCount, out.totalQuestions, out.pendingCount]).toEqual([1, 2, 1]);
+    expect([out.gradedMarksAwarded, out.gradedMarksTotal, out.worksheetTotalMarks]).toEqual([3, 4, 8]);
+    expect(paperGradedTotals(out.results)).toEqual({ awarded: 3, total: 4, gradedCount: 1, notGradedCount: 1 });
+    // the single C&I adapter: nothing graded, one pending, the question's marks still in the paper total
+    const single = singleCheckToWorksheetResponse({ ...notGradedRow(1, "withheld"), ok: true, totalMarks: 4, marksAwarded: 0, percentage: 0, annotatedSteps: [], teacherNote: "" } as never);
+    expect([single.gradedCount, single.pendingCount, single.gradedMarksTotal, single.worksheetTotalMarks]).toEqual([0, 1, 0, 4]);
+    expect(single.results[0].notGraded).toBe("withheld");
+  });
+
+  it("the scorecard: hero '3 / 4' across 1 of 3, each notGraded Q named with its sentence, never called unreadable", () => {
+    const rs: WorksheetQuestionGrade[] = [
+      row(1, { totalMarks: 4, marksAwarded: 3, percentage: 75 }),
+      notGradedRow(2, "timeout"),
+      notGradedRow(3, "withheld", { totalMarks: 2 }),
+    ];
+    const response: WorksheetGradeResponse = { ok: true, results: rs, totalQuestions: 3, gradedCount: 1, pendingCount: 2, gradedMarksAwarded: 3, gradedMarksTotal: 4, worksheetTotalMarks: 10 };
+    const variant = worksheetScorecardVariant({ name: "Real Numbers · Worksheet 3", code: "WS-M-RN-03", response, downloading: false, onRead: () => {}, onDownload: () => {} });
+    const { container } = render(createElement(ResultsScorecard, { variant, onClose: () => {} }));
+    expect(container.querySelector(".lt-sc__big")!.textContent!.replace(/\s+/g, " ").trim()).toBe("3 / 4");
+    expect(container.querySelector(".lt-sc__desc")!.textContent).toContain("across 1 of 3");
+    const pend = Array.from(container.querySelectorAll(".lt-sc__pend")).map((e) => [e.getAttribute("data-grade-state"), e.textContent]);
+    expect(pend).toEqual([
+      ["not-graded", "Q2: We couldn't grade this question this time — please try again"],
+      ["not-graded", "Q3: We couldn't grade this answer reliably — please try again"],
+    ]);
+    expect(container.textContent).not.toContain("couldn’t be read");
+    expect(container.textContent).not.toMatch(/3 \/ (8|10)/);
+    // the coaching line names them and never asks to re-upload a page that was read
+    const line = coachingLine({ marksAwarded: 3, marksTotal: 4, counts: null, pendingCount: 2, notGradedCount: 2 });
+    expect(line).toContain("2 answers not graded this time — not scored 0 and not saved. Please try again.");
+    expect(line).not.toContain("Re-upload");
+  });
+
+  it("the C&I graded sheet never claims 'All answers read and graded' over a notGraded question", () => {
+    const qs = [row(1, { totalMarks: 4, marksAwarded: 3 }), notGradedRow(2, "error")];
+    const { container } = render(createElement(CheckImproveGradedPrintDoc, { code: "CI-M-RN-01", name: "Real Numbers · Check & Improve paper", questions: qs, gradedMarksAwarded: 3, gradedMarksTotal: 4, pendingCount: 1, coaching: "" }));
+    expect(container.textContent).not.toContain("All answers read and graded");
+    expect(container.querySelector('.lt-cigp__pending[data-grade-state="not-graded"]')!.textContent).toBe(
+      "1 answer not graded this time — not scored 0 and not saved. Please try again.",
+    );
+    expect(container.textContent).not.toContain("pages pending");
+  });
+
+  for (const [name, run] of SURFACES) {
+    it(`${name}: a notGraded question writes NO MI entry and NO attempt; CONTROL: the graded slip beside it writes one of each`, async () => {
+      const outcomes = await run(`ng-${name.slice(0, 2)}`, respOf([notGradedRow(1, "timeout"), v2TypedSlip(2)]));
+      expect(H.logMistakes).toHaveBeenCalledTimes(1);
+      expect(outcomes.filter((o) => o.mistakeOutcome === "logged").map((o) => o.qNumber)).toEqual([2]);
+      const attempts = getAttempts();
+      expect(attempts).toHaveLength(1);
+      expect(attempts[0].marksScored).toBe(1);
+    });
+  }
+
+  it("Quick Practice keeps the server's reason on the entry, so the sheet says THAT sentence", async () => {
+    const answers = [1, 2].map((n) => ({ questionId: `bank-ngqp-${n}`, qNumber: n, marks: 4, questionText: `Q ${n}`, topicLabel: "Real Numbers", topicKey: "real-numbers", imageBase64: "IMG" }));
+    const out = await gradeQuickPracticeBatch({ worksheetId: "qp-ng", subject: "Maths", answers, user: USER, grade: async () => respOf([notGradedRow(1, "withheld"), v2TypedSlip(2)]) });
+    expect(out.outcome).toBe("graded");
+    const entries = (out as unknown as { entries: Array<{ graded?: unknown; notGraded?: string; notGradedReason?: string }> }).entries;
+    expect([entries[0].graded, entries[0].notGraded, entries[0].notGradedReason]).toEqual([undefined, "not-graded", "withheld"]);
+    expect(entries[1].notGraded).toBeUndefined();
   });
 });

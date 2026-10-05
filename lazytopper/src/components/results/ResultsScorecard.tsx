@@ -550,7 +550,10 @@ export default function ResultsScorecard({ variant, onClose }: ResultsScorecardP
                 // SCORECARD-MI-1 PR-2 — an answer that does not match its question is NOT an
                 // unreadable page: it is named apart, in the owner's words.
                 const mismatch = variant.pending.mismatch ?? [];
-                const unread = Math.max(0, variant.pending.count - mismatch.length);
+                // notGraded (owner-approved 2026-10-05) — a question the server did not grade is
+                // listed below with its own sentence; it is never counted as an unreadable page.
+                const notGraded = (variant.pending.items ?? []).filter((it) => it.state === "not-graded").length;
+                const unread = Math.max(0, variant.pending.count - mismatch.length - notGraded);
                 return (
                   <>
                     {unread > 0 && (
@@ -573,7 +576,7 @@ export default function ResultsScorecard({ variant, onClose }: ResultsScorecardP
                       .filter((it) => it.state !== "answer-mismatch")
                       .map((it) => (
                         <div key={`${it.label}-${it.state}`} className="lt-sc__pend lt-sc__pend--item" data-grade-state={it.state}>
-                          <b>{it.label}:</b> {it.state === "unread-option" ? UNREAD_OPTION_COPY : COULD_NOT_READ_COPY}
+                          <b>{it.label}:</b> {it.copy || (it.state === "unread-option" ? UNREAD_OPTION_COPY : COULD_NOT_READ_COPY)}
                         </div>
                       ))}
                   </>

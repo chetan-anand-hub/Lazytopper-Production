@@ -45,9 +45,11 @@ import { scoreObjective } from "../lib/objectiveScoring";
 import {
   gradeStateOf,
   isGradedQuestion,
+  notGradedReasonOf,
   objectiveMarksLost,
   readMarksLostByType,
   type GradeState,
+  type NotGradedReason,
 } from "../lib/mistakeDisplay";
 import { recordAttempt, type PracticeAttempt } from "./practiceInsights";
 import { recordMistake, type RecordMistakeOutcome } from "./mistakeIntelligence";
@@ -130,6 +132,9 @@ export interface QuickPracticeEntry {
    *  the question. `graded` stays absent (never a 0, never an MI entry, never an attempt); the
    *  sheet names the state in the owner's words. Absent on every graded / unanswered entry. */
   notGraded?: Exclude<GradeState, "graded">;
+  /** The server's own `notGraded` reason (A's PR-3; owner-approved 2026-10-05), kept so the sheet
+   *  says THAT reason ("try again", "couldn't grade it reliably"). Absent unless the server sent one. */
+  notGradedReason?: NotGradedReason;
 }
 
 /**
@@ -875,6 +880,8 @@ export async function gradeQuickPracticeBatch(args: {
     if (!raw) {
       const state = gradeStateOf(result);
       if (state !== "graded") entry.notGraded = state;
+      const reason = notGradedReasonOf(result);
+      if (reason) entry.notGradedReason = reason;
     }
     // couldNotRead → no grade at all. The question stays honestly unattempted-looking
     // rather than being recorded as a 0 the student did not earn. An objective question

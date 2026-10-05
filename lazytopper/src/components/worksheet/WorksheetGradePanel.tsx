@@ -18,6 +18,8 @@ import {
   paperMarksLost,
   gradeStateCopy,
   isGradedQuestion,
+  notGradedSummaryLine,
+  pendingBreakdown,
   questionMarksLost,
   splitWithdrawnSteps,
 } from "../../lib/mistakeDisplay";
@@ -95,6 +97,7 @@ function buildCoaching(response: WorksheetGradeResponse): string {
     // SCORECARD-MI-1 PR-2 (B7) — in MARKS when the grade carries them (else counts, unit-labelled).
     marks: paperMarksLost(response.results)?.byType ?? null,
     mismatchCount: response.results.filter((r) => gradeStateOf(r) === "answer-mismatch").length,
+    notGradedCount: pendingBreakdown(response.results, response.pendingCount).notGraded,
     pendingCount: response.pendingCount,
     notAttemptedCount: response.results.filter((r) => isQuestionNotAttempted(r)).length,
   });
@@ -163,7 +166,7 @@ function QuestionResult({ ws, g }: { ws: PersistedWorksheet; g: WorksheetQuestio
           <span className="lt-wg__qpending">{gradeStateCopy(g)}</span>
         </div>
         <p className="lt-wg__qnote">
-          {state === "answer-mismatch"
+          {state === "answer-mismatch" || state === "not-graded"
             ? "Nothing has been marked, scored 0 or saved for it."
             : g.note || "We couldn’t read your answer for this question clearly. Re-scan that page and upload again — it isn’t counted as wrong."}
         </p>
@@ -530,8 +533,8 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
               <div className="lt-wg__totpending">
                 {/* PR-2 — an answer that does not match its question was read: it is not "unreadable". */}
                 {(() => {
-                  const mismatch = response.results.filter((r) => gradeStateOf(r) === "answer-mismatch").length;
-                  const unread = Math.max(0, response.pendingCount - mismatch);
+                  // notGraded (owner-approved 2026-10-05) — never called an unreadable page.
+                  const { unread, mismatch, notGraded } = pendingBreakdown(response.results, response.pendingCount);
                   return (
                     <>
                       {unread > 0 && (
@@ -544,6 +547,7 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
                           {mismatch} answer{mismatch === 1 ? "" : "s"} not marked — {mismatch === 1 ? "it doesn’t" : "they don’t"} seem to match the question.{" "}
                         </>
                       )}
+                      {notGraded > 0 && <>{notGradedSummaryLine(notGraded)} </>}
                       The worksheet is worth {response.worksheetTotalMarks} marks in total.
                     </>
                   );
