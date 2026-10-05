@@ -234,7 +234,15 @@ function createGradingCore(deps) {
               section: q.section || '',
               isObjective: false,
             });
-            if (cached && Array.isArray(cached.schemeSteps) && cached.schemeSteps.length > 0) q.solutionSteps = cached.schemeSteps;
+            if (cached && Array.isArray(cached.schemeSteps) && cached.schemeSteps.length > 0) {
+              q.solutionSteps = cached.schemeSteps;
+              // HOTFIX-1: a MODEL-GENERATED solution guides the grade, but it is never the STORED
+              // marking scheme the scheme-copy check compares against (postprocess.cjs
+              // copiesScheme). A correct textbook-worded answer matches a generated solution by
+              // construction — live 2026-10-06, owner paper Q8: 0/2 "not on your page".
+              // Non-enumerable: it never reaches the prompt, a log or a response.
+              Object.defineProperty(q, '_schemeGenerated', { value: true });
+            }
           } catch (e) {
             console.warn(label + ' solution-cache hook failed for Q' + q.qNumber + ' (grading continues):', e.message);
           }
