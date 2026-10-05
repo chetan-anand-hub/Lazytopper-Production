@@ -141,10 +141,15 @@ function gramContainment(a, b) {
   for (let i = 0; i + 4 <= A.length; i += 1) { total += 1; if (set.has(A.slice(i, i + 4))) hit += 1; }
   return total ? hit / total : 0;
 }
-/** Does this line of "student work" reproduce the stored scheme rather than the page? */
+/** Does this line of "student work" reproduce the stored scheme rather than the page?
+ *  HOTFIX-1: ONLY the STORED marking scheme / solution the request carried (bank questions) is
+ *  compared — never a model-generated solution from the scheme-first cache (core.cjs marks it
+ *  `_schemeGenerated`): a correct answer in textbook words matches a generated solution by
+ *  construction (live 2026-10-06, owner paper Q8, a correct 2/2 zeroed in 1 of 2 runs). */
 function copiesScheme(work, q) {
   const w = String(work || '').trim();
-  const schemeText = [...(Array.isArray(q.solutionSteps) ? q.solutionSteps : []), q.finalAnswer || ''].join(' ');
+  const storedSteps = q && q._schemeGenerated ? [] : (Array.isArray(q.solutionSteps) ? q.solutionSteps : []);
+  const schemeText = [...storedSteps, q.finalAnswer || ''].join(' ');
   if (!w || !schemeText.trim()) return false;
   // a TYPED answer is on the page by definition: a line found in it is the student's own
   if (String(q.textAnswer || '').trim() && gramContainment(w, q.textAnswer) >= 0.8) return false;
@@ -224,6 +229,17 @@ function inventoryVerdict(inventory, steps, raw) {
   if (lines.length === 0) return null;
   const work = steps.map((s) => s.studentWork).concat([String((raw && raw.studentFinalAnswer) || '')]).join('\n');
   return lines.some((l) => firstLineInWork(l, work)) ? null : 'firstLineNotInWork';
+}
+/** HOTFIX-1: the page inventory CONFIRMS the answer — the question is listed and one of its
+ *  quotable first lines (≥ 4 characters after the label) is in its own studentWork. Such a
+ *  question is on the page by the model's own prior commitment, so the scheme-copy check never
+ *  zeroes it. A presence-only entry (an option letter) does not confirm. */
+function inventoryConfirms(inventory, steps, raw) {
+  if (!inventory || typeof inventory !== 'object' || inventory.present !== true) return false;
+  const lines = (Array.isArray(inventory.firstLines) ? inventory.firstLines : []).filter((l) => compactText(stripAnswerLabel(l)).length >= 4);
+  if (lines.length === 0) return false;
+  const work = steps.map((s) => s.studentWork).concat([String((raw && raw.studentFinalAnswer) || '')]).join('\n');
+  return lines.some((l) => firstLineInWork(l, work));
 }
 
 /* ── D29 (Controller B's ask (1)) — GENUINELY UNATTEMPTED WORK IS "unattempted" ───────
@@ -479,7 +495,8 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
 
   // C3 · P0 — "working" that reproduces the stored scheme is not on the page. When most of
   // the credited steps do, the answer was never there: UNATTEMPTED, never marks.
-  {
+  // HOTFIX-1: never for a question the page inventory confirms (listed, first line in its work).
+  if (!inventoryConfirms(ctx.inventory, all, raw)) {
     const credited = all.filter((s) => (s.status === 'correct' || s.status === 'partial') && s.marksAwarded > 0 && s.studentWork);
     const copied = credited.filter((s) => copiesScheme(s.studentWork, q));
     if (copied.length > 0 && copied.length * 2 >= credited.length) return unattempted(R.NO_ANSWER_ON_PAGE_NOTE);
