@@ -18,8 +18,18 @@
  *     v0  no objective, no per-question topic, raw summary (types even on full marks)
  *     v1  + objective, topicSlug/topicLabel   v2  + topicSubject, counts already effective
  */
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, cleanup } from "@testing-library/react";
+import type { ReactNode } from "react";
+
+// This file imports a pure helper (splitPaperMarks) from MeProgressPage, so the
+// entitlementGating meta-guard treats it as rendering a gated page. Stub the gate
+// the standard way. Nothing here renders the page itself.
+vi.mock("../components/auth/RequireAuth", () => ({
+  RequirePremium: ({ children }: { children: ReactNode }) => children,
+  RequireAuth: ({ children }: { children: ReactNode }) => children,
+}));
+
 import ResultsScorecard from "../components/results/ResultsScorecard";
 import { storedCheckImproveScorecardVariant } from "../components/results/scorecardVariants";
 import { CheckImproveGradedPrintDoc, buildCiCoaching } from "../components/checkimprove/CheckImproveGradedPrintDoc";
