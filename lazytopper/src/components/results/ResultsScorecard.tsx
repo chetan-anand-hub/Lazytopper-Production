@@ -1,5 +1,14 @@
 import { useEffect } from "react";
 import type { CheckSolutionAnnotatedStep } from "../../ai/aiClient";
+import { MathText } from "../question/MathText";
+import {
+  MISTAKES_BY_KIND_HEADING,
+  NOT_ATTEMPTED,
+  countWithUnit,
+  groupRows,
+  mistakeGroupOf,
+  stepDisplay,
+} from "../../lib/mistakeDisplay";
 import type {
   ScorecardVariant,
   ScorecardScore,
@@ -157,26 +166,15 @@ function ChapterLensBlock({
 }
 
 /**
- * ★★ THE ONE CARELESS SENTENCE, DEFINED ONCE.
- *
- * `silly` and `presentation` are careless mark-loss — a slip on the final line, a missing
- * unit, a step used but never stated. They are NEVER a topic weakness, and this component
- * now says so in TWO places: the four-type block's careless column and the graded answer
- * sheet. Duplicated copy drifts, and the drift that matters here is a student being told
- * a slip means they are weak at a topic — so both renderers read the same constant.
- *
- * ★ THE SPEC ASKED FOR `ProgressWindowArc`'s honesty copy BY IMPORT. It exports none —
- * its only careless line lives inside its JSX, and it is a Firestore-backed component
- * whose import would drag `studentCloudStore` into this shell. The anti-drift move that
- * was actually available is this one: the two renderers that share the claim live in
- * THIS file, so the constant does too.
+ * SCORECARD-MI-1 — the careless framing now comes from lib/mistakeDisplay (owner ruling:
+ * careless = calculation + silly, "Marks to gain — you already know this"). A careless slip
+ * is never a weak topic, so the graded sheet still says so once, in the owner's words.
  */
-const CARELESS_NOT_A_WEAKNESS = "Slips on the final line / units — slow down, these aren’t weak topics.";
+const CARELESS_NOT_A_WEAKNESS = "Careless slips are not weak topics — you already know this; slow down and check each line.";
 
-/** The two MI kinds that are carelessness rather than a knowledge gap. */
-const CARELESS_KINDS: ScorecardMistakeKind[] = ["silly", "presentation"];
-const isCareless = (kind: ScorecardMistakeKind | null | undefined) =>
-  kind != null && CARELESS_KINDS.includes(kind);
+/** The colour key behind an answer's chip, from the ONE grouping module. */
+const chipColorKey = (kind: ScorecardMistakeKind | null | undefined) => mistakeGroupOf(kind)?.colorKey ?? "gap";
+const isCareless = (kind: ScorecardMistakeKind | null | undefined) => mistakeGroupOf(kind)?.key === "careless";
 
 /** One line of the set scorecard's MCQ/written split. */
 function SplitRow({ row }: { row: ScorecardSplitRow }) {
@@ -253,23 +251,32 @@ function SplitBlock({ split }: { split: ScorecardSplit }) {
  * No rounding, anywhere in this block.
  */
 function GradedStepRow({ step, objective }: { step: CheckSolutionAnnotatedStep; objective?: boolean }) {
+  // SCORECARD-MI-1 (D3/D4) — the step's state from the ONE module: "missing" reads
+  // "Not attempted" with no "−N" against it, and an unknown status never crashes and never
+  // reads "Incorrect".
+  const display = stepDisplay(step.status);
   const tone =
-    step.status === "correct"
+    display.kind === "correct"
       ? "ok"
-      : step.status === "incorrect"
+      : display.kind === "lost"
         ? "bad"
-        : step.status === "missing"
+        : display.kind === "not-attempted"
           ? "miss"
-          : "part";
+          : display.kind === "partial"
+            ? "part"
+            : "unk";
   return (
     <li className={`lt-sc__gst lt-sc__gst--${tone}`}>
       <div className="lt-sc__gst-head">
         <span className="lt-sc__gst-n">Step {step.stepNumber}</span>
-        <span className="lt-sc__gst-desc">{step.description}</span>
+        <span className="lt-sc__gst-desc"><MathText text={step.description || ""} /></span>
+        {(display.kind === "not-attempted" || display.kind === "unknown") && (
+          <span className="lt-sc__gst-state">{display.label}</span>
+        )}
         {/* Objective question -> per-step marks are zeroed BY DESIGN (the whole mark lives
             at answer level), so the "0" chip would be misleading. Suppress the chip, keep
             every annotation. Same rule as `StepRow`. */}
-        {!objective && (
+        {!objective && display.showDeduction && (
           <span className="lt-sc__gst-mk">
             {step.marksAwarded > 0
               ? `+${step.marksAwarded}`
@@ -279,10 +286,11 @@ function GradedStepRow({ step, objective }: { step: CheckSolutionAnnotatedStep; 
           </span>
         )}
       </div>
-      {step.studentWork && <div className="lt-sc__gst-work">{step.studentWork}</div>}
-      {step.teacherAnnotation && <div className="lt-sc__gst-note">{step.teacherAnnotation}</div>}
+      {/* GA-40 — maths renders through the shared renderer, never as raw x^2 / a_20. */}
+      {step.studentWork && <div className="lt-sc__gst-work"><MathText text={step.studentWork} /></div>}
+      {step.teacherAnnotation && <div className="lt-sc__gst-note"><MathText text={step.teacherAnnotation} /></div>}
       {step.correctedWorking && (
-        <div className="lt-sc__gst-fix">Should be: {step.correctedWorking}</div>
+        <div className="lt-sc__gst-fix">Should be: <MathText text={step.correctedWorking} /></div>
       )}
     </li>
   );
@@ -314,7 +322,7 @@ function GradedAnswerCard({ answer }: { answer: ScorecardGradedAnswer }) {
       : answer.awarded === answer.available
         ? "full"
         : "part";
-  const careless = isCareless(answer.mistakeKind);
+  const colorKey = chipColorKey(answer.mistakeKind);
   return (
     <div className="lt-sc__ga">
       <div className="lt-sc__ga-top">
@@ -344,7 +352,7 @@ function GradedAnswerCard({ answer }: { answer: ScorecardGradedAnswer }) {
       <GradedStepBlock answer={answer} />
       {answer.mistakeType && (
         <div
-          className={`lt-sc__ga-mtype lt-sc__ga-mtype--${careless ? "careless" : "gap"}`}
+          className={`lt-sc__ga-mtype lt-sc__ga-mtype--${colorKey}`}
           data-mistake-kind={answer.mistakeKind ?? undefined}
         >
           {answer.mistakeType}
@@ -400,38 +408,35 @@ function GradedSheetBlock({ answers }: { answers: ScorecardGradedAnswer[] }) {
   );
 }
 
-/** The MI four-type block — "Where your marks went" (Knowledge gaps vs Careless). */
+/**
+ * The mistakes block — SCORECARD-MI-1 (B3/D2). The owner's three groups, in the owner's
+ * words, from lib/mistakeDisplay. Every number is a COUNT of mistakes and says so ("2
+ * mistakes"): marks per type arrive with GRADER-CORE-1 (PR-2), so this block may not claim
+ * marks yet — hence the heading.
+ */
 function FourTypeBlock({ ft }: { ft: ScorecardFourType }) {
+  const rows = groupRows(ft);
   return (
     <>
-      <div className="lt-sc__mbk">Where your marks went</div>
+      <div className="lt-sc__mbk">{MISTAKES_BY_KIND_HEADING}</div>
       <div className="lt-sc__groups">
-        <div className="lt-sc__col lt-sc__col--know">
-          <div className="lt-sc__gh">Knowledge gaps — worth practising</div>
-          <div className="lt-sc__row">
-            <span className="lt-sc__sw lt-sc__sw--con" />Conceptual
-            <span className="lt-sc__ct">{ft.conceptual}</span>
+        {rows.map(({ group, count, types }) => (
+          <div key={group.key} className={`lt-sc__col lt-sc__col--${group.colorKey}`} data-group={group.key}>
+            <div className="lt-sc__gh">{group.heading}</div>
+            <div className="lt-sc__gsub">
+              {group.label} · {countWithUnit(count)}
+            </div>
+            {types.map((t) => (
+              <div key={t.type} className="lt-sc__row">
+                <span className={`lt-sc__sw lt-sc__sw--${t.type}`} />
+                {t.label}
+                <span className="lt-sc__ct">{countWithUnit(t.count)}</span>
+              </div>
+            ))}
           </div>
-          <div className="lt-sc__row">
-            <span className="lt-sc__sw lt-sc__sw--cal" />Calculation
-            <span className="lt-sc__ct">{ft.calculation}</span>
-          </div>
-        </div>
-        <div className="lt-sc__col lt-sc__col--care">
-          <div className="lt-sc__gh">Careless mark-loss — not a weakness</div>
-          <div className="lt-sc__row">
-            <span className="lt-sc__sw lt-sc__sw--silly" />Silly
-            <span className="lt-sc__ct">{ft.silly}</span>
-          </div>
-          <div className="lt-sc__row">
-            <span className="lt-sc__sw lt-sc__sw--pres" />Presentation
-            <span className="lt-sc__ct">{ft.presentation}</span>
-          </div>
-          {(ft.silly > 0 || ft.presentation > 0) && (
-            <div className="lt-sc__care-note">{CARELESS_NOT_A_WEAKNESS}</div>
-          )}
-        </div>
+        ))}
       </div>
+      <div className="lt-sc__care-note">{NOT_ATTEMPTED.note}</div>
     </>
   );
 }
@@ -648,18 +653,22 @@ const SC_CSS = `
 .lt-sc__chw-90 { width: 90%; } .lt-sc__chw-95 { width: 95%; } .lt-sc__chw-100 { width: 100%; }
 .lt-sc__chnote { font-size: 11.5px; color: #8695ac; font-style: italic; margin: 2px 0 22px; line-height: 1.5; }
 
-.lt-sc__groups { display: flex; gap: 34px; }
-.lt-sc__col { flex: 1; min-width: 0; }
+.lt-sc__groups { display: flex; gap: 24px; flex-wrap: wrap; }
+/* basis 0 + min-width: three columns on a wide card, and NO forced height when the phone
+   layout turns the row into a column (a 160px basis became a 160px height there). */
+.lt-sc__col { flex: 1 1 0; min-width: 150px; }
 .lt-sc__gh { font-size: 12.5px; font-weight: 700; margin-bottom: 13px; }
-.lt-sc__col--know .lt-sc__gh { color: #ff9d9d; }
-.lt-sc__col--care .lt-sc__gh { color: #ffd28a; }
+.lt-sc__col--gap .lt-sc__gh { color: #ff9d9d; }
+.lt-sc__col--technique .lt-sc__gh { color: #9cc3ff; }
+.lt-sc__col--careless .lt-sc__gh { color: #ffd28a; }
+.lt-sc__gsub { font-size: 11.5px; color: #8294ad; margin: -8px 0 10px; }
 .lt-sc__row { display: flex; align-items: center; gap: 10px; font-size: 13.5px; color: #e3e9f1; margin-bottom: 11px; }
 .lt-sc__sw { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
-.lt-sc__sw--con { background: #ef4444; }
-.lt-sc__sw--cal { background: #e8930c; }
+.lt-sc__sw--conceptual { background: #ef4444; }
+.lt-sc__sw--calculation { background: #e8930c; }
 .lt-sc__sw--silly { background: #f97316; }
-.lt-sc__sw--pres { background: #3b82f6; }
-.lt-sc__ct { margin-left: auto; font-weight: 700; color: #fff; font-size: 15px; }
+.lt-sc__sw--presentation { background: #3b82f6; }
+.lt-sc__ct { margin-left: auto; font-weight: 700; color: #fff; font-size: 13px; white-space: nowrap; }
 .lt-sc__care-note { font-size: 11px; color: #8294ad; font-style: italic; margin-top: 8px; line-height: 1.5; }
 
 /* ── BATCH-2 · the MCQ/written split (navy body; the shell's own grammar, not the
@@ -718,7 +727,9 @@ const SC_CSS = `
   padding: 3px 9px; border-radius: 6px; margin-top: 9px;
 }
 .lt-sc__ga-mtype--gap { background: rgba(239, 68, 68, 0.16); color: #ffb3b3; }
+.lt-sc__ga-mtype--technique { background: rgba(59, 130, 246, 0.16); color: #b6d2ff; }
 .lt-sc__ga-mtype--careless { background: rgba(232, 147, 12, 0.16); color: #ffd28a; }
+.lt-sc__gst-state { font-size: 10.5px; font-weight: 700; padding: 1px 7px; border-radius: 10px; background: rgba(148, 163, 184, 0.18); color: #c9d4e3; }
 .lt-sc__ga-carenote { font-size: 11.5px; color: #8695ac; font-style: italic; margin: 4px 0 0; line-height: 1.5; }
 /* GRADED-STEP-BLOCK - the student's own marked working inside a graded answer card.
    Tones mirror the worksheet panel's step states so one truth reads the same everywhere.

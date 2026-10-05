@@ -240,8 +240,8 @@ export default function StudentsAdminPage() {
           {list.status === "ok" && (
             <>
               <p className="sa-note">
-                Days active and last active are recorded since {formatDayKey(list.data.sources.activityLog.since)}. Answer checks
-                (graded Check &amp; Improve sessions) and tests taken (chapter tests + full mocks) are counted since{" "}
+                Days active and last active are recorded since {formatDayKey(list.data.sources.activityLog.since)}. C&amp;I
+                sessions (one per checked Check &amp; Improve paper, however many questions it had) and tests taken (chapter tests + full mocks) are counted since{" "}
                 {formatDayKey(list.data.sources.sessionRecords.since)}. “—” means not recorded, not zero.
               </p>
               {list.data.limits.authTruncated && (
@@ -266,7 +266,7 @@ export default function StudentsAdminPage() {
                         <th scope="col">Method</th>
                         <th scope="col">Plan</th>
                         <th scope="col">Days active</th>
-                        <th scope="col">Answer checks</th>
+                        <th scope="col">C&amp;I sessions</th>
                         <th scope="col">Tests</th>
                         <th scope="col">Last active</th>
                       </tr>
@@ -302,7 +302,7 @@ export default function StudentsAdminPage() {
                               since={list.data.sources.activityLog.since}
                             />
                           </td>
-                          <td data-label="Answer checks">
+                          <td data-label="C&I sessions">
                             <Covered
                               count={row.answerChecks.count}
                               coverage={row.answerChecks.coverage}

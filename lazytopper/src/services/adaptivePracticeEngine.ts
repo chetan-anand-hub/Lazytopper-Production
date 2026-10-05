@@ -50,6 +50,25 @@ export interface FollowUpRequest {
 }
 
 const WRONG_ANSWER_STORAGE_KEY = "lazytopper.wrongAnswerLog.v1";
+/** Same key studentProgressStore keeps the active uid under (read directly so this module
+ *  stays free of the Firebase import graph). */
+const ACTIVE_PROGRESS_UID_KEY = "lazytopper.progress.active_uid.v1";
+
+/**
+ * GA-26 (SCORECARD-MI-1) — the wrong-answer log is PER STUDENT. It used to be one unscoped
+ * device key, so on a shared device one student's knowledge gaps fed another student's weak
+ * areas. A signed-in uid now owns `lazytopper.wrongAnswerLog.v1:<uid>`; the unscoped key is
+ * read only when nobody is active (never merged into a student's log, which is what leaked).
+ */
+function wrongAnswerStorageKey(): string {
+  if (typeof window === "undefined") return WRONG_ANSWER_STORAGE_KEY;
+  try {
+    const uid = window.localStorage.getItem(ACTIVE_PROGRESS_UID_KEY);
+    return uid && uid.trim() ? `${WRONG_ANSWER_STORAGE_KEY}:${uid.trim()}` : WRONG_ANSWER_STORAGE_KEY;
+  } catch {
+    return WRONG_ANSWER_STORAGE_KEY;
+  }
+}
 
 function nowMs(): number {
   return Date.now();
@@ -58,7 +77,7 @@ function nowMs(): number {
 export function loadWrongAnswerLog(): WrongAnswerLog {
   if (typeof window === "undefined") return { version: 1, entries: {} };
   try {
-    const raw = window.localStorage.getItem(WRONG_ANSWER_STORAGE_KEY);
+    const raw = window.localStorage.getItem(wrongAnswerStorageKey());
     if (!raw) return { version: 1, entries: {} };
     const parsed = JSON.parse(raw);
     if (parsed && typeof parsed === "object" && parsed.version === 1 && parsed.entries) {
@@ -73,7 +92,7 @@ export function loadWrongAnswerLog(): WrongAnswerLog {
 export function saveWrongAnswerLog(log: WrongAnswerLog): void {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(WRONG_ANSWER_STORAGE_KEY, JSON.stringify(log));
+    window.localStorage.setItem(wrongAnswerStorageKey(), JSON.stringify(log));
   } catch {
     /* ignore */
   }

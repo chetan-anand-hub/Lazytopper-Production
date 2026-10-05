@@ -14,6 +14,7 @@ import {
   PRIMARY_CARDS,
   useTutorPicker,
 } from "../../lib/desktop/homeDestinations";
+import { MISTAKE_TYPE_LABEL } from "../../lib/mistakeDisplay";
 import { MobileAccountMenu } from "../../components/mobile/MobileAccountMenu";
 import LinkPhoneNudge from "../../components/auth/LinkPhoneNudge";
 import FirstSession from "../../components/home/FirstSession";
@@ -96,10 +97,10 @@ const CHECK_TO = `/check-improve?${HOME_QS}`;
    `MistakeIntelligencePanel.tsx:26-29`, identical to DesktopHome's card so the
    two Home variants read as one system. ─────────────────────────────────── */
 const MI_BUCKETS = [
-  { key: "conceptual", bg: "hsl(215, 75%, 95%)", fg: "hsl(215, 65%, 32%)", border: "hsl(215, 60%, 88%)", label: "Conceptual" },
-  { key: "calculation", bg: "hsl(38, 92%, 95%)", fg: "hsl(38, 65%, 32%)", border: "hsl(38, 70%, 85%)", label: "Calculation" },
-  { key: "silly", bg: "hsl(0, 75%, 96%)", fg: "hsl(0, 60%, 38%)", border: "hsl(0, 60%, 89%)", label: "Silly mistake" },
-  { key: "presentation", bg: "hsl(280, 60%, 96%)", fg: "hsl(280, 50%, 35%)", border: "hsl(280, 45%, 89%)", label: "Presentation" },
+  { key: "conceptual", bg: "hsl(215, 75%, 95%)", fg: "hsl(215, 65%, 32%)", border: "hsl(215, 60%, 88%)", label: MISTAKE_TYPE_LABEL.conceptual },
+  { key: "calculation", bg: "hsl(38, 92%, 95%)", fg: "hsl(38, 65%, 32%)", border: "hsl(38, 70%, 85%)", label: MISTAKE_TYPE_LABEL.calculation },
+  { key: "silly", bg: "hsl(0, 75%, 96%)", fg: "hsl(0, 60%, 38%)", border: "hsl(0, 60%, 89%)", label: MISTAKE_TYPE_LABEL.silly },
+  { key: "presentation", bg: "hsl(280, 60%, 96%)", fg: "hsl(280, 50%, 35%)", border: "hsl(280, 45%, 89%)", label: MISTAKE_TYPE_LABEL.presentation },
 ] as const;
 
 /**
@@ -403,7 +404,7 @@ function SampleMistakeCard() {
         </div>
 
         <p className="lt-sample-read">
-          → <b>Most marks lost: Trigonometry, conceptual.</b> We'd build drills to fix exactly that.
+          → <b>Most marks lost: Trigonometry, {MISTAKE_TYPE_LABEL.conceptual.toLowerCase()}s.</b> We'd build drills to fix exactly that.
         </p>
       </div>
 

@@ -262,7 +262,8 @@ describe("S1 — the used block, WITH a waiting result", () => {
     const summary = screen.getByTestId("free-check-summary");
     expect(summary).toHaveTextContent("3/5 marks");
     const tags = Array.from(summary.querySelectorAll(".lt-fc__tag")).map((t) => t.textContent);
-    expect(tags).toEqual(["Knowledge gap ×2", "Careless ×1"]);
+    // SCORECARD-MI-1 — owner grouping: calculation + silly are CARELESS (2 calculation + 1 silly).
+    expect(tags).toEqual(["Careless ×3"]);
   });
 
   it("at exactly two hours old the result is still waiting (the boundary is 'older than')", () => {
@@ -311,12 +312,13 @@ describe("S1 — the used block, WITHOUT a waiting result → the plain line", (
     expect(container.textContent).not.toContain("0/0 marks");
   });
 
-  it("no usable max but a tag: the tag shows, the score is left out (never '2/0')", () => {
+  it("no usable max: no score AND no tag (a type is shown only where a mark was lost) — never '2/0'", () => {
     __setFreeCheckClockForTests(() => NOW);
     seedWaiting(single(NOW - 60_000, { totalMarks: 0 }));
     const { container } = mount(<FreeCheckUsedPanel />);
-    expect(screen.getByTestId("free-check-summary")).toHaveTextContent("Knowledge gap ×1");
-    expect(container.textContent).not.toMatch(/marks/);
+    expect(container.textContent).toContain(PLAIN);
+    expect(container.textContent).not.toMatch(/2\/0/);
+    expect(container.textContent).not.toMatch(/Knowledge gap/);
   });
 });
 
@@ -334,7 +336,9 @@ describe("S1b — the tags are capped at 3", () => {
     const tags = Array.from(screen.getByTestId("free-check-summary").querySelectorAll(".lt-fc__tag")).map(
       (t) => t.textContent,
     );
-    expect(tags).toEqual(["Careless ×7", "Knowledge gap ×3"]);
+    // SCORECARD-MI-1 — the owner's three groups: careless = calculation 1 + silly 4,
+    // exam technique = presentation 3, knowledge gap = conceptual 2. Largest first.
+    expect(tags).toEqual(["Careless ×5", "Exam technique ×3", "Knowledge gap ×2"]);
     expect(summarizePendingFreeCheck()?.tags.length).toBeLessThanOrEqual(FREE_CHECK_SUMMARY_MAX_TAGS);
     // The four MI type names are never shown — only the approved grouped labels.
     expect(tags.join(" ")).not.toMatch(/Conceptual|Calculation|Silly|Presentation/);
@@ -526,7 +530,8 @@ describe("S2 — the page, FREE mode (signed out, flag on): the bar tops the res
     await gradeTypedAnswer();
     const bar = await screen.findByTestId("free-check-result-bar");
     expect(bar).toHaveTextContent("2/3 marks");
-    expect(bar).toHaveTextContent("Careless ×1");
+    // presentation is EXAM TECHNIQUE (owner ruling), not careless.
+    expect(bar).toHaveTextContent("Exam technique ×1");
     expect(bar.querySelector("a")).toHaveAttribute("href", FREE_CHECK_SIGNIN_PATH);
     expect(bar).toHaveTextContent(BAR_CTA);
     expectBarAtTop(bar);

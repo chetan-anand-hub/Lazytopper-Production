@@ -246,7 +246,9 @@ describe("StudentsAdminPage — detail", () => {
     expect(within(day2).getByText("check_graded ×1")).toBeTruthy();
     expect(day2.textContent).toMatch(/4 AI calls · ₹1\.23/);
     expect(day2.textContent).toMatch(/Chapter test · science · 7\/10/);
-    expect(day2.textContent).toMatch(/2 questions · 3\/4 marks · 1 fully correct/);
+    // GA-33 (SCORECARD-MI-1) — the label says exactly what is counted: graded answers from
+    // every surface, and "full marks" rather than a vaguer "fully correct".
+    expect(day2.textContent).toMatch(/2 graded answers \(all surfaces\) · 3\/4 marks · 1 full marks/);
     expect(day2.textContent).toMatch(/Maths 52\/80 \(65%\)/);
     const day1 = screen.getByTestId("sa-day-2026-10-05");
     expect(day1.textContent).toMatch(/Signed up/);

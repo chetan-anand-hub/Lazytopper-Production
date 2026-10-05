@@ -7,6 +7,15 @@ import { worksheetNomenclature } from "./worksheetModel";
 import { exportGradedWorksheetPdf } from "./worksheetPdfExport";
 import ResultsScorecard from "../results/ResultsScorecard";
 import { worksheetScorecardVariant } from "../results/scorecardVariants";
+import {
+  MISTAKE_TYPE_LABEL,
+  coachingLine,
+  effectivePaperCounts,
+  isQuestionNotAttempted,
+  stepDisplay,
+  stepForDisplay,
+} from "../../lib/mistakeDisplay";
+import { MathText } from "../question/MathText";
 import QrAnswerHandoff from "../qr/QrAnswerHandoff";
 // FAIR-USE-UI-1 (UI1) — dark unless /api/usage/me says `enforced: true`.
 import FairUseLimitPanel from "../usage/FairUseLimitPanel";
@@ -43,12 +52,8 @@ import type {
 // Limits now live in services/uploadLimits.ts — ONE definition shared by every upload
 // affordance, so the number enforced and the number promised cannot drift apart again.
 
-const MISTAKE_LABEL: Record<MistakeType, string> = {
-  conceptual: "Conceptual",
-  calculation: "Calculation",
-  silly: "Silly",
-  presentation: "Presentation",
-};
+/** ONE name per stored type — from lib/mistakeDisplay (SCORECARD-MI-1). */
+const MISTAKE_LABEL: Readonly<Record<MistakeType, string>> = MISTAKE_TYPE_LABEL;
 
 const SECTION_ORDER = ["A", "B", "C", "D", "E"];
 const SECTION_LABEL: Record<string, string> = {
@@ -73,36 +78,16 @@ function isLeakySummary(summary: string | undefined, gradedCount: number): boole
   );
 }
 
-/** Product-voice coaching line, derived from the counts already on screen (never
- *  raw model prose). Honest about what was lost, forward-pointing. */
+/** Product-voice coaching line — SCORECARD-MI-1: the ONE `coachingLine` in lib/mistakeDisplay
+ *  (owner's three groups, counts in mistakes, never "Clean" while marks were lost — GA-24). */
 function buildCoaching(response: WorksheetGradeResponse): string {
-  let knowledge = 0;
-  let careless = 0;
-  for (const r of response.results) {
-    if (r.couldNotRead || !r.mistakeSummary) continue;
-    knowledge += (r.mistakeSummary.conceptual || 0) + (r.mistakeSummary.calculation || 0);
-    careless += (r.mistakeSummary.silly || 0) + (r.mistakeSummary.presentation || 0);
-  }
-  const parts: string[] = [];
-  if (careless > 0) {
-    parts.push(
-      `You lost marks to ${careless} careless ${careless === 1 ? "slip" : "slips"} — your method was right, just slow down on the final line and units.`,
-    );
-  }
-  if (knowledge > 0) {
-    parts.push(
-      `The real thing to work on is ${knowledge} knowledge ${knowledge === 1 ? "gap" : "gaps"} — practise this topic to close ${knowledge === 1 ? "it" : "them"}.`,
-    );
-  }
-  if (response.pendingCount > 0) {
-    parts.push(
-      `Re-upload the ${response.pendingCount} pending ${response.pendingCount === 1 ? "page" : "pages"} to complete your score.`,
-    );
-  }
-  if (parts.length === 0) {
-    return "Clean sheet — every question you uploaded scored full marks. Keep this up.";
-  }
-  return parts.join(" ");
+  return coachingLine({
+    marksAwarded: response.gradedMarksAwarded,
+    marksTotal: response.gradedMarksTotal,
+    counts: effectivePaperCounts(response.results),
+    pendingCount: response.pendingCount,
+    notAttemptedCount: response.results.filter((r) => isQuestionNotAttempted(r)).length,
+  });
 }
 
 type MiBanner = "saved" | "no-mistakes" | "local-only" | "none";
@@ -113,37 +98,44 @@ function miBannerFrom(outcome: WorksheetGradeOutcome | null): MiBanner {
   const outcomes = outcome.miOutcomes.map((o) => o.mistakeOutcome);
   if (outcomes.some((o) => o === "logged" || o === "duplicate")) return "saved";
   if (outcomes.some((o) => o === "skipped-no-user" || o === "skipped-local")) return "local-only";
-  if (outcomes.every((o) => o === "skipped-clean")) return "no-mistakes";
+  if (outcomes.every((o) => o === "skipped-clean" || o === "skipped-not-attempted")) return "no-mistakes";
   return "none";
 }
 
 function StepRow({ step, objective }: { step: CheckSolutionAnnotatedStep; objective?: boolean }) {
+  // SCORECARD-MI-1 — step state from the ONE module ("missing" = Not attempted, no "−N";
+  // an unknown status is neutral, never "Incorrect").
+  const display = stepDisplay(step.status);
   const cls =
-    step.status === "correct"
+    display.kind === "correct"
       ? "ok"
-      : step.status === "incorrect"
+      : display.kind === "lost"
         ? "bad"
-        : step.status === "missing"
+        : display.kind === "not-attempted" || display.kind === "unknown"
           ? "miss"
           : "part";
   return (
     <li className={`lt-wg__step lt-wg__step--${cls}`}>
       <div className="lt-wg__stephead">
-        <span className="lt-wg__stepdesc">{step.description}</span>
-        {step.mistakeType && (
+        {/* GA-40 — maths through the shared renderer, never raw x^2 / a_20. */}
+        <span className="lt-wg__stepdesc"><MathText text={step.description || ""} /></span>
+        {step.mistakeType && MISTAKE_LABEL[step.mistakeType] && (
           <span className="lt-wg__steptag">{MISTAKE_LABEL[step.mistakeType]}</span>
+        )}
+        {(display.kind === "not-attempted" || display.kind === "unknown") && (
+          <span className="lt-wg__steptag">{display.label}</span>
         )}
         {/* Objective question → per-step marks are zeroed by design; suppress the
             misleading "0" chip, keep the annotation. */}
-        {!objective && (
+        {!objective && display.showDeduction && (
           <span className="lt-wg__stepmk">
             {step.marksAwarded > 0 ? `+${step.marksAwarded}` : step.marksDeducted > 0 ? `−${step.marksDeducted}` : "0"}
           </span>
         )}
       </div>
-      {step.teacherAnnotation && <div className="lt-wg__stepnote">{step.teacherAnnotation}</div>}
+      {step.teacherAnnotation && <div className="lt-wg__stepnote"><MathText text={step.teacherAnnotation} /></div>}
       {step.correctedWorking && (
-        <div className="lt-wg__stepfix">Should be: {step.correctedWorking}</div>
+        <div className="lt-wg__stepfix">Should be: <MathText text={step.correctedWorking} /></div>
       )}
     </li>
   );
@@ -175,11 +167,11 @@ function QuestionResult({ ws, g }: { ws: PersistedWorksheet; g: WorksheetQuestio
           {g.marksAwarded}/{g.totalMarks}
         </span>
       </div>
-      {q?.questionText && <p className="lt-wg__qtext">{q.questionText}</p>}
+      {q?.questionText && <p className="lt-wg__qtext"><MathText text={q.questionText} /></p>}
       {g.annotatedSteps && g.annotatedSteps.length > 0 && (
         <ul className="lt-wg__steps">
           {g.annotatedSteps.map((s) => (
-            <StepRow key={s.stepNumber} step={s} objective={g.objective} />
+            <StepRow key={s.stepNumber} step={stepForDisplay(s, g)} objective={g.objective} />
           ))}
         </ul>
       )}

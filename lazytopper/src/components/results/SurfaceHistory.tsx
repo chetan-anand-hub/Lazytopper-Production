@@ -8,13 +8,21 @@ import type {
   SessionRecord,
   SessionSurface,
   SessionSubject,
-  SessionFourType,
 } from "../../services/sessionRecords";
 import { getWorksheetSession, getWorksheetGrade } from "../../services/worksheetSessionStore";
 import { exportGradedWorksheetPdf } from "../worksheet/worksheetPdfExport";
 import type { WorksheetGradeResponse } from "../../ai/aiClient";
 import ResultsScorecard from "./ResultsScorecard";
 import { storedWorksheetScorecardVariant } from "./scorecardVariants";
+import {
+  MISTAKES_BY_KIND_HEADING,
+  STORED_MISTAKE_TYPES,
+  coachingLine,
+  countWithUnit,
+  mistakeGroupOf,
+  mistakeTypeLabel,
+  toCounts,
+} from "../../lib/mistakeDisplay";
 
 /**
  * SurfaceHistory — Progress-Journey ARC · PR-3 (§3a): the per-surface HISTORY section.
@@ -82,39 +90,35 @@ function scoreTone(awarded: number, total: number): "good" | "mid" | "low" {
 }
 
 /** A minimal honest coaching footer for a re-downloaded graded sheet, from the stored
- *  four-type only (never fabricated). */
-function storedCoaching(ft: SessionFourType): string {
-  const knowledge = (ft.conceptual || 0) + (ft.calculation || 0);
-  const careless = (ft.silly || 0) + (ft.presentation || 0);
-  const parts: string[] = [];
-  if (careless > 0) {
-    parts.push(
-      `${careless} careless ${careless === 1 ? "slip" : "slips"} — your method was right, just slow down on the final line and units.`,
-    );
-  }
-  if (knowledge > 0) {
-    parts.push(
-      `${knowledge} knowledge ${knowledge === 1 ? "gap" : "gaps"} to close — practise this topic.`,
-    );
-  }
-  return parts.length ? parts.join(" ") : "Clean sheet on the questions that were graded. Keep it up.";
+ *  record only (never fabricated) — SCORECARD-MI-1: the ONE coaching function, so it never
+ *  says "Clean" while the record shows marks lost (GA-24). */
+function storedCoaching(record: SessionRecord): string {
+  return coachingLine({
+    marksAwarded: record.marksAwarded,
+    marksTotal: record.marksTotal,
+    counts: record.fourType,
+  });
 }
 
-/** The compact four-type dot-strip for a row. Colours mirror the scorecard swatches. */
-function DotStrip({ ft }: { ft: SessionFourType }) {
-  const dots: Array<{ cls: string; n: number; label: string }> = [
-    { cls: "con", n: ft.conceptual || 0, label: "Conceptual" },
-    { cls: "cal", n: ft.calculation || 0, label: "Calculation" },
-    { cls: "silly", n: ft.silly || 0, label: "Silly" },
-    { cls: "pres", n: ft.presentation || 0, label: "Presentation" },
-  ].filter((d) => d.n > 0);
+/** The compact four-type dot-strip for a row. Names and grouping from lib/mistakeDisplay;
+ *  every number is a COUNT of mistakes. "Full marks" only when the record lost nothing. */
+function DotStrip({ record }: { record: SessionRecord }) {
+  const ft = toCounts(record.fourType);
+  const dots = STORED_MISTAKE_TYPES.map((t) => ({
+    cls: t,
+    n: ft[t],
+    label: `${mistakeGroupOf(t)?.label ?? ""} · ${mistakeTypeLabel(t) ?? t}`,
+  })).filter((d) => d.n > 0);
   if (dots.length === 0) {
-    return <span className="lt-sh__d lt-sh__d--clean" title="No mistakes logged on the graded questions">✓ clean</span>;
+    const lostNothing = (Number(record.marksTotal) || 0) > 0 && (Number(record.marksAwarded) || 0) >= (Number(record.marksTotal) || 0);
+    return lostNothing ? (
+      <span className="lt-sh__d lt-sh__d--clean" title="Full marks on the graded questions">✓ full marks</span>
+    ) : null;
   }
   return (
-    <span className="lt-sh__dots" title="Where your marks went (Knowledge gaps vs Careless mark-loss)">
+    <span className="lt-sh__dots" title={MISTAKES_BY_KIND_HEADING}>
       {dots.map((d) => (
-        <span key={d.cls} className={`lt-sh__d lt-sh__d--${d.cls}`} title={`${d.label}: ${d.n}`}>
+        <span key={d.cls} className={`lt-sh__d lt-sh__d--${d.cls}`} title={`${d.label}: ${countWithUnit(d.n)}`}>
           {d.n}
         </span>
       ))}
@@ -187,7 +191,7 @@ export default function SurfaceHistory({ surface, uid, embedded, pendingOnly }: 
           response: grade,
           name: record.title,
           code: record.id,
-          coaching: storedCoaching(record.fourType),
+          coaching: storedCoaching(record),
         }).finally(() => {
           downloadingRef.current = false;
           setDownloading(false);
@@ -242,7 +246,7 @@ export default function SurfaceHistory({ surface, uid, embedded, pendingOnly }: 
                         {partial && <em className="lt-sh__partial"> partial</em>}
                       </span>
                     )}
-                    {!pending && <DotStrip ft={r.fourType} />}
+                    {!pending && <DotStrip record={r} />}
                   </span>
                 </button>
               </li>
@@ -328,10 +332,10 @@ const SH_CSS = `
   font-size: 11px; font-weight: 700; min-width: 20px; text-align: center;
   border-radius: 6px; padding: 2px 5px; color: #fff;
 }
-.lt-sh__d--con { background: #ef4444; }
-.lt-sh__d--cal { background: #e8930c; }
+.lt-sh__d--conceptual { background: #ef4444; }
+.lt-sh__d--calculation { background: #e8930c; }
 .lt-sh__d--silly { background: #f97316; }
-.lt-sh__d--pres { background: #3b82f6; }
+.lt-sh__d--presentation { background: #3b82f6; }
 .lt-sh__d--clean { background: transparent; color: hsl(152, 55%, 32%); font-weight: 600; padding: 2px 4px; }
 
 .lt-sh__trend {

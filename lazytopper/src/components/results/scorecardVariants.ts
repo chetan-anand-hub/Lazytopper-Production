@@ -31,6 +31,7 @@ import type {
 import { sectionFromTotalMarks } from "../worksheet/worksheetMiSelector";
 import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { resolveTopicDisplayName } from "../../utils/topicResolver";
+import { effectivePaperCounts, isCarelessType } from "../../lib/mistakeDisplay";
 
 export type ScorecardSurface =
   | "worksheet"
@@ -145,9 +146,10 @@ export interface ScorecardConceptLensRow {
  *  shell decides its framing from the KIND, not from the label a grader happened to emit. */
 export type ScorecardMistakeKind = "conceptual" | "calculation" | "silly" | "presentation";
 
-/** True for the two kinds that are carelessness rather than a knowledge gap. */
+/** True for the careless group (owner ruling: calculation + silly). The grouping itself lives
+ *  in lib/mistakeDisplay — this is a named pass-through kept for existing importers. */
 export function isCarelessMistakeKind(kind: ScorecardMistakeKind | null | undefined): boolean {
-  return kind === "silly" || kind === "presentation";
+  return isCarelessType(kind);
 }
 
 /** One line of the set scorecard's MCQ/written split. `tone` is presentational only —
@@ -273,17 +275,11 @@ export interface ScorecardVariant {
 // ── Shared: four-type aggregation (identical to the shipped worksheet math) ───────
 
 /** Aggregate the four-type breakdown over LEGIBLE questions (couldNotRead skipped,
- *  never fabricated into a mistake). Same reduction as buildWorksheetSessionRecord. */
+ *  never fabricated into a mistake). SCORECARD-MI-1: through `effectivePaperCounts`, the ONE
+ *  count function every surface shares — a full-mark question shows no type (owner ruling).
+ *  These are mistake COUNTS, never marks (D2). */
 export function aggregateFourType(response: WorksheetGradeResponse): ScorecardFourType {
-  const acc: ScorecardFourType = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
-  for (const r of response.results) {
-    if (r.couldNotRead || !r.mistakeSummary) continue;
-    acc.conceptual += Number(r.mistakeSummary.conceptual) || 0;
-    acc.calculation += Number(r.mistakeSummary.calculation) || 0;
-    acc.silly += Number(r.mistakeSummary.silly) || 0;
-    acc.presentation += Number(r.mistakeSummary.presentation) || 0;
-  }
-  return acc;
+  return effectivePaperCounts(response.results);
 }
 
 // ── LIVE variant: WORKSHEET (behaviour-identical to the shipped WorksheetScorecard) ──
@@ -1313,6 +1309,26 @@ export function countResolvedTopics(response: WorksheetGradeResponse): number {
   return seen.size;
 }
 
+/**
+ * SCORECARD-MI-1 (B2) — the honest name of a mixed paper: its real subjects and chapter
+ * count ("Maths + Science · 10 chapters"), from the per-question topics the response
+ * carries. Null when fewer than two chapters resolved (a single-topic paper keeps its
+ * topic name). Never the first question's chapter for all.
+ */
+export function ciPaperMixLabel(response: WorksheetGradeResponse): string | null {
+  const chapters = countResolvedTopics(response);
+  const subjects: string[] = [];
+  for (const r of response.results) {
+    if (r.couldNotRead) continue;
+    const s = r.topicSubject;
+    if ((s === "Maths" || s === "Science") && !subjects.includes(s)) subjects.push(s);
+  }
+  subjects.sort((a, b) => (a === "Maths" ? -1 : b === "Maths" ? 1 : 0));
+  if (chapters < 2 && subjects.length < 2) return null;
+  const chapterPart = chapters >= 2 ? `${chapters} chapters` : null;
+  return [subjects.length ? subjects.join(" + ") : null, chapterPart].filter(Boolean).join(" · ");
+}
+
 export interface CheckImproveVariantInput {
   /** The confirmed topic display name; "" when no single topic resolved (MIX). */
   topicName: string;
@@ -1369,10 +1385,13 @@ export function checkImproveScorecardVariant(input: CheckImproveVariantInput): S
   const topicLens = deriveCheckImproveTopicLens(response);
   const topicCount = countResolvedTopics(response);
 
+  const mixLabel = ciPaperMixLabel(response);
   const head = mixed
-    ? topicCount >= 2
-      ? `Uploaded paper · ${code} · ${topicCount} topics`
-      : `Uploaded paper · ${code} · mixed topics`
+    ? mixLabel
+      ? `${mixLabel} · ${code}`
+      : topicCount >= 2
+        ? `Uploaded paper · ${code} · ${topicCount} topics`
+        : `Uploaded paper · ${code} · mixed topics`
     : `${topicName || "Checked paper"} · ${code}`;
   const subtitle = `${head} · graded just now${saved ? " · saved to your progress" : ""}`;
 

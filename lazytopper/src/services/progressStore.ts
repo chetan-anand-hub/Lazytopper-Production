@@ -56,6 +56,7 @@ import { getActiveProgressUser } from "./studentProgressStore";
 // the question bank on first load. Every number is unchanged: the same function runs.
 import { isChapterEchoSubtopic, normalizeSection, type BankConcept } from "./progressBankShape";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
+import { MISTAKE_TYPE_LABEL } from "../lib/mistakeDisplay";
 
 // ── Per-surface history (§3a) ────────────────────────────────────────────────
 
@@ -142,7 +143,8 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const MIN_HALF_SAMPLE = 3;
 
 export type ProgressWindow = "week" | "2wk" | "month" | "4mo";
-const WINDOW_DAYS: Record<ProgressWindow, number> = { week: 7, "2wk": 14, month: 30, "4mo": 120 };
+/** Exported for SCORECARD-MI-1 (GA-19): Me reads the mistake log for the SAME window. */
+export const WINDOW_DAYS: Record<ProgressWindow, number> = { week: 7, "2wk": 14, month: 30, "4mo": 120 };
 
 /** True when a trend's activity span covers less than half its selected window —
  *  the consumer must show the honest "your practice here is recent — this is your
@@ -384,12 +386,8 @@ export function getTopicProgress(
 
 export type MistakeType = "conceptual" | "calculation" | "silly" | "presentation";
 const MISTAKE_TYPES: MistakeType[] = ["conceptual", "calculation", "silly", "presentation"];
-const MISTAKE_TYPE_LABELS: Record<MistakeType, string> = {
-  conceptual: "Conceptual",
-  calculation: "Calculation",
-  silly: "Silly",
-  presentation: "Presentation",
-};
+/** ONE name per stored type — lib/mistakeDisplay (SCORECARD-MI-1). */
+const MISTAKE_TYPE_LABELS: Readonly<Record<MistakeType, string>> = MISTAKE_TYPE_LABEL;
 
 export interface RungTrend {
   /** subject | canonical topicKey | subtopic | CBSE section letter | mistake-type. */

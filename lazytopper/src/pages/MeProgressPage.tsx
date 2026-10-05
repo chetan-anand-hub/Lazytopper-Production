@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { useIsDesktop } from "../hooks/useIsDesktop";
 import { useSubscription } from "../hooks/useSubscription";
 import {
+  WINDOW_DAYS,
   getWindowedProgress,
   isShortSpan,
   type ProgressWindow,
@@ -14,6 +15,15 @@ import {
 } from "../services/progressStore";
 import { getMistakeLogs, type MistakeLogEntry } from "../services/mistakeLogService";
 import { summarizeCareless } from "../services/mistakeInsightsService";
+import {
+  MISTAKES_BY_KIND_HEADING,
+  MISTAKE_GROUPS,
+  MISTAKE_TYPE_LABEL,
+  countWithUnit,
+  isStoredMistakeType,
+  mistakeGroupByKey,
+  mistakeGroupOf,
+} from "../lib/mistakeDisplay";
 import { planMistakeRetry, retryCopyFor } from "../services/mistakeRetry";
 import { normalizeTopicKey } from "../utils/topicResolver";
 import { desktopTopicForWeakAreaKey } from "../lib/desktop/topics";
@@ -53,7 +63,7 @@ import UsageCard from "../components/usage/UsageCard";
  *     - `concepts` is bank-matched only (C&I and chapter-echo rows stay silent),
  *     - `marksTrend` stays silent below 3 measurable points per half.
  *   The mistake log is used for ONE thing only: SPLITTING the already-known lost
- *   marks into careless vs knowledge. When the two streams disagree (the log
+ *   marks into the owner's three groups (lib/mistakeDisplay). When the two streams disagree (the log
  *   attributes more than the graded stream lost) we say WHAT was lost and refuse to
  *   say WHY - see `splitPaperMarks`.
  *
@@ -66,9 +76,10 @@ import UsageCard from "../components/usage/UsageCard";
  *   - No sample data. A block renders only when its read returns data; the first-run
  *     state shows a NAMED EXAMPLE student behind a dashed frame and an explicit
  *     "Example - not your marks" tag, and never the student's own name.
- *   - `silly` and `presentation` are CARELESS MARK-LOSS - exam technique. They are
- *     named in the mistake mix and in the easy-marks card, and are NEVER admitted to
- *     the chapter list or tagged onto a chapter. That is the moat.
+ *   - SCORECARD-MI-1 (owner rulings 5 Oct): knowledge gap = conceptual, exam technique =
+ *     presentation, careless = calculation + silly. Only a knowledge gap may tag a chapter;
+ *     careless and exam-technique losses are named in the mix and the easy-marks card and
+ *     are NEVER a chapter weakness. That is the moat. The grouping lives in ONE module.
  *   - MARKS, NEVER PERCENTAGES. `RungTrend` carries `marksScored`/`marksAvailable`;
  *     the before/now percentages exist but are not a student-facing unit here.
  *
@@ -113,10 +124,9 @@ type PaperScopeKey = NonNullable<WindowedProgressScope["subject"]>;
 const paperScopeKey = (paper: DesktopSubject): PaperScopeKey =>
   paper === "Science" ? "science" : "maths";
 
-/** Careless buckets - exam technique, never a topic weakness. The moat. */
-const CARELESS_TYPES = new Set(["silly", "presentation"]);
-/** The other two four-type buckets - a real knowledge gap, worth practising. */
-const KNOWLEDGE_TYPES = new Set(["conceptual", "calculation"]);
+/* SCORECARD-MI-1 — the page-local CARELESS_TYPES / KNOWLEDGE_TYPES sets are gone (P7: they
+ * grouped presentation as careless and calculation as a knowledge gap, the reverse of the
+ * owner's ruling). Every grouping below asks lib/mistakeDisplay. */
 
 /**
  * The four-type palette. Page-local and NOT exported: the scorecard colours its
@@ -144,14 +154,13 @@ const MISTAKE_TONE: Record<string, string> = {
 };
 
 /**
- * The two group headings, VERBATIM from the shipped scorecard
- * (`ResultsScorecard.tsx`, symbol `FourTypeBlock`, under the heading "Where your
- * marks went"). A student who has just read a scorecard must meet the same words
- * here - no invented synonyms, and no "not learnt yet".
+ * The three group headings, VERBATIM from lib/mistakeDisplay — the same words the
+ * scorecard, both PDFs and the C&I chips print (owner rulings). No invented synonyms.
  */
 const GROUP_HEADING = {
-  knowledge: "Knowledge gaps — worth practising",
-  careless: "Careless mark-loss — not a weakness",
+  knowledge: mistakeGroupByKey("knowledge").heading,
+  technique: mistakeGroupByKey("technique").heading,
+  careless: mistakeGroupByKey("careless").heading,
 } as const;
 
 /**
@@ -228,6 +237,8 @@ export interface PaperSplit {
   lost: number;
   careless: number;
   knowledge: number;
+  /** SCORECARD-MI-1 — exam technique (presentation), its own group. */
+  technique: number;
   unclassified: number;
   /**
    * False when the mistake log attributes MORE marks than the graded stream says
@@ -262,25 +273,30 @@ export function splitPaperMarks(
   const lost = Math.max(0, round1(available - secured));
   let careless = 0;
   let knowledge = 0;
+  let technique = 0;
   for (const entry of logs) {
     for (const step of entry.stepDetails ?? []) {
       const type = String(step?.mistakeType ?? "").trim().toLowerCase();
       const marks = Number(step?.marksDeducted);
       if (!Number.isFinite(marks) || marks <= 0) continue;
-      if (CARELESS_TYPES.has(type)) careless += marks;
-      else if (KNOWLEDGE_TYPES.has(type)) knowledge += marks;
+      const group = mistakeGroupOf(type)?.key;
+      if (group === "careless") careless += marks;
+      else if (group === "knowledge") knowledge += marks;
+      else if (group === "technique") technique += marks;
     }
   }
   careless = round1(careless);
   knowledge = round1(knowledge);
+  technique = round1(technique);
 
-  if (careless + knowledge > lost + 0.05) {
+  if (careless + knowledge + technique > lost + 0.05) {
     return {
       available: round1(available),
       secured: round1(secured),
       lost,
       careless: 0,
       knowledge: 0,
+      technique: 0,
       unclassified: lost,
       splitKnown: false,
     };
@@ -291,7 +307,8 @@ export function splitPaperMarks(
     lost,
     careless,
     knowledge,
-    unclassified: Math.max(0, round1(lost - careless - knowledge)),
+    technique,
+    unclassified: Math.max(0, round1(lost - careless - knowledge - technique)),
     splitKnown: true,
   };
 }
@@ -388,8 +405,8 @@ function buildChapters(
 
   const rows: Chapter[] = [];
   for (const rung of topics) {
-    // Careless buckets can never enter the chapter list - they are not chapters.
-    if (CARELESS_TYPES.has(rung.key.toLowerCase())) continue;
+    // A mistake-type key can never enter the chapter list - it is not a chapter.
+    if (isStoredMistakeType(rung.key.toLowerCase())) continue;
     const meta = desktopTopicForWeakAreaKey(rung.key);
     // Subject purity. The read is already scoped, so this only ever excludes a row
     // that RESOLVES to the other paper; an unresolvable key is kept and routed honestly.
@@ -411,15 +428,12 @@ function buildChapters(
         else if (type === "calculation") calculation += marks;
       }
     }
-    // A chapter is tagged ONLY with a knowledge-gap type. A careless-dominant chapter
-    // carries no tag at all: naming a chapter after a slip would be the moat breaking
-    // in a different costume, and it would send the student to the wrong card.
-    const gapType =
-      conceptual === 0 && calculation === 0
-        ? null
-        : conceptual >= calculation
-          ? "conceptual"
-          : "calculation";
+    // A chapter is tagged ONLY with a knowledge-gap type — owner ruling: that is
+    // `conceptual` alone. Calculation is careless ("you already know this"), so a
+    // calculation-dominant chapter carries no tag at all: naming a chapter after a slip
+    // would be the moat breaking in a different costume. `calculation` is still summed
+    // above only so the comparison stays honest about what dominated.
+    const gapType = conceptual > 0 && conceptual >= calculation ? "conceptual" : null;
 
     rows.push({
       key: rung.key,
@@ -448,8 +462,8 @@ function gapSentence(gapType: "conceptual" | "calculation"): string {
 }
 
 const GAP_LABEL: Record<"conceptual" | "calculation", string> = {
-  conceptual: "Conceptual",
-  calculation: "Calculation",
+  conceptual: MISTAKE_TYPE_LABEL.conceptual,
+  calculation: MISTAKE_TYPE_LABEL.calculation,
 };
 
 /* ------------------ inline glyphs ------------------ */
@@ -674,7 +688,9 @@ export default function MeProgressPage() {
     let cancelled = false;
     void (async () => {
       try {
-        const logs = await getMistakeLogs(user.uid, 30);
+        // GA-19 — the log is read for the SAME window the hero shows, never a fixed 30
+        // days under a week / four-month hero.
+        const logs = await getMistakeLogs(user.uid, WINDOW_DAYS[windowSel]);
         if (!cancelled) setMistakeLogs(Array.isArray(logs) ? logs : []);
       } catch {
         if (!cancelled) setMistakeLogs([]);
@@ -683,7 +699,7 @@ export default function MeProgressPage() {
     return () => {
       cancelled = true;
     };
-  }, [user?.uid, mistakeLogsHydrated]);
+  }, [user?.uid, mistakeLogsHydrated, windowSel]);
 
   /* -- derived -- */
 
@@ -726,12 +742,13 @@ export default function MeProgressPage() {
   );
 
   const mistakeRungs = useMemo(() => data?.mistakeTypes ?? [], [data]);
-  const carelessRungs = useMemo(
-    () => mistakeRungs.filter((m) => CARELESS_TYPES.has(m.key.toLowerCase())),
-    [mistakeRungs],
-  );
-  const knowledgeRungs = useMemo(
-    () => mistakeRungs.filter((m) => KNOWLEDGE_TYPES.has(m.key.toLowerCase())),
+  // SCORECARD-MI-1 — the mix, grouped by lib/mistakeDisplay in the owner's order.
+  const mixGroups = useMemo(
+    () =>
+      MISTAKE_GROUPS.map((group) => ({
+        group,
+        rungs: mistakeRungs.filter((m) => mistakeGroupOf(m.key.toLowerCase())?.key === group.key),
+      })),
     [mistakeRungs],
   );
 
@@ -854,16 +871,17 @@ export default function MeProgressPage() {
   const segments = split
     ? [
         { key: "secured", value: split.secured, tone: SECURED_TONE },
-        { key: "careless", value: split.careless, tone: MISTAKE_TONE.silly },
         { key: "knowledge", value: split.knowledge, tone: MISTAKE_TONE.conceptual },
+        { key: "technique", value: split.technique, tone: MISTAKE_TONE.presentation },
+        { key: "careless", value: split.careless, tone: MISTAKE_TONE.silly },
         { key: "unclassified", value: split.unclassified, tone: UNCLASSIFIED_TONE },
       ].filter((s) => s.value > 0)
     : [];
 
   const barLabel = split
     ? `Of ${split.available} marks in your ${paper} paper: ${split.secured} secured, ` +
-      `${split.careless} lost to careless slips, ${split.knowledge} lost to knowledge gaps, ` +
-      `${split.unclassified} not yet classified.`
+      `${split.knowledge} marks lost to knowledge gaps, ${split.technique} marks lost to exam technique, ` +
+      `${split.careless} marks lost to careless slips, ${split.unclassified} marks not yet classified.`
     : "";
 
   /* ---------- deeper analysis ---------- */
@@ -976,27 +994,46 @@ export default function MeProgressPage() {
                       You got these right.
                     </span>
                   </li>
-                  <li className="lt-me__lg">
-                    <span className="lt-me__sw" data-tone="careless" aria-hidden="true" />
-                    <span>
-                      <b>{split.careless} careless slips</b>
-                      {GROUP_HEADING.careless}. You knew these &mdash; steps skipped, units
-                      missing, a sign flipped.
-                    </span>
-                  </li>
+                  {/* SCORECARD-MI-1 (GA-19) — these figures are MARKS (step deductions), so
+                      they are printed as marks, never under a count noun. */}
                   <li className="lt-me__lg">
                     <span className="lt-me__sw" data-tone="knowledge" aria-hidden="true" />
                     <span>
-                      <b>{split.knowledge} knowledge gaps</b>
+                      <b>
+                        <MarksWord value={split.knowledge} /> &middot; {mistakeGroupByKey("knowledge").label}
+                      </b>
                       {GROUP_HEADING.knowledge}. These need the idea first.
+                    </span>
+                  </li>
+                  <li className="lt-me__lg">
+                    <span className="lt-me__sw" data-tone="technique" aria-hidden="true" />
+                    <span>
+                      <b>
+                        <MarksWord value={split.technique} /> &middot; {mistakeGroupByKey("technique").label}
+                      </b>
+                      {GROUP_HEADING.technique}. Formula, units and conclusion &mdash; write
+                      them every time.
+                    </span>
+                  </li>
+                  <li className="lt-me__lg">
+                    <span className="lt-me__sw" data-tone="careless" aria-hidden="true" />
+                    <span>
+                      <b>
+                        <MarksWord value={split.careless} /> &middot; {mistakeGroupByKey("careless").label}
+                      </b>
+                      {GROUP_HEADING.careless}. A slip in copying or in working.
                     </span>
                   </li>
                   <li className="lt-me__lg">
                     <span className="lt-me__sw" data-tone="unclassified" aria-hidden="true" />
                     <span>
-                      <b>{split.unclassified} unclassified</b>
+                      <b>
+                        <MarksWord value={split.unclassified} /> not yet classified
+                      </b>
+                      {/* P8 — only what is true: the grader took these marks without naming a
+                          type (any question, any mark value), or the two streams disagree. */}
                       {split.splitKnown
-                        ? "One-mark answers are marked right or wrong, so we cannot say why."
+                        ? "The grader took these marks without naming a mistake type, so we will not guess one."
                         : "We can see which marks went, but not yet why, so we are not going to guess."}
                     </span>
                   </li>
@@ -1006,46 +1043,29 @@ export default function MeProgressPage() {
 
             {mistakeRungs.length > 0 ? (
               <div className="lt-me__card">
-                <div className="lt-me__eyebrow">Where your marks went</div>
+                <div className="lt-me__eyebrow">{MISTAKES_BY_KIND_HEADING}</div>
                 <div className="lt-me__mix" data-testid="me-mistake-mix">
-                  <div className="lt-me__mixgroup">
-                    <div className="lt-me__mixhead">{GROUP_HEADING.knowledge}</div>
-                    {knowledgeRungs.length > 0 ? (
-                      <ul className="lt-me__mixlist">
-                        {knowledgeRungs.map((m) => (
-                          <li key={m.key}>
-                            <span
-                              className="lt-me__dot"
-                              style={{ background: MISTAKE_TONE[m.key.toLowerCase()] }}
-                              aria-hidden="true"
-                            />
-                            {m.label}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="lt-me__empty-body">Nothing logged here yet.</p>
-                    )}
-                  </div>
-                  <div className="lt-me__mixgroup">
-                    <div className="lt-me__mixhead">{GROUP_HEADING.careless}</div>
-                    {carelessRungs.length > 0 ? (
-                      <ul className="lt-me__mixlist">
-                        {carelessRungs.map((m) => (
-                          <li key={m.key}>
-                            <span
-                              className="lt-me__dot"
-                              style={{ background: MISTAKE_TONE[m.key.toLowerCase()] }}
-                              aria-hidden="true"
-                            />
-                            {m.label}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="lt-me__empty-body">Nothing logged here yet.</p>
-                    )}
-                  </div>
+                  {mixGroups.map(({ group, rungs }) => (
+                    <div key={group.key} className="lt-me__mixgroup" data-group={group.key}>
+                      <div className="lt-me__mixhead">{group.heading}</div>
+                      {rungs.length > 0 ? (
+                        <ul className="lt-me__mixlist">
+                          {rungs.map((m) => (
+                            <li key={m.key}>
+                              <span
+                                className="lt-me__dot"
+                                style={{ background: MISTAKE_TONE[m.key.toLowerCase()] }}
+                                aria-hidden="true"
+                              />
+                              {MISTAKE_TYPE_LABEL[m.key.toLowerCase() as keyof typeof MISTAKE_TYPE_LABEL] ?? m.label}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="lt-me__empty-body">Nothing logged here yet.</p>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
             ) : null}
@@ -1069,9 +1089,9 @@ export default function MeProgressPage() {
                     these back first.
                   </p>
                   <p className="lt-me__empty-body">
-                    {careless.sillyCount} silly &middot; {careless.presentationCount}{" "}
-                    presentation. {GROUP_HEADING.careless}. They went on skipped steps,
-                    missing units and sign slips.
+                    {countWithUnit(careless.calculationCount, "calculation slip")} &middot;{" "}
+                    {countWithUnit(careless.sillyCount, "silly slip")}. {GROUP_HEADING.careless}.
+                    They went on a slip in copying or in working.
                   </p>
                   <button
                     type="button"
@@ -1774,6 +1794,7 @@ const ME_CSS = `
 .lt-me__sw[data-tone="secured"] { background: hsl(152, 55%, 45%); }
 .lt-me__sw[data-tone="careless"] { background: hsl(0, 80%, 72%); }
 .lt-me__sw[data-tone="knowledge"] { background: hsl(215, 85%, 68%); }
+.lt-me__sw[data-tone="technique"] { background: hsl(280, 65%, 72%); }
 .lt-me__sw[data-tone="unclassified"] { background: hsl(215, 15%, 72%); }
 
 /* --- the four-type mix --- */

@@ -1,4 +1,17 @@
 import { MathText } from "../question/MathText";
+import {
+  COACHING_HEADING,
+  NOT_ATTEMPTED,
+  countWithUnit,
+  effectivePaperCounts,
+  groupRows,
+  isQuestionNotAttempted,
+  mistakeGroupOf,
+  mistakeTypeLabel,
+  questionChipType,
+  stepDisplay,
+  stepShowsType,
+} from "../../lib/mistakeDisplay";
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "../../services/worksheetSessionStore";
 import type {
   CheckSolutionAnnotatedStep,
@@ -49,43 +62,18 @@ function markPill(g: WorksheetQuestionGrade): string {
   return `${g.marksAwarded ?? 0} / ${g.totalMarks}`;
 }
 
-/** Dominant mistake tag for the "Your result" line (knowledge gap vs careless). */
+/** The "Your result" tag — SCORECARD-MI-1 (GA-34): the ONE picker in lib/mistakeDisplay, the
+ *  same one the on-screen scorecard uses, so screen and PDF can never name different types.
+ *  Null on a question that lost no mark (owner ruling). */
 function mistakeTag(g: WorksheetQuestionGrade): { label: string; cls: string } | null {
-  if (!g.mistakeSummary) return null;
-  const { conceptual, calculation, silly, presentation } = g.mistakeSummary;
-  if ((conceptual || 0) > 0) return { label: "Concept gap", cls: "con" };
-  if ((calculation || 0) > 0) return { label: "Calculation", cls: "cal" };
-  if ((silly || 0) > 0) return { label: "Careless slip", cls: "care" };
-  if ((presentation || 0) > 0) return { label: "Presentation", cls: "care" };
-  return null;
+  const type = questionChipType(g);
+  const label = mistakeTypeLabel(type);
+  const group = mistakeGroupOf(type);
+  return label && group ? { label, cls: group.cls } : null;
 }
 
-/** Step-status vocabulary — the SAME four strings `CheckImproveGradedPrintDoc` already
- *  renders (`STEP_TONE` / `STEP_LABEL` there). Mirrored verbatim, deliberately: this lane
- *  brings the worksheet sheet up to the C&I standard and must introduce NO new label or
- *  grouping vocabulary of its own. */
-const STEP_TONE: Record<string, string> = {
-  correct: "ok",
-  partial: "part",
-  incorrect: "bad",
-  missing: "bad",
-};
-
-const STEP_LABEL: Record<string, string> = {
-  correct: "Correct",
-  partial: "Partial",
-  incorrect: "Incorrect",
-  missing: "Missing",
-};
-
-/** Identical strings to this file's own `mistakeTag` labels and to C&I's `MISTAKE_LABEL`
- *  — no new mistake-type name is introduced anywhere in this lane. */
-const STEP_MISTAKE_LABEL: Record<string, string> = {
-  conceptual: "Concept gap",
-  calculation: "Calculation",
-  silly: "Careless slip",
-  presentation: "Presentation",
-};
+/* SCORECARD-MI-1 — step states and type names come from lib/mistakeDisplay, the same
+ * functions the Check & Improve sheet and the screen read. */
 
 /** Render a mark without inventing precision: `2` stays `2`, `0.5` stays `0.5`.
  *  ★ Half-marks are real in CBSE step marking (CLAUDE.md §13 — a stated formula alone
@@ -120,20 +108,10 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching }: 
     ws.questions.map((q) => [q.qNumber, q]),
   );
 
-  // Aggregate the four types over legible questions for the header chips.
-  const agg = response.results.reduce(
-    (a, r) => {
-      if (r.couldNotRead || !r.mistakeSummary) return a;
-      a.conceptual += Number(r.mistakeSummary.conceptual) || 0;
-      a.calculation += Number(r.mistakeSummary.calculation) || 0;
-      a.silly += Number(r.mistakeSummary.silly) || 0;
-      a.presentation += Number(r.mistakeSummary.presentation) || 0;
-      return a;
-    },
-    { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
-  );
-  const knowledge = agg.conceptual + agg.calculation;
-  const careless = agg.silly + agg.presentation;
+  // SCORECARD-MI-1 — header chips: the owner's three groups over the SAME counts the
+  // scorecard shows (no type on a full-mark question), in mistakes, never marks.
+  const groupChips = groupRows(effectivePaperCounts(response.results)).filter((r) => r.count > 0);
+  const notAttempted = response.results.filter((r) => isQuestionNotAttempted(r)).length;
 
   // Group the per-question results by their worksheet section, A→E then other.
   const groups = new Map<string, WorksheetQuestionGrade[]>();
@@ -189,16 +167,16 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching }: 
                 All {response.gradedCount} question{response.gradedCount === 1 ? "" : "s"} read and graded.
               </div>
             )}
-            {(knowledge > 0 || careless > 0) && (
+            {(groupChips.length > 0 || notAttempted > 0) && (
               <div className="lt-gp__chips">
-                {knowledge > 0 && (
-                  <span className="lt-gp__chip lt-gp__chip--con">
-                    {knowledge} {knowledge === 1 ? "knowledge gap" : "knowledge gaps"}
+                {groupChips.map(({ group, count }) => (
+                  <span key={group.key} className={`lt-gp__chip lt-gp__chip--${group.cls}`} data-group={group.key}>
+                    {group.label} · {countWithUnit(count)}
                   </span>
-                )}
-                {careless > 0 && (
-                  <span className="lt-gp__chip lt-gp__chip--care">
-                    {careless} careless {careless === 1 ? "slip" : "slips"}
+                ))}
+                {notAttempted > 0 && (
+                  <span className="lt-gp__chip lt-gp__chip--na">
+                    {NOT_ATTEMPTED.label} · {countWithUnit(notAttempted, "question")}
                   </span>
                 )}
               </div>
@@ -302,23 +280,24 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching }: 
                            the student's own writing, per step, with the marks awarded. */
                         <div className="lt-gp__steps">
                           {annSteps.map((s, i) => {
-                            const stone = STEP_TONE[s.status] || "bad";
+                            const sd = stepDisplay(s.status);
+                            const typeLabel = stepShowsType(s, r) ? mistakeTypeLabel(s.mistakeType) : null;
                             return (
                               <div key={i} className="lt-gp__stp">
                                 <div className="lt-gp__stphead">
                                   <span className="lt-gp__stepn">Step {s.stepNumber}</span>
-                                  <span className={`lt-gp__stbadge lt-gp__stbadge--${stone}`}>
-                                    {STEP_LABEL[s.status] || "Incorrect"}
+                                  <span className={`lt-gp__stbadge lt-gp__stbadge--${sd.tone}`}>
+                                    {sd.label}
                                   </span>
-                                  {s.mistakeType && STEP_MISTAKE_LABEL[s.mistakeType] && (
-                                    <span className="lt-gp__sttag">{STEP_MISTAKE_LABEL[s.mistakeType]}</span>
+                                  {typeLabel && <span className="lt-gp__sttag">{typeLabel}</span>}
+                                  {sd.showDeduction && (
+                                    <span className="lt-gp__stmk">
+                                      +{formatMark(s.marksAwarded)}
+                                      {Number(s.marksDeducted) > 0 && (
+                                        <span className="lt-gp__stmkd"> −{formatMark(s.marksDeducted)}</span>
+                                      )}
+                                    </span>
                                   )}
-                                  <span className="lt-gp__stmk">
-                                    +{formatMark(s.marksAwarded)}
-                                    {Number(s.marksDeducted) > 0 && (
-                                      <span className="lt-gp__stmkd"> −{formatMark(s.marksDeducted)}</span>
-                                    )}
-                                  </span>
                                 </div>
                                 {s.description && (
                                   <div className="lt-gp__stdesc"><MathText text={s.description} /></div>
@@ -368,7 +347,7 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching }: 
 
         {/* Coaching footer */}
         <div className="lt-gp__coach">
-          <div className="lt-gp__coachh">Where your marks went</div>
+          <div className="lt-gp__coachh">{COACHING_HEADING}</div>
           <p>{coaching}</p>
         </div>
       </div>
@@ -412,6 +391,8 @@ const GRADED_CSS = `
 .lt-gp__chip { font-size: 11.5px; font-weight: 600; padding: 4px 11px; border-radius: 20px; }
 .lt-gp__chip--con { background: var(--gp-rose-bg); color: var(--gp-rose); }
 .lt-gp__chip--care { background: #eef0f7; color: #5b63b0; }
+.lt-gp__chip--tech { background: #e7f0fe; color: #2459a8; }
+.lt-gp__chip--na { background: #f1f3f6; color: #4b5563; }
 
 .lt-gp__legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11.5px; color: var(--gp-muted); margin: 8px 0 4px; }
 .lt-gp__legend span { display: inline-flex; align-items: center; gap: 5px; }
@@ -441,6 +422,7 @@ const GRADED_CSS = `
 .lt-gp__tag--con { background: var(--gp-rose-bg); color: var(--gp-rose); }
 .lt-gp__tag--cal { background: var(--gp-amber-bg); color: var(--gp-amber); }
 .lt-gp__tag--care { background: #eef0f7; color: #5b63b0; }
+.lt-gp__tag--tech { background: #e7f0fe; color: #2459a8; }
 .lt-gp__fb { color: var(--gp-ink); display: block; margin-top: 6px; }
 
 /* Binary verdict — objective / 1-mark questions (no step marking, by CBSE rule). */
@@ -464,6 +446,8 @@ const GRADED_CSS = `
 .lt-gp__stbadge--ok { background: var(--gp-green-bg); color: var(--gp-green-d); }
 .lt-gp__stbadge--part { background: var(--gp-amber-bg); color: var(--gp-amber); }
 .lt-gp__stbadge--bad { background: var(--gp-rose-bg); color: var(--gp-rose); }
+.lt-gp__stbadge--na { background: #f1f3f6; color: #4b5563; }
+.lt-gp__stbadge--unk { background: #f1f3f6; color: #4b5563; }
 .lt-gp__sttag { font-size: 10.5px; font-weight: 600; padding: 1px 8px; border-radius: 20px; background: #eef0f7; color: #5b63b0; }
 .lt-gp__stmk { margin-left: auto; font-size: 11.5px; font-weight: 700; color: var(--gp-green-d); }
 .lt-gp__stmkd { color: var(--gp-rose); }

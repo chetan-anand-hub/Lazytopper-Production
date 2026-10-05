@@ -171,7 +171,7 @@ describe("MobileHome (mobile /browse layout — Home redesign PR-A)", () => {
 
     expect(screen.getByTestId("mobile-home-mistake-panel")).toBeInTheDocument();
     expect(screen.getByText(/not just the wrong answer/i)).toBeInTheDocument();
-    expect(screen.getByText(/Most marks lost: Trigonometry, conceptual/i)).toBeInTheDocument();
+    expect(screen.getByText(/Most marks lost: Trigonometry, concept gaps/i)).toBeInTheDocument();
     expect(screen.getByTestId("mobile-home-mi-sample-cta")).toHaveTextContent(
       /Start free — find my reasons/i,
     );
@@ -180,9 +180,10 @@ describe("MobileHome (mobile /browse layout — Home redesign PR-A)", () => {
     const buckets = screen.getAllByTestId("mobile-home-mi-bucket");
     expect(buckets).toHaveLength(4);
     expect(buckets.map((b) => b.textContent)).toEqual([
-      "45%Conceptual",
-      "30%Calculation",
-      "15%Silly mistake",
+      // SCORECARD-MI-1 W2 — the one display module's per-type names (lib/mistakeDisplay).
+      "45%Concept gap",
+      "30%Calculation slip",
+      "15%Silly slip",
       "10%Presentation",
     ]);
   });
@@ -215,7 +216,7 @@ describe("MobileHome (mobile /browse layout — Home redesign PR-A)", () => {
     renderMobileHome();
 
     expect(screen.queryByTestId("mobile-home-mistake-sample-label")).toBeNull();
-    expect(screen.queryByText(/Most marks lost: Trigonometry, conceptual/i)).toBeNull();
+    expect(screen.queryByText(/Most marks lost: Trigonometry, concept gaps/i)).toBeNull();
     expect(screen.queryByTestId("mobile-home-mi-sample-cta")).toBeNull();
 
     // PR-A's empty state, unchanged: a dash where a real count would go.
@@ -226,9 +227,9 @@ describe("MobileHome (mobile /browse layout — Home redesign PR-A)", () => {
     const buckets = screen.getAllByTestId("mobile-home-mi-bucket");
     expect(buckets).toHaveLength(4);
     expect(buckets.map((b) => b.textContent)).toEqual([
-      "—Conceptual",
-      "—Calculation",
-      "—Silly mistake",
+      "—Concept gap",
+      "—Calculation slip",
+      "—Silly slip",
       "—Presentation",
     ]);
     // No invented counts anywhere in the signed-in card.

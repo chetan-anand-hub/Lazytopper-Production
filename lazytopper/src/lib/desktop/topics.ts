@@ -83,7 +83,7 @@ const TOPICS: DesktopTopicSummary[] = [
     trendTier: "high",
     weight: 6,
     marks: "~6 marks",
-    blurb: "Distance formula, section formula, and area of a triangle from coordinates.",
+    blurb: "Distance formula and section formula on the coordinate plane.",
   },
   {
     slug: "trigonometry",

@@ -1,4 +1,17 @@
 import { MathText } from "../question/MathText";
+import {
+  COACHING_HEADING,
+  NOT_ATTEMPTED,
+  coachingLine,
+  countWithUnit,
+  effectivePaperCounts,
+  groupRows,
+  isQuestionNotAttempted,
+  mistakeTypeLabel,
+  stepDisplay,
+  stepShowsType,
+  type MistakeTypeCounts,
+} from "../../lib/mistakeDisplay";
 import type {
   CheckSolutionAnnotatedStep,
   CheckSolutionMistakeSummary,
@@ -72,86 +85,71 @@ function markPill(q: CiGradedQuestion): string {
   return `${q.marksAwarded ?? 0} / ${q.totalMarks}`;
 }
 
-const STEP_TONE: Record<string, string> = {
-  correct: "ok",
-  partial: "part",
-  incorrect: "bad",
-  missing: "bad",
-};
+/* SCORECARD-MI-1 — step states, type names and groups come from lib/mistakeDisplay (the
+ * ONE display module). The PDF and the screen read the same functions, so a step that says
+ * "Not attempted" on screen says it here too, and an unknown status never reads "Incorrect". */
 
-const STEP_LABEL: Record<string, string> = {
-  correct: "Correct",
-  partial: "Partial",
-  incorrect: "Incorrect",
-  missing: "Missing",
-};
-
-const MISTAKE_LABEL: Record<string, string> = {
-  conceptual: "Concept gap",
-  calculation: "Calculation",
-  silly: "Careless slip",
-  presentation: "Presentation",
-};
-
-/** Product-voice coaching line, derived from the counts already on screen. */
+/**
+ * Product-voice coaching line (GA-24, B3). With `counts` (the paper's four-type counts, through
+ * `effectiveTypeCounts`) it speaks the owner's three groups from lib/mistakeDisplay. It never
+ * says "Clean" while marks were lost.
+ *
+ * `knowledge` / `careless` are the LEGACY two-bucket input. One caller still sends it: the
+ * multi-question C&I page, whose aggregation lines are pinned byte-identical by the CI MI moat
+ * (check_improve_convergence_acceptance.mjs, 52 survivors) — HELD for an owner ruling. Their
+ * split is the pre-ruling grouping, so this function never names a group from it: it prints
+ * only their SUM (the true total of mistakes), until the moat is re-based.
+ */
 export function buildCiCoaching(args: {
   gradedMarksAwarded: number;
   gradedMarksTotal: number;
-  knowledge: number;
-  careless: number;
+  /** Paper-level four-type counts (preferred). */
+  counts?: Partial<MistakeTypeCounts> | null;
+  /** LEGACY two-bucket split — HELD caller only; only its sum is used. */
+  knowledge?: number;
+  careless?: number;
   pendingCount: number;
+  /** Questions not attempted (today's data: every step "missing"). Never a mistake. */
+  notAttemptedCount?: number;
   /** `mistakeSummary.departure` — 0 or 1. The server charges a departure ONCE and
    *  files it under its OWN kind, never `silly` (checkSolution.cjs
    *  `buildMistakeSummary`). Optional so every existing caller is unchanged. */
   departure?: number;
 }): string {
-  const { gradedMarksAwarded, gradedMarksTotal, knowledge, careless, pendingCount } = args;
+  const { gradedMarksAwarded, gradedMarksTotal, pendingCount } = args;
   const departure = args.departure ?? 0;
   const parts: string[] = [];
   if (gradedMarksTotal > 0) {
     parts.push(`You scored ${gradedMarksAwarded} of ${gradedMarksTotal} on the work we could read.`);
   }
-  // NOTE: `knowledge`/`careless` are COUNTS of flagged mistakes (not marks) — they
-  // must never be phrased as "N marks" (that would invent an accuracy figure). Match
-  // the header chips ("N knowledge gaps" / "N careless slips").
   if (departure > 0) {
     // ⚠ A departure student DID show their working — they answered a DIFFERENT
     // question. Telling them to "show every step" is the OPPOSITE of the correct
-    // instruction, and the per-step `teacherNote` on the same sheet already names the
-    // departure, so the two would contradict each other on one page.
-    // [FU-GRD-DEPARTURE-VOICE-NEEDS-SRC]
-    //
-    // ⚠ This branch must come FIRST. The server zeroes the four ordinary counters for
-    // every step at or below the departure, so a departure at step 0 arrives here with
-    // knowledge === 0 AND careless === 0 — which would otherwise fall through to the
-    // final `else` and congratulate the student on "Clean work".
+    // instruction. [FU-GRD-DEPARTURE-VOICE-NEEDS-SRC]
     parts.push(
       "From one step on you were solving a different question — check each line against the question as you go.",
     );
-    const also: string[] = [];
-    if (knowledge > 0) {
-      also.push(`${knowledge} knowledge gap${knowledge === 1 ? "" : "s"}`);
-    }
-    if (careless > 0) {
-      also.push(`${careless} careless slip${careless === 1 ? "" : "s"}`);
-    }
-    if (also.length > 0) {
-      parts.push(`Before that, ${also.join(" and ")} also cost you marks.`);
-    }
-  } else if (knowledge > 0 && careless > 0) {
-    parts.push(
-      `${knowledge} knowledge gap${knowledge === 1 ? "" : "s"} (revise the method) and ${careless} careless slip${careless === 1 ? "" : "s"} (slow down and show every step) cost you marks.`,
-    );
-  } else if (knowledge > 0) {
-    parts.push(
-      `${knowledge} knowledge gap${knowledge === 1 ? "" : "s"} cost you marks — revise the underlying method, then re-attempt.`,
-    );
-  } else if (careless > 0) {
-    parts.push(
-      `${careless} careless slip${careless === 1 ? "" : "s"} cost you marks — the method is there; show every step and check the final line.`,
-    );
-  } else {
-    parts.push("Clean work — keep showing every step so an examiner can award full method marks.");
+  }
+  if (args.counts) {
+    const line = coachingLine({
+      marksAwarded: gradedMarksAwarded,
+      marksTotal: gradedMarksTotal,
+      counts: args.counts,
+      pendingCount,
+      notAttemptedCount: args.notAttemptedCount,
+    });
+    if (line) parts.push(line);
+    return parts.join(" ");
+  }
+  // LEGACY (HELD) caller — no group named, only the true total of mistakes.
+  const total = (Number(args.knowledge) || 0) + (Number(args.careless) || 0);
+  const lost = Math.max(0, gradedMarksTotal - gradedMarksAwarded);
+  if (total > 0) {
+    parts.push(`${countWithUnit(total)} cost you marks — each is named on its question below.`);
+  } else if (lost > 0) {
+    parts.push(`You lost ${lost} ${lost === 1 ? "mark" : "marks"}, and the examiner did not name a mistake type for ${lost === 1 ? "it" : "them"}.`);
+  } else if (gradedMarksTotal > 0) {
+    parts.push("Full marks on everything graded — keep showing every step so an examiner can award every method mark.");
   }
   if (pendingCount > 0) {
     parts.push(
@@ -171,19 +169,10 @@ export function CheckImproveGradedPrintDoc({
   pendingCount,
   coaching,
 }: CheckImproveGradedPrintDocProps) {
-  const agg = questions.reduce(
-    (a, q) => {
-      if (q.couldNotRead || !q.mistakeSummary) return a;
-      a.conceptual += Number(q.mistakeSummary.conceptual) || 0;
-      a.calculation += Number(q.mistakeSummary.calculation) || 0;
-      a.silly += Number(q.mistakeSummary.silly) || 0;
-      a.presentation += Number(q.mistakeSummary.presentation) || 0;
-      return a;
-    },
-    { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
-  );
-  const knowledge = agg.conceptual + agg.calculation;
-  const careless = agg.silly + agg.presentation;
+  // SCORECARD-MI-1 — the header chips: the owner's three groups over the SAME counts the
+  // scorecard shows (`effectivePaperCounts`: no type on a full-mark question), in mistakes.
+  const groupChips = groupRows(effectivePaperCounts(questions)).filter((r) => r.count > 0);
+  const notAttempted = questions.filter((q) => isQuestionNotAttempted(q)).length;
 
   return (
     <div className="lt-cigp">
@@ -226,16 +215,16 @@ export function CheckImproveGradedPrintDoc({
                 All answers read and graded.
               </div>
             )}
-            {(knowledge > 0 || careless > 0) && (
+            {(groupChips.length > 0 || notAttempted > 0) && (
               <div className="lt-cigp__chips">
-                {knowledge > 0 && (
-                  <span className="lt-cigp__chip lt-cigp__chip--con">
-                    {knowledge} {knowledge === 1 ? "knowledge gap" : "knowledge gaps"}
+                {groupChips.map(({ group, count }) => (
+                  <span key={group.key} className={`lt-cigp__chip lt-cigp__chip--${group.cls}`} data-group={group.key}>
+                    {group.label} · {countWithUnit(count)}
                   </span>
-                )}
-                {careless > 0 && (
-                  <span className="lt-cigp__chip lt-cigp__chip--care">
-                    {careless} careless {careless === 1 ? "slip" : "slips"}
+                ))}
+                {notAttempted > 0 && (
+                  <span className="lt-cigp__chip lt-cigp__chip--na">
+                    {NOT_ATTEMPTED.label} · {countWithUnit(notAttempted, "question")}
                   </span>
                 )}
               </div>
@@ -288,20 +277,20 @@ export function CheckImproveGradedPrintDoc({
               ) : (
                 <div className="lt-cigp__steps">
                   {steps.map((s, si) => {
-                    const stone = STEP_TONE[s.status] || "bad";
+                    const sd = stepDisplay(s.status);
+                    const typeLabel = stepShowsType(s, q) ? mistakeTypeLabel(s.mistakeType) : null;
                     return (
                       <div key={si} className="lt-cigp__step">
                         <div className="lt-cigp__stephead">
                           <span className="lt-cigp__stepn">Step {s.stepNumber}</span>
-                          <span className={`lt-cigp__stbadge lt-cigp__stbadge--${stone}`}>
-                            {STEP_LABEL[s.status] || "Incorrect"}
+                          <span className={`lt-cigp__stbadge lt-cigp__stbadge--${sd.tone}`}>
+                            {sd.label}
                           </span>
-                          {s.mistakeType && MISTAKE_LABEL[s.mistakeType] && (
-                            <span className="lt-cigp__sttag">{MISTAKE_LABEL[s.mistakeType]}</span>
-                          )}
+                          {typeLabel && <span className="lt-cigp__sttag">{typeLabel}</span>}
                           {/* Objective → per-step marks zeroed by design; suppress the
-                              misleading "+0" chip, keep the status + annotation. */}
-                          {!q.objective && (
+                              misleading "+0" chip, keep the status + annotation. A not-attempted
+                              or unknown step carries no "−N". */}
+                          {!q.objective && sd.showDeduction && (
                             <span className="lt-cigp__stmk">
                               +{s.marksAwarded}
                               {s.marksDeducted > 0 && <span className="lt-cigp__stmkd"> −{s.marksDeducted}</span>}
@@ -338,7 +327,7 @@ export function CheckImproveGradedPrintDoc({
 
         {/* Coaching footer */}
         <div className="lt-cigp__coach">
-          <div className="lt-cigp__coachh">Where your marks went</div>
+          <div className="lt-cigp__coachh">{COACHING_HEADING}</div>
           <p>{coaching}</p>
         </div>
       </div>
@@ -382,6 +371,8 @@ const CIGP_CSS = `
 .lt-cigp__chip { font-size: 11.5px; font-weight: 600; padding: 4px 11px; border-radius: 20px; }
 .lt-cigp__chip--con { background: var(--cg-rose-bg); color: var(--cg-rose); }
 .lt-cigp__chip--care { background: #eef0f7; color: #5b63b0; }
+.lt-cigp__chip--tech { background: #e7f0fe; color: #2459a8; }
+.lt-cigp__chip--na { background: #f1f3f6; color: #4b5563; }
 
 .lt-cigp__legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11.5px; color: var(--cg-muted); margin: 8px 0 4px; }
 .lt-cigp__legend span { display: inline-flex; align-items: center; gap: 5px; }
@@ -411,6 +402,8 @@ const CIGP_CSS = `
 .lt-cigp__stbadge--ok { background: var(--cg-green-bg); color: var(--cg-green-d); }
 .lt-cigp__stbadge--part { background: var(--cg-amber-bg); color: var(--cg-amber); }
 .lt-cigp__stbadge--bad { background: var(--cg-rose-bg); color: var(--cg-rose); }
+.lt-cigp__stbadge--na { background: #f1f3f6; color: #4b5563; }
+.lt-cigp__stbadge--unk { background: #f1f3f6; color: #4b5563; }
 .lt-cigp__sttag { font-size: 10.5px; font-weight: 700; padding: 1px 8px; border-radius: 20px; background: #eef0f7; color: #5b63b0; }
 .lt-cigp__stmk { margin-left: auto; font-size: 11.5px; font-weight: 700; color: var(--cg-green-d); }
 .lt-cigp__stmkd { color: var(--cg-rose); }

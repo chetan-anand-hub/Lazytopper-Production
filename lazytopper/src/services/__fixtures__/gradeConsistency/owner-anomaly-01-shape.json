@@ -1,0 +1,508 @@
+{
+ "source": "SYNTHETIC - shaped on owner-anomaly-01 (Desktop/diff/grader-audit-1/owner-anomalies/owner-anomaly-01_expected-key.md): the owner's EXPECTED marks and types per question. NOT a grader output. Used for the screenshots and the per-question-chapter / not-attempted / grouping checks.",
+ "grader": "P4",
+ "surface": "CI-MULTI",
+ "caseIds": [
+  "OA01-Q1",
+  "OA01-Q2",
+  "OA01-Q3",
+  "OA01-Q4",
+  "OA01-Q5",
+  "OA01-Q6",
+  "OA01-Q7",
+  "OA01-Q8",
+  "OA01-Q9",
+  "OA01-Q10"
+ ],
+ "request": {
+  "subject": "Maths",
+  "questions": [
+   {
+    "qNumber": 1,
+    "marks": 1,
+    "questionText": "The HCF of 6 and 20 is: (a) 1 (b) 2 (c) 3 (d) 4",
+    "topic": "Real Numbers",
+    "objective": true
+   },
+   {
+    "qNumber": 2,
+    "marks": 2,
+    "questionText": "Solve 2x^2 - 7x + 3 = 0 by factorisation.",
+    "topic": "Quadratic Equations",
+    "objective": false
+   },
+   {
+    "qNumber": 3,
+    "marks": 3,
+    "questionText": "Find the sum of the first 20 terms of the AP 3, 7, 11, ...",
+    "topic": "Arithmetic Progressions",
+    "objective": false
+   },
+   {
+    "qNumber": 4,
+    "marks": 3,
+    "questionText": "If sin A = 3/5, find cos A and tan A.",
+    "topic": "Introduction to Trigonometry",
+    "objective": false
+   },
+   {
+    "qNumber": 5,
+    "marks": 3,
+    "questionText": "A 6 V battery is connected across a 12 ohm resistor. Find the current.",
+    "topic": "Electricity",
+    "objective": false
+   },
+   {
+    "qNumber": 6,
+    "marks": 2,
+    "questionText": "Find the distance between (2, -3) and (-1, 1).",
+    "topic": "Coordinate Geometry",
+    "objective": false
+   },
+   {
+    "qNumber": 7,
+    "marks": 2,
+    "questionText": "Identify the substance oxidised and reduced: CuO + H2 -> Cu + H2O.",
+    "topic": "Chemical Reactions and Equations",
+    "objective": false
+   },
+   {
+    "qNumber": 8,
+    "marks": 2,
+    "questionText": "Why do the walls of the trachea not collapse when there is less air in it?",
+    "topic": "Life Processes",
+    "objective": false
+   },
+   {
+    "qNumber": 9,
+    "marks": 3,
+    "questionText": "Two dice are thrown. Find P(sum = 7) and P(doublet).",
+    "topic": "Probability",
+    "objective": false
+   },
+   {
+    "qNumber": 10,
+    "marks": 3,
+    "questionText": "An object is placed 20 cm in front of a concave mirror of focal length 15 cm. Find the image distance.",
+    "topic": "Light - Reflection and Refraction",
+    "objective": false
+   }
+  ]
+ },
+ "trueChapters": {
+  "1": "real-numbers",
+  "2": "quadratic-equations",
+  "3": "arithmetic-progression",
+  "4": "trigonometry",
+  "5": "electricity",
+  "6": "coordinate-geometry",
+  "7": "chemical-reactions-and-equations",
+  "8": "life-processes",
+  "9": "probability",
+  "10": "light-reflection-and-refraction"
+ },
+ "trueSubjects": {
+  "1": "Maths",
+  "2": "Maths",
+  "3": "Maths",
+  "4": "Maths",
+  "5": "Science",
+  "6": "Maths",
+  "7": "Science",
+  "8": "Science",
+  "9": "Maths",
+  "10": "Science"
+ },
+ "body": {
+  "ok": true,
+  "results": [
+   {
+    "qNumber": 1,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 1,
+    "marksAwarded": 1,
+    "percentage": 100,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Choose the option",
+      "studentWork": "(b) 2",
+      "status": "correct",
+      "marksAwarded": 0,
+      "marksDeducted": 0,
+      "teacherAnnotation": "Correct.",
+      "mistakeType": null,
+      "correctedWorking": null
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0
+    },
+    "teacherNote": "",
+    "objective": true
+   },
+   {
+    "qNumber": 2,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 2,
+    "marksAwarded": 1.5,
+    "percentage": 75,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Copy the equation",
+      "studentWork": "2x^2 - 7x + 5 = 0",
+      "status": "incorrect",
+      "marksAwarded": 0,
+      "marksDeducted": 0.5,
+      "teacherAnnotation": "The equation was copied wrongly (+5 for +3).",
+      "mistakeType": "silly",
+      "correctedWorking": "2x^2 - 7x + 3 = 0"
+     },
+     {
+      "stepNumber": 2,
+      "description": "Factorise and solve",
+      "studentWork": "(2x - 5)(x - 1) = 0, x = 5/2, 1",
+      "status": "correct",
+      "marksAwarded": 1.5,
+      "marksDeducted": 0,
+      "teacherAnnotation": "Method followed consistently.",
+      "mistakeType": null,
+      "correctedWorking": null
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 1,
+     "presentation": 0
+    },
+    "teacherNote": ""
+   },
+   {
+    "qNumber": 3,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 3,
+    "marksAwarded": 2,
+    "percentage": 67,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Write the formula",
+      "studentWork": "S_n = n/2 [2a + (n-1)d]",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "Correct formula.",
+      "mistakeType": null,
+      "correctedWorking": null
+     },
+     {
+      "stepNumber": 2,
+      "description": "Substitute",
+      "studentWork": "S_20 = 10 [6 + 19 x 4]",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "Correct substitution.",
+      "mistakeType": null,
+      "correctedWorking": null
+     },
+     {
+      "stepNumber": 3,
+      "description": "Simplify",
+      "studentWork": "= 10 [6 + 72] = 780",
+      "status": "incorrect",
+      "marksAwarded": 0,
+      "marksDeducted": 1,
+      "teacherAnnotation": "19 x 4 = 76, not 72.",
+      "mistakeType": "calculation",
+      "correctedWorking": "= 10 [6 + 76] = 820"
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 1,
+     "silly": 0,
+     "presentation": 0
+    },
+    "teacherNote": ""
+   },
+   {
+    "qNumber": 4,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 3,
+    "marksAwarded": 1,
+    "percentage": 33,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Find cos A",
+      "studentWork": "cos A = 1 - sin A = 2/5",
+      "status": "incorrect",
+      "marksAwarded": 0,
+      "marksDeducted": 2,
+      "teacherAnnotation": "sin^2 A + cos^2 A = 1, not sin A + cos A = 1.",
+      "mistakeType": "conceptual",
+      "correctedWorking": "cos A = 4/5"
+     },
+     {
+      "stepNumber": 2,
+      "description": "Find tan A",
+      "studentWork": "tan A = sin A / cos A = 3/2",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "Carried forward correctly.",
+      "mistakeType": null,
+      "correctedWorking": null
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 1,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0
+    },
+    "teacherNote": ""
+   },
+   {
+    "qNumber": 5,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 3,
+    "marksAwarded": 2.5,
+    "percentage": 83,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "State Ohm's law",
+      "studentWork": "V = IR",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null
+     },
+     {
+      "stepNumber": 2,
+      "description": "Calculate the current",
+      "studentWork": "I = 6/12 = 0.5",
+      "status": "partial",
+      "marksAwarded": 1.5,
+      "marksDeducted": 0.5,
+      "teacherAnnotation": "The unit (A) is missing.",
+      "mistakeType": "presentation",
+      "correctedWorking": "I = 6/12 = 0.5 A"
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 1
+    },
+    "teacherNote": ""
+   },
+   {
+    "qNumber": 6,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 2,
+    "marksAwarded": 0,
+    "percentage": 0,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Apply the distance formula",
+      "studentWork": "",
+      "status": "missing",
+      "marksAwarded": 0,
+      "marksDeducted": 2,
+      "teacherAnnotation": "No working was written for this question.",
+      "mistakeType": null,
+      "correctedWorking": null
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0
+    },
+    "teacherNote": ""
+   },
+   {
+    "qNumber": 7,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 2,
+    "marksAwarded": 2,
+    "percentage": 100,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Oxidised substance",
+      "studentWork": "H2 is oxidised",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null
+     },
+     {
+      "stepNumber": 2,
+      "description": "Reduced substance",
+      "studentWork": "CuO is reduced (redox)",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0
+    },
+    "teacherNote": ""
+   },
+   {
+    "qNumber": 8,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 2,
+    "marksAwarded": 2,
+    "percentage": 100,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Give the reason",
+      "studentWork": "Rings of cartilage support the trachea.",
+      "status": "correct",
+      "marksAwarded": 2,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0
+    },
+    "teacherNote": ""
+   },
+   {
+    "qNumber": 9,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 3,
+    "marksAwarded": 2,
+    "percentage": 67,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Favourable outcomes for sum 7",
+      "studentWork": "(1,6),(2,5),(3,4),(4,3),(5,2) -> 5/36",
+      "status": "incorrect",
+      "marksAwarded": 0,
+      "marksDeducted": 1,
+      "teacherAnnotation": "(6,1) was missed; there are 6 outcomes.",
+      "mistakeType": "calculation",
+      "correctedWorking": "6/36 = 1/6"
+     },
+     {
+      "stepNumber": 2,
+      "description": "P(doublet)",
+      "studentWork": "6/36 = 1/6",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null
+     },
+     {
+      "stepNumber": 3,
+      "description": "State both answers",
+      "studentWork": "5/36 and 1/6",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 1,
+     "silly": 0,
+     "presentation": 0
+    },
+    "teacherNote": ""
+   },
+   {
+    "qNumber": 10,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 3,
+    "marksAwarded": 1,
+    "percentage": 33,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Write the mirror formula",
+      "studentWork": "1/v + 1/u = 1/f",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "Correct formula.",
+      "mistakeType": null,
+      "correctedWorking": null
+     },
+     {
+      "stepNumber": 2,
+      "description": "Substitute with signs",
+      "studentWork": "u = +20, f = -15",
+      "status": "incorrect",
+      "marksAwarded": 0,
+      "marksDeducted": 2,
+      "teacherAnnotation": "Sign convention: u = -20 cm for a real object.",
+      "mistakeType": "conceptual",
+      "correctedWorking": "u = -20 cm, f = -15 cm, v = -60 cm"
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 1,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0
+    },
+    "teacherNote": ""
+   }
+  ],
+  "totalQuestions": 10,
+  "gradedCount": 10,
+  "pendingCount": 0,
+  "gradedMarksAwarded": 15,
+  "gradedMarksTotal": 24,
+  "worksheetTotalMarks": 24,
+  "summary": ""
+ }
+}

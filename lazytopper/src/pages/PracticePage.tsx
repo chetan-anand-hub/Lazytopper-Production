@@ -419,6 +419,7 @@ export const shouldResetBuiltOnPop = (
 // PracticePage.strategyLazy.test.tsx.
 type StrategyResolver = typeof import("../services/questionTypeFirstResolver");
 import { trackUxEvent } from "../services/uxTelemetry";
+import { mistakeTypeLabel } from "../lib/mistakeDisplay";
 import {
   MISTAKE_KIND_LABEL,
   buildGradedAnswer,
@@ -2206,7 +2207,7 @@ const packTopicKey = useMemo(() => {
     for (const saved of batchSelection.batch) {
       const graded = batchResult.entries[saved.qNumber - 1]?.graded;
       if (!graded) continue;
-      const kind = dominantMistakeKind(graded.mistakeSummary);
+      const kind = dominantMistakeKind(graded);
       rows.push({
         tag: `Q${saved.qNumber}`,
         detail: saved.objective
@@ -2540,11 +2541,8 @@ const packTopicKey = useMemo(() => {
         />
 
         {isTargetedSession && ((() => {
-          const MISTAKE_LABEL: Record<string, string> = {
-            conceptual: "Conceptual", calculation: "Calculation",
-            silly: "Silly", presentation: "Presentation",
-          };
-          const mistakeLabel = MISTAKE_LABEL[targetMistakeType] || targetMistakeType;
+          // SCORECARD-MI-1 — ONE name per stored type, from lib/mistakeDisplay.
+          const mistakeLabel = mistakeTypeLabel(targetMistakeType) || targetMistakeType;
           const displayTopic = topicLabel || rawTopicParam;
           return (
             <div style={{

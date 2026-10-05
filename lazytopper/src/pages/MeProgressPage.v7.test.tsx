@@ -31,6 +31,8 @@ const mockGetWindowedProgress = vi.fn();
 const mockGetMistakeLogs = vi.fn();
 
 vi.mock("../services/progressStore", () => ({
+  // SCORECARD-MI-1 (GA-19) — Me reads the mistake log for the SAME window as the hero.
+  WINDOW_DAYS: { week: 7, "2wk": 14, month: 30, "4mo": 120 },
   getWindowedProgress: (...a: unknown[]) => mockGetWindowedProgress(...a),
   getRecentSessions: () => [],
   getActivitySummary: () => ({
@@ -173,8 +175,8 @@ function viewTotal(view: HTMLElement): number {
 
 /* ══════════════ A · the hero bar and its four segments ══════════════ */
 
-describe("A · the hero is four segments, and unclassified is honest", () => {
-  it("renders exactly four segments — secured, careless, knowledge gaps, unclassified", async () => {
+describe("A · the hero is the owner's groups, and unclassified is honest", () => {
+  it("renders secured, knowledge gap, careless and unclassified — in the owner's group order", async () => {
     mockGetMistakeLogs.mockResolvedValue([
       logEntry({
         id: "m-c",
@@ -191,8 +193,8 @@ describe("A · the hero is four segments, and unclassified is honest", () => {
     const kinds = Array.from(bar.querySelectorAll("[data-segment]")).map((el) =>
       el.getAttribute("data-segment"),
     );
-    expect(kinds).toEqual(["secured", "careless", "knowledge", "unclassified"]);
-    // 30 lost = 6 careless + 9 knowledge + 15 unclassified. The bar SUMS to the paper.
+    expect(kinds).toEqual(["secured", "knowledge", "careless", "unclassified"]);
+    // 30 lost = 9 knowledge + 6 careless + 15 unclassified. The bar SUMS to the paper.
     expect(bar.textContent).toContain("70");
   });
 
@@ -216,7 +218,7 @@ describe("A · the hero is four segments, and unclassified is honest", () => {
     );
     // ★ CONTROL: the OTHER three are still found by the same query, so the absence is
     //   not a broken selector.
-    expect(kinds).toEqual(["secured", "careless", "knowledge"]);
+    expect(kinds).toEqual(["secured", "knowledge", "careless"]);
     expect(kinds).not.toContain("unclassified");
   });
 
@@ -240,13 +242,56 @@ describe("A · the hero is four segments, and unclassified is honest", () => {
     ).toBeInTheDocument();
   });
 
-  it("names all four mistake types under the shipped scorecard's own two headings", async () => {
+  it("names the mistake types under the owner's three headings (lib/mistakeDisplay), verbatim", async () => {
     renderPage();
     const mix = await screen.findByTestId("me-mistake-mix");
-    expect(within(mix).getByText("Knowledge gaps — worth practising")).toBeInTheDocument();
-    expect(within(mix).getByText("Careless mark-loss — not a weakness")).toBeInTheDocument();
-    expect(within(mix).getByText("Conceptual")).toBeInTheDocument();
-    expect(within(mix).getByText("Silly")).toBeInTheDocument();
+    expect(within(mix).getByText("Marks to gain — learn this")).toBeInTheDocument();
+    expect(within(mix).getByText("Marks to gain — the quickest wins")).toBeInTheDocument();
+    expect(within(mix).getByText("Marks to gain — you already know this")).toBeInTheDocument();
+    expect(within(mix).getByText("Concept gap")).toBeInTheDocument();
+    expect(within(mix).getByText("Silly slip")).toBeInTheDocument();
+    // P7 — the old reversed headings are gone.
+    expect(mix.textContent).not.toMatch(/Knowledge gaps — worth practising|Careless mark-loss/);
+  });
+
+  it("★ P7 — presentation is EXAM TECHNIQUE and calculation is CARELESS in the hero split", async () => {
+    mockGetMistakeLogs.mockResolvedValue([
+      logEntry({ id: "m-p", stepDetails: [{ stepNumber: 1, mistakeType: "presentation", marksDeducted: 4 }] }),
+      logEntry({ id: "m-k", stepDetails: [{ stepNumber: 1, mistakeType: "calculation", marksDeducted: 5 }] }),
+    ]);
+    renderPage();
+    const bar = await screen.findByTestId("me-hero-bar");
+    const kinds = Array.from(bar.querySelectorAll("[data-segment]")).map((el) => el.getAttribute("data-segment"));
+    expect(kinds).toContain("technique");
+    expect(kinds).toContain("careless");
+    // CONTROL — neither loss is a knowledge gap.
+    expect(kinds).not.toContain("knowledge");
+  });
+
+  it("★ GA-19 — the hero prints MARKS as marks, never under a count noun", async () => {
+    mockGetMistakeLogs.mockResolvedValue([
+      logEntry({ id: "m-s", stepDetails: [{ stepNumber: 1, mistakeType: "silly", marksDeducted: 6 }] }),
+    ]);
+    renderPage();
+    await screen.findByTestId("me-hero-bar");
+    expect(document.body.textContent || "").not.toMatch(/\d+ careless slips|\d+ knowledge gaps/);
+  });
+
+  it("★ GA-19 — the mistake log is read for the SAME window as the hero", async () => {
+    const user = userEvent.setup();
+    renderPage();
+    await screen.findByTestId("me-hero-bar");
+    expect(mockGetMistakeLogs).toHaveBeenLastCalledWith("u-1", 30); // month, the default
+    await user.click(screen.getByRole("button", { name: "Week" }));
+    expect(mockGetMistakeLogs).toHaveBeenLastCalledWith("u-1", 7);
+    await user.click(screen.getByRole("button", { name: "4 months" }));
+    expect(mockGetMistakeLogs).toHaveBeenLastCalledWith("u-1", 120);
+  });
+
+  it("★ P8 — the unclassified reason says only what is true (no one-mark claim)", async () => {
+    renderPage();
+    await screen.findByTestId("me-hero-bar");
+    expect(document.body.textContent || "").not.toMatch(/One-mark answers/);
   });
 });
 
@@ -512,26 +557,27 @@ describe("F · a chapter's tag and its sentence describe the SAME mistake type",
     }),
   ];
 
-  it("a conceptual chapter is tagged Conceptual and says so", async () => {
+  it("a conceptual chapter is tagged as a concept gap and says so", async () => {
     mockGetMistakeLogs.mockResolvedValue(chapterLog("conceptual"));
     renderPage();
     const card = (await screen.findByTestId("me-drill-topics")).querySelector(
       ".lt-me__chapter",
     ) as HTMLElement;
-    expect(within(card).getByText("Conceptual")).toBeInTheDocument();
+    expect(within(card).getByText("Concept gap")).toBeInTheDocument();
     expect(card.textContent).toContain("The marks went on the idea itself, not the arithmetic.");
-    expect(within(card).queryByText("Calculation")).toBeNull();
+    expect(within(card).queryByText("Calculation slip")).toBeNull();
   });
 
-  it("★ CONTROL: a calculation chapter gets the OTHER tag and the OTHER sentence", async () => {
+  it("★ SCORECARD-MI-1 — a calculation-dominant chapter is CARELESS (owner ruling) and carries NO tag", async () => {
     mockGetMistakeLogs.mockResolvedValue(chapterLog("calculation"));
     renderPage();
     const card = (await screen.findByTestId("me-drill-topics")).querySelector(
       ".lt-me__chapter",
     ) as HTMLElement;
-    expect(within(card).getByText("Calculation")).toBeInTheDocument();
-    expect(card.textContent).toContain("The method held up each time; the arithmetic did not.");
-    expect(within(card).queryByText("Conceptual")).toBeNull();
+    expect(card.querySelector(".lt-me__tag")).toBeNull();
+    expect(card.textContent).not.toContain("The method held up each time; the arithmetic did not.");
+    // ★ CONTROL: the card itself rendered.
+    expect(within(card).getByText("Real Numbers")).toBeInTheDocument();
   });
 
   it("★★ THE MOAT AGAIN: a careless-dominant chapter is tagged with NOTHING", async () => {
@@ -641,7 +687,7 @@ describe("H · marks, never percentages", () => {
     renderPage();
     const page = await screen.findByTestId("me-mistake-mix");
     expect(page.textContent).not.toMatch(/not learnt yet/i);
-    expect(within(page).getByText("Conceptual")).toBeInTheDocument();
+    expect(within(page).getByText("Concept gap")).toBeInTheDocument();
   });
 });
 

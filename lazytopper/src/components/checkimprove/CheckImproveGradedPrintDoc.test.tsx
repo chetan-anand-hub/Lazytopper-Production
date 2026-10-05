@@ -28,15 +28,14 @@ import { buildCiCoaching } from "./CheckImproveGradedPrintDoc";
 /** Every phrasing of the forbidden instruction, so a reworded regression still fails. */
 const SHOW_EVERY_STEP = /show(ing)? every step/i;
 
+/* SCORECARD-MI-1 — `buildCiCoaching` now speaks the owner's three groups from `counts`
+ * (lib/mistakeDisplay). The departure rules above still hold, re-pinned on the new input. */
 describe("buildCiCoaching — departure cases (Step 7)", () => {
-  it("★ CO-OCCURRING: a departure alongside knowledge AND careless never says 'show every step'", () => {
-    // This is the case a single-site fix passes while remaining broken: fixing only the
-    // careless-only branch leaves the knowledge+careless branch emitting the copy.
+  it("★ CO-OCCURRING: a departure alongside a knowledge gap AND a careless slip never says 'show every step'", () => {
     const line = buildCiCoaching({
       gradedMarksAwarded: 3,
       gradedMarksTotal: 5,
-      knowledge: 2,
-      careless: 1,
+      counts: { conceptual: 2, calculation: 1, silly: 0, presentation: 0 },
       pendingCount: 0,
       departure: 1,
     });
@@ -47,141 +46,104 @@ describe("buildCiCoaching — departure cases (Step 7)", () => {
     expect(line).toContain("1 careless slip");
   });
 
-  it("★ PURE departure (knowledge 0, careless 0) is not congratulated on 'Clean work'", () => {
+  it("★ PURE departure (no other counts) is not congratulated", () => {
     const line = buildCiCoaching({
       gradedMarksAwarded: 0,
       gradedMarksTotal: 5,
-      knowledge: 0,
-      careless: 0,
+      counts: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
       pendingCount: 0,
       departure: 1,
     });
     expect(line).not.toMatch(SHOW_EVERY_STEP);
-    expect(line).not.toContain("Clean work");
+    expect(line).not.toMatch(/clean (work|sheet)/i);
+    expect(line).not.toMatch(/full marks/i);
     expect(line).toContain("solving a different question");
-    // Nothing is invented: with no other counts there is no "Before that" clause.
-    expect(line).not.toContain("Before that");
-  });
-
-  it("a departure with careless only never says 'show every step'", () => {
-    const line = buildCiCoaching({
-      gradedMarksAwarded: 2,
-      gradedMarksTotal: 5,
-      knowledge: 0,
-      careless: 1,
-      pendingCount: 0,
-      departure: 1,
-    });
-    expect(line).not.toMatch(SHOW_EVERY_STEP);
-    expect(line).toContain("solving a different question");
-    expect(line).toContain("1 careless slip");
-  });
-
-  it("a departure with knowledge only never says 'show every step'", () => {
-    const line = buildCiCoaching({
-      gradedMarksAwarded: 2,
-      gradedMarksTotal: 5,
-      knowledge: 3,
-      careless: 0,
-      pendingCount: 0,
-      departure: 1,
-    });
-    expect(line).not.toMatch(SHOW_EVERY_STEP);
-    expect(line).toContain("3 knowledge gaps");
   });
 
   it("the score sentence and the pending-pages sentence still surround a departure line", () => {
     const line = buildCiCoaching({
       gradedMarksAwarded: 1,
       gradedMarksTotal: 6,
-      knowledge: 0,
-      careless: 0,
+      counts: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
       pendingCount: 2,
       departure: 1,
     });
     expect(line).toContain("You scored 1 of 6 on the work we could read.");
-    expect(line).toContain("2 pages couldn't be read");
+    expect(line).toContain("2 pending pages");
     expect(line).not.toMatch(SHOW_EVERY_STEP);
   });
 });
 
-describe("buildCiCoaching — CONTROLS: every no-departure branch is byte-identical", () => {
-  it("CONTROL knowledge + careless is unchanged", () => {
+describe("buildCiCoaching — the owner's three groups, counted in mistakes (B3/D2)", () => {
+  it("names each group in the owner's words, with its unit", () => {
+    const line = buildCiCoaching({
+      gradedMarksAwarded: 15,
+      gradedMarksTotal: 24,
+      counts: { conceptual: 2, calculation: 1, silly: 1, presentation: 1 },
+      notAttemptedCount: 1,
+      pendingCount: 0,
+    });
+    expect(line).toContain("Learn this: 2 knowledge gaps");
+    expect(line).toContain("The quickest wins: 1 exam-technique mistake");
+    expect(line).toContain("You already know this: 2 careless slips");
+    expect(line).toContain("1 question not attempted — not counted as a mistake.");
+  });
+
+  it("calculation is CARELESS, never a knowledge gap (P7 reversed)", () => {
+    const line = buildCiCoaching({
+      gradedMarksAwarded: 2,
+      gradedMarksTotal: 3,
+      counts: { conceptual: 0, calculation: 1, silly: 0, presentation: 0 },
+      pendingCount: 0,
+    });
+    expect(line).toContain("1 careless slip");
+    expect(line).not.toMatch(/knowledge gap/i);
+  });
+
+  it("★ GA-24 — marks lost with no type named is NEVER called clean", () => {
+    const line = buildCiCoaching({
+      gradedMarksAwarded: 0,
+      gradedMarksTotal: 3,
+      counts: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+      pendingCount: 0,
+    });
+    expect(line).not.toMatch(/clean (work|sheet)/i);
+    expect(line).toContain("You lost 3 marks, and the examiner did not name a mistake type for them.");
+  });
+
+  it("CONTROL — a genuinely full-mark sheet says so (and only then)", () => {
+    const line = buildCiCoaching({
+      gradedMarksAwarded: 5,
+      gradedMarksTotal: 5,
+      counts: { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
+      pendingCount: 0,
+    });
+    expect(line).toContain("Full marks on everything graded");
+  });
+});
+
+describe("buildCiCoaching — the LEGACY two-bucket input (HELD caller) names no group", () => {
+  it("prints only the true total of mistakes", () => {
     const line = buildCiCoaching({
       gradedMarksAwarded: 3,
       gradedMarksTotal: 5,
       knowledge: 2,
       careless: 1,
       pendingCount: 0,
-      departure: 0,
     });
-    expect(line).toBe(
-      "You scored 3 of 5 on the work we could read. 2 knowledge gaps (revise the method) and 1 careless slip (slow down and show every step) cost you marks.",
-    );
+    expect(line).toContain("3 mistakes cost you marks");
+    expect(line).not.toMatch(/knowledge gap|careless slip/i);
   });
 
-  it("CONTROL knowledge only is unchanged", () => {
+  it("★ GA-24 on the legacy input too — lost marks are never 'clean'", () => {
     const line = buildCiCoaching({
-      gradedMarksAwarded: 3,
-      gradedMarksTotal: 5,
-      knowledge: 1,
-      careless: 0,
-      pendingCount: 0,
-      departure: 0,
-    });
-    expect(line).toBe(
-      "You scored 3 of 5 on the work we could read. 1 knowledge gap cost you marks — revise the underlying method, then re-attempt.",
-    );
-  });
-
-  it("CONTROL careless only is unchanged", () => {
-    const line = buildCiCoaching({
-      gradedMarksAwarded: 4,
-      gradedMarksTotal: 5,
-      knowledge: 0,
-      careless: 1,
-      pendingCount: 0,
-      departure: 0,
-    });
-    expect(line).toBe(
-      "You scored 4 of 5 on the work we could read. 1 careless slip cost you marks — the method is there; show every step and check the final line.",
-    );
-  });
-
-  it("CONTROL clean work is unchanged", () => {
-    const line = buildCiCoaching({
-      gradedMarksAwarded: 5,
-      gradedMarksTotal: 5,
+      gradedMarksAwarded: 0,
+      gradedMarksTotal: 3,
       knowledge: 0,
       careless: 0,
       pendingCount: 0,
-      departure: 0,
     });
-    expect(line).toBe(
-      "You scored 5 of 5 on the work we could read. Clean work — keep showing every step so an examiner can award full method marks.",
-    );
-  });
-
-  it("CONTROL an OMITTED departure behaves exactly like departure: 0", () => {
-    // Proves the new parameter is genuinely optional, so the two existing call sites in
-    // DesktopCheckImprovePage.tsx keep their current output until they are wired.
-    const withZero = buildCiCoaching({
-      gradedMarksAwarded: 4,
-      gradedMarksTotal: 5,
-      knowledge: 0,
-      careless: 1,
-      pendingCount: 0,
-      departure: 0,
-    });
-    const omitted = buildCiCoaching({
-      gradedMarksAwarded: 4,
-      gradedMarksTotal: 5,
-      knowledge: 0,
-      careless: 1,
-      pendingCount: 0,
-    });
-    expect(omitted).toBe(withZero);
-    // …and it is still the OLD copy, which is the point of a control.
-    expect(omitted).toMatch(SHOW_EVERY_STEP);
+    expect(line).not.toMatch(/clean (work|sheet)/i);
+    expect(line).toContain("You lost 3 marks");
   });
 });
