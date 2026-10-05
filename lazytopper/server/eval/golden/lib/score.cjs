@@ -25,12 +25,13 @@ const P3_SURFACES = new Set(['CI-SINGLE', 'HPQ']);
 const P4_SURFACES = new Set(['PARITY', 'QP-BATCH', 'WS', 'CT', 'FM', 'CI-MULTI']);
 const PRICES = { // USD per 1M tokens (prompts <= 200k), thinking billed at the output rate.
   // Source: https://ai.google.dev/gemini-api/docs/pricing , paid tier standard, fetched 2026-10-05.
-  'gemini-2.5-flash': { in: 0.30, out: 2.50 },
+  // `cached` (PR-3, D31): the context-caching input rate, applied to usageMetadata.cachedContentTokenCount.
+  'gemini-2.5-flash': { in: 0.30, out: 2.50, cached: 0.03 },
   'gemini-2.5-pro': { in: 1.25, out: 10.00 },
   'gemini-3.1-pro-preview': { in: 2.00, out: 12.00 },
   // GRADER-CORE-1 PR-2 (fetched 2026-10-05): the price through 2026-12-31. From 2027-01-01 the
   // page lists $1.50 in / $7.50 out (double) — reports state both.
-  'gemini-3.8-flash': { in: 0.75, out: 3.75 },
+  'gemini-3.8-flash': { in: 0.75, out: 3.75, cached: 0.075 }, // cached input: $0.075 → $0.15 from 2027-01-01
 };
 
 const pct = (n, d) => (d ? Math.round((1000 * n) / d) / 10 : null);
@@ -52,9 +53,10 @@ function expectationFor(caseId, G, locators, probesTruth) {
       wrongStepLocator: null, departureKind: null, departureReturns: false, illegible: false, declineAcceptable: false,
     };
   }
-  if (/^CP\d\d-Q\d\d-/.test(caseId) || /^DUP-/.test(caseId)) {
+  if (/^CP\d\d-Q\d\d-/.test(caseId) || /^DUP-/.test(caseId) || /^OA2-/.test(caseId)) {
     // GRADER-CORE-1 PR-2 · CONTROLLER TEST PAPERS (key.json, SYNTHETIC answers, cited keys).
-    // PR-3 · and the DUPLICATE-NUMBER paper (dup-number-T2/key.json), same expected fields.
+    // PR-3 · and the DUPLICATE-NUMBER paper (dup-number-T2/key.json) and OWNER-ANOMALY-02
+    // (owner-anomaly-02/case.json), same expected fields.
     const q = G.paperCaseById[caseId];
     const e = q.expected || {};
     const mt = e.mistakeType && e.mistakeType !== 'none' ? e.mistakeType : null;
@@ -274,7 +276,7 @@ function modal(vals) {
 }
 
 function costOf(records) {
-  let usd = 0; let prompt = 0; let output = 0; let thinking = 0; let http = 0; let withUsage = 0; let s429 = 0; let timeouts = 0;
+  let usd = 0; let prompt = 0; let output = 0; let thinking = 0; let http = 0; let withUsage = 0; let s429 = 0; let timeouts = 0; let cached = 0;
   for (const rec of records) {
     for (const c of rec.calls || []) {
       if (c.error && (Number(c.error.status) === 504 || /timed out/i.test(String(c.error.message || '')))) timeouts += 1;
@@ -284,12 +286,13 @@ function costOf(records) {
         const p = PRICES[h.model] || PRICES[rec.model];
         if (h.promptTokens != null) withUsage += 1; // aborted / failed requests carry no usage
         const pt = Number(h.promptTokens) || 0; const ot = Number(h.outputTokens) || 0; const tt = Number(h.thinkingTokens) || 0;
-        prompt += pt; output += ot; thinking += tt;
-        if (p) usd += (pt * p.in + (ot + tt) * p.out) / 1e6;
+        const ct = Math.min(pt, Number(h.cachedTokens) || 0); // part of promptTokenCount served from the implicit cache
+        prompt += pt; output += ot; thinking += tt; cached += ct;
+        if (p) usd += ((pt - ct) * p.in + ct * (p.cached != null ? p.cached : p.in) + (ot + tt) * p.out) / 1e6;
       }
     }
   }
-  return { usd, http, withUsage, s429, timeouts, promptTotal: prompt, meanPrompt: withUsage ? Math.round(prompt / withUsage) : null, meanOutput: withUsage ? Math.round(output / withUsage) : null, meanThinking: withUsage ? Math.round(thinking / withUsage) : null };
+  return { usd, http, withUsage, s429, timeouts, promptTotal: prompt, cachedTotal: cached, cachedPct: prompt ? Math.round((1000 * cached) / prompt) / 10 : null, meanPrompt: withUsage ? Math.round(prompt / withUsage) : null, meanOutput: withUsage ? Math.round(output / withUsage) : null, meanThinking: withUsage ? Math.round(thinking / withUsage) : null };
 }
 
 /**
@@ -390,7 +393,18 @@ function score(input) {
   };
 
   // GRADER-CORE-1 PR-2 · the controller papers, scored apart (legacy rows; the same targets)
-  const paperRows = rows.filter((r) => r.kind === 'paper' && !r.v2 && r.expectedAnswerMismatch !== true && !r.caseId.startsWith('DUP-'));
+  const paperRows = rows.filter((r) => r.kind === 'paper' && !r.v2 && r.expectedAnswerMismatch !== true && !r.caseId.startsWith('DUP-') && !r.caseId.startsWith('OA2-'));
+  // GRADER-CORE-1 PR-3 · OWNER-ANOMALY-02 (27 Qs, real): per question, per surface, per run.
+  const oa2Rows = rows.filter((r) => r.kind === 'paper' && r.caseId.startsWith('OA2-'));
+  result.owner2 = {
+    agg: aggregate(oa2Rows.filter((r) => !r.v2 && r.expectedAnswerMismatch !== true)),
+    bySurfaceRun: Object.fromEntries([...new Set(oa2Rows.map((r) => r.surface + '#' + r.run))].map((k) => {
+      const list = oa2Rows.filter((r) => r.surface + '#' + r.run === k);
+      return [k, { total: list.filter((r) => r.status === 'graded' && r.expectedAnswerMismatch !== true).reduce((a2, r) => a2 + r.awarded, 0), key: 33.5,
+        withinHalf: list.filter((r) => r.withinHalf === true).length, n: list.length,
+        perQuestion: list.map((r) => ({ id: r.caseId, awarded: r.status === 'graded' ? r.awarded : r.status, expected: r.expectedTotal, type: r.primaryType || null, expectedType: r.expectedType })) }];
+    })),
+  };
   // GRADER-CORE-1 PR-3 · the duplicate-number paper, scored apart: both "Q5"s must be GRADED
   // (never couldNotRead from a collision), each against its own key.
   const dupRows = rows.filter((r) => r.kind === 'paper' && r.caseId.startsWith('DUP-'));
@@ -548,6 +562,8 @@ function headline(res) {
     unattempted_v2: res.unattemptedV2 ? res.unattemptedV2.pct : null,
     // GRADER-CORE-1 PR-3 (C8/C10). null ("na") where the replayed run holds no such job.
     dup_q5_graded: res.dup ? res.dup.q5.pct : null,
+    owner2_within_half: res.owner2 ? res.owner2.agg.within_half.pct : null,
+    owner2_exact: res.owner2 ? res.owner2.agg.total_exact.pct : null,
     detect_owner_paper: res.detectPaper ? res.detectPaper.owner.paperPct : null,
     detect_minus_kept: res.detectPaper ? res.detectPaper.owner.minusPct : null,
     detect_per_question: res.detectPaper ? res.detectPaper.owner.perQuestionPct : null,

@@ -209,7 +209,13 @@ function load() {
   };
   for (const q of dupPaper.questions) paperCaseById[q.caseId] = { ...q, paperId: dupPaper.paperId };
 
-  _cache = { cases, casesById, itemsById, repins, appliedRepins, vocab, nameBySlug, owner, probes, mismatch, papers, paperCaseById, dupPaper, GOLDEN_DIR };
+  // GRADER-CORE-1 PR-3 · OWNER-ANOMALY-02 (owner addendum 2026-10-05): the owner's REAL 27-question
+  // full paper (owner-anomaly-02/case.json). Graded as ONE C&I multi set (chunked) AND each
+  // question single (its answer crop); scored with the paper scorer, reported apart (res.owner2).
+  const owner2 = readJson('owner-anomaly-02/case.json');
+  owner2.questions.forEach((q) => { q.caseId = 'OA2-Q' + String(q.qNumber).padStart(2, '0'); paperCaseById[q.caseId] = { ...q, paperId: 'owner-02' }; });
+
+  _cache = { cases, casesById, itemsById, repins, appliedRepins, vocab, nameBySlug, owner, probes, mismatch, papers, paperCaseById, dupPaper, owner2, GOLDEN_DIR };
   return _cache;
 }
 

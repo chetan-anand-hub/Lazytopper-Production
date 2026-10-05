@@ -113,13 +113,15 @@ function createLiveClient(o) {
         chunkKey: call && call.chunkKey ? call.chunkKey : null, attempt: call && call.attempt ? call.attempt : null,
         ok: Boolean(status && status < 400), httpStatus: status, errClass, latencyMs,
         promptTokens: usage ? usage.promptTokenCount ?? null : null,
+        // PR-3 (D31): the share of the prompt served from the provider's implicit cache.
+        cachedTokens: usage ? usage.cachedContentTokenCount ?? 0 : null,
         outputTokens: usage ? usage.candidatesTokenCount ?? null : null,
         thinkingTokens: usage ? usage.thoughtsTokenCount ?? null : null,
       };
       fs.appendFileSync(o.ledgerFile, redact(JSON.stringify(rec)) + '\n');
       if (call) {
         call.http.push({ httpStatus: status, errClass, latencyMs, finishReason: finish, responseId, modelVersion, model, thinkingBudget,
-          promptTokens: rec.promptTokens, outputTokens: rec.outputTokens, thinkingTokens: rec.thinkingTokens });
+          promptTokens: rec.promptTokens, cachedTokens: rec.cachedTokens, outputTokens: rec.outputTokens, thinkingTokens: rec.thinkingTokens });
       }
     }
   };
