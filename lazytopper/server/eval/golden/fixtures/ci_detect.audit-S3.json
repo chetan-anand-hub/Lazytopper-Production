@@ -1,0 +1,392 @@
+{
+ "_provenance": "Recorded detect-question results for each golden item, produced by GRADER-AUDIT-1 scout S3 through the REAL handleDetectQuestion + the REAL client buildConfirmedDetection at trunk 53fe4d22 (gemini-2.5-flash, temperature 0.1, thinkingBudget 0), copied from grader-audit-1/s3/inputs/confirmed.json. Used ONLY to build the Check & Improve request bodies (topic label + objective flag) so every config and run grades IDENTICAL requests; live chapter detection is measured separately (runs/<run-id>/detect.jsonl). Marks are NOT taken from here: requests carry the true marks (as if the student corrected the marks chip, audit S3 deviation D1).",
+ "items": {
+  "GS-M01": {
+   "topicSlug": "polynomials",
+   "topicName": "Polynomials",
+   "subjectDetected": "Maths",
+   "objective": true,
+   "marksDetected": 1,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-M02": {
+   "topicSlug": "arithmetic-progression",
+   "topicName": "Arithmetic Progression",
+   "subjectDetected": "Maths",
+   "objective": true,
+   "marksDetected": 1,
+   "marksSource": "inferred",
+   "detectedAnswer": "B"
+  },
+  "GS-M03": {
+   "topicSlug": "surface-areas-and-volumes",
+   "topicName": "Surface Areas and Volumes",
+   "subjectDetected": "Maths",
+   "objective": true,
+   "marksDetected": 1,
+   "marksSource": "inferred",
+   "detectedAnswer": "C"
+  },
+  "GS-M04": {
+   "topicSlug": "polynomials",
+   "topicName": "Polynomials",
+   "subjectDetected": "Maths",
+   "objective": false,
+   "marksDetected": 3,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-M05": {
+   "topicSlug": "coordinate-geometry",
+   "topicName": "Coordinate Geometry",
+   "subjectDetected": "Maths",
+   "objective": false,
+   "marksDetected": 3,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-M06": {
+   "topicSlug": "trigonometry",
+   "topicName": "Trigonometry",
+   "subjectDetected": "Maths",
+   "objective": false,
+   "marksDetected": 2,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-M07": {
+   "topicSlug": "triangles",
+   "topicName": "Triangles",
+   "subjectDetected": "Maths",
+   "objective": false,
+   "marksDetected": 3,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-M08": {
+   "topicSlug": "circles",
+   "topicName": "Circles",
+   "subjectDetected": "Maths",
+   "objective": false,
+   "marksDetected": 3,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-M09": {
+   "topicSlug": "trigonometry",
+   "topicName": "Trigonometry",
+   "subjectDetected": "Maths",
+   "objective": false,
+   "marksDetected": 5,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-M10": {
+   "topicSlug": "real-numbers",
+   "topicName": "Real Numbers",
+   "subjectDetected": "Maths",
+   "objective": false,
+   "marksDetected": 3,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-M11": {
+   "topicSlug": "real-numbers",
+   "topicName": "Real Numbers",
+   "subjectDetected": "Maths",
+   "objective": false,
+   "marksDetected": 3,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-M12": {
+   "topicSlug": "surface-areas-and-volumes",
+   "topicName": "Surface Areas and Volumes",
+   "subjectDetected": "Maths",
+   "objective": false,
+   "marksDetected": 5,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-M13": {
+   "topicSlug": "probability",
+   "topicName": "Probability",
+   "subjectDetected": "Maths",
+   "objective": false,
+   "marksDetected": 3,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-M14": {
+   "topicSlug": "pair-of-linear-equations",
+   "topicName": "Pair of Linear Equations",
+   "subjectDetected": "Maths",
+   "objective": false,
+   "marksDetected": 5,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-M15": {
+   "topicSlug": "quadratic-equations",
+   "topicName": "Quadratic Equations",
+   "subjectDetected": "Maths",
+   "objective": false,
+   "marksDetected": 3,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-M16": {
+   "topicSlug": "statistics",
+   "topicName": "Statistics",
+   "subjectDetected": "Maths",
+   "objective": false,
+   "marksDetected": 5,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-M17": {
+   "topicSlug": "arithmetic-progression",
+   "topicName": "Arithmetic Progression",
+   "subjectDetected": "Maths",
+   "objective": false,
+   "marksDetected": 4,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-M18": {
+   "topicSlug": "areas-related-to-circles",
+   "topicName": "Areas Related to Circles",
+   "subjectDetected": "Maths",
+   "objective": false,
+   "marksDetected": 4,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-M19": {
+   "topicSlug": "trigonometry",
+   "topicName": "Trigonometry",
+   "subjectDetected": "Maths",
+   "objective": false,
+   "marksDetected": 4,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-M20": {
+   "topicSlug": "arithmetic-progression",
+   "topicName": "Arithmetic Progression",
+   "subjectDetected": "Maths",
+   "objective": false,
+   "marksDetected": 5,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-M21": {
+   "topicSlug": "trigonometry",
+   "topicName": "Trigonometry",
+   "subjectDetected": "Maths",
+   "objective": false,
+   "marksDetected": 5,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-M22": {
+   "topicSlug": "pair-of-linear-equations",
+   "topicName": "Pair of Linear Equations",
+   "subjectDetected": "Maths",
+   "objective": false,
+   "marksDetected": 3,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-M23": {
+   "topicSlug": "real-numbers",
+   "topicName": "Real Numbers",
+   "subjectDetected": "Maths",
+   "objective": false,
+   "marksDetected": 3,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-M24": {
+   "topicSlug": "probability",
+   "topicName": "Probability",
+   "subjectDetected": "Maths",
+   "objective": false,
+   "marksDetected": 3,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-S01": {
+   "topicSlug": "heredity",
+   "topicName": "Heredity",
+   "subjectDetected": "Science",
+   "objective": true,
+   "marksDetected": 1,
+   "marksSource": "inferred",
+   "detectedAnswer": "(C) 100% round and yellow"
+  },
+  "GS-S02": {
+   "topicSlug": "magnetic-effects-of-electric-current",
+   "topicName": "Magnetic Effects of Electric Current",
+   "subjectDetected": "Science",
+   "objective": true,
+   "marksDetected": 1,
+   "marksSource": "inferred",
+   "detectedAnswer": "(A) Both A and R are true and R is the correct explanation of A."
+  },
+  "GS-S03": {
+   "topicSlug": "electricity",
+   "topicName": "Electricity",
+   "subjectDetected": "Science",
+   "objective": true,
+   "marksDetected": 1,
+   "marksSource": "inferred",
+   "detectedAnswer": "(C) 4.0 A"
+  },
+  "GS-S04": {
+   "topicSlug": "chemical-reactions-and-equations",
+   "topicName": "Chemical Reactions & Equations",
+   "subjectDetected": "Science",
+   "objective": false,
+   "marksDetected": 2,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-S05": {
+   "topicSlug": "light-reflection-and-refraction",
+   "topicName": "Light - Reflection & Refraction",
+   "subjectDetected": "Science",
+   "objective": false,
+   "marksDetected": 3,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-S06": {
+   "topicSlug": "life-processes",
+   "topicName": "Life Processes",
+   "subjectDetected": "Science",
+   "objective": false,
+   "marksDetected": 3,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-S07": {
+   "topicSlug": "light-reflection-and-refraction",
+   "topicName": "Light - Reflection & Refraction",
+   "subjectDetected": "Science",
+   "objective": false,
+   "marksDetected": 3,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-S08": {
+   "topicSlug": "electricity",
+   "topicName": "Electricity",
+   "subjectDetected": "Science",
+   "objective": false,
+   "marksDetected": 3,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-S09": {
+   "topicSlug": "electricity",
+   "topicName": "Electricity",
+   "subjectDetected": "Science",
+   "objective": false,
+   "marksDetected": 5,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-S10": {
+   "topicSlug": "light-reflection-and-refraction",
+   "topicName": "Light - Reflection & Refraction",
+   "subjectDetected": "Science",
+   "objective": false,
+   "marksDetected": 3,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-S11": {
+   "topicSlug": "chemical-reactions-and-equations",
+   "topicName": "Chemical Reactions & Equations",
+   "subjectDetected": "Science",
+   "objective": false,
+   "marksDetected": 3,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-S12": {
+   "topicSlug": "chemical-reactions-and-equations",
+   "topicName": "Chemical Reactions & Equations",
+   "subjectDetected": "Science",
+   "objective": false,
+   "marksDetected": 3,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-S13": {
+   "topicSlug": "acids-bases-and-salts",
+   "topicName": "Acids Bases & Salts",
+   "subjectDetected": "Science",
+   "objective": false,
+   "marksDetected": 5,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-S14": {
+   "topicSlug": "life-processes",
+   "topicName": "Life Processes",
+   "subjectDetected": "Science",
+   "objective": false,
+   "marksDetected": 5,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-S15": {
+   "topicSlug": "electricity",
+   "topicName": "Electricity",
+   "subjectDetected": "Science",
+   "objective": false,
+   "marksDetected": 5,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-S16": {
+   "topicSlug": "light-reflection-and-refraction",
+   "topicName": "Light - Reflection & Refraction",
+   "subjectDetected": "Science",
+   "objective": false,
+   "marksDetected": 5,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-S17": {
+   "topicSlug": "our-environment",
+   "topicName": "Our Environment",
+   "subjectDetected": "Science",
+   "objective": false,
+   "marksDetected": 5,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-S18": {
+   "topicSlug": "heredity",
+   "topicName": "Heredity",
+   "subjectDetected": "Science",
+   "objective": false,
+   "marksDetected": 5,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  },
+  "GS-S19": {
+   "topicSlug": "light-reflection-and-refraction",
+   "topicName": "Light - Reflection & Refraction",
+   "subjectDetected": "Science",
+   "objective": false,
+   "marksDetected": 3,
+   "marksSource": "inferred",
+   "detectedAnswer": null
+  }
+ }
+}

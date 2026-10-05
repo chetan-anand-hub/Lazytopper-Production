@@ -1,0 +1,55 @@
+name: Golden Eval
+
+# GRADER-CORE-1 PR-1 · G1 + G2 — the zero-call golden gate for the grader (owner grant: one new
+# workflow for the zero-call golden scorer).
+#
+# G1  lazytopper/server/eval/golden/goldenGate.cjs replays the STORED raw model responses of the
+#     committed baseline run through the CURRENT post-processing (the real route handlers) and
+#     scores them against the golden truth data. The network is HARD-BLOCKED inside that process
+#     (every outbound path throws and is counted), so it makes ZERO model calls and needs NO key.
+#     It prints one line:  GOLDEN: <metric=value ...> calls=0 floor=<file> verdict=PASS|FAIL
+#     and fails when a floor metric regresses (each one named), a stored request no longer
+#     re-derives, or any network attempt is made.
+# G2  shapes.test.cjs pins the response SHAPE (keys, types, nesting) every live client call site
+#     reads today, per P15; requests without acceptsV2 must keep it.
+#
+# ★ NO SECRETS. This workflow references no API key, no secret and no environment of any kind:
+#   the gate cannot call a model by construction, and a test proves the block fires.
+# ★ Separate workflow, runs ALONGSIDE quality-gate (zero added wall clock while it finishes
+#   first). The relevance decision is not a `paths:` filter, so it can be made required later
+#   without becoming a stuck "expected" status (quality-gate.yml records why).
+# ★ Node is preinstalled on ubuntu-latest and the gate loads only node built-ins plus
+#   lazytopper/server modules that have no npm dependencies — no install step.
+
+on:
+  pull_request:
+    branches: [base/approved-thru-437]
+  push:
+    branches: [base/approved-thru-437]
+  workflow_dispatch:
+
+concurrency:
+  group: golden-eval-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  golden-eval:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Node version
+        run: node --version
+
+      - name: G1 — golden gate (replay stored responses, zero model calls)
+        working-directory: lazytopper
+        run: node server/eval/golden/goldenGate.cjs
+
+      - name: G1 + G2 — golden suites (network block proof, floor control, replay fidelity, response shapes)
+        working-directory: lazytopper
+        run: node --test server/eval/golden/golden.test.cjs server/eval/golden/shapes.test.cjs server/eval/graderEval.parity.test.cjs

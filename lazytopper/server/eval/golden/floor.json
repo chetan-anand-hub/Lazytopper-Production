@@ -1,0 +1,36 @@
+{
+ "_about": "G1 floor. PR-1 (GOLDEN-EVAL-1): the committed BASELINE — config A (gemini-2.5-flash, dynamic thinking, the production default) under the CURRENT (pre-GRADER-CORE-1) rules, 3 runs, both entry points. Non-regression only: goldenGate.cjs fails if any metric below falls under its value here, naming it. PR-2 records a new run under the new rules, points runId at it and raises these values to the acceptance bar (truth/targets.json). Metrics are percentages on the golden set (see lib/score.cjs headline()); written by `node server/eval/golden/goldenGate.cjs --write-floor`.",
+ "runId": "2026-10-05.A-flash-dynamic",
+ "metrics": {
+  "mcq": 98.1,
+  "total_exact": 73.6,
+  "within_half": 88.5,
+  "wrong_step": 67.2,
+  "type": 71.3,
+  "comments_det": 77.7,
+  "consistency": 67.7,
+  "run_to_run": 95,
+  "single_vs_set": 75.9,
+  "injection": 63.9,
+  "m13_declined": 66.7,
+  "owner_within_half": 0,
+  "chapter": 95.3,
+  "no_false_mismatch": 100,
+  "mismatch_detect": null,
+  "mismatch_legacy": null
+ },
+ "generatedAt": "2026-10-05T07:57:37.509Z",
+ "extraRuns": [
+  {
+   "label": "owner_diag",
+   "runId": "2026-10-05.A-flash-owner-diag-180s",
+   "keys": [
+    "owner_within_half"
+   ],
+   "note": "owner-anomaly-01 graded with a 180 s provider timeout (diagnostic, NOT production settings): production times this paper out at 55 s on every baseline run, so the owner within-1/2 check needs these graded outputs to be live.",
+   "metrics": {
+    "owner_within_half": 60
+   }
+  }
+ ]
+}

@@ -1,0 +1,251 @@
+'use strict';
+// lib/planner.cjs — the golden job plan: which requests are sent, through which entry
+// point, in which surface's request shape. DETERMINISTIC (no clock, no randomness), so
+// the request a LIVE run sent can be re-derived byte-for-byte at REPLAY time (the stored
+// `requestDigest` proves it).
+//
+// Request shapes follow the client call sites tabled in P15 (field lists read at
+// 53fe4d22; see README.md "Request shapes"):
+//   CI-SINGLE   DesktopCheckImprovePage.tsx:1771-1781  question/subject/topic/marks/objective?/answer
+//               (= signed-out free check, QR answer hand-off and Tutor overlay: identical body)
+//   HPQ         SolutionChecker.tsx:652-668            question/marks/subject/topic/solutionSteps/finalAnswer/answer
+//   PARITY      /api/grade-worksheet carrying EXACTLY the CI-SINGLE content per question
+//               (typed batch / per-question photo uploads) — the single-vs-set agreement probe
+//   QP-BATCH    quickPracticeSessionService.ts:458-488, :741-752  bank fields + textAnswer + pickedOption + uploads[]
+//   WS/CT/FM    worksheetGradeService.ts:103-129 / chapterTestGradeService.ts:248-265 / fullMockGradeService.ts:148-165
+//               bank fields + ONE application/pdf
+//   CI-MULTI    DesktopCheckImprovePage.tsx:1565-1580  detect questions, session-topic labels, objective boolean, ONE document
+//   DETECT      DesktopCheckImprovePage.tsx:1285-1291 + checkImproveDetection.ts:129  question/topicVocabulary (+ question photo)
+
+const fs = require('fs');
+const crypto = require('crypto');
+const { load, goldenFile } = require('./data.cjs');
+const { jpegsToPdf } = require('./pdf.cjs');
+
+const b64 = (rel) => fs.readFileSync(goldenFile(rel)).toString('base64');
+
+// Stable JSON for digests: keys sorted recursively.
+function stable(v) {
+  if (Array.isArray(v)) return '[' + v.map(stable).join(',') + ']';
+  if (v && typeof v === 'object') {
+    return '{' + Object.keys(v).sort().map((k) => JSON.stringify(k) + ':' + stable(v[k])).join(',') + '}';
+  }
+  return JSON.stringify(v);
+}
+function digest(obj) {
+  return crypto.createHash('sha256').update(stable(obj)).digest('hex');
+}
+
+// Set composition (fixed; listed in README.md).
+const HPQ_CASES = ['GS-M10-a', 'GS-M12-a', 'GS-M15-a', 'GS-S08-a', 'GS-S09-a', 'GS-S16-a'];
+const QP_SETS = [
+  { setId: 'QPM', subject: 'Maths', typed: ['GS-M04-a', 'GS-M05-a', 'GS-M17-a'], photo: ['GS-M08-a'] },
+  { setId: 'QPS', subject: 'Science', typed: ['GS-S01-a', 'GS-S06-b', 'GS-S09-b', 'GS-S13-a'], photo: [] },
+];
+const DOC_SETS = [
+  { setId: 'WS1', surface: 'WS', subject: 'Science', cases: ['GS-S06-a', 'GS-S14-a'] },
+  { setId: 'CT1', surface: 'CT', subject: 'Science', cases: ['GS-S10-a', 'GS-S05-a'] },
+  { setId: 'FM1', surface: 'FM', subject: 'Maths', cases: ['GS-M13-a', 'GS-M08-a'] },
+];
+const CI_MULTI_SETS = [
+  { setId: 'CMM', subject: 'Maths', cases: ['GS-M09-b', 'GS-M20-a', 'GS-M24-a'] },
+  { setId: 'CMS', subject: 'Science', cases: ['GS-S03-a', 'GS-S05-a'] },
+];
+const PARITY_SET_SIZE = 4;
+
+function answerPartSingle(c) {
+  if (c.mode === 'typed') return { textAnswer: c.textAnswer };
+  return { imageBase64: b64(c.imageCompressed), imageMimeType: 'image/jpeg' };
+}
+
+function paritySets(cases) {
+  const out = [];
+  for (const subject of ['Maths', 'Science']) {
+    const list = cases.filter((c) => c.subject === subject).map((c) => c.caseId);
+    const groups = [];
+    for (let i = 0; i < list.length; i += PARITY_SET_SIZE) groups.push(list.slice(i, i + PARITY_SET_SIZE));
+    // A trailing single question would be a set of one; fold it into the previous set.
+    if (groups.length > 1 && groups[groups.length - 1].length === 1) groups[groups.length - 2].push(groups.pop()[0]);
+    groups.forEach((g, i) => out.push({ setId: 'PAR' + subject[0] + (i + 1), subject, cases: g }));
+  }
+  return out;
+}
+
+function docPdf(caseIds, byId) {
+  const pages = caseIds.map((cid, i) => ({ jpeg: fs.readFileSync(goldenFile(byId[cid].imageCompressed)), label: 'Q' + (i + 1) + '.' }));
+  return jpegsToPdf(pages).toString('base64');
+}
+
+/**
+ * @param {{ includeDetect?: boolean, filter?: ((jobKey: string) => boolean)|null }} opts
+ * @returns {Array<{jobKey:string, entry:'single'|'set'|'detect', handler:string, surface:string, caseIds:string[], qNumbers:Object, request:Object, requestDigest:string}>}
+ */
+function buildPlan(opts = {}) {
+  const G = load();
+  const byId = G.casesById;
+  const jobs = [];
+  const push = (job) => {
+    job.requestDigest = digest(job.request);
+    if (!opts.filter || opts.filter(job.jobKey)) jobs.push(job);
+  };
+
+  // ── single entry: /api/check-solution (handleCheckSolution) ───────────────
+  for (const c of G.cases) {
+    push({
+      jobKey: 'S.CI.' + c.caseId, entry: 'single', handler: 'handleCheckSolution', surface: 'CI-SINGLE',
+      caseIds: [c.caseId], qNumbers: { [c.caseId]: 1 },
+      request: {
+        question: c.questionText,
+        subject: c.subject,
+        topic: c.detect.topicName,
+        marks: c.marks,
+        ...(c.detect.objective === true ? { objective: true } : {}),
+        ...answerPartSingle(c),
+      },
+    });
+  }
+  for (const cid of HPQ_CASES) {
+    const c = byId[cid];
+    push({
+      jobKey: 'S.HPQ.' + cid, entry: 'single', handler: 'handleCheckSolution', surface: 'HPQ',
+      caseIds: [cid], qNumbers: { [cid]: 1 },
+      request: {
+        question: c.questionText, marks: c.marks, subject: c.subject, topic: c.chapterName,
+        solutionSteps: c.schemeSteps, finalAnswer: c.finalAnswer, ...answerPartSingle(c),
+      },
+    });
+  }
+  const materialiseProbe = (p) => {
+    const q = JSON.parse(JSON.stringify(p.payload));
+    if (q.__imageFile) { q.imageBase64 = b64(q.__imageFile); q.imageMimeType = q.__imageMime || 'image/jpeg'; delete q.__imageFile; delete q.__imageMime; }
+    if (Array.isArray(q.uploads)) {
+      q.uploads = q.uploads.map((u) => (u.__imageFile ? { qNumber: u.qNumber, imageBase64: b64(u.__imageFile), imageMimeType: u.__imageMime || 'image/jpeg' } : u));
+    }
+    return q;
+  };
+  for (const p of G.probes.probes.filter((x) => x.entry === 'single')) {
+    push({ jobKey: 'S.INJ.' + p.probeId, entry: 'single', handler: 'handleCheckSolution', surface: 'INJECTION',
+      caseIds: [p.probeId], qNumbers: { [p.probeId]: 1 }, request: materialiseProbe(p) });
+  }
+
+  // ── set entry: /api/grade-worksheet (handleGradeWorksheet) ────────────────
+  for (const s of paritySets(G.cases)) {
+    const questions = []; const uploads = []; const qNumbers = {};
+    s.cases.forEach((cid, i) => {
+      const c = byId[cid]; const n = i + 1; qNumbers[cid] = n;
+      const q = { qNumber: n, marks: c.marks, questionText: c.questionText, topic: c.detect.topicName, topicLabel: c.detect.topicName,
+        ...(c.detect.objective === true ? { objective: true } : {}) };
+      if (c.mode === 'typed') q.textAnswer = c.textAnswer;
+      else uploads.push({ qNumber: n, imageBase64: b64(c.imageCompressed), imageMimeType: 'image/jpeg' });
+      questions.push(q);
+    });
+    push({ jobKey: 'W.PAR.' + s.setId, entry: 'set', handler: 'handleGradeWorksheet', surface: 'PARITY', caseIds: s.cases, qNumbers,
+      request: { worksheetId: 'golden-parity-' + s.setId, subject: s.subject, questions, ...(uploads.length ? { uploads } : {}) } });
+  }
+  for (const s of QP_SETS) {
+    const all = s.typed.concat(s.photo);
+    const questions = []; const uploads = []; const qNumbers = {};
+    all.forEach((cid, i) => {
+      const c = byId[cid]; const n = i + 1; qNumbers[cid] = n;
+      const q = { qNumber: n, marks: c.marks, questionText: c.questionText, topicLabel: c.chapterName };
+      if (c.section) q.section = c.section;
+      if (c.objective) { q.answer = c.answerText; q.options = c.options; q.objective = true; }
+      if (c.schemeSteps.length) q.solutionSteps = c.schemeSteps;
+      if (c.finalAnswer) q.finalAnswer = c.finalAnswer;
+      if (c.mode === 'typed') q.textAnswer = c.textAnswer;
+      else uploads.push({ qNumber: n, imageBase64: b64(c.imageCompressed), imageMimeType: 'image/jpeg' });
+      if (c.objective && c.studentOption && c.optionLetters) {
+        const k = c.optionLetters.indexOf(c.studentOption);
+        if (k >= 0) q.pickedOption = c.options[k];
+      }
+      questions.push(q);
+    });
+    push({ jobKey: 'W.QP.' + s.setId, entry: 'set', handler: 'handleGradeWorksheet', surface: 'QP-BATCH', caseIds: all, qNumbers,
+      request: { worksheetId: 'qp-golden-' + s.setId, subject: s.subject, questions, ...(uploads.length ? { uploads } : {}) } });
+  }
+  for (const s of DOC_SETS) {
+    const qNumbers = {};
+    const questions = s.cases.map((cid, i) => {
+      const c = byId[cid]; qNumbers[cid] = i + 1;
+      return { qNumber: i + 1, marks: c.marks, topic: c.chapterName, topicLabel: c.chapterName, questionText: c.questionText,
+        section: c.section, ...(c.objective ? { answer: c.answerText, options: c.options } : {}),
+        solutionSteps: c.schemeSteps, finalAnswer: c.finalAnswer };
+    });
+    push({ jobKey: 'W.' + s.surface + '.' + s.setId, entry: 'set', handler: 'handleGradeWorksheet', surface: s.surface, caseIds: s.cases, qNumbers,
+      request: { worksheetId: s.surface.toLowerCase() + '-golden-' + s.setId, subject: s.subject, questions,
+        imageBase64: docPdf(s.cases, byId), imageMimeType: 'application/pdf' } });
+  }
+  for (const s of CI_MULTI_SETS) {
+    const first = byId[s.cases[0]];
+    const sessionTopic = first.detect.topicName;
+    const qNumbers = {};
+    const questions = s.cases.map((cid, i) => {
+      const c = byId[cid]; qNumbers[cid] = i + 1;
+      return { qNumber: i + 1, marks: c.marks, topic: sessionTopic, topicLabel: sessionTopic, questionText: c.questionText,
+        objective: c.detect.objective === true };
+    });
+    push({ jobKey: 'W.CIM.' + s.setId, entry: 'set', handler: 'handleGradeWorksheet', surface: 'CI-MULTI', caseIds: s.cases, qNumbers,
+      request: { worksheetId: 'ci:GOLDEN-' + s.setId, subject: s.subject, questions, imageBase64: docPdf(s.cases, byId), imageMimeType: 'application/pdf' } });
+  }
+  {
+    const oa = G.owner;
+    const qNumbers = {};
+    const questions = oa.questions.map((q) => {
+      qNumbers['OA-01.Q' + q.qNumber] = q.qNumber;
+      return { qNumber: q.qNumber, marks: q.marks, topic: oa.requestShape.sessionTopic, topicLabel: oa.requestShape.sessionTopic,
+        questionText: q.questionText, objective: q.objective === true };
+    });
+    push({ jobKey: 'W.CIM.OA-01', entry: 'set', handler: 'handleGradeWorksheet', surface: 'CI-MULTI-OWNER', caseIds: Object.keys(qNumbers), qNumbers,
+      request: { worksheetId: 'ci:GOLDEN-OA-01', subject: oa.requestShape.subject, questions,
+        imageBase64: b64(oa.files.answers), imageMimeType: 'application/pdf' } });
+  }
+  for (const p of G.probes.probes.filter((x) => x.entry === 'set')) {
+    push({ jobKey: 'W.INJ.' + p.probeId, entry: 'set', handler: 'handleGradeWorksheet', surface: 'INJECTION',
+      caseIds: [p.probeId], qNumbers: { [p.probeId]: 1 }, request: materialiseProbe(p) });
+  }
+
+  // ── answer-question MISMATCH (owner addendum 2026-10-05; truth/mismatch.json) ─
+  // Same request shapes as CI-SINGLE (single entry) and PARITY (set entry); M5 is set only.
+  const singleAnswer = (a) => (a.mode === 'typed' ? { textAnswer: a.text } : { imageBase64: b64(a.file), imageMimeType: a.mime });
+  for (const m of G.mismatch) {
+    if (m.entries.includes('single') && m.resolved) {
+      const r = m.resolved;
+      push({ jobKey: 'S.MM.' + m.caseId, entry: 'single', handler: 'handleCheckSolution', surface: 'MISMATCH', caseIds: [m.caseId], qNumbers: { [m.caseId]: 1 },
+        request: { question: r.questionText, subject: r.subject, topic: r.topic, marks: r.marks, ...(r.objective ? { objective: true } : {}), ...singleAnswer(r.answer) } });
+    }
+    if (m.entries.includes('set')) {
+      const qs = m.resolvedQuestions || [{ qNumber: 1, ...m.resolved }];
+      const questions = []; const uploads = []; const qNumbers = {}; const caseIds = [];
+      for (const q of qs) {
+        const cid = m.resolvedQuestions ? m.caseId + '.Q' + q.qNumber : m.caseId;
+        caseIds.push(cid); qNumbers[cid] = q.qNumber;
+        const one = { qNumber: q.qNumber, marks: q.marks, questionText: q.questionText, topic: q.topic, topicLabel: q.topic, ...(q.objective ? { objective: true } : {}) };
+        if (q.answer.mode === 'typed') one.textAnswer = q.answer.text;
+        else uploads.push({ qNumber: q.qNumber, imageBase64: b64(q.answer.file), imageMimeType: q.answer.mime });
+        questions.push(one);
+      }
+      push({ jobKey: 'W.MM.' + m.caseId, entry: 'set', handler: 'handleGradeWorksheet', surface: 'MISMATCH', caseIds, qNumbers,
+        request: { worksheetId: 'golden-mm-' + m.caseId, subject: m.subject || qs[0].subject, questions, ...(uploads.length ? { uploads } : {}) } });
+    }
+  }
+
+  // ── detect: /api/detect-question (handleDetectQuestion) — chapter / marks / owner paper ─
+  if (opts.includeDetect) {
+    const seen = new Set();
+    for (const c of G.cases) {
+      if (seen.has(c.itemId)) continue;
+      seen.add(c.itemId);
+      push({ jobKey: 'D.ITEM.' + c.itemId, entry: 'detect', handler: 'handleDetectQuestion', surface: 'DETECT', caseIds: [c.caseId], qNumbers: {},
+        request: { question: c.questionText, topicVocabulary: G.vocab } });
+    }
+    push({ jobKey: 'D.PAPER.OA-01', entry: 'detect', handler: 'handleDetectQuestion', surface: 'DETECT-PAPER', caseIds: ['OA-01'], qNumbers: {},
+      request: { imageBase64: b64(G.owner.files.questions), imageMimeType: 'application/pdf', topicVocabulary: G.vocab } });
+    for (const q of G.owner.questions) {
+      push({ jobKey: 'D.OAQ.' + q.qNumber, entry: 'detect', handler: 'handleDetectQuestion', surface: 'DETECT-PER-QUESTION', caseIds: ['OA-01.Q' + q.qNumber], qNumbers: {},
+        request: { question: q.questionText, topicVocabulary: G.vocab } });
+    }
+  }
+  return jobs;
+}
+
+module.exports = { buildPlan, digest, stable, HPQ_CASES, QP_SETS, DOC_SETS, CI_MULTI_SETS, paritySets };

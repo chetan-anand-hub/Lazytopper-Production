@@ -1,0 +1,34 @@
+{
+ "runId": "2026-10-05.A-flash-dynamic",
+ "config": {
+  "id": "A-flash-dynamic",
+  "model": "gemini-2.5-flash",
+  "thinkingBudget": null,
+  "label": "gemini-2.5-flash, dynamic thinking (production default)"
+ },
+ "createdAt": "2026-10-05T06:12:48.006Z",
+ "dry": false,
+ "note": "Runs under the CURRENT (pre-GRADER-CORE-1) prompts and post-processing: these outputs measure the model's reading and judgement under today's rules.",
+ "serverFileSha256LF": {
+  "routes/checkSolution.cjs": "2c6d622d98f610d1637b1350e7e9b999317545dc44ee55629b9cdcf2e7c12838",
+  "routes/objectiveScoring.cjs": "abcc82b24dfeed634803cb96d22e1d8f7643159a53b7b6ac34d5cde96a4fffae",
+  "services/geminiClient.cjs": "a55643a2fd0527ae246a592b618489841d1d8c70c38376c823695ae8d4c69480",
+  "services/serverConfig.cjs": "5c0dd80b1c76220c59c485e5fe053b04643681c880632904619a381b5fdf4174",
+  "services/httpUtils.cjs": "ca02bfeaedf71b47ea7f08cad526bd39db61a2920e5353d7bfaecab7116c6e54",
+  "mentorImageSupport.cjs": "105f1192a95789ba650b55067131b4e45d39aeaada640ad385552545b10b764b",
+  "services/serverUtils.cjs": "802142b6aadf83c23c2cb3324160b8ee0ce7675c6e2725279318e928de43e068"
+ },
+ "timeoutMs": 55000,
+ "concurrency": 4,
+ "runsPlanned": 1,
+ "ledger": "a15-pr1-golden-eval.jsonl",
+ "stubs": "no fair-use/idempotency/entitlement middleware (handler called directly); solution cache returns null (production with no DATABASE_URL)",
+ "completedAt": "2026-10-05T06:39:16.963Z",
+ "httpStats": {
+  "http": 344,
+  "ok": 337,
+  "status429": 0,
+  "timeouts": 6,
+  "errors": 7
+ }
+}

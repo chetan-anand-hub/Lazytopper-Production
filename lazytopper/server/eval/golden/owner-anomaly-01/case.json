@@ -1,0 +1,267 @@
+{
+  "caseId": "OA-01",
+  "label": "REAL",
+  "provenance": "Owner-supplied on 5 Oct 2026: the owner's own 10-question mixed Maths + Science paper graded through live Check & Improve (13.5/24 returned vs 15 expected). Files: LazyTopper_Test_Questions.pdf (question paper), LazyTopper_Test_Answers_handwritten.pdf (answer sheet, 3 pages), lazytopper-real-numbers-check-improve-paper-graded.pdf (what the grader returned), expected-key.md (the owner's expected key, verbatim).",
+  "renderingNote": "REAL means owner-supplied, not synthetic-by-the-audit. The three answer pages are A4 page images (1240x1754 JPEG, no EXIF) written in a handwriting-style typeface on a clean background: they are not phone photographs, so this case does not establish real-photo reading (audit section 8, fact 1, stays open).",
+  "piiCheck": "2026-10-05 builder a15-pr1-golden-eval: every page of all three PDFs rendered and read; no name, email, phone, school or account identifier; no EXIF/XMP/GPS in any embedded image; no embedded files, annotations or links. 'CI-M-REAL-03' on the graded PDF is the app's Check & Improve paper code, not a person or account. All three files committed.",
+  "surface": "CI-MULTI",
+  "files": {
+    "questions": "owner-anomaly-01/LazyTopper_Test_Questions.pdf",
+    "answers": "owner-anomaly-01/LazyTopper_Test_Answers_handwritten.pdf",
+    "graderReturned": "owner-anomaly-01/lazytopper-real-numbers-check-improve-paper-graded.pdf",
+    "key": "owner-anomaly-01/expected-key.md"
+  },
+  "paper": {
+    "printedMaximum": 25,
+    "trueTotal": 24,
+    "note": "The header's 'Maximum marks: 25' is a typo in the generated paper (owner key); the ten printed marks sum to 24."
+  },
+  "requestShape": {
+    "why": "The real C&I multi request: questions from the paper detect, every block labelled with the SESSION topic, ONE answer document. Grading is isolated from detection: the question texts are the TRUE printed texts (minus signs intact) and the printed marks, so this case measures the grader (PR-2) while detection is measured separately below (PR-3, C10).",
+    "subject": "Maths",
+    "sessionTopic": "Real Numbers",
+    "answerDocumentMime": "application/pdf"
+  },
+  "expectedTotal": 15,
+  "graderGaveLive": 13.5,
+  "questions": [
+    {
+      "qNumber": 1,
+      "marks": 1,
+      "subject": "Maths",
+      "chapterKey": "real-numbers",
+      "chapterName": "Real Numbers",
+      "questionText": "The HCF of 6 and 20 is:\n(a) 1    (b) 2    (c) 4    (d) 120",
+      "objective": true,
+      "correctOption": "b",
+      "expected": {
+        "totalMarks": 1,
+        "status": "graded",
+        "mistakeType": null,
+        "wrongStep": null,
+        "pinnedBy": "owner-key"
+      },
+      "graderGaveLive": 1,
+      "answerTranscript": "Q1. (b) 2"
+    },
+    {
+      "qNumber": 2,
+      "marks": 2,
+      "subject": "Maths",
+      "chapterKey": "quadratic-equations",
+      "chapterName": "Quadratic Equations",
+      "questionText": "Find the roots of the quadratic equation 2x² − 7x + 3 = 0 by factorisation.",
+      "minusSignsRequired": [
+        "− 7x",
+        "-7x",
+        "−7x",
+        "- 7x"
+      ],
+      "expected": {
+        "totalMarks": 1.5,
+        "status": "graded",
+        "mistakeType": "silly",
+        "wrongStep": "the first line 2x² − 7x + 5 = 0 (the +3 copied as +5)",
+        "locator": "\\+\\s*5\\b|cop(y|ied)|miscop|\\b5\\s*=\\s*0",
+        "departureKind": null,
+        "pinnedBy": "owner-key (marks, type); wrong step named by the key's 'copied 2x²−7x+3 as …+5'",
+        "note": "Ruling (2): the miscopy is penalised once; the consistent factorisation and roots earn ECF. The live grader's 'different equation' departure (0/2) is the defect."
+      },
+      "graderGaveLive": 0,
+      "answerTranscript": "Q2. 2x² − 7x + 5 = 0\n2x² − 2x − 5x + 5 = 0\n2x(x − 1) − 5(x − 1) = 0\n(2x − 5)(x − 1) = 0\nx = 5/2 , x = 1"
+    },
+    {
+      "qNumber": 3,
+      "marks": 3,
+      "subject": "Maths",
+      "chapterKey": "arithmetic-progression",
+      "chapterName": "Arithmetic Progression",
+      "questionText": "Find the sum of the first 20 terms of the AP: 3, 7, 11, 15, …",
+      "expected": {
+        "totalMarks": 2,
+        "status": "graded",
+        "mistakeType": "calculation",
+        "wrongStep": "= 10 [6 + 72] (19 × 4 written as 72)",
+        "locator": "\\b72\\b|19\\s*[×x*]\\s*4|\\b780\\b",
+        "pinnedBy": "owner-key (marks, type, the 19×4 = 72 line)"
+      },
+      "graderGaveLive": 3,
+      "answerTranscript": "Q3. a = 3 , d = 7 − 3 = 4 , n = 20\nSn = n/2 [2a + (n − 1)d]\nS20 = 20/2 [2×3 + 19×4]\n= 10 [6 + 72]\n= 10 × 78 = 780"
+    },
+    {
+      "qNumber": 4,
+      "marks": 3,
+      "subject": "Maths",
+      "chapterKey": "trigonometry",
+      "chapterName": "Trigonometry",
+      "questionText": "If sin A = 3/5, find the values of cos A, tan A and sec A.",
+      "expected": {
+        "totalMarks": 1,
+        "status": "graded",
+        "mistakeType": "conceptual",
+        "wrongStep": "cos A = 1 − sin A = 1 − 3/5 = 2/5 (wrong identity)",
+        "locator": "cos\\s*A\\s*=\\s*1\\s*[−-]\\s*sin|2\\s*/\\s*5|identit",
+        "perStepBuilder": [
+          {
+            "step": "cos A",
+            "awarded": 0,
+            "why": "wrong identity (cos A = 1 − sin A)"
+          },
+          {
+            "step": "tan A",
+            "awarded": 0.5,
+            "why": "correct method tan = sin/cos with the carried value 2/5 (ECF)"
+          },
+          {
+            "step": "sec A",
+            "awarded": 0.5,
+            "why": "correct method sec = 1/cos with the carried value (ECF)"
+          }
+        ],
+        "departureKind": null,
+        "pinnedBy": "owner-key (total 1, type); per-step split builder-from-owner-key (the key says tan/sec were 'carried consistently')"
+      },
+      "graderGaveLive": 0,
+      "answerTranscript": "Q4. sin A = 3/5\ncos A = 1 − sin A = 1 − 3/5 = 2/5\ntan A = sin A / cos A = (3/5) / (2/5) = 3/2\nsec A = 1 / cos A = 5/2"
+    },
+    {
+      "qNumber": 5,
+      "marks": 3,
+      "subject": "Science",
+      "chapterKey": "electricity",
+      "chapterName": "Electricity",
+      "questionText": "Three resistors of 2 Ω, 3 Ω and 6 Ω are connected in parallel to a 6 V battery. Find (i) the equivalent resistance of the combination and (ii) the current drawn from the battery.",
+      "expected": {
+        "totalMarks": 2.5,
+        "status": "graded",
+        "mistakeType": "presentation",
+        "wrongStep": "R = 1 / I = 6/1 = 6 written without units (Ω, A) and without the I = V/R line",
+        "locator": "\\bI\\s*=\\s*6|\\bR\\s*=\\s*1\\b|unit|ampere|\\bohm|Ω|I\\s*=\\s*V\\s*/\\s*R",
+        "pinnedBy": "owner-key (marks, type); which line carries the ½ is builder-from-owner-key (either the R or the I line is accepted)"
+      },
+      "graderGaveLive": 2.5,
+      "answerTranscript": "Q5. 1/R = 1/2 + 1/3 + 1/6\n= (3 + 2 + 1)/6 = 6/6 = 1\nR = 1\nI = 6/1 = 6"
+    },
+    {
+      "qNumber": 6,
+      "marks": 2,
+      "subject": "Maths",
+      "chapterKey": "coordinate-geometry",
+      "chapterName": "Coordinate Geometry",
+      "questionText": "Find the coordinates of the point which divides the line segment joining (2, −3) and (5, 6) internally in the ratio 2 : 1.",
+      "minusSignsRequired": [
+        "−3",
+        "-3",
+        "− 3",
+        "- 3"
+      ],
+      "expected": {
+        "totalMarks": 0,
+        "status": "unattempted",
+        "mistakeType": null,
+        "wrongStep": null,
+        "pinnedBy": "owner-key ('Don't know' = unattempted, no type, shown as unattempted)",
+        "note": "Marks 0, no mistake type. Showing it as 'Incorrect −2' is a defect; the unattempted STATUS is scored only on acceptsV2 responses."
+      },
+      "graderGaveLive": 0,
+      "answerTranscript": "Q6. Don't know"
+    },
+    {
+      "qNumber": 7,
+      "marks": 2,
+      "subject": "Science",
+      "chapterKey": "chemical-reactions-and-equations",
+      "chapterName": "Chemical Reactions & Equations",
+      "questionText": "Balance the following chemical equation and state the type of reaction:\nFe + H₂O → Fe₃O₄ + H₂",
+      "expected": {
+        "totalMarks": 2,
+        "status": "graded",
+        "mistakeType": null,
+        "wrongStep": null,
+        "crossedOut": {
+          "struckText": "Fe + 4H₂O → Fe₃O₄ + 4H₂",
+          "rule": "ruling (4): the struck first attempt is not assessed and must not be merged into the answer step",
+          "mergedLocator": "Fe\\s*\\+\\s*4\\s*H\\s*[₂2]\\s*O.{0,40}Fe\\s*\\+\\s*4\\s*H\\s*[₂2]\\s*O|4H2Fe|4H₂Fe|4H23Fe"
+        },
+        "pinnedBy": "owner-key"
+      },
+      "graderGaveLive": 2,
+      "answerTranscript": "Q7. [struck through: Fe + 4H₂O → Fe₃O₄ + 4H₂]\n3Fe + 4H₂O → Fe₃O₄ + 4H₂\nIt is a redox reaction."
+    },
+    {
+      "qNumber": 8,
+      "marks": 2,
+      "subject": "Science",
+      "chapterKey": "life-processes",
+      "chapterName": "Life Processes",
+      "questionText": "Why is the wall of the left ventricle of the human heart thicker than that of the right ventricle?",
+      "expected": {
+        "totalMarks": 2,
+        "status": "graded",
+        "mistakeType": null,
+        "wrongStep": null,
+        "pinnedBy": "owner-key"
+      },
+      "graderGaveLive": 2,
+      "answerTranscript": "Q8. The left ventricle pumps oxygenated blood to all parts of the body, so it has to pump with more force. The right ventricle pumps blood only to the lungs. So the left wall is thicker."
+    },
+    {
+      "qNumber": 9,
+      "marks": 3,
+      "subject": "Maths",
+      "chapterKey": "probability",
+      "chapterName": "Probability",
+      "questionText": "(i) Two dice are thrown together. Find the probability of getting a sum of 7. [2]\n(ii) A bag contains 5 red and 3 blue balls. One ball is drawn at random. Find the probability that it is blue. [1]",
+      "expected": {
+        "totalMarks": 2,
+        "status": "graded",
+        "mistakeType": "calculation",
+        "wrongStep": "Sum 7 : (1,6) (2,5) (3,4) (4,3) (5,2) — (6,1) missed",
+        "locator": "\\(\\s*6\\s*,\\s*1\\s*\\)|5\\s*/\\s*36|favou?rable|missed|six outcomes|6 outcomes",
+        "perPart": [
+          {
+            "part": "(i)",
+            "max": 2,
+            "awarded": 1
+          },
+          {
+            "part": "(ii)",
+            "max": 1,
+            "awarded": 1
+          }
+        ],
+        "pinnedBy": "owner-key (marks per part, type, the missed (6,1))"
+      },
+      "graderGaveLive": 2.5,
+      "answerTranscript": "Q9. (i) Total outcomes = 36\nSum 7 : (1,6) (2,5) (3,4) (4,3) (5,2)\nP(sum 7) = 5/36\n(ii) Total balls = 5 + 3 = 8\nP(blue) = 3/8"
+    },
+    {
+      "qNumber": 10,
+      "marks": 3,
+      "subject": "Science",
+      "chapterKey": "light-reflection-and-refraction",
+      "chapterName": "Light - Reflection & Refraction",
+      "questionText": "An object is placed 20 cm in front of a concave mirror of focal length 15 cm. Find the position of the image.",
+      "expected": {
+        "totalMarks": 1,
+        "status": "graded",
+        "mistakeType": "conceptual",
+        "wrongStep": "u = 20 cm (sign convention: u must be −20 cm)",
+        "locator": "u\\s*=\\s*\\+?\\s*20\\b|sign convention|sign",
+        "departureKind": null,
+        "pinnedBy": "owner-key (total 1 = the formula mark, type); the key calls the live 'different equation' note false",
+        "note": "The owner's key awards only the mirror-formula mark here; no departure sentence is true for this answer."
+      },
+      "graderGaveLive": 0.5,
+      "answerTranscript": "Q10. u = 20 cm , f = −15 cm\n1/v + 1/u = 1/f\n1/v = 1/f − 1/u = −1/15 − 1/20\n= (−4 − 3)/60 = −7/60\nv = −60/7 = −8.57 cm\nImage is 8.57 cm in front of the mirror."
+    }
+  ],
+  "detection": {
+    "expectedQuestionCount": 10,
+    "expectedSubjectsPerQuestion": "6 Maths (Q1, Q2, Q3, Q4, Q6, Q9) + 4 Science (Q5, Q7, Q8, Q10) = 10 chapters",
+    "subjectCountNote": "The owner key says '5 of 10 questions are Science' and the wave brief says '5 Maths, 5 Science'. Counting the paper: Q5 Electricity, Q7 Chemical Reactions, Q8 Life Processes and Q10 Light are Science (4); Q1, Q2, Q3, Q4, Q6, Q9 are Maths (6). The paper wins; the per-question truth above follows it.",
+    "liveDefects": "Whole paper detected as 'Maths · Real Numbers'; minus signs lost in Q2 ('2x² 7x + 3') and Q6 ('(2, 3)'); 'Grading unavailable' on 3 of 4 presses (desktop width)."
+  },
+  "scorecardExpected": "By the owner's taxonomy: 2 knowledge gaps (Q4, Q10), 2 careless (Q2 silly, Q9 calculation), 1 exam technique (Q5), counted in MARKS lost; Q6 shown as unattempted. (A client concern for Controller B; recorded here as truth.)",
+  "answerTranscriptNote": "answerTranscript = what is written on the answer pages, transcribed by builder a15-pr1-golden-eval from the rendered pages (page 1: Q1-Q4, page 2: Q5-Q9, page 3: Q10). Used as the ground truth of \"what is on the page\" by the comment / reading truth rules."
+}

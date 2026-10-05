@@ -1,0 +1,318 @@
+{
+  "_about": "Owner rulings of 5 Oct 2026 (GRADER-CORE-1 spec WHY, rulings (2)-(7)) applied to the examiner-verified expectations (data/verify/items.verified.json + data/supplement/items.supplement.json). The loader (lib/data.cjs applyRepins) applies each row ONLY if the current value still equals `old`, and throws otherwise, so a later edit to the verified set cannot be silently overwritten. Rows with `kind: settled` change no value: the ruling settles a contest the audit left open in favour of the verified value, so `contested` becomes false. Rows with `kind: added` add a field the verified set did not carry (v2-only fields are scored only on responses produced with acceptsV2). Cases the rulings do not settle keep their verified value and are listed under `unsettled`.",
+  "rulings": {
+    "2": "A miscopied value is penalised ONCE (silly); the work after it earns ECF marks.",
+    "3": "A wrongly formed equation then solved correctly loses the forming marks and earns the solving marks (ECF). 'Departure = zero' is kept ONLY for answering a different problem or using an invalid method.",
+    "4": "Crossed-out / withdrawn work is not assessed.",
+    "5": "No deduction for missing state symbols.",
+    "6": "Maths units follow the question's scheme; a silent scheme means no deduction. Science keeps unit deductions.",
+    "7": "Mistake type: copied wrongly = silly, performed wrongly = calculation, method misunderstood = conceptual, CBSE format only = presentation, unattempted = no type."
+  },
+  "repins": [
+    {
+      "caseId": "GS-M15-a",
+      "kind": "changed",
+      "field": "totalMarks",
+      "old": 0.5,
+      "new": 2,
+      "ruling": "3",
+      "basis": "The times are reversed (480/x - 480/(x-8) = 3): a wrongly FORMED equation for the same problem, not a different problem and not an invalid method. The forming marks (step 2, 1.5) are lost; x^2 - 8x + 1280 = 0 is correctly derived from the student's own equation and earns the solving mark (step 3, 1.5, ECF). Steps 4-5 stay 0 because (x - 40)(x + 32) is not a factorisation of the student's quadratic (fudged), so the final 40 km/h is not 'solved correctly'. This equals the CBSE-instruction-10 alternative the verifier recorded (2/5)."
+    },
+    {
+      "caseId": "GS-M15-a",
+      "kind": "changed",
+      "field": "perStep.3.awarded",
+      "old": 0,
+      "new": 1.5,
+      "ruling": "3",
+      "basis": "ECF on the solving step (see the totalMarks row)."
+    },
+    {
+      "caseId": "GS-M15-a",
+      "kind": "changed",
+      "field": "departure",
+      "old": {
+        "atStep": 2,
+        "returnsAtStep": null
+      },
+      "new": null,
+      "ruling": "3",
+      "basis": "Not a departure under ruling 3: same problem, valid method, wrong equation formed."
+    },
+    {
+      "caseId": "GS-M15-a",
+      "kind": "changed",
+      "field": "departureFlagRequired",
+      "old": true,
+      "new": false,
+      "ruling": "3",
+      "basis": "A departure flag is no longer required (or correct) here; the grader should charge the forming step once and carry the error forward."
+    },
+    {
+      "caseId": "GS-M15-a",
+      "kind": "changed",
+      "field": "contested",
+      "old": true,
+      "new": false,
+      "ruling": "3",
+      "basis": "Ruling 3 settles the marks contest in favour of the CBSE ECF view."
+    },
+    {
+      "caseId": "GS-M07-a",
+      "kind": "settled",
+      "field": "contested",
+      "old": true,
+      "new": false,
+      "ruling": "2",
+      "basis": "Miscopied PR = 9 for 6: penalised once (silly), ECF on the rest. Verified value 1.5/2 silly stands; the app's miscopy-as-departure view (0/2) is overruled."
+    },
+    {
+      "caseId": "GS-SUP-03",
+      "kind": "settled",
+      "field": "contested",
+      "old": true,
+      "new": false,
+      "ruling": "2",
+      "basis": "u copied as -90 for -60: penalised once (silly), v = -22.5 cm earns ECF. Verified value 1.5/2 silly stands; the app view (0.5/2) is overruled."
+    },
+    {
+      "caseId": "GS-SUP-02",
+      "kind": "settled",
+      "field": "contested",
+      "old": true,
+      "new": false,
+      "ruling": "4",
+      "basis": "The P = V/I lines are explicitly withdrawn by the student and are not assessed: 4/4, no mistake type, nothing for Mistake Intelligence. App case law 2 (3.5/4) is overruled."
+    },
+    {
+      "caseId": "GS-S09-b",
+      "kind": "settled",
+      "field": "contested",
+      "old": "contested by the S6 merger (late S2b finding)",
+      "new": false,
+      "ruling": "4",
+      "basis": "The student's own self-corrected slip (2/100 struck, 1/60 + 1/40 = 5/120 rewritten) is withdrawn work: not assessed, 3/3."
+    },
+    {
+      "caseId": "GS-M08-a",
+      "kind": "settled",
+      "field": "contested",
+      "old": "contested by the S6 merger (late S2b finding)",
+      "new": false,
+      "ruling": "4",
+      "basis": "The struck-out line on the photo is not assessed: 2/2, no type."
+    },
+    {
+      "caseId": "GS-M22-a",
+      "kind": "settled",
+      "field": "contested",
+      "old": true,
+      "new": false,
+      "ruling": "7",
+      "basis": "The verification is a requested sub-task left wholly unattempted: unattempted = no type. Verified null stands; the 'presentation' alternative is overruled."
+    },
+    {
+      "caseId": "GS-M04-b",
+      "kind": "settled",
+      "field": "contested",
+      "old": true,
+      "new": false,
+      "ruling": "7",
+      "basis": "3x - 2 = 0 solved as x = 3/2 from correct factors: the solving step was PERFORMED wrongly (nothing was copied) = calculation. Verified value stands; the app's worked example calling this 'silly' is overruled."
+    },
+    {
+      "caseId": "GS-M09-b",
+      "kind": "settled",
+      "field": "contested",
+      "old": true,
+      "new": false,
+      "ruling": "7",
+      "basis": "The sign is lost while REWRITING (cos t - sin t) as (sin t - cos t) inside the student's own algebra: an operation performed wrongly = calculation, not a value copied wrongly. Verified value stands."
+    },
+    {
+      "caseId": "GS-S12-a",
+      "kind": "changed",
+      "field": "mistakeType",
+      "old": "conceptual",
+      "new": null,
+      "ruling": "7",
+      "basis": "BUILDER JUDGEMENT, flagged: the question says 'translate ... and then balance them'; the student wrote correct skeletal equations and did not attempt balancing at all (no coefficient anywhere). That is a requested sub-task left wholly unattempted, exactly the principle the verified set applied to GS-M22-a ('verify your answer' not attempted -> no type). Ruling 7 'unattempted = no type' supplies the principle the verifier said was missing. Marks unchanged (1/2)."
+    },
+    {
+      "caseId": "GS-S12-a",
+      "kind": "changed",
+      "field": "studentLabel",
+      "old": "knowledge gap",
+      "new": null,
+      "ruling": "7",
+      "basis": "Follows the mistakeType re-pin."
+    },
+    {
+      "caseId": "GS-S12-a",
+      "kind": "changed",
+      "field": "studentHeading",
+      "old": "Marks to gain — learn this",
+      "new": null,
+      "ruling": "7",
+      "basis": "Follows the mistakeType re-pin."
+    },
+    {
+      "caseId": "GS-S12-a",
+      "kind": "changed",
+      "field": "wrongStep",
+      "old": 2,
+      "new": null,
+      "ruling": "7",
+      "basis": "With the only loss on unattempted sub-tasks there is no wrong step (the same convention as GS-M22-a)."
+    },
+    {
+      "caseId": "GS-S12-a",
+      "kind": "changed",
+      "field": "unattemptedParts",
+      "old": [],
+      "new": [
+        "(i) balancing",
+        "(ii) balancing"
+      ],
+      "ruling": "7",
+      "basis": "The two balancing sub-tasks are the unattempted parts."
+    },
+    {
+      "caseId": "GS-S12-a",
+      "kind": "changed",
+      "field": "contested",
+      "old": true,
+      "new": false,
+      "ruling": "7",
+      "basis": "Settled by ruling 7 in favour of the verifier's recorded alternative (null)."
+    },
+    {
+      "caseId": "GS-M11-a",
+      "kind": "added",
+      "field": "departureKind",
+      "old": null,
+      "new": "invalid-method",
+      "ruling": "3",
+      "basis": "A calculator decimal 'proof' of irrationality is an invalid method: departure = zero is kept (0/3)."
+    },
+    {
+      "caseId": "GS-M23-a",
+      "kind": "added",
+      "field": "departureKind",
+      "old": null,
+      "new": "different-problem",
+      "ruling": "3",
+      "basis": "HCF(85, 72) is computed instead of HCF(84, 70): a different problem, departure = zero is kept (0/2)."
+    },
+    {
+      "caseId": "GS-SUP-01",
+      "kind": "added",
+      "field": "departureKind",
+      "old": null,
+      "new": "invalid-method",
+      "ruling": "3",
+      "basis": "The wrong nth-term formula a + nd is RE-APPLIED in (ii) (a wrong method, not a carried wrong value), so (i)-(ii) earn 0; the student returns at (iii) and earns normally: 2/4 unchanged. Contrast owner-anomaly-01 Q4, where a wrong value is carried into correct methods and earns ECF."
+    },
+    {
+      "caseId": "GS-M17-a",
+      "kind": "added",
+      "field": "unattemptedStatusRequired",
+      "old": null,
+      "new": true,
+      "ruling": "7",
+      "v2Only": true,
+      "basis": "Part (ii) is unattempted: a fourth state with no type (scored only on acceptsV2 responses, which carry step status 'unattempted')."
+    },
+    {
+      "caseId": "GS-M19-a",
+      "kind": "added",
+      "field": "unattemptedStatusRequired",
+      "old": null,
+      "new": true,
+      "ruling": "7",
+      "v2Only": true,
+      "basis": "Part (iii)(a) 'I don't know' is unattempted: a fourth state with no type."
+    },
+    {
+      "caseId": "GS-M22-a",
+      "kind": "added",
+      "field": "unattemptedStatusRequired",
+      "old": null,
+      "new": true,
+      "ruling": "7",
+      "v2Only": true,
+      "basis": "The verification is unattempted: a fourth state with no type."
+    },
+    {
+      "caseId": "GS-M24-a",
+      "kind": "added",
+      "field": "unattemptedStatusRequired",
+      "old": null,
+      "new": true,
+      "ruling": "7",
+      "v2Only": true,
+      "basis": "A blank page: both parts unattempted (an honest decline is also accepted, as before)."
+    },
+    {
+      "caseId": "GS-S12-a",
+      "kind": "added",
+      "field": "unattemptedStatusRequired",
+      "old": null,
+      "new": true,
+      "ruling": "7",
+      "v2Only": true,
+      "basis": "The balancing sub-tasks are unattempted."
+    },
+    {
+      "caseId": "GS-S11-a",
+      "kind": "settled",
+      "field": "stateSymbols",
+      "old": "full marks, no presentation tag (official MS note)",
+      "new": "full marks, no presentation tag",
+      "ruling": "5",
+      "basis": "No deduction for missing state symbols; a grader that tags 'presentation' for them is wrong."
+    },
+    {
+      "caseId": "GS-S08-a",
+      "kind": "settled",
+      "field": "unitDeduction",
+      "old": "-1/2 for the missing unit W",
+      "new": "-1/2 for the missing unit W",
+      "ruling": "6",
+      "basis": "Science keeps unit deductions."
+    },
+    {
+      "caseId": "GS-M13-a",
+      "kind": "added",
+      "field": "declineRequiredBy",
+      "old": null,
+      "new": [
+        "single",
+        "set"
+      ],
+      "ruling": "spec-3",
+      "basis": "GRADER-CORE-1 spec section 3: GS-M13-a (a truly illegible page) must be DECLINED by both graders (couldNotRead / honest decline), never a fabricated 0. Scored as m13_declined over every run of every surface."
+    }
+  ],
+  "unsettled": [
+    {
+      "caseId": "GS-S13-a",
+      "field": "mistakeType",
+      "keeps": "conceptual",
+      "why": "The balanced equation was asked for and written unbalanced while (c)(i) balances correctly: not 'copied wrongly', arguably not 'method misunderstood', and not an unattempted sub-task (the equation was written). The rulings do not decide between conceptual and a slip; the verified value is kept."
+    },
+    {
+      "caseId": "GS-S06-b",
+      "field": "mistakeType",
+      "keeps": "presentation",
+      "why": "'clotting cells' for 'platelets': whether a missing CBSE technical term is 'CBSE format only' (presentation) or a knowledge gap (conceptual) is not decided by the rulings; the verified value is kept."
+    },
+    {
+      "caseId": "GS-M16-a",
+      "field": "totalMarks",
+      "keeps": 5,
+      "why": "Not contested on marks: the official MS 2025 Q35 erratum (class width 3 vs 2) has no defensible alternative; the golden set follows the correct mathematics."
+    }
+  ],
+  "noMathsUnitCase": "No golden Maths case omits a unit, so ruling 6's Maths half has no golden case yet (recorded, not invented)."
+}

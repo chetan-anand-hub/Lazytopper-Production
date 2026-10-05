@@ -1,0 +1,6322 @@
+[
+ {
+  "id": "GS-M01",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2025,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Math.zip#Math/041 Mathematics Standard/X_MS_041_Mathematics Standard_30-1-1_2024-25.pdf",
+   "pdfFile": "sources/MS2025_041_30-1-1.pdf",
+   "question": "Q1",
+   "pdfPage": 3,
+   "printedPage": 3
+  },
+  "chapterTrue": {
+   "name": "Polynomials",
+   "appTopicKey": "polynomials",
+   "subtopic": "Relationship between zeroes and coefficients of a quadratic polynomial"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Quadratic zeroes-coefficient relationship is IN; only the CUBIC relationship is banned ('Zeroes and Coefficients of Cubic Polynomials'). No banned string matches."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "If α and β are the zeroes of polynomial 3x² + 6x + k such that α + β + αβ = −2/3, then the value of k is :",
+   "marks": 1,
+   "section": "A",
+   "type": "mcq",
+   "options": {
+    "A": "−8",
+    "B": "8",
+    "C": "−4",
+    "D": "4"
+   },
+   "correctOption": "D",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "(D) 4",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 3,
+     "printedPage": 3
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M01-a",
+    "probes": [
+     "mcq-correct-pick-flawed-working",
+     "mcq-objective-invariant",
+     "maths-notation"
+    ],
+    "mode": "typed",
+    "text": "α + β = −6/3 = −2\nαβ = k\n−2 + k = −2/3\nk = −2/3 + 2 = 4/3, which is about 1, so the nearest option is 4.\nAnswer: (D)",
+    "expected": {
+     "totalMarks": 1,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 1,
+       "reason": "Correct option (D) chosen. Owner ruling: an MCQ scores 0 or full on the answer alone; working never changes it."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [],
+     "objective": {
+      "correctOption": "D",
+      "studentOption": "D",
+      "expectedMarks": 1
+     },
+     "commentMayMention": [
+      "αβ should be k/3 (c/a), not k",
+      "the option was picked by approximation, not by solving"
+     ],
+     "commentMustNotClaim": [
+      "marks were deducted",
+      "the answer is wrong",
+      "a mistake cost marks"
+     ],
+     "modelAnswerKeyFacts": [
+      "α + β = −b/a = −2",
+      "αβ = c/a = k/3",
+      "−2 + k/3 = −2/3 ⇒ k = 4",
+      "correct option (D)"
+     ],
+     "examinerNote": "Correct option with flawed working: full 1 mark (MS p3 awards 1 for (D)). No marks lost, so no mistake type is recorded; a comment may point out αβ = k/3 but must not claim a deduction."
+    }
+   },
+   {
+    "caseId": "GS-M01-b",
+    "probes": [
+     "mcq-wrong-pick-good-working",
+     "mcq-objective-invariant",
+     "silly-miscopy"
+    ],
+    "mode": "typed",
+    "text": "α + β = −6/3 = −2\nαβ = k/3\nα + β + αβ = −2/3\n−2 + k/3 = −2/3\nk/3 = −2/3 + 2 = 4/3\nk = 4\nAnswer: (A)",
+    "expected": {
+     "totalMarks": 0,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0,
+       "reason": "Option (A) chosen; key is (D). Working reaches k = 4 correctly but the wrong option letter was written, so 0 (MCQ scores on the option alone)."
+      }
+     ],
+     "wrongStep": 1,
+     "mistakeType": "silly",
+     "studentLabel": "careless",
+     "studentHeading": "Marks to gain - you already know this",
+     "unattemptedParts": [],
+     "objective": {
+      "correctOption": "D",
+      "studentOption": "A",
+      "expectedMarks": 0
+     },
+     "commentMayMention": [
+      "the working correctly reaches k = 4",
+      "option (A) was written instead of (D)"
+     ],
+     "commentMustNotClaim": [
+      "the method is wrong",
+      "k was calculated incorrectly",
+      "conceptual error",
+      "partial marks for working"
+     ],
+     "modelAnswerKeyFacts": [
+      "k = 4",
+      "correct option (D)"
+     ],
+     "examinerNote": "Wrong option with correct working: 0 (owner ruling, MCQ never step-marked). The error is transcribing the student's own correct value to the wrong option letter: copied wrongly = silly (careless)."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M02",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2025,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Math.zip#Math/041 Mathematics Standard/X_MS_041_Mathematics Standard_30-1-1_2024-25.pdf",
+   "pdfFile": "sources/MS2025_041_30-1-1.pdf",
+   "question": "Q11",
+   "pdfPage": 5,
+   "printedPage": 5
+  },
+  "chapterTrue": {
+   "name": "Arithmetic Progression",
+   "appTopicKey": "arithmetic-progression",
+   "subtopic": "Sum of first n terms of an AP"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "AP sum of n terms is IN. No banned string matches."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "If the sum of first m terms of an AP is 2m² + 3m, then its second term is :",
+   "marks": 1,
+   "section": "A",
+   "type": "mcq",
+   "options": {
+    "A": "10",
+    "B": "9",
+    "C": "12",
+    "D": "4"
+   },
+   "correctOption": "B",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "(B) 9",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 5,
+     "printedPage": 5
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M02-a",
+    "probes": [
+     "mcq-correct-no-working",
+     "control-full-marks",
+     "mcq-objective-invariant"
+    ],
+    "mode": "typed",
+    "text": "(B) 9",
+    "expected": {
+     "totalMarks": 1,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 1,
+       "reason": "Correct option (B); no working is required for an MCQ."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [],
+     "objective": {
+      "correctOption": "B",
+      "studentOption": "B",
+      "expectedMarks": 1
+     },
+     "commentMayMention": [
+      "the correct option (B) 9 was chosen"
+     ],
+     "commentMustNotClaim": [
+      "working is missing and marks were lost",
+      "presentation mistake",
+      "any mistake"
+     ],
+     "modelAnswerKeyFacts": [
+      "a2 = S2 − S1 = 14 − 5 = 9",
+      "correct option (B)"
+     ],
+     "examinerNote": "Control: bare correct option = full mark. A grader must not deduct or tag 'presentation' for absent working on an MCQ."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M03",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2025,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Math.zip#Math/041 Mathematics Standard/X_MS_041_Mathematics Standard_30-1-1_2024-25.pdf",
+   "pdfFile": "sources/MS2025_041_30-1-1.pdf",
+   "question": "Q20",
+   "pdfPage": 7,
+   "printedPage": 7
+  },
+  "chapterTrue": {
+   "name": "Surface Areas and Volumes",
+   "appTopicKey": "surface-areas-and-volumes",
+   "subtopic": "Surface area of sphere / hemisphere"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Surface areas of combinations of solids are IN ('Conversion of Solids' and 'Frustum of Cone' are banned; not involved)."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "Assertion (A): If we join two hemispheres of same radius along their bases, then we get a sphere.\nReason (R): Total Surface Area of a sphere of radius r is 3πr².\nCodes: (A) Both A and R are true and R is the correct explanation of A. (B) Both A and R are true, but R is not the correct explanation of A. (C) A is true, but R is false. (D) A is false, but R is true.",
+   "marks": 1,
+   "section": "A",
+   "type": "ar",
+   "options": {
+    "A": "Both A and R true; R explains A",
+    "B": "Both true; R does not explain A",
+    "C": "A true, R false",
+    "D": "A false, R true"
+   },
+   "correctOption": "C",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "(C) Assertion (A) is true, but Reason (R) is false.",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 7,
+     "printedPage": 7
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M03-a",
+    "probes": [
+     "ar",
+     "mcq-wrong-pick-conceptual-working",
+     "conceptual",
+     "mcq-objective-invariant"
+    ],
+    "mode": "typed",
+    "text": "Each hemisphere has total surface area 3πr², so two hemispheres joined make a sphere and the sphere also has TSA 3πr². Both A and R are true and R explains A.\nAnswer: (A)",
+    "expected": {
+     "totalMarks": 0,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0,
+       "reason": "Option (A) chosen; key is (C). R is false: TSA of a sphere is 4πr² (3πr² is the TSA of a hemisphere)."
+      }
+     ],
+     "wrongStep": 1,
+     "mistakeType": "conceptual",
+     "studentLabel": "knowledge gap",
+     "studentHeading": "Marks to gain - learn this",
+     "unattemptedParts": [],
+     "objective": {
+      "correctOption": "C",
+      "studentOption": "A",
+      "expectedMarks": 0
+     },
+     "commentMayMention": [
+      "the student treats 3πr² (TSA of a hemisphere) as the TSA of a sphere"
+     ],
+     "commentMustNotClaim": [
+      "A is false",
+      "partial credit for reasoning",
+      "calculation error"
+     ],
+     "modelAnswerKeyFacts": [
+      "A is true",
+      "TSA of sphere = 4πr², so R is false",
+      "answer (C)"
+     ],
+     "examinerNote": "Wrong pick driven by a wrong fact (hemisphere TSA confused with sphere TSA): method/understanding wrong = conceptual (knowledge gap). 0 marks."
+    }
+   },
+   {
+    "caseId": "GS-M03-b",
+    "probes": [
+     "ar",
+     "mcq-correct-pick-flawed-working",
+     "mcq-objective-invariant"
+    ],
+    "mode": "typed",
+    "text": "A is true because two equal hemispheres joined at the bases form a sphere.\nR is false because the total surface area of a sphere is 2πr².\nAnswer: (C)",
+    "expected": {
+     "totalMarks": 1,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 1,
+       "reason": "Correct option (C). The justification states a wrong formula (2πr²) but an MCQ/AR scores on the option alone."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [],
+     "objective": {
+      "correctOption": "C",
+      "studentOption": "C",
+      "expectedMarks": 1
+     },
+     "commentMayMention": [
+      "TSA of a sphere is 4πr², not 2πr²"
+     ],
+     "commentMustNotClaim": [
+      "marks were deducted",
+      "the answer is wrong"
+     ],
+     "modelAnswerKeyFacts": [
+      "TSA of sphere = 4πr²",
+      "answer (C)"
+     ],
+     "examinerNote": "Correct pick + flawed justification = full mark (owner ruling). No mark lost, so no mistake type; the comment may correct 2πr² to 4πr²."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M04",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2025,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Math.zip#Math/041 Mathematics Standard/X_MS_041_Mathematics Standard_30-1-1_2024-25.pdf",
+   "pdfFile": "sources/MS2025_041_30-1-1.pdf",
+   "question": "Q22",
+   "pdfPage": 8,
+   "printedPage": 8
+  },
+  "chapterTrue": {
+   "name": "Polynomials",
+   "appTopicKey": "polynomials",
+   "subtopic": "Zeroes of a quadratic polynomial"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Zeroes of a quadratic polynomial are IN. No banned string matches."
+  },
+  "bankMatch": {
+   "inBank": true,
+   "bankId": "PYQ-M-2025-POLY-001",
+   "bankTopicKey": "polynomials",
+   "note": "Bank questionText is garbled: 'Find the zeroes of the polynomial p(x) = x2 + x .' (the 4/3 fractions were lost); solutionSteps is one blob. lazytopper/src/data/questionBanks/class10/maths/polynomials.pyq2025.ts:11-18"
+  },
+  "question": {
+   "text": "Find the zeroes of the polynomial p(x) = x² + (4/3)x − 4/3.",
+   "marks": 2,
+   "section": "B",
+   "type": "vsa",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "p(x) = (1/3)(3x² + 4x − 4)",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 8,
+     "printedPage": 8
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "= (1/3)(3x² + 6x − 2x − 4)",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 8,
+     "printedPage": 8
+    }
+   },
+   {
+    "step": 3,
+    "valuePoint": "= (1/3)(3x − 2)(x + 2)",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 8,
+     "printedPage": 8
+    }
+   },
+   {
+    "step": 4,
+    "valuePoint": "Zeroes are 2/3, −2",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 8,
+     "printedPage": 8
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M04-a",
+    "probes": [
+     "alternative-method",
+     "maths-notation",
+     "control-full-marks",
+     "bank-match"
+    ],
+    "mode": "typed",
+    "text": "p(x) = x² + (4/3)x − 4/3. For the zeroes put p(x) = 0.\nMultiplying by 3: 3x² + 4x − 4 = 0\nx = [−4 ± √(4² − 4·3·(−4))] / (2·3)\n  = [−4 ± √(16 + 48)] / 6\n  = (−4 ± √64)/6 = (−4 ± 8)/6\n∴ x = 4/6 = 2/3  or  x = −12/6 = −2\nZeroes are 2/3 and −2.",
+    "expected": {
+     "totalMarks": 2,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0.5,
+       "reason": "Clearing the fraction (3x² + 4x − 4) is equivalent to the scheme's 1/3 factorisation."
+      },
+      {
+       "step": 2,
+       "awarded": 0.5,
+       "reason": "Alternative valid method: quadratic formula with correct discriminant 64 replaces splitting the middle term."
+      },
+      {
+       "step": 3,
+       "awarded": 0.5,
+       "reason": "(−4 ± 8)/6 correctly evaluated - equivalent to the factorisation step."
+      },
+      {
+       "step": 4,
+       "awarded": 0.5,
+       "reason": "Both zeroes 2/3 and −2 correct."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "used the quadratic formula",
+      "discriminant 16 + 48 = 64"
+     ],
+     "commentMustNotClaim": [
+      "method not as per scheme",
+      "should have factorised",
+      "any mistake",
+      "marks deducted"
+     ],
+     "modelAnswerKeyFacts": [
+      "zeroes 2/3 and −2"
+     ],
+     "examinerNote": "Alternative valid method earns full marks (MS general instruction 3: answers assessed for correctness otherwise; examiner judgement). Notation probe: ±, √, powers, fractions, ∴."
+    }
+   },
+   {
+    "caseId": "GS-M04-b",
+    "probes": [
+     "calculation",
+     "maths-notation",
+     "bank-match"
+    ],
+    "mode": "typed",
+    "text": "p(x) = (1/3)(3x² + 4x − 4)\n= (1/3)(3x² + 6x − 2x − 4)\n= (1/3)[3x(x + 2) − 2(x + 2)]\n= (1/3)(3x − 2)(x + 2)\n3x − 2 = 0 ⇒ x = 3/2;  x + 2 = 0 ⇒ x = −2\nZeroes are 3/2 and −2.",
+    "expected": {
+     "totalMarks": 1.5,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 2,
+       "awarded": 0.5,
+       "reason": "Correct split."
+      },
+      {
+       "step": 3,
+       "awarded": 0.5,
+       "reason": "Correct factors."
+      },
+      {
+       "step": 4,
+       "awarded": 0,
+       "reason": "3x − 2 = 0 gives x = 2/3, not 3/2; the value point needs both zeroes."
+      }
+     ],
+     "wrongStep": 4,
+     "mistakeType": "calculation",
+     "studentLabel": "careless",
+     "studentHeading": "Marks to gain - you already know this",
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "3x − 2 = 0 solved as x = 3/2 instead of 2/3",
+      "factorisation is correct"
+     ],
+     "commentMustNotClaim": [
+      "factorisation is wrong",
+      "the method is wrong",
+      "conceptual"
+     ],
+     "modelAnswerKeyFacts": [
+      "zeroes 2/3 and −2"
+     ],
+     "examinerNote": "Right method, final linear equation solved wrongly = performed wrongly = calculation (careless). Only the last ½ is lost."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M05",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2025,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Math.zip#Math/041 Mathematics Standard/X_MS_041_Mathematics Standard_30-1-1_2024-25.pdf",
+   "pdfFile": "sources/MS2025_041_30-1-1.pdf",
+   "question": "Q23",
+   "pdfPage": 8,
+   "printedPage": 8
+  },
+  "chapterTrue": {
+   "name": "Coordinate Geometry",
+   "appTopicKey": "coordinate-geometry",
+   "subtopic": "Distance formula"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Distance formula is IN ('Area of a Triangle in Coordinate Geometry' is banned; not involved)."
+  },
+  "bankMatch": {
+   "inBank": true,
+   "bankId": "PYQ-M-2025-CG-003",
+   "bankTopicKey": "coordinate-geometry"
+  },
+  "question": {
+   "text": "The coordinates of the centre of a circle are (2a, a − 7). Find the value(s) of 'a' if the circle passes through the point (11, −9) and has diameter 10√2 units.",
+   "marks": 2,
+   "section": "B",
+   "type": "vsa",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "radius = 5√2 units",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 8,
+     "printedPage": 8
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "(2a − 11)² + (a − 7 + 9)² = 50",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 8,
+     "printedPage": 8
+    }
+   },
+   {
+    "step": 3,
+    "valuePoint": "⇒ a² − 8a + 15 = 0",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 8,
+     "printedPage": 8
+    }
+   },
+   {
+    "step": 4,
+    "valuePoint": "⇒ (a − 5)(a − 3) = 0 ⇒ a = 5, 3",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 8,
+     "printedPage": 8
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M05-a",
+    "probes": [
+     "control-full-marks",
+     "chapter-misfile-risk",
+     "bank-match"
+    ],
+    "mode": "typed",
+    "text": "Radius = diameter/2 = 10√2/2 = 5√2 units.\nDistance between the centre (2a, a − 7) and (11, −9) = radius\n⇒ (2a − 11)² + (a − 7 + 9)² = (5√2)² = 50\n⇒ 4a² − 44a + 121 + a² + 4a + 4 = 50\n⇒ 5a² − 40a + 75 = 0 ⇒ a² − 8a + 15 = 0\n⇒ (a − 5)(a − 3) = 0 ⇒ a = 5 or a = 3.",
+    "expected": {
+     "totalMarks": 2,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 2,
+       "awarded": 0.5,
+       "reason": "Correct distance equation."
+      },
+      {
+       "step": 3,
+       "awarded": 0.5,
+       "reason": "Correct simplification."
+      },
+      {
+       "step": 4,
+       "awarded": 0.5,
+       "reason": "Both values correct."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "used the distance formula with radius 5√2"
+     ],
+     "commentMustNotClaim": [
+      "any mistake",
+      "marks deducted"
+     ],
+     "modelAnswerKeyFacts": [
+      "a = 5 or a = 3"
+     ],
+     "examinerNote": "Control. Chapter probe: the question mentions a circle but is solved with the distance formula - TRUE chapter is Coordinate Geometry (coordinate-geometry), a common misfile as Circles."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M06",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2025,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Math.zip#Math/041 Mathematics Standard/X_MS_041_Mathematics Standard_30-1-1_2024-25.pdf",
+   "pdfFile": "sources/MS2025_041_30-1-1.pdf",
+   "question": "Q21(b)",
+   "pdfPage": 8,
+   "printedPage": 8
+  },
+  "chapterTrue": {
+   "name": "Trigonometry",
+   "appTopicKey": "trigonometry",
+   "subtopic": "Trigonometric ratios of specific angles"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Ratios of 30°, 45°, 60° are IN ('Trigonometric Ratios of Complementary Angles' is banned; not involved)."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "Evaluate : tan²60° / (sin²60° + cos²30°)",
+   "marks": 2,
+   "section": "B",
+   "type": "vsa",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "(√3)² / ((√3/2)² + (√3/2)²)",
+    "marks": 1.5,
+    "citation": {
+     "pdfPage": 8,
+     "printedPage": 8
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "= 2",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 8,
+     "printedPage": 8
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M06-a",
+    "probes": [
+     "hinglish",
+     "control-full-marks"
+    ],
+    "mode": "typed",
+    "text": "tan 60° ki value √3 hoti hai, toh tan²60° = (√3)² = 3.\nsin 60° = √3/2 aur cos 30° bhi √3/2 hota hai, toh sin²60° + cos²30° = 3/4 + 3/4 = 6/4 = 3/2.\nAb answer = 3 ÷ (3/2) = 3 × 2/3 = 2.\nIsliye value = 2.",
+    "expected": {
+     "totalMarks": 2,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 1.5,
+       "reason": "All three values substituted correctly (written in Hinglish)."
+      },
+      {
+       "step": 2,
+       "awarded": 0.5,
+       "reason": "Correct value 2."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "values tan 60° = √3, sin 60° = cos 30° = √3/2",
+      "answer 2"
+     ],
+     "commentMustNotClaim": [
+      "language is a mistake",
+      "answer must be in English",
+      "any mistake"
+     ],
+     "modelAnswerKeyFacts": [
+      "value = 2"
+     ],
+     "examinerNote": "Hinglish answer, fully correct: 2/2. Language must not cost marks or be called a mistake."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M07",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2025,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Math.zip#Math/041 Mathematics Standard/X_MS_041_Mathematics Standard_30-1-1_2024-25.pdf",
+   "pdfFile": "sources/MS2025_041_30-1-1.pdf",
+   "question": "Q24(a)",
+   "pdfPage": 8,
+   "printedPage": 8
+  },
+  "chapterTrue": {
+   "name": "Triangles",
+   "appTopicKey": "triangles",
+   "subtopic": "Similar triangles - ratio of corresponding sides"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Similarity of triangles is IN. No banned string matches."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "If ΔABC ~ ΔPQR in which AB = 6 cm, BC = 4 cm, AC = 8 cm and PR = 6 cm, then find the length of (PQ + QR).",
+   "marks": 2,
+   "section": "B",
+   "type": "vsa",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "6/PQ = 4/QR = 8/6",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 8,
+     "printedPage": 8
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "⇒ PQ = 9/2 cm or 4.5 cm",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 8,
+     "printedPage": 8
+    }
+   },
+   {
+    "step": 3,
+    "valuePoint": "and QR = 3 cm",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 8,
+     "printedPage": 8
+    }
+   },
+   {
+    "step": 4,
+    "valuePoint": "∴ PQ + QR = 7.5 cm",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 8,
+     "printedPage": 8
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M07-a",
+    "probes": [
+     "silly-miscopy",
+     "ecf-carried-slip"
+    ],
+    "mode": "typed",
+    "text": "Since ΔABC ~ ΔPQR, AB/PQ = BC/QR = AC/PR\n6/PQ = 4/QR = 8/9\nPQ = (6 × 9)/8 = 54/8 = 6.75 cm\nQR = (4 × 9)/8 = 36/8 = 4.5 cm\nPQ + QR = 6.75 + 4.5 = 11.25 cm",
+    "expected": {
+     "totalMarks": 1.5,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0,
+       "reason": "Correct correspondence, but PR is copied as 9 cm (the question gives 6 cm) - penalised once, here."
+      },
+      {
+       "step": 2,
+       "awarded": 0.5,
+       "reason": "PQ = 6.75 cm follows correctly from the student's ratio (ECF)."
+      },
+      {
+       "step": 3,
+       "awarded": 0.5,
+       "reason": "QR = 4.5 cm follows correctly (ECF)."
+      },
+      {
+       "step": 4,
+       "awarded": 0.5,
+       "reason": "Sum follows correctly (ECF)."
+      }
+     ],
+     "wrongStep": 1,
+     "mistakeType": "silly",
+     "studentLabel": "careless",
+     "studentHeading": "Marks to gain - you already know this",
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "PR was copied as 9 cm; the question gives PR = 6 cm",
+      "the method (corresponding sides in proportion) is correct"
+     ],
+     "commentMustNotClaim": [
+      "the method is wrong",
+      "the correspondence of sides is wrong",
+      "conceptual",
+      "calculation error in 54/8"
+     ],
+     "modelAnswerKeyFacts": [
+      "PQ = 4.5 cm",
+      "QR = 3 cm",
+      "PQ + QR = 7.5 cm"
+     ],
+     "examinerNote": "Copied wrongly = silly (owner ruling). Marks: CBSE MS general instruction 10 ('No marks to be deducted for the cumulative effect of an error. It should be penalized only once', MS p2) -> penalise the miscopy once, ECF for the rest = 1½. CONTESTED: the app's QUESTION_MISCOPY_PROMPT (checkSolution.cjs:1122) treats a miscopy as a DEPARTURE and zeroes every step below it (would give 0 here). An owner ruling is needed on whether a miscopy is a departure; this set scores it as a slip."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M08",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2025,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Math.zip#Math/041 Mathematics Standard/X_MS_041_Mathematics Standard_30-1-1_2024-25.pdf",
+   "pdfFile": "sources/MS2025_041_30-1-1.pdf",
+   "question": "Q25",
+   "pdfPage": 9,
+   "printedPage": 9
+  },
+  "chapterTrue": {
+   "name": "Circles",
+   "appTopicKey": "circles",
+   "subtopic": "Tangent perpendicular to radius"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Tangent properties are IN ('Construction of Tangents' is banned; not involved)."
+  },
+  "bankMatch": {
+   "inBank": true,
+   "bankId": "PYQ-M-2025-CIRC-002",
+   "bankTopicKey": "circles"
+  },
+  "question": {
+   "text": "A person is standing at P outside a circular ground at a distance of 26 m from the centre of the ground. He found that his distances from the points A and B on the ground are 10 m (PA and PB are tangents to the circle). Find the radius of the circular ground.",
+   "marks": 2,
+   "section": "B",
+   "type": "vsa",
+   "needsFigure": true,
+   "figureDescription": "Circle with centre O; external point P joined to O; tangents PA and PB each labelled 10 m; radii OA and OB drawn."
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "∠OAP = 90°",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 9,
+     "printedPage": 9
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "In right ΔOAP, (26)² = OA² + (10)²",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 9,
+     "printedPage": 9
+    }
+   },
+   {
+    "step": 3,
+    "valuePoint": "⇒ OA = √576 = 24; ∴ radius = 24 m",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 9,
+     "printedPage": 9
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M08-a",
+    "probes": [
+     "image",
+     "image-crossed-out",
+     "corrected-slip",
+     "control-full-marks",
+     "bank-match"
+    ],
+    "mode": "image",
+    "text": "Q25.\n∠OAP = 90° (tangent ⊥ radius at the point of contact)\nIn right △OAP,\n[CROSSED OUT: OA² = OP² + AP² = 26² + 10² = 776]\nOP² = OA² + AP²\n26² = OA² + 10²\nOA² = 676 − 100 = 576\nOA = √576 = 24\n∴ radius of the ground = 24 m",
+    "image": "images/GS-M08-a.jpg",
+    "imageCompressed": "images/GS-M08-a.compressed.jpg",
+    "synthetic": true,
+    "expected": {
+     "totalMarks": 2,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 2,
+       "awarded": 1,
+       "reason": "Correct Pythagoras relation (the struck-out line is not assessed)."
+      },
+      {
+       "step": 3,
+       "awarded": 0.5,
+       "reason": "Correct, with unit."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "the student crossed out a first attempt and rewrote it correctly"
+     ],
+     "commentMustNotClaim": [
+      "OA² = 776 was used",
+      "Pythagoras was applied wrongly",
+      "any mistake",
+      "marks deducted"
+     ],
+     "modelAnswerKeyFacts": [
+      "radius = 24 m"
+     ],
+     "examinerNote": "Crossed-out work replaced by a correct attempt is not assessed (examiner convention). Full marks; a grader reading the struck line as the answer, or charging it, is wrong."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M09",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2025,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Math.zip#Math/041 Mathematics Standard/X_MS_041_Mathematics Standard_30-1-1_2024-25.pdf",
+   "pdfFile": "sources/MS2025_041_30-1-1.pdf",
+   "question": "Q27(a)",
+   "pdfPage": 11,
+   "printedPage": 11
+  },
+  "chapterTrue": {
+   "name": "Trigonometry",
+   "appTopicKey": "trigonometry",
+   "subtopic": "Trigonometric identities"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Proving trigonometric identities is IN. The a³ − b³ factorisation inside it is algebra, not the Polynomials chapter."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null,
+   "note": "Not found for 2025 30/1/1 Q27; the same identity is 2024 30/1/1 Q28 (MS2024 p10), not in the bank either."
+  },
+  "question": {
+   "text": "Prove that : tan θ/(1 − cot θ) + cot θ/(1 − tan θ) = 1 + sec θ cosec θ",
+   "marks": 3,
+   "section": "C",
+   "type": "sa",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "LHS written in sin/cos: (sinθ/cosθ)/(1 − cosθ/sinθ) + (cosθ/sinθ)/(1 − sinθ/cosθ)",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 11,
+     "printedPage": 11
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "= sin²θ/(cosθ(sinθ − cosθ)) − cos²θ/(sinθ(sinθ − cosθ))",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 11,
+     "printedPage": 11
+    }
+   },
+   {
+    "step": 3,
+    "valuePoint": "= [1/(sinθ − cosθ)] [(sin³θ − cos³θ)/(sinθ cosθ)]",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 11,
+     "printedPage": 11
+    }
+   },
+   {
+    "step": 4,
+    "valuePoint": "= (sinθ − cosθ)(sin²θ + sinθcosθ + cos²θ)/((sinθ − cosθ) sinθ cosθ)",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 11,
+     "printedPage": 11
+    }
+   },
+   {
+    "step": 5,
+    "valuePoint": "= (1 + sinθ cosθ)/(sinθ cosθ) = 1 + secθ cosecθ = RHS",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 11,
+     "printedPage": 11
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M09-a",
+    "probes": [
+     "control-full-marks",
+     "chapter-misfile-risk",
+     "topic-fix-1",
+     "maths-notation"
+    ],
+    "mode": "typed",
+    "text": "LHS = tanθ/(1 − cotθ) + cotθ/(1 − tanθ)\n= (sinθ/cosθ)/((sinθ − cosθ)/sinθ) + (cosθ/sinθ)/((cosθ − sinθ)/cosθ)\n= sin²θ/(cosθ(sinθ − cosθ)) − cos²θ/(sinθ(sinθ − cosθ))\n= (sin³θ − cos³θ)/(sinθ cosθ (sinθ − cosθ))\n= (sinθ − cosθ)(sin²θ + sinθ cosθ + cos²θ)/(sinθ cosθ (sinθ − cosθ))\n= (1 + sinθ cosθ)/(sinθ cosθ)\n= 1/(sinθ cosθ) + 1\n= 1 + secθ cosecθ = RHS. Hence proved.",
+    "expected": {
+     "totalMarks": 3,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 2,
+       "awarded": 1,
+       "reason": "Correct, sign handled."
+      },
+      {
+       "step": 3,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 4,
+       "awarded": 0.5,
+       "reason": "Correct a³ − b³ factorisation."
+      },
+      {
+       "step": 5,
+       "awarded": 0.5,
+       "reason": "Correct conclusion."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "used a³ − b³ = (a − b)(a² + ab + b²)",
+      "sin²θ + cos²θ = 1"
+     ],
+     "commentMustNotClaim": [
+      "any mistake",
+      "marks deducted"
+     ],
+     "modelAnswerKeyFacts": [
+      "LHS reduces to 1 + secθ cosecθ"
+     ],
+     "examinerNote": "Control + TOPIC-FIX-1 probe: the proof uses the a³ − b³ factorisation, which made the app file a trig proof as Polynomials. TRUE chapter = Trigonometry (trigonometry)."
+    }
+   },
+   {
+    "caseId": "GS-M09-b",
+    "probes": [
+     "image",
+     "image-neat",
+     "departure-returns",
+     "calculation",
+     "chapter-misfile-risk",
+     "topic-fix-1"
+    ],
+    "mode": "image",
+    "text": "LHS = tanθ/(1 − cotθ) + cotθ/(1 − tanθ)\n= (sinθ/cosθ)/((sinθ − cosθ)/sinθ) + (cosθ/sinθ)/((cosθ − sinθ)/cosθ)\n= sin²θ/(cosθ(sinθ − cosθ)) + cos²θ/(sinθ(sinθ − cosθ))\n= (sin³θ − cos³θ)/(sinθ cosθ(sinθ − cosθ))\n= (sinθ − cosθ)(sin²θ + sinθcosθ + cos²θ)/(sinθ cosθ(sinθ − cosθ))\n= (1 + sinθcosθ)/(sinθcosθ) = 1 + secθ cosecθ = RHS",
+    "image": "images/GS-M09-b.jpg",
+    "imageCompressed": "images/GS-M09-b.compressed.jpg",
+    "synthetic": true,
+    "expected": {
+     "totalMarks": 2,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 2,
+       "awarded": 0,
+       "reason": "Sign error: (cosθ − sinθ) rewritten as (sinθ − cosθ) without changing + to −; the line is wrong."
+      },
+      {
+       "step": 3,
+       "awarded": 0.5,
+       "reason": "Back on the correct expression (sin³θ − cos³θ) - the slip is not carried; awarded."
+      },
+      {
+       "step": 4,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 5,
+       "awarded": 0.5,
+       "reason": "Correct conclusion."
+      }
+     ],
+     "wrongStep": 2,
+     "mistakeType": "calculation",
+     "studentLabel": "careless",
+     "studentHeading": "Marks to gain - you already know this",
+     "departure": {
+      "atStep": 2,
+      "returnsAtStep": 3
+     },
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "the second term's sign should be minus because 1 − tanθ = (cosθ − sinθ)/cosθ",
+      "the following lines are correct"
+     ],
+     "commentMustNotClaim": [
+      "the whole proof is wrong",
+      "the a³ − b³ factorisation is wrong",
+      "conceptual"
+     ],
+     "modelAnswerKeyFacts": [
+      "the second term is −cos²θ/(sinθ(sinθ − cosθ))",
+      "LHS = 1 + secθ cosecθ"
+     ],
+     "examinerNote": "Departure that RETURNS: one wrong line (step 2) followed by the correct trajectory. Penalise only the wrong line (1 mark); the later correct lines keep their marks = 2/3. Dropped negative while rewriting = performed wrongly = calculation (careless)."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M10",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2024 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2024,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2024/X/Mathematics_Standard.zip#Mathematics_Standard/MS 041_30-1-1 Mathematics 2023-24.pdf",
+   "pdfFile": "sources/MS2024_041_30-1-1.pdf",
+   "question": "Q25(A)",
+   "pdfPage": 8,
+   "printedPage": 8
+  },
+  "chapterTrue": {
+   "name": "Real Numbers",
+   "appTopicKey": "real-numbers",
+   "subtopic": "Proof of irrationality"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Irrationality proofs are IN. No banned string matches."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "Prove that 5 − 2√3 is an irrational number. It is given that √3 is an irrational number.",
+   "marks": 2,
+   "section": "B",
+   "type": "vsa",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "Assume 5 − 2√3 is rational: 5 − 2√3 = a/b, a, b integers, b ≠ 0",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 8,
+     "printedPage": 8
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "⇒ √3 = (5b − a)/(2b)",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 8,
+     "printedPage": 8
+    }
+   },
+   {
+    "step": 3,
+    "valuePoint": "RHS is rational but LHS is irrational - therefore our assumption is wrong",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 8,
+     "printedPage": 8
+    }
+   },
+   {
+    "step": 4,
+    "valuePoint": "Hence, 5 − 2√3 is an irrational number",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 8,
+     "printedPage": 8
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M10-a",
+    "probes": [
+     "presentation-no-conclusion"
+    ],
+    "mode": "typed",
+    "text": "Let 5 − 2√3 be rational. Then 5 − 2√3 = a/b, where a and b are integers and b ≠ 0.\n⇒ 2√3 = 5 − a/b = (5b − a)/b\n⇒ √3 = (5b − a)/(2b)\nSince a and b are integers, (5b − a)/(2b) is rational, but √3 is irrational. This is a contradiction.",
+    "expected": {
+     "totalMarks": 1.5,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0.5,
+       "reason": "Correct assumption."
+      },
+      {
+       "step": 2,
+       "awarded": 0.5,
+       "reason": "Correct rearrangement."
+      },
+      {
+       "step": 3,
+       "awarded": 0.5,
+       "reason": "Contradiction correctly identified."
+      },
+      {
+       "step": 4,
+       "awarded": 0,
+       "reason": "No concluding statement '5 − 2√3 is irrational' - the scheme's last ½."
+      }
+     ],
+     "wrongStep": 4,
+     "mistakeType": "presentation",
+     "studentLabel": "exam technique",
+     "studentHeading": "Marks to gain - the quickest wins",
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "the conclusion line is missing",
+      "the argument itself is correct"
+     ],
+     "commentMustNotClaim": [
+      "the assumption is wrong",
+      "the rearrangement is wrong",
+      "conceptual",
+      "calculation"
+     ],
+     "modelAnswerKeyFacts": [
+      "Hence 5 − 2√3 is irrational"
+     ],
+     "examinerNote": "Correct mathematics, CBSE format short (no conclusion) = presentation (exam technique) per owner ruling. NOTE the app prompt contradicts itself here: rule 3/9 call a missing conclusion 'presentation', rule 6 calls a wholly absent step 'missing' with null type."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M11",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2025,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Math.zip#Math/041 Mathematics Standard/X_MS_041_Mathematics Standard_30-1-1_2024-25.pdf",
+   "pdfFile": "sources/MS2025_041_30-1-1.pdf",
+   "question": "Q29",
+   "pdfPage": 12,
+   "printedPage": 12
+  },
+  "chapterTrue": {
+   "name": "Real Numbers",
+   "appTopicKey": "real-numbers",
+   "subtopic": "Proof of irrationality"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Irrationality proofs are IN. NOTE the student's argument uses decimal expansions - 'Decimal Representation of Rational Numbers' / 'Terminating and Non-Terminating Decimals' are BANNED (deleted) sub-topics; the item itself is in syllabus."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "Prove that 1/√5 is an irrational number.",
+   "marks": 3,
+   "section": "C",
+   "type": "sa",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "Let 1/√5 = p/q, q ≠ 0, p and q co-prime",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 12,
+     "printedPage": 12
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "5p² = q² ⇒ q² divisible by 5 ⇒ q divisible by 5 ...(i)",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 12,
+     "printedPage": 12
+    }
+   },
+   {
+    "step": 3,
+    "valuePoint": "q = 5a ⇒ 25a² = 5p² ⇒ p² = 5a² ⇒ p divisible by 5 ...(ii)",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 12,
+     "printedPage": 12
+    }
+   },
+   {
+    "step": 4,
+    "valuePoint": "(i) and (ii) contradict p, q co-prime ∴ 1/√5 is irrational",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 12,
+     "printedPage": 12
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M11-a",
+    "probes": [
+     "departure-never-returns",
+     "conceptual",
+     "syllabus-deleted-method-used"
+    ],
+    "mode": "typed",
+    "text": "1/√5 = 1/2.2360679… = 0.4472135…\nThe decimal expansion of 1/√5 is non-terminating and non-repeating.\nA rational number always has a terminating or repeating decimal expansion.\n∴ 1/√5 is an irrational number. Hence proved.",
+    "expected": {
+     "totalMarks": 0,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0,
+       "reason": "No assumption of rationality - the method departs at once (calculator decimals cannot show non-repetition)."
+      },
+      {
+       "step": 2,
+       "awarded": 0,
+       "reason": "Not attempted - after departure."
+      },
+      {
+       "step": 3,
+       "awarded": 0,
+       "reason": "Not attempted - after departure."
+      },
+      {
+       "step": 4,
+       "awarded": 0,
+       "reason": "Conclusion is the right statement but reached by an invalid argument; departure never returns -> 0 (owner ruling)."
+      }
+     ],
+     "wrongStep": 1,
+     "mistakeType": "conceptual",
+     "studentLabel": "knowledge gap",
+     "studentHeading": "Marks to gain - learn this",
+     "departure": {
+      "atStep": 1,
+      "returnsAtStep": null
+     },
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "the argument relies on a calculator decimal, which cannot prove the expansion never repeats",
+      "a proof by contradiction (assume p/q) is required"
+     ],
+     "commentMustNotClaim": [
+      "the conclusion earns marks",
+      "calculation mistake",
+      "the decimal value is wrong"
+     ],
+     "modelAnswerKeyFacts": [
+      "assume 1/√5 = p/q in lowest terms",
+      "5p² = q² ⇒ 5 | q",
+      "q = 5a ⇒ 5 | p",
+      "contradiction ⇒ irrational"
+     ],
+     "examinerNote": "Departure at step 1 that never returns: zero including the (true) final statement - owner ruling. Wrong method = conceptual (knowledge gap). The model answer shown must be the contradiction proof, and must not endorse the decimal-expansion argument (deleted sub-topic)."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M12",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2024 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2024,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2024/X/Mathematics_Standard.zip#Mathematics_Standard/MS 041_30-1-1 Mathematics 2023-24.pdf",
+   "pdfFile": "sources/MS2024_041_30-1-1.pdf",
+   "question": "Q31",
+   "pdfPage": 12,
+   "printedPage": 12
+  },
+  "chapterTrue": {
+   "name": "Surface Areas and Volumes",
+   "appTopicKey": "surface-areas-and-volumes",
+   "subtopic": "Volume of a hollow cylinder"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Volumes of cylinders/combinations are IN ('Conversion of Solids', 'Frustum of Cone' banned; not involved)."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "The difference between the outer and inner radii of a hollow right circular cylinder of length 14 cm is 1 cm. If the volume of the metal used in making the cylinder is 176 cm³, find the outer and inner radii of the cylinder.",
+   "marks": 3,
+   "section": "C",
+   "type": "sa",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "r₂ − r₁ = 1 ...(i)",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 12,
+     "printedPage": 12
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "(22/7) × 14 × (r₂² − r₁²) = 176",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 12,
+     "printedPage": 12
+    }
+   },
+   {
+    "step": 3,
+    "valuePoint": "⇒ r₂ + r₁ = 4 ...(ii)",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 12,
+     "printedPage": 12
+    }
+   },
+   {
+    "step": 4,
+    "valuePoint": "Solving: r₂ = 5/2 = 2.5 cm, r₁ = 3/2 = 1.5 cm",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 12,
+     "printedPage": 12
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M12-a",
+    "probes": [
+     "ecf-carried-slip",
+     "calculation"
+    ],
+    "mode": "typed",
+    "text": "Let outer radius = R cm and inner radius = r cm.\nR − r = 1 ...(i)\nVolume of metal = π(R² − r²)h\n176 = (22/7) × (R² − r²) × 14\n⇒ R² − r² = (176 × 7)/(22 × 14) = 1232/308 = 8\n⇒ (R − r)(R + r) = 8 ⇒ 1 × (R + r) = 8 ⇒ R + r = 8 ...(ii)\nAdding (i) and (ii): 2R = 9 ⇒ R = 4.5 cm, r = 3.5 cm\nOuter radius = 4.5 cm, inner radius = 3.5 cm.",
+    "expected": {
+     "totalMarks": 2.5,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 2,
+       "awarded": 1,
+       "reason": "Correct volume equation."
+      },
+      {
+       "step": 3,
+       "awarded": 0,
+       "reason": "1232/308 = 4, not 8, so R + r = 4 - arithmetic slip."
+      },
+      {
+       "step": 4,
+       "awarded": 1,
+       "reason": "Solving (i) and (ii) is correct for the student's R + r = 8 (ECF): penalised only once."
+      }
+     ],
+     "wrongStep": 3,
+     "mistakeType": "calculation",
+     "studentLabel": "careless",
+     "studentHeading": "Marks to gain - you already know this",
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "1232/308 = 4 (the student wrote 8)",
+      "the method and equations are correct"
+     ],
+     "commentMustNotClaim": [
+      "the volume formula is wrong",
+      "conceptual",
+      "the solving of the two equations is wrong"
+     ],
+     "modelAnswerKeyFacts": [
+      "R² − r² = 4",
+      "R + r = 4",
+      "R = 2.5 cm, r = 1.5 cm"
+     ],
+     "examinerNote": "Carried slip (ECF): CBSE MS general instruction 10 - 'No marks to be deducted for the cumulative effect of an error. It should be penalized only once.' Later steps that correctly use the wrong value keep their marks. This is NOT a departure: the student never stops working the question set."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M13",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2025,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Math.zip#Math/041 Mathematics Standard/X_MS_041_Mathematics Standard_30-1-1_2024-25.pdf",
+   "pdfFile": "sources/MS2025_041_30-1-1.pdf",
+   "question": "Q31",
+   "pdfPage": 12,
+   "printedPage": 12
+  },
+  "chapterTrue": {
+   "name": "Probability",
+   "appTopicKey": "probability",
+   "subtopic": "Classical probability - two dice"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Classical probability is IN."
+  },
+  "bankMatch": {
+   "inBank": true,
+   "bankId": "PYQ-M-2025-PROB-002",
+   "bankTopicKey": "probability"
+  },
+  "question": {
+   "text": "Two dice are thrown at the same time. Determine the probability that the difference of the numbers on the two dice is 2.",
+   "marks": 3,
+   "section": "C",
+   "type": "sa",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "Total outcomes = 36",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 12,
+     "printedPage": 12
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "Outcomes with difference 2 = 8: (1,3)(3,1)(4,2)(2,4)(5,3)(3,5)(4,6)(6,4)",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 12,
+     "printedPage": 12
+    }
+   },
+   {
+    "step": 3,
+    "valuePoint": "P = 8/36 or 2/9",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 12,
+     "printedPage": 12
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M13-a",
+    "probes": [
+     "image",
+     "illegible",
+     "bank-match"
+    ],
+    "mode": "image",
+    "text": "(ILLEGIBLE - synthetic scribble with no recoverable characters; ground truth: nothing readable)",
+    "image": "images/GS-M13-a.jpg",
+    "imageCompressed": "images/GS-M13-a.compressed.jpg",
+    "synthetic": true,
+    "expected": {
+     "totalMarks": null,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": null,
+       "reason": "Unreadable."
+      },
+      {
+       "step": 2,
+       "awarded": null,
+       "reason": "Unreadable."
+      },
+      {
+       "step": 3,
+       "awarded": null,
+       "reason": "Unreadable."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [],
+     "illegible": true,
+     "answerState": "illegible",
+     "commentMayMention": [
+      "the handwriting could not be read",
+      "ask the student to re-upload a clearer photo"
+     ],
+     "commentMustNotClaim": [
+      "any specific value the student wrote",
+      "the student found 36 outcomes",
+      "any mistake type",
+      "a mark out of 3 as if graded"
+     ],
+     "modelAnswerKeyFacts": [
+      "P = 8/36 = 2/9"
+     ],
+     "examinerNote": "Truly illegible answer: an examiner cannot award or deduct; the grader must say it could not read the answer and must NOT fabricate steps, marks or mistakes. Expected total is null (not gradable)."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M14",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2025,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Math.zip#Math/041 Mathematics Standard/X_MS_041_Mathematics Standard_30-1-1_2024-25.pdf",
+   "pdfFile": "sources/MS2025_041_30-1-1.pdf",
+   "question": "Q32",
+   "pdfPage": 13,
+   "printedPage": 13
+  },
+  "chapterTrue": {
+   "name": "Pair of Linear Equations",
+   "appTopicKey": "pair-of-linear-equations",
+   "subtopic": "Word problems - algebraic solution"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Substitution/elimination are IN; 'Cross-Multiplication Method' is banned and NOT used by the student."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "Vijay invested certain amounts of money in two schemes A and B, which offer interest at the rate of 8% per annum and 9% per annum, respectively. He received ₹1,860 as the total annual interest. However, had he interchanged the amounts of investments in the two schemes, he would have received ₹20 more as annual interest. How much money did he invest in each scheme?",
+   "marks": 5,
+   "section": "D",
+   "type": "la",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "8x/100 + 9y/100 = 1860 or 8x + 9y = 186000 ...(i)",
+    "marks": 1.5,
+    "citation": {
+     "pdfPage": 13,
+     "printedPage": 13
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "9x/100 + 8y/100 = 1880 or 9x + 8y = 188000 ...(ii)",
+    "marks": 1.5,
+    "citation": {
+     "pdfPage": 13,
+     "printedPage": 13
+    }
+   },
+   {
+    "step": 3,
+    "valuePoint": "x = 12000",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 13,
+     "printedPage": 13
+    }
+   },
+   {
+    "step": 4,
+    "valuePoint": "y = 10000 (₹12000 in A and ₹10000 in B)",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 13,
+     "printedPage": 13
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M14-a",
+    "probes": [
+     "alternative-method",
+     "control-full-marks",
+     "5-mark"
+    ],
+    "mode": "typed",
+    "text": "Let the amount invested in scheme A (8%) be ₹x and in scheme B (9%) be ₹y.\nInterest: 8x/100 + 9y/100 = 1860 ⇒ 8x + 9y = 186000 …(1)\nAfter interchanging: 9x/100 + 8y/100 = 1860 + 20 = 1880 ⇒ 9x + 8y = 188000 …(2)\nAdding (1) and (2): 17x + 17y = 374000 ⇒ x + y = 22000 …(3)\nSubtracting (1) from (2): x − y = 2000 …(4)\nFrom (3) and (4): 2x = 24000 ⇒ x = 12000, and y = 22000 − 12000 = 10000.\n∴ He invested ₹12000 in scheme A and ₹10000 in scheme B.",
+    "expected": {
+     "totalMarks": 5,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 1.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 2,
+       "awarded": 1.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 3,
+       "awarded": 1,
+       "reason": "x = 12000 by add/subtract method - valid."
+      },
+      {
+       "step": 4,
+       "awarded": 1,
+       "reason": "y = 10000 with conclusion."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "solved by adding and subtracting the equations"
+     ],
+     "commentMustNotClaim": [
+      "method not accepted",
+      "any mistake",
+      "should use substitution"
+     ],
+     "modelAnswerKeyFacts": [
+      "₹12000 in A",
+      "₹10000 in B"
+     ],
+     "examinerNote": "Alternative valid solving route (add/subtract to get x + y and x − y) earns full marks; the MS says only 'On solving (i) and (ii)'. Banned cross-multiplication not used."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M15",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2025,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Math.zip#Math/041 Mathematics Standard/X_MS_041_Mathematics Standard_30-1-1_2024-25.pdf",
+   "pdfFile": "sources/MS2025_041_30-1-1.pdf",
+   "question": "Q34(b)",
+   "pdfPage": 14,
+   "printedPage": 14,
+   "pdfPagesAll": [
+    14,
+    15
+   ]
+  },
+  "chapterTrue": {
+   "name": "Quadratic Equations",
+   "appTopicKey": "quadratic-equations",
+   "subtopic": "Word problems - speed/time"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Quadratic word problems are IN."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "A train travels a distance of 480 km at a uniform speed. If the speed had been 8 km/h less, then it would have taken 3 hours more to cover the same distance. Find the speed of the train.",
+   "marks": 5,
+   "section": "D",
+   "type": "la",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "Let speed = x km/h; reduced speed = (x − 8) km/h",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 14,
+     "printedPage": 14
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "480/(x − 8) − 480/x = 3",
+    "marks": 1.5,
+    "citation": {
+     "pdfPage": 14,
+     "printedPage": 14
+    }
+   },
+   {
+    "step": 3,
+    "valuePoint": "x² − 8x − 1280 = 0",
+    "marks": 1.5,
+    "citation": {
+     "pdfPage": 15,
+     "printedPage": 15
+    }
+   },
+   {
+    "step": 4,
+    "valuePoint": "(x − 40)(x + 32) = 0",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 15,
+     "printedPage": 15
+    }
+   },
+   {
+    "step": 5,
+    "valuePoint": "⇒ x = 40; ∴ speed of train = 40 km/h",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 15,
+     "printedPage": 15
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M15-a",
+    "probes": [
+     "departure-never-returns",
+     "conceptual",
+     "5-mark",
+     "fudged-final-answer"
+    ],
+    "mode": "typed",
+    "text": "Let the speed of the train be x km/h. Reduced speed = (x − 8) km/h.\nTime at usual speed = 480/x, time at reduced speed = 480/(x − 8).\n480/x − 480/(x − 8) = 3\n⇒ 480(x − 8) − 480x = 3x(x − 8)\n⇒ −3840 = 3x² − 24x\n⇒ 3x² − 24x + 3840 = 0\n⇒ x² − 8x + 1280 = 0\n⇒ (x − 40)(x + 32) = 0\n⇒ x = 40 or x = −32. Speed cannot be negative.\n∴ Speed of the train = 40 km/h.",
+    "expected": {
+     "totalMarks": 0.5,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0.5,
+       "reason": "Correct - before the departure."
+      },
+      {
+       "step": 2,
+       "awarded": 0,
+       "reason": "DEPARTURE: times reversed; the slower journey takes longer, so 480/(x − 8) − 480/x = 3."
+      },
+      {
+       "step": 3,
+       "awarded": 0,
+       "reason": "x² − 8x + 1280 = 0 follows from the wrong equation - after departure, 0."
+      },
+      {
+       "step": 4,
+       "awarded": 0,
+       "reason": "(x − 40)(x + 32) = x² − 8x − 1280, which is NOT the student's equation: the factorisation is false (fudged)."
+      },
+      {
+       "step": 5,
+       "awarded": 0,
+       "reason": "40 km/h is the right number but reached via a departure that never returns -> 0 (owner ruling)."
+      }
+     ],
+     "wrongStep": 2,
+     "mistakeType": "conceptual",
+     "studentLabel": "knowledge gap",
+     "studentHeading": "Marks to gain - learn this",
+     "departure": {
+      "atStep": 2,
+      "returnsAtStep": null
+     },
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "the equation has the two times reversed",
+      "x² − 8x + 1280 does not factorise as (x − 40)(x + 32)"
+     ],
+     "commentMustNotClaim": [
+      "the final answer earns marks",
+      "the equation formed is correct",
+      "only a sign slip"
+     ],
+     "modelAnswerKeyFacts": [
+      "480/(x − 8) − 480/x = 3",
+      "x² − 8x − 1280 = 0",
+      "x = 40 km/h"
+     ],
+     "examinerNote": "Departure at the equation that never genuinely returns; the correct-looking final answer is reached through a false factorisation, so it scores 0 (owner: 'a departure that never returns scores zero including the final answer'). Misunderstanding which journey takes longer = conceptual."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M16",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2025,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Math.zip#Math/041 Mathematics Standard/X_MS_041_Mathematics Standard_30-1-1_2024-25.pdf",
+   "pdfFile": "sources/MS2025_041_30-1-1.pdf",
+   "question": "Q35",
+   "pdfPage": 15,
+   "printedPage": 15
+  },
+  "chapterTrue": {
+   "name": "Statistics",
+   "appTopicKey": "statistics",
+   "subtopic": "Mean of grouped data (missing frequency) and mode"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Mean (direct/assumed/step-deviation) and mode of grouped data are IN; Ogive/cumulative frequency graph banned and not involved."
+  },
+  "bankMatch": {
+   "inBank": true,
+   "bankId": "PYQ-M-2025-STAT-001",
+   "bankTopicKey": "statistics",
+   "note": "Bank copies the MS ERRATUM: answer 'mode = 19 + (20−13)/(40−13−5) × 3 = 19.95', solutionSteps '[1 mark] Mode = 19 + (7/22) × 3' and '[0.5 mark] Mode = 19.95'; bank questionText is also truncated ('in the following table, if the mean...'). lazytopper/src/data/questionBanks/class10/maths/statistics.pyq2025.ts:11-17"
+  },
+  "question": {
+   "text": "Find the missing frequency 'f' in the following table, if the mean of the given data is 18. Hence find the mode.\nDaily Allowance | Number of Children\n11 − 13 | 7\n13 − 15 | 6\n15 − 17 | 9\n17 − 19 | 13\n19 − 21 | f\n21 − 23 | 5\n23 − 25 | 4",
+   "marks": 5,
+   "section": "D",
+   "type": "la",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "Correct table: xᵢ = 12,14,16,18,20,22,24; fᵢxᵢ = 84,84,144,234,20f,110,96; Σf = 44 + f, Σfx = 752 + 20f",
+    "marks": 1.5,
+    "citation": {
+     "pdfPage": 15,
+     "printedPage": 15
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "Mean = (752 + 20f)/(44 + f) = 18",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 15,
+     "printedPage": 15
+    }
+   },
+   {
+    "step": 3,
+    "valuePoint": "∴ f = 20",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 15,
+     "printedPage": 15
+    }
+   },
+   {
+    "step": 4,
+    "valuePoint": "Modal class is 19 − 21",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 15,
+     "printedPage": 15
+    }
+   },
+   {
+    "step": 5,
+    "valuePoint": "Mode = 19 + (20 − 13)/(40 − 13 − 5) × h, h = 2",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 15,
+     "printedPage": 15
+    },
+    "note": "ERRATUM: the official MS prints '× 3'. The class width is 2 (classes 11−13, 13−15, ...). Value point corrected to h = 2."
+   },
+   {
+    "step": 6,
+    "valuePoint": "Mode = 19 + 14/22 ≈ 19.64",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 15,
+     "printedPage": 15
+    },
+    "note": "ERRATUM: the official MS prints '= 19.95 approx.', which follows from the wrong h = 3. Correct value ≈ 19.64."
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M16-a",
+    "probes": [
+     "scheme-erratum",
+     "bank-scheme-error",
+     "model-answer-correctness",
+     "control-full-marks",
+     "5-mark",
+     "bank-match"
+    ],
+    "mode": "typed",
+    "text": "xᵢ: 12, 14, 16, 18, 20, 22, 24\nfᵢ: 7, 6, 9, 13, f, 5, 4\nfᵢxᵢ: 84, 84, 144, 234, 20f, 110, 96\nΣf = 44 + f, Σfx = 752 + 20f\nMean = Σfx/Σf ⇒ 18 = (752 + 20f)/(44 + f) ⇒ 792 + 18f = 752 + 20f ⇒ 2f = 40 ⇒ f = 20\nModal class = 19 – 21 (highest frequency 20)\nl = 19, f₁ = 20, f₀ = 13, f₂ = 5, h = 2\nMode = l + (f₁ − f₀)/(2f₁ − f₀ − f₂) × h = 19 + (20 − 13)/(40 − 13 − 5) × 2 = 19 + 7/22 × 2 = 19 + 14/22 = 19 + 0.636 = 19.64 (approx.)",
+    "expected": {
+     "totalMarks": 5,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 1.5,
+       "reason": "Correct table."
+      },
+      {
+       "step": 2,
+       "awarded": 1,
+       "reason": "Correct mean equation."
+      },
+      {
+       "step": 3,
+       "awarded": 0.5,
+       "reason": "f = 20."
+      },
+      {
+       "step": 4,
+       "awarded": 0.5,
+       "reason": "Correct modal class."
+      },
+      {
+       "step": 5,
+       "awarded": 1,
+       "reason": "Correct formula with the correct class width h = 2."
+      },
+      {
+       "step": 6,
+       "awarded": 0.5,
+       "reason": "19.64 is correct (the MS's 19.95 is an erratum)."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "h = 2 used correctly",
+      "mode ≈ 19.64"
+     ],
+     "commentMustNotClaim": [
+      "h should be 3",
+      "the mode should be 19.95",
+      "the mode is wrong",
+      "any mistake",
+      "marks deducted"
+     ],
+     "modelAnswerKeyFacts": [
+      "f = 20",
+      "modal class 19 − 21",
+      "h = 2",
+      "mode ≈ 19.64"
+     ],
+     "examinerNote": "OFFICIAL MS ERRATUM (MS 2025 30/1/1 p15: '× 3 = 19.95 approx.'; class width is 2). An experienced examiner awards the mathematically correct 19.64 in full. The bank (PYQ-M-2025-STAT-001) carries the wrong scheme, so a grader fed the bank scheme may wrongly penalise a correct student and show a WRONG model answer (19.95) - a wrong 'correct version' is worse than none."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M17",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2025,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Math.zip#Math/041 Mathematics Standard/X_MS_041_Mathematics Standard_30-1-1_2024-25.pdf",
+   "pdfFile": "sources/MS2025_041_30-1-1.pdf",
+   "question": "Q36",
+   "pdfPage": 16,
+   "printedPage": 16
+  },
+  "chapterTrue": {
+   "name": "Arithmetic Progression",
+   "appTopicKey": "arithmetic-progression",
+   "subtopic": "nth term and sum (case study)"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "AP nth term and sum are IN."
+  },
+  "bankMatch": {
+   "inBank": true,
+   "bankId": "PYQ-M-2025-AP-002",
+   "bankTopicKey": "arithmetic-progression"
+  },
+  "question": {
+   "text": "Case Study − 1: A school is organizing a charity run to raise funds for a local hospital. The run is planned as a series of rounds around a track, with each round being 300 metres. To make the event more challenging and engaging, the organizers decide to increase the distance of each subsequent round by 50 metres. For example, the second round will be 350 metres, the third round will be 400 metres and so on. The total number of rounds planned is 10.",
+   "marks": 4,
+   "section": "E",
+   "type": "case",
+   "needsFigure": false,
+   "parts": [
+    {
+     "label": "(i)",
+     "text": "Write the fourth, fifth and sixth term of the Arithmetic Progression so formed.",
+     "marks": 1
+    },
+    {
+     "label": "(ii)",
+     "text": "Determine the distance of the 8th round.",
+     "marks": 1
+    },
+    {
+     "label": "(iii)(a)",
+     "text": "Find the total distance run after completing all 10 rounds. [OR (iii)(b): If a runner completes only the first 6 rounds, what is the total distance run by the runner?]",
+     "marks": 2
+    }
+   ]
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "part": "(i)",
+    "valuePoint": "a₄ = 450, a₅ = 500, a₆ = 550",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 16,
+     "printedPage": 16
+    }
+   },
+   {
+    "step": 2,
+    "part": "(ii)",
+    "valuePoint": "a₈ = 300 + 7 × 50",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 16,
+     "printedPage": 16
+    }
+   },
+   {
+    "step": 3,
+    "part": "(ii)",
+    "valuePoint": "= 650 m",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 16,
+     "printedPage": 16
+    }
+   },
+   {
+    "step": 4,
+    "part": "(iii)(a)",
+    "valuePoint": "S₁₀ = (10/2) × (2 × 300 + 9 × 50)",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 16,
+     "printedPage": 16
+    }
+   },
+   {
+    "step": 5,
+    "part": "(iii)(a)",
+    "valuePoint": "= 5250 m",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 16,
+     "printedPage": 16
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M17-a",
+    "probes": [
+     "unattempted-part",
+     "case-based-4mark",
+     "section-E",
+     "bank-match"
+    ],
+    "mode": "typed",
+    "text": "(i) a = 300, d = 50.\na₄ = 300 + 3 × 50 = 450 m, a₅ = 500 m, a₆ = 550 m.\n(ii)\n(iii)(a) S₁₀ = 10/2 [2 × 300 + (10 − 1) × 50] = 5 × [600 + 450] = 5 × 1050 = 5250 m.",
+    "expected": {
+     "totalMarks": 3,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 1,
+       "reason": "Correct."
+      },
+      {
+       "step": 2,
+       "awarded": 0,
+       "reason": "Part (ii) left blank - unattempted (fourth state), not a wrong answer."
+      },
+      {
+       "step": 3,
+       "awarded": 0,
+       "reason": "Unattempted."
+      },
+      {
+       "step": 4,
+       "awarded": 1,
+       "reason": "Correct."
+      },
+      {
+       "step": 5,
+       "awarded": 1,
+       "reason": "Correct."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [
+      "(ii)"
+     ],
+     "answerState": "partly-unattempted",
+     "commentMayMention": [
+      "part (ii) was not attempted"
+     ],
+     "commentMustNotClaim": [
+      "part (ii) is wrong",
+      "a mistake in part (ii)",
+      "any mistake type for (ii)"
+     ],
+     "modelAnswerKeyFacts": [
+      "a₈ = 650 m"
+     ],
+     "examinerNote": "Unattempted part = fourth state (owner ruling): no marks for it, but it is not a 'wrong answer' and carries no mistake type; it must not be logged to MI as a mistake."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M18",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2025,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Math.zip#Math/041 Mathematics Standard/X_MS_041_Mathematics Standard_30-1-1_2024-25.pdf",
+   "pdfFile": "sources/MS2025_041_30-1-1.pdf",
+   "question": "Q37",
+   "pdfPage": 17,
+   "printedPage": 17
+  },
+  "chapterTrue": {
+   "name": "Areas Related to Circles",
+   "appTopicKey": "areas-related-to-circles",
+   "subtopic": "Arc length and area of a sector"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Areas of sectors are IN (segments restricted to 60°/90° - not involved)."
+  },
+  "bankMatch": {
+   "inBank": true,
+   "bankId": "PYQ-M-2025-ARC-004",
+   "bankTopicKey": "areas-related-to-circles"
+  },
+  "question": {
+   "text": "Case Study − 2: A brooch is a decorative piece often worn on clothing like jackets, blouses or dresses to add elegance. Made from precious metals and decorated with gemstones, brooches come in many shapes and designs. One such brooch is made with silver wire in the form of a circle with diameter 35 mm. The wire is also used in making 5 diameters which divide the circle into 10 equal sectors as shown in the figure.",
+   "marks": 4,
+   "section": "E",
+   "type": "case",
+   "needsFigure": true,
+   "figureDescription": "Circle of diameter 35 mm divided by 5 diameters into 10 equal sectors; three consecutive points A, C, B marked on the circle bounding one sector's arc ACB.",
+   "parts": [
+    {
+     "label": "(i)",
+     "text": "Find the central angle of each sector.",
+     "marks": 1
+    },
+    {
+     "label": "(ii)",
+     "text": "Find the length of the arc ACB.",
+     "marks": 1
+    },
+    {
+     "label": "(iii)(a)",
+     "text": "Find the area of each sector of the brooch. [OR (iii)(b): Find the total length of the silver wire used.]",
+     "marks": 2
+    }
+   ]
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "part": "(i)",
+    "valuePoint": "Central angle = 360°/10 = 36°",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 17,
+     "printedPage": 17
+    }
+   },
+   {
+    "step": 2,
+    "part": "(ii)",
+    "valuePoint": "Arc ACB = (1/10) × 2 × (22/7) × (35/2) = 11 mm",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 17,
+     "printedPage": 17
+    }
+   },
+   {
+    "step": 3,
+    "part": "(iii)(a)",
+    "valuePoint": "Area of each sector = (1/10) × (22/7) × (35/2) × (35/2)",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 17,
+     "printedPage": 17
+    }
+   },
+   {
+    "step": 4,
+    "part": "(iii)(a)",
+    "valuePoint": "= 385/4 mm² or 96.25 mm²",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 17,
+     "printedPage": 17
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M18-a",
+    "probes": [
+     "multipart-independent-later-parts",
+     "calculation",
+     "case-based-4mark",
+     "section-E",
+     "bank-match",
+     "august-defect-9"
+    ],
+    "mode": "typed",
+    "text": "(i) Central angle of each sector = 360°/10 = 30°\n(ii) The circle is divided into 10 equal sectors, so arc ACB = 1/10 of the circumference\n= (1/10) × 2 × (22/7) × (35/2) = (1/10) × 110 = 11 mm\n(iii)(a) Area of each sector = (1/10) × πr² = (1/10) × (22/7) × (35/2) × (35/2) = (1/10) × 962.5 = 96.25 mm²",
+    "expected": {
+     "totalMarks": 3,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0,
+       "reason": "360/10 = 36°, not 30° - arithmetic slip."
+      },
+      {
+       "step": 2,
+       "awarded": 1,
+       "reason": "Independent of (i): uses the 1/10 fraction directly; correct."
+      },
+      {
+       "step": 3,
+       "awarded": 1,
+       "reason": "Correct expression."
+      },
+      {
+       "step": 4,
+       "awarded": 1,
+       "reason": "Correct value with unit."
+      }
+     ],
+     "wrongStep": 1,
+     "mistakeType": "calculation",
+     "studentLabel": "careless",
+     "studentHeading": "Marks to gain - you already know this",
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "360°/10 = 36°, not 30°",
+      "parts (ii) and (iii) are correct"
+     ],
+     "commentMustNotClaim": [
+      "part (ii) is wrong",
+      "part (iii) is wrong",
+      "the slip in (i) affects (ii) or (iii)"
+     ],
+     "modelAnswerKeyFacts": [
+      "36°",
+      "11 mm",
+      "96.25 mm²"
+     ],
+     "examinerNote": "August defect 9 probe: positional departure zeroing must NOT wipe independent later parts. (ii) and (iii) use 1/10 directly and are fully correct -> 3/4."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M19",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2025,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Math.zip#Math/041 Mathematics Standard/X_MS_041_Mathematics Standard_30-1-1_2024-25.pdf",
+   "pdfFile": "sources/MS2025_041_30-1-1.pdf",
+   "question": "Q38",
+   "pdfPage": 18,
+   "printedPage": 18
+  },
+  "chapterTrue": {
+   "name": "Trigonometry",
+   "appTopicKey": "trigonometry",
+   "subtopic": "Heights and distances (case study)"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Heights and distances (30°, 45°, 60°) are IN."
+  },
+  "bankMatch": {
+   "inBank": true,
+   "bankId": "PYQ-M-2025-TRIG-004",
+   "bankTopicKey": "trigonometry"
+  },
+  "question": {
+   "text": "Case Study − 3: Amrita stood near the base of a lighthouse, gazing up at its towering height. She measured the angle of elevation to the top and found it to be 60°. Then, she climbed a nearby observation deck, 40 metres higher than her original position and noticed the angle of elevation to the top of lighthouse to be 45°.",
+   "marks": 4,
+   "section": "E",
+   "type": "case",
+   "needsFigure": true,
+   "figureDescription": "A at ground, B directly above A with AB = 40 m; lighthouse CE with E on the ground level of A and D on CE level with B; CD = h; angle of elevation of C from B is 45°, from A is 60°.",
+   "parts": [
+    {
+     "label": "(i)",
+     "text": "If CD is h metres, find the distance BD in terms of 'h'.",
+     "marks": 1
+    },
+    {
+     "label": "(ii)",
+     "text": "Find distance BC in terms of 'h'.",
+     "marks": 1
+    },
+    {
+     "label": "(iii)(a)",
+     "text": "Find the height CE of the lighthouse [Use √3 = 1.73]. [OR (iii)(b): Find distance AE, if AC = 100 m.]",
+     "marks": 2
+    }
+   ]
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "part": "(i)",
+    "valuePoint": "h/BD = tan 45° = 1",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 18,
+     "printedPage": 18
+    }
+   },
+   {
+    "step": 2,
+    "part": "(i)",
+    "valuePoint": "⇒ BD = h m",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 18,
+     "printedPage": 18
+    }
+   },
+   {
+    "step": 3,
+    "part": "(ii)",
+    "valuePoint": "h/BC = sin 45° = 1/√2",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 18,
+     "printedPage": 18
+    }
+   },
+   {
+    "step": 4,
+    "part": "(ii)",
+    "valuePoint": "⇒ BC = √2 h m",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 18,
+     "printedPage": 18
+    }
+   },
+   {
+    "step": 5,
+    "part": "(iii)(a)",
+    "valuePoint": "tan 60° = EC/AE ⇒ √3 = (h + 40)/h",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 18,
+     "printedPage": 18
+    }
+   },
+   {
+    "step": 6,
+    "part": "(iii)(a)",
+    "valuePoint": "⇒ h = 20(√3 + 1) = 20 × 2.73 = 54.6 m",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 18,
+     "printedPage": 18
+    }
+   },
+   {
+    "step": 7,
+    "part": "(iii)(a)",
+    "valuePoint": "∴ CE = 54.6 + 40 = 94.6 m",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 18,
+     "printedPage": 18
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M19-a",
+    "probes": [
+     "dont-know",
+     "unattempted-part",
+     "case-based-4mark",
+     "section-E",
+     "bank-match"
+    ],
+    "mode": "typed",
+    "text": "(i) In △BDC, tan 45° = CD/BD ⇒ 1 = h/BD ⇒ BD = h m\n(ii) sin 45° = CD/BC ⇒ 1/√2 = h/BC ⇒ BC = √2 h m\n(iii) I don't know how to do this part.",
+    "expected": {
+     "totalMarks": 2,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 2,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 3,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 4,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 5,
+       "awarded": 0,
+       "reason": "'I don't know' - a non-attempt."
+      },
+      {
+       "step": 6,
+       "awarded": 0,
+       "reason": "Non-attempt."
+      },
+      {
+       "step": 7,
+       "awarded": 0,
+       "reason": "Non-attempt."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [
+      "(iii)"
+     ],
+     "answerState": "partly-unattempted",
+     "commentMayMention": [
+      "the student wrote that they did not know part (iii)"
+     ],
+     "commentMustNotClaim": [
+      "part (iii) is wrong",
+      "a mistake in part (iii)",
+      "any mistake type"
+     ],
+     "modelAnswerKeyFacts": [
+      "√3 = (h + 40)/h",
+      "h = 54.6 m",
+      "CE = 94.6 m"
+     ],
+     "examinerNote": "A legible 'don't know' is a non-attempt. Owner ruling: an unattempted part is a fourth state, never a 'wrong answer'. Marks agree with the app (0 for (iii)); the STATE should be unattempted with no mistake type. App rule 6 (checkSolution.cjs, rule 6 NOTE ON NON-ATTEMPTS) grades it status 'incorrect' with mistakeType null."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M20",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2024 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2024,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2024/X/Mathematics_Standard.zip#Mathematics_Standard/MS 041_30-1-1 Mathematics 2023-24.pdf",
+   "pdfFile": "sources/MS2024_041_30-1-1.pdf",
+   "question": "Q33(A)",
+   "pdfPage": 13,
+   "printedPage": 13,
+   "pdfPagesAll": [
+    13,
+    14
+   ]
+  },
+  "chapterTrue": {
+   "name": "Arithmetic Progression",
+   "appTopicKey": "arithmetic-progression",
+   "subtopic": "nth term and sum (solved via a quadratic)"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "AP nth term and sum are IN."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "The sum of first and eighth terms of an A.P. is 32 and their product is 60. Find the first term and common difference of the A.P. Hence, also find the sum of its first 20 terms.",
+   "marks": 5,
+   "section": "D",
+   "type": "la",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "a + a₈ = 32 ⇒ 2a + 7d = 32 ...(i)",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 13,
+     "printedPage": 13
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "a × a₈ = 60 ⇒ a(a + 7d) = 60 ...(ii)",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 13,
+     "printedPage": 13
+    }
+   },
+   {
+    "step": 3,
+    "valuePoint": "Solving: a = 2 or a = 30 and d = 4 or d = −4",
+    "marks": 2,
+    "citation": {
+     "pdfPage": 13,
+     "printedPage": 13
+    }
+   },
+   {
+    "step": 4,
+    "valuePoint": "For a = 2, d = 4: S₂₀ = 10(4 + 76) = 800",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 14,
+     "printedPage": 14
+    }
+   },
+   {
+    "step": 5,
+    "valuePoint": "For a = 30, d = −4: S₂₀ = 10(60 − 76) = −160",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 14,
+     "printedPage": 14
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M20-a",
+    "probes": [
+     "image",
+     "image-neat",
+     "control-full-marks",
+     "chapter-misfile-risk",
+     "5-mark"
+    ],
+    "mode": "image",
+    "text": "a + a₈ = 32 ⇒ a + a + 7d = 32 ⇒ 2a + 7d = 32 …(1)\na × a₈ = 60 ⇒ a(a + 7d) = 60 …(2)\nFrom (1): a + 7d = 32 − a\n∴ a(32 − a) = 60 ⇒ a² − 32a + 60 = 0\n⇒ (a − 2)(a − 30) = 0 ⇒ a = 2 or a = 30\nWhen a = 2: 7d = 32 − 4 = 28 ⇒ d = 4\nWhen a = 30: 7d = 32 − 60 = −28 ⇒ d = −4\nS₂₀ = (20/2)[2a + 19d]\nFor a = 2, d = 4: S₂₀ = 10[4 + 76] = 800\nFor a = 30, d = −4: S₂₀ = 10[60 − 76] = −160",
+    "image": "images/GS-M20-a.jpg",
+    "imageCompressed": "images/GS-M20-a.compressed.jpg",
+    "synthetic": true,
+    "expected": {
+     "totalMarks": 5,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 1,
+       "reason": "Correct."
+      },
+      {
+       "step": 2,
+       "awarded": 1,
+       "reason": "Correct."
+      },
+      {
+       "step": 3,
+       "awarded": 2,
+       "reason": "Both (a, d) pairs correct."
+      },
+      {
+       "step": 4,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 5,
+       "awarded": 0.5,
+       "reason": "Correct."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "formed the quadratic a² − 32a + 60 = 0",
+      "both cases handled"
+     ],
+     "commentMustNotClaim": [
+      "any mistake",
+      "marks deducted",
+      "missed the second case"
+     ],
+     "modelAnswerKeyFacts": [
+      "a = 2, d = 4, S₂₀ = 800",
+      "a = 30, d = −4, S₂₀ = −160"
+     ],
+     "examinerNote": "Control (handwritten). Chapter probe: solved through a quadratic, but TRUE chapter = Arithmetic Progression (arithmetic-progression), not Quadratic Equations."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M21",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2024 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2024,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2024/X/Mathematics_Standard.zip#Mathematics_Standard/MS 041_30-1-1 Mathematics 2023-24.pdf",
+   "pdfFile": "sources/MS2024_041_30-1-1.pdf",
+   "question": "Q35",
+   "pdfPage": 15,
+   "printedPage": 15,
+   "pdfPagesAll": [
+    15,
+    16
+   ]
+  },
+  "chapterTrue": {
+   "name": "Trigonometry",
+   "appTopicKey": "trigonometry",
+   "subtopic": "Heights and distances"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Heights and distances are IN."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "A pole 6m high is fixed on the top of a tower. The angle of elevation of the top of the pole observed from a point P on the ground is 60° and the angle of depression of the point P from the top of the tower is 45°. Find the height of the tower and the distance of point P from the foot of the tower. (Use √3 = 1.73)",
+   "marks": 5,
+   "section": "D",
+   "type": "la",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "Correct figure",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 15,
+     "printedPage": 15
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "tan 45° = 1 = h/x",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 15,
+     "printedPage": 15
+    }
+   },
+   {
+    "step": 3,
+    "valuePoint": "⇒ h = x ...(i)",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 15,
+     "printedPage": 15
+    }
+   },
+   {
+    "step": 4,
+    "valuePoint": "tan 60° = √3 = (h + 6)/x",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 15,
+     "printedPage": 15
+    }
+   },
+   {
+    "step": 5,
+    "valuePoint": "⇒ h + 6 = x√3 ...(ii)",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 15,
+     "printedPage": 15
+    }
+   },
+   {
+    "step": 6,
+    "valuePoint": "Solving: h = 3(√3 + 1) = 8.19",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 16,
+     "printedPage": 16
+    }
+   },
+   {
+    "step": 7,
+    "valuePoint": "and x = 8.19 (height of tower 8.19 m; distance 8.19 m)",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 16,
+     "printedPage": 16
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M21-a",
+    "probes": [
+     "presentation-missing-diagram",
+     "diagram-dependent",
+     "5-mark"
+    ],
+    "mode": "typed",
+    "text": "Let AB = h m be the height of the tower and BC = 6 m the pole, and let the distance of P from the foot A of the tower be x m.\nAngle of depression of P from B = 45° ⇒ ∠BPA = 45°.\nIn △BAP: tan 45° = AB/AP = h/x ⇒ 1 = h/x ⇒ h = x …(1)\nIn △CAP: tan 60° = AC/AP = (h + 6)/x ⇒ √3 x = h + 6 …(2)\nFrom (1): √3 h = h + 6 ⇒ h(√3 − 1) = 6 ⇒ h = 6/(√3 − 1) = 6(√3 + 1)/2 = 3(√3 + 1) = 3 × 2.73 = 8.19\n∴ Height of tower = 8.19 m and distance of P from the foot of the tower = 8.19 m.",
+    "expected": {
+     "totalMarks": 4,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0,
+       "reason": "No figure drawn; the scheme gives 1 mark for the correct figure."
+      },
+      {
+       "step": 2,
+       "awarded": 1,
+       "reason": "Correct."
+      },
+      {
+       "step": 3,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 4,
+       "awarded": 1,
+       "reason": "Correct."
+      },
+      {
+       "step": 5,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 6,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 7,
+       "awarded": 0.5,
+       "reason": "Correct with unit."
+      }
+     ],
+     "wrongStep": 1,
+     "mistakeType": "presentation",
+     "studentLabel": "exam technique",
+     "studentHeading": "Marks to gain - the quickest wins",
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "no figure was drawn",
+      "all calculations are correct"
+     ],
+     "commentMustNotClaim": [
+      "calculation error",
+      "conceptual",
+      "the heights are wrong"
+     ],
+     "modelAnswerKeyFacts": [
+      "figure with tower AB, pole BC, point P",
+      "h = 8.19 m",
+      "x = 8.19 m"
+     ],
+     "examinerNote": "Required figure absent = CBSE format element (1 mark in the MS) -> presentation (exam technique). App prompt contradiction noted: rule 3 lists 'required diagram absent' as presentation; rule 6 says a wholly absent required step is 'missing' with null type."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M22",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2024 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2024,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2024/X/Mathematics_Standard.zip#Mathematics_Standard/MS 041_30-1-1 Mathematics 2023-24.pdf",
+   "pdfFile": "sources/MS2024_041_30-1-1.pdf",
+   "question": "Q21",
+   "pdfPage": 7,
+   "printedPage": 7
+  },
+  "chapterTrue": {
+   "name": "Pair of Linear Equations",
+   "appTopicKey": "pair-of-linear-equations",
+   "subtopic": "Algebraic solution (elimination) and verification"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Elimination method is IN; cross-multiplication (banned) not used."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "Solve the following system of linear equations 7x − 2y = 5 and 8x + 7y = 15 and verify your answer.",
+   "marks": 2,
+   "section": "B",
+   "type": "vsa",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "Solving equations (i) and (ii): x = 1, y = 1",
+    "marks": 1.5,
+    "citation": {
+     "pdfPage": 7,
+     "printedPage": 7
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "Verification of answer",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 7,
+     "printedPage": 7
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M22-a",
+    "probes": [
+     "unattempted-part",
+     "presentation-vs-missing-boundary"
+    ],
+    "mode": "typed",
+    "text": "7x − 2y = 5 …(1)\n8x + 7y = 15 …(2)\n(1) × 7: 49x − 14y = 35\n(2) × 2: 16x + 14y = 30\nAdding: 65x = 65 ⇒ x = 1\nPut x = 1 in (1): 7 − 2y = 5 ⇒ 2y = 2 ⇒ y = 1\n∴ x = 1, y = 1",
+    "expected": {
+     "totalMarks": 1.5,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 1.5,
+       "reason": "Correct solution by elimination."
+      },
+      {
+       "step": 2,
+       "awarded": 0,
+       "reason": "Verification asked for but not attempted."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [
+      "verification"
+     ],
+     "answerState": "partly-unattempted",
+     "commentMayMention": [
+      "verification was not done"
+     ],
+     "commentMustNotClaim": [
+      "the solution is wrong",
+      "calculation mistake",
+      "conceptual"
+     ],
+     "modelAnswerKeyFacts": [
+      "x = 1, y = 1",
+      "check: 7(1) − 2(1) = 5 and 8(1) + 7(1) = 15"
+     ],
+     "examinerNote": "The verification is a requested sub-task left wholly unattempted -> fourth state (no mistake type), ½ not earned. Distinct from M10 (a written answer short of its CBSE conclusion = presentation)."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M23",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2023 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2023,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2023/X/Maths_Standard.zip#Maths_Standard/MS 041_30-1-1 Mathematics 2022-23.pdf",
+   "pdfFile": "sources/MS2023_041_30-1-1.pdf",
+   "question": "Q24",
+   "pdfPage": 9,
+   "printedPage": 9
+  },
+  "chapterTrue": {
+   "name": "Real Numbers",
+   "appTopicKey": "real-numbers",
+   "subtopic": "HCF by prime factorisation (word problem)"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "HCF via the Fundamental Theorem of Arithmetic is IN. ('Euclid's Division Lemma'/'Euclid's Division Algorithm' are banned; the student uses prime factorisation.)"
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "Find the greatest number which divides 85 and 72 leaving remainders 1 and 2 respectively.",
+   "marks": 2,
+   "section": "B",
+   "type": "vsa",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "HCF of 85 − 1 = 84 and 72 − 2 = 70 is required",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 9,
+     "printedPage": 9
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "HCF of 84 and 70 = 14",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 9,
+     "printedPage": 9
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M23-a",
+    "probes": [
+     "departure-never-returns",
+     "conceptual"
+    ],
+    "mode": "typed",
+    "text": "85 = 5 × 17\n72 = 2³ × 3²\nThere is no common prime factor, so HCF(85, 72) = 1.\n∴ The greatest number is 1.",
+    "expected": {
+     "totalMarks": 0,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0,
+       "reason": "Remainders not subtracted - finds HCF of the wrong numbers (method misunderstood)."
+      },
+      {
+       "step": 2,
+       "awarded": 0,
+       "reason": "HCF of 85 and 72 is correctly computed but is not what was asked - after departure, 0."
+      }
+     ],
+     "wrongStep": 1,
+     "mistakeType": "conceptual",
+     "studentLabel": "knowledge gap",
+     "studentHeading": "Marks to gain - learn this",
+     "departure": {
+      "atStep": 1,
+      "returnsAtStep": null
+     },
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "the remainders 1 and 2 must first be subtracted (84 and 70)",
+      "the prime factorisations themselves are correct"
+     ],
+     "commentMustNotClaim": [
+      "the prime factorisation of 85 or 72 is wrong",
+      "calculation error",
+      "HCF(85, 72) is not 1"
+     ],
+     "modelAnswerKeyFacts": [
+      "HCF(84, 70) = 14"
+     ],
+     "examinerNote": "Departure at step 1, never returns: correct arithmetic on the wrong problem earns 0. Wrong method = conceptual."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-M24",
+  "subject": "Maths",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2023 - Mathematics (Standard) 041 - Marking Scheme",
+   "year": 2023,
+   "setCode": "30/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2023/X/Maths_Standard.zip#Maths_Standard/MS 041_30-1-1 Mathematics 2022-23.pdf",
+   "pdfFile": "sources/MS2023_041_30-1-1.pdf",
+   "question": "Q25",
+   "pdfPage": 9,
+   "printedPage": 9
+  },
+  "chapterTrue": {
+   "name": "Probability",
+   "appTopicKey": "probability",
+   "subtopic": "Classical probability"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Classical probability is IN."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "A bag contains 4 red, 3 blue and 2 yellow balls. One ball is drawn at random from the bag. Find the probability that drawn ball is (i) red (ii) yellow.",
+   "marks": 2,
+   "section": "B",
+   "type": "vsa",
+   "needsFigure": false,
+   "parts": [
+    {
+     "label": "(i)",
+     "text": "red",
+     "marks": 1
+    },
+    {
+     "label": "(ii)",
+     "text": "yellow",
+     "marks": 1
+    }
+   ]
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "part": "(i)",
+    "valuePoint": "P(red) = 4/9 (total 9 balls)",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 9,
+     "printedPage": 9
+    }
+   },
+   {
+    "step": 2,
+    "part": "(ii)",
+    "valuePoint": "P(yellow) = 2/9",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 9,
+     "printedPage": 9
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-M24-a",
+    "probes": [
+     "image",
+     "blank"
+    ],
+    "mode": "image",
+    "text": "(BLANK PAGE - ruled notebook page with nothing written)",
+    "image": "images/GS-M24-a.jpg",
+    "imageCompressed": "images/GS-M24-a.compressed.jpg",
+    "synthetic": true,
+    "expected": {
+     "totalMarks": 0,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0,
+       "reason": "Nothing written."
+      },
+      {
+       "step": 2,
+       "awarded": 0,
+       "reason": "Nothing written."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [
+      "(i)",
+      "(ii)"
+     ],
+     "answerState": "blank",
+     "commentMayMention": [
+      "no answer was found on the page"
+     ],
+     "commentMustNotClaim": [
+      "any value the student wrote",
+      "any mistake type",
+      "the student made an error"
+     ],
+     "modelAnswerKeyFacts": [
+      "P(red) = 4/9",
+      "P(yellow) = 2/9"
+     ],
+     "examinerNote": "Blank page: 0 marks earned, state = unattempted (fourth state), no mistake type, nothing logged to MI as a mistake. The grader must not invent working."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-S01",
+  "subject": "Science",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Science 086 - Marking Scheme (31/1/1 to 31/1/3, English medium)",
+   "year": 2025,
+   "setCode": "31/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Science.zip#Science/086 Science (English Medium)/X_086_31-1-1 to 3 Science_MS.pdf",
+   "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+   "question": "Q11",
+   "pdfPage": 3,
+   "printedPage": 3,
+   "questionPaper": {
+    "url": "https://www.cbse.gov.in/cbsenew/question-paper/2025/X/086_Science.zip#086_Science/31-1-1_Science.pdf",
+    "pdfFile": "sources/QP2025_086_31-1-1.pdf",
+    "pdfPage": 9,
+    "printedPage": 9
+   }
+  },
+  "chapterTrue": {
+   "name": "Heredity",
+   "appTopicKey": "heredity",
+   "subtopic": "Mendel's dihybrid cross - F1"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Heredity / Mendel's contribution / Laws of Inheritance are RETAINED and assessed in 2026-27; only Evolution sub-topics are banned. No banned string matches."
+  },
+  "bankMatch": {
+   "inBank": true,
+   "bankId": "PYQ-S-2025-HERED-001",
+   "bankTopicKey": "heredity"
+  },
+  "question": {
+   "text": "If pea plants with round and green seeds (RRyy) are crossed with pea plants having wrinkled and yellow seeds (rrYY), the seeds developed by the plants of F1 generation will be :",
+   "marks": 1,
+   "section": "A",
+   "type": "mcq",
+   "options": {
+    "A": "50% round and green",
+    "B": "75% wrinkled and green",
+    "C": "100% round and yellow",
+    "D": "75% wrinkled and yellow"
+   },
+   "correctOption": "C",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "C / 100% round and yellow",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 3,
+     "printedPage": 3
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-S01-a",
+    "probes": [
+     "mcq-correct-pick-flawed-working",
+     "mcq-objective-invariant",
+     "heredity-retained",
+     "bank-match"
+    ],
+    "mode": "typed",
+    "text": "RRyy × rrYY → all F1 plants are Rryy.\nThey are round and yellow because round and yellow are recessive traits.\nAnswer: (C)",
+    "expected": {
+     "totalMarks": 1,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 1,
+       "reason": "Correct option (C); MCQ scores on the option alone."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [],
+     "objective": {
+      "correctOption": "C",
+      "studentOption": "C",
+      "expectedMarks": 1
+     },
+     "commentMayMention": [
+      "the F1 genotype is RrYy (not Rryy)",
+      "round and yellow are DOMINANT, not recessive"
+     ],
+     "commentMustNotClaim": [
+      "marks were deducted",
+      "the answer is wrong"
+     ],
+     "modelAnswerKeyFacts": [
+      "F1 genotype RrYy",
+      "round (R) and yellow (Y) are dominant",
+      "answer (C) 100% round and yellow"
+     ],
+     "examinerNote": "Correct pick with wrong reasoning = full mark (owner ruling). No marks lost -> no mistake type; the comment may correct the genotype and dominance, factually."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-S02",
+  "subject": "Science",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Science 086 - Marking Scheme (31/1/1 to 31/1/3, English medium)",
+   "year": 2025,
+   "setCode": "31/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Science.zip#Science/086 Science (English Medium)/X_086_31-1-1 to 3 Science_MS.pdf",
+   "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+   "question": "Q19",
+   "pdfPage": 3,
+   "printedPage": 3,
+   "questionPaper": {
+    "url": "https://www.cbse.gov.in/cbsenew/question-paper/2025/X/086_Science.zip#086_Science/31-1-1_Science.pdf",
+    "pdfFile": "sources/QP2025_086_31-1-1.pdf",
+    "pdfPage": 13,
+    "printedPage": 13
+   }
+  },
+  "chapterTrue": {
+   "name": "Magnetic Effects of Electric Current",
+   "appTopicKey": "magnetic-effects-of-electric-current",
+   "subtopic": "Magnetic field lines"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Magnetic field and field lines are IN ('Electric Motor', 'Electromagnetic Induction', 'Electric Generator' are board-excluded; not involved)."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "Assertion (A): No two magnetic field lines are found to cross each other.\nReason (R): The compass needle cannot point towards two directions at the point of intersection of two magnetic field lines.\nCodes: (A) Both A and R are true and R is the correct explanation of A. (B) Both A and R are true, but R is not the correct explanation of A. (C) A is true, but R is false. (D) A is false, but R is true.",
+   "marks": 1,
+   "section": "A",
+   "type": "ar",
+   "options": {
+    "A": "Both true; R explains A",
+    "B": "Both true; R does not explain A",
+    "C": "A true, R false",
+    "D": "A false, R true"
+   },
+   "correctOption": "A",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "A / Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 3,
+     "printedPage": 3
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-S02-a",
+    "probes": [
+     "ar",
+     "mcq-wrong-no-working",
+     "mcq-objective-invariant",
+     "chapter-misfile-risk"
+    ],
+    "mode": "typed",
+    "text": "(C)",
+    "expected": {
+     "totalMarks": 0,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0,
+       "reason": "Option (C) chosen; key is (A)."
+      }
+     ],
+     "wrongStep": 1,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [],
+     "objective": {
+      "correctOption": "A",
+      "studentOption": "C",
+      "expectedMarks": 0
+     },
+     "commentMayMention": [
+      "the correct option is (A)"
+     ],
+     "commentMustNotClaim": [
+      "conceptual",
+      "calculation",
+      "silly",
+      "presentation",
+      "the student believes R is false"
+     ],
+     "modelAnswerKeyFacts": [
+      "both A and R true; R explains A - answer (A)"
+     ],
+     "examinerNote": "Bare wrong option: 0 marks and the cause is UNDIAGNOSABLE (no working) -> mistakeType null (app rule 7 and examiner judgement). A grader must not guess a type or invent the student's reasoning."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-S03",
+  "subject": "Science",
+  "sourceType": "SQP-MS",
+  "source": {
+   "paper": "CBSE Academic Sample Question Paper 2026-27 - Science 086 - Marking Scheme",
+   "year": 2026,
+   "setCode": "SQP 2026-27",
+   "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/Science-MS.pdf",
+   "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+   "question": "Q31",
+   "pdfPage": 7,
+   "printedPage": null,
+   "questionPaper": {
+    "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/Science-SQP.pdf",
+    "pdfFile": "sources/SQP2026_27_Science-SQP.pdf",
+    "pdfPage": 11,
+    "printedPage": null
+   },
+   "sectionNote": "2026-27 SQP Science is organised by SUBJECT: Section A Biology, B Chemistry, C Physics (SQP p1). Q31 is in Section C (Physics)."
+  },
+  "chapterTrue": {
+   "name": "Electricity",
+   "appTopicKey": "electricity",
+   "subtopic": "Electric power P = VI"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Electric power is IN."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "An electrical appliance rated 1000 W is operated at 250 V. What current does it draw?",
+   "marks": 1,
+   "section": "C (Physics)",
+   "type": "mcq",
+   "options": {
+    "A": "0.25 A",
+    "B": "2.5 A",
+    "C": "4.0 A",
+    "D": "10 A"
+   },
+   "correctOption": "C",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "C. 4.0 A",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 7,
+     "printedPage": null
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-S03-a",
+    "probes": [
+     "image",
+     "image-neat",
+     "mcq-correct-with-working",
+     "control-full-marks",
+     "mcq-objective-invariant"
+    ],
+    "mode": "image",
+    "text": "Q31.\nP = VI ⇒ I = P/V = 1000/250 = 4 A\nAns: (C) 4.0 A",
+    "image": "images/GS-S03-a.jpg",
+    "imageCompressed": "images/GS-S03-a.compressed.jpg",
+    "synthetic": true,
+    "expected": {
+     "totalMarks": 1,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 1,
+       "reason": "Correct option (C)."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [],
+     "objective": {
+      "correctOption": "C",
+      "studentOption": "C",
+      "expectedMarks": 1
+     },
+     "commentMayMention": [
+      "I = P/V = 4 A"
+     ],
+     "commentMustNotClaim": [
+      "any mistake",
+      "marks deducted"
+     ],
+     "modelAnswerKeyFacts": [
+      "I = P/V = 1000/250 = 4.0 A",
+      "option (C)"
+     ],
+     "examinerNote": "Handwritten MCQ, correct: 1 mark. Probes reading of the option letter from a photo."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-S04",
+  "subject": "Science",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Science 086 - Marking Scheme (31/1/1 to 31/1/3, English medium)",
+   "year": 2025,
+   "setCode": "31/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Science.zip#Science/086 Science (English Medium)/X_086_31-1-1 to 3 Science_MS.pdf",
+   "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+   "question": "Q21",
+   "pdfPage": 3,
+   "printedPage": 3,
+   "questionPaper": {
+    "url": "https://www.cbse.gov.in/cbsenew/question-paper/2025/X/086_Science.zip#086_Science/31-1-1_Science.pdf",
+    "pdfFile": "sources/QP2025_086_31-1-1.pdf",
+    "pdfPage": 13,
+    "printedPage": 13
+   }
+  },
+  "chapterTrue": {
+   "name": "Chemical Reactions & Equations",
+   "appTopicKey": "chemical-reactions-and-equations",
+   "subtopic": "Observations that show a chemical change (NCERT Ch1 activity: Zn + dil. H2SO4)"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Chemical reactions - characteristics/observations are IN."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "A student performs the following experiment in his school laboratory. [Figure] List two observations to justify that in this experiment a chemical change has taken place.",
+   "marks": 2,
+   "section": "B",
+   "type": "vsa",
+   "needsFigure": true,
+   "figureDescription": "A conical flask fitted with a cork and a vertical glass tube, containing granulated zinc (Zn granules) in dilute sulphuric acid."
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "Evolution of gas",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 3,
+     "printedPage": 3
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "Change / rise in temperature",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 3,
+     "printedPage": 3
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-S04-a",
+    "probes": [
+     "mixed-language",
+     "control-full-marks",
+     "chapter-misfile-risk"
+    ],
+    "mode": "typed",
+    "text": "1. Zinc granules के आसपास gas के bubbles बनते हैं — यानी gas का evolution होता है (H₂ gas)।\n2. Flask को छूने पर वह गरम लगता है, मतलब temperature में rise होता है।",
+    "expected": {
+     "totalMarks": 2,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 1,
+       "reason": "Evolution of gas stated (mixed Hindi-English)."
+      },
+      {
+       "step": 2,
+       "awarded": 1,
+       "reason": "Rise in temperature stated."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "gas bubbles / evolution of gas",
+      "flask becomes warm / temperature rises"
+     ],
+     "commentMustNotClaim": [
+      "language is a mistake",
+      "answer must be in English",
+      "any mistake"
+     ],
+     "modelAnswerKeyFacts": [
+      "evolution of (hydrogen) gas",
+      "rise in temperature"
+     ],
+     "examinerNote": "Mixed-language (Devanagari + English) answer, fully correct. Chapter probe: zinc + acid also appears in Acids, Bases & Salts, but the question asks for evidence of a CHEMICAL CHANGE (NCERT Ch1) -> chemical-reactions-and-equations."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-S05",
+  "subject": "Science",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2024 - Science 086 - Marking Scheme (31/1/1 to 31/1/3, English) - set 31/1/2 section",
+   "year": 2024,
+   "setCode": "31/1/2",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2024/X/Science.zip#Science/Science_English)/science (English) set no. 1.pdf",
+   "pdfFile": "sources/MS2024_086_31-1_set1.pdf",
+   "question": "Q23",
+   "pdfPage": 18,
+   "printedPage": 5,
+   "questionPaper": {
+    "url": "https://www.cbse.gov.in/cbsenew/question-paper/2024/X/SCIENCE.zip#SCIENCE/31_1_2_Science.pdf",
+    "pdfFile": "sources/QP2024_086_31-1-2.pdf",
+    "pdfPage": 13,
+    "printedPage": 13
+   },
+   "printedPageNote": "MS footer reads 'X SCIENCE 31/1/2 PAGE 5' (PDF page 18 of the 39-page three-set file)."
+  },
+  "chapterTrue": {
+   "name": "Light - Reflection & Refraction",
+   "appTopicKey": "light-reflection-and-refraction",
+   "subtopic": "Refraction through a rectangular glass slab; lateral displacement"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Refraction through a glass slab is IN."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "A ray of light falls making an angle of incidence θ on the surface of a glass slab. Draw a labelled ray diagram to show its path. Also mark lateral displacement on it.",
+   "marks": 2,
+   "section": "B",
+   "type": "vsa",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "Labelled ray diagram: incident ray, normal, refracted ray bending towards normal in glass, emergent ray parallel to incident ray",
+    "marks": 1.5,
+    "citation": {
+     "pdfPage": 18,
+     "printedPage": 5
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "Lateral displacement labelling",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 18,
+     "printedPage": 5
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-S05-a",
+    "probes": [
+     "image",
+     "image-diagram",
+     "diagram-dependent",
+     "control-full-marks"
+    ],
+    "mode": "image",
+    "text": "[DIAGRAM] Rectangular glass slab (air above and below). Normal (dashed) at the point of incidence; incident ray at angle i = θ to the normal; refracted ray bends towards the normal (angle r); at the lower face the emergent ray bends away from the normal (angle e) and is parallel to the incident ray; the incident ray is extended as a dashed line; the perpendicular distance between the dashed extension and the emergent ray is marked 'lateral displacement'. Arrows on all rays. Labels: air, glass, normal, i = θ, r, e, incident ray, refracted ray, emergent ray, lateral displacement.",
+    "image": "images/GS-S05-a.jpg",
+    "imageCompressed": "images/GS-S05-a.compressed.jpg",
+    "synthetic": true,
+    "expected": {
+     "totalMarks": 2,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 1.5,
+       "reason": "Correct labelled ray diagram with arrows."
+      },
+      {
+       "step": 2,
+       "awarded": 0.5,
+       "reason": "Lateral displacement correctly marked."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "refracted ray bends towards the normal",
+      "emergent ray parallel to incident ray",
+      "lateral displacement marked"
+     ],
+     "commentMustNotClaim": [
+      "arrows missing",
+      "any mistake",
+      "marks deducted"
+     ],
+     "modelAnswerKeyFacts": [
+      "ray bends towards normal in glass",
+      "emergent ray parallel to incident ray",
+      "lateral displacement = perpendicular shift"
+     ],
+     "examinerNote": "Hand-drawn diagram, complete: 2/2. Probes whether the grader can read a drawn diagram rather than text."
+    }
+   },
+   {
+    "caseId": "GS-S05-b",
+    "probes": [
+     "ray-diagram-description",
+     "presentation-missing-diagram",
+     "diagram-dependent"
+    ],
+    "mode": "typed",
+    "text": "The ray of light enters the glass slab and bends towards the normal because glass is optically denser than air. At the second surface it bends away from the normal and comes out parallel to the incident ray. The emergent ray is shifted sideways from the path of the incident ray; this perpendicular shift is called lateral displacement.",
+    "expected": {
+     "totalMarks": 0,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0,
+       "reason": "No diagram drawn; the question asks for a labelled ray diagram and the 1½ is for the diagram."
+      },
+      {
+       "step": 2,
+       "awarded": 0,
+       "reason": "Lateral displacement must be MARKED on the diagram; a verbal definition does not earn the labelling ½."
+      }
+     ],
+     "wrongStep": 1,
+     "mistakeType": "presentation",
+     "studentLabel": "exam technique",
+     "studentHeading": "Marks to gain - the quickest wins",
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "the physics described is correct",
+      "no ray diagram was drawn"
+     ],
+     "commentMustNotClaim": [
+      "the explanation is wrong",
+      "conceptual",
+      "the ray bends away from the normal in glass"
+     ],
+     "modelAnswerKeyFacts": [
+      "labelled ray diagram",
+      "lateral displacement marked as the perpendicular distance between emergent ray and extended incident ray"
+     ],
+     "examinerNote": "Description instead of the required diagram: the scheme gives no marks for prose here (contrast 2025 31/1/1 Q28, whose MS explicitly allows 'description or labelled diagram'). Knowledge right, CBSE format (diagram) absent = presentation. Examiner judgement - some examiners would give ½ for the correct description of lateral displacement; S3 should treat 0 as exact and ½ as within tolerance."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-S06",
+  "subject": "Science",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Science 086 - Marking Scheme (31/1/1 to 31/1/3, English medium)",
+   "year": 2025,
+   "setCode": "31/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Science.zip#Science/086 Science (English Medium)/X_086_31-1-1 to 3 Science_MS.pdf",
+   "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+   "question": "Q23(a)",
+   "pdfPage": 4,
+   "printedPage": 4,
+   "questionPaper": {
+    "url": "https://www.cbse.gov.in/cbsenew/question-paper/2025/X/086_Science.zip#086_Science/31-1-1_Science.pdf",
+    "pdfFile": "sources/QP2025_086_31-1-1.pdf",
+    "pdfPage": 13,
+    "printedPage": 13
+   },
+   "hindiMedium": {
+    "msPdfFile": "sources/MS2025_086_31-1_HINDI.pdf",
+    "msPdfPage": 4,
+    "msPrintedPage": 4,
+    "msUrl": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Science.zip#Science/086 Science (Hindi Medium)/X_086_31_1-1 to 3_Science _HINDI_Med.pdf",
+    "qpPdfPage": 12,
+    "qpPrintedPage": 12,
+    "questionTextHindi": "रुधिर की हानि कम-से-कम होने के अतिरिक्त किसी वाहिनी से रक्तस्राव को अवरुद्ध करना (रोकना) क्यों अनिवार्य है? रुधिर के उस संघटक का नाम लिखिए जो इस प्रक्रिया में सहायता करता है तथा उल्लेख कीजिए कि इस संघटक द्वारा इस कार्य का सम्पादन किस प्रकार किया जाता है।"
+   }
+  },
+  "chapterTrue": {
+   "name": "Life Processes",
+   "appTopicKey": "life-processes",
+   "subtopic": "Transportation in humans - blood and platelets"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Transportation (blood, platelets) is IN."
+  },
+  "bankMatch": {
+   "inBank": true,
+   "bankId": "PYQ-S-2025-LIFEP-004",
+   "bankTopicKey": "life-processes",
+   "note": "Bank subtopic 'Transportation in Plants' fits OR-part (b), not (a)."
+  },
+  "question": {
+   "text": "(a) Besides minimising the loss of blood, why is it essential to plug any leak in a blood vessel? Name the component of blood which helps in this process and state how this component perform this function.",
+   "marks": 2,
+   "section": "B",
+   "type": "vsa",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "Plugging of the leak prevents lowering of the blood pressure / maintains the efficiency of the pumping system",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 4,
+     "printedPage": 4
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "Platelets",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 4,
+     "printedPage": 4
+    }
+   },
+   {
+    "step": 3,
+    "valuePoint": "Help to clot the blood at the site of injury",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 4,
+     "printedPage": 4
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-S06-a",
+    "probes": [
+     "image",
+     "hindi",
+     "control-full-marks",
+     "bank-match"
+    ],
+    "mode": "image",
+    "text": "(क) रक्त वाहिका में रिसाव होने पर रक्त दाब कम हो जाता है, जिससे पंपिंग तंत्र की दक्षता घट जाती है। इसलिए रिसाव को रोकना आवश्यक है।\nरुधिर का यह संघटक प्लेटलेट्स (बिंबाणु) है।\nप्लेटलेट्स चोट के स्थान पर रुधिर का थक्का बनाकर रिसाव को बंद कर देते हैं।",
+    "image": "images/GS-S06-a.jpg",
+    "imageCompressed": "images/GS-S06-a.compressed.jpg",
+    "synthetic": true,
+    "expected": {
+     "totalMarks": 2,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 1,
+       "reason": "Fall in blood pressure / pumping efficiency - correct (Hindi)."
+      },
+      {
+       "step": 2,
+       "awarded": 0.5,
+       "reason": "प्लेटलेट्स (platelets) named."
+      },
+      {
+       "step": 3,
+       "awarded": 0.5,
+       "reason": "Clot at the site of injury - correct."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "blood pressure falls if the leak is not plugged",
+      "platelets",
+      "clot at the injury site"
+     ],
+     "commentMustNotClaim": [
+      "language is a mistake",
+      "answer must be in English",
+      "any mistake"
+     ],
+     "modelAnswerKeyFacts": [
+      "prevents fall in blood pressure / keeps pumping efficient",
+      "platelets",
+      "form a clot at the site of injury"
+     ],
+     "examinerNote": "Hindi-medium answer (CBSE accepts Hindi), fully correct per the Hindi MS p4 ('प्लेटलैट्स कोशिकाएं'). Must not be penalised for language; any comment must be accurate to what was written."
+    }
+   },
+   {
+    "caseId": "GS-S06-b",
+    "probes": [
+     "bio-exact-term",
+     "presentation",
+     "bank-match"
+    ],
+    "mode": "typed",
+    "text": "If a leak in a blood vessel is not plugged, the blood pressure in the system falls and the heart cannot pump blood efficiently. The component is the clotting cells present in the blood. They collect at the cut and form a clot which seals the leak.",
+    "expected": {
+     "totalMarks": 1.5,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 1,
+       "reason": "Correct reason."
+      },
+      {
+       "step": 2,
+       "awarded": 0,
+       "reason": "'Clotting cells' is not the CBSE technical term - 'platelets' required."
+      },
+      {
+       "step": 3,
+       "awarded": 0.5,
+       "reason": "Function (clot at the cut) correct."
+      }
+     ],
+     "wrongStep": 2,
+     "mistakeType": "presentation",
+     "studentLabel": "exam technique",
+     "studentHeading": "Marks to gain - the quickest wins",
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "the technical term 'platelets' is missing ('clotting cells' used)"
+     ],
+     "commentMustNotClaim": [
+      "the reason about blood pressure is wrong",
+      "the function is wrong",
+      "red blood cells"
+     ],
+     "modelAnswerKeyFacts": [
+      "platelets"
+     ],
+     "examinerNote": "Exact-term probe (owner doctrine CLAUDE.md §13: exact CBSE technical term required, e.g. oesophagus not food pipe; no oesophagus question exists in the 2023-25 Class X Science MS - searched). Concept right, required term absent -> lose the ½; typed presentation (exam technique) because the knowledge is shown and only the CBSE term is missing. JUDGEMENT: if the owner treats an unknown technical name as a knowledge gap, the type becomes conceptual; marks unchanged."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-S07",
+  "subject": "Science",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Science 086 - Marking Scheme (31/1/1 to 31/1/3, English medium)",
+   "year": 2025,
+   "setCode": "31/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Science.zip#Science/086 Science (English Medium)/X_086_31-1-1 to 3 Science_MS.pdf",
+   "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+   "question": "Q24",
+   "pdfPage": 4,
+   "printedPage": 4,
+   "questionPaper": {
+    "url": "https://www.cbse.gov.in/cbsenew/question-paper/2025/X/086_Science.zip#086_Science/31-1-1_Science.pdf",
+    "pdfFile": "sources/QP2025_086_31-1-1.pdf",
+    "pdfPage": 15,
+    "printedPage": 15
+   }
+  },
+  "chapterTrue": {
+   "name": "Light - Reflection & Refraction",
+   "appTopicKey": "light-reflection-and-refraction",
+   "subtopic": "Lens formula - concave lens"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Lens formula is IN."
+  },
+  "bankMatch": {
+   "inBank": true,
+   "bankId": "PYQ-S-2025-LIGHT-009",
+   "bankTopicKey": "light-reflection-and-refraction"
+  },
+  "question": {
+   "text": "An object is placed at a distance of 60 cm from a concave lens of focal length 30 cm. Use lens formula to find the position of the image formed in this case.",
+   "marks": 2,
+   "section": "B",
+   "type": "vsa",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "u = −60 cm, f = −30 cm; lens formula 1/f = 1/v − 1/u",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 4,
+     "printedPage": 4
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "1/(−30 cm) = 1/v − 1/(−60 cm)",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 4,
+     "printedPage": 4
+    }
+   },
+   {
+    "step": 3,
+    "valuePoint": "1/v = −1/30 − 1/60 = −3/60 ⇒ v = −20 cm (image 20 cm from the lens, same side as object)",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 4,
+     "printedPage": 4
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-S07-a",
+    "probes": [
+     "presentation-missing-formula",
+     "physics-units",
+     "bank-match"
+    ],
+    "mode": "typed",
+    "text": "u = −60 cm, f = −30 cm\n1/(−30) = 1/v − 1/(−60)\n1/v = −1/30 − 1/60 = (−2 − 1)/60 = −3/60 = −1/20\nv = −20 cm\nThe image is formed 20 cm from the lens on the same side as the object.",
+    "expected": {
+     "totalMarks": 1.5,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0,
+       "reason": "Lens formula not written - its ½ is not earned."
+      },
+      {
+       "step": 2,
+       "awarded": 0.5,
+       "reason": "Correct substitution."
+      },
+      {
+       "step": 3,
+       "awarded": 1,
+       "reason": "Correct v = −20 cm with interpretation."
+      }
+     ],
+     "wrongStep": 1,
+     "mistakeType": "presentation",
+     "studentLabel": "exam technique",
+     "studentHeading": "Marks to gain - the quickest wins",
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "the lens formula 1/f = 1/v − 1/u was not written"
+     ],
+     "commentMustNotClaim": [
+      "the substitution is wrong",
+      "the answer is wrong",
+      "sign convention error",
+      "conceptual"
+     ],
+     "modelAnswerKeyFacts": [
+      "1/f = 1/v − 1/u",
+      "v = −20 cm (20 cm on the object side)"
+     ],
+     "examinerNote": "Missing formula: the MS gives ½ for stating the formula (CLAUDE.md §13: stating the correct formula earns ½). Calculation right, format short -> presentation."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-S08",
+  "subject": "Science",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2024 - Science 086 - Marking Scheme (31/1/1 to 31/1/3, English) - set 31/1/2 section",
+   "year": 2024,
+   "setCode": "31/1/2",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2024/X/Science.zip#Science/Science_English)/science (English) set no. 1.pdf",
+   "pdfFile": "sources/MS2024_086_31-1_set1.pdf",
+   "question": "Q22(B)",
+   "pdfPage": 17,
+   "printedPage": 4,
+   "questionPaper": {
+    "url": "https://www.cbse.gov.in/cbsenew/question-paper/2024/X/SCIENCE.zip#SCIENCE/31_1_2_Science.pdf",
+    "pdfFile": "sources/QP2024_086_31-1-2.pdf",
+    "pdfPage": 13,
+    "printedPage": 13
+   },
+   "printedPageNote": "MS footer reads 'X SCIENCE 31/1/2 PAGE 4' (PDF page 17)."
+  },
+  "chapterTrue": {
+   "name": "Electricity",
+   "appTopicKey": "electricity",
+   "subtopic": "Series resistance and electric power"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Series combination and power are IN."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "(B) In the given circuit calculate the power consumed in watts in the resistor of 2 Ω.",
+   "marks": 2,
+   "section": "B",
+   "type": "vsa",
+   "needsFigure": true,
+   "figureDescription": "A 6 V battery connected in series with a 1 Ω resistor and a 2 Ω resistor (single loop)."
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "Equivalent resistance = 1 Ω + 2 Ω = 3 Ω",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 17,
+     "printedPage": 4
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "I = V/R = 6 V / 3 Ω = 2 A",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 17,
+     "printedPage": 4
+    }
+   },
+   {
+    "step": 3,
+    "valuePoint": "Electric power P = I²R",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 17,
+     "printedPage": 4
+    }
+   },
+   {
+    "step": 4,
+    "valuePoint": "= (2 A)² × 2 Ω = 8 W",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 17,
+     "printedPage": 4
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-S08-a",
+    "probes": [
+     "presentation-missing-units",
+     "physics-units"
+    ],
+    "mode": "typed",
+    "text": "Total resistance R = 1 + 2 = 3 Ω\nCurrent I = V/R = 6/3 = 2 A\nPower in 2 Ω resistor, P = I²R = (2)² × 2 = 8",
+    "expected": {
+     "totalMarks": 1.5,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 2,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 3,
+       "awarded": 0.5,
+       "reason": "Correct formula."
+      },
+      {
+       "step": 4,
+       "awarded": 0,
+       "reason": "Value 8 correct but the unit (W) is missing; the question asks for the power in watts."
+      }
+     ],
+     "wrongStep": 4,
+     "mistakeType": "presentation",
+     "studentLabel": "exam technique",
+     "studentHeading": "Marks to gain - the quickest wins",
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "the final answer has no unit (W)",
+      "the working is correct"
+     ],
+     "commentMustNotClaim": [
+      "the power is calculated wrongly",
+      "the current is wrong",
+      "conceptual",
+      "calculation"
+     ],
+     "modelAnswerKeyFacts": [
+      "P = 8 W"
+     ],
+     "examinerNote": "Missing SI unit on the final physics answer loses ½ (owner doctrine CLAUDE.md §13; the MS value point is '8 W'). Right number, format short -> presentation."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-S09",
+  "subject": "Science",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Science 086 - Marking Scheme (31/1/1 to 31/1/3, English medium)",
+   "year": 2025,
+   "setCode": "31/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Science.zip#Science/086 Science (English Medium)/X_086_31-1-1 to 3 Science_MS.pdf",
+   "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+   "question": "Q32",
+   "pdfPage": 7,
+   "printedPage": 7,
+   "questionPaper": {
+    "url": "https://www.cbse.gov.in/cbsenew/question-paper/2025/X/086_Science.zip#086_Science/31-1-1_Science.pdf",
+    "pdfFile": "sources/QP2025_086_31-1-1.pdf",
+    "pdfPage": 17,
+    "printedPage": 17
+   }
+  },
+  "chapterTrue": {
+   "name": "Electricity",
+   "appTopicKey": "electricity",
+   "subtopic": "Series-parallel combination, Ohm's law"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Series/parallel resistors and Ohm's law are IN."
+  },
+  "bankMatch": {
+   "inBank": true,
+   "bankId": "PYQ-S-2025-ELEC-005",
+   "bankTopicKey": "electricity"
+  },
+  "question": {
+   "text": "Consider the following electric circuit : [Figure] Calculate the values of the following : (a) The total resistance of the circuit (b) The total current drawn from the source (c) Potential difference across the parallel combination of 10 Ω and 15 Ω resistors",
+   "marks": 3,
+   "section": "C",
+   "type": "sa",
+   "needsFigure": true,
+   "figureDescription": "15 V battery, ammeter A and key K in one loop; a 10 Ω and 15 Ω pair in parallel, in series with a 60 Ω and 40 Ω pair in parallel.",
+   "parts": [
+    {
+     "label": "(a)",
+     "text": "total resistance",
+     "marks": 1
+    },
+    {
+     "label": "(b)",
+     "text": "total current",
+     "marks": 1
+    },
+    {
+     "label": "(c)",
+     "text": "p.d. across the 10 Ω‖15 Ω combination",
+     "marks": 1
+    }
+   ]
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "part": "(a)",
+    "valuePoint": "1/R₁ = 1/10 + 1/15 ⇒ R₁ = 6 Ω; 1/R₂ = 1/60 + 1/40 ⇒ R₂ = 24 Ω; R_total = 6 + 24 = 30 Ω",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 7,
+     "printedPage": 7
+    }
+   },
+   {
+    "step": 2,
+    "part": "(b)",
+    "valuePoint": "I = V/R = 15 V / 30 Ω = 0.5 A",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 7,
+     "printedPage": 7
+    }
+   },
+   {
+    "step": 3,
+    "part": "(c)",
+    "valuePoint": "V = IR₁ = 0.5 A × 6 Ω = 3.0 V",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 7,
+     "printedPage": 7
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-S09-a",
+    "probes": [
+     "ecf-carried-slip",
+     "calculation",
+     "physics-units",
+     "bank-match"
+    ],
+    "mode": "typed",
+    "text": "(a) 10 Ω and 15 Ω are in parallel: 1/R₁ = 1/10 + 1/15 = (3 + 2)/30 = 5/30 ⇒ R₁ = 6 Ω\n60 Ω and 40 Ω are in parallel: 1/R₂ = 1/60 + 1/40 = 2/100 ⇒ R₂ = 50 Ω\nR₁ and R₂ are in series: R = 6 + 50 = 56 Ω\n(b) I = V/R = 15/56 = 0.27 A\n(c) Potential difference across the 10 Ω–15 Ω combination: V = I R₁ = 0.27 × 6 = 1.6 V",
+    "expected": {
+     "totalMarks": 2.5,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0.5,
+       "reason": "R₁ = 6 Ω and the series/parallel method correct; 1/60 + 1/40 added as 2/100 (should be 5/120, R₂ = 24 Ω), so R = 56 Ω is wrong - ½ of the 1 mark."
+      },
+      {
+       "step": 2,
+       "awarded": 1,
+       "reason": "I = 15/56 = 0.27 A follows correctly from the student's R (ECF)."
+      },
+      {
+       "step": 3,
+       "awarded": 1,
+       "reason": "V = 0.27 × 6 = 1.6 V follows correctly (ECF)."
+      }
+     ],
+     "wrongStep": 1,
+     "mistakeType": "calculation",
+     "studentLabel": "careless",
+     "studentHeading": "Marks to gain - you already know this",
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "1/60 + 1/40 = 5/120, not 2/100",
+      "parts (b) and (c) use the correct method"
+     ],
+     "commentMustNotClaim": [
+      "Ohm's law misapplied",
+      "parallel formula wrong",
+      "conceptual",
+      "(b) and (c) are wrong methods"
+     ],
+     "modelAnswerKeyFacts": [
+      "R₂ = 24 Ω",
+      "R = 30 Ω",
+      "I = 0.5 A",
+      "V = 3.0 V"
+     ],
+     "examinerNote": "Carried slip (ECF, MS instruction 'penalised only once'): fraction added wrongly (performed wrongly = calculation). (b) and (c) keep full marks. JUDGEMENT: (a) is one 1-mark value point; ½ awarded because R₁ and the combination method are right (common examiner practice); 0 is within ½."
+    }
+   },
+   {
+    "caseId": "GS-S09-b",
+    "probes": [
+     "corrected-slip",
+     "control-full-marks",
+     "physics-units",
+     "bank-match"
+    ],
+    "mode": "typed",
+    "text": "(a) 1/R₁ = 1/10 + 1/15 = 5/30 ⇒ R₁ = 6 Ω\n1/R₂ = 1/60 + 1/40 = 2/100 ✗ — correction: LCM of 60 and 40 is 120, so 1/R₂ = 2/120 + 3/120 = 5/120 ⇒ R₂ = 24 Ω\nR = R₁ + R₂ = 6 + 24 = 30 Ω\n(b) I = V/R = 15 V / 30 Ω = 0.5 A\n(c) V = I × R₁ = 0.5 A × 6 Ω = 3.0 V",
+    "expected": {
+     "totalMarks": 3,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 1,
+       "reason": "Slip corrected by the student; final R = 30 Ω correct."
+      },
+      {
+       "step": 2,
+       "awarded": 1,
+       "reason": "Correct."
+      },
+      {
+       "step": 3,
+       "awarded": 1,
+       "reason": "Correct."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "the student caught and corrected their own addition slip"
+     ],
+     "commentMustNotClaim": [
+      "R₂ = 50 Ω was used",
+      "marks deducted for 2/100",
+      "calculation mistake"
+     ],
+     "modelAnswerKeyFacts": [
+      "R = 30 Ω",
+      "I = 0.5 A",
+      "V = 3.0 V"
+     ],
+     "examinerNote": "Self-corrected slip: the examiner assesses the corrected work; no deduction and no mistake should be logged."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-S10",
+  "subject": "Science",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Science 086 - Marking Scheme (31/1/1 to 31/1/3, English medium)",
+   "year": 2025,
+   "setCode": "31/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Science.zip#Science/086 Science (English Medium)/X_086_31-1-1 to 3 Science_MS.pdf",
+   "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+   "question": "Q31",
+   "pdfPage": 7,
+   "printedPage": 7,
+   "questionPaper": {
+    "url": "https://www.cbse.gov.in/cbsenew/question-paper/2025/X/086_Science.zip#086_Science/31-1-1_Science.pdf",
+    "pdfFile": "sources/QP2025_086_31-1-1.pdf",
+    "pdfPage": 17,
+    "printedPage": 17
+   }
+  },
+  "chapterTrue": {
+   "name": "Light - Reflection & Refraction",
+   "appTopicKey": "light-reflection-and-refraction",
+   "subtopic": "Image formation by a convex mirror (ray diagrams)"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Ray diagrams for spherical mirrors are IN."
+  },
+  "bankMatch": {
+   "inBank": true,
+   "bankId": "PYQ-S-2025-LIGHT-014",
+   "bankTopicKey": "light-reflection-and-refraction"
+  },
+  "question": {
+   "text": "Draw ray diagrams to show the nature, position and relative size of the image formed by a convex mirror when the object is placed (i) at infinity and (ii) between infinity and pole P of the mirror.",
+   "marks": 3,
+   "section": "C",
+   "type": "sa",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "part": "(i)",
+    "valuePoint": "(i) Ray diagram, object at infinity: parallel rays diverge, appear to come from F; image at F behind the mirror, virtual, erect, highly diminished",
+    "marks": 1.5,
+    "citation": {
+     "pdfPage": 7,
+     "printedPage": 7
+    }
+   },
+   {
+    "step": 2,
+    "part": "(ii)",
+    "valuePoint": "(ii) Ray diagram, object between infinity and P: image between P and F behind the mirror, virtual, erect, diminished",
+    "marks": 1.5,
+    "citation": {
+     "pdfPage": 7,
+     "printedPage": 7
+    },
+    "note": "MS note on p7: 'Deduct ½ mark if arrows are not drawn.' (one overall deduction)"
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-S10-a",
+    "probes": [
+     "image",
+     "image-diagram",
+     "diagram-dependent",
+     "presentation",
+     "bank-match"
+    ],
+    "mode": "image",
+    "text": "[DIAGRAMS - no arrowheads on any ray] (i) Convex mirror with P, F, C on the principal axis; two rays parallel to the axis strike the mirror and reflect diverging; their backward (dashed) extensions meet at F behind the mirror. Label: 'Image at F, virtual, erect, highly diminished (point sized)'. (ii) Object AB in front of the mirror; ray from A parallel to the axis reflects as if from F (dashed); ray from A towards C reflects back along itself (dashed extension to C); image A'B' between P and F behind the mirror. Label: 'Image between P and F, virtual, erect, diminished'.",
+    "image": "images/GS-S10-a.jpg",
+    "imageCompressed": "images/GS-S10-a.compressed.jpg",
+    "synthetic": true,
+    "expected": {
+     "totalMarks": 2.5,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 1,
+       "reason": "Diagram (i) correct but rays carry no arrows - the MS's overall ½ deduction for missing arrows is charged here once."
+      },
+      {
+       "step": 2,
+       "awarded": 1.5,
+       "reason": "Diagram (ii) correct and labelled (arrow deduction already applied once)."
+      }
+     ],
+     "wrongStep": 1,
+     "mistakeType": "presentation",
+     "studentLabel": "exam technique",
+     "studentHeading": "Marks to gain - the quickest wins",
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "arrows showing the direction of rays are missing",
+      "both diagrams are otherwise correct"
+     ],
+     "commentMustNotClaim": [
+      "the image position is wrong",
+      "the image is real",
+      "conceptual"
+     ],
+     "modelAnswerKeyFacts": [
+      "(i) image at F, virtual, erect, point-sized",
+      "(ii) image between P and F, virtual, erect, diminished",
+      "arrows on rays"
+     ],
+     "examinerNote": "Official MS note: 'Deduct ½ mark if arrows are not drawn' - applied ONCE (not per diagram). Format element missing -> presentation (exam technique). Probes a grader's handling of drawn diagrams and an MS-specified format deduction."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-S11",
+  "subject": "Science",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Science 086 - Marking Scheme (31/2/1 to 31/2/3, English medium)",
+   "year": 2025,
+   "setCode": "31/2/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Science.zip#Science/086 Science (English Medium)/X_086_31-2-1 to 3_Science_MS.pdf",
+   "pdfFile": "sources/MS2025_086_31-2-1to3.pdf",
+   "question": "Q27(b)",
+   "pdfPage": 5,
+   "printedPage": 5,
+   "questionPaper": {
+    "url": "https://www.cbse.gov.in/cbsenew/question-paper/2025/X/086_Science.zip#086_Science/31-2-1_Science.pdf",
+    "pdfFile": "sources/QP2025_086_31-2-1.pdf",
+    "pdfPage": 15,
+    "printedPage": 15
+   }
+  },
+  "chapterTrue": {
+   "name": "Chemical Reactions & Equations",
+   "appTopicKey": "chemical-reactions-and-equations",
+   "subtopic": "Combination and decomposition reactions"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Types of chemical reactions are IN."
+  },
+  "bankMatch": {
+   "inBank": true,
+   "bankId": "PYQ-S-2025-CHEMRXN-010",
+   "bankTopicKey": "chemical-reactions-and-equations"
+  },
+  "question": {
+   "text": "(b) Why are decomposition reactions called the opposite of combination reactions? Write one chemical equation each for these two types of reactions mentioning the name of the reactant(s) and the product(s) involved in the reactions.",
+   "marks": 3,
+   "section": "C",
+   "type": "sa",
+   "needsFigure": false
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "valuePoint": "Combination: a single product formed from two or more reactants; decomposition: a single reactant breaks down into two or more products - so they are opposite",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 5,
+     "printedPage": 5
+    }
+   },
+   {
+    "step": 2,
+    "valuePoint": "Example of combination reaction with names, e.g. C(s) + O₂(g) → CO₂(g) + heat (carbon + oxygen → carbon dioxide)",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 5,
+     "printedPage": 5
+    }
+   },
+   {
+    "step": 3,
+    "valuePoint": "Example of decomposition reaction with names, e.g. CaCO₃(s) →(heat) CaO(s) + CO₂(g) (calcium carbonate → calcium oxide + carbon dioxide)",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 5,
+     "printedPage": 5
+    },
+    "note": "MS note p5: '(Do not deduct marks if physical state not given)'."
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-S11-a",
+    "probes": [
+     "state-symbols",
+     "control-full-marks",
+     "bank-match"
+    ],
+    "mode": "typed",
+    "text": "In a combination reaction two or more substances combine to form a single product, whereas in a decomposition reaction a single substance breaks down into two or more simpler products. Since one joins substances and the other breaks them apart, they are opposite to each other.\nCombination: CaO + H₂O → Ca(OH)₂ (calcium oxide + water → calcium hydroxide)\nDecomposition: CaCO₃ → CaO + CO₂ on heating (calcium carbonate → calcium oxide + carbon dioxide)",
+    "expected": {
+     "totalMarks": 3,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 1,
+       "reason": "Correct explanation."
+      },
+      {
+       "step": 2,
+       "awarded": 1,
+       "reason": "Balanced combination example with names (state symbols not required)."
+      },
+      {
+       "step": 3,
+       "awarded": 1,
+       "reason": "Balanced decomposition example with names."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "both equations are balanced and named"
+     ],
+     "commentMustNotClaim": [
+      "state symbols are missing and cost marks",
+      "presentation mistake",
+      "any mistake",
+      "marks deducted"
+     ],
+     "modelAnswerKeyFacts": [
+      "combination: single product",
+      "decomposition: single reactant breaks down",
+      "balanced example equations with names"
+     ],
+     "examinerNote": "OFFICIAL MS NOTE: 'Do not deduct marks if physical state not given' (MS 2025 31/2/1 p5). Full marks with NO presentation tag. CONFLICT: the app prompt (checkSolution.cjs S4c, and rule 3) classifies a balanced equation missing state symbols as 'presentation' and CLAUDE.md §13 says state symbols earn ½ - neither matches this published scheme."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-S12",
+  "subject": "Science",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2024 - Science 086 - Marking Scheme (31/1/1 to 31/1/3, English) - set 31/1/2 section",
+   "year": 2024,
+   "setCode": "31/1/2",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2024/X/Science.zip#Science/Science_English)/science (English) set no. 1.pdf",
+   "pdfFile": "sources/MS2024_086_31-1_set1.pdf",
+   "question": "Q26",
+   "pdfPage": 18,
+   "printedPage": 5,
+   "questionPaper": {
+    "url": "https://www.cbse.gov.in/cbsenew/question-paper/2024/X/SCIENCE.zip#SCIENCE/31_1_2_Science.pdf",
+    "pdfFile": "sources/QP2024_086_31-1-2.pdf",
+    "pdfPage": 13,
+    "printedPage": 13
+   },
+   "printedPageNote": "MS footer reads 'X SCIENCE 31/1/2 PAGE 5' (PDF page 18)."
+  },
+  "chapterTrue": {
+   "name": "Chemical Reactions & Equations",
+   "appTopicKey": "chemical-reactions-and-equations",
+   "subtopic": "Writing and balancing chemical equations"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Balancing chemical equations is IN."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "Translate the following statements into chemical equations and then balance them : (i) Solution of barium chloride and aluminium sulphate in water react to give insoluble barium sulphate and the solution of aluminium chloride. (ii) Aluminium metal reacts with steam to give aluminium oxide and hydrogen gas.",
+   "marks": 2,
+   "section": "B",
+   "type": "vsa",
+   "needsFigure": false,
+   "parts": [
+    {
+     "label": "(i)",
+     "text": "BaCl₂ + Al₂(SO₄)₃",
+     "marks": 1
+    },
+    {
+     "label": "(ii)",
+     "text": "Al + steam",
+     "marks": 1
+    }
+   ]
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "part": "(i)",
+    "valuePoint": "(i) Equation: BaCl₂ + Al₂(SO₄)₃ → BaSO₄ + AlCl₃ (correct species)",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 18,
+     "printedPage": 5
+    }
+   },
+   {
+    "step": 2,
+    "part": "(i)",
+    "valuePoint": "(i) Balancing: 3BaCl₂(aq) + Al₂(SO₄)₃(aq) → 3BaSO₄(s) + 2AlCl₃(aq)",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 18,
+     "printedPage": 5
+    }
+   },
+   {
+    "step": 3,
+    "part": "(ii)",
+    "valuePoint": "(ii) Equation: Al + H₂O → Al₂O₃ + H₂ (correct species)",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 18,
+     "printedPage": 5
+    }
+   },
+   {
+    "step": 4,
+    "part": "(ii)",
+    "valuePoint": "(ii) Balancing: 2Al(s) + 3H₂O(g) → Al₂O₃(s) + 3H₂(g)",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 18,
+     "printedPage": 5
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-S12-a",
+    "probes": [
+     "balanced-vs-unbalanced",
+     "conceptual"
+    ],
+    "mode": "typed",
+    "text": "(i) BaCl₂ + Al₂(SO₄)₃ → BaSO₄ + AlCl₃\n(ii) Al + H₂O → Al₂O₃ + H₂",
+    "expected": {
+     "totalMarks": 1,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0.5,
+       "reason": "Correct species."
+      },
+      {
+       "step": 2,
+       "awarded": 0,
+       "reason": "Not balanced although the question says 'then balance them'."
+      },
+      {
+       "step": 3,
+       "awarded": 0.5,
+       "reason": "Correct species."
+      },
+      {
+       "step": 4,
+       "awarded": 0,
+       "reason": "Not balanced."
+      }
+     ],
+     "wrongStep": 2,
+     "mistakeType": "conceptual",
+     "studentLabel": "knowledge gap",
+     "studentHeading": "Marks to gain - learn this",
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "both equations have correct formulae but neither is balanced"
+     ],
+     "commentMustNotClaim": [
+      "the formulae are wrong",
+      "state symbols cost marks",
+      "presentation"
+     ],
+     "modelAnswerKeyFacts": [
+      "3BaCl₂ + Al₂(SO₄)₃ → 3BaSO₄ + 2AlCl₃",
+      "2Al + 3H₂O → Al₂O₃ + 3H₂"
+     ],
+     "examinerNote": "Official split (MS p18): Equation ½ + Balancing ½ per reaction. Skeletal equations, no balancing attempted where the question demands it = conceptual (app S4a and owner 'method misunderstood'). One root cause, two balancing marks lost."
+    }
+   },
+   {
+    "caseId": "GS-S12-b",
+    "probes": [
+     "balanced-vs-unbalanced",
+     "calculation"
+    ],
+    "mode": "typed",
+    "text": "(i) 3BaCl₂ + Al₂(SO₄)₃ → 3BaSO₄ + 2AlCl₃\n(ii) 2Al + 3H₂O → Al₂O₃ + 2H₂",
+    "expected": {
+     "totalMarks": 1.5,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 2,
+       "awarded": 0.5,
+       "reason": "Correctly balanced."
+      },
+      {
+       "step": 3,
+       "awarded": 0.5,
+       "reason": "Correct species."
+      },
+      {
+       "step": 4,
+       "awarded": 0,
+       "reason": "Balancing attempted but H is 6 on the left and 4 on the right - should be 3H₂."
+      }
+     ],
+     "wrongStep": 4,
+     "mistakeType": "calculation",
+     "studentLabel": "careless",
+     "studentHeading": "Marks to gain - you already know this",
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "in (ii) hydrogen atoms do not balance: 3H₂ is needed"
+     ],
+     "commentMustNotClaim": [
+      "(i) is wrong",
+      "the student did not try to balance",
+      "conceptual"
+     ],
+     "modelAnswerKeyFacts": [
+      "2Al + 3H₂O → Al₂O₃ + 3H₂"
+     ],
+     "examinerNote": "Genuine balancing attempt with a miscount = performed wrongly = calculation (app prompt rule 3 agrees). Contrast with S12-a (no attempt = conceptual)."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-S13",
+  "subject": "Science",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Science 086 - Marking Scheme (31/1/1 to 31/1/3, English medium)",
+   "year": 2025,
+   "setCode": "31/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Science.zip#Science/086 Science (English Medium)/X_086_31-1-1 to 3 Science_MS.pdf",
+   "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+   "question": "Q37",
+   "pdfPage": 10,
+   "printedPage": 10,
+   "questionPaper": {
+    "url": "https://www.cbse.gov.in/cbsenew/question-paper/2025/X/086_Science.zip#086_Science/31-1-1_Science.pdf",
+    "pdfFile": "sources/QP2025_086_31-1-1.pdf",
+    "pdfPage": 25,
+    "printedPage": 25
+   },
+   "supportingRule": {
+    "text": "(Deduct half mark if equation is not balanced)",
+    "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+    "pdfPage": 29,
+    "printedPage": 5,
+    "question": "31/1/3 Q26 (same 2025 series MS)"
+   }
+  },
+  "chapterTrue": {
+   "name": "Acids Bases & Salts",
+   "appTopicKey": "acids-bases-and-salts",
+   "subtopic": "Chlor-alkali process, baking soda, washing soda"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Chlor-alkali process, baking soda, washing soda are IN (Acids, Bases and Salts)."
+  },
+  "bankMatch": {
+   "inBank": true,
+   "bankId": "PYQ-S-2025-CHEMRXN-021",
+   "bankTopicKey": "chemical-reactions-and-equations",
+   "note": "BANK CHAPTER IS WRONG: filed under chemical-reactions-and-equations (subtopic 'Balancing Chemical Equations'); the case is Acids, Bases & Salts. lazytopper/src/data/questionBanks/class10/science/chemicalReactions.pyq2025.ts:155"
+  },
+  "question": {
+   "text": "Seawater contains many salts dissolved in it. Common salt is separated from these salts. Deposits of solid salt are also found in several parts of the world. These large crystals are often brown due to impurities. This is called rock salt and is mined like coal. The common salt is an important raw material for chemicals of daily use.",
+   "marks": 4,
+   "section": "E",
+   "type": "case",
+   "needsFigure": false,
+   "parts": [
+    {
+     "label": "(a)",
+     "text": "Write balanced chemical equations to show the products formed during electrolysis of brine.",
+     "marks": 1
+    },
+    {
+     "label": "(b)",
+     "text": "List two uses of any one product obtained during electrolysis of brine.",
+     "marks": 1
+    },
+    {
+     "label": "(c)(i)",
+     "text": "A mild non-corrosive basic salt 'A', used for faster cooking, is strongly heated to produce a compound 'B', that is used for removing permanent hardness of water. Identify A and B and also write the equation for the reaction that occurs when A is heated. [OR (c)(ii): Define water of crystallisation. Give two examples of salts that have water of crystallisation.]",
+     "marks": 2
+    }
+   ]
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "part": "(a)",
+    "valuePoint": "2NaCl + 2H₂O →(electricity) 2NaOH + H₂ + Cl₂",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 10,
+     "printedPage": 10
+    }
+   },
+   {
+    "step": 2,
+    "part": "(b)",
+    "valuePoint": "Two uses of any one product (e.g. NaOH: soaps and detergents, paper making)",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 10,
+     "printedPage": 10
+    },
+    "note": "MS: ½ + ½"
+   },
+   {
+    "step": 3,
+    "part": "(c)(i)",
+    "valuePoint": "A - NaHCO₃ / sodium hydrogen carbonate / baking soda",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 10,
+     "printedPage": 10
+    }
+   },
+   {
+    "step": 4,
+    "part": "(c)(i)",
+    "valuePoint": "B - Na₂CO₃ / sodium carbonate",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 10,
+     "printedPage": 10
+    }
+   },
+   {
+    "step": 5,
+    "part": "(c)(i)",
+    "valuePoint": "2NaHCO₃ →(heat) Na₂CO₃ + H₂O + CO₂",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 10,
+     "printedPage": 10
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-S13-a",
+    "probes": [
+     "balanced-vs-unbalanced",
+     "conceptual",
+     "bank-chapter-wrong",
+     "chapter-misfile-risk",
+     "case-based-4mark",
+     "section-E",
+     "bank-match"
+    ],
+    "mode": "typed",
+    "text": "(a) NaCl + H₂O → NaOH + H₂ + Cl₂ (on passing electricity through brine)\n(b) NaOH is used for making soaps and detergents, and in paper making.\n(c)(i) A is sodium hydrogen carbonate (baking soda), NaHCO₃. B is sodium carbonate, Na₂CO₃.\n2NaHCO₃ → Na₂CO₃ + H₂O + CO₂ (on heating)",
+    "expected": {
+     "totalMarks": 3.5,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0.5,
+       "reason": "Correct species but not balanced, although (a) asks for BALANCED equations - ½ deducted (same 2025 series MS rule)."
+      },
+      {
+       "step": 2,
+       "awarded": 1,
+       "reason": "Two correct uses of NaOH."
+      },
+      {
+       "step": 3,
+       "awarded": 0.5,
+       "reason": "A correct."
+      },
+      {
+       "step": 4,
+       "awarded": 0.5,
+       "reason": "B correct."
+      },
+      {
+       "step": 5,
+       "awarded": 1,
+       "reason": "Correct balanced equation."
+      }
+     ],
+     "wrongStep": 1,
+     "mistakeType": "conceptual",
+     "studentLabel": "knowledge gap",
+     "studentHeading": "Marks to gain - learn this",
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "the brine equation is not balanced (needs 2NaCl + 2H₂O → 2NaOH + H₂ + Cl₂)"
+     ],
+     "commentMustNotClaim": [
+      "A or B identified wrongly",
+      "the uses are wrong",
+      "the baking soda equation is unbalanced"
+     ],
+     "modelAnswerKeyFacts": [
+      "2NaCl + 2H₂O → 2NaOH + H₂ + Cl₂",
+      "A = NaHCO₃",
+      "B = Na₂CO₃",
+      "2NaHCO₃ → Na₂CO₃ + H₂O + CO₂"
+     ],
+     "examinerNote": "Unbalanced where the question explicitly asks for balanced equations: (a)'s single mark is split by examiner judgement (½ species, ½ balancing), following the explicit 2025 series rule 'Deduct half mark if equation is not balanced' (MS p29, 31/1/3 Q26). Since (c)(i) shows the student CAN balance, a reviewer could call this silly; this set follows the app/owner wording 'unbalanced when asked = conceptual'. TRUE chapter acids-bases-and-salts; the BANK says chemical-reactions-and-equations, so 'use the bank's chapter' would mis-file this item."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-S14",
+  "subject": "Science",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Science 086 - Marking Scheme (31/1/1 to 31/1/3, English medium)",
+   "year": 2025,
+   "setCode": "31/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Science.zip#Science/086 Science (English Medium)/X_086_31-1-1 to 3 Science_MS.pdf",
+   "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+   "question": "Q38",
+   "pdfPage": 11,
+   "printedPage": 11,
+   "questionPaper": {
+    "url": "https://www.cbse.gov.in/cbsenew/question-paper/2025/X/086_Science.zip#086_Science/31-1-1_Science.pdf",
+    "pdfFile": "sources/QP2025_086_31-1-1.pdf",
+    "pdfPage": 25,
+    "printedPage": 25
+   },
+   "qpPagesAll": [
+    25,
+    27
+   ]
+  },
+  "chapterTrue": {
+   "name": "Life Processes",
+   "appTopicKey": "life-processes",
+   "subtopic": "Photosynthesis"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Nutrition - photosynthesis is IN."
+  },
+  "bankMatch": {
+   "inBank": true,
+   "bankId": "PYQ-S-2025-CHEMRXN-022",
+   "bankTopicKey": "chemical-reactions-and-equations",
+   "note": "BANK CHAPTER IS WRONG: filed under chemical-reactions-and-equations; the case is Life Processes (photosynthesis). lazytopper/src/data/questionBanks/class10/science/chemicalReactions.pyq2025.ts:162"
+  },
+  "question": {
+   "text": "The maintenance functions of all living organisms must go on even when they are not doing anything particular. Even when we are just sitting in a class or even asleep, this maintenance job has to go on. These maintenance processes require energy to prevent damage and break-down of cells and tissues, which is obtained by the individual organism from the food prepared by the autotrophs, called producers.",
+   "marks": 4,
+   "section": "E",
+   "type": "case",
+   "needsFigure": false,
+   "parts": [
+    {
+     "label": "(a)",
+     "text": "Name and define the process by which green plants prepare food.",
+     "marks": 1
+    },
+    {
+     "label": "(b)",
+     "text": "Write chemical equation involved in the above process.",
+     "marks": 1
+    },
+    {
+     "label": "(c)(ii)",
+     "text": "Explain giving reasons what happens to the rate at which the green plants will prepare food (I) during cloudy weather, and (II) when stomata get blocked due to dust. [OR (c)(i): State in proper sequence the events that occur in synthesis of food by desert plants.]",
+     "marks": 2
+    }
+   ]
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "part": "(a)",
+    "valuePoint": "Photosynthesis",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 11,
+     "printedPage": 11
+    }
+   },
+   {
+    "step": 2,
+    "part": "(a)",
+    "valuePoint": "Definition: green plants convert CO₂ and water into carbohydrates using sunlight and chlorophyll",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 11,
+     "printedPage": 11
+    }
+   },
+   {
+    "step": 3,
+    "part": "(b)",
+    "valuePoint": "6CO₂ + 12H₂O →(chlorophyll, sunlight) C₆H₁₂O₆ + 6O₂ + 6H₂O",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 11,
+     "printedPage": 11
+    }
+   },
+   {
+    "step": 4,
+    "part": "(c)(ii)",
+    "valuePoint": "(I) Rate decreases due to low sunlight",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 11,
+     "printedPage": 11
+    }
+   },
+   {
+    "step": 5,
+    "part": "(c)(ii)",
+    "valuePoint": "(II) Rate decreases due to reduced gaseous exchange",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 11,
+     "printedPage": 11
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-S14-a",
+    "probes": [
+     "image",
+     "image-messy",
+     "control-full-marks",
+     "bank-chapter-wrong",
+     "case-based-4mark",
+     "section-E",
+     "bank-match"
+    ],
+    "mode": "image",
+    "text": "(a) Photosynthesis — the process by which green plants make carbohydrates (glucose) from carbon dioxide and water in the presence of sunlight and chlorophyll.\n(b) 6CO₂ + 12H₂O --(sunlight, chlorophyll)--> C₆H₁₂O₆ + 6O₂ + 6H₂O\n(c)(ii) (I) In cloudy weather less sunlight is available, so the rate of photosynthesis decreases.\n(II) If stomata get blocked by dust, exchange of gases (CO₂ intake) is reduced, so the rate of photosynthesis decreases.",
+    "image": "images/GS-S14-a.jpg",
+    "imageCompressed": "images/GS-S14-a.compressed.jpg",
+    "synthetic": true,
+    "expected": {
+     "totalMarks": 4,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 2,
+       "awarded": 0.5,
+       "reason": "Correct definition."
+      },
+      {
+       "step": 3,
+       "awarded": 1,
+       "reason": "Correct balanced equation."
+      },
+      {
+       "step": 4,
+       "awarded": 1,
+       "reason": "Correct with reason."
+      },
+      {
+       "step": 5,
+       "awarded": 1,
+       "reason": "Correct with reason."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "photosynthesis defined",
+      "balanced equation"
+     ],
+     "commentMustNotClaim": [
+      "any mistake",
+      "marks deducted",
+      "equation unbalanced"
+     ],
+     "modelAnswerKeyFacts": [
+      "photosynthesis",
+      "6CO₂ + 12H₂O → C₆H₁₂O₆ + 6O₂ + 6H₂O",
+      "less light / blocked stomata reduce the rate"
+     ],
+     "examinerNote": "Legible-but-messy handwriting, fully correct: 4/4 (OCR must not create false mistakes). TRUE chapter life-processes; the BANK files it under chemical-reactions-and-equations."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-S15",
+  "subject": "Science",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Science 086 - Marking Scheme (31/1/1 to 31/1/3, English medium)",
+   "year": 2025,
+   "setCode": "31/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Science.zip#Science/086 Science (English Medium)/X_086_31-1-1 to 3 Science_MS.pdf",
+   "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+   "question": "Q39",
+   "pdfPage": 11,
+   "printedPage": 11,
+   "questionPaper": {
+    "url": "https://www.cbse.gov.in/cbsenew/question-paper/2025/X/086_Science.zip#086_Science/31-1-1_Science.pdf",
+    "pdfFile": "sources/QP2025_086_31-1-1.pdf",
+    "pdfPage": 27,
+    "printedPage": 27
+   }
+  },
+  "chapterTrue": {
+   "name": "Magnetic Effects of Electric Current",
+   "appTopicKey": "magnetic-effects-of-electric-current",
+   "subtopic": "Domestic electric circuits"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Domestic electric circuits are IN under Magnetic Effects of Current (only Electric Motor / Electromagnetic Induction / Electric Generator are board-excluded)."
+  },
+  "bankMatch": {
+   "inBank": true,
+   "bankId": "PYQ-S-2025-LIFEP-008",
+   "bankTopicKey": "life-processes",
+   "note": "BANK ENTRY IS CORRUPT AND MISFILED: topicKey life-processes, subtopic 'Stomata'; questionText is garbled Hindi remnants of Q39 joined to the tail of Q38 (photosynthesis), solutionSteps are Q39 (domestic circuits). lazytopper/src/data/questionBanks/class10/science/lifeProcesses.pyq2025.ts:63-69"
+  },
+  "question": {
+   "text": "In our homes, we receive the supply of electric power through a main supply also called mains, either supported through overhead electric poles or by underground cables. In our country the potential difference between the two wires (live wire and neutral wire) of this supply is 220 V.",
+   "marks": 4,
+   "section": "E",
+   "type": "case",
+   "needsFigure": false,
+   "parts": [
+    {
+     "label": "(a)",
+     "text": "Write the colours of the insulation covers of the line wires through which supply comes to our homes.",
+     "marks": 1
+    },
+    {
+     "label": "(b)",
+     "text": "What should be the current rating of the electric circuit (220 V) so that an electric iron of 1 kW power rating can be operated?",
+     "marks": 1
+    },
+    {
+     "label": "(c)(i)",
+     "text": "What is the function of the earth wire? State the advantage of the earth wire in domestic electric appliances such as electric iron. [OR (c)(ii): List two precautions to be taken to avoid electrical accidents...]",
+     "marks": 2
+    }
+   ]
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "part": "(a)",
+    "valuePoint": "Live wire - red",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 11,
+     "printedPage": 11
+    }
+   },
+   {
+    "step": 2,
+    "part": "(a)",
+    "valuePoint": "Neutral wire - black",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 11,
+     "printedPage": 11
+    }
+   },
+   {
+    "step": 3,
+    "part": "(b)",
+    "valuePoint": "P = 1000 W, V = 220 V, P = VI ⇒ I = 1000 W/220 V = 4.54 A",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 11,
+     "printedPage": 11
+    }
+   },
+   {
+    "step": 4,
+    "part": "(b)",
+    "valuePoint": "Current rating should be 5 A",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 11,
+     "printedPage": 11
+    }
+   },
+   {
+    "step": 5,
+    "part": "(c)(i)",
+    "valuePoint": "Earth wire provides a low-resistance conducting path so leakage current flows to earth; body kept at earth potential",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 11,
+     "printedPage": 11
+    }
+   },
+   {
+    "step": 6,
+    "part": "(c)(i)",
+    "valuePoint": "The user will not get an electric shock",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 11,
+     "printedPage": 11
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-S15-a",
+    "probes": [
+     "conceptual",
+     "chapter-misfile-risk",
+     "bank-chapter-wrong",
+     "case-based-4mark",
+     "section-E",
+     "physics-units",
+     "bank-match"
+    ],
+    "mode": "typed",
+    "text": "(a) Live wire — red insulation; neutral wire — black insulation.\n(b) P = VI ⇒ I = P/V = 1000 W / 220 V = 4.54 A. So the current rating of the circuit should be 4.54 A.\n(c)(i) The earth wire provides a low-resistance conducting path to the earth, so any current leaking to the metal body of the iron flows to the earth and the body stays at earth potential. Thus the user does not get an electric shock.",
+    "expected": {
+     "totalMarks": 3.5,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 2,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 3,
+       "awarded": 0.5,
+       "reason": "Correct current."
+      },
+      {
+       "step": 4,
+       "awarded": 0,
+       "reason": "A rating must exceed the current drawn - a 5 A circuit; '4.54 A' is not a rating."
+      },
+      {
+       "step": 5,
+       "awarded": 1,
+       "reason": "Correct."
+      },
+      {
+       "step": 6,
+       "awarded": 1,
+       "reason": "Correct."
+      }
+     ],
+     "wrongStep": 4,
+     "mistakeType": "conceptual",
+     "studentLabel": "knowledge gap",
+     "studentHeading": "Marks to gain - learn this",
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "the current drawn is 4.54 A but the circuit rating should be the next standard value, 5 A"
+     ],
+     "commentMustNotClaim": [
+      "the current is calculated wrongly",
+      "the wire colours are wrong",
+      "the earth wire answer is wrong"
+     ],
+     "modelAnswerKeyFacts": [
+      "red live / black neutral",
+      "I = 4.54 A, rating 5 A",
+      "earth wire: low-resistance path, prevents shock"
+     ],
+     "examinerNote": "Not understanding what a current RATING is (knowledge) = conceptual. Chapter probe: part (b) uses P = VI (Electricity) but the case is domestic circuits -> TRUE chapter magnetic-effects-of-electric-current. The BANK files it as life-processes and its text is corrupt."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-S16",
+  "subject": "Science",
+  "sourceType": "BOARD-MS",
+  "source": {
+   "paper": "CBSE Secondary School Examination 2025 - Science 086 - Marking Scheme (31/1/1 to 31/1/3, English medium)",
+   "year": 2025,
+   "setCode": "31/1/1",
+   "url": "https://www.cbse.gov.in/cbsenew/Marking-Scheme/2025/X/Science.zip#Science/086 Science (English Medium)/X_086_31-1-1 to 3 Science_MS.pdf",
+   "pdfFile": "sources/MS2025_086_31-1-1to3.pdf",
+   "question": "Q36(a)",
+   "pdfPage": 9,
+   "printedPage": 9,
+   "questionPaper": {
+    "url": "https://www.cbse.gov.in/cbsenew/question-paper/2025/X/086_Science.zip#086_Science/31-1-1_Science.pdf",
+    "pdfFile": "sources/QP2025_086_31-1-1.pdf",
+    "pdfPage": 23,
+    "printedPage": 23
+   }
+  },
+  "chapterTrue": {
+   "name": "Light - Reflection & Refraction",
+   "appTopicKey": "light-reflection-and-refraction",
+   "subtopic": "Power of a lens; magnification"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Power of a lens and magnification are IN (myopia correction overlaps Human Eye - IN)."
+  },
+  "bankMatch": {
+   "inBank": true,
+   "bankId": "PYQ-S-2025-LIGHT-019",
+   "bankTopicKey": "light-reflection-and-refraction"
+  },
+  "question": {
+   "text": "(a) (i) The power of a lens 'X' is −2.5 D. Name the lens and determine its focal length in cm. For which eye defect of vision will an optician prescribe this type of lens as a corrective lens? (ii) 'The value of magnification m for a lens is −2.' Using new Cartesian Sign Convention and considering that an object is placed at a distance of 20 cm from the optical centre of this lens, state: (I) the nature of the image formed; (II) size of the image compared to the size of the object; (III) position of the image, and (IV) sign of the height of the image. (iii) The numerical values of the focal lengths of two lenses A and B are 10 cm and 20 cm respectively. Which one of the two will show higher degree of convergence/divergence? Give reason to justify your answer.",
+   "marks": 5,
+   "section": "D",
+   "type": "la",
+   "needsFigure": false,
+   "parts": [
+    {
+     "label": "(i)",
+     "text": "lens type, focal length in cm, eye defect",
+     "marks": 2
+    },
+    {
+     "label": "(ii)",
+     "text": "m = −2: nature, size, position, sign of height",
+     "marks": 2
+    },
+    {
+     "label": "(iii)",
+     "text": "which lens converges/diverges more, with reason",
+     "marks": 1
+    }
+   ]
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "part": "(i)",
+    "valuePoint": "Concave lens",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 9,
+     "printedPage": 9
+    }
+   },
+   {
+    "step": 2,
+    "part": "(i)",
+    "valuePoint": "P = 1/f(m)",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 9,
+     "printedPage": 9
+    }
+   },
+   {
+    "step": 3,
+    "part": "(i)",
+    "valuePoint": "−2.5 = 1/f ⇒ f = 1/(−2.5) = −0.4 m = −40 cm",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 9,
+     "printedPage": 9
+    }
+   },
+   {
+    "step": 4,
+    "part": "(i)",
+    "valuePoint": "Myopia",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 9,
+     "printedPage": 9
+    }
+   },
+   {
+    "step": 5,
+    "part": "(ii)",
+    "valuePoint": "(I) real and inverted (II) magnified / double the size (III) beyond 2F on the other side (IV) negative",
+    "marks": 2,
+    "citation": {
+     "pdfPage": 9,
+     "printedPage": 9
+    },
+    "note": "MS: ½ × 4"
+   },
+   {
+    "step": 6,
+    "part": "(iii)",
+    "valuePoint": "The lens with focal length 10 cm",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 9,
+     "printedPage": 9
+    }
+   },
+   {
+    "step": 7,
+    "part": "(iii)",
+    "valuePoint": "Less focal length, more converging/diverging power",
+    "marks": 0.5,
+    "citation": {
+     "pdfPage": 9,
+     "printedPage": 9
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-S16-a",
+    "probes": [
+     "multipart-independent-later-parts",
+     "calculation",
+     "physics-units",
+     "5-mark",
+     "bank-match"
+    ],
+    "mode": "typed",
+    "text": "(i) Since the power is negative, X is a concave lens.\nP = 1/f ⇒ f = 1/P = 1/(−2.5) = −4 m = −400 cm.\nIt is prescribed for myopia (short-sightedness).\n(ii) m = −2 (negative) ⇒ (I) the image is real and inverted; (II) it is twice the size of the object (magnified); (III) v = m × u = (−2) × (−20) = +40 cm, i.e. 40 cm on the other side of the lens, beyond 2F; (IV) the height of the image is negative.\n(iii) Lens A (f = 10 cm), because power P = 1/f — the shorter the focal length, the greater the power, i.e. the higher the degree of convergence/divergence.",
+    "expected": {
+     "totalMarks": 4.5,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 2,
+       "awarded": 0.5,
+       "reason": "Correct formula."
+      },
+      {
+       "step": 3,
+       "awarded": 0,
+       "reason": "1/(−2.5) = −0.4 m = −40 cm; the student wrote −4 m = −400 cm (decimal slip)."
+      },
+      {
+       "step": 4,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 5,
+       "awarded": 2,
+       "reason": "All four correct - (ii) is about a DIFFERENT lens (m = −2) and is independent of (i)."
+      },
+      {
+       "step": 6,
+       "awarded": 0.5,
+       "reason": "Correct."
+      },
+      {
+       "step": 7,
+       "awarded": 0.5,
+       "reason": "Correct reason."
+      }
+     ],
+     "wrongStep": 3,
+     "mistakeType": "calculation",
+     "studentLabel": "careless",
+     "studentHeading": "Marks to gain - you already know this",
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "1/(−2.5) = −0.4 m, i.e. −40 cm",
+      "parts (ii) and (iii) are correct"
+     ],
+     "commentMustNotClaim": [
+      "part (ii) is wrong",
+      "the lens is convex",
+      "myopia is wrong",
+      "the slip in (i) affects (ii)"
+     ],
+     "modelAnswerKeyFacts": [
+      "concave lens, f = −40 cm, myopia",
+      "real, inverted, magnified ×2, beyond 2F, negative height",
+      "lens A (10 cm)"
+     ],
+     "examinerNote": "Science version of August defect 9: an early slip in (i) must not zero the independent parts (ii) and (iii). Decimal slip in 1/(−2.5) = performed wrongly = calculation; also a units conversion probe (m→cm)."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-S17",
+  "subject": "Science",
+  "sourceType": "SQP-MS",
+  "source": {
+   "paper": "CBSE Academic Sample Question Paper 2026-27 - Science 086 - Marking Scheme",
+   "year": 2026,
+   "setCode": "SQP 2026-27",
+   "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/Science-MS.pdf",
+   "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+   "question": "Q14",
+   "pdfPage": 2,
+   "printedPage": null,
+   "questionPaper": {
+    "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/Science-SQP.pdf",
+    "pdfFile": "sources/SQP2026_27_Science-SQP.pdf",
+    "pdfPage": 3,
+    "printedPage": null
+   },
+   "sectionNote": "2026-27 SQP Science Section A is Biology (subject-wise sections)."
+  },
+  "chapterTrue": {
+   "name": "Our Environment",
+   "appTopicKey": "our-environment",
+   "subtopic": "Energy flow (10% law); biological magnification"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Our Environment is RETAINED in 2026-27 (Unit V); 'Management of Natural Resources' and 'Sources of Energy' are banned - not involved."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "Study the food chain given below: Phytoplankton → zooplankton → small fishes → large fish\nA. In the given food chain, the amount of energy available at the fourth trophic level is 10 kJ, what will be the energy available at the producer level?\nB. Is it possible to have three more trophic levels in the above food chain? Justify.\nC. Which of these trophic levels will have the maximum amount of pesticide, if it had washed down in the water body from agricultural fields. Why?",
+   "marks": 3,
+   "section": "A (Biology)",
+   "type": "sa",
+   "needsFigure": false,
+   "parts": [
+    {
+     "label": "A",
+     "text": "energy at producer level",
+     "marks": 1
+    },
+    {
+     "label": "B",
+     "text": "three more trophic levels?",
+     "marks": 1
+    },
+    {
+     "label": "C",
+     "text": "maximum pesticide",
+     "marks": 1
+    }
+   ]
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "part": "A",
+    "valuePoint": "A. 10000 kJ",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 2,
+     "printedPage": null
+    },
+    "note": "SQP MS prints only the question total (3); 1 + 1 + 1 per part is examiner judgement."
+   },
+   {
+    "step": 2,
+    "part": "B",
+    "valuePoint": "B. No - the loss of energy at each step is so much that very little usable energy will be left",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 2,
+     "printedPage": null
+    }
+   },
+   {
+    "step": 3,
+    "part": "C",
+    "valuePoint": "C. Large fish, due to biological magnification of pesticide",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 2,
+     "printedPage": null
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-S17-a",
+    "probes": [
+     "calculation",
+     "multipart-independent-later-parts"
+    ],
+    "mode": "typed",
+    "text": "A. By the 10% law only 10% of energy passes to the next level.\nLarge fish (4th level) = 10 kJ ⇒ small fishes = 100 kJ ⇒ zooplankton = 1000 kJ ⇒ phytoplankton = 1000 × 10 = 1,00,000 kJ.\nB. No. At each trophic level about 90% of the energy is lost, so after three more levels very little usable energy would be left.\nC. Large fish, because pesticides are non-biodegradable and accumulate at each trophic level (biological magnification), so the highest level has the maximum concentration.",
+    "expected": {
+     "totalMarks": 2,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 0,
+       "reason": "Method (10% law) right, but 1000 × 10 = 10,000 kJ, not 1,00,000 kJ."
+      },
+      {
+       "step": 2,
+       "awarded": 1,
+       "reason": "Correct."
+      },
+      {
+       "step": 3,
+       "awarded": 1,
+       "reason": "Correct."
+      }
+     ],
+     "wrongStep": 1,
+     "mistakeType": "calculation",
+     "studentLabel": "careless",
+     "studentHeading": "Marks to gain - you already know this",
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "1000 × 10 = 10,000 kJ (not 1,00,000 kJ)",
+      "the 10% law was applied correctly"
+     ],
+     "commentMustNotClaim": [
+      "the 10% law is misunderstood",
+      "conceptual",
+      "B or C is wrong"
+     ],
+     "modelAnswerKeyFacts": [
+      "10,000 kJ at producer level",
+      "no - too little energy left",
+      "large fish - biological magnification"
+     ],
+     "examinerNote": "Arithmetic slip on a correct method = calculation (careless). JUDGEMENT: A is a 1-mark numeric value point; 0 awarded; an examiner giving ½ for the method is within tolerance."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-S18",
+  "subject": "Science",
+  "sourceType": "SQP-MS",
+  "source": {
+   "paper": "CBSE Academic Sample Question Paper 2026-27 - Science 086 - Marking Scheme",
+   "year": 2026,
+   "setCode": "SQP 2026-27",
+   "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/Science-MS.pdf",
+   "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+   "question": "Q15",
+   "pdfPage": 2,
+   "printedPage": null,
+   "questionPaper": {
+    "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/Science-SQP.pdf",
+    "pdfFile": "sources/SQP2026_27_Science-SQP.pdf",
+    "pdfPage": 3,
+    "printedPage": null
+   },
+   "qpPagesAll": [
+    3,
+    4
+   ]
+  },
+  "chapterTrue": {
+   "name": "Heredity",
+   "appTopicKey": "heredity",
+   "subtopic": "Mendel's monohybrid and dihybrid crosses"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Heredity, Mendel's contribution, Laws of Inheritance are RETAINED and assessed (guard bans only Evolution sub-topics)."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "In order to study patterns of inheritance, Neha had performed typical Mendelian experiments with pea plants in the field. In experiment one, she crossed a pea plant having white flowers (vv) with another pea plant bearing violet flowers (VV). In another experiment, in addition to the colour of the flower she also focussed on the height of the pea plant. This time she crossed a pea plant having violet flowers and tall height (VVTT) with another pea plant having white flowers and short height (vvtt). What percentage is expected for the following traits as a result of these experiments? Give a reason.",
+   "marks": 4,
+   "section": "A (Biology)",
+   "type": "case",
+   "needsFigure": false,
+   "parts": [
+    {
+     "label": "A",
+     "text": "Violet flowers in F1 and F2 generation in experiment one?",
+     "marks": 1
+    },
+    {
+     "label": "B",
+     "text": "Tall height plants with white flowers in F2 generation in experiment two?",
+     "marks": 1
+    },
+    {
+     "label": "D",
+     "text": "Percentage of short height plants with white flowers in F1 and F2 generations in experiment two? [OR C: medium height plants with light violet flowers]",
+     "marks": 2
+    }
+   ]
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "part": "A",
+    "valuePoint": "A. F1 100% violet (Vv); F2 75% violet (1/4 VV + 2/4 Vv) - violet is dominant",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 2,
+     "printedPage": null
+    }
+   },
+   {
+    "step": 2,
+    "part": "B",
+    "valuePoint": "B. 3/16 or 18.75% tall with white flowers (vvTT/vvTt)",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 2,
+     "printedPage": null
+    }
+   },
+   {
+    "step": 3,
+    "part": "D",
+    "valuePoint": "D. F1: 0% (all show dominant traits); F2: 1/16 or 6.25% short-white (vvtt), both recessive",
+    "marks": 2,
+    "citation": {
+     "pdfPage": 2,
+     "printedPage": null
+    }
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-S18-a",
+    "probes": [
+     "conceptual",
+     "heredity-retained",
+     "case-based-4mark",
+     "multipart-independent-later-parts"
+    ],
+    "mode": "typed",
+    "text": "A. Experiment one: F1 — 100% violet (Vv); F2 — 75% violet (VV and Vv), because violet is the dominant trait.\nB. Tall plants with white flowers in F2 = 9/16, because tall is dominant.\nD. F1: 0% short plants with white flowers, since all F1 plants (VvTt) show only the dominant traits. F2: 1/16 (6.25%) plants will be short with white flowers (vvtt), as both traits are recessive.",
+    "expected": {
+     "totalMarks": 3,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 1,
+       "reason": "Correct."
+      },
+      {
+       "step": 2,
+       "awarded": 0,
+       "reason": "9/16 is the tall-VIOLET class; tall-white (vvT_) is 3/16."
+      },
+      {
+       "step": 3,
+       "awarded": 2,
+       "reason": "Correct for F1 and F2."
+      }
+     ],
+     "wrongStep": 2,
+     "mistakeType": "conceptual",
+     "studentLabel": "knowledge gap",
+     "studentHeading": "Marks to gain - learn this",
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "9/16 is the proportion of tall violet plants; tall white is 3/16"
+     ],
+     "commentMustNotClaim": [
+      "part A is wrong",
+      "part D is wrong",
+      "calculation slip"
+     ],
+     "modelAnswerKeyFacts": [
+      "A: 100% and 75%",
+      "B: 3/16",
+      "D: 0% and 1/16"
+     ],
+     "examinerNote": "Confusing phenotype classes of the 9:3:3:1 ratio = method misunderstood = conceptual. Heredity is retained in 2026-27 - a grader or bank filter must not treat it as out of syllabus."
+    }
+   }
+  ]
+ },
+ {
+  "id": "GS-S19",
+  "subject": "Science",
+  "sourceType": "SQP-MS",
+  "source": {
+   "paper": "CBSE Academic Sample Question Paper 2026-27 - Science 086 - Marking Scheme",
+   "year": 2026,
+   "setCode": "SQP 2026-27",
+   "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/Science-MS.pdf",
+   "pdfFile": "sources/SQP2026_27_Science-MS.pdf",
+   "question": "Q33",
+   "pdfPage": 7,
+   "printedPage": null,
+   "questionPaper": {
+    "url": "https://cbseacademic.nic.in/web_material/SQP/ClassX_2026_27/Science-SQP.pdf",
+    "pdfFile": "sources/SQP2026_27_Science-SQP.pdf",
+    "pdfPage": 12,
+    "printedPage": null
+   }
+  },
+  "chapterTrue": {
+   "name": "Light - Reflection & Refraction",
+   "appTopicKey": "light-reflection-and-refraction",
+   "subtopic": "Snell's law; refractive index"
+  },
+  "syllabus2026_27": {
+   "inSyllabus": true,
+   "guardChecked": true,
+   "note": "Laws of refraction and refractive index are IN."
+  },
+  "bankMatch": {
+   "inBank": false,
+   "bankId": null,
+   "bankTopicKey": null
+  },
+  "question": {
+   "text": "A. State Snell's Law of refraction.\nB. Define the refractive index of a material with respect to another material giving the mathematical expression.",
+   "marks": 2,
+   "section": "C (Physics)",
+   "type": "vsa",
+   "needsFigure": false,
+   "parts": [
+    {
+     "label": "A",
+     "text": "Snell's law",
+     "marks": 1
+    },
+    {
+     "label": "B",
+     "text": "refractive index with expression",
+     "marks": 1
+    }
+   ]
+  },
+  "scheme": [
+   {
+    "step": 1,
+    "part": "A",
+    "valuePoint": "Ratio of sine of angle of incidence to sine of angle of refraction is constant for light of a given colour and given pair of media",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 7,
+     "printedPage": null
+    }
+   },
+   {
+    "step": 2,
+    "part": "B",
+    "valuePoint": "n₂₁ = (speed of light in medium 1)/(speed of light in medium 2) = v₁/v₂",
+    "marks": 1,
+    "citation": {
+     "pdfPage": 7,
+     "printedPage": null
+    },
+    "note": "ERRATUM: the SQP MS prints 'n₂₁ = v₂/v₁'. Refractive index of medium 2 w.r.t. medium 1 is v₁/v₂ (NCERT). Value point corrected."
+   }
+  ],
+  "cases": [
+   {
+    "caseId": "GS-S19-a",
+    "probes": [
+     "scheme-erratum",
+     "model-answer-correctness",
+     "control-full-marks"
+    ],
+    "mode": "typed",
+    "text": "A. Snell's law: for light of a given colour and a given pair of media, the ratio of the sine of the angle of incidence to the sine of the angle of refraction is constant: sin i / sin r = constant.\nB. The refractive index of medium 2 with respect to medium 1 is the ratio of the speed of light in medium 1 to the speed of light in medium 2: n₂₁ = v₁/v₂.",
+    "expected": {
+     "totalMarks": 2,
+     "perStep": [
+      {
+       "step": 1,
+       "awarded": 1,
+       "reason": "Correct statement."
+      },
+      {
+       "step": 2,
+       "awarded": 1,
+       "reason": "Correct definition and expression (the SQP MS's v₂/v₁ is an erratum)."
+      }
+     ],
+     "wrongStep": null,
+     "mistakeType": null,
+     "studentLabel": null,
+     "studentHeading": null,
+     "unattemptedParts": [],
+     "commentMayMention": [
+      "Snell's law stated",
+      "n₂₁ = v₁/v₂"
+     ],
+     "commentMustNotClaim": [
+      "n₂₁ should be v₂/v₁",
+      "the expression is inverted",
+      "any mistake",
+      "marks deducted"
+     ],
+     "modelAnswerKeyFacts": [
+      "sin i/sin r = constant",
+      "n₂₁ = v₁/v₂"
+     ],
+     "examinerNote": "SQP MS ERRATUM (SQP 2026-27 Science MS p7 prints n₂₁ = v₂/v₁). The physics is v₁/v₂; an examiner awards full marks. A grader or cached model answer that 'corrects' the student to v₂/v₁ is producing a wrong model answer."
+    }
+   }
+  ]
+ }
+]

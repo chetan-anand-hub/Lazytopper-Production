@@ -1,0 +1,1064 @@
+{
+ "_about": "G2 response-shape snapshot per P15 call site (lib/shape.cjs). Requests carry NO acceptsV2. Regenerate only deliberately: node server/eval/golden/lib/shape.cjs --write",
+ "shapes": {
+  "ci-single": {
+   "handler": "handleCheckSolution",
+   "requestKeys": [
+    "marks",
+    "question",
+    "subject",
+    "textAnswer",
+    "topic"
+   ],
+   "success": {
+    "httpStatus": 200,
+    "body": {
+     "annotatedSteps": [
+      {
+       "correctedWorking": "null",
+       "description": "string",
+       "isDeparture": "boolean",
+       "isReturn": "boolean",
+       "marksAwarded": "number",
+       "marksDeducted": "number",
+       "mistakeType": "null",
+       "status": "string",
+       "stepNumber": "number",
+       "studentWork": "string",
+       "teacherAnnotation": "string"
+      },
+      {
+       "correctedWorking": "string",
+       "description": "string",
+       "isDeparture": "boolean",
+       "isReturn": "boolean",
+       "marksAwarded": "number",
+       "marksDeducted": "number",
+       "mistakeType": "string",
+       "status": "string",
+       "stepNumber": "number",
+       "studentWork": "string",
+       "teacherAnnotation": "string"
+      }
+     ],
+     "detectedSubject": "null",
+     "detectedTopic": "null",
+     "marksAwarded": "number",
+     "marksSource": "null",
+     "mistakeSummary": {
+      "calculation": "number",
+      "conceptual": "number",
+      "departure": "number",
+      "presentation": "number",
+      "silly": "number"
+     },
+     "model": "string",
+     "objective": "boolean",
+     "ok": "boolean",
+     "percentage": "number",
+     "provider": "string",
+     "questionDepartureError": "boolean",
+     "teacherNote": "string",
+     "totalMarks": "number"
+    }
+   },
+   "parseMiss": {
+    "httpStatus": 200,
+    "body": {
+     "error": "string",
+     "ok": "boolean"
+    }
+   },
+   "timeout": {
+    "httpStatus": 500,
+    "body": {
+     "error": "string",
+     "ok": "boolean"
+    }
+   }
+  },
+  "ci-multi": {
+   "handler": "handleGradeWorksheet",
+   "requestKeys": [
+    "imageBase64",
+    "imageMimeType",
+    "questions",
+    "subject",
+    "worksheetId"
+   ],
+   "success": {
+    "httpStatus": 200,
+    "body": {
+     "gradedCount": "number",
+     "gradedMarksAwarded": "number",
+     "gradedMarksTotal": "number",
+     "model": "string",
+     "ok": "boolean",
+     "pendingCount": "number",
+     "provider": "string",
+     "results": [
+      {
+       "annotatedSteps": [
+        {
+         "correctedWorking": "null",
+         "description": "string",
+         "isDeparture": "boolean",
+         "isReturn": "boolean",
+         "marksAwarded": "number",
+         "marksDeducted": "number",
+         "mistakeType": "null",
+         "status": "string",
+         "stepNumber": "number",
+         "studentWork": "string",
+         "teacherAnnotation": "string"
+        },
+        {
+         "correctedWorking": "string",
+         "description": "string",
+         "isDeparture": "boolean",
+         "isReturn": "boolean",
+         "marksAwarded": "number",
+         "marksDeducted": "number",
+         "mistakeType": "string",
+         "status": "string",
+         "stepNumber": "number",
+         "studentWork": "string",
+         "teacherAnnotation": "string"
+        }
+       ],
+       "couldNotRead": "boolean",
+       "marksAwarded": "number",
+       "mistakeSummary": {
+        "calculation": "number",
+        "conceptual": "number",
+        "departure": "number",
+        "presentation": "number",
+        "silly": "number"
+       },
+       "objective": "boolean",
+       "ok": "boolean",
+       "percentage": "number",
+       "qNumber": "number",
+       "questionDepartureError": "boolean",
+       "teacherNote": "string",
+       "totalMarks": "number"
+      },
+      {
+       "annotatedSteps": [
+        {
+         "correctedWorking": "null",
+         "description": "string",
+         "isDeparture": "boolean",
+         "isReturn": "boolean",
+         "marksAwarded": "number",
+         "marksDeducted": "number",
+         "mistakeType": "null",
+         "status": "string",
+         "stepNumber": "number",
+         "studentWork": "string",
+         "teacherAnnotation": "string"
+        },
+        {
+         "correctedWorking": "string",
+         "description": "string",
+         "isDeparture": "boolean",
+         "isReturn": "boolean",
+         "marksAwarded": "number",
+         "marksDeducted": "number",
+         "mistakeType": "string",
+         "status": "string",
+         "stepNumber": "number",
+         "studentWork": "string",
+         "teacherAnnotation": "string"
+        }
+       ],
+       "couldNotRead": "boolean",
+       "marksAwarded": "number",
+       "mistakeSummary": {
+        "calculation": "number",
+        "conceptual": "number",
+        "departure": "number",
+        "presentation": "number",
+        "silly": "number"
+       },
+       "objective": "boolean",
+       "ok": "boolean",
+       "percentage": "number",
+       "qNumber": "number",
+       "questionDepartureError": "boolean",
+       "teacherNote": "string",
+       "totalMarks": "number"
+      },
+      {
+       "couldNotRead": "boolean",
+       "marksAwarded": "number",
+       "note": "string",
+       "qNumber": "number",
+       "totalMarks": "number"
+      }
+     ],
+     "summary": "string",
+     "totalQuestions": "number",
+     "worksheetId": "string",
+     "worksheetTotalMarks": "number"
+    }
+   },
+   "parseMiss": {
+    "httpStatus": 200,
+    "body": {
+     "error": "string",
+     "ok": "boolean"
+    }
+   },
+   "timeout": {
+    "httpStatus": 500,
+    "body": {
+     "error": "string",
+     "ok": "boolean"
+    }
+   }
+  },
+  "qr-handoff": {
+   "handler": "handleCheckSolution",
+   "requestKeys": [
+    "imageBase64",
+    "imageMimeType",
+    "marks",
+    "question",
+    "subject",
+    "topic"
+   ],
+   "success": {
+    "httpStatus": 200,
+    "body": {
+     "annotatedSteps": [
+      {
+       "correctedWorking": "null",
+       "description": "string",
+       "isDeparture": "boolean",
+       "isReturn": "boolean",
+       "marksAwarded": "number",
+       "marksDeducted": "number",
+       "mistakeType": "null",
+       "status": "string",
+       "stepNumber": "number",
+       "studentWork": "string",
+       "teacherAnnotation": "string"
+      },
+      {
+       "correctedWorking": "string",
+       "description": "string",
+       "isDeparture": "boolean",
+       "isReturn": "boolean",
+       "marksAwarded": "number",
+       "marksDeducted": "number",
+       "mistakeType": "string",
+       "status": "string",
+       "stepNumber": "number",
+       "studentWork": "string",
+       "teacherAnnotation": "string"
+      }
+     ],
+     "detectedSubject": "null",
+     "detectedTopic": "null",
+     "marksAwarded": "number",
+     "marksSource": "null",
+     "mistakeSummary": {
+      "calculation": "number",
+      "conceptual": "number",
+      "departure": "number",
+      "presentation": "number",
+      "silly": "number"
+     },
+     "model": "string",
+     "objective": "boolean",
+     "ok": "boolean",
+     "percentage": "number",
+     "provider": "string",
+     "questionDepartureError": "boolean",
+     "teacherNote": "string",
+     "totalMarks": "number"
+    }
+   },
+   "parseMiss": {
+    "httpStatus": 200,
+    "body": {
+     "error": "string",
+     "ok": "boolean"
+    }
+   },
+   "timeout": {
+    "httpStatus": 500,
+    "body": {
+     "error": "string",
+     "ok": "boolean"
+    }
+   }
+  },
+  "free-check": {
+   "handler": "handleCheckSolution",
+   "requestKeys": [
+    "marks",
+    "question",
+    "subject",
+    "textAnswer",
+    "topic"
+   ],
+   "success": {
+    "httpStatus": 200,
+    "body": {
+     "annotatedSteps": [
+      {
+       "correctedWorking": "null",
+       "description": "string",
+       "isDeparture": "boolean",
+       "isReturn": "boolean",
+       "marksAwarded": "number",
+       "marksDeducted": "number",
+       "mistakeType": "null",
+       "status": "string",
+       "stepNumber": "number",
+       "studentWork": "string",
+       "teacherAnnotation": "string"
+      },
+      {
+       "correctedWorking": "string",
+       "description": "string",
+       "isDeparture": "boolean",
+       "isReturn": "boolean",
+       "marksAwarded": "number",
+       "marksDeducted": "number",
+       "mistakeType": "string",
+       "status": "string",
+       "stepNumber": "number",
+       "studentWork": "string",
+       "teacherAnnotation": "string"
+      }
+     ],
+     "detectedSubject": "null",
+     "detectedTopic": "null",
+     "marksAwarded": "number",
+     "marksSource": "null",
+     "mistakeSummary": {
+      "calculation": "number",
+      "conceptual": "number",
+      "departure": "number",
+      "presentation": "number",
+      "silly": "number"
+     },
+     "model": "string",
+     "objective": "boolean",
+     "ok": "boolean",
+     "percentage": "number",
+     "provider": "string",
+     "questionDepartureError": "boolean",
+     "teacherNote": "string",
+     "totalMarks": "number"
+    }
+   },
+   "parseMiss": {
+    "httpStatus": 200,
+    "body": {
+     "error": "string",
+     "ok": "boolean"
+    }
+   },
+   "timeout": {
+    "httpStatus": 500,
+    "body": {
+     "error": "string",
+     "ok": "boolean"
+    }
+   }
+  },
+  "tutor-overlay": {
+   "handler": "handleGradeWorksheet",
+   "requestKeys": [
+    "imageBase64",
+    "imageMimeType",
+    "questions",
+    "subject",
+    "worksheetId"
+   ],
+   "success": {
+    "httpStatus": 200,
+    "body": {
+     "gradedCount": "number",
+     "gradedMarksAwarded": "number",
+     "gradedMarksTotal": "number",
+     "model": "string",
+     "ok": "boolean",
+     "pendingCount": "number",
+     "provider": "string",
+     "results": [
+      {
+       "annotatedSteps": [
+        {
+         "correctedWorking": "null",
+         "description": "string",
+         "isDeparture": "boolean",
+         "isReturn": "boolean",
+         "marksAwarded": "number",
+         "marksDeducted": "number",
+         "mistakeType": "null",
+         "status": "string",
+         "stepNumber": "number",
+         "studentWork": "string",
+         "teacherAnnotation": "string"
+        },
+        {
+         "correctedWorking": "string",
+         "description": "string",
+         "isDeparture": "boolean",
+         "isReturn": "boolean",
+         "marksAwarded": "number",
+         "marksDeducted": "number",
+         "mistakeType": "string",
+         "status": "string",
+         "stepNumber": "number",
+         "studentWork": "string",
+         "teacherAnnotation": "string"
+        }
+       ],
+       "couldNotRead": "boolean",
+       "marksAwarded": "number",
+       "mistakeSummary": {
+        "calculation": "number",
+        "conceptual": "number",
+        "departure": "number",
+        "presentation": "number",
+        "silly": "number"
+       },
+       "objective": "boolean",
+       "ok": "boolean",
+       "percentage": "number",
+       "qNumber": "number",
+       "questionDepartureError": "boolean",
+       "teacherNote": "string",
+       "totalMarks": "number"
+      },
+      {
+       "couldNotRead": "boolean",
+       "marksAwarded": "number",
+       "note": "string",
+       "qNumber": "number",
+       "totalMarks": "number"
+      }
+     ],
+     "summary": "string",
+     "totalQuestions": "number",
+     "worksheetId": "string",
+     "worksheetTotalMarks": "number"
+    }
+   },
+   "parseMiss": {
+    "httpStatus": 200,
+    "body": {
+     "error": "string",
+     "ok": "boolean"
+    }
+   },
+   "timeout": {
+    "httpStatus": 500,
+    "body": {
+     "error": "string",
+     "ok": "boolean"
+    }
+   }
+  },
+  "quick-practice-batch": {
+   "handler": "handleGradeWorksheet",
+   "requestKeys": [
+    "questions",
+    "subject",
+    "uploads",
+    "worksheetId"
+   ],
+   "success": {
+    "httpStatus": 200,
+    "body": {
+     "gradedCount": "number",
+     "gradedMarksAwarded": "number",
+     "gradedMarksTotal": "number",
+     "model": "string",
+     "ok": "boolean",
+     "pendingCount": "number",
+     "provider": "string",
+     "results": [
+      {
+       "annotatedSteps": [
+        {
+         "correctedWorking": "null",
+         "description": "string",
+         "isDeparture": "boolean",
+         "isReturn": "boolean",
+         "marksAwarded": "number",
+         "marksDeducted": "number",
+         "mistakeType": "null",
+         "status": "string",
+         "stepNumber": "number",
+         "studentWork": "string",
+         "teacherAnnotation": "string"
+        },
+        {
+         "correctedWorking": "string",
+         "description": "string",
+         "isDeparture": "boolean",
+         "isReturn": "boolean",
+         "marksAwarded": "number",
+         "marksDeducted": "number",
+         "mistakeType": "string",
+         "status": "string",
+         "stepNumber": "number",
+         "studentWork": "string",
+         "teacherAnnotation": "string"
+        }
+       ],
+       "couldNotRead": "boolean",
+       "marksAwarded": "number",
+       "mistakeSummary": {
+        "calculation": "number",
+        "conceptual": "number",
+        "departure": "number",
+        "presentation": "number",
+        "silly": "number"
+       },
+       "objective": "boolean",
+       "ok": "boolean",
+       "percentage": "number",
+       "qNumber": "number",
+       "questionDepartureError": "boolean",
+       "teacherNote": "string",
+       "totalMarks": "number"
+      },
+      {
+       "annotatedSteps": [
+        {
+         "correctedWorking": "null",
+         "description": "string",
+         "isDeparture": "boolean",
+         "isReturn": "boolean",
+         "marksAwarded": "number",
+         "marksDeducted": "number",
+         "mistakeType": "null",
+         "status": "string",
+         "stepNumber": "number",
+         "studentWork": "string",
+         "teacherAnnotation": "string"
+        },
+        {
+         "correctedWorking": "string",
+         "description": "string",
+         "isDeparture": "boolean",
+         "isReturn": "boolean",
+         "marksAwarded": "number",
+         "marksDeducted": "number",
+         "mistakeType": "string",
+         "status": "string",
+         "stepNumber": "number",
+         "studentWork": "string",
+         "teacherAnnotation": "string"
+        }
+       ],
+       "couldNotRead": "boolean",
+       "marksAwarded": "number",
+       "mistakeSummary": {
+        "calculation": "number",
+        "conceptual": "number",
+        "departure": "number",
+        "presentation": "number",
+        "silly": "number"
+       },
+       "objective": "boolean",
+       "ok": "boolean",
+       "percentage": "number",
+       "qNumber": "number",
+       "questionDepartureError": "boolean",
+       "teacherNote": "string",
+       "totalMarks": "number"
+      },
+      {
+       "annotatedSteps": [
+        {
+         "correctedWorking": "null",
+         "description": "string",
+         "isDeparture": "boolean",
+         "isReturn": "boolean",
+         "marksAwarded": "number",
+         "marksDeducted": "number",
+         "mistakeType": "null",
+         "status": "string",
+         "stepNumber": "number",
+         "studentWork": "string",
+         "teacherAnnotation": "string"
+        },
+        {
+         "correctedWorking": "string",
+         "description": "string",
+         "isDeparture": "boolean",
+         "isReturn": "boolean",
+         "marksAwarded": "number",
+         "marksDeducted": "number",
+         "mistakeType": "string",
+         "status": "string",
+         "stepNumber": "number",
+         "studentWork": "string",
+         "teacherAnnotation": "string"
+        }
+       ],
+       "couldNotRead": "boolean",
+       "marksAwarded": "number",
+       "mistakeSummary": {
+        "calculation": "number",
+        "conceptual": "number",
+        "departure": "number",
+        "presentation": "number",
+        "silly": "number"
+       },
+       "objective": "boolean",
+       "ok": "boolean",
+       "percentage": "number",
+       "qNumber": "number",
+       "questionDepartureError": "boolean",
+       "teacherNote": "string",
+       "totalMarks": "number"
+      },
+      {
+       "couldNotRead": "boolean",
+       "marksAwarded": "number",
+       "note": "string",
+       "qNumber": "number",
+       "totalMarks": "number"
+      }
+     ],
+     "summary": "string",
+     "totalQuestions": "number",
+     "worksheetId": "string",
+     "worksheetTotalMarks": "number"
+    }
+   },
+   "parseMiss": {
+    "httpStatus": 200,
+    "body": {
+     "error": "string",
+     "ok": "boolean"
+    }
+   },
+   "timeout": {
+    "httpStatus": 500,
+    "body": {
+     "error": "string",
+     "ok": "boolean"
+    }
+   }
+  },
+  "hpq-solution-checker": {
+   "handler": "handleCheckSolution",
+   "requestKeys": [
+    "finalAnswer",
+    "marks",
+    "question",
+    "solutionSteps",
+    "subject",
+    "textAnswer",
+    "topic"
+   ],
+   "success": {
+    "httpStatus": 200,
+    "body": {
+     "annotatedSteps": [
+      {
+       "correctedWorking": "null",
+       "description": "string",
+       "isDeparture": "boolean",
+       "isReturn": "boolean",
+       "marksAwarded": "number",
+       "marksDeducted": "number",
+       "mistakeType": "null",
+       "status": "string",
+       "stepNumber": "number",
+       "studentWork": "string",
+       "teacherAnnotation": "string"
+      },
+      {
+       "correctedWorking": "string",
+       "description": "string",
+       "isDeparture": "boolean",
+       "isReturn": "boolean",
+       "marksAwarded": "number",
+       "marksDeducted": "number",
+       "mistakeType": "string",
+       "status": "string",
+       "stepNumber": "number",
+       "studentWork": "string",
+       "teacherAnnotation": "string"
+      }
+     ],
+     "detectedSubject": "null",
+     "detectedTopic": "null",
+     "marksAwarded": "number",
+     "marksSource": "null",
+     "mistakeSummary": {
+      "calculation": "number",
+      "conceptual": "number",
+      "departure": "number",
+      "presentation": "number",
+      "silly": "number"
+     },
+     "model": "string",
+     "objective": "boolean",
+     "ok": "boolean",
+     "percentage": "number",
+     "provider": "string",
+     "questionDepartureError": "boolean",
+     "teacherNote": "string",
+     "totalMarks": "number"
+    }
+   },
+   "parseMiss": {
+    "httpStatus": 200,
+    "body": {
+     "error": "string",
+     "ok": "boolean"
+    }
+   },
+   "timeout": {
+    "httpStatus": 500,
+    "body": {
+     "error": "string",
+     "ok": "boolean"
+    }
+   }
+  },
+  "chapter-test": {
+   "handler": "handleGradeWorksheet",
+   "requestKeys": [
+    "imageBase64",
+    "imageMimeType",
+    "questions",
+    "subject",
+    "worksheetId"
+   ],
+   "success": {
+    "httpStatus": 200,
+    "body": {
+     "gradedCount": "number",
+     "gradedMarksAwarded": "number",
+     "gradedMarksTotal": "number",
+     "model": "string",
+     "ok": "boolean",
+     "pendingCount": "number",
+     "provider": "string",
+     "results": [
+      {
+       "annotatedSteps": [
+        {
+         "correctedWorking": "null",
+         "description": "string",
+         "isDeparture": "boolean",
+         "isReturn": "boolean",
+         "marksAwarded": "number",
+         "marksDeducted": "number",
+         "mistakeType": "null",
+         "status": "string",
+         "stepNumber": "number",
+         "studentWork": "string",
+         "teacherAnnotation": "string"
+        },
+        {
+         "correctedWorking": "string",
+         "description": "string",
+         "isDeparture": "boolean",
+         "isReturn": "boolean",
+         "marksAwarded": "number",
+         "marksDeducted": "number",
+         "mistakeType": "string",
+         "status": "string",
+         "stepNumber": "number",
+         "studentWork": "string",
+         "teacherAnnotation": "string"
+        }
+       ],
+       "couldNotRead": "boolean",
+       "marksAwarded": "number",
+       "mistakeSummary": {
+        "calculation": "number",
+        "conceptual": "number",
+        "departure": "number",
+        "presentation": "number",
+        "silly": "number"
+       },
+       "objective": "boolean",
+       "ok": "boolean",
+       "percentage": "number",
+       "qNumber": "number",
+       "questionDepartureError": "boolean",
+       "teacherNote": "string",
+       "totalMarks": "number"
+      },
+      {
+       "couldNotRead": "boolean",
+       "marksAwarded": "number",
+       "note": "string",
+       "qNumber": "number",
+       "totalMarks": "number"
+      }
+     ],
+     "summary": "string",
+     "totalQuestions": "number",
+     "worksheetId": "string",
+     "worksheetTotalMarks": "number"
+    }
+   },
+   "parseMiss": {
+    "httpStatus": 200,
+    "body": {
+     "error": "string",
+     "ok": "boolean"
+    }
+   },
+   "timeout": {
+    "httpStatus": 500,
+    "body": {
+     "error": "string",
+     "ok": "boolean"
+    }
+   }
+  },
+  "full-mock": {
+   "handler": "handleGradeWorksheet",
+   "requestKeys": [
+    "imageBase64",
+    "imageMimeType",
+    "questions",
+    "subject",
+    "worksheetId"
+   ],
+   "success": {
+    "httpStatus": 200,
+    "body": {
+     "gradedCount": "number",
+     "gradedMarksAwarded": "number",
+     "gradedMarksTotal": "number",
+     "model": "string",
+     "ok": "boolean",
+     "pendingCount": "number",
+     "provider": "string",
+     "results": [
+      {
+       "annotatedSteps": [
+        {
+         "correctedWorking": "null",
+         "description": "string",
+         "isDeparture": "boolean",
+         "isReturn": "boolean",
+         "marksAwarded": "number",
+         "marksDeducted": "number",
+         "mistakeType": "null",
+         "status": "string",
+         "stepNumber": "number",
+         "studentWork": "string",
+         "teacherAnnotation": "string"
+        },
+        {
+         "correctedWorking": "string",
+         "description": "string",
+         "isDeparture": "boolean",
+         "isReturn": "boolean",
+         "marksAwarded": "number",
+         "marksDeducted": "number",
+         "mistakeType": "string",
+         "status": "string",
+         "stepNumber": "number",
+         "studentWork": "string",
+         "teacherAnnotation": "string"
+        }
+       ],
+       "couldNotRead": "boolean",
+       "marksAwarded": "number",
+       "mistakeSummary": {
+        "calculation": "number",
+        "conceptual": "number",
+        "departure": "number",
+        "presentation": "number",
+        "silly": "number"
+       },
+       "objective": "boolean",
+       "ok": "boolean",
+       "percentage": "number",
+       "qNumber": "number",
+       "questionDepartureError": "boolean",
+       "teacherNote": "string",
+       "totalMarks": "number"
+      },
+      {
+       "couldNotRead": "boolean",
+       "marksAwarded": "number",
+       "note": "string",
+       "qNumber": "number",
+       "totalMarks": "number"
+      }
+     ],
+     "summary": "string",
+     "totalQuestions": "number",
+     "worksheetId": "string",
+     "worksheetTotalMarks": "number"
+    }
+   },
+   "parseMiss": {
+    "httpStatus": 200,
+    "body": {
+     "error": "string",
+     "ok": "boolean"
+    }
+   },
+   "timeout": {
+    "httpStatus": 500,
+    "body": {
+     "error": "string",
+     "ok": "boolean"
+    }
+   }
+  },
+  "worksheets": {
+   "handler": "handleGradeWorksheet",
+   "requestKeys": [
+    "imageBase64",
+    "imageMimeType",
+    "questions",
+    "subject",
+    "worksheetId"
+   ],
+   "success": {
+    "httpStatus": 200,
+    "body": {
+     "gradedCount": "number",
+     "gradedMarksAwarded": "number",
+     "gradedMarksTotal": "number",
+     "model": "string",
+     "ok": "boolean",
+     "pendingCount": "number",
+     "provider": "string",
+     "results": [
+      {
+       "annotatedSteps": [
+        {
+         "correctedWorking": "null",
+         "description": "string",
+         "isDeparture": "boolean",
+         "isReturn": "boolean",
+         "marksAwarded": "number",
+         "marksDeducted": "number",
+         "mistakeType": "null",
+         "status": "string",
+         "stepNumber": "number",
+         "studentWork": "string",
+         "teacherAnnotation": "string"
+        },
+        {
+         "correctedWorking": "string",
+         "description": "string",
+         "isDeparture": "boolean",
+         "isReturn": "boolean",
+         "marksAwarded": "number",
+         "marksDeducted": "number",
+         "mistakeType": "string",
+         "status": "string",
+         "stepNumber": "number",
+         "studentWork": "string",
+         "teacherAnnotation": "string"
+        }
+       ],
+       "couldNotRead": "boolean",
+       "marksAwarded": "number",
+       "mistakeSummary": {
+        "calculation": "number",
+        "conceptual": "number",
+        "departure": "number",
+        "presentation": "number",
+        "silly": "number"
+       },
+       "objective": "boolean",
+       "ok": "boolean",
+       "percentage": "number",
+       "qNumber": "number",
+       "questionDepartureError": "boolean",
+       "teacherNote": "string",
+       "totalMarks": "number"
+      },
+      {
+       "couldNotRead": "boolean",
+       "marksAwarded": "number",
+       "note": "string",
+       "qNumber": "number",
+       "totalMarks": "number"
+      }
+     ],
+     "summary": "string",
+     "totalQuestions": "number",
+     "worksheetId": "string",
+     "worksheetTotalMarks": "number"
+    }
+   },
+   "parseMiss": {
+    "httpStatus": 200,
+    "body": {
+     "error": "string",
+     "ok": "boolean"
+    }
+   },
+   "timeout": {
+    "httpStatus": 500,
+    "body": {
+     "error": "string",
+     "ok": "boolean"
+    }
+   }
+  },
+  "detect-question": {
+   "handler": "handleDetectQuestion",
+   "requestKeys": [
+    "question",
+    "topicVocabulary"
+   ],
+   "success": {
+    "httpStatus": 200,
+    "body": {
+     "detectedAnswer": "null",
+     "detectedMarks": "number",
+     "detectedObjective": "boolean",
+     "detectedSubject": "string",
+     "detectedTopic": "string",
+     "marksSource": "string",
+     "model": "string",
+     "ok": "boolean",
+     "provider": "string",
+     "questions": [
+      {
+       "answer": "null",
+       "marks": "number",
+       "marksSource": "string",
+       "objective": "boolean",
+       "questionNumber": "number",
+       "questionText": "string"
+      }
+     ]
+    }
+   },
+   "parseMiss": {
+    "httpStatus": 200,
+    "body": {
+     "error": "string",
+     "ok": "boolean"
+    }
+   },
+   "timeout": {
+    "httpStatus": 500,
+    "body": {
+     "error": "string",
+     "ok": "boolean"
+    }
+   }
+  }
+ }
+}
