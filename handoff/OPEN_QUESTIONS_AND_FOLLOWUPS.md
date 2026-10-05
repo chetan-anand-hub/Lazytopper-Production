@@ -23,6 +23,336 @@ The check is cheap and should be standing: for every `[FU-...]` referenced anywh
 **3 · Do not rewrite a dated entry to match today's facts.** Record the correction in the current section and leave the old entry as written — it was true on its date, and a log that is silently updated stops being evidence of what was known when. See `[FU-COMMIT-SUBJECT-AT]`, corrected from three instances to four in the 2026-07-26 section rather than edited in place.
 
 
+## 2026-10-05 — WAVE B-15 (CONTROLLER B): SCORECARD-MI-1 (`#935` `dd338130`, `#940` `834fea7c`) + CBQ-ENTRY-1 (`#938` `fdfdff11`, `#939` `4de266dc`) — and WAVE A-15's MERGED PRs (CONTROLLER A): GRADER-CORE-1 (`#936` `532d3635`, `#937` `9678a259`, `#941` `07936091`) — B: 47 new open (one conditional), 19 (18 closed, 1 retired) opened and closed; the HELD group H1–H11 CLOSED; A: 22 open (one shared with B), 10 closed; LIVE
+
+Sources: `Desktop/diff/WAVE_STATE_B15.md` (LANES, DECISIONS, the HELD lists, BLOCKED / OWNER-OWED), the builder reports (`report-scorecard-mi-1-pr1-…`, `-pr2-…`, `-pr2-finish-…`, `-pr2-land-…`, `report-cbq-entry-1-…`, `report-cbq-entry-1-fix-…`, `report-b15-reanchor-…`), the verifier reports (`report-b15-pr1-verify-…` incl. its VERIFY-2 addendum, `report-b15-pr2-verify-…`), the OR-LIVE reports (`live-after-scorecard-mi-1-pr1-…`, `-pr2-…`, `live-after-cbq-entry-1-…`, `-fix-…`) and the comparison report (`report-b15-owner-papers-live-…`), all 2026-10-05; Controller B's message to the docs builder (three late OR-LIVE-2 FUs); and, for Controller A's FUs, A's bounded close-out `Desktop/diff/closeout-a15-for-b15-docs.md` with the bodies from A's reports and `WAVE_STATE_A15.md` *(A-reported)*. **Bodies come from those sources; nothing is invented.** `grep` of `handoff/` at `834fea7c` *(docs-builder-verified)* found no prior entry for any id below except the three older ones named at the end. No dated entry is edited (standing rule 3). Line numbers are as recorded on their dates (most are pre-`#940`). Controller A's open `#942` is not covered; **A's in-flight FUs (PR-3 / PR-2b) are recorded by A's docs PR**, not here.
+
+### The FU group "blocked by CI ops gates pending an owner ruling" — HELD H1–H11 — ★ CLOSED by `#940` (owner gate approval, 2026-10-05 ~13:5xZ)
+PR-1 could not ship seven changes and PR-2 four more, because four CI ops gates under `lazytopper/scripts/ops/` froze exactly what the owner's rulings require. The owner approved amending exactly those gate lines under four conditions (`DECISION_LOG.md`, wave B-15); all eleven shipped in `#940`, each replaced gate line pinned by a check whose mutation went RED; G4's HELD list is now EMPTY and a test asserts it stays empty *(builder-reported; independent verifier PASS; controller-checked)*. Each item as recorded: file:line → gate:line → GA / spec id.
+- **H1** `attemptDedupKey.ts:56` + `practiceInsights.ts:255-283` (attempt key without the score) → `objective_dedup_acceptance.mjs:94` + convergence `:555` → GA-17 / B5.
+- **H2** `DesktopCheckImprovePage.tsx:1457-1458` (the old two-bucket coaching; PR-1 printed the total only) → convergence `:230` (the MI moat) → GA-14 / GA-32 / B3.
+- **H3** `MistakeIntelCard.tsx:72-73`, `:116` (labels + the checked count; in PR-2 also marks + "Top pattern") → convergence `:557` → GA-23 / B3 / B7.
+- **H4** `checkImproveGradeService.ts:56` (GA-38 was fixed at the callers instead in PR-1) → convergence `:556` + C&I overlay `:365` + overlay `:148` → GA-38.
+- **H5** `sessionRecords.ts:903-913` (one subject per record: `CheckImproveHistoryPanel.tsx:105-112` and the admin activity file a mixed paper under one subject) → C&I overlay `:364` / `:518` + QP overlay `:438` / `:568` → B2 / A3.
+- **H6** `tutor/tutorRoundTrip.ts:274-275`, `:357-358`, `:513-514` (the `method` / `presLed` grouping) → QP overlay `:437` → B3.
+- **H7** `practiceInsights.ts:266` (a careless-only loss lowers accuracy) → convergence `:555` → GA-21.
+- **H8** `tutorRoundTrip.ts:183-187` (a v2 "unattempted" step phrased as a fault) + `:190-200` (would quote a crossed-out "withdrawn" step) → QP overlay `:437` → B8.
+- **H9** `checkImproveGradeService.ts:56` drops the v2 fields → convergence `:556` / C&I overlay `:365` → B7 / B8 (PR-2 first solved it at the callers, `withV2Echo`, then in the adapter itself under the approval).
+- **H10** `sessionRecords.ts`: no marks field; the four-type reduction skipped only couldNotRead (`:535`, `:671`, `:767`, `:917`, `:1062`) → C&I overlay `:364` / `:518`, QP overlay `:438` / `:568` → B7.
+- **H11** `practiceInsights.ts`: an attempt could not carry "not attempted" (a wholly unattempted question stayed in Me's "no reason recorded") → convergence `:555` → B7 / B8.
+
+### B-15 FUs opened and closed this wave
+
+### `[FU-B15-GATE-LIFT-CONVERGENCE]` — CLOSED by `#940`
+`check_improve_convergence_acceptance.mjs:555-557` (+ the membership loop `:699-701`) held `practiceInsights.ts`, `checkImproveGradeService.ts` and `MistakeIntelCard.tsx` at ZERO changes. Lifted BY NAME under the owner's approval, each with an inverse assertion, a contract suite and pins; the convergence FORBIDDEN array is now empty, its machinery kept *(builder-reported; controller ruling: conforms, per-file lifts)*.
+
+### `[FU-B15-GATE-LIFT-OVERLAY]` — CLOSED by `#940`
+`check_improve_overlay_additive_acceptance.mjs:365` (zero change on `checkImproveGradeService.ts`) and the `sessionRecords.ts` import-only rule (C&I overlay `:364` / `:518`, QP overlay `:438` / `:464` / `:568`). Now: the C&I overlay ban lifted by name; `sessionRecords.ts` additive-only in both overlay gates in lock-step (every existing member byte-identical, new members optional, `isSessionRecord`, `VALID_SURFACES`, `getSessionRecordsFromCloud`, `mergeById` and `loadLocalSessionRecords` frozen) *(builder-reported)*.
+
+### `[FU-B15-MI-MOAT-REBASE]` — CLOSED by `#940`
+The convergence MI moat (`:224-247`, `survived.length === 52`) pinned the OLD grouping at `DesktopCheckImprovePage.tsx:1418-1420`. Now `=== 49` (still exact, never a floor), the 3 superseded old-grouping lines named verbatim, plus 2 new pins (no `a.k +=` / `a.c +=` / `knowledge: agg.k`; the PDF coaching passes the paper's counts to the one coaching function) *(builder-reported)*.
+
+### `[FU-B15-ATTEMPT-KEY-SCORE-PIN]` — CLOSED by `#940` (H1)
+`objective_dedup_acceptance.mjs:94` pinned "score is in the attempt key". The attempt key is now `gradeIdentityKey` (never the score), with eight checks on the real `attemptDedupKey` + `upsertAttempt` (latest wins; same outcome writes nothing) *(builder-reported)*.
+
+### `[FU-B15-TUTOR-ROUNDTRIP-GROUPING]` — CLOSED by `#940` (H6)
+The Tutor openers bucketed presentation + silly ("came off the presentation, not your maths"), contradicting the owner's grouping — the TRANSITIONAL contradiction the controller accepted at the `#935` merge (W6). The openers now read the owner's groups from `lib/mistakeDisplay`, in marks when the record carries them *(builder-reported)*.
+
+### `[FU-B15-WEAK-ACCURACY-CARELESS]` — CLOSED by `#940` (H7)
+`practiceInsights.ts:266`: a careless-only loss lowered a chapter's accuracy. NEW `services/attemptOutcome.ts` `attemptWeakAreaOutcome`: a knowledge-gap loss = "gap"; careless-only or exam-technique-only = "knows"; wholly not attempted or no recorded reason = "skip"; old count-only attempts judged as before *(builder-reported; docs-builder-verified: the file exists on `834fea7c`)*.
+
+### `[FU-B15-TUTOR-ROUNDTRIP-V2-STATES]` — CLOSED by `#940` (H8)
+A v2 "unattempted" step is never phrased as a fault, a crossed-out ("withdrawn") step is never quoted and never reaches the model's digest *(builder-reported)*.
+
+### `[FU-B15-ME-FULL-NOTATTEMPTED]` — CLOSED by `#940` (H11)
+Attempts carry `notAttempted` (one predicate, `isLossOnlyNotAttempted`); `progressStore` marks rungs carry `marksNotAttempted`, so Me shows those marks as "Not attempted", not "no reason recorded" *(builder-reported)*.
+
+### `[FU-B15-CROSSED-OUT-FIELD]` — CLOSED by `#940` (with A's `#937`)
+PR-1 found 0 / 499 stored outputs marking struck text and no field for it. A's v2 status `withdrawn` (`#937`) is rendered apart under "Crossed-out work — not marked", never typed, never in marks *(builder-reported; live: P01 Q7 on the owner's account, controller-verified)*.
+
+### `[FU-B15-UNATTEMPTED-INCORRECT]` — CLOSED by `#940` (with A's `#937`)
+"I don't know" answers arrived as `status:"incorrect"`. A's v2 `unattempted` status is shown as "Not attempted" and never becomes an MI type *(builder-reported; A-reported)*.
+
+### `[FU-B15-V2-MISSING-UNATTEMPTED]` — CLOSED by controller rulings R1 / R2 and Controller A's accepted contract (`#937`, `#940`)
+A model "missing" step was not mapped to `unattempted`, and a TYPED "missing" step still wrote an MI entry. R1: a typed "missing" step keeps its type and MI entry (a CBSE exam-technique deduction); R2: the client follows the server's `marksLostByType` exactly. A accepted: genuinely unattempted work → `unattempted`; exam-technique "missing" stays "missing" + presentation *(controller decision; A-reported)*.
+
+### `[FU-B15-UNREAD-OPTION-VS-PAGE]` — CLOSED by ruling R3 and A's D29 (`#937`, `#940`)
+`objectiveResolved:false` was set for ANY unreadable objective question. Now: an unread PICK on a readable page → "We couldn't read your option"; an unreadable page → `couldNotRead` → "retake the photo" *(controller decision; A-reported)*.
+
+### `[FU-B15-NOTGRADED-PR3]` — CLOSED by `#940`
+A's `notGraded` (`unreadable` / `withheld` / `timeout` / `error`) is handled already: out of the score, "X of Y graded", no MI entry or attempt, the owner-approved wording; pinned, mutation M-NG RED *(builder-reported)*.
+
+### `[FU-B15-MI-CLEAN-REGRADE-STALE]` — CLOSED by `#935` (W1)
+MI must not keep a mistake the scorecard no longer shows: a clean or not-attempted re-grade deletes the stable-id MI doc. The verifier proved the delete can only hit the same identity, needs device / ring evidence, and refuses any id without `::` (legacy random ids and a bare "unknown" cannot be deleted) *(builder-reported; agent-reported, VERIFY-2)*.
+
+### `[FU-B15-G4-GMAP-OBJECT-FORM]` — CLOSED by `#935` (W2)
+G4 missed the object form `{ key: "<type>", …, label: "…" }`; DesktopHome / MobileHome had their own type labels. G4 now catches it and both read the module *(builder-reported)*.
+
+### `[FU-B15-CI-QTEXT-MATHS]` — CLOSED by `#935` (W3)
+The C&I per-question question line showed raw `x^2`; it now renders through `EquationRender` (the `MathText` triggers stay open as `[FU-B15-MATHTEXT-SUBSCRIPT-TRIGGERS]`) *(builder-reported)*.
+
+### `[FU-B15-SCREEN-HARNESS]` — CLOSED by `#935` (W5), with a correction
+The PR-1 verifier asked for animations off and only the reachable widths; W5 re-shot that way. ⚠ **The "animations off" half is SUPERSEDED** by `[FU-CAPTURE-NO-MOTION-HIDES-TRANSFORM-TRAP]`: a no-motion capture hid the CBQ trap, and PR-2's 122 screenshots were taken with real motion *(builder-reported; controller decision)*.
+
+### `[FU-B15-CI-HISTORY-CARD-PENDING-COPY]` — CLOSED by `#940` (wording ruling W2)
+The C&I history card read "Some pages couldn't be read on this session" for a mismatch. Now "Some answers weren't graded" unless every not-graded answer is couldNotRead *(builder-reported)*.
+
+### `[FU-B15-NOTGRADED-SUMMARY-WORDING]` — RETIRED in `#940` (replaced by wording ruling W1)
+The builder's own paper-level summary sentence was replaced by the controller's W1 line: "{N} answers couldn't be graded this time — they're not in your score. Please try again." (singular form too), pinned *(builder-reported)*.
+
+### B-15 new — open
+
+### `[FU-B15-HPQ-SURFACE-LABEL]` — OPEN · LOW (server lane)
+`server/services/fairUse.cjs:100-110` has no "hpq" surface, so Predicted Questions grades still report "quick-practice". A server change is needed (Controller A or the owner) *(builder-reported)*.
+
+### `[FU-B15-ADMIN-COUNT-SEMANTICS]` — OPEN · LOW (server lane)
+`server/routes/adminStudents.cjs:342`, `:631-641` aggregate counts the old way. The client labels were fixed in `#935` (D8); the server was forbidden *(builder-reported)*.
+
+### `[FU-B15-SC-CACHE-V1-ORPHANED]` — OPEN · NOTE (deliberate)
+The unscoped v1 SolutionChecker caches are no longer restored (GA-26), because whose grade they were is unknowable *(builder-reported)*.
+
+### `[FU-B15-AUDIT-DISJOINTNESS-SCOPE]` — OPEN · process
+A lane-disjointness proof must intersect the ops-gate FORBIDDEN lists, not only check that the paths exist; the grader audit's proof did the latter and missed the four gate-frozen files *(builder-reported)*.
+
+### `[FU-B15-MIXED-UNRESOLVED-SUBJECT]` — OPEN · LOW
+When a mixed-paper question's own detect names no subject, the question still inherits the paper's subject and its chapter stays blank (W4 residual) *(builder-reported)*.
+
+### `[FU-B15-MATHTEXT-SUBSCRIPT-TRIGGERS]` — OPEN · LOW (shared renderer)
+`MathText` sends text to KaTeX only on a letter or digit followed by `^` / `_` and a digit, so `S_n` and `a_n` stay raw (seen in a rubric point and a C&I PDF). The state file also spells the id without the final S; it is one item *(builder-reported; agent-reported)*.
+
+### `[FU-B15-WRONG-ANSWER-LOG-ORPHANED]` — OPEN · owner heads-up
+GA-26 stops reading the unscoped `lazytopper.wrongAnswerLog.v1` for signed-in students (deliberate: adopting it would re-create the leak). Weak-area ranks may shift at deploy (that component is capped at 30 per topic) *(agent-reported, PR-1 verifier)*.
+
+### `[FU-B15-MI-CLOUD-WRITE-SILENT]` — OPEN · MEDIUM
+`mistakeLogService.ts:133-135` swallows a Firestore write or delete failure (pre-existing for writes). Surface it, so a future rules change cannot silently lose MI *(agent-reported, PR-1 verifier)*.
+
+### `[FU-B15-MI-CROSS-DEVICE-CLEAN]` — OPEN · LOW
+A clean re-grade on ANOTHER device does not delete the cloud MI entry (the delete needs this device's evidence for the identity). Recorded with it (no own id): a pre-deploy MI entry re-graded after deploy with an identical outcome gets a second, stable-id entry, once *(builder-reported)*.
+
+### `[FU-B15-DUP-QNUMBER-IDENTITY]` — OPEN · LOW
+A duplicate grader `qNumber` inside one Worksheet / Chapter Test / Full Mock grade shares one MI identity, so a later clean duplicate removes the earlier entry *(agent-reported, VERIFY-2)*. Related: `[FU-B15-DUP-QNUMBER-TOPIC-MAP]`.
+
+### `[FU-B15-CI-BACK-CHANGED-ANSWER]` — OPEN · NOTE (by design)
+Back + a changed answer re-graded clean in the same C&I session removes the original mistake — by ruling A2 (the same submission) *(agent-reported, VERIFY-2)*.
+
+### `[FU-B15-W4-TITLE-MIX]` — OPEN · LOW
+A non-mixed paper with one mis-detected question subject is titled "Maths + Science" *(agent-reported, VERIFY-2)*.
+
+### `[FU-B15-LEDGER-TOLERANCE-OFF-BY-ONE]` — OPEN · process
+At the re-anchor (`dd338130`), ledger rows P4 (`chapterTestGradeService` `:50` → `:51`) and P10 (`mistakeInsightsService` `:130` → `:131`) were one line off but passed inside the premise checker's ±3 tolerance; left byte-identical by rule *(agent-reported, re-anchor scout)*.
+
+### `[FU-B15-NO-CHARGE-COPY]` — OPEN · after A's PR-3
+No "not charged" / "this didn't use a check" copy anywhere until A's PR-3 makes not-graded checks free; the counter shows what the server reports (controller decision) *(builder-reported)*.
+
+### `[FU-B15-FREECHECK-V2]` — OPEN · LOW
+The signed-out free check sends neither `acceptsV2` nor the detected answer key (its request shape was forbidden by the spec) and renders honestly in counts (controller decision: stays v1) *(builder-reported)*.
+
+### `[FU-B15-TUTOR-BRIEF-SERVER-WORDING]` — OPEN · server lane (shared with Controller A's list)
+`server/prompts/tutorSystemPrompt.cjs:211` says "Most common recent slip: ${topType} mistakes." — a count claim; it should name the biggest loss in marks. Outside both B's allowlist and A's. **Recorded here first (standing rule 2); A's docs PR should reference this entry, not duplicate it** *(builder-reported; A-reported)*.
+
+### `[FU-B15-PRACTICE-MI-RAIL-MARKS]` — OPEN · LOW
+The `DesktopPracticePage.tsx` MI rail (`aggregateBuckets`) still ranks and reclaims by counts and step deductions; not in B7's list, untouched *(builder-reported)*.
+
+### `[FU-B15-SCORECARD-WORKSHEET-WORDING]` — OPEN · LOW (pre-existing copy)
+The pending strip says "Worksheet is worth N marks" on Chapter Test and C&I cards *(builder-reported)*.
+
+### `[FU-B15-CI-PAPER-TOPIC-PER-QUESTION]` — OPEN · MEDIUM
+The multi grade request sends the paper-level `topic` / `topicLabel` for every question, so the grader is told the wrong chapter for the other questions; the session code of a mixed paper is minted from the first question's topic ("CI-M-REAL-01") (OR-LIVE-1 FU 4, unchanged in OR-LIVE-2) *(agent-reported; builder-reported)*.
+
+### `[FU-B15-STEP-PART-LABELS]` — OPEN · LOW
+Case-study parts (i) / (ii) / (iii) are not labelled on step rows; `part` is now available in v2 *(builder-reported)*.
+
+### `[FU-B15-ME-GROUP-COLOURS]` — OPEN · LOW (pre-existing)
+Me / Progress group colours differ from the scorecards *(builder-reported)*.
+
+### `[FU-B15-CT-KATEX-LOAD-FLAKE]` — OPEN · LOW (test)
+`ChapterTestPage.katex.test.tsx` failed once under parallel load; passes alone *(builder-reported)*.
+
+### `[FU-B15-WEAKAREA-MARKS-CLEAR]` — OPEN · LOW
+`conceptualMarksCount` and a marks-aware `clearWrongAnswer` keep an old count entry from losing weight when one v2 wrong arrives; revisit if the owner wants the literal one-field version *(builder-reported)*.
+
+### `[FU-B15-ATTEMPT-KEY-TRANSITION]` — OPEN · LOW (narrowed by `#940`)
+Attempts written before deploy keep their old score-keyed ids, so the first re-record of a pre-deploy submission could add one attempt (a deliberate re-grade, or automatically the SolutionChecker cache-restore, which also re-drained a weakness — verifier N1). The fix round recognises the old key in the device's `seen` list: the same result → nothing written; a new result on a `ws:` / `ct:` / `fm:` / `ci:` answer → replaced and the old cloud doc deleted. Without the old key on that device the transition attempt is still added (pinned as a CONTROL). Bounded: once per submission *(builder-reported; agent-reported)*.
+
+### `[FU-B15-ADMIN-MIXED-SUBJECT]` — OPEN · LOW (server lane)
+The server admin activity still lists a mixed paper under one subject; `questionTopics` is now on the record for it to use *(builder-reported)*.
+
+### `[FU-B15-UPLOAD2-LOAD-FLAKE]` — OPEN · LOW (test)
+`DesktopCheckImprovePage.upload2` R6 fails only under parallel load (passes alone 10 / 10) *(builder-reported)*.
+
+### `[FU-TUTOR-STUDENT-BUBBLE-NESTED-SPAN]` — OPEN · LOW (pre-existing, outside the lane)
+`TutorPage.tsx` CSS `.lt-tutor__s span` also hits MathText's spans and clips the student's bubble on a phone (390) *(builder-reported; agent-reported, verifier N8)*.
+
+### `[FU-B15-NOTGRADED-MIXED-ALLPENDING-TITLE]` — OPEN · LOW
+When a paper's not-graded answers mix "withheld / timeout" with unreadable ones and none is graded, the title still says "We couldn't read any answers" (the mismatch case had the same pre-existing imprecision) *(builder-reported)*.
+
+### `[FU-B15-DETECT-V2-PER-QUESTION]` — OPEN · after A's PR-3
+A's detect v2 (per-question `questionId` / subject / chapter / `marksSource`, only when the detect request sends `acceptsV2`) is NOT adopted unless A's PR-3 merges first (controller decision). The client half of `[FU-B15-DUP-QNUMBER-TOPIC-MAP]` waits for it *(controller decision)*.
+
+### `[FU-UPLOADS-KEYED-BY-QNUMBER]` — OPEN · client + server (Controller A's finding)
+Per-question photo uploads are keyed by the printed `qNumber` from client to server; a fix needs a server change too. A lists it as in flight in `#942` (B's client half). **Recorded here first (standing rule 2); A's docs PR should reference this entry, not duplicate it** *(A-reported; builder-reported)*.
+
+### `[FU-B15-PRACTICE-CARD-RETRY-SEMANTICS]` — OPEN · ★ OWNER RULING OWED
+The verifier's N2 fix makes a practice-card MCQ click and its written check ONE attempt (`practiceCardAttemptIdentity(questionId)`, latest wins). Side effect: the card has no session id, so practising the same question again REPLACES the earlier attempt. Before PR-2 a same-score repeat was also de-duplicated and only a changed score added one. The controller ACCEPTED it as a documented trade-off (consistent with "re-grade replaces"; not wrong data; a separate later retry needs a session context that would conflict with the click + check and cache-restore collapse). **The owner rules: latest wins (shipped) vs a later retry counted separately** *(builder-reported; controller decision)*.
+
+### `[FU-B15-ATTEMPTS-BLOB-GROWTH]` — OPEN · LOW (pre-existing)
+The root `practiceInsights/{uid}` blob has no size cap (`practiceInsights.ts:140-146`); each v2 attempt adds about 120–150 bytes, so heavy users reach Firestore's 1 MiB document limit sooner, and the failure would only be a `console.warn` *(agent-reported, verifier N6)*.
+
+### `[FU-B15-MISSING-PAGE-HINT]` — OPEN · after A's PR-3
+A's D38 (lands with A's PR-3): a question absent from every uploaded page is NOT graded (`notGraded: "unreadable"`). `#940` shows the couldn't-read copy ("retake the photo"), which is accurate guidance; a sharper "add the missing page" hint follows A's PR-3 (controller decision: no scope change during the PR-2 push) *(controller decision)*.
+
+### `[FU-B15-DUP-QNUMBER-TOPIC-MAP]` — OPEN · MEDIUM (client half waits for A's detect-v2 `questionId`)
+OR-LIVE-2 M3 FAIL: `DesktopCheckImprovePage.tsx` builds `topicByQ = new Map(perQTopics.map((t) => [t.qNumber, t]))` and reads `topicByQ.get(r.qNumber)`, so a paper with two printed "Q5" files every duplicate under the LAST one's chapter and subject (MI, attempts, history tabs). Pre-existing (the same line at `dd338130:1648` and `532d3635:1602`). The server half (both results carried the second question's grading) is A's PR-3 C8 (the merge keys on a unique per-question id). Not a rollback (pre-existing) *(agent-reported; controller decision)*.
+
+### `[FU-B15-MOBILE-HOME-MI-CARD]` — OPEN · pre-existing (= the Home row's MI 🟡)
+The mobile Home (`/browse`) MI card is a static empty state despite MI entries. This is the same deliberate state the SURFACE_TRACKER Home row records as the reason its MI cell is 🟡 ("real mobile MI is an open product call") *(agent-reported, OR-LIVE-1 and OR-LIVE-2)*.
+
+### `[FU-B15-REOPEN-SHEET-BELOW-FOLD-390]` — OPEN · LOW (pre-existing, B-lane, next wave)
+On a phone (390), a re-opened C&I scorecard sheet opens below the fold: the fixed `.lt-sc__dim` resolves against the transformed `MAIN.animate-float-up`. Fix it by portalling, as `#939` did for the CBQ chooser *(agent-reported, OR-LIVE-2; Controller B's message)*.
+
+### `[FU-B15-REOPEN-SCROLL-390]` — ALIAS of `[FU-B15-REOPEN-SHEET-BELOW-FOLD-390]` (recorded once, there)
+The state file's earlier name for the same item. Do not track it separately.
+
+### `[FU-B15-REOPEN-MISMATCH-WORDING]` — OPEN · LOW (a PR-2 surface, B-lane, next wave)
+A paper with an answer-mismatch question, re-opened from history, says "Graded portion shown — some pages couldn't be read on this session." and drops the owner's mismatch sentence. The live result and the history card ("Some answers weren't graded…") are correct *(agent-reported, OR-LIVE-2; Controller B's message)*.
+
+### `[FU-B15-FM-REOPEN-LENS-DROP]` — OPEN · LOW (B-lane, next wave)
+The re-opened Full Mock chapter lens drops one 1-mark item (Trigonometry 1/16 re-opened vs 1/17 live) *(agent-reported, OR-LIVE-2; Controller B's message)*.
+
+### `[FU-B15-WIDGET-COUNT-RECONCILE]` — OPEN · LOW (transitional)
+On the owner's account the sidebar widget read "Last 7 days: 75 checked answers, 89.5 marks lost. Biggest loss: Knowledge gap (19 marks)"; the counts cannot be reconciled from the page text, and its knowledge-gap total leaves out pre-PR-2 records that `/me` counts. Verify the inputs; decide whether the widget's knowledge gap should include pre-PR-2 typed marks *(agent-reported, comparison C-2)*.
+
+### `[FU-B15-STEP-NUMBERING]` — OPEN · LOW (cosmetic)
+P01 Q7's visible steps are numbered STEP 2 / STEP 3 with no STEP 1 (the crossed-out step keeps index 1 in its own block) *(agent-reported, comparison C-1; builder-reported)*.
+
+### `[FU-B15-ME-KEEPING-LESS-THRESHOLD]` — OPEN · LOW
+`/me`'s "You are keeping less of what you attempt" fires on a 1.1-point gap, and its 79 includes not-attempted marks; set a threshold and exclude not-attempted marks from "what you attempt" *(agent-reported, comparison C-3)*.
+
+### `[FU-B15-TRIG-CHAPTER-MERGE]` — CONDITIONAL · not yet opened
+P02 showed "Maths + Science · 24 chapters" with two Trigonometry chapters merged into one "Trigonometry". The controller asked Controller A whether the source is detect or `topics.ts`; A's builder answers from code in A's PR-3 report. **This FU opens only if the answer is `topics.ts`** (a client vocabulary fold, B's lane); if it is detect, it is A's *(controller decision)*.
+
+### `[FU-CBQ-NO-KILL-SWITCH]` — OPEN · NOTE (controller-accepted)
+`AGENTS.md` §5 asks for new features "behind a switch"; the owner's CBQ spec defines none, the change is a small additive UI, and a Vercel rollback is the switch → accepted and logged *(controller decision)*.
+
+### `[FU-CBQ-CHOOSER-SUBJECT-LOAD]` — OPEN · LOW (perf)
+Opening the chooser downloads every chapter chunk of the subject on screen (about half the bank) plus the PracticePage chunk (175 kB / 50.9 kB gzip, shared via the predicate import), only to mark a "coming soon" that marks nothing today. A generated per-chapter CBQ manifest, or checking only the selected chapter, would remove it. It matters because `?cbq=1` is the ad's landing *(builder-reported)*.
+
+### `[FU-CBQ-P4-ONE-HELPER]` — OPEN · LOW
+The competency check exists twice (PracticePage's `competencyAvailable` memo and `cbqAvailability.chapterHasCbqs`), because the spec forbade refactoring PracticePage; extract one helper *(builder-reported)*.
+
+### `[FU-PRACTICE-HERO-COUNT-BEFORE-BUILD]` — OPEN · LOW (pre-existing copy)
+The Practice hero says "10 questions in this set" before any set is built (seen above "No CBQs for this chapter yet") *(builder-reported; agent-reported)*.
+
+### `[FU-CAPTURE-NO-MOTION-HIDES-TRANSFORM-TRAP]` — OPEN · process (screenshots)
+Screenshot and capture recipes that inject `animation:none` cannot see the `animate-float-up` containing-block trap (the third instance after AccountDataControls and MeProgressPage; `#938`'s capture hid the CBQ chooser's). Wait for animations to finish instead, or add a guard that every `position: fixed` overlay under the mobile shell is portalled *(builder-reported)*.
+
+### Owner questions raised by the comparison report (not on the controller's owner-owed list; optional)
+From `report-b15-owner-papers-live-2026-10-05.md` §9 items 10–12: (10) P02 Q27(iii) "missing reason" — exam technique (the shipped rule for a typed "missing" step), or its own line as the key keeps it? (11) Is the Applications-of-Trigonometry → Trigonometry alias acceptable? (12) The legacy morning P01 record (filed under Maths / Real Numbers incl. Science questions, an old record never converted): leave it, or allow a one-off re-file? The report's §8 also lists small nits in the owner's two answer keys *(agent-reported)*.
+
+### A-15 (Controller A, A-reported) — new, open
+Opened by `#936` / `#937` / `#941`; ids and statuses from A's close-out, bodies from A's reports and `WAVE_STATE_A15.md`.
+
+### `[FU-GRADER-2027-PRICE]` — OPEN · ★ DATED, due 2026-12-15 (owner)
+The gemini-3.8-flash list price doubles on 2027-01-01 → ₹172.59 per student-month (all-photo ₹178.76) vs the ₹125 budget. Cost a thinking cap, routing (MCQ with no model; short answers on a cheaper tier), implicit caching of the fixed rulebook, and rulebook trimming; thinking is 46% of the cost *(A-reported)*.
+
+### `[FU-GOLDEN-OWNER-REAL-PHOTO]` — OPEN · golden set
+owner-anomaly-01's answer pages are a handwriting font, not a photo; real phone photos of handwriting are still absent from the golden set *(A-reported)*.
+
+### `[FU-GRADER-CORE-READING-FIDELITY-PHOTO]` — OPEN · grader
+Occasional photo misreads (CP01-Q03 154 for 144; CP01-Q06 "FF" for "Ff"): the model's quote rewrites a photographed page, and only the inventory's first lines exist to check against *(A-reported)*.
+
+### `[FU-GRADER-CORE-WEIGHTING-MODEL]` — OPEN · grader
+The model picks its own ½-mark split on 9 items (GS-M09-b, GS-S07-a, GS-S17-a, GS-M12-a, CP02-Q04, CP03-Q10, CP04-Q03, CP01-Q08, owner Q10); needs scheme splits on the request, or prompting *(A-reported)*.
+
+### `[FU-GRADER-CORE-Q10-FORMULA-MARK]` — OPEN · grader
+Owner paper Q10: the formula mark is lost when it is bundled with the wrong-sign given values (0.5 / 1 in 2 of 3 legacy runs) *(A-reported)*.
+
+### `[FU-GRADER-CORE-ECF-CONCEPTUAL]` — OPEN · grader
+Whether a wrongly FORMED equation (ruling 3(c)) typed conceptual should open deterministic ECF for its solving steps; today the prompt carries it (core §C2.8 covers the model-credited case) *(A-reported)*.
+
+### `[FU-GRADER-CORE-INVALID-METHOD-SCHEME-EXCEPTION]` — OPEN · grader
+The "answer mark awarded independently by the scheme" exception to the invalid-method rule is prompt-only (D27) *(A-reported)*.
+
+### `[FU-GRADER-CORE-PROMPT-TOKENS]` — OPEN · cost
+The restored rulebook adds ≈ 2.7k tokens per call; consider moving the fixed rulebook ahead of the questions (implicit caching) or compacting the case law *(A-reported)*.
+
+### `[FU-GRADER-CORE-FLASH25-REFUSED-EVAL-KEY]` — OPEN · eval tooling
+The eval key cannot call gemini-2.5-flash (404 for new users), so detect / chapter were measured only on PR-1's stored outputs; production detect stays on 2.5-flash *(A-reported)*.
+
+### `[FU-GRADER-CORE-PICK-ONLY-400]` — OPEN · LOW (pre-existing)
+`handleGradeWorksheet` refuses pick-only answers before the core *(A-reported)*.
+
+### `[FU-GRADER-CORE-SUBMITTED-QUESTION-LITERAL]` — OPEN · LOW
+The literal "submitted question" placeholder check is subsumed by the short-name rule (a surviving mutation in the helper's sweep; harmless) *(A-reported)*.
+
+### `[FU-GRADER-CORE-JUDGE-RULER]` — OPEN · eval
+The judge is gemini-3.8-flash (2.5-pro refused): a different ruler from PR-1's plan *(A-reported)*.
+
+### `[FU-GRADER-CORE-JUDGE-OMITS]` — OPEN · eval
+The gemini-3.8-flash judge omitted outputs in multi-case batches and once contradicted its own reason; one case per call was reliable *(A-reported)*.
+
+### `[FU-GRADER-CORE-UNATTEMPTED-VERIFY]` — OPEN · grader
+An omitted "verify" step (GS-M22-a) is reported as an untyped "missing"; the re-pin says unattempted *(A-reported)*.
+
+### `[FU-GRADER-CORE-LEGACY-MISMATCH-INVISIBLE]` — OPEN · eval
+`no_false_mismatch` reads only v2; add a legacy note check *(A-reported)*.
+
+### `[FU-GRADER-CORE-LEDGER-PER-STEP]` — OPEN · LOW (pre-existing)
+On an over-allocated model ledger, per-step deductions can sit on a different step from the trimmed mark (the sum is right) *(A-reported)*.
+
+### `[FU-GRADER-CORE-RELIABILITY-COMMENTS]` — OPEN · LOW (test comments)
+Reliability tests (h) / (k) comments still describe the old crossed-out / miscopy wording (the assertions pass) *(A-reported)*.
+
+### `[FU-LEGACY-TEACHERNOTE-RUBRIC-PREFIX]` — OPEN · LOW
+The legacy `teacherNote` now starts "Marked against: <rubric>" (text only) *(A-reported)*.
+
+### `[FU-STEP-DEDUCTION-SUM]` — OPEN · LOW (cosmetic)
+On a live single check the step deductions shown summed to 0.5 while 1 mark was lost; covered by the v2 `marksLostByType` invariant, and the legacy display is B's *(A-reported)*.
+
+### `[FU-ADMIN-TELEMETRY-UI]` — OPEN · APPROVED by the owner for AFTER both grader lanes close (not built now)
+A read-only card on the existing admin page: grading model (3.8-flash vs fallback count, today + 7 days); sign-in refresh denials; grades not completed (timeout / couldn't read / error) with charged = 0 confirmed; answer–question mismatches. Until then, the model fallback check is the API call in the handoff one-liner *(A-reported)*.
+
+### `[FU-EVAL-KEY-WAS-PROD-KEY]` — OPEN · owner (inference, not measured)
+PR-1's eval runs appear to have used production's key (the owner later separated them) and exhausted its prepaid credits at 2026-10-05T07:30:26Z → production grading likely failed for students until the owner's top-up (time unknown). See the owner-owed list *(A-reported)*.
+
+`[FU-B15-TUTOR-BRIEF-SERVER-WORDING]`, also on A's open list, is recorded once, above.
+
+### A-15 (Controller A, A-reported) — closed by `#936` / `#937` / `#941`
+
+### `[FU-CT-FABRICATED-MARKS]` — CLOSED by `#937` (live-verified fixed)
+A Chapter Test with only Q11 uploaded came back "31/32, 15 of 15": 8 unanswered questions got full marks with "student working" copied from the scheme. After `#937` only the answered question earns marks and the others show "Not attempted" *(A-reported)*.
+
+### `[FU-GRADER-CORE-P0-PARAPHRASE]` — CLOSED by `#937` (inventory-first guard, live)
+Paraphrased scheme copies on one-document uploads were not deterministically detectable; the inventory-first P0 guard replaced the similarity approach *(A-reported)*.
+
+### `[FU-GRADER-CORE-P0-INVENTORY-LIVE]` — CLOSED by `#937` (live)
+The inventory-first guard's live effect and false-trip rate were unmeasured; A's close-out closes it as "inventory-first, live" (the Chapter-Test fabrication was fixed live after `#937`) *(A-reported)*.
+
+### `[FU-GRADER-MODEL-SETTING-GRADING-ONLY]` — CLOSED by `#937`
+A grading-only model setting (detect's thinkingBudget 0 is invalid on pro models), with an automatic fallback to gemini-2.5-flash and the `X-Grading-Model` header *(A-reported)*.
+
+### `[FU-GOLDEN-JUDGE-VERDICTS-PENDING]` — CLOSED by `#937`
+The golden judge verdicts (`goldenJudge.cjs`) awaited eval credits; the judge then ran in PR-2 (see `[FU-GRADER-CORE-JUDGE-RULER]`) *(A-reported)*.
+
+### `[FU-GOLDEN-P10-REANCHOR]` — CLOSED by `#937`
+The P10 anchor retired by PR-1 was re-anchored at PR-2's §0c (D6) *(A-reported)*.
+
+### `[FU-GRADER-CORE-EVAL-KEY-MALFORMED]` — CLOSED (the owner fixed the file)
+The eval env file held the project ID instead of a key (every call HTTP 400); the owner fixed it *(A-reported)*.
+
+### `[FU-GOLDEN-C-RUNS-2-3]` — CLOSED (superseded by PR-2's runs, D17)
+Config C had one partial run and no run-to-run *(A-reported)*.
+
+### `[FU-GOLDEN-MISMATCH-BASELINE]` — CLOSED (superseded by PR-2's runs, D17)
+GS-MM-01..06 had not been run on config A *(A-reported)*.
+
+### `[FU-GOLDEN-80S-RETIMEOUT]` — CLOSED (superseded by PR-2's runs, D17)
+Re-running the 55 s timeouts at 80 s *(A-reported)*.
+
+### Older FUs checked, still open
+- **`[FU-UPLOAD-2-FIX-1-OWNER-ACCEPT]` — STAYS OPEN** (owner Android acceptance; carried).
+- **`[FU-GRADE-OKFALSE-IS-CHARGED]` — STAYS OPEN.** A couldn't-read reply is still charged on trunk (A-reported: today `couldNotRead` is charged on any 2xx); A's PR-3 charging work (in flight, `#942`) targets the same path. Not closed until it is on trunk and live-verified.
+
 ## 2026-10-04 — WAVE B-14 (CONTROLLER B): LOW-END-1 (`#926` `b97f119f`, `#929` `c9621114`, `#931` `d4bbea23`) + AUTHGATE-FIX-1 (`#932` `1165dacf`) — 18 new open, 3 withdrawn before opening, 3 older closed; LIVE
 
 Sources: `Desktop/diff/WAVE_STATE_B14.md` §FU ENTRIES COLLECTED and §DECISIONS, the builder reports (`report-low-end-load-1…`, `report-upload-resilience-1…`, `report-ct-katex-2…`, `report-authgate-fix-1…`) and the OR-LIVE reports (`live-after1-…`, `live-after2-…`, `live-after3-b14-…`), all 2026-10-04. **Bodies come from those sources; nothing is invented.** No dated entry is edited (standing rule 3). **PUBLIC REPO:** the four auth hardening follow-ups are written in neutral words; their full bodies are in the private audit request. Two of them carry neutral ids here (`[FU-AUTHGATE-ROUTE-COVERAGE]`, `[FU-AUTHGATE-STALE-CLIENT-COMMENT]`); the mapping to the builder's working ids is in the private docs report.

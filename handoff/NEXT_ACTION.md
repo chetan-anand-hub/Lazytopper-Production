@@ -1,3 +1,50 @@
+## ★★★ 2026-10-05 — WAVE B-15 (RESULTS, CONTROLLER B) + WAVE A-15's MERGED PRs (GRADER, CONTROLLER A) — SCORECARD-MI-1 + CBQ-ENTRY-1 CLOSED, LIVE; GRADER-CORE-1 PR-1 / PR-2 / HOTFIX-1 LIVE (docs) — THIS BLOCK SUPERSEDES THE WAVE B-14 BLOCK BELOW ON TRUNK SHA ONLY
+*(The owner items of the WAVE B-14, A-13, B-13, B-12, A-12, B-11, A-11, B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
+
+**TRUNK IS `834fea7ca5ef451ae94084eacd51ecb836cfc336`** when this docs PR was cut (`git ls-remote origin base/approved-thru-437`):
+- `834fea7c` = `#940` (SCORECARD-MI-1 PR-2: where your marks went in marks, honest states, H1–H11 under the owner-approved gate amendment) — **this wave**; merged 19:40:33Z.
+- `07936091` = `#941` (HOTFIX-1: copy check vs stored schemes only, Controller A) — merged 19:13:54Z.
+- `9678a259` = `#937` (GRADER-CORE-1 PR-2: one grading core on gemini-3.8-flash, Controller A) — merged 17:06:55Z.
+- `4de266dc` = `#939` (CBQ-ENTRY-1-FIX: the chooser on screen on phones) — **this wave**; merged 12:38:58Z.
+- `fdfdff11` = `#938` (CBQ-ENTRY-1: the CBQ card, `?cbq=1`, the landing button) — **this wave**; merged 11:32:27Z.
+- `dd338130` = `#935` (SCORECARD-MI-1 PR-1: one display module, real question, per-question chapters, re-grades replace) — **this wave**; merged 09:21:21Z.
+- `532d3635` = `#936` (GRADER-CORE-1 PR-1: golden eval, Controller A) — merged 08:23:52Z.
+- `53fe4d22` = `#934` (docs: wave B-14)
+*(merge times from `gh pr view`, docs-builder-verified)*
+
+When this docs PR was opened the only other open PR was Controller A's product PR `#942` (`lane/grader-speed-1`, no `handoff/` file) — **not covered here**. This is the only docs PR open (OR-16; B's docs first). **All seven PRs are LIVE** (B: OR-LIVE-1 PARTIAL 9 / 15, OR-LIVE-CBQ PASS 10 / 10, OR-LIVE-CBQFIX PASS 7 / 7, OR-LIVE-2 PARTIAL 10 / 12 — no rollback; A: live after `#937` and after `#941`, A-reported). The open rows are in `CURRENT_STATE.md`.
+
+### NEXT — CONTROLLER B (after this docs PR merges)
+1. **Tell Controller A this docs PR is MERGED** — A's docs PR (`#942` PR-3 + PR-2b, and anything else A merges) prepends on top of this one, merge only; this block is demoted, not deleted.
+2. **ONE final audit request** — `Desktop/diff/audit-request-scorecard-mi-1-final-2026-10-05.md` (present on the Desktop when this PR was written): each PR with its merge SHA and CI run; the owner's gate-condition table with the verbatim approval; the live results; every Chrome action from the log; every controller decision with its reason.
+3. **The single end-of-lane owner message** with screenshots (390 + 1440) of every changed surface — **the CBQ screenshots are the owner's approval of CBQ-ENTRY-1**. Then **STOP**.
+
+### NEXT — OWNER
+1. **Rule on practice-card retries:** latest wins (shipped) vs a later retry counted separately → `[FU-B15-PRACTICE-CARD-RETRY-SEMANTICS]`.
+2. **Optional:** one Tutor message on your account (not done: the break modal would not dismiss in a hidden window; the throwaway check passed).
+3. **Disk:** ~3.8 GB free on C: (3.5 GB when this docs PR was written); ~210 GB is used by something other than `node_modules` (possibly WSL / Docker disk images or OneDrive). Needed for the rest of both waves.
+4. **Re-enable Vercel Rolling Releases after both grader lanes close** (you said you will; until then the rollout check is 5 cold reads).
+5. **From Controller A (A-reported):** a signed-out FREE CHECK live verification (App Check returns 403 to automated browsers); delete Railway `GEMINI_TIMEOUT_MS` (stopgap) — ONLY after A's PR-3 merges and its live check passes (A will confirm); rotate the eval key after the lane (precaution; details in A's close-out); confirm or overrule A's ECF judgement rulings (D26, `DECISION_LOG.md`); note (inference): production grading likely failed for students from 07:30:26Z until your top-up (time unknown) → `[FU-EVAL-KEY-WAS-PROD-KEY]`; one accidental download left in your Downloads folder (A's own result PDF); **`[FU-GRADER-2027-PRICE]` is due 2026-12-15.**
+6. **Optional questions from the owner-paper comparison** (`OPEN_QUESTIONS_AND_FOLLOWUPS.md`, wave B-15): P02 Q27(iii) "missing reason" — exam technique or its own line; the Applications-of-Trigonometry alias; the legacy morning P01 record.
+7. **Audit (non-blocking):** the controller decisions in `DECISION_LOG.md` (2026-10-05, wave B-15), incl. the partial PR-1 merge, the transitional Tutor-opener state, R1–R3, the CBQ fix as a second PR and latest-wins on the practice card.
+8. **Pick the next wave — the owner's call; this docs PR does not invent a lane.** On the table: the B-15 open FUs (none dispatched), notably the three late OR-LIVE-2 FUs on the re-opened paper (B-lane, next wave) and `[FU-B15-DUP-QNUMBER-TOPIC-MAP]` (after A's PR-3).
+- Owner AI-graded checks used on your account: **B 2 of 3** (P01 + P02 after `#940`); **A 1 of 3** (2 reserved for after A's PR-3).
+
+### Carried — still owed
+1. **UPLOAD-2 (B-12) acceptance (4 checks) and UPLOAD-2-FIX-1 (B-13) Android 3-page camera flow.**
+2. **The WAVE B-14 owner items** (the block below), then the WAVE A-13 owner items and everything they carry.
+
+### NEXT — LANES
+- None dispatched by wave B-15 beyond `#935`, `#938`, `#939`, `#940`. Controller A's `#942` (PR-3 + PR-2b) is in flight and is A's to record.
+- **★ Every mistake label, group and state comes from `lib/mistakeDisplay.ts`** (owner taxonomy and wording; "Not attempted" its own state; old records never converted). G4 fails CI on a local label map; its HELD list stays EMPTY.
+- **★ "Where your marks went" is in marks only from versioned v2 marks; anything else keeps counts with their unit.** Nothing invented (G3).
+- **★ Re-grade replaces:** identity = student + surface + submission + question (+ answer where retries are allowed), never the score; latest wins.
+- **★ A not-graded answer is never a 0:** couldNotRead / answerMismatch / an unread pick / `notGraded` are out of the score ("X of Y graded"), no MI entry, no attempt; the mismatch sentence is the owner's, verbatim.
+- **★ A CI ops gate changes only under the owner's four conditions** (cite the ruling; a mutation-proven replacement pin; per-file lifts only; nothing report-only or skipped; the count never goes down). A controller cannot grant it.
+- **★ A `position: fixed` overlay under the mobile shell is portalled to `document.body`; screenshot captures run with real motion.**
+- **★ Rollout check while Rolling Releases are OFF: 5 consecutive cold reads of `/version.json` = the merge SHA.** The 15-minute no-status rule still stands.
+- **★ (A) The golden exam gates every PR at zero AI calls; its floor only rises. Validate a key only by a live call.**
+
 ## ★★★ 2026-10-04 — WAVE B-14 (LOW-END, CONTROLLER B) — LOW-END-1 + AUTHGATE-FIX-1 CLOSED, LIVE (docs) — THIS BLOCK SUPERSEDES THE WAVE A-13 BLOCK BELOW ON TRUNK SHA ONLY
 *(The owner items of the WAVE A-13, B-13, B-12, A-12, B-11, A-11, B-10, B-9, A-10, A-9, B-8, B-7, DEPS, A-8, A-7, B-6, C-2, B-5, A-6, C-1, A-5, A-4, A-3 (FINAL), B-4, A-3 (CONTINUED), B-3, A-3, B-2, A-2 and B-1 blocks below stand unchanged.)*
 
