@@ -1,0 +1,62 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 0,
+ "percentage": 0,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "State the Basic Proportionality Theorem ratio",
+   "studentWork": "By BPT,  AD/AB = AE/EC",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Incorrect statement of BPT; the ratio should be AD/DB = AE/EC (or AD/AB = AE/AC)",
+   "mistakeType": "conceptual",
+   "correctedWorking": "In △ABC, DE ∥ BC, so by BPT, AD/DB = AE/EC",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Substitute values into the theorem",
+   "studentWork": "AB = 2 + 3 = 5 cm\n2/5 = 4/EC",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Evaluates an incorrect conceptual formula",
+   "mistakeType": null,
+   "correctedWorking": "2/3 = 4/EC",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Calculate the value of EC",
+   "studentWork": "EC = 10 cm",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Incorrect final answer resulting from wrong formula",
+   "mistakeType": null,
+   "correctedWorking": "EC = (4 × 3) / 2 = 6 cm",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Stating the Basic Proportionality Theorem ratio: AD/DB = AE/EC (1); Substituting the given values into the correct ratio (2/3 = 4/EC) (1); Solving for EC to obtain EC = 6 cm (1). Remember that the Basic Proportionality Theorem equates corresponding segments: AD/DB = AE/EC. Do not mix part-to-whole (AD/AB) with part-to-part (AE/EC). Using the correct ratio gives EC = 6 cm.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

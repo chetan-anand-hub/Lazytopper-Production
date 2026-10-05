@@ -1,0 +1,94 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2,
+ "percentage": 67,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Identify prime numbers on a die",
+   "studentWork": "Prime numbers on a die: 1, 2, 3, 5",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× 1 is neither prime nor composite; prime numbers are 2, 3, 5",
+   "mistakeType": "conceptual",
+   "correctedWorking": "Prime numbers on a die: 2, 3, 5 (Total = 3)",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(i)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Calculate probability of getting a prime number using the outcomes identified",
+   "studentWork": "P(prime) = 4/6 = 2/3",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ ECF: probability correctly calculated from student's count of outcomes",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(i)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Calculate probability of getting a number greater than 6",
+   "studentWork": "P(number > 6) = 0/6 = 0",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(ii)",
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Remember that 1 is neither a prime nor a composite number, so the only prime numbers on a die are 2, 3, and 5. Your probability formula application and part (ii) were completely correct.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "(i) Identifying prime numbers on a die {2, 3, 5} and total outcomes",
+   "marks": 1
+  },
+  {
+   "point": "(i) Finding the probability of getting a prime number (3/6 = 1/2)",
+   "marks": 1
+  },
+  {
+   "point": "(ii) Finding the probability of getting a number greater than 6 (0/6 = 0)",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

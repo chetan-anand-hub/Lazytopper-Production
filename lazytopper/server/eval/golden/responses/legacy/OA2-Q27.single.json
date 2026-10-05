@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 4,
+ "marksAwarded": 2,
+ "percentage": 50,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Identification of the trophic level of the frog",
+   "studentWork": "Frog is at the second trophic level.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Incorrect; grass is the first trophic level, grasshopper is the second, so frog occupies the third trophic level.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "Frog is at the third trophic level (secondary consumer).",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Applying the 10% law of energy transfer to calculate energy at snake level",
+   "studentWork": "10,000 → 1,000 → 100 → 10. Snake gets 10 J.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly calculated energy reaching the snake along with the unit.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Effect on the grasshopper population when frogs are removed",
+   "studentWork": "If frogs are removed, grasshoppers will increase.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly stated that the population of grasshoppers will increase.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 4,
+   "description": "Reason for the increase in grasshopper population",
+   "studentWork": "",
+   "status": "missing",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Reason not provided (absence of natural predator to feed on them).",
+   "mistakeType": null,
+   "correctedWorking": "Grasshoppers will increase because frogs are their natural predators; in their absence, predation stops.",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Identifying the trophic level of frog as third trophic level (T3) (1); Calculating energy reaching the snake using 10% law as 10 J (1); Stating that the grasshopper population will increase (1); Giving valid reason (absence of predator / no frogs to feed on them) (1). You applied the 10% law accurately and correctly predicted the population increase. Remember that producers occupy the first trophic level, which makes the frog the third level, and always include the biological reason when asked.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

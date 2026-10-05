@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 0.5,
+ "percentage": 25,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Stating tetravalency and sharing of valence electrons to form covalent bonds",
+   "studentWork": "Carbon ke paas 4 valence electrons hain. ... isliye electrons share karta hai — so it forms covalent bonds.",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Mentioned 4 valence electrons and sharing, but use standard English/Hindi scientific terminology (noble gas configuration/octet).",
+   "mistakeType": "presentation",
+   "correctedWorking": "Carbon has 4 valence electrons. To attain a stable noble gas configuration, it shares these valence electrons with other atoms, forming covalent bonds.",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Explaining the scientific reasons why carbon cannot form C4- or C4+ ions",
+   "studentWork": "Woh 4 electrons na gain kar sakta hai na lose karna easy hai",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Reason not explained: state that 6 protons cannot hold 10 electrons (C4-), and removing 4 electrons requires a huge amount of energy (C4+).",
+   "mistakeType": "conceptual",
+   "correctedWorking": "It cannot gain 4 electrons to form C4- because it would be difficult for the nucleus with 6 protons to hold on to 10 electrons. It cannot lose 4 electrons to form C4+ because it requires a very large amount of energy to remove four electrons.",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 1,
+  "departure": 0
+ },
+ "teacherNote": "You correctly identified that carbon has 4 valence electrons and shares them. However, you must explain the underlying scientific reasons why it cannot gain (nucleus with 6 protons cannot hold 10 electrons) or lose (requires very high energy) four electrons, and write the answer in formal English.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0.5,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Mentioning carbon has 4 valence electrons and achieves stability by sharing electrons (covalent bonding) to complete its octet/noble gas configuration",
+   "marks": 1
+  },
+  {
+   "point": "Explaining why it cannot gain 4 electrons (6 protons cannot hold 10 electrons) and why it cannot lose 4 electrons (requires a large amount of energy to remove 4 electrons)",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

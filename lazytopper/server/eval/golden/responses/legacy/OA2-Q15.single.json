@@ -1,0 +1,62 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1.5,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Correct chemical formulae of reactants and products",
+   "studentWork": "Na + H2O → NaOH + H2",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct species written",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Balancing the chemical equation",
+   "studentWork": "(balanced)",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "× Equation is not balanced (LHS has 2 H atoms, RHS has 3 H atoms)",
+   "mistakeType": "conceptual",
+   "correctedWorking": "2Na + 2H2O → 2NaOH + H2",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Naming the type of reaction",
+   "studentWork": "It is a displacement reaction.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct reaction type identified",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Writing the correct chemical formulae of reactants and products (0.5); Balancing the chemical equation (2Na + 2H₂O → 2NaOH + H₂) (0.5); Stating the type of reaction (Displacement reaction / Redox / Exothermic) (1). Good job identifying the correct products and naming the reaction type as a displacement reaction. However, always count the number of atoms on both sides to ensure the equation is balanced: it should be 2Na + 2H₂O → 2NaOH + H₂.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

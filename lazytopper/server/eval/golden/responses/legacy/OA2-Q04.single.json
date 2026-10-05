@@ -1,0 +1,36 @@
+{
+ "ok": true,
+ "totalMarks": 1,
+ "marksAwarded": 0,
+ "percentage": 0,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Selection of the correct option for Assertion-Reason",
+   "studentWork": "Q4. (b)",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "× Incorrect option chosen. The correct option is (a).",
+   "mistakeType": null,
+   "correctedWorking": "(a) Both A and R are true and R is the correct explanation of A.",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Correct option (a): Both A and R are true and R is the correct explanation of A (1). For x² + 4 = 0, the discriminant D = 0² - 4(1)(4) = -16 < 0, which directly explains why it has no real roots. Hence, Reason (R) is the correct explanation of Assertion (A), making (a) the correct choice.",
+ "questionDepartureError": false,
+ "objective": true,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

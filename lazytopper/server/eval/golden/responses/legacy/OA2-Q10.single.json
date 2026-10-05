@@ -1,0 +1,49 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 2,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Applying Pythagoras theorem to find AP²",
+   "studentWork": "OA² = OP² + AP² ⇒ AP² = 25 - 9 = 16",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct application of Pythagoras theorem",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Evaluating AP with correct unit",
+   "studentWork": "AP = 4 cm",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct final answer",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Stating or applying Pythagoras theorem in right triangle OPA (OA² = OP² + AP²) (1); Calculating and finding the length of tangent AP = 4 cm (1). Well done! You correctly applied Pythagoras theorem and found the tangent length with the appropriate unit. Crossing out the initial incorrect attempt was the right decision.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

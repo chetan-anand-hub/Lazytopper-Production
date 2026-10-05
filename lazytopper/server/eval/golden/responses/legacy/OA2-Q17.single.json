@@ -1,0 +1,49 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 1,
+ "percentage": 33,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Balanced chemical equation for reaction of Zn with dilute HCl",
+   "studentWork": "Zn + HCl -> ZnCl + H2",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 2,
+   "teacherAnnotation": "× Incorrect formula for zinc chloride (ZnCl2) and the equation is unbalanced.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "Zn + 2HCl -> ZnCl2 + H2",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Confirmatory test for the evolved hydrogen gas",
+   "studentWork": "Test: bring a burning splinter near the gas, it burns with a pop sound. So gas is hydrogen.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct test and observation for hydrogen gas.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Writing the correct chemical formula of reactants and products (Zn / HCl / ZnCl2 / H2) (1); Balancing the chemical equation (Zn + 2HCl -> ZnCl2 + H2) (1); Test for hydrogen gas (bringing a burning splinter near the gas burns with a pop sound) (1). You identified the correct test and characteristic pop sound for hydrogen gas. Remember that zinc forms divalent Zn2+ ions, giving zinc chloride the formula ZnCl2, which requires 2HCl to balance the equation.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

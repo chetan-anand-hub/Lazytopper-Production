@@ -1,0 +1,36 @@
+{
+ "ok": true,
+ "totalMarks": 1,
+ "marksAwarded": 0,
+ "percentage": 0,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Selection of the correct option",
+   "studentWork": "Q1. (a) or (b)",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "× Ambiguous response with two alternative options written; only a single definite choice can be awarded marks.",
+   "mistakeType": null,
+   "correctedWorking": "(a) 36",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Correct option (a) or 36 (1). For multiple-choice questions, clearly write only one chosen option. The LCM of 12 and 18 is 36, so the correct choice is (a).",
+ "questionDepartureError": false,
+ "objective": true,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

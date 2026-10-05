@@ -1,0 +1,36 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 0,
+ "percentage": 0,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Scientific cause of the blue color of the clear sky",
+   "studentWork": "The sky looks blue because the blue colour of the sea water is reflected by the sky.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 2,
+   "teacherAnnotation": "× Incorrect. The blue color of the sky is caused by the scattering of sunlight by gas molecules in the atmosphere, not by reflection of sea water.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "The molecules of air and other fine particles in the atmosphere have a size smaller than the wavelength of visible light. They are more effective in scattering light of shorter wavelengths at the blue end than light of longer wavelengths at the red end. Thus, the scattered blue light enters our eyes.",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Mention that fine particles/molecules in the atmosphere scatter light (scattering of light) (1); Explanation that blue light has shorter wavelength and is scattered much more strongly than red light / entering our eyes (1). The blue appearance of the sky is due to the scattering of sunlight by atmospheric air molecules, not reflection from the sea. Revise Rayleigh scattering and how shorter wavelengths (blue light) scatter much more effectively than longer wavelengths.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

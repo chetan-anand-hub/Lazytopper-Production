@@ -1,0 +1,49 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2,
+ "percentage": 67,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Definition of reflex action",
+   "studentWork": "A reflex action is a sudden, automatic response to a stimulus without thinking (controlled by spinal cord).",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct definition of reflex action.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Tracing the pathway of a reflex arc",
+   "studentWork": "Path: stimulus -> receptor -> motor neuron -> spinal cord -> sensory neuron -> effector (muscle)",
+   "status": "partial",
+   "marksAwarded": 1,
+   "marksDeducted": 1,
+   "teacherAnnotation": "½ Sensory neuron and motor neuron are interchanged; sensory neurons carry the impulse to the spinal cord, and motor neurons carry it to the effector.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "Path: Stimulus -> Receptor -> Sensory neuron -> Spinal cord -> Motor neuron -> Effector (muscle)",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Definition of reflex action as an automatic/involuntary response to a stimulus (1); Tracing the correct sequence of reflex arc (Stimulus -> Receptor -> Sensory neuron -> Spinal cord -> Motor neuron -> Effector) (2). Your definition of reflex action is accurate and complete. However, remember that sensory neurons carry signals from receptors towards the spinal cord, while motor neurons convey responses from the spinal cord to the effectors.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

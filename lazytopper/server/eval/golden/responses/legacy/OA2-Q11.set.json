@@ -1,0 +1,1178 @@
+{
+ "ok": true,
+ "worksheetId": "ci:GOLDEN-OA-02",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 1,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Selecting the correct option",
+     "studentWork": "(a) or (b)",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "× Multiple options provided; only one option must be chosen",
+     "mistakeType": null,
+     "correctedWorking": "(a) 36",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Selecting correct option (a) 36 (1). In multiple-choice questions, choose only one single option. Writing two alternative options results in zero marks.",
+   "questionDepartureError": false,
+   "objective": true
+  },
+  {
+   "qNumber": 2,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 2,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Finding the zeroes of the polynomial using quadratic formula",
+     "studentWork": "x² − 5x + 6 = 0 , a = 1, b = −5, c = 6\nx = [5 ± √(25 − 24)] / 2 = (5 ± 1)/2\nx = 3 , x = 2",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct zeroes found",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Verifying the sum of zeroes relationship",
+     "studentWork": "Sum of zeroes = 3 + 2 = 5 = −b/a = 5. Verified.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Relationship correctly verified",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Finding the zeroes of the quadratic polynomial (x = 3 / x = 2) (1); Verifying sum of zeroes = -b/a (1). Well done. The zeroes and the verification of their sum with the coefficients were both clearly and accurately shown.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 3,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2.5,
+   "percentage": 83,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Eliminating y by adding equations to find x",
+     "studentWork": "x + y = 7 …(1) , x − y = 1 …(2)\nAdding: 2x = 8 , x = 4",
+     "status": "correct",
+     "marksAwarded": 1.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct elimination and value of x",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Substituting x into equation to find y",
+     "studentWork": "Put x = 4 in x + y = 9 : 4 + y = 9",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "× Copied 7 as 9 from earlier equation",
+     "mistakeType": "silly",
+     "correctedWorking": "Put x = 4 in x + y = 7 : 4 + y = 7",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Solving for y",
+     "studentWork": "y = 5",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly solved from carried forward value",
+     "mistakeType": null,
+     "correctedWorking": "y = 7 − 4 = 3",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 1,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Elimination of y by adding equations to find x = 4 (1.5); Substitution of x = 4 into equation (1) or (2) (0.5); Solving for y to find y = 3 (1). The elimination method and calculation were handled correctly, but you copied 7 as 9 when substituting x back into the equation. Be careful when transcribing numbers from earlier steps.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 4,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 1,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Select correct option",
+     "studentWork": "(b)",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "× Option (b) is incorrect; correct option is (a)",
+     "mistakeType": null,
+     "correctedWorking": "(a)",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Correct option (a) (1). For x² + 4 = 0, D = -16 < 0, which directly explains why there are no real roots. Thus Reason (R) is the correct explanation of Assertion (A), so option (a) is correct.",
+   "questionDepartureError": false,
+   "objective": true
+  },
+  {
+   "qNumber": 5,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1,
+   "percentage": 50,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "State formula and values of a, d, n",
+     "studentWork": "",
+     "status": "missing",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Formula and working not shown",
+     "mistakeType": null,
+     "correctedWorking": "a = 2, d = 7 - 2 = 5, n = 10; a_n = a + (n - 1)d",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Calculate 10th term",
+     "studentWork": "47",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct final answer",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Identifying a = 2 / d = 5 and stating formula a_n = a + (n - 1)d (1); Calculating 10th term a_10 = 47 (1). Your final answer 47 is correct. Be sure to show the formula a_n = a + (n - 1)d and step-by-step substitution to earn full method marks.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 6,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "State Basic Proportionality Theorem ratio",
+     "studentWork": "By BPT, AD/AB = AE/EC",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Incorrect BPT ratio; it is AD/DB = AE/EC (or AD/AB = AE/AC)",
+     "mistakeType": "conceptual",
+     "correctedWorking": "By BPT, AD/DB = AE/EC",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Substitute values into ratio",
+     "studentWork": "AB = 2 + 3 = 5 cm\n2/5 = 4/EC",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Evaluating the incorrect ratio",
+     "mistakeType": null,
+     "correctedWorking": "2/3 = 4/EC",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Solve for EC",
+     "studentWork": "⇒ EC = 10 cm",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Incorrect answer",
+     "mistakeType": null,
+     "correctedWorking": "EC = (4 × 3) / 2 = 6 cm",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Stating Basic Proportionality Theorem ratio: AD/DB = AE/EC (1); Substituting given values into the ratio: 2/3 = 4/EC (1); Solving for EC = 6 cm (1). According to Thales Theorem (BPT), parallel lines divide sides in equal ratios: AD/DB = AE/EC. Substituting the segments gives 2/3 = 4/EC, resulting in EC = 6 cm.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 7,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1,
+   "percentage": 50,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Substitution into distance formula",
+     "studentWork": "d = √[(3 − 1)² + (4 − 1)²]",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Sign error: substituted 1 instead of −1 for x₂",
+     "mistakeType": "silly",
+     "correctedWorking": "d = √[(3 − (−1))² + (4 − 1)²] = √[(3 + 1)² + (4 − 1)²]",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Simplification and final answer",
+     "studentWork": "= √(4 + 9) = √13",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Arithmetic correctly evaluated from carried-forward error (ECF)",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 1,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Correct substitution into distance formula (1); Correct calculation to find distance (1). Be careful when subtracting negative coordinates: x₁ − x₂ becomes 3 − (−1) = 4, not 3 − 1. Your subsequent calculation was carried out correctly and awarded method marks.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 8,
+   "couldNotRead": true,
+   "totalMarks": 3,
+   "marksAwarded": 0,
+   "note": "We couldn't finish marking this question in time, so it has not been marked — please check it again."
+  },
+  {
+   "qNumber": 9,
+   "couldNotRead": true,
+   "totalMarks": 3,
+   "marksAwarded": 0,
+   "note": "We couldn't finish marking this question in time, so it has not been marked — please check it again."
+  },
+  {
+   "qNumber": 10,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 2,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Pythagoras theorem relation in right triangle OPA",
+     "studentWork": "OA² = OP² + AP² ⇒ AP² = 25 - 9 = 16",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct relation and substitution",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Calculation of AP length with unit",
+     "studentWork": "AP = 4 cm",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct length with unit",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Application of Pythagoras theorem (OA² = OP² + AP²) (1); Calculation of AP = 4 cm (1). Well done on striking out the initial subtraction and applying the Pythagoras theorem correctly. The calculation and final answer are accurate.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 11,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Stating the formula for area of sector",
+     "studentWork": "Area of sector = (θ/360) × 2πr",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Used formula for arc length instead of area of sector",
+     "mistakeType": "conceptual",
+     "correctedWorking": "Area of sector = (θ/360) × πr²",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Substitution and evaluation",
+     "studentWork": "= (60/360) × 2 × 22/7 × 7 = 22/3 = 7.33 cm²",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 2,
+     "teacherAnnotation": "× Evaluating incorrect formula yields wrong answer",
+     "mistakeType": null,
+     "correctedWorking": "= (60/360) × (22/7) × 7 × 7 = 77/3 cm² ≈ 25.67 cm²",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Formula for area of sector = (θ/360) × πr² (1); Substitution of given values into area formula (1); Simplification and final answer (77/3 cm² or 25.67 cm²) (1). You used the formula for the length of an arc (θ/360 × 2πr) instead of the area of a sector (θ/360 × πr²). Make sure to distinguish between linear perimeter measures and area measures.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 12,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 5,
+   "marksAwarded": 4.5,
+   "percentage": 90,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Formula for volume of combined solid",
+     "studentWork": "Volume = vol. of hemisphere + vol. of cone\n= (2/3)πr³ + (1/3)πr²h = πr² [ (2/3)r + h/3 ]",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct combination and common factor extraction",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Substitution of dimensions",
+     "studentWork": "= 22/7 × 3.5 × 3.5 × [ 7/3 + 4 ]",
+     "status": "correct",
+     "marksAwarded": 1.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct numerical substitution",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Simplification of product",
+     "studentWork": "= 38.5 × 19/3",
+     "status": "correct",
+     "marksAwarded": 1.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Accurate calculation",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 4,
+     "description": "Final value with volume unit",
+     "studentWork": "= 243.83",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Correct numerical calculation, but missing cubic units (cm³)",
+     "mistakeType": "presentation",
+     "correctedWorking": "= 243.83 cm³",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 1,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Formula for total volume = Volume of hemisphere + Volume of cone (1); Substitution of r = 3.5 cm and h = 12 cm (1.5); Algebraic and arithmetic simplification (1.5); Final numerical value with correct unit (243.83 cm³ or 1463/6 cm³) (1). Your algebraic factoring and arithmetic steps were excellent and very efficient. Remember to always include the unit (cm³) with your final volume answer.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 13,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2,
+   "percentage": 67,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Sum of frequencies (Σf)",
+     "studentWork": "Σf = 3 + 5 + 4 + 2 = 14",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Σf = 14",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Sum of fx products (Σfx)",
+     "studentWork": "Σfx = 6 + 20 + 24 + 16 = 64",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Addition error: 6 + 20 + 24 + 16 = 66, not 64",
+     "mistakeType": "calculation",
+     "correctedWorking": "Σfx = 6 + 20 + 24 + 16 = 66",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Mean formula and computation",
+     "studentWork": "Mean = Σfx / Σf = 64/14 = 4.57",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct formula and substitution (ECF awarded for calculation from Σfx = 64)",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Calculation of Σf = 14 and individual fx values (1); Correct sum of products Σfx = 66 (1); Formula Mean = Σfx / Σf and evaluation of mean (1). Good application of the mean formula and calculation method. Be careful with addition: 6 + 20 + 24 + 16 equals 66, which gives a mean of 4.71.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 14,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2,
+   "percentage": 67,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Identifying prime numbers on a die",
+     "studentWork": "Prime numbers on a die: 1, 2, 3, 5",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× 1 is neither prime nor composite; prime numbers are 2, 3, 5",
+     "mistakeType": "conceptual",
+     "correctedWorking": "Prime numbers on a die: 2, 3, 5 (3 favourable outcomes)",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Probability of getting a prime number",
+     "studentWork": "P(prime) = 4/6 = 2/3",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct probability formula applied to candidate's count (ECF)",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Probability of getting a number greater than 6",
+     "studentWork": "P(number > 6) = 0/6 = 0",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ P(number > 6) = 0",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: (i) Listing favourable outcomes for a prime number {2 / 3 / 5} (1); (i) Probability P(prime) = 3/6 = 1/2 (1); (ii) Probability P(number > 6) = 0/6 = 0 (1). Remember that 1 is not a prime number, so only 2, 3, and 5 are prime on a die, making P(prime) = 1/2. Part (ii) is completely correct.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 15,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1.5,
+   "percentage": 75,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Balanced chemical equation for reaction of sodium with water",
+     "studentWork": "Na + H2O → NaOH + H2  (balanced)",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Correct reactants and products, but the equation is unbalanced (2 H on LHS vs 3 H on RHS)",
+     "mistakeType": "conceptual",
+     "correctedWorking": "2Na + 2H2O → 2NaOH + H2",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Naming the type of reaction",
+     "studentWork": "It is a displacement reaction.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Displacement reaction",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Balanced chemical equation: 2Na + 2H2O → 2NaOH + H2 (1); Type of reaction: Displacement reaction (1). You identified the reaction type correctly and wrote the correct reactants and products. Make sure to balance the equation: 2Na + 2H2O → 2NaOH + H2.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 16,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 1,
+   "marksAwarded": 1,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Selected option for neutral pH",
+     "studentWork": "(b)",
+     "status": "correct",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ (b)",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Correct option (b) or 7 (1). Correctly identified option (b). A neutral solution at room temperature has a pH of 7.",
+   "questionDepartureError": false,
+   "objective": true
+  },
+  {
+   "qNumber": 17,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 1,
+   "percentage": 33,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Chemical formula of products in the reaction",
+     "studentWork": "Zn + HCl → ZnCl + H2",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Incorrect formula for zinc chloride: ZnCl instead of ZnCl₂",
+     "mistakeType": "conceptual",
+     "correctedWorking": "Zn + HCl → ZnCl₂ + H₂",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Balancing the chemical equation",
+     "studentWork": "Zn + HCl → ZnCl + H2",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Equation left unbalanced",
+     "mistakeType": "conceptual",
+     "correctedWorking": "Zn + 2HCl → ZnCl₂ + H₂",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Confirmatory test for hydrogen gas",
+     "studentWork": "Test: bring a burning splinter near the gas,\nit burns with a pop sound. So gas is hydrogen.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct test: burning splinter burns with a pop sound",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 2,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Writing correct chemical formula for zinc chloride (ZnCl₂) (1); Writing the balanced equation: Zn + 2HCl → ZnCl₂ + H₂ (1); Test for hydrogen gas: burns with a pop sound when a burning splinter is brought near (1). Your test for hydrogen gas is accurate. Remember that zinc forms divalent Zn²⁺ ions, making the formula ZnCl₂, and the balanced equation requires 2 molecules of HCl.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 18,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 0.5,
+   "percentage": 25,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Scientific justification why gaining or losing 4 electrons is not possible",
+     "studentWork": "Woh 4 electrons na gain kar sakta hai na lose karna easy hai",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Incomplete: must mention 6 protons holding 10 electrons and high energy needed to remove 4 electrons",
+     "mistakeType": "conceptual",
+     "correctedWorking": "Carbon cannot gain 4 electrons to form C⁴⁻ as it is difficult for 6 protons to hold 10 electrons, and it cannot lose 4 electrons to form C⁴⁺ as it requires a large amount of energy.",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Sharing of 4 valence electrons to form covalent bonds",
+     "studentWork": "Carbon ke paas 4 valence electrons hain. ... isliye electrons share karta hai — so it forms covalent bonds.",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Correct core concept of sharing valence electrons, but written informally in Hinglish",
+     "mistakeType": "presentation",
+     "correctedWorking": "Carbon has 4 valence electrons and shares them with other atoms to complete its octet, thereby forming covalent bonds.",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 1,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Reason why carbon cannot form C⁴⁻ (difficult for 6 protons to hold 10 electrons) or C⁴⁺ (requires excessive energy to remove 4 electrons) (1); Carbon overcomes this by sharing its valence electrons with other atoms to achieve stability (covalent bonding) (1). You identified the key concept of sharing 4 valence electrons. Always write your answers in formal English (or Hindi) and include the scientific causes: nuclear charge holding electrons and the high energy needed to remove electrons.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 19,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1.5,
+   "percentage": 75,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Name of the tube that carries food from mouth to stomach",
+     "studentWork": "Food pipe.",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Use standard biological terminology: write 'Oesophagus' rather than 'Food pipe'.",
+     "mistakeType": "presentation",
+     "correctedWorking": "Oesophagus",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Process by which food moves along the tube",
+     "studentWork": "Food moves by peristalsis.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly named peristalsis.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 1,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Naming the tube connecting mouth to stomach (Oesophagus) (1); Naming the process of movement (Peristalsis / Peristaltic movement) (1). Peristalsis is correctly identified. Make sure to write the technical scientific term 'oesophagus' instead of 'food pipe' to secure full marks.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 20,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2,
+   "percentage": 67,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Define reflex action",
+     "studentWork": "A reflex action is a sudden, automatic response to a stimulus without thinking (controlled by spinal cord).",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct and complete definition.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Trace the pathway of a reflex arc",
+     "studentWork": "Path: stimulus → receptor → motor neuron → spinal cord → sensory neuron → effector (muscle)",
+     "status": "partial",
+     "marksAwarded": 1,
+     "marksDeducted": 1,
+     "teacherAnnotation": "½ Sensory and motor neurons are reversed in the pathway.",
+     "mistakeType": "conceptual",
+     "correctedWorking": "Stimulus → Receptor → Sensory neuron → Spinal cord → Motor neuron → Effector (muscle)",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Definition of reflex action (1); Correct path/sequence of reflex arc (2). Good definition of reflex action. However, remember that sensory neurons carry impulses from the receptor to the spinal cord, and motor neurons carry them from the spinal cord to the effector.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 21,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 1,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Answer",
+     "studentWork": "",
+     "status": "missing",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "No answer to this question was found on your page, so it earns no marks — if you did answer it, check that the page is included and the question number is written beside it.",
+   "questionDepartureError": false,
+   "objective": true
+  },
+  {
+   "qNumber": 22,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 1.5,
+   "percentage": 50,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "State phenotypic ratio in F2 generation",
+     "studentWork": "F² phenotypic ratio = 3 : 1 (tall : dwarf)",
+     "status": "correct",
+     "marksAwarded": 1.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct phenotypic ratio",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "State genotypic ratio in F2 generation",
+     "studentWork": "",
+     "status": "missing",
+     "marksAwarded": 0,
+     "marksDeducted": 1.5,
+     "teacherAnnotation": "× Genotypic ratio omitted",
+     "mistakeType": null,
+     "correctedWorking": "F₂ genotypic ratio = 1 : 2 : 1 (1 TT : 2 Tt : 1 tt)",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Phenotypic ratio of F2 generation (3 : 1 or 3 tall : 1 dwarf) (1.5); Genotypic ratio of F2 generation (1 : 2 : 1 or 1 TT : 2 Tt : 1 tt) (1.5). You correctly stated the phenotypic ratio as 3:1. However, make sure to read the question carefully and provide both the phenotypic and genotypic ratios.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 23,
+   "couldNotRead": true,
+   "totalMarks": 5,
+   "marksAwarded": 0,
+   "note": "We couldn't finish marking this question in time, so it has not been marked — please check it again."
+  },
+  {
+   "qNumber": 24,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Explanation of why the clear sky appears blue based on Rayleigh scattering of light",
+     "studentWork": "The sky looks blue because the blue colour of the sea water is reflected by the sky.",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 2,
+     "teacherAnnotation": "× Incorrect concept: the blue sky is caused by the scattering of sunlight by air molecules, not reflection of sea water.",
+     "mistakeType": "conceptual",
+     "correctedWorking": "The molecules of air and other fine particles in the atmosphere have a size smaller than the wavelength of visible light. These particles scatter blue light of shorter wavelength more strongly than red light of longer wavelength. The scattered blue light enters our eyes, making the sky appear blue.",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Mentioning scattering of sunlight by fine atmospheric particles/molecules whose size is smaller than the wavelength of visible light (1); Explaining that blue light has a shorter wavelength and is scattered much more strongly than red/longer wavelengths / entering our eyes (1). The sky appears blue due to Rayleigh scattering of sunlight by atmospheric molecules, not reflection of seawater. Remember that shorter wavelengths (blue light) scatter much more effectively than longer wavelengths.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 25,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2,
+   "percentage": 67,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Stating formula for resistance",
+     "studentWork": "R = ρL / A",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct formula stated.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Substituting values into the formula",
+     "studentWork": "= 1.6 × 10⁻⁸ × 3 / (1 × 10⁻⁶)",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Length is given as 2 m in the question, but copied wrongly as 3 m.",
+     "mistakeType": "silly",
+     "correctedWorking": "= 1.6 × 10⁻⁸ × 2 / (1 × 10⁻⁶)",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Calculation and final answer with unit",
+     "studentWork": "= 4.8 × 10⁻² Ω = 0.048 Ω",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct calculation and unit from the substituted value (ECF).",
+     "mistakeType": null,
+     "correctedWorking": "= 3.2 × 10⁻² Ω = 0.032 Ω",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 1,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Formula for resistance: R = ρl / A (1); Substitution of given values: l = 2 m / A = 1 × 10⁻⁶ m² / ρ = 1.6 × 10⁻⁸ Ω m (1); Correct calculation and final value with unit: R = 0.032 Ω (1). The formula and arithmetic were correct, with the proper unit included. Be careful when reading the question values: length is 2 m, not 3 m.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 26,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "This answer does not address the question that was set, so it earns no marks — check that you uploaded your answer to this question.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 27,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 4,
+   "marksAwarded": 2,
+   "percentage": 50,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Trophic level of frog",
+     "studentWork": "Frog is at the second trophic level.",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Frog is at the third trophic level (grass is 1st, grasshopper is 2nd).",
+     "mistakeType": "conceptual",
+     "correctedWorking": "Frog is at the third trophic level.",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Calculation of energy reaching snake via 10% law",
+     "studentWork": "10,000 → 1,000 → 100 → 10. Snake gets 10 J.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct energy calculation for snake.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Effect on grasshopper population",
+     "studentWork": "If frogs are removed, grasshoppers will increase.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly identified that grasshopper population increases.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 4,
+     "description": "Reason for grasshopper population increase",
+     "studentWork": "",
+     "status": "missing",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Reason omitted (absence of predator to eat grasshoppers).",
+     "mistakeType": null,
+     "correctedWorking": "Grasshoppers will increase because frogs are their natural predators, and without them, predation pressure decreases.",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: (i) Identifying trophic level of frog (third trophic level) (1); (ii) Calculating energy reaching snake using 10% law (10 J) (1); (iii) Stating that grasshopper population will increase (1); (iii) Giving reason for population increase (absence of predator / frogs) (1). Part (ii) was correctly calculated using the 10% law and part (iii) correctly noted the population increase. However, the frog is at the 3rd trophic level, and remember to supply the reason requested in part (iii).",
+   "questionDepartureError": false,
+   "objective": false
+  }
+ ],
+ "totalQuestions": 27,
+ "gradedCount": 24,
+ "pendingCount": 3,
+ "gradedMarksAwarded": 30,
+ "gradedMarksTotal": 58,
+ "worksheetTotalMarks": 69,
+ "summary": "Good understanding of the core algebraic methods shown in Q2 and Q3. Make sure to commit to a single definitive option for MCQs, and double-check copied numbers when substituting values into equations.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

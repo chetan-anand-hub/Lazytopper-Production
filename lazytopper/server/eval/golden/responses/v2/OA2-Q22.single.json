@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 1.5,
+ "percentage": 50,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "F₂ phenotypic ratio",
+   "studentWork": "F2 phenotypic ratio = 3 : 1 (tall : dwarf)",
+   "status": "correct",
+   "marksAwarded": 1.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct phenotypic ratio",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(i)",
+   "marksAvailable": 1.5
+  },
+  {
+   "stepNumber": 2,
+   "description": "F₂ genotypic ratio",
+   "studentWork": "",
+   "status": "unattempted",
+   "marksAwarded": 0,
+   "marksDeducted": 1.5,
+   "teacherAnnotation": "× Genotypic ratio not attempted",
+   "mistakeType": null,
+   "correctedWorking": "F₂ genotypic ratio = 1 : 2 : 1 (TT : Tt : tt)",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(ii)",
+   "marksAvailable": 1.5
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "The phenotypic ratio was correctly stated with appropriate phenotypes. Ensure you read the full question carefully and provide both the phenotypic and genotypic ratios.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 1.5,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Phenotypic ratio of F₂ generation (3 : 1 or Tall : Dwarf = 3 : 1)",
+   "marks": 1.5
+  },
+  {
+   "point": "Genotypic ratio of F₂ generation (1 : 2 : 1 or TT : Tt : tt = 1 : 2 : 1)",
+   "marks": 1.5
+  }
+ ],
+ "objectiveResolved": null
+}

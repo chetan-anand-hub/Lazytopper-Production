@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1,
+ "percentage": 50,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Identification of a, d and formula with substitution",
+   "studentWork": "",
+   "status": "missing",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Steps and formula not shown",
+   "mistakeType": null,
+   "correctedWorking": "a = 2, d = 7 - 2 = 5\na_n = a + (n - 1)d\na₁₀ = 2 + (10 - 1)5 = 2 + 45",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Final value of the 10th term",
+   "studentWork": "Q5. 47",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct final answer",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "The final answer is correct, but for a 2-mark question in board exams, step-by-step working including formula and substitution must be shown to earn full marks.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 1
+ },
+ "rubric": [
+  {
+   "point": "Identifying first term a = 2, common difference d = 5, and stating formula a_n = a + (n - 1)d with substitution",
+   "marks": 1
+  },
+  {
+   "point": "Calculating the 10th term as 47",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

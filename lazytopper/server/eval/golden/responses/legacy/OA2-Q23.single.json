@@ -1,0 +1,88 @@
+{
+ "ok": true,
+ "totalMarks": 5,
+ "marksAwarded": 0,
+ "percentage": 0,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Lens formula and substitution of sign conventions",
+   "studentWork": "u = -10 cm , f = +15 cm\n1/v + 1/u = 1/f ⇒ 1/v = 1/f - 1/u = 1/15 + 1/10",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Used mirror formula (1/v + 1/u = 1/f) instead of lens formula (1/v - 1/u = 1/f)",
+   "mistakeType": "conceptual",
+   "correctedWorking": "1/v - 1/u = 1/f ⇒ 1/v = 1/f + 1/u = 1/15 + 1/(-10) = 1/15 - 1/10",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Calculation of image position (v)",
+   "studentWork": "= (2 + 3)/30 = 5/30 ⇒ v = 6 cm",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Incorrect value derived from wrong formula",
+   "mistakeType": null,
+   "correctedWorking": "1/v = (2 - 3)/30 = -1/30 ⇒ v = -30 cm",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Stating nature of the image",
+   "studentWork": "Image is real and inverted.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× When object is between F and O of a convex lens, image is virtual and erect",
+   "mistakeType": "conceptual",
+   "correctedWorking": "Image is virtual and erect (and magnified).",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 4,
+   "description": "Ray diagram showing refraction of two standard rays with arrows",
+   "studentWork": "[Drawn convex lens with object between F and lens, two incomplete divergent rays without arrows]",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Rays lack direction arrows; top refracted ray incorrectly diverges upward away from principal axis",
+   "mistakeType": "conceptual",
+   "correctedWorking": "Draw parallel ray to lens refracting through F2 on right, and another ray through optical centre O passing undeviated, with arrows on all rays.",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 5,
+   "description": "Ray diagram showing backward extension to form virtual image",
+   "studentWork": "[No image drawn or backward extension shown]",
+   "status": "missing",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Missing image formation (virtual rays must be produced backward to form an erect, magnified image)",
+   "mistakeType": null,
+   "correctedWorking": "Extend diverging refracted rays backwards using dotted lines to intersect and form a virtual, erect image behind the object.",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 3,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Stating the correct lens formula (1/v - 1/u = 1/f) with proper sign conventions (1); Correct calculation of image position (v = -30 cm) (1); Correct statement of nature of image (virtual and erect) (1); Ray diagram: correct refraction of at least two rays with arrows (1); Ray diagram: correct formation of virtual / erect / and magnified image (1). Be careful to use the lens formula 1/v - 1/u = 1/f rather than the mirror formula. In ray diagrams, always mark direction arrows on light rays and extend diverging rays backward with dashed lines to show the virtual image.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

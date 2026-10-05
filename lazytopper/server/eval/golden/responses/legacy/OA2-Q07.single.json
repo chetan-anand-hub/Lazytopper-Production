@@ -1,0 +1,49 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1.5,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Application of distance formula and substitution of coordinates",
+   "studentWork": "d = \\sqrt{[(3 - 1)^2 + (4 - 1)^2]}",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Applied distance formula structure correctly, but miscopied -1 as 1 leading to (3 - 1)² instead of (3 - (-1))²",
+   "mistakeType": "silly",
+   "correctedWorking": "d = \\sqrt{[3 - (-1)]^2 + (4 - 1)^2} = \\sqrt{(3 + 1)^2 + (4 - 1)^2}",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Simplification and calculation of final distance",
+   "studentWork": "= \\sqrt{(4 + 9)} = \\sqrt{13}",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly simplified the carried-forward expression",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 1,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Writing distance formula and substituting coordinates (3 / 4) and (-1 / 1) (1); Simplifying radicand to obtain distance = 5 units (1). You correctly applied the distance formula and carried through your calculations accurately. Be careful when substituting negative coordinates: 3 - (-1) becomes 3 + 1 = 4, giving a final distance of 5 units.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 5,
+ "marksAwarded": 5,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Formula for total volume",
+   "studentWork": "Volume = vol. of hemisphere + vol. of cone\n= (2/3)πr³ + (1/3)πr²h = πr² [ (2/3)r + h/3 ]",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct formula and factorization",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Substitution of given dimensions",
+   "studentWork": "= 22/7 × 3.5 × 3.5 × [ 7/3 + 4 ]",
+   "status": "correct",
+   "marksAwarded": 1.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct substitution of r and h",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Simplification of terms",
+   "studentWork": "= 38.5 × 19/3",
+   "status": "correct",
+   "marksAwarded": 1.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct intermediate computation",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 4,
+   "description": "Final volume calculation",
+   "studentWork": "= 243.83",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct final value",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Formula for the volume of the toy: V = (2/3)πr³ + (1/3)πr²h (1); Correct substitution of r = 3.5 cm and h = 12 cm (1.5); Algebraic simplification and intermediate calculation (1.5); Final calculation of volume (243.83 or 1463/6) (1). Excellent and efficient method of factoring out common terms before computing. Remember to always mention the appropriate unit (cm³) with your final answer.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

@@ -1,0 +1,64 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 0,
+ "percentage": 0,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Proof of identity in general terms using standard trigonometric identities",
+   "studentWork": "Put A = 30°. cos 30° = √3/2 , cosec 30° = 2\nLHS = (1 - 3/4) × 4 = 1/4 × 4 = 1 = RHS\nHence proved.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 3,
+   "teacherAnnotation": "× A numerical verification for a specific angle does not constitute a mathematical proof of an identity.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "LHS = (1 - cos²A) · cosec²A\nUsing identity 1 - cos²A = sin²A:\n= sin²A · cosec²A\n= sin²A · (1 / sin²A)\n= 1 = RHS\nHence proved.",
+   "isDeparture": true,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 3
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 1
+ },
+ "teacherNote": "To prove a trigonometric identity, you must use standard identities valid for all general angles A rather than substituting a specific numerical value like 30°. Start with LHS = (1 - cos²A)cosec²A = sin²A · (1/sin²A) = 1 = RHS. This method does not work in general, so the working built on it cannot earn method marks — use a method that holds in every case.",
+ "questionDepartureError": true,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": "invalid-method",
+ "marksLostByType": {
+  "conceptual": 3,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Writing LHS and using trigonometric identity 1 - cos²A = sin²A",
+   "marks": 1.5
+  },
+  {
+   "point": "Substituting cosec A = 1/sin A (or cosec²A = 1/sin²A) to simplify LHS",
+   "marks": 1
+  },
+  {
+   "point": "Simplifying to 1 and concluding LHS = RHS",
+   "marks": 0.5
+  }
+ ],
+ "objectiveResolved": null
+}

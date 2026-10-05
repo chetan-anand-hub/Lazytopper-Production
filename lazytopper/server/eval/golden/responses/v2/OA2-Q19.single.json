@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1.5,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Naming the tube that carries food from mouth to stomach",
+   "studentWork": "Food pipe.",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Mention the standard biological term 'oesophagus' rather than 'food pipe'.",
+   "mistakeType": "presentation",
+   "correctedWorking": "Oesophagus",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Naming the process by which food moves along it",
+   "studentWork": "Food moves by peristalsis.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly identified peristalsis.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 1,
+  "departure": 0
+ },
+ "teacherNote": "You correctly identified peristalsis as the process moving food through the gut. In Class 10 board examinations, always use the scientific term 'oesophagus' rather than the common name 'food pipe' to earn full marks.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0.5,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Naming the tube as oesophagus / esophagus",
+   "marks": 1
+  },
+  {
+   "point": "Naming the process as peristalsis / peristaltic movement",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

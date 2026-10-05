@@ -1,0 +1,94 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 1,
+ "percentage": 33,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Labelled diagram representing the tower and shadow",
+   "studentWork": "",
+   "status": "missing",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Required labelled diagram missing",
+   "mistakeType": null,
+   "correctedWorking": "Draw a right-angled triangle ABC with right angle at B, vertical tower AB = h, shadow BC = 20 m, and angle of elevation ∠ACB = 60°.",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Setting up the trigonometric ratio tan 60° = h / 20",
+   "studentWork": "tan 60° = h / 20",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct ratio set up",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Substituting value of tan 60° and solving for height h",
+   "studentWork": "1/√3 = h / 20 ⇒ h = 20/√3 = 11.55 m",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× tan 60° is √3, not 1/√3",
+   "mistakeType": "conceptual",
+   "correctedWorking": "√3 = h / 20 ⇒ h = 20√3 m (or h ≈ 34.64 m)",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "You correctly chose the tangent ratio for this problem. However, always draw a neat labelled figure for Heights and Distances questions, and remember that tan 60° = √3 (not 1/√3).",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 1
+ },
+ "rubric": [
+  {
+   "point": "Drawing a correct labelled diagram showing the tower, shadow, and angle of elevation",
+   "marks": 1
+  },
+  {
+   "point": "Setting up the correct trigonometric relation tan 60° = h / 20",
+   "marks": 1
+  },
+  {
+   "point": "Substituting tan 60° = √3 and calculating height h = 20√3 m (or 34.64 m)",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

@@ -1,0 +1,36 @@
+{
+ "ok": true,
+ "totalMarks": 1,
+ "marksAwarded": 1,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Selection of the correct option",
+   "studentWork": "(b)",
+   "status": "correct",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Correct option (b) / 7 (1). Correct option selected. The previous incorrect choice was cleanly struck through and replaced with the right answer.",
+ "questionDepartureError": false,
+ "objective": true,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

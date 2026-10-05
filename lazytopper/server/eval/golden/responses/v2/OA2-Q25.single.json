@@ -1,0 +1,94 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2,
+ "percentage": 67,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Statement of formula for resistance",
+   "studentWork": "R = ρL / A",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct formula stated",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Substitution of given values into the formula",
+   "studentWork": "= 1.6 × 10⁻⁸ × 3 / (1 × 10⁻⁶)",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Length miscopied as 3 m instead of 2 m",
+   "mistakeType": "silly",
+   "correctedWorking": "R = (1.6 × 10⁻⁸ × 2) / (1 × 10⁻⁶)",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Calculation and final answer with unit",
+   "studentWork": "= 4.8 × 10⁻² Ω = 0.048 Ω",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct calculation and SI unit following error carried forward",
+   "mistakeType": null,
+   "correctedWorking": "= 3.2 × 10⁻² Ω = 0.032 Ω",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 1,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "You stated the correct formula, carried out the calculation accurately, and included the correct unit. However, be careful when copying given values from the question, as the wire length was given as 2 m rather than 3 m.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 1,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Writing the correct formula relating resistance, resistivity, length, and cross-sectional area",
+   "marks": 1
+  },
+  {
+   "point": "Correct substitution of given values into the formula",
+   "marks": 1
+  },
+  {
+   "point": "Correct calculation and final answer with appropriate unit (0.032 Ω or 3.2 × 10⁻² Ω)",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

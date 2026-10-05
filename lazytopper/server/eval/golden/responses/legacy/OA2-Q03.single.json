@@ -1,0 +1,62 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2.5,
+ "percentage": 83,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Eliminating y by adding equations to find x",
+   "studentWork": "x + y = 7 ...(1) , x - y = 1 ...(2) Adding: 2x = 8 , x = 4",
+   "status": "correct",
+   "marksAwarded": 1.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct elimination and value of x",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Substituting x = 4 into an original equation",
+   "studentWork": "Put x = 4 in x + y = 9 : 4 + y = 9",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "× Misread or miscopied equation (1) as x + y = 9 instead of x + y = 7",
+   "mistakeType": "silly",
+   "correctedWorking": "Put x = 4 in x + y = 7: 4 + y = 7",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Solving for y",
+   "studentWork": "y = 5",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly solved from your substituted equation (ECF)",
+   "mistakeType": null,
+   "correctedWorking": "y = 7 - 4 = 3",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 1,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Adding equations to eliminate y and finding x = 4 (1.5); Substituting x = 4 into equation (1) or (2) (0.5); Solving for y to obtain y = 3 (1). Good work on finding x = 4 using the elimination method. Be careful when copying down equations from previous lines, as writing x + y = 9 instead of x + y = 7 led to an incorrect value for y.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

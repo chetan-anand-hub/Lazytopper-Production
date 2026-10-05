@@ -1,0 +1,94 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2,
+ "percentage": 67,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Calculation of Σf",
+   "studentWork": "Σf = 3 + 5 + 4 + 2 = 14",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct sum of frequencies",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Calculation of Σfx",
+   "studentWork": "Σfx = 6 + 20 + 24 + 16 = 64",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Addition error: 6 + 20 + 24 + 16 = 66, not 64",
+   "mistakeType": "calculation",
+   "correctedWorking": "Σfx = 6 + 20 + 24 + 16 = 66",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Mean formula and computation with ECF",
+   "studentWork": "Mean = Σfx / Σf = 64/14 = 4.57",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct formula and division carried forward from previous value",
+   "mistakeType": null,
+   "correctedWorking": "Mean = Σfx / Σf = 66/14 = 4.71",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Your method and formula for calculating the mean are completely correct. Take extra care with basic addition when finding Σfx, as 6 + 20 + 24 + 16 equals 66, which gives a mean of approximately 4.71.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Finding sum of frequencies (Σf = 14)",
+   "marks": 1
+  },
+  {
+   "point": "Calculating products fx and finding Σfx = 66",
+   "marks": 1
+  },
+  {
+   "point": "Applying formula Mean = Σfx / Σf and evaluating final answer",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}
