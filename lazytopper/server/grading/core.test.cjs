@@ -822,6 +822,35 @@ test('§P0.12 the inventory line and the work in DIFFERENT notations (LaTeX vs U
   assert.equal((await c.sheet(sheet([sq(1, { textAnswer: undefined })], DOC))).body.results[0].marksAwarded, 0);
 });
 
+/* HOTFIX-1 (live 2026-10-06, owner paper Q8): a correct photographed Science answer returned as
+   ONE long step was zeroed "not on your page" because the copy check compared it with the
+   MODEL-GENERATED scheme-first cache solution (a C&I single sends no stored scheme). */
+const Q8_TEXT = 'Why is the wall of the left ventricle of the human heart thicker than that of the right ventricle?';
+const Q8_ANSWER = 'The left ventricle pumps oxygenated blood to all parts of the body, so it has to pump with more force. The right ventricle pumps blood only to the lungs. So the left wall is thicker.';
+const Q8_GENERATED = ['The left ventricle pumps oxygenated blood to all parts of the body, so it has to pump with more force.', 'The right ventricle pumps blood only to the lungs, which are close to the heart.', 'So the wall of the left ventricle is thicker and more muscular.'];
+const Q8_REPLY = REPLY(R(1, [S({ studentWork: Q8_ANSWER, marksAwarded: 2, marksAvailable: 2 })], { finalAnswerCorrect: true }));
+
+test('§P0.13 the copy check compares ONLY a STORED scheme — a correct one-step answer matching a GENERATED cache solution is graded (owner Q8)', async () => {
+  const cache = { getOrCreateModelSolution: async () => ({ schemeSteps: Q8_GENERATED }) };
+  const h = harness({ replies: [Q8_REPLY], deps: { solutionCache: cache } });
+  const r = (await h.single({ question: Q8_TEXT, marks: 2, subject: 'Science', topic: 'Life Processes', ...PHOTO, acceptsV2: true })).body;
+  assert.deepEqual([r.marksAwarded, r.totalMarks, r.annotatedSteps[0].status], [2, 2, 'correct'], 'a correct answer is never zeroed for matching a generated solution');
+  assert.ok(h.prompt().includes(Q8_GENERATED[0]), 'the generated solution still guides the grade (it is in the prompt)');
+  // CONTROL — true positive kept: the SAME words as a STORED bank scheme are still caught as copied
+  const stored = (await harness({ replies: [Q8_REPLY] }).sheet(sheet([sq(1, { marks: 2, questionText: Q8_TEXT, textAnswer: undefined, solutionSteps: Q8_GENERATED })], { uploads: [{ qNumber: 1, ...PHOTO }] }))).body.results[0];
+  assert.deepEqual([stored.marksAwarded, stored.teacherNote], [0, grading.NO_ANSWER_ON_PAGE_NOTE]);
+});
+
+test('§P0.14 a question the PAGE INVENTORY confirms (listed, first line in its work) is never zeroed by the copy check', async () => {
+  const q = sq(1, { marks: 2, questionText: Q8_TEXT, textAnswer: undefined, solutionSteps: Q8_GENERATED });
+  const reply = (line) => WITH_INV(INV([1, line]), R(1, [S({ studentWork: Q8_ANSWER, marksAwarded: 2, marksAvailable: 2 })], { finalAnswerCorrect: true }));
+  const confirmed = (await harness({ replies: [reply('The left ventricle pumps oxygenated blood to all parts of the body')] }).sheet(sheet([q], DOC))).body.results[0];
+  assert.equal(confirmed.marksAwarded, 2);
+  // CONTROL: a presence-only inventory entry (nothing quotable) does not confirm — the copy check applies
+  const bare = (await harness({ replies: [reply('Q1')] }).sheet(sheet([q], DOC))).body.results[0];
+  assert.deepEqual([bare.marksAwarded, bare.teacherNote], [0, grading.NO_ANSWER_ON_PAGE_NOTE]);
+});
+
 /* ══ §C2.9–§C2.12 · THE ECF AUDIT (controller decisions D24/D26) ══════════════
    (a) an accepted departure step keeps its type even when it lost nothing itself; (b) CBSE 11
    "penalized only once" enforced wherever the schema marks the original slip; D26: an invalid
