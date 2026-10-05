@@ -303,3 +303,48 @@ test('§11 the RE-BASELINE (runs/<id>/rebaseline.json) is digest-pinned: a tampe
     console.warn = quiet.warn; console.error = quiet.error;
   }
 });
+
+test('§12 replay of a PR-3 live run is faithful: a call still in flight at the request deadline replays as that TIMEOUT; detection replays on the run\'s own (proxy) detect model', async () => {
+  const { replayJob } = require('./lib/replay.cjs');
+  const { buildPlan } = require('./lib/planner.cjs');
+  const grading = require('../../grading/rules.cjs');
+  const plan = buildPlan({ includeDetect: true });
+  const job = plan.find((j) => j.entry === 'set' && (j.request.questions || []).length === 4 && !('acceptsV2' in j.request));
+  assert.ok(job, 'a stored-plan paper with exactly 4 questions exists (chunks q0+q1, q2+q3)');
+  const qs = job.request.questions;
+  const text = JSON.stringify({ results: qs.map((q, i) => ({ qNumber: q.qNumber, couldNotRead: false, addressesQuestion: 'yes', marksAwarded: Math.min(1, q.marks),
+    annotatedSteps: [{ description: 's', studentWork: 'answer ' + i, status: 'correct', marksAwarded: Math.min(1, q.marks), marksDeducted: 0, teacherAnnotation: 'ok', mistakeType: null }], teacherNote: 'n' + i })), summary: 's' });
+  const ok = (chunkKey, attempt) => ({ ok: true, text, chunkKey, attempt, http: [{ model: 'gemini-2.5-flash', httpStatus: 200 }] });
+  // live 2026-10-06 (V2.W.CP.paper-01): chunk q2+q3 timed out at 45 s, its single-question retries
+  // ran, and q3's retry was still in flight when the request deadline ended the job — stored with
+  // no outcome and no HTTP record. Live, q3 came back NOT GRADED as a timeout.
+  const timedOut = { ok: false, chunkKey: 'q2+q3', attempt: 1, error: { status: 504, message: 'Gemini request timed out after 45000ms' }, http: [{ model: 'gemini-2.5-flash', errClass: 'AbortError' }] };
+  const inFlight = { ok: false, chunkKey: 'q3', attempt: 2, http: [] };
+  const record = (last) => ({ jobKey: job.jobKey, requestDigest: job.requestDigest, calls: [ok('q0+q1', 1), timedOut, ok('q2', 2), last] });
+  const quiet = console.warn; console.warn = () => {};
+  let rep; let ctl;
+  try {
+    rep = await replayJob(job, record(inFlight), { model: 'gemini-2.5-flash' });
+    // CONTROL: the same retry stored as a real provider error replays as an ERROR, not a timeout
+    ctl = await replayJob(job, record({ ok: false, chunkKey: 'q3', attempt: 2, error: { status: 500, message: 'internal' }, http: [{ model: 'gemini-2.5-flash', httpStatus: 500 }] }), { model: 'gemini-2.5-flash' });
+  } finally { console.warn = quiet; }
+  const r = rep.body.results;
+  assert.deepStrictEqual(r.map((x) => x.couldNotRead), [false, false, false, true]);
+  assert.strictEqual(r[3].note, grading.NOT_GRADED_TIMEOUT_NOTE, 'the in-flight retry replays as the deadline TIMEOUT it was live');
+  assert.deepStrictEqual([rep.servedCalls, rep.unusedCalls], [4, 0], 'every stored call consumed — the replay is complete');
+  assert.strictEqual(ctl.body.results[3].note, grading.NOT_GRADED_ERROR_NOTE, 'CONTROL: a stored provider error stays an error');
+  // Detection: the body names the model that detected, so a --detect-model (proxy) run replays on it.
+  const dj = plan.find((j) => j.entry === 'detect' && j.jobKey.startsWith('D.ITEM.'));
+  const dtext = JSON.stringify({ detectedMarks: 2, marksSource: 'inferred', detectedSubject: 'Maths', detectedTopic: 'polynomials', detectedObjective: false, detectedAnswer: null,
+    questions: [{ questionNumber: null, questionText: 'Find the zeroes of the polynomial x² − 5x + 6.', marks: 2, marksSource: 'inferred', objective: false, answer: null }] });
+  const drec = { jobKey: dj.jobKey, requestDigest: dj.requestDigest, calls: [{ ok: true, text: dtext, attempt: 1, http: [{ model: 'gemini-3.8-flash', httpStatus: 200 }] }] };
+  const config = { core: true, model: 'gemini-3.8-flash', thinkingBudget: null, gradingMode: 'single' };
+  console.warn = () => {};
+  let proxy; let dflt;
+  try {
+    proxy = await replayJob(dj, drec, { config, detectModel: 'gemini-3.8-flash' });
+    dflt = await replayJob(dj, drec, { config });
+  } finally { console.warn = quiet; }
+  assert.ok(JSON.stringify(proxy.body).includes('gemini-3.8-flash') && !JSON.stringify(proxy.body).includes('gemini-2.5-flash'), 'the proxy run replays on its own detect model');
+  assert.ok(JSON.stringify(dflt.body).includes('gemini-2.5-flash'), 'CONTROL: without detectModel the production detect model is used (PR-1/PR-2 runs)');
+});

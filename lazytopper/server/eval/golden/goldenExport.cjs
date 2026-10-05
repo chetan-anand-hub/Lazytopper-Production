@@ -52,7 +52,7 @@ async function main() {
       }
       const pending = job.caseIds.filter((cid) => !taken[flavour].has(cid + '.' + kind));
       if (!pending.length) continue;
-      const rep = await replayJob(planJob, record, { config: R.manifest.config });
+      const rep = await replayJob(planJob, record, { config: R.manifest.config, detectModel: R.manifest.detectModel });
       for (const cid of pending) {
         taken[flavour].add(cid + '.' + kind);
         const file = cid + '.' + kind + '.json';

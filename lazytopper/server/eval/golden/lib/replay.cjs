@@ -67,7 +67,9 @@ function pickStoredCall(calls, used, model, cfg) {
   const attempt = cfg && Number.isFinite(cfg.attempt) ? cfg.attempt : null;
   if (keyed) {
     const key = cfg && cfg.chunkKey ? cfg.chunkKey : null;
-    return calls.findIndex((c, i) => !used.has(i) && modelOf(c) === model && (c.chunkKey || null) === key && (c.attempt || 1) === (attempt || 1));
+    // A call still in flight when the job ended has no HTTP record, hence no model: its chunk
+    // identity alone names it (chunk keys are question ids, unique within a request).
+    return calls.findIndex((c, i) => !used.has(i) && (modelOf(c) === model || modelOf(c) === null) && (c.chunkKey || null) === key && (c.attempt || 1) === (attempt || 1));
   }
   if (attempt !== null) {
     const forModel = calls.map((_, i) => i).filter((i) => modelOf(calls[i]) === model);
@@ -88,6 +90,14 @@ async function replayJob(planJob, record, opts = {}) {
     if (!next) throw new ReplayExhaustedError(record.jobKey);
     used.add(at);
     if (next.ok) return { text: next.text, raw: { candidates: [{ finishReason: next.finishReason || null }] } };
+    // PR-3 (C8): a call with no outcome and no HTTP record was still in flight when the live
+    // job ENDED — the core stopped waiting at the request deadline (its own race), so the live
+    // result was a TIMEOUT. Replay raises that same deadline error at once (no real waiting).
+    if (!next.error && (!Array.isArray(next.http) || next.http.length === 0)) {
+      const late = new Error('stored call still in flight at the request deadline');
+      late.status = null; late.gradingDeadline = true;
+      throw late;
+    }
     const err = new Error(next.error ? next.error.message : 'stored model error');
     err.status = next.error ? next.error.status : null;
     throw err;
@@ -96,9 +106,13 @@ async function replayJob(planJob, record, opts = {}) {
   // with the SAME grading configuration it ran with — the grading model, its thinking cap, and
   // above all the MODE: a router run splits a set into per-model groups and scores known MCQ
   // picks with no call, so replaying it in single mode would consume the wrong stored replies.
+  // PR-3 (C10): detection replays on the model the run detected with — a run made with
+  // `--detect-model` (a PROXY, recorded in the manifest as detectModel) names that model in
+  // its detect bodies, so replaying it as gemini-2.5-flash would change every body.
   const cfg = opts.config || null;
+  const detectModel = opts.detectModel || 'gemini-2.5-flash';
   const driver = cfg && cfg.core
-    ? createDriver({ callGemini, model: 'gemini-2.5-flash', gradingModel: cfg.model, gradingThinkingBudget: cfg.thinkingBudget ?? null,
+    ? createDriver({ callGemini, model: detectModel, gradingModel: cfg.model, gradingThinkingBudget: cfg.thinkingBudget ?? null,
       gradingMode: cfg.gradingMode, gradingLightModel: cfg.lightModel })
     : createDriver({ callGemini, model: record.model || opts.model });
   const out = await driver.run(planJob);
