@@ -118,7 +118,7 @@ function miBannerFrom(outcome: WorksheetGradeOutcome | null): MiBanner {
 function StepRow({ step, objective }: { step: CheckSolutionAnnotatedStep; objective?: boolean }) {
   // SCORECARD-MI-1 — step state from the ONE module ("missing" = Not attempted, no "−N";
   // an unknown status is neutral, never "Incorrect").
-  const display = stepDisplay(step.status);
+  const display = stepDisplay(step.status, step.mistakeType);
   const cls =
     display.kind === "correct"
       ? "ok"

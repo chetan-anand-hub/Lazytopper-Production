@@ -328,7 +328,7 @@ export function CheckImproveGradedPrintDoc({
               ) : (
                 <div className="lt-cigp__steps">
                   {steps.map((s, si) => {
-                    const sd = stepDisplay(s.status);
+                    const sd = stepDisplay(s.status, s.mistakeType);
                     const typeLabel = stepShowsType(s, q) ? mistakeTypeLabel(s.mistakeType) : null;
                     return (
                       <div key={si} className="lt-cigp__step">

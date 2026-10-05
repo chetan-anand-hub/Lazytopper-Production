@@ -318,7 +318,7 @@ function MistakeBadge({ type }: { type: MistakeType | null }) {
 
 function AnnotatedStepCard({ step, objective }: { step: CheckSolutionResponse["annotatedSteps"][0]; objective?: boolean }) {
   const [showCorrected, setShowCorrected] = useState(false);
-  const display = stepDisplay(step.status);
+  const display = stepDisplay(step.status, step.mistakeType);
   const ss = STATUS_STYLE[step.status] || STATUS_STYLE.missing;
   const isNegative = step.marksAwarded === 0 && step.status !== "correct" && display.showDeduction;
   const marksColor = step.marksAwarded > 0 ? "#22c55e" : "#ef4444";

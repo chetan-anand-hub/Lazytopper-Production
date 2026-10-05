@@ -760,8 +760,18 @@ export function isWithdrawnStatus(status: unknown): boolean {
 /**
  * One step's display state. Tolerates ANY status (D4): a value this module does not know
  * renders as a neutral "Not marked", never as "Incorrect".
+ *
+ * A "missing" step the grader TYPED is a MISTAKE, not a non-attempt — GRADER-CORE-1's final
+ * contract (D29, 2026-10-05): genuinely unattempted work comes back "unattempted"; an
+ * exam-technique loss (a unit or a conclusion never written) comes back "missing" +
+ * presentation. So a typed "missing" step shows as lost, with its deduction and its type —
+ * the same as its marks and its MI entry (controller ruling R1). An UNTYPED "missing" step
+ * (today's grader's absent step) and every "unattempted" one stay Not attempted.
  */
-export function stepDisplay(status: unknown): StepDisplay {
+export function stepDisplay(status: unknown, mistakeType?: unknown): StepDisplay {
+  if (status === "missing" && isStoredMistakeType(mistakeType)) {
+    return { kind: "lost", label: "Missing", tone: "bad", showDeduction: true };
+  }
   switch (status) {
     case "correct":
       return { kind: "correct", label: "Correct", tone: "ok", showDeduction: true };
@@ -796,7 +806,7 @@ export function splitWithdrawnSteps<S extends StepLike>(steps: ReadonlyArray<S> 
 export function stepShowsType(step: StepLike, q: GradedQuestionLike): boolean {
   if (!isStoredMistakeType(step?.mistakeType)) return false;
   if (marksLostOn(q) <= 0) return false;
-  const k = stepDisplay(step?.status).kind;
+  const k = stepDisplay(step?.status, step?.mistakeType).kind;
   return k !== "not-attempted" && k !== "unknown" && k !== "withdrawn";
 }
 

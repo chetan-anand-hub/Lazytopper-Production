@@ -338,7 +338,7 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching }: 
                            the student's own writing, per step, with the marks awarded. */
                         <div className="lt-gp__steps">
                           {annSteps.map((s, i) => {
-                            const sd = stepDisplay(s.status);
+                            const sd = stepDisplay(s.status, s.mistakeType);
                             const typeLabel = stepShowsType(s, r) ? mistakeTypeLabel(s.mistakeType) : null;
                             return (
                               <div key={i} className="lt-gp__stp">

@@ -342,6 +342,21 @@ describe("PR-2 B7 — one question's marks lost per bucket (questionMarksLost)",
     expect(isQuestionNotAttempted(q)).toBe(false);
   });
 
+  // D29 (GRADER-CORE-1 final contract, merged 9678a259): genuinely unattempted work is
+  // "unattempted"; an exam-technique loss is "missing" + presentation. The STEP must say what the
+  // marks and the MI entry say (R1) — lost, with its deduction and its type — never "Not attempted".
+  it("D29 + R1 — a TYPED 'missing' step shows as LOST with its deduction and type chip; an UNTYPED one stays Not attempted", () => {
+    const typed = { status: "missing", marksAwarded: 0, marksDeducted: 0.5, mistakeType: "presentation" };
+    const q = { totalMarks: 2, marksAwarded: 1.5, annotatedSteps: [typed], marksLostByType: mk({ presentation: 0.5 }) };
+    expect(stepDisplay(typed.status, typed.mistakeType)).toMatchObject({ kind: "lost", label: "Missing", showDeduction: true });
+    expect(stepShowsType(typed, q)).toBe(true);
+    expect(stepForDisplay(typed, q).mistakeType).toBe("presentation");
+    // CONTROL — untyped "missing" and "unattempted" are the fourth state, never a mistake
+    expect(stepDisplay("missing", null)).toMatchObject({ kind: "not-attempted", showDeduction: false });
+    expect(stepDisplay("unattempted", "presentation")).toMatchObject({ kind: "not-attempted", showDeduction: false });
+    expect(stepShowsType({ ...typed, mistakeType: null }, q)).toBe(false);
+  });
+
   it("null for a count-only grade, a malformed record and a question that was not graded", () => {
     expect(questionMarksLost({ totalMarks: 5, marksAwarded: 2 })).toBeNull();
     expect(questionMarksLost({ totalMarks: 5, marksAwarded: 2, marksLostByType: { conceptual: 3 } })).toBeNull();

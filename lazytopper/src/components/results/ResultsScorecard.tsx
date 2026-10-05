@@ -263,7 +263,7 @@ function GradedStepRow({ step, objective }: { step: CheckSolutionAnnotatedStep; 
   // SCORECARD-MI-1 (D3/D4) — the step's state from the ONE module: "missing" reads
   // "Not attempted" with no "−N" against it, and an unknown status never crashes and never
   // reads "Incorrect".
-  const display = stepDisplay(step.status);
+  const display = stepDisplay(step.status, step.mistakeType);
   const tone =
     display.kind === "correct"
       ? "ok"
