@@ -56,6 +56,22 @@ export interface MistakeLogEntry {
     mistakeType: string;
     marksDeducted: number;
   }>;
+  /**
+   * SCORECARD-MI-1 PR-2 (B7) — the grade's marks lost per bucket (conceptual, calculation,
+   * silly, presentation, unattempted, untyped), stored ONLY for a grade that carried them
+   * (GRADER-CORE-1 v2), together with its schema version. Both are ABSENT on every older entry:
+   * that entry is COUNT-ONLY — read as counts, labelled as counts, never converted and never
+   * given invented marks (G5). Readers validate it through lib/mistakeDisplay.
+   */
+  marksLostByType?: {
+    conceptual: number;
+    calculation: number;
+    silly: number;
+    presentation: number;
+    unattempted: number;
+    untyped: number;
+  };
+  marksLostByTypeVersion?: number;
 }
 
 /** SCORECARD-MI-1 (D5) — how an entry is written. With `id` (the stable grade identity from

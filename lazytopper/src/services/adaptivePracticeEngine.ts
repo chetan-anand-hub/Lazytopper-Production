@@ -1,4 +1,5 @@
 import { loadTopicMasterySnapshot } from "./topicHubMastery";
+import { roundMarks } from "../lib/mistakeDisplay";
 
 export type AdaptiveLevel = "building_foundations" | "exam_ready" | "challenge_mode";
 
@@ -17,6 +18,16 @@ export interface WrongAnswerEntry {
   difficulty: string;
   timestamp: number;
   count: number;
+  /**
+   * SCORECARD-MI-1 PR-2 (B7) — the knowledge-gap (conceptual) MARKS lost across the wrongs on
+   * this entry that came from a grade carrying v2 `marksLostByType`. OPTIONAL and additive (the
+   * log stays version 1): an entry written before PR-2, or only from count-only grades, has
+   * neither this nor `conceptualMarksCount` and is weighed by `count`, exactly as before.
+   */
+  conceptualMarksLost?: number;
+  /** How many of `count` carried `conceptualMarksLost` (so a count-only wrong on the same entry
+   *  keeps its count weight). Present only together with `conceptualMarksLost`. */
+  conceptualMarksCount?: number;
 }
 
 export interface WrongAnswerLog {
@@ -98,16 +109,30 @@ export function saveWrongAnswerLog(log: WrongAnswerLog): void {
   }
 }
 
+/** A usable conceptual-marks figure (finite, > 0), else null — never an invented 0. */
+function positiveMarks(value: unknown): number | null {
+  const n = Number(value);
+  return typeof value === "number" && Number.isFinite(n) && n > 0 ? n : null;
+}
+
+/**
+ * Record one wrong answer on a (topic, concept). SCORECARD-MI-1 PR-2 (B7): the optional
+ * `conceptualMarksLost` is the knowledge-gap MARKS that grade lost (from GRADER-CORE-1 v2
+ * `marksLostByType.conceptual`). When given (> 0) the entry accumulates it, so weak areas can
+ * weigh this wrong by marks; absent (a count-only grade), the entry is recorded exactly as
+ * before — no marks field is written and none is invented.
+ */
 export function recordWrongAnswer(
   questionId: string,
   topicKey: string,
   conceptKey: string,
-  difficulty: string
+  difficulty: string,
+  conceptualMarksLost?: number
 ): WrongAnswerLog {
   const log = loadWrongAnswerLog();
   const key = `${topicKey}::${conceptKey || questionId}`;
   const existing = log.entries[key];
-  log.entries[key] = {
+  const next: WrongAnswerEntry = {
     questionId,
     topicKey,
     conceptKey: conceptKey || questionId,
@@ -115,10 +140,25 @@ export function recordWrongAnswer(
     timestamp: nowMs(),
     count: (existing?.count ?? 0) + 1,
   };
+  const priorMarks = positiveMarks(existing?.conceptualMarksLost);
+  const priorMarked = priorMarks ? Math.max(0, Math.floor(Number(existing?.conceptualMarksCount) || 0)) : 0;
+  const added = positiveMarks(conceptualMarksLost);
+  if (priorMarks || added) {
+    next.conceptualMarksLost = roundMarks((priorMarks ?? 0) + (added ?? 0));
+    next.conceptualMarksCount = Math.min(next.count, priorMarked + (added ? 1 : 0));
+  }
+  log.entries[key] = next;
   saveWrongAnswerLog(log);
   return log;
 }
 
+/**
+ * One wrong on the entry is cleared (the student got the concept right). The count drops by
+ * one, as before; an entry with no count left is removed, as before. SCORECARD-MI-1 PR-2: on an
+ * entry that carries conceptual marks, a count-only wrong is cleared first; once only marked
+ * wrongs remain, a clear removes one marked wrong's AVERAGE marks — so the marks evidence falls
+ * with the count and a topic can recover, never stranded at its old weight.
+ */
 export function clearWrongAnswer(
   topicKey: string,
   conceptKey: string
@@ -126,8 +166,15 @@ export function clearWrongAnswer(
   const log = loadWrongAnswerLog();
   const key = `${topicKey}::${conceptKey}`;
   if (log.entries[key]) {
-    log.entries[key].count = Math.max(0, log.entries[key].count - 1);
-    if (log.entries[key].count <= 0) {
+    const entry = log.entries[key];
+    entry.count = Math.max(0, entry.count - 1);
+    const marks = positiveMarks(entry.conceptualMarksLost);
+    const marked = Math.max(0, Math.floor(Number(entry.conceptualMarksCount) || 0));
+    if (marks && marked > 0 && entry.count < marked) {
+      entry.conceptualMarksLost = roundMarks(marks - marks / marked);
+      entry.conceptualMarksCount = marked - 1;
+    }
+    if (entry.count <= 0) {
       delete log.entries[key];
     }
     saveWrongAnswerLog(log);

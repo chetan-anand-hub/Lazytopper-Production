@@ -36,12 +36,12 @@ import {
   perQuestionFiling,
   resolvePerQuestionGradeTopics,
   resolveCiQuestionText,
-  withObjectiveEcho,
 } from "../utils/checkImproveDetection";
+import { singleCheckToWorksheetResponse } from "./checkImproveGradeService";
 import { ciPaperMixLabel } from "../components/results/scorecardVariants";
 import { describeTopMistakeType } from "../pages/tutor/tutorContextBrief";
 import { desktopTopicBySlug } from "../lib/desktop/topics";
-import type { WorksheetGradeResponse } from "../ai/aiClient";
+import type { CheckSolutionResponse, WorksheetGradeResponse } from "../ai/aiClient";
 
 const USER = { uid: "u-items", isLocalSession: false } as never;
 const graded = (total: number, awarded: number, steps: Array<{ type: string | null; status?: string }> = [], summary: Record<string, number> = {}) =>
@@ -134,8 +134,13 @@ describe("B5 / D5 / GA-17 — a re-grade REPLACES, never duplicates (MI identity
     expect(gradeIdentityDocId("u1", { surface: "x", question: "a/b. c" })).not.toMatch(/[/.\s]/);
   });
 
-  it("HELD (gate) — the ATTEMPT key still carries the score; objective_dedup_acceptance.mjs:94 pins it", () => {
-    expect(attemptDedupKey("u1", { questionId: "q" }, 0, 1)).not.toBe(attemptDedupKey("u1", { questionId: "q" }, 1, 1));
+  it("H1 (owner ruling 2026-10-05, re-grade replaces) — the ATTEMPT key IS the submission identity, never the score", () => {
+    const ctx = { surface: "worksheet", submissionId: "ws-1", questionId: "ws:ws-1:q1" };
+    // the same function as the MI identity, so the attempt and the entry can never disagree
+    expect(attemptDedupKey("u1", ctx)).toBe(gradeIdentityKey("u1", ctx));
+    expect(attemptDedupKey("u1", ctx)).not.toMatch(/\d+\/\d+/);
+    // a NEW submission is a new attempt
+    expect(attemptDedupKey("u1", { ...ctx, submissionId: "ws-2" })).not.toBe(attemptDedupKey("u1", ctx));
   });
 
   it("a re-grade with a DIFFERENT outcome writes to the SAME entry id (replace)", async () => {
@@ -222,13 +227,14 @@ describe("GA-41 — a free-check replay files the MI entry at GRADE time", () =>
   });
 });
 
-describe("GA-38 — a re-opened single C&I grade keeps its objective flag", () => {
-  const adapted = { ok: true, results: [{ qNumber: 1, couldNotRead: false, totalMarks: 1 }] } as unknown as WorksheetGradeResponse;
+describe("GA-38 — a re-opened single C&I grade keeps its objective flag (H4/H9: the adapter carries it)", () => {
+  const grade = (extra: Partial<CheckSolutionResponse>) =>
+    ({ ok: true, totalMarks: 1, marksAwarded: 1, percentage: 100, annotatedSteps: [], ...extra }) as unknown as CheckSolutionResponse;
   it("objective:true is carried into the stored response", () => {
-    expect(withObjectiveEcho(adapted, { objective: true }).results[0].objective).toBe(true);
+    expect(singleCheckToWorksheetResponse(grade({ objective: true })).results[0].objective).toBe(true);
   });
   it("CONTROL — absent stays absent (never invented)", () => {
-    expect("objective" in withObjectiveEcho(adapted, {}).results[0]).toBe(false);
+    expect("objective" in singleCheckToWorksheetResponse(grade({})).results[0]).toBe(false);
   });
 });
 

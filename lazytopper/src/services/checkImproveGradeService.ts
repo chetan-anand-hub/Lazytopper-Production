@@ -27,6 +27,7 @@ import {
   type SessionSubject,
   type SessionTopicSource,
 } from "./sessionRecords";
+import { isGradedQuestion, v2GradeFields } from "../lib/mistakeDisplay";
 
 /** The page's DesktopSubject ("Maths" | "Science") → the record store's subject. */
 export function toSessionSubject(subject: string): SessionSubject {
@@ -52,30 +53,57 @@ export function deriveTopicSource(topicSlug: string, topicTouched: boolean): Ses
  * one-question WorksheetGradeResponse shape the record builder + stored scorecard
  * consume — the exact inverse of the page's `multiQuestionToCsr`. Pure; grade
  * numbers pass through untouched (nothing re-derived, nothing invented).
+ *
+ * SCORECARD-MI-1 PR-2 (H4/H9) — superseded by owner ruling 2026-10-05 (taxonomy and wording;
+ * marks not counts). The adapter itself now carries what the grade says, so EVERY reader of
+ * the adapted response — the stored record and payload, the scorecard, the tutor overlay's
+ * in-hand response — sees the same thing through ONE path (the caller-side `withObjectiveEcho`
+ * / `withV2Echo` patches are retired):
+ *   - GA-38: the grader's `objective: true` echo (a re-opened single MCQ never shows "0 marks"
+ *     step chips again); absent on the grade → absent here, never invented;
+ *   - the GRADER-CORE-1 v2 fields (`answerMismatch`, `objectiveResolved`, `marksLostByType`,
+ *     `rubric`, a true `couldNotRead`) — only those actually present, so a legacy grade's
+ *     shape is byte-identical;
+ *   - an answer that was NOT graded (could not be read, option unread, answer does not match
+ *     the question) makes the paper say so honestly: nothing graded, one pending — never a
+ *     graded 0.
  */
 export function singleCheckToWorksheetResponse(graded: CheckSolutionResponse): WorksheetGradeResponse {
   const totalMarks = Number(graded.totalMarks) || 0;
   const marksAwarded = Number(graded.marksAwarded) || 0;
+  const result = {
+    qNumber: 1,
+    couldNotRead: false,
+    totalMarks,
+    ok: true,
+    marksAwarded,
+    percentage: Number(graded.percentage) || 0,
+    annotatedSteps: graded.annotatedSteps ?? [],
+    mistakeSummary: graded.mistakeSummary ?? {
+      conceptual: 0,
+      calculation: 0,
+      silly: 0,
+      presentation: 0,
+    },
+    teacherNote: graded.teacherNote ?? "",
+    ...(graded.objective === true ? { objective: true } : {}),
+    ...v2GradeFields(graded),
+  };
+  if (!isGradedQuestion(result)) {
+    return {
+      ok: true,
+      results: [result],
+      totalQuestions: 1,
+      gradedCount: 0,
+      pendingCount: 1,
+      gradedMarksAwarded: 0,
+      gradedMarksTotal: 0,
+      worksheetTotalMarks: totalMarks,
+    };
+  }
   return {
     ok: true,
-    results: [
-      {
-        qNumber: 1,
-        couldNotRead: false,
-        totalMarks,
-        ok: true,
-        marksAwarded,
-        percentage: Number(graded.percentage) || 0,
-        annotatedSteps: graded.annotatedSteps ?? [],
-        mistakeSummary: graded.mistakeSummary ?? {
-          conceptual: 0,
-          calculation: 0,
-          silly: 0,
-          presentation: 0,
-        },
-        teacherNote: graded.teacherNote ?? "",
-      },
-    ],
+    results: [result],
     totalQuestions: 1,
     gradedCount: 1,
     pendingCount: 0,

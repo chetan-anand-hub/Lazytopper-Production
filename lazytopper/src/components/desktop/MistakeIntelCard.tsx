@@ -5,6 +5,16 @@ import {
   getMistakeLogs,
   type MistakeLogEntry,
 } from "../../services/mistakeLogService";
+import { getAttemptsFromCloud, type PracticeAttempt } from "../../services/practiceInsights";
+import { aggregateEntryMarks } from "../../services/mistakeInsightsService";
+import {
+  groupCounts,
+  groupMarks,
+  marksWithUnit,
+  countWithUnit,
+  mistakeGroupByKey,
+  type MistakeGroupKey,
+} from "../../lib/mistakeDisplay";
 
 /**
  * MistakeIntelCard — sidebar block in the locked desktop baseline AppShell.
@@ -41,9 +51,18 @@ import {
  *                        /check-improve.
  *   5. Signed in,
  *      with logs       — compact summary computed from the user's real
- *                        7-day MistakeLogEntry[]: checked-answer count,
- *                        marks-lost total, top mistake pattern (only when
- *                        the count is > 0).
+ *                        7-day data: checked-answer count, marks-lost total,
+ *                        and the biggest loss (only when it is > 0).
+ *
+ * SCORECARD-MI-1 PR-2 (H3, GA-23) — superseded by owner ruling 2026-10-05 (taxonomy and
+ * wording; marks not counts):
+ *   - the group names come ONLY from lib/mistakeDisplay (knowledge gap / exam technique /
+ *     careless) — no local label map of its own;
+ *   - "checked answers" counts GRADED ANSWERS (the attempt store, one per submission — H1), not
+ *     Mistake-Intelligence log entries: a full-mark answer has no MI entry, so the log could
+ *     only ever count answers that lost marks;
+ *   - the biggest loss is decided in MARKS per group when the window's entries carry v2 marks
+ *     (versioned), else in mistakes — each number carries its unit, never a bare number.
  *
  * Visual contract:
  *   - Same compact card shape, padding, accent label, sparkles icon, dark
@@ -65,57 +84,87 @@ import {
 
 const WINDOW_DAYS = 7;
 
-type Pattern = "conceptual" | "calculation" | "silly" | "presentation";
-
-const PATTERN_LABELS: Record<Pattern, string> = {
-  conceptual: "concept gaps",
-  calculation: "calculation slips",
-  silly: "silly mistakes",
-  presentation: "presentation issues",
-};
-
-interface RealSummary {
-  answerCount: number;
-  totalMarksLost: number;
-  topPattern: Pattern | null;
+/** The biggest loss, in the owner's groups (lib/mistakeDisplay), with its real unit. */
+export interface MiCardTopLoss {
+  group: MistakeGroupKey;
+  /** The group's label from lib/mistakeDisplay ("Knowledge gap", "Exam technique", "Careless"). */
+  label: string;
+  /** "2 marks" when decided in marks (v2 entries), "3 mistakes" when decided in counts. */
+  amount: string;
+  basis: "marks" | "counts";
 }
 
-function computeSummary(entries: MistakeLogEntry[]): RealSummary {
-  let totalMarksLost = 0;
-  const patternCounts: Record<Pattern, number> = {
-    conceptual: 0,
-    calculation: 0,
-    silly: 0,
-    presentation: 0,
-  };
+export interface MiCardSummary {
+  /** GRADED answers in the window (attempts with mode "graded", one per submission). */
+  checkedCount: number;
+  totalMarksLost: number;
+  topLoss: MiCardTopLoss | null;
+}
 
-  for (const entry of entries) {
-    if (Number.isFinite(entry.marksLost)) {
-      totalMarksLost += entry.marksLost;
-    }
-    const counts = entry.mistakeCounts;
-    if (counts) {
-      if (Number.isFinite(counts.conceptual)) patternCounts.conceptual += counts.conceptual;
-      if (Number.isFinite(counts.calculation)) patternCounts.calculation += counts.calculation;
-      if (Number.isFinite(counts.silly)) patternCounts.silly += counts.silly;
-      if (Number.isFinite(counts.presentation)) patternCounts.presentation += counts.presentation;
+const GROUP_ORDER: MistakeGroupKey[] = ["knowledge", "technique", "careless"];
+
+function topOf(by: Record<MistakeGroupKey, number>): MistakeGroupKey | null {
+  let best: MistakeGroupKey | null = null;
+  let bestN = 0;
+  for (const k of GROUP_ORDER) {
+    if ((Number(by[k]) || 0) > bestN) {
+      best = k;
+      bestN = Number(by[k]) || 0;
     }
   }
+  return best;
+}
 
-  let topPattern: Pattern | null = null;
-  let topCount = 0;
-  for (const key of ["conceptual", "calculation", "silly", "presentation"] as Pattern[]) {
-    const count = patternCounts[key];
-    if (count > topCount) {
-      topPattern = key;
-      topCount = count;
+/**
+ * H3 — the card's numbers, from real data only. `entries` are the 7-day MI entries; `attempts`
+ * the same window's attempts (the graded-answer count). Marks decide the biggest loss when any
+ * entry carries v2 marks; a count-only window is decided in mistakes. Never invented: a group
+ * with nothing lost is never named.
+ */
+export function computeMiCardSummary(entries: MistakeLogEntry[], attempts: PracticeAttempt[]): MiCardSummary {
+  let totalMarksLost = 0;
+  for (const entry of entries) {
+    if (Number.isFinite(entry.marksLost)) totalMarksLost += entry.marksLost;
+  }
+  const checkedCount = attempts.filter((a) => a.mode === "graded").length;
+
+  let topLoss: MiCardTopLoss | null = null;
+  const marks = aggregateEntryMarks(entries);
+  const byMarks = marks ? groupMarks(marks) : null;
+  const markTop = byMarks ? topOf(byMarks) : null;
+  if (byMarks && markTop) {
+    topLoss = {
+      group: markTop,
+      label: mistakeGroupByKey(markTop).label,
+      amount: marksWithUnit(byMarks[markTop]),
+      basis: "marks",
+    };
+  } else {
+    const counts = { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
+    for (const entry of entries) {
+      const c = entry.mistakeCounts;
+      if (!c) continue;
+      counts.conceptual += Number(c.conceptual) || 0;
+      counts.calculation += Number(c.calculation) || 0;
+      counts.silly += Number(c.silly) || 0;
+      counts.presentation += Number(c.presentation) || 0;
+    }
+    const byCount = groupCounts(counts);
+    const countTop = topOf(byCount);
+    if (countTop) {
+      topLoss = {
+        group: countTop,
+        label: mistakeGroupByKey(countTop).label,
+        amount: countWithUnit(byCount[countTop]),
+        basis: "counts",
+      };
     }
   }
 
   return {
-    answerCount: entries.length,
+    checkedCount,
     totalMarksLost: Math.round(totalMarksLost * 10) / 10,
-    topPattern,
+    topLoss,
   };
 }
 
@@ -129,7 +178,7 @@ type ViewState =
   | { kind: "signed-out" }
   | { kind: "error" }
   | { kind: "no-data" }
-  | { kind: "with-data"; summary: RealSummary };
+  | { kind: "with-data"; summary: MiCardSummary };
 
 const CARD_STYLE: React.CSSProperties = {
   borderRadius: 12,
@@ -194,27 +243,34 @@ export function MistakeIntelCard() {
   const [fetchState, setFetchState] = useState<{
     status: "idle" | "loading" | "ok" | "error";
     entries: MistakeLogEntry[];
-  }>({ status: "idle", entries: [] });
+    attempts: PracticeAttempt[];
+  }>({ status: "idle", entries: [], attempts: [] });
 
   useEffect(() => {
     if (!uid) {
       // No user — clear any prior fetch state so we render the signed-out
       // surface immediately instead of leaking the previous user's data.
-      setFetchState({ status: "idle", entries: [] });
+      setFetchState({ status: "idle", entries: [], attempts: [] });
       return;
     }
 
     let cancelled = false;
-    setFetchState((prev) => ({ status: "loading", entries: prev.entries }));
+    setFetchState((prev) => ({ status: "loading", entries: prev.entries, attempts: prev.attempts }));
 
     void (async () => {
       try {
-        const entries = await getMistakeLogs(uid, WINDOW_DAYS);
+        // H3 — the graded-answer count comes from the attempt store (one per submission),
+        // read for the SAME 7-day window; it never fails the card (an empty read counts 0).
+        const since = Date.now() - WINDOW_DAYS * 24 * 60 * 60 * 1000;
+        const [entries, attempts] = await Promise.all([
+          getMistakeLogs(uid, WINDOW_DAYS),
+          getAttemptsFromCloud(uid, { start: since }).catch(() => [] as PracticeAttempt[]),
+        ]);
         if (cancelled) return;
-        setFetchState({ status: "ok", entries });
+        setFetchState({ status: "ok", entries, attempts });
       } catch {
         if (cancelled) return;
-        setFetchState({ status: "error", entries: [] });
+        setFetchState({ status: "error", entries: [], attempts: [] });
       }
     })();
 
@@ -234,8 +290,8 @@ export function MistakeIntelCard() {
     }
     if (fetchState.status === "error") return { kind: "error" };
     if (fetchState.entries.length === 0) return { kind: "no-data" };
-    return { kind: "with-data", summary: computeSummary(fetchState.entries) };
-  }, [authLoading, uid, fetchState.status, fetchState.entries]);
+    return { kind: "with-data", summary: computeMiCardSummary(fetchState.entries, fetchState.attempts) };
+  }, [authLoading, uid, fetchState.status, fetchState.entries, fetchState.attempts]);
 
   return (
     <div style={CARD_STYLE}>
@@ -286,26 +342,28 @@ export function MistakeIntelCard() {
 
       {view.kind === "with-data" && (
         <>
-          <p style={BODY_STYLE}>
+          <p style={BODY_STYLE} data-testid="mi-card-summary">
             Last {WINDOW_DAYS} days:{" "}
-            <span style={{ color: "#fff", fontWeight: 700 }}>
-              {view.summary.answerCount} checked{" "}
-              {view.summary.answerCount === 1 ? "answer" : "answers"}
-            </span>
+            {view.summary.checkedCount > 0 ? (
+              <span style={{ color: "#fff", fontWeight: 700 }} data-testid="mi-card-checked">
+                {view.summary.checkedCount} checked{" "}
+                {view.summary.checkedCount === 1 ? "answer" : "answers"}
+              </span>
+            ) : null}
             {view.summary.totalMarksLost > 0 ? (
               <>
-                ,{" "}
+                {view.summary.checkedCount > 0 ? ", " : ""}
                 <span style={{ color: "#fff", fontWeight: 700 }}>
-                  {formatMarks(view.summary.totalMarksLost)} marks lost
+                  {formatMarks(view.summary.totalMarksLost)} {view.summary.totalMarksLost === 1 ? "mark" : "marks"} lost
                 </span>
               </>
             ) : null}
             .
-            {view.summary.topPattern ? (
+            {view.summary.topLoss ? (
               <>
-                {" "}Top pattern:{" "}
-                <span style={{ color: "#fff", fontWeight: 700 }}>
-                  {PATTERN_LABELS[view.summary.topPattern]}
+                {" "}Biggest loss:{" "}
+                <span style={{ color: "#fff", fontWeight: 700 }} data-testid="mi-card-top" data-basis={view.summary.topLoss.basis}>
+                  {view.summary.topLoss.label} ({view.summary.topLoss.amount})
                 </span>
                 .
               </>

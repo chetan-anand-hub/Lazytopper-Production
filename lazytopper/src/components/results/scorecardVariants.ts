@@ -31,7 +31,20 @@ import type {
 import { sectionFromTotalMarks } from "../worksheet/worksheetMiSelector";
 import { resolveCanonicalSlug } from "../../data/syllabus/canonicalTopicSlug";
 import { resolveTopicDisplayName } from "../../utils/topicResolver";
-import { effectivePaperCounts, isCarelessType } from "../../lib/mistakeDisplay";
+import {
+  ANSWER_MISMATCH_COPY,
+  NOT_GRADED_TRY_AGAIN_COPY,
+  effectivePaperCounts,
+  gradeStateCopy,
+  gradeStateOf,
+  isCarelessType,
+  isGradedQuestion,
+  paperMarksLost,
+  type GradeState,
+  type MarksLostByType,
+  type PaperMarksLost,
+  type RubricPoint,
+} from "../../lib/mistakeDisplay";
 
 export type ScorecardSurface =
   | "worksheet"
@@ -83,6 +96,13 @@ export interface ScorecardAction {
 export interface ScorecardPending {
   count: number;
   worksheetTotalMarks: number;
+  /** SCORECARD-MI-1 PR-2 (owner addendum) — the questions in `count` that were NOT graded
+   *  because the answer does not match the question ("Q4"), named apart from the unreadable
+   *  ones and told the owner's sentence. Absent/empty → every pending question was unreadable. */
+  mismatch?: string[];
+  /** SCORECARD-MI-1 PR-2 (controller ruling) — EVERY question that was not graded, by number,
+   *  with its honest state, so the paper reads "X of Y graded" with the rest listed. */
+  items?: Array<{ label: string; state: Exclude<GradeState, "graded">; copy: string }>;
 }
 
 /** All-pending honest message (worksheet, gradedCount === 0). */
@@ -221,6 +241,14 @@ export interface ScorecardGradedAnswer {
    *  empty panel, not four zeros. Absent means unknowable. A surface that supplies no steps
    *  renders exactly as it did before this field existed. */
   steps?: CheckSolutionAnnotatedStep[] | null;
+  /** SCORECARD-MI-1 PR-2 (B8) — crossed-out attempts (v2 `withdrawn` steps), shown APART from
+   *  `steps` and struck, never marked. Absent on every legacy grade. */
+  withdrawnSteps?: CheckSolutionAnnotatedStep[] | null;
+  /** SCORECARD-MI-1 PR-2 (B8) — the grader's validated rubric, shown as "How this was marked",
+   *  never inside the verdict. Absent → nothing renders. */
+  rubric?: RubricPoint[] | null;
+  /** SCORECARD-MI-1 PR-2 — "Where your marks went" for THIS answer, in marks (v2 grades only). */
+  marksLost?: MarksLostByType | null;
 }
 
 /**
@@ -241,6 +269,10 @@ export interface ScorecardVariant {
   /** A secondary honest note (QP: the MCQ nudge). */
   note?: string | null;
   fourType?: ScorecardFourType | null;
+  /** SCORECARD-MI-1 PR-2 (B7) — "Where your marks went" in MARKS, from the grade's
+   *  `marksLostByType`. When present the shell renders it INSTEAD of the count block; absent
+   *  (a count-only grade or record) the count block renders as before, labelled as counts. */
+  marksLost?: PaperMarksLost | null;
   /** Chapter-test BY-SECTION lens (A–D), rendered by the shell above the four-type
    *  block. Derived at render (D3); other surfaces leave it null. */
   sectionLens?: ScorecardSectionLensRow[] | null;
@@ -282,6 +314,53 @@ export function aggregateFourType(response: WorksheetGradeResponse): ScorecardFo
   return effectivePaperCounts(response.results);
 }
 
+/** SCORECARD-MI-1 PR-2 (B7) — the paper's marks lost per bucket over its GRADED questions, or
+ *  null when the grade is count-only (no question carries `marksLostByType`). */
+export function aggregateMarksLost(response: WorksheetGradeResponse): PaperMarksLost | null {
+  return paperMarksLost(response.results);
+}
+
+/** The pending strip for a response: unreadable and mismatched questions together (the
+ *  server counts both in `pendingCount`), the mismatched ones named apart. Null when none. */
+export function pendingStrip(response: WorksheetGradeResponse): ScorecardPending | null {
+  if (!(response.pendingCount > 0)) return null;
+  const mismatch = response.results.filter((r) => gradeStateOf(r) === "answer-mismatch").map((r) => `Q${r.qNumber}`);
+  const items: NonNullable<ScorecardPending["items"]> = [];
+  for (const r of response.results) {
+    const state = gradeStateOf(r);
+    if (state !== "graded") items.push({ label: `Q${r.qNumber}`, state, copy: gradeStateCopy(r) ?? "" });
+  }
+  return {
+    count: response.pendingCount,
+    worksheetTotalMarks: response.worksheetTotalMarks,
+    ...(mismatch.length ? { mismatch } : {}),
+    ...(items.length ? { items } : {}),
+  };
+}
+
+/** The all-pending message: names the one state when every question shares it (a single
+ *  C&I answer that did not match, say), else today's unreadable copy. */
+export function allPendingMessage(response: WorksheetGradeResponse): ScorecardAllPending {
+  const states = new Set(response.results.map((r) => gradeStateOf(r)));
+  if (states.size === 1 && states.has("answer-mismatch")) {
+    return { title: ANSWER_MISMATCH_COPY, detail: "Nothing has been marked, scored 0 or saved for it." };
+  }
+  // notGraded (withheld / timeout / error — owner-approved 2026-10-05): the server's own reason,
+  // never "we couldn't read any answers". Mixed reasons fall back to the try-again sentence.
+  if (states.size === 1 && states.has("not-graded")) {
+    const copies = new Set(response.results.map((r) => gradeStateCopy(r)));
+    return {
+      title: (copies.size === 1 ? [...copies][0] : null) ?? NOT_GRADED_TRY_AGAIN_COPY,
+      detail: "Nothing has been marked, scored 0 or saved for it.",
+    };
+  }
+  return {
+    title: "We couldn’t read any answers",
+    detail:
+      "None of the pages could be read clearly — re-upload clearer photos and we’ll grade them. Nothing has been scored 0.",
+  };
+}
+
 // ── LIVE variant: WORKSHEET (behaviour-identical to the shipped WorksheetScorecard) ──
 
 export interface WorksheetVariantInput {
@@ -320,17 +399,9 @@ export function worksheetScorecardVariant(input: WorksheetVariantInput): Scoreca
     // The four-type block always shows when graded (even all-zero → a clean sheet);
     // hidden only in the all-pending case, exactly as the shipped card does.
     fourType: allPending ? null : aggregateFourType(response),
-    pending:
-      !allPending && response.pendingCount > 0
-        ? { count: response.pendingCount, worksheetTotalMarks: response.worksheetTotalMarks }
-        : null,
-    allPending: allPending
-      ? {
-          title: "We couldn’t read any answers",
-          detail:
-            "None of the pages could be read clearly — re-upload clearer photos and we’ll grade them. Nothing has been scored 0.",
-        }
-      : null,
+    marksLost: allPending ? null : aggregateMarksLost(response),
+    pending: allPending ? null : pendingStrip(response),
+    allPending: allPending ? allPendingMessage(response) : null,
     actions: [
       { label: "Read your graded worksheet", tone: "ghost", onClick: onRead, disabled: allPending },
       {
@@ -526,6 +597,9 @@ export interface QuickPracticeGradedVariantInput {
   answers?: ScorecardGradedAnswer[];
   /** Four-type, ONLY when the batch produced typed mistakes — else honest silence. */
   fourType?: ScorecardFourType | null;
+  /** SCORECARD-MI-1 PR-2 (B7) — the paper's marks lost per bucket (`aggregateMarksLost`); when
+   *  present the shell shows "Where your marks went" in marks instead of the counts. */
+  marksLost?: PaperMarksLost | null;
   onKeepPracticing?: () => void;
   onFreshSet?: () => void;
   /** The way home from the tutor overlay — the SAME `returnTicketAction` machinery C&I
@@ -641,6 +715,7 @@ export function quickPracticeGradedScorecardVariant(
       fourType && (fourType.conceptual || fourType.calculation || fourType.silly || fourType.presentation)
         ? fourType
         : null,
+    marksLost: input.marksLost ?? null,
     pending: null,
     allPending: null,
     actionsHeading: "What next?",
@@ -814,7 +889,7 @@ export function deriveChapterTestSectionLens(
 ): ScorecardSectionLensRow[] | null {
   const buckets = new Map<string, { awarded: number; total: number }>();
   for (const r of response.results) {
-    if (r.couldNotRead) continue;
+    if (!isGradedQuestion(r)) continue; // PR-2: not graded (unreadable / mismatch) is never a 0
     const band = sectionFromTotalMarks(r.totalMarks);
     if (!band) continue; // honest unknown — never a fabricated section
     const sec = band === "E" ? "D" : band; // CT groups the case band under D
@@ -945,7 +1020,7 @@ export function deriveFullMockSectionLens(
   }
   const buckets = new Map<string, { awarded: number; total: number }>();
   for (const r of response.results) {
-    if (r.couldNotRead) continue;
+    if (!isGradedQuestion(r)) continue; // PR-2: not graded (unreadable / mismatch) is never a 0
     const sec = sectionByQNumber.get(r.qNumber) ?? sectionFromTotalMarks(r.totalMarks);
     if (!sec || !FM_SECTION_LABEL[sec]) continue; // honest unknown — never fabricated
     const b = buckets.get(sec) ?? { awarded: 0, total: 0 };
@@ -981,7 +1056,7 @@ export function deriveFullMockChapterLens(
 
   const buckets = new Map<string, { label: string; awarded: number; total: number }>();
   for (const r of response.results) {
-    if (r.couldNotRead) continue;
+    if (!isGradedQuestion(r)) continue; // PR-2: not graded (unreadable / mismatch) is never a 0
     const q = byQNumber.get(r.qNumber);
     const slug = q?.topicKey ? resolveCanonicalSlug(q.topicKey) : "";
     if (!slug) continue; // honest unknown — never a fabricated chapter
@@ -1184,6 +1259,7 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
     message: input.deltaLine ?? null,
     note: input.focusLine ?? null,
     fourType: aggregateFourType(response),
+    marksLost: aggregateMarksLost(response),
     sectionLens: deriveFullMockSectionLens(response, input.questions),
     // GRADED-STEP-BLOCK - see the chapter-test twin above. Full Mock shipped the SAME
     // defect and ships the SAME fix in the same lane: fixing one and not the other would
@@ -1191,10 +1267,7 @@ export function fullMockScorecardVariant(input: FullMockVariantInput): Scorecard
     gradedAnswers: fmGradedAnswers.length > 0 ? fmGradedAnswers : null,
     chapterLens,
     chapterLensNote,
-    pending:
-      response.pendingCount > 0
-        ? { count: response.pendingCount, worksheetTotalMarks: response.worksheetTotalMarks }
-        : null,
+    pending: pendingStrip(response),
     allPending: null,
     actionsHeading: "What next?",
     stackActions: true,
@@ -1271,7 +1344,7 @@ export function deriveCheckImproveTopicLens(
 ): ScorecardConceptLensRow[] | null {
   const buckets = new Map<string, { label: string; awarded: number; total: number }>();
   for (const r of response.results) {
-    if (r.couldNotRead) continue;
+    if (!isGradedQuestion(r)) continue; // PR-2: not graded (unreadable / mismatch) is never a 0
     const raw = String(r.topicSlug || "").trim();
     if (!raw) continue; // honest unknown — never a fabricated topic
     const key = resolveCanonicalSlug(raw) || raw;
@@ -1302,7 +1375,7 @@ export function deriveCheckImproveTopicLens(
 export function countResolvedTopics(response: WorksheetGradeResponse): number {
   const seen = new Set<string>();
   for (const r of response.results) {
-    if (r.couldNotRead) continue;
+    if (!isGradedQuestion(r)) continue; // PR-2: not graded (unreadable / mismatch) is never a 0
     const raw = String(r.topicSlug || "").trim();
     if (raw) seen.add(resolveCanonicalSlug(raw) || raw);
   }
@@ -1319,7 +1392,7 @@ export function ciPaperMixLabel(response: WorksheetGradeResponse): string | null
   const chapters = countResolvedTopics(response);
   const subjects: string[] = [];
   for (const r of response.results) {
-    if (r.couldNotRead) continue;
+    if (!isGradedQuestion(r)) continue; // PR-2: not graded (unreadable / mismatch) is never a 0
     const s = r.topicSubject;
     if ((s === "Maths" || s === "Science") && !subjects.includes(s)) subjects.push(s);
   }
@@ -1405,11 +1478,9 @@ export function checkImproveScorecardVariant(input: CheckImproveVariantInput): S
       score: { kind: "marks", awarded: 0, total: 0 }, // not rendered — allPending below
       fourType: null,
       pending: null,
-      allPending: {
-        title: "We couldn’t read any answers",
-        detail:
-          "None of the pages could be read clearly — re-upload clearer photos and we’ll grade them. Nothing has been scored 0.",
-      },
+      // SCORECARD-MI-1 PR-2 — a single answer that did not match its question says so in the
+      // owner's words; an unreadable paper keeps today's copy.
+      allPending: allPendingMessage(response),
       // The ticket rides this branch too. It is a SEPARATE action array that doesn't
       // set stackActions (it renders as the 2-up row), so without this line the way
       // home would vanish at exactly the moment grading failed — the moment a stranded
@@ -1474,10 +1545,8 @@ export function checkImproveScorecardVariant(input: CheckImproveVariantInput): S
     chapterLens: topicLens,
     chapterLensNote: fullMockChapterLensNote(topicLens),
     fourType: aggregateFourType(response),
-    pending:
-      response.pendingCount > 0
-        ? { count: response.pendingCount, worksheetTotalMarks: response.worksheetTotalMarks }
-        : null,
+    marksLost: aggregateMarksLost(response),
+    pending: pendingStrip(response),
     allPending: null,
     actionsHeading: "What next?",
     stackActions: true,
@@ -1542,6 +1611,9 @@ export function storedCheckImproveScorecardVariant(
     chapterLens: topicLens,
     chapterLensNote: fullMockChapterLensNote(topicLens),
     fourType: record.fourType,
+    // PR-2 (B7) — marks when the stored payload carries them (a v2 grade); an old count-only
+    // record (or no payload) keeps its counts, never converted (G5).
+    marksLost: input.response ? aggregateMarksLost(input.response) : null,
     pending: null,
     allPending: null,
     actions: [{ label: "Done", tone: "ghost", onClick: input.onDone }],

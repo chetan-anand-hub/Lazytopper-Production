@@ -31,7 +31,7 @@ import {
 import type { PersistedWorksheet } from "./worksheetSessionStore";
 import { saveWorksheetGrade, listStoredWorksheetsLite } from "./worksheetSessionStore";
 import { recordMistake, type RecordMistakeOutcome } from "./mistakeIntelligence";
-import { withEffectiveCounts } from "../lib/mistakeDisplay";
+import { isGradedQuestion, v2GradeFields, withEffectiveCounts } from "../lib/mistakeDisplay";
 import { conceptForBankQuestionId } from "./mistakeConcept";
 import { recordAttempt } from "./practiceInsights";
 import {
@@ -85,6 +85,8 @@ function toCheckSolutionResponse(g: WorksheetQuestionGrade): CheckSolutionRespon
       presentation: 0,
     },
     teacherNote: g.teacherNote ?? "",
+    // SCORECARD-MI-1 PR-2 — the v2 fields travel with the grade (marks per type, states).
+    ...v2GradeFields(g),
   };
 }
 
@@ -141,7 +143,9 @@ export async function gradeWorksheetAndRecord(
   const miOutcomes: WorksheetMiOutcome[] = [];
 
   for (const g of response.results) {
-    if (g.couldNotRead) continue; // honest pending — never feeds MI
+    // PR-2 — not graded (unreadable, option unread, answer does not match its question) feeds
+    // nothing: no MI entry, no attempt, never a 0.
+    if (!isGradedQuestion(g)) continue;
     const q = qByNumber.get(g.qNumber);
     if (!q) continue;
 
@@ -170,8 +174,9 @@ export async function gradeWorksheetAndRecord(
     });
 
     // Score-twin of the mistake door: every graded answer (full marks included)
-    // is also an attempt, so worksheet scores feed accuracy / Me. Deduped on the
-    // same stable id, so a re-grade with the same score never double-counts.
+    // is also an attempt, so worksheet scores feed accuracy / Me. H1 (owner ruling
+    // 2026-10-05, re-grade replaces): keyed on the SAME submission identity as the MI entry,
+    // so a re-upload of this worksheet REPLACES the attempt (latest wins), whatever the score.
     recordAttempt(user, {
       subject: q.subject,
       topic: q.topicLabel,
@@ -181,6 +186,9 @@ export async function gradeWorksheetAndRecord(
       marksScored: csr.marksAwarded,
       marksAvailable: csr.totalMarks,
       mode: "graded",
+      surface: "worksheet",
+      submissionId: worksheet.worksheetId,
+      grade: csr,
     });
 
     miOutcomes.push({ qNumber: g.qNumber, mistakeOutcome: rec.outcome, bridged: rec.bridged });

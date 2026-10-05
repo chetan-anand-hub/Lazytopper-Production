@@ -1036,3 +1036,41 @@ describe("15 · BUGFIX-1 · a failed grade is retryable", () => {
     expect(screen.queryByTestId("qp-grade-batch")).toBeNull();
   });
 });
+
+// ---------------------------------------------------------------------------
+// SCORECARD-MI-1 PR-2 · owner addendum — Practice: an answer that does not match its question
+// is NOT graded. The sheet says so in the owner's words (verbatim, em dash), shows no mark for
+// it, and its sibling is graded as normal. (Service-level "nothing recorded" pins live in
+// services/scorecardMi2.surfaces.test.tsx.)
+// ---------------------------------------------------------------------------
+describe("PR-2 · answerMismatch on the Practice graded sheet", () => {
+  const COPY = "This answer doesn't seem to match the question — check you uploaded the right page";
+  it("★ the mismatched answer reads the owner's sentence with no mark; its sibling is graded", async () => {
+    gradeWorksheet.mockResolvedValue(
+      okBatch([
+        okGrade(1),
+        {
+          ...okGrade(2),
+          marksAwarded: 0,
+          percentage: 0,
+          annotatedSteps: [],
+          couldNotRead: false,
+          answerMismatch: true,
+          marksLostByType: { conceptual: 0, calculation: 0, silly: 0, presentation: 0, unattempted: 0, untyped: 0 },
+        } as unknown as ReturnType<typeof okGrade>,
+      ]),
+    );
+    await buildSet([mkItem(1, false), mkItem(2, false), mkItem(3, false)]);
+    await saveAPhotoFor(1);
+    await saveAPhotoFor(2);
+    finish();
+    fireEvent.click(await screen.findByTestId("qp-grade-batch"));
+    await waitFor(() => expect(screen.getByText(COPY)).toBeInTheDocument());
+    const row = screen.getByText(COPY).closest(".lt-sc__ga") as HTMLElement;
+    expect(row).not.toBeNull();
+    expect(row.querySelector(".lt-sc__ga-score")).toBeNull(); // no mark for it
+    // CONTROL — the sibling carries its real mark
+    const cards = Array.from(document.querySelectorAll(".lt-sc__ga"));
+    expect(cards.some((c) => c !== row && c.querySelector(".lt-sc__ga-score"))).toBe(true);
+  });
+});

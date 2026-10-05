@@ -1,0 +1,306 @@
+{
+ "source": "SYNTHETIC — built from GRADER-CORE-1 v2 contract (A's report §V2 FIELDS, branch lane/grader-core-1 @e5f81a3a server/grading/postprocess.cjs)",
+ "about": "R1/R2 (controller rulings, 2026-10-05) on v2 \"missing\" steps. Shaped on the INTERIM v2 bodies (e.g. GS-M17-a, GS-M21-a): the model's old \"missing\" status passes through GRADER-CORE-1 and postprocess.cjs files an UNTYPED missing step's deduction under `untyped` and a TYPED one under its type. The client shows the server's buckets EXACTLY (R2): Q1 — an untyped missing step (untyped 1) beside a real typed slip (calculation 1): shown as calculation 1 + reason not recorded 1, MI entry kept. Q2 — the only non-correct step is an untyped missing step (untyped 1): shown as reason not recorded 1 (never Not attempted) and it DOES write an MI entry. Q3 — a missing step the grader TYPED presentation 0.5 (a missing unit): keeps type presentation and its MI entry (R1).",
+ "grader": "GRADER-CORE-1 v2 (acceptsV2: true)",
+ "surface": "SET",
+ "request": {
+  "subject": "Maths",
+  "questions": [
+   {
+    "qNumber": 1,
+    "marks": 4,
+    "subject": "Maths",
+    "topic": "Quadratic Equations",
+    "questionText": "Find the discriminant of x² − 5x + 6 = 0, state the nature of its roots and find them.",
+    "objective": false
+   },
+   {
+    "qNumber": 2,
+    "marks": 3,
+    "subject": "Science",
+    "topic": "Electricity",
+    "questionText": "State Ohm's law, write its formula and give the SI unit of resistance.",
+    "objective": false
+   },
+   {
+    "qNumber": 3,
+    "marks": 2,
+    "subject": "Maths",
+    "topic": "Areas Related to Circles",
+    "questionText": "Find the area of a circle of radius 7 cm. (Take π = 22/7.)",
+    "objective": false
+   }
+  ]
+ },
+ "trueChapters": {
+  "1": "quadratic-equations",
+  "2": "electricity",
+  "3": "areas-related-to-circles"
+ },
+ "trueSubjects": {
+  "1": "Maths",
+  "2": "Science",
+  "3": "Maths"
+ },
+ "body": {
+  "ok": true,
+  "worksheetId": "g3v2-missing-step-untyped",
+  "results": [
+   {
+    "qNumber": 1,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 4,
+    "marksAwarded": 2,
+    "percentage": 50,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Identify a, b and c",
+      "studentWork": "a = 1, b = −5, c = 6",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 1
+     },
+     {
+      "stepNumber": 2,
+      "description": "Find the discriminant",
+      "studentWork": "D = 25 − 24 = 2",
+      "status": "incorrect",
+      "marksAwarded": 0,
+      "marksDeducted": 1,
+      "teacherAnnotation": "25 − 24 = 1, not 2.",
+      "mistakeType": "calculation",
+      "correctedWorking": "D = 1",
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 1
+     },
+     {
+      "stepNumber": 3,
+      "description": "State the nature of the roots",
+      "studentWork": "",
+      "status": "missing",
+      "marksAwarded": 0,
+      "marksDeducted": 1,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 0
+     },
+     {
+      "stepNumber": 4,
+      "description": "Find the roots",
+      "studentWork": "x = 2, x = 3",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 1
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 1,
+     "silly": 0,
+     "presentation": 0,
+     "departure": 0
+    },
+    "teacherNote": "",
+    "questionDepartureError": false,
+    "objective": false,
+    "answerMismatch": null,
+    "departureKind": null,
+    "marksLostByType": {
+     "conceptual": 0,
+     "calculation": 1,
+     "silly": 0,
+     "presentation": 0,
+     "unattempted": 0,
+     "untyped": 1
+    },
+    "rubric": null,
+    "objectiveResolved": null
+   },
+   {
+    "qNumber": 2,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 3,
+    "marksAwarded": 2,
+    "percentage": 67,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "State Ohm's law",
+      "studentWork": "Current is proportional to the potential difference at constant temperature.",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 1
+     },
+     {
+      "stepNumber": 2,
+      "description": "Write the formula",
+      "studentWork": "V = IR",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 1
+     },
+     {
+      "stepNumber": 3,
+      "description": "Give the SI unit of resistance",
+      "studentWork": "",
+      "status": "missing",
+      "marksAwarded": 0,
+      "marksDeducted": 1,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 0
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0,
+     "departure": 0
+    },
+    "teacherNote": "",
+    "questionDepartureError": false,
+    "objective": false,
+    "answerMismatch": null,
+    "departureKind": null,
+    "marksLostByType": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0,
+     "unattempted": 0,
+     "untyped": 1
+    },
+    "rubric": null,
+    "objectiveResolved": null
+   },
+   {
+    "qNumber": 3,
+    "couldNotRead": false,
+    "ok": true,
+    "totalMarks": 2,
+    "marksAwarded": 1.5,
+    "percentage": 75,
+    "annotatedSteps": [
+     {
+      "stepNumber": 1,
+      "description": "Write the formula",
+      "studentWork": "A = πr²",
+      "status": "correct",
+      "marksAwarded": 0.5,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 0.5
+     },
+     {
+      "stepNumber": 2,
+      "description": "Substitute and compute",
+      "studentWork": "A = 22/7 × 7 × 7 = 154",
+      "status": "correct",
+      "marksAwarded": 1,
+      "marksDeducted": 0,
+      "teacherAnnotation": "",
+      "mistakeType": null,
+      "correctedWorking": null,
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 1
+     },
+     {
+      "stepNumber": 3,
+      "description": "State the area with its unit",
+      "studentWork": "",
+      "status": "missing",
+      "marksAwarded": 0,
+      "marksDeducted": 0.5,
+      "teacherAnnotation": "The unit (cm²) is missing.",
+      "mistakeType": "presentation",
+      "correctedWorking": "A = 154 cm²",
+      "isDeparture": false,
+      "isReturn": false,
+      "part": null,
+      "marksAvailable": 0
+     }
+    ],
+    "mistakeSummary": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 1,
+     "departure": 0
+    },
+    "teacherNote": "",
+    "questionDepartureError": false,
+    "objective": false,
+    "answerMismatch": null,
+    "departureKind": null,
+    "marksLostByType": {
+     "conceptual": 0,
+     "calculation": 0,
+     "silly": 0,
+     "presentation": 0.5,
+     "unattempted": 0,
+     "untyped": 0
+    },
+    "rubric": null,
+    "objectiveResolved": null
+   }
+  ],
+  "totalQuestions": 3,
+  "gradedCount": 3,
+  "pendingCount": 0,
+  "gradedMarksAwarded": 5.5,
+  "gradedMarksTotal": 9,
+  "worksheetTotalMarks": 9,
+  "summary": "",
+  "provider": "synthetic",
+  "model": "none"
+ }
+}

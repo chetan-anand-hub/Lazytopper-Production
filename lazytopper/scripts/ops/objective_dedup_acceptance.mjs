@@ -9,10 +9,20 @@
  *
  * What it pins:
  *   §4b  the attempt-dedup key is MODE-INDEPENDENT (a click and a graded typed answer to
- *        the same question at the same score collapse to ONE key → one Firestore doc →
- *        counted once) and SCORE-DISTINCT (0/1 and 1/1 never collapse). Negative control:
- *        the OLD mode-in-key formula is reconstructed inline and shown to DIVERGE for the
- *        click∪graded pair — so a regression that re-adds `mode` goes red here.
+ *        the same question collapse to ONE key → one Firestore doc → counted once).
+ *        // superseded by owner ruling 2026-10-05: re-grade replaces (verifier N2, controller
+ *        // fix round 2026-10-05) — proven on the LIVE practice-card paths: the contexts are the
+ *        // ones the card's MCQ click and its SolutionChecker build (their source is read), keyed
+ *        // by the REAL functions, and the REAL upsertAttempt keeps ONE attempt, latest wins. The
+ *        // two gate-built "negative controls" (old mode-in-key / score-in-key formulas compared
+ *        // with themselves) could not fail on any product change (verifier N4): replaced by
+ *        // CONTROLS on the real functions.
+ *        // superseded by owner ruling 2026-10-05: re-grade replaces — the key was
+ *        // SCORE-DISTINCT ("0/1 and 1/1 never collapse"); it is now the SUBMISSION's identity:
+ *        // a re-grade of the SAME submission keeps ONE key and the stored attempt is REPLACED
+ *        // (latest wins, `upsertAttempt`); a NEW submission gets a new key; the score is never
+ *        // in the key (SCORECARD-MI-1 PR-2, H1 / GA-17, controller ruling A2). Negative control:
+ *        // the superseded score-in-key formula is reconstructed and shown to SPLIT a re-grade.
  *   §2   BOTH grader functions (handleCheckSolution AND normaliseStructuredResult — the
  *        keep-in-sync pair) emit `objective`, correctly true for an objective question
  *        (Section A) and falsy for a subjective one, and the objective clamp zeroes every
@@ -38,7 +48,7 @@
  * ★ A GATE WHOSE FIXTURE IS THE BUG WILL DEFEND THE BUG. Encode the fix, not the defect.
  */
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { createRequire } from 'module';
 import path from 'path';
@@ -47,6 +57,15 @@ import { fileURLToPath } from 'url';
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const LAZY = path.join(__dirname, '..', '..');
+
+// superseded by owner ruling 2026-10-05: re-grade replaces — the live-path pins (verifier N2) read
+// product source COMMENT-STRIPPED, so a comment can never stand in for the code it names.
+function stripComments(src) {
+  return src
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/^\s*\/\/.*$/gm, '')
+    .replace(/([^:])\/\/[^\n"'`]*$/gm, '$1');
+}
 
 let failures = 0;
 function check(label, cond, detail) {
@@ -59,7 +78,8 @@ function check(label, cond, detail) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// §4b · attempt-dedup key — mode-independence + score-distinctness
+// §4b · attempt-dedup key — mode-independence on the LIVE practice-card paths + ONE attempt per
+//        submission, latest wins (superseded by owner ruling 2026-10-05: re-grade replaces)
 // ─────────────────────────────────────────────────────────────────────────────
 console.log('\n§4b · attempt-dedup key (the REAL function, transpiled from src):');
 {
@@ -72,27 +92,86 @@ console.log('\n§4b · attempt-dedup key (the REAL function, transpiled from src
     '--moduleResolution', 'node', '--skipLibCheck', '--esModuleInterop',
   ], { cwd: LAZY, stdio: ['ignore', 'ignore', 'inherit'] });
   writeFileSync(path.join(out, 'package.json'), '{"type":"commonjs"}');
-  const { attemptDedupKey } = require(path.join(out, 'services/attemptDedupKey.js'));
+  // superseded by owner ruling 2026-10-05: re-grade replaces — `upsertAttempt` (latest wins) is
+  // required from the same REAL module so §4b proves the replacement, not only the key.
+  const { attemptDedupKey, upsertAttempt, practiceCardAttemptIdentity } = require(path.join(out, 'services/attemptDedupKey.js'));
 
   const uid = 'u1';
-  // The two live paths that record the SAME MCQ: a click (mode "mcq") and a graded typed
-  // answer (mode "graded"). Extra `mode` field is passed to prove the function ignores it.
-  const clickCtx = { questionId: 'bank-q-1', mode: 'mcq' };
-  const gradedCtx = { questionId: 'bank-q-1', mode: 'graded' };
+  // ── superseded by owner ruling 2026-10-05: re-grade replaces (verifier N2, controller fix round).
+  // WAS: a FIXTURE pair ({ questionId: 'bank-q-1', mode: 'mcq' } vs mode 'graded') that NO live path
+  // produced any more — the card's click recorded as surface "practice-mcq" + its option and its
+  // SolutionChecker as "solution-checker", so a click and a written check of ONE practice question
+  // were TWO attempts again (the double count this pin exists for). NOW: the LIVE call sites are
+  // read from source, and their contexts are keyed by the REAL functions.
+  const srcOf = (rel) => stripComments(readFileSync(path.join(LAZY, rel), 'utf8'));
+  const cardSrc = srcOf('src/components/practice/PracticeQuestionCard.tsx');
+  const scSrc = srcOf('src/components/question/SolutionChecker.tsx');
+  const clickCall = (cardSrc.match(/recordAttempt\(user, \{[\s\S]*?\n\s*\}\);/) || [''])[0];
+  check('LIVE (click): the practice card\'s MCQ click records under the card\'s ONE identity — ...practiceCardAttemptIdentity(qId), mode "mcq", no surface / answer / question id of its own (superseded by owner ruling 2026-10-05: re-grade replaces)',
+    /\.\.\.practiceCardAttemptIdentity\(qId\)/.test(clickCall) && /mode: "mcq"/.test(clickCall)
+      && !/surface:|answerKey:|questionId:/.test(clickCall),
+    clickCall.slice(0, 240) || 'no recordAttempt call found in PracticeQuestionCard.tsx');
+  check('LIVE (written check): the card hands its SolutionChecker the SAME identity, and the checker records its fresh grade AND its cache-restore under it (superseded by owner ruling 2026-10-05: re-grade replaces)',
+    /attemptIdentity=\{practiceCardAttemptIdentity\(String\(q\.id\)\)\}/.test(cardSrc)
+      && (scSrc.match(/\.\.\.\(attemptIdentity \?\? \{ surface: "solution-checker", questionId, answerKey(: savedAnswerKey)? \}\)/g) || []).length === 2);
+  // The contexts those two live paths build (mode passed to prove the key ignores it).
+  const clickCtx = { ...practiceCardAttemptIdentity('bank-q-1'), mode: 'mcq' };
+  const gradedCtx = { ...practiceCardAttemptIdentity('bank-q-1'), mode: 'graded' };
 
-  const clickKey = attemptDedupKey(uid, clickCtx, 1, 1);
-  const gradedKey = attemptDedupKey(uid, gradedCtx, 1, 1);
+  const clickKey = attemptDedupKey(uid, clickCtx);
+  const gradedKey = attemptDedupKey(uid, gradedCtx);
 
-  check('a wrong-click-then-grade pair (same q, same 1/1) collapses to ONE key',
+  check('a click and a written check of the SAME practice question are ONE key (the live contexts, the REAL key) — superseded by owner ruling 2026-10-05: re-grade replaces',
     clickKey === gradedKey, `click=${clickKey} graded=${gradedKey}`);
   check('the key contains NO trace of mode ("mcq"/"graded")',
     !clickKey.includes('mcq') && !clickKey.includes('graded'), clickKey);
+  // superseded by owner ruling 2026-10-05: re-grade replaces — ONE attempt across the two surfaces.
+  const viaClick = { id: clickKey, marksScored: 0, marksAvailable: 1 };
+  const viaCheck = { id: gradedKey, marksScored: 1, marksAvailable: 1 };
+  const acrossSurfaces = upsertAttempt(upsertAttempt([], viaClick).attempts, viaCheck);
+  check('ONE attempt, latest wins: a wrong click then a right written check of the same practice question → one attempt holding the check, never counted twice (the REAL upsertAttempt)',
+    acrossSurfaces.outcome === 'replaced' && acrossSurfaces.attempts.length === 1 && acrossSurfaces.attempts[0].marksScored === 1,
+    JSON.stringify(acrossSurfaces));
 
-  // Score-distinctness: a genuinely different result must NOT collapse.
-  const wrong = attemptDedupKey(uid, { questionId: 'bank-q-1' }, 0, 1);
-  const right = attemptDedupKey(uid, { questionId: 'bank-q-1' }, 1, 1);
-  check('0/1 and 1/1 on the same question stay DISTINCT (score is in the key)',
-    wrong !== right, `wrong=${wrong} right=${right}`);
+  // ── superseded by owner ruling 2026-10-05: re-grade replaces (SCORECARD-MI-1 PR-2, H1 / GA-17).
+  // WAS (one check): '0/1 and 1/1 on the same question stay DISTINCT (score is in the key)' —
+  // `wrong !== right`. A re-grade of the SAME submission that changed the score therefore added a
+  // SECOND attempt. REPLACED by the pins below on the new behaviour (identity rule A2): one key
+  // per submission, latest wins, a new submission is a new key, the score is never in the key.
+  const sub = { questionId: 'ws:ws-1:q1', surface: 'worksheet', submissionId: 'ws-1' };
+  const firstGrade = attemptDedupKey(uid, { ...sub, marksScored: 0, marksAvailable: 1 }, 0, 1);
+  const reGrade = attemptDedupKey(uid, { ...sub, marksScored: 1, marksAvailable: 1 }, 1, 1);
+  check('a re-grade of the SAME submission keeps ONE key (0/1 then 1/1 on ws-1 Q1 → the same key) — superseded by owner ruling 2026-10-05: re-grade replaces',
+    firstGrade === reGrade, `first=${firstGrade} regrade=${reGrade}`);
+  check('the score is NEVER in the key (no "s/a" segment, and the function takes no score argument)',
+    !/\d+\/\d+/.test(firstGrade) && attemptDedupKey.length === 2, `key=${firstGrade} arity=${attemptDedupKey.length}`);
+  check('a NEW submission gets a NEW key (the same question on another worksheet)',
+    attemptDedupKey(uid, { ...sub, submissionId: 'ws-2' }) !== firstGrade);
+  check('a NEW answer where one context allows several (a retry) gets a NEW key',
+    attemptDedupKey(uid, { ...sub, answerKey: 'o:1' }) !== attemptDedupKey(uid, { ...sub, answerKey: 'o:2' }));
+  // Latest wins — the REAL store function, not a re-derivation.
+  const stale = { id: 'k1', marksScored: 0, marksAvailable: 1 };
+  const latest = { id: 'k1', marksScored: 1, marksAvailable: 1 };
+  const otherSub = { id: 'k2', marksScored: 1, marksAvailable: 1 };
+  const replaced = upsertAttempt([otherSub, stale], latest);
+  check('latest wins: a re-grade REPLACES the stored attempt in place (still one attempt per submission, the new score)',
+    replaced.outcome === 'replaced' && replaced.attempts.length === 2
+      && replaced.attempts[1].marksScored === 1 && replaced.attempts[0] === otherSub,
+    JSON.stringify(replaced));
+  check('the SAME outcome again writes nothing ("duplicate" — a cache-restore is a no-op)',
+    upsertAttempt([latest], { ...latest }).outcome === 'duplicate');
+  check('a NEW submission is appended ("recorded")',
+    (() => { const r = upsertAttempt([latest], otherSub); return r.outcome === 'recorded' && r.attempts.length === 2; })());
+  // superseded by owner ruling 2026-10-05: re-grade replaces — WAS a "negative control" comparing two
+  // strings this gate built itself (the old score-in-key formula), which no product change could
+  // turn red (verifier N4). NOW a CONTROL on the REAL functions: the one identity still keeps two
+  // practice questions apart — a product change that dropped the question from it goes red here.
+  const keyQ1 = attemptDedupKey(uid, { ...practiceCardAttemptIdentity('bank-q-1'), mode: 'mcq' });
+  const keyQ2 = attemptDedupKey(uid, { ...practiceCardAttemptIdentity('bank-q-2'), mode: 'mcq' });
+  const twoQuestions = upsertAttempt([{ id: keyQ1, marksScored: 1, marksAvailable: 1 }], { id: keyQ2, marksScored: 1, marksAvailable: 1 });
+  check('CONTROL: two DIFFERENT practice questions stay TWO attempts (the REAL identity + the REAL upsertAttempt)',
+    keyQ1 !== keyQ2 && twoQuestions.outcome === 'recorded' && twoQuestions.attempts.length === 2,
+    `q1=${keyQ1} q2=${keyQ2} outcome=${twoQuestions.outcome}`);
   check('different questions stay distinct',
     attemptDedupKey(uid, { questionId: 'q-A' }, 1, 1) !== attemptDedupKey(uid, { questionId: 'q-B' }, 1, 1));
   check('different users stay distinct',
@@ -102,17 +181,14 @@ console.log('\n§4b · attempt-dedup key (the REAL function, transpiled from src
     attemptDedupKey(uid, { question: 'Prove √2 irrational', mode: 'mcq' }, 3, 3)
     === attemptDedupKey(uid, { question: 'Prove √2 irrational', mode: 'graded' }, 3, 3));
 
-  // ★ NEGATIVE CONTROL — reconstruct the OLD mode-in-key formula and show it DIVERGED
-  // for exactly the click∪graded pair the fix collapses. If a future edit re-adds `mode`
-  // to the real key, clickKey===gradedKey above flips false and this gate goes red.
-  const oldKey = (u, ctx, s, a) => {
-    const qid = ctx.questionId && ctx.questionId.trim()
-      ? ctx.questionId.trim() : `t:${ctx.question || ctx.topic || ''}`;
-    return [u, qid, `${s}/${a}`, ctx.mode].join('::');
-  };
-  check('negative control: the OLD (mode-in-key) formula DID double-count this pair',
-    oldKey(uid, clickCtx, 1, 1) !== oldKey(uid, gradedCtx, 1, 1),
-    'if these were equal the bug never existed and the test proves nothing');
+  // superseded by owner ruling 2026-10-05: re-grade replaces — WAS a "negative control" comparing the
+  // OLD mode-in-key formula with itself (built in this gate; it could not fail — verifier N4). NOW a
+  // CONTROL on the REAL key: the identity DOES carry the surface, so the practice card and another
+  // host of the same bank question (the standalone SolutionChecker, same empty submission) stay two
+  // attempts — a product change that dropped the surface from the identity goes red here.
+  check('CONTROL: the REAL key keeps the surface — the same question on the practice card and on the standalone SolutionChecker are TWO keys',
+    attemptDedupKey(uid, { ...practiceCardAttemptIdentity('bank-q-1'), mode: 'mcq' })
+      !== attemptDedupKey(uid, { surface: 'solution-checker', questionId: 'bank-q-1', mode: 'graded' }));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

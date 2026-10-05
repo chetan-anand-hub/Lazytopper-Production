@@ -205,8 +205,10 @@ describe("composePracticeRecordReturnOpener — real step detail, never invented
     expect(opener!.text).toContain("step 2");
     expect(opener!.text).toContain("Substitute into the identity");
     expect(opener!.text).toContain("The identity equals 1, not 2.");
-    // calculation-led -> the arithmetic framing, not a method rewrite.
-    expect(opener!.text).toMatch(/arithmetic/i);
+    // calculation is CARELESS (owner ruling 2026-10-05, H6) -> "you already know this", not a
+    // method rewrite.
+    expect(opener!.text).toMatch(/slipped in the working/i);
+    expect(opener!.text).toMatch(/You already know this/);
     expect(opener!.follow?.send).toContain("step 2");
   });
 

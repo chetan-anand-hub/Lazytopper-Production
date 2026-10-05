@@ -20,7 +20,7 @@
 // pattern) and injects the CT + FM stylesheets it composes from.
 
 import { useEffect, useMemo, useState } from "react";
-import type { SessionRecord, SessionSubject } from "../../services/sessionRecords";
+import { sessionRecordSubjects, type SessionRecord, type SessionSubject } from "../../services/sessionRecords";
 import { ScoreRing, DotStrip } from "../chaptertest/ChapterTestHistoryRail";
 import { CT_CSS } from "../chaptertest/chapterTestStyles";
 import { FM_CSS } from "../fullmock/fullMockStyles";
@@ -100,16 +100,19 @@ export default function CheckImproveHistoryPanel({
     () => records.slice().sort((a, b) => b.gradedAt - a.gradedAt),
     [records],
   );
+  // SCORECARD-MI-1 PR-2 (H5, A3) — a paper is listed under EVERY subject its questions belong
+  // to (`sessionRecordSubjects`): a mixed Maths + Science paper shows under both tabs. A record
+  // without a per-question breakdown (every pre-PR-2 record) answers its one `subject`, as before.
   const counts = useMemo(
     () => ({
-      maths: ordered.filter((r) => r.subject === "maths").length,
-      science: ordered.filter((r) => r.subject === "science").length,
+      maths: ordered.filter((r) => sessionRecordSubjects(r).includes("maths")).length,
+      science: ordered.filter((r) => sessionRecordSubjects(r).includes("science")).length,
     }),
     [ordered],
   );
 
   const visible = useMemo(
-    () => (tab === "all" ? ordered : ordered.filter((r) => r.subject === tab)),
+    () => (tab === "all" ? ordered : ordered.filter((r) => sessionRecordSubjects(r).includes(tab))),
     [ordered, tab],
   );
 
@@ -202,9 +205,13 @@ export default function CheckImproveHistoryPanel({
                     </div>
                     <DotStrip record={r} />
                     {r.status === "partial" && (
-                      <div className="lt-ct__vs">
-                        Some pages couldn’t be read on this session — the score shows the graded
-                        portion only.
+                      <div className="lt-ct__vs" data-testid="ci-hcard-partial">
+                        {/* W2 (controller ruling) — "pages couldn't be read" only when EVERY
+                            not-graded question was an unreadable page; an older record (no
+                            field — unreadable was then the only state) reads as before. */}
+                        {r.notGradedAllUnread === false
+                          ? "Some answers weren’t graded on this session — the score shows the graded portion only."
+                          : "Some pages couldn’t be read on this session — the score shows the graded portion only."}
                       </div>
                     )}
                   </button>

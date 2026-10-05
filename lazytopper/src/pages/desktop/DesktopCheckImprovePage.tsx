@@ -35,7 +35,7 @@ import {
   resolveCiQuestionText,
   resolvePerQuestionGradeTopics,
   SHOW_DETECTION_META,
-  withObjectiveEcho,
+  detectedTextForResult,
   type ConfirmedDetection,
 } from "../../utils/checkImproveDetection";
 // SCORECARD-MI-1 — every group, label, step state and count on this page comes from the ONE
@@ -51,7 +51,26 @@ import {
   stepDisplay,
   stepForDisplay,
   withEffectiveCounts,
+  WITHDRAWN_LABEL,
+  UNTYPED_MARKS_LABEL,
+  effectivePaperCounts,
+  gradeStateOf,
+  pendingBreakdown,
+  isGradedQuestion,
+  marksGroupRows,
+  marksWithUnit,
+  paperMarksLost,
+  questionMarksLost,
+  splitWithdrawnSteps,
+  v2GradeFields,
 } from "../../lib/mistakeDisplay";
+import {
+  GradeStateNotice,
+  MarksLostLines,
+  NotGradedList,
+  RubricBlock,
+  WithdrawnWorkBlock,
+} from "../../components/results/GradeStateParts";
 import {
   buildDesktopPracticePath,
   buildDesktopWorksheetPath,
@@ -332,6 +351,8 @@ function multiQuestionToCsr(g: WorksheetQuestionGrade): CheckSolutionResponse {
     annotatedSteps: g.annotatedSteps ?? [],
     mistakeSummary: g.mistakeSummary ?? { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
     teacherNote: g.teacherNote ?? "",
+    // SCORECARD-MI-1 PR-2 — the v2 fields (marks per type, grade state) travel to MI.
+    ...v2GradeFields(g),
   };
 }
 
@@ -611,12 +632,16 @@ const STATUS_META: Record<
   partial: { label: "Partial", fg: WARNING_FG, bg: WARNING_SOFT, Icon: AlertGlyph },
   incorrect: { label: "Incorrect", fg: DANGER_FG, bg: DANGER_SOFT, Icon: XCircleGlyph },
   missing: { label: NOT_ATTEMPTED.label, fg: TEXT_MUTED, bg: MUTED_BG, Icon: AlertGlyph },
+  // PR-2 (B8) — the v2 grader's not-attempted state reads exactly like "missing"; a crossed-out
+  // attempt is never drawn here (it is shown apart, struck) but is typed for completeness.
+  unattempted: { label: NOT_ATTEMPTED.label, fg: TEXT_MUTED, bg: MUTED_BG, Icon: AlertGlyph },
+  withdrawn: { label: WITHDRAWN_LABEL, fg: TEXT_MUTED, bg: MUTED_BG, Icon: AlertGlyph },
 };
 /** D4 — a status this page does not know (e.g. a future "withdrawn") renders neutrally. */
 const UNKNOWN_STATUS_META = { label: stepDisplay("unknown").label, fg: TEXT_MUTED, bg: MUTED_BG, Icon: AlertGlyph };
 
 const AnnotatedStepRow: React.FC<{ step: CheckSolutionAnnotatedStep; objective?: boolean }> = ({ step, objective }) => {
-  const display = stepDisplay(step.status);
+  const display = stepDisplay(step.status, step.mistakeType);
   const meta = STATUS_META[step.status] ?? UNKNOWN_STATUS_META;
   const Icon = meta.Icon;
   return (
@@ -1418,6 +1443,7 @@ const DesktopCheckImprovePageInner: React.FC<{
     const code = ciCode ?? "CI";
     const ms = result.mistakeSummary ?? { conceptual: 0, calculation: 0, silly: 0, presentation: 0 };
     const shownCounts = effectiveTypeCounts({ ...result, mistakeSummary: ms });
+    const singleGraded = isGradedQuestion(result);
     return {
       code,
       name: `${resultCtx.topicName || resultCtx.subject} · Check & Improve`,
@@ -1432,17 +1458,22 @@ const DesktopCheckImprovePageInner: React.FC<{
           mistakeSummary: result.mistakeSummary,
           teacherNote: result.teacherNote,
           objective: result.objective,
+          ...v2GradeFields(result),
         },
       ],
-      gradedMarksAwarded: result.marksAwarded,
-      gradedMarksTotal: result.totalMarks,
-      pendingCount: 0,
+      gradedMarksAwarded: singleGraded ? result.marksAwarded : 0,
+      gradedMarksTotal: singleGraded ? result.totalMarks : 0,
+      pendingCount: singleGraded ? 0 : 1,
       coaching: buildCiCoaching({
-        gradedMarksAwarded: result.marksAwarded,
-        gradedMarksTotal: result.totalMarks,
+        gradedMarksAwarded: singleGraded ? result.marksAwarded : 0,
+        gradedMarksTotal: singleGraded ? result.totalMarks : 0,
         counts: shownCounts,
+        // PR-2 (B7) — in marks when the grade carries them.
+        marks: questionMarksLost(result),
         notAttemptedCount: isQuestionNotAttempted(result) ? 1 : 0,
-        pendingCount: 0,
+        mismatchCount: gradeStateOf(result) === "answer-mismatch" ? 1 : 0,
+        notGradedCount: gradeStateOf(result) === "not-graded" ? 1 : 0,
+        pendingCount: singleGraded ? 0 : 1,
       }),
     };
   }
@@ -1451,18 +1482,10 @@ const DesktopCheckImprovePageInner: React.FC<{
     if (!wsResult) return null;
     const ws = wsResult;
     const code = ciCode ?? "CI";
-    const agg = ws.results.reduce(
-      (a, g) => {
-        if (g.couldNotRead || !g.mistakeSummary) return a;
-        a.k += (g.mistakeSummary.conceptual || 0) + (g.mistakeSummary.calculation || 0);
-        a.c += (g.mistakeSummary.silly || 0) + (g.mistakeSummary.presentation || 0);
-        return a;
-      },
-      { k: 0, c: 0 },
-    );
-    const questions: CiGradedQuestion[] = ws.results.map((g) => ({
+    const questions: CiGradedQuestion[] = ws.results.map((g, gi) => ({
       qNumber: g.qNumber,
-      questionText: detectedQuestions?.find((q) => q.questionNumber === g.qNumber)?.questionText,
+      // OR-LIVE L1 — by occurrence, so two questions printed "Q5" keep their own text.
+      questionText: detectedTextForResult(detectedQuestions, ws.results, gi),
       totalMarks: g.totalMarks,
       marksAwarded: g.marksAwarded,
       couldNotRead: g.couldNotRead,
@@ -1470,7 +1493,10 @@ const DesktopCheckImprovePageInner: React.FC<{
       mistakeSummary: g.mistakeSummary,
       teacherNote: g.teacherNote,
       objective: g.objective,
+      ...v2GradeFields(g),
     }));
+    // PR-2 (B7) — a v2 paper's coaching speaks in MARKS through the one coaching function.
+    const pm = paperMarksLost(ws.results);
     return {
       code,
       name: `${ciPaperMixLabel(ws) || confirmed?.topicName || confirmed?.subject || "Check & Improve"} · Check & Improve paper`,
@@ -1482,10 +1508,15 @@ const DesktopCheckImprovePageInner: React.FC<{
       coaching: buildCiCoaching({
         gradedMarksAwarded: ws.gradedMarksAwarded,
         gradedMarksTotal: ws.gradedMarksTotal,
-        // HELD-OWNER-GATE-RULING — `agg` (moat-pinned lines above) is the pre-ruling two-bucket
-        // split; buildCiCoaching prints only its SUM until the MI moat is re-based.
-        knowledge: agg.k,
-        careless: agg.c,
+        // H2 (GA-14 / GA-32) — superseded by owner ruling 2026-10-05 (taxonomy and wording): the
+        // pre-ruling two-bucket split (conceptual + calculation / silly + presentation) is gone.
+        // The paper's counts — and on a v2 paper its marks — go through the ONE coaching
+        // function, which names the owner's three groups (lib/mistakeDisplay).
+        counts: effectivePaperCounts(ws.results),
+        ...(pm ? { marks: pm.byType } : {}),
+        notAttemptedCount: ws.results.filter((g) => isQuestionNotAttempted(g)).length,
+        mismatchCount: ws.results.filter((g) => gradeStateOf(g) === "answer-mismatch").length,
+        notGradedCount: pendingBreakdown(ws.results, ws.pendingCount).notGraded,
         pendingCount: ws.pendingCount,
       }),
     };
@@ -1551,6 +1582,10 @@ const DesktopCheckImprovePageInner: React.FC<{
         mode: "graded",
         marksSource: ctx.marksSource ?? undefined,
         detectionOverride: ctx.detectionOverride,
+        // H1 — the SAME submission identity as the MI entry: a re-grade replaces this attempt.
+        surface: "check-improve",
+        submissionId: ctx.sessionCode,
+        grade: graded,
       });
       switch (rec.outcome) {
         case "logged":
@@ -1620,6 +1655,10 @@ const DesktopCheckImprovePageInner: React.FC<{
           // Keyless objective flag from the detect step — the grader clamps a ≤1-mark
           // objective question to 0/full off the model's binary verdict (no key here).
           objective: q.objective === true,
+          // PR-2 (B9) — the answer key detect read for an objective question (#704) is forwarded,
+          // so the MCQ is scored on the option alone. Never on the signed-out free check, whose
+          // request shape is fixed (spec §1). [FU-B15-FREECHECK-V2]
+          ...(!freeCallOpts && q.objective === true && q.answer ? { answer: q.answer } : {}),
         })),
         imageBase64,
         imageMimeType: imageMime,
@@ -1730,10 +1769,14 @@ const DesktopCheckImprovePageInner: React.FC<{
         const questionIds = ciQuestionIds(sessionCode, shown.results);
         for (const [gi, g] of shown.results.entries()) {
           if (g.couldNotRead) continue;
+          // PR-2 — an answer that was not graded (option unread, or it does not match its
+          // question) records nothing anywhere: no MI entry, no attempt (owner addendum).
+          if (!isGradedQuestion(g)) continue;
           const csr = multiQuestionToCsr(g);
           const questionId = questionIds[gi];
+          // OR-LIVE L1 — the text of THIS question (two questions printed "Q5" keep their own).
           const qText =
-            detectedQuestions.find((q) => q.questionNumber === g.qNumber)?.questionText ||
+            detectedTextForResult(detectedQuestions, shown.results, gi) ||
             `${sessionCode} · Q${g.qNumber}`;
           // B2 (GA-16) — this question's OWN subject and chapter, never the first question's.
           const filing = perQuestionFiling(g, paperFiling, paperMixed);
@@ -1756,6 +1799,10 @@ const DesktopCheckImprovePageInner: React.FC<{
             marksScored: csr.marksAwarded,
             marksAvailable: csr.totalMarks,
             mode: "graded",
+            // H1 — the same submission identity as the MI entry above.
+            surface: "check-improve",
+            submissionId: sessionCode,
+            grade: csr,
           });
           if (
             rec.outcome === "logged" ||
@@ -1849,6 +1896,10 @@ const DesktopCheckImprovePageInner: React.FC<{
         // objective question to 0/full off the model's binary verdict (never a
         // fraction). Omitted (non-objective) → grading is byte-identical to before.
         ...(detectedQuestions?.[0]?.objective === true ? { objective: true } : {}),
+        // PR-2 (B9) — the detected answer key for an objective question (paid calls only).
+        ...(!freeCallOpts && detectedQuestions?.[0]?.objective === true && detectedQuestions?.[0]?.answer
+          ? { answer: detectedQuestions[0].answer }
+          : {}),
         ...answerPart,
       }, { ...(freeCallOpts ?? CI_GRADE_CALL), onStage: setGradeStage });
       if (!graded || graded.ok === false) {
@@ -1935,6 +1986,15 @@ const DesktopCheckImprovePageInner: React.FC<{
       setResultCtx(ctx);
       setStatus("ready");
       fairUse.noteGraded();
+      // PR-2 (B8 + owner addendum) — a single answer that was NOT graded (could not be read,
+      // option unread, answer does not match the question) records NOTHING: no MI entry, no
+      // attempt, no session record. The screen says why, in the owner's words.
+      if (!isGradedQuestion(graded)) {
+        setSaveStatus("idle");
+        setCiSaved(false);
+        setScorecardOpen(false);
+        return;
+      }
       void persistMistakeLog(ctx, graded);
 
       // The session record — the single grade adapted into the same unified
@@ -1948,8 +2008,9 @@ const DesktopCheckImprovePageInner: React.FC<{
         subject: sessionSubject,
         topicSlug: confirmed.topicSlug,
         topicSource,
-        // GA-38 — the objective flag survives into the stored payload; ONE set of counts.
-        response: withEffectiveCounts(withObjectiveEcho(singleCheckToWorksheetResponse(graded), graded)),
+        // GA-38 — the objective flag survives into the stored payload; ONE set of counts. H4/H9:
+        // the adapter itself carries the flag and the v2 fields (one path, no caller-side echo).
+        response: withEffectiveCounts(singleCheckToWorksheetResponse(graded)),
       });
       setCiSaved(persistOutcome === "recorded");
       if (persistOutcome === "recorded") void loadCiRecords();
@@ -2431,8 +2492,8 @@ const DesktopCheckImprovePageInner: React.FC<{
                   <strong>{detectedQuestions.length} questions detected</strong> · each question&rsquo;s
                   subject and chapter are read when it is graded
                   <div style={{ fontSize: 12, color: TEXT_MUTED, marginTop: 4, display: "flex", flexWrap: "wrap", gap: "0 16px" }}>
-                    {detectedQuestions.map((q) => (
-                      <span key={q.questionNumber}>
+                    {detectedQuestions.map((q, qi) => (
+                      <span key={`${q.questionNumber}-${qi}`}>
                         Q{q.questionNumber} · {q.marks} {q.marks === 1 ? "mark" : "marks"}
                       </span>
                     ))}
@@ -3038,12 +3099,9 @@ const DesktopCheckImprovePageInner: React.FC<{
               /{ws.gradedMarksTotal}
             </span>
           </div>
-          {ws.pendingCount > 0 && (
-            <div style={{ fontSize: 12.5, color: WARNING_FG, marginTop: 8 }}>
-              {ws.pendingCount} page{ws.pendingCount === 1 ? "" : "s"} couldn&rsquo;t be read — re-upload
-              {ws.pendingCount === 1 ? " it" : " them"} to grade. Not scored 0.
-            </div>
-          )}
+          {/* PR-2 — "X of Y graded", every question that was not graded listed with its
+              honest state (never folded into the score). */}
+          <NotGradedList results={ws.results} />
           {ws.summary && (
             <p style={{ margin: "12px 0 0", fontSize: 13.5, color: TEXT_FG, lineHeight: 1.6 }}>
               {ws.summary}
@@ -3082,14 +3140,20 @@ const DesktopCheckImprovePageInner: React.FC<{
             // SCORECARD-MI-1 — the owner's three groups over the ONE count function.
             const chips = groupRows(effectiveTypeCounts({ ...g, mistakeSummary: m })).filter((r) => r.count > 0);
             const notAttemptedQ = isQuestionNotAttempted(g);
+            // PR-2 (B7) — this question's chips in MARKS when the grade carries them.
+            const qMarks = questionMarksLost(g);
+            const markChips = qMarks ? marksGroupRows(qMarks).filter((r) => r.marks > 0) : [];
+            const graded = isGradedQuestion(g);
             // PART A: per-question steps (same AnnotatedStepRow as single-Q),
             // expandable so a multi-question paper isn't a wall of steps. Keyed by
             // array index (not qNumber) so a grader-mislabelled duplicate qNumber
             // can't collide the React key or expand two cards in lockstep.
-            const steps = g.annotatedSteps ?? [];
-            const canExpand = !g.couldNotRead && steps.length > 0;
+            // B8 — crossed-out attempts are drawn apart, struck; never inside the marked working.
+            const { marked: steps, withdrawn } = splitWithdrawnSteps(g.annotatedSteps ?? []);
+            const canExpand = graded && steps.length + withdrawn.length > 0;
             const open = !!expandedQ[qi];
-            const qText = detectedQuestions?.find((q) => q.questionNumber === g.qNumber)?.questionText;
+            // OR-LIVE L1 — by occurrence, so two questions printed "Q5" keep their own text.
+            const qText = detectedTextForResult(detectedQuestions, ws.results, qi);
             const toggle = () => setExpandedQ((p) => ({ ...p, [qi]: !p[qi] }));
             return (
               <div key={qi} style={{ ...cardStyle, padding: 16 }}>
@@ -3123,18 +3187,33 @@ const DesktopCheckImprovePageInner: React.FC<{
                     )}
                     Q{g.qNumber}
                   </div>
-                  {g.couldNotRead ? (
-                    <span style={{ ...chipBase, color: WARNING_FG }}>
-                      Couldn&rsquo;t read — re-upload this page
+                  {!graded ? (
+                    <span style={{ ...chipBase, color: WARNING_FG }} data-grade-state={gradeStateOf(g)}>
+                      Not marked
                     </span>
                   ) : (
                     <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                      {chips.map(({ group, count }) => (
+                      {markChips.map(({ group, marks }) => (
+                        <span key={group.key} data-group={group.key} data-marks={marks} style={{ ...chipBase, color: GROUP_TONE[group.colorKey].fg }}>
+                          {group.label} · {marksWithUnit(marks)}
+                        </span>
+                      ))}
+                      {qMarks && qMarks.unattempted > 0 && (
+                        <span data-group="not-attempted" data-marks={qMarks.unattempted} style={{ ...chipBase, color: TEXT_MUTED }}>
+                          {NOT_ATTEMPTED.label} · {marksWithUnit(qMarks.unattempted)}
+                        </span>
+                      )}
+                      {qMarks && qMarks.untyped > 0 && (
+                        <span data-group="untyped" data-marks={qMarks.untyped} style={{ ...chipBase, color: TEXT_MUTED }}>
+                          {UNTYPED_MARKS_LABEL} · {marksWithUnit(qMarks.untyped)}
+                        </span>
+                      )}
+                      {!qMarks && chips.map(({ group, count }) => (
                         <span key={group.key} data-group={group.key} style={{ ...chipBase, color: GROUP_TONE[group.colorKey].fg }}>
                           {group.label} · {countWithUnit(count)}
                         </span>
                       ))}
-                      {notAttemptedQ && (
+                      {notAttemptedQ && !qMarks && (
                         <span style={{ ...chipBase, color: TEXT_MUTED }}>{NOT_ATTEMPTED.label}</span>
                       )}
                       <span
@@ -3153,7 +3232,9 @@ const DesktopCheckImprovePageInner: React.FC<{
                     </div>
                   )}
                 </div>
-                {!g.couldNotRead && g.teacherNote && (
+                {/* PR-2 (B8) — a question that was not graded says so in the owner's words. */}
+                <GradeStateNotice question={g} />
+                {graded && g.teacherNote && (
                   <p style={{ margin: "10px 0 0", fontSize: 13, color: TEXT_MUTED, lineHeight: 1.55 }}>
                     {g.teacherNote}
                   </p>
@@ -3188,6 +3269,8 @@ const DesktopCheckImprovePageInner: React.FC<{
                     {steps.map((step) => (
                       <AnnotatedStepRow key={step.stepNumber} step={stepForDisplay(step, g)} objective={g.objective} />
                     ))}
+                    <WithdrawnWorkBlock steps={withdrawn} />
+                    <RubricBlock rubric={g.rubric} />
                   </div>
                 )}
               </div>
@@ -3218,6 +3301,38 @@ const DesktopCheckImprovePageInner: React.FC<{
   // returned), but the compound condition no longer narrows them for the compiler.
   if (!result || !resultCtx) return null;
 
+  // PR-2 (B8 + owner addendum) — an answer that was NOT graded gets no score ring, no mistake
+  // summary and no save line: only its honest state, in the owner's words. Nothing was marked,
+  // scored 0 or recorded (no MI entry, no attempt, no session record).
+  if (!isGradedQuestion(result)) {
+    return withChrome(
+      <div
+        className="lt-ci-notgraded"
+        data-testid="ci-single-not-graded"
+        style={{ maxWidth: 1500, margin: "0 auto", padding: PAGE_PADDING, fontFamily: FONT_SANS, minWidth: 0 }}
+      >
+        <PageHeader
+          showBack
+          onBack={resetToInput}
+          eyebrow="Check & Improve · Not graded"
+          title={`${resultCtx.topicName || resultCtx.subject} · ${
+            resultCtx.question.length > 60 ? resultCtx.question.slice(0, 57) + "…" : resultCtx.question
+          }`}
+          description="Nothing was marked, scored 0 or saved for this answer."
+          actions={
+            <button type="button" style={buttonAccent} onClick={resetToInput}>
+              Try again
+            </button>
+          }
+        />
+        <div style={{ ...cardStyle, padding: 24 }}>
+          <GradeStateNotice question={result} />
+        </div>
+      </div>,
+      "Graded result",
+    );
+  }
+
   const totalMarks = result.totalMarks;
   const marksAwarded = result.marksAwarded;
   const pct = Math.round(result.percentage ?? 0);
@@ -3232,7 +3347,9 @@ const DesktopCheckImprovePageInner: React.FC<{
   // SCORECARD-MI-1 — what this answer may show: no type on full marks; counts, never marks.
   const shownCounts = effectiveTypeCounts({ ...result, mistakeSummary: summary });
   const singleNotAttempted = isQuestionNotAttempted(result);
-  const lostSteps = result.annotatedSteps.filter((s) => s.status !== "correct");
+  // PR-2 (B8) — a crossed-out attempt is never "where you lost marks" (it was not marked).
+  const markedSteps = splitWithdrawnSteps(result.annotatedSteps).marked;
+  const lostSteps = markedSteps.filter((s) => s.status !== "correct");
 
   return withChrome(
     <div
@@ -3291,7 +3408,7 @@ const DesktopCheckImprovePageInner: React.FC<{
             topicName: resultCtx.topicName,
             code: ciCode,
             topicSource: ciTopicSource ?? deriveTopicSource(resultCtx.topicSlug, topicTouched),
-            response: withEffectiveCounts(withObjectiveEcho(singleCheckToWorksheetResponse(result), result)),
+            response: withEffectiveCounts(singleCheckToWorksheetResponse(result)),
             saved: ciSaved,
             ...(isFreeMode ? { signUpToSave: freeSignUpToSave } : {}),
             downloading,
@@ -3402,8 +3519,8 @@ const DesktopCheckImprovePageInner: React.FC<{
             >
               <div style={sectionEyebrow}>Annotated steps</div>
               <span style={chipBase}>
-                {result.annotatedSteps.length} step
-                {result.annotatedSteps.length === 1 ? "" : "s"}
+                {markedSteps.length} step
+                {markedSteps.length === 1 ? "" : "s"}
               </span>
             </div>
             {result.annotatedSteps.length === 0 ? (
@@ -3412,9 +3529,12 @@ const DesktopCheckImprovePageInner: React.FC<{
               </p>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {result.annotatedSteps.map((step) => (
+                {splitWithdrawnSteps(result.annotatedSteps).marked.map((step) => (
                   <AnnotatedStepRow key={step.stepNumber} step={stepForDisplay(step, result)} objective={result.objective} />
                 ))}
+                {/* PR-2 (B8) — crossed-out work apart, struck; the marking scheme apart from the note. */}
+                <WithdrawnWorkBlock steps={result.annotatedSteps} />
+                <RubricBlock rubric={result.rubric} />
               </div>
             )}
           </div>
@@ -3452,6 +3572,8 @@ const DesktopCheckImprovePageInner: React.FC<{
               <div style={sectionEyebrow}>Mistake summary</div>
               <span style={chipBase}>This answer</span>
             </div>
+            {/* PR-2 (B7) — where this answer's marks went, in MARKS (v2 grades only). */}
+            {questionMarksLost(result) && <MarksLostLines marks={questionMarksLost(result)!} />}
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {(Object.keys(MISTAKE_LABELS) as MistakeType[]).map((key) => {
                 const meta = MISTAKE_LABELS[key];
@@ -3670,10 +3792,10 @@ const DesktopCheckImprovePageInner: React.FC<{
                 {lostSteps.map((s) => (
                   <li key={s.stepNumber}>
                     <strong>Step {s.stepNumber}:</strong>{" "}
-                    {stepDisplay(s.status).kind === "not-attempted"
+                    {stepDisplay(s.status, s.mistakeType).kind === "not-attempted"
                       ? NOT_ATTEMPTED.label
                       : s.teacherAnnotation || s.description || "Marks deducted"}
-                    {s.marksDeducted > 0 && stepDisplay(s.status).showDeduction && (
+                    {s.marksDeducted > 0 && stepDisplay(s.status, s.mistakeType).showDeduction && (
                       <span style={{ color: DANGER_FG }}> · −{s.marksDeducted}</span>
                     )}
                   </li>

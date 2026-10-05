@@ -31,7 +31,11 @@ import {
   stepDisplay,
   stepForDisplay,
   totalCount,
+  isGradedQuestion,
+  questionMarksLost,
+  splitWithdrawnSteps,
 } from "../../lib/mistakeDisplay";
+import { GradeStateNotice, MarksLostLines, RubricBlock, WithdrawnWorkBlock } from "../results/GradeStateParts";
 
 /**
  * GA-26 (SCORECARD-MI-1) — the cached grade is keyed by the SIGNED-IN uid and a version, never
@@ -132,6 +136,15 @@ interface SolutionCheckerProps {
   onSaveAnswer?: (working: SolutionCheckerSavedWorking) => void;
   /** Collect mode only. Drop the saved working for this question (Replace / Remove). */
   onRemoveAnswer?: () => void;
+  /**
+   * N2 (verifier, controller fix round 2026-10-05; owner ruling "re-grade replaces") — the
+   * ATTEMPT identity a host shares with its own answer path. The practice card passes
+   * `practiceCardAttemptIdentity(q.id)`, the same identity its MCQ click records under, so a click
+   * and a written check of that question are ONE attempt (latest wins). Omitted (every other
+   * host): the checker's own identity, unchanged — surface "solution-checker" + the answer's key.
+   * The Mistake-Intelligence entry's identity is never affected.
+   */
+  attemptIdentity?: { surface: string; questionId: string };
 }
 
 /**
@@ -314,7 +327,7 @@ function MistakeBadge({ type }: { type: MistakeType | null }) {
 
 function AnnotatedStepCard({ step, objective }: { step: CheckSolutionResponse["annotatedSteps"][0]; objective?: boolean }) {
   const [showCorrected, setShowCorrected] = useState(false);
-  const display = stepDisplay(step.status);
+  const display = stepDisplay(step.status, step.mistakeType);
   const ss = STATUS_STYLE[step.status] || STATUS_STYLE.missing;
   const isNegative = step.marksAwarded === 0 && step.status !== "correct" && display.showDeduction;
   const marksColor = step.marksAwarded > 0 ? "#22c55e" : "#ef4444";
@@ -486,7 +499,7 @@ function SignInToCheckCta() {
 
 export function SolutionChecker({
   question, marks, subject, topic, questionId, solutionSteps, finalAnswer, section, format, options, answer, onRequestStepSolution, onResult,
-  collectMode = false, savedAnswer = null, onSaveAnswer, onRemoveAnswer,
+  collectMode = false, savedAnswer = null, onSaveAnswer, onRemoveAnswer, attemptIdentity,
 }: SolutionCheckerProps) {
   const { user } = useAuth();
   /**
@@ -613,6 +626,8 @@ export function SolutionChecker({
   useEffect(() => {
     if (!result || !isFromCache) return;
     if (!user?.uid || user.isLocalSession) return;
+    // PR-2 — a result that was not graded is never recorded (no MI entry, no attempt).
+    if (!isGradedQuestion(result)) return;
     const sig = questionId || "";
     if (backfilledRef.current === sig) return;
     backfilledRef.current = sig;
@@ -627,16 +642,20 @@ export function SolutionChecker({
     }).then((res) => {
       if (!cancelled) setLogStatus(statusFromOutcome(res.outcome));
     });
-    // Score-twin: a restored graded result is also an attempt (deduped, so a
-    // cache-restore of the same score never double-counts toward accuracy).
+    // Score-twin: a restored graded result is also an attempt. H1 — the SAME submission
+    // identity as the fresh grade (surface + question + answer), so a cache-restore replaces
+    // nothing new and never double-counts toward accuracy.
     recordAttempt(user, {
-      subject, topic, question, questionId,
+      subject, topic, question,
       marksScored: result.marksAwarded,
       marksAvailable: result.totalMarks,
       mode: "graded",
+      // N2 — a host's shared attempt identity (the practice card) wins; else the checker's own.
+      ...(attemptIdentity ?? { surface: "solution-checker", questionId, answerKey: savedAnswerKey }),
+      grade: result,
     });
     return () => { cancelled = true; };
-  }, [result, isFromCache, user, questionId, subject, topic, question, savedAnswerKey]);
+  }, [result, isFromCache, user, questionId, subject, topic, question, savedAnswerKey, attemptIdentity]);
 
 
   // UPLOAD-2 — the shared upload step. A photo is cropped (optional), turned upright,
@@ -724,7 +743,15 @@ export function SolutionChecker({
         ...(answer ? { answer } : {}),
       }, { surface: "quick-practice", onStage: setStage });
 
-      if (response.ok) {
+      if (response.ok && !isGradedQuestion(response)) {
+        // PR-2 (B8 + owner addendum) — the grader answered but did NOT grade it (could not
+        // read it, could not read the option, or the answer does not match the question). The
+        // card says so in the owner's words; nothing is cached, recorded or scored 0.
+        setResult(response);
+        setIsFromCache(false);
+        onResult?.(response);
+        setLogStatus("unavailable");
+      } else if (response.ok) {
         setResult(response);
         setIsFromCache(false);
         if (questionId) {
@@ -747,10 +774,14 @@ export function SolutionChecker({
         // Score-twin of the mistake door: record the graded score as an attempt
         // (every graded answer, including full marks — accuracy needs both).
         recordAttempt(user, {
-          subject, topic, question, questionId,
+          subject, topic, question,
           marksScored: response.marksAwarded,
           marksAvailable: response.totalMarks,
           mode: "graded",
+          // H1 (A2) — re-checking the SAME answer replaces its attempt; a new answer is a new one.
+          // N2 — a host's shared attempt identity (the practice card) wins: click + check = ONE.
+          ...(attemptIdentity ?? { surface: "solution-checker", questionId, answerKey }),
+          grade: response,
         });
       } else {
         setError(response.error || "Could not evaluate. Try a clearer image or type your answer.");
@@ -1308,8 +1339,8 @@ export function SolutionChecker({
               </button>
             </div>
           )}
-          {/* Evidence state label */}
-          {result && (
+          {/* Evidence state label — none for a result that was not graded (nothing was saved). */}
+          {result && isGradedQuestion(result) && (
             <div style={{
               display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", marginBottom: 10,
               borderRadius: 8, fontSize: "0.71rem", fontWeight: 600,
@@ -1363,6 +1394,11 @@ export function SolutionChecker({
               </span>
             </div>
           )}
+          {/* PR-2 (B8) — a result that was not graded: its honest state, no mark, no steps. */}
+          {!isGradedQuestion(result) ? (
+            <GradeStateNotice question={result} />
+          ) : (
+          <>
           {/* Score banner */}
           <div style={{
             display: "flex", alignItems: "center", gap: 12,
@@ -1409,10 +1445,17 @@ export function SolutionChecker({
                   false), and the two surfaces that could show an unclamped 1-mark
                   question gate 1-mark items out. Suppressing the chip is the honest
                   fix; a disclaimer under a misleading chip was not. */}
-              {result.annotatedSteps.map((step) => (
+              {splitWithdrawnSteps(result.annotatedSteps).marked.map((step) => (
                 <AnnotatedStepCard key={step.stepNumber} step={stepForDisplay(step, result)} objective={result.objective} />
               ))}
             </>
+          )}
+          {/* PR-2 (B8) — crossed-out work apart and struck; how it was marked, apart from the note;
+              where this answer's marks went, in marks (v2 grades only). */}
+          <WithdrawnWorkBlock steps={result.annotatedSteps} />
+          <RubricBlock rubric={result.rubric} />
+          {questionMarksLost(result) && <MarksLostLines marks={questionMarksLost(result)!} />}
+          </>
           )}
 
           {/* Teacher's Note */}
