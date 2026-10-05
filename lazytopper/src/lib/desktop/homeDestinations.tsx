@@ -304,38 +304,70 @@ export interface TutorPickerModalProps {
 }
 
 /**
- * TutorPickerModal — the shared "Ask your tutor" pop-card.
- *
- * Owns its selects and the buildTutorPath composition; the parent supplies only
- * `open`/`onClose` and auth state. Home mounts it behind `useTutorPicker`;
- * PR-B mounts this same component from DesktopShell for the rail Tutor entry.
- * Chapter options come from `desktopTopicsBySubject` so every value is a real
- * topics.ts slug — a display name can never leak into `topicKey`.
+ * CBQ-ENTRY-1 (P5) — the subject/chapter pop-card itself, shared by the tutor
+ * picker and the Practice Hub's CBQ picker. ONE chooser and ONE chapter list
+ * (`desktopTopicsBySubject`); each caller is a thin wrapper that supplies its
+ * words and what "go" does. The tutor wrapper below renders exactly what it
+ * rendered before this split (same ids, test ids, copy and navigation).
  */
-export function TutorPickerModal({ open, onClose, isSignedIn }: TutorPickerModalProps) {
-  const navigate = useNavigate();
+export interface ChapterPickerModalProps {
+  open: boolean;
+  onClose: () => void;
+  /** Heading, and the dialog's accessible name. */
+  title: string;
+  sub: string;
+  goLabel: string;
+  /** `data-testid` of the overlay; the go button is `<testId>-open`. */
+  testId: string;
+  /** Prefix for the two select ids (`<idPrefix>-subject`, `<idPrefix>-chapter`). */
+  idPrefix: string;
+  /** Called with the chosen subject and a topics.ts SLUG. */
+  onGo: (subject: DesktopSubject, topicKey: string) => void;
+  /** Footer note; omitted → no footer. */
+  foot?: string;
+  /** Told when the student switches subject (the CBQ picker checks that subject's chapters). */
+  onSubjectChange?: (subject: DesktopSubject) => void;
+  /** A chapter marked here is listed with " — coming soon" and cannot be chosen. */
+  isComingSoon?: (subject: DesktopSubject, topicKey: string) => boolean;
+}
+
+export function ChapterPickerModal({
+  open,
+  onClose,
+  title,
+  sub,
+  goLabel,
+  testId,
+  idPrefix,
+  onGo,
+  foot,
+  onSubjectChange,
+  isComingSoon,
+}: ChapterPickerModalProps) {
   const [subject, setSubject] = useState<DesktopSubject>("Maths");
   const [topicKey, setTopicKey] = useState<string>("");
 
   const topics = useMemo(() => desktopTopicsBySubject(subject), [subject]);
+  const soon = (slug: string) => Boolean(isComingSoon?.(subject, slug));
   // The chapter list changes with the subject (SPEC §3). Falling back to the
-  // first chapter of the CURRENT list keeps the selection valid after a switch.
-  const selected = topics.some((t) => t.slug === topicKey)
+  // first chapter of the CURRENT list keeps the selection valid after a switch;
+  // a "coming soon" chapter is never the selection.
+  const selected = topics.some((t) => t.slug === topicKey && !soon(t.slug))
     ? topicKey
-    : (topics[0]?.slug ?? "");
+    : (topics.find((t) => !soon(t.slug))?.slug ?? "");
 
   if (!open) return null;
 
-  const openTutor = () => {
+  const go = () => {
     if (!selected) return;
     onClose();
-    navigate(composeTutorEntry({ subject, topicKey: selected, isSignedIn }));
+    onGo(subject, selected);
   };
 
   return (
     <div
       className="lt-tutor-ov"
-      data-testid="tutor-picker"
+      data-testid={testId}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -345,7 +377,7 @@ export function TutorPickerModal({ open, onClose, isSignedIn }: TutorPickerModal
         className="lt-tutor-pop"
         role="dialog"
         aria-modal="true"
-        aria-label="Ask your tutor"
+        aria-label={title}
         onKeyDown={(e) => {
           if (e.key === "Escape") onClose();
         }}
@@ -353,17 +385,19 @@ export function TutorPickerModal({ open, onClose, isSignedIn }: TutorPickerModal
         <button type="button" className="lt-tutor-x" aria-label="Close" onClick={onClose}>
           ✕
         </button>
-        <h2>Ask your tutor</h2>
-        <p className="lt-tutor-sub">
-          Pick what you want to work on. The tutor opens on that chapter.
-        </p>
+        <h2>{title}</h2>
+        <p className="lt-tutor-sub">{sub}</p>
 
         <div className="lt-tutor-fld">
-          <label htmlFor="lt-tutor-subject">Subject</label>
+          <label htmlFor={`${idPrefix}-subject`}>Subject</label>
           <select
-            id="lt-tutor-subject"
+            id={`${idPrefix}-subject`}
             value={subject}
-            onChange={(e) => setSubject(e.target.value as DesktopSubject)}
+            onChange={(e) => {
+              const next = e.target.value as DesktopSubject;
+              setSubject(next);
+              onSubjectChange?.(next);
+            }}
           >
             <option value="Maths">Maths</option>
             <option value="Science">Science</option>
@@ -371,15 +405,15 @@ export function TutorPickerModal({ open, onClose, isSignedIn }: TutorPickerModal
         </div>
 
         <div className="lt-tutor-fld">
-          <label htmlFor="lt-tutor-chapter">Chapter</label>
+          <label htmlFor={`${idPrefix}-chapter`}>Chapter</label>
           <select
-            id="lt-tutor-chapter"
+            id={`${idPrefix}-chapter`}
             value={selected}
             onChange={(e) => setTopicKey(e.target.value)}
           >
             {topics.map((t) => (
-              <option key={t.slug} value={t.slug}>
-                {t.name}
+              <option key={t.slug} value={t.slug} disabled={soon(t.slug)}>
+                {soon(t.slug) ? `${t.name} — coming soon` : t.name}
               </option>
             ))}
           </select>
@@ -388,16 +422,44 @@ export function TutorPickerModal({ open, onClose, isSignedIn }: TutorPickerModal
         <button
           type="button"
           className="lt-tutor-go"
-          data-testid="tutor-picker-open"
-          onClick={openTutor}
+          data-testid={`${testId}-open`}
+          onClick={go}
         >
-          Open tutor →
+          {goLabel}
         </button>
-        <p className="lt-tutor-foot" data-testid="tutor-picker-gate-note">
-          {tutorGateNote(isSignedIn)}
-        </p>
+        {foot !== undefined && (
+          <p className="lt-tutor-foot" data-testid={`${testId}-gate-note`}>
+            {foot}
+          </p>
+        )}
       </div>
     </div>
+  );
+}
+
+/**
+ * TutorPickerModal — the shared "Ask your tutor" pop-card.
+ *
+ * Owns the buildTutorPath composition; the parent supplies only
+ * `open`/`onClose` and auth state. Home mounts it behind `useTutorPicker`;
+ * PR-B mounts this same component from DesktopShell for the rail Tutor entry.
+ * Chapter options come from `desktopTopicsBySubject` so every value is a real
+ * topics.ts slug — a display name can never leak into `topicKey`.
+ */
+export function TutorPickerModal({ open, onClose, isSignedIn }: TutorPickerModalProps) {
+  const navigate = useNavigate();
+  return (
+    <ChapterPickerModal
+      open={open}
+      onClose={onClose}
+      title="Ask your tutor"
+      sub="Pick what you want to work on. The tutor opens on that chapter."
+      goLabel="Open tutor →"
+      testId="tutor-picker"
+      idPrefix="lt-tutor"
+      onGo={(subject, topicKey) => navigate(composeTutorEntry({ subject, topicKey, isSignedIn }))}
+      foot={tutorGateNote(isSignedIn)}
+    />
   );
 }
 
