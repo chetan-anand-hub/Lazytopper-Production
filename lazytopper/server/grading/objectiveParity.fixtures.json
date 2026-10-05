@@ -1,0 +1,35 @@
+{
+  "about": "Shared objective-scoring fixture table (GRADER-CORE-1 PR-2, C5). Read by server/grading/core.test.cjs (asserts the server module against `expect`) and by src/services/objectiveScoring.parity.test.ts (asserts the client twin equals the server module on every row). `expect` is the owner ruling for that row: case-sensitive compare only when two options differ only by case, case-folded otherwise; letters bridge to option text through `options`; a pick or key that cannot be bridged is unresolved, never a guessed 0.",
+  "rows": [
+    { "id": "genotype-wrong-case-variant", "options": ["TTWW", "TTww", "TtWW", "TtWw"], "answerKey": "TtWW", "studentPick": "TTww", "expect": { "marksAwarded": 0, "correct": false, "resolved": true } },
+    { "id": "genotype-exact", "options": ["TTWW", "TTww", "TtWW", "TtWw"], "answerKey": "TtWW", "studentPick": "TtWW", "expect": { "marksAwarded": 1, "correct": true, "resolved": true } },
+    { "id": "genotype-other-variant", "options": ["TTWW", "TTww", "TtWW", "TtWw"], "answerKey": "TtWW", "studentPick": "TtWw", "expect": { "marksAwarded": 0, "correct": false, "resolved": true } },
+    { "id": "genotype-letter-bridges-to-key", "options": ["TTWW", "TTww", "TtWW", "TtWw"], "answerKey": "TtWW", "studentPick": "(c)", "expect": { "marksAwarded": 1, "correct": true, "resolved": true } },
+    { "id": "genotype-letter-wrong", "options": ["TTWW", "TTww", "TtWW", "TtWw"], "answerKey": "TtWW", "studentPick": "B", "expect": { "marksAwarded": 0, "correct": false, "resolved": true } },
+    { "id": "genotype-folded-pick-matches-no-option", "options": ["TTWW", "TTww", "TtWW", "TtWw"], "answerKey": "TTww", "studentPick": "ttww", "expect": { "marksAwarded": 0, "correct": false, "resolved": false } },
+    { "id": "coincident-case-folded", "options": ["Coincident", "Parallel", "Intersecting"], "answerKey": "Coincident", "studentPick": "coincident", "expect": { "marksAwarded": 1, "correct": true, "resolved": true } },
+    { "id": "coincident-upper-wrong", "options": ["Coincident", "Parallel", "Intersecting"], "answerKey": "Coincident", "studentPick": "PARALLEL", "expect": { "marksAwarded": 0, "correct": false, "resolved": true } },
+    { "id": "coincident-letter", "options": ["Coincident", "Parallel", "Intersecting"], "answerKey": "Coincident", "studentPick": "a.", "expect": { "marksAwarded": 1, "correct": true, "resolved": true } },
+    { "id": "letters-bracketed-upper", "options": ["A", "B", "C", "D"], "answerKey": "b", "studentPick": "(B)", "expect": { "marksAwarded": 1, "correct": true, "resolved": true } },
+    { "id": "letter-bridges-text-key", "options": ["Basic solution", "Acidic solution", "Neutral solution", "Salt solution"], "answerKey": "Acidic solution", "studentPick": "(b)", "expect": { "marksAwarded": 1, "correct": true, "resolved": true } },
+    { "id": "letter-bridges-text-key-wrong", "options": ["Basic solution", "Acidic solution", "Neutral solution", "Salt solution"], "answerKey": "Acidic solution", "studentPick": "[d]", "expect": { "marksAwarded": 0, "correct": false, "resolved": true } },
+    { "id": "punctuation-quotes-bang", "options": ["Basic solution", "Acidic solution", "Neutral solution", "Salt solution"], "answerKey": "\"Acidic solution\"", "studentPick": "acidic solution!", "expect": { "marksAwarded": 1, "correct": true, "resolved": true } },
+    { "id": "punctuation-terminal-dot-number", "options": ["0", "7", "14", "1"], "answerKey": "7", "studentPick": "7.", "expect": { "marksAwarded": 1, "correct": true, "resolved": true } },
+    { "id": "punctuation-braces-letter", "options": ["0", "7", "14", "1"], "answerKey": "14", "studentPick": "{c}", "expect": { "marksAwarded": 1, "correct": true, "resolved": true } },
+    { "id": "ratio-colon-spacing", "options": ["1 : 2", "2 : 1", "1 : 1", "3 : 2"], "answerKey": "1 : 2", "studentPick": "1:2", "expect": { "marksAwarded": 1, "correct": true, "resolved": true } },
+    { "id": "letters-no-options-miss", "options": [], "answerKey": "a", "studentPick": "c", "expect": { "marksAwarded": 0, "correct": false, "resolved": true } },
+    { "id": "empty-pick-unresolved", "options": ["0", "7", "14", "1"], "answerKey": "7", "studentPick": "", "expect": { "marksAwarded": 0, "correct": false, "resolved": false } },
+    { "id": "corrupt-key-unresolved", "options": ["0", "7", "14", "1"], "answerKey": "xyz", "studentPick": "7", "expect": { "marksAwarded": 0, "correct": false, "resolved": false } },
+    { "id": "assertion-reason-letter", "options": ["Both A and R are true, and R is the correct explanation of A.", "Both A and R are true, but R is not the correct explanation of A.", "A is true, but R is false.", "A is false, but R is true."], "answerKey": "Both A and R are true, and R is the correct explanation of A.", "studentPick": "(a)", "expect": { "marksAwarded": 1, "correct": true, "resolved": true } }
+  ],
+  "optionSets": [
+    { "options": ["TTWW", "TTww", "TtWW", "TtWw"], "differOnlyByCase": true },
+    { "options": ["Coincident", "Parallel", "Intersecting"], "differOnlyByCase": false },
+    { "options": ["A", "B", "C", "D"], "differOnlyByCase": false },
+    { "options": ["Aa", "aa", "AA"], "differOnlyByCase": true },
+    { "options": ["Na", "NA.", "Mg"], "differOnlyByCase": true },
+    { "options": ["Same", "same"], "differOnlyByCase": true },
+    { "options": ["Same", "Same"], "differOnlyByCase": false },
+    { "options": [], "differOnlyByCase": false }
+  ]
+}

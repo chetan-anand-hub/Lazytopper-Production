@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1,
+ "percentage": 50,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Calculate current drawn by the electric kettle",
+   "studentWork": "P = 750 W, V = 220 V\nI = P / V = 750 / 220 = 3.4 A",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct formula and calculation of current drawn (3.4 A)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Conclusion and justification based on fuse rating",
+   "studentWork": "Yes, this kettle can be used.\nA fuse of 3 A rating melts only when the current becomes much more than 3 A (about double), so 3.4 A will not melt it.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Incorrect conclusion and explanation; a fuse melts whenever current exceeds its rated value",
+   "mistakeType": "conceptual",
+   "correctedWorking": "No, this kettle cannot be used. Since the current drawn by the kettle (3.4 A) is greater than the fuse rating (3 A), the fuse wire will melt and break the circuit.",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Your calculation of the current drawn (3.4 A) is perfectly correct. However, remember that an electric fuse is designed to melt and open the circuit as soon as the current exceeds its specified rating (3 A), so the kettle cannot be used safely with this fuse.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Calculation of current drawn using I = P / V",
+   "marks": 1
+  },
+  {
+   "point": "Conclusion (No) with correct reasoning that current drawn (3.4 A) exceeds the rating of the fuse (3 A)",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

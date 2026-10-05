@@ -1,0 +1,98 @@
+{
+ "ok": true,
+ "totalMarks": 4,
+ "marksAwarded": 2,
+ "percentage": 50,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Find distance BD in terms of h using trigonometry in △BDC",
+   "studentWork": "In △BDC, tan 45° = CD/BD ⇒ 1 = h/BD ⇒ BD = h m",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly found BD = h m.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(i)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Find distance BC in terms of h using sin 45° in △BDC",
+   "studentWork": "sin 45° = CD/BC ⇒ 1/√2 = h/BC ⇒ BC = √2 h m",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly found BC = √2 h m.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(ii)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Find the total height CE of the lighthouse using tan 60° in △AEC",
+   "studentWork": "I don't know how to do this part.",
+   "status": "unattempted",
+   "marksAwarded": 0,
+   "marksDeducted": 2,
+   "teacherAnnotation": "× Part (iii) unattempted.",
+   "mistakeType": null,
+   "correctedWorking": "In △AEC, tan 60° = CE/AE. Since AE = BD = h and CE = h + 40: √3 = (h + 40)/h ⇒ h(√3 - 1) = 40 ⇒ h = 40/(√3 - 1) = 20(√3 + 1) = 20(1.73 + 1) = 54.6 m. Therefore, height of lighthouse CE = h + 40 = 54.6 + 40 = 94.6 m.",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(iii)",
+   "marksAvailable": 2
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Parts (i) and (ii) are answered accurately with clear steps. For part (iii), connect the two triangles by setting horizontal distance AE equal to BD (h m) and the total height CE equal to h + 40 m to solve using tan 60°.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 2,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Part (i): Use tan 45° in △BDC to find BD = h m",
+   "marks": 1
+  },
+  {
+   "point": "Part (ii): Use sin 45° (or Pythagoras theorem) to find BC = √2 h m",
+   "marks": 1
+  },
+  {
+   "point": "Part (iii): Set up tan 60° = CE/AE = (h + 40)/h and solve for h",
+   "marks": 1
+  },
+  {
+   "point": "Part (iii): Calculate height CE = h + 40 = 94.6 m using √3 = 1.73",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

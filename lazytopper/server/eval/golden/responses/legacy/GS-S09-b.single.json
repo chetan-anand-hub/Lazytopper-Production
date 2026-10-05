@@ -1,0 +1,62 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 3,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Calculation of equivalent parallel resistances and total circuit resistance",
+   "studentWork": "(a) 1/R₁ = 1/10 + 1/15 = 5/30 ⇒ R₁ = 6 Ω\n— correction: LCM of 60 and 40 is 120, so 1/R₂ = 2/120 + 3/120 = 5/120 ⇒ R₂ = 24 Ω\nR = R₁ + R₂ = 6 + 24 = 30 Ω",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly calculated R₁ = 6 Ω, R₂ = 24 Ω, and total resistance R = 30 Ω",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Calculation of total current drawn from the source",
+   "studentWork": "(b) I = V/R = 15 V / 30 Ω = 0.5 A",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct formula, substitution, and answer with SI unit (0.5 A)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Calculation of potential difference across the parallel combination of 10 Ω and 15 Ω resistors",
+   "studentWork": "(c) V = I × R₁ = 0.5 A × 6 Ω = 3.0 V",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct formula, substitution, and answer with SI unit (3.0 V)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Calculation of equivalent resistance of both parallel pairs and total circuit resistance (R = 30 Ω) (1); Calculation of total current drawn using Ohm's law (I = 0.5 A) (1); Calculation of potential difference across the 10 Ω and 15 Ω parallel combination (V = 3.0 V) (1). Full marks. You showed clear, systematic working for each part with appropriate units throughout, and your self-correction in part (a) was well-handled.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

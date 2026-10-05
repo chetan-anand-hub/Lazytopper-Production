@@ -1,0 +1,62 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2,
+ "percentage": 67,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Splitting the middle term",
+   "studentWork": "2x² − 7x + 3 = 0\n2x² − 6x − x + 3 = 0",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly split the middle term",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Factoring by grouping",
+   "studentWork": "2x(x − 3) + 1(x − 3) = 0\n(2x + 1)(x − 3) = 0",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Sign error when taking common factor from −x + 3: should be −1(x − 3)",
+   "mistakeType": "calculation",
+   "correctedWorking": "2x(x − 3) − 1(x − 3) = 0\n(2x − 1)(x − 3) = 0",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Solving linear factors for roots",
+   "studentWork": "2x + 1 = 0 or x − 3 = 0\nx = −1/2 or x = 3\n∴ roots are −1/2 and 3",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly solved roots from your factors (error carried forward)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Splitting the middle term correctly to form 2x² − 6x − x + 3 = 0 (1); Factoring by grouping to obtain (2x − 1)(x − 3) = 0 (1); Equating factors to zero to find the roots (1). You split the middle term correctly and demonstrated a clear understanding of the factorisation method. Take extra care with signs when factoring negative terms: factoring −1 from −x + 3 gives −1(x − 3), which leads to the correct roots 1/2 and 3.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

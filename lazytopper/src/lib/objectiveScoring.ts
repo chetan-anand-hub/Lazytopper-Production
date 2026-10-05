@@ -2,17 +2,43 @@
 // client-side (in the browser, zero API cost), so it must use the EXACT same
 // normalise/compare semantics as the server graders — otherwise a surface could
 // diverge. This file MUST stay behaviourally identical to the .cjs module; a parity
-// unit test (`objectiveScoring.parity.test.ts`) asserts it across a case table.
+// unit test (`objectiveScoring.parity.test.ts`) asserts it across a SHARED fixture table
+// (`server/grading/objectiveParity.fixtures.json`) that the server suite reads too.
 //
 // Only the pure compare helpers live here (the clamp / mistake-type guard are
 // server-grader concerns). Keep the bodies byte-for-byte with the .cjs equivalents.
 
 export function normaliseOption(s: unknown): string {
+  return normaliseOptionKeepCase(s).toLowerCase();
+}
+
+/** The same collapse WITHOUT folding case. */
+export function normaliseOptionKeepCase(s: unknown): string {
   return String(s == null ? "" : s)
-    .toLowerCase()
     .replace(/[()[\]{}.,:;!?"']/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+/**
+ * C5 (GRADER-CORE-1) · case matters only when the options say so: genetics MCQs offer
+ * "TTWW" / "TTww" / "TtWW" / "TtWw", which fold to ONE string, so a folded compare scored
+ * every option full. Compare case-sensitively exactly when two options differ only by case.
+ */
+export function optionsDifferOnlyByCase(options: readonly string[] | undefined): boolean {
+  const opts = Array.isArray(options) ? options : [];
+  for (let i = 0; i < opts.length; i += 1) {
+    for (let j = i + 1; j < opts.length; j += 1) {
+      const a = normaliseOptionKeepCase(opts[i]);
+      const b = normaliseOptionKeepCase(opts[j]);
+      if (a && a !== b && a.toLowerCase() === b.toLowerCase()) return true;
+    }
+  }
+  return false;
+}
+
+function optionNormaliser(options: readonly string[] | undefined): (s: unknown) => string {
+  return optionsDifferOnlyByCase(options) ? normaliseOptionKeepCase : normaliseOption;
 }
 
 function letterIndex(norm: string): number {
@@ -22,15 +48,16 @@ function letterIndex(norm: string): number {
 /** Map a pick (letter OR option text) to the index of the matching option, or -1. */
 export function resolveOptionIndex(pick: unknown, options: readonly string[] | undefined): number {
   const opts = Array.isArray(options) ? options : [];
-  const norm = normaliseOption(pick);
+  const N = optionNormaliser(opts);
+  const norm = N(pick);
   if (!norm) return -1;
-  const li = letterIndex(norm);
+  const li = letterIndex(norm.toLowerCase());
   if (li >= 0 && li < opts.length) return li;
   if (opts.length === 0) return -1;
-  const exact = opts.findIndex((o) => normaliseOption(o) === norm);
+  const exact = opts.findIndex((o) => N(o) === norm);
   if (exact >= 0) return exact;
   return opts.findIndex((o) => {
-    const no = normaliseOption(o);
+    const no = N(o);
     if (no.length === 0) return false;
     if (no.length >= 3 && norm.includes(no)) return true;
     if (norm.length >= 3 && no.includes(norm)) return true;
@@ -52,8 +79,9 @@ export function scoreObjective(args: {
   totalMarks: number;
 }): ObjectiveScore {
   const full = Number(args.totalMarks) > 0 ? Number(args.totalMarks) : 1;
-  const keyNorm = normaliseOption(args.answerKey);
-  const pickNorm = normaliseOption(args.studentPick);
+  const N = optionNormaliser(args.options);
+  const keyNorm = N(args.answerKey);
+  const pickNorm = N(args.studentPick);
   if (!keyNorm || !pickNorm) return { marksAwarded: 0, correct: false, resolved: false };
   if (keyNorm === pickNorm) return { marksAwarded: full, correct: true, resolved: true };
   const opts = Array.isArray(args.options) ? args.options : [];
@@ -63,8 +91,8 @@ export function scoreObjective(args: {
     const correct = keyIdx === pickIdx;
     return { marksAwarded: correct ? full : 0, correct, resolved: true };
   }
-  const keyLetter = letterIndex(keyNorm);
-  const pickLetter = letterIndex(pickNorm);
+  const keyLetter = letterIndex(keyNorm.toLowerCase());
+  const pickLetter = letterIndex(pickNorm.toLowerCase());
   if (keyLetter >= 0 && pickLetter >= 0) {
     const correct = keyLetter === pickLetter;
     return { marksAwarded: correct ? full : 0, correct, resolved: true };

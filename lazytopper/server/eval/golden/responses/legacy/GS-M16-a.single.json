@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 5,
+ "marksAwarded": 5,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Calculation of class marks xᵢ, Σf, and Σfᵢxᵢ",
+   "studentWork": "xᵢ: 12, 14, 16, 18, 20, 22, 24\nfᵢ: 7, 6, 9, 13, f, 5, 4\nfᵢxᵢ: 84, 84, 144, 234, 20f, 110, 96\nΣf = 44 + f, Σfx = 752 + 20f",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct midpoints, sums, and table values",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Equating with given mean and solving for f",
+   "studentWork": "Mean = Σfx/Σf ⇒ 18 = (752 + 20f)/(44 + f) ⇒ 792 + 18f = 752 + 20f ⇒ 2f = 40 ⇒ f = 20",
+   "status": "correct",
+   "marksAwarded": 2,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct equation setup and algebraic simplification yielding f = 20",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Identifying modal class and values of l, f₁, f₀, f₂, h",
+   "studentWork": "Modal class = 19 – 21 (highest frequency 20)\nl = 19, f₁ = 20, f₀ = 13, f₂ = 5, h = 2",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct modal class identified and parameters listed",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 4,
+   "description": "Substituting into mode formula and calculating final answer",
+   "studentWork": "Mode = l + (f₁ − f₀)/(2f₁ − f₀ − f₂) × h = 19 + (20 − 13)/(40 − 13 − 5) × 2 = 19 + 7/22 × 2 = 19 + 14/22 = 19 + 0.636 = 19.64 (approx.)",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct formula, substitution, and evaluation",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Calculation of class marks xᵢ / Σf / and Σfᵢxᵢ (1); Formulating mean equation and solving for missing frequency f (2); Identifying modal class and stating parameters (l / f₁ / f₀ / f₂ / h) (1); Application of mode formula and finding correct mode (1). Excellent complete response. Both the missing frequency and mode were found accurately with all intermediate working and formula statements clearly shown.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

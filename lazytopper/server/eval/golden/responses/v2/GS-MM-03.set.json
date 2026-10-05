@@ -1,0 +1,46 @@
+{
+ "ok": true,
+ "worksheetId": "golden-mm-GS-MM-03",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "This answer does not address the question that was set, so it has not been marked — check that you uploaded your answer to this question.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": true,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": null,
+   "objectiveResolved": null
+  }
+ ],
+ "totalQuestions": 1,
+ "gradedCount": 0,
+ "pendingCount": 1,
+ "gradedMarksAwarded": 0,
+ "gradedMarksTotal": 0,
+ "worksheetTotalMarks": 3,
+ "summary": "The submitted sheet is a printed practice question paper rather than your written response. Please write out your complete solutions step by step and submit clear images of your work to receive evaluation and feedback.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

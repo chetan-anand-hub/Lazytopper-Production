@@ -1,0 +1,90 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 2,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Crossed-out initial attempt",
+   "studentWork": "(a) HNO3 + Ca(OH)2 -> CaNO3 + H2O",
+   "status": "withdrawn",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "Struck through",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(a)",
+   "marksAvailable": 0
+  },
+  {
+   "stepNumber": 2,
+   "description": "Writing the balanced chemical equation for reaction of nitric acid and calcium hydroxide",
+   "studentWork": "(a) 2HNO3 + Ca(OH)2 -> Ca(NO3)2 + 2H2O",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct balanced equation",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(a)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Writing the balanced chemical equation for reaction of sodium chloride and silver nitrate",
+   "studentWork": "(b) NaCl + AgNO3 -> AgCl + NaNO3",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct balanced equation",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(b)",
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Both equations are correctly formulated and balanced. Clean work replacing the initial rough draft.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Correct balanced chemical equation for reaction (a)",
+   "marks": 1
+  },
+  {
+   "point": "Correct balanced chemical equation for reaction (b)",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

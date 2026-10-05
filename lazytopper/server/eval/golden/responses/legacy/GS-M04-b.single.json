@@ -1,0 +1,49 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1.5,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Factorisation of polynomial by splitting the middle term",
+   "studentWork": "p(x) = (1/3)(3x² + 4x − 4)\n= (1/3)(3x² + 6x − 2x − 4)\n= (1/3)[3x(x + 2) − 2(x + 2)]\n= (1/3)(3x − 2)(x + 2)",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct factorisation into (1/3)(3x − 2)(x + 2)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Equating factors to zero to find the zeroes",
+   "studentWork": "3x − 2 = 0 ⇒ x = 3/2;  x + 2 = 0 ⇒ x = −2\nZeroes are 3/2 and −2.",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ x = −2 is correct, but solving 3x − 2 = 0 yields x = 2/3, not 3/2",
+   "mistakeType": "calculation",
+   "correctedWorking": "3x − 2 = 0 ⇒ x = 2/3; x + 2 = 0 ⇒ x = −2. Zeroes are 2/3 and −2.",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Factorisation of the polynomial into linear factors (1); Equating factors to zero and finding both zeroes (1). Your factorisation of the quadratic polynomial was completely correct. However, a small calculation slip occurred when solving 3x − 2 = 0, which gives x = 2/3 instead of 3/2.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

@@ -1,0 +1,6 @@
+Q7. [2 marks]
+Write one function each of the following, in a seed:
+(i) Seed coat [½]
+(ii) Cotyledon [½]
+(iii) Radicle [½]
+(iv) Plumule [½]

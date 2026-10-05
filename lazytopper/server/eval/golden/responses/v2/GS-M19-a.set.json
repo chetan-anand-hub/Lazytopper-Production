@@ -1,0 +1,394 @@
+{
+ "ok": true,
+ "worksheetId": "golden-parity-PARM6",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 4,
+   "marksAwarded": 3,
+   "percentage": 75,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Find 4th, 5th, and 6th terms of the AP",
+     "studentWork": "a = 300, d = 50.\na₄ = 300 + 3 × 50 = 450 m, a₅ = 500 m, a₆ = 550 m.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly determined terms with units.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(i)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Find the distance of the 8th round",
+     "studentWork": "",
+     "status": "unattempted",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "Part (ii) unattempted.",
+     "mistakeType": null,
+     "correctedWorking": "a₈ = a + 7d = 300 + 7(50) = 300 + 350 = 650 m",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(ii)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Find total distance after completing 10 rounds",
+     "studentWork": "S₁₀ = 10/2 [2 × 300 + (10 − 1) × 50] = 5 × [600 + 450] = 5 × 1050 = 5250 m.",
+     "status": "correct",
+     "marksAwarded": 2,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct formula, substitution, and evaluation.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(iii)",
+     "marksAvailable": 2
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Well done on parts (i) and (iii). Make sure not to skip sub-parts like (ii), as finding the 8th term was a direct formula substitution.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 1,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "(i) Identification of a=300, d=50 and finding 4th, 5th, 6th terms",
+     "marks": 1
+    },
+    {
+     "point": "(ii) Finding distance of 8th round (a_8 = a + 7d)",
+     "marks": 1
+    },
+    {
+     "point": "(iii)(a) Formula for S_n and calculating total distance for 10 rounds",
+     "marks": 2
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 2,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 4,
+   "marksAwarded": 3,
+   "percentage": 75,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Calculate central angle of each sector",
+     "studentWork": "Central angle of each sector = 360°/10 = 30°",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× 360°/10 = 36°, not 30°.",
+     "mistakeType": "calculation",
+     "correctedWorking": "Central angle of each sector = 360°/10 = 36°",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(i)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Calculate length of arc ACB",
+     "studentWork": "The circle is divided into 10 equal sectors, so arc ACB = 1/10 of the circumference\n= (1/10) × 2 × (22/7) × (35/2) = (1/10) × 110 = 11 mm",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct calculation of arc length using 1/10th of circumference.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(ii)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Calculate area of each sector",
+     "studentWork": "Area of each sector = (1/10) × πr² = (1/10) × (22/7) × (35/2) × (35/2) = (1/10) × 962.5 = 96.25 mm²",
+     "status": "correct",
+     "marksAwarded": 2,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly calculated area with correct unit.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(iii)",
+     "marksAvailable": 2
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Parts (ii) and (iii) were solved with excellent logic and precision. Be careful with simple division in part (i): 360° / 10 = 36°.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "(i) Central angle of each sector = 360°/10 = 36°",
+     "marks": 1
+    },
+    {
+     "point": "(ii) Length of arc ACB = (1/10) × 2πr or (θ/360) × 2πr",
+     "marks": 1
+    },
+    {
+     "point": "(iii)(a) Area of each sector = (1/10) × πr² or (θ/360) × πr²",
+     "marks": 2
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 3,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 4,
+   "marksAwarded": 2,
+   "percentage": 50,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Find distance BD in terms of h",
+     "studentWork": "In △BDC, tan 45° = CD/BD ⇒ 1 = h/BD ⇒ BD = h m",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct trigonometric ratio and result.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(i)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Find distance BC in terms of h",
+     "studentWork": "sin 45° = CD/BC ⇒ 1/√2 = h/BC ⇒ BC = √2 h m",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct trigonometric ratio and result.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(ii)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Calculate height of the lighthouse CE",
+     "studentWork": "I don't know how to do this part.",
+     "status": "unattempted",
+     "marksAwarded": 0,
+     "marksDeducted": 2,
+     "teacherAnnotation": "Explicit non-attempt for part (iii).",
+     "mistakeType": null,
+     "correctedWorking": "In △AEC, tan 60° = CE/AE = (h + 40)/h ⇒ √3 h = h + 40 ⇒ h(√3 - 1) = 40 ⇒ h = 40/(0.73) ≈ 54.79 m. Then CE = h + 40 ≈ 94.79 m.",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(iii)",
+     "marksAvailable": 2
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Parts (i) and (ii) were done perfectly. For part (iii), relate the two triangles using AE = BD = h and set up tan 60° = CE / AE.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 2,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "(i) In △BDC, tan 45° = CD/BD to find BD in terms of h",
+     "marks": 1
+    },
+    {
+     "point": "(ii) In △BDC, sin 45° = CD/BC to find BC in terms of h",
+     "marks": 1
+    },
+    {
+     "point": "(iii)(a) Finding CE: setting up relation with tan 60° and solving for CE",
+     "marks": 2
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 4,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 5,
+   "marksAwarded": 5,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Forming equations from given conditions",
+     "studentWork": "a + a₈ = 32 ⇒ a + a + 7d = 32 ⇒ 2a + 7d = 32 ...(1)\na × a₈ = 60 ⇒ a(a + 7d) = 60 ...(2)",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Equations formed correctly.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Setting up quadratic equation and solving for a",
+     "studentWork": "From (1): a + 7d = 32 − a\n∴ a(32 − a) = 60 ⇒ a² − 32a + 60 = 0\n⇒ (a − 2)(a − 30) = 0 ⇒ a = 2 or a = 30",
+     "status": "correct",
+     "marksAwarded": 1.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Elegant substitution and correct factorization.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1.5
+    },
+    {
+     "stepNumber": 3,
+     "description": "Determining common difference d for both values of a",
+     "studentWork": "When a = 2: 7d = 32 − 4 = 28 ⇒ d = 4\nWhen a = 30: 7d = 32 − 60 = −28 ⇒ d = −4",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Both pairs (a=2, d=4) and (a=30, d=-4) evaluated correctly.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 4,
+     "description": "Calculating sum of first 20 terms for both cases",
+     "studentWork": "S₂₀ = 20/2 [2a + 19d]\nFor a = 2, d = 4: S₂₀ = 10[4 + 76] = 800\nFor a = 30, d = -4: S₂₀ = 10[60 − 76] = −160",
+     "status": "correct",
+     "marksAwarded": 1.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly calculated S₂₀ for both cases.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1.5
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Flawless solution! Considering both cases of (a, d) and finding both sums shows complete mathematical maturity.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Forming equations from given conditions: 2a + 7d = 32 and a(a + 7d) = 60",
+     "marks": 1
+    },
+    {
+     "point": "Setting up quadratic equation in a and solving for roots of a",
+     "marks": 1.5
+    },
+    {
+     "point": "Finding corresponding values of common difference d for each case",
+     "marks": 1
+    },
+    {
+     "point": "Finding sum of first 20 terms for both sets of (a, d)",
+     "marks": 1.5
+    }
+   ],
+   "objectiveResolved": null
+  }
+ ],
+ "totalQuestions": 4,
+ "gradedCount": 4,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 13,
+ "gradedMarksTotal": 17,
+ "worksheetTotalMarks": 17,
+ "summary": "You demonstrated very strong algebraic competence and clear layout throughout, particularly in solving Question 4 completely and accurately. Pay close attention to simple arithmetic (such as 360/10) and ensure you attempt every sub-part of case study questions to secure full marks.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

@@ -1,0 +1,62 @@
+{
+ "ok": true,
+ "totalMarks": 4,
+ "marksAwarded": 2,
+ "percentage": 50,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Identify the modal class (most common performance range)",
+   "studentWork": "The most common performance range (modal class) is 30 - 40.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct identification of the modal class (30 – 40)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Find cumulative frequencies, N/2, and median class",
+   "studentWork": "cf : 3, 9, 21, 36, 50. N = 50, N/2 = 25\n25 lies in cf 36 => median class = 30 - 40",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct cumulative frequencies and median class interval (30 – 40)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Find the average performance (mean)",
+   "studentWork": "Don't know.",
+   "status": "missing",
+   "marksAwarded": 0,
+   "marksDeducted": 2,
+   "teacherAnnotation": "× Unattempted",
+   "mistakeType": null,
+   "correctedWorking": "Class marks (xi): 5, 15, 25, 35, 45\nfixi: 3(5) + 6(15) + 12(25) + 15(35) + 14(45) = 15 + 90 + 300 + 525 + 630 = 1560\nMean = Σfixi / N = 1560 / 50 = 31.2",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Identification of modal class (most common performance range) as 30 – 40 (1); Calculation of cumulative frequencies/values and finding median class as 30 – 40 (1); Calculation of class marks and Σfi xi (or di/ui method) (1); Application of mean formula and calculating average performance (Mean = 31.2) (1). Parts (i) and (ii) were solved correctly with clear reasoning. Remember to revise finding the mean (average) of grouped data using class marks and frequency products.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

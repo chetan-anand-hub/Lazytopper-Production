@@ -1,0 +1,326 @@
+{
+ "ok": true,
+ "worksheetId": "golden-parity-PARM4",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2.5,
+   "percentage": 83,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Express tan θ and cot θ in terms of sin θ and cos θ and simplify individual fractions",
+     "studentWork": "LHS = tan θ / (1 - cot θ) + cot θ / (1 - tan θ)\n= (sin θ/cos θ) / ((sin θ - cos θ)/sin θ) + (cos θ/sin θ) / ((cos θ - sin θ)/cos θ)",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct conversion to sin θ and cos θ.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Simplify denominators and combine fractions with common denominator",
+     "studentWork": "= sin² θ / (cos θ(sin θ - cos θ)) + cos² θ / (sin θ(sin θ - cos θ))\n= (sin³ θ - cos³ θ) / (sin θ cos θ(sin θ - cos θ))",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Sign slip: factoring out -1 from (cos θ - sin θ) requires changing the '+' between fractions to '-'.",
+     "mistakeType": "calculation",
+     "correctedWorking": "= sin² θ / [cos θ(sin θ - cos θ)] - cos² θ / [sin θ(sin θ - cos θ)] = (sin³ θ - cos³ θ) / [sin θ cos θ(sin θ - cos θ)]",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Factorise numerator using a³ - b³ and simplify to RHS",
+     "studentWork": "= (sin θ - cos θ)(sin² θ + sin θ cos θ + cos² θ) / (sin θ cos θ(sin θ - cos θ))\n= (1 + sin θ cos θ) / (sin θ cos θ) = 1 + sec θ cosec θ = RHS",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct factorization, cancellation, and simplification to RHS.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Very good algebraic flow and identity usage. Just watch out for the sign change when taking a negative factor out of the denominator.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0.5,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Expressing tan θ and cot θ in terms of sin θ and cos θ and simplifying fractions",
+     "marks": 1
+    },
+    {
+     "point": "Taking common denominator/LCM correctly with proper sign handling",
+     "marks": 1
+    },
+    {
+     "point": "Applying a³ - b³ identity, using sin² θ + cos² θ = 1, and simplifying to RHS",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 2,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1.5,
+   "percentage": 75,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Assume rationality and express √3 in terms of integers",
+     "studentWork": "Let 5 − 2√3 be rational. Then 5 − 2√3 = a/b, where a and b are integers and b ≠ 0.\n⇒ 2√3 = 5 − a/b = (5b − a)/b\n⇒ √3 = (5b − a)/(2b)",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct assumption and isolation of √3.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Establish contradiction and state final conclusion",
+     "studentWork": "Since a and b are integers, (5b − a)/(2b) is rational, but √3 is irrational. This is a contradiction.",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Contradiction stated, but the explicit final conclusion statement 'Hence, 5 - 2√3 is irrational' is missing.",
+     "mistakeType": "presentation",
+     "correctedWorking": "Since a and b are integers, (5b − a)/(2b) is rational, which contradicts the fact that √3 is irrational. Hence, our assumption was incorrect, and 5 − 2√3 is an irrational number.",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 1,
+    "departure": 0
+   },
+   "teacherNote": "The algebraic steps and contradiction are spot on. Always finish with the explicit conclusion sentence stating that the given number is irrational.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0.5,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Assuming 5 - 2√3 is rational and rearranging to isolate √3",
+     "marks": 1
+    },
+    {
+     "point": "Arriving at contradiction and stating conclusion that 5 - 2√3 is irrational",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 3,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Proof of irrationality using method of contradiction",
+     "studentWork": "1/√5 = 1/2.2360679… = 0.4472135…\nThe decimal expansion of 1/√5 is non-terminating and non-repeating.\nA rational number always has a terminating or repeating decimal expansion.\n∴ 1/√5 is an irrational number. Hence proved.",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 3,
+     "teacherAnnotation": "× Invalid method: Decimal expansion cannot be assumed or quoted to prove irrationality. A formal proof by contradiction is required.",
+     "mistakeType": "conceptual",
+     "correctedWorking": "Let 1/√5 be rational, so 1/√5 = a/b where a and b are coprime integers and b ≠ 0. Then √5 = b/a. Since a and b are integers, b/a is rational, which implies √5 is rational. This contradicts the fact that √5 is irrational. Hence, 1/√5 is an irrational number.",
+     "isDeparture": true,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 3
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 1
+   },
+   "teacherNote": "Decimal approximations cannot be used to prove irrationality because stating the expansion is non-terminating and non-repeating assumes the conclusion. Use the standard proof by contradiction. This method does not work in general, so the working built on it cannot earn method marks — use a method that holds in every case.",
+   "questionDepartureError": true,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": "invalid-method",
+   "marksLostByType": {
+    "conceptual": 3,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Assume 1/√5 is rational as a/b (coprime integers, b ≠ 0)",
+     "marks": 1
+    },
+    {
+     "point": "Show that 5 divides a² and 5 divides b², contradicting coprimality",
+     "marks": 1.5
+    },
+    {
+     "point": "Conclude that 1/√5 is irrational",
+     "marks": 0.5
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 4,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2,
+   "percentage": 67,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Formulate equations from given conditions",
+     "studentWork": "Let outer radius = R cm and inner radius = r cm.\nR − r = 1 ...(i)\nVolume of metal = π(R² − r²)h\n176 = (22/7) × (R² − r²) × 14",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct setup of both equations.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Compute R² - r²",
+     "studentWork": "⇒ R² − r² = (176 × 7)/(22 × 14) = 1232/308 = 8",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Calculation error: 1232 / 308 = 4, not 8.",
+     "mistakeType": "calculation",
+     "correctedWorking": "R² − r² = (176 × 7)/(22 × 14) = 176 / 44 = 4",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Solve for R and r from the linear equations",
+     "studentWork": "⇒ (R − r)(R + r) = 8 ⇒ 1 × (R + r) = 8 ⇒ R + r = 8 ...(ii)\nAdding (i) and (ii): 2R = 9 ⇒ R = 4.5 cm, r = 3.5 cm\nOuter radius = 4.5 cm, inner radius = 3.5 cm.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct method of solving equations using difference of squares and linear elimination (ECF awarded).",
+     "mistakeType": null,
+     "correctedWorking": "(R − r)(R + r) = 4 ⇒ 1 × (R + r) = 4 ⇒ R + r = 4. Adding with R − r = 1 gives 2R = 5 ⇒ R = 2.5 cm, r = 1.5 cm.",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Methodology is excellent and proper units were included. Double-check your arithmetic division: 1232 / 308 = 4, which yields R = 2.5 cm and r = 1.5 cm.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Set up equations R - r = 1 and Volume = π(R² - r²)h = 176",
+     "marks": 1
+    },
+    {
+     "point": "Evaluate R² - r² = 4",
+     "marks": 1
+    },
+    {
+     "point": "Solve linear system to find outer and inner radii with units",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  }
+ ],
+ "totalQuestions": 4,
+ "gradedCount": 4,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 6,
+ "gradedMarksTotal": 11,
+ "worksheetTotalMarks": 11,
+ "summary": "You demonstrate strong structured thinking, solid algebraic manipulation, and good presentation with units. To maximize your scores, be cautious with arithmetic divisions and signs during factorization, remember to write explicit concluding lines in proofs, and always rely on proof by contradiction rather than decimal expansions for irrationality.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

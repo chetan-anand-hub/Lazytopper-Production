@@ -1,0 +1,132 @@
+{
+ "ok": true,
+ "totalMarks": 5,
+ "marksAwarded": 4,
+ "percentage": 80,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Labelled diagram representing tower, pole, point P, and angles",
+   "studentWork": "",
+   "status": "missing",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Labelled diagram is missing (mandatory in heights and distances)",
+   "mistakeType": "presentation",
+   "correctedWorking": "Draw a vertical line segment AC with tower AB = h and pole BC = 6 m on top. Mark point P on the ground at distance AP = x from foot A. Join PB (angle of elevation/depression 45°) and PC (angle of elevation 60°).",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Setting up trigonometric ratio in △BAP",
+   "studentWork": "Let AB = h m be the height of the tower and BC = 6 m the pole, and let the distance of P from the foot A of the tower be x m.\nAngle of depression of P from B = 45° ⇒ ∠BPA = 45°.\nIn △BAP: tan 45° = AB/AP = h/x ⇒ 1 = h/x ⇒ h = x …(1)",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly related angle of depression to angle of elevation and established h = x",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Setting up trigonometric ratio in △CAP",
+   "studentWork": "In △CAP: tan 60° = AC/AP = (h + 6)/x ⇒ √3 x = h + 6 …(2)",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly formed equation for the total height",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 4,
+   "description": "Solving equations for h by rationalisation",
+   "studentWork": "From (1): √3 h = h + 6 ⇒ h(√3 − 1) = 6 ⇒ h = 6/(√3 − 1) = 6(√3 + 1)/2 = 3(√3 + 1)",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Neat and accurate algebraic rationalisation",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 5,
+   "description": "Substituting √3 = 1.73 and stating final answers with units",
+   "studentWork": "= 3 × 2.73 = 8.19\n∴ Height of tower = 8.19 m and distance of P from the foot of the tower = 8.19 m.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Accurate calculation and conclusion with correct units",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 1,
+  "departure": 0
+ },
+ "teacherNote": "Your algebraic formulation, rationalisation, and final arithmetic are flawless. However, in CBSE board exams, a labelled diagram is compulsory for heights and distances problems and carries a dedicated mark.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 1,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Labelled figure representing the problem situation",
+   "marks": 1
+  },
+  {
+   "point": "Correct relation using tan 45° in △BAP to get h = x",
+   "marks": 1
+  },
+  {
+   "point": "Correct relation using tan 60° in △CAP to get √3 x = h + 6",
+   "marks": 1
+  },
+  {
+   "point": "Solving the system of equations algebraically for h",
+   "marks": 1
+  },
+  {
+   "point": "Calculation of final values using √3 = 1.73 with proper units",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

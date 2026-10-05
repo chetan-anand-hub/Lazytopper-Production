@@ -1,0 +1,539 @@
+{
+ "ok": true,
+ "worksheetId": "ci:GOLDEN-CP-paper-04",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 1,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Calculate probability and choose correct option",
+     "studentWork": "Favourable: (1,1) (1,2) (1,3) (2,1) (2,2) (2,3) (3,1) (3,2) (3,3) = 9\nP = 9/36 = 1/4\nAns: (B)",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "× Option (B) is chosen despite calculating 1/4, which corresponds to option (A).",
+     "mistakeType": "silly",
+     "correctedWorking": "Ans: (A)",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 1,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Correct option (A) or value 1/4 (1). Your calculation of the probability 1/4 was correct, but you mistakenly wrote down option (B) instead of (A). Always double-check that your written option matches your calculated value.",
+   "questionDepartureError": false,
+   "objective": true
+  },
+  {
+   "qNumber": 2,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 1,
+   "marksAwarded": 1,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Identify relationship between Assertion and Reason",
+     "studentWork": "Ans: (A)",
+     "status": "correct",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct option selected.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Correct option (A) (1). Correct answer.",
+   "questionDepartureError": false,
+   "objective": true
+  },
+  {
+   "qNumber": 3,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1,
+   "percentage": 50,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Calculate current drawn by the kettle",
+     "studentWork": "P = 750 W, V = 220 V\nI = P/V = 750/220 = 3.4 A",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Current correctly calculated.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Determine if kettle can be used with 3 A fuse and provide reason",
+     "studentWork": "Yes, this kettle can be used.\nA fuse of 3 A rating melts only when the current becomes much more than 3 A (about double), so 3.4 A will not melt it.",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× A 3 A fuse melts when current exceeds 3 A; since 3.4 A > 3 A, the kettle cannot be used.",
+     "mistakeType": "conceptual",
+     "correctedWorking": "No, this kettle cannot be used. Since the current drawn by the kettle (3.4 A) is greater than the fuse rating (3 A), the fuse wire will melt and break the circuit.",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Calculation of current drawn: I = P/V = 750/220 ≈ 3.41 A (1); Conclusion that kettle cannot be used / as current drawn (3.4 A) exceeds fuse rating (3 A) / causing the fuse to melt/blow (1). Your calculation of electric current was correct. Remember that an electric fuse is designed to melt as soon as the operating current exceeds its rated limit, so a 3.4 A appliance cannot safely operate on a 3 A fuse.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 4,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "This answer does not address the question that was set, so it earns no marks — check that you uploaded your answer to this question.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 5,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 3,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Define 1 volt potential difference",
+     "studentWork": "The potential difference between two points is one volt when one joule of work is done to move one coulomb of charge from one point to the other.\n1 V = 1 J / 1 C",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Accurate definition and formula.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Draw schematic circuit diagram",
+     "studentWork": "[Circuit diagram drawn with 1.5 V cell, 5 Ω and 10 Ω resistors in series, closed plug key K, and current arrows]",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct schematic diagram.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Calculate total resistance and current drawn",
+     "studentWork": "R = 5 Ω + 10 Ω = 15 Ω\nI = V / R = 1.5 V / 15 Ω = 0.1 A",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct calculation of current.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Definition of 1 volt potential difference (1); Schematic diagram of circuit with cell / two resistors / and closed key in series with current direction (1); Calculation of total resistance and current drawn (I = 0.1 A) (1). Well done! The definition, circuit diagram, and calculation of current were all executed clearly and accurately.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 6,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2,
+   "percentage": 67,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Identify products A and B",
+     "studentWork": "Product A - ethene, Product B - ethane",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Both products correctly identified.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Chemical equation for Step 1",
+     "studentWork": "Step 1: CH₃CH₂OH ――conc. H₂SO₄, 170 °C――> CH₂=CH₂ + H₂O",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct dehydration equation.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Chemical equation for Step 2",
+     "studentWork": "Step 2: CH₂=CH₂ + H₂O ――Ni――> CH₃CH₂OH",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Step 2 is catalytic hydrogenation with H₂, not hydration with H₂O.",
+     "mistakeType": "conceptual",
+     "correctedWorking": "CH₂=CH₂ + H₂ ――Ni――> CH₃-CH₃",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Name products A (ethene) and B (ethane) (1); Chemical equation for Step 1 (dehydration of ethanol to ethene) (1); Chemical equation for Step 2 (hydrogenation of ethene to ethane) (1). You identified both compounds correctly and wrote Step 1 properly. However, for Step 2 you struck out the correct hydrogenation reaction and replaced it with an incorrect hydration reaction.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 7,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1,
+   "percentage": 50,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Function of seed coat",
+     "studentWork": "(i) Seed coat - protects the seed.",
+     "status": "correct",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct function.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Function of cotyledon",
+     "studentWork": "(ii) Cotyledon - stores food for the embryo.",
+     "status": "correct",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct function.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Function of radicle",
+     "studentWork": "(iii) and (iv) - don't remember.",
+     "status": "missing",
+     "marksAwarded": 0,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "Unattempted.",
+     "mistakeType": null,
+     "correctedWorking": "Radicle develops into the future root system.",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 4,
+     "description": "Function of plumule",
+     "studentWork": "",
+     "status": "missing",
+     "marksAwarded": 0,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "Unattempted.",
+     "mistakeType": null,
+     "correctedWorking": "Plumule develops into the future shoot system.",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Function of seed coat (0.5); Function of cotyledon (0.5); Function of radicle (0.5); Function of plumule (0.5). Parts (i) and (ii) are completely correct. Remember that in a germinating seed, the radicle gives rise to the root and the plumule gives rise to the shoot.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 8,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 5,
+   "marksAwarded": 4,
+   "percentage": 80,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Set up volume equation with substitution",
+     "studentWork": "Let the height of the cone be h cm, r = 3.5 cm.\nVolume of toy = volume of cone + volume of hemisphere\n166 5/6 = 1/3 π r² h + 2/3 π r³\n1001/6 = 1/3 × 22/7 × (3.5)² × h + 2/3 × 22/7 × (3.5)³",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct volume formulation and substitution.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Solve for the height of the conical part",
+     "studentWork": "1001/6 = 77/6 h + 539/6\n1001 = 77h + 539 ⇒ 77h = 462 ⇒ h = 7 cm",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 1,
+     "teacherAnnotation": "½ 462 / 77 = 6 cm, but written as 7 cm.",
+     "mistakeType": "calculation",
+     "correctedWorking": "77h = 462 ⇒ h = 462 / 77 = 6 cm",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Calculate curved surface area of the hemisphere",
+     "studentWork": "CSA of hemisphere = 2πr² = 2 × 22/7 × 3.5 × 3.5 = 77 cm²",
+     "status": "correct",
+     "marksAwarded": 1.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct CSA.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 4,
+     "description": "Calculate cost of painting the hemispherical part",
+     "studentWork": "Cost of painting = 15 × 77 = ₹ 1155",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct cost calculation.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Formula for total volume of toy: V = 1/3 π r² h + 2/3 π r³ (1); Substitution and simplification to find height h = 6 cm (1.5); Calculation of curved surface area of hemispherical part: CSA = 2 π r² = 77 cm² (1.5); Calculation of cost of painting = ₹ 15 × 77 = ₹ 1155 (1). Your setup and surface area calculations were excellent. Be careful with division in arithmetic: 462 / 77 equals 6 cm, not 7 cm.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 9,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 4,
+   "marksAwarded": 3,
+   "percentage": 75,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Place P and Q on the pH scale",
+     "studentWork": "P will be at pH 13 and Q will be at pH 1.",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Positions swapped: strong acids have very low pH (around 0-2) and strong bases have high pH (around 12-14).",
+     "mistakeType": "conceptual",
+     "correctedWorking": "Solution P (strong acid) will be at pH ~ 0 to 2 (or pH 1), and Solution Q (strong base) will be at pH ~ 12 to 14 (or pH 13).",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Name compounds to increase and decrease pH",
+     "studentWork": "(i) To increase pH - add sodium hydroxide.\n(ii) To decrease pH - add hydrochloric acid.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct compounds named.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "State effect on hydronium ion concentration",
+     "studentWork": "When pH decreases from 4 to 2, the hydronium ion (H₃O⁺) concentration increases.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct effect on concentration.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 4,
+     "description": "State colour change of pH paper",
+     "studentWork": "The pH paper colour changes from orange to red.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct colour change.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: (a) Placement of P (strong acid / pH ~ 0-2) and Q (strong base / pH ~ 12-14) (1); (b) Compound to increase pH (base) and decrease pH (acid) (1); (c) Effect on hydronium ion concentration (increases) (1); (c) Colour change of pH paper (orange to red) (1). Parts (b) and (c) were answered completely correctly. Be mindful that lower pH values indicate stronger acidity and higher pH values indicate basicity.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 10,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2.5,
+   "percentage": 83,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Assume 2 + 3√3 is rational",
+     "studentWork": "Let us assume that 2 + 3√3 is a rational number.\nThen 2 + 3√3 = a/b, where a and b are integers and b ≠ 0.",
+     "status": "correct",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Valid contradiction assumption.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Rearrange equation for √3",
+     "studentWork": "⇒ 3√3 = a/b - 2 = (a - 2b)/b ⇒ √3 = (a - 2b)/(3b)",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct algebraic rearrangement.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Establish contradiction and conclude",
+     "studentWork": "Since a and b are integers, (a - 2b)/(3b) is rational.\nSo √3 is rational.\nBut this contradicts the given fact that √3 is irrational.",
+     "status": "partial",
+     "marksAwarded": 1,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Required final concluding sentence ('Hence, 2 + 3√3 is irrational') is missing.",
+     "mistakeType": "presentation",
+     "correctedWorking": "Hence, our assumption is incorrect and 2 + 3√3 is an irrational number.",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 1,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Assumption 2 + 3√3 = a/b (a / b coprime integers / b ≠ 0) (0.5); Rearranging to express √3 = (a - 2b)/(3b) (1); Deducing √3 is rational since a / b are integers (1); Stating contradiction to the given fact that √3 is irrational and writing final conclusion (0.5). The algebraic proof by contradiction was set up and explained very well. Always remember to write the explicit concluding line stating 'Hence, 2 + 3√3 is irrational' to conclude your proof.",
+   "questionDepartureError": false,
+   "objective": false
+  }
+ ],
+ "totalQuestions": 10,
+ "gradedCount": 10,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 17.5,
+ "gradedMarksTotal": 26,
+ "worksheetTotalMarks": 26,
+ "summary": "You demonstrated good foundational knowledge across multiple topics, particularly in electricity, organic naming, and proof by contradiction. To maximize your score, pay closer attention to matching calculated values with MCQ options, check arithmetic steps carefully, and always include final concluding statements.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

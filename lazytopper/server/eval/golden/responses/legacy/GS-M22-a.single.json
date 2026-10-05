@@ -1,0 +1,62 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1.5,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Elimination of y by multiplying equations and adding to find x",
+   "studentWork": "7x − 2y = 5 …(1)\n8x + 7y = 15 …(2)\n(1) × 7: 49x − 14y = 35\n(2) × 2: 16x + 14y = 30\nAdding: 65x = 65 ⇒ x = 1",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly multiplied and eliminated y to obtain x = 1",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Substitute x = 1 into equation (1) to solve for y",
+   "studentWork": "Put x = 1 in (1): 7 − 2y = 5 ⇒ 2y = 2 ⇒ y = 1\n∴ x = 1, y = 1",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct substitution yielding y = 1",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Verification of values in both original equations",
+   "studentWork": "",
+   "status": "missing",
+   "marksAwarded": 0,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "× Verification step requested in the question was omitted",
+   "mistakeType": null,
+   "correctedWorking": "Verification:\nIn (1): LHS = 7(1) − 2(1) = 7 − 2 = 5 = RHS\nIn (2): LHS = 8(1) + 7(1) = 8 + 7 = 15 = RHS\nHence verified.",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Elimination of a variable and solving for x = 1 (1); Substitution of x = 1 to find y = 1 (0.5); Verification of the solution (x = 1 / y = 1) in both given equations (0.5). Your algebraic working and values for x and y are entirely accurate. Be sure to read the question carefully to complete all required tasks, as the verification part was omitted.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

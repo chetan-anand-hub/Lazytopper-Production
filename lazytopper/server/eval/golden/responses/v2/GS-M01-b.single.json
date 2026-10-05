@@ -1,0 +1,71 @@
+{
+ "ok": true,
+ "totalMarks": 1,
+ "marksAwarded": 0,
+ "percentage": 0,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Calculation of k using sum and product of zeroes",
+   "studentWork": "α + β = −6/3 = −2\nαβ = k/3\nα + β + αβ = −2/3\n−2 + k/3 = −2/3\nk/3 = −2/3 + 2 = 4/3\nk = 4",
+   "status": "correct",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct working to find k = 4",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0
+  },
+  {
+   "stepNumber": 2,
+   "description": "Selection of the correct MCQ option",
+   "studentWork": "Answer: (A)",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "× Incorrect option letter chosen; k = 4 corresponds to option (D), not (A)",
+   "mistakeType": "silly",
+   "correctedWorking": "(D) 4",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 1,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Your algebraic working to obtain k = 4 was completely correct. However, you mistakenly selected option (A) instead of option (D), which costs the mark for this question.",
+ "questionDepartureError": false,
+ "objective": true,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 1,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Correct option (D) 4",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": true
+}

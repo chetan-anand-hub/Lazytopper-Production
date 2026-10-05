@@ -1,0 +1,133 @@
+{
+ "runId": "2026-10-05.PR2-accept-a-flash38",
+ "config": {
+  "id": "PR2-a-flash38",
+  "model": "gemini-3.8-flash",
+  "thinkingBudget": null,
+  "core": true,
+  "gradingMode": "single",
+  "label": "PR-2 (a): gemini-3.8-flash only (SUBSTITUTE: gemini-2.5-flash refused to this key), dynamic thinking"
+ },
+ "createdAt": "2026-10-05T13:58:27.493Z",
+ "dry": false,
+ "note": "Runs under the GRADER-CORE-1 PR-2 grading core (one prompt builder, one post-processing path, the owner rulings of 2026-10-05).",
+ "serverFileSha256LF": {
+  "grading/rules.cjs": "5bafc708b030c1c62a024c5d6c3bf406fbbba7d874921fbae17288af9532c6c7",
+  "grading/prompt.cjs": "9cae00b8bd0a883a53c425fb7b7f16fabe71cfffa4297dea724e78d1cc6477a4",
+  "grading/postprocess.cjs": "44f48fe243b552e5e9a3af08d421ab349a02d9c32df393d530f3f94ff5643031",
+  "grading/core.cjs": "e26eb3acf08a8a0847283921247e9f7e5c4cc6fdffc0cfabaa77635881aac9e0",
+  "grading/verify.cjs": "026b85dfe0844677e1447d4aafec1b3bdfb81739f0354d79c180d8ea35c17db6",
+  "grading/schema.cjs": "9d43746788a9d095f9500126962b9720f9fadb6d39642b054fd3d820939aca12",
+  "grading/fence.cjs": "0ec8a21922bd7da98c24ddd52a758bfee26ececc5b9f690f722da88a9317f64e",
+  "routes/checkSolution.cjs": "9cb00f5da098ba134cacf595de37d944cb61b3607162fa9aea17f73df9c35cde",
+  "routes/objectiveScoring.cjs": "b184e474a7b13f2438496a30ddf85580ea148a77152211fd1bffb6dba24249c5",
+  "services/geminiClient.cjs": "a55643a2fd0527ae246a592b618489841d1d8c70c38376c823695ae8d4c69480",
+  "services/serverConfig.cjs": "58bb971c16f28b71193436c530b71d844030bdecfc611ca8367fd9b5178ae8da",
+  "services/httpUtils.cjs": "ca02bfeaedf71b47ea7f08cad526bd39db61a2920e5353d7bfaecab7116c6e54",
+  "mentorImageSupport.cjs": "105f1192a95789ba650b55067131b4e45d39aeaada640ad385552545b10b764b",
+  "services/serverUtils.cjs": "802142b6aadf83c23c2cb3324160b8ee0ce7675c6e2725279318e928de43e068"
+ },
+ "timeoutMs": 80000,
+ "concurrency": 32,
+ "runsPlanned": 3,
+ "ledger": "a15-pr2c-grader-core.jsonl",
+ "stubs": "no fair-use/idempotency/entitlement middleware (handler called directly); solution cache returns null (production with no DATABASE_URL)",
+ "completedAt": "2026-10-05T14:03:21.312Z",
+ "httpStats": {
+  "http": 534,
+  "ok": 534,
+  "status429": 0,
+  "timeouts": 0,
+  "errors": 0,
+  "httpInFlight": 0,
+  "peakHttpInFlight": 32
+ },
+ "parallel": [
+  {
+   "startedAt": "2026-10-05T13:58:27.769Z",
+   "wallMs": 293543,
+   "jobs": 534,
+   "ramp": [
+    8,
+    16,
+    32
+   ],
+   "rampEvery": 8,
+   "peakJobsInFlight": 32,
+   "peakHttpInFlight": 32,
+   "status429": 0,
+   "levels": [
+    {
+     "atMs": 0,
+     "inFlightCap": 8,
+     "why": "start"
+    },
+    {
+     "atMs": 13257,
+     "inFlightCap": 16,
+     "why": "no 429 -> step up"
+    },
+    {
+     "atMs": 22843,
+     "inFlightCap": 32,
+     "why": "no 429 -> step up"
+    }
+   ],
+   "timeoutMs": 80000
+  }
+ ],
+ "bodyDigestRebaseline": [
+  {
+   "at": "2026-10-05T14:11:23.299Z",
+   "changed": 4,
+   "jobs": [
+    "run1.jsonl:W.CP.paper-01",
+    "run2.jsonl:V2.W.CP.paper-02",
+    "run3.jsonl:W.CP.paper-02",
+    "run3.jsonl:V2.W.CP.paper-01"
+   ],
+   "note": "Post-processing defects found BY this acceptance run and fixed with zero model calls, after it was recorded: (1) the D23 inventory check compared a LaTeX first line with Unicode studentWork and zeroed a fully correct answer (CP02-Q06, 2 of 6 gradings) -> notation-normalised comparison; (2) the C4 arithmetic check charged a correct step whose radical or stacked fraction the model quoted without brackets (CP03-Q08 in fix round 1; CP01-Q05) -> such lines are skipped. The model was not re-run: calls[].text, requestDigest, latency and tokens are unchanged; only bodyDigest is re-derived so G1 replays this run byte-identically through the shipped post-processing."
+  },
+  {
+   "at": "2026-10-05T14:15:17.491Z",
+   "changed": 15,
+   "jobs": [
+    "run1.jsonl:W.PAR.PARM7",
+    "run1.jsonl:S.MM.GS-MM-03",
+    "run1.jsonl:W.MM.GS-MM-03",
+    "run1.jsonl:V2.W.MM.GS-MM-03",
+    "run1.jsonl:V2.S.MM.GS-MM-03",
+    "run1.jsonl:W.CIM.OA-01",
+    "run2.jsonl:S.MM.GS-MM-03",
+    "run2.jsonl:W.MM.GS-MM-03",
+    "run2.jsonl:V2.S.MM.GS-MM-03",
+    "run2.jsonl:V2.W.MM.GS-MM-03",
+    "run3.jsonl:W.PAR.PARM7",
+    "run3.jsonl:W.MM.GS-MM-03",
+    "run3.jsonl:S.MM.GS-MM-03",
+    "run3.jsonl:V2.S.MM.GS-MM-03",
+    "run3.jsonl:V2.W.MM.GS-MM-03"
+   ],
+   "note": "Second zero-call post-processing defect found BY this acceptance run: the answer-mismatch guard accepted the model's 'does not address the question' for an explicit NON-ATTEMPT (the owner's Q6 'Don't know' in legacy run 1; GS-M24-a's blank page in PARM7 runs 1 and 3) -> a non-attempt is unattempted, never a mismatch (D29). Model not re-run; only bodyDigest re-derived."
+  },
+  {
+   "at": "2026-10-05T14:16:03.014Z",
+   "changed": 12,
+   "jobs": [
+    "run1.jsonl:S.MM.GS-MM-03",
+    "run1.jsonl:W.MM.GS-MM-03",
+    "run1.jsonl:V2.W.MM.GS-MM-03",
+    "run1.jsonl:V2.S.MM.GS-MM-03",
+    "run2.jsonl:S.MM.GS-MM-03",
+    "run2.jsonl:W.MM.GS-MM-03",
+    "run2.jsonl:V2.S.MM.GS-MM-03",
+    "run2.jsonl:V2.W.MM.GS-MM-03",
+    "run3.jsonl:W.MM.GS-MM-03",
+    "run3.jsonl:S.MM.GS-MM-03",
+    "run3.jsonl:V2.S.MM.GS-MM-03",
+    "run3.jsonl:V2.W.MM.GS-MM-03"
+   ],
+   "note": "Correction of the previous entry's rule: the non-attempt test reads the model's mismatch WORK quote only (not 'all steps unattempted', which also matched the wrong-page case GS-MM-03). Net effect vs the recorded run: owner Q6 legacy r1 and GS-M24-a PARM7 r1/r3 no longer carry a false mismatch note."
+  }
+ ]
+}

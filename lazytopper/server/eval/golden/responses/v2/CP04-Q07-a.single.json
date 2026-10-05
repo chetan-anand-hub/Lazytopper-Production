@@ -1,0 +1,113 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1,
+ "percentage": 50,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "State function of seed coat",
+   "studentWork": "(i) Seed coat - protects the seed.",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct function of seed coat.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(i)",
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 2,
+   "description": "State function of cotyledon",
+   "studentWork": "(ii) Cotyledon - stores food for the embryo.",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct function of cotyledon.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(ii)",
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 3,
+   "description": "State function of radicle",
+   "studentWork": "(iii) and (iv) - don't remember.",
+   "status": "unattempted",
+   "marksAwarded": 0,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "— Not attempted.",
+   "mistakeType": null,
+   "correctedWorking": "Radicle develops into the future root system.",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(iii)",
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 4,
+   "description": "State function of plumule",
+   "studentWork": "(iii) and (iv) - don't remember.",
+   "status": "unattempted",
+   "marksAwarded": 0,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "— Not attempted.",
+   "mistakeType": null,
+   "correctedWorking": "Plumule develops into the future shoot system.",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(iv)",
+   "marksAvailable": 0.5
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "You stated the functions of the seed coat and cotyledon accurately. Remember that the radicle develops into the root and the plumule develops into the shoot.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 1,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Function of Seed coat (protection of the seed / embryo)",
+   "marks": 0.5
+  },
+  {
+   "point": "Function of Cotyledon (storage of food / nourishment for the embryo)",
+   "marks": 0.5
+  },
+  {
+   "point": "Function of Radicle (gives rise to the root / future root)",
+   "marks": 0.5
+  },
+  {
+   "point": "Function of Plumule (gives rise to the shoot / future shoot)",
+   "marks": 0.5
+  }
+ ],
+ "objectiveResolved": null
+}

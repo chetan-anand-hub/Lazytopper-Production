@@ -1,0 +1,71 @@
+{
+ "ok": true,
+ "totalMarks": 1,
+ "marksAwarded": 1,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Working: sum and product of zeroes and solving for k",
+   "studentWork": "α + β = −6/3 = −2\nαβ = k\n−2 + k = −2/3\nk = −2/3 + 2 = 4/3, which is about 1, so the nearest option is 4.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "× αβ = c/a = k/3, not k; rounding 4/3 to match 4 is invalid",
+   "mistakeType": null,
+   "correctedWorking": "α + β = -6/3 = -2\nαβ = k/3\nα + β + αβ = -2/3\n-2 + k/3 = -2/3\nk/3 = 4/3\nk = 4",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0
+  },
+  {
+   "stepNumber": 2,
+   "description": "Select correct option",
+   "studentWork": "Answer: (D)",
+   "status": "correct",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct option chosen",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "The correct option (D) was chosen, earning full marks for this objective question. However, be careful with the formula for the product of zeroes: αβ = c/a = k/3, not k. Solving −2 + k/3 = −2/3 yields k = 4 directly without any need to approximate.",
+ "questionDepartureError": false,
+ "objective": true,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Correct option (D)",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": true
+}

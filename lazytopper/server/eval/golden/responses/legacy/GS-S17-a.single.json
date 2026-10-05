@@ -1,0 +1,62 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2.5,
+ "percentage": 83,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Calculation of energy available at the producer level (phytoplankton)",
+   "studentWork": "By the 10% law only 10% of energy passes to the next level.\nLarge fish (4th level) = 10 kJ ⇒ small fishes = 100 kJ ⇒ zooplankton = 1000 kJ ⇒ phytoplankton = 1000 × 10 = 1,00,000 kJ.",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Correct application of the 10% law backwards, but arithmetic slip: 1000 × 10 = 10,000 kJ, not 1,00,000 kJ.",
+   "mistakeType": "calculation",
+   "correctedWorking": "Phytoplankton = 1000 × 10 = 10,000 kJ (or 10⁴ kJ)",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Possibility of three more trophic levels and justification",
+   "studentWork": "No. At each trophic level about 90% of the energy is lost, so after three more levels very little usable energy would be left.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly answered 'No' with proper reasoning of energy loss.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Identifying the level with maximum pesticide and giving the reason (biological magnification)",
+   "studentWork": "Large fish, because pesticides are non-biodegradable and accumulate at each trophic level (biological magnification), so the highest level has the maximum concentration.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly identified large fish and accurately explained biomagnification.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Part A: Correct calculation / application of 10% law to find energy at producer level (10,000 kJ) (1); Part B: Stating 'No' with valid justification based on energy loss at successive trophic levels (1); Part C: Identifying large fish (highest trophic level) and explaining biological magnification (1). Parts B and C are excellently answered with complete conceptual clarity and appropriate terminology like 'biological magnification'. In Part A, your method and step-by-step logic were entirely correct, but an extra zero was accidentally added when multiplying 1000 by 10 (giving 10,000 kJ, not 1,00,000 kJ).",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

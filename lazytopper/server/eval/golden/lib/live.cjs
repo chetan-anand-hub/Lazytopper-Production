@@ -49,7 +49,7 @@ function createLiveClient(o) {
   let used = ledgerCount(o.ledgerFile);
   let sentThisProcess = 0;
   let pauseUntil = 0;
-  const stats = { http: 0, ok: 0, status429: 0, timeouts: 0, errors: 0 };
+  const stats = { http: 0, ok: 0, status429: 0, timeouts: 0, errors: 0, httpInFlight: 0, peakHttpInFlight: 0 };
   let keyFailure = null;
 
   const realFetch = globalThis.fetch;
@@ -69,6 +69,10 @@ function createLiveClient(o) {
     const model = decodeURIComponent((u.match(/models\/([^:]+):/) || [])[1] || '');
     let thinkingBudget = null;
     try { const b = JSON.parse(opts.body); thinkingBudget = b.generationConfig && b.generationConfig.thinkingConfig ? b.generationConfig.thinkingConfig.thinkingBudget : null; } catch { /* */ }
+    // Owner speed ruling 2 (2026-10-05): parallel calls ramped to the key's rate limit; the
+    // peak number of HTTP requests in flight is reported with every run.
+    stats.httpInFlight += 1;
+    if (stats.httpInFlight > stats.peakHttpInFlight) stats.peakHttpInFlight = stats.httpInFlight;
     const t0 = Date.now();
     let status = null; let usage = null; let responseId = null; let modelVersion = null; let finish = null; let errClass = null;
     try {
@@ -83,6 +87,9 @@ function createLiveClient(o) {
         const c = d.candidates && d.candidates[0];
         finish = c ? c.finishReason || null : null;
         if (!res.ok && d.error) errClass = String(d.error.status || '') + ' ' + String(d.error.code || '');
+        // GRADER-CORE-1 PR-2: Google answers an INVALID key with HTTP 400 (reason API_KEY_INVALID),
+        // not 401 — observed 2026-10-05 on a malformed eval key. It is a key failure too.
+        if (status === 400 && /API_KEY_INVALID|API key not valid/i.test(text) && !keyFailure) keyFailure = { status, errClass: 'API_KEY_INVALID' };
       } catch { /* non-JSON */ }
       if (status === 429) { stats.status429 += 1; pauseUntil = Date.now() + 20000; }
       // A key / billing failure (401 unauthenticated, 402 prepaid credits depleted, 403 permission)
@@ -94,6 +101,7 @@ function createLiveClient(o) {
       if (/abort/i.test(errClass)) stats.timeouts += 1;
       throw e;
     } finally {
+      stats.httpInFlight -= 1;
       const latencyMs = Date.now() - t0;
       stats.http += 1;
       if (status && status < 400) stats.ok += 1; else stats.errors += 1;

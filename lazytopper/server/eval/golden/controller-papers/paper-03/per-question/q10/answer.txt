@@ -1,0 +1,4 @@
+SYNTHETIC student answer (typed transcription of the handwritten answer; struck lines marked [struck])
+R_A = (220)²/50 = 48400/50 = 968 Ω
+R_B = (220)²/25 = 48400/25 = 1936 Ω
+R_A : R_B = 968 : 1936 = 1 : 2

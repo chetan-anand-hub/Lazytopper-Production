@@ -1,0 +1,94 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2,
+ "percentage": 67,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Splitting the middle term",
+   "studentWork": "2x² - 7x + 3 = 0\n2x² - 6x - x + 3 = 0",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct splitting of the middle term",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Grouping terms and factorising",
+   "studentWork": "2x(x - 3) + 1(x - 3) = 0\n(2x + 1)(x - 3) = 0",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Sign error when taking common factor: taking common from -x + 3 gives -1(x - 3), not +1(x - 3)",
+   "mistakeType": "calculation",
+   "correctedWorking": "2x(x - 3) - 1(x - 3) = 0\n(2x - 1)(x - 3) = 0",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Solving for roots from factors (error carried forward)",
+   "studentWork": "2x + 1 = 0 or x - 3 = 0\nx = -1/2 or x = 3\nSo the roots are -1/2 and 3",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Roots solved correctly from the student's factors (ECF applied)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "You split the middle term and solved your factors correctly. However, be careful with signs when factoring by grouping: factor out -1 from -x + 3 so the bracket becomes (x - 3), giving roots 1/2 and 3.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Splitting the middle term correctly to 2x² - 6x - x + 3 = 0",
+   "marks": 1
+  },
+  {
+   "point": "Factorising into linear factors: (2x - 1)(x - 3) = 0",
+   "marks": 1
+  },
+  {
+   "point": "Solving factors to find the correct roots x = 1/2 and x = 3",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

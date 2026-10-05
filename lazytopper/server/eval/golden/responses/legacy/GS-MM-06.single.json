@@ -1,0 +1,88 @@
+{
+ "ok": true,
+ "totalMarks": 5,
+ "marksAwarded": 2.5,
+ "percentage": 50,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Defining speed variable and time expressions",
+   "studentWork": "Let the speed of the train be x km/h. Reduced speed = (x − 8) km/h.\nTime at usual speed = 480/x, time at reduced speed = 480/(x − 8).",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct definition and time expressions",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Forming the equation relating times",
+   "studentWork": "480/x − 480/(x − 8) = 3",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Order of terms inverted: time at reduced speed is greater, so it should be 480/(x − 8) − 480/x = 3",
+   "mistakeType": "conceptual",
+   "correctedWorking": "480/(x − 8) − 480/x = 3",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Simplifying the algebraic equation to standard form",
+   "studentWork": "⇒ 480(x − 8) − 480x = 3x(x − 8)\n⇒ −3840 = 3x² − 24x\n⇒ 3x² − 24x + 3840 = 0\n⇒ x² − 8x + 1280 = 0",
+   "status": "partial",
+   "marksAwarded": 1,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Correct simplification method from the formed equation, but carries the sign error from step 2",
+   "mistakeType": null,
+   "correctedWorking": "480x − 480(x − 8) = 3x(x − 8) ⇒ 3840 = 3x² − 24x ⇒ x² − 8x − 1280 = 0",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 4,
+   "description": "Factorising and solving the quadratic equation",
+   "studentWork": "⇒ (x − 40)(x + 32) = 0\n⇒ x = 40 or x = −32.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Inconsistent factorisation: (x − 40)(x + 32) expands to x² − 8x − 1280, not + 1280",
+   "mistakeType": "calculation",
+   "correctedWorking": "(x − 40)(x + 32) = 0 for the equation x² − 8x − 1280 = 0",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 5,
+   "description": "Rejecting negative root and concluding final speed with unit",
+   "studentWork": "Speed cannot be negative.\n∴ Speed of the train = 40 km/h.",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct context-based rejection of negative root and proper unit given",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Defining variable and writing expressions for time at normal and reduced speeds (1); Setting up the correct algebraic relation between times: 480/(x − 8) − 480/x = 3 (1); Simplifying to standard quadratic equation: x² − 8x − 1280 = 0 (1.5); Solving the quadratic equation to find roots (1); Rejecting negative root and stating final speed with unit (0.5). Remember that a lower speed means a greater travel time, so 480/(x − 8) must come first in the difference. Additionally, be careful with signs when factorising: (x − 40)(x + 32) gives a constant term of −1280, not +1280.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

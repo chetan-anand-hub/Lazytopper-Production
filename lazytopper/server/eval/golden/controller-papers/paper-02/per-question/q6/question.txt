@@ -1,0 +1,2 @@
+Q6. [3 marks]
+If α and β are the zeroes of the quadratic polynomial 2x² − 8x + 5, then find the value of (α + 1/β) × (β + 1/α).

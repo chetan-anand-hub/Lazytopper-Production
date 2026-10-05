@@ -1,0 +1,6 @@
+Q9. [4 marks]
+Case study: Acid-base indicators can be used to distinguish between an acid and a base. Universal indicator, a mixture of several indicators, shows different colours at different concentrations of acids and bases, thereby indicating their pH on the pH scale of 0 – 14. The pH of a solution is measured by pH paper, which is a paper impregnated with a universal indicator.
+Answer the following questions:
+(a) Solution P is a strong acid while solution Q is a strong base. On the pH scale, where would you place the solutions P and Q? [1]
+(b) A solution has a pH of 7. Name a compound you would use to (i) increase its pH, and (ii) decrease its pH. [1]
+(c) When the pH of a solution is decreased from 4 to 2, what effect does it produce on its hydronium ion concentration? State the colour change shown by the pH paper. [2]

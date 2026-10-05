@@ -1,0 +1,88 @@
+{
+ "ok": true,
+ "totalMarks": 5,
+ "marksAwarded": 4,
+ "percentage": 80,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Forming the first linear equation from the given conditions",
+   "studentWork": "Let number of correct answers = x and number of wrong answers = y.\n3x + y = 40 ...(1)",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Incorrect equation: losing 1 mark means subtracting y, so it should be 3x - y = 40",
+   "mistakeType": "conceptual",
+   "correctedWorking": "3x - y = 40",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Forming the second linear equation",
+   "studentWork": "4x - 2y = 50 ...(2)",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct equation formed",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Solving by substitution to find the value of x",
+   "studentWork": "From (1): y = 40 - 3x\nSubstituting in (2): 4x - 2(40 - 3x) = 50\n4x - 80 + 6x = 50\n10x = 130 ⇒ x = 13",
+   "status": "correct",
+   "marksAwarded": 1.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Method and algebraic solution correct based on formed equations (ECF)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 4,
+   "description": "Finding the value of y",
+   "studentWork": "y = 40 - 3(13) = 40 - 39 = 1",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly evaluated y from the expression (ECF)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 5,
+   "description": "Finding the total number of questions",
+   "studentWork": "∴ Total number of questions = x + y = 13 + 1 = 14",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct concluding step using calculated values (ECF)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Forming the first linear equation: 3x - y = 40 (1); Forming the second linear equation: 4x - 2y = 50 (1); Solving the pair of linear equations to find x (the number of correct answers) (1.5); Finding the value of y (the number of wrong answers) (1); Finding the total number of questions (x + y) (0.5). Well done on clearly explaining your substitution method and solving the system with flawless algebra. Be careful when translating word problems into equations: losing marks means deducting them, so the first equation should be 3x - y = 40 instead of 3x + y = 40. Correct equations lead to x = 15, y = 5, and a total of 20 questions.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

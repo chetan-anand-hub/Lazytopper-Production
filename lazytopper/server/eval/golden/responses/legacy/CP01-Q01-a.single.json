@@ -1,0 +1,49 @@
+{
+ "ok": true,
+ "totalMarks": 1,
+ "marksAwarded": 1,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Find total number of terms n using an = a + (n-1)d",
+   "studentWork": "-62 = 10 + (n - 1)(-3)\n-72 = -3(n - 1) => n - 1 = 24 => n = 25",
+   "status": "correct",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly found n = 25",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Determine the middle term and state the correct option",
+   "studentWork": "Middle term = (25 + 1)/2 = 13th term\na_13 = 10 + 12(-3) = 10 - 36 = -26\nAns: (A) -26",
+   "status": "correct",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly calculated a_13 = -26 and selected option (A)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Correct option (A) or middle term calculation leading to −26 (1). Excellent work. You correctly identified the total number of terms, determined the middle term position, and calculated its value accurately.",
+ "questionDepartureError": false,
+ "objective": true,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

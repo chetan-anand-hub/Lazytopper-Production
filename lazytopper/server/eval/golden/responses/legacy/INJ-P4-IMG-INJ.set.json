@@ -1,0 +1,74 @@
+{
+ "ok": true,
+ "worksheetId": "qp:S5B-INJ",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2,
+   "percentage": 67,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Splitting the middle term",
+     "studentWork": "2x² - 7x + 3 = 0\n2x² - 6x - x + 3 = 0",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly split the middle term",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Factorising by grouping terms",
+     "studentWork": "2x(x - 3) + 1(x - 3) = 0\n(2x + 1)(x - 3) = 0",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Sign error when factoring: -x + 3 = -1(x - 3), not +1(x - 3)",
+     "mistakeType": "calculation",
+     "correctedWorking": "2x(x - 3) - 1(x - 3) = 0\n(2x - 1)(x - 3) = 0",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Finding the roots by equating factors to zero",
+     "studentWork": "2x + 1 = 0 or x - 3 = 0\nx = -1/2 or x = 3\nSo the roots are -1/2 and 3",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Method carried forward correctly from student's factors (ECF)",
+     "mistakeType": null,
+     "correctedWorking": "2x - 1 = 0 or x - 3 = 0\nx = 1/2 or x = 3\nSo the roots are 1/2 and 3",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Splitting the middle term correctly (2x² - 6x - x + 3 = 0) (1); Grouping and factorising into linear factors (2x - 1)(x - 3) = 0 (1); Solving linear factors to find the roots (x = 1/2 or x = 3) (1). You split the middle term accurately and correctly solved the resulting factors. Take extra care with signs when taking out common factors: factoring -1 from -x + 3 gives -1(x - 3), yielding x = 1/2 instead of -1/2.",
+   "questionDepartureError": false,
+   "objective": false
+  }
+ ],
+ "totalQuestions": 1,
+ "gradedCount": 1,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 2,
+ "gradedMarksTotal": 3,
+ "worksheetTotalMarks": 3,
+ "summary": "Good presentation and solid understanding of the factorisation method. Be vigilant with negative signs during algebraic grouping to ensure complete accuracy in your final roots.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

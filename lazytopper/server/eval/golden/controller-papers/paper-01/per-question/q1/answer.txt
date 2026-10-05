@@ -1,0 +1,6 @@
+SYNTHETIC student answer (typed transcription of the handwritten answer; struck lines marked [struck])
+−62 = 10 + (n − 1)(−3)
+−72 = −3(n − 1) ⇒ n − 1 = 24 ⇒ n = 25
+Middle term = (25 + 1)/2 = 13th term
+a₁₃ = 10 + 12(−3) = 10 − 36 = −26
+Ans: (A) −26

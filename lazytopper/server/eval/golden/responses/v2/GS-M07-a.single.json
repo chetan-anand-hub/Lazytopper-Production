@@ -1,0 +1,113 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1.5,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "State ratio of corresponding sides of similar triangles",
+   "studentWork": "Since ΔABC ~ ΔPQR, AB/PQ = BC/QR = AC/PR",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct ratio of corresponding sides stated.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 2,
+   "description": "Substitute values and evaluate PQ",
+   "studentWork": "6/PQ = 4/QR = 8/9 PQ = (6 × 9)/8 = 54/8 = 6.75 cm",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "× PR = 6 cm was miscopied as 9 cm from the question.",
+   "mistakeType": "silly",
+   "correctedWorking": "6/PQ = 8/6 ⇒ PQ = (6 × 6)/8 = 4.5 cm",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 3,
+   "description": "Evaluate QR using the ratio",
+   "studentWork": "QR = (4 × 9)/8 = 36/8 = 4.5 cm",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct calculation of QR following from substituted ratio (ECF awarded).",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 4,
+   "description": "Calculate sum of PQ and QR",
+   "studentWork": "PQ + QR = 6.75 + 4.5 = 11.25 cm",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct addition of calculated lengths (ECF awarded).",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 1,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "The method of using ratios of corresponding sides of similar triangles was applied correctly throughout. However, PR was given as 6 cm in the question and miscopied as 9 cm, which led to an incorrect final value.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0.5,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Stating ratio of corresponding sides of similar triangles",
+   "marks": 0.5
+  },
+  {
+   "point": "Finding the length of PQ",
+   "marks": 0.5
+  },
+  {
+   "point": "Finding the length of QR",
+   "marks": 0.5
+  },
+  {
+   "point": "Finding the sum (PQ + QR)",
+   "marks": 0.5
+  }
+ ],
+ "objectiveResolved": null
+}

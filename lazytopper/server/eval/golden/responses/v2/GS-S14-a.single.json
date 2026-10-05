@@ -1,0 +1,113 @@
+{
+ "ok": true,
+ "totalMarks": 4,
+ "marksAwarded": 4,
+ "percentage": 100,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Naming and defining photosynthesis",
+   "studentWork": "(a) Photosynthesis – the process by which green plants make carbohydrates (glucose) from carbon dioxide and water in the presence of sunlight and chlorophyll.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly named and defined photosynthesis with key raw materials and conditions.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(a)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Writing the balanced chemical equation for photosynthesis",
+   "studentWork": "(b) 6CO2 + 12H2O ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯→ C6H12O6 + 6O2 + 6H2O\n(with sunlight, chlorophyll over the arrow)",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct balanced equation with sunlight and chlorophyll properly indicated.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(b)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Reason and effect of cloudy weather on photosynthesis rate",
+   "studentWork": "(c)(ii) (I) In cloudy weather less sunlight is available, so the rate of photosynthesis decreases.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct effect (decrease in rate) and valid reason (less sunlight available).",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(c)(ii)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 4,
+   "description": "Reason and effect of dust-blocked stomata on photosynthesis rate",
+   "studentWork": "(II) If stomata get blocked by dust, exchange of gases (CO2 intake) is reduced, so the rate of photosynthesis decreases.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct effect (decrease in rate) and valid reason (reduced exchange of gases / CO2 intake).",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(c)(ii)",
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Flawless response. The definitions, chemical equation, and scientific reasoning for both environmental scenarios are precise and complete according to the NCERT textbook.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Name (½ mark) and definition (½ mark) of photosynthesis",
+   "marks": 1
+  },
+  {
+   "point": "Balanced chemical equation for photosynthesis including reaction conditions",
+   "marks": 1
+  },
+  {
+   "point": "(c)(ii)(I) Effect and reason for cloudy weather on rate of photosynthesis",
+   "marks": 1
+  },
+  {
+   "point": "(c)(ii)(II) Effect and reason for stomata blocked by dust on rate of photosynthesis",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

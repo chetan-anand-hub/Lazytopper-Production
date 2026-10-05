@@ -1,0 +1,151 @@
+{
+ "ok": true,
+ "totalMarks": 5,
+ "marksAwarded": 4.5,
+ "percentage": 90,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Height of conical part",
+   "studentWork": "Height of conical part = 13.5 - 3 = 10.5 m",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct height of cone",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 2,
+   "description": "Slant height of cone",
+   "studentWork": "Slant height l = \\sqrt{14^2 + 10.5^2} = \\sqrt{196 + 110.25} = \\sqrt{306.25} = 17.5 m",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct calculation of slant height",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Curved surface area of cone",
+   "studentWork": "CSA of cone = \\pi r l = \\frac{22}{7} \\times 14 \\times 17.5 = 770 m^2",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct CSA of cone",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 4,
+   "description": "Curved surface area of cylinder",
+   "studentWork": "CSA of cylinder = 2\\pi r h = 2 \\times \\frac{22}{7} \\times 14 \\times 3 = 264 m^2",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct CSA of cylinder",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 5,
+   "description": "Total canvas required including wastage",
+   "studentWork": "Total canvas = 770 + 264 + 62 = 1096 m^2",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "× Wastage was 26 m², miscopied as 62 m²",
+   "mistakeType": "silly",
+   "correctedWorking": "Total canvas = 770 + 264 + 26 = 1060 m²",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 6,
+   "description": "Cost of canvas",
+   "studentWork": "Cost = 250 \\times 1096 = ₹ 274000",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct rate multiplication (ECF applied)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 1,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Excellent systematic working and correct application of all mensuration formulas. Be careful when copying numbers from the question paper: 26 m² of wastage was miscopied as 62 m².",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0.5,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Calculation of height of conical part",
+   "marks": 0.5
+  },
+  {
+   "point": "Formula and calculation of slant height (l) of cone",
+   "marks": 1
+  },
+  {
+   "point": "Curved surface area of conical part",
+   "marks": 1
+  },
+  {
+   "point": "Curved surface area of cylindrical part",
+   "marks": 1
+  },
+  {
+   "point": "Total canvas required including wastage",
+   "marks": 0.5
+  },
+  {
+   "point": "Total cost of canvas at ₹ 250 per m²",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

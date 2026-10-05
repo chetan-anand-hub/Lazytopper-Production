@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 4,
+ "marksAwarded": 3.5,
+ "percentage": 88,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Write balanced chemical equation for the electrolysis of brine",
+   "studentWork": "NaCl + H₂O → NaOH + H₂ + Cl₂ (on passing electricity through brine)",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Correct reactants and products identified, but the equation is not balanced as asked.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "2NaCl(aq) + 2H₂O(l) → 2NaOH(aq) + H₂(g) + Cl₂(g)",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "List two uses of one product (NaOH)",
+   "studentWork": "NaOH is used for making soaps and detergents, and in paper making.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct; two appropriate uses of sodium hydroxide provided.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Identify compound A and compound B",
+   "studentWork": "A is sodium hydrogen carbonate (baking soda), NaHCO₃. B is sodium carbonate, Na₂CO₃.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly identified both compounds A and B.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 4,
+   "description": "Chemical equation for heating compound A",
+   "studentWork": "2NaHCO₃ → Na₂CO₃ + H₂O + CO₂ (on heating)",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct and properly balanced thermal decomposition equation.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: (a) Balanced chemical equation for the electrolysis of brine (1); (b) Two valid uses of any one product (H₂ / Cl₂ / or NaOH) (1); (c)(i) Correct identification of A (NaHCO₃) and B (Na₂CO₃) (1); (c)(i) Balanced chemical equation for heating compound A (1). Well attempted! You accurately identified compounds A and B, gave valid uses of NaOH, and wrote the thermal decomposition equation correctly. Always ensure chemical equations are properly balanced when the question explicitly asks for a balanced equation.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

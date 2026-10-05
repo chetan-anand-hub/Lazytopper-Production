@@ -1,0 +1,2 @@
+Q3. [2 marks]
+An electric kettle is rated 750 W; 220 V. Can this kettle be used in a circuit which has a fuse of current rating 3 A? Give reason for your answer.

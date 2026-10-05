@@ -60,7 +60,7 @@ const INSTRUCTIONS = [
 ].join('\n');
 
 function truthBlock(caseId, G) {
-  if (caseId.startsWith('GS-')) {
+  if (caseId.startsWith('GS-') && !caseId.startsWith('GS-MM-')) {
     const c = G.casesById[caseId]; const e = c.expected;
     return {
       caseId, subject: c.subject, marks: c.marks, question: c.questionText,
@@ -73,6 +73,37 @@ function truthBlock(caseId, G) {
     const q = G.owner.questions.find((x) => x.qNumber === Number(caseId.slice(7)));
     return { caseId, subject: q.subject, marks: q.marks, question: q.questionText, whatTheStudentWrote: q.answerTranscript,
       examinerKey: { totalMarks: q.expected.totalMarks, mistakeType: q.expected.mistakeType, wrongStep: q.expected.wrongStep, note: q.expected.note || null } };
+  }
+  // GRADER-CORE-1 PR-2: the controller papers, the answer-question mismatch cases and the P0
+  // (unanswered) questions joined the golden set after PR-1; each gets its own truth block.
+  if (/^CP\d\d-Q\d\d-/.test(caseId)) {
+    const q = G.paperCaseById[caseId];
+    const key = require('./lib/data.cjs').readJson(q.answerImage.split('/per-question')[0] + '/key.json');
+    const it = key.items.find((x) => x.cases[0].caseId === caseId);
+    const e = it.cases[0].expected;
+    return { caseId, subject: q.subject, marks: q.marks, question: q.questionText,
+      whatTheStudentWrote: String(it.cases[0].text || '') + '\n[A photographed answer (SYNTHETIC handwriting); the text above is the exact transcript. "[struck]" marks crossed-out work.]',
+      examinerKey: { totalMarks: e.totalMarks, answerMismatch: e.answerMismatch === true, perStep: (e.perStep || []).map((p) => ({ step: p.step, awarded: p.awarded, available: p.available, status: p.status, reason: p.reason })), mistakeType: e.mistakeType, examinerNote: e.examinerNote },
+      commentMayMention: e.commentMayMention || [], commentMustNotClaim: e.commentMustNotClaim || [], modelAnswerKeyFacts: e.modelAnswerKeyFacts || [] };
+  }
+  if (caseId.startsWith('GS-MM-')) {
+    const [base, qPart] = caseId.split('.Q');
+    const m = G.mismatch.find((x) => x.caseId === base);
+    const r = qPart ? m.resolvedQuestions.find((x) => x.qNumber === Number(qPart)) : m.resolved;
+    const e = qPart ? r.expected : m.expected;
+    return { caseId, subject: r.subject, marks: r.marks, question: r.questionText,
+      whatTheStudentWrote: r.answer.mode === 'typed' ? r.answer.text : '[an uploaded page — ' + String(m.why || m.kind || '') + ']',
+      examinerKey: { answerMismatch: e.answerMismatch, graded: e.graded === true, totalMarks: e.totalMarks ?? null },
+      note: 'Answer-question MISMATCH case (' + m.kind + '). A "does not address the question" note is TRUE when the work answers a different question; when answerMismatch is expected false/null the answer is graded normally.' };
+  }
+  if (caseId.startsWith('P0-')) {
+    const s = require('./lib/planner.cjs').P0_SETS.find((x) => caseId.startsWith(x.setId));
+    const n = Number(caseId.split('.Q')[1]);
+    const c = G.casesById[s.cases[n - 1]];
+    return { caseId, subject: c.subject, marks: c.marks, question: c.questionText,
+      whatTheStudentWrote: '(nothing — the uploaded page answers a different question; this one was NOT answered)',
+      examinerKey: { totalMarks: 0, status: 'unattempted', mistakeType: null },
+      note: 'Any studentWork shown for this question is fabricated; a comment that praises or marks such work is FALSE.' };
   }
   const p = G.probes.probes.find((x) => x.probeId === caseId);
   const typed = p.payload.textAnswer || (p.payload.questions && p.payload.questions[0].textAnswer) || '';
@@ -99,7 +130,8 @@ async function main() {
   const model = arg('--model', 'gemini-2.5-pro');
   const thinking = Number(arg('--thinking', '4096'));
   const perCall = Number(arg('--cases-per-call', '2'));
-  const concurrency = Math.min(4, Number(arg('--concurrency', '3')));
+  // Owner speed ruling 2: parallel up to the key's rate limit (capped at 16 for the judge).
+  const concurrency = Math.min(16, Number(arg('--concurrency', '3')));
   const ledger = arg('--ledger', path.join(os.homedir(), 'OneDrive', 'Desktop', 'diff', 'a15', 'calls', 'a15-pr1-golden-eval.jsonl'));
   const cap = Number(arg('--cap', '1200'));
   // The judge reads long batches; give ITS process a longer provider timeout. Grading runs
@@ -114,7 +146,7 @@ async function main() {
   for (const run of Object.keys(R.runs).map(Number)) {
     for (const rec of R.runs[run]) {
       const job = plan[rec.jobKey];
-      const rep = await replayJob(job, rec);
+      const rep = await replayJob(job, rec, { config: R.manifest.config });
       const body = rep.body || {};
       const push = (cid, result) => { if (result && (result.annotatedSteps || result.couldNotRead)) outputs.push({ outputId: rec.jobKey + '#' + run + '#' + cid, caseId: cid, result }); };
       if (job.entry === 'single') { if (body.ok) push(job.caseIds[0], body); }
@@ -133,7 +165,7 @@ async function main() {
   for (let i = 0; i < caseIds.length; i += perCall) batches.push(caseIds.slice(i, i + perCall));
   out('golden judge: model=' + model + ' thinking=' + thinking + ' outputs=' + outputs.length + ' todo=' + todo.length + ' batches=' + batches.length);
   const { createLiveClient } = require('./lib/live.cjs');
-  const client = createLiveClient({ model, thinkingBudget: null, ledgerFile: ledger, cap, configId: 'judge:' + path.basename(runDir) });
+  const client = createLiveClient({ model, thinkingBudget: null, ledgerFile: ledger, cap, configId: 'judge:' + path.basename(runDir), pr: arg('--pr', 'PR-1') });
   let idx = 0; let done = 0; let failed = 0;
   async function worker() {
     while (idx < batches.length) {

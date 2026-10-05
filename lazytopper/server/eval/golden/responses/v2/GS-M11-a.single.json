@@ -1,0 +1,94 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 0,
+ "percentage": 0,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Assume contradiction and form algebraic relation",
+   "studentWork": "1/√5 = 1/2.2360679… = 0.4472135…",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Invalid method: calculating a few decimal places does not prove a decimal is non-terminating and non-repeating.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "Let us assume, to the contrary, that 1/√5 is rational. Then 1/√5 = a/b, where a and b are co-prime integers and b ≠ 0.",
+   "isDeparture": true,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Deduce contradiction via rational form",
+   "studentWork": "The decimal expansion of 1/√5 is non-terminating and non-repeating.\nA rational number always has a terminating or repeating decimal expansion.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "× Cannot claim non-terminating non-repeating behavior without a rigorous algebraic proof.",
+   "mistakeType": null,
+   "correctedWorking": "Rearranging 1/√5 = a/b gives √5 = b/a. Since a and b are integers, b/a is rational, which implies √5 is rational.",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "State contradiction and conclude irrationality",
+   "studentWork": "∴ 1/√5 is an irrational number. Hence proved.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "× Conclusion follows from an invalid method.",
+   "mistakeType": null,
+   "correctedWorking": "This contradicts the fact that √5 is irrational. This contradiction arose because of our incorrect assumption. Hence, 1/√5 is irrational.",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 1
+ },
+ "teacherNote": "Irrationality cannot be proved by showing a few decimal places, as finite digits cannot demonstrate non-terminating and non-repeating behavior. Use the standard proof by contradiction: assume 1/√5 = a/b (co-prime integers) and show that this falsely implies √5 is rational. This method does not work in general, so the working built on it cannot earn method marks — use a method that holds in every case.",
+ "questionDepartureError": true,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": "invalid-method",
+ "marksLostByType": {
+  "conceptual": 3,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Assume to the contrary that 1/√5 is rational, writing 1/√5 = a/b where a and b are co-prime integers (b ≠ 0)",
+   "marks": 1
+  },
+  {
+   "point": "Rearrange to express √5 = b/a and state that b/a is rational since a, b are integers",
+   "marks": 1
+  },
+  {
+   "point": "State the contradiction to the fact that √5 is irrational and conclude that 1/√5 is irrational",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": null
+}

@@ -1,0 +1,132 @@
+{
+ "ok": true,
+ "totalMarks": 5,
+ "marksAwarded": 3,
+ "percentage": 60,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Definition of variables and expressions for time",
+   "studentWork": "Let the speed of the train be x km/h. Reduced speed = (x − 8) km/h.\nTime at usual speed = 480/x, time at reduced speed = 480/(x − 8).",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct definition of variables and time expressions",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Forming the equation according to given condition",
+   "studentWork": "480/x − 480/(x − 8) = 3",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Incorrect order of subtraction; lower speed takes longer time, so 480/(x − 8) − 480/x = 3",
+   "mistakeType": "conceptual",
+   "correctedWorking": "480/(x − 8) − 480/x = 3",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Simplifying the formed equation into standard quadratic form",
+   "studentWork": "⇒ 480(x − 8) − 480x = 3x(x − 8)\n⇒ −3840 = 3x² − 24x\n⇒ 3x² − 24x + 3840 = 0\n⇒ x² − 8x + 1280 = 0",
+   "status": "correct",
+   "marksAwarded": 1.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct algebraic simplification of student's own equation (ECF applied)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1.5
+  },
+  {
+   "stepNumber": 4,
+   "description": "Factorization and finding the roots",
+   "studentWork": "⇒ (x − 40)(x + 32) = 0\n⇒ x = 40 or x = −32.",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× (x − 40)(x + 32) expands to x² − 8x − 1280, not x² − 8x + 1280",
+   "mistakeType": "calculation",
+   "correctedWorking": "For x² − 8x − 1280 = 0:\nx² − 40x + 32x − 1280 = 0\n⇒ (x − 40)(x + 32) = 0\n⇒ x = 40 or x = −32",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 5,
+   "description": "Rejection of negative root and final statement with units",
+   "studentWork": "Speed cannot be negative.\n∴ Speed of the train = 40 km/h.",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct context-based root rejection and final conclusion with units",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 0.5
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Remember that time taken at a reduced speed is greater than time at usual speed, so the larger fraction 480/(x − 8) must come first. Be careful with signs during factorization, as (x − 40)(x + 32) corresponds to a constant term of −1280 rather than +1280.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": null,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 1,
+  "calculation": 1,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Defining speed variables and expressing time taken for both speeds",
+   "marks": 1
+  },
+  {
+   "point": "Setting up the correct time difference equation: 480/(x − 8) − 480/x = 3",
+   "marks": 1
+  },
+  {
+   "point": "Simplifying the algebraic equation to standard quadratic form",
+   "marks": 1.5
+  },
+  {
+   "point": "Solving the quadratic equation to find the roots",
+   "marks": 1
+  },
+  {
+   "point": "Rejecting negative root with reason and stating final speed with units",
+   "marks": 0.5
+  }
+ ],
+ "objectiveResolved": null
+}

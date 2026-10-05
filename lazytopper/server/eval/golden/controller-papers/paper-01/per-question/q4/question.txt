@@ -1,0 +1,2 @@
+Q4. [2 marks]
+Heat produced per second due to a current in a resistor of 4 Ω is 400 joules. Calculate the potential difference across the resistor.

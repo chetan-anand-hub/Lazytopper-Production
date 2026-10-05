@@ -1,0 +1,98 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1.5,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Calculate total series resistance",
+   "studentWork": "Total resistance R = 1 + 2 = 3 Ω",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct equivalent resistance",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(B)",
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 2,
+   "description": "Calculate circuit current",
+   "studentWork": "Current I = V/R = 6/3 = 2 A",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct current calculation",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(B)",
+   "marksAvailable": 0.5
+  },
+  {
+   "stepNumber": 3,
+   "description": "Calculate power consumed in the 2 Ω resistor with correct unit",
+   "studentWork": "Power in 2 Ω resistor, P = I²R = (2)² × 2 = 8",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Correct formula and numerical calculation, but missing SI unit (W).",
+   "mistakeType": "presentation",
+   "correctedWorking": "Power in 2 Ω resistor, P = I²R = (2)² × 2 = 8 W",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(B)",
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 1,
+  "departure": 0
+ },
+ "teacherNote": "Your calculation of total resistance, current, and power is completely correct. However, always write the proper SI unit (W or watts) with your final numerical answer to avoid losing presentation marks.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0.5,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Calculation of total equivalent resistance in series (R = 3 Ω)",
+   "marks": 0.5
+  },
+  {
+   "point": "Calculation of electric current in the circuit (I = 2 A)",
+   "marks": 0.5
+  },
+  {
+   "point": "Formula and substitution for power consumed in 2 Ω resistor",
+   "marks": 0.5
+  },
+  {
+   "point": "Final answer with proper SI unit (8 W or watts)",
+   "marks": 0.5
+  }
+ ],
+ "objectiveResolved": null
+}

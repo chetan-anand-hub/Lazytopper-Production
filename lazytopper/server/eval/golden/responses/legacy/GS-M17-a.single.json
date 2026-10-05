@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 4,
+ "marksAwarded": 3,
+ "percentage": 75,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Calculation of the 4th, 5th, and 6th terms",
+   "studentWork": "a = 300, d = 50.\na₄ = 300 + 3 × 50 = 450 m, a₅ = 500 m, a₆ = 550 m.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly identified a, d, and calculated 4th, 5th, and 6th terms",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Calculate distance of the 8th round (a₈)",
+   "studentWork": "",
+   "status": "missing",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "Unattempted sub-part",
+   "mistakeType": null,
+   "correctedWorking": "a₈ = a + 7d = 300 + 7 × 50 = 300 + 350 = 650 m",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Formula and substitution for total distance of 10 rounds",
+   "studentWork": "S₁₀ = 10/2 [2 × 300 + (10 − 1) × 50]",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct formula and substitution",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 4,
+   "description": "Evaluation of total distance for 10 rounds",
+   "studentWork": "= 5 × [600 + 450] = 5 × 1050 = 5250 m.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct evaluation and unit",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: (i) Determine 4th / 5th / and 6th terms (450 m /  500 m /  550 m) (1); (ii) Formula and calculation for 8th round distance (a₈ = 650 m) (1); (iii)(a) Correct formula and substitution for sum of 10 terms S₁₀ (1); (iii)(a) Final calculation and correct answer with unit (5250 m) (1). Parts (i) and (iii)(a) are solved with clear working, correct substitutions, and units. Remember to attempt all sub-parts of the case study, as part (ii) was left completely blank.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

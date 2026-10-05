@@ -1,0 +1,7 @@
+Q2. [1 marks]
+Assertion (A): If three vertices of a parallelogram taken in order are (−1, −6), (2, −5) and (7, 2), then its fourth vertex is (4, 1).
+Reason (R): Diagonals of a parallelogram bisect each other.
+(A) Both Assertion (A) and Reason (R) are true and Reason (R) is the correct explanation of Assertion (A).
+(B) Both Assertion (A) and Reason (R) are true but Reason (R) is not the correct explanation of Assertion (A).
+(C) Assertion (A) is true but Reason (R) is false.
+(D) Assertion (A) is false but Reason (R) is true.

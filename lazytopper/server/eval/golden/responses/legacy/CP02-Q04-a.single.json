@@ -1,0 +1,75 @@
+{
+ "ok": true,
+ "totalMarks": 2,
+ "marksAwarded": 1,
+ "percentage": 50,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Convert dimensions to centimetres and identify required measure as HCF",
+   "studentWork": "Length = 9.75 m = 975 cm, Breadth = 6.75 m = 675 cm, Height = 5.25 m = 525 cm\nLongest ruler = HCF (975, 675, 525)",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct conversion and problem formulation",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Find prime factorisations of 975, 675, and 525",
+   "studentWork": "975 = 3 × 5² × 13\n675 = 3³ × 5²\n525 = 3 × 5² × 7",
+   "status": "correct",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Accurate prime factorisations",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Calculate HCF by taking the product of the smallest powers of common prime factors",
+   "studentWork": "HCF = 3³ × 5² = 675 (product of highest powers of common prime factors)",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "× Conceptual error: HCF requires the smallest power of common factors (3¹ × 5²), not the highest",
+   "mistakeType": "conceptual",
+   "correctedWorking": "HCF = 3¹ × 5² = 75 (product of smallest powers of common prime factors)",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 4,
+   "description": "State the length of the longest ruler",
+   "studentWork": "∴ Longest ruler = 675 cm = 6.75 m",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "× Incorrect answer resulting from the earlier HCF definition error",
+   "mistakeType": null,
+   "correctedWorking": "∴ Longest ruler = 75 cm = 0.75 m",
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 1,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Unit conversion and identifying required length as HCF(975 /  675 /  525) (0.5); Prime factorisation of 975 /  675 / and 525 (0.5); Correct calculation of HCF using lowest powers of common prime factors (0.5); Final answer stating the length of the longest ruler with units (75 cm or 0.75 m) (0.5). Great job setting up the problem and finding the correct prime factorisations. Remember that HCF takes the lowest power of each common prime factor, whereas LCM takes the highest power.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

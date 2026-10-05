@@ -1,0 +1,2 @@
+Q6. [3 marks]
+Find the sum of integers between 1 and 400 that are multiples of 4 as well as of 5.

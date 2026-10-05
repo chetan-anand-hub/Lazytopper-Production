@@ -1,0 +1,62 @@
+{
+ "ok": true,
+ "totalMarks": 3,
+ "marksAwarded": 2.5,
+ "percentage": 83,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Assume point on x-axis as P(x, 0), ratio k : 1, and apply section formula",
+   "studentWork": "Let the x-axis divide A(-4, -8) and B(-1, 7) in k : 1 at P(x, 0).\nP = ( (k(-1) + 1(-4))/(k + 1) , (k(7) + 1(-8))/(k + 1) ) = ( (-k - 4)/(k + 1) , (7k - 8)/(k + 1) )",
+   "status": "partial",
+   "marksAwarded": 0.5,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Point A(-4, -6) miscopied as (-4, -8); section formula applied correctly",
+   "mistakeType": "silly",
+   "correctedWorking": "Let P(x, 0) divide the join of A(-4, -6) and B(-1, 7) in ratio k : 1.\nP = ( (-k - 4)/(k + 1), (7k - 6)/(k + 1) )",
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 2,
+   "description": "Equate y-coordinate to 0 to determine the ratio",
+   "studentWork": "P lies on x-axis => (7k - 8)/(k + 1) = 0 => 7k - 8 = 0 => k = 8/7\n:. Ratio = 8 : 7",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct method to find ratio (ECF applied)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  },
+  {
+   "stepNumber": 3,
+   "description": "Find x-coordinate and state the coordinates of the point of division",
+   "studentWork": "x = (-8/7 - 4)/(8/7 + 1) = (-36/7)/(15/7) = - 36/15 = - 12/5\nPoint of division = (-12/5, 0)",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correct calculation of x-coordinate and coordinates of division point (ECF applied)",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 1,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Marked against: Assume point P(x / 0) on x-axis / ratio k : 1 / and apply section formula (1); Equate y-coordinate to 0 and find the ratio (1); Substitute k to find the x-coordinate and state the point of division (1). Double-check given coordinates when writing them down from the question paper, as A(-4, -6) was miscopied as (-4, -8). Your conceptual approach, application of the section formula, and algebraic solving were excellent and received full error carried forward credit.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

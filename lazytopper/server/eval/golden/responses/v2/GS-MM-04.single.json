@@ -1,0 +1,94 @@
+{
+ "ok": true,
+ "totalMarks": 4,
+ "marksAwarded": 1,
+ "percentage": 25,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Calculation of the 4th, 5th, and 6th terms",
+   "studentWork": "(i) a = 300, d = 50.\na₄ = 300 + 3 × 50 = 450 m, a₅ = 500 m, a₆ = 550 m.",
+   "status": "correct",
+   "marksAwarded": 1,
+   "marksDeducted": 0,
+   "teacherAnnotation": "✓ Correctly identified AP parameters and calculated 4th, 5th, and 6th terms with units.",
+   "mistakeType": null,
+   "correctedWorking": null,
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(i)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 2,
+   "description": "Calculation of the distance of the 8th round",
+   "studentWork": "",
+   "status": "unattempted",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "Unattempted.",
+   "mistakeType": null,
+   "correctedWorking": "a₈ = a + 7d = 300 + 7(50) = 300 + 350 = 650 m",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(ii)",
+   "marksAvailable": 1
+  },
+  {
+   "stepNumber": 3,
+   "description": "Calculation of the sum/total distance",
+   "studentWork": "",
+   "status": "unattempted",
+   "marksAwarded": 0,
+   "marksDeducted": 2,
+   "teacherAnnotation": "Unattempted.",
+   "mistakeType": null,
+   "correctedWorking": "S₁₀ = n/2 [2a + (n - 1)d] = 10/2 [2(300) + 9(50)] = 5 [600 + 450] = 5 × 1050 = 5250 m",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": "(iii)",
+   "marksAvailable": 2
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Part (i) was solved accurately with correct units and steps. Be sure to attempt parts (ii) and (iii) of case study questions to secure all available marks.",
+ "questionDepartureError": false,
+ "objective": false,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 3,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Part (i): Fourth, fifth, and sixth terms of the AP (450 m, 500 m, 550 m)",
+   "marks": 1
+  },
+  {
+   "point": "Part (ii): Distance of the 8th round (a₈ = a + 7d = 650 m)",
+   "marks": 1
+  },
+  {
+   "point": "Part (iii): Formula and calculation of total distance for 10 rounds (S₁₀ = 5250 m) [or 6 rounds (S₆ = 2550 m)]",
+   "marks": 2
+  }
+ ],
+ "objectiveResolved": null
+}

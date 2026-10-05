@@ -1,0 +1,6 @@
+SYNTHETIC student answer (typed transcription of the handwritten answer; struck lines marked [struck])
+(a) The potential difference between two points is one volt when one joule of work is done to move one coulomb of charge from one point to the other.
+1 V = 1 J / 1 C
+(b) [Diagram: a rectangular series circuit - a cell (long and short plates) labelled '1.5 V', a zig-zag resistor labelled '5 Ω', a zig-zag resistor labelled '10 Ω', and a plug key drawn as a circle with a dot labelled 'K (plug key)', all in one loop; small arrows show the current direction.]
+R = 5 Ω + 10 Ω = 15 Ω
+I = V/R = 1.5 V/15 Ω = 0.1 A

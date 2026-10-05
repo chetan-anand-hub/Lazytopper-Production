@@ -1,0 +1,2 @@
+Q4. [2 marks]
+A hall has a length of 9.75 m, breadth of 6.75 m and height of 5.25 m. What is the length of the longest unmarked ruler that can exactly measure the dimensions of the hall?

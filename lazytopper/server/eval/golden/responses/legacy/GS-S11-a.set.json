@@ -1,0 +1,238 @@
+{
+ "ok": true,
+ "worksheetId": "golden-parity-PARS4",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2.5,
+   "percentage": 83,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Ray diagram for object placed at infinity",
+     "studentWork": "[Ray diagram showing parallel incident rays reflecting divergently and extending back to F behind mirror]",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Ray paths and focus are accurate, but arrows indicating the direction of incident and reflected rays are missing.",
+     "mistakeType": "presentation",
+     "correctedWorking": "Mark arrowheads on incident rays pointing towards the mirror and on reflected rays pointing away from the mirror.",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Characteristics of image for object at infinity",
+     "studentWork": "Image at F: virtual, erect, highly diminished (point sized)",
+     "status": "correct",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct position, nature, and size.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Ray diagram for object between infinity and pole P",
+     "studentWork": "[Ray diagram showing object AB with one parallel ray and one directed towards C forming image A'B' between P and F]",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct ray construction and image position (penalty for missing ray arrows applied once).",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 4,
+     "description": "Characteristics of image for object between infinity and pole P",
+     "studentWork": "Image between P and F: virtual, erect, diminished",
+     "status": "correct",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct position, nature, and size.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 1,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Ray diagram for object at infinity (convex mirror) (1); Image nature / position and relative size for object at infinity (0.5); Ray diagram for object between infinity and pole P (1); Image nature / position and relative size for object between infinity and pole P (0.5). Neat diagrams and accurate statements of image characteristics. Always remember to draw arrows on incident and reflected rays, as light ray diagrams require directional arrows to be fully credited.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 2,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 3,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Explanation of opposite nature of combination and decomposition reactions",
+     "studentWork": "In a combination reaction two or more substances combine to form a single product, whereas in a decomposition reaction a single substance breaks down into two or more simpler products. Since one joins substances and the other breaks them apart, they are opposite to each other.",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Clear and accurate explanation.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Combination reaction equation with names of substances",
+     "studentWork": "Combination: CaO + H₂O → Ca(OH)₂ (calcium oxide + water → calcium hydroxide)",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct balanced equation with names of all reactants and products.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 3,
+     "description": "Decomposition reaction equation with names of substances",
+     "studentWork": "Decomposition: CaCO₃ → CaO + CO₂ on heating (calcium carbonate → calcium oxide + carbon dioxide)",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct balanced equation with reaction condition and names.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Explanation of why decomposition reactions are opposite to combination reactions (1); Balanced chemical equation for combination reaction with reactant and product names (1); Balanced chemical equation for decomposition reaction with reactant and product names (1). Excellent, complete answer with clear definitions, balanced equations, and reactant/product names.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 3,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1,
+   "percentage": 50,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Equation for reaction of barium chloride and aluminium sulphate",
+     "studentWork": "(i) BaCl₂ + Al₂(SO₄)₃ → BaSO₄ + AlCl₃",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Correct chemical formulae, but the equation is left unbalanced.",
+     "mistakeType": "conceptual",
+     "correctedWorking": "3BaCl₂ + Al₂(SO₄)₃ → 3BaSO₄ + 2AlCl₃",
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Equation for reaction of aluminium with steam",
+     "studentWork": "(ii) Al + H₂O → Al₂O₃ + H₂",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Correct chemical formulae, but the equation is left unbalanced.",
+     "mistakeType": "conceptual",
+     "correctedWorking": "2Al + 3H₂O → Al₂O₃ + 3H₂",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 2,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Translation into formulae (0.5) and balancing (0.5) for reaction (i) (1); Translation into formulae (0.5) and balancing (0.5) for reaction (ii) (1). Chemical formulae are written correctly, but the question explicitly asked to balance them. Make sure to balance atoms on both sides of the reaction.",
+   "questionDepartureError": false,
+   "objective": false
+  },
+  {
+   "qNumber": 4,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1.5,
+   "percentage": 75,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Balanced equation for reaction of barium chloride and aluminium sulphate",
+     "studentWork": "(i) 3BaCl₂ + Al₂(SO₄)₃ → 3BaSO₄ + 2AlCl₃",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly written and balanced.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Balanced equation for reaction of aluminium with steam",
+     "studentWork": "(ii) 2Al + 3H₂O → Al₂O₃ + 2H₂",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Formulae are correct, but hydrogen atoms are miscounted on the product side (3H₂O has 6 H atoms, so it must form 3H₂, not 2H₂).",
+     "mistakeType": "calculation",
+     "correctedWorking": "2Al + 3H₂O → Al₂O₃ + 3H₂",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Correct balanced chemical equation for reaction (i) (1); Correct balanced chemical equation for reaction (ii) (1). Part (i) is perfectly balanced. In part (ii), recount the hydrogen atoms: 3H₂O gives 6 H atoms, which requires 3H₂ as the product.",
+   "questionDepartureError": false,
+   "objective": false
+  }
+ ],
+ "totalQuestions": 4,
+ "gradedCount": 4,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 8,
+ "gradedMarksTotal": 10,
+ "worksheetTotalMarks": 10,
+ "summary": "Good overall grasp of reaction types, chemical nomenclature, and ray optics. Be careful to balance every equation fully by recounting atoms on both sides, and always include directional arrows on light rays in optical diagrams.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

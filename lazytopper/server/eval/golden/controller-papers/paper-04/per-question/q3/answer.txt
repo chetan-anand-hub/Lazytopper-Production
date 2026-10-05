@@ -1,0 +1,5 @@
+SYNTHETIC student answer (typed transcription of the handwritten answer; struck lines marked [struck])
+P = 750 W, V = 220 V
+I = P/V = 750/220 = 3.4 A
+Yes, this kettle can be used.
+A fuse of 3 A rating melts only when the current becomes much more than 3 A (about double), so 3.4 A will not melt it.

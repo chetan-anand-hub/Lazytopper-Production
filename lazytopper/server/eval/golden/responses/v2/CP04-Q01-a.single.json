@@ -1,0 +1,56 @@
+{
+ "ok": true,
+ "totalMarks": 1,
+ "marksAwarded": 0,
+ "percentage": 0,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Select the correct option for the probability of getting a number less than 4 on each die",
+   "studentWork": "Ans: (B)",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "× Incorrect option chosen. The correct probability 1/4 corresponds to option (A).",
+   "mistakeType": "silly",
+   "correctedWorking": "Ans: (A)",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 1,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Your working to find the probability of 1/4 is completely correct, but you wrote option (B) instead of (A). For multiple-choice questions, marks are awarded solely for the correct option letter, so always verify that the letter matches your solved answer.",
+ "questionDepartureError": false,
+ "objective": true,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 1,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 0
+ },
+ "rubric": [
+  {
+   "point": "Correct option (A) or 1/4",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": true
+}

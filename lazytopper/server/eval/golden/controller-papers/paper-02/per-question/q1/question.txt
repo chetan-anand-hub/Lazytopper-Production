@@ -1,0 +1,6 @@
+Q1. [1 marks]
+If the absolute refractive indices of two media X and Y are 6/5 and 4/3 respectively, then the refractive index of Y with respect to X will be:
+(A) 10/9
+(B) 9/10
+(C) 9/8
+(D) 8/9

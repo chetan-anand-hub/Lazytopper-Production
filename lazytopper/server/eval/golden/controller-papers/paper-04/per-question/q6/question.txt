@@ -1,0 +1,6 @@
+Q6. [3 marks]
+Ramya performs an experiment in the following two steps:
+Step 1: Heats ethanol with conc. H₂SO₄ at 170 °C to get product A.
+Step 2: Passes hydrogen gas over product A, using Ni as a catalyst and gets product B.
+(i) Name the products A and B. [1]
+(ii) Write the reactions involved in both the steps. [2]

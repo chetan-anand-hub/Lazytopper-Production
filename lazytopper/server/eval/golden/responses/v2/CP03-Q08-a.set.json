@@ -1,0 +1,757 @@
+{
+ "ok": true,
+ "worksheetId": "ci:GOLDEN-CP-paper-03",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 1,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Selection of parental genotypes",
+     "studentWork": "50% tall and 50% short means both parents are hybrid.\nTt and Tt",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "× Incorrect option chosen. Tt × Tt gives a 3:1 ratio (75% tall, 25% short).",
+     "mistakeType": "conceptual",
+     "correctedWorking": "(C) Tt and tt (A test cross between heterozygous tall Tt and homozygous dwarf tt yields 50% tall and 50% dwarf plants)",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "A cross between two heterozygous parents (Tt × Tt) produces a 3:1 phenotypic ratio. To obtain a 1:1 (50% tall, 50% short) ratio, a test cross of Tt and tt is required.",
+   "questionDepartureError": false,
+   "objective": true,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Correct parental genotype combination (C) Tt and tt",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": true
+  },
+  {
+   "qNumber": 2,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 1,
+   "marksAwarded": 1,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Evaluation of assertion and reason",
+     "studentWork": "Product of zeroes = -3 / (2k - 1) = 1 => 2k - 1 = -3 => k = -1\nAns: (A)",
+     "status": "correct",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct option selected and supported with valid working.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Well done. You correctly used the product of zeroes condition to verify both the assertion and reason.",
+   "questionDepartureError": false,
+   "objective": true,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Correct option (A) identified with supporting condition",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": true
+  },
+  {
+   "qNumber": 3,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 2,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Struck out initial attempt",
+     "studentWork": "(a) HNO3 + Ca(OH)2 -> CaNO3 + H2O",
+     "status": "withdrawn",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "Work crossed out by student.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(a)",
+     "marksAvailable": 0
+    },
+    {
+     "stepNumber": 2,
+     "description": "Balanced equation for reaction between nitric acid and calcium hydroxide",
+     "studentWork": "(a) 2HNO3 + Ca(OH)2 -> Ca(NO3)2 + 2H2O",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly written and balanced.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(a)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Balanced equation for reaction between sodium chloride and silver nitrate",
+     "studentWork": "(b) NaCl + AgNO3 -> AgCl + NaNO3",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly written and balanced.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(b)",
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Both chemical equations are correctly written and balanced.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Balanced equation for reaction (a)",
+     "marks": 1
+    },
+    {
+     "point": "Balanced equation for reaction (b)",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 4,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 1,
+   "percentage": 50,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Determination of sec²θ and cosec²θ",
+     "studentWork": "tan θ = 1/√5 => cot θ = √5\nsec²θ = 1 + tan²θ = 1 + 1/5 = 6/5\ncosec²θ = 1 + cot²θ = 1 + 5 = 6",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct evaluation of trigonometric identities.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Substitution and algebraic simplification",
+     "studentWork": "(cosec²θ - sec²θ)/(cosec²θ + sec²θ) = (6 - 6/5)/(6 + 6/5)\n= - 6/5 / (6/5) (cancelling 6 from top and bottom)\n= -1",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Illegal cancellation across addition/subtraction. Simplify numerator and denominator before dividing.",
+     "mistakeType": "calculation",
+     "correctedWorking": "(6 - 6/5)/(6 + 6/5) = (24/5)/(36/5) = 24/36 = 2/3",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Your trigonometric values were entirely correct, but terms cannot be cancelled individually across addition and subtraction signs. Simplify numerator (24/5) and denominator (36/5) to get 2/3.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Values of sec²θ and cosec²θ using identities",
+     "marks": 1
+    },
+    {
+     "point": "Substitution and correct evaluation of the expression",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 5,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2,
+   "percentage": 67,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Statement and explanation of Right-Hand Thumb Rule",
+     "studentWork": "A. Right-hand thumb rule: Imagine that you are holding a current-carrying straight conductor in your right hand such that the thumb points towards the direction of current. Then your fingers will wrap around the conductor in the direction of the field lines of the magnetic field.\nSo if we know the direction of current, the curled fingers give us the direction of the magnetic field lines (concentric circles) around the wire.",
+     "status": "correct",
+     "marksAwarded": 2,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Clear and accurate statement and explanation.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "A",
+     "marksAvailable": 2
+    },
+    {
+     "stepNumber": 2,
+     "description": "Explanation of how magnetic field varies with distance",
+     "studentWork": "B. I don't know this part.",
+     "status": "unattempted",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "Unattempted sub-part.",
+     "mistakeType": null,
+     "correctedWorking": "The magnetic field strength produced by a straight current-carrying conductor is inversely proportional to the distance from the wire (B ∝ 1/r). As the distance increases, the concentric circles become larger and the magnetic field strength decreases.",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "B",
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Part A is well explained. Remember for Part B that magnetic field strength is inversely proportional to distance from the conductor (B ∝ 1/r).",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 1,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Statement and description of Right-Hand Thumb Rule",
+     "marks": 2
+    },
+    {
+     "point": "Variation of magnetic field strength with distance",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 6,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 3,
+   "marksAwarded": 2.5,
+   "percentage": 83,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Identifying AP series between 1 and 400",
+     "studentWork": "Multiples of both 4 and 5 are multiples of 20: 20, 40, 60, ..., 380\na = 20, d = 20, a_n = 380",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly identified the AP series.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Finding the number of terms n",
+     "studentWork": "20 + (n - 1) x 20 = 380\nn - 1 = 18 => n = 19",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct value of n.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Calculation of sum",
+     "studentWork": "S_19 = 19/2 [20 + 380]\n= 19 x 200 = 3600",
+     "status": "partial",
+     "marksAwarded": 0.5,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "½ Formula and substitution are correct, but 19 × 200 = 3800, not 3600.",
+     "mistakeType": "calculation",
+     "correctedWorking": "S_19 = 19 × 200 = 3800",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 1,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Method was completely sound throughout. Be careful with final arithmetic: 19 × 200 = 3800.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0.5,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Identification of AP terms (LCM of 4 and 5 is 20: 20, 40, ..., 380)",
+     "marks": 1
+    },
+    {
+     "point": "Calculation of number of terms n = 19",
+     "marks": 1
+    },
+    {
+     "point": "Calculation of sum S_n = 3800",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 7,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "This answer does not address the question that was set, so it has not been marked — check that you uploaded your answer to this question.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": true,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": null,
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 8,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 5,
+   "marksAwarded": 4.5,
+   "percentage": 90,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Cone height and slant height calculation",
+     "studentWork": "Height of conical part = 13.5 - 3 = 10.5 m\nSlant height l = √14² + 10.5² = √196 + 110.25 = √306.25 = 17.5 m",
+     "status": "correct",
+     "marksAwarded": 1.5,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly calculated cone height and slant height.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1.5
+    },
+    {
+     "stepNumber": 2,
+     "description": "CSA of cone",
+     "studentWork": "CSA of cone = πrl = 22/7 x 14 x 17.5 = 770 m²",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct calculation of cone CSA.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "CSA of cylinder",
+     "studentWork": "CSA of cylinder = 2πrh = 2 x 22/7 x 14 x 3 = 264 m²",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct calculation of cylinder CSA.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 4,
+     "description": "Total canvas area including wastage",
+     "studentWork": "Total canvas = 770 + 264 + 62 = 1096 m²",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 0.5,
+     "teacherAnnotation": "× Wastage copied wrongly as 62 m² instead of 26 m².",
+     "mistakeType": "silly",
+     "correctedWorking": "Total canvas = 770 + 264 + 26 = 1060 m²",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 0.5
+    },
+    {
+     "stepNumber": 5,
+     "description": "Total cost calculation",
+     "studentWork": "Cost = 250 x 1096 = ₹ 274000",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct cost evaluation based on carried-over canvas area (ECF applied).",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 1,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Excellent mensuration working throughout. You only slipped by transcribing 26 m² of wastage as 62 m², for which full ECF was awarded on the subsequent cost calculation.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0.5,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Height and slant height of conical top",
+     "marks": 1.5
+    },
+    {
+     "point": "Curved surface area of conical part",
+     "marks": 1
+    },
+    {
+     "point": "Curved surface area of cylindrical part",
+     "marks": 1
+    },
+    {
+     "point": "Total canvas area including 26 m² wastage",
+     "marks": 0.5
+    },
+    {
+     "point": "Total cost of canvas at ₹ 250 per m²",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 9,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 4,
+   "marksAwarded": 3,
+   "percentage": 75,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Measure of angle between radius and tangent",
+     "studentWork": "(i) ∠OAP = 60°",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 1,
+     "teacherAnnotation": "× Radius is perpendicular to tangent at point of contact, so ∠OAP = 90°.",
+     "mistakeType": "conceptual",
+     "correctedWorking": "∠OAP = 90° (The tangent at any point of a circle is perpendicular to the radius through the point of contact)",
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(i)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Length of tangent PA",
+     "studentWork": "(ii) In right ΔOAP, OP² = OA² + AP²\n18² = 9² + AP² => AP² = 324 - 81 = 243\nAP = √243 = 9√3 m",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly calculated tangent length using Pythagoras theorem.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(ii)",
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 3,
+     "description": "Measure of ∠AOB",
+     "studentWork": "(iii) In right ΔOAP, cos θ = OA/OP = 9/18 = 1/2 = cos 60°\n=> θ = ∠AOP = 60°\n∴ ∠AOB = 2θ = 120°",
+     "status": "correct",
+     "marksAwarded": 2,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly used trigonometry and symmetry to find ∠AOB.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": "(iii)",
+     "marksAvailable": 2
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Parts (ii) and (iii) were solved with great precision. In Part (i), remember that the tangent is always perpendicular to the radius at the point of contact, making ∠OAP = 90°.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 1,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "(i) Measure of ∠OAP = 90°",
+     "marks": 1
+    },
+    {
+     "point": "(ii) Length of tangent PA using Pythagoras theorem",
+     "marks": 1
+    },
+    {
+     "point": "(iii) Measure of ∠AOB = 120°",
+     "marks": 2
+    }
+   ],
+   "objectiveResolved": null
+  },
+  {
+   "qNumber": 10,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 2,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Calculation of individual lamp resistances",
+     "studentWork": "R_A = (220)² / 50 = 48400 / 50 = 968 Ω\nR_B = (220)² / 25 = 48400 / 25 = 1936 Ω",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correctly applied R = V²/P with proper units.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    },
+    {
+     "stepNumber": 2,
+     "description": "Ratio of resistances",
+     "studentWork": "R_A : R_B = 968 : 1936 = 1 : 2",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct ratio.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false,
+     "part": null,
+     "marksAvailable": 1
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Perfect work. Correct formula, accurate computations, proper SI units, and simplified ratio.",
+   "questionDepartureError": false,
+   "objective": false,
+   "answerMismatch": false,
+   "departureKind": null,
+   "marksLostByType": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "unattempted": 0,
+    "untyped": 0
+   },
+   "rubric": [
+    {
+     "point": "Calculation of resistances R_A and R_B using R = V²/P",
+     "marks": 1
+    },
+    {
+     "point": "Ratio R_A : R_B = 1 : 2",
+     "marks": 1
+    }
+   ],
+   "objectiveResolved": null
+  }
+ ],
+ "totalQuestions": 10,
+ "gradedCount": 9,
+ "pendingCount": 1,
+ "gradedMarksAwarded": 18,
+ "gradedMarksTotal": 23,
+ "worksheetTotalMarks": 25,
+ "summary": "You demonstrate strong core competencies across mathematics and physics, especially in geometry, AP, mensuration, and circuit formulas. Focus on careful algebraic fraction simplification and double-check transcribed values and simple multiplications during revision.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

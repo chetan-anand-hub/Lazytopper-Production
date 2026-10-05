@@ -1,0 +1,160 @@
+{
+ "ok": true,
+ "worksheetId": "golden-parity-PARS1",
+ "results": [
+  {
+   "qNumber": 1,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 1,
+   "marksAwarded": 1,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Correct MCQ option selected",
+     "studentWork": "Answer: (C)",
+     "status": "correct",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct option selected.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Option (C) 100% round and yellow (1). Correct option selected. Note that the F1 genotype is RrYy (not Rryy), and round and yellow are dominant traits, not recessive.",
+   "questionDepartureError": false,
+   "objective": true
+  },
+  {
+   "qNumber": 2,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 1,
+   "marksAwarded": 0,
+   "percentage": 0,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Correct evaluation of Assertion and Reason",
+     "studentWork": "(C)",
+     "status": "incorrect",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "× Incorrect option chosen.",
+     "mistakeType": null,
+     "correctedWorking": "(A) Both A and R are true and R is the correct explanation of A.",
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Option (A) Both A and R are true and R is the correct explanation of A (1). Both the Assertion and Reason are true statements, and Reason correctly explains why magnetic field lines never cross.",
+   "questionDepartureError": false,
+   "objective": true
+  },
+  {
+   "qNumber": 3,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 1,
+   "marksAwarded": 1,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "Calculation of current using I = P/V and identifying correct option",
+     "studentWork": "P = VI ⇒ I = P / V = 1000 / 250 = 4 A\nAns: (C) 4.0 A",
+     "status": "correct",
+     "marksAwarded": 0,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Formula, calculation, and option are correct.",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Formula I = P/V / calculation / and option (C) 4.0 A (1). Clear formula application and correct calculation with proper unit and option stated.",
+   "questionDepartureError": false,
+   "objective": true
+  },
+  {
+   "qNumber": 4,
+   "couldNotRead": false,
+   "ok": true,
+   "totalMarks": 2,
+   "marksAwarded": 2,
+   "percentage": 100,
+   "annotatedSteps": [
+    {
+     "stepNumber": 1,
+     "description": "First observation: Evolution of gas / bubble formation",
+     "studentWork": "1. Zinc granules के आसपास gas के bubbles बनते हैं — यानी gas का evolution होता है (H₂ gas)।",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct observation (evolution of gas).",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    },
+    {
+     "stepNumber": 2,
+     "description": "Second observation: Change/rise in temperature",
+     "studentWork": "2. Flask को छूने पर वह गरम लगता है, मतलब temperature में rise होता है।",
+     "status": "correct",
+     "marksAwarded": 1,
+     "marksDeducted": 0,
+     "teacherAnnotation": "✓ Correct observation (rise in temperature / exothermic reaction).",
+     "mistakeType": null,
+     "correctedWorking": null,
+     "isDeparture": false,
+     "isReturn": false
+    }
+   ],
+   "mistakeSummary": {
+    "conceptual": 0,
+    "calculation": 0,
+    "silly": 0,
+    "presentation": 0,
+    "departure": 0
+   },
+   "teacherNote": "Marked against: Observation 1: Evolution of gas / formation of bubbles (1); Observation 2: Change in temperature / rise in temperature (1). Well-stated observations accurately identifying the signs of a chemical reaction.",
+   "questionDepartureError": false,
+   "objective": false
+  }
+ ],
+ "totalQuestions": 4,
+ "gradedCount": 4,
+ "pendingCount": 0,
+ "gradedMarksAwarded": 4,
+ "gradedMarksTotal": 5,
+ "worksheetTotalMarks": 5,
+ "summary": "Good overall performance across numerical physics and descriptive chemistry questions. Review the reasoning in Assertion-Reason questions carefully, and ensure underlying genetic definitions (dominant vs. recessive traits) are well understood.",
+ "provider": "gemini",
+ "model": "gemini-3.8-flash"
+}

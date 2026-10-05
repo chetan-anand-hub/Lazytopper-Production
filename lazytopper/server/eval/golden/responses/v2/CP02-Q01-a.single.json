@@ -1,0 +1,56 @@
+{
+ "ok": true,
+ "totalMarks": 1,
+ "marksAwarded": 0,
+ "percentage": 0,
+ "annotatedSteps": [
+  {
+   "stepNumber": 1,
+   "description": "Selection of the correct MCQ option",
+   "studentWork": "Ans: (A) or (C)",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 0,
+   "teacherAnnotation": "× Multiple options given ((A) or (C)); writing alternative options is invalid and scores 0.",
+   "mistakeType": null,
+   "correctedWorking": "(A) 10/9",
+   "isDeparture": false,
+   "isReturn": false,
+   "part": null,
+   "marksAvailable": 1
+  }
+ ],
+ "mistakeSummary": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "departure": 0
+ },
+ "teacherNote": "Offering multiple alternative choices like '(A) or (C)' is treated as an ambiguous response and is awarded zero marks. Always commit to a single definite option after working it out: refractive index of Y with respect to X is (4/3) / (6/5) = 10/9, which corresponds to option (A).",
+ "questionDepartureError": false,
+ "objective": true,
+ "detectedSubject": null,
+ "detectedTopic": null,
+ "marksSource": null,
+ "provider": "gemini",
+ "model": "gemini-3.8-flash",
+ "couldNotRead": false,
+ "answerMismatch": false,
+ "departureKind": null,
+ "marksLostByType": {
+  "conceptual": 0,
+  "calculation": 0,
+  "silly": 0,
+  "presentation": 0,
+  "unattempted": 0,
+  "untyped": 1
+ },
+ "rubric": [
+  {
+   "point": "Correct option (A) or 10/9",
+   "marks": 1
+  }
+ ],
+ "objectiveResolved": true
+}

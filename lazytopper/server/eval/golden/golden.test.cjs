@@ -67,8 +67,16 @@ test('§2 G1 GATE — replays the committed baseline with calls=0 and verdict=PA
 // ── §3 the floor can fail, and names the metric ─────────────────────────────
 test('§3 CONTROL — a floor one notch above today fails the gate and NAMES the metric', () => {
   const tmp = path.join(os.tmpdir(), 'golden-floor-control-' + process.pid + '.json');
+  // "Today" is what the gate MEASURES on the current code, read from its own --json output —
+  // not the floor file's value, which equals today only until post-processing changes
+  // (GRADER-CORE-1 PR-2 replays the PR-1 run through new post-processing; the floor becomes
+  // the acceptance bar, above or below today's number).
+  const today = path.join(os.tmpdir(), 'golden-today-' + process.pid + '.json');
+  node([GATE, '--json', today]);
+  const measured = JSON.parse(fs.readFileSync(today, 'utf8')).metrics;
+  fs.unlinkSync(today);
   const raised = JSON.parse(JSON.stringify(floor));
-  raised.metrics.total_exact = Math.round((Number(floor.metrics.total_exact) + 0.1) * 10) / 10;
+  raised.metrics.total_exact = Math.round((Number(measured.total_exact) + 0.1) * 10) / 10;
   fs.writeFileSync(tmp, JSON.stringify(raised));
   try {
     const r = node([GATE, '--floor', tmp]);
@@ -94,9 +102,11 @@ test('§4 replay fidelity, and the owner-paper within-1/2 check FAILS when an ex
     // owner check is exercised on the committed owner DIAGNOSTIC run (floor.extraRuns), whose
     // outputs are graded. CONTROL (M6 in-suite): move the expected mark of a question the
     // grader got within 1/2 by 1.5 and the within-1/2 rate must drop.
+    // GRADER-CORE-1 PR-2: the acceptance run grades the owner paper at PRODUCTION settings
+    // (80 s), so the floor run itself carries the graded owner outputs; the PR-1 diagnostic
+    // extra run is used only when the floor still names one.
     const diag = (floor.extraRuns || []).find((x) => /owner/.test(x.label));
-    assert.ok(diag, 'floor.extraRuns must carry the owner-paper diagnostic run');
-    const diagDir = path.join(GOLDEN, 'runs', diag.runId);
+    const diagDir = diag ? path.join(GOLDEN, 'runs', diag.runId) : runDir;
     const d1 = await evaluateRun(diagDir);
     assert.strictEqual(d1.integrity.changed, 0, 'the owner diagnostic replays byte-identically');
     const graded = d1.res.rows.filter((r) => r.kind === 'owner' && r.status === 'graded');
