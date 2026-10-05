@@ -1,5 +1,12 @@
 import { getMistakeLogs, type MistakeLogEntry } from "./mistakeLogService";
-import { isCarelessType } from "../lib/mistakeDisplay";
+import {
+  MISTAKE_GROUPS,
+  addMarksLost,
+  entryMarksLost,
+  isCarelessType,
+  zeroMarksLost,
+  type MarksLostByType,
+} from "../lib/mistakeDisplay";
 
 export type CheckerMistakeType = "conceptual" | "calculation" | "silly" | "presentation";
 
@@ -28,9 +35,26 @@ export interface RecommendedAction {
 
 export interface MistakeInsights {
   totalChecked: number;
+  /**
+   * The sum of every entry's own `marksLost` (total − awarded on that question). It is
+   * ALREADY in marks on every entry version — old count-only entries included — so it is
+   * summed as stored, never converted. It includes marks the student did not attempt and
+   * marks lost with no reason recorded: it is "marks lost", not "marks lost to mistakes".
+   */
   totalMarksLost: number;
   mistakeCounts: MistakeCounts;
+  /**
+   * SCORECARD-MI-1 PR-2 (B7) — the student's biggest loss. When ANY entry in the window
+   * carries v2 `marksLostByType`, it is the type that cost the most MARKS over those entries
+   * (`topMistakeBasis: "marks"`); otherwise it is the type with the most mistakes, exactly as
+   * before (`"counts"`). Null when nothing names a type.
+   */
   topMistakeType: CheckerMistakeType | null;
+  /** What `topMistakeType` was decided on — "marks" (v2 entries) or "counts"; null with no type. */
+  topMistakeBasis: "marks" | "counts" | null;
+  /** The v2 entries' marks lost per bucket, summed; null when no entry in the window carries
+   *  them (a count-only window is never given marks). */
+  marksLostByType: MarksLostByType | null;
   topHotspot: TopicHotspot | null;
   hasEnoughData: boolean;
 }
@@ -69,6 +93,43 @@ function topType(counts: MistakeCounts): CheckerMistakeType | null {
   const max = Math.max(counts.conceptual, counts.calculation, counts.silly, counts.presentation);
   if (max === 0) return null;
   return (MISTAKE_TYPES.find((t) => counts[t] === max) ?? null);
+}
+
+/**
+ * SCORECARD-MI-1 PR-2 (B7) — the marks lost per bucket over the entries that CARRY them
+ * (`entryMarksLost`: a v2 entry with `marksLostByTypeVersion: 1`), or null when none does.
+ * A count-only entry contributes nothing here: it is never given invented marks (G5).
+ */
+export function aggregateEntryMarks(entries: MistakeLogEntry[]): MarksLostByType | null {
+  let sum = zeroMarksLost();
+  let any = false;
+  for (const e of entries) {
+    const m = entryMarksLost(e);
+    if (!m) continue;
+    any = true;
+    sum = addMarksLost(sum, m);
+  }
+  return any ? sum : null;
+}
+
+/**
+ * The stored type that cost the most MARKS (only the four mistake buckets — "unattempted" and
+ * "untyped" are never a mistake type). A tie goes to the group shown first (knowledge,
+ * technique, careless — MISTAKE_GROUPS order), then to the type's order inside its group.
+ * Null when no mistake bucket lost a mark.
+ */
+export function topTypeByMarks(marks: MarksLostByType): CheckerMistakeType | null {
+  let best: CheckerMistakeType | null = null;
+  let bestMarks = 0;
+  for (const g of MISTAKE_GROUPS) {
+    for (const t of g.types) {
+      if (marks[t] > bestMarks) {
+        best = t;
+        bestMarks = marks[t];
+      }
+    }
+  }
+  return best;
 }
 
 function buildHotspots(entries: MistakeLogEntry[]): TopicHotspot[] {
@@ -122,13 +183,24 @@ export async function getMistakeInsights(uid: string, days: number): Promise<Mis
     const entries = raw.filter(isSafeEntry);
     const counts = aggregateCounts(entries);
     const hotspots = buildHotspots(entries);
+    // Already marks on every entry version (see MistakeInsights.totalMarksLost) — summed as stored.
     const totalMarksLost = entries.reduce((s, e) => s + (Number(e.marksLost) || 0), 0);
+
+    // B7 — marks decide the top type whenever the window holds v2 entries. Should those
+    // entries name no mistake mark at all (every loss not attempted / reason not recorded),
+    // the count-based answer is used and labelled "counts" — never a marks claim.
+    const marksLostByType = aggregateEntryMarks(entries);
+    const byMarks = marksLostByType ? topTypeByMarks(marksLostByType) : null;
+    const byCounts = byMarks ? null : topType(counts);
+    const topMistakeType = byMarks ?? byCounts;
 
     return {
       totalChecked: entries.length,
       totalMarksLost,
       mistakeCounts: counts,
-      topMistakeType: topType(counts),
+      topMistakeType,
+      topMistakeBasis: byMarks ? "marks" : byCounts ? "counts" : null,
+      marksLostByType,
       topHotspot: hotspots[0] ?? null,
       hasEnoughData: entries.length >= 3,
     };
@@ -138,6 +210,8 @@ export async function getMistakeInsights(uid: string, days: number): Promise<Mis
       totalMarksLost: 0,
       mistakeCounts: { ...EMPTY_COUNTS },
       topMistakeType: null,
+      topMistakeBasis: null,
+      marksLostByType: null,
       topHotspot: null,
       hasEnoughData: false,
     };

@@ -8,6 +8,7 @@
 // real `topics.ts` key instead of a free-text label.
 
 import { desktopTopicForWeakAreaKey } from "../lib/desktop/topics";
+import { isGradedQuestion, v2GradeFields } from "../lib/mistakeDisplay";
 import type { DesktopSubject } from "../lib/desktop/navigation";
 import {
   detectQuestion,
@@ -274,4 +275,49 @@ export function withObjectiveEcho(
     ...response,
     results: response.results.map((r, i) => (i === 0 ? { ...r, objective: true } : r)),
   };
+}
+
+/**
+ * SCORECARD-MI-1 PR-2 — the single-question grade adapted into the one-question paper shape
+ * (`singleCheckToWorksheetResponse`, a gate-frozen file) loses the v2 fields. This puts them
+ * back on the one result, and when the answer was NOT graded (could not be read, option
+ * unread, answer does not match the question) makes the paper say so honestly: nothing
+ * graded, one pending — never a graded 0. A legacy grade (no v2 fields) is returned unchanged.
+ */
+export function withV2Echo(
+  response: WorksheetGradeResponse,
+  graded: CheckSolutionResponse | null | undefined,
+): WorksheetGradeResponse {
+  const fields = v2GradeFields(graded);
+  if (Object.keys(fields).length === 0 || response.results.length === 0) return response;
+  const first = { ...response.results[0], ...fields };
+  if (isGradedQuestion(first)) return { ...response, results: [first, ...response.results.slice(1)] };
+  return {
+    ...response,
+    results: [first],
+    totalQuestions: 1,
+    gradedCount: 0,
+    pendingCount: 1,
+    gradedMarksAwarded: 0,
+    gradedMarksTotal: 0,
+  };
+}
+
+/**
+ * OR-LIVE L1 (PR-1 finding) — the detected question text for the result at `index`, matched by
+ * OCCURRENCE, never by printed number alone: two questions both printed "Q5" are the 1st and 2nd
+ * "5" in the detected list and in the results, so each keeps its own text. Undefined when the
+ * occurrence has no detected twin (honest — never another question's text).
+ */
+export function detectedTextForResult(
+  detected: ReadonlyArray<{ questionNumber: number; questionText: string }> | null | undefined,
+  results: ReadonlyArray<{ qNumber: number }>,
+  index: number,
+): string | undefined {
+  const r = results[index];
+  if (!r) return undefined;
+  let occurrence = 0;
+  for (let i = 0; i < index; i += 1) if (results[i]?.qNumber === r.qNumber) occurrence += 1;
+  const same = (detected ?? []).filter((q) => q.questionNumber === r.qNumber);
+  return same[occurrence]?.questionText;
 }

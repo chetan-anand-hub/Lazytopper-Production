@@ -2,16 +2,26 @@ import { MathText } from "../question/MathText";
 import {
   COACHING_HEADING,
   NOT_ATTEMPTED,
+  UNTYPED_MARKS_LABEL,
   coachingLine,
   countWithUnit,
   effectivePaperCounts,
+  gradeStateCopy,
+  gradeStateOf,
   groupRows,
+  isGradedQuestion,
   isQuestionNotAttempted,
+  marksGroupRows,
+  marksWithUnit,
   mistakeTypeLabel,
+  paperMarksLost,
+  splitWithdrawnSteps,
   stepDisplay,
   stepShowsType,
+  type MarksLostByType,
   type MistakeTypeCounts,
 } from "../../lib/mistakeDisplay";
+import { RubricBlock, WithdrawnWorkBlock } from "../results/GradeStateParts";
 import type {
   CheckSolutionAnnotatedStep,
   CheckSolutionMistakeSummary,
@@ -52,6 +62,11 @@ export interface CiGradedQuestion {
   /** Objective verdict echo — when true the printed per-step mark chip is suppressed
    *  (the marks were zeroed by design; the whole mark is at answer level). */
   objective?: boolean;
+  /** SCORECARD-MI-1 PR-2 · v2 fields (absent on a legacy grade / the free check). */
+  answerMismatch?: boolean | null;
+  objectiveResolved?: boolean | null;
+  marksLostByType?: unknown;
+  rubric?: unknown;
 }
 
 export interface CheckImproveGradedPrintDocProps {
@@ -72,7 +87,7 @@ export interface CheckImproveGradedPrintDocProps {
 type Tone = "full" | "part" | "zero" | "pend";
 
 function toneFor(q: CiGradedQuestion): Tone {
-  if (q.couldNotRead) return "pend";
+  if (!isGradedQuestion(q)) return "pend";
   const awarded = Number(q.marksAwarded) || 0;
   const total = Number(q.totalMarks) || 0;
   if (total > 0 && awarded >= total) return "full";
@@ -81,7 +96,8 @@ function toneFor(q: CiGradedQuestion): Tone {
 }
 
 function markPill(q: CiGradedQuestion): string {
-  if (q.couldNotRead) return "pending";
+  if (gradeStateOf(q) === "answer-mismatch") return "not marked";
+  if (!isGradedQuestion(q)) return "pending";
   return `${q.marksAwarded ?? 0} / ${q.totalMarks}`;
 }
 
@@ -105,6 +121,10 @@ export function buildCiCoaching(args: {
   gradedMarksTotal: number;
   /** Paper-level four-type counts (preferred). */
   counts?: Partial<MistakeTypeCounts> | null;
+  /** PR-2 (B7) — the paper's marks lost per bucket; when present the coaching speaks in marks. */
+  marks?: MarksLostByType | null;
+  /** Questions not graded because the answer does not match the question (owner addendum). */
+  mismatchCount?: number;
   /** LEGACY two-bucket split — HELD caller only; only its sum is used. */
   knowledge?: number;
   careless?: number;
@@ -135,8 +155,10 @@ export function buildCiCoaching(args: {
       marksAwarded: gradedMarksAwarded,
       marksTotal: gradedMarksTotal,
       counts: args.counts,
+      marks: args.marks ?? null,
       pendingCount,
       notAttemptedCount: args.notAttemptedCount,
+      mismatchCount: args.mismatchCount,
     });
     if (line) parts.push(line);
     return parts.join(" ");
@@ -173,6 +195,12 @@ export function CheckImproveGradedPrintDoc({
   // scorecard shows (`effectivePaperCounts`: no type on a full-mark question), in mistakes.
   const groupChips = groupRows(effectivePaperCounts(questions)).filter((r) => r.count > 0);
   const notAttempted = questions.filter((q) => isQuestionNotAttempted(q)).length;
+  // PR-2 (B7) — a v2 grade's chips are in MARKS and sum to the marks lost; a count-only grade
+  // (the free check, an old payload) keeps its counts.
+  const pm = paperMarksLost(questions);
+  const markChips = pm ? marksGroupRows(pm.byType).filter((r) => r.marks > 0) : [];
+  const mismatchCount = questions.filter((q) => gradeStateOf(q) === "answer-mismatch").length;
+  const unreadCount = Math.max(0, pendingCount - mismatchCount);
 
   return (
     <div className="lt-cigp">
@@ -204,18 +232,47 @@ export function CheckImproveGradedPrintDoc({
             <div className="lt-cigp__scorel">MARKS GRADED</div>
           </div>
           <div className="lt-cigp__heroright">
-            {pendingCount > 0 ? (
-              <div className="lt-cigp__pending">
-                <b>{pendingCount} {pendingCount === 1 ? "page" : "pages"} pending</b> — couldn&rsquo;t be read
-                clearly. <b>Not</b> graded and <b>not</b> scored 0. Re-upload a clearer photo to grade
-                {pendingCount === 1 ? " it" : " them"}.
-              </div>
+            {unreadCount > 0 || mismatchCount > 0 ? (
+              <>
+                {unreadCount > 0 && (
+                  <div className="lt-cigp__pending">
+                    <b>{unreadCount} {unreadCount === 1 ? "page" : "pages"} pending</b> — couldn&rsquo;t be read
+                    clearly. <b>Not</b> graded and <b>not</b> scored 0. Re-upload a clearer photo to grade
+                    {unreadCount === 1 ? " it" : " them"}.
+                  </div>
+                )}
+                {mismatchCount > 0 && (
+                  <div className="lt-cigp__pending" data-grade-state="answer-mismatch">
+                    <b>{countWithUnit(mismatchCount, "answer")} not marked</b> — each doesn&rsquo;t seem to match its
+                    question. <b>Not</b> graded, <b>not</b> scored 0 and <b>not</b> saved.
+                  </div>
+                )}
+              </>
             ) : (
               <div className="lt-cigp__pending lt-cigp__pending--clean">
                 All answers read and graded.
               </div>
             )}
-            {(groupChips.length > 0 || notAttempted > 0) && (
+            {pm && pm.lost > 0 && (
+              <div className="lt-cigp__chips" data-testid="cigp-marks-chips">
+                {markChips.map(({ group, marks }) => (
+                  <span key={group.key} className={`lt-cigp__chip lt-cigp__chip--${group.cls}`} data-group={group.key} data-marks={marks}>
+                    {group.label} · {marksWithUnit(marks)}
+                  </span>
+                ))}
+                {pm.byType.unattempted > 0 && (
+                  <span className="lt-cigp__chip lt-cigp__chip--na" data-group="not-attempted" data-marks={pm.byType.unattempted}>
+                    {NOT_ATTEMPTED.label} · {marksWithUnit(pm.byType.unattempted)}
+                  </span>
+                )}
+                {pm.byType.untyped > 0 && (
+                  <span className="lt-cigp__chip lt-cigp__chip--na" data-group="untyped" data-marks={pm.byType.untyped}>
+                    {UNTYPED_MARKS_LABEL} · {marksWithUnit(pm.byType.untyped)}
+                  </span>
+                )}
+              </div>
+            )}
+            {!pm && (groupChips.length > 0 || notAttempted > 0) && (
               <div className="lt-cigp__chips">
                 {groupChips.map(({ group, count }) => (
                   <span key={group.key} className={`lt-cigp__chip lt-cigp__chip--${group.cls}`} data-group={group.key}>
@@ -243,24 +300,27 @@ export function CheckImproveGradedPrintDoc({
         {questions.map((q, qi) => {
           const tone = toneFor(q);
           const label = q.qNumber != null ? `Q${q.qNumber}` : "Q";
-          if (q.couldNotRead) {
+          if (!isGradedQuestion(q)) {
+            const state = gradeStateOf(q);
             return (
               <div key={qi} className="lt-cigp__q lt-cigp__q--pending">
                 <div className="lt-cigp__qtop">
                   <span className="lt-cigp__qn">{q.qNumber ?? "–"}</span>
                   <span className="lt-cigp__qmeta">{q.totalMarks} mark{q.totalMarks === 1 ? "" : "s"}</span>
-                  <span className="lt-cigp__qmk lt-cigp__qmk--pend">pending</span>
+                  <span className="lt-cigp__qmk lt-cigp__qmk--pend">{markPill(q)}</span>
                 </div>
                 {q.questionText && (
                   <div className="lt-cigp__qtext"><MathText text={q.questionText} /></div>
                 )}
-                <div className="lt-cigp__pendnote">
-                  ⚠ This page couldn&rsquo;t be read clearly — <b>not graded, not scored 0</b>. Re-upload a clearer photo of {label} to grade it.
+                <div className="lt-cigp__pendnote" data-grade-state={state}>
+                  ⚠ {gradeStateCopy(q)} — <b>not graded, not scored 0</b>
+                  {state === "could-not-read" ? <>. Re-upload a clearer photo of {label} to grade it.</> : "."}
                 </div>
               </div>
             );
           }
-          const steps = q.annotatedSteps ?? [];
+          // B8 — crossed-out attempts are drawn APART (struck), never inside the marked working.
+          const { marked: steps, withdrawn } = splitWithdrawnSteps(q.annotatedSteps ?? []);
           return (
             <div key={qi} className="lt-cigp__q">
               <div className="lt-cigp__qtop">
@@ -314,6 +374,9 @@ export function CheckImproveGradedPrintDoc({
                   })}
                 </div>
               )}
+
+              <WithdrawnWorkBlock steps={withdrawn} />
+              <RubricBlock rubric={q.rubric} />
 
               {q.teacherNote && (
                 <div className="lt-cigp__note">

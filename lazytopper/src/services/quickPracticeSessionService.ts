@@ -42,6 +42,13 @@ import { MAX_BATCH_UPLOADS } from "../config/gradingLimits";
 // own objective questions through THIS function rather than a local re-implementation,
 // so the client and the server cannot drift on what "correct" means. Never fork it.
 import { scoreObjective } from "../lib/objectiveScoring";
+import {
+  gradeStateOf,
+  isGradedQuestion,
+  objectiveMarksLost,
+  readMarksLostByType,
+  type GradeState,
+} from "../lib/mistakeDisplay";
 import { recordAttempt, type PracticeAttempt } from "./practiceInsights";
 import { recordMistake, type RecordMistakeOutcome } from "./mistakeIntelligence";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
@@ -118,6 +125,11 @@ export interface QuickPracticeEntry {
   graded?: CheckSolutionResponse;
   /** A bare MCQ click outcome, when there is no graded working. */
   mcq?: "correct" | "wrong";
+  /** SCORECARD-MI-1 PR-2 (B8 + owner addendum) — the grader answered but did NOT grade this
+   *  question: it could not read it, could not read the option, or the answer does not match
+   *  the question. `graded` stays absent (never a 0, never an MI entry, never an attempt); the
+   *  sheet names the state in the owner's words. Absent on every graded / unanswered entry. */
+  notGraded?: Exclude<GradeState, "graded">;
 }
 
 /**
@@ -160,6 +172,8 @@ export function buildQuickPracticeResponse(entries: QuickPracticeEntry[]): Works
           presentation: 0,
         },
         teacherNote: entry.graded.teacherNote ?? "",
+        ...(entry.graded.marksLostByType !== undefined ? { marksLostByType: entry.graded.marksLostByType } : {}),
+        ...(entry.graded.rubric !== undefined ? { rubric: entry.graded.rubric } : {}),
       });
       gradedMarksAwarded += marksAwarded;
       gradedMarksTotal += totalMarks;
@@ -178,6 +192,9 @@ export function buildQuickPracticeResponse(entries: QuickPracticeEntry[]): Works
         ok: true,
         marksAwarded,
         percentage: totalMarks > 0 ? Math.round((marksAwarded / totalMarks) * 100) : 0,
+        // PR-2 (B7) — a clicked MCQ's loss in marks: reason not recorded (a click says right or
+        // wrong, never why). Sums to the loss; never a type.
+        marksLostByType: objectiveMarksLost({ totalMarks, marksAwarded, attempted: true }),
       });
       gradedMarksAwarded += marksAwarded;
       gradedMarksTotal += totalMarks;
@@ -494,7 +511,9 @@ export function buildBatchQuestionInput(answer: QuickPracticeSavedAnswer): Works
  *  Returns null for a `couldNotRead` result: the grader could not read that answer, so
  *  there is no grade. Scoring it 0 would be the fabrication (this module's header). */
 export function batchGradeToCheckSolution(grade: WorksheetQuestionGrade): CheckSolutionResponse | null {
-  if (grade.couldNotRead) return null;
+  // PR-2 — not graded (couldNotRead, an unread option, or an answer that does not match the
+  // question) is NO grade: branch on the flags, never on the marks (a mismatch comes back 0).
+  if (!isGradedQuestion(grade)) return null;
   const totalMarks = Number(grade.totalMarks) || 0;
   const marksAwarded = Number(grade.marksAwarded) || 0;
   return {
@@ -511,6 +530,11 @@ export function batchGradeToCheckSolution(grade: WorksheetQuestionGrade): CheckS
     mistakeSummary: grade.mistakeSummary ?? { conceptual: 0, calculation: 0, silly: 0, presentation: 0 },
     teacherNote: grade.teacherNote ?? "",
     ...(grade.objective === true ? { objective: true } : {}),
+    // PR-2 (B7/B8) — the v2 fields travel with the grade (absent on a legacy grade).
+    ...(grade.marksLostByType !== undefined ? { marksLostByType: grade.marksLostByType } : {}),
+    ...(grade.rubric !== undefined ? { rubric: grade.rubric } : {}),
+    ...(grade.answerMismatch !== undefined ? { answerMismatch: grade.answerMismatch } : {}),
+    ...(grade.objectiveResolved !== undefined ? { objectiveResolved: grade.objectiveResolved } : {}),
   };
 }
 
@@ -568,12 +592,20 @@ export function applyLocalObjectiveMark(
     totalMarks,
   });
   if (!score.resolved) return null;
+  // PR-2 (B7) — when the local compare replaces the mark, the marks-lost record must follow it
+  // (it must still sum to the loss): the grader's diagnosed type when its working named one,
+  // else "reason not recorded". Only for a grade that carried the v2 record at all.
+  const typed = (graded.annotatedSteps ?? []).find((st) => st.mistakeType)?.mistakeType ?? null;
+  const marksLostByType = readMarksLostByType(graded.marksLostByType)
+    ? objectiveMarksLost({ totalMarks, marksAwarded: score.marksAwarded, attempted: true, type: typed })
+    : undefined;
   return {
     ...graded,
     totalMarks,
     marksAwarded: score.marksAwarded,
     percentage: score.correct ? 100 : 0,
     objective: true,
+    ...(marksLostByType ? { marksLostByType } : {}),
   };
 }
 
@@ -839,6 +871,11 @@ export async function gradeQuickPracticeBatch(args: {
     // page instead would have left SITE 2 below feeding Mistake Intelligence a wrong mark
     // permanently — a correct screen over a corrupt store, which nothing would ever show.
     const graded = raw ? applyLocalObjectiveMark(answer, raw) : null;
+    // PR-2 — the grader answered but did not grade it: keep the state so the sheet can say so.
+    if (!raw) {
+      const state = gradeStateOf(result);
+      if (state !== "graded") entry.notGraded = state;
+    }
     // couldNotRead → no grade at all. The question stays honestly unattempted-looking
     // rather than being recorded as a 0 the student did not earn. An objective question
     // whose pick could not be resolved arrives here as null for the SAME reason and is

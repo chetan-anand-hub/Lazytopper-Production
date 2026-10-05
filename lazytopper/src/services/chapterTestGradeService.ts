@@ -32,7 +32,11 @@ import {
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "./worksheetSessionStore";
 import { saveWorksheetGrade } from "./worksheetSessionStore";
 import { recordMistake, type RecordMistakeOutcome } from "./mistakeIntelligence";
-import { withEffectiveCounts } from "../lib/mistakeDisplay";
+import { isGradedQuestion, objectiveMarksLost, v2GradeFields, withEffectiveCounts } from "../lib/mistakeDisplay";
+// SCORECARD-MI-1 PR-2 (B9) — the ONE shared objective scorer (Controller A's module; called,
+// never edited): its punctuation / option-letter bridging today, and GRADER-CORE-1 PR-2's case
+// rule (options that differ only by case compared case-sensitively) once that lands there.
+import { scoreObjective } from "../lib/objectiveScoring";
 import { conceptForBankQuestionId } from "./mistakeConcept";
 import { recordAttempt } from "./practiceInsights";
 import {
@@ -47,8 +51,6 @@ import {
 export function chapterTestQuestionId(worksheetId: string, qNumber: number): string {
   return `ct:${worksheetId}:q${qNumber}`;
 }
-
-const norm = (s: string): string => String(s || "").trim().toLowerCase();
 
 export interface ObjectiveQuestionResult {
   qNumber: number;
@@ -87,8 +89,15 @@ export function scoreObjectiveSection(
     total += marks;
     const selected = answers[q.qNumber] ?? null;
     if (selected != null && selected !== "") answeredCount += 1;
-    const key = norm(q.answer || "");
-    const correct = !!key && selected != null && norm(selected) === key;
+    // B9 — the shared scorer (P4's local case-folding `norm` is gone). An unresolvable compare
+    // (no key, no pick) scores 0, exactly as before — never a mark we cannot justify.
+    const scored = scoreObjective({
+      answerKey: q.answer || "",
+      studentPick: selected ?? "",
+      options: Array.isArray(q.options) ? q.options : undefined,
+      totalMarks: marks,
+    });
+    const correct = scored.resolved && scored.correct;
     if (correct) awarded += marks;
     results.push({
       qNumber: q.qNumber,
@@ -106,6 +115,13 @@ export function scoreObjectiveSection(
  *  mistakeType (right/wrong isn't a WHY — spec §5), so mistakeSummary is all-zero. */
 function objectiveGradeRows(objective: ObjectiveScore): WorksheetQuestionGrade[] {
   return objective.results.map((r) => ({
+    // PR-2 (B7) — the pick's loss in marks: unanswered = NOT ATTEMPTED (never a mistake); a
+    // wrong pick = lost, reason not recorded (an MCQ tells right/wrong, not why). Sums to the loss.
+    marksLostByType: objectiveMarksLost({
+      totalMarks: r.total,
+      marksAwarded: r.awarded,
+      attempted: r.selected != null && r.selected !== "",
+    }),
     qNumber: r.qNumber,
     couldNotRead: false,
     ok: true,
@@ -149,7 +165,9 @@ export function buildChapterTestResponse(args: {
     ...objectiveGradeRows(objective),
     ...(subjectiveResponse ? subjectiveResponse.results : pendingSubjectiveRows(subjectiveQuestions)),
   ];
-  const legible = rows.filter((r) => !r.couldNotRead);
+  // PR-2 — graded totals over GRADED questions only (an unreadable or mismatched answer is
+  // neither a 0 nor part of the total; it is pending, and the paper total still counts it).
+  const legible = rows.filter((r) => isGradedQuestion(r));
   const gradedMarksAwarded = legible.reduce((s, r) => s + (Number(r.marksAwarded) || 0), 0);
   const gradedMarksTotal = legible.reduce((s, r) => s + (Number(r.totalMarks) || 0), 0);
   return {
@@ -183,6 +201,8 @@ function toCheckSolutionResponse(g: WorksheetQuestionGrade): CheckSolutionRespon
       presentation: 0,
     },
     teacherNote: g.teacherNote ?? "",
+    // SCORECARD-MI-1 PR-2 — the v2 fields travel with the grade (marks per type, states).
+    ...v2GradeFields(g),
   };
 }
 
@@ -283,7 +303,9 @@ export async function gradeChapterTestUpload(args: {
   const qByNumber = new Map(subjectiveQuestions.map((q) => [q.qNumber, q]));
   const miOutcomes: ChapterTestMiOutcome[] = [];
   for (const g of withEffectiveCounts(subjectiveResponse).results) {
-    if (g.couldNotRead) continue; // honest pending — never feeds MI or a 0
+    // PR-2 — not graded (unreadable, option unread, answer does not match its question) feeds
+    // nothing: no MI entry, no attempt, never a 0.
+    if (!isGradedQuestion(g)) continue;
     const q = qByNumber.get(g.qNumber);
     if (!q) continue;
     const csr = toCheckSolutionResponse(g);

@@ -31,7 +31,11 @@ import {
   stepDisplay,
   stepForDisplay,
   totalCount,
+  isGradedQuestion,
+  questionMarksLost,
+  splitWithdrawnSteps,
 } from "../../lib/mistakeDisplay";
+import { GradeStateNotice, MarksLostLines, RubricBlock, WithdrawnWorkBlock } from "../results/GradeStateParts";
 
 /**
  * GA-26 (SCORECARD-MI-1) — the cached grade is keyed by the SIGNED-IN uid and a version, never
@@ -613,6 +617,8 @@ export function SolutionChecker({
   useEffect(() => {
     if (!result || !isFromCache) return;
     if (!user?.uid || user.isLocalSession) return;
+    // PR-2 — a result that was not graded is never recorded (no MI entry, no attempt).
+    if (!isGradedQuestion(result)) return;
     const sig = questionId || "";
     if (backfilledRef.current === sig) return;
     backfilledRef.current = sig;
@@ -724,7 +730,15 @@ export function SolutionChecker({
         ...(answer ? { answer } : {}),
       }, { surface: "quick-practice", onStage: setStage });
 
-      if (response.ok) {
+      if (response.ok && !isGradedQuestion(response)) {
+        // PR-2 (B8 + owner addendum) — the grader answered but did NOT grade it (could not
+        // read it, could not read the option, or the answer does not match the question). The
+        // card says so in the owner's words; nothing is cached, recorded or scored 0.
+        setResult(response);
+        setIsFromCache(false);
+        onResult?.(response);
+        setLogStatus("unavailable");
+      } else if (response.ok) {
         setResult(response);
         setIsFromCache(false);
         if (questionId) {
@@ -1308,8 +1322,8 @@ export function SolutionChecker({
               </button>
             </div>
           )}
-          {/* Evidence state label */}
-          {result && (
+          {/* Evidence state label — none for a result that was not graded (nothing was saved). */}
+          {result && isGradedQuestion(result) && (
             <div style={{
               display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", marginBottom: 10,
               borderRadius: 8, fontSize: "0.71rem", fontWeight: 600,
@@ -1363,6 +1377,11 @@ export function SolutionChecker({
               </span>
             </div>
           )}
+          {/* PR-2 (B8) — a result that was not graded: its honest state, no mark, no steps. */}
+          {!isGradedQuestion(result) ? (
+            <GradeStateNotice question={result} />
+          ) : (
+          <>
           {/* Score banner */}
           <div style={{
             display: "flex", alignItems: "center", gap: 12,
@@ -1409,10 +1428,17 @@ export function SolutionChecker({
                   false), and the two surfaces that could show an unclamped 1-mark
                   question gate 1-mark items out. Suppressing the chip is the honest
                   fix; a disclaimer under a misleading chip was not. */}
-              {result.annotatedSteps.map((step) => (
+              {splitWithdrawnSteps(result.annotatedSteps).marked.map((step) => (
                 <AnnotatedStepCard key={step.stepNumber} step={stepForDisplay(step, result)} objective={result.objective} />
               ))}
             </>
+          )}
+          {/* PR-2 (B8) — crossed-out work apart and struck; how it was marked, apart from the note;
+              where this answer's marks went, in marks (v2 grades only). */}
+          <WithdrawnWorkBlock steps={result.annotatedSteps} />
+          <RubricBlock rubric={result.rubric} />
+          {questionMarksLost(result) && <MarksLostLines marks={questionMarksLost(result)!} />}
+          </>
           )}
 
           {/* Teacher's Note */}

@@ -1,0 +1,47 @@
+{
+ "source": "SYNTHETIC — built from GRADER-CORE-1 v2 contract (A's report §V2 FIELDS, branch lane/grader-core-1 @e5f81a3a server/grading/postprocess.cjs)",
+ "about": "A single answer the grader could not read (couldNotRead:true): not graded, no marks, no type, recorded nowhere.",
+ "grader": "GRADER-CORE-1 v2 (acceptsV2: true)",
+ "surface": "CI-SINGLE",
+ "request": {
+  "subject": "Maths",
+  "topic": "Triangles",
+  "marks": 3,
+  "question": "In triangle ABC, DE ∥ BC with AD = 2 cm, DB = 3 cm and AE = 4 cm. Find EC."
+ },
+ "body": {
+  "ok": true,
+  "detectedSubject": null,
+  "detectedTopic": null,
+  "marksSource": null,
+  "provider": "synthetic",
+  "model": "none",
+  "totalMarks": 3,
+  "marksAwarded": 0,
+  "percentage": 0,
+  "annotatedSteps": [],
+  "mistakeSummary": {
+   "conceptual": 0,
+   "calculation": 0,
+   "silly": 0,
+   "presentation": 0,
+   "departure": 0
+  },
+  "teacherNote": "We couldn't read your answer for this question clearly — re-upload this page.",
+  "questionDepartureError": false,
+  "objective": false,
+  "couldNotRead": true,
+  "answerMismatch": null,
+  "departureKind": null,
+  "marksLostByType": {
+   "conceptual": 0,
+   "calculation": 0,
+   "silly": 0,
+   "presentation": 0,
+   "unattempted": 0,
+   "untyped": 0
+  },
+  "rubric": null,
+  "objectiveResolved": null
+ }
+}

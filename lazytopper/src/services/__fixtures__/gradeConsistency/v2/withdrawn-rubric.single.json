@@ -1,0 +1,121 @@
+{
+ "source": "SYNTHETIC — built from GRADER-CORE-1 v2 contract (A's report §V2 FIELDS, branch lane/grader-core-1 @e5f81a3a server/grading/postprocess.cjs)",
+ "about": "A single graded answer with a 'withdrawn' (crossed-out) step — its own step, studentWork = the struck text only, marks 0/0, marksAvailable 0, no type, never in marksLostByType — plus a rubric and real mistakes (calculation 0.5, presentation 1).",
+ "grader": "GRADER-CORE-1 v2 (acceptsV2: true)",
+ "surface": "CI-SINGLE",
+ "request": {
+  "subject": "Science",
+  "topic": "Motion",
+  "marks": 3,
+  "question": "A body starts from rest with acceleration 4 m/s². How long does it take to reach 20 m/s?"
+ },
+ "body": {
+  "ok": true,
+  "detectedSubject": null,
+  "detectedTopic": null,
+  "marksSource": null,
+  "provider": "synthetic",
+  "model": "none",
+  "couldNotRead": false,
+  "totalMarks": 3,
+  "marksAwarded": 1.5,
+  "percentage": 50,
+  "annotatedSteps": [
+   {
+    "stepNumber": 1,
+    "description": "Crossed-out attempt",
+    "studentWork": "v = u + at so 20 = 5t",
+    "status": "withdrawn",
+    "marksAwarded": 0,
+    "marksDeducted": 0,
+    "teacherAnnotation": "",
+    "mistakeType": null,
+    "correctedWorking": null,
+    "isDeparture": false,
+    "isReturn": false,
+    "part": null,
+    "marksAvailable": 0
+   },
+   {
+    "stepNumber": 2,
+    "description": "Choose the equation of motion",
+    "studentWork": "v = u + at",
+    "status": "correct",
+    "marksAwarded": 1,
+    "marksDeducted": 0,
+    "teacherAnnotation": "",
+    "mistakeType": null,
+    "correctedWorking": null,
+    "isDeparture": false,
+    "isReturn": false,
+    "part": null,
+    "marksAvailable": 1
+   },
+   {
+    "stepNumber": 3,
+    "description": "Substitute u = 0 and a = 4",
+    "studentWork": "20 = 0 + 4t, t = 4",
+    "status": "partial",
+    "marksAwarded": 0.5,
+    "marksDeducted": 0.5,
+    "teacherAnnotation": "20 / 4 = 5, not 4.",
+    "mistakeType": "calculation",
+    "correctedWorking": "t = 5",
+    "isDeparture": false,
+    "isReturn": false,
+    "part": null,
+    "marksAvailable": 1
+   },
+   {
+    "stepNumber": 4,
+    "description": "State the time with its unit",
+    "studentWork": "t = 4",
+    "status": "incorrect",
+    "marksAwarded": 0,
+    "marksDeducted": 1,
+    "teacherAnnotation": "The final answer needs its SI unit.",
+    "mistakeType": "presentation",
+    "correctedWorking": "t = 5 s",
+    "isDeparture": false,
+    "isReturn": false,
+    "part": null,
+    "marksAvailable": 1
+   }
+  ],
+  "mistakeSummary": {
+   "conceptual": 0,
+   "calculation": 1,
+   "silly": 0,
+   "presentation": 1,
+   "departure": 0
+  },
+  "teacherNote": "",
+  "questionDepartureError": false,
+  "objective": false,
+  "answerMismatch": null,
+  "departureKind": null,
+  "marksLostByType": {
+   "conceptual": 0,
+   "calculation": 0.5,
+   "silly": 0,
+   "presentation": 1,
+   "unattempted": 0,
+   "untyped": 0
+  },
+  "rubric": [
+   {
+    "point": "Chooses v = u + at",
+    "marks": 1
+   },
+   {
+    "point": "Substitutes u = 0, a = 4 m/s² and solves",
+    "marks": 1
+   },
+   {
+    "point": "States t = 5 s with the unit",
+    "marks": 1
+   }
+  ],
+  "objectiveResolved": null
+ }
+}

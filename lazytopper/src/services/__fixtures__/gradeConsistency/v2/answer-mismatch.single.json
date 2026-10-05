@@ -1,0 +1,47 @@
+{
+ "source": "SYNTHETIC — built from GRADER-CORE-1 v2 contract (A's report §V2 FIELDS, branch lane/grader-core-1 @e5f81a3a server/grading/postprocess.cjs)",
+ "about": "A single answer that does not address its question (answerMismatch:true): marksAwarded is the number 0, steps [], every bucket 0 — NOT graded, recorded nowhere.",
+ "grader": "GRADER-CORE-1 v2 (acceptsV2: true)",
+ "surface": "CI-SINGLE",
+ "request": {
+  "subject": "Science",
+  "topic": "Electricity",
+  "marks": 3,
+  "question": "State Ohm's law and draw the circuit used to verify it."
+ },
+ "body": {
+  "ok": true,
+  "detectedSubject": null,
+  "detectedTopic": null,
+  "marksSource": null,
+  "provider": "synthetic",
+  "model": "none",
+  "totalMarks": 3,
+  "marksAwarded": 0,
+  "percentage": 0,
+  "annotatedSteps": [],
+  "mistakeSummary": {
+   "conceptual": 0,
+   "calculation": 0,
+   "silly": 0,
+   "presentation": 0,
+   "departure": 0
+  },
+  "teacherNote": "This answer does not address the question that was set, so it has not been marked — check that you uploaded your answer to this question.",
+  "questionDepartureError": false,
+  "objective": false,
+  "couldNotRead": false,
+  "answerMismatch": true,
+  "departureKind": null,
+  "marksLostByType": {
+   "conceptual": 0,
+   "calculation": 0,
+   "silly": 0,
+   "presentation": 0,
+   "unattempted": 0,
+   "untyped": 0
+  },
+  "rubric": null,
+  "objectiveResolved": null
+ }
+}

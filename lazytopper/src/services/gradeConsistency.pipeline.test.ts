@@ -166,6 +166,7 @@ import { WorksheetGradedPrintDoc } from "../components/worksheet/WorksheetGraded
 import { hashAttemptString } from "./attemptDedupKey";
 import { removeStableMistakeLog } from "./mistakeLogService";
 import { desktopTopicBySlug } from "../lib/desktop/topics";
+import { marksLostToWork } from "../lib/mistakeDisplay";
 import type { PersistedWorksheet } from "./worksheetSessionStore";
 import type { WorksheetGradeResponse } from "../ai/aiClient";
 
@@ -465,7 +466,12 @@ describe("G3 · Check & Improve, single question (rendered)", () => {
     const S = `ci-single:${name}`;
     const fx = await runSingle(name);
     const f = facts(fx.body, 1);
-    const wantEntries = f.lost > 0 && !f.notAttempted ? 1 : 0;
+    // PR-2 · OR-LIVE L3 (binding): a loss made ONLY of parts NOT ATTEMPTED is not a mistake, so
+    // it writes no MI entry. `p3-m17a-missing-steps` is exactly that case — step 3 is "missing"
+    // (−1.5) and every other marked step is correct — so it now expects 0 entries, not 1. The
+    // admission rule is the front door's own (`marksLostToWork(q) > 0`, lib/mistakeDisplay),
+    // computed here from the fixture body through the real function; every other check is kept.
+    const wantEntries = marksLostToWork(fx.body) > 0 ? 1 : 0;
     await waitFor(() => expect(records()).toHaveLength(1));
     await waitFor(() => expect(miEntries()).toHaveLength(wantEntries));
     // B1 — the grader was sent the QUESTION, never the chapter name

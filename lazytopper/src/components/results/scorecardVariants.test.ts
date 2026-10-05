@@ -95,7 +95,8 @@ describe("worksheetScorecardVariant", () => {
     expect(v.subtitle).toBe("WS-M-QE-03 · graded just now");
     expect(v.score).toEqual({ kind: "marks", awarded: 8, total: 10, gradedCount: 2, totalQuestions: 3 });
     expect(v.fourType).toEqual({ conceptual: 1, calculation: 1, silly: 0, presentation: 0 });
-    expect(v.pending).toEqual({ count: 1, worksheetTotalMarks: 15 });
+    // PR-2 — the not-graded question is also NAMED with its state (controller ruling).
+    expect(v.pending).toEqual({ count: 1, worksheetTotalMarks: 15, items: [{ label: "Q3", state: "could-not-read" }] });
     expect(v.allPending).toBeNull();
     // Read (ghost) + Download (primary), in that DOM order.
     expect(v.actions.map((a) => a.tone)).toEqual(["ghost", "primary"]);
@@ -687,7 +688,8 @@ describe("checkImproveScorecardVariant", () => {
     );
     expect(v.score).toEqual({ kind: "marks", awarded: 8, total: 10, gradedCount: 2, totalQuestions: 3 });
     expect(v.fourType).toEqual({ conceptual: 1, calculation: 1, silly: 0, presentation: 0 });
-    expect(v.pending).toEqual({ count: 1, worksheetTotalMarks: 15 });
+    // PR-2 — the not-graded question is also NAMED with its state (controller ruling).
+    expect(v.pending).toEqual({ count: 1, worksheetTotalMarks: 15, items: [{ label: "Q3", state: "could-not-read" }] });
     expect(v.note).toBe("Topic detected automatically"); // quiet provenance line
     expect(v.actions[0].label).toBe("Read my graded answer sheet");
     expect(v.actions[1].label).toBe("Practise Real Numbers");

@@ -18,9 +18,16 @@
  * WHAT IT DOES NOT CHANGE: the STORED type names stay `conceptual | calculation | silly |
  * presentation`. Old records are never converted. Absent means unknown, shown as unknown.
  *
- * UNITS (owner ruling, D2). Every number this module helps print is a COUNT of mistakes or
- * questions and says so ("2 mistakes"). Marks per type do not exist in today's data; nothing
- * here may print a count where a reader would read marks. PR-2 switches to marksLostByType.
+ * UNITS (owner ruling, D2 → PR-2 B7). A grade that carries GRADER-CORE-1's `marksLostByType`
+ * (requested with `acceptsV2: true`) is shown in MARKS — "Where your marks went", and every
+ * part sums to the marks lost (G3). A record or response WITHOUT it (an old count-only record,
+ * the signed-out free check) keeps its COUNTS, each with its unit ("2 mistakes"): it is never
+ * converted and never given invented marks (G5).
+ *
+ * HONEST STATES (PR-2 B8 + the owner's answerMismatch addendum): a question that was NOT graded
+ * — could not be read, its option could not be read, or its answer does not match the question
+ * — says so in the owner's words, carries no marks and no type, and is recorded nowhere. Not
+ * attempted is its own state; crossed-out ("withdrawn") work is shown apart, struck, unmarked.
  *
  * GUARD: `mistakeDisplay.guard.test.ts` fails on any other hard-coded grouping or legacy label
  * under src/. Pure module: no React, no I/O, no imports beyond types.
@@ -106,8 +113,35 @@ export const MISTAKE_TYPE_LABEL: Readonly<Record<StoredMistakeType, string>> = {
   presentation: "Presentation",
 };
 
-/** The heading over the per-kind block. It counts MISTAKES, so it must not claim marks (D2). */
+/** The heading over the per-kind block of a COUNT-ONLY grade or record. It counts MISTAKES, so
+ *  it must not claim marks (D2). */
 export const MISTAKES_BY_KIND_HEADING = "Mistakes the examiner found, by kind";
+
+/** The heading over the per-kind block of a grade that carries `marksLostByType` (PR-2 B7):
+ *  every number under it is MARKS, and the parts sum to the marks lost. */
+export const MARKS_HEADING = "Where your marks went";
+
+/** Lost marks the grader gave no reason for — shown honestly, never assigned to a type. */
+export const UNTYPED_MARKS_LABEL = "Marks lost, reason not recorded";
+
+/* ── honest states (PR-2 B8 + owner addendum 2026-10-05) — the owner's words, verbatim ── */
+
+/** couldNotRead — the answer was not graded. */
+export const COULD_NOT_READ_COPY = "We couldn't read this answer — retake the photo";
+
+/** objectiveResolved:false — the chosen option could not be read; not a 0. */
+export const UNREAD_OPTION_COPY = "We couldn't read your option";
+
+/** answerMismatch:true — the owner's addendum, verbatim (em dash included). */
+export const ANSWER_MISMATCH_COPY =
+  "This answer doesn't seem to match the question — check you uploaded the right page";
+
+/** `rubric` — how the question was marked; never inside the teacher note. */
+export const RUBRIC_HEADING = "How this was marked";
+
+/** `withdrawn` steps — struck work, shown apart from the answer, unmarked, untyped. */
+export const WITHDRAWN_HEADING = "Crossed-out work — not marked";
+export const WITHDRAWN_LABEL = "Crossed out";
 
 /** The heading over a graded sheet's coaching line (it used to read "Where your marks went",
  *  which claimed marks the line does not carry until PR-2). */
@@ -203,9 +237,129 @@ export function countWithUnit(n: number, singular = "mistake", plural?: string):
   return `${v} ${v === 1 ? singular : (plural ?? `${singular}s`)}`;
 }
 
+/* ── marks lost, per type (GRADER-CORE-1 v2 `marksLostByType`) — PR-2 B7 ────────── */
+
+/** The six buckets the grader puts every lost mark into. The four stored types are mistakes;
+ *  `unattempted` is NEVER a mistake; `untyped` is a loss the grader gave no reason for. */
+export type MarksLostBucket = StoredMistakeType | "unattempted" | "untyped";
+
+export const MARKS_LOST_BUCKETS: readonly MarksLostBucket[] = [
+  "conceptual",
+  "calculation",
+  "silly",
+  "presentation",
+  "unattempted",
+  "untyped",
+];
+
+export type MarksLostByType = Record<MarksLostBucket, number>;
+
+/** The schema version Mistake Intelligence stores beside `marksLostByType` (G5). An entry
+ *  without it is a COUNT-ONLY record: read as counts, never converted, never given marks. */
+export const MARKS_LOST_BY_TYPE_VERSION = 1 as const;
+
+export function zeroMarksLost(): MarksLostByType {
+  return { conceptual: 0, calculation: 0, silly: 0, presentation: 0, unattempted: 0, untyped: 0 };
+}
+
+/** Marks on the CBSE ½ grid, with float noise removed (sums of halves are exact; this keeps
+ *  a stray 0.30000000000000004 from ever reaching a student). */
+export function roundMarks(n: number): number {
+  return Math.round((Number(n) || 0) * 100) / 100;
+}
+
+/**
+ * A grader's `marksLostByType`, or null when the value is absent or not a well-formed record
+ * (every bucket a finite, non-negative number). Null means "this grade is COUNT-ONLY" — the
+ * caller shows counts, never marks. Never fills a missing bucket with an invented 0.
+ */
+export function readMarksLostByType(raw: unknown): MarksLostByType | null {
+  if (!raw || typeof raw !== "object") return null;
+  const rec = raw as Record<string, unknown>;
+  const out = zeroMarksLost();
+  for (const b of MARKS_LOST_BUCKETS) {
+    const v = rec[b];
+    if (typeof v !== "number" || !Number.isFinite(v) || v < 0) return null;
+    out[b] = v;
+  }
+  return out;
+}
+
+export function addMarksLost(a: MarksLostByType, b: MarksLostByType): MarksLostByType {
+  const out = zeroMarksLost();
+  for (const k of MARKS_LOST_BUCKETS) out[k] = roundMarks(a[k] + b[k]);
+  return out;
+}
+
+/** Every lost mark in the record (all six buckets). */
+export function marksLostTotal(m: MarksLostByType): number {
+  return roundMarks(MARKS_LOST_BUCKETS.reduce((s, k) => s + m[k], 0));
+}
+
+/** "1 mark" / "2.5 marks" — marks always carry their unit. */
+export function marksWithUnit(n: number): string {
+  const v = roundMarks(n);
+  return `${v} ${v === 1 ? "mark" : "marks"}`;
+}
+
+export interface MarksGroupRow {
+  group: MistakeGroup;
+  marks: number;
+  types: Array<{ type: StoredMistakeType; label: string; marks: number }>;
+}
+
+/** The three groups in display order, each with its member types, in MARKS. */
+export function marksGroupRows(m: MarksLostByType): MarksGroupRow[] {
+  return MISTAKE_GROUPS.map((group) => ({
+    group,
+    marks: roundMarks(group.types.reduce((s, t) => s + m[t], 0)),
+    types: group.types.map((type) => ({ type, label: MISTAKE_TYPE_LABEL[type], marks: m[type] })),
+  }));
+}
+
+/** Per-group marks (knowledge / technique / careless), plus the two non-mistake lines. */
+export function groupMarks(m: MarksLostByType): Record<MistakeGroupKey, number> & { notAttempted: number; untyped: number } {
+  const rows = marksGroupRows(m);
+  const by = (k: MistakeGroupKey) => rows.find((r) => r.group.key === k)?.marks ?? 0;
+  return {
+    knowledge: by("knowledge"),
+    technique: by("technique"),
+    careless: by("careless"),
+    notAttempted: m.unattempted,
+    untyped: m.untyped,
+  };
+}
+
+/** One locally-scored objective question's loss (a Chapter Test / Full Mock Section-A pick, a
+ *  Quick Practice MCQ whose mark the local compare replaced). Whole mark or nothing: an
+ *  unanswered pick is NOT ATTEMPTED; a wrong pick is lost with the grader's type when one was
+ *  given, else "reason not recorded" — never an invented type. */
+export function objectiveMarksLost(args: {
+  totalMarks: number;
+  marksAwarded: number;
+  attempted: boolean;
+  type?: unknown;
+}): MarksLostByType {
+  const out = zeroMarksLost();
+  const lost = roundMarks(Math.max(0, (Number(args.totalMarks) || 0) - (Number(args.marksAwarded) || 0)));
+  if (lost <= 0) return out;
+  if (!args.attempted) out.unattempted = lost;
+  else if (isStoredMistakeType(args.type)) out[args.type] = lost;
+  else out.untyped = lost;
+  return out;
+}
+
 /* ── per-question display state ─────────────────────────────────────────────── */
 
-/** The minimal shape of one graded question every surface already carries. */
+/** One validated rubric value point ("How this was marked"). */
+export interface RubricPoint {
+  point: string;
+  marks: number;
+}
+
+/** The minimal shape of one graded question every surface already carries — plus the v2
+ *  fields GRADER-CORE-1 returns to a request that sent `acceptsV2: true` (all optional: an
+ *  old record or a legacy response simply lacks them). */
 export interface GradedQuestionLike {
   couldNotRead?: boolean;
   totalMarks?: number | null;
@@ -213,6 +367,84 @@ export interface GradedQuestionLike {
   mistakeSummary?: CountsLike;
   annotatedSteps?: ReadonlyArray<StepLike> | null;
   objective?: boolean | null;
+  /** v2 · true = NOT graded (the answer does not address the question); null = undecided →
+   *  graded normally, no message. */
+  answerMismatch?: boolean | null;
+  /** v2 · false on an objective question = its option could not be read (couldNotRead). */
+  objectiveResolved?: boolean | null;
+  /** v2 · per-bucket marks lost; validated by `readMarksLostByType` before any use. */
+  marksLostByType?: unknown;
+  /** v2 · validated value points; never inside the teacher note. */
+  rubric?: unknown;
+}
+
+/* ── grade state: was this question GRADED at all? (PR-2 B8 + owner addendum) ──── */
+
+export type GradeState = "graded" | "could-not-read" | "unread-option" | "answer-mismatch";
+
+/**
+ * The ONE grade-state decision. Branches on the FLAGS, never on the marks (an unmatched answer
+ * comes back with `marksAwarded: 0`, which must never read as a graded 0):
+ *   - `answerMismatch === true` → not graded (the owner's addendum);
+ *   - `couldNotRead` → not graded; `objectiveResolved === false` names the unread option;
+ *   - anything else → graded (`answerMismatch: null` = undecided = graded, no message).
+ */
+export function gradeStateOf(q: GradedQuestionLike | null | undefined): GradeState {
+  if (!q) return "could-not-read";
+  if (q.answerMismatch === true) return "answer-mismatch";
+  if (q.couldNotRead) return q.objectiveResolved === false ? "unread-option" : "could-not-read";
+  return "graded";
+}
+
+/** True only for a GRADED question — the gate for marks, types, MI, attempts and progress. */
+export function isGradedQuestion(q: GradedQuestionLike | null | undefined): boolean {
+  return gradeStateOf(q) === "graded";
+}
+
+/** The student-facing sentence for a question that was not graded; null when it was. */
+export function gradeStateCopy(q: GradedQuestionLike | null | undefined): string | null {
+  switch (gradeStateOf(q)) {
+    case "answer-mismatch":
+      return ANSWER_MISMATCH_COPY;
+    case "unread-option":
+      return UNREAD_OPTION_COPY;
+    case "could-not-read":
+      return COULD_NOT_READ_COPY;
+    default:
+      return null;
+  }
+}
+
+/** A grader's `rubric`, or null when absent / malformed. Never invented. */
+export function readRubric(raw: unknown): RubricPoint[] | null {
+  if (!Array.isArray(raw) || raw.length === 0) return null;
+  const out: RubricPoint[] = [];
+  for (const r of raw) {
+    if (!r || typeof r !== "object") return null;
+    const point = String((r as { point?: unknown }).point ?? "").trim();
+    const marks = (r as { marks?: unknown }).marks;
+    if (!point || typeof marks !== "number" || !Number.isFinite(marks) || marks < 0) return null;
+    out.push({ point, marks });
+  }
+  return out;
+}
+
+/**
+ * The v2 fields of a per-question grade, for an adapter that re-shapes it (a worksheet row into
+ * the single-question shape MI consumes). Only fields actually present are copied, so a legacy
+ * grade stays byte-identical in shape.
+ */
+export function v2GradeFields<G extends GradedQuestionLike>(
+  g: G | null | undefined,
+): Partial<Pick<G, "couldNotRead" | "answerMismatch" | "objectiveResolved" | "marksLostByType" | "rubric">> {
+  const out: Partial<Pick<G, "couldNotRead" | "answerMismatch" | "objectiveResolved" | "marksLostByType" | "rubric">> = {};
+  if (!g) return out;
+  if (g.couldNotRead === true) out.couldNotRead = g.couldNotRead;
+  if (g.answerMismatch !== undefined) out.answerMismatch = g.answerMismatch;
+  if (g.objectiveResolved !== undefined) out.objectiveResolved = g.objectiveResolved;
+  if (g.marksLostByType !== undefined) out.marksLostByType = g.marksLostByType;
+  if (g.rubric !== undefined) out.rubric = g.rubric;
+  return out;
 }
 
 export interface StepLike {
@@ -222,17 +454,21 @@ export interface StepLike {
   marksAwarded?: number | null;
 }
 
-/** Marks lost on one question (total − awarded, never negative). */
+/** Marks lost on one question (total − awarded, never negative). Zero for a question that was
+ *  not graded (could not be read, option unread, answer does not match): nothing was lost on
+ *  work that was never marked. */
 export function marksLostOn(q: GradedQuestionLike): number {
-  if (q.couldNotRead) return 0;
+  if (!isGradedQuestion(q)) return 0;
   return Math.max(0, (Number(q.totalMarks) || 0) - (Number(q.marksAwarded) || 0));
 }
 
-/** Count of steps carrying each stored type. */
+/** Count of steps carrying each stored type (never a not-attempted or crossed-out step). */
 export function stepTypeCounts(steps: ReadonlyArray<StepLike> | null | undefined): MistakeTypeCounts {
   const out = zeroCounts();
   for (const s of steps ?? []) {
-    if (isStoredMistakeType(s?.mistakeType) && !isNotAttemptedStatus(s?.status)) out[s.mistakeType] += 1;
+    if (isStoredMistakeType(s?.mistakeType) && !isNotAttemptedStatus(s?.status) && !isWithdrawnStatus(s?.status)) {
+      out[s.mistakeType] += 1;
+    }
   }
   return out;
 }
@@ -240,7 +476,7 @@ export function stepTypeCounts(steps: ReadonlyArray<StepLike> | null | undefined
 /**
  * The type counts a surface may SHOW for one question — the SAME numbers on the scorecard,
  * both PDFs, the C&I chips, the session record and MI (G3: one function, applied once).
- *   - couldNotRead → nothing (it was not graded);
+ *   - not graded (couldNotRead / unread option / answerMismatch) → nothing;
  *   - full marks (nothing lost, which includes a right-option MCQ) → nothing: a type is never
  *     shown on a question that lost no mark (owner ruling; D3);
  *   - otherwise, per type, the larger of the grader's reconciled summary and the number of
@@ -249,7 +485,7 @@ export function stepTypeCounts(steps: ReadonlyArray<StepLike> | null | undefined
  *     Never invented: a type nobody reported stays zero.
  */
 export function effectiveTypeCounts(q: GradedQuestionLike): MistakeTypeCounts {
-  if (q.couldNotRead) return zeroCounts();
+  if (!isGradedQuestion(q)) return zeroCounts();
   if (marksLostOn(q) <= 0) return zeroCounts();
   const summary = toCounts(q.mistakeSummary);
   const steps = stepTypeCounts(q.annotatedSteps);
@@ -259,17 +495,18 @@ export function effectiveTypeCounts(q: GradedQuestionLike): MistakeTypeCounts {
 }
 
 /**
- * The response every downstream reader should receive: each legible question's
+ * The response every downstream reader should receive: each graded question's
  * `mistakeSummary` replaced by its `effectiveTypeCounts`, so the session record, the stored
  * payload, MI and the scorecard all hold the same four numbers. A question whose summary was
  * absent and whose steps carry no type keeps it absent (absent = unknown, never a zero claim).
- * Pure: returns a copy; old stored records are never touched.
+ * A question that was not graded is passed through untouched. Pure: returns a copy; old
+ * stored records are never touched.
  */
 export function withEffectiveCounts<R extends { results: ReadonlyArray<GradedQuestionLike> }>(response: R): R {
   return {
     ...response,
     results: response.results.map((r) => {
-      if (r.couldNotRead) return r;
+      if (!isGradedQuestion(r)) return r;
       const hasAny = r.mistakeSummary != null || totalCount(stepTypeCounts(r.annotatedSteps)) > 0;
       return hasAny ? { ...r, mistakeSummary: effectiveTypeCounts(r) } : r;
     }),
@@ -284,19 +521,160 @@ export function effectivePaperCounts(questions: ReadonlyArray<GradedQuestionLike
 }
 
 /**
- * THE per-question chip picker (GA-34) — screen and PDF call this, nothing else. The type with
- * the most mistakes; a tie goes to the group shown first (knowledge, technique, careless), then
- * to the type's own order inside the group. Null when nothing may be shown.
+ * One GRADED question's marks lost per bucket, or null when the grade carries no usable
+ * `marksLostByType` (a count-only grade: the caller shows counts) or was not graded.
+ *   - parts that sum to the loss are returned as they are (G3 asserts it everywhere);
+ *   - parts that sum SHORT of the loss: the shortfall is marked "reason not recorded" — the
+ *     loss is shown, never assigned to a type;
+ *   - parts that sum OVER the loss cannot be trusted: null (counts), never a number that
+ *     disagrees with the score.
+ */
+export function questionMarksLost(q: GradedQuestionLike | null | undefined): MarksLostByType | null {
+  if (!q || !isGradedQuestion(q)) return null;
+  const raw = readMarksLostByType(q.marksLostByType);
+  if (!raw) return null;
+  const lost = roundMarks(marksLostOn(q));
+  const sum = marksLostTotal(raw);
+  if (sum > lost + 1e-9) return null;
+  const m = sum < lost - 1e-9 ? { ...raw, untyped: roundMarks(raw.untyped + (lost - sum)) } : { ...raw };
+  // A step the grader itself marked NOT ATTEMPTED ("missing", which the v2 grader still passes
+  // through from the model) whose deduction it filed under "reason not recorded" is moved to
+  // "Not attempted" — the step's own state says why. Only UNTYPED marks move: a mark the grader
+  // gave a type keeps it, nothing is invented, and the parts still sum to the loss.
+  let movable = m.untyped;
+  for (const s of splitWithdrawnSteps(q.annotatedSteps).marked) {
+    if (movable <= 0) break;
+    if (!isNotAttemptedStatus(s?.status) || s?.status === "unattempted") continue;
+    if ((Number(s?.marksAwarded) || 0) > 0 || isStoredMistakeType(s?.mistakeType)) continue;
+    const take = Math.min(movable, Math.max(0, Number(s?.marksDeducted) || 0));
+    if (take <= 0) continue;
+    m.untyped = roundMarks(m.untyped - take);
+    m.unattempted = roundMarks(m.unattempted + take);
+    movable = roundMarks(movable - take);
+  }
+  // …and when every OTHER marked step is fully correct, the rest of the unexplained loss can only
+  // be the part left unattempted (the same rule the count-only path uses — OR-LIVE L3).
+  if (movable > 0) {
+    const marked = splitWithdrawnSteps(q.annotatedSteps).marked;
+    const na = marked.filter((s) => isNotAttemptedStatus(s?.status) && !((Number(s?.marksAwarded) || 0) > 0));
+    if (na.length > 0 && marked.filter((s) => !na.includes(s)).every((s) => s?.status === "correct")) {
+      m.unattempted = roundMarks(m.unattempted + movable);
+      m.untyped = roundMarks(m.untyped - movable);
+    }
+  }
+  return m;
+}
+
+export interface PaperMarksLost {
+  /** Per bucket, over the GRADED questions only. Sums to `lost`. */
+  byType: MarksLostByType;
+  /** total − awarded over the graded questions. */
+  lost: number;
+  /** Graded questions that lost marks without a per-type split (a locally scored row in a v2
+   *  paper): their loss is in `untyped` — shown, never given a type. */
+  unsplitCount: number;
+}
+
+/**
+ * A paper's marks lost per bucket — the numbers behind "Where your marks went". Null when NO
+ * graded question carries `marksLostByType`: that paper is count-only and is shown in counts.
+ * Questions that were not graded (couldNotRead, unread option, answerMismatch) are excluded,
+ * exactly as the paper's graded totals exclude them.
+ */
+export function paperMarksLost(questions: ReadonlyArray<GradedQuestionLike> | null | undefined): PaperMarksLost | null {
+  let byType = zeroMarksLost();
+  let lost = 0;
+  let unsplitCount = 0;
+  let any = false;
+  for (const q of questions ?? []) {
+    if (!isGradedQuestion(q)) continue;
+    const qLost = marksLostOn(q);
+    lost = roundMarks(lost + qLost);
+    const m = questionMarksLost(q);
+    if (m) {
+      any = true;
+      byType = addMarksLost(byType, m);
+    } else if (qLost > 0) {
+      unsplitCount += 1;
+      byType = { ...byType, untyped: roundMarks(byType.untyped + qLost) };
+    }
+  }
+  return any ? { byType, lost, unsplitCount } : null;
+}
+
+/** A paper's honest totals over its GRADED questions only (a question that was not graded is
+ *  neither a 0 nor part of the total). */
+export function paperGradedTotals(questions: ReadonlyArray<GradedQuestionLike> | null | undefined): {
+  awarded: number;
+  total: number;
+  gradedCount: number;
+  notGradedCount: number;
+} {
+  let awarded = 0;
+  let total = 0;
+  let gradedCount = 0;
+  let notGradedCount = 0;
+  for (const q of questions ?? []) {
+    if (!isGradedQuestion(q)) {
+      notGradedCount += 1;
+      continue;
+    }
+    gradedCount += 1;
+    awarded = roundMarks(awarded + (Number(q.marksAwarded) || 0));
+    total = roundMarks(total + (Number(q.totalMarks) || 0));
+  }
+  return { awarded, total, gradedCount, notGradedCount };
+}
+
+/**
+ * Marks lost to the student's WORK on one graded question — the loss minus anything NOT
+ * ATTEMPTED (a part not attempted is never a mistake and never an MI entry; OR-LIVE L3).
+ *   - v2 (`marksLostByType`): the loss minus its `unattempted` bucket;
+ *   - v1: the loss minus the deductions on not-attempted ("missing") steps that earned nothing;
+ *     and when every other marked step is fully correct, the WHOLE loss is the part(s) left
+ *     unattempted — so a not-attempted part never becomes an untyped "mistake".
+ */
+export function marksLostToWork(q: GradedQuestionLike): number {
+  const lost = roundMarks(marksLostOn(q));
+  if (lost <= 0) return 0;
+  const m = questionMarksLost(q);
+  if (m) return roundMarks(Math.max(0, lost - m.unattempted));
+  const steps = splitWithdrawnSteps(q.annotatedSteps).marked;
+  const missing = steps.filter((s) => isNotAttemptedStatus(s?.status) && !((Number(s?.marksAwarded) || 0) > 0));
+  if (missing.length === 0) return lost;
+  const others = steps.filter((s) => !missing.includes(s));
+  if (others.every((s) => s?.status === "correct")) return 0;
+  const naDeducted = missing.reduce((sum, s) => sum + (Number(s?.marksDeducted) || 0), 0);
+  return roundMarks(Math.max(0, lost - naDeducted));
+}
+
+/** A stored MI entry's marks per bucket — ONLY when it carries the versioned field (PR-2). An
+ *  entry without it is COUNT-ONLY: null, and the reader shows its counts (G5). */
+export function entryMarksLost(entry: { marksLostByType?: unknown; marksLostByTypeVersion?: unknown } | null | undefined): MarksLostByType | null {
+  if (!entry || entry.marksLostByTypeVersion !== MARKS_LOST_BY_TYPE_VERSION) return null;
+  return readMarksLostByType(entry.marksLostByType);
+}
+
+/**
+ * THE per-question chip picker (GA-34) — screen and PDF call this, nothing else. On a grade
+ * with `marksLostByType`, the type that cost the MOST MARKS (B7: marks, not counts); otherwise
+ * the type with the most mistakes. A tie goes to the group shown first (knowledge, technique,
+ * careless), then to the type's own order inside the group. Null when nothing may be shown
+ * (not graded, full marks, or a loss with no mistake type — not attempted / reason not given).
  */
 export function questionChipType(q: GradedQuestionLike): StoredMistakeType | null {
-  const c = effectiveTypeCounts(q);
+  if (!isGradedQuestion(q) || marksLostOn(q) <= 0) return null;
+  const marks = questionMarksLost(q);
+  const score: Record<StoredMistakeType, number> = marks
+    ? { conceptual: marks.conceptual, calculation: marks.calculation, silly: marks.silly, presentation: marks.presentation }
+    : effectiveTypeCounts(q);
   let best: StoredMistakeType | null = null;
   let bestN = 0;
   for (const g of MISTAKE_GROUPS) {
     for (const t of g.types) {
-      if (c[t] > bestN) {
+      if (score[t] > bestN) {
         best = t;
-        bestN = c[t];
+        bestN = score[t];
       }
     }
   }
@@ -305,25 +683,32 @@ export function questionChipType(q: GradedQuestionLike): StoredMistakeType | nul
 
 /* ── per-step display state ─────────────────────────────────────────────────── */
 
-export type StepDisplayKind = "correct" | "partial" | "lost" | "not-attempted" | "unknown";
+export type StepDisplayKind = "correct" | "partial" | "lost" | "not-attempted" | "withdrawn" | "unknown";
 
 export interface StepDisplay {
   kind: StepDisplayKind;
   label: string;
-  /** Short tone suffix renderers map to their palette ("ok" | "part" | "bad" | "na" | "unk"). */
-  tone: "ok" | "part" | "bad" | "na" | "unk";
-  /** False for a not-attempted or unknown step: no "−N" deduction is printed against it. */
+  /** Short tone suffix renderers map to their palette ("ok" | "part" | "bad" | "na" | "struck" | "unk"). */
+  tone: "ok" | "part" | "bad" | "na" | "struck" | "unk";
+  /** False for a not-attempted, crossed-out or unknown step: no "−N" deduction is printed. */
   showDeduction: boolean;
 }
 
-/** Today's grader marks an absent step `status: "missing"` — the not-attempted state (D3). */
+/** The not-attempted state: today's grader marks an absent step `status: "missing"`; the v2
+ *  grader (acceptsV2) says `"unattempted"`. Both are the fourth state, never a mistake. */
 export function isNotAttemptedStatus(status: unknown): boolean {
-  return status === "missing";
+  return status === "missing" || status === "unattempted";
+}
+
+/** A crossed-out attempt (v2 `"withdrawn"`): its own step, never marked, never typed, never
+ *  merged into the answer. */
+export function isWithdrawnStatus(status: unknown): boolean {
+  return status === "withdrawn";
 }
 
 /**
- * One step's display state. Tolerates ANY status (D4): a value this module does not know —
- * e.g. a future "withdrawn" — renders as a neutral "Not marked", never as "Incorrect".
+ * One step's display state. Tolerates ANY status (D4): a value this module does not know
+ * renders as a neutral "Not marked", never as "Incorrect".
  */
 export function stepDisplay(status: unknown): StepDisplay {
   switch (status) {
@@ -334,19 +719,34 @@ export function stepDisplay(status: unknown): StepDisplay {
     case "incorrect":
       return { kind: "lost", label: "Incorrect", tone: "bad", showDeduction: true };
     case "missing":
+    case "unattempted":
       return { kind: "not-attempted", label: NOT_ATTEMPTED.label, tone: "na", showDeduction: false };
+    case "withdrawn":
+      return { kind: "withdrawn", label: WITHDRAWN_LABEL, tone: "struck", showDeduction: false };
     default:
       return { kind: "unknown", label: "Not marked", tone: "unk", showDeduction: false };
   }
 }
 
-/** Whether a step's own type chip may be shown: never on a full-mark question, a not-attempted
- *  step, or a step whose status is unknown. */
+/**
+ * A question's steps, split: the MARKED working (everything a renderer shows as the answer) and
+ * the CROSSED-OUT attempts (shown apart, struck — B8). A legacy grade has no withdrawn steps,
+ * so `withdrawn` is empty and `marked` holds every step, in order.
+ */
+export function splitWithdrawnSteps<S extends StepLike>(steps: ReadonlyArray<S> | null | undefined): { marked: S[]; withdrawn: S[] } {
+  const marked: S[] = [];
+  const withdrawn: S[] = [];
+  for (const s of steps ?? []) (isWithdrawnStatus(s?.status) ? withdrawn : marked).push(s);
+  return { marked, withdrawn };
+}
+
+/** Whether a step's own type chip may be shown: never on a full-mark question, a not-attempted,
+ *  crossed-out or unknown-status step. */
 export function stepShowsType(step: StepLike, q: GradedQuestionLike): boolean {
   if (!isStoredMistakeType(step?.mistakeType)) return false;
   if (marksLostOn(q) <= 0) return false;
   const k = stepDisplay(step?.status).kind;
-  return k !== "not-attempted" && k !== "unknown";
+  return k !== "not-attempted" && k !== "unknown" && k !== "withdrawn";
 }
 
 /** The step a renderer should draw: its type removed when it may not be shown. Pure copy. */
@@ -355,13 +755,18 @@ export function stepForDisplay<S extends StepLike>(step: S, q: GradedQuestionLik
   return step;
 }
 
-/** A question the student did not attempt, by today's data: graded, nothing awarded, and every
- *  step the grader returned is a missing step. A question with no steps is NOT assumed. */
+/** A question the student did not attempt: graded, nothing awarded, and every MARKED step the
+ *  grader returned is a not-attempted step (crossed-out attempts are not an answer). A v2 grade
+ *  whose whole loss is "unattempted" is not attempted even without steps. A question with no
+ *  steps and no such loss is NOT assumed. */
 export function isQuestionNotAttempted(q: GradedQuestionLike): boolean {
-  if (q.couldNotRead) return false;
-  const steps = q.annotatedSteps ?? [];
-  if (steps.length === 0) return false;
+  if (!isGradedQuestion(q)) return false;
   if ((Number(q.marksAwarded) || 0) > 0) return false;
+  const total = Number(q.totalMarks) || 0;
+  const marks = readMarksLostByType(q.marksLostByType);
+  if (marks && total > 0 && roundMarks(marks.unattempted) === roundMarks(total)) return true;
+  const steps = splitWithdrawnSteps(q.annotatedSteps).marked;
+  if (steps.length === 0) return false;
   return steps.every((s) => isNotAttemptedStatus(s?.status));
 }
 
@@ -370,42 +775,62 @@ export function isQuestionNotAttempted(q: GradedQuestionLike): boolean {
 export interface CoachingInput {
   marksAwarded: number;
   marksTotal: number;
-  /** Paper-level counts, already through `effectiveTypeCounts`. */
+  /** Paper-level counts, already through `effectiveTypeCounts`. Used when `marks` is absent. */
   counts: CountsLike;
+  /** PR-2 B7 · the paper's marks lost per bucket (`paperMarksLost(...).byType`). When present
+   *  the line speaks in MARKS; absent (a count-only grade or record) it speaks in counts. */
+  marks?: MarksLostByType | null;
   pendingCount?: number;
   notAttemptedCount?: number;
+  /** Questions not graded because the answer did not match the question (owner addendum).
+   *  They are part of `pendingCount` (the server counts them there) and are named apart. */
+  mismatchCount?: number;
   /** What to call the thing being practised ("this topic", "this chapter"). */
   practiseWhat?: string;
 }
 
 /**
- * The coaching line every surface prints. It may only say "Clean" when nothing was lost
- * (GA-24), names the three groups in the owner's words, and counts in mistakes, not marks.
+ * The coaching line every surface prints. It may only say "full marks" when nothing was lost
+ * (GA-24), names the three groups in the owner's words, and speaks in MARKS when the grade
+ * carries them (PR-2), else in mistakes.
  */
 export function coachingLine(input: CoachingInput): string {
   const awarded = Number(input.marksAwarded) || 0;
   const total = Number(input.marksTotal) || 0;
   const lost = Math.max(0, total - awarded);
-  const g = groupCounts(input.counts);
   const parts: string[] = [];
   const what = input.practiseWhat || "this topic";
-  if (g.knowledge > 0) {
-    parts.push(`Learn this: ${countWithUnit(g.knowledge, "knowledge gap")} — practise ${what} until the method is yours.`);
-  }
-  if (g.technique > 0) {
-    parts.push(`The quickest wins: ${countWithUnit(g.technique, "exam-technique mistake")} — write the formula, the units and the conclusion every time.`);
-  }
-  if (g.careless > 0) {
-    parts.push(`You already know this: ${countWithUnit(g.careless, "careless slip")} — slow down and check each line.`);
-  }
   const notAttempted = Number(input.notAttemptedCount) || 0;
-  if (notAttempted > 0) {
-    parts.push(`${countWithUnit(notAttempted, "question")} not attempted — not counted as a mistake.`);
+  if (input.marks) {
+    const g = groupMarks(input.marks);
+    if (g.knowledge > 0) parts.push(`Learn this: ${marksWithUnit(g.knowledge)} to gain — practise ${what} until the method is yours.`);
+    if (g.technique > 0) parts.push(`The quickest wins: ${marksWithUnit(g.technique)} to gain — write the formula, the units and the conclusion every time.`);
+    if (g.careless > 0) parts.push(`You already know this: ${marksWithUnit(g.careless)} to gain — slow down and check each line.`);
+    if (g.notAttempted > 0) parts.push(`${marksWithUnit(g.notAttempted)} not attempted — not counted as a mistake.`);
+    if (g.untyped > 0) parts.push(`${marksWithUnit(g.untyped)} lost, reason not recorded.`);
+  } else {
+    const g = groupCounts(input.counts);
+    if (g.knowledge > 0) {
+      parts.push(`Learn this: ${countWithUnit(g.knowledge, "knowledge gap")} — practise ${what} until the method is yours.`);
+    }
+    if (g.technique > 0) {
+      parts.push(`The quickest wins: ${countWithUnit(g.technique, "exam-technique mistake")} — write the formula, the units and the conclusion every time.`);
+    }
+    if (g.careless > 0) {
+      parts.push(`You already know this: ${countWithUnit(g.careless, "careless slip")} — slow down and check each line.`);
+    }
+    if (notAttempted > 0) {
+      parts.push(`${countWithUnit(notAttempted, "question")} not attempted — not counted as a mistake.`);
+    }
+    if (lost > 0 && totalCount(toCounts(input.counts)) === 0 && notAttempted === 0) {
+      parts.push(`You lost ${lost} ${lost === 1 ? "mark" : "marks"}, and the examiner did not name a mistake type for ${lost === 1 ? "it" : "them"}.`);
+    }
   }
-  if (lost > 0 && totalCount(toCounts(input.counts)) === 0 && notAttempted === 0) {
-    parts.push(`You lost ${lost} ${lost === 1 ? "mark" : "marks"}, and the examiner did not name a mistake type for ${lost === 1 ? "it" : "them"}.`);
+  const mismatch = Number(input.mismatchCount) || 0;
+  if (mismatch > 0) {
+    parts.push(`${countWithUnit(mismatch, "answer")} not marked: ${ANSWER_MISMATCH_COPY}.`);
   }
-  const pending = Number(input.pendingCount) || 0;
+  const pending = Math.max(0, (Number(input.pendingCount) || 0) - mismatch);
   if (pending > 0) {
     parts.push(`Re-upload the ${countWithUnit(pending, "pending page")} to complete your score.`);
   }

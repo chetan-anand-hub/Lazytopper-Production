@@ -19,8 +19,10 @@ import {
   STORED_MISTAKE_TYPES,
   coachingLine,
   countWithUnit,
+  gradeStateOf,
   mistakeGroupOf,
   mistakeTypeLabel,
+  paperMarksLost,
   toCounts,
 } from "../../lib/mistakeDisplay";
 
@@ -91,8 +93,25 @@ function scoreTone(awarded: number, total: number): "good" | "mid" | "low" {
 
 /** A minimal honest coaching footer for a re-downloaded graded sheet, from the stored
  *  record only (never fabricated) — SCORECARD-MI-1: the ONE coaching function, so it never
- *  says "Clean" while the record shows marks lost (GA-24). */
-function storedCoaching(record: SessionRecord): string {
+ *  says "Clean" while the record shows marks lost (GA-24).
+ *
+ *  PR-2 (B7): when the locally cached grade response for this sheet carries GRADER-CORE-1 v2
+ *  `marksLostByType` (`paperMarksLost` non-null), the line speaks in MARKS — the same numbers
+ *  the graded sheet prints — with its pending / not-matched questions named. Without it (an
+ *  old cached grade, or none) the line is exactly today's: the record's COUNTS, never
+ *  converted. The record's DotStrip stays counts (the SessionRecord shape is gate-frozen). */
+export function storedCoaching(record: SessionRecord, grade?: WorksheetGradeResponse | null): string {
+  const pm = grade && grade.ok ? paperMarksLost(grade.results) : null;
+  if (grade && pm) {
+    return coachingLine({
+      marksAwarded: record.marksAwarded,
+      marksTotal: record.marksTotal,
+      counts: record.fourType,
+      marks: pm.byType,
+      pendingCount: Number(grade.pendingCount) || 0,
+      mismatchCount: grade.results.filter((r) => gradeStateOf(r) === "answer-mismatch").length,
+    });
+  }
   return coachingLine({
     marksAwarded: record.marksAwarded,
     marksTotal: record.marksTotal,
@@ -191,7 +210,7 @@ export default function SurfaceHistory({ surface, uid, embedded, pendingOnly }: 
           response: grade,
           name: record.title,
           code: record.id,
-          coaching: storedCoaching(record),
+          coaching: storedCoaching(record, grade),
         }).finally(() => {
           downloadingRef.current = false;
           setDownloading(false);

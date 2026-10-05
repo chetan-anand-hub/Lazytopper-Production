@@ -100,12 +100,31 @@ function aggregateAttemptsByTopic(attempts: PracticeAttempt[]): Map<string, { co
   return map;
 }
 
-function aggregateWrongAnswersByTopic(entries: WrongAnswerEntry[]): Map<string, { count: number; concepts: string[] }> {
-  const map = new Map<string, { count: number; concepts: string[] }>();
+/**
+ * SCORECARD-MI-1 PR-2 (B7) — the wrong-answer EVIDENCE one log entry contributes, in units the
+ * weak-area score multiplies by 5 (and caps at 30, unchanged):
+ *   - an entry that carries knowledge-gap MARKS (`conceptualMarksLost` > 0, written only from a
+ *     grade with GRADER-CORE-1 v2 `marksLostByType`) weighs those marks — one conceptual mark
+ *     lost is one unit, so a 3-mark concept gap outweighs a ½-mark one — plus one unit for each
+ *     COUNT-ONLY wrong on the same entry (`count − conceptualMarksCount`);
+ *   - an entry without marks (every entry written before PR-2, and every count-only grade)
+ *     weighs its `count`, exactly as before. Marks are never invented for it.
+ */
+export function wrongAnswerEvidenceUnits(e: WrongAnswerEntry): number {
+  const count = Math.max(0, Number(e.count) || 0);
+  const marks = Number(e.conceptualMarksLost);
+  if (typeof e.conceptualMarksLost !== "number" || !Number.isFinite(marks) || marks <= 0) return count;
+  const marked = Math.min(count, Math.max(0, Math.floor(Number(e.conceptualMarksCount) || 0)));
+  return marks + (count - marked);
+}
+
+function aggregateWrongAnswersByTopic(entries: WrongAnswerEntry[]): Map<string, { count: number; units: number; concepts: string[] }> {
+  const map = new Map<string, { count: number; units: number; concepts: string[] }>();
   for (const e of entries) {
     const key = resolveCanonicalSlug(e.topicKey) || e.topicKey;
-    const prev = map.get(key) || { count: 0, concepts: [] };
+    const prev = map.get(key) || { count: 0, units: 0, concepts: [] };
     prev.count += e.count;
+    prev.units += wrongAnswerEvidenceUnits(e);
     if (e.conceptKey && !prev.concepts.includes(e.conceptKey)) {
       prev.concepts.push(e.conceptKey);
     }
@@ -141,7 +160,7 @@ export function getWeakAreas(options?: { subject?: "Maths" | "Science"; limit?: 
 
     const { percent: masteryPercent, state: masteryState } = computeTopicMastery(masteryKey);
     const attemptData = attemptMap.get(topicKey) || { correct: 0, total: 0, lastTs: 0 };
-    const wrongData = wrongMap.get(topicKey) || { count: 0, concepts: [] };
+    const wrongData = wrongMap.get(topicKey) || { count: 0, units: 0, concepts: [] };
 
     totalMastery += masteryPercent;
     topicCount++;
@@ -153,10 +172,13 @@ export function getWeakAreas(options?: { subject?: "Maths" | "Science"; limit?: 
     // EVIDENCE clauses — each fires only because the student DID something we
     // observed: answered below par, got questions wrong, or scored low in a mock.
     // Unchanged in weight and form; they are the only clauses that may QUALIFY a
-    // topic as a weakness.
+    // topic as a weakness. SCORECARD-MI-1 PR-2: the wrong-answer clause counts EVIDENCE
+    // UNITS (`wrongAnswerEvidenceUnits`) — conceptual marks where an entry carries them,
+    // the count where it does not (identical to before for every pre-PR-2 entry); the ×5
+    // weight and the 30 cap are unchanged.
     let evidenceScore = 0;
     if (accuracy < 60 && attemptData.total >= 2) evidenceScore += (60 - accuracy) * 0.3;
-    if (wrongData.count > 0) evidenceScore += Math.min(wrongData.count * 5, 30);
+    if (wrongData.units > 0) evidenceScore += Math.min(wrongData.units * 5, 30);
     if (mockData && mockData.avgPercent < 50) evidenceScore += (50 - mockData.avgPercent) * 0.25;
 
     // The two MASTERY clauses are REMOVED, not re-weighted. Mastery is the retired

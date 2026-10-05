@@ -2,16 +2,25 @@ import { MathText } from "../question/MathText";
 import {
   COACHING_HEADING,
   NOT_ATTEMPTED,
+  UNTYPED_MARKS_LABEL,
   countWithUnit,
   effectivePaperCounts,
+  gradeStateCopy,
+  gradeStateOf,
   groupRows,
+  isGradedQuestion,
   isQuestionNotAttempted,
+  marksGroupRows,
+  marksWithUnit,
   mistakeGroupOf,
   mistakeTypeLabel,
+  paperMarksLost,
   questionChipType,
+  splitWithdrawnSteps,
   stepDisplay,
   stepShowsType,
 } from "../../lib/mistakeDisplay";
+import { RubricBlock, WithdrawnWorkBlock } from "../results/GradeStateParts";
 import type { PersistedWorksheet, PersistedWorksheetQuestion } from "../../services/worksheetSessionStore";
 import type {
   CheckSolutionAnnotatedStep,
@@ -49,7 +58,7 @@ function formatDate(iso: string): string {
 type Tone = "full" | "part" | "zero" | "pend";
 
 function toneFor(g: WorksheetQuestionGrade): Tone {
-  if (g.couldNotRead) return "pend";
+  if (!isGradedQuestion(g)) return "pend";
   const awarded = Number(g.marksAwarded) || 0;
   const total = Number(g.totalMarks) || 0;
   if (total > 0 && awarded >= total) return "full";
@@ -58,7 +67,8 @@ function toneFor(g: WorksheetQuestionGrade): Tone {
 }
 
 function markPill(g: WorksheetQuestionGrade): string {
-  if (g.couldNotRead) return "pending";
+  if (gradeStateOf(g) === "answer-mismatch") return "not marked";
+  if (!isGradedQuestion(g)) return "pending";
   return `${g.marksAwarded ?? 0} / ${g.totalMarks}`;
 }
 
@@ -112,6 +122,12 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching }: 
   // scorecard shows (no type on a full-mark question), in mistakes, never marks.
   const groupChips = groupRows(effectivePaperCounts(response.results)).filter((r) => r.count > 0);
   const notAttempted = response.results.filter((r) => isQuestionNotAttempted(r)).length;
+  // SCORECARD-MI-1 PR-2 (B7) — a v2 grade's chips are in MARKS and sum to the marks lost on the
+  // graded questions; a count-only grade (an old cached response) keeps its counts.
+  const pm = paperMarksLost(response.results);
+  const markChips = pm ? marksGroupRows(pm.byType).filter((r) => r.marks > 0) : [];
+  const mismatchCount = response.results.filter((r) => gradeStateOf(r) === "answer-mismatch").length;
+  const unreadCount = Math.max(0, (Number(response.pendingCount) || 0) - mismatchCount);
 
   // Group the per-question results by their worksheet section, A→E then other.
   const groups = new Map<string, WorksheetQuestionGrade[]>();
@@ -156,18 +172,47 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching }: 
             <div className="lt-gp__scorel">MARKS GRADED</div>
           </div>
           <div className="lt-gp__heroright">
-            {response.pendingCount > 0 ? (
-              <div className="lt-gp__pending">
-                <b>{response.pendingCount} {response.pendingCount === 1 ? "question" : "questions"} pending</b> —
-                couldn’t be read clearly. <b>Not</b> graded and <b>not</b> scored 0. Re-upload a clearer photo to grade
-                {response.pendingCount === 1 ? " it" : " them"}. Worksheet is worth {response.worksheetTotalMarks} marks in total.
-              </div>
+            {unreadCount > 0 || mismatchCount > 0 ? (
+              <>
+                {unreadCount > 0 && (
+                  <div className="lt-gp__pending">
+                    <b>{unreadCount} {unreadCount === 1 ? "question" : "questions"} pending</b> —
+                    couldn’t be read clearly. <b>Not</b> graded and <b>not</b> scored 0. Re-upload a clearer photo to grade
+                    {unreadCount === 1 ? " it" : " them"}. Worksheet is worth {response.worksheetTotalMarks} marks in total.
+                  </div>
+                )}
+                {mismatchCount > 0 && (
+                  <div className="lt-gp__pending" data-grade-state="answer-mismatch">
+                    <b>{countWithUnit(mismatchCount, "answer")} not marked</b> — each doesn’t seem to match its question.
+                    {" "}<b>Not</b> graded, <b>not</b> scored 0 and <b>not</b> saved.
+                  </div>
+                )}
+              </>
             ) : (
               <div className="lt-gp__pending lt-gp__pending--clean">
                 All {response.gradedCount} question{response.gradedCount === 1 ? "" : "s"} read and graded.
               </div>
             )}
-            {(groupChips.length > 0 || notAttempted > 0) && (
+            {pm && pm.lost > 0 && (
+              <div className="lt-gp__chips" data-testid="gp-marks-chips">
+                {markChips.map(({ group, marks }) => (
+                  <span key={group.key} className={`lt-gp__chip lt-gp__chip--${group.cls}`} data-group={group.key} data-marks={marks}>
+                    {group.label} · {marksWithUnit(marks)}
+                  </span>
+                ))}
+                {pm.byType.unattempted > 0 && (
+                  <span className="lt-gp__chip lt-gp__chip--na" data-group="not-attempted" data-marks={pm.byType.unattempted}>
+                    {NOT_ATTEMPTED.label} · {marksWithUnit(pm.byType.unattempted)}
+                  </span>
+                )}
+                {pm.byType.untyped > 0 && (
+                  <span className="lt-gp__chip lt-gp__chip--na" data-group="untyped" data-marks={pm.byType.untyped}>
+                    {UNTYPED_MARKS_LABEL} · {marksWithUnit(pm.byType.untyped)}
+                  </span>
+                )}
+              </div>
+            )}
+            {!pm && (groupChips.length > 0 || notAttempted > 0) && (
               <div className="lt-gp__chips">
                 {groupChips.map(({ group, count }) => (
                   <span key={group.key} className={`lt-gp__chip lt-gp__chip--${group.cls}`} data-group={group.key}>
@@ -198,19 +243,21 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching }: 
             {groups.get(sec)!.map((r) => {
               const q = byNumber.get(r.qNumber);
               const tone = toneFor(r);
-              if (r.couldNotRead) {
+              if (!isGradedQuestion(r)) {
+                const state = gradeStateOf(r);
                 return (
                   <div key={r.qNumber} className="lt-gp__q lt-gp__q--pending">
                     <div className="lt-gp__qtop">
                       <span className="lt-gp__qn">{r.qNumber}</span>
                       <span className="lt-gp__qmeta">{q ? `${q.marks} mark${q.marks === 1 ? "" : "s"}` : ""}</span>
-                      <span className="lt-gp__qmk lt-gp__qmk--pend">pending</span>
+                      <span className="lt-gp__qmk lt-gp__qmk--pend">{markPill(r)}</span>
                     </div>
                     {q?.questionText && (
                       <div className="lt-gp__qtext"><MathText text={q.questionText} /></div>
                     )}
-                    <div className="lt-gp__pendnote">
-                      ⚠ This page couldn’t be read clearly — <b>not graded, not scored 0</b>. Re-upload a clearer photo of Q{r.qNumber} to grade it.
+                    <div className="lt-gp__pendnote" data-grade-state={state}>
+                      ⚠ {gradeStateCopy(r)} — <b>not graded, not scored 0</b>
+                      {state === "could-not-read" ? <>. Re-upload a clearer photo of Q{r.qNumber} to grade it.</> : "."}
                     </div>
                   </div>
                 );
@@ -221,7 +268,8 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching }: 
               // The student's OWN marked working, already persisted on every graded
               // attempt (`WorksheetQuestionGrade.annotatedSteps`) and never rendered until
               // now — no migration, no schema change; past attempts light up too.
-              const annSteps: CheckSolutionAnnotatedStep[] = (r.annotatedSteps ?? []).filter(Boolean);
+              // B8 — crossed-out attempts are drawn APART (struck), never inside the marked working.
+              const { marked: annSteps, withdrawn } = splitWithdrawnSteps<CheckSolutionAnnotatedStep>((r.annotatedSteps ?? []).filter(Boolean));
               const binary = isBinaryScored(r, q);
               const binaryCorrect = Number(r.marksAwarded) > 0;
               return (
@@ -322,6 +370,8 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching }: 
                            the teacher note, exactly as before this lane. */
                         <span className="lt-gp__fb">{r.teacherNote || "Graded against the marking scheme."}</span>
                       )}
+                      <WithdrawnWorkBlock steps={withdrawn} />
+                      <RubricBlock rubric={r.rubric} />
                     </div>
                     <div className="lt-gp__qbox">
                       <div className="lt-gp__bl">Model answer</div>

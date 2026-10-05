@@ -31,7 +31,7 @@ import {
 import type { PersistedWorksheet } from "./worksheetSessionStore";
 import { saveWorksheetGrade, listStoredWorksheetsLite } from "./worksheetSessionStore";
 import { recordMistake, type RecordMistakeOutcome } from "./mistakeIntelligence";
-import { withEffectiveCounts } from "../lib/mistakeDisplay";
+import { isGradedQuestion, v2GradeFields, withEffectiveCounts } from "../lib/mistakeDisplay";
 import { conceptForBankQuestionId } from "./mistakeConcept";
 import { recordAttempt } from "./practiceInsights";
 import {
@@ -85,6 +85,8 @@ function toCheckSolutionResponse(g: WorksheetQuestionGrade): CheckSolutionRespon
       presentation: 0,
     },
     teacherNote: g.teacherNote ?? "",
+    // SCORECARD-MI-1 PR-2 — the v2 fields travel with the grade (marks per type, states).
+    ...v2GradeFields(g),
   };
 }
 
@@ -141,7 +143,9 @@ export async function gradeWorksheetAndRecord(
   const miOutcomes: WorksheetMiOutcome[] = [];
 
   for (const g of response.results) {
-    if (g.couldNotRead) continue; // honest pending — never feeds MI
+    // PR-2 — not graded (unreadable, option unread, answer does not match its question) feeds
+    // nothing: no MI entry, no attempt, never a 0.
+    if (!isGradedQuestion(g)) continue;
     const q = qByNumber.get(g.qNumber);
     if (!q) continue;
 

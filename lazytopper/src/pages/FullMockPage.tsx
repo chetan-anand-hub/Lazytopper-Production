@@ -30,6 +30,8 @@ import {
   coachingLine as sharedCoachingLine,
   effectivePaperCounts,
   isQuestionNotAttempted,
+  gradeStateOf,
+  paperMarksLost,
 } from "../lib/mistakeDisplay";
 import type { PersistedWorksheet } from "../services/worksheetSessionStore";
 import {
@@ -129,6 +131,9 @@ function coachingLine(resp: WorksheetGradeResponse): string {
     marksAwarded: resp.gradedMarksAwarded,
     marksTotal: resp.gradedMarksTotal,
     counts: effectivePaperCounts(resp.results),
+    // SCORECARD-MI-1 PR-2 (B7) — in MARKS when the grade carries them (else counts, unit-labelled).
+    marks: paperMarksLost(resp.results)?.byType ?? null,
+    mismatchCount: resp.results.filter((r) => gradeStateOf(r) === "answer-mismatch").length,
     pendingCount: resp.pendingCount,
     notAttemptedCount: resp.results.filter((r) => isQuestionNotAttempted(r)).length,
     practiseWhat: "the chapters that cost you marks",

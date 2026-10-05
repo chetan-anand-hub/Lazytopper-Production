@@ -643,16 +643,62 @@ export async function fetchStepSolution(req: {
 
 export type MistakeType = "conceptual" | "calculation" | "silly" | "presentation";
 
+/** A step's status. The first four are what every grader response carries. SCORECARD-MI-1
+ *  PR-2: a request that sends `acceptsV2: true` may also receive
+ *    - `"unattempted"` — not attempted (no type; its marks are `marksLostByType.unattempted`);
+ *    - `"withdrawn"`   — ONE crossed-out attempt as its own step: `studentWork` is only the
+ *      struck text, marks 0/0, no type, never in `marksLostByType`, never part of the answer.
+ *  Without the flag the server never sends either (it maps unattempted to "missing"). */
+export type CheckSolutionStepStatus = "correct" | "partial" | "incorrect" | "missing" | "unattempted" | "withdrawn";
+
 export interface CheckSolutionAnnotatedStep {
   stepNumber: number;
   description: string;
   studentWork: string;
-  status: "correct" | "partial" | "incorrect" | "missing";
+  status: CheckSolutionStepStatus;
   marksAwarded: number;
   marksDeducted: number;
   teacherAnnotation: string;
   mistakeType: MistakeType | null;
   correctedWorking: string | null;
+  /** v2 · the sub-part this step belongs to ("i", "b") when known. */
+  part?: string | null;
+  /** v2 · what this step could earn (0 on a withdrawn step). */
+  marksAvailable?: number;
+}
+
+/** v2 (`acceptsV2: true`) · every lost mark of one question, in exactly one bucket; the six sum
+ *  to totalMarks − marksAwarded on a graded question, and are all 0 on a question that was not
+ *  graded (couldNotRead / answerMismatch). Validated by lib/mistakeDisplay before any use. */
+export interface GradeMarksLostByType {
+  conceptual: number;
+  calculation: number;
+  silly: number;
+  presentation: number;
+  unattempted: number;
+  untyped: number;
+}
+
+/** v2 · one validated value point of the marking (marks on the ½ grid, summing to the total). */
+export interface GradeRubricPoint {
+  point: string;
+  marks: number;
+}
+
+/** v2 · the fields GRADER-CORE-1 adds, per question, for a request that sent `acceptsV2: true`
+ *  (top level of /api/check-solution; each `results[]` entry of /api/grade-worksheet). All
+ *  optional: a legacy response, a stored record and the signed-out free check lack them. */
+export interface GradeV2Fields {
+  /** true = NOT graded (unreadable page, unread MCQ option, or a withheld grade). */
+  couldNotRead?: boolean;
+  /** true = NOT graded: the answer does not address the question (marksAwarded is 0 — branch on
+   *  this flag, never on the marks). false = graded. null = undecided → graded, no message. */
+  answerMismatch?: boolean | null;
+  departureKind?: "different-problem" | "invalid-method" | null;
+  marksLostByType?: GradeMarksLostByType;
+  rubric?: GradeRubricPoint[] | null;
+  /** On an objective question: false = the chosen option could not be read (couldNotRead). */
+  objectiveResolved?: boolean | null;
 }
 
 export interface CheckSolutionMistakeSummary {
@@ -675,7 +721,7 @@ export interface CheckSolutionTopicVocab {
   subject: string;
 }
 
-export interface CheckSolutionResponse {
+export interface CheckSolutionResponse extends GradeV2Fields {
   ok: boolean;
   totalMarks: number;
   marksAwarded: number;
@@ -695,6 +741,20 @@ export interface CheckSolutionResponse {
   detectedTopic?: string | null;
   marksSource?: CheckSolutionMarksSource | null;
   error?: string;
+}
+
+/**
+ * SCORECARD-MI-1 PR-2 · every grading request the app makes sends `acceptsV2: true`, so the
+ * grader returns the v2 fields (`marksLostByType`, `couldNotRead`, `answerMismatch`, the
+ * `unattempted` / `withdrawn` step states, `rubric`, `objectiveResolved`). Without the flag the
+ * server keeps today's shape exactly.
+ *
+ * ★ THE SIGNED-OUT FREE CHECK IS THE ONE EXCEPTION: its request shape is fixed (spec §1 —
+ * `freeCheckClient.ts` request shape forbidden), so a `freeCheck` call is sent byte-unchanged
+ * and its legacy answer is rendered honestly in counts. [FU-B15-FREECHECK-V2]
+ */
+function withAcceptsV2<T extends object>(req: T, opts?: PaidCallOptions): T | (T & { acceptsV2: true }) {
+  return opts?.freeCheck ? req : { ...req, acceptsV2: true as const };
 }
 
 export async function checkSolutionImage(req: {
@@ -728,7 +788,7 @@ export async function checkSolutionImage(req: {
   const res = await postGrading(
     `${API_BASE}/check-solution`,
     { ...(opts?.freeCheck ? await freeCheckJsonHeaders() : await paidJsonHeaders()), ...surface },
-    req,
+    withAcceptsV2(req, opts),
     opts,
     refreshedPaidHeaders(surface),
   );
@@ -750,6 +810,10 @@ export interface DetectedQuestion {
   /** True for a multiple-choice / assertion-reason question. Forwarded to the grade
    *  call so a keyless objective question is clamped to 0/full (≤1-mark rail). */
   objective?: boolean;
+  /** The correct option detect read for an objective question (#704), or null when it could
+   *  not be determined (never a guess). SCORECARD-MI-1 PR-2 (B9) forwards it to the grade call
+   *  as the answer key, so the MCQ is scored on the option alone. */
+  answer?: string | null;
 }
 
 export interface DetectQuestionResponse {
@@ -760,6 +824,8 @@ export interface DetectQuestionResponse {
   marksSource?: CheckSolutionMarksSource | null;
   /** First question's objective flag (backward-compat mirror of questions[0].objective). */
   detectedObjective?: boolean;
+  /** First question's detected answer key (mirror of questions[0].answer; #704). */
+  detectedAnswer?: string | null;
   /** Every question read from the upload. A single-question read yields a
    *  single-item array; `length > 1` drives the multi-question grade path. */
   questions?: DetectedQuestion[];
@@ -858,7 +924,7 @@ export interface WorksheetGradeQuestionInput {
  *  grade and is NEVER counted as 0 (honest-failure contract). When false, the
  *  graded fields form a CheckSolutionResponse-compatible result that can be fed
  *  straight into the Mistake-Intelligence front door. */
-export interface WorksheetQuestionGrade {
+export interface WorksheetQuestionGrade extends GradeV2Fields {
   qNumber: number;
   couldNotRead: boolean;
   totalMarks: number;
@@ -947,7 +1013,7 @@ export async function gradeWorksheet(req: {
   const res = await postGrading(
     `${API_BASE}/grade-worksheet`,
     { ...identity, ...extra },
-    req,
+    withAcceptsV2(req, opts),
     opts,
     refreshedPaidHeaders(extra),
   );

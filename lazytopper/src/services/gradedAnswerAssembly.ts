@@ -28,7 +28,14 @@ import type {
 import type { ScorecardGradedAnswer, ScorecardMistakeKind } from "../components/results/scorecardVariants";
 import {
   MISTAKE_TYPE_LABEL,
+  gradeStateCopy,
+  gradeStateOf,
+  isNotAttemptedStatus,
+  isWithdrawnStatus,
   questionChipType,
+  questionMarksLost,
+  readRubric,
+  splitWithdrawnSteps,
   type GradedQuestionLike,
 } from "../lib/mistakeDisplay";
 
@@ -52,7 +59,9 @@ export const firstMistakeDetail = (
 ): string | null => {
   if (!Array.isArray(steps)) return null;
   for (const step of steps) {
-    const lost = (Number(step?.marksDeducted) || 0) > 0 || step?.status === "incorrect" || step?.status === "partial" || step?.status === "missing";
+    // A crossed-out attempt is never "where the mark went" (it was not marked).
+    if (isWithdrawnStatus(step?.status)) continue;
+    const lost = (Number(step?.marksDeducted) || 0) > 0 || step?.status === "incorrect" || step?.status === "partial" || isNotAttemptedStatus(step?.status);
     const note = String(step?.teacherAnnotation || "").trim();
     if (lost && note) return note;
   }
@@ -119,6 +128,30 @@ export interface GradedAnswerSource {
    *  deliberately leaves it unset so its shipped output is byte-identical.
    *  [FU-QP-LOSTDETAIL-DUPLICATES-VERDICT] */
   lostFromStepsOnly?: boolean;
+  /** SCORECARD-MI-1 PR-2 · the v2 fields (absent on a legacy grade): a question that was not
+   *  graded becomes the honest ungraded row in the owner's words; a graded one carries its
+   *  rubric, its crossed-out work apart and its marks lost per type. */
+  couldNotRead?: boolean;
+  answerMismatch?: boolean | null;
+  objectiveResolved?: boolean | null;
+  marksLostByType?: unknown;
+  rubric?: unknown;
+}
+
+/** The ungraded row for a question that was NOT graded (couldNotRead / unread option /
+ *  answerMismatch): the owner's sentence, no mark, no type. `reason` is the grade state. */
+export function notGradedAnswer(
+  label: string,
+  descriptor: string | null,
+  q: GradedQuestionLike,
+  detail?: string | null,
+): ScorecardGradedAnswer {
+  const state = gradeStateOf(q);
+  const fallback =
+    state === "answer-mismatch"
+      ? "Nothing has been marked, scored 0 or saved for it."
+      : "Nothing has been scored 0 for it.";
+  return ungradedAnswer(label, descriptor, state, gradeStateCopy(q) ?? "Not marked", (detail && detail.trim()) || fallback);
 }
 
 /** "3 marks" / "MCQ · 1 mark". */
@@ -140,11 +173,17 @@ export const marksDescriptor = (marks: number, objective: boolean): string => {
  */
 export function buildGradedAnswer(src: GradedAnswerSource): ScorecardGradedAnswer {
   const descriptor = src.descriptor ?? null;
+  // SCORECARD-MI-1 PR-2 (B8 + owner addendum) — branch on the FLAGS, never on the marks: an
+  // answer that does not match its question comes back as a 0 that must never read as graded.
+  if (gradeStateOf(src) !== "graded") {
+    return notGradedAnswer(src.label, descriptor, src);
+  }
   const kind = dominantMistakeKind({
     totalMarks: src.totalMarks,
     marksAwarded: src.marksAwarded,
     mistakeSummary: src.mistakeSummary,
     annotatedSteps: src.annotatedSteps,
+    marksLostByType: src.marksLostByType,
   });
   const stepDetail = firstMistakeDetail(src.annotatedSteps);
   const detail = src.lostFromStepsOnly ? stepDetail : (stepDetail || src.teacherNote || null);
@@ -168,10 +207,14 @@ export function buildGradedAnswer(src: GradedAnswerSource): ScorecardGradedAnswe
   // actually returned some. An empty array is never attached: `steps: []` and `steps: null`
   // must be indistinguishable to the shell, so "no steps" renders nothing extra rather
   // than an empty panel.
-  const steps =
-    src.includeSteps && Array.isArray(src.annotatedSteps) && src.annotatedSteps.length > 0
-      ? src.annotatedSteps
-      : null;
+  // Crossed-out attempts are shown APART (B8) — never inside the marked working.
+  const { marked, withdrawn } = splitWithdrawnSteps(Array.isArray(src.annotatedSteps) ? src.annotatedSteps : []);
+  const steps = src.includeSteps && marked.length > 0 ? marked : null;
+  const marksLost = questionMarksLost({
+    totalMarks: src.totalMarks,
+    marksAwarded: src.marksAwarded,
+    marksLostByType: src.marksLostByType,
+  });
 
   return {
     label: src.label,
@@ -187,6 +230,9 @@ export function buildGradedAnswer(src: GradedAnswerSource): ScorecardGradedAnswe
     mistakeType: kind ? MISTAKE_KIND_LABEL[kind] : null,
     mistakeKind: kind,
     steps,
+    ...(withdrawn.length > 0 ? { withdrawnSteps: withdrawn } : {}),
+    ...(readRubric(src.rubric) ? { rubric: readRubric(src.rubric) } : {}),
+    ...(marksLost ? { marksLost } : {}),
   };
 }
 
@@ -227,13 +273,10 @@ export function buildGradedAnswersFromWorksheetResponse(
     const label = `Question ${r.qNumber}`;
     const descriptor = marksDescriptor(marks, objective);
 
-    if (r.couldNotRead) {
-      answers.push(ungradedAnswer(
-        label, descriptor,
-        "could-not-read",
-        "We could not read this one",
-        r.note || "Your working did not come back readable. Nothing has been scored 0 for it.",
-      ));
+    if (gradeStateOf(r) !== "graded") {
+      // SCORECARD-MI-1 PR-2 — not graded (unreadable, option unread, or the answer does not
+      // match the question): the owner's sentence, no mark, never a 0.
+      answers.push(notGradedAnswer(label, descriptor, r, r.note));
       continue;
     }
 
@@ -248,6 +291,8 @@ export function buildGradedAnswersFromWorksheetResponse(
       annotatedSteps: r.annotatedSteps,
       includeSteps: true,
       lostFromStepsOnly: true,
+      marksLostByType: r.marksLostByType,
+      rubric: r.rubric,
     }));
   }
   return sortGradedAnswers(answers);

@@ -39,10 +39,14 @@ import { recordWrongAnswer } from "./adaptivePracticeEngine";
 import { resolveCanonicalSlug } from "../data/syllabus/canonicalTopicSlug";
 import { gradeIdentityDocId, gradeIdentityKey } from "./attemptDedupKey";
 import {
+  MARKS_LOST_BY_TYPE_VERSION,
   effectiveTypeCounts,
+  isGradedQuestion,
   isKnowledgeGapType,
   isQuestionNotAttempted,
   marksLostOn,
+  marksLostToWork,
+  questionMarksLost,
   stepShowsType,
   type MistakeTypeCounts,
 } from "../lib/mistakeDisplay";
@@ -105,6 +109,7 @@ export type RecordMistakeOutcome =
   | "skipped-local" // local/browse session — never persists fabricated history
   | "skipped-clean" // nothing lost — nothing to log (owner ruling: no type on full marks)
   | "skipped-not-attempted" // the student did not attempt it — its own state, never a mistake
+  | "skipped-not-graded" // PR-2: not graded (couldNotRead / unread option / answerMismatch) — nothing recorded
   | "error";
 
 export interface RecordMistakeResult {
@@ -130,10 +135,11 @@ function reconcileCounts(result: CheckSolutionResponse): ReconciledCounts {
   return effectiveTypeCounts(result);
 }
 
-/** Did this graded answer actually lose marks? (SCORECARD-MI-1: the type alone no longer
- *  admits an entry — a full-mark answer carries no mistake, by owner ruling.) */
+/** Did this graded answer lose marks TO ITS WORK? (SCORECARD-MI-1: the type alone no longer
+ *  admits an entry — a full-mark answer carries no mistake, by owner ruling. PR-2 / OR-LIVE L3:
+ *  marks lost only on a part NOT ATTEMPTED are not a mistake either — no entry.) */
 function hasMistakeSignal(result: CheckSolutionResponse): boolean {
-  return marksLostOn(result) > 0;
+  return marksLostToWork(result) > 0;
 }
 
 /**
@@ -217,6 +223,7 @@ function buildEntry(
   // entry with no bank identity is byte-identical in shape to a pre-MI-CONCEPT-1
   // entry — absent, not "present and empty".
   const at = ctx.gradedAt != null ? new Date(ctx.gradedAt) : new Date();
+  const marks = questionMarksLost(result);
   return {
     timestamp: Number.isFinite(at.getTime()) ? at.toISOString() : new Date().toISOString(),
     questionText: ctx.question,
@@ -233,6 +240,9 @@ function buildEntry(
       presentation: counts.presentation,
     },
     stepDetails,
+    // PR-2 (B7) — marks per bucket, VERSIONED, only for a grade that carried them. An entry
+    // without the pair is count-only and is never given marks (G5).
+    ...(marks ? { marksLostByType: { ...marks }, marksLostByTypeVersion: MARKS_LOST_BY_TYPE_VERSION } : {}),
   };
 }
 
@@ -364,10 +374,16 @@ export async function recordMistake(
   if (!user?.uid) return { outcome: "skipped-no-user", bridged: false };
   if (user.isLocalSession) return { outcome: "skipped-local", bridged: false };
   if (!gradeResult || gradeResult.ok === false) return { outcome: "error", bridged: false };
+  // PR-2 (B8 + owner addendum) — a question that was NOT graded (could not be read, its option
+  // could not be read, or its answer does not match the question) records NOTHING: no entry,
+  // no bridge, and no removal of an earlier entry (nothing new is known about the work).
+  if (!isGradedQuestion(gradeResult)) return { outcome: "skipped-not-graded", bridged: false };
   // Not attempted is its own state — never a mistake, never an MI entry (owner ruling).
   // Neither it nor a clean grade is logged; a RE-grade that comes back that way removes the
   // submission's earlier entry (W1).
-  const notAttempted = isQuestionNotAttempted(gradeResult);
+  // A loss made only of parts NOT attempted is not a mistake (OR-LIVE L3) — the same state.
+  const notAttempted =
+    isQuestionNotAttempted(gradeResult) || (marksLostOn(gradeResult) > 0 && marksLostToWork(gradeResult) <= 0);
   if (notAttempted || !hasMistakeSignal(gradeResult)) {
     const cleared = await clearSupersededEntry(user.uid, context, gradeResult);
     return {
@@ -427,7 +443,15 @@ export async function recordMistake(
       const questionId = hasQid ? context.questionId!.trim() : `graded:${topicKey}`;
       const conceptKey = hasQid ? "" : topicKey;
       try {
-        recordWrongAnswer(questionId, topicKey, conceptKey, context.difficulty || "Medium");
+        // PR-2 (B7) — weak areas weight a knowledge gap by its MARKS when the grade carries them.
+        const gapMarks = questionMarksLost(gradeResult)?.conceptual;
+        recordWrongAnswer(
+          questionId,
+          topicKey,
+          conceptKey,
+          context.difficulty || "Medium",
+          gapMarks && gapMarks > 0 ? gapMarks : undefined,
+        );
         bridged = true;
       } catch {
         bridged = false;
