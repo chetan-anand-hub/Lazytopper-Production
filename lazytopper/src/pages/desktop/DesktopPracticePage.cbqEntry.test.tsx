@@ -54,7 +54,7 @@ function renderHub(entry: string) {
 
 const TITLE = "Competency-based questions (CBQs)";
 const LINE = "Case-based questions like the board paper's Section E — pick a chapter";
-const card = () => screen.getByRole("button", { name: new RegExp(`^${TITLE.replace(/[()]/g, "\\$&")}`) });
+const card = () => screen.getByRole("button", { name: (name) => name.startsWith(TITLE) });
 
 beforeEach(() => {
   avail.without = new Set();
