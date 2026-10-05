@@ -58,7 +58,7 @@ const GSP_CSS = `
 .lt-gsp--dark .lt-gsp__row { color: #e3e9f1; }
 .lt-gsp--dark .lt-gsp__row--sub, .lt-gsp--dark .lt-gsp__row--na, .lt-gsp--dark .lt-gsp__row--untyped { color: #a9b8cc; }
 .lt-gsp--dark .lt-gsp__mk { color: #fff; }
-.lt-gsp--dark .lt-gsp__struckwork { color: #8695ac; }
+.lt-gsp--dark .lt-gsp__struckwork { color: #a9b6c8; }
 .lt-gsp--dark.lt-gsp__state { background: rgba(148, 163, 184, 0.14); color: #f1f5f9; border-left-color: #8695ac; }
 .lt-gsp--dark.lt-gsp__state--answer-mismatch { background: rgba(232, 147, 12, 0.14); border-left-color: #e8b765; }
 `;

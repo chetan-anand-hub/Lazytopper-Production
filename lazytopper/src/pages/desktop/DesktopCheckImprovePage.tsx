@@ -54,6 +54,7 @@ import {
   stepForDisplay,
   withEffectiveCounts,
   WITHDRAWN_LABEL,
+  UNTYPED_MARKS_LABEL,
   effectivePaperCounts,
   gradeStateOf,
   isGradedQuestion,
@@ -3194,12 +3195,22 @@ const DesktopCheckImprovePageInner: React.FC<{
                           {group.label} · {marksWithUnit(marks)}
                         </span>
                       ))}
+                      {qMarks && qMarks.unattempted > 0 && (
+                        <span data-group="not-attempted" data-marks={qMarks.unattempted} style={{ ...chipBase, color: TEXT_MUTED }}>
+                          {NOT_ATTEMPTED.label} · {marksWithUnit(qMarks.unattempted)}
+                        </span>
+                      )}
+                      {qMarks && qMarks.untyped > 0 && (
+                        <span data-group="untyped" data-marks={qMarks.untyped} style={{ ...chipBase, color: TEXT_MUTED }}>
+                          {UNTYPED_MARKS_LABEL} · {marksWithUnit(qMarks.untyped)}
+                        </span>
+                      )}
                       {!qMarks && chips.map(({ group, count }) => (
                         <span key={group.key} data-group={group.key} style={{ ...chipBase, color: GROUP_TONE[group.colorKey].fg }}>
                           {group.label} · {countWithUnit(count)}
                         </span>
                       ))}
-                      {notAttemptedQ && (
+                      {notAttemptedQ && !qMarks && (
                         <span style={{ ...chipBase, color: TEXT_MUTED }}>{NOT_ATTEMPTED.label}</span>
                       )}
                       <span
@@ -3292,7 +3303,11 @@ const DesktopCheckImprovePageInner: React.FC<{
   // scored 0 or recorded (no MI entry, no attempt, no session record).
   if (!isGradedQuestion(result)) {
     return withChrome(
-      <div className="lt-ci-notgraded" data-testid="ci-single-not-graded">
+      <div
+        className="lt-ci-notgraded"
+        data-testid="ci-single-not-graded"
+        style={{ maxWidth: 1500, margin: "0 auto", padding: PAGE_PADDING, fontFamily: FONT_SANS, minWidth: 0 }}
+      >
         <PageHeader
           showBack
           onBack={resetToInput}
@@ -3307,7 +3322,7 @@ const DesktopCheckImprovePageInner: React.FC<{
             </button>
           }
         />
-        <div style={cardStyle}>
+        <div style={{ ...cardStyle, padding: 24 }}>
           <GradeStateNotice question={result} />
         </div>
       </div>,
@@ -3329,7 +3344,9 @@ const DesktopCheckImprovePageInner: React.FC<{
   // SCORECARD-MI-1 — what this answer may show: no type on full marks; counts, never marks.
   const shownCounts = effectiveTypeCounts({ ...result, mistakeSummary: summary });
   const singleNotAttempted = isQuestionNotAttempted(result);
-  const lostSteps = result.annotatedSteps.filter((s) => s.status !== "correct");
+  // PR-2 (B8) — a crossed-out attempt is never "where you lost marks" (it was not marked).
+  const markedSteps = splitWithdrawnSteps(result.annotatedSteps).marked;
+  const lostSteps = markedSteps.filter((s) => s.status !== "correct");
 
   return withChrome(
     <div
@@ -3499,8 +3516,8 @@ const DesktopCheckImprovePageInner: React.FC<{
             >
               <div style={sectionEyebrow}>Annotated steps</div>
               <span style={chipBase}>
-                {result.annotatedSteps.length} step
-                {result.annotatedSteps.length === 1 ? "" : "s"}
+                {markedSteps.length} step
+                {markedSteps.length === 1 ? "" : "s"}
               </span>
             </div>
             {result.annotatedSteps.length === 0 ? (

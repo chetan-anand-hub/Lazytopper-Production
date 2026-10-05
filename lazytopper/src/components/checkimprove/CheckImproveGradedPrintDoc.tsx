@@ -243,7 +243,7 @@ export function CheckImproveGradedPrintDoc({
                 )}
                 {mismatchCount > 0 && (
                   <div className="lt-cigp__pending" data-grade-state="answer-mismatch">
-                    <b>{countWithUnit(mismatchCount, "answer")} not marked</b> — each doesn&rsquo;t seem to match its
+                    <b>{countWithUnit(mismatchCount, "answer")} not marked</b> — {mismatchCount === 1 ? "it doesn’t" : "each doesn’t"} seem to match its
                     question. <b>Not</b> graded, <b>not</b> scored 0 and <b>not</b> saved.
                   </div>
                 )}
@@ -437,6 +437,15 @@ const CIGP_CSS = `
 .lt-cigp__chip--tech { background: #e7f0fe; color: #2459a8; }
 .lt-cigp__chip--na { background: #f1f3f6; color: #4b5563; }
 
+/* SCORECARD-MI-1 PR-2 — "Read on screen" on a phone: the hero and the header stack (the PDF
+   export rasterises at 760 px, so it never reaches this rule). */
+@media (max-width: 560px) {
+  .lt-cigp__head { flex-direction: column; align-items: flex-start; }
+  .lt-cigp__meta { text-align: left; }
+  .lt-cigp__hero { flex-direction: column; }
+  .lt-cigp__scorebox { min-width: 0; }
+  .lt-cigp__body { padding: 18px 16px 4px; }
+}
 .lt-cigp__legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11.5px; color: var(--cg-muted); margin: 8px 0 4px; }
 .lt-cigp__legend span { display: inline-flex; align-items: center; gap: 5px; }
 .lt-cigp__dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }

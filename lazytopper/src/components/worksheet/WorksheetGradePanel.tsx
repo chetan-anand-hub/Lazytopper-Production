@@ -528,7 +528,26 @@ export default function WorksheetGradePanel({ ws }: { ws: PersistedWorksheet }) 
             </div>
             {response.pendingCount > 0 && (
               <div className="lt-wg__totpending">
-                {response.pendingCount} question{response.pendingCount === 1 ? "" : "s"} couldn’t be read — re-upload those pages to complete your score. The worksheet is worth {response.worksheetTotalMarks} marks in total.
+                {/* PR-2 — an answer that does not match its question was read: it is not "unreadable". */}
+                {(() => {
+                  const mismatch = response.results.filter((r) => gradeStateOf(r) === "answer-mismatch").length;
+                  const unread = Math.max(0, response.pendingCount - mismatch);
+                  return (
+                    <>
+                      {unread > 0 && (
+                        <>
+                          {unread} question{unread === 1 ? "" : "s"} couldn’t be read — re-upload those pages to complete your score.{" "}
+                        </>
+                      )}
+                      {mismatch > 0 && (
+                        <>
+                          {mismatch} answer{mismatch === 1 ? "" : "s"} not marked — {mismatch === 1 ? "it doesn’t" : "they don’t"} seem to match the question.{" "}
+                        </>
+                      )}
+                      The worksheet is worth {response.worksheetTotalMarks} marks in total.
+                    </>
+                  );
+                })()}
               </div>
             )}
           </div>

@@ -183,7 +183,7 @@ export function WorksheetGradedPrintDoc({ ws, response, name, code, coaching }: 
                 )}
                 {mismatchCount > 0 && (
                   <div className="lt-gp__pending" data-grade-state="answer-mismatch">
-                    <b>{countWithUnit(mismatchCount, "answer")} not marked</b> — each doesn’t seem to match its question.
+                    <b>{countWithUnit(mismatchCount, "answer")} not marked</b> — {mismatchCount === 1 ? "it doesn’t" : "each doesn’t"} seem to match its question.
                     {" "}<b>Not</b> graded, <b>not</b> scored 0 and <b>not</b> saved.
                   </div>
                 )}
