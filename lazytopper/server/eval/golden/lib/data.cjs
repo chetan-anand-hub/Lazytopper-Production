@@ -215,7 +215,13 @@ function load() {
   const owner2 = readJson('owner-anomaly-02/case.json');
   owner2.questions.forEach((q) => { q.caseId = 'OA2-Q' + String(q.qNumber).padStart(2, '0'); paperCaseById[q.caseId] = { ...q, paperId: 'owner-02' }; });
 
-  _cache = { cases, casesById, itemsById, repins, appliedRepins, vocab, nameBySlug, owner, probes, mismatch, papers, paperCaseById, dupPaper, owner2, GOLDEN_DIR };
+  // HOTFIX-2 · BOARD-38: a SYNTHETIC-COMPOSITE 38-question full board paper (board-composite-38/
+  // case.json): owner-anomaly-02's 27 questions + controller paper-01's 10 + paper-02 Q4, ONE answer
+  // PDF. Each question reuses its SOURCE case id, so its expected marks are that case's own.
+  const board38 = readJson('board-composite-38/case.json');
+  if (board38.synthetic !== true) throw new Error('board-composite-38 is not labelled synthetic');
+
+  _cache = { cases, casesById, itemsById, repins, appliedRepins, vocab, nameBySlug, owner, probes, mismatch, papers, paperCaseById, dupPaper, owner2, board38, GOLDEN_DIR };
   return _cache;
 }
 

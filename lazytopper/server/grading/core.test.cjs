@@ -1171,49 +1171,60 @@ const timing = require('./timing.cjs');
 const charge = require('./charge.cjs');
 // singleCallMaxQuestions 0: these tests pin the CHUNK mechanics (failure, timeout, retry) on small
 // papers; the D43 hybrid boundary itself (≤ 10 questions = one call) is pinned by §C8.2 / §D43.
-const FAST = (o = {}) => ({ gradingTimingOverride: { deadlineMs: 600, chunkTimeoutMs: 150, cacheBudgetMs: 60, marginMs: 20, minRetryMs: 60, singleCallMaxQuestions: 0, ...o } });
-const ALWAYS_CHUNK = { gradingTimingOverride: { ...timing.normaliseTiming({}), singleCallMaxQuestions: 0 } };
+// chunkQuestions 3 (HOTFIX-2): these pin the chunk MECHANICS (failure, timeout, retry, split) on small
+// papers; the production size (8) is pinned by §C8.1 / §C8.2.
+const FAST = (o = {}) => ({ gradingTimingOverride: { deadlineMs: 600, chunkTimeoutMs: 150, cacheBudgetMs: 60, marginMs: 20, minRetryMs: 60, singleCallMaxQuestions: 0, chunkQuestions: 3, ...o } });
+const ALWAYS_CHUNK = { gradingTimingOverride: { ...timing.normaliseTiming({}), singleCallMaxQuestions: 0, chunkQuestions: 3 } };
 const never = () => new Promise(() => {});
 const delay = (ms, v) => new Promise((r) => setTimeout(() => r(v), ms));
 const typedPaper = (n) => Array.from({ length: n }, (_, i) => sq(i + 1, { marks: 2, questionText: 'Question number ' + (i + 1) + ': solve it.' }));
 
-test('§C8.1 planChunks: ≤ 3 per chunk, balanced, request order kept, and a repeated printed number never shares a chunk', () => {
-  const ids = (qs) => planChunks(qs).map((c) => c.map((q) => q.qNumber));
+// ★ AMENDED by HOTFIX-2 (owner direction): the production chunk is ≈ 8–10 questions (8). The balancing
+// and duplicate-number mechanics are pinned with max 3, as before; the production size at the end.
+test('§C8.1 planChunks: ≤ max per chunk, balanced, request order kept, and a repeated printed number never shares a chunk', () => {
+  const ids = (qs) => planChunks(qs, 3).map((c) => c.map((q) => q.qNumber));
   const N = (...ns) => ns.map((n) => ({ qNumber: n }));
   assert.deepEqual(ids(N(1)), [[1]]);
   assert.deepEqual(ids(N(1, 2, 3)), [[1, 2, 3]], 'a set of ≤ 3 is ONE chunk — byte-identical to the pre-PR-3 request');
   assert.deepEqual(ids(N(1, 2, 3, 4)), [[1, 2], [3, 4]], 'balanced: the slowest chunk decides the time');
   assert.deepEqual(ids(N(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)), [[1, 2, 3], [4, 5, 6], [7, 8], [9, 10]]);
-  const dup = planChunks(N(4, 5, 5, 6));
+  const dup = planChunks(N(4, 5, 5, 6), 3);
   assert.ok(dup.every((c) => new Set(c.map((q) => q.qNumber)).size === c.length), JSON.stringify(dup));
   assert.equal(dup.flat().length, 4, 'nothing dropped');
   // CONTROL: without the repeat the same four questions form two chunks of two.
   assert.deepEqual(ids(N(4, 5, 7, 6)), [[4, 5], [7, 6]]);
+  // HOTFIX-2: the production size — a 38-question board paper is 5 chunks (8, 8, 8, 7, 7), FEWER calls.
+  assert.equal(timing.MAX_CHUNK_QUESTIONS, 8);
+  assert.deepEqual(planChunks(N(...Array.from({ length: 38 }, (_, i) => i + 1))).map((c) => c.length), [8, 8, 8, 7, 7]);
+  assert.deepEqual(planChunks(N(...Array.from({ length: 27 }, (_, i) => i + 1))).map((c) => c.length), [7, 7, 7, 6]);
 });
 
 // ★ AMENDED by PR-3, controller decision D43 (HYBRID): 10 questions are ONE call now; 11 are
 // the smallest chunked paper (3+3+3+2). The boundary is pinned at the end of this test.
-test('§C8.2 an 11-question paper is graded as 4 chunk calls IN PARALLEL (all in flight before any answers); a 10-question paper is ONE call (D43)', async () => {
+// ★ AMENDED by HOTFIX-2 (owner direction): a 38-question board paper is 5 chunks of ≈ 8, ALL in flight
+// at once (no concurrency cap), and no chunk's first attempt is cut short at 45 s.
+test('§C8.2 a 38-question paper is graded as 5 chunk calls (8/8/8/7/7) IN PARALLEL (all in flight before any answers), each with the whole remaining budget; a 10-question paper is ONE call (D43)', async () => {
   let release;
   const gate = new Promise((r) => { release = r; });
   let inFlight = 0;
   let peak = 0;
   const h = harness({ reply: async (a) => { inFlight += 1; peak = Math.max(peak, inFlight); await gate; inFlight -= 1; return echoReply(a); } });
-  const pending = h.sheet(sheet(typedPaper(11)));
-  for (let i = 0; i < 20 && h.calls.length < 4; i += 1) await new Promise((r) => setImmediate(r));
-  assert.equal(h.calls.length, 4, 'every chunk must be sent before the first one answers');
+  const pending = h.sheet(sheet(typedPaper(38)));
+  for (let i = 0; i < 20 && h.calls.length < 5; i += 1) await new Promise((r) => setImmediate(r));
+  assert.equal(h.calls.length, 5, 'every chunk must be sent before the first one answers');
+  assert.ok(h.calls.every((c) => c.genConfig.timeoutMs > 45000), 'HOTFIX-2: no 45 s first-attempt kill — each chunk gets the remaining budget');
   release();
   const out = await pending;
-  assert.equal(peak, 4);
-  assert.deepEqual(h.calls.map((c, i) => qNumsIn(h.prompt(i)).length), [3, 3, 3, 2]);
+  assert.equal(peak, 5);
+  assert.deepEqual(h.calls.map((c, i) => qNumsIn(h.prompt(i)).length), [8, 8, 8, 7, 7]);
   assert.equal(out.status, 200);
-  assert.deepEqual([out.body.gradedCount, out.body.pendingCount, out.body.results.length], [11, 0, 11]);
-  assert.deepEqual(out.body.results.map((r) => r.qNumber), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], 'results stay in request order');
+  assert.deepEqual([out.body.gradedCount, out.body.pendingCount, out.body.results.length], [38, 0, 38]);
+  assert.deepEqual(out.body.results.map((r) => r.qNumber), Array.from({ length: 38 }, (_, i) => i + 1), 'results stay in request order');
   // D43 boundary: a 10-question paper is ONE call with the whole budget (no chunk cap).
   const ten = harness({ reply: echoReply });
   await ten.sheet(sheet(typedPaper(10)));
   assert.equal(ten.calls.length, 1, 'a paper of ≤ 10 questions is graded in ONE call (PR-2\'s path)');
-  assert.ok(ten.calls[0].genConfig.timeoutMs > timing.DEFAULT_GRADING_CHUNK_TIMEOUT_MS, 'a single-call paper is not capped at the chunk timeout');
+  assert.ok(ten.calls[0].genConfig.timeoutMs > 45000, 'a single-call paper gets the whole remaining budget');
 });
 
 test('§C8.3 ★ TWO QUESTIONS PRINTED "Q5" are graded independently — merge by question id, never by number', async () => {
@@ -1342,11 +1353,12 @@ test('§C8.9 ★ grading is INDEPENDENT of GEMINI_TIMEOUT_MS: every grading call
   assert.deepEqual(seen.map((s) => s[0]), [55000, 55000, 80000], 'GEMINI_TIMEOUT_MS still read (non-grading calls keep it, D15)');
   // ★ AMENDED by PR-3, controller decision D43: the deadline's code default is 80 000 (the value
   // that served the 27-question paper live in 61–75 s), still under the client's 90 s.
-  for (const s of seen) assert.deepEqual(s.slice(1), [80000, 45000, 10000, 80000], 'the grading budget does not move with GEMINI_TIMEOUT_MS');
+  // HOTFIX-2: the chunk first-attempt cap defaults to the deadline itself (no early kill).
+  for (const s of seen) assert.deepEqual(s.slice(1), [80000, 80000, 10000, 80000], 'the grading budget does not move with GEMINI_TIMEOUT_MS');
   assert.ok(80000 < timing.CLIENT_PER_ATTEMPT_BUDGET_MS, 'server worst case < the client\'s 90 s per attempt (a client re-send comes only at 90 s)');
   // The clamps: a value past the client budget cannot be configured.
   assert.deepEqual(timing.resolveGradingTiming({ GRADING_DEADLINE_MS: '200000', GRADING_CHUNK_TIMEOUT_MS: '1', GRADING_CACHE_BUDGET_MS: '99999' }),
-    { deadlineMs: 80000, chunkTimeoutMs: 10000, cacheBudgetMs: 20000, singleCallMaxQuestions: 10 });
+    { deadlineMs: 80000, chunkTimeoutMs: 10000, cacheBudgetMs: 20000, singleCallMaxQuestions: 10, chunkQuestions: 8 });
 });
 
 // ★ AMENDED by PR-3, controller decision D43 (HYBRID): chunking starts above 10 questions.
@@ -1354,9 +1366,9 @@ test('§C8.10 a CHUNK of a one-document paper is told the document holds other a
   const doc = { imageBase64: 'UERG', imageMimeType: 'application/pdf' };
   const twelve = harness({ reply: echoReply });
   await twelve.sheet(sheet(typedPaper(12).map((q) => ({ ...q, textAnswer: '' })), doc));
-  assert.equal(twelve.calls.length, 4);
-  assert.match(twelve.prompt(0), /This request marks ONLY the 3 questions listed below \(Q1, Q2, Q3\)\. The document also holds the student's answers to 9 other questions/);
-  assert.match(twelve.prompt(3), /\(Q10, Q11, Q12\)/);
+  assert.equal(twelve.calls.length, 2); // HOTFIX-2: chunks of ≈ 8 → 6 + 6
+  assert.match(twelve.prompt(0), /This request marks ONLY the 6 questions listed below \(Q1, Q2, Q3, Q4, Q5, Q6\)\. The document also holds the student's answers to 6 other questions/);
+  assert.match(twelve.prompt(1), /\(Q7, Q8, Q9, Q10, Q11, Q12\)/);
   // CONTROL: a 10-question paper is ONE call and carries no such sentence.
   const ten = harness({ reply: echoReply });
   await ten.sheet(sheet(typedPaper(10).map((q) => ({ ...q, textAnswer: '' })), doc));
@@ -1438,8 +1450,8 @@ test('§D31.1 every chunk of a paper starts with the SAME rulebook bytes and the
   const doc = { imageBase64: 'UERG', imageMimeType: 'application/pdf' };
   let n = 0;
   const h = harness({ reply: echoReply, deps: { makeFenceNonce: () => 'reqnonce' + (n++) } });
-  await h.sheet(sheet(typedPaper(13).map((q) => ({ ...q, textAnswer: '' })), doc)); // D43: > 10 → chunked
-  assert.equal(h.calls.length, 5);
+  await h.sheet(sheet(typedPaper(13).map((q) => ({ ...q, textAnswer: '' })), doc)); // D43: > 10 → chunked (HOTFIX-2: 7 + 6)
+  assert.equal(h.calls.length, 2);
   const firsts = h.calls.map((c) => c.contents[0].parts[0].text);
   assert.ok(firsts.every((t) => t === firsts[0]), 'byte-identical rulebook across chunks');
   assert.ok(h.calls.every((c) => c.contents[0].parts[1].inlineData && c.contents[0].parts[1].inlineData.data === 'UERG'), 'the document is the second part of every chunk');

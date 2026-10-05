@@ -327,6 +327,19 @@ function buildPlan(opts = {}) {
     }
   }
 
+  // ── HOTFIX-2 · BOARD-38 (SYNTHETIC-COMPOSITE, 38 questions, ONE 6-page answer PDF) as the v2
+  //    client sends a full board paper (session topic on every block). 38 questions → 4 chunks. ─
+  if (G.board38) {
+    const bp = G.board38;
+    const qNumbers = {};
+    const questions = bp.questions.map((q) => {
+      qNumbers[q.sourceCaseId] = q.qNumber;
+      return { qNumber: q.qNumber, marks: q.marks, topic: bp.requestShape.sessionTopic, topicLabel: bp.requestShape.sessionTopic, questionText: q.questionText, objective: q.objective === true };
+    });
+    push({ jobKey: 'V2.W.BOARD.38', entry: 'set', handler: 'handleGradeWorksheet', surface: 'BOARD-MULTI-V2', caseIds: bp.questions.map((q) => q.sourceCaseId), qNumbers,
+      request: { worksheetId: 'ci:GOLDEN-BOARD-38', subject: bp.requestShape.subject, questions, imageBase64: b64(bp.files.answers), imageMimeType: 'application/pdf', acceptsV2: true } });
+  }
+
   // ── v2 (acceptsV2: true) copies — a separate job key, so no stored PR-1 record is affected ─
   for (const j of all.slice()) {
     const v2Single = j.entry === 'single' && j.surface === 'CI-SINGLE' && V2_SINGLE_CASES.includes(j.caseIds[0]);
