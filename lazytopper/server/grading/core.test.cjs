@@ -1151,13 +1151,13 @@ test('§ROUTER.3 a group whose reply is unparseable twice makes ONLY its own que
 
 // ★ AMENDED by PR-3 (spec C8): single mode no longer sends a paper as ONE call — the same
 // set goes to the grading model in chunks of ≤ 3 (6 → 3 + 3), every chunk on that model.
-test('§ROUTER.4 CONTROL: single mode sends the same set to the grading model only, in chunks of ≤ 3', async () => {
+// ★ AMENDED by PR-3, controller decision D43 (HYBRID): a paper of at most 10 questions is ONE
+// call again (as PR-2 shipped); only a larger paper is chunked (§C8.2).
+test('§ROUTER.4 CONTROL: single mode sends the same set to the grading model only — one call for a paper of ≤ 10 questions (D43)', async () => {
   const h = harness({ reply: echoReply, deps: STRONG });
   await h.sheet(sheet(ROUTED_SET, { uploads: [{ qNumber: 5, ...PHOTO }, { qNumber: 6, ...PHOTO }] }));
-  assert.deepEqual(h.calls.map((c) => c.model), ['strong-model', 'strong-model']);
-  const perCall = h.calls.map((c, i) => qNumsIn(h.prompt(i)));
-  assert.ok(perCall.every((qs) => qs.length <= 3), JSON.stringify(perCall));
-  assert.deepEqual(perCall.flat().sort((a, b) => a - b), [1, 2, 3, 4, 5, 6]);
+  assert.deepEqual(h.calls.map((c) => c.model), ['strong-model']);
+  assert.deepEqual(qNumsIn(h.prompt(0)).sort((a, b) => a - b), [1, 2, 3, 4, 5, 6]);
 });
 
 /* ══ §C8 · NO TIMEOUTS, FASTER (GRADER-CORE-1 PR-3) ══════════════════════════
@@ -1169,7 +1169,10 @@ test('§ROUTER.4 CONTROL: single mode sends the same set to the grading model on
 const { planChunks } = require('./core.cjs');
 const timing = require('./timing.cjs');
 const charge = require('./charge.cjs');
-const FAST = (o = {}) => ({ gradingTimingOverride: { deadlineMs: 600, chunkTimeoutMs: 150, cacheBudgetMs: 60, marginMs: 20, minRetryMs: 60, ...o } });
+// singleCallMaxQuestions 0: these tests pin the CHUNK mechanics (failure, timeout, retry) on small
+// papers; the D43 hybrid boundary itself (≤ 10 questions = one call) is pinned by §C8.2 / §D43.
+const FAST = (o = {}) => ({ gradingTimingOverride: { deadlineMs: 600, chunkTimeoutMs: 150, cacheBudgetMs: 60, marginMs: 20, minRetryMs: 60, singleCallMaxQuestions: 0, ...o } });
+const ALWAYS_CHUNK = { gradingTimingOverride: { ...timing.normaliseTiming({}), singleCallMaxQuestions: 0 } };
 const never = () => new Promise(() => {});
 const delay = (ms, v) => new Promise((r) => setTimeout(() => r(v), ms));
 const typedPaper = (n) => Array.from({ length: n }, (_, i) => sq(i + 1, { marks: 2, questionText: 'Question number ' + (i + 1) + ': solve it.' }));
@@ -1188,22 +1191,29 @@ test('§C8.1 planChunks: ≤ 3 per chunk, balanced, request order kept, and a re
   assert.deepEqual(ids(N(4, 5, 7, 6)), [[4, 5], [7, 6]]);
 });
 
-test('§C8.2 a 10-question paper is graded as 4 chunk calls IN PARALLEL (all in flight before any answers)', async () => {
+// ★ AMENDED by PR-3, controller decision D43 (HYBRID): 10 questions are ONE call now; 11 are
+// the smallest chunked paper (3+3+3+2). The boundary is pinned at the end of this test.
+test('§C8.2 an 11-question paper is graded as 4 chunk calls IN PARALLEL (all in flight before any answers); a 10-question paper is ONE call (D43)', async () => {
   let release;
   const gate = new Promise((r) => { release = r; });
   let inFlight = 0;
   let peak = 0;
   const h = harness({ reply: async (a) => { inFlight += 1; peak = Math.max(peak, inFlight); await gate; inFlight -= 1; return echoReply(a); } });
-  const pending = h.sheet(sheet(typedPaper(10)));
+  const pending = h.sheet(sheet(typedPaper(11)));
   for (let i = 0; i < 20 && h.calls.length < 4; i += 1) await new Promise((r) => setImmediate(r));
   assert.equal(h.calls.length, 4, 'every chunk must be sent before the first one answers');
   release();
   const out = await pending;
   assert.equal(peak, 4);
-  assert.deepEqual(h.calls.map((c, i) => qNumsIn(h.prompt(i)).length), [3, 3, 2, 2]);
+  assert.deepEqual(h.calls.map((c, i) => qNumsIn(h.prompt(i)).length), [3, 3, 3, 2]);
   assert.equal(out.status, 200);
-  assert.deepEqual([out.body.gradedCount, out.body.pendingCount, out.body.results.length], [10, 0, 10]);
-  assert.deepEqual(out.body.results.map((r) => r.qNumber), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 'results stay in request order');
+  assert.deepEqual([out.body.gradedCount, out.body.pendingCount, out.body.results.length], [11, 0, 11]);
+  assert.deepEqual(out.body.results.map((r) => r.qNumber), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], 'results stay in request order');
+  // D43 boundary: a 10-question paper is ONE call with the whole budget (no chunk cap).
+  const ten = harness({ reply: echoReply });
+  await ten.sheet(sheet(typedPaper(10)));
+  assert.equal(ten.calls.length, 1, 'a paper of ≤ 10 questions is graded in ONE call (PR-2\'s path)');
+  assert.ok(ten.calls[0].genConfig.timeoutMs > timing.DEFAULT_GRADING_CHUNK_TIMEOUT_MS, 'a single-call paper is not capped at the chunk timeout');
 });
 
 test('§C8.3 ★ TWO QUESTIONS PRINTED "Q5" are graded independently — merge by question id, never by number', async () => {
@@ -1226,7 +1236,7 @@ test('§C8.3 ★ TWO QUESTIONS PRINTED "Q5" are graded independently — merge b
 
 test('§C8.4 one chunk failing never kills the paper: its questions are "not graded", the rest graded, HTTP 200, uncharged', async () => {
   const bad = unavailable(400, 'Invalid JSON payload received'); // not retryable
-  const h = harness({ reply: (a) => (qNumsIn(a.prompt).includes(3) ? bad : echoReply(a)) });
+  const h = harness({ reply: (a) => (qNumsIn(a.prompt).includes(3) ? bad : echoReply(a)), deps: ALWAYS_CHUNK });
   await quietWarn(async () => { h.out = await h.sheet(sheet(typedPaper(4))); });
   const b = h.out.body;
   assert.equal(h.out.status, 200);
@@ -1310,7 +1320,7 @@ test('§C8.8 ★ the solution-cache pre-phase is BOUNDED: a cache that never ans
 
 test('§C8.9 ★ grading is INDEPENDENT of GEMINI_TIMEOUT_MS: every grading call carries its own budget; the config never reads it', async () => {
   const h = harness({ reply: echoReply });
-  await h.sheet(sheet(typedPaper(4)));
+  await h.sheet(sheet(typedPaper(11))); // D43: > 10 questions → chunked, so the chunk cap applies
   await h.single(single());
   for (const c of h.calls) {
     assert.ok(Number.isFinite(c.genConfig.timeoutMs) && c.genConfig.timeoutMs <= timing.DEFAULT_GRADING_DEADLINE_MS, 'explicit per-call timeout');
@@ -1330,25 +1340,28 @@ test('§C8.9 ★ grading is INDEPENDENT of GEMINI_TIMEOUT_MS: every grading call
     if (saved === undefined) delete process.env.GEMINI_TIMEOUT_MS; else process.env.GEMINI_TIMEOUT_MS = saved;
   }
   assert.deepEqual(seen.map((s) => s[0]), [55000, 55000, 80000], 'GEMINI_TIMEOUT_MS still read (non-grading calls keep it, D15)');
-  for (const s of seen) assert.deepEqual(s.slice(1), [70000, 45000, 10000, 70000], 'the grading budget does not move with GEMINI_TIMEOUT_MS');
-  assert.ok(70000 < timing.CLIENT_PER_ATTEMPT_BUDGET_MS && 70000 < 75000, 'server worst case < client per-attempt 90 s and < the 75 s in-flight duplicate wait');
+  // ★ AMENDED by PR-3, controller decision D43: the deadline's code default is 80 000 (the value
+  // that served the 27-question paper live in 61–75 s), still under the client's 90 s.
+  for (const s of seen) assert.deepEqual(s.slice(1), [80000, 45000, 10000, 80000], 'the grading budget does not move with GEMINI_TIMEOUT_MS');
+  assert.ok(80000 < timing.CLIENT_PER_ATTEMPT_BUDGET_MS, 'server worst case < the client\'s 90 s per attempt (a client re-send comes only at 90 s)');
   // The clamps: a value past the client budget cannot be configured.
   assert.deepEqual(timing.resolveGradingTiming({ GRADING_DEADLINE_MS: '200000', GRADING_CHUNK_TIMEOUT_MS: '1', GRADING_CACHE_BUDGET_MS: '99999' }),
-    { deadlineMs: 70000, chunkTimeoutMs: 10000, cacheBudgetMs: 20000 });
+    { deadlineMs: 80000, chunkTimeoutMs: 10000, cacheBudgetMs: 20000, singleCallMaxQuestions: 10 });
 });
 
-test('§C8.10 a CHUNK of a one-document paper is told the document holds other answers; a whole set is byte-identical to before', async () => {
+// ★ AMENDED by PR-3, controller decision D43 (HYBRID): chunking starts above 10 questions.
+test('§C8.10 a CHUNK of a one-document paper is told the document holds other answers; a single-call paper is byte-identical to before', async () => {
   const doc = { imageBase64: 'UERG', imageMimeType: 'application/pdf' };
-  const four = harness({ reply: echoReply });
-  await four.sheet(sheet(typedPaper(4).map((q) => ({ ...q, textAnswer: '' })), doc));
-  assert.equal(four.calls.length, 2);
-  assert.match(four.prompt(0), /This request marks ONLY the 2 questions listed below \(Q1, Q2\)\. The document also holds the student's answers to 2 other questions/);
-  assert.match(four.prompt(1), /\(Q3, Q4\)/);
-  // CONTROL: a 3-question paper is one chunk and carries no such sentence.
-  const three = harness({ reply: echoReply });
-  await three.sheet(sheet(typedPaper(3).map((q) => ({ ...q, textAnswer: '' })), doc));
-  assert.equal(three.calls.length, 1);
-  assert.ok(!three.prompt().includes('This request marks ONLY'));
+  const twelve = harness({ reply: echoReply });
+  await twelve.sheet(sheet(typedPaper(12).map((q) => ({ ...q, textAnswer: '' })), doc));
+  assert.equal(twelve.calls.length, 4);
+  assert.match(twelve.prompt(0), /This request marks ONLY the 3 questions listed below \(Q1, Q2, Q3\)\. The document also holds the student's answers to 9 other questions/);
+  assert.match(twelve.prompt(3), /\(Q10, Q11, Q12\)/);
+  // CONTROL: a 10-question paper is ONE call and carries no such sentence.
+  const ten = harness({ reply: echoReply });
+  await ten.sheet(sheet(typedPaper(10).map((q) => ({ ...q, textAnswer: '' })), doc));
+  assert.equal(ten.calls.length, 1);
+  assert.ok(!ten.prompt().includes('This request marks ONLY'));
 });
 
 test('§C8.11 v2 per-question `notGraded`: null on a grade, "unreadable" on couldNotRead, "timeout"/"error" when marking did not finish; absent without the flag', async () => {
@@ -1425,8 +1438,8 @@ test('§D31.1 every chunk of a paper starts with the SAME rulebook bytes and the
   const doc = { imageBase64: 'UERG', imageMimeType: 'application/pdf' };
   let n = 0;
   const h = harness({ reply: echoReply, deps: { makeFenceNonce: () => 'reqnonce' + (n++) } });
-  await h.sheet(sheet(typedPaper(7).map((q) => ({ ...q, textAnswer: '' })), doc));
-  assert.equal(h.calls.length, 3);
+  await h.sheet(sheet(typedPaper(13).map((q) => ({ ...q, textAnswer: '' })), doc)); // D43: > 10 → chunked
+  assert.equal(h.calls.length, 5);
   const firsts = h.calls.map((c) => c.contents[0].parts[0].text);
   assert.ok(firsts.every((t) => t === firsts[0]), 'byte-identical rulebook across chunks');
   assert.ok(h.calls.every((c) => c.contents[0].parts[1].inlineData && c.contents[0].parts[1].inlineData.data === 'UERG'), 'the document is the second part of every chunk');
@@ -1540,19 +1553,20 @@ test('§D38.1 ★ one document: a BLANK answer slot (listed, empty firstLine / "
 test('§FIX.5 ★ a CHUNK of a one-document paper: a question LISTED with a first line its steps do not quote keeps the grade the model gave (live 2026-10-06: T2-Q6 3/3 and CP04-Q08 4/5 became "no answer found"); one call for the whole paper still applies the test', async () => {
   const lineNotInWork = 'Mendel crossed tall pea plants with dwarf pea plants';
   const RULER = 'Longest ruler = HCF of the lengths';
-  // 4 questions on one document → two chunks, each asked for the inventory of the WHOLE document
-  const inv = INV([1, RULER], [2, RULER], [3, RULER], [4, lineNotInWork]);
-  const b = (await harness({ replies: [WITH_INV(inv, ...R5_FULL4())] }).sheet(sheet(R5_SET(), DOC))).body;
-  assert.deepEqual([b.results[3].marksAwarded, b.results[3].teacherNote === grading.NO_ANSWER_ON_PAGE_NOTE], [2, false], 'the model\'s grade stands');
-  // CONTROL: 3 questions are ONE call (no chunk) — the first-line test still applies (§P0.8)
+  // D43: 11 questions on one document → chunked (4 chunks), each asked for the WHOLE document's inventory
+  const N = 11; const nums = Array.from({ length: N }, (_, i) => i + 1);
+  const inv = INV(...nums.map((n) => [n, n === N ? lineNotInWork : RULER]));
+  const b = (await harness({ replies: [WITH_INV(inv, ...nums.map((n) => FULL(n, PARAPHRASE)))] }).sheet(sheet(nums.map((n) => R5_Q(n)), DOC))).body;
+  assert.deepEqual([b.results[N - 1].marksAwarded, b.results[N - 1].teacherNote === grading.NO_ANSWER_ON_PAGE_NOTE], [2, false], 'the model\'s grade stands');
+  // CONTROL: a paper of ≤ 10 questions is ONE call (no chunk) — the first-line test still applies (§P0.8)
   const inv3 = INV([1, RULER], [2, RULER], [3, lineNotInWork]);
   const c = (await harness({ replies: [WITH_INV(inv3, ...[1, 2, 3].map((n) => FULL(n, PARAPHRASE)))] }).sheet(sheet([1, 2, 3].map((n) => R5_Q(n)), DOC))).body;
   assert.deepEqual([c.results[2].marksAwarded, c.results[2].teacherNote], [0, grading.NO_ANSWER_ON_PAGE_NOTE]);
   // CONTROL: in a chunk, a listed question the model gave NOTHING still fails the test
-  const nothing = R(4, [S({ studentWork: 'something else', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'conceptual' }),
+  const nothing = R(N, [S({ studentWork: 'something else', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'conceptual' }),
     S({ studentWork: 'more of it', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'conceptual' })]);
-  const d = (await harness({ replies: [WITH_INV(inv, ...R5_FULL4().slice(0, 3), nothing)] }).sheet(sheet(R5_SET(), DOC))).body;
-  assert.equal(d.results[3].teacherNote, grading.NO_ANSWER_ON_PAGE_NOTE);
+  const d = (await harness({ replies: [WITH_INV(inv, ...nums.slice(0, N - 1).map((n) => FULL(n, PARAPHRASE)), nothing)] }).sheet(sheet(nums.map((n) => R5_Q(n)), DOC))).body;
+  assert.equal(d.results[N - 1].teacherNote, grading.NO_ANSWER_ON_PAGE_NOTE);
 });
 
 test('§FIX.6 ★ never a deduction for the LANGUAGE of an answer (owner paper 02 Q18: "written informally in Hinglish" on a correct answer): the ½ comes back and the note keeps no "write in formal English"; another presentation deduction stays', async () => {
@@ -1566,4 +1580,18 @@ test('§FIX.6 ★ never a deduction for the LANGUAGE of an answer (owner paper 0
   const keep = [S({ marksAwarded: 1 }), S({ status: 'partial', marksAwarded: 0.5, marksDeducted: 0.5, mistakeType: 'presentation', teacherAnnotation: '½ The term oesophagus is required, not food pipe.' })];
   const k = (await harness({ replies: [REPLY(R(1, keep, { finalAnswerCorrect: false }))] }).single(single({ marks: 2, subject: 'Science', question: 'Name the tube that carries food from the mouth to the stomach.', textAnswer: 'food pipe' }))).body;
   assert.equal(k.marksAwarded, 1.5);
+});
+
+test('§D43.1 ★ a chunked paper\'s page inventory is the UNION of every chunk\'s inventory: a question its OWN chunk did not list but ANOTHER chunk saw is graded, never "not found"; a first line quoted by any chunk counts', async () => {
+  const N = 11; const nums = Array.from({ length: N }, (_, i) => i + 1);
+  const RULER = 'Longest ruler = HCF of the lengths';
+  // chunk 4 (Q10, Q11) lists only Q10; chunks 1–3 list every question — Q11 included.
+  const all = INV(...nums.map((n) => [n, RULER]));
+  const withoutQ11 = INV(...nums.filter((n) => n !== N).map((n) => [n, RULER]));
+  const reply = ({ prompt }) => WITH_INV(qNumsIn(prompt).includes(N) ? withoutQ11 : all, ...nums.map((n) => FULL(n, PARAPHRASE)));
+  const b = (await harness({ reply }).sheet(sheet(nums.map((n) => R5_Q(n)), DOC))).body;
+  assert.deepEqual([b.results[N - 1].couldNotRead, b.results[N - 1].marksAwarded], [false, 2], 'another chunk saw Q11: it is on the pages');
+  // CONTROL: when NO chunk lists Q11, it is NOT GRADED (D38), exactly as before
+  const none = (await harness({ reply: () => WITH_INV(withoutQ11, ...nums.map((n) => FULL(n, PARAPHRASE))) }).sheet(sheet(nums.map((n) => R5_Q(n)), DOC))).body;
+  assert.deepEqual([none.results[N - 1].couldNotRead, none.results[N - 1].note], [true, grading.NOT_FOUND_ON_PAGE_NOTE]);
 });

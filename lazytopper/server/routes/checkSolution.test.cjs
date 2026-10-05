@@ -984,22 +984,32 @@ test('§7.6 the four batch prompt strings are present, and the LOCATE wording is
 // PARALLEL"). Before PR-3 this pinned "N uploads cost exactly ONE model call"; a 10-question
 // paper as one call took 61–66 s and timed out at 55 s on every run. It is still a BATCH, not
 // a fan-out per photo: ⌈N/3⌉ calls, each carrying exactly its own questions' photos.
-test('§7.7 N uploads cost ⌈N/3⌉ model calls (C8 chunks of ≤ 3) — never one call per photo, never a photo in the wrong chunk', async () => {
+// ★ RESTORED by PR-3, controller decision D43 (HYBRID): a paper of ≤ 10 questions is ONE call again,
+// as PR-2 pinned it; §7.7b pins the chunked path above 10 questions.
+test('§7.7 N uploads still cost exactly ONE model call — this is a batch, not a fan-out (≤ 10 questions, D43)', async () => {
   const h = buildImageRoute({ replies: [WS_OK([1, 2, 3, 4])] });
   await h.route.handleGradeWorksheet(
     { ...WORKSHEET_REQ([Q(1), Q(2), Q(3), Q(4)]), uploads: [UP(1), UP(2), UP(3), UP(4)] }, {});
-  assert.equal(h.calls.length, 2, '4 questions → 2 chunks of 2 (balanced), in parallel');
+  assert.equal(h.calls.length, 1);
+  assert.equal(h.body().results.length, 4);
+});
+
+test('§7.7b above 10 questions, N uploads cost ⌈N/3⌉ model calls (C8 chunks of ≤ 3) — never one call per photo, never a photo in the wrong chunk', async () => {
+  const nums = Array.from({ length: 11 }, (_, i) => i + 1);
+  const h = buildImageRoute({ replies: [WS_OK(nums)] });
+  await h.route.handleGradeWorksheet(
+    { ...WORKSHEET_REQ(nums.map((n) => Q(n))), uploads: nums.map((n) => UP(n)) }, {});
+  assert.equal(h.calls.length, 4, '11 questions → 4 chunks (3+3+3+2), in parallel');
   const imagesOf = (c) => c.contents[0].parts.filter(isImage).map((p) => p.inline_data.data).sort();
   const textOf = (c) => c.contents[0].parts.filter((p) => typeof p.text === 'string').map((p) => p.text).join('');
   const seen = [];
   for (const c of h.calls) {
-    const qs = [1, 2, 3, 4].filter((n) => textOf(c).includes('Q' + n + ' text'));
-    assert.equal(qs.length, 2, 'each chunk carries two questions');
+    const qs = nums.filter((n) => new RegExp('Q' + n + ' text').test(textOf(c)) && !new RegExp('Q' + n + '\\d text').test(textOf(c).replace(new RegExp('Q' + n + ' text', 'g'), '')));
     assert.deepEqual(imagesOf(c), qs.map((n) => 'IMG' + n).sort(), 'a chunk carries exactly its own questions\' photos');
     seen.push(...qs);
   }
-  assert.deepEqual(seen.sort(), [1, 2, 3, 4], 'every question is in exactly one chunk');
-  assert.equal(h.body().results.length, 4);
+  assert.deepEqual(seen.sort((x, y) => x - y), nums, 'every question is in exactly one chunk');
+  assert.equal(h.body().results.length, 11);
 });
 
 // ── §7.8 · M2, REWRITTEN (owner ruling, 2026-07-31) ───────────────────────────

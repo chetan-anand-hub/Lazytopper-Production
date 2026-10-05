@@ -317,9 +317,10 @@ function createGradingCore(deps) {
     });
     const left0 = ctx.callDeadlineAt - now();
     if (left0 <= 0) return [{ questions: chunk.questions, attempt: { error: deadlineError(0), model: chunk.model, timedOut: true } }];
-    // A multi-question chunk's first attempt is capped (its retry can be smaller, hence
-    // faster); a one-question chunk gets the whole remaining budget (its retry cannot).
-    const t1 = chunk.questions.length > 1 ? Math.min(timing.chunkTimeoutMs, left0) : left0;
+    // In a CHUNKED paper a multi-question chunk's first attempt is capped (its retry can be
+    // smaller, hence faster); a one-question chunk — and a single-call paper (D43) — gets the
+    // whole remaining budget (its retry cannot be smaller).
+    const t1 = ctx.chunked && chunk.questions.length > 1 ? Math.min(timing.chunkTimeoutMs, left0) : left0;
     const first = await run(chunk.questions, 1, t1);
     if (first.results) return [{ questions: chunk.questions, attempt: first }];
     if (first.error && !timingLib.isRetryableError(first.error)) return [{ questions: chunk.questions, attempt: first }];
@@ -429,13 +430,17 @@ function createGradingCore(deps) {
       if (!groups.has(key)) groups.set(key, { model, subject, questions: [] });
       groups.get(key).questions.push(q);
     }
+    // D43 (hybrid): a paper of at most timing.singleCallMaxQuestions questions is ONE call per
+    // routed group (as PR-2 shipped); only a larger paper is chunked. A printed number never
+    // repeats inside one call (planChunks), so a small paper splits only at a duplicate.
+    const chunked = questions.length > timing.singleCallMaxQuestions;
     const chunks = [];
     for (const g of groups.values()) {
-      for (const qs of planChunks(g.questions)) chunks.push({ model: g.model, subject: g.subject, questions: qs });
+      for (const qs of planChunks(g.questions, chunked ? timingLib.MAX_CHUNK_QUESTIONS : Math.max(1, g.questions.length))) chunks.push({ model: g.model, subject: g.subject, questions: qs });
     }
 
     const ctx = {
-      idOf, uploadByNumber, document, single, autoDetect, label, callDeadlineAt, total: questions.length,
+      idOf, uploadByNumber, document, single, autoDetect, label, callDeadlineAt, total: questions.length, chunked,
       // D31: request-level, so all chunks share them (see attemptChunk).
       nonce: chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]), makeFenceNonce),
       paperHasAnyTyped: questions.some((q) => String((q && q.textAnswer) || '').trim().length > 0),
@@ -453,6 +458,12 @@ function createGradingCore(deps) {
     const rawById = new Map(deterministic);
     const notGradedById = new Map(); // question id → 'timeout' | 'error'
     const inventoryById = new Map(); // D23: question id → { present, firstLines }
+    // D43 (controller): every chunk of a one-document paper lists the WHOLE document's pages, so
+    // the paper's page inventory is the UNION of all chunks' inventories — a question another
+    // chunk saw is never "not found", and any chunk's quoted first line for it counts.
+    const paperInventory = new Map(); // printed number → Set of first lines
+    let anyInventory = false;
+    const gradedIds = [];
     const modelsUsed = [];
     let summary = '';
     let anyOk = chunks.length === 0;
@@ -479,11 +490,24 @@ function createGradingCore(deps) {
       for (const q of part.questions) {
         const id = idOf.get(q);
         rawById.set(id, byNumber.get(Number(q.qNumber)) || null);
-        // partial: this chunk is a strict subset of a one-document paper (its inventory covers the
-        // whole document, its steps only this chunk's questions — see postprocess inventoryVerdict).
-        if (a.inventory) inventoryById.set(id, { present: a.inventory.has(Number(q.qNumber)), firstLines: a.inventory.get(Number(q.qNumber)) || [], partial: Boolean(document) && part.questions.length < questions.length });
+        gradedIds.push([id, Boolean(document) && part.questions.length < questions.length]);
+      }
+      if (a.inventory) {
+        anyInventory = true;
+        for (const [n, lines] of a.inventory) {
+          if (!paperInventory.has(n)) paperInventory.set(n, new Set());
+          for (const l of lines) paperInventory.get(n).add(l);
+        }
       }
       if (!summary) summary = String((a.parsed && a.parsed.summary) || '').trim();
+    }
+    if (anyInventory) {
+      for (const [id, partial] of gradedIds) {
+        const n = Number(questions[id].qNumber);
+        // partial: this question's chunk is a strict subset of a one-document paper (postprocess
+        // inventoryVerdict: a listed question the model graded with marks keeps its grade there).
+        inventoryById.set(id, { present: paperInventory.has(n), firstLines: [...(paperInventory.get(n) || [])], partial });
+      }
     }
     const modelUsed = modelsUsed.length ? modelsUsed.join('+') : (routerMode ? 'none' : chosenModel);
     if (!anyOk) {

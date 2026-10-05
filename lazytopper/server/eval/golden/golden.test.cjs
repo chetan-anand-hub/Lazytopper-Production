@@ -309,30 +309,33 @@ test('§12 replay of a PR-3 live run is faithful: a call still in flight at the 
   const { buildPlan } = require('./lib/planner.cjs');
   const grading = require('../../grading/rules.cjs');
   const plan = buildPlan({ includeDetect: true });
-  const job = plan.find((j) => j.entry === 'set' && (j.request.questions || []).length === 4 && !('acceptsV2' in j.request));
-  assert.ok(job, 'a stored-plan paper with exactly 4 questions exists (chunks q0+q1, q2+q3)');
+  // D43: only a paper of MORE than 10 questions is chunked — the owner's 27-question paper (9 chunks of 3).
+  const job = plan.find((j) => j.jobKey === 'W.OA2.MULTI');
+  assert.ok(job && job.request.questions.length === 27, 'the 27-question owner paper is planned (chunks q0+q1+q2 … q24+q25+q26)');
   const qs = job.request.questions;
   const text = JSON.stringify({ results: qs.map((q, i) => ({ qNumber: q.qNumber, couldNotRead: false, addressesQuestion: 'yes', marksAwarded: Math.min(1, q.marks),
     annotatedSteps: [{ description: 's', studentWork: 'answer ' + i, status: 'correct', marksAwarded: Math.min(1, q.marks), marksDeducted: 0, teacherAnnotation: 'ok', mistakeType: null }], teacherNote: 'n' + i })), summary: 's' });
   const ok = (chunkKey, attempt) => ({ ok: true, text, chunkKey, attempt, http: [{ model: 'gemini-2.5-flash', httpStatus: 200 }] });
-  // live 2026-10-06 (V2.W.CP.paper-01): chunk q2+q3 timed out at 45 s, its single-question retries
-  // ran, and q3's retry was still in flight when the request deadline ended the job — stored with
-  // no outcome and no HTTP record. Live, q3 came back NOT GRADED as a timeout.
-  const timedOut = { ok: false, chunkKey: 'q2+q3', attempt: 1, error: { status: 504, message: 'Gemini request timed out after 45000ms' }, http: [{ model: 'gemini-2.5-flash', errClass: 'AbortError' }] };
-  const inFlight = { ok: false, chunkKey: 'q3', attempt: 2, http: [] };
-  const record = (last) => ({ jobKey: job.jobKey, requestDigest: job.requestDigest, calls: [ok('q0+q1', 1), timedOut, ok('q2', 2), last] });
+  // live 2026-10-06 (V2.W.OA2.MULTI): a chunk timed out at 45 s, its single-question retries ran,
+  // and one retry was still in flight when the request deadline ended the job — stored with no
+  // outcome and no HTTP record. Live, that question came back NOT GRADED as a timeout.
+  const keys = Array.from({ length: 9 }, (_, k) => ['q' + 3 * k, 'q' + (3 * k + 1), 'q' + (3 * k + 2)].join('+'));
+  const timedOut = { ok: false, chunkKey: 'q24+q25+q26', attempt: 1, error: { status: 504, message: 'Gemini request timed out after 45000ms' }, http: [{ model: 'gemini-2.5-flash', errClass: 'AbortError' }] };
+  const inFlight = { ok: false, chunkKey: 'q26', attempt: 2, http: [] };
+  const record = (last) => ({ jobKey: job.jobKey, requestDigest: job.requestDigest, calls: [...keys.slice(0, 8).map((k) => ok(k, 1)), timedOut, ok('q24', 2), ok('q25', 2), last] });
   const quiet = console.warn; console.warn = () => {};
   let rep; let ctl;
   try {
     rep = await replayJob(job, record(inFlight), { model: 'gemini-2.5-flash' });
     // CONTROL: the same retry stored as a real provider error replays as an ERROR, not a timeout
-    ctl = await replayJob(job, record({ ok: false, chunkKey: 'q3', attempt: 2, error: { status: 500, message: 'internal' }, http: [{ model: 'gemini-2.5-flash', httpStatus: 500 }] }), { model: 'gemini-2.5-flash' });
+    ctl = await replayJob(job, record({ ok: false, chunkKey: 'q26', attempt: 2, error: { status: 500, message: 'internal' }, http: [{ model: 'gemini-2.5-flash', httpStatus: 500 }] }), { model: 'gemini-2.5-flash' });
   } finally { console.warn = quiet; }
   const r = rep.body.results;
-  assert.deepStrictEqual(r.map((x) => x.couldNotRead), [false, false, false, true]);
-  assert.strictEqual(r[3].note, grading.NOT_GRADED_TIMEOUT_NOTE, 'the in-flight retry replays as the deadline TIMEOUT it was live');
-  assert.deepStrictEqual([rep.servedCalls, rep.unusedCalls], [4, 0], 'every stored call consumed — the replay is complete');
-  assert.strictEqual(ctl.body.results[3].note, grading.NOT_GRADED_ERROR_NOTE, 'CONTROL: a stored provider error stays an error');
+  assert.strictEqual(r.length, 27);
+  assert.strictEqual(r[26].note, grading.NOT_GRADED_TIMEOUT_NOTE, 'the in-flight retry replays as the deadline TIMEOUT it was live');
+  assert.ok(r.slice(0, 26).every((x) => x.note !== grading.NOT_GRADED_TIMEOUT_NOTE && x.note !== grading.NOT_GRADED_ERROR_NOTE), 'every other question was graded');
+  assert.deepStrictEqual([rep.servedCalls, rep.unusedCalls], [12, 0], 'every stored call consumed — the replay is complete');
+  assert.strictEqual(ctl.body.results[26].note, grading.NOT_GRADED_ERROR_NOTE, 'CONTROL: a stored provider error stays an error');
   // Detection: the body names the model that detected, so a --detect-model (proxy) run replays on it.
   const dj = plan.find((j) => j.entry === 'detect' && j.jobKey.startsWith('D.ITEM.'));
   const dtext = JSON.stringify({ detectedMarks: 2, marksSource: 'inferred', detectedSubject: 'Maths', detectedTopic: 'polynomials', detectedObjective: false, detectedAnswer: null,
