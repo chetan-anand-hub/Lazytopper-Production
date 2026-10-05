@@ -6,14 +6,14 @@
  "annotatedSteps": [
   {
    "stepNumber": 1,
-   "description": "Scientific cause of the blue color of the clear sky",
+   "description": "Scientific reason for the blue appearance of the sky",
    "studentWork": "The sky looks blue because the blue colour of the sea water is reflected by the sky.",
    "status": "incorrect",
    "marksAwarded": 0,
    "marksDeducted": 2,
-   "teacherAnnotation": "× Incorrect. The blue color of the sky is caused by the scattering of sunlight by gas molecules in the atmosphere, not by reflection of sea water.",
+   "teacherAnnotation": "× Incorrect. The blue color of the sky is caused by Rayleigh scattering of sunlight by molecules in the atmosphere, not by reflection of sea water.",
    "mistakeType": "conceptual",
-   "correctedWorking": "The molecules of air and other fine particles in the atmosphere have a size smaller than the wavelength of visible light. They are more effective in scattering light of shorter wavelengths at the blue end than light of longer wavelengths at the red end. Thus, the scattered blue light enters our eyes.",
+   "correctedWorking": "The molecules of air and other fine particles in the atmosphere have a size smaller than the wavelength of visible light. They scatter light of shorter wavelengths at the blue end much more effectively than light of longer wavelengths at the red end. When sunlight passes through the atmosphere, the fine particles scatter the blue colour more strongly, and this scattered blue light enters our eyes.",
    "isDeparture": false,
    "isReturn": false,
    "part": null,
@@ -27,7 +27,7 @@
   "presentation": 0,
   "departure": 0
  },
- "teacherNote": "The blue appearance of the sky is due to the scattering of sunlight by atmospheric air molecules, not reflection from the sea. Revise Rayleigh scattering and how shorter wavelengths (blue light) scatter much more effectively than longer wavelengths.",
+ "teacherNote": "The sky appears blue due to the scattering of sunlight by atmospheric molecules, not reflection from the ocean. Remember that fine particles scatter shorter wavelengths (blue light) much more strongly than longer wavelengths.",
  "questionDepartureError": false,
  "objective": false,
  "detectedSubject": null,
@@ -48,11 +48,11 @@
  },
  "rubric": [
   {
-   "point": "Mention that fine particles/molecules in the atmosphere scatter light (scattering of light)",
+   "point": "Mentioning scattering of sunlight by fine air molecules/particles in the atmosphere",
    "marks": 1
   },
   {
-   "point": "Explanation that blue light has shorter wavelength and is scattered much more strongly than red light, entering our eyes",
+   "point": "Explaining that blue light has a shorter wavelength and is scattered much more strongly than red/longer wavelengths, entering our eyes",
    "marks": 1
   }
  ],

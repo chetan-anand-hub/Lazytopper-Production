@@ -26,9 +26,9 @@
    "status": "unattempted",
    "marksAwarded": 0,
    "marksDeducted": 1.5,
-   "teacherAnnotation": "× Genotypic ratio not attempted",
+   "teacherAnnotation": "Genotypic ratio not attempted",
    "mistakeType": null,
-   "correctedWorking": "F₂ genotypic ratio = 1 : 2 : 1 (TT : Tt : tt)",
+   "correctedWorking": "F₂ genotypic ratio = 1 : 2 : 1 (1 TT : 2 Tt : 1 tt)",
    "isDeparture": false,
    "isReturn": false,
    "part": "(ii)",
@@ -42,7 +42,7 @@
   "presentation": 0,
   "departure": 0
  },
- "teacherNote": "The phenotypic ratio was correctly stated with appropriate phenotypes. Ensure you read the full question carefully and provide both the phenotypic and genotypic ratios.",
+ "teacherNote": "You correctly stated the phenotypic ratio along with the phenotypes. Always re-read the question carefully to ensure all requested parts, such as the genotypic ratio (1 : 2 : 1), are answered.",
  "questionDepartureError": false,
  "objective": false,
  "detectedSubject": null,
@@ -63,11 +63,11 @@
  },
  "rubric": [
   {
-   "point": "Phenotypic ratio of F₂ generation (3 : 1 or Tall : Dwarf = 3 : 1)",
+   "point": "Phenotypic ratio in F₂ generation (3 : 1 or 3 tall : 1 dwarf)",
    "marks": 1.5
   },
   {
-   "point": "Genotypic ratio of F₂ generation (1 : 2 : 1 or TT : Tt : tt = 1 : 2 : 1)",
+   "point": "Genotypic ratio in F₂ generation (1 : 2 : 1 or 1 TT : 2 Tt : 1 tt)",
    "marks": 1.5
   }
  ],

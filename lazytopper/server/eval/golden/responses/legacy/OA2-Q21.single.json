@@ -3,21 +3,7 @@
  "totalMarks": 1,
  "marksAwarded": 0,
  "percentage": 0,
- "annotatedSteps": [
-  {
-   "stepNumber": 1,
-   "description": "Answer",
-   "studentWork": "",
-   "status": "missing",
-   "marksAwarded": 0,
-   "marksDeducted": 1,
-   "teacherAnnotation": "",
-   "mistakeType": null,
-   "correctedWorking": null,
-   "isDeparture": false,
-   "isReturn": false
-  }
- ],
+ "annotatedSteps": [],
  "mistakeSummary": {
   "conceptual": 0,
   "calculation": 0,
@@ -25,7 +11,7 @@
   "presentation": 0,
   "departure": 0
  },
- "teacherNote": "This question was not attempted, so it earns no marks.",
+ "teacherNote": "This answer does not address the question that was set, so it earns no marks — check that you uploaded your answer to this question.",
  "questionDepartureError": false,
  "objective": true,
  "detectedSubject": null,

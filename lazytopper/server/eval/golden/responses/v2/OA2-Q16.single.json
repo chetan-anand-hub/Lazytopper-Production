@@ -6,12 +6,12 @@
  "annotatedSteps": [
   {
    "stepNumber": 1,
-   "description": "Initial option selection struck out",
+   "description": "Crossed out option",
    "studentWork": "(a)",
    "status": "withdrawn",
    "marksAwarded": 0,
    "marksDeducted": 0,
-   "teacherAnnotation": "Struck through",
+   "teacherAnnotation": "Struck out",
    "mistakeType": null,
    "correctedWorking": null,
    "isDeparture": false,
@@ -21,12 +21,12 @@
   },
   {
    "stepNumber": 2,
-   "description": "Selection of the correct option",
+   "description": "Selected option for pH of a neutral solution",
    "studentWork": "(b)",
    "status": "correct",
    "marksAwarded": 0,
    "marksDeducted": 0,
-   "teacherAnnotation": "✓ Correct",
+   "teacherAnnotation": "✓ Correct option",
    "mistakeType": null,
    "correctedWorking": null,
    "isDeparture": false,
@@ -42,7 +42,7 @@
   "presentation": 0,
   "departure": 0
  },
- "teacherNote": "Correct option selected. The previous incorrect choice was cleanly struck through and replaced with the right answer.",
+ "teacherNote": "Correct answer. You appropriately corrected your initial response by crossing out option (a) and selecting option (b).",
  "questionDepartureError": false,
  "objective": true,
  "detectedSubject": null,

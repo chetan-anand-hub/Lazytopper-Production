@@ -6,42 +6,27 @@
  "annotatedSteps": [
   {
    "stepNumber": 1,
-   "description": "Correct chemical formulae of reactants and products",
-   "studentWork": "Na + H2O → NaOH + H2",
-   "status": "correct",
+   "description": "Writing the balanced chemical equation for the reaction",
+   "studentWork": "Na + H2O -> NaOH + H2 (balanced)",
+   "status": "partial",
    "marksAwarded": 0.5,
-   "marksDeducted": 0,
-   "teacherAnnotation": "✓ Correct species written",
-   "mistakeType": null,
-   "correctedWorking": null,
+   "marksDeducted": 0.5,
+   "teacherAnnotation": "½ Correct reactants and products, but the equation is not balanced.",
+   "mistakeType": "conceptual",
+   "correctedWorking": "2Na + 2H2O -> 2NaOH + H2",
    "isDeparture": false,
    "isReturn": false,
    "part": null,
-   "marksAvailable": 0.5
+   "marksAvailable": 1
   },
   {
    "stepNumber": 2,
-   "description": "Balancing the chemical equation",
-   "studentWork": "(balanced)",
-   "status": "incorrect",
-   "marksAwarded": 0,
-   "marksDeducted": 0.5,
-   "teacherAnnotation": "× Equation is not balanced (LHS has 2 H atoms, RHS has 3 H atoms)",
-   "mistakeType": "conceptual",
-   "correctedWorking": "2Na + 2H2O → 2NaOH + H2",
-   "isDeparture": false,
-   "isReturn": false,
-   "part": null,
-   "marksAvailable": 0.5
-  },
-  {
-   "stepNumber": 3,
    "description": "Naming the type of reaction",
    "studentWork": "It is a displacement reaction.",
    "status": "correct",
    "marksAwarded": 1,
    "marksDeducted": 0,
-   "teacherAnnotation": "✓ Correct reaction type identified",
+   "teacherAnnotation": "✓ Correct identification of reaction type.",
    "mistakeType": null,
    "correctedWorking": null,
    "isDeparture": false,
@@ -57,7 +42,7 @@
   "presentation": 0,
   "departure": 0
  },
- "teacherNote": "Good job identifying the correct products and naming the reaction type as a displacement reaction. However, always count the number of atoms on both sides to ensure the equation is balanced: it should be 2Na + 2H₂O → 2NaOH + H₂.",
+ "teacherNote": "You correctly identified the products and classified the reaction as a displacement reaction. Remember to always count atoms on both sides to balance equations, as writing '(balanced)' alone does not balance the reaction.",
  "questionDepartureError": false,
  "objective": false,
  "detectedSubject": null,
@@ -78,15 +63,15 @@
  },
  "rubric": [
   {
-   "point": "Writing the correct chemical formulae of reactants and products",
+   "point": "Writing the correct chemical equation with reactants and products (Na + H2O -> NaOH + H2)",
    "marks": 0.5
   },
   {
-   "point": "Balancing the chemical equation (2Na + 2H₂O → 2NaOH + H₂)",
+   "point": "Balancing the equation correctly (2Na + 2H2O -> 2NaOH + H2)",
    "marks": 0.5
   },
   {
-   "point": "Stating the type of reaction (Displacement reaction / Redox / Exothermic)",
+   "point": "Naming the type of reaction as displacement reaction",
    "marks": 1
   }
  ],

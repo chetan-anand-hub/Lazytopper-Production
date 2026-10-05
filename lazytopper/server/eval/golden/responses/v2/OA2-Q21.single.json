@@ -3,23 +3,7 @@
  "totalMarks": 1,
  "marksAwarded": 0,
  "percentage": 0,
- "annotatedSteps": [
-  {
-   "stepNumber": 1,
-   "description": "Answer",
-   "studentWork": "",
-   "status": "unattempted",
-   "marksAwarded": 0,
-   "marksDeducted": 1,
-   "teacherAnnotation": "",
-   "mistakeType": null,
-   "correctedWorking": null,
-   "isDeparture": false,
-   "isReturn": false,
-   "part": null,
-   "marksAvailable": 1
-  }
- ],
+ "annotatedSteps": [],
  "mistakeSummary": {
   "conceptual": 0,
   "calculation": 0,
@@ -27,7 +11,7 @@
   "presentation": 0,
   "departure": 0
  },
- "teacherNote": "This question was not attempted, so it earns no marks.",
+ "teacherNote": "This answer does not address the question that was set, so it has not been marked — check that you uploaded your answer to this question.",
  "questionDepartureError": false,
  "objective": true,
  "detectedSubject": null,
@@ -36,16 +20,16 @@
  "provider": "gemini",
  "model": "gemini-3.8-flash",
  "couldNotRead": false,
- "answerMismatch": null,
+ "answerMismatch": true,
  "departureKind": null,
  "marksLostByType": {
   "conceptual": 0,
   "calculation": 0,
   "silly": 0,
   "presentation": 0,
-  "unattempted": 1,
+  "unattempted": 0,
   "untyped": 0
  },
  "rubric": null,
- "objectiveResolved": true
+ "objectiveResolved": false
 }

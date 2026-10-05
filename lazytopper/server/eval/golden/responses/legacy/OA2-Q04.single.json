@@ -6,12 +6,12 @@
  "annotatedSteps": [
   {
    "stepNumber": 1,
-   "description": "Selection of the correct option for Assertion-Reason",
+   "description": "Choose the correct option for Assertion-Reason",
    "studentWork": "Q4. (b)",
    "status": "incorrect",
    "marksAwarded": 0,
    "marksDeducted": 0,
-   "teacherAnnotation": "× Incorrect option chosen. The correct option is (a).",
+   "teacherAnnotation": "× Incorrect option",
    "mistakeType": null,
    "correctedWorking": "(a) Both A and R are true and R is the correct explanation of A.",
    "isDeparture": false,
@@ -25,7 +25,7 @@
   "presentation": 0,
   "departure": 0
  },
- "teacherNote": "Marked against: Correct option (a): Both A and R are true and R is the correct explanation of A (1). For x² + 4 = 0, the discriminant D = 0² - 4(1)(4) = -16 < 0, which directly explains why it has no real roots. Hence, Reason (R) is the correct explanation of Assertion (A), making (a) the correct choice.",
+ "teacherNote": "Marked against: Selecting correct option (a) with explanation (1). For x² + 4 = 0, the discriminant D = 0² - 4(1)(4) = -16 < 0. Because D is negative, the equation has no real roots, so Reason (R) is the exact explanation for Assertion (A).",
  "questionDepartureError": false,
  "objective": true,
  "detectedSubject": null,

@@ -6,14 +6,14 @@
  "annotatedSteps": [
   {
    "stepNumber": 1,
-   "description": "Identification of a, d and formula with substitution",
+   "description": "Formula and substitution for the nth term of an AP",
    "studentWork": "",
    "status": "missing",
    "marksAwarded": 0,
    "marksDeducted": 1,
-   "teacherAnnotation": "× Steps and formula not shown",
+   "teacherAnnotation": "× Formula and substitution steps not shown",
    "mistakeType": null,
-   "correctedWorking": "a = 2, d = 7 - 2 = 5\na_n = a + (n - 1)d\na₁₀ = 2 + (10 - 1)5 = 2 + 45",
+   "correctedWorking": "a = 2, d = 7 - 2 = 5, n = 10\na_n = a + (n - 1)d\na_10 = 2 + (10 - 1)5",
    "isDeparture": false,
    "isReturn": false
   },
@@ -38,7 +38,7 @@
   "presentation": 0,
   "departure": 0
  },
- "teacherNote": "Marked against: Identifying first term a = 2 / common difference d = 5 / and stating formula a_n = a + (n - 1)d with substitution (1); Calculating the 10th term as 47 (1). The final answer is correct, but for a 2-mark question in board exams, step-by-step working including formula and substitution must be shown to earn full marks.",
+ "teacherNote": "Marked against: Identifying a = 2 / d = 5 and substituting into the formula a_n = a + (n - 1)d (1); Calculating the 10th term as 47 (1). Your final answer is correct. However, in 2-mark board exam questions, you must show the formula and intermediate substitution steps to earn full credit.",
  "questionDepartureError": false,
  "objective": false,
  "detectedSubject": null,

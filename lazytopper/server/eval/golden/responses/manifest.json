@@ -1,5 +1,5 @@
 {
- "about": "D22 FINAL: post-processed response bodies of the GRADER-CORE-1 PR-2 ACCEPTANCE run (2026-10-05.PR2-accept-a-flash38, run 1), replayed through the shipped post-processing with zero model calls. legacy/ = the request as the surface sends it; v2/ = acceptsV2:true (the run's own V2.* reply where one exists, else the same stored reply — acceptsV2 never reaches the prompt). For a set job the FULL set body is written under each of its case ids (qNumber gives the entry). Includes the controller papers (CP*), the answer-mismatch cases (GS-MM-*) and the one-answer Chapter-Test case (P0-*). GRADER-CORE-1 PR-3: the OWNER-ANOMALY-02 cases (OA2-Q01..Q27, single + set, legacy + v2) are added from the combined PR-3 + PR-2b acceptance run 2026-10-06.PR3-combined-flash38 (run 1, gemini-3.8-flash), replayed through PR-3's post-processing with zero model calls.",
+ "about": "D22 FINAL: post-processed response bodies of the GRADER-CORE-1 PR-2 ACCEPTANCE run (2026-10-05.PR2-accept-a-flash38, run 1), replayed through the shipped post-processing with zero model calls. legacy/ = the request as the surface sends it; v2/ = acceptsV2:true (the run's own V2.* reply where one exists, else the same stored reply — acceptsV2 never reaches the prompt). For a set job the FULL set body is written under each of its case ids (qNumber gives the entry). Includes the controller papers (CP*), the answer-mismatch cases (GS-MM-*) and the one-answer Chapter-Test case (P0-*). GRADER-CORE-1 PR-3: the OWNER-ANOMALY-02 cases (OA2-Q01..Q27, single + set, legacy + v2) are added from the combined PR-3 + PR-2b acceptance run 2026-10-06.PR3-combined-flash38 (run 3, gemini-3.8-flash: the run whose v2 paper has no question left not graded at the deadline — Controller B's G3-v2 oracle has no owner copy for the not-graded state yet, see FU-G3-NOTGRADED-COPY), replayed through PR-3's post-processing with zero model calls.",
  "shippedConfig": {
   "id": "PR2-a-flash38",
   "model": "gemini-3.8-flash",
@@ -2542,7 +2542,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q02",
@@ -2553,7 +2553,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 2,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q03",
@@ -2564,7 +2564,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 3,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q04",
@@ -2575,7 +2575,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 4,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q05",
@@ -2586,7 +2586,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 5,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q06",
@@ -2597,7 +2597,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 6,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q07",
@@ -2608,7 +2608,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 7,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q08",
@@ -2619,7 +2619,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 8,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q09",
@@ -2630,7 +2630,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 9,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q10",
@@ -2641,7 +2641,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 10,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q11",
@@ -2652,7 +2652,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 11,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q12",
@@ -2663,7 +2663,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 12,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q13",
@@ -2674,7 +2674,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 13,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q14",
@@ -2685,7 +2685,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 14,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q15",
@@ -2696,7 +2696,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 15,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q16",
@@ -2707,7 +2707,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 16,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q17",
@@ -2718,7 +2718,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 17,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q18",
@@ -2729,7 +2729,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 18,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q19",
@@ -2740,7 +2740,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 19,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q20",
@@ -2751,7 +2751,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 20,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q21",
@@ -2762,7 +2762,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 21,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q22",
@@ -2773,7 +2773,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 22,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q23",
@@ -2784,7 +2784,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 23,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q24",
@@ -2795,7 +2795,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 24,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q25",
@@ -2806,7 +2806,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 25,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q26",
@@ -2817,7 +2817,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 26,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q27",
@@ -2828,7 +2828,7 @@
    "surface": "OWNER2-MULTI",
    "qNumber": 27,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q01",
@@ -2839,7 +2839,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q02",
@@ -2850,7 +2850,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q03",
@@ -2861,7 +2861,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q04",
@@ -2872,7 +2872,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q05",
@@ -2883,7 +2883,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q06",
@@ -2894,7 +2894,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q07",
@@ -2905,7 +2905,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q08",
@@ -2916,7 +2916,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q09",
@@ -2927,7 +2927,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q10",
@@ -2938,7 +2938,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q11",
@@ -2949,7 +2949,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q12",
@@ -2960,7 +2960,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q13",
@@ -2971,7 +2971,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q14",
@@ -2982,7 +2982,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q15",
@@ -2993,7 +2993,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q16",
@@ -3004,7 +3004,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q17",
@@ -3015,7 +3015,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q18",
@@ -3026,7 +3026,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q19",
@@ -3037,7 +3037,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q20",
@@ -3048,7 +3048,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q21",
@@ -3059,7 +3059,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q22",
@@ -3070,7 +3070,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q23",
@@ -3081,7 +3081,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q24",
@@ -3092,7 +3092,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q25",
@@ -3103,7 +3103,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q26",
@@ -3114,7 +3114,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   },
   {
    "caseId": "OA2-Q27",
@@ -3125,7 +3125,7 @@
    "surface": "OWNER2-SINGLE",
    "qNumber": 1,
    "httpStatus": 200,
-   "run": "2026-10-06.PR3-combined-flash38/run1"
+   "run": "2026-10-06.PR3-combined-flash38/run3"
   }
  ]
 }

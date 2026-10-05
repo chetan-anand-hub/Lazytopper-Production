@@ -6,12 +6,12 @@
  "annotatedSteps": [
   {
    "stepNumber": 1,
-   "description": "Finding the zeroes of the polynomial",
-   "studentWork": "x² - 5x + 6 = 0 , a = 1, b = -5, c = 6\nx = [5 ± √(25 - 24)] / 2 = (5 ± 1)/2\nx = 3 , x = 2",
+   "description": "Finding the zeroes using the quadratic formula",
+   "studentWork": "x² − 5x + 6 = 0 , a = 1, b = −5, c = 6\nx = [5 ± √(25 − 24)] / 2 = (5 ± 1)/2\nx = 3 , x = 2",
    "status": "correct",
    "marksAwarded": 1,
    "marksDeducted": 0,
-   "teacherAnnotation": "✓ Correctly found zeroes x = 2 and x = 3",
+   "teacherAnnotation": "✓ Correctly found the zeroes x = 2 and x = 3",
    "mistakeType": null,
    "correctedWorking": null,
    "isDeparture": false,
@@ -19,8 +19,8 @@
   },
   {
    "stepNumber": 2,
-   "description": "Verifying the sum of zeroes",
-   "studentWork": "Sum of zeroes = 3 + 2 = 5 = -b/a = 5. Verified.",
+   "description": "Verifying the sum of zeroes with coefficients",
+   "studentWork": "Sum of zeroes = 3 + 2 = 5 = −b/a = 5. Verified.",
    "status": "correct",
    "marksAwarded": 1,
    "marksDeducted": 0,
@@ -38,7 +38,7 @@
   "presentation": 0,
   "departure": 0
  },
- "teacherNote": "Marked against: Finding the zeroes of the polynomial (x = 2 / 3) (1); Verifying the relationship for sum of zeroes (α + β = -b/a) (1). Well done! You correctly found the zeroes using the quadratic formula and verified the relationship for the sum of zeroes clearly.",
+ "teacherNote": "Marked against: Finding the zeroes of the polynomial (x = 2 / 3) (1); Verifying the relation: Sum of zeroes = -b/a (1). Well done! Both the zeroes and the relationship with coefficients were found and verified accurately.",
  "questionDepartureError": false,
  "objective": false,
  "detectedSubject": null,

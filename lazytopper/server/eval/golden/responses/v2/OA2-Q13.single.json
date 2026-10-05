@@ -6,12 +6,12 @@
  "annotatedSteps": [
   {
    "stepNumber": 1,
-   "description": "Calculation of Σf",
+   "description": "Calculation of ∑f and determination of fx terms",
    "studentWork": "Σf = 3 + 5 + 4 + 2 = 14",
    "status": "correct",
    "marksAwarded": 1,
    "marksDeducted": 0,
-   "teacherAnnotation": "✓ Correct sum of frequencies",
+   "teacherAnnotation": "✓ Correct sum of frequencies and products",
    "mistakeType": null,
    "correctedWorking": null,
    "isDeparture": false,
@@ -21,7 +21,7 @@
   },
   {
    "stepNumber": 2,
-   "description": "Calculation of Σfx",
+   "description": "Addition of fx values to find ∑fx",
    "studentWork": "Σfx = 6 + 20 + 24 + 16 = 64",
    "status": "incorrect",
    "marksAwarded": 0,
@@ -36,14 +36,14 @@
   },
   {
    "stepNumber": 3,
-   "description": "Mean formula and computation with ECF",
+   "description": "Mean formula, substitution, and evaluation",
    "studentWork": "Mean = Σfx / Σf = 64/14 = 4.57",
    "status": "correct",
    "marksAwarded": 1,
    "marksDeducted": 0,
-   "teacherAnnotation": "✓ Correct formula and division carried forward from previous value",
+   "teacherAnnotation": "½ Correct formula and method (ECF applied), but final answer is incorrect due to earlier addition slip",
    "mistakeType": null,
-   "correctedWorking": "Mean = Σfx / Σf = 66/14 = 4.71",
+   "correctedWorking": "Mean = Σfx / Σf = 66 / 14 = 33 / 7 ≈ 4.71",
    "isDeparture": false,
    "isReturn": false,
    "part": null,
@@ -57,7 +57,7 @@
   "presentation": 0,
   "departure": 0
  },
- "teacherNote": "Your method and formula for calculating the mean are completely correct. Take extra care with basic addition when finding Σfx, as 6 + 20 + 24 + 16 equals 66, which gives a mean of approximately 4.71.",
+ "teacherNote": "Good job applying the direct method formula for the mean correctly. However, double-check your addition: 6 + 20 + 24 + 16 sums to 66, not 64, which led to a slightly incorrect final value.",
  "questionDepartureError": false,
  "objective": false,
  "detectedSubject": null,
@@ -78,16 +78,20 @@
  },
  "rubric": [
   {
-   "point": "Finding sum of frequencies (Σf = 14)",
+   "point": "Finding ∑f = 14 and individual products fx (6, 20, 24, 16)",
    "marks": 1
   },
   {
-   "point": "Calculating products fx and finding Σfx = 66",
+   "point": "Correctly finding the sum of products ∑fx = 66",
    "marks": 1
   },
   {
-   "point": "Applying formula Mean = Σfx / Σf and evaluating final answer",
-   "marks": 1
+   "point": "Formula for Mean = ∑fx / ∑f and correct substitution",
+   "marks": 0.5
+  },
+  {
+   "point": "Correct final answer (33/7 or 4.71)",
+   "marks": 0.5
   }
  ],
  "objectiveResolved": null

@@ -6,12 +6,12 @@
  "annotatedSteps": [
   {
    "stepNumber": 1,
-   "description": "Initial incorrect thought struck out by the student",
+   "description": "Initial incorrect attempt crossed out by student",
    "studentWork": "length = 5 - 3 = 2 cm",
    "status": "withdrawn",
    "marksAwarded": 0,
    "marksDeducted": 0,
-   "teacherAnnotation": "Struck out — not assessed",
+   "teacherAnnotation": "Struck through work (not evaluated)",
    "mistakeType": null,
    "correctedWorking": null,
    "isDeparture": false,
@@ -21,12 +21,12 @@
   },
   {
    "stepNumber": 2,
-   "description": "Applying Pythagoras theorem to find AP²",
+   "description": "Application of Pythagoras theorem and substitution of values",
    "studentWork": "OA² = OP² + AP² ⇒ AP² = 25 - 9 = 16",
    "status": "correct",
    "marksAwarded": 1,
    "marksDeducted": 0,
-   "teacherAnnotation": "✓ Correct application of Pythagoras theorem",
+   "teacherAnnotation": "✓ Correctly applied Pythagoras theorem",
    "mistakeType": null,
    "correctedWorking": null,
    "isDeparture": false,
@@ -36,12 +36,12 @@
   },
   {
    "stepNumber": 3,
-   "description": "Evaluating AP with correct unit",
+   "description": "Finding the square root to determine the length of AP",
    "studentWork": "AP = 4 cm",
    "status": "correct",
    "marksAwarded": 1,
    "marksDeducted": 0,
-   "teacherAnnotation": "✓ Correct final answer",
+   "teacherAnnotation": "✓ Correct final answer with units",
    "mistakeType": null,
    "correctedWorking": null,
    "isDeparture": false,
@@ -57,7 +57,7 @@
   "presentation": 0,
   "departure": 0
  },
- "teacherNote": "Well done! You correctly applied Pythagoras theorem and found the tangent length with the appropriate unit. Crossing out the initial incorrect attempt was the right decision.",
+ "teacherNote": "Well done! You correctly realized your initial mistake, struck it out cleanly, and applied the Pythagoras theorem to find the correct tangent length.",
  "questionDepartureError": false,
  "objective": false,
  "detectedSubject": null,
@@ -78,11 +78,11 @@
  },
  "rubric": [
   {
-   "point": "Stating or applying Pythagoras theorem in right triangle OPA (OA² = OP² + AP²)",
+   "point": "Applying Pythagoras theorem in right triangle OPA (OA² = OP² + AP²)",
    "marks": 1
   },
   {
-   "point": "Calculating and finding the length of tangent AP = 4 cm",
+   "point": "Calculating the length of tangent AP = 4 cm",
    "marks": 1
   }
  ],

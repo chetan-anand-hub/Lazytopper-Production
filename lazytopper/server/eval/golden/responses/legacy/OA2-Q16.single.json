@@ -6,12 +6,12 @@
  "annotatedSteps": [
   {
    "stepNumber": 1,
-   "description": "Selection of the correct option",
+   "description": "Selected option for pH of a neutral solution",
    "studentWork": "(b)",
    "status": "correct",
    "marksAwarded": 0,
    "marksDeducted": 0,
-   "teacherAnnotation": "✓ Correct",
+   "teacherAnnotation": "✓ Correct option",
    "mistakeType": null,
    "correctedWorking": null,
    "isDeparture": false,
@@ -25,7 +25,7 @@
   "presentation": 0,
   "departure": 0
  },
- "teacherNote": "Marked against: Correct option (b) / 7 (1). Correct option selected. The previous incorrect choice was cleanly struck through and replaced with the right answer.",
+ "teacherNote": "Marked against: Correct option (b) / 7 (1). Correct answer. You appropriately corrected your initial response by crossing out option (a) and selecting option (b).",
  "questionDepartureError": false,
  "objective": true,
  "detectedSubject": null,

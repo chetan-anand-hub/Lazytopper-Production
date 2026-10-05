@@ -1,19 +1,19 @@
 {
  "ok": true,
  "totalMarks": 2,
- "marksAwarded": 1.5,
- "percentage": 75,
+ "marksAwarded": 1,
+ "percentage": 50,
  "annotatedSteps": [
   {
    "stepNumber": 1,
-   "description": "Application of distance formula and substitution of coordinates",
-   "studentWork": "d = \\sqrt{[(3 - 1)^2 + (4 - 1)^2]}",
-   "status": "partial",
-   "marksAwarded": 0.5,
-   "marksDeducted": 0.5,
-   "teacherAnnotation": "½ Applied distance formula structure correctly, but miscopied -1 as 1 leading to (3 - 1)² instead of (3 - (-1))²",
+   "description": "Substitution into distance formula",
+   "studentWork": "d = √[(3 - 1)² + (4 - 1)²]",
+   "status": "incorrect",
+   "marksAwarded": 0,
+   "marksDeducted": 1,
+   "teacherAnnotation": "× Sign miscopied: the coordinate is -1, so it should be (3 - (-1))² or (3 + 1)²",
    "mistakeType": "silly",
-   "correctedWorking": "d = \\sqrt{[3 - (-1)]^2 + (4 - 1)^2} = \\sqrt{(3 + 1)^2 + (4 - 1)^2}",
+   "correctedWorking": "d = √[(3 - (-1))² + (4 - 1)²] = √[(3 + 1)² + (4 - 1)²]",
    "isDeparture": false,
    "isReturn": false,
    "part": null,
@@ -21,12 +21,12 @@
   },
   {
    "stepNumber": 2,
-   "description": "Simplification and calculation of final distance",
-   "studentWork": "= \\sqrt{(4 + 9)} = \\sqrt{13}",
+   "description": "Evaluation and final answer",
+   "studentWork": "= √(4 + 9) = √13",
    "status": "correct",
    "marksAwarded": 1,
    "marksDeducted": 0,
-   "teacherAnnotation": "✓ Correctly simplified the carried-forward expression",
+   "teacherAnnotation": "✓ Correctly simplified based on carried-forward values",
    "mistakeType": null,
    "correctedWorking": null,
    "isDeparture": false,
@@ -42,7 +42,7 @@
   "presentation": 0,
   "departure": 0
  },
- "teacherNote": "You correctly applied the distance formula and carried through your calculations accurately. Be careful when substituting negative coordinates: 3 - (-1) becomes 3 + 1 = 4, giving a final distance of 5 units.",
+ "teacherNote": "You know the distance formula and executed the arithmetic cleanly. Be careful when substituting negative coordinates: subtracting -1 gives (3 - (-1))² = (3 + 1)² = 16, leading to a distance of 5 units.",
  "questionDepartureError": false,
  "objective": false,
  "detectedSubject": null,
@@ -56,18 +56,18 @@
  "marksLostByType": {
   "conceptual": 0,
   "calculation": 0,
-  "silly": 0.5,
+  "silly": 1,
   "presentation": 0,
   "unattempted": 0,
   "untyped": 0
  },
  "rubric": [
   {
-   "point": "Writing distance formula and substituting coordinates (3, 4) and (-1, 1)",
+   "point": "Correct substitution into the distance formula",
    "marks": 1
   },
   {
-   "point": "Simplifying radicand to obtain distance = 5 units",
+   "point": "Simplification and correct final answer (5 units)",
    "marks": 1
   }
  ],

@@ -6,12 +6,12 @@
  "annotatedSteps": [
   {
    "stepNumber": 1,
-   "description": "Selection of the correct option",
-   "studentWork": "Q1. (a) or (b)",
+   "description": "Selection of the correct option for LCM of 12 and 18",
+   "studentWork": "(a) or (b)",
    "status": "incorrect",
    "marksAwarded": 0,
    "marksDeducted": 0,
-   "teacherAnnotation": "× Ambiguous response with two alternative options written; only a single definite choice can be awarded marks.",
+   "teacherAnnotation": "× Multiple options provided",
    "mistakeType": null,
    "correctedWorking": "(a) 36",
    "isDeparture": false,
@@ -25,7 +25,7 @@
   "presentation": 0,
   "departure": 0
  },
- "teacherNote": "Marked against: Correct option (a) or 36 (1). For multiple-choice questions, clearly write only one chosen option. The LCM of 12 and 18 is 36, so the correct choice is (a).",
+ "teacherNote": "Marked against: Correct option (a) 36 (1). In multiple-choice questions, providing two alternatives earns zero marks even if one of them is right. Always write only a single clear option: (a) 36.",
  "questionDepartureError": false,
  "objective": true,
  "detectedSubject": null,

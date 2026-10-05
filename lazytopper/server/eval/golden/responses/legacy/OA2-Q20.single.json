@@ -11,7 +11,7 @@
    "status": "correct",
    "marksAwarded": 1,
    "marksDeducted": 0,
-   "teacherAnnotation": "✓ Correct definition of reflex action.",
+   "teacherAnnotation": "✓ Correct definition",
    "mistakeType": null,
    "correctedWorking": null,
    "isDeparture": false,
@@ -19,14 +19,14 @@
   },
   {
    "stepNumber": 2,
-   "description": "Tracing the pathway of a reflex arc",
-   "studentWork": "Path: stimulus -> receptor -> motor neuron -> spinal cord -> sensory neuron -> effector (muscle)",
+   "description": "Tracing the sequence of components in a reflex arc",
+   "studentWork": "Path: stimulus → receptor → motor neuron → spinal cord → sensory neuron → effector (muscle)",
    "status": "partial",
    "marksAwarded": 1,
    "marksDeducted": 1,
-   "teacherAnnotation": "½ Sensory neuron and motor neuron are interchanged; sensory neurons carry the impulse to the spinal cord, and motor neurons carry it to the effector.",
+   "teacherAnnotation": "½ Positions of sensory neuron and motor neuron are interchanged",
    "mistakeType": "conceptual",
-   "correctedWorking": "Path: Stimulus -> Receptor -> Sensory neuron -> Spinal cord -> Motor neuron -> Effector (muscle)",
+   "correctedWorking": "Stimulus → Receptor → Sensory neuron → Spinal cord → Motor neuron → Effector (muscle)",
    "isDeparture": false,
    "isReturn": false
   }
@@ -38,7 +38,7 @@
   "presentation": 0,
   "departure": 0
  },
- "teacherNote": "Marked against: Definition of reflex action as an automatic/involuntary response to a stimulus (1); Tracing the correct sequence of reflex arc (Stimulus -> Receptor -> Sensory neuron -> Spinal cord -> Motor neuron -> Effector) (2). Your definition of reflex action is accurate and complete. However, remember that sensory neurons carry signals from receptors towards the spinal cord, while motor neurons convey responses from the spinal cord to the effectors.",
+ "teacherNote": "Marked against: Definition of reflex action as a sudden / automatic/involuntary response to a stimulus (1); Correct path of reflex arc: Stimulus → Receptor → Sensory neuron → Spinal cord/CNS → Motor neuron → Effector (2). Your definition of reflex action is accurate. However, in the reflex arc, sensory neurons transmit impulses from receptors to the spinal cord, and motor neurons carry the response from the spinal cord to the effector.",
  "questionDepartureError": false,
  "objective": false,
  "detectedSubject": null,
