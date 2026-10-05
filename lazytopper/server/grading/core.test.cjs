@@ -27,7 +27,7 @@ const assert = require('node:assert/strict');
 const { createCheckSolutionRoute } = require('../routes/checkSolution.cjs');
 const grading = require('./index.cjs');
 const O = require('../routes/objectiveScoring.cjs');
-const { falseEqualities, compareFinalAnswer } = require('./verify.cjs');
+const { falseEqualities, compareFinalAnswer, fudgedFactorisation } = require('./verify.cjs');
 const { copiesScheme } = require('./postprocess.cjs');
 const { chooseNonce } = require('./fence.cjs');
 const { resolveGradingModel, isModelUnavailable } = require('./modelConfig.cjs');
@@ -1041,6 +1041,39 @@ test('§T2.1 ★ a QUOTE that lost a minus sign never turns a correct step wrong
   // (correctedWorking) keeps the strict check
   assert.equal(falseEqualities('(-36/7)/(15/7) = 36/14', { quoted: true }).length, 1);
   assert.equal(falseEqualities(quoted).length, 1);
+});
+
+test('§T3.1 ★ NO ECF THROUGH A FUDGED STEP: after a "factorisation" of a quadratic with no real roots that does not multiply out to it, the roots and the answer earn nothing, charged once (golden GS-M15-a)', async () => {
+  const head = [
+    S({ description: 'Defines', studentWork: 'Let the speed be x km/h', marksAwarded: 0.5 }),
+    S({ description: 'Forms', studentWork: '480/x − 480/(x − 8) = 3', status: 'incorrect', marksAwarded: 0, marksDeducted: 1.5, mistakeType: 'conceptual' }),
+  ];
+  const tail = (quad, factor) => [
+    S({ description: 'Simplifies', studentWork: '3x² − 24x ± 3840 = 0\n' + quad, marksAwarded: 1.5 }),
+    S({ description: 'Factorises', studentWork: factor, status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'calculation' }),
+    S({ description: 'Concludes', studentWork: 'x = 40 or x = −32. Speed cannot be negative.\n∴ Speed = 40 km/h', marksAwarded: 0.5 }),
+  ];
+  const grade = async (steps) => (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: true }))] }).single(single({ marks: 5, acceptsV2: true }))).body;
+  const r = await grade([...head, ...tail('x² − 8x + 1280 = 0', '(x − 40)(x + 32) = 0')]);
+  assert.deepEqual(r.annotatedSteps.map((s) => s.marksAwarded), [0.5, 0, 1.5, 0, 0], 'the key: 0.5 + 0 + 1.5 + 0 + 0');
+  assert.equal(r.marksAwarded, 2);
+  assert.equal(r.annotatedSteps[4].mistakeType, null, 'the zeroed answer is not a fresh mistake');
+  assert.deepEqual(r.annotatedSteps.map((s) => s.marksDeducted), [0, 1.5, 0, 1.5, 0], 'charged ONCE, on the fudged step');
+  assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), conceptual: 1.5, calculation: 1.5 });
+  assert.deepEqual([r.departureKind, r.questionDepartureError], [null, false], 'not a departure');
+  assert.ok(r.teacherNote.includes('does not multiply out to your own quadratic'));
+  // CONTROL 1: a WRONG factorisation of a quadratic that HAS real roots is an ordinary slip — ECF stands
+  const slip = await grade([...head, ...tail('x² − 8x − 1280 = 0', '(x − 40)(x + 30) = 0')]);
+  assert.equal(slip.annotatedSteps[4].marksAwarded, 0.5);
+  // the model CREDITED the false line itself: it costs ½ there, and the later steps still earn nothing
+  const credited = [...head, ...tail('x² − 8x + 1280 = 0', '(x − 40)(x + 32) = 0')];
+  credited[3] = S({ description: 'Factorises', studentWork: '(x − 40)(x + 32) = 0', marksAwarded: 1 });
+  const cr = await grade(credited);
+  assert.deepEqual(cr.annotatedSteps.map((s) => s.marksAwarded), [0.5, 0, 1.5, 0.5, 0]);
+  assert.ok(cr.annotatedSteps[3].teacherAnnotation.startsWith('½ Check the factorisation here: (x − 40)(x + 32) = 0 does not multiply out'));
+  // CONTROL 2: a TRUE factorisation fudges nothing
+  assert.equal(fudgedFactorisation([{ studentWork: 'x² − 8x − 1280 = 0' }, { studentWork: '(x − 40)(x + 32) = 0' }]), null);
+  assert.equal(fudgedFactorisation([{ studentWork: '2x² − 7x + 5 = 0\n(2x − 5)(x − 1) = 0' }]), null, 'owner Q2: consistent with the student\'s own equation');
 });
 
 test('§T4.1 ★ a FORMAT deduction is charged ONCE per question: two answers without their unit lose ½, not 1 (owner Q5; GS-S10-a arrows)', async () => {

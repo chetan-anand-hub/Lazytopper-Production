@@ -226,6 +226,110 @@ function falseEqualities(text, opts = {}) {
   return out;
 }
 
+/* ── GRADER-CORE-1 PR-2b (targeted round) · NO ECF THROUGH A FUDGED STEP ─────────────────
+   Owner ruling (5 Oct): error carried forward rewards the CORRECT method applied to a carried
+   value — never work reached THROUGH an invented step. Golden GS-M15-a (4 of 6 gradings 3/5 or
+   2.5/5 against the key's 2): the student's own quadratic x² − 8x + 1280 = 0 has NO REAL ROOTS,
+   yet the next line "factorises" it as (x − 40)(x + 32) = 0 — which multiplies out to
+   x² − 8x − 1280 — and lands on the expected 40 km/h. The model flagged the factorisation
+   every time and then credited the roots and the answer by ECF anyway.
+   ★ NARROW BY CONSTRUCTION: a factorisation is FUDGED only when (1) the line is a product of
+   two linear factors set to 0, (2) the nearest earlier quadratic "… = 0" of the same part in
+   the student's own work does NOT expand to it (coefficients not proportional), AND (3) that
+   quadratic has NO REAL ROOTS (b² − 4ac < 0) — so no honest factorisation of it into real
+   factors exists. A wrong factorisation of a quadratic that HAS real roots is an ordinary slip
+   (calculation) and the roots read off it keep their ECF; anything not parsed is skipped. */
+function polyNorm(s) {
+  return String(s == null ? '' : s)
+    .replace(/[−–—]/g, '-').replace(/[×·⋅∙]/g, '*').replace(/²/g, '^2').replace(/\s+/g, '').toLowerCase();
+}
+/** Parse "ax^2 + bx + c" (one variable, no brackets) → { v, a, b, c } or null. */
+function parseQuadratic(expr) {
+  const s = polyNorm(expr);
+  if (!s || /[()]/.test(s) || !/\^2/.test(s)) return null;
+  const terms = s.replace(/-/g, '+-').split('+').filter((t) => t !== '');
+  let v = null; const co = { a: 0, b: 0, c: 0 };
+  for (const t of terms) {
+    const m = t.match(/^(-?)(\d*\.?\d*)\*?(?:([a-z])(\^2)?)?$/);
+    if (!m || (m[2] === '' && !m[3])) return null;
+    const k = (m[1] ? -1 : 1) * (m[2] === '' ? 1 : Number(m[2]));
+    if (!Number.isFinite(k)) return null;
+    if (m[3]) {
+      if (v && v !== m[3]) return null;
+      v = m[3];
+      co[m[4] ? 'a' : 'b'] += k;
+    } else co.c += k;
+  }
+  if (!v || co.a === 0) return null;
+  return { v, ...co };
+}
+/** Parse "k(px + q)(rx + s)" → { v, a, b, c } (expanded) or null. */
+function parseFactorised(expr) {
+  const s = polyNorm(expr);
+  const m = s.match(/^(-?\d*\.?\d*)\*?\(([^()]+)\)\*?\(([^()]+)\)$/);
+  if (!m) return null;
+  const k = m[1] === '' ? 1 : m[1] === '-' ? -1 : Number(m[1]);
+  const lin = (t) => {
+    const terms = t.replace(/-/g, '+-').split('+').filter((x) => x !== '');
+    let v = null; let p = 0; let q = 0;
+    for (const x of terms) {
+      const mm = x.match(/^(-?)(\d*\.?\d*)\*?([a-z])?$/);
+      if (!mm || (mm[2] === '' && !mm[3])) return null;
+      const c = (mm[1] ? -1 : 1) * (mm[2] === '' ? 1 : Number(mm[2]));
+      if (mm[3]) { if (v && v !== mm[3]) return null; v = mm[3]; p += c; } else q += c;
+    }
+    return v && p !== 0 ? { v, p, q } : null;
+  };
+  const f = lin(m[2]); const g = lin(m[3]);
+  if (!Number.isFinite(k) || k === 0 || !f || !g || f.v !== g.v) return null;
+  return { v: f.v, a: k * f.p * g.p, b: k * (f.p * g.q + f.q * g.p), c: k * f.q * g.q };
+}
+/** One side of "LHS = RHS" equal to 0 → the other side; else null. */
+function zeroEquated(clause) {
+  const sides = String(clause).split('=');
+  if (sides.length !== 2) return null;
+  const z = (x) => /^\s*0\s*$/.test(x);
+  if (z(sides[1]) && !z(sides[0])) return sides[0];
+  if (z(sides[0]) && !z(sides[1])) return sides[1];
+  return null;
+}
+const proportional = (P, Q) => {
+  const eps = 1e-9 * Math.max(1, Math.abs(P.a), Math.abs(P.b), Math.abs(P.c), Math.abs(Q.a), Math.abs(Q.b), Math.abs(Q.c)) ** 2;
+  return Math.abs(P.a * Q.b - P.b * Q.a) <= eps && Math.abs(P.a * Q.c - P.c * Q.a) <= eps && Math.abs(P.b * Q.c - P.c * Q.b) <= eps;
+};
+/**
+ * The first FUDGED factorisation in a question's steps (see above), or null.
+ * @param {Array<{ studentWork?: string, part?: string|null, status?: string }>} steps
+ * @returns {{ index: number, quadratic: string, factorised: string }|null}
+ */
+function fudgedFactorisation(steps) {
+  if (!Array.isArray(steps)) return null;
+  const partOf = (p) => (p == null ? '' : String(p).toLowerCase().replace(/[^a-z0-9]/g, ''));
+  const lastQuad = new Map(); // part -> { q, text }
+  for (let i = 0; i < steps.length; i += 1) {
+    const st = steps[i];
+    if (!st || st.status === 'withdrawn') continue;
+    const part = partOf(st.part);
+    const clauses = String(st.studentWork || '').split(/\n|;|⇒|=>|→|∴|\bor\b|,/i);
+    for (const cl of clauses) {
+      const side = zeroEquated(cl);
+      if (side === null) continue;
+      const fac = parseFactorised(side);
+      if (fac) {
+        const prev = lastQuad.get(part);
+        if (prev && prev.q.v === fac.v && !proportional(prev.q, fac)) {
+          const disc = prev.q.b * prev.q.b - 4 * prev.q.a * prev.q.c;
+          if (disc < 0) return { index: i, quadratic: prev.text.trim(), factorised: cl.trim() };
+        }
+        continue;
+      }
+      const q = parseQuadratic(side);
+      if (q) lastQuad.set(part, { q, text: cl });
+    }
+  }
+  return null;
+}
+
 /* ── final-answer comparison against a stored key ───────────────────────────── */
 
 const UNIT_RE = /\b(cm|mm|km|m|s|kg|g|a|v|w|j|n|hz|ohm|ohms|l|ml)\b|Ω|°|%/gi;
@@ -274,4 +378,4 @@ function compareFinalAnswer(studentText, keyText) {
   return 'skip';
 }
 
-module.exports = { normaliseExpr, evaluate, falseEqualities, compareFinalAnswer, numbersIn };
+module.exports = { normaliseExpr, evaluate, falseEqualities, compareFinalAnswer, numbersIn, fudgedFactorisation, parseQuadratic, parseFactorised };

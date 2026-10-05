@@ -26,7 +26,7 @@ const {
   applyObjectiveMistakeGuard,
 } = require('../routes/objectiveScoring.cjs');
 const R = require('./rules.cjs');
-const { falseEqualities, compareFinalAnswer } = require('./verify.cjs');
+const { falseEqualities, compareFinalAnswer, fudgedFactorisation } = require('./verify.cjs');
 
 const TYPES = R.MISTAKE_TYPES;
 const VALID_TYPES = new Set(TYPES);
@@ -511,6 +511,8 @@ const FORMAT_ONCE = Object.freeze([
     noteClaim: /^(?=.*\barrow)(?=.*(?:\b(?:per|each|every)\s+(?:diagram|figure|ray)s?\b|\bboth\b|\btwice\b)).*$/i },
 ]);
 const FORMAT_ONCE_ANNOTATION = 'This was already charged once in this question, so no further mark is lost here.';
+const FUDGED_LATER_ANNOTATION = 'This follows from a factorisation that does not multiply out to your own equation, so it cannot earn marks.';
+const FUDGED_NOTE = 'Your factorisation does not multiply out to your own quadratic (which has no real roots), so the roots and the answer that follow from it cannot earn marks, even though the final number looks right. Check a factorisation by expanding it.';
 const ECF_AFTER_FLAG_ANNOTATION = 'Worked correctly from your own earlier value (error carried forward), so no further mark is lost here.';
 
 /** PR-2b: a rubric point that states the very value the arithmetic check found WRONG was derived
@@ -717,6 +719,8 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // the model wrote for a grade the checks then lowered is reconciled at stage 8.
   const modelAwardedSum = half(steps.reduce((a, s) => a + (Number(s.marksAwarded) || 0), 0));
   const arithmeticWrong = [];
+  let fudged = null;
+  let fudgedZeroed = 0;
   if (!questionIsObjective) {
     departures = acceptedDepartures(steps);
     for (const d of departures) {
@@ -730,6 +734,38 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
         if (steps[j].status === 'unattempted') continue;
         steps[j].marksAwarded = 0;
         zeroedBy.set(j, d.index);
+      }
+    }
+    // PR-2b · NO ECF THROUGH A FUDGED STEP (owner ruling; verify.cjs fudgedFactorisation). After a
+    // "factorisation" of a quadratic with no real roots that does not multiply out to it, the
+    // later steps of that part were reached THROUGH an invented line: they earn nothing (the
+    // final answer included, even when it is the right number), and the loss is charged ONCE, to
+    // the fudged step's own type — the departure ledger's mechanics, but NOT a departure (the
+    // student never left the question: no departureKind, no departure sentence).
+    fudged = departures.length === 0 ? fudgedFactorisation(steps) : null;
+    if (fudged) {
+      const f = steps[fudged.index];
+      const fk = partKey(f.part);
+      if (f.status === 'correct' && f.marksAwarded > 0) {
+        // the model credited the false line itself: it costs ½ there, as an arithmetic flag does
+        // (the same step may also hold the student's correctly derived quadratic)
+        f.marksAwarded = half(f.marksAwarded - 0.5);
+        f.status = f.marksAwarded > 0 ? 'partial' : 'incorrect';
+        f.teacherAnnotation = (f.marksAwarded > 0 ? '½ ' : '× ') + 'Check the factorisation here: ' + fudged.factorised + ' does not multiply out to ' + fudged.quadratic + '.';
+        f._flagged = true;
+        noFullMarks = true;
+      }
+      if (!f.mistakeType) f.mistakeType = 'calculation';
+      for (let j = fudged.index + 1; j < steps.length; j += 1) {
+        const t = steps[j];
+        if (partKey(t.part) !== fk || ['unattempted', 'withdrawn', 'missing'].includes(t.status)) continue;
+        if (t.marksAwarded > 0) fudgedZeroed += 1;
+        t.marksAwarded = 0;
+        t.status = 'incorrect';
+        t.mistakeType = null;
+        t._ecf = false;
+        t.teacherAnnotation = '× ' + FUDGED_LATER_ANNOTATION;
+        zeroedBy.set(j, fudged.index);
       }
     }
     // C4.1 · arithmetic: a plain numeric equality that is false is not a correct step.
@@ -892,6 +928,13 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
       const ded = half(Math.max(0, s._available - s.marksAwarded));
       if (s._flagged || s.marksAvailable != null || ded > s.marksDeducted) s.marksDeducted = ded;
     });
+    // PR-2b: the steps zeroed below a FUDGED step are charged ONCE, on the fudged step itself.
+    if (fudged) {
+      const f = steps[fudged.index];
+      let carried = 0;
+      zeroedBy.forEach((src, j) => { if (src === fudged.index) carried += Math.max(0, steps[j]._available - steps[j].marksAwarded); });
+      f.marksDeducted = half(half(Math.max(0, f._available - f.marksAwarded)) + carried);
+    }
     if (departures.length === 0) {
       const lost = half(totalMarks - marksAwarded);
       let sum = half(steps.reduce((a, s) => a + s.marksDeducted, 0));
@@ -907,8 +950,9 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
           }
         }
       } else if (sum < lost) {
-        // never onto an ECF step (CBSE 11): it carries no separate charge
-        const charge = steps.filter((s) => !s._ecf);
+        // never onto an ECF step (CBSE 11): it carries no separate charge — nor onto a step zeroed
+        // below a fudged step (PR-2b): its loss is already charged once, on the fudged step
+        const charge = steps.filter((s, i) => !s._ecf && !zeroedBy.has(i));
         const target = [...charge].reverse().find((s) => s.marksDeducted > 0 || s.status !== 'correct') || charge[charge.length - 1];
         if (target) target.marksDeducted = half(target.marksDeducted + (lost - sum));
       }
@@ -939,7 +983,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // (live GS-S10-a: "rays without arrowheads lose ½ mark per diagram") — that sentence goes.
   for (const cls of new Set(steps.map((s) => s._restoredFormat).filter(Boolean))) note = scrubSentences(note, cls.noteClaim);
   // PR-2b · A NOTE WRITTEN FOR A GRADE THE CHECKS LOWERED IS NOT LEFT STANDING. The model writes
-  // its note for the grade IT gave; when the arithmetic check then takes
+  // its note for the grade IT gave; when the arithmetic check or the fudged-step check then takes
   // marks from steps it credited, a note written for full marks praises work that is wrong (live
   // 2026-10-05: "Excellent solution! … calculations are exact" over "1232/308 is not 8",
   // GS-MM-05.Q4; "every step … executed flawlessly" over "50 − 16 = 36", CP02-Q08). If the model
@@ -948,6 +992,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   {
     const found = [];
     if (arithmeticWrong.length) found.push('Check the arithmetic in your working: ' + arithmeticWrong[0].left + ' is not ' + arithmeticWrong[0].right + '.');
+    if (fudged && fudgedZeroed > 0) found.push(FUDGED_NOTE);
     if (found.length) note = (modelAwardedSum >= totalMarks || !note) ? found.join(' ') : note + ' ' + found.join(' ');
   }
   // PR-3 (comments true): a note may not claim full marks / flawless work for an answer that did
