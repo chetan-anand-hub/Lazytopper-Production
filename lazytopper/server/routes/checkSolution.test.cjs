@@ -961,11 +961,25 @@ test('§7.6 the four batch prompt strings are present, and the LOCATE wording is
   assert.ok(!text.includes('CANNOT confidently locate or read'));
 });
 
-test('§7.7 N uploads still cost exactly ONE model call — this is a batch, not a fan-out', async () => {
+// ★ AMENDED by GRADER-CORE-1 PR-3 (spec C8 "papers are graded in chunks of ≤ 3 questions IN
+// PARALLEL"). Before PR-3 this pinned "N uploads cost exactly ONE model call"; a 10-question
+// paper as one call took 61–66 s and timed out at 55 s on every run. It is still a BATCH, not
+// a fan-out per photo: ⌈N/3⌉ calls, each carrying exactly its own questions' photos.
+test('§7.7 N uploads cost ⌈N/3⌉ model calls (C8 chunks of ≤ 3) — never one call per photo, never a photo in the wrong chunk', async () => {
   const h = buildImageRoute({ replies: [WS_OK([1, 2, 3, 4])] });
   await h.route.handleGradeWorksheet(
     { ...WORKSHEET_REQ([Q(1), Q(2), Q(3), Q(4)]), uploads: [UP(1), UP(2), UP(3), UP(4)] }, {});
-  assert.equal(h.calls.length, 1);
+  assert.equal(h.calls.length, 2, '4 questions → 2 chunks of 2 (balanced), in parallel');
+  const imagesOf = (c) => c.contents[0].parts.filter(isImage).map((p) => p.inline_data.data).sort();
+  const textOf = (c) => c.contents[0].parts.filter((p) => typeof p.text === 'string').map((p) => p.text).join('');
+  const seen = [];
+  for (const c of h.calls) {
+    const qs = [1, 2, 3, 4].filter((n) => textOf(c).includes('Q' + n + ' text'));
+    assert.equal(qs.length, 2, 'each chunk carries two questions');
+    assert.deepEqual(imagesOf(c), qs.map((n) => 'IMG' + n).sort(), 'a chunk carries exactly its own questions\' photos');
+    seen.push(...qs);
+  }
+  assert.deepEqual(seen.sort(), [1, 2, 3, 4], 'every question is in exactly one chunk');
   assert.equal(h.body().results.length, 4);
 });
 

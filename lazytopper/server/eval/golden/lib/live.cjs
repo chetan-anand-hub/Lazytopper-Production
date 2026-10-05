@@ -107,7 +107,11 @@ function createLiveClient(o) {
       if (status && status < 400) stats.ok += 1; else stats.errors += 1;
       const rec = {
         ts: new Date().toISOString(), pr: o.pr || 'PR-1', fn: ctx.fn || '?', case: ctx.jobKey || '?', run: ctx.run || 0,
-        config: o.configId, model, thinkingBudget, timeoutMs: config.GEMINI_TIMEOUT_MS, ok: Boolean(status && status < 400), httpStatus: status, errClass, latencyMs,
+        // timeoutMs: the per-call budget this request ran under (PR-3: grading calls carry their
+        // own; every other call runs on GEMINI_TIMEOUT_MS), plus GEMINI_TIMEOUT_MS itself.
+        config: o.configId, model, thinkingBudget, timeoutMs: call && call.timeoutMs ? call.timeoutMs : config.GEMINI_TIMEOUT_MS, geminiTimeoutMs: config.GEMINI_TIMEOUT_MS,
+        chunkKey: call && call.chunkKey ? call.chunkKey : null, attempt: call && call.attempt ? call.attempt : null,
+        ok: Boolean(status && status < 400), httpStatus: status, errClass, latencyMs,
         promptTokens: usage ? usage.promptTokenCount ?? null : null,
         outputTokens: usage ? usage.candidatesTokenCount ?? null : null,
         thinkingTokens: usage ? usage.thoughtsTokenCount ?? null : null,
@@ -139,21 +143,30 @@ function createLiveClient(o) {
     if (o.thinkingBudget != null && cfg && GRADING_WORKLOADS.has(cfg.workloadClass)) {
       effective = { ...cfg, thinkingConfig: { thinkingBudget: o.thinkingBudget } };
     }
+    // GRADER-CORE-1 PR-3 (C8): the core grades a paper in PARALLEL chunks, so a job has several
+    // calls in flight at once. Each call runs in its OWN child context (sharing the job's
+    // `calls` list), so the fetch wrapper attaches every HTTP record to the call that sent it.
+    // The chunk identity (`chunkKey`, `attempt` — telemetry hints the client never sends) is
+    // stored with the call: lib/replay.cjs matches a PR-3 run's calls by it, never by order.
     const call = { http: [] };
-    if (ctx) { ctx.currentCall = call; ctx.calls.push(call); }
-    try {
-      const r = await gem.callGemini(model, contents, effective);
-      call.ok = true;
-      call.text = r.text;
-      call.finishReason = r.raw && r.raw.candidates && r.raw.candidates[0] ? r.raw.candidates[0].finishReason || null : null;
-      return r;
-    } catch (e) {
-      call.ok = false;
-      call.error = { status: (e && (e.status || e.statusCode)) || null, message: redact(String((e && e.message) || e)).slice(0, 300) };
-      throw e;
-    } finally {
-      if (ctx) ctx.currentCall = null;
-    }
+    if (cfg && cfg.chunkKey) call.chunkKey = String(cfg.chunkKey);
+    if (cfg && Number.isFinite(cfg.attempt)) call.attempt = cfg.attempt;
+    if (cfg && Number.isFinite(cfg.timeoutMs)) call.timeoutMs = Math.floor(cfg.timeoutMs);
+    if (ctx) ctx.calls.push(call);
+    const runCall = async () => {
+      try {
+        const r = await gem.callGemini(model, contents, effective);
+        call.ok = true;
+        call.text = r.text;
+        call.finishReason = r.raw && r.raw.candidates && r.raw.candidates[0] ? r.raw.candidates[0].finishReason || null : null;
+        return r;
+      } catch (e) {
+        call.ok = false;
+        call.error = { status: (e && (e.status || e.statusCode)) || null, message: redact(String((e && e.message) || e)).slice(0, 300) };
+        throw e;
+      }
+    };
+    return ctx ? als.run({ ...ctx, currentCall: call }, runCall) : runCall();
   }
 
   function runInContext(meta, fn) {

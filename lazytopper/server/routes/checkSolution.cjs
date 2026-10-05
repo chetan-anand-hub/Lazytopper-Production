@@ -22,6 +22,9 @@ const {
 } = require('./objectiveScoring.cjs');
 const grading = require('../grading/index.cjs');
 const { createGradingCore } = require('../grading/core.cjs');
+// PR-3 (C9): what a grade CHARGES — the chargeable-question count, recorded on `res` before
+// every 2xx grading response (fair use commits exactly that; see grading/charge.cjs).
+const { chargeableCount, isChargeable, setChargeableCount } = require('../grading/charge.cjs');
 
 // Shared with the parser's own validation (the four statuses every pre-V2 client reads).
 const STEP_STATUS_VALUES = grading.LEGACY_STEP_STATUSES.slice();
@@ -124,6 +127,8 @@ function createCheckSolutionRoute(deps) {
   // and falls back to GEMINI_MODEL for every direct / legacy construction. The optional
   // `solutionCache` dep (C&I PR-3) reaches it through `deps` unchanged.
   const core = createGradingCore(deps);
+  // PR-3 (C8): the clock the grading deadline is measured on (a test may inject one).
+  const nowMs = typeof deps.now === 'function' ? deps.now : () => Date.now();
 
   /** OR-LIVE can verify which model graded in production without reading logs. A response
    *  HEADER sits outside every body-shape snapshot (G2). Guarded: a test double may have no
@@ -222,6 +227,9 @@ function createCheckSolutionRoute(deps) {
   }
 
   async function handleCheckSolution(req, res) {
+    // C8: the grading deadline runs from HERE — before the body is read, so a slow upload
+    // counts against the same budget the client is waiting on.
+    const startedAt = nowMs();
     let payload;
     try {
       payload = await readJson(req);
@@ -313,10 +321,12 @@ function createCheckSolutionRoute(deps) {
         single: true,
         autoDetect: autoDetect ? { topicVocabulary, fallbackMarks: marks } : null,
         label: '[check-solution]',
+        startedAt,
       });
       setGradingModelHeader(res, graded.modelUsed);
 
       if (!graded.ok) {
+        setChargeableCount(res, 0); // C9: a reply we could not use grades nothing, charges nothing
         return sendJson(res, 200, {
           ok: false,
           error: "We couldn't read the grading this time — please try again.",
@@ -324,6 +334,9 @@ function createCheckSolutionRoute(deps) {
       }
 
       const r = graded.results[0];
+      // C9: charged only when a grade was delivered (never couldNotRead, an unread option, a
+      // withheld grade, an answer that does not match the question, or an unattempted answer).
+      setChargeableCount(res, isChargeable(r) ? 1 : 0);
       const det = graded.detection || null;
       const detected = {
         detectedSubject: det ? det.detectedSubject : null,
@@ -670,7 +683,7 @@ function createCheckSolutionRoute(deps) {
   // Returns { ok, results, summary, modelUsed } where results is one normalised entry per
   // known question (graded OR couldNotRead) — or { ok:false } on a reply that could not be
   // used, or { gradingUnavailable:true } with no provider (the caller owns the HTTP status).
-  async function gradeStructuredSet({ questions, imageBase64, imageMimeType, subject, uploads, acceptsV2 }) {
+  async function gradeStructuredSet({ questions, imageBase64, imageMimeType, subject, uploads, acceptsV2, startedAt }) {
     // STUB-503 · GRADING PATH: signalled with a flag the caller turns into the 503, kept
     // DISTINCT from `{ ok: false }` (an unparseable model reply keeps its 200 copy).
     if (isStubMode()) {
@@ -684,6 +697,7 @@ function createCheckSolutionRoute(deps) {
       acceptsV2: acceptsV2 === true,
       single: false,
       label: '[grade-worksheet]',
+      startedAt,
     });
   }
 
@@ -691,6 +705,7 @@ function createCheckSolutionRoute(deps) {
   // per-question photos / the typed answers, then delegates to the core. The question set
   // is fetched at the CLIENT and posted here — the core never reaches into a session store.
   async function handleGradeWorksheet(req, res) {
+    const startedAt = nowMs(); // C8: the deadline runs from handler entry, before the body is read
     let payload;
     try {
       // A 5 MB PDF base64-inflates to ~6.7 MB, plus the question-set JSON — raise
@@ -792,7 +807,7 @@ function createCheckSolutionRoute(deps) {
     }
 
     try {
-      const graded = await gradeStructuredSet({ questions, imageBase64, imageMimeType, subject, uploads, acceptsV2 });
+      const graded = await gradeStructuredSet({ questions, imageBase64, imageMimeType, subject, uploads, acceptsV2, startedAt });
       // STUB-503 — checked BEFORE `!graded.ok`: "we couldn't read this" and "we cannot grade
       // at all right now" are different truths.
       if (graded.gradingUnavailable) {
@@ -800,6 +815,7 @@ function createCheckSolutionRoute(deps) {
       }
       setGradingModelHeader(res, graded.modelUsed);
       if (!graded.ok) {
+        setChargeableCount(res, 0); // C9: nothing graded, nothing charged
         return sendJson(res, 200, {
           ok: false,
           error: "We couldn't grade this worksheet — please try a clearer scan, or try again.",
@@ -807,6 +823,8 @@ function createCheckSolutionRoute(deps) {
       }
 
       const results = graded.results;
+      // C9: a partial paper charges only the questions that were actually graded.
+      setChargeableCount(res, chargeableCount(results));
       // Honest totals: the graded subtotal is SEPARATE from the full paper total so a
       // question that was not marked never deflates a final mark presented as complete.
       // Legacy: "not marked" = couldNotRead (as before). v2: also an answer that does not

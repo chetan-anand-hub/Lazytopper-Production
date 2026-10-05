@@ -60,7 +60,8 @@ function harness({ replies = [{}], reply = null, deps = {} } = {}) {
     readJson: async (req) => req,
     callGemini: async (model, contents, genConfig) => {
       calls.push({ model, contents, genConfig });
-      const r = reply ? reply({ model, contents, genConfig, prompt: textOf(contents) }) : replies[Math.min(calls.length - 1, replies.length - 1)];
+      // PR-3: a reply function may be async (a held / slow / never-answering model call).
+      const r = reply ? await reply({ model, contents, genConfig, prompt: textOf(contents) }) : replies[Math.min(calls.length - 1, replies.length - 1)];
       if (r instanceof Error) throw r;
       return { text: typeof r === 'string' ? r : JSON.stringify(r), raw: {} };
     },
@@ -76,7 +77,7 @@ function harness({ replies = [{}], reply = null, deps = {} } = {}) {
   });
   const res = { setHeader: (k, v) => { headers[k] = v; } };
   return {
-    calls, counters, headers,
+    calls, counters, headers, res,
     single: async (p) => { captured = null; await route.handleCheckSolution(p, res); return captured; },
     sheet: async (p) => { captured = null; await route.handleGradeWorksheet(p, res); return captured; },
     prompt: (i = 0) => textOf(calls[i].contents),
@@ -1064,13 +1065,15 @@ test('§MODEL.3 a 403, and a 400 naming the thinking budget, also fall back; a p
     await quietWarn(() => h.single(single()));
     assert.equal(h.counters.length, 1, err.message);
   }
-  for (const err of [unavailable(400, 'Invalid JSON payload received'), unavailable(500, 'internal error')]) {
+  // ★ AMENDED by PR-3 (C8 + FU-GRADER-503-NOT-RETRIED): a 5xx is now retried ONCE inside the
+  // grading time budget (a plain 400 still is not). Neither is a model-unavailable fallback.
+  for (const [err, calls] of [[unavailable(400, 'Invalid JSON payload received'), 1], [unavailable(500, 'internal error'), 2]]) {
     const h = harness({ reply: () => err, deps: STRONG });
     const origError = console.error;
     console.error = () => {}; // the route logs the provider error before its 500
-    try { h.out = await h.single(single()); } finally { console.error = origError; }
+    try { await quietWarn(async () => { h.out = await h.single(single()); }); } finally { console.error = origError; }
     assert.equal(h.out.status, 500, err.message);
-    assert.deepEqual([h.calls.length, h.counters.length], [1, 0]);
+    assert.deepEqual([h.calls.length, h.counters.length], [calls, 0], err.message);
   }
   assert.equal(isModelUnavailable({ status: 404 }), true);
   assert.equal(isModelUnavailable({ status: 400, message: 'contents must not be empty' }), false);
@@ -1137,9 +1140,255 @@ test('§ROUTER.3 a group whose reply is unparseable twice makes ONLY its own que
   assert.deepEqual([b.gradedCount, b.pendingCount], [1, 1]);
 });
 
-test('§ROUTER.4 CONTROL: single mode sends the same set as ONE call on the grading model', async () => {
+// ★ AMENDED by PR-3 (spec C8): single mode no longer sends a paper as ONE call — the same
+// set goes to the grading model in chunks of ≤ 3 (6 → 3 + 3), every chunk on that model.
+test('§ROUTER.4 CONTROL: single mode sends the same set to the grading model only, in chunks of ≤ 3', async () => {
   const h = harness({ reply: echoReply, deps: STRONG });
   await h.sheet(sheet(ROUTED_SET, { uploads: [{ qNumber: 5, ...PHOTO }, { qNumber: 6, ...PHOTO }] }));
-  assert.deepEqual(h.calls.map((c) => c.model), ['strong-model']);
-  assert.deepEqual(qNumsIn(h.prompt()), [1, 2, 3, 4, 5, 6]);
+  assert.deepEqual(h.calls.map((c) => c.model), ['strong-model', 'strong-model']);
+  const perCall = h.calls.map((c, i) => qNumsIn(h.prompt(i)));
+  assert.ok(perCall.every((qs) => qs.length <= 3), JSON.stringify(perCall));
+  assert.deepEqual(perCall.flat().sort((a, b) => a - b), [1, 2, 3, 4, 5, 6]);
+});
+
+/* ══ §C8 · NO TIMEOUTS, FASTER (GRADER-CORE-1 PR-3) ══════════════════════════
+   Chunks of ≤ 3 in parallel, one request deadline independent of GEMINI_TIMEOUT_MS, ONE retry
+   (a timed-out chunk as singles), settled handling, merge by question id, a bounded
+   solution-cache pre-phase. Deadlines here run in MILLISECONDS through the core's test seam
+   `gradingTimingOverride` (production clamps them to [20 s, 70 s]). */
+
+const { planChunks } = require('./core.cjs');
+const timing = require('./timing.cjs');
+const charge = require('./charge.cjs');
+const FAST = (o = {}) => ({ gradingTimingOverride: { deadlineMs: 600, chunkTimeoutMs: 150, cacheBudgetMs: 60, marginMs: 20, minRetryMs: 60, ...o } });
+const never = () => new Promise(() => {});
+const delay = (ms, v) => new Promise((r) => setTimeout(() => r(v), ms));
+const typedPaper = (n) => Array.from({ length: n }, (_, i) => sq(i + 1, { marks: 2, questionText: 'Question number ' + (i + 1) + ': solve it.' }));
+
+test('§C8.1 planChunks: ≤ 3 per chunk, balanced, request order kept, and a repeated printed number never shares a chunk', () => {
+  const ids = (qs) => planChunks(qs).map((c) => c.map((q) => q.qNumber));
+  const N = (...ns) => ns.map((n) => ({ qNumber: n }));
+  assert.deepEqual(ids(N(1)), [[1]]);
+  assert.deepEqual(ids(N(1, 2, 3)), [[1, 2, 3]], 'a set of ≤ 3 is ONE chunk — byte-identical to the pre-PR-3 request');
+  assert.deepEqual(ids(N(1, 2, 3, 4)), [[1, 2], [3, 4]], 'balanced: the slowest chunk decides the time');
+  assert.deepEqual(ids(N(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)), [[1, 2, 3], [4, 5, 6], [7, 8], [9, 10]]);
+  const dup = planChunks(N(4, 5, 5, 6));
+  assert.ok(dup.every((c) => new Set(c.map((q) => q.qNumber)).size === c.length), JSON.stringify(dup));
+  assert.equal(dup.flat().length, 4, 'nothing dropped');
+  // CONTROL: without the repeat the same four questions form two chunks of two.
+  assert.deepEqual(ids(N(4, 5, 7, 6)), [[4, 5], [7, 6]]);
+});
+
+test('§C8.2 a 10-question paper is graded as 4 chunk calls IN PARALLEL (all in flight before any answers)', async () => {
+  let release;
+  const gate = new Promise((r) => { release = r; });
+  let inFlight = 0;
+  let peak = 0;
+  const h = harness({ reply: async (a) => { inFlight += 1; peak = Math.max(peak, inFlight); await gate; inFlight -= 1; return echoReply(a); } });
+  const pending = h.sheet(sheet(typedPaper(10)));
+  for (let i = 0; i < 20 && h.calls.length < 4; i += 1) await new Promise((r) => setImmediate(r));
+  assert.equal(h.calls.length, 4, 'every chunk must be sent before the first one answers');
+  release();
+  const out = await pending;
+  assert.equal(peak, 4);
+  assert.deepEqual(h.calls.map((c, i) => qNumsIn(h.prompt(i)).length), [3, 3, 2, 2]);
+  assert.equal(out.status, 200);
+  assert.deepEqual([out.body.gradedCount, out.body.pendingCount, out.body.results.length], [10, 0, 10]);
+  assert.deepEqual(out.body.results.map((r) => r.qNumber), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 'results stay in request order');
+});
+
+test('§C8.3 ★ TWO QUESTIONS PRINTED "Q5" are graded independently — merge by question id, never by number', async () => {
+  // Controller B's live finding (OR-LIVE L3 on dd338130): both "Q5"s came back couldNotRead.
+  const A = 'Find the ratio in which the y-axis divides the segment joining (5, -6) and (-1, -4).';
+  const B = 'A myopic person cannot see beyond 80 cm. Name the lens and find its power.';
+  const reply = ({ prompt }) => REPLY(...qNumsIn(prompt).map((n) => R(n, [S({ marksAwarded: prompt.includes(A) && n === 5 ? 2 : prompt.includes(B) && n === 5 ? 1 : 1, studentWork: 'w' })])));
+  const h = harness({ reply });
+  const out = await h.sheet(sheet([sq(4, { marks: 2 }), sq(5, { marks: 2, questionText: A }), sq(5, { marks: 3, questionText: B }), sq(6, { marks: 2 })]));
+  const [q4, q5a, q5b, q6] = out.body.results;
+  assert.deepEqual([q5a.couldNotRead, q5b.couldNotRead], [false, false], 'neither Q5 may be lost to the collision');
+  assert.deepEqual([q5a.totalMarks, q5a.marksAwarded], [2, 2], 'the first Q5 keeps ITS OWN grade');
+  assert.deepEqual([q5b.totalMarks, q5b.marksAwarded], [3, 1], 'the second Q5 keeps ITS OWN grade');
+  assert.deepEqual([q4.qNumber, q6.qNumber], [4, 6]);
+  assert.equal(out.body.gradedCount, 4);
+  const withQ5 = h.calls.map((c, i) => h.prompt(i)).filter((p) => qNumsIn(p).includes(5));
+  assert.equal(withQ5.length, 2, 'the two Q5s travel in DIFFERENT chunks');
+  assert.ok(withQ5.every((p) => qNumsIn(p).filter((n) => n === 5).length === 1));
+});
+
+test('§C8.4 one chunk failing never kills the paper: its questions are "not graded", the rest graded, HTTP 200, uncharged', async () => {
+  const bad = unavailable(400, 'Invalid JSON payload received'); // not retryable
+  const h = harness({ reply: (a) => (qNumsIn(a.prompt).includes(3) ? bad : echoReply(a)) });
+  await quietWarn(async () => { h.out = await h.sheet(sheet(typedPaper(4))); });
+  const b = h.out.body;
+  assert.equal(h.out.status, 200);
+  assert.deepEqual(b.results.map((r) => r.couldNotRead), [false, false, true, true]);
+  assert.deepEqual([b.gradedCount, b.pendingCount], [2, 2]);
+  assert.equal(b.results[2].note, grading.NOT_GRADED_ERROR_NOTE, 'honest: not marked, try again — never "re-upload"');
+  assert.ok(!('notGraded' in b.results[2]), 'no v2 field without acceptsV2');
+  assert.equal(charge.chargeableCountOf(h.res), 2, 'C9: only the two graded questions are chargeable');
+  // CONTROL: the same paper with every chunk answering grades all four, and charges four.
+  const ok = harness({ reply: echoReply });
+  const all = (await ok.sheet(sheet(typedPaper(4)))).body;
+  assert.deepEqual([all.gradedCount, all.pendingCount, charge.chargeableCountOf(ok.res)], [4, 0, 4]);
+});
+
+test('§C8.5 ★ a chunk that TIMES OUT is retried ONCE, smaller (as single-question calls), inside the deadline', async () => {
+  const h = harness({ reply: (a) => (a.genConfig.attempt === 1 && qNumsIn(a.prompt).length > 1 ? never() : echoReply(a)), deps: FAST() });
+  await quietWarn(async () => { h.out = await h.sheet(sheet(typedPaper(3))); });
+  assert.equal(h.out.status, 200);
+  assert.deepEqual(h.out.body.results.map((r) => [r.couldNotRead, r.marksAwarded]), [[false, 1], [false, 1], [false, 1]]);
+  assert.deepEqual(h.calls.map((c) => [c.genConfig.attempt, qNumsIn(textOfCallP(c)).length]), [[1, 3], [2, 1], [2, 1], [2, 1]]);
+  assert.deepEqual(h.calls.slice(1).map((c) => c.genConfig.chunkKey).sort(), ['q0', 'q1', 'q2']);
+  assert.equal(h.calls[0].genConfig.chunkKey, 'q0+q1+q2');
+  // A question that never answers at either attempt ends NOT GRADED (timeout) by the deadline;
+  // its chunk-mate is SAVED by the split retry (chunk [Q3, Q4] times out → Q3 alone and Q4 alone).
+  const t0 = Date.now();
+  const dead = harness({ reply: (a) => (qNumsIn(a.prompt).includes(3) ? never() : echoReply(a)), deps: FAST() });
+  await quietWarn(async () => { dead.out = await dead.sheet(sheet(typedPaper(4), { acceptsV2: true })); });
+  const ms = Date.now() - t0;
+  assert.ok(ms < 600 + 200, 'answered by the deadline (' + ms + ' ms)');
+  assert.equal(dead.out.status, 200, 'never a 502/503/504 the client would re-send');
+  assert.deepEqual(dead.out.body.results.map((r) => r.notGraded), [null, null, 'timeout', null]);
+  assert.equal(dead.out.body.results[2].note, grading.NOT_GRADED_TIMEOUT_NOTE);
+  assert.deepEqual([dead.out.body.gradedCount, dead.out.body.pendingCount], [3, 1]);
+  assert.equal(charge.chargeableCountOf(dead.res), 3, 'C9: the timed-out question is not charged');
+});
+const textOfCallP = (c) => c.contents[0].parts.filter((p) => typeof p.text === 'string').map((p) => p.text).join('');
+
+test('§C8.6 when EVERY chunk fails with a provider error the handlers keep their 500 (not re-sent by the client) — answered by the deadline', async () => {
+  const t0 = Date.now();
+  const h = harness({ reply: () => never(), deps: FAST() });
+  const origError = console.error;
+  console.error = () => {};
+  try {
+    await quietWarn(async () => { h.single1 = await h.single(single()); h.sheet1 = await h.sheet(sheet(typedPaper(2))); });
+  } finally { console.error = origError; }
+  assert.deepEqual([h.single1.status, h.sheet1.status], [500, 500]);
+  assert.ok(Date.now() - t0 < 2 * 600 + 300, 'each request ended by its deadline');
+  // a one-question chunk is not cut at the chunk cap (its retry would be the same size): one call, the whole budget
+  assert.ok(h.calls[0].genConfig.timeoutMs > 150, 'single-question first attempt gets the remaining budget, not the chunk cap');
+});
+
+test('§C8.7 retry policy: a 5xx or a 429 retries ONCE at the SAME size; a parse miss too; a plain 400 never', async () => {
+  const cases = [[unavailable(503, 'The model is overloaded.'), 2], [unavailable(429, 'rate'), 2], ['not json', 2], [unavailable(400, 'bad request'), 1]];
+  for (const [first, want] of cases) {
+    const h = harness({ reply: (a) => (a.genConfig.attempt === 1 ? first : echoReply(a)) });
+    await quietWarn(async () => { h.out = await h.sheet(sheet(typedPaper(2))); });
+    assert.equal(h.calls.length, want, String(first.message || first));
+    assert.ok(h.calls.every((c, i) => qNumsIn(h.prompt(i)).length === 2), 'never split for a non-timeout failure');
+    if (want === 2) assert.equal(h.out.body.gradedCount, 2, 'the retry graded both');
+  }
+});
+
+test('§C8.8 ★ the solution-cache pre-phase is BOUNDED: a cache that never answers cannot hold the grade, and a late scheme never enters a prompt', async () => {
+  const SCHEME = ['Write the formula [1]', 'Substitute [1]'];
+  const run = async (cacheFn) => {
+    const h = harness({ reply: echoReply, deps: { ...FAST(), solutionCache: { getOrCreateModelSolution: cacheFn } } });
+    const t0 = Date.now();
+    await quietWarn(async () => { h.out = await h.sheet(sheet([sq(1, { marks: 2 })])); });
+    return { h, ms: Date.now() - t0 };
+  };
+  const hung = await run(() => never());
+  assert.equal(hung.h.out.status, 200);
+  assert.ok(hung.ms < 600, 'graded without waiting for the cache (' + hung.ms + ' ms)');
+  assert.ok(!hung.h.prompt().includes('Write the formula'), 'no scheme arrived, none used');
+  const late = await run(() => delay(300, { schemeSteps: SCHEME }));
+  assert.ok(!late.h.prompt().includes('Write the formula'), 'a scheme arriving AFTER the budget is never used');
+  // CONTROL: a scheme that arrives in time IS used.
+  const fast = await run(async () => ({ schemeSteps: SCHEME }));
+  assert.ok(fast.h.prompt().includes('Write the formula'), 'an in-time scheme reaches the prompt');
+});
+
+test('§C8.9 ★ grading is INDEPENDENT of GEMINI_TIMEOUT_MS: every grading call carries its own budget; the config never reads it', async () => {
+  const h = harness({ reply: echoReply });
+  await h.sheet(sheet(typedPaper(4)));
+  await h.single(single());
+  for (const c of h.calls) {
+    assert.ok(Number.isFinite(c.genConfig.timeoutMs) && c.genConfig.timeoutMs <= timing.DEFAULT_GRADING_DEADLINE_MS, 'explicit per-call timeout');
+    assert.ok(Number.isFinite(c.genConfig.deadlineAt), 'absolute deadline');
+  }
+  assert.ok(h.calls[0].genConfig.timeoutMs <= timing.DEFAULT_GRADING_CHUNK_TIMEOUT_MS, 'a multi-question chunk is capped at the chunk timeout');
+  const { resolveConfig } = require('../services/serverConfig.cjs');
+  const saved = process.env.GEMINI_TIMEOUT_MS;
+  const seen = [];
+  try {
+    for (const v of [undefined, '55000', '80000']) {
+      if (v === undefined) delete process.env.GEMINI_TIMEOUT_MS; else process.env.GEMINI_TIMEOUT_MS = v;
+      const c = resolveConfig();
+      seen.push([c.GEMINI_TIMEOUT_MS, c.GRADING_DEADLINE_MS, c.GRADING_CHUNK_TIMEOUT_MS, c.GRADING_CACHE_BUDGET_MS, timing.serverWorstCaseMs({ deadlineMs: c.GRADING_DEADLINE_MS }, c.GEMINI_TIMEOUT_MS)]);
+    }
+  } finally {
+    if (saved === undefined) delete process.env.GEMINI_TIMEOUT_MS; else process.env.GEMINI_TIMEOUT_MS = saved;
+  }
+  assert.deepEqual(seen.map((s) => s[0]), [55000, 55000, 80000], 'GEMINI_TIMEOUT_MS still read (non-grading calls keep it, D15)');
+  for (const s of seen) assert.deepEqual(s.slice(1), [70000, 45000, 10000, 70000], 'the grading budget does not move with GEMINI_TIMEOUT_MS');
+  assert.ok(70000 < timing.CLIENT_PER_ATTEMPT_BUDGET_MS && 70000 < 75000, 'server worst case < client per-attempt 90 s and < the 75 s in-flight duplicate wait');
+  // The clamps: a value past the client budget cannot be configured.
+  assert.deepEqual(timing.resolveGradingTiming({ GRADING_DEADLINE_MS: '200000', GRADING_CHUNK_TIMEOUT_MS: '1', GRADING_CACHE_BUDGET_MS: '99999' }),
+    { deadlineMs: 70000, chunkTimeoutMs: 10000, cacheBudgetMs: 20000 });
+});
+
+test('§C8.10 a CHUNK of a one-document paper is told the document holds other answers; a whole set is byte-identical to before', async () => {
+  const doc = { imageBase64: 'UERG', imageMimeType: 'application/pdf' };
+  const four = harness({ reply: echoReply });
+  await four.sheet(sheet(typedPaper(4).map((q) => ({ ...q, textAnswer: '' })), doc));
+  assert.equal(four.calls.length, 2);
+  assert.match(four.prompt(0), /This request marks ONLY the 2 questions listed below \(Q1, Q2\)\. The document also holds the student's answers to 2 other questions/);
+  assert.match(four.prompt(1), /\(Q3, Q4\)/);
+  // CONTROL: a 3-question paper is one chunk and carries no such sentence.
+  const three = harness({ reply: echoReply });
+  await three.sheet(sheet(typedPaper(3).map((q) => ({ ...q, textAnswer: '' })), doc));
+  assert.equal(three.calls.length, 1);
+  assert.ok(!three.prompt().includes('This request marks ONLY'));
+});
+
+test('§C8.11 v2 per-question `notGraded`: null on a grade, "unreadable" on couldNotRead, "timeout"/"error" when marking did not finish; absent without the flag', async () => {
+  const h = harness({ reply: ({ prompt }) => REPLY(...qNumsIn(prompt).map((n) => (n === 2 ? { qNumber: 2, couldNotRead: true, note: 'smudged' } : R(n, [S()])))) });
+  const v2 = (await h.sheet(sheet(typedPaper(3).map((q) => ({ ...q, textAnswer: '' })), { imageBase64: 'UERG', imageMimeType: 'application/pdf', acceptsV2: true }))).body;
+  assert.deepEqual(v2.results.map((r) => r.notGraded), [null, 'unreadable', null]);
+  const legacy = (await h.sheet(sheet(typedPaper(3).map((q) => ({ ...q, textAnswer: '' })), { imageBase64: 'UERG', imageMimeType: 'application/pdf' }))).body;
+  assert.ok(legacy.results.every((r) => !('notGraded' in r)), 'G2: the field never appears without acceptsV2');
+});
+
+/* ══ §C9 · CHARGING — what the core tells fair use (grading/charge.cjs) ═══════ */
+
+test('§C9.1 chargeable = a DELIVERED grade only: never couldNotRead, timeout, failure, answer mismatch (legacy too), unread option, withheld, unattempted', async () => {
+  const mismatch = R(1, [S({ studentWork: 'Plants take carbon dioxide from the air', status: 'incorrect', marksAwarded: 0 })], {
+    addressesQuestion: 'no', mismatchEvidence: { question: 'Solve x^2 - 2x - 8 = 0', work: 'Plants take carbon dioxide from the air' } });
+  for (const acceptsV2 of [false, true]) {
+    const h = harness({ replies: [REPLY(mismatch)] });
+    const out = await h.single(single({ textAnswer: 'Plants take carbon dioxide from the air', acceptsV2 }));
+    assert.equal(out.status, 200);
+    assert.equal(charge.chargeableCountOf(h.res), 0, 'an answer that does not match the question is never charged (acceptsV2=' + acceptsV2 + ')');
+  }
+  // couldNotRead on the single endpoint (legacy 200 {ok:false}) and a parse failure: 0.
+  const cnr = harness({ replies: [REPLY({ qNumber: 1, couldNotRead: true, note: 'blurred' })] });
+  await cnr.single(single({ textAnswer: '', imageBase64: 'UEhPVE8=', imageMimeType: 'image/jpeg' }));
+  assert.equal(charge.chargeableCountOf(cnr.res), 0);
+  const miss = harness({ replies: ['not json', 'still not json'] });
+  await quietWarn(async () => { await miss.single(single()); });
+  assert.equal(charge.chargeableCountOf(miss.res), 0);
+  // unattempted (no answer input at all) in a set: 0 for it.
+  const un = harness({ reply: echoReply });
+  await un.sheet(sheet([sq(1), sq(2, { textAnswer: '' })]));
+  assert.equal(charge.chargeableCountOf(un.res), 1);
+  // CONTROL: a delivered grade is charged.
+  const ok = harness({ replies: [REPLY(R(1, [S()]))] });
+  await ok.single(single());
+  assert.equal(charge.chargeableCountOf(ok.res), 1);
+  // the side channel is invisible to every serialiser
+  assert.deepEqual(Object.keys(ok.res).includes(String(charge.GRADED_COUNT)), false);
+  assert.equal(JSON.stringify(ok.res).includes('chargeable'), false);
+});
+
+test('§C9.2 a legacy MCQ whose pick could not be read keeps today\'s 0 for the client, but is NOT charged', async () => {
+  const h = harness({ replies: [REPLY(R(1, [S({ studentWork: 'some working', status: 'partial', marksAwarded: 0 })], { finalAnswerCorrect: null }))] });
+  const b = (await h.sheet(sheet([MCQ({ textAnswer: '' })], { imageBase64: 'UERG', imageMimeType: 'application/pdf' }))).body;
+  assert.equal(b.results[0].marksAwarded, 0);
+  assert.equal(b.results[0].couldNotRead, false, 'legacy shape unchanged (C7: the honest "ungraded" is opt-in)');
+  assert.equal(charge.chargeableCountOf(h.res), 0);
+  // CONTROL: a READ pick is a grade, and is charged.
+  const r = harness({ replies: [REPLY(R(1, [S({ studentWork: '(c) TtWW', status: 'correct', marksAwarded: 0 })], { finalAnswerCorrect: true }))] });
+  await r.sheet(sheet([MCQ({ textAnswer: '' })], { imageBase64: 'UERG', imageMimeType: 'application/pdf' }));
+  assert.equal(charge.chargeableCountOf(r.res), 1);
 });

@@ -244,6 +244,11 @@ const UNREAD_OPTION_NOTE = 'We could not read which option you chose, so this qu
 const NO_ANSWER_SUBMITTED_NOTE = 'No answer to this question was submitted, so it earns no marks.';
 const NOT_ATTEMPTED_NOTE = 'This question was not attempted, so it earns no marks.';
 const NO_ANSWER_ON_PAGE_NOTE = 'No answer to this question was found on your page, so it earns no marks — if you did answer it, check that the page is included and the question number is written beside it.';
+// GRADER-CORE-1 PR-3 (C8): a question whose marking did not FINISH — its time ran out, or the
+// model call / reply failed after its one retry. Not the student's fault and not "re-upload":
+// nothing was marked, nothing is charged (C9), and pressing again is the fix.
+const NOT_GRADED_TIMEOUT_NOTE = "We couldn't finish marking this question in time, so it has not been marked — please check it again.";
+const NOT_GRADED_ERROR_NOTE = "We couldn't mark this question this time, so it has not been marked — please check it again.";
 const SINGLE_COULD_NOT_READ_MESSAGE = "We couldn't read your answer clearly enough to mark it — please retake the photo in good light, or type your answer, and check again.";
 
 module.exports = {
@@ -295,4 +300,6 @@ module.exports = {
   NOT_ATTEMPTED_NOTE,
   NO_ANSWER_ON_PAGE_NOTE,
   SINGLE_COULD_NOT_READ_MESSAGE,
+  NOT_GRADED_TIMEOUT_NOTE,
+  NOT_GRADED_ERROR_NOTE,
 };

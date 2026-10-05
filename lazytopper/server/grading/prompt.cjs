@@ -165,11 +165,17 @@ function rulesText({ transport, hasAnyTyped, anyScheme, subjectMode, nonce, docM
  *   questions: Array<object>, uploadByNumber: Map<number, {imageBase64:string, imageMimeType:string}>,
  *   document: {imageBase64:string, imageMimeType:string}|null, subject: string, nonce: string,
  *   buildGeminiImagePart: Function, autoDetect?: {topicVocabulary: Array}|null,
+ *   otherQuestionsInDocument?: number,
  * }} input
+ *   otherQuestionsInDocument (PR-3, C8): when ONE uploaded document holds the answers to the
+ *   whole paper but this request carries only a CHUNK of its questions, the number of the
+ *   paper's other questions. The model is then told to mark only the listed ones. 0/absent
+ *   (a whole set, or any other transport) renders byte-identically to before.
  * @returns {{ contents: Array, transport: string, hasAnyTyped: boolean }}
  */
 function buildGradingContents(input) {
   const { questions, uploadByNumber, document, subject, nonce, buildGeminiImagePart, autoDetect } = input;
+  const others = Math.max(0, Math.floor(Number(input.otherQuestionsInDocument) || 0));
   const transport = transportOf({ uploadByNumber, document });
   const hasAnyTyped = questions.some((q) => String((q && q.textAnswer) || '').trim().length > 0);
   const anyScheme = questions.some((q) => Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0);
@@ -181,6 +187,11 @@ function buildGradingContents(input) {
     roleSentence(transport, docMime, Boolean(autoDetect)) + '\n\n' +
     fencedNotInstructionsPrompt(nonce) + '\n\n' +
     'Grade this student\'s ' + (questions.length === 1 ? 'answer' : 'answers') + '. There ' + (questions.length === 1 ? 'is 1 question' : 'are ' + questions.length + ' questions') + '.\n\n' +
+    (transport === 'document' && others > 0
+      ? 'This request marks ONLY the ' + (questions.length === 1 ? 'question' : questions.length + ' questions') + ' listed below (' +
+        questions.map((q) => 'Q' + q.qNumber).join(', ') + '). The document also holds the student\'s answers to ' + others +
+        ' other question' + (others === 1 ? '' : 's') + ', which are marked separately — do not grade them and do not include them in "results".\n\n'
+      : '') +
     R.DERIVE_RUBRIC_FIRST_PROMPT + '\n\n' +
     'QUESTIONS AND MARKING SCHEMES:';
   const closing =

@@ -206,7 +206,10 @@ async function main() {
         requestDigest: job.requestDigest, model: cfg.model, thinkingBudget: cfg.thinkingBudget,
         handlerStatus: res.httpStatus, wallMs: res.wallMs, bodyDigest: digest(res.body), cacheHookCalls: res.cacheHookCalls,
         harnessError: res.harnessError ? redact(res.harnessError).slice(0, 300) : null,
-        calls: calls.map((c) => ({ ok: c.ok === true, text: c.ok ? c.text : undefined, finishReason: c.finishReason || null, error: c.ok ? undefined : c.error, http: c.http || [] })),
+        // PR-3 (C8): each stored call carries the core's chunk identity, so the CI replay can
+        // match parallel chunk calls (and their one retry) by identity, not by finish order.
+        calls: calls.map((c) => ({ ok: c.ok === true, text: c.ok ? c.text : undefined, finishReason: c.finishReason || null, error: c.ok ? undefined : c.error, http: c.http || [],
+          ...(c.chunkKey ? { chunkKey: c.chunkKey } : {}), ...(c.attempt ? { attempt: c.attempt } : {}), ...(c.timeoutMs ? { timeoutMs: c.timeoutMs } : {}) })),
       };
       fs.appendFileSync(file, redact(JSON.stringify(rec)) + '\n');
       finished += 1;

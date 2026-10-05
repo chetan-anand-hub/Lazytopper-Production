@@ -40,19 +40,48 @@ class ReplayExhaustedError extends Error {
  * Replay one stored job record. `planJob` is the planner's job (same jobKey).
  * `callGeminiOverride` exists ONLY so a test can prove the network block fires (M1).
  */
+const modelOf = (c) => (c && c.http && c.http[0] && c.http[0].model) || null;
+
+/**
+ * Pick the stored call that answers one live request. GRADER-CORE-1 PR-3 (C8) grades a paper in
+ * PARALLEL CHUNKS with one bounded retry, so calls are matched by identity, never by order:
+ *   • KEYED records (written by PR-3+ live runs: every stored call carries the core's
+ *     `chunkKey` — the question ids it graded — and `attempt`): the call with the same model,
+ *     chunkKey and attempt. A request the record never made (the code now chunks differently)
+ *     finds nothing and fails — the honest signal that a new live run is needed.
+ *   • LEGACY records (PR-1/PR-2 runs: one call per routed group, plus the parse-miss retry):
+ *     the k-th ATTEMPT of any chunk gets the k-th stored call for that model (the last one if
+ *     there are fewer). Every chunk of a paper therefore reads the SAME whole-paper reply and
+ *     takes only its own questions from it — the merged result is what the single call gave.
+ *   • No attempt hint at all (a caller outside the core): first unconsumed call for the model,
+ *     as before.
+ * @returns {number} the index of the stored call, or -1.
+ */
+function pickStoredCall(calls, used, model, cfg) {
+  const keyed = calls.some((c) => c && c.chunkKey);
+  const attempt = cfg && Number.isFinite(cfg.attempt) ? cfg.attempt : null;
+  if (keyed) {
+    const key = cfg && cfg.chunkKey ? cfg.chunkKey : null;
+    return calls.findIndex((c, i) => !used.has(i) && modelOf(c) === model && (c.chunkKey || null) === key && (c.attempt || 1) === (attempt || 1));
+  }
+  if (attempt !== null) {
+    const forModel = calls.map((_, i) => i).filter((i) => modelOf(calls[i]) === model);
+    const pool = forModel.length ? forModel : calls.map((_, i) => i);
+    return pool.length ? pool[Math.min(attempt, pool.length) - 1] : -1;
+  }
+  let at = calls.findIndex((c, i) => !used.has(i) && modelOf(c) === model);
+  if (at < 0) at = calls.findIndex((_, i) => !used.has(i));
+  return at;
+}
+
 async function replayJob(planJob, record, opts = {}) {
-  const queue = (record.calls || []).slice();
-  let served = 0;
-  const callGemini = opts.callGeminiOverride || (async (model) => {
-    // GRADER-CORE-1 PR-2 router: one job may call two models, in parallel groups. A stored
-    // call is matched to the request by MODEL (first unconsumed call for that model), so
-    // replay does not depend on which group finished first. One-model jobs are unchanged.
-    const modelOf = (c) => (c && c.http && c.http[0] && c.http[0].model) || null;
-    let at = queue.findIndex((c) => modelOf(c) === model);
-    if (at < 0) at = 0;
-    const next = queue.splice(at, 1)[0];
+  const calls = (record.calls || []).slice();
+  const used = new Set();
+  const callGemini = opts.callGeminiOverride || (async (model, _contents, cfg) => {
+    const at = pickStoredCall(calls, used, model, cfg);
+    const next = at >= 0 ? calls[at] : null;
     if (!next) throw new ReplayExhaustedError(record.jobKey);
-    served += 1;
+    used.add(at);
     if (next.ok) return { text: next.text, raw: { candidates: [{ finishReason: next.finishReason || null }] } };
     const err = new Error(next.error ? next.error.message : 'stored model error');
     err.status = next.error ? next.error.status : null;
@@ -71,10 +100,12 @@ async function replayJob(planJob, record, opts = {}) {
   return {
     ...out,
     requestDigestMatches: planJob.requestDigest === record.requestDigest,
-    servedCalls: served,
-    unusedCalls: queue.length,
+    // Distinct stored calls the replay used / never used (a legacy whole-paper reply serves
+    // every chunk of its paper, and counts once).
+    servedCalls: used.size,
+    unusedCalls: calls.length - used.size,
     bodyChanged: record.bodyDigest ? digest(out.body) !== record.bodyDigest : null,
   };
 }
 
-module.exports = { loadRun, replayJob, readJsonl, ReplayExhaustedError };
+module.exports = { loadRun, replayJob, readJsonl, ReplayExhaustedError, pickStoredCall };

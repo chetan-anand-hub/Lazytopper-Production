@@ -514,6 +514,41 @@ function createGeminiClient(cfg) {
     throw lastErr;
   }
 
+  // GRADER-CORE-1 PR-3 (C8): the SAME 429 back-off, bounded by an absolute deadline — used only
+  // when the caller passes `deadlineAt` (the grading core does; nothing else does, so every
+  // other caller keeps `withRetry` above byte-for-byte). A back-off sleep (Retry-After
+  // included — capped here, never honoured past the deadline) that would leave less than
+  // MIN_ATTEMPT_MS for the next attempt is not taken: the 429 is returned to the caller,
+  // whose own retry policy decides inside the same budget.
+  const MIN_ATTEMPT_MS = 1000;
+  async function withRetryBefore(fn, deadlineAt, maxAttempts = 5) {
+    const baseDelayMs = 1000;
+    let lastErr;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      try {
+        return await fn();
+      } catch (err) {
+        const status = err && (err.status || err.statusCode);
+        if (status === 429) {
+          lastErr = err;
+          if (attempt < maxAttempts - 1) {
+            let delayMs = baseDelayMs * Math.pow(2, attempt);
+            const retryAfter = err.retryAfter;
+            if (retryAfter) {
+              const parsed = parseInt(retryAfter, 10);
+              if (!isNaN(parsed)) delayMs = parsed * 1000;
+            }
+            if (Date.now() + delayMs + MIN_ATTEMPT_MS > deadlineAt) throw err;
+            await sleep(delayMs);
+            continue;
+          }
+        }
+        throw err;
+      }
+    }
+    throw lastErr;
+  }
+
   async function callGemini(model, finalContents, config) {
     // Telemetry bookkeeping. Captured before anything else so the stack still
     // holds the calling route's frame, and so latency covers the whole ladder
@@ -527,6 +562,22 @@ function createGeminiClient(cfg) {
         'No Gemini auth available. Set AI_INTEGRATIONS_GEMINI_BASE_URL + AI_INTEGRATIONS_GEMINI_API_KEY (Replit proxy), or AI_PROVIDER=gemini and API_KEY in server/.env.'
       );
     }
+
+    // ── GRADER-CORE-1 PR-3 (C8): the per-call time budget. ─────────────────────────────
+    // `config.timeoutMs` (per HTTP attempt) and `config.deadlineAt` (absolute epoch ms) are
+    // passed by the GRADING core only; like `workloadClass`/`marks` they are read here and
+    // never reach the wire (buildBody reads a closed key set). Absent — every non-grading
+    // call: detect, the tutor, step solution, more-like-this, diagrams, the warm pool — each
+    // HTTP attempt keeps GEMINI_TIMEOUT_MS exactly as before (controller decision D15: that
+    // env var stays an emergency override for non-grading calls). Present, every attempt
+    // (429 back-off, the structured-output retry and the proxy hop included) is clamped to
+    // min(timeoutMs, deadlineAt − now), and an attempt with no time left is not sent.
+    const perCallTimeoutMs =
+      config && Number.isFinite(config.timeoutMs) && config.timeoutMs > 0 ? Math.floor(config.timeoutMs) : GEMINI_TIMEOUT_MS;
+    const callDeadlineAt = config && Number.isFinite(config.deadlineAt) ? config.deadlineAt : null;
+    const attemptTimeoutMs = () =>
+      callDeadlineAt === null ? perCallTimeoutMs : Math.min(perCallTimeoutMs, callDeadlineAt - Date.now());
+    const retry429 = (fn) => (callDeadlineAt === null ? withRetry(fn) : withRetryBefore(fn, callDeadlineAt));
 
     const buildBody = (includeStructuredOutput) => {
       const body = {
@@ -599,9 +650,17 @@ function createGeminiClient(cfg) {
       // `callGemini` invocation (checkSolution.cjs `gradeOnce()`), so it emits a
       // SECOND record with attempts:1 / retry:false rather than incrementing this one.
       // See [FU-C2-PARSE-MISS-NOT-COUNTED].
+      // PR-3 (C8): an attempt with no time left before the caller's deadline is not sent.
+      const thisAttemptMs = attemptTimeoutMs();
+      if (!(thisAttemptMs > 0)) {
+        const deadlineErr = new Error('Gemini request not sent: the grading deadline has passed');
+        deadlineErr.status = 504;
+        deadlineErr.gradingDeadline = true;
+        throw deadlineErr;
+      }
       telemetryAttempts += 1;
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
+      const timeoutId = setTimeout(() => controller.abort(), thisAttemptMs);
       try {
         const response = await fetch(reqUrl, {
           method: 'POST',
@@ -624,7 +683,7 @@ function createGeminiClient(cfg) {
       } catch (err) {
         if (err && err.name === 'AbortError') {
           const timeoutErr = new Error(
-            `Gemini request timed out after ${GEMINI_TIMEOUT_MS}ms`
+            `Gemini request timed out after ${thisAttemptMs}ms`
           );
           timeoutErr.status = 504;
           throw timeoutErr;
@@ -668,7 +727,7 @@ function createGeminiClient(cfg) {
       let response, rawText;
 
       try {
-        ({ response, rawText } = await withRetry(() =>
+        ({ response, rawText } = await retry429(() =>
           doRequest(includeStructuredOutput, primaryUrl, primaryKey)
         ));
       } catch (primaryErr) {
@@ -698,7 +757,7 @@ function createGeminiClient(cfg) {
         ({ response, rawText } = await doRequest(false, activeUrl, activeKey));
       } else {
         try {
-          ({ response, rawText } = await withRetry(() => doRequest(false, primaryUrl, primaryKey)));
+          ({ response, rawText } = await retry429(() => doRequest(false, primaryUrl, primaryKey)));
         } catch (retryErr) {
           if (retryErr.status === 429 || !fallbackUrl) throw retryErr;
           console.warn(

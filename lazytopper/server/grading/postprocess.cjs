@@ -443,12 +443,25 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
         marksLostByType: zeroLost(),
         rubric: null,
         objectiveResolved: null,
+        // PR-3 (C8): WHY it was not graded, for a client that can render it — "unreadable"
+        // (the answer could not be read), "withheld" (C6), "timeout" / "error" (the marking
+        // did not finish), "unreadOption" (the page was read, the pick was not). null on every
+        // graded result.
+        notGraded: extra.notGraded || 'unreadable',
       }, extra.v2 || {});
     }
     Object.defineProperty(out, '_graded', { value: false });
     Object.defineProperty(out, '_reason', { value: extra.reason || 'couldNotRead' });
     return out;
   };
+
+  // 0 · PR-3 (C8): the marking of this question did not FINISH (its chunk timed out, or the
+  // model call / reply failed after its one retry). Honest pending, never a 0, never charged.
+  if (ctx.notGraded === 'timeout' || ctx.notGraded === 'error') {
+    const timedOut = ctx.notGraded === 'timeout';
+    return pending(timedOut ? R.NOT_GRADED_TIMEOUT_NOTE : R.NOT_GRADED_ERROR_NOTE,
+      { reason: timedOut ? 'timeout' : 'failed', notGraded: ctx.notGraded });
+  }
 
   // 1 · Honest failure: the model could not locate/read this answer. Never a fabricated 0.
   if (!raw || raw.couldNotRead === true || raw.couldNotRead === 'true') {
@@ -473,7 +486,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
     if (v2) {
       const lost = zeroLost();
       lost.unattempted = totalMarks;
-      Object.assign(out, { answerMismatch: null, departureKind: null, marksLostByType: lost, rubric: null, objectiveResolved: questionIsObjective ? true : null });
+      Object.assign(out, { answerMismatch: null, departureKind: null, marksLostByType: lost, rubric: null, objectiveResolved: questionIsObjective ? true : null, notGraded: null });
     }
     Object.defineProperty(out, '_graded', { value: true });
     Object.defineProperty(out, '_reason', { value: reason || 'unattempted' });
@@ -535,7 +548,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
       questionDepartureError: false,
       objective: questionIsObjective,
     };
-    if (v2) Object.assign(out, { answerMismatch: true, departureKind: null, marksLostByType: zeroLost(), rubric: null, objectiveResolved: questionIsObjective ? false : null });
+    if (v2) Object.assign(out, { answerMismatch: true, departureKind: null, marksLostByType: zeroLost(), rubric: null, objectiveResolved: questionIsObjective ? false : null, notGraded: null });
     Object.defineProperty(out, '_graded', { value: !v2 }); // legacy: a real examiner 0; v2: not graded
     Object.defineProperty(out, '_reason', { value: 'answerMismatch' });
     return out;
@@ -563,6 +576,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
         mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 0, departure: 0 },
         teacherNote: R.UNREAD_OPTION_NOTE, questionDepartureError: false, objective: true,
         answerMismatch: null, departureKind: null, marksLostByType: zeroLost(), rubric: null, objectiveResolved: false,
+        notGraded: 'unreadOption', // PR-3: v2 only (this branch is v2-only)
       };
       Object.defineProperty(out, '_graded', { value: false });
       Object.defineProperty(out, '_reason', { value: 'objectiveUnresolved' });
@@ -742,7 +756,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   // 9 · C6: a grade whose comments cite an injected instruction is withheld, never shipped.
   const commentText = [note, ...steps.map((s) => s.teacherAnnotation)].join(' \n ');
   if (INJECTION_CITE.test(commentText)) {
-    return pending(R.INJECTION_WITHHELD_NOTE, { reason: 'injectionCited' });
+    return pending(R.INJECTION_WITHHELD_NOTE, { reason: 'injectionCited', notGraded: 'withheld' });
   }
 
   // mistake counts: step types, the departure charged ONCE, zeroed steps uncounted.
@@ -828,10 +842,14 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
       marksLostByType,
       rubric,
       objectiveResolved: questionIsObjective ? true : null,
+      notGraded: null,
     });
   }
   Object.defineProperty(out, '_graded', { value: true });
   Object.defineProperty(out, '_reason', { value: 'graded' });
+  // PR-3 (C9): a legacy client keeps today's 0 for an MCQ whose pick could not be read (the
+  // honest "ungraded" is opt-in, C7) — but it is not a grade, so it is never charged.
+  Object.defineProperty(out, '_objectiveUnresolved', { value: Boolean(questionIsObjective && objectiveVerdict && objectiveVerdict.resolved === false) });
   Object.defineProperty(out, '_finalAnswerCorrect', { value: finalAnswerCorrect });
   Object.defineProperty(out, '_keyCheck', { value: keyCheck });
   Object.defineProperty(out, '_arithmeticFlags', { value: arithmeticFlags });

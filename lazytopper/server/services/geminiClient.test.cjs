@@ -1015,3 +1015,81 @@ test('§9.14 a sink WITHOUT recordWorkloadSample still works (the key is optiona
     f.restore();
   }
 });
+
+/* ── §10 · GRADER-CORE-1 PR-3 (C8): the per-call grading budget ─────────────
+   Grading calls pass `timeoutMs` + `deadlineAt`; every other caller passes neither and keeps
+   GEMINI_TIMEOUT_MS (D15). The stub honours the AbortSignal like real fetch does. */
+
+function hangingFetch() {
+  const seen = [];
+  const original = globalThis.fetch;
+  globalThis.fetch = (url, opts) => new Promise((_, reject) => {
+    seen.push({ url: String(url), body: JSON.parse(String(opts.body)), at: Date.now() });
+    if (opts.signal) opts.signal.addEventListener('abort', () => { const e = new Error('aborted'); e.name = 'AbortError'; reject(e); });
+  });
+  return { seen, restore: () => { globalThis.fetch = original; } };
+}
+
+test('§10.1 ★ a grading call with timeoutMs aborts at ITS budget even when GEMINI_TIMEOUT_MS is 80000 (the Railway stopgap)', async () => {
+  const f = hangingFetch();
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, GEMINI_TIMEOUT_MS: 80000, telemetry: recorder() });
+    const t0 = Date.now();
+    await assert.rejects(client.callGemini('gemini-2.5-flash', CONTENTS, { timeoutMs: 60, deadlineAt: Date.now() + 5000 }),
+      (e) => e.status === 504 && /timed out after 60ms/.test(e.message));
+    assert.ok(Date.now() - t0 < 2000, 'aborted at ~60 ms, not at 80 s');
+  } finally {
+    f.restore();
+  }
+});
+
+test('§10.2 the absolute deadline wins over a longer timeoutMs; an attempt with no time left is never sent', async () => {
+  const f = hangingFetch();
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, GEMINI_TIMEOUT_MS: 80000, telemetry: recorder() });
+    const t0 = Date.now();
+    await assert.rejects(client.callGemini('gemini-2.5-flash', CONTENTS, { timeoutMs: 45000, deadlineAt: Date.now() + 80 }), (e) => e.status === 504);
+    assert.ok(Date.now() - t0 < 2000);
+    assert.equal(f.seen.length, 1);
+    await assert.rejects(client.callGemini('gemini-2.5-flash', CONTENTS, { timeoutMs: 45000, deadlineAt: Date.now() - 1 }),
+      (e) => e.status === 504 && e.gradingDeadline === true);
+    assert.equal(f.seen.length, 1, 'past the deadline nothing is sent');
+  } finally {
+    f.restore();
+  }
+});
+
+test('§10.3 ★ under a deadline the 429 back-off never sleeps past it (Retry-After capped); without one it is unchanged', async () => {
+  const rate = () => ({ ok: false, status: 429, statusText: 'Too Many', headers: { get: (h) => (h === 'Retry-After' ? '30' : null) }, text: async () => '{"error":{"code":429}}' });
+  const f = stubFetch([rate]);
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    const t0 = Date.now();
+    await assert.rejects(client.callGemini('gemini-2.5-flash', CONTENTS, { timeoutMs: 1000, deadlineAt: Date.now() + 1500 }), (e) => e.status === 429);
+    assert.ok(Date.now() - t0 < 1500, 'a 30 s Retry-After is not honoured past a 1.5 s deadline');
+    assert.equal(f.seen.length, 1, 'no second attempt that could not finish in time');
+  } finally {
+    f.restore();
+  }
+});
+
+test('§10.4 timeoutMs / deadlineAt / chunkKey / attempt never reach the wire; a call without them keeps GEMINI_TIMEOUT_MS', async () => {
+  const f = stubFetch([jsonResponse(okBody())]);
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, telemetry: recorder() });
+    await client.callGemini('gemini-2.5-flash', CONTENTS, { temperature: 0, maxOutputTokens: 32000, timeoutMs: 45000, deadlineAt: Date.now() + 70000, chunkKey: 'q0+q1', attempt: 1 });
+    const sent = f.seen[0].body;
+    assert.deepEqual(Object.keys(sent.generationConfig).sort(), ['maxOutputTokens', 'temperature']);
+    for (const k of ['timeoutMs', 'deadlineAt', 'chunkKey', 'attempt', 'q0+q1']) assert.equal(JSON.stringify(sent).includes(k), false, k);
+  } finally {
+    f.restore();
+  }
+  // CONTROL: a non-grading call (no timeoutMs) still aborts at GEMINI_TIMEOUT_MS.
+  const h = hangingFetch();
+  try {
+    const client = createGeminiClient({ ...GEMINI_CFG, GEMINI_TIMEOUT_MS: 70, telemetry: recorder() });
+    await assert.rejects(client.callGemini('gemini-2.5-flash', CONTENTS, {}), (e) => e.status === 504 && /after 70ms/.test(e.message));
+  } finally {
+    h.restore();
+  }
+});

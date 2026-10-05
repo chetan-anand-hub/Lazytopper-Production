@@ -206,3 +206,42 @@ test('§6 owner rulings — applied once, guarded, and the contested cases they 
   const fake = { 'GS-X': { expected: { totalMarks: 1, perStep: [] } } };
   assert.throws(() => D.applyRepins(fake, { repins: [{ caseId: 'GS-X', kind: 'changed', field: 'totalMarks', old: 0.5, new: 2, ruling: '3' }] }), /no longer equals the recorded old value/);
 });
+
+// ── §8 GRADER-CORE-1 PR-3 (C8): stored calls are matched by CHUNK IDENTITY, not by order ──
+test('§8 replay keying — keyed records match model+chunkKey+attempt; legacy records serve the k-th attempt; nothing else', () => {
+  const { pickStoredCall } = require('./lib/replay.cjs');
+  const call = (model, extra = {}) => ({ ok: true, text: '{}', http: [{ model }], ...extra });
+  // KEYED (a PR-3 live run): parallel chunks finish in any order; each gets its own stored call.
+  const keyed = [call('m', { chunkKey: 'q2+q3', attempt: 1 }), call('m', { chunkKey: 'q0+q1', attempt: 1 }), call('m', { chunkKey: 'q0', attempt: 2 })];
+  const used = new Set();
+  assert.strictEqual(pickStoredCall(keyed, used, 'm', { chunkKey: 'q0+q1', attempt: 1 }), 1);
+  assert.strictEqual(pickStoredCall(keyed, used, 'm', { chunkKey: 'q2+q3', attempt: 1 }), 0);
+  assert.strictEqual(pickStoredCall(keyed, used, 'm', { chunkKey: 'q0', attempt: 2 }), 2);
+  assert.strictEqual(pickStoredCall(keyed, used, 'm', { chunkKey: 'q1', attempt: 2 }), -1, 'a request the live run never made finds NOTHING (honest: a new run is needed)');
+  assert.strictEqual(pickStoredCall(keyed, used, 'other-model', { chunkKey: 'q0+q1', attempt: 1 }), -1);
+  // LEGACY (PR-1/PR-2 runs, one call per group + parse-miss retry): every chunk's attempt k reads stored call k.
+  const legacy = [call('m'), call('m')];
+  assert.deepStrictEqual([1, 1, 1, 2].map((a) => pickStoredCall(legacy, new Set(), 'm', { attempt: a, chunkKey: 'q' + a })), [0, 0, 0, 1]);
+  assert.strictEqual(pickStoredCall([call('m')], new Set(), 'm', { attempt: 2 }), 0, 'fewer stored calls than attempts: the last one (a stored timeout replays as a timeout)');
+  // No hint at all: first unconsumed for the model, as before.
+  const u = new Set([0]);
+  assert.strictEqual(pickStoredCall(legacy, u, 'm', {}), 1);
+});
+
+test('§9 CONTROL — chunking is result-neutral on a LEGACY whole-paper reply: the merged paper equals the one-call grade', async () => {
+  const { replayJob } = require('./lib/replay.cjs');
+  const { buildPlan } = require('./lib/planner.cjs');
+  const job = buildPlan({ includeDetect: false }).find((j) => j.entry === 'set' && (j.request.questions || []).length >= 4 && !('acceptsV2' in j.request));
+  assert.ok(job, 'a stored-plan paper with ≥ 4 questions exists');
+  const qs = job.request.questions;
+  const text = JSON.stringify({ results: qs.map((q, i) => ({ qNumber: q.qNumber, couldNotRead: false, addressesQuestion: 'yes', marksAwarded: Math.min(1, q.marks),
+    annotatedSteps: [{ description: 's', studentWork: 'answer ' + i, status: 'correct', marksAwarded: Math.min(1, q.marks), marksDeducted: 0, teacherAnnotation: 'ok', mistakeType: null }], teacherNote: 'n' + i })), summary: 's' });
+  const record = { jobKey: job.jobKey, requestDigest: job.requestDigest, calls: [{ ok: true, text, http: [{ model: 'gemini-2.5-flash' }] }] };
+  const quiet = console.warn; console.warn = () => {};
+  let rep;
+  try { rep = await replayJob(job, record, { model: 'gemini-2.5-flash' }); } finally { console.warn = quiet; }
+  assert.strictEqual(rep.httpStatus, 200);
+  assert.strictEqual(rep.body.results.length, qs.length);
+  assert.ok(rep.body.results.every((r, i) => r.couldNotRead === false && r.teacherNote.startsWith('n' + i)), 'every chunk read ITS OWN questions from the one stored reply');
+  assert.deepStrictEqual([rep.servedCalls, rep.unusedCalls], [1, 0], 'one stored call, counted once though it served every chunk');
+});
