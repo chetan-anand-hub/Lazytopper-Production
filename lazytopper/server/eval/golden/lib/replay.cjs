@@ -29,7 +29,12 @@ function loadRun(runDir) {
   let judge = null;
   const jf = path.join(runDir, 'judge.json');
   if (fs.existsSync(jf)) judge = JSON.parse(fs.readFileSync(jf, 'utf8'));
-  return { manifest, runs, detect, judge, runDir };
+  // GRADER-CORE-1 PR-3: an explicit, digest-pinned RE-BASELINE of bodies that a later PR changed
+  // ON PURPOSE (lib/evaluate.cjs). The stored live records themselves are never edited.
+  let rebaseline = null;
+  const rf = path.join(runDir, 'rebaseline.json');
+  if (fs.existsSync(rf)) rebaseline = JSON.parse(fs.readFileSync(rf, 'utf8'));
+  return { manifest, runs, detect, judge, rebaseline, runDir };
 }
 
 class ReplayExhaustedError extends Error {

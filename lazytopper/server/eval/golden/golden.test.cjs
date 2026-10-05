@@ -269,3 +269,34 @@ test('§10 the DUPLICATE-NUMBER paper (B\'s T2) is planned and scored by POSITIO
   for (const f of ['T2_questions.pdf', 'T2_answers.pdf', 'expected-key.md']) assert.ok(fs.existsSync(path.join(GOLDEN, 'dup-number-T2', f)), f);
   assert.strictEqual(crypto.createHash('sha256').update(fs.readFileSync(path.join(GOLDEN, 'dup-number-T2', 'T2_answers.pdf'))).digest('hex').slice(0, 16), 'a5954695ad4a47cc');
 });
+
+test('§11 the RE-BASELINE (runs/<id>/rebaseline.json) is digest-pinned: a tampered entry counts as changed, an unused entry is stale', async () => {
+  const quiet = { warn: console.warn, error: console.error };
+  console.warn = () => {}; console.error = () => {};
+  const rbFile = path.join(GOLDEN, 'runs', floor.runId, 'rebaseline.json');
+  const original = fs.readFileSync(rbFile, 'utf8');
+  try {
+    const { evaluateRun } = require('./lib/evaluate.cjs');
+    const runDir = path.join(GOLDEN, 'runs', floor.runId);
+    const rb = JSON.parse(original);
+    const keys = Object.keys(rb.entries);
+    assert.ok(keys.length > 0 && keys.every((k) => ['v2-notGraded-field', 'detect-symbols-restored'].includes(rb.entries[k].class)), 'only the two declared classes');
+    assert.ok(keys.filter((k) => !k.startsWith('detect:')).every((k) => /:V2\./.test(k)), 'only acceptsV2 grading bodies are re-baselined — never a legacy body');
+    const ok = await evaluateRun(runDir);
+    assert.deepStrictEqual([ok.integrity.changed, ok.integrity.rebaselined, ok.integrity.rebaselineStale.length], [0, keys.length, 0]);
+    // CONTROL 1: one tampered `to` → that body counts as changed again.
+    const t = JSON.parse(original); t.entries[keys[0]].to = '0'.repeat(64);
+    fs.writeFileSync(rbFile, JSON.stringify(t));
+    const bad = await evaluateRun(runDir);
+    assert.strictEqual(bad.integrity.changed, 1);
+    assert.deepStrictEqual(bad.integrity.rebaselineStale, [keys[0]]);
+    // CONTROL 2: an entry for a body that did not change is STALE (the gate names it).
+    const s = JSON.parse(original); s.entries['run1:S.CI.GS-M01-a'] = { from: 'x', to: 'y', class: 'v2-notGraded-field' };
+    fs.writeFileSync(rbFile, JSON.stringify(s));
+    const stale = await evaluateRun(runDir);
+    assert.deepStrictEqual(stale.integrity.rebaselineStale, ['run1:S.CI.GS-M01-a']);
+  } finally {
+    fs.writeFileSync(rbFile, original);
+    console.warn = quiet.warn; console.error = quiet.error;
+  }
+});
