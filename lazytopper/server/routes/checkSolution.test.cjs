@@ -884,7 +884,14 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // concept is not a carried value) and 12 (an incomplete list is a wrong value); S5's
 // sign-convention note. Every transport's prompt moved, so this pin moved with it.
 //   PREVIOUS fa1f938d5ab72ac81aae4ac1210c549555b57072b0471b911b1bebfe0b558167
-const NO_UPLOADS_CONTENTS_SHA256 = '262e7eb40d9a675803de80868cbb1e53f85381aef89f9356dcc6c967431980c8';
+// ★ AND AGAIN — GRADER-CORE-1 PR-3, controller decision D31 (262e7eb4… → below): the SHARED
+// PREFIX FIRST so implicit prompt caching applies — the rulebook (role, rubric-first, JSON shape,
+// rules; no nonce) leads, the answer document follows it, and the request-particular part (fence
+// declaration with the nonce, the questions, a closing reminder) comes last (a chunk of a larger paper
+// puts its shared document between the rulebook and its questions). The rules' wording is
+// unchanged except the nonce-free reminder inside the rulebook. Every transport moved together.
+//   PREVIOUS 262e7eb40d9a675803de80868cbb1e53f85381aef89f9356dcc6c967431980c8
+const NO_UPLOADS_CONTENTS_SHA256 = '29e9f753678c8c79d090c2eeb744ac399d6040bdc40e772e72376e8a7afe0568';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',

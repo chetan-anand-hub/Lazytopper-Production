@@ -256,8 +256,11 @@ function createGradingCore(deps) {
    */
   async function attemptChunk(c) {
     const { model, questions, uploadByNumber, document, subject, single, autoDetect, label, attempt, timeoutMs, deadlineAt, others, chunkKey } = c;
-    const nonce = chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]), makeFenceNonce);
-    const { contents, transport } = buildGradingContents({ questions, uploadByNumber, document, subject, nonce, buildGeminiImagePart, autoDetect, otherQuestionsInDocument: others });
+    // D31: ONE nonce per request, shared by all its chunks (and their retries), and the paper's
+    // rulebook switches, so every chunk's prompt starts with the same bytes (implicit caching).
+    const nonce = c.nonce || chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]), makeFenceNonce);
+    const { contents, transport } = buildGradingContents({ questions, uploadByNumber, document, subject, nonce, buildGeminiImagePart, autoDetect, otherQuestionsInDocument: others,
+      paperHasAnyTyped: c.paperHasAnyTyped, paperAnyScheme: c.paperAnyScheme });
     // D23: ONE document for the whole set is the only transport where the server cannot know
     // which questions were answered — there the model fills the page inventory first.
     const inventory = transport === 'document' && !autoDetect;
@@ -309,6 +312,7 @@ function createGradingCore(deps) {
       model: chunk.model, questions: qs, uploadByNumber: uploadsFor(qs), document: ctx.document, subject: chunk.subject,
       single: ctx.single, autoDetect: ctx.autoDetect, label: ctx.label, attempt, timeoutMs, deadlineAt: ctx.callDeadlineAt,
       others: ctx.document ? Math.max(0, ctx.total - qs.length) : 0, chunkKey: keyOf(qs),
+      nonce: ctx.nonce, paperHasAnyTyped: ctx.paperHasAnyTyped, paperAnyScheme: ctx.paperAnyScheme,
     });
     const left0 = ctx.callDeadlineAt - now();
     if (left0 <= 0) return [{ questions: chunk.questions, attempt: { error: deadlineError(0), model: chunk.model, timedOut: true } }];
@@ -429,7 +433,13 @@ function createGradingCore(deps) {
       for (const qs of planChunks(g.questions)) chunks.push({ model: g.model, subject: g.subject, questions: qs });
     }
 
-    const ctx = { idOf, uploadByNumber, document, single, autoDetect, label, callDeadlineAt, total: questions.length };
+    const ctx = {
+      idOf, uploadByNumber, document, single, autoDetect, label, callDeadlineAt, total: questions.length,
+      // D31: request-level, so all chunks share them (see attemptChunk).
+      nonce: chooseNonce(questions.flatMap((q) => [q.questionText, q.textAnswer, q.pickedOption]), makeFenceNonce),
+      paperHasAnyTyped: questions.some((q) => String((q && q.textAnswer) || '').trim().length > 0),
+      paperAnyScheme: questions.some((q) => Array.isArray(q.solutionSteps) && q.solutionSteps.length > 0),
+    };
     const settled = await Promise.allSettled(chunks.map((c) => gradeChunk(c, ctx)));
     const parts = [];
     settled.forEach((s, i) => {

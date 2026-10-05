@@ -1409,3 +1409,27 @@ test('§C10.1 a mixed paper whose questions carry their OWN subject is graded un
   await plain.sheet(sheet(qs.map(({ subject, ...q }) => q), { subject: 'Maths' }));
   assert.equal(plain.calls.length, 1);
 });
+
+/* ══ §D31 · the shared prefix first (implicit prompt caching) ══════════════════ */
+
+test('§D31.1 every chunk of a paper starts with the SAME rulebook bytes and the same document; the nonce lives only in the request part', async () => {
+  const doc = { imageBase64: 'UERG', imageMimeType: 'application/pdf' };
+  let n = 0;
+  const h = harness({ reply: echoReply, deps: { makeFenceNonce: () => 'reqnonce' + (n++) } });
+  await h.sheet(sheet(typedPaper(7).map((q) => ({ ...q, textAnswer: '' })), doc));
+  assert.equal(h.calls.length, 3);
+  const firsts = h.calls.map((c) => c.contents[0].parts[0].text);
+  assert.ok(firsts.every((t) => t === firsts[0]), 'byte-identical rulebook across chunks');
+  assert.ok(h.calls.every((c) => c.contents[0].parts[1].inlineData && c.contents[0].parts[1].inlineData.data === 'UERG'), 'the document is the second part of every chunk');
+  assert.ok(!firsts[0].includes('reqnonce'), 'the rulebook carries no nonce');
+  const lasts = h.calls.map((c) => c.contents[0].parts[2].text);
+  assert.ok(lasts.every((t) => t.includes('<<<QUESTION reqnonce0>>>')), 'ONE nonce for the whole request, in the request part');
+  // CONTROL: a second request (new nonce, different questions) shares the SAME rulebook bytes.
+  const h2 = harness({ reply: echoReply, deps: { makeFenceNonce: () => 'othernonce' } });
+  await h2.sheet(sheet([sq(1, { textAnswer: '', questionText: 'A different question entirely.' })], doc));
+  // (a whole set in ONE call keeps one text part — rulebook first — then the document)
+  const t2 = h2.calls[0].contents[0].parts[0].text;
+  assert.ok(t2.startsWith(firsts[0]), 'the same rulebook bytes lead every request');
+  assert.ok(t2.slice(firsts[0].length).includes('<<<QUESTION othernonce>>>'), 'the nonce only after the rulebook');
+  assert.ok(h2.calls[0].contents[0].parts[1].inlineData, 'then the document');
+});
