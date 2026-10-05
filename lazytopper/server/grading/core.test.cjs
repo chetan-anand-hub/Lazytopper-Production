@@ -257,7 +257,9 @@ test('§C2.8 a wrongly FORMED equation then solved: forming mark lost, solving m
   assert.equal(r.marksAwarded, 2);
   const p = h.prompt();
   assert.ok(p.includes('(c) FORMED WRONGLY'));
-  assert.ok(p.includes('A miscopy is NEVER a departure and never zeroes later work.'));
+  assert.ok(p.includes('Any other miscopy is NEVER a departure and never zeroes later work.'));
+  assert.ok(p.includes('A miscopy that changes NO value used in the working (an immaterial transcription) is NOT penalised at all.'), 'D26: the immaterial miscopy rule');
+  assert.ok(p.includes('is answering a DIFFERENT PROBLEM (departureKind "different-problem")'), 'D26: a miscopy that removes what is tested');
   assert.ok(p.includes('DEPARTURE — ONLY TWO KINDS ZERO LATER WORK'));
   for (const retired of ['ECF_POLICY_V2', 'QUESTION MISCOPY', 'award ZERO for every step below it']) assert.ok(!p.includes(retired), retired);
 });
@@ -726,6 +728,97 @@ test('§P0.11 router mode: each routed group is held to ITS OWN reply\'s invento
   const body = (await h.sheet(sheet(qs, DOC))).body;
   assert.deepEqual(h.calls.map((c) => c.model).sort(), ['light-model', 'strong-model'], 'one call per routed group');
   assert.deepEqual(body.results.map((r) => r.marksAwarded), [1, 0], 'Q1 listed by its group keeps its mark; Q2 is absent from ITS group\'s inventory');
+});
+
+/* ══ §C2.9–§C2.12 · THE ECF AUDIT (controller decisions D24/D26) ══════════════
+   (a) an accepted departure step keeps its type even when it lost nothing itself; (b) CBSE 11
+   "penalized only once" enforced wherever the schema marks the original slip; D26: an invalid
+   method scores 0 for its part; and the August §13.1b rule on the MULTI-question path the
+   owner's paper (Q9) grades through. */
+
+test('§C2.9 (a) a departure step that lost nothing KEEPS its type: its cost (the zeroed work) is typed, never "four zeros"', async () => {
+  const steps = (dep) => [
+    S({ description: 'Sets up', studentWork: 'x^2 - 2x - 8 = 0' }),
+    S({ description: 'Departs', studentWork: 'Solves x^2 + 2x - 8 = 0 instead', mistakeType: 'conceptual', ...(dep ? { isDeparture: true, departureKind: 'different-problem' } : {}) }),
+    S({ description: 'Below', studentWork: 'x = 2' }),
+    S({ description: 'Below', studentWork: 'x = -4' }),
+  ];
+  const r = (await harness({ replies: [REPLY(R(1, steps(true), { finalAnswerCorrect: false }))] }).sheet(sheet([sq(1, { marks: 4 })], { acceptsV2: true }))).body.results[0];
+  assert.deepEqual(r.annotatedSteps.map((s) => s.marksAwarded), [1, 1, 0, 0]);
+  assert.equal(r.annotatedSteps[1].mistakeType, 'conceptual', 'the departure step keeps its type');
+  assert.deepEqual(r.mistakeSummary, { conceptual: 1, calculation: 0, silly: 0, presentation: 0, departure: 1 });
+  assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), conceptual: 2 }, 'the zeroed work is charged to the departure\'s type, not untyped');
+  // CONTROL (ruling 7): the same step WITHOUT a departure lost nothing and is correct — no mistake, no type.
+  const c = (await harness({ replies: [REPLY(R(1, steps(false), { finalAnswerCorrect: false }))] }).sheet(sheet([sq(1, { marks: 4 })]))).body.results[0];
+  assert.equal(c.annotatedSteps[1].mistakeType, null);
+  assert.equal(c.mistakeSummary.conceptual, 0);
+});
+
+const SLIP_STEPS = (o = {}) => [
+  S({ description: 'States the formula', studentWork: 'D = b^2 - 4ac', ...o.s0 }),
+  S({ description: 'Substitutes c', studentWork: 'D = 4 - 4(1)(9)', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'silly', ...o.s1 }),
+  S({ description: 'Simplifies', studentWork: 'D = 4 - 36 = -32', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: null, ...o.s2 }),
+  S({ description: 'Concludes', studentWork: 'No real roots', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: null, ...o.s3 }),
+];
+test('§C2.10 (b) CBSE 11: below the ORIGINAL slip, an untyped step that lost marks is carrying the value forward — no deduction, its marks restored', async () => {
+  const grade = async (steps, marks = 4, v2 = true) => (await harness({ replies: [REPLY(R(1, steps, { finalAnswerCorrect: false }))] })
+    .sheet(sheet([sq(1, { marks })], { acceptsV2: v2 }))).body.results[0];
+  const r = await grade(SLIP_STEPS());
+  assert.deepEqual(r.annotatedSteps.map((s) => s.marksAwarded), [1, 0, 1, 1], 'the miscopy costs its own mark ONCE; the work after it earns ECF');
+  assert.deepEqual(r.annotatedSteps.map((s) => s.marksDeducted), [0, 1, 0, 0], 'a carried value is never deducted twice');
+  assert.deepEqual(r.annotatedSteps.map((s) => s.mistakeType), [null, 'silly', null, null]);
+  assert.equal(r.marksAwarded, 3);
+  assert.deepEqual(r.marksLostByType, { ...grading.zeroLost(), silly: 1 });
+  // CONTROLS — each fixture differs in ONE thing and the charge stands:
+  // no typed slip anywhere (the schema marks no original) → nothing to carry, nothing restored
+  assert.equal((await grade(SLIP_STEPS({ s1: { mistakeType: null } }))).marksAwarded, 1);
+  // the untyped steps are in ANOTHER part → ECF does not cross parts
+  const parts = await grade(SLIP_STEPS({ s0: { part: '(i)' }, s1: { part: '(i)' }, s2: { part: '(ii)' }, s3: { part: '(ii)' } }));
+  assert.deepEqual(parts.annotatedSteps.map((s) => s.marksAwarded), [1, 0, 0, 0]);
+  // an unattempted step after the slip stays unattempted
+  const un = await grade(SLIP_STEPS({ s3: { status: 'unattempted', studentWork: '' } }));
+  assert.deepEqual([un.annotatedSteps[3].status, un.annotatedSteps[3].marksAwarded], ['unattempted', 0]);
+  // a step with NO working shown carries nothing forward — it keeps its charge
+  const blank = await grade(SLIP_STEPS({ s3: { studentWork: '' } }));
+  assert.deepEqual([blank.annotatedSteps[3].marksAwarded, blank.annotatedSteps[3].marksDeducted], [0, 1]);
+  // the restoration never lifts the question past its cap (a wrong final answer never earns full marks)
+  const cap = await grade(SLIP_STEPS(), 3);
+  assert.equal(cap.marksAwarded, 2.5);
+  assert.deepEqual([cap.annotatedSteps[2].marksDeducted, cap.annotatedSteps[3].marksDeducted], [0, 0]);
+});
+
+test('§C2.11 D26: a right answer by an INVALID METHOD scores 0 for its part, the invalid step included; a different-problem step keeps its own marks', async () => {
+  const steps = (kind) => [
+    S({ description: 'Sets up the statement', studentWork: 'Let n be odd' }),
+    S({ description: 'Checks examples as a proof', studentWork: 'n = 1, 3, 5 all work, so it is true', mistakeType: 'conceptual', isDeparture: true, departureKind: kind }),
+    S({ description: 'Concludes', studentWork: 'Hence proved' }),
+  ];
+  const r = (await harness({ replies: [REPLY(R(1, steps('invalid-method'), { finalAnswerCorrect: true }))] }).sheet(sheet([sq(1)]))).body.results[0];
+  assert.deepEqual(r.annotatedSteps.map((s) => s.marksAwarded), [1, 0, 0], 'the invalid method and the answer it reached earn nothing');
+  const c = (await harness({ replies: [REPLY(R(1, steps('different-problem'), { finalAnswerCorrect: true }))] }).sheet(sheet([sq(1)]))).body.results[0];
+  assert.deepEqual(c.annotatedSteps.map((s) => s.marksAwarded), [1, 1, 0], 'CONTROL: a different-problem departure step keeps what it independently earned');
+});
+
+test('§C2.12 ★ the August §13.1b rule on the MULTI-question path (C&I multi, the owner\'s Q9 path): wrong final answer, no departure → the step marks STAND', async () => {
+  const Q9 = [
+    S({ part: '(i)', description: 'Method: favourable over total', studentWork: 'P = n(E)/36' }),
+    S({ part: '(i)', description: 'Counts the favourable outcomes', studentWork: 'n(E) = 5, P = 5/36', status: 'incorrect', marksAwarded: 0, marksDeducted: 1, mistakeType: 'calculation' }),
+    S({ part: '(ii)', description: 'Part (ii)', studentWork: 'P = 1/6' }),
+  ];
+  const WRONG_LAST = [S({ studentWork: 'x^2 - 2x - 8 = 0' }), S({ studentWork: '(x - 4)(x + 2) = 0' }), S({ studentWork: 'x - 4 = 0 or x + 2 = 0' }), S({ studentWork: 'x = 5' })];
+  const results = [R(1, [S(), S(), S()], { finalAnswerCorrect: true }), R(2, Q9, { finalAnswerCorrect: false }), R(3, WRONG_LAST, { finalAnswerCorrect: false })];
+  const qs = (o = {}) => [sq(1, o), sq(2, o), sq(3, { marks: 4, ...o })];
+  for (const [label, req, reply] of [
+    ['one document (C&I multi), with its page inventory', sheet(qs({ textAnswer: '' }), DOC), WITH_INV(INV([1, 'x = 4'], [2, 'P = n(E)/36'], [3, 'x^2 - 2x - 8 = 0']), ...results)],
+    ['typed set', sheet(qs()), REPLY(...results)],
+  ]) {
+    const body = (await harness({ replies: [reply] }).sheet(req)).body;
+    assert.deepEqual(body.results.map((r) => r.marksAwarded), [3, 2, 3.5], label);
+    const q9 = body.results[1].annotatedSteps;
+    assert.deepEqual([q9[0].marksAwarded + q9[1].marksAwarded, q9[2].marksAwarded], [1, 1], label + ': Q9 (i) 1/2 — method credit kept — and (ii) 1/1');
+    assert.deepEqual(body.results[2].annotatedSteps.map((s) => s.marksAwarded), [1, 1, 1, 0.5], label + ': only FULL marks are withheld (13.1b)');
+    assert.ok(body.results.every((r) => r.questionDepartureError === false), label + ': nothing here is a departure');
+  }
 });
 
 /* ══ §C3b · ANSWER–QUESTION MISMATCH ═════════════════════════════════════════ */

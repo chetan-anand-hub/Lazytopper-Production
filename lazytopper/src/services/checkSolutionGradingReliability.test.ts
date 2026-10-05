@@ -241,8 +241,11 @@ describe("grading reliability — config + prompt changes on BOTH paths", () => 
   // and both endpoints now carry it from ONE rulebook.
   it("(j) a QUESTION MISCOPY is one silly slip with ECF after it — never a departure — in BOTH prompts", async () => {
     const expectedClauses = [
-      '(a) COPIED WRONGLY: the step where a value/sign/term was copied wrongly loses its mark ONCE and is typed "silly".',
-      "A miscopy is NEVER a departure and never zeroes later work.",
+      // Controller decision D26 (2026-10-05): a miscopy that changes no value used is not penalised,
+      // and one that removes what the question tests is a different problem; any other is ruling 2.
+      '(a) COPIED WRONGLY: the step where a value/sign/term was copied wrongly, so that the working uses a wrong value, loses its mark ONCE and is typed "silly".',
+      "Any other miscopy is NEVER a departure and never zeroes later work.",
+      "A miscopy that changes NO value used in the working (an immaterial transcription) is NOT penalised at all.",
       "DEPARTURE — ONLY TWO KINDS ZERO LATER WORK",
       '"departureKind" set to one of the two values', // the server zeroes only on a valid kind
       "A departure NEVER reaches into another part", // per-PART scope

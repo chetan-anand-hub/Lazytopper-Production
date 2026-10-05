@@ -39,8 +39,8 @@ const MISTAKE_CAUSE_REASONING_PROMPT = 'The mistake type must reflect WHAT THE E
 const MISTAKE_TAXONOMY_PROMPT =
   'MISTAKE TYPE — choose by the CAUSE, exactly as the owner ruled:\n' +
   '   - "silly" = COPIED WRONGLY: a value, sign or term copied wrongly from the question or from the student\'s OWN earlier line (e.g. the question\'s +3 written as +5; u = 60 copied as 90; a root read off correct factors with the wrong sign). The student\'s other work shows they know better.\n' +
-  '   - "calculation" = PERFORMED WRONGLY: the method is right but an operation the student performed is wrong — arithmetic (19 × 4 written as 72), algebra or expansion, a sign lost while rearranging, an outcome missed while listing, wrong coefficients while genuinely balancing an equation.\n' +
-  '   - "conceptual" = METHOD MISUNDERSTOOD: the wrong formula, identity, law, theorem, principle, organ or process for the situation (e.g. cos A = 1 − sin A; the wrong sign convention u = +20 for a real object), a misread of what the question asks, or an equation left unbalanced when a balanced equation was asked for.\n' +
+  '   - "calculation" = PERFORMED WRONGLY: the method is right but an operation the student performed is wrong — arithmetic (19 × 4 written as 72), algebra or expansion, a sign lost while rearranging, an outcome missed while listing, WRONG COEFFICIENTS while genuinely attempting to balance an equation.\n' +
+  '   - "conceptual" = METHOD MISUNDERSTOOD: the wrong formula, identity, law, theorem, principle, organ or process for the situation (e.g. cos A = 1 − sin A; the wrong sign convention u = +20 for a real object), a misread of what the question asks, a wrong reactant or product in a chemical equation, or AN EQUATION LEFT UNBALANCED WHEN THE QUESTION ASKED FOR A BALANCED EQUATION.\n' +
   '   - "presentation" = CBSE FORMAT ONLY: the mathematics or science is right but a mark the CBSE scheme awards for FORMAT is missing — a required conclusion / "hence proved" line, a required labelled figure, ray arrows on a ray diagram, a required formula statement, the unit of a final numerical answer where the scheme pays it, the contextual rejection of a root in a word problem. ⚠ NEVER for missing state symbols (no deduction at all). ANYTHING THAT CHANGES WHETHER THE MATHEMATICS OR SCIENCE IS RIGHT IS NOT PRESENTATION.\n' +
   '   - NO TYPE (mistakeType null): a correct step; a step that correctly carries forward an earlier error (ECF); an unattempted or withdrawn step; a wrong answer with no working shown (undiagnosable). Never invent a mistake on a right step.';
 
@@ -52,7 +52,7 @@ const ECF_VERIFICATION_STEP_CLAUSE = 'This includes a verification/check step th
 /** Ruling (2) and (3): ONE slip is penalised ONCE; correct work from a wrong value earns ECF. */
 const ECF_RULES_PROMPT =
   'ERROR CARRIED FORWARD — CBSE: "No marks to be deducted for the cumulative effect of an error. It should be penalized only once."\n' +
-  '   (a) COPIED WRONGLY: the step where a value/sign/term was copied wrongly loses its mark ONCE and is typed "silly". Every later step that correctly applies a valid method to the copied value EARNS ITS MARKS (status "correct" or "partial" on its own merits, mistakeType null). A miscopy is NEVER a departure and never zeroes later work.\n' +
+  '   (a) COPIED WRONGLY: the step where a value/sign/term was copied wrongly, so that the working uses a wrong value, loses its mark ONCE and is typed "silly". Every later step that correctly applies a valid method to the copied value EARNS ITS MARKS (status "correct" or "partial" on its own merits, mistakeType null). A miscopy that changes NO value used in the working (an immaterial transcription) is NOT penalised at all. A miscopy that removes the very thing the question tests (e.g. a quadratic copied as a linear equation) is answering a DIFFERENT PROBLEM (departureKind "different-problem"). Any other miscopy is NEVER a departure and never zeroes later work.\n' +
   '   (b) PERFORMED WRONGLY: the step with the slip loses its mark ("calculation"); later steps that correctly work from the wrong value earn their marks (ECF, mistakeType null).\n' +
   '   (c) FORMED WRONGLY: an equation or substitution set up wrongly (e.g. a word problem translated into a wrong equation, a wrong value put into a correct formula) loses the FORMING marks; if the student then SOLVES their own equation correctly, the SOLVING steps earn their marks (ECF). This is not a departure.\n' +
   '   (d) ' + ECF_VERIFICATION_STEP_CLAUSE + '\n' +
@@ -62,9 +62,10 @@ const ECF_RULES_PROMPT =
 const DEPARTURE_RULES_PROMPT =
   'DEPARTURE — ONLY TWO KINDS ZERO LATER WORK:\n' +
   '   - "different-problem": the student answers a DIFFERENT QUESTION from the one set — explains respiration when asked about photosynthesis, describes the wrong organ, law or process, solves a different problem altogether. (A value copied wrongly is NOT this — that is a silly slip with ECF.)\n' +
-  '   - "invalid-method": a method that does NOT WORK IN GENERAL — a numerical check offered as a proof, assuming what is to be proved, a rule that holds only by coincidence. ⚠ It FAILS SAFE: if you cannot show the method fails in general, it is a valid alternative and earns full marks (CBSE 3 protects innovative methods). "Unfamiliar" is not "invalid".\n' +
-  '   Mark the FIRST such step "isDeparture": true with "departureKind" set to one of the two values; every other step has "isDeparture": false. The departure step keeps what it independently earned. Steps AFTER it IN THE SAME PART earn 0 — until the student RETURNS to the question as set: mark that first returning step "isReturn": true, and it and everything after it earn normally. A departure NEVER reaches into another part: an independent part is marked on its own merits.\n' +
-  '   Mark a departure ONLY on positive evidence. When in doubt there is NO departure: grade normally, on the merits, and never zero anything for the absence of evidence.';
+  '   - "invalid-method": a method that does NOT WORK IN GENERAL — a numerical check offered as a proof, assuming what is to be proved, a rule that holds only by coincidence. ⚠ It FAILS SAFE: if you cannot show the method fails in general, it is a valid alternative and earns full marks (CBSE 3 protects innovative methods). "Unfamiliar" is not "invalid". A right answer reached by an invalid method scores 0 for that part, the answer mark included, unless the question\'s own CBSE scheme awards the answer mark independently of the method.\n' +
+  '   Mark the FIRST such step "isDeparture": true with "departureKind" set to one of the two values; every other step has "isDeparture": false. A "different-problem" departure step keeps what it independently earned on work that was still the question. Steps AFTER it IN THE SAME PART earn 0 (status "incorrect", mistakeType null) — ⚠ AND SET "marksDeducted": 0 ON EVERY STEP BELOW THE DEPARTURE: the departure is penalised ONCE, on its own step, which keeps BOTH its mistakeType and its deduction (CBSE 11). A departure NEVER reaches into another part: an independent part is marked on its own merits.\n' +
+  '   ★ AND A DEPARTURE CAN END. Where you mark a departure and the student later RETURNS to the question as set, set "isReturn": true on the FIRST step that is working the question AS SET again; it and everything after it are marked NORMALLY, on their own merits. Mark "isReturn" on that ONE step, leave it false everywhere else, and NEVER set it on a step at or above the departure. ⚠⚠ IF THE STUDENT NEVER RETURNS, MARK NO RETURN AT ALL: every later step in that part then earns ZERO — THE FINAL ANSWER INCLUDED, EVEN IF THAT ANSWER HAPPENS TO BE CORRECT for the question as set. An answer reached from a different problem is coincidence, not work.\n' +
+  '   ⚠⚠ MARK A DEPARTURE ONLY ON POSITIVE EVIDENCE — the student\'s OWN SUBSEQUENT WORK, visibly answering the different problem or resting on the invalid method. NEVER on suspicion, NEVER because a line merely looks wrong, and NEVER because you cannot follow it. NO DEPARTURE IDENTIFIED ⇒ GRADE NORMALLY, on the merits, and never zeroed for the absence of evidence. A departure you cannot demonstrate costs the student EVERY step below it in that part, so WHEN IN DOUBT THERE IS NO DEPARTURE.';
 
 /** Parts: the per-PART identity the server's zeroing and the student's view both need. */
 const PARTS_PROMPT =
@@ -75,18 +76,19 @@ const UNATTEMPTED_AND_WITHDRAWN_PROMPT =
   'UNATTEMPTED AND WITHDRAWN WORK:\n' +
   '   - UNATTEMPTED: a question or part with no attempt — left blank, or answered only with "Don\'t know", "Dont know", "I don\'t know", "DK" or any similar explicit non-attempt phrase, or crossed out completely with nothing written in its place — gets ONE step with status "unattempted", "marksAwarded": 0, "marksDeducted" equal to its marks, mistakeType null. It is NEVER "incorrect" and NEVER typed. A legible non-attempt phrase is READ — it is never couldNotRead.\n' +
   '   - WITHDRAWN: work the student crossed out / struck through and replaced is NOT ASSESSED. Report EACH struck attempt as its OWN step with status "withdrawn", "studentWork" quoting ONLY the struck text, "marksAvailable": 0, "marksAwarded": 0, "marksDeducted": 0, mistakeType null, and its "part". Never merge struck text into an answer step, never deduct for it, never type it.\n' +
-  '   - MISSING: a required step left out of work that WAS attempted gets status "missing" (marks not earned, mistakeType null) — unless it is a CBSE format element, which is presentation (see PRESENTATION).';
+  '   - MISSING: a required step left out of work that WAS attempted gets status "missing" (marks not earned, mistakeType null) — unless it is a CBSE format element, which is presentation (see PRESENTATION).\n' +
+  '   - MULTI-PART QUESTIONS AND THE UNATTEMPTED SUB-PART. Where a question has parts and the student ANSWERED ONE and SKIPPED ANOTHER, the skipped part is UNATTEMPTED (as above). ⚠ It is NOT a mistake of any kind: never give it a mistakeType, never count it as a mistake, and never treat it as a wrong answer that scored zero — the marks are simply NOT EARNED. ⚠⚠ AND IT IS NOT A DEPARTURE: they wrote NOTHING, so there is nothing to have been adopted and nothing to work from. NEVER set "isDeparture": true on an unattempted part, and never zero the parts below it because of one. ★ BUT DO NOT MAKE IT INVISIBLE: REPORT the skipped part as a step with status "unattempted" rather than OMITTING it. Uncounted is not the same as unreported. ★ THE PART THEY DID ANSWER IS MARKED ON ITS OWN MERITS, in full, exactly as if the other part did not exist. A part answered only "Don\'t know" or "DK" is unattempted too; a part with any real attempt is graded.';
 
 /** Ruling (5) and (6) plus the CBSE format marks the golden set shows are never deducted today. */
 const PRESENTATION_PROMPT =
   'PRESENTATION — DEDUCT ONLY WHERE THE CBSE SCHEME AWARDS THAT MARK, and then DO deduct it:\n' +
   '   - a required conclusion / "hence proved" / "verified" line absent; a required labelled figure absent (that loses the figure mark); arrows missing on a ray diagram; a required formula statement absent; the contextual rejection of a root missing in a word problem (½).\n' +
-  '   - UNITS: Science — a final numerical answer without its SI unit loses ½ (presentation). Maths — deduct for a missing unit ONLY where the question asks for the unit or the scheme pays it; where the question is silent, NO deduction.\n' +
+  '   - UNITS. A CORRECT answer written WITHOUT ITS UNIT — "r = 7" where the answer is 7 cm — is "presentation" where a unit is owed: Science — a final numerical answer without its SI unit loses ½; Maths — ONLY where the question asks for the unit or the scheme pays it; where the question is silent, NO deduction. ⚠⚠ IT IS NEVER "conceptual" AND NEVER "calculation": THE STUDENT DID THE MATHEMATICS. A missing unit does not change whether the mathematics is right; deduct on the ½ scale and no more.\n' +
   '   - STATE SYMBOLS (s/l/g/aq): NEVER deduct for their absence and never mention it as a fault.\n' +
-  '   - Fold a short format element INTO the attempted step it belongs to (status "partial", mistakeType "presentation"); do not split it off as a separate "missing" step. Right answer with weak or no justification → presentation, not conceptual.';
+  '   - PRESENTATION vs MISSING: fold a short format element INTO the attempted step it belongs to (status "partial", mistakeType "presentation"); do not split it off as a separate "missing" step. Right answer with weak or no justification → presentation, not conceptual.';
 
 const SCIENCE_EQUATIONS_PROMPT =
-  'CHEMICAL EQUATIONS: check WHICH SPECIES are written before you check the coefficients. A wrong reactant or product is "conceptual", and balancing an equation with wrong species does not earn the balancing mark. The right species left UNBALANCED when a balanced equation was asked for is "conceptual"; wrong coefficients while genuinely balancing is "calculation". Missing state symbols cost nothing.';
+  'CHEMICAL EQUATIONS: check WHICH SPECIES are written before you check the coefficients. A wrong reactant or product is "conceptual". Then follow the question\'s CBSE marking scheme, which is the authority: where it awards "correct balanced equation" as ONE unit, an equation with wrong species earns no balancing mark; where it pays the species and the balancing separately, correct balancing of the equation as written earns the balancing mark. (Ruling 3\'s ECF — forming marks lost, solving marks earned — applies to quantitative and algebraic working.) The right species left UNBALANCED when a balanced equation was asked for is "conceptual"; wrong coefficients while genuinely balancing is "calculation". Missing state symbols cost nothing.';
 
 const WORD_PROBLEM_FINAL_ANSWER_PROMPT = 'WORD-PROBLEM FINAL ANSWER: when a question asks to "find a number/value/quantity", correctly solving the equation earns the equation-solving marks. Explicitly stating which root satisfies the problem context (e.g. "N = 8 since N must be a natural number; N = -20 rejected") is a required final step. If the student solves correctly but omits this explicit contextual statement, deduct ½ mark as a presentation step — never deduct more than ½ for this alone if the equation and roots are both correct. PARTIAL CREDIT: award marks strictly by the step weights in the marking scheme. A step the student attempted correctly earns its allocated marks even if a later step is wrong. A step with a calculation error earns 0 for that step only — never redistribute or re-weight marks across steps. If no explicit per-step weight exists, distribute the question\'s total marks evenly across required steps. OBJECTIVE EXCEPTION (MCQ / Assertion-Reason / Section A): NEVER step-mark an objective question and NEVER split its marks across steps — it scores the WHOLE mark on the correct option or 0 on a wrong one, never a fraction. Any working the student wrote for an MCQ is read ONLY to classify the mistake type, never to award partial marks.';
 
@@ -132,11 +134,11 @@ const SCHEME_ASSESSMENT_DIRECTIVES = 'Where your derived rubric and this stored 
 /** The rubric is fixed BEFORE the work is read — and now lives in its own field (C7 `rubric`). */
 const DERIVE_RUBRIC_FIRST_PROMPT =
   'FIX THE MARKING SCHEME BEFORE YOU READ THE ANSWER.\n' +
-  'For EACH question, FIRST decide its value points from the question and its mark value alone (and the stored scheme where one is given, as corroboration of the mark distribution), THEN mark the student\'s work against them.\n' +
-  '  - The value points MUST sum to the question\'s stated mark value, in HALF-MARK units (½ is the smallest unit).\n' +
-  '  - ⚠ DERIVE THEM FROM THE QUESTION — NEVER FROM THE STUDENT\'S ANSWER. Whatever the student wrote must never become the scheme they are marked against.\n' +
-  '  - ⚠ THE SAME QUESTION AT THE SAME MARK VALUE MUST ALWAYS PRODUCE THE SAME VALUE POINTS AND THE SAME WEIGHTS, whether the student wrote three lines or seven. Decide them NOW and do not revise them after reading the work.\n' +
-  '  - Return them in "rubric" as a list of { "point", "marks" } — NOT inside "teacherNote".\n' +
+  'NO MARKING SCHEME SUPPLIED — DERIVE ONE, AND STATE IT. If no marking scheme is given for a question, do NOT withhold marks for its absence and do NOT cap the question. Instead, do what an examiner does with an unfamiliar question: FIRST derive the value points for the question, THEN state them, THEN mark the student\'s work against them. Where a stored scheme IS given, derive them the same way and use the scheme only as corroboration of the mark distribution.\n' +
+  '  - The derived value points MUST sum to the question\'s stated mark value, in HALF-MARK units (½ is the smallest unit).\n' +
+  '  - ⚠ DERIVE THEM FROM THE QUESTION AND ITS MARK VALUE — NEVER FROM THE STUDENT\'S ANSWER. Deriving the scheme from what the student wrote would make every answer self-justifying: whatever they did would become the scheme they are marked against, and no answer could ever be wrong.\n' +
+  '  - ⚠ THE SAME QUESTION AT THE SAME MARK VALUE MUST ALWAYS PRODUCE THE SAME VALUE POINTS AND THE SAME WEIGHTS. They must NOT vary with how the student segmented their working — the same question is marked against the same scheme whether the student wrote three lines or seven. Decide the weights NOW and do NOT revise them once you have seen the work.\n' +
+  '  - Return them in "rubric" as a list of { "point", "marks" } — NOT inside "teacherNote" — so the student can see what they were marked against.\n' +
   '  - Give each step its "marksAvailable" (the value-point marks that step can earn).';
 
 /** CBSE's own General Instructions to examiners — the board's words, kept verbatim. */
@@ -152,10 +154,57 @@ const FINAL_ANSWER_PROMPT =
 
 const NO_WORKING_PROMPT = 'NO WORKING SHOWN → mistakeType null. If the student shows NO working — only a final answer (e.g. just a chosen MCQ option such as "(d)") — and it is wrong, you CANNOT diagnose the cause: set mistakeType null for that step. Never guess "conceptual" (or any type) from a bare wrong answer. The marks are still not earned (status stays "incorrect"), only the type is null.';
 
-const DIAGRAM_FAILSAFE_PROMPT = 'DIAGRAMS: a required figure that is ABSENT is presentation AND its figure mark is lost. IF YOU CANNOT ESTABLISH WHAT A HAND-DRAWN FIGURE SHOWS, do not invent a fault from it — grade the written work normally and never zero a step for a figure you could not read.';
+/** The August diagram rulings (GRD-UNIFORM D-cases), kept where the 2026-10-05 rulings keep
+ *  them: D2 and the fail-safe verbatim; D1/D3 re-stated under rulings 2 and 3 (a wrong figure is
+ *  a wrong premise formed wrongly, not a departure). */
+const DIAGRAM_FAILSAFE_PROMPT =
+  'DIAGRAMS:\n' +
+  '       D1. A diagram DRAWN BUT WRONG and then worked correctly FROM IT ⇒ NOT a departure: the figure loses its own mark, and working that correctly uses it earns ECF.\n' +
+  '       D2. A required diagram ABSENT with the written answer otherwise correct ⇒ PRESENTATION, AND the figure mark is LOST. That is TWO deductions, not one: CBSE awards the figure as its own value point.\n' +
+  '       D3. A CORRECT diagram that the WORKING then misquotes ⇒ a value copied wrongly from the student\'s own figure: "silly", penalised once, ECF after.\n' +
+  '       ⚠⚠ THE DIAGRAM FAIL-SAFE, AND IT IS NOT OPTIONAL. IF YOU CANNOT ESTABLISH WHAT THE DRAWING SHOWS, YOU MUST NOT INVENT A DEPARTURE FROM IT, nor any fault. Hand-drawn figures are often hard to read: a figure fault is marked ONLY on POSITIVE evidence about what was actually drawn. Where the figure is illegible, unclear or ambiguous, GRADE THE WRITTEN WORK NORMALLY and never zero a step for a figure you could not read.';
+
+/** The August case law (ECF_POLICY_V2 (k)), restored where no 2026-10-05 ruling changes it
+ *  (controller decision D26, ECF audit D24) and re-stated where one does: 1, 3 and 4 (rulings 2/3
+ *  and the D26 substance test), 2 (ruling 4: struck-out work is withdrawn), 6 (per-part), 8 (D26:
+ *  an invalid method scores 0 for the part). */
+const ECF_CASE_LAW_PROMPT =
+  'CASE LAW — THESE RULINGS ARE DECIDED. Apply them; do not re-reason them:\n' +
+  '       1. A wrong VALUE copied or substituted and then worked consistently from ⇒ NOT a departure: the step where it entered loses its mark ONCE; every later step that correctly works from it EARNS ITS MARKS (ECF, mistakeType null).\n' +
+  '       2. A slip the student then CORRECTS, reaching the right answer for the question as set ⇒ NOT a departure. The marks are KEPT; deduct only for the slip itself — and where the slip is struck through and replaced, it is withdrawn work and is not assessed at all. Do NOT cap and do NOT zero anything.\n' +
+  '       3. The QUESTION STEM miscopied at line 1 and then worked consistently ⇒ penalised ONCE ("silly"), and the work after it earns ECF — UNLESS the miscopy removes the very thing the question tests (a quadratic copied as a linear equation): that answers a DIFFERENT PROBLEM (departureKind "different-problem"), keeping only what that line independently earned.\n' +
+  '       4. A miscopy that made the question EASIER ⇒ the same test: if it removed the thing being tested, it is a different problem and the work below earns nothing; otherwise it is a miscopy, penalised once, with ECF after.\n' +
+  '       5. A miscopy that is IMMATERIAL — the mathematics is identical and NO value point was avoided ⇒ FULL MARKS. Not every misreading is a departure, and a miscopy that changes no value used in the working is not penalised.\n' +
+  '       6. A departure in ONE SUB-PART with a LATER SUB-PART also answered ⇒ a genuinely INDEPENDENT sub-part is a question in its own right and is marked ON ITS OWN MERITS. A departure NEVER reaches into another part: a later part that uses a value from an earlier part carries that value forward (ECF) and is marked on its own method.\n' +
+  '       7. TWO SEPARATE SLIPS, neither carried forward ⇒ TWO ORDINARY MISTAKES and NO departure. Nothing was adopted, so nothing was left behind.\n' +
+  '       8. The RIGHT ANSWER reached by an INVALID method ⇒ departureKind "invalid-method": it scores 0 for that part, the answer mark included, unless the question\'s own CBSE scheme awards the answer mark independently; classify "conceptual". ⚠⚠ AND IT FAILS SAFE: if you cannot DEMONSTRATE that the method is invalid — show that it fails IN GENERAL, not merely that it is not the scheme\'s method — treat it as a VALID ALTERNATIVE and award IN FULL. "Unfamiliar" is not "invalid", and CBSE 3 protects innovative methods.\n' +
+  '       9. AN ANSWER ONLY, with no working ⇒ UNDIAGNOSABLE and NOT a departure. mistakeType null. Never fabricate a type, and never call a bare wrong answer a departure.\n' +
+  '       10. A departure after which the student RETURNS TO THE REAL QUESTION ⇒ THE DEPARTURE ENDS THERE. Later correct work on the question as set EARNS ITS MARKS. Where the student returns and the excursion left nothing behind, do not mark a departure at all — grade the excursion as an ordinary mistake.';
+
+/** The August Science boundary cases (ECF_POLICY_V2 (l)): S1, S2, S4a/S4b, S6 and the keystroke
+ *  contrast kept; S3/S5 re-stated under ruling 3, S4c removed by ruling 5 (state symbols). */
+const SCIENCE_CASE_LAW_PROMPT =
+  'SCIENCE — THE BOUNDARY CASES:\n' +
+  '       S1. Answering a DIFFERENT QUESTION — explaining respiration when asked for photosynthesis ⇒ DEPARTURE AT THE FIRST LINE (departureKind "different-problem"). The whole answer is a different question.\n' +
+  '       S2. Naming the WRONG ORGAN, LAW or PRINCIPLE at step 1 and then describing THAT one correctly ⇒ DEPARTURE (departureKind "different-problem"): the answer describes a different organ, law or process from the one asked. Type the departure step "conceptual".\n' +
+  '       S3. An equation with the WRONG REACTANT OR PRODUCT ⇒ "conceptual" (formed wrongly), NOT a departure; the balancing mark follows the question\'s CBSE scheme (see CHEMICAL EQUATIONS).\n' +
+  '       S4. A CORRECT reaction left UNBALANCED ⇒ NOT A DEPARTURE (the species are right, so the question is unchanged) — and the BUCKET depends on WHAT WOULD FIX IT:\n' +
+  '         S4a. UNBALANCED when the question ASKED for a balanced equation ⇒ "conceptual". The student did not do the chemistry that was asked. The fix is learning that equations must balance — conservation of mass — NOT learning a format.\n' +
+  '         S4b. WRONG COEFFICIENTS while genuinely attempting to balance ⇒ "calculation". The fix is to recount the atoms.\n' +
+  '         MISSING STATE SYMBOLS cost NOTHING — never a deduction and never a fault.\n' +
+  '       ⚠⚠ PRESENTATION IS CBSE\'S FORMAT — answer structure, labelled diagrams, units, conclusion lines. ANYTHING THAT CHANGES WHETHER THE CHEMISTRY OR MATHEMATICS IS RIGHT IS NOT PRESENTATION.\n' +
+  '       ★ MARK-SIZE SANITY CHECK: a CBSE scheme typically pays 1 mark for the correct species and 1 for balancing, so calling an unbalanced equation "presentation" would cost the student HALF the question. Presentation deductions are never that size — if a bucket implies a deduction that large, it is the wrong bucket.\n' +
+  '       ⚠⚠ S3 AND S4 ARE ONE KEYSTROKE APART IN A STUDENT\'S ANSWER AND MUST NOT BE CONFUSED. A WRONG REACTANT IS A CONCEPTUAL ERROR IN FORMING THE EQUATION, NOT A DEPARTURE. AN UNBALANCED EQUATION DOES NOT CHANGE THE QUESTION AND IS NOT A DEPARTURE — it is graded by S4a/S4b above. Check WHICH SPECIES are written before you check whether the coefficients balance.\n' +
+  '       S5. The RIGHT PRINCIPLE with a WRONG NUMERICAL SUBSTITUTION into a physics formula ⇒ formed wrongly: the substitution loses its mark, and working correctly from it earns ECF. NOT a departure.\n' +
+  '       S6. A CORRECT answer with a required DIAGRAM ABSENT or UNLABELLED ⇒ NOT A DEPARTURE. PRESENTATION.';
+
+/** The August scheme-corroboration ruling (ECF_POLICY_V2 (n)); the old "say so in teacherNote"
+ *  is replaced by spec C3 / golden T09 (the scheme is never mentioned to the student). */
+const SCHEME_CORROBORATION_PROMPT =
+  'THE STORED MARKING SCHEME CORROBORATES; IT IS NEVER AUTHORITY ON METHOD. Derive the value points from the QUESTION and its MARK VALUE first, always. Where a stored scheme is supplied it CORROBORATES THE MARK DISTRIBUTION — how many marks sit at each stage. A stored scheme must NEVER be the reason a correct alternative method loses marks. WHERE YOUR DERIVATION AND THE STORED SCHEME DISAGREE, your derivation from the question governs the METHOD — and you never mention the scheme or the disagreement to the student. ⚠ A STORED SCHEME MAY NEVER BE THE REASON A REQUIRED ELEMENT GOES UNCHECKED: if the question requires a figure, a unit, a balanced equation or a conclusion and the stored scheme is silent about it, the derived rubric STILL EXPECTS IT.';
 
 const SUBJECT_CHECKLIST_MATHS = 'formula, substitution, calculation, proper notation (√ ² ± ∴), final answer boxed/underlined, units where the question asks for them';
-const SUBJECT_CHECKLIST_SCIENCE = 'terminology, correct species and balancing in equations (state symbols are not required), NCERT-standard language, diagrams labelled, SI units on numerical answers';
+const SUBJECT_CHECKLIST_SCIENCE = 'terminology, balanced equations (check the species first; state symbols are not required), NCERT-standard language, diagrams labelled, SI units on numerical answers';
 
 function subjectChecklistBody(mode) {
   if (mode === 'maths') return 'For Maths: check ' + SUBJECT_CHECKLIST_MATHS + '.';
@@ -224,6 +273,9 @@ module.exports = {
   FINAL_ANSWER_PROMPT,
   NO_WORKING_PROMPT,
   DIAGRAM_FAILSAFE_PROMPT,
+  ECF_CASE_LAW_PROMPT,
+  SCIENCE_CASE_LAW_PROMPT,
+  SCHEME_CORROBORATION_PROMPT,
   SUBJECT_CHECKLIST_MATHS,
   SUBJECT_CHECKLIST_SCIENCE,
   subjectChecklistBody,

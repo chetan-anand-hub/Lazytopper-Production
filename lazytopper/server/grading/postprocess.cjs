@@ -32,6 +32,7 @@ const TYPES = R.MISTAKE_TYPES;
 const VALID_TYPES = new Set(TYPES);
 const VALID_STATUS = new Set(R.MODEL_STEP_STATUSES);
 const VALID_KINDS = new Set(R.DEPARTURE_KINDS);
+const VALUE_SLIPS = new Set(['silly', 'calculation']);
 
 const half = (n) => Math.max(0, Math.round((Number(n) || 0) * 2) / 2);
 const r2 = (n) => Math.round(n * 100) / 100;
@@ -231,6 +232,7 @@ const partKey = (p) => (p == null ? '' : String(p).toLowerCase().replace(/[^a-z0
  * @returns {Array<{ index:number, part:string, kind:string, returnIndex:number }>}
  */
 function acceptedDepartures(steps) {
+  if (!Array.isArray(steps)) return [];
   const byPart = new Map();
   steps.forEach((s, i) => {
     if (s.isDeparture === true && VALID_KINDS.has(s.departureKind)) {
@@ -290,16 +292,20 @@ function normaliseSteps(rawSteps) {
     });
 }
 
-/** Spread a reduction of `amount` over the steps from the LAST graded one backwards. */
+/** Spread a reduction of `amount` over the steps from the LAST graded one backwards. A step
+ *  protected by error-carried-forward (`_ecf`, CBSE 11) is taken from only after every other
+ *  step: an over-allocated ledger is never trimmed off the work that ECF pays for first. */
 function takeFromEnd(steps, amount, onTake) {
   let left = half(amount);
-  for (let i = steps.length - 1; i >= 0 && left > 0; i -= 1) {
-    const s = steps[i];
-    if (s.status === 'withdrawn' || !(s.marksAwarded > 0)) continue;
-    const t = Math.min(s.marksAwarded, left);
-    s.marksAwarded = half(s.marksAwarded - t);
-    left = half(left - t);
-    if (onTake) onTake(s, t);
+  for (const ecfPass of [false, true]) {
+    for (let i = steps.length - 1; i >= 0 && left > 0; i -= 1) {
+      const s = steps[i];
+      if (s.status === 'withdrawn' || !(s.marksAwarded > 0) || Boolean(s._ecf) !== ecfPass) continue;
+      const t = Math.min(s.marksAwarded, left);
+      s.marksAwarded = half(s.marksAwarded - t);
+      left = half(left - t);
+      if (onTake) onTake(s, t);
+    }
   }
 }
 
@@ -443,6 +449,10 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
     departures = acceptedDepartures(steps);
     for (const d of departures) {
       const end = d.returnIndex >= 0 ? d.returnIndex : steps.length;
+      // D26 (ruling 3): a right answer reached by an INVALID METHOD scores 0 for the part,
+      // the answer mark included — the invalid step itself earns nothing either. (A
+      // different-problem departure step keeps what it independently earned.)
+      if (d.kind === 'invalid-method') steps[d.index].marksAwarded = 0;
       for (let j = d.index + 1; j < end; j += 1) {
         if (partKey(steps[j].part) !== d.part) continue;
         if (steps[j].status === 'unattempted') continue;
@@ -464,6 +474,28 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
       s._flagged = true;
     });
     if (arithmeticFlags > 0) noFullMarks = true;
+
+    // CBSE 11 · "penalized only once" (controller decision D26, defect (b)). The schema marks
+    // the ORIGINAL slip: a step typed silly/calculation that lost marks. In the same part, every LATER step the
+    // model left UNTYPED that still lost marks is carrying that value forward — it is not a
+    // fresh mistake, so it carries NO deduction and its marks are restored (below, within the
+    // question's cap). Never above a slip, never across parts, never under an accepted
+    // departure (zeroed there by ruling 3), never for unattempted / missing / withdrawn steps.
+    const depIdx = new Set(departures.map((d) => d.index));
+    const slipInPart = new Set();
+    steps.forEach((s, i) => {
+      if (zeroedBy.has(i) || ['withdrawn', 'unattempted', 'missing'].includes(s.status)) return;
+      const k = partKey(s.part);
+      if (s.mistakeType) {
+        // Only a slip that CARRIES A VALUE opens ECF: copied wrongly ("silly") or performed wrongly
+        // ("calculation"). A wrong formula / method ("conceptual") applied again below is the same
+        // misconception, not a carried value (golden GS-SUP-01); presentation carries nothing.
+        if (VALUE_SLIPS.has(s.mistakeType) && !depIdx.has(i) && (s.marksAwarded < s._available || s.marksDeducted > 0)) slipInPart.add(k);
+        return;
+      }
+      // a step with NO working shown (blank studentWork) carries nothing forward: it stays charged
+      if (slipInPart.has(k) && s.studentWork && (s.marksDeducted > 0 || s.marksAwarded < s._available)) s._ecf = true;
+    });
   }
   // C3 · a corrected version that is itself arithmetically false is not shown.
   for (const s of steps) {
@@ -488,8 +520,19 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
       if (keyCheck === 'mismatch') { noFullMarks = true; finalAnswerCorrect = false; }
     }
     if (finalAnswerCorrect === false) noFullMarks = true;
-    const stepSum = steps.reduce((a, s) => a + (Number(s.marksAwarded) || 0), 0);
     const cap = noFullMarks ? Math.max(0, totalMarks - 0.5) : totalMarks;
+    // CBSE 11 · ECF steps earn what they could earn, within the room the question's cap leaves
+    // (so an over-allocated model ledger is never inflated by the restoration).
+    {
+      let room = half(cap - steps.reduce((a, s) => a + (Number(s.marksAwarded) || 0), 0));
+      for (const s of steps) {
+        if (!s._ecf) continue;
+        const add = Math.min(half(Math.max(0, s._available - s.marksAwarded)), Math.max(0, room));
+        if (add > 0) { s.marksAwarded = half(s.marksAwarded + add); room = half(room - add); }
+        if (s.marksAwarded > 0) s.status = s.marksAwarded >= s._available ? 'correct' : 'partial';
+      }
+    }
+    const stepSum = steps.reduce((a, s) => a + (Number(s.marksAwarded) || 0), 0);
     marksAwarded = half(Math.min(stepSum, cap));
     // 7 · the steps shown must sum to the mark: take any excess from the end.
     if (stepSum > marksAwarded) {
@@ -507,7 +550,7 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   //      charge is ONCE, on the departure step (CBSE 11), so zeroed steps carry no deduction.
   if (!questionIsObjective) {
     steps.forEach((s, i) => {
-      if (zeroedBy.has(i)) { s.marksDeducted = 0; return; }
+      if (zeroedBy.has(i) || s._ecf) { s.marksDeducted = 0; return; }
       if (s.status === 'unattempted') return;
       const ded = half(Math.max(0, s._available - s.marksAwarded));
       if (s._flagged || s.marksAvailable != null || ded > s.marksDeducted) s.marksDeducted = ded;
@@ -527,7 +570,9 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
           }
         }
       } else if (sum < lost) {
-        const target = [...steps].reverse().find((s) => s.marksDeducted > 0 || s.status !== 'correct') || steps[steps.length - 1];
+        // never onto an ECF step (CBSE 11): it carries no separate charge
+        const charge = steps.filter((s) => !s._ecf);
+        const target = [...charge].reverse().find((s) => s.marksDeducted > 0 || s.status !== 'correct') || charge[charge.length - 1];
         if (target) target.marksDeducted = half(target.marksDeducted + (lost - sum));
       }
     }
@@ -537,9 +582,13 @@ function normaliseQuestionResult(q, raw, ctx = {}) {
   if (questionIsObjective) {
     if (objectiveVerdict.correct) for (const s of steps) s.mistakeType = null;
   } else {
-    for (const s of steps) {
+    // An accepted departure step keeps its type even when it lost nothing itself: its cost is
+    // the work zeroed below it, and that cost is charged to its type (controller D26, defect (a)).
+    const departed = new Set(departures.map((d) => d.index));
+    steps.forEach((s, i) => {
+      if (departed.has(i)) return;
       if (s.mistakeType && !(s.marksDeducted > 0) && s.marksAwarded >= s._available && s.status === 'correct') s.mistakeType = null;
-    }
+    });
   }
 
   // 8 · comments made true

@@ -864,7 +864,12 @@ const textOf = (h) => partsOf(h).filter((p) => typeof p.text === 'string').map((
 // document transport's text moved: the typed and per-question-photo prompts are unchanged
 // (the single-question pin in checkSolution.ecf-august.test.cjs still holds).
 //   PREVIOUS 38962ca6e9e18e95429c0a55e96ad082bdccf66c2354f5821faa7dc6a82eb65e
-const NO_UPLOADS_CONTENTS_SHA256 = 'fcdf9d96050778233ace4280bb8c4dd3ec103706495f02c97cd8d4f8c3b3f2d5';
+// ★ AND AGAIN (controller decisions D24/D26, fcdf9d96… → below): the August case law, the
+// positive-evidence and return rules, the rubric-first wording and the Science/diagram boundary
+// cases were RESTORED to the one rulebook (rules.cjs), with only what a 2026-10-05 ruling changes
+// re-stated. Every transport's prompt moved, so this pin moved with it.
+//   PREVIOUS fcdf9d96050778233ace4280bb8c4dd3ec103706495f02c97cd8d4f8c3b3f2d5
+const NO_UPLOADS_CONTENTS_SHA256 = 'fa1f938d5ab72ac81aae4ac1210c549555b57072b0471b911b1bebfe0b558167';
 
 const PINNED_REQ = () => ({
   worksheetId: 'ws-pin',
