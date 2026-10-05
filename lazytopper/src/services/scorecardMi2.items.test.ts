@@ -9,11 +9,15 @@
  *                      objective row's loss is in marks: unanswered = not attempted.
  *   (iii) OR-LIVE L1 — two questions both printed "Q5" each keep their OWN detected text
  *                      (the rendered C&I path is pinned in the surfaces suite).
- *   (iv)  OR-LIVE L3 — a question whose only loss is a part NOT attempted creates NO Mistake
- *                      Intelligence entry, through the REAL Chapter Test, Full Mock,
- *                      Worksheet and Quick Practice services (the MI front door is real;
- *                      only the log store's write is spied). CONTROL: a typed mistake on the
- *                      same question writes exactly one entry.
+ *   (iv)  OR-LIVE L3 + controller rulings R1/R2 (2026-10-05) — through the REAL Chapter Test,
+ *                      Full Mock, Worksheet and Quick Practice services (the MI front door is
+ *                      real; only the log store's write is spied):
+ *                        - a v2 loss made only of the SERVER's `unattempted` bucket, and a v1
+ *                          question where EVERY step is "missing" with 0 awarded → NO entry;
+ *                        - a v1 question with ONE untyped "missing" part (the rest correct) → an
+ *                          entry (its loss is "reason not recorded", never "Not attempted");
+ *                        - a "missing" step the grader TYPED → an entry, with its type.
+ *                      CONTROL: a typed mistake on the same question writes exactly one entry.
  *   (v)   X of Y     — "1 of 3 graded", every not-graded question listed with its state; the
  *                      scorecard hero never folds a not-graded question into awarded/total.
  *
@@ -258,6 +262,18 @@ const v2OnlyUnattempted = (q: number) =>
 /** v1 (no marksLostByType): every marked step right except one "missing" that earned 0. */
 const v1OnlyMissing = (q: number) =>
   row(q, { annotatedSteps: [step(1, "correct", { marksAwarded: 2 }), step(2, "missing", { marksDeducted: 2 })] });
+/** v1: the WHOLE question not attempted — every marked step "missing", nothing awarded. */
+const v1AllMissing = (q: number) =>
+  row(q, { marksAwarded: 0, percentage: 0, annotatedSteps: [step(1, "missing", { marksDeducted: 2 }), step(2, "missing", { marksDeducted: 2 })] });
+/** v2: a "missing" step the grader TYPED presentation 0.5 (a missing unit) — R1 keeps its type. */
+const v2TypedMissing = (q: number) =>
+  row(q, {
+    marksAwarded: 3.5,
+    percentage: 88,
+    annotatedSteps: [step(1, "correct", { marksAwarded: 3.5 }), step(2, "missing", { marksDeducted: 0.5, mistakeType: "presentation" })],
+    mistakeSummary: { conceptual: 0, calculation: 0, silly: 0, presentation: 1 },
+    marksLostByType: mk({ presentation: 0.5 }),
+  });
 /** CONTROL — the SAME question with a real, typed slip in part (i) (v2). */
 const v2TypedSlip = (q: number) =>
   row(q, {
@@ -345,21 +361,43 @@ const SURFACES: Array<[string, Run]> = [
   ],
 ];
 
-describe("(iv) OR-LIVE L3 — a question whose ONLY loss is a part not attempted creates NO MI entry", () => {
+type LoggedEntry = { marksLost: number; mistakeCounts: Record<string, number>; marksLostByType?: MarksLostByType; marksLostByTypeVersion?: number };
+
+describe("(iv) OR-LIVE L3 / R1 / R2 — only a part the SERVER calls unattempted (or a wholly unattempted v1 question) creates NO MI entry", () => {
   for (const [name, run] of SURFACES) {
-    it(`${name}: v2 'unattempted' part and v1 'missing' part → no entry, outcome not-attempted`, async () => {
-      const outcomes = await run(`na-${name.slice(0, 2)}`, respOf([v2OnlyUnattempted(1), v1OnlyMissing(2)]));
+    it(`${name}: v2 'unattempted' part and a v1 question with EVERY step 'missing' → no entry, outcome not-attempted`, async () => {
+      const outcomes = await run(`na-${name.slice(0, 2)}`, respOf([v2OnlyUnattempted(1), v1AllMissing(2)]));
       // liveness: both questions reached the MI front door
       expect(outcomes.map((o) => o.qNumber)).toEqual([1, 2]);
       expect(outcomes.map((o) => o.mistakeOutcome)).toEqual(["skipped-not-attempted", "skipped-not-attempted"]);
       expect(H.logMistakes).not.toHaveBeenCalled();
     });
 
+    // R1/R2 (controller, 2026-10-05): ONE untyped "missing" part on an otherwise attempted v1
+    // answer is NOT "Not attempted" — its loss is "reason not recorded", an MI entry; and a
+    // "missing" step the grader TYPED keeps its type and its entry.
+    it(`${name}: R1/R2 — a v1 untyped 'missing' part (rest correct) and a v2 TYPED 'missing' step each DO write an entry`, async () => {
+      const outcomes = await run(`r12-${name.slice(0, 2)}`, respOf([v1OnlyMissing(1), v2TypedMissing(2)]));
+      expect(outcomes.map((o) => o.qNumber)).toEqual([1, 2]);
+      expect(outcomes.map((o) => o.mistakeOutcome)).toEqual(["logged", "logged"]);
+      expect(H.logMistakes).toHaveBeenCalledTimes(2);
+      const entries = H.logMistakes.mock.calls.map((c) => c[1] as LoggedEntry);
+      // v1: the whole loss, count-only — no invented marks, no invented type
+      expect(entries[0].marksLost).toBe(2);
+      expect(entries[0].marksLostByType).toBeUndefined();
+      expect(Object.values(entries[0].mistakeCounts).reduce((s, n) => s + n, 0)).toBe(0);
+      // v2 typed "missing": the type is KEPT — in its marks and in its count
+      expect(entries[1].marksLost).toBe(0.5);
+      expect(entries[1].marksLostByType).toEqual(mk({ presentation: 0.5 }));
+      expect(entries[1].marksLostByTypeVersion).toBe(1);
+      expect(entries[1].mistakeCounts.presentation).toBe(1);
+    });
+
     it(`${name}: CONTROL — a real typed slip on the same questions DOES write one entry each`, async () => {
       const outcomes = await run(`ctl-${name.slice(0, 2)}`, respOf([v2TypedSlip(1), v1TypedSlip(2)]));
       expect(outcomes.map((o) => o.mistakeOutcome)).toEqual(["logged", "logged"]);
       expect(H.logMistakes).toHaveBeenCalledTimes(2);
-      const entries = H.logMistakes.mock.calls.map((c) => c[1] as { marksLost: number; mistakeCounts: Record<string, number>; marksLostByType?: MarksLostByType; marksLostByTypeVersion?: number });
+      const entries = H.logMistakes.mock.calls.map((c) => c[1] as LoggedEntry);
       expect(entries.map((e) => e.mistakeCounts.calculation)).toEqual([1, 1]);
       // the v2 entry carries its versioned marks (the not-attempted part is IN the record, never a mistake)
       expect(entries[0].marksLostByType).toEqual(mk({ calculation: 1, unattempted: 2 }));
@@ -391,11 +429,36 @@ describe("(v) 'X of Y graded' — not-graded questions are listed, never folded 
     expect(list!.textContent).not.toContain("Q1:");
   });
 
-  it("NotGradedList names an unread OPTION in the owner's words", () => {
-    const r = [row(1, { totalMarks: 1, marksAwarded: 0, couldNotRead: true, objectiveResolved: false, objective: true })];
+  // R3 (controller, 2026-10-05): couldNotRead ALWAYS wins ("retake the photo"); "couldn't read your
+  // option" is ONLY an unresolved pick on an otherwise READ page (couldNotRead false).
+  it("R3 — NotGradedList: an unread OPTION on a read page says the option copy; couldNotRead + objectiveResolved:false says 'retake the photo'", () => {
+    const r = [
+      row(1, { totalMarks: 1, marksAwarded: 0, couldNotRead: false, objectiveResolved: false, objective: true }),
+      row(2, { totalMarks: 1, marksAwarded: 0, couldNotRead: true, objectiveResolved: false, objective: true }),
+    ];
     const { container } = render(createElement(NotGradedList, { results: r }));
-    expect(container.textContent).toContain("0 of 1 graded");
-    expect(container.textContent).toContain(`Q1: ${UNREAD_OPTION_COPY}`);
+    expect(container.textContent).toContain("0 of 2 graded");
+    const items = Array.from(container.querySelectorAll("li"));
+    expect(items.map((li) => li.getAttribute("data-grade-state"))).toEqual(["unread-option", "could-not-read"]);
+    expect(items[0].textContent).toBe(`Q1: ${UNREAD_OPTION_COPY}`);
+    expect(items[1].textContent).toBe(`Q2: ${COULD_NOT_READ_COPY}`);
+  });
+
+  it("R3 — the scorecard pending strip names an unread OPTION (read page) and an unreadable objective apart, never folded", () => {
+    const rs: WorksheetQuestionGrade[] = [
+      row(1, { totalMarks: 3, marksAwarded: 2, percentage: 67 }),
+      row(2, { totalMarks: 1, marksAwarded: 0, percentage: 0, couldNotRead: false, objectiveResolved: false, objective: true }),
+      row(3, { totalMarks: 1, marksAwarded: 0, percentage: 0, couldNotRead: true, objectiveResolved: false, objective: true }),
+    ];
+    const response: WorksheetGradeResponse = { ok: true, results: rs, totalQuestions: 3, gradedCount: 1, pendingCount: 2, gradedMarksAwarded: 2, gradedMarksTotal: 3, worksheetTotalMarks: 5 };
+    const variant = worksheetScorecardVariant({ name: "Real Numbers · Worksheet 2", code: "WS-M-RN-02", response, downloading: false, onRead: () => {}, onDownload: () => {} });
+    const { container } = render(createElement(ResultsScorecard, { variant, onClose: () => {} }));
+    expect(container.querySelector(".lt-sc__big")!.textContent!.replace(/\s+/g, " ").trim()).toBe("2 / 3");
+    const items = Array.from(container.querySelectorAll(".lt-sc__pend--item")).map((e) => [e.getAttribute("data-grade-state"), e.textContent]);
+    expect(items).toEqual([
+      ["unread-option", `Q2: ${UNREAD_OPTION_COPY}`],
+      ["could-not-read", `Q3: ${COULD_NOT_READ_COPY}`],
+    ]);
   });
 
   it("CONTROL — every question graded → NotGradedList renders nothing", () => {

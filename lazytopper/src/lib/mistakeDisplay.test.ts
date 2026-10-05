@@ -240,13 +240,35 @@ describe("PR-2 B8 — was this question GRADED at all? (the flags decide, never 
     expect(gradeStateCopy(q)).toBe(ANSWER_MISMATCH_COPY);
   });
 
-  it("couldNotRead → could-not-read; couldNotRead + objectiveResolved:false → the unread OPTION", () => {
+  it("couldNotRead → could-not-read", () => {
     expect(gradeStateOf({ couldNotRead: true, totalMarks: 2 })).toBe("could-not-read");
     expect(gradeStateCopy({ couldNotRead: true, totalMarks: 2 })).toBe(COULD_NOT_READ_COPY);
-    const opt = { couldNotRead: true, objectiveResolved: false, objective: true, totalMarks: 1, marksAwarded: 0 };
-    expect(gradeStateOf(opt)).toBe("unread-option");
-    expect(gradeStateCopy(opt)).toBe(UNREAD_OPTION_COPY);
-    expect(isGradedQuestion(opt)).toBe(false);
+    expect(isGradedQuestion({ couldNotRead: true, totalMarks: 2 })).toBe(false);
+  });
+
+  // R3 (controller, 2026-10-05): couldNotRead ALWAYS wins — "retake the photo" — even when the
+  // grader also says the option was unresolved (A's contract sends both on an unread pick).
+  it("R3 — couldNotRead + objectiveResolved:false → could-not-read (couldNotRead always wins), not graded", () => {
+    const q = { couldNotRead: true, objectiveResolved: false, objective: true, totalMarks: 1, marksAwarded: 0 };
+    expect(gradeStateOf(q)).toBe("could-not-read");
+    expect(gradeStateCopy(q)).toBe(COULD_NOT_READ_COPY);
+    expect(isGradedQuestion(q)).toBe(false);
+  });
+
+  it("R3 — objectiveResolved:false on an otherwise READ page (couldNotRead false) → the unread OPTION, not graded", () => {
+    for (const couldNotRead of [false, undefined]) {
+      const opt = { couldNotRead, objectiveResolved: false, objective: true, totalMarks: 1, marksAwarded: 0 };
+      expect(gradeStateOf(opt)).toBe("unread-option");
+      expect(gradeStateCopy(opt)).toBe(UNREAD_OPTION_COPY);
+      expect(isGradedQuestion(opt)).toBe(false);
+      // not graded → no marks, no loss, nothing to MI
+      expect(questionMarksLost({ ...opt, marksLostByType: mk() })).toBeNull();
+      expect(marksLostToWork(opt)).toBe(0);
+    }
+    // CONTROL — objectiveResolved true / null on a read page is graded
+    for (const objectiveResolved of [true, null, undefined]) {
+      expect(gradeStateOf({ couldNotRead: false, objectiveResolved, objective: true, totalMarks: 1, marksAwarded: 0 })).toBe("graded");
+    }
   });
 
   it("answerMismatch:null is UNDECIDED = graded normally, no message; false is graded", () => {
@@ -278,6 +300,46 @@ describe("PR-2 B7 — one question's marks lost per bucket (questionMarksLost)",
 
   it("parts that sum OVER the loss cannot be trusted → null (shown as counts, never a contradicting number)", () => {
     expect(questionMarksLost({ totalMarks: 5, marksAwarded: 2, marksLostByType: mk({ conceptual: 4 }) })).toBeNull();
+  });
+
+  // R2 (controller, 2026-10-05): the SERVER's buckets, exactly. An untyped deduction on a step the
+  // grader marked "missing" stays "Marks lost, reason not recorded" — it is never re-filed as
+  // "Not attempted", not even when every other step is correct.
+  it("R2 — an untyped 'missing' step's mark stays 'reason not recorded' (never re-bucketed to Not attempted)", () => {
+    const missing = { status: "missing", marksAwarded: 0, marksDeducted: 1, mistakeType: null };
+    const correct = { status: "correct", marksAwarded: 1, marksDeducted: 0, mistakeType: null };
+    // every other step correct
+    const onlyMissing = { totalMarks: 3, marksAwarded: 2, annotatedSteps: [correct, correct, missing], marksLostByType: mk({ untyped: 1 }) };
+    expect(questionMarksLost(onlyMissing)).toEqual(mk({ untyped: 1 }));
+    // beside a typed slip
+    const withSlip = {
+      totalMarks: 4,
+      marksAwarded: 2,
+      annotatedSteps: [correct, { status: "incorrect", marksAwarded: 0, marksDeducted: 1, mistakeType: "calculation" }, missing, correct],
+      marksLostByType: mk({ calculation: 1, untyped: 1 }),
+    };
+    expect(questionMarksLost(withSlip)).toEqual(mk({ calculation: 1, untyped: 1 }));
+    // the server's own `unattempted` bucket is kept exactly as sent
+    const v2Unattempted = { totalMarks: 3, marksAwarded: 2, annotatedSteps: [correct, correct, { ...missing, status: "unattempted" }], marksLostByType: mk({ unattempted: 1 }) };
+    expect(questionMarksLost(v2Unattempted)).toEqual(mk({ unattempted: 1 }));
+    // a SHORT sum is still topped up into "reason not recorded" — never into Not attempted
+    expect(questionMarksLost({ ...onlyMissing, marksLostByType: mk() })).toEqual(mk({ untyped: 1 }));
+  });
+
+  it("R1 — a 'missing' step the grader TYPED (presentation 0.5) keeps its type, and its question's chip", () => {
+    const q = {
+      totalMarks: 2,
+      marksAwarded: 1.5,
+      annotatedSteps: [
+        { status: "correct", marksAwarded: 1.5, marksDeducted: 0, mistakeType: null },
+        { status: "missing", marksAwarded: 0, marksDeducted: 0.5, mistakeType: "presentation" },
+      ],
+      mistakeSummary: { presentation: 1 },
+      marksLostByType: mk({ presentation: 0.5 }),
+    };
+    expect(questionMarksLost(q)).toEqual(mk({ presentation: 0.5 }));
+    expect(questionChipType(q)).toBe("presentation");
+    expect(isQuestionNotAttempted(q)).toBe(false);
   });
 
   it("null for a count-only grade, a malformed record and a question that was not graded", () => {
@@ -319,37 +381,76 @@ describe("PR-2 B7 — a paper's marks lost (paperMarksLost)", () => {
   });
 });
 
-describe("PR-2 / OR-LIVE L3 — marks lost to the WORK (a part not attempted is never a mistake)", () => {
+// Controller rulings R1/R2 (2026-10-05): "Not attempted" is ONLY the server's v2 `unattempted`
+// bucket, or a v1 question where EVERY marked step is "missing" with nothing awarded. A single
+// untyped "missing" part on an otherwise attempted v1 answer is a loss with no reason recorded —
+// it IS lost to the work (an MI entry); a "missing" step the grader TYPED keeps its type.
+describe("PR-2 / R1 / R2 — marks lost to the WORK (only a part the SERVER calls unattempted is never a mistake)", () => {
   const step = (status: string, over: Record<string, unknown> = {}) => ({ status, marksAwarded: 0, marksDeducted: 0, mistakeType: null, ...over });
 
-  it("v2: the loss minus its 'unattempted' bucket", () => {
+  it("v2: the loss minus the server's 'unattempted' bucket, exactly", () => {
     expect(marksLostToWork({ totalMarks: 4, marksAwarded: 1, marksLostByType: mk({ unattempted: 2, conceptual: 1 }) })).toBe(1);
     expect(marksLostToWork({ totalMarks: 4, marksAwarded: 1, marksLostByType: mk({ unattempted: 3 }) })).toBe(0);
   });
 
-  it("v1: a loss made ONLY of a 'missing' step (every other step correct) is 0 — not a mistake", () => {
+  it("R2 · v2: an UNTYPED 'missing' step's mark (filed by the server under untyped) IS lost to the work", () => {
+    const q = {
+      totalMarks: 4,
+      marksAwarded: 3,
+      annotatedSteps: [step("correct", { marksAwarded: 2 }), step("missing", { marksDeducted: 1 }), step("correct", { marksAwarded: 1 })],
+      marksLostByType: mk({ untyped: 1 }),
+    };
+    expect(marksLostToWork(q)).toBe(1);
+  });
+
+  it("R1 · v2: a 'missing' step TYPED presentation 0.5 is lost to the work (its type kept)", () => {
+    const q = {
+      totalMarks: 2,
+      marksAwarded: 1.5,
+      annotatedSteps: [step("correct", { marksAwarded: 1.5 }), step("missing", { marksDeducted: 0.5, mistakeType: "presentation" })],
+      marksLostByType: mk({ presentation: 0.5 }),
+    };
+    expect(marksLostToWork(q)).toBe(0.5);
+  });
+
+  it("R1/R2 · v1: ONE untyped 'missing' part, every other step correct → the WHOLE loss is the work's (reason not recorded)", () => {
     const q = { totalMarks: 4, marksAwarded: 2, annotatedSteps: [step("correct", { marksAwarded: 2 }), step("missing", { marksDeducted: 2 })] };
+    expect(marksLostToWork(q)).toBe(2);
+  });
+
+  it("R1 · v1: a 'missing' step TYPED presentation is lost to the work", () => {
+    const q = { totalMarks: 2, marksAwarded: 1.5, annotatedSteps: [step("correct", { marksAwarded: 1.5 }), step("missing", { marksDeducted: 0.5, mistakeType: "presentation" })] };
+    expect(marksLostToWork(q)).toBe(0.5);
+  });
+
+  it("v1: a question with EVERY marked step 'missing' and nothing awarded is not attempted → 0", () => {
+    const q = { totalMarks: 4, marksAwarded: 0, annotatedSteps: [step("missing", { marksDeducted: 2 }), step("missing", { marksDeducted: 2 })] };
+    expect(isQuestionNotAttempted(q)).toBe(true);
     expect(marksLostToWork(q)).toBe(0);
   });
 
-  it("v1 CONTROL: a real wrong step beside a missing one keeps the wrong step's loss", () => {
+  it("v1 CONTROL: a real wrong step beside a missing one — the whole loss is the work's", () => {
     const q = {
       totalMarks: 4,
       marksAwarded: 1,
       annotatedSteps: [step("incorrect", { marksDeducted: 1, mistakeType: "calculation" }), step("correct", { marksAwarded: 1 }), step("missing", { marksDeducted: 2 })],
     };
-    expect(marksLostToWork(q)).toBe(1);
+    expect(marksLostToWork(q)).toBe(3);
     // and with no missing step at all, the whole loss is the work's
     expect(marksLostToWork({ totalMarks: 3, marksAwarded: 1, annotatedSteps: [step("incorrect", { marksDeducted: 2 })] })).toBe(2);
   });
 
   it("a crossed-out step is not part of the answer when deciding (only MARKED steps count)", () => {
-    const q = {
+    // [withdrawn, missing], nothing awarded: every MARKED step is missing → not attempted → 0
+    const notAttempted = { totalMarks: 4, marksAwarded: 0, annotatedSteps: [step("withdrawn", { studentWork: "struck" }), step("missing", { marksDeducted: 4 })] };
+    expect(marksLostToWork(notAttempted)).toBe(0);
+    // [correct, withdrawn, missing]: attempted (a step earned marks) → the whole loss is the work's
+    const attempted = {
       totalMarks: 4,
       marksAwarded: 2,
       annotatedSteps: [step("correct", { marksAwarded: 2 }), step("withdrawn", { studentWork: "struck" }), step("missing", { marksDeducted: 2 })],
     };
-    expect(marksLostToWork(q)).toBe(0);
+    expect(marksLostToWork(attempted)).toBe(2);
   });
 });
 

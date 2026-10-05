@@ -386,13 +386,17 @@ export type GradeState = "graded" | "could-not-read" | "unread-option" | "answer
  * The ONE grade-state decision. Branches on the FLAGS, never on the marks (an unmatched answer
  * comes back with `marksAwarded: 0`, which must never read as a graded 0):
  *   - `answerMismatch === true` → not graded (the owner's addendum);
- *   - `couldNotRead` → not graded; `objectiveResolved === false` names the unread option;
+ *   - `couldNotRead` → not graded, "retake the photo" — it always wins (controller R3);
+ *   - `objectiveResolved === false` on an otherwise read page → not graded, the unread option;
  *   - anything else → graded (`answerMismatch: null` = undecided = graded, no message).
  */
 export function gradeStateOf(q: GradedQuestionLike | null | undefined): GradeState {
   if (!q) return "could-not-read";
   if (q.answerMismatch === true) return "answer-mismatch";
-  if (q.couldNotRead) return q.objectiveResolved === false ? "unread-option" : "could-not-read";
+  // R3 (controller, 2026-10-05): couldNotRead ALWAYS wins ("retake the photo"); "couldn't read
+  // your option" is only for an unread pick on an otherwise read page.
+  if (q.couldNotRead) return "could-not-read";
+  if (q.objectiveResolved === false) return "unread-option";
   return "graded";
 }
 
@@ -536,33 +540,10 @@ export function questionMarksLost(q: GradedQuestionLike | null | undefined): Mar
   const lost = roundMarks(marksLostOn(q));
   const sum = marksLostTotal(raw);
   if (sum > lost + 1e-9) return null;
-  const m = sum < lost - 1e-9 ? { ...raw, untyped: roundMarks(raw.untyped + (lost - sum)) } : { ...raw };
-  // A step the grader itself marked NOT ATTEMPTED ("missing", which the v2 grader still passes
-  // through from the model) whose deduction it filed under "reason not recorded" is moved to
-  // "Not attempted" — the step's own state says why. Only UNTYPED marks move: a mark the grader
-  // gave a type keeps it, nothing is invented, and the parts still sum to the loss.
-  let movable = m.untyped;
-  for (const s of splitWithdrawnSteps(q.annotatedSteps).marked) {
-    if (movable <= 0) break;
-    if (!isNotAttemptedStatus(s?.status) || s?.status === "unattempted") continue;
-    if ((Number(s?.marksAwarded) || 0) > 0 || isStoredMistakeType(s?.mistakeType)) continue;
-    const take = Math.min(movable, Math.max(0, Number(s?.marksDeducted) || 0));
-    if (take <= 0) continue;
-    m.untyped = roundMarks(m.untyped - take);
-    m.unattempted = roundMarks(m.unattempted + take);
-    movable = roundMarks(movable - take);
-  }
-  // …and when every OTHER marked step is fully correct, the rest of the unexplained loss can only
-  // be the part left unattempted (the same rule the count-only path uses — OR-LIVE L3).
-  if (movable > 0) {
-    const marked = splitWithdrawnSteps(q.annotatedSteps).marked;
-    const na = marked.filter((s) => isNotAttemptedStatus(s?.status) && !((Number(s?.marksAwarded) || 0) > 0));
-    if (na.length > 0 && marked.filter((s) => !na.includes(s)).every((s) => s?.status === "correct")) {
-      m.unattempted = roundMarks(m.unattempted + movable);
-      m.untyped = roundMarks(m.untyped - movable);
-    }
-  }
-  return m;
+  // R2 (controller, 2026-10-05): the SERVER's buckets, exactly — one source of truth, so the
+  // scorecard, MI and the server agree. An untyped deduction stays "reason not recorded" even on
+  // a "missing" step; nothing is re-bucketed here. A short sum is shown as "reason not recorded".
+  return sum < lost - 1e-9 ? { ...raw, untyped: roundMarks(raw.untyped + (lost - sum)) } : { ...raw };
 }
 
 export interface PaperMarksLost {
@@ -628,24 +609,18 @@ export function paperGradedTotals(questions: ReadonlyArray<GradedQuestionLike> |
 
 /**
  * Marks lost to the student's WORK on one graded question — the loss minus anything NOT
- * ATTEMPTED (a part not attempted is never a mistake and never an MI entry; OR-LIVE L3).
- *   - v2 (`marksLostByType`): the loss minus its `unattempted` bucket;
- *   - v1: the loss minus the deductions on not-attempted ("missing") steps that earned nothing;
- *     and when every other marked step is fully correct, the WHOLE loss is the part(s) left
- *     unattempted — so a not-attempted part never becomes an untyped "mistake".
+ * ATTEMPTED (never a mistake, never an MI entry). Controller rulings R1/R2 (2026-10-05):
+ *   - v2 (`marksLostByType`): the loss minus the SERVER's `unattempted` bucket, exactly;
+ *   - v1: zero only for a question that was not attempted at all (every step "missing", nothing
+ *     awarded); otherwise the whole loss — a "missing" step the grader TYPED (a missing
+ *     conclusion, unit or formula) is a CBSE exam-technique deduction and keeps its type.
  */
 export function marksLostToWork(q: GradedQuestionLike): number {
   const lost = roundMarks(marksLostOn(q));
   if (lost <= 0) return 0;
   const m = questionMarksLost(q);
   if (m) return roundMarks(Math.max(0, lost - m.unattempted));
-  const steps = splitWithdrawnSteps(q.annotatedSteps).marked;
-  const missing = steps.filter((s) => isNotAttemptedStatus(s?.status) && !((Number(s?.marksAwarded) || 0) > 0));
-  if (missing.length === 0) return lost;
-  const others = steps.filter((s) => !missing.includes(s));
-  if (others.every((s) => s?.status === "correct")) return 0;
-  const naDeducted = missing.reduce((sum, s) => sum + (Number(s?.marksDeducted) || 0), 0);
-  return roundMarks(Math.max(0, lost - naDeducted));
+  return isQuestionNotAttempted(q) ? 0 : lost;
 }
 
 /** A stored MI entry's marks per bucket — ONLY when it carries the versioned field (PR-2). An
@@ -764,7 +739,9 @@ export function isQuestionNotAttempted(q: GradedQuestionLike): boolean {
   if ((Number(q.marksAwarded) || 0) > 0) return false;
   const total = Number(q.totalMarks) || 0;
   const marks = readMarksLostByType(q.marksLostByType);
-  if (marks && total > 0 && roundMarks(marks.unattempted) === roundMarks(total)) return true;
+  // R2 — a v2 grade follows the SERVER's buckets: not attempted only when its whole loss is in
+  // `unattempted` (an all-"missing" question the server filed as untyped is NOT re-labelled).
+  if (marks) return total > 0 && roundMarks(marks.unattempted) === roundMarks(total);
   const steps = splitWithdrawnSteps(q.annotatedSteps).marked;
   if (steps.length === 0) return false;
   return steps.every((s) => isNotAttemptedStatus(s?.status));

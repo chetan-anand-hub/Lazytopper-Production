@@ -21,7 +21,9 @@
  *       scorecard (and, for worksheets, the graded PDF and the grade panel).
  *
  * Then the other honest states on the graded sheet, both PDFs and the C&I multi list:
- * couldNotRead and an unread option in the owner's words, a not-attempted step that never
+ * couldNotRead and an unread option in the owner's words — R3 (controller, 2026-10-05):
+ * couldNotRead ALWAYS says "retake the photo", even with objectiveResolved:false; "couldn't read
+ * your option" is only an unresolved pick on an otherwise read page — a not-attempted step that never
  * reads "Incorrect −N", crossed-out work drawn APART (struck, outside the step list), the
  * rubric under its own heading and never inside the teacher's note — and OR-LIVE L1
  * through the rendered C&I multi path.
@@ -259,7 +261,7 @@ const gradedRow = (qNumber: number, total = 3) =>
 const mismatchRow = (qNumber: number, total = 3) =>
   row(qNumber, { totalMarks: total, marksAwarded: 0, percentage: 0, answerMismatch: true, departureKind: "different-problem", marksLostByType: mk() });
 const respOf = (results: WorksheetQuestionGrade[], worksheetTotalMarks?: number): WorksheetGradeResponse => {
-  const graded = results.filter((r) => !r.couldNotRead && r.answerMismatch !== true);
+  const graded = results.filter((r) => !r.couldNotRead && r.answerMismatch !== true && r.objectiveResolved !== false);
   return {
     ok: true,
     results,
@@ -719,7 +721,9 @@ const STRUCK = "STRUCK WORK Q1 x = 7";
 const RUBRIC_A = "RUBRIC POINT A correct formula";
 const NOTE = "TEACHER NOTE Q1 check the arithmetic.";
 /** Q1 graded v2 (a typed slip, a crossed-out attempt, an unattempted part, a rubric);
- *  Q2 unreadable; Q3 an unread option; Q4 does not match its question. */
+ *  Q2 unreadable; Q3 an unread option AS A'S CONTRACT SENDS IT (couldNotRead:true +
+ *  objectiveResolved:false — R3: "retake the photo"); Q4 does not match its question;
+ *  Q5 an unread option on an otherwise READ page (couldNotRead:false + objectiveResolved:false). */
 const KS: WorksheetGradeResponse = respOf(
   [
     row(1, {
@@ -743,10 +747,18 @@ const KS: WorksheetGradeResponse = respOf(
     { qNumber: 2, couldNotRead: true, totalMarks: 2 },
     row(3, { totalMarks: 1, marksAwarded: 0, percentage: 0, couldNotRead: true, objectiveResolved: false, objective: true }),
     mismatchRow(4),
+    row(5, { totalMarks: 1, marksAwarded: 0, percentage: 0, couldNotRead: false, objectiveResolved: false, objective: true }),
   ],
-  11,
+  12,
 );
-const KS_QS = [paperQ(1, 5, "D"), paperQ(2, 2, "B"), paperQ(3, 1, "A"), paperQ(4, 3, "C")];
+const KS_QS = [paperQ(1, 5, "D"), paperQ(2, 2, "B"), paperQ(3, 1, "A"), paperQ(4, 3, "C"), paperQ(5, 1, "A")];
+/** Each not-graded KS question's state and the owner's words for it (R3 decides Q3). */
+const KS_NOT_GRADED: Array<[number, string, string]> = [
+  [2, "could-not-read", COULD_NOT_READ_COPY],
+  [3, "could-not-read", COULD_NOT_READ_COPY],
+  [4, "answer-mismatch", COPY],
+  [5, "unread-option", UNREAD_OPTION_COPY],
+];
 
 describe("honest states — the scorecard's graded sheet", () => {
   const renderSheet = () => {
@@ -754,11 +766,10 @@ describe("honest states — the scorecard's graded sheet", () => {
     return render(<ResultsScorecard variant={variant} onClose={() => {}} />).container;
   };
 
-  it("couldNotRead / unread option / mismatch each say the owner's words, with no mark", () => {
+  it("couldNotRead / unread option / mismatch each say the owner's words, with no mark (R3: couldNotRead + objectiveResolved:false → 'retake the photo')", () => {
     const c = renderSheet();
-    const want: Array<[string, string]> = [["Question 2", COULD_NOT_READ_COPY], ["Question 3", UNREAD_OPTION_COPY], ["Question 4", COPY]];
-    for (const [label, copy] of want) {
-      const card = gaCard(c, label);
+    for (const [n, , copy] of KS_NOT_GRADED) {
+      const card = gaCard(c, `Question ${n}`);
       expect(text(card.querySelector(".lt-sc__ga-ungraded b"))).toBe(copy);
       expect(card.querySelector(".lt-sc__ga-score")).toBeNull();
     }
@@ -799,13 +810,15 @@ describe("honest states — the scorecard's graded sheet", () => {
 describe("honest states — the worksheet graded PDF", () => {
   const renderPdf = () => render(<WorksheetGradedPrintDoc ws={paperOf("ws-ks", KS_QS)} response={KS} name="KS" code="WS-KS" coaching="" />).container;
 
-  it("couldNotRead / unread option / mismatch each say the owner's words; none carries a mark", () => {
+  it("couldNotRead / unread option / mismatch each say the owner's words; none carries a mark (R3)", () => {
     const c = renderPdf();
     const notes = Array.from(c.querySelectorAll(".lt-gp__q--pending .lt-gp__pendnote"));
-    const by = (s: string) => notes.find((n) => n.getAttribute("data-grade-state") === s)!;
-    expect(text(by("could-not-read"))).toContain(COULD_NOT_READ_COPY);
-    expect(text(by("unread-option"))).toContain(UNREAD_OPTION_COPY);
-    expect(text(by("answer-mismatch"))).toContain(COPY);
+    const noteOf = (n: number) => notes.find((e) => text(e.closest(".lt-gp__q")!.querySelector(".lt-gp__qn")) === String(n));
+    expect(notes).toHaveLength(KS_NOT_GRADED.length);
+    for (const [n, state, copy] of KS_NOT_GRADED) {
+      expect(noteOf(n)?.getAttribute("data-grade-state")).toBe(state);
+      expect(text(noteOf(n))).toContain(copy);
+    }
     for (const n of notes) expect(text(n.closest(".lt-gp__q")!.querySelector(".lt-gp__qmk"))).toMatch(/^(pending|not marked)$/);
   });
 
@@ -842,13 +855,15 @@ describe("honest states — the Check & Improve graded PDF", () => {
       />,
     ).container;
 
-  it("couldNotRead / unread option / mismatch each say the owner's words; none carries a mark", () => {
+  it("couldNotRead / unread option / mismatch each say the owner's words; none carries a mark (R3)", () => {
     const c = renderPdf();
     const notes = Array.from(c.querySelectorAll(".lt-cigp__q--pending .lt-cigp__pendnote"));
-    const by = (s: string) => notes.find((n) => n.getAttribute("data-grade-state") === s)!;
-    expect(text(by("could-not-read"))).toContain(COULD_NOT_READ_COPY);
-    expect(text(by("unread-option"))).toContain(UNREAD_OPTION_COPY);
-    expect(text(by("answer-mismatch"))).toContain(COPY);
+    const noteOf = (n: number) => notes.find((e) => text(e.closest(".lt-cigp__q")!.querySelector(".lt-cigp__qn")) === String(n));
+    expect(notes).toHaveLength(KS_NOT_GRADED.length);
+    for (const [n, state, copy] of KS_NOT_GRADED) {
+      expect(noteOf(n)?.getAttribute("data-grade-state")).toBe(state);
+      expect(text(noteOf(n))).toContain(copy);
+    }
     for (const n of notes) expect(text(n.closest(".lt-cigp__q")!.querySelector(".lt-cigp__qmk"))).toMatch(/^(pending|not marked)$/);
   });
 
@@ -876,17 +891,19 @@ describe("honest states — the Check & Improve multi list (rendered page)", () 
     { n: 2, text: "State Euclid's division lemma.", marks: 2 },
     { n: 3, text: "Which of these is irrational? (a) 2 (b) root 2", marks: 1 },
     { n: 4, text: "Find the zeroes of the quadratic polynomial x squared minus 4.", marks: 3 },
+    { n: 5, text: "Which of these is rational? (a) root 3 (b) 4", marks: 1 },
   ];
-  it("each not-graded question says its own words; 1 of 4 graded; Q1's steps keep the struck work and the rubric apart", async () => {
+  it("each not-graded question says its own words (R3); 1 of 5 graded; Q1's steps keep the struck work and the rubric apart", async () => {
     await runCiMulti(QS, KS);
     await waitFor(() => expect(records()).toHaveLength(1));
     const ng = document.querySelector('[data-testid="not-graded-list"]')!;
-    expect(text(ng)).toContain("1 of 4 graded");
+    expect(text(ng)).toContain("1 of 5 graded");
+    // the list names each not-graded question with its own state, in question order
+    expect(Array.from(ng.querySelectorAll("li")).map((li) => [li.getAttribute("data-grade-state"), text(li)])).toEqual(
+      KS_NOT_GRADED.map(([n, state, copy]) => [state, `Q${n}: ${copy}`]),
+    );
     const notices = Array.from(document.querySelectorAll("p.lt-gsp__state"));
-    const by = (s: string) => notices.find((n) => n.getAttribute("data-grade-state") === s)!;
-    expect(text(by("could-not-read"))).toBe(COULD_NOT_READ_COPY);
-    expect(text(by("unread-option"))).toBe(UNREAD_OPTION_COPY);
-    expect(text(by("answer-mismatch"))).toBe(COPY);
+    expect(notices.map((n) => [n.getAttribute("data-grade-state"), text(n)])).toEqual(KS_NOT_GRADED.map(([, state, copy]) => [state, copy]));
     for (const n of notices) {
       const card = n.parentElement!;
       expect(text(card)).toContain("Not marked");

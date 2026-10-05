@@ -18,13 +18,15 @@
  * THE TWO MARKS CHECKS (PR-1 measured them as a baseline; here they are GATED):
  *   - `fourType.inMarks` (every GRADED question): the parts a student is shown — the owner's
  *     three groups (`marksGroupRows`) + "Not attempted" + "Marks lost, reason not recorded",
- *     all from `questionMarksLost` — sum to total − awarded (±1e-9), and keep the grader's
- *     `marksLostByType` ledger (re-derived below, not imported) as INVARIANTS: every typed
- *     bucket exactly the grader's; "Not attempted" + "reason not recorded" the grader's sum; "Not
- *     attempted" never below the grader's and at least what the grader's OWN STEP STATES say was
- *     not attempted (a "missing" step's untyped deduction; the whole untyped remainder when every
- *     other marked step is correct — OR-LIVE L3). The same invariants gate the paper, the
- *     scorecard and every MI entry; an MI entry exists only for a loss NOT made of such parts.
+ *     all from `questionMarksLost` — sum to total − awarded (±1e-9), and EQUAL the grader's
+ *     `marksLostByType` ledger (re-derived below, not imported) bucket for bucket — controller
+ *     ruling R2 (2026-10-05): the SERVER's buckets, exactly; nothing is re-filed on the client
+ *     (an untyped deduction on a "missing" step stays "reason not recorded"); only a short sum is
+ *     topped up into "reason not recorded". The same exact equality gates the paper, the
+ *     scorecard and every MI entry. R1: an MI entry exists for a v2 question iff its loss minus
+ *     the server's `unattempted` bucket is > 0 (a "missing" step the grader TYPED keeps its type
+ *     and its entry); for a v1 question iff it lost marks and is not wholly not attempted (EVERY
+ *     marked step "missing", nothing awarded).
  *   - `everyLostMarkHasAType` (every graded question that LOST marks): every lost mark is
  *     ACCOUNTED FOR in EXACTLY ONE displayed bucket — a mistake type (and through it exactly one
  *     owner group), "Not attempted" (never a mistake), or "Marks lost, reason not recorded".
@@ -49,14 +51,18 @@
  *   `getMistakeInsights` (only its log READ is pointed at the stored entries).
  *
  * CURATED (`__fixtures__/gradeConsistency/v2/`, each labelled SYNTHETIC in its own `source`):
- * the owner-paper shape set, a couldNotRead single, an answerMismatch single, a withdrawn +
- * rubric single, and one deliberately OFF-contract single (buckets sum short) that pins the
- * client's documented tolerance.
+ * the owner-paper shape set, the "missing"-step set (R1/R2: untyped "missing" marks stay "reason
+ * not recorded" and DO make an entry; a TYPED "missing" step keeps its type), a couldNotRead
+ * single, an answerMismatch single, a withdrawn + rubric single, and one deliberately
+ * OFF-contract single (buckets sum short) that pins the client's documented tolerance.
  *
  * "NOTHING RECORDED ANYWHERE": answerMismatch / couldNotRead / an unread option record no MI
  * entry and no attempt — through the worksheet, Chapter Test and Full Mock grade services AND
  * the MI front door itself — while their siblings ARE recorded; the copy each surface prints
- * is the module constant, verbatim (em dash included).
+ * is the module constant, verbatim (em dash included). R3 (2026-10-05): couldNotRead ALWAYS
+ * shows "We couldn't read this answer — retake the photo", even with objectiveResolved:false
+ * (A's contract sends both on an unread pick); "We couldn't read your option" is ONLY for
+ * objectiveResolved:false on an otherwise read page (couldNotRead not true).
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { createElement, type ReactNode } from "react";
@@ -232,6 +238,7 @@ import {
   marksLostToWork,
   paperGradedTotals,
   paperMarksLost,
+  questionChipType,
   questionMarksLost,
   stepDisplay,
   stepShowsType,
@@ -303,7 +310,7 @@ function loadGolden(): { files: ManifestFile[]; onDisk: string[]; sets: Body[]; 
 const GOLDEN = GOLDEN_PRESENT ? loadGolden() : null;
 
 const CURATED_SET = CURATED("owner-paper-shape.set.json");
-const CURATED_RECLASS = CURATED("missing-step-reclass.set.json");
+const CURATED_MISSING = CURATED("missing-step-untyped.set.json");
 const CURATED_SINGLES = ["could-not-read.single.json", "answer-mismatch.single.json", "withdrawn-rubric.single.json", "short-sum-tolerance.single.json"].map((name) => ({
   name,
   fx: CURATED(name),
@@ -319,13 +326,13 @@ const curatedBodies: Body[] = [
     trueChapters: CURATED_SET.trueChapters,
   },
   {
-    tag: "curated:missing-step-reclass.set.json",
+    tag: "curated:missing-step-untyped.set.json",
     kind: "set",
-    body: CURATED_RECLASS.body,
-    files: ["missing-step-reclass.set.json"],
-    subjectOf: (n: number) => (CURATED_RECLASS.trueSubjects?.[String(n)] === "Science" ? "Science" : "Maths"),
-    request: CURATED_RECLASS.request,
-    trueChapters: CURATED_RECLASS.trueChapters,
+    body: CURATED_MISSING.body,
+    files: ["missing-step-untyped.set.json"],
+    subjectOf: (n: number) => (CURATED_MISSING.trueSubjects?.[String(n)] === "Science" ? "Science" : "Maths"),
+    request: CURATED_MISSING.request,
+    trueChapters: CURATED_MISSING.trueChapters,
   },
   ...CURATED_SINGLES.map(({ name, fx }) => ({
     tag: `curated:${name}`,
@@ -367,10 +374,14 @@ const addM = (a: Marks, b: Marks): Marks => {
 const sameMarks = (a: Marks | null | undefined, b: Marks | null | undefined) =>
   !!a && !!b && BUCKETS.every((k) => Math.abs((Number(a[k]) || 0) - (Number(b[k]) || 0)) <= EPS);
 
-/** Was this question GRADED? From the v2 FLAGS alone, never from the marks. */
-const oGraded = (q: Any) => !!q && q.answerMismatch !== true && !q.couldNotRead;
-/** Which honest state a not-graded question is in. */
-const oState = (q: Any) => (q?.answerMismatch === true ? "answer-mismatch" : q?.objectiveResolved === false ? "unread-option" : "could-not-read");
+/** Was this question GRADED? From the v2 FLAGS alone, never from the marks: not a mismatch, not
+ *  unreadable, and its option (if any) resolved. */
+const oGraded = (q: Any) => !!q && q.answerMismatch !== true && !q.couldNotRead && q.objectiveResolved !== false;
+/** Which honest state a not-graded question is in. R3 (2026-10-05): a mismatch first; then
+ *  couldNotRead ALWAYS ("retake the photo"), even with objectiveResolved:false; the unread OPTION
+ *  only on an otherwise read page. */
+const oState = (q: Any) =>
+  q?.answerMismatch === true ? "answer-mismatch" : !q || q.couldNotRead ? "could-not-read" : q.objectiveResolved === false ? "unread-option" : "could-not-read";
 const oLost = (q: Any) => (oGraded(q) ? r2(Math.max(0, (Number(q.totalMarks) || 0) - (Number(q.marksAwarded) || 0))) : 0);
 function oBuckets(raw: Any): Marks | null {
   if (!raw || typeof raw !== "object") return null;
@@ -393,50 +404,11 @@ function oParts(q: Any): Marks | null {
   if (sum > lost + EPS) return null;
   return sum < lost - EPS ? { ...m, untyped: r2(m.untyped + (lost - sum)) } : m;
 }
-const isNotAttemptedStep = (s: Any) => s?.status === "missing" || s?.status === "unattempted";
-/**
- * The marks the grader's OWN STEP STATES say were not attempted (OR-LIVE L3) — a FLOOR for what
- * the display must show as "Not attempted", read from the steps, never from lib/mistakeDisplay:
- *   - the grader's `unattempted` bucket;
- *   - plus the deductions on "missing" steps that earned nothing and carry no type, as far as the
- *     grader filed them under "reason not recorded" (a typed mark is the grader's ruling: never moved);
- *   - and when every OTHER marked step is fully correct, the whole untyped remainder — nothing else
- *     on the page could have lost it.
- */
-function oNotAttemptedFloor(q: Any): number {
-  const p = oParts(q);
-  if (!p) return 0;
-  const marked: Any[] = (q.annotatedSteps ?? []).filter((s: Any) => s?.status !== "withdrawn");
-  const na = marked.filter((s) => isNotAttemptedStep(s) && !((Number(s?.marksAwarded) || 0) > 0));
-  if (na.length === 0) return p.unattempted;
-  if (marked.filter((s) => !na.includes(s)).every((s) => s?.status === "correct")) return r2(p.unattempted + p.untyped);
-  const missingUntyped = na
-    .filter((s) => s?.status === "missing" && !(TYPES as readonly string[]).includes(s?.mistakeType))
-    .reduce((sum, s) => sum + Math.max(0, Number(s?.marksDeducted) || 0), 0);
-  return r2(p.unattempted + Math.min(p.untyped, missingUntyped));
-}
-/**
- * The display's ledger against the grader's, as INVARIANTS (the display may re-file an untyped
- * mark as "Not attempted" when the grader's own step says so — see oNotAttemptedFloor):
- *   every TYPED bucket is exactly the grader's; "Not attempted" + "reason not recorded" keep the
- *   grader's sum; "Not attempted" never shrinks below the grader's and reaches the step floor.
- */
-function ledgerOk(m: Marks | null | undefined, want: Marks | null | undefined, floor: number): boolean {
-  return (
-    !!m &&
-    !!want &&
-    TYPES.every((t) => Math.abs(m[t] - want[t]) <= EPS) &&
-    Math.abs(m.unattempted + m.untyped - (want.unattempted + want.untyped)) <= EPS &&
-    m.unattempted >= want.unattempted - EPS &&
-    m.unattempted >= floor - EPS
-  );
-}
 /** The paper's marks as the GRADER filed them (graded questions only; a graded loss with no usable
- *  split is "reason not recorded"), plus the sum of the step floors. */
-function oPaper(results: Any[]): { lost: number; byType: Marks; floor: number; anySplit: boolean } {
+ *  split is "reason not recorded"). R2: the display must EQUAL this, bucket for bucket. */
+function oPaper(results: Any[]): { lost: number; byType: Marks; anySplit: boolean } {
   let byType = zero();
   let lost = 0;
-  let floor = 0;
   let anySplit = false;
   for (const q of results) {
     if (!oGraded(q)) continue;
@@ -445,30 +417,28 @@ function oPaper(results: Any[]): { lost: number; byType: Marks; floor: number; a
     if (p) {
       anySplit = true;
       byType = addM(byType, p);
-      floor = r2(floor + oNotAttemptedFloor(q));
     } else if (oLost(q) > 0) byType = { ...byType, untyped: r2(byType.untyped + oLost(q)) };
   }
-  return { lost, byType, floor, anySplit };
+  return { lost, byType, anySplit };
 }
-/** Not attempted (owner ruling): graded, nothing awarded, and either the whole loss is
- *  `unattempted` or every marked (non-withdrawn) step is a not-attempted step. */
-function oNotAttempted(q: Any): boolean {
+/** v1 "not attempted" (owner ruling + R1): graded, nothing awarded, and EVERY marked
+ *  (non-withdrawn) step is a not-attempted step. One "missing" part beside attempted work is NOT. */
+function oNotAttemptedV1(q: Any): boolean {
   if (!oGraded(q) || (Number(q.marksAwarded) || 0) > 0) return false;
-  const m = oBuckets(q.marksLostByType);
-  const total = Number(q.totalMarks) || 0;
-  if (m && total > 0 && r2(m.unattempted) === r2(total)) return true;
   const marked = (q.annotatedSteps ?? []).filter((s: Any) => s?.status !== "withdrawn");
   return marked.length > 0 && marked.every((s: Any) => s?.status === "missing" || s?.status === "unattempted");
 }
-/** An MI entry is written for a graded question that lost marks TO ITS WORK (OR-LIVE L3): its loss
- *  is NOT only on parts the grader's own steps say were not attempted. So a question whose only
- *  non-"correct" marked steps are not attempted (0 awarded) and that carries no typed mark gets no
- *  entry; a typed mark always counts (the grader's ruling is never re-filed). */
+/** An MI entry is written for a graded question that lost marks TO ITS WORK — controller rulings
+ *  R1/R2 (2026-10-05), written out here, never imported from lib/mistakeDisplay:
+ *   - v2 (a usable `marksLostByType`): iff its loss minus the SERVER's `unattempted` bucket is > 0
+ *     — an untyped "missing" mark is "reason not recorded" (a loss to the work), a TYPED "missing"
+ *     mark keeps its type, and only the server's `unattempted` is never a mistake;
+ *   - v1: iff it lost marks and is not WHOLLY not attempted (every marked step "missing", 0 awarded). */
 function oWantsEntry(q: Any): boolean {
-  if (!oGraded(q) || oLost(q) <= 0 || oNotAttempted(q)) return false;
+  if (!oGraded(q) || oLost(q) <= 0) return false;
   const p = oParts(q);
-  const toWork = p ? r2(oLost(q) - oNotAttemptedFloor(q)) : marksLostToWork(q);
-  return toWork > 0;
+  if (p) return r2(oLost(q) - p.unattempted) > 0;
+  return !oNotAttemptedV1(q);
 }
 /** The type that cost the most MARKS over some entries; a tie goes to the group shown first,
  *  then to the type's order inside it. Falls back to the most COUNTED type (conceptual,
@@ -538,17 +508,14 @@ function checkQuestion(S: string, q: Any) {
   const m = questionMarksLost(q);
   const want = oParts(q);
   const displayed = m ? r2(marksGroupRows(m).reduce((s, r) => s + r.marks, 0) + m.unattempted + m.untyped) : NaN;
-  // The display may move an UNTYPED mark to "Not attempted" when the grader's own step says the
-  // part was not attempted ("missing" — the v2 grader still passes it through from the model).
-  // Independent of that rule: every TYPED bucket is exactly the grader's, the two non-mistake
-  // buckets keep their sum, and "Not attempted" only ever grows — up to at least what the steps
-  // say was not attempted (ledgerOk / oNotAttemptedFloor), never invented from a type.
-  const floor = oNotAttemptedFloor(q);
+  // R2 (2026-10-05): what a student is shown is the GRADER's ledger, bucket for bucket — an
+  // untyped "missing" mark stays "reason not recorded", a typed one keeps its type, and nothing is
+  // re-filed as "Not attempted" on the client.
   check(
     S,
     "fourType.inMarks",
-    !!m && Math.abs(displayed - lost) <= EPS && ledgerOk(m, want, floor),
-    `displayed ${displayed} vs lost ${lost} · ${JSON.stringify(m)} · grader ${JSON.stringify(want)} · not-attempted floor ${floor}`,
+    !!m && Math.abs(displayed - lost) <= EPS && sameMarks(m, want),
+    `displayed ${displayed} vs lost ${lost} · ${JSON.stringify(m)} · grader ${JSON.stringify(want)}`,
   );
   if (lost > 0) {
     const ok = !!m && BUCKETS.every((b) => m[b] >= 0) && Math.abs(sumMarks(m) - lost) <= EPS && typesPartitioned();
@@ -581,7 +548,7 @@ function checkPaper(S: string, paper: Any) {
     check(S, "paper.marksLost.nullWithoutGradedSplit", pm === null, JSON.stringify(pm));
   } else {
     check(S, "paper.byType.sumsToLost", !!pm && Math.abs(sumMarks(pm.byType) - pm.lost) <= EPS && Math.abs(pm.lost - o.lost) <= EPS, `byType ${pm ? sumMarks(pm.byType) : "∅"} · lost ${pm?.lost} · oracle ${o.lost}`);
-    check(S, "paper.byType=oracle", !!pm && ledgerOk(pm.byType, o.byType, o.floor), `${JSON.stringify(pm?.byType)} vs grader ${JSON.stringify(o.byType)} · not-attempted floor ${o.floor}`);
+    check(S, "paper.byType=oracle", !!pm && sameMarks(pm.byType, o.byType), `${JSON.stringify(pm?.byType)} vs grader ${JSON.stringify(o.byType)}`);
     const onlyGraded = paperMarksLost(results.filter(oGraded));
     check(S, "paper.notGraded.excluded", !!pm && !!onlyGraded && sameMarks(onlyGraded.byType, pm.byType) && onlyGraded.lost === pm.lost, "");
   }
@@ -685,7 +652,7 @@ async function replay(b: Body) {
   // (i) scorecard — the variant's marks ARE the paper's, and the rendered block sums to the loss
   const variant = worksheetScorecardVariant({ name: ws.title, code: "WS-G3V2", response: res, downloading: false, onRead: () => {}, onDownload: () => {} });
   const pm = paperMarksLost(results);
-  check(S, "scorecard.marksLost=paperMarksLost=oracle", allPending ? variant.marksLost === null : !!pm && sameMarks(variant.marksLost?.byType, pm.byType) && ledgerOk(pm.byType, o.byType, o.floor) && variant.marksLost?.lost === o.lost, `${JSON.stringify(variant.marksLost?.byType)} vs grader ${JSON.stringify(o.byType)} · not-attempted floor ${o.floor}`);
+  check(S, "scorecard.marksLost=paperMarksLost=oracle", allPending ? variant.marksLost === null : !!pm && sameMarks(variant.marksLost?.byType, pm.byType) && sameMarks(pm.byType, o.byType) && variant.marksLost?.lost === o.lost, `${JSON.stringify(variant.marksLost?.byType)} vs grader ${JSON.stringify(o.byType)}`);
   const sc = render(createElement(ResultsScorecard, { variant, onClose: () => {} }));
   const block = sc.container.querySelector('[data-testid="sc-marks-lost"]');
   if (!allPending && o.lost > 0) {
@@ -712,7 +679,8 @@ async function replay(b: Body) {
   }
   pdf.unmount();
 
-  // (iii) MI — one entry per question lost TO ITS WORK, carrying that question's marks
+  // (iii) MI — one entry per question lost TO ITS WORK (R1: v2 loss − server `unattempted` > 0),
+  // carrying that question's marks EXACTLY as the grader filed them (R2)
   const entries = miEntries();
   const byQ = new Map<number, Any>(entries.map((e) => [qOfId(e.questionId), e]));
   const wantQ = results.filter(oWantsEntry).map((r) => Number(r.qNumber)).sort((a, z) => a - z);
@@ -726,7 +694,10 @@ async function replay(b: Body) {
   for (const e of entries) {
     const r = results.find((x) => Number(x.qNumber) === qOfId(e.questionId));
     const qm = questionMarksLost(r);
-    check(S, `Q${qOfId(e.questionId)}.mi.marksLostByType=questionMarksLost`, e.marksLostByTypeVersion === 1 && sameMarks(e.marksLostByType, qm) && ledgerOk(qm, oParts(r), oNotAttemptedFloor(r)) && Math.abs(Number(e.marksLost) - oLost(r)) <= EPS, `${JSON.stringify(e.marksLostByType)} vs ${JSON.stringify(qm)} · grader ${JSON.stringify(oParts(r))} · floor ${oNotAttemptedFloor(r)}`);
+    const want = oParts(r);
+    // a v1 (count-only) question carries no marks record — never invented
+    const marksOk = want ? e.marksLostByTypeVersion === 1 && sameMarks(e.marksLostByType, qm) && sameMarks(qm, want) : e.marksLostByType === undefined && qm === null;
+    check(S, `Q${qOfId(e.questionId)}.mi.marksLostByType=questionMarksLost=grader`, marksOk && Math.abs(Number(e.marksLost) - oLost(r)) <= EPS, `${JSON.stringify(e.marksLostByType)} vs ${JSON.stringify(qm)} · grader ${JSON.stringify(want)}`);
   }
   // the attempt twin: every GRADED question, and nothing else
   const wantAttempts = results.filter(oGraded).map((r) => `ws:${ws.worksheetId}:q${r.qNumber}`).sort();
@@ -828,13 +799,13 @@ if (!GOLDEN) {
 describe("G3-v2 · (d) curated v2 fixtures", () => {
   it("each is labelled SYNTHETIC with its contract source", () => {
     const i0 = mark();
-    for (const b of [CURATED_SET, CURATED_RECLASS, ...CURATED_SINGLES.map((x) => x.fx)]) {
+    for (const b of [CURATED_SET, CURATED_MISSING, ...CURATED_SINGLES.map((x) => x.fx)]) {
       check("curated", "source.synthetic", /^SYNTHETIC/.test(b.source) && b.source.includes("lane/grader-core-1 @e5f81a3a server/grading/postprocess.cjs"), String(b.source).slice(0, 80));
     }
     expect(failedSince(i0)).toEqual([]);
   });
 
-  it("the owner-paper shape is the shape it claims: 10 questions, Maths + Science, Q6 not attempted, Q7 withdrawn + a mistake, a rubric, a mismatch, an unread option", () => {
+  it("the owner-paper shape is the shape it claims: 10 questions, Maths + Science, Q6 not attempted, Q7 withdrawn + a mistake, a rubric, a mismatch, an unreadable objective (couldNotRead + objectiveResolved:false — shown as could-not-read, R3)", () => {
     const r: Any[] = CURATED_SET.body.results;
     const by = (n: number) => r.find((x) => x.qNumber === n);
     expect(r).toHaveLength(10);
@@ -846,38 +817,74 @@ describe("G3-v2 · (d) curated v2 fixtures", () => {
     expect(r.filter((x) => Array.isArray(x.rubric)).length).toBeGreaterThan(0);
     expect(by(4)).toMatchObject({ answerMismatch: true, marksAwarded: 0, annotatedSteps: [], couldNotRead: false });
     expect(by(2)).toMatchObject({ couldNotRead: true, objectiveResolved: false });
+    // R3 — couldNotRead always wins: "retake the photo", never "couldn't read your option"
+    expect(gradeStateCopy(by(2))).toBe(OWNER_COPY["could-not-read"]);
   });
 
-  it("the 'missing'-step reclass (L3 on v2): a missing step's untyped mark is shown as Not attempted; a typed slip beside it stays a mistake with its MI entry; a missing-only loss writes none", async () => {
-    const S = "curated:missing-step-reclass";
+  it("R2 — untyped missing marks stay 'reason not recorded' (and ARE an MI entry); R1 — a 'missing' step the grader TYPED keeps its type and its MI entry", async () => {
+    const S = "curated:missing-step-untyped";
     const i0 = mark();
-    const r: Any[] = CURATED_RECLASS.body.results;
-    // the grader's ledger, as it arrives (the premise): the missing steps are filed under `untyped`
-    check(S, "premise.graderFiledMissingAsUntyped", r[0].marksLostByType.untyped === 1 && r[0].marksLostByType.calculation === 1 && r[1].marksLostByType.untyped === 1 && r.every((q) => q.marksLostByType.unattempted === 0), "");
-    // what a student is shown — written out by hand from the owner's rule, not computed
+    const r: Any[] = CURATED_MISSING.body.results;
+    const st = (q: Any, n: number): Any => (q.annotatedSteps ?? []).find((s: Any) => s.stepNumber === n);
+    // the premise, as the grader sends it: Q1/Q2's "missing" step is UNTYPED and filed under
+    // `untyped`; Q3's "missing" step is TYPED presentation 0.5 and filed under `presentation`;
+    // nothing anywhere is in `unattempted`; Q2's other steps are all correct
+    check(
+      S,
+      "premise.graderLedger",
+      r.length === 3 &&
+        r[0].marksLostByType.calculation === 1 && r[0].marksLostByType.untyped === 1 &&
+        r[1].marksLostByType.untyped === 1 &&
+        r[2].marksLostByType.presentation === 0.5 &&
+        r.every((q) => q.marksLostByType.unattempted === 0 && q.marksAwarded > 0),
+      "",
+    );
+    check(
+      S,
+      "premise.missingSteps",
+      st(r[0], 3)?.status === "missing" && st(r[0], 3)?.mistakeType === null &&
+        st(r[1], 3)?.status === "missing" && st(r[1], 3)?.mistakeType === null &&
+        r[1].annotatedSteps.filter((s: Any) => s.stepNumber !== 3).every((s: Any) => s.status === "correct") &&
+        st(r[2], 3)?.status === "missing" && st(r[2], 3)?.mistakeType === "presentation" && st(r[2], 3)?.marksDeducted === 0.5,
+      "",
+    );
+    // what a student is shown — written out by hand from R1/R2, not computed: the grader's buckets
     const want: Record<number, Marks> = {
-      1: { ...zero(), calculation: 1, unattempted: 1 },
-      2: { ...zero(), unattempted: 1 },
+      1: { ...zero(), calculation: 1, untyped: 1 },
+      2: { ...zero(), untyped: 1 },
+      3: { ...zero(), presentation: 0.5 },
     };
     for (const q of r) check(S, `Q${q.qNumber}.shown`, sameMarks(questionMarksLost(q), want[q.qNumber]), `${JSON.stringify(questionMarksLost(q))} vs ${JSON.stringify(want[q.qNumber])}`);
-    check(S, "paper.shown", sameMarks(paperMarksLost(r)?.byType, { ...zero(), calculation: 1, unattempted: 2 }), JSON.stringify(paperMarksLost(r)?.byType));
-    // through the real worksheet path: Q1 keeps its entry (the slip), Q2 writes none; the scorecard
-    // and the PDF show Not attempted 2 and no "reason not recorded"
-    const ws = paperFromRequest(CURATED_RECLASS, "reclass");
-    H.gradeWorksheet.mockResolvedValue(clone(CURATED_RECLASS.body));
+    check(S, "Q3.chip=presentation", questionChipType(r[2]) === "presentation", String(questionChipType(r[2])));
+    check(S, "paper.shown", sameMarks(paperMarksLost(r)?.byType, { ...zero(), calculation: 1, presentation: 0.5, untyped: 2 }), JSON.stringify(paperMarksLost(r)?.byType));
+    // through the real worksheet path: EVERY question writes its entry — Q2's loss is "reason not
+    // recorded" (a loss to the work, never "Not attempted"), Q3 keeps its presentation type
+    const ws = paperFromRequest(CURATED_MISSING, "missing-untyped");
+    H.gradeWorksheet.mockResolvedValue(clone(CURATED_MISSING.body));
     const out: Any = await gradeWorksheetAndRecord(USER as never, ws, UPLOAD);
     const entries = miEntries();
-    check(S, "mi.onlyTheSlip", entries.length === 1 && qOfId(entries[0].questionId) === 1, JSON.stringify(entries.map((e) => e.questionId)));
-    check(S, "mi.Q1.marks", !!entries[0] && sameMarks(entries[0].marksLostByType, want[1]) && entries[0].mistakeCounts?.calculation === 1, JSON.stringify(entries[0]?.marksLostByType));
-    check(S, "attempts.both", JSON.stringify(attemptIds().map(qOfId).sort()) === JSON.stringify([1, 2]), JSON.stringify(attemptIds()));
-    const variant = worksheetScorecardVariant({ name: "Reclass", code: "WS-RC", response: out.response, downloading: false, onRead: () => {}, onDownload: () => {} });
+    const entryQ = (n: number): Any => entries.find((e) => qOfId(e.questionId) === n);
+    check(S, "mi.everyQuestion", JSON.stringify(entries.map((e) => qOfId(e.questionId)).sort((a, z) => a - z)) === JSON.stringify([1, 2, 3]), JSON.stringify(entries.map((e) => e.questionId)));
+    check(S, "mi.outcomes.allLogged", JSON.stringify(out.miOutcomes.map((m: Any) => [m.qNumber, m.mistakeOutcome])) === JSON.stringify([[1, "logged"], [2, "logged"], [3, "logged"]]), JSON.stringify(out.miOutcomes));
+    for (const n of [1, 2, 3]) {
+      const e = entryQ(n);
+      check(S, `mi.Q${n}.marks=grader`, !!e && e.marksLostByTypeVersion === 1 && sameMarks(e.marksLostByType, want[n]), JSON.stringify(e?.marksLostByType));
+    }
+    check(S, "mi.Q1.slipCounted", entryQ(1)?.mistakeCounts?.calculation === 1 && totalOf(entryQ(1)?.mistakeCounts ?? {}) === 1, JSON.stringify(entryQ(1)?.mistakeCounts));
+    check(S, "mi.Q2.noInventedType", !!entryQ(2) && totalOf(entryQ(2).mistakeCounts ?? {}) === 0 && entryQ(2).marksLost === 1, JSON.stringify({ c: entryQ(2)?.mistakeCounts, l: entryQ(2)?.marksLost }));
+    check(S, "mi.Q3.presentationKept", entryQ(3)?.mistakeCounts?.presentation === 1 && totalOf(entryQ(3)?.mistakeCounts ?? {}) === 1 && entryQ(3)?.marksLost === 0.5, JSON.stringify({ c: entryQ(3)?.mistakeCounts, l: entryQ(3)?.marksLost }));
+    check(S, "attempts.all", JSON.stringify(attemptIds().map(qOfId).sort((a, z) => a - z)) === JSON.stringify([1, 2, 3]), JSON.stringify(attemptIds()));
+    // the scorecard and the PDF: "reason not recorded" 2, exam technique 0.5, and NO "Not attempted"
+    const variant = worksheetScorecardVariant({ name: "Missing steps", code: "WS-MS", response: out.response, downloading: false, onRead: () => {}, onDownload: () => {} });
     const sc = render(createElement(ResultsScorecard, { variant, onClose: () => {} }));
-    const na = sc.container.querySelector('[data-group="not-attempted"][data-marks]');
-    check(S, "scorecard.notAttempted=2", Number(na?.getAttribute("data-marks")) === 2 && sc.container.querySelector('[data-group="untyped"][data-marks]') === null, `${na?.getAttribute("data-marks")}`);
+    const ut = sc.container.querySelector('[data-group="untyped"][data-marks]');
+    const tech = sc.container.querySelector('[data-testid="sc-marks-lost"] [data-group="technique"]');
+    check(S, "scorecard.untyped=2.technique=0.5.noNotAttempted", Number(ut?.getAttribute("data-marks")) === 2 && Number(tech?.getAttribute("data-marks")) === 0.5 && sc.container.querySelector('[data-group="not-attempted"][data-marks]') === null, `${ut?.getAttribute("data-marks")} · ${tech?.getAttribute("data-marks")}`);
     sc.unmount();
-    const pdf = render(createElement(WorksheetGradedPrintDoc, { ws, response: out.response, name: "Reclass", code: "WS-RC", coaching: "" }));
-    const chip = pdf.container.querySelector('[data-testid="gp-marks-chips"] [data-group="not-attempted"]');
-    check(S, "pdf.notAttempted=2", Number(chip?.getAttribute("data-marks")) === 2 && pdf.container.querySelector('[data-testid="gp-marks-chips"] [data-group="untyped"]') === null, `${chip?.getAttribute("data-marks")}`);
+    const pdf = render(createElement(WorksheetGradedPrintDoc, { ws, response: out.response, name: "Missing steps", code: "WS-MS", coaching: "" }));
+    const chip = pdf.container.querySelector('[data-testid="gp-marks-chips"] [data-group="untyped"]');
+    const techChip = pdf.container.querySelector('[data-testid="gp-marks-chips"] [data-group="technique"]');
+    check(S, "pdf.untyped=2.technique=0.5.noNotAttempted", Number(chip?.getAttribute("data-marks")) === 2 && Number(techChip?.getAttribute("data-marks")) === 0.5 && pdf.container.querySelector('[data-testid="gp-marks-chips"] [data-group="not-attempted"]') === null, `${chip?.getAttribute("data-marks")} · ${techChip?.getAttribute("data-marks")}`);
     pdf.unmount();
     expect(failedSince(i0)).toEqual([]);
   });
@@ -911,7 +918,7 @@ function paperFromRequest(fx: Any, id: string): PersistedWorksheet {
     id,
   );
 }
-const NOT_GRADED_Q = [2, 4]; // Q2 unread option · Q4 answer does not match
+const NOT_GRADED_Q = [2, 4]; // Q2 couldNotRead + objectiveResolved:false (could not read — R3) · Q4 answer does not match
 const GRADED_Q = [1, 3, 5, 6, 7, 8, 9, 10];
 const ENTRY_Q = [3, 5, 7, 9, 10]; // lost marks to the work (Q1/Q8 full marks, Q6 not attempted)
 
@@ -955,19 +962,24 @@ describe("G3-v2 · (e) nothing recorded anywhere for a question that was not gra
     await waitFor(() => expect(records().length).toBeGreaterThan(0));
     const rec = records()[0];
     check(S, "record.gradedTotalsOnly", !!rec && rec.marksAwarded === 12.5 && rec.marksTotal === 25, JSON.stringify({ a: rec?.marksAwarded, t: rec?.marksTotal }));
-    // the scorecard: the mismatch is NAMED with the owner's sentence; the unread one is counted
+    // the scorecard: the mismatch is NAMED with the owner's sentence; the unreadable one is counted
+    // and named — R3: Q2 (couldNotRead + objectiveResolved:false) says "retake the photo"
     const variant = worksheetScorecardVariant({ name: "Owner paper", code: "WS-NR", response: out.response, downloading: false, onRead: () => {}, onDownload: () => {} });
     const sc = render(createElement(ResultsScorecard, { variant, onClose: () => {} }));
     const named = Array.from(sc.container.querySelectorAll('[data-grade-state="answer-mismatch"]')).map((e) => e.textContent);
     check(S, "scorecard.mismatch.namedVerbatim", JSON.stringify(named) === JSON.stringify([`Q4: ${OWNER_COPY["answer-mismatch"]}`]), JSON.stringify(named));
     check(S, "scorecard.unread.counted", (sc.container.textContent || "").includes("1 question couldn’t be read"), "");
+    const q2pend = Array.from(sc.container.querySelectorAll(".lt-sc__pend--item")).map((e) => [e.getAttribute("data-grade-state"), e.textContent]);
+    check(S, "scorecard.Q2.couldNotRead(R3)", JSON.stringify(q2pend) === JSON.stringify([["could-not-read", `Q2: ${OWNER_COPY["could-not-read"]}`]]), JSON.stringify(q2pend));
+    check(S, "scorecard.noUnreadOptionCopy(R3)", !(sc.container.textContent || "").includes(OWNER_COPY["unread-option"]), "");
     sc.unmount();
     // the graded sheet / PDF: each not-graded question named, with its state and the owner's sentence
     const pdf = render(createElement(WorksheetGradedPrintDoc, { ws, response: out.response, name: "Owner paper", code: "WS-NR", coaching: "" }));
-    for (const [state, copy] of [["unread-option", OWNER_COPY["unread-option"]], ["answer-mismatch", OWNER_COPY["answer-mismatch"]]] as const) {
+    for (const [state, copy] of [["could-not-read", OWNER_COPY["could-not-read"]], ["answer-mismatch", OWNER_COPY["answer-mismatch"]]] as const) {
       const note = pdf.container.querySelector(`.lt-gp__pendnote[data-grade-state="${state}"]`);
       check(S, `pdf.${state}.namedVerbatim`, !!note && (note.textContent || "").includes(copy), note?.textContent ?? "∅");
     }
+    check(S, "pdf.noUnreadOption(R3)", pdf.container.querySelector('.lt-gp__pendnote[data-grade-state="unread-option"]') === null && !(pdf.container.textContent || "").includes(OWNER_COPY["unread-option"]), "");
     pdf.unmount();
     expect(failedSince(i0)).toEqual([]);
   });
@@ -1040,15 +1052,19 @@ describe("G3-v2 · (e) nothing recorded anywhere for a question that was not gra
   it("THE FRONT DOOR — recordMistake itself records nothing for a not-graded grade and never removes the earlier entry", async () => {
     const i0 = mark();
     const mistake = CURATED("withdrawn-rubric.single.json");
-    const unreadOption = { ...CURATED("could-not-read.single.json").body, objective: true, objectiveResolved: false, totalMarks: 1 };
-    for (const [label, body] of [
-      ["answer-mismatch", CURATED("answer-mismatch.single.json").body],
-      ["could-not-read", CURATED("could-not-read.single.json").body],
-      ["unread-option", unreadOption],
+    // R3: an unread OPTION is objectiveResolved:false on an otherwise READ page (couldNotRead false);
+    // A's contract shape (couldNotRead:true + objectiveResolved:false) is "could not read".
+    const unreadOption = { ...CURATED("could-not-read.single.json").body, couldNotRead: false, objective: true, objectiveResolved: false, totalMarks: 1 };
+    const unreadableObjective = { ...CURATED("could-not-read.single.json").body, objective: true, objectiveResolved: false, totalMarks: 1 };
+    for (const [tag, label, body] of [
+      ["answer-mismatch", "answer-mismatch", CURATED("answer-mismatch.single.json").body],
+      ["could-not-read", "could-not-read", CURATED("could-not-read.single.json").body],
+      ["could-not-read+objectiveResolved-false", "could-not-read", unreadableObjective],
+      ["unread-option", "unread-option", unreadOption],
     ] as const) {
-      const S = `nothing:front-door:${label}`;
+      const S = `nothing:front-door:${tag}`;
       resetWorld();
-      const ctx = { subject: "Science", topic: "Motion", question: mistake.request.question, surface: "check-improve", submissionId: `CI-G3V2-${label}` };
+      const ctx = { subject: "Science", topic: "Motion", question: mistake.request.question, surface: "check-improve", submissionId: `CI-G3V2-${tag}` };
       const first = await recordMistake(USER as never, clone(mistake.body), ctx);
       const before = JSON.stringify(miEntries());
       check(S, "earlierEntry.logged", first.outcome === "logged" && miEntries().length === 1, first.outcome);
@@ -1057,7 +1073,7 @@ describe("G3-v2 · (e) nothing recorded anywhere for a question that was not gra
       check(S, "sameSubmission.skippedNotGraded", again.outcome === "skipped-not-graded" && !again.cleared, JSON.stringify(again));
       check(S, "sameSubmission.entryUntouched", JSON.stringify(miEntries()) === before, `${miEntries().length} entries`);
       // a NEW submission that was not graded writes nothing
-      const fresh = await recordMistake(USER as never, clone(body), { ...ctx, submissionId: `CI-G3V2-${label}-new` });
+      const fresh = await recordMistake(USER as never, clone(body), { ...ctx, submissionId: `CI-G3V2-${tag}-new` });
       check(S, "newSubmission.nothingWritten", fresh.outcome === "skipped-not-graded" && miEntries().length === 1, `${fresh.outcome}, ${miEntries().length} entries`);
       check(S, "copy=owner", gradeStateCopy(body) === OWNER_COPY[label], String(gradeStateCopy(body)));
       expect(failedSince(i0)).toEqual([]);

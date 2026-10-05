@@ -19,7 +19,8 @@
  *     v0  no objective, no per-question topic, raw summary (types even on full marks)
  *     v1  + objective, topicSlug/topicLabel   v2  + topicSubject, counts already effective
  *     v3  SCORECARD-MI-1 PR-2 (GRADER-CORE-1 v2): + marksLostByType, rubric, "withdrawn" and
- *         "unattempted" steps, answerMismatch, objectiveResolved (an unread option)
+ *         "unattempted" steps, answerMismatch, objectiveResolved (an unread option, sent WITH
+ *         couldNotRead:true — shown as "couldn't read this answer", controller ruling R3)
  *
  * PR-2 (B7) — a COUNT-ONLY record or payload (every version but the two v3s) never shows
  * "mark"/"marks" next to a group or a type and carries no marks attribute; a v3 payload / a
@@ -53,10 +54,12 @@ import { splitPaperMarks } from "../pages/MeProgressPage";
 import { getMistakeInsights, summarizeCareless } from "./mistakeInsightsService";
 import { MARKS_BASIS_SUFFIX, describeBriefTopType, describeTopMistakeType } from "../pages/tutor/tutorContextBrief";
 import {
+  COULD_NOT_READ_COPY,
   MARKS_HEADING,
   MISTAKES_BY_KIND_HEADING,
   MISTAKE_TYPE_LABEL,
   RUBRIC_HEADING,
+  UNREAD_OPTION_COPY,
   WITHDRAWN_HEADING,
   effectivePaperCounts,
   entryMarksLost,
@@ -103,7 +106,8 @@ const RESPONSES: Record<string, WorksheetGradeResponse> = {
     ],
     totalQuestions: 2, gradedCount: 2, pendingCount: 0, gradedMarksAwarded: 1, gradedMarksTotal: 5, worksheetTotalMarks: 5,
   },
-  // PR-2 · GRADER-CORE-1 v2 (acceptsV2). Q1 an unread option, Q2 a crossed-out attempt + a rubric
+  // PR-2 · GRADER-CORE-1 v2 (acceptsV2). Q1 an unread option as A's contract sends it
+  // (couldNotRead:true + objectiveResolved:false — R3: shown as could-not-read), Q2 a crossed-out attempt + a rubric
   // + real mistakes, Q3 not attempted, Q4 an answer that does not match, Q5 a loss with no reason.
   // Graded loss = 5.5 (calculation 0.5 + presentation 1 + not attempted 3 + reason not recorded 1).
   v3: {
@@ -261,7 +265,11 @@ describe("G5 · every stored record version renders on every surface, with no in
           expect(c.querySelector('[data-testid="grade-withdrawn"]')?.textContent).toContain(WITHDRAWN_HEADING);
           expect(c.querySelector('[data-testid="grade-rubric"]')?.textContent).toContain(RUBRIC_HEADING);
           expect(c.querySelector('[data-grade-state="answer-mismatch"]')).not.toBeNull();
-          expect(c.querySelector('[data-grade-state="unread-option"]')).not.toBeNull();
+          // R3 — couldNotRead always wins: Q1 (couldNotRead + objectiveResolved:false) says
+          // "retake the photo", never "couldn't read your option"
+          expect(c.querySelector('[data-grade-state="could-not-read"]')?.textContent).toContain(COULD_NOT_READ_COPY);
+          expect(c.querySelector('[data-grade-state="unread-option"]')).toBeNull();
+          expect(text).not.toContain(UNREAD_OPTION_COPY);
         } else {
           expectCountOnly(c);
         }

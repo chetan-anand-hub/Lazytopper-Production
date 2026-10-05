@@ -697,7 +697,8 @@ export interface GradeV2Fields {
   departureKind?: "different-problem" | "invalid-method" | null;
   marksLostByType?: GradeMarksLostByType;
   rubric?: GradeRubricPoint[] | null;
-  /** On an objective question: false = the chosen option could not be read (couldNotRead). */
+  /** On an objective question: false = the chosen option could not be read. When `couldNotRead`
+   *  is also true, the client shows "couldn't read this answer" (it always wins — R3). */
   objectiveResolved?: boolean | null;
 }
 

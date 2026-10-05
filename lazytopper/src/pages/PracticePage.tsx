@@ -2898,7 +2898,7 @@ const packTopicKey = useMemo(() => {
         // (could not read it, could not read the option, or the answer does not match the
         // question): the owner's sentence, no mark, nothing recorded.
         answers.push(notGradedAnswer(label, descriptor, {
-          couldNotRead: entry.notGraded !== "answer-mismatch",
+          couldNotRead: entry.notGraded === "could-not-read",
           answerMismatch: entry.notGraded === "answer-mismatch" ? true : null,
           objectiveResolved: entry.notGraded === "unread-option" ? false : null,
         }));
